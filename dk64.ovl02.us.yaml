@@ -1,0 +1,50 @@
+name: Donkey Kong 64 (North America) - ovl02
+sha1: 200e99f96f051294a2a7a1eedfcb194ec3be6188
+options:
+  basename: ovl02
+  target_path: bin/segments/ovl02.bin
+  elf_path: build/ovl02.elf
+  base_path: .
+  platform: n64
+  compiler: IDO
+
+  asm_path: asm/ovl02
+  src_path: src/ovl02
+  build_path: build
+  create_asm_dependencies: True
+
+  ld_script_path: build/ovl02.ld
+  ld_dependencies: True
+
+  find_file_boundaries: True
+  header_encoding: ASCII
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  mips_abi_float_regs: o32
+
+  symbol_addrs_path:
+    - symbol_addrs.us.txt
+    - symbol_addrs.ovl02.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.ovl02.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.ovl02.txt
+
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+  libultra_symbols: True
+  hardware_regs: False
+  gfx_ucode: f3dex2
+  asm_nonmatching_label_macro: ""
+
+segments:
+  - name: ovl02
+    type: code
+    start: 0x0
+    vram: 0x80024000
+    bss_size: 0x10
+    subsegments:
+      - [0x0, asm]
+      - [0x2F70, data]
+      - { start: 0x3100, type: bss, vram: 0x80027100 }
+
+  - [0x3100]

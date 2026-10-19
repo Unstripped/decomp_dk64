@@ -1,0 +1,50 @@
+name: Donkey Kong 64 (North America) - ovl10
+sha1: 6bbbcd5331c487e3ff2f6f3dfc545c7535b9abc7
+options:
+  basename: ovl10
+  target_path: bin/segments/ovl10.bin
+  elf_path: build/ovl10.elf
+  base_path: .
+  platform: n64
+  compiler: IDO
+
+  asm_path: asm/ovl10
+  src_path: src/ovl10
+  build_path: build
+  create_asm_dependencies: True
+
+  ld_script_path: build/ovl10.ld
+  ld_dependencies: True
+
+  find_file_boundaries: True
+  header_encoding: ASCII
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  mips_abi_float_regs: o32
+
+  symbol_addrs_path:
+    - symbol_addrs.us.txt
+    - symbol_addrs.ovl10.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.ovl10.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.ovl10.txt
+
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+  libultra_symbols: True
+  hardware_regs: False
+  gfx_ucode: f3dex2
+  asm_nonmatching_label_macro: ""
+
+segments:
+  - name: ovl10
+    type: code
+    start: 0x0
+    vram: 0x80024000
+    bss_size: 0xC0
+    subsegments:
+      - [0x0, asm]
+      - [0xEF50, data]
+      - { start: 0xFF10, type: bss, vram: 0x80033F10 }
+
+  - [0xFF10]

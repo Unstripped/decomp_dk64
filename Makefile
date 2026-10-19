@@ -31,6 +31,18 @@ GLOBAL_SHA1       := $(GLOBAL_TARGET).sha1
 # Inflated text size of the global code segment (from bin/layout.json).
 GLOBAL_TEXT_SIZE  := 1347936
 
+OVERLAYS := ovl02 ovl03 ovl04 ovl05 ovl06 ovl07 ovl08 ovl09 ovl10
+
+ovl02_TEXT_SIZE := 12144
+ovl03_TEXT_SIZE := 19344
+ovl04_TEXT_SIZE := 39008
+ovl05_TEXT_SIZE := 47888
+ovl06_TEXT_SIZE := 22512
+ovl07_TEXT_SIZE := 71856
+ovl08_TEXT_SIZE := 57888
+ovl09_TEXT_SIZE := 28816
+ovl10_TEXT_SIZE := 61264
+
 ASFLAGS := -EB -march=vr4300 -mabi=32 -mgp32 -mfp32 -I include
 # IDO 5.3 flags used by the original build (-O2 -mips2 -G 0, libultra 2.0L).
 OPT_FLAGS := -O2
@@ -50,8 +62,8 @@ GLOBAL_LDFLAGS := -T $(GLOBAL_LD_SCRIPT) -Map $(GLOBAL_ELF:.elf=.map) --no-check
                   -T undefined_syms.$(VERSION).txt \
                   --just-symbols=$(ELF)
 
-BOOT_S_FILES   := $(shell find asm -name '*.s' -not -path 'asm/nonmatchings/*' -not -path 'asm/global/*' 2>/dev/null)
-BOOT_C_FILES   := $(shell find src -name '*.c' -not -path 'src/global/*' 2>/dev/null)
+BOOT_S_FILES   := $(shell find asm -name '*.s' -not -path 'asm/nonmatchings/*' -not -path 'asm/global/*' -not -path 'asm/ovl*/*' 2>/dev/null)
+BOOT_C_FILES   := $(shell find src -name '*.c' -not -path 'src/global/*' -not -path 'src/ovl*/*' 2>/dev/null)
 BIN_FILES      := $(shell find assets -name '*.bin' 2>/dev/null)
 O_FILES        := $(BOOT_S_FILES:%.s=$(BUILD_DIR)/%.o) $(BOOT_C_FILES:%.c=$(BUILD_DIR)/%.o) $(BIN_FILES:%.bin=$(BUILD_DIR)/%.o)
 
@@ -74,16 +86,25 @@ setup: extract split
 extract:
 	$(PYTHON) tools/extract.py $(BASEROM)
 
-bin/segments/global.bin: bin/segments/global.text.bin bin/segments/global.data.bin
+OVERLAY_BINS       := $(OVERLAYS:%=bin/segments/%.bin)
+OVERLAY_LD_SCRIPTS := $(OVERLAYS:%=$(BUILD_DIR)/%.ld)
+
+bin/segments/%.bin: bin/segments/%.text.bin bin/segments/%.data.bin
 	cat $^ > $@
 
-split: bin/segments/global.bin
-	rm -rf asm assets $(LD_SCRIPT) $(GLOBAL_LD_SCRIPT)
+split: bin/segments/global.bin $(OVERLAY_BINS)
+	rm -rf asm assets $(LD_SCRIPT) $(GLOBAL_LD_SCRIPT) $(OVERLAY_LD_SCRIPTS)
 	$(SPLAT) $(SPLAT_YAML)
 	$(SPLAT) $(GLOBAL_SPLAT_YAML)
+	$(foreach ovl,$(OVERLAYS),$(SPLAT) dk64.$(ovl).$(VERSION).yaml &&) true
 
-check: $(ROM) $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN)
+OVERLAY_TEXT_BINS := $(OVERLAYS:%=$(BUILD_DIR)/%.text.bin)
+OVERLAY_DATA_BINS := $(OVERLAYS:%=$(BUILD_DIR)/%.data.bin)
+OVERLAY_SHA1S     := $(OVERLAYS:%=dk64.%.$(VERSION).sha1)
+
+check: $(ROM) $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN) $(OVERLAY_TEXT_BINS) $(OVERLAY_DATA_BINS)
 	@sha1sum -c $(GLOBAL_SHA1)
+	@$(foreach sha,$(OVERLAY_SHA1S),sha1sum -c $(sha) &&) true
 	@sha1sum -c $(TARGET).sha1
 
 $(BUILD_DIR)/%.o: %.s
@@ -117,8 +138,39 @@ $(GLOBAL_TEXT_BIN): $(GLOBAL_BIN)
 $(GLOBAL_DATA_BIN): $(GLOBAL_BIN)
 	tail -c +$$(($(GLOBAL_TEXT_SIZE) + 1)) $< > $@
 
+define OVERLAY_RULE
+$(1)_S_FILES := $$(shell find asm/$(1) -name '*.s' -not -path 'asm/$(1)/nonmatchings/*' 2>/dev/null)
+$(1)_C_FILES := $$(shell find src/$(1) -name '*.c' 2>/dev/null)
+$(1)_O_FILES := $$($(1)_S_FILES:%.s=$$(BUILD_DIR)/%.o) $$($(1)_C_FILES:%.c=$$(BUILD_DIR)/%.o)
+
+$$($(1)_O_FILES): ASFLAGS += -W
+
+$$(BUILD_DIR)/$(1).elf: $$($(1)_O_FILES) $$(BUILD_DIR)/$(1).ld $$(GLOBAL_ELF) $$(ELF)
+	$$(LD) -T $$(BUILD_DIR)/$(1).ld -Map $$(BUILD_DIR)/$(1).map --no-check-sections --accept-unknown-input-arch \
+		--allow-multiple-definition \
+		-T $$(BUILD_DIR)/undefined_syms_auto.$(1).txt \
+		-T $$(BUILD_DIR)/undefined_funcs_auto.$(1).txt \
+		-T undefined_syms.$$(VERSION).txt \
+		--just-symbols=$$(GLOBAL_ELF) \
+		--just-symbols=$$(ELF) \
+		-o $$@
+
+$$(BUILD_DIR)/$(1).bin: $$(BUILD_DIR)/$(1).elf
+	$$(OBJCOPY) -O binary $$< $$@
+
+$$(BUILD_DIR)/$(1).text.bin: $$(BUILD_DIR)/$(1).bin
+	head -c $$($(1)_TEXT_SIZE) $$< > $$@
+
+$$(BUILD_DIR)/$(1).data.bin: $$(BUILD_DIR)/$(1).bin
+	tail -c +$$$$(($$($(1)_TEXT_SIZE) + 1)) $$< > $$@
+endef
+
+$(foreach ovl,$(OVERLAYS),$(eval $(call OVERLAY_RULE,$(ovl))))
+
 clean:
-	rm -rf $(BUILD_DIR)/asm $(BUILD_DIR)/assets $(BUILD_DIR)/src $(ELF) $(ROM) $(GLOBAL_ELF) $(GLOBAL_BIN) $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN) $(BUILD_DIR)/global.map
+	rm -rf $(BUILD_DIR)/asm $(BUILD_DIR)/assets $(BUILD_DIR)/src $(ELF) $(ROM) \
+	       $(GLOBAL_ELF) $(GLOBAL_BIN) $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN) $(BUILD_DIR)/global.map \
+	       $(foreach ovl,$(OVERLAYS),$(BUILD_DIR)/$(ovl).elf $(BUILD_DIR)/$(ovl).bin $(BUILD_DIR)/$(ovl).text.bin $(BUILD_DIR)/$(ovl).data.bin $(BUILD_DIR)/$(ovl).map)
 
 distclean:
 	rm -rf $(BUILD_DIR) asm assets bin baserom.$(VERSION).z64

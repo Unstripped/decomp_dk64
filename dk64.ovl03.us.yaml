@@ -1,0 +1,50 @@
+name: Donkey Kong 64 (North America) - ovl03
+sha1: 901c3528647ca414265dbbe6ed753de13d960233
+options:
+  basename: ovl03
+  target_path: bin/segments/ovl03.bin
+  elf_path: build/ovl03.elf
+  base_path: .
+  platform: n64
+  compiler: IDO
+
+  asm_path: asm/ovl03
+  src_path: src/ovl03
+  build_path: build
+  create_asm_dependencies: True
+
+  ld_script_path: build/ovl03.ld
+  ld_dependencies: True
+
+  find_file_boundaries: True
+  header_encoding: ASCII
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  mips_abi_float_regs: o32
+
+  symbol_addrs_path:
+    - symbol_addrs.us.txt
+    - symbol_addrs.ovl03.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.ovl03.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.ovl03.txt
+
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+  libultra_symbols: True
+  hardware_regs: False
+  gfx_ucode: f3dex2
+  asm_nonmatching_label_macro: ""
+
+segments:
+  - name: ovl03
+    type: code
+    start: 0x0
+    vram: 0x80024000
+    bss_size: 0x10
+    subsegments:
+      - [0x0, asm]
+      - [0x4B90, data]
+      - { start: 0x4E10, type: bss, vram: 0x80028E10 }
+
+  - [0x4E10]
