@@ -36,7 +36,7 @@ tools/dk make progress                 # build, then matched/total function byte
 | `diff.sh`, `diff_settings.py` | asm-differ per-function diff: `tools/dk ./diff.sh [-s SEGMENT] FUNC` (`boot` default, `global`, overlay name; `-n` skips the rebuild) |
 | `tools/m2c.py` | starter C for one function: `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` |
 | `tools/progress.py` | matched vs total function bytes per segment (`--json`) |
-| `.github/workflows/build.yml` | CI: builds the image; with the `BASEROM_URL` secret (a private ROM download URL) also runs `make setup` + `make` |
+| `.github/workflows/build.yml` | CI: builds the image on every event; on the default branch (push / manual run) the `rom` job, in environment `baserom` whose `BASEROM_URL` secret is a private ROM download URL, also runs `make setup` + `make` |
 | `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions |
 | `include/` | headers; `ultra64.h` is a minimal libultra subset, extend as needed |
 
