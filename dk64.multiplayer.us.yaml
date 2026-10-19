@@ -45,6 +45,7 @@ segments:
     subsegments:
       - [0x0, asm]
       - [0x2F70, data]
+      - [0x3040, rodata]
       - { start: 0x3100, type: bss, vram: 0x80027100 }
 
   - [0x3100]

@@ -44,7 +44,14 @@ segments:
     bss_size: 0x10
     subsegments:
       - [0x0, asm]
+      - [0x1770, asm]
+      - [0x36B0, asm]
+      - [0x52B0, asm]
+      - [0x6650, asm]
+      - [0x7BD0, asm]
+      - [0xA960, asm]
       - [0xBB10, data]
+      - [0xBD00, rodata]
       - { start: 0xC160, type: bss, vram: 0x80030160 }
 
   - [0xC160]
