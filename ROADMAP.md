@@ -1,7 +1,7 @@
 # DK64 Decompilation Roadmap
 
 Target: Donkey Kong 64 (USA), `NDOE`, SHA-1 `cf806ff2603640a748fca5026ded28802f1f4a50`.
-Compiler: IDO 5.3, `-O2 -mips2 -G 0`, libultra 2.0L, F3DEX2.
+Compiler: IDO 5.3, `-O2 -mips2 -G 0`, libultra 2.0J, F3DEX2.
 
 ```sh
 docker build -t dk64-decomp .   # once
@@ -50,13 +50,9 @@ Full per-segment details (stream offsets, sizes, hashes, gzip header fields): `b
 
 - [x] **8. Workflow tooling** — `tools/dk ./diff.sh [-s SEGMENT] FUNC` runs asm-differ per function (`diff_settings.py` maps each segment to its map file, built image and original bytes: boot `build/boot.bin` vs `baserom.us.z64`, global/overlays `build/<name>.bin` vs `bin/segments/<stream>.bin`; `-n` skips the rebuild). `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` prints m2c starter C (nonmatchings or whole-file asm, referenced rodata files, context preprocessed from `include/common.h` into `build/m2c_ctx.c`). `tools/dk make progress` (`tools/progress.py`, `--json`) reports matched/total function bytes per segment. `hardware_regs: True` in every splat config; the 131 spimdisasm register names are linker symbols in `undefined_syms.us.txt`. CI dropped: single contributor, the local `make` hash check already gates every commit, and a hash-checking CI job would need the ROM hosted at a private URL.
 
-## To do
+- [x] **7. libultra** — DK64 links libultra **2.0J** (`BUILD_VERSION=VERSION_J`): J-only features present (pfs inode cache, separate `pfsselectbank.c`, `__osPfsLastChannel`, `__MotorDataBuf`, 2-arg `__osPfsRequestOneChannel`, `__osEPi*` names) and K/L ones absent (`guMtxXFML` still in `mtxcatl.c`, no `__osEepromRead16K`). Headers are decompals/ultralib's (`include/PR`, `include/PRinternal`, `include/libultra`, `include/compiler/ido`). Boot libultra spans ROM `0x5120`–`0xE8B0`; every C-sourced file is `src/boot/libultra/<ultralib dir>/<file>.c` with its own `.data`/`.rodata`/`.bss` subsegments, compiled with ultralib's J flags by path (Makefile; `io/` files that need `-O1` are listed there). The 23 handwritten-asm files stay splat asm under `asm/libultra/` (`os/exceptasm`, `os/interrupt`, cache/TLB/SR/FPCSR/intmask/compare helpers, `libc/bcopy`/`bcmp`/`bzero`, `gu/sqrtf`). The original identification mislabeled several files (gu shift, sinf/cosf, controller/pfsisplug, getthreadpri/id, vimgr, epirawdma, VI modes, PIF RAM buffers); names now follow code behaviour and data contents. Global holds no libultra; it holds the n_audio library (named in `symbol_addrs.us.txt`, not ultralib). Per-object compare for concurrent matching: `tools/objdiff.sh src/....c` against `expected/` snapshots.
 
-### 7. libultra
-- [ ] Identify remaining libultra functions in boot (and any in global); add to `symbol_addrs.us.txt`.
-- [ ] Bring in libultra 2.0L headers (replace the minimal `include/ultra64.h`).
-- [ ] Match libultra C against existing public libultra decomps; check per-file optimisation flags.
-- **Done when:** all libultra functions are named, and matched or explicitly marked as handwritten asm.
+## To do
 
 ### 9. Decompilation (ongoing)
 Suggested order, one subsystem per unit of work:
@@ -66,6 +62,7 @@ Suggested order, one subsystem per unit of work:
 - [ ] Controller input.
 - [ ] Main loop and map loading.
 - [ ] Actors and behaviours.
+- [ ] n_audio (global `0x80732420`–`0x807412B4`): libnaudio, not in ultralib; needs its own reference source (the n_audio used by other Rare decomps) and has Rare changes.
 - [ ] Overlays, smallest first.
 
 ### 10. Asset formats (independent)
@@ -78,7 +75,7 @@ Suggested order, one subsystem per unit of work:
 ```mermaid
 graph LR
   C0[0 toolchain ✓] --> C1[1 extract ✓] --> C2[2 boot split ✓] --> C3[3 global split ✓] --> C4[4 overlays ✓] --> C5[5 full ROM ✓]
-  C2 --> C6[6 C pipeline ✓] --> C7[7 libultra] --> C9[9 decompile]
+  C2 --> C6[6 C pipeline ✓] --> C7[7 libultra ✓] --> C9[9 decompile]
   C6 --> C8[8 tooling ✓] --> C9
   C1 --> C10[10 assets]
 ```

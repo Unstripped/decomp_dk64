@@ -11,17 +11,8 @@ typedef struct {
 } __osExceptionVector;
 extern __osExceptionVector __osException[];
 
-typedef struct {
-    u8 type;
-    u8 latency;
-    u8 pageSize;
-    u8 relDuration;
-    u8 pulse;
-} __SpeedParam;
-
-extern __SpeedParam __Dom1SpeedParam;
-extern __SpeedParam __Dom2SpeedParam;
-
+extern OSPiHandle __Dom1SpeedParam;
+extern OSPiHandle __Dom2SpeedParam;
 OSTime osClockRate = OS_CLOCK_RATE;
 s32 osViClock = VI_NTSC_CLOCK;
 u32 __osShutdown = 0;
@@ -84,4 +75,16 @@ void osInitialize(void) {
     IO_WRITE(AI_BITRATE_REG, AI_MAX_BIT_RATE - 1);
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/os/initialize/__createSpeedParam.s")
+void __createSpeedParam(void) {
+    __Dom1SpeedParam.type = DEVICE_TYPE_INIT;
+    __Dom1SpeedParam.latency = IO_READ(PI_BSD_DOM1_LAT_REG);
+    __Dom1SpeedParam.pulse = IO_READ(PI_BSD_DOM1_PWD_REG);
+    __Dom1SpeedParam.pageSize = IO_READ(PI_BSD_DOM1_PGS_REG);
+    __Dom1SpeedParam.relDuration = IO_READ(PI_BSD_DOM1_RLS_REG);
+
+    __Dom2SpeedParam.type = DEVICE_TYPE_INIT;
+    __Dom2SpeedParam.latency = IO_READ(PI_BSD_DOM2_LAT_REG);
+    __Dom2SpeedParam.pulse = IO_READ(PI_BSD_DOM2_PWD_REG);
+    __Dom2SpeedParam.pageSize = IO_READ(PI_BSD_DOM2_PGS_REG);
+    __Dom2SpeedParam.relDuration = IO_READ(PI_BSD_DOM2_RLS_REG);
+}

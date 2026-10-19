@@ -3,7 +3,7 @@
 #include "PRinternal/controller.h"
 #include "PRinternal/siint.h"
 
-void __osPackReadData(void);
+static void __osPackReadData(void);
 
 s32 osContStartReadData(OSMesgQueue* mq) {
     s32 ret = 0;
@@ -42,7 +42,7 @@ void osContGetReadData(OSContPad* data) {
     }
 }
 
-void __osPackReadData(void) {
+static void __osPackReadData(void) {
     u8* ptr = (u8*)__osContPifRam.ramarray;
     __OSContReadFormat readformat;
     int i;

@@ -36,8 +36,10 @@ tools/dk make progress                 # build, then matched/total function byte
 | `diff.sh`, `diff_settings.py` | asm-differ per-function diff: `tools/dk ./diff.sh [-s SEGMENT] FUNC` (`boot` default, `global`, overlay name; `-n` skips the rebuild) |
 | `tools/m2c.py` | starter C for one function: `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` |
 | `tools/progress.py` | matched vs total function bytes per segment (`--json`) |
-| `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions |
-| `include/` | headers; `ultra64.h` is a minimal libultra subset, extend as needed |
+| `tools/objdiff.sh` | per-object compare that builds only one object: `tools/objdiff.sh src/...c [FUNC]` vs `expected/build/...o` (snapshot the matching object there first; `expected/` is gitignored). Exit 0 full match, 3 code matches but the file's own data differs, 1 mismatch. Safe to run concurrently on different files, unlike `make`/`diff.sh` |
+| `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions (only files containing it go through asm-processor) |
+| `src/boot/libultra/<dir>/<file>.c` | libultra 2.0J, one file per decompals/ultralib source, same path; the Makefile picks ultralib's J flags from the path |
+| `include/` | decompals/ultralib headers (`ultra64.h`, `PR/`, `PRinternal/`, `libultra/`, `compiler/ido/`), `BUILD_VERSION` = `VERSION_J` |
 
 ## Decompiling a function
 
@@ -47,7 +49,7 @@ tools/dk make progress                 # build, then matched/total function byte
 4. Name the function and any discovered symbols in `symbol_addrs.us.txt` (boot/global) or `symbol_addrs.<overlay>.us.txt`.
 
 Compiler notes:
-- IDO 5.3 `-O2 -mips2`. libultra objects may need different flags; check before forcing C to match.
+- Game code: IDO 5.3 `-O2 -mips2`. libultra: ultralib's J flags by directory (`os/` `-O1`, `gu/`/`mgu/`/`libc/` `-O3`, `io/` `-O2` with listed `-O1` files, `libc/ll*` `-mips3 -32`); see the libultra block in `Makefile`.
 - `while (cond) {}` compiles to a rotated loop with `beqzl`; the original often uses `do {} while (cond);`.
 - asm-processor needs `/opt/asm-processor/prelude.inc` (sets `noreorder`). splat's `nonmatching` macro is disabled because asm-processor miscounts its lines.
 

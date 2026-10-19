@@ -201,9 +201,9 @@ segments:
       - [0x10DE0, .data, libultra/io/siacs]
       - [0x10DF0, .data, libultra/io/contramread]
       - [0x10E00, .data, libultra/io/piacs]
-      - [0x10E10, data, libultra/vimodes/vimodentsclan1]
-      - [0x10E60, data, libultra/vimodes/vimodepallan1]
-      - [0x10EB0, data, libultra/vimodes/vimodempallan1]
+      - [0x10E10, data, libultra/vimodes/vimodepallan1]
+      - [0x10E60, data, libultra/vimodes/vimodempallan1]
+      - [0x10EB0, data, libultra/vimodes/vimodentsclan1]
       - [0x10F00, .data, libultra/io/contpfs]
       - [0x10F10, data, 10F10_data]
       - [0x10F60, rodata, 10F60_rodata]
@@ -232,10 +232,10 @@ segments:
       - { start: 0x11320, type: .bss, vram: 0x80014FC0, name: libultra/os/timerintr }
       - { start: 0x11320, type: .bss, vram: 0x80015000, name: libultra/io/pimgr }
       - { start: 0x11320, type: .bss, vram: 0x800162C0, name: libultra/io/siacs }
-      - { start: 0x11320, type: .bss, vram: 0x800162E0, name: libultra/io/pfsisplug }
+      - { start: 0x11320, type: .bss, vram: 0x800162E0, name: libultra/io/conteepread }
       - { start: 0x11320, type: .bss, vram: 0x80016320, name: libultra/io/piacs }
       - { start: 0x11320, type: bss, vram: 0x80016340, name: libultra/os/exceptasm }
-      - { start: 0x11320, type: bss, vram: 0x800164F0, name: libultra/io/cartrominit }
+      - { start: 0x11320, type: .bss, vram: 0x800164F0, name: libultra/io/pfsisplug }
       - { start: 0x11320, type: .bss, vram: 0x80016530, name: libultra/io/contpfs }
   - name: rspboot
     type: bin

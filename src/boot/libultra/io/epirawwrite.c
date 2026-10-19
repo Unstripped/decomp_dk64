@@ -1,3 +1,13 @@
 #include "PRinternal/piint.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/io/epirawwrite/__osEPiRawWriteIo.s")
+#include "PR/ultraerror.h"
+
+s32 __osEPiRawWriteIo(OSPiHandle* pihandle, u32 devAddr, u32 data) {
+    register u32 stat;
+    register u32 domain;
+
+    EPI_SYNC(pihandle, stat, domain);
+    IO_WRITE(pihandle->baseAddress | devAddr, data);
+
+    return 0;
+}
