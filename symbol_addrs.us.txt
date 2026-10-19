@@ -1,21 +1,70 @@
 // Boot (segment table entry 0)
 dmaCopy = 0x80000450; // type:func
 gSegmentTable = 0x8000DCC4; // type:SegmentTableEntry size:0x1B0
+bootMainThread = 0x800005A8; // type:func
+bootStartMainThread = 0x80000980; // type:func
+bootMain = 0x800009D0; // type:func
+noExpPakScreen = 0x80000A30; // type:func
+noExpPakThread = 0x80000AA0; // type:func
+noExpPakDrawScreen = 0x80000CD4; // type:func
+noExpPakDrawText = 0x80000D8C; // type:func
+bootDrawString = 0x80000E48; // type:func
+bootDrawGlyph = 0x80000EEC; // type:func
+dmaSegment11 = 0x8000102C; // type:func
+
+// gzip 1.2.4 inflate (Rare port)
+huft_build = 0x800010C0; // type:func
+inflate_codes = 0x80001700; // type:func
+inflate_stored = 0x80001AF4; // type:func
+inflate_fixed = 0x80001C48; // type:func
+inflate_dynamic = 0x80001DB0; // type:func
+inflate_block = 0x800022D4; // type:func
+inflate = 0x800023F4; // type:func
+gunzip = 0x800024E0; // type:func
+get_method = 0x800025A4; // type:func
+bi_reverse = 0x80002724; // type:func
+clear_bufs = 0x80002750; // type:func
+
+// Boot data
+border = 0x8000EDE0;
+cplens = 0x8000EDF4;
+cplext = 0x8000EE34;
+cpdist = 0x8000EE54;
+cpdext = 0x8000EE90;
+mask_bits = 0x8000EEB0;
+lbits = 0x8000EED4;
+dbits = 0x8000EED8;
+method = 0x8000EEE0;
+exit_code = 0x8000EEE4;
+strtokSavePtr = 0x8000EEF0;
+digitsLower = 0x80010310;
+digitsUpper = 0x80010338;
+huftPool = 0x80013AB0;
+bb = 0x80013AB4;
+bk = 0x80013AB8;
+hufts = 0x80013ABC;
+inbuf = 0x80013AC0;
+slide = 0x80013AC4;
+insize = 0x80013AE8;
+inptr = 0x80013AEC;
+outcnt = 0x80013AF0;
 
 // Rare custom libc
 _strcpy = 0x80002A30; // type:func
 _strncpy = 0x80002A64; // type:func
 _strcat = 0x80002ABC; // type:func
-_strcmp = 0x80002B0C; // type:func
-_strncmp = 0x80002BB8; // type:func
+_strcasecmp = 0x80002B0C; // type:func
+_strncasecmp = 0x80002BB8; // type:func
 _strcspn = 0x80002C74; // type:func
-_strrchr = 0x80002CE8; // type:func
-_strstr = 0x80002D60; // type:func
+_strspn = 0x80002CE8; // type:func
+_strpbrk = 0x80002D60; // type:func
 _strtok = 0x80002DE4; // type:func
 _memset = 0x80002E98; // type:func
 _strchr = 0x80002ECC; // type:func
 strlen = 0x80002F18; // type:func
+_strstr = 0x80002F54; // type:func
 memcpy = 0x80003000; // type:func
+_itoa = 0x80003120; // type:func
 _sprintf = 0x800031E0; // type:func
 vsprintf = 0x8000320C; // type:func
 

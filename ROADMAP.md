@@ -56,7 +56,7 @@ Full per-segment details (stream offsets, sizes, hashes, gzip header fields): `b
 
 ### 9. Decompilation (ongoing)
 Suggested order, one subsystem per unit of work:
-- [ ] Boot: DMA, inflate (`func_800004B4`), boot thread, init.
+- [ ] Boot game code (ROM `0x1050`–`0x5120`, `0x6690`): C in `src/boot/{main,1630,1CC0,30E0,3630,3D20,6690}.c`, boot at 79.4% of function bytes. Matched: `dmaCopy`, boot threads and init (`bootMainThread` fills `gSegmentTable` from per-segment `<seg>_ROM_START/END` linker symbols in `undefined_syms.us.txt`, one name per reference), the "Expansion Pak not installed" screen (`noExpPak*`, `bootDrawString/Glyph`), gzip 1.2.4 inflate (`huft_build` … `inflate`, `gunzip`, `get_method`), Rare libc (`_str*`, `_memset`, `_itoa`, `_sprintf`). Hand-written asm, kept as splat `asm`: `memcpy` (`0x3C00`, `ld`/`sd`) and the LZ bit-stream decoder at `0x3390`–`0x3630`. Remaining: `bootMain` (`0x800009D0`, loop-read register allocation) and `vsprintf`.
 - [ ] Scheduler, threads, message queues.
 - [ ] Heap / memory allocator.
 - [ ] Controller input.
