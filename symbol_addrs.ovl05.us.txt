@@ -1,1 +1,0 @@
-// Overlay ovl05 (segment table entry 5)

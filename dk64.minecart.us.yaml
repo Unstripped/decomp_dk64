@@ -1,19 +1,19 @@
-name: Donkey Kong 64 (North America) - ovl03
+name: Donkey Kong 64 (North America) - minecart (ovl03)
 sha1: 901c3528647ca414265dbbe6ed753de13d960233
 options:
-  basename: ovl03
+  basename: minecart
   target_path: bin/segments/ovl03.bin
-  elf_path: build/ovl03.elf
+  elf_path: build/minecart.elf
   base_path: .
   platform: n64
   compiler: IDO
 
-  asm_path: asm/ovl03
-  src_path: src/ovl03
+  asm_path: asm/minecart
+  src_path: src/minecart
   build_path: build
   create_asm_dependencies: True
 
-  ld_script_path: build/ovl03.ld
+  ld_script_path: build/minecart.ld
   ld_dependencies: True
 
   find_file_boundaries: True
@@ -25,9 +25,9 @@ options:
 
   symbol_addrs_path:
     - symbol_addrs.us.txt
-    - symbol_addrs.ovl03.us.txt
-  undefined_funcs_auto_path: build/undefined_funcs_auto.ovl03.txt
-  undefined_syms_auto_path: build/undefined_syms_auto.ovl03.txt
+    - symbol_addrs.minecart.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.minecart.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.minecart.txt
 
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
@@ -37,7 +37,7 @@ options:
   asm_nonmatching_label_macro: ""
 
 segments:
-  - name: ovl03
+  - name: minecart
     type: code
     start: 0x0
     vram: 0x80024000

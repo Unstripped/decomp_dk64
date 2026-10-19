@@ -1,19 +1,19 @@
-name: Donkey Kong 64 (North America) - ovl07
-sha1: d6d1f420ac652820e986e5c62e5cbc9c9d568017
+name: Donkey Kong 64 (North America) - bonus (ovl04)
+sha1: 7020f7b450a06830df0c5324f62207158a472546
 options:
-  basename: ovl07
-  target_path: bin/segments/ovl07.bin
-  elf_path: build/ovl07.elf
+  basename: bonus
+  target_path: bin/segments/ovl04.bin
+  elf_path: build/bonus.elf
   base_path: .
   platform: n64
   compiler: IDO
 
-  asm_path: asm/ovl07
-  src_path: src/ovl07
+  asm_path: asm/bonus
+  src_path: src/bonus
   build_path: build
   create_asm_dependencies: True
 
-  ld_script_path: build/ovl07.ld
+  ld_script_path: build/bonus.ld
   ld_dependencies: True
 
   find_file_boundaries: True
@@ -25,9 +25,9 @@ options:
 
   symbol_addrs_path:
     - symbol_addrs.us.txt
-    - symbol_addrs.ovl07.us.txt
-  undefined_funcs_auto_path: build/undefined_funcs_auto.ovl07.txt
-  undefined_syms_auto_path: build/undefined_syms_auto.ovl07.txt
+    - symbol_addrs.bonus.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.bonus.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.bonus.txt
 
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
@@ -37,14 +37,14 @@ options:
   asm_nonmatching_label_macro: ""
 
 segments:
-  - name: ovl07
+  - name: bonus
     type: code
     start: 0x0
     vram: 0x80024000
-    bss_size: 0x30
+    bss_size: 0x20
     subsegments:
       - [0x0, asm]
-      - [0x118B0, data]
-      - { start: 0x12DC0, type: bss, vram: 0x80036DC0 }
+      - [0x9860, data]
+      - { start: 0x9EF0, type: bss, vram: 0x8002DEF0 }
 
-  - [0x12DC0]
+  - [0x9EF0]

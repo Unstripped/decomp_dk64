@@ -1,19 +1,19 @@
-name: Donkey Kong 64 (North America) - ovl05
-sha1: 7808bf0d630e6295ac171defda6c25ce1d6f0f18
+name: Donkey Kong 64 (North America) - menu (ovl10)
+sha1: 6bbbcd5331c487e3ff2f6f3dfc545c7535b9abc7
 options:
-  basename: ovl05
-  target_path: bin/segments/ovl05.bin
-  elf_path: build/ovl05.elf
+  basename: menu
+  target_path: bin/segments/ovl10.bin
+  elf_path: build/menu.elf
   base_path: .
   platform: n64
   compiler: IDO
 
-  asm_path: asm/ovl05
-  src_path: src/ovl05
+  asm_path: asm/menu
+  src_path: src/menu
   build_path: build
   create_asm_dependencies: True
 
-  ld_script_path: build/ovl05.ld
+  ld_script_path: build/menu.ld
   ld_dependencies: True
 
   find_file_boundaries: True
@@ -25,9 +25,9 @@ options:
 
   symbol_addrs_path:
     - symbol_addrs.us.txt
-    - symbol_addrs.ovl05.us.txt
-  undefined_funcs_auto_path: build/undefined_funcs_auto.ovl05.txt
-  undefined_syms_auto_path: build/undefined_syms_auto.ovl05.txt
+    - symbol_addrs.menu.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.menu.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.menu.txt
 
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
@@ -37,14 +37,14 @@ options:
   asm_nonmatching_label_macro: ""
 
 segments:
-  - name: ovl05
+  - name: menu
     type: code
     start: 0x0
     vram: 0x80024000
-    bss_size: 0x10
+    bss_size: 0xC0
     subsegments:
       - [0x0, asm]
-      - [0xBB10, data]
-      - { start: 0xC160, type: bss, vram: 0x80030160 }
+      - [0xEF50, data]
+      - { start: 0xFF10, type: bss, vram: 0x80033F10 }
 
-  - [0xC160]
+  - [0xFF10]

@@ -1,19 +1,19 @@
-name: Donkey Kong 64 (North America) - ovl04
-sha1: 7020f7b450a06830df0c5324f62207158a472546
+name: Donkey Kong 64 (North America) - arcade (ovl08)
+sha1: 7b7e767f1fdbb6fc78473c0aea5f32a5488ae262
 options:
-  basename: ovl04
-  target_path: bin/segments/ovl04.bin
-  elf_path: build/ovl04.elf
+  basename: arcade
+  target_path: bin/segments/ovl08.bin
+  elf_path: build/arcade.elf
   base_path: .
   platform: n64
   compiler: IDO
 
-  asm_path: asm/ovl04
-  src_path: src/ovl04
+  asm_path: asm/arcade
+  src_path: src/arcade
   build_path: build
   create_asm_dependencies: True
 
-  ld_script_path: build/ovl04.ld
+  ld_script_path: build/arcade.ld
   ld_dependencies: True
 
   find_file_boundaries: True
@@ -25,9 +25,9 @@ options:
 
   symbol_addrs_path:
     - symbol_addrs.us.txt
-    - symbol_addrs.ovl04.us.txt
-  undefined_funcs_auto_path: build/undefined_funcs_auto.ovl04.txt
-  undefined_syms_auto_path: build/undefined_syms_auto.ovl04.txt
+    - symbol_addrs.arcade.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.arcade.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.arcade.txt
 
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
@@ -37,14 +37,14 @@ options:
   asm_nonmatching_label_macro: ""
 
 segments:
-  - name: ovl04
+  - name: arcade
     type: code
     start: 0x0
     vram: 0x80024000
-    bss_size: 0x20
+    bss_size: 0x1B50
     subsegments:
       - [0x0, asm]
-      - [0x9860, data]
-      - { start: 0x9EF0, type: bss, vram: 0x8002DEF0 }
+      - [0xE220, data]
+      - { start: 0x26C00, type: bss, vram: 0x8004AC00 }
 
-  - [0x9EF0]
+  - [0x26C00]

@@ -1,19 +1,19 @@
-name: Donkey Kong 64 (North America) - ovl10
-sha1: 6bbbcd5331c487e3ff2f6f3dfc545c7535b9abc7
+name: Donkey Kong 64 (North America) - critter (ovl06)
+sha1: 542734428fe7f88b2f43ee043ef7d05b15973e2e
 options:
-  basename: ovl10
-  target_path: bin/segments/ovl10.bin
-  elf_path: build/ovl10.elf
+  basename: critter
+  target_path: bin/segments/ovl06.bin
+  elf_path: build/critter.elf
   base_path: .
   platform: n64
   compiler: IDO
 
-  asm_path: asm/ovl10
-  src_path: src/ovl10
+  asm_path: asm/critter
+  src_path: src/critter
   build_path: build
   create_asm_dependencies: True
 
-  ld_script_path: build/ovl10.ld
+  ld_script_path: build/critter.ld
   ld_dependencies: True
 
   find_file_boundaries: True
@@ -25,9 +25,9 @@ options:
 
   symbol_addrs_path:
     - symbol_addrs.us.txt
-    - symbol_addrs.ovl10.us.txt
-  undefined_funcs_auto_path: build/undefined_funcs_auto.ovl10.txt
-  undefined_syms_auto_path: build/undefined_syms_auto.ovl10.txt
+    - symbol_addrs.critter.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.critter.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.critter.txt
 
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
@@ -37,14 +37,14 @@ options:
   asm_nonmatching_label_macro: ""
 
 segments:
-  - name: ovl10
+  - name: critter
     type: code
     start: 0x0
     vram: 0x80024000
-    bss_size: 0xC0
+    bss_size: 0x30
     subsegments:
       - [0x0, asm]
-      - [0xEF50, data]
-      - { start: 0xFF10, type: bss, vram: 0x80033F10 }
+      - [0x57F0, data]
+      - { start: 0x61B0, type: bss, vram: 0x8002A1B0 }
 
-  - [0xFF10]
+  - [0x61B0]

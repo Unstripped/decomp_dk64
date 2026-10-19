@@ -1,19 +1,19 @@
-name: Donkey Kong 64 (North America) - ovl09
+name: Donkey Kong 64 (North America) - jetpac (ovl09)
 sha1: 31c95cadab550480c47ae0e50d58401e6fdca1a3
 options:
-  basename: ovl09
+  basename: jetpac
   target_path: bin/segments/ovl09.bin
-  elf_path: build/ovl09.elf
+  elf_path: build/jetpac.elf
   base_path: .
   platform: n64
   compiler: IDO
 
-  asm_path: asm/ovl09
-  src_path: src/ovl09
+  asm_path: asm/jetpac
+  src_path: src/jetpac
   build_path: build
   create_asm_dependencies: True
 
-  ld_script_path: build/ovl09.ld
+  ld_script_path: build/jetpac.ld
   ld_dependencies: True
 
   find_file_boundaries: True
@@ -25,9 +25,9 @@ options:
 
   symbol_addrs_path:
     - symbol_addrs.us.txt
-    - symbol_addrs.ovl09.us.txt
-  undefined_funcs_auto_path: build/undefined_funcs_auto.ovl09.txt
-  undefined_syms_auto_path: build/undefined_syms_auto.ovl09.txt
+    - symbol_addrs.jetpac.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.jetpac.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.jetpac.txt
 
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
@@ -37,7 +37,7 @@ options:
   asm_nonmatching_label_macro: ""
 
 segments:
-  - name: ovl09
+  - name: jetpac
     type: code
     start: 0x0
     vram: 0x80024000
