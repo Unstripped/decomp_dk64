@@ -83,8 +83,8 @@ split: bin/segments/global.bin
 	$(SPLAT) $(GLOBAL_SPLAT_YAML)
 
 check: $(ROM) $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN)
-	@sha1sum -c $(TARGET).sha1
 	@sha1sum -c $(GLOBAL_SHA1)
+	@sha1sum -c $(TARGET).sha1
 
 $(BUILD_DIR)/%.o: %.s
 	@mkdir -p $(dir $@)
