@@ -21,10 +21,10 @@
 #define VERSION_L 9
 
 #ifndef BUILD_VERSION
-#define BUILD_VERSION VERSION_L
+#define BUILD_VERSION VERSION_J
 #endif
 #ifndef BUILD_VERSION_STRING
-#define BUILD_VERSION_STRING "2.0L"
+#define BUILD_VERSION_STRING "2.0J"
 #endif
 #define OS_MAJOR_VERSION	BUILD_VERSION_STRING /* major version */
 #define OS_MINOR_VERSION	0 /* patch level */

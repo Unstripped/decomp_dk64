@@ -78,8 +78,9 @@ segments:
       - [0x5580, c, libultra/os/seteventmesg]
       - [0x55F0, c, libultra/os/createthread]
       - [0x5740, c, libultra/os/startthread]
-      - [0x5890, c, libultra/sched/sched]
+      - [0x5890, c, libultra/io/vimgr]
       - [0x5BA0, c, libultra/io/visetmode]
+      - [0x5C10, pad]
       - [0x5C70, c, libultra/io/aisetfreq]
       - [0x5DC0, asm, libultra/libc/bzero]
       - [0x5E60, asm, libultra/os/invalicache]
@@ -97,21 +98,21 @@ segments:
       - [0x67B0, c, libultra/io/spsetstat]
       - [0x67C0, c, libultra/io/visetspecial]
       - [0x6980, c, libultra/gu/translate]
-      - [0x6A20, c, libultra/gu/rotate]
+      - [0x6A20, c, libultra/gu/perspective]
       - [0x6CB0, c, libultra/os/gettime]
       - [0x6D40, c, libultra/os/settime]
-      - [0x6D70, c, libultra/gu/perspective]
-      - [0x7560, c, libultra/gu/ortho]
-      - [0x7890, c, libultra/gu/frustum]
+      - [0x6D70, c, libultra/gu/lookathil]
+      - [0x7560, c, libultra/gu/lookat]
+      - [0x7890, c, libultra/gu/ortho]
       - [0x7A50, c, libultra/io/aisetnextbuf]
       - [0x7B00, c, libultra/io/aigetlen]
       - [0x7B10, c, libultra/io/pidma]
-      - [0x7C20, c, libultra/io/pfsisplug]
+      - [0x7C20, c, libultra/io/controller]
       - [0x7F60, c, libultra/io/contsetch]
       - [0x7FD0, c, libultra/io/contreaddata]
       - [0x81B0, c, libultra/libc/llcvt]
       - [0x83C0, c, libultra/os/settimer]
-      - [0x84A0, c, libultra/os/getthreadpri]
+      - [0x84A0, c, libultra/os/getthreadid]
       - [0x84C0, c, libultra/io/conteeplongread]
       - [0x8550, c, libultra/io/conteepwrite]
       - [0x8920, c, libultra/io/conteepprobe]
@@ -123,19 +124,20 @@ segments:
       - [0x8E70, c, libultra/io/sptask]
       - [0x9160, c, libultra/io/sptaskyield]
       - [0x9180, c, libultra/gu/scale]
-      - [0x9220, c, libultra/gu/align]
-      - [0x9410, c, libultra/gu/mtxcatf]
+      - [0x9220, c, libultra/gu/rotate]
+      - [0x9410, c, libultra/mgu/mtxxfmf]
+      - [0x94B0, c, libultra/gu/mtxcatf]
       - [0x9620, c, libultra/gu/mtxcatl]
-      - [0x96E0, c, libultra/gu/position]
+      - [0x96E0, c, libultra/gu/align]
       - [0x98F0, c, libultra/io/piread]
       - [0x9930, c, libultra/io/vigetmode]
-      - [0x9980, c, libultra/gu/rotaterpy]
+      - [0x9980, c, libultra/gu/position]
       - [0x9BA0, c, libultra/os/virtualtophysical]
       - [0x9C20, asm, libultra/os/interrupt]
       - [0x9C60, asm, libultra/os/exceptasm]
       - [0xA5A0, c, libultra/io/vi]
       - [0xA6E0, c, libultra/os/timerintr]
-      - [0xAAE0, c, libultra/os/getthreadid]
+      - [0xAAE0, c, libultra/os/getthreadpri]
       - [0xAB00, c, libultra/io/vigetcurrcontext]
       - [0xAB10, c, libultra/io/viswapcontext]
       - [0xAE10, c, libultra/os/sendmesg]
@@ -150,8 +152,8 @@ segments:
       - [0xB0F0, c, libultra/io/pirawread]
       - [0xB150, c, libultra/io/pimgr]
       - [0xB2C0, c, libultra/gu/mtxutil]
-      - [0xB530, c, libultra/gu/sinf]
-      - [0xB6A0, c, libultra/gu/cosf]
+      - [0xB530, c, libultra/gu/cosf]
+      - [0xB6A0, c, libultra/gu/sinf]
       - [0xB860, asm, libultra/gu/sqrtf]
       - [0xB870, c, libultra/io/ai]
       - [0xB8A0, c, libultra/os/jammesg]
@@ -174,10 +176,10 @@ segments:
       - [0xC8D0, asm, libultra/os/setintmask]
       - [0xC9E0, asm, libultra/os/setcompare]
       - [0xC9F0, c, libultra/io/si]
-      - [0xCA20, c, libultra/io/cartrominit]
+      - [0xCA20, c, libultra/io/epirawdma]
       - [0xCC00, c, libultra/io/devmgr]
       - [0xD090, c, libultra/io/contramwrite]
-      - [0xD2E0, c, libultra/io/controller]
+      - [0xD2E0, c, libultra/io/pfsisplug]
       - [0xD620, c, libultra/io/pfsgetstatus]
       - [0xD850, asm, libultra/os/resetglobalintmask]
       - [0xD8B0, c, libultra/io/epirawwrite]
@@ -186,9 +188,55 @@ segments:
       - [0xDBC0, c, libultra/os/yieldthread]
       - [0xDC10, c, libultra/io/contpfs]
       - [0xE790, asm, libultra/libc/bcmp]
-      - [0xE8B0, data]
-      - [0x10F60, rodata] # "(null)"/"(nil)" printf strings start rodata, 16-aligned
-      - { start: 0x11320, type: bss, vram: 0x80010720 }
+      - [0xE8B0, data, E8B0_data]
+      - [0xFB00, .data, libultra/io/vimgr]
+      - [0xFB20, data, libultra/io/vitbl]
+      - [0x10CA0, .data, libultra/os/initialize]
+      - [0x10CC0, .data, libultra/io/aisetnextbuf]
+      - [0x10CD0, .data, libultra/io/controller]
+      - [0x10CE0, data, libultra/os/thread]
+      - [0x10D30, .data, libultra/io/vi]
+      - [0x10DA0, .data, libultra/os/timerintr]
+      - [0x10DB0, .data, libultra/io/pimgr]
+      - [0x10DE0, .data, libultra/io/siacs]
+      - [0x10DF0, .data, libultra/io/contramread]
+      - [0x10E00, .data, libultra/io/piacs]
+      - [0x10E10, data, libultra/vimodes/vimodentsclan1]
+      - [0x10E60, data, libultra/vimodes/vimodepallan1]
+      - [0x10EB0, data, libultra/vimodes/vimodempallan1]
+      - [0x10F00, .data, libultra/io/contpfs]
+      - [0x10F10, data, 10F10_data]
+      - [0x10F60, rodata, 10F60_rodata]
+      - [0x11120, .rodata, libultra/gu/perspective]
+      - [0x11130, .rodata, libultra/gu/lookathil]
+      - [0x11140, .rodata, libultra/libc/llcvt]
+      - [0x11150, .rodata, libultra/gu/rotate]
+      - [0x11160, .rodata, libultra/gu/align]
+      - [0x11170, .rodata, libultra/gu/position]
+      - [0x11180, rodata, libultra/os/exceptasm]
+      - [0x111D0, .rodata, libultra/gu/cosf]
+      - [0x11220, .rodata, libultra/gu/sinf]
+      - [0x11270, rodata, libultra/os/exceptasm_intmask]
+      - [0x112F0, .rodata, libultra/io/devmgr]
+      - [0x11310, rodata, libultra/gu/sinf_nan]
+      - { start: 0x11320, type: bss, vram: 0x80010720, name: 11320_bss }
+      - { start: 0x11320, type: .bss, vram: 0x80013B10, name: libultra/os/seteventmesg }
+      - { start: 0x11320, type: .bss, vram: 0x80013B90, name: libultra/io/vimgr }
+      - { start: 0x11320, type: .bss, vram: 0x80014DB0, name: libultra/os/initialize }
+      - { start: 0x11320, type: .bss, vram: 0x80014DC0, name: libultra/io/controller }
+      - { start: 0x11320, type: .bss, vram: 0x80014E50, name: libultra/io/motor }
+      - { start: 0x11320, type: .bss, vram: 0x80014F50, name: libultra/io/sptask }
+      - { start: 0x11320, type: .bss, vram: 0x80014F90, name: libultra/gu/rotate }
+      - { start: 0x11320, type: .bss, vram: 0x80014FA0, name: libultra/gu/align }
+      - { start: 0x11320, type: .bss, vram: 0x80014FB0, name: libultra/gu/position }
+      - { start: 0x11320, type: .bss, vram: 0x80014FC0, name: libultra/os/timerintr }
+      - { start: 0x11320, type: .bss, vram: 0x80015000, name: libultra/io/pimgr }
+      - { start: 0x11320, type: .bss, vram: 0x800162C0, name: libultra/io/siacs }
+      - { start: 0x11320, type: .bss, vram: 0x800162E0, name: libultra/io/pfsisplug }
+      - { start: 0x11320, type: .bss, vram: 0x80016320, name: libultra/io/piacs }
+      - { start: 0x11320, type: bss, vram: 0x80016340, name: libultra/os/exceptasm }
+      - { start: 0x11320, type: bss, vram: 0x800164F0, name: libultra/io/cartrominit }
+      - { start: 0x11320, type: .bss, vram: 0x80016530, name: libultra/io/contpfs }
   - name: rspboot
     type: bin
     start: 0x11320

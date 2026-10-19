@@ -1,3 +1,6 @@
-#include "common.h"
+#include "PR/os_internal.h"
+#include "PR/rcp.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/io/pigetstat/osPiGetStatus.s")
+u32 osPiGetStatus(void) {
+    return IO_READ(PI_STATUS_REG);
+}

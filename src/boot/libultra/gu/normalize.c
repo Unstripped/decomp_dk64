@@ -1,3 +1,13 @@
-#include "common.h"
+#include "guint.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/gu/normalize/guNormalize.s")
+#pragma function(sqrtf)
+
+void guNormalize(float *x, float *y, float *z)
+{
+    float	m;
+
+    m = 1/sqrtf((*x)*(*x) + (*y)*(*y) + (*z)*(*z));
+    *x *= m;
+    *y *= m;
+    *z *= m;
+}

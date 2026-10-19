@@ -10,6 +10,8 @@ osAppNMIBuffer = 0x8000031C;
 
 /* libultra aliases */
 osPiRawStartDma = 0x800045D0;
+osCreateScheduler = 0x80004C90;
+D_8000EF20 = 0x8000EF20;
 
 /* N64 hardware registers (spimdisasm N64HardwareRegs) */
 /* Signal Processor (SP) Registers */

@@ -1,3 +1,6 @@
-#include "common.h"
+#include "PR/os_internal.h"
+#include "PRinternal/osint.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/os/getcurrfaultthread/__osGetCurrFaultedThread.s")
+OSThread* __osGetCurrFaultedThread(void) {
+    return __osFaultedThread;
+}

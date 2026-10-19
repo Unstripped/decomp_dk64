@@ -1,5 +1,20 @@
-#include "common.h"
+#include "guint.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/gu/scale/guScaleF.s")
+void guScaleF(float mf[4][4], float x, float y, float z)
+{
+    guMtxIdentF(mf);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/gu/scale/guScale.s")
+    mf[0][0] = x;
+    mf[1][1] = y;
+    mf[2][2] = z;
+    mf[3][3] = 1;
+}
+
+void guScale(Mtx *m, float x, float y, float z)
+{
+    Matrix mf;
+
+    guScaleF(mf, x, y, z);
+
+    guMtxF2L(mf, m);
+}

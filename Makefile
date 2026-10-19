@@ -82,23 +82,38 @@ MIPSBIT   := -mips2
 CFLAGS    := -c -Wab,-r4300_mul -non_shared -G 0 -Xcpluscomm -signed -woff 649,654,838,807 \
              -I include -D_FINALROM -DF3DEX_GBI_2 -DTARGET_N64 -D_MIPS_SZLONG=32
 
-# libultra 2.0L C sources live at src/<segment>/libultra/<ultralib dir>/<file>.c and
-# take decompals/ultralib's flags for TARGET=libultra_rom VERSION=L (Makefile, makefiles/ido.mk):
-# default -O2 -mips2; os/ debug/ host/ rmon/ log/ and libc/ll{,bit,cvt}.c -O1;
-# os/initialize_isv.c -O2; libc/ll{,bit,cvt}.c -mips3 -32. ultralib's -O3 dirs apply to D-I only.
-# Handwritten libultra .s files stay as splat asm (gas), so ultralib's ASOPTFLAGS do not apply.
-LIBULTRA_CFLAGS := -DNDEBUG -DBUILD_VERSION=VERSION_L -DBUILD_VERSION_STRING=\"2.0L\" \
+# libultra 2.0J C sources live at src/<segment>/libultra/<ultralib dir>/<file>.c and
+# take decompals/ultralib's flags for TARGET=libultra_rom VERSION=J (makefiles/ido.mk):
+# Directory defaults:
+#   os/: -O1 -mips2
+#   gu/, mgu/: -O3 -mips2 (sinf.c, cosf.c: -O2)
+#   libc/: -O3 -mips2 (ll, llbit, llcvt: -O1 -mips3 -32)
+#   io/: -O2 -mips2, with -O1 overrides for routines matched at -O1
+LIBULTRA_CFLAGS := -DNDEBUG -DBUILD_VERSION=VERSION_J -DBUILD_VERSION_STRING=\"2.0J\" \
                    -I include/compiler/ido -I include/PR -I include/libultra
 LIBULTRA_SEGMENTS := boot global
+
+# io/ routines that DK64 compiles with -O1 instead of directory default -O2
+LIBULTRA_IO_O1 := ai aisetnextbuf devmgr pidma pigetcmdq pirawdma pirawread piread \
+                  controller conteeplongread contsetch pfsisplug \
+                  si siacs sirawread sirawwrite sp sprawdma spsetpc sptask sptaskyielded \
+                  viblack vi vigetcurrframebuf vigetmode vigetnextframebuf visetevent visetmode visetspecial viswapbuf
 
 define LIBULTRA_FLAGS
 $(BUILD_DIR)/src/$(1)/libultra/%.o: CFLAGS += $(LIBULTRA_CFLAGS)
 $(foreach dir,os debug host rmon log,$(BUILD_DIR)/src/$(1)/libultra/$(dir)/%.o: OPT_FLAGS := -O1
 )
+$(foreach dir,gu mgu,$(BUILD_DIR)/src/$(1)/libultra/$(dir)/%.o: OPT_FLAGS := -O3
+)
+$(foreach f,translate mtxcatl mtxutil normalize sinf cosf,$(BUILD_DIR)/src/$(1)/libultra/gu/$(f).o: OPT_FLAGS := -O2
+)
+$(BUILD_DIR)/src/$(1)/libultra/libc/%.o: OPT_FLAGS := -O3
 $(foreach f,ll llbit llcvt,$(BUILD_DIR)/src/$(1)/libultra/libc/$(f).o: OPT_FLAGS := -O1
 $(BUILD_DIR)/src/$(1)/libultra/libc/$(f).o: MIPSBIT := -mips3 -32
 )
 $(BUILD_DIR)/src/$(1)/libultra/os/initialize_isv.o: OPT_FLAGS := -O2
+$(foreach f,$(LIBULTRA_IO_O1),$(BUILD_DIR)/src/$(1)/libultra/io/$(f).o: OPT_FLAGS := -O1
+)
 endef
 $(foreach seg,$(LIBULTRA_SEGMENTS),$(eval $(call LIBULTRA_FLAGS,$(seg))))
 
@@ -166,11 +181,17 @@ $(BUILD_DIR)/%.o: %.s
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) -o $@ $<
 
-# asm-processor splices INCLUDE_ASM'd functions into IDO's output.
+# asm-processor splices INCLUDE_ASM'd / GLOBAL_ASM'd functions into IDO's output.
+C_FILES_WITH_GLOBAL_ASM := $(shell grep -l -E "(GLOBAL_ASM|INCLUDE_ASM)" $(BOOT_C_FILES) $(GLOBAL_C_FILES) 2>/dev/null)
+O_FILES_WITH_GLOBAL_ASM := $(C_FILES_WITH_GLOBAL_ASM:%.c=$(BUILD_DIR)/%.o)
+
+$(O_FILES_WITH_GLOBAL_ASM): $(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(ASM_PROC) $(if $(filter -O1,$(OPT_FLAGS)),-O1,-O2) --asm-prelude include/asm_prelude.inc $(CC) -- $(AS) $(ASFLAGS) -- $(CFLAGS) $(OPT_FLAGS) $(MIPSBIT) -o $@ $<
+
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(ASM_PROC) --asm-prelude include/asm_prelude.inc $(CC) -- $(AS) $(ASFLAGS) -- $(CFLAGS) $(OPT_FLAGS) $(MIPSBIT) -o $@ $<
-
+	$(CC) $(CFLAGS) $(OPT_FLAGS) $(MIPSBIT) -o $@ $<
 $(BUILD_DIR)/%.o: %.bin
 	@mkdir -p $(dir $@)
 	$(LD) -r -b binary -o $@ $<

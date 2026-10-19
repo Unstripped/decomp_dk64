@@ -1,3 +1,6 @@
-#include "common.h"
+#include "PR/os_internal.h"
+#include "PR/rcp.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/io/dpsetstat/osDpSetStatus.s")
+void osDpSetStatus(u32 data) {
+    IO_WRITE(DPC_STATUS_REG, data);
+}

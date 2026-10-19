@@ -1,3 +1,6 @@
-#include "common.h"
+#include "PR/os_internal.h"
+#include "PR/rcp.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/io/dpgetstat/osDpGetStatus.s")
+u32 osDpGetStatus(void) {
+    return IO_READ(DPC_STATUS_REG);
+}

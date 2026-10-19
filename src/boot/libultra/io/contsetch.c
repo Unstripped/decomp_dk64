@@ -1,3 +1,19 @@
-#include "common.h"
+#include "PR/os_internal.h"
+#include "PRinternal/controller.h"
+#include "PRinternal/siint.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/io/contsetch/osContSetCh.s")
+s32 osContSetCh(u8 ch) {
+    s32 ret = 0;
+
+    __osSiGetAccess();
+
+    if (ch > MAXCONTROLLERS) {
+        __osMaxControllers = MAXCONTROLLERS;
+    } else {
+        __osMaxControllers = ch;
+    }
+
+    __osContLastCmd = CONT_CMD_END;
+    __osSiRelAccess();
+    return ret;
+}

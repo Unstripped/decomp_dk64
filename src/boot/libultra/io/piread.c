@@ -1,3 +1,12 @@
-#include "common.h"
+#include "PR/os_internal.h"
+#include "PRinternal/piint.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/io/piread/osPiReadIo.s")
+s32 osPiReadIo(u32 devAddr, u32* data) {
+    register s32 ret;
+
+    __osPiGetAccess();
+    ret = __osPiRawReadIo(devAddr, data);
+    __osPiRelAccess();
+
+    return ret;
+}

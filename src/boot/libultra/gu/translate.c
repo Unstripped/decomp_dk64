@@ -1,5 +1,24 @@
-#include "common.h"
+#include "guint.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/gu/translate/guTranslateF.s")
+void guTranslateF(float mf[4][4], float x, float y, float z)
+{
+    guMtxIdentF(mf);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/gu/translate/guTranslate.s")
+    mf[3][0] = x;
+    mf[3][1] = y;
+    mf[3][2] = z;
+}
+
+void guTranslate(Mtx *m, float x, float y, float z)
+{
+    Matrix mf;
+    float dummy[4];
+
+    guMtxIdentF(mf);
+
+    mf[3][0] = x;
+    mf[3][1] = y;
+    mf[3][2] = z;
+
+    guMtxF2L(mf, m);
+}

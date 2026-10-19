@@ -1,3 +1,18 @@
-#include "common.h"
+#include "PR/os_internal.h"
+#include "PRinternal/osint.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/libultra/os/seteventmesg/osSetEventMesg.s")
+__OSEventState __osEventStateTab[OS_NUM_EVENTS];
+
+void osSetEventMesg(OSEvent event, OSMesgQueue* mq, OSMesg msg) {
+    register u32 saveMask;
+    __OSEventState* es;
+
+    saveMask = __osDisableInt();
+
+    es = &__osEventStateTab[event];
+
+    es->messageQueue = mq;
+    es->message = msg;
+
+    __osRestoreInt(saveMask);
+}
