@@ -1,0 +1,12 @@
+# Game data: never commit
+*.z64
+*.n64
+*.v64
+/bin/
+/build/
+/asm/
+/assets/
+*.ld
+undefined_*_auto.*.txt
+__pycache__/
+.splat/

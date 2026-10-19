@@ -1,0 +1,6 @@
+#!/bin/sh
+# Run a command inside the dk64-decomp toolchain container, e.g. `tools/dk make setup`.
+set -e
+cd "$(dirname "$0")/.."
+if [ -t 0 ] && [ -t 1 ]; then TTY=-it; else TTY=; fi
+exec docker run --rm $TTY -v "$PWD":/dk64 -w /dk64 dk64-decomp "$@"

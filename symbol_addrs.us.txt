@@ -1,0 +1,9 @@
+// Boot (segment table entry 0)
+dmaCopy = 0x80000450; // type:func
+gSegmentTable = 0x8000DCC4; // type:SegmentTableEntry size:0x1B0
+
+// libultra
+osInvalDCache = 0x80004520; // type:func
+osPiRawStartDma = 0x800045D0; // type:func
+osPiGetStatus = 0x800046B0; // type:func
+osVirtualToPhysical = 0x80008FA0; // type:func

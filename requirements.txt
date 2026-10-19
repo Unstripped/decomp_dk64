@@ -1,0 +1,6 @@
+splat64[mips]==0.50.1
+colorama
+cxxfilt
+python-Levenshtein
+watchdog
+pycparser
