@@ -2,6 +2,10 @@
 dmaCopy = 0x80000450; // type:func
 gSegmentTable = 0x8000DCC4; // type:SegmentTableEntry size:0x1B0
 
+// Global (segment table entry 1)
+globalInit = 0x805FB300; // type:func
+loadOverlay = 0x80610350; // type:func
+
 // libultra
 osInvalDCache = 0x80004520; // type:func
 osPiRawStartDma = 0x800045D0; // type:func

@@ -36,16 +36,9 @@ Full per-segment details (stream offsets, sizes, hashes, gzip header fields): `b
 - [x] **1. Extraction** — `tools/extract.py`: any byte order → `baserom.us.z64` (SHA-1 checked); per-stream binaries in `bin/segments/`; `bin/layout.json`. Verifies gzip CRC/size and that `vram + text + data == bssStart` for every segment.
 - [x] **2. Boot split** — `dk64.us.yaml` splits entry + boot into 93 files; rest of ROM is one blob. Full ROM rebuilds byte-identical.
 - [x] **6. C pipeline** — `src/boot/main.c` compiled with IDO via asm-processor; `dmaCopy` (`0x80000450`) matched in C.
+- [x] **3. Global code split** — `dk64.global.us.yaml` splits `bin/segments/global.bin` (text‖data, concatenated by `make split`) into 144 text files + data/rodata (`0x15B390`, VRAM `0x80756690`)/bss; linked to `build/global.elf` with `--just-symbols=build/dk64.us.elf` so boot symbols resolve to the same addresses. `make` checks the ROM and `dk64.global.us.sha1` (text + data). Named `globalInit` (`0x805FB300`: fills segment-table VRAM fields, starts PI manager and the main thread) and `loadOverlay` (`0x80610350`: maps the mode byte at `0x8074450C` to overlay 2–10, lays out the heap after it, clears its bss and loads it via `0x8060B140`).
 
 ## To do
-
-### 3. Global code split
-- [ ] Separate splat config for `bin/segments/global.{text,data}.bin` at `0x805FB300`.
-- [ ] Find the data / rodata boundary in `global.data.bin`; apply splat's file-boundary suggestions.
-- [ ] Build the segment to its own ELF; compare extracted text/data against the SHA-1s in `bin/layout.json`.
-- [ ] Shared symbols with boot (libultra calls such as `dmaCopy`) resolve to the same addresses.
-- [ ] Name `func_805FB300` (segment table init) and the overlay loader (`0x806104B4` region).
-- **Done when:** `make` checks full ROM SHA-1 *and* global text/data SHA-1s.
 
 ### 4. Overlay splits
 - [ ] One splat config/linker output per overlay (`ovl02`–`ovl10`), all at `0x80024000`.
@@ -91,7 +84,7 @@ Suggested order, one subsystem per unit of work:
 
 ```mermaid
 graph LR
-  C0[0 toolchain ✓] --> C1[1 extract ✓] --> C2[2 boot split ✓] --> C3[3 global split] --> C4[4 overlays] --> C5[5 full ROM]
+  C0[0 toolchain ✓] --> C1[1 extract ✓] --> C2[2 boot split ✓] --> C3[3 global split ✓] --> C4[4 overlays] --> C5[5 full ROM]
   C2 --> C6[6 C pipeline ✓] --> C7[7 libultra] --> C9[9 decompile]
   C6 --> C8[8 tooling] --> C9
   C1 --> C10[10 assets]

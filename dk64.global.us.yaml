@@ -1,0 +1,193 @@
+name: Donkey Kong 64 (North America) - Global
+sha1: adc2d48b8ed25b49635cf9986d1d915024949b18
+options:
+  basename: global
+  target_path: bin/segments/global.bin
+  elf_path: build/global.elf
+  base_path: .
+  platform: n64
+  compiler: IDO
+
+  asm_path: asm/global
+  src_path: src/global
+  build_path: build
+  create_asm_dependencies: True
+
+  ld_script_path: build/global.ld
+  ld_dependencies: True
+
+  find_file_boundaries: True
+  header_encoding: ASCII
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  mips_abi_float_regs: o32
+
+  symbol_addrs_path:
+    - symbol_addrs.us.txt
+  undefined_funcs_auto_path: build/undefined_funcs_auto.global.txt
+  undefined_syms_auto_path: build/undefined_syms_auto.global.txt
+
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+  libultra_symbols: True
+  hardware_regs: False
+  gfx_ucode: f3dex2
+  asm_nonmatching_label_macro: ""
+
+segments:
+  - name: global
+    type: code
+    start: 0x0
+    vram: 0x805FB300
+    bss_size: 0x9E0B0
+    subsegments:
+      - [0x0, asm]
+      - [0x3C10, asm]
+      - [0x5650, asm]
+      - [0x5A50, asm]
+      - [0x6710, asm]
+      - [0xF4C0, asm]
+      - [0xF600, asm]
+      - [0xFE40, asm]
+      - [0x10130, asm]
+      - [0x104F0, asm]
+      - [0x131B0, asm]
+      - [0x14CF0, asm]
+      - [0x15010, asm]
+      - [0x15050, asm]
+      - [0x16550, asm]
+      - [0x166A0, asm]
+      - [0x169F0, asm]
+      - [0x16A20, asm]
+      - [0x16B60, asm]
+      - [0x17540, asm]
+      - [0x17B40, asm]
+      - [0x17B90, asm]
+      - [0x1E2D0, asm]
+      - [0x201B0, asm]
+      - [0x2C700, asm]
+      - [0x2C910, asm]
+      - [0x2DE90, asm]
+      - [0x2F550, asm]
+      - [0x35000, asm]
+      - [0x36880, asm]
+      - [0x42630, asm]
+      - [0x54150, asm]
+      - [0x55B20, asm]
+      - [0x5DE10, asm]
+      - [0x5E020, asm]
+      - [0x5E2F0, asm]
+      - [0x61690, asm]
+      - [0x61AA0, asm]
+      - [0x63810, asm]
+      - [0x63EC0, asm]
+      - [0x67890, asm]
+      - [0x684C0, asm]
+      - [0x68960, asm]
+      - [0x68AA0, asm]
+      - [0x68EA0, asm]
+      - [0x699B0, asm]
+      - [0x70FD0, asm]
+      - [0x77B90, asm]
+      - [0x79890, asm]
+      - [0x7A510, asm]
+      - [0x7AF60, asm]
+      - [0x7BBD0, asm]
+      - [0x7CA80, asm]
+      - [0x80150, asm]
+      - [0x89250, asm]
+      - [0x8CA50, asm]
+      - [0x8D3E0, asm]
+      - [0x8F050, asm]
+      - [0x8F4B0, asm]
+      - [0x936B0, asm]
+      - [0x9BF30, asm]
+      - [0x9CE20, asm]
+      - [0x9DD70, asm]
+      - [0xA2F10, asm]
+      - [0xA6280, asm]
+      - [0xA7710, asm]
+      - [0xA8400, asm]
+      - [0xACDC0, asm]
+      - [0xB1F60, asm]
+      - [0xB2CE0, asm]
+      - [0xB5EC0, asm]
+      - [0xB6C50, asm]
+      - [0xB7490, asm]
+      - [0xBA790, asm]
+      - [0xBB300, asm]
+      - [0xBC3B0, asm]
+      - [0xBD820, asm]
+      - [0xBDEE0, asm]
+      - [0xC0EE0, asm]
+      - [0xC1E70, asm]
+      - [0xC2A90, asm]
+      - [0xC8C10, asm]
+      - [0xCB230, asm]
+      - [0xCBEA0, asm]
+      - [0xCC800, asm]
+      - [0xCEAE0, asm]
+      - [0xEFDC0, asm]
+      - [0xF56F0, asm]
+      - [0xF9450, asm]
+      - [0xFCCD0, asm]
+      - [0x100180, asm]
+      - [0x1025E0, asm]
+      - [0x10D2D0, asm]
+      - [0x10E1D0, asm]
+      - [0x110F00, asm]
+      - [0x112080, asm]
+      - [0x1135F0, asm]
+      - [0x114270, asm]
+      - [0x119370, asm]
+      - [0x124780, asm]
+      - [0x126260, asm]
+      - [0x127B00, asm]
+      - [0x1295B0, asm]
+      - [0x12E800, asm]
+      - [0x1332B0, asm]
+      - [0x133A90, asm]
+      - [0x135D30, asm]
+      - [0x136820, asm]
+      - [0x1371D0, asm]
+      - [0x137630, asm]
+      - [0x137C10, asm]
+      - [0x13A750, asm]
+      - [0x13A7A0, asm]
+      - [0x13C920, asm]
+      - [0x13CB30, asm]
+      - [0x13CB50, asm]
+      - [0x13CE70, asm]
+      - [0x13CFA0, asm]
+      - [0x13D020, asm]
+      - [0x13D0B0, asm]
+      - [0x13D100, asm]
+      - [0x13D170, asm]
+      - [0x13E0E0, asm]
+      - [0x13E160, asm]
+      - [0x13EC00, asm]
+      - [0x13EC90, asm]
+      - [0x13ECE0, asm]
+      - [0x13FED0, asm]
+      - [0x140530, asm]
+      - [0x140600, asm]
+      - [0x141520, asm]
+      - [0x1417C0, asm]
+      - [0x141AD0, asm]
+      - [0x141C00, asm]
+      - [0x141E40, asm]
+      - [0x141E60, asm]
+      - [0x141EF0, asm]
+      - [0x1435A0, asm]
+      - [0x1435C0, asm]
+      - [0x144A90, asm]
+      - [0x144E00, asm]
+      - [0x145950, asm]
+      - [0x145D70, asm]
+      - [0x146C40, asm]
+      - [0x149160, data]
+      - [0x15B390, rodata]
+      - { start: 0x165D50, type: bss, vram: 0x80761050 }
+
+  - [0x165D50]
