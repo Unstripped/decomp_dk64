@@ -23,8 +23,15 @@ Compressed segments are a gzip code member + gzip data member, zero-padded to `r
 | 0 | boot | `0x1050`–`0x11320` | `0x80000450` | uncompressed; text→`0x8000DCB0`, data `0xE8B0`, rodata `0x10F60`, bss `0x80010720`–`0x80016630` |
 | — | rspboot | `0x11320`–`0x113F0` | — | RSP boot microcode |
 | 1 | global | `0x113F0`–`0xCBE70` | `0x805FB300` | text 0x149160, data 0x1CBF0, bss `0x80761050`–`0x807FF100` |
-| 2–9 | ovl02–ovl09 | `0xD4B00`–`0x101A40` | `0x80024000` | one overlay loaded at a time |
-| 10 | ovl10 | `0xCBE70`–`0xD4B00` | `0x80024000` | |
+| 2 | multiplayer (`ovl02`) | `0xD4B00`–`0xD6B00` | `0x80024000` | game mode 3 |
+| 3 | minecart (`ovl03`) | `0xD6B00`–`0xD9A40` | `0x80024000` | mode 4 |
+| 4 | bonus (`ovl04`) | `0xD9A40`–`0xDF600` | `0x80024000` | mode 8: bonus barrels |
+| 5 | race (`ovl05`) | `0xDF600`–`0xE6780` | `0x80024000` | mode 5 |
+| 6 | critter (`ovl06`) | `0xE6780`–`0xEA0B0` | `0x80024000` | mode 6 |
+| 7 | boss (`ovl07`) | `0xEA0B0`–`0xF41A0` | `0x80024000` | mode 7 |
+| 8 | arcade (`ovl08`) | `0xF41A0`–`0xFD2F0` | `0x80024000` | mode 9: DK arcade, data holds the arcade assets |
+| 9 | jetpac (`ovl09`) | `0xFD2F0`–`0x101A40` | `0x80024000` | mode 10 |
+| 10 | menu (`ovl10`) | `0xCBE70`–`0xD4B00` | `0x80024000` | mode 2: main menu / file select |
 | 12 | — | `0x101A40`–`0x101C50` | — | raw viewport/display list data |
 | 11, 13–17 | assets | `0x101C50`–`0x1FED020` | — | ~8.7k gzip streams |
 
@@ -37,14 +44,9 @@ Full per-segment details (stream offsets, sizes, hashes, gzip header fields): `b
 - [x] **2. Boot split** — `dk64.us.yaml` splits entry + boot into 93 files; rest of ROM is one blob. Full ROM rebuilds byte-identical.
 - [x] **6. C pipeline** — `src/boot/main.c` compiled with IDO via asm-processor; `dmaCopy` (`0x80000450`) matched in C.
 - [x] **3. Global code split** — `dk64.global.us.yaml` splits `bin/segments/global.bin` (text‖data, concatenated by `make split`) into 144 text files + data/rodata (`0x15B390`, VRAM `0x80756690`)/bss; linked to `build/global.elf` with `--just-symbols=build/dk64.us.elf` so boot symbols resolve to the same addresses. `make` checks the ROM and `dk64.global.us.sha1` (text + data). Named `globalInit` (`0x805FB300`: fills segment-table VRAM fields, starts PI manager and the main thread) and `loadOverlay` (`0x80610350`: maps the mode byte at `0x8074450C` to overlay 2–10, lays out the heap after it, clears its bss and loads it via `0x8060B140`).
+- [x] **4. Overlay splits** — one splat config per overlay (`dk64.<name>.us.yaml`, segment id `ovlNN` kept for `bin/segments/`), all at `0x80024000`; each links to `build/<name>.elf` with `--just-symbols` of global and boot ELFs, is cut at its text size and checked against `dk64.<name>.us.sha1`. Overlay-local names go in `symbol_addrs.<name>.us.txt` (addresses collide across overlays). `loadOverlay` maps game mode (`0x8074450C`) 2→menu, 3→multiplayer, 4→minecart, 5→race, 6→critter, 7→boss, 8→bonus, 9→arcade, 10→jetpac; modes 0–1 load none. Text files: multiplayer 1, minecart 2, bonus 4, race 7, critter 2, boss 9, arcade 1, jetpac 5, menu 4. Data/rodata split everywhere except boss, whose rodata starts at `0x11CC8` (not 16-aligned; a separate subsegment gets `ALIGN(16)` padding), so it stays one `data` subsegment.
 
 ## To do
-
-### 4. Overlay splits
-- [ ] One splat config/linker output per overlay (`ovl02`–`ovl10`), all at `0x80024000`.
-- [ ] Overlay-to-global references resolve through global's symbols.
-- [ ] Identify each overlay's purpose and rename (`ovl02` → e.g. `menu`).
-- **Done when:** every overlay's decompressed text/data matches.
 
 ### 5. Byte-identical ROM from decompressed segments
 - [ ] `tools/compress.py`: gzip each built stream (header `mtime=0 xfl=2 os=3`) and place it at its original ROM offset with zero padding.
@@ -84,7 +86,7 @@ Suggested order, one subsystem per unit of work:
 
 ```mermaid
 graph LR
-  C0[0 toolchain ✓] --> C1[1 extract ✓] --> C2[2 boot split ✓] --> C3[3 global split ✓] --> C4[4 overlays] --> C5[5 full ROM]
+  C0[0 toolchain ✓] --> C1[1 extract ✓] --> C2[2 boot split ✓] --> C3[3 global split ✓] --> C4[4 overlays ✓] --> C5[5 full ROM]
   C2 --> C6[6 C pipeline ✓] --> C7[7 libultra] --> C9[9 decompile]
   C6 --> C8[8 tooling] --> C9
   C1 --> C10[10 assets]
