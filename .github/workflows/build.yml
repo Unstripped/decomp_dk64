@@ -1,0 +1,63 @@
+# Set up the ROM secret for CI:
+#   GitHub Actions secrets are capped at 48 KB, whereas the DK64 ROM is 32 MiB,
+#   so the ROM cannot be stored directly as a secret.
+#   Host the ROM at a private download URL (e.g. a presigned S3 or Cloudflare R2 link)
+#   and set the secret via:
+#     gh secret set BASEROM_URL
+
+name: Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: dk64-decomp
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Check for baserom secret
+        id: check-secret
+        env:
+          BASEROM_URL: ${{ secrets.BASEROM_URL }}
+        run: |
+          if [ -n "$BASEROM_URL" ]; then
+            echo "::add-mask::$BASEROM_URL"
+            echo "has_secret=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::BASEROM_URL secret is not set (fork or PR from fork). Skipping ROM build and hash verification."
+            echo "has_secret=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download baserom
+        if: steps.check-secret.outputs.has_secret == 'true'
+        env:
+          BASEROM_URL: ${{ secrets.BASEROM_URL }}
+        run: |
+          curl -fsSL "$BASEROM_URL" -o donkey-kong.n64
+
+      - name: Extract and split ROM
+        if: steps.check-secret.outputs.has_secret == 'true'
+        run: tools/dk make setup
+
+      - name: Build and verify ROM
+        if: steps.check-secret.outputs.has_secret == 'true'
+        run: tools/dk make
+
+      - name: Clean up baserom
+        if: always()
+        run: rm -f donkey-kong.n64

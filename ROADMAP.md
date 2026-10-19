@@ -48,6 +48,8 @@ Full per-segment details (stream offsets, sizes, hashes, gzip header fields): `b
 
 - [x] **5. ROM from rebuilt segments** — `dk64.us.yaml` now ends at `0x113F0` (boot ELF only). `tools/compress.py` gzips each built text/data stream with GNU gzip 1.2.4 `-9 -n` (built in the Dockerfile; reproduces all 20 members, while zlib matched 11 and gzip 1.12 matched 18) and zero-pads to the segment's ROM size. `make` assembles `build/dk64.us.z64` = `build/boot.bin` + global, menu, multiplayer … jetpac (ROM order) + `bin/segments/table12.bin` + `bin/segments/assets.bin` (raw tail from `extract.py`). ROM SHA-1 matches with every code segment rebuilt from source.
 
+- [x] **8. Workflow tooling** — `tools/dk ./diff.sh [-s SEGMENT] FUNC` runs asm-differ per function (`diff_settings.py` maps each segment to its map file, built image and original bytes: boot `build/boot.bin` vs `baserom.us.z64`, global/overlays `build/<name>.bin` vs `bin/segments/<stream>.bin`; `-n` skips the rebuild). `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` prints m2c starter C (nonmatchings or whole-file asm, referenced rodata files, context preprocessed from `include/common.h` into `build/m2c_ctx.c`). `tools/dk make progress` (`tools/progress.py`, `--json`) reports matched/total function bytes per segment. `hardware_regs: True` in every splat config; the 131 spimdisasm register names are linker symbols in `undefined_syms.us.txt`. `.github/workflows/build.yml` builds the image and, when the `BASEROM_URL` secret is set (Actions secrets cap at 48 KB, so the ROM comes from a private URL), runs `make setup` + `make`.
+
 ## To do
 
 ### 7. libultra
@@ -55,13 +57,6 @@ Full per-segment details (stream offsets, sizes, hashes, gzip header fields): `b
 - [ ] Bring in libultra 2.0L headers (replace the minimal `include/ultra64.h`).
 - [ ] Match libultra C against existing public libultra decomps; check per-file optimisation flags.
 - **Done when:** all libultra functions are named, and matched or explicitly marked as handwritten asm.
-
-### 8. Workflow tooling
-- [ ] `diff.sh` (asm-differ) for per-function diffing.
-- [ ] m2c helper to produce starter C for a given function.
-- [ ] Progress report: matched vs total bytes per segment.
-- [ ] Hardware register names (`hardware_regs: True` needs a definitions file).
-- [ ] Optional CI: build in the container, check hashes.
 
 ### 9. Decompilation (ongoing)
 Suggested order, one subsystem per unit of work:
@@ -84,6 +79,6 @@ Suggested order, one subsystem per unit of work:
 graph LR
   C0[0 toolchain ✓] --> C1[1 extract ✓] --> C2[2 boot split ✓] --> C3[3 global split ✓] --> C4[4 overlays ✓] --> C5[5 full ROM ✓]
   C2 --> C6[6 C pipeline ✓] --> C7[7 libultra] --> C9[9 decompile]
-  C6 --> C8[8 tooling] --> C9
+  C6 --> C8[8 tooling ✓] --> C9
   C1 --> C10[10 assets]
 ```

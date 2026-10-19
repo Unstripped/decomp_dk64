@@ -31,7 +31,7 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
   libultra_symbols: True
-  hardware_regs: False
+  hardware_regs: True
   gfx_ucode: f3dex2
   asm_nonmatching_label_macro: ""
 

@@ -15,6 +15,7 @@ docker build -t dk64-decomp .          # after Dockerfile/requirements.txt chang
 tools/dk make setup                    # extract + split (BASEROM=donkey-kong.n64)
 tools/dk make                          # build + SHA-1 check
 tools/dk make split                    # re-run splat after yaml / symbol changes
+tools/dk make progress                 # build, then matched/total function bytes per segment
 ```
 
 `make split` deletes and regenerates `asm/` and `assets/` (both splat configs); it never overwrites existing `src/*.c`.
@@ -29,17 +30,21 @@ tools/dk make split                    # re-run splat after yaml / symbol change
 | `*.sha1` | expected hashes: full ROM, global and per-overlay text + data |
 | `symbol_addrs.us.txt` | boot + global names; add names here, not by editing asm |
 | `symbol_addrs.<overlay>.us.txt` | overlay-local names (overlay addresses collide, so never put them in `symbol_addrs.us.txt`) |
-| `undefined_syms.us.txt` | symbols outside any segment (libultra low-memory globals) |
+| `undefined_syms.us.txt` | symbols outside any segment (libultra low-memory globals, the N64 hardware registers splat names with `hardware_regs: True`) |
 | `tools/extract.py` | ROM → `baserom.us.z64`, `bin/segments/*` (inflated code streams, raw pieces, `table12.bin` + `assets.bin` ROM tail), `bin/layout.json` |
 | `tools/compress.py` | packs built text + data into a ROM segment: GNU gzip 1.2.4 `-9 -n` members (reproduces all 20; zlib and gzip 1.12 do not), zero-padded to the segment size. The ROM is `build/boot.bin` + 10 compressed segments + raw tail (`Makefile`, `ROM_SEGMENTS`) |
+| `diff.sh`, `diff_settings.py` | asm-differ per-function diff: `tools/dk ./diff.sh [-s SEGMENT] FUNC` (`boot` default, `global`, overlay name; `-n` skips the rebuild) |
+| `tools/m2c.py` | starter C for one function: `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` |
+| `tools/progress.py` | matched vs total function bytes per segment (`--json`) |
+| `.github/workflows/build.yml` | CI: builds the image; with the `BASEROM_URL` secret (a private ROM download URL) also runs `make setup` + `make` |
 | `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions |
 | `include/` | headers; `ultra64.h` is a minimal libultra subset, extend as needed |
 
 ## Decompiling a function
 
 1. Convert its file to C in the segment's splat config (`dk64.us.yaml`, `dk64.global.us.yaml` or `dk64.<overlay>.us.yaml`: `[0xOFFSET, c, dir/name]`), then `tools/dk make split`.
-2. Replace the function's `#pragma GLOBAL_ASM("asm/.../nonmatchings/...")` line with C.
-3. `tools/dk make`; on mismatch, compare with `mips-linux-gnu-objdump -d` on the segment's ELF (`build/dk64.us.elf`, `build/global.elf`, `build/<overlay>.elf`) against `asm/.../nonmatchings/...`.
+2. Replace the function's `#pragma GLOBAL_ASM("asm/.../nonmatchings/...")` line with C; `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` gives starter C.
+3. `tools/dk make`; on mismatch, `tools/dk ./diff.sh [-s SEGMENT] FUNC` shows the asm diff against the original.
 4. Name the function and any discovered symbols in `symbol_addrs.us.txt` (boot/global) or `symbol_addrs.<overlay>.us.txt`.
 
 Compiler notes:

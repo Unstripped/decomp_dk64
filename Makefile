@@ -107,7 +107,7 @@ GLOBAL_O_FILES := $(GLOBAL_S_FILES:%.s=$(BUILD_DIR)/%.o) $(GLOBAL_C_FILES:%.c=$(
 # Suppress o32 odd single-precision FP register warnings in global asm.
 $(GLOBAL_O_FILES): ASFLAGS += -W
 
-.PHONY: all setup extract split check clean distclean
+.PHONY: all setup extract split check progress clean distclean
 .DEFAULT_GOAL := all
 .DELETE_ON_ERROR:
 
@@ -212,6 +212,9 @@ $$(BUILD_DIR)/$(1).gz: $$(BUILD_DIR)/$(1).text.bin $$(BUILD_DIR)/$(1).data.bin t
 endef
 
 $(foreach ovl,$(OVERLAYS),$(eval $(call OVERLAY_RULE,$(ovl))))
+
+progress: check
+	$(PYTHON) tools/progress.py
 
 clean:
 	rm -rf $(BUILD_DIR)/asm $(BUILD_DIR)/assets $(BUILD_DIR)/src $(ELF) $(ROM) $(BOOT_BIN) \
