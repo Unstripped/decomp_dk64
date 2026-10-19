@@ -80,9 +80,29 @@ ASFLAGS := -EB -march=vr4300 -mabi=32 -mgp32 -mfp32 -I include
 OPT_FLAGS := -O2
 MIPSBIT   := -mips2
 CFLAGS    := -c -Wab,-r4300_mul -non_shared -G 0 -Xcpluscomm -signed -woff 649,654,838,807 \
-             -I include -D_FINALROM -DF3DEX_GBI_2 -DTARGET_N64
+             -I include -D_FINALROM -DF3DEX_GBI_2 -DTARGET_N64 -D_MIPS_SZLONG=32
 
-LDFLAGS := -T $(LD_SCRIPT) -Map $(ELF:.elf=.map) --no-check-sections --accept-unknown-input-arch \
+# libultra 2.0L C sources live at src/<segment>/libultra/<ultralib dir>/<file>.c and
+# take decompals/ultralib's flags for TARGET=libultra_rom VERSION=L (Makefile, makefiles/ido.mk):
+# default -O2 -mips2; os/ debug/ host/ rmon/ log/ and libc/ll{,bit,cvt}.c -O1;
+# os/initialize_isv.c -O2; libc/ll{,bit,cvt}.c -mips3 -32. ultralib's -O3 dirs apply to D-I only.
+# Handwritten libultra .s files stay as splat asm (gas), so ultralib's ASOPTFLAGS do not apply.
+LIBULTRA_CFLAGS := -DNDEBUG -DBUILD_VERSION=VERSION_L -DBUILD_VERSION_STRING=\"2.0L\" \
+                   -I include/compiler/ido -I include/PR -I include/libultra
+LIBULTRA_SEGMENTS := boot global
+
+define LIBULTRA_FLAGS
+$(BUILD_DIR)/src/$(1)/libultra/%.o: CFLAGS += $(LIBULTRA_CFLAGS)
+$(foreach dir,os debug host rmon log,$(BUILD_DIR)/src/$(1)/libultra/$(dir)/%.o: OPT_FLAGS := -O1
+)
+$(foreach f,ll llbit llcvt,$(BUILD_DIR)/src/$(1)/libultra/libc/$(f).o: OPT_FLAGS := -O1
+$(BUILD_DIR)/src/$(1)/libultra/libc/$(f).o: MIPSBIT := -mips3 -32
+)
+$(BUILD_DIR)/src/$(1)/libultra/os/initialize_isv.o: OPT_FLAGS := -O2
+endef
+$(foreach seg,$(LIBULTRA_SEGMENTS),$(eval $(call LIBULTRA_FLAGS,$(seg))))
+
+LDFLAGS := -T $(LD_SCRIPT) -Map $(ELF:.elf=.map) --no-check-sections --accept-unknown-input-arch --no-warn-mismatch \
            -T $(BUILD_DIR)/undefined_syms_auto.$(VERSION).txt \
            -T $(BUILD_DIR)/undefined_funcs_auto.$(VERSION).txt \
            -T undefined_syms.$(VERSION).txt
@@ -149,7 +169,7 @@ $(BUILD_DIR)/%.o: %.s
 # asm-processor splices INCLUDE_ASM'd functions into IDO's output.
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(ASM_PROC) --asm-prelude /opt/asm-processor/prelude.inc $(CC) -- $(AS) $(ASFLAGS) -- $(CFLAGS) $(OPT_FLAGS) $(MIPSBIT) -o $@ $<
+	$(ASM_PROC) --asm-prelude include/asm_prelude.inc $(CC) -- $(AS) $(ASFLAGS) -- $(CFLAGS) $(OPT_FLAGS) $(MIPSBIT) -o $@ $<
 
 $(BUILD_DIR)/%.o: %.bin
 	@mkdir -p $(dir $@)

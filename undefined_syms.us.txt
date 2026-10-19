@@ -8,6 +8,9 @@ osVersion      = 0x80000314;
 osMemSize      = 0x80000318;
 osAppNMIBuffer = 0x8000031C;
 
+/* libultra aliases */
+osPiRawStartDma = 0x800045D0;
+
 /* N64 hardware registers (spimdisasm N64HardwareRegs) */
 /* Signal Processor (SP) Registers */
 SP_MEM_ADDR_REG           = 0xA4040000;
