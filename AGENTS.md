@@ -36,7 +36,7 @@ tools/dk make progress                 # build, then matched/total function byte
 | `diff.sh`, `diff_settings.py` | asm-differ per-function diff: `tools/dk ./diff.sh [-s SEGMENT] FUNC` (`boot` default, `global`, overlay name; `-n` skips the rebuild) |
 | `tools/m2c.py` | starter C for one function: `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` |
 | `tools/progress.py` | matched vs total function bytes per segment (`--json`) |
-| `tools/objdiff.sh` | per-object compare that builds only one object: `tools/objdiff.sh src/...c [FUNC]` vs `expected/build/...o` (snapshot the matching object there first; `expected/` is gitignored). Exit 0 full match, 3 code matches but the file's own data differs, 1 mismatch. Safe to run concurrently on different files, unlike `make`/`diff.sh` |
+| `tools/objdiff.sh` | per-object compare that builds only one object: `tools/objdiff.sh src/...c [FUNC]` vs `expected/build/...o`. `tools/dk make expected` snapshots every C object of a matching build there first (`expected/` is gitignored). Exit 0 full match, 3 code matches but the file's own data differs, 1 mismatch. Safe to run concurrently on different files, unlike `make`/`diff.sh` |
 | `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions (only files containing it go through asm-processor) |
 | `src/boot/libultra/<dir>/<file>.c` | libultra 2.0J, one file per decompals/ultralib source, same path; the Makefile picks ultralib's J flags from the path |
 | `include/` | decompals/ultralib headers (`ultra64.h`, `PR/`, `PRinternal/`, `libultra/`, `compiler/ido/`), `BUILD_VERSION` = `VERSION_J` |
