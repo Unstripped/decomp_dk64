@@ -167,4 +167,17 @@ void bootStartMainThread(void) {
     osStartThread(&D_80012710);
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/bootMain.s")
+void bootMain(void) {
+    u32 *p;
+    u32 *q;
+
+    osInitialize();
+    p = (u32 *)0xA02FE1C0;
+    q = (u32 *)0xA02FE1C0;
+    if (*p != 0xAD170014) {
+        do {
+        } while (*q != 0xAD170014);
+    }
+    *p = 0xF0F0F0F0;
+    bootStartMainThread();
+}
