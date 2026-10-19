@@ -18,6 +18,7 @@ SPLAT_YAML := $(TARGET).yaml
 LD_SCRIPT  := $(BUILD_DIR)/$(TARGET).ld
 ELF        := $(BUILD_DIR)/$(TARGET).elf
 ROM        := $(BUILD_DIR)/$(TARGET).z64
+BOOT_BIN   := $(BUILD_DIR)/boot.bin
 
 GLOBAL_TARGET     := dk64.global.$(VERSION)
 GLOBAL_SPLAT_YAML := $(GLOBAL_TARGET).yaml
@@ -30,6 +31,7 @@ GLOBAL_SHA1       := $(GLOBAL_TARGET).sha1
 
 # Inflated text size of the global code segment (from bin/layout.json).
 GLOBAL_TEXT_SIZE  := 1347936
+GLOBAL_GZ         := $(BUILD_DIR)/global.gz
 
 # Overlays (all at VRAM 0x80024000): name, segment-table stream id in bin/segments/, inflated text size.
 OVERLAYS := multiplayer minecart bonus race critter boss arcade jetpac menu
@@ -53,6 +55,25 @@ boss_TEXT_SIZE        := 71856
 arcade_TEXT_SIZE      := 57888
 jetpac_TEXT_SIZE      := 28816
 menu_TEXT_SIZE        := 61264
+
+# Compressed segment ROM sizes (gzip text + data members, zero-padded).
+GLOBAL_ROM_SIZE      := 0xBAA80
+multiplayer_ROM_SIZE := 0x2000
+minecart_ROM_SIZE    := 0x2F40
+bonus_ROM_SIZE       := 0x5BC0
+race_ROM_SIZE        := 0x7180
+critter_ROM_SIZE     := 0x3930
+boss_ROM_SIZE        := 0xA0F0
+arcade_ROM_SIZE      := 0x9150
+jetpac_ROM_SIZE      := 0x4750
+menu_ROM_SIZE        := 0x8C90
+
+# Compressed segments in ROM order (global + 9 overlays).
+ROM_SEGMENTS := global menu multiplayer minecart bonus race critter boss arcade jetpac
+ROM_GZ       := $(ROM_SEGMENTS:%=$(BUILD_DIR)/%.gz)
+
+# Uncompressed ROM tail: table-12 raw data, then assets (written by tools/extract.py).
+RAW_TAIL := bin/segments/table12.bin bin/segments/assets.bin
 
 ASFLAGS := -EB -march=vr4300 -mabi=32 -mgp32 -mfp32 -I include
 # IDO 5.3 flags used by the original build (-O2 -mips2 -G 0, libultra 2.0L).
@@ -93,7 +114,9 @@ $(GLOBAL_O_FILES): ASFLAGS += -W
 all: check
 
 # One-time: verify + convert the user ROM, write per-segment binaries, then split.
-setup: extract split
+# split runs in a sub-make: this make's directory cache predates the extracted files.
+setup: extract
+	$(MAKE) split
 
 extract:
 	$(PYTHON) tools/extract.py $(BASEROM)
@@ -135,8 +158,16 @@ $(BUILD_DIR)/%.o: %.bin
 $(ELF): $(O_FILES) $(LD_SCRIPT)
 	$(LD) $(LDFLAGS) -o $@
 
-$(ROM): $(ELF)
+$(BOOT_BIN): $(ELF)
 	$(OBJCOPY) -O binary $< $@
+	@test $$(stat -c %s $@) -eq 70640 || { echo "$@ size mismatch: expected 0x113F0 (70640), got $$(stat -c %s $@)"; exit 1; }
+
+$(GLOBAL_GZ): $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN) tools/compress.py
+	$(PYTHON) tools/compress.py --size $(GLOBAL_ROM_SIZE) $@ $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN)
+
+$(ROM): $(BOOT_BIN) $(ROM_GZ) $(RAW_TAIL)
+	cat $^ > $@
+	@test $$(stat -c %s $@) -eq 33554432 || { echo "$@ size mismatch: expected 0x2000000 (33554432), got $$(stat -c %s $@)"; exit 1; }
 
 $(GLOBAL_ELF): $(GLOBAL_O_FILES) $(GLOBAL_LD_SCRIPT) $(ELF)
 	$(LD) $(GLOBAL_LDFLAGS) -o $@
@@ -175,14 +206,17 @@ $$(BUILD_DIR)/$(1).text.bin: $$(BUILD_DIR)/$(1).bin
 
 $$(BUILD_DIR)/$(1).data.bin: $$(BUILD_DIR)/$(1).bin
 	tail -c +$$$$(($$($(1)_TEXT_SIZE) + 1)) $$< > $$@
+
+$$(BUILD_DIR)/$(1).gz: $$(BUILD_DIR)/$(1).text.bin $$(BUILD_DIR)/$(1).data.bin tools/compress.py
+	$$(PYTHON) tools/compress.py --size $$($(1)_ROM_SIZE) $$@ $$(BUILD_DIR)/$(1).text.bin $$(BUILD_DIR)/$(1).data.bin
 endef
 
 $(foreach ovl,$(OVERLAYS),$(eval $(call OVERLAY_RULE,$(ovl))))
 
 clean:
-	rm -rf $(BUILD_DIR)/asm $(BUILD_DIR)/assets $(BUILD_DIR)/src $(ELF) $(ROM) \
-	       $(GLOBAL_ELF) $(GLOBAL_BIN) $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN) $(BUILD_DIR)/global.map \
-	       $(foreach ovl,$(OVERLAYS),$(BUILD_DIR)/$(ovl).elf $(BUILD_DIR)/$(ovl).bin $(BUILD_DIR)/$(ovl).text.bin $(BUILD_DIR)/$(ovl).data.bin $(BUILD_DIR)/$(ovl).map)
+	rm -rf $(BUILD_DIR)/asm $(BUILD_DIR)/assets $(BUILD_DIR)/src $(ELF) $(ROM) $(BOOT_BIN) \
+	       $(GLOBAL_ELF) $(GLOBAL_BIN) $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN) $(GLOBAL_GZ) $(BUILD_DIR)/global.map \
+	       $(foreach ovl,$(OVERLAYS),$(BUILD_DIR)/$(ovl).elf $(BUILD_DIR)/$(ovl).bin $(BUILD_DIR)/$(ovl).text.bin $(BUILD_DIR)/$(ovl).data.bin $(BUILD_DIR)/$(ovl).gz $(BUILD_DIR)/$(ovl).map)
 
 distclean:
 	rm -rf $(BUILD_DIR) asm assets bin baserom.$(VERSION).z64

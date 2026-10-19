@@ -23,14 +23,15 @@ tools/dk make split                    # re-run splat after yaml / symbol change
 
 | Path | Purpose |
 |---|---|
-| `dk64.us.yaml` | splat config for the ROM: header, entry, boot (segments, file splits) |
+| `dk64.us.yaml` | splat config for ROM `0x0`–`0x113F0`: header, entry, boot, rspboot (segments, file splits); `build/dk64.us.elf` is the boot ELF |
 | `dk64.global.us.yaml` | splat config for the decompressed global segment (`bin/segments/global.bin`, VRAM `0x805FB300`); outputs `asm/global`, `src/global`, `build/global.elf` (links against boot via `--just-symbols`) |
 | `dk64.<overlay>.us.yaml` | one splat config per overlay (`multiplayer minecart bonus race critter boss arcade jetpac menu`, all VRAM `0x80024000`; source stream `bin/segments/ovlNN.bin`); outputs `asm/<overlay>`, `build/<overlay>.elf` (links against global + boot via `--just-symbols`). Overlay list, stream ids and text sizes: `OVERLAYS` in `Makefile` |
 | `*.sha1` | expected hashes: full ROM, global and per-overlay text + data |
 | `symbol_addrs.us.txt` | boot + global names; add names here, not by editing asm |
 | `symbol_addrs.<overlay>.us.txt` | overlay-local names (overlay addresses collide, so never put them in `symbol_addrs.us.txt`) |
 | `undefined_syms.us.txt` | symbols outside any segment (libultra low-memory globals) |
-| `tools/extract.py` | ROM → `baserom.us.z64`, `bin/segments/*`, `bin/layout.json` |
+| `tools/extract.py` | ROM → `baserom.us.z64`, `bin/segments/*` (inflated code streams, raw pieces, `table12.bin` + `assets.bin` ROM tail), `bin/layout.json` |
+| `tools/compress.py` | packs built text + data into a ROM segment: GNU gzip 1.2.4 `-9 -n` members (the only compressor that reproduces all 20), zero-padded to the segment size. The ROM is `build/boot.bin` + 10 compressed segments + raw tail (`Makefile`, `ROM_SEGMENTS`) |
 | `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions |
 | `include/` | headers; `ultra64.h` is a minimal libultra subset, extend as needed |
 

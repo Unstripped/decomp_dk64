@@ -46,13 +46,9 @@ Full per-segment details (stream offsets, sizes, hashes, gzip header fields): `b
 - [x] **3. Global code split** — `dk64.global.us.yaml` splits `bin/segments/global.bin` (text‖data, concatenated by `make split`) into 144 text files + data/rodata (`0x15B390`, VRAM `0x80756690`)/bss; linked to `build/global.elf` with `--just-symbols=build/dk64.us.elf` so boot symbols resolve to the same addresses. `make` checks the ROM and `dk64.global.us.sha1` (text + data). Named `globalInit` (`0x805FB300`: fills segment-table VRAM fields, starts PI manager and the main thread) and `loadOverlay` (`0x80610350`: maps the mode byte at `0x8074450C` to overlay 2–10, lays out the heap after it, clears its bss and loads it via `0x8060B140`).
 - [x] **4. Overlay splits** — one splat config per overlay (`dk64.<name>.us.yaml`, segment id `ovlNN` kept for `bin/segments/`), all at `0x80024000`; each links to `build/<name>.elf` with `--just-symbols` of global and boot ELFs, is cut at its text size and checked against `dk64.<name>.us.sha1`. Overlay-local names go in `symbol_addrs.<name>.us.txt` (addresses collide across overlays). `loadOverlay` maps game mode (`0x8074450C`) 2→menu, 3→multiplayer, 4→minecart, 5→race, 6→critter, 7→boss, 8→bonus, 9→arcade, 10→jetpac; modes 0–1 load none. Text files: multiplayer 1, minecart 2, bonus 4, race 7, critter 2, boss 9, arcade 1, jetpac 5, menu 4. Data/rodata split everywhere except boss, whose rodata starts at `0x11CC8` (not 16-aligned; a separate subsegment gets `ALIGN(16)` padding), so it stays one `data` subsegment.
 
-## To do
+- [x] **5. ROM from rebuilt segments** — `dk64.us.yaml` now ends at `0x113F0` (boot ELF only). `tools/compress.py` gzips each built text/data stream with GNU gzip 1.2.4 `-9 -n` (built in the Dockerfile; reproduces all 20 members, while zlib matched 11 and gzip 1.12 matched 18) and zero-pads to the segment's ROM size. `make` assembles `build/dk64.us.z64` = `build/boot.bin` + global, menu, multiplayer … jetpac (ROM order) + `bin/segments/table12.bin` + `bin/segments/assets.bin` (raw tail from `extract.py`). ROM SHA-1 matches with every code segment rebuilt from source.
 
-### 5. Byte-identical ROM from decompressed segments
-- [ ] `tools/compress.py`: gzip each built stream (header `mtime=0 xfl=2 os=3`) and place it at its original ROM offset with zero padding.
-- [ ] Python zlib level 9 reproduces 11 of 20 code/data streams exactly; find settings for the other 9 (mostly data streams: same length, different bytes).
-- [ ] Replace the `rom_rest` blob with built segments + assets.
-- **Done when:** ROM SHA-1 matches with all code segments rebuilt from source.
+## To do
 
 ### 7. libultra
 - [ ] Identify remaining libultra functions in boot (and any in global); add to `symbol_addrs.us.txt`.
@@ -86,7 +82,7 @@ Suggested order, one subsystem per unit of work:
 
 ```mermaid
 graph LR
-  C0[0 toolchain ✓] --> C1[1 extract ✓] --> C2[2 boot split ✓] --> C3[3 global split ✓] --> C4[4 overlays ✓] --> C5[5 full ROM]
+  C0[0 toolchain ✓] --> C1[1 extract ✓] --> C2[2 boot split ✓] --> C3[3 global split ✓] --> C4[4 overlays ✓] --> C5[5 full ROM ✓]
   C2 --> C6[6 C pipeline ✓] --> C7[7 libultra] --> C9[9 decompile]
   C6 --> C8[8 tooling] --> C9
   C1 --> C10[10 assets]

@@ -162,10 +162,4 @@ segments:
     type: bin
     start: 0x11320
 
-  # Compressed code (global + overlays) and assets. Split per segment from
-  # bin/segments/ in later chunks; kept as one blob so the ROM rebuilds exactly.
-  - name: rom_rest
-    type: bin
-    start: 0x113F0
-
-  - [0x2000000]
+  - [0x113F0]

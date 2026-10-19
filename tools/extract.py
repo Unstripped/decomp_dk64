@@ -34,6 +34,8 @@ RAW_SEGMENTS = [
     ("entry", 0x1000, 0x1050, 0x80000400),  # bss clear + jump to 0x800009D0
     ("boot", 0x1050, 0x11320, 0x80000450),  # table entry 0; bss 0x80010720-0x80016630
     ("rspboot", 0x11320, 0x113F0, None),  # RSP boot microcode
+    ("table12", 0x101A40, 0x101C50, None),  # table entry 12: raw display-list data
+    ("assets", 0x101C50, 0x2000000, None),  # asset tables 11, 13-17 + padding
 ]
 BOOT_BSS = (0x80010720, 0x80016630)
 

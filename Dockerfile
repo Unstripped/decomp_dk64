@@ -31,4 +31,14 @@ RUN git clone --depth 1 https://github.com/simonlindholm/asm-processor /opt/asm-
     && git clone --depth 1 https://github.com/simonlindholm/asm-differ /opt/asm-differ \
     && git clone --depth 1 https://github.com/matt-kempster/m2c /opt/m2c
 
+# GNU gzip 1.2.4 -9 -n reproduces all 20 code/data gzip members in the ROM; modern gzip and zlib do not.
+RUN curl -fsSL "https://ftp.gnu.org/gnu/gzip/gzip-1.2.4.tar.gz" -o /tmp/gzip-1.2.4.tar.gz \
+    && echo "1ca41818a23c9c59ef1d5e1d00c0d5eaa2285d931c0fb059637d7c0cc02ad967  /tmp/gzip-1.2.4.tar.gz" | sha256sum -c - \
+    && tar -xzf /tmp/gzip-1.2.4.tar.gz -C /tmp \
+    && cd /tmp/gzip-1.2.4 \
+    && ./configure \
+    && make \
+    && cp gzip /usr/local/bin/gzip-1.2.4 \
+    && rm -rf /tmp/gzip-1.2.4*
+
 WORKDIR /dk64
