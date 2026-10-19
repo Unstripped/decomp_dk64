@@ -31,7 +31,7 @@ tools/dk make split                    # re-run splat after yaml / symbol change
 | `symbol_addrs.<overlay>.us.txt` | overlay-local names (overlay addresses collide, so never put them in `symbol_addrs.us.txt`) |
 | `undefined_syms.us.txt` | symbols outside any segment (libultra low-memory globals) |
 | `tools/extract.py` | ROM → `baserom.us.z64`, `bin/segments/*` (inflated code streams, raw pieces, `table12.bin` + `assets.bin` ROM tail), `bin/layout.json` |
-| `tools/compress.py` | packs built text + data into a ROM segment: GNU gzip 1.2.4 `-9 -n` members (the only compressor that reproduces all 20), zero-padded to the segment size. The ROM is `build/boot.bin` + 10 compressed segments + raw tail (`Makefile`, `ROM_SEGMENTS`) |
+| `tools/compress.py` | packs built text + data into a ROM segment: GNU gzip 1.2.4 `-9 -n` members (reproduces all 20; zlib and gzip 1.12 do not), zero-padded to the segment size. The ROM is `build/boot.bin` + 10 compressed segments + raw tail (`Makefile`, `ROM_SEGMENTS`) |
 | `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions |
 | `include/` | headers; `ultra64.h` is a minimal libultra subset, extend as needed |
 
