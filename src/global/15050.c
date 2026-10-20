@@ -1,16 +1,24 @@
 #include "common.h"
 #include "heap.h"
 
-extern u8 D_80746A37;
 extern s32 D_80746A30;
-extern HeapBlock *D_807F0990;
+extern u8 D_80746A37;
+extern HeapPool D_807F0988[];
+extern HeapBlock *D_807F0990; // D_807F0988[0].freeList
+extern s32 D_807F0A28;
+extern u16 D_807F0A30[];
+extern u16 D_807F0A40[];
+extern s32 D_807F0A50;
 extern DeferredFree D_807F0A58[];
 extern s32 D_807F5A58;
 extern s32 D_807F5A5C;
+extern u8 *D_807F5A64;
 extern s32 D_807F5A68;
 extern void *D_807F5A70[];
 
 s32 func_8065EA44(void);
+void heapQueueDeferredFree(void *ptr);
+void func_80611408(HeapBlock *block);
 HeapBlock *func_806111F8(s32 pool, u32 size);
 void func_80611730(void);
 
@@ -34,7 +42,22 @@ void func_80610B84(s32 oldBase, s32 newBase, u32 size) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610C74.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610DCC.s")
+void heapSortPools(void) {
+    u32 i;
+    u32 j;
+    u32 prev;
+
+    for (i = 1; i <= D_807F0A50; i++) {
+        prev = D_807F0A30[i - 1];
+        D_807F0A30[i] = 0xFFFF;
+        for (j = 0; j < D_807F0A28; j++) {
+            if (prev < D_807F0988[j].blockSize && D_807F0988[j].blockSize < D_807F0A30[i]) {
+                D_807F0A30[i] = D_807F0988[j].blockSize;
+                D_807F0A40[i] = j;
+            }
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610E84.s")
 
@@ -52,7 +75,7 @@ s32 func_8061116C(void) {
     return func_8065EA44();
 }
 
-s32 func_8061118C(void) {
+s32 heapFreeBytes(void) {
     s32 total = 0;
     HeapBlock *block = D_807F0990;
 
@@ -65,7 +88,7 @@ s32 func_8061118C(void) {
     return total;
 }
 
-void *func_806111BC(s32 pool, s32 size) {
+void *heapAllocFromPool(s32 pool, s32 size) {
     u8 *ptr = (u8 *)func_806111F8(pool, (size + 0xF) & ~0xF);
 
     if (ptr != NULL) {
@@ -77,11 +100,23 @@ void *func_806111BC(s32 pool, s32 size) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_806111F8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_8061130C.s")
+void heapFree(u8 *ptr) {
+    if (ptr != D_807F5A64) {
+        if ((ptr -= 0x10)[0xB] == 0) {
+            func_80611408((HeapBlock *)ptr);
+        }
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_8061134C.s")
+void heapFreeDeferred(u8 *ptr) {
+    if (ptr != D_807F5A64) {
+        if ((ptr -= 0x10)[0xB] == 0) {
+            heapQueueDeferredFree(ptr);
+        }
+    }
+}
 
-void func_8061138C(void *ptr) {
+void heapQueueDeferredFree(void *ptr) {
     DeferredFree *entry;
     s32 count = D_807F5A58;
 
@@ -97,7 +132,7 @@ void func_8061138C(void *ptr) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80611408.s")
 
-void func_80611534(HeapBlock *block) {
+void heapCoalesce(HeapBlock *block) {
     HeapBlock *temp;
 
     if (block != NULL && block->prev != NULL && block->prev == block->physPrev) {
@@ -113,11 +148,11 @@ void func_80611534(HeapBlock *block) {
     }
 }
 
-void func_80611594(u8 *ptr) {
+void heapUnlockBlock(u8 *ptr) {
     ptr[-5] = 0;
 }
 
-void func_8061159C(u8 *ptr) {
+void heapLockBlock(u8 *ptr) {
     ptr[-5] = 1;
 }
 
@@ -125,11 +160,11 @@ void func_8061159C(u8 *ptr) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80611614.s")
 
-s32 func_80611688(void *ptr) {
+s32 heapBlockSize(void *ptr) {
     return ((HeapBlock *)ptr - 1)->size;
 }
 
-void func_80611690(void *ptr) {
+void heapClearBlock(void *ptr) {
     u64 *cur = ptr;
     u16 count = (u32)((HeapBlock *)ptr - 1)->size >> 3;
 
@@ -138,7 +173,7 @@ void func_80611690(void *ptr) {
     }
 }
 
-void func_806116E0(s32 *ptr, s32 val) {
+void heapFillBlock(s32 *ptr, s32 val) {
     s32 *cur = ptr;
     u16 count = (u32)((HeapBlock *)ptr - 1)->size >> 2;
 
