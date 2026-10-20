@@ -60,4 +60,5 @@ Compiler notes:
 
 - Unidentified symbols keep splat names (`func_XXXXXXXX`, `D_XXXXXXXX`) until their behaviour is confirmed.
 - File splits: follow splat's suggestions, but check data/rodata boundaries against 16-byte alignment and string placement (boot rodata is `0x10F60`, not splat's `0x10F74`).
+- Converting a global/overlay file to `c`: give its data range a named asm subsegment (`[0xOFF, data, name]`) and switch to `.data` only once the C defines every object in it (a `.data` subsegment emits no asm, so GLOBAL_ASM-only files fail to link). Its rodata can be `.rodata` right away: splat migrates it into the GLOBAL_ASM function files.
 - Update `ROADMAP.md` checkboxes when a step lands.

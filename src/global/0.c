@@ -22,7 +22,7 @@ extern s32 D_8000DDCC;
 extern OSMesgQueue D_807655F0;
 extern OSIoMesg D_807ECE00;
 
-void func_805FB750(s32 arg0, s32 arg1, void *arg2) {
+void seg11DmaRead(s32 arg0, s32 arg1, void *arg2) {
     s32 sp2C;
 
     sp2C = D_8000DDCC;
@@ -44,7 +44,7 @@ extern OSMesg D_80765608;
 extern OSMesgQueue D_807656D0;
 extern OSMesg D_807656E8;
 extern u8 D_8074458B[][4];
-extern u8 D_80767A40[];
+extern u8 gScheduler[];
 extern u8 D_80767CD8[];
 extern OSMesgQueue D_807659E8;
 extern OSMesg D_80765A00[];
@@ -56,8 +56,8 @@ extern OSMesg D_8076A108;
 extern OSMesgQueue D_8076A110;
 extern OSMesg D_8076A128;
 extern OSTimer D_8076A130;
-void func_8060EC80(OSMesgQueue *, void *, s32, u8, u8);
-void func_8060ED6C(void *, void *, OSMesgQueue *, s32, s32);
+void schedCreate(OSMesgQueue *, void *, s32, u8, u8);
+void schedAddClient(void *, void *, OSMesgQueue *, s32, s32);
 void func_805FB944(s32);
 void func_8060FFF0(void);
 void func_8060A900(void);
@@ -70,9 +70,9 @@ void func_805FBC5C(void) {
     D_8076A084 = gSegmentTable[0x49] - gSegmentTable[0x48];
     osCreateMesgQueue(&D_807655F0, &D_80765608, 0x32);
     osCreateMesgQueue(&D_807656D0, &D_807656E8, 0xC0);
-    func_8060EC80(&D_80767A40, &D_80765A00[0x810], 0x19, D_8074458B[osTvType + osTvType][0], 1);
+    schedCreate(&gScheduler, &D_80765A00[0x810], 0x19, D_8074458B[osTvType + osTvType][0], 1);
     osCreateMesgQueue(&D_807659E8, &D_80765A00, 0x10);
-    func_8060ED6C(&D_80767A40, &D_80767CD8, &D_807659E8, 1, 1);
+    schedAddClient(&gScheduler, &D_80767CD8, &D_807659E8, 1, 1);
     D_8076A0A8 = D_807444E4;
     func_805FB944(0);
     D_8076A07C = 5;

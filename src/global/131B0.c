@@ -76,23 +76,23 @@ extern RumblePlayer *D_807FC924;
 extern s32 func_8060AB38(s32);
 extern void func_8060EC54(s32);
 
-void func_8060E4B0(RumbleInfo *arg0) {
+void rumbleInfoClear(RumbleInfo *arg0) {
     bzero(arg0, 0x14);
 }
 
-void func_8060E4D0(u8 arg0) {
+void rumbleMotorStart(u8 arg0) {
     RumbleInfo *sp18;
 
     if (__osMotorAccess(&D_807F02D0[arg0], 1) == 4) {
         sp18 = &D_807F0470[arg0];
-        func_8060E4B0(sp18);
+        rumbleInfoClear(sp18);
         sp18->unk00 = 3;
     } else {
         D_807F0474[arg0 * 0x14] = 1;
     }
 }
 
-void func_8060E574(u8 arg0) {
+void rumbleMotorInit(u8 arg0) {
     s32 ret = osMotorInit(&D_807ECCF0, &D_807F02D0[arg0], arg0);
 
     switch (ret) {
@@ -151,9 +151,9 @@ void func_8060EC54(s32 arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/func_8060EC80.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedCreate.s")
 
-void func_8060ED6C(SchedStruct *arg0, TaskNode *arg1, s32 arg2, s32 arg3, s32 arg4) {
+void schedAddClient(SchedStruct *arg0, TaskNode *arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 sp14 = osGetIntMask(1);
 
     arg1->unk4 = arg2;
@@ -164,7 +164,7 @@ void func_8060ED6C(SchedStruct *arg0, TaskNode *arg1, s32 arg2, s32 arg3, s32 ar
     osGetIntMask(sp14);
 }
 
-void func_8060EDD0(SchedStruct *arg0, TaskNode *arg1) {
+void schedRemoveClient(SchedStruct *arg0, TaskNode *arg1) {
     TaskNode *sp1C = arg0->unk260;
     TaskNode *sp18 = NULL;
     s32 sp14 = osGetIntMask(1);

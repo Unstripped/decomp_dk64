@@ -70,7 +70,15 @@ vsprintf = 0x8000320C; // type:func
 
 // Global (segment table entry 1)
 globalInit = 0x805FB300; // type:func
+seg11DmaRead = 0x805FB750; // type:func
 loadOverlay = 0x80610350; // type:func
+rumbleInfoClear = 0x8060E4B0; // type:func
+rumbleMotorStart = 0x8060E4D0; // type:func
+rumbleMotorInit = 0x8060E574; // type:func
+schedCreate = 0x8060EC80; // type:func
+schedAddClient = 0x8060ED6C; // type:func
+schedRemoveClient = 0x8060EDD0; // type:func
+gScheduler = 0x80767A40;
 
 // n_audio
 alHeapInit = 0x80732420; // type:func
