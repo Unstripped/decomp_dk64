@@ -11,7 +11,7 @@ Matching decompilation of Donkey Kong 64 (USA). Status, ROM map and remaining wo
 ## Build
 
 ```sh
-docker build -t dk64-decomp .          # after Dockerfile/requirements.txt changes
+docker compose build                    # builds the dk64-decomp image (or docker build -t dk64-decomp .)
 tools/dk make setup                    # extract + split (BASEROM=donkey-kong.n64)
 tools/dk make                          # build + SHA-1 check
 tools/dk make split                    # re-run splat after yaml / symbol changes

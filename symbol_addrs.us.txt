@@ -75,9 +75,18 @@ loadOverlay = 0x80610350; // type:func
 rumbleInfoClear = 0x8060E4B0; // type:func
 rumbleMotorStart = 0x8060E4D0; // type:func
 rumbleMotorInit = 0x8060E574; // type:func
+rumbleMotorStop = 0x8060E664; // type:func
 schedCreate = 0x8060EC80; // type:func
 schedAddClient = 0x8060ED6C; // type:func
 schedRemoveClient = 0x8060EDD0; // type:func
+schedMain = 0x8060EE60; // type:func
+schedHandleRetrace = 0x8060F254; // type:func
+schedHandleRSP = 0x8060F54C; // type:func
+schedHandleRDP = 0x8060F730; // type:func
+schedTaskDone = 0x8060F854; // type:func
+schedAppendTask = 0x8060F928; // type:func
+schedStartTask = 0x8060F960; // type:func
+schedYield = 0x8060FA5C; // type:func
 gScheduler = 0x80767A40;
 
 // n_audio

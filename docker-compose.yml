@@ -1,0 +1,12 @@
+services:
+  decomp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dk64-decomp:latest
+    volumes:
+      - .:/dk64
+    working_dir: /dk64
+    stdin_open: true
+    tty: true
+    command: make
