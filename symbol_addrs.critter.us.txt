@@ -1,1 +1,9 @@
 // Overlay critter (ovl06, segment table entry 6)
+critterPlayAudio = 0x8002448C; // type:func
+critterStopAudio = 0x80024518; // type:func
+critterUpdateAudio = 0x80024578; // type:func
+critterCalcDistToPlayer = 0x80026410; // type:func
+critterDispatchAll = 0x80026B78; // type:func
+critterRender = 0x80027034; // type:func
+critterCleanup = 0x8002708C; // type:func
+critterBitwiseNot = 0x80029110; // type:func

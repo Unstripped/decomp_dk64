@@ -60,25 +60,25 @@ void func_8002A758(JetpacActor *);
 void func_8002A67C(JetpacActor *);
 void func_8002998C(JetpacActor *actor);
 f32 func_8002A2DC(f32 arg0, f32 arg1);
-f32 func_80027210(void);
+f32 jetpacRandFloat(void);
 void func_80029B90(JetpacActor *);
 void func_80029C1C(JetpacActor *);
 void func_8002A254(JetpacActor *arg0);
 void func_8002A530(JetpacActor *actor);
-f32 func_800273C8(JetpacActor *);
+f32 jetpacGetEntityCenterY(JetpacActor *);
 extern f32 D_8002F054;
 extern s32 D_8002F078;
 void func_8002A374(JetpacActor *actor);
 s32 func_80026FE0(void);
 void func_80029204(JetpacActor *actor);
-JetpacActor *func_80028FC0(void);
+JetpacActor *jetpacFindFreeActor(void);
 extern JetpacActor D_8002F1DC[];
 extern JetpacActor D_8002E964;
 extern JetpacActor D_8002E914;
 JetpacActor *func_800292C4(void);
 extern s32 D_8002E8F0;
 void func_80029450(void);
-s32 func_80028CF8(f32, f32, f32, f32, s32);
+s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
 s32 func_80029064(JetpacActor *);
 void func_800294EC(JetpacActor *, s32);
 void func_80024E70(s32 arg0);
@@ -90,7 +90,7 @@ void func_800298C8(JetpacActor *actor);
 extern u8 D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3;
 extern u8 D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC;
 
-JetpacActor *func_80028FC0(void) {
+JetpacActor *jetpacFindFreeActor(void) {
     JetpacActor *actor = D_8002F1DC;
     s32 i = 0;
 
@@ -134,15 +134,15 @@ JetpacActor *func_800292C4(void) {
     JetpacActor *actor;
     JetpacActor sp20;
 
-    actor = func_80028FC0();
+    actor = jetpacFindFreeActor();
     sp20 = D_8002E914;
     if (actor == NULL) {
         return NULL;
     }
     *actor = sp20;
     actor->unk0 = 0.0f;
-    actor->unk4 = (f32)((((s32)(func_80027210() * 15.0f) % 15) * 8) + 32);
-    switch ((s32)(func_80027210() * 4.0f) % 4) {
+    actor->unk4 = (f32)((((s32)(jetpacRandFloat() * 15.0f) % 15) * 8) + 32);
+    switch ((s32)(jetpacRandFloat() * 4.0f) % 4) {
     case 0:
         actor->unk10 = 0;
         break;
@@ -170,7 +170,7 @@ JetpacActor *func_800292C4(void) {
 void func_8002976C(JetpacActor *arg0) {
     switch (arg0->unk14) {
     case 3:
-        if (func_80028CF8((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
+        if (jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
                           (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
                           (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                           (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1) >= 0) {
@@ -217,7 +217,7 @@ void func_8002998C(JetpacActor *arg0) {
 
     switch (arg0->unk14) {
     case 3:
-        res = func_80028CF8((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
+        res = jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
                             (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
@@ -253,12 +253,12 @@ void func_80029AF8(JetpacActor *arg0) {
         arg0->unk8 = 1.2f;
     }
     func_80029B90(arg0);
-    arg0->unk2C = (s32)((func_80027210() * 60.0f) + 10.0f);
+    arg0->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
 }
 
 void func_80029B90(JetpacActor *arg0) {
     if ((f64)arg0->unkC == 0.0) {
-        if ((f64)func_80027210() < 0.5) {
+        if ((f64)jetpacRandFloat() < 0.5) {
             arg0->unkC = -0.6f;
             return;
         }
@@ -275,9 +275,9 @@ void func_80029C1C(JetpacActor *arg0) {
     case 3:
         if (--arg0->unk2C == 0) {
             func_80029B90(arg0);
-            arg0->unk2C = (s32)((func_80027210() * 60.0f) + 10.0f);
+            arg0->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
         }
-        res = func_80028CF8((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
+        res = jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
                             (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
@@ -308,8 +308,8 @@ void func_80029C1C(JetpacActor *arg0) {
 void func_80029E0C(JetpacActor *arg0) {
     arg0->unk48 = func_80029F7C;
     arg0->unk44 = 0x37;
-    arg0->unk2C = (s32)((func_80027210() * 60.0f) + 10.0f);
-    arg0->unk40 = (u32)((func_80027210() * 180.0f) + 10.0f);
+    arg0->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
+    arg0->unk40 = (u32)((jetpacRandFloat() * 180.0f) + 10.0f);
     arg0->unk28 = 8;
     if (arg0->unk4 < 88.0f) {
         arg0->unk18 = 0;
@@ -333,7 +333,7 @@ void func_80029F7C(JetpacActor *arg0) {
     switch (var_v1) {
     case 3:
         if (arg0->unk2C == 0) {
-            if (func_80028CF8((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
+            if (jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
                               (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
                               (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                               (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1) >= 0) {
@@ -379,7 +379,7 @@ void func_80029F7C(JetpacActor *arg0) {
         }
 
         if (arg0->unk2C == 0 && (D_8002EC30.unk790 & 2)) {
-            if (func_800273C8(arg0) < D_8002F054 + (f32)D_8002F078) {
+            if (jetpacGetEntityCenterY(arg0) < D_8002F054 + (f32)D_8002F078) {
                 arg0->unkC = 0.8f;
             } else {
                 arg0->unkC = -0.8f;
@@ -426,7 +426,7 @@ void func_8002A530(JetpacActor *arg0) {
     switch (arg0->unk14) {
     case 3:
         func_8002A374(arg0);
-        res = func_80028CF8((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
+        res = jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
                             (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
@@ -455,7 +455,7 @@ void func_8002A530(JetpacActor *arg0) {
 void func_8002A6C0(JetpacActor *arg0) {
     arg0->unk48 = func_8002A758;
     arg0->unk44 = 0x3C;
-    arg0->unk2C = (s32)(func_80027210() * 16.0f);
+    arg0->unk2C = (s32)(jetpacRandFloat() * 16.0f);
     if (arg0->unk4 < 88.0f) {
         arg0->unk8 = -1.2f;
     } else {
@@ -518,7 +518,7 @@ void func_8002AAD4(void) {
     for (i = 0; i < 3; i++) {
         func_80029450();
     }
-    D_8002E8F0 = (s32)(func_80027210() * 180.0f);
+    D_8002E8F0 = (s32)(jetpacRandFloat() * 180.0f);
 }
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/4FC0/func_8002ABDC.s")

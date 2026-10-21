@@ -39,16 +39,16 @@ typedef struct {
     void (*unk190)(void *, s32);
 } JetpacInner;
 
-f32 func_80027210(void);
+f32 jetpacRandFloat(void);
 s32 func_80027250(f32, f32, f32, f32, f32, f32, f32, f32);
 void func_80025700(void *, s32, s32, void *, s32);
 extern s32 D_8002DC68[];
-s32 func_80027480(void) {
-    return (s32)((func_80027210() * 200.0f) + 90.0f);
+s32 jetpacRandSpawnX(void) {
+    return (s32)((jetpacRandFloat() * 200.0f) + 90.0f);
 }
 
 s32 func_800274C0(void) {
-    return D_8002DC68[(s32)(func_80027210() * 13.0f) % 13];
+    return D_8002DC68[(s32)(jetpacRandFloat() * 13.0f) % 13];
 }
 
 s32 func_80027510(JetpacItem *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
@@ -132,14 +132,14 @@ void func_80027D64(void *arg0) {
         count = 6;
         sp24.unk40 = count;
     } else {
-        sp24.unk40 = (s32)(func_80027210() * count) + 1;
+        sp24.unk40 = (s32)(jetpacRandFloat() * count) + 1;
     }
 
     item = (JetpacItem *)((u8 *)arg0 + 0x148);
     sp24.sprites[0] = &D_8002D968[sp24.unk40];
     *item = sp24;
     item->unk8 = (f32)func_800274C0();
-    *(s32 *)((u8 *)arg0 + 0x144) = func_80027480();
+    *(s32 *)((u8 *)arg0 + 0x144) = jetpacRandSpawnX();
 }
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/func_80027EC0.s")
@@ -198,7 +198,7 @@ s32 func_800283EC(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
 
     return 0;
 }
-void func_80028544(void) {
+void jetpacItemsUpdate(void) {
     u8 *player = (u8 *)&D_8002EC30 + D_8002EC30.unk344 * 0x194;
     JetpacItem *item = (JetpacItem *)(player + 0x30);
     s32 i = 0;
@@ -320,13 +320,13 @@ extern JetpacLedge D_8002EFB4[];
 extern JetpacLedge D_8002EFE8[];
 extern JetpacLedge D_8002F01C[];
 
-void func_80028C3C(void) {
+void jetpacInitLedges(void) {
     func_80028BD0(D_8002EF80, 0xC0, 0x30, 4, 0, 0xBE, 0);
     func_80028BD0(D_8002EFB4, 0x20, 0x48, 4, 0, 0xBE, 0);
     func_80028BD0(D_8002EFE8, 0x78, 0x60, 2, 0, 0xBE, 0);
     func_80028BD0(D_8002F01C, 0, 0xB8, 0x1E, 0xBE, 0xBE, 0);
 }
-s32 func_80028CF8(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+s32 jetpacCheckLedgeCollision(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     JetpacLedge *ledge = D_8002EF80;
     s32 i;
 

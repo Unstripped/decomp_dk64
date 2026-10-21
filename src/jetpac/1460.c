@@ -20,7 +20,7 @@ typedef struct JetpacActor {
     void (*unk48)(struct JetpacActor *);
     u8 pad4C[4];
 } JetpacActor;
-void func_80027010(JetpacActor *arg0);
+void jetpacSnapActorToGrid(JetpacActor *arg0);
 typedef struct JetpacState {
     u8 pad0[0x4C];
     JetpacActor actors[4];
@@ -31,7 +31,7 @@ typedef struct {
 
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
-f32 func_80027210(void);
+f32 jetpacRandFloat(void);
 void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_8070E8F0(Gfx **arg0, s32 arg1);
 void func_8070F2C8(s32 arg0, s32 arg1, u8 arg2, s32 arg3);
@@ -71,7 +71,7 @@ typedef struct JetpacCell {
 
 extern JetpacCell D_8002F3D0[24][32];
 
-void func_80025460(void) {
+void jetpacInitGrid(void) {
     JetpacCell *cell = &D_8002F3D0[0][0];
     s32 row;
     s32 col;
@@ -89,7 +89,7 @@ void func_80025460(void) {
 
 extern s32 D_80045BD0;
 
-void func_800255D4(Gfx **arg0) {
+void jetpacInitRdp(Gfx **arg0) {
     Gfx *g = *arg0;
 
     WRITE_GFX(g++, 0xE7000000, 0);
@@ -105,7 +105,7 @@ void func_800255D4(Gfx **arg0) {
     WRITE_GFX(g++, 0xFB000000, 0);
 
     D_80045BD0 = 0;
-    func_80025460();
+    jetpacInitGrid();
     *arg0 = g;
 }
 
@@ -163,12 +163,12 @@ void func_80025A60(JetpacExplosion *arg0) {
     timer = arg0->timer;
     frame = (s32)(((f32)timer / 14.0f) * 6.0f);
     if ((timer % 7) == 0) {
-        if (func_80027210() < 0.5) {
+        if (jetpacRandFloat() < 0.5) {
             arg0->color[1] = 0;
         } else {
             arg0->color[1] = 0xFF;
         }
-        if (func_80027210() < 0.5) {
+        if (jetpacRandFloat() < 0.5) {
             arg0->color[2] = 0;
         } else {
             arg0->color[2] = 0xFF;
@@ -186,7 +186,7 @@ void func_80025BB8(JetpacActor *arg0, s32 arg1) {
     if (arg1 == 0 && arg0->unk30 != 0) {
         arg0->x = (f32)((s32)arg0->x & 0xFFFE);
     } else if (arg1 != 0 && arg0->unk30 == 0) {
-        func_80027010(arg0);
+        jetpacSnapActorToGrid(arg0);
     }
     arg0->unk1C = 0;
     arg0->unk24 = 0x10;
@@ -195,7 +195,7 @@ void func_80025BB8(JetpacActor *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025C40.s")
 
-void func_80025CA0(JetpacActor *arg0) {
+void jetpacResetActorState(JetpacActor *arg0) {
     arg0->unk14 = 4;
     arg0->unk2C = 0;
 }
@@ -237,7 +237,7 @@ void func_80026318(JetpacActor *);
 s32 func_80026FE0(void);
 
 extern JetpacState D_8002F050;
-void func_80026D48(void) {
+void jetpacPlayerStateUpdate(void) {
     if (!func_80026FE0()) {
         s32 state = D_8002F064;
 
@@ -260,7 +260,7 @@ void func_80026D48(void) {
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026FE0.s")
 
-void func_80027010(JetpacActor *arg0) {
+void jetpacSnapActorToGrid(JetpacActor *arg0) {
     if (arg0->unk44 >= 0xE) {
         arg0->unk44 = 0;
         arg0->unk3C = (s32)arg0->x & 0xFFF8;

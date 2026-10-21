@@ -1,1 +1,16 @@
 // Overlay jetpac (ovl09, segment table entry 9)
+jetpacInitGrid = 0x80025460; // type:func
+jetpacInitRdp = 0x800255D4; // type:func
+jetpacResetActorState = 0x80025CA0; // type:func
+jetpacPlayerStateUpdate = 0x80026D48; // type:func
+jetpacSnapActorToGrid = 0x80027010; // type:func
+jetpacCheckAabbOverlap = 0x80027060; // type:func
+jetpacRandFloat = 0x80027210; // type:func
+jetpacGetEntityCenterX = 0x80027380; // type:func
+jetpacGetEntityCenterY = 0x800273C8; // type:func
+jetpacRoundFloat = 0x80027410; // type:func
+jetpacRandSpawnX = 0x80027480; // type:func
+jetpacItemsUpdate = 0x80028544; // type:func
+jetpacInitLedges = 0x80028C3C; // type:func
+jetpacCheckLedgeCollision = 0x80028CF8; // type:func
+jetpacFindFreeActor = 0x80028FC0; // type:func

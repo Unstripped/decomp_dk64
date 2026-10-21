@@ -66,7 +66,7 @@ void func_800240EC(u8 *arg0) {
 
 s32 func_8066B0F8(s32, s32, s32, s32);
 
-void func_8002448C(u8 *arg0) {
+void critterPlayAudio(u8 *arg0) {
     s32 i;
     u8 *ptr2;
     u16 v;
@@ -88,7 +88,7 @@ void func_8002448C(u8 *arg0) {
 
 void func_8066B434(s32, s32, s32);
 
-void func_80024518(u8 *arg0) {
+void critterStopAudio(u8 *arg0) {
     s32 i;
     u8 *ptr = arg0;
     for (i = 0; i < 8; i += 4, ptr += 4) {
@@ -101,11 +101,11 @@ void func_80024518(u8 *arg0) {
 }
 
 
-void func_80024578(u8 *arg0) {
+void critterUpdateAudio(u8 *arg0) {
     if (arg0[0x1E1] & 1) {
-        func_8002448C(arg0);
+        critterPlayAudio(arg0);
     } else {
-        func_80024518(arg0);
+        critterStopAudio(arg0);
     }
 }
 
@@ -127,7 +127,7 @@ void func_80024B78(u8 *arg0) {
         *(f32 *)(arg0 + 0x48) = (((-15.0f * temp_fv1) + 45.0f) * temp_fv0) + (temp_fv1 * 30.0f);
         *(f32 *)(arg0 + 0x14) = (f32)((f64)(*(f32 *)(arg0 + 0x28) * temp_fv0) * 0.4);
     }
-    func_80024578(arg0);
+    critterUpdateAudio(arg0);
 }
 
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80024C88.s")
@@ -145,7 +145,7 @@ void func_80025500(u8 *arg0) {
                       (s16)((func_806119A0() & 3) + 0x1A9),
                       0xFF, 0x5A, 0x1E, 0x5A, 0.7f, 0);
     }
-    func_80024578(arg0);
+    critterUpdateAudio(arg0);
 }
 
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_800255C4.s")
@@ -260,7 +260,7 @@ end:
 extern u8 D_807444FC;
 extern u8 *D_807FBB48;
 
-void func_80026410(u8 *arg0) {
+void critterCalcDistToPlayer(u8 *arg0) {
     f32 dx;
     f32 dz;
 
@@ -320,7 +320,7 @@ void func_80026874(u8 *arg0, u8 *arg1) {
         return;
     }
     if (*(u8 *)(*(u8 **)(arg0 + 0x58) + 0x25) != 0) {
-        func_80026410(arg0);
+        critterCalcDistToPlayer(arg0);
         func_80026338(arg0, arg1);
     }
 }
@@ -336,7 +336,7 @@ void func_8002601C(void *);
 void func_80026904(void);
 s32 func_80026A5C(u8 *, u8 *);
 
-void func_80026B78(u8 *arg0) {
+void critterDispatchAll(u8 *arg0) {
     void *cb;
     void (*var_s3)(void *);
     s32 var_s1;
@@ -398,7 +398,7 @@ extern s32 D_807FBB60;
 extern void *D_80029BA0;
 void func_80026C9C(void *);
 
-s32 func_80027034(s32 arg0) {
+s32 critterRender(s32 arg0) {
     if (D_807FBB60 & 0x10) {
         if (!(D_807FBB60 & 2)) {
             func_80026C9C(D_80029BA0);
@@ -410,7 +410,7 @@ s32 func_80027034(s32 arg0) {
 
 void heapFreeDeferred(void *);
 
-void func_8002708C(u8 *arg0) {
+void critterCleanup(u8 *arg0) {
     u8 temp_s2;
     u8 *var_s0;
     s32 var_s1;
@@ -420,7 +420,7 @@ void func_8002708C(u8 *arg0) {
     var_s1 = 0;
     if ((s32)temp_s2 > 0 && var_s0 != NULL) {
         do {
-            func_80024518(var_s0);
+            critterStopAudio(var_s0);
             var_s1++;
             var_s0 += 0x1F0;
         } while (var_s1 < (s32)temp_s2 && var_s0 != NULL);

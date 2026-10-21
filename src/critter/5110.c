@@ -19,7 +19,7 @@ typedef struct Struct_807FBB40 {
     Struct_807FBB40_174 *unk174;
 } Struct_807FBB40;
 
-s32 func_80029110(s32 arg0) {
+s32 critterBitwiseNot(s32 arg0) {
     return ~arg0;
 }
 
@@ -138,18 +138,18 @@ void func_80029118(void) {
                 var_s0 = (s32 *)((char *)var_s0 + 4);
             } while ((s32)var_s0 & 7);
         }
-        temp_v1 = (void (*)(void *, s32))func_80029110(~(s32)osWritebackDCache);
+        temp_v1 = (void (*)(void *, s32))critterBitwiseNot(~(s32)osWritebackDCache);
         if (D_80029FA0 <= 0) {
             D_807FBB40->unk154 = 3;
         }
         temp_v1(var_s0, 0x10);
-        sp50 = func_80029110(-0xDC1);
-        ((void (*)(void *, s32, s32, s32, void *, s32, void *))func_80029110(~(s32)osPiStartDma))(&D_807ECE00, 0, 0, sp50, var_s0, 0x10, &D_807655F0);
+        sp50 = critterBitwiseNot(-0xDC1);
+        ((void (*)(void *, s32, s32, s32, void *, s32, void *))critterBitwiseNot(~(s32)osPiStartDma))(&D_807ECE00, 0, 0, sp50, var_s0, 0x10, &D_807655F0);
         if (D_807FBB40->unk11C->unk154 == 5) {
             D_807FBB40->unk154 = 0xFF;
         }
-        ((void (*)(void *, s32, s32))func_80029110(~(s32)osRecvMesg))(&D_807655F0, 0, 1);
-        ((void (*)(void *, s32))func_80029110(~(s32)osInvalDCache))(var_s0, 0x10);
+        ((void (*)(void *, s32, s32))critterBitwiseNot(~(s32)osRecvMesg))(&D_807655F0, 0, 1);
+        ((void (*)(void *, s32))critterBitwiseNot(~(s32)osInvalDCache))(var_s0, 0x10);
         temp_t3 = var_s0[0] + var_s0[1];
         var_s0[0] = temp_t3;
         if (temp_t3 != 0x0A78F00E) {

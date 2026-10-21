@@ -1,11 +1,11 @@
 #include "common.h"
 
-void func_80028C3C(void);
+void jetpacInitLedges(void);
 void func_80024390(void);
 void func_800250A0(void);
 void func_80024408(s32);
 void func_800286D0(void);
-void func_800255D4(s32);
+void jetpacInitRdp(s32);
 void func_80028E88(void);
 void func_800289EC(void);
 void func_80025904(s32);
@@ -93,7 +93,7 @@ void func_80024390(void) {
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024408.s")
 
 void func_8002463C(void) {
-    func_80028C3C();
+    jetpacInitLedges();
     func_80024390();
     func_800250A0();
 }
@@ -103,7 +103,7 @@ void func_8002463C(void) {
 void func_800248A0(s32 arg0) {
     func_80024408(arg0);
     func_800286D0();
-    func_800255D4(arg0);
+    jetpacInitRdp(arg0);
     func_80028E88();
     func_800289EC();
     func_80025904(arg0);
@@ -126,7 +126,7 @@ void func_80024C90(s32 arg0) {
     sp1C->unk18C(&sp1C->unk148);
     func_800286D0();
     func_8002ABDC();
-    func_800255D4(arg0);
+    jetpacInitRdp(arg0);
     func_80028E88();
     func_8002AD8C();
     func_800289EC();

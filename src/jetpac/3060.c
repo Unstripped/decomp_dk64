@@ -2,7 +2,7 @@
 s32 func_80611A44(void);
 
 
-u32 func_80027060(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+u32 jetpacCheckAabbOverlap(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     arg0 = (arg4 < arg0) ? arg0 : arg4;
     arg1 = (arg5 < arg1) ? arg1 : arg5;
     arg2 = (arg2 < arg6) ? arg2 : arg6;
@@ -57,7 +57,7 @@ void func_80027108(f32 arg0, f32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg
     *arg5 = arg1;
 }
 
-f32 func_80027210(void) {
+f32 jetpacRandFloat(void) {
     return (f32)((func_80611A44() >> 15) % 60000) / 60000.0f;
 }
 
@@ -67,10 +67,10 @@ s32 func_80027250(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f3
     f32 sp44, sp40, sp3C, sp38, sp34, sp30, sp2C, sp28;
     func_80027108(arg0, arg2, &sp44, &sp40, &sp3C, &sp38);
     func_80027108(arg4, arg6, &sp34, &sp30, &sp2C, &sp28);
-    if (func_80027060(sp44, arg1, sp40, arg3, sp34, arg5, sp30, arg7)) {
+    if (jetpacCheckAabbOverlap(sp44, arg1, sp40, arg3, sp34, arg5, sp30, arg7)) {
         return 1;
     }
-    return func_80027060(sp3C, arg1, sp38, arg3, sp2C, arg5, sp28, arg7) != 0;
+    return jetpacCheckAabbOverlap(sp3C, arg1, sp38, arg3, sp2C, arg5, sp28, arg7) != 0;
 }
 #endif
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3060/func_80027250.s")
@@ -93,15 +93,15 @@ typedef struct {
     s32 max_y;
 } JetpacEntity;
 
-f32 func_80027380(JetpacEntity *arg0) {
+f32 jetpacGetEntityCenterX(JetpacEntity *arg0) {
     return (f32)((f64)(arg0->x + (f32)arg0->min_x) + (f64)(f32)(arg0->max_x - arg0->min_x) * 0.5);
 }
 
-f32 func_800273C8(JetpacEntity *arg0) {
+f32 jetpacGetEntityCenterY(JetpacEntity *arg0) {
     return (f32)((f64)(arg0->y + (f32)arg0->min_y) + (f64)(f32)(arg0->max_y - arg0->min_y) * 0.5);
 }
 
-f32 func_80027410(f32 arg0) {
+f32 jetpacRoundFloat(f32 arg0) {
     if (arg0 >= 0.0f) {
         return (f32)(s32)(arg0 + 0.5f);
     }
