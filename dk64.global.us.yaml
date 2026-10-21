@@ -48,7 +48,7 @@ segments:
       - [0x5A50, asm]
       - [0x6710, asm]
       - [0xF4C0, asm]
-      - [0xF600, asm]
+      - [0xF600, c, F600]
       - [0xFE40, asm]
       - [0x10130, asm]
       - [0x104F0, asm]
