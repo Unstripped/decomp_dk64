@@ -83,10 +83,10 @@ void func_80605510(void);
 void func_806057F8(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_8060A4D0(s32, f32);
-void func_8060A900(void);
-void func_8060A9BC(void);
-void func_8060AA04(void);
-void func_8060AC7C(void);
+void controllerInit(void);
+void controllerStartRead(void);
+void controllerWaitRead(void);
+void controllerUpdate(void);
 void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
 void func_8060E930(void);
 void func_8060FFF0(void);
@@ -469,7 +469,7 @@ void func_805FBC5C(void) {
     func_805FB944(0);
     D_8076A07C = 5;
     func_8060FFF0();
-    func_8060A900();
+    controllerInit();
     func_80600D50();
     func_8070B308(0);
     func_8073239C();
@@ -488,7 +488,7 @@ void func_805FBE04(void) {
     D_8076A080 = &D_807FF100;
     func_8060B140(D_8000DDE4, D_8076A080, &D_8076A084, 0, 0, 0, 0);
     D_8076A0A4 = 0;
-    func_8060AA04();
+    controllerWaitRead();
     D_8076A064 = 0;
     D_8076A068 = 0;
     D_807467CC = 0;
@@ -516,7 +516,7 @@ void func_805FC2B0(void) {
     Gfx *sp2C;
     Gfx *sp28;
 
-    func_8060A9BC();
+    controllerStartRead();
     func_80610044(D_8076A050[D_807444FC], D_8076A088, 3, (D_8076A0A4 != 0) ? 0 : 1, 0x4D2, 1);
     if (D_8076A0A4 != 0) {
         func_80610044((u8 *)&D_80767CE8 + D_807444FC * 0x11B0 + 0xDB0, D_8076A08C, 0, 1, 0x929, 1);
@@ -527,7 +527,7 @@ void func_805FC2B0(void) {
         D_8076A068++;
     }
     D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
-    func_8060AC7C();
+    controllerUpdate();
     if (func_805FC668() != 0) {
         func_8065D1AC();
         func_806789E4();

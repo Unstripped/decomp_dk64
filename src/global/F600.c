@@ -19,11 +19,11 @@ extern OSContPad *D_807ECDF4;
 extern u8 D_807ECDF8;
 extern u8 D_807ECDFC[4];
 
-void func_8060AA04(void);
-void func_8060AA58(u8 mask);
+void controllerWaitRead(void);
+void controllerSetActiveMask(u8 mask);
 void func_8060E958(void);
 
-u8 func_8060A900(void) {
+u8 controllerInit(void) {
     osCreateMesgQueue(&D_807ECCF0, D_807ECCE0, 4);
     osSetEventMesg(OS_EVENT_SI, &D_807ECCF0, NULL);
     osContInit(&D_807ECCF0, &D_807ECD09, D_807ECCD0);
@@ -34,20 +34,20 @@ u8 func_8060A900(void) {
     D_807ECD08 = 0;
     D_807ECDE8 = D_807ECD10;
     D_807ECDF4 = D_807ECD28;
-    func_8060AA58(0xFF);
+    controllerSetActiveMask(0xFF);
     func_8060E958();
     return D_807ECD09;
 }
 
-void func_8060A9BC(void) {
-    func_8060AA04();
+void controllerStartRead(void) {
+    controllerWaitRead();
     if (D_807467C4 == 0) {
         D_807ECD08 = 1;
         osContStartReadData(&D_807ECCF0);
     }
 }
 
-void func_8060AA04(void) {
+void controllerWaitRead(void) {
     if (D_807ECD08 != 0) {
         D_80746834 = 2;
         osRecvMesg(&D_807ECCF0, NULL, OS_MESG_BLOCK);
@@ -56,7 +56,7 @@ void func_8060AA04(void) {
     }
 }
 
-void func_8060AA58(u8 mask) {
+void controllerSetActiveMask(u8 mask) {
     u8 count;
     s32 i;
     s32 j;
@@ -78,11 +78,11 @@ void func_8060AA58(u8 mask) {
     }
 }
 
-u8 func_8060AB38(s32 arg0) {
+u8 controllerGetPort(s32 arg0) {
     return D_807ECDFC[arg0];
 }
 
-void func_8060AB48(OSContPad *pads) {
+void controllerCompactPads(OSContPad *pads) {
     s32 i;
     s32 dst;
 
@@ -97,20 +97,20 @@ void func_8060AB48(OSContPad *pads) {
     }
 }
 
-u8 func_8060AC28(void) {
+u8 controllerGetActiveMask(void) {
     return D_807ECDF8;
 }
 
-void func_8060AC34(OSContPad *pad) {
+void controllerGetReadData(OSContPad *pad) {
     if (D_807467C4 == 0 && D_807ECD08 != 0) {
         osContGetReadData(pad);
     }
     D_807ECD08 = 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F600/func_8060AC7C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/F600/controllerUpdate.s")
 
-void func_8060B110(OSContPad *pad) {
+void controllerLatchPad(OSContPad *pad) {
     D_807ECD58.button = pad->button;
     D_807ECD58.stick_x = pad->stick_x;
     D_807ECD58.stick_y = pad->stick_y;

@@ -66,8 +66,8 @@ void schedYield(SchedStruct *);
 void func_8060FAA4(OSMesgQueue *, OSMesg, s32);
 s32 func_8060FAE4(s32, s32);
 
-extern s32 func_8060AB38(s32);
-extern u8 func_8060AC28(void);
+extern s32 controllerGetPort(s32);
+extern u8 controllerGetActiveMask(void);
 extern u32 func_8062919C(void);
 extern u32 func_8061CB50(void);
 extern s32 func_8071432C(void);
@@ -123,13 +123,13 @@ s32 func_8060E79C(u8 arg0) {
     if (arg0 >= 4) {
         return 0;
     }
-    return D_807F0470[func_8060AB38(arg0)].unk00;
+    return D_807F0470[controllerGetPort(arg0)].unk00;
 }
 
 void func_8060E7EC(u8 arg0, u8 arg1, s32 arg2) {
     RumbleInfo *info;
 
-    info = &D_807F0470[func_8060AB38(arg0)];
+    info = &D_807F0470[controllerGetPort(arg0)];
     if (D_80746810 != 1 && info->unk00 == 1 && D_807FC924[arg0].unk2EB == 0) {
         if (func_8071432C() != 0 || func_8071441C() != 0) {
             if (info->unk12 != 0) {
@@ -153,7 +153,7 @@ void func_8060E8CC(RumbleInfo *arg0) {
 }
 
 void func_8060E8EC(u8 arg0) {
-    func_8060E8CC(&D_807F0470[func_8060AB38(arg0)]);
+    func_8060E8CC(&D_807F0470[controllerGetPort(arg0)]);
 }
 
 void func_8060E930(void) {
@@ -197,7 +197,7 @@ void func_8060EA28(void) {
     D_80746818 = 0;
 
     if (D_80746810 != 1) {
-        pad = func_8060AC28();
+        pad = controllerGetActiveMask();
         for (i = 0; i < 4; i++, info++) {
             if (info->unk00 != 1) {
                 if ((D_807ECD09 & (1 << i)) && (pad & (1 << i)) && (D_8076A064 % 15 == 0)) {
