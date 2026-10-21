@@ -139,6 +139,8 @@ GLOBAL_S_FILES := $(shell find asm/global -name '*.s' -not -path 'asm/global/non
 GLOBAL_C_FILES := $(shell find src/global -name '*.c' 2>/dev/null)
 GLOBAL_O_FILES := $(GLOBAL_S_FILES:%.s=$(BUILD_DIR)/%.o) $(GLOBAL_C_FILES:%.c=$(BUILD_DIR)/%.o)
 
+OVERLAY_C_FILES := $(shell find $(OVERLAYS:%=src/%) -name '*.c' 2>/dev/null)
+
 # Suppress o32 odd single-precision FP register warnings in global asm.
 $(GLOBAL_O_FILES): ASFLAGS += -W
 
@@ -182,7 +184,7 @@ $(BUILD_DIR)/%.o: %.s
 	$(AS) $(ASFLAGS) -o $@ $<
 
 # asm-processor splices INCLUDE_ASM'd / GLOBAL_ASM'd functions into IDO's output.
-C_FILES_WITH_GLOBAL_ASM := $(shell grep -l -E "(GLOBAL_ASM|INCLUDE_ASM)" $(BOOT_C_FILES) $(GLOBAL_C_FILES) 2>/dev/null)
+C_FILES_WITH_GLOBAL_ASM := $(shell grep -l -E "(GLOBAL_ASM|INCLUDE_ASM)" $(BOOT_C_FILES) $(GLOBAL_C_FILES) $(OVERLAY_C_FILES) 2>/dev/null)
 O_FILES_WITH_GLOBAL_ASM := $(C_FILES_WITH_GLOBAL_ASM:%.c=$(BUILD_DIR)/%.o)
 
 $(O_FILES_WITH_GLOBAL_ASM): $(BUILD_DIR)/%.o: %.c
@@ -260,7 +262,7 @@ progress: check
 # Baseline objects for tools/objdiff.sh: snapshot every C object of a verified matching build.
 expected: check
 	rm -rf expected
-	$(foreach o,$(BOOT_C_FILES:%.c=$(BUILD_DIR)/%.o) $(GLOBAL_C_FILES:%.c=$(BUILD_DIR)/%.o),mkdir -p expected/$(dir $(o)) && cp $(o) expected/$(o) &&) true
+	$(foreach o,$(BOOT_C_FILES:%.c=$(BUILD_DIR)/%.o) $(GLOBAL_C_FILES:%.c=$(BUILD_DIR)/%.o) $(OVERLAY_C_FILES:%.c=$(BUILD_DIR)/%.o),mkdir -p expected/$(dir $(o)) && cp $(o) expected/$(o) &&) true
 
 clean:
 	rm -rf $(BUILD_DIR)/asm $(BUILD_DIR)/assets $(BUILD_DIR)/src $(ELF) $(ROM) $(BOOT_BIN) \
