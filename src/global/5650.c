@@ -10,13 +10,13 @@ typedef struct QueuedFunction {
 } QueuedFunction;
 
 extern s32 D_8076A068;
-extern QueuedFunction *D_807452A0;
+extern QueuedFunction *gTimerQueue;
 void heapFree(void *);
 void *func_80610FE8(s32);
 s32 osPiReadIo(u32, u32 *);
 
-void func_80600950(void) {
-    D_807452A0 = NULL;
+void timerQueueInit(void) {
+    gTimerQueue = NULL;
 }
 
 s32 func_8060095C(s32 arg0, s32 *arg1, s32 *arg2) {
@@ -25,7 +25,7 @@ s32 func_8060095C(s32 arg0, s32 *arg1, s32 *arg2) {
     return arg0 + 0x3FFF00FF;
 }
 
-void func_8060098C(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void timerQueueAdd(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     QueuedFunction *curr;
     QueuedFunction *node;
     QueuedFunction *prev;
@@ -50,7 +50,7 @@ void func_8060098C(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     node->arg2 = arg4;
     node->time = D_8076A068 + arg1;
     node->next = NULL;
-    curr = D_807452A0;
+    curr = gTimerQueue;
     if (curr != NULL) {
         while (curr->next != NULL && (node->time & 0x7FFFFFFF) >= (curr->time & 0x7FFFFFFF)) {
             prev = curr;
@@ -61,18 +61,18 @@ void func_8060098C(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
             if (prev != NULL) {
                 prev->next = node;
             } else {
-                D_807452A0 = node;
+                gTimerQueue = node;
             }
         } else {
             curr->next = node;
         }
         return;
     }
-    D_807452A0 = node;
+    gTimerQueue = node;
 }
 
-void func_80600B10(void) {
-    QueuedFunction *node = D_807452A0;
+void timerQueueUpdate(void) {
+    QueuedFunction *node = gTimerQueue;
     s32 done = 0;
 
     if (node != NULL) {
@@ -86,11 +86,11 @@ void func_80600B10(void) {
             }
         } while (node != NULL && done == 0);
     }
-    D_807452A0 = node;
+    gTimerQueue = node;
 }
 
-void func_80600BBC(void *callback) {
-    QueuedFunction *node = D_807452A0;
+void timerQueueCancel(void *callback) {
+    QueuedFunction *node = gTimerQueue;
     QueuedFunction *prev = NULL;
 
     if (node != NULL) {
@@ -101,7 +101,7 @@ void func_80600BBC(void *callback) {
                 if (prev != NULL) {
                     prev->next = node;
                 } else {
-                    D_807452A0 = node;
+                    gTimerQueue = node;
                 }
             } else {
                 prev = node;
@@ -111,8 +111,8 @@ void func_80600BBC(void *callback) {
     }
 }
 
-void func_80600C68(void) {
-    QueuedFunction *node = D_807452A0;
+void timerQueuePurgeFlagged(void) {
+    QueuedFunction *node = gTimerQueue;
     QueuedFunction *prev = NULL;
     s32 done = 0;
 
@@ -125,7 +125,7 @@ void func_80600C68(void) {
                     if (prev != NULL) {
                         prev->next = node->next;
                     } else {
-                        D_807452A0 = node->next;
+                        gTimerQueue = node->next;
                     }
                     heapFree(node);
                 } else {

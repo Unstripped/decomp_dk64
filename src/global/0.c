@@ -68,12 +68,12 @@ void func_805FF670(void);
 void func_805FFEF8(s32);
 void func_806003EC(s16, u8);
 s32 func_8060042C(s16, s32, s32);
-void func_80600590(s32);
-void func_80600674(void);
-void func_80600950(void);
-void func_8060098C(void *, s32, s32, s32, s32);
-void func_80600B10(void);
-void func_80600D50(void);
+void frameTimingReset(s32);
+void frameTimingUpdate(void);
+void timerQueueInit(void);
+void timerQueueAdd(void *, s32, s32, s32, s32);
+void timerQueueUpdate(void);
+void audioInit(void);
 void func_80601CF0(s32);
 void func_806025AC(void);
 void func_806025D4(void);
@@ -470,7 +470,7 @@ void func_805FBC5C(void) {
     D_8076A07C = 5;
     func_8060FFF0();
     controllerInit();
-    func_80600D50();
+    audioInit();
     func_8070B308(0);
     func_8073239C();
     osWritebackDCacheAll();
@@ -885,7 +885,7 @@ void func_805FE7FC(void) {
     }
     D_8076A06C = D_8076A064;
     D_80744500 = 0;
-    func_80600950();
+    timerQueueInit();
     
 
     D_8076A0A8 = D_807444E4;
@@ -969,7 +969,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         func_8068C2EC();
         func_806F4778();
         func_8070E8C8();
-        func_8060098C(func_806025AC, 2, 0, 0, 0);
+        timerQueueAdd(func_806025AC, 2, 0, 0, 0);
         if (D_807FBB64 & 0x1000) {
             sp28 = func_8066B0F8(0x16, D_8076A0A8, 1, 1);
             func_80026FD0(sp28);
@@ -1015,7 +1015,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
     func_80701C90();
     func_80629190();
     func_80664CB0(D_8076A0AA);
-    func_80600590(D_8076A0A8);
+    frameTimingReset(D_8076A0A8);
     D_80746830 = 0;
 }
 

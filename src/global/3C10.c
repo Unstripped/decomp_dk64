@@ -123,7 +123,7 @@ void func_806003EC(s16 arg0);
 s32 func_8060042C(s16 arg0);
 u8 func_80600454(s16 arg0, u8 *arg1);
 s32 func_80600530(void);
-void func_80600590(s32 arg0);
+void frameTimingReset(s32 arg0);
 
 /* External functions */
 void func_8002920C(void);
@@ -610,7 +610,7 @@ s32 func_80600530(void) {
     return i;
 }
 
-void func_80600590(s32 arg0) {
+void frameTimingReset(s32 arg0) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
@@ -638,4 +638,4 @@ void func_80600590(s32 arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/3C10/func_80600674.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/3C10/frameTimingUpdate.s")
