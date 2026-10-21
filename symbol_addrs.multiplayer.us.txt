@@ -1,1 +1,9 @@
 // Overlay multiplayer (ovl02, segment table entry 2)
+mpGetPlayerScore = 0x80024254; // type:func
+mpDetermineWinner = 0x800242FC; // type:func
+mpUpdateMatchTimer = 0x800243C8; // type:func
+mpDrawGlyph = 0x800245B0; // type:func
+mpDrawPlayerScores = 0x800249D8; // type:func
+mpFindCurrentMapEntry = 0x80025378; // type:func
+mpSetFlags = 0x800268C0; // type:func
+mpFindFurthestSpawn = 0x80026BD8; // type:func

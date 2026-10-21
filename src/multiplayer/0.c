@@ -105,7 +105,7 @@ s32 func_800241F4(void *arg0, s32 arg1) {
     return var_v1;
 }
 
-s32 func_80024254(s32 arg0) {
+s32 mpGetPlayerScore(s32 arg0) {
     s32 var_v1;
 
     var_v1 = 0;
@@ -126,7 +126,7 @@ s32 func_80024254(s32 arg0) {
     return var_v1;
 }
 
-void func_800242FC(s32 arg0) {
+void mpDetermineWinner(s32 arg0) {
     s32 temp_v0;
     s32 var_s1;
     s32 var_s0;
@@ -138,7 +138,7 @@ void func_800242FC(s32 arg0) {
     var_s0 = 0;
     if ((s32) D_807FC928 > 0) {
         do {
-            temp_v0 = func_80024254(var_s0);
+            temp_v0 = mpGetPlayerScore(var_s0);
             if (var_s1 < temp_v0) {
                 var_s1 = temp_v0;
                 var_s2 = var_s0;
@@ -153,7 +153,7 @@ void func_800242FC(s32 arg0) {
     D_8076A105 = var_s2;
 }
 
-void func_800243C8(void) {
+void mpUpdateMatchTimer(void) {
     Struct_80024000_2_MpLow *temp_s0;
     u64 x;
 
@@ -165,7 +165,7 @@ void func_800243C8(void) {
     }
     if (temp_s0->unk8 <= 0) {
         temp_s0->unk8 = 0;
-        func_800242FC((s32)temp_s0);
+        mpDetermineWinner((s32)temp_s0);
     }
     func_8068C350(func_80024000, D_807FBB40, 7);
 }
@@ -177,9 +177,9 @@ void func_8002449C(void) {
     var_s0 = 0;
     if ((s32) D_807FC928 > 0) {
         do {
-            temp_v0 = func_80024254(var_s0);
+            temp_v0 = mpGetPlayerScore(var_s0);
             if ((temp_v0 >= D_807552E4.unkC) || (temp_v0 < -0x3E7)) {
-                func_800242FC((s32) D_807FBB40->unk174);
+                mpDetermineWinner((s32) D_807FBB40->unk174);
                 return;
             }
             var_s0++;
@@ -195,18 +195,18 @@ void func_8002452C(void) {
     var_s0 = 0;
     if ((s32) D_807FC928 > 0) {
         do {
-            if (func_80024254(var_s0) != 0) {
+            if (mpGetPlayerScore(var_s0) != 0) {
                 var_s1++;
             }
             var_s0++;
         } while (var_s0 < (s32) D_807FC928);
     }
     if (var_s1 < 2) {
-        func_800242FC((s32) D_807FBB40->unk174);
+        mpDetermineWinner((s32) D_807FBB40->unk174);
     }
 }
 
-Gfx *func_800245B0(Gfx *glistp, s16 *arg1, s16 arg2, void *arg3, s32 arg4) {
+Gfx *mpDrawGlyph(Gfx *glistp, s16 *arg1, s16 arg2, void *arg3, s32 arg4) {
     gDPLoadTextureBlock(glistp++, arg3, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 8, 0, G_TX_WRAP, G_TX_CLAMP, 3, 3, G_TX_NOLOD, G_TX_NOLOD);
     gSPTextureRectangle(glistp++, (*arg1) << 2, arg2 << 2, (*arg1 + arg4 * 8) << 2, (arg2 + 8) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
     *arg1 += arg4 * 8;
@@ -236,7 +236,7 @@ typedef struct Struct_800249D8_Arg1_MpDraw {
     Struct_800249D8_Unk174_MpDraw *unk174;
 } Struct_800249D8_Arg1_MpDraw;
 
-Gfx *func_800249D8(Gfx *glistp, Struct_800249D8_Arg1_MpDraw *arg1) {
+Gfx *mpDrawPlayerScores(Gfx *glistp, Struct_800249D8_Arg1_MpDraw *arg1) {
     char sp98[32];
     f32 temp_fs0;
     f32 temp_fs2;
@@ -262,7 +262,7 @@ Gfx *func_800249D8(Gfx *glistp, Struct_800249D8_Arg1_MpDraw *arg1) {
         var_s2 = 0;
         if ((s32) D_807FC928 > 0) {
             do {
-                _sprintf(sp98, "%d", func_80024254(var_s2));
+                _sprintf(sp98, "%d", mpGetPlayerScore(var_s2));
                 temp = func_806FC530(glistp, 1, (s16) (s32) ((((f32) (var_s2 + 1) * temp_fs2) - (f32) ((f32) func_806FBD5C(1, sp98) * 0.25)) * 8.0f), (s16) (s32) (temp_fs0 * 8.0f), sp98, 4);
                 var_s2 = var_s2 + 1;
                 glistp = temp;
@@ -294,7 +294,7 @@ Gfx *func_80025264(Gfx *glistp, void *arg1) {
     if (!cond) {
         if (SP_MpFix->unk0 == 0) {
             if ((SP_MpFix->unk8 == 1) || t0) {
-                glistp = func_800249D8(glistp, arg1);
+                glistp = mpDrawPlayerScores(glistp, arg1);
             }
         } else if ((SP_MpFix->unk8 == 1) || t0) {
             glistp = func_80024CA4(glistp, arg1);
@@ -303,7 +303,7 @@ Gfx *func_80025264(Gfx *glistp, void *arg1) {
     return glistp;
 }
 
-Struct_80026FA4_MpLow *func_80025378(void) {
+Struct_80026FA4_MpLow *mpFindCurrentMapEntry(void) {
     s32 i;
     Struct_80026FA4_MpLow *ret = NULL;
 
@@ -349,12 +349,12 @@ typedef struct Struct_80025654_Actor_MpHigh {
 } Struct_80025654_Actor_MpHigh;
 
 s32 func_8071432C(void);
-void func_800243C8(void);
+void mpUpdateMatchTimer(void);
 s32 func_80025404(void);
 void *func_8067ADB4();
 s32 func_806F5EB4(s32, s32, s16, s16, s16);
 void func_806F5FE8(s32, s16, s16, s16, s32);
-s32 func_80024254(s32);
+s32 mpGetPlayerScore(s32);
 
 extern s32 D_807FBB60;
 extern s32 D_807552E8;
@@ -364,10 +364,10 @@ void func_80025654(Struct_80025654_Actor_MpHigh *arg0) {
     s32 temp;
     Struct_80025654_Pos_MpHigh * volatile sp20;
 
-    sp20 = *(Struct_80025654_Pos_MpHigh **)((u8 *)func_80025378() + 8);
+    sp20 = *(Struct_80025654_Pos_MpHigh **)((u8 *)mpFindCurrentMapEntry() + 8);
     if (func_8071432C() != 0 && !(D_807FBB60 & 2)) {
         if (D_807552E8 == 3) {
-            func_800243C8();
+            mpUpdateMatchTimer();
         }
         if ((temp = func_80025404()) == -1) {
             if (arg0->unk4C == 0 &&
@@ -381,8 +381,8 @@ void func_80025654(Struct_80025654_Actor_MpHigh *arg0) {
                     }
                 }
             }
-        } else if (D_807552E8 == 5 && func_80024254(temp) >= D_807552F0) {
-            func_800242FC((s32)arg0);
+        } else if (D_807552E8 == 5 && mpGetPlayerScore(temp) >= D_807552F0) {
+            mpDetermineWinner((s32)arg0);
         }
         if (arg0->unk4C != 0) {
             arg0->unk4C--;
@@ -428,9 +428,9 @@ void func_80025794(void) {
     f32 fs4;
     s16 s2_val;
 
-    sp84 = (Parent_80025794_MpBigHi *) func_80025378();
+    sp84 = (Parent_80025794_MpBigHi *) mpFindCurrentMapEntry();
     items = sp84->items;
-    func_800243C8();
+    mpUpdateMatchTimer();
     if (func_8071432C() != 0 && !(D_807FBB60 & 2)) {
         sp7C = 0;
         item = items;
@@ -554,7 +554,7 @@ void func_80025F84(void) {
     Struct_80025F84_MpHigh *temp;
     s32 i;
 
-    temp = (Struct_80025F84_MpHigh *)func_80025378();
+    temp = (Struct_80025F84_MpHigh *)mpFindCurrentMapEntry();
     i = 0;
     while (i < 4 && temp->unkC[i] != -1) {
         func_8063DA40(temp->unkC[i], 0);
@@ -589,7 +589,7 @@ void func_80025FFC(Struct_80025FFC_MpHigh *arg0) {
 
 extern u8 D_80026F70;
 
-void func_800268C0(u8 arg0) {
+void mpSetFlags(u8 arg0) {
     D_80026F70 |= arg0;
 }
 
@@ -759,7 +759,7 @@ typedef struct Player_MpBigHi {
 
 Coord_MpBigHi *func_806C96C4(s32);
 
-s32 func_80026BD8(s32 arg0) {
+s32 mpFindFurthestSpawn(s32 arg0) {
     s32 i;
     s32 j;
     s32 best_i;
@@ -799,7 +799,7 @@ s32 func_80026BD8(s32 arg0) {
 }
 
 void func_806C9434(s32);
-s32 func_80026BD8(s32);
+s32 mpFindFurthestSpawn(s32);
 void func_806CFF9C(void *);
 void func_806EB0C0(s32, s32, u8);
 extern u8 D_807FCC4B[];
@@ -820,14 +820,14 @@ typedef struct Struct_80026D40_Player_MpHigh {
 void func_80026D40(Struct_80026D40_Target_MpHigh *arg0, s32 arg1) {
     Struct_80026D40_Player_MpHigh *temp_v0;
 
-    if (D_807552E8 == 4 && func_80024254(arg1) == 0) {
+    if (D_807552E8 == 4 && mpGetPlayerScore(arg1) == 0) {
         *(u8 *)((u8 *)D_807FCC4B + arg1 * 0x306) = 0;
         arg0->unk155++;
         func_806EB0C0(0x5B, 0, arg1);
         arg0->unk144 = 1;
         return;
     }
-    func_806C9434(func_80026BD8(arg1));
+    func_806C9434(mpFindFurthestSpawn(arg1));
     temp_v0 = (Struct_80026D40_Player_MpHigh *)((u8 *)D_807FC924 + (arg1 * 0x2F0));
     temp_v0->unk2E2 |= 1;
     func_806CFF9C(arg0);
