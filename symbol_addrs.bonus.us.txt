@@ -1,1 +1,2 @@
 // Overlay bonus (ovl04, segment table entry 4)
+D_8002DDD4 = 0x8002DDD4; // segment:bonus force_migration:True function_owner:func_8002A398
