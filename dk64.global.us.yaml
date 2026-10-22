@@ -94,8 +94,8 @@ segments:
       - [0x7A510, asm]
       - [0x7AF60, asm]
       - [0x7BBD0, asm]
-      - [0x7CA80, asm]
-      - [0x80150, asm]
+      - [0x7CA80, c, 7CA80]
+      - [0x80150, c, 80150]
       - [0x89250, asm]
       - [0x8CA50, asm]
       - [0x8D3E0, asm]
@@ -199,6 +199,9 @@ segments:
       - [0x15BE40, .rodata, 131B0]
       - [0x15BF90, .rodata, 15050]
       - [0x15BFD0, rodata]
+      - [0x15DF60, .rodata, 7CA80]
+      - [0x15E090, .rodata, 80150]
+      - [0x15E790, rodata]
       - { start: 0x165D50, type: bss, vram: 0x80761050 }
 
   - [0x165D50]
