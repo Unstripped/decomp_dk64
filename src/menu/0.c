@@ -36,7 +36,7 @@ s32 func_805FF030(s32, s32);
 void func_8063DA40(s16, s32);
 void func_8061CC40(s32, s32, s32);
 
-void func_80024000(MenuStruct_80024000 *arg0) {
+void menuPlaySoundFromTable(MenuStruct_80024000 *arg0) {
     s32 temp_v1 = D_80032F48[func_805FF030(D_8076A0AB, 0)][arg0->unk1];
 
     if (temp_v1 == 0) {
@@ -59,7 +59,7 @@ void func_807149B8(s32);
 void func_807149FC(s32);
 MenuActor_340 *func_80714CC0(void *, s32, s32, s32, f32);
 
-void func_800240BC(MenuStruct_80024000 *arg0) {
+void menuSpawnPositionalActor(MenuStruct_80024000 *arg0) {
     arg0->unk10 = 11.35f;
     arg0->unkC = -6.55f;
     arg0->unk14 = 6.6f;
@@ -73,7 +73,7 @@ void func_800240BC(MenuStruct_80024000 *arg0) {
 
 void func_80715908(MenuActor_340 *);
 
-void func_80024154(MenuStruct_80024000 *arg0) {
+void menuUpdateFallingActor(MenuStruct_80024000 *arg0) {
     MenuActor_340 *temp_v0 = arg0->unk8;
     temp_v0->x += arg0->unkC;
     temp_v0->z += arg0->unk14;
@@ -91,7 +91,7 @@ extern void *D_807FBB4C;
 void func_806CFF9C(void *);
 void func_805FF898(void);
 
-void func_800241E8(void) {
+void menuResetAudioState(void) {
     func_806CFF9C(D_807FBB4C);
     func_805FF898();
     func_8061CC40(0, 7, 1);
@@ -119,10 +119,10 @@ void func_8070D8C0(void *, s32, u8);
 void func_8061CB08(void);
 void func_80629174();
 
-void func_80024000(MenuStruct_80024000 *);
-void func_80024154(MenuStruct_80024000 *);
+void menuPlaySoundFromTable(MenuStruct_80024000 *);
+void menuUpdateFallingActor(MenuStruct_80024000 *);
 
-void func_80024224(MenuStruct_80024000 *arg0, s32 arg1) {
+void menuMainStateStep(MenuStruct_80024000 *arg0, s32 arg1) {
     s32 var_v0;
 
     switch (arg0->unk1) {
@@ -183,18 +183,18 @@ void func_80024224(MenuStruct_80024000 *arg0, s32 arg1) {
                     arg0->unk6 = 2;
                 }
             } else {
-                func_80024154(arg0);
+                menuUpdateFallingActor(arg0);
             }
         }
         if (func_80629148() != 0) {
             func_80629174();
-            func_80024000(arg0);
+            menuPlaySoundFromTable(arg0);
         }
         break;
     }
 }
 
-void func_80024418(arg0, arg1)
+void menuTransitionStep(arg0, arg1)
 MenuStruct_80024000 *arg0;
 u8 arg1;
 {
@@ -240,7 +240,7 @@ char *func_8070E750(s32, s32, s32);
 
 s16 func_80712548(MenuStruct_80024000 *);
 
-void func_80024BFC(MenuStruct_80024000 *arg0) {
+void menuProcessOptionInput(MenuStruct_80024000 *arg0) {
     switch (arg0->unk1) {
     case 0:
         if (func_80629148() != 0) {
@@ -273,7 +273,7 @@ void func_80729B00(void);
 void func_806BFBF4(void);
 void func_806319C4(void *, s32);
 
-void func_80024CB0(void) {
+void menuDispatchAction(void) {
     s32 pad;
     s32 var_a3;
     s32 pad2;
@@ -316,16 +316,16 @@ void func_80024CB0(void) {
             temp_s0->unk1 = 0;
         }
         func_80629174();
-        func_800240BC(temp_s0);
+        menuSpawnPositionalActor(temp_s0);
         var_v1 = D_80032F50;
         D_80032F50 = 0;
     }
     switch (temp_s0->unk0) {
     case 0:
-        func_80024224(temp_s0, 1);
+        menuMainStateStep(temp_s0, 1);
         break;
     case 3:
-        func_80024224(temp_s0, 0);
+        menuMainStateStep(temp_s0, 0);
         break;
     case 1:
         var_a3 = 4;
@@ -337,13 +337,13 @@ void func_80024CB0(void) {
         if (var_v1 != 0) {
             var_a3 = 0xB;
         }
-        func_80024418(temp_s0, var_a3);
+        menuTransitionStep(temp_s0, var_a3);
         break;
     case 4:
         func_80024788(temp_s0);
         break;
     case 5:
-        func_80024BFC(temp_s0);
+        menuProcessOptionInput(temp_s0);
         break;
     }
     func_80729B00();

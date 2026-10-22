@@ -39,23 +39,23 @@ extern Struct_BB40_58 *D_807FBB40;
 
 extern u8 D_807FC950[][0x5E];
 
-void func_80025D14(Struct_80025D14 *arg0, s32 arg1) {
+void menuSetBitgridValue(Struct_80025D14 *arg0, s32 arg1) {
     D_807FC950[arg1][arg0->unkB] = arg0->unk11;
 }
 
-void func_80025D44(Struct_80025D14 *arg0, s32 arg1) {
+void menuSetBitgridBit(Struct_80025D14 *arg0, s32 arg1) {
     u8 *ptr = &D_807FC950[arg1][arg0->unkB];
     *ptr |= 1 << (arg0->unk11 - 1);
 }
 
-void func_80025D8C(Struct_80025D14 *arg0, u8 arg1) {
+void menuUpdateAllBitgridSlots(Struct_80025D14 *arg0, u8 arg1) {
     s32 i = 0;
 
     do {
         if (arg1) {
-            func_80025D44(arg0, i);
+            menuSetBitgridBit(arg0, i);
         } else {
-            func_80025D14(arg0, i);
+            menuSetBitgridValue(arg0, i);
         }
         i++;
     } while (i < 5);
@@ -68,7 +68,7 @@ void func_80025D8C(Struct_80025D14 *arg0, u8 arg1) {
 
 s32 func_806F8AD4(s32, s32);
 
-s32 func_800261C0(Struct_80025D14 *arg0, s32 arg1) {
+s32 menuGetOptionAvailability(Struct_80025D14 *arg0, s32 arg1) {
     s32 ret = 0;
 
     arg0->unkF = 3;
@@ -93,7 +93,7 @@ s32 func_800261C0(Struct_80025D14 *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80026250.s")
 
-void func_80026290(s8 *arg0, s32 *arg1) {
+void menuResetSubmenuState(s8 *arg0, s32 *arg1) {
     *arg1 = 0;
     arg0[0xF] = 1;
     arg0[0xB] = -1;
@@ -104,7 +104,7 @@ void func_80026290(s8 *arg0, s32 *arg1) {
 void func_800262A8(Struct_80025D14 *, void *, s32);
 void func_8061CB08(void);
 
-void func_80026684(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+void menuDispatchSubmenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     switch (arg0->unkE) {
     case 0:
         func_800262A8(arg0, arg1, arg2);
@@ -127,7 +127,7 @@ void func_80629174(void);
 void func_80025FB4(void *, void *, s32);
 void func_806EB0C0(s32, void *, s32);
 
-s32 func_800266F0(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     s32 flag = func_8073110C((s16)arg2, 0) == 0;
 
     func_80025FB4(arg0, arg1, flag);
@@ -152,7 +152,7 @@ s32 func_800266F0(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 
 
 
-void func_80026804(Struct_80025D14 *arg0, void *arg1) {
+void menuTransitionToSubmenu(Struct_80025D14 *arg0, void *arg1) {
     arg0->unkA = 1;
     func_8061CC40(0, 0xF, 1);
     func_80629174();
@@ -172,12 +172,12 @@ void func_80026874(Struct_80025D14 *, void *, s32);
 void func_80026B28(Struct_80025D14 *, void *, s32);
 void func_80026DAC(Struct_80025D14 *, void *, s32);
 
-void func_80027028(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+void menuDispatchCurrentMenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     s32 flag = func_8073110C((s16)arg2, 0) == 0;
 
     switch (arg0->unkD) {
     case 0:
-        func_80026684(arg0, arg1, flag);
+        menuDispatchSubmenuAction(arg0, arg1, flag);
         break;
     case 1:
         func_80026874(arg0, arg1, arg2);
@@ -193,7 +193,7 @@ void func_80027028(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_800270E0.s")
 
-s32 func_800275EC(s32 arg0) {
+s32 menuDecodeAddressConstant(s32 arg0) {
     return arg0 + 0x21F44F;
 }
 
@@ -207,7 +207,7 @@ void func_80729B00(void);
 void func_806BFBF4(void);
 void func_806319C4(void *, s32);
 
-void func_800275FC(void) {
+void menuCheckControllerAntiPiracy(void) {
     Struct_80025D14 *temp;
     u8 *ptr;
     s32 pad[4];
@@ -232,12 +232,12 @@ void func_800275FC(void) {
             }
 
             if (sum != (s32)0xA1C0EB24) {
-                dest = (s32 *)func_800275EC((s32)&D_8063FA48 + 0xFFDE0BB1);
-                *dest = func_800275EC(0x03BE0BB9);
+                dest = (s32 *)menuDecodeAddressConstant((s32)&D_8063FA48 + 0xFFDE0BB1);
+                *dest = menuDecodeAddressConstant(0x03BE0BB9);
             }
-            func_800266F0(temp, ptr, 0x175);
+            menuExitSubmenu(temp, ptr, 0x175);
         }
-        func_80027028(temp, ptr, 0x175);
+        menuDispatchCurrentMenuAction(temp, ptr, 0x175);
     }
     if (D_807FBB40->unk60 & 0x10000000) {
         func_80729B00();
@@ -252,9 +252,9 @@ void func_80027738(void) {
         u8 *ptr = D_807FC950[D_8074E77C];
 
         if (!(D_807FBB40->unk60 & 0x10)) {
-            func_800266F0(temp, ptr, 0x176);
+            menuExitSubmenu(temp, ptr, 0x176);
         }
-        func_80027028(temp, ptr, 0x176);
+        menuDispatchCurrentMenuAction(temp, ptr, 0x176);
     }
     if (D_807FBB40->unk60 & 0x10000000) {
         func_80729B00();
@@ -277,7 +277,7 @@ typedef struct {
     Mtx unk10[2];
 } Struct_174;
 
-Gfx *func_80027808(Gfx *dl, void *arg1) {
+Gfx *menuDrawTransformedWidgets(Gfx *dl, void *arg1) {
     Struct_174 *fp = *(Struct_174 **)((u8 *)arg1 + 0x174);
     s32 i;
 

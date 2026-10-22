@@ -33,11 +33,11 @@ extern u8 D_8004A76C;
 extern s32 D_8004A308[];
 
 void func_80024D90(void);
-void func_80030FEC(void);
+void arcadeDispatchEntities(void);
 void func_800259D0(Gfx **);
-void func_8002B2C0(Gfx **);
+void arcadeRenderEntities(Gfx **);
 void func_8002AFA4(Gfx **, s32);
-void func_80029968(void);
+void arcadeInitStage(void);
 #define ArcR1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 Gfx *func_806FD490(Gfx *, s32, s16, s16, s32);
 extern s16 D_8004C72E;
@@ -54,7 +54,7 @@ Gfx *func_80704484(Gfx *, s32);
 void func_805FE71C(Gfx *, u8, s32 *, s32);
 void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
 Gfx *func_805FE4D4(Gfx *);
-void func_80024940(Gfx **);
+void arcadeDispatchState(Gfx **);
 void func_8002419C(u8 *, Gfx **);
 
 extern u8 D_807444FC;
@@ -110,7 +110,7 @@ void func_8002419C(u8 *arg0, Gfx **arg1) {
     gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 4, 2, 0);
     gDPSetFillColor(glist++, 0x00050005);
     gDPFillRectangle(glist++, 0, 0, 319, 239);
-    func_80024940(&glist);
+    arcadeDispatchState(&glist);
     *arg1 = glist;
 }
 void func_8060C648(s32, s32, u8, s32, s32);
@@ -120,7 +120,7 @@ extern s32 D_8004A74C[5];
 extern u8 D_8004A778[5][3];
 extern s32 D_8004A760;
 
-void func_80024320(void) {
+void arcadeSaveHighScores(void) {
     s32 i;
     u8 temp;
 
@@ -135,7 +135,7 @@ void func_80024320(void) {
     func_8060DEA8();
 }
 
-void func_8002440C(void) {
+void arcadeLoadHighScores(void) {
     s32 i;
     u8 temp;
 
@@ -153,7 +153,7 @@ extern u8 D_8004C725;
 extern u8 D_8004C726;
 extern u8 D_8004C727;
 extern u8 D_8004C728;
-void func_800244E4(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void arcadeSetTextColor(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     D_8004C725 = arg0;
     D_8004C726 = arg1;
     D_8004C727 = arg2;
@@ -162,12 +162,12 @@ void func_800244E4(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 extern s32 D_8004C72C;
 extern s32 D_8004C730;
-void func_80024508(s32 arg0, s32 arg1) {
+void arcadeSetTextPosition(s32 arg0, s32 arg1) {
     D_8004C72C = arg0;
     D_8004C730 = arg1;
 }
 
-void func_8002451C(Gfx **arg0, s32 arg1) {
+void arcadeDrawString(Gfx **arg0, s32 arg1) {
     Gfx *g = *arg0;
 
     gDPPipeSync(g++);
@@ -181,7 +181,7 @@ void func_8002451C(Gfx **arg0, s32 arg1) {
 }
 
 extern u32 D_8004A738;
-s32 func_80024644(void) {
+s32 arcadeRand(void) {
     D_8004A738 = D_8004A738 * 0x41C64E6D + 0x3039;
     return (D_8004A738 >> 16) & 0x7FFF;
 }
@@ -189,7 +189,7 @@ s32 func_80024644(void) {
 extern s32 D_8004A748;
 extern u8 D_8004C71B;
 extern u8 D_8004C71C;
-void func_80024674(s32 arg0) {
+void arcadeAddScore(s32 arg0) {
     s32 old = D_8004A748;
     D_8004A748 += arg0;
     if (D_8004A748 >= 0x2710 && old < 0x2710) {
@@ -198,7 +198,7 @@ void func_80024674(s32 arg0) {
     }
 }
 
-f32 func_800246C8(f32 arg0, f32 arg1) {
+f32 arcadeMinFloat(f32 arg0, f32 arg1) {
     if (arg1 < arg0) {
         return arg1;
     }
@@ -206,7 +206,7 @@ f32 func_800246C8(f32 arg0, f32 arg1) {
 }
 
 
-s32 func_800246EC(void) {
+s32 arcadeFindFreeEntity(void) {
     s32 i;
     for (i = 0; i < 0x50; i++) {
         if (D_8004BCD0[i].unk18 == 0) {
@@ -216,7 +216,7 @@ s32 func_800246EC(void) {
     return 0;
 }
 
-s32 func_80024764(void) {
+s32 arcadeFindFreeEntityAfterPlayer(void) {
     s32 i;
     for (i = D_8004C71F + 1; i < 0x50; i++) {
         if (D_8004BCD0[i].unk18 == 0) {
@@ -225,7 +225,7 @@ s32 func_80024764(void) {
     }
     return 0;
 }
-s32 func_800247B8(void) {
+s32 arcadeFindFreeEntityReverse(void) {
     s32 i;
     for (i = 0x4F; i >= 0; i--) {
         if (D_8004BCD0[i].unk18 == 0) {
@@ -255,7 +255,7 @@ s32 func_80024828(void) {
     return 0;
 }
 
-s32 func_80024860(s32 arg0) {
+s32 arcadeFindEntityByType(s32 arg0) {
     s32 i;
     for (i = 0; i < 0x50; i++) {
         if (arg0 == D_8004BCD0[i].unk18) {
@@ -265,7 +265,7 @@ s32 func_80024860(s32 arg0) {
     return -1;
 }
 
-s32 func_800248D8(s32 arg0) {
+s32 arcadeCountEntitiesByType(s32 arg0) {
     s32 i;
     s32 count = 0;
     for (i = 0; i < 0x50; i++) {
@@ -276,43 +276,43 @@ s32 func_800248D8(s32 arg0) {
     return count;
 }
 void func_80024E84(Gfx **);
-void func_800251D8(Gfx **);
-void func_800252D8(Gfx **);
+void arcadeStageIntroLoop(Gfx **);
+void arcadeGameplayLoop(Gfx **);
 void func_800255F4(Gfx **);
-void func_80024CF8(Gfx **);
-void func_80025960(Gfx **);
+void arcadeAttractLoop(Gfx **);
+void arcadeDemoLoop(Gfx **);
 void func_800319D4(Gfx **);
 extern s32 D_8004A78C[];
 extern s32 D_8004A790;
 extern s32 D_8004C6D8;
 
-void func_80024940(Gfx **arg0) {
+void arcadeDispatchState(Gfx **arg0) {
     Gfx *sp1C = *arg0;
 
     if (D_8004A78C[0] != 0) {
         D_8004A78C[0] = 0;
         D_8004C722 = 1;
         func_80024D90();
-        func_8002440C();
+        arcadeLoadHighScores();
     }
     switch (D_8004C724) {
     case 0:
         func_80024E84(&sp1C);
         break;
     case 1:
-        func_800251D8(&sp1C);
+        arcadeStageIntroLoop(&sp1C);
         break;
     case 5:
-        func_800252D8(&sp1C);
+        arcadeGameplayLoop(&sp1C);
         break;
     case 4:
         func_800255F4(&sp1C);
         break;
     case 3:
-        func_80024CF8(&sp1C);
+        arcadeAttractLoop(&sp1C);
         break;
     default:
-        func_80025960(&sp1C);
+        arcadeDemoLoop(&sp1C);
         break;
     }
     func_800319D4(&sp1C);
@@ -327,7 +327,7 @@ extern ArcadeEntity D_8004A698;
 extern u8 D_8004A774[3];
 extern u8 D_8004C720;
 void func_80024A50(s32);
-void func_80024B04(void) {
+void arcadeCheckGameOver(void) {
     u8 rank;
     u8 i;
 
@@ -357,7 +357,7 @@ void func_805FF898(void);
 void func_805FF378(s32, s32);
 extern u8 D_8004A73C;
 extern u8 D_8004A770;
-void func_80024C34(void) {
+void arcadeExit(void) {
     if (D_8004A73C == 0) {
         if (D_8004A770 != 0 && D_8004A740 != 0 && func_8073110C(0x84, 0) == 0) {
             if (func_8073110C(0x82, 0) != 0) {
@@ -374,15 +374,15 @@ void func_80024C34(void) {
         D_8004A73C = 1;
     }
 }
-void func_80024CF8(Gfx **arg0) {
+void arcadeAttractLoop(Gfx **arg0) {
     Gfx *sp1C = *arg0;
     D_8004C6DC++;
     func_800259D0(&sp1C);
-    func_80030FEC();
-    func_8002B2C0(&sp1C);
+    arcadeDispatchEntities();
+    arcadeRenderEntities(&sp1C);
     if (D_8004C6DC >= 0x7BD) {
         if (D_8004A740 != 0) {
-            func_80024C34();
+            arcadeExit();
         } else {
             func_80024D90();
         }
@@ -394,11 +394,11 @@ void func_80024CF8(Gfx **arg0) {
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80024E84.s")
 
 void func_800257D8(void);
-void func_800251D8(Gfx **arg0) {
+void arcadeStageIntroLoop(Gfx **arg0) {
     Gfx *sp1C = *arg0;
-    func_80030FEC();
+    arcadeDispatchEntities();
     func_800259D0(&sp1C);
-    func_8002B2C0(&sp1C);
+    arcadeRenderEntities(&sp1C);
     if (D_8004C6DC++ >= 0x2F9) {
         func_800257D8();
     }
@@ -406,7 +406,7 @@ void func_800251D8(Gfx **arg0) {
 }
 
 extern s32 D_8004C714;
-void func_80025240(void) {
+void arcadeSetStageMusic(void) {
     if (D_8004C722 == 1) {
         D_8004C714 = 0x4D;
     } else if (D_8004C722 == 2) {
@@ -420,7 +420,7 @@ void func_80025240(void) {
 
 void n_alSndpDeallocate(s32);
 extern s32 D_80770DF8;
-void func_800252A4(s32 arg0) {
+void arcadeStopSound(s32 arg0) {
     D_8004C714 = arg0;
     if (D_80770DF8 != 0) {
         n_alSndpDeallocate(D_80770DF8);
@@ -434,12 +434,12 @@ void n_alSndpAllocate(s32, s32, s32, s32, f32, s32, s32);
 void func_8002549C(void);
 void func_800311E0(void);
 void func_800313B8(void);
-void func_800252D8(Gfx **arg0) {
+void arcadeGameplayLoop(Gfx **arg0) {
     Gfx *sp34 = *arg0;
 
     func_800259D0(&sp34);
     if ((D_8004C71E < 0xA) && ((D_8004C714 == 0x4D) || (D_8004C714 == 0x4E) || (D_8004C714 == 0x4F) || (D_8004C714 == -1))) {
-        func_800252A4(0x48);
+        arcadeStopSound(0x48);
     }
     if ((D_80770DF8 == 0) && (D_8004C714 > 0)) {
         n_alSndpAllocate(D_8076D1F8, (s16)D_8004C714, 0x7FFF, 0x3F, 1.0f, 0, (s32)&D_80770DF8);
@@ -450,10 +450,10 @@ void func_800252D8(Gfx **arg0) {
     if (D_8004C6DC++ == 0x3C) {
         D_8004C71C = D_8004C71B;
         D_8004C71D = 0;
-        D_8004BCE9[func_80024860(0xD) << 5] = 2;
+        D_8004BCE9[arcadeFindEntityByType(0xD) << 5] = 2;
     }
-    func_80030FEC();
-    func_8002B2C0(&sp34);
+    arcadeDispatchEntities();
+    arcadeRenderEntities(&sp34);
     if (D_8004C71D == 0) {
         if (D_8004C722 == 2) {
             func_800313B8();
@@ -473,7 +473,7 @@ extern u8 *D_807ECDE8;
 extern s8 D_8004A768;
 extern s32 D_8004C70C;
 extern u8 D_8004A744;
-s32 func_800247B8(void);
+s32 arcadeFindFreeEntityReverse(void);
 
 void func_8002549C(void) {
     s32 s4;
@@ -483,7 +483,7 @@ void func_8002549C(void) {
     for (s4 = 0x60; s4 != 0xE0; s4 += 0x10) {
         fs0 = s4;
         for (s0 = 0x8C; s0 != 0xCC; s0 += 0x10) {
-            s32 index = func_800247B8();
+            s32 index = arcadeFindFreeEntityReverse();
             D_8004BCD0[index] = D_8004A6B8;
             D_8004BCD0[index].unk0 = fs0;
             D_8004BCD0[index].unk4 = s0;
@@ -494,10 +494,10 @@ void func_8002549C(void) {
     D_8004A744 = 0;
 }
 
-void func_800255A8(void) {
+void arcadeClearEntitiesByType1C(void) {
     s32 index;
     do {
-        index = func_80024860(0x1C);
+        index = arcadeFindEntityByType(0x1C);
         if (index >= 0) {
             D_8004BCD0[index].unk18 = 0;
         }
@@ -508,12 +508,12 @@ void func_800255A8(void) {
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800257D8.s")
 
-void func_80025960(Gfx **arg0) {
+void arcadeDemoLoop(Gfx **arg0) {
     Gfx *sp1C = *arg0;
     func_800259D0(&sp1C);
-    func_8002B2C0(&sp1C);
+    arcadeRenderEntities(&sp1C);
     if (D_8004C6DC++ >= 0xA1) {
-        func_80029968();
+        arcadeInitStage();
         D_8004C724 = 5;
     }
     *arg0 = sp1C;
@@ -552,7 +552,7 @@ void func_8070E8F0(s32 *, void *);
 void func_8070F2C8(s32, s16, s32, u8);
 void func_80025C08();
 void func_8070F2FC(s32 *, s16, s16);
-void func_800252A4(s32);
+void arcadeStopSound(s32);
 void n_alSndpAllocate(s32, s32, s32, s32, f32, s32, s32);
 extern s32 D_8076D1F8;
 void func_800259D0(arg0)
@@ -746,8 +746,8 @@ s16 arg3;
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80027A38.s")
 
-void func_80027E8C(void) {
-    func_800252A4(0);
+void arcadeKillPlayer(void) {
+    arcadeStopSound(0);
     n_alSndpAllocate(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
     D_8004BCD0[D_8004C71F].unk19 = 8;
     D_8004BCD0[D_8004C71F].unk8 = 0.0f;
@@ -768,16 +768,16 @@ extern s32 D_8004C6F4;
 extern s32 D_8004C6F8;
 
 
-s32 func_80029ACC(s32, s32);
-s32 func_80029CD0(s32, s32);
+s32 arcadeCheckStage1Collision(s32, s32);
+s32 arcadeCheckStage2Collision(s32, s32);
 s32 func_80029EFC(s32, s32);
-s32 func_8002A264(s32, s32);
+s32 arcadeCheckStage4Collision(s32, s32);
 
 
-s32 func_8002A474(s32, s32);
-s32 func_8002A734(s32, s32);
-s32 func_8002AA24(s32, s32);
-s32 func_8002AC54(s32, s32);
+s32 arcadeCheckStage1Ladders(s32, s32);
+s32 arcadeCheckStage2Ladders(s32, s32);
+s32 arcadeCheckStage3Ladders(s32, s32);
+s32 arcadeCheckStage4Ladders(s32, s32);
 
 
 void func_80005A90(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
@@ -822,7 +822,7 @@ void func_800290F0(void);
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800290F0.s")
 
-void func_80029968(void) {
+void arcadeInitStage(void) {
     s32 i;
     s32 temp;
 
@@ -845,7 +845,7 @@ void func_80029968(void) {
         func_800290F0();
         break;
     }
-    func_80025240();
+    arcadeSetStageMusic();
     temp = D_8004A76C * 10 + 40;
     if (temp >= 91) {
         D_8004C71E = 90;
@@ -865,7 +865,7 @@ void func_80029968(void) {
     D_8004A308[3] = 0;
 }
 
-s32 func_80029ACC(s32 arg0, s32 arg1) {
+s32 arcadeCheckStage1Collision(s32 arg0, s32 arg1) {
     s32 ret;
     s32 temp;
 
@@ -932,7 +932,7 @@ s32 func_80029ACC(s32 arg0, s32 arg1) {
     return ret;
 }
 
-s32 func_80029CD0(s32 arg0, s32 arg1) {
+s32 arcadeCheckStage2Collision(s32 arg0, s32 arg1) {
     s32 ret;
 
     D_8004C6F0 = 0x36;
@@ -985,7 +985,7 @@ s32 func_80029CD0(s32 arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80029EFC.s")
 
-s32 func_8002A264(s32 arg0, s32 arg1) {
+s32 arcadeCheckStage4Collision(s32 arg0, s32 arg1) {
     s32 ret;
 
     D_8004C6F0 = 0x36;
@@ -1023,19 +1023,19 @@ s32 func_8002A264(s32 arg0, s32 arg1) {
     return ret;
 }
 
-s32 func_8002A390(s32 arg0, s32 arg1) {
+s32 arcadeCheckPlayerCollision(s32 arg0, s32 arg1) {
     if (D_8004C722 == 1) {
-        return func_80029ACC(arg0, arg1);
+        return arcadeCheckStage1Collision(arg0, arg1);
     } else if (D_8004C722 == 2) {
-        return func_80029CD0(arg0, arg1);
+        return arcadeCheckStage2Collision(arg0, arg1);
     } else if (D_8004C722 == 3) {
         return func_80029EFC(arg0, arg1);
     } else {
-        return func_8002A264(arg0, arg1);
+        return arcadeCheckStage4Collision(arg0, arg1);
     }
 }
 
-s32 func_8002A408(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+s32 arcadeCheckLadderBounds(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     if ((arg1 >= arg3) & (arg5 >= arg1) & ((arg2 - 4) < arg0) & (arg0 < (arg2 + 3))) {
         D_8004C6E0 = arg2;
         D_8004C6E4 = arg3;
@@ -1046,44 +1046,44 @@ s32 func_8002A408(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     return 0;
 }
 
-s32 func_8002A474(s32 arg0, s32 arg1) {
-    if (func_8002A408(arg0, arg1, 0x84, 0xD4, 0xEB, 0xF7)) {
+s32 arcadeCheckStage1Ladders(s32 arg0, s32 arg1) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x84, 0xD4, 0xEB, 0xF7)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0xEC, 0xDA, 0xDA, 0xF2)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xEC, 0xDA, 0xDA, 0xF2)) {
         return 2;
     }
-    if (func_8002A408(arg0, arg1, 0x94, 0xB5, 0xB5, 0xD5)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x94, 0xB5, 0xB5, 0xD5)) {
         return 3;
     }
-    if (func_8002A408(arg0, arg1, 0x54, 0xB9, 0xB9, 0xD1)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x54, 0xB9, 0xB9, 0xD1)) {
         return 4;
     }
-    if (func_8002A408(arg0, arg1, 0x74, 0x91, 0xAB, 0xB7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x74, 0x91, 0xAB, 0xB7)) {
         return 5;
     }
-    if (func_8002A408(arg0, arg1, 0xAC, 0x94, 0x94, 0xB4)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xAC, 0x94, 0x94, 0xB4)) {
         return 6;
     }
-    if (func_8002A408(arg0, arg1, 0xEC, 0x98, 0x98, 0xB0)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xEC, 0x98, 0x98, 0xB0)) {
         return 7;
     }
-    if (func_8002A408(arg0, arg1, 0xDC, 0x6F, 0x8B, 0x97)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xDC, 0x6F, 0x8B, 0x97)) {
         return 8;
     }
-    if (func_8002A408(arg0, arg1, 0x7C, 0x75, 0x75, 0x91)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x7C, 0x75, 0x75, 0x91)) {
         return 9;
     }
-    if (func_8002A408(arg0, arg1, 0x54, 0x77, 0x77, 0x8F)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x54, 0x77, 0x77, 0x8F)) {
         return 10;
     }
-    if (func_8002A408(arg0, arg1, 0x8C, 0x53, 0x64, 0x74)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x8C, 0x53, 0x64, 0x74)) {
         return 11;
     }
-    if (func_8002A408(arg0, arg1, 0xEC, 0x56, 0x56, 0x6E)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xEC, 0x56, 0x56, 0x6E)) {
         return 12;
     }
-    if (func_8002A408(arg0, arg1, 0xB4, 0x37, 0x37, 0x53)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xB4, 0x37, 0x37, 0x53)) {
         return 13;
     }
     D_8004C6E0 = 0;
@@ -1093,47 +1093,47 @@ s32 func_8002A474(s32 arg0, s32 arg1) {
     return 0;
 }
 
-s32 func_8002A734(s32 arg0, s32 arg1) {
-    if (func_8002A408(arg0, arg1, 0x3C, 0xD0, 0xD0, 0xF7)) {
+s32 arcadeCheckStage2Ladders(s32 arg0, s32 arg1) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x3C, 0xD0, 0xD0, 0xF7)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x9C, 0xD0, 0xD0, 0xF7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x9C, 0xD0, 0xD0, 0xF7)) {
         return 2;
     }
-    if (func_8002A408(arg0, arg1, 0x104, 0xD0, 0xD0, 0xF7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x104, 0xD0, 0xD0, 0xF7)) {
         return 3;
     }
-    if (func_8002A408(arg0, arg1, 0x44, 0xAA, 0xAA, 0xD0)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x44, 0xAA, 0xAA, 0xD0)) {
         return 4;
     }
-    if (func_8002A408(arg0, arg1, 0x7C, 0xAA, 0xAA, 0xD0)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x7C, 0xAA, 0xAA, 0xD0)) {
         return 5;
     }
-    if (func_8002A408(arg0, arg1, 0xC4, 0xAA, 0xAA, 0xD0)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xC4, 0xAA, 0xAA, 0xD0)) {
         return 6;
     }
-    if (func_8002A408(arg0, arg1, 0xFC, 0xAA, 0xAA, 0xD0)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xFC, 0xAA, 0xAA, 0xD0)) {
         return 7;
     }
-    if (func_8002A408(arg0, arg1, 0x4C, 0x84, 0x84, 0xAA)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x4C, 0x84, 0x84, 0xAA)) {
         return 8;
     }
-    if (func_8002A408(arg0, arg1, 0x9C, 0x84, 0x84, 0xAA)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x9C, 0x84, 0x84, 0xAA)) {
         return 9;
     }
-    if (func_8002A408(arg0, arg1, 0xF4, 0x84, 0x84, 0xAA)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xF4, 0x84, 0x84, 0xAA)) {
         return 10;
     }
-    if (func_8002A408(arg0, arg1, 0x54, 0x5D, 0x5D, 0x84)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x54, 0x5D, 0x5D, 0x84)) {
         return 11;
     }
-    if (func_8002A408(arg0, arg1, 0x74, 0x5D, 0x5D, 0x84)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x74, 0x5D, 0x5D, 0x84)) {
         return 12;
     }
-    if (func_8002A408(arg0, arg1, 0xCC, 0x5D, 0x5D, 0x84)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xCC, 0x5D, 0x5D, 0x84)) {
         return 13;
     }
-    if (func_8002A408(arg0, arg1, 0xEC, 0x5D, 0x5D, 0x84)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xEC, 0x5D, 0x5D, 0x84)) {
         return 14;
     }
     D_8004C6E0 = 0;
@@ -1143,35 +1143,35 @@ s32 func_8002A734(s32 arg0, s32 arg1) {
     return 0;
 }
 
-s32 func_8002AA24(s32 arg0, s32 arg1) {
-    if (func_8002A408(arg0, arg1, 0xB4, 0x37, 0x37, 0x57)) {
+s32 arcadeCheckStage3Ladders(s32 arg0, s32 arg1) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xB4, 0x37, 0x37, 0x57)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0xD4, 0x57, 0x57, 0x77)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xD4, 0x57, 0x57, 0x77)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x104, 0x67, 0x67, 0x8F)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x104, 0x67, 0x67, 0x8F)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0xBC, 0x7F, 0x7F, 0x9F)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xBC, 0x7F, 0x7F, 0x9F)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0xEC, 0x8F, 0x8F, 0xAF)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xEC, 0x8F, 0x8F, 0xAF)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x104, 0xB7, 0xB7, 0xCF)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x104, 0xB7, 0xB7, 0xCF)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x44, 0x87, 0x87, 0xBF)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x44, 0x87, 0x87, 0xBF)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x74, 0x87, 0x87, 0xCF)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x74, 0x87, 0x87, 0xCF)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x84, 0x87, 0x87, 0xCF)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x84, 0x87, 0x87, 0xCF)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x3C, 0xBF, 0xBF, 0xE7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x3C, 0xBF, 0xBF, 0xE7)) {
         return 1;
     }
     D_8004C6E0 = 0;
@@ -1181,36 +1181,36 @@ s32 func_8002AA24(s32 arg0, s32 arg1) {
     return 0;
 }
 
-s32 func_8002AC54(s32 arg0, s32 arg1) {
+s32 arcadeCheckStage4Ladders(s32 arg0, s32 arg1) {
     s32 var_v0;
-    if (func_8002A408(arg0, arg1, 0x4C, 0xCF, 0xCF, 0xF7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x4C, 0xCF, 0xCF, 0xF7)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x84, 0xCF, 0xCF, 0xF7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x84, 0xCF, 0xCF, 0xF7)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0xBC, 0xCF, 0xCF, 0xF7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xBC, 0xCF, 0xCF, 0xF7)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0xF4, 0xCF, 0xCF, 0xF7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xF4, 0xCF, 0xCF, 0xF7)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x74, 0xA7, 0xA7, 0xCF)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x74, 0xA7, 0xA7, 0xCF)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0xC4, 0xA7, 0xA7, 0xCF)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xC4, 0xA7, 0xA7, 0xCF)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x4C, 0x7F, 0x7F, 0xA7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x4C, 0x7F, 0x7F, 0xA7)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0x84, 0x7F, 0x7F, 0xA7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x84, 0x7F, 0x7F, 0xA7)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0xBC, 0x7F, 0x7F, 0xA7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xBC, 0x7F, 0x7F, 0xA7)) {
         return 1;
     }
-    if (func_8002A408(arg0, arg1, 0xF4, 0x7F, 0x7F, 0xA7)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xF4, 0x7F, 0x7F, 0xA7)) {
         return 1;
     }
     var_v0 = (s32) D_8004BCD4;
@@ -1219,7 +1219,7 @@ s32 func_8002AC54(s32 arg0, s32 arg1) {
     } else {
         var_v0 = 0x74;
     }
-    if (func_8002A408(arg0, arg1, 0x44, 0x57, var_v0, 0x7F)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0x44, 0x57, var_v0, 0x7F)) {
         return 1;
     }
     var_v0 = (s32) D_8004BCF4;
@@ -1228,7 +1228,7 @@ s32 func_8002AC54(s32 arg0, s32 arg1) {
     } else {
         var_v0 = 0x74;
     }
-    if (func_8002A408(arg0, arg1, 0xFC, 0x57, var_v0, 0x7F)) {
+    if (arcadeCheckLadderBounds(arg0, arg1, 0xFC, 0x57, var_v0, 0x7F)) {
         return 1;
     }
     D_8004C6E0 = 0;
@@ -1238,21 +1238,21 @@ s32 func_8002AC54(s32 arg0, s32 arg1) {
     return 0;
 }
 
-s32 func_8002AF2C(s32 arg0, s32 arg1) {
+s32 arcadeCheckStageLadders(s32 arg0, s32 arg1) {
     if (D_8004C722 == 1) {
-        return func_8002A474(arg0, arg1);
+        return arcadeCheckStage1Ladders(arg0, arg1);
     } else if (D_8004C722 == 2) {
-        return func_8002A734(arg0, arg1);
+        return arcadeCheckStage2Ladders(arg0, arg1);
     } else if (D_8004C722 == 3) {
-        return func_8002AA24(arg0, arg1);
+        return arcadeCheckStage3Ladders(arg0, arg1);
     } else {
-        return func_8002AC54(arg0, arg1);
+        return arcadeCheckStage4Ladders(arg0, arg1);
     }
 }
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_8002AFA4.s")
 
-void func_8002B2C0(Gfx **arg0) {
+void arcadeRenderEntities(Gfx **arg0) {
     s32 i;
     Gfx *sp38;
     sp38 = *arg0;
@@ -1266,7 +1266,7 @@ void func_8002B2C0(Gfx **arg0) {
     *arg0 = sp38;
 }
 
-s32 func_8002B378(s32 arg0) {
+s32 arcadeAbs(s32 arg0) {
     if (arg0 >= 0) {
         return arg0;
     }
@@ -1277,7 +1277,7 @@ s32 func_8002B378(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_8002B89C.s")
 
-void func_8002CBD8(s32 arg0) {
+void arcadeUpdateEntitySprite(s32 arg0) {
     ArcadeEntity *ptr = &D_8004BCD0[arg0];
     s32 val = (s32)ptr->unk10;
 
@@ -1419,8 +1419,8 @@ void func_8002E794(s32 arg0) {
 void func_8002E8A0(s32 arg0) {
     D_8004BCD0[arg0].unk14 = D_8003AE58;
     if (D_8004C721 != 0) {
-        D_8004BCD0[arg0].unk4 = D_8004BCD0[func_80024860(0x1A)].unk4 - 8.0f;
-        D_8004BCD0[arg0].unk0 = D_8004BCD0[func_80024860(0x1A)].unk0;
+        D_8004BCD0[arg0].unk4 = D_8004BCD0[arcadeFindEntityByType(0x1A)].unk4 - 8.0f;
+        D_8004BCD0[arg0].unk0 = D_8004BCD0[arcadeFindEntityByType(0x1A)].unk0;
     } else {
         if (D_8004BCD0[arg0 - 1].unk14 == NULL) {
             D_8004BCD0[arg0].unk14 = NULL;
@@ -1428,10 +1428,10 @@ void func_8002E8A0(s32 arg0) {
         D_8004BCD0[arg0].unk4 = D_8004BCD0[arg0 - 1].unk4 + 20.0f;
         D_8004BCD0[arg0].unk0 = D_8004BCD0[arg0 - 1].unk0 + 30.0f;
     }
-    D_8004BCD0[func_80024860(0x1A)].unk14 = NULL;
-    D_8004BCD0[func_80024860(0x1B)].unk14 = NULL;
-    if (func_80024860(0x1D) >= 0 && D_8004BCD0[func_80024860(0x1D)].unk14 != D_800389D0) {
-        D_8004BCD0[func_80024860(0x1D)].unk14 = NULL;
+    D_8004BCD0[arcadeFindEntityByType(0x1A)].unk14 = NULL;
+    D_8004BCD0[arcadeFindEntityByType(0x1B)].unk14 = NULL;
+    if (arcadeFindEntityByType(0x1D) >= 0 && D_8004BCD0[arcadeFindEntityByType(0x1D)].unk14 != D_800389D0) {
+        D_8004BCD0[arcadeFindEntityByType(0x1D)].unk14 = NULL;
     }
 }
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_8002E9DC.s")
@@ -1493,13 +1493,13 @@ void func_800302B4(s32 arg0) {
         D_8004BCD0[arg0].unk18 = 0x14;
         if (D_8004A76C == 1) {
             D_8004BCD0[arg0].unk14 = D_800383B8;
-            func_80024674(0x12C);
+            arcadeAddScore(0x12C);
         } else if (D_8004A76C == 2) {
             D_8004BCD0[arg0].unk14 = D_800385C0;
-            func_80024674(0x1F4);
+            arcadeAddScore(0x1F4);
         } else {
             D_8004BCD0[arg0].unk14 = D_800387C8;
-            func_80024674(0x320);
+            arcadeAddScore(0x320);
         }
     }
 }
@@ -1525,16 +1525,16 @@ void func_80030734(u8 arg0) {
     }
     if (entity->unk1C++ == 0x42) {
         entity->unk18 = 0x14;
-        rand = func_80024644();
+        rand = arcadeRand();
         if (entity->unk1D == 2 && (rand & 3) == 0) {
             entity->unk14 = D_800387C8;
-            func_80024674(0x320);
+            arcadeAddScore(0x320);
         } else if (entity->unk1D == 2 && (rand & 3) == 1) {
             entity->unk14 = D_800385C0;
-            func_80024674(0x1F4);
+            arcadeAddScore(0x1F4);
         } else {
             entity->unk14 = D_800383B8;
-            func_80024674(0x12C);
+            arcadeAddScore(0x12C);
         }
         entity->unk10 = 0.0f;
         D_8004C71D = 0;
@@ -1558,7 +1558,7 @@ void func_80030880(u8 arg0) {
             new_entity->unk0 = D_8004BCD0[D_8004C71F].unk0;
             new_entity->unk4 = D_8004BCD0[D_8004C71F].unk4 + 14.0f;
             new_entity->unk10 = 0.0f;
-            func_80024674(0x64);
+            arcadeAddScore(0x64);
         }
     }
 }
@@ -1571,9 +1571,9 @@ void func_80030B08(u8 arg0) {
         if (D_8004BCD0[arg0].unk0 > 288.0f || D_8004BCD0[arg0].unk0 < 32.0f || (D_8004BCD0[arg0].unk0 == 160.0f && D_8004BCD0[arg0].unk4 == 127.0f)) {
             D_8004BCD0[arg0].unk18 = 0;
         }
-        if (func_8002B378(D_8004BCD0[arg0].unk0 - D_8004BCD0[D_8004C71F].unk0) < 12) {
+        if (arcadeAbs(D_8004BCD0[arg0].unk0 - D_8004BCD0[D_8004C71F].unk0) < 12) {
             if (D_8004BCD0[arg0].unk4 - *(f32 *)((u8 *)&D_8004BCD4 + (D_8004C71F << 5)) < 4.0f && D_8004BCD0[arg0].unk4 - *(f32 *)((u8 *)&D_8004BCD4 + (D_8004C71F << 5)) > -8.0f) {
-                func_80027E8C();
+                arcadeKillPlayer();
             }
         }
     }
@@ -1582,7 +1582,7 @@ void func_80030B08(u8 arg0) {
 void func_80030C70(u8 arg0) {
     s32 temp_v1;
 
-    if (460.0f < D_8004BCD0[func_80024860(0x17)].unk10) {
+    if (460.0f < D_8004BCD0[arcadeFindEntityByType(0x17)].unk10) {
         return;
     }
     temp_v1 = D_8004BCD0[arg0].unk1C;
@@ -1624,7 +1624,7 @@ void func_80030C70(u8);
 void func_80030CEC(u8);
 void func_80030FB0(u8);
 
-void func_80030FEC(void) {
+void arcadeDispatchEntities(void) {
     u8 i = 0;
 
     do {
@@ -1714,13 +1714,13 @@ void func_80030FEC(void) {
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_8003159C.s")
 
-void func_80031948(s8 arg0) {
+void arcadeSetStageTextColor(s8 arg0) {
     if (arg0 == D_8004A768) {
-        func_800244E4(0xFF, 0xFF, 0xFF, 0xFF);
+        arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     } else if (D_8004C722 == 2) {
-        func_800244E4(0xFF, 0xA0, 0x10, 0xFF);
+        arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
     } else {
-        func_800244E4(0, 0xFF, 0xFF, 0xFF);
+        arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
     }
 }
 
