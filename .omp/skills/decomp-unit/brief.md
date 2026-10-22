@@ -14,6 +14,15 @@ by writing JSON to `xd://mcp__ok_fine_read_concept`:
 `{"project":"dk64","id":"runbooks/decompile-function"}`.
 Read the matched functions already in your file and REUSE its declarations and structs.
 <file-specific facts: shared struct names, key globals, signatures fixed this unit>
+<IDO tricks the previous rounds of this unit found (from their reports, section 3)>
+
+Register-allocation toolbox (most later-round near misses are regalloc only): access a
+global struct pointer directly vs caching it in a local; local declaration order; split
+or merge temporaries, s32 vs narrow temps, scope temps per switch case; commutative
+operand order; sequential vs chained assignment; exact prototypes (void vs s32 return,
+f32 vs unprototyped, a callback symbol declared as a function rather than `&D_...`);
+nested call argument vs sequential assignment; ternary vs if/else; `do {} while` vs
+`while`. Loop-invariant hoisting order follows first use in the loop.
 
 # Concurrency rules (several agents run at once)
 - NEVER run `tools/dk make` (any target), `make split`, `make expected`, `make clean`
@@ -42,11 +51,15 @@ Read the matched functions already in your file and REUSE its declarations and s
 # Method
 Your budget is finite: near-misses first, then never-attempted functions from smallest to
 largest. After a serious effort on one function, move on and come back if budget remains.
-A function that won't match gets its exact original `#pragma GLOBAL_ASM(...)` line back.
-Your final file MUST give OK or TEXT OK: never leave non-matching C in it.
+Use the whole budget before reporting. A function that won't match gets its exact
+original `#pragma GLOBAL_ASM(...)` line back, and its best draft is saved as
+`.scratch/<YourName>/<FUNC>_best.c` for the next round (start from the draft listed in
+your task if there is one). Your final file MUST give OK or TEXT OK: never leave
+non-matching C in it.
 
 # Report (final message)
-1. Newly matched functions; remaining GLOBAL_ASM with a one-line closest-diff note each.
+1. Newly matched functions; remaining GLOBAL_ASM with a one-line closest-diff note and
+   best-draft path each.
 2. Names ONLY for behaviour you confirmed: `func_X -> <prefix>CamelCase` + one-line reason.
 3. New IDO quirks not already in the ok-fine note (one bullet each).
 4. Final file path.

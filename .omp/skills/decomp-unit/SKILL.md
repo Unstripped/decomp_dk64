@@ -23,31 +23,44 @@ ok-fine, not here; this skill is the procedure.
 ## 1. Pick the unit
 
 ROADMAP order: overlays smallest-first by `<ovl>_TEXT_SIZE` in `Makefile`, two at a time
-(they are independent); then the listed global subsystems. Count the work:
+(they are independent); then the listed global subsystems. All nine overlays are C units
+since the boss unit (2026-10-22): next units are global subsystems or further matching
+rounds on overlay near-misses listed in ROADMAP. Count the work:
 
 ```sh
 for s in asm/<seg>/nonmatchings/<file>/*.s; do echo "$(grep -c '^ *\/\* ' $s) $s"; done
 ```
 
-## 2. Split into C (one agent per segment, parallel)
+## 2. Split into C (one agent per segment, parallel; a lone segment: do it inline)
 
 Agent edits only `dk64.<seg>.us.yaml`, `symbol_addrs.<seg>.us.txt`, `src/<seg>/*.c`;
 re-splits only its own segment (`tools/dk python3 -m splat split dk64.<seg>.us.yaml`) and
 may build only `build/<seg>.text.bin build/<seg>.data.bin` + `sha1sum -c dk64.<seg>.us.sha1`.
-TU boundary evidence: nop padding only at file ends, a TU's strings precede its floats,
-rodata/data labels referenced from one file, 16-byte alignment. Data stays one named asm
-`[0xOFF, data, 0]`; rodata `.rodata` per file.
+TU boundary evidence, from the all-asm split: `python3 tools/rodata_owners.py <seg>` lists
+each run of data/rodata labels with its owning text file and kinds; a string/word run
+after doubles/jump tables inside one splat file is a hidden TU (boss `9C60` was three:
+`9C60`/`A7A0`/`B100`); place the text boundary at the only 16-byte-aligned function start
+between the owners' functions. Also: nop padding only at file ends, 16-byte alignment.
+Data stays one named asm `[0xOFF, data, 0]`; rodata `.rodata` per file. A first build
+that is exactly N bytes long usually means an unreferenced late_rodata float (owner `-`
+in the tool output) was emitted as `.rodata`; fix in the symbol file (ok-fine quirks).
 
 Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 `Overlays: split <a> (<files>) and <b> (<files>) as C units (GLOBAL_ASM baseline)`.
 
 ## 3. Matching rounds (up to 6 agents per round)
 
-1. Partition by instruction count, ~4,000–5,000 per agent, ≤20 functions, never a function
-   in two agents' lists. A file with one agent: DIRECT mode; shared file: PRIVATE COPY.
+1. Partition by instruction count: round 1 ~3,000 per agent with whole files per agent
+   (DIRECT), ≤20 functions, functions over ~1,800 insns held back or given to their own
+   agent; later rounds ≤6 functions per agent, near-misses first. Never a function in two
+   agents' lists. A file with one agent: DIRECT mode; shared file: PRIVATE COPY.
 2. For every shared file, BEFORE dispatch: `python3 tools/merge_drafts.py snapshot src/<seg>/<file>.c`.
 3. Dispatch with [brief.md](brief.md) as `context`; each `tasks[]` item lists its functions
-   with the last known diff note.
+   with the last known diff note and the path of the previous round's best draft
+   (`.scratch/<Agent>/<FUNC>_best.c`), so the next agent starts from it, not from m2c.
+   Agents finish after 15–25 min whatever the list length; re-prompting an idle agent to
+   "continue" returned the same report with no new matches (boss round 1, 5 tries):
+   dispatch the next round instead.
 4. Merge each shared file: `python3 tools/merge_drafts.py merge src/<seg>/<file>.c .scratch/<A>/<file>.c ...`
    (merges into the current `src`, so edits made after the snapshot survive; drops
    duplicate/unused declarations the drafts added; prints clashing declarations on
@@ -104,3 +117,4 @@ Before the final yield:
 |Date|Unit|Rounds × agents|Matched per round|Result|
 |---|---|---|---|---|
 |2026-10-21|arcade (ovl08) + menu (ovl10)|split 2; match 6/6/6 (+1 type-unify fix-up)|81 / 31 / 7|arcade 62/98, menu 57/113, 84 named; tools added after this run|
+|2026-10-22|boss (ovl07), last overlay|split inline (11 TUs, 9C60 = 3); match 6/6/6; 5 "continue" re-prompts|46 / 8 / 4|boss 58/79, 15 named; `tools/rodata_owners.py` added; best-draft handoff between rounds|
