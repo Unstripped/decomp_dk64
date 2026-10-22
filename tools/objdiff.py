@@ -241,8 +241,14 @@ def main():
         sys.exit(0)
 
     # Code matches; only this file's own static data differs from the shared-blob stub. Not a full
-    # match: the full build is the gate once the file's data sections are split out.
+    # match: the full build is the gate once the file's data sections are split out. The file's
+    # .rodata bytes are its own ROM bytes in both objects (REL keeps addends in place), so a
+    # content difference there is a real mismatch (e.g. a C jump table losing the late_rodata pad).
     if text_matches(built_o, expected_o):
+        if get_section_bytes(built_o, ".rodata") != get_section_bytes(expected_o, ".rodata"):
+            print("FAILED: code matches but .rodata bytes differ (literal order/padding): "
+                  "compare `objdump -s -j .rodata` of both objects", file=sys.stderr)
+            sys.exit(1)
         for m in mismatches:
             print(f"note: {m}")
         print("TEXT OK (code and code/extern relocation targets match; own data sections differ)")
