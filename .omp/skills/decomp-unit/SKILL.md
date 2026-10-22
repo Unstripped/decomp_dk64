@@ -36,15 +36,18 @@ for s in asm/<seg>/nonmatchings/<file>/*.s; do echo "$(grep -c '^ *\/\* ' $s) $s
 for f in asm/global/*.s; do echo "$f $(grep -c ^glabel $f) $(grep -c '^ *\/\* [0-9A-F]' $f)"; done  # still-asm global files
 ```
 
+Skip hand-written asm before converting: a file with 64-bit ops or `$k0`/`$k1` is not IDO
+C (`77B90` collision code: 579 `ld`/`sd`/`dmult`; also `15010`, `16B60`, `61690`):
+`grep -cE '\s(dmult|ld|sd|daddu?)\s|\$k[01]' asm/global/<f>.s` must be 0.
+
 ## 2. Split into C (one agent per segment, parallel; a lone segment: do it inline)
 
 Agent edits only `dk64.<seg>.us.yaml`, `symbol_addrs.<seg>.us.txt`, `src/<seg>/*.c`;
 re-splits only its own segment (`tools/dk python3 -m splat split dk64.<seg>.us.yaml`) and
 may build only `build/<seg>.text.bin build/<seg>.data.bin` + `sha1sum -c dk64.<seg>.us.sha1`.
 TU boundary evidence, from the all-asm split: `python3 tools/rodata_owners.py <seg>` lists
-each run of data/rodata labels with its owning text file and kinds (on `global` it ran
-over 300 s without finishing: run it async with a long timeout, or only look at the runs
-around your files); a string/word run
+each run of data/rodata labels with its owning text file and kinds (under 1 s on `global`;
+grep its output for your files); a string/word run
 after doubles/jump tables inside one splat file is a hidden TU (boss `9C60` was three:
 `9C60`/`A7A0`/`B100`); place the text boundary at the only 16-byte-aligned function start
 between the owners' functions. Also: nop padding only at file ends, 16-byte alignment.
@@ -66,7 +69,9 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    first. Never a function in two agents' lists. A file with one agent: DIRECT mode;
    shared file: PRIVATE COPY.
 2. For every shared file, BEFORE dispatch: `python3 tools/merge_drafts.py snapshot src/<seg>/<file>.c`.
-3. Dispatch with [brief.md](brief.md) as `context`; each `tasks[]` item lists its functions
+3. Write the filled [brief.md](brief.md) once to `local://brief.md` and pass the `context`
+   "Read `local://brief.md` FIRST and follow it exactly", plus per-file facts and the
+   previous rounds' tricks for that file; each `tasks[]` item lists its functions
    with the last known diff note and the path of the previous round's best draft
    (`.scratch/<Agent>/<FUNC>_best.c`), so the next agent starts from it, not from m2c.
    Agents finish after 15–25 min whatever the list length; re-prompting an idle agent to
@@ -89,8 +94,11 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    agents (second extends the header additively), but start the first file's round 2 at
    once. A clash of one global between two drafts: unify inline.
 5. DIRECT files: `git diff` them; revert declaration-only leftovers from zero-yield agents.
-6. Gate: `tools/dk make` OK (agents in PRIVATE COPY mode may keep running). Commit
-   `<Seg>: match N/T <file> functions`.
+6. Gate: `tools/objdiff.sh` on each file of the commit gives OK/TEXT OK (it now fails when
+   the file's `.rodata` bytes differ, which TEXT OK used to hide: a C jump table dropped the
+   4-byte late_rodata pad before an asm function's floats, `7AF60` `func_8067680C`); run the
+   full `tools/dk make` once no DIRECT agent is editing (any time all rounds pause, and
+   always before names). Commit `<Seg>: match N/T <file> functions`.
 7. Stop rule: stop a file after a round that matched fewer than ~1 function per agent, or
    when only near-misses and 500+-insn functions remain. Record the closest diffs in ROADMAP.
 
@@ -147,3 +155,4 @@ Before the final yield:
 |2026-10-21|arcade (ovl08) + menu (ovl10)|split 2; match 6/6/6 (+1 type-unify fix-up)|81 / 31 / 7|arcade 62/98, menu 57/113, 84 named; tools added after this run|
 |2026-10-22|boss (ovl07), last overlay|split inline (11 TUs, 9C60 = 3); match 6/6/6; 5 "continue" re-prompts|46 / 8 / 4|boss 58/79, 15 named; `tools/rodata_owners.py` added; best-draft handoff between rounds|
 |2026-10-22|global actor core (7CA80 + 80150)|split inline; match 6 / 11 rolling (incl. 4 one-function large agents) / 4; +2 unify fix-ups|85 / 21 / 3|7CA80 62/73, 80150 47/64, 31 named; `include/actor.h`; merge_drafts keeps first duplicate, `--base REV`; large (600–1400 insn) agents: 0 matches, best 8–19 insns off|
+|2026-10-22|global actor behaviour (79890, 7A510, 7AF60, 7BBD0, 89250; 77B90 reverted to asm)|split inline; rolling per-file rounds, 22 matching agents total (7 / 6 / 6 / 3) + 1 unify|50 / 21 / 6 / 1|79890 6/8, 7A510 8/13, 7AF60 27/29, 7BBD0 3/6, 89250 34/40, 35 named; one matched function reverted after the ROM check (C jump table lost late_rodata pad) → `objdiff.py` now fails on `.rodata` byte diffs; `rodata_owners.py` <1 s on global; shared brief via `local://brief.md`|

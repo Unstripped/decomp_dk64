@@ -1,11 +1,14 @@
 # Matching-agent brief template
 
-Paste as the `task` `context`; fill `<...>`. One `tasks[]` item per agent with its target
-file, mode, and function list (near-misses first, each with its last known diff note).
+Fill `<...>` and write it to `local://brief.md`; each `task` `context` is then "Read
+`local://brief.md` FIRST and follow it exactly" plus that file's facts. One `tasks[]` item
+per agent with its target file, mode, and function list (near-misses first, each with its
+last known diff note).
 
 ```
 # Goal
-Matching decompilation of Donkey Kong 64 (USA), repo <repo root>. Read AGENTS.md first:
+Matching decompilation of Donkey Kong 64 (USA), repo <repo root> (ALWAYS use absolute paths
+under it for read/edit/write). Read AGENTS.md first:
 IDO 5.3 `-O2 -mips2`, run every build tool inside the container via `tools/dk <cmd>`,
 write C from the local asm only (do not reuse code from the community DK64 decomp),
 never commit, never edit ok-fine (report findings instead). Read the ok-fine quirks
