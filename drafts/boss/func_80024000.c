@@ -1,4 +1,4 @@
-// func_80024000 (src/jetpac/0.c): from .scratch/Boss3A/func_80024000_best.c
+// func_80024000 (src/boss/0.c): from .scratch/Boss3A/func_80024000_best.c
 #include "common.h"
 
 typedef struct Boss3A_Struct_6Bytes {

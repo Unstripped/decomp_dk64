@@ -74,7 +74,7 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    "Read `local://brief.md` FIRST and follow it exactly", plus per-file facts and the
    previous rounds' tricks for that file; each `tasks[]` item lists its functions
    with the last known diff note; agents start from the stored draft
-   (`tools/drafts.py show FUNC`), not from m2c.
+   (`tools/drafts.py show SEG FUNC`; drafts are keyed by segment because overlays share names like `func_80024000`), not from m2c.
    Agents finish after 15–25 min whatever the list length; re-prompting an idle agent to
    "continue" returned the same report with no new matches (boss round 1, 5 tries):
    dispatch the next round instead.

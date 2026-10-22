@@ -62,9 +62,9 @@ largest. After a serious effort on one function, move on and come back if budget
 Use the whole budget before reporting. A function that won't match gets its exact
 original `#pragma GLOBAL_ASM(...)` line back, and its best draft (the function plus the
 local declarations it needs) is persisted for later sessions with
-`python3 tools/drafts.py save <FUNC> <file> --note "<closest diff, what you tried>"`
+`python3 tools/drafts.py save <seg> <FUNC> <file> --note "<closest diff, what you tried>"`
 (writes `drafts/<seg>/<FUNC>.c`, replacing the old draft). Start from the stored draft
-(`python3 tools/drafts.py show <FUNC>`) if there is one. Your final file MUST give OK or
+(`python3 tools/drafts.py show <seg> <FUNC>`) if there is one. Your final file MUST give OK or
 TEXT OK: never leave non-matching C in it.
 
 # Report (final message)
