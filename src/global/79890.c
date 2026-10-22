@@ -181,4 +181,48 @@ void func_80675478(Beh7982_Arg0_5478 *arg0, Beh7982_Arg1_5478 *arg1, f32 *arg2, 
     *arg3 = sp3C;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/79890/func_806755A8.s")
+s32 func_80611E60(s32);
+void func_806742C0(s16, s16, s32, s32);
+
+void func_806755A8(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+    s32 pad1;
+    s32 pad2;
+    f32 dist;
+    s16 angle;
+    s32 dx;
+    s32 dy;
+    s32 abs_val;
+
+    dx = arg2 - arg0;
+    if (dx > 0) {
+        abs_val = dx;
+    } else {
+        abs_val = -dx;
+    }
+    if (abs_val < 0x2711) {
+        dy = arg3 - arg1;
+        if (dy > 0) {
+            abs_val = dy;
+        } else {
+            abs_val = -dy;
+        }
+        if (abs_val < 0x2711) {
+            dist = sqrtf((f32)((dx * dx) + (dy * dy)));
+            if ((f64)dist != 0.0) {
+                if (dx >= 0 && dy >= 0) {
+                    angle = (s16)(func_80611E60((s32)(((f64)dx * 65535.9) / (f64)dist)) >> 4);
+                }
+                if (dx >= 0 && dy < 0) {
+                    angle = (s16)((func_80611E60((s32)(((f64)(arg1 - arg3) * 65535.9) / (f64)dist)) >> 4) + 0x400);
+                }
+                if (dx < 0 && dy < 0) {
+                    angle = (s16)((func_80611E60((s32)(((f64)(arg0 - arg2) * 65535.9) / (f64)dist)) >> 4) + 0x800);
+                }
+                if (dx < 0 && dy >= 0) {
+                    angle = (s16)((func_80611E60((s32)(((f64)dy * 65535.9) / (f64)dist)) >> 4) + 0xC00);
+                }
+                func_806742C0(angle + 0x400, angle - 0x400, arg4, arg5);
+            }
+        }
+    }
+}
