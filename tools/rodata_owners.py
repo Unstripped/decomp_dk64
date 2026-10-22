@@ -60,8 +60,13 @@ def main() -> None:
             for target in re.findall(r"\.word ((?:D|jtbl)_\w+)", line):
                 pointed_by.setdefault(target, cur)
 
+    refs_by_name = {}  # identifier -> text files mentioning it, built once (global has ~1,400 files)
+    for f, t in text.items():
+        for ident in set(re.findall(r"\b[A-Za-z_]\w*", t)):
+            refs_by_name.setdefault(ident, []).append(f)
+
     def owners(name: str, depth: int = 0) -> str:
-        refs = [f for f, t in text.items() if re.search(r"\b" + name + r"\b", t)]
+        refs = refs_by_name.get(name)
         if refs:
             return ",".join(refs)
         parent = pointed_by.get(name)
