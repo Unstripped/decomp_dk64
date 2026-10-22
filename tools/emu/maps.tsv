@@ -1,0 +1,225 @@
+id	name	loaded	overlay	status	notes
+0x00	Jungle Japes - Diddy Kong Cage	0x00	none	success	DK standing in front of Diddy Kong inside wooden cage with crates and hay
+0x01	Funky's Store	0x01	menu	success	DK inside weapon shop with missile and yellow camo counter; menu overlay
+0x02	DK Arcade	0x02	arcade	success	1981 Nintendo Donkey Kong arcade title screen; arcade overlay
+0x03	Bonus Minigame - Barrel Blast	0x03	bonus	success	DK facing floating bonus barrel on wooden walkway; bonus overlay
+0x04	Jungle Japes - Minecart	0x04	minecart	success	DK in minecart cave tunnel with tracks and FRAGILE crates; minecart overlay
+0x05	Cranky's Lab	0x05	menu	success	DK talking to Cranky Kong behind potion counter with lab book; menu overlay
+0x06	Jungle Japes - Minecart Ride	0x06	minecart	success	DK and Squawks in minecart on tracks with coin counter; minecart overlay
+0x07	Jungle Japes - Mountain Tunnel	0x07	critter	success	Dark stone cavern pathway leading to grassy slope with bananas; critter overlay
+0x08	Jungle Japes - Boss Arena Entrance	0x08	boss	success	Rainy cliff cave opening surrounded by jungle palm trees; boss overlay
+0x09	Jetpac	0x09	jetpac	success	1983 ACG Jetpac title and game selection screen; jetpac overlay
+0x0A	Kremling Kosh	0x0A	bonus	success	Bonus minigame with circle of barrels, watermelon in center, HIT 18; bonus overlay
+0x0B	Bonus Minigame - Arena	0x0B	bonus	success	Wooden arena with metal floor grate and sky opening above; bonus overlay
+0x0C	Jungle Japes - Meadow Area	0x0C	none	success	DK on yellow flower meadow with white flowering plant stalk, watermelon HUD
+0x0D	Jungle Japes - Cave Exit Tunnel	0x0D	none	success	DK exiting rocky cave archway into sunny canyon with watermelon HUD
+0x0E	Angry Aztec - Beetle Slide Race	0x0E	race	success	Beetle and Kong racing on red curved stone slide track; race overlay
+0x0F	Snide's H.Q.	0x0F	menu	success	DK inside Snide's H.Q. with Snide in mechanical chair; menu overlay
+0x10	Jungle Japes - Bamboo Cage	0x10	critter	success	Bamboo cage blocking cave tunnel with golden banana inside; critter overlay
+0x11	Hideout Helm - Entrance	0x11	none	success	Title card "HIDEOUT HELM", pad 1, countdown timer 9:58
+0x12	Teetering Turtle Trouble	0x12	bonus	success	Bonus minigame with snakes balancing spinning turtles on poles; bonus overlay
+0x13	Angry Aztec - Temple Corridor	0x13	none	success	Stone tile temple corridor leading to bright exit, carved column
+0x14	Angry Aztec - Temple Cage Room	0x14	none	success	Bamboo cage with golden banana and Diddy Kong in mossy stone room
+0x15	Angry Aztec - Temple Interior	0x15	none	success	Temple corridor leading to red-lit chamber with peanut switch box
+0x16	Angry Aztec - Temple Exit Corridor	0x16	none	success	Arched temple tunnel leading to bright exit, watermelon HUD
+0x17	Angry Aztec - Llama Temple Entrance	0x17	none	success	Stone temple foyer facing camera with bright entrance behind DK
+0x18	Angry Aztec - Tiny Temple Entrance	0x18	none	success	Temple foyer with pink/magenta lighting and bright entrance behind DK
+0x19	Candy's Music Shop	0x19	menu	success	Music room with DK drum kit, speakers, red DK carpet, Nintendo banner; menu overlay
+0x1A	Creepy Castle - Tower Interior	0x1A	none	success	Tilted stone masonry tower interior with blue ambient light
+0x1B	Frantic Factory - Slot Car Race	0x1B	race	success	Slot car racetrack with lane markings, red lighting, car HUD; race overlay
+0x1C	Hideout Helm - Blast Door Tunnel	0x1C	boss	success	Industrial hexagonal blast door frame in rocky tunnel, caution threshold; boss overlay
+0x1D	Frantic Factory - Power Shed	0x1D	none	success	Corrugated metal shed with power lever, footpad switch, Parts crate
+0x1E	Gloomy Galleon - Underwater Cavern	0x1E	critter	success	Underwater seabed with wooden barrel, kelp and caustics; critter overlay
+0x1F	Gloomy Galleon - Sunken Ship Interior	0x1F	none	success	Large wooden barrel inside sunken galleon hull
+0x20	Batty Barrel Bandit	0x20	bonus	success	Slot machine barrel reels titled "BARREL BANDIT!" with fruits; bonus overlay
+0x21	Jungle Japes - Mountain Blast Barrel	0x21	critter	success	Dirt cavern floor with blast barrel cannon and beam of light; critter overlay
+0x22	Seaside Cave Mouth (level unidentified)	0x22	critter	success	DK in a cave mouth with fern and palm tree, open sea beyond; first frame after warp shows no level-specific landmark; critter overlay
+0x23	Bonus Minigame - Target Blast	0x23	bonus	success	Bonus minigame with glowing green star target and electric coil; bonus overlay
+0x24	Frantic Factory - Storage Room	0x24	none	success	Industrial platform with riveted iron plates, metal walls, barrel
+0x25	Busy Barrel Barrage	0x25	none	success	Sky barrel blast course with flying Kremlings over clouds
+0x26	Gloomy Galleon - Underwater Cavern	0x26	none	success	Underwater sandy cavern with light caustics and arched doorway
+0x27	Gloomy Galleon - Water Slide Race	0x27	race	success	Water flume race with "MISS", "WINNING", "LAP 1 OF 2" HUD; race overlay
+0x28	Pause Menu	0x28	menu	success	In-game pause screen; menu overlay
+0x29	Barrel Blast - Sky View	0x29	none	success	Barrel cannon crosshair view into sunset sky with floating blast barrel
+0x2A	Troff 'n' Scoff Room	0x2A	critter	success	Troff 'n' Scoff room with pink pig Scoff and "000" door; critter overlay
+0x2B	Gloomy Galleon - Dark Submarine Room	0x2B	critter	success	Dark room with blue neon lattice grid on back wall; critter overlay
+0x2C	Gloomy Galleon - Keyhole Hatch	0x2C	critter	success	DK falling through keyhole wooden door into blue underwater space; critter overlay
+0x2D	Gloomy Galleon - Submerged Cage	0x2D	critter	success	Tiny Kong swimming near submerged metal cage with porthole window; critter overlay
+0x2E	Gloomy Galleon - Submerged Hallway	0x2E	critter	success	DK swimming down submerged hallway with hanging kelp; critter overlay
+0x2F	Gloomy Galleon - Ship Hold with Chests	0x2F	critter	success	DK in galleon ship interior jumping over rodent near chests and barrels; critter overlay
+0x30	Fungi Forest - Clock Building	0x30	none	success	Cuckoo clock house with large round clock on log wall in forest; critter overlay
+0x31	Gloomy Galleon - Lighthouse Entrance	0x31	none	success	White stone arched hallway with bright entrance and yellow coins
+0x32	Bonus Minigame - Mushroom Bounce	0x32	bonus	success	Mushroom bounce arena with mushrooms and "COME ON, DONKEY, U..." text; bonus overlay
+0x33	Gloomy Galleon - Submarine Hull	0x33	none	success	Curved dark metal submarine hull with rivet line and camera HUD
+0x34	Bonus Minigame - Klaptrap Pillars	0x34	none	success	DK facing stone pillars in cavern with purple snapping Klaptraps
+0x35	Beaver Brawl	0x35	bonus	success	Title text verbatim "BEAVER BRAWL!" on circular arena; bonus overlay
+0x36	Gloomy Galleon - Barrel Blast Course	0x36	none	success	Sunset sky over cloud sea with red blast barrels and ship mast
+0x37	Fungi Forest - Minecart	0x37	minecart	success	Minecart track in brick tunnel with floating golden DK coins; minecart overlay
+0x38	Angry Aztec - Temple interior (wooden chute)	0x38	critter	success	Donkey Kong on wooden chute above star pad, watermelon health
+0x39	Gloomy Galleon - Winch Room	0x39	none	success	Winch machine with large rope coil and GREEN UP arrow, watermelon health
+0x3A	Gloomy Galleon - Ship interior	0x3A	none	success	Dark wooden hull interior, crate, beams
+0x3B	Angry Aztec - Temple entrance tunnel	0x3B	none	success	Wooden framed tunnel doorway, stone and sand
+0x3C	Frantic Factory - Boss (Mad Jack arena)	0x3C	boss	success	Tall vertical crate/scaffolding shaft; boss overlay loaded
+0x3D	Angry Aztec - Temple interior (doorway)	0x3D	none	success	Brightly lit exit doorway, wooden frame, metal fence on wall
+0x3E	Angry Aztec - Temple interior (prison gate)	0x3E	none	success	Stone floor, iron barred gate, wooden walls, watermelon health
+0x3F	Fungi Forest - Mushroom cave interior	0x3F	none	success	Grassy ground, giant spotted mushrooms, cave tunnels, watermelon health
+0x40	Fungi Forest - Cave entrance tunnel	0x40	none	success	Grassy cave, torch above arched tunnel entrance
+0x41	Bonus minigame (round arena)	0x41	bonus	success	Circular room, metal floor grate, floating orbs/bubbles, bonus overlay
+0x42	Bonus minigame (wooden room)	0x42	bonus	success	Donkey Kong on wooden floor, bonus overlay
+0x43	Bonus minigame - Stash Snatch	0x43	bonus	success	Sparkling title text 'STASH...', wooden deck, bonus overlay
+0x44	Bonus minigame - Mad Maze Maul	0x44	bonus	success	Sparkling title text 'MAD MAZE MAUL', wooden arena, bonus overlay
+0x45	Bonus minigame - Mad Maze Maul	0x45	bonus	success	Sparkling title text 'MAD MAZE MAUL!', wooden arena; bonus overlay
+0x46	Fungi Forest - Mushroom cave interior	0x46	none	success	Red mushroom, yellow bananas, wasp post on left, camera icon
+0x47	Fungi Forest - Mushroom tunnel	0x47	none	success	Grassy ground, cavern wall with cave opening, bananas in background
+0x48	Crystal Caves - Entrance / Bananaport 2	0x48	critter	success	Stone arch into ice cave, DK barrel, yellow bananaport pad 2; critter overlay
+0x49	Bonus minigame - Kritter Karnage	0x49	bonus	success	Title text 'KRITTER KARNAGE!', octagonal arena, bonus overlay
+0x4A	Bonus minigame (red wooden arena)	0x4A	bonus	success	Donkey Kong in red-lit wooden arena, bonus overlay
+0x4B	Bonus minigame - Stash Snatch	0x4B	bonus	success	Title text 'STASH SNATCH!', wooden planks, bonus overlay
+0x4C	DK Rap intro	0x4C	critter	success	Kong family dancing on wooden stage in spotlight; critter overlay
+0x4D	Fungi Forest - Minecart	0x4D	minecart	success	Minecart track, brick tunnel, lava pit below; minecart overlay
+0x4E	Bonus minigame - Busy Barrel Barrage	0x4E	bonus	success	Title text 'BUSY BARREL BARR...', coconut cannon, bonus overlay
+0x4F	Bonus minigame - Busy Barrel Barrage	0x4F	bonus	success	Donkey Kong with coconut cannon in circular wooden pit, bonus overlay
+0x50	Opening cutscene (Donkey Kong sleeping)	0x50	menu	success	Donkey Kong sleeping on beach chair with snot bubble; menu overlay
+0x51	unknown	0x51	none	success	Black screen after transition; thread not faulted
+0x52	Crystal Caves - Race / Slide	0x52	race	success	Blue ice walls, water/ice slide, torch altar ahead; race overlay
+0x53	Fungi Forest - Boss cutscene (Chunky Kong)	0x53	boss	success	Chunky Kong in dark cavern; boss overlay loaded
+0x54	Crystal Caves - Igloo interior (spiked club room)	0x54	none	success	Reflective ice floor, red target pad, spiked club/rock hazard, camera icon
+0x55	Crystal Caves - Igloo interior (doorway)	0x55	none	success	Reflective ice floor, ice arch exit, wooden structure
+0x56	Crystal Caves - Igloo interior (ice chamber)	0x56	none	success	Reflective purple ice floor, ice brick walls, arched doorway
+0x57	Creepy Castle - Lobby / entrance portal	0x57	none	success	Title text '[ CREEPY CASTLE ]', neon DK sign on metal portal arch, rain
+0x58	Creepy Castle - Dungeon / Crypt corridor	0x58	none	success	Dark stone brick hallway, flagstone floor
+0x59	Crystal Caves - Cabin interior (puzzle room)	0x59	none	success	Log walls, 4-panel colored puzzle on wall, table with bananas
+0x5A	Crystal Caves - Cabin interior (red rug)	0x5A	none	success	Round patterned red rug, target pad, wooden chest, camera icon
+0x5B	Crystal Caves - Cabin interior (trapdoors)	0x5B	none	success	Wooden floor trapdoors, candle on wall above doorway
+0x5C	Crystal Caves - Cabin interior (oval rug)	0x5C	none	success	Oval fringed red rug, doorway with wooden door ajar
+0x5D	Crystal Caves - Cabin interior (walkway platform)	0x5D	none	success	Elevated wooden catwalk, red rectangular rug, camera icon
+0x5E	Crystal Caves - Cabin interior (blue rug)	0x5E	none	success	Round blue carpet in center, fruit items, colorful shelf by doorway
+0x5F	Crystal Caves - Igloo interior (round room)	0x5F	none	success	Round ice room, reflective ice floor, arched doorway
+0x60	Bonus minigame (circular wooden vat)	0x60	bonus	success	Circular wooden wall tub with water, bonus overlay
+0x61	Creepy Castle - Dungeon / Crypt arena	0x61	none	success	Tiered stone arena, torch on wall, castle arches
+0x62	Crystal Caves - Igloo interior (doorway)	0x62	none	success	Ice block walls, purple ice floor, arched doorway
+0x63	Bonus minigame - Speedy Swing Sortie	0x63	bonus	success	Title text 'SPEEDY SWINGSO...', palm trees in circular enclosure, bonus overlay
+0x64	Crystal Caves - Igloo interior (ice pillar)	0x64	none	success	Reflective ice floor, ice support pillar / arch
+0x65	Bonus minigame - Krazy Kong Klamour	0x65	bonus	success	Countdown '10', all Kongs popping up with watermelon and banana, bonus overlay
+0x66	Bonus minigame - Big Bug Bash	0x66	bonus	success	Title text 'BIG BU...', fly with silver wings on wooden floor, bonus overlay
+0x67	Bonus minigame (round wooden arena)	0x67	bonus	success	Circular wooden tub / barrel arena, bonus overlay
+0x68	Bonus minigame (hollow trunk tunnel)	0x68	bonus	success	Hollow wooden tube / trunk tunnel interior, bonus overlay
+0x69	Creepy Castle - Crypt / Dungeon (green lighting)	0x69	none	success	Green-lit flagstone floor, stone altar with candle, white ghost creature, camera icon
+0x6A	Creepy Castle - Minecart	0x6A	minecart	success	Donkey Kong and Squawks in minecart on rails; minecart overlay
+0x6B	Multiplayer Battle Arena (Kremling floor)	0x6B	multiplayer	success	Circular metal platform, Kremling floor painting, spotlight, multiplayer overlay
+0x6C	Creepy Castle - Hallway / doorway	0x6C	none	success	Stone walkway, wooden framed doorway, purple framed portrait on wall, watermelon health
+0x6D	Multiplayer Battle Arena (ventilation fans)	0x6D	multiplayer	success	Industrial room, two giant circular wall fans / grates, chests, multiplayer overlay
+0x6E	Hideout Helm - Blast-o-Matic machine core	0x6E	none	success	Giant vertical drill bit, fluorescent light pillars, TNT barrel on floor
+0x6F	Creepy Castle - Boss cutscene (King Kut-Out / rain)	0x6F	boss	success	Donkey Kong in wooden basket boat on water at night in rain; boss overlay
+0x70	Creepy Castle - Museum interior	0x70	none	success	DK facing monster skeleton with ribcage and skull on back wall, red/orange lighting
+0x71	Creepy Castle - Library interior	0x71	none	success	DK facing dark stone stairs leading up, wooden pillars and torches, blue-green lighting
+0x72	Creepy Castle - Ballroom interior	0x72	none	success	DK facing dark stone stairs with glowing purple box at top landing, green lighting
+0x73	Kremling Kosh minigame	0x73	bonus	success	bonus minigame, wooden barrels in circle with Kremling Kosh title text
+0x74	Kremling Kosh minigame	0x74	bonus	success	bonus minigame, barrels with Kremling Kosh title text, higher camera angle
+0x75	Kremling Kosh minigame	0x75	bonus	success	bonus minigame, barrels with Kremling Kosh title text, watermelon in center barrel
+0x76	Teetering Turtle Trouble minigame	0x76	bonus	success	bonus minigame, snakes balancing turtles on spinning poles, watermelon shooter
+0x77	Teetering Turtle Trouble minigame	0x77	bonus	success	bonus minigame, snakes balancing turtles on poles with Teetering Turtle Trouble title text
+0x78	Teetering Turtle Trouble minigame	0x78	bonus	success	bonus minigame, snakes balancing turtles on poles with Teetering Turtle Trouble title text
+0x79	Batty Barrel Bandit minigame	0x79	bonus	success	bonus minigame, slot machine barrel reels with Batty Barrel Bandit title text
+0x7A	Batty Barrel Bandit minigame	0x7A	bonus	success	bonus minigame, slot machine reels with Batty Barrel Bandit title text
+0x7B	Batty Barrel Bandit minigame	0x7B	bonus	success	bonus minigame, slot machine reels with Batty Barrel Bandit title text
+0x7C	Mad Maze Maul minigame	0x7C	bonus	success	bonus minigame, Diddy Kong with Mad Maze Maul title text
+0x7D	Stash Snatch minigame	0x7D	bonus	success	bonus minigame, Donkey Kong with Stash Snatch title text
+0x7E	Stealthy Snoop minigame	0x7E	bonus	success	bonus minigame, Donkey Kong with Stealthy Snoop title text
+0x7F	Stealthy Snoop minigame	0x7F	bonus	success	bonus minigame, Donkey Kong with Stealthy Snoop title text, straight camera angle
+0x80	Stealthy Snoop minigame	0x80	bonus	success	bonus minigame, Donkey Kong with Stealthy Snoop title text, side camera angle
+0x81	Minecart Mayhem minigame	0x81	minecart	success	minigame with Diddy in minecart, tracks over lava, Minecart Mayhem title text
+0x82	Minecart Mayhem minigame	0x82	minecart	success	minigame with minecart tracks over lava, Minecart Mayhem title text, closer camera angle
+0x83	Busy Barrel Barrage minigame	0x83	bonus	success	bonus minigame, Diddy Kong with cannon barrel and Busy Barrel Barrage title text
+0x84	Splish-Splash Salvage minigame	0x84	bonus	success	bonus minigame, Tiny Kong swimming in barrel with Splish-Splash Salvage title text, top-down angle
+0x85	Splish-Splash Salvage minigame	0x85	bonus	success	bonus minigame, Tiny Kong swimming in barrel with Splish-Splash Salvage title text, side angle
+0x86	Speedy Swing Sortie minigame	0x86	bonus	success	bonus minigame, palm trees in grassy clearing with Speedy Swing Sortie title text
+0x87	Speedy Swing Sortie minigame	0x87	bonus	success	bonus minigame, palm trees with coins, Zingers flying, Speedy Swing Sortie title text
+0x88	Beaver Bother minigame	0x88	bonus	success	bonus minigame, wooden barrel floor with center hole, Gnawties and Beaver Bother title text
+0x89	Beaver Bother minigame	0x89	bonus	success	bonus minigame, barrel floor with center hole and Beaver Bother title text
+0x8A	Searchlight Seek minigame	0x8A	bonus	success	bonus minigame, wooden barrel arena with Searchlight Seek title text
+0x8B	Searchlight Seek minigame	0x8B	bonus	success	bonus minigame, top-down barrel view with Searchlight Seek title text
+0x8C	Searchlight Seek minigame	0x8C	bonus	success	bonus minigame, top-down view of barrel with Klaptrap
+0x8D	Krazy Kong Klamour minigame	0x8D	bonus	success	bonus minigame, Kongs and golden banana on platforms with watermelon shooter, HUD count 15
+0x8E	Krazy Kong Klamour minigame	0x8E	bonus	success	bonus minigame, Kongs and golden banana on platforms with watermelon shooter, HUD count 05
+0x8F	Krazy Kong Klamour minigame	0x8F	bonus	success	bonus minigame, Kongs and golden banana on platforms with watermelon shooter, HUD count 10
+0x90	Peril Path Panic minigame	0x90	bonus	success	bonus minigame, Klaptraps and watermelon shooter with Peril Path Panic title text, HUD count 06
+0x91	Peril Path Panic minigame	0x91	bonus	success	bonus minigame, Klaptraps and watermelon shooter with Peril Path Panic title text, HUD count 08
+0x92	Peril Path Panic minigame	0x92	bonus	success	bonus minigame, Klaptraps and watermelon shooter with Peril Path Panic title text, HUD count 10
+0x93	Peril Path Panic minigame	0x93	bonus	success	bonus minigame, Klaptraps and watermelon shooter with Peril Path Panic title text, HUD count 12
+0x94	Big Bug Bash minigame	0x94	bonus	success	bonus minigame, bug on wooden table floor, flyswatter minigame
+0x95	Big Bug Bash minigame	0x95	bonus	success	bonus minigame, bug on wooden table with flyswatter shadow and Big Bug Bash title text
+0x96	Big Bug Bash minigame	0x96	bonus	success	bonus minigame, bug running on wooden table, flyswatter minigame
+0x97	Creepy Castle - Dungeon cavern	0x97	none	success	DK on dirt/mossy rock ledge inside green rock cave, watermelon HUD
+0x98	Frantic Factory - Lobby tunnel	0x98	none	success	DK emerging from metal arched doorway with yellow-black hazard stripes in rock wall
+0x99	Jungle Japes - Tunnel	0x99	none	success	dark dirt tunnel entrance with green ferns on dirt ground
+0x9A	Frantic Factory - Boss (Mad Jack)	0x9A	boss	success	boss arena with grid of blue and white glowing square pillar pads over pit, Mad Jack fight
+0x9B	Arena Ambush minigame	0x9B	bonus	success	Battle Crown arena, circular floating metal platform with Arena Ambush title text
+0x9C	More Kritter Karnage minigame	0x9C	bonus	success	Battle Crown arena, circular metal platform with More Kritter Karnage title text
+0x9D	Forest Fracas minigame	0x9D	bonus	success	Battle Crown arena, circular metal platform with Forest Fracas title text
+0x9E	Bish Bash Brawl minigame	0x9E	bonus	success	Battle Crown arena, circular metal platform with Bish Bash Brawl title text
+0x9F	Kamikaze Kremlings minigame	0x9F	bonus	success	Battle Crown arena, circular metal platform with Kamikaze Kremlings title text
+0xA0	Plinth Panic minigame	0xA0	bonus	success	Battle Crown arena, circular metal platform with Plinth Panic title text
+0xA1	Pinnacle Palaver minigame	0xA1	bonus	success	Battle Crown arena, circular metal platform with Pinnacle Palaver title text
+0xA2	Shockwave Showdown minigame	0xA2	bonus	success	Battle Crown arena, circular metal platform with Shockwave Showdown title text
+0xA3	Creepy Castle - Dungeon hallway	0xA3	none	success	DK facing stone brick dungeon corridor with iron portcullis gate in distance, watermelon HUD
+0xA4	Creepy Castle - Greenhouse interior	0xA4	none	success	DK in green leaf-textured room with doorway, melon item on ground
+0xA5	Battle Arena - Crown Rules minigame	0xA5	bonus	success	Battle Crown minigame with rule prompt: Bash the Kremling that activated the switch, then press it!, crown on pedestal
+0xA6	Creepy Castle - Shed interior	0xA6	none	success	DK in wooden log cabin / shed with wood plank floor and ladder in corner
+0xA7	Creepy Castle - Trash Can interior	0xA7	none	success	DK standing on giant wedge of swiss cheese with holes, torch in background
+0xA8	Creepy Castle - Hedge Maze	0xA8	none	success	Dark green hedge maze at night with dirt paths and rain
+0xA9	Intro - DK Island Logo Dark	0xA9	critter	success	White DK letter logo with DK face visible inside, black background
+0xAA	Intro - DK Island Logo Red	0xAA	critter	success	Red/brown DK letters with kong visible inside, black background
+0xAB	Cutscene - Dark Doorway Silhouette	0xAB	none	success	Kong silhouette in a jagged bright doorway, all else black
+0xAC	DK Isles - Night Beach Shore	0xAC	none	success	Dark kong on flat grey ground, night ocean horizon, red kite shapes
+0xAD	Cutscene - Dark Cave Doorway	0xAD	critter	success	Kong framed by dark jagged cave opening, bright light behind; critter overlay
+0xAE	Cave - Dim Interior	0xAE	critter	success	Kong with green melon HUD standing in dim cave, doorway behind; critter overlay
+0xAF	Intro - DK Letters Reveal	0xAF	critter	success	Faint DK letters with grey kong inside, black background; critter overlay
+0xB0	Training Grounds - DK's Treehouse	0xB0	critter	success	DK standing on treehouse porch, green field and stone blocks; critter overlay
+0xB1	Intro - DK Letters with Red Kong	0xB1	critter	success	Dark DK letters with red kong visible inside on black; critter overlay
+0xB2	Cutscene - DK Medallion Deck	0xB2	critter	success	Close-up of wooden planks with DK medallion emblem; critter overlay
+0xB3	Cutscene - Green Tunnel	0x1E	critter	rewritten	Octagonal tunnel interior lit green with melon HUD above; rewritten to 0x1E; loaded 0x1E instead of 0xB3
+0xB4	Battle Arena - Palm Tree Circle	0xB4	critter	success	Grass circle enclosed by dark wall, single palm tree with red bananas; critter overlay
+0xB5	Battle Arena - Palm Tree with Oranges	0xB5	critter	success	Same palm-tree arena as 0xB4 with four round orange balls on grass; critter overlay
+0xB6	Battle Arena - Palm Tree with Kong Head	0xB6	critter	success	Palm-tree arena with wooden fence and floating kong head sprite; critter overlay
+0xB7	Intro - DK Letters Green Texture	0xB7	none	success	Dark DK letters textured like green hedge, red kong inside on black
+0xB8	Battle Arena - Stadium Stage	0xB8	bonus	success	Dark arena with bright wall of stadium lights and yellow "00" counter; bonus overlay
+0xB9	Frantic Factory - Level Map Screen	0xB9	race	success	Green level map titled "FACTORY - MA..." with zone buttons; race overlay
+0xBA	Cutscene - Dark Kong Silhouette	0xBA	none	success	Tiny red kong silhouette against dark blue background
+0xBB	Cutscene - Dark Stone Room	0xBB	none	success	Kong sitting on floor of dark blue room with faint yellow DK letters on wall
+0xBC	Cave - Golden Doorway Arch	0xBC	none	success	Kong in dark stone cave facing bright doorway under golden arch
+0xBD	Multiplayer - Blue Metal Room	0xBD	critter	success	Kong sitting upright on dark blue metal grate floor, mechanical blue wall; critter overlay
+0xBE	Multiplayer - Blue Metal Room Defeat	0xBE	multiplayer	success	Kong lying face-down on dark blue metal grate floor; multiplayer overlay
+0xBF	Intro - DK Letters with Grey Kong	0xBF	bonus	success	Dark DK letters with pale grey kong inside on black; bonus overlay
+0xC0	Multiplayer - Green Tunnel	0xC0	multiplayer	success	Kong facing bright white doorway inside green textured tunnel; multiplayer overlay
+0xC1	Intro - DK Letters Red Kong Variant	0xC1	critter	success	Dark DK letters with red kong visible inside on black; critter overlay
+0xC2	Cutscene - Stone Slabs Close-up	0xC2	critter	success	Close-up of brown stone slabs with dark crack; critter overlay
+0xC3	Cutscene - Bright Burst with Kong	0xC3	critter	success	Tiny red kong inside white burst of light on black; critter overlay
+0xC4	Cutscene - Cave Tunnel with Fern	0xC4	boss	success	Dark cave/tunnel interior with green fern on right; boss overlay
+0xC5	Cutscene - Red Floor Chamber	0xC5	boss	success	Red kong on purple/red floor in dark room with striped wall; boss overlay
+0xC6	Cutscene - Red Brick Floor DK Star	0xC6	none	success	Red brick floor, glowing orange DK star logo, purple banana on box
+0xC7	Cutscene - Blue Metal Cage	0xC7	boss	success	Dark blue metal grid/cage seen from inside; boss overlay
+0xC8	Cutscene - Rainbow Window Room	0xC8	none	success	Red floor room with octagonal window showing rainbow and purple sky
+0xC9	Intro - DK Letters Orange Background	0xC9	bonus	success	Orange DK letters with red kong inside on black; bonus overlay
+0xCA	Bonus Minigame - Glowing Signs Hall	0xCA	bonus	success	Kong in dark red hall with blue glowing signs; bonus overlay
+0xCB	Cutscene - Blue Metal Cage with Vines	0xCB	boss	success	Dark blue metal grid with green vines visible inside; boss overlay
+0xCC	Cutscene - Blue Metal Cage Variant 1	0xCC	boss	success	Dark blue metal grid cage variant; boss overlay
+0xCD	Cutscene - Blue Metal Cage Variant 2	0xCD	boss	success	Dark blue metal grid cage variant; boss overlay
+0xCE	Cutscene - Blue Metal Cage Variant 3	0xCE	boss	success	Dark blue metal grid cage variant; boss overlay
+0xCF	Cutscene - Blue Metal Cage Variant 4	0xCF	boss	success	Dark blue metal grid cage variant; boss overlay
+0xD0	Cutscene - Blank White Screen	0xD0	none	success	Loaded successfully but screen renders as white rectangle
+0xD1	Bonus Minigame - Green Room Arena	0xD1	bonus	success	Dark green tiled floor, glowing blue sign, speech bubble with "YOU"; bonus overlay
+0xD2	Bonus Minigame - Red Floor DK Star	0xD2	bonus	success	Kong on red box on red brick floor, glowing DK star, blue glowing sign; bonus overlay
+0xD3	Bonus Minigame - Dark Platform Room	0xD3	bonus	success	Kong on small purple block between two blue glowing platforms; bonus overlay
+0xD4	Bonus Minigame - Bright Burst Pink Arena	0xD4	bonus	success	White burst of light with pink/purple rocky ground below; bonus overlay
+0xD5	Cutscene - Cave Tunnel with Fern Variant	0xD5	none	success	Dark cave tunnel with fern on right; visually similar to 0xC4
+0xD6	Cutscene - Green Tunnel with Melon	0xD6	boss	success	Octagonal green-lit tunnel with melon HUD, red kong visible deep inside; boss overlay
+0xD7	Cutscene - Checkered Floor Room	0xD7	none	success	Tilted view over pink/yellow/blue patterned floor, green melon HUD
+0xD8	unknown	0xD8	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xD9	unknown	0xD9	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDA	unknown	0xDA	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDB	unknown	0xDB	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDC	unknown	0xDC	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDD	unknown	0xDD	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDE	unknown	0xDE	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDF	unknown	0xDF	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
