@@ -170,7 +170,76 @@ s32 func_806898F8(void) {
     return (count * 0x38) + 4;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689958.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    char unk10[0x20];
+    s16 unk30;
+    s16 unk32;
+    s16 unk34;
+    char pad36[2];
+} R2D3B_OutputStruct;
+
+typedef struct R2D3B_Node {
+    s16 unk0;
+    char pad2[2];
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    char pad10[0xC];
+    s16 unk1C;
+    char pad1E[2];
+    f32 unk20;
+    char unk24[0x20];
+    Actor *unk44;
+    char pad48[4];
+    u8 unk4C;
+    char pad4D[0xD];
+    s16 unk5A;
+    char pad5C[0xC];
+    struct R2D3B_Node *next;
+} R2D3B_Node;
+
+void *memcpy(void *, const void *, size_t);
+
+void func_80689958(s32 *arg0) {
+    R2D3B_Node *node;
+    u8 *dst;
+    R2D3B_OutputStruct item;
+    s32 count;
+    node = (R2D3B_Node *)D_807FC400;
+    count = 0;
+    if (node != NULL) {
+        do {
+            if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->unk64 & 0x400))) {
+                count++;
+            }
+            node = node->next;
+        } while (node != NULL);
+    }
+    *arg0 = count;
+    node = (R2D3B_Node *)D_807FC400;
+    dst = (u8 *)(arg0 + 1);
+    if (node != NULL) {
+        do {
+            if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->unk64 & 0x400))) {
+                item.unk32 = node->unk0;
+                item.unkC = node->unk20;
+                item.unk30 = node->unk1C;
+                item.unk0 = node->unk4;
+                item.unk4 = node->unk8;
+                item.unk8 = node->unkC;
+                item.unk34 = node->unk5A;
+                memcpy(item.unk10, node->unk24, 0x20);
+                memcpy(dst, &item, sizeof(item));
+                dst += sizeof(item);
+            }
+            node = node->next;
+        } while (node != NULL);
+    }
+}
 
 extern Actor *D_807FBB40;
 void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
@@ -302,7 +371,24 @@ u8 func_80689EE4(ActD3B_Struct1 *arg0) {
     return func_80689FEC(arg0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689F2C.s")
+extern s32 D_8076A0A8;
+s32 func_80689F2C(void) {
+    switch (D_8076A0A8) {
+        case 0x2A:
+        case 0xA9:
+        case 0xAA:
+        case 0xAD:
+        case 0xAE:
+        case 0xAF:
+        case 0xB2:
+        case 0xC1:
+        case 0xC2:
+        case 0xC3:
+            return 1;
+        default:
+            return 0;
+    }
+}
 
 f32 func_80689DD4(f32, f32, f32);
 
