@@ -66,9 +66,10 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 1. Partition by instruction count: round 1 ~1,000–1,700 per agent, ≤25 functions,
    contiguous by address; functions over ~500 insns held back for later rounds, each
    600+-insn function on its own agent. Later rounds ≤6 functions per agent, near-misses
-   first. Never a function in two agents' lists. A file with one agent: DIRECT mode;
-   shared file: PRIVATE COPY.
-2. For every shared file, BEFORE dispatch: `python3 tools/merge_drafts.py snapshot src/<seg>/<file>.c`.
+   first. Never a function in two agents' lists. Every agent works in PRIVATE COPY mode,
+   even alone on a file, so `src/` only changes by your merges and the full build can gate
+   each commit while agents run.
+2. For every file, BEFORE dispatch: `python3 tools/merge_drafts.py snapshot src/<seg>/<file>.c`.
 3. Write the filled [brief.md](brief.md) once to `local://brief.md` and pass the `context`
    "Read `local://brief.md` FIRST and follow it exactly", plus per-file facts and the
    previous rounds' tricks for that file; each `tasks[]` item lists its functions
@@ -88,17 +89,20 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    `merge --base <commit the copy started from> src/... .scratch/<A>/...`, else the merge
    reverts everything committed since.
    Round 1 on a fresh file always yields per-agent types (`ActAActor`, `BehBActor`) that
-   clash: dispatch one unify fix-up agent per file right after round 1, DIRECT mode, that
+   clash: dispatch one unify fix-up agent per file right after round 1 (PRIVATE COPY, merged
+   like a round; it extends the shared header in place, additively only), that
    creates/extends a shared header (`include/actor.h`) with one struct per object and moves
    all declarations to one top block. Two files sharing a header: serialize their unify
    agents (second extends the header additively), but start the first file's round 2 at
    once. A clash of one global between two drafts: unify inline.
-5. DIRECT files: `git diff` them; revert declaration-only leftovers from zero-yield agents.
-6. Gate: `tools/objdiff.sh` on each file of the commit gives OK/TEXT OK (it now fails when
-   the file's `.rodata` bytes differ, which TEXT OK used to hide: a C jump table dropped the
-   4-byte late_rodata pad before an asm function's floats, `7AF60` `func_8067680C`); run the
-   full `tools/dk make` once no DIRECT agent is editing (any time all rounds pause, and
-   always before names). Commit `<Seg>: match N/T <file> functions`.
+5. Merge single-agent copies the same way; revert declaration-only leftovers from
+   zero-yield agents.
+6. Gate EVERY commit with the full build: `tools/dk make` must end with
+   `build/dk64.us.z64: OK` (AGENTS.md: never commit a non-matching state). Per-file
+   `tools/objdiff.sh` OK/TEXT OK is only a pre-check: TEXT OK hid a `.rodata` shift once (a C
+   jump table dropped the 4-byte late_rodata pad before an asm function's floats, `7AF60`
+   `func_8067680C`, committed and only caught later); `objdiff.py` now fails on `.rodata`
+   byte diffs, but the ROM hash stays the gate. Commit `<Seg>: match N/T <file> functions`.
 7. Stop rule: stop a file after a round that matched fewer than ~1 function per agent, or
    when only near-misses and 500+-insn functions remain. Record the closest diffs in ROADMAP.
 
