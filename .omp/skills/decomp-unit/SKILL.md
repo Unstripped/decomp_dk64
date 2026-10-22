@@ -49,7 +49,9 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 3. Dispatch with [brief.md](brief.md) as `context`; each `tasks[]` item lists its functions
    with the last known diff note.
 4. Merge each shared file: `python3 tools/merge_drafts.py merge src/<seg>/<file>.c .scratch/<A>/<file>.c ...`
-   (drops duplicate/unused declarations, prints clashing declarations on compile errors).
+   (merges into the current `src`, so edits made after the snapshot survive; drops
+   duplicate/unused declarations the drafts added; prints clashing declarations on
+   compile errors; exit 2 on conflicts leaves `src` untouched).
    Clashes between drafts' types: unify into one declaration at the top of the file; a
    type unification across many functions is a fix-up agent's job, not inline work.
 5. DIRECT files: `git diff` them; revert declaration-only leftovers from zero-yield agents.
