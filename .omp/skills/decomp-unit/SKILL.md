@@ -73,8 +73,8 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 3. Write the filled [brief.md](brief.md) once to `local://brief.md` and pass the `context`
    "Read `local://brief.md` FIRST and follow it exactly", plus per-file facts and the
    previous rounds' tricks for that file; each `tasks[]` item lists its functions
-   with the last known diff note and the path of the previous round's best draft
-   (`.scratch/<Agent>/<FUNC>_best.c`), so the next agent starts from it, not from m2c.
+   with the last known diff note; agents start from the stored draft
+   (`tools/drafts.py show FUNC`), not from m2c.
    Agents finish after 15–25 min whatever the list length; re-prompting an idle agent to
    "continue" returned the same report with no new matches (boss round 1, 5 tries):
    dispatch the next round instead.
@@ -96,7 +96,11 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    agents (second extends the header additively), but start the first file's round 2 at
    once. A clash of one global between two drafts: unify inline.
 5. Merge single-agent copies the same way; revert declaration-only leftovers from
-   zero-yield agents.
+   zero-yield agents. Then persist drafts: `python3 tools/drafts.py collect` (imports any
+   newer `.scratch/*/<FUNC>_best.c` an agent left instead of saving) and
+   `python3 tools/drafts.py prune` (drops drafts of functions that now match); commit
+   `drafts/` with the merge. `drafts/<seg>/<FUNC>.c` is the only place in-progress C
+   survives a session; `.scratch/` is per-session and may be wiped.
 6. Gate EVERY commit with the full build: `tools/dk make` must end with
    `build/dk64.us.z64: OK` (AGENTS.md: never commit a non-matching state). Per-file
    `tools/objdiff.sh` OK/TEXT OK is only a pre-check: TEXT OK hid a `.rodata` shift once (a C

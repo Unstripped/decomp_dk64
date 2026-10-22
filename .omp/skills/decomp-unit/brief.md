@@ -60,14 +60,16 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
 Your budget is finite: near-misses first, then never-attempted functions from smallest to
 largest. After a serious effort on one function, move on and come back if budget remains.
 Use the whole budget before reporting. A function that won't match gets its exact
-original `#pragma GLOBAL_ASM(...)` line back, and its best draft is saved as
-`.scratch/<YourName>/<FUNC>_best.c` for the next round (start from the draft listed in
-your task if there is one). Your final file MUST give OK or TEXT OK: never leave
-non-matching C in it.
+original `#pragma GLOBAL_ASM(...)` line back, and its best draft (the function plus the
+local declarations it needs) is persisted for later sessions with
+`python3 tools/drafts.py save <FUNC> <file> --note "<closest diff, what you tried>"`
+(writes `drafts/<seg>/<FUNC>.c`, replacing the old draft). Start from the stored draft
+(`python3 tools/drafts.py show <FUNC>`) if there is one. Your final file MUST give OK or
+TEXT OK: never leave non-matching C in it.
 
 # Report (final message)
-1. Newly matched functions; remaining GLOBAL_ASM with a one-line closest-diff note and
-   best-draft path each.
+1. Newly matched functions; remaining GLOBAL_ASM with a one-line closest-diff note each
+   (and confirm you saved its draft).
 2. Names ONLY for behaviour you confirmed: `func_X -> <prefix>CamelCase` + one-line reason.
 3. New IDO quirks not already in the ok-fine note (one bullet each).
 4. Final file path.
