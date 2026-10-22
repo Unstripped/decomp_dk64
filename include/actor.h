@@ -5,6 +5,13 @@
 
 struct Actor;
 
+typedef struct ActorSub4 {
+    /* 0x00 */ u8 unk00[0x34];
+    /* 0x34 */ f32 unk34;
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ f32 unk3C;
+} ActorSub4;
+
 typedef struct ActorSub140 {
     /* 0x00 */ u8 unk00[0x68];
     /* 0x68 */ s32 unk68;
@@ -81,11 +88,12 @@ typedef struct ActorGlobalState {
     /* 0x254 */ u8 unk254;
     /* 0x255 */ u8 unk255[3];
     /* 0x258 */ s32 unk258[8];
+    /* 0x278 */ s16 *unk278[8];
 } ActorGlobalState;
 
 typedef struct Actor {
     /* 0x000 */ u8 unk00[4];
-    /* 0x004 */ void *unk4;
+    /* 0x004 */ ActorSub4 *unk4;
     /* 0x008 */ u8 unk08[0x50];
     /* 0x058 */ s32 unk58;
     /* 0x05C */ u16 unk5C;
@@ -139,7 +147,7 @@ typedef struct Actor {
     /* 0x155 */ u8 unk155[7];
     /* 0x15C */ s16 unk15C;
     /* 0x15E */ u8 unk15E;
-    /* 0x15F */ s8 unk15F;
+    /* 0x15F */ u8 unk15F;
     /* 0x160 */ u8 unk160[8];
     /* 0x168 */ s16 unk168;
     /* 0x16A */ u8 unk16A[3];
