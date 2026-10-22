@@ -48,7 +48,7 @@ typedef struct {
 extern BossC_A7A0_Entry D_807FB930[];
 extern u16 D_807FBB34;
 
-void func_8002E7A0(BossC_A7A0_Actor *arg0) {
+void bossResetMinions(BossC_A7A0_Actor *arg0) {
     s16 i;
     BossC_A7A0_Actor *actor;
 
@@ -62,12 +62,12 @@ void func_8002E7A0(BossC_A7A0_Actor *arg0) {
     }
 }
 
-void func_8002E82C(void) {
+void bossPhaseTick(void) {
     BossC_A7A0_Actor *other;
     s16 timer;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_8002E7A0(D_807FBB40);
+        bossResetMinions(D_807FBB40);
         D_807FBB40->unk168 = 0x258;
         D_807FBB40->unk144 = 2;
     }

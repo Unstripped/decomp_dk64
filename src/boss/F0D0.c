@@ -95,7 +95,7 @@ typedef struct {
     s16 unk8;
 } Boss2D_Node;
 
-void func_800334A4(u8 *arg0, f32 arg1) {
+void bossInterpolateWaypoints(u8 *arg0, f32 arg1) {
     f64 val;
     f32 temp_f;
 
@@ -124,7 +124,7 @@ void func_800336C0(void) {
 
 void func_80690814(void *, s32);
 void func_80690A28(s32, s32, f32, f32, f32, f32, f32, void *);
-void func_8003392C(u8 *arg0) {
+void bossSpawnObjectAtWaypoint(u8 *arg0) {
     func_80690814(D_807FBB40, 1);
     func_80690A28(0x2C, 2, D_807FBB40->unk4->unk38, D_807FDCA0->unk14[arg0[3]].unk0, D_807FDCA0->unk14[arg0[3]].unk2, D_807FDCA0->unk14[arg0[3]].unk4, 1200.0f, D_807FBB40);
 }

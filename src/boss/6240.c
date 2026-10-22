@@ -100,7 +100,7 @@ void func_8071EDEC(void);
 void func_8071720C(void);
 extern void *D_8074E880[];
 
-void func_8002A5CC(void) {
+void bossSpawnSparkles(void) {
     f32 sp6C;
     f32 sp68;
     f32 sp64;
@@ -139,7 +139,7 @@ typedef struct BossC_6240_Actor {
 extern BossC_6240_Actor *D_807FBB4C;
 s32 func_80725BA4(s16, s16, s32);
 
-void func_8002A8B8(s32 arg0) {
+void bossClampPosition(s32 arg0) {
     if (!func_80725BA4((s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84, arg0)) {
         D_807FBB4C->unk7C = D_807FBB4C->unk88;
         D_807FBB4C->unk84 = D_807FBB4C->unk90;

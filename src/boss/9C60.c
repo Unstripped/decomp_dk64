@@ -50,7 +50,7 @@ void func_80677FA8(s32, s32);
 void func_8067B238(BossC_9C60_Actor *, BossC_9C60_Actor *, f32);
 void func_806782C0(void *);
 void func_806319C4(BossC_9C60_Actor *, s32);
-void func_8002DC60(void) {
+void bossAttachActor(void) {
     BossC_9C60_Actor **sp1C = D_807FBB40->unk178;
 
     func_80677FA8(0xDD, 0xE3);
@@ -60,7 +60,7 @@ void func_8002DC60(void) {
     func_8067B238(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
 }
 
-void func_8002DCE0(void) {
+void bossUpdateAttachment(void) {
     func_8067B238(D_807FBB40, D_807FBB40->unk11C, D_807FBB40->unk4->unk38);
     D_807FBB40->unk4->unk48 = D_807FBB40->unk11C->unk4->unk48;
     if (D_807FBB40->unk4->unk0->unk10 == 0x675 && D_807FBB40->unk4->unk0->unk24 == 0.0f) {
@@ -84,7 +84,7 @@ extern u16 D_807FBB34;
 
 void func_806782C0(void *);
 
-void func_8002DD7C(void) {
+void bossDespawnEntities(void) {
     s16 i;
     BossC_9C60_Target *actor;
 
@@ -307,7 +307,7 @@ void func_8002DE04(void) {
         case 0:
             D_807FBB40->unk146 = 5;
             func_80614EBC(D_807FBB40, 0);
-            func_8002DD7C();
+            bossDespawnEntities();
             func_8061CC40(D_807FBB40, 1, 1);
             D_807FBB40->unk155++;
             break;
@@ -324,7 +324,7 @@ void func_8002DE04(void) {
                     D_807FBB40->unk154 = 0x37;
                     D_807FBB40->unk155 = 0;
                 } else {
-                    func_8002DC60();
+                    bossAttachActor();
                     D_807FBB40->unk146 = 1;
                     func_80614EBC(D_807FBB40, 0x404);
                     func_80614D90(D_807FBB40);

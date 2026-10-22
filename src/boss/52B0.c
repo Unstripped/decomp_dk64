@@ -136,7 +136,7 @@ extern Boss3F_52B0_DC90 *D_807FDC90;
 extern Boss3F_52B0_DC94 *D_807FDC94;
 extern Boss3F_52B0_DC98 *D_807FDC98;
 void func_80027BA8(u8 *, s32, f32);
-void func_80028478(s32, s16, s16, s16, s32, s32);
+void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_80614EBC(void *, s32);
@@ -420,7 +420,7 @@ block_28:
         break;
     case 0x37:
         if (func_80629148() != 0) {
-            func_80028478(0xA8, (s16)ACTOR->unk7C, (s16)ACTOR->unk80, (s16)ACTOR->unk84, 0x5DC, 1);
+            bossSpawnParticleRing(0xA8, (s16)ACTOR->unk7C, (s16)ACTOR->unk80, (s16)ACTOR->unk84, 0x5DC, 1);
             ACTOR->unk154 = 0x40;
         }
         break;

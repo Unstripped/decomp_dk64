@@ -39,7 +39,7 @@ typedef struct {
     f32 unkC;
 } BossB_Struct_800278F4;
 
-void func_800278F4(BossB_Struct_800278F4 *arg0, f32 arg1, s16 arg2, s16 arg3) {
+void bossLerpCoords(BossB_Struct_800278F4 *arg0, f32 arg1, s16 arg2, s16 arg3) {
     arg0->unkC += ((f32)arg2 - arg0->unkC) * arg1;
     arg0->unk8 += ((f32)arg3 - arg0->unk8) * arg1;
 }
@@ -100,7 +100,7 @@ void D_8071CDE0(void);
 extern s32 D_8074E880[];
 extern Boss3C_Struct_8478 *D_807FDC94;
 
-void func_80028478(arg0, arg1, arg2, arg3, arg4, arg5)
+void bossSpawnParticleRing(arg0, arg1, arg2, arg3, arg4, arg5)
 u16 arg0;
 s16 arg1;
 s16 arg2;
@@ -159,7 +159,7 @@ void heapFreeDeferred(void *);
 void *func_8070068C(Gfx *);
 void func_806FC530(void *, s32, s32, s32, char *, s32);
 
-void func_800286B8(Gfx *arg0, s32 arg1) {
+void bossDrawRoundText(Gfx *arg0, s32 arg1) {
     Boss2C_MtxF sp90;
     Boss2C_MtxF sp50;
     Mtx *sp4C;
@@ -185,7 +185,7 @@ static void func_80028818(void) {}
 
 void func_8073129C(s32, s32, s32);
 
-void func_80028820(void) {
+void bossResetAudioChannels(void) {
     func_8073129C(0x51, 0, 2);
     func_8073129C(0x52, 0, 2);
     func_8073129C(0x53, 0, 2);
@@ -222,7 +222,7 @@ extern s32 D_8076A0A8;
 
 s32 func_8073110C(s16, s32);
 
-void func_80029140(s16 *arg0) {
+void bossUpdateStageState(s16 *arg0) {
     s16 i = 0;
     while (D_800359D0[i].unk0 != 0 && D_8076A0A8 != D_800359D0[i].unk0) {
         i++;
@@ -234,7 +234,7 @@ void func_80029140(s16 *arg0) {
     }
 }
 
-void func_8002920C(void) {
+void bossPlayStageMusic(void) {
     s16 i = 0;
     while (D_800359D0[i].unk0 != 0 && D_8076A0A8 != D_800359D0[i].unk0) {
         i++;
