@@ -1,4 +1,4 @@
-// func_8068A858 (src/global/8F4B0.c): 200 insns matched (first 140 and last 60 match exact); diff only in middle temp_v1/entry scheduling
+// func_8068A858 (src/global/8F4B0.c): 200/226 insns matched; head 140 and tail 60 exact match; diff in middle D_807FC621 load/store scheduling and pointer representation
 typedef struct {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
@@ -27,7 +27,7 @@ void func_8068A858(u8 *arg0, u8 *arg1, u8 *arg2) {
     f32 sp40;
     f32 sp3C;
     f32 sp38;
-    s32 temp_v1;
+    u8 temp_v1;
     u8 idx;
     Act8F4_Entry0E *entry;
 
@@ -56,10 +56,10 @@ set_color:
 
         if ((D_807FC621 & 0x80) && (temp_v1 = D_807FC621 & 0x7F)) {
             entry = &D_80750194[temp_v1];
+            D_807FC621 = temp_v1;
             sp40 = (f32)(entry - 1)->unk8;
             sp3C = (f32)(entry - 1)->unkA;
             sp38 = (f32)(entry - 1)->unkC;
-            D_807FC621 = temp_v1;
             if (D_807FC622 != 0) {
                 sp40 += 80.0f * func_80612794(D_8076A064 * 400);
                 sp38 += 80.0f * func_80612790(D_8076A064 * 200);

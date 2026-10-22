@@ -1,4 +1,4 @@
-// func_80687FC8 (src/global/8CA50.c): First half matches 100%; second half has regalloc/branch differences in switch on unk21
+// func_80687FC8 (src/global/8CA50.c): Closest diff: first half 100% matched; exact 197 insns size; hoisted temp_a1 aligns a1/a2 in both halves; delay slot addiu/beql and temp_ft3 reassociation remaining
 #include "common.h"
 
 typedef struct Act8CA_Node {
@@ -23,10 +23,12 @@ typedef struct Act8CA_Node {
 } Act8CA_Node;
 
 void func_80687FC8(Act8CA_Node *arg0) {
+    s16 temp_a1;
+    s32 temp_ft3;
+
     switch (arg0->unk20) {
     case 0: {
         f32 temp_fv0;
-        s32 temp_ft3;
         s32 temp_lo;
         s16 temp_v0_2;
 
@@ -35,12 +37,13 @@ void func_80687FC8(Act8CA_Node *arg0) {
         temp_ft3 = (s32)temp_fv0;
         arg0->unkC += temp_ft3;
         arg0->unk14 = temp_fv0 - (f32)temp_ft3;
-        if (arg0->unkC >= arg0->unk1E) {
-            temp_lo = arg0->unkC / arg0->unk1E;
+        temp_a1 = arg0->unk1E;
+        if (arg0->unkC >= temp_a1) {
+            temp_lo = arg0->unkC / temp_a1;
             temp_v0_2 = arg0->unk18;
             arg0->unk1A += temp_lo;
             if (arg0->unk1A >= temp_v0_2 && temp_v0_2 != -1) {
-                arg0->unkC = arg0->unk1E - 1;
+                arg0->unkC = temp_a1 - 1;
                 arg0->unk22 = 1;
                 arg0->unk14 = 1.0f;
                 if (arg0->unk21 == 1) {
@@ -50,7 +53,7 @@ void func_80687FC8(Act8CA_Node *arg0) {
             } else {
                 switch (arg0->unk21) {
                 case 0:
-                    arg0->unkC = arg0->unkC % arg0->unk1E;
+                    arg0->unkC = arg0->unkC % temp_a1;
                     if (arg0->unkC < arg0->unk1C) {
                         arg0->unkC = arg0->unk1C;
                         return;
@@ -59,7 +62,7 @@ void func_80687FC8(Act8CA_Node *arg0) {
                 case 1:
                     if (temp_lo != 0) {
                         arg0->unk20 = 1;
-                        arg0->unkC = arg0->unk1E - 1;
+                        arg0->unkC = temp_a1 - 1;
                         arg0->unk14 = 1.0f;
                         return;
                     }
@@ -75,26 +78,22 @@ void func_80687FC8(Act8CA_Node *arg0) {
     }
     case 1: {
         f32 temp_fv0_2;
-        s16 temp_v1_2;
         s32 temp_a2;
-        s16 temp_a1_2;
         s16 temp_v0_6;
         s32 temp_lo_2;
 
         arg0->unk14 -= arg0->unk10;
         temp_fv0_2 = arg0->unk14;
         if ((f64)temp_fv0_2 < 0.0) {
-            s32 int_part = (s32)temp_fv0_2;
-            int_part--;
-            arg0->unkC += int_part;
-            arg0->unk14 = temp_fv0_2 - (f32)int_part;
+            temp_ft3 = (s32)temp_fv0_2 - 1;
+            arg0->unkC += temp_ft3;
+            arg0->unk14 = temp_fv0_2 - (f32)temp_ft3;
         }
-        temp_v1_2 = arg0->unkC;
-        temp_a2 = -temp_v1_2;
-        if (temp_v1_2 < 0) {
-            temp_a1_2 = arg0->unk1E;
+        if (arg0->unkC < 0) {
+            temp_a2 = -arg0->unkC;
+            temp_a1 = arg0->unk1E;
             temp_v0_6 = arg0->unk18;
-            temp_lo_2 = temp_a2 / temp_a1_2;
+            temp_lo_2 = temp_a2 / temp_a1;
             arg0->unk1A += temp_lo_2 + 1;
             if (arg0->unk1A >= temp_v0_6 && temp_v0_6 != -1) {
                 arg0->unkC = 0;
@@ -107,21 +106,22 @@ void func_80687FC8(Act8CA_Node *arg0) {
             } else {
                 switch (arg0->unk21) {
                 case 0:
-                    arg0->unkC = temp_a2 % (temp_a1_2 - 1);
+                    arg0->unkC = temp_a2 % (temp_a1 - 1);
                     if (arg0->unkC != 0) {
-                        arg0->unkC = temp_a1_2 - arg0->unkC - 1;
+                        arg0->unkC = (temp_a1 - arg0->unkC) - 1;
                         return;
                     }
                     break;
                 case 1:
-                    if (temp_lo_2 + 1 != 0) {
-                        arg0->unkC = 0;
-                        arg0->unk20 = 0;
-                        if (arg0->unkC < arg0->unk1C) {
-                            arg0->unkC = arg0->unk1C;
-                        }
-                        arg0->unk14 = 0.0f;
+                    if (!(temp_lo_2 + 1)) {
+                        break;
                     }
+                    arg0->unkC = 0;
+                    arg0->unk20 = 0;
+                    if (arg0->unkC < arg0->unk1C) {
+                        arg0->unkC = arg0->unk1C;
+                    }
+                    arg0->unk14 = 0.0f;
                     break;
                 default:
                     return;
