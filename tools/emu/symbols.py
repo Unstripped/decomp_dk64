@@ -34,6 +34,20 @@ SEGMENTS: List[str] = ["boot", "global"] + OVERLAYS
 OVERLAY_VRAM_START: int = 0x80024000
 GLOBAL_VRAM_START: int = 0x805FB300
 OVERLAY_WINDOW_SIZE: int = 0x200  # 512 bytes uniquely distinguishes all 9 overlays
+ADDR_LOADED_OVERLAY_RECORD: int = 0x80744470
+ADDR_GAME_MODE: int = 0x807444EC
+
+OVERLAY_END_VRAM: Dict[int, str] = {
+    0x80027140: "multiplayer",
+    0x80028E40: "minecart",
+    0x8002DF40: "bonus",
+    0x80030180: "race",
+    0x8002A200: "critter",
+    0x80036E00: "boss",
+    0x8004C780: "arcade",
+    0x80045C00: "jetpac",
+    0x80034000: "menu",
+}
 
 _FINGERPRINT_CACHE: Dict[Tuple[Path, int], Dict[str, bytes]] = {}
 
@@ -263,12 +277,15 @@ def detect_overlay(
     read_mem: Callable[[int, int], bytes],
     repo_root: Optional[Union[str, Path]] = None,
 ) -> Optional[str]:
-    """Detect active overlay in emulator memory at 0x80024000.
+    """Detect active overlay in emulator memory.
+
+    Uses game runtime state (0x80744470 overlay end record and 0x807444EC mode byte)
+    AND confirms with the byte fingerprint at 0x80024000.
 
     read_mem(addr, n) -> bytes: callable reading emulator memory.
     repo_root: Path to repository root.
 
-    Returns overlay name or None if memory does not match any overlay.
+    Returns overlay name, or None if no overlay is loaded or on disagreement.
     """
     if repo_root is None:
         root_path = _find_repo_root()
@@ -289,20 +306,83 @@ def detect_overlay(
         _FINGERPRINT_CACHE[cache_key] = fingerprints
 
     fingerprints = _FINGERPRINT_CACHE[cache_key]
+
+    # 1. Read game state: loaded overlay end pointer (0x80744470) and mode (0x807444EC)
+    vram_end = None
+    mode = None
+    try:
+        rec_bytes = read_mem(ADDR_LOADED_OVERLAY_RECORD, 4)
+        if rec_bytes and len(rec_bytes) == 4:
+            vram_end = int.from_bytes(rec_bytes, "big")
+    except Exception:
+        pass
+
+    try:
+        mode_bytes = read_mem(ADDR_GAME_MODE, 1)
+        if mode_bytes and len(mode_bytes) >= 1:
+            mode = mode_bytes[0]
+    except Exception:
+        pass
+
+    # Determine expected overlay from game state
+    expected_overlay: Optional[str] = None
+    if vram_end is not None:
+        if vram_end == OVERLAY_VRAM_START:
+            # Game state explicitly records NO overlay loaded
+            expected_overlay = None
+        elif vram_end in OVERLAY_END_VRAM:
+            expected_overlay = OVERLAY_END_VRAM[vram_end]
+        else:
+            # Unknown pointer in 0x80744470 (e.g. uninitialized before loadOverlay)
+            expected_overlay = None
+
+    # Check mode byte consistency
+    if mode == 3 and expected_overlay != "arcade":
+        print(
+            f"[detect_overlay] Disagreement: mode byte is 3 (arcade) but 0x80744470 is 0x{vram_end:08X} ({expected_overlay})",
+            file=sys.stderr,
+        )
+        return None
+    elif mode == 4 and expected_overlay != "jetpac":
+        print(
+            f"[detect_overlay] Disagreement: mode byte is 4 (jetpac) but 0x80744470 is 0x{vram_end:08X} ({expected_overlay})",
+            file=sys.stderr,
+        )
+        return None
+
+    # 2. Check byte fingerprint at 0x80024000
     try:
         mem = read_mem(OVERLAY_VRAM_START, OVERLAY_WINDOW_SIZE)
     except Exception:
         return None
 
-    if not mem or len(mem) < OVERLAY_WINDOW_SIZE:
+    byte_matched_ovl: Optional[str] = None
+    if mem and len(mem) >= OVERLAY_WINDOW_SIZE:
+        target = mem[:OVERLAY_WINDOW_SIZE]
+        for ovl, ref in fingerprints.items():
+            if target == ref:
+                byte_matched_ovl = ovl
+                break
+
+    # 3. Confirm game state against byte fingerprint
+    if expected_overlay is None:
+        if byte_matched_ovl is not None:
+            # Memory contains bytes from an overlay, but game state says no overlay loaded
+            print(
+                f"[detect_overlay] Disagreement: game state records no overlay loaded (0x80744470=0x{vram_end or 0:08X}), "
+                f"but 0x80024000 matches {byte_matched_ovl} fingerprint (stale overlay bytes)",
+                file=sys.stderr,
+            )
         return None
 
-    # Check against known overlay headers
-    target = mem[:OVERLAY_WINDOW_SIZE]
-    for ovl, ref in fingerprints.items():
-        if target == ref:
-            return ovl
+    if byte_matched_ovl == expected_overlay:
+        return expected_overlay
 
+    print(
+        f"[detect_overlay] Disagreement: game state indicates {expected_overlay} (0x80744470=0x{vram_end:08X}), "
+        f"but 0x80024000 matches {byte_matched_ovl or 'unknown code'}",
+        file=sys.stderr,
+    )
     return None
 
 

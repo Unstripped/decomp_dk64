@@ -244,11 +244,11 @@ python3 tools/emu/emu.py gdb --name <name>
 ## 8. Critical Gotchas
 
 1. **Always `break *0xADDR`**: Setting a breakpoint by function name (`break funcname`) causes GDB to inspect MIPS instructions and skip the prologue. This corrupts argument inspection because `$a0`–`$a3` may already be overwritten. Always break on the exact entry address using `break *0x<hex>`.
-2. **Never warp by writing globals directly**: Writing `D_8076A0A8` directly desynchronizes engine state, corrupts heap references, and causes memory faults. Always invoke `func_805FF378(map, exit)` through `warp.py`.
-3. **Overlays share VRAM `0x80024000`**: All 9 overlays load into the exact same VRAM address range (`OVERLAY_VRAM_START`). Any address under `0x80040000` is ambiguous without verifying the currently loaded overlay via `symbols.detect_overlay`.
+2. **Never warp by writing globals directly**: `func_805FF378` (`src/global/3C10.c`) gates the transition (`D_807444EC == 6 || func_80712798() == 0`), lets `func_80712F10` rewrite or cancel the target, records the old map and runs the transition setup calls. Writing `D_807444E4`/`D_807444E8`/`D_8076A0B2` skips all of that. Always warp through `warp.py`, which calls the function at the `controllerUpdate` safe point.
+3. **Overlays share VRAM `0x80024000`**: All 9 overlays load at the same address, so any address from `0x80024000` up to the global segment (`0x805FB300`) is ambiguous. Resolve it with `symbols.py addr ADDR --segment S` only after `symbols.detect_overlay` confirms which overlay is loaded.
 4. **ELF load order in GDB**: Always load `file build/dk64.us.elf` *before* `target remote 127.0.0.1:9123`. If GDB connects before loading a 32-bit ELF, it defaults to 64-bit MIPS registers, sign-extending addresses to `0xffffffff80xxxxxx` and failing breakpoint insertions.
 5. **Clean up containers**: Always run `python3 tools/emu/emu.py stop --name <name>` when finished. Unstopped containers hold network ports and system RAM.
-6. **Naming convention rule**: Never rename an unknown function in `symbol_addrs*.txt` from static decompilation alone. A function name requires behavioural evidence from the decompiled C logic verified by a dynamic execution trace (`study.py`). Record the caller, arguments, and return value evidence in the commit message.
+6. **Naming evidence**: Names follow the AGENTS.md conventions: behaviour confirmed from the matched C. A `study.py` report (caller, arguments, return value, screenshot) is supporting evidence that makes a name stronger; record what it showed in the commit message. Never name a function from a screenshot or a guess alone.
 
 ---
 
