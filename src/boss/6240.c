@@ -91,7 +91,40 @@ void func_8002A55C(u8 arg0, f32 arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/6240/func_8002A5CC.s")
+void func_80671C0C(void *, s32, f32 *, f32 *, f32 *);
+void func_8071498C(void *);
+void func_80714950(void *);
+void func_80714CC0(void *, f32, f32, f32, f32);
+void func_80714998(s32);
+void func_8071EDEC(void);
+void func_8071720C(void);
+extern void *D_8074E880[];
+
+void func_8002A5CC(void) {
+    f32 sp6C;
+    f32 sp68;
+    f32 sp64;
+    s32 pad[1];
+    s16 i;
+    s32 r1;
+
+    func_80671C0C(D_807FBB40, 1, &sp6C, &sp68, &sp64);
+    sp6C += (f32)(((func_80611A44() >> 15) % 80) - 40);
+    sp68 += (f32)(((func_80611A44() >> 15) % 100) + 50);
+    sp64 += (f32)(((func_80611A44() >> 15) % 80) - 40);
+    func_807149B8(1);
+    func_8071498C(func_8071EDEC);
+    func_80714950(D_807FBB40);
+    func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
+    func_80714CC0(D_80720120, 1.5f, sp6C, sp68, sp64);
+    for (i = 0; i < 4; i++) {
+        func_80714998(2);
+        func_8071498C(func_8071720C);
+        func_807149B8(1);
+        r1 = func_80611A44();
+        func_80714C08(D_8074E880[((r1 >> 15) % 1000) % 3], 1.5f, D_807FBB40, ((func_80611A44() >> 15) % 32767 % 22) + 2, 0);
+    }
+}
 
 typedef struct BossC_6240_Actor {
     char pad[0x7C];

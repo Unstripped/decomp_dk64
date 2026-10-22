@@ -64,7 +64,23 @@ void func_80724DB0(s32, s32, void *);
 void func_8072DA60(void);
 void func_806319C4(void *, s32);
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/B100/func_8002FB7C.s")
+f32 func_80612794(s16);
+
+void func_8002FB7C(arg0)
+u8 arg0;
+{
+    BossE_B100_Sub20 *sub;
+    f32 sin_val;
+
+    sub = D_807FBB40->unk4->unk20;
+    sub->unk0 = 2;
+    sub->unk1 = 4;
+    sub->unk4 = 1.0f;
+    sin_val = func_80612794((s16)(D_8076A064 << 7));
+    sub->unk4 += (f64)arg0 * (0.04 + 0.04 * (f64)sin_val);
+    sub->unk8 = sub->unk4;
+    sub->unkC = 1.0f;
+}
 void func_8002FC48(arg0, arg1)
 s32 arg0;
 u8 arg1;
