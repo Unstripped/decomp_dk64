@@ -12,3 +12,4 @@ __pycache__/
 .splat/
 /expected/
 /.scratch/
+/emu/

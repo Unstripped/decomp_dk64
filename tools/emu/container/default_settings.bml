@@ -1,0 +1,85 @@
+Video
+  Driver: SDL3 GPU
+  Blocking: false
+  Flush: false
+  WindowWidth: 800
+  WindowHeight: 576
+  Output: Scale
+  FixedScale: 2
+  AspectCorrectionMode: Standard
+  AdaptiveSizing: true
+  Renderer: angrylion
+  Quality: SD
+  Supersampling: false
+  DisableVideoInterfaceProcessing: false
+  WeaveDeinterlacing: true
+Audio
+  Frequency: 48000
+  Latency: 20
+  Blocking: true
+  Dynamic: false
+  Mute: false
+  Volume: 1.00
+  Balance: 0.00
+Input
+  Defocus: Allow
+  DigitalToAnalog: Immediate
+  DigitalToAnalogTime: 500
+Boot
+  Fast: false
+  Debugger: false
+  AwaitGDBClient: false
+  Prefer: NTSC-U
+General
+  Rewind: false
+  RunAhead: false
+  AutoSaveMemory: true
+  NoFilePrompt: true
+Paths
+  Firmware: 
+  Saves: /dk64/emu/states/
+  Screenshots: /dk64/emu/screenshots/
+  Debugging: /dk64/emu/debugging/
+Developer
+  DebugServerPort: 9123
+  DebugServerEnabled: true
+  DebugServerUseIPv4: true
+  HomebrewMode: false
+  DeterministicEntropy: false
+  ForceInterpreter: false
+Nintendo64
+  ExpansionPak: true
+  ControllerPakBankString: 32KiB (Default)
+  Quality: SD
+  Supersampling: false
+  DisableVideoInterfaceProcessing: false
+  WeaveDeinterlacing: true
+  Input
+    Controller.Port.1
+      Gamepad
+        Up: 0x1/0/17;;
+        Down: 0x1/0/18;;
+        Left: 0x1/0/19;;
+        Right: 0x1/0/20;;
+        B: 0x1/0/44;;
+        A: 0x1/0/45;;
+        C-Up: 0x1/0/84;;
+        C-Down: 0x1/0/85;;
+        C-Left: 0x1/0/86;;
+        C-Right: 0x1/0/87;;
+        L: 0x1/0/51;;
+        R: 0x1/0/52;;
+        Z: 0x1/0/90;;
+        Start: 0x1/0/89;;
+        Rumble: ;;
+        X-Axis
+          Lo: 0x1/0/35;;
+          Hi: 0x1/0/38;;
+        Y-Axis
+          Lo: 0x1/0/53;;
+          Hi: 0x1/0/57;;
+Hotkey
+  SaveState: 0x1/0/5;;
+  LoadState: 0x1/0/7;;
+  DecrementStateSlot: 0x1/0/6;;
+  IncrementStateSlot: 0x1/0/8;;
