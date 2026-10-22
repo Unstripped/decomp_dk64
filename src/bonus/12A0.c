@@ -21,12 +21,12 @@ Gfx *func_800252A0(Gfx *gdl, void *arg1) {
         0x26, 0x32, (u8 *)temp_t0 + 0x14, *(s16 *)((u8 *)temp_t0 + 0x16), (u8 *)temp_t0 + 0x18);
 }
 
-s32 func_80677FA8(s32, s32);
+s32 actorSpawn(s32, s32);
 extern void *D_807FBB40;
 extern void *D_807FBB44;
 
 void *func_800253E4(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    if (func_80677FA8(0xDB, arg0) != 0) {
+    if (actorSpawn(0xDB, arg0) != 0) {
         void **ptr = *(void ***)((u8 *)D_807FBB44 + 0x174);
         *(f32 *)((u8 *)D_807FBB44 + 0x7C) = (f32)arg1;
         *(f32 *)((u8 *)D_807FBB44 + 0x80) = (f32)arg2;

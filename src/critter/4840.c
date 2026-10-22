@@ -29,7 +29,7 @@ typedef struct Actor_4840 {
 
 s32 func_806FBD5C(s16, s32);
 void heapFree(void *);
-void func_80677FA8(s32, s32);
+void actorSpawn(s32, s32);
 extern s16 D_80744490;
 extern Actor_4840 *D_807FBB44;
 
@@ -141,7 +141,7 @@ void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s32 arg4, s16 arg5) {
         heapFree(*(void **)(s0 + 8));
         heapFree(*(void **)(s0 + 4));
     } else {
-        func_80677FA8(0x10A, 0);
+        actorSpawn(0x10A, 0);
         s0 = D_807FBB44->unk174;
         *(s16 *)s0 = arg2 * 4;
         D_8002A1C4 = D_807FBB44;

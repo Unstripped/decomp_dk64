@@ -46,14 +46,14 @@ typedef struct BossC_9C60_Actor {
 extern BossC_9C60_Actor *D_807FBB40;
 extern BossC_9C60_Actor *D_807FBB44;
 
-void func_80677FA8(s32, s32);
+void actorSpawn(s32, s32);
 void func_8067B238(BossC_9C60_Actor *, BossC_9C60_Actor *, f32);
-void func_806782C0(void *);
+void actorDespawn(void *);
 void func_806319C4(BossC_9C60_Actor *, s32);
 void bossAttachActor(void) {
     BossC_9C60_Actor **sp1C = D_807FBB40->unk178;
 
-    func_80677FA8(0xDD, 0xE3);
+    actorSpawn(0xDD, 0xE3);
     D_807FBB44->unk60 |= 0x400;
     D_807FBB44->unk11C = D_807FBB40;
     *sp1C = D_807FBB44;
@@ -64,7 +64,7 @@ void bossUpdateAttachment(void) {
     func_8067B238(D_807FBB40, D_807FBB40->unk11C, D_807FBB40->unk4->unk38);
     D_807FBB40->unk4->unk48 = D_807FBB40->unk11C->unk4->unk48;
     if (D_807FBB40->unk4->unk0->unk10 == 0x675 && D_807FBB40->unk4->unk0->unk24 == 0.0f) {
-        func_806782C0(D_807FBB40);
+        actorDespawn(D_807FBB40);
     }
     func_806319C4(D_807FBB40, 0);
 }
@@ -82,7 +82,7 @@ typedef struct {
 extern BossC_9C60_Entry D_807FB930[];
 extern u16 D_807FBB34;
 
-void func_806782C0(void *);
+void actorDespawn(void *);
 
 void bossDespawnEntities(void) {
     s16 i;
@@ -91,7 +91,7 @@ void bossDespawnEntities(void) {
     for (i = 0; i < D_807FBB34; i++) {
         actor = D_807FB930[i].actor;
         if (actor->unk58 == 0xAA) {
-            func_806782C0(actor);
+            actorDespawn(actor);
         }
     }
 }

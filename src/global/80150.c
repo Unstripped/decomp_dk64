@@ -72,16 +72,16 @@ void func_8061CC40(void *, s32, s32);
 void func_806319C4(Actor *, s32);
 void func_80665564(Actor *, f32);
 void func_80671C0C(Actor *, s32, f32 *, f32 *, f32 *);
-void func_806782C0(Actor *);
+void actorDespawn(Actor *);
 void func_8067B4C8(void);
 void func_8067BA7C(s32);
 s32 func_8067BF84(s32, u8 *, u8 *, u8 *);
 void func_8067C71C(void);
 void func_8067DCC0(void);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
-void func_8067E348(void);
-void func_8067E3D0(void);
-void func_8067E43C(void);
+void tagBarrelResetMovement(void);
+void tagBarrelTriggerRecoil(void);
+void tagBarrelCheckRecoil(void);
 void func_8067E784(void);
 void func_806809F0(void);
 void func_8068412C(void);
@@ -422,7 +422,7 @@ void func_8067E2E4(s32 arg0, u8 arg1, f32 arg2) {
     func_8067DF44(sp2C, sp28, sp24, arg2, 0, 1);
 }
 
-void func_8067E348(void) {
+void tagBarrelResetMovement(void) {
     TagBarrelState *temp_v0 = D_807FBB40->unk174;
 
     D_807FBB40->unk4->unk34 = temp_v0->unkC;
@@ -437,8 +437,8 @@ void func_8067E348(void) {
     D_807FBB40->unk60 &= ~0x200000;
 }
 
-void func_8067E3D0(void) {
-    func_8067E348();
+void tagBarrelTriggerRecoil(void) {
+    tagBarrelResetMovement();
     D_807FBB40->unk154 = 0x14;
     D_807FBB40->unk144 = 1;
     D_807FBB40->unk60 &= ~0x8000;
@@ -446,12 +446,12 @@ void func_8067E3D0(void) {
     func_806F8D58(5, 0);
 }
 
-void func_8067E43C(void) {
+void tagBarrelCheckRecoil(void) {
     s16 i;
 
     for (i = 0; i < D_807FBB70.unk254; i++) {
         if (D_807FBB70.unk258[i] == 1 && *D_807FBB70.unk278[i] == 0xFF) {
-            func_8067E3D0();
+            tagBarrelTriggerRecoil();
         }
     }
 }
@@ -459,7 +459,7 @@ void func_8067E43C(void) {
 void func_8067E4D4(void) {
     func_8067E784();
     if (D_807FBB40->unk154 == 0) {
-        func_8067E43C();
+        tagBarrelCheckRecoil();
     }
 }
 
@@ -478,7 +478,7 @@ void func_8067E510(void) {
                 func_807149B8(0);
                 func_807149FC(1);
                 func_80714CC0(&D_8071FE08, 0.5f, D_807FBB40->unk7C, D_807FBB40->unk80 + 7.0f, D_807FBB40->unk84);
-                func_806782C0(D_807FBB40);
+                actorDespawn(D_807FBB40);
             }
         }
     }
@@ -487,7 +487,7 @@ void func_8067E510(void) {
 
 void func_8067E69C(void) {
     func_8067E784();
-    func_8067E43C();
+    tagBarrelCheckRecoil();
 }
 
 void func_8067E6C4(void) {
@@ -521,7 +521,7 @@ void func_8067FAC8(void) {
     for (i = 0; i < D_807FBB70.unk254; i++) {
         if (D_807FBB70.unk258[i] == 1 && *D_807FBB70.unk278[i] == 1) {
             func_8067DCC0();
-            func_806782C0(D_807FBB40);
+            actorDespawn(D_807FBB40);
         }
     }
 }
@@ -547,7 +547,7 @@ typedef struct PlayerData {
 
 extern PlayerData *D_807FC924;
 
-void func_80680774(void) {
+void tagBarrelUpdateInteractable(void) {
     s32 one = 1;
 
     if (one != D_807FC924->unk2C0 || (((R2FStructD580 *)D_807FD580)->unk1F4 & 0x40) || D_8074E77C >= 5) {
@@ -611,7 +611,7 @@ void func_80681B14(void) {
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         if (func_8073110C(0x302, 0) != 0) {
-            func_806782C0(D_807FBB40);
+            actorDespawn(D_807FBB40);
             return;
         }
     }
@@ -619,7 +619,7 @@ void func_80681B14(void) {
     if (D_807FBB40->unk154 == 0xC && sub->unkD < 3) {
         func_8073129C(D_8074E7E0[sub->unkA], 1, 2);
         func_8067DCC0();
-        func_806782C0(D_807FBB40);
+        actorDespawn(D_807FBB40);
     }
 }
 
@@ -679,7 +679,7 @@ void func_80681BD8(void) {
     }
     if (D_807FBB40->unk154 == 0xC && sub->unkD < 3) {
         func_8067DCC0();
-        func_806782C0(D_807FBB40);
+        actorDespawn(D_807FBB40);
     }
 }
 
@@ -711,20 +711,20 @@ typedef struct R2FKongAction {
 } R2FKongAction;
 
 extern Actor *D_807FBB44;
-s32 func_80677FA8(s32, s32);
+s32 actorSpawn(s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_806F09F0(Actor *, u16);
 void func_80682AB4(void *);
 
-void func_80682E38(R2FStruct_80682E38 *arg0) {
+void tagBarrelSpawnKongs(R2FStruct_80682E38 *arg0) {
     s32 i;
     s32 actorType;
     s16 model;
     u16 *temp_s0;
     s32 var_a2;
     s32 flag = 0x40000000;
-    func_80677FA8(0x136, 0xA8);
+    actorSpawn(0x136, 0xA8);
     arg0->unk1C = D_807FBB44;
     D_807FBB44->unk7C = D_807FBB40->unk7C + func_80612794(D_807FBB40->unkE6) * 35.0f;
     D_807FBB44->unk80 = (D_807FBB40->unk80 - 10.0f) - 2.0f;
@@ -738,7 +738,7 @@ void func_80682E38(R2FStruct_80682E38 *arg0) {
             actorType = 0x13D;
             model = 0xD2;
         }
-        func_80677FA8(actorType, model);
+        actorSpawn(actorType, model);
         arg0->unk8[i] = D_807FBB44;
         D_807FBB44->unkE6 = D_807FBB40->unkE6;
         D_807FBB44->unk60 |= flag;
@@ -756,7 +756,7 @@ void func_80682E38(R2FStruct_80682E38 *arg0) {
     func_80682AB4(arg0);
 }
 
-void func_8068304C(void) {
+void tagBarrelUpdateSelectedKong(void) {
     ActorAnimLookup sp2C;
     u8 *sp28;
 
@@ -854,7 +854,7 @@ void func_80683158(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_806836D0.s")
 
-s32 func_80683A80(ActorGroup5 *arg0, s32 arg1) {
+s32 tagBarrelIsKongUnlocked(ActorGroup5 *arg0, s32 arg1) {
     s32 type = arg0->unk8[arg1]->unk58;
     s32 ret = 0;
 
@@ -866,7 +866,7 @@ s32 func_80683A80(ActorGroup5 *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_80683AD8.s")
 
-void func_8068408C(Actor *arg0) {
+void tagBarrelInitUnlockedKongs(Actor *arg0) {
     s32 i;
 
     for (i = 0; i < 5; i++) {

@@ -294,7 +294,7 @@ Gfx *func_8002CAC8(Gfx *arg0, RaceUnknownActor *arg1, RaceUnknown174 *arg2) {
 #pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002CBEC.s")
 
 extern RaceUnknownActor *D_807FBB44;
-void func_80677FA8(s32, s32);
+void actorSpawn(s32, s32);
 void raceInitParticipants(RaceUnknownActor *);
 void func_800292D0(RaceUnknownActor *);
 void func_8002E2C8(RaceUnknownActor *);
@@ -306,7 +306,7 @@ void func_8002CFF0(void) {
     RaceUnknown174 *temp_v0;
     RaceUnknownActor *actor;
 
-    func_80677FA8(0x132, 0);
+    actorSpawn(0x132, 0);
     actor = D_807FBB44;
     func_80025E9C(actor);
     func_8002BCD4(actor);
@@ -323,7 +323,7 @@ void func_8002CFF0(void) {
 void func_8002D064(void) {
     RaceUnknown174 *sp1C;
 
-    func_80677FA8(0x132, 0);
+    actorSpawn(0x132, 0);
     sp1C = D_807FBB44->unk174;
     raceInitParticipants(D_807FBB44);
     sp1C->unk0 = 0xE;
@@ -333,7 +333,7 @@ void func_8002D064(void) {
 void func_8002D0B0(void) {
     RaceUnknown174 *sp1C;
 
-    func_80677FA8(0x132, 0);
+    actorSpawn(0x132, 0);
     sp1C = D_807FBB44->unk174;
     func_800292D0(D_807FBB44);
     sp1C->unk0 = 0xE;
@@ -343,7 +343,7 @@ void func_8002D0B0(void) {
 void func_8002D0FC(void) {
     RaceUnknown174 *sp1C;
 
-    func_80677FA8(0x132, 0);
+    actorSpawn(0x132, 0);
     sp1C = D_807FBB44->unk174;
     func_8002E2C8(D_807FBB44);
     sp1C->unk0 = 2;
@@ -386,7 +386,7 @@ f32 func_8002D2C0(RaceStruct3 *arg0) {
     return 0.0f;
 }
 
-void func_806782C0(void *, void *);
+void actorDespawn(void *, void *);
 
 void func_8002D338(void *arg0, RaceUnknownC *arg1) {
     RaceUnknownActor *temp_v0;
@@ -395,7 +395,7 @@ void func_8002D338(void *arg0, RaceUnknownC *arg1) {
     temp_v0 = arg1->unkC;
     temp_v1 = temp_v0->unk174;
     temp_v1->unk2C = NULL;
-    func_806782C0(arg0, arg1);
+    actorDespawn(arg0, arg1);
 }
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002D360.s")
@@ -670,7 +670,7 @@ void func_8002E2C8(RaceUnknownActor *arg0) {
         sp5C->unk25 = 0;
     }
     for (var_s0 = 0; var_s0 < D_807FC928; var_s0++) {
-        func_80677FA8(0x13B, 0);
+        actorSpawn(0x13B, 0);
         sp54 = D_807FBB44;
         sp58 = sp54->unk174;
         sp58->unk27 = 0;

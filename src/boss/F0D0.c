@@ -53,7 +53,7 @@ void func_807149B8(s32);
 void func_80714950(s32);
 s32 func_80611A44(void);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_806782C0(void *);
+void actorDespawn(void *);
 void func_806EB0C0(s32, void *, s32);
 void func_8061EF4C(void *, s32, s32, f32, f32, f32, f32, f32);
 extern void *D_807F5D10;
@@ -172,7 +172,7 @@ void func_8003575C(void) {
         }
         break;
     case 3:
-        func_806782C0(D_807FBB40);
+        actorDespawn(D_807FBB40);
         break;
     }
     func_8061EF4C(D_807F5D10, 5, 0x14, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);

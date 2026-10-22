@@ -82,7 +82,7 @@ extern u32 D_8076A064;
 
 void func_80729B00(void);
 void func_80614EBC(struct Struct_BB40 *, s32);
-void func_80677FA8(s32, s32);
+void actorSpawn(s32, s32);
 void func_8067B238(void *, void *, f32);
 s16 func_80613448(void *);
 void func_806131D4(void *, s16);
@@ -100,14 +100,14 @@ void func_800265F0(void) {
     func_80729B00();
     if (!(((Struct_BB40_McBig2 *)D_807FBB40)->unk60 & 0x10)) {
         func_80614EBC((struct Struct_BB40 *)D_807FBB40, 0x310);
-        func_80677FA8(0x11C, 0x4C);
+        actorSpawn(0x11C, 0x4C);
         func_8067B238(D_807FBB44, D_807FBB40, (f32)(1.5 * (f64)((Struct_BB40_McBig2 *)D_807FBB40)->unk4->unk38));
         D_807FBB44->unk11C = D_807FBB40;
         D_807FBB44->unk168 = -1;
         D_807FBB44->unk4->unk34 *= -1.0f;
         D_807FBB44->unkEC = 0x2BC;
         func_806131D4(D_807FBB44, func_80613448(D_807FBB44));
-        func_80677FA8(0x11C, 0x4C);
+        actorSpawn(0x11C, 0x4C);
         func_8067B238(D_807FBB44, D_807FBB40, (f32)(1.5 * (f64)((Struct_BB40_McBig2 *)D_807FBB40)->unk4->unk38));
         D_807FBB44->unk11C = D_807FBB40;
         D_807FBB44->unk168 = 1;
@@ -138,7 +138,7 @@ void func_800265F0(void) {
         sp47 = 0xFA;
         if ((D_8076A064 % ((Struct_DC9C_McBig *)D_807FDC9C)->unkA) == 0) {
             func_806086CC(((Struct_BB40_McBig2 *)D_807FBB40)->unk7C, ((Struct_BB40_McBig2 *)D_807FBB40)->unk80, ((Struct_BB40_McBig2 *)D_807FBB40)->unk84, 0x182, 0xFF, 0x7F, 0, 0, 0.3f, 0);
-            func_80677FA8(0x11F, 0x50);
+            actorSpawn(0x11F, 0x50);
             D_807FBB44->unk11C = D_807FBB40;
             func_8067B238(D_807FBB44, D_807FBB40, 0.06f);
             ((Struct_BB40_McBig2 *)D_807FBB40)->unk15F++;

@@ -40,7 +40,7 @@ void func_8002A240(void) {
     }
     D_807FBB40->unk80 += 8.0 * (f64)func_80612794((s16)(s32)((f64)(u32)D_8076A064 * 200.0));
 }
-void *func_8067ADB4(s32);
+void *actorFindByType(s32);
 void func_8067AB20(void *, void *, s32, s32, void *, s32);
 
 void func_8002A41C(u8 arg0) {
@@ -49,27 +49,27 @@ void func_8002A41C(u8 arg0) {
 
     switch (arg0) {
     case 0:
-        target = func_8067ADB4(0x61);
+        target = actorFindByType(0x61);
         if (target != NULL) {
             func_8067AB20(D_807FBB40, target, 0x01000000, 1, sp2C, 0);
         }
         break;
     case 1:
-        target = func_8067ADB4(0x60);
+        target = actorFindByType(0x60);
         if (target != NULL) {
             func_8067AB20(D_807FBB40, target, 0x01000000, 1, sp2C, 0);
         }
-        target = func_8067ADB4(0x61);
+        target = actorFindByType(0x61);
         if (target != NULL) {
             func_8067AB20(D_807FBB40, target, 0x01000000, 3, sp2C, 0);
         }
         break;
     case 2:
-        target = func_8067ADB4(0x60);
+        target = actorFindByType(0x60);
         if (target != NULL) {
             func_8067AB20(D_807FBB40, target, 0x01000000, 1, sp2C, 0);
         }
-        target = func_8067ADB4(0x61);
+        target = actorFindByType(0x61);
         if (target != NULL) {
             func_8067AB20(D_807FBB40, target, 0x01000000, 2, sp2C, 0);
         }

@@ -13,7 +13,7 @@ extern u8 D_807FC928;
 extern void *D_807FBB40;
 extern void *D_807FBB44;
 void func_8002BBD0(void *, s32);
-void func_80677FA8(s32, s32);
+void actorSpawn(s32, s32);
 void func_8002BC2C(void *, s32, void *, void *);
 void *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BCB0(void *, s32, void *, void *);
@@ -35,7 +35,7 @@ void func_800292D0(u8 *arg0) {
     }
     func_8002BBD0(arg0, var_s5);
     for (var_s0 = 0; var_s0 < D_807FC928; var_s0++) {
-        func_80677FA8(0x133, 0x9F);
+        actorSpawn(0x133, 0x9F);
         sp54 = (u8 *)D_807FBB44;
         sp58 = *(u8 **)(sp54 + 0x174);
         sp58[0x27] = 0;

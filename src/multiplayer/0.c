@@ -351,7 +351,7 @@ typedef struct Struct_80025654_Actor_MpHigh {
 s32 func_8071432C(void);
 void mpUpdateMatchTimer(void);
 s32 func_80025404(void);
-void *func_8067ADB4();
+void *actorFindByType();
 s32 func_806F5EB4(s32, s32, s16, s16, s16);
 void func_806F5FE8(s32, s16, s16, s16, s32);
 s32 mpGetPlayerScore(s32);
@@ -371,7 +371,7 @@ void func_80025654(Struct_80025654_Actor_MpHigh *arg0) {
         }
         if ((temp = func_80025404()) == -1) {
             if (arg0->unk4C == 0 &&
-                func_8067ADB4(0x7A) == 0 &&
+                actorFindByType(0x7A) == 0 &&
                 func_80025608(0x1D2) == 0) {
                 {
                     Struct_80025654_Pos_MpHigh *pos = sp20;
@@ -693,7 +693,7 @@ void func_800269C8(u8 arg0, s8 arg1) {
     sp34 = s1->unk2FB + s1->unk2FD + arg1;
     sp30 = s1->unk2FA - sp34;
     if (func_806F8AD4(1, arg0) != 0 && (sp34 <= 0 || sp30 >= 2)) {
-        sp34 = (s32)((Struct_800269C8_ADB4_MpNearHi *)func_8067ADB4(0x13E))->unk174;
+        sp34 = (s32)((Struct_800269C8_ADB4_MpNearHi *)actorFindByType(0x13E))->unk174;
         ((Struct_800269C8_174_MpNearHi *)sp34)->unk4C = 1;
         func_806F91B4(1, arg0, -10);
         if (D_807552E8 == 5) {

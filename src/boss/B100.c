@@ -57,7 +57,7 @@ void func_80688460(s32, s32, s32);
 void func_806883F4(s32, s32, s32, f32);
 void func_8002FB7C();
 void func_8002FC98();
-void func_80677FA8(s32, s32);
+void actorSpawn(s32, s32);
 void func_8067B238(void *, void *, f32);
 void func_80614EBC(void *, s32);
 void func_80724DB0(s32, s32, void *);
@@ -122,7 +122,7 @@ BossE_B100_Actor **arg0;
 u8 arg1;
 s32 arg2;
 {
-    func_80677FA8(0xE5, arg2);
+    actorSpawn(0xE5, arg2);
     func_8067B238(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
     D_807FBB44->unk60 |= 0x1400;
     D_807FBB44->unk11C = D_807FBB40;

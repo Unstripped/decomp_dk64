@@ -68,12 +68,12 @@ void func_806761EC(Actor *);
 void func_80677EC8(s32);
 s32 func_80678014(s32);
 s32 func_80678050(s32);
-void func_806782C0(Actor *);
-s32 func_806782E8(Actor *);
-void func_806783BC(void);
-void func_80678428(Actor *);
-void func_80678530(s32);
-void func_806785D4(Actor *);
+void actorDespawn(Actor *);
+s32 actorQueueOrDespawn(Actor *);
+void actorFlushDespawnQueue(void);
+void actorRegisterActive(Actor *);
+void actorDespawnByOwner(s32);
+void actorFreeImmediate(Actor *);
 void func_806787CC(void);
 static void func_806787EC(void);
 static void func_806787F4(void);
@@ -89,13 +89,13 @@ void func_80678E14(Actor *);
 void func_80678F64(Actor *);
 void func_80678F9C(Actor *, s32);
 s32 func_80679010(Actor *, s32);
-void func_80679064(ActorCallbackNode *);
-void func_80679178(Actor *);
+void actorRegisterGlobalCallback(ActorCallbackNode *);
+void actorFreeCallbackList(Actor *);
 void func_806791DC(Actor *, s32);
 void func_806791EC(Actor *, s32);
-void func_80679200(Actor *, s32, s32, u8, s32, void *);
-void func_80679290(s32, s32, s32, u8, s32, void *, s32);
-ActorCallbackNode *func_80679490(s32, s32, u8, s32, void *);
+void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
+void actorQueueDelayedCallback(s32, s32, s32, u8, s32, void *, s32);
+ActorCallbackNode *actorAllocCallbackNode(s32, s32, u8, s32, void *);
 void func_806794EC(Actor *);
 void func_8067A170(s32, u8);
 void func_8067A69C(s32, Actor *, f32, f32, u8, u8);
@@ -110,9 +110,9 @@ void func_8067ABC0(s32, Actor *, u8, s16, s16, f32, f32, f32);
 void func_8067AC38(void);
 void func_8067ACB4(Actor *);
 u16 func_8067ACC0(u16);
-void func_8067AE58(void);
-s32 func_8067AF44();
-s32 func_8067AF74();
+void actorTableClear(void);
+s32 actorTableContains();
+s32 actorTableBinarySearch();
 void func_8067B100(Actor *);
 void func_8067B2B0(s32);
 void func_8067B2B8(s32);
@@ -157,7 +157,7 @@ extern s32 D_807FBB38;
 
 void *func_8066B0F8(s32, s32, s32, s32);
 
-void func_80677D80(void) {
+void actorInit(void) {
     u16 i;
 
     for (i = 0; i < 32; i++) {
@@ -185,7 +185,7 @@ void func_80677D80(void) {
     }
     D_807FBB34 = 0;
 
-    func_8067AE58();
+    actorTableClear();
 
     D_807FBB38 = 0;
     D_807FBE09 = 0;
@@ -211,7 +211,7 @@ void func_80614EBC(Actor *, s32);
 extern u8 D_8074D8D4[];
 extern s32 (*D_8074DA30[])(s32 *);
 
-s32 func_80677ED0(R2ASpawnInfo *arg0) {
+s32 actorSpawnFromInfo(R2ASpawnInfo *arg0) {
     u8 temp;
     if (func_80678050((u16)arg0->unk0)) {
         temp = D_8074D8D4[arg0->unk0];
@@ -230,7 +230,7 @@ s32 func_80677ED0(R2ASpawnInfo *arg0) {
     }
     return 0;
 }
-s32 func_80677FA8(s32 arg0, s32 arg1) {
+s32 actorSpawn(s32 arg0, s32 arg1) {
     u8 temp;
     if (func_80678050((u16)arg0)) {
         temp = D_8074D8D4[arg0];
@@ -251,12 +251,12 @@ s32 func_80678014(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80678050.s")
 
-void func_806782C0(Actor *arg0) {
+void actorDespawn(Actor *arg0) {
     func_806897F0();
-    func_806782E8(arg0);
+    actorQueueOrDespawn(arg0);
 }
 
-s32 func_806782E8(Actor *arg0) {
+s32 actorQueueOrDespawn(Actor *arg0) {
     s32 i;
 
     if (D_807FBE09 != 0) {
@@ -274,20 +274,20 @@ s32 func_806782E8(Actor *arg0) {
         D_807FBE10[D_807FBF10] = arg0;
         D_807FBF10++;
     } else {
-        func_806785D4(arg0);
+        actorFreeImmediate(arg0);
     }
     return 1;
 }
 
-void func_806783BC(void) {
+void actorFlushDespawnQueue(void) {
     s32 i;
     for (i = 0; i < D_807FBF10; i++) {
-        func_806785D4(D_807FBE10[i]);
+        actorFreeImmediate(D_807FBE10[i]);
     }
     D_807FBF10 = 0;
 }
 
-void func_80678428(Actor *arg0) {
+void actorRegisterActive(Actor *arg0) {
     D_807FB930[D_807FBB34].actor = arg0;
     D_807FB930[D_807FBB34].unk4 = 0;
     D_807FBB34++;
@@ -295,7 +295,7 @@ void func_80678428(Actor *arg0) {
 
 void func_80605314(Actor *, s32);
 void func_8062D26C(Actor *);
-void func_80678458(Actor *arg0) {
+void actorDeregisterActive(Actor *arg0) {
     s16 i;
 
     func_80605314(arg0, 0);
@@ -317,7 +317,7 @@ void func_80678458(Actor *arg0) {
     arg0->unk150 = 0;
 }
 
-void func_80678530(s32 arg0) {
+void actorDespawnByOwner(s32 arg0) {
     s32 i;
 
     D_807FBE09 = 1;
@@ -325,12 +325,12 @@ void func_80678530(s32 arg0) {
     for (i = 0; i < D_807FBB34; i++) {
         Actor *actor = D_807FB930[i].actor;
         if (arg0 == actor->unk11C) {
-            func_806782C0(actor);
+            actorDespawn(actor);
             actor->unk11C = 0;
         }
     }
     D_807FBE09 = 0;
-    func_806783BC();
+    actorFlushDespawnQueue();
 }
 
 void func_806136B4(void);
@@ -340,7 +340,7 @@ void func_8066E21C(ActorSub140 *);
 void func_8072F09C(Actor *);
 void func_8070DA74(Actor *);
 void func_8068C2F8(Actor *);
-void func_8067AEFC();
+void actorTableRemove();
 typedef struct R2EActor {
     /* 0x000 */ s32 unk0;
     /* 0x004 */ u8 pad04[0x54];
@@ -355,7 +355,7 @@ typedef struct R2EActor {
     /* 0x14C */ void *unk14C;
 } R2EActor;
 
-void func_806785D4(Actor *arg0) {
+void actorFreeImmediate(Actor *arg0) {
     s16 i;
     Actor *temp;
 
@@ -364,7 +364,7 @@ void func_806785D4(Actor *arg0) {
     }
     temp = (Actor *)arg0->unk11C;
     if (temp != NULL) {
-        func_80679200(temp, (s32)arg0, 0x80000, 0, 0, NULL);
+        actorAppendCallback(temp, (s32)arg0, 0x80000, 0, 0, NULL);
     }
     for (i = 0; i < D_807FBB34; i++) {
         if ((s32)arg0 == D_807FB930[i].actor->unk11C) {
@@ -408,7 +408,7 @@ void func_806785D4(Actor *arg0) {
         func_8070DA74(arg0);
     }
     func_8068C2F8(arg0);
-    func_8067AEFC(arg0);
+    actorTableRemove(arg0);
     heapFree(arg0);
 }
 
@@ -506,7 +506,7 @@ void func_80678CC8(Actor *actor) {
     func_8066EBF4(actor);
     func_806790F4(0);
     func_8067A1DC(actor);
-    func_80679178(actor);
+    actorFreeCallbackList(actor);
     func_80685D84(actor);
     func_80687F7C(actor);
     actor->unk60 |= 0x10;
@@ -601,7 +601,7 @@ s32 func_80679010(Actor *actor, s32 item) {
     return 0;
 }
 
-void func_80679064(ActorCallbackNode *arg0) {
+void actorRegisterGlobalCallback(ActorCallbackNode *arg0) {
     s32 i = 0;
     s32 found = 0;
 
@@ -621,7 +621,7 @@ void func_80679064(ActorCallbackNode *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_806790F4.s")
 
-void func_80679178(Actor *actor) {
+void actorFreeCallbackList(Actor *actor) {
     ActorCallbackNode *node = actor->unk13C;
     ActorCallbackNode *next;
 
@@ -646,7 +646,7 @@ void func_806791EC(Actor *actor, s32 mask) {
     actor->unk138 &= ~mask;
 }
 
-void func_80679200(Actor *actor, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *arg5) {
+void actorAppendCallback(Actor *actor, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *arg5) {
     s32 pad;
     ActorCallbackNode **link;
     ActorCallbackNode *prev;
@@ -654,7 +654,7 @@ void func_80679200(Actor *actor, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *ar
     ActorCallbackNode *node;
 
     prev = NULL;
-    if (func_8067AF44(actor)) {
+    if (actorTableContains(actor)) {
         curr = actor->unk13C;
         link = &actor->unk13C;
         if (curr != NULL) {
@@ -664,17 +664,17 @@ void func_80679200(Actor *actor, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *ar
                 curr = curr->next;
             } while (curr != NULL);
         }
-        node = func_80679490(arg1, arg2, arg3, arg4, arg5);
+        node = actorAllocCallbackNode(arg1, arg2, arg3, arg4, arg5);
         *link = node;
         node->prev = prev;
     }
 }
 
-void func_80679290(s32 arg0, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *arg5, s32 arg6) {
+void actorQueueDelayedCallback(s32 arg0, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *arg5, s32 arg6) {
     if (D_807FBFD8 == 16) {
         func_80732354(0xF, 0, 0, 0);
     }
-    D_807FBF18[D_807FBFD8].node = func_80679490(arg1, arg2, arg3, arg4, arg5);
+    D_807FBF18[D_807FBFD8].node = actorAllocCallbackNode(arg1, arg2, arg3, arg4, arg5);
     D_807FBF18[D_807FBFD8].arg0 = arg0;
     D_807FBF18[D_807FBFD8].arg6 = arg6;
     D_807FBFD8++;
@@ -682,7 +682,7 @@ void func_80679290(s32 arg0, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *arg5, 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80679334.s")
 
-ActorCallbackNode *func_80679490(s32 arg0, s32 arg1, u8 arg2, s32 arg3, void *arg4) {
+ActorCallbackNode *actorAllocCallbackNode(s32 arg0, s32 arg1, u8 arg2, s32 arg3, void *arg4) {
     ActorCallbackNode *node = func_80610FE8(sizeof(ActorCallbackNode));
 
     node->callback = (void *)arg1;
@@ -718,7 +718,7 @@ void func_8067A69C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) 
     temp->unk4 = arg3;
     temp->unk8 = arg4;
     temp->unk9 = arg5;
-    func_80679200(arg1, arg0, 0x10, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x10, 0, 1, temp);
 }
 
 void func_8067A70C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6) {
@@ -728,7 +728,7 @@ void func_8067A70C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5,
     temp->unk8 = arg4;
     temp->unkC = arg5;
     temp->unkD = arg6;
-    func_80679200(arg1, arg0, 0x20, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x20, 0, 1, temp);
 }
 
 void func_8067A784(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
@@ -736,7 +736,7 @@ void func_8067A784(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
     temp->unk0 = arg2;
     temp->unk4 = arg3;
     temp->unk8 = arg4;
-    func_80679200(arg1, arg0, 0x4000, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x4000, 0, 1, temp);
 }
 
 void func_8067A7EC(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, u8 arg6) {
@@ -746,7 +746,7 @@ void func_8067A7EC(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5
     temp->unk8 = arg4;
     temp->unkC = arg5;
     temp->unk10 = arg6;
-    func_80679200(arg1, arg0, 0x1, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x1, 0, 1, temp);
 }
 
 typedef struct R2DActorPayloadA864 {
@@ -768,7 +768,7 @@ void func_8067A864(s32 arg0, Actor *arg1, s16 arg2, s16 arg3, void *arg4, void *
     temp->unk34 = arg6;
     temp->unk38 = arg7;
     temp->unk3C = arg8;
-    func_80679200(arg1, arg0, 0x10000, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x10000, 0, 1, temp);
 }
 
 typedef struct R2DActorPayloadA908 {
@@ -786,13 +786,13 @@ void func_8067A908(s32 arg0, Actor *arg1, void *arg2, void *arg3, s32 arg4, s32 
     temp->unk30 = arg4;
     temp->unk34 = arg5;
     temp->unk38 = arg6;
-    func_80679200(arg1, arg0, 0x20000, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x20000, 0, 1, temp);
 }
 
 void func_8067A99C(s32 arg0, Actor *arg1, s32 arg2) {
     s32 *temp = func_80610FE8(sizeof(s32));
     *temp = arg2;
-    func_80679200(arg1, arg0, 0x40000, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x40000, 0, 1, temp);
 }
 
 void func_8067A9F0(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4) {
@@ -800,14 +800,14 @@ void func_8067A9F0(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4) {
     temp[0] = arg2;
     temp[1] = arg3;
     temp[2] = arg4;
-    func_80679200(arg1, arg0, 0x100000, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x100000, 0, 1, temp);
 }
 
 void func_8067AA58(s32 arg0, Actor *arg1, f32 arg2, f32 arg3) {
     f32 *temp = func_80610FE8(2 * sizeof(f32));
     temp[0] = arg2;
     temp[1] = arg3;
-    func_80679200(arg1, arg0, 0x200000, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x200000, 0, 1, temp);
 }
 
 void func_8067AAB8(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
@@ -815,16 +815,16 @@ void func_8067AAB8(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
     temp->unk4 = arg3;
     temp->unk8 = arg4;
     temp->unk0 = arg2;
-    func_80679200(arg1, arg0, 0x400, 0, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x400, 0, 1, temp);
 }
 
 void func_8067AB20(s32 arg0, Actor *arg1, s32 arg2, u8 arg3, void *arg4, u8 arg5) {
     void *temp = func_80610FE8(8);
     memcpy(temp, arg4, 8);
     if (!arg5) {
-        func_80679200(arg1, arg0, arg2, arg3, 1, temp);
+        actorAppendCallback(arg1, arg0, arg2, arg3, 1, temp);
     } else {
-        func_80679290((s32)arg1, arg0, arg2, arg3, 1, temp, 1);
+        actorQueueDelayedCallback((s32)arg1, arg0, arg2, arg3, 1, temp, 1);
     }
 }
 
@@ -835,7 +835,7 @@ void func_8067ABC0(s32 arg0, Actor *arg1, u8 arg2, s16 arg3, s16 arg4, f32 arg5,
     temp->unk8 = arg7;
     temp->unkC = arg3;
     temp->unkE = arg4;
-    func_80679200(arg1, arg0, 0x800000, arg2, 1, temp);
+    actorAppendCallback(arg1, arg0, 0x800000, arg2, 1, temp);
 }
 
 void func_8067AC38(void) {
@@ -904,9 +904,9 @@ typedef struct R2CEntry2F0 {
 extern R2CEntry2F0 *D_807FC924;
 extern u8 D_807FC928;
 
-void func_8067B01C(void);
+void actorTableSort(void);
 
-Actor *func_8067ADB4(u16 arg0) {
+Actor *actorFindByType(u16 arg0) {
     s32 i;
     for (i = 0; i < D_807FBB34; i++) {
         Actor *actor = D_807FB930[i].actor;
@@ -917,7 +917,7 @@ Actor *func_8067ADB4(u16 arg0) {
     return NULL;
 }
 
-s32 func_8067AE0C(Actor *arg0) {
+s32 actorIsActive(Actor *arg0) {
     s32 i;
     for (i = 0; i < D_807FBB34; i++) {
         Actor *actor = D_807FB930[i].actor;
@@ -928,7 +928,7 @@ s32 func_8067AE0C(Actor *arg0) {
     return 0;
 }
 
-void func_8067AE58(void) {
+void actorTableClear(void) {
     s32 i;
     for (i = 0; i < 256; i++) {
         D_807FBFF0[i] = -1;
@@ -936,32 +936,32 @@ void func_8067AE58(void) {
     D_807FC3F0 = 0;
 }
 
-void func_8067AE90(Actor *arg0) {
+void actorTableInsert(Actor *arg0) {
     if (D_807FC3F0 < 256) {
         D_807FBFF0[D_807FC3F0++] = (s32)arg0;
     } else {
         func_80732354(0x13, arg0->unk58, 0, 0);
     }
-    func_8067B01C();
+    actorTableSort();
 }
 
-void func_8067AEFC() {
-    s32 res = func_8067AF74();
+void actorTableRemove() {
+    s32 res = actorTableBinarySearch();
     s16 idx = res;
     if ((u32)res != (u32)-1) {
         D_807FBFF0[idx] = -1;
-        func_8067B01C();
+        actorTableSort();
     }
 }
 
-s32 func_8067AF44(void) {
-    if (func_8067AF74() != -1) {
+s32 actorTableContains(void) {
+    if (actorTableBinarySearch() != -1) {
         return 1;
     }
     return 0;
 }
 
-s32 func_8067AF74(u32 arg0) {
+s32 actorTableBinarySearch(u32 arg0) {
     s16 low = 0;
     s16 high = D_807FC3F0 - 1;
 
@@ -983,7 +983,7 @@ s32 func_8067AF74(u32 arg0) {
     return -1;
 }
 
-void func_8067B01C(void) {
+void actorTableSort(void) {
     s32 done = FALSE;
     s16 i;
     s16 j;

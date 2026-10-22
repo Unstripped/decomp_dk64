@@ -215,7 +215,7 @@ void func_80629174(void);
 void func_8061CB08(void);
 
 void func_8002BBD0(void *, s32);
-void func_80677FA8(s32, s32);
+void actorSpawn(s32, s32);
 void func_8002BC2C(void *, s32, void *, void *);
 void *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BCB0(void *, s32, void *, void *);
@@ -237,7 +237,7 @@ void raceInitParticipants(Struct_arg0 *arg0) {
     }
     func_8002BBD0(arg0, var_s5);
     for (var_s0 = 0; var_s0 < D_807FC928; var_s0++) {
-        func_80677FA8(0x142, 0x95);
+        actorSpawn(0x142, 0x95);
         sp54 = D_807FBB44;
         sp58 = sp54->unk174;
         sp58->unk27 = 0;

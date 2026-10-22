@@ -31,7 +31,7 @@ void func_80025E9C(u8 *arg0) {
 
     sp54 = *(u8 **)(arg0 + 0x174);
     func_8002BBD0(arg0, 2);
-    func_80677FA8(0x12E, 0x95);
+    actorSpawn(0x12E, 0x95);
     s2 = (u8 *)D_807FBB44;
     s0 = *(u8 **)(s2 + 0x174);
     func_8002BC2C(arg0, 1, s2, s0);
@@ -46,7 +46,7 @@ void func_80025E9C(u8 *arg0) {
     temp = *(u8 **)(sp40 + 0x184);
     *(u8 **)(temp + 4) = s0;
     *(u8 **)(temp + 0) = s2;
-    func_80677FA8(0x130, 0);
+    actorSpawn(0x130, 0);
     sp3C = (u8 *)D_807FBB44;
     *(u8 **)(s1 + 0x34) = sp3C;
     s0 = *(u8 **)(sp40 + 0x178);
@@ -157,7 +157,7 @@ void func_80026B20(u8 *arg0) {
     if (*(void **)(arg0 + 0x2C) == NULL && arg0[0x2A] != 0) {
         sp30 = *(void **)((u8 *)D_807FBB40 + 0x178);
         arg0[0x2A]--;
-        func_80677FA8(0x131, 0x96);
+        actorSpawn(0x131, 0x96);
         sp34 = *(void **)((u8 *)D_807FBB44 + 0x178);
         sp2C = *(u8 **)((u8 *)D_807FBB44 + 0x17C);
         *(void **)(sp2C + 0xC) = D_807FBB40;

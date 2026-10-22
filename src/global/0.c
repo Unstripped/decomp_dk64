@@ -129,7 +129,7 @@ void func_8066B434(s32, s32, s32);
 void func_8066BDE0(void);
 void func_8066CCD8(void);
 void func_8066CDD0(void);
-void func_80677D80(void);
+void actorInit(void);
 void func_806787CC(void);
 void func_80678824(void);
 void func_806789E4(void);
@@ -950,7 +950,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         func_806886E0(sp24, 0, 0);
         func_80663DA0();
         func_8065A570();
-        func_80677D80();
+        actorInit();
         func_8068A7B0();
         func_8072E740(D_8076A0A8);
         func_80626264(sp28 = func_8066B0F8(8, D_8076A0A8, 1, 1));

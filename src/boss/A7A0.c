@@ -37,7 +37,7 @@ typedef struct BossC_A7A0_BB70 {
 extern BossC_A7A0_BB70 D_807FBB70;
 extern BossC_A7A0_Actor *D_807FBB40;
 extern BossC_A7A0_Actor *D_807FBB4C;
-void func_806782C0(BossC_A7A0_Actor *);
+void actorDespawn(BossC_A7A0_Actor *);
 void func_806319C4(BossC_A7A0_Actor *, s32);
 
 typedef struct {
@@ -95,7 +95,7 @@ void bossPhaseTick(void) {
         D_807FBB40->unk144 = 1;
         D_807FBB40->unk128 -= 10;
         if (D_807FBB40->unk128 < 0) {
-            func_806782C0(D_807FBB40);
+            actorDespawn(D_807FBB40);
         }
     }
     func_806319C4(D_807FBB40, 0);

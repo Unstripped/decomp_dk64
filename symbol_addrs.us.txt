@@ -127,6 +127,41 @@ schedStartTask = 0x8060F960; // type:func
 schedYield = 0x8060FA5C; // type:func
 gScheduler = 0x80767A40;
 
+// Actor system
+actorInit = 0x80677D80; // type:func
+actorSpawnFromInfo = 0x80677ED0; // type:func
+actorSpawn = 0x80677FA8; // type:func
+actorDespawn = 0x806782C0; // type:func
+actorQueueOrDespawn = 0x806782E8; // type:func
+actorFlushDespawnQueue = 0x806783BC; // type:func
+actorRegisterActive = 0x80678428; // type:func
+actorDeregisterActive = 0x80678458; // type:func
+actorDespawnByOwner = 0x80678530; // type:func
+actorFreeImmediate = 0x806785D4; // type:func
+actorRegisterGlobalCallback = 0x80679064; // type:func
+actorFreeCallbackList = 0x80679178; // type:func
+actorAppendCallback = 0x80679200; // type:func
+actorQueueDelayedCallback = 0x80679290; // type:func
+actorAllocCallbackNode = 0x80679490; // type:func
+actorFindByType = 0x8067ADB4; // type:func
+actorIsActive = 0x8067AE0C; // type:func
+actorTableClear = 0x8067AE58; // type:func
+actorTableInsert = 0x8067AE90; // type:func
+actorTableRemove = 0x8067AEFC; // type:func
+actorTableContains = 0x8067AF44; // type:func
+actorTableBinarySearch = 0x8067AF74; // type:func
+actorTableSort = 0x8067B01C; // type:func
+
+// Tag barrel behavior
+tagBarrelResetMovement = 0x8067E348; // type:func
+tagBarrelTriggerRecoil = 0x8067E3D0; // type:func
+tagBarrelCheckRecoil = 0x8067E43C; // type:func
+tagBarrelUpdateInteractable = 0x80680774; // type:func
+tagBarrelSpawnKongs = 0x80682E38; // type:func
+tagBarrelUpdateSelectedKong = 0x8068304C; // type:func
+tagBarrelIsKongUnlocked = 0x80683A80; // type:func
+tagBarrelInitUnlockedKongs = 0x8068408C; // type:func
+
 // n_audio
 alHeapInit = 0x80732420; // type:func
 alHeapDBAlloc = 0x80732444; // type:func

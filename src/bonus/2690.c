@@ -54,7 +54,7 @@ typedef struct Struct_7548 {
 } Struct_7548;
 extern Actor_74A0 *D_807FBB40;
 
-void func_806782C0(void *);
+void actorDespawn(void *);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_806907F0(f32, f32, f32);
 void func_80690A28(s32, s32, f32, f32, f32, f32, f32, void *);
@@ -259,7 +259,7 @@ void func_80715908(s32);
 
 extern Actor_BB44 *D_807FBB44;
 s32 func_80611A44(void);
-s32 func_80677FA8(s32, s32);
+s32 actorSpawn(s32, s32);
 void func_80614EBC();
 void func_80614D00(void *, f32, f32);
 
@@ -278,7 +278,7 @@ void func_800271B4(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) {
     } else {
         var_a3 = 0;
     }
-    if (func_80677FA8(0xBA, var_a3 ? 0x32 : 0x33) != 0) {
+    if (actorSpawn(0xBA, var_a3 ? 0x32 : 0x33) != 0) {
         temp_v1 = D_807FBB44->unk174;
         func_80614EBC(D_807FBB44, var_a3 ? 0x211 : 0x20F);
         func_80614D00(D_807FBB44, arg4->unk2C, 0.0f);
@@ -295,7 +295,7 @@ void func_800271B4(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) {
 
 void func_80027308(u8 *arg0, s32 *arg1) {
     arg1[arg0[9]] = 0;
-    func_806782C0(D_807FBB40);
+    actorDespawn(D_807FBB40);
 }
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002733C.s")
