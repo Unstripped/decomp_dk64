@@ -59,22 +59,25 @@ def prune(lines, base_lines):
     name used nowhere else; lines already in the base are never touched."""
     text = "".join(lines)
     decls = file_scope_decls(lines)
-    # Occurrences per declaration text: in the base (kept) and in the merged file.
+    # Declarations already in the base are kept. Of identical added lines, the FIRST is
+    # kept: an earlier function may use it, so dropping it would leave a use before decl.
     in_base = Counter(base_lines[i].strip() for i, _ in file_scope_decls(base_lines))
-    total = Counter(lines[i].strip() for i, _ in decls)
+    seen = set()
     drop = set()
     for i, name in decls:
         key = lines[i].strip()
         if in_base[key] > 0:
             in_base[key] -= 1
+            seen.add(key)
             continue
-        if total[key] > 1:
+        if key in seen:
             drop.add(i)
-            total[key] -= 1
             print(f"  dropped duplicate: {key}")
         elif len(re.findall(rf"\b{re.escape(name)}\b", text)) == 1:
             drop.add(i)
             print(f"  dropped unused:    {key}")
+        else:
+            seen.add(key)
     return [l for i, l in enumerate(lines) if i not in drop]
 
 
