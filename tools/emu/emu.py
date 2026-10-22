@@ -102,6 +102,19 @@ BUTTON_MAP = {
 def container_name(session: str) -> str:
     return f"{CONTAINER_PREFIX}{session}"
 
+def get_session_states_dir(session: str) -> Path:
+    """Return the save-state directory for a session."""
+    d = REPO_ROOT / "emu" / "sessions" / session / "states"
+    d.mkdir(parents=True, exist_ok=True)
+    sym = d / "Nintendo 64"
+    if not sym.exists() and not sym.is_symlink():
+        try:
+            sym.symlink_to(".")
+        except OSError:
+            pass
+    return d
+
+
 
 def get_slot_tracker_path(session: str) -> Path:
     tracker_dir = REPO_ROOT / "emu"
@@ -201,6 +214,7 @@ def cmd_start(args):
                 vnc_port = 5901
 
     # Prepare save state if --state or --slot specified
+    session_states_dir = get_session_states_dir(args.name)
     slot_arg = None
     if args.slot:
         slot_arg = str(args.slot)
@@ -210,16 +224,13 @@ def cmd_start(args):
         if not state_file.exists():
             print(f"Error: Save state file not found: {state_file}", file=sys.stderr)
             return 1
-        # Copy to slot 1 in states dir
-        states_target_dir = REPO_ROOT / "emu" / "states" / "Nintendo 64"
-        states_target_dir.mkdir(parents=True, exist_ok=True)
-        target_state = states_target_dir / "baserom.us.bs1"
-        shutil.copyfile(state_file, target_state)
+        # Copy to slot 1 in session states dir
+        for prefix in ["baserom.us", "dk64.us"]:
+            shutil.copyfile(state_file, session_states_dir / f"{prefix}.bs1")
         slot_arg = "1"
         set_current_slot(args.name, 1)
 
     # Ensure host directories exist
-    (REPO_ROOT / "emu" / "states" / "Nintendo 64").mkdir(parents=True, exist_ok=True)
     (REPO_ROOT / "emu" / "screenshots").mkdir(parents=True, exist_ok=True)
     (REPO_ROOT / "emu" / "logs").mkdir(parents=True, exist_ok=True)
 
@@ -229,6 +240,8 @@ def cmd_start(args):
         "-v", f"{REPO_ROOT}:/dk64",
         "-p", f"127.0.0.1:{vnc_port}:5900",
         IMAGE_NAME,
+        "--name", args.name,
+        "--save-path", f"/dk64/emu/sessions/{args.name}/states/",
         rom,
     ]
     if slot_arg:
@@ -586,16 +599,18 @@ def cmd_savestate(args):
     cmd_press(argparse.Namespace(name=args.name, buttons="save", ms=100))
     time.sleep(0.5)
 
-    states_dir = REPO_ROOT / "emu" / "states" / "Nintendo 64"
-    state_file = states_dir / f"baserom.us.bs{target}"
-    if not state_file.exists():
-        # Check dk64.us
-        state_file = states_dir / f"dk64.us.bs{target}"
+    session_states_dir = get_session_states_dir(args.name)
+    state_file = None
+    for name_prefix in ["baserom.us", "dk64.us"]:
+        candidate = session_states_dir / f"{name_prefix}.bs{target}"
+        if candidate.exists():
+            state_file = candidate
+            break
 
-    if state_file.exists():
+    if state_file and state_file.exists():
         print(f"Saved state slot {target} to {state_file} ({state_file.stat().st_size} bytes)")
     else:
-        print(f"Saved state to slot {target} (directory: {states_dir})")
+        print(f"Saved state to slot {target} (directory: {session_states_dir})")
     return 0
 
 

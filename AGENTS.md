@@ -17,6 +17,7 @@ tools/dk make setup                    # extract + split (BASEROM=donkey-kong.n6
 tools/dk make                          # build + SHA-1 check
 tools/dk make split                    # re-run splat after yaml / symbol changes
 tools/dk make progress                 # build, then matched/total function bytes per segment
+python3 tools/emu/emu.py build         # builds the dk64-emu Docker image (ares-64 + GDB + VNC)
 ```
 
 `make split` deletes and regenerates `asm/` and `assets/` (both splat configs); it never overwrites existing `src/*.c`.
@@ -43,6 +44,8 @@ tools/dk make progress                 # build, then matched/total function byte
 | `drafts/<segment>/<FUNC>.c`, `tools/drafts.py` | tracked in-progress C for functions still `GLOBAL_ASM`: first line `// FUNC (src file): closest-diff note`, then the draft. `save SEG FUNC FILE --note ...`, `show SEG FUNC` (keyed by segment: overlays share names such as `func_80024000`), `list [SEG]`, `collect` (import newer `.scratch/*/<FUNC>_best.c`, segment taken from the private copy beside it, ambiguous ones skipped), `prune` (drop drafts of matched functions). `.scratch/` is per-session only |
 | `tools/rodata_owners.py` | host-side, on an all-`asm` split: `python3 tools/rodata_owners.py <segment>` lists runs of data/rodata labels with the text file that owns them and their kinds (string/word/float/double/jtbl); flags strings after late_rodata (hidden TU boundary) and unaligned runs |
 | `.omp/skills/decomp-unit/` | project skill: the procedure for one unit of work (split, parallel matching rounds, naming, ROADMAP, ok-fine); each run updates it |
+| `tools/emu/` | emulator tooling: container session CLI (`emu.py`), save-state library (`states.py`), warping (`warp.py`), coverage (`coverage.py`), function study (`study.py`), and symbolizer (`symbols.py`) |
+| `emu/` | runtime output from emulator tooling (container sessions, save-state library, coverage data, study traces, map screenshots; gitignored) |
 | `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions (only files containing it go through asm-processor) |
 | `src/boot/libultra/<dir>/<file>.c` | libultra 2.0J, one file per decompals/ultralib source, same path; the Makefile picks ultralib's J flags from the path |
 | `include/` | decompals/ultralib headers (`ultra64.h`, `PR/`, `PRinternal/`, `libultra/`, `compiler/ido/`), `BUILD_VERSION` = `VERSION_J` |

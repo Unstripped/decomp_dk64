@@ -18,12 +18,23 @@ ROM="${ROM_PATH:-}"
 SAVE_SLOT="${SAVE_STATE_SLOT:-}"
 VNC_PASS="${VNC_PASSWORD:-dk64}"
 DEBUG_PORT="${DEBUG_PORT:-9123}"
+SESSION_NAME="${SESSION_NAME:-main}"
+SAVE_PATH="${SAVE_PATH:-/dk64/emu/sessions/${SESSION_NAME}/states/}"
 
 # Parse CLI arguments if passed
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --save-state|--slot)
             SAVE_SLOT="$2"
+            shift 2
+            ;;
+        --save-path)
+            SAVE_PATH="$2"
+            shift 2
+            ;;
+        --session|--name)
+            SESSION_NAME="$2"
+            SAVE_PATH="/dk64/emu/sessions/${SESSION_NAME}/states/"
             shift 2
             ;;
         --vnc-password)
@@ -65,7 +76,11 @@ echo "[entrypoint] VNC password: $VNC_PASS"
 
 # Ensure runtime directories exist
 mkdir -p /root/.local/share/ares-imgui
-mkdir -p /dk64/emu/states /dk64/emu/screenshots /dk64/emu/logs
+[[ "$SAVE_PATH" != */ ]] && SAVE_PATH="${SAVE_PATH}/"
+mkdir -p "$SAVE_PATH" /dk64/emu/screenshots /dk64/emu/logs
+if [[ ! -e "$SAVE_PATH/Nintendo 64" && ! -L "$SAVE_PATH/Nintendo 64" ]]; then
+    ln -s . "$SAVE_PATH/Nintendo 64" 2>/dev/null || true
+fi
 
 if [[ ! -f "/root/.local/share/ares-imgui/settings.bml" ]]; then
     cp /opt/emu/default_settings.bml /root/.local/share/ares-imgui/settings.bml
@@ -99,7 +114,7 @@ ARES_CMD=(
     --setting "Nintendo64/ExpansionPak=true"
     --setting "Input/Defocus=Allow"
     --setting "Video/Renderer=angrylion"
-    --setting "Paths/Saves=/dk64/emu/states"
+    --setting "Paths/Saves=${SAVE_PATH}"
     --setting "Paths/Screenshots=/dk64/emu/screenshots"
     --play-mode
     --no-file-prompt
