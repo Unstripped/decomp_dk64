@@ -39,7 +39,7 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689418.s")
 
-void func_80689710(s32, s32);
+void func_80689710();
 
 void func_806896D0(s32 arg0) {
     func_80689710(arg0, 1);
@@ -49,9 +49,80 @@ void func_806896F0(s32 arg0) {
     func_80689710(arg0, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689710.s")
+typedef struct R2D3A_Node {
+    char pad[0x44];
+    Actor *unk44;
+    char pad48[0x64 - 0x48];
+    struct R2D3A_Node *prev;
+    struct R2D3A_Node *next;
+} R2D3A_Node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_806897F0.s")
+extern struct ActD3B_Node *D_807FC400;
+void heapFree(void *);
+void actorDespawn(Actor *);
+
+void func_80689710(arg0, arg1)
+R2D3A_Node *arg0;
+u8 arg1;
+{
+    R2D3A_Node *node;
+    R2D3A_Node *prev;
+    s32 found;
+
+    found = 0;
+    node = (R2D3A_Node *)D_807FC400;
+    prev = NULL;
+    if (node != NULL) {
+        do {
+            if (node == arg0) {
+                found = 1;
+                if (arg1 != 0 && node->unk44 != NULL) {
+                    actorDespawn(node->unk44);
+                }
+                if (prev != NULL) {
+                    prev->next = node->next;
+                } else {
+                    D_807FC400 = (struct ActD3B_Node *)node->next;
+                }
+                if (node->next != NULL) {
+                    node->next->prev = prev;
+                }
+                heapFree(node);
+            } else {
+                prev = node;
+                node = node->next;
+            }
+        } while (found == 0 && node != NULL);
+    }
+}
+void func_806897F0(Actor *arg0) {
+    R2D3A_Node *node;
+    R2D3A_Node *prev;
+    s32 found;
+
+    found = 0;
+    node = (R2D3A_Node *)D_807FC400;
+    prev = NULL;
+    if (node != NULL) {
+        do {
+            if (arg0 == node->unk44) {
+                found = 1;
+                if (prev != NULL) {
+                    prev->next = node->next;
+                } else {
+                    D_807FC400 = (struct ActD3B_Node *)node->next;
+                }
+                if (node->next != NULL) {
+                    node->next->prev = prev;
+                }
+                heapFree(node);
+            } else {
+                prev = node;
+                node = node->next;
+            }
+        } while (found == 0 && node != NULL);
+    }
+}
 
 typedef struct ActD3B_Node {
     char pad[0x44];
@@ -66,7 +137,6 @@ typedef struct ActD3B_Node {
 } ActD3B_Node;
 
 extern ActD3B_Node *D_807FC400;
-void heapFree(void *);
 
 void func_806898A8(void) {
     ActD3B_Node *node;
@@ -102,9 +172,54 @@ s32 func_806898F8(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689958.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689A80.s")
+extern Actor *D_807FBB40;
+void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689B10.s")
+void func_80689A80(s16 arg0, void *arg1) {
+    ActD3B_Node *node = D_807FC400;
+    s32 found = 0;
+
+    if (node != NULL) {
+        do {
+            if (arg0 == node->unk5A) {
+                found = 1;
+            } else {
+                node = node->next;
+            }
+        } while (node != NULL && found == 0);
+    }
+    if (found) {
+        if (node->unk44 != NULL) {
+            func_8067AB20((s32)D_807FBB40, node->unk44, 0x1000000, 1, arg1, 0);
+        }
+    }
+}
+
+s32 func_80689B10(s16 arg0, u8 arg1, u8 arg2) {
+    ActD3B_Node *node;
+    s32 found = 0;
+
+    node = D_807FC400;
+    if (node != NULL) {
+        do {
+            if (arg0 == node->unk5A) {
+                found = 1;
+            } else {
+                node = node->next;
+            }
+        } while (node != NULL && found == 0);
+    }
+    if (!found) {
+        return 0;
+    }
+    if (node->unk44 == NULL) {
+        return 0;
+    }
+    if (arg2 != 0) {
+        node->unk44->unk154 = arg1;
+    }
+    return node->unk44->unk154;
+}
 
 s32 func_80689BAC(s16 arg0) {
     ActD3B_Node *node;
