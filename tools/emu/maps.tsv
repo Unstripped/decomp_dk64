@@ -215,11 +215,11 @@ id	name	loaded	overlay	status	notes
 0xD5	Cutscene - Cave Tunnel with Fern Variant	0xD5	none	success	Dark cave tunnel with fern on right; visually similar to 0xC4
 0xD6	Cutscene - Green Tunnel with Melon	0xD6	boss	success	Octagonal green-lit tunnel with melon HUD, red kong visible deep inside; boss overlay
 0xD7	Cutscene - Checkered Floor Room	0xD7	none	success	Tilted view over pink/yellow/blue patterned floor, green melon HUD
-0xD8	unknown	0xD8	none	success	Black screen after transition; unrendered padding map
-0xD9	unknown	0xD9	none	success	Black screen after transition; unrendered padding map
-0xDA	unknown	0xDA	none	success	Black screen after transition; unrendered padding map
-0xDB	unknown	0xDB	none	success	Black screen after transition; unrendered padding map
-0xDC	unknown	0xDC	none	success	Black screen after transition; unrendered padding map
-0xDD	unknown	0xDD	none	success	Black screen after transition; unrendered padding map; overlay disagreement: game state records no overlay loaded (0x80744470=0x80024000), but 0x80024000 matches critter fingerprint (stale overlay bytes)
-0xDE	unknown	0xDE	none	success	Black screen after transition; unrendered padding map
-0xDF	unknown	0xDF	none	success	Black screen after transition; unrendered padding map
+0xD8	unknown	0xD8	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xD9	unknown	0xD9	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDA	unknown	0xDA	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDB	unknown	0xDB	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDC	unknown	0xDC	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDD	unknown	0xDD	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDE	unknown	0xDE	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map
+0xDF	unknown	0xDF	none	crash	Map register changes, then the game thread faults (__osFaultedThread set); black screen; not a real map

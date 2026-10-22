@@ -186,7 +186,7 @@ Warp by map name (case-insensitive, substrings allowed; looked up in `tools/emu/
 python3 tools/emu/warp.py "Cranky's Lab"
 ```
 
-`maps.tsv` lists all 224 map ids (`0x00`–`0xDF`) with what loaded, the overlay and a short name. The names were given by agents looking at one screenshot taken right after each warp, so treat them as descriptions, not official titles; `unknown` means the frame showed nothing recognisable (`0xD8`–`0xDF` load but stay black). Correct a name whenever you recognise a place better.
+`maps.tsv` lists all 224 map ids (`0x00`–`0xDF`) with what loaded, the overlay and a short name. The names were given by agents looking at one screenshot taken right after each warp, so treat them as descriptions, not official titles; `unknown` means the frame showed nothing recognisable. `0xD8`–`0xDF` are not real maps: the map register changes, then the game crashes. Correct a name whenever you recognise a place better.
 
 Specify an optional exit index (defaults to 0), and `--name` to warp a session other than `main`:
 ```sh

@@ -186,8 +186,9 @@ python3 tools/emu/warp.py --name NAME "Cranky's Lab"   # name/substring from too
 ```
 - Waits up to `--timeout` (20 s) for `D_8076A0A8` to change; a `hang` needs the map register AND the frame/VI counters to stall. Then waits `--settle` (4.5 s) for the iris wipe before re-reading the map, overlay and taking the screenshot.
 - Run at most 2 warp/sweep sessions at once: under 4 concurrent sessions, transitions took 6.5–8.5 s wall and the old 6 s timeout produced false hangs.
-- `tools/emu/maps.tsv`: all 224 ids `0x00`–`0xDF` (the per-map byte table `D_807445E0` is 0xE0 long), measured from `training_grounds`: 223 load as requested, `0xB3` is rewritten to `0x1E`, `0xD8`–`0xDF` load but render black. Names are visual descriptions from one settled frame, not verified titles; fix one when you can tell better.
-- Warping from `training_grounds` works for every id; story flags still come from that save, so late-game maps can look empty.
+- `tools/emu/maps.tsv`: all 224 ids `0x00`–`0xDF` (the per-map byte table `D_807445E0` is 0xE0 long), measured from `training_grounds`: 215 load as requested, `0xB3` is rewritten to `0x1E`, `0xD8`–`0xDF` change the map register and then fault the game thread (`__osFaultedThread`). Names are visual descriptions from one settled frame, not verified titles; fix one when you can tell better.
+- `warp.py` checks `__osFaultedThread` and the frame counter after settling too: the map register changes before a map finishes loading, so a register change alone is not success.
+- Warping from `training_grounds` works for ids `0x00`–`0xD7`; story flags still come from that save, so late-game maps can look empty.
 
 ### Automated Map Sweeps
 ```sh

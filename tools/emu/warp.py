@@ -291,9 +291,20 @@ def warp(session, target_map, target_exit=0, timeout=DEFAULT_TIMEOUT, settle=DEF
             final_map = settled_map
         take_screenshot(session, shot_path)
         ovl, diag = detect_current_overlay(session)
-        status = "success" if final_map == target_map else "rewritten"
+        # The map register changes before the new map finishes loading, so a fault or
+        # stall after that point must still be caught.
+        if check_crash(session):
+            status = "crash"
+        elif check_game_stuck(session):
+            status = "hang"
+        else:
+            status = "success" if final_map == target_map else "rewritten"
         return {
             "status": status,
+            "error": {
+                "crash": "Game thread faulted after the map register changed",
+                "hang": "Map register changed but the frame counter stopped",
+            }.get(status),
             "initial_map": initial_map,
             "target_map": target_map,
             "target_exit": target_exit,
@@ -476,6 +487,7 @@ def cmd_sweep(args):
         if diag:
             notes_parts.append(f"overlay disagreement: {diag}")
 
+        loaded_str = f"0x{loaded_val:02X}" if loaded_val is not None else "-"
         notes = "; ".join(notes_parts).replace("\n", " ").replace("\r", " ").strip()
         print(f"[{m_id:3d}/0x{m_id:02X}] {status.upper()} -> loaded {loaded_str}, overlay: {ovl}" + (f" ({notes})" if notes else ""))
 
