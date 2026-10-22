@@ -192,11 +192,16 @@ def main() -> int:
         return 1
 
     print(f"Target function: {fn_name} (0x{entry_addr:08x}) in {seg}")
+    if entry_addr in {a for _, a in symbols.load(REPO_ROOT).fallthrough_entries(seg)}:
+        print(f"Error: {fn_name} is a fall-through split (the previous function runs into it), not a call "
+              "target; a breakpoint there wedges ares's GDB stub. Study the function before it.", file=sys.stderr)
+        return 1
 
     # 2. Resolve state
     state_label = args.state
     if not state_label:
-        state_label = pick_state_for_func(fn_name)
+        index_key = fn_name if seg in ("boot", "global") else f"{seg}:{fn_name}"  # matches coverage.hit_key
+        state_label = pick_state_for_func(index_key)
         if not state_label:
             print(f"Error: Function '{fn_name}' not found in coverage index and no --state given.", file=sys.stderr)
             print("Please specify --state <LABEL> explicitly.", file=sys.stderr)

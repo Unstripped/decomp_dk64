@@ -265,6 +265,37 @@ class Symbols:
             raise ValueError(f"Unknown segment: {segment}")
         return list(self._segments[segment])
 
+    def fallthrough_entries(self, segment: str) -> List[Tuple[str, int]]:
+        """Functions the previous function runs straight into (no jr/j before it).
+
+        These symbols are mid-function splits, not call targets. A breakpoint at one
+        wedges ares's GDB stub under the recompiler: `continue` never reports another
+        stop (func_806138B0, the tail of func_80613794). Breakpoint tools skip them.
+        Uses build/<segment>.text.bin; boot (no such file) returns [].
+        """
+        text = self.repo_root / "build" / f"{segment}.text.bin"
+        funcs = self._segments.get(segment, [])
+        if not funcs or not text.is_file():
+            return []
+        data = text.read_bytes()
+        base = funcs[0][1]
+
+        def is_jump(word: int) -> bool:
+            op = word >> 26
+            return op == 2 or (op == 0 and (word & 0x3F) == 8)  # j, jr
+
+        result = []
+        for name, addr, _ in funcs[1:]:
+            end = addr - base
+            while end >= 4 and data[end - 4:end] == b"\0\0\0\0":
+                end -= 4  # alignment padding (or a nop delay slot)
+            if end < 8:
+                continue
+            last, before = struct.unpack(">II", data[end - 8:end])[::-1]
+            if not (is_jump(last) or is_jump(before)):
+                result.append((name, addr))
+        return result
+
 
 def load(repo_root: Optional[Union[str, Path]] = None) -> Symbols:
     """Load symbol database from repository root."""

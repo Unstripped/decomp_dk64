@@ -114,8 +114,9 @@ python3 tools/emu/coverage.py run <label> [--seconds S] [--inputs FILE] [--name 
 # 2. Re-index coverage runs into emu/coverage/index.json
 python3 tools/emu/coverage.py index
 
-# 3. Find which states execute a specific function
-python3 tools/emu/coverage.py where <func_or_addr>
+# 3. Find which states execute a specific function (overlay functions are indexed as "seg:name";
+#    a bare overlay name lists every overlay that has it)
+python3 tools/emu/coverage.py where <func_or_addr_or_seg:name>
 
 # 4. Compare coverage between two states (e.g. isolate action triggers)
 python3 tools/emu/coverage.py diff <label_a> <label_b>
@@ -138,9 +139,11 @@ release stick_up
 
 ### Performance & Overlay Mechanics
 - **Breakpoint Scaling**: GDB must run with `set breakpoint always-inserted on`. Without this, GDB removes and re-inserts breakpoints on every stop, creating 10–15s pauses per stop. With `always-inserted on`, stop latency drops to 15–40 ms.
-- **Insertion Rate**: Inserting all ~3,860 functions takes ~15 seconds.
-- **Monotonic Cost Drop**: Breakpoints are removed upon first hit; stop overhead decreases as functions execute.
-- **Overlay Flushing**: All 9 overlays share VRAM `0x80024000`. The coverage script hooks `loadOverlay` (`0x80610350`) to flush old overlay breakpoints and re-registers the new overlay via `symbols.detect_overlay`.
+- **Insertion Rate**: Inserting all ~3,850 functions takes 15–26 s depending on host load.
+- **Monotonic Cost Drop**: Breakpoints are removed upon first hit; stop overhead decreases as functions execute. The first-hit storm slows the game a lot: an idle title state needed ~185 s wall to reach the attract transition that takes ~60 s without breakpoints. Give runs that must reach a transition several minutes.
+- **Deadline**: `--seconds` is enforced by interrupting the target; without that, `continue` blocks once no unseen function runs.
+- **Overlays**: All 9 overlays share VRAM `0x80024000`. The coverage script drops the old overlay's breakpoints at `loadOverlay` (`0x80610350`) entry, and at its return detects the new overlay and arms its functions (recorded in `overlay_transitions` as `new_overlay`/`armed_breakpoints`). Batched runs (`--batch-size`) don't re-arm. Hits are keyed by segment and address.
+- **Fall-through splits**: `symbols.fallthrough_entries(seg)` lists "functions" the previous function runs straight into (10 in global, e.g. `func_806138B0` = tail of `func_80613794`; none in overlays). A breakpoint on one wedges ares's GDB stub under the recompiler: `continue` never reports another stop, even for other breakpoints. Coverage skips them (`skipped_fallthrough` in the JSON) and `study.py` refuses them. Never `break *` on one by hand.
 
 ---
 

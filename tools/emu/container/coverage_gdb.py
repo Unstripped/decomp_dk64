@@ -15,7 +15,9 @@ Configured via environment variables:
 import json
 import os
 from pathlib import Path
+import signal
 import sys
+import threading
 import time
 
 try:
@@ -77,25 +79,21 @@ def main():
             except Exception as e:
                 print(f"[coverage_gdb] Warning loading overlay symbols: {e}")
 
-    # 4. Gather function candidates
+    # 4. Gather function candidates. Fall-through "functions" are mid-function splits;
+    # a breakpoint on one wedges ares's GDB stub (see symbols.fallthrough_entries).
     syms = symbols.load(REPO_ROOT)
+    skipped = {}
+
+    def entries(seg):
+        skip = {addr for _, addr in syms.fallthrough_entries(seg)}
+        skipped.update({f"{seg}:{fn}": f"0x{addr:08x}" for fn, addr in syms.fallthrough_entries(seg)})
+        return [(fn, addr, sz) for fn, addr, sz in syms.functions(seg) if addr not in skip]
+
     candidates = []
-
-    # Boot functions
-    for fn, addr, sz in syms.functions("boot"):
-        candidates.append((fn, addr, sz, "boot"))
-
-    # Global functions
-    for fn, addr, sz in syms.functions("global"):
-        candidates.append((fn, addr, sz, "global"))
-
-    # Active overlay functions
-    if active_overlay:
-        try:
-            for fn, addr, sz in syms.functions(active_overlay):
-                candidates.append((fn, addr, sz, active_overlay))
-        except Exception:
-            pass
+    for seg in ["boot", "global"] + ([active_overlay] if active_overlay else []):
+        for fn, addr, sz in entries(seg):
+            if addr != LOAD_OVERLAY_ADDR:  # has its own hook below
+                candidates.append((fn, addr, sz, seg))
 
     # Apply batch slicing if requested
     total_candidates_all = len(candidates)
@@ -132,25 +130,51 @@ def main():
     except Exception:
         load_ovl_bp = None
 
+    def arm_overlay(seg):
+        """Set entry breakpoints for every not-yet-hit function of overlay `seg`."""
+        armed = 0
+        for fn, addr, sz in entries(seg):
+            if (seg, addr) in seen or addr in active_bps:
+                continue
+            try:
+                active_bps[addr] = gdb.Breakpoint(f"*{hex(addr)}", type=gdb.BP_BREAKPOINT, internal=True)
+                addr_map[addr] = (fn, seg, sz)
+                armed += 1
+            except Exception:
+                pass
+        return armed
+
     # 6. Execute and collect hits
     hits = []
-    seen_addresses = set()
+    seen = set()  # (segment, address): overlays reuse the same addresses
     overlay_transitions = []
     current_ovl_state = active_overlay
+    # After loadOverlay's entry stop, a temporary breakpoint at its return address re-arms
+    # the newly loaded overlay. Batched runs only cover their slice, so they don't re-arm.
+    rearm = batch_min_str is None
+    pending_return = None
+    pending_return_bp = None
 
     t_start = time.time()
     t_end = t_start + duration
     stops = 0
 
     print(f"[coverage_gdb] Starting execution loop for {duration} seconds...")
+    # `continue` only returns on a stop. Once every frequently-run function has been hit and
+    # deleted, no stop may come for minutes, so a timer interrupts the target at t_end.
+    deadline = threading.Timer(duration, lambda: os.kill(os.getpid(), signal.SIGINT))
+    deadline.daemon = True
+    deadline.start()
     try:
         while time.time() < t_end:
             try:
                 gdb.execute("continue", to_string=True)
-            except gdb.error as e:
-                # Execution error or remote disconnect
+            except (gdb.error, KeyboardInterrupt) as e:
+                # Execution error, remote disconnect, or the deadline interrupt
                 print(f"[coverage_gdb] Breakpoint stop / continue error: {e}")
                 break
+            if time.time() >= t_end:
+                break  # stopped by the deadline interrupt, not a breakpoint
 
             stops += 1
             now_offset = time.time() - t_start
@@ -178,13 +202,34 @@ def main():
                         if a in addr_map:
                             del addr_map[a]
                         ovl_removed += 1
-                overlay_transitions.append({
+                transition = {
                     "time": round(now_offset, 4),
                     "previous_overlay": current_ovl_state,
                     "removed_breakpoints": ovl_removed,
-                })
-                # We can't know the new overlay until after it loads, so continue
+                }
+                overlay_transitions.append(transition)
+                # The new overlay is only known once loadOverlay has returned.
+                if rearm and pending_return_bp is None:
+                    try:
+                        pending_return = int(gdb.parse_and_eval("$ra")) & 0xFFFFFFFF
+                        pending_return_bp = gdb.Breakpoint(f"*{hex(pending_return)}", type=gdb.BP_BREAKPOINT, internal=True)
+                    except Exception as e:
+                        transition["error"] = f"could not hook loadOverlay return: {e}"
                 continue
+
+            if pending_return_bp is not None and pc == pending_return:
+                try:
+                    pending_return_bp.delete()
+                except Exception:
+                    pass
+                pending_return_bp = None
+                pending_return = None
+                current_ovl_state = symbols.detect_overlay(read_inferior_mem, REPO_ROOT)
+                armed = arm_overlay(current_ovl_state) if current_ovl_state else 0
+                overlay_transitions[-1]["new_overlay"] = current_ovl_state
+                overlay_transitions[-1]["armed_breakpoints"] = armed
+                if pc not in addr_map:
+                    continue
 
             # Normal function entry hit
             if pc in addr_map:
@@ -204,8 +249,8 @@ def main():
                         continue
 
                 # Record hit
-                if pc not in seen_addresses:
-                    seen_addresses.add(pc)
+                if (seg, pc) not in seen:
+                    seen.add((seg, pc))
                     hits.append({
                         "name": fn_name,
                         "address": f"0x{pc:08x}",
@@ -221,8 +266,8 @@ def main():
                     except Exception:
                         pass
                     del active_bps[pc]
-
     finally:
+        deadline.cancel()
         t_total_run = time.time() - t_start
         print(f"[coverage_gdb] Run finished in {t_total_run:.2f}s: {len(hits)} functions hit ({stops} stops)")
 
@@ -233,11 +278,12 @@ def main():
                 bp.delete()
             except Exception:
                 pass
-        if load_ovl_bp:
-            try:
-                load_ovl_bp.delete()
-            except Exception:
-                pass
+        for bp in (load_ovl_bp, pending_return_bp):
+            if bp is not None:
+                try:
+                    bp.delete()
+                except Exception:
+                    pass
 
         # Detach cleanly so emulator continues running smoothly
         try:
@@ -258,6 +304,7 @@ def main():
         "total_hits": len(hits),
         "initial_overlay": active_overlay,
         "overlay_transitions": overlay_transitions,
+        "skipped_fallthrough": skipped,
         "performance": {
             "breakpoint_set_seconds": round(t_bp_set, 3),
             "ms_per_breakpoint_set": round((t_bp_set / len(candidates) * 1000) if candidates else 0, 2),

@@ -213,6 +213,13 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def hit_key(name: str, segment: Optional[str]) -> str:
+    """Index key: overlays reuse addresses and splat names (func_80024000 exists in several), so qualify them."""
+    if segment in (None, "boot", "global"):
+        return name
+    return f"{segment}:{name}"
+
+
 def cmd_index(args: argparse.Namespace) -> int:
     """Build emu/coverage/index.json mapping function names to state labels."""
     index: Dict[str, List[str]] = {}
@@ -242,10 +249,11 @@ def cmd_index(args: argparse.Namespace) -> int:
             name = h.get("name")
             if not name:
                 continue
-            if name not in index:
-                index[name] = []
-            if label not in index[name]:
-                index[name].append(label)
+            key = hit_key(name, h.get("segment"))
+            if key not in index:
+                index[key] = []
+            if label not in index[key]:
+                index[key].append(label)
 
     index_data = {
         "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -282,41 +290,40 @@ def cmd_where(args: argparse.Namespace) -> int:
 
     funcs_map = index_data.get("functions", {})
 
-    # If target is a hex address, resolve name
-    matched_name = None
-    if func_target.startswith("0x") or func_target.startswith("0X"):
+    # A hex address resolves to its function; overlay addresses resolve only with "seg:name" input.
+    matched_name = func_target
+    if func_target.lower().startswith("0x"):
         try:
-            addr = int(func_target, 16)
-            syms = symbols.load(REPO_ROOT)
-            fn_info = syms.function_at(addr)
+            fn_info = symbols.load(REPO_ROOT).function_at(int(func_target, 16))
             if fn_info:
-                matched_name = fn_info[0]
+                matched_name = hit_key(fn_info[0], fn_info[3])
         except Exception:
             pass
-    if not matched_name:
-        matched_name = func_target
 
-    matched_labels = funcs_map.get(matched_name)
-    if not matched_labels:
+    # A bare overlay name matches it in every overlay that has it.
+    keys = [matched_name] if matched_name in funcs_map else sorted(
+        k for k in funcs_map if k.endswith(":" + matched_name))
+    if not keys:
         print(f"Function '{matched_name}' was NOT hit in any indexed coverage run.")
         return 0
 
-    print(f"Function '{matched_name}' was hit in {len(matched_labels)} state(s):")
-    # Show hit order & timing for each state
-    for label in matched_labels:
-        cov_file = COVERAGE_DIR / f"{label}.json"
-        hit_info = ""
-        if cov_file.exists():
-            try:
-                with open(cov_file, "r") as f:
-                    cdata = json.load(f)
-                for h in cdata.get("hits", []):
-                    if h.get("name") == matched_name:
-                        hit_info = f" (hit #{h.get('order')} at {h.get('time')}s in {h.get('segment')})"
-                        break
-            except Exception:
-                pass
-        print(f"  - {label}{hit_info}")
+    for key in keys:
+        matched_labels = funcs_map[key]
+        print(f"Function '{key}' was hit in {len(matched_labels)} state(s):")
+        for label in matched_labels:
+            cov_file = COVERAGE_DIR / f"{label}.json"
+            hit_info = ""
+            if cov_file.exists():
+                try:
+                    with open(cov_file, "r") as f:
+                        cdata = json.load(f)
+                    for h in cdata.get("hits", []):
+                        if hit_key(h.get("name"), h.get("segment")) == key:
+                            hit_info = f" (hit #{h.get('order')} at {h.get('time')}s in {h.get('segment')})"
+                            break
+                except Exception:
+                    pass
+            print(f"  - {label}{hit_info}")
     return 0
 
 
@@ -337,8 +344,8 @@ def cmd_diff(args: argparse.Namespace) -> int:
     with open(file_b, "r") as f:
         data_b = json.load(f)
 
-    hits_a = {h["name"]: h for h in data_a.get("hits", [])}
-    hits_b = {h["name"]: h for h in data_b.get("hits", [])}
+    hits_a = {hit_key(h["name"], h.get("segment")): h for h in data_a.get("hits", [])}
+    hits_b = {hit_key(h["name"], h.get("segment")): h for h in data_b.get("hits", [])}
 
     names_a = set(hits_a.keys())
     names_b = set(hits_b.keys())
