@@ -215,7 +215,40 @@ void func_80029AAC(void *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80029D30.s")
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80029EF8.s")
+extern u8 D_8071FBC8;
+extern u8 D_8071FE08;
+void func_8071495C(void);
+void func_80714CC0(void *, s32, s32, s32, f32);
+void func_8060C830(s32, s32);
+extern s8 D_80033FAC;
+
+void func_80029EF8(void *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s0 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+
+    if (temp_s0->unk0 == 0.0f && temp_s0->unk4 == 0.0f) {
+        if (arg1 & 1) {
+            if ((arg1 & 8) && (D_80033FAC != 0)) {
+                func_8071495C();
+                func_80714CC0(&D_8071FBC8, 0x4124CCCD, 0x43700000, 0x42F00000, -10.0f);
+                func_8071495C();
+                func_80714CC0(&D_8071FE08, 0x4124CCCD, 0x43700000, 0x42F00000, -10.0f);
+                func_80609140(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                func_8060C830((u8)D_80033F48, 1);
+                temp_s0->unk16 = 0;
+                temp_s0->unk13 = 2;
+            } else if ((arg1 & 4) && (D_80033FAC != 0)) {
+                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                temp_s0->unk16 = 0;
+                temp_s0->unk13 = 2;
+            }
+        } else if (arg1 & 2) {
+            func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            temp_s0->unk16 = 0;
+            temp_s0->unk13 = 2;
+        }
+    }
+    func_8002FC1C(arg0, temp_s0, 1);
+}
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002A088.s")
 
@@ -237,7 +270,52 @@ void func_8002A36C(void *arg0, s32 arg1) {
     func_80030894(temp_s0, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002A468.s")
+extern s16 D_80033670;
+extern s8 D_80033698;
+extern s8 D_80744538;
+extern s8 D_8076A104;
+
+void func_8002A468(arg0, arg1)
+void *arg0;
+s32 arg1;
+{
+    Menu3R1_Struct174 *temp_s0 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+
+    if (temp_s0->unk0 == 0.0f) {
+        if (temp_s0->unk4 == 0.0f) {
+            if (arg1 & 1) {
+                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                temp_s0->unk16 = 0;
+                temp_s0->unk13 = 7;
+            } else if (arg1 & 2) {
+                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                temp_s0->unk16 = 0;
+                temp_s0->unk13 = 1;
+                D_80033698 = 3;
+            } else {
+                func_8002FD38(temp_s0, 2, arg1);
+            }
+            if (temp_s0->unk17 == 0) {
+                if (!(D_80033670 & 0x10) && (arg1 & 0x10)) {
+                    func_80609140(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    D_80744538++;
+                    if (D_80744538 >= 3) {
+                        D_80744538 = 0;
+                    }
+                } else if (!(D_80033670 & 0x20) && (arg1 & 0x20)) {
+                    func_80609140(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    D_80744538--;
+                    if (D_80744538 < 0) {
+                        D_80744538 = 2;
+                    }
+                }
+            }
+        }
+        func_8002FE08(temp_s0, 2);
+    }
+    D_8076A104 = temp_s0->unk17;
+    func_8002FC1C(arg0, temp_s0, 1);
+}
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002A638.s")
 
@@ -313,7 +391,63 @@ void func_8002C584(void *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002CFA4.s")
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002D520.s")
+extern s16 D_80033674;
+extern s32 *D_80033F28;
+extern s8 D_8074583C;
+extern s8 D_80745840;
+extern s8 D_80745844;
+s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
+s32 func_806FC530(s32, s16, s16, s16, void *, s32);
+s32 func_8002F980(s32, void *, void *, s8, u32 *, s16, f32 *, f32, s16);
+int _sprintf(char *, const char *, ...);
+
+s32 func_8002D520(void *arg0, s32 arg1) {
+    void *sp64;
+    u32 sp60;
+    f32 sp5C;
+    f32 sp58;
+    f32 sp54;
+    f32 sp50;
+    s16 pad;
+    s16 sp4C;
+    char sp40[12];
+
+    sp64 = *(void **)((u8 *)arg0 + 0x174);
+    D_807FBB60 &= ~0x10;
+    func_800317E8(sp64, 160.0f, 20.0f, &sp58, &sp54, 2, 0, 1.5f);
+    arg1 = func_8002F980(
+        func_806FC530(arg1, 1, 0x280, (s16)(sp54 * 4.0f), *(void **)((u8 *)D_80033F28 + 0x80), 0x81),
+        sp64,
+        (void *)((u8 *)D_80033F28 + 0x84),
+        4,
+        &sp60,
+        1,
+        &sp50,
+        80.0f,
+        -1
+    );
+    D_80033674 = 0x3E8;
+    func_800317E8(sp64, 160.0f, 150.0f, &sp58, &sp54, 2, 0, 1.5f);
+    sp4C = (s16)(sp54 * 4.0f);
+    sp58 = (sp58 - sp50) * 4.0f;
+
+    switch (sp60) {
+    case 0:
+        arg1 = func_806FC530(arg1, 1, (s16)sp58, sp4C, *(void **)((u8 *)D_80033F28 + D_80745844 * 4 + 0x94), 0x81);
+        break;
+    case 1:
+    case 2:
+        arg1 = func_806FC530(arg1, 1, (s16)sp58, sp4C, *(void **)((u8 *)D_80033F28 + 0xA0), 0x81);
+        _sprintf(sp40, "%d", ((sp60 == 1 ? D_8074583C : D_80745840) + 1) >> 1);
+        arg1 = func_806FC530(arg1, 1, (s16)sp58, sp4C + 0x78, sp40, 0x81);
+        break;
+    case 3:
+        D_80033674 = 0;
+        break;
+    }
+
+    return arg1;
+}
 
 typedef struct Menu3B_Sub174 {
     char pad[4];
