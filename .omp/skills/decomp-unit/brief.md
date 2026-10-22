@@ -13,7 +13,7 @@ by writing JSON to `xd://mcp__ok_fine_read_concept`:
 `{"project":"dk64","id":"notes/ido-matching-quirks"}` and
 `{"project":"dk64","id":"runbooks/decompile-function"}`.
 Read the matched functions already in your file and REUSE its declarations and structs.
-<file-specific facts: shared struct names, key globals, signatures fixed this unit>
+<file-specific facts: shared header (e.g. include/actor.h), key globals, names so far>
 <IDO tricks the previous rounds of this unit found (from their reports, section 3)>
 
 Register-allocation toolbox (most later-round near misses are regalloc only): access a
@@ -35,16 +35,21 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
 - DIRECT mode (you are the only agent on the file): edit it in place, check with
   `tools/objdiff.sh src/<seg>/<file>.c [FUNC]`.
 - Both print `OK` (exit 0) or `TEXT OK` (exit 3) when code matches, else FAILED plus an
-  asm-differ diff of FUNC. Exact diff: `tools/dk sh -c 'mips-linux-gnu-objdump -d
-  --no-show-raw-insn <your .o> > /tmp/<you>.b; mips-linux-gnu-objdump -d --no-show-raw-insn
-  expected/build/src/<seg>/<file>.o > /tmp/<you>.e; diff /tmp/<you>.e /tmp/<you>.b'`
+  asm-differ diff of FUNC. Exact diff, in ONE call (each `tools/dk` call is a fresh
+  container, /tmp does not survive): `tools/dk sh -c 'mips-linux-gnu-objdump -d
+  --no-show-raw-insn <your .o> > /tmp/b; mips-linux-gnu-objdump -d --no-show-raw-insn
+  expected/build/src/<seg>/<file>.o > /tmp/e; diff /tmp/e /tmp/b'`
   (private objects: `build/.scratch/.scratch_<YourName>_<file>.c.o`; ignore pure `%lo`
   addend differences like `0(at)` vs `532(at)`). A function whose size differs shifts
   everything after it: get the size right first.
+- NEVER edit shared headers in `include/` (another agent may own them this round); use a
+  local struct/cast prefixed with your agent name.
 - Merge hygiene: change only your functions' lines. New externs/prototypes/structs go
   IMMEDIATELY ABOVE your first function that uses them, never in the top block or another
-  agent's range. Never change an existing declaration: if yours would conflict, adapt your
-  code with casts. Prefix new type names with your agent name. When you revert a function
+  agent's range. Never change an existing declaration, with one exception: a prototype
+  may become unprototyped (`void f(void);` → `void f();`) if every C caller in the file
+  still matches; say so in your report. Otherwise adapt your code with casts. Prefix new
+  type names with your agent name. When you revert a function
   to GLOBAL_ASM, delete the declarations you added for it. Don't reorder or reformat.
 - Skip formatters and linters.
 
