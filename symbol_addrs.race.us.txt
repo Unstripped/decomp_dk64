@@ -1,1 +1,11 @@
 // Overlay race (ovl05, segment table entry 5)
+raceGetNextWaypointIndex = 0x80025770; // type:func
+raceGetPrevWaypointIndex = 0x8002578C; // type:func
+racePlayCheckpointSfx = 0x80026004; // type:func
+raceAdvanceCheckpoint = 0x80026050; // type:func
+raceGetPathDistance = 0x80027880; // type:func
+raceInitParticipants = 0x8002A650; // type:func
+raceLerp = 0x8002DD70; // type:func
+raceScaleVelocity = 0x8002ECD4; // type:func
+raceIsFacingWaypoint = 0x8002F280; // type:func
+raceGetProgressPercent = 0x8002F90C; // type:func

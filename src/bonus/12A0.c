@@ -56,7 +56,7 @@ void func_8002563C(s32 arg0) {
     *(s16 *)((u8 *)D_807FBB40 + 0x168) = 0;
 }
 
-void func_800256C4(u8 **arg0, u8 arg1) {
+void bonusInitActors(u8 **arg0, u8 arg1) {
     u8 i = 0;
     do {
         arg0[i][0x154]++;

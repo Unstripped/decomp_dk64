@@ -10,7 +10,7 @@ extern s8 D_8002D92C;
 extern s8 D_8002D930;
 extern s8 D_8002DEF0[];
 
-void func_8002D7E8(s16 arg0) {
+void bonusRegisterHit(s16 arg0) {
     s8 var_v0;
 
     if (arg0 == 0xD4) {

@@ -8,7 +8,7 @@
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/A960/func_8002EC08.s")
 
-void func_8002ECD4(u8 *arg0, f32 arg1) {
+void raceScaleVelocity(u8 *arg0, f32 arg1) {
     (*(f32 *)(*(u8 **)(arg0 + 4) + 0x34)) *= arg1;
     (*(f32 *)(*(u8 **)(arg0 + 4) + 0x38)) = *(f32 *)(*(u8 **)(arg0 + 4) + 0x34);
     (*(f32 *)(*(u8 **)(arg0 + 4) + 0x3C)) = *(f32 *)(*(u8 **)(arg0 + 4) + 0x38);
@@ -26,7 +26,7 @@ f32 func_80611BB4(f32, f32);
 s32 func_806CC14C(s16, s16);
 extern void *D_807FBB40;
 
-s32 func_8002F280(u8 *arg0) {
+s32 raceIsFacingWaypoint(u8 *arg0) {
     f32 diff_x = *(f32 *)((u8 *)D_807FBB40 + 0x7C) - (f32)*(s16 *)(arg0 + 0);
     f32 diff_z = *(f32 *)((u8 *)D_807FBB40 + 0x84) - (f32)*(s16 *)(arg0 + 4);
     s16 angle = (s32)(func_80611BB4(diff_x, diff_z) * 651.8986206f) & 0xFFF;
@@ -75,6 +75,6 @@ void func_8002F420(u8 *arg0, u8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/A960/func_8002F784.s")
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/A960/func_8002F90C.s")
+#pragma GLOBAL_ASM("asm/race/nonmatchings/A960/raceGetProgressPercent.s")
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/A960/func_8002F950.s")

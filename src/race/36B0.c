@@ -15,7 +15,7 @@ s32 func_800276B0(s32 arg0, u8 *arg1, u8 *arg2) {
 }
 
 extern s32 *D_807F5FD4;
-s32 func_80025770(s32, s32);
+s32 raceGetNextWaypointIndex(s32, s32);
 
 typedef struct {
     f32 x, y, z;
@@ -32,7 +32,7 @@ f32 func_80027710(s32, s32, void *);
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80027710.s")
 
-f32 func_80027880(s32 arg0, u16 arg1, u16 arg2) {
+f32 raceGetPathDistance(s32 arg0, u16 arg1, u16 arg2) {
     s32 index;
     Point3f *points;
     f32 *p1;
@@ -41,7 +41,7 @@ f32 func_80027880(s32 arg0, u16 arg1, u16 arg2) {
     f32 dy;
     f32 dz;
 
-    index = func_80025770(arg0, arg2);
+    index = raceGetNextWaypointIndex(arg0, arg2);
     points = (Point3f *)D_807F5FD4[arg1];
     p1 = (f32 *)&points[arg2];
     p2 = (f32 *)&points[index];

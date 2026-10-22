@@ -1,8 +1,8 @@
 #include "common.h"
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/1770/func_80025770.s")
+#pragma GLOBAL_ASM("asm/race/nonmatchings/1770/raceGetNextWaypointIndex.s")
 
-s32 func_8002578C(s32 arg0, s32 arg1) {
+s32 raceGetPrevWaypointIndex(s32 arg0, s32 arg1) {
     if (arg1 == 0) {
         return arg0 - 1;
     }
@@ -76,13 +76,13 @@ void func_80025FDC(void) {
 
 void func_80609140(s32, s32, f32, f32, s32, s32);
 
-void func_80026004(u8 *arg0, u8 arg1, f32 arg2) {
+void racePlayCheckpointSfx(u8 *arg0, u8 arg1, f32 arg2) {
     arg0[0x10] = arg1;
     *(f32 *)(arg0 + 0x14) = arg2;
     func_80609140(0x1EB, 0x7FFF, 64.0f, 1.0f, 0, 0);
 }
 
-void func_80026050(u16 *arg0, s8 *arg1, s32 arg2) {
+void raceAdvanceCheckpoint(u16 *arg0, s8 *arg1, s32 arg2) {
     if (arg0[1] + 1 != arg2) {
         arg0[1]++;
     } else {

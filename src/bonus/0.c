@@ -26,7 +26,7 @@ Gfx *func_80024000(Gfx *gdl, void *arg1) {
 }
 
 void func_8072707C(s32, s32, s32);
-void func_800240F0(void) {
+void bonusInitSounds(void) {
     func_8072707C(1, 0x40, 0);
     func_8072707C(2, 0x40, 0);
     func_8072707C(3, 0x40, 0);
@@ -45,7 +45,7 @@ Gfx *func_80024D3C(Gfx *gdl, u8 arg1) {
 
 extern s32 D_8076A0A8;
 
-s32 func_80024D8C(void) {
+s32 bonusGetSoundForMap(void) {
     switch (D_8076A0A8) {
     case 0x35:
         return 0x261;
@@ -128,7 +128,7 @@ void func_80024E38(void) {
             func_8069D2AC(0x81, 0, 0x78, func_8070E750(0x1A, 0x15, 1), 0, 0x28, 8, 8);
             func_80726EE0(0);
             func_80602A94(0x28, 1.0f);
-            func_806A5DF0(0x56, 588.0f, 240.0f, 582.0f, 0, 0, func_80024D8C(), 0);
+            func_806A5DF0(0x56, 588.0f, 240.0f, 582.0f, 0, 0, bonusGetSoundForMap(), 0);
             *(u8 *)((u8 *)D_807FBB40 + 0x154) = 2;
         }
         if (*(u8 *)((u8 *)D_807FBB4C + 0x154) == 0x39) {

@@ -295,7 +295,7 @@ Gfx *func_8002CAC8(Gfx *arg0, RaceUnknownActor *arg1, RaceUnknown174 *arg2) {
 
 extern RaceUnknownActor *D_807FBB44;
 void func_80677FA8(s32, s32);
-void func_8002A650(RaceUnknownActor *);
+void raceInitParticipants(RaceUnknownActor *);
 void func_800292D0(RaceUnknownActor *);
 void func_8002E2C8(RaceUnknownActor *);
 
@@ -325,7 +325,7 @@ void func_8002D064(void) {
 
     func_80677FA8(0x132, 0);
     sp1C = D_807FBB44->unk174;
-    func_8002A650(D_807FBB44);
+    raceInitParticipants(D_807FBB44);
     sp1C->unk0 = 0xE;
     sp1C->unk24 = 2;
 }
@@ -533,7 +533,7 @@ void func_8002DC24(void) {
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002DCF0.s")
 
-f32 func_8002DD70(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
+f32 raceLerp(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     return ((arg4 - arg2) * ((arg0 - arg1) / (arg3 - arg1))) + arg2;
 }
 
@@ -567,7 +567,7 @@ f32 func_8002DDA0(f32 arg0, RaceCurvePoint *arg1) {
         do {
             f32 x = arg1[i].x;
             if (arg0 < x) {
-                ret = func_8002DD70(arg0, arg1[i - 1].x, arg1[i - 1].y, x, arg1[i].y);
+                ret = raceLerp(arg0, arg1[i - 1].x, arg1[i - 1].y, x, arg1[i].y);
                 found = 1;
             }
             i++;

@@ -165,7 +165,7 @@ s32 func_8002E960(u8);
 f32 func_8002F784(s32, Struct_sp58 *, void *);
 s32 func_80665C18(f32, f32, s32, s32, f32);
 s32 func_806CC10C(s16, s16);
-f32 func_8002F90C(s32, Struct_sp58 *, Struct_sp5C *);
+f32 raceGetProgressPercent(s32, Struct_sp58 *, Struct_sp5C *);
 f32 func_8002E1C8(void *, f32, void *, void *);
 extern s32 D_807FBB64;
 f32 func_80612794(s16);
@@ -221,7 +221,7 @@ void *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BCB0(void *, s32, void *, void *);
 void func_806903BC(void *, void *);
 
-void func_8002A650(Struct_arg0 *arg0) {
+void raceInitParticipants(Struct_arg0 *arg0) {
     Struct_sp5C *sp5C;
     Struct_sp58 *sp58;
     Struct_sp54 *sp54;
