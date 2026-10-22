@@ -36,7 +36,7 @@ tools/dk make progress                 # build, then matched/total function byte
 | `tools/compress.py` | packs built text + data into a ROM segment: GNU gzip 1.2.4 `-9 -n` members (reproduces all 20; zlib and gzip 1.12 do not), zero-padded to the segment size. The ROM is `build/boot.bin` + 10 compressed segments + raw tail (`Makefile`, `ROM_SEGMENTS`) |
 | `diff.sh`, `diff_settings.py` | asm-differ per-function diff: `tools/dk ./diff.sh [-s SEGMENT] FUNC` (`boot` default, `global`, overlay name; `-n` skips the rebuild) |
 | `tools/m2c.py` | starter C for one function: `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` |
-| `tools/progress.py` | matched vs total function bytes per segment (`--json`) |
+| `tools/progress.py` | matched vs total function bytes per segment (`--json`; `--readme` rewrites the progress section of `README.md`) |
 | `tools/objdiff.sh` | per-object compare that builds only one object: `tools/objdiff.sh src/...c [FUNC]` vs `expected/build/...o`. `tools/dk make expected` snapshots every C object of a matching build there first (`expected/` is gitignored). Exit 0 full match, 3 code matches but the file's own data differs, 1 mismatch. Safe to run concurrently on different files, unlike `make`/`diff.sh` |
 | `tools/fdiff.sh` | same compare for a private copy: `tools/fdiff.sh .scratch/<name>/file.c src/...c [FUNC]` compiles the copy with the original's flags into `build/.scratch/`, so several agents can work on one file at once (`.scratch/` is gitignored) |
 | `tools/merge_drafts.py` | host-side: `snapshot src/...c` saves the merge base before agents copy a file; `merge src/...c <copies...>` 3-way-merges them into `src`, prunes duplicate/unused declarations and runs `objdiff.sh` (exit 2 on conflicts, src untouched) |
@@ -67,4 +67,4 @@ Compiler notes:
 - Unidentified symbols keep splat names (`func_XXXXXXXX`, `D_XXXXXXXX`) until their behaviour is confirmed.
 - File splits: follow splat's suggestions, but check data/rodata boundaries against 16-byte alignment and string placement (boot rodata is `0x10F60`, not splat's `0x10F74`).
 - Converting a global/overlay file to `c`: give its data range a named asm subsegment (`[0xOFF, data, name]`) and switch to `.data` only once the C defines every object in it (a `.data` subsegment emits no asm, so GLOBAL_ASM-only files fail to link). Its rodata can be `.rodata` right away: splat migrates it into the GLOBAL_ASM function files.
-- Update `ROADMAP.md` checkboxes when a step lands.
+- Update `ROADMAP.md` checkboxes when a step lands; after a matching build that changes progress, refresh `README.md` with `tools/dk python3 tools/progress.py --readme`.

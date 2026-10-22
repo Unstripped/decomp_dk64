@@ -6,6 +6,7 @@ Reports matched vs total code bytes and function counts per segment
 
 Usage:
   tools/dk python3 tools/progress.py [--json] [segment]
+  tools/dk python3 tools/progress.py --readme   # rewrite README.md progress section
 """
 
 import argparse
@@ -235,6 +236,66 @@ def compute_segment_progress(name: str, elf_path: Path, map_path: Path, repo_roo
     }
 
 
+README_START = "<!-- progress:start -->"
+README_END = "<!-- progress:end -->"
+
+# Short description per segment for the README table.
+SEGMENT_NOTES = {
+    "boot": "boot, libultra, inflate",
+    "global": "main game code",
+    "multiplayer": "`ovl02`, multiplayer modes",
+    "minecart": "`ovl03`, minecart rides",
+    "bonus": "`ovl04`, bonus barrels",
+    "race": "`ovl05`, races",
+    "critter": "`ovl06`, critter minigames",
+    "boss": "`ovl07`, boss fights",
+    "arcade": "`ovl08`, Donkey Kong arcade",
+    "jetpac": "`ovl09`, Jetpac",
+    "menu": "`ovl10`, main menu / file select",
+}
+
+
+def progress_bar(percent: float, width: int = 20) -> str:
+    """Unicode bar in a code span: GitHub markdown strips <progress>."""
+    filled = int(round(percent / 100.0 * width))
+    return "`" + "█" * filled + "░" * (width - filled) + "`"
+
+
+def render_markdown(results, total_row) -> str:
+    """Progress section for README.md: overall bar plus one row per segment."""
+    lines = [
+        README_START,
+        f"**Overall: {total_row['percent']:.2f}%** of code bytes matched "
+        f"({total_row['matched_bytes']:,} / {total_row['total_bytes']:,} bytes, "
+        f"{total_row['matched_funcs']:,} / {total_row['total_funcs']:,} functions)",
+        "",
+        progress_bar(total_row["percent"], 40),
+        "",
+        "| Segment | Contents | Progress | Bytes | Functions |",
+        "|---|---|---|--:|--:|",
+    ]
+    for r in results + [total_row]:
+        name = "**Total**" if r is total_row else f"`{r['name']}`"
+        notes = "" if r is total_row else SEGMENT_NOTES.get(r["name"], "")
+        lines.append(
+            f"| {name} | {notes} | {progress_bar(r['percent'])} {r['percent']:.1f}% "
+            f"| {r['matched_bytes']:,} / {r['total_bytes']:,} "
+            f"| {r['matched_funcs']:,} / {r['total_funcs']:,} |"
+        )
+    lines.append(README_END)
+    return "\n".join(lines)
+
+
+def update_readme(readme: Path, section: str) -> None:
+    """Replace the text between the progress markers in README.md."""
+    text = readme.read_text(encoding="utf-8")
+    start = text.find(README_START)
+    end = text.find(README_END)
+    if start < 0 or end < start:
+        sys.exit(f"Error: {readme} lacks the {README_START} / {README_END} markers.")
+    readme.write_text(text[:start] + section + text[end + len(README_END):], encoding="utf-8")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Report matching decompilation progress for Donkey Kong 64 (USA)."
@@ -245,6 +306,11 @@ def main():
         help="Emit machine-readable JSON output.",
     )
     parser.add_argument(
+        "--readme",
+        action="store_true",
+        help="Rewrite the progress section of README.md (all segments).",
+    )
+    parser.add_argument(
         "segment",
         nargs="?",
         choices=[s[0] for s in SEGMENTS],
@@ -252,6 +318,8 @@ def main():
     )
 
     args = parser.parse_args()
+    if args.readme and args.segment:
+        parser.error("--readme reports every segment; drop the segment argument.")
 
     repo_root = Path(__file__).resolve().parent.parent
     build_dir = repo_root / "build"
@@ -293,6 +361,10 @@ def main():
         "code": total_matched_bytes,
         "code/total": total_total_bytes,
     }
+
+    if args.readme:
+        update_readme(repo_root / "README.md", render_markdown(results, total_row))
+        return
 
     if args.json:
         json_data = {}

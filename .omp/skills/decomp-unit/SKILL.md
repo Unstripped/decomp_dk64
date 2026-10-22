@@ -121,8 +121,9 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    name otherwise), `tools/dk make` OK; `tools/dk make expected`.
 3. ROADMAP: one bullet per segment (files, data/rodata offsets, N of T matched per file,
    named groups, near misses, unattempted large functions). Check every name you cite
-   exists in the symbol file.
-4. Commit `<A>/<b>: name N functions; ROADMAP: overlay unit status`.
+   exists in the symbol file. Refresh the README progress table:
+   `tools/dk python3 tools/progress.py --readme`.
+4. Commit `<A>/<b>: name N functions; ROADMAP + README: overlay unit status`.
 5. ok-fine (you, not agents): update `architecture/overlay-c-units` (or the subsystem
    concept) and append new quirks to `notes/ido-matching-quirks`; sources at
    `git rev-parse HEAD`; `verify_concept`. Agents editing ok-fine in parallel broke
