@@ -7,7 +7,7 @@ typedef struct Act90A_D9DC {
 } Act90A_D9DC;
 
 Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
-int _sprintf();
+int _sprintf(char *, const char *, ...);
 
 extern Gfx D_1000118;
 
