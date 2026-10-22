@@ -43,12 +43,15 @@ segments:
     vram: 0x80024000
     bss_size: 0xC0
     subsegments:
-      - [0x0, asm]
-      - [0x1AF0, asm]
-      - [0x3E10, asm]
-      - [0xE550, asm]
-      - [0xEF50, data]
-      - [0xF9E0, rodata]
+      - [0x0, c, 0]
+      - [0x1AF0, c, 1AF0]
+      - [0x3E10, c, 3E10]
+      - [0xE550, c, E550]
+      - [0xEF50, data, 0]
+      - [0xF9E0, .rodata, 0]
+      - [0xFA50, .rodata, 1AF0]
+      - [0xFB30, .rodata, 3E10]
+      - [0xFEF0, .rodata, E550]
       - { start: 0xFF10, type: bss, vram: 0x80033F10 }
 
   - [0xFF10]

@@ -43,9 +43,9 @@ segments:
     vram: 0x80024000
     bss_size: 0x1B50
     subsegments:
-      - [0x0, asm]
-      - [0xE220, data]
-      - [0x26840, rodata]
+      - [0x0, c, 0]
+      - [0xE220, data, 0]
+      - [0x26840, .rodata, 0]
       - { start: 0x26C00, type: bss, vram: 0x8004AC00 }
 
   - [0x26C00]
