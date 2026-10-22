@@ -95,7 +95,46 @@ void func_80028680(void) {
     func_806A2B08(D_807FBB40->unk11C);
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/3840/func_800286B8.s")
+#define Boss2C_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
+
+typedef float Boss2C_MtxF[4][4];
+
+typedef struct {
+    char pad0[0x276];
+    s16 unk276;
+} Boss2C_Struct_807FC924;
+
+extern Boss2C_Struct_807FC924 *D_807FC924;
+extern u8 D_80750AD4;
+extern Gfx D_1000118;
+
+void heapFreeDeferred(void *);
+void *func_8070068C(Gfx *);
+void func_806FC530(void *, s32, s32, s32, char *, s32);
+
+void func_800286B8(Gfx *arg0, s32 arg1) {
+    Boss2C_MtxF sp90;
+    Boss2C_MtxF sp50;
+    Mtx *sp4C;
+    char sp3C[16];
+
+    sp4C = func_80610FE8(sizeof(Mtx));
+    heapFreeDeferred(sp4C);
+    guScaleF(sp90, 0.6f, 0.6f, 1.0f);
+    guTranslateF(sp50, 100.0f, (f32)(D_807FC924->unk276 * 4 - 0x3C), 0.0f);
+    guMtxCatF(sp90, sp50, sp90);
+    guMtxF2L(sp90, sp4C);
+    Boss2C_WRITE_GFX(arg0++, 0xDA380003, (u32)sp4C);
+    _sprintf(sp3C, "ROUND %d", D_80750AD4);
+    Boss2C_WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
+    Boss2C_WRITE_GFX(arg0++, 0xE7000000, 0);
+    Boss2C_WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
+    Boss2C_WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFFF);
+    arg0 = func_8070068C(arg0);
+    func_806FC530(arg0, 1, 0, 0, sp3C, 0);
+}
+
+static void func_80028818(void) {}
 
 void func_8073129C(s32, s32, s32);
 

@@ -133,7 +133,93 @@ void func_8002413C(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/0/func_80024300.s")
+typedef struct Boss2A_Struct_807FBB40_4300 {
+    u8 pad0[4];
+    BossA_Struct_807FBB40_Sub *sub;
+    u8 pad8[0x7C - 8];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+} Boss2A_Struct_807FBB40_4300;
+
+typedef struct Boss2A_Struct_807FDC90_4300 {
+    u8 pad0[0x2C];
+    s16 unk2C;
+} Boss2A_Struct_807FDC90_4300;
+struct BossA_Struct_80024EAC_DC90;
+extern struct BossA_Struct_80024EAC_DC90 *D_807FDC90;
+void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+f32 func_80612794(s16);
+f32 func_80612790(s16);
+
+void func_80024300(void) {
+    s16 var_s2;
+    BossA_Struct_8002413C_1 *var_s0;
+    s32 var_a3;
+    s32 var_v1;
+    s16 temp_lo;
+
+    var_s0 = D_807FBB40->sub->arr1;
+    var_a3 = 0;
+    var_v1 = 0xFF;
+    switch (((Boss2A_Struct_807FDC90_4300 *)D_807FDC90)->unk2C) {
+    case 19:
+        var_a3 = 0x22;
+        break;
+    case 17:
+        var_a3 = 0xF6;
+        break;
+    case 15:
+        var_a3 = 0x17;
+        break;
+    case 13:
+        var_a3 = 0xED;
+        break;
+    case 11:
+        var_a3 = 0x18;
+        break;
+    case 9:
+        var_a3 = 0x22;
+        var_v1 = 0xC8;
+        break;
+    case 7:
+        var_a3 = 0xED;
+        var_v1 = 0x82;
+        break;
+    case 5:
+        var_a3 = 0x18;
+        var_v1 = 0x46;
+        break;
+    case 3:
+        var_a3 = 0x3C;
+        break;
+    }
+
+    if (var_a3 != 0) {
+        func_806086CC(((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk7C,
+                      ((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk80,
+                      ((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk84,
+                      var_a3, var_v1, 0x7F, 1, 0x1E, 0.3f, 0);
+    }
+
+    var_s2 = 0;
+    D_807FBB40->sub->arr1[5].x = 99999.0f;
+    do {
+        if (var_s0->y >= 1800.0f) {
+            var_s0->x = 99999.0f;
+            var_s0->y = 99999.0f;
+            var_s0->z = 99999.0f;
+            var_s0++;
+        } else {
+            temp_lo = var_s2 * 400;
+            var_s0->x += 200.0f * func_80612794(temp_lo);
+            var_s0->z += 200.0f * func_80612790(temp_lo);
+            var_s0->y += 100.0f;
+            var_s0++;
+        }
+        var_s2++;
+    } while (var_s2 < 13);
+}
 
 void func_8002450C(u8 *arg0, u8 arg1, u8 arg2) {
     arg0[arg1 + 6] = arg2;
@@ -192,7 +278,49 @@ void func_80024EAC(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/0/func_80024FA8.s")
+typedef struct Boss2A_Struct_807FBB40_4FA8 {
+    u8 pad0[0x154];
+    u8 unk154;
+    u8 unk155;
+} Boss2A_Struct_807FBB40_4FA8;
+
+u8 func_80024568(u8 *, u8, f32, f32, f32);
+void func_8068842C(void *, s32, s32);
+
+void func_80024FA8(u8 arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+    u8 i;
+    u8 cur;
+    u8 res;
+
+    i = 0;
+    res = 0;
+    switch (((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155) {
+    case 2:
+        if (*arg3 != 0xFF) {
+            do {
+                func_8002450C(arg1, arg3[i++], 1);
+            } while ((cur = arg3[i]) != 0xFF);
+        }
+        ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 3;
+        break;
+    case 3:
+        if (*arg3 != 0xFF) {
+            do {
+                if (((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk154 == 0x27 ||
+                    ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk154 == 0x2E) {
+                    res = func_80024568(arg1, arg3[i++], 50.0f, 70.0f, 90.0f);
+                } else {
+                    res = func_80024568(arg1, arg3[i++], 10.0f, 15.0f, 50.0f);
+                }
+            } while ((cur = arg3[i]) != 0xFF);
+        }
+        if (res != 0) {
+            ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 4;
+            func_8068842C(D_807FBB40, 1, 1);
+        }
+        break;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/0/func_800251A0.s")
 

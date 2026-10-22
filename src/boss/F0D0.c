@@ -74,7 +74,40 @@ void func_8003340C(u8 *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_800334A4.s")
+f32 func_80612794(s16);
+s16 func_80665DE0(f32, f32, f32, f32);
+s16 func_806CC190(s16, s16, f32);
+
+typedef struct {
+    u8 pad0[4];
+    f32 unk4;
+} Boss2D_SubSub0;
+
+typedef struct {
+    Boss2D_SubSub0 *unk0;
+} Boss2D_SubStruct;
+
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+} Boss2D_Node;
+
+void func_800334A4(u8 *arg0, f32 arg1) {
+    f64 val;
+    f32 temp_f;
+
+    val = (f64)(((Boss2D_SubStruct *)D_807FBB40->unk4)->unk0->unk4 * arg1);
+
+    temp_f = (f32)(1.0 + (f64)func_80612794((s16)(s32)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
+
+    D_807FBB40->unk7C = (f32)((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk0 + (f32)(((Boss2D_Node *)D_807FDCA0->unk14)[arg0[0]].unk0 - ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk0) * temp_f;
+    D_807FBB40->unk84 = (f32)((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk4 + (f32)(((Boss2D_Node *)D_807FDCA0->unk14)[arg0[0]].unk4 - ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk4) * temp_f;
+
+    *(s16 *)((u8 *)D_807FBB40 + 0xE6) = func_806CC190(*(s16 *)((u8 *)D_807FBB40 + 0xE6), func_80665DE0(((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk0, ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk4, ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[0]].unk0, ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[0]].unk4), 10.0f);
+}
 
 void func_800336C0(void) {
     f32 sp24;
@@ -89,9 +122,24 @@ void func_800336C0(void) {
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_80033784.s")
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_8003392C.s")
+void func_80690814(void *, s32);
+void func_80690A28(s32, s32, f32, f32, f32, f32, f32, void *);
+void func_8003392C(u8 *arg0) {
+    func_80690814(D_807FBB40, 1);
+    func_80690A28(0x2C, 2, D_807FBB40->unk4->unk38, D_807FDCA0->unk14[arg0[3]].unk0, D_807FDCA0->unk14[arg0[3]].unk2, D_807FDCA0->unk14[arg0[3]].unk4, 1200.0f, D_807FBB40);
+}
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_800339D8.s")
+s32 func_800339D8(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
+    if ((D_807FBB4C->unk80 < (D_807FBB40->unk80 - 10.0f)) && (arg0->unk14 < 5)) {
+        arg0->unk15 = arg0->unk16;
+        D_807FBB40->unk154 = arg1[arg0->unk15];
+        arg0->unk15++;
+        D_807FBB40->unk155 = 0;
+        func_80614EBC(D_807FBB40, 0);
+        return 1;
+    }
+    return 0;
+}
 
 
 void func_80033A80(s8 arg0) {
