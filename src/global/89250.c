@@ -50,9 +50,9 @@ void func_80663844(Actor *);
 s32 func_80665AAC(Actor *);
 void func_80671C0C(Actor *, s32, f32 *, f32 *, f32 *);
 void func_8067B238(Actor *, Actor *, f32);
-void func_8068581C(Actor *, s16, f32, f32, f32, f32, s32);
-void func_8068588C(Actor *, s16, f32, f32, f32, f32, s32);
-void func_806858E8(Actor *, s16, f32, f32, f32, f32, s32);
+void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
+void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
+void effectSpawnBone(Actor *, s16, f32, f32, f32, f32, s32);
 void func_80685F60(Actor *);
 void func_80686390(Actor *, f32, f32, f32, f32);
 void func_80688370(Actor *, s32, f32);
@@ -88,7 +88,7 @@ void func_8071E1C8(void);
 void func_8071EA24(void);
 void func_8071EFDC(void);
 
-void func_80684550(s32 arg0, u8 arg1, f32 arg2) {
+void effectSpawnActorBone(s32 arg0, u8 arg1, f32 arg2) {
     func_807149B8(1);
     func_8071498C(func_8071AF30);
     func_80714950(arg0);
@@ -96,7 +96,7 @@ void func_80684550(s32 arg0, u8 arg1, f32 arg2) {
     func_80714C08(&D_80720120, arg2, D_807FBB40, arg1, 0);
 }
 
-void func_806845B8(u8 arg0, u8 arg1) {
+void effectSpawnRandomBoneDebris(u8 arg0, u8 arg1) {
     f32 sp2C;
     u8 sp2B;
 
@@ -105,11 +105,11 @@ void func_806845B8(u8 arg0, u8 arg1) {
         sp2B = ((func_80611A44() >> 15) % 0x7FFF) % ((arg1 - arg0) + 1) + arg0;
         func_80714998(3);
         func_807149C8(0xE6, 0xE6, 0xE6, 0xE6);
-        func_8068588C(D_807FBB40, sp2B, sp2C, 0.0f, 0.0f, 0.0f, -0x78);
+        effectSpawnBoneDefault(D_807FBB40, sp2B, sp2C, 0.0f, 0.0f, 0.0f, -0x78);
     }
 }
 
-void func_806846B4(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, Actor *arg5, u8 arg6) {
+void actorSpawnEffectChild(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, Actor *arg5, u8 arg6) {
     s32 var_a1 = 0xAD;
 
     if (arg5 != NULL) {
@@ -159,7 +159,7 @@ void func_806846B4(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, Actor *arg5
 extern s32 D_8071FF58;
 void func_807197B4(void);
 
-void func_80684850(u8 arg0) {
+void effectSpawnSmoke(u8 arg0) {
     if (!(D_8076A064 & 0x1F)) {
         func_80714998(2);
         func_807149B8(1);
@@ -173,7 +173,7 @@ void func_80684850(u8 arg0) {
     }
 }
 
-void func_80684900(u8 arg0) {
+void effectSpawnBurst(u8 arg0) {
     if (arg0) {
         func_80714950(((s32)(func_80611A44() >> 15) % 10) + 0x8008);
     } else {
@@ -186,7 +186,7 @@ void func_80684900(u8 arg0) {
     func_80714C08(&D_8072139C, (f32)(((f64)((s32)(func_80611A44() >> 15) % 50) / 80.0) + 0.1), D_807FBB40, 8, 0);
 }
 
-void func_80684A00(s16 arg0, s8 arg1) {
+void effectSpawnBoneDebris(s16 arg0, s8 arg1) {
     f32 sp3C;
     f32 sp38;
     f32 sp34;
@@ -206,7 +206,7 @@ void func_80684A00(s16 arg0, s8 arg1) {
 
 void func_8071F2F8(void);
 
-void func_80684BB0(s16 arg0, s16 arg1, s16 arg2) {
+void effectSpawnBoneDebrisScaled(s16 arg0, s16 arg1, s16 arg2) {
     f32 sp54;
     f32 sp50;
     f32 sp4C;
@@ -234,7 +234,7 @@ void func_80684BB0(s16 arg0, s16 arg1, s16 arg2) {
 extern s32 D_8071FC40;
 void func_80718BF4(void);
 
-void func_80684D98(u8 arg0) {
+void effectSpawnAuraBurst(u8 arg0) {
     s32 i;
     f32 x, y, z;
 
@@ -255,7 +255,7 @@ void func_80684D98(u8 arg0) {
     }
 }
 
-void func_80685020(u8 arg0, u8 arg1) {
+void effectSpawnSparks(u8 arg0, u8 arg1) {
     if (!(arg0 & D_8076A064)) {
         func_8071498C(func_80718BF4);
         func_807149B8(1);
@@ -269,7 +269,7 @@ void func_80685020(u8 arg0, u8 arg1) {
     }
 }
 
-void func_806850D0(void) {
+void effectSpawnRing(void) {
     f32 temp;
     s32 i;
 
@@ -298,7 +298,7 @@ void func_80685210(f32 arg0, s16 arg1, s16 arg2) {
     }
 }
 
-void func_806852C4(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+void effectSpawnOctagonRing(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     s16 var_s0;
 
     for (var_s0 = 0; var_s0 < 8; var_s0++) {
@@ -310,7 +310,7 @@ void func_806852C4(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     }
 }
 
-void func_80685390(void) {
+void actorScaleGrowthUpdate(void) {
     Actor174_5390 *temp_v0 = D_807FBB40->unk174;
     Struct_5390 sp20 = D_8074E88C;
 
@@ -337,14 +337,14 @@ void func_80685390(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_80685520(f32 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
+void effectSpawnMultiTierRing(f32 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
     s32 temp_t6;
     s32 var_s0;
 
     temp_t6 = arg1;
     if (D_80750AD0 == 0) {
         if (temp_t6 > 0) {
-            func_806852C4(arg0, arg2, arg3, arg4);
+            effectSpawnOctagonRing(arg0, arg2, arg3, arg4);
         }
         if (temp_t6 >= 2) {
             for (var_s0 = 0; var_s0 < 8; var_s0++) {
@@ -371,18 +371,18 @@ void func_80685520(f32 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80685708.s")
 
-void func_8068581C(Actor *arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
+void effectSpawnBoneWhite(Actor *arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
     func_80714998(2);
     func_807149C8(0xFF, 0xFF, 0xFF, 0xC8);
-    func_8068588C(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+    effectSpawnBoneDefault(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
-void func_8068588C(Actor *arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
+void effectSpawnBoneDefault(Actor *arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
     func_807149B8(1);
-    func_806858E8(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+    effectSpawnBone(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
-void func_806858E8(Actor *arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
+void effectSpawnBone(Actor *arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
     Actor338 *temp;
 
     if (arg0 != NULL && arg1 != 0) {
@@ -394,7 +394,7 @@ void func_806858E8(Actor *arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5
     temp->unk338 = arg0;
 }
 
-void func_80685984(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+void effectSpawnScatter(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     s32 pad[2];
     s32 sp24;
     s32 mod100k;
@@ -413,7 +413,7 @@ void func_80685984(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
 }
 #pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80685B44.s")
 
-void func_80685D84(Actor *arg0) {
+void actorUpdateEffects(Actor *arg0) {
     if (!(arg0->unk64 & 4)) {
         if ((arg0->unk60 & 0x10) && ((arg0->unk6A ^ arg0->unk6C) & 4)) {
             func_80686390(arg0, 0.0f, arg0->unk7C, arg0->unkAC, arg0->unk84);
@@ -430,7 +430,7 @@ void func_80685D84(Actor *arg0) {
     }
 }
 
-void func_80685E78(Actor *arg0) {
+void effectSpawnActorScale(Actor *arg0) {
     s32 pad;
     f32 sp28;
 
@@ -446,7 +446,7 @@ void func_80685E78(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80685F60.s")
 
-void func_8068613C(Actor *arg0) {
+void effectSpawnBurstParticles(Actor *arg0) {
     f32 var_fs0;
     f32 scale01;
     u8 count;
@@ -455,7 +455,7 @@ void func_8068613C(Actor *arg0) {
     var_fs0 = (arg0->unk4 != NULL) ? (f64)arg0->unk4->unk38 / 0.15 : 1.0;
     if (arg0->unk58 == 0x1E) {
         var_fs0 *= 2;
-        func_8068588C(arg0, 0, 4.0f, arg0->unk7C, arg0->unk80, arg0->unk84, -0x96);
+        effectSpawnBoneDefault(arg0, 0, 4.0f, arg0->unk7C, arg0->unk80, arg0->unk84, -0x96);
         actorDespawn(arg0);
     }
     func_80608528(arg0, 0xC, 0xFF, 0x7F, 1);
@@ -480,7 +480,7 @@ void func_8068613C(Actor *arg0) {
     }
 }
 
-void func_80686340(void) {
+void particleInitDefaultState(void) {
     func_807149B8(1);
     func_807149FC(0x14);
     func_8071498C(func_8071827C);
@@ -502,7 +502,7 @@ void func_8068696C(Actor *arg0) {
     }
 }
 
-void func_80686A5C(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
+void effectSpawnRingBursts(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
@@ -553,7 +553,7 @@ void func_80686E40(f32 arg0, f32 arg1, f32 arg2, void *arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80686F90.s")
 
-void func_80687080(void) {
+void effectActorGrowthTick(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk60 &= ~0x8000;
         D_807FBB40->unk60 |= 0x800000;
@@ -585,7 +585,7 @@ void func_80687400(void) {
     func_80714CC0(&D_80721158, 1.0f, 160.0f, 120.0f, -10.0f);
 }
 
-void func_80687474(Actor *arg0, f32 arg1) {
+void actorSpawnAttachment(Actor *arg0, f32 arg1) {
     actorSpawn(0xB3, 0x5D);
     D_807FBB44->unk60 |= 0x400;
     func_80614EBC(D_807FBB44, 0x334);
@@ -595,7 +595,7 @@ void func_80687474(Actor *arg0, f32 arg1) {
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-void func_806874EC(void) {
+void effectSpawnKongRing(void) {
     s32 var_a1;
     f32 sp98;
     f32 sp94;
@@ -651,7 +651,7 @@ void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_8071E028(void);
 extern s32 D_80720B24;
 
-void func_8068780C(arg0, arg1, arg2, arg3)
+void effectSpawnJointBeam(arg0, arg1, arg2, arg3)
 u8 arg0;
 u8 arg1;
 u8 arg2;

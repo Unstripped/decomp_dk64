@@ -28,7 +28,7 @@ void func_8073129C(s32, s32, s32);
 void func_8061CC40(Actor_3340 *, s32, s32);
 void func_80629174(void);
 s32 func_80629148(Actor_3340 *);
-void func_80684900(s32);
+void effectSpawnBurst(s32);
 void func_80614E78(Actor_3340 *, s32);
 void func_80608528(Actor_3340 *, s32, s32, s32, s32);
 void func_80605314(Actor_3340 *, s32);
@@ -109,7 +109,7 @@ void func_80027DC0(void) {
             if ((*s0)->unk155 < 0x4B) {
                 *s0 = D_807FBB4C;
                 if (!(D_8076A064 & 3)) {
-                    func_80684900(0);
+                    effectSpawnBurst(0);
                 }
                 *s0 = sp34;
             } else {

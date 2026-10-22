@@ -348,7 +348,7 @@ extern s32 D_8076A064;
 s32 func_80611A44(void);
 void func_80714998(s32);
 void func_807149C8(s32, s32, s32, s32);
-void func_8068588C(void *, s16, f32, f32, f32, f32, s32);
+void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void func_80027770(void) {
     u8 val;
@@ -361,7 +361,7 @@ void func_80027770(void) {
         }
         func_80714998(3);
         func_807149C8(0x50, 0x50, 0x50, 0xC8);
-        func_8068588C(D_807FBB40, val, 2.0f, 0.0f, 0.0f, 0.0f, -0x78);
+        effectSpawnBoneDefault(D_807FBB40, val, 2.0f, 0.0f, 0.0f, 0.0f, -0x78);
     }
 }
 

@@ -64,7 +64,7 @@ void func_806663F8(Actor *);
 void func_80669A6C(Actor *);
 void func_80672B1C(Actor *);
 void func_80675EE0(Actor *);
-void func_806761EC(Actor *);
+void actorInitDamage(Actor *);
 void func_80677EC8(s32);
 s32 func_80678014(s32);
 s32 func_80678050(s32);
@@ -458,7 +458,7 @@ void func_80678BBC(Actor *arg0) {
     if (arg0 == D_807FBB48) {
         func_80675EE0(arg0);
     } else {
-        func_806761EC(arg0);
+        actorInitDamage(arg0);
     }
     func_806794EC(arg0);
     if (arg0 == D_807FBB48) {
@@ -484,7 +484,7 @@ void func_80678E6C(Actor *);
 void func_8066EBF4(Actor *);
 void func_806790F4(s32);
 void func_8067A1DC(Actor *);
-void func_80685D84(Actor *);
+void actorUpdateEffects(Actor *);
 void func_80687F7C(Actor *);
 
 void func_80678CC8(Actor *actor) {
@@ -507,7 +507,7 @@ void func_80678CC8(Actor *actor) {
     func_806790F4(0);
     func_8067A1DC(actor);
     actorFreeCallbackList(actor);
-    func_80685D84(actor);
+    actorUpdateEffects(actor);
     func_80687F7C(actor);
     actor->unk60 |= 0x10;
 }

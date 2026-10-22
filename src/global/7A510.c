@@ -75,7 +75,7 @@ typedef struct Beh798_Actor {
     /* 0x134 */ s16 unk134;
     /* 0x136 */ s16 unk136;
 } Beh798_Actor;
-void func_80675DD0(Beh798_Actor *arg0, Beh798_Actor *arg1) {
+void actorApplyDamage(Beh798_Actor *arg0, Beh798_Actor *arg1) {
     s32 var_v0;
 
     if ((arg0->unk134 -= arg1->unk136) <= 0) {
@@ -112,11 +112,11 @@ typedef struct Beh798_8074D0C4 {
 extern Beh798_8074D0C4 D_8074D0C4[];
 extern Beh798_8074D0C4 D_8074D0C6[];
 
-void func_806761D0(Beh798_Actor *arg0) {
+void actorInitHealth(Beh798_Actor *arg0) {
     arg0->unk134 = D_8074D0C4[arg0->unk58].unk0;
 }
 
-void func_806761EC(Beh798_Actor *arg0) {
+void actorInitDamage(Beh798_Actor *arg0) {
     arg0->unk136 = D_8074D0C6[arg0->unk58].unk0;
 }
 

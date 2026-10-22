@@ -43,14 +43,14 @@ s32 func_80611A44(void);
 void func_807149B8(s32);
 void func_80714998(s32);
 void func_807149C8(s32, s32, s32, s32);
-void func_8068588C(void *, s16, f32, f32, f32, f32, s32);
+void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void func_800293C0(void) {
     func_80611A44();
     func_807149B8(1);
     func_80714998(3);
     func_807149C8(0x78, 0x78, 0x78, 0xC8);
-    func_8068588C(D_807FBB40, (((func_80611A44() >> 15) % 0x7FFF) % 16) + 3, 2.0f, 0.0f, 0.0f, 0.0f, -0x96);
+    effectSpawnBoneDefault(D_807FBB40, (((func_80611A44() >> 15) % 0x7FFF) % 16) + 3, 2.0f, 0.0f, 0.0f, 0.0f, -0x96);
 }
 
 typedef struct Boss3F_52B0_178 {
@@ -147,7 +147,7 @@ void func_806319C4(void *, s32);
 void func_8063DA40();
 void func_80659670(f32, f32, f32, s32);
 s16 func_80665DE0(f32, f32, f32, f32);
-void func_8068780C(s32, s32, s32, s32);
+void effectSpawnJointBeam(s32, s32, s32, s32);
 void func_806907F0(f32, f32, f32);
 void func_80690814(void *, s32);
 void func_8069084C(s32, s32, f32, s32, f32, f32, void *);
@@ -292,8 +292,8 @@ void func_80029468(void) {
                 }
                 break;
             case 2:
-                func_8068780C(3, 6, 7, 0xA);
-                func_8068780C(0xB, 0xE, 0xF, 0x12);
+                effectSpawnJointBeam(3, 6, 7, 0xA);
+                effectSpawnJointBeam(0xB, 0xE, 0xF, 0x12);
                 break;
             case 3:
                 if (!(D_8076A064 & 3)) {

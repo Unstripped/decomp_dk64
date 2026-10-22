@@ -128,6 +128,15 @@ schedYield = 0x8060FA5C; // type:func
 gScheduler = 0x80767A40;
 
 // Actor system
+actorApplyDamage = 0x80675DD0; // type:func
+actorInitHealth = 0x806761D0; // type:func
+actorInitDamage = 0x806761EC; // type:func
+actorIsDamageFatal = 0x80676308; // type:func
+actorIsFacingTarget = 0x8067641C; // type:func
+actorListContainsId = 0x80676CB0; // type:func
+actorGetMatrix = 0x8067760C; // type:func
+actorIsTargetWithinAngle = 0x80677CAC; // type:func
+actorCheckFacingTarget = 0x80677D58; // type:func
 actorInit = 0x80677D80; // type:func
 actorSpawnFromInfo = 0x80677ED0; // type:func
 actorSpawn = 0x80677FA8; // type:func
@@ -161,6 +170,34 @@ tagBarrelSpawnKongs = 0x80682E38; // type:func
 tagBarrelUpdateSelectedKong = 0x8068304C; // type:func
 tagBarrelIsKongUnlocked = 0x80683A80; // type:func
 tagBarrelInitUnlockedKongs = 0x8068408C; // type:func
+
+// Actor effects and particles
+effectSpawnActorBone = 0x80684550; // type:func
+effectSpawnRandomBoneDebris = 0x806845B8; // type:func
+actorSpawnEffectChild = 0x806846B4; // type:func
+effectSpawnSmoke = 0x80684850; // type:func
+effectSpawnBurst = 0x80684900; // type:func
+effectSpawnBoneDebris = 0x80684A00; // type:func
+effectSpawnBoneDebrisScaled = 0x80684BB0; // type:func
+effectSpawnAuraBurst = 0x80684D98; // type:func
+effectSpawnSparks = 0x80685020; // type:func
+effectSpawnRing = 0x806850D0; // type:func
+effectSpawnOctagonRing = 0x806852C4; // type:func
+actorScaleGrowthUpdate = 0x80685390; // type:func
+effectSpawnMultiTierRing = 0x80685520; // type:func
+effectSpawnBoneWhite = 0x8068581C; // type:func
+effectSpawnBoneDefault = 0x8068588C; // type:func
+effectSpawnBone = 0x806858E8; // type:func
+effectSpawnScatter = 0x80685984; // type:func
+actorUpdateEffects = 0x80685D84; // type:func
+effectSpawnActorScale = 0x80685E78; // type:func
+effectSpawnBurstParticles = 0x8068613C; // type:func
+particleInitDefaultState = 0x80686340; // type:func
+effectSpawnRingBursts = 0x80686A5C; // type:func
+effectActorGrowthTick = 0x80687080; // type:func
+actorSpawnAttachment = 0x80687474; // type:func
+effectSpawnKongRing = 0x806874EC; // type:func
+effectSpawnJointBeam = 0x8068780C; // type:func
 
 // n_audio
 alHeapInit = 0x80732420; // type:func

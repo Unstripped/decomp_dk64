@@ -18,7 +18,7 @@ typedef struct Beh7BB_Struct_760C {
 
 extern u8 D_807444FC;
 extern s32 D_8076A064;
-void func_8067760C(Beh7BB_Struct_760C *arg0, Beh7BB_MtxF arg1, s8 arg2) {
+void actorGetMatrix(Beh7BB_Struct_760C *arg0, Beh7BB_MtxF arg1, s8 arg2) {
     u8 var_v0;
     Mtx *mtx;
 
@@ -44,7 +44,7 @@ typedef struct Beh7BB_Target {
 } Beh7BB_Target;
 extern Beh7BB_Target *D_807FB5D8;
 
-s32 func_80677CAC(s16 arg0, s16 arg1) {
+s32 actorIsTargetWithinAngle(s16 arg0, s16 arg1) {
     s16 var_v0;
     s16 diff;
 
@@ -68,6 +68,6 @@ s32 func_80677CAC(s16 arg0, s16 arg1) {
     return 0;
 }
 
-s32 func_80677D58(Actor *arg0) {
-    return func_80677CAC(arg0->unkE6, 400);
+s32 actorCheckFacingTarget(Actor *arg0) {
+    return actorIsTargetWithinAngle(arg0->unkE6, 400);
 }

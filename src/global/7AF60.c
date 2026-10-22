@@ -16,11 +16,11 @@ s32 func_806D10D0(s32);
 s32 func_806767E0();
 f32 func_80665E94(f32, f32, f32, f32, f32, f32, s32);
 void func_80671C0C();
-u8 func_8067641C();
+u8 actorIsFacingTarget();
 s16 func_80665DE0(f32, f32, f32, f32);
 s32 func_806CC14C(s16, s16);
 s32 func_8067680C();
-s32 func_80676CB0();
+s32 actorListContainsId();
 u8 func_80714608();
 void func_80676260(s32 arg0, s32 arg1, s32 arg2) {
     func_806D0DE4(arg0, arg1);
@@ -46,7 +46,7 @@ u8 func_806762C0(s32 arg0, s32 arg1, s32 arg2) {
     return var_a0;
 }
 
-s32 func_80676308(void* arg0, void* arg1, u8 arg2) {
+s32 actorIsDamageFatal(void* arg0, void* arg1, u8 arg2) {
     s16 diff = *(s16*)((u8*)arg0 + 0x134) - *(s16*)((u8*)arg1 + 0x136);
 
     if (diff <= 0) {
@@ -60,12 +60,12 @@ u8 func_80676338(s32 arg0, s32 arg1, s32 arg2) {
 
     var_a0 = func_806CC14C(func_80665DE0((s16)((Actor*)arg0)->unk7C, (s16)((Actor*)arg0)->unk84, (s16)((Actor*)arg1)->unk7C, (s16)((Actor*)arg1)->unk84), *(s16*)((u8*)arg0 + 0xE6)) < 0x200;
     if (var_a0) {
-        var_a0 = func_8067641C(arg0, arg1, arg2);
+        var_a0 = actorIsFacingTarget(arg0, arg1, arg2);
     }
     return var_a0;
 }
 
-u8 func_8067641C(s32 arg0, s32 arg1, s32 arg2) {
+u8 actorIsFacingTarget(s32 arg0, s32 arg1, s32 arg2) {
     Actor* a0 = (Actor*)arg0;
     Actor* a1 = (Actor*)arg1;
     return func_806CC14C(func_80665DE0((s16)a0->unk7C, (s16)a0->unk84, (s16)a1->unk7C, (s16)a1->unk84), *(s16*)((u8*)a1 + 0xE6)) < 0x3A9;
@@ -115,9 +115,9 @@ u8 func_806765E8(Actor* arg0, Actor* arg1, s32 arg2) {
 u8 func_80676690(s32 arg0, s32 arg1, s32 arg2) {
     s32 var_a0;
 
-    var_a0 = func_80676CB0(arg2, 1) != 0;
+    var_a0 = actorListContainsId(arg2, 1) != 0;
     if (var_a0) {
-        var_a0 = func_8067641C(arg0, arg1, arg2) != 0;
+        var_a0 = actorIsFacingTarget(arg0, arg1, arg2) != 0;
     }
     return var_a0;
 }
@@ -125,32 +125,32 @@ u8 func_80676690(s32 arg0, s32 arg1, s32 arg2) {
 u8 func_806766E0(s32 arg0, s32 arg1, s32 arg2) {
     s32 var_a0;
 
-    var_a0 = func_80676CB0(arg2, 2) != 0;
+    var_a0 = actorListContainsId(arg2, 2) != 0;
     if (var_a0) {
-        var_a0 = func_8067641C(arg0, arg1, arg2) != 0;
+        var_a0 = actorIsFacingTarget(arg0, arg1, arg2) != 0;
     }
     return var_a0;
 }
 
 
 s32 func_80676730(s32 arg0, s32 arg1, s32 arg2) {
-    return func_80676CB0(arg2, 1);
+    return actorListContainsId(arg2, 1);
 }
 
 s32 func_8067675C(s32 arg0, s32 arg1, s32 arg2) {
-    return func_80676CB0(arg2, 3);
+    return actorListContainsId(arg2, 3);
 }
 
 s32 func_80676788(s32 arg0, s32 arg1, s32 arg2) {
-    return func_80676CB0(arg2, 5);
+    return actorListContainsId(arg2, 5);
 }
 
 s32 func_806767B4(s32 arg0, s32 arg1, s32 arg2) {
-    return func_80676CB0(arg2, 4);
+    return actorListContainsId(arg2, 4);
 }
 
 s32 func_806767E0(s32 arg0, s32 arg1, s32 arg2) {
-    return func_80676CB0(arg2, 2);
+    return actorListContainsId(arg2, 2);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7AF60/func_8067680C.s")
@@ -238,7 +238,7 @@ u8 func_80676C10(s32 arg0, Actor* arg1, s32 arg2) {
 }
 
 s32 func_80676C64(s32 arg0, Actor* arg1, s32 arg2) {
-    if (func_80676CB0(arg2, 1)) {
+    if (actorListContainsId(arg2, 1)) {
         if (*(u8*)((u8*)arg1 + 0x154) == 0x1C) {
             return 1;
         }
@@ -258,7 +258,7 @@ typedef struct Beh7AF3_List {
     Beh7AF3_Node* items;
 } Beh7AF3_List;
 
-s32 func_80676CB0(list, id)
+s32 actorListContainsId(list, id)
 Beh7AF3_List* list;
 u8 id;
 {
