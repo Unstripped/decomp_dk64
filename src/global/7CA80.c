@@ -57,7 +57,7 @@ extern s32 D_807FBFF0[];
 extern s16 D_807FC3F0;
 
 void *func_80610FE8(s32);
-void func_8061421C(void);
+void func_8061421C();
 void func_80614A64(Actor *);
 ActorSub140 *func_80665F24(Actor *);
 void func_806663F8(Actor *);
@@ -112,7 +112,7 @@ void func_8067ACB4(Actor *);
 u16 func_8067ACC0(u16);
 void func_8067AE58(void);
 s32 func_8067AF44();
-s32 func_8067AF74(void);
+s32 func_8067AF74();
 void func_8067B100(Actor *);
 void func_8067B2B0(s32);
 void func_8067B2B8(s32);
@@ -125,7 +125,73 @@ void func_806EB194(void);
 void func_80732354(s32, s32, s32, s32);
 void heapFree(void *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80677D80.s")
+typedef struct R3B_StructFB630 {
+    s16 unk0;
+    s16 unk2;
+    s32 unk4;
+    s32 unk8;
+} R3B_StructFB630;
+
+typedef struct R3B_StructFB7B0 {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+} R3B_StructFB7B0;
+
+typedef struct R3B_Header {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+} R3B_Header;
+
+extern R3B_StructFB630 D_807FB630[32];
+extern R3B_StructFB7B0 D_807FB7B0[32];
+extern s16 D_807FBB30;
+extern s16 D_807FBB32;
+extern R3B_Header *D_807FBB50;
+extern void *D_807FBB54;
+extern void *D_807FBB58;
+extern void *D_807FBB5C;
+extern s32 D_807FBB38;
+
+void *func_8066B0F8(s32, s32, s32, s32);
+
+void func_80677D80(void) {
+    u16 i;
+
+    for (i = 0; i < 32; i++) {
+        D_807FB630[i].unk0 = 0;
+        D_807FB630[i].unk2 = 0;
+        D_807FB630[i].unk4 = 0;
+    }
+    D_807FBB30 = 0;
+
+    for (i = 0; i < 32; i++) {
+        D_807FB7B0[i].unk0 = 0xFFFF;
+        D_807FB7B0[i].unk4 = 0;
+        D_807FB7B0[i].unk8 = 0;
+    }
+    D_807FBB32 = 0;
+
+    D_807FBB50 = (R3B_Header *)func_8066B0F8(0xD, 0, 1, 1);
+    D_807FBB54 = (void *)(D_807FBB50->unkC + (s32)D_807FBB50);
+    D_807FBB58 = (void *)(D_807FBB50->unk8 + (s32)D_807FBB50);
+    D_807FBB5C = (void *)(D_807FBB50->unk4 + (s32)D_807FBB50);
+
+    for (i = 0; i < 64; i++) {
+        D_807FB930[i].actor = NULL;
+        D_807FB930[i].unk4 = 0;
+    }
+    D_807FBB34 = 0;
+
+    func_8067AE58();
+
+    D_807FBB38 = 0;
+    D_807FBE09 = 0;
+    D_807FBFD8 = 0;
+    D_807FBB48 = NULL;
+}
 
 void func_80677EC8(s32 arg0) {
 }
@@ -408,7 +474,43 @@ void func_80678BBC(Actor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80678CC8.s")
+typedef struct R3B_Actor {
+    u8 pad[0x156];
+    u8 unk156;
+} R3B_Actor;
+
+void func_80665FB4(Actor *);
+void func_80678E6C(Actor *);
+void func_8066EBF4(Actor *);
+void func_806790F4(s32);
+void func_8067A1DC(Actor *);
+void func_80685D84(Actor *);
+void func_80687F7C(Actor *);
+
+void func_80678CC8(Actor *actor) {
+    if ((void *)func_8067B3F4 == (void *)D_8074DA30[D_8074D8D4[actor->unk58]]) {
+        guTranslateF((void *)((u8 *)actor + 0xC), actor->unk7C, actor->unk80, actor->unk84);
+    }
+    func_80665FB4(actor);
+    func_80678E6C(actor);
+    if (!(actor->unk60 & 0x08000000)) {
+        actor->unk60 &= ~0x200;
+        if (actor->unk4 != NULL) {
+            func_8061421C(actor);
+            if (((actor->unk60 & 0x500) || ((R3B_Actor *)actor)->unk156 != 0) && !(actor->unk60 & 0x4000)) {
+                func_80614A64(actor);
+            }
+        }
+    }
+    func_80678E14(actor);
+    func_8066EBF4(actor);
+    func_806790F4(0);
+    func_8067A1DC(actor);
+    func_80679178(actor);
+    func_80685D84(actor);
+    func_80687F7C(actor);
+    actor->unk60 |= 0x10;
+}
 
 void func_80678DD8(Actor *actor) {
     func_8061421C();
@@ -859,7 +961,27 @@ s32 func_8067AF44(void) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_8067AF74.s")
+s32 func_8067AF74(u32 arg0) {
+    s16 low = 0;
+    s16 high = D_807FC3F0 - 1;
+
+    if (D_807FC3F0 == 0) {
+        return -1;
+    }
+    while (low <= high) {
+        s16 mid = (low + high) >> 1;
+
+        if (arg0 == D_807FBFF0[mid]) {
+            return mid;
+        }
+        if (arg0 < D_807FBFF0[mid]) {
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return -1;
+}
 
 void func_8067B01C(void) {
     s32 done = FALSE;

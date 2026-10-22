@@ -5,13 +5,16 @@
         Save the current file(s) as the merge base (.scratch/bases/). Run this right
         before agents copy the file; every copy must start from this exact content.
 
-    python3 tools/merge_drafts.py merge src/menu/3E10.c [.scratch/A/3E10.c .scratch/B/3E10.c ...]
+    python3 tools/merge_drafts.py merge [--base REV] src/menu/3E10.c [.scratch/A/3E10.c ...]
         3-way merge every copy against the base into the CURRENT src file (git merge-file),
         so edits made to src after the snapshot survive; drop file-scope declarations that
         are exact duplicates of an earlier line or whose name is used nowhere else in the
         file (left behind by reverted drafts), then check the object with tools/objdiff.sh.
         Compile errors are printed with the text of both clashing declarations. With no
         copies it only prunes and checks (use after resolving conflicts by hand).
+        --base REV uses `git show REV:<src>` as the base instead of the snapshot: for drafts
+        copied before a later snapshot (agents still running from an earlier round), pass
+        the commit their copy started from.
 
 Runs on the host (needs git and tools/dk). Exit codes: 0 OK / TEXT OK, 1 compile error
 or mismatch, 2 merge conflicts (src untouched; conflicted result in .scratch/merged/).
@@ -81,9 +84,15 @@ def prune(lines, base_lines):
     return [l for i, l in enumerate(lines) if i not in drop]
 
 
-def merge(src, drafts):
+def merge(src, drafts, rev=None):
     base = base_path(src)
-    if not os.path.exists(base):
+    if rev:
+        os.makedirs(os.path.join(SCRATCH, "bases"), exist_ok=True)
+        base = os.path.join(SCRATCH, "bases", f"{rev}_" + src.replace("/", "_"))
+        with open(base, "w") as f:
+            f.write(subprocess.run(["git", "show", f"{rev}:{src}"], check=True,
+                                   capture_output=True, text=True).stdout)
+    elif not os.path.exists(base):
         print(f"Error: no base for {src}; run `snapshot` before agents copy it.", file=sys.stderr)
         return 1
     os.makedirs(os.path.join(SCRATCH, "merged"), exist_ok=True)
@@ -129,6 +138,8 @@ def merge(src, drafts):
 def main():
     if len(sys.argv) >= 3 and sys.argv[1] == "snapshot":
         return snapshot(sys.argv[2:])
+    if len(sys.argv) >= 5 and sys.argv[1] == "merge" and sys.argv[2] == "--base":
+        return merge(sys.argv[4], sys.argv[5:], sys.argv[3])
     if len(sys.argv) >= 3 and sys.argv[1] == "merge":
         return merge(sys.argv[2], sys.argv[3:])
     print(__doc__, file=sys.stderr)
