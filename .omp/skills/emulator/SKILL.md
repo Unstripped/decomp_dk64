@@ -181,25 +181,20 @@ Warp the running game to any map ID by calling `func_805FF378(map, exit)` at the
 
 ### Warping to a Map
 ```sh
-# Warp by hex ID
-python3 tools/emu/warp.py 0x22 [--name NAME]
-
-# Warp by map name (from tools/emu/maps.tsv)
-python3 tools/emu/warp.py "Jungle Japes" [--name NAME]
-
-# Warp with exit index
-python3 tools/emu/warp.py 0x22 1 [--name NAME]
+python3 tools/emu/warp.py --name NAME 0x22 [EXIT] [--timeout S] [--settle S]
+python3 tools/emu/warp.py --name NAME "Cranky's Lab"   # name/substring from tools/emu/maps.tsv
 ```
+- Waits up to `--timeout` (20 s) for `D_8076A0A8` to change; a `hang` needs the map register AND the frame/VI counters to stall. Then waits `--settle` (4.5 s) for the iris wipe before re-reading the map, overlay and taking the screenshot.
+- Run at most 2 warp/sweep sessions at once: under 4 concurrent sessions, transitions took 6.5–8.5 s wall and the old 6 s timeout produced false hangs.
+- `tools/emu/maps.tsv`: all 224 ids `0x00`–`0xDF` (the per-map byte table `D_807445E0` is 0xE0 long), measured from `training_grounds`: 223 load as requested, `0xB3` is rewritten to `0x1E`, `0xD8`–`0xDF` load but render black. Names are visual descriptions from one settled frame, not verified titles; fix one when you can tell better.
+- Warping from `training_grounds` works for every id; story flags still come from that save, so late-game maps can look empty.
 
 ### Automated Map Sweeps
-Sweep a range of map IDs, restoring a baseline state before each attempt:
 ```sh
-python3 tools/emu/warp.py sweep --name <name> --state <label> --from <start> --to <end> --out <output.tsv> [--vnc-port PORT]
+python3 tools/emu/warp.py sweep --name NAME --state LABEL --from A --to B --out FILE.tsv [--vnc-port P] [--timeout S] [--settle S]
 ```
-- Restores the clean library state `--state` (e.g. `training_grounds`) before every warp.
-- Writes results ONLY to `--out` TSV with columns: `id	name	loaded	overlay	status	notes`.
-- Saves a screenshot of each mapped scene to `emu/maps/map_0xNN.png`.
-- On crash or timeout, automatically recovers by restarting the session container using `--vnc-port`.
+- Restores library state `--state` before every warp, writes ONLY to `--out` (columns `id	name	loaded	overlay	status	notes`, `name` left empty for a human or agent to fill from the screenshot), screenshots to `emu/maps/map_0xNN.png`.
+- Restarts the session on `--vnc-port` only after a real crash or hang.
 
 ---
 

@@ -242,7 +242,10 @@ def run_warp(target_map, target_exit):
             "target_exit": target_exit,
         }
         print(f"WARP_RESULT:{json.dumps(res)}")
-        gdb.execute("detach", to_string=True)
+        try:
+            gdb.execute("detach", to_string=True)
+        except Exception:
+            pass
         return
 
     # 3. Call func_805FF378(map, exit)
@@ -278,7 +281,10 @@ def run_warp(target_map, target_exit):
                 "target_map": target_map,
             }
             print(f"WARP_RESULT:{json.dumps(res)}")
-            gdb.execute("detach", to_string=True)
+            try:
+                gdb.execute("detach", to_string=True)
+            except Exception:
+                pass
             return
 
     # 4. Check if func_80712F10 rewrote or cancelled
@@ -299,8 +305,10 @@ def run_warp(target_map, target_exit):
         "cancelled": cancelled,
     }
     print(f"WARP_RESULT:{json.dumps(res)}")
-    gdb.execute("detach", to_string=True)
-
+    try:
+        gdb.execute("detach", to_string=True)
+    except Exception:
+        pass
 def main():
     action = os.environ.get("WARP_ACTION", "observe")
     gdb.execute("set architecture mips:4000", to_string=True)

@@ -276,7 +276,8 @@ def load(repo_root: Optional[Union[str, Path]] = None) -> Symbols:
 def detect_overlay(
     read_mem: Callable[[int, int], bytes],
     repo_root: Optional[Union[str, Path]] = None,
-) -> Optional[str]:
+    return_details: bool = False,
+) -> Union[Optional[str], Tuple[Optional[str], Optional[str]]]:
     """Detect active overlay in emulator memory.
 
     Uses game runtime state (0x80744470 overlay end record and 0x807444EC mode byte)
@@ -284,6 +285,7 @@ def detect_overlay(
 
     read_mem(addr, n) -> bytes: callable reading emulator memory.
     repo_root: Path to repository root.
+    return_details: If True, returns (overlay_name, disagreement_str).
 
     Returns overlay name, or None if no overlay is loaded or on disagreement.
     """
@@ -338,24 +340,18 @@ def detect_overlay(
 
     # Check mode byte consistency
     if mode == 3 and expected_overlay != "arcade":
-        print(
-            f"[detect_overlay] Disagreement: mode byte is 3 (arcade) but 0x80744470 is 0x{vram_end:08X} ({expected_overlay})",
-            file=sys.stderr,
-        )
-        return None
+        diag = f"mode byte is 3 (arcade) but 0x80744470 is 0x{vram_end:08X} ({expected_overlay})"
+        print(f"[detect_overlay] Disagreement: {diag}", file=sys.stderr)
+        return (None, diag) if return_details else None
     elif mode == 4 and expected_overlay != "jetpac":
-        print(
-            f"[detect_overlay] Disagreement: mode byte is 4 (jetpac) but 0x80744470 is 0x{vram_end:08X} ({expected_overlay})",
-            file=sys.stderr,
-        )
-        return None
-
+        diag = f"mode byte is 4 (jetpac) but 0x80744470 is 0x{vram_end:08X} ({expected_overlay})"
+        print(f"[detect_overlay] Disagreement: {diag}", file=sys.stderr)
+        return (None, diag) if return_details else None
     # 2. Check byte fingerprint at 0x80024000
     try:
         mem = read_mem(OVERLAY_VRAM_START, OVERLAY_WINDOW_SIZE)
     except Exception:
-        return None
-
+        return (None, None) if return_details else None
     byte_matched_ovl: Optional[str] = None
     if mem and len(mem) >= OVERLAY_WINDOW_SIZE:
         target = mem[:OVERLAY_WINDOW_SIZE]
@@ -368,23 +364,23 @@ def detect_overlay(
     if expected_overlay is None:
         if byte_matched_ovl is not None:
             # Memory contains bytes from an overlay, but game state says no overlay loaded
-            print(
-                f"[detect_overlay] Disagreement: game state records no overlay loaded (0x80744470=0x{vram_end or 0:08X}), "
-                f"but 0x80024000 matches {byte_matched_ovl} fingerprint (stale overlay bytes)",
-                file=sys.stderr,
+            diag = (
+                f"game state records no overlay loaded (0x80744470=0x{vram_end or 0:08X}), "
+                f"but 0x80024000 matches {byte_matched_ovl} fingerprint (stale overlay bytes)"
             )
-        return None
+            print(f"[detect_overlay] Disagreement: {diag}", file=sys.stderr)
+            return (None, diag) if return_details else None
+        return (None, None) if return_details else None
 
     if byte_matched_ovl == expected_overlay:
-        return expected_overlay
+        return (expected_overlay, None) if return_details else expected_overlay
 
-    print(
-        f"[detect_overlay] Disagreement: game state indicates {expected_overlay} (0x80744470=0x{vram_end:08X}), "
-        f"but 0x80024000 matches {byte_matched_ovl or 'unknown code'}",
-        file=sys.stderr,
+    diag = (
+        f"game state indicates {expected_overlay} (0x80744470=0x{vram_end:08X}), "
+        f"but 0x80024000 matches {byte_matched_ovl or 'unknown code'}"
     )
-    return None
-
+    print(f"[detect_overlay] Disagreement: {diag}", file=sys.stderr)
+    return (None, diag) if return_details else None
 
 def main() -> None:
     parser = argparse.ArgumentParser(

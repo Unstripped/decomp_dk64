@@ -181,15 +181,19 @@ Warp by decimal ID:
 python3 tools/emu/warp.py 34
 ```
 
-Warp by map name (looked up in `tools/emu/maps.tsv`):
+Warp by map name (case-insensitive, substrings allowed; looked up in `tools/emu/maps.tsv`):
 ```sh
-python3 tools/emu/warp.py "Jungle Japes"
+python3 tools/emu/warp.py "Cranky's Lab"
 ```
 
-Specify an optional exit index (defaults to 0):
+`maps.tsv` lists all 224 map ids (`0x00`–`0xDF`) with what loaded, the overlay and a short name. The names were given by agents looking at one screenshot taken right after each warp, so treat them as descriptions, not official titles; `unknown` means the frame showed nothing recognisable (`0xD8`–`0xDF` load but stay black). Correct a name whenever you recognise a place better.
+
+Specify an optional exit index (defaults to 0), and `--name` to warp a session other than `main`:
 ```sh
-python3 tools/emu/warp.py 0x22 1
+python3 tools/emu/warp.py --name play 0x22 1
 ```
+
+A warp waits up to `--timeout` seconds (default 20) for the map to change, then `--settle` seconds (default 4.5) for the iris wipe to open before it takes the screenshot.
 
 ### Story-Progress Flags vs. Map Location
 
@@ -202,7 +206,7 @@ If you warp to a late-game map (such as Hideout Helm or K. Rool's ship) from a f
 To probe maps sequentially and record reachability and screenshots:
 
 ```sh
-python3 tools/emu/warp.py sweep --name warp-obs --state training_grounds --from 0 --to 0xD7 --out emu/maps/sweep.tsv
+python3 tools/emu/warp.py sweep --name sweep1 --state training_grounds --from 0 --to 0xDF --out emu/maps/sweep.tsv --vnc-port 5970
 ```
 
 Before each warp attempt, this restores the specified library state (e.g. `training_grounds`), attempts the transition, verifies whether the map loaded into `D_8076A0A8`, identifies the loaded overlay via memory inspection, saves a screenshot to `emu/maps/map_0xNN.png`, and writes the results to the TSV file.
