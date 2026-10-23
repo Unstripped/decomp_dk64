@@ -1,104 +1,133 @@
-// func_80689418 (src/global/8D3E0.c): m2c baseline draft; node tick and actor lifecycle loop
-? actorDeregisterActive(void *);                    /* extern */
-? actorRegisterActive(void *);                      /* extern */
-s32 actorSpawnFromInfo(s32 *, s16);                 /* extern */
-s32 func_80612E90(void *, s16, ?);                  /* extern */
-? func_80613794(void *, s32);                       /* extern */
-? func_8068A1B8();                                  /* extern */
-extern ? D_8074E8B0;
-extern void *D_807FBB44;
-extern void *D_807FC400;
+// func_80689418 (src/global/8D3E0.c): unified ActorListNode types; R2ASpawnInfo stack layout matched (0x80 frame)
+#include "common.h"
+#include "actor.h"
+
+typedef struct Struct8074E8B0 {
+    s16 unk0;
+    s16 unk2;
+    s32 unk4;
+    char pad8[0x28];
+} Struct8074E8B0;
+extern Struct8074E8B0 D_8074E8B0[];
+
+typedef struct R2ASpawnInfo {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    s16 unk18;
+    s16 unk1A;
+    s32 unk1C;
+} R2ASpawnInfo;
+
+typedef struct ActorListNode {
+    /* 0x00 */ s16 unk00;
+    /* 0x02 */ s16 unk02;
+    /* 0x04 */ f32 unk04;
+    /* 0x08 */ f32 unk08;
+    /* 0x0C */ f32 unk0C;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ char unk24[0x20];
+    /* 0x44 */ Actor *unk44;
+    /* 0x48 */ u8 unk48;
+    /* 0x49 */ u8 unk49;
+    /* 0x4A */ s16 unk4A;
+    /* 0x4C */ u8 unk4C;
+    /* 0x4D */ char unk4D[3];
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ f32 unk54;
+    /* 0x58 */ s16 unk58;
+    /* 0x5A */ s16 unk5A;
+    /* 0x5C */ s32 (*unk5C)(struct ActorListNode *);
+    /* 0x60 */ s32 (*unk60)(struct ActorListNode *);
+    /* 0x64 */ struct ActorListNode *unk64;
+    /* 0x68 */ struct ActorListNode *unk68;
+} ActorListNode;
+
+extern ActorListNode *D_807FC400;
+extern Actor *D_807FBB44;
+
+void actorDeregisterActive(Actor *);
+void actorRegisterActive(Actor *);
+s32 actorSpawnFromInfo(R2ASpawnInfo *);
+s32 func_80612E90(Actor *, s16, s32);
+void func_80613794(Actor *, s32);
+void func_8068A1B8(void);
 
 void func_80689418(void) {
-    void *sp78;
-    s16 sp76;
-    s16 sp74;
-    f32 sp70;
-    f32 sp6C;
-    f32 sp68;
-    s32 sp64;
-    s32 sp60;
-    s32 sp5C;
-    s16 *var_v0;
-    s16 temp_a1;
-    s16 temp_a1_2;
-    s32 var_a0;
-    s32 var_v1;
-    void *temp_a0;
-    void *temp_s0;
-    void *temp_s0_2;
-    void *temp_v0;
-    void *temp_v0_2;
-    void *var_s1;
+    R2ASpawnInfo spawnInfo;
+    ActorListNode *node;
 
-    var_s1 = D_807FC400;
-    if (var_s1 != NULL) {
+    node = D_807FC400;
+    if (node != NULL) {
         do {
-            if (var_s1->unk48 != 0) {
-                if (var_s1->unk60(var_s1) != 0) {
-                    temp_s0 = var_s1->unk44;
-                    if (!(temp_s0->unk60 & 0x200000)) {
-                        actorDeregisterActive(temp_s0);
-                        temp_a0 = var_s1->unk44;
-                        var_s1->unk48 = 0U;
-                        var_s1->unk10 = (f32) temp_a0->unk7C;
-                        var_s1->unk14 = (f32) temp_a0->unk80;
-                        var_s1->unk18 = (f32) temp_a0->unk84;
-                        var_s1->unk4A = (s16) temp_a0->unk12C;
-                        func_80613794(temp_a0, 0);
-                        func_80613794(var_s1->unk44, 1 & 0xFF);
-                        func_80613794(var_s1->unk44, 2);
+            if (node->unk48 != 0) {
+                if (node->unk60(node) != 0) {
+                    Actor *actor = node->unk44;
+                    if (!(actor->unk60 & 0x200000)) {
+                        actorDeregisterActive(actor);
+                        node->unk48 = 0;
+                        node->unk10 = actor->unk7C;
+                        node->unk14 = actor->unk80;
+                        node->unk18 = actor->unk84;
+                        node->unk4A = actor->unk12C;
+                        func_80613794(node->unk44, 0);
+                        func_80613794(node->unk44, 1);
+                        func_80613794(node->unk44, 2);
                     }
                 }
-            } else if (var_s1->unk5C(var_s1) != 0) {
-                temp_s0_2 = var_s1->unk44;
-                var_v1 = 0;
-                var_a0 = 0;
-                if (temp_s0_2 == NULL) {
-                    temp_a1 = var_s1->unk0 + 0x10;
-                    var_v0 = &D_8074E8B0 + (0 * 0x30);
-loop_9:
-                    if (temp_a1 == *var_v0) {
-                        var_a0 = 1 & 0xFF;
-                    } else {
-                        var_v1 += 1;
-                        var_v0 += 0x30;
-                    }
-                    if ((var_a0 == 0) && (var_v1 < 0x80)) {
-                        goto loop_9;
-                    }
-                    sp5C = (s32) temp_a1;
-                    temp_v0 = &D_8074E8B0 + (var_v1 * 0x30);
-                    sp64 = temp_v0->unk4;
-                    sp60 = (s32) temp_v0->unk2;
-                    sp68 = var_s1->unk4;
-                    sp6C = var_s1->unk8;
-                    sp70 = var_s1->unkC;
-                    sp76 = 0;
-                    sp78 = var_s1 + 0x24;
-                    sp74 = var_s1->unk1C;
-                    if (actorSpawnFromInfo(&sp5C, temp_a1) != 0) {
-                        var_s1->unk48 = 1U;
-                        var_s1->unk44 = (void *) D_807FBB44;
-                        D_807FBB44->unk11C = (s32) var_s1->unk50;
-                        temp_v0_2 = D_807FBB44->unk4;
-                        if (temp_v0_2 != NULL) {
-                            temp_v0_2->unk34 = (f32) ((f64) var_s1->unk20 * 0.15);
-                            D_807FBB44->unk4->unk38 = (f32) ((f64) var_s1->unk20 * 0.15);
-                            D_807FBB44->unk4->unk3C = (f32) ((f64) var_s1->unk20 * 0.15);
+            } else if (node->unk5C(node) != 0) {
+                Actor *actor = node->unk44;
+                s32 found = 0;
+                s32 i = 0;
+                if (actor == NULL) {
+                    s16 target = node->unk00 + 0x10;
+                    Struct8074E8B0 *entry = D_8074E8B0;
+                    do {
+                        if (target == entry->unk0) {
+                            found = 1;
+                        } else {
+                            i++;
+                            entry++;
+                        }
+                    } while (!found && i < 0x80);
+
+                    spawnInfo.unk0 = target;
+                    spawnInfo.unk4 = D_8074E8B0[i].unk2;
+                    spawnInfo.unk8 = D_8074E8B0[i].unk4;
+                    spawnInfo.unkC = node->unk04;
+                    spawnInfo.unk10 = node->unk08;
+                    spawnInfo.unk14 = node->unk0C;
+                    spawnInfo.unk18 = node->unk1C;
+                    spawnInfo.unk1A = 0;
+                    spawnInfo.unk1C = (s32)node->unk24;
+                    if (actorSpawnFromInfo(&spawnInfo) != 0) {
+                        node->unk48 = 1;
+                        node->unk44 = D_807FBB44;
+                        D_807FBB44->unk11C = node->unk50;
+                        if (D_807FBB44->unk4 != NULL) {
+                            D_807FBB44->unk4->unk34 = (f32)(node->unk20 * 0.15);
+                            D_807FBB44->unk4->unk38 = (f32)(node->unk20 * 0.15);
+                            D_807FBB44->unk4->unk3C = (f32)(node->unk20 * 0.15);
                         }
                     }
-                } else if (var_s1->unk48 == 0) {
-                    temp_a1_2 = var_s1->unk58;
-                    if (temp_a1_2 != 0) {
-                        var_s1->unk44->unk0 = func_80612E90(temp_s0_2, temp_a1_2, 0);
+                } else if (node->unk48 == 0) {
+                    if (node->unk58 != 0) {
+                        node->unk44->unk0 = func_80612E90(actor, node->unk58, 0);
                     }
-                    actorRegisterActive(var_s1->unk44);
-                    var_s1->unk48 = 1U;
+                    actorRegisterActive(node->unk44);
+                    node->unk48 = 1;
                 }
             }
-            var_s1 = var_s1->unk68;
-        } while (var_s1 != NULL);
+            node = node->unk68;
+        } while (node != NULL);
     }
     func_8068A1B8();
 }
