@@ -352,6 +352,10 @@ D_80758F78 = 0x80758F78; // type:f64 force_migration:True function_owner:func_80
 D_80758FE4 = 0x80758FE4; // type:f32 size:0x4
 D_80758FE8 = 0x80758FE8; // type:f64 force_migration:True function_owner:func_8066A08C
 
+// 7130 late_rodata: unreferenced double after a referenced one
+D_80756F08 = 0x80756F08; // type:f64 size:0x8
+D_80756F10 = 0x80756F10; // type:f64 force_migration:True function_owner:func_8060956C
+
 // Billboard rendering, effects, particle/target systems and trigger zones (61AA0-684C0)
 renderSetSegment6Override = 0x8065CDA0; // type:func
 renderReplaceSegment6Commands = 0x8065CDB0; // type:func
