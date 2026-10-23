@@ -94,11 +94,72 @@ u8 func_80666AEC(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666AF8.s")
 
+typedef struct {
+    u8 pad[0x2C0];
+    u8 unk2C0;
+    u8 pad2C1[0x2F0 - 0x2C1];
+} R3P_Player;
+
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666D88.s")
+
+extern f32 D_807F9468;
+extern u8 D_807F946C;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666F04.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666FC8.s")
+s32 func_80666FC8(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
+    f32 var_fv0;
+    f32 diff0;
+    f32 diff1;
+    s32 cond0;
+    s32 cond1;
+
+    var_fv0 = (arg3 == 1) ? 60.0 : 10.0;
+
+    if (arg0 <= arg2) {
+        cond0 = 1;
+    } else if ((arg0 - arg2) < var_fv0) {
+        cond0 = 1;
+    } else {
+        cond0 = 0;
+    }
+
+    if (arg1 <= arg2) {
+        cond1 = 1;
+    } else if ((arg1 - arg2) < var_fv0) {
+        cond1 = 1;
+    } else {
+        cond1 = 0;
+    }
+
+    if (!cond0 && !cond1) {
+        return 0;
+    }
+    if (!cond1) {
+        return 0;
+    }
+    if (!cond0) {
+        return 1;
+    }
+
+    if (arg2 < arg0) {
+        diff0 = arg0 - arg2;
+    } else {
+        diff0 = arg2 - arg0;
+    }
+
+    if (arg2 < arg1) {
+        diff1 = arg1 - arg2;
+    } else {
+        diff1 = arg2 - arg1;
+    }
+
+    if (diff0 < diff1) {
+        return 0;
+    }
+    return 1;
+}
 
 extern u8 D_807F9484;
 extern f32 D_807F9488;
@@ -128,7 +189,52 @@ u8 func_80667174(void) {
     return D_807F94B5;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80667180.s")
+s32 func_806672B8(f32, f32, f32 *, s32);
+u8 func_806679BC(f32, f32, f32 *);
+extern u8 D_807F94B6;
+
+u8 func_80667180(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
+    u8 sp3F;
+    f32 sp38;
+    f32 sp34;
+    f32 temp;
+    u8 sp2E;
+    u8 val;
+    s32 var_v1;
+
+    sp38 = *arg2;
+    sp3F = func_806679BC(arg0, arg1, &sp38);
+    sp34 = *arg2;
+    val = func_806672B8(arg0, arg1, &sp34, arg3) * 2;
+    val += sp3F;
+    switch (val) {
+    case 0:
+        break;
+    case 1:
+        *arg2 = sp38;
+        break;
+    case 2:
+        *arg2 = sp34;
+        D_807F94B6 = 1;
+        break;
+    case 3:
+        sp2E = val;
+        temp = (f64)*arg2 + 4.0;
+        if (func_80666FC8(sp38, sp34, temp, 0) != 0) {
+            *arg2 = sp34;
+            D_807F94B6 = 1;
+        } else {
+            *arg2 = sp38;
+        }
+        break;
+    }
+    if (val != 0) {
+        var_v1 = 1;
+    } else {
+        var_v1 = 0;
+    }
+    return var_v1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806672B8.s")
 
@@ -136,7 +242,7 @@ u8 func_80667174(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806679BC.s")
 
-s32 func_80666FC8(f32, f32, f32, s32);
+s32 func_80666FC8(f32, f32, f32, u8);
 
 s32 func_80668520(f32 *arg0, f32 arg1, f32 arg2, f32 *arg3) {
     f32 diff;
@@ -196,7 +302,6 @@ void func_806685E0(R2C_TriangleS *arg0, f32 arg1) {
         D_807F9510++;
     }
 }
-
 typedef struct R1C_Struct_806688B8 {
     u32 unk0;
     u32 unk4;
@@ -398,8 +503,6 @@ typedef struct R3Q_D_807F6000 {
 } R3Q_D_807F6000;
 
 extern R3Q_D_807F6000 *D_807F6000;
-extern f32 D_807F9468;
-extern s8 D_807F946C;
 
 typedef struct R3Q_Actor {
     u8 pad0[0x7C];
