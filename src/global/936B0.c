@@ -86,7 +86,31 @@ void func_8068EA38(M93A_ActorE4 **arg0) {
     func_806319C4((Actor *)temp_a2, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8068EB3C.s")
+typedef struct M93E_Vec3f {
+    f32 x, y, z;
+} M93E_Vec3f;
+void func_8061F2B8(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
+s32 func_8068EB3C(f32 arg0, f32 arg1, f32 arg2, M93E_Vec3f *arg3, M93E_Vec3f *arg4, M93E_Vec3f *arg5, M93E_Vec3f *arg6, f32 *arg7, f32 *arg8, f32 *arg9) {
+    f32 sp5C;
+    f32 sp58;
+    f32 sp54;
+    f32 sp50;
+    f32 sp4C;
+    f32 sp48;
+    func_8061F2B8(arg0, arg1, arg2, arg3->x, arg3->y, arg3->z, arg4->x, arg4->y, arg4->z, &sp48, &sp4C, &sp50);
+    func_8061F2B8(arg0, arg1, arg2, arg5->x, arg5->y, arg5->z, arg6->x, arg6->y, arg6->z, &sp54, &sp58, &sp5C);
+    if (((arg0 - sp48) * (arg0 - sp48) + (arg1 - sp4C) * (arg1 - sp4C) + (arg2 - sp50) * (arg2 - sp50)) <
+        ((arg2 - sp5C) * (arg2 - sp5C) + ((arg0 - sp54) * (arg0 - sp54) + (arg1 - sp58) * (arg1 - sp58)))) {
+        *arg7 = sp48;
+        *arg8 = sp4C;
+        *arg9 = sp50;
+        return 0;
+    }
+    *arg7 = sp54;
+    *arg8 = sp58;
+    *arg9 = sp5C;
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8068ECF4.s")
 
@@ -339,7 +363,34 @@ void func_80690BE8(s16 arg0, s16 arg1, f32 arg2, Actor *arg3, s32 arg4, f32 arg5
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690F30.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_806915B0.s")
+u32 func_806119A0(void);
+void func_807149C8(s32, s32, s32, s32);
+extern s32 D_8071FFA0;
+void func_80717D4C(void);
+void func_806915B0(void) {
+    s32 count;
+    s32 i;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+
+    if (D_80750AD0 != 0) {
+        count = 3;
+    } else {
+        count = 6;
+    }
+    for (i = 0; i < count; i++) {
+        dx = (f32)(((f64)(u32)((func_806119A0() / 10000) % 200) / 5.0) - 20.0);
+        dy = (f32)(((f64)(u32)((func_806119A0() / 10000) % 200) / 5.0) - 20.0);
+        dz = (f32)(((f64)(u32)((func_806119A0() / 10000) % 200) / 5.0) - 20.0);
+        func_807149B8(1);
+        func_807149C8(0x8C, 0x8C, 0x8C, 0x64);
+        func_80714950(i * -0x14);
+        func_80714998(3);
+        func_8071498C(func_80717D4C);
+        func_80714CC0(&D_8071FFA0, 2.0f, D_807FBB40->unk7C + dx, D_807FBB40->unk80 + 42.0f + dy, D_807FBB40->unk84 + dz);
+    }
+}
 
 void func_80691830(s16 arg0, f32 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
     actorSpawn(0x102, arg0);
