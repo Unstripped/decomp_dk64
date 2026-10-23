@@ -1,45 +1,245 @@
 #include "common.h"
 #include "actor.h"
 
+typedef struct ActorListRecord {
+    /* 0x00 */ f32 unk00;
+    /* 0x04 */ f32 unk04;
+    /* 0x08 */ f32 unk08;
+    /* 0x0C */ f32 unk0C;
+    /* 0x10 */ char unk10[0x20];
+    /* 0x30 */ s16 unk30;
+    /* 0x32 */ s16 unk32;
+    /* 0x34 */ s16 unk34;
+    /* 0x36 */ char pad36[2];
+} ActorListRecord;
+
+typedef struct ActorListEntry4 {
+    /* 0x0 */ u8 unk0;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ s16 unk2;
+} ActorListEntry4;
+
+typedef struct ActorListSub20 {
+    s32 words[8];
+} ActorListSub20;
+
+typedef struct ActorListNode {
+    /* 0x00 */ s16 unk00;
+    /* 0x02 */ s16 unk02;
+    /* 0x04 */ f32 unk04;
+    /* 0x08 */ f32 unk08;
+    /* 0x0C */ f32 unk0C;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ char unk24[0x20];
+    /* 0x44 */ Actor *unk44;
+    /* 0x48 */ u8 unk48;
+    /* 0x49 */ u8 unk49;
+    /* 0x4A */ s16 unk4A;
+    /* 0x4C */ u8 unk4C;
+    /* 0x4D */ char unk4D[3];
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ f32 unk54;
+    /* 0x58 */ s16 unk58;
+    /* 0x5A */ s16 unk5A;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ struct ActorListNode *prev;
+    /* 0x68 */ struct ActorListNode *next;
+} ActorListNode;
+
+extern s32 D_8076A0A8;
+extern ActorListSub20 D_807500B4;
+extern ActorListSub20 D_807500D4;
+extern Actor *D_807FBB40;
+extern ActorListNode *D_807FC400;
+extern ActorListEntry4 *D_807FC5C4;
+extern u8 D_807FC5C8;
+extern s16 D_807FC5D0[16];
+extern s16 D_807FC5F0[16];
+extern u8 D_807FC610;
+extern u8 D_807FC611;
+
+void *memcpy(void *, const void *, size_t);
+void heapFree(void *);
+void actorDespawn(Actor *);
+s16 func_806531B8(f32, f32, f32, s32);
+s32 func_80652E58(s32, void *);
+void func_8066E6C8(Actor *, s32, s32);
+void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
+s32 func_80688C84(u16);
+s16 func_80688E08(void);
+ActorListNode *func_80689250(s16, f32, f32, f32, s16, f32, void *, u8, s32, s16);
+void func_80689710();
+f32 func_80689DD4(f32, f32, f32);
+s32 func_80689F2C(void);
+u8 func_80689F80(ActorListNode *);
+u8 func_80689FEC(ActorListNode *);
+void func_8068A1B8(void);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_806886E0.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688940.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688A6C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688C30.s")
+s32 func_80688C30(u16 arg0) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688C84.s")
+    for (i = 0; i < D_807FC5C8; i++) {
+        if (arg0 == D_807FC5C4[i].unk0) {
+            return D_807FC5C4[i].unk2;
+        }
+    }
+    return -1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688CC4.s")
+s32 func_80688C84(u16 arg0) {
+    switch (arg0) {
+    case 0x5B:
+    case 0x6F:
+    case 0x70:
+    case 0x71:
+    case 0x72:
+    case 0x8B:
+        return 1;
+    default:
+        return 0;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688CF4.s")
+void func_80688CC4(Actor *actor, s16 arg1, f32 arg2) {
+    if (arg1 < 8) {
+        ((f32 *)actor->unk124)[arg1] = arg2;
+    }
+}
+
+void func_80688CF4(Actor *actor, s16 arg1, s32 arg2) {
+    if (arg1 < 8) {
+        ((s32 *)actor->unk124)[arg1] = arg2;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688D20.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688E08.s")
+s16 func_80688E08(void) {
+    s16 id;
+    s32 found;
+    ActorListNode *node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688E68.s")
+    id = 0;
+    do {
+        found = 0;
+        node = D_807FC400;
+        if (node != NULL) {
+            do {
+                if (node->unk5A == id) {
+                    found = 1;
+                }
+                node = node->next;
+            } while (node != NULL && !found);
+        }
+        if (found) {
+            id++;
+        }
+    } while (found);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688EA4.s")
+    return id;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688EE4.s")
+s16 func_80688E68(Actor *arg0) {
+    ActorListNode *node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688F74.s")
+    for (node = D_807FC400; node != NULL; node = node->next) {
+        if (node->unk44 == arg0) {
+            return node->unk5A;
+        }
+    }
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688FC0.s")
+Actor *func_80688EA4(s16 arg0) {
+    ActorListNode *node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689064.s")
+    for (node = D_807FC400; node != NULL; node = node->next) {
+        if (node->unk5A == arg0) {
+            return node->unk44;
+        }
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689114.s")
+void func_80688EE4(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
+    ActorListNode *node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_806891D8.s")
+    for (node = D_807FC400; node != NULL; node = node->next) {
+        if (node->unk5A == arg0) {
+            node->unk04 = arg1;
+            node->unk08 = arg2;
+            node->unk0C = arg3;
+            node->unk10 = arg1;
+            node->unk14 = arg2;
+            node->unk18 = arg3;
+            node->unk4A = func_806531B8(arg1, arg2, arg3, 0);
+            return;
+        }
+    }
+}
+
+void func_80688F74(Actor *arg0, f32 arg1, f32 arg2, f32 arg3) {
+    ActorListNode *node;
+
+    for (node = D_807FC400; node != NULL; node = node->next) {
+        if (node->unk44 == arg0) {
+            node->unk04 = arg1;
+            node->unk08 = arg2;
+            node->unk0C = arg3;
+            return;
+        }
+    }
+}
+
+void func_80688FC0(s32 *arg0) {
+    ActorListRecord *item;
+    s32 i;
+    void *var_s2;
+    s32 count;
+
+    D_807FC400 = NULL;
+    if (arg0 != NULL) {
+        count = *arg0++;
+        item = (ActorListRecord *)arg0;
+        for (i = 0, var_s2 = (char *)item + 0x10; i < count; i++, item++, var_s2 = (char *)var_s2 + 0x38) {
+            func_80689250(item->unk32, item->unk00, item->unk04, item->unk08, item->unk30, item->unk0C, var_s2, 0, 0, item->unk34);
+        }
+        func_8068A1B8();
+    }
+}
+
+void func_80689064(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5) {
+    ActorListSub20 sp38;
+
+    sp38 = D_807500B4;
+    func_80689250(arg0, arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 0, 0, func_80688E08());
+}
+
+void func_80689114(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6) {
+    ActorListSub20 sp38;
+
+    sp38 = D_807500D4;
+    func_80689250((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 1, arg6, func_80688E08());
+}
+
+void func_806891D8(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6, s32 arg7) {
+    func_80689250((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, (void *)arg7, 1, arg6, func_80688E08());
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689250.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689418.s")
-
-void func_80689710();
 
 void func_806896D0(s32 arg0) {
     func_80689710(arg0, 1);
@@ -49,28 +249,16 @@ void func_806896F0(s32 arg0) {
     func_80689710(arg0, 0);
 }
 
-typedef struct R2D3A_Node {
-    char pad[0x44];
-    Actor *unk44;
-    char pad48[0x64 - 0x48];
-    struct R2D3A_Node *prev;
-    struct R2D3A_Node *next;
-} R2D3A_Node;
-
-extern struct ActD3B_Node *D_807FC400;
-void heapFree(void *);
-void actorDespawn(Actor *);
-
 void func_80689710(arg0, arg1)
-R2D3A_Node *arg0;
+ActorListNode *arg0;
 u8 arg1;
 {
-    R2D3A_Node *node;
-    R2D3A_Node *prev;
+    ActorListNode *node;
+    ActorListNode *prev;
     s32 found;
 
     found = 0;
-    node = (R2D3A_Node *)D_807FC400;
+    node = D_807FC400;
     prev = NULL;
     if (node != NULL) {
         do {
@@ -82,7 +270,7 @@ u8 arg1;
                 if (prev != NULL) {
                     prev->next = node->next;
                 } else {
-                    D_807FC400 = (struct ActD3B_Node *)node->next;
+                    D_807FC400 = node->next;
                 }
                 if (node->next != NULL) {
                     node->next->prev = prev;
@@ -95,13 +283,14 @@ u8 arg1;
         } while (found == 0 && node != NULL);
     }
 }
+
 void func_806897F0(Actor *arg0) {
-    R2D3A_Node *node;
-    R2D3A_Node *prev;
+    ActorListNode *node;
+    ActorListNode *prev;
     s32 found;
 
     found = 0;
-    node = (R2D3A_Node *)D_807FC400;
+    node = D_807FC400;
     prev = NULL;
     if (node != NULL) {
         do {
@@ -110,7 +299,7 @@ void func_806897F0(Actor *arg0) {
                 if (prev != NULL) {
                     prev->next = node->next;
                 } else {
-                    D_807FC400 = (struct ActD3B_Node *)node->next;
+                    D_807FC400 = node->next;
                 }
                 if (node->next != NULL) {
                     node->next->prev = prev;
@@ -124,23 +313,9 @@ void func_806897F0(Actor *arg0) {
     }
 }
 
-typedef struct ActD3B_Node {
-    char pad[0x44];
-    Actor *unk44;
-    u8 unk48;
-    char pad49[3];
-    u8 unk4C;
-    char pad4D[0x5A - 0x4D];
-    s16 unk5A;
-    char pad5C[0x68 - 0x5C];
-    struct ActD3B_Node *next;
-} ActD3B_Node;
-
-extern ActD3B_Node *D_807FC400;
-
 void func_806898A8(void) {
-    ActD3B_Node *node;
-    ActD3B_Node *next;
+    ActorListNode *node;
+    ActorListNode *next;
 
     node = D_807FC400;
     if (node != NULL) {
@@ -154,7 +329,7 @@ void func_806898A8(void) {
 }
 
 s32 func_806898F8(void) {
-    ActD3B_Node *node;
+    ActorListNode *node;
     s32 count;
 
     node = D_807FC400;
@@ -170,46 +345,12 @@ s32 func_806898F8(void) {
     return (count * 0x38) + 4;
 }
 
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    char unk10[0x20];
-    s16 unk30;
-    s16 unk32;
-    s16 unk34;
-    char pad36[2];
-} R2D3B_OutputStruct;
-
-typedef struct R2D3B_Node {
-    s16 unk0;
-    char pad2[2];
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    char pad10[0xC];
-    s16 unk1C;
-    char pad1E[2];
-    f32 unk20;
-    char unk24[0x20];
-    Actor *unk44;
-    char pad48[4];
-    u8 unk4C;
-    char pad4D[0xD];
-    s16 unk5A;
-    char pad5C[0xC];
-    struct R2D3B_Node *next;
-} R2D3B_Node;
-
-void *memcpy(void *, const void *, size_t);
-
 void func_80689958(s32 *arg0) {
-    R2D3B_Node *node;
+    ActorListNode *node;
     u8 *dst;
-    R2D3B_OutputStruct item;
+    ActorListRecord item;
     s32 count;
-    node = (R2D3B_Node *)D_807FC400;
+    node = D_807FC400;
     count = 0;
     if (node != NULL) {
         do {
@@ -220,17 +361,17 @@ void func_80689958(s32 *arg0) {
         } while (node != NULL);
     }
     *arg0 = count;
-    node = (R2D3B_Node *)D_807FC400;
+    node = D_807FC400;
     dst = (u8 *)(arg0 + 1);
     if (node != NULL) {
         do {
             if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->unk64 & 0x400))) {
-                item.unk32 = node->unk0;
-                item.unkC = node->unk20;
+                item.unk32 = node->unk00;
+                item.unk0C = node->unk20;
                 item.unk30 = node->unk1C;
-                item.unk0 = node->unk4;
-                item.unk4 = node->unk8;
-                item.unk8 = node->unkC;
+                item.unk00 = node->unk04;
+                item.unk04 = node->unk08;
+                item.unk08 = node->unk0C;
                 item.unk34 = node->unk5A;
                 memcpy(item.unk10, node->unk24, 0x20);
                 memcpy(dst, &item, sizeof(item));
@@ -241,11 +382,8 @@ void func_80689958(s32 *arg0) {
     }
 }
 
-extern Actor *D_807FBB40;
-void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
-
 void func_80689A80(s16 arg0, void *arg1) {
-    ActD3B_Node *node = D_807FC400;
+    ActorListNode *node = D_807FC400;
     s32 found = 0;
 
     if (node != NULL) {
@@ -265,7 +403,7 @@ void func_80689A80(s16 arg0, void *arg1) {
 }
 
 s32 func_80689B10(s16 arg0, u8 arg1, u8 arg2) {
-    ActD3B_Node *node;
+    ActorListNode *node;
     s32 found = 0;
 
     node = D_807FC400;
@@ -291,7 +429,7 @@ s32 func_80689B10(s16 arg0, u8 arg1, u8 arg2) {
 }
 
 s32 func_80689BAC(s16 arg0) {
-    ActD3B_Node *node;
+    ActorListNode *node;
     s32 found = 0;
 
     node = D_807FC400;
@@ -321,40 +459,7 @@ s32 func_80689E98(s32 arg0) {
     return 1;
 }
 
-typedef struct ActD3B_StructSub {
-    char pad[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x114 - 0x88];
-    void *unk114;
-    char pad118[0x12C - 0x118];
-    s16 unk12C;
-    char pad12E[0x154 - 0x12E];
-    u8 unk154;
-} ActD3B_StructSub;
-
-typedef struct ActD3B_Struct1 {
-    char pad[0x10];
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-    char pad1C[0x44 - 0x1C];
-    ActD3B_StructSub *unk44;
-    u8 unk48;
-    u8 pad49;
-    s16 unk4A;
-    char pad4C[0x54 - 0x4C];
-    f32 unk54;
-    char pad58[0x5A - 0x58];
-    s16 unk5A;
-} ActD3B_Struct1;
-
-s32 func_80652E58(s32, void *);
-s32 func_80689F2C(void);
-u8 func_80689F80(ActD3B_Struct1 *);
-
-void func_80689EA4(ActD3B_Struct1 *arg0) {
+void func_80689EA4(ActorListNode *arg0) {
     if (func_80689F2C()) {
         func_80652E58(arg0->unk4A, arg0);
     } else {
@@ -362,16 +467,13 @@ void func_80689EA4(ActD3B_Struct1 *arg0) {
     }
 }
 
-u8 func_80689FEC(ActD3B_Struct1 *);
-
-u8 func_80689EE4(ActD3B_Struct1 *arg0) {
+u8 func_80689EE4(ActorListNode *arg0) {
     if (func_80689F2C()) {
-        return func_80652E58(arg0->unk44->unk12C, arg0) == 0;
+        return func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0;
     }
     return func_80689FEC(arg0);
 }
 
-extern s32 D_8076A0A8;
 s32 func_80689F2C(void) {
     switch (D_8076A0A8) {
         case 0x2A:
@@ -390,9 +492,7 @@ s32 func_80689F2C(void) {
     }
 }
 
-f32 func_80689DD4(f32, f32, f32);
-
-u8 func_80689F80(ActD3B_Struct1 *arg0) {
+u8 func_80689F80(ActorListNode *arg0) {
     s32 var_a0 = func_80652E58(arg0->unk4A, arg0) != 0;
     if (var_a0 != 0) {
         f32 dist = func_80689DD4(arg0->unk10, arg0->unk14, arg0->unk18);
@@ -412,8 +512,7 @@ s32 func_8068A10C(s32 arg0) {
     return 0;
 }
 
-
-u8 func_8068A118(ActD3B_Struct1 *arg0) {
+u8 func_8068A118(ActorListNode *arg0) {
     s32 var_v1;
     f32 dist = func_80689DD4(arg0->unk10, arg0->unk14, arg0->unk18);
     var_v1 = 0;
@@ -423,14 +522,9 @@ u8 func_8068A118(ActD3B_Struct1 *arg0) {
     return var_v1;
 }
 
-u8 func_8068A164(ActD3B_Struct1 *arg0) {
+u8 func_8068A164(ActorListNode *arg0) {
     return !(func_80689DD4(arg0->unk44->unk7C, arg0->unk44->unk80, arg0->unk44->unk84) < arg0->unk54);
 }
-
-extern s16 D_807FC5D0[16];
-extern s16 D_807FC5F0[16];
-extern u8 D_807FC610;
-extern u8 D_807FC611;
 
 void func_8068A1B8(void) {
     D_807FC610 = 0;
@@ -449,7 +543,7 @@ void func_8068A20C(s16 arg0) {
     }
 }
 
-s32 func_8068A24C(ActD3B_Struct1 *arg0) {
+s32 func_8068A24C(ActorListNode *arg0) {
     s32 i;
     for (i = 0; i < D_807FC610; i++) {
         if (arg0->unk5A == D_807FC5D0[i] && arg0->unk48 == 0) {
@@ -459,7 +553,7 @@ s32 func_8068A24C(ActD3B_Struct1 *arg0) {
     return 0;
 }
 
-s32 func_8068A2A4(ActD3B_Struct1 *arg0) {
+s32 func_8068A2A4(ActorListNode *arg0) {
     s32 i;
     for (i = 0; i < D_807FC611; i++) {
         if (arg0->unk5A == D_807FC5F0[i] && arg0->unk48 != 0) {
@@ -468,8 +562,6 @@ s32 func_8068A2A4(ActD3B_Struct1 *arg0) {
     }
     return 0;
 }
-
-void func_8066E6C8(Actor *, s32, s32);
 
 void func_8068A2FC(Actor *arg0) {
     arg0->unk128 = 0;
