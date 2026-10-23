@@ -1,4 +1,4 @@
-// func_80658BD0 (src/global/55B20.c): stage 6: text identical except loop-end reloc D_807F72B8+0xa0 vs D_807F7358; pasting it fails the ROM (global.gz grows 2 bytes)
+// func_80658BD0 (src/global/55B20.c): stage 6, NOT reloc-only (verified by linking): besides the D_807F72B8+0xa0 vs D_807F7358 reloc, the D_807F72B4 sb is scheduled before the two loop-pointer addiu (target: after them)
 typedef struct M55P6Entry {
     /* 0x000 */ s32 unk0;
     /* 0x004 */ s16 unk4;

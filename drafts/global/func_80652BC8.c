@@ -1,54 +1,61 @@
-// func_80652BC8 (src/global/55B20.c): not attempted in C; m2c starter only (needs struct field/register work, stage 0)
-u8 func_80630324(?, ?);                             /* extern */
-s32 func_80668E9C(s32, s16, f32, f32, f32, s32);    /* extern */
-extern s32 D_807F6C18;
-extern s32 D_807F6C28;
+// func_80652BC8 (src/global/55B20.c): stage 5: full logic matches; frame 0x80 vs 0x78, mode u8 slot 0x6F vs 0x6E, ptr slot 0x68 vs 0x74, setup insn order; args f32 in a1/a2/a3 confirmed (slot>=1 int regs here)
+typedef struct M55P3Node {
+    /* 0x00 */ u8 pad0[0x14];
+    /* 0x14 */ struct M55P3Node *unk14;
+    /* 0x18 */ u8 pad18[6];
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 pad20[4];
+    /* 0x24 */ u8 unk24;
+} M55P3Node;
+
+extern u16 func_80630324(s32, s32);
+extern s32 func_80668E9C(s32, s16, f32, f32, f32, s32);
 
 s32 func_80652BC8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
-    void *sp74;
-    u8 sp6E;
-    s32 temp_ft2;
-    s32 temp_ft4;
-    s32 var_s1;
-    s32 var_s5;
-    s32 var_s6;
-    void *temp_v0;
-    void *var_s0;
+    s32 result;
+    s32 count;
+    s32 off;
+    s16 x;
+    s16 y;
+    u8 mode;
+    void *ptr;
+    M55P3Node *node;
+    M55P3EffectBuf *eff;
 
-    var_s1 = 0;
-    sp6E = func_80630324(1, 0);
-    var_s5 = 0;
+    result = 0;
+    mode = func_80630324(1, 0);
+    count = 0;
     if (D_807F6C28 > 0) {
-        var_s6 = 0;
-        var_s0 = sp74;
-        temp_ft2 = (s32) (arg1 * 6.0f);
+        off = 0;
+        x = (s16)(s32)(arg1 * 6.0f);
+        node = ptr;
         do {
-            temp_v0 = D_807F6C18 + var_s6;
-            if ((s16) temp_ft2 >= (temp_v0->unk80 - 0x32)) {
-                temp_ft4 = (s32) (arg2 * 6.0f);
-                if (((s16) temp_ft4 >= (temp_v0->unk82 - 0x32)) && ((temp_v0->unk84 + 0x32) >= (s16) temp_ft2) && ((temp_v0->unk86 + 0x32) >= (s16) temp_ft4)) {
-                    switch (sp6E) {                 /* irregular */
-                    case 0:
-                        var_s0 = temp_v0->unk14;
-                        break;
-                    case 1:
-                        var_s0 = temp_v0->unk1C;
-                        break;
-                    }
-                    if (var_s0 != NULL) {
-                        do {
-                            if (var_s0->unk24 == 1) {
-                                var_s1 = (var_s1 | func_80668E9C(arg0, var_s0->unk1E, arg1, arg2, arg3, arg4)) & 0xFF;
-                            }
-                            var_s0 = var_s0->unk14;
-                        } while (var_s0 != NULL);
-                    }
+            eff = (M55P3EffectBuf *)((u8 *)D_807F6C18 + off);
+            if ((x >= eff->unk80 - 0x32) &&
+                ((y = (s16)(s32)(arg2 * 6.0f)) >= eff->unk82 - 0x32) &&
+                (eff->unk84 + 0x32 >= x) &&
+                (eff->unk86 + 0x32 >= y)) {
+                switch (mode) {
+                case 0:
+                    node = (M55P3Node *)eff->unk14;
+                    break;
+                case 1:
+                    node = (M55P3Node *)eff->unk1C;
+                    break;
+                }
+                if (node != NULL) {
+                    do {
+                        if (node->unk24 == 1) {
+                            result = (result | func_80668E9C(arg0, node->unk1E, arg1, arg2, arg3, arg4)) & 0xFF;
+                        }
+                        node = node->unk14;
+                    } while (node != NULL);
                 }
             }
-            var_s5 += 1;
-            var_s6 += 0x1C8;
-        } while (var_s5 < D_807F6C28);
-        sp74 = var_s0;
+            count++;
+            off += 0x1C8;
+        } while (count < D_807F6C28);
+        ptr = node;
     }
-    return var_s1;
+    return result;
 }
