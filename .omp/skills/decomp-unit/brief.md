@@ -54,7 +54,7 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
   still matches; say so in your report. Otherwise adapt your code with casts. Prefix new
   type names with your agent name. When you revert a function
   to GLOBAL_ASM, delete the declarations you added for it. Don't reorder or reformat.
-- Skip formatters and linters.
+- Skip formatters and linters. NEVER edit `tools/`, `Makefile` or the splat configs.
 
 # Method
 Your budget is finite: near-misses first, then never-attempted functions from smallest to

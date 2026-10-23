@@ -24,8 +24,9 @@ ok-fine, not here; this skill is the procedure.
 
 ROADMAP order: overlays smallest-first by `<ovl>_TEXT_SIZE` in `Makefile`, two at a time
 (they are independent); then the listed global subsystems. All nine overlays are C units
-since the boss unit (2026-10-22): next units are global subsystems (actor behaviour files
-next to `7CA80`/`80150`, see ROADMAP) or further matching rounds on near-misses listed in
+since the boss unit (2026-10-22): next units are global subsystems (the next actor files
+named at the end of ROADMAP's actor bullet, currently `70FD0` and `936B0`) or further
+matching rounds on near-misses listed in
 ROADMAP. A global subsystem is a set of `asm/global/<file>.s` files: find them from what
 the overlays' named functions call (`grep -o 'func_80[67]…'` in their C) and from the
 globals each file references most (`grep -oE '%hi\(D_[0-9A-F]+\)' asm/global/<f>.s | sort | uniq -c`).
@@ -51,6 +52,9 @@ grep its output for your files); a string/word run
 after doubles/jump tables inside one splat file is a hidden TU (boss `9C60` was three:
 `9C60`/`A7A0`/`B100`); place the text boundary at the only 16-byte-aligned function start
 between the owners' functions. Also: nop padding only at file ends, 16-byte alignment.
+When several 16-aligned starts qualify, use the data side: the second TU's first `.data`
+object is 16-aligned, so the boundary is the last aligned function start at or before that
+object's first user (`8F4B0`/`90D80`: `D_807501E0`, first used by `func_8068C20C` → `func_8068C080`).
 Unreferenced strings that end exactly where a file's first rodata label starts (no
 alignment gap) belong to that file's TU (actor `7CA80` kong names).
 Overlays: data stays one named asm `[0xOFF, data, 0]`. Global: data stays in the shared
@@ -63,9 +67,11 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 
 ## 3. Matching rounds (up to 6 agents per round)
 
-1. Partition by instruction count: round 1 ~1,000–1,700 per agent, ≤25 functions,
-   contiguous by address; functions over ~500 insns held back for later rounds, each
-   600+-insn function on its own agent. Later rounds ≤6 functions per agent, near-misses
+1. Partition by instruction count: round 1 ~600–1,300 per agent, ≤20 functions,
+   contiguous by address; functions over ~400 insns held back for later rounds, each
+   on its own agent (one-function agents on 400–815-insn functions got to 1–4 insns or one
+   register off, never a match, in two units: dispatch them only to fill idle slots).
+   Later rounds ≤6 functions per agent, near-misses
    first. Never a function in two agents' lists. Every agent works in PRIVATE COPY mode,
    even alone on a file, so `src/` only changes by your merges and the full build can gate
    each commit while agents run.
@@ -95,6 +101,12 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    all declarations to one top block. Two files sharing a header: serialize their unify
    agents (second extends the header additively), but start the first file's round 2 at
    once. A clash of one global between two drafts: unify inline.
+   A file-local clash (types only one file uses): run the failing merge, copy the merged
+   (non-compiling) `src` file to `.scratch/Unify<F>/<file>.c`, `git checkout` the src file,
+   and give the unify agent that copy; its result replaces `src` directly (`cp`) if `src`
+   has not changed since. If that file's agents are still running, start the clashing
+   agent's next round FROM ITS OWN PRIVATE COPY (`cp .scratch/<A>/<file>.c .scratch/<B>/`)
+   so it keeps its types, and merge it with `--base <commit its copy started from>`.
 5. Merge single-agent copies the same way; revert declaration-only leftovers from
    zero-yield agents. Then persist drafts: `python3 tools/drafts.py collect` (imports any
    newer `.scratch/*/<FUNC>_best.c` an agent left instead of saving) and
@@ -115,7 +127,12 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 1. One naming agent per segment: only matched-C functions with behaviour confirmed from
    the code, `name = 0xADDR; // type:func` in `symbol_addrs.<seg>.us.txt`, rename in
    `src/<seg>/`, re-split own segment, check own sha1. Give it the agents' reports
-   (save them first: `read agent://<id>` → `local://all-reports.md`).
+   (save them first: `read agent://<id>` → `local://all-reports.md`). Tell it to reject
+   address-encoding report names (`actorEnqueueTableD5D0`), rename agent-prefixed types
+   (`Act8CA_Node` → `AnimNode`) in the unit's files, and NEVER edit `tools/` (one patched
+   `objdiff.py` to resolve renamed symbols by address; reverted): renamed functions
+   differ from `expected/` by name only, the ROM build after step 2 is the check. It can
+   run while a last agent works on one file if it skips that agent's functions.
 2. `tools/dk make split`, then `touch src/*/*.c` (renamed global functions are referenced
    from overlay GLOBAL_ASM; their objects are not rebuilt and fail to link with the old
    name otherwise), `tools/dk make` OK; `tools/dk make expected`.
@@ -165,3 +182,4 @@ Before the final yield:
 |2026-10-22|boss (ovl07), last overlay|split inline (11 TUs, 9C60 = 3); match 6/6/6; 5 "continue" re-prompts|46 / 8 / 4|boss 58/79, 15 named; `tools/rodata_owners.py` added; best-draft handoff between rounds|
 |2026-10-22|global actor core (7CA80 + 80150)|split inline; match 6 / 11 rolling (incl. 4 one-function large agents) / 4; +2 unify fix-ups|85 / 21 / 3|7CA80 62/73, 80150 47/64, 31 named; `include/actor.h`; merge_drafts keeps first duplicate, `--base REV`; large (600–1400 insn) agents: 0 matches, best 8–19 insns off|
 |2026-10-22|global actor behaviour (79890, 7A510, 7AF60, 7BBD0, 89250; 77B90 reverted to asm)|split inline; rolling per-file rounds, 22 matching agents total (7 / 6 / 6 / 3) + 1 unify|50 / 21 / 6 / 1|79890 6/8, 7A510 8/13, 7AF60 27/29, 7BBD0 3/6, 89250 34/40, 35 named; one matched function reverted after the ROM check (C jump table lost late_rodata pad) → `objdiff.py` now fails on `.rodata` byte diffs; `rodata_owners.py` <1 s on global; shared brief via `local://brief.md`|
+|2026-10-22|global actor lists / animation / render (8CA50, 8D3E0, 8F050, 8F4B0 → 8F4B0 + 90D80 hidden TU)|split inline; 6 round-1 agents, then 14 rolling (incl. 5 one-function large agents) + 1 unify|75 / 7 / 3|8CA50 18/19, 8D3E0 40/47, 8F050 5/7, 8F4B0 11/15, 90D80 11/17, 53 named; data-alignment rule for hidden TUs; file-local unify from a pre-merged copy; round-1 agents with 28 functions left 10 unattempted at ~13 min → smaller round-1 lists; naming agent edited tools/ (reverted)|
