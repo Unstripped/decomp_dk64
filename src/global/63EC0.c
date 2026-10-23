@@ -93,11 +93,11 @@ typedef struct EffectBufferEntry {
 } EffectBufferEntry;
 
 void *func_8066B0F8(s32, s32, s32, s32);
-void func_8065F4F4(EffectNode *);
-void func_806615BC(void);
+void effectNodeApproachTargetPos(EffectNode *);
+void screenShakeStep(void);
 Gfx *func_8065FEB8(Gfx *, EffectNode *);
 void func_80660070(void *, void *, EffectNode *);
-Gfx *func_80661F0C(Gfx *, s32, u8);
+Gfx *effectBuildMipmapGdl(Gfx *, s32, u8);
 
 extern EffectNode *D_807F93C0;
 extern EffectTableEntry D_80748A90[];
@@ -118,7 +118,7 @@ extern f32 D_807F93E8;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_8065F1C0.s")
 
-void func_8065F49C(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+void effectNodeSetTargetPosition(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     EffectNode *node = D_807F93C0;
 
     if (node != NULL && arg0 != 0) {
@@ -137,7 +137,7 @@ void func_8065F49C(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     }
 }
 
-void func_8065F4F4(EffectNode *arg0) {
+void effectNodeApproachTargetPos(EffectNode *arg0) {
     if (arg0->target->unkC < arg0->x) {
         arg0->target->unkC += arg0->z;
         if (arg0->x < arg0->target->unkC) {
@@ -163,22 +163,22 @@ void func_8065F4F4(EffectNode *arg0) {
     }
 }
 
-u8 func_8065F5F0(EffectNode *arg0) {
+u8 effectGetTableFlag(EffectNode *arg0) {
     return D_80748AA5[arg0->target->unk66].unk0;
 }
 
-void func_8065F614(void) {
+void effectUpdateNodes(void) {
     EffectNode *node = D_807F93C0;
 
     if (node != NULL) {
         do {
             node->unk4C = 0;
-            func_8065F4F4(node);
+            effectNodeApproachTargetPos(node);
             node = node->next;
         } while (node != NULL);
     }
     if (!(D_807FBB60 & 2)) {
-        func_806615BC();
+        screenShakeStep();
     }
 }
 
@@ -186,7 +186,7 @@ void func_8065F614(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_8065F964.s")
 
-s32 func_8065FB04(EffectSubNode *arg0) {
+s32 effectCheckTargetActive(EffectSubNode *arg0) {
     s32 i;
 
     for (i = 0; i < arg0->unk67; i++) {
@@ -199,7 +199,7 @@ s32 func_8065FB04(EffectSubNode *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_8065FB64.s")
 
-Gfx *func_8065FD88(Gfx *gdl, u8 arg1, u8 arg2) {
+Gfx *effectWaterRenderSurfaces(Gfx *gdl, u8 arg1, u8 arg2) {
     EffectNode *water;
 
     water = D_807F93C0;
@@ -223,7 +223,7 @@ Gfx *func_8065FD88(Gfx *gdl, u8 arg1, u8 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80660520.s")
 
-typedef struct R3A_SubNode {
+typedef struct WaterEffectSubNode {
     u8 pad[0x46];
     s16 minX;
     s16 minZ;
@@ -233,11 +233,11 @@ typedef struct R3A_SubNode {
     u8 r;
     u8 g;
     u8 b;
-} R3A_SubNode;
+} WaterEffectSubNode;
 
-void func_80660830(Vtx *vtx, EffectNode *water) {
+void effectWaterSetMeshColors(Vtx *vtx, EffectNode *water) {
     u8 r;
-    R3A_SubNode *sub;
+    WaterEffectSubNode *sub;
     u8 g;
     u8 b;
     s32 minX;
@@ -248,8 +248,8 @@ void func_80660830(Vtx *vtx, EffectNode *water) {
     u32 total;
     s32 count;
 
-    r = ((R3A_SubNode *)water->sub)->r;
-    sub = (R3A_SubNode *)water->sub;
+    r = ((WaterEffectSubNode *)water->sub)->r;
+    sub = (WaterEffectSubNode *)water->sub;
     g = sub->g;
     b = sub->b;
     minX = sub->minX;
@@ -273,7 +273,7 @@ void func_80660830(Vtx *vtx, EffectNode *water) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80660D38.s")
 
-s32 func_8066104C(s32 arg0) {
+s32 mathBitwiseNot(s32 arg0) {
     return ~arg0;
 }
 
@@ -282,7 +282,7 @@ extern s8 D_80746834;
 extern OSMesgQueue D_807655F0;
 extern OSIoMesg D_807ECE00;
 
-void func_80661054(void) {
+void effectUpdateAndDispatch(void) {
     u32 sp60[6];
     u32 pad[4];
     u32 *s1;
@@ -294,7 +294,7 @@ void func_80661054(void) {
     if ((u32)s1 & 7) {
         s1++;
     }
-    s2 = func_8066104C(-0xF81);
+    s2 = mathBitwiseNot(-0xF81);
     osWritebackDCache(s1, 0x10);
     osPiStartDma(&D_807ECE00, 0, 0, s2, s1, 0x10, &D_807655F0);
     D_80746834 = 6;
@@ -330,7 +330,7 @@ void func_80661054(void) {
     }
 }
 
-void func_80661264(s32 arg0, u8 arg1) {
+void effectNodeSetSubVal(s32 arg0, u8 arg1) {
     EffectNode *node = D_807F93C0;
     while (node != NULL && arg0 != 0) {
         node = node->next;
@@ -341,7 +341,7 @@ void func_80661264(s32 arg0, u8 arg1) {
     }
 }
 
-void func_806612B4(s32 arg0, u8 arg1) {
+void effectNodeSetUnk4A(s32 arg0, u8 arg1) {
     EffectNode *node = D_807F93C0;
     while (node != NULL && arg0 != 0) {
         node = node->next;
@@ -352,7 +352,7 @@ void func_806612B4(s32 arg0, u8 arg1) {
     }
 }
 
-u8 func_80661300(s32 arg0) {
+u8 effectNodeGetUnk4B(s32 arg0) {
     EffectNode *node = D_807F93C0;
     while (node != NULL && arg0 != 0) {
         node = node->next;
@@ -364,7 +364,7 @@ u8 func_80661300(s32 arg0) {
     return 0;
 }
 
-void func_8066134C(s32 arg0, u8 arg1) {
+void effectNodeSetUnk4B(s32 arg0, u8 arg1) {
     EffectNode *node = D_807F93C0;
     while (node != NULL && arg0 != 0) {
         node = node->next;
@@ -375,7 +375,7 @@ void func_8066134C(s32 arg0, u8 arg1) {
     }
 }
 
-void func_80661398(s32 arg0, f32 arg1, f32 arg2) {
+void effectNodeSetTargetAndStep(s32 arg0, f32 arg1, f32 arg2) {
     EffectNode *node = D_807F93C0;
     while (node != NULL && arg0 != 0) {
         node = node->next;
@@ -387,7 +387,7 @@ void func_80661398(s32 arg0, f32 arg1, f32 arg2) {
     }
 }
 
-void func_806613E8(s32 arg0, f32 arg1, f32 arg2) {
+void effectNodeAddTargetAndStep(s32 arg0, f32 arg1, f32 arg2) {
     EffectNode *node = D_807F93C0;
     while (node != NULL && arg0 != 0) {
         node = node->next;
@@ -399,7 +399,7 @@ void func_806613E8(s32 arg0, f32 arg1, f32 arg2) {
     }
 }
 
-void func_80661440(f32 *arg0) {
+void effectNodeCopyValues(f32 *arg0) {
     EffectNode *node = D_807F93C0;
     s32 i;
     for (i = 0; node != NULL && i < 32; i++) {
@@ -408,7 +408,7 @@ void func_80661440(f32 *arg0) {
     }
 }
 
-void func_80661484(f32 *arg0) {
+void effectNodeSetValues(f32 *arg0) {
     EffectNode *node = D_807F93C0;
     s32 i;
     for (i = 0; node != NULL && i < 32; i++) {
@@ -418,7 +418,7 @@ void func_80661484(f32 *arg0) {
     }
 }
 
-f32 func_806614D0(s32 arg0) {
+f32 effectNodeGetValue(s32 arg0) {
     EffectNode *node = D_807F93C0;
     while (node != NULL && arg0 != 0) {
         node = node->next;
@@ -430,7 +430,7 @@ f32 func_806614D0(s32 arg0) {
     return 0.0f;
 }
 
-void func_80661520(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
+void screenShakeStart(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
     if (D_807F93C4 == 0) {
         D_807F93C8[0] = arg0;
         D_807F93C8[1] = arg1;
@@ -445,7 +445,7 @@ void func_80661520(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
     }
 }
 
-void func_806615BC(void) {
+void screenShakeStep(void) {
     if (D_807F93C4 != 0) {
         D_807F93D4 += D_807F93D8;
         if (D_807F93D0 < D_807F93D4) {
@@ -458,15 +458,15 @@ void func_806615BC(void) {
     }
 }
 
-void func_8066164C(void) {
+void screenShakeStop(void) {
     D_807F93C4 = 0;
 }
 
-void func_80661658(u8 arg0) {
+void effectInitTextureTableRGBA32(u8 arg0) {
     D_80748A9C[arg0].unk0 = func_8066B0F8(7, 0x3C5, 1, 0);
 }
 
-Gfx *func_806616A0(Gfx *dlist, EffectNode *arg1, u8 arg2) {
+Gfx *effectBuildGdlTexture32x32RGBA(Gfx *dlist, EffectNode *arg1, u8 arg2) {
     gDPPipeSync(dlist++);
     gDPLoadTextureBlock(dlist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
     WRITE_GFX(dlist++, 0xFC20FE04, 0xFF13F3FF);
@@ -483,7 +483,7 @@ Gfx *func_806616A0(Gfx *dlist, EffectNode *arg1, u8 arg2) {
     return dlist;
 }
 
-Gfx *func_806618A0(Gfx *dlist, EffectNode *arg1, u8 arg2) {
+Gfx *effectBuildGdlTexture32x32RGBAWithPrim(Gfx *dlist, EffectNode *arg1, u8 arg2) {
     gDPPipeSync(dlist++);
     gDPLoadTextureBlock(dlist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
     WRITE_GFX(dlist++, 0xFC20FE04, 0xFF0FF3FF);
@@ -501,7 +501,7 @@ Gfx *func_806618A0(Gfx *dlist, EffectNode *arg1, u8 arg2) {
     return dlist;
 }
 
-void func_80661AB4(EffectNode *arg0) {
+void effectNodeStepUVAndPos(EffectNode *arg0) {
     arg0->sub->unk3C -= arg0->sub->unk34;
     if (arg0->sub->unk3C < 0.0) {
         arg0->sub->unk3C = 255.0f;
@@ -516,12 +516,12 @@ void func_80661AB4(EffectNode *arg0) {
     arg0->unk3C += arg0->sub->unk30;
 }
 
-void func_80661B84(u8 arg0) {
+void effectInitTextureTableCI4(u8 arg0) {
     D_80748A90[arg0].res0 = func_8066B0F8(0x19, 0x2EE, 1, 0);
     D_80748A90[arg0].res1 = func_8066B0F8(0x19, 0x2EF, 1, 0);
 }
 
-Gfx *func_80661BF0(Gfx *dlist, EffectNode *arg1, u8 arg2) {
+Gfx *effectBuildGdlTexture64x64CI4(Gfx *dlist, EffectNode *arg1, u8 arg2) {
     EffectTableEntry *entry = &D_80748A90[arg2];
     gDPPipeSync(dlist++);
     gDPLoadTextureBlock_4b(dlist++, entry->res0, G_IM_FMT_CI, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
@@ -539,7 +539,7 @@ Gfx *func_80661BF0(Gfx *dlist, EffectNode *arg1, u8 arg2) {
     return dlist;
 }
 
-void func_80661E34(EffectNode *arg0) {
+void effectNodeUpdateAlphaOffset(EffectNode *arg0) {
     arg0->sub->unk3C -= arg0->sub->unk34;
     if (arg0->sub->unk3C < 0.0) {
         arg0->sub->unk3C = 255.0f;
@@ -550,11 +550,11 @@ void func_80661E34(EffectNode *arg0) {
     arg0->unk3C += arg0->sub->unk30;
 }
 
-void func_80661EC4(u8 arg0) {
+void effectInitTextureTable0(u8 arg0) {
     D_80748A9C[arg0].unk0 = func_8066B0F8(0x19, 0xF0, 1, 0);
 }
 
-Gfx *func_80661F0C(Gfx *glist, s32 arg1, u8 arg2) {
+Gfx *effectBuildMipmapGdl(Gfx *glist, s32 arg1, u8 arg2) {
     WRITE_GFX(glist++, 0xE7000000, 0);
     WRITE_GFX(glist++, 0xFD100000, D_80748A9C[arg2].unk0);
     WRITE_GFX(glist++, 0xF5100000, 0x07000000);
@@ -578,25 +578,25 @@ Gfx *func_80661F0C(Gfx *glist, s32 arg1, u8 arg2) {
     return glist;
 }
 
-void func_80662108(s32 arg0) {
+void effectNoopCallback1(s32 arg0) {
 }
 
-void func_80662110(u8 arg0) {
+void effectInitTextureTable1(u8 arg0) {
     D_80748A9C[arg0].unk0 = func_8066B0F8(0x19, 0xAF4, 1, 0);
 }
 
-void func_80662158(Gfx *arg0, s32 arg1, u8 arg2) {
-    func_80661F0C(arg0, arg1, arg2);
+void effectBuildMipmapGdlWrapper(Gfx *arg0, s32 arg1, u8 arg2) {
+    effectBuildMipmapGdl(arg0, arg1, arg2);
 }
 
-void func_80662180(s32 arg0) {
+void effectNoopCallback2(s32 arg0) {
 }
 
-void func_80662188(u8 arg0) {
+void effectInitTextureTable2(u8 arg0) {
     D_80748A9C[arg0].unk0 = func_8066B0F8(0x19, 0x75C, 1, 0);
 }
 
-Gfx *func_806621D0(Gfx *glist, s32 arg1, u8 arg2) {
+Gfx *effectBuildMipmapGdlDup(Gfx *glist, s32 arg1, u8 arg2) {
     WRITE_GFX(glist++, 0xE7000000, 0);
     WRITE_GFX(glist++, 0xFD100000, D_80748A9C[arg2].unk0);
     WRITE_GFX(glist++, 0xF5100000, 0x07000000);
@@ -620,14 +620,14 @@ Gfx *func_806621D0(Gfx *glist, s32 arg1, u8 arg2) {
     return glist;
 }
 
-void func_806623CC(s32 arg0) {
+void effectNoopCallback3(s32 arg0) {
 }
 
-void func_806623D4(u8 arg0) {
+void effectInitTextureTable3(u8 arg0) {
     D_80748A9C[arg0].unk0 = func_8066B0F8(7, 0x3B9, 1, 0);
 }
 
-Gfx *func_8066241C(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
+Gfx *effectBuildSingleTextureGdl(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
     gDPPipeSync(glist++);
     gDPLoadTextureBlock(glist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
     WRITE_GFX(glist++, 0xFC121824, 0xFF33FFFF);
@@ -642,11 +642,11 @@ Gfx *func_8066241C(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
     return glist;
 }
 
-void func_806625D0(u8 arg0) {
+void effectInitTextureTable4(u8 arg0) {
     D_80748A9C[arg0].unk0 = func_8066B0F8(7, 0x3D2, 1, 0);
 }
 
-Gfx *func_80662618(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
+Gfx *effectBuildSingleTextureGdlDup(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
     gDPPipeSync(glist++);
     gDPLoadTextureBlock(glist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
     WRITE_GFX(glist++, 0xFC121824, 0xFF33FFFF);
@@ -661,14 +661,14 @@ Gfx *func_80662618(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
     return glist;
 }
 
-void func_806627CC(u8 arg0) {
+void effectInitTextureTableDual(u8 arg0) {
     D_80748A90[arg0].res0 = func_8066B0F8(7, 0x3BA, 1, 0);
     D_80748A90[arg0].res1 = func_8066B0F8(7, 0x3DB, 1, 0);
 }
 
 extern s32 D_80748B68;
 
-Gfx *func_80662838(Gfx *glist, EffectNode *arg1, u8 arg2) {
+Gfx *effectBuildMultiBlockTextureGdl(Gfx *glist, EffectNode *arg1, u8 arg2) {
     gDPPipeSync(glist++);
     gDPLoadTextureBlock(glist++, D_80748A90[arg2].res0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
     gDPLoadMultiBlock(glist++, D_80748A90[arg2].res1, 256, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, D_80748B68, D_80748B68);
@@ -685,7 +685,7 @@ Gfx *func_80662838(Gfx *glist, EffectNode *arg1, u8 arg2) {
     return glist;
 }
 
-void func_80662AB4(EffectNode *arg0) {
+void effectNodeUpdateDualAlphaOffset(EffectNode *arg0) {
     arg0->sub->unk3C -= arg0->sub->unk34;
     if (arg0->sub->unk3C < 0.0) {
         arg0->sub->unk3C = 255.0f;

@@ -408,7 +408,7 @@ typedef struct {
     u8 unk11;
 } ProjectileTrackerSub174;
 extern s32 D_807F5D10;
-void func_80661520(f32, f32, f32, f32, f32, f32);
+void screenShakeStart(f32, f32, f32, f32, f32, f32);
 void func_8061F0B0(s32, s32, s32);
 void func_807149B8(s32);
 void func_80714950(s32);
@@ -519,7 +519,7 @@ void projectileSpawnWithShockwave(s16 arg0, f32 arg1, u8 arg2, u8 arg3, u8 arg4,
     D_807FBB44->unk168 = 1;
     *(f64 *)&D_807FBB44->unk160 = (f64)arg6;
     if (arg7 != 0.0f) {
-        func_80661520(D_807FBB40->unk7C, D_807FBB40->unk84, arg7, 2.0f, arg8, arg9);
+        screenShakeStart(D_807FBB40->unk7C, D_807FBB40->unk84, arg7, 2.0f, arg8, arg9);
     }
     func_8061F0B0(D_807F5D10, 0x50, 0x14);
 }

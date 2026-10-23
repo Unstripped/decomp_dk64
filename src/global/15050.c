@@ -16,7 +16,7 @@ extern u8 *D_807F5A64;
 extern s32 D_807F5A68;
 extern void *D_807F5A70[];
 
-s32 func_8065EA44(void);
+s32 matrixCacheDecayLimit(void);
 void heapQueueDeferredFree(void *ptr);
 void func_80611408(HeapBlock *block);
 HeapBlock *func_806111F8(s32 pool, u32 size);
@@ -72,7 +72,7 @@ void func_80611160(void) {
 }
 
 s32 func_8061116C(void) {
-    return func_8065EA44();
+    return matrixCacheDecayLimit();
 }
 
 s32 heapFreeBytes(void) {

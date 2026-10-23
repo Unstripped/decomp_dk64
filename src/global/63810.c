@@ -5,18 +5,18 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63810/func_8065EFF0.s")
 
-typedef struct R1B63810_Struct_F134 {
+typedef struct ActorSlotEntry {
     u8 pad0[0x20];
     u8 *unk20;
     u8 pad24[0x62];
     s16 unk86;
     u8 pad88[0x8];
-} R1B63810_Struct_F134;
+} ActorSlotEntry;
 
-extern R1B63810_Struct_F134 *D_807F6000;
+extern ActorSlotEntry *D_807F6000;
 s32 func_80659470(s32);
 
-void func_8065F134(s32 arg0, u8 arg1) {
+void actorSetTargetSlotByte(s32 arg0, u8 arg1) {
     u8 *volatile sp1C;
     s16 temp_a0;
     s32 temp_v0;

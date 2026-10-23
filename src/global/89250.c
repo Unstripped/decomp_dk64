@@ -46,7 +46,7 @@ s32 func_806119A0(void);
 s32 func_80611A44(void);
 void func_80614EBC(Actor *, s32);
 void func_806319C4(Actor *, s32);
-void func_80663844(Actor *);
+void triggerZoneCheckEntry(Actor *);
 s32 func_80665AAC(Actor *);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_8067B238(Actor *, Actor *, f32);
@@ -426,7 +426,7 @@ void actorUpdateEffects(Actor *arg0) {
         func_806A081C(arg0);
     }
     if (arg0->unk68 & 0x80) {
-        func_80663844(arg0);
+        triggerZoneCheckEntry(arg0);
     }
 }
 

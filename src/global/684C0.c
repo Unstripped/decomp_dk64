@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct R2F684C0_Actor {
+typedef struct TriggerZoneActor {
     u8 pad0[0x54];
     s32 unk54;
     u8 pad58[0x24];
@@ -10,9 +10,9 @@ typedef struct R2F684C0_Actor {
     f32 unk84;
     u8 pad88[0x156 - 0x88];
     u8 unk156;
-} R2F684C0_Actor;
+} TriggerZoneActor;
 
-typedef struct R2F684C0_Zone {
+typedef struct TriggerZoneData {
     s16 xMin;
     s16 yMin;
     s16 zMin;
@@ -22,40 +22,40 @@ typedef struct R2F684C0_Zone {
     s16 unkC;
     u8 unkE;
     u8 unkF;
-} R2F684C0_Zone;
+} TriggerZoneData;
 
-typedef struct R2F684C0_SubNode {
-    R2F684C0_Actor *actor;
+typedef struct TriggerZoneSubNode {
+    TriggerZoneActor *actor;
     s32 unk4;
     struct Actor *spawnedActor;
-    struct R2F684C0_SubNode *next;
-} R2F684C0_SubNode;
+    struct TriggerZoneSubNode *next;
+} TriggerZoneSubNode;
 
-typedef struct R2F684C0_ZoneNode {
-    R2F684C0_Zone *zone;
-    R2F684C0_SubNode *subList;
-    struct R2F684C0_ZoneNode *next;
-} R2F684C0_ZoneNode;
+typedef struct TriggerZoneNode {
+    TriggerZoneData *zone;
+    TriggerZoneSubNode *subList;
+    struct TriggerZoneNode *next;
+} TriggerZoneNode;
 
-extern R2F684C0_ZoneNode *D_807F9410;
+extern TriggerZoneNode *D_807F9410;
 extern Actor *D_807FBB44;
 void *func_80610FE8(s32);
-s32 func_806639CC();
-void func_80663A0C();
+s32 triggerZoneContainsActor();
+void triggerZoneSpawnTrigger();
 
-void func_806637C0(R2F684C0_Actor *arg0) {
+void triggerZoneInit(TriggerZoneActor *arg0) {
     s32 var_s0;
-    R2F684C0_ZoneNode **var_s1;
+    TriggerZoneNode **var_s1;
     s32 temp_s2;
-    R2F684C0_Zone *temp_s3;
-    R2F684C0_ZoneNode *temp_v0_2;
+    TriggerZoneData *temp_s3;
+    TriggerZoneNode *temp_v0_2;
 
     var_s1 = &D_807F9410;
     temp_s2 = *(s32 *)(arg0->unk54 + (u8 *)arg0);
-    temp_s3 = (R2F684C0_Zone *)((s32 *)(arg0->unk54 + (u8 *)arg0) + 1);
+    temp_s3 = (TriggerZoneData *)((s32 *)(arg0->unk54 + (u8 *)arg0) + 1);
     *var_s1 = NULL;
     for (var_s0 = 0; var_s0 < temp_s2; var_s0++) {
-        temp_v0_2 = func_80610FE8(sizeof(R2F684C0_ZoneNode));
+        temp_v0_2 = func_80610FE8(sizeof(TriggerZoneNode));
         *var_s1 = temp_v0_2;
         var_s1 = &temp_v0_2->next;
         temp_v0_2->zone = &temp_s3[var_s0];
@@ -64,12 +64,11 @@ void func_806637C0(R2F684C0_Actor *arg0) {
     }
 }
 
-void func_80663844(R2F684C0_Actor *arg0) {
-    R2F684C0_ZoneNode *node;
-    R2F684C0_SubNode **var_s0;
-    R2F684C0_SubNode *subNode;
-    R2F684C0_SubNode *newNode;
-
+void triggerZoneCheckEntry(TriggerZoneActor *arg0) {
+    TriggerZoneNode *node;
+    TriggerZoneSubNode **var_s0;
+    TriggerZoneSubNode *subNode;
+    TriggerZoneSubNode *newNode;
     for (node = D_807F9410; node != NULL; node = node->next) {
         if ((f32)node->zone->xMin <= arg0->unk7C &&
             (f32)node->zone->yMin <= arg0->unk80 &&
@@ -77,8 +76,8 @@ void func_80663844(R2F684C0_Actor *arg0) {
             arg0->unk7C <= (f32)node->zone->xMax &&
             arg0->unk80 <= (f32)node->zone->yMax &&
             arg0->unk84 <= (f32)node->zone->zMax) {
-            if (func_806639CC(arg0, node->subList) == 0) {
-                func_80663A0C(arg0, node->zone);
+            if (triggerZoneContainsActor(arg0, node->subList) == 0) {
+                triggerZoneSpawnTrigger(arg0, node->zone);
                 var_s0 = &node->subList;
                 subNode = *var_s0;
                 if (subNode != NULL) {
@@ -87,7 +86,7 @@ void func_80663844(R2F684C0_Actor *arg0) {
                         subNode = subNode->next;
                     } while (subNode != NULL);
                 }
-                newNode = func_80610FE8(sizeof(R2F684C0_SubNode));
+                newNode = func_80610FE8(sizeof(TriggerZoneSubNode));
                 *var_s0 = newNode;
                 newNode->actor = arg0;
                 newNode->unk4 = arg0->unk54;
@@ -98,43 +97,17 @@ void func_80663844(R2F684C0_Actor *arg0) {
     }
 }
 
-typedef struct R1F67890_Actor {
-    u8 pad0[0x54];
-    s32 unk54;
-    u8 pad58[0x156 - 0x58];
-    u8 unk156;
-} R1F67890_Actor;
-
-typedef struct R1F67890_Zone {
-    s16 xMin;
-    s16 yMin;
-    s16 zMin;
-    s16 xMax;
-    s16 yMax;
-    s16 zMax;
-    s16 unkC;
-    u8 unkE;
-    u8 unkF;
-} R1F67890_Zone;
-
-typedef struct R1F67890_Sub174 {
+typedef struct TriggerSpawnSub174 {
     u8 pad0[0xC];
     s16 unkC;
     u8 unkE;
     u8 unkF;
-} R1F67890_Sub174;
+} TriggerSpawnSub174;
 
-typedef struct R1F67890_SubNode {
-    R1F67890_Actor *actor;
-    s32 unk4;
-    struct Actor *spawnedActor;
-    struct R1F67890_SubNode *next;
-} R1F67890_SubNode;
-
-s32 func_80613448(R1F67890_Actor *);
+s32 func_80613448(TriggerZoneActor *);
 s32 actorSpawn(s32, s32);
 
-s32 func_806639CC(R1F67890_Actor *arg0, R1F67890_SubNode *arg1) {
+s32 triggerZoneContainsActor(TriggerZoneActor *arg0, TriggerZoneSubNode *arg1) {
     while (arg1 != NULL) {
         if (arg0 == arg1->actor && arg1->unk4 == arg0->unk54) {
             return 1;
@@ -144,8 +117,8 @@ s32 func_806639CC(R1F67890_Actor *arg0, R1F67890_SubNode *arg1) {
     return 0;
 }
 
-void func_80663A0C(R1F67890_Actor *arg0, R1F67890_Zone *arg1) {
-    R1F67890_Sub174 *temp_v1;
+void triggerZoneSpawnTrigger(TriggerZoneActor *arg0, TriggerZoneData *arg1) {
+    TriggerSpawnSub174 *temp_v1;
 
     actorSpawn(0x7B, func_80613448(arg0));
     D_807FBB44->unk11C = (s32)arg0;
@@ -159,14 +132,13 @@ void func_80663A0C(R1F67890_Actor *arg0, R1F67890_Zone *arg1) {
 void actorDespawn(Actor *);
 void heapFree(void *);
 
-void func_80663A80(void) {
-    R2F684C0_ZoneNode *node;
-    R2F684C0_SubNode **subListPtr;
-    R2F684C0_SubNode *subNode;
-    R2F684C0_SubNode *temp_a0;
-    R2F684C0_Actor *actor;
-    R2F684C0_Zone *zone;
-
+void triggerZoneUpdate(void) {
+    TriggerZoneNode *node;
+    TriggerZoneSubNode **subListPtr;
+    TriggerZoneSubNode *subNode;
+    TriggerZoneSubNode *temp_a0;
+    TriggerZoneActor *actor;
+    TriggerZoneData *zone;
     for (node = D_807F9410; node != NULL; node = node->next) {
         for (subListPtr = &node->subList, subNode = *subListPtr; subNode != NULL; ) {
             zone = node->zone;
