@@ -168,39 +168,139 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B4D4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B5C8.s")
+extern s32 *D_807F95A8[];
+
+s32 func_8066B5C8(s32 arg0, s32 arg1) {
+    s32 *ptr = D_807F95A8[arg0];
+    s32 ret = 0;
+
+    if (ptr != NULL) {
+        ret = ptr[arg1];
+    }
+    return ret;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B5F4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B75C.s")
+void heapFree(void *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B7AC.s")
+typedef struct R1ENode {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ u8 pad4[3];
+    /* 0x07 */ u8 unk7;
+    /* 0x08 */ u16 pad8;
+    /* 0x0A */ u16 unkA;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ u8 unk10;
+    /* 0x11 */ u8 pad11[3];
+    /* 0x14 */ struct R1ENode *left;
+    /* 0x18 */ struct R1ENode *right;
+} R1ENode;
+
+s32 func_8066B75C(R1ENode *node) {
+    s32 count;
+
+    if (node == NULL) {
+        return 0;
+    }
+    count = func_8066B75C(node->left);
+    return func_8066B75C(node->right) + count + 1;
+}
+
+extern void *D_807F9628[];
+u32 func_8066C2B4(u32);
+void func_8066B7F4(void *, s32, s32, s32);
+
+void func_8066B7AC(s32 arg0, s32 arg1, s32 arg2) {
+    func_8066B7F4(D_807F9628[func_8066C2B4(arg0)], arg0, arg1, arg2);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B7F4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B8C8.s")
+void *func_8066B924(void *, s32, s32, s32);
+
+void func_8066B8C8(s32 arg0, s32 arg1, s32 arg2) {
+    u32 index = func_8066C2B4(arg0);
+
+    D_807F9628[index] = func_8066B924(D_807F9628[index], arg0, arg1, arg2);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B924.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B9F4.s")
+void func_8066BB44(void *, s32);
+
+void func_8066B9F4(s32 arg0) {
+    func_8066BB44(D_807F9628[func_8066C2B4(arg0)], arg0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BA2C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BAB8.s")
-
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BB44.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BC00.s")
+void *func_8066BC5C(void *, s32, s32, s32);
+
+void func_8066BC00(s32 arg0, s32 arg1, s32 arg2) {
+    u32 index = func_8066C2B4(arg0);
+
+    D_807F9628[index] = func_8066BC5C(D_807F9628[index], arg0, arg1, arg2);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BC5C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BD54.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BDE0.s")
+void func_8066BE20(s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BE20.s")
+void func_8066BDE0(void) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BECC.s")
+    for (i = 0; i < 20; i++) {
+        func_8066BE20(i);
+    }
+}
+
+typedef struct R1EBufferItem {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ u8 unk10;
+} R1EBufferItem;
+
+void *func_80610FE8(s32);
+void func_8066BFF0(R1ENode *, R1EBufferItem *, s32 *);
+void func_8066C0DC(void *, s32, s32);
+R1ENode *func_8066BF0C(R1EBufferItem *, s32, s32);
+void func_8066BECC(R1ENode *);
+
+void func_8066BE20(s32 arg0) {
+    s32 count;
+    void *buffer;
+    R1ENode *new_root;
+    s32 index;
+
+    index = 0;
+    count = func_8066B75C(D_807F9628[arg0]);
+    if (count != 0) {
+        buffer = func_80610FE8(count * 20);
+        func_8066BFF0(D_807F9628[arg0], buffer, &index);
+        func_8066C0DC(buffer, 0, count - 1);
+        new_root = func_8066BF0C(buffer, 0, count - 1);
+        func_8066BECC(D_807F9628[arg0]);
+        D_807F9628[arg0] = new_root;
+        heapFree(buffer);
+    }
+}
+
+
+void func_8066BECC(R1ENode *node) {
+    if (node != NULL) {
+        func_8066BECC(node->left);
+        func_8066BECC(node->right);
+        heapFree(node);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BF0C.s")
 
@@ -208,4 +308,6 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066C0DC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066C2B4.s")
+u32 func_8066C2B4(u32 arg0) {
+    return (arg0 >> 12) % 20;
+}
