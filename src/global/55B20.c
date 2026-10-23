@@ -429,7 +429,25 @@ void func_80652374(M55P1_Entry *arg0) {
     *sp40 = func_806303C4(*sp40, arg0->unk24, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk1C, arg0->unk1E, arg0->unk22, *level, 0);
 }
 
+#ifdef NON_MATCHING
+void func_806307CC(s32, s32, s32, s32, u8 *);
+
+void func_806524A0(s32 arg0, u8 arg1) {
+    u8 flag;
+    s32 i;
+
+    flag = 0;
+    for (i = 0; i < D_807F6C28 && !flag; i++) {
+        func_806307CC(D_807F6C18[i].unk14, arg0, 0, arg1, &flag);
+        if (!flag) {
+            func_806307CC(D_807F6C18[i].unk1C, arg0, 0, arg1, &flag);
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806524A0.s")
+#endif
 
 s32 func_80630588(s32, s32, s32, u8 *);
 
@@ -1119,7 +1137,38 @@ void func_80653B80(f32 arg0, f32 arg1, f32 arg2) {
 
 extern s32 func_8066B0F8(s32, s32, s32, s32);
 
+#ifdef NON_MATCHING
+u8 *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
+    s32 count;
+    u8 *p;
+    s32 temp_v0;
+    s32 zero;
+    u32 tag;
+
+    p = arg0;
+    zero = 0;
+    count = zero;
+    if ((p != arg1) && (arg2 > zero)) {
+        do {
+            tag = *(u32 *)p;
+            if ((tag >> 0x18) == 0xFD) {
+                temp_v0 = *(s32 *)(p + 4);
+                if (((u32)(temp_v0 * 0x10) >> 0x1C) == zero) {
+                    *(s32 *)(p + 4) = func_8066B0F8(0x19, temp_v0, zero, zero);
+                    count++;
+                }
+                if (zero) {
+                }
+            }
+            p += 8;
+        } while ((p != arg1) && (count < arg2));
+    }
+    return p;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80653DF0.s")
+#endif
 
 
 extern void collisionBstLookupByHash(u32, u32 *, u32 *);
@@ -1201,7 +1250,59 @@ typedef struct M55P4Tri {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806547A8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654A2C.s")
+typedef struct M55P4Trigger {
+    s16 unk0[10];
+    s16 unk14[16];
+    u8 unk34;
+    s16 unk36[16];
+    u8 unk56;
+} M55P4Trigger;
+
+extern void *D_807F70B8[];
+extern u8 D_807F7048[];
+extern u8 D_807F7058;
+
+void func_80654BC0(s32, u8);
+
+void func_80654A2C(f32 arg0, f32 arg1, f32 arg2) {
+    s32 i;
+    s32 j;
+    s32 done;
+    s16 *val;
+    M55P4Trigger *trig;
+    u8 idx;
+
+    done = 0;
+    i = 0;
+    while (i < D_807F7058) {
+        idx = D_807F7048[i];
+        if (D_807F70B8[idx] != 0) {
+            trig = (M55P4Trigger *)D_807F70B8[idx];
+            if (!done) {
+                if (trig->unk56 != 0) {
+                    done = 1;
+                    val = trig->unk36;
+                    for (j = 0; j < D_807F70AC; j++) {
+                        *((u8 *)D_807F70B0 + j * 0x1C + 0x18) = 0;
+                    }
+                    for (j = 0; j < trig->unk56; j++) {
+                        func_80654BC0(*val, 1);
+                        val++;
+                    }
+                } else {
+                    val = trig->unk14;
+                    if (!trig->unk56) {
+                    }
+                    for (j = 0; j < trig->unk34; j++) {
+                        func_80654BC0(*val, 0);
+                        val++;
+                    }
+                }
+            }
+        }
+        i++;
+    }
+}
 
 void func_80654BC0(s32 arg0, u8 arg1) {
     s32 i;
@@ -1250,7 +1351,48 @@ s32 func_80654E84(M55P4Tri *arg0, f32 arg1, f32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654FEC.s")
 
+#ifdef NON_MATCHING
+extern f32 D_807F5FAC;
+
+s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
+void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
+    s32 i;
+    M55P2BoxEntry *box;
+    s32 off;
+
+    i = 0;
+    if (D_807F70AC > 0) {
+        off = 0;
+        do {
+            if (arg3 == ((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk4) {
+                if (D_807F6C18[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk0].unk0 == 1) {
+                    box = (M55P2BoxEntry *)D_807F70B4;
+                    if (func_8062DBDC(box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk0,
+                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk2,
+                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk4,
+                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk6,
+                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk8,
+                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unkA,
+                                      arg0, arg1, arg2, D_807F5FAC,
+                                      (u8 *)&D_807F6C18[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk0] + 0x88) != 0) {
+                        ((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk18 = 1;
+                        ((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk19 = 1;
+                    }
+                    if (((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk18 != 0) {
+                        func_80655258(arg0, arg1, arg2, ((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2);
+                    }
+                }
+            }
+            i++;
+            off += 0x1C;
+        } while (i < D_807F70AC);
+    }
+}
+
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655258.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655410.s")
 
@@ -2139,7 +2281,21 @@ void func_80658CCC(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658CCC.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658DAC.s")
+extern u8 D_807F72A1;
+extern s32 D_807F72A4;
+extern u8 D_807F72B5;
+
+u8 func_80658DAC(s32 arg0) {
+    s32 i;
+
+    if (arg0 == D_807F7290) { return D_807F72A1; } if (arg0 == D_807F72A4) { return D_807F72B5; }
+    for (i = 0; i < 8; i++) {
+        if (arg0 == D_807F72B8[i].unk0) {
+            return D_807F72B8[i].unk11;
+        }
+    }
+    return 0;
+}
 
 
 void func_80658E58(arg0, arg1, arg2, arg3)
