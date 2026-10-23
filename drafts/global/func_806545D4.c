@@ -1,0 +1,97 @@
+// func_806545D4 (src/global/55B20.c): stage 2: interpolation matrix build from D_807F5DF0 + guMtxXFMF loop; frame 0x120 vs 0xA8 (target has 18 f64 slots 0x38-0xA7, only 5 used)
+typedef struct {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ void *unk4;
+    /* 0x008 */ u8 pad8[0x270 - 0x8];
+    /* 0x270 */ s16 unk270;
+    /* 0x272 */ s16 unk272;
+    /* 0x274 */ s16 unk274;
+    /* 0x276 */ s16 unk276;
+    /* 0x278 */ s16 unk278;
+    /* 0x27A */ s16 unk27A;
+    /* 0x27C */ u8 pad27C[0x2F0 - 0x27C];
+} M55P3Player;
+typedef struct {
+    f32 unk0;  f32 unk4;  f32 unk8;  f32 unkC;
+    f32 unk10; f32 unk14; f32 unk18; f32 unk1C;
+    f32 unk20; f32 unk24; f32 unk28; f32 unk2C;
+} M55P3Road;
+extern M55P3Player *D_807FC924;
+extern M55P3Road D_807F5DF0;
+extern void func_8062AD28(f32, f32, f32, void *, void *);
+
+void func_806545D4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, f32 (*arg8)[4], void *arg9, f32 *arg10) {
+    f32 sp9C;
+    f32 sp98;
+    f32 sp94;
+    f32 sp90;
+    f32 sp8C;
+    f32 sp88;
+    f32 sp84;
+    f32 sp80;
+    f32 sp7C;
+    f32 sp78;
+    f32 sp74;
+    f32 sp70;
+    f32 sp6C;
+    f32 sp68;
+    f32 sp64;
+    f32 sp60;
+    f32 sp50;
+    f32 sp40;
+    f32 *var_s0;
+    f32 *var_s1;
+    f32 *var_s2;
+    f32 *var_s3;
+    f32 temp_fa1;
+    f32 temp_ft0;
+    f32 temp_ft1;
+    f32 temp_ft2;
+    f32 temp_ft3;
+    f32 temp_ft4;
+    f32 temp_ft5;
+    s16 temp_t0;
+    s16 temp_t1;
+    M55P3Player *temp_v0;
+
+    temp_v0 = D_807FC924 + arg7;
+    temp_t0 = temp_v0->unk270;
+    temp_fa1 = (f32) temp_v0->unk278;
+    var_s1 = arg10;
+    var_s0 = &sp60;
+    temp_ft4 = D_807F5DF0.unkC - D_807F5DF0.unk0;
+    var_s2 = var_s1 + 4;
+    var_s3 = var_s1 + 8;
+    temp_ft1 = (temp_ft4 * ((f32) (arg0 - temp_t0) / temp_fa1)) + D_807F5DF0.unk0;
+    sp9C = temp_ft1;
+    temp_ft3 = (temp_ft4 * ((f32) (arg2 - temp_t0) / temp_fa1)) + D_807F5DF0.unk0;
+    sp98 = temp_ft3;
+    temp_t1 = temp_v0->unk272;
+    sp40 = temp_ft1;
+    temp_ft5 = (f32) temp_v0->unk27A;
+    sp60 = temp_ft3;
+    sp78 = temp_ft3;
+    sp8C = D_807F5DF0.unk2C;
+    sp50 = D_807F5DF0.unk1C - D_807F5DF0.unk4;
+    temp_ft2 = (sp50 * ((f32) (arg1 - temp_t1) / temp_ft5)) + D_807F5DF0.unk4;
+    sp94 = temp_ft2;
+    sp7C = temp_ft2;
+    sp88 = temp_ft2;
+    temp_ft0 = (sp50 * ((f32) (arg3 - temp_t1) / temp_ft5)) + D_807F5DF0.unk4;
+    sp90 = temp_ft0;
+    sp64 = temp_ft0;
+    sp70 = temp_ft0;
+    sp68 = D_807F5DF0.unk8;
+    sp74 = D_807F5DF0.unk14;
+    sp6C = temp_ft1;
+    sp84 = temp_ft1;
+    sp80 = D_807F5DF0.unk20;
+    do {
+        guMtxXFMF(arg8, var_s0[0], var_s0[1], var_s0[2], var_s1, var_s2, var_s3);
+        var_s0 += 0xC;
+        var_s1 += 0xC;
+        var_s2 += 0xC;
+        var_s3 += 0xC;
+    } while (var_s0 != &sp90);
+    func_8062AD28(arg4, arg5, arg6, arg9, arg10);
+}
