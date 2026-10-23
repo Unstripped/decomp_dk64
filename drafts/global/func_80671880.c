@@ -1,4 +1,4 @@
-// func_80671880 (src/global/70FD0.c): never attempted in this session; m2c starter generated
+// func_80671880 (src/global/70FD0.c): 4 insns diff (s5 vs s6 swapped, bne s5, v0 vs bne v0, s6). Perfect stack frame 0xC0 and sp6C at 0x6C, spAC/B0/B4 at 0xAC/B0/B4
 #include "common.h"
 #include "actor.h"
 
@@ -270,9 +270,93 @@ void func_8066E72C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s
     temp_v0->unkAC = 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E854.s")
+typedef struct M70G_ModelSubNode {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ struct M70G_ModelSubNode *next;
+} M70G_ModelSubNode;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E8E4.s")
+typedef struct M70G_ModelNode {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s32 unk20;
+    /* 0x24 */ u16 unk24;
+    /* 0x26 */ u8 unk26;
+    /* 0x27 */ u8 unk27;
+    /* 0x28 */ struct M70G_ModelNode *next;
+} M70G_ModelNode;
+
+void func_8066E854(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+    f32 pad[3];
+    ActorSub140 *sub;
+    M70G_ModelSubNode *node;
+    M70G_ModelSubNode **head;
+    M70G_ModelSubNode *curr;
+
+    sub = arg0->unk140;
+    node = (M70G_ModelSubNode *)func_80610FE8(sizeof(M70G_ModelSubNode));
+    node->next = NULL;
+    head = (M70G_ModelSubNode **)&sub->unk90;
+    node->unk0 = arg1;
+    node->unk4 = arg2;
+    node->unk8 = arg3;
+    node->unk18 = arg4;
+    node->unkC = 0;
+    node->unk10 = 0;
+    node->unk14 = 0;
+    curr = (M70G_ModelSubNode *)sub->unk90;
+    if (curr != NULL) {
+        do {
+            head = &curr->next;
+            curr = curr->next;
+        } while (curr != NULL);
+    }
+    *head = node;
+}
+
+void func_8066E8E4(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
+    f32 pad[3];
+    ActorSub140 *sub;
+    M70G_ModelNode *node;
+    M70G_ModelNode **head;
+    M70G_ModelNode *curr;
+
+    sub = arg0->unk140;
+    node = (M70G_ModelNode *)func_80610FE8(sizeof(M70G_ModelNode));
+    node->next = NULL;
+    head = (M70G_ModelNode **)&sub->unk8C;
+    node->unk0 = arg1;
+    node->unk4 = arg2;
+    node->unk8 = arg3;
+    node->unkC = arg4;
+    node->unk20 = arg5;
+    node->unk10 = 0;
+    node->unk14 = 0;
+    node->unk18 = 0;
+    node->unk1C = 0;
+    node->unk26 = 1;
+    node->unk24 = 0;
+    node->unk27 = 0;
+    curr = (M70G_ModelNode *)sub->unk8C;
+    if (curr != NULL) {
+        do {
+            head = &curr->next;
+            curr = curr->next;
+        } while (curr != NULL);
+    }
+    *head = node;
+}
 
 void func_8066E990(Actor *arg0) {
     ActorSub140 *sub;
@@ -716,7 +800,7 @@ extern u8 D_807FB548;
 extern u8 D_807FB61C;
 
 s32 func_806730A4(s32, s32, s32, s32);
-void func_80671880(M70E_Actor *, s32);
+void func_80671880();
 s32 func_806734E4();
 void func_80671260(M70E_Actor *);
 s32 func_806717FC(M70E_Actor *);
@@ -755,25 +839,6 @@ typedef struct M70H_D580 {
     s16 unkEA;
 } M70H_D580;
 
-typedef struct M70H_SubActor {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    s32 unkC;
-    u8 pad10[0xC];
-    f32 unk1C;
-    f32 unk20;
-    u8 unk24;
-    u8 pad25[0x70 - 0x25];
-    void *unk70;
-    s32 unk74[2];
-    u8 pad7C[0x84 - 0x7C];
-    s32 unk84;
-    s32 unk88;
-    M70E_Node8C *unk8C;
-    M70E_Node *unk90;
-} M70H_SubActor;
-
 typedef struct M70H_Sub174 {
     u8 pad0[0xE0];
     f32 unkE0;
@@ -799,11 +864,22 @@ typedef struct M70H_Actor {
 
 extern M70H_D580 *D_807FD580;
 extern s32 D_807FB5D0;
+extern s32 D_807FB5C4;
+extern s32 D_807FB5CC;
+extern s16 D_80753D50[];
+extern s16 D_80753D60[];
+extern s16 D_807FD584;
+extern u8 D_807FC929;
+extern s32 D_807FB5DC;
+extern s16 D_807FB5F6;
 
 s32 func_806CC14C(s16, s16);
 s32 func_806744A8(M70H_Actor *, s32, s32, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
+s32 func_806732A8(s32, s16);
+void func_806713E4(M70E_Actor *, u8);
+void func_80671528();
 
 void func_806710E0(M70H_Actor *arg0, s32 arg1, s32 arg2, s32 arg3) {
     s16 sp36;
@@ -833,19 +909,6 @@ void func_806710E0(M70H_Actor *arg0, s32 arg1, s32 arg2, s32 arg3) {
         }
     }
 }
-
-extern s16 D_80753D50[];
-extern s16 D_80753D60[];
-extern s16 D_807FD584;
-extern u8 D_807FC929;
-extern s32 D_807FB5DC;
-extern s16 D_807FB5F6;
-extern s32 D_807FB5C4;
-extern s32 D_807FB5CC;
-
-s32 func_806732A8(s32, s16);
-void func_806713E4(M70E_Actor *, u8);
-void func_80671528(M70E_Actor *, f32 *, f32 *, f32 *, s32);
 
 void func_80671260(M70E_Actor *arg0) {
     s32 pad4C;
@@ -936,45 +999,98 @@ ret_32_3:
     return 0x32;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671880.s")
-
 extern u8 D_807444FC;
-void *memcpy(void *, const void *, size_t);
 
-void func_80671A6C(M70H_SubActor *arg0, u8 arg1) {
-    M70E_Node *node;
-    u8 var_v0;
-    f32 spA4;
-    f32 spA0;
-    f32 sp9C;
-    f32 mtx[4][4];
-    s32 mtx_base;
+typedef struct M70M_Node {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    s32 unk10;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+    u8 pad24[4];
+    struct M70M_Node *next;
+} M70M_Node;
 
-    if (arg1 || (D_8076A064 != arg0->unk84)) {
-        if (D_8076A064 == arg0->unk88) {
-            var_v0 = D_807444FC;
-        } else {
-            var_v0 = (D_807444FC ^ 1) & 0xFF;
+typedef struct M70M_SubActor {
+    u8 pad0[0x70];
+    void *unk70;
+    s32 unk74[2];
+    s32 unk7C;
+    s32 unk80;
+    u8 pad84[4];
+    s32 unk88;
+    M70M_Node *unk8C;
+} M70M_SubActor;
+
+typedef struct M70M_Actor {
+    u8 pad0[4];
+    ActorSub4 *unk4;
+    u8 pad8[0x64 - 0x8];
+    u32 unk64;
+    u8 pad68[0x120 - 0x68];
+    f32 unk120;
+    u8 pad124[0x140 - 0x124];
+    M70M_SubActor *unk140;
+} M70M_Actor;
+
+void func_80671880(arg0, arg1)
+M70M_Actor *arg0;
+u8 arg1;
+{
+    M70M_SubActor *sub;
+    f32 var_fs1;
+    f32 spB4;
+    f32 spB0;
+    f32 spAC;
+    f32 sp6C[4][4];
+    M70M_Node *node;
+    u8 val;
+    s32 minus_one;
+    s32 base;
+    ActorSub4 *temp_v0;
+
+    var_fs1 = 0.15f;
+    sub = arg0->unk140;
+    if (arg1 || sub->unk7C != sub->unk80) {
+        minus_one = -1;
+        temp_v0 = arg0->unk4;
+        if (temp_v0 != NULL) {
+            var_fs1 = temp_v0->unk38;
         }
-        node = arg0->unk90;
+        if (arg0->unk64 & 0x800) {
+            var_fs1 = arg0->unk120;
+        }
+        if (D_8076A064 == sub->unk88) {
+            val = D_807444FC;
+        } else {
+            val = D_807444FC ^ 1;
+        }
+        node = sub->unk8C;
+        base = sub->unk74[val];
         if (node != NULL) {
-            mtx_base = arg0->unk74[var_v0];
             do {
-                if (node->unk18 == -1) {
-                    memcpy(&mtx, arg0->unk70, sizeof(mtx));
-                    guMtxXFMF(mtx, node->x, node->y, node->z, &spA4, &spA0, &sp9C);
+                if (node->unk20 == minus_one) {
+                    memcpy(sp6C, sub->unk70, 0x40);
+                    guMtxXFMF(sp6C, node->unk0, node->unk4, node->unk8, &spB4, &spB0, &spAC);
                 } else {
-                    guMtxXFML((Mtx *)(mtx_base + ((node->unk18 >> 6) << 6)), node->x, node->y, node->z, &spA4, &spA0, &sp9C);
+                    guMtxXFML((Mtx *)((((u32)node->unk20 >> 6) << 6) + base), node->unk0, node->unk4, node->unk8, &spB4, &spB0, &spAC);
                 }
-                node->unkC = (s32)(spA4 * 8.0f);
-                node->unk10 = (s32)(spA0 * 8.0f);
-                node->unk14 = (s32)(sp9C * 8.0f);
+                node->unk10 = (s32)(spB4 * 8.0f);
+                node->unk14 = (s32)(spB0 * 8.0f);
+                node->unk18 = (s32)(spAC * 8.0f);
+                node->unk1C = (s32)(node->unkC * var_fs1 * 8.0f);
                 node = node->next;
             } while (node != NULL);
         }
-        arg0->unk84 = D_8076A064;
+        sub->unk7C = sub->unk80;
     }
 }
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671A6C.s")
 
 s32 func_80671C0C(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     s32 pad0;
@@ -1019,7 +1135,29 @@ void func_80671D10(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) 
     *arg4 = node->z;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671D64.s")
+extern u8 D_807444FC;
+s32 func_80671D64(M70E_Actor *arg0, s32 arg1) {
+    M70E_SubActor *sub = arg0->unk140;
+    u8 val;
+    s32 base;
+    M70E_Node *node;
+
+    if (D_8076A064 == sub->unk88) {
+        val = D_807444FC;
+    } else {
+        val = D_807444FC ^ 1;
+    }
+    base = sub->unk74[val];
+
+    node = sub->unk90;
+    arg1--;
+    while (arg1 != 0) {
+        arg1--;
+        node = node->next;
+    }
+
+    return (((u32)node->unk18 >> 6) << 6) + base;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671E00.s")
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671F54.s")
@@ -1118,7 +1256,71 @@ s16 *arg4;
     func_806726DC(arg0, arg1, arg2, arg3, arg4, 10);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_806726DC.s")
+s16 func_806728F0(s16, s16, s16);
+
+s32 func_806726DC(arg0, arg1, arg2, arg3, arg4, arg5)
+s32 arg0;
+s16 arg1;
+s16 arg2;
+s16 arg3;
+s16 *arg4;
+s16 arg5;
+{
+    s16 temp_t0;
+    s16 temp_t1;
+    s16 var_t2;
+    s16 var_t3;
+    u8 var_a0;
+
+    temp_t0 = arg2 + arg5;
+    temp_t1 = arg3 - arg5;
+    var_t2 = temp_t0;
+    var_t3 = temp_t1;
+    if (arg3 >= arg2) {
+        if (temp_t0 < temp_t1 && arg1 >= temp_t0 && temp_t1 >= arg1) {
+            *arg4 = arg1;
+            return 1;
+        }
+        *arg4 = func_806728F0(arg2, arg3, arg1);
+        goto ret_0;
+    }
+
+    var_a0 = 0;
+    if (temp_t0 >= 0x1000) {
+        var_t2 = temp_t0 - 0x1000;
+        var_a0 = 1;
+    }
+    if (temp_t1 < 0) {
+        var_t3 = temp_t1 + 0x1000;
+        var_a0 += 2;
+    }
+
+    switch (var_a0) {
+    default:
+        return 0;
+    case 0:
+        if (arg1 >= var_t2 || var_t3 >= arg1) {
+            *arg4 = arg1;
+            return 1;
+        }
+        *arg4 = func_806728F0(arg2, arg3, arg1);
+        break;
+    case 1:
+    case 2:
+        if (var_t2 < var_t3 && arg1 >= var_t2 && var_t3 >= arg1) {
+            *arg4 = arg1;
+            return 1;
+        }
+        *arg4 = func_806728F0(arg2, arg3, arg1);
+        break;
+    case 3:
+        *arg4 = func_806728F0(arg2, arg3, arg1);
+        break;
+    }
+
+ret_0:
+    return 0;
+}
 
 s16 func_80672A70();
 
@@ -1232,9 +1434,27 @@ void func_80672B1C(M70F_Actor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80672BD4.s")
+u8 func_80672BD4(M70F_Actor *arg0) {
+    return arg0->unk110 != 0
+        || arg0->unk140->unk6C != 0
+        || arg0->unk140->unk24 != 0
+        || (arg0->unk6A & 8) != 0
+        || (arg0->unk6A & 0x400) != 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80672C30.s")
+void func_80672C30(M70F_Actor *arg0) {
+    M70F_ActorSub140 *temp_v0;
+
+    temp_v0 = arg0->unk140;
+    arg0->unk110 = 0;
+    if (temp_v0 != NULL) {
+        temp_v0->unk6C = 0;
+        arg0->unk140->unk24 = 0;
+    }
+    arg0->unk6A &= ~8;
+    *(u16*)((u8*)arg0 + 0x6A) &= ~0x400;
+    arg0->unk64 |= 0x2000;
+}
 
 extern s32 D_807FB53C;
 extern s16 D_807FB5F8;

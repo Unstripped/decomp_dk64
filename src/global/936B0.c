@@ -447,7 +447,24 @@ void func_80690A28(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f
     func_80690930(func_80665DE0(arg3, arg5, D_807FC7B0, D_807FC7B8), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690AB0.s")
+s16 func_806CC14C(s16, s16);
+void func_80690AB0(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, s32 arg9) {
+    s16 sp3C;
+    s16 sp38;
+    s16 var_s0;
+
+    var_s0 = func_80665DE0(arg5, arg7, D_807FC7B0, D_807FC7B8);
+    if (arg1 < func_806CC14C(arg0, var_s0)) {
+        sp3C = (arg0 - arg1) & 0xFFF;
+        sp38 = (arg0 + arg1) & 0xFFF;
+        if (func_806CC14C(var_s0, sp3C) < func_806CC14C(var_s0, sp38)) {
+            var_s0 = sp3C;
+        } else {
+            var_s0 = sp38;
+        }
+    }
+    func_80690930(var_s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+}
 
 void func_80690BE8(s16 arg0, s16 arg1, f32 arg2, Actor *arg3, s32 arg4, f32 arg5, s32 arg6) {
     f32 sp34;
@@ -1203,10 +1220,105 @@ void func_80695B50(void) {
     func_806319C4(D_807FBB40, 1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80695BAC.s")
+extern u8 D_8071FBC8;
+extern u8 D_8071FC40;
+extern u8 D_80720804;
+void func_807189BC(void);
+
+typedef struct M93I_Actor {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x6A - 0x64];
+    u16 unk6A;
+    u8 pad6C[2];
+    s16 unk6E;
+    u8 pad70[0x7C - 0x70];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0xB8 - 0x88];
+    f32 unkB8;
+    u8 padBC[4];
+    f32 unkC0;
+    u8 padC4[0xEE - 0xC4];
+    s16 unkEE;
+    u8 padF0[0xFA - 0xF0];
+    s16 unkFA;
+    u8 unkFC;
+    u8 padFD[0x124 - 0xFD];
+    M93D_Actor124 *unk124;
+    u8 pad128[0x144 - 0x128];
+    u8 unk144;
+    u8 pad145[0x174 - 0x145];
+    void *unk174;
+} M93I_Actor;
+
+#define M93I_ACTOR ((M93I_Actor *)D_807FBB40)
+
+void func_80695BAC(void) {
+    M93D_ActorExtra *sp54;
+    s32 var_s0;
+    sp54 = (M93D_ActorExtra *)M93I_ACTOR->unk174;
+    if (!(M93I_ACTOR->unk60 & 0x10)) {
+        M93I_ACTOR->unkFA = 0x270F;
+        M93I_ACTOR->unk6E = -2;
+        M93I_ACTOR->unk6A &= -2;
+        M93I_ACTOR->unkEE = (s16)((M93I_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        M93I_ACTOR->unkB8 = M93I_ACTOR->unk124->unk4;
+        M93I_ACTOR->unkC0 = M93I_ACTOR->unk124->unk8;
+        sp54->unk13 = (u8)(u32)M93I_ACTOR->unk124->unk10;
+        M93I_ACTOR->unk144 = 0x3C;
+        func_8066EB40(D_807FBB40, 110.0f);
+        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 100.0f, -1);
+        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        func_807149FC(-1);
+        func_807149B8(1);
+        func_80714C08(&D_80720804, M93I_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        sp54->unk0 = D_8076A068;
+        M93I_ACTOR->unk60 |= 0x80000;
+        if (sp54->unk13 != 0xA) {
+            func_80714998(2);
+            func_807149B8(1);
+            func_80714CC0(&D_8071FBC8, 1.5f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+        }
+    }
+    func_8067ACB4(D_807FBB40);
+    func_806651FC(D_807FBB40);
+    func_80665564(D_807FBB40, 4.0f);
+    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
+    if (M93I_ACTOR->unk6A & 4) {
+        func_807149B8(1);
+        func_807149FC(-1);
+        func_8071498C(func_807189BC);
+        func_80714950((s32)D_807FBB40);
+        func_80714CC0(&D_8071FC40, 0.3f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+    }
+    if (((M93I_ACTOR->unkFC != 0) && ((u32)(D_8076A068 - sp54->unk0) >= 6)) || D_807FBB85 != 0) {
+        if ((D_807FBB85 != 0) && (sp54->unk13 != 0xA)) {
+            func_807149B8(1);
+            func_80714950(0x100D2);
+            func_8071498C(func_8071A8B0);
+            func_80714CC0(&D_80720120, 2.0f, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f, D_807FBB40->unk84);
+            func_8061EF4C(((M93C_PlayerActor *)D_807FBB4C)->unk174->unk104, 7, 0x16, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
+            func_806915B0();
+            for (var_s0 = 0; var_s0 != 12; var_s0 += 2) {
+                func_807149B8(1);
+                func_80714950(0x0B000000 + var_s0);
+                func_8071498C(func_8071ABDC);
+                func_80714CC0(&D_807206DC, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+            }
+        }
+        if (sp54->unk13 != 0xA) {
+            func_80608528(D_807FBB40, 0x3C, 0xFF, 0x7F, 0x1E);
+        }
+        actorDespawn(D_807FBB40);
+    }
+    if ((u32)(sp54->unk0 + D_80750344) < D_8076A068) {
+        actorDespawn(D_807FBB40);
+    }
+}
 
 extern u8 D_80720340;
-extern u8 D_80720804;
 extern f32 D_80750274;
 s32 func_80611A44(void);
 void func_8071496C(s16);
