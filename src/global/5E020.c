@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/5E020/func_80659320.s")
-
 typedef struct Cam1_Node {
     s32 key;
     s32 value;
@@ -11,7 +9,31 @@ typedef struct Cam1_Node {
 
 extern Cam1_Node *D_807F7370[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/5E020/func_80659350.s")
+void func_80659320(void) {
+    s32 i;
+
+    for (i = 0; i < 100; i++) {
+        D_807F7370[i] = NULL;
+    }
+}
+
+void func_80659350(void) {
+    s32 i;
+    Cam1_Node *node;
+    Cam1_Node *next;
+
+    for (i = 0; i < 100; i++) {
+        node = D_807F7370[i];
+        if (node != NULL) {
+            do {
+                next = node->next;
+                heapFree(node);
+                node = next;
+            } while (node != NULL);
+        }
+    }
+    func_80659320();
+}
 
 s32 func_80659544(s32);
 void *func_80610FE8(s32);
@@ -63,8 +85,45 @@ void func_806594C8(s32 arg0) {
     }
 }
 
+#ifdef NON_MATCHING
+s32 func_80659544(s32 arg0) {
+    int new_var = arg0;
+
+    if (new_var > 0) {
+        return new_var % 100;
+    }
+    new_var = -new_var;
+    return new_var % 100;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/5E020/func_80659544.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/5E020/func_80659574.s")
+void func_80659574(void) {
+    s32 i;
+    Cam1_Node *node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/5E020/func_806595B0.s")
+    for (i = 0; i < 100; i++) {
+        node = D_807F7370[i];
+        if (node != NULL) {
+            do {
+                node = node->next;
+            } while (node != NULL);
+        }
+    }
+}
+
+void func_806595B0(void) {
+    s32 i;
+    Cam1_Node *node;
+
+    for (i = 0; i < 100; i++) {
+        node = D_807F7370[i];
+        if (node != NULL) {
+            do {
+                node = node->next;
+            } while (node != NULL);
+        }
+    }
+}
