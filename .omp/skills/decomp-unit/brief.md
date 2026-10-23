@@ -32,9 +32,13 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
   or `./diff.sh`: they rebuild shared outputs and race.
 - Starter C: `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`.
 - Put every scratch/probe file under `.scratch/<YourName>/`, never in the repo root.
-- PRIVATE COPY mode: copy `src/<seg>/<file>.c` once to `.scratch/<YourName>/<file>.c`,
-  edit only the copy, check with
+- PRIVATE COPY mode: copy `src/<seg>/<file>.c` once to `.scratch/<YourName>/<file>.c`
+  (or use `git show <commit>:src/<seg>/<file>.c > ...` if your task specifies an exact base),
+  never re-copy mid-run, edit only the copy, check with
   `tools/fdiff.sh .scratch/<YourName>/<file>.c src/<seg>/<file>.c [FUNC]`.
+- Key compiler patterns: when you discover a pattern that resolves a common near-miss
+  (e.g. post-increment equality `if (reg++ == N)` placing stores in delay slots, K&R spills,
+  unrolled loop idioms), report it clearly or message siblings via `write agent://<id>`.
 - DIRECT mode (you are the only agent on the file): edit it in place, check with
   `tools/objdiff.sh src/<seg>/<file>.c [FUNC]`.
 - Both print `OK` (exit 0) or `TEXT OK` (exit 3) when code matches, else FAILED plus an

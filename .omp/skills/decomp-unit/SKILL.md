@@ -90,7 +90,13 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    dispatch the next round instead.
    Rolling dispatch: rounds are per file, not global. When all agents on one file finish,
    merge, gate, commit and re-snapshot that file, then fill freed slots (max 6) with its
-   next round while the other file's agents keep running.
+   next round while the other file's agents keep running. To keep merge bases deterministic
+   across rolling commits, instruct rolling agents to create private copies from an explicit
+   commit (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`) and pass
+   `--base <commit>` to `tools/merge_drafts.py merge`.
+   Cross-agent discovery: when an agent finds a key compiler pattern that unblocks a common
+   near-miss (e.g. `if (reg++ == 2)` post-increment equality placing the store in the delay
+   slot for `xori`/`addiu`), immediately forward it to running siblings via `write agent://<id>`.
 4. Merge each shared file: `python3 tools/merge_drafts.py merge src/<seg>/<file>.c .scratch/<A>/<file>.c ...`
    (merges into the current `src`, so edits made after the snapshot survive; drops
    duplicate declarations (keeping the first) and unused ones the drafts added; prints
@@ -187,3 +193,4 @@ Before the final yield:
 |2026-10-22|global actor core (7CA80 + 80150)|split inline; match 6 / 11 rolling (incl. 4 one-function large agents) / 4; +2 unify fix-ups|85 / 21 / 3|7CA80 62/73, 80150 47/64, 31 named; `include/actor.h`; merge_drafts keeps first duplicate, `--base REV`; large (600–1400 insn) agents: 0 matches, best 8–19 insns off|
 |2026-10-22|global actor behaviour (79890, 7A510, 7AF60, 7BBD0, 89250; 77B90 reverted to asm)|split inline; rolling per-file rounds, 22 matching agents total (7 / 6 / 6 / 3) + 1 unify|50 / 21 / 6 / 1|79890 6/8, 7A510 8/13, 7AF60 27/29, 7BBD0 3/6, 89250 34/40, 35 named; one matched function reverted after the ROM check (C jump table lost late_rodata pad) → `objdiff.py` now fails on `.rodata` byte diffs; `rodata_owners.py` <1 s on global; shared brief via `local://brief.md`|
 |2026-10-22|global actor lists / animation / render (8CA50, 8D3E0, 8F050, 8F4B0 → 8F4B0 + 90D80 hidden TU)|split inline; 6 round-1 agents, then 14 rolling (incl. 5 one-function large agents) + 1 unify|75 / 7 / 3|8CA50 18/19, 8D3E0 40/47, 8F050 5/7, 8F4B0 11/15, 90D80 11/17, 53 named; data-alignment rule for hidden TUs; file-local unify from a pre-merged copy; round-1 agents with 28 functions left 10 unattempted at ~13 min → smaller round-1 lists; naming agent edited tools/ (reverted)|
+|2026-10-22|global actor collision/matrices/projectiles (70FD0 + 936B0)|split inline; rolling rounds (28 matching agents + 1 unify)|47 / 32 / 10 / 2|70FD0 52/79, 936B0 39/54, 82 named; exact git show base for rolling copies; cross-agent pattern broadcast (if (reg++ == 2) delay slot); +23,640 bytes in global|
