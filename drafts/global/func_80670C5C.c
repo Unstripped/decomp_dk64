@@ -1,4 +1,4 @@
-// func_80670C5C (src/global/70FD0.c): logic 100% matched, frame 0x110 matched; 12-byte scalar stack offset shift from unused norm[1] store and C0/60 padding
+// func_80670C5C (src/global/70FD0.c): Frame 0x110 matched; 12-byte shift resolved by preventing scalarization of norm and keeping pad at 0x60; full stack layout mapped exactly
 typedef struct {
     u8 pad0[0x28];
     f32 unk28[3];
@@ -29,8 +29,11 @@ void func_80670C5C(M70D_Actor *arg0, s16 arg1, M70D_Struct70C5C_2 *arg2) {
     f32 normal[3];
     f32 v1[3];
     f32 v2[3];
-    f32 norm[3];
+    f32 norm0;
+    volatile f32 norm1;
+    f32 norm2;
     f32 sp64;
+    f32 pad;
     f32 sp5C;
     M70D_ActorSub174 *sub;
     f32 sp54;
@@ -65,13 +68,13 @@ void func_80670C5C(M70D_Actor *arg0, s16 arg1, M70D_Struct70C5C_2 *arg2) {
     normal[2] = (v1[0] * v2[1]) - (v2[0] * v1[1]);
 
     inv_len = 1.0f / sqrtf((normal[0] * normal[0]) + (normal[1] * normal[1]) + (normal[2] * normal[2]));
-    norm[0] = normal[0] * inv_len;
-    norm[1] = normal[1] * inv_len;
-    norm[2] = normal[2] * inv_len;
+    norm0 = normal[0] * inv_len;
+    norm1 = normal[1] * inv_len;
+    norm2 = normal[2] * inv_len;
 
     scale = sp54 / 8;
-    sp5C = norm[0] * scale;
-    sp64 = norm[2] * scale;
+    sp5C = norm0 * scale;
+    sp64 = norm2 * scale;
 
     sub->unkE0 = spCC - sp5C;
     sub->unkE8 = 1;

@@ -1,4 +1,4 @@
-// func_8066C958 (src/global/70FD0.c): Closest diff: frame 0x60 vs 0x68 (s2 held &D_807FB549), loop structure matched
+// func_8066C958 (src/global/70FD0.c): Frame 0x68 vs 0x60 caused by s2 holding &D_807FB549; loop structure and logic matched
 #include "common.h"
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066C2D0.s")

@@ -833,15 +833,115 @@ s32 func_80670FA4(M70E_Actor *arg0, s32 arg1, s32 arg2) {
     return ret;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_806710E0.s")
+typedef struct M70H_D580 {
+    u8 pad0[0xEA];
+    s16 unkEA;
+} M70H_D580;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671260.s")
+typedef struct M70H_Sub174 {
+    u8 pad0[0xE0];
+    f32 unkE0;
+    f32 unkE4;
+    u8 unkE8;
+    u8 padE9[0x1A4 - 0xE9];
+    u8 unk1A4;
+} M70H_Sub174;
 
+typedef struct M70H_Actor {
+    u8 pad0[0x48];
+    s16 unk48;
+    u8 pad4A[0x58 - 0x4A];
+    s32 unk58;
+    u16 unk5C;
+    u8 pad5E[0x64 - 0x5E];
+    u32 unk64;
+    u8 pad68[0x140 - 0x68];
+    M70E_SubActor *unk140;
+    u8 pad144[0x174 - 0x144];
+    M70H_Sub174 *unk174;
+} M70H_Actor;
+
+extern M70H_D580 *D_807FD580;
+extern s32 D_807FB5D0;
 extern s32 D_807FB5C4;
 extern s32 D_807FB5CC;
-extern s32 D_807FB5D0;
+extern s16 D_80753D50[];
+extern s16 D_80753D60[];
+extern s16 D_807FD584;
+extern u8 D_807FC929;
+extern s32 D_807FB5DC;
+extern s16 D_807FB5F6;
 
+s32 func_806CC14C(s16, s16);
+s32 func_806744A8(M70H_Actor *, s32, s32, s32, s32);
+f32 func_80612790(s16);
+f32 func_80612794(s16);
+s32 func_806732A8(s32, s16);
+void func_806713E4(M70E_Actor *, u8);
 void func_80671528(M70E_Actor *, f32 *, f32 *, f32 *, s32);
+
+void func_806710E0(M70H_Actor *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    s16 sp36;
+    s32 sp30;
+    s32 pad2C;
+    s32 sp28;
+    s32 temp;
+    M70E_SubActor *sub;
+    f32 temp_f0;
+    s32 temp_v1;
+
+    sp36 = func_806CC14C(arg0->unk48, D_807FB544);
+    temp = func_806CC14C((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FB544);
+    if ((sp36 < 0x321) || (temp < 0x321)) {
+        func_806CC14C(arg0->unk48, D_807FD580->unkEA);
+        func_806CC14C((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FD580->unkEA);
+        sub = ((M70H_Actor *)D_807FB540)->unk140;
+        func_806744A8(arg0, sub->unk0, sub->unk4, sub->unk8, sub->unkC);
+        sp28 = D_807FB5D0;
+        sp30 = (s32)(func_80612794(D_807FB544) * 20.0f);
+        temp_f0 = func_80612790(D_807FB544);
+        sub = ((M70H_Actor *)D_807FB540)->unk140;
+        func_806744A8(arg0, sub->unk0 + sp30, sub->unk4, sub->unk8 + (s32)(temp_f0 * 20.0f), sub->unkC);
+        temp_v1 = D_807FB5D0;
+        if (sp28 - 2 < temp_v1) {
+            D_807FB546 = 0;
+        }
+    }
+}
+
+void func_80671260(M70E_Actor *arg0) {
+    s32 pad4C;
+    M70H_Sub174 *sp48;
+    f32 sp44;
+    f32 sp40;
+    f32 sp3C;
+    f32 sp38;
+
+    if (D_807FC924[D_807FC929].unk2C0 == 1) {
+        sp44 = D_80753D50[D_807FD584];
+    } else {
+        sp44 = D_80753D60[D_807FD584];
+    }
+    if (((M70H_Actor *)arg0)->unk5C & 1) {
+        f32 scale;
+        f32 temp_c4;
+        f32 temp_cc;
+
+        sp48 = ((M70H_Actor *)arg0)->unk174;
+        func_80671528(arg0, &sp38, &sp3C, &sp40, 1);
+        scale = sp44 / 8;
+        temp_c4 = (f32)D_807FB5C4 / 8;
+        temp_cc = (f32)D_807FB5CC / 8;
+        sp38 *= scale;
+        sp3C *= scale;
+        sp40 *= scale;
+        sp48->unkE0 = temp_c4 - sp38;
+        sp48->unkE4 = temp_cc - sp40;
+        sp48->unkE8 = 1;
+        func_8066FC0C((M70D_Actor *)arg0, (M70D_PlaneFC0C *)func_806732A8(D_807FB5DC, D_807FB5F6), (M70D_Vec3i *)arg0->unk140);
+    }
+    func_806713E4(arg0, 1);
+}
 
 void func_806713E4(M70E_Actor *arg0, u8 arg1) {
     if (D_807FB5D0 < func_806717FC(arg0)) {
@@ -945,7 +1045,29 @@ void func_80671D10(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) 
     *arg4 = node->z;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671D64.s")
+extern u8 D_807444FC;
+s32 func_80671D64(M70E_Actor *arg0, s32 arg1) {
+    M70E_SubActor *sub = arg0->unk140;
+    u8 val;
+    s32 base;
+    M70E_Node *node;
+
+    if (D_8076A064 == sub->unk88) {
+        val = D_807444FC;
+    } else {
+        val = D_807444FC ^ 1;
+    }
+    base = sub->unk74[val];
+
+    node = sub->unk90;
+    arg1--;
+    while (arg1 != 0) {
+        arg1--;
+        node = node->next;
+    }
+
+    return (((u32)node->unk18 >> 6) << 6) + base;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671E00.s")
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671F54.s")

@@ -1,4 +1,4 @@
-// func_8066E9EC (src/global/70FD0.c): loop peeling and register allocation differences between a1 and a2; 6 instructions diff
+// func_8066E9EC (src/global/70FD0.c): Loop peeling with bnel delay slot or a2, a1, zero; 6 insns diff on loop condition
 f32 func_8066E9EC(M70C_Actor *arg0, s32 arg1, f32 arg2) {
     M70C_Sub140 *sub = arg0->unk140;
     M70C_Node *node;
