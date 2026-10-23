@@ -1,4 +1,4 @@
-// func_80654418 (src/global/55B20.c): stage4: frame 0x138+s0-s8 match; regalloc only: D_807FC929 addr hoisted to s8 (target rematerialises), sp+0x184 addr rematerialised (target keeps in s3), i/off in s0/s1 swapped, +0x88 via v0 vs recomputed; needs prototype (f32,f32,f32)
+// func_80654418 (src/global/55B20.c): stage6: frame 0x138+callee-saved set match, 90% instructions identical; left: callee-saved rotation (sp+0x184: s8 vs s3, &D_807F6C28: s3 vs s4, sp+0x84: s5 vs s6), i/off in s0/s1 swapped, +0x88 via v0+0x88 vs target's recomputed off+base+0x88. Adding a scaffolding 'if (!spB8) {}' after 'off = 0;' drops the diff to regalloc-only (score 520). Needs the file prototype (f32,f32,f32).
 // frame 0x138 and callee-saved set (s0-s8) match; remaining diffs are regalloc: this version
 // hoists the address of D_807FC929 into s8 (target rematerialises lui/lbu per use) and
 // rematerialises the sp+0x184 buffer address in the loop (target keeps it in s3); the i/off
@@ -8,6 +8,13 @@
 // mtc1 a2,$f24, and its only C caller func_80654380 then passes arg2 as the third arg
 // (codegen of 80654380 is unchanged by that).
 #include "common.h"
+
+extern f32 D_807F5FAC;
+extern s32 D_807482F4;
+extern u8 *D_807F7148;
+
+void func_8062FF10(f32 (*)[4], f32 (*)[4]);
+void func_806545D4(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
 
 void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
     f32 spF8[4][4];

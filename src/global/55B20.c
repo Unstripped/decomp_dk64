@@ -1074,14 +1074,14 @@ void func_80653F68(s16 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80653FA4.s")
 
-extern void func_80654418(f32, f32);
+extern void func_80654418(f32, f32, f32);
 extern void func_80655258(f32, f32, f32, s32);
 
 void func_80654380(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
     s32 off;
 
-    func_80654418(arg0, arg1);
+    func_80654418(arg0, arg1, arg2);
     i = 0;
     off = 0;
     while (i < D_807F70AC) {
@@ -1613,7 +1613,23 @@ void func_80656E58(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656F14.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806574B8.s")
+extern u8 D_807F7070;
+extern u8 D_807F7060[];
+
+s32 func_806574B8(s32 arg0) {
+    u8 *p = D_807F7060;
+
+    if (D_807F7070 > 0) {
+        do {
+            if (arg0 == *p) {
+                return 0;
+            } else {
+                p++;
+            }
+        } while (p < D_807F7060 + D_807F7070);
+    }
+    return 1;
+}
 
 
 void func_80657508(s32 arg0) {
