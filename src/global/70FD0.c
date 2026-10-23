@@ -507,7 +507,7 @@ extern u8 D_807FB606;
 void func_80672E90(s32, s32, s32);
 void func_80672C70(s32);
 void func_80674E14(M70D_Actor *);
-u8 func_80670FA4(M70D_Actor *, s16 *, s16 *);
+s32 func_80670FA4();
 u8 func_8066F4AC(M70D_Actor *, s16 *, s16 *);
 s8 func_80676ED0(M70D_Actor *, s16 *, s16 *);
 void func_8066F400(M70D_Actor *);
@@ -655,30 +655,215 @@ void func_80670F04(M70D_Target48 *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80670FA4.s")
+typedef struct M70E_Sub174 {
+    u8 pad[0x1A4];
+    u8 unk1A4;
+} M70E_Sub174;
+
+typedef struct M70E_Node8C {
+    u8 pad0[0x10];
+    s32 unk10;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    u8 pad20[6];
+    u8 unk26;
+    u8 unk27;
+    struct M70E_Node8C *next;
+} M70E_Node8C;
+
+typedef struct M70E_Node {
+    f32 x;
+    f32 y;
+    f32 z;
+    s32 unkC;
+    s32 unk10;
+    s32 unk14;
+    u32 unk18;
+    struct M70E_Node *next;
+} M70E_Node;
+
+typedef struct M70E_SubActor {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    u8 pad10[0xC];
+    f32 unk1C;
+    f32 unk20;
+    u8 unk24;
+    u8 pad25[0x74 - 0x25];
+    s32 unk74[2];
+    u8 pad7C[0xC];
+    s32 unk88;
+    M70E_Node8C *unk8C;
+    M70E_Node *unk90;
+} M70E_SubActor;
+
+typedef struct M70E_Actor {
+    u8 pad0[0x58];
+    s32 unk58;
+    u8 pad5C[0x64 - 0x5C];
+    u32 unk64;
+    u8 pad68[0x140 - 0x68];
+    M70E_SubActor *unk140;
+    u8 pad144[0x174 - 0x144];
+    M70E_Sub174 *unk174;
+} M70E_Actor;
+
+extern u8 D_807FB548;
+extern u8 D_807FB61C;
+
+s32 func_806730A4(s32, s32, s32, s32);
+void func_80671880(M70E_Actor *, s32);
+s32 func_806734E4();
+void func_80671260(M70E_Actor *);
+s32 func_806717FC(M70E_Actor *);
+s32 func_80670FA4(M70E_Actor *arg0, s32 arg1, s32 arg2) {
+    s32 pad0;
+    s32 pad1;
+    M70E_SubActor *sub = arg0->unk140;
+    M70E_Node8C *node;
+    u8 ret = 0;
+
+    sub->unk24 = 0;
+    D_807FB548 = 0;
+
+    if (func_806730A4(sub->unk0, sub->unk4, sub->unk8, sub->unkC) != 0) {
+        if (arg0->unk64 & 0x80) {
+            D_807FB605 = 1;
+        }
+        func_80671880(arg0, 0);
+        node = sub->unk8C;
+        while (node != NULL) {
+            if (node->unk26 != 0 && node->unk1C != 0 && !(node->unk27 & 1)) {
+                ret |= func_806734E4(node->unk10, node->unk14, node->unk18, node->unk1C, arg1, arg2);
+            }
+            node = node->next;
+        }
+        if ((ret != 0 || D_807FB605 != 0) && D_807FB61C != 0) {
+            func_80671260(arg0);
+        }
+        D_807FB605 = 0;
+    }
+    return ret;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_806710E0.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671260.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_806713E4.s")
+extern s32 D_807FB5C4;
+extern s32 D_807FB5CC;
+extern s32 D_807FB5D0;
+
+void func_80671528(M70E_Actor *, f32 *, f32 *, f32 *, s32);
+
+void func_806713E4(M70E_Actor *arg0, u8 arg1) {
+    if (D_807FB5D0 < func_806717FC(arg0)) {
+        M70E_SubActor *sub = arg0->unk140;
+        f32 temp_fa0;
+        f32 scale;
+        f32 temp_fa1;
+        f32 sp2C;
+        f32 sp28;
+        f32 sp24;
+
+        func_80671528(arg0, &sp24, &sp28, &sp2C, arg1);
+        temp_fa0 = (f32)D_807FB5C4 / (f32)8;
+        temp_fa1 = (f32)D_807FB5CC / (f32)8;
+        if (D_807FB548 != 0) {
+            scale = (f32)func_806717FC(arg0) / (f32)8;
+            sp24 *= scale;
+            sp2C *= scale;
+        } else {
+            scale = (f32)(D_807FB5D0 + 6) / (f32)8;
+            sp24 *= scale;
+            sp2C *= scale;
+        }
+        sub->unk1C = temp_fa0 - sp24;
+        sub->unk20 = temp_fa1 - sp2C;
+        sub->unk24 = 1;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671528.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_806717FC.s")
+s32 func_806717FC(M70E_Actor *arg0) {
+    M70E_Sub174 *sub;
+
+    if (arg0->unk58 == 2) {
+        goto ret_32_2;
+    }
+    if (arg0->unk58 == 3) {
+        goto ret_32_1;
+    }
+    if (arg0->unk58 != 5) {
+        goto ret_32_3;
+    }
+    sub = arg0->unk174;
+    if (D_807FC924[sub->unk1A4].unk2C0 != 1) {
+        return 0x14;
+    }
+    return 0x32;
+ret_32_1:
+    return 0x32;
+ret_32_2:
+    return 0x32;
+ret_32_3:
+    return 0x32;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671880.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671A6C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671C0C.s")
+s32 func_80671C0C(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
+    s32 pad0;
+    s32 pad1;
+    s32 pad2;
+    M70E_SubActor *sub;
+    M70E_Node *node;
+    s32 count;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671D10.s")
+    sub = arg0->unk140;
+    if (sub != NULL) {
+        func_80671A6C(sub, 1);
+        node = arg0->unk140->unk90;
+        count = arg1 - 1;
+        while (node != NULL && count != 0) {
+            count--;
+            node = node->next;
+        }
+        if (node == NULL) {
+            *arg4 = 0.0f;
+            *arg3 = 0.0f;
+            *arg2 = 0.0f;
+            return 0;
+        }
+        *arg2 = (f32)node->unkC / (f32)8;
+        *arg3 = (f32)node->unk10 / (f32)8;
+        *arg4 = (f32)node->unk14 / (f32)8;
+        return 1;
+    }
+    return 0;
+}
+void func_80671D10(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
+    s32 count = arg1 - 1;
+    M70E_Node *node = arg0->unk140->unk90;
+
+    while (node != NULL && count != 0) {
+        count--;
+        node = node->next;
+    }
+    *arg2 = node->x;
+    *arg3 = node->y;
+    *arg4 = node->z;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671D64.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671E00.s")
-
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671F54.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80672134.s")
@@ -908,7 +1093,6 @@ void func_80672C70(s32 arg0) {
     }
 }
 
-extern u8 D_807FB548;
 extern M70F_Actor *D_807FBB4C;
 
 s32 func_80672CBC(s8 arg0) {
