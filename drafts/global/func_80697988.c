@@ -1,4 +1,4 @@
-// func_80697988 (src/global/9BF30.c): stage 6: 212 vs 217 instrs; structure matches, block-A global-vs-local reload form and regalloc differ; permuter best 3850
+// func_80697988 (src/global/9BF30.c): stage 6: structure matches, 214/217 insns; remaining diff: D_807FBB40 is loaded into a1 then 'move s0,a1' (expected loads straight into s0) and the (temp>32.0) clip folds to li 32 where expected emits trunc.w.d of the comparison's double 32.0; regression attempts: pure macro form hoists &D_807FBB40 into s1 (v2/v3, 212), macro RMW 221; also try removing all cross-call liveness of the actor pointer
 typedef struct M9B_ActorState {
     s16 unk0;
     u8 pad2;
@@ -11,7 +11,7 @@ typedef struct M9B_ActorState {
 } M9B_ActorState;
 
 extern Actor *D_807FBB40;
-void func_80697230();
+Gfx *func_80697230(Gfx *, Actor *);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
@@ -19,42 +19,6 @@ void actorDespawn(Actor *);
 void heapFree(void *);
 void projectileSpawnActor107(u8, u8, f32, f32, u8, u8);
 void renderCallbacksRegister(void *, void *, u8);
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
-
-#define ACTOR2 ((Actor *)D_807FBB40)
 
 #define ACTOR2 ((Actor *)D_807FBB40)
 
@@ -81,7 +45,9 @@ void func_80697988(void) {
     }
     if (sub->unk11 != 0) {
         if (sub->unk11 == 1) {
+            actor = D_807FBB40;
             actor->unk7C = actor->unk7C + (sub->unkC * func_80612794(actor->unkE6));
+            actor = D_807FBB40;
             actor->unk84 = actor->unk84 + (sub->unkC * func_80612790(actor->unkE6));
             actor = D_807FBB40;
             if (actor->unk15F != 0) {
@@ -126,5 +92,5 @@ void func_80697988(void) {
             }
         }
     }
-        renderCallbacksRegister(func_80697230, ACTOR2, 1);
+    renderCallbacksRegister(func_80697230, ACTOR2, 1);
 }

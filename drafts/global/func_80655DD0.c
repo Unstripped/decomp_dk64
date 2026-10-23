@@ -1,4 +1,4 @@
-// func_80655DD0 (src/global/55B20.c): structure+call sequence match; frame 0x148 vs 0x140, flag is u8 kept in reg vs target word-slot 0x60 sw-stored + lbu 0x63; permuter 600s best 10366 used a non-semantic hack
+// func_80655DD0 (src/global/55B20.c): stage5: structure/call sequence/constants match; func 0xDD0 vs 0xDD4, frame 0x148 vs 0x140; target fog flag is a stack word at 0x60 (sw stores) read as lbu 0x63, mine u8 at 0x135; flags local 0x58 vs 0x5C
 typedef struct {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 unk1;

@@ -1,4 +1,4 @@
-// func_80697CEC (src/global/9BF30.c): stage 6: 269/269 instrs, starts 0xabc and matches exactly except 4 rodata %lo addends and a 2-instruction delay-slot order (addiu vs move s1) in the D_807FBB85 preheader; struct-copy M9B_Triple for D_807502C0 was the key
+// func_80697CEC (src/global/9BF30.c): MATCHES (fdiff TEXT OK): the four remaining differences are only .rodata %lo addends (own data sections). The 2-instruction preheader order (addiu of &D_8071FBA0 before bnez, move s1,zero in its delay slot) needs the loop written as 'for (var_s1 = 0; var_s1 < 0xC; var_s1 += 2)' - a do/while puts move s1,zero before the branch
 typedef struct M9B_Config124 {
     f32 unk0;
     f32 unk4;
@@ -121,15 +121,13 @@ void func_80697CEC(void) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0x14);
         }
         if (D_807FBB85 == 0) {
-            var_s1 = 0;
-            do {
+            for (var_s1 = 0; var_s1 < 0xC; var_s1 += 2) {
                 func_807149B8(1);
                 func_80714950(var_s1 + 0xB000000);
                 func_8071498C(func_8071ABDC);
                 func_80714CC0(&D_8071FBA0, (f32)(((f64)((s32)(func_80611A44() >> 15) % 10) * 0.05) + 0.2),
                     G_ACTOR->unk7C, G_ACTOR->unk80, G_ACTOR->unk84);
-                var_s1 += 2;
-            } while (var_s1 < 0xC);
+            }
         }
         actorDespawn(D_807FBB40);
     }

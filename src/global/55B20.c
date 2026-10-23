@@ -54,7 +54,38 @@ extern u8 *D_807F6C1C;
 extern s32 D_807F6C20;
 extern u8 *D_807F6C2C;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80650E20.s")
+typedef struct M55P1_E20 {
+    /* 0x000 */ u8 pad0[0x64];
+    /* 0x064 */ s32 unk64;
+} M55P1_E20;
+
+extern s32 D_8076A0B4;
+extern s32 D_8076A0B8;
+extern s32 D_8076A0BC;
+extern s32 D_8076A0C0;
+extern s32 D_8076A0C4;
+extern s32 D_8076A0C8;
+void *func_80610FE8(s32);
+
+void func_80650E20(M55P1_E20 *arg0) {
+    s32 temp;
+    s32 count;
+    s32 size;
+
+    temp = D_807F6C28 = *(s32 *)(arg0->unk64 + (u8 *)arg0);
+    if (temp >= 2) {
+        count = temp & 0xFF;
+    } else {
+        count = 1;
+    }
+    size = count * 4;
+    D_8076A0B4 = (s32)func_80610FE8(size);
+    D_8076A0B8 = (s32)func_80610FE8(size);
+    D_8076A0BC = (s32)func_80610FE8(size);
+    D_8076A0C0 = (s32)func_80610FE8(size);
+    D_8076A0C4 = (s32)func_80610FE8(size);
+    D_8076A0C8 = (s32)func_80610FE8(size);
+}
 
 typedef struct M50ECCMapData {
     /* 0x00 */ u8 pad0[0xC];
@@ -110,7 +141,6 @@ extern M55P5GridPoint *D_807F6C24;
 extern struct M55P2SearchEntry *D_807F70B0;
 extern struct M55P2BoxEntry *D_807F70B4;
 
-void *func_80610FE8(s32);
 void lightSetTargetColor(f32, f32, f32, s16);
 void lightCopyTargetColors(s16);
 void func_80651904(s32, s32, void *, s32 *, s32, s32);
@@ -288,17 +318,47 @@ void func_80650ECC(M50ECCMapData *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651904.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651B64.s")
+s32 func_80651B64(s16 arg0) {
+    s32 var_v0;
+    s32 var_v1;
+
+    var_v1 = (arg0 + 1) != 0;
+    if (var_v1 != 0) {
+        if (D_807F6C18[arg0].unk3 != 0) {
+            var_v0 = 1;
+        } else {
+            var_v0 = 0;
+        }
+        var_v1 = var_v0 != 0;
+    }
+    return var_v1 & 0xFF;
+}
 
 void func_80651BC0(s16 arg0, s8 arg1) {
     D_807F7078[arg0] = arg1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651BE0.s")
+void func_80651BE0(s16 arg0, u8 arg1, u8 arg2) {
+    D_807F6C1C[(u32)(arg0 * 2) * 0xA + arg1 * 0xA + 9] = arg2;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651C2C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_8065214C.s")
+struct M55P2SearchEntry;
+
+void func_8065214C(void) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < D_807F6C28; i++) {
+        D_807F6C18[i].unk1 = 0;
+        D_807F6C18[i].unk2 = 1;
+        D_807F6C18[i].unk4 = 0;
+    }
+    for (j = 0; j < D_807F70AC; j++) {
+        ((u8 *)D_807F70B0)[j * 0x1C + 0x19] = 0;
+    }
+}
 
 void func_806521F8(void) {
     s32 i;
@@ -329,7 +389,45 @@ s32 func_806522CC(s16 arg0, s16 arg1, s16 arg2) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652374.s")
+typedef struct M55P1_Entry {
+    /* 0x000 */ s32 unk0;
+    /* 0x004 */ f32 unk4;
+    /* 0x008 */ f32 unk8;
+    /* 0x00C */ f32 unkC;
+    /* 0x010 */ u8 pad10[0xC];
+    /* 0x01C */ s16 unk1C;
+    /* 0x01E */ s16 unk1E;
+    /* 0x020 */ s16 unk20;
+    /* 0x022 */ u8 unk22;
+    /* 0x023 */ u8 pad23[0x1];
+    /* 0x024 */ u8 unk24;
+} M55P1_Entry;
+
+s32 func_806303C4(s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
+s32 func_80630324(s32, s32);
+s16 func_806531B8(f32, f32, f32, s32);
+
+void func_80652374(M55P1_Entry *arg0) {
+    s32 temp_v1;
+    s32 *sp40;
+    s16 *level;
+
+    arg0->unk20 = func_806531B8(arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk20);
+    temp_v1 = func_80630324(arg0->unk24, arg0->unk0) & 0xFF;
+    if (arg0->unk24 == 0) {
+        *(s16 *)(arg0->unk0 + 0x12C) = arg0->unk20;
+    }
+    level = &arg0->unk20;
+    switch (temp_v1) {
+    case 0:
+        sp40 = (s32 *)((u8 *)D_807F6C18 + *level * 0x1C8 + 0x14);
+        break;
+    case 1:
+        sp40 = (s32 *)((u8 *)D_807F6C18 + *level * 0x1C8 + 0x1C);
+        break;
+    }
+    *sp40 = func_806303C4(*sp40, arg0->unk24, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk1C, arg0->unk1E, arg0->unk22, *level, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806524A0.s")
 
@@ -350,7 +448,6 @@ void func_8063B4C0(void *, s32);
 s32 func_80653684(void *, f32, f32);
 s32 func_80653804(void *, f32, f32);
 void func_80652FDC(f32, f32, f32, s16, s16, s16 *);
-s16 func_806531B8(f32, f32, f32, s32);
 s32 func_806533C4(f32, f32, f32);
 s32 func_806534E0(f32, f32, f32, s16, u8 *, f32 *);
 
