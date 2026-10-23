@@ -484,22 +484,22 @@ void func_8002DA68(RaceUnknown174 *arg0) {
     D_807FBB40->unk4->unk38 = temp_fv1;
     D_807FBB40->unk4->unk34 = temp_fv1;
 }
-void func_80688370(RaceUnknownActor *, s32, f32);
-void func_8068842C(RaceUnknownActor *, s32, s32);
-void func_80688460(RaceUnknownActor *, s32, s32);
-s32 func_80688540(RaceUnknownActor *, s32);
+void animSetSpeed(RaceUnknownActor *, s32, f32);
+void animSetLoopLimit(RaceUnknownActor *, s32, s32);
+void animSetFinished(RaceUnknownActor *, s32, s32);
+s32 animIsPlaying(RaceUnknownActor *, s32);
 
 void func_8002DB90() {
     if (D_807FBB40->unk154 != 0) {
         if (D_807FBB40->unk154 == 1) {
-            if (func_80688540(D_807FBB40, 0) == 0) {
-                func_80688370(D_807FBB40, 0, 1.0f);
-                func_8068842C(D_807FBB40, 0, -1);
+            if (animIsPlaying(D_807FBB40, 0) == 0) {
+                animSetSpeed(D_807FBB40, 0, 1.0f);
+                animSetLoopLimit(D_807FBB40, 0, -1);
             }
         }
     } else {
-        if (func_80688540(D_807FBB40, 0) != 0) {
-            func_80688460(D_807FBB40, 0, 1);
+        if (animIsPlaying(D_807FBB40, 0) != 0) {
+            animSetFinished(D_807FBB40, 0, 1);
         }
     }
 }
@@ -697,7 +697,7 @@ void func_8002E464(void *arg0, RaceUnknownActor *arg1) {
 
 void func_806EB0C0(s32, RaceUnknownActor *, u8, RaceUnknownActor *);
 void func_8002F490(RaceStruct3 *);
-void func_8068C350(void *, RaceUnknownActor *, s32);
+void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
 
 void func_8002E484(void) {
     RaceUnknownActor *var_a3;
@@ -729,7 +729,7 @@ void func_8002E484(void) {
         temp_a1 = D_807FBB40;
     }
     if ((temp_s0->unk34 > 0) && (temp_s0->unk34 < 5)) {
-        func_8068C350((void *)func_8002E464, D_807FBB40, 3);
+        renderCallbacksRegister((void *)func_8002E464, D_807FBB40, 3);
     }
     temp_s0->unk1C = (temp_s0->unk40 < temp_s0->unk1C) ? temp_s0->unk1C : temp_s0->unk40;
     temp_fa0 = temp_s0->unk18;

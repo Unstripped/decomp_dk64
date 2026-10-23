@@ -72,11 +72,11 @@ s32 func_80652E58(s32, void *);
 void func_8066E6C8(Actor *, s32, s32);
 void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
 s32 func_80688C84(u16);
-s16 func_80688E08(void);
+s16 actorListAllocId(void);
 ActorListNode *func_80689250(s16, f32, f32, f32, s16, f32, void *, u8, s32, s16);
-void func_80689710();
-f32 func_80689DD4(f32, f32, f32);
-s32 func_80689F2C(void);
+void actorListRemoveNodeInternal();
+f32 playerGetMinSquaredDist3D(f32, f32, f32);
+s32 mapIsBossArena(void);
 u8 func_80689F80(ActorListNode *);
 u8 func_80689FEC(ActorListNode *);
 void func_8068A1B8(void);
@@ -87,7 +87,7 @@ void func_8068A1B8(void);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688A6C.s")
 
-s32 func_80688C30(u16 arg0) {
+s32 actorListLookupEntry(u16 arg0) {
     s32 i;
 
     for (i = 0; i < D_807FC5C8; i++) {
@@ -112,13 +112,13 @@ s32 func_80688C84(u16 arg0) {
     }
 }
 
-void func_80688CC4(Actor *actor, s16 arg1, f32 arg2) {
+void actorSetCustomFloat(Actor *actor, s16 arg1, f32 arg2) {
     if (arg1 < 8) {
         ((f32 *)actor->unk124)[arg1] = arg2;
     }
 }
 
-void func_80688CF4(Actor *actor, s16 arg1, s32 arg2) {
+void actorSetCustomInt(Actor *actor, s16 arg1, s32 arg2) {
     if (arg1 < 8) {
         ((s32 *)actor->unk124)[arg1] = arg2;
     }
@@ -126,7 +126,7 @@ void func_80688CF4(Actor *actor, s16 arg1, s32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688D20.s")
 
-s16 func_80688E08(void) {
+s16 actorListAllocId(void) {
     s16 id;
     s32 found;
     ActorListNode *node;
@@ -151,7 +151,7 @@ s16 func_80688E08(void) {
     return id;
 }
 
-s16 func_80688E68(Actor *arg0) {
+s16 actorListFindIdByActor(Actor *arg0) {
     ActorListNode *node;
 
     for (node = D_807FC400; node != NULL; node = node->next) {
@@ -162,7 +162,7 @@ s16 func_80688E68(Actor *arg0) {
     return 0;
 }
 
-Actor *func_80688EA4(s16 arg0) {
+Actor *actorListFindActorById(s16 arg0) {
     ActorListNode *node;
 
     for (node = D_807FC400; node != NULL; node = node->next) {
@@ -172,7 +172,7 @@ Actor *func_80688EA4(s16 arg0) {
     }
 }
 
-void func_80688EE4(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
+void actorListSetPosById(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
     ActorListNode *node;
 
     for (node = D_807FC400; node != NULL; node = node->next) {
@@ -189,7 +189,7 @@ void func_80688EE4(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
     }
 }
 
-void func_80688F74(Actor *arg0, f32 arg1, f32 arg2, f32 arg3) {
+void actorListSetPosByActor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3) {
     ActorListNode *node;
 
     for (node = D_807FC400; node != NULL; node = node->next) {
@@ -202,7 +202,7 @@ void func_80688F74(Actor *arg0, f32 arg1, f32 arg2, f32 arg3) {
     }
 }
 
-void func_80688FC0(s32 *arg0) {
+void actorListSpawnFromRecords(s32 *arg0) {
     ActorListRecord *item;
     s32 i;
     void *var_s2;
@@ -223,33 +223,33 @@ void func_80689064(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5) {
     ActorListSub20 sp38;
 
     sp38 = D_807500B4;
-    func_80689250(arg0, arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 0, 0, func_80688E08());
+    func_80689250(arg0, arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 0, 0, actorListAllocId());
 }
 
 void func_80689114(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6) {
     ActorListSub20 sp38;
 
     sp38 = D_807500D4;
-    func_80689250((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 1, arg6, func_80688E08());
+    func_80689250((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 1, arg6, actorListAllocId());
 }
 
-void func_806891D8(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6, s32 arg7) {
-    func_80689250((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, (void *)arg7, 1, arg6, func_80688E08());
+void actorListSpawnNodeEntry(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6, s32 arg7) {
+    func_80689250((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, (void *)arg7, 1, arg6, actorListAllocId());
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689250.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689418.s")
 
-void func_806896D0(s32 arg0) {
-    func_80689710(arg0, 1);
+void actorListRemoveAndDespawn(s32 arg0) {
+    actorListRemoveNodeInternal(arg0, 1);
 }
 
-void func_806896F0(s32 arg0) {
-    func_80689710(arg0, 0);
+void actorListRemoveNode(s32 arg0) {
+    actorListRemoveNodeInternal(arg0, 0);
 }
 
-void func_80689710(arg0, arg1)
+void actorListRemoveNodeInternal(arg0, arg1)
 ActorListNode *arg0;
 u8 arg1;
 {
@@ -284,7 +284,7 @@ u8 arg1;
     }
 }
 
-void func_806897F0(Actor *arg0) {
+void actorListRemoveByActor(Actor *arg0) {
     ActorListNode *node;
     ActorListNode *prev;
     s32 found;
@@ -313,7 +313,7 @@ void func_806897F0(Actor *arg0) {
     }
 }
 
-void func_806898A8(void) {
+void actorListFreeAll(void) {
     ActorListNode *node;
     ActorListNode *next;
 
@@ -328,7 +328,7 @@ void func_806898A8(void) {
     D_807FC400 = NULL;
 }
 
-s32 func_806898F8(void) {
+s32 actorListGetSerializedSize(void) {
     ActorListNode *node;
     s32 count;
 
@@ -345,7 +345,7 @@ s32 func_806898F8(void) {
     return (count * 0x38) + 4;
 }
 
-void func_80689958(s32 *arg0) {
+void actorListSerialize(s32 *arg0) {
     ActorListNode *node;
     u8 *dst;
     ActorListRecord item;
@@ -382,7 +382,7 @@ void func_80689958(s32 *arg0) {
     }
 }
 
-void func_80689A80(s16 arg0, void *arg1) {
+void actorListDispatchEvent(s16 arg0, void *arg1) {
     ActorListNode *node = D_807FC400;
     s32 found = 0;
 
@@ -402,7 +402,7 @@ void func_80689A80(s16 arg0, void *arg1) {
     }
 }
 
-s32 func_80689B10(s16 arg0, u8 arg1, u8 arg2) {
+s32 actorListGetOrSetState(s16 arg0, u8 arg1, u8 arg2) {
     ActorListNode *node;
     s32 found = 0;
 
@@ -453,19 +453,19 @@ s32 func_80689BAC(s16 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689C20.s")
 
-typedef struct R3D3A_PlayerEntry {
+typedef struct ActorListPlayerEntry {
     u8 unk0;
     char pad1[0x210 - 1];
     f32 unk210;
     f32 unk214;
     f32 unk218;
     char pad21C[0x2F0 - 0x21C];
-} R3D3A_PlayerEntry;
+} ActorListPlayerEntry;
 
-extern R3D3A_PlayerEntry *D_807FC924;
+extern ActorListPlayerEntry *D_807FC924;
 extern u8 D_807FC928;
 
-f32 func_80689DD4(f32 arg0, f32 arg1, f32 arg2) {
+f32 playerGetMinSquaredDist3D(f32 arg0, f32 arg1, f32 arg2) {
     f32 minDist = 100000000.0f;
     s32 i;
 
@@ -485,7 +485,7 @@ s32 func_80689E98(s32 arg0) {
 }
 
 void func_80689EA4(ActorListNode *arg0) {
-    if (func_80689F2C()) {
+    if (mapIsBossArena()) {
         func_80652E58(arg0->unk4A, arg0);
     } else {
         func_80689F80(arg0);
@@ -493,13 +493,13 @@ void func_80689EA4(ActorListNode *arg0) {
 }
 
 u8 func_80689EE4(ActorListNode *arg0) {
-    if (func_80689F2C()) {
+    if (mapIsBossArena()) {
         return func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0;
     }
     return func_80689FEC(arg0);
 }
 
-s32 func_80689F2C(void) {
+s32 mapIsBossArena(void) {
     switch (D_8076A0A8) {
         case 0x2A:
         case 0xA9:
@@ -520,7 +520,7 @@ s32 func_80689F2C(void) {
 u8 func_80689F80(ActorListNode *arg0) {
     s32 var_a0 = func_80652E58(arg0->unk4A, arg0) != 0;
     if (var_a0 != 0) {
-        f32 dist = func_80689DD4(arg0->unk10, arg0->unk14, arg0->unk18);
+        f32 dist = playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18);
         var_a0 = 0;
         if (dist < arg0->unk54) {
             var_a0 = 1;
@@ -530,20 +530,20 @@ u8 func_80689F80(ActorListNode *arg0) {
 }
 
 u8 func_80689FEC(ActorListNode *arg0) {
-    return (func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(func_80689DD4(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL);
+    return (func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL);
 }
 
 u8 func_8068A074(ActorListNode *arg0) {
-    return (func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(func_80689DD4(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL) && (arg0->unk44->unk154 == 0);
+    return (func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL) && (arg0->unk44->unk154 == 0);
 }
 
 s32 func_8068A10C(s32 arg0) {
     return 0;
 }
 
-u8 func_8068A118(ActorListNode *arg0) {
+u8 actorListIsPlayerInRadius(ActorListNode *arg0) {
     s32 var_v1;
-    f32 dist = func_80689DD4(arg0->unk10, arg0->unk14, arg0->unk18);
+    f32 dist = playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18);
     var_v1 = 0;
     if (dist < arg0->unk54) {
         var_v1 = 1;
@@ -551,8 +551,8 @@ u8 func_8068A118(ActorListNode *arg0) {
     return var_v1;
 }
 
-u8 func_8068A164(ActorListNode *arg0) {
-    return !(func_80689DD4(arg0->unk44->unk7C, arg0->unk44->unk80, arg0->unk44->unk84) < arg0->unk54);
+u8 actorListIsPlayerOutsideRadius(ActorListNode *arg0) {
+    return !(playerGetMinSquaredDist3D(arg0->unk44->unk7C, arg0->unk44->unk80, arg0->unk44->unk84) < arg0->unk54);
 }
 
 void func_8068A1B8(void) {

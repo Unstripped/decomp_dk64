@@ -36,10 +36,10 @@ void func_806F8BC4(s32, s32, s32);
 void func_806F91B4(s32, u8, s32);
 void func_806319C4(Actor_3340 *, s32);
 
-void func_8068842C(void *, s32, s32);
-void func_80688370(void *, s32, f32);
-void func_806883F4(void *, s32, s16, f32);
-void func_80688460(void *, s32, s32);
+void animSetLoopLimit(void *, s32, s32);
+void animSetSpeed(void *, s32, f32);
+void animSetFrameAndSubframe(void *, s32, s16, f32);
+void animSetFinished(void *, s32, s32);
 
 /* Non-matching draft: 1 instruction swap in prologue (sw ra vs move s2) */
 #if 0
@@ -48,10 +48,10 @@ void func_80027340(s32 arg0) {
     f32 zero = 0.0f;
 
     for (var_s0 = 2; var_s0 >= 0; var_s0--) {
-        func_8068842C(D_807FBB40, var_s0, 1);
-        func_80688370(D_807FBB40, var_s0, zero);
-        func_806883F4(D_807FBB40, var_s0, (arg0 % 10) + 1, zero);
-        func_80688460(D_807FBB40, var_s0, 0);
+        animSetLoopLimit(D_807FBB40, var_s0, 1);
+        animSetSpeed(D_807FBB40, var_s0, zero);
+        animSetFrameAndSubframe(D_807FBB40, var_s0, (arg0 % 10) + 1, zero);
+        animSetFinished(D_807FBB40, var_s0, 0);
         arg0 /= 10;
     }
 }

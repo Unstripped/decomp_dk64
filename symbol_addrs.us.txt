@@ -199,6 +199,67 @@ actorSpawnAttachment = 0x80687474; // type:func
 effectSpawnKongRing = 0x806874EC; // type:func
 effectSpawnJointBeam = 0x8068780C; // type:func
 
+// Animation node list
+animListInit = 0x80687D50; // type:func
+animSetSegments = 0x80687EE0; // type:func
+animListUpdate = 0x80687F7C; // type:func
+animGetNodeItem = 0x806882DC; // type:func
+animSetNodeItem = 0x80688320; // type:func
+animSetSpeed = 0x80688370; // type:func
+animSetDirection = 0x8068839C; // type:func
+animSetLoopMode = 0x806883C8; // type:func
+animSetFrameAndSubframe = 0x806883F4; // type:func
+animSetLoopLimit = 0x8068842C; // type:func
+animSetFinished = 0x80688460; // type:func
+animSetStartFrame = 0x8068848C; // type:func
+animSetEndFrame = 0x806884B8; // type:func
+animResetEndFrame = 0x806884E4; // type:func
+animClearStartFrame = 0x80688514; // type:func
+animIsPlaying = 0x80688540; // type:func
+animGetNodeByIndex = 0x80688584; // type:func
+animListFree = 0x80688638; // type:func
+
+// Actor list nodes
+actorListLookupEntry = 0x80688C30; // type:func
+actorSetCustomFloat = 0x80688CC4; // type:func
+actorSetCustomInt = 0x80688CF4; // type:func
+actorListAllocId = 0x80688E08; // type:func
+actorListFindIdByActor = 0x80688E68; // type:func
+actorListFindActorById = 0x80688EA4; // type:func
+actorListSetPosById = 0x80688EE4; // type:func
+actorListSetPosByActor = 0x80688F74; // type:func
+actorListSpawnFromRecords = 0x80688FC0; // type:func
+actorListSpawnNodeEntry = 0x806891D8; // type:func
+actorListRemoveAndDespawn = 0x806896D0; // type:func
+actorListRemoveNode = 0x806896F0; // type:func
+actorListRemoveNodeInternal = 0x80689710; // type:func
+actorListRemoveByActor = 0x806897F0; // type:func
+actorListFreeAll = 0x806898A8; // type:func
+actorListGetSerializedSize = 0x806898F8; // type:func
+actorListSerialize = 0x80689958; // type:func
+actorListDispatchEvent = 0x80689A80; // type:func
+actorListGetOrSetState = 0x80689B10; // type:func
+playerGetMinSquaredDist3D = 0x80689DD4; // type:func
+mapIsBossArena = 0x80689F2C; // type:func
+actorListIsPlayerInRadius = 0x8068A118; // type:func
+actorListIsPlayerOutsideRadius = 0x8068A164; // type:func
+
+// Actor animation / initial setup
+animStopAtFrame = 0x8068A350; // type:func
+actorSpawnInitialSet = 0x8068A7B0; // type:func
+
+// Render callbacks and texture cache
+texCacheReset = 0x8068C080; // type:func
+texCacheUpdate = 0x8068C0B4; // type:func
+texCacheFindOrLoad = 0x8068C12C; // type:func
+renderCallbacksExecute = 0x8068C20C; // type:func
+renderCallbacksReset = 0x8068C2EC; // type:func
+renderCallbacksDisableForActor = 0x8068C2F8; // type:func
+renderCallbacksRegister = 0x8068C350; // type:func
+renderRotatedQuad = 0x8068C3A0; // type:func
+renderBonusTargetMarker = 0x8068D8C8; // type:func
+actorDrawAnimatedEffect = 0x8068E474; // type:func
+
 // n_audio
 alHeapInit = 0x80732420; // type:func
 alHeapDBAlloc = 0x80732444; // type:func

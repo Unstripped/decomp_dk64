@@ -75,17 +75,17 @@ void func_8002C5F4(void) {
     }
 }
 
-void func_8068842C(void *, s32, s32);
-void func_80688460(void *, s32, s32);
-void func_806883F4(void *, s32, s16, f32);
+void animSetLoopLimit(void *, s32, s32);
+void animSetFinished(void *, s32, s32);
+void animSetFrameAndSubframe(void *, s32, s16, f32);
 
 void func_8002C748(arg0)
 u8 arg0;
 {
     D_807FDC90->unk28 = 2;
-    func_8068842C(D_807FBB40, arg0, 1);
-    func_80688460(D_807FBB40, arg0, 1);
-    func_806883F4(D_807FBB40, arg0, D_807FDC90->unk28 & 0xF, 0.0f);
+    animSetLoopLimit(D_807FBB40, arg0, 1);
+    animSetFinished(D_807FBB40, arg0, 1);
+    animSetFrameAndSubframe(D_807FBB40, arg0, D_807FDC90->unk28 & 0xF, 0.0f);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/8520/func_8002C7CC.s")

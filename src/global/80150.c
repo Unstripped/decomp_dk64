@@ -85,10 +85,10 @@ void tagBarrelCheckRecoil(void);
 void func_8067E784(void);
 void func_806809F0(void);
 void func_8068412C(void);
-void func_806883F4(Actor *, s32, s16, f32);
-void func_8068842C(Actor *, s32, s32);
-void func_80688460(Actor *, s32, s32);
-s32 func_80688E68(Actor *);
+void animSetFrameAndSubframe(Actor *, s32, s16, f32);
+void animSetLoopLimit(Actor *, s32, s32);
+void animSetFinished(Actor *, s32, s32);
+s32 actorListFindIdByActor(Actor *);
 void func_8068A764(Actor *, u8);
 void func_8069B908(void);
 void func_806F8D58(s32, s32);
@@ -108,7 +108,7 @@ void func_8073129C(s16, s32, s32);
 
 s32 func_8067B450(void *actor) {
     s32 count = 4;
-    s32 val = func_80688E68(actor);
+    s32 val = actorListFindIdByActor(actor);
     s32 i;
 
     for (i = 0; i < count; i++) {
@@ -582,17 +582,17 @@ u8 func_80680908(void) {
 
     switch (D_8076A0A8) {
     case 0x1A:
-        if (func_80688E68(D_807FBB40) == 0xD || func_80688E68(D_807FBB40) == 0xF) {
+        if (actorListFindIdByActor(D_807FBB40) == 0xD || actorListFindIdByActor(D_807FBB40) == 0xF) {
             ret = 2;
         }
         break;
     case 0x3B:
-        if (func_80688E68(D_807FBB40) == 3) {
+        if (actorListFindIdByActor(D_807FBB40) == 3) {
             ret = 2;
         }
         break;
     case 0x30:
-        if (func_80688E68(D_807FBB40) == 0x12) {
+        if (actorListFindIdByActor(D_807FBB40) == 0x12) {
             ret = 2;
         }
         break;
@@ -764,9 +764,9 @@ void tagBarrelUpdateSelectedKong(void) {
         sp2C = D_8074E834;
         sp28 = D_807FBB40->unk174;
         D_807FBB40->unk60 |= 0x1000;
-        func_8068842C(D_807FBB40, 0, 1);
-        func_80688460(D_807FBB40, 0, 1);
-        func_806883F4(D_807FBB40, 0, sp2C.arr[*sp28].unk2, 0.0f);
+        animSetLoopLimit(D_807FBB40, 0, 1);
+        animSetFinished(D_807FBB40, 0, 1);
+        animSetFrameAndSubframe(D_807FBB40, 0, sp2C.arr[*sp28].unk2, 0.0f);
         func_80614EBC(D_807FBB40, 0x329);
     }
     D_807FBB40->unk16D = D_807FBB40->unk15F;

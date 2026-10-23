@@ -38,7 +38,7 @@ extern s32 D_8076A0A8;
 extern u64 __ll_mul(u64, u64);
 extern u64 __ull_div(u64, u64);
 extern Struct_80024000_1_MpLow *D_807FBB40;
-void func_8068C350(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, s32);
 typedef struct Struct_807552E4_MpLow {
     char pad[0xC];
     s32 unkC;
@@ -167,7 +167,7 @@ void mpUpdateMatchTimer(void) {
         temp_s0->unk8 = 0;
         mpDetermineWinner((s32)temp_s0);
     }
-    func_8068C350(func_80024000, D_807FBB40, 7);
+    renderCallbacksRegister(func_80024000, D_807FBB40, 7);
 }
 
 void func_8002449C(void) {

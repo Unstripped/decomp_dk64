@@ -34,7 +34,7 @@ extern s16 D_80744490;
 extern Actor_4840 *D_807FBB44;
 
 extern Actor_4840 *D_807FBB40;
-void func_8068C350(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, s32);
 Gfx *func_80028DE8(Gfx *, Actor_4840 *);
 
 s32 func_8066B0F8(s32, s32, s32, s32);
@@ -180,7 +180,7 @@ void func_8002904C(void) {
     }
     if (actor->unk168 != 0) {
         actor->unk168--;
-        func_8068C350(func_80028DE8, D_807FBB40, 3);
+        renderCallbacksRegister(func_80028DE8, D_807FBB40, 3);
     }
     D_8002A1CE++;
 }

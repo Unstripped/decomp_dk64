@@ -55,9 +55,9 @@ void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnBone(Actor *, s16, f32, f32, f32, f32, s32);
 void func_80685F60(Actor *);
 void func_80686390(Actor *, f32, f32, f32, f32);
-void func_80688370(Actor *, s32, f32);
-void func_8068842C(Actor *, s32, s32);
-s32 func_80688540(Actor *, s32);
+void animSetSpeed(Actor *, s32, f32);
+void animSetLoopLimit(Actor *, s32, s32);
+s32 animIsPlaying(Actor *, s32);
 void func_806A081C(Actor *);
 void func_80714950();
 void func_8071495C(void);
@@ -324,12 +324,12 @@ void actorScaleGrowthUpdate(void) {
         if ((f32)(u32)temp_v0->unk4 > 3.0f) {
             D_807FBB40->unk154 = 1;
             temp_v0->unk4 = 0;
-            func_8068842C(D_807FBB40, 0, 1);
-            func_80688370(D_807FBB40, 0, 0.5f);
+            animSetLoopLimit(D_807FBB40, 0, 1);
+            animSetSpeed(D_807FBB40, 0, 0.5f);
         }
         break;
     case 1:
-        if (func_80688540(D_807FBB40, 0) == 0) {
+        if (animIsPlaying(D_807FBB40, 0) == 0) {
             actorDespawn(D_807FBB40);
         }
         break;

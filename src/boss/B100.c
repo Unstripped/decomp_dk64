@@ -52,9 +52,9 @@ extern BossE_B100_Actor *D_807FBB44;
 extern u8 D_807FBD70;
 extern s32 D_8076A064;
 
-void func_8068842C(s32, s32, s32);
-void func_80688460(s32, s32, s32);
-void func_806883F4(s32, s32, s32, f32);
+void animSetLoopLimit(s32, s32, s32);
+void animSetFinished(s32, s32, s32);
+void animSetFrameAndSubframe(s32, s32, s32, f32);
 void func_8002FB7C();
 void func_8002FC98();
 void actorSpawn(s32, s32);
@@ -85,9 +85,9 @@ void func_8002FC48(arg0, arg1)
 s32 arg0;
 u8 arg1;
 {
-    func_8068842C(arg0, 0, 1);
-    func_80688460(arg0, 0, 1);
-    func_806883F4(arg0, 0, arg1, 0.0f);
+    animSetLoopLimit(arg0, 0, 1);
+    animSetFinished(arg0, 0, 1);
+    animSetFrameAndSubframe(arg0, 0, arg1, 0.0f);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/B100/func_8002FC98.s")

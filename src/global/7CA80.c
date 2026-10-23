@@ -120,7 +120,7 @@ s32 func_8067B2C0(s32);
 s32 func_8067B3F4(s32);
 s32 func_8067B42C(s32);
 void func_80689418(void);
-void func_806897F0(void);
+void actorListRemoveByActor(void);
 void func_806EB194(void);
 void func_80732354(s32, s32, s32, s32);
 void heapFree(void *);
@@ -252,7 +252,7 @@ s32 func_80678014(s32 arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80678050.s")
 
 void actorDespawn(Actor *arg0) {
-    func_806897F0();
+    actorListRemoveByActor();
     actorQueueOrDespawn(arg0);
 }
 
@@ -339,7 +339,7 @@ void func_807233B4(Actor *);
 void func_8066E21C(ActorSub140 *);
 void func_8072F09C(Actor *);
 void func_8070DA74(Actor *);
-void func_8068C2F8(Actor *);
+void renderCallbacksDisableForActor(Actor *);
 void actorTableRemove();
 typedef struct R2EActor {
     /* 0x000 */ s32 unk0;
@@ -407,7 +407,7 @@ void actorFreeImmediate(Actor *arg0) {
     if (arg0->unk58 != 0x12B) {
         func_8070DA74(arg0);
     }
-    func_8068C2F8(arg0);
+    renderCallbacksDisableForActor(arg0);
     actorTableRemove(arg0);
     heapFree(arg0);
 }
@@ -485,7 +485,7 @@ void func_8066EBF4(Actor *);
 void func_806790F4(s32);
 void func_8067A1DC(Actor *);
 void actorUpdateEffects(Actor *);
-void func_80687F7C(Actor *);
+void animListUpdate(Actor *);
 
 void func_80678CC8(Actor *actor) {
     if ((void *)func_8067B3F4 == (void *)D_8074DA30[D_8074D8D4[actor->unk58]]) {
@@ -508,7 +508,7 @@ void func_80678CC8(Actor *actor) {
     func_8067A1DC(actor);
     actorFreeCallbackList(actor);
     actorUpdateEffects(actor);
-    func_80687F7C(actor);
+    animListUpdate(actor);
     actor->unk60 |= 0x10;
 }
 

@@ -6,7 +6,7 @@ void func_8072E868(void);
 void func_80727678(void);
 void func_80727958(void);
 
-void func_8068A7B0(void) {
+void actorSpawnInitialSet(void) {
     actorSpawn(0xA, 0);
     actorSpawn(0xB, 0);
     actorSpawn(0xC, 0);
@@ -54,16 +54,16 @@ typedef struct {
     /* 0x19 */ u8 unk19[3];
     /* 0x1C */ s16 unk1C;
     /* 0x1E */ s16 unk1E;
-} Act8F4_Actor174;
+} Actor174;
 
 void func_8072E7DC(s32, void *);
 
 void func_8068B830(s16 arg0, s16 arg1, s16 arg2) {
     Actor *sp1C;
-    Act8F4_Actor174 *temp_v0;
+    Actor174 *temp_v0;
 
     func_8072E7DC(0xC, &sp1C);
-    temp_v0 = (Act8F4_Actor174 *)sp1C->unk174;
+    temp_v0 = (Actor174 *)sp1C->unk174;
     temp_v0->unk0 = arg0;
     temp_v0->unk4 = (f64)(f32)arg1 / 100.0;
     temp_v0->unk8 = arg2;
@@ -71,10 +71,10 @@ void func_8068B830(s16 arg0, s16 arg1, s16 arg2) {
 
 void func_8068B8A4(f32 arg0) {
     Actor *sp1C;
-    Act8F4_Actor174 *temp_v0;
+    Actor174 *temp_v0;
 
     func_8072E7DC(0xC, &sp1C);
-    temp_v0 = (Act8F4_Actor174 *)sp1C->unk174;
+    temp_v0 = (Actor174 *)sp1C->unk174;
     temp_v0->unkC = arg0;
     temp_v0->unk10 = arg0;
     temp_v0->unk14 = arg0;
@@ -97,7 +97,7 @@ extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBDC4;
 void func_8063DA40(s16, s16);
 void func_8062BAE4(void);
-void func_80689A80(s16, void *);
+void actorListDispatchEvent(s16, void *);
 
 void func_8068B930(void) {
     s32 i;
@@ -119,7 +119,7 @@ void func_8068B9B4(void) {
     for (i = 0; i < D_807FBDC4; i++) {
         ptr = D_807FBB70.unk278[i];
         if (D_807FBB70.unk258[i] == 1) {
-            func_80689A80(ptr[1], ptr);
+            actorListDispatchEvent(ptr[1], ptr);
         }
     }
 }
@@ -127,14 +127,14 @@ void func_8068B9B4(void) {
 typedef struct {
     char pad[0xAC];
     u32 unkAC;
-} Act8F4_Sub174;
+} ActorSub174;
 
 typedef struct {
     char pad[0x104];
     Actor *unk104;
     char pad108[0x1F0 - 0x108];
     u32 unk1F0;
-} Act8F4_Actor174_Player;
+} Actor174Player;
 
 typedef struct {
     char pad[0x210];
@@ -145,18 +145,18 @@ typedef struct {
     f32 unk228;
     f32 unk22C;
     f32 unk230;
-} Act8F4_Struct_C924;
+} ActorPlayerPos;
 
 extern Actor *D_807FBB48;
-extern Act8F4_Struct_C924 *D_807FC924;
+extern ActorPlayerPos *D_807FC924;
 void func_8061CC40(s32, s32, u8);
 void func_8072167C(s16, s16, s16, s16);
 void func_8065A708(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void func_8068BA2C(void) {
     s32 pad;
-    Act8F4_Sub174 *sp58;
-    Act8F4_Actor174_Player *s1;
+    ActorSub174 *sp58;
+    Actor174Player *s1;
     s32 var_s3;
     s16 i;
     s16 *ptr;

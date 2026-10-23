@@ -285,7 +285,7 @@ typedef struct Boss2A_Struct_807FBB40_4FA8 {
 } Boss2A_Struct_807FBB40_4FA8;
 
 u8 func_80024568(u8 *, u8, f32, f32, f32);
-void func_8068842C(void *, s32, s32);
+void animSetLoopLimit(void *, s32, s32);
 
 void func_80024FA8(u8 arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     u8 i;
@@ -316,7 +316,7 @@ void func_80024FA8(u8 arg0, u8 *arg1, s32 arg2, u8 *arg3) {
         }
         if (res != 0) {
             ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 4;
-            func_8068842C(D_807FBB40, 1, 1);
+            animSetLoopLimit(D_807FBB40, 1, 1);
         }
         break;
     }

@@ -46,7 +46,7 @@ s32 func_806FDB8C(s32, char *, s32, f32, f32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_805FF800(s32 *, s32 *);
 void func_805FF628(s32, s32);
-void func_8068C350(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, s32);
 Gfx *func_800296DC(Gfx *, Struct_807FBB40 *);
 
 /* Non-matching draft: stack layout and register allocation differences */
@@ -206,7 +206,7 @@ void func_80029118(void) {
         sp30 = D_807FBB40;
         break;
     }
-    func_8068C350(&func_800296DC, sp30, 3);
+    renderCallbacksRegister(&func_800296DC, sp30, 3);
 }
 #endif
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/5110/func_80029118.s")

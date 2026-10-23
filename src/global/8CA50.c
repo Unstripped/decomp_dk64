@@ -1,6 +1,6 @@
 #include "common.h"
 
-typedef struct Act8CA_Node {
+typedef struct AnimNode {
     /* 0x00 */ void **unk0;
     /* 0x04 */ void **unk4;
     /* 0x08 */ u8 unk8;
@@ -18,33 +18,33 @@ typedef struct Act8CA_Node {
     /* 0x21 */ u8 unk21;
     /* 0x22 */ u8 unk22;
     /* 0x23 */ u8 unk23;
-    /* 0x24 */ struct Act8CA_Node *next;
-} Act8CA_Node;
+    /* 0x24 */ struct AnimNode *next;
+} AnimNode;
 
-typedef struct Act8CA_Actor {
+typedef struct AnimActor {
     u8 pad[0x158];
-    Act8CA_Node *unk158;
-} Act8CA_Actor;
+    AnimNode *unk158;
+} AnimActor;
 
-typedef struct Act8CA_Struct_Arg1 {
+typedef struct AnimInitData {
     u8 pad[0x10];
     s16 *unk10;
-} Act8CA_Struct_Arg1;
+} AnimInitData;
 
 extern s32 D_8076A0A8;
 extern u8 D_807FC928;
 
 void *func_80610FE8(s32);
 void *func_8066B0F8(s32, s32, u8, s32);
-void func_80688638(Act8CA_Node **);
-void func_80687FC8(Act8CA_Node *);
-Act8CA_Node *func_80688584(Act8CA_Actor *, u32);
+void animListFree(AnimNode **);
+void func_80687FC8(AnimNode *);
+AnimNode *animGetNodeByIndex(AnimActor *, u32);
 void func_8066B434(void *, s32, s32);
 void heapFree(void *);
 
-void func_80687D50(Act8CA_Actor *arg0, Act8CA_Struct_Arg1 *arg1) {
-    Act8CA_Node **next_ptr;
-    Act8CA_Node *node;
+void animListInit(AnimActor *arg0, AnimInitData *arg1) {
+    AnimNode **next_ptr;
+    AnimNode *node;
     s16 *src;
     s16 count;
     s32 num;
@@ -57,7 +57,7 @@ void func_80687D50(Act8CA_Actor *arg0, Act8CA_Struct_Arg1 *arg1) {
 
     if (arg0->unk158 != NULL) {
         if (D_8076A0A8 == 0x50 || D_807FC928 >= 2) {
-            func_80688638(&arg0->unk158);
+            animListFree(&arg0->unk158);
         } else {
             return;
         }
@@ -68,7 +68,7 @@ void func_80687D50(Act8CA_Actor *arg0, Act8CA_Struct_Arg1 *arg1) {
     if (count != 0) {
         unk = 1;
         do {
-            node = func_80610FE8(sizeof(Act8CA_Node));
+            node = func_80610FE8(sizeof(AnimNode));
             *next_ptr = node;
             num = *src;
             node->unk1C = 0;
@@ -108,8 +108,8 @@ void func_80687D50(Act8CA_Actor *arg0, Act8CA_Struct_Arg1 *arg1) {
     *next_ptr = NULL;
 }
 
-Gfx *func_80687EE0(Gfx *glist, Act8CA_Actor *actor) {
-    Act8CA_Node *node;
+Gfx *animSetSegments(Gfx *glist, AnimActor *actor) {
+    AnimNode *node;
     Gfx *temp;
 
     for (node = actor->unk158; node != NULL; node = node->next) {
@@ -124,8 +124,8 @@ Gfx *func_80687EE0(Gfx *glist, Act8CA_Actor *actor) {
     return glist;
 }
 
-void func_80687F7C(Act8CA_Actor *actor) {
-    Act8CA_Node *node;
+void animListUpdate(AnimActor *actor) {
+    AnimNode *node;
 
     for (node = actor->unk158; node != NULL; node = node->next) {
         if (node->unk22 == 0) {
@@ -136,8 +136,8 @@ void func_80687F7C(Act8CA_Actor *actor) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8CA50/func_80687FC8.s")
 
-s32 func_806882DC(void *arg0, s32 arg1, s16 arg2) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+s32 animGetNodeItem(void *arg0, s32 arg1, s16 arg2) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node) {
         goto yes;
     }
@@ -146,8 +146,8 @@ yes:
     return ((s32 *)node->unk0)[arg2];
 }
 
-void func_80688320(void *arg0, s32 arg1, s16 arg2, s32 arg3) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animSetNodeItem(void *arg0, s32 arg1, s16 arg2, s32 arg3) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         if (arg2 < node->unkA) {
             ((s32 *)node->unk0)[arg2] = arg3;
@@ -155,37 +155,37 @@ void func_80688320(void *arg0, s32 arg1, s16 arg2, s32 arg3) {
     }
 }
 
-void func_80688370(void *arg0, s32 arg1, f32 arg2) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animSetSpeed(void *arg0, s32 arg1, f32 arg2) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unk10 = arg2;
     }
 }
 
-void func_8068839C(void *arg0, s32 arg1, u8 arg2) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animSetDirection(void *arg0, s32 arg1, u8 arg2) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unk20 = arg2;
     }
 }
 
-void func_806883C8(void *arg0, s32 arg1, u8 arg2) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animSetLoopMode(void *arg0, s32 arg1, u8 arg2) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unk21 = arg2;
     }
 }
 
-void func_806883F4(void *arg0, s32 arg1, s16 arg2, f32 arg3) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animSetFrameAndSubframe(void *arg0, s32 arg1, s16 arg2, f32 arg3) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unkC = arg2;
         node->unk14 = arg3;
     }
 }
 
-void func_8068842C(void *arg0, s32 arg1, s16 arg2) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animSetLoopLimit(void *arg0, s32 arg1, s16 arg2) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unk18 = arg2;
         node->unk1A = 0;
@@ -193,43 +193,43 @@ void func_8068842C(void *arg0, s32 arg1, s16 arg2) {
     }
 }
 
-void func_80688460(void *arg0, s32 arg1, u8 arg2) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animSetFinished(void *arg0, s32 arg1, u8 arg2) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unk22 = arg2;
     }
 }
 
-void func_8068848C(void *arg0, s32 arg1, s16 arg2) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animSetStartFrame(void *arg0, s32 arg1, s16 arg2) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unk1C = arg2;
     }
 }
 
-void func_806884B8(void *arg0, s32 arg1, s16 arg2) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animSetEndFrame(void *arg0, s32 arg1, s16 arg2) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unk1E = arg2;
     }
 }
 
-void func_806884E4(void *arg0, s32 arg1) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animResetEndFrame(void *arg0, s32 arg1) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unk1E = node->unkA;
     }
 }
 
-void func_80688514(void *arg0, s32 arg1) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+void animClearStartFrame(void *arg0, s32 arg1) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node != NULL) {
         node->unk1C = 0;
     }
 }
 
-s32 func_80688540(void *arg0, s32 arg1) {
-    Act8CA_Node *node = func_80688584(arg0, arg1);
+s32 animIsPlaying(void *arg0, s32 arg1) {
+    AnimNode *node = animGetNodeByIndex(arg0, arg1);
     if (node) {
         goto yes;
     }
@@ -238,8 +238,8 @@ yes:
     return (node->unk22 == 0) ? 1 : 0;
 }
 
-Act8CA_Node *func_80688584(Act8CA_Actor *actor, u32 count) {
-    Act8CA_Node *node = actor->unk158;
+AnimNode *animGetNodeByIndex(AnimActor *actor, u32 count) {
+    AnimNode *node = actor->unk158;
     if (count != 0) {
         do {
             if (node != NULL) {
@@ -252,9 +252,9 @@ Act8CA_Node *func_80688584(Act8CA_Actor *actor, u32 count) {
     return node;
 }
 
-void func_80688638(Act8CA_Node **arg0) {
-    Act8CA_Node *node = *arg0;
-    Act8CA_Node *next;
+void animListFree(AnimNode **arg0) {
+    AnimNode *node = *arg0;
+    AnimNode *next;
     void **arr;
     void **temp;
     s32 i;

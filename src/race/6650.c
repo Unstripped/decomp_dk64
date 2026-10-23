@@ -125,7 +125,7 @@ void func_8068ECF4(s32, u8);
 void func_806F8BC4(s32, s32, s32);
 void func_806F8D58(s32, s32);
 void func_806F4D70(u8, s32, s32, s32, f32);
-void func_8068C350(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, s32);
 typedef struct {
     char pad[0x25];
     u8 unk25;
@@ -271,10 +271,10 @@ void raceInitParticipants(Struct_arg0 *arg0) {
 #pragma GLOBAL_ASM("asm/race/nonmatchings/6650/func_8002A7F8.s")
 
 s32 func_8002CAC8(void *arg0, void *arg1, void *arg2);
-void func_8068E474(s32 arg0, void *arg1);
+void actorDrawAnimatedEffect(s32 arg0, void *arg1);
 
 void func_8002AE6C(void *arg0, u8 *arg1) {
-    func_8068E474(func_8002CAC8(arg0, arg1, *(void **)(arg1 + 0x174)), arg1);
+    actorDrawAnimatedEffect(func_8002CAC8(arg0, arg1, *(void **)(arg1 + 0x174)), arg1);
 }
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/6650/func_8002AE9C.s")

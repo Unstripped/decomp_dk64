@@ -136,11 +136,11 @@ void func_806789E4(void);
 void func_806886E0(s32, s32, s32);
 void func_80688940(void);
 void func_8068A508(void);
-void func_8068A7B0(void);
-void func_8068C080(void);
-void func_8068C0B4(void);
-s32 func_8068C20C(s32, s32);
-void func_8068C2EC(void);
+void actorSpawnInitialSet(void);
+void texCacheReset(void);
+void texCacheUpdate(void);
+s32 renderCallbacksExecute(s32, s32);
+void renderCallbacksReset(void);
 void func_806C7C10(void);
 Struct806C7C94 *func_806C7C94(s32);
 void func_806C7D40(s32);
@@ -558,7 +558,7 @@ void func_805FC2B0(void) {
     if ((D_8076A0B1 & 1) && D_807FD888 == 31.0f) {
         sp2C = D_8076A050[D_807444FC];
         sp28 = D_8076A048 + 0xDB0;
-        func_8068C2EC();
+        renderCallbacksReset();
     } else {
         func_805FD088((Struct_8076A048 *)D_8076A048, &sp2C, &sp28);
     }
@@ -688,7 +688,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     if (D_807FC928 == 1) {
         glist = (Gfx *)func_807007B8((s32)glist);
     }
-    glist = func_8062A844(func_80629300(func_8068C20C((s32)glist, 1)));
+    glist = func_8062A844(func_80629300(renderCallbacksExecute((s32)glist, 1)));
 
     if ((D_8076A0A8 == 0x4C) || (D_8076A0A8 == 0x50) || ((func_80714464() != 0) && (D_8076A0A8 != 0xD0))) {
         D_8076A0B1 &= ~0x10;
@@ -773,13 +773,13 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
         gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
     }
 
-    glist = (Gfx *)func_8068C20C(func_8068C20C(func_8062CA0C(func_8068C20C((s32)func_805FD030(glist), 3), D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218), 5), 7);
+    glist = (Gfx *)renderCallbacksExecute(renderCallbacksExecute(func_8062CA0C(renderCallbacksExecute((s32)func_805FD030(glist), 3), D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218), 5), 7);
     if (D_807467E4 != 0) {
         D_807467E4 -= 1;
     }
     glist = (Gfx *)func_80714060(func_806FAB20(func_80709344((s32)glist)));
     func_806FBC34();
-    func_8068C0B4();
+    texCacheUpdate();
     func_80722280();
     *arg1 = glist;
     *arg2 = glist2;
@@ -877,7 +877,7 @@ void func_805FE7FC(void) {
     func_80605510();
     D_80744508 = 0;
     *D_807ECDF4 = 0;
-    func_8068C080();
+    texCacheReset();
     D_8076A0B1 &= 0xFFCF;
     func_8070F570();
     if (D_807444EC == 1) {
@@ -951,7 +951,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         func_80663DA0();
         func_8065A570();
         actorInit();
-        func_8068A7B0();
+        actorSpawnInitialSet();
         func_8072E740(D_8076A0A8);
         func_80626264(sp28 = func_8066B0F8(8, D_8076A0A8, 1, 1));
         if (sp28 != 0) {
@@ -966,7 +966,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
             func_8066B434(sp28, 0x8DD, 2);
         }
         func_8061EA78();
-        func_8068C2EC();
+        renderCallbacksReset();
         func_806F4778();
         func_8070E8C8();
         timerQueueAdd(func_806025AC, 2, 0, 0, 0);
