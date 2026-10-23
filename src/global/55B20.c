@@ -431,7 +431,27 @@ void func_80652374(M55P1_Entry *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806524A0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652594.s")
+s32 func_80630588(s32, s32, s32, u8 *);
+
+u8 func_80652594(s32 arg0, s16 *arg1, u8 arg2) {
+    u8 flag;
+    s32 i;
+
+    flag = 0;
+    for (i = 0; i < D_807F6C28 && (!flag || arg2); i++) {
+        D_807F6C18[i].unk14 = func_80630588(D_807F6C18[i].unk14, arg0, 0, &flag);
+        if (flag) {
+            *arg1 = i;
+        }
+        if (!flag || arg2) {
+            D_807F6C18[i].unk1C = func_80630588(D_807F6C18[i].unk1C, arg0, 0, &flag);
+            if (flag) {
+                *arg1 = i;
+            }
+        }
+    }
+    return flag;
+}
 
 extern s32 D_807F6C80;
 extern s16 D_807F6C58[];
@@ -1856,7 +1876,30 @@ s16 arg2;
     return n;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658BD0.s")
+typedef struct R2P1bP6Entry {
+    /* 0x000 */ s32 unk0;
+    /* 0x004 */ s16 unk4;
+    /* 0x006 */ s16 unk6;
+    /* 0x008 */ s16 unk8;
+    /* 0x00A */ u8 padA[0x2];
+    /* 0x00C */ s32 unkC;
+    /* 0x010 */ u8 unk10;
+    /* 0x011 */ u8 unk11;
+    /* 0x012 */ u8 pad12[0x2];
+} R2P1bP6Entry;
+
+extern u8 D_807F72A0;
+extern u8 D_807F72B4;
+extern R2P1bP6Entry D_807F72B8[];
+
+void func_80658BD0(void) {
+    s32 i;
+
+    D_807F72A0 = 0;
+    for (i = 0, D_807F72B4 = 0; i < 8; i++) {
+        D_807F72B8[i].unk10 = 0;
+    }
+}
 
 typedef struct R2P6aEntry {
     s32 unk0;
