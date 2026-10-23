@@ -538,6 +538,7 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
     f32 temp_f1;
     f32 temp_ft4, temp_ft5, temp_ft2;
     f32 three;
+    s16 a3 = arg3;
     s16 a4 = arg4;
     s16 a5 = arg5;
     s16 a6 = arg6;
@@ -547,7 +548,7 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
     three = 3.0f;
     var_s0 = D_807F7500;
     for (i = 0; i < D_80748300; i++, var_s0++) {
-        if (func_8065BF18(var_s0, arg0, arg1, arg2, arg3, a4, a5, a6, arg7, arg8, arg9)) {
+        if (func_8065BF18(var_s0, arg0, arg1, arg2, a3, a4, a5, a6, arg7, arg8, arg9)) {
             if (D_807F7BC0 < 12) {
                 if (var_s0->unk3A & 1) {
                     *arg10 = 1;
@@ -698,4 +699,125 @@ s32 func_8065C240(Cam2_Struct_3C *arg0) {
     return 0;
 }
 
+s32 func_80651B64(s16);
+
+#ifdef NON_MATCHING
+void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
+    f32 diff[14];
+    Cam2_Struct_40 *entry;
+    f32 r;
+    f32 g;
+    f32 b;
+    s32 three;
+
+    if (func_80651B64(arg7) == 0) {
+        *arg6 = 0xFF;
+        *arg5 = 0xFF;
+        *arg4 = 0xFF;
+        return;
+    }
+    if (D_807F7EC8 == 0) {
+        *arg4 = (s32)(D_8076A0B4[arg7] * 255.0f);
+        *arg5 = (s32)(D_8076A0B8[arg7] * 255.0f);
+        *arg6 = (s32)(D_8076A0BC[arg7] * 255.0f);
+        return;
+    }
+    r = D_8076A0B4[arg7];
+    g = D_8076A0B8[arg7];
+    b = D_8076A0BC[arg7];
+    if (D_807F7EC8 > 0) {
+        three = 3;
+        entry = D_807F7BC8;
+        do {
+            switch (entry->unk3E) {
+            default:
+                break;
+            case 1: {
+                f32 dist;
+                f32 dot;
+                f32 factor;
+
+                diff[0] = arg0 - (f32)(entry->unk38 / three);
+                diff[1] = arg1 - (f32)(entry->unk3A / three);
+                diff[2] = arg2 - (f32)(entry->unk3C / three);
+                dist = sqrtf((diff[2] * diff[2]) + ((diff[0] * diff[0]) + (diff[1] * diff[1])));
+                if (dist == 0.0f) {
+                    dist = 0.1f;
+                }
+                diff[3] = diff[0] / dist;
+                diff[4] = diff[1] / dist;
+                diff[5] = diff[2] / dist;
+                dot = (entry->unk14 * diff[5]) + ((diff[3] * entry->unkC) + (diff[4] * entry->unk10));
+                if (dot < 0.0f) {
+                    dot = 0.0f;
+                }
+                if (entry->unk0 <= dot) {
+                    if (entry->unk4 <= dot) {
+                        factor = (dot - entry->unk0) * entry->unk8;
+                    } else {
+                        factor = 1.0f;
+                    }
+                    if ((f64)dist > 300.0) {
+                        if ((f64)dist > 1100.0) {
+                            factor = 0.0f;
+                        } else {
+                            factor = (f64)factor * (1.0 - (((f64)dist - 300.0) / 800.0));
+                        }
+                    }
+                    r += entry->unk2C * factor;
+                    g += entry->unk30 * factor;
+                    b += entry->unk34 * factor;
+                }
+                break;
+            }
+            case 0: {
+                f32 dist;
+                f32 diff_val;
+                f32 range;
+                f32 max_range;
+                f32 factor;
+                diff[2] = (f32)(entry->unk3C / three) - arg2;
+                diff[0] = (f32)(entry->unk38 / three) - arg0;
+                diff[1] = (f32)(entry->unk3A / three) - arg1;
+                dist = sqrtf((diff[2] * diff[2]) + ((diff[0] * diff[0]) + (diff[1] * diff[1])));
+                diff_val = dist - (f32)arg3;
+                if (dist <= (f32)arg3) {
+                    diff_val = 0.1f;
+                }
+                range = entry->unk28 / 3.0f;
+                if (diff_val < range) {
+                    r += entry->unk2C;
+                    g += entry->unk30;
+                    b += entry->unk34;
+                } else {
+                    max_range = ((1.0f / entry->unk24) / 3.0f) - range;
+                    if ((diff_val - range) < max_range) {
+                        factor = 1.0f - ((diff_val - range) / max_range);
+                        r += entry->unk2C * factor;
+                        g += entry->unk30 * factor;
+                        b += entry->unk34 * factor;
+                    }
+                }
+                break;
+            }
+            }
+            entry++;
+        } while (entry < &D_807F7BC8[D_807F7EC8]);
+    }
+    if (r > 1.0f) {
+        r = 1.0f;
+    }
+    if (g > 1.0f) {
+        g = 1.0f;
+    }
+    if (b > 1.0f) {
+        b = 1.0f;
+    }
+    *arg4 = (s32)(r * 255.0f);
+    *arg5 = (s32)(g * 255.0f);
+    *arg6 = (s32)(b * 255.0f);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/func_8065C334.s")
+#endif
