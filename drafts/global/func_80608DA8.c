@@ -1,4 +1,4 @@
-// func_80608DA8 (src/global/7130.c): Stage 4 (stack frame 0x50 vs 0x48, eliminated var_fv0 local variable, permuter score 1236)
+// func_80608DA8 (src/global/7130.c): Stage 4 (frame 0x50 vs 0x48, double spill to stack across func_806119A0 calls increases frame; best permuter score 1236)
 #include "common.h"
 
 u32 func_806119A0(void);
