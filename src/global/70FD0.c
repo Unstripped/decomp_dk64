@@ -1044,7 +1044,71 @@ s16 *arg4;
     func_806726DC(arg0, arg1, arg2, arg3, arg4, 10);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_806726DC.s")
+s16 func_806728F0(s16, s16, s16);
+
+s32 func_806726DC(arg0, arg1, arg2, arg3, arg4, arg5)
+s32 arg0;
+s16 arg1;
+s16 arg2;
+s16 arg3;
+s16 *arg4;
+s16 arg5;
+{
+    s16 temp_t0;
+    s16 temp_t1;
+    s16 var_t2;
+    s16 var_t3;
+    u8 var_a0;
+
+    temp_t0 = arg2 + arg5;
+    temp_t1 = arg3 - arg5;
+    var_t2 = temp_t0;
+    var_t3 = temp_t1;
+    if (arg3 >= arg2) {
+        if (temp_t0 < temp_t1 && arg1 >= temp_t0 && temp_t1 >= arg1) {
+            *arg4 = arg1;
+            return 1;
+        }
+        *arg4 = func_806728F0(arg2, arg3, arg1);
+        goto ret_0;
+    }
+
+    var_a0 = 0;
+    if (temp_t0 >= 0x1000) {
+        var_t2 = temp_t0 - 0x1000;
+        var_a0 = 1;
+    }
+    if (temp_t1 < 0) {
+        var_t3 = temp_t1 + 0x1000;
+        var_a0 += 2;
+    }
+
+    switch (var_a0) {
+    default:
+        return 0;
+    case 0:
+        if (arg1 >= var_t2 || var_t3 >= arg1) {
+            *arg4 = arg1;
+            return 1;
+        }
+        *arg4 = func_806728F0(arg2, arg3, arg1);
+        break;
+    case 1:
+    case 2:
+        if (var_t2 < var_t3 && arg1 >= var_t2 && var_t3 >= arg1) {
+            *arg4 = arg1;
+            return 1;
+        }
+        *arg4 = func_806728F0(arg2, arg3, arg1);
+        break;
+    case 3:
+        *arg4 = func_806728F0(arg2, arg3, arg1);
+        break;
+    }
+
+ret_0:
+    return 0;
+}
 
 s16 func_80672A70();
 
@@ -1158,9 +1222,27 @@ void func_80672B1C(M70F_Actor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80672BD4.s")
+u8 func_80672BD4(M70F_Actor *arg0) {
+    return arg0->unk110 != 0
+        || arg0->unk140->unk6C != 0
+        || arg0->unk140->unk24 != 0
+        || (arg0->unk6A & 8) != 0
+        || (arg0->unk6A & 0x400) != 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80672C30.s")
+void func_80672C30(M70F_Actor *arg0) {
+    M70F_ActorSub140 *temp_v0;
+
+    temp_v0 = arg0->unk140;
+    arg0->unk110 = 0;
+    if (temp_v0 != NULL) {
+        temp_v0->unk6C = 0;
+        arg0->unk140->unk24 = 0;
+    }
+    arg0->unk6A &= ~8;
+    *(u16*)((u8*)arg0 + 0x6A) &= ~0x400;
+    arg0->unk64 |= 0x2000;
+}
 
 extern s32 D_807FB53C;
 extern s16 D_807FB5F8;
