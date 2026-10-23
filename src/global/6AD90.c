@@ -773,7 +773,48 @@ s32 func_8066AC10(R2D_TriangleAC10 *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066ACA4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066ADA0.s")
+extern s32 D_8000DDCC;
+extern s32 D_807F9520;
+extern s32 *D_807F9528[];
+extern void *D_807F9628[];
+extern s32 D_807F9680;
+extern u8 D_807FB220;
+extern u8 D_807FB221;
+void *func_8066B0F8(s32, s32, s32, s32);
+
+void func_8066ADA0(void) {
+    s32 i;
+    s32 sp40;
+
+    sp40 = 0x80;
+    D_807F9520 = (s32)func_80610FE8(0x80);
+    func_8060B140(D_8000DDCC, (void *)D_807F9520, &sp40, 0, 0, 0, 0);
+
+    for (i = 0; i < 0x20; i++) {
+        D_807F9528[i] = 0;
+        D_807F95A8[i] = 0;
+    }
+
+    for (i = 0; i < 0x14; i++) {
+        D_807F9628[i] = 0;
+    }
+
+    D_807F9680 = 0;
+    D_807F967C = 0;
+    D_807F9678 = 0;
+    D_807F967D = 0;
+
+    for (i = 0; i < 0x20; i++) {
+        if (D_80748E18[i] != 0) {
+            D_807FB1A0[i] = func_8066B0F8(0x1A, i, 1, 1);
+        } else {
+            D_807FB1A0[i] = NULL;
+        }
+    }
+
+    D_807FB220 = 0;
+    D_807FB221 = 0;
+}
 
 void func_8066AEE4(void *arg0, void *arg1) {
     void *sp24;
