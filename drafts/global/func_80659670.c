@@ -1,4 +1,4 @@
-// func_80659670 (src/global/5E2F0.c): stage 1: m2c translation, clamps RGB floats to 1.0f and sets array elements by index or loops over count
+// func_80659670 (src/global/5E2F0.c): stage 6, score 35: 5 insns diff, regalloc move a0, zero vs move v0, v1 between loop setup and branch delay slot
 #include "common.h"
 
 extern f32 *D_8076A0B4;
@@ -8,9 +8,11 @@ extern s32 D_807F6C28;
 
 void func_80659670(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     s32 count;
+    s32 new_var;
     s32 i;
 
-    count = (D_807F6C28 <= 0) ? 1 : (D_807F6C28 & 0xFF);
+    new_var = (D_807F6C28 <= 0) ? 1 : (D_807F6C28 & 0xFF);
+    count = new_var;
     if (arg3 != -1) {
         if (arg3 < count) {
             D_8076A0B4[arg3] = (arg0 <= 1.0f) ? arg0 : 1.0f;

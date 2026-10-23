@@ -1,4 +1,4 @@
-// func_80609140 (src/global/7130.c): Stage 4 (sound effect play with pitch/pan and voice slot allocation)
+// func_80609140 (src/global/7130.c): Stage 4 (sound effect play with pitch/pan and voice slot allocation, frame 0x38)
 #include "common.h"
 
 u32 func_806119A0(void);

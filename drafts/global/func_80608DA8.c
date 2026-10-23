@@ -1,4 +1,4 @@
-// func_80608DA8 (src/global/7130.c): Stage 4 (stack frame 0x58 vs 0x48, behaviourally equivalent sound effect play/alloc)
+// func_80608DA8 (src/global/7130.c): Stage 4 (stack frame 0x50 vs 0x48, eliminated var_fv0 local variable, permuter score 1236)
 #include "common.h"
 
 u32 func_806119A0(void);
@@ -11,12 +11,11 @@ extern s32 D_8076D1F8;
 extern u8 D_8077058E;
 
 void func_80608DA8(s16 arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4) {
-    s32 vol;
-    f32 pan;
-    f32 pitch;
-    u8 reverb;
     f32 orig_pitch;
-    f64 var_fv0;
+    s32 vol;
+    f32 pitch;
+    f32 pan;
+    u8 reverb;
 
     vol = (s32)(((f64)((arg1 & 0xFF) * 0x7FFF)) / 255.0);
     if (vol < 1001) {
@@ -25,13 +24,12 @@ void func_80608DA8(s16 arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4) {
 
     pitch = (f64)(u32)(arg2 & 0xFF) / 127.0;
     orig_pitch = pitch;
-    var_fv0 = (f64)(u32)(arg3 & 0xFF);
-    pan = ((f64)(u32)func_806119A0() / 4294967295.0) * (2.0 * var_fv0) + (63.5 - var_fv0);
+    pan = ((f64)(u32)func_806119A0() / 4294967295.0) * (2.0 * (f64)(u32)(arg3 & 0xFF)) + (63.5 - (f64)(u32)(arg3 & 0xFF));
     reverb = 0;
 
     if (arg3 != 0) {
-        vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * (var_fv0 / 155.0))) * (f64)vol;
-        pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * (var_fv0 / 100.0)) + ((f64)orig_pitch - (var_fv0 / 255.0));
+        vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)(arg3 & 0xFF) / 155.0))) * (f64)vol;
+        pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)(arg3 & 0xFF) / 100.0)) + ((f64)orig_pitch - ((f64)(u32)(arg3 & 0xFF) / 255.0));
     }
 
     if (D_8077058E >= 21) {

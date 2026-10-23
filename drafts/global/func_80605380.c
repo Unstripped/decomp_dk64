@@ -1,4 +1,4 @@
-// func_80605380 (src/global/7130.c): Stage 6 (diff score 92): regalloc shift t1/t2/t3 vs t0/t1/t2 and spill slots 0x24/0x20 vs 0x2c/0x28
+// func_80605380 (src/global/7130.c): Stage 6 (99/100 matching insns, frame 0x30 matches, diff score 92: regalloc shift t1/t2/t3 vs t0/t1/t2)
 #include "common.h"
 
 extern s16 D_80770628[];

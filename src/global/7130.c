@@ -89,12 +89,9 @@ void func_80602C0C(void) {
 }
 
 
-void func_8060A60C();
+void func_8060A60C(s32, f32);
 
-void func_80602C6C(arg0, arg1)
-s32 arg0;
-s32 arg1;
-{
+void func_80602C6C(s32 arg0, f32 arg1) {
     u8 v1 = func_80602430((s16)arg0);
     if ((arg0 == D_807458DC[func_8060245C((s16)arg0)]) && (arg0 == D_80770560[v1])) {
         func_8060A60C(v1, arg1);
@@ -149,22 +146,15 @@ extern s32 D_8076A0A8;
 
 void func_80602CE0(s16, s32, u8);
 
-#ifdef NON_MATCHING
 void func_806049CC(s32 arg0) {
-    u8 *ptr;
-    u8 val;
-
     if (D_80745838 != 0) {
         if (arg0 == 0 && (D_80745658[D_80770560[arg0]] & 1)) {
-            ((void (*)(ALCSPlayer *, s32, s32))alCSPSetChlPan)(gSeqPlayers[0], 0x3E99999A, 0x3FACCCCD);
+            alCSPSetChlPan(gSeqPlayers[0], 0.3f, 1.35f);
         }
-        ptr = &D_80770560[arg0];
-        val = *ptr;
-        if (val == 0x38) {
+        if (D_80770560[arg0] == 0x38) {
             func_80602CE0(0x38, 0x3C00, 1);
-            val = *ptr;
         }
-        if (val == 0x60) {
+        if (D_80770560[arg0] == 0x60) {
             if (D_8076A0A8 == 0xB8) {
                 func_80602CE0(0x60, 0xE, 1);
             } else {
@@ -176,15 +166,12 @@ void func_806049CC(s32 arg0) {
         }
     } else {
         if (arg0 == 0 && (D_80745658[D_80770560[arg0]] & 1)) {
-            ((void (*)(ALCSPlayer *, s32, s32))alCSPSetChlPan)(gSeqPlayers[0], 0, 0x3F800000);
+            alCSPSetChlPan(gSeqPlayers[0], 0.0f, 1.0f);
         }
-        ptr = &D_80770560[arg0];
-        val = *ptr;
-        if (val == 0x38) {
+        if (D_80770560[arg0] == 0x38) {
             func_80602CE0(0x38, 0x3C00, 0);
-            val = *ptr;
         }
-        if (val == 0x60) {
+        if (D_80770560[arg0] == 0x60) {
             if (D_8076A0A8 == 0xB8) {
                 func_80602CE0(0x60, 0x1E, 1);
                 return;
@@ -196,10 +183,6 @@ void func_806049CC(s32 arg0) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_806049CC.s")
-#endif
 
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
@@ -394,9 +377,7 @@ u8 func_80605044(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, s8 arg
     return i;
 }
 
-
 void func_80605380(s16);
-
 void func_80605314(Actor *arg0, u8 arg1) {
     if (((Aud7130B_Actor *)arg0)->unk6E[arg1] >= 0) {
         func_80605380(((Aud7130B_Actor *)arg0)->unk6E[arg1]);
@@ -412,35 +393,29 @@ void func_80732354(s32, s32, s32, s32);
 
 #ifdef NON_MATCHING
 void func_80605380(s16 arg0) {
-    s16 *t3 = &D_80770628[arg0];
-    s16 a1 = *t3;
+    s16 a1 = D_80770628[arg0];
     s16 t0 = --D_80770740[a1];
-    s16 *t2;
 
     if (t0 != 0) {
-        s16 v1;
-
-        t2 = &D_80770658[arg0];
-        v1 = D_807707A0[a1][t0];
-        D_80770658[v1] = D_80770658[D_807707A0[a1][*t2]];
-        D_807707A0[a1][*t2] = v1;
+        s16 v1 = D_807707A0[a1][t0];
+        D_80770658[v1] = D_80770658[D_807707A0[a1][D_80770658[arg0]]];
+        D_807707A0[a1][D_80770658[arg0]] = v1;
     } else {
         D_80770710[a1] = 0;
         D_807706F8[a1] = 0;
-        t2 = &D_80770658[arg0];
     }
 
     if (t0 < 0 || t0 >= 23) {
         func_80732354(9, t0, 0, 0);
-        a1 = *t3;
+        a1 = D_80770628[arg0];
         t0 = D_80770740[a1];
     }
 
     D_807707A0[a1][t0] = -1;
     D_807705F8[arg0] = -1;
     D_807705A0[arg0] = NULL;
-    *t3 = -1;
-    *t2 = -1;
+    D_80770628[arg0] = -1;
+    D_80770658[arg0] = -1;
 }
 #else
 
@@ -563,12 +538,11 @@ extern u8 D_8077058E;
 
 #ifdef NON_MATCHING
 void func_80608DA8(s16 arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4) {
-    s32 vol;
-    f32 pan;
-    f32 pitch;
-    u8 reverb;
     f32 orig_pitch;
-    f64 var_fv0;
+    s32 vol;
+    f32 pitch;
+    f32 pan;
+    u8 reverb;
 
     vol = (s32)(((f64)((arg1 & 0xFF) * 0x7FFF)) / 255.0);
     if (vol < 1001) {
@@ -577,13 +551,12 @@ void func_80608DA8(s16 arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4) {
 
     pitch = (f64)(u32)(arg2 & 0xFF) / 127.0;
     orig_pitch = pitch;
-    var_fv0 = (f64)(u32)(arg3 & 0xFF);
-    pan = ((f64)(u32)func_806119A0() / 4294967295.0) * (2.0 * var_fv0) + (63.5 - var_fv0);
+    pan = ((f64)(u32)func_806119A0() / 4294967295.0) * (2.0 * (f64)(u32)(arg3 & 0xFF)) + (63.5 - (f64)(u32)(arg3 & 0xFF));
     reverb = 0;
 
     if (arg3 != 0) {
-        vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * (var_fv0 / 155.0))) * (f64)vol;
-        pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * (var_fv0 / 100.0)) + ((f64)orig_pitch - (var_fv0 / 255.0));
+        vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)(arg3 & 0xFF) / 155.0))) * (f64)vol;
+        pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)(arg3 & 0xFF) / 100.0)) + ((f64)orig_pitch - ((f64)(u32)(arg3 & 0xFF) / 255.0));
     }
 
     if (D_8077058E >= 21) {
@@ -784,7 +757,10 @@ void func_8060A500(void) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A60C.s")
+void func_8060A60C(s32 arg0, f32 arg1) {
+    D_80770578[arg0] = arg1;
+    D_80770598[arg0] = 1;
+}
 
 
 void func_8060A634(s32 arg0, f32 arg1) {
@@ -812,9 +788,9 @@ void func_8060A6A0(s32 arg0, u8 arg1, f32 arg2) {
     vol = ((var_fv0 * 0.35) / 255.0) + 1.0;
     if (arg0 != 0) {
         if (D_80745658[D_80770560[arg0]] & 1) {
-            ((void (*)(ALCSPlayer *, f32, f32))alCSPSetChlPan)(gSeqPlayers[arg0], pan, vol);
+            alCSPSetChlPan(gSeqPlayers[arg0], pan, vol);
         } else {
-            ((void (*)(ALCSPlayer *, f32, f32))alCSPSetChlPan)(gSeqPlayers[arg0], 0.0f, 1.0f);
+            alCSPSetChlPan(gSeqPlayers[arg0], 0.0f, 1.0f);
         }
     }
     func_806049CC(arg0);
