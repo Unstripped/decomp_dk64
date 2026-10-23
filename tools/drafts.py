@@ -67,6 +67,9 @@ def write(seg: str, func: str, src_file: str, note: str, todo: dict) -> str:
     body = open(src_file).read()
     if body.startswith(f"// {func} ("):  # re-saving a stored draft: drop its old header
         body = body.split("\n", 1)[1] if "\n" in body else ""
+    if PRAGMA.search(body):
+        sys.exit(f"{src_file} contains #pragma GLOBAL_ASM lines: pass a file holding only the "
+                 f"{func} draft and the declarations it needs, not your whole private copy")
     dest = draft_path(seg, func)
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, "w") as f:
