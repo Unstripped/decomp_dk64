@@ -223,7 +223,51 @@ Gfx *func_8065FD88(Gfx *gdl, u8 arg1, u8 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80660520.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80660830.s")
+typedef struct R3A_SubNode {
+    u8 pad[0x46];
+    s16 minX;
+    s16 minZ;
+    s16 maxX;
+    s16 maxZ;
+    u8 pad2[0x61 - 0x4E];
+    u8 r;
+    u8 g;
+    u8 b;
+} R3A_SubNode;
+
+void func_80660830(Vtx *vtx, EffectNode *water) {
+    u8 r;
+    R3A_SubNode *sub;
+    u8 g;
+    u8 b;
+    s32 minX;
+    s32 minZ;
+    s32 maxX;
+    s32 maxZ;
+    s32 step;
+    u32 total;
+    s32 count;
+
+    r = ((R3A_SubNode *)water->sub)->r;
+    sub = (R3A_SubNode *)water->sub;
+    g = sub->g;
+    b = sub->b;
+    minX = sub->minX;
+    minZ = sub->minZ;
+    maxX = sub->maxX;
+    maxZ = sub->maxZ;
+    step = water->unk2C;
+    total = (((maxX - minX) / step) + 2) * (((maxZ - minZ) / step) + 2);
+    count = total - 1;
+    if (total != 0) {
+        do {
+            vtx->v.cn[0] = r;
+            vtx->v.cn[1] = g;
+            vtx->v.cn[2] = b;
+            vtx++;
+        } while (count--);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_806608FC.s")
 
@@ -233,7 +277,58 @@ s32 func_8066104C(s32 arg0) {
     return ~arg0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80661054.s")
+s32 func_806119A0(void);
+extern s8 D_80746834;
+extern OSMesgQueue D_807655F0;
+extern OSIoMesg D_807ECE00;
+
+void func_80661054(void) {
+    u32 sp60[6];
+    u32 pad[4];
+    u32 *s1;
+    EffectNode *s0;
+    u32 s2;
+
+    s1 = sp60;
+    s0 = D_807F93C0;
+    if ((u32)s1 & 7) {
+        s1++;
+    }
+    s2 = func_8066104C(-0xF81);
+    osWritebackDCache(s1, 0x10);
+    osPiStartDma(&D_807ECE00, 0, 0, s2, s1, 0x10, &D_807655F0);
+    D_80746834 = 6;
+    osRecvMesg(&D_807655F0, NULL, 1);
+    D_80746834 = 0;
+    osInvalDCache(s1, 0x10);
+    s1[0] -= 0x3E0EF0F0;
+    s1[1] -= 0x3E0EF0F0;
+    if (s1[0] != 0x3050A14A || s1[1] != 0xBCFCF506) {
+        s1 = (u32 *)func_806119A0();
+        s2 = func_806119A0();
+        osPiStartDma(&D_807ECE00, 0, 0, (u32)s1 & 0xFFFF, (void *)((s2 & 0xFFFFE) + 0x80500000), (func_806119A0() & 0xFF) + 0x100, &D_807655F0);
+    }
+    if (s0 != NULL) {
+        do {
+            f32 target = s0->unk8;
+            if (target != s0->unk4) {
+                if (s0->unk4 < target) {
+                    s0->unk4 += s0->unkC;
+                    if (target < s0->unk4) {
+                        s0->unk4 = target;
+                    }
+                } else {
+                    s0->unk4 -= s0->unkC;
+                    if (s0->unk4 < target) {
+                        s0->unk4 = target;
+                    }
+                }
+            }
+            D_80748A90[s0->sub->unk66].fn2(s0);
+            s0 = s0->next;
+        } while (s0 != NULL);
+    }
+}
 
 void func_80661264(s32 arg0, u8 arg1) {
     EffectNode *node = D_807F93C0;
@@ -371,9 +466,40 @@ void func_80661658(u8 arg0) {
     D_80748A9C[arg0].unk0 = func_8066B0F8(7, 0x3C5, 1, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_806616A0.s")
+Gfx *func_806616A0(Gfx *dlist, EffectNode *arg1, u8 arg2) {
+    gDPPipeSync(dlist++);
+    gDPLoadTextureBlock(dlist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
+    WRITE_GFX(dlist++, 0xFC20FE04, 0xFF13F3FF);
+    WRITE_GFX(dlist++, 0xE3000A01, 0x00100000);
+    WRITE_GFX(dlist++, 0xD9000000, 0);
+    WRITE_GFX(dlist++, 0xD9FFFFFF, 0x00200005);
+    WRITE_GFX(dlist++, 0xE3000F00, 0);
+    WRITE_GFX(dlist++, 0xD7000902, 0xFFFFFFFF);
+    WRITE_GFX(dlist++, 0xE200001C, 0x0C184A50);
+    WRITE_GFX(dlist++, 0xF2000000 | ((s32)arg1->sub->unk3C & 0xFFF), 0x0107C07C);
+    WRITE_GFX(dlist++, 0xF5181000, 0x0101785E);
+    WRITE_GFX(dlist++, (((s32)arg1->sub->unk40 & 0xFFF) | 0xF2000000) | (((s32)arg1->sub->unk40 & 0xFFF) << 12), 0x0207C07C);
+    WRITE_GFX(dlist++, 0xF5181000, 0x0201745D);
+    return dlist;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_806618A0.s")
+Gfx *func_806618A0(Gfx *dlist, EffectNode *arg1, u8 arg2) {
+    gDPPipeSync(dlist++);
+    gDPLoadTextureBlock(dlist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
+    WRITE_GFX(dlist++, 0xFC20FE04, 0xFF0FF3FF);
+    gDPSetPrimColor(dlist++, 0, 0, 0, 0, 0, arg1->sub->val);
+    WRITE_GFX(dlist++, 0xE3000A01, 0x00100000);
+    WRITE_GFX(dlist++, 0xD9000000, 0);
+    WRITE_GFX(dlist++, 0xD9FFFFFF, 0x00210005);
+    WRITE_GFX(dlist++, 0xE3000F00, 0);
+    WRITE_GFX(dlist++, 0xD7000902, 0xFFFFFFFF);
+    WRITE_GFX(dlist++, 0xE200001C, 0xC8104A50);
+    WRITE_GFX(dlist++, 0xF2000000 | ((s32)arg1->sub->unk3C & 0xFFF), 0x0107C07C);
+    WRITE_GFX(dlist++, 0xF5181000, 0x0101785E);
+    WRITE_GFX(dlist++, (((s32)arg1->sub->unk40 & 0xFFF) | 0xF2000000) | (((s32)arg1->sub->unk40 & 0xFFF) << 12), 0x0207C07C);
+    WRITE_GFX(dlist++, 0xF5181000, 0x0201745D);
+    return dlist;
+}
 
 void func_80661AB4(EffectNode *arg0) {
     arg0->sub->unk3C -= arg0->sub->unk34;
@@ -395,7 +521,23 @@ void func_80661B84(u8 arg0) {
     D_80748A90[arg0].res1 = func_8066B0F8(0x19, 0x2EF, 1, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80661BF0.s")
+Gfx *func_80661BF0(Gfx *dlist, EffectNode *arg1, u8 arg2) {
+    EffectTableEntry *entry = &D_80748A90[arg2];
+    gDPPipeSync(dlist++);
+    gDPLoadTextureBlock_4b(dlist++, entry->res0, G_IM_FMT_CI, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
+    WRITE_GFX(dlist++, 0xFC121824, 0xFF33FFFF);
+    WRITE_GFX(dlist++, 0xE3000A01, 0);
+    WRITE_GFX(dlist++, 0xD9000000, 0);
+    WRITE_GFX(dlist++, 0xD9FFFFFF, 0x00200005);
+    WRITE_GFX(dlist++, 0xE3000F00, 0x00010000);
+    WRITE_GFX(dlist++, 0xD7000002, 0xFFFFFFFF);
+    WRITE_GFX(dlist++, 0xE200001C, 0x00552230);
+    WRITE_GFX(dlist++, 0xF2000000 | ((s32)arg1->sub->unk3C & 0xFFF), 0x000FC0FC);
+    WRITE_GFX(dlist++, 0xF5181000, 0x0101785E);
+    gDPLoadTLUT_pal16(dlist++, 0, entry->res1);
+    gDPSetTextureLUT(dlist++, G_TT_RGBA16);
+    return dlist;
+}
 
 void func_80661E34(EffectNode *arg0) {
     arg0->sub->unk3C -= arg0->sub->unk34;
@@ -524,7 +666,24 @@ void func_806627CC(u8 arg0) {
     D_80748A90[arg0].res1 = func_8066B0F8(7, 0x3DB, 1, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80662838.s")
+extern s32 D_80748B68;
+
+Gfx *func_80662838(Gfx *glist, EffectNode *arg1, u8 arg2) {
+    gDPPipeSync(glist++);
+    gDPLoadTextureBlock(glist++, D_80748A90[arg2].res0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
+    gDPLoadMultiBlock(glist++, D_80748A90[arg2].res1, 256, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, D_80748B68, D_80748B68);
+
+    gDPSetPrimColor(glist++, 0, arg1->unk4B, 255, 255, 255, 100);
+    WRITE_GFX(glist++, 0xFC272C03, 0x1FFC93FB);
+    WRITE_GFX(glist++, 0xE3000A01, 0x00100000);
+    WRITE_GFX(glist++, 0xD9000000, 0);
+    WRITE_GFX(glist++, 0xD9FFFFFF, 0x00200005);
+    WRITE_GFX(glist++, 0xE3000F00, 0);
+    WRITE_GFX(glist++, 0xD7000802, 0xFFFFFFFF);
+    WRITE_GFX(glist++, 0xE200001C, 0x0C184A50);
+
+    return glist;
+}
 
 void func_80662AB4(EffectNode *arg0) {
     arg0->sub->unk3C -= arg0->sub->unk34;
