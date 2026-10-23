@@ -1,20 +1,20 @@
-// func_80653DF0 (src/global/55B20.c): stage 6 regalloc: frame 0x30 exact, logic/insn order matches; target ranks the 0xFD constant above arg1 (s2=0xFD,s3=arg1,s4=arg2ext) and loads the word into v0 then moves to a1; permuter best 296
-extern s32 func_8066B0F8(s32, s32, s32, s32);
-
+// func_80653DF0 (src/global/55B20.c): stage 6: frame/logic match; s2=0xFD via extra local zero + dead if(zero){} block; remaining: tag/mask temp in t7 (target v0) so target copies v0->a1 and branches bnez to p+=8; permuter score 270
 void *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
     s32 count;
     u8 *p;
-    s32 temp_v0;
+    s32 zero;
 
     p = arg0;
-    count = 0;
-    if ((p != arg1) && (arg2 > 0)) {
+    zero = 0;
+    count = zero;
+    if ((p != arg1) && (arg2 > zero)) {
         do {
             if ((*(u32 *)p >> 0x18) == 0xFD) {
-                temp_v0 = *(s32 *)(p + 4);
-                if (((u32)(temp_v0 * 0x10) >> 0x1C) == 0) {
-                    *(s32 *)(p + 4) = func_8066B0F8(0x19, temp_v0, 0, 0);
+                if (((u32)(*(s32 *)(p + 4) * 0x10) >> 0x1C) == zero) {
+                    *(s32 *)(p + 4) = func_8066B0F8(0x19, *(s32 *)(p + 4), zero, zero);
                     count++;
+                }
+                if (zero) {
                 }
             }
             p += 8;
