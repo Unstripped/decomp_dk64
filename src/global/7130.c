@@ -1,5 +1,9 @@
+#define alCSPSetChlPan alCSPSetChlPan_unused
 #include "common.h"
+#undef alCSPSetChlPan
 #include "actor.h"
+
+void alCSPSetChlPan(ALCSPlayer *, f32, f32);
 
 extern u16 D_80745658[];
 
@@ -139,54 +143,489 @@ void func_80602DC4(s32 arg0, f32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80603450.s")
 
+extern u8 D_80745838;
+extern ALCSPlayer *D_8076BF24;
+extern s32 D_8076A0A8;
+
+void func_80602CE0(s16, s32, u8);
+
+#ifdef NON_MATCHING
+void func_806049CC(s32 arg0) {
+    u8 *ptr;
+    u8 val;
+
+    if (D_80745838 != 0) {
+        if (arg0 == 0 && (D_80745658[D_80770560[arg0]] & 1)) {
+            ((void (*)(ALCSPlayer *, s32, s32))alCSPSetChlPan)(gSeqPlayers[0], 0x3E99999A, 0x3FACCCCD);
+        }
+        ptr = &D_80770560[arg0];
+        val = *ptr;
+        if (val == 0x38) {
+            func_80602CE0(0x38, 0x3C00, 1);
+            val = *ptr;
+        }
+        if (val == 0x60) {
+            if (D_8076A0A8 == 0xB8) {
+                func_80602CE0(0x60, 0xE, 1);
+            } else {
+                func_80602CE0(0x60, 8, 1);
+                alCSPSetChlVol(D_8076BF24, 1, 0x7F);
+                alCSPSetChlVol(D_8076BF24, 2, 0x7F);
+            }
+            func_80602CE0(0x60, 0x10, 0);
+        }
+    } else {
+        if (arg0 == 0 && (D_80745658[D_80770560[arg0]] & 1)) {
+            ((void (*)(ALCSPlayer *, s32, s32))alCSPSetChlPan)(gSeqPlayers[0], 0, 0x3F800000);
+        }
+        ptr = &D_80770560[arg0];
+        val = *ptr;
+        if (val == 0x38) {
+            func_80602CE0(0x38, 0x3C00, 0);
+            val = *ptr;
+        }
+        if (val == 0x60) {
+            if (D_8076A0A8 == 0xB8) {
+                func_80602CE0(0x60, 0x1E, 1);
+                return;
+            }
+            func_80602CE0(0x60, 0x10, 1);
+            func_80602CE0(0x60, 8, 0);
+            alCSPSetChlVol(D_8076BF24, 1, 0x64);
+            alCSPSetChlVol(D_8076BF24, 2, 0x64);
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_806049CC.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80604BE8.s")
+extern s16 D_80770628[];
+extern f32 D_80770B68[];
+extern f32 D_80770BC0[];
+extern f32 D_80770C18[];
+extern f32 D_80770C70[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80604C80.s")
+void func_80604BE8(u8 arg0, f32 arg1, f32 arg2) {
+    s32 temp;
+    s32 var_v0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80604CBC.s")
+    if (arg0 != -1) {
+        if (arg2 == 0.0f) {
+            temp = D_80770628[arg0] * 4;
+            *(f32 *)((u8 *)D_80770C18 + temp) = arg1;
+            var_v0 = temp;
+            *(f32 *)((u8 *)D_80770C70 + temp) = arg1;
+        } else {
+            temp = D_80770628[arg0] * 4; *(f32 *)((u8 *)D_80770B68 + temp) = arg1; var_v0 = temp;
+        } *(f32 *)((u8 *)D_80770BC0 + var_v0) = arg2;
+    }
+}
+
+extern u8 D_80770CE0[];
+
+void func_80604C80(arg0, arg1)
+u8 arg0;
+u8 arg1;
+{
+    if (arg0 != -1) {
+        D_80770CE0[D_80770628[arg0]] = arg1;
+    }
+}
+
+typedef struct Aud7130B_Actor {
+    char pad0[0x6E];
+    s16 unk6E[2];
+    s16 unk72;
+} Aud7130B_Actor;
+
+extern s16 D_80770710[];
+
+s16 func_80604D70(Actor *, s16, u8, u8, u8, f32, s8);
+void func_80605314(Actor *, u8);
+
+void func_80604CBC(Actor *arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6, s8 arg7) {
+    if (((Aud7130B_Actor *)arg0)->unk6E[arg4] != -1) {
+        if (arg1 == D_80770710[D_80770628[((Aud7130B_Actor *)arg0)->unk6E[arg4]]]) {
+            return;
+        }
+        func_80605314(arg0, arg4);
+    }
+    ((Aud7130B_Actor *)arg0)->unk6E[arg4] = func_80604D70(arg0, arg1, arg2, arg3, arg5, arg6, arg7);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80604D70.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80605044.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80605314.s")
+
+void func_80605380(s16);
+
+void func_80605314(Actor *arg0, u8 arg1) {
+    if (((Aud7130B_Actor *)arg0)->unk6E[arg1] >= 0) {
+        func_80605380(((Aud7130B_Actor *)arg0)->unk6E[arg1]);
+        ((Aud7130B_Actor *)arg0)->unk6E[arg1] = -1;
+        if (arg1 == 0) {
+            ((Aud7130B_Actor *)arg0)->unk72 = 0;
+        }
+    }
+}
+
+extern s16 D_80770740[];
+extern s16 D_80770658[];
+extern u8 D_807706F8[];
+extern s16 D_807707A0[][22];
+extern s16 D_807705F8[];
+extern void *D_807705A0[];
+
+void func_80732354(s32, s32, s32, s32);
+
+#ifdef NON_MATCHING
+void func_80605380(s16 arg0) {
+    s16 *t3 = &D_80770628[arg0];
+    s16 a1 = *t3;
+    s16 t0 = --D_80770740[a1];
+    s16 *t2;
+
+    if (t0 != 0) {
+        s16 v1;
+
+        t2 = &D_80770658[arg0];
+        v1 = D_807707A0[a1][t0];
+        D_80770658[v1] = D_80770658[D_807707A0[a1][*t2]];
+        D_807707A0[a1][*t2] = v1;
+    } else {
+        D_80770710[a1] = 0;
+        D_807706F8[a1] = 0;
+        t2 = &D_80770658[arg0];
+    }
+
+    if (t0 < 0 || t0 >= 23) {
+        func_80732354(9, t0, 0, 0);
+        a1 = *t3;
+        t0 = D_80770740[a1];
+    }
+
+    D_807707A0[a1][t0] = -1;
+    D_807705F8[arg0] = -1;
+    D_807705A0[arg0] = NULL;
+    *t3 = -1;
+    *t2 = -1;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80605380.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80605510.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_806057F8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80608528.s")
+void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_806085DC.s")
+void func_80608528(Actor *arg0, s16 arg1, u8 arg2, s16 arg3, u8 arg4) {
+    s32 var_v0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060866C.s")
+    if (arg0->unk80 + 20.0f < arg0->unkAC && (arg1 < 0x355 || arg1 >= 0x35E)) {
+        var_v0 = 0x5A;
+    } else {
+        var_v0 = 0;
+    }
+    func_806086CC(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, 0x4B, 0.3f, var_v0);
+}
+
+typedef struct Aud7130B_Struct807F6000 {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    char padC[0x84];
+} Aud7130B_Struct807F6000;
+extern Aud7130B_Struct807F6000 *D_807F6000;
+
+void func_806085DC(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6) {
+    func_806086CC(D_807F6000[arg0].unk0, D_807F6000[arg0].unk4, D_807F6000[arg0].unk8, arg1, arg2, arg3, arg4, arg5, arg6, 0);
+}
+
+void func_8060956C(f32, f32, f32, s16, s32, f32, s32, s32);
+
+void func_8060866C(Actor *arg0, s16 arg1, u8 arg2, f32 arg3, u8 arg4, u8 arg5) {
+    func_8060956C(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, arg5);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_806086CC.s")
 
+u32 func_806119A0(void);
+void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, s32 *);
+void n_alSndpDeallocate(s32);
+void n_alSndpPlayAt(s32, s32);
+extern s32 D_807457D0[];
+extern u8 D_807457D8;
+extern s32 D_807457E4[];
+extern u8 D_80745834;
+extern s32 D_8076D1F8;
+extern s32 D_8076D1FC;
+extern u8 D_8077058E;
+
+#ifdef NON_MATCHING
+void func_80608DA8(s16 arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4) {
+    s32 vol;
+    f32 pan;
+    f32 pitch;
+    u8 reverb;
+    f32 orig_pitch;
+    f64 var_fv0;
+
+    vol = (s32)(((f64)((arg1 & 0xFF) * 0x7FFF)) / 255.0);
+    if (vol < 1001) {
+        return;
+    }
+
+    pitch = (f64)(u32)(arg2 & 0xFF) / 127.0;
+    orig_pitch = pitch;
+    var_fv0 = (f64)(u32)(arg3 & 0xFF);
+    pan = ((f64)(u32)func_806119A0() / 4294967295.0) * (2.0 * var_fv0) + (63.5 - var_fv0);
+    reverb = 0;
+
+    if (arg3 != 0) {
+        vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * (var_fv0 / 155.0))) * (f64)vol;
+        pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * (var_fv0 / 100.0)) + ((f64)orig_pitch - (var_fv0 / 255.0));
+    }
+
+    if (D_8077058E >= 21) {
+        reverb = (D_8077058E * 100) / 255;
+    }
+    if (arg4 != 0) {
+        reverb |= 0x80;
+    }
+
+    if (D_807457D0[D_807457D8] != 0) {
+        n_alSndpDeallocate(D_807457D0[D_807457D8]);
+    }
+    n_alSndpAllocate(D_8076D1F8, arg0, (u16)vol, (u8)pan, pitch, reverb, &D_807457D0[D_807457D8]);
+    n_alSndpPlayAt(D_807457D0[D_807457D8], 0);
+    D_807457D8 ^= 1;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80608DA8.s")
+#endif
+
+#ifdef NON_MATCHING
+s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
+    s16 res = -1;
+    s32 i;
+    f32 var_fa0 = arg3;
+
+    if (arg4 != 0) {
+        f64 var_fv0 = (f64)(u32)arg4;
+        f64 r1 = (f64)(u32)func_806119A0() / 4294967295.0;
+        f64 r2;
+
+        arg1 = (1.0 - (r1 * (var_fv0 / 155.0))) * (f64)arg1;
+        r2 = (f64)(u32)func_806119A0() / 4294967295.0;
+        var_fa0 = (r2 * (var_fv0 / 100.0)) + ((f64)arg3 - (var_fv0 / 255.0));
+    }
+
+    for (i = 20; i > 0; i--) {
+        u8 next = D_80745834 + 1;
+        if (D_807457E4[D_80745834] == 0) {
+            break;
+        }
+        D_80745834 = next;
+        if (D_80745834 == 20) {
+            D_80745834 = 0;
+        }
+    }
+
+    if (i > 0) {
+        osSetThreadPri(NULL, 26);
+        if (D_8077058E >= 21) {
+            s32 reverb = (D_8077058E * 100) / 255;
+            s32 min_rev = arg5 & 0x7F;
+            if (reverb < min_rev) {
+                reverb = min_rev;
+            }
+            arg5 = reverb | (arg5 & 0x80);
+        }
+
+        if (arg0 < 0x800) {
+            n_alSndpAllocate(D_8076D1F8, arg0, (u16)arg1, (u8)arg2, var_fa0, arg5, &D_807457E4[D_80745834]);
+        } else {
+            n_alSndpAllocate(D_8076D1FC, arg0 - 0x7FF, (u16)arg1, (u8)arg2, var_fa0, arg5, &D_807457E4[D_80745834]);
+        }
+
+        if (arg0 == 0x137) {
+            n_alSndpPlayAt(D_807457E4[D_80745834], 100);
+        }
+
+        if (D_807457E4[D_80745834] != 0) {
+            res = D_80745834;
+        }
+        osSetThreadPri(NULL, 10);
+    }
+    return res;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80609140.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060956C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80609B80.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A1B0.s")
+typedef struct {
+    u8 pad[0xF8];
+} Aud7130C_CSeq;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A398.s")
+extern s32 D_8000DDCC;
+extern s32 D_8076D200[];
+extern void *D_8076BF38[];
+extern Aud7130C_CSeq D_8076BF48[];
+extern u8 D_80770598[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A4D0.s")
+void *func_80610FE8(s32);
+void heapFree(void *);
+void func_8060B140(s32, void *, s32 *, s32, s32, s32, void *);
+void n_alCSeqNew(void *, void *);
+void func_80737F40(ALCSPlayer *);
+void func_8060A398(s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A500.s")
+void func_8060A1B0(s32 arg0, u8 arg1, f32 arg2) {
+    u32 temp;
+    temp = 0;
+    alSeqpStop((ALSeqPlayer *)gSeqPlayers[arg0]);
+    if (alCSPGetState(gSeqPlayers[arg0]) != 0) {
+        do {
+            temp++;
+            if (alCSPGetState(gSeqPlayers[arg0]) == 0) {
+                break;
+            }
+        } while (temp != 0x1E8480);
+    }
+    if (temp >= 0x1E8480) {
+        alSeqpStop((ALSeqPlayer *)gSeqPlayers[arg0]);
+        if (alCSPGetState(gSeqPlayers[arg0]) != 0 && temp < 0x3D0900) {
+            do {
+                temp++;
+                if (alCSPGetState(gSeqPlayers[arg0]) == 0) {
+                    break;
+                }
+            } while (temp < 0x3D0900);
+        }
+    }
+    D_80770598[arg0] = 0;
+    D_80770568[arg0] = arg2;
+    D_80770560[arg0] = arg1;
+    temp = (s32)func_80610FE8(0x8000);
+    {
+        s32 base = D_8076D200[arg1];
+        s32 addr = base + D_8000DDCC;
+        s32 len = D_8076D200[arg1 + 1] - base;
+        if (len & 1) {
+            len++;
+        }
+        func_8060B140(addr, D_8076BF38[arg0], &len, 0x80, 0, 1, (void *)temp);
+    }
+    heapFree((void *)temp);
+    n_alCSeqNew(&D_8076BF48[arg0], D_8076BF38[arg0]);
+    alSeqpSetSeq((ALSeqPlayer *)gSeqPlayers[arg0], (ALSeq *)&D_8076BF48[arg0]);
+    func_80737F40(gSeqPlayers[arg0]);
+    func_8060A398(arg0);
+    alCSPPlay(gSeqPlayers[arg0]);
+}
+
+extern s8 D_80745840;
+extern s8 D_8074583C;
+extern s16 D_807454F0[];
+extern f32 D_807457B8[];
+
+void func_8060A398(s32 arg0) {
+    f32 var_fv0 = D_80745840;
+    s32 temp_t7 = D_80770560[arg0] * 2;
+    s32 temp_t8 = *(u16 *)((u8 *)D_80745658 + temp_t7) & 0xC00;
+    switch (temp_t8) {
+    case 0x400:
+        var_fv0 = D_8074583C;
+        break;
+    case 0x800:
+        if (!((f32)D_8074583C < var_fv0)) {
+            var_fv0 = D_8074583C;
+        }
+        break;
+    }
+    alSeqpSetVol((ALSeqPlayer *)gSeqPlayers[arg0], (s16)(s32)((f64)((((f32)*(s16 *)((u8 *)D_807454F0 + temp_t7)) * D_80770568[arg0]) * D_807457B8[arg0]) * ((f64)var_fv0 / 40.0) * 25000.0 / 32767.0));
+}
+
+void func_8060A4D0(s32 arg0, f32 arg1) {
+    D_807457B8[arg0] = arg1;
+    func_8060A398(arg0);
+}
+
+extern f32 D_80770578[];
+
+void func_8060A500(void) {
+    s8 i;
+    for (i = 0; i < 4; i++) {
+        if (D_80770598[i]) {
+            f32 curr = D_80770568[i];
+            f32 target = D_80770578[i];
+            f32 diff;
+            D_80770568[i] = curr + (target - curr) * 0.075;
+            do {} while (0);
+            curr = D_80770568[i];
+            if (curr < target) {
+                diff = target - curr;
+            } else {
+                diff = -(target - curr);
+            }
+            if (diff < 0.05) {
+                D_80770568[i] = target;
+                D_80770598[i] = 0;
+            }
+            func_8060A398(i);
+        }
+    }
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A60C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A634.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A670.s")
+void func_8060A634(s32 arg0, f32 arg1) {
+    D_80770578[arg0] = arg1;
+    D_80770568[arg0] = arg1;
+    func_8060A398(arg0);
+}
+
+extern f32 D_80770588;
+void func_8060A1B0(s32, u8, f32);
+
+void func_8060A670(s32 arg0, u8 arg1) {
+    func_8060A1B0(arg0, arg1, D_80770588);
+}
+
+void func_806049CC(s32);
+#ifdef NON_MATCHING
+void func_8060A6A0(s32 arg0, u8 arg1, f32 arg2) {
+    f64 var_fv0;
+    f32 pan, vol;
+
+    func_8060A1B0(arg0, arg1, arg2);
+    var_fv0 = (f64)(u32)D_8077058E;
+    pan = (var_fv0 * 0.3) / 255.0;
+    vol = ((var_fv0 * 0.35) / 255.0) + 1.0;
+    if (arg0 != 0) {
+        if (D_80745658[D_80770560[arg0]] & 1) {
+            ((void (*)(ALCSPlayer *, f32, f32))alCSPSetChlPan)(gSeqPlayers[arg0], pan, vol);
+        } else {
+            ((void (*)(ALCSPlayer *, f32, f32))alCSPSetChlPan)(gSeqPlayers[arg0], 0.0f, 1.0f);
+        }
+    }
+    func_806049CC(arg0);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A6A0.s")
+#endif
