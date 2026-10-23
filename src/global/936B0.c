@@ -662,9 +662,143 @@ void func_8069329C(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8069346C.s")
 
+#include "actor.h"
+
+typedef struct M93D_Actor124 {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+} M93D_Actor124;
+
+typedef struct M93D_ActorExtra {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ u8 unk4;
+    /* 0x05 */ u8 pad5[0x13 - 0x05];
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ u8 pad18[4];
+    /* 0x1C */ s32 unk1C;
+} M93D_ActorExtra;
+
+typedef struct M93D_Actor {
+    /* 0x00 */ u8 pad0[0x60];
+    /* 0x60 */ u32 unk60;
+    /* 0x64 */ u32 unk64;
+    /* 0x68 */ u16 unk68;
+    /* 0x6A */ u16 unk6A;
+    /* 0x6C */ u16 unk6C;
+    /* 0x6E */ u8 pad6E[0x7C - 0x6E];
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ f32 unk84;
+    /* 0x88 */ u8 pad88[0xB8 - 0x88];
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[4];
+    /* 0xC0 */ f32 unkC0;
+    /* 0xC4 */ u8 padC4[0xEE - 0xC4];
+    /* 0xEE */ s16 unkEE;
+    /* 0xF0 */ u8 padF0[4];
+    /* 0xF4 */ s16 unkF4;
+    /* 0xF6 */ s16 unkF6;
+    /* 0xF8 */ u8 padF8[2];
+    /* 0xFA */ s16 unkFA;
+    /* 0xFC */ u8 unkFC;
+    /* 0xFD */ u8 unkFD;
+    /* 0xFE */ u8 padFE[0x124 - 0xFE];
+    /* 0x124 */ M93D_Actor124 *unk124;
+    /* 0x128 */ u8 pad128[0x144 - 0x128];
+    /* 0x144 */ u8 unk144;
+    /* 0x145 */ u8 pad145[0x154 - 0x145];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 pad155[0x16E - 0x155];
+    /* 0x16E */ u8 unk16E;
+    /* 0x16F */ u8 unk16F;
+    /* 0x170 */ u8 pad170[4];
+    /* 0x174 */ void *unk174;
+} M93D_Actor;
+
+#define M93D_ACTOR ((M93D_Actor *)D_807FBB40)
+
+extern s16 D_80750358;
+extern s16 D_8075036C;
+
+void func_8069329C(void);
+extern u8 D_8071FB34;
+extern u8 D_807201A0;
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80693EC0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_806944BC.s")
+void func_806944BC(void) {
+    M93D_ActorExtra *sp44;
+    s32 var_a0;
+    s32 sp3C;
+    s32 var_s1;
+    sp44 = (M93D_ActorExtra *)M93D_ACTOR->unk174;
+    if (!(M93D_ACTOR->unk60 & 0x10)) {
+        M93D_ACTOR->unk6A &= 0xFFFE;
+        M93D_ACTOR->unkEE = (s16)((M93D_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        M93D_ACTOR->unkB8 = M93D_ACTOR->unk124->unk4;
+        M93D_ACTOR->unkC0 = M93D_ACTOR->unk124->unk8;
+        M93D_ACTOR->unk144 = 0x3C;
+        func_8066EB40(D_807FBB40, 60.0f);
+        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
+        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        func_807149FC(-1);
+        func_807149B8(1);
+        func_80714A28(4);
+        func_80714C08(&D_807201A0, M93D_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        sp44->unk14 = M93D_ACTOR->unk124->unkC;
+        sp44->unk0 = D_8076A068;
+        M93D_ACTOR->unk60 |= 0x01080000;
+        M93D_ACTOR->unk16E = 0x3C;
+        M93D_ACTOR->unk16F = 0x3C;
+        sp44->unk13 = (u8)(u32)M93D_ACTOR->unk124->unk10;
+        sp44->unk1C = 0;
+    }
+    sp3C = D_80750358;
+    if (sp44->unk13 & 2) {
+        var_a0 = 2;
+        if (D_807FC928 >= 2) {
+            var_a0 = 3;
+        }
+        func_80690C60(var_a0, D_807FBB40, &D_807201A0, 0);
+    }
+    if (sp44->unk13 & 4) {
+        sp3C = D_8075036C;
+    }
+    func_8067ACB4(D_807FBB40);
+    func_806651FC(D_807FBB40);
+    func_80665564(D_807FBB40, 0.0f);
+    if (func_80665558() != 0 ||
+        M93D_ACTOR->unkFD != 0 ||
+        ((M93D_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
+        D_807FBB85 != 0 ||
+        (M93D_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
+        func_807149B8(1);
+        func_80714950(0x1006E);
+        func_8071498C(func_8071A8B0);
+        func_80714CC0(&D_8071FB34, 0.45f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+        func_80608528(D_807FBB40, 0x1E5, 0xFF, 0x7F, 0x1E);
+        actorDespawn(D_807FBB40);
+        if (D_80750AD0 == 0) {
+            for (var_s1 = 0; var_s1 != 0xC; var_s1 += 2) {
+                func_807149B8(1);
+                func_80714950(0x0B000000 + var_s1);
+                func_8071498C(func_8071ABDC);
+                func_80714CC0(&D_807200EC, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+            }
+        }
+    }
+    if (D_807FC928 >= 2) {
+        sp3C = (s32)((f32)sp3C * 1.4f);
+    }
+    if ((u32)(sp44->unk0 + sp3C) < D_8076A068) {
+        actorDespawn(D_807FBB40);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80694948.s")
 
