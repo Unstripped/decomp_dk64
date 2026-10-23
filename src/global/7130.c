@@ -61,10 +61,10 @@ s16 func_806531B8(f32, f32, f32, s32);
 void func_80602A94(s32, f32);
 #ifdef NON_MATCHING
 void func_80602498(void) {
-    u8 i;
+    Aud7130A2_Struct7130_Entry *entry;
     s16 count;
     s16 v0;
-    Aud7130A2_Struct7130_Entry *entry;
+    u8 i;
 
     D_80745650 = 1;
     if (D_80745654 != 0) {
@@ -690,7 +690,7 @@ void func_80603450(void) {
 
 extern ALCSPlayer *D_8076BF24;
 
-void func_80602CE0(s16, s32, u8);
+void func_80602CE0();
 
 void func_806049CC(s32 arg0) {
     if (D_80745838 != 0) {
@@ -1211,27 +1211,19 @@ void func_80608DA8(s16 arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4) {
 
 #ifdef NON_MATCHING
 s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
-    s16 res = -1;
-    s32 i;
-    f32 var_fa0 = arg3;
+    s16 res;
+    s16 i;
 
     if (arg4 != 0) {
-        f64 var_fv0 = (f64)(u32)arg4;
-        f64 r1 = (f64)(u32)func_806119A0() / 4294967295.0;
-        f64 r2;
-
-        arg1 = (1.0 - (r1 * (var_fv0 / 155.0))) * (f64)arg1;
-        r2 = (f64)(u32)func_806119A0() / 4294967295.0;
-        var_fa0 = (r2 * (var_fv0 / 100.0)) + ((f64)arg3 - (var_fv0 / 255.0));
+        arg1 = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg4 / 155.0))) * (f64)arg1;
+        arg3 = (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg4 / 100.0)) + ((f64)arg3 - ((f64)(u32)arg4 / 255.0));
     }
 
     for (i = 20; i > 0; i--) {
-        u8 next = D_80745834 + 1;
         if (D_807457E4[D_80745834] == 0) {
             break;
         }
-        D_80745834 = next;
-        if (D_80745834 == 20) {
+        if (++D_80745834 == 20) {
             D_80745834 = 0;
         }
     }
@@ -1240,29 +1232,33 @@ s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
         osSetThreadPri(NULL, 26);
         if (D_8077058E >= 21) {
             s32 reverb = (D_8077058E * 100) / 255;
-            s32 min_rev = arg5 & 0x7F;
-            if (reverb < min_rev) {
-                reverb = min_rev;
+            if (reverb < (arg5 & 0x7F)) {
+                reverb = arg5 & 0x7F;
             }
             arg5 = reverb | (arg5 & 0x80);
         }
 
         if (arg0 < 0x800) {
-            n_alSndpAllocate(D_8076D1F8, arg0, (u16)arg1, (u8)arg2, var_fa0, arg5, &D_807457E4[D_80745834]);
+            n_alSndpAllocate(D_8076D1F8, arg0, (u16)arg1, (u8)arg2, arg3, arg5, &D_807457E4[D_80745834]);
         } else {
-            n_alSndpAllocate(D_8076D1FC, arg0 - 0x7FF, (u16)arg1, (u8)arg2, var_fa0, arg5, &D_807457E4[D_80745834]);
+            n_alSndpAllocate(D_8076D1FC, arg0 - 0x7FF, (u16)arg1, (u8)arg2, arg3, arg5, &D_807457E4[D_80745834]);
         }
 
         if (arg0 == 0x137) {
             n_alSndpPlayAt(D_807457E4[D_80745834], 100);
         }
 
+        res = -1;
         if (D_807457E4[D_80745834] != 0) {
-            res = D_80745834;
+            res = (s16)D_80745834;
+        } else {
+            res = -1;
         }
         osSetThreadPri(NULL, 10);
+        return res;
     }
-    return res;
+
+    return -1;
 }
 #else
 
