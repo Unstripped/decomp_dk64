@@ -269,9 +269,93 @@ void func_8066E72C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s
     temp_v0->unkAC = 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E854.s")
+typedef struct M70G_ModelSubNode {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ struct M70G_ModelSubNode *next;
+} M70G_ModelSubNode;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E8E4.s")
+typedef struct M70G_ModelNode {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s32 unk20;
+    /* 0x24 */ u16 unk24;
+    /* 0x26 */ u8 unk26;
+    /* 0x27 */ u8 unk27;
+    /* 0x28 */ struct M70G_ModelNode *next;
+} M70G_ModelNode;
+
+void func_8066E854(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+    f32 pad[3];
+    ActorSub140 *sub;
+    M70G_ModelSubNode *node;
+    M70G_ModelSubNode **head;
+    M70G_ModelSubNode *curr;
+
+    sub = arg0->unk140;
+    node = (M70G_ModelSubNode *)func_80610FE8(sizeof(M70G_ModelSubNode));
+    node->next = NULL;
+    head = (M70G_ModelSubNode **)&sub->unk90;
+    node->unk0 = arg1;
+    node->unk4 = arg2;
+    node->unk8 = arg3;
+    node->unk18 = arg4;
+    node->unkC = 0;
+    node->unk10 = 0;
+    node->unk14 = 0;
+    curr = (M70G_ModelSubNode *)sub->unk90;
+    if (curr != NULL) {
+        do {
+            head = &curr->next;
+            curr = curr->next;
+        } while (curr != NULL);
+    }
+    *head = node;
+}
+
+void func_8066E8E4(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
+    f32 pad[3];
+    ActorSub140 *sub;
+    M70G_ModelNode *node;
+    M70G_ModelNode **head;
+    M70G_ModelNode *curr;
+
+    sub = arg0->unk140;
+    node = (M70G_ModelNode *)func_80610FE8(sizeof(M70G_ModelNode));
+    node->next = NULL;
+    head = (M70G_ModelNode **)&sub->unk8C;
+    node->unk0 = arg1;
+    node->unk4 = arg2;
+    node->unk8 = arg3;
+    node->unkC = arg4;
+    node->unk20 = arg5;
+    node->unk10 = 0;
+    node->unk14 = 0;
+    node->unk18 = 0;
+    node->unk1C = 0;
+    node->unk26 = 1;
+    node->unk24 = 0;
+    node->unk27 = 0;
+    curr = (M70G_ModelNode *)sub->unk8C;
+    if (curr != NULL) {
+        do {
+            head = &curr->next;
+            curr = curr->next;
+        } while (curr != NULL);
+    }
+    *head = node;
+}
 
 void func_8066E990(Actor *arg0) {
     ActorSub140 *sub;
