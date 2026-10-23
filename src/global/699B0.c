@@ -457,7 +457,27 @@ u8 func_80667174(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_806679BC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_80668520.s")
+s32 func_80666FC8(f32, f32, f32, s32);
+
+s32 func_80668520(f32 *arg0, f32 arg1, f32 arg2, f32 *arg3) {
+    f32 diff;
+    f64 val;
+
+    val = (f64)(arg2 * 6.0f);
+    if (val > 1614.0) {
+        diff = val - 1614.0;
+    } else {
+        diff = -(val - 1614.0);
+    }
+    if (diff < 40.0f) {
+        D_807F94AE = 1;
+    }
+    if (func_80666FC8(*arg0, 684.0f, arg1, 1)) {
+        *arg3 = 114.0f;
+        return 1;
+    }
+    return 0;
+}
 
 typedef struct R2C_TriangleS {
     s16 x[3];
