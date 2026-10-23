@@ -1,0 +1,51 @@
+diff --git a/libc_impl.c b/libc_impl.c
+index a13307d..95169e5 100644
+--- a/libc_impl.c
++++ b/libc_impl.c
+@@ -1131,12 +1131,44 @@ int wrapper_umask(int mode) {
+     return umask(mode);
+ }
+ 
++static uint32_t cvt_buf_addr = 0;
++static size_t cvt_buf_size = 0;
++
++static uint32_t cvt_common(uint8_t* mem, char* res, uint32_t decpt_addr, int decpt, uint32_t sign_addr, int sign) {
++    if (decpt_addr != 0) {
++        MEM_S32(decpt_addr) = decpt;
++    }
++    if (sign_addr != 0) {
++        MEM_S32(sign_addr) = sign;
++    }
++    size_t len = (res != NULL) ? strlen(res) + 1 : 1;
++    if (cvt_buf_addr == 0 || cvt_buf_size < len) {
++        size_t alloc_size = (len < 1024) ? 1024 : len;
++        cvt_buf_addr = wrapper_malloc(mem, (uint32_t)alloc_size);
++        cvt_buf_size = alloc_size;
++    }
++    if (cvt_buf_addr != 0) {
++        if (res != NULL) {
++            strcpy_str2mem(mem, cvt_buf_addr, res);
++        } else {
++            MEM_S8(cvt_buf_addr) = '\0';
++        }
++    }
++    return cvt_buf_addr;
++}
++
+ uint32_t wrapper_ecvt(uint8_t* mem, double number, int ndigits, uint32_t decpt_addr, uint32_t sign_addr) {
+-    assert(0);
++    int decpt = 0;
++    int sign = 0;
++    char* res = ecvt(number, ndigits, &decpt, &sign);
++    return cvt_common(mem, res, decpt_addr, decpt, sign_addr, sign);
+ }
+ 
+ uint32_t wrapper_fcvt(uint8_t* mem, double number, int ndigits, uint32_t decpt_addr, uint32_t sign_addr) {
+-    assert(0);
++    int decpt = 0;
++    int sign = 0;
++    char* res = fcvt(number, ndigits, &decpt, &sign);
++    return cvt_common(mem, res, decpt_addr, decpt, sign_addr, sign);
+ }
+ 
+ double wrapper_sqrt(double v) {

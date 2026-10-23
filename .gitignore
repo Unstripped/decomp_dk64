@@ -4,6 +4,7 @@
 *.v64
 /bin/
 /build/
+/build_nonmatching/
 /asm/
 /assets/
 *.ld

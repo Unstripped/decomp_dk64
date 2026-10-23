@@ -3,9 +3,9 @@
 Fill `<...>` and write it to `local://brief.md`; each `task` `context` is then "Read
 `local://brief.md` FIRST and follow it exactly" plus that file's facts. One `tasks[]` item
 per agent with its target file, mode, and function list (near-misses first, each with its
-last known diff note).
+last known diff note and stage reached).
 
-```
+````
 # Goal
 Matching decompilation of Donkey Kong 64 (USA), repo <repo root> (ALWAYS use absolute paths
 under it for read/edit/write). Read AGENTS.md first:
@@ -68,11 +68,50 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
   to GLOBAL_ASM, delete the declarations you added for it. Don't reorder or reformat.
 - Skip formatters and linters. NEVER edit `tools/`, `Makefile` or the splat configs.
 
+# Large functions and near-misses
+- Stage order for non-trivial functions (OoT IDO 5.3 -O2 guide): (1) behaviourally equivalent C
+  (m2c), (2) basic-block order, (3) large reorderings, (4) same callee-saved register set
+  and frame size, (5) small reorderings, (6) register allocation. Report the stage reached
+  (stages 1–6); register-allocation tricks are wasted before stage 4.
+- Why large functions are hard: IDO's uopt assigns registers by priority-based coloring
+  (Chow & Hennessy, TOPLAS 1990): priority = estimated savings of a live range weighted by
+  block frequency and normalised by its length, highest first, with live-range splitting;
+  so a change in one loop shifts registers in another.
+- Diagnose register allocation with `tools/uopt_trace.sh [-l LEVEL] [-s src/<seg>/<file>.c] <file.c> [FUNC]`
+  on your private copy before guessing (level 6 = coloring trace, 5 = live ranges/savings;
+  see header comments in `tools/uopt_trace.sh` for candidate table and coloring order):
+  compare which candidate got which register with the target asm.
+- Permuter at stages 5–6: `tools/permute.py setup <seg> <FUNC> [--from FILE.c] [--src src/<seg>/<file>.c]`,
+  `tools/permute.py run <dir> -j 2 --seconds <S>` (always passes `--stack-diffs` and `--stop-on-zero`),
+  `tools/permute.py best <dir>`. Search-hint rule: permuter mutations are NOT semantics-preserving
+  (moves statements, randomises types, deletes if statements) and score checks disassembly
+  only (stack diffs with `--stack-diffs`, no relocations or data). A result is a search hint:
+  rewrite the idea into readable C that keeps the asm's behaviour, then verify with fdiff.
+  Never paste permuter output unreviewed. Several agents share the CPU: always pass an
+  explicit small `-j 2` and a `--seconds` limit. NEVER run `tools/dk make`.
+- NON_MATCHING parking: a function that will not match but whose C is behaviourally equivalent
+  (remaining diff only regalloc/scheduling/stack layout, reviewed) may be parked in your copy as:
+
+```c
+#ifdef NON_MATCHING
+<C>
+#else
+
+#pragma GLOBAL_ASM("asm/...")
+#endif
+```
+
+  Notice the required blank line before `#pragma GLOBAL_ASM`. Check that the parked C
+  compiles with `tools/fdiff.sh --non-matching <copy> <src> [FUNC]` (compile only) and that
+  the plain `tools/fdiff.sh` still gives OK/TEXT OK. Parked functions still count as
+  unmatched. If not genuinely equivalent, keep the draft in `drafts/` instead.
+
 # Method
 Your budget is finite: near-misses first, then never-attempted functions from smallest to
 largest. After a serious effort on one function, move on and come back if budget remains.
 Use the whole budget before reporting. A function that won't match gets its exact
-original `#pragma GLOBAL_ASM(...)` line back, and its best draft (the function plus the
+original `#pragma GLOBAL_ASM(...)` line back (or is parked under `#ifdef NON_MATCHING`
+if behaviourally equivalent; see above), and its best draft (the function plus the
 local declarations it needs) is persisted for later sessions with
 `python3 tools/drafts.py save <seg> <FUNC> .scratch/<YourName>/<FUNC>_best.c --note "<closest diff, what you tried>"`,
 where `<FUNC>_best.c` holds ONLY that function and the declarations it needs (never your
@@ -82,9 +121,10 @@ whole private copy: `save` rejects files with `#pragma GLOBAL_ASM` lines)
 TEXT OK: never leave non-matching C in it.
 
 # Report (final message)
-1. Newly matched functions; remaining GLOBAL_ASM with a one-line closest-diff note each
-   (and confirm you saved its draft).
+1. Newly matched functions; remaining GLOBAL_ASM (or parked NON_MATCHING) with stage
+   reached (stages 1–6), a one-line closest-diff note each (and confirm you saved its draft
+   or parked it under NON_MATCHING).
 2. Names ONLY for behaviour you confirmed: `func_X -> <prefix>CamelCase` + one-line reason.
 3. New IDO quirks not already in the ok-fine note (one bullet each).
 4. Final file path.
-```
+````

@@ -26,10 +26,31 @@ RUN ARCH="$(dpkg --print-architecture)"; \
     && curl -fsSL "https://github.com/decompals/ido-static-recomp/releases/download/v1.2/ido-5.3-recomp-${SUFFIX}.tar.gz" \
        | tar -xz -C /opt/ido5.3
 
+# IDO 5.3 trace compiler for tools/uopt_trace.sh: uopt rebuilt from ido-static-recomp v1.2 with
+# tools/ido/ecvt_fcvt.patch (upstream stubs ecvt/fcvt with assert(0), which aborts -Wo,-zdbug traces).
+# Installed as /opt/ido5.3-trace; the production compiler /opt/ido5.3 stays the release binaries.
+COPY tools/ido/ecvt_fcvt.patch /tmp/ecvt_fcvt.patch
+RUN <<'EOF'
+set -e
+git clone --depth 1 --branch v1.2 https://github.com/decompals/ido-static-recomp /tmp/ido-recomp
+cd /tmp/ido-recomp
+patch -p1 < /tmp/ecvt_fcvt.patch
+make VERSION=5.3 RELEASE=1 IDO_TC=uopt setup
+make -j$(nproc) VERSION=5.3 RELEASE=1 IDO_TC=uopt build/5.3/out/uopt
+cp -r /opt/ido5.3 /opt/ido5.3-trace
+cp build/5.3/out/uopt /opt/ido5.3-trace/uopt
+rm -rf /tmp/ido-recomp /tmp/ecvt_fcvt.patch
+EOF
+
 # asm-processor (GLOBAL_ASM/INCLUDE_ASM with IDO), asm-differ (diff.py), m2c (decompiler).
 RUN git clone --depth 1 https://github.com/simonlindholm/asm-processor /opt/asm-processor \
     && git clone --depth 1 https://github.com/simonlindholm/asm-differ /opt/asm-differ \
     && git clone --depth 1 https://github.com/matt-kempster/m2c /opt/m2c
+
+# decomp-permuter (randomised C permutator for near-miss matching), pinned to commit 8556c81d80d1c1af98a858c8f4dc951357f29139
+RUN git clone https://github.com/simonlindholm/decomp-permuter /opt/decomp-permuter \
+    && cd /opt/decomp-permuter \
+    && git checkout 8556c81d80d1c1af98a858c8f4dc951357f29139
 
 # GNU gzip 1.2.4 -9 -n reproduces all 20 code/data gzip members in the ROM; modern gzip and zlib do not.
 RUN curl -fsSL "https://ftp.gnu.org/gnu/gzip/gzip-1.2.4.tar.gz" -o /tmp/gzip-1.2.4.tar.gz \

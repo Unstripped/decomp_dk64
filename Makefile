@@ -3,7 +3,13 @@
 VERSION   := us
 BASEROM   ?= donkey-kong.n64
 TARGET    := dk64.$(VERSION)
+NON_MATCHING ?= 0
+
+ifeq ($(NON_MATCHING),1)
+BUILD_DIR := build_nonmatching
+else
 BUILD_DIR := build
+endif
 
 CROSS   := mips-linux-gnu-
 AS      := $(CROSS)as
@@ -81,6 +87,9 @@ OPT_FLAGS := -O2
 MIPSBIT   := -mips2
 CFLAGS    := -c -Wab,-r4300_mul -non_shared -G 0 -Xcpluscomm -signed -woff 649,654,838,807 \
              -I include -D_FINALROM -DF3DEX_GBI_2 -DTARGET_N64 -D_MIPS_SZLONG=32
+ifeq ($(NON_MATCHING),1)
+CFLAGS    += -DNON_MATCHING
+endif
 
 # libultra 2.0J C sources live at src/<segment>/libultra/<ultralib dir>/<file>.c and
 # take decompals/ultralib's flags for TARGET=libultra_rom VERSION=J (makefiles/ido.mk):
@@ -175,9 +184,13 @@ OVERLAY_DATA_BINS := $(OVERLAYS:%=$(BUILD_DIR)/%.data.bin)
 OVERLAY_SHA1S     := $(OVERLAYS:%=dk64.%.$(VERSION).sha1)
 
 check: $(ROM) $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN) $(OVERLAY_TEXT_BINS) $(OVERLAY_DATA_BINS)
+ifeq ($(NON_MATCHING),1)
+	@echo "Build complete (NON_MATCHING=1: output is not compared)"
+else
 	@sha1sum -c $(GLOBAL_SHA1)
 	@$(foreach sha,$(OVERLAY_SHA1S),sha1sum -c $(sha) &&) true
 	@sha1sum -c $(TARGET).sha1
+endif
 
 $(BUILD_DIR)/%.o: %.s
 	@mkdir -p $(dir $@)
@@ -198,7 +211,17 @@ $(BUILD_DIR)/%.o: %.bin
 	@mkdir -p $(dir $@)
 	$(LD) -r -b binary -o $@ $<
 
-$(ELF): $(O_FILES) $(LD_SCRIPT)
+ifneq ($(BUILD_DIR),build)
+$(BUILD_DIR)/%.ld: build/%.ld
+	@mkdir -p $(dir $@)
+	sed 's|build/|$(BUILD_DIR)/|g' $< > $@
+
+$(BUILD_DIR)/undefined_%.txt: build/undefined_%.txt
+	@mkdir -p $(dir $@)
+	cp $< $@
+endif
+
+$(ELF): $(O_FILES) $(LD_SCRIPT) $(BUILD_DIR)/undefined_syms_auto.$(VERSION).txt $(BUILD_DIR)/undefined_funcs_auto.$(VERSION).txt
 	$(LD) $(LDFLAGS) -o $@
 
 $(BOOT_BIN): $(ELF)
@@ -212,7 +235,7 @@ $(ROM): $(BOOT_BIN) $(ROM_GZ) $(RAW_TAIL)
 	cat $^ > $@
 	@test $$(stat -c %s $@) -eq 33554432 || { echo "$@ size mismatch: expected 0x2000000 (33554432), got $$(stat -c %s $@)"; exit 1; }
 
-$(GLOBAL_ELF): $(GLOBAL_O_FILES) $(GLOBAL_LD_SCRIPT) $(ELF)
+$(GLOBAL_ELF): $(GLOBAL_O_FILES) $(GLOBAL_LD_SCRIPT) $(ELF) $(BUILD_DIR)/undefined_syms_auto.global.txt $(BUILD_DIR)/undefined_funcs_auto.global.txt
 	$(LD) $(GLOBAL_LDFLAGS) -o $@
 
 $(GLOBAL_BIN): $(GLOBAL_ELF)
@@ -231,7 +254,7 @@ $(1)_O_FILES := $$($(1)_S_FILES:%.s=$$(BUILD_DIR)/%.o) $$($(1)_C_FILES:%.c=$$(BU
 
 $$($(1)_O_FILES): ASFLAGS += -W
 
-$$(BUILD_DIR)/$(1).elf: $$($(1)_O_FILES) $$(BUILD_DIR)/$(1).ld $$(GLOBAL_ELF) $$(ELF)
+$$(BUILD_DIR)/$(1).elf: $$($(1)_O_FILES) $$(BUILD_DIR)/$(1).ld $$(GLOBAL_ELF) $$(ELF) $$(BUILD_DIR)/undefined_syms_auto.$(1).txt $$(BUILD_DIR)/undefined_funcs_auto.$(1).txt
 	$$(LD) -T $$(BUILD_DIR)/$(1).ld -Map $$(BUILD_DIR)/$(1).map --no-check-sections --accept-unknown-input-arch \
 		--allow-multiple-definition \
 		-T $$(BUILD_DIR)/undefined_syms_auto.$(1).txt \
@@ -257,17 +280,24 @@ endef
 $(foreach ovl,$(OVERLAYS),$(eval $(call OVERLAY_RULE,$(ovl))))
 
 progress: check
+ifeq ($(NON_MATCHING),1)
+	@echo "Error: 'make progress' requires a matching build (NON_MATCHING=0)." >&2; exit 1
+else
 	$(PYTHON) tools/progress.py
+endif
 
 # Baseline objects for tools/objdiff.sh: snapshot every C object of a verified matching build.
 expected: check
+ifeq ($(NON_MATCHING),1)
+	@echo "Error: 'make expected' requires a matching build (NON_MATCHING=0)." >&2; exit 1
+else
 	rm -rf expected
 	$(foreach o,$(BOOT_C_FILES:%.c=$(BUILD_DIR)/%.o) $(GLOBAL_C_FILES:%.c=$(BUILD_DIR)/%.o) $(OVERLAY_C_FILES:%.c=$(BUILD_DIR)/%.o),mkdir -p expected/$(dir $(o)) && cp $(o) expected/$(o) &&) true
-
+endif
 clean:
 	rm -rf $(BUILD_DIR)/asm $(BUILD_DIR)/assets $(BUILD_DIR)/src $(ELF) $(ROM) $(BOOT_BIN) \
 	       $(GLOBAL_ELF) $(GLOBAL_BIN) $(GLOBAL_TEXT_BIN) $(GLOBAL_DATA_BIN) $(GLOBAL_GZ) $(BUILD_DIR)/global.map \
 	       $(foreach ovl,$(OVERLAYS),$(BUILD_DIR)/$(ovl).elf $(BUILD_DIR)/$(ovl).bin $(BUILD_DIR)/$(ovl).text.bin $(BUILD_DIR)/$(ovl).data.bin $(BUILD_DIR)/$(ovl).gz $(BUILD_DIR)/$(ovl).map)
 
 distclean:
-	rm -rf $(BUILD_DIR) asm assets bin baserom.$(VERSION).z64
+	rm -rf $(BUILD_DIR) build_nonmatching asm assets bin baserom.$(VERSION).z64

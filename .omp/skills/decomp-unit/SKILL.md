@@ -91,17 +91,58 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 
 1. Partition by instruction count: round 1 ~600–1,300 per agent, ≤20 functions,
    contiguous by address; functions over ~400 insns held back for later rounds, each
-   on its own agent (one-function agents on 300–815-insn functions got to 1–16 insns or one
-   register off, never a match, in three units: dispatch them only to fill idle slots).
-   Later rounds ≤6 functions per agent, near-misses
-   first. Never a function in two agents' lists. Every agent works in PRIVATE COPY mode,
+   on its own agent using the large-function method (stage-order work plus a bounded
+   permuter run once at stage 5–6). Later rounds ≤6 functions per agent, near-misses
+   first. Near-miss rounds and large functions use the stage order, `tools/uopt_trace.sh`,
+   and permuter. Never a function in two agents' lists. Every agent works in PRIVATE COPY mode,
    even alone on a file, so `src/` only changes by your merges and the full build can gate
    each commit while agents run.
+
+   Methodology for large functions and near-misses:
+   - Stage order for non-trivial functions (OoT IDO 5.3 -O2 guide, https://github.com/n64decomp/oot/blob/master/docs/guides/-O2%20decompilation%20(for%20IDO%205.3).md):
+     (1) behaviourally equivalent C (m2c), (2) basic-block order, (3) large reorderings,
+     (4) same callee-saved register set and frame size, (5) small reorderings,
+     (6) register allocation. Agents report the stage reached, not only an instruction
+     count. Register-allocation tricks are wasted before stage 4.
+   - Why large functions are hard: IDO's uopt assigns registers by priority-based coloring
+     (Chow & Hennessy, TOPLAS 1990, https://doi.org/10.1145/88616.88621): priority = estimated
+     savings of a live range weighted by block frequency and normalised by its length,
+     highest first, with live-range splitting; so a change in one loop shifts registers in another.
+   - Diagnose register allocation with `tools/uopt_trace.sh [-l LEVEL] [-s src/<seg>/<file>.c] <file.c> [FUNC]`
+     on a private copy before guessing (level 6 = coloring trace, 5 = live ranges/savings;
+     see header comment in `tools/uopt_trace.sh` for how to read it): compare which candidate
+     got which register with the target asm.
+   - Use the permuter at stages 5–6: `tools/permute.py setup <seg> <FUNC> [--from FILE.c] [--src src/<seg>/<file>.c]`
+     -> `.scratch/permuter/<seg>_<FUNC>/` (base.c from the stored draft by default, target.o
+     from the function's asm, compile.sh with make's flags), `tools/permute.py run <dir> [-j N] [--seconds S]`
+     (always passes `--stack-diffs` and `--stop-on-zero`, default -j = half the CPUs),
+     `tools/permute.py best <dir>` (lists outputs by score and diffs best against base.c).
+     Its mutations are NOT semantics-preserving (moves statements, randomises types, deletes
+     if statements) and its score checks disassembly (stack only via `--stack-diffs`), not
+     relocations or data. A result is a search hint: rewrite the idea into readable C that
+     keeps the asm's behaviour; then the normal gates (fdiff/objdiff OK or TEXT OK, then full
+     ROM `build/dk64.us.z64: OK`). Never paste permuter output unreviewed. Several agents
+     share the CPU: give each permuter run an explicit small -j (e.g. `-j 2`) and `--seconds` limit.
+   - NON_MATCHING parking: a function that will not match but whose C is behaviourally equivalent
+     (remaining diff only regalloc/scheduling/stack layout, reviewed) may go into `src` as:
+     ```c
+     #ifdef NON_MATCHING
+     <C>
+     #else
+
+     #pragma GLOBAL_ASM("asm/...")
+     #endif
+     ```
+     (asm-processor drops the asm when the dummy is ifdef'd out; note the required blank line
+     before `#pragma GLOBAL_ASM`). `tools/dk make NON_MATCHING=1` builds into `build_nonmatching/`
+     without any hash check ('Build complete (NON_MATCHING=1: output is not compared)');
+     `make expected`/`progress` refuse `NON_MATCHING=1`; the default build is unchanged and
+     still the only gate. Parked functions count as unmatched. Otherwise keep the draft in `drafts/`.
 2. For every file, BEFORE dispatch: `python3 tools/merge_drafts.py snapshot src/<seg>/<file>.c`.
 3. Write the filled [brief.md](brief.md) once to `local://brief.md` and pass the `context`
    "Read `local://brief.md` FIRST and follow it exactly", plus per-file facts and the
    previous rounds' tricks for that file; each `tasks[]` item lists its functions
-   with the last known diff note; agents start from the stored draft
+   with the last known diff note and stage reached; agents start from the stored draft
    (`tools/drafts.py show SEG FUNC`; drafts are keyed by segment because overlays share names like `func_80024000`), not from m2c.
    Agents finish after 15–25 min whatever the list length; re-prompting an idle agent to
    "continue" returned the same report with no new matches (boss round 1, 5 tries):
@@ -139,8 +180,9 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    zero-yield agents. Then persist drafts: `python3 tools/drafts.py collect` (imports any
    newer `.scratch/*/<FUNC>_best.c` an agent left instead of saving) and
    `python3 tools/drafts.py prune` (drops drafts of functions that now match); commit
-   `drafts/` with the merge. `drafts/<seg>/<FUNC>.c` is the only place in-progress C
-   survives a session; `.scratch/` is per-session and may be wiped.
+   `drafts/<seg>/<FUNC>.c` is the only place in-progress C
+   survives a session; `.scratch/` is per-session and may be wiped. Parked NON_MATCHING
+   functions stay in `src/` under `#ifdef NON_MATCHING`.
 6. Gate EVERY commit with the full build: `tools/dk make` must end with
    `build/dk64.us.z64: OK` (AGENTS.md: never commit a non-matching state). Per-file
    `tools/objdiff.sh` OK/TEXT OK is only a pre-check: TEXT OK hid a `.rodata` shift once (a C
@@ -177,7 +219,8 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    from overlay GLOBAL_ASM; their objects are not rebuilt and fail to link with the old
    name otherwise), `tools/dk make` OK; `tools/dk make expected`.
 3. ROADMAP: one bullet per segment (files, data/rodata offsets, N of T matched per file,
-   named groups, near misses, unattempted large functions). Check every name you cite
+   named groups, near misses, unattempted large functions; parked NON_MATCHING functions
+   are listed as near-misses and still count unmatched). Check every name you cite
    exists in the symbol file. Refresh the README progress table:
    `tools/dk python3 tools/progress.py --readme`.
 4. Commit `<A>/<b>: name N functions; ROADMAP + README: overlay unit status`.
@@ -237,6 +280,13 @@ Before the final yield:
   for the same globals, and one agent still put its block at the top of the file: two unify
   passes. Once unified, name the unified types in every later task's `context` (agents then
   reused them with no further clash).
+- Permuter output is a search hint, not verified code: `tools/permute.py` mutations are
+  NOT semantics-preserving (moves statements, randomises types, deletes if statements) and
+  its score checks disassembly only (stack diffs with `--stack-diffs`, no relocations or
+  data). Never paste permuter output unreviewed; rewrite the idea into readable C that keeps
+  the asm's behaviour, then verify through fdiff/objdiff and full ROM `tools/dk make`. Several
+  agents share the CPU: always run the permuter with an explicit small thread count (`-j 2`)
+  and a `--seconds` limit to avoid starving siblings.
 
 ## Run log
 

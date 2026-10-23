@@ -4,3 +4,4 @@ cxxfilt
 python-Levenshtein
 watchdog
 pycparser
+toml

@@ -15,6 +15,7 @@ docker compose build                    # builds the dk64-decomp image
 # or: docker build -t dk64-decomp .     # direct docker build
 tools/dk make setup                    # extract + split (BASEROM=donkey-kong.n64)
 tools/dk make                          # build + SHA-1 check
+tools/dk make NON_MATCHING=1           # build without hash check into build_nonmatching/ (not compared)
 tools/dk make split                    # re-run splat after yaml / symbol changes
 tools/dk make progress                 # build, then matched/total function bytes per segment
 python3 tools/emu/emu.py build         # builds the dk64-emu Docker image (ares-64 + GDB + VNC)
@@ -39,14 +40,16 @@ python3 tools/emu/emu.py build         # builds the dk64-emu Docker image (ares-
 | `tools/m2c.py` | starter C for one function: `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` |
 | `tools/progress.py` | matched vs total function bytes per segment (`--json`; `--readme` rewrites the progress section of `README.md`) |
 | `tools/objdiff.sh` | per-object compare that builds only one object: `tools/objdiff.sh src/...c [FUNC]` vs `expected/build/...o`. `tools/dk make expected` snapshots every C object of a matching build there first (`expected/` is gitignored). Exit 0 full match, 3 code matches but the file's own data differs, 1 mismatch. Safe to run concurrently on different files, unlike `make`/`diff.sh` |
-| `tools/fdiff.sh` | same compare for a private copy: `tools/fdiff.sh .scratch/<name>/file.c src/...c [FUNC]` compiles the copy with the original's flags into `build/.scratch/`, so several agents can work on one file at once (`.scratch/` is gitignored) |
+| `tools/fdiff.sh` | same compare for a private copy: `tools/fdiff.sh .scratch/<name>/file.c src/...c [FUNC]` compiles the copy with the original's flags into `build/.scratch/`, so several agents can work on one file at once (`.scratch/` is gitignored). `tools/fdiff.sh --non-matching <copy> <src> [FUNC]` only compiles the `NON_MATCHING` side (syntax check, prints `NON_MATCHING: not a match check`) |
 | `tools/merge_drafts.py` | host-side: `snapshot src/...c` saves the merge base before agents copy a file; `merge src/...c <copies...>` 3-way-merges them into `src`, prunes duplicate/unused declarations and runs `objdiff.sh` (exit 2 on conflicts, src untouched) |
 | `drafts/<segment>/<FUNC>.c`, `tools/drafts.py` | tracked in-progress C for functions still `GLOBAL_ASM`: first line `// FUNC (src file): closest-diff note`, then the draft. `save SEG FUNC FILE --note ...`, `show SEG FUNC` (keyed by segment: overlays share names such as `func_80024000`), `list [SEG]`, `collect` (import newer `.scratch/*/<FUNC>_best.c`, segment taken from the private copy beside it, ambiguous ones skipped), `prune` (drop drafts of matched functions). `.scratch/` is per-session only |
+| `tools/permute.py` | decomp-permuter (`/opt/decomp-permuter`) wrapper for stages 5–6: `setup <seg> <FUNC> [--from FILE.c] [--src src/<seg>/<file>.c]` builds `.scratch/permuter/<seg>_<FUNC>/`, `run <dir> [-j N] [--seconds S]` runs with `--stack-diffs` and `--stop-on-zero`, `best <dir>` diffs best output against `base.c`. Search hints only; mutations are not semantics-preserving |
+| `tools/uopt_trace.sh` | `tools/uopt_trace.sh [-l LEVEL] [-s src/<seg>/<file>.c] <file.c> [FUNC]`: compiles with `/opt/ido5.3-trace` (`tools/ido/ecvt_fcvt.patch`) passing `-Wo,-zdbug:LEVEL` (6 = priority-based coloring trace, 5 = live ranges/savings) to diagnose regalloc; trace in `.scratch/trace/`. See header comment for reading traces |
 | `tools/rodata_owners.py` | host-side, on an all-`asm` split: `python3 tools/rodata_owners.py <segment>` lists runs of data/rodata labels with the text file that owns them and their kinds (string/word/float/double/jtbl); flags strings after late_rodata (hidden TU boundary) and unaligned runs |
 | `.omp/skills/decomp-unit/` | project skill: the procedure for one unit of work (split, parallel matching rounds, naming, ROADMAP, ok-fine); each run updates it |
 | `tools/emu/` | emulator tooling: container session CLI (`emu.py`), save-state library (`states.py`), warping (`warp.py`), coverage (`coverage.py`), function study (`study.py`), and symbolizer (`symbols.py`) |
 | `emu/` | runtime output from emulator tooling (container sessions, save-state library, coverage data, study traces, map screenshots; gitignored) |
-| `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions (only files containing it go through asm-processor) |
+| `src/` | C sources; `#pragma GLOBAL_ASM(...)` for unmatched functions (only files containing it go through asm-processor). Behaviourally equivalent near-misses (reviewed) may be parked under `#ifdef NON_MATCHING` ... `#else` ... `#pragma GLOBAL_ASM` ... `#endif` (built via `tools/dk make NON_MATCHING=1` into `build_nonmatching/`, uncompared) |
 | `src/boot/libultra/<dir>/<file>.c` | libultra 2.0J, one file per decompals/ultralib source, same path; the Makefile picks ultralib's J flags from the path |
 | `include/` | decompals/ultralib headers (`ultra64.h`, `PR/`, `PRinternal/`, `libultra/`, `compiler/ido/`), `BUILD_VERSION` = `VERSION_J` |
 
@@ -55,7 +58,11 @@ python3 tools/emu/emu.py build         # builds the dk64-emu Docker image (ares-
 1. Convert its file to C in the segment's splat config (`dk64.us.yaml`, `dk64.global.us.yaml` or `dk64.<overlay>.us.yaml`: `[0xOFFSET, c, dir/name]`), then `tools/dk make split`.
 2. Replace the function's `#pragma GLOBAL_ASM("asm/.../nonmatchings/...")` line with C; `tools/dk python3 tools/m2c.py [-s SEGMENT] FUNC` gives starter C.
 3. `tools/dk make`; on mismatch, `tools/dk ./diff.sh [-s SEGMENT] FUNC` shows the asm diff against the original.
-4. Name the function and any discovered symbols in `symbol_addrs.us.txt` (boot/global) or `symbol_addrs.<overlay>.us.txt`.
+4. For non-trivial functions, follow the 6-stage order (from the OoT IDO 5.3 -O2 guide): (1) behaviourally equivalent C (m2c), (2) basic-block order, (3) large reorderings, (4) same callee-saved register set and frame size, (5) small reorderings, (6) register allocation. Always report the stage reached, not only an instruction count; register-allocation tricks are wasted before stage 4.
+   - At stages 4–6, diagnose register allocation with `tools/uopt_trace.sh [-l LEVEL] [-s src/<seg>/<file>.c] <file.c> [FUNC]` on a private copy to compare which candidate got which register against target asm before guessing.
+   - At stages 5–6, use `tools/permute.py setup/run/best` for near-misses. Permuter mutations are NOT semantics-preserving and its score checks disassembly only (stack only via `--stack-diffs`, which the wrapper always passes), not relocations or data. A result is a search hint: rewrite the idea into readable C that keeps the asm's behaviour; normal gates apply (`fdiff`/`objdiff` OK or TEXT OK, then full ROM `build/dk64.us.z64: OK`). Never paste permuter output unreviewed. Bound shared CPU with an explicit small `-j` (e.g. `-j 2`) and `--seconds`.
+   - A function that will not match but whose C is genuinely behaviourally equivalent (remaining diff only regalloc/scheduling/stack layout, thoroughly reviewed) may be parked in `src/` using `#ifdef NON_MATCHING\n<C>\n#else\n#pragma GLOBAL_ASM("asm/...")\n#endif`. `tools/dk make NON_MATCHING=1` builds into `build_nonmatching/` without hash check; `make expected`/`progress` refuse `NON_MATCHING=1`; the default matching build is unchanged and remains the sole gate. Parked functions count as unmatched. If not genuinely equivalent, keep the draft in `drafts/`.
+5. Name the function and any discovered symbols in `symbol_addrs.us.txt` (boot/global) or `symbol_addrs.<overlay>.us.txt`.
 
 Compiler notes:
 - Game code: IDO 5.3 `-O2 -mips2`. libultra: ultralib's J flags by directory (`os/` `-O1`, `gu/`/`mgu/`/`libc/` `-O3`, `io/` `-O2` with listed `-O1` files, `libc/ll*` `-mips3 -32`); see the libultra block in `Makefile`.
@@ -64,6 +71,7 @@ Compiler notes:
 - `objdiff.sh` exit 3 with `TEXT OK` is normal once C replaces a `GLOBAL_ASM` baseline: IDO emits relocations in a different order than gas, uses plain constants where splat made absolute symbols (`D_80100000`), and addresses jump tables as `.rodata`+addend. The ROM hash from `tools/dk make` is the gate; re-run `make expected` after a matching build.
 - IDO gives every declared local a stack slot in declaration order; unused locals are often needed to reproduce frame sizes.
 - Write C from the local asm only; this project does not reuse code from the community DK64 decomp.
+- IDO uopt priority-based coloring: uopt assigns registers by priority-based coloring (Chow & Hennessy, TOPLAS 1990): priority is estimated savings of a live range weighted by block frequency and normalised by its length, highest first, with live-range splitting. Because candidates compete globally across the procedure, a change in one loop or basic block can shift register choices in another.
 
 ## Conventions
 

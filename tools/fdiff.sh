@@ -10,7 +10,16 @@
 set -e
 
 if [ ! -f /.dockerenv ] && [ ! -d /opt/ido5.3 ]; then
-    exec tools/dk tools/fdiff.sh "$@"
+    if [ -n "$EXTRA_CFLAGS" ]; then
+        exec tools/dk env EXTRA_CFLAGS="$EXTRA_CFLAGS" tools/fdiff.sh "$@"
+    else
+        exec tools/dk tools/fdiff.sh "$@"
+    fi
+fi
+
+if [ "$1" = "--non-matching" ]; then
+    EXTRA_CFLAGS="$EXTRA_CFLAGS -DNON_MATCHING"
+    shift
 fi
 
 if [ -z "$2" ]; then
@@ -29,6 +38,13 @@ mkdir -p build/.scratch
 # The compile command make would run for the original, retargeted at the copy.
 CMD=$(make -n -W "$ORIG" "build/${ORIG%.c}.o" | grep -E 'asm-processor|ido5.3/cc' | tail -1)
 [ -n "$CMD" ] || { echo "Error: no compile rule found for $ORIG" >&2; exit 1; }
-eval "${CMD% -o *} -o $OBJ $COPY"
+eval "${CMD% -o *} $EXTRA_CFLAGS -o $OBJ $COPY"
+
+case "$EXTRA_CFLAGS" in
+    *-DNON_MATCHING*)
+        echo "NON_MATCHING: not a match check"
+        exit 0
+        ;;
+esac
 
 exec python3 tools/objdiff.py "$OBJ" "$EXP" "$3"
