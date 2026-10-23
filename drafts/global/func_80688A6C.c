@@ -1,8 +1,15 @@
-// func_80688A6C (src/global/8D3E0.c): frame 0x68 vs 0x70; variable offset differences in loop
-// func_80688A6C: frame 0x70; s0-s7,fp saved; table allocation and container initialization
+// func_80688A6C (src/global/8D3E0.c): frame 0x68 matches; variable offset differences in loop
+typedef struct R3D3B_Container {
+    s32 count;
+    ActorListRecord items[1];
+} R3D3B_Container;
+
 extern s32 D_8076A0A8;
-extern ActD3A_Entry4 *D_807FC5C4;
+extern ActorListEntry4 *D_807FC5C4;
 extern u8 D_807FC5C8;
+extern s16 D_807FC408[];
+
+void *func_80610FE8(s32);
 s32 func_80688C30(u16);
 s32 func_80688C84(u16);
 s32 func_8066B0F8(s32, s32, s32, s32);
@@ -12,10 +19,10 @@ void func_80631F58(void *, void *, void *);
 
 void func_80688A6C(void) {
     void *sp48;
-    ActD3A_Container *container;
+    R3D3B_Container *container;
     s32 count;
     s32 i;
-    ActD3A_Sub38 *item;
+    ActorListRecord *item;
     s32 var_s2;
     s32 temp_v0;
     s32 ret;
