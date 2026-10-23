@@ -70,26 +70,27 @@ def prune(lines, base_lines):
     decls = file_scope_decls(lines)
     # Declarations already in the base are kept. Of identical added lines, the FIRST is
     # kept: an earlier function may use it, so dropping it would leave a use before decl.
-    # A copy inside an #if block (parked NON_MATCHING code) does not count as a previous
-    # declaration for an unconditional one: dropping that would break the default build.
+    # Only an unconditional declaration covers later duplicates: a copy inside an #if
+    # block (parked NON_MATCHING code, or one branch of #if/#else) may be compiled out, so
+    # conditional declarations never cause a drop (identical redeclarations are legal C).
     in_base = Counter(base_lines[i].strip() for i, _, _ in file_scope_decls(base_lines))
     seen = set()  # unconditional declarations kept so far
-    seen_cond = set()  # declarations kept so far inside #if blocks
     drop = set()
     for i, name, cond in decls:
         key = lines[i].strip()
         if in_base[key] > 0:
             in_base[key] -= 1
-            (seen_cond if cond else seen).add(key)
+            if not cond:
+                seen.add(key)
             continue
-        if key in seen or (cond and key in seen_cond):
+        if key in seen:
             drop.add(i)
             print(f"  dropped duplicate: {key}")
         elif len(re.findall(rf"\b{re.escape(name)}\b", text)) == 1:
             drop.add(i)
             print(f"  dropped unused:    {key}")
-        else:
-            (seen_cond if cond else seen).add(key)
+        elif not cond:
+            seen.add(key)
     return [l for i, l in enumerate(lines) if i not in drop]
 
 
