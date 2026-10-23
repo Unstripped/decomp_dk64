@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 #
-# tools/uopt_trace.sh [-l LEVEL] [-s SRC_FILE] <file.c> [FUNC]
+# tools/uopt_trace.sh [-l LEVEL] [-n|--non-matching] [-s SRC_FILE] <file.c> [FUNC]
 #
 # Compiles a C source file (or private copy) using the trace compiler at
 # /opt/ido5.3-trace/cc with IDO uopt debug flags:
-#   -Wo,-zdbug:LEVEL -Wo,-l,<abs_list_path>
+#   -Wo,-l,<abs_list_path> -Wo,-zdbug:LEVEL
 #
 # When run on the host outside Docker, re-executes itself inside the container.
 #
 # Arguments:
-#   -l LEVEL      uopt debug level (default: 6)
-#                 5: live ranges, active candidates, interference graph, cycle savings
-#                 6: priority-based register coloring trace (which register gets assigned)
-#   -s SRC_FILE   Original source file in src/ to inherit compile flags from
-#                 (required if <file.c> is a private copy outside src/ and not given as 2nd arg)
-#   <file.c>      C source file to compile (under src/ or a private copy)
-#   [FUNC]        Optional function name. If provided, prints only the trace
-#                 section for that function. If omitted, prints the full list file.
-#
+#   -l LEVEL             uopt debug level (default: 6)
+#                        5: live ranges, active candidates, interference graph, cycle savings
+#                        6: priority-based register coloring trace (which register gets assigned)
+#   -n, --non-matching   Compile with -DNON_MATCHING to trace C implementations parked
+#                        behind #ifdef NON_MATCHING (automatically enabled if FUNC sits
+#                        inside an #ifdef NON_MATCHING block).
+#   -s SRC_FILE          Original source file in src/ to inherit compile flags from
+#                        (required if <file.c> is a private copy outside src/ and not given as 2nd arg)
+#   <file.c>             C source file to compile (under src/ or a private copy)
+#   [FUNC]               Optional function name. If provided, prints only the trace
+#                        section for that function. If omitted, prints the full list file.
 # Outputs:
 #   Object file:  build/.scratch/trace/<file_escaped>.o
 #   Listing file: .scratch/trace/<file_escaped>.list (and .scratch/trace/<file_basename>.list)
@@ -165,6 +167,7 @@ fi
 
 LEVEL=6
 SRC_FILE=""
+NON_MATCHING=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -184,13 +187,17 @@ while [ $# -gt 0 ]; do
             SRC_FILE="$2"
             shift 2
             ;;
+        -n|--non-matching)
+            NON_MATCHING=1
+            shift
+            ;;
         --)
             shift
             break
             ;;
         -*)
             echo "Error: unknown option '$1'" >&2
-            echo "Usage: tools/uopt_trace.sh [-l LEVEL] [-s SRC_FILE] <file.c> [FUNC]" >&2
+            echo "Usage: tools/uopt_trace.sh [-l LEVEL] [-n|--non-matching] [-s SRC_FILE] <file.c> [FUNC]" >&2
             exit 1
             ;;
         *)
@@ -200,7 +207,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ $# -lt 1 ]; then
-    echo "Usage: tools/uopt_trace.sh [-l LEVEL] [-s SRC_FILE] <file.c> [FUNC]" >&2
+    echo "Usage: tools/uopt_trace.sh [-l LEVEL] [-n|--non-matching] [-s SRC_FILE] <file.c> [FUNC]" >&2
     exit 1
 fi
 
@@ -239,13 +246,14 @@ if [ ! -x /opt/ido5.3-trace/cc ]; then
     exit 1
 fi
 
-python3 - << "EOF_PYTHON" "$FILE" "$SRC_FILE" "$LEVEL" "$FUNC"
-import sys, os, shlex, subprocess
+python3 - << "EOF_PYTHON" "$FILE" "$SRC_FILE" "$LEVEL" "$NON_MATCHING" "$FUNC"
+import sys, os, shlex, subprocess, re
 
 file_c = sys.argv[1]
 src_c = sys.argv[2]
 level = sys.argv[3]
-func = sys.argv[4] if len(sys.argv) > 4 and sys.argv[4] else None
+non_matching_flag = sys.argv[4] == "1"
+func = sys.argv[5] if len(sys.argv) > 5 and sys.argv[5] else None
 
 escaped_name = file_c.replace("/", "_")
 if escaped_name.endswith(".c"):
@@ -285,13 +293,47 @@ with open(file_c, "r", errors="ignore") as f:
     content = f.read()
 has_global_asm = ("GLOBAL_ASM" in content) or ("INCLUDE_ASM" in content)
 
+def func_in_non_matching(text, fn):
+    stack = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if re.match(r"#\s*ifdef\s+NON_MATCHING\b", stripped) or re.search(r"#\s*if\s+.*defined\s*\(\s*NON_MATCHING\s*\)", stripped):
+            stack.append("NM_TRUE")
+        elif re.match(r"#\s*ifndef\s+NON_MATCHING\b", stripped):
+            stack.append("NM_FALSE")
+        elif re.match(r"#\s*if", stripped):
+            stack.append("OTHER")
+        elif re.match(r"#\s*else", stripped):
+            if stack:
+                top = stack.pop()
+                if top == "NM_TRUE":
+                    stack.append("NM_FALSE")
+                elif top == "NM_FALSE":
+                    stack.append("NM_TRUE")
+                else:
+                    stack.append("OTHER")
+        elif re.match(r"#\s*endif", stripped):
+            if stack:
+                stack.pop()
+        else:
+            if "NM_TRUE" in stack:
+                pattern = r"\b" + re.escape(fn) + r"\s*\("
+                if re.search(pattern, line):
+                    return True
+    return False
+
+auto_non_matching = False
+if func and not non_matching_flag:
+    auto_non_matching = func_in_non_matching(content, func)
+
+use_non_matching = non_matching_flag or auto_non_matching
+
 tokens = shlex.split(cmd)
 trace_cc = "/opt/ido5.3-trace/cc"
 # Note: -Wo,-l must precede -Wo,-zdbug. If -zdbug is parsed first, uopt's option
 # handler immediately initializes the listfile before -l is parsed; because uopt's
 # default listfile buffer is space-initialized (' '), it creates a file named " ".
 zdbug_flags = [f"-Wo,-l,{abs_list}", f"-Wo,-zdbug:{level}"]
-
 try:
     o_idx = tokens.index("-o")
 except ValueError:
@@ -315,6 +357,8 @@ else:
     opt_arg = "-O1" if "-O1" in cflags else "-O2"
     prelude = "include/asm_prelude.inc"
 
+if use_non_matching and "-DNON_MATCHING" not in cflags:
+    cflags.append("-DNON_MATCHING")
 if has_global_asm:
     new_cmd = [
         "python3", "/opt/asm-processor/build.py", opt_arg, "--asm-prelude", prelude,
@@ -366,10 +410,13 @@ if func:
         sys.stderr.write(f"Error: function '{func}' not found in trace output ({abs_list})\n")
         sys.exit(1)
         
+    if use_non_matching:
+        print(f"Traced NON_MATCHING definition of {func}")
     sys.stdout.write("".join(matched_lines))
 else:
     # Print full listing
+    if use_non_matching:
+        print("Traced NON_MATCHING side (-DNON_MATCHING)")
     with open(abs_list, "r", errors="replace") as f:
         sys.stdout.write(f.read())
-
 EOF_PYTHON

@@ -197,6 +197,27 @@ def strip_other_fns(source: str, keep_fn: str) -> str:
     return result
 
 
+def deduplicate_externs(source: str) -> str:
+    """Deduplicate extern variable declarations, keeping the last one to avoid conflicts."""
+    lines = source.splitlines()
+    extern_syms = {}
+    for i, l in enumerate(lines):
+        m = re.search(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*;", l)
+        if m:
+            sym = m.group(1)
+            extern_syms[sym] = i
+
+    new_lines = []
+    for i, l in enumerate(lines):
+        m = re.search(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*;", l)
+        if m:
+            sym = m.group(1)
+            if extern_syms[sym] != i:
+                continue
+        new_lines.append(l)
+    return "\n".join(new_lines)
+
+
 def wrap_multi_statement_lines(source: str, func_name: str) -> str:
     """Wrap lines with multiple statements inside func_name in PERM_FORCE_SAMELINE."""
     pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^;{{}}]*\)\s*\{{)", re.MULTILINE)
@@ -351,23 +372,38 @@ compiler_type = "ido"
 """
     settings_toml.write_text(settings_content, encoding="utf-8")
 
+    src_text = src_path.read_text(encoding="utf-8", errors="ignore")
+
     # 5. Build base.c
     if args.from_file:
         from_path = Path(args.from_file)
         if not from_path.is_absolute():
             from_path = ROOT / from_path
+        if not from_path.exists():
+            sys.exit(f"error: input file '{from_path}' not found")
+        from_text = from_path.read_text(encoding="utf-8", errors="ignore")
     else:
-        from_path = ROOT / "drafts" / seg / f"{func}.c"
+        # Check if func is parked inside #ifdef NON_MATCHING in src_text
+        pat_parked = rf"#if(?:def|\s+defined\s*\()\s*NON_MATCHING[\s\S]*?\b{re.escape(func)}\s*\([^;]*\)\s*\{{"
+        if re.search(pat_parked, src_text):
+            from_path = src_path
+            from_text = src_text
+        else:
+            from_path = ROOT / "drafts" / seg / f"{func}.c"
+            if not from_path.exists():
+                sys.exit(f"error: input file '{from_path}' not found (provide a draft or --from FILE.c)")
+            from_text = from_path.read_text(encoding="utf-8", errors="ignore")
 
-    if not from_path.exists():
-        sys.exit(f"error: input file '{from_path}' not found (provide a draft or --from FILE.c)")
-
-    from_text = from_path.read_text(encoding="utf-8", errors="ignore")
-    src_text = src_path.read_text(encoding="utf-8", errors="ignore")
+    # Determine if NON_MATCHING should be enabled
+    use_non_matching = bool(args.non_matching)
+    if not use_non_matching:
+        pat_nm = rf"#if(?:def|\s+defined\s*\()\s*NON_MATCHING[\s\S]*?\b{re.escape(func)}\b[\s\S]*?#endif"
+        if re.search(pat_nm, from_text) or re.search(pat_nm, src_text):
+            use_non_matching = True
 
     # Check whether from_path is a whole file (e.g. private copy of src/ with GLOBAL_ASM / other functions)
     is_whole_file = False
-    if args.from_file:
+    if from_path == src_path or args.from_file:
         if re.search(r"#pragma\s+GLOBAL_ASM", from_text):
             is_whole_file = True
         else:
@@ -378,8 +414,6 @@ compiler_type = "ido"
 
     if is_whole_file:
         combined = from_text
-        combined = strip_other_fns(combined, func)
-        combined = re.sub(r"#pragma\s+GLOBAL_ASM\([^\)]*\)", "", combined)
     else:
         # Stored draft or single function snippet
         draft_lines = []
@@ -394,17 +428,6 @@ compiler_type = "ido"
             draft_lines.append(line)
         draft_text = "\n".join(draft_lines).strip()
 
-        # Find externs in draft to strip conflicting declarations in src
-        draft_externs = set(re.findall(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*;", draft_text))
-        if draft_externs:
-            filtered_lines = []
-            for l in src_text.splitlines():
-                m = re.search(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*;", l)
-                if m and m.group(1) in draft_externs:
-                    continue
-                filtered_lines.append(l)
-            src_text = "\n".join(filtered_lines)
-
         # Replace target GLOBAL_ASM with draft_text, or append if pragma absent
         target_pragma = re.compile(rf"#pragma\s+GLOBAL_ASM\(\"[^\"]*{re.escape(func)}\.s\"\)")
         if target_pragma.search(src_text):
@@ -412,10 +435,14 @@ compiler_type = "ido"
         else:
             combined = src_text + "\n\n" + draft_text
 
-        combined = strip_other_fns(combined, func)
-        combined = re.sub(r"#pragma\s+GLOBAL_ASM\([^\)]*\)", "", combined)
+    combined = deduplicate_externs(combined)
+    combined = strip_other_fns(combined, func)
+    combined = re.sub(r"#pragma\s+GLOBAL_ASM\([^\)]*\)", "", combined)
 
     extra_flags = [tok for tok in cflags.split() if tok.startswith("-I") or tok.startswith("-D")]
+    if use_non_matching and "-DNON_MATCHING" not in extra_flags:
+        extra_flags.append("-DNON_MATCHING")
+
     base_c_content = preprocess_whole_source(combined, extra_flags)
     base_c_content = wrap_multi_statement_lines(base_c_content, func)
     base_c = out_dir / "base.c"
@@ -634,6 +661,7 @@ def main() -> None:
     p_setup.add_argument("func", help="Function name (e.g. func_80663BE8)")
     p_setup.add_argument("--from", dest="from_file", help="Input C file (default: drafts/<seg>/<func>.c)")
     p_setup.add_argument("--src", help="Path to original C file in src/ (default: auto-detected)")
+    p_setup.add_argument("--non-matching", action="store_true", help="Enable NON_MATCHING define for parked function definitions")
 
     # run
     p_run = sub.add_parser("run", help="Run permuter on an input directory")
