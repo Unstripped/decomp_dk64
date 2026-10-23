@@ -45,14 +45,20 @@ def snapshot(srcs):
 
 
 def file_scope_decls(lines):
-    """(index, name) for one-line declarations outside any function body."""
+    """(index, name, conditional) for one-line declarations outside any function body;
+    conditional = inside an #if/#ifdef block (e.g. a parked NON_MATCHING function)."""
     depth = 0
+    cond = 0
     out = []
     for i, line in enumerate(lines):
+        if line.startswith("#if"):
+            cond += 1
+        elif line.startswith("#endif"):
+            cond -= 1
         if depth == 0 and not line.startswith((" ", "\t", "#")):
             m = DECL_EXTERN.match(line) or DECL_PROTO.match(line)
             if m:
-                out.append((i, m.group(1)))
+                out.append((i, m.group(1), cond > 0))
         depth += line.count("{") - line.count("}")
     return out
 
@@ -64,23 +70,26 @@ def prune(lines, base_lines):
     decls = file_scope_decls(lines)
     # Declarations already in the base are kept. Of identical added lines, the FIRST is
     # kept: an earlier function may use it, so dropping it would leave a use before decl.
-    in_base = Counter(base_lines[i].strip() for i, _ in file_scope_decls(base_lines))
-    seen = set()
+    # A copy inside an #if block (parked NON_MATCHING code) does not count as a previous
+    # declaration for an unconditional one: dropping that would break the default build.
+    in_base = Counter(base_lines[i].strip() for i, _, _ in file_scope_decls(base_lines))
+    seen = set()  # unconditional declarations kept so far
+    seen_cond = set()  # declarations kept so far inside #if blocks
     drop = set()
-    for i, name in decls:
+    for i, name, cond in decls:
         key = lines[i].strip()
         if in_base[key] > 0:
             in_base[key] -= 1
-            seen.add(key)
+            (seen_cond if cond else seen).add(key)
             continue
-        if key in seen:
+        if key in seen or (cond and key in seen_cond):
             drop.add(i)
             print(f"  dropped duplicate: {key}")
         elif len(re.findall(rf"\b{re.escape(name)}\b", text)) == 1:
             drop.add(i)
             print(f"  dropped unused:    {key}")
         else:
-            seen.add(key)
+            (seen_cond if cond else seen).add(key)
     return [l for i, l in enumerate(lines) if i not in drop]
 
 
