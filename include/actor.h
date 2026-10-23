@@ -12,11 +12,55 @@ typedef struct ActorSub4 {
     /* 0x3C */ f32 unk3C;
 } ActorSub4;
 
+typedef struct ModelNode {
+    /* 0x00 */ u8 pad0[0xC];
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 pad10[0x14];
+    /* 0x24 */ u16 unk24;
+    /* 0x26 */ u8 unk26;
+    /* 0x27 */ u8 unk27;
+    /* 0x28 */ struct ModelNode *next;
+} ModelNode; // size = 0x2C
+
+typedef struct ModelSubNode {
+    /* 0x00 */ u8 pad0[0x1C];
+    /* 0x1C */ struct ModelSubNode *next;
+} ModelSubNode; // size = 0x20
+
 typedef struct ActorSub140 {
-    /* 0x00 */ u8 unk00[0x68];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ u8 pad1C[0x8];
+    /* 0x24 */ u8 unk24;
+    /* 0x25 */ u8 pad25[0x3B];
+    /* 0x60 */ s32 unk60;
+    /* 0x64 */ u8 pad64[4];
     /* 0x68 */ s32 unk68;
     /* 0x6C */ u8 unk6C;
-} ActorSub140;
+    /* 0x6D */ u8 pad6D[3];
+    /* 0x70 */ s32 unk70;
+    /* 0x74 */ s32 unk74;
+    /* 0x78 */ s32 unk78;
+    /* 0x7C */ s32 unk7C;
+    /* 0x80 */ s32 unk80;
+    /* 0x84 */ s32 unk84;
+    /* 0x88 */ s32 unk88;
+    /* 0x8C */ ModelNode *unk8C;
+    /* 0x90 */ ModelSubNode *unk90;
+    /* 0x94 */ s32 unk94;
+    /* 0x98 */ void *unk98;
+    /* 0x9C */ s32 unk9C;
+    /* 0xA0 */ void *unkA0;
+    /* 0xA4 */ s32 unkA4;
+    /* 0xA8 */ s32 unkA8;
+    /* 0xAC */ u8 unkAC;
+    /* 0xAD */ u8 padAD[0x17];
+} ActorSub140; // size = 0xC4
 
 typedef struct ActorList {
     /* 0x00 */ s32 items[4];
