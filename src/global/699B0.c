@@ -770,7 +770,7 @@ extern u8 D_807F967D;
 extern s32 *D_807F95A8[];
 extern u8 D_80748E18[];
 extern s32 *D_807FB1A0[];
-s32 func_8066AC10(void *);
+s32 func_8066AC10();
 void func_8066ACA4(s32, void *, s32, void *);
 typedef struct {
     void *unk0;
@@ -802,7 +802,24 @@ void func_8066A584(void *arg0, f32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066A988.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066AC10.s")
+typedef struct R2D_TriangleAC10 {
+    u8 pad0[0x24];
+    R1C_TriangleF tri;
+} R2D_TriangleAC10;
+
+s32 func_8066AC10(R2D_TriangleAC10 *arg0) {
+    R1C_CrossStack sp;
+
+    sp.v1[0] = arg0->tri.x[2] - arg0->tri.x[0];
+    sp.v1[2] = arg0->tri.z[2] - arg0->tri.z[0];
+    sp.v0[0] = arg0->tri.x[1] - arg0->tri.x[0];
+    sp.v0[2] = arg0->tri.z[1] - arg0->tri.z[0];
+    sp.cross = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
+    if (sp.cross <= 0.0) {
+        return 1;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066ACA4.s")
 
@@ -821,7 +838,31 @@ void func_8066AEE4(void *arg0, void *arg1) {
     heapFree(arg0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066AF40.s")
+extern R1D_StructA8A0 D_807FA8A0[];
+extern s8 D_80746834;
+extern OSMesgQueue D_807656D0;
+extern s32 D_807F9680;
+
+void func_8066AF40(void) {
+    s32 i;
+
+    i = 0;
+    if (D_807F9680 > 0) {
+        do {
+            D_80746834 = 7;
+            osRecvMesg(&D_807656D0, NULL, 1);
+            D_80746834 = 0;
+            if (D_807FA8A0[i].unk8 != 0) {
+                func_8066AEE4(D_807FA8A0[i].unk0, D_807FA8A0[i].unk4);
+            }
+        } while (++i < D_807F9680);
+    }
+    if (D_80748E14 != NULL) {
+        heapFree(D_80748E14);
+        D_80748E14 = NULL;
+    }
+    D_807F9680 = 0;
+}
 
 s32 func_8066B020(s32 arg0, s32 arg1) {
     s32 sp1C;
@@ -885,7 +926,6 @@ void func_8066B4AC(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B4D4.s")
-
 
 s32 func_8066B5C8(s32 arg0, s32 arg1) {
     s32 *ptr = D_807F95A8[arg0];
