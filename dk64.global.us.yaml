@@ -88,7 +88,7 @@ segments:
       - [0x68AA0, asm]
       - [0x68EA0, asm]
       - [0x699B0, asm]
-      - [0x70FD0, asm]
+      - [0x70FD0, c, 70FD0]
       - [0x77B90, asm] # hand-written 64-bit asm (dmult/ld/sd, $k0/$k1): not IDO C
       - [0x79890, c, 79890]
       - [0x7A510, c, 7A510]
@@ -102,7 +102,7 @@ segments:
       - [0x8F050, c, 8F050]
       - [0x8F4B0, c, 8F4B0]
       - [0x90D80, c, 90D80]
-      - [0x936B0, asm]
+      - [0x936B0, c, 936B0]
       - [0x9BF30, asm]
       - [0x9CE20, asm]
       - [0x9DD70, asm]
@@ -200,6 +200,7 @@ segments:
       - [0x15BE40, .rodata, 131B0]
       - [0x15BF90, .rodata, 15050]
       - [0x15BFD0, rodata]
+      - [0x15DD50, .rodata, 70FD0]
       - [0x15DEA0, .rodata, 79890]
       - [0x15DEC0, .rodata, 7A510]
       - [0x15DEE0, .rodata, 7AF60]
@@ -209,7 +210,8 @@ segments:
       - [0x15E8B0, .rodata, 8D3E0]
       - [0x15EA00, .rodata, 8F4B0]
       - [0x15EC30, .rodata, 90D80]
-      - [0x15EC70, rodata]
+      - [0x15EC70, .rodata, 936B0]
+      - [0x15EEF0, rodata]
       - { start: 0x165D50, type: bss, vram: 0x80761050 }
 
   - [0x165D50]
