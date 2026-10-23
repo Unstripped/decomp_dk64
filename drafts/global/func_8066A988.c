@@ -1,5 +1,13 @@
-// func_8066A988 (src/global/699B0.c): starter m2c draft (unattempted)
-s32 func_8066A988(void *arg0, f32 arg1, f32 arg2) {
+// func_8066A988 (src/global/6AD90.c): Identical twin of func_80669E04 at +0x24 offset; same-side half-plane point in triangle test
+
+#include "common.h"
+typedef struct {
+    f32 x[3];
+    f32 y[3];
+    f32 z[3];
+} R1C_TriangleF;
+
+s32 func_80669E04(R1C_TriangleF *arg0, f32 arg1, f32 arg2) {
     f64 spA0;
     f64 sp98;
     f64 sp90;
@@ -32,15 +40,15 @@ s32 func_8066A988(void *arg0, f32 arg1, f32 arg2) {
     s32 var_v0;
     s32 var_v1;
 
-    temp_ft5 = arg0->unk28;
-    temp_ft4 = arg0->unk2C;
-    temp_fs0 = arg0->unk44;
-    sp58 = arg0->unk40;
+    temp_ft5 = arg0->x[1];
+    temp_ft4 = arg0->x[2];
+    temp_fs0 = arg0->z[2];
+    sp58 = arg0->z[1];
     var_v1 = 0;
-    sp54 = arg0->unk24;
+    sp54 = arg0->x[0];
     sp60 = temp_ft5;
     temp_fs5 = (f64) sp54;
-    sp44 = arg0->unk3C;
+    sp44 = arg0->z[0];
     sp64 = temp_ft4;
     temp_fa1 = (f64) sp44;
     temp_fs1 = (temp_fs5 + ((f64) (temp_ft4 + temp_ft5) * 0.5)) * 0.5;
@@ -55,7 +63,7 @@ s32 func_8066A988(void *arg0, f32 arg1, f32 arg2) {
     temp_fs4 = (f64) arg2;
     temp_fs3 = (f64) arg1;
     do {
-        switch (var_v0) {                           /* irregular */
+        switch (var_v0) {
         default:
             var_fv0 = (temp_fs3 - var_ft4) * var_fa1;
             var_fv1 = (temp_fs4 - var_ft5) * var_fa0;
