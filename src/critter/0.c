@@ -86,7 +86,7 @@ void critterPlayAudio(u8 *arg0) {
     } while (i != 2);
 }
 
-void func_8066B434(s32, s32, s32);
+void assetFreeBuffer(s32, s32, s32);
 
 void critterStopAudio(u8 *arg0) {
     s32 i;
@@ -94,7 +94,7 @@ void critterStopAudio(u8 *arg0) {
     for (i = 0; i < 8; i += 4, ptr += 4) {
         s32 val = *(s32 *)(ptr + 0x1E8);
         if (val != 0) {
-            func_8066B434(val, 0x179, 0x5A);
+            assetFreeBuffer(val, 0x179, 0x5A);
             *(s32 *)(ptr + 0x1E8) = 0;
         }
     }

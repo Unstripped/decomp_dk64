@@ -1,16 +1,17 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct R2Small_68AA0_Entry {
+
+typedef struct ActorTargetSource {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     u8 padC[0x84 - 0xC];
     s16 unk84;
     u8 pad86[0xA];
-} R2Small_68AA0_Entry;
+} ActorTargetSource;
 
-typedef struct R2Small_68AA0_Target {
+typedef struct ActorTargetEntry {
     s16 unk0;
     s16 unk2;
     s16 unk4;
@@ -22,10 +23,10 @@ typedef struct R2Small_68AA0_Target {
         } s;
         s8 unk7_arr[5];
     } u;
-} R2Small_68AA0_Target;
+} ActorTargetEntry;
 
-extern R2Small_68AA0_Entry *D_807F6000;
-extern R2Small_68AA0_Target *D_807F9420;
+extern ActorTargetSource *D_807F6000;
+extern ActorTargetEntry *D_807F9420;
 extern s16 D_807F9424;
 extern s32 D_80747D70;
 
@@ -34,7 +35,7 @@ u8 func_80663FCC(s16);
 s8 func_806531B8(f32, f32, f32, s32);
 s32 func_80658B08(s8, void *, s16);
 
-void func_80663DA0(void) {
+void actorInitTargetEntries(void) {
     s32 k = 0;
     s32 i;
     s32 res;
@@ -48,7 +49,7 @@ void func_80663DA0(void) {
 
     D_807F9420 = NULL;
     if (D_807F9424 != 0) {
-        D_807F9420 = func_80610FE8(D_807F9424 * sizeof(R2Small_68AA0_Target));
+        D_807F9420 = func_80610FE8(D_807F9424 * sizeof(ActorTargetEntry));
         for (i = 0; i < D_80747D70; i++) {
             s32 cond = func_80663FCC(i);
             u8 res = cond;
@@ -69,14 +70,14 @@ void func_80663DA0(void) {
     }
 }
 
-typedef struct R1Small_68AA0_Entry {
+typedef struct ActorTargetType {
     u8 pad[0x84];
     s16 unk84;
     u8 pad86[0xA];
-} R1Small_68AA0_Entry;
+} ActorTargetType;
 
 u8 func_80663FCC(s16 arg0) {
-    s16 val = ((R1Small_68AA0_Entry *)D_807F6000)[arg0].unk84;
+    s16 val = ((ActorTargetType *)D_807F6000)[arg0].unk84;
 
     if (val == 1 || val == 0xC || val == 0x10 || val == 0xF3 || val == 0x134 || val == 0x135 || val == 0x138) {
         return 1;

@@ -18,7 +18,7 @@ void texCacheReset(void) {
     }
 }
 
-void func_8066B434(s32, s32, s32);
+void assetFreeBuffer(s32, s32, s32);
 
 void texCacheUpdate(void) {
     s16 i;
@@ -29,7 +29,7 @@ void texCacheUpdate(void) {
         if (entry->unk6 != 0) {
             entry->unk6--;
             if (entry->unk6 == 0) {
-                func_8066B434(entry->unk0, 0x6A, 0x46);
+                assetFreeBuffer(entry->unk0, 0x6A, 0x46);
             }
         }
     }

@@ -1,16 +1,17 @@
 #include "common.h"
 #include "actor.h"
 
+
 typedef struct {
     u8 unk0;
     u8 pad[0x1F];
-} R1A_Struct8BA0;
+} ParticlePathHeader;
 
-extern R1A_Struct8BA0 D_80748BA0[];
+extern ParticlePathHeader D_80748BA0[];
 extern u8 D_807F9440[];
 extern s32 D_807F9448;
 
-void func_80664CB0(arg0)
+void particleFindPathIndices(arg0)
 s16 arg0;
 {
     s32 limit;
@@ -28,7 +29,7 @@ s16 arg0;
     }
 }
 
-typedef struct R3T_Struct8BA0_Full {
+typedef struct ParticlePathNode {
     u8 pad0[2];
     s16 unk2;
     s16 unk4;
@@ -42,16 +43,16 @@ typedef struct R3T_Struct8BA0_Full {
     u8 pad16[2];
     f32 unk18;
     f32 unk1C;
-} R3T_Struct8BA0_Full;
+} ParticlePathNode;
 
 typedef struct {
     char pad[0x21C];
     f32 unk21C;
     f32 unk220;
     f32 unk224;
-} R3T_Player;
+} ParticlePlayerPosition;
 
-extern R3T_Player *D_807FC924;
+extern ParticlePlayerPosition *D_807FC924;
 extern u8 D_807FC928;
 extern u32 D_8076A064;
 extern s32 D_8072140C;
@@ -71,11 +72,11 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void func_80717B64(void);
 void func_80717D4C(void);
 
-void func_80664D20(void) {
+void particleSpawnPathTrail(void) {
     s32 i;
     u8 idx;
-    R3T_Struct8BA0_Full *node;
-    R3T_Player *player;
+    ParticlePathNode *node;
+    ParticlePlayerPosition *player;
     f32 dz;
     f32 dx;
     f32 dy;
@@ -86,7 +87,7 @@ void func_80664D20(void) {
         for (i = 0; i < D_807F9448; i++) {
             idx = D_807F9440[i];
             player = D_807FC924;
-            node = (R3T_Struct8BA0_Full *)((u8 *)D_80748BA0 + (idx << 5));
+            node = (ParticlePathNode *)((u8 *)D_80748BA0 + (idx << 5));
                 dz = player->unk224 - (f32)node->unk6;
                 dx = player->unk21C - (f32)node->unk2;
                 dy = player->unk220 - (f32)node->unk4;

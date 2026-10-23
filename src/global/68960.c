@@ -1,18 +1,19 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct R1Small_68960_Entry {
+
+typedef struct MapFogEntry {
     s16 unk0;
     s8 unk2;
     s8 pad3;
     s16 unk4;
-} R1Small_68960_Entry;
+} MapFogEntry;
 
-extern R1Small_68960_Entry D_80748B70[];
+extern MapFogEntry D_80748B70[];
 extern s32 D_8076A0A8;
 s32 func_8061CC00(void);
 
-void func_80663C60(f32 *arg0, s16 arg1) {
+void mapUpdateFogDistance(f32 *arg0, s16 arg1) {
     s16 limit = 6;
     f32 target;
     f32 val;

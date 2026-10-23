@@ -1,7 +1,8 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct R1A_Actor5160 {
+
+typedef struct ActorPhysicsWork {
     char pad0[0x64];
     u32 unk64;
     char pad68[0x86];
@@ -13,15 +14,15 @@ typedef struct R1A_Actor5160 {
     s16 unkF8;
     s16 unkFA;
     u8 unkFC;
-} R1A_Actor5160;
+} ActorPhysicsWork;
 
 void func_8067ACB4(void);
 void func_80672680(s16, s16, s16, s16, void *);
 s16 func_80672134(s16, s16, s16, s16);
 void func_80665ACC(Actor *);
 
-void func_80665160(arg0, arg1, arg2)
-R1A_Actor5160 *arg0;
+void actorStepPhysics(arg0, arg1, arg2)
+ActorPhysicsWork *arg0;
 s16 arg1;
 s16 arg2;
 {
@@ -37,7 +38,7 @@ s16 arg2;
     }
 }
 
-typedef struct R1A_Actor51FC {
+typedef struct ActorVelocityWork {
     char pad0[0x4];
     ActorSub4 *unk4;
     char pad8[0x54];
@@ -61,13 +62,13 @@ typedef struct R1A_Actor51FC {
     char padF0[0xA];
     s16 unkFA;
     u8 unkFC;
-} R1A_Actor51FC;
+} ActorVelocityWork;
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 extern u32 D_80744478;
 
-void func_806651FC(R1A_Actor51FC *arg0) {
+void actorApplyVelocity(ActorVelocityWork *arg0) {
     f32 pad;
     f32 sp28;
     f32 fv1;
@@ -100,7 +101,7 @@ void func_806651FC(R1A_Actor51FC *arg0) {
     arg0->unk80 += arg0->unkC0 * sp28;
 }
 
-typedef struct R1A_Actor53C0 {
+typedef struct ActorVelocityCustomWork {
     char pad0[0x4];
     ActorSub4 *unk4;
     char pad8[0x58];
@@ -118,10 +119,10 @@ typedef struct R1A_Actor53C0 {
     char padF0[0xA];
     s16 unkFA;
     u8 unkFC;
-} R1A_Actor53C0;
+} ActorVelocityCustomWork;
 
 
-void func_806653C0(R1A_Actor53C0 *arg0, f32 arg1, f32 arg2) {
+void actorApplyVelocityCustom(ActorVelocityCustomWork *arg0, f32 arg1, f32 arg2) {
     f32 sp28;
     f32 scale;
 
@@ -173,7 +174,7 @@ void func_80665ACC(Actor *arg0) {
 
 f32 func_80611BB4(f32, f32);
 
-f32 func_80665AE4(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+f32 mathAngleBetweenPointsDeg(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     f32 sp1C;
 
     if (arg2 >= arg0 && arg3 >= arg1) {
@@ -190,7 +191,7 @@ f32 func_80665AE4(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 s32 func_80611E60(s32);
 
-s16 func_80665C18(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
+s16 mathAngleDiscrete(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     s16 sp36;
 
     if ((f64)arg4 < 1.0) {
@@ -208,19 +209,19 @@ s16 func_80665C18(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     return sp36;
 }
 
-s32 func_80665DE0(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+s32 mathAngleBetweenPoints2D(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 dx = arg0 - arg2;
     f32 dy = arg1 - arg3;
 
-    return func_80665C18(arg0, arg1, arg2, arg3, sqrtf((dx * dx) + (dy * dy)));
+    return mathAngleDiscrete(arg0, arg1, arg2, arg3, sqrtf((dx * dx) + (dy * dy)));
 }
 
-f32 func_80665E48(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
-    return (f64)(func_80665DE0(arg0, arg1, arg2, arg3) * 3.141592741f) * 0.00048828125;
+f32 mathAngleBetweenPointsRad(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+    return (f64)(mathAngleBetweenPoints2D(arg0, arg1, arg2, arg3) * 3.141592741f) * 0.00048828125;
 }
 
 
-void func_80665E94(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s16 arg6) {
+void mathCalculatePitchAngle(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s16 arg6) {
     f32 dx = arg0 - arg3;
     f32 dz = arg2 - arg5;
     f32 dist = sqrtf((dx * dx) + (dz * dz));
@@ -235,35 +236,35 @@ void func_80665E94(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s
     func_80611BB4(arg4 - arg1, max_dist);
 }
 
-typedef struct R1A_Sub0SubC {
+typedef struct ActorSubNodeData {
     f32 unk0;
     f32 unk4;
     u8 unk8[1];
-} R1A_Sub0SubC;
+} ActorSubNodeData;
 
-typedef struct R1A_Sub0 {
+typedef struct ActorSubNodeWrapper {
     char pad[0xC];
-    R1A_Sub0SubC *unkC;
-} R1A_Sub0;
+    ActorSubNodeData *unkC;
+} ActorSubNodeWrapper;
 
-typedef struct R1A_Sub4 {
+typedef struct ActorScaleConfig {
     char pad[0x14];
     s32 unk14;
     s32 unk18;
     char pad2[0x1C];
     f32 unk38;
-} R1A_Sub4;
+} ActorScaleConfig;
 
-typedef struct R1A_Arg0 {
-    R1A_Sub0 *unk0;
-    R1A_Sub4 *unk4;
+typedef struct ActorTransformWork {
+    ActorSubNodeWrapper *unk0;
+    ActorScaleConfig *unk4;
     char pad[4];
     u8 unkC[1];
-} R1A_Arg0;
+} ActorTransformWork;
 
 void func_8066E2C0(f32, f32, f32, f32, f32, f32, void *, s32, s32, void *);
 
-void func_80665F24(R1A_Arg0 *arg0) {
+void func_80665F24(ActorTransformWork *arg0) {
     f32 fv0;
     f32 fv1;
     f32 ft4;
@@ -295,7 +296,7 @@ void func_806303C4(s32, s32, Actor *, f32, f32, f32, s32, s32, s32, s32, s32);
 void actorSub140SetVectors(Actor *, f32, f32, f32, f32);
 extern s32 D_8076A064;
 
-void func_80665FB4(Actor *arg0) {
+void actorUpdatePositionAndSub140(Actor *arg0) {
     f32 x;
     f32 y;
     f32 z;

@@ -159,7 +159,7 @@ void func_8061F0B0(s32, s32, s32);
 void func_80626110(s32, s32, s32);
 s32 func_80629148(void);
 void func_8063DA40(s16, s32);
-s16 func_80665DE0(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void projectileGetTargetCoords(BossC_9C60_Actor *, s32);
 void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, BossC_9C60_Actor *);
 void func_80724CA4(s32, s32);
@@ -354,7 +354,7 @@ void func_8002DE04(void) {
     case 0x37:
         switch (D_807FBB40->unk155) {
         case 0:
-            D_807FBB40->unkE6 = func_80665DE0(D_807FDCA0->unk14->unk28, D_807FDCA0->unk14->unk2C, D_807FBB40->unk7C, D_807FBB40->unk84);
+            D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FDCA0->unk14->unk28, D_807FDCA0->unk14->unk2C, D_807FBB40->unk7C, D_807FBB40->unk84);
             func_80614EBC(D_807FBB40, 0);
             func_8061CC40(D_807FBB40, 2, 1);
             D_807FBB40->unk155++;

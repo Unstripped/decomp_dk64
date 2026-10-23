@@ -14,10 +14,10 @@ extern PlayerData *D_807FC924;
 void func_806D0DE4(s32, s32);
 s32 func_806D10D0(s32);
 s32 func_806767E0();
-f32 func_80665E94(f32, f32, f32, f32, f32, f32, s32);
+f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 void actorGetNodePos();
 u8 actorIsFacingTarget();
-s16 func_80665DE0(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC14C(s16, s16);
 s32 func_8067680C();
 s32 actorListContainsId();
@@ -58,7 +58,7 @@ s32 actorIsDamageFatal(void* arg0, void* arg1, u8 arg2) {
 u8 func_80676338(s32 arg0, s32 arg1, s32 arg2) {
     u8 var_a0;
 
-    var_a0 = func_806CC14C(func_80665DE0((s16)((Actor*)arg0)->unk7C, (s16)((Actor*)arg0)->unk84, (s16)((Actor*)arg1)->unk7C, (s16)((Actor*)arg1)->unk84), *(s16*)((u8*)arg0 + 0xE6)) < 0x200;
+    var_a0 = func_806CC14C(mathAngleBetweenPoints2D((s16)((Actor*)arg0)->unk7C, (s16)((Actor*)arg0)->unk84, (s16)((Actor*)arg1)->unk7C, (s16)((Actor*)arg1)->unk84), *(s16*)((u8*)arg0 + 0xE6)) < 0x200;
     if (var_a0) {
         var_a0 = actorIsFacingTarget(arg0, arg1, arg2);
     }
@@ -68,11 +68,11 @@ u8 func_80676338(s32 arg0, s32 arg1, s32 arg2) {
 u8 actorIsFacingTarget(s32 arg0, s32 arg1, s32 arg2) {
     Actor* a0 = (Actor*)arg0;
     Actor* a1 = (Actor*)arg1;
-    return func_806CC14C(func_80665DE0((s16)a0->unk7C, (s16)a0->unk84, (s16)a1->unk7C, (s16)a1->unk84), *(s16*)((u8*)a1 + 0xE6)) < 0x3A9;
+    return func_806CC14C(mathAngleBetweenPoints2D((s16)a0->unk7C, (s16)a0->unk84, (s16)a1->unk7C, (s16)a1->unk84), *(s16*)((u8*)a1 + 0xE6)) < 0x3A9;
 }
 
 u8 func_806764D8(Actor* arg0, Actor* arg1, s32 arg2) {
-    return (f64)func_80665E94(arg0->unk7C, arg0->unk80, arg0->unk84, arg1->unk7C, arg1->unk80, arg1->unk84, 0) > 0.7;
+    return (f64)mathCalculatePitchAngle(arg0->unk7C, arg0->unk80, arg0->unk84, arg1->unk7C, arg1->unk80, arg1->unk84, 0) > 0.7;
 }
 
 u8 func_80676540(void* arg0, void* arg1, s32 arg2) {

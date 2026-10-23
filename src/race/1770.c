@@ -99,7 +99,7 @@ void raceAdvanceCheckpoint(u16 *arg0, s8 *arg1, s32 arg2) {
 extern void *D_807FBB40;
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-f32 func_80665E48(f32, f32, f32, f32);
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 void func_80026098(f32 *arg0, f32 *arg1) {
     s16 sp2E;
     s32 pad;
@@ -107,7 +107,7 @@ void func_80026098(f32 *arg0, f32 *arg1) {
     f32 temp_fv1;
     f32 temp_fa1;
 
-    sp2E = (s16) (s32) (((f64) func_80665E48(arg0[0], arg0[2], arg1[0], arg1[2]) * 2048.0) / 3.1415927410125732);
+    sp2E = (s16) (s32) (((f64) mathAngleBetweenPointsRad(arg0[0], arg0[2], arg1[0], arg1[2]) * 2048.0) / 3.1415927410125732);
     temp_fv1 = arg1[2] - arg0[2];
     temp_fa1 = arg1[0] - arg0[0];
     sp24 = (f32) ((f64) sqrtf((temp_fv1 * temp_fv1) + (temp_fa1 * temp_fa1)) * ((f64) *(f32 *)((u8 *)D_807FBB40 + 0xB8) * 0.03));

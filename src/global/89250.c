@@ -644,7 +644,7 @@ u8 arg0;
 }
 
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-s32 func_80665DE0(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void func_806595F0(s32);
 void func_8065A708(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -678,7 +678,7 @@ u8 arg3;
     func_80626F8C(sp74, sp70, sp6C, &sp58, &sp54, 0, 1.0f, 0);
     func_80626F8C(sp68, sp64, sp60, &sp50, &sp4C, 0, 1.0f, 0);
     {
-        f32 temp = (f32)(((s32)(func_80665DE0(sp50, sp4C, sp58, sp54) * 360) / 4096) + 90);
+        f32 temp = (f32)(((s32)(mathAngleBetweenPoints2D(sp50, sp4C, sp58, sp54) * 360) / 4096) + 90);
         sp5C = temp;
         if (temp < 270.0f) {
             sp5C = temp + 180.0f;

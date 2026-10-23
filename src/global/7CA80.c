@@ -60,8 +60,8 @@ void *func_80610FE8(s32);
 void func_8061421C();
 void func_80614A64(Actor *);
 ActorSub140 *func_80665F24(Actor *);
-void func_806663F8(Actor *);
-void func_80669A6C(Actor *);
+void collisionClearFlags(Actor *);
+void actorUpdateSubnodeRotationAndMtx(Actor *);
 void actorUpdateMovementFlags(Actor *);
 void func_80675EE0(Actor *);
 void actorInitDamage(Actor *);
@@ -442,7 +442,7 @@ void func_80678B04(void) {
 }
 
 void func_80678BBC(Actor *arg0) {
-    func_806663F8(arg0);
+    collisionClearFlags(arg0);
     if (arg0->unk5C & 1) {
         func_8067B100(arg0);
     }
@@ -470,7 +470,7 @@ void func_80678BBC(Actor *arg0) {
         arg0->unk140->unk6C = 0;
     }
     if (arg0->unk110 != 0) {
-        func_80669A6C(arg0);
+        actorUpdateSubnodeRotationAndMtx(arg0);
     }
 }
 
@@ -479,7 +479,7 @@ typedef struct R3B_Actor {
     u8 unk156;
 } R3B_Actor;
 
-void func_80665FB4(Actor *);
+void actorUpdatePositionAndSub140(Actor *);
 void func_80678E6C(Actor *);
 void actorUpdateModelMatrices(Actor *);
 void func_806790F4(s32);
@@ -491,7 +491,7 @@ void func_80678CC8(Actor *actor) {
     if ((void *)func_8067B3F4 == (void *)D_8074DA30[D_8074D8D4[actor->unk58]]) {
         guTranslateF((void *)((u8 *)actor + 0xC), actor->unk7C, actor->unk80, actor->unk84);
     }
-    func_80665FB4(actor);
+    actorUpdatePositionAndSub140(actor);
     func_80678E6C(actor);
     if (!(actor->unk60 & 0x08000000)) {
         actor->unk60 &= ~0x200;

@@ -242,7 +242,7 @@ f32 func_80612794(s16);
 void func_80604CBC(void *, s32, s32, s32, s32, s32, f32, s32);
 void func_8060866C(void *, s32, s32, s32, s32, s32);
 void func_80605314(f32, s32, void *, s32);
-s32 func_80665DE0(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
 s32 func_806119A0(void);
 f32 func_806119FC(void);

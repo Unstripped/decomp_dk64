@@ -146,7 +146,7 @@ s32 func_80629148(void);
 void func_806319C4(void *, s32);
 void func_8063DA40();
 void func_80659670(f32, f32, f32, s32);
-s16 func_80665DE0(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void effectSpawnJointBeam(s32, s32, s32, s32);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileGetTargetCoords(void *, s32);
@@ -174,7 +174,7 @@ void func_80029468(void) {
 
     sp4C = ACTOR->unk178;
     sp44 = D_80035A00[sp4C->unk14];
-    sp42 = func_80665DE0(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84);
+    sp42 = mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84);
     func_80729B00();
     if (!(ACTOR->unk60 & 0x10)) {
         ACTOR->unkCE = 0x64;
@@ -352,7 +352,7 @@ block_28:
         case 2:
             if (func_8061CB50() == 0) {
                 if (ACTOR->unk154 == 0x46) {
-                    if (func_806CC14C(ACTOR->unkE6, func_80665DE0(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84)) < 0x320) {
+                    if (func_806CC14C(ACTOR->unkE6, mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84)) < 0x320) {
                         func_80614EBC(ACTOR, 0x218);
                         ACTOR->unk155++;
                     }

@@ -251,8 +251,8 @@ typedef struct R2H_ActorGlobalState {
 
 void func_80604CBC(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void func_80605314(Actor *, s32);
-void func_80665160(Actor *, s16, s16);
-void func_806651FC(Actor *);
+void actorStepPhysics(Actor *, s16, s16);
+void actorApplyVelocity(Actor *);
 
 void func_8067C2B8(void) {
     R2H_8067C2B8 *temp_v0;
@@ -296,8 +296,8 @@ void func_8067C2B8(void) {
         }
         R2H_ACTOR->unkFA = 0x64;
         temp_a1 = R2H_ACTOR->unkEE;
-        func_80665160(D_807FBB40, temp_a1, temp_a1);
-        func_806651FC(D_807FBB40);
+        actorStepPhysics(D_807FBB40, temp_a1, temp_a1);
+        actorApplyVelocity(D_807FBB40);
         func_80665564(D_807FBB40, 0.0f);
         R2H_ACTOR->unk80 = R2H_ACTOR->unkA4;
         if (temp_v0->unk8 == 0) {
@@ -324,8 +324,8 @@ void func_8067C2B8(void) {
         }
         R2H_ACTOR->unkFA = 0x64;
         temp_a1 = R2H_ACTOR->unkEE;
-        func_80665160(D_807FBB40, temp_a1, temp_a1);
-        func_806651FC(D_807FBB40);
+        actorStepPhysics(D_807FBB40, temp_a1, temp_a1);
+        actorApplyVelocity(D_807FBB40);
         func_80665564(D_807FBB40, 0.0f);
         if (temp_v0->unk8 == 0) {
             if (((f64) R2H_ACTOR->unkB8 == 0.0) || !(R2H_ACTOR->unk60 & 0x10)) {
@@ -805,7 +805,7 @@ void func_806C8220(s32, void *, u16);
 void func_806F1C04(Actor *, void *, s32 *);
 void func_806F22A8(Actor *, void *, s32 *);
 void func_806F1EB0(Actor *, void *, s32 *);
-s32 func_80665DE0(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_8072881C(s32, void *);
 
 void func_80683158(void) {
@@ -838,7 +838,7 @@ void func_80683158(void) {
     }
     *((u8 *)((R2G_ActorSub4 *)D_807FBB40->unk4)->unk1C + sp3C * 8) = 0;
     D_807FBB40->unk16D = D_807FBB40->unk15F;
-    D_807FBB40->unkE6 = func_80665DE0(D_807FC924->unk210, D_807FC924->unk218, D_807FBB40->unk7C, D_807FBB40->unk84);
+    D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FC924->unk210, D_807FC924->unk218, D_807FBB40->unk7C, D_807FBB40->unk84);
     extra8 = extra->unk8;
     if (func_8072881C(0, extra8) != 0) {
         if (extra->unk0 == 3 || extra->unk0 == 5) {

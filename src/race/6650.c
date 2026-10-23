@@ -163,7 +163,7 @@ extern Struct_FDCA0 *D_807FDCA0;
 
 s32 func_8002E960(u8);
 f32 func_8002F784(s32, Struct_sp58 *, void *);
-s32 func_80665C18(f32, f32, s32, s32, f32);
+s32 mathAngleDiscrete(f32, f32, s32, s32, f32);
 s32 func_806CC10C(s16, s16);
 f32 raceGetProgressPercent(s32, Struct_sp58 *, Struct_sp5C *);
 f32 func_8002E1C8(void *, f32, void *, void *);
@@ -173,8 +173,8 @@ f32 func_80612790(s16);
 f32 func_80611BB4(f32, f32);
 s16 func_806D1080(f32, f32);
 s16 func_806CC190(s16, s16, f32, s16);
-void func_80665160(Actor_BB40 *, s16, s16);
-void func_806651FC(Actor_BB40 *);
+void actorStepPhysics(Actor_BB40 *, s16, s16);
+void actorApplyVelocity(Actor_BB40 *);
 void func_80665564(Actor_BB40 *, s32);
 void func_8002F490(Struct_sp58 *);
 typedef struct {

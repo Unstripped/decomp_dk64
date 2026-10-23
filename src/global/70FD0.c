@@ -65,7 +65,7 @@ extern u8 D_807FB604;
 void *func_80610FE8(s32);
 void heapFree(void *);
 
-void func_806687E0(void);
+void dynamicBufferPurgeExpired(void);
 void func_8066C2D0(s32, s32, f32, f32, f32, f32, f32, f32, f32);
 void collisionTransformNode(s32, s32, f32, f32, f32, f32, f32, f32, f32);
 void dynamicBufferFree(DynamicBuffer *);
@@ -120,7 +120,7 @@ void dynamicBufferFree(DynamicBuffer *arg0) {
 
 void collisionBufferCacheUpdate(void) {
     collisionPurgeExpiredBuffers();
-    func_806687E0();
+    dynamicBufferPurgeExpired();
 }
 
 void collisionPurgeExpiredBuffers(void) {

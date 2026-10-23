@@ -386,7 +386,7 @@ void projectileSetTargetCoords(f32 arg0, f32 arg1, f32 arg2) {
 
 #include "actor.h"
 
-s16 func_80665DE0(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void projectileCalculateTrajectoryAndSpawn(s16, s16, s16, f32, f32, f32, f32, f32, s32);
 typedef struct {
     f32 unk0;
@@ -444,7 +444,7 @@ void projectileCalculateTrajectoryAndSpawn(s16 arg0, s16 arg1, s16 arg2, f32 arg
 }
 
 void projectileAimAndSpawn(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, s32 arg7) {
-    projectileCalculateTrajectoryAndSpawn(func_80665DE0(arg3, arg5, D_807FC7B0, D_807FC7B8), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+    projectileCalculateTrajectoryAndSpawn(mathAngleBetweenPoints2D(arg3, arg5, D_807FC7B0, D_807FC7B8), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
 
 s16 func_806CC14C(s16, s16);
@@ -453,7 +453,7 @@ void projectileClampAngleAndSpawn(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 ar
     s16 sp38;
     s16 var_s0;
 
-    var_s0 = func_80665DE0(arg5, arg7, D_807FC7B0, D_807FC7B8);
+    var_s0 = mathAngleBetweenPoints2D(arg5, arg7, D_807FC7B0, D_807FC7B8);
     if (arg1 < func_806CC14C(arg0, var_s0)) {
         sp3C = (arg0 - arg1) & 0xFFF;
         sp38 = (arg0 + arg1) & 0xFFF;
@@ -594,7 +594,7 @@ void func_8066EB40(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8067ACB4(Actor *);
-void func_806651FC(Actor *);
+void actorApplyVelocity(Actor *);
 void func_80665564(Actor *, f32);
 void actorDespawn(Actor *);
 s32 func_80714C08(void *, f32, Actor *, s32, s32);
@@ -634,7 +634,7 @@ void projectileSparkleUpdate(s32 arg0) {
         G_SPARKLE_ACTOR->unk60 |= 0x80000;
     }
     func_8067ACB4(D_807FBB40);
-    func_806651FC(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 4.0f);
     if ((G_SPARKLE_ACTOR->unk6A & 1) || (G_SPARKLE_ACTOR->unkFC != 0) || (D_807FBB85 != 0) || ((u32)(sp2C->unk0 + 24) < D_8076A068)) {
         actorDespawn(D_807FBB40);
@@ -749,7 +749,7 @@ void func_80608528(void *, s32, s32, s32, s32);
 void func_80714A28(s32);
 void func_80690C60(s32, Actor *, void *, s32);
 s32 func_80665558(void);
-s32 func_8066641C(void);
+s32 collisionGetStateByte(void);
 
 void projectileSpawnParticleEffect2(void) {
     func_806919E0(&D_807201D4);
@@ -797,7 +797,7 @@ void projectileDespawnOrExplode(void) {
         *sp44 = D_8076A068;
     }
     func_8067ACB4(D_807FBB40);
-    func_806651FC(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 10, 10, 1, 0x96, 0x78, 0, 1.0f);
     unkFC = G_PROJECTILE_ACTOR->unkFC;
@@ -859,11 +859,11 @@ void projectileMultiplayerUpdate(void) {
         sp3C = D_80750370;
     }
     func_8067ACB4(D_807FBB40);
-    func_806651FC(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
     if (G_PROJECTILE_ACTOR->unkFD != 0 ||
         func_80665558() != 0 ||
-        ((G_PROJECTILE_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
+        ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
         if (D_80750AD0 == 0) {
@@ -1022,11 +1022,11 @@ void projectileBeamUpdate(void) {
         sp3C = D_8075036C;
     }
     func_8067ACB4(D_807FBB40);
-    func_806651FC(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
     if (func_80665558() != 0 ||
         G_PROJECTILE_BEAM_ACTOR->unkFD != 0 ||
-        ((G_PROJECTILE_BEAM_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
+        ((G_PROJECTILE_BEAM_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
         (G_PROJECTILE_BEAM_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
         func_807149B8(1);
@@ -1167,11 +1167,11 @@ void projectileRotatingUpdate(void) {
         sp3C = D_80750374;
     }
     func_8067ACB4(D_807FBB40);
-    func_806651FC(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
     if (G_PROJECTILE_ACTOR->unkFD != 0 ||
         func_80665558() != 0 ||
-        ((G_PROJECTILE_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
+        ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
         func_807149B8(1);
@@ -1244,7 +1244,7 @@ void projectileMatrixRotationUpdate(void) {
         sp84 = D_80750368;
     }
     func_8067ACB4(D_807FBB40);
-    func_806651FC(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
     switch (G_PROJECTILE_ROT_ACTOR->unk154) {
     case 0:
@@ -1279,7 +1279,7 @@ void projectileMatrixRotationUpdate(void) {
         }
         break;
     }
-    if (((G_PROJECTILE_ROT_ACTOR->unk6A & 1) && func_8066641C() == 1) || D_807FBB85 != 0) {
+    if (((G_PROJECTILE_ROT_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) || D_807FBB85 != 0) {
         actorDespawn(D_807FBB40);
     }
     if (D_807FC928 >= 2) {
@@ -1368,7 +1368,7 @@ void projectileParticleSpawnerTick(void) {
         }
     }
     func_8067ACB4(D_807FBB40);
-    func_806651FC(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 4.0f);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
     if (G_PROJECTILE_PARTICLE_ACTOR->unk6A & 4) {
@@ -1464,7 +1464,7 @@ void projectileHomingParticleUpdate(void) {
         G_PROJECTILE_HOMING_ACTOR->unk60 |= 0x80000;
     }
     func_8067ACB4(D_807FBB40);
-    func_806651FC(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 4.0f);
     G_PROJECTILE_HOMING_ACTOR->unkC0 += D_80750274;
     temp_fv0 = (f32)D_807502D0;

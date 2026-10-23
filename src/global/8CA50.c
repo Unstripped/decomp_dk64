@@ -39,7 +39,7 @@ void *func_8066B0F8(s32, s32, u8, s32);
 void animListFree(AnimNode **);
 void func_80687FC8(AnimNode *);
 AnimNode *animGetNodeByIndex(AnimActor *, u32);
-void func_8066B434(void *, s32, s32);
+void assetFreeBuffer(void *, s32, s32);
 void heapFree(void *);
 
 void animListInit(AnimActor *arg0, AnimInitData *arg1) {
@@ -266,7 +266,7 @@ void animListFree(AnimNode **arg0) {
             if (node->unkA > 0) {
                 arr = temp;
                 do {
-                    func_8066B434(*arr, 0x1E6, 0x2C);
+                    assetFreeBuffer(*arr, 0x1E6, 0x2C);
                     i++;
                     arr++;
                 } while (i < node->unkA);
