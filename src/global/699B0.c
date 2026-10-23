@@ -459,11 +459,44 @@ u8 func_80667174(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_80668520.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_806685E0.s")
+typedef struct R2C_TriangleS {
+    s16 x[3];
+    s16 y[3];
+    s16 z[3];
+    s16 unk12;
+} R2C_TriangleS;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_806686F4.s")
+typedef struct R1C_Entry_94C0 {
+    f32 unk0;
+    s16 unk4;
+    u8 unk6;
+    u8 unk7;
+} R1C_Entry_94C0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_806687E0.s")
+extern R1C_Entry_94C0 D_807F94C0[];
+extern s16 D_807F94A8;
+s32 func_8066893C();
+void func_806689F0(s32, R2C_TriangleS *, s32);
+
+void func_806685E0(R2C_TriangleS *arg0, f32 arg1) {
+    if (D_807F9510 != 10) {
+        D_807F94C0[D_807F9510].unk0 = arg1 / 6.0f;
+        if (func_8066893C(arg0)) {
+            D_807F94C0[D_807F9510].unk6 = 1;
+        } else {
+            D_807F94C0[D_807F9510].unk6 = 2;
+        }
+        if (arg0->unk12 & 1) {
+            D_807F94C0[D_807F9510].unk6 |= 4;
+        }
+        if (arg0->unk12 & 0x400) {
+            D_807F94C0[D_807F9510].unk6 |= 8;
+        }
+        func_806689F0(0, arg0, 0);
+        D_807F94C0[D_807F9510].unk4 = D_807F94A8;
+        D_807F9510++;
+    }
+}
 
 typedef struct R1C_Struct_806688B8 {
     u32 unk0;
@@ -474,6 +507,42 @@ typedef struct R1C_Struct_806688B8 {
 } R1C_Struct_806688B8;
 
 extern R1C_Struct_806688B8 *D_807F9514;
+extern s32 D_8076A064;
+extern s32 D_807F9518;
+extern u8 D_807F951C;
+void func_806688B8(s32);
+void heapFree(void *);
+void *func_80610FE8(s32);
+void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
+
+void func_806686F4(s32 arg0) {
+    u32 sp34;
+
+    if (D_807F9514[arg0].unk0 == 0) {
+        sp34 = D_807F9514[arg0].unk10;
+        if (sp34 != 0) {
+            D_807F9514[arg0].unk0 = (u32)func_80610FE8(sp34);
+            D_807F9514[arg0].unk4 = D_807F9514[arg0].unk0 + (sp34 / 24) * 24;
+            func_8060B140(D_807F9514[arg0].unkC, (void *)D_807F9514[arg0].unk0, &sp34, 0, 0, 0, 0);
+        }
+    }
+    D_807F9514[arg0].unk8 = D_8076A064;
+}
+
+void func_806687E0(void) {
+    s32 i;
+
+    if (!D_807F951C) {
+        for (i = 0; i < D_807F9518; i++) {
+            if (D_807F9514[i].unk0 != 0 && (u32)(D_8076A064 - D_807F9514[i].unk8) >= 21) {
+                func_806688B8(i);
+                heapFree((void *)D_807F9514[i].unk0);
+                D_807F9514[i].unk0 = 0;
+                D_807F9514[i].unk4 = 0;
+            }
+        }
+    }
+}
 extern ActorEntry D_807FB930[];
 extern u16 D_807FBB34;
 
@@ -520,7 +589,52 @@ s32 func_8066893C(R1C_TriangleS *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_806689F0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_80668B28.s")
+s32 func_80668B28(R1C_TriangleS *arg0, s32 arg1, s32 arg2) {
+    s32 p0, p1, p2;
+    s32 val;
+
+    p0 = arg0->x[0];
+    p1 = arg0->x[1];
+    p2 = arg0->x[2];
+
+    val = (p0 < p1) ? p0 : p1;
+    if (val >= p2) {
+        val = p2;
+    }
+    if (arg1 < val) {
+        return 0;
+    }
+
+    val = (p1 < p0) ? p0 : p1;
+    if (val <= p2) {
+        val = p2;
+    }
+    if (val < arg1) {
+        return 0;
+    }
+
+    p0 = arg0->z[0];
+    p1 = arg0->z[1];
+    p2 = arg0->z[2];
+
+    val = (p0 < p1) ? p0 : p1;
+    if (val >= p2) {
+        val = p2;
+    }
+    if (arg2 < val) {
+        return 0;
+    }
+
+    val = (p1 < p0) ? p0 : p1;
+    if (val <= p2) {
+        val = p2;
+    }
+    if (val < arg2) {
+        return 0;
+    }
+
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_80668C30.s")
 
@@ -532,15 +646,6 @@ typedef struct R1C_TriangleF {
     f32 z[3];
 } R1C_TriangleF;
 
-typedef struct R1C_Entry_94C0 {
-    f32 unk0;
-    s16 unk4;
-    u8 unk6;
-    u8 unk7;
-} R1C_Entry_94C0;
-
-extern R1C_Entry_94C0 D_807F94C0[];
-extern s16 D_807F94A8;
 s32 func_80669930(R1C_TriangleF *);
 void func_80669830(s32, R1C_TriangleF *, s32);
 
@@ -573,7 +678,6 @@ s32 func_80669650(u8 arg0, u8 *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_806696A0.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_80669830.s")
-
 
 s32 func_80669930(R1C_TriangleF *arg0) {
     R1C_CrossStack sp;
@@ -632,9 +736,7 @@ s32 func_80669C6C(R1C_BoundingBox *arg0, f32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_80669E04.s")
 
-void *func_80610FE8(s32);
 void gunzip(void *, void *, void *);
-void heapFree(void *);
 void heapFreeDeferred(void *);
 extern void *D_80748E14;
 void func_8066B5F4(void);
