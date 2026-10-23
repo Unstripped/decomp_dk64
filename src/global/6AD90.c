@@ -374,7 +374,95 @@ s32 func_80669650(u8 arg0, u8 *arg1) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806696A0.s")
+typedef struct R3Q_Node_96A0 {
+    f32 x;
+    f32 y;
+    f32 z;
+    struct R3Q_Node_96A0 *next;
+} R3Q_Node_96A0;
+
+typedef struct R3Q_Sub7C {
+    u8 pad0[8];
+    f32 unk8;
+    f32 unkC;
+    u8 pad10[0x34 - 0x10];
+    f32 unk34;
+} R3Q_Sub7C;
+
+typedef struct R3Q_D_807F6000 {
+    u8 pad[0x7C];
+    R3Q_Sub7C *unk7C;
+    u8 pad80[0x88 - 0x80];
+    s16 unk88;
+    u8 pad8A[6];
+} R3Q_D_807F6000;
+
+extern R3Q_D_807F6000 *D_807F6000;
+extern f32 D_807F9468;
+extern s8 D_807F946C;
+
+typedef struct R3Q_Actor {
+    u8 pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0x94 - 0x88];
+    f32 unk94;
+    f32 unk98;
+    u8 pad9C[0xE6 - 0x9C];
+    s16 unkE6;
+    u8 padE8[0xFC - 0xE8];
+    u8 unkFC;
+    u8 padFD[3];
+    f32 unk100;
+    f32 unk104;
+    f32 unk108;
+    s16 unk10C;
+    s8 unk10E;
+    s8 unk10F;
+    u8 unk110;
+    u8 pad111[0x12F - 0x111];
+    u8 unk12F;
+} R3Q_Actor;
+
+void func_806699C4(R3Q_Actor *, s16, s8, s8, f32, f32, f32);
+void func_8066C610(s16, s8, float [4][4]);
+s32 func_80659470();
+
+void func_806696A0(arg0, arg1, arg2)
+R3Q_Actor *arg0;
+s16 arg1;
+R3Q_Node_96A0 *arg2;
+{
+    u8 count = 0;
+
+    if (arg2 != NULL) {
+        do {
+            f32 dx = arg2->x - arg0->unk7C;
+            f32 dz = arg2->z - arg0->unk84;
+            f32 dist;
+            f32 dy;
+
+            dx = dx * dx;
+            dz = dz * dz;
+            dist = sqrtf(dx + dz);
+            dy = arg2->y - arg0->unk80;
+            if (dist < 5.0) {
+                if (dy > 0.0f) {
+                    if (dy < 25.0) {
+                        func_806699C4(arg0, arg1, -1, 0, arg2->x, arg2->y, arg2->z);
+                        arg0->unk110 = 3;
+                        arg0->unk12F = count;
+                        D_807F946C = 1;
+                        D_807F9468 = arg2->y - 10.0f;
+                    }
+                }
+            }
+            arg2 = arg2->next;
+            count++;
+        } while (arg2 != NULL);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80669830.s")
 
@@ -394,7 +482,43 @@ s32 func_80669930(R1C_TriangleF *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806699C4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80669A6C.s")
+void func_80669A6C(R3Q_Actor *arg0) {
+    f32 pad[10];
+    float sp90[4][4];
+    float padMtx[4][4];
+    f32 sp4C;
+    f32 sp48;
+    f32 sp44;
+    s16 sp42;
+    s16 pad40;
+    R3Q_Sub7C *sub;
+
+    sp42 = func_80659470(arg0->unk10C);
+    if (sp42 != -1) {
+        func_8066C610(sp42, arg0->unk10F, sp90);
+        sub = D_807F6000[sp42].unk7C;
+        if (sub != NULL) {
+            if (arg0->unkFC == 0) {
+                arg0->unkE6 += (sub->unk34 * 4095.0f) / 360.0f;
+                if (arg0->unkE6 >= 0x1000) {
+                    arg0->unkE6 -= 0x1000;
+                }
+                if (arg0->unkE6 < 0) {
+                    arg0->unkE6 += 0xFFF;
+                }
+            }
+            arg0->unk100 += D_807F6000[sp42].unk7C->unk8;
+            arg0->unk108 += D_807F6000[sp42].unk7C->unkC;
+        }
+        guMtxXFMF(sp90, arg0->unk100, arg0->unk104, arg0->unk108, &sp4C, &sp48, &sp44);
+        arg0->unk94 = sp4C;
+        arg0->unk98 = sp44;
+        if (arg0->unkFC == 0) {
+            arg0->unk7C = sp4C;
+            arg0->unk84 = sp44;
+        }
+    }
+}
 
 typedef struct R1C_BoundingBox {
     f32 minX;
