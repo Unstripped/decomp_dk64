@@ -77,7 +77,6 @@ void func_80601A10(Aud6710_InitArg *arg0, s32 arg1, Aud6710_Arg2 *arg2) {
     Aud6710_DmaNode *curr;
     Aud6710_DmaNode *prev;
     s32 i;
-
     arg0->dmaNew = func_806022DC;
     arg0->unk18 = D_8000DCB4;
     D_80770194 = 0x228;
@@ -113,7 +112,6 @@ void func_80601A10(Aud6710_InitArg *arg0, s32 arg1, Aud6710_Arg2 *arg2) {
         task->sampleBuffer = alHeapDBAlloc(NULL, 0, arg0->heap, 1, D_8077019C * 4);
         curr = (Aud6710_DmaNode *)((u8 *)curr + 4);
     }
-
     osCreateMesgQueue(&D_8076D6D0, D_8076D6E8, 8);
     osCreateMesgQueue(&D_8076D698, D_8076D6B0, 8);
     osCreateMesgQueue(&D_807704A8, D_807704C0, 0x20);
@@ -200,7 +198,7 @@ typedef struct Aud6710_AiBuf {
 extern u32 D_805FB000[];
 extern u32 D_805FB0D0[];
 extern s32 D_807452C8;
-extern s32 D_80770558;
+extern s32 D_80770558[];
 extern u32 func_80741310[];
 extern u64 D_80760590[];
 
@@ -211,9 +209,12 @@ OSMesgQueue *func_8060EE58(void *);
 #ifdef NON_MATCHING
 s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
     u32 physSampleBuf;
+    s32 pad[1];
     s32 cmdCount;
     u32 aiLen;
     s32 cmdLen;
+    s32 count;
+    s32 zero = 0;
 
     physSampleBuf = osVirtualToPhysical(task->sampleBuffer);
     func_80602314();
@@ -221,25 +222,23 @@ s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
     if (aiBuf != NULL) {
         osAiSetNextBuffer(aiBuf->buf, aiBuf->len * 4);
     }
-    if ((s32)aiLen < 0x5C) {
-        if (D_80770558 == 0) {
-            task->sampleCount = D_8077019C;
-            D_80770558 = 2;
-            goto done_sample;
-        }
-    }
-    if ((s32)aiLen >= 0x115) {
-        if (D_80770558 == 0) {
+    if (((s32)aiLen < 0x5C) && ((count = D_80770558[zero]) == 0)) {
+        task->sampleCount = D_8077019C;
+        count = 2;
+        D_80770558[zero] = count;
+    } else {
+        count = D_80770558[zero];
+        if (((s32)aiLen >= 0x115) && (count == 0)) {
             task->sampleCount = D_80770194;
-            D_80770558 = 2;
-            goto done_sample;
+            count = 2;
+            D_80770558[zero] = count;
+        } else {
+            task->sampleCount = 0x2E0;
+            if (count != 0) {
+                D_80770558[zero] = count - 1;
+            }
         }
     }
-    task->sampleCount = 0x2E0;
-    if (D_80770558 != 0) {
-        D_80770558--;
-    }
-done_sample:
 
     cmdLen = n_alAudioFrame(D_8076D4D0.cmdBuffers[D_807452C8], &cmdCount, physSampleBuf, task->sampleCount);
     if (cmdCount == 0) {
@@ -252,6 +251,7 @@ done_sample:
     task->flags = 1;
     task->client = &D_8076D4C0;
     task->task.t.data_ptr = (u64 *)D_8076D4D0.cmdBuffers[D_807452C8];
+    task->task.t.data_size = ((cmdLen - (s32)D_8076D4D0.cmdBuffers[D_807452C8]) >> 3) << 3;
     task->task.t.type = 2;
     task->task.t.ucode_boot = (u64 *)&D_805FB000;
     task->task.t.ucode_boot_size = (u8 *)&D_805FB0D0 - (u8 *)&D_805FB000;
@@ -259,9 +259,8 @@ done_sample:
     task->task.t.ucode = (u64 *)&func_80741310;
     task->task.t.ucode_data = (u64 *)&D_80760590;
     task->task.t.ucode_data_size = 0x800;
-    task->task.t.yield_data_size = 0x400;
-    task->task.t.data_size = ((cmdLen - (s32)D_8076D4D0.cmdBuffers[D_807452C8]) >> 3) << 3;
     task->task.t.yield_data_ptr = NULL;
+    task->task.t.yield_data_size = 0x400;
 
     osWritebackDCacheAll();
     osSendMesg(func_8060EE58(&gScheduler), &task->next, OS_MESG_NOBLOCK);
@@ -294,15 +293,12 @@ extern Aud6710_Struct80770188 D_80770188;
 extern OSIoMesg D_807701A8[];
 extern u32 D_807452C4;
 
-#ifdef NON_MATCHING
 s32 func_80602144(u32 addr, s32 len, void *state) {
-    Aud6710_DmaNode *next;
     void *sp44;
-    s32 pad[2];
+    s32 pad[3];
     Aud6710_DmaNode *node;
     Aud6710_DmaNode *last;
     s32 head;
-    u32 dmaIndex;
     s32 end;
     last = NULL;
     head = (s32)D_80770188.unk4;
@@ -328,8 +324,7 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
         return osVirtualToPhysical((void *)head);
     }
 
-    next = node->next;
-    D_80770188.unk8 = next;
+    D_80770188.unk8 = node->next;
     alUnlink((ALLink *)node);
     if (last != NULL) {
         alLink((ALLink *)node, (ALLink *)last);
@@ -351,16 +346,11 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
     addr -= head;
     node->unk8 = addr;
     node->unkC = D_807452C0;
-    dmaIndex = D_807452C4;
     sp44 = node->unk10;
-    D_807452C4 = dmaIndex + 1;
-    osPiStartDma(&D_807701A8[dmaIndex], 1, 0, addr, sp44, 0x800, &D_807704A8);
+    osPiStartDma(&D_807701A8[D_807452C4++], 1, 0, addr, sp44, 0x800, &D_807704A8);
     return osVirtualToPhysical(sp44) + head;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6710/func_80602144.s")
-#endif
 
 
 void *func_806022DC(Aud6710_Struct80770188 **arg0) {

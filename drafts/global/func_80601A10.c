@@ -1,4 +1,4 @@
-// func_80601A10 (src/global/6710.c): stage 5, struct copy matched, frame 0x268 vs 0x260 and loop regalloc
+// func_80601A10 (src/global/6710.c): stage 5: frame 0x268 vs 0x260 due to &D_8076D708 commoning into s4 pushing arg2/D_8077019C into s5/s6; loops 1-3 regalloc
 #include "common.h"
 #include "actor.h"
 
