@@ -1,4 +1,4 @@
-// func_806057F8 (src/global/7130.c): Stage 3 (transitioning to 4): 3101 insns, score 20596, 33296/33680 bytes (97% matching size), callee-saved set matches; stack frame 0x1f8 vs 0x160 due to uopt spilling
+// func_806057F8 (src/global/7130.c): from .scratch/Aud7130L3/func_806057F8_best.c
 
 typedef struct Aud7130L3_SubActor {
     char pad0[0x90];

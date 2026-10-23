@@ -1,4 +1,4 @@
-// func_80601EE4 (src/global/6710.c): stage 5, score 410: frame 0x40 and OSScTask stores matched, D_80770558[zero] lui/sw matched, remaining diff regalloc only
+// func_80601EE4 (src/global/6710.c): stage 5, score 410: frame 0x40 and all OSTask/OSScTask stores match; D_80770558[zero] lui/sw match, only regalloc for count ($v0/$v1) and D_807452C8 ($t2/$t5)
 #include "common.h"
 #include "actor.h"
 

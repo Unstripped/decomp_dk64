@@ -1,4 +1,4 @@
-// func_80601A10 (src/global/6710.c): stage 5: frame 0x268 vs 0x260 due to &D_8076D708 commoning into s4 pushing arg2/D_8077019C into s5/s6; loops 1-3 regalloc
+// func_80601A10 (src/global/6710.c): stage 5: frame 0x260 matched (was 0x268), saved regs s0-s5 matched (was 7 regs s0-s6) via (i^0)<39 and curr-before-sp44 declaration order, remaining diff regalloc in loops 1-3
 #include "common.h"
 #include "actor.h"
 
@@ -70,14 +70,14 @@ extern OSMesgQueue D_807704A8;
 extern OSMesg D_807704C0[32];
 
 void *func_806022DC();
-void n_alInit();
+void n_alInit(s32 *, Aud6710_InitArg *);
 void func_80601D24();
 
 void func_80601A10(Aud6710_InitArg *arg0, s32 arg1, Aud6710_Arg2 *arg2) {
-    Aud6710_Config218 sp44;
     Aud6710_DmaNode *curr;
+    Aud6710_Config218 sp44;
     Aud6710_DmaNode *prev;
-    s32 i;
+    u32 i;
 
     arg0->dmaNew = func_806022DC;
     arg0->unk18 = D_8000DCB4;
@@ -94,7 +94,7 @@ void func_80601A10(Aud6710_InitArg *arg0, s32 arg1, Aud6710_Arg2 *arg2) {
 
     curr = &D_8076FE68[1];
     prev = &D_8076FE68[0];
-    for (i = 0; i < 39; i++, prev++, curr++) {
+    for (i = 0; (i ^ 0) < 39; i++, prev++, curr++) {
         alLink((ALLink *)curr, (ALLink *)prev);
         prev->unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
     }
