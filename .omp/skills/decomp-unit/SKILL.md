@@ -52,9 +52,13 @@ grep its output for your files); a string/word run
 after doubles/jump tables inside one splat file is a hidden TU (boss `9C60` was three:
 `9C60`/`A7A0`/`B100`); place the text boundary at the only 16-byte-aligned function start
 between the owners' functions. Also: nop padding only at file ends, 16-byte alignment.
-When several 16-aligned starts qualify, use the data side: the second TU's first `.data`
-object is 16-aligned, so the boundary is the last aligned function start at or before that
-object's first user (`8F4B0`/`90D80`: `D_807501E0`, first used by `func_8068C20C` → `func_8068C080`).
+When several 16-aligned starts qualify, data ownership can narrow them: a 16-aligned
+`.data` object whose users all lie in the later TU marks where that TU's data starts, so
+the text boundary is at or before its first user (an upper bound, not the boundary itself:
+a TU may start several functions earlier). `8F4B0`/`90D80`: `D_807501E0`, first used by
+`func_8068C20C`, left `func_8068C080` as the only aligned start after the last first-TU
+rodata owner. If candidates remain, look for other ownership evidence (rodata/data users,
+padding) before choosing.
 Unreferenced strings that end exactly where a file's first rodata label starts (no
 alignment gap) belong to that file's TU (actor `7CA80` kong names).
 Overlays: data stays one named asm `[0xOFF, data, 0]`. Global: data stays in the shared
