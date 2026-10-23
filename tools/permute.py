@@ -167,8 +167,97 @@ def extract_func_definition(source: str, func_name: str) -> str:
     raise ValueError(f"unclosed brace for function '{func_name}'")
 
 
-def preprocess_includes(include_lines: List[str], extra_flags: List[str]) -> str:
-    """Preprocess #include lines to produce a self-contained type context."""
+def strip_other_fns(source: str, keep_fn: str) -> str:
+    """Turn all function bodies except keep_fn into forward declarations."""
+    result = ""
+    remain = source
+    fn_regex = re.compile(r"^([a-zA-Z0-9_* \t\n]+?)\b(\w+)\s*\(([^;]*?)\)\s*\{", re.M)
+    while True:
+        m = fn_regex.search(remain)
+        if not m:
+            result += remain
+            break
+        fn_name = m.group(2)
+        start_idx = m.end() - 1
+        level = 1
+        i = start_idx + 1
+        n = len(remain)
+        while i < n and level > 0:
+            if remain[i] == "{":
+                level += 1
+            elif remain[i] == "}":
+                level -= 1
+            i += 1
+        if fn_name == keep_fn or fn_name.startswith("PERM"):
+            result += remain[:i]
+        else:
+            proto = remain[:start_idx].rstrip() + ";"
+            result += proto + "\n"
+        remain = remain[i:]
+    return result
+
+
+def wrap_multi_statement_lines(source: str, func_name: str) -> str:
+    """Wrap lines with multiple statements inside func_name in PERM_FORCE_SAMELINE."""
+    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^;{{}}]*\)\s*\{{)", re.MULTILINE)
+    m = pat.search(source)
+    if not m:
+        return source
+    start_idx = m.start(2)
+    brace_idx = source.find("{", start_idx)
+    level = 1
+    i = brace_idx + 1
+    n = len(source)
+    while i < n and level > 0:
+        if source[i] == "{":
+            level += 1
+        elif source[i] == "}":
+            level -= 1
+        i += 1
+    func_text = source[start_idx:i]
+
+    lines = func_text.splitlines()
+    new_lines = []
+    for idx, line in enumerate(lines):
+        if idx == 0 or idx == len(lines) - 1:
+            new_lines.append(line)
+            continue
+        s = line.strip()
+        if not s or s.startswith("//") or s.startswith("/*") or s.startswith("#"):
+            new_lines.append(line)
+            continue
+        if "PERM_" in s:
+            new_lines.append(line)
+            continue
+        if re.match(r"^\s*for\s*\(", line):
+            paren_depth = 0
+            open_idx = line.find("(")
+            close_idx = -1
+            for j in range(open_idx, len(line)):
+                if line[j] == "(":
+                    paren_depth += 1
+                elif line[j] == ")":
+                    paren_depth -= 1
+                    if paren_depth == 0:
+                        close_idx = j
+                        break
+            if close_idx != -1:
+                after_for = line[close_idx + 1:]
+                if after_for.count(";") <= 1:
+                    new_lines.append(line)
+                    continue
+        if s.count(";") > 1:
+            indent = line[:len(line) - len(line.lstrip())]
+            new_lines.append(f"{indent}PERM_FORCE_SAMELINE({s})")
+        else:
+            new_lines.append(line)
+
+    new_func_text = "\n".join(new_lines)
+    return source[:start_idx] + new_func_text + source[i:]
+
+
+def preprocess_whole_source(source_text: str, extra_flags: List[str]) -> str:
+    """Preprocess a complete assembled source file with cpp, expanding macros."""
     cpp_bin = shutil.which("mips-linux-gnu-cpp") or shutil.which("cpp") or "cpp"
     cmd = [
         cpp_bin,
@@ -179,20 +268,27 @@ def preprocess_includes(include_lines: List[str], extra_flags: List[str]) -> str
         "-DF3DEX_GBI_2",
         "-DTARGET_N64",
         "-D_MIPS_SZLONG=32",
+        "-D_Static_assert(x, y)=",
+        "-D__attribute__(x)=",
+        "-D__extension__=",
         "-I",
         "include",
     ]
-    # Pass through any additional -I or -D flags from the compile flags
     for flag in extra_flags:
         if flag.startswith("-I") or flag.startswith("-D"):
             if flag not in cmd:
                 cmd.append(flag)
 
-    input_text = "\n".join(include_lines) + "\n"
-    res = subprocess.run(cmd, cwd=ROOT, input=input_text, capture_output=True, text=True)
+    res = subprocess.run(cmd, cwd=ROOT, input=source_text, capture_output=True, text=True)
     if res.returncode != 0:
-        sys.exit(f"error preprocessing includes ({cpp_bin}):\n{res.stderr}")
-    return res.stdout
+        sys.exit(f"error preprocessing source ({cpp_bin}):\n{res.stderr}")
+
+    defines = (
+        "#ifndef NULL\n#define NULL 0\n#endif\n"
+        "#ifndef TRUE\n#define TRUE 1\n#endif\n"
+        "#ifndef FALSE\n#define FALSE 0\n#endif\n"
+    )
+    return res.stdout + "\n" + defines
 
 
 # ---------------------------------------------------------------------------
@@ -269,27 +365,6 @@ compiler_type = "ido"
     from_text = from_path.read_text(encoding="utf-8", errors="ignore")
     src_text = src_path.read_text(encoding="utf-8", errors="ignore")
 
-    # Gather #include lines
-    include_lines = []
-    for line in src_text.splitlines():
-        if line.strip().startswith("#include"):
-            include_lines.append(line.strip())
-    for line in from_text.splitlines():
-        if line.strip().startswith("#include"):
-            inc = line.strip()
-            if inc not in include_lines:
-                include_lines.append(inc)
-
-    # Extract compile flags for cpp
-    extra_flags = [tok for tok in cflags.split() if tok.startswith("-I") or tok.startswith("-D")]
-    ctx_text = preprocess_includes(include_lines, extra_flags)
-
-    # Standard defines for boolean/pointer constants
-    defines = (
-        "#ifndef NULL\n#define NULL 0\n#endif\n"
-        "#ifndef TRUE\n#define TRUE 1\n#endif\n"
-        "#ifndef FALSE\n#define FALSE 0\n#endif\n"
-    )
     # Check whether from_path is a whole file (e.g. private copy of src/ with GLOBAL_ASM / other functions)
     is_whole_file = False
     if args.from_file:
@@ -302,61 +377,88 @@ compiler_type = "ido"
                 is_whole_file = True
 
     if is_whole_file:
-        # Extract just FUNC from private copy
-        func_body = extract_func_definition(from_text, func)
-        # Top-level declarations come from from_path (or src_path) before the first function
-        m_first = re.search(r"^(?:[a-zA-Z0-9_*]+\s+)+(\w+)\s*\([^;]*\)\s*\{", from_text, re.MULTILINE)
-        first_decl_text = from_text[:m_first.start()] if m_first else ""
-        decl_lines = [
-            l for l in first_decl_text.splitlines()
-            if not l.strip().startswith("#include") and not l.strip().startswith("#pragma")
-        ]
-        base_c_content = f"{ctx_text}\n{defines}\n" + "\n".join(decl_lines) + f"\n\n{func_body}\n"
+        combined = from_text
+        combined = strip_other_fns(combined, func)
+        combined = re.sub(r"#pragma\s+GLOBAL_ASM\([^\)]*\)", "", combined)
     else:
         # Stored draft or single function snippet
         draft_lines = []
         for line in from_text.splitlines():
             s = line.strip()
-            if s.startswith("//") or s.startswith("#include"):
+            if s.startswith("//"):
                 continue
+            if s.startswith("#include"):
+                inc = s.split()[1] if len(s.split()) > 1 else ""
+                if inc in src_text:
+                    continue
             draft_lines.append(line)
-        draft_body = "\n".join(draft_lines).strip()
+        draft_text = "\n".join(draft_lines).strip()
 
-        # Extract top-level declarations from src file before first function
-        m_first = re.search(r"^(?:[a-zA-Z0-9_*]+\s+)+(\w+)\s*\([^;]*\)\s*\{", src_text, re.MULTILINE)
-        src_decls = src_text[:m_first.start()] if m_first else ""
-        filtered_decls = []
-        for l in src_decls.splitlines():
-            s = l.strip()
-            if s.startswith("#include") or s.startswith("#pragma"):
-                continue
-            # Avoid redeclaration conflict if symbol already defined/declared in draft
-            m_sym = re.search(r"\b(D_[0-9A-Fa-f]+)\b", s)
-            if m_sym and m_sym.group(1) in draft_body:
-                continue
-            filtered_decls.append(l)
+        # Find externs in draft to strip conflicting declarations in src
+        draft_externs = set(re.findall(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*;", draft_text))
+        if draft_externs:
+            filtered_lines = []
+            for l in src_text.splitlines():
+                m = re.search(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*;", l)
+                if m and m.group(1) in draft_externs:
+                    continue
+                filtered_lines.append(l)
+            src_text = "\n".join(filtered_lines)
 
-        base_c_content = f"{ctx_text}\n{defines}\n" + "\n".join(filtered_decls) + f"\n\n{draft_body}\n"
+        # Replace target GLOBAL_ASM with draft_text, or append if pragma absent
+        target_pragma = re.compile(rf"#pragma\s+GLOBAL_ASM\(\"[^\"]*{re.escape(func)}\.s\"\)")
+        if target_pragma.search(src_text):
+            combined = target_pragma.sub(lambda _: draft_text, src_text, count=1)
+        else:
+            combined = src_text + "\n\n" + draft_text
+
+        combined = strip_other_fns(combined, func)
+        combined = re.sub(r"#pragma\s+GLOBAL_ASM\([^\)]*\)", "", combined)
+
+    extra_flags = [tok for tok in cflags.split() if tok.startswith("-I") or tok.startswith("-D")]
+    base_c_content = preprocess_whole_source(combined, extra_flags)
+    base_c_content = wrap_multi_statement_lines(base_c_content, func)
     base_c = out_dir / "base.c"
     base_c.write_text(base_c_content, encoding="utf-8")
 
     # 6. Verify compilation and compute starting score
     base_o = out_dir / "base.o"
+    if "PERM_" in base_c_content:
+        sys.path.insert(0, "/opt/decomp-permuter")
+        from src.perm.eval import perm_evaluate_one
+        from src.perm.parse import perm_parse
+        perms = perm_parse(base_c_content)
+        test_c_content, _ = perm_evaluate_one(perms)
+        test_c_file = out_dir / "test_base.c"
+        test_c_file.write_text(test_c_content, encoding="utf-8")
+        comp_file = test_c_file
+    else:
+        comp_file = base_c
+
     comp_res = subprocess.run(
-        [str(compile_sh), str(base_c), "-o", str(base_o)],
+        [str(compile_sh), str(comp_file), "-o", str(base_o)],
         cwd=out_dir,
         capture_output=True,
         text=True,
     )
+    if "PERM_" in base_c_content and comp_file.exists():
+        comp_file.unlink()
+
     if comp_res.returncode != 0:
         print(f"Compilation error in {base_c}:", file=sys.stderr)
         print(comp_res.stderr or comp_res.stdout, file=sys.stderr)
         sys.exit(1)
 
-    # Score base.o vs target.o
+    # Score base.o vs target.o and compute permuter baseline score
     sys.path.insert(0, "/opt/decomp-permuter")
     try:
         from src.scorer import Scorer
+        from src.preprocess import preprocess
+        from src.perm.parse import perm_parse
+        from src.perm.eval import perm_evaluate_one
+        from src.candidate import Candidate
+        from src.helpers import get_default_randomization_weights
+
         scorer = Scorer(
             str(target_o),
             stack_differences=True,
@@ -365,13 +467,44 @@ compiler_type = "ido"
             ign_branch_targets=False,
             objdump_command=None,
         )
-        score, _ = scorer.score(str(base_o))
+        direct_score, _ = scorer.score(str(base_o))
+
+        # Evaluate through decomp-permuter pipeline as run will
+        c_source = preprocess(str(base_c))
+        weights = get_default_randomization_weights("ido")
+        perms = perm_parse(c_source)
+        base_source, eval_state = perm_evaluate_one(perms)
+        cand = Candidate.from_source(base_source, eval_state, func, weights, rng_seed=0)
+        cand_c = out_dir / "cand_base.c"
+        cand_o = out_dir / "cand_base.o"
+        cand_c.write_text(cand.get_source(), encoding="utf-8")
+        cand_comp = subprocess.run(
+            [str(compile_sh), str(cand_c), "-o", str(cand_o)],
+            cwd=out_dir,
+            capture_output=True,
+            text=True,
+        )
+        if cand_c.exists():
+            cand_c.unlink()
+        cand_score = None
+        if cand_comp.returncode == 0:
+            cand_score, _ = scorer.score(str(cand_o))
+            if cand_o.exists():
+                cand_o.unlink()
+
         print(f"Permuter setup complete: {out_dir}")
-        print(f"Starting score: {score}")
+        print(f"Starting score (direct compile): {direct_score}")
+        if cand_score is not None:
+            print(f"Starting score (permuter baseline): {cand_score}")
+            if cand_score != direct_score:
+                print(
+                    f"WARNING: Direct compile score ({direct_score}) and permuter baseline score ({cand_score}) differ!\n"
+                    f"IDO 5.3 is sensitive to same-line statements and formatting.\n"
+                    f"The permuter will search relative to the baseline score ({cand_score})."
+                )
     except Exception as e:
         print(f"Permuter setup complete: {out_dir}")
         print(f"(Scorer check warning: {e})")
-
 
 # ---------------------------------------------------------------------------
 # Subcommand: run
