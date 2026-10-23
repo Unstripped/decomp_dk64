@@ -40,7 +40,7 @@ void func_8070D8C0(void *, s32, s32);
 void func_806A2A10(s32, s32, s32);
 void func_8061CB08(void);
 void func_806A2B08(void *);
-void func_80602A94(s32, f32);
+void sfxAllocateChannel(s32, f32);
 void func_8073129C(s16, s32, s32);
 s32 func_806FDB8C(s32, char *, s32, f32, f32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
@@ -127,7 +127,7 @@ void func_80029118(void) {
             func_8061CB08();
             D_807FBB40->unk154 = 2;
             func_806A2B08(D_807FBB40->unk11C);
-            func_80602A94(8, 1.0f);
+            sfxAllocateChannel(8, 1.0f);
             sp30 = D_807FBB40;
         }
         break;

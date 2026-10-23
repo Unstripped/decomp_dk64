@@ -114,7 +114,7 @@ extern s16 D_80750AC8;
 extern Actor_BB40 *D_807FBB40;
 
 void func_806EB0C0();
-void func_80605314(Actor_BB40 *, u8);
+void sfxStopSlotSound(Actor_BB40 *, u8);
 void func_8070D8C0(Actor_BB40 *, s32, s32);
 void func_8063DA40(s32, s32);
 void func_8073129C(s32, s32, s32);

@@ -127,7 +127,7 @@ void frameTimingReset(s32 arg0);
 
 /* External functions */
 void func_8002920C(void);
-void func_80602A94(s32, f32);
+void sfxAllocateChannel(s32, f32);
 void func_80611614(void *);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -290,7 +290,7 @@ void func_805FF378(s32 arg0, s32 arg1) {
             func_805FF168();
             D_807FD88C = 1.0f;
             if ((D_807444F8 != 1) && (D_8076AEE0 == 1) && !(D_807FBB68 & 2) && (D_8076A0A8 != 0x4C)) {
-                func_80602A94(0x2C, 1.0f);
+                sfxAllocateChannel(0x2C, 1.0f);
             }
             func_807313BC();
             func_805FF5A0(arg0);

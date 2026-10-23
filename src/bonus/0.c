@@ -81,7 +81,7 @@ void func_806A2B08(void *);
 void func_8069D2AC(s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_8070E750(s32, s32, s32);
 void func_80726EE0(s32);
-void func_80602A94(s32, f32);
+void sfxAllocateChannel(s32, f32);
 void func_806A5DF0(s32, f32, f32, f32, s32, s32, s32, s32);
 void func_805FF898(void);
 void func_806C9974(s32, s32);
@@ -127,7 +127,7 @@ void func_80024E38(void) {
         if (*(u8 *)(*(u8 **)((u8 *)D_807FBB40 + 0x11C) + 0x154) == 5) {
             func_8069D2AC(0x81, 0, 0x78, func_8070E750(0x1A, 0x15, 1), 0, 0x28, 8, 8);
             func_80726EE0(0);
-            func_80602A94(0x28, 1.0f);
+            sfxAllocateChannel(0x28, 1.0f);
             func_806A5DF0(0x56, 588.0f, 240.0f, 582.0f, 0, 0, bonusGetSoundForMap(), 0);
             *(u8 *)((u8 *)D_807FBB40 + 0x154) = 2;
         }

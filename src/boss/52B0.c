@@ -145,7 +145,7 @@ void func_8061CC40(void *, s32, s32);
 s32 func_80629148(void);
 void func_806319C4(void *, s32);
 void func_8063DA40();
-void func_80659670(f32, f32, f32, s32);
+void lightSetColor(f32, f32, f32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void effectSpawnJointBeam(s32, s32, s32, s32);
 void projectileSetTargetCoords(f32, f32, f32);
@@ -182,7 +182,7 @@ void func_80029468(void) {
         D_807FDC98->unk46 |= 0x20;
         ACTOR->unk64 |= 4;
         ACTOR->unk144 = 0x24;
-        func_80659670(0.0f, 0.0f, 0.0f, -1);
+        lightSetColor(0.0f, 0.0f, 0.0f, -1);
         sp4C->unk14 = 0;
         sp4C->unk15 = 0;
         ACTOR->unk154 = 0x1E;

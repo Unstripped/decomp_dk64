@@ -1,15 +1,15 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct Cam1_Node {
+typedef struct HashNode {
     s32 key;
     s32 value;
-    struct Cam1_Node *next;
-} Cam1_Node;
+    struct HashNode *next;
+} HashNode;
 
-extern Cam1_Node *D_807F7370[];
+extern HashNode *D_807F7370[];
 
-void func_80659320(void) {
+void hashTableInit(void) {
     s32 i;
 
     for (i = 0; i < 100; i++) {
@@ -17,11 +17,10 @@ void func_80659320(void) {
     }
 }
 
-void func_80659350(void) {
+void hashTableClear(void) {
     s32 i;
-    Cam1_Node *node;
-    Cam1_Node *next;
-
+    HashNode *node;
+    HashNode *next;
     for (i = 0; i < 100; i++) {
         node = D_807F7370[i];
         if (node != NULL) {
@@ -32,24 +31,24 @@ void func_80659350(void) {
             } while (node != NULL);
         }
     }
-    func_80659320();
+    hashTableInit();
 }
 
-s32 func_80659544(s32);
+s32 hashTableHashKey(s32);
 void *func_80610FE8(s32);
 
-void func_806593C8(s32 key, s32 value) {
-    Cam1_Node *node;
-    Cam1_Node **prev;
+void hashTableInsert(s32 key, s32 value) {
+    HashNode *node;
+    HashNode **prev;
 
-    prev = &D_807F7370[func_80659544(key)];
+    prev = &D_807F7370[hashTableHashKey(key)];
     node = *prev;
     while ((node != NULL) && (key != node->key)) {
         prev = &node->next;
         node = node->next;
     }
     if (node == NULL) {
-        node = func_80610FE8(sizeof(Cam1_Node));
+        node = func_80610FE8(sizeof(HashNode));
         *prev = node;
         node->key = key;
         node->value = value;
@@ -58,10 +57,10 @@ void func_806593C8(s32 key, s32 value) {
         node->value = value;
     }
 }
-s32 func_80659470(s32 arg0) {
-    Cam1_Node *node;
+s32 hashTableLookup(s32 arg0) {
+    HashNode *node;
 
-    node = D_807F7370[func_80659544(arg0)];
+    node = D_807F7370[hashTableHashKey(arg0)];
     while (node != NULL) {
         if (arg0 == node->key) {
             return node->value;
@@ -71,9 +70,9 @@ s32 func_80659470(s32 arg0) {
     return -1;
 }
 
-void func_806594C8(s32 arg0) {
-    Cam1_Node **prev = &D_807F7370[func_80659544(arg0)];
-    Cam1_Node *node = *prev;
+void hashTableRemove(s32 arg0) {
+    HashNode **prev = &D_807F7370[hashTableHashKey(arg0)];
+    HashNode *node = *prev;
 
     while ((node != NULL) && (arg0 != node->key)) {
         prev = &node->next;
@@ -85,15 +84,15 @@ void func_806594C8(s32 arg0) {
     }
 }
 
-s32 func_80659544(s32 arg0) {
+s32 hashTableHashKey(s32 arg0) {
     s32 k = (arg0 > 0) ? arg0 : -arg0;
 
     return k % 100;
 }
 
-void func_80659574(void) {
+void hashTableTraverse(void) {
     s32 i;
-    Cam1_Node *node;
+    HashNode *node;
 
     for (i = 0; i < 100; i++) {
         node = D_807F7370[i];
@@ -105,9 +104,9 @@ void func_80659574(void) {
     }
 }
 
-void func_806595B0(void) {
+void hashTableTraverseDuplicate(void) {
     s32 i;
-    Cam1_Node *node;
+    HashNode *node;
 
     for (i = 0; i < 100; i++) {
         node = D_807F7370[i];

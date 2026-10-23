@@ -10,7 +10,7 @@ extern u8 D_807F7364;
 extern s16 D_807F7366;
 extern s16 D_807F7368;
 
-void func_80659110(u8 arg0) {
+void fogSetParams(u8 arg0) {
     D_807F7360 = arg0;
     if (D_8076A0A8 == 0x26) {
         D_807F7361 = 0x8A;
@@ -26,20 +26,20 @@ void func_80659110(u8 arg0) {
     D_807F7368 = 0x3E7;
 }
 
-u8 func_80659190(void) {
+u8 fogGetEnabled(void) {
     return D_807F7360;
 }
 
-Gfx *func_8065919C(Gfx *gdl) {
+Gfx *fogApply(Gfx *gdl) {
     gSPFogPosition(gdl++, D_807F7366, D_807F7368);
     gDPPipeSync(gdl++);
     gDPSetFogColor(gdl++, D_807F7361, D_807F7362, D_807F7363, D_807F7364);
     return gdl;
 }
-Gfx *func_806592B4(Gfx *gdl) {
+Gfx *fogRender(Gfx *gdl) {
     if (D_807F7360) {
         gSPSetGeometryMode(gdl++, G_FOG);
-        gdl = func_8065919C(gdl);
+        gdl = fogApply(gdl);
     } else {
         gSPClearGeometryMode(gdl++, G_FOG);
     }

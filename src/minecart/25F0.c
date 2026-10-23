@@ -318,7 +318,7 @@ void func_80714A28(s32);
 void func_80714CC0(s32, f32, f32, s32, f32);
 void func_80729B00(void);
 void func_80724CA4(s32, s32);
-void func_80608528(Struct_BB40 *, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(Struct_BB40 *, s32, s32, s32, s32);
 void func_8061F0B0(s32, s32, s32);
 void func_8067E278(s32, s32);
 void func_80724E48(s32);
@@ -426,7 +426,7 @@ void func_80027EE8(CartSub *arg0) {
     dist = sqrtf(dist + d * d);
     if (dist < 200.0f) {
         if (++arg0->unk3A >= 9) {
-            func_80608528(D_807FBB40, 0x1F, 0xFF, (s16) (s32) (127.0f - (dist - (f32) arg0->unk3C)), 0);
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1F, 0xFF, (s16) (s32) (127.0f - (dist - (f32) arg0->unk3C)), 0);
             arg0->unk3A = (u8) (u32) (((f64) func_806119A0() / 4294967295.0) * 3.0);
         }
     }
@@ -447,7 +447,7 @@ void func_800280BC(void) {
         D_807FDC90->unk35 = 6;
     }
     if (D_807FBB70.unk15 != 0) {
-        func_80608528(D_807FBB40, 0xF6, 0xFF, 0x7F, 0x1E);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF6, 0xFF, 0x7F, 0x1E);
         func_8061F0B0(D_807F5D10, 0xA, 0x14);
         D_807FBB40->unk154 = 0x40;
         func_8067E278(0, 1);

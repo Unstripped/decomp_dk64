@@ -183,7 +183,7 @@ void actorAllocSubBuffer(Actor *arg0, s32 arg1) {
 }
 
 void func_806EB0C0(s32, Actor *, u8);
-void func_80604CBC(Actor *, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void animSetSpeed(Actor *, s32, f32);
 void animSetLoopLimit(Actor *, s32, s32);
 void func_8067B238(Actor *, Actor *, f32);
@@ -199,8 +199,8 @@ void actorInitAnimations(Actor *arg0, Actor *arg1) {
     if (D_8076A0A8 == 0x6F) {
         sp37[3] = 0x3C;
     }
-    func_80604CBC(arg0, 0x115, sp37[3], 1, 0, 0xFF, 1.0f, 0);
-    func_80604CBC(arg0, 0x116, sp37[3], 1, 1, 0xFF, 1.0f, 0);
+    sfxPlayActorSound(arg0, 0x115, sp37[3], 1, 0, 0xFF, 1.0f, 0);
+    sfxPlayActorSound(arg0, 0x116, sp37[3], 1, 1, 0xFF, 1.0f, 0);
     animSetSpeed(arg0, 0, 1.0f);
     animSetLoopLimit(arg0, 0, -1);
     actorAllocSubBuffer(arg0, 2);
@@ -317,7 +317,7 @@ void func_8061C6A8(void *, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32)
 void func_8068F72C(void *, s32, s32, s32);
 void func_80690190(void *, s32, void *);
 s32 func_8061CB50(void);
-void func_8065A708(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightAdd(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32);
 void func_8070033C(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32);
 s32 func_8073110C(s32, s32);
 
@@ -352,7 +352,7 @@ void actorUpdatePlayerInteraction(void) {
     }
     if (func_8061CB50() == 0 || (func_8061CB50() != 0 && (D_807FBB4C->unk6A & 0x100))) {
         actorGetNodePos(D_807FBB40, 1, &sp44, &sp40, (f32 *)&sp3C);
-        func_8065A708(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xFF, 0xFF, 0xFF);
+        lightAdd(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xFF, 0xFF, 0xFF);
         if (func_8073110C(0x6B, 2) == 0) {
             if (func_8061CB50() != 0 && (D_807FBB4C->unk6A & 0x100)) {
                 actorGetNodePos(D_807FBB40, 2, &sp44, &sp40, (f32 *)&sp3C);
@@ -745,7 +745,7 @@ void func_8071A8B0(void);
 void func_8071ABDC(void);
 void func_8061EF4C(s32, s32, s32, f32, f32, f32, f32, f32);
 void actorSpawnSparkleBurst(void);
-void func_80608528(void *, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80714A28(s32);
 void func_80690C60(s32, Actor *, void *, s32);
 s32 func_80665558(void);
@@ -875,7 +875,7 @@ void projectileMultiplayerUpdate(void) {
                 func_80714CC0(&D_80720BA0, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
             }
         }
-        func_80608528(D_807FBB40, 0x91, 0xFF, 0x7F, 0x1E);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x91, 0xFF, 0x7F, 0x1E);
         actorDespawn(D_807FBB40);
     }
     if (D_807FC928 >= 2) {
@@ -909,7 +909,7 @@ void projectileSpawnExplosion(void) {
         }
     }
 
-    func_80608528(D_807FBB40, 0xF6, 0xFF, 0x7F, 0x1E);
+    sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF6, 0xFF, 0x7F, 0x1E);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8069346C.s")
@@ -1033,7 +1033,7 @@ void projectileBeamUpdate(void) {
         func_80714950(0x1006E);
         func_8071498C(func_8071A8B0);
         func_80714CC0(&D_8071FB34, 0.45f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
-        func_80608528(D_807FBB40, 0x1E5, 0xFF, 0x7F, 0x1E);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1E5, 0xFF, 0x7F, 0x1E);
         actorDespawn(D_807FBB40);
         if (D_80750AD0 == 0) {
             for (var_s1 = 0; var_s1 != 0xC; var_s1 += 2) {
@@ -1178,7 +1178,7 @@ void projectileRotatingUpdate(void) {
         func_80714950(0x1006E);
         func_8071498C(func_8071A8B0);
         func_80714CC0(&D_8071FB34, 0.45f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
-        func_80608528(D_807FBB40, 0xFF, 0xFF, 0x7F, 5);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xFF, 0xFF, 0x7F, 5);
         actorDespawn(D_807FBB40);
         if (D_80750AD0 == 0) {
             s32 var_s0;
@@ -1255,7 +1255,7 @@ void projectileMatrixRotationUpdate(void) {
             G_PROJECTILE_ROT_ACTOR->unkC0 = 0.0f;
             G_PROJECTILE_ROT_ACTOR->unk154 = 1;
             temp_s2->unk10 = 0x3C;
-            func_80608528(D_807FBB40, 0x308, 0xFF, 0x7F, 5);
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x308, 0xFF, 0x7F, 5);
             if (D_80750AD0 != 0) {
                 actorDespawn(D_807FBB40);
                 return;
@@ -1394,7 +1394,7 @@ void projectileParticleSpawnerTick(void) {
             }
         }
         if (sp54->unk13 != 0xA) {
-            func_80608528(D_807FBB40, 0x3C, 0xFF, 0x7F, 0x1E);
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x3C, 0xFF, 0x7F, 0x1E);
         }
         actorDespawn(D_807FBB40);
     }
@@ -1491,7 +1491,7 @@ void projectileHomingParticleUpdate(void) {
             var_s1 += 2;
         } while (var_s1 != 16);
         func_8061F0B0(D_807F5D10, 20, 15);
-        func_80608528(D_807FBB40, 0x3C, 0xFF, 0x7F, 0x1E);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x3C, 0xFF, 0x7F, 0x1E);
         actorDespawn(D_807FBB40);
     }
     if ((u32)(*sp74 + D_80750344) < D_8076A068) {

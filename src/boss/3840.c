@@ -87,7 +87,7 @@ typedef struct {
     u8 unk15E;
 } Boss3C_Struct_8478;
 
-void func_80602A94(s32, f32);
+void sfxAllocateChannel(s32, f32);
 void func_806A5DF0(s32, f32, f32, f32, s32, s32, s32, s32);
 void func_80714950(void *);
 void func_8071498C(void *);
@@ -111,7 +111,7 @@ u8 arg5;
     s16 sp4C;
     s16 s0;
 
-    func_80602A94(0x36, 1.0f);
+    sfxAllocateChannel(0x36, 1.0f);
     sp4C = (s16)arg0;
     if (func_8073110C((s16)arg0, 0) != 0) {
         func_80028458();

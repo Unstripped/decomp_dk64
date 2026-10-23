@@ -105,9 +105,9 @@ s32 func_8061CB50(void);
 void func_8068ECF4(s32, s32);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void func_8065A6F8(s32);
-void func_8065A660(f32, f32);
-void func_8065A708(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightSetDistanceThreshold(s32);
+void lightSetFovAngles(f32, f32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 typedef struct MinecartStruct_3E {
     char pad0[0x3E];
     u8 unk3E;
@@ -126,7 +126,7 @@ extern Struct_807FBB4C *D_807FBB4C;
 void func_80609140(s32, s32, f32, f32, s32, s32);
 s32 func_8070E750();
 void func_8069D2AC(s32, s32, s32, s32, s32, s32, s32, s32);
-void func_80602A94(s32, f32);
+void sfxAllocateChannel(s32, f32);
 s32 func_806EB0C0();
 void func_8061CC40();
 
@@ -134,7 +134,7 @@ void func_80024000(u8 arg0, u8 arg1) {
     func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
     func_8069D2AC(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
-    func_80602A94(0x28, 1.0f);
+    sfxAllocateChannel(0x28, 1.0f);
     func_806EB0C0(0x44, 0, 0);
     D_807FBB40->unk154++;
     if (arg0 != 0) {
@@ -146,7 +146,7 @@ void func_800240DC(u8 arg0, u8 arg1) {
     s32 temp = func_8070E750(0x1A, arg1, 1);
     func_8069D2AC(0x81, 0, 0x78, temp, 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
-    func_80602A94(0x2A, 1.0f);
+    sfxAllocateChannel(0x2A, 1.0f);
     func_806EB0C0(0x43, 0, 0);
     D_807FBB40->unk154++;
     if (arg0 != 0) {
@@ -159,7 +159,7 @@ extern s32 D_8071A440;
 extern s32 D_8072006C;
 
 s32 func_806119A0();
-void func_80608528(void *, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80714950(void *);
 void func_8071498C(void *);
 s32 func_80714C08(void *, s32, void *, s32, s32);
@@ -167,7 +167,7 @@ s32 func_80714C08(void *, s32, void *, s32, s32);
 void func_800241A0(s16 *arg0, u8 arg1, u8 arg2) {
     if ((u32)(u8)func_806119A0() >= (u32)arg2) {
         if (*arg0 == 0) {
-            func_80608528(D_807FBB40, 0x8A, 0x96, 0x7F, 0x32);
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8A, 0x96, 0x7F, 0x32);
             func_80714950(D_807FBB40);
             func_8071498C(&D_8071A440);
             D_80028C30 = func_80714C08(&D_8072006C, 0x3ECCCCCD, D_807FBB40, arg1 + 7, 2);
@@ -300,9 +300,9 @@ void func_80024768(void) {
         actorGetNodePos(D_807FBB40, 1, &sp38[0], &sp38[1], &sp38[2]);
         actorGetNodePos(D_807FBB40, 2, &sp44[0], &sp44[1], &sp44[2]);
     }
-    func_8065A6F8(0xC8);
-    func_8065A660(20.0f, 40.0f);
-    func_8065A708(sp38[0], sp38[1], sp38[2], sp44[0], sp44[1], sp44[2], 0.0f, 1, 0xFF, 0xFF, 0xFF);
+    lightSetDistanceThreshold(0xC8);
+    lightSetFovAngles(20.0f, 40.0f);
+    lightAdd(sp38[0], sp38[1], sp38[2], sp44[0], sp44[1], sp44[2], 0.0f, 1, 0xFF, 0xFF, 0xFF);
 }
 
 extern s32 D_80028C34;
@@ -325,7 +325,7 @@ extern s16 D_80750338;
 extern s32 D_80028C40;
 
 void func_80729E6C(void);
-void func_80608528(void *, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 
 void func_80024914(void) {
     s32 pad0;
@@ -356,7 +356,7 @@ void func_80024914(void) {
     if (temp_s0->unk0 < 0) {
         temp_s0->unk0 = 0;
         if (temp_a1 != 0) {
-            func_80608528(D_807FBB40, 0x8B, 0xFF, 0x7F, 0x1E);
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8B, 0xFF, 0x7F, 0x1E);
         }
     }
     func_8002430C(3, (s32)&D_80028C40, temp_s0->unk2, 0x19);

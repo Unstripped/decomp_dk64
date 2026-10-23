@@ -293,13 +293,13 @@ void actorRegisterActive(Actor *arg0) {
     D_807FBB34++;
 }
 
-void func_80605314(Actor *, s32);
+void sfxStopSlotSound(Actor *, s32);
 void func_8062D26C(Actor *);
 void actorDeregisterActive(Actor *arg0) {
     s16 i;
 
-    func_80605314(arg0, 0);
-    func_80605314(arg0, 1);
+    sfxStopSlotSound(arg0, 0);
+    sfxStopSlotSound(arg0, 1);
     i = 0;
     if (arg0 != D_807FB930[0].actor && D_807FBB34 > 0) {
         do {
@@ -374,8 +374,8 @@ void actorFreeImmediate(Actor *arg0) {
     i = 0;
     func_8071586C(arg0);
     func_807233B4(arg0);
-    func_80605314(arg0, 0);
-    func_80605314(arg0, 1);
+    sfxStopSlotSound(arg0, 0);
+    sfxStopSlotSound(arg0, 1);
     if (D_807FB930[0].actor != arg0) {
         if (D_807FBB34 > 0) {
             do {

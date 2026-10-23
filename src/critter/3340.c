@@ -20,7 +20,7 @@ extern Actor_3340 *D_807FD580;
 extern s32 D_8076A064;
 
 void func_80729B00(void);
-void func_80604CBC(Actor_3340 *, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(Actor_3340 *, s32, s32, s32, s32, s32, f32, s32);
 s32 func_8073110C(s32, s32);
 void func_80614EBC(Actor_3340 *, s32);
 s32 func_80731AA8(s32, s32, s32);
@@ -30,8 +30,8 @@ void func_80629174(void);
 s32 func_80629148(Actor_3340 *);
 void effectSpawnBurst(s32);
 void func_80614E78(Actor_3340 *, s32);
-void func_80608528(Actor_3340 *, s32, s32, s32, s32);
-void func_80605314(Actor_3340 *, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor_3340 *, s32, s32, s32, s32);
+void sfxStopSlotSound(Actor_3340 *, s32);
 void func_806F8BC4(s32, s32, s32);
 void func_806F91B4(s32, u8, s32);
 void func_806319C4(Actor_3340 *, s32);
@@ -75,7 +75,7 @@ void func_80027DC0(void) {
     s0 = &D_807FBB40;
     actor = *s0;
     if (!(actor->unk60 & 0x10)) {
-        func_80604CBC(actor, 0x10F, 0x46, 1, 0, 0x1E, 1.0f, 0);
+        sfxPlayActorSound(actor, 0x10F, 0x46, 1, 0, 0x1E, 1.0f, 0);
         (*s0)->unk154 = 0;
         if (func_8073110C(0x179, 0) == 0) {
             (*s0)->unk154 = 1;
@@ -117,14 +117,14 @@ void func_80027DC0(void) {
                 D_807FBB4C->unk154 = 0x2D;
                 D_807FBB4C->unk155 = 0;
                 func_80614E78(D_807FBB4C, 0x42);
-                func_80608528(D_807FBB4C, 0xF2, 0xFF, 0x7F, 0);
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, 0xF2, 0xFF, 0x7F, 0);
                 *s0 = sp34;
                 sp34->unk155 = 0;
-                func_80605314(D_807FBB4C, 1);
+                sfxStopSlotSound(D_807FBB4C, 1);
             }
         } else if (func_80629148(actor) != 0) {
             (*s0)->unk155 = 1;
-            func_80604CBC(D_807FBB4C, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
+            sfxPlayActorSound(D_807FBB4C, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
             func_806F8BC4(6, 0, 0);
             func_806F91B4(6, D_807FD580->unk1A4, 0x3E7);
         }

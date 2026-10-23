@@ -177,12 +177,12 @@ void func_80026B20(u8 *arg0) {
     arg0[0x29] = 0;
 }
 
-void func_80604CBC(void *, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 extern void *D_807FBB40;
 
 void func_80026CA8(void) {
-    func_80604CBC(D_807FBB40, 0x12D, 0, 1, 0, 0xFF, 1.0f, 0);
-    func_80604CBC(D_807FBB40, 0x12E, 0, 1, 1, 0xFF, 1.0f, 0);
+    sfxPlayActorSound(D_807FBB40, 0x12D, 0, 1, 0, 0xFF, 1.0f, 0);
+    sfxPlayActorSound(D_807FBB40, 0x12E, 0, 1, 1, 0xFF, 1.0f, 0);
 }
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/1770/func_80026D2C.s")

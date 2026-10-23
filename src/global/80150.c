@@ -249,8 +249,8 @@ typedef struct R2H_ActorGlobalState {
 #define R2H_ACTOR ((R2H_Actor *)D_807FBB40)
 #define R2H_STATE ((R2H_ActorGlobalState *)&D_807FBB70)
 
-void func_80604CBC(Actor *, s32, s32, s32, s32, s32, f32, s32);
-void func_80605314(Actor *, s32);
+void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
+void sfxStopSlotSound(Actor *, s32);
 void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocity(Actor *);
 
@@ -276,7 +276,7 @@ void func_8067C2B8(void) {
     }
     if (R2H_STATE->unk91 != 0) {
         if (temp_v0->unk0 == 0) {
-            func_80604CBC(D_807FBB40, 0x10C, 0, 1, 0, 0xFF, 1.0f, 0);
+            sfxPlayActorSound(D_807FBB40, 0x10C, 0, 1, 0, 0xFF, 1.0f, 0);
             temp_v0->unk0 = 1;
         }
         temp_v0->unk4 = (f64) R2H_STATE->unk94 / 1.1;
@@ -306,7 +306,7 @@ void func_8067C2B8(void) {
     } else {
         if ((temp_v0->unk0 != 0) && ((f64) R2H_ACTOR->unkB8 == 0.0)) {
             temp_v0->unk0 = 0;
-            func_80605314(D_807FBB40, 0);
+            sfxStopSlotSound(D_807FBB40, 0);
         }
         temp_v0->unk4 = 0.0f;
         temp_fv1 = R2H_ACTOR->unkB8;

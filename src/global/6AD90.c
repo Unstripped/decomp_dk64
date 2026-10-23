@@ -547,7 +547,7 @@ typedef struct CollisionActorWork {
 
 void func_806699C4(CollisionActorWork *, s16, s8, s8, f32, f32, f32);
 void func_8066C610(s16, s8, float [4][4]);
-s32 func_80659470();
+s32 hashTableLookup();
 
 void actorCheckNearbyNodeInteractions(arg0, arg1, arg2)
 CollisionActorWork *arg0;
@@ -621,7 +621,7 @@ void actorUpdateSubnodeRotationAndMtx(CollisionActorWork *arg0) {
     s16 pad40;
     CollisionSubNodeWork *sub;
 
-    sp42 = func_80659470(arg0->unk10C);
+    sp42 = hashTableLookup(arg0->unk10C);
     if (sp42 != -1) {
         func_8066C610(sp42, arg0->unk10F, sp90);
         sub = D_807F6000[sp42].unk7C;

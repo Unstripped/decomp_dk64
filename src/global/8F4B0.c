@@ -151,7 +151,7 @@ extern Actor *D_807FBB48;
 extern ActorPlayerPos *D_807FC924;
 void func_8061CC40(s32, s32, u8);
 void func_8072167C(s16, s16, s16, s16);
-void func_8065A708(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void func_8068BA2C(void) {
     s32 pad;
@@ -187,7 +187,7 @@ void func_8068BA2C(void) {
         s1->unk1F0 &= ~0x04000000;
     }
     if (sp58->unkAC & 1) {
-        func_8065A708(D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, D_807FC924->unk228, D_807FC924->unk22C, D_807FC924->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);
+        lightAdd(D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, D_807FC924->unk228, D_807FC924->unk22C, D_807FC924->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);
     }
 }
 

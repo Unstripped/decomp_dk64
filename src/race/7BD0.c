@@ -400,7 +400,7 @@ void func_8002D338(void *arg0, RaceUnknownC *arg1) {
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002D360.s")
 
-void func_80602A94(s32, f32);
+void sfxAllocateChannel(s32, f32);
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002D40C.s")
 
@@ -427,7 +427,7 @@ void func_8002D4A0(void) {
         soundId = 0x1B;
         break;
     }
-    func_80602A94(soundId, vol);
+    sfxAllocateChannel(soundId, vol);
 }
 void func_8002D40C(void);
 

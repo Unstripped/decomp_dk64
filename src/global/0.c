@@ -74,15 +74,15 @@ void timerQueueInit(void);
 void timerQueueAdd(void *, s32, s32, s32, s32);
 void timerQueueUpdate(void);
 void audioInit(void);
-void func_80601CF0(s32);
-void func_806025AC(void);
+void audioThreadStop(s32);
+void sfxPlayCurrent(void);
 void func_806025D4(void);
-void func_80602A94(s32, f32);
+void sfxAllocateChannel(s32, f32);
 void func_80603450(void);
-void func_80605510(void);
+void audioResetAll(void);
 void func_806057F8(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
-void func_8060A4D0(s32, f32);
+void seqSetChannelVolumeScale(s32, f32);
 void controllerInit(void);
 void controllerStartRead(void);
 void controllerWaitRead(void);
@@ -113,8 +113,8 @@ void func_80650E20(s32);
 void func_806588E0(s32);
 void func_80658BD0(void);
 void func_80658CCC(void);
-void func_8065A570(void);
-void func_8065A648(void);
+void lightInitGlobals(void);
+void lightClearCount(void);
 void billboardCacheInit(void);
 void func_8065D1AC(void);
 void effectUpdateAndDispatch(void);
@@ -537,7 +537,7 @@ void func_805FC2B0(void) {
         func_806025D4();
         func_805FCA94(D_8076A048);
     } else {
-        func_8065A648();
+        lightClearCount();
         func_806787CC();
         func_805FCA94(D_8076A048);
         func_8065D1AC();
@@ -874,7 +874,7 @@ void func_805FE7FC(void) {
     D_807444FC = 0;
     D_8076A064 = 0;
     D_8076A068 = 0;
-    func_80605510();
+    audioResetAll();
     D_80744508 = 0;
     *D_807ECDF4 = 0;
     texCacheReset();
@@ -949,7 +949,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         func_80631FAC(D_8076A0A8, 1);
         func_806886E0(sp24, 0, 0);
         actorInitTargetEntries();
-        func_8065A570();
+        lightInitGlobals();
         actorInit();
         actorSpawnInitialSet();
         func_8072E740(D_8076A0A8);
@@ -969,7 +969,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         renderCallbacksReset();
         func_806F4778();
         func_8070E8C8();
-        timerQueueAdd(func_806025AC, 2, 0, 0, 0);
+        timerQueueAdd(sfxPlayCurrent, 2, 0, 0, 0);
         if (D_807FBB64 & 0x1000) {
             sp28 = func_8066B0F8(0x16, D_8076A0A8, 1, 1);
             func_80026FD0(sp28);
@@ -984,22 +984,22 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         D_807F6008 = 0;
         if ((func_8070B318() == 0) && (D_807444EC != 2)) {
             if ((D_8076A0A8 == 0x11) && (func_8073110C(0x302, 0) != 0)) {
-                func_80602A94(0x74, 1.0f);
+                sfxAllocateChannel(0x74, 1.0f);
             } else {
                 temp_a0 = D_80745BDC[D_8076A0A8][0];
                 var_fv0 = 1.0f;
                 if ((temp_a0 == 6) || (temp_a0 == 0x1F)) {
                     var_fv0 = D_807565D8;
                 }
-                func_80602A94(temp_a0, var_fv0);
+                sfxAllocateChannel(temp_a0, var_fv0);
             }
         }
         if ((D_8076A0A8 == 0x22) || (D_8076A0A8 == 0xB8)) {
-            func_80602A94(0x60, 1.0f);
+            sfxAllocateChannel(0x60, 1.0f);
         }
-        func_8060A4D0(0, 1.0f);
-        func_8060A4D0(1, 1.0f);
-        func_8060A4D0(2, 1.0f);
+        seqSetChannelVolumeScale(0, 1.0f);
+        seqSetChannelVolumeScale(1, 1.0f);
+        seqSetChannelVolumeScale(2, 1.0f);
         func_805FFEF8(D_8076A0A8);
         actorInitEntryPoints();
     }
@@ -1010,7 +1010,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
     D_8076A0B1 |= 4;
     D_807FD88C = -1.0f;
     if ((D_807444F8 != 2) && (D_8076AEE0 == 1)) {
-        func_80602A94(0x2B, 1.0f);
+        sfxAllocateChannel(0x2B, 1.0f);
     }
     func_80701C90();
     func_80629190();

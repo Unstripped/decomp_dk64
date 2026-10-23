@@ -14,7 +14,7 @@ typedef struct ActorSlotEntry {
 } ActorSlotEntry;
 
 extern ActorSlotEntry *D_807F6000;
-s32 func_80659470(s32);
+s32 hashTableLookup(s32);
 
 void actorSetTargetSlotByte(s32 arg0, u8 arg1) {
     u8 *volatile sp1C;
@@ -22,7 +22,7 @@ void actorSetTargetSlotByte(s32 arg0, u8 arg1) {
     s32 temp_v0;
     u8 *temp_v1;
 
-    temp_v0 = func_80659470(arg0);
+    temp_v0 = hashTableLookup(arg0);
     if (temp_v0 != -1) {
         temp_v1 = (u8 *)D_807F6000 + (temp_v0 * 0x90);
         temp_a0 = *(s16 *)(temp_v1 + 0x86);

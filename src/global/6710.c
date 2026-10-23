@@ -1,19 +1,19 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct Aud6710_DmaNode {
-    struct Aud6710_DmaNode *next;
-    struct Aud6710_DmaNode *prev;
+typedef struct AudioDmaNode {
+    struct AudioDmaNode *next;
+    struct AudioDmaNode *prev;
     u32 unk8;
     u32 unkC;
     void *unk10;
-} Aud6710_DmaNode;
+} AudioDmaNode;
 
-typedef struct Aud6710_AudioTask {
+typedef struct AudioTask {
     void *sampleBuffer;
     s16 sampleCount;
     s16 pad6;
-    struct Aud6710_AudioTask *next;
+    struct AudioTask *next;
     s32 state;
     u32 flags;
     void *framebuffer;
@@ -25,18 +25,18 @@ typedef struct Aud6710_AudioTask {
     s16 msgBuf;
     s16 pad6A;
     void *self;
-} Aud6710_AudioTask;
+} AudioTask;
 
-typedef struct Aud6710_AudioCtx {
+typedef struct AudioContext {
     void *cmdBuffers[2];
     void *tasks[3];
-} Aud6710_AudioCtx;
+} AudioContext;
 
-typedef struct Aud6710_Config218 {
+typedef struct AudioSynthesizerConfig {
     u32 words[0x218 / 4];
-} Aud6710_Config218;
+} AudioSynthesizerConfig;
 
-typedef struct Aud6710_InitArg {
+typedef struct AudioInitArgs {
     u8 pad0[0x10];
     void *dmaNew;
     ALHeap *heap;
@@ -44,23 +44,23 @@ typedef struct Aud6710_InitArg {
     u8 pad1C[4];
     void *synConfig;
     void *unk24;
-} Aud6710_InitArg;
+} AudioInitArgs;
 
-typedef struct Aud6710_Arg2 {
+typedef struct AudioTaskConfig {
     u8 pad0[8];
     u32 cmdCount;
-} Aud6710_Arg2;
+} AudioTaskConfig;
 
 extern OSThread D_8076D4E8;
-extern Aud6710_AudioCtx D_8076D4D0;
+extern AudioContext D_8076D4D0;
 extern s32 D_8000DCB4;
-extern Aud6710_Config218 D_807452D0;
+extern AudioSynthesizerConfig D_807452D0;
 extern OSMesgQueue D_8076D698;
 extern OSMesg D_8076D6B0[8];
 extern OSMesgQueue D_8076D6D0;
 extern OSMesg D_8076D6E8[8];
 extern s32 D_8076D708;
-extern Aud6710_DmaNode D_8076FE68[];
+extern AudioDmaNode D_8076FE68[];
 extern s32 D_80770194;
 extern s32 D_8077019C;
 extern s32 D_807701A0;
@@ -68,17 +68,17 @@ extern s32 *D_807701A4;
 extern OSMesgQueue D_807704A8;
 extern OSMesg D_807704C0[32];
 
-void *func_806022DC();
-void n_alInit(s32 *, Aud6710_InitArg *);
-void func_80601D24();
+void *audioDmaNew();
+void n_alInit(s32 *, AudioInitArgs *);
+void audioThreadMain();
 #ifdef NON_MATCHING
-void func_80601A10(Aud6710_InitArg *arg0, s32 arg1, Aud6710_Arg2 *arg2) {
-    Aud6710_DmaNode *curr;
-    Aud6710_Config218 sp44;
-    Aud6710_DmaNode *prev;
+void func_80601A10(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
+    AudioDmaNode *curr;
+    AudioSynthesizerConfig sp44;
+    AudioDmaNode *prev;
     u32 i;
 
-    arg0->dmaNew = func_806022DC;
+    arg0->dmaNew = audioDmaNew;
     arg0->unk18 = D_8000DCB4;
     D_80770194 = 0x228;
     D_8077019C = 0x398;
@@ -99,25 +99,25 @@ void func_80601A10(Aud6710_InitArg *arg0, s32 arg1, Aud6710_Arg2 *arg2) {
     }
     prev->unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
 
-    for (curr = (Aud6710_DmaNode *)D_8076D4D0.cmdBuffers; curr < (Aud6710_DmaNode *)D_8076D4D0.tasks; ) {
+    for (curr = (AudioDmaNode *)D_8076D4D0.cmdBuffers; curr < (AudioDmaNode *)D_8076D4D0.tasks; ) {
         *(void **)curr = alHeapDBAlloc(NULL, 0, arg0->heap, 1, arg2->cmdCount * 8);
-        curr = (Aud6710_DmaNode *)((u8 *)curr + 4);
+        curr = (AudioDmaNode *)((u8 *)curr + 4);
     }
 
     D_807701A0 = arg2->cmdCount;
-    for (curr = (Aud6710_DmaNode *)D_8076D4D0.cmdBuffers; curr < (Aud6710_DmaNode *)&D_8076D4D0.tasks[1]; ) {
-        Aud6710_AudioTask *task = alHeapDBAlloc(NULL, 0, arg0->heap, 1, sizeof(Aud6710_AudioTask));
-        *(Aud6710_AudioTask **)((u8 *)curr + 8) = task;
+    for (curr = (AudioDmaNode *)D_8076D4D0.cmdBuffers; curr < (AudioDmaNode *)&D_8076D4D0.tasks[1]; ) {
+        AudioTask *task = alHeapDBAlloc(NULL, 0, arg0->heap, 1, sizeof(AudioTask));
+        *(AudioTask **)((u8 *)curr + 8) = task;
         task->msgBuf = 2;
         task->self = task;
         task->sampleBuffer = alHeapDBAlloc(NULL, 0, arg0->heap, 1, D_8077019C * 4);
-        curr = (Aud6710_DmaNode *)((u8 *)curr + 4);
+        curr = (AudioDmaNode *)((u8 *)curr + 4);
     }
     osCreateMesgQueue(&D_8076D6D0, D_8076D6E8, 8);
     osCreateMesgQueue(&D_8076D698, D_8076D6B0, 8);
     osCreateMesgQueue(&D_807704A8, D_807704C0, 0x20);
 
-    osCreateThread(&D_8076D4E8, 4, func_80601D24, NULL, D_8076FE68, arg1);
+    osCreateThread(&D_8076D4E8, 4, audioThreadMain, NULL, D_8076FE68, arg1);
 }
 #else
 
@@ -126,34 +126,34 @@ void func_80601A10(Aud6710_InitArg *arg0, s32 arg1, Aud6710_Arg2 *arg2) {
 
 extern s8 D_807452CC;
 
-void func_80601CC0(void) {
+void audioThreadStart(void) {
     D_807452CC = 1;
     osStartThread(&D_8076D4E8);
 }
 
-void func_80601CF0(s32 arg0) {
+void audioThreadStop(s32 arg0) {
     if (D_807452CC != 0) {
         osStopThread(&D_8076D4E8);
     }
 }
 
-typedef struct Aud6710_Sched {
+typedef struct AudioSched {
     OSMesgQueue interruptQ;
     u8 pad[0x264 - sizeof(OSMesgQueue)];
     void *audioListHead;
-} Aud6710_Sched;
+} AudioSched;
 
 extern u8 D_8076D4C0;
-extern Aud6710_Sched gScheduler;
+extern AudioSched gScheduler;
 extern u32 D_807452C0;
-s32 func_80602144();
+s32 audioDmaCallback();
 
 void schedAddClient(void *, void *, OSMesgQueue *, s32, s32);
 s32 func_80601EE4();
-void func_80602104();
-void func_8060A500(void);
+void audioCheckAiLength();
+void seqUpdateVolumeFades(void);
 void n_alClose(void *);
-void func_80601D24(s32 arg0) {
+void audioThreadMain(s32 arg0) {
     s32 done;
     OSMesg sp58;
     s32 first;
@@ -178,9 +178,9 @@ void func_80601D24(s32 arg0) {
             var_s0 = D_8076D4D0.tasks[(D_807452C0 + 1) % numBuffers];
             if (!arg0) {
                 osRecvMesg(&D_8076D6D0, &sp58, 1);
-                func_80602104(var_s0);
+                audioCheckAiLength(var_s0);
             }
-            func_8060A500();
+            seqUpdateVolumeFades();
             break;
         case 10:
             done = 1;
@@ -190,10 +190,10 @@ void func_80601D24(s32 arg0) {
     n_alClose(&D_8076D708);
 }
 
-typedef struct Aud6710_AiBuf {
+typedef struct AudioAiBuffer {
     void *buf;
     s16 len;
-} Aud6710_AiBuf;
+} AudioAiBuffer;
 
 
 extern u32 D_805FB000[];
@@ -203,12 +203,12 @@ extern s32 D_80770558[];
 extern u32 func_80741310[];
 extern u64 D_80760590[];
 
-void func_80602314(void);
+void audioDmaFrameUpdate(void);
 s32 n_alAudioFrame(void *, s32 *, u32, s16);
 OSMesgQueue *func_8060EE58(void *);
 
 #ifdef NON_MATCHING
-s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
+s32 func_80601EE4(AudioTask *task, AudioAiBuffer *aiBuf) {
     u32 physSampleBuf;
     s32 pad[1];
     s32 cmdCount;
@@ -218,7 +218,7 @@ s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
     s32 zero = 0;
 
     physSampleBuf = osVirtualToPhysical(task->sampleBuffer);
-    func_80602314();
+    audioDmaFrameUpdate();
     aiLen = IO_READ(AI_LEN_REG) >> 2;
     if (aiBuf != NULL) {
         osAiSetNextBuffer(aiBuf->buf, aiBuf->len * 4);
@@ -275,7 +275,7 @@ s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
 
 extern s32 D_807454E8[];
 
-void func_80602104(s32 arg0) {
+void audioCheckAiLength(s32 arg0) {
     s32 zero = 0;
     if (((osAiGetLength() >> 2) == 0) && (D_807454E8[zero] == 0)) {
         D_807454E8[zero] = 0;
@@ -283,27 +283,27 @@ void func_80602104(s32 arg0) {
 }
 
 
-typedef struct Aud6710_Struct80770188 {
+typedef struct AudioDmaContext {
     u8 unk0;
     u8 pad1[3];
-    Aud6710_DmaNode *unk4;
-    Aud6710_DmaNode *unk8;
-} Aud6710_Struct80770188;
+    AudioDmaNode *unk4;
+    AudioDmaNode *unk8;
+} AudioDmaContext;
 
-extern Aud6710_Struct80770188 D_80770188;
+extern AudioDmaContext D_80770188;
 extern OSIoMesg D_807701A8[];
 extern u32 D_807452C4;
 
-s32 func_80602144(u32 addr, s32 len, void *state) {
+s32 audioDmaCallback(u32 addr, s32 len, void *state) {
     void *sp44;
     s32 pad[3];
-    Aud6710_DmaNode *node;
-    Aud6710_DmaNode *last;
+    AudioDmaNode *node;
+    AudioDmaNode *last;
     s32 head;
     s32 end;
     last = NULL;
     head = (s32)D_80770188.unk4;
-    node = (Aud6710_DmaNode *)head;
+    node = (AudioDmaNode *)head;
     if (head != 0) {
         do {
             end = node->unk8 + 0x800;
@@ -333,9 +333,9 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
         head = (s32)D_80770188.unk4;
         if (head != 0) {
             D_80770188.unk4 = node;
-            node->next = (Aud6710_DmaNode *)head;
+            node->next = (AudioDmaNode *)head;
             node->prev = NULL;
-            ((Aud6710_DmaNode *)head)->prev = node;
+            ((AudioDmaNode *)head)->prev = node;
         } else {
             D_80770188.unk4 = node;
             node->next = NULL;
@@ -354,22 +354,22 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
 
 
 
-void *func_806022DC(Aud6710_Struct80770188 **arg0) {
+void *audioDmaNew(AudioDmaContext **arg0) {
     if (D_80770188.unk0 == 0) {
         D_80770188.unk4 = 0;
         D_80770188.unk8 = &D_8076FE68[0];
         D_80770188.unk0 = 1;
     }
     *arg0 = &D_80770188;
-    return func_80602144;
+    return audioDmaCallback;
 }
 
 
-void func_80602314(void) {
+void audioDmaFrameUpdate(void) {
     s32 pad;
     OSMesg msg;
-    Aud6710_DmaNode *node;
-    Aud6710_DmaNode *next;
+    AudioDmaNode *node;
+    AudioDmaNode *next;
     u32 i;
 
     msg = NULL;

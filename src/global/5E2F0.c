@@ -5,15 +5,15 @@ extern u8 D_807F7EF8;
 extern s16 D_807F7EFA;
 extern s16 D_807F7EFC;
 
-void func_806595F0(u8 arg0) {
+void lightSetFlags(u8 arg0) {
     D_807F7EF8 = arg0;
 }
 
-void func_80659600(s16 arg0) {
+void lightSetTargetId(s16 arg0) {
     D_807F7EFA = arg0;
 }
 
-void func_80659610(s16 arg0) {
+void lightSetRadius(s16 arg0) {
     D_807F7EFC = arg0;
 }
 
@@ -21,7 +21,7 @@ extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
 extern f32 *D_8076A0BC;
 
-void func_80659620(f32 *arg0, f32 *arg1, f32 *arg2, s16 arg3) {
+void lightGetColor(f32 *arg0, f32 *arg1, f32 *arg2, s16 arg3) {
     *arg0 = D_8076A0B4[arg3];
     *arg1 = D_8076A0B8[arg3];
     *arg2 = D_8076A0BC[arg3];
@@ -29,7 +29,7 @@ void func_80659620(f32 *arg0, f32 *arg1, f32 *arg2, s16 arg3) {
 
 extern s32 D_807F6C28;
 
-void func_80659670(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
+void lightSetColor(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     u8 count;
     s32 i;
 
@@ -57,7 +57,7 @@ extern f32 *D_8076A0C0;
 extern f32 *D_8076A0C4;
 extern f32 *D_8076A0C8;
 
-void func_8065996C(s16 arg0) {
+void lightCopyTargetColors(s16 arg0) {
     u8 count;
     s32 i;
 
@@ -82,7 +82,7 @@ void func_8065996C(s16 arg0) {
     }
 }
 
-void func_80659DB0(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
+void lightSetTargetColor(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     u8 count;
     u8 i;
 
@@ -129,7 +129,7 @@ void func_80659DB0(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     }
 }
 
-void func_80659F7C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4) {
+void lightLerpColors(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4) {
     u8 count;
     s32 i;
 
@@ -166,7 +166,7 @@ extern f32 D_807F7EE4;
 extern f32 D_807F7EE8;
 extern s16 D_807F7EFE;
 
-void func_8065A570(void) {
+void lightInitGlobals(void) {
     D_807F7ECC = func_80612D10(0.4363323152f);
     D_807F7ED0 = func_80612D10(1.134464025f);
     D_807F7ED4 = 1.0f / (D_807F7ECC - D_807F7ED0);
@@ -182,16 +182,16 @@ void func_8065A570(void) {
     D_807F7EFE = 600;
 }
 
-void func_8065A648(void) {
+void lightClearCount(void) {
     D_80748300 = 0;
 }
 
 extern s16 D_807F7EC8;
-void func_8065A654(void) {
+void lightClearActiveCount(void) {
     D_807F7EC8 = 0;
 }
 
-void func_8065A660(f32 arg0, f32 arg1) {
+void lightSetFovAngles(f32 arg0, f32 arg1) {
     D_807F7EE4 = arg0;
     D_807F7EE8 = arg1;
     D_807F7ED8 = func_80612D10(arg0 * 0.017453292f);
@@ -199,11 +199,11 @@ void func_8065A660(f32 arg0, f32 arg1) {
     D_807F7EE0 = 1.0f / (D_807F7ED8 - D_807F7EDC);
 }
 
-void func_8065A6F8(s16 arg0) {
+void lightSetDistanceThreshold(s16 arg0) {
     D_807F7EFE = arg0;
 }
 
-typedef struct Cam2_Struct_3C {
+typedef struct LightVolume {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -225,11 +225,11 @@ typedef struct Cam2_Struct_3C {
     /* 0x39 */ u8 unk39;
     /* 0x3A */ u8 unk3A;
     /* 0x3B */ u8 pad3B;
-} Cam2_Struct_3C;
+} LightVolume;
 
-extern Cam2_Struct_3C D_807F7500[];
+extern LightVolume D_807F7500[];
 
-void func_8065A708(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, u8 arg8, u8 arg9, u8 arg10) {
+void lightAdd(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, u8 arg8, u8 arg9, u8 arg10) {
     if (D_80748300 != 0x10) {
         D_807F7500[D_80748300].unk34 = D_807F7EFE;
         D_807F7500[D_80748300].unk3A = D_807F7EF8;
@@ -269,7 +269,7 @@ extern s32 D_80748308;
 extern u8 D_807FC928;
 extern ActorEntry D_807FB930[];
 extern u16 D_807FBB34;
-s32 func_8065C240(Cam2_Struct_3C *);
+s32 lightCheckPlayerDistance(LightVolume *);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_8072177C(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -280,7 +280,7 @@ void func_8065A884(void) {
     s32 lightIdx;
     s32 actorIdx;
     u8 spC8[64];
-    Cam2_Struct_3C *light;
+    LightVolume *light;
     Actor *actor;
     f32 intensity;
     f32 scale;
@@ -311,7 +311,7 @@ void func_8065A884(void) {
     if ((D_80748300 > 0) && (D_807FC928 < 3)) {
         for (lightIdx = 0; lightIdx < D_80748300; lightIdx++) {
             light = &D_807F7500[lightIdx];
-            if ((func_8065C240(light) != 0) && (lightCount < 12)) {
+            if ((lightCheckPlayerDistance(light) != 0) && (lightCount < 12)) {
                 lightCount++;
                 for (actorIdx = 0; actorIdx < D_807FBB34; actorIdx++) {
                     actor = D_807FB930[actorIdx].actor;
@@ -501,7 +501,7 @@ void func_8065A884(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/func_8065A884.s")
 #endif
 
-typedef struct Cam2_Struct_40 {
+typedef struct LightTrigger {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -521,18 +521,18 @@ typedef struct Cam2_Struct_40 {
     /* 0x3C */ s16 unk3C;
     /* 0x3E */ u8 unk3E;
     /* 0x3F */ u8 unk3F;
-} Cam2_Struct_40;
+} LightTrigger;
 
-extern Cam2_Struct_40 D_807F78C0[];
-extern Cam2_Struct_40 D_807F7BC8[];
+extern LightTrigger D_807F78C0[];
+extern LightTrigger D_807F7BC8[];
 extern s16 D_807F7BC0;
-void func_8065BE74(s16);
-s32 func_8065BF18(Cam2_Struct_3C *, f32, f32, f32, s16, s16, s16, s16, s16, s16, s32);
+void lightAddDedupEntry(s16);
+s32 lightCheckVolumeBounds(LightVolume *, f32, f32, f32, s16, s16, s16, s16, s16, s16, s32);
 #ifdef NON_MATCHING
 s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
     f32 diff[6];
     s32 i;
-    Cam2_Struct_3C *var_s0;
+    LightVolume *var_s0;
     f32 dist;
     f32 temp_fa0, temp_fa1;
     f32 temp_f1;
@@ -548,7 +548,7 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
     three = 3.0f;
     var_s0 = D_807F7500;
     for (i = 0; i < D_80748300; i++, var_s0++) {
-        if (func_8065BF18(var_s0, arg0, arg1, arg2, a3, a4, a5, a6, arg7, arg8, arg9)) {
+        if (lightCheckVolumeBounds(var_s0, arg0, arg1, arg2, a3, a4, a5, a6, arg7, arg8, arg9)) {
             if (D_807F7BC0 < 12) {
                 if (var_s0->unk3A & 1) {
                     *arg10 = 1;
@@ -596,7 +596,7 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
                     D_807F78C0[D_807F7BC0].unk24 = 1.0f / (temp_ft2 - temp_ft5);
                     break;
                 }
-                func_8065BE74(D_807F7BC0);
+                lightAddDedupEntry(D_807F7BC0);
                 D_807F7BC0++;
             }
         }
@@ -609,7 +609,7 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
 #endif
 void *memcpy(void *, const void *, unsigned int);
 
-void func_8065BE74(s16 arg0) {
+void lightAddDedupEntry(s16 arg0) {
     s32 i;
     u8 val;
 
@@ -620,7 +620,7 @@ void func_8065BE74(s16 arg0) {
                 return;
             }
         }
-        memcpy(&D_807F7BC8[D_807F7EC8++], &D_807F78C0[arg0], sizeof(Cam2_Struct_40));
+        memcpy(&D_807F7BC8[D_807F7EC8++], &D_807F78C0[arg0], sizeof(LightTrigger));
     }
 }
 
@@ -632,7 +632,7 @@ s32 func_8062DBDC(s16, s16, s16, s16, s32, s32, f32, f32, f32, f32, void *);
 extern u8 D_807F5E20[];
 extern u8 D_807F5E68[];
 
-s32 func_8065BF18(Cam2_Struct_3C *arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s16 arg9, s32 arg10) {
+s32 lightCheckVolumeBounds(LightVolume *arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s16 arg9, s32 arg10) {
     Mtx sp60;
     f32 dx, dy;
 
@@ -670,28 +670,28 @@ s32 func_8065BF18(Cam2_Struct_3C *arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, 
     return 0;
 }
 
-typedef struct Cam2_PlayerStruct {
+typedef struct LightPlayer {
     u8 unk0;
     u8 pad1[0x20F];
     f32 x;
     f32 y;
     f32 z;
     u8 pad21C[0xD4];
-} Cam2_PlayerStruct;
+} LightPlayer;
 
 
-extern Cam2_PlayerStruct *D_807FC924;
+extern LightPlayer *D_807FC924;
 extern u8 D_80750AB4;
-#define Cam2_SQ(x) ((x) * (x))
+#define SQ(x) ((x) * (x))
 
-s32 func_8065C240(Cam2_Struct_3C *arg0) {
+s32 lightCheckPlayerDistance(LightVolume *arg0) {
     s32 i;
-    Cam2_PlayerStruct *player;
+    LightPlayer *player;
 
     for (i = 0; i < D_80750AB4; i++) {
-        player = (Cam2_PlayerStruct *)((u8 *)D_807FC924 + (i * sizeof(Cam2_PlayerStruct)));
+        player = (LightPlayer *)((u8 *)D_807FC924 + (i * sizeof(LightPlayer)));
         if (player->unk0 != 0) {
-            if (sqrtf(Cam2_SQ(arg0->z - player->z) + (Cam2_SQ(arg0->x - player->x) + Cam2_SQ(arg0->y - player->y))) < (f32)arg0->unk32) {
+            if (sqrtf(SQ(arg0->z - player->z) + (SQ(arg0->x - player->x) + SQ(arg0->y - player->y))) < (f32)arg0->unk32) {
                 return 1;
             }
         }
@@ -704,7 +704,7 @@ s32 func_80651B64(s16);
 #ifdef NON_MATCHING
 void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
     f32 diff[14];
-    Cam2_Struct_40 *entry;
+    LightTrigger *entry;
     f32 r;
     f32 g;
     f32 b;

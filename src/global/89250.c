@@ -39,8 +39,8 @@ extern s32 D_8072139C;
 
 s32 actorSpawn();
 void actorDespawn(Actor *);
-void func_80602A94(s32, f32);
-void func_80608528(void *, s32, s32, s32, s32);
+void sfxAllocateChannel(s32, f32);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 s32 func_806119A0(void);
 s32 func_80611A44(void);
@@ -458,7 +458,7 @@ void effectSpawnBurstParticles(Actor *arg0) {
         effectSpawnBoneDefault(arg0, 0, 4.0f, arg0->unk7C, arg0->unk80, arg0->unk84, -0x96);
         actorDespawn(arg0);
     }
-    func_80608528(arg0, 0xC, 0xFF, 0x7F, 1);
+    sfxPlayFromActorWithAltitudeCheck(arg0, 0xC, 0xFF, 0x7F, 1);
     func_807149B8(1);
     func_807149FC(1);
     func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
@@ -645,8 +645,8 @@ u8 arg0;
 
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void func_806595F0(s32);
-void func_8065A708(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightSetFlags(s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_8071E028(void);
 extern s32 D_80720B24;
@@ -691,8 +691,8 @@ u8 arg3;
     func_8071498C(func_8071E028);
     func_80714CC0(&D_80720B24, (f32)((f64)sp48 * 0.008), (f32)((f64)(sp74 + sp68) * 0.5), (f32)((f64)(sp70 + sp64) * 0.5), (f32)((f64)(sp6C + sp60) * 0.5));
     if (((func_80611A44() >> 15) % 1000) & 1) {
-        func_806595F0(1);
-        func_8065A708(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f, 0.0f, 0.0f, 150.0f, 0, 150, 100, 255);
+        lightSetFlags(1);
+        lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f, 0.0f, 0.0f, 150.0f, 0, 150, 100, 255);
     }
     if ((D_807FBB40->unk58 == 0xB9) && (((func_80611A44() >> 15) % 1000) >= 0x385)) {
         func_806877C8((((func_80611A44() >> 15) % 0x7FFF) % 10) + 13 & 0xFF);
@@ -702,7 +702,7 @@ u8 arg3;
 
 void func_80687C48(void) {
     func_80609140(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
-    func_80602A94(0x97, 1.0f);
+    sfxAllocateChannel(0x97, 1.0f);
     func_807149FC(0xC8);
     func_8071495C();
     func_8071498C(func_8071EFDC);
@@ -711,7 +711,7 @@ void func_80687C48(void) {
 
 void func_80687CC8(void) {
     func_80609140(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
-    func_80602A94(0x97, 1.0f);
+    sfxAllocateChannel(0x97, 1.0f);
     func_807149FC(0xC8);
     func_8071495C();
     func_8071498C(func_8071EFDC);
