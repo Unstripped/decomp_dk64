@@ -1,17 +1,23 @@
-// func_80653DF0 (src/global/55B20.c): stage 6: frame/logic match; s2=0xFD via extra local zero + dead if(zero){} block; remaining: tag/mask temp in t7 (target v0) so target copies v0->a1 and branches bnez to p+=8; permuter score 270
+// func_80653DF0 (src/global/55B20.c): stage 6: frame 0x30 exact; tag var makes first temp v0 and s2=0xFD (zero+dead if(zero) needed for ranking). Remaining: bnel operand order (target t7,s2 vs built s2,t7), second load dest v0 + move a1,v0 (built lw a1), bnez to p+=8 block vs bnezl to loop test
+extern s32 func_8066B0F8(s32, s32, s32, s32);
+
 void *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
     s32 count;
     u8 *p;
+    s32 temp_v0;
     s32 zero;
+    u32 tag;
 
     p = arg0;
     zero = 0;
     count = zero;
     if ((p != arg1) && (arg2 > zero)) {
         do {
-            if ((*(u32 *)p >> 0x18) == 0xFD) {
-                if (((u32)(*(s32 *)(p + 4) * 0x10) >> 0x1C) == zero) {
-                    *(s32 *)(p + 4) = func_8066B0F8(0x19, *(s32 *)(p + 4), zero, zero);
+            tag = *(u32 *)p;
+            if ((tag >> 0x18) == 0xFD) {
+                temp_v0 = *(s32 *)(p + 4);
+                if (((u32)(temp_v0 * 0x10) >> 0x1C) == zero) {
+                    *(s32 *)(p + 4) = func_8066B0F8(0x19, temp_v0, zero, zero);
                     count++;
                 }
                 if (zero) {
