@@ -1,4 +1,4 @@
-// func_8065BAA0 (src/global/5E2F0.c): Stage 5/6: frame size 168 matched, register saves matched, regalloc remaining
+// func_8065BAA0 (src/global/5E2F0.c): Stage 5/6: frame 0xA8, 16 saved regs matched, s5-s8 matched with a3-a6 locals; regalloc for arg10 vs constant 1 remaining
 #include <ultra64.h>
 
 typedef struct Cam2_Struct_3C {
@@ -64,6 +64,7 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
     f32 temp_f1;
     f32 temp_ft4, temp_ft5, temp_ft2;
     f32 three;
+    s16 a3 = arg3;
     s16 a4 = arg4;
     s16 a5 = arg5;
     s16 a6 = arg6;
@@ -73,7 +74,7 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
     three = 3.0f;
     var_s0 = D_807F7500;
     for (i = 0; i < D_80748300; i++, var_s0++) {
-        if (func_8065BF18(var_s0, arg0, arg1, arg2, arg3, a4, a5, a6, arg7, arg8, arg9)) {
+        if (func_8065BF18(var_s0, arg0, arg1, arg2, a3, a4, a5, a6, arg7, arg8, arg9)) {
             if (D_807F7BC0 < 12) {
                 if (var_s0->unk3A & 1) {
                     *arg10 = 1;

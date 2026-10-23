@@ -1,4 +1,4 @@
-// func_80601EE4 (src/global/6710.c): stage 5, frame 0x38 vs 0x40, task struct field stores
+// func_80601EE4 (src/global/6710.c): stage 5, score 410: frame 0x40 and OSScTask stores matched, D_80770558[zero] lui/sw matched, remaining diff regalloc only
 #include "common.h"
 #include "actor.h"
 
@@ -38,7 +38,7 @@ extern u8 D_8076D4C0;
 extern OSMesgQueue D_8076D6D0;
 extern s32 D_80770194;
 extern s32 D_8077019C;
-extern s32 D_80770558;
+extern s32 D_80770558[];
 extern u32 func_80741310[];
 extern u64 D_80760590[];
 extern u8 gScheduler[];
@@ -49,9 +49,12 @@ OSMesgQueue *func_8060EE58(void *);
 
 s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
     u32 physSampleBuf;
+    s32 pad[1];
     s32 cmdCount;
     u32 aiLen;
     s32 cmdLen;
+    s32 count;
+    s32 zero = 0;
 
     physSampleBuf = osVirtualToPhysical(task->sampleBuffer);
     func_80602314();
@@ -59,25 +62,23 @@ s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
     if (aiBuf != NULL) {
         osAiSetNextBuffer(aiBuf->buf, aiBuf->len * 4);
     }
-    if ((s32)aiLen < 0x5C) {
-        if (D_80770558 == 0) {
-            task->sampleCount = D_8077019C;
-            D_80770558 = 2;
-            goto done_sample;
-        }
-    }
-    if ((s32)aiLen >= 0x115) {
-        if (D_80770558 == 0) {
+    if (((s32)aiLen < 0x5C) && ((count = D_80770558[zero]) == 0)) {
+        task->sampleCount = D_8077019C;
+        count = 2;
+        D_80770558[zero] = count;
+    } else {
+        count = D_80770558[zero];
+        if (((s32)aiLen >= 0x115) && (count == 0)) {
             task->sampleCount = D_80770194;
-            D_80770558 = 2;
-            goto done_sample;
+            count = 2;
+            D_80770558[zero] = count;
+        } else {
+            task->sampleCount = 0x2E0;
+            if (count != 0) {
+                D_80770558[zero] = count - 1;
+            }
         }
     }
-    task->sampleCount = 0x2E0;
-    if (D_80770558 != 0) {
-        D_80770558--;
-    }
-done_sample:
 
     cmdLen = n_alAudioFrame(D_8076D4D0.cmdBuffers[D_807452C8], &cmdCount, physSampleBuf, task->sampleCount);
     if (cmdCount == 0) {
@@ -90,6 +91,7 @@ done_sample:
     task->flags = 1;
     task->client = &D_8076D4C0;
     task->task.t.data_ptr = (u64 *)D_8076D4D0.cmdBuffers[D_807452C8];
+    task->task.t.data_size = ((cmdLen - (s32)D_8076D4D0.cmdBuffers[D_807452C8]) >> 3) << 3;
     task->task.t.type = 2;
     task->task.t.ucode_boot = (u64 *)&D_805FB000;
     task->task.t.ucode_boot_size = (u8 *)&D_805FB0D0 - (u8 *)&D_805FB000;
@@ -97,9 +99,8 @@ done_sample:
     task->task.t.ucode = (u64 *)&func_80741310;
     task->task.t.ucode_data = (u64 *)&D_80760590;
     task->task.t.ucode_data_size = 0x800;
-    task->task.t.yield_data_size = 0x400;
-    task->task.t.data_size = ((cmdLen - (s32)D_8076D4D0.cmdBuffers[D_807452C8]) >> 3) << 3;
     task->task.t.yield_data_ptr = NULL;
+    task->task.t.yield_data_size = 0x400;
 
     osWritebackDCacheAll();
     osSendMesg(func_8060EE58(&gScheduler), &task->next, OS_MESG_NOBLOCK);

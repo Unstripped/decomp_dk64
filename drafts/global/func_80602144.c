@@ -1,4 +1,4 @@
-// func_80602144 (src/global/6710.c): stage 5, score 48: 3 regs (t2/v0, t3/t2, t8/t3) and stack offset 0x44 vs 0x40
+// func_80602144 (src/global/6710.c): MATCHED (stage 6, TEXT OK): declared sp44 first with pad[3], removed unused next, D_807452C4++ in osPiStartDma
 #include "common.h"
 #include "actor.h"
 
@@ -24,13 +24,11 @@ extern u32 D_807452C4;
 extern OSMesgQueue D_807704A8;
 
 s32 func_80602144(u32 addr, s32 len, void *state) {
-    Aud6710_DmaNode *next;
     void *sp44;
-    s32 pad[2];
+    s32 pad[3];
     Aud6710_DmaNode *node;
     Aud6710_DmaNode *last;
     s32 head;
-    u32 dmaIndex;
     s32 end;
 
     last = NULL;
@@ -57,8 +55,7 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
         return osVirtualToPhysical((void *)head);
     }
 
-    next = node->next;
-    D_80770188.unk8 = next;
+    D_80770188.unk8 = node->next;
     alUnlink((ALLink *)node);
     if (last != NULL) {
         alLink((ALLink *)node, (ALLink *)last);
@@ -80,9 +77,7 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
     addr -= head;
     node->unk8 = addr;
     node->unkC = D_807452C0;
-    dmaIndex = D_807452C4;
     sp44 = node->unk10;
-    D_807452C4 = dmaIndex + 1;
-    osPiStartDma(&D_807701A8[dmaIndex], 1, 0, addr, sp44, 0x800, &D_807704A8);
+    osPiStartDma(&D_807701A8[D_807452C4++], 1, 0, addr, sp44, 0x800, &D_807704A8);
     return osVirtualToPhysical(sp44) + head;
 }

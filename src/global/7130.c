@@ -35,8 +35,9 @@ typedef struct {
     u8 unk9;
 } Aud7130A2_Struct7130_Entry;
 
-typedef struct {
-    char pad0[0x210];
+typedef struct AudPlayer {
+    u8 unk0;
+    char pad1[0x20F];
     f32 unk210;
     f32 unk214;
     f32 unk218;
@@ -46,12 +47,13 @@ typedef struct {
     f32 unk230;
     char pad234[0x90];
     f32 unk2C4;
-} Aud7130A2_AudPlayerPos;
+    char pad2C8[0x28];
+} AudPlayer;
 
 extern s8 D_80745650;
 extern u8 D_80770DC9;
 extern u8 D_80770DD8[];
-extern Aud7130A2_AudPlayerPos *D_807FC924;
+extern AudPlayer *D_807FC924;
 extern s32 D_8076A0A8;
 extern Aud7130A2_Struct7130_Entry D_807459FC[];
 
@@ -615,7 +617,104 @@ void func_8060866C(Actor *arg0, s16 arg1, u8 arg2, f32 arg3, u8 arg4, u8 arg5) {
     func_8060956C(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, arg5);
 }
 
+extern u8 D_807FC928;
+extern f32 D_80770DE4;
+
+void func_8061CF24(s16 *, s16 *, s16 *, s16 *);
+f32 func_80612D1C(f32);
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+s16 func_80609140(s16, s32, f32, f32, u8, u8);
+
+#ifdef NON_MATCHING
+void func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9) {
+    s16 pos[4];
+    f32 sp74;
+    f32 diff;
+    f32 angle2;
+    s32 var_a1;
+    s32 closest_idx;
+    u8 i;
+
+    D_80770DE4 = -1.0f;
+    closest_idx = 0;
+    for (i = 0; i < D_807FC928; i++) {
+        if (D_807FC924[i].unk0 != 0) {
+            s32 dx = D_807FC924[i].unk210 - arg0;
+            s32 dy = D_807FC924[i].unk214 - arg1;
+            s32 dz = D_807FC924[i].unk218 - arg2;
+            if (D_80770DE4 == -1.0f || (f32)(dx * dx + dy * dy + dz * dz) < D_80770DE4) {
+                closest_idx = i;
+                D_80770DE4 = dx * dx + dy * dy + dz * dz;
+            }
+        }
+    }
+
+    if (D_80770DE4 == -1.0f) {
+        return;
+    }
+
+    pos[0] = D_807FC924[closest_idx].unk210;
+    pos[1] = D_807FC924[closest_idx].unk214;
+    pos[2] = D_807FC924[closest_idx].unk218;
+    pos[3] = (D_807FC924[closest_idx].unk2C4 * 4096.0) / 6.2831854820251465;
+    func_8061CF24(&pos[0], &pos[1], &pos[2], &pos[3]);
+
+    if (D_80770DE4 < 500.0f) {
+        sp74 = 0.0f;
+    } else {
+        sp74 = (f64)mathAngleBetweenPointsRad(pos[0], pos[2], arg0, arg2) - ((f64)(pos[3] * 6.2831855f) * 0.000244140625);
+        if (sp74 < 0.0f) {
+            sp74 += 6.2831855f;
+        }
+        if (sp74 > 1.5707964f && (f64)sp74 < 4.71238911151886) {
+            arg9 |= 0x80;
+        }
+    }
+
+    if (arg7 == 0) {
+        var_a1 = ((f64)(u32)arg4 * 32767.0) / 255.0;
+    } else {
+        D_80770DE4 = sqrtf(D_80770DE4);
+        if (D_807FC928 == 1 && (f64)arg8 >= 0.8) {
+            arg0 = mathAngleBetweenPointsRad(pos[1], 0.0f, arg1, sqrtf(((arg2 - pos[2]) * (arg2 - pos[2])) + ((arg0 - pos[0]) * (arg0 - pos[0]))));
+            angle2 = mathAngleBetweenPointsRad(pos[1], 0.0f, D_807FC924->unk22C, sqrtf(((D_807FC924->unk230 - pos[2]) * (D_807FC924->unk230 - pos[2])) + ((D_807FC924->unk228 - pos[0]) * (D_807FC924->unk228 - pos[0]))));
+            diff = arg0 - angle2;
+            if (arg0 < angle2) {
+                diff += 6.2831855f;
+            }
+            if (diff > 3.1415927f) {
+                diff = 6.2831855f - diff;
+            }
+            if ((f64)diff > 0.39269909262657166) {
+                D_80770DE4 *= 1.0 + ((f64)(diff - 0.3926991f) * 20.0);
+            }
+        }
+
+        if ((f64)sp74 > 0.7853981852531433 && (f64)sp74 < 5.497787296772003) {
+            arg0 = 1.0f;
+            D_80770DE4 *= arg0 - (func_80612D1C(((2.0 * (f64)sp74) / 3.0) + 2.617993950843811) * arg8);
+        } else {
+            arg0 = 1.0f;
+        }
+        if (D_80770DE4 < arg0) {
+            D_80770DE4 = arg0;
+        }
+
+        var_a1 = (((f32)(arg7 * 4000) / sqrtf(D_80770DE4)) - (((f32)(arg7 * 4000) / 7.74596600000000013) - 32767.0));
+        if (var_a1 >= 0x8000) {
+            var_a1 = 0x7FFF;
+        }
+        var_a1 = (arg4 * var_a1) / 255.0;
+    }
+
+    if (var_a1 >= 1001) {
+        func_80609140(arg3, var_a1, (arg0 - func_80612D1C(sp74)) * 63.5, (f64)arg5 / 127.0, arg6, arg9);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_806086CC.s")
+#endif
 
 u32 func_806119A0(void);
 void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, s32 *);

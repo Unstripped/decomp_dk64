@@ -1,4 +1,4 @@
-// func_80605380 (src/global/7130.c): Stage 6 (99/100 matching insns, frame 0x30 matches, diff score 92: regalloc shift t1/t2/t3 vs t0/t1/t2)
+// func_80605380 (src/global/7130.c): Stage 6 (frame 0x30 exact, 99/100 insns, diff score 92: uopt assigns t0 before a1 causing t0->, a1-> which drops move ,  before func_80732354; tested permuter and var ordering)
 #include "common.h"
 
 extern s16 D_80770628[];
