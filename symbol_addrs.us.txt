@@ -346,6 +346,12 @@ projectileParticleSpawnerTick = 0x80695BAC; // type:func
 projectileHomingParticleUpdate = 0x806960A4; // type:func
 actorAppendActiveCallback8 = 0x80697184; // type:func
 
+// 699B0 late_rodata: unreferenced doubles after floats
+D_80758F70 = 0x80758F70; // type:f32 size:0x4
+D_80758F78 = 0x80758F78; // type:f64 force_migration:True function_owner:func_80668E9C
+D_80758FE4 = 0x80758FE4; // type:f32 size:0x4
+D_80758FE8 = 0x80758FE8; // type:f64 force_migration:True function_owner:func_8066A08C
+
 // n_audio
 alHeapInit = 0x80732420; // type:func
 alHeapDBAlloc = 0x80732444; // type:func
