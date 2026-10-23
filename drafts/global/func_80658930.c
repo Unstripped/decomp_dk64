@@ -1,6 +1,8 @@
-// func_80658930 (src/global/55B20.c): stage 2/4: loop body reconstructed (memset D_807F70B8..D_807F7138, then per-entry alloc 0x6C, fields 0x10=0x7FFF/0x12=-0x8000/0x8=0/0x4 from stream +0x20/+0x36/+0x58 memcpys, unkE, sb 0x34/0x56/0x68, func_80651708); remaining: memset pre-test rotation, n kept in stack slot 0x46 not s8, saved-reg numbering
-extern u8 *D_807F70B8[];
-
+// func_80658930 (src/global/55B20.c): only diff: target hoists &D_807F70B8 to s6 and spills n to 0x46; draft rematerialises base and colours n to s8 (uopt colouring tie-break)
+// func_80658930: loop body matches the target instruction-for-instruction; only
+// (a) the target keeps &D_807F70B8 in $s6 (LICM hoist) while this draft rematerialises
+// it inside the loop, and (b) the target spills n to its stack slot 0x46 while this
+// draft colours n to $s8. Both are one uopt colouring tie-break apart.
 typedef struct M55P7Node {
     /* 0x00 */ u8 *unk0;
     /* 0x04 */ s16 unk4;
@@ -12,27 +14,33 @@ typedef struct M55P7Node {
     /* 0x12 */ s16 unk12;
     /* 0x14 */ u8 unk14[0x20];
     /* 0x34 */ s8 unk34;
+    /* 0x35 */ u8 pad35;
     /* 0x36 */ u8 unk36[0x20];
     /* 0x56 */ s8 unk56;
+    /* 0x57 */ u8 pad57;
     /* 0x58 */ u8 unk58[0x10];
     /* 0x68 */ s8 unk68;
 } M55P7Node;
 
+extern u8 *D_807F70B8[];
 void *func_80610FE8(s32);
 void func_80651708(s32);
 
 void func_80658930(u8 *arg0) {
-    M55P7Node *node;
     s32 *w;
-    u8 *p;
+    s32 *end;
+    u8 **base;
     s16 n;
-    s16 i;
+    s32 i;
     s16 idx;
-    s32 size;
+    u8 *p;
 
-    for (w = (s32 *)D_807F70B8; (u8 *)w < (u8 *)&D_807F7138; w++) {
-        *w = 0;
-    }
+    end = (s32 *)&D_807F7138;
+    w = (s32 *)D_807F70B8;
+    do {
+        *w++ = 0;
+    } while (w < end);
+    base = D_807F70B8;
     if (arg0 == NULL) {
         return;
     }
@@ -41,25 +49,26 @@ void func_80658930(u8 *arg0) {
     for (i = 0; i < n; i++) {
         idx = *(s16 *)p;
         p += 2;
-        D_807F70B8[idx] = (u8 *)func_80610FE8(0x6C);
-        ((M55P7Node *)D_807F70B8[idx])->unk10 = 0x7FFF;
-        ((M55P7Node *)D_807F70B8[idx])->unk12 = -0x8000;
-        ((M55P7Node *)D_807F70B8[idx])->unk8 = 0;
-        ((M55P7Node *)D_807F70B8[idx])->unk4 = *(s16 *)(p - 2);
-        size = ((M55P7Node *)D_807F70B8[idx])->unk4 * 6;
-        ((M55P7Node *)D_807F70B8[idx])->unk0 = func_80610FE8(size);
-        memcpy(((M55P7Node *)D_807F70B8[idx])->unk0, p, size);
-        size = ((M55P7Node *)D_807F70B8[idx])->unk4 * 6;
-        p += (size / 2) * 2;
-        ((M55P7Node *)D_807F70B8[idx])->unkE = *(s16 *)p;
+        base[idx] = func_80610FE8(0x6C);
+        ((M55P7Node *)base[idx])->unk10 = 0x7FFF;
+        ((M55P7Node *)base[idx])->unk12 = -0x8000;
+        ((M55P7Node *)base[idx])->unk8 = 0;
+        ((M55P7Node *)base[idx])->unk4 = *(s16 *)(p - 2);
+        ((M55P7Node *)base[idx])->unk0 = func_80610FE8((u32)((M55P7Node *)base[idx])->unk4 * 6);
+        memcpy(((M55P7Node *)base[idx])->unk0,
+               p,
+               (u32)((M55P7Node *)base[idx])->unk4 * 6);
+        p += ((u32)((M55P7Node *)base[idx])->unk4 * 6 / 2) * 2;
+        ((M55P7Node *)base[idx])->unkE = *(s16 *)p;
+        ((M55P7Node *)base[idx])->unk34 = (s8)*(s16 *)(p + 2);
         p += 4;
-        memcpy(((M55P7Node *)D_807F70B8[idx])->unk14, p, 0x20);
-        ((M55P7Node *)D_807F70B8[idx])->unk34 = (s8)*(s16 *)(p + 0x20);
+        memcpy(((M55P7Node *)base[idx])->unk14, p, 0x20);
+        ((M55P7Node *)base[idx])->unk56 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy(((M55P7Node *)D_807F70B8[idx])->unk36, p, 0x20);
-        ((M55P7Node *)D_807F70B8[idx])->unk56 = (s8)*(s16 *)(p + 0x20);
+        memcpy(((M55P7Node *)base[idx])->unk36, p, 0x20);
+        ((M55P7Node *)base[idx])->unk68 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy(((M55P7Node *)D_807F70B8[idx])->unk58, p, 0x10);
+        memcpy(((M55P7Node *)base[idx])->unk58, p, 0x10);
         p += 0x10;
         func_80651708(idx);
     }

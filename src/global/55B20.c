@@ -2107,7 +2107,69 @@ s32 arg3;
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658134.s")
 #endif
 
+typedef struct M55P7Plane {
+    /* 0x00 */ f64 unk0;
+    /* 0x08 */ f64 unk8;
+    /* 0x10 */ f64 unk10;
+    /* 0x18 */ f64 unk18;
+    /* 0x20 */ f64 unk20;
+    /* 0x28 */ f64 unk28;
+    /* 0x30 */ f64 unk30;
+    /* 0x38 */ f64 unk38;
+} M55P7Plane;
+
+typedef struct R3dVec3 {
+    /* 0x0 */ f32 x;
+    /* 0x4 */ f32 y;
+    /* 0x8 */ f32 z;
+} R3dVec3;
+
+void func_8065850C(f32 *, f32 *, s32, f32 *);
+
+#ifdef NON_MATCHING
+void func_806582F8(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 arg4) {
+    f32 sp7C[3];
+    M55P7Plane *plane;
+    R3dVec3 *prev;
+    R3dVec3 *cur;
+    s32 n;
+    s32 i;
+    f64 y;
+    f64 z;
+    f64 d;
+
+    n = 0;
+    prev = (R3dVec3 *)&arg0[arg2 * 3] - 1;
+    cur = (R3dVec3 *)arg0;
+    plane = (M55P7Plane *)(D_807F5E68 + (arg4 << 6));
+    for (i = 0; i < arg2; i++) {
+        d = plane->unk38;
+        y = d + (((plane->unk20 * cur->x) + (plane->unk28 * cur->y)) + (plane->unk30 * cur->z));
+        z = d + (((plane->unk20 * prev->x) + (plane->unk28 * prev->y)) + (plane->unk30 * prev->z));
+        if (y >= 0.0) {
+            if (z >= 0.0) {
+                memcpy(arg1 + n * 3, cur, 0xC);
+                n++;
+            } else {
+                func_8065850C((f32 *)prev, (f32 *)cur, arg4, sp7C);
+                memcpy(arg1 + n * 3, sp7C, 0xC);
+                n++;
+                memcpy(arg1 + n * 3, cur, 0xC);
+                n++;
+            }
+        } else if (z >= 0.0) {
+            func_8065850C((f32 *)prev, (f32 *)cur, arg4, sp7C);
+            memcpy(arg1 + n * 3, sp7C, 0xC);
+            n++;
+        }
+        prev = cur++;
+    }
+    *arg3 = n;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806582F8.s")
+#endif
 
 #ifdef NON_MATCHING
 void func_8065850C(f32 *arg0, f32 *arg1, s32 arg2, f32 *arg3) {
@@ -2143,7 +2205,75 @@ void func_806588E0(s32 arg0) {
     }
 }
 
+typedef struct M55P7Node {
+    /* 0x00 */ u8 *unk0;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ u8 pad6[0x2];
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ u8 padC[0x2];
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ u8 unk14[0x20];
+    /* 0x34 */ s8 unk34;
+    /* 0x36 */ u8 unk36[0x20];
+    /* 0x56 */ s8 unk56;
+    /* 0x58 */ u8 unk58[0x10];
+    /* 0x68 */ s8 unk68;
+} M55P7Node;
+
+#ifdef NON_MATCHING
+void func_80658930(u8 *arg0) {
+    s32 *w;
+    s32 *end;
+    u8 **base;
+    s16 n;
+    s32 i;
+    s16 idx;
+    u8 *p;
+
+    end = (s32 *)&D_807F7138;
+    w = (s32 *)D_807F70B8;
+    do {
+        *w++ = 0;
+    } while (w < end);
+    base = (u8 **)D_807F70B8;
+    if (arg0 == NULL) {
+        return;
+    }
+    n = *(s16 *)arg0;
+    p = arg0 + 2;
+    for (i = 0; i < n; i++) {
+        idx = *(s16 *)p;
+        p += 2;
+        base[idx] = func_80610FE8(0x6C);
+        ((M55P7Node *)base[idx])->unk10 = 0x7FFF;
+        ((M55P7Node *)base[idx])->unk12 = -0x8000;
+        ((M55P7Node *)base[idx])->unk8 = 0;
+        ((M55P7Node *)base[idx])->unk4 = *(s16 *)(p - 2);
+        ((M55P7Node *)base[idx])->unk0 = func_80610FE8((u32)((M55P7Node *)base[idx])->unk4 * 6);
+        memcpy(((M55P7Node *)base[idx])->unk0,
+               p,
+               (u32)((M55P7Node *)base[idx])->unk4 * 6);
+        p += ((u32)((M55P7Node *)base[idx])->unk4 * 6 / 2) * 2;
+        ((M55P7Node *)base[idx])->unkE = *(s16 *)p;
+        ((M55P7Node *)base[idx])->unk34 = (s8)*(s16 *)(p + 2);
+        p += 4;
+        memcpy(((M55P7Node *)base[idx])->unk14, p, 0x20);
+        ((M55P7Node *)base[idx])->unk56 = (s8)*(s16 *)(p + 0x20);
+        p += 0x22;
+        memcpy(((M55P7Node *)base[idx])->unk36, p, 0x20);
+        ((M55P7Node *)base[idx])->unk68 = (s8)*(s16 *)(p + 0x20);
+        p += 0x22;
+        memcpy(((M55P7Node *)base[idx])->unk58, p, 0x10);
+        p += 0x10;
+        func_80651708(idx);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658930.s")
+#endif
 
 extern s16 D_807F7358;
 extern s16 D_807F735A;
@@ -2310,4 +2440,62 @@ s16 arg3;
     D_807F735E = arg3;
 }
 
+#ifdef NON_MATCHING
+typedef struct R3dPos {
+    /* 0x000 */ u8 pad0[0x21C];
+    /* 0x21C */ f32 unk21C;
+    /* 0x220 */ f32 unk220;
+    /* 0x224 */ f32 unk224;
+} R3dPos;
+
+void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+f32 sqrtf(f32);
+
+s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
+    f32 sp44;
+    f32 sp40;
+    s16 x;
+    s16 z;
+    s16 x0;
+    s16 x1;
+    s16 z0;
+    s16 z1;
+    f32 d;
+
+    func_80626F8C(arg0, arg1, arg2, &sp44, &sp40, 0, 1.0f, D_807FC929);
+    x = (s16)sp44;
+    z = (s16)sp40;
+    d = sqrtf(((arg2 - ((R3dPos *)&D_807FC924[D_807FC929])->unk224) * (arg2 - ((R3dPos *)&D_807FC924[D_807FC929])->unk224))
+            + (((arg0 - ((R3dPos *)&D_807FC924[D_807FC929])->unk21C) * (arg0 - ((R3dPos *)&D_807FC924[D_807FC929])->unk21C))
+            + ((arg1 - ((R3dPos *)&D_807FC924[D_807FC929])->unk220) * (arg1 - ((R3dPos *)&D_807FC924[D_807FC929])->unk220))));
+    if (d < 90.0f) {
+        return 0;
+    }
+    x0 = 20;
+    x1 = 20;
+    z0 = 0;
+    if (d >= 180.0f) {
+        z1 = 50;
+    } else {
+        x0 = 80;
+        x1 = 80;
+        z0 = 130;
+        z1 = 130;
+        if ((d - 60.0f) / 120.0f > 0.0) {
+            x0 = -60.0f * ((d - 60.0f) / 120.0f) + 80.0f;
+            x1 = -60.0f * ((d - 60.0f) / 120.0f) + 80.0f;
+            z0 = -130.0f * ((d - 60.0f) / 120.0f) + 130.0f;
+            z1 = -80.0f * ((d - 60.0f) / 120.0f) + 130.0f;
+        }
+    }
+    if ((x < D_807F7358 - x0 - arg3) || (D_807F735C + x1 + arg3 < x)
+        || (z < D_807F735A - z0 - arg4) || (D_807F735E + z1 + arg4 < z)) {
+        return 1;
+    }
+    return 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658E8C.s")
+#endif
+
