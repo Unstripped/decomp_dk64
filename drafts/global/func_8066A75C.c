@@ -1,4 +1,4 @@
-// func_8066A75C (src/global/699B0.c): near-miss: inner block scopes sp28 at 0x28, scalars land at 0x74/0x78/0x7C vs 0x70/0x74/0x78 (4 byte shift)
+// func_8066A75C (src/global/6AD90.c): near-miss: 54 insns, sp28 at 0x28, scalars land at 0x74/0x78/0x7C vs 0x70/0x74/0x78 (4-byte shift at top of 0x80 frame)
 #include "common.h"
 #include "actor.h"
 

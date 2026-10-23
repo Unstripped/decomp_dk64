@@ -1,4 +1,4 @@
-// func_8066A64C (src/global/699B0.c): near-miss: ~6 insns (branch delay slots, sub in a3 matched, mtx hoist matched)
+// func_8066A64C (src/global/6AD90.c): near-miss: 68 insns, branch delay-slot choice addiu a0,sp,0x78 vs li t5,1 shifts subsequent regalloc
 #include "common.h"
 #include "actor.h"
 

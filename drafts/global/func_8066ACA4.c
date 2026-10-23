@@ -1,4 +1,4 @@
-// func_8066ACA4 (src/global/699B0.c): near-miss: K&R definition with u8 arg2 reproduces 0x60 frame, ra/s0 save, and all stack spill slots; only fp regalloc remains
+// func_8066ACA4 (src/global/6AD90.c): near-miss: 63 insns, K&R u8 arg2 gives frame/spills, only FP temp set alternation (/ vs /) remains
 #include "common.h"
 
 typedef struct R1C_TriangleF {
@@ -12,7 +12,7 @@ typedef struct R2D_TriangleAC10 {
     R1C_TriangleF tri;
 } R2D_TriangleAC10;
 
-void func_80666AF8(s32, f32, f32, f32, s32, s32, s32);
+void func_80666AF8();
 
 void func_8066ACA4(arg0, arg1, arg2)
 s32 arg0;

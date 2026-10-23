@@ -1,4 +1,4 @@
-// func_8066B4D4 (src/global/699B0.c): near-miss: temp_v0 & 0x80000000 hoists 0x7FFFFFFF into at across branch, stack slots 0x38/0x44 match, sp2C slot 0x34 vs 0x2C remains
+// func_8066B4D4 (src/global/6AD90.c): near-miss: 61 insns, stack slots 0x38/0x44 and 0x7FFFFFFF hoist match, sp2C slot 0x34 vs 0x2C remains
 #include "common.h"
 
 extern s32 D_8000DDCC;
