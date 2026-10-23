@@ -925,13 +925,45 @@ s32 func_8066B75C(R1ENode *node) {
 
 extern void *D_807F9628[];
 u32 func_8066C2B4(u32);
-void func_8066B7F4(void *, s32, s32, s32);
+void func_8066B7F4();
 
 void func_8066B7AC(s32 arg0, s32 arg1, s32 arg2) {
     func_8066B7F4(D_807F9628[func_8066C2B4(arg0)], arg0, arg1, arg2);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066B7F4.s")
+typedef struct R2ENode {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ u8 unk10;
+    /* 0x14 */ struct R2ENode *left;
+    /* 0x18 */ struct R2ENode *right;
+} R2ENode;
+
+void func_80732354(s32, s32, s32, s32);
+void func_8066BA2C(s32, u8 *, u16 *, s32 *);
+void func_8066B7F4(R2ENode *arg0, u32 arg1, s32 *arg2, s32 *arg3) {
+    u8 sp2F;
+    u16 sp2C;
+    s32 sp28;
+
+    if (arg0 == NULL) {
+        sp2F = 0;
+        sp2C = 0;
+        sp28 = 0;
+        func_8066BA2C(arg1, &sp2F, &sp2C, &sp28);
+        func_80732354(7, sp2F, sp2C, D_8076A064 - sp28);
+    }
+    if (arg1 == arg0->unk0) {
+        *arg2 = arg0->unk4;
+        *arg3 = arg0->unk8;
+    } else if (arg0->unk0 < arg1) {
+        func_8066B7F4(arg0->right, arg1, arg2, arg3);
+    } else {
+        func_8066B7F4(arg0->left, arg1, arg2, arg3);
+    }
+}
 
 void *func_8066B924(void *, s32, s32, s32);
 
@@ -949,7 +981,35 @@ s32 func_8066B9F4(s32 arg0) {
     return func_8066BB44(D_807F9628[func_8066C2B4(arg0)], arg0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BA2C.s")
+typedef struct R2EQueueItem {
+    s32 unk0;
+    s32 unk4;
+    u16 unk8;
+    u8 unkA;
+} R2EQueueItem;
+
+extern u8 D_807FB220;
+extern u8 D_807FB221;
+extern R2EQueueItem D_807FB228[];
+
+void func_8066BA2C(s32 arg0, u8 *arg1, u16 *arg2, s32 *arg3) {
+    s32 i;
+
+    if ((i = D_807FB221 - 1) < 0) {
+        i = 0x3F;
+    }
+    while (i != D_807FB220) {
+        if (arg0 == D_807FB228[i].unk4) {
+            *arg1 = D_807FB228[i].unkA;
+            *arg2 = D_807FB228[i].unk8;
+            *arg3 = D_807FB228[i].unk0;
+            break;
+        }
+        if (--i < 0) {
+            i = 0x3F;
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BAB8.s")
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BB44.s")
@@ -964,7 +1024,26 @@ void func_8066BC00(s32 arg0, s32 arg1, s32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BC5C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BD54.s")
+R2ENode *func_8066BD54(R2ENode *node, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4, u8 *arg5) {
+    void *pad;
+    R2ENode *left = node->left;
+
+    if (left == NULL) {
+        R2ENode *old;
+
+        *arg1 = node->unk0;
+        *arg2 = node->unk4;
+        *arg3 = node->unk8;
+        *arg4 = node->unkC;
+        *arg5 = node->unk10;
+        old = node;
+        node = node->right;
+        heapFree(old);
+    } else {
+        node->left = func_8066BD54(left, arg1, arg2, arg3, arg4, arg5);
+    }
+    return node;
+}
 
 void func_8066BE20(s32);
 
@@ -1017,7 +1096,33 @@ void func_8066BECC(R1ENode *node) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BF0C.s")
+R1ENode *func_8066BF0C(R1EBufferItem *buffer, s32 start, s32 end) {
+    R2ENode *node;
+    s32 mid;
+
+    node = (R2ENode *)func_80610FE8(sizeof(R2ENode));
+    mid = (start + end) / 2;
+
+    node->unk0 = buffer[mid].unk0;
+    node->unk4 = buffer[mid].unk4;
+    node->unk8 = buffer[mid].unk8;
+    node->unkC = buffer[mid].unkC;
+    node->unk10 = buffer[mid].unk10;
+
+    if (start != mid) {
+        node->left = (R2ENode *)func_8066BF0C(buffer, start, mid - 1);
+    } else {
+        node->left = NULL;
+    }
+
+    if (end != mid) {
+        node->right = (R2ENode *)func_8066BF0C(buffer, mid + 1, end);
+    } else {
+        node->right = NULL;
+    }
+
+    return (R1ENode *)node;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/699B0/func_8066BFF0.s")
 

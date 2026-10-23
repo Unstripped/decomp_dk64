@@ -1,4 +1,4 @@
-// func_8066BAB8 (src/global/699B0.c): from .scratch/R2E/func_8066BAB8_best.c
+// func_8066BAB8 (src/global/699B0.c): Circular queue push; 0-insn size delta (35/35), home-slot stores sw a1, 4(sp) and sw a2, 8(sp) matched; register allocation order around next_tail and branch condition remaining
 void func_8066BAB8(arg0, arg1, arg2)
 s32 arg0;
 u8 arg1;
