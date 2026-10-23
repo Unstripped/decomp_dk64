@@ -1,4 +1,4 @@
-// func_8065776C (src/global/55B20.c): structure reconstructed (edge cross test with mid-diagonal); needs stack layout + FP regalloc work
+// func_8065776C (src/global/55B20.c): stage 2: frame must be 0x78 (locals 0x74 mx,0x70 my,0x6C ex,0x68 ey,0x64 vx,0x60 vy,0x40 x0,0x3C y2,0x38 y0). Target ALSO emits dead loads of ex/ey/vy/vx from 0x6C/0x68/0x60/0x64 at entry (into fs3/fs4/ft5/ft4) and dead stores of vx/vy/ex/ey at 0x64/0x60/0x6C/0x68 just before return 1 - these 4 locals are read before written, so the source must read them pre-loop; FCR map: vx=ft4 vy=ft5 ex=fs3 ey=fs4. Cross test is dx*ey-dy*ex vs (mx-vx)*ey-(my-vy)*ex, both in f64 vs 0.0 (f32 0.0 pair fs0/fs0f); mid = (x0+x2)*0.5 in f64 (untyped 0.5)
 #include "common.h"
 
 typedef struct {

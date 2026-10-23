@@ -1,4 +1,4 @@
-// func_80653804 (src/global/55B20.c): stage 4: frame 0xC8 and sp88/sp90/sp98/spA0 slots now match (4 lead f64 decls + pad count); remaining: arg2 spilled to home (target keeps it in $f20) and local eval/regalloc order
+// func_80653804 (src/global/55B20.c): stage 4: frame 0xC8 + sp88/sp90/sp98/spA0 slots match (4 lead f64 decls + pad count). Remaining: arg2 spills to its home slot (target does mtc1 a2,$f20 then cvt.d.s $f28,$f20 late) and the f64 callee-saved coloring is a full rotation (target fs5=f30, fs1=f22, fs2=f24, fs3=f26, fs4=f28; mine fs5=f22, fs1=f30, ...), so block layout/order differs. Permuter 500s only got 7917->7215. Tried explicit f32 locals for arg1/arg2, evaluating the two half-sum products into fs1/fs2 before fs5/sp38, reordering fs4 after fs1/fs2 - all worse or unchanged (205/155 vs 203/155).
 typedef struct {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;

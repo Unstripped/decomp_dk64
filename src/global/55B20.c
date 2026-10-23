@@ -314,7 +314,85 @@ void func_80650ECC(M50ECCMapData *arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80650ECC.s")
 #endif
 
+#ifdef NON_MATCHING
+typedef struct R2P1bCellEntry {
+    /* 0x00 */ u8 *unk0;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ u8 pad6[0x2];
+    /* 0x08 */ u8 *unk8;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ u8 padE[0x2];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+} R2P1bCellEntry;
+
+extern void *D_807F70B8[];
+void heapFree(void *);
+
+void func_80651708(s32 arg0) {
+    R2P1bCellEntry *var_v1;
+    s32 var_a1;
+    s32 var_a2;
+    s32 var_a3;
+    s32 var_v0;
+    s32 temp_lo;
+    u8 *var_a0_2;
+
+    var_v1 = D_807F70B8[arg0];
+    if (var_v1->unk8 != 0) {
+        heapFree(var_v1->unk8);
+    }
+    var_a1 = var_v1->unk4 - 2;
+    if (var_a1 < 0) {
+        var_a1 = 0;
+    }
+    if (var_a1 != 0) {
+        var_v1->unk8 = func_80610FE8(var_a1 * 0x12);
+        var_v1->unkC = var_a1;
+        if (var_v1->unk4 >= 3) {
+            var_a3 = 1;
+            var_a2 = 2;
+            var_v0 = 0x24;
+            var_a1 = 0xC;
+            do {
+                temp_lo = var_a3 * 6;
+                var_a3 = var_a2;
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x24) = *(s16 *)(var_v1->unk0 + 0);
+                var_a2 += 1;
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x1E) = *(s16 *)(var_v1->unk0 + 2);
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x18) = *(s16 *)(var_v1->unk0 + 4);
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x22) = *(s16 *)(var_v1->unk0 + temp_lo);
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x1C) = *(s16 *)(var_v1->unk0 + temp_lo + 2);
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x16) = *(s16 *)(var_v1->unk0 + temp_lo + 4);
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x20) = *(s16 *)(var_v1->unk0 + var_a1);
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x1A) = *(s16 *)(var_v1->unk0 + var_a1 + 2);
+                var_v0 += 0x12;
+                *(s16 *)((var_v1->unk8 + var_v0) - 0x14) = *(s16 *)(var_v1->unk0 + var_a1 + 4);
+                var_a1 += 6;
+            } while (var_a2 < var_v1->unk4);
+        }
+    }
+    var_v1->unk12 = -0x8000;
+    var_v1->unk10 = 0x7FFF;
+    var_a2 = 0;
+    if (var_v1->unk4 > 0) {
+        var_a0_2 = var_v1->unk0;
+        do {
+            if (var_v1->unk12 < *(s16 *)(var_a0_2 + 2)) {
+                var_v1->unk12 = *(s16 *)(var_a0_2 + 2);
+            }
+            if (*(s16 *)(var_a0_2 + 2) < var_v1->unk10) {
+                var_v1->unk10 = *(s16 *)(var_a0_2 + 2);
+            }
+            var_a2 += 1;
+            var_a0_2 += 6;
+        } while (var_a2 < var_v1->unk4);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651708.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651904.s")
 
@@ -1056,7 +1134,111 @@ s32 func_80653684(void *arg0, f32 arg1, f32 arg2) {
     return 1;
 }
 
+#ifdef NON_MATCHING
+s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
+    f64 lead0;
+    f64 lead1;
+    f64 lead2;
+    f64 lead3;
+    f64 spA0;
+    f64 sp98;
+    f64 sp90;
+    f64 sp88;
+    f64 pad2;
+    f64 pad3;
+    f64 pad4;
+    f64 pad5;
+    f64 pad6;
+    f64 pad7;
+    f64 pad8;
+    f64 sp38;
+    f64 fs1;
+    f64 fs2;
+    f64 fs3;
+    f64 fs4;
+    f64 fs5;
+    f64 ft4;
+    f64 ft5;
+    f64 fa0;
+    f64 fa1;
+    f64 fv0;
+    f64 fv1;
+    f64 fs0;
+    s32 sgn1;
+    s32 sgn2;
+    s32 flag;
+    s32 i;
+
+    fs3 = arg1;
+    fs4 = arg2;
+    fs5 = ((M55P3Box *)arg0)->unk0;
+    sp38 = ((M55P3Box *)arg0)->unkC;
+    fs1 = (fs5 + ((f64)(((M55P3Box *)arg0)->unk4 + ((M55P3Box *)arg0)->unk2) * 0.5)) * 0.5;
+    fs2 = (sp38 + ((f64)(((M55P3Box *)arg0)->unk10 + ((M55P3Box *)arg0)->unkE) * 0.5)) * 0.5;
+    ft5 = sp88;
+    ft4 = sp90;
+    fa1 = sp98;
+    fa0 = spA0;
+    flag = 0;
+    i = 0;
+    do {
+        switch (i) {
+        default:
+            fv0 = (fs3 - ft4) * fa1;
+            fv1 = (fs4 - ft5) * fa0;
+            fs0 = ((fs1 - ft4) * fa1) - ((fs2 - ft5) * fa0);
+            break;
+        case 0:
+            ft4 = fs5;
+            ft5 = sp38;
+            fa1 = (f64)(((M55P3Box *)arg0)->unkE - ((M55P3Box *)arg0)->unkC);
+            fa0 = (f64)(((M55P3Box *)arg0)->unk2 - ((M55P3Box *)arg0)->unk0);
+            fv0 = (fs3 - fs5) * fa1;
+            fv1 = (fs4 - ft5) * fa0;
+            fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
+            break;
+        case 1:
+            ft4 = fs5;
+            ft5 = sp38;
+            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkC);
+            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk0);
+            fv0 = (fs3 - fs5) * fa1;
+            fv1 = (fs4 - ft5) * fa0;
+            fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
+            break;
+        case 2:
+            ft4 = (f64)((M55P3Box *)arg0)->unk2;
+            ft5 = (f64)((M55P3Box *)arg0)->unkE;
+            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk2);
+            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkE);
+            fv0 = (fs3 - ft4) * fa1;
+            fv1 = (fs4 - ft5) * fa0;
+            fs0 = ((fs1 - ft4) * fa1) - ((fs2 - ft5) * fa0);
+            break;
+        }
+        i++;
+        sgn1 = -1;
+        if (fv1 <= fv0) {
+            sgn1 = 1;
+        }
+        sgn2 = -1;
+        if (fs0 >= 0.0) {
+            sgn2 = 1;
+        }
+        if (sgn2 != sgn1) {
+            flag = 1;
+        }
+    } while (i != 3);
+    sp88 = ft5;
+    sp90 = ft4;
+    sp98 = fa1;
+    spA0 = fa0;
+    return (flag == 0) & 0xFF;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80653804.s")
+#endif
 
 
 typedef struct {
@@ -1222,7 +1404,43 @@ void func_80654380(f32 arg0, f32 arg1, f32 arg2) {
     func_80654A2C(arg0, arg1, arg2);
 }
 
+#ifdef NON_MATCHING
+extern f32 D_807F5FAC;
+extern s32 D_807482F4;
+extern u8 D_807F7148[];
+void func_8062FF10(f32 (*)[4], f32 (*)[4]);
+void func_806545D4(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
+
+void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
+    f32 spF8[4][4];
+    f32 spB8[4][4];
+    u8 sp84[0x34];
+    s32 i;
+    s32 off;
+    u8 *p;
+
+    func_8062A944(D_807F5FB4, D_807F5FB0, D_807F5FAC);
+    guMtxL2F(spF8, (Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
+    func_8062FF10(spB8, spF8);
+    off = 0;
+    i = 0;
+    while (i < D_807F6C28) {
+        p = (u8 *)D_807F6C18 + off;
+        if (p[0] == 1) {
+            func_806545D4(*(s32 *)(p + 0x68), *(s32 *)(p + 0x6C), *(s32 *)(p + 0x70), *(s32 *)(p + 0x74),
+                          arg0, arg1, arg2, D_807FC929, spB8, p + 0x88, sp84);
+        }
+        if (i == D_807482F4) {
+            memcpy(D_807F7148, (u8 *)D_807F6C18 + off + 0x88, 0x140);
+        }
+        i++;
+        off += 0x1C8;
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654418.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806545D4.s")
 
@@ -1349,10 +1567,113 @@ s32 func_80654E84(M55P4Tri *arg0, f32 arg1, f32 arg2) {
     return 1;
 }
 
+#ifdef NON_MATCHING
+s32 func_80654FEC(void *arg0, f32 arg1, f32 arg2) {
+    f64 lead0;
+    f64 lead1;
+    f64 lead2;
+    f64 lead3;
+    f64 spA0;
+    f64 sp98;
+    f64 sp90;
+    f64 sp88;
+    f64 pad2;
+    f64 pad3;
+    f64 pad4;
+    f64 pad5;
+    f64 pad6;
+    f64 pad7;
+    f64 pad8;
+    f64 sp38;
+    f64 fs1;
+    f64 fs2;
+    f64 fs3;
+    f64 fs4;
+    f64 fs5;
+    f64 ft4;
+    f64 ft5;
+    f64 fa0;
+    f64 fa1;
+    f64 fv0;
+    f64 fv1;
+    f64 fs0;
+    s32 sgn1;
+    s32 sgn2;
+    s32 flag;
+    s32 i;
+
+    fs3 = arg1;
+    fs4 = arg2;
+    fs5 = ((M55P3Box *)arg0)->unk0;
+    sp38 = ((M55P3Box *)arg0)->unkC;
+    fs1 = (fs5 + ((f64)(((M55P3Box *)arg0)->unk4 + ((M55P3Box *)arg0)->unk2) * 0.5)) * 0.5;
+    fs2 = (sp38 + ((f64)(((M55P3Box *)arg0)->unk10 + ((M55P3Box *)arg0)->unkE) * 0.5)) * 0.5;
+    ft5 = sp88;
+    ft4 = sp90;
+    fa1 = sp98;
+    fa0 = spA0;
+    flag = 0;
+    i = 0;
+    do {
+        switch (i) {
+        default:
+            fv0 = (fs3 - ft4) * fa1;
+            fv1 = (fs4 - ft5) * fa0;
+            fs0 = ((fs1 - ft4) * fa1) - ((fs2 - ft5) * fa0);
+            break;
+        case 0:
+            ft4 = fs5;
+            ft5 = sp38;
+            fa1 = (f64)(((M55P3Box *)arg0)->unkE - ((M55P3Box *)arg0)->unkC);
+            fa0 = (f64)(((M55P3Box *)arg0)->unk2 - ((M55P3Box *)arg0)->unk0);
+            fv0 = (fs3 - fs5) * fa1;
+            fv1 = (fs4 - ft5) * fa0;
+            fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
+            break;
+        case 1:
+            ft4 = fs5;
+            ft5 = sp38;
+            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkC);
+            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk0);
+            fv0 = (fs3 - fs5) * fa1;
+            fv1 = (fs4 - ft5) * fa0;
+            fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
+            break;
+        case 2:
+            ft4 = (f64)((M55P3Box *)arg0)->unk2;
+            ft5 = (f64)((M55P3Box *)arg0)->unkE;
+            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk2);
+            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkE);
+            fv0 = (fs3 - ft4) * fa1;
+            fv1 = (fs4 - ft5) * fa0;
+            fs0 = ((fs1 - ft4) * fa1) - ((fs2 - ft5) * fa0);
+            break;
+        }
+        i++;
+        sgn1 = -1;
+        if (fv1 <= fv0) {
+            sgn1 = 1;
+        }
+        sgn2 = -1;
+        if (fs0 >= 0.0) {
+            sgn2 = 1;
+        }
+        if (sgn2 != sgn1) {
+            flag = 1;
+        }
+    } while (i != 3);
+    sp88 = ft5;
+    sp90 = ft4;
+    sp98 = fa1;
+    spA0 = fa0;
+    return (flag == 0) & 0xFF;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654FEC.s")
+#endif
 
 #ifdef NON_MATCHING
-extern f32 D_807F5FAC;
 
 s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {

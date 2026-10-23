@@ -1,4 +1,4 @@
-// func_80654FEC (src/global/55B20.c): same as func_80653804 (byte-identical target asm); see that draft
+// func_80654FEC (src/global/55B20.c): Same body as func_80653804 (target bytes are identical apart from addresses). Same stage 4 near-miss: arg2 spilled to home instead of $f20 and the f64 callee-saved coloring rotation.
 typedef struct {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
