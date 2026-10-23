@@ -1,4 +1,4 @@
-// func_8065FB64 (src/global/63EC0.c): near-miss: frame size 0x98 vs 0xa0 and loop register allocation
+// func_8065FB64 (src/global/63EC0.c): near-miss: exact 0x98 frame (inlined floats fixed 0xa0 bloat), loop regalloc
 typedef struct R1B63810_Struct_6C18 {
     u8 unk0;
     u8 pad1[2];
@@ -73,11 +73,9 @@ void func_8065FB64(f32 arg0, f32 arg1, f32 arg2) {
                 R1B63810_Target *target = node->target;
                 s16 s1 = target->unk50[0];
                 if (target->unk68 != 0) {
-                    f32 fv1 = target->unk10 + target->unkC;
-                    f32 fv0 = (f32)target->unk4E + node->unk4;
                     s32 v0 = func_8065BAA0(arg0, arg1, arg2, target->unk46,
-                                           (s32)(fv0 - fv1), target->unk48, target->unk4A,
-                                           (s32)(fv0 + fv1), target->unk4C, s1, &sp8F);
+                                           (s32)(((f32)target->unk4E + node->unk4) - (target->unk10 + target->unkC)), target->unk48, target->unk4A,
+                                           (s32)(((f32)target->unk4E + node->unk4) + (target->unk10 + target->unkC)), target->unk4C, s1, &sp8F);
                     D_807F7EEC = D_8076A0B4[s1];
                     D_807F7EF0 = D_8076A0B8[s1];
                     D_807F7EF4 = D_8076A0BC[s1];

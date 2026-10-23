@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/684C0/func_806637C0.s")
-
 typedef struct R2F684C0_Actor {
     u8 pad0[0x54];
     s32 unk54;
@@ -44,6 +42,27 @@ extern Actor *D_807FBB44;
 void *func_80610FE8(s32);
 s32 func_806639CC();
 void func_80663A0C();
+
+void func_806637C0(R2F684C0_Actor *arg0) {
+    s32 var_s0;
+    R2F684C0_ZoneNode **var_s1;
+    s32 temp_s2;
+    R2F684C0_Zone *temp_s3;
+    R2F684C0_ZoneNode *temp_v0_2;
+
+    var_s1 = &D_807F9410;
+    temp_s2 = *(s32 *)(arg0->unk54 + (u8 *)arg0);
+    temp_s3 = (R2F684C0_Zone *)((s32 *)(arg0->unk54 + (u8 *)arg0) + 1);
+    *var_s1 = NULL;
+    for (var_s0 = 0; var_s0 < temp_s2; var_s0++) {
+        temp_v0_2 = func_80610FE8(sizeof(R2F684C0_ZoneNode));
+        *var_s1 = temp_v0_2;
+        var_s1 = &temp_v0_2->next;
+        temp_v0_2->zone = &temp_s3[var_s0];
+        temp_v0_2->subList = NULL;
+        temp_v0_2->next = NULL;
+    }
+}
 
 void func_80663844(R2F684C0_Actor *arg0) {
     R2F684C0_ZoneNode *node;

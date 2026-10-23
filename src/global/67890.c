@@ -83,6 +83,41 @@ void func_8066308C(f32 arg0, f32 arg1, f32 arg2) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/67890/func_806634A4.s")
+Gfx *func_80663594(Gfx *, s32);
+
+Gfx *func_806634A4(Gfx *arg0) {
+    s32 pad;
+    s32 var_s1;
+    f32 temp_fv0;
+    f32 var_fs0;
+    f32 var_fv1;
+    s32 var_s0;
+    s32 var_v0;
+
+    var_fs0 = 100000000.0f;
+    do {
+        var_s0 = 0;
+        var_fv1 = 0.0f;
+        var_v0 = 0;
+        if (D_807F93F8 > 0) {
+            do {
+                if (D_807F93F4[var_v0].unk11 != 0) {
+                    temp_fv0 = D_807F93F4[var_v0].unk0;
+                    if ((temp_fv0 < var_fs0) && (var_fv1 < temp_fv0)) {
+                        var_s1 = var_v0;
+                        var_fv1 = temp_fv0;
+                        var_s0 = 1;
+                    }
+                }
+                var_v0 += 1;
+            } while (var_v0 < D_807F93F8);
+        }
+        var_fs0 = var_fv1;
+        if (var_s0 != 0) {
+            arg0 = func_80663594(arg0, var_s1);
+        }
+    } while (var_s0 != 0);
+    return arg0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/67890/func_80663594.s")

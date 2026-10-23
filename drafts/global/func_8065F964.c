@@ -1,4 +1,4 @@
-// func_8065F964 (src/global/63EC0.c): near-miss: stack layout/frame size 0xc8 vs 0xd0
+// func_8065F964 (src/global/63EC0.c): near-miss: exact instruction count (104 insns), stack layout/frame size 0xc8 vs 0xd0
 typedef struct R1B63810_Struct_6C18 {
     u8 unk0;
     u8 pad1[0x67];
@@ -39,7 +39,7 @@ typedef struct R1B63810_Node {
 extern R1B63810_Struct_6C18 *D_807F6C18;
 
 void func_80657E24(s32, s32, s32, s32, s32, s32, s32, s32, s32 *, s32 *, s32 *, s32 *);
-void func_806545D4(s32, s32, s32, s32, f32, f32, f32, s32, s32, s32, void *);
+void func_806545D4(s32, s32, s32, s32, f32, f32, f32, u8, s32, s32, void *);
 
 void func_8065F964(R1B63810_Node *arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, s32 arg5, s32 arg6) {
     s32 spB4;

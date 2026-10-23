@@ -1,4 +1,4 @@
-// func_8065EB10 (src/global/63810.c): near-miss: leaf stack frame allocation and regalloc differences
+// func_8065EB10 (src/global/63810.c): near-miss: leaf stack frame $s0 save and regalloc differences
 typedef struct R1B63810_SubEntry_EB10 {
     f32 unk0;
     u8 r;

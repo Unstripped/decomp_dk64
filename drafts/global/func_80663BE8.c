@@ -1,4 +1,4 @@
-// func_80663BE8 (src/global/684C0.c): 100% logic match, regalloc a2 vs v1 outer node pointer; tested K&R, register, declaration orders
+// func_80663BE8 (src/global/684C0.c): 100% logic match; node in a2 vs v1 outer pointer; tested K&R, register, param counts, dummy variables
 #include "common.h"
 #include "actor.h"
 

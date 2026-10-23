@@ -1,4 +1,4 @@
-// func_8065EFF0 (src/global/63810.c): near-miss: loop body arg evaluation order for func_8065A708
+// func_8065EFF0 (src/global/63810.c): near-miss: loop body arg evaluation order for func_8065A708 (t6/t7/t8/t9 evaluated before x/y/z)
 typedef struct R1B63810_Struct_EFF0 {
     u8 pad0[4];
     f32 unk4;
