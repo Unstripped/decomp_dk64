@@ -778,9 +778,90 @@ void func_80654380(f32 arg0, f32 arg1, f32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655410.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655AD0.s")
+typedef struct M55P4Node {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ u8 pad4[0x10];
+    /* 0x14 */ struct M55P4Node *unk14;
+    /* 0x18 */ u8 pad18[0xC];
+    /* 0x24 */ u8 unk24;
+} M55P4Node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655BF0.s")
+typedef struct {
+    /* 0x000 */ u8 unk0;
+    /* 0x001 */ u8 unk1;
+    /* 0x002 */ u8 unk2;
+    /* 0x003 */ u8 unk3;
+    /* 0x004 */ u8 unk4;
+    /* 0x005 */ u8 unk5;
+    /* 0x006 */ u8 pad6[0x0E];
+    /* 0x014 */ M55P4Node *unk14;
+    /* 0x018 */ u8 pad18[4];
+    /* 0x01C */ M55P4Node *unk1C;
+    /* 0x020 */ u8 pad20[0x40];
+    /* 0x060 */ void *unk60[4];
+    /* 0x070 */ u8 pad70[0x158];
+} M55P4Effect;
+
+extern u8 D_807F70AA;
+extern u8 D_807F713A;
+
+void func_80636164(s32, u8);
+void func_80636210(s32, u8);
+s32 func_8065E81C(s32, s32);
+void heapFree(void *);
+
+void func_80655AD0(void) {
+    s32 i;
+    s32 off;
+    M55P4Effect *eff;
+
+    if (D_807F713A != 0) {
+        func_8065E81C(0, 0x190);
+    }
+    i = 0;
+    off = 0;
+    while (i < D_807F6C28) {
+        eff = (M55P4Effect *)((u8 *)D_807F6C18 + off);
+        if (eff->unk3 != 0 && eff->unk5 != 2 && eff->unk4 == 0) {
+            if (((M55P4Effect *)D_807F6C18)[i].unk60[D_807444FC] != NULL) {
+                heapFree(((M55P4Effect *)D_807F6C18)[i].unk60[D_807444FC]);
+                ((M55P4Effect *)D_807F6C18)[i].unk60[D_807444FC] = NULL;
+            }
+        }
+        i++;
+        off += 0x1C8;
+    }
+}
+
+void func_80655BF0(void) {
+    M55P4Effect *eff;
+    M55P4Node *node;
+
+    if (!func_80652E58(D_807F70AA)) {
+        eff = &((M55P4Effect *)D_807F6C18)[D_807F70AA];
+        node = eff->unk14;
+        if (node) {
+            do {
+                func_80636164(node->unk0, node->unk24);
+                func_80636210(node->unk0, node->unk24);
+                node = node->unk14;
+            } while (node);
+            eff = &((M55P4Effect *)D_807F6C18)[D_807F70AA];
+        }
+        node = eff->unk1C;
+        if (node) {
+            do {
+                func_80636164(node->unk0, node->unk24);
+                func_80636210(node->unk0, node->unk24);
+                node = node->unk14;
+            } while (node);
+        }
+    }
+    D_807F70AA++;
+    if (D_807F6C28 == D_807F70AA) {
+        D_807F70AA = 0;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655CF8.s")
 
