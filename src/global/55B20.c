@@ -1,7 +1,9 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct M55P3EffectBuf {
+#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+
+typedef struct MapChunk {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 unk1;
     /* 0x002 */ u8 unk2;
@@ -45,19 +47,19 @@ typedef struct M55P3EffectBuf {
     /* 0x084 */ s16 unk84;
     /* 0x086 */ s16 unk86;
     /* 0x088 */ u8 pad88[0x140];
-} M55P3EffectBuf;
+} MapChunk;
 
 extern u8 D_807F7078[];
 extern s32 D_807F6C28;
-extern M55P3EffectBuf *D_807F6C18;
+extern MapChunk *D_807F6C18;
 extern u8 *D_807F6C1C;
 extern s32 D_807F6C20;
 extern u8 *D_807F6C2C;
 
-typedef struct M55P1_E20 {
+typedef struct MapHeader {
     /* 0x000 */ u8 pad0[0x64];
     /* 0x064 */ s32 unk64;
-} M55P1_E20;
+} MapHeader;
 
 extern s32 D_8076A0B4;
 extern s32 D_8076A0B8;
@@ -67,7 +69,7 @@ extern s32 D_8076A0C4;
 extern s32 D_8076A0C8;
 void *func_80610FE8(s32);
 
-void func_80650E20(M55P1_E20 *arg0) {
+void mapChunkAllocLists(MapHeader *arg0) {
     s32 temp;
     s32 count;
     s32 size;
@@ -87,7 +89,7 @@ void func_80650E20(M55P1_E20 *arg0) {
     D_8076A0C8 = (s32)func_80610FE8(size);
 }
 
-typedef struct M50ECCMapData {
+typedef struct MapData {
     /* 0x00 */ u8 pad0[0xC];
     /* 0x0C */ s16 unkC;
     /* 0x0E */ u8 padE[0x26];
@@ -100,13 +102,13 @@ typedef struct M50ECCMapData {
     /* 0x68 */ s32 unk68;
     /* 0x6C */ s32 unk6C;
     /* 0x70 */ s32 unk70;
-} M50ECCMapData;
+} MapData;
 
-typedef struct M50ECCReloc {
+typedef struct MapRelocEntry {
     /* 0x0 */ u8 pad0[8];
     /* 0x8 */ s32 unk8;
     /* 0xC */ s32 unkC;
-} M50ECCReloc;
+} MapRelocEntry;
 
 extern s32 D_807F5DE8;
 extern s32 D_807F70AC;
@@ -125,21 +127,21 @@ typedef struct {
     /* 0x10 */ s64 unk10;
     /* 0x18 */ s64 unk18;
     /* 0x20 */ f32 unk20;
-    /* 0x24 */ u8 pad24[0x4];
+    /* 0x24 */ f32 unk24;
     /* 0x28 */ u8 unk28;
     /* 0x29 */ u8 pad29[0x7];
-} M55P5GridPoint;
+} MapGridPoint; /* 0x30 */
 
 typedef struct {
     /* 0x00 */ f32 unk0[4];
     /* 0x10 */ f32 unk10[4];
     /* 0x20 */ f32 unk20[4];
-} M55P5GridSrc;
+} MapGridVectors;
 
-extern M55P5GridSrc *D_807F6C14;
-extern M55P5GridPoint *D_807F6C24;
-extern struct M55P2SearchEntry *D_807F70B0;
-extern struct M55P2BoxEntry *D_807F70B4;
+extern MapGridVectors *D_807F6C14;
+extern MapGridPoint *D_807F6C24;
+extern struct MapCell *D_807F70B0;
+extern struct MapBox *D_807F70B4;
 
 void lightSetTargetColor(f32, f32, f32, s16);
 void lightCopyTargetColors(s16);
@@ -147,7 +149,7 @@ void func_80651904(s32, s32, void *, s32 *, s32, s32);
 void func_80651C2C(s32, void *);
 
 #ifdef NON_MATCHING
-void func_80650ECC(M50ECCMapData *arg0) {
+void func_80650ECC(MapData *arg0) {
     u8 *q;
     u8 *p;
     s32 base;
@@ -171,11 +173,11 @@ void func_80650ECC(M50ECCMapData *arg0) {
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
         off = arg0->unk58;
         D_807F70AC = *(s32 *)((u8 *)arg0 + off);
-        D_807F70B0 = (struct M55P2SearchEntry *)((u8 *)arg0 + off + 4);
+        D_807F70B0 = (struct MapCell *)((u8 *)arg0 + off + 4);
         off = arg0->unk5C;
-        D_807F70B4 = (struct M55P2BoxEntry *)((u8 *)arg0 + off + 4);
+        D_807F70B4 = (struct MapBox *)((u8 *)arg0 + off + 4);
         off = arg0->unk60;
-        D_807F6C14 = (M55P5GridSrc *)((u8 *)arg0 + off);
+        D_807F6C14 = (MapGridVectors *)((u8 *)arg0 + off);
         base = arg0->unk34;
         w = (u8 *)arg0 + arg0->unk64;
         p = (u8 *)arg0 + arg0->unk68;
@@ -187,11 +189,11 @@ void func_80650ECC(M50ECCMapData *arg0) {
         D_807F6C10 = *(s32 *)((u8 *)arg0 + off);
         D_807F6C0C = (u8 *)arg0 + off + 4;
         for (i = 0; i < D_807F6C10; i++) {
-            if (((M50ECCReloc *)D_807F6C0C)[i].unk8 != -1) {
-                ((M50ECCReloc *)D_807F6C0C)[i].unk8 += (s32)arg0 + base;
+            if (((MapRelocEntry *)D_807F6C0C)[i].unk8 != -1) {
+                ((MapRelocEntry *)D_807F6C0C)[i].unk8 += (s32)arg0 + base;
             }
-            if (((M50ECCReloc *)D_807F6C0C)[i].unkC != -1) {
-                ((M50ECCReloc *)D_807F6C0C)[i].unkC += (s32)arg0 + base;
+            if (((MapRelocEntry *)D_807F6C0C)[i].unkC != -1) {
+                ((MapRelocEntry *)D_807F6C0C)[i].unkC += (s32)arg0 + base;
             }
         }
         D_807F6C18 = func_80610FE8(D_807F6C28 * 0x1C8);
@@ -315,7 +317,7 @@ void func_80650ECC(M50ECCMapData *arg0) {
 #endif
 
 #ifdef NON_MATCHING
-typedef struct R2P1bCellEntry {
+typedef struct MapNodeEntry {
     /* 0x00 */ u8 *unk0;
     /* 0x04 */ s16 unk4;
     /* 0x06 */ u8 pad6[0x2];
@@ -324,13 +326,13 @@ typedef struct R2P1bCellEntry {
     /* 0x0E */ u8 padE[0x2];
     /* 0x10 */ s16 unk10;
     /* 0x12 */ s16 unk12;
-} R2P1bCellEntry;
+} MapNodeEntry;
 
 extern void *D_807F70B8[];
 void heapFree(void *);
 
 void func_80651708(s32 arg0) {
-    R2P1bCellEntry *var_v1;
+    MapNodeEntry *var_v1;
     s32 var_a1;
     s32 var_a2;
     s32 var_a3;
@@ -396,7 +398,7 @@ void func_80651708(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651904.s")
 
-s32 func_80651B64(s16 arg0) {
+s32 mapChunkIsInUse(s16 arg0) {
     s32 var_v0;
     s32 var_v1;
 
@@ -412,19 +414,19 @@ s32 func_80651B64(s16 arg0) {
     return var_v1 & 0xFF;
 }
 
-void func_80651BC0(s16 arg0, s8 arg1) {
+void mapByteArraySet(s16 arg0, s8 arg1) {
     D_807F7078[arg0] = arg1;
 }
 
-void func_80651BE0(s16 arg0, u8 arg1, u8 arg2) {
+void mapObjectSetByte(s16 arg0, u8 arg1, u8 arg2) {
     D_807F6C1C[(u32)(arg0 * 2) * 0xA + arg1 * 0xA + 9] = arg2;
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651C2C.s")
 
-struct M55P2SearchEntry;
+struct MapCell;
 
-void func_8065214C(void) {
+void mapChunkResetFlags(void) {
     s32 i;
     s32 j;
 
@@ -438,7 +440,7 @@ void func_8065214C(void) {
     }
 }
 
-void func_806521F8(void) {
+void mapChunkClearBounds(void) {
     s32 i;
 
     for (i = 0; i < D_807F6C28; i++) {
@@ -454,10 +456,10 @@ void func_806521F8(void) {
     }
 }
 
-s32 func_806522CC(s16 arg0, s16 arg1, s16 arg2) {
-    M55P3EffectBuf *entry;
+s32 mapChunkContainsPoint(s16 arg0, s16 arg1, s16 arg2) {
+    MapChunk *entry;
 
-    entry = (M55P3EffectBuf *)((s32)D_807F6C18 + arg2 * 0x1C8);
+    entry = (MapChunk *)((s32)D_807F6C18 + arg2 * 0x1C8);
     if (entry->unk1 == 0) {
         return 0;
     }
@@ -467,7 +469,7 @@ s32 func_806522CC(s16 arg0, s16 arg1, s16 arg2) {
     return 0;
 }
 
-typedef struct M55P1_Entry {
+typedef struct MapActorEntry {
     /* 0x000 */ s32 unk0;
     /* 0x004 */ f32 unk4;
     /* 0x008 */ f32 unk8;
@@ -479,13 +481,13 @@ typedef struct M55P1_Entry {
     /* 0x022 */ u8 unk22;
     /* 0x023 */ u8 pad23[0x1];
     /* 0x024 */ u8 unk24;
-} M55P1_Entry;
+} MapActorEntry;
 
 s32 func_806303C4(s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
 s32 func_80630324(s32, s32);
 s16 func_806531B8(f32, f32, f32, s32);
 
-void func_80652374(M55P1_Entry *arg0) {
+void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
     s32 temp_v1;
     s32 *sp40;
     s16 *level;
@@ -529,7 +531,7 @@ void func_806524A0(s32 arg0, u8 arg1) {
 
 s32 func_80630588(s32, s32, s32, u8 *);
 
-u8 func_80652594(s32 arg0, s16 *arg1, u8 arg2) {
+u8 mapChunkPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
     u8 flag;
     s32 i;
 
@@ -551,8 +553,8 @@ u8 func_80652594(s32 arg0, s16 *arg1, u8 arg2) {
 
 extern s32 D_807F6C80;
 extern s16 D_807F6C58[];
-struct M55P2SearchEntry;
-struct M55P2BoxEntry;
+struct MapCell;
+struct MapBox;
 extern u8 D_807F7140;
 
 void func_806307AC(s32);
@@ -561,13 +563,13 @@ s32 func_80630890(s32, f32, f32, f32, void *);
 void func_806323C0(s32);
 s32 func_8063A38C(s32, s32, f32, f32, f32);
 void func_8063B4C0(void *, s32);
-s32 func_80653684(void *, f32, f32);
+s32 mapNodeBoxContainsPoint(void *, f32, f32);
 s32 func_80653804(void *, f32, f32);
 void func_80652FDC(f32, f32, f32, s16, s16, s16 *);
 s32 func_806533C4(f32, f32, f32);
-s32 func_806534E0(f32, f32, f32, s16, u8 *, f32 *);
+s32 mapChunkFindNodeAtPoint(f32, f32, f32, s16, u8 *, f32 *);
 
-void func_806526E0(u8 arg0) {
+void mapChunkClearNodeFlags(u8 arg0) {
     s32 i;
 
     i = 0;
@@ -582,7 +584,7 @@ void func_806526E0(u8 arg0) {
     }
 }
 
-void func_80652790(u8 arg0) {
+void mapChunkFreeNodeLists(u8 arg0) {
     s32 i;
 
     i = 0;
@@ -597,7 +599,7 @@ void func_80652790(u8 arg0) {
     }
 }
 
-void func_80652858(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
+void mapChunkRebuildNodeLists(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     s32 var_s3;
     s32 var_s1;
 
@@ -615,7 +617,7 @@ void func_80652858(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     }
 }
 
-void func_8065297C(void) {
+void mapChunkResolveNodeAssets(void) {
     s32 i;
 
     i = 0;
@@ -640,11 +642,11 @@ void func_80652A08(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     if (var_v1 > 0) {
         var_s0 = 0;
         do {
-            if (((M55P3EffectBuf *)((u8 *)D_807F6C18 + var_s0))->unk0 == 1 || arg3) {
-                if (((M55P3EffectBuf *)((u8 *)D_807F6C18 + var_s0))->unk6 != 0) {
-                    ((M55P3EffectBuf *)((u8 *)D_807F6C18 + var_s0))->unk24 = 0;
+            if (((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk0 == 1 || arg3) {
+                if (((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk6 != 0) {
+                    ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk24 = 0;
                 } else {
-                    ((M55P3EffectBuf *)((u8 *)D_807F6C18 + var_s0))->unk24 = func_8063A38C(((M55P3EffectBuf *)((u8 *)D_807F6C18 + var_s0))->unk14, ((M55P3EffectBuf *)((u8 *)D_807F6C18 + var_s0))->unk1C, arg0, arg1, arg2);
+                    ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk24 = func_8063A38C(((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk14, ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk1C, arg0, arg1, arg2);
                 }
                 var_v1 = D_807F6C28;
             }
@@ -658,10 +660,15 @@ void func_80652A08(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652A08.s")
 #endif
 
-typedef struct {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ void *next;
-} M55P2Node;
+typedef struct MapNode {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ u8 pad4[0x10];
+    /* 0x14 */ struct MapNode *unk14;
+    /* 0x18 */ u8 pad18[6];
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 pad20[4];
+    /* 0x24 */ u8 unk24;
+} MapNode; /* 0x28 */
 
 #ifdef NON_MATCHING
 void func_80652B04(void) {
@@ -676,15 +683,15 @@ void func_80652B04(void) {
     if (D_807F6C28 > 0) {
         var_s4 = 0;
         do {
-            if (((M55P3EffectBuf *)((u8 *)D_807F6C18 + var_s4))->unk1 != 0) {
+            if (((MapChunk *)((u8 *)D_807F6C18 + var_s4))->unk1 != 0) {
                 var_s2 = 1;
             } else {
                 var_s2 = 0;
             }
-            node = (void *)((M55P3EffectBuf *)((u8 *)D_807F6C18 + var_s4))->unk14;
+            node = (void *)((MapChunk *)((u8 *)D_807F6C18 + var_s4))->unk14;
             if (node != NULL) {
                 do {
-                    next = ((M55P2Node *)node)->next;
+                    next = ((MapNode *)node)->unk14;
                     func_8063B4C0(node, var_s2 & 0xFF);
                     node = next;
                 } while (next != NULL);
@@ -700,16 +707,7 @@ void func_80652B04(void) {
 #endif
 
 #ifdef NON_MATCHING
-#define R3bEFF(o) ((M55P3EffectBuf *)((u8 *)D_807F6C18 + (o)))
-
-typedef struct M55P3Node {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ struct M55P3Node *unk14;
-    /* 0x18 */ u8 pad18[6];
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ u8 pad20[4];
-    /* 0x24 */ u8 unk24;
-} M55P3Node;
+#define MAP_CHUNK_AT(o) ((MapChunk *)((u8 *)D_807F6C18 + (o)))
 
 extern s32 func_80668E9C(s32, s16, f32, f32, f32, s32);
 
@@ -720,7 +718,7 @@ s32 func_80652BC8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     s16 y;
     u8 mode;
     void *ptr;
-    M55P3Node *node;
+    MapNode *node;
 
     result = 0;
     mode = func_80630324(1, 0);
@@ -729,16 +727,16 @@ s32 func_80652BC8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
         x = (s16)(s32)(arg1 * 6.0f);
         node = ptr;
         do {
-            if ((x >= R3bEFF(i * 0x1C8)->unk80 - 0x32) &&
-                ((y = (s16)(s32)(arg2 * 6.0f)) >= R3bEFF(i * 0x1C8)->unk82 - 0x32) &&
-                (R3bEFF(i * 0x1C8)->unk84 + 0x32 >= x) &&
-                (R3bEFF(i * 0x1C8)->unk86 + 0x32 >= y)) {
+            if ((x >= MAP_CHUNK_AT(i * 0x1C8)->unk80 - 0x32) &&
+                ((y = (s16)(s32)(arg2 * 6.0f)) >= MAP_CHUNK_AT(i * 0x1C8)->unk82 - 0x32) &&
+                (MAP_CHUNK_AT(i * 0x1C8)->unk84 + 0x32 >= x) &&
+                (MAP_CHUNK_AT(i * 0x1C8)->unk86 + 0x32 >= y)) {
                 switch (mode) {
                 case 0:
-                    node = (M55P3Node *)R3bEFF(i * 0x1C8)->unk14;
+                    node = (MapNode *)MAP_CHUNK_AT(i * 0x1C8)->unk14;
                     break;
                 case 1:
-                    node = (M55P3Node *)R3bEFF(i * 0x1C8)->unk1C;
+                    node = (MapNode *)MAP_CHUNK_AT(i * 0x1C8)->unk1C;
                     break;
                 }
                 if (node != NULL) {
@@ -790,7 +788,7 @@ s32 func_80652DB4(f32 arg0, f32 arg1, f32 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652DB4.s")
 #endif
 
-s32 func_80652E58(s16 arg0) {
+s32 mapChunkIsVisible(s16 arg0) {
     s32 var_v1;
 
     if (D_807F6C28 == 0) {
@@ -804,7 +802,7 @@ s32 func_80652E58(s16 arg0) {
     return var_v1 & 0xFF;
 }
 
-s32 func_80652EBC(s16 arg0) {
+s32 mapChunkIsActive(s16 arg0) {
     s32 var_v1;
 
     if (D_807F6C28 == 0) {
@@ -818,7 +816,7 @@ s32 func_80652EBC(s16 arg0) {
     return var_v1 & 0xFF;
 }
 
-s32 func_80652F24(s16 arg0, s16 arg1) {
+s32 mapChunkIsVisibleForPlayer(s16 arg0, s16 arg1) {
     s32 var_v1;
 
     if (D_807F6C28 == 0) {
@@ -832,30 +830,31 @@ s32 func_80652F24(s16 arg0, s16 arg1) {
     return var_v1 & 0xFF;
 }
 
-s16 func_80652F9C(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
+s16 mapChunkFindAtPoint(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     s16 temp;
 
     func_80652FDC(arg0, arg1, arg2, arg3, -1, &temp);
     return temp;
 }
 
-typedef struct M55P2BoxEntry {
+typedef struct MapBox {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 unk4;
     /* 0x06 */ s16 unk6;
     /* 0x08 */ s16 unk8;
     /* 0x0A */ s16 unkA;
-} M55P2BoxEntry;
+} MapBox;
 
-typedef struct M55P2SearchEntry {
+typedef struct MapCell {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 unk4;
     /* 0x06 */ u8 pad6[0x12];
     /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 pad19[0x3];
-} M55P2SearchEntry;
+    /* 0x19 */ u8 unk19;
+    /* 0x1A */ u8 pad1A[0x2];
+} MapCell; /* 0x1C */
 
 #ifdef NON_MATCHING
 void func_80652FDC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 *arg5) {
@@ -905,7 +904,7 @@ s16 func_806531B8(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     temp_fs0 = arg0 * 6.0f;
     temp_fs1 = arg1 * 6.0f;
     temp_fs2 = arg2 * 6.0f;
-    if (func_806534E0(temp_fs0, temp_fs1, temp_fs2, arg3, &sp207, &sp200) != 0) {
+    if (mapChunkFindNodeAtPoint(temp_fs0, temp_fs1, temp_fs2, arg3, &sp207, &sp200) != 0) {
         if (sp207 == 0) {
             return arg3;
         }
@@ -918,7 +917,7 @@ s16 func_806531B8(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     if (D_807F6C28 > 0) {
         do {
             if (arg3 != var_s1) {
-                if (func_806534E0(temp_fs0, temp_fs1, temp_fs2, var_s1, &sp207, &sp200) != 0) {
+                if (mapChunkFindNodeAtPoint(temp_fs0, temp_fs1, temp_fs2, var_s1, &sp207, &sp200) != 0) {
                     if (sp207 == 0) {
                         var_s0 = 1;
                     } else {
@@ -1012,19 +1011,25 @@ s32 func_806533C4(f32 arg0, f32 arg1, f32 arg2) {
 #endif
 
 typedef struct {
-    /* 0x00 */ u8 pad0[6];
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
     /* 0x06 */ s16 unk6;
-    /* 0x08 */ u8 pad8[0xA];
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
     /* 0x12 */ u8 unk12;
     /* 0x13 */ u8 pad13[1];
-} M55P2CollNode;
+} MapCollisionNode; /* 0x14 */
 
-s32 func_806534E0(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, f32 *arg5) {
-    M55P2CollNode *var_s0;
-    M55P2CollNode *temp_s1;
-    M55P3EffectBuf *temp_v0;
+s32 mapChunkFindNodeAtPoint(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, f32 *arg5) {
+    MapCollisionNode *var_s0;
+    MapCollisionNode *temp_s1;
+    MapChunk *temp_v0;
 
-    temp_v0 = (M55P3EffectBuf *)((u8 *)D_807F6C18 + arg3 * 0x1C8);
+    temp_v0 = (MapChunk *)((u8 *)D_807F6C18 + arg3 * 0x1C8);
     if (arg0 < (f32)temp_v0->unk80) {
         return 0;
     }
@@ -1037,11 +1042,11 @@ s32 func_806534E0(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, f32 *arg5) {
     if ((f32)temp_v0->unk86 < arg2) {
         return 0;
     }
-    var_s0 = (M55P2CollNode *)temp_v0->unk78;
-    temp_s1 = (M55P2CollNode *)temp_v0->unk7C;
+    var_s0 = (MapCollisionNode *)temp_v0->unk78;
+    temp_s1 = (MapCollisionNode *)temp_v0->unk7C;
     if (var_s0 != temp_s1) {
         do {
-            if ((func_80653684(var_s0, arg0, arg2) != 0) && (func_80653804(var_s0, arg0, arg2) != 0)) {
+            if ((mapNodeBoxContainsPoint(var_s0, arg0, arg2) != 0) && (func_80653804(var_s0, arg0, arg2) != 0)) {
                 if (var_s0->unk12 & 1) {
                     *arg4 = 0;
                 } else {
@@ -1056,18 +1061,7 @@ s32 func_806534E0(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, f32 *arg5) {
     return 0;
 }
 
-typedef struct {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ u8 pad6[6];
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[2];
-} M55P3Box;
-
-s32 func_80653684(void *arg0, f32 arg1, f32 arg2) {
+s32 mapNodeBoxContainsPoint(void *arg0, f32 arg1, f32 arg2) {
     f32 temp_fa1;
     f32 temp_fv1;
     f32 var_fv0;
@@ -1078,7 +1072,7 @@ s32 func_80653684(void *arg0, f32 arg1, f32 arg2) {
     s16 temp_a2;
     s16 temp_v1;
     s16 temp_v0;
-    M55P3Box *box;
+    MapCollisionNode *box;
 
     box = arg0;
     temp_v1 = box->unk2;
@@ -1171,10 +1165,10 @@ s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
 
     fs3 = arg1;
     fs4 = arg2;
-    fs5 = ((M55P3Box *)arg0)->unk0;
-    sp38 = ((M55P3Box *)arg0)->unkC;
-    fs1 = (fs5 + ((f64)(((M55P3Box *)arg0)->unk4 + ((M55P3Box *)arg0)->unk2) * 0.5)) * 0.5;
-    fs2 = (sp38 + ((f64)(((M55P3Box *)arg0)->unk10 + ((M55P3Box *)arg0)->unkE) * 0.5)) * 0.5;
+    fs5 = ((MapCollisionNode *)arg0)->unk0;
+    sp38 = ((MapCollisionNode *)arg0)->unkC;
+    fs1 = (fs5 + ((f64)(((MapCollisionNode *)arg0)->unk4 + ((MapCollisionNode *)arg0)->unk2) * 0.5)) * 0.5;
+    fs2 = (sp38 + ((f64)(((MapCollisionNode *)arg0)->unk10 + ((MapCollisionNode *)arg0)->unkE) * 0.5)) * 0.5;
     ft5 = sp88;
     ft4 = sp90;
     fa1 = sp98;
@@ -1191,8 +1185,8 @@ s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
         case 0:
             ft4 = fs5;
             ft5 = sp38;
-            fa1 = (f64)(((M55P3Box *)arg0)->unkE - ((M55P3Box *)arg0)->unkC);
-            fa0 = (f64)(((M55P3Box *)arg0)->unk2 - ((M55P3Box *)arg0)->unk0);
+            fa1 = (f64)(((MapCollisionNode *)arg0)->unkE - ((MapCollisionNode *)arg0)->unkC);
+            fa0 = (f64)(((MapCollisionNode *)arg0)->unk2 - ((MapCollisionNode *)arg0)->unk0);
             fv0 = (fs3 - fs5) * fa1;
             fv1 = (fs4 - ft5) * fa0;
             fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
@@ -1200,17 +1194,17 @@ s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
         case 1:
             ft4 = fs5;
             ft5 = sp38;
-            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkC);
-            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk0);
+            fa1 = (f64)(((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkC);
+            fa0 = (f64)(((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk0);
             fv0 = (fs3 - fs5) * fa1;
             fv1 = (fs4 - ft5) * fa0;
             fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
             break;
         case 2:
-            ft4 = (f64)((M55P3Box *)arg0)->unk2;
-            ft5 = (f64)((M55P3Box *)arg0)->unkE;
-            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk2);
-            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkE);
+            ft4 = (f64)((MapCollisionNode *)arg0)->unk2;
+            ft5 = (f64)((MapCollisionNode *)arg0)->unkE;
+            fa0 = (f64)(((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk2);
+            fa1 = (f64)(((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkE);
             fv0 = (fs3 - ft4) * fa1;
             fv1 = (fs4 - ft5) * fa0;
             fs0 = ((fs1 - ft4) * fa1) - ((fs2 - ft5) * fa0);
@@ -1256,12 +1250,12 @@ typedef struct {
     /* 0x28C */ u8 pad28C[4];
     /* 0x290 */ s16 unk290;
     /* 0x292 */ u8 pad292[0x2F0 - 0x292];
-} M55P3Player;
+} MapPlayer;
 
-extern M55P3Player *D_807FC924;
+extern MapPlayer *D_807FC924;
 extern u8 D_807FC929;
 
-void func_80653A70(s16 arg0) {
+void mapChunkActivate(s16 arg0) {
     D_807F6C18[arg0].unk0 = 1;
     D_807F6C18[arg0].unk1 |= 1 << D_807FC929;
     D_807F6C18[arg0].unk68 = D_807FC924[D_807FC929].unk270;
@@ -1271,7 +1265,7 @@ void func_80653A70(s16 arg0) {
 }
 
 
-void func_80653B70(s8 arg0) {
+void mapChunkSetIndexOverride(s8 arg0) {
     D_807F70AB = arg0;
 }
 
@@ -1279,11 +1273,11 @@ void func_8062AD28(f32, f32, f32, void *, void *);
 void func_8062AC68(Mtx *);
 void func_8062A944(f32, f32, f32);
 void mapUpdateFogDistance(f32 *, s16);
-void func_806521F8();
-void func_80653A70(s16);
+void mapChunkClearBounds();
+void mapChunkActivate(s16);
 void func_806547A8(f32, f32, f32);
-void func_80654380(f32, f32, f32);
-void func_80654A2C(f32, f32, f32);
+void mapChunkRenderNodes(f32, f32, f32);
+void mapTriggerApplyZones(f32, f32, f32);
 void func_80656F14(s16, s32, s16, s16, s16, s16, f32, f32, f32);
 void func_8065F678(f32, f32, f32, u8);
 void actorCalculateTargetDistancesAndAngles(f32, f32, f32);
@@ -1295,7 +1289,7 @@ extern f32 D_807F5FB4;
 extern f32 D_807F5FB0;
 extern u8 D_807F6C08;
 
-void func_80653B80(f32 arg0, f32 arg1, f32 arg2) {
+void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
     D_807FC924[D_807FC929].unk290 = func_806531B8(arg0, arg1, arg2, D_807FC924[D_807FC929].unk290);
     if (D_807F70AB != 0) {
         D_807FC924[D_807FC929].unk290 = *(s16 *)((u8 *)D_807FC924[D_807FC929].unk4 + 0x12C);
@@ -1305,13 +1299,13 @@ void func_80653B80(f32 arg0, f32 arg1, f32 arg2) {
     func_8062A944(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
     func_8062AC68((Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
     func_8062AD28(arg0, arg1, arg2, &D_807F5E68, &D_807F5E20);
-    func_806521F8();
-    func_80653A70(D_807FC924[D_807FC929].unk290);
+    mapChunkClearBounds();
+    mapChunkActivate(D_807FC924[D_807FC929].unk290);
     func_806547A8(arg0, arg1, arg2);
     D_807F6C80 = 0;
     D_807F6C08 = 0;
     func_80656F14(D_807FC924[D_807FC929].unk290, 0, D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276, arg0, arg1, arg2);
-    func_80654380(arg0, arg1, arg2);
+    mapChunkRenderNodes(arg0, arg1, arg2);
     func_8065F678(arg0, arg1, arg2, D_807FC929);
     actorCalculateTargetDistancesAndAngles(arg0, arg1, arg2);
     func_80655410(arg0, arg1, arg2);
@@ -1356,7 +1350,7 @@ u8 *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
 extern void collisionBstLookupByHash(u32, u32 *, u32 *);
 extern s32 assetFreeBuffer(void *, s32, s32);
 
-void func_80653EA8(u8 *arg0, u8 *arg1) {
+void mapChunkReleaseAssets(u8 *arg0, u8 *arg1) {
     s32 pad[2];
     u32 sp44;
     u32 sp40;
@@ -1379,7 +1373,7 @@ assetFreeBuffer((void *)*(u32 *)(arg0 + 4), 0x542, 0x22); *(u32 *)(arg0 + 4) = s
     }
 }
 
-void func_80653F68(s16 arg0) {
+void mapChunkSetFlagBit3(s16 arg0) {
     D_807F6C18[arg0].unk7 |= 8;
 }
 
@@ -1388,7 +1382,7 @@ void func_80653F68(s16 arg0) {
 extern void func_80654418(f32, f32, f32);
 extern void func_80655258(f32, f32, f32, s32);
 
-void func_80654380(f32 arg0, f32 arg1, f32 arg2) {
+void mapChunkRenderNodes(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
     s32 off;
 
@@ -1401,7 +1395,7 @@ void func_80654380(f32 arg0, f32 arg1, f32 arg2) {
         off += 1;
     }
     func_80655258(arg0, arg1, arg2, -1);
-    func_80654A2C(arg0, arg1, arg2);
+    mapTriggerApplyZones(arg0, arg1, arg2);
 }
 
 #ifdef NON_MATCHING
@@ -1444,17 +1438,7 @@ void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806545D4.s")
 
-typedef struct M55P4Cell {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ u8 pad6[0x12];
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 unk19;
-    /* 0x1A */ u8 pad1A[2];
-} M55P4Cell;
-
-typedef struct M55P4Tri {
+typedef struct MapTriangle {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 unk4;
@@ -1464,30 +1448,30 @@ typedef struct M55P4Tri {
     /* 0x0C */ s16 unkC;
     /* 0x0E */ s16 unkE;
     /* 0x10 */ s16 unk10;
-} M55P4Tri;
+} MapTriangle;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806547A8.s")
 
-typedef struct M55P4Trigger {
+typedef struct MapTrigger {
     s16 unk0[10];
     s16 unk14[16];
     u8 unk34;
     s16 unk36[16];
     u8 unk56;
-} M55P4Trigger;
+} MapTrigger;
 
 extern void *D_807F70B8[];
 extern u8 D_807F7048[];
 extern u8 D_807F7058;
 
-void func_80654BC0(s32, u8);
+void mapCellSetFlag(s32, u8);
 
-void func_80654A2C(f32 arg0, f32 arg1, f32 arg2) {
+void mapTriggerApplyZones(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
     s32 j;
     s32 done;
     s16 *val;
-    M55P4Trigger *trig;
+    MapTrigger *trig;
     u8 idx;
 
     done = 0;
@@ -1495,7 +1479,7 @@ void func_80654A2C(f32 arg0, f32 arg1, f32 arg2) {
     while (i < D_807F7058) {
         idx = D_807F7048[i];
         if (D_807F70B8[idx] != 0) {
-            trig = (M55P4Trigger *)D_807F70B8[idx];
+            trig = (MapTrigger *)D_807F70B8[idx];
             if (!done) {
                 if (trig->unk56 != 0) {
                     done = 1;
@@ -1504,7 +1488,7 @@ void func_80654A2C(f32 arg0, f32 arg1, f32 arg2) {
                         *((u8 *)D_807F70B0 + j * 0x1C + 0x18) = 0;
                     }
                     for (j = 0; j < trig->unk56; j++) {
-                        func_80654BC0(*val, 1);
+                        mapCellSetFlag(*val, 1);
                         val++;
                     }
                 } else {
@@ -1512,7 +1496,7 @@ void func_80654A2C(f32 arg0, f32 arg1, f32 arg2) {
                     if (!trig->unk56) {
                     }
                     for (j = 0; j < trig->unk34; j++) {
-                        func_80654BC0(*val, 0);
+                        mapCellSetFlag(*val, 0);
                         val++;
                     }
                 }
@@ -1522,32 +1506,32 @@ void func_80654A2C(f32 arg0, f32 arg1, f32 arg2) {
     }
 }
 
-void func_80654BC0(s32 arg0, u8 arg1) {
+void mapCellSetFlag(s32 arg0, u8 arg1) {
     s32 i;
     s32 found;
 
     i = 0;
     found = 0;
     while (!found && i < D_807F70AC) {
-        if (arg0 == ((M55P4Cell *)D_807F70B0)[i].unk2) {
-            ((M55P4Cell *)D_807F70B0)[i].unk18 = arg1;
+        if (arg0 == ((MapCell *)D_807F70B0)[i].unk2) {
+            ((MapCell *)D_807F70B0)[i].unk18 = arg1;
             if (arg1 != 0) {
-                ((M55P4Cell *)D_807F70B0)[i].unk19 = 1;
+                ((MapCell *)D_807F70B0)[i].unk19 = 1;
             }
             found = 1;
         }
         i++;
     }
     for (i = 0; i < D_807F70AC; i++) {
-        if (arg0 == ((M55P4Cell *)D_807F70B0)[i].unk4) {
-            func_80654BC0(((M55P4Cell *)D_807F70B0)[i].unk2, arg1);
+        if (arg0 == ((MapCell *)D_807F70B0)[i].unk4) {
+            mapCellSetFlag(((MapCell *)D_807F70B0)[i].unk2, arg1);
         }
     }
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654CCC.s")
 
-s32 func_80654E84(M55P4Tri *arg0, f32 arg1, f32 arg2) {
+s32 mapTriangleBoundsContainPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
     f32 minX;
     f32 maxX;
     f32 minZ;
@@ -1604,10 +1588,10 @@ s32 func_80654FEC(void *arg0, f32 arg1, f32 arg2) {
 
     fs3 = arg1;
     fs4 = arg2;
-    fs5 = ((M55P3Box *)arg0)->unk0;
-    sp38 = ((M55P3Box *)arg0)->unkC;
-    fs1 = (fs5 + ((f64)(((M55P3Box *)arg0)->unk4 + ((M55P3Box *)arg0)->unk2) * 0.5)) * 0.5;
-    fs2 = (sp38 + ((f64)(((M55P3Box *)arg0)->unk10 + ((M55P3Box *)arg0)->unkE) * 0.5)) * 0.5;
+    fs5 = ((MapCollisionNode *)arg0)->unk0;
+    sp38 = ((MapCollisionNode *)arg0)->unkC;
+    fs1 = (fs5 + ((f64)(((MapCollisionNode *)arg0)->unk4 + ((MapCollisionNode *)arg0)->unk2) * 0.5)) * 0.5;
+    fs2 = (sp38 + ((f64)(((MapCollisionNode *)arg0)->unk10 + ((MapCollisionNode *)arg0)->unkE) * 0.5)) * 0.5;
     ft5 = sp88;
     ft4 = sp90;
     fa1 = sp98;
@@ -1624,8 +1608,8 @@ s32 func_80654FEC(void *arg0, f32 arg1, f32 arg2) {
         case 0:
             ft4 = fs5;
             ft5 = sp38;
-            fa1 = (f64)(((M55P3Box *)arg0)->unkE - ((M55P3Box *)arg0)->unkC);
-            fa0 = (f64)(((M55P3Box *)arg0)->unk2 - ((M55P3Box *)arg0)->unk0);
+            fa1 = (f64)(((MapCollisionNode *)arg0)->unkE - ((MapCollisionNode *)arg0)->unkC);
+            fa0 = (f64)(((MapCollisionNode *)arg0)->unk2 - ((MapCollisionNode *)arg0)->unk0);
             fv0 = (fs3 - fs5) * fa1;
             fv1 = (fs4 - ft5) * fa0;
             fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
@@ -1633,17 +1617,17 @@ s32 func_80654FEC(void *arg0, f32 arg1, f32 arg2) {
         case 1:
             ft4 = fs5;
             ft5 = sp38;
-            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkC);
-            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk0);
+            fa1 = (f64)(((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkC);
+            fa0 = (f64)(((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk0);
             fv0 = (fs3 - fs5) * fa1;
             fv1 = (fs4 - ft5) * fa0;
             fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
             break;
         case 2:
-            ft4 = (f64)((M55P3Box *)arg0)->unk2;
-            ft5 = (f64)((M55P3Box *)arg0)->unkE;
-            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk2);
-            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkE);
+            ft4 = (f64)((MapCollisionNode *)arg0)->unk2;
+            ft5 = (f64)((MapCollisionNode *)arg0)->unkE;
+            fa0 = (f64)(((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk2);
+            fa1 = (f64)(((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkE);
             fv0 = (fs3 - ft4) * fa1;
             fv1 = (fs4 - ft5) * fa0;
             fs0 = ((fs1 - ft4) * fa1) - ((fs2 - ft5) * fa0);
@@ -1678,29 +1662,29 @@ s32 func_80654FEC(void *arg0, f32 arg1, f32 arg2) {
 s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     s32 i;
-    M55P2BoxEntry *box;
+    MapBox *box;
     s32 off;
 
     i = 0;
     if (D_807F70AC > 0) {
         off = 0;
         do {
-            if (arg3 == ((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk4) {
-                if (D_807F6C18[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk0].unk0 == 1) {
-                    box = (M55P2BoxEntry *)D_807F70B4;
-                    if (func_8062DBDC(box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk0,
-                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk2,
-                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk4,
-                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk6,
-                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unk8,
-                                      box[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2].unkA,
+            if (arg3 == ((MapCell *)((u8 *)D_807F70B0 + off))->unk4) {
+                if (D_807F6C18[((MapCell *)((u8 *)D_807F70B0 + off))->unk0].unk0 == 1) {
+                    box = (MapBox *)D_807F70B4;
+                    if (func_8062DBDC(box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk0,
+                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk2,
+                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk4,
+                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk6,
+                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk8,
+                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unkA,
                                       arg0, arg1, arg2, D_807F5FAC,
-                                      (u8 *)&D_807F6C18[((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk0] + 0x88) != 0) {
-                        ((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk18 = 1;
-                        ((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk19 = 1;
+                                      (u8 *)&D_807F6C18[((MapCell *)((u8 *)D_807F70B0 + off))->unk0] + 0x88) != 0) {
+                        ((MapCell *)((u8 *)D_807F70B0 + off))->unk18 = 1;
+                        ((MapCell *)((u8 *)D_807F70B0 + off))->unk19 = 1;
                     }
-                    if (((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk18 != 0) {
-                        func_80655258(arg0, arg1, arg2, ((M55P4Cell *)((u8 *)D_807F70B0 + off))->unk2);
+                    if (((MapCell *)((u8 *)D_807F70B0 + off))->unk18 != 0) {
+                        func_80655258(arg0, arg1, arg2, ((MapCell *)((u8 *)D_807F70B0 + off))->unk2);
                     }
                 }
             }
@@ -1717,14 +1701,6 @@ void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655410.s")
 
-typedef struct M55P4Node {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ u8 pad4[0x10];
-    /* 0x14 */ struct M55P4Node *unk14;
-    /* 0x18 */ u8 pad18[0xC];
-    /* 0x24 */ u8 unk24;
-} M55P4Node;
-
 typedef struct {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 unk1;
@@ -1733,13 +1709,13 @@ typedef struct {
     /* 0x004 */ u8 unk4;
     /* 0x005 */ u8 unk5;
     /* 0x006 */ u8 pad6[0x0E];
-    /* 0x014 */ M55P4Node *unk14;
+    /* 0x014 */ MapNode *unk14;
     /* 0x018 */ u8 pad18[4];
-    /* 0x01C */ M55P4Node *unk1C;
+    /* 0x01C */ MapNode *unk1C;
     /* 0x020 */ u8 pad20[0x40];
     /* 0x060 */ void *unk60[4];
     /* 0x070 */ u8 pad70[0x158];
-} M55P4Effect;
+} MapChunkDraw;
 
 
 void func_80636164(s32, u8);
@@ -1747,10 +1723,10 @@ void func_80636210(s32, u8);
 s32 func_8065E81C(s32, s32);
 void heapFree(void *);
 
-void func_80655AD0(void) {
+void mapChunkFreeIdleBuffers(void) {
     s32 i;
     s32 off;
-    M55P4Effect *eff;
+    MapChunkDraw *eff;
 
     if (D_807F713A != 0) {
         func_8065E81C(0, 0x190);
@@ -1758,11 +1734,11 @@ void func_80655AD0(void) {
     i = 0;
     off = 0;
     while (i < D_807F6C28) {
-        eff = (M55P4Effect *)((u8 *)D_807F6C18 + off);
+        eff = (MapChunkDraw *)((u8 *)D_807F6C18 + off);
         if (eff->unk3 != 0 && eff->unk5 != 2 && eff->unk4 == 0) {
-            if (((M55P4Effect *)D_807F6C18)[i].unk60[D_807444FC] != NULL) {
-                heapFree(((M55P4Effect *)D_807F6C18)[i].unk60[D_807444FC]);
-                ((M55P4Effect *)D_807F6C18)[i].unk60[D_807444FC] = NULL;
+            if (((MapChunkDraw *)D_807F6C18)[i].unk60[D_807444FC] != NULL) {
+                heapFree(((MapChunkDraw *)D_807F6C18)[i].unk60[D_807444FC]);
+                ((MapChunkDraw *)D_807F6C18)[i].unk60[D_807444FC] = NULL;
             }
         }
         i++;
@@ -1770,12 +1746,12 @@ void func_80655AD0(void) {
     }
 }
 
-void func_80655BF0(void) {
-    M55P4Effect *eff;
-    M55P4Node *node;
+void mapChunkReleaseAndAdvance(void) {
+    MapChunkDraw *eff;
+    MapNode *node;
 
-    if (!func_80652E58(D_807F70AA)) {
-        eff = &((M55P4Effect *)D_807F6C18)[D_807F70AA];
+    if (!mapChunkIsVisible(D_807F70AA)) {
+        eff = &((MapChunkDraw *)D_807F6C18)[D_807F70AA];
         node = eff->unk14;
         if (node) {
             do {
@@ -1783,7 +1759,7 @@ void func_80655BF0(void) {
                 func_80636210(node->unk0, node->unk24);
                 node = node->unk14;
             } while (node);
-            eff = &((M55P4Effect *)D_807F6C18)[D_807F70AA];
+            eff = &((MapChunkDraw *)D_807F6C18)[D_807F70AA];
         }
         node = eff->unk1C;
         if (node) {
@@ -1802,7 +1778,7 @@ void func_80655BF0(void) {
 
 extern s16 D_807F6C30[];
 
-s32 func_80655CF8(s16 arg0, s32 arg1) {
+s32 mapNodeIdListContains(s16 arg0, s32 arg1) {
     s32 i;
 
     for (i = 0; i < arg1; i++) {
@@ -1853,27 +1829,26 @@ typedef struct {
             /* 0x076 */ s16 unk76;
         } h;
     } tile;
-} L55DD0Effect;
+} MapChunkTile;
 
 typedef struct {
     /* 0x000 */ u8 pad0[0x8];
     /* 0x008 */ s32 unk8;
-} L55DD0Arg1;
+} MapChunkArg;
 
 typedef struct {
     /* 0x000 */ u8 pad0[0x8];
     /* 0x008 */ s32 unk8;
     /* 0x00C */ s32 unkC;
-} L55DD0WaterEntry;
+} MapWaterEntry;
 
 typedef struct {
     /* 0x000 */ u8 pad0[0x27C];
     /* 0x27C */ f32 unk27C;
     /* 0x280 */ u8 pad280[0x2F0 - 0x280];
-} L55DD0PlayerExtra;
+} MapPlayerFog;
 
-#define L55DD0_EFF(i) (((L55DD0Effect *)D_807F6C18)[(i)])
-#define L55DD0_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+#define MAP_CHUNK_TILE_AT(i) (((MapChunkTile *)D_807F6C18)[(i)])
 
 extern u8 D_807F5FEC;
 extern void *D_807F5DEC;
@@ -1895,7 +1870,7 @@ Gfx *func_80027034(Gfx *);
 Gfx *effectWaterRenderSurfaces(Gfx *, s16, s16);
 Gfx *fogRender(Gfx *);
 Gfx *renderDepthSortedTargets(Gfx *);
-void func_80658E58();
+void mapSetClipBounds();
 
 void func_80655DD0(Gfx *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5) {
     s32 flags;
@@ -1907,141 +1882,141 @@ void func_80655DD0(Gfx *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5
 
     flag = (D_807F5FEC != 0);
     if (flag != 0) {
-        flag = (((L55DD0PlayerExtra *)D_807FC924)[D_807FC929].unk27C == 45.0);
+        flag = (((MapPlayerFog *)D_807FC924)[D_807FC929].unk27C == 45.0);
     }
-    L55DD0_WRITE_GFX(arg0, 0xE7000000, 0);
+    WRITE_GFX(arg0, 0xE7000000, 0);
     gfx = arg0 + 1;
     flags = arg5 & 0x10;
     if (flags != 0) {
-        L55DD0_WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-        L55DD0_WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)D_807F5DE8));
-        L55DD0_WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
+        WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
+        WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)D_807F5DE8));
+        WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
         gfx = func_8062CEA8(gfx, arg1, 1);
-        if (((L55DD0Arg1 *)arg1)->unk8 != -1) {
-            L55DD0_WRITE_GFX(gfx++, 0xE7000000, 0);
-            L55DD0_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((L55DD0Arg1 *)arg1)->unk8));
+        if (((MapChunkArg *)arg1)->unk8 != -1) {
+            WRITE_GFX(gfx++, 0xE7000000, 0);
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkArg *)arg1)->unk8));
         }
         gfx = effectWaterRenderSurfaces(gfx, 0, 0);
         for (i = 0; i < D_807F6C08; i++) {
-            if (((L55DD0WaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unk8 != -1) {
-                L55DD0_WRITE_GFX(gfx++, 0xE7000000, 0);
-                L55DD0_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((L55DD0WaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unk8));
+            if (((MapWaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unk8 != -1) {
+                WRITE_GFX(gfx++, 0xE7000000, 0);
+                WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapWaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unk8));
             }
-            if (((L55DD0WaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unkC != -1) {
-                L55DD0_WRITE_GFX(gfx++, 0xE7000000, 0);
-                L55DD0_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((L55DD0WaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unkC));
+            if (((MapWaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unkC != -1) {
+                WRITE_GFX(gfx++, 0xE7000000, 0);
+                WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapWaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unkC));
             }
         }
-        L55DD0_WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
+        WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
     }
     for (i = D_807F6C80 - 1; i >= 0; i--) {
         idx = D_807F6C58[i];
-        if (L55DD0_EFF(idx).unk0 == 1) {
-            if (L55DD0_EFF(idx).unk2 != 0) {
+        if (MAP_CHUNK_TILE_AT(idx).unk0 == 1) {
+            if (MAP_CHUNK_TILE_AT(idx).unk2 != 0) {
                 func_8062EE48(idx & 0xFF);
-                L55DD0_EFF(idx).unk2 = 0;
+                MAP_CHUNK_TILE_AT(idx).unk2 = 0;
             }
-            L55DD0_WRITE_GFX(gfx++, 0xE7000000, 0);
-            L55DD0_WRITE_GFX(gfx++, ((s32)((f32)L55DD0_EFF(idx).tile.w.unk6C * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)L55DD0_EFF(idx).tile.w.unk68 * 4.0f) & 0xFFF) << 0xC),
-                        ((s32)((f32)L55DD0_EFF(idx).tile.w.unk74 * 4.0f) & 0xFFF) | (((s32)((f32)L55DD0_EFF(idx).tile.w.unk70 * 4.0f) & 0xFFF) << 0xC));
-            func_80658E58(L55DD0_EFF(idx).tile.h.unk6A, L55DD0_EFF(idx).tile.h.unk6E, L55DD0_EFF(idx).tile.h.unk72, L55DD0_EFF(idx).tile.h.unk76);
+            WRITE_GFX(gfx++, 0xE7000000, 0);
+            WRITE_GFX(gfx++, ((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk6C * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk68 * 4.0f) & 0xFFF) << 0xC),
+                        ((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk74 * 4.0f) & 0xFFF) | (((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk70 * 4.0f) & 0xFFF) << 0xC));
+            mapSetClipBounds(MAP_CHUNK_TILE_AT(idx).tile.h.unk6A, MAP_CHUNK_TILE_AT(idx).tile.h.unk6E, MAP_CHUNK_TILE_AT(idx).tile.h.unk72, MAP_CHUNK_TILE_AT(idx).tile.h.unk76);
             gfx = fogRender(gfx);
             if (flags != 0) {
                 gfx = func_8062EDA8(gfx, idx & 0xFF);
-                if (L55DD0_EFF(idx).unk2C != -1) {
-                    L55DD0_WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-                    L55DD0_WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)L55DD0_EFF(idx).unk58));
-                    L55DD0_WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
+                if (MAP_CHUNK_TILE_AT(idx).unk2C != -1) {
+                    WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
+                    WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
+                    WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
                     v = (Gfx *)func_80656B98(gfx, idx, 0);
-                    L55DD0_WRITE_GFX(v++, 0xE7000000, 0);
-                    L55DD0_WRITE_GFX(v++, 0xDA380003, &D_2000180);
+                    WRITE_GFX(v++, 0xE7000000, 0);
+                    WRITE_GFX(v++, 0xDA380003, &D_2000180);
                     gfx = v;
                 }
-                if (L55DD0_EFF(idx).unk34 != -1) {
-                    L55DD0_WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-                    L55DD0_WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)L55DD0_EFF(idx).unk58));
-                    L55DD0_WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
+                if (MAP_CHUNK_TILE_AT(idx).unk34 != -1) {
+                    WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
+                    WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
+                    WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
                     v = (Gfx *)func_80656B98(gfx, idx, 2);
-                    L55DD0_WRITE_GFX(v++, 0xE7000000, 0);
-                    L55DD0_WRITE_GFX(v++, 0xDA380003, &D_2000180);
+                    WRITE_GFX(v++, 0xE7000000, 0);
+                    WRITE_GFX(v++, 0xDA380003, &D_2000180);
                     gfx = v;
                 }
             }
-            L55DD0_WRITE_GFX(gfx++, 0xE7000000, 0);
+            WRITE_GFX(gfx++, 0xE7000000, 0);
             if (!(D_807FBB64 & 0x01000000)) {
                 gfx = func_8065D994(gfx, idx);
             }
-            gfx = func_8063A968(gfx, L55DD0_EFF(idx).unk24);
+            gfx = func_8063A968(gfx, MAP_CHUNK_TILE_AT(idx).unk24);
             D_807F6009 = 0xFF;
-            gfx = func_80630B70(gfx, (flag != 0) ? L55DD0_EFF(idx).unk18 : L55DD0_EFF(idx).unk14, arg2, arg3, arg4, arg5, idx, flag);
+            gfx = func_80630B70(gfx, (flag != 0) ? MAP_CHUNK_TILE_AT(idx).unk18 : MAP_CHUNK_TILE_AT(idx).unk14, arg2, arg3, arg4, arg5, idx, flag);
             if (flags != 0) {
-                L55DD0_WRITE_GFX(gfx++, 0xD9000000, 0);
-                L55DD0_WRITE_GFX(gfx++, 0xD9FFFFFF, 0x200004);
+                WRITE_GFX(gfx++, 0xD9000000, 0);
+                WRITE_GFX(gfx++, 0xD9FFFFFF, 0x200004);
                 gfx = fogRender(gfx);
                 gfx = func_8062EDA8(gfx, idx & 0xFF);
-                if (L55DD0_EFF(idx).unk30 != -1) {
-                    L55DD0_WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-                    L55DD0_WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)L55DD0_EFF(idx).unk58));
-                    L55DD0_WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
+                if (MAP_CHUNK_TILE_AT(idx).unk30 != -1) {
+                    WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
+                    WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
+                    WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
                     v = (Gfx *)func_80656B98(gfx, idx, 1);
-                    L55DD0_WRITE_GFX(v++, 0xDA380003, &D_2000180);
-                    L55DD0_WRITE_GFX(v++, 0xE7000000, 0);
+                    WRITE_GFX(v++, 0xDA380003, &D_2000180);
+                    WRITE_GFX(v++, 0xE7000000, 0);
                     gfx = v;
                 }
-                if (L55DD0_EFF(idx).unk38 != -1) {
-                    L55DD0_WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-                    L55DD0_WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)L55DD0_EFF(idx).unk58));
-                    L55DD0_WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
+                if (MAP_CHUNK_TILE_AT(idx).unk38 != -1) {
+                    WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
+                    WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
+                    WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
                     v = (Gfx *)func_80656B98(gfx, idx, 3);
-                    L55DD0_WRITE_GFX(v++, 0xE7000000, 0);
-                    L55DD0_WRITE_GFX(v++, 0xDA380003, &D_2000180);
+                    WRITE_GFX(v++, 0xE7000000, 0);
+                    WRITE_GFX(v++, 0xDA380003, &D_2000180);
                     gfx = v;
                 }
             }
         }
     }
     if (flags != 0) {
-        L55DD0_WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-        L55DD0_WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)D_807F5DE8));
-        L55DD0_WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
+        WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
+        WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)D_807F5DE8));
+        WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
         gfx = func_8062CEA8(gfx, arg1, 2);
         if (D_807FBB64 & 0x1000) {
-            L55DD0_WRITE_GFX(gfx++, 0xE7000000, 0);
+            WRITE_GFX(gfx++, 0xE7000000, 0);
             gfx = func_80027034(gfx);
-            L55DD0_WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
+            WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
         }
         gfx = effectWaterRenderSurfaces(gfx, idx, 1);
-        L55DD0_WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
-        L55DD0_WRITE_GFX(gfx++, 0xE7000000, 0);
+        WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
+        WRITE_GFX(gfx++, 0xE7000000, 0);
         gfx = renderDepthSortedTargets(gfx);
     }
     for (i = D_807F6C80 - 1; i >= 0; i--) {
         idx = D_807F6C58[i];
-        if (L55DD0_EFF(idx).unk0 == 1) {
-            L55DD0_WRITE_GFX(gfx++, 0xE7000000, 0);
-            L55DD0_WRITE_GFX(gfx++, ((s32)((f32)L55DD0_EFF(idx).tile.w.unk6C * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)L55DD0_EFF(idx).tile.w.unk68 * 4.0f) & 0xFFF) << 0xC),
-                        ((s32)((f32)L55DD0_EFF(idx).tile.w.unk74 * 4.0f) & 0xFFF) | (((s32)((f32)L55DD0_EFF(idx).tile.w.unk70 * 4.0f) & 0xFFF) << 0xC));
-            func_80658E58(L55DD0_EFF(idx).tile.h.unk6A, L55DD0_EFF(idx).tile.h.unk6E, L55DD0_EFF(idx).tile.h.unk72, L55DD0_EFF(idx).tile.h.unk76);
+        if (MAP_CHUNK_TILE_AT(idx).unk0 == 1) {
+            WRITE_GFX(gfx++, 0xE7000000, 0);
+            WRITE_GFX(gfx++, ((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk6C * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk68 * 4.0f) & 0xFFF) << 0xC),
+                        ((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk74 * 4.0f) & 0xFFF) | (((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk70 * 4.0f) & 0xFFF) << 0xC));
+            mapSetClipBounds(MAP_CHUNK_TILE_AT(idx).tile.h.unk6A, MAP_CHUNK_TILE_AT(idx).tile.h.unk6E, MAP_CHUNK_TILE_AT(idx).tile.h.unk72, MAP_CHUNK_TILE_AT(idx).tile.h.unk76);
             D_807F6009 = 0xFF;
-            gfx = func_80630B70(gfx, (flag != 0) ? L55DD0_EFF(idx).unk20 : L55DD0_EFF(idx).unk1C, arg2, arg3, arg4, arg5, idx, flag);
+            gfx = func_80630B70(gfx, (flag != 0) ? MAP_CHUNK_TILE_AT(idx).unk20 : MAP_CHUNK_TILE_AT(idx).unk1C, arg2, arg3, arg4, arg5, idx, flag);
             if (D_807FBB64 & 0x01000000) {
                 gfx = func_8065D994(gfx, idx);
             }
         }
     }
     if (flags != 0) {
-        L55DD0_WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-        L55DD0_WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)D_807F5DE8));
-        L55DD0_WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
+        WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
+        WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)D_807F5DE8));
+        WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
         v = func_8062CEA8(gfx, arg1, 3);
-        L55DD0_WRITE_GFX(v++, 0xDA380003, &D_2000180);
-        L55DD0_WRITE_GFX(v++, 0xE7000000, 0);
+        WRITE_GFX(v++, 0xDA380003, &D_2000180);
+        WRITE_GFX(v++, 0xE7000000, 0);
         gfx = v;
     }
-    L55DD0_WRITE_GFX(gfx++, 0xE7000000, 0);
-    L55DD0_WRITE_GFX(gfx++, ((s32)((f32)D_807FC924[D_807FC929].unk274 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)D_807FC924[D_807FC929].unk270 * 4.0f) & 0xFFF) << 0xC),
+    WRITE_GFX(gfx++, 0xE7000000, 0);
+    WRITE_GFX(gfx++, ((s32)((f32)D_807FC924[D_807FC929].unk274 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)D_807FC924[D_807FC929].unk270 * 4.0f) & 0xFFF) << 0xC),
                 ((s32)((f32)D_807FC924[D_807FC929].unk276 * 4.0f) & 0xFFF) | (((s32)((f32)D_807FC924[D_807FC929].unk272 * 4.0f) & 0xFFF) << 0xC));
-    func_80658E58(D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276);
+    mapSetClipBounds(D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276);
     D_807F600C = 0;
     gfx = func_80630B70(gfx, D_807F5FFC, arg2, arg3, arg4, arg5, -1, 0);
     func_8065D994(gfx, -1);
@@ -2063,7 +2038,7 @@ typedef struct {
     /* 0x04C */ u8 *unk4C;
     /* 0x050 */ s32 unk50;
     /* 0x054 */ u8 pad54[0x174];
-} M55P5EffectSlot;
+} MapChunkEffect;
 
 typedef struct {
     /* 0x00 */ s16 unk0;
@@ -2071,10 +2046,8 @@ typedef struct {
     /* 0x03 */ u8 pad3[0x1];
     /* 0x04 */ s32 unk4[4];
     /* 0x14 */ s32 unk14[4];
-} M55P5EffectEntry;
+} MapChunkEffectEntry;
 
-
-#define R2P5_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 #ifdef NON_MATCHING
 s32 func_80656B98(arg0, arg1, arg2)
@@ -2082,38 +2055,38 @@ u32 *arg0;
 s32 arg1;
 u8 arg2;
 {
-    M55P5EffectEntry *entry;
-    struct M55P2SearchEntry *node;
+    MapChunkEffectEntry *entry;
+    struct MapCell *node;
     Gfx *gfx;
     s32 i;
     s32 found;
 
     gfx = (Gfx *)arg0;
-    R2P5_WRITE_GFX(gfx++, 0xE7000000, 0);
-    if (((M55P5EffectSlot *)D_807F6C18)[arg1].unk5 != 2) {
+    WRITE_GFX(gfx++, 0xE7000000, 0);
+    if (((MapChunkEffect *)D_807F6C18)[arg1].unk5 != 2) {
         switch (arg2) {
         case 0:
-            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk2C));
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)D_807F6C18)[arg1].unk2C));
             break;
         case 1:
-            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk30));
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)D_807F6C18)[arg1].unk30));
             break;
         case 2:
-            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk34));
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)D_807F6C18)[arg1].unk34));
             break;
         case 3:
-            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk38));
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)D_807F6C18)[arg1].unk38));
             break;
         }
     } else {
-        for (i = 0; i < ((M55P5EffectSlot *)D_807F6C18)[arg1].unk50; i++) {
-            if (((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk4[arg2] == -1) {
+        for (i = 0; i < ((MapChunkEffect *)D_807F6C18)[arg1].unk50; i++) {
+            if (((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk4[arg2] == -1) {
                 continue;
             }
             found = 0;
             node = D_807F70B0;
             do {
-                if (node->unk2 == ((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk0) {
+                if (node->unk2 == ((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk0) {
                     found = 1;
                 } else {
                     node++;
@@ -2122,13 +2095,13 @@ u8 arg2;
             if (node->unk18 == 0) {
                 continue;
             }
-            if ((((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk2 & (1 << arg2)) == 0) {
+            if ((((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk2 & (1 << arg2)) == 0) {
                 continue;
             }
-            R2P5_WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk14[arg2]));
-            R2P5_WRITE_GFX(gfx++, 0xE7000000, 0);
-            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk4[arg2]));
-            R2P5_WRITE_GFX(gfx++, 0xE7000000, 0);
+            WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk14[arg2]));
+            WRITE_GFX(gfx++, 0xE7000000, 0);
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk4[arg2]));
+            WRITE_GFX(gfx++, 0xE7000000, 0);
         }
     }
     return (s32)gfx;
@@ -2138,16 +2111,16 @@ u8 arg2;
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656B98.s")
 #endif
 
-void func_80656E58(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
+void mapChunkEffectSetFlag(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
     s32 i = 0;
-    M55P5EffectSlot *slot = (M55P5EffectSlot *)D_807F6C18 + arg0;
+    MapChunkEffect *slot = (MapChunkEffect *)D_807F6C18 + arg0;
 
     for (; i < slot->unk50; i++) {
-        if (arg1 == ((M55P5EffectEntry *)slot->unk4C)[i].unk0) {
+        if (arg1 == ((MapChunkEffectEntry *)slot->unk4C)[i].unk0) {
             if (arg3 != 0) {
-                ((M55P5EffectEntry *)slot->unk4C)[i].unk2 |= 1 << arg2;
+                ((MapChunkEffectEntry *)slot->unk4C)[i].unk2 |= 1 << arg2;
             } else {
-                ((M55P5EffectEntry *)slot->unk4C)[i].unk2 &= ~(1 << arg2);
+                ((MapChunkEffectEntry *)slot->unk4C)[i].unk2 &= ~(1 << arg2);
             }
             return;
         }
@@ -2159,7 +2132,7 @@ void func_80656E58(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
 extern u8 D_807F7070;
 extern u8 D_807F7060[];
 
-s32 func_806574B8(s32 arg0) {
+s32 mapChunkHitListExcludes(s32 arg0) {
     u8 *p = D_807F7060;
 
     if (D_807F7070 > 0) {
@@ -2175,7 +2148,7 @@ s32 func_806574B8(s32 arg0) {
 }
 
 
-void func_80657508(s32 arg0) {
+void mapChunkIdListAddUniqueLimited(s32 arg0) {
     s32 i = 0;
 
     while (i < D_807F6C08) {
@@ -2192,7 +2165,7 @@ void func_80657508(s32 arg0) {
 }
 
 
-void func_8065756C(s16 arg0) {
+void mapChunkIdListAddUnique(s16 arg0) {
     s32 i = 0;
 
     while (i < D_807F6C80) {
@@ -2211,15 +2184,15 @@ typedef struct {
     /* 0x10 */ f32 unk10[4];
     /* 0x20 */ f32 unk20;
     /* 0x24 */ f32 unk24;
-} M55P5GridDst;
+} MapGridQuad;
 
 
 
 extern void func_80657CB0(s32, f32, f32, f32, f32 *, f32 *, f32 *);
-extern void func_80657974(s32, f32, f32, f32, M55P5GridDst *);
+extern void mapGridPointBuildVectors(s32, f32, f32, f32, MapGridQuad *);
 extern s32 func_8065776C(u8 *);
 
-s32 func_806575D0(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+s32 mapGridPointEmit(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 h;
     f32 x;
     f32 sp7C;
@@ -2242,7 +2215,7 @@ s32 func_806575D0(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
         return 0;
     }
     func_80657CB0(arg0, arg1, arg2, arg3, &sp7C, &sp78, &sp74);
-    func_80657974(arg0, sp7C, sp78, sp74, (M55P5GridDst *)sp4C);
+    mapGridPointBuildVectors(arg0, sp7C, sp78, sp74, (MapGridQuad *)sp4C);
     if (func_8065776C(sp4C)) {
         return 1;
     }
@@ -2253,7 +2226,7 @@ s32 func_806575D0(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
 
 
 
-void func_80657974(s32 arg0, f32 arg1, f32 arg2, f32 arg3, M55P5GridDst *arg4) {
+void mapGridPointBuildVectors(s32 arg0, f32 arg1, f32 arg2, f32 arg3, MapGridQuad *arg4) {
     s32 k;
 
     switch (D_807F6C24[arg0].unk28) {
@@ -2284,34 +2257,22 @@ void func_80657974(s32 arg0, f32 arg1, f32 arg2, f32 arg3, M55P5GridDst *arg4) {
     }
 }
 
-typedef struct R3bXform {
-    /* 0x00 */ s64 unk0;
-    /* 0x08 */ s64 unk8;
-    /* 0x10 */ s64 unk10;
-    /* 0x18 */ s64 unk18;
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ u8 pad28[8];
-} R3bXform;
-
-#define R3bX ((R3bXform *)D_807F6C24)
-
 #ifdef NON_MATCHING
 void func_80657CB0(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
     f32 t;
-    f32 a = (f32)(-R3bX[arg0].unk18);
+    f32 a = (f32)(-D_807F6C24[arg0].unk18);
 
-    t = (a - ((f32)R3bX[arg0].unk10 * arg3 + ((f32)R3bX[arg0].unk0 * arg1 + (f32)R3bX[arg0].unk8 * arg2))) / R3bX[arg0].unk24;
-    *arg4 = (f32)R3bX[arg0].unk0 * t + arg1;
-    *arg5 = (f32)R3bX[arg0].unk8 * t + arg2;
-    *arg6 = (f32)R3bX[arg0].unk10 * t + arg3;
+    t = (a - ((f32)D_807F6C24[arg0].unk10 * arg3 + ((f32)D_807F6C24[arg0].unk0 * arg1 + (f32)D_807F6C24[arg0].unk8 * arg2))) / D_807F6C24[arg0].unk24;
+    *arg4 = (f32)D_807F6C24[arg0].unk0 * t + arg1;
+    *arg5 = (f32)D_807F6C24[arg0].unk8 * t + arg2;
+    *arg6 = (f32)D_807F6C24[arg0].unk10 * t + arg3;
 }
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657CB0.s")
 #endif
 
-void func_80657E24(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 *arg8, s32 *arg9, s32 *arg10, s32 *arg11) {
+void mapRectIntersect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 *arg8, s32 *arg9, s32 *arg10, s32 *arg11) {
     if ((arg0 == arg2) || (arg1 == arg3)) {
         *arg8 = arg4;
         *arg9 = arg5;
@@ -2332,7 +2293,7 @@ void func_80657E24(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
     *arg11 = (arg7 < arg3) ? arg3 : arg7;
 }
 
-s32 func_80657F14(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 *arg8, s32 *arg9, s32 *arg10, s32 *arg11) {
+s32 mapRectOverlapTest(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 *arg8, s32 *arg9, s32 *arg10, s32 *arg11) {
     if (arg0 == -1) {
         return 0;
     }
@@ -2352,10 +2313,10 @@ s32 func_80657F14(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
     return 1;
 }
 
-s32 func_80658000(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4) {
+s32 mapGridPointPlaneDistanceWithin(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4) {
     f32 v;
 
-    v = ((f32)R3bX[arg0].unk18 + ((f32)R3bX[arg0].unk0 * arg1 + (f32)R3bX[arg0].unk8 * arg2 + (f32)R3bX[arg0].unk10 * arg3)) / R3bX[arg0].unk20;
+    v = ((f32)D_807F6C24[arg0].unk18 + ((f32)D_807F6C24[arg0].unk0 * arg1 + (f32)D_807F6C24[arg0].unk8 * arg2 + (f32)D_807F6C24[arg0].unk10 * arg3)) / D_807F6C24[arg0].unk20;
     if (v < 0.0) {
         v = 0.0 - v;
     }
@@ -2428,7 +2389,7 @@ s32 arg3;
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658134.s")
 #endif
 
-typedef struct M55P7Plane {
+typedef struct MapPlane {
     /* 0x00 */ f64 unk0;
     /* 0x08 */ f64 unk8;
     /* 0x10 */ f64 unk10;
@@ -2437,22 +2398,22 @@ typedef struct M55P7Plane {
     /* 0x28 */ f64 unk28;
     /* 0x30 */ f64 unk30;
     /* 0x38 */ f64 unk38;
-} M55P7Plane;
+} MapPlane;
 
-typedef struct R3dVec3 {
+typedef struct MapVec3 {
     /* 0x0 */ f32 x;
     /* 0x4 */ f32 y;
     /* 0x8 */ f32 z;
-} R3dVec3;
+} MapVec3;
 
 void func_8065850C(f32 *, f32 *, s32, f32 *);
 
 #ifdef NON_MATCHING
 void func_806582F8(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 arg4) {
     f32 sp7C[3];
-    M55P7Plane *plane;
-    R3dVec3 *prev;
-    R3dVec3 *cur;
+    MapPlane *plane;
+    MapVec3 *prev;
+    MapVec3 *cur;
     s32 n;
     s32 i;
     f64 y;
@@ -2460,9 +2421,9 @@ void func_806582F8(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 arg4) {
     f64 d;
 
     n = 0;
-    prev = (R3dVec3 *)&arg0[arg2 * 3] - 1;
-    cur = (R3dVec3 *)arg0;
-    plane = (M55P7Plane *)(D_807F5E68 + (arg4 << 6));
+    prev = (MapVec3 *)&arg0[arg2 * 3] - 1;
+    cur = (MapVec3 *)arg0;
+    plane = (MapPlane *)(D_807F5E68 + (arg4 << 6));
     for (i = 0; i < arg2; i++) {
         d = plane->unk38;
         y = d + (((plane->unk20 * cur->x) + (plane->unk28 * cur->y)) + (plane->unk30 * cur->z));
@@ -2516,7 +2477,7 @@ void func_8065850C(f32 *arg0, f32 *arg1, s32 arg2, f32 *arg3) {
 
 void func_80658930(u8 *);
 
-void func_806588E0(s32 arg0) {
+void mapLoadNodeAsset(s32 arg0) {
     u8 *p;
 
     p = (u8 *)func_8066B0F8(0x14, arg0, 1, 1);
@@ -2526,7 +2487,7 @@ void func_806588E0(s32 arg0) {
     }
 }
 
-typedef struct M55P7Node {
+typedef struct MapNodeData {
     /* 0x00 */ u8 *unk0;
     /* 0x04 */ s16 unk4;
     /* 0x06 */ u8 pad6[0x2];
@@ -2541,7 +2502,7 @@ typedef struct M55P7Node {
     /* 0x56 */ s8 unk56;
     /* 0x58 */ u8 unk58[0x10];
     /* 0x68 */ s8 unk68;
-} M55P7Node;
+} MapNodeData;
 
 #ifdef NON_MATCHING
 void func_80658930(u8 *arg0) {
@@ -2568,25 +2529,25 @@ void func_80658930(u8 *arg0) {
         idx = *(s16 *)p;
         p += 2;
         base[idx] = func_80610FE8(0x6C);
-        ((M55P7Node *)base[idx])->unk10 = 0x7FFF;
-        ((M55P7Node *)base[idx])->unk12 = -0x8000;
-        ((M55P7Node *)base[idx])->unk8 = 0;
-        ((M55P7Node *)base[idx])->unk4 = *(s16 *)(p - 2);
-        ((M55P7Node *)base[idx])->unk0 = func_80610FE8((u32)((M55P7Node *)base[idx])->unk4 * 6);
-        memcpy(((M55P7Node *)base[idx])->unk0,
+        ((MapNodeData *)base[idx])->unk10 = 0x7FFF;
+        ((MapNodeData *)base[idx])->unk12 = -0x8000;
+        ((MapNodeData *)base[idx])->unk8 = 0;
+        ((MapNodeData *)base[idx])->unk4 = *(s16 *)(p - 2);
+        ((MapNodeData *)base[idx])->unk0 = func_80610FE8((u32)((MapNodeData *)base[idx])->unk4 * 6);
+        memcpy(((MapNodeData *)base[idx])->unk0,
                p,
-               (u32)((M55P7Node *)base[idx])->unk4 * 6);
-        p += ((u32)((M55P7Node *)base[idx])->unk4 * 6 / 2) * 2;
-        ((M55P7Node *)base[idx])->unkE = *(s16 *)p;
-        ((M55P7Node *)base[idx])->unk34 = (s8)*(s16 *)(p + 2);
+               (u32)((MapNodeData *)base[idx])->unk4 * 6);
+        p += ((u32)((MapNodeData *)base[idx])->unk4 * 6 / 2) * 2;
+        ((MapNodeData *)base[idx])->unkE = *(s16 *)p;
+        ((MapNodeData *)base[idx])->unk34 = (s8)*(s16 *)(p + 2);
         p += 4;
-        memcpy(((M55P7Node *)base[idx])->unk14, p, 0x20);
-        ((M55P7Node *)base[idx])->unk56 = (s8)*(s16 *)(p + 0x20);
+        memcpy(((MapNodeData *)base[idx])->unk14, p, 0x20);
+        ((MapNodeData *)base[idx])->unk56 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy(((M55P7Node *)base[idx])->unk36, p, 0x20);
-        ((M55P7Node *)base[idx])->unk68 = (s8)*(s16 *)(p + 0x20);
+        memcpy(((MapNodeData *)base[idx])->unk36, p, 0x20);
+        ((MapNodeData *)base[idx])->unk68 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy(((M55P7Node *)base[idx])->unk58, p, 0x10);
+        memcpy(((MapNodeData *)base[idx])->unk58, p, 0x10);
         p += 0x10;
         func_80651708(idx);
     }
@@ -2601,9 +2562,9 @@ extern s16 D_807F735A;
 extern s16 D_807F735C;
 extern s16 D_807F735E;
 
-s32 func_80658B08();
+s32 mapObjectCollectIdsByType();
 
-s32 func_80658B08(arg0, arg1, arg2)
+s32 mapObjectCollectIdsByType(arg0, arg1, arg2)
 s8 arg0;
 u8 *arg1;
 s16 arg2;
@@ -2626,7 +2587,7 @@ s16 arg2;
     return n;
 }
 
-typedef struct R2P1bP6Entry {
+typedef struct MapSearchEntry {
     /* 0x000 */ s32 unk0;
     /* 0x004 */ s16 unk4;
     /* 0x006 */ s16 unk6;
@@ -2636,13 +2597,13 @@ typedef struct R2P1bP6Entry {
     /* 0x010 */ u8 unk10;
     /* 0x011 */ u8 unk11;
     /* 0x012 */ u8 pad12[0x2];
-} R2P1bP6Entry;
+} MapSearchEntry;
 
 extern u8 D_807F72A0;
 extern u8 D_807F72B4;
-extern R2P1bP6Entry D_807F72B8[];
+extern MapSearchEntry D_807F72B8[];
 
-void func_80658BD0(void) {
+void mapSearchTableReset(void) {
     s32 i;
 
     D_807F72A0 = 0;
@@ -2650,18 +2611,6 @@ void func_80658BD0(void) {
         D_807F72B8[i].unk10 = 0;
     }
 }
-
-typedef struct R2P6aEntry {
-    s32 unk0;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-    u8 unkA[2];
-    s32 unkC;
-    u8 unk10;
-    u8 unk11;
-    u8 pad12[2];
-} R2P6aEntry;
 
 extern s32 D_807F7290;
 extern s32 D_8076A064;
@@ -2677,19 +2626,19 @@ s16 arg3;
 {
     s32 i;
     s32 found;
-    R2P6aEntry *p;
+    MapSearchEntry *p;
 
     found = 0;
     i = 0;
     while ((i < 10) && !found) {
-        if (((R2P6aEntry *)&D_807F7290)[i].unk10 != 0) {
+        if (((MapSearchEntry *)&D_807F7290)[i].unk10 != 0) {
             i++;
         } else {
             found = 1;
         }
     }
     if (found) {
-        p = &((R2P6aEntry *)&D_807F7290)[i];
+        p = &((MapSearchEntry *)&D_807F7290)[i];
         p->unk10 = 1;
         p->unk4 = arg1;
         p->unk6 = arg2;
@@ -2708,9 +2657,9 @@ extern s32 func_807009F4(s32);
 
 #ifdef NON_MATCHING
 void func_80658CCC(void) {
-    R2P6aEntry *p;
+    MapSearchEntry *p;
 
-    p = (R2P6aEntry *)&D_807F7290;
+    p = (MapSearchEntry *)&D_807F7290;
     do {
         if (p->unk10 != 0) {
             if (D_8076A064 == p->unkC) {
@@ -2725,7 +2674,7 @@ void func_80658CCC(void) {
             p->unk10 = 0;
         }
         p++;
-    } while (p != (R2P6aEntry *)&D_807F7358);
+    } while (p != (MapSearchEntry *)&D_807F7358);
 }
 #else
 
@@ -2736,7 +2685,7 @@ extern u8 D_807F72A1;
 extern s32 D_807F72A4;
 extern u8 D_807F72B5;
 
-u8 func_80658DAC(s32 arg0) {
+u8 mapSearchTableGetValue(s32 arg0) {
     s32 i;
 
     if (arg0 == D_807F7290) { return D_807F72A1; } if (arg0 == D_807F72A4) { return D_807F72B5; }
@@ -2749,7 +2698,7 @@ u8 func_80658DAC(s32 arg0) {
 }
 
 
-void func_80658E58(arg0, arg1, arg2, arg3)
+void mapSetClipBounds(arg0, arg1, arg2, arg3)
 s16 arg0;
 s16 arg1;
 s16 arg2;
@@ -2762,12 +2711,12 @@ s16 arg3;
 }
 
 #ifdef NON_MATCHING
-typedef struct R3dPos {
+typedef struct MapPlayerPosition {
     /* 0x000 */ u8 pad0[0x21C];
     /* 0x21C */ f32 unk21C;
     /* 0x220 */ f32 unk220;
     /* 0x224 */ f32 unk224;
-} R3dPos;
+} MapPlayerPosition;
 
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 f32 sqrtf(f32);
@@ -2786,9 +2735,9 @@ s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
     func_80626F8C(arg0, arg1, arg2, &sp44, &sp40, 0, 1.0f, D_807FC929);
     x = (s16)sp44;
     z = (s16)sp40;
-    d = sqrtf(((arg2 - ((R3dPos *)&D_807FC924[D_807FC929])->unk224) * (arg2 - ((R3dPos *)&D_807FC924[D_807FC929])->unk224))
-            + (((arg0 - ((R3dPos *)&D_807FC924[D_807FC929])->unk21C) * (arg0 - ((R3dPos *)&D_807FC924[D_807FC929])->unk21C))
-            + ((arg1 - ((R3dPos *)&D_807FC924[D_807FC929])->unk220) * (arg1 - ((R3dPos *)&D_807FC924[D_807FC929])->unk220))));
+    d = sqrtf(((arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224) * (arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224))
+            + (((arg0 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk21C) * (arg0 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk21C))
+            + ((arg1 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk220) * (arg1 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk220))));
     if (d < 90.0f) {
         return 0;
     }

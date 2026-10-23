@@ -33,7 +33,7 @@ extern s32 D_80747D70;
 void *func_80610FE8(s32);
 u8 func_80663FCC(s16);
 s8 func_806531B8(f32, f32, f32, s32);
-s32 func_80658B08(s8, void *, s16);
+s32 mapObjectCollectIdsByType(s8, void *, s16);
 
 void actorInitTargetEntries(void) {
     s32 k = 0;
@@ -60,7 +60,7 @@ void actorInitTargetEntries(void) {
                 D_807F9420[k].unk4 = D_807F6000[i].unk8;
                 D_807F9420[k].unk6 = res;
                 D_807F9420[k].u.s.unk7 = func_806531B8(D_807F6000[i].unk0, D_807F6000[i].unk4, D_807F6000[i].unk8, 0);
-                temp = func_80658B08(D_807F9420[k].u.s.unk7, &D_807F9420[k].u.s.pad8, 4);
+                temp = mapObjectCollectIdsByType(D_807F9420[k].u.s.unk7, &D_807F9420[k].u.s.pad8, 4);
                 if (temp != 4) {
                     D_807F9420[k].u.s.pad8[temp] = -1;
                 }

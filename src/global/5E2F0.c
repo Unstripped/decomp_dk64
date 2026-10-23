@@ -699,7 +699,7 @@ s32 lightCheckPlayerDistance(LightVolume *arg0) {
     return 0;
 }
 
-s32 func_80651B64(s16);
+s32 mapChunkIsInUse(s16);
 
 #ifdef NON_MATCHING
 void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
@@ -710,7 +710,7 @@ void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u
     f32 b;
     s32 three;
 
-    if (func_80651B64(arg7) == 0) {
+    if (mapChunkIsInUse(arg7) == 0) {
         *arg6 = 0xFF;
         *arg5 = 0xFF;
         *arg4 = 0xFF;

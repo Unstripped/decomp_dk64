@@ -6,7 +6,7 @@ s32 func_8066B0F8(s32, s32, s32, s32);
 extern u8 *D_807FC7C0;
 
 #ifdef NON_MATCHING
-typedef struct L97230_State {
+typedef struct ActorTrailState {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 pad2;
     /* 0x03 */ u8 pad3;
@@ -15,7 +15,7 @@ typedef struct L97230_State {
     /* 0x0C */ f32 unkC;
     /* 0x10 */ u8 unk10;
     /* 0x11 */ u8 unk11;
-} L97230_State;
+} ActorTrailState;
 
 extern Gfx D_1000118;
 extern Mtx D_2000000;
@@ -31,10 +31,10 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_80612C30(f32 (*)[4], f32);
 
-#define L97230_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
+#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
-    L97230_State *sub;
+    ActorTrailState *sub;
     f32 mtx2[4][4];
     f32 mtx1[4][4];
     s16 i;
@@ -127,7 +127,7 @@ Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
 #endif
 
 
-void func_806978FC(void) {
+void loadModelAssetTable(void) {
     s16 i;
     s16 j;
 
@@ -141,7 +141,7 @@ void func_806978FC(void) {
 extern Actor *D_807FBB40;
 
 #ifdef NON_MATCHING
-typedef struct M9B_ActorState {
+typedef struct ProjectileState {
     s16 unk0;
     u8 pad2;
     u8 pad3;
@@ -150,7 +150,7 @@ typedef struct M9B_ActorState {
     f32 unkC;
     u8 unk10;
     u8 unk11;
-} M9B_ActorState;
+} ProjectileState;
 
 Gfx *func_80697230(Gfx *, Actor *);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
@@ -162,7 +162,7 @@ void renderCallbacksRegister(void *, void *, u8);
 #define ACTOR2 ((Actor *)D_807FBB40)
 
 void func_80697988(void) {
-    M9B_ActorState *sub;
+    ProjectileState *sub;
     Actor *actor;
     f64 temp;
     f64 max;
@@ -233,28 +233,28 @@ void func_80697988(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9BF30/func_80697988.s")
 #endif
 
-typedef struct M9B_Config124 {
+typedef struct ProjectileConfig {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
     f32 unk10;
-} M9B_Config124;
+} ProjectileConfig;
 
-typedef struct M9B_Triple {
+typedef struct ProjectileTriple {
     void *unk0;
     void *unk4;
     void *unk8;
-} M9B_Triple;
+} ProjectileTriple;
 
-typedef struct M9B_State2 {
+typedef struct ProjectileSubState {
     s32 unk0;
     u8 pad4[0xE];
     u8 unk12;
     u8 unk13;
-} M9B_State2;
+} ProjectileSubState;
 
-typedef struct M9B_ProjectileActor {
+typedef struct ProjectileActor {
     u8 pad0[0x60];
     u32 unk60;
     u8 pad64[6];
@@ -274,14 +274,14 @@ typedef struct M9B_ProjectileActor {
     u8 padF0[0xC];
     u8 unkFC;
     u8 padFD[0x27];
-    M9B_Config124 *unk124;
+    ProjectileConfig *unk124;
     u8 pad128[0x1C];
     u8 unk144;
     u8 pad145[0x10];
     u8 unk155;
     u8 pad156[0x1E];
-    M9B_State2 *unk174;
-} M9B_ProjectileActor;
+    ProjectileSubState *unk174;
+} ProjectileActor;
 
 extern void *D_807502C0[];
 extern u8 D_8071FBA0;
@@ -308,16 +308,16 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void func_8071F758(void);
 void func_8071ABDC(void);
 
-#define G_ACTOR ((M9B_ProjectileActor *)D_807FBB40)
+#define G_ACTOR ((ProjectileActor *)D_807FBB40)
 
-void func_80697CEC(void) {
-    M9B_State2 *sub;
-    M9B_Triple sp68;
+void projectileActorUpdate(void) {
+    ProjectileSubState *sub;
+    ProjectileTriple sp68;
     s16 var_s1;
 
-    sub = ((M9B_ProjectileActor *)D_807FBB40)->unk174;
+    sub = ((ProjectileActor *)D_807FBB40)->unk174;
     if (!(G_ACTOR->unk60 & 0x10)) {
-        sp68 = *(M9B_Triple *)D_807502C0;
+        sp68 = *(ProjectileTriple *)D_807502C0;
         G_ACTOR->unk6A &= (G_ACTOR->unk6E = -2);
         G_ACTOR->unkEE = (s16)((G_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
         G_ACTOR->unkB8 = G_ACTOR->unk124->unk4;

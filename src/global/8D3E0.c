@@ -68,7 +68,7 @@ void *memcpy(void *, const void *, size_t);
 void heapFree(void *);
 void actorDespawn(Actor *);
 s16 func_806531B8(f32, f32, f32, s32);
-s32 func_80652E58(s32, void *);
+s32 mapChunkIsVisible(s32, void *);
 void func_8066E6C8(Actor *, s32, s32);
 void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
 s32 func_80688C84(u16);
@@ -486,7 +486,7 @@ s32 func_80689E98(s32 arg0) {
 
 void func_80689EA4(ActorListNode *arg0) {
     if (mapIsBossArena()) {
-        func_80652E58(arg0->unk4A, arg0);
+        mapChunkIsVisible(arg0->unk4A, arg0);
     } else {
         func_80689F80(arg0);
     }
@@ -494,7 +494,7 @@ void func_80689EA4(ActorListNode *arg0) {
 
 u8 func_80689EE4(ActorListNode *arg0) {
     if (mapIsBossArena()) {
-        return func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0;
+        return mapChunkIsVisible(*(s16 *)&arg0->unk44->unk12C, arg0) == 0;
     }
     return func_80689FEC(arg0);
 }
@@ -518,7 +518,7 @@ s32 mapIsBossArena(void) {
 }
 
 u8 func_80689F80(ActorListNode *arg0) {
-    s32 var_a0 = func_80652E58(arg0->unk4A, arg0) != 0;
+    s32 var_a0 = mapChunkIsVisible(arg0->unk4A, arg0) != 0;
     if (var_a0 != 0) {
         f32 dist = playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18);
         var_a0 = 0;
@@ -530,11 +530,11 @@ u8 func_80689F80(ActorListNode *arg0) {
 }
 
 u8 func_80689FEC(ActorListNode *arg0) {
-    return (func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL);
+    return (mapChunkIsVisible(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL);
 }
 
 u8 func_8068A074(ActorListNode *arg0) {
-    return (func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL) && (arg0->unk44->unk154 == 0);
+    return (mapChunkIsVisible(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL) && (arg0->unk44->unk154 == 0);
 }
 
 s32 func_8068A10C(s32 arg0) {

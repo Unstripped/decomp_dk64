@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct M54AVtx {
+typedef struct ModelVertex {
     u32 unk0;
     f32 unk4;
     u16 unk8;
@@ -13,20 +13,20 @@ typedef struct M54AVtx {
     u8 unk11;
     u8 unk12;
     u8 unk13;
-} M54AVtx; /* 0x14 */
+} ModelVertex; /* 0x14 */
 
-typedef struct M54AModel {
+typedef struct ModelData {
     u8 *unk0;
     u8 *unk4;
-    M54AVtx unk8[10];
-} M54AModel; /* 0xD0 */
+    ModelVertex unk8[10];
+} ModelData; /* 0xD0 */
 
 void *func_80610FE8(s32);
 void *memcpy(void *, const void *, unsigned int);
 
 #ifdef NON_MATCHING
-void func_8064F450(M54AModel **arg0, u8 *arg1) {
-    M54AModel *m;
+void func_8064F450(ModelData **arg0, u8 *arg1) {
+    ModelData *m;
     u8 *src;
     u32 size;
     u32 n;
@@ -75,15 +75,15 @@ void func_8064F450(M54AModel **arg0, u8 *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_8064F450.s")
 #endif
 
-typedef struct M54ASlot {
+typedef struct ModelSlot {
     u8 pad0[0x24];
     u8 *unk24;
     u8 pad28[0x50];
     u8 *unk78;
     u8 pad7C[0x14];
-} M54ASlot; /* 0x90 */
+} ModelSlot; /* 0x90 */
 
-typedef struct M54AOwner {
+typedef struct ModelAnimEntryRaw {
     u8 *unk0;
     u32 unk4;
     u8 pad8[6];
@@ -92,11 +92,11 @@ typedef struct M54AOwner {
     u8 unk11;
     u8 pad12;
     u8 unk13;
-} M54AOwner;
+} ModelAnimEntryRaw;
 
-extern M54ASlot *D_807F6000;
+extern ModelSlot *D_807F6000;
 
-u32 func_8064F6C0(arg0)
+u32 modelSlotDataSize(arg0)
 s16 arg0;
 {
     u8 *p = D_807F6000[arg0].unk24;
@@ -104,15 +104,15 @@ s16 arg0;
     return *(u32 *)(p + *(s32 *)(p + 0x68));
 }
 
-typedef struct M54ABuf {
+typedef struct ModelSlotBuf {
     u32 unk0;
     u32 unk4;
-} M54ABuf;
+} ModelSlotBuf;
 
 void func_806357F8();
 void func_806358E8(s16, s32, s32, s32, f32, f32, f32, f32, f32, s32, s32, s32, s32, s32);
 
-void func_8064F6F8(arg0, arg1)
+void modelSlotCopyData(arg0, arg1)
 s16 arg1;
 u8 *arg0;
 {
@@ -141,7 +141,7 @@ void heapFreeDeferred(void *);
 void heapFree(void *);
 void func_80650684();
 
-void func_8064F804(u8 **arg0) {
+void modelSlotFree(u8 **arg0) {
     if (arg0 != NULL) {
         heapFreeDeferred(arg0[0]);
         heapFreeDeferred(arg0[1]);
@@ -157,9 +157,9 @@ extern u8 D_807F6BEC;
 extern u8 D_807444FC;
 s32 hashTableLookup();
 void func_806506E8();
-void func_8064F954(void *);
+void modelAnimEntryStep(void *);
 
-u8 func_8064F84C(arg0)
+u8 modelSlotStepAnimations(arg0)
 s16 arg0;
 {
     u32 *base;
@@ -176,7 +176,7 @@ s16 arg0;
         p = (u8 *)base;
         for (; i != 0xC8; i += 0x14) {
             if (p[0x16] == 1) {
-                func_8064F954(p + 8);
+                modelAnimEntryStep(p + 8);
                 D_807F6BEC = 1;
             }
             p += 0x14;
@@ -187,9 +187,9 @@ s16 arg0;
 }
 
 void func_806500E0(void *);
-void func_8064F97C(M54AOwner *);
+void func_8064F97C(ModelAnimEntryRaw *);
 
-void func_8064F954(void *arg0) {
+void modelAnimEntryStep(void *arg0) {
     func_806500E0(arg0);
     func_8064F97C(arg0);
 }
@@ -199,7 +199,7 @@ void func_8065054C();
 void func_806505F0();
 
 #ifdef NON_MATCHING
-void func_8064F97C(M54AOwner *arg0) {
+void func_8064F97C(ModelAnimEntryRaw *arg0) {
     u8 *node;
     s16 stride;
     s32 i;
@@ -265,7 +265,7 @@ void func_8064FA7C(u32 *arg0, u32 *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_806500E0.s")
 
 
-typedef struct M54B_ClearGroup {
+typedef struct MtxCopyRequestGroup {
     s32 unk0;
     u8 pad04[0xC];
     s32 unk10;
@@ -274,17 +274,17 @@ typedef struct M54B_ClearGroup {
     u8 pad24[0xC];
     s32 unk30;
     u8 pad34[0xC];
-} M54B_ClearGroup;
+} MtxCopyRequestGroup;
 
-typedef struct M54B_Slot {
+typedef struct MtxCopyRequest {
     s32 unk0;
     s32 unk4;
     s32 unk8;
     u8 unkC;
     u8 padD[3];
-} M54B_Slot;
+} MtxCopyRequest;
 
-typedef struct M54B_HashEntry {
+typedef struct ModelAnimEntry {
     u8 *unk0;
     f32 unk4;
     s16 unk8;
@@ -296,21 +296,21 @@ typedef struct M54B_HashEntry {
     s8 unk11;
     u8 unk12;
     u8 unk13;
-} M54B_HashEntry;
+} ModelAnimEntry;
 
-typedef struct M54B_HashGroup {
+typedef struct ModelAnimGroup {
     u8 *unk0;
     u8 *unk4;
-    M54B_HashEntry entries[1];
-} M54B_HashGroup;
+    ModelAnimEntry entries[1];
+} ModelAnimGroup;
 
-extern M54B_Slot D_807F6960[];
+extern MtxCopyRequest D_807F6960[];
 void func_80732354(s32, s32, s32, s32);
 void func_8064FA7C();
 
 #ifdef NON_MATCHING
 void func_8065051C(void) {
-    M54B_ClearGroup *group = (M54B_ClearGroup *)D_807F6960;
+    MtxCopyRequestGroup *group = (MtxCopyRequestGroup *)D_807F6960;
 
     for (;;) {
         group->unk10 = 0;
@@ -318,7 +318,7 @@ void func_8065051C(void) {
         group->unk30 = 0;
         group->unk0 = 0;
         group++;
-        if (group == (M54B_ClearGroup *)&D_807F6BE0) {
+        if (group == (MtxCopyRequestGroup *)&D_807F6BE0) {
             break;
         }
     }
@@ -332,7 +332,7 @@ void func_8065051C(void) {
 void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
     s32 found;
     s32 i;
-    M54B_Slot *slot;
+    MtxCopyRequest *slot;
 
     found = 0;
     i = 0;
@@ -363,7 +363,7 @@ void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
 
 #ifdef NON_MATCHING
 void func_806505F0(s32 arg0) {
-    M54B_Slot *slot = D_807F6960;
+    MtxCopyRequest *slot = D_807F6960;
 
     for (;;) {
         if (slot->unk0 != 0 && slot->unk8 == arg0) {
@@ -379,7 +379,7 @@ void func_806505F0(s32 arg0) {
             slot[3].unk0 = 0;
         }
         slot += 4;
-        if (slot == (M54B_Slot *)&D_807F6BE0) {
+        if (slot == (MtxCopyRequest *)&D_807F6BE0) {
             break;
         }
     }
@@ -391,7 +391,7 @@ void func_806505F0(s32 arg0) {
 
 #ifdef NON_MATCHING
 void func_80650684(s32 arg0) {
-    M54B_Slot *slot = D_807F6960;
+    MtxCopyRequest *slot = D_807F6960;
 
     for (;;) {
         if (slot->unk0 == arg0) {
@@ -407,7 +407,7 @@ void func_80650684(s32 arg0) {
             slot[3].unk0 = 0;
         }
         slot += 4;
-        if (slot == (M54B_Slot *)&D_807F6BE0) {
+        if (slot == (MtxCopyRequest *)&D_807F6BE0) {
             break;
         }
     }
@@ -419,7 +419,7 @@ void func_80650684(s32 arg0) {
 
 #ifdef NON_MATCHING
 void func_806506E8(s32 arg0) {
-    M54B_Slot *slot = D_807F6960;
+    MtxCopyRequest *slot = D_807F6960;
 
     do {
         if (slot->unk0 == arg0 && slot->unkC == D_807444FC) {
@@ -428,7 +428,7 @@ void func_806506E8(s32 arg0) {
             D_807F6BEC = 1;
         }
         slot++;
-    } while (slot != (M54B_Slot *)&D_807F6BE0);
+    } while (slot != (MtxCopyRequest *)&D_807F6BE0);
 }
 #else
 
@@ -437,12 +437,12 @@ void func_806506E8(s32 arg0) {
 
 #ifdef NON_MATCHING
 void func_80650794(s16 arg0, s16 arg1, u8 arg2, f32 arg3) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
     u32 value;
     u32 level;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         value = (u32)(8.0f * arg3);
@@ -455,11 +455,11 @@ void func_80650794(s16 arg0, s16 arg1, u8 arg2, f32 arg3) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_80650794.s")
 #endif
 
-void func_806508B4(s16 arg0, s16 arg1, s16 arg2) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntryStart(s16 arg0, s16 arg1, s16 arg2) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unkA = arg2;
@@ -468,11 +468,11 @@ void func_806508B4(s16 arg0, s16 arg1, s16 arg2) {
     }
 }
 
-void func_8065092C(s16 arg0, s16 arg1) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntryStop(s16 arg0, s16 arg1) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unkE = 0;
@@ -480,11 +480,11 @@ void func_8065092C(s16 arg0, s16 arg1) {
     }
 }
 
-void func_80650998(s16 arg0, s16 arg1) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntryClearTime(s16 arg0, s16 arg1) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk11 = 0;
@@ -492,11 +492,11 @@ void func_80650998(s16 arg0, s16 arg1) {
     }
 }
 
-void func_80650A04(s16 arg0, s16 arg1, s16 arg2) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntrySetUnkC(s16 arg0, s16 arg1, s16 arg2) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unkC = arg2;
@@ -505,10 +505,10 @@ void func_80650A04(s16 arg0, s16 arg1, s16 arg2) {
 
 #ifdef NON_MATCHING
 s16 func_80650A70(s16 arg0, s16 arg1) {
-    M54B_HashGroup *group;
+    ModelAnimGroup *group;
     s16 value;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     value = 0;
     if (group != NULL) {
         value = group->entries[arg1].unkC;
@@ -520,11 +520,11 @@ s16 func_80650A70(s16 arg0, s16 arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_80650A70.s")
 #endif
 
-void func_80650AD8(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntrySetTime(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk4 = arg3;
@@ -532,33 +532,33 @@ void func_80650AD8(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
     }
 }
 
-void func_80650B50(s16 arg0, s16 arg1, s16 arg2) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntrySetUnkF(s16 arg0, s16 arg1, s16 arg2) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unkF = arg2;
     }
 }
 
-void func_80650BBC(s16 arg0, s16 arg1, s16 arg2) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntrySetUnk10(s16 arg0, s16 arg1, s16 arg2) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk10 = arg2;
     }
 }
 
-void func_80650C28(s16 arg0, s16 arg1, s16 arg2) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntryResetFrame(s16 arg0, s16 arg1, s16 arg2) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk8 = 0;
@@ -566,24 +566,24 @@ void func_80650C28(s16 arg0, s16 arg1, s16 arg2) {
     }
 }
 
-void func_80650C98(s16 arg0, s16 arg1, s16 arg2) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntrySetUnk12(s16 arg0, s16 arg1, s16 arg2) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk12 = arg2;
     }
 }
 
-u8 func_80650D04(s16 arg0, s16 arg1) {
-    M54B_HashGroup *group;
+u8 modelAnimEntryIsActive(s16 arg0, s16 arg1) {
+    ModelAnimGroup *group;
     s32 flag;
     u8 result;
 
     result = 0;
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         flag = 0;
         if (group->entries[arg1].unkE == 1) {
@@ -597,11 +597,11 @@ u8 func_80650D04(s16 arg0, s16 arg1) {
     }
 }
 
-void func_80650D8C(s16 arg0, s16 arg1, s16 *arg2, f32 *arg3, u8 *arg4) {
-    M54B_HashGroup *group;
-    M54B_HashEntry *entry;
+void modelAnimEntryGetState(s16 arg0, s16 arg1, s16 *arg2, f32 *arg3, u8 *arg4) {
+    ModelAnimGroup *group;
+    ModelAnimEntry *entry;
 
-    group = (M54B_HashGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         *arg3 = entry->unk4;
