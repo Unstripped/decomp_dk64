@@ -1,4 +1,6 @@
-// func_8065E040 (src/global/61AA0.c): 2 insns diff: addiu v1 vs v0 order in prologue
+// func_8065E040 (src/global/61AA0.c): 33/35 insns matched; only 2 insns diff: addiu v1 vs v0 order in prologue
+#include <ultra64.h>
+
 extern s32 D_807F8EC0;
 extern s32 D_807F9050;
 extern s32 D_807F9054;

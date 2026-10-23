@@ -1,9 +1,24 @@
-// func_80660520 (src/global/63EC0.c): logic matches, frame size 0xB0 vs 0xA0 due to extra local temps
-extern u8 D_80748AA5[];
-f32 func_806608FC(R1C_Water *, s16, s16, u8);
+// func_80660520 (src/global/63EC0.c): from .scratch/R4A63EC0/func_80660520_best.c
+typedef struct R4A_SubStruct520 {
+    u8 pad0[0xC];
+    f32 unkC;
+    f32 unk10;
+    u8 pad14[0x46 - 0x14];
+    s16 unk46;
+    s16 unk48;
+    s16 unk4A;
+    s16 unk4C;
+    s16 unk4E;
+    u8 pad50[0x64 - 0x50];
+    u8 unk64;
+    u8 unk65;
+    u8 unk66;
+} R4A_SubStruct520;
 
-void func_80660520(Vtx *vtx, R1C_Water *water) {
-    R1C_SubStruct *sub;
+f32 func_806608FC(EffectNode *, s32, s32, u8);
+
+void func_80660520(Vtx *vtx, EffectNode *water) {
+    R4A_SubStruct520 *sub;
     s16 step;
     s16 minX, maxX, minZ, maxZ;
     s32 countX, countZ;
@@ -17,7 +32,7 @@ void func_80660520(Vtx *vtx, R1C_Water *water) {
     f32 relH;
 
     step = water->unk2C;
-    sub = water->unk0;
+    sub = (R4A_SubStruct520 *)water->unk0;
     minX = sub->unk46;
     maxX = sub->unk4A;
     minZ = sub->unk48;
@@ -29,7 +44,7 @@ void func_80660520(Vtx *vtx, R1C_Water *water) {
     z = minZ;
     j = 0;
     baseHeight = (f32)sub->unk4E + water->unk4;
-    flag = D_80748AA5[sub->unk66 * 0x18];
+    flag = D_80748AA5[sub->unk66].unk0;
     heightScale = sub->unk10 + sub->unkC;
     if (countZ >= 0) {
         do {

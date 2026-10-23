@@ -1,8 +1,8 @@
-// func_80662B90 (src/global/67890.c): 284/300 insns: prologue/epilogue/setup match; loop has quad-vertex indexing and centroid calculations
+// func_80662B90 (src/global/67890.c): 284/300 insns: prologue/epilogue/setup match; loop quad-vertex 20 sll 0x6 regalloc requires a0 reserved for i across blez
 #include "common.h"
 #include "actor.h"
 
-typedef struct R2G67890_Entry40 {
+typedef struct R5B_Entry40 {
     f32 unk0[8];
     s16 unk20;
     s16 unk22;
@@ -21,9 +21,9 @@ typedef struct R2G67890_Entry40 {
     s16 unk3C;
     u8 unk3E;
     u8 unk3F;
-} R2G67890_Entry40;
+} R5B_Entry40;
 
-typedef struct R2G67890_Entry14 {
+typedef struct R5B_Entry14 {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -32,25 +32,25 @@ typedef struct R2G67890_Entry14 {
     u8 unk11;
     s8 unk12;
     s8 unk13;
-} R2G67890_Entry14;
+} R5B_Entry14;
 
-typedef struct R2G67890_Vtx {
+typedef struct R5B_Vtx {
     s16 ob[3];
     s16 flag;
     s16 tc[2];
     u8 cn[4];
-} R2G67890_Vtx;
+} R5B_Vtx;
 
-extern R2G67890_Entry40 *D_807F93F0;
-extern R2G67890_Entry14 *D_807F93F4;
+extern R5B_Entry40 *D_807F93F0;
+extern R5B_Entry14 *D_807F93F4;
 extern s32 D_807F93F8;
-extern R2G67890_Vtx *D_807F93FC;
+extern R5B_Vtx *D_807F93FC;
 extern s32 D_807F9400;
 
 void *func_80610FE8(s32);
 s32 func_8066B0F8(s32, s32, s32, s32);
-#define E(i) ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + ((i) << 6)))
-#define V(off) ((R2G67890_Vtx *)((u8 *)D_807F93FC + (off)))
+#define E(i) ((R5B_Entry40 *)((u8 *)D_807F93F0 + ((i) << 6)))
+#define V(off) ((R5B_Vtx *)((u8 *)D_807F93FC + (off)))
 
 void func_80662B90(void *arg0) {
     s32 count;
@@ -64,8 +64,8 @@ void func_80662B90(void *arg0) {
     count = *(s32 *)((u8 *)arg0 + *(s32 *)((u8 *)arg0 + 0x50));
     D_807F93F8 = count;
     if (count != 0) {
-        D_807F93F0 = (R2G67890_Entry40 *)((u8 *)arg0 + *(s32 *)((u8 *)arg0 + 0x50) + 4);
-        D_807F93F4 = func_80610FE8(count * sizeof(R2G67890_Entry14));
+        D_807F93F0 = (R5B_Entry40 *)((u8 *)arg0 + *(s32 *)((u8 *)arg0 + 0x50) + 4);
+        D_807F93F4 = func_80610FE8(count * sizeof(R5B_Entry14));
         D_807F93FC = func_80610FE8(D_807F93F8 << 6);
         if (D_807F93F8 > 0) {
             vtx_off = sp[0] * 0x10;
@@ -101,10 +101,10 @@ void func_80662B90(void *arg0) {
                 V(vtx_off)->tc[1] = (s16)((s32)(E(i)->unk0[7] * 50.0f) << 5);
                 vtx_off += 0x10;
 
-                ((R2G67890_Entry14 *)((u8 *)D_807F93F4 + entry14_off))->unk4 = (f32)((f64)(((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk26 + ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk20 + ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk22 + ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk24) * 0.25);
-                ((R2G67890_Entry14 *)((u8 *)D_807F93F4 + entry14_off))->unk8 = (f32)((f64)(((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk2E + ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk28 + ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk2A + ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk2C) * 0.25);
+                ((R5B_Entry14 *)((u8 *)D_807F93F4 + entry14_off))->unk4 = (f32)((f64)(((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk26 + ((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk20 + ((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk22 + ((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk24) * 0.25);
+                ((R5B_Entry14 *)((u8 *)D_807F93F4 + entry14_off))->unk8 = (f32)((f64)(((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk2E + ((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk28 + ((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk2A + ((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk2C) * 0.25);
+                ((R5B_Entry14 *)((u8 *)D_807F93F4 + entry14_off))->unkC = (f32)((f64)(((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk36 + ((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk30 + ((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk32 + ((R5B_Entry40 *)((u8 *)D_807F93F0 + entry_off))->unk34) * 0.25);
                 entry_off += 0x40;
-                ((R2G67890_Entry14 *)((u8 *)D_807F93F4 + entry14_off))->unkC = (f32)((f64)(((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off - 0x40))->unk36 + ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off - 0x40))->unk30 + ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off - 0x40))->unk32 + ((R2G67890_Entry40 *)((u8 *)D_807F93F0 + entry_off - 0x40))->unk34) * 0.25);
                 entry14_off += 0x14;
                 i++;
             } while (i < D_807F93F8);
