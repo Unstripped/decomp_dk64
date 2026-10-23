@@ -1,6 +1,33 @@
 #include "common.h"
 #include "actor.h"
 
+typedef struct M55P3EffectBuf {
+    /* 0x000 */ u8 unk0;
+    /* 0x001 */ u8 unk1;
+    /* 0x002 */ u8 unk2;
+    /* 0x003 */ u8 unk3;
+    /* 0x004 */ u8 unk4;
+    /* 0x005 */ u8 pad5[0x2];
+    /* 0x007 */ u8 unk7;
+    /* 0x008 */ u8 pad8[0xC];
+    /* 0x014 */ s32 unk14;
+    /* 0x018 */ u8 pad18[0x4];
+    /* 0x01C */ s32 unk1C;
+    /* 0x020 */ u8 pad20[0x48];
+    /* 0x068 */ s32 unk68;
+    /* 0x06C */ s32 unk6C;
+    /* 0x070 */ s32 unk70;
+    /* 0x074 */ s32 unk74;
+    /* 0x078 */ u8 pad78[0x150];
+} M55P3EffectBuf;
+
+extern u8 D_807F7078[];
+extern s32 D_807F6C28;
+extern M55P3EffectBuf *D_807F6C18;
+extern u8 *D_807F6C1C;
+extern s32 D_807F6C20;
+extern u8 *D_807F6C2C;
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80650E20.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80650ECC.s")
@@ -11,7 +38,9 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651B64.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651BC0.s")
+void func_80651BC0(s16 arg0, s8 arg1) {
+    D_807F7078[arg0] = arg1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651BE0.s")
 
@@ -19,9 +48,34 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_8065214C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806521F8.s")
+void func_806521F8(void) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806522CC.s")
+    for (i = 0; i < D_807F6C28; i++) {
+        D_807F6C18[i].unk0 = 0;
+        D_807F6C18[i].unk68 = 0;
+        D_807F6C18[i].unk6C = 0;
+        D_807F6C18[i].unk70 = 0;
+        D_807F6C18[i].unk74 = 0;
+    }
+    for (i = 0; i < D_807F6C20; i++) {
+        D_807F6C1C[i * 0xA + 8] = 0;
+        D_807F6C2C[i] = 0;
+    }
+}
+
+s32 func_806522CC(s16 arg0, s16 arg1, s16 arg2) {
+    M55P3EffectBuf *entry;
+
+    entry = (M55P3EffectBuf *)((s32)D_807F6C18 + arg2 * 0x1C8);
+    if (entry->unk1 == 0) {
+        return 0;
+    }
+    if ((arg0 >= entry->unk68) && (arg1 >= entry->unk6C) && (entry->unk70 >= arg0) && (entry->unk74 >= arg1)) {
+        return 1;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652374.s")
 
@@ -159,20 +213,6 @@ typedef struct {
     /* 0x292 */ u8 pad292[0x2F0 - 0x292];
 } M55P3Player;
 
-typedef struct {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ u8 pad2[5];
-    /* 0x07 */ u8 unk7;
-    /* 0x08 */ u8 pad8[0x60];
-    /* 0x68 */ s32 unk68;
-    /* 0x6C */ s32 unk6C;
-    /* 0x70 */ s32 unk70;
-    /* 0x74 */ s32 unk74;
-    /* 0x78 */ u8 pad78[0x1C8 - 0x78];
-} M55P3EffectBuf;
-
-extern M55P3EffectBuf *D_807F6C18;
 extern M55P3Player *D_807FC924;
 extern u8 D_807FC929;
 
