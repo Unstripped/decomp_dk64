@@ -85,20 +85,11 @@ void func_806594C8(s32 arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 s32 func_80659544(s32 arg0) {
-    int new_var = arg0;
+    s32 k = (arg0 > 0) ? arg0 : -arg0;
 
-    if (new_var > 0) {
-        return new_var % 100;
-    }
-    new_var = -new_var;
-    return new_var % 100;
+    return k % 100;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/5E020/func_80659544.s")
-#endif
 
 void func_80659574(void) {
     s32 i;

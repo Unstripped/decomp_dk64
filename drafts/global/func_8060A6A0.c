@@ -1,4 +1,4 @@
-// func_8060A6A0 (src/global/7130.c): Stage 5 (direct alCSPSetChlPan restored, jalr removed, frame 0x20 matches, blocked on uopt sinking pan/vol into branch)
+// func_8060A6A0 (src/global/7130.c): Stage 5 (frame exact 0x20, all insns match except uopt sinks pan/vol float computation into the if (arg0 != 0) branch; tested pointer force-spill and permuter)
 #include "common.h"
 
 extern u8 D_8077058E;
