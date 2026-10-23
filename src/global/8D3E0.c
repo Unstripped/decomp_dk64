@@ -453,7 +453,32 @@ s32 func_80689BAC(s16 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689C20.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689DD4.s")
+typedef struct R3D3A_PlayerEntry {
+    u8 unk0;
+    char pad1[0x210 - 1];
+    f32 unk210;
+    f32 unk214;
+    f32 unk218;
+    char pad21C[0x2F0 - 0x21C];
+} R3D3A_PlayerEntry;
+
+extern R3D3A_PlayerEntry *D_807FC924;
+extern u8 D_807FC928;
+
+f32 func_80689DD4(f32 arg0, f32 arg1, f32 arg2) {
+    f32 minDist = 100000000.0f;
+    s32 i;
+
+    for (i = 0; i < D_807FC928; i++) {
+        if (D_807FC924[i].unk0 != 0) {
+            f32 dist = (arg0 - D_807FC924[i].unk210) * (arg0 - D_807FC924[i].unk210) + (arg1 - D_807FC924[i].unk214) * (arg1 - D_807FC924[i].unk214) + (arg2 - D_807FC924[i].unk218) * (arg2 - D_807FC924[i].unk218);
+            if (dist < minDist) {
+                minDist = dist;
+            }
+        }
+    }
+    return minDist;
+}
 
 s32 func_80689E98(s32 arg0) {
     return 1;
@@ -504,9 +529,13 @@ u8 func_80689F80(ActorListNode *arg0) {
     return var_a0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689FEC.s")
+u8 func_80689FEC(ActorListNode *arg0) {
+    return (func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(func_80689DD4(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_8068A074.s")
+u8 func_8068A074(ActorListNode *arg0) {
+    return (func_80652E58(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(func_80689DD4(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL) && (arg0->unk44->unk154 == 0);
+}
 
 s32 func_8068A10C(s32 arg0) {
     return 0;
