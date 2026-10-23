@@ -26,8 +26,74 @@ u8 arg0;
     D_80745654 = arg0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80602498.s")
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    u8 unk8;
+    u8 unk9;
+} Aud7130A2_Struct7130_Entry;
 
+typedef struct {
+    char pad0[0x210];
+    f32 unk210;
+    f32 unk214;
+    f32 unk218;
+    char pad21C[0xC];
+    f32 unk228;
+    f32 unk22C;
+    f32 unk230;
+    char pad234[0x90];
+    f32 unk2C4;
+} Aud7130A2_AudPlayerPos;
+
+extern s8 D_80745650;
+extern u8 D_80770DC9;
+extern u8 D_80770DD8[];
+extern Aud7130A2_AudPlayerPos *D_807FC924;
+extern s32 D_8076A0A8;
+extern Aud7130A2_Struct7130_Entry D_807459FC[];
+
+s16 func_806531B8(f32, f32, f32, s32);
+void func_80602A94(s32, f32);
+#ifdef NON_MATCHING
+void func_80602498(void) {
+    u8 i;
+    s16 count;
+    s16 v0;
+    Aud7130A2_Struct7130_Entry *entry;
+
+    D_80745650 = 1;
+    if (D_80745654 != 0) {
+        if (D_80770DD8[1] == 0xFF) {
+            D_80770DD8[1] = 0;
+        }
+        return;
+    }
+
+    count = 29;
+    v0 = func_806531B8(D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, 0);
+
+    i = 0; do {
+        entry = &D_807459FC[i];
+        if (D_8076A0A8 == entry->unk0 && v0 == entry->unk2) {
+            D_80770DC9 = entry->unk8;
+            func_80602A94(entry->unk4, 1.0f);
+            if (entry->unk6 != 0) {
+                count = entry->unk6;
+                D_80770DD8[1] = count;
+            }
+            return;
+        }
+    } while (++i < count);
+
+    D_80770DD8[1] = 0xFF;
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80602498.s")
+#endif
 void func_80602498(void);
 void func_806025AC(u8 arg0, u8 arg1, u8 arg2) {
     func_80602498();
@@ -136,13 +202,42 @@ void func_80602DC4(s32 arg0, f32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80602E6C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80603340.s")
+f32 func_80602E6C(f32, f32, f32, u8, u8, f32);
+extern f32 D_80770DDC;
+extern f32 D_80770DE0;
+extern f32 D_80770DE8;
+extern f32 D_80770DEC;
+extern f32 D_80770DF0;
+extern f32 D_80770DF4;
+
+f32 func_80603340(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, f32 arg5)
+{
+    f32 ret;
+    f32 temp;
+
+    ret = func_80602E6C(arg0, arg1, arg2, arg3, arg4, arg5);
+    if (ret < 10.0f) {
+        return 0.0f;
+    }
+
+    temp = (f32)((f64)D_80770DDC * 0.00787401574803149595);
+    D_80770DE8 += ret * temp;
+    D_80770DEC += ret * (1.0f - temp);
+
+    if (D_80770DE0 > 0.0f) {
+        D_80770DF0 += ret * D_80770DE0;
+    }
+    if (D_80770DE0 < 0.0f) {
+        D_80770DF4 -= ret * D_80770DE0;
+    }
+
+    return ret;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80603450.s")
 
 extern u8 D_80745838;
 extern ALCSPlayer *D_8076BF24;
-extern s32 D_8076A0A8;
 
 void func_80602CE0(s16, s32, u8);
 
@@ -427,8 +522,6 @@ void n_alSndpSetSound(void);
 
 extern u8 D_80750190;
 extern u8 D_8077058C[];
-extern u8 D_80745650;
-extern u8 D_80770DC9;
 extern u8 D_80770DD9;
 extern u8 D_80770770[];
 
