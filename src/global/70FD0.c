@@ -376,7 +376,23 @@ void func_8066E990(Actor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E9EC.s")
+f32 func_8066E9EC(Actor *arg0, s32 arg1, f32 arg2) {
+    ActorSub140 *sub = arg0->unk140;
+    ModelNode *node;
+
+    arg1--;
+    node = sub->unk8C;
+    while (arg1-- && node != NULL) {
+        node = node->next;
+    }
+    if (node != NULL) {
+        if (arg2 != -1.0f) {
+            node->unkC = arg2;
+        }
+        return node->unkC;
+    }
+    return -1.0f;
+}
 
 void func_8066EA64(Actor *arg0, s32 arg1) {
     ModelNode *node = func_8066EAEC(arg0, arg1);
@@ -799,7 +815,7 @@ extern u8 D_807FB548;
 extern u8 D_807FB61C;
 
 s32 func_806730A4(s32, s32, s32, s32);
-void func_80671880(M70E_Actor *, s32);
+void func_80671880();
 s32 func_806734E4();
 void func_80671260(M70E_Actor *);
 s32 func_806717FC(M70E_Actor *);
@@ -999,7 +1015,6 @@ ret_32_3:
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671880.s")
-
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671A6C.s")
 
 s32 func_80671C0C(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {

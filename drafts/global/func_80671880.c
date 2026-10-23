@@ -1,4 +1,4 @@
-// func_80671880 (src/global/70FD0.c): Closest diff: only 4 insns (s5 vs s6 swapped: li, lw, bne, addu). 121/125 insns match exactly, perfect stack 0xC0 and all stack offsets.
+// func_80671880 (src/global/70FD0.c): 4 insns off (s5 vs s6 swapped: li, lw, bne, addu). 121/125 match 100%, perfect stack 0xC0 and all stack offsets.
 #include "common.h"
 #include "actor.h"
 
@@ -377,7 +377,23 @@ void func_8066E990(Actor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E9EC.s")
+f32 func_8066E9EC(Actor *arg0, s32 arg1, f32 arg2) {
+    ActorSub140 *sub = arg0->unk140;
+    ModelNode *node;
+
+    arg1--;
+    node = sub->unk8C;
+    while (arg1-- && node != NULL) {
+        node = node->next;
+    }
+    if (node != NULL) {
+        if (arg2 != -1.0f) {
+            node->unkC = arg2;
+        }
+        return node->unkC;
+    }
+    return -1.0f;
+}
 
 void func_8066EA64(Actor *arg0, s32 arg1) {
     ModelNode *node = func_8066EAEC(arg0, arg1);
@@ -999,95 +1015,7 @@ ret_32_3:
     return 0x32;
 }
 
-typedef struct M70M_Node {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    s32 unk10;
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    u8 pad24[4];
-    struct M70M_Node *next;
-} M70M_Node;
-
-typedef struct M70M_SubActor {
-    u8 pad0[0x70];
-    void *unk70;
-    s32 unk74[2];
-    s32 unk7C;
-    s32 unk80;
-    u8 pad84[4];
-    s32 unk88;
-    M70M_Node *unk8C;
-} M70M_SubActor;
-
-typedef struct M70M_Actor {
-    u8 pad0[4];
-    ActorSub4 *unk4;
-    u8 pad8[0x64 - 0x8];
-    u32 unk64;
-    u8 pad68[0x120 - 0x68];
-    f32 unk120;
-    u8 pad124[0x140 - 0x124];
-    M70M_SubActor *unk140;
-} M70M_Actor;
-
-extern u8 D_807444FC;
-
-void func_80671880(arg0, arg1)
-M70M_Actor *arg0;
-u8 arg1;
-{
-    M70M_SubActor *sub;
-    f32 var_fs1;
-    f32 spB4;
-    f32 spB0;
-    f32 spAC;
-    f32 sp6C[4][4];
-    M70M_Node *node;
-    u8 val;
-    s32 minus_one;
-    Mtx *base;
-
-    var_fs1 = 0.15f;
-    sub = arg0->unk140;
-    if (arg1 || sub->unk7C != sub->unk80) {
-        minus_one = -1;
-        if (arg0->unk4 != NULL) {
-            var_fs1 = arg0->unk4->unk38;
-        }
-        if (arg0->unk64 & 0x800) {
-            var_fs1 = arg0->unk120;
-        }
-        if (D_8076A064 == sub->unk88) {
-            val = D_807444FC;
-        } else {
-            val = D_807444FC ^ 1;
-        }
-        node = sub->unk8C;
-        base = sub->unk74[val];
-        if (node != NULL) {
-            do {
-                if (node->unk20 == minus_one) {
-                    memcpy(sp6C, sub->unk70, 0x40);
-                    guMtxXFMF(sp6C, node->unk0, node->unk4, node->unk8, &spB4, &spB0, &spAC);
-                } else {
-                    guMtxXFML(&base[(u32)node->unk20 >> 6], node->unk0, node->unk4, node->unk8, &spB4, &spB0, &spAC);
-                }
-                node->unk10 = (s32)(spB4 * 8.0f);
-                node->unk14 = (s32)(spB0 * 8.0f);
-                node->unk18 = (s32)(spAC * 8.0f);
-                node->unk1C = (s32)(node->unkC * var_fs1 * 8.0f);
-                node = node->next;
-            } while (node != NULL);
-        }
-        sub->unk7C = sub->unk80;
-    }
-}
-
+#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671880.s")
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671A6C.s")
 
 s32 func_80671C0C(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
