@@ -1,7 +1,7 @@
-// func_80653DF0 (src/global/55B20.c): stage 6: frame 0x30 exact; tag var makes first temp v0 and s2=0xFD (zero+dead if(zero) needed for ranking). Remaining: bnel operand order (target t7,s2 vs built s2,t7), second load dest v0 + move a1,v0 (built lw a1), bnez to p+=8 block vs bnezl to loop test
+// func_80653DF0 (src/global/55B20.c): stage6: prologue moves s0=a0 order (sunk after sw a2), bnel operand order t7,s2 vs s2,t7, lw v0+move a1 vs lw a1, bnez-to-increment vs bnezl-to-test. permuter 400s no zero
 extern s32 func_8066B0F8(s32, s32, s32, s32);
 
-void *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
+u8 *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
     s32 count;
     u8 *p;
     s32 temp_v0;

@@ -603,7 +603,67 @@ void func_80652B04(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652B04.s")
 #endif
 
+#ifdef NON_MATCHING
+#define R3bEFF(o) ((M55P3EffectBuf *)((u8 *)D_807F6C18 + (o)))
+
+typedef struct M55P3Node {
+    /* 0x00 */ u8 pad0[0x14];
+    /* 0x14 */ struct M55P3Node *unk14;
+    /* 0x18 */ u8 pad18[6];
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 pad20[4];
+    /* 0x24 */ u8 unk24;
+} M55P3Node;
+
+extern s32 func_80668E9C(s32, s16, f32, f32, f32, s32);
+
+s32 func_80652BC8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+    s32 result;
+    s32 i;
+    s16 x;
+    s16 y;
+    u8 mode;
+    void *ptr;
+    M55P3Node *node;
+
+    result = 0;
+    mode = func_80630324(1, 0);
+    i = 0;
+    if (D_807F6C28 > 0) {
+        x = (s16)(s32)(arg1 * 6.0f);
+        node = ptr;
+        do {
+            if ((x >= R3bEFF(i * 0x1C8)->unk80 - 0x32) &&
+                ((y = (s16)(s32)(arg2 * 6.0f)) >= R3bEFF(i * 0x1C8)->unk82 - 0x32) &&
+                (R3bEFF(i * 0x1C8)->unk84 + 0x32 >= x) &&
+                (R3bEFF(i * 0x1C8)->unk86 + 0x32 >= y)) {
+                switch (mode) {
+                case 0:
+                    node = (M55P3Node *)R3bEFF(i * 0x1C8)->unk14;
+                    break;
+                case 1:
+                    node = (M55P3Node *)R3bEFF(i * 0x1C8)->unk1C;
+                    break;
+                }
+                if (node != NULL) {
+                    do {
+                        if (node->unk24 == 1) {
+                            result = (result | func_80668E9C(arg0, node->unk1E, arg1, arg2, arg3, arg4)) & 0xFF;
+                        }
+                        node = node->unk14;
+                    } while (node != NULL);
+                }
+            }
+            i++;
+        } while (i < D_807F6C28);
+        ptr = node;
+    }
+    return result;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652BC8.s")
+#endif
 
 #ifdef NON_MATCHING
 s32 func_80652DB4(f32 arg0, f32 arg1, f32 arg2) {
@@ -1761,7 +1821,32 @@ void func_80657974(s32 arg0, f32 arg1, f32 arg2, f32 arg3, M55P5GridDst *arg4) {
     }
 }
 
+typedef struct R3bXform {
+    /* 0x00 */ s64 unk0;
+    /* 0x08 */ s64 unk8;
+    /* 0x10 */ s64 unk10;
+    /* 0x18 */ s64 unk18;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ f32 unk24;
+    /* 0x28 */ u8 pad28[8];
+} R3bXform;
+
+#define R3bX ((R3bXform *)D_807F6C24)
+
+#ifdef NON_MATCHING
+void func_80657CB0(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
+    f32 t;
+    f32 a = (f32)(-R3bX[arg0].unk18);
+
+    t = (a - ((f32)R3bX[arg0].unk10 * arg3 + ((f32)R3bX[arg0].unk0 * arg1 + (f32)R3bX[arg0].unk8 * arg2))) / R3bX[arg0].unk24;
+    *arg4 = (f32)R3bX[arg0].unk0 * t + arg1;
+    *arg5 = (f32)R3bX[arg0].unk8 * t + arg2;
+    *arg6 = (f32)R3bX[arg0].unk10 * t + arg3;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657CB0.s")
+#endif
 
 void func_80657E24(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 *arg8, s32 *arg9, s32 *arg10, s32 *arg11) {
     if ((arg0 == arg2) || (arg1 == arg3)) {
@@ -1804,9 +1889,81 @@ s32 func_80657F14(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658000.s")
+s32 func_80658000(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4) {
+    f32 v;
+
+    v = ((f32)R3bX[arg0].unk18 + ((f32)R3bX[arg0].unk0 * arg1 + (f32)R3bX[arg0].unk8 * arg2 + (f32)R3bX[arg0].unk10 * arg3)) / R3bX[arg0].unk20;
+    if (v < 0.0) {
+        v = 0.0 - v;
+    }
+    return (v <= (f32)arg4) & 0xFF;
+}
+
+#ifdef NON_MATCHING
+extern f32 D_807F6C88;
+extern f32 D_807F6C8C;
+extern f32 D_807F6C90;
+extern f32 D_807F6C94;
+extern f32 D_807F6C98;
+extern f32 D_807F6C9C;
+extern f32 D_807F6CA0;
+extern f32 D_807F6CA4;
+extern f32 D_807F6CA8;
+extern f32 D_807F6CAC;
+extern f32 D_807F6CB0;
+extern f32 D_807F6CB4;
+extern f32 D_807F6E68[];
+extern f32 D_807F6F58[];
+extern f32 D_807F6D78[];
+
+void func_806582F8(f32 *, f32 *, s32, s32 *, s32);
+
+s32 func_80658134(arg0, arg1, arg2, arg3)
+s32 arg0;
+s32 arg1;
+s32 arg2;
+s32 arg3;
+{
+    s32 n1 = 0;
+    s32 n2 = 0;
+    D_807F6C88 = D_807F6C14[arg0].unk0[0];
+    D_807F6C8C = D_807F6C14[arg0].unk10[0];
+    D_807F6C90 = D_807F6C14[arg0].unk20[0];
+    D_807F6C94 = D_807F6C14[arg0].unk0[1];
+    D_807F6C98 = D_807F6C14[arg0].unk10[1];
+    D_807F6C9C = D_807F6C14[arg0].unk20[1];
+    D_807F6CA0 = D_807F6C14[arg0].unk0[2];
+    D_807F6CA4 = D_807F6C14[arg0].unk10[2];
+    D_807F6CA8 = D_807F6C14[arg0].unk20[2];
+    D_807F6CAC = D_807F6C14[arg0].unk0[3];
+    D_807F6CB0 = D_807F6C14[arg0].unk10[3];
+    D_807F6CB4 = D_807F6C14[arg0].unk20[3];
+    func_806582F8(&D_807F6C88, D_807F6E68, 4, &n2, 0);
+    if (n2 == 0) {
+        return 0;
+    }
+    func_806582F8(D_807F6E68, D_807F6F58, n2, &n1, 1);
+    if (n1 == 0) {
+        return 0;
+    }
+    func_806582F8(D_807F6F58, D_807F6E68, n1, &n2, 2);
+    if (n2 == 0) {
+        return 0;
+    }
+    func_806582F8(D_807F6E68, D_807F6F58, n2, &n1, 3);
+    if (n1 == 0) {
+        return 0;
+    }
+    func_806582F8(D_807F6F58, D_807F6D78, n1, &n2, 4);
+    if (n2 < 3) {
+        n2 = 0;
+    }
+    return n2;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658134.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806582F8.s")
 
