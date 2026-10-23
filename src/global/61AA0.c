@@ -7,9 +7,69 @@ void func_8065CDA0(s8 arg0) {
     D_807F7F00 = arg0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/61AA0/func_8065CDB0.s")
+extern Gfx D_80748310[6][2];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/61AA0/func_8065CE4C.s")
+void func_8065CDB0(Gfx *arg0, Gfx *arg1) {
+    while (arg0 != arg1) {
+        int found = 0;
+        int i = 0;
+
+        for (; i < 6 && !found; ) {
+            if (arg0->words.w0 == D_80748310[i][0].words.w0 && arg0->words.w1 == D_80748310[i][0].words.w1) {
+                found = 1;
+            } else {
+                i++;
+            }
+        }
+        if (found) {
+            gSPDisplayList(arg0++, 0x06000000 + i * 0x10);
+        } else {
+            arg0++;
+        }
+    }
+}
+
+typedef struct {
+    u8 pad0[0x21C];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad228[0x27C - 0x228];
+    f32 unk27C;
+    u8 pad280[0x2F0 - 0x280];
+} R1A_PlayerStruct;
+extern R1A_PlayerStruct *D_807FC924;
+extern u8 D_807FC929;
+extern s32 D_8076A0A8;
+f32 func_8065CFB8(s16, f32);
+f32 func_8065D0FC(f32);
+#define R2A_SQ(x) ((x) * (x))
+
+void func_8065CE4C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, s16 *arg5) {
+    s32 pad;
+    f32 dist;
+    f32 fv1;
+
+    dist = sqrtf(R2A_SQ(arg0 - D_807FC924[D_807FC929].x) + R2A_SQ(arg1 - D_807FC924[D_807FC929].y) + R2A_SQ(arg2 - D_807FC924[D_807FC929].z));
+    if (D_8076A0A8 == 0x26) {
+        arg3 = func_8065CFB8(arg4, arg3);
+        if (arg3 < dist) {
+            *arg5 = 0;
+            return;
+        }
+    }
+    arg0 = func_8065D0FC(arg3);
+    fv1 = (arg0 * 3.0f) / (f32)4;
+    if (dist < fv1) {
+        *arg5 = 0xFF;
+        return;
+    }
+    *arg5 = (s32)(((dist - fv1) / (arg0 - fv1)) * 255.0f);
+    if (*arg5 >= 0x100) {
+        *arg5 = 0xFF;
+    }
+    *arg5 = 0xFF - *arg5;
+}
 
 extern f32 D_807F6940;
 
@@ -20,15 +80,23 @@ f32 func_8065CFB8(s16 arg0, f32 arg1) {
     return arg1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/61AA0/func_8065D008.s")
+extern Gfx D_80748370[6][2];
+extern Gfx D_807483D0[6][2];
 
-typedef struct {
-    u8 pad0[0x27C];
-    f32 unk27C;
-    u8 pad280[0x2F0 - 0x280];
-} R1A_PlayerStruct;
-extern R1A_PlayerStruct *D_807FC924;
-extern u8 D_807FC929;
+Gfx *func_8065D008(Gfx *gdl, s16 arg1, u8 arg2) {
+    if (arg1 == 0xFF) {
+        if ((u8)D_807F7F00 != 0 || arg2) {
+            gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748310));
+        } else {
+            gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748370));
+        }
+    } else {
+        gDPSetFogColor(gdl++, 0, 0, 0, arg1);
+        gSPSegment(gdl++, 6, osVirtualToPhysical(&D_807483D0));
+    }
+    return gdl;
+}
+
 extern f32 D_807F5FDC;
 extern f32 D_807F5FE0;
 
@@ -76,7 +144,6 @@ void func_8065D964(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/61AA0/func_8065E040.s")
 
-extern s32 D_8076A0A8;
 
 s32 func_8065E0CC(void) {
     if ((D_8076A0A8 == 6) || (D_8076A0A8 == 8) || (D_8076A0A8 == 0x37) || (D_8076A0A8 == 0x53) || (D_8076A0A8 == 0x6A) || (D_8076A0A8 == 0xC4) || (D_8076A0A8 == 0xC5)) {
