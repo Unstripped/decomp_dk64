@@ -227,7 +227,12 @@ Before the final yield:
   came out without the file's GLOBAL_ASM functions (merge printed `FAILED: Relocations
   mismatch`, `make` then reused it and failed to link with undefined references to every
   asm function of the file). `touch src/<seg>/<file>.c` and rebuild before reading anything
-  into it. Never re-run `merge` on an already-merged `src` file: `git checkout` it first.
+  into it. `merge` starts from the current `src` on purpose so uncommitted merges and inline
+  fixes survive, and `merge src/<seg>/<file>.c` with no copies re-prunes and re-checks after
+  a manual conflict fix: never re-merge the same copy a second time, and never `git checkout`
+  the file to retry. To retry a failed merge, restore the pre-merge state you verified
+  (a `cp` you made before merging, or HEAD only when `git diff` shows that file has no
+  uncommitted work).
 - A one-agent-per-chunk split of one file (four agents on `63EC0`) produced four type sets
   for the same globals, and one agent still put its block at the top of the file: two unify
   passes. Once unified, name the unified types in every later task's `context` (agents then
