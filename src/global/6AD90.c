@@ -281,7 +281,7 @@ typedef struct R1C_Entry_94C0 {
 extern R1C_Entry_94C0 D_807F94C0[];
 extern s16 D_807F94A8;
 s32 func_8066893C();
-void func_806689F0(s32, R2C_TriangleS *, s32);
+void func_806689F0();
 
 void func_806685E0(R2C_TriangleS *arg0, f32 arg1) {
     if (D_807F9510 != 10) {
@@ -391,6 +391,22 @@ s32 func_8066893C(R1C_TriangleS *arg0) {
     return 0;
 }
 
+typedef struct R5Q_TriangleS {
+    s16 x[3];
+    s16 y[3];
+    s16 z[3];
+    s16 unk12;
+    u8 unk14;
+} R5Q_TriangleS;
+
+typedef struct R5Q_Cross3D {
+    f32 cross[3];
+    f32 v0[3];
+    f32 v1[3];
+} R5Q_Cross3D;
+
+void func_80666AF8(s32, f32, f32, f32, u8, u8, s32);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806689F0.s")
 
 s32 func_80668B28(R1C_TriangleS *arg0, s32 arg1, s32 arg2) {
@@ -451,7 +467,7 @@ typedef struct R1C_TriangleF {
 } R1C_TriangleF;
 
 s32 func_80669930(R1C_TriangleF *);
-void func_80669830(s32, R1C_TriangleF *, s32);
+void func_80669830();
 
 void func_80669588(R1C_TriangleF *arg0, f32 arg1) {
     if (D_807F9510 != 10) {
@@ -566,6 +582,14 @@ R3Q_Node_96A0 *arg2;
         } while (arg2 != NULL);
     }
 }
+
+typedef struct R5Q_TriangleF {
+    f32 x[3];
+    f32 y[3];
+    f32 z[3];
+    u8 unk24;
+} R5Q_TriangleF;
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80669830.s")
 
@@ -721,7 +745,7 @@ extern s32 *D_807F95A8[];
 extern u8 D_80748E18[];
 extern s32 *D_807FB1A0[];
 s32 func_8066AC10();
-void func_8066ACA4(s32, void *, s32, void *);
+void func_8066ACA4();
 typedef struct {
     void *unk0;
     void *unk4;
@@ -748,7 +772,45 @@ void func_8066A584(void *arg0, f32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066A75C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066A834.s")
+typedef struct R5Q_TriangleAC10 {
+    u8 pad0[0x24];
+    R1C_TriangleF tri;
+} R5Q_TriangleAC10;
+
+s32 func_8066A834(R5Q_TriangleAC10 *arg0, f32 arg1, f32 arg2) {
+    s32 pad;
+    f32 min_z;
+    f32 max_x;
+    f32 x0;
+    f32 x1;
+    f32 min_x;
+    f32 x2;
+    f32 z0;
+    f32 z1;
+    f32 z2;
+    f32 max_z;
+
+    min_x = ((x0 = arg0->tri.x[0]) < (x1 = arg0->tri.x[1])) ? x0 : x1;
+    x2 = arg0->tri.x[2];
+    min_x = (min_x < x2) ? min_x : x2;
+
+    z0 = arg0->tri.z[0];
+    z1 = arg0->tri.z[1];
+    min_z = (z0 < z1) ? z0 : z1;
+    z2 = arg0->tri.z[2];
+    min_z = (min_z < z2) ? min_z : z2;
+
+    max_x = (x1 < x0) ? x0 : x1;
+    max_x = (x2 < max_x) ? max_x : x2;
+
+    max_z = (z1 < z0) ? z0 : z1;
+    max_z = (z2 < max_z) ? max_z : z2;
+
+    if ((arg1 < min_x) || (max_x < arg1) || (arg2 < min_z) || (max_z < arg2)) {
+        return 0;
+    }
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066A988.s")
 
@@ -832,7 +894,6 @@ void func_8066AEE4(void *arg0, void *arg1) {
 extern R1D_StructA8A0 D_807FA8A0[];
 extern s8 D_80746834;
 extern OSMesgQueue D_807656D0;
-extern s32 D_807F9680;
 
 void func_8066AF40(void) {
     s32 i;
@@ -954,7 +1015,6 @@ s32 func_8066B75C(R1ENode *node) {
     return func_8066B75C(node->right) + count + 1;
 }
 
-extern void *D_807F9628[];
 u32 func_8066C2B4(u32);
 void func_8066B7F4();
 
@@ -1040,8 +1100,6 @@ typedef struct R2EQueueItem {
     u8 unkA;
 } R2EQueueItem;
 
-extern u8 D_807FB220;
-extern u8 D_807FB221;
 extern R2EQueueItem D_807FB228[];
 
 void func_8066BA2C(s32 arg0, u8 *arg1, u16 *arg2, s32 *arg3) {

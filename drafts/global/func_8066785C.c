@@ -1,4 +1,4 @@
-// func_8066785C (src/global/6AD90.c): diff 1836 (new, normal vector and plane equation math recovered, frame 0x20 exact)
+// func_8066785C (src/global/6AD90.c): plane-height from s16 triangle normal; frame 0x20 exact
 #include "common.h"
 #include "actor.h"
 
@@ -20,6 +20,5 @@ f32 func_8066785C(R3Q_TriangleS_785C *arg0, f32 arg1, f32 arg2) {
     f64 nz = (dx01 * dy02) - (dy01 * dx02);
     f64 d = (nx * arg0->x[1]) + (ny * arg0->y[1]) + (nz * arg0->z[1]);
     f64 val = ((nx * arg1) + (ny * -1000.0) + (nz * arg2) - d) / (ny * 2000.0);
-
     return (2000.0 * (0.0 - val)) - 1000.0;
 }

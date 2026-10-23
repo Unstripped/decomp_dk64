@@ -1,4 +1,4 @@
-// func_8066A64C (src/global/6AD90.c): near-miss: 68 insns, branch delay-slot choice addiu a0,sp,0x78 vs li t5,1 shifts subsequent regalloc
+// func_8066A64C (src/global/6AD90.c): near-miss: 68 insns, delay-slot choice addiu a0,sp,0x78 vs li t5,1 shifts subsequent regalloc
 #include "common.h"
 #include "actor.h"
 
@@ -18,9 +18,9 @@ typedef struct {
     u32 unk48;
     u32 unk4C;
     u32 unk50;
-} R2D_StructA64C;
+} R5Q_StructA64C;
 
-void func_8066A64C(s32 arg0, Actor *arg1, R2D_StructA64C *arg2, f32 arg3, f32 arg4, f32 arg5) {
+void func_8066A64C(s32 arg0, Actor *arg1, R5Q_StructA64C *arg2, f32 arg3, f32 arg4, f32 arg5) {
     float sp78[4][4];
     float sp38[4][4];
     ActorSub140 *sub;
