@@ -1,4 +1,4 @@
-// func_80697CEC (src/global/9BF30.c): stage 6: 267 vs 269 instrs; only 3 scheduling diffs + trailing nop, pervasive regalloc differs; frame now matches 0x78
+// func_80697CEC (src/global/9BF30.c): stage 6: 269/269 instrs, starts 0xabc and matches exactly except 4 rodata %lo addends and a 2-instruction delay-slot order (addiu vs move s1) in the D_807FBB85 preheader; struct-copy M9B_Triple for D_807502C0 was the key
 typedef struct M9B_Config124 {
     f32 unk0;
     f32 unk4;
@@ -6,6 +6,12 @@ typedef struct M9B_Config124 {
     f32 unkC;
     f32 unk10;
 } M9B_Config124;
+
+typedef struct M9B_Triple {
+    void *unk0;
+    void *unk4;
+    void *unk8;
+} M9B_Triple;
 
 typedef struct M9B_State2 {
     s32 unk0;
@@ -44,6 +50,7 @@ typedef struct M9B_ProjectileActor {
 } M9B_ProjectileActor;
 
 extern void *D_807502C0[];
+extern Actor *D_807FBB40;
 extern u8 D_8071FBA0;
 extern u32 D_8076A068;
 extern u8 D_807FBB85;
@@ -72,14 +79,12 @@ void func_8071ABDC(void);
 
 void func_80697CEC(void) {
     M9B_State2 *sub;
-    void *sp68[4];
+    M9B_Triple sp68;
     s16 var_s1;
 
     sub = ((M9B_ProjectileActor *)D_807FBB40)->unk174;
     if (!(G_ACTOR->unk60 & 0x10)) {
-        sp68[1] = D_807502C0[0];
-        sp68[2] = D_807502C0[1];
-        sp68[3] = D_807502C0[2];
+        sp68 = *(M9B_Triple *)D_807502C0;
         G_ACTOR->unk6A &= (G_ACTOR->unk6E = -2);
         G_ACTOR->unkEE = (s16)((G_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
         G_ACTOR->unkB8 = G_ACTOR->unk124->unk4;
@@ -101,9 +106,9 @@ void func_80697CEC(void) {
         if (sub->unk13 == 3) {
             func_8071498C(func_8071F758);
         }
-        func_80714C08(sp68[sub->unk13], G_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
-        sub->unk12 = 0;
+        func_80714C08(((void **)&sp68)[sub->unk13 - 1], G_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
         sub->unk0 = D_8076A068;
+        sub->unk12 = 0;
         G_ACTOR->unk60 |= 0x80000;
         G_ACTOR->unk155 = sub->unk13;
     }
@@ -115,8 +120,8 @@ void func_80697CEC(void) {
         if (sub->unk13 == 3) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0x14);
         }
-        var_s1 = 0;
         if (D_807FBB85 == 0) {
+            var_s1 = 0;
             do {
                 func_807149B8(1);
                 func_80714950(var_s1 + 0xB000000);

@@ -1,12 +1,22 @@
 #include "common.h"
 #include "actor.h"
 
+void func_80698120(s32);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9CE20/func_80698120.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9CE20/func_80698FEC.s")
+void func_80698FEC(void) {
+    func_80698120(0xE);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9CE20/func_8069900C.s")
+void func_8069900C(void) {
+    func_80698120(0xB);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9CE20/func_8069902C.s")
+void func_8069902C(void) {
+    func_80698120(0xB);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9CE20/func_8069904C.s")
+void func_8069904C(void) {
+    func_80698120(0xE);
+}
