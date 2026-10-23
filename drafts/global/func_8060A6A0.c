@@ -1,4 +1,4 @@
-// func_8060A6A0 (src/global/7130.c): Stage 5, blocked on alCSPSetChlPan prototype mismatch (jal vs jalr)
+// func_8060A6A0 (src/global/7130.c): Stage 5 (direct alCSPSetChlPan restored, jalr removed, frame 0x20 matches, blocked on uopt sinking pan/vol into branch)
 #include "common.h"
 
 extern u8 D_8077058E;
@@ -18,9 +18,9 @@ void func_8060A6A0(s32 arg0, u8 arg1, f32 arg2) {
     vol = ((var_fv0 * 0.35) / 255.0) + 1.0;
     if (arg0 != 0) {
         if (D_80745658[D_80770560[arg0]] & 1) {
-            ((void (*)(ALCSPlayer *, f32, f32))alCSPSetChlPan)(gSeqPlayers[arg0], pan, vol);
+            alCSPSetChlPan(gSeqPlayers[arg0], pan, vol);
         } else {
-            ((void (*)(ALCSPlayer *, f32, f32))alCSPSetChlPan)(gSeqPlayers[arg0], 0.0f, 1.0f);
+            alCSPSetChlPan(gSeqPlayers[arg0], 0.0f, 1.0f);
         }
     }
     func_806049CC(arg0);

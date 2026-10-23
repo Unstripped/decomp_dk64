@@ -1,4 +1,4 @@
-// func_80602144 (src/global/6710.c): stage 5, score 174, remaining diff stack frame 0x40 vs 0x48 and regalloc
+// func_80602144 (src/global/6710.c): stage 5, score 48: 3 regs (t2/v0, t3/t2, t8/t3) and stack offset 0x44 vs 0x40
 #include "common.h"
 #include "actor.h"
 
@@ -24,7 +24,9 @@ extern u32 D_807452C4;
 extern OSMesgQueue D_807704A8;
 
 s32 func_80602144(u32 addr, s32 len, void *state) {
+    Aud6710_DmaNode *next;
     void *sp44;
+    s32 pad[2];
     Aud6710_DmaNode *node;
     Aud6710_DmaNode *last;
     s32 head;
@@ -40,7 +42,7 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
             if (addr < node->unk8) {
                 break;
             }
-            if (end >= (s32)(addr + len)) {
+            if (end >= (s32)addr + len) {
                 last = node;
                 node->unkC = D_807452C0;
                 return osVirtualToPhysical((u8 *)node->unk10 + (addr - node->unk8));
@@ -55,7 +57,8 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
         return osVirtualToPhysical((void *)head);
     }
 
-    D_80770188.unk8 = node->next;
+    next = node->next;
+    D_80770188.unk8 = next;
     alUnlink((ALLink *)node);
     if (last != NULL) {
         alLink((ALLink *)node, (ALLink *)last);

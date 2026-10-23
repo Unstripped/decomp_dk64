@@ -1,4 +1,4 @@
-// func_80602498 (src/global/7130.c): Stage 5, loop matched, D_80770DD8 address addiu folding diff only
+// func_80602498 (src/global/7130.c): Stage 6, score 25, all insns and schedule matched; diff is t4 vs t5 regalloc in loop counter
 typedef signed short s16;
 typedef signed int s32;
 typedef unsigned char u8;
@@ -49,14 +49,14 @@ void func_80602498(void) {
     count = 29;
     v0 = func_806531B8(D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, 0);
 
-    i = 0;
-    do {
+    i = 0; do {
         entry = &D_807459FC[i];
         if (D_8076A0A8 == entry->unk0 && v0 == entry->unk2) {
             D_80770DC9 = entry->unk8;
             func_80602A94(entry->unk4, 1.0f);
             if (entry->unk6 != 0) {
-                D_80770DD8[1] = entry->unk6;
+                count = entry->unk6;
+                D_80770DD8[1] = count;
             }
             return;
         }
