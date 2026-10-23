@@ -270,7 +270,8 @@ def main():
             pass
 
     if os.path.exists(diff_py) and func_name:
-        cmd = [sys.executable, diff_py, "-o", "-f", built_o, "-F", expected_o, "--no-pager", func_name]
+        # -n: the caller already compiled built_o; asm-differ's own `make` only prints a misleading "Nothing to be done".
+        cmd = [sys.executable, diff_py, "-o", "-n", "-f", built_o, "-F", expected_o, "--no-pager", func_name]
         subprocess.run(cmd)
     else:
         # Fallback to objdump diff
