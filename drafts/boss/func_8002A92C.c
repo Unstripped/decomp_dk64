@@ -1,4 +1,130 @@
 // func_8002A92C (src/boss/6240.c): from .scratch/Boss3F/func_8002A92C_best.c
+typedef struct Boss3F_6240_178 {
+    char pad0[0x12];
+    u16 unk12;
+    u8 unk14;
+    u8 unk15;
+    u8 unk16;
+    char pad17[1];
+    u8 unk18;
+    char pad19[3];
+    s16 unk1C;
+} Boss3F_6240_178;
+typedef struct Boss3F_6240_Sub4_0 {
+    char pad[4];
+    f32 unk4;
+} Boss3F_6240_Sub4_0;
+typedef struct Boss3F_6240_SubActor4 {
+    Boss3F_6240_Sub4_0 *unk0;
+    char pad4[0x64 - 4];
+    u16 unk64;
+} Boss3F_6240_SubActor4;
+typedef struct Boss3F_6240_Actor {
+    char pad0[4];
+    Boss3F_6240_SubActor4 *unk4;
+    char pad8[0x58];
+    s32 unk60;
+    char pad64[0x6E - 0x64];
+    s16 unk6E;
+    char pad70[0xC];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    char pad88[0x1C];
+    f32 unkA4;
+    char padA8[0x10];
+    f32 unkB8;
+    char padBC[4];
+    f32 unkC0;
+    f32 unkC4;
+    char padC8[4];
+    u16 unkCC;
+    char padCE[0xE6 - 0xCE];
+    s16 unkE6;
+    char padE8[0x132 - 0xE8];
+    s16 unk132;
+    s16 unk134;
+    char pad136[0xE];
+    u8 unk144;
+    char pad145[0xF];
+    u8 unk154;
+    u8 unk155;
+    char pad156[0x16A - 0x156];
+    u8 unk16A;
+    u8 unk16B;
+    u8 unk16C;
+    char pad16D[0xB];
+    Boss3F_6240_178 *unk178;
+    BossC_6240_17C *unk17C;
+} Boss3F_6240_Actor;
+typedef struct Boss3F_6240_Sub1FC {
+    char pad[0x5C];
+    u8 unk5C;
+} Boss3F_6240_Sub1FC;
+typedef struct Boss3F_6240_BB70 {
+    char pad0[0x15];
+    u8 unk15;
+    char pad16[0x1FC - 0x16];
+    Boss3F_6240_Sub1FC *unk1FC;
+    u8 unk200;
+} Boss3F_6240_BB70;
+typedef struct Boss3F_6240_C924 {
+    char pad0[0x2C0];
+    s32 unk2C0;
+} Boss3F_6240_C924;
+typedef struct Boss3F_6240_D580 {
+    char pad0[0xD4];
+    s16 unkD4;
+    char padD6[0x1D8 - 0xD6];
+    f32 unk1D8;
+} Boss3F_6240_D580;
+typedef struct Boss3F_6240_DC90 {
+    char pad0[0xA];
+    s16 unkA;
+    s16 unkC;
+    s16 unkE;
+    char pad10[6];
+    s16 unk16;
+    char pad18[2];
+    s16 unk1A;
+    char pad1C[9];
+    u8 unk25;
+    char pad26[5];
+    s16 unk2C;
+} Boss3F_6240_DC90;
+typedef struct Boss3F_6240_Sub4 {
+    char pad[0x10];
+    s16 unk10;
+} Boss3F_6240_Sub4;
+typedef struct Boss3F_6240_DC94 {
+    char pad0[4];
+    Boss3F_6240_Sub4 **unk4;
+    char pad8[0x74];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+} Boss3F_6240_DC94;
+typedef struct Boss3F_6240_DC98 {
+    char pad0[0x30];
+    f32 unk30;
+    char pad34[0x46 - 0x34];
+    u16 unk46;
+} Boss3F_6240_DC98;
+typedef struct Boss3F_6240_DC9C {
+    char pad0[0xC];
+    s16 unkC;
+} Boss3F_6240_DC9C;
+typedef struct Boss3F_6240_SubA0 {
+    char pad[0xA0];
+    s16 unkA0;
+    s16 unkA2;
+    s16 unkA4;
+} Boss3F_6240_SubA0;
+typedef struct Boss3F_6240_DCA0 {
+    char pad0[0x14];
+    Boss3F_6240_SubA0 *unk14;
+} Boss3F_6240_DCA0;
+
 extern u8 *D_80035A20[];
 extern u8 *D_80035A34[];
 extern u8 D_800362F0[];

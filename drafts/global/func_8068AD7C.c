@@ -1,4 +1,50 @@
 // func_8068AD7C (src/global/8F4B0.c): Closest diff 1255 (0 mnemonic diffs, identical 0x68 stack frame and instruction count; rodata jump tables byte-identical; loop body has single register shift t0..t9 vs a0..t8 due to a0 allocator choice)
+typedef struct {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 unk1[3];
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ u8 unk18;
+    /* 0x19 */ u8 unk19;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20;
+    /* 0x21 */ u8 unk21;
+} R2F4B_Actor174;
+typedef struct {
+    char pad[0x100];
+    u32 unk100;
+    char pad104[0x1F0 - 0x104];
+    u32 unk1F0;
+} R2F4B_FD580;
+typedef struct {
+    char pad[0x1F0];
+    u32 unk1F0;
+} R2F4B_Actor174_Player;
+typedef struct {
+    char pad[0x4];
+    Actor *unk4;
+} R2F4B_FC924;
+typedef struct {
+    char pad[0xC4];
+    f32 unkC4;
+} R2F4B_Actor_BB48;
+typedef struct {
+    char pad[0x210];
+    f32 unk210;
+    f32 unk214;
+    f32 unk218;
+    char pad21C[0xC];
+    f32 unk228;
+    f32 unk22C;
+    f32 unk230;
+} Act8F4_Struct_C924;
+
 void func_80659620(void *, void *, void *, s32);
 void func_80704AFC(f32, f32, f32);
 void func_8070B308(s32);

@@ -1,4 +1,14 @@
 // func_80694948 (src/global/936B0.c): 2 insns: xori vs addiu in unk154 block; M93D_ACTOR->unk154++ == 2 emits xori then addiu with sb in delay slot but adds move a0, v1
+typedef struct M93D_ActorExtra {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ u8 unk4;
+    /* 0x05 */ u8 pad5[0x13 - 0x05];
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ u8 pad18[4];
+    /* 0x1C */ s32 unk1C;
+} M93D_ActorExtra;
+
 extern u8 D_80720268;
 
 void func_80694948(void) {

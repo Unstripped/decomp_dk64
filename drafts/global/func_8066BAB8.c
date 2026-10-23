@@ -1,4 +1,11 @@
 // func_8066BAB8 (src/global/6AD90.c): 0-insn delta (35/35), home-slot stores match; regalloc around next_tail (/, /)
+typedef struct R2EQueueItem {
+    s32 unk0;
+    s32 unk4;
+    u16 unk8;
+    u8 unkA;
+} R2EQueueItem;
+
 void func_8066BAB8(arg0, arg1, arg2)
 s32 arg0;
 u8 arg1;

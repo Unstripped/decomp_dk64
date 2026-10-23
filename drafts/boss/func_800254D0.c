@@ -1,4 +1,110 @@
 // func_800254D0 (src/boss/0.c): from .scratch/Boss3B/func_800254D0_best.c
+typedef struct Boss3B_178 {
+    u8 pad0[0x12];
+    u16 unk12;
+    u8 unk14;
+    u8 unk15;
+    u8 pad16[2];
+    u8 unk18;
+    u8 unk19;
+} Boss3B_178;
+typedef struct Boss3B_Sp78 {
+    u8 unk0;
+    u8 pad1[0xF];
+    s16 unk10;
+    s16 unk12;
+} Boss3B_Sp78;
+typedef struct Boss3B_Sub4 {
+    u8 pad0[0x10];
+    s16 unk10;
+} Boss3B_Sub4;
+typedef struct Boss3B_Unk4 {
+    Boss3B_Sub4 *unk0;
+    u8 pad4[0x34 - 4];
+    f32 unk34;
+    f32 unk38;
+} Boss3B_Unk4;
+typedef struct Boss3B_Actor {
+    u8 pad0[4];
+    Boss3B_Unk4 *unk4;
+    u8 pad8[0x60 - 8];
+    u32 unk60;
+    u8 pad64[0x6A - 0x64];
+    u16 unk6A;
+    u8 pad6C[4];
+    s16 unk70;
+    s16 unk72;
+    u8 pad74[8];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0xB4 - 0x88];
+    f32 unkB4;
+    f32 unkB8;
+    u8 padBC[4];
+    f32 unkC0;
+    f32 unkC4;
+    f32 unkC8;
+    u8 padCC[0xE6 - 0xCC];
+    s16 unkE6;
+    u8 padE8[0xEE - 0xE8];
+    s16 unkEE;
+    u8 padF0[0x12A - 0xF0];
+    s16 unk12A;
+    u8 pad12C[0x138 - 0x12C];
+    s32 unk138;
+    u8 pad13C[8];
+    u8 unk144;
+    u8 pad145;
+    s16 unk146;
+    u8 pad148[0xC];
+    u8 unk154;
+    u8 unk155;
+    u8 pad156[0x16A - 0x156];
+    u8 unk16A;
+    u8 unk16B;
+    u8 unk16C;
+    u8 pad16D[0x178 - 0x16D];
+    Boss3B_178 *unk178;
+    Boss3B_Sp78 *unk17C;
+} Boss3B_Actor;
+typedef struct Boss3B_DC90 {
+    u8 pad0[0xA];
+    s16 unkA;
+    u8 padC[2];
+    s16 unkE;
+    u8 pad10[0x2C - 0x10];
+    s16 unk2C;
+    s16 unk2E;
+} Boss3B_DC90;
+typedef struct Boss3B_DC94 {
+    u8 pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+} Boss3B_DC94;
+typedef struct Boss3B_DC98 {
+    u8 pad0[0x2C];
+    f32 unk2C;
+    f32 unk30;
+    u8 pad34[4];
+    f32 unk38;
+} Boss3B_DC98;
+typedef struct Boss3B_DCA0_Sub {
+    u8 pad0[0x28];
+    s16 unk28;
+    s16 unk2A;
+    s16 unk2C;
+    u8 pad2E[0x82 - 0x2E];
+    s16 unk82;
+    u8 pad84[2];
+    s16 unk86;
+} Boss3B_DCA0_Sub;
+typedef struct Boss3B_DCA0 {
+    u8 pad0[0x14];
+    Boss3B_DCA0_Sub *unk14;
+} Boss3B_DCA0;
+
 extern Boss3B_Actor *D_807FBB44;
 extern Boss3B_Actor *D_807FBB4C;
 extern u8 D_807FBB70[];

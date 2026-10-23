@@ -1,4 +1,78 @@
 // func_80671528 (src/global/70FD0.c): Plane normal calculation from CollisionBox (points 0,1,2 / 8.0f -> cross product v1 x v2 -> normalize with sqrtf -> write normal to arg1,2,3 -> call func_806744A8). Frame 0xA8 vs expected 0x88 (needs variable merging).
+typedef struct M70E_Node8C {
+    u8 pad0[0x10];
+    s32 unk10;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    u8 pad20[6];
+    u8 unk26;
+    u8 unk27;
+    struct M70E_Node8C *next;
+} M70E_Node8C;
+typedef struct M70E_Node {
+    f32 x;
+    f32 y;
+    f32 z;
+    s32 unkC;
+    s32 unk10;
+    s32 unk14;
+    u32 unk18;
+    struct M70E_Node *next;
+} M70E_Node;
+typedef struct M70E_SubActor {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    u8 pad10[0xC];
+    f32 unk1C;
+    f32 unk20;
+    u8 unk24;
+    u8 pad25[0x74 - 0x25];
+    s32 unk74[2];
+    u8 pad7C[0xC];
+    s32 unk88;
+    M70E_Node8C *unk8C;
+    M70E_Node *unk90;
+} M70E_SubActor;
+typedef struct M70H_Sub174 {
+    u8 pad0[0xE0];
+    f32 unkE0;
+    f32 unkE4;
+    u8 unkE8;
+    u8 padE9[0x1A4 - 0xE9];
+    u8 unk1A4;
+} M70H_Sub174;
+typedef struct M70H_Actor {
+    u8 pad0[0x48];
+    s16 unk48;
+    u8 pad4A[0x58 - 0x4A];
+    s32 unk58;
+    u16 unk5C;
+    u8 pad5E[0x64 - 0x5E];
+    u32 unk64;
+    u8 pad68[0x140 - 0x68];
+    M70E_SubActor *unk140;
+    u8 pad144[0x174 - 0x144];
+    M70H_Sub174 *unk174;
+} M70H_Actor;
+typedef struct M70M_Sub140 {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    u8 pad10[0xB0 - 0x10];
+    s32 unkB0;
+    s32 unkB4;
+} M70M_Sub140;
+typedef struct M70M_Actor60 {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x140 - 0x64];
+    M70M_Sub140 *unk140;
+} M70M_Actor60;
+
 extern CollisionBox *D_807FB5D4;
 
 void func_80671528(arg0, arg1, arg2, arg3, arg4)

@@ -1,4 +1,23 @@
 // func_806672B8 (src/global/6AD90.c): 362/363 insns, frame 0xF8 matches, all saved regs and callers match, ternary matches, 4-byte stack shift on spA0 (0xA4 vs 0xA0)
+typedef struct R4L_SubNode {
+    /* 0x00 */ u8 pad0[0x46];
+    /* 0x46 */ s16 unk46;
+    /* 0x48 */ s16 unk48;
+    /* 0x4A */ s16 unk4A;
+    /* 0x4C */ s16 unk4C;
+    /* 0x4E */ u8 pad4E[0x60 - 0x4E];
+    /* 0x60 */ u8 unk60;
+} R4L_SubNode;
+typedef struct R4L_Node {
+    /* 0x00 */ R4L_SubNode *unk0;
+    /* 0x04 */ u8 pad4[0x2C - 0x04];
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ u8 pad2E[0x4A - 0x2E];
+    /* 0x4A */ u8 unk4A;
+    /* 0x4B */ u8 pad4B[0x50 - 0x4B];
+    /* 0x50 */ struct R4L_Node *next;
+} R4L_Node;
+
 extern R4L_Node *D_807F93C0;
 s32 func_8065F5F0(R4L_Node *);
 f32 func_806608FC(R4L_Node *, s32, s32, s32);

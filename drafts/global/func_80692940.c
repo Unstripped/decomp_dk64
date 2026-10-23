@@ -1,4 +1,13 @@
 // func_80692940 (src/global/936B0.c): 2 insns: v0 vs a0 for condition evaluation, frame 0x50 vs 0x48; all 330 instructions match with inline ternary and 0x48 frame
+typedef struct M93C_ActorExtra {
+    u32 unk0;
+    u8 pad4[0x13 - 4];
+    u8 unk13;
+    f32 unk14;
+    u8 pad18[4];
+    s32 unk1C;
+} M93C_ActorExtra;
+
 extern u8 D_807200A0;
 extern u8 D_8071FB34;
 extern s16 D_80750350;

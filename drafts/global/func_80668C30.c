@@ -1,4 +1,10 @@
 // func_80668C30 (src/global/6AD90.c): pointInTriangle2D_S, stack frame 0xA0 vs 0xC8
+typedef struct R1C_TriangleS {
+    s16 x[3];
+    s16 y[3];
+    s16 z[3];
+} R1C_TriangleS;
+
 s32 func_80668C30(R1C_TriangleS *arg0, f32 arg1, f32 arg2) {
     f64 var_fa0, var_fa1, var_ft4, var_ft5;
     f64 var_fv0, var_fv1, var_fs0;

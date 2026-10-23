@@ -1,4 +1,13 @@
 // func_8066CB88 (src/global/70FD0.c): Closest diff: frame 0x58 matched, loop matched, only unk14 load into s0 vs v0 remaining
+typedef struct M70A_Struct_CB88 {
+    void *unk0;
+    void *unk4;
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    s32 unk14;
+} M70A_Struct_CB88;
+
 extern M70A_Struct_CB88 *D_807FB534;
 extern s32 D_807FB538;
 extern u8 D_807FB549;

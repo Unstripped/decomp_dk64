@@ -1,4 +1,12 @@
 // func_8066C0DC (src/global/6AD90.c): quicksort with Hoare partition, size=20 multu vs shift diff
+typedef struct R1EBufferItem {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ u8 unk10;
+} R1EBufferItem;
+
 void func_8066C0DC(void *arg0, s32 low, s32 high) {
     R1EBufferItem *arr = (R1EBufferItem *)arg0;
     s32 i;

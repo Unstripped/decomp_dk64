@@ -1,4 +1,21 @@
 // func_8066C958 (src/global/70FD0.c): Frame 0x68 vs 0x60 caused by s2 holding &D_807FB549; loop structure and logic matched
+typedef struct M70A_Struct_C958 {
+    s32 unk0;
+    u8 pad4[5];
+    u8 unk9;
+    u8 padA[6];
+    s16 unk10;
+    s16 unk12;
+} M70A_Struct_C958;
+typedef struct M70A_Struct_CB88 {
+    void *unk0;
+    void *unk4;
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    s32 unk14;
+} M70A_Struct_CB88;
+
 extern s32 D_8076A064;
 extern s32 D_8076A0A8;
 extern s32 D_807FB530;

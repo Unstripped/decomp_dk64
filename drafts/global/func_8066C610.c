@@ -1,4 +1,16 @@
 // func_8066C610 (src/global/70FD0.c): Closest diff: logic 100% matched, frame 0xF0 matched, callee-saved float f20 used for 0.0f CSE across guRotateF calls
+typedef struct M70A_Unk24 {
+    u8 pad0[0x60];
+    s32 unk60;
+} M70A_Unk24;
+typedef struct M70A_Struct_C610 {
+    u8 pad0[0x24];
+    M70A_Unk24 *unk24;
+    u8 pad28[0x50];
+    s32 *unk78;
+    u8 pad7C[0x14];
+} M70A_Struct_C610;
+
 extern u8 D_807444FC;
 extern M70A_Struct_C610 *D_807F6000;
 

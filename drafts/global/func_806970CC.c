@@ -1,4 +1,17 @@
 // func_806970CC (src/global/936B0.c): 3 insns: regalloc on unkEE+0x800 (t1, t2 vs v1); v1 matched with v1 = unkEE + 0x800; andi/subu/addu need t3/t6/t7
+typedef struct M93I_Actor70 {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0xEE - 0x64];
+    s16 unkEE;
+    u8 padF0[0xF4 - 0xF0];
+    s16 unkF4;
+    s16 unkF6;
+    u8 padF8[0xFA - 0xF8];
+    s16 unkFA;
+    u8 unkFC;
+} M93I_Actor70;
+
 #define M93I_ACTOR70 ((M93I_Actor70 *)D_807FBB40)
 
 void func_80696A6C(void);
