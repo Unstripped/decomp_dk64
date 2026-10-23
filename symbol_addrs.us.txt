@@ -158,6 +158,7 @@ audioResetAll = 0x80605510; // type:func
 sfxPlayFromActorWithAltitudeCheck = 0x80608528; // type:func
 sfxPlayFromTargetSlot = 0x806085DC; // type:func
 sfxPlayFromActorDirect = 0x8060866C; // type:func
+sfxPlayAtPosition = 0x8060956C; // type:func
 seqLoadAndPlay = 0x8060A1B0; // type:func
 seqUpdateVolume = 0x8060A398; // type:func
 seqSetChannelVolumeScale = 0x8060A4D0; // type:func
@@ -422,7 +423,7 @@ D_80758FE8 = 0x80758FE8; // type:f64 force_migration:True function_owner:func_80
 
 // 7130 late_rodata: unreferenced double after a referenced one
 D_80756F08 = 0x80756F08; // type:f64 size:0x8
-D_80756F10 = 0x80756F10; // type:f64 force_migration:True function_owner:func_8060956C
+D_80756F10 = 0x80756F10; // type:f64 force_migration:True function_owner:sfxPlayAtPosition
 
 // Billboard rendering, effects, particle/target systems and trigger zones (61AA0-684C0)
 renderSetSegment6Override = 0x8065CDA0; // type:func

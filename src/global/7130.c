@@ -1058,10 +1058,10 @@ void sfxPlayFromTargetSlot(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg
     func_806086CC(D_807F6000[arg0].unk0, D_807F6000[arg0].unk4, D_807F6000[arg0].unk8, arg1, arg2, arg3, arg4, arg5, arg6, 0);
 }
 
-void func_8060956C(f32, f32, f32, s16, s32, f32, s32, s32);
+void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);
 
 void sfxPlayFromActorDirect(Actor *arg0, s16 arg1, u8 arg2, f32 arg3, u8 arg4, u8 arg5) {
-    func_8060956C(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, arg5);
+    sfxPlayAtPosition(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, arg5);
 }
 
 extern u8 D_807FC928;
@@ -1265,10 +1265,67 @@ s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80609140.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060956C.s")
+extern s32 D_807457C8;
+f32 sqrtf(f32);
+#pragma intrinsic(sqrtf)
+
+void sfxPlayAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, f32 arg5, u8 arg6, u8 arg7) {
+    s32 dx, dy, dz;
+    s32 vol;
+    f32 pan;
+    u8 reverb;
+    f64 pad;
+
+    reverb = 0;
+    dx = D_807FC924->unk210 - arg0;
+    dy = D_807FC924->unk214 - arg1;
+    dz = D_807FC924->unk218 - arg2;
+    D_80770DE4 = sqrtf((f32)(dx * dx + dy * dy + dz * dz));
+    if (D_80770DE4 < 1.0f) {
+        D_80770DE4 = 1.0f;
+    }
+    vol = (s32)(((f64)((f32)(arg7 * 4000) / sqrtf(D_80770DE4))) - (((f64)(f32)(arg7 * 4000) / 7.74596600000000013) - 32767.0));
+    if (vol >= 0x8000) {
+        vol = 0x7FFF;
+    }
+    vol = (s32)((f64)(arg4 * vol) / 255.0);
+    if (vol >= 0x8000) {
+        vol = 0x7FFF;
+    }
+    if (vol < 1001) {
+        return;
+    }
+    vol = (s32)((f64)(arg4 * vol) / 255.0);
+    if (arg6 != 0) {
+        vol = (s32)((1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg6 / 155.0))) * (f64)vol);
+        arg5 = ((f64)arg5 - ((f64)(u32)arg6 / 255.0)) + (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg6 / 100.0));
+    }
+    pan = mathAngleBetweenPointsRad(D_807FC924->unk210, D_807FC924->unk218, arg0, arg2) - D_807FC924->unk2C4;
+    if (pan < 0.0f) {
+        pan += 6.2831855f;
+    }
+    if (pan > 0.7853982f && (f64)pan < 5.497787296772003) {
+        vol = (s32)((((f64)func_80612D1C(((2.0 * (f64)pan) / 3.0) + 2.617993950843811) * 0.3) + 1.0) * (f64)vol);
+    }
+    pan = (f32)((f64)(1.0f - func_80612D1C(pan)) * 63.5);
+    if (D_80745838 != 0) {
+        reverb = 30;
+    } else if (D_8077058E >= 21) {
+        reverb = (D_8077058E * 100) / 255;
+    }
+    if (D_807457C8 != 0) {
+        n_alSndpDeallocate(D_807457C8);
+    }
+    osSetThreadPri(NULL, 26);
+    if (arg3 < 0x800) {
+        n_alSndpAllocate(D_8076D1F8, arg3, (u16)vol, (u8)pan, arg5, reverb, &D_807457C8);
+    } else {
+        n_alSndpAllocate(D_8076D1FC, arg3 - 0x7FF, (u16)vol, (u8)pan, arg5, reverb, &D_807457C8);
+    }
+    osSetThreadPri(NULL, 10);
+}
 
 #pragma intrinsic(sqrtf)
-f32 sqrtf(f32);
 
 extern u8 D_807FC929;
 
