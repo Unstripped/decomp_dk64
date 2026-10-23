@@ -865,7 +865,103 @@ void func_806944BC(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80695BAC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_806960A4.s")
+extern u8 D_80720340;
+extern u8 D_80720804;
+extern f32 D_80750274;
+s32 func_80611A44(void);
+void func_8071496C(s16);
+
+typedef struct M93G_Actor {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x6A - 0x64];
+    u16 unk6A;
+    u8 pad6C[2];
+    s16 unk6E;
+    u8 pad70[0x7C - 0x70];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0xB8 - 0x88];
+    f32 unkB8;
+    u8 padBC[4];
+    f32 unkC0;
+    u8 padC4[0xEE - 0xC4];
+    s16 unkEE;
+    u8 padF0[0xFA - 0xF0];
+    s16 unkFA;
+    u8 unkFC;
+    u8 padFD[0x124 - 0xFD];
+    M93D_Actor124 *unk124;
+    u8 pad128[0x144 - 0x128];
+    u8 unk144;
+    u8 pad145[0x174 - 0x145];
+    void *unk174;
+} M93G_Actor;
+
+#define M93G_ACTOR ((M93G_Actor *)D_807FBB40)
+
+void func_806960A4(void) {
+    u32 *sp74;
+    f32 temp_fs2;
+    f32 temp_fs3;
+    f32 temp_fs4;
+    f32 temp_fv0;
+    s32 var_s1;
+
+    sp74 = (u32 *)M93G_ACTOR->unk174;
+    if (!(M93G_ACTOR->unk60 & 0x10)) {
+        M93G_ACTOR->unkFA = 0x270F;
+        M93G_ACTOR->unk6E = -2;
+        M93G_ACTOR->unk6A &= -2;
+        M93G_ACTOR->unkEE = (s16)((M93G_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        M93G_ACTOR->unkB8 = M93G_ACTOR->unk124->unk4;
+        M93G_ACTOR->unkC0 = M93G_ACTOR->unk124->unk8;
+        M93G_ACTOR->unk144 = 0x1C;
+        func_8066EB40(D_807FBB40, 110.0f);
+        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 100.0f, -1);
+        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        func_807149FC(-1);
+        func_807149B8(1);
+        func_80714C08(&D_80720804, M93G_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        *sp74 = D_8076A068;
+        M93G_ACTOR->unk60 |= 0x80000;
+    }
+    func_8067ACB4(D_807FBB40);
+    func_806651FC(D_807FBB40);
+    func_80665564(D_807FBB40, 4.0f);
+    M93G_ACTOR->unkC0 += D_80750274;
+    temp_fv0 = (f32)D_807502D0;
+    if (M93G_ACTOR->unkC0 < temp_fv0) {
+        M93G_ACTOR->unkC0 = temp_fv0;
+    }
+    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
+    var_s1 = 0;
+    if ((M93G_ACTOR->unk6A & 1) || ((M93G_ACTOR->unkFC != 0) && ((u32)(D_8076A068 - *sp74) >= 6)) || D_807FBB85 != 0) {
+        do {
+            temp_fs2 = ((f64)((func_80611A44() >> 15) % 8191) / 200.0) - 20.0;
+            temp_fs3 = ((f64)((func_80611A44() >> 15) % 8191) / 200.0) - 20.0;
+            temp_fs4 = ((f64)((func_80611A44() >> 15) % 8191) / 200.0) - 20.0;
+            func_8071496C(var_s1);
+            func_807149B8(1);
+            if (var_s1 == 0) {
+                func_80714950(0x1006E);
+                func_8071498C(func_8071A8B0);
+            } else {
+                func_8071498C(func_80717D4C);
+                func_80714950(-150 - ((func_80611A44() >> 15) % 50));
+            }
+            func_80714CC0(&D_80720340, 1.6f, D_807FBB40->unk7C + temp_fs2, D_807FBB40->unk80 + temp_fs3, D_807FBB40->unk84 + temp_fs4);
+            var_s1 += 2;
+        } while (var_s1 != 16);
+        func_8061F0B0(D_807F5D10, 20, 15);
+        func_80608528(D_807FBB40, 0x3C, 0xFF, 0x7F, 0x1E);
+        actorDespawn(D_807FBB40);
+    }
+    if ((u32)(*sp74 + D_80750344) < D_8076A068) {
+        actorDespawn(D_807FBB40);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80696574.s")
 
@@ -873,4 +969,18 @@ void func_806944BC(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_806970CC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80697184.s")
+extern ActorEntry D_807FB930[];
+extern u16 D_807FBB34;
+void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
+
+void func_80697184(void) {
+    s16 i;
+
+    for (i = 0; i < D_807FBB34; i++) {
+        Actor *actor = D_807FB930[i].actor;
+
+        if (actor->unk5C & 4) {
+            actorAppendCallback(actor, (s32)D_807FBB40, 8, 0, 0, NULL);
+        }
+    }
+}
