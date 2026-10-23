@@ -63,9 +63,16 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
   IMMEDIATELY ABOVE your first function that uses them, never in the top block or another
   agent's range. Never change an existing declaration, with one exception: a prototype
   may become unprototyped (`void f(void);` → `void f();`) if every C caller in the file
-  still matches; say so in your report. Otherwise adapt your code with casts. Prefix new
+  still matches; say so in your report. Otherwise adapt your code with casts on data, never
+  a function-pointer cast at a call site (it emits `jalr` and grows the frame: report the
+  prototype the orchestrator must change instead). If your function calls or is called by
+  a function matched in another agent's range, its declaration must agree with that
+  definition (cfe rejects a K&R `void f();` next to a prototyped `void f(s32, f32)`
+  definition): read the callee/caller first. Prefix new
   type names with your agent name. When you revert a function
   to GLOBAL_ASM, delete the declarations you added for it. Don't reorder or reformat.
+- If your task says your private copy already exists (a relaunched agent), do not
+  re-create it: fdiff it first and continue from it.
 - Skip formatters and linters. NEVER edit `tools/`, `Makefile` or the splat configs.
 
 # Large functions and near-misses

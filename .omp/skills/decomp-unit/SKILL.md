@@ -25,7 +25,7 @@ ok-fine, not here; this skill is the procedure.
 ROADMAP order: overlays smallest-first by `<ovl>_TEXT_SIZE` in `Makefile`, two at a time
 (they are independent); then the listed global subsystems. All nine overlays are C units
 since the boss unit (2026-10-22): next units are global subsystems (the next candidate
-files named at the end of ROADMAP's section 9 bullets, e.g. `9BF30`, `6710`, `63EC0`)
+files named at the end of ROADMAP's section 9 bullets, e.g. `9BF30`, `9CE20`, `54150`)
 or further matching rounds on near-misses listed in
 ROADMAP. A global subsystem is a set of `asm/global/<file>.s` files: find them from what
 the overlays' named functions call (`grep -o 'func_80[67]…'` in their C) and from the
@@ -215,7 +215,9 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    rename the old `func_` names in EVERY other `src/` C file that calls them (overlays
    included) and never to add `#pragma weak func_X = name` aliases (the `68960`–`6AD90`
    namer added 69 of them to make `build/global.*` link; corrected to a clean rename).
-2. `tools/dk make split`, then `touch src/*/*.c` (renamed global functions are referenced
+2. `tools/dk make split` (the WHOLE split, not only `dk64.global.us.yaml`: the namer's
+   global-only re-split left overlay asm calling the old names, and `minecart.elf` failed
+   to link), then `touch src/*/*.c` (renamed global functions are referenced
    from overlay GLOBAL_ASM; their objects are not rebuilt and fail to link with the old
    name otherwise), `tools/dk make` OK; `tools/dk make expected`.
 3. ROADMAP: one bullet per segment (files, data/rodata offsets, N of T matched per file,
@@ -263,6 +265,22 @@ Before the final yield:
   the blank line; check the file tail when a merge is followed by an undefined reference.
 - `write agent://all` also wakes every idle (finished) agent, which then answers and may act:
   message running agents one by one instead.
+- An aborted dispatch (user interrupt) leaves each agent's `.scratch/<Name>/` private copy
+  behind with partial edits. Relaunch with the same names, an explicit copy path, and
+  "your copy ALREADY EXISTS from <commit>: do not re-create it; fdiff it first and fix or
+  revert any non-matching function"; merge with `--base <that commit>` as usual. The
+  relaunched agents get new ids (`<Name>-2`) but write to the paths given in the task.
+- Two agents' functions can be individually matching yet clash in one TU (caller declared
+  `void f();` K&R-style, callee defined `void f(s32, f32)`: cfe rejects the pair). Merge,
+  revert one side to its `GLOBAL_ASM` line, save its draft with the clash in the note, and
+  give both functions to one next-round agent (`seqRouteChannelVolume`: the fix was an
+  ANSI caller `(s32, f32)`).
+- A same-global clash between merged drafts (`extern s8 D_x;` vs `extern u8 D_x;`, or two
+  struct types for one pointer) is fixed inline: keep the wider struct (the one indexed
+  with the right stride), delete the other declaration, gate.
+- Park under `NON_MATCHING` only stage 4+ drafts (same blocks and saved registers); a
+  stage-3 draft of a 3,000-insn function (`func_806057F8`, frame 0x1F8 vs 0x160) stays in
+  `drafts/` only: its equivalence is not reviewable.
 - Agents passed their whole private copy to `drafts.py save`, storing 25 whole-file
   "drafts"; `save` now refuses files with `GLOBAL_ASM` lines and the brief says to save a
   `<FUNC>_best.c` holding only the function.
@@ -300,3 +318,4 @@ Before the final yield:
 |2026-10-22|global actor collision/matrices/projectiles (70FD0 + 936B0)|split inline; rolling rounds (28 matching agents + 1 unify)|47 / 32 / 10 / 2|70FD0 52/79, 936B0 39/54, 82 named; exact git show base for rolling copies; cross-agent pattern broadcast (if (reg++ == 2) delay slot); +23,640 bytes in global|
 |2026-10-23|global collision state / BST / asset tables (68960, 68AA0, 68EA0, 699B0 → 699B0 + 69E60 + 6AD90 hidden TUs)|split inline; per-agent rolling merges, 25 matching agents (6 / 5 / 6 / 5 / 3, incl. 4 one-function large agents) + namer + 1 tool agent|61 / 14 / 9 / 2|86/117 (68960 1/1, 68AA0 2/3, 68EA0 5/8, 699B0 2/2, 69E60 14/15, 6AD90 62/88), 69 named, +14,124 bytes; hidden TUs found from rodata end padding only after round 2 → `rodata_owners.py` pad flag; 2 matches by pasting "reloc-only" drafts and gating on the ROM; `drafts.py save` rejects whole-file copies (25 such drafts cut down); namer's `#pragma weak` aliases replaced by a clean rename; large agents again 0 matches (best 1–20 insns off)|
 |2026-10-23|global render caches / effect nodes / water / target table / trigger zones (61AA0, 63810, 63EC0, 67890, 684C0)|split inline (no hidden TU); rolling per-agent merges, 20 matching agents (round 1: 6; then 14 rolling, incl. 4 one-function large agents) + 1 unify (2 passes) + namer|54 / 14 (rolling; last 9 agents 0)|68/89 (61AA0 15/22, 63810 1/3, 63EC0 44/53, 67890 3/5, 684C0 5/6), 68 named, +12,008 bytes; a focused 6-near-miss list after the unify matched 6/6; large agents 0 again; red commit from a `grep && commit` chain and a stale merge object → gate as its own step, `touch` before `make`|
+|2026-10-23|global audio manager / fog / hash table / lights (6710 → 6710 + 7130 hidden TU, 5DE10, 5E020, 5E2F0)|split inline (data-pad hidden TU, f64 pair fix); round 1 aborted by user and relaunched on the same copies; rolling per-agent merges, 20 matching agents (6 / then 14 rolling, incl. 4 one-function large agents) + namer; clashes unified inline|48 / 18 (rolling; last 7 agents 1)|66/83 (6710 7/9, 7130 30/42, 5DE10 4/4, 5E020 8/8, 5E2F0 17/20), 66 named, +14,884 bytes; 12 parked NON_MATCHING; large agents 0 again (best: 1179-insn `func_8065A884` stage 4); cross-agent prototype clash reverted then fixed next round; namer's global-only re-split broke overlay links → whole `make split`|
