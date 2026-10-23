@@ -1,4 +1,4 @@
-// func_80697988 (src/global/9BF30.c): stage 6: structure matches, 214/217 insns; remaining diff: D_807FBB40 is loaded into a1 then 'move s0,a1' (expected loads straight into s0) and the (temp>32.0) clip folds to li 32 where expected emits trunc.w.d of the comparison's double 32.0; regression attempts: pure macro form hoists &D_807FBB40 into s1 (v2/v3, 212), macro RMW 221; also try removing all cross-call liveness of the actor pointer
+// func_80697988 (src/global/9BF30.c): stage 6, exact size 0x364 (217 insns) and near-identical instruction stream; remaining: lbu a0 vs v0 for sub->unk11, the two 'mul.s' commutative operand orders in the sub->unk11==1 block, the second RMW's lui/addiu+lw address form, the heapFree/actorDespawn frame spill, and the (temp>32.0) clip folding to li 32 where expected emits trunc.w.d of the comparison's double 32.0. Key: block A uses the D_807FBB40 macro (not a local) so the actor pointer never gets the a1->s0 copy; block B uses a local re-assigned after each call
 typedef struct M9B_ActorState {
     s16 unk0;
     u8 pad2;
@@ -27,28 +27,22 @@ void func_80697988(void) {
     Actor *actor;
     f64 temp;
 
-    actor = D_807FBB40;
-    sub = actor->unk174;
-    if (!(actor->unk60 & 0x10)) {
-        *(s16 *)((u8 *)actor + 0xEE) = actor->unk15F;
+    sub = ACTOR2->unk174;
+    if (!(ACTOR2->unk60 & 0x10)) {
+        *(s16 *)((u8 *)ACTOR2 + 0xEE) = ACTOR2->unk15F;
         sub->unk4 = func_80610FE8(0x1000);
-        actor = D_807FBB40;
-        if (actor->unk15F != 0) {
-            actor->unk144 = 0x24;
-            actor = D_807FBB40;
+        if (ACTOR2->unk15F != 0) {
+            ACTOR2->unk144 = 0x24;
         }
         if (sub->unk11 == 1) {
-            sfxPlayActorSound(actor, 0x128, 1, 1, 0, 0xFF, 0.2f, 0);
-            sfxPlayActorSound(D_807FBB40, 0x139, 0x3C, 1, 1, 0xFF, 1.0f, 0);
-            actor = D_807FBB40;
+            sfxPlayActorSound(ACTOR2, 0x128, 1, 1, 0, 0xFF, 0.2f, 0);
+            sfxPlayActorSound(ACTOR2, 0x139, 0x3C, 1, 1, 0xFF, 1.0f, 0);
         }
     }
     if (sub->unk11 != 0) {
         if (sub->unk11 == 1) {
-            actor = D_807FBB40;
-            actor->unk7C = actor->unk7C + (sub->unkC * func_80612794(actor->unkE6));
-            actor = D_807FBB40;
-            actor->unk84 = actor->unk84 + (sub->unkC * func_80612790(actor->unkE6));
+            ACTOR2->unk7C = ACTOR2->unk7C + (sub->unkC * func_80612794(ACTOR2->unkE6));
+            ACTOR2->unk84 = ACTOR2->unk84 + (sub->unkC * func_80612790(ACTOR2->unkE6));
             actor = D_807FBB40;
             if (actor->unk15F != 0) {
                 actor->unk15F -= 1;
@@ -61,7 +55,7 @@ void func_80697988(void) {
             }
         }
     } else {
-        if (actor->unk15F != 0) {
+        if (ACTOR2->unk15F != 0) {
             sub->unk8 += sub->unkC;
             temp = (f64)sub->unk8 * 0.3;
             if (temp > 32.0) {
@@ -70,15 +64,14 @@ void func_80697988(void) {
                 sub->unk0 = temp;
             }
         } else {
-            sub->unk8 = sub->unk8 + (f32)((actor->unk168 - sub->unk10) + 0x10)
+            sub->unk8 = sub->unk8 + (f32)((ACTOR2->unk168 - sub->unk10) + 0x10)
                 * (sub->unkC * 0.0625);
         }
-        actor = D_807FBB40;
-        if ((sub->unk10 - actor->unk168) >= 0x10) {
+        if ((sub->unk10 - ACTOR2->unk168) >= 0x10) {
             u8 count;
 
-            count = actor->unk15F;
-            actor->unk15F = count - 1;
+            count = ACTOR2->unk15F;
+            ACTOR2->unk15F = count - 1;
             if (count) {
                 projectileSpawnActor107(0, sub->unk0, sub->unk8, sub->unkC, 0, 0x10);
                 if (ACTOR2->unk15F == 0) {
@@ -88,7 +81,7 @@ void func_80697988(void) {
                 }
             } else {
                 heapFree(sub->unk4);
-                actorDespawn(actor);
+                actorDespawn(ACTOR2);
             }
         }
     }
