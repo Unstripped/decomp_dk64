@@ -37,11 +37,14 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
   mid-run, edit only the copy, check with
   `tools/fdiff.sh .scratch/<YourName>/<file>.c src/<seg>/<file>.c [FUNC]`.
 - Keep a blank line before every `#pragma GLOBAL_ASM` line, including the last one in
-  the file.
+  the file. A parked function's `#ifdef NON_MATCHING` block must wrap only that function
+  and the declarations nothing else uses; declarations matched code needs stay outside it.
 - If the text is identical but fdiff prints `FAILED: Relocations mismatch` only because the
-  expected asm used a raw address constant where your C uses the symbol, keep the
-  function as GLOBAL_ASM, save the draft, and report it as "text-identical, reloc only":
-  the orchestrator checks it against the ROM hash.
+  expected asm used a raw address constant or a named label where your C uses the symbol
+  (or `.rodata+off`), keep the function as GLOBAL_ASM, save the draft, and report it as
+  "text-identical, reloc only": the orchestrator checks it against the ROM hash. Only call
+  it that after diffing the objdump instruction streams: the same message can hide a real
+  scheduling difference.
 - If code matches but `.rodata` differs only by zero padding between functions, report it:
   that is a hidden translation-unit boundary, not something to fix in C.
 - Key compiler patterns: when you discover a pattern that resolves a common near-miss
@@ -116,7 +119,8 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
 # Method
 Your budget is finite: near-misses first, then never-attempted functions from smallest to
 largest. After a serious effort on one function, move on and come back if budget remains.
-Use the whole budget before reporting. A function that won't match gets its exact
+Use the whole budget (~25+ minutes) before reporting: a report after 12 minutes with
+functions never attempted is a failure. Report every assigned function, matched or not. A function that won't match gets its exact
 original `#pragma GLOBAL_ASM(...)` line back (or is parked under `#ifdef NON_MATCHING`
 if behaviourally equivalent; see above), and its best draft (the function plus the
 local declarations it needs) is persisted for later sessions with

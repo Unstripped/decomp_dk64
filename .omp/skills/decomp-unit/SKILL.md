@@ -25,7 +25,7 @@ ok-fine, not here; this skill is the procedure.
 ROADMAP order: overlays smallest-first by `<ovl>_TEXT_SIZE` in `Makefile`, two at a time
 (they are independent); then the listed global subsystems. All nine overlays are C units
 since the boss unit (2026-10-22): next units are global subsystems (the next candidate
-files named at the end of ROADMAP's section 9 bullets, e.g. `9BF30`, `9CE20`, `54150`)
+files named at the end of ROADMAP's section 9 bullets, e.g. `9DD70`, `A2F10`, `A6280`)
 or further matching rounds on near-misses listed in
 ROADMAP. A global subsystem is a set of `asm/global/<file>.s` files: find them from what
 the overlays' named functions call (`grep -o 'func_80[67]…'` in their C) and from the
@@ -149,7 +149,10 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    (`tools/drafts.py show SEG FUNC`; drafts are keyed by segment because overlays share names like `func_80024000`), not from m2c.
    Agents finish after 15–25 min whatever the list length; re-prompting an idle agent to
    "continue" returned the same report with no new matches (boss round 1, 5 tries):
-   dispatch the next round instead.
+   dispatch the next round instead. Round-1 agents of the `55B20` unit stopped at 11–13 min
+   with functions never attempted; adding "Use your WHOLE budget (~25+ minutes) before
+   reporting" to every later task `context` made agents run 20–37 min. Check each report
+   against its assigned list before merging: `M55P3` silently skipped `func_80654418`.
    Rolling dispatch: rounds are per agent, not per file or global. Every copy names its
    exact base commit (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`),
    so merge EACH agent's copy as soon as it finishes (`merge --base <its commit> ...`), gate,
@@ -161,8 +164,10 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    slot for `xori`/`addiu`), immediately forward it to running siblings via `write agent://<id>`.
 4. Merge each shared file: `python3 tools/merge_drafts.py merge src/<seg>/<file>.c .scratch/<A>/<file>.c ...`
    (merges into the current `src`, so edits made after the snapshot survive; drops
-   duplicate declarations (keeping the first) and unused ones the drafts added; prints
-   clashing declarations on compile errors; exit 2 on conflicts leaves `src` untouched).
+   duplicate declarations (keeping the first, but never pruning an unconditional one as a
+   duplicate of a copy inside `#if`, i.e. parked NON_MATCHING code) and unused ones the drafts
+   added; prints clashing declarations on compile errors; exit 2 on conflicts leaves `src`
+   untouched).
    Drafts copied before the latest snapshot (an agent still running from an older round):
    `merge --base <commit the copy started from> src/... .scratch/<A>/...`, else the merge
    reverts everything committed since.
@@ -172,7 +177,12 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    creates/extends a shared header (`include/actor.h`) with one struct per object and moves
    all declarations to one top block. Two files sharing a header: serialize their unify
    agents (second extends the header additively), but start the first file's round 2 at
-   once. A clash of one global between two drafts: unify inline.
+   once. A clash of one global between two drafts: unify inline. On one fresh file split
+   across 6 round-1 agents (`55B20`) nearly every merge had one (`D_807F6C18` struct,
+   `D_807F70B0` struct vs `s32`, `func_80610FE8` `s32` vs `void *`): delete the newer
+   declaration and adapt its users (a cast in parked code, `&arr[i]` for byte offsets),
+   check both sides (`tools/fdiff.sh [--non-matching] src/<seg>/<f>.c src/<seg>/<f>.c`), and
+   name the merged structs in every later task's `context` so new agents reuse them.
    A file-local clash (types only one file uses): run the failing merge, copy the merged
    (non-compiling) `src` file to `.scratch/Unify<F>/<file>.c`, `git checkout` the src file,
    and give the unify agent that copy; its result replaces `src` directly (`cp`) if `src`
@@ -181,7 +191,8 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    so it keeps its types, and merge it with `--base <commit its copy started from>`.
 5. Merge single-agent copies the same way; revert declaration-only leftovers from
    zero-yield agents. Then persist drafts: `python3 tools/drafts.py collect` (imports any
-   newer `.scratch/*/<FUNC>_best.c` an agent left instead of saving) and
+   newer `.scratch/*/<FUNC>_best.c` an agent left instead of saving; check `git diff drafts/`
+   after it: it once replaced a draft saved with a note by a note-less older `_best.c`) and
    `python3 tools/drafts.py prune` (drops drafts of functions that now match); commit
    `drafts/<seg>/<FUNC>.c` is the only place in-progress C
    survives a session; `.scratch/` is per-session and may be wiped. Parked NON_MATCHING
@@ -199,9 +210,13 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    when only near-misses and 500+-insn functions remain. Record the closest diffs in ROADMAP.
 8. An agent that reports "100% instruction match, objdiff fails only on relocations"
    (expected asm used a raw address such as `lui 0x8080; sb -0x6B52` where C uses
-   `D_807F94AE`): paste its draft into `src` and let the ROM hash decide (`func_80668520`
-   matched that way). An agent that matches code but not rodata padding has found a
-   hidden TU (section 2).
+   `D_807F94AE`, or a named label where IDO emits `.rodata+off` / `sym+0xA0`): paste its
+   draft into `src` and let the ROM hash decide (`func_80668520`, `func_80697CEC`,
+   `func_80658BD0` matched that way). If the ROM fails it was not reloc-only: `tools/dk make
+   build/global.text.bin`, `cmp -l` against the last good copy and objdump the function to
+   find the real diff (the first `func_80658BD0` draft had a `sb` two slots early behind the
+   reloc message); revert and fix the draft note. An agent that matches code but not rodata
+   padding has found a hidden TU (section 2).
 
 ## 4. Names, ROADMAP, knowledge
 
@@ -322,3 +337,4 @@ Before the final yield:
 |2026-10-23|global collision state / BST / asset tables (68960, 68AA0, 68EA0, 699B0 → 699B0 + 69E60 + 6AD90 hidden TUs)|split inline; per-agent rolling merges, 25 matching agents (6 / 5 / 6 / 5 / 3, incl. 4 one-function large agents) + namer + 1 tool agent|61 / 14 / 9 / 2|86/117 (68960 1/1, 68AA0 2/3, 68EA0 5/8, 699B0 2/2, 69E60 14/15, 6AD90 62/88), 69 named, +14,124 bytes; hidden TUs found from rodata end padding only after round 2 → `rodata_owners.py` pad flag; 2 matches by pasting "reloc-only" drafts and gating on the ROM; `drafts.py save` rejects whole-file copies (25 such drafts cut down); namer's `#pragma weak` aliases replaced by a clean rename; large agents again 0 matches (best 1–20 insns off)|
 |2026-10-23|global render caches / effect nodes / water / target table / trigger zones (61AA0, 63810, 63EC0, 67890, 684C0)|split inline (no hidden TU); rolling per-agent merges, 20 matching agents (round 1: 6; then 14 rolling, incl. 4 one-function large agents) + 1 unify (2 passes) + namer|54 / 14 (rolling; last 9 agents 0)|68/89 (61AA0 15/22, 63810 1/3, 63EC0 44/53, 67890 3/5, 684C0 5/6), 68 named, +12,008 bytes; a focused 6-near-miss list after the unify matched 6/6; large agents 0 again; red commit from a `grep && commit` chain and a stale merge object → gate as its own step, `touch` before `make`|
 |2026-10-23|global audio manager / fog / hash table / lights (6710 → 6710 + 7130 hidden TU, 5DE10, 5E020, 5E2F0)|split inline (data-pad hidden TU, f64 pair fix); round 1 aborted by user and relaunched on the same copies; rolling per-agent merges, 20 matching agents (6 / then 14 rolling, incl. 4 one-function large agents) + namer; clashes unified inline|48 / 18 (rolling; last 7 agents 1)|68/83 (6710 7/9, 7130 32/42, 5DE10 4/4, 5E020 8/8, 5E2F0 17/20), 67 named; 2 functions (`func_8060956C`, `func_80609B80`) were left out of every task list until a reviewer caught it, both matched at once → before round 1, check that the task lists cover every function in the files; 12 parked NON_MATCHING; large agents 0 again (best: 1179-insn `func_8065A884` stage 4); cross-agent prototype clash reverted then fixed next round; namer's global-only re-split broke overlay links → whole `make split`|
+|2026-10-23|global model slots / map chunks / projectile behaviours (54150, 55B20, 9BF30, 9CE20)|split inline (no hidden TU); rolling per-agent merges, 28 matching agents (9 round-1 incl. 6 on one fresh `55B20`, 5 one-function large, 14 rounds 2–4) + 1 unify + namer|49 / 14 / 4 / 0|67/117 (54150 16/28, 55B20 45/80, 9BF30 2/4, 9CE20 4/5), 67 named, +13,032 bytes, 37 parked; type clash on almost every `55B20` merge (unified inline, struct names then passed in later contexts); `merge_drafts.py` pruned live declarations kept only inside parked `#ifdef` blocks → fixed; `objdiff.py` asm-differ `-n`; round-1 agents quit at 11–13 min → "whole budget" line in every context; one "reloc-only" paste failed the ROM (real scheduling diff), two later ones matched; large agents 0 matches again (3 parked at stage 4–5)|
