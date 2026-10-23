@@ -678,7 +678,7 @@ extern u8 D_807444FC;
 extern f32 D_807F5FB4;
 extern f32 D_807F5FB0;
 extern s16 D_807F7138;
-extern s8 D_807F6C08;
+extern u8 D_807F6C08;
 
 void func_80653B80(f32 arg0, f32 arg1, f32 arg2) {
     D_807FC924[D_807FC929].unk290 = func_806531B8(arg0, arg1, arg2, D_807FC924[D_807FC929].unk290);
@@ -788,19 +788,75 @@ void func_80654380(f32 arg0, f32 arg1, f32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656B98.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656E58.s")
+typedef struct {
+    u8 pad0[0x4C];
+    u8 *unk4C;
+    s32 unk50;
+    u8 pad54[0x174];
+} M55P5EffectSlot;
+
+typedef struct {
+    s16 unk0;
+    u8 unk2;
+    u8 pad3[0x21];
+} M55P5EffectEntry;
+
+void func_80656E58(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
+    s32 i = 0;
+    M55P5EffectSlot *slot = (M55P5EffectSlot *)D_807F6C18 + arg0;
+
+    for (; i < slot->unk50; i++) {
+        if (arg1 == ((M55P5EffectEntry *)slot->unk4C)[i].unk0) {
+            if (arg3 != 0) {
+                ((M55P5EffectEntry *)slot->unk4C)[i].unk2 |= 1 << arg2;
+            } else {
+                ((M55P5EffectEntry *)slot->unk4C)[i].unk2 &= ~(1 << arg2);
+            }
+            return;
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656F14.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806574B8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657508.s")
+extern s16 D_807F6BF0[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_8065756C.s")
+void func_80657508(s32 arg0) {
+    s32 i = 0;
+
+    while (i < D_807F6C08) {
+        if (arg0 == D_807F6BF0[i]) {
+            return;
+        }
+        i++;
+    }
+    if (i == 0xC) {
+        return;
+    }
+    D_807F6BF0[D_807F6C08] = arg0;
+    D_807F6C08++;
+}
+
+
+void func_8065756C(s16 arg0) {
+    s32 i = 0;
+
+    while (i < D_807F6C80) {
+        if (arg0 == D_807F6C58[i]) {
+            return;
+        }
+        i++;
+    }
+    D_807F6C58[D_807F6C80] = arg0;
+    D_807F6C80++;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806575D0.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_8065776C.s")
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657974.s")
 
