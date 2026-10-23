@@ -1000,15 +1000,76 @@ void func_80654380(f32 arg0, f32 arg1, f32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806545D4.s")
 
+typedef struct M55P4Cell {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ u8 pad6[0x12];
+    /* 0x18 */ u8 unk18;
+    /* 0x19 */ u8 unk19;
+    /* 0x1A */ u8 pad1A[2];
+} M55P4Cell;
+
+typedef struct M55P4Tri {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+} M55P4Tri;
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806547A8.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654A2C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654BC0.s")
+void func_80654BC0(s32 arg0, u8 arg1) {
+    s32 i;
+    s32 found;
+
+    i = 0;
+    found = 0;
+    while (!found && i < D_807F70AC) {
+        if (arg0 == ((M55P4Cell *)D_807F70B0)[i].unk2) {
+            ((M55P4Cell *)D_807F70B0)[i].unk18 = arg1;
+            if (arg1 != 0) {
+                ((M55P4Cell *)D_807F70B0)[i].unk19 = 1;
+            }
+            found = 1;
+        }
+        i++;
+    }
+    for (i = 0; i < D_807F70AC; i++) {
+        if (arg0 == ((M55P4Cell *)D_807F70B0)[i].unk4) {
+            func_80654BC0(((M55P4Cell *)D_807F70B0)[i].unk2, arg1);
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654CCC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654E84.s")
+s32 func_80654E84(M55P4Tri *arg0, f32 arg1, f32 arg2) {
+    f32 minX;
+    f32 maxX;
+    f32 minZ;
+    f32 maxZ;
+
+    minX = (arg0->unk0 < arg0->unk2) ? (f32)arg0->unk0 : (f32)arg0->unk2;
+    minX = (minX < (f32)arg0->unk4) ? minX : (f32)arg0->unk4;
+    minZ = (arg0->unkC < arg0->unkE) ? (f32)arg0->unkC : (f32)arg0->unkE;
+    minZ = (minZ < (f32)arg0->unk10) ? minZ : (f32)arg0->unk10;
+    maxX = (arg0->unk0 > arg0->unk2) ? (f32)arg0->unk0 : (f32)arg0->unk2;
+    maxX = (maxX > (f32)arg0->unk4) ? maxX : (f32)arg0->unk4;
+    maxZ = (arg0->unkC > arg0->unkE) ? (f32)arg0->unkC : (f32)arg0->unkE;
+    maxZ = (maxZ > (f32)arg0->unk10) ? maxZ : (f32)arg0->unk10;
+    if (arg1 < minX || arg1 > maxX || arg2 < minZ || arg2 > maxZ) {
+        return 0;
+    }
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654FEC.s")
 
@@ -1099,7 +1160,19 @@ void func_80655BF0(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655CF8.s")
+extern s16 D_807F6C30[];
+
+s32 func_80655CF8(s16 arg0, s32 arg1) {
+    s32 i;
+
+    for (i = 0; i < arg1; i++) {
+        if (arg0 == D_807F6C30[i]) {
+            return 1;
+        }
+        continue;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655DD0.s")
 

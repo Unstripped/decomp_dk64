@@ -1,28 +1,25 @@
-// func_80654A2C (src/global/55B20.c): stage6: matches except lbu v0/v1 operand reg (2x) and one nop; permuter hint idx temp applied
-#include "common.h"
-#include "actor.h"
-
-typedef struct {
-    /* 0x00 */ u8 pad0[2];
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ u8 pad6[0x12];
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 unk19;
+// func_80654A2C (src/global/55B20.c): stage6: whole function identical except one insn: target 'addiu s1,s2,0x36' (&trig->unk36) vs built 'addiu s1,v1,0x36' (same value, other copy); key fix found: zero loop must be D_807F70B0[j].unk18 form (j*0x1C), not an accumulated off; 'found = 1' goes after the inner if
+typedef struct M55P4Cell {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    u8 pad6[0x12];
+    u8 unk18;
+    u8 unk19;
+    u8 pad1A[2];
 } M55P4Cell;
 
-typedef struct {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ s16 unk14[16];
-    /* 0x34 */ u8 unk34;
-    /* 0x35 */ u8 pad35;
-    /* 0x36 */ s16 unk36[16];
-    /* 0x56 */ u8 unk56;
+typedef struct M55P4Trigger {
+    s16 unk0[10];
+    s16 unk14[16];
+    u8 unk34;
+    s16 unk36[16];
+    u8 unk56;
 } M55P4Trigger;
 
 extern s32 D_807F70AC;
 extern s32 D_807F70B0;
-extern M55P4Trigger *D_807F70B8[];
+extern void *D_807F70B8[];
 extern u8 D_807F7048[];
 extern u8 D_807F7058;
 
@@ -47,12 +44,8 @@ void func_80654A2C(f32 arg0, f32 arg1, f32 arg2) {
                 if (trig->unk56 != 0) {
                     done = 1;
                     val = trig->unk36;
-                    j = 0;
-                    off = 0;
-                    while (j < D_807F70AC) {
-                        j++;
-                        *((u8 *)(D_807F70B0 + off) + 0x18) = 0;
-                        off += 0x1C;
+                    for (j = 0; j < D_807F70AC; j++) {
+                        *((u8 *)D_807F70B0 + j * 0x1C + 0x18) = 0;
                     }
                     for (j = 0; j < trig->unk56; j++) {
                         func_80654BC0(*val, 1);
