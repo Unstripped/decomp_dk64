@@ -22,7 +22,7 @@ typedef struct {
 extern BossB_ActorBB40 *D_807FBB40;
 extern BossB_ActorBB44 *D_807FBB44;
 
-void func_80691830(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
+void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s16, f32, f32);
 void func_80614D00(void *, f32, f32);
@@ -30,7 +30,7 @@ void func_80614D00(void *, f32, f32);
 void func_800292B0(f32 arg0) {
     f32 zero = 0.0f;
 
-    func_80691830(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, zero, zero, zero);
+    projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, zero, zero, zero);
     func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
     D_807FBB44->unk80 = D_807FBB40->unk80;
     D_807FBB44->unk4->unk38 *= arg0;
@@ -148,11 +148,11 @@ void func_8063DA40();
 void func_80659670(f32, f32, f32, s32);
 s16 func_80665DE0(f32, f32, f32, f32);
 void effectSpawnJointBeam(s32, s32, s32, s32);
-void func_806907F0(f32, f32, f32);
-void func_80690814(void *, s32);
-void func_8069084C(s32, s32, f32, s32, f32, f32, void *);
-void func_80690A28(s32, s32, f32, f32, f32, f32, f32, void *);
-void func_80697184(void);
+void projectileSetTargetCoords(f32, f32, f32);
+void projectileGetTargetCoords(void *, s32);
+void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
+void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
+void actorAppendActiveCallback8(void);
 s32 func_806CC10C(s16, s16);
 s32 func_806CC14C(s16, s16);
 s32 func_80724A20(void);
@@ -275,14 +275,14 @@ void func_80029468(void) {
             ACTOR->unk154 = 0x37;
             ACTOR->unk155 = 0;
             func_8061CC40(ACTOR, 4, 1);
-            func_80697184();
+            actorAppendActiveCallback8();
         } else {
             switch (ACTOR->unk155) {
             case 0:
                 ACTOR->unkE6 = 0;
                 func_80614EBC(ACTOR, 0x213);
                 func_8061CC40(ACTOR, 2, 1);
-                func_80697184();
+                actorAppendActiveCallback8();
                 ACTOR->unk155++;
                 break;
             case 1:
@@ -364,21 +364,21 @@ block_28:
             break;
         case 4:
             func_806086CC(ACTOR->unk7C, ACTOR->unk80, ACTOR->unk84, 0xF6, 0x37, 0x7F, 1, 0x1E, 0.3f, 0);
-            func_80690814(ACTOR, 2);
+            projectileGetTargetCoords(ACTOR, 2);
             switch (ACTOR->unk154) {
             case 0x2A:
-                func_80690A28(0xA9, 1, 1.0f, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 2.0f, D_807FBB4C->unk84, 450.0f, ACTOR);
+                projectileAimAndSpawn(0xA9, 1, 1.0f, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 2.0f, D_807FBB4C->unk84, 450.0f, ACTOR);
                 func_80614EBC(ACTOR, 0x213);
                 ACTOR->unk154 = sp44[sp4C->unk15++];
                 ACTOR->unk155 = 0;
                 break;
             case 0x46:
-                func_8069084C(0x1E, 0x63, 0.7f, ACTOR->unkE6, 300.0f, 0.0f, ACTOR);
+                projectileSpawnNodeEntry(0x1E, 0x63, 0.7f, ACTOR->unkE6, 300.0f, 0.0f, ACTOR);
                 D_807FDC90->unk2C = sp4C->unk8;
                 ACTOR->unk155 = 8;
                 break;
             default:
-                func_8069084C(0x1E, 5, 0.7f, ACTOR->unkE6, 600.0f, 500.0f, ACTOR);
+                projectileSpawnNodeEntry(0x1E, 5, 0.7f, ACTOR->unkE6, 600.0f, 500.0f, ACTOR);
                 ACTOR->unk155++;
                 break;
             }
@@ -392,8 +392,8 @@ block_28:
             sp40 = ((func_80611A44() >> 15) % 1024) - 0x200;
             sp3C = ((f64)func_80612794(D_807FDC94->unkE6 + sp40) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk7C;
             sp38 = ((f64)func_80612790(D_807FDC94->unkE6 + sp40) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk84;
-            func_806907F0(sp3C, D_807FDC94->unk80 + 500.0f, sp38);
-            func_80690A28(0x1E, 0x1E, 1.0f, sp3C, D_807FDC94->unk80, sp38, 600.0f, ACTOR);
+            projectileSetTargetCoords(sp3C, D_807FDC94->unk80 + 500.0f, sp38);
+            projectileAimAndSpawn(0x1E, 0x1E, 1.0f, sp3C, D_807FDC94->unk80, sp38, 600.0f, ACTOR);
             D_807FDC90->unk2C = sp4C->unk8;
             ACTOR->unk155 = 9;
             /* fallthrough */

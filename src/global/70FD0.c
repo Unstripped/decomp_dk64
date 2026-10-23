@@ -67,33 +67,33 @@ void heapFree(void *);
 
 void func_806687E0(void);
 void func_8066C2D0(s32, s32, f32, f32, f32, f32, f32, f32, f32);
-void func_8066C8B0(s32, s32, f32, f32, f32, f32, f32, f32, f32);
-void func_8066C904(DynamicBuffer *);
-void func_8066CDD0(void);
-void func_8066CDF8(void);
-s32 func_8066D250(CollisionTri *);
+void collisionTransformNode(s32, s32, f32, f32, f32, f32, f32, f32, f32);
+void dynamicBufferFree(DynamicBuffer *);
+void collisionBufferCacheUpdate(void);
+void collisionPurgeExpiredBuffers(void);
+s32 collisionIsTriangleDegenerate(CollisionTri *);
 s8 func_8066D2F4(s16 *);
 s16 func_8066D4DC(s16 *, u8 *, f32 *);
 void func_8066DD34(CollisionBox *);
-void func_8066E21C(ActorSub140 *);
-void func_8066E5CC(Actor *, s32, u16);
-void func_8066E5F8(Actor *, s32, u8);
-void func_8066E62C(Actor *, s32, u8);
-void func_8066E72C(f32, f32, f32, f32, f32, f32, s32, s32, s32);
-void func_8066E990(Actor *);
-void func_8066EA64(Actor *, s32);
-void func_8066EA90(Actor *, s32);
-void func_8066EABC(Actor *);
+void actorSub140Free(ActorSub140 *);
+void actorSetNodeValue(Actor *, s32, u16);
+void actorOrNodeFlags(Actor *, s32, u8);
+void actorClearNodeFlags(Actor *, s32, u8);
+void actorSub140Alloc(f32, f32, f32, f32, f32, f32, s32, s32, s32);
+void actorFreeModelNodeList(Actor *);
+void actorSetNodeFlag(Actor *, s32);
+void actorClearNodeFlag(Actor *, s32);
+void actorClearAllNodeFlags(Actor *);
 ModelNode *func_8066EAEC(Actor *, s32);
 ActorSub140 *func_8066EB40(Actor *, f32);
-void func_8066EB50(Actor *, f32, f32, f32, f32);
-void func_8066EBF4(Actor *);
+void actorSub140SetVectors(Actor *, f32, f32, f32, f32);
+void actorUpdateModelMatrices(Actor *);
 void func_8066EC6C(ActorSub140 *);
-s32 func_8066EE50(f32 *, CollisionBox *);
+s32 collisionBuildBoxFromMatrix(f32 *, CollisionBox *);
 void func_8066F06C(ActorSub140 *);
-u8 func_8066F1F8(s32, s16);
-void func_8066F250(void);
-u8 func_8066F274();
+u8 actorSetTargetAngleAndCheck(s32, s16);
+void actorClearTargetAngle(void);
+u8 actorCheckTargetAngle();
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066C2D0.s")
 
@@ -101,11 +101,11 @@ u8 func_8066F274();
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066C7F4.s")
 
-void func_8066C8B0(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
+void collisionTransformNode(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
     func_8066C2D0(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 }
 
-void func_8066C904(DynamicBuffer *arg0) {
+void dynamicBufferFree(DynamicBuffer *arg0) {
     if (arg0->unk18 != NULL && (arg0->unk15 & 1)) {
         heapFree(arg0->unk18);
     }
@@ -118,12 +118,12 @@ void func_8066C904(DynamicBuffer *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066CCD8.s")
 
-void func_8066CDD0(void) {
-    func_8066CDF8();
+void collisionBufferCacheUpdate(void) {
+    collisionPurgeExpiredBuffers();
     func_806687E0();
 }
 
-void func_8066CDF8(void) {
+void collisionPurgeExpiredBuffers(void) {
     s32 i;
 
     for (i = 0; i < D_807FB538; i++) {
@@ -140,7 +140,7 @@ void func_8066CDF8(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066CEE4.s")
 
-s32 func_8066D250(CollisionTri *arg0) {
+s32 collisionIsTriangleDegenerate(CollisionTri *arg0) {
     s16 temp_a1;
     s16 temp_v0;
     s16 temp_v1;
@@ -168,7 +168,7 @@ s32 func_8066D250(CollisionTri *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066DD34.s")
 
-void func_8066E21C(ActorSub140 *arg0) {
+void actorSub140Free(ActorSub140 *arg0) {
     void *temp;
     ModelNode *curr8C;
     ModelNode *next8C;
@@ -206,7 +206,7 @@ void func_8066E21C(ActorSub140 *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E2C0.s")
 
-void func_8066E5CC(Actor *arg0, s32 arg1, u16 arg2) {
+void actorSetNodeValue(Actor *arg0, s32 arg1, u16 arg2) {
     ModelNode *temp_v0;
 
     temp_v0 = func_8066EAEC(arg0, arg1);
@@ -215,7 +215,7 @@ void func_8066E5CC(Actor *arg0, s32 arg1, u16 arg2) {
     }
 }
 
-void func_8066E5F8(Actor *arg0, s32 arg1, u8 arg2) {
+void actorOrNodeFlags(Actor *arg0, s32 arg1, u8 arg2) {
     ModelNode *temp_v0;
 
     temp_v0 = func_8066EAEC(arg0, arg1);
@@ -224,7 +224,7 @@ void func_8066E5F8(Actor *arg0, s32 arg1, u8 arg2) {
     }
 }
 
-void func_8066E62C(Actor *arg0, s32 arg1, u8 arg2) {
+void actorClearNodeFlags(Actor *arg0, s32 arg1, u8 arg2) {
     ModelNode *temp_v0;
 
     temp_v0 = func_8066EAEC(arg0, arg1);
@@ -237,7 +237,7 @@ void func_8066E62C(Actor *arg0, s32 arg1, u8 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E6C8.s")
 
-void func_8066E72C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+void actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     ActorSub140 *temp_v0;
 
     temp_v0 = (ActorSub140 *)func_80610FE8(sizeof(ActorSub140));
@@ -269,7 +269,7 @@ void func_8066E72C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s
     temp_v0->unkAC = 0;
 }
 
-typedef struct M70G_ModelSubNode {
+typedef struct ActorModelSubNode {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -277,10 +277,10 @@ typedef struct M70G_ModelSubNode {
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
     /* 0x18 */ s32 unk18;
-    /* 0x1C */ struct M70G_ModelSubNode *next;
-} M70G_ModelSubNode;
+    /* 0x1C */ struct ActorModelSubNode *next;
+} ActorModelSubNode;
 
-typedef struct M70G_ModelNode {
+typedef struct ActorModelNode {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -293,20 +293,20 @@ typedef struct M70G_ModelNode {
     /* 0x24 */ u16 unk24;
     /* 0x26 */ u8 unk26;
     /* 0x27 */ u8 unk27;
-    /* 0x28 */ struct M70G_ModelNode *next;
-} M70G_ModelNode;
+    /* 0x28 */ struct ActorModelNode *next;
+} ActorModelNode;
 
-void func_8066E854(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     f32 pad[3];
     ActorSub140 *sub;
-    M70G_ModelSubNode *node;
-    M70G_ModelSubNode **head;
-    M70G_ModelSubNode *curr;
+    ActorModelSubNode *node;
+    ActorModelSubNode **head;
+    ActorModelSubNode *curr;
 
     sub = arg0->unk140;
-    node = (M70G_ModelSubNode *)func_80610FE8(sizeof(M70G_ModelSubNode));
+    node = (ActorModelSubNode *)func_80610FE8(sizeof(ActorModelSubNode));
     node->next = NULL;
-    head = (M70G_ModelSubNode **)&sub->unk90;
+    head = (ActorModelSubNode **)&sub->unk90;
     node->unk0 = arg1;
     node->unk4 = arg2;
     node->unk8 = arg3;
@@ -314,7 +314,7 @@ void func_8066E854(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     node->unkC = 0;
     node->unk10 = 0;
     node->unk14 = 0;
-    curr = (M70G_ModelSubNode *)sub->unk90;
+    curr = (ActorModelSubNode *)sub->unk90;
     if (curr != NULL) {
         do {
             head = &curr->next;
@@ -324,17 +324,17 @@ void func_8066E854(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     *head = node;
 }
 
-void func_8066E8E4(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
+void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
     f32 pad[3];
     ActorSub140 *sub;
-    M70G_ModelNode *node;
-    M70G_ModelNode **head;
-    M70G_ModelNode *curr;
+    ActorModelNode *node;
+    ActorModelNode **head;
+    ActorModelNode *curr;
 
     sub = arg0->unk140;
-    node = (M70G_ModelNode *)func_80610FE8(sizeof(M70G_ModelNode));
+    node = (ActorModelNode *)func_80610FE8(sizeof(ActorModelNode));
     node->next = NULL;
-    head = (M70G_ModelNode **)&sub->unk8C;
+    head = (ActorModelNode **)&sub->unk8C;
     node->unk0 = arg1;
     node->unk4 = arg2;
     node->unk8 = arg3;
@@ -347,7 +347,7 @@ void func_8066E8E4(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5
     node->unk26 = 1;
     node->unk24 = 0;
     node->unk27 = 0;
-    curr = (M70G_ModelNode *)sub->unk8C;
+    curr = (ActorModelNode *)sub->unk8C;
     if (curr != NULL) {
         do {
             head = &curr->next;
@@ -357,7 +357,7 @@ void func_8066E8E4(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5
     *head = node;
 }
 
-void func_8066E990(Actor *arg0) {
+void actorFreeModelNodeList(Actor *arg0) {
     ActorSub140 *sub;
     ModelNode *node;
     ModelNode *next;
@@ -376,7 +376,7 @@ void func_8066E990(Actor *arg0) {
     }
 }
 
-f32 func_8066E9EC(Actor *arg0, s32 arg1, f32 arg2) {
+f32 actorGetOrSetNodeScale(Actor *arg0, s32 arg1, f32 arg2) {
     ActorSub140 *sub = arg0->unk140;
     ModelNode *node;
 
@@ -394,7 +394,7 @@ f32 func_8066E9EC(Actor *arg0, s32 arg1, f32 arg2) {
     return -1.0f;
 }
 
-void func_8066EA64(Actor *arg0, s32 arg1) {
+void actorSetNodeFlag(Actor *arg0, s32 arg1) {
     ModelNode *node = func_8066EAEC(arg0, arg1);
 
     if (node != NULL) {
@@ -402,7 +402,7 @@ void func_8066EA64(Actor *arg0, s32 arg1) {
     }
 }
 
-void func_8066EA90(Actor *arg0, s32 arg1) {
+void actorClearNodeFlag(Actor *arg0, s32 arg1) {
     ModelNode *node = func_8066EAEC(arg0, arg1);
 
     if (node != NULL) {
@@ -410,7 +410,7 @@ void func_8066EA90(Actor *arg0, s32 arg1) {
     }
 }
 
-void func_8066EABC(Actor *arg0) {
+void actorClearAllNodeFlags(Actor *arg0) {
     ActorSub140 *sub = arg0->unk140;
     ModelNode *node;
 
@@ -451,7 +451,7 @@ ActorSub140 *func_8066EB40(Actor *arg0, f32 arg1) {
     return sub;
 }
 
-void func_8066EB50(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
+void actorSub140SetVectors(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     ActorSub140 *sub = arg0->unk140;
 
     if (arg0->unk64 & 0x800) {
@@ -464,7 +464,7 @@ void func_8066EB50(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     sub->unk10 = (s32)(sub->unk18 * arg4 * 8.0f);
 }
 
-void func_8066EBF4(Actor *arg0) {
+void actorUpdateModelMatrices(Actor *arg0) {
     ActorSub140 *sub;
     s32 temp_v0;
 
@@ -482,7 +482,7 @@ void func_8066EBF4(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066EC6C.s")
 
-s32 func_8066EE50(f32 *arg0, CollisionBox *arg1) {
+s32 collisionBuildBoxFromMatrix(f32 *arg0, CollisionBox *arg1) {
     u8 sp34[4];
     s16 sp32;
     s16 sp20[9];
@@ -497,7 +497,7 @@ s32 func_8066EE50(f32 *arg0, CollisionBox *arg1) {
     sp20[7] = arg0[5];
     sp20[8] = arg0[8];
 
-    if (func_8066D250((CollisionTri *)sp20) != 0) {
+    if (collisionIsTriangleDegenerate((CollisionTri *)sp20) != 0) {
         return 0;
     }
 
@@ -525,7 +525,7 @@ s32 func_8066EE50(f32 *arg0, CollisionBox *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066F06C.s")
 
-u8 func_8066F1F8(s32 arg0, s16 arg1) {
+u8 actorSetTargetAngleAndCheck(s32 arg0, s16 arg1) {
     s16 sp1E;
     s16 sp1C;
     s8 sp1B;
@@ -534,20 +534,20 @@ u8 func_8066F1F8(s32 arg0, s16 arg1) {
     D_807FB540 = arg0;
     D_807FB546 = 1;
     D_807FB604 = 1;
-    func_8066F274(arg0, &sp1E, &sp1C, &sp1B);
+    actorCheckTargetAngle(arg0, &sp1E, &sp1C, &sp1B);
     return D_807FB546;
 }
 
-void func_8066F250(void) {
+void actorClearTargetAngle(void) {
     D_807FB604 = 0;
-    func_8066F274();
+    actorCheckTargetAngle();
 }
 
 typedef struct {
     s32 unk0;
     s32 unk4;
     s32 unk8;
-} M70D_ActorSub140;
+} ActorSub140State;
 
 typedef struct {
     u8 pad0[0xD4];
@@ -560,7 +560,7 @@ typedef struct {
     s16 unkEA;
     u8 padEC[0x1A4 - 0xEC];
     u8 unk1A4;
-} M70D_ActorSub174;
+} ActorSub174State;
 
 typedef struct {
     s64 unk0;
@@ -569,13 +569,13 @@ typedef struct {
     s64 unk18;
     u8 pad20[0x48 - 0x20];
     s16 unk48;
-} M70D_PlaneFC0C;
+} CollisionPlane;
 
 typedef struct {
     s32 x;
     s32 y;
     s32 z;
-} M70D_Vec3i;
+} CollisionVec3i;
 
 typedef struct {
     u8 pad0[0x58];
@@ -587,37 +587,37 @@ typedef struct {
     u8 pad68[0xFD - 0x68];
     u8 unkFD;
     u8 padFE[0x140 - 0xFE];
-    M70D_ActorSub140 *unk140;
+    ActorSub140State *unk140;
     u8 unk144;
     u8 pad145[0x174 - 0x145];
-    M70D_ActorSub174 *unk174;
-} M70D_Actor;
+    ActorSub174State *unk174;
+} CollisionActor;
 
 typedef struct {
     u8 pad[0x2C0];
     u8 unk2C0;
     u8 pad2[0x2F0 - 0x2C1];
-} M70D_PlayerData;
-extern M70D_PlayerData *D_807FC924;
+} KongPlayerData;
+extern KongPlayerData *D_807FC924;
 extern u8 D_807FB547;
 extern u8 D_807FB602;
 extern u8 D_807FB605;
 extern u8 D_807FB606;
 
 void func_80672E90(s32, s32, s32);
-void func_80672C70(s32);
-void func_80674E14(M70D_Actor *);
-s32 func_80670FA4();
-u8 func_8066F4AC(M70D_Actor *, s16 *, s16 *);
-s8 func_80676ED0(M70D_Actor *, s16 *, s16 *);
-void func_8066F400(M70D_Actor *);
+void actorSetCameraBoundaryMode(s32);
+void func_80674E14(CollisionActor *);
+s32 actorCheckTargetAngleBounds();
+u8 func_8066F4AC(CollisionActor *, s16 *, s16 *);
+s8 func_80676ED0(CollisionActor *, s16 *, s16 *);
+void actorQueueCollisionCallbacks(CollisionActor *);
 void actorQueueDelayedCallback();
 
-u8 func_8066F274(M70D_Actor *arg0, s16 *arg1, s16 *arg2, s8 *arg3) {
+u8 actorCheckTargetAngle(CollisionActor *arg0, s16 *arg1, s16 *arg2, s8 *arg3) {
     s32 pad;
     u8 sp23;
     u8 sp22;
-    M70D_ActorSub140 *temp_v0;
+    ActorSub140State *temp_v0;
 
     sp23 = 0;
     sp22 = 0;
@@ -631,7 +631,7 @@ u8 func_8066F274(M70D_Actor *arg0, s16 *arg1, s16 *arg2, s8 *arg3) {
         return 0;
     }
     func_80672E90(temp_v0->unk0, temp_v0->unk4, temp_v0->unk8);
-    func_80672C70(arg0->unk58);
+    actorSetCameraBoundaryMode(arg0->unk58);
     D_807FB602 = 0;
     D_807FB547 = 0;
     D_807FB605 = 0;
@@ -640,13 +640,13 @@ u8 func_8066F274(M70D_Actor *arg0, s16 *arg1, s16 *arg2, s8 *arg3) {
         func_80674E14(arg0);
     }
     if (arg0->unk144 & 8) {
-        sp23 = func_80670FA4(arg0, arg1, arg2);
+        sp23 = actorCheckTargetAngleBounds(arg0, arg1, arg2);
         sp22 = func_8066F4AC(arg0, arg1, arg2);
         *arg3 = func_80676ED0(arg0, arg1, arg2);
     } else {
         *arg3 = 0;
     }
-    func_8066F400(arg0);
+    actorQueueCollisionCallbacks(arg0);
     arg0->unkFD = D_807FB547;
     if (D_807FB606 != 0) {
         arg0->unk64 |= 0x100;
@@ -656,10 +656,10 @@ u8 func_8066F274(M70D_Actor *arg0, s16 *arg1, s16 *arg2, s8 *arg3) {
     return (sp23 != 0) || (sp22 != 0);
 }
 
-void func_8066F400(M70D_Actor *arg0) {
+void actorQueueCollisionCallbacks(CollisionActor *arg0) {
     if (D_807FB602) {
         if (arg0->unk5C & 1) {
-            M70D_ActorSub174 *sub = arg0->unk174;
+            ActorSub174State *sub = arg0->unk174;
             if (sub->unkD4 == 0) {
                 if (D_807FB602 & 1) {
                     actorQueueDelayedCallback(arg0, 0, 8, 0, 0, 0, 1);
@@ -676,8 +676,8 @@ void func_8066F400(M70D_Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066F84C.s")
 
-void func_8066FC0C(M70D_Actor *arg0, M70D_PlaneFC0C *arg1, M70D_Vec3i *arg2) {
-    M70D_ActorSub174 *sub = arg0->unk174;
+void actorReflectCollisionAngle(CollisionActor *arg0, CollisionPlane *arg1, CollisionVec3i *arg2) {
+    ActorSub174State *sub = arg0->unk174;
     s64 total;
     s64 x_prod;
     s64 y_prod;
@@ -695,10 +695,10 @@ void func_8066FC0C(M70D_Actor *arg0, M70D_PlaneFC0C *arg1, M70D_Vec3i *arg2) {
     sub->unkEA &= 0xFFF;
 }
 
-s32 func_8066FD6C(M70D_Actor *arg0) {
+s32 actorGetCollisionThreshold(CollisionActor *arg0) {
     switch (arg0->unk58) {
     case 5: {
-        M70D_ActorSub174 *sub = arg0->unk174;
+        ActorSub174State *sub = arg0->unk174;
         if (D_807FC924[sub->unk1A4].unk2C0 == 1) {
             return 0x32;
         }
@@ -726,14 +726,14 @@ s32 func_8066FD6C(M70D_Actor *arg0) {
 typedef struct {
     u8 pad0[0x48];
     s16 unk48;
-} M70D_Target48;
+} ActorTargetBounds;
 
 extern s16 D_807FB5EC;
 extern s16 D_807FB5EE;
 extern s16 D_807FB5F0;
 extern s16 D_807FB5F2;
 
-void func_80670F04(M70D_Target48 *arg0) {
+void actorSetTargetAngleBounds(ActorTargetBounds *arg0) {
     s16 temp_v0;
 
     temp_v0 = arg0->unk48;
@@ -755,12 +755,12 @@ void func_80670F04(M70D_Target48 *arg0) {
     }
 }
 
-typedef struct M70E_Sub174 {
+typedef struct ActorTargetSub174 {
     u8 pad[0x1A4];
     u8 unk1A4;
-} M70E_Sub174;
+} ActorTargetSub174;
 
-typedef struct M70E_Node8C {
+typedef struct ActorTargetNode8C {
     u8 pad0[0x10];
     s32 unk10;
     s32 unk14;
@@ -769,10 +769,10 @@ typedef struct M70E_Node8C {
     u8 pad20[6];
     u8 unk26;
     u8 unk27;
-    struct M70E_Node8C *next;
-} M70E_Node8C;
+    struct ActorTargetNode8C *next;
+} ActorTargetNode8C;
 
-typedef struct M70E_Node {
+typedef struct ActorTargetNode {
     f32 x;
     f32 y;
     f32 z;
@@ -780,10 +780,10 @@ typedef struct M70E_Node {
     s32 unk10;
     s32 unk14;
     u32 unk18;
-    struct M70E_Node *next;
-} M70E_Node;
+    struct ActorTargetNode *next;
+} ActorTargetNode;
 
-typedef struct M70E_SubActor {
+typedef struct ActorTargetSub140 {
     s32 unk0;
     s32 unk4;
     s32 unk8;
@@ -796,20 +796,20 @@ typedef struct M70E_SubActor {
     s32 unk74[2];
     u8 pad7C[0xC];
     s32 unk88;
-    M70E_Node8C *unk8C;
-    M70E_Node *unk90;
-} M70E_SubActor;
+    ActorTargetNode8C *unk8C;
+    ActorTargetNode *unk90;
+} ActorTargetSub140;
 
-typedef struct M70E_Actor {
+typedef struct ActorTargetWork {
     u8 pad0[0x58];
     s32 unk58;
     u8 pad5C[0x64 - 0x5C];
     u32 unk64;
     u8 pad68[0x140 - 0x68];
-    M70E_SubActor *unk140;
+    ActorTargetSub140 *unk140;
     u8 pad144[0x174 - 0x144];
-    M70E_Sub174 *unk174;
-} M70E_Actor;
+    ActorTargetSub174 *unk174;
+} ActorTargetWork;
 
 extern u8 D_807FB548;
 extern u8 D_807FB61C;
@@ -817,13 +817,13 @@ extern u8 D_807FB61C;
 s32 func_806730A4(s32, s32, s32, s32);
 void func_80671880();
 s32 func_806734E4();
-void func_80671260(M70E_Actor *);
-s32 func_806717FC(M70E_Actor *);
-s32 func_80670FA4(M70E_Actor *arg0, s32 arg1, s32 arg2) {
+void actorUpdateCollisionExtents(ActorTargetWork *);
+s32 actorGetPlayerThreshold(ActorTargetWork *);
+s32 actorCheckTargetAngleBounds(ActorTargetWork *arg0, s32 arg1, s32 arg2) {
     s32 pad0;
     s32 pad1;
-    M70E_SubActor *sub = arg0->unk140;
-    M70E_Node8C *node;
+    ActorTargetSub140 *sub = arg0->unk140;
+    ActorTargetNode8C *node;
     u8 ret = 0;
 
     sub->unk24 = 0;
@@ -842,28 +842,28 @@ s32 func_80670FA4(M70E_Actor *arg0, s32 arg1, s32 arg2) {
             node = node->next;
         }
         if ((ret != 0 || D_807FB605 != 0) && D_807FB61C != 0) {
-            func_80671260(arg0);
+            actorUpdateCollisionExtents(arg0);
         }
         D_807FB605 = 0;
     }
     return ret;
 }
 
-typedef struct M70H_D580 {
+typedef struct PlayerContext {
     u8 pad0[0xEA];
     s16 unkEA;
-} M70H_D580;
+} PlayerContext;
 
-typedef struct M70H_Sub174 {
+typedef struct ActorFacingSub174 {
     u8 pad0[0xE0];
     f32 unkE0;
     f32 unkE4;
     u8 unkE8;
     u8 padE9[0x1A4 - 0xE9];
     u8 unk1A4;
-} M70H_Sub174;
+} ActorFacingSub174;
 
-typedef struct M70H_Actor {
+typedef struct ActorFacingWork {
     u8 pad0[0x48];
     s16 unk48;
     u8 pad4A[0x58 - 0x4A];
@@ -872,12 +872,12 @@ typedef struct M70H_Actor {
     u8 pad5E[0x64 - 0x5E];
     u32 unk64;
     u8 pad68[0x140 - 0x68];
-    M70E_SubActor *unk140;
+    ActorTargetSub140 *unk140;
     u8 pad144[0x174 - 0x144];
-    M70H_Sub174 *unk174;
-} M70H_Actor;
+    ActorFacingSub174 *unk174;
+} ActorFacingWork;
 
-extern M70H_D580 *D_807FD580;
+extern PlayerContext *D_807FD580;
 extern s32 D_807FB5D0;
 extern s32 D_807FB5C4;
 extern s32 D_807FB5CC;
@@ -889,20 +889,20 @@ extern s32 D_807FB5DC;
 extern s16 D_807FB5F6;
 
 s32 func_806CC14C(s16, s16);
-s32 func_806744A8(M70H_Actor *, s32, s32, s32, s32);
+s32 func_806744A8(ActorFacingWork *, s32, s32, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 s32 func_806732A8(s32, s16);
-void func_806713E4(M70E_Actor *, u8);
-void func_80671528(M70E_Actor *, f32 *, f32 *, f32 *, s32);
+void actorUpdateSubActorOffsets(ActorTargetWork *, u8);
+void func_80671528(ActorTargetWork *, f32 *, f32 *, f32 *, s32);
 
-void func_806710E0(M70H_Actor *arg0, s32 arg1, s32 arg2, s32 arg3) {
+void actorUpdateFacingAndOffset(ActorFacingWork *arg0, s32 arg1, s32 arg2, s32 arg3) {
     s16 sp36;
     s32 sp30;
     s32 pad2C;
     s32 sp28;
     s32 temp;
-    M70E_SubActor *sub;
+    ActorTargetSub140 *sub;
     f32 temp_f0;
     s32 temp_v1;
 
@@ -911,12 +911,12 @@ void func_806710E0(M70H_Actor *arg0, s32 arg1, s32 arg2, s32 arg3) {
     if ((sp36 < 0x321) || (temp < 0x321)) {
         func_806CC14C(arg0->unk48, D_807FD580->unkEA);
         func_806CC14C((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FD580->unkEA);
-        sub = ((M70H_Actor *)D_807FB540)->unk140;
+        sub = ((ActorFacingWork *)D_807FB540)->unk140;
         func_806744A8(arg0, sub->unk0, sub->unk4, sub->unk8, sub->unkC);
         sp28 = D_807FB5D0;
         sp30 = (s32)(func_80612794(D_807FB544) * 20.0f);
         temp_f0 = func_80612790(D_807FB544);
-        sub = ((M70H_Actor *)D_807FB540)->unk140;
+        sub = ((ActorFacingWork *)D_807FB540)->unk140;
         func_806744A8(arg0, sub->unk0 + sp30, sub->unk4, sub->unk8 + (s32)(temp_f0 * 20.0f), sub->unkC);
         temp_v1 = D_807FB5D0;
         if (sp28 - 2 < temp_v1) {
@@ -925,9 +925,9 @@ void func_806710E0(M70H_Actor *arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
 }
 
-void func_80671260(M70E_Actor *arg0) {
+void actorUpdateCollisionExtents(ActorTargetWork *arg0) {
     s32 pad4C;
-    M70H_Sub174 *sp48;
+    ActorFacingSub174 *sp48;
     f32 sp44;
     f32 sp40;
     f32 sp3C;
@@ -938,12 +938,12 @@ void func_80671260(M70E_Actor *arg0) {
     } else {
         sp44 = D_80753D60[D_807FD584];
     }
-    if (((M70H_Actor *)arg0)->unk5C & 1) {
+    if (((ActorFacingWork *)arg0)->unk5C & 1) {
         f32 scale;
         f32 temp_c4;
         f32 temp_cc;
 
-        sp48 = ((M70H_Actor *)arg0)->unk174;
+        sp48 = ((ActorFacingWork *)arg0)->unk174;
         func_80671528(arg0, &sp38, &sp3C, &sp40, 1);
         scale = sp44 / 8;
         temp_c4 = (f32)D_807FB5C4 / 8;
@@ -954,14 +954,14 @@ void func_80671260(M70E_Actor *arg0) {
         sp48->unkE0 = temp_c4 - sp38;
         sp48->unkE4 = temp_cc - sp40;
         sp48->unkE8 = 1;
-        func_8066FC0C((M70D_Actor *)arg0, (M70D_PlaneFC0C *)func_806732A8(D_807FB5DC, D_807FB5F6), (M70D_Vec3i *)arg0->unk140);
+        actorReflectCollisionAngle((CollisionActor *)arg0, (CollisionPlane *)func_806732A8(D_807FB5DC, D_807FB5F6), (CollisionVec3i *)arg0->unk140);
     }
-    func_806713E4(arg0, 1);
+    actorUpdateSubActorOffsets(arg0, 1);
 }
 
-void func_806713E4(M70E_Actor *arg0, u8 arg1) {
-    if (D_807FB5D0 < func_806717FC(arg0)) {
-        M70E_SubActor *sub = arg0->unk140;
+void actorUpdateSubActorOffsets(ActorTargetWork *arg0, u8 arg1) {
+    if (D_807FB5D0 < actorGetPlayerThreshold(arg0)) {
+        ActorTargetSub140 *sub = arg0->unk140;
         f32 temp_fa0;
         f32 scale;
         f32 temp_fa1;
@@ -973,7 +973,7 @@ void func_806713E4(M70E_Actor *arg0, u8 arg1) {
         temp_fa0 = (f32)D_807FB5C4 / (f32)8;
         temp_fa1 = (f32)D_807FB5CC / (f32)8;
         if (D_807FB548 != 0) {
-            scale = (f32)func_806717FC(arg0) / (f32)8;
+            scale = (f32)actorGetPlayerThreshold(arg0) / (f32)8;
             sp24 *= scale;
             sp2C *= scale;
         } else {
@@ -989,8 +989,8 @@ void func_806713E4(M70E_Actor *arg0, u8 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671528.s")
 
-s32 func_806717FC(M70E_Actor *arg0) {
-    M70E_Sub174 *sub;
+s32 actorGetPlayerThreshold(ActorTargetWork *arg0) {
+    ActorTargetSub174 *sub;
 
     if (arg0->unk58 == 2) {
         goto ret_32_2;
@@ -1017,12 +1017,12 @@ ret_32_3:
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671880.s")
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671A6C.s")
 
-s32 func_80671C0C(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
+s32 actorGetNodePos(ActorTargetWork *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     s32 pad0;
     s32 pad1;
     s32 pad2;
-    M70E_SubActor *sub;
-    M70E_Node *node;
+    ActorTargetSub140 *sub;
+    ActorTargetNode *node;
     s32 count;
 
     sub = arg0->unk140;
@@ -1047,9 +1047,9 @@ s32 func_80671C0C(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     }
     return 0;
 }
-void func_80671D10(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
+void actorGetSubNodePos(ActorTargetWork *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     s32 count = arg1 - 1;
-    M70E_Node *node = arg0->unk140->unk90;
+    ActorTargetNode *node = arg0->unk140->unk90;
 
     while (node != NULL && count != 0) {
         count--;
@@ -1061,11 +1061,11 @@ void func_80671D10(M70E_Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) 
 }
 
 extern u8 D_807444FC;
-s32 func_80671D64(M70E_Actor *arg0, s32 arg1) {
-    M70E_SubActor *sub = arg0->unk140;
+s32 actorStepSubNodeList(ActorTargetWork *arg0, s32 arg1) {
+    ActorTargetSub140 *sub = arg0->unk140;
     u8 val;
     s32 base;
-    M70E_Node *node;
+    ActorTargetNode *node;
 
     if (D_8076A064 == sub->unk88) {
         val = D_807444FC;
@@ -1149,7 +1149,7 @@ s16 arg3;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80672328.s")
 
-typedef struct M70F_ActorSub140 {
+typedef struct ActorMotionSub140 {
     u8 pad0[0x1C];
     f32 unk1C;
     f32 unk20;
@@ -1160,18 +1160,18 @@ typedef struct M70F_ActorSub140 {
     u8 unk6C;
     u8 pad6D[0x1B];
     s32 unk88;
-} M70F_ActorSub140;
+} ActorMotionSub140;
 
-typedef struct M70F_Actor174 {
+typedef struct ActorMotionSub174 {
     u8 pad0[0x1A3];
     u8 unk1A3;
     u8 pad1A4[0x1C];
     f32 unk1C0;
     u8 pad1C4[8];
     f32 unk1CC;
-} M70F_Actor174;
+} ActorMotionSub174;
 
-typedef struct M70F_Actor {
+typedef struct ActorMotionWork {
     u8 pad0[0x60];
     u32 unk60;
     u32 unk64;
@@ -1189,16 +1189,16 @@ typedef struct M70F_Actor {
     u8 padFD[0x13];
     u8 unk110;
     u8 pad111[0x2F];
-    M70F_ActorSub140 *unk140;
+    ActorMotionSub140 *unk140;
     u8 unk144;
     u8 pad145[0x2F];
-    M70F_Actor174 *unk174;
-} M70F_Actor;
+    ActorMotionSub174 *unk174;
+} ActorMotionWork;
 
 void func_80672680();
 
 void func_806725A0(arg0, arg1)
-M70F_Actor *arg0;
+ActorMotionWork *arg0;
 s16 arg1;
 {
     s16 sp24[2];
@@ -1220,7 +1220,7 @@ s16 arg3;
 }
 
 void func_80672630(arg0, arg1, arg2)
-M70F_Actor *arg0;
+ActorMotionWork *arg0;
 s16 arg1;
 s16 arg2;
 {
@@ -1380,18 +1380,18 @@ s16 arg1;
 
 
 
-void func_80672AFC(M70F_Actor *arg0) {
-    M70F_ActorSub140 *temp_v0 = arg0->unk140;
+void actorTouchSub140Timestamp(ActorMotionWork *arg0) {
+    ActorMotionSub140 *temp_v0 = arg0->unk140;
     if (temp_v0 != NULL) {
         temp_v0->unk88 = D_8076A064;
     }
 }
 
 s32 func_80670548(void);
-s32 func_80672328(M70F_Actor *, f32, f32);
+s32 func_80672328(ActorMotionWork *, f32, f32);
 
-void func_80672B1C(M70F_Actor *arg0) {
-    M70F_ActorSub140 *temp_v0;
+void actorUpdateMovementFlags(ActorMotionWork *arg0) {
+    ActorMotionSub140 *temp_v0;
 
     if (arg0->unk144 & 8) {
         temp_v0 = arg0->unk140;
@@ -1416,7 +1416,7 @@ void func_80672B1C(M70F_Actor *arg0) {
     }
 }
 
-u8 func_80672BD4(M70F_Actor *arg0) {
+u8 actorHasActiveMovementFlags(ActorMotionWork *arg0) {
     return arg0->unk110 != 0
         || arg0->unk140->unk6C != 0
         || arg0->unk140->unk24 != 0
@@ -1424,8 +1424,8 @@ u8 func_80672BD4(M70F_Actor *arg0) {
         || (arg0->unk6A & 0x400) != 0;
 }
 
-void func_80672C30(M70F_Actor *arg0) {
-    M70F_ActorSub140 *temp_v0;
+void actorClearMovementFlags(ActorMotionWork *arg0) {
+    ActorMotionSub140 *temp_v0;
 
     temp_v0 = arg0->unk140;
     arg0->unk110 = 0;
@@ -1442,7 +1442,7 @@ extern s32 D_807FB53C;
 extern s16 D_807FB5F8;
 extern s16 D_807FB5FA;
 
-void func_80672C70(s32 arg0) {
+void actorSetCameraBoundaryMode(s32 arg0) {
     D_807FB53C = arg0;
     if (arg0 != 0 && arg0 != 0xBC) {
         D_807FB5F8 = 2;
@@ -1453,10 +1453,10 @@ void func_80672C70(s32 arg0) {
     }
 }
 
-extern M70F_Actor *D_807FBB4C;
+extern ActorMotionWork *D_807FBB4C;
 
-s32 func_80672CBC(s8 arg0) {
-    M70F_Actor174 *temp_v0;
+s32 actorCheckCameraBoundaryCondition(s8 arg0) {
+    ActorMotionSub174 *temp_v0;
 
     switch (arg0) {
     case 0:
@@ -1509,10 +1509,10 @@ ret_0:
     return 0;
 }
 
-static void func_80672E64(void) {
+static void actorBoundaryStub(void) {
 }
 s32 func_806119A0(void);
 
-s32 func_80672E6C(void) {
+s32 actorRng(void) {
     return func_806119A0();
 }

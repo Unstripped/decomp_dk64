@@ -102,12 +102,12 @@ typedef struct BossA_Struct_807FDC94 {
 extern BossA_Struct_807FDC94 *D_807FDC94;
 
 s32 func_80611A44(void);
-void func_80690814(void *, s32);
-void func_80690A28(s32, s16, f32, f32, f32, f32, f32, void *);
+void projectileGetTargetCoords(void *, s32);
+void projectileAimAndSpawn(s32, s16, f32, f32, f32, f32, f32, void *);
 
 void func_8002C8B4(void) {
-    func_80690814(D_807FBB40, 1);
-    func_80690A28(
+    projectileGetTargetCoords(D_807FBB40, 1);
+    projectileAimAndSpawn(
         0x116,
         ((func_80611A44() >> 15) % 3) + 1,
         1.0f,

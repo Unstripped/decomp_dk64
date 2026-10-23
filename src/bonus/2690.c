@@ -56,8 +56,8 @@ extern Actor_74A0 *D_807FBB40;
 
 void actorDespawn(void *);
 void func_80609140(s32, s32, f32, f32, s32, s32);
-void func_806907F0(f32, f32, f32);
-void func_80690A28(s32, s32, f32, f32, f32, f32, f32, void *);
+void projectileSetTargetCoords(f32, f32, f32);
+void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 s16 func_806CC190(s16, s16, s32);
@@ -223,8 +223,8 @@ Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32)
 extern s16 D_8002D8CA;
 extern s16 D_8002D8D4[];
 extern s16 D_8002D8E0[];
-void func_8066EABC(void *);
-void func_8066E8E4(void *, s32, f32, s32, f32, s32);
+void actorClearAllNodeFlags(void *);
+void actorAppendModelNode(void *, s32, f32, s32, f32, s32);
 void func_80659620(f32 *, f32 *, f32 *, s32);
 void func_806BF920(void);
 extern s16 D_80744490;
@@ -302,8 +302,8 @@ void func_80027308(u8 *arg0, s32 *arg1) {
 
 void func_800274A0(f32 arg0, f32 arg1, f32 arg2) {
     func_80609140(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
-    func_806907F0(D_807FBB40->unk7C, D_807FBB40->unk80 - 10.0f, D_807FBB40->unk84);
-    func_80690A28(0x23, 1, 0.6f, arg0, arg1, arg2, 385.0f, D_807FBB40);
+    projectileSetTargetCoords(D_807FBB40->unk7C, D_807FBB40->unk80 - 10.0f, D_807FBB40->unk84);
+    projectileAimAndSpawn(0x23, 1, 0.6f, arg0, arg1, arg2, 385.0f, D_807FBB40);
 }
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80027548.s")

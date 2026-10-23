@@ -77,7 +77,7 @@ void func_80626110(s32, s32, s32);
 s32 func_80629148();
 void func_806319C4(Boss2F_9230_Actor *, s32);
 void func_80641874();
-void func_80691830(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
+void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 s32 func_8072881C(s32, void *);
 void func_80729B00(void);
 void func_8072A450(void);
@@ -215,7 +215,7 @@ void func_8002D230(void) {
                 break;
             case 3:
                 if (D_807FBB40->unk154 == 0x28 || (D_807FBB40->unk154 == 0x2C && (D_807FDC90->unk2E % 3) == 0)) {
-                    func_80691830(0xB8, 0.14f, 0x64, 0xFF, 0x96, 3, (f32)(((f64)sp44->unk14 * 0.01) + 1.04), 0.0f, 0.0f, 0.0f);
+                    projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 0x96, 3, (f32)(((f64)sp44->unk14 * 0.01) + 1.04), 0.0f, 0.0f, 0.0f);
                     func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                     func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
                     func_80614D00(D_807FBB44, 0.5f, 0.0f);

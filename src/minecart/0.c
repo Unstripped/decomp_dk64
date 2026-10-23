@@ -104,7 +104,7 @@ void func_8061C6A8(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_8061CB50(void);
 void func_8068ECF4(s32, s32);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
-void func_80671C0C(void *, s32, f32 *, f32 *, f32 *);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void func_8065A6F8(s32);
 void func_8065A660(f32, f32);
 void func_8065A708(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
@@ -246,7 +246,7 @@ void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
         break;
 
     case 2:
-        func_80671C0C(D_807FBB40, 9, &s1->unk4->unk7C, &s1->unk4->unk80, &s1->unk4->unk84);
+        actorGetNodePos(D_807FBB40, 9, &s1->unk4->unk7C, &s1->unk4->unk80, &s1->unk4->unk84);
         D_807FBB40->unk154++;
         if (D_807FBB40->unk168 == 0 && D_8076A0A8 != 6) {
             D_807FBB40->unk168 = 2;
@@ -270,7 +270,7 @@ void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
         func_8068ECF4(6, 0xFF);
         func_80024254(s1);
         func_800253C0(s1, arg2, arg3);
-        func_80671C0C(D_807FBB40, 5, &sp58[0], &sp58[1], &sp58[2]);
+        actorGetNodePos(D_807FBB40, 5, &sp58[0], &sp58[1], &sp58[2]);
         func_8072177C(D_807FBB40, (s16)(s32)sp58[0], (s16)(s32)sp58[1], (s16)(s32)sp58[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
         func_8072177C(s1->unk4, (s16)(s32)sp58[0], (s16)(s32)sp58[1], (s16)(s32)sp58[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
         break;
@@ -294,11 +294,11 @@ void func_80024768(void) {
     f32 sp38[3];
 
     if (D_807FD580->unk1F0 & 0x10000002) {
-        func_80671C0C(D_807FBB40, 2, &sp38[0], &sp38[1], &sp38[2]);
-        func_80671C0C(D_807FBB40, 1, &sp44[0], &sp44[1], &sp44[2]);
+        actorGetNodePos(D_807FBB40, 2, &sp38[0], &sp38[1], &sp38[2]);
+        actorGetNodePos(D_807FBB40, 1, &sp44[0], &sp44[1], &sp44[2]);
     } else {
-        func_80671C0C(D_807FBB40, 1, &sp38[0], &sp38[1], &sp38[2]);
-        func_80671C0C(D_807FBB40, 2, &sp44[0], &sp44[1], &sp44[2]);
+        actorGetNodePos(D_807FBB40, 1, &sp38[0], &sp38[1], &sp38[2]);
+        actorGetNodePos(D_807FBB40, 2, &sp44[0], &sp44[1], &sp44[2]);
     }
     func_8065A6F8(0xC8);
     func_8065A660(20.0f, 40.0f);
@@ -364,7 +364,7 @@ void func_80024914(void) {
         func_80024768();
     }
     if (D_807FBB40->unk154 != 0) {
-        func_80671C0C(D_807FBB40, 9, &temp_s0->unk4->unk7C, &temp_s0->unk4->unk80, &temp_s0->unk4->unk84);
+        actorGetNodePos(D_807FBB40, 9, &temp_s0->unk4->unk7C, &temp_s0->unk4->unk80, &temp_s0->unk4->unk84);
     }
 }
 

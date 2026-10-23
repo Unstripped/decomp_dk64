@@ -128,7 +128,7 @@ s32 func_8066B0F8(s32, s32, s32, s32);
 void func_8066B434(s32, s32, s32);
 void func_8066BDE0(void);
 void func_8066CCD8(void);
-void func_8066CDD0(void);
+void collisionBufferCacheUpdate(void);
 void actorInit(void);
 void func_806787CC(void);
 void func_80678824(void);
@@ -542,7 +542,7 @@ void func_805FC2B0(void) {
         func_805FCA94(D_8076A048);
         func_8065D1AC();
         func_8068A508();
-        func_8066CDD0();
+        collisionBufferCacheUpdate();
         func_8066CCD8();
         func_80661054();
         func_80678824();

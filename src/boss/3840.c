@@ -194,18 +194,18 @@ void bossResetAudioChannels(void) {
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/3840/func_80028878.s")
 
-void func_8066EA64(void *, s32);
-void func_8066EA90(void *, s32);
+void actorSetNodeFlag(void *, s32);
+void actorClearNodeFlag(void *, s32);
 
 void func_800290D4(arg0)
 u8 arg0;
 {
     if (arg0) {
-        func_8066EA64(D_807FBB40, 2);
-        func_8066EA64(D_807FBB40, 3);
+        actorSetNodeFlag(D_807FBB40, 2);
+        actorSetNodeFlag(D_807FBB40, 3);
     } else {
-        func_8066EA90(D_807FBB40, 2);
-        func_8066EA90(D_807FBB40, 3);
+        actorClearNodeFlag(D_807FBB40, 2);
+        actorClearNodeFlag(D_807FBB40, 3);
     }
 }
 

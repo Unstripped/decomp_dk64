@@ -71,7 +71,7 @@ void func_80614EBC();
 void func_8061CC40(void *, s32, s32);
 void func_806319C4(Actor *, s32);
 void func_80665564(Actor *, f32);
-void func_80671C0C(Actor *, s32, f32 *, f32 *, f32 *);
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void actorDespawn(Actor *);
 void func_8067B4C8(void);
 void func_8067BA7C(s32);
@@ -418,7 +418,7 @@ void func_8067E2E4(s32 arg0, u8 arg1, f32 arg2) {
     f32 sp28;
     f32 sp24;
 
-    func_80671C0C(D_807FBB40, arg1, &sp2C, &sp28, &sp24);
+    actorGetNodePos(D_807FBB40, arg1, &sp2C, &sp28, &sp24);
     func_8067DF44(sp2C, sp28, sp24, arg2, 0, 1);
 }
 

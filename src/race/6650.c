@@ -96,7 +96,7 @@ extern Actor_BB40 *D_807FBB40;
 
 void func_80729B00(void);
 void func_8002DE78(void *, s32, void *, void *);
-void func_8066E5F8(void *, s32, s32);
+void actorOrNodeFlags(void *, s32, s32);
 void func_8002E644(void *);
 typedef struct {
     char pad[0x4];
@@ -219,7 +219,7 @@ void actorSpawn(s32, s32);
 void func_8002BC2C(void *, s32, void *, void *);
 void *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BCB0(void *, s32, void *, void *);
-void func_806903BC(void *, void *);
+void actorInitFromSpawnPoint(void *, void *);
 
 void raceInitParticipants(Struct_arg0 *arg0) {
     Struct_sp5C *sp5C;
@@ -261,7 +261,7 @@ void raceInitParticipants(Struct_arg0 *arg0) {
             func_8002BCB0(arg0, var_s0, &sp54, &sp58);
             sp58->unk36 = var_s0;
             sp58->unk30 = arg0;
-            func_806903BC(sp54, sp58);
+            actorInitFromSpawnPoint(sp54, sp58);
             var_s0++;
         } while (var_s0 != var_s5);
     }

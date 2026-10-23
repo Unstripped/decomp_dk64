@@ -1,10 +1,10 @@
 #include "common.h"
 
 #include "actor.h"
-void func_80671C0C(Actor *, s32, f32 *, f32 *, f32 *);
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_806319C4(Actor *, s32);
 
-typedef struct M93A_Actor174 {
+typedef struct ProjectileActorSub174 {
     s16 unk0;
     u8 pad2[0x25];
     u8 unk27;
@@ -17,9 +17,9 @@ typedef struct M93A_Actor174 {
     Actor *unk88;
     u8 pad8C[0x1A4 - 0x8C];
     u8 unk1A4;
-} M93A_Actor174;
+} ProjectileActorSub174;
 
-typedef struct M93A_ActorE4 {
+typedef struct ProjectileActorSync {
     u8 pad0[0x58];
     s32 unk58;
     u8 pad5C[0x7C - 0x5C];
@@ -36,14 +36,14 @@ typedef struct M93A_ActorE4 {
     s16 unkE8;
     u8 padEA[0x174 - 0xEA];
     void *unk174;
-} M93A_ActorE4;
+} ProjectileActorSync;
 
-void func_8068E9B0(Actor **arg0) {
+void actorSnapToBone(Actor **arg0) {
     f32 sp2C;
-    M93A_Actor174 *temp_v1;
+    ProjectileActorSub174 *temp_v1;
 
     temp_v1 = (*arg0)->unk174;
-    func_80671C0C(temp_v1->unk88, 9, &(*arg0)->unk7C, &sp2C, &(*arg0)->unk84);
+    actorGetNodePos(temp_v1->unk88, 9, &(*arg0)->unk7C, &sp2C, &(*arg0)->unk84);
     if ((*arg0)->unk80 < sp2C) {
         (*arg0)->unk80 = sp2C;
     }
@@ -51,26 +51,26 @@ void func_8068E9B0(Actor **arg0) {
     func_806319C4(*arg0, 0);
 }
 
-void func_8068EA38(M93A_ActorE4 **arg0) {
-    M93A_ActorE4 *temp_a2;
-    M93A_Actor174 *temp_v0;
-    M93A_ActorE4 *temp_v1;
-    M93A_Actor174 *temp_a1;
+void actorSyncTransformFromParent(ProjectileActorSync **arg0) {
+    ProjectileActorSync *temp_a2;
+    ProjectileActorSub174 *temp_v0;
+    ProjectileActorSync *temp_v1;
+    ProjectileActorSub174 *temp_a1;
 
     temp_a2 = *arg0;
     temp_v0 = temp_a2->unk174;
-    temp_v1 = (M93A_ActorE4 *)temp_v0->unk88;
+    temp_v1 = (ProjectileActorSync *)temp_v0->unk88;
     if (temp_v1 != NULL) {
         temp_a1 = temp_v1->unk174;
         if (temp_a1->unk34 < 5) {
             temp_a2->unk7C = temp_v1->unk7C;
-            (*arg0)->unk80 = ((M93A_ActorE4 *)temp_v0->unk88)->unk80;
-            (*arg0)->unk84 = ((M93A_ActorE4 *)temp_v0->unk88)->unk84;
-            (*arg0)->unkE6 = ((M93A_ActorE4 *)temp_v0->unk88)->unkE6;
-            (*arg0)->unkE8 = ((M93A_ActorE4 *)temp_v0->unk88)->unkE8;
-            (*arg0)->unkE4 = ((M93A_ActorE4 *)temp_v0->unk88)->unkE4;
-            (*arg0)->unkAC = ((M93A_ActorE4 *)temp_v0->unk88)->unkAC;
-            temp_v1 = (M93A_ActorE4 *)temp_v0->unk88;
+            (*arg0)->unk80 = ((ProjectileActorSync *)temp_v0->unk88)->unk80;
+            (*arg0)->unk84 = ((ProjectileActorSync *)temp_v0->unk88)->unk84;
+            (*arg0)->unkE6 = ((ProjectileActorSync *)temp_v0->unk88)->unkE6;
+            (*arg0)->unkE8 = ((ProjectileActorSync *)temp_v0->unk88)->unkE8;
+            (*arg0)->unkE4 = ((ProjectileActorSync *)temp_v0->unk88)->unkE4;
+            (*arg0)->unkAC = ((ProjectileActorSync *)temp_v0->unk88)->unkAC;
+            temp_v1 = (ProjectileActorSync *)temp_v0->unk88;
             if (temp_v1->unk58 == 0x12E) {
                 (*arg0)->unkB8 = temp_v1->unkB8 * 10.0f;
             } else {
@@ -86,11 +86,11 @@ void func_8068EA38(M93A_ActorE4 **arg0) {
     func_806319C4((Actor *)temp_a2, 0);
 }
 
-typedef struct M93E_Vec3f {
+typedef struct TargetVec3f {
     f32 x, y, z;
-} M93E_Vec3f;
+} TargetVec3f;
 void func_8061F2B8(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
-s32 func_8068EB3C(f32 arg0, f32 arg1, f32 arg2, M93E_Vec3f *arg3, M93E_Vec3f *arg4, M93E_Vec3f *arg5, M93E_Vec3f *arg6, f32 *arg7, f32 *arg8, f32 *arg9) {
+s32 mathPickCloserTargetPoint3D(f32 arg0, f32 arg1, f32 arg2, TargetVec3f *arg3, TargetVec3f *arg4, TargetVec3f *arg5, TargetVec3f *arg6, f32 *arg7, f32 *arg8, f32 *arg9) {
     f32 sp5C;
     f32 sp58;
     f32 sp54;
@@ -118,45 +118,45 @@ s32 func_8068EB3C(f32 arg0, f32 arg1, f32 arg2, M93E_Vec3f *arg3, M93E_Vec3f *ar
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8068F72C.s")
 
-typedef struct M93A_ActorSub4 {
+typedef struct ProjectileActorSub4 {
     u8 pad0[0x1C];
     void *unk1C;
-} M93A_ActorSub4;
+} ProjectileActorSub4;
 
-typedef struct M93A_Actor {
+typedef struct ProjectileActorBase {
     u8 pad0[4];
-    M93A_ActorSub4 *unk4;
-} M93A_Actor;
+    ProjectileActorSub4 *unk4;
+} ProjectileActorBase;
 
-typedef struct M93A_StructC {
+typedef struct ProjectileAngleTarget {
     u8 pad0[0xC];
     f32 unkC;
-} M93A_StructC;
+} ProjectileAngleTarget;
 
-typedef struct M93A_Struct2 {
+typedef struct ProjectileAngleStep {
     s16 unk0;
     s16 unk2;
-} M93A_Struct2;
+} ProjectileAngleStep;
 
-typedef struct M93A_Sub1C {
+typedef struct ProjectileAngleSub1C {
     s8 unk0;
     u8 unk1;
     s16 unk2;
     s16 unk4;
     s16 unk6;
     u8 unk8;
-} M93A_Sub1C;
+} ProjectileAngleSub1C;
 
 s16 func_806CC190(s16, s16, f32);
 
 extern Actor *D_807FBB40;
 
-void func_8068FF40(u8 arg0, M93A_StructC *arg1, M93A_Struct2 *arg2) {
+void actorInterpolateAngles(u8 arg0, ProjectileAngleTarget *arg1, ProjectileAngleStep *arg2) {
     f32 var_fv0;
     f32 var_fv1;
-    M93A_Sub1C *temp_v1;
+    ProjectileAngleSub1C *temp_v1;
 
-    temp_v1 = ((M93A_ActorSub4 *)D_807FBB40->unk4)->unk1C;
+    temp_v1 = ((ProjectileActorSub4 *)D_807FBB40->unk4)->unk1C;
     if (arg0) {
         var_fv0 = 500.0f;
         var_fv1 = 0.0f;
@@ -177,9 +177,9 @@ void func_8068FF40(u8 arg0, M93A_StructC *arg1, M93A_Struct2 *arg2) {
 void *func_80610FE8(s32);
 void heapClearBlock(void *);
 
-void func_80690058(Actor *arg0, s32 arg1) {
-    ((M93A_Actor *)arg0)->unk4->unk1C = func_80610FE8(arg1 * 8);
-    heapClearBlock(((M93A_Actor *)arg0)->unk4->unk1C);
+void actorAllocSubBuffer(Actor *arg0, s32 arg1) {
+    ((ProjectileActorBase *)arg0)->unk4->unk1C = func_80610FE8(arg1 * 8);
+    heapClearBlock(((ProjectileActorBase *)arg0)->unk4->unk1C);
 }
 
 void func_806EB0C0(s32, Actor *, u8);
@@ -189,9 +189,9 @@ void animSetLoopLimit(Actor *, s32, s32);
 void func_8067B238(Actor *, Actor *, f32);
 extern s32 D_8076A0A8;
 
-void func_80690094(Actor *arg0, Actor *arg1) {
+void actorInitAnimations(Actor *arg0, Actor *arg1) {
     u8 sp37[4];
-    M93A_Actor174 *temp_v0;
+    ProjectileActorSub174 *temp_v0;
 
     sp37[3] = 0;
     temp_v0 = arg1->unk174;
@@ -203,20 +203,20 @@ void func_80690094(Actor *arg0, Actor *arg1) {
     func_80604CBC(arg0, 0x116, sp37[3], 1, 1, 0xFF, 1.0f, 0);
     animSetSpeed(arg0, 0, 1.0f);
     animSetLoopLimit(arg0, 0, -1);
-    func_80690058(arg0, 2);
+    actorAllocSubBuffer(arg0, 2);
     func_8067B238(arg0, arg1, 0.15f);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690190.s")
 
-typedef struct M93A_Coord {
+typedef struct SpawnCoord {
     s16 x;
     s16 y;
     s16 z;
     u8 yaw;
-} M93A_Coord;
+} SpawnCoord;
 
-typedef struct M93A_ActorEE {
+typedef struct SpawnPointActor {
     u8 pad0[0x7C];
     f32 unk7C;
     f32 unk80;
@@ -225,12 +225,12 @@ typedef struct M93A_ActorEE {
     s16 unkE6;
     u8 padE8[0xEE - 0xE8];
     s16 unkEE;
-} M93A_ActorEE;
+} SpawnPointActor;
 
-M93A_Coord *func_806C96C4(s32);
+SpawnCoord *func_806C96C4(s32);
 
-void func_806903BC(M93A_ActorEE *arg0, M93A_Actor174 *arg1) {
-    M93A_Coord *temp_v0;
+void actorInitFromSpawnPoint(SpawnPointActor *arg0, ProjectileActorSub174 *arg1) {
+    SpawnCoord *temp_v0;
     s16 temp;
 
     temp_v0 = func_806C96C4(arg1->unk36);
@@ -244,12 +244,12 @@ void func_806903BC(M93A_ActorEE *arg0, M93A_Actor174 *arg1) {
 }
 
 void actorSpawn(s32, s32);
-void func_80690094(Actor *, Actor *);
+void actorInitAnimations(Actor *, Actor *);
 extern Actor *D_807FBB44;
 
-void func_80690470(Actor *arg0) {
-    M93A_Actor174 *sp24 = arg0->unk174;
-    M93A_Actor174 *temp_v0;
+void actorSpawnChildActor(Actor *arg0) {
+    ProjectileActorSub174 *sp24 = arg0->unk174;
+    ProjectileActorSub174 *temp_v0;
     s32 pad;
     Actor *temp_a0;
 
@@ -257,7 +257,7 @@ void func_80690470(Actor *arg0) {
     temp_a0 = D_807FBB44;
     temp_v0 = temp_a0->unk174;
     temp_v0->unk28 = sp24->unk1A4;
-    func_80690094(temp_a0, arg0);
+    actorInitAnimations(temp_a0, arg0);
     temp_v0->unk35 = 0;
     temp_v0->unk27 = 0;
     temp_v0->unk0 = arg0->unkE6;
@@ -265,35 +265,35 @@ void func_80690470(Actor *arg0) {
     temp_a0->unk60 &= ~0x20000;
 }
 
-typedef struct M93H_Sub4C {
+typedef struct PlayerInteractionState {
     u8 pad0[0xF3];
     u8 unkF3;
-} M93H_Sub4C;
+} PlayerInteractionState;
 
-typedef struct M93H_Actor104 {
+typedef struct PlayerActor104 {
     u8 pad0[0x174];
-    M93H_Sub4C *unk174;
-} M93H_Actor104;
+    PlayerInteractionState *unk174;
+} PlayerActor104;
 
-typedef struct M93H_PlayerActor174 {
+typedef struct PlayerActorSub174 {
     u8 pad0[0x104];
-    M93H_Actor104 *unk104;
+    PlayerActor104 *unk104;
     u8 pad108[0x1A4 - 0x108];
     u8 unk1A4;
-} M93H_PlayerActor174;
+} PlayerActorSub174;
 
-typedef struct M93H_PlayerActor {
+typedef struct PlayerInteractionActor {
     u8 pad0[0x174];
-    M93H_PlayerActor174 *unk174;
-} M93H_PlayerActor;
+    PlayerActorSub174 *unk174;
+} PlayerInteractionActor;
 
-typedef struct M93H_PlayerEntry500 {
+typedef struct PlayerInteractionEntry {
     u8 pad0[4];
-    M93H_PlayerActor *actor;
+    PlayerInteractionActor *actor;
     u8 pad8[0x2F0 - 8];
-} M93H_PlayerEntry500;
+} PlayerInteractionEntry;
 
-typedef struct M93H_Actor500 {
+typedef struct ActorPlayerInteraction {
     u8 pad0[0x60];
     u32 unk60;
     u8 pad64[0x6A - 0x64];
@@ -303,13 +303,13 @@ typedef struct M93H_Actor500 {
     u8 padC8[0x144 - 0xC8];
     u8 unk144;
     u8 pad145[0x174 - 0x145];
-    M93A_Actor174 *unk174;
+    ProjectileActorSub174 *unk174;
     void *unk178;
-} M93H_Actor500;
-#define M93H_ACTOR500 ((M93H_Actor500 *)D_807FBB40)
+} ActorPlayerInteraction;
+#define G_PLAYER_INTERACT_ACTOR ((ActorPlayerInteraction *)D_807FBB40)
 
-struct M93C_PlayerEntry;
-extern struct M93C_PlayerEntry *D_807FC924;
+struct PlayerTrackEntry;
+extern struct PlayerTrackEntry *D_807FC924;
 extern u8 D_807444EC;
 extern f32 D_80750300;
 extern Actor *D_807FBB4C;
@@ -321,41 +321,41 @@ void func_8065A708(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32);
 void func_8070033C(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32);
 s32 func_8073110C(s32, s32);
 
-void func_80690500(void) {
-    M93A_Actor174 *sp5C;
-    M93H_PlayerActor *playerActor;
-    M93H_PlayerActor174 *sp54;
+void actorUpdatePlayerInteraction(void) {
+    ProjectileActorSub174 *sp5C;
+    PlayerInteractionActor *playerActor;
+    PlayerActorSub174 *sp54;
     s32 sp50;
-    M93H_Sub4C *sp4C;
+    PlayerInteractionState *sp4C;
     u8 sp4B;
     f32 sp44;
     f32 sp40;
     s32 sp3C;
 
-    sp5C = M93H_ACTOR500->unk174;
-    sp50 = (s32)M93H_ACTOR500->unk178;
-    playerActor = ((M93H_PlayerEntry500 *)D_807FC924)[sp5C->unk28].actor;
+    sp5C = G_PLAYER_INTERACT_ACTOR->unk174;
+    sp50 = (s32)G_PLAYER_INTERACT_ACTOR->unk178;
+    playerActor = ((PlayerInteractionEntry *)D_807FC924)[sp5C->unk28].actor;
     sp54 = playerActor->unk174;
     sp4C = sp54->unk104->unk174;
-    sp4B = M93H_ACTOR500->unk6A & 1;
+    sp4B = G_PLAYER_INTERACT_ACTOR->unk6A & 1;
     sp5C->unk34 = 2;
     func_80690190(sp5C, sp50, sp54);
     if (D_807444EC == 0 && sp4C->unkF3 != 4) {
         func_8061C6A8(sp54->unk104, D_807FBB40, 4, 0x800, 0xA0, 0, 6, 0x12C, 0x8F, 0, 0.2f);
     }
     func_8068F72C(sp5C, sp50, 1, 1);
-    func_8068FF40(sp4B, (M93A_StructC *)sp5C, (M93A_Struct2 *)sp50);
-    if (!(M93H_ACTOR500->unk60 & 0x10)) {
-        M93H_ACTOR500->unkC4 = D_80750300;
-        M93H_ACTOR500->unk144 = 0x3C;
+    actorInterpolateAngles(sp4B, (ProjectileAngleTarget *)sp5C, (ProjectileAngleStep *)sp50);
+    if (!(G_PLAYER_INTERACT_ACTOR->unk60 & 0x10)) {
+        G_PLAYER_INTERACT_ACTOR->unkC4 = D_80750300;
+        G_PLAYER_INTERACT_ACTOR->unk144 = 0x3C;
         func_806EB0C0(0x4C, D_807FBB40, sp54->unk1A4);
     }
     if (func_8061CB50() == 0 || (func_8061CB50() != 0 && (D_807FBB4C->unk6A & 0x100))) {
-        func_80671C0C(D_807FBB40, 1, &sp44, &sp40, (f32 *)&sp3C);
+        actorGetNodePos(D_807FBB40, 1, &sp44, &sp40, (f32 *)&sp3C);
         func_8065A708(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xFF, 0xFF, 0xFF);
         if (func_8073110C(0x6B, 2) == 0) {
             if (func_8061CB50() != 0 && (D_807FBB4C->unk6A & 0x100)) {
-                func_80671C0C(D_807FBB40, 2, &sp44, &sp40, (f32 *)&sp3C);
+                actorGetNodePos(D_807FBB40, 2, &sp44, &sp40, (f32 *)&sp3C);
                 func_8070033C(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 0.0f, 0xFF, 0xFF, 0xFF);
             }
             if (func_8061CB50() == 0) {
@@ -366,19 +366,19 @@ void func_80690500(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_806907B8(void) {
+void actorClearSubState(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
 extern u8 D_80750270;
-void func_806907E0(void) {
+void projectileSetSpawnFlag(void) {
     D_80750270 = 1;
 }
 
 extern f32 D_807FC7B0;
 extern f32 D_807FC7B4;
 extern f32 D_807FC7B8;
-void func_806907F0(f32 arg0, f32 arg1, f32 arg2) {
+void projectileSetTargetCoords(f32 arg0, f32 arg1, f32 arg2) {
     D_807FC7B0 = arg0;
     D_807FC7B4 = arg1;
     D_807FC7B8 = arg2;
@@ -387,7 +387,7 @@ void func_806907F0(f32 arg0, f32 arg1, f32 arg2) {
 #include "actor.h"
 
 s16 func_80665DE0(f32, f32, f32, f32);
-void func_80690930(s16, s16, s16, f32, f32, f32, f32, f32, s32);
+void projectileCalculateTrajectoryAndSpawn(s16, s16, s16, f32, f32, f32, f32, f32, s32);
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -397,7 +397,7 @@ typedef struct {
     f32 unk14;
     f32 unk18;
     f32 unk1C;
-} M93B_ActorListSub20;
+} ProjectileSpawnParams;
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
 typedef struct {
     s16 unk0;
@@ -406,7 +406,7 @@ typedef struct {
     f32 unkC;
     u8 pad10;
     u8 unk11;
-} M93B_Actor107Sub174;
+} ProjectileTrackerSub174;
 extern s32 D_807F5D10;
 void func_80661520(f32, f32, f32, f32, f32, f32);
 void func_8061F0B0(s32, s32, s32);
@@ -417,12 +417,12 @@ void func_8071498C(void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
 extern u8 D_80750AD0;
 
-void func_80690814(Actor *arg0, s32 arg1) {
-    func_80671C0C(arg0, arg1, &D_807FC7B0, &D_807FC7B4, &D_807FC7B8);
+void projectileGetTargetCoords(Actor *arg0, s32 arg1) {
+    actorGetNodePos(arg0, arg1, &D_807FC7B0, &D_807FC7B4, &D_807FC7B8);
 }
 
-void func_8069084C(s16 arg0, s16 arg1, f32 arg2, s16 arg3, f32 arg4, f32 arg5, s32 arg6) {
-    M93B_ActorListSub20 sp28;
+void projectileSpawnNodeEntry(s16 arg0, s16 arg1, f32 arg2, s16 arg3, f32 arg4, f32 arg5, s32 arg6) {
+    ProjectileSpawnParams sp28;
 
     sp28.unk0 = (f32)(((f64)arg3 / 4095.0) * 6.28318548202514648);
     sp28.unk4 = arg4;
@@ -434,21 +434,21 @@ void func_8069084C(s16 arg0, s16 arg1, f32 arg2, s16 arg3, f32 arg4, f32 arg5, s
     D_80750270 = 0;
 }
 
-void func_80690930(s16 arg0, s16 arg1, s16 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, s32 arg8) {
+void projectileCalculateTrajectoryAndSpawn(s16 arg0, s16 arg1, s16 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, s32 arg8) {
     f32 sp2C;
     f32 sp28;
 
     sp2C = sqrtf(((arg4 - D_807FC7B0) * (arg4 - D_807FC7B0)) + ((arg5 - D_807FC7B4) * (arg5 - D_807FC7B4)) + ((arg6 - D_807FC7B8) * (arg6 - D_807FC7B8)));
     sp28 = arg5 - D_807FC7B4;
-    func_8069084C(arg1, arg2, arg3, arg0, sqrtf(((arg4 - D_807FC7B0) * (arg4 - D_807FC7B0)) + ((arg6 - D_807FC7B8) * (arg6 - D_807FC7B8))) / (sp2C / arg7), sp28 / (sp2C / arg7), arg8);
+    projectileSpawnNodeEntry(arg1, arg2, arg3, arg0, sqrtf(((arg4 - D_807FC7B0) * (arg4 - D_807FC7B0)) + ((arg6 - D_807FC7B8) * (arg6 - D_807FC7B8))) / (sp2C / arg7), sp28 / (sp2C / arg7), arg8);
 }
 
-void func_80690A28(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, s32 arg7) {
-    func_80690930(func_80665DE0(arg3, arg5, D_807FC7B0, D_807FC7B8), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+void projectileAimAndSpawn(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, s32 arg7) {
+    projectileCalculateTrajectoryAndSpawn(func_80665DE0(arg3, arg5, D_807FC7B0, D_807FC7B8), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
 
 s16 func_806CC14C(s16, s16);
-void func_80690AB0(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, s32 arg9) {
+void projectileClampAngleAndSpawn(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, s32 arg9) {
     s16 sp3C;
     s16 sp38;
     s16 var_s0;
@@ -463,16 +463,16 @@ void func_80690AB0(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5, f
             var_s0 = sp38;
         }
     }
-    func_80690930(var_s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+    projectileCalculateTrajectoryAndSpawn(var_s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 }
 
-void func_80690BE8(s16 arg0, s16 arg1, f32 arg2, Actor *arg3, s32 arg4, f32 arg5, s32 arg6) {
+void projectileAimFromActorAndSpawn(s16 arg0, s16 arg1, f32 arg2, Actor *arg3, s32 arg4, f32 arg5, s32 arg6) {
     f32 sp34;
     f32 sp30;
     f32 sp2C;
 
-    func_80671C0C(arg3, arg4, &sp34, &sp30, &sp2C);
-    func_80690A28(arg0, arg1, arg2, sp34, sp30, sp2C, arg5, arg6);
+    actorGetNodePos(arg3, arg4, &sp34, &sp30, &sp2C);
+    projectileAimAndSpawn(arg0, arg1, arg2, sp34, sp30, sp2C, arg5, arg6);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690C60.s")
@@ -483,7 +483,7 @@ u32 func_806119A0(void);
 void func_807149C8(s32, s32, s32, s32);
 extern s32 D_8071FFA0;
 void func_80717D4C(void);
-void func_806915B0(void) {
+void actorSpawnSparkleBurst(void) {
     s32 count;
     s32 i;
     f32 dx;
@@ -508,7 +508,7 @@ void func_806915B0(void) {
     }
 }
 
-void func_80691830(s16 arg0, f32 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
+void projectileSpawnWithShockwave(s16 arg0, f32 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
     actorSpawn(0x102, arg0);
     func_8067B238(D_807FBB44, D_807FBB40, arg1);
     *(s16 *)((u8 *)D_807FBB44 + 0xF0) = arg0;
@@ -524,8 +524,8 @@ void func_80691830(s16 arg0, f32 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 a
     func_8061F0B0(D_807F5D10, 0x50, 0x14);
 }
 
-void func_80691930(u8 arg0, u8 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
-    M93B_Actor107Sub174 *sub;
+void projectileSpawnActor107(u8 arg0, u8 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
+    ProjectileTrackerSub174 *sub;
 
     actorSpawn(0x107, 0);
     func_8067B238(D_807FBB44, D_807FBB40, 0.15f);
@@ -541,22 +541,22 @@ void func_80691930(u8 arg0, u8 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_806919E0.s")
 
-typedef struct M93L_ActorState2C {
+typedef struct SparkleParticleState {
     u32 unk0;
     char pad4[0xE];
     u8 unk12;
     u8 unk13;
-} M93L_ActorState2C;
+} SparkleParticleState;
 
-typedef struct M93L_ConfigSub124 {
+typedef struct SparkleConfig124 {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
     f32 unk10;
-} M93L_ConfigSub124;
+} SparkleConfig124;
 
-typedef struct M93L_Actor21DC {
+typedef struct SparkleProjectileActor {
     u8 pad0[0x60];
     u32 unk60;
     u32 unk64;
@@ -573,14 +573,14 @@ typedef struct M93L_Actor21DC {
     u8 padF0[0xFC - 0xF0];
     u8 unkFC;
     u8 padFD[0x124 - 0xFD];
-    M93L_ConfigSub124 *unk124;
+    SparkleConfig124 *unk124;
     u8 pad128[0x144 - 0x128];
     u8 unk144;
     u8 pad145[0x174 - 0x145];
     void *unk174;
-} M93L_Actor21DC;
+} SparkleProjectileActor;
 
-#define M93L_ACTOR21DC ((M93L_Actor21DC *)D_807FBB40)
+#define G_SPARKLE_ACTOR ((SparkleProjectileActor *)D_807FBB40)
 
 extern u8 D_80720120;
 extern u8 D_80720BE8;
@@ -591,27 +591,27 @@ void func_807149A8(s32);
 void func_807149FC(s32);
 s32 func_80611A44(void);
 void func_8066EB40(Actor *, f32);
-void func_8066E8E4(Actor *, f32, f32, f32, f32, s32);
-void func_8066E854(Actor *, f32, f32, f32, s32);
+void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
+void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8067ACB4(Actor *);
 void func_806651FC(Actor *);
 void func_80665564(Actor *, f32);
 void actorDespawn(Actor *);
 s32 func_80714C08(void *, f32, Actor *, s32, s32);
 
-void func_806921DC(s32 arg0) {
-    M93L_ActorState2C *sp2C;
+void projectileSparkleUpdate(s32 arg0) {
+    SparkleParticleState *sp2C;
 
-    sp2C = (M93L_ActorState2C *)M93L_ACTOR21DC->unk174;
-    if (!(M93L_ACTOR21DC->unk60 & 0x10)) {
-        M93L_ACTOR21DC->unk6A &= (M93L_ACTOR21DC->unk6E = -2);
-        M93L_ACTOR21DC->unkEE = (s16)((M93L_ACTOR21DC->unk124->unk0 / 6.2831855f) * 4095.0f);
-        M93L_ACTOR21DC->unkB8 = M93L_ACTOR21DC->unk124->unk4;
-        M93L_ACTOR21DC->unkC0 = M93L_ACTOR21DC->unk124->unk8;
-        M93L_ACTOR21DC->unk144 = 0x3C;
+    sp2C = (SparkleParticleState *)G_SPARKLE_ACTOR->unk174;
+    if (!(G_SPARKLE_ACTOR->unk60 & 0x10)) {
+        G_SPARKLE_ACTOR->unk6A &= (G_SPARKLE_ACTOR->unk6E = -2);
+        G_SPARKLE_ACTOR->unkEE = (s16)((G_SPARKLE_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_SPARKLE_ACTOR->unkB8 = G_SPARKLE_ACTOR->unk124->unk4;
+        G_SPARKLE_ACTOR->unkC0 = G_SPARKLE_ACTOR->unk124->unk8;
+        G_SPARKLE_ACTOR->unk144 = 0x3C;
         func_8066EB40(D_807FBB40, 40.0f);
-        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 30.0f, -1);
-        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 30.0f, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         func_807149FC(1);
         func_80714998(2);
         func_807149B8(1);
@@ -621,22 +621,22 @@ void func_806921DC(s32 arg0) {
         switch ((u8)arg0) {
         case 0:
             func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
-            func_80714C08(&D_80720120, M93L_ACTOR21DC->unk124->unkC, D_807FBB40, 1, 2);
+            func_80714C08(&D_80720120, G_SPARKLE_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
             break;
         case 1:
             func_807149C8(0xC8, 0xC8, 0xFA, 0x9B);
-            func_80714C08(&D_80720BE8, M93L_ACTOR21DC->unk124->unkC, D_807FBB40, 1, 2);
+            func_80714C08(&D_80720BE8, G_SPARKLE_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
             break;
         }
-        sp2C->unk13 = (u8)(u32)M93L_ACTOR21DC->unk124->unk10;
+        sp2C->unk13 = (u8)(u32)G_SPARKLE_ACTOR->unk124->unk10;
         sp2C->unk0 = D_8076A068;
         sp2C->unk12 = 0;
-        M93L_ACTOR21DC->unk60 |= 0x80000;
+        G_SPARKLE_ACTOR->unk60 |= 0x80000;
     }
     func_8067ACB4(D_807FBB40);
     func_806651FC(D_807FBB40);
     func_80665564(D_807FBB40, 4.0f);
-    if ((M93L_ACTOR21DC->unk6A & 1) || (M93L_ACTOR21DC->unkFC != 0) || (D_807FBB85 != 0) || ((u32)(sp2C->unk0 + 24) < D_8076A068)) {
+    if ((G_SPARKLE_ACTOR->unk6A & 1) || (G_SPARKLE_ACTOR->unkFC != 0) || (D_807FBB85 != 0) || ((u32)(sp2C->unk0 + 24) < D_8076A068)) {
         actorDespawn(D_807FBB40);
     }
 }
@@ -644,55 +644,55 @@ void func_806921DC(s32 arg0) {
 void func_806919E0(void *);
 extern u8 D_807201D4;
 
-void func_80692500(void) {
-    func_806921DC(0);
+void projectileSparkleUpdateGold(void) {
+    projectileSparkleUpdate(0);
 }
 
-void func_80692520(void) {
-    func_806921DC(1);
+void projectileSparkleUpdateSilver(void) {
+    projectileSparkleUpdate(1);
 }
 
-void func_80692540(void) {
+void projectileSpawnParticleEffect(void) {
     func_806919E0(&D_807201D4);
 }
 
 #include "actor.h"
 
-typedef struct M93C_Actor124 {
+typedef struct ProjectileConfig124 {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
     f32 unk10;
     f32 unk14;
-} M93C_Actor124;
+} ProjectileConfig124;
 
-typedef struct M93C_PlayerActorSub {
+typedef struct PlayerTrackActorSub {
     u8 pad0[0x104];
     s32 unk104;
-} M93C_PlayerActorSub;
+} PlayerTrackActorSub;
 
-typedef struct M93C_PlayerActor {
+typedef struct PlayerTrackActor {
     u8 pad0[0x174];
-    M93C_PlayerActorSub *unk174;
-} M93C_PlayerActor;
+    PlayerTrackActorSub *unk174;
+} PlayerTrackActor;
 
-typedef struct M93C_PlayerEntry {
+typedef struct PlayerTrackEntry {
     u8 pad0[0x4];
-    M93C_PlayerActor *actor;
+    PlayerTrackActor *actor;
     u8 pad8[0x2F0 - 0x8];
-} M93C_PlayerEntry;
+} PlayerTrackEntry;
 
-typedef struct M93C_ActorExtra {
+typedef struct ProjectileActorExtra {
     u32 unk0;
     u8 pad4[0x13 - 4];
     u8 unk13;
     f32 unk14;
     u8 pad18[4];
     s32 unk1C;
-} M93C_ActorExtra;
+} ProjectileActorExtra;
 
-typedef struct M93C_Actor {
+typedef struct ProjectilePhysicsActor {
     u8 pad0[0x60];
     u32 unk60;
     u8 pad64[0x6A - 0x64];
@@ -714,7 +714,7 @@ typedef struct M93C_Actor {
     u8 padFE[0x11C - 0xFE];
     Actor *unk11C;
     u8 pad120[4];
-    M93C_Actor124 *unk124;
+    ProjectileConfig124 *unk124;
     u8 pad128[0x144 - 0x128];
     u8 unk144;
     u8 pad145[0x16E - 0x145];
@@ -722,7 +722,7 @@ typedef struct M93C_Actor {
     u8 unk16F;
     u8 pad170[0x174 - 0x170];
     void *unk174;
-} M93C_Actor;
+} ProjectilePhysicsActor;
 
 extern u8 D_80720020;
 extern u8 D_807202D0;
@@ -731,7 +731,7 @@ extern f32 D_807502E4;
 extern s16 D_80750344;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807200EC;
-extern M93C_PlayerEntry *D_807FC924;
+extern PlayerTrackEntry *D_807FC924;
 extern u8 D_807FC928;
 extern u8 D_8072029C;
 extern u8 D_80720BA0;
@@ -744,66 +744,66 @@ void func_8071D260(void);
 void func_8071A8B0(void);
 void func_8071ABDC(void);
 void func_8061EF4C(s32, s32, s32, f32, f32, f32, f32, f32);
-void func_806915B0(void);
+void actorSpawnSparkleBurst(void);
 void func_80608528(void *, s32, s32, s32, s32);
 void func_80714A28(s32);
 void func_80690C60(s32, Actor *, void *, s32);
 s32 func_80665558(void);
 s32 func_8066641C(void);
 
-void func_80692564(void) {
+void projectileSpawnParticleEffect2(void) {
     func_806919E0(&D_807201D4);
 }
 
-void func_80692588(void) {
+void projectileSpawnParticleEffect3(void) {
     func_806919E0(&D_807201D4);
 }
 
-void func_806925AC(void) {
-    M93C_ActorExtra *extra;
+void projectileSpawnParticleEffectWithScale(void) {
+    ProjectileActorExtra *extra;
     f32 temp;
 
-    extra = (M93C_ActorExtra *)D_807FBB40->unk174;
+    extra = (ProjectileActorExtra *)D_807FBB40->unk174;
     func_806919E0(&D_807201D4);
     if (extra->unk13 == 1) {
-        ((M93C_Actor *)D_807FBB40)->unkC0 += D_807502E4;
+        ((ProjectilePhysicsActor *)D_807FBB40)->unkC0 += D_807502E4;
         temp = (f32)D_807502D0;
-        if (((M93C_Actor *)D_807FBB40)->unkC0 < temp) {
-            ((M93C_Actor *)D_807FBB40)->unkC0 = temp;
+        if (((ProjectilePhysicsActor *)D_807FBB40)->unkC0 < temp) {
+            ((ProjectilePhysicsActor *)D_807FBB40)->unkC0 = temp;
         }
     }
 }
 
-#define M93C_ACTOR ((M93C_Actor *)D_807FBB40)
+#define G_PROJECTILE_ACTOR ((ProjectilePhysicsActor *)D_807FBB40)
 
-void func_80692640(void) {
+void projectileDespawnOrExplode(void) {
     u32 *sp44;
     u8 unkFC;
     Actor *other;
 
-    sp44 = (u32 *)M93C_ACTOR->unk174;
-    if (!(M93C_ACTOR->unk60 & 0x10)) {
-        M93C_ACTOR->unk6A &= 0xFFFE;
-        M93C_ACTOR->unkEE = (s16)((M93C_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
-        M93C_ACTOR->unkB8 = M93C_ACTOR->unk124->unk4;
-        M93C_ACTOR->unkC0 = M93C_ACTOR->unk124->unk8;
-        M93C_ACTOR->unk144 = 0x3C;
+    sp44 = (u32 *)G_PROJECTILE_ACTOR->unk174;
+    if (!(G_PROJECTILE_ACTOR->unk60 & 0x10)) {
+        G_PROJECTILE_ACTOR->unk6A &= 0xFFFE;
+        G_PROJECTILE_ACTOR->unkEE = (s16)((G_PROJECTILE_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_PROJECTILE_ACTOR->unkB8 = G_PROJECTILE_ACTOR->unk124->unk4;
+        G_PROJECTILE_ACTOR->unkC0 = G_PROJECTILE_ACTOR->unk124->unk8;
+        G_PROJECTILE_ACTOR->unk144 = 0x3C;
         func_8066EB40(D_807FBB40, 50.0f);
-        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 40.0f, -1);
-        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 40.0f, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         func_807149FC(-1);
         func_807149B8(1);
-        func_80714C08(&D_80720020, M93C_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        func_80714C08(&D_80720020, G_PROJECTILE_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
         *sp44 = D_8076A068;
     }
     func_8067ACB4(D_807FBB40);
     func_806651FC(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 10, 10, 1, 0x96, 0x78, 0, 1.0f);
-    unkFC = M93C_ACTOR->unkFC;
-    if (unkFC != 0 || (M93C_ACTOR->unk6A & 1) || D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
-        other = M93C_ACTOR->unk11C;
-        if (other == NULL || other->unk58 != 0x2E || (other->unk58 == 0x2E && (unkFC != 0 || (M93C_ACTOR->unk6A & 1)))) {
+    unkFC = G_PROJECTILE_ACTOR->unkFC;
+    if (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
+        other = G_PROJECTILE_ACTOR->unk11C;
+        if (other == NULL || other->unk58 != 0x2E || (other->unk58 == 0x2E && (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1)))) {
             func_807149B8(0);
             func_807149FC(1);
             func_8071498C(func_8071D260);
@@ -820,31 +820,31 @@ void func_80692640(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80692940.s")
 
-void func_80692E50(void) {
-    M93C_ActorExtra *sp44;
+void projectileMultiplayerUpdate(void) {
+    ProjectileActorExtra *sp44;
     s32 var_a0;
     s32 sp3C;
     s32 var_s1;
-    sp44 = (M93C_ActorExtra *)M93C_ACTOR->unk174;
-    if (!(M93C_ACTOR->unk60 & 0x10)) {
-        M93C_ACTOR->unk6A &= 0xFFFE;
-        M93C_ACTOR->unkEE = (s16)((M93C_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
-        M93C_ACTOR->unkB8 = M93C_ACTOR->unk124->unk4;
-        M93C_ACTOR->unkC0 = M93C_ACTOR->unk124->unk8;
-        M93C_ACTOR->unk144 = 0x3C;
+    sp44 = (ProjectileActorExtra *)G_PROJECTILE_ACTOR->unk174;
+    if (!(G_PROJECTILE_ACTOR->unk60 & 0x10)) {
+        G_PROJECTILE_ACTOR->unk6A &= 0xFFFE;
+        G_PROJECTILE_ACTOR->unkEE = (s16)((G_PROJECTILE_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_PROJECTILE_ACTOR->unkB8 = G_PROJECTILE_ACTOR->unk124->unk4;
+        G_PROJECTILE_ACTOR->unkC0 = G_PROJECTILE_ACTOR->unk124->unk8;
+        G_PROJECTILE_ACTOR->unk144 = 0x3C;
         func_8066EB40(D_807FBB40, 60.0f);
-        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
-        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         func_807149FC(-1);
         func_807149B8(1);
         func_80714A28(4);
-        func_80714C08(&D_8072029C, M93C_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
-        sp44->unk14 = M93C_ACTOR->unk124->unkC;
+        func_80714C08(&D_8072029C, G_PROJECTILE_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        sp44->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
         sp44->unk0 = D_8076A068;
-        M93C_ACTOR->unk60 |= 0x01080000;
-        M93C_ACTOR->unk16E = 0x3C;
-        M93C_ACTOR->unk16F = 0x3C;
-        sp44->unk13 = (u8)(u32)M93C_ACTOR->unk124->unk10;
+        G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
+        G_PROJECTILE_ACTOR->unk16E = 0x3C;
+        G_PROJECTILE_ACTOR->unk16F = 0x3C;
+        sp44->unk13 = (u8)(u32)G_PROJECTILE_ACTOR->unk124->unk10;
         sp44->unk1C = 0;
     }
     sp3C = D_8075035C;
@@ -861,11 +861,11 @@ void func_80692E50(void) {
     func_8067ACB4(D_807FBB40);
     func_806651FC(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
-    if (M93C_ACTOR->unkFD != 0 ||
+    if (G_PROJECTILE_ACTOR->unkFD != 0 ||
         func_80665558() != 0 ||
-        ((M93C_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
+        ((G_PROJECTILE_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
         D_807FBB85 != 0 ||
-        (M93C_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
+        (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
         if (D_80750AD0 == 0) {
             for (var_s1 = 0; var_s1 != 0xC; var_s1 += 2) {
                 func_807149B8(1);
@@ -886,7 +886,7 @@ void func_80692E50(void) {
     }
 }
 
-void func_8069329C(void) {
+void projectileSpawnExplosion(void) {
     s32 i;
 
     func_807149B8(1);
@@ -898,7 +898,7 @@ void func_8069329C(void) {
         func_8061EF4C(D_807FC924[i].actor->unk174->unk104, 7, 0x16, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
     }
 
-    func_806915B0();
+    actorSpawnSparkleBurst();
 
     if (D_80750AD0 == 0) {
         for (i = 0; i < 12; i++) {
@@ -916,16 +916,16 @@ void func_8069329C(void) {
 
 #include "actor.h"
 
-typedef struct M93D_Actor124 {
+typedef struct ProjectileBeamConfig124 {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
     /* 0x10 */ f32 unk10;
     /* 0x14 */ f32 unk14;
-} M93D_Actor124;
+} ProjectileBeamConfig124;
 
-typedef struct M93D_ActorExtra {
+typedef struct ProjectileBeamActorExtra {
     /* 0x00 */ u32 unk0;
     /* 0x04 */ u8 unk4;
     /* 0x05 */ u8 pad5[0x13 - 0x05];
@@ -933,9 +933,9 @@ typedef struct M93D_ActorExtra {
     /* 0x14 */ f32 unk14;
     /* 0x18 */ u8 pad18[4];
     /* 0x1C */ s32 unk1C;
-} M93D_ActorExtra;
+} ProjectileBeamActorExtra;
 
-typedef struct M93D_Actor {
+typedef struct ProjectileBeamActor {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u32 unk60;
     /* 0x64 */ u32 unk64;
@@ -960,7 +960,7 @@ typedef struct M93D_Actor {
     /* 0xFC */ u8 unkFC;
     /* 0xFD */ u8 unkFD;
     /* 0xFE */ u8 padFE[0x124 - 0xFE];
-    /* 0x124 */ M93D_Actor124 *unk124;
+    /* 0x124 */ ProjectileBeamConfig124 *unk124;
     /* 0x128 */ u8 pad128[0x144 - 0x128];
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 pad145[0x154 - 0x145];
@@ -970,44 +970,44 @@ typedef struct M93D_Actor {
     /* 0x16F */ u8 unk16F;
     /* 0x170 */ u8 pad170[4];
     /* 0x174 */ void *unk174;
-} M93D_Actor;
+} ProjectileBeamActor;
 
-#define M93D_ACTOR ((M93D_Actor *)D_807FBB40)
+#define G_PROJECTILE_BEAM_ACTOR ((ProjectileBeamActor *)D_807FBB40)
 
 extern s16 D_80750358;
 extern s16 D_8075036C;
 
-void func_8069329C(void);
+void projectileSpawnExplosion(void);
 extern u8 D_8071FB34;
 extern u8 D_807201A0;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80693EC0.s")
 
-void func_806944BC(void) {
-    M93D_ActorExtra *sp44;
+void projectileBeamUpdate(void) {
+    ProjectileBeamActorExtra *sp44;
     s32 var_a0;
     s32 sp3C;
     s32 var_s1;
-    sp44 = (M93D_ActorExtra *)M93D_ACTOR->unk174;
-    if (!(M93D_ACTOR->unk60 & 0x10)) {
-        M93D_ACTOR->unk6A &= 0xFFFE;
-        M93D_ACTOR->unkEE = (s16)((M93D_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
-        M93D_ACTOR->unkB8 = M93D_ACTOR->unk124->unk4;
-        M93D_ACTOR->unkC0 = M93D_ACTOR->unk124->unk8;
-        M93D_ACTOR->unk144 = 0x3C;
+    sp44 = (ProjectileBeamActorExtra *)G_PROJECTILE_BEAM_ACTOR->unk174;
+    if (!(G_PROJECTILE_BEAM_ACTOR->unk60 & 0x10)) {
+        G_PROJECTILE_BEAM_ACTOR->unk6A &= 0xFFFE;
+        G_PROJECTILE_BEAM_ACTOR->unkEE = (s16)((G_PROJECTILE_BEAM_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_PROJECTILE_BEAM_ACTOR->unkB8 = G_PROJECTILE_BEAM_ACTOR->unk124->unk4;
+        G_PROJECTILE_BEAM_ACTOR->unkC0 = G_PROJECTILE_BEAM_ACTOR->unk124->unk8;
+        G_PROJECTILE_BEAM_ACTOR->unk144 = 0x3C;
         func_8066EB40(D_807FBB40, 60.0f);
-        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
-        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         func_807149FC(-1);
         func_807149B8(1);
         func_80714A28(4);
-        func_80714C08(&D_807201A0, M93D_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
-        sp44->unk14 = M93D_ACTOR->unk124->unkC;
+        func_80714C08(&D_807201A0, G_PROJECTILE_BEAM_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        sp44->unk14 = G_PROJECTILE_BEAM_ACTOR->unk124->unkC;
         sp44->unk0 = D_8076A068;
-        M93D_ACTOR->unk60 |= 0x01080000;
-        M93D_ACTOR->unk16E = 0x3C;
-        M93D_ACTOR->unk16F = 0x3C;
-        sp44->unk13 = (u8)(u32)M93D_ACTOR->unk124->unk10;
+        G_PROJECTILE_BEAM_ACTOR->unk60 |= 0x01080000;
+        G_PROJECTILE_BEAM_ACTOR->unk16E = 0x3C;
+        G_PROJECTILE_BEAM_ACTOR->unk16F = 0x3C;
+        sp44->unk13 = (u8)(u32)G_PROJECTILE_BEAM_ACTOR->unk124->unk10;
         sp44->unk1C = 0;
     }
     sp3C = D_80750358;
@@ -1025,10 +1025,10 @@ void func_806944BC(void) {
     func_806651FC(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
     if (func_80665558() != 0 ||
-        M93D_ACTOR->unkFD != 0 ||
-        ((M93D_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
+        G_PROJECTILE_BEAM_ACTOR->unkFD != 0 ||
+        ((G_PROJECTILE_BEAM_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
         D_807FBB85 != 0 ||
-        (M93D_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
+        (G_PROJECTILE_BEAM_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
         func_807149B8(1);
         func_80714950(0x1006E);
         func_8071498C(func_8071A8B0);
@@ -1068,12 +1068,12 @@ f32 func_80611BB4(f32, f32);
 void func_80695724(f32, u8);
 void func_80612BC0(void *, s32);
 
-typedef struct M93F_Actor174 {
+typedef struct ProjectileRotSub174 {
     u8 pad0[8];
     s32 unk8;
-} M93F_Actor174;
+} ProjectileRotSub174;
 
-typedef struct M93F_ActorExtra {
+typedef struct ProjectileRotActorExtra {
     u32 unk0;
     u8 pad4[4];
     f32 unk8;
@@ -1085,9 +1085,9 @@ typedef struct M93F_ActorExtra {
     f32 unk14;
     u8 pad18[4];
     s32 unk1C;
-} M93F_ActorExtra;
+} ProjectileRotActorExtra;
 
-typedef struct M93F_Actor {
+typedef struct ProjectileRotActor {
     u8 pad0[4];
     ActorSub4 *unk4;
     u8 pad8[0x60 - 8];
@@ -1109,7 +1109,7 @@ typedef struct M93F_Actor {
     u8 padF0[0xFD - 0xF0];
     u8 unkFD;
     u8 padFE[0x124 - 0xFE];
-    M93C_Actor124 *unk124;
+    ProjectileConfig124 *unk124;
     u8 pad128[0x132 - 0x128];
     s16 unk132;
     u8 pad134[4];
@@ -1123,36 +1123,36 @@ typedef struct M93F_Actor {
     u8 unk16F;
     u8 pad170[4];
     void *unk174;
-} M93F_Actor;
+} ProjectileRotActor;
 
-#define M93F_ACTOR ((M93F_Actor *)D_807FBB40)
+#define G_PROJECTILE_ROT_ACTOR ((ProjectileRotActor *)D_807FBB40)
 
 
-void func_80694D20(void) {
-    M93C_ActorExtra *sp44;
+void projectileRotatingUpdate(void) {
+    ProjectileActorExtra *sp44;
     s32 var_a0;
     s32 sp3C;
 
-    sp44 = (M93C_ActorExtra *)M93C_ACTOR->unk174;
-    if (!(M93C_ACTOR->unk60 & 0x10)) {
-        M93C_ACTOR->unk6A &= 0xFFFE;
-        M93C_ACTOR->unkEE = (s16)((M93C_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
-        M93C_ACTOR->unkB8 = M93C_ACTOR->unk124->unk4;
-        M93C_ACTOR->unkC0 = M93C_ACTOR->unk124->unk8;
-        M93C_ACTOR->unk144 = 0x3C;
+    sp44 = (ProjectileActorExtra *)G_PROJECTILE_ACTOR->unk174;
+    if (!(G_PROJECTILE_ACTOR->unk60 & 0x10)) {
+        G_PROJECTILE_ACTOR->unk6A &= 0xFFFE;
+        G_PROJECTILE_ACTOR->unkEE = (s16)((G_PROJECTILE_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_PROJECTILE_ACTOR->unkB8 = G_PROJECTILE_ACTOR->unk124->unk4;
+        G_PROJECTILE_ACTOR->unkC0 = G_PROJECTILE_ACTOR->unk124->unk8;
+        G_PROJECTILE_ACTOR->unk144 = 0x3C;
         func_8066EB40(D_807FBB40, 50.0f);
-        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 40.0f, -1);
-        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 40.0f, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         func_807149FC(-1);
         func_807149B8(1);
         func_80714A28(4);
-        func_80714C08(&D_807206A8, M93C_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
-        sp44->unk14 = M93C_ACTOR->unk124->unkC;
+        func_80714C08(&D_807206A8, G_PROJECTILE_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        sp44->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
         sp44->unk0 = D_8076A068;
-        M93C_ACTOR->unk60 |= 0x01080000;
-        M93C_ACTOR->unk16E = 0x3C;
-        M93C_ACTOR->unk16F = 0x3C;
-        sp44->unk13 = (u8)(u32)M93C_ACTOR->unk124->unk10;
+        G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
+        G_PROJECTILE_ACTOR->unk16E = 0x3C;
+        G_PROJECTILE_ACTOR->unk16F = 0x3C;
+        sp44->unk13 = (u8)(u32)G_PROJECTILE_ACTOR->unk124->unk10;
         sp44->unk1C = 0;
     }
     sp3C = D_80750360;
@@ -1169,11 +1169,11 @@ void func_80694D20(void) {
     func_8067ACB4(D_807FBB40);
     func_806651FC(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
-    if (M93C_ACTOR->unkFD != 0 ||
+    if (G_PROJECTILE_ACTOR->unkFD != 0 ||
         func_80665558() != 0 ||
-        ((M93C_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
+        ((G_PROJECTILE_ACTOR->unk6A & 1) && func_8066641C() == 1) ||
         D_807FBB85 != 0 ||
-        (M93C_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
+        (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
         func_807149B8(1);
         func_80714950(0x1006E);
         func_8071498C(func_8071A8B0);
@@ -1198,7 +1198,7 @@ void func_80694D20(void) {
     }
 }
 
-s32 func_806951B0(Actor *arg0) {
+s32 actorIsActiveType2B(Actor *arg0) {
     if (arg0->unk58 != 0x2B) {
         return 1;
     }
@@ -1208,28 +1208,28 @@ s32 func_806951B0(Actor *arg0) {
     return 0;
 }
 
-void func_806951E8(void) {
-    M93F_ActorExtra *temp_s2;
+void projectileMatrixRotationUpdate(void) {
+    ProjectileRotActorExtra *temp_s2;
     s32 var_a0;
     s32 sp84;
     f32 sp44[4][4];
-    temp_s2 = M93F_ACTOR->unk174;
-    if (!(M93F_ACTOR->unk60 & 0x10)) {
-        M93F_ACTOR->unk6A &= 0xFFFE;
-        M93F_ACTOR->unkEE = (s16)((M93F_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
-        M93F_ACTOR->unkE6 = (s16)M93F_ACTOR->unkEE;
-        M93F_ACTOR->unkB8 = M93F_ACTOR->unk124->unk4;
-        M93F_ACTOR->unkC0 = M93F_ACTOR->unk124->unk8;
-        M93F_ACTOR->unk144 = 0x3C;
+    temp_s2 = G_PROJECTILE_ROT_ACTOR->unk174;
+    if (!(G_PROJECTILE_ROT_ACTOR->unk60 & 0x10)) {
+        G_PROJECTILE_ROT_ACTOR->unk6A &= 0xFFFE;
+        G_PROJECTILE_ROT_ACTOR->unkEE = (s16)((G_PROJECTILE_ROT_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_PROJECTILE_ROT_ACTOR->unkE6 = (s16)G_PROJECTILE_ROT_ACTOR->unkEE;
+        G_PROJECTILE_ROT_ACTOR->unkB8 = G_PROJECTILE_ROT_ACTOR->unk124->unk4;
+        G_PROJECTILE_ROT_ACTOR->unkC0 = G_PROJECTILE_ROT_ACTOR->unk124->unk8;
+        G_PROJECTILE_ROT_ACTOR->unk144 = 0x3C;
         temp_s2->unk0 = D_8076A068;
-        M93F_ACTOR->unk60 |= 0x01080000;
-        M93F_ACTOR->unk16E = 0x3C;
-        M93F_ACTOR->unk16F = 0x3C;
+        G_PROJECTILE_ROT_ACTOR->unk60 |= 0x01080000;
+        G_PROJECTILE_ROT_ACTOR->unk16E = 0x3C;
+        G_PROJECTILE_ROT_ACTOR->unk16F = 0x3C;
         func_80613C48(D_807FBB40, 0x404, 0.0f, 1.0f);
-        temp_s2->unk8 = -(func_80611BB4(M93F_ACTOR->unkC0, M93F_ACTOR->unkB8) * 57.295776f);
+        temp_s2->unk8 = -(func_80611BB4(G_PROJECTILE_ROT_ACTOR->unkC0, G_PROJECTILE_ROT_ACTOR->unkB8) * 57.295776f);
         temp_s2->unk10 = 0;
         temp_s2->unkC = (f32)((u32)(func_806119A0() % 3600U) / 10U);
-        temp_s2->unk13 = (u8)(u32)M93F_ACTOR->unk124->unk10;
+        temp_s2->unk13 = (u8)(u32)G_PROJECTILE_ROT_ACTOR->unk124->unk10;
         temp_s2->unk1C = 0;
     }
     sp84 = D_80750354;
@@ -1246,14 +1246,14 @@ void func_806951E8(void) {
     func_8067ACB4(D_807FBB40);
     func_806651FC(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
-    switch (M93F_ACTOR->unk154) {
+    switch (G_PROJECTILE_ROT_ACTOR->unk154) {
     case 0:
-        if (M93F_ACTOR->unkFD != 0 || (M93F_ACTOR->unk124->unk14 != 0.0f && (u32)(temp_s2->unk0 + 1) < D_8076A068)) {
+        if (G_PROJECTILE_ROT_ACTOR->unkFD != 0 || (G_PROJECTILE_ROT_ACTOR->unk124->unk14 != 0.0f && (u32)(temp_s2->unk0 + 1) < D_8076A068)) {
             func_80614D00(D_807FBB40, 0.5f, 0);
             func_80613C48(D_807FBB40, 0x406, 0, 0.0f);
-            M93F_ACTOR->unkB8 = 0.0f;
-            M93F_ACTOR->unkC0 = 0.0f;
-            M93F_ACTOR->unk154 = 1;
+            G_PROJECTILE_ROT_ACTOR->unkB8 = 0.0f;
+            G_PROJECTILE_ROT_ACTOR->unkC0 = 0.0f;
+            G_PROJECTILE_ROT_ACTOR->unk154 = 1;
             temp_s2->unk10 = 0x3C;
             func_80608528(D_807FBB40, 0x308, 0xFF, 0x7F, 5);
             if (D_80750AD0 != 0) {
@@ -1263,23 +1263,23 @@ void func_806951E8(void) {
         }
         break;
     case 1:
-        M93F_ACTOR->unk138 = 0;
-        M93F_ACTOR->unk144 = 1;
+        G_PROJECTILE_ROT_ACTOR->unk138 = 0;
+        G_PROJECTILE_ROT_ACTOR->unk144 = 1;
         temp_s2->unk0 = D_8076A068;
         if (!--temp_s2->unk10) {
             func_80614D00(D_807FBB40, 0.5f, 0);
             func_80613C48(D_807FBB40, 0x405, 0, 10.0f);
-            M93F_ACTOR->unk154++;
+            G_PROJECTILE_ROT_ACTOR->unk154++;
         }
         break;
     case 2:
-        M93F_ACTOR->unkC0 -= 20.0f;
-        if (M93F_ACTOR->unkC0 < -150.0f) {
-            M93F_ACTOR->unkC0 = -150.0f;
+        G_PROJECTILE_ROT_ACTOR->unkC0 -= 20.0f;
+        if (G_PROJECTILE_ROT_ACTOR->unkC0 < -150.0f) {
+            G_PROJECTILE_ROT_ACTOR->unkC0 = -150.0f;
         }
         break;
     }
-    if (((M93F_ACTOR->unk6A & 1) && func_8066641C() == 1) || D_807FBB85 != 0) {
+    if (((G_PROJECTILE_ROT_ACTOR->unk6A & 1) && func_8066641C() == 1) || D_807FBB85 != 0) {
         actorDespawn(D_807FBB40);
     }
     if (D_807FC928 >= 2) {
@@ -1296,8 +1296,8 @@ void func_806951E8(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80695724.s")
 
-void func_80695B50(void) {
-    M93F_Actor174 *sp1C;
+void actorApplyTransformAndRender(void) {
+    ProjectileRotSub174 *sp1C;
 
     sp1C = D_807FBB40->unk174;
     func_80695724(0.0f, 1);
@@ -1310,7 +1310,7 @@ extern u8 D_8071FC40;
 extern u8 D_80720804;
 void func_807189BC(void);
 
-typedef struct M93I_Actor {
+typedef struct ProjectileParticleActor {
     u8 pad0[0x60];
     u32 unk60;
     u8 pad64[0x6A - 0x64];
@@ -1331,36 +1331,36 @@ typedef struct M93I_Actor {
     s16 unkFA;
     u8 unkFC;
     u8 padFD[0x124 - 0xFD];
-    M93D_Actor124 *unk124;
+    ProjectileBeamConfig124 *unk124;
     u8 pad128[0x144 - 0x128];
     u8 unk144;
     u8 pad145[0x174 - 0x145];
     void *unk174;
-} M93I_Actor;
+} ProjectileParticleActor;
 
-#define M93I_ACTOR ((M93I_Actor *)D_807FBB40)
+#define G_PROJECTILE_PARTICLE_ACTOR ((ProjectileParticleActor *)D_807FBB40)
 
-void func_80695BAC(void) {
-    M93D_ActorExtra *sp54;
+void projectileParticleSpawnerTick(void) {
+    ProjectileBeamActorExtra *sp54;
     s32 var_s0;
-    sp54 = (M93D_ActorExtra *)M93I_ACTOR->unk174;
-    if (!(M93I_ACTOR->unk60 & 0x10)) {
-        M93I_ACTOR->unkFA = 0x270F;
-        M93I_ACTOR->unk6E = -2;
-        M93I_ACTOR->unk6A &= -2;
-        M93I_ACTOR->unkEE = (s16)((M93I_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
-        M93I_ACTOR->unkB8 = M93I_ACTOR->unk124->unk4;
-        M93I_ACTOR->unkC0 = M93I_ACTOR->unk124->unk8;
-        sp54->unk13 = (u8)(u32)M93I_ACTOR->unk124->unk10;
-        M93I_ACTOR->unk144 = 0x3C;
+    sp54 = (ProjectileBeamActorExtra *)G_PROJECTILE_PARTICLE_ACTOR->unk174;
+    if (!(G_PROJECTILE_PARTICLE_ACTOR->unk60 & 0x10)) {
+        G_PROJECTILE_PARTICLE_ACTOR->unkFA = 0x270F;
+        G_PROJECTILE_PARTICLE_ACTOR->unk6E = -2;
+        G_PROJECTILE_PARTICLE_ACTOR->unk6A &= -2;
+        G_PROJECTILE_PARTICLE_ACTOR->unkEE = (s16)((G_PROJECTILE_PARTICLE_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_PROJECTILE_PARTICLE_ACTOR->unkB8 = G_PROJECTILE_PARTICLE_ACTOR->unk124->unk4;
+        G_PROJECTILE_PARTICLE_ACTOR->unkC0 = G_PROJECTILE_PARTICLE_ACTOR->unk124->unk8;
+        sp54->unk13 = (u8)(u32)G_PROJECTILE_PARTICLE_ACTOR->unk124->unk10;
+        G_PROJECTILE_PARTICLE_ACTOR->unk144 = 0x3C;
         func_8066EB40(D_807FBB40, 110.0f);
-        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 100.0f, -1);
-        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 100.0f, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         func_807149FC(-1);
         func_807149B8(1);
-        func_80714C08(&D_80720804, M93I_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        func_80714C08(&D_80720804, G_PROJECTILE_PARTICLE_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
         sp54->unk0 = D_8076A068;
-        M93I_ACTOR->unk60 |= 0x80000;
+        G_PROJECTILE_PARTICLE_ACTOR->unk60 |= 0x80000;
         if (sp54->unk13 != 0xA) {
             func_80714998(2);
             func_807149B8(1);
@@ -1371,21 +1371,21 @@ void func_80695BAC(void) {
     func_806651FC(D_807FBB40);
     func_80665564(D_807FBB40, 4.0f);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
-    if (M93I_ACTOR->unk6A & 4) {
+    if (G_PROJECTILE_PARTICLE_ACTOR->unk6A & 4) {
         func_807149B8(1);
         func_807149FC(-1);
         func_8071498C(func_807189BC);
         func_80714950((s32)D_807FBB40);
         func_80714CC0(&D_8071FC40, 0.3f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
     }
-    if (((M93I_ACTOR->unkFC != 0) && ((u32)(D_8076A068 - sp54->unk0) >= 6)) || D_807FBB85 != 0) {
+    if (((G_PROJECTILE_PARTICLE_ACTOR->unkFC != 0) && ((u32)(D_8076A068 - sp54->unk0) >= 6)) || D_807FBB85 != 0) {
         if ((D_807FBB85 != 0) && (sp54->unk13 != 0xA)) {
             func_807149B8(1);
             func_80714950(0x100D2);
             func_8071498C(func_8071A8B0);
             func_80714CC0(&D_80720120, 2.0f, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f, D_807FBB40->unk84);
-            func_8061EF4C(((M93C_PlayerActor *)D_807FBB4C)->unk174->unk104, 7, 0x16, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
-            func_806915B0();
+            func_8061EF4C(((PlayerTrackActor *)D_807FBB4C)->unk174->unk104, 7, 0x16, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
+            actorSpawnSparkleBurst();
             for (var_s0 = 0; var_s0 != 12; var_s0 += 2) {
                 func_807149B8(1);
                 func_80714950(0x0B000000 + var_s0);
@@ -1407,7 +1407,7 @@ extern u8 D_80720340;
 extern f32 D_80750274;
 void func_8071496C(s16);
 
-typedef struct M93G_Actor {
+typedef struct ProjectileHomingActor {
     u8 pad0[0x60];
     u32 unk60;
     u8 pad64[0x6A - 0x64];
@@ -1428,16 +1428,16 @@ typedef struct M93G_Actor {
     s16 unkFA;
     u8 unkFC;
     u8 padFD[0x124 - 0xFD];
-    M93D_Actor124 *unk124;
+    ProjectileBeamConfig124 *unk124;
     u8 pad128[0x144 - 0x128];
     u8 unk144;
     u8 pad145[0x174 - 0x145];
     void *unk174;
-} M93G_Actor;
+} ProjectileHomingActor;
 
-#define M93G_ACTOR ((M93G_Actor *)D_807FBB40)
+#define G_PROJECTILE_HOMING_ACTOR ((ProjectileHomingActor *)D_807FBB40)
 
-void func_806960A4(void) {
+void projectileHomingParticleUpdate(void) {
     u32 *sp74;
     f32 temp_fs2;
     f32 temp_fs3;
@@ -1445,35 +1445,35 @@ void func_806960A4(void) {
     f32 temp_fv0;
     s32 var_s1;
 
-    sp74 = (u32 *)M93G_ACTOR->unk174;
-    if (!(M93G_ACTOR->unk60 & 0x10)) {
-        M93G_ACTOR->unkFA = 0x270F;
-        M93G_ACTOR->unk6E = -2;
-        M93G_ACTOR->unk6A &= -2;
-        M93G_ACTOR->unkEE = (s16)((M93G_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
-        M93G_ACTOR->unkB8 = M93G_ACTOR->unk124->unk4;
-        M93G_ACTOR->unkC0 = M93G_ACTOR->unk124->unk8;
-        M93G_ACTOR->unk144 = 0x1C;
+    sp74 = (u32 *)G_PROJECTILE_HOMING_ACTOR->unk174;
+    if (!(G_PROJECTILE_HOMING_ACTOR->unk60 & 0x10)) {
+        G_PROJECTILE_HOMING_ACTOR->unkFA = 0x270F;
+        G_PROJECTILE_HOMING_ACTOR->unk6E = -2;
+        G_PROJECTILE_HOMING_ACTOR->unk6A &= -2;
+        G_PROJECTILE_HOMING_ACTOR->unkEE = (s16)((G_PROJECTILE_HOMING_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_PROJECTILE_HOMING_ACTOR->unkB8 = G_PROJECTILE_HOMING_ACTOR->unk124->unk4;
+        G_PROJECTILE_HOMING_ACTOR->unkC0 = G_PROJECTILE_HOMING_ACTOR->unk124->unk8;
+        G_PROJECTILE_HOMING_ACTOR->unk144 = 0x1C;
         func_8066EB40(D_807FBB40, 110.0f);
-        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 100.0f, -1);
-        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 100.0f, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         func_807149FC(-1);
         func_807149B8(1);
-        func_80714C08(&D_80720804, M93G_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        func_80714C08(&D_80720804, G_PROJECTILE_HOMING_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
         *sp74 = D_8076A068;
-        M93G_ACTOR->unk60 |= 0x80000;
+        G_PROJECTILE_HOMING_ACTOR->unk60 |= 0x80000;
     }
     func_8067ACB4(D_807FBB40);
     func_806651FC(D_807FBB40);
     func_80665564(D_807FBB40, 4.0f);
-    M93G_ACTOR->unkC0 += D_80750274;
+    G_PROJECTILE_HOMING_ACTOR->unkC0 += D_80750274;
     temp_fv0 = (f32)D_807502D0;
-    if (M93G_ACTOR->unkC0 < temp_fv0) {
-        M93G_ACTOR->unkC0 = temp_fv0;
+    if (G_PROJECTILE_HOMING_ACTOR->unkC0 < temp_fv0) {
+        G_PROJECTILE_HOMING_ACTOR->unkC0 = temp_fv0;
     }
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
     var_s1 = 0;
-    if ((M93G_ACTOR->unk6A & 1) || ((M93G_ACTOR->unkFC != 0) && ((u32)(D_8076A068 - *sp74) >= 6)) || D_807FBB85 != 0) {
+    if ((G_PROJECTILE_HOMING_ACTOR->unk6A & 1) || ((G_PROJECTILE_HOMING_ACTOR->unkFC != 0) && ((u32)(D_8076A068 - *sp74) >= 6)) || D_807FBB85 != 0) {
         do {
             temp_fs2 = ((f64)((func_80611A44() >> 15) % 8191) / 200.0) - 20.0;
             temp_fs3 = ((f64)((func_80611A44() >> 15) % 8191) / 200.0) - 20.0;
@@ -1509,7 +1509,7 @@ extern ActorEntry D_807FB930[];
 extern u16 D_807FBB34;
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 
-void func_80697184(void) {
+void actorAppendActiveCallback8(void) {
     s16 i;
 
     for (i = 0; i < D_807FBB34; i++) {

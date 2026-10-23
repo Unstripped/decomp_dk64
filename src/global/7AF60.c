@@ -15,7 +15,7 @@ void func_806D0DE4(s32, s32);
 s32 func_806D10D0(s32);
 s32 func_806767E0();
 f32 func_80665E94(f32, f32, f32, f32, f32, f32, s32);
-void func_80671C0C();
+void actorGetNodePos();
 u8 actorIsFacingTarget();
 s16 func_80665DE0(f32, f32, f32, f32);
 s32 func_806CC14C(s16, s16);
@@ -103,7 +103,7 @@ u8 func_806765E8(Actor* arg0, Actor* arg1, s32 arg2) {
     s32 var_v1;
 
     if (*(u8*)((u8*)arg0 + 0xCC)) {
-        func_80671C0C(arg0, *(u8*)((u8*)arg0 + 0xCC), &sp34, &sp30, &sp2C);
+        actorGetNodePos(arg0, *(u8*)((u8*)arg0 + 0xCC), &sp34, &sp30, &sp2C);
     } else {
         sp34 = arg0->unk7C;
         sp30 = arg0->unk80;

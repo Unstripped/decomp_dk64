@@ -302,7 +302,7 @@ extern s32 D_807F5D10;
 extern s32 D_8076A0A8;
 extern s32 D_8072030C;
 extern s32 D_80028BD0;
-void func_8066E9EC(Struct_BB40 *, s32, f32);
+void actorGetOrSetNodeScale(Struct_BB40 *, s32, f32);
 void func_807149FC(s32);
 void func_80714C08(void *, s32, Struct_BB40 *, s32, s32);
 void func_80027DA0(CartSub *);
@@ -328,7 +328,7 @@ void func_80027CF4(void);
 void func_8068ECF4(s32, s32);
 void func_8072B438(s32);
 void func_800253C0(CartSub *, s32, s32);
-void func_80671C0C(Struct_BB40 *, s32, f32 *, f32 *, f32 *);
+void actorGetNodePos(Struct_BB40 *, s32, f32 *, f32 *, f32 *);
 void func_8072177C(Struct_BB40 *, s16, s16, s16, s32, s32, s32, s32, s32);
 void func_80027EE8(CartSub *);
 void func_806319C4(Struct_BB40 *, s32);
@@ -479,7 +479,7 @@ case_1:
         func_8068ECF4(6, 0xFF);
         func_8072B438(0x200);
         func_800253C0(cart, 0x7FFF, 0x23);
-        func_80671C0C(D_807FBB40, 5, &sp44, &sp48, &sp4C);
+        actorGetNodePos(D_807FBB40, 5, &sp44, &sp48, &sp4C);
         func_8072177C(D_807FBB40, (s16) (s32) sp44, (s16) (s32) sp48, (s16) (s32) sp4C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         func_80027EE8(cart);
         return;
@@ -509,7 +509,7 @@ void func_8002835C(void) {
     func_80729B00();
     if (!(D_807FBB40->unk60 & 0x10)) {
         if ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82)) {
-            func_8066E9EC(D_807FBB40, 1, 50.0f);
+            actorGetOrSetNodeScale(D_807FBB40, 1, 50.0f);
         }
         func_807149B8(1);
         func_807149FC(-1);
@@ -544,8 +544,8 @@ case_1:
         if ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82)) {
             func_80027DA0(sp74);
             func_80024E78(sp74, &D_80028BD0, 0, 3);
-            func_80671C0C(D_807FBB40, 1, &sp58, &sp5C, &sp60);
-            func_80671C0C(D_807FBB40, 2, &sp64, &sp68, &sp6C);
+            actorGetNodePos(D_807FBB40, 1, &sp58, &sp5C, &sp60);
+            actorGetNodePos(D_807FBB40, 2, &sp64, &sp68, &sp6C);
         }
         func_8072B438(0x200);
         func_800253C0(sp74, 0x7FFF, 0x23);
@@ -553,7 +553,7 @@ case_1:
             D_807FBB40->unk154 = 1;
             sp74->unk34 = (AllocSub *) ((u8 *) sp74->unk34 - 1);
         }
-        func_80671C0C(D_807FBB40, 5, &sp58, &sp5C, &sp60);
+        actorGetNodePos(D_807FBB40, 5, &sp58, &sp5C, &sp60);
         func_8072177C(D_807FBB40, (s16) (s32) sp58, (s16) (s32) sp5C, (s16) (s32) sp60, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         func_80027EE8(sp74);
         return;

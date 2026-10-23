@@ -48,7 +48,7 @@ void func_80614EBC(Actor *, s32);
 void func_806319C4(Actor *, s32);
 void func_80663844(Actor *);
 s32 func_80665AAC(Actor *);
-void func_80671C0C(Actor *, s32, f32 *, f32 *, f32 *);
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_8067B238(Actor *, Actor *, f32);
 void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
@@ -193,7 +193,7 @@ void effectSpawnBoneDebris(s16 arg0, s8 arg1) {
     f32 sp30;
 
     sp30 = (f32)(D_807FBB40->unk4->unk38 / 0.15);
-    func_80671C0C(D_807FBB40, arg0, &sp3C, &sp38, &sp34);
+    actorGetNodePos(D_807FBB40, arg0, &sp3C, &sp38, &sp34);
     func_80714950((((s32)(func_80611A44() >> 15) % 100) + 0x190) * arg1);
     func_8071498C(func_80717D4C);
     func_807149B8(1);
@@ -214,7 +214,7 @@ void effectSpawnBoneDebrisScaled(s16 arg0, s16 arg1, s16 arg2) {
     f64 var_fv1;
 
     sp48 = (f32)((f64)D_807FBB40->unk4->unk38 / 0.15);
-    func_80671C0C(D_807FBB40, arg0, &sp54, &sp50, &sp4C);
+    actorGetNodePos(D_807FBB40, arg0, &sp54, &sp50, &sp4C);
     func_80714950(arg1 + (arg2 << 16));
     func_8071498C(func_8071F2F8);
     func_807149B8(1);
@@ -386,7 +386,7 @@ void effectSpawnBone(Actor *arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 ar
     Actor338 *temp;
 
     if (arg0 != NULL && arg1 != 0) {
-        func_80671C0C(arg0, arg1, &arg3, &arg4, &arg5);
+        actorGetNodePos(arg0, arg1, &arg3, &arg4, &arg5);
     }
     func_8071498C(func_80718080);
     func_80714950(arg6);
@@ -621,7 +621,7 @@ void effectSpawnKongRing(void) {
         return;
     }
 
-    func_80671C0C(D_807FBB40, var_a1, &sp98, &sp94, &sp90);
+    actorGetNodePos(D_807FBB40, var_a1, &sp98, &sp94, &sp90);
     for (i = 0; i < 64; i++) {
         var_s1 += (func_80611A44() >> 15) % 1024;
         var_s1 &= 0xFFF;
@@ -673,8 +673,8 @@ u8 arg3;
 
     sp44[1] = ((func_80611A44() >> 15) % 0x7FFF) % ((arg1 - arg0) + 1) + arg0;
     sp44[0] = ((func_80611A44() >> 15) % 0x7FFF) % ((arg3 - arg2) + 1) + arg2;
-    func_80671C0C(D_807FBB40, sp44[1], &sp74, &sp70, &sp6C);
-    func_80671C0C(D_807FBB40, sp44[0], &sp68, &sp64, &sp60);
+    actorGetNodePos(D_807FBB40, sp44[1], &sp74, &sp70, &sp6C);
+    actorGetNodePos(D_807FBB40, sp44[0], &sp68, &sp64, &sp60);
     func_80626F8C(sp74, sp70, sp6C, &sp58, &sp54, 0, 1.0f, 0);
     func_80626F8C(sp68, sp64, sp60, &sp50, &sp4C, 0, 1.0f, 0);
     {

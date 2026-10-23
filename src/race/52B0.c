@@ -17,7 +17,7 @@ void actorSpawn(s32, s32);
 void func_8002BC2C(void *, s32, void *, void *);
 void *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BCB0(void *, s32, void *, void *);
-void func_806903BC(void *, void *);
+void actorInitFromSpawnPoint(void *, void *);
 
 void func_800292D0(u8 *arg0) {
     u8 *sp5C;
@@ -60,7 +60,7 @@ void func_800292D0(u8 *arg0) {
             sp58[0x36] = var_s0;
             *(void **)(sp58 + 0x30) = arg0;
             if (sp58[0x27] == 0) {
-                func_806903BC(sp54, sp58);
+                actorInitFromSpawnPoint(sp54, sp58);
             }
             var_s0++;
         } while (var_s0 != var_s5);

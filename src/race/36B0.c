@@ -27,7 +27,7 @@ typedef struct {
     u16 unk2;
 } Waypoint;
 
-void func_8068EB3C(f32, f32, f32, Point3f *, Point3f *, Point3f *, Point3f *, f32 *, f32 *, f32 *);
+void mathPickCloserTargetPoint3D(f32, f32, f32, Point3f *, Point3f *, Point3f *, Point3f *, f32 *, f32 *, f32 *);
 f32 func_80027710(s32, s32, void *);
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80027710.s")
@@ -150,10 +150,10 @@ extern StructBB70_Race D_807FBB70;
 extern u8 *D_807FDC9C;
 void func_80729B00(void);
 void func_80028E20(void *);
-void func_8066EA90(void *, s32);
+void actorClearNodeFlag(void *, s32);
 void *func_807270C0(s32, s32);
 void func_8067E278(s32, s32);
-void func_80671C0C(void *, s32, f32 *, f32 *, f32 *);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 void func_80026354(void *, void *, s32);
 void func_806319C4(void *, s32);
@@ -174,7 +174,7 @@ void func_80029054(void) {
         func_80028E20(sp50);
         *(u8 *)((u8 *)D_807FBB40 + 0x144) = 0x3C;
         *(f32 *)(temp_s1 + 4) = 0.5f;
-        func_8066EA90(D_807FBB40, 1);
+        actorClearNodeFlag(D_807FBB40, 1);
         *(void **)(sp50 + 0x30) = func_807270C0(1, 0);
         *(s32 *)((u8 *)D_807FBB40 + 0x60) &= ~1;
     }
@@ -184,9 +184,9 @@ void func_80029054(void) {
         func_8067E278(0, 1);
         *(u8 *)((u8 *)D_807FBB40 + 0x154) = 0x40;
     }
-    func_80671C0C(D_807FBB40, 6, &sp3C, &sp40, &sp44);
+    actorGetNodePos(D_807FBB40, 6, &sp3C, &sp40, &sp44);
     func_8072177C(D_807FBB40, (s16)(s32)sp3C, (s16)(s32)sp40, (s16)(s32)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-    func_80671C0C(D_807FBB40, 0xB, &sp3C, &sp40, &sp44);
+    actorGetNodePos(D_807FBB40, 0xB, &sp3C, &sp40, &sp44);
     func_8072177C(D_807FBB40, (s16)(s32)sp3C, (s16)(s32)sp40, (s16)(s32)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     func_80026354(sp50, temp_s1, 1);
     if ((temp_s1[0x34] == 0) && (sp48[0x34] == 5)) {

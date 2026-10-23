@@ -324,19 +324,19 @@ void func_80024FA8(u8 arg0, u8 *arg1, s32 arg2, u8 *arg3) {
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/0/func_800251A0.s")
 
-void func_8066EA90(void *, s32);
-void func_8066EA64(void *, s32);
+void actorClearNodeFlag(void *, s32);
+void actorSetNodeFlag(void *, s32);
 
 void func_8002531C(void) {
-    func_8066EA90(D_807FBB40, 3);
-    func_8066EA90(D_807FBB40, 4);
-    func_8066EA90(D_807FBB40, 5);
+    actorClearNodeFlag(D_807FBB40, 3);
+    actorClearNodeFlag(D_807FBB40, 4);
+    actorClearNodeFlag(D_807FBB40, 5);
 }
 
 void func_80025364(void) {
-    func_8066EA64(D_807FBB40, 3);
-    func_8066EA64(D_807FBB40, 4);
-    func_8066EA64(D_807FBB40, 5);
+    actorSetNodeFlag(D_807FBB40, 3);
+    actorSetNodeFlag(D_807FBB40, 4);
+    actorSetNodeFlag(D_807FBB40, 5);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/0/func_800253AC.s")

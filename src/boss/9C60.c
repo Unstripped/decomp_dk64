@@ -160,8 +160,8 @@ void func_80626110(s32, s32, s32);
 s32 func_80629148(void);
 void func_8063DA40(s16, s32);
 s16 func_80665DE0(f32, f32, f32, f32);
-void func_80690814(BossC_9C60_Actor *, s32);
-void func_8069084C(s32, s32, f32, s32, f32, f32, BossC_9C60_Actor *);
+void projectileGetTargetCoords(BossC_9C60_Actor *, s32);
+void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, BossC_9C60_Actor *);
 void func_80724CA4(s32, s32);
 void func_80724E48(s32);
 s32 func_8072881C(s32, void *);
@@ -257,8 +257,8 @@ void func_8002DE04(void) {
             break;
         case 3:
             D_807FBB40->unk146 = 6;
-            func_80690814(D_807FBB40, 4);
-            func_8069084C(0xAA, 1, D_807FBB40->unk4->unk38, 0, (f32)sp3C->unk19 * sp30, 0.0f, D_807FBB40);
+            projectileGetTargetCoords(D_807FBB40, 4);
+            projectileSpawnNodeEntry(0xAA, 1, D_807FBB40->unk4->unk38, 0, (f32)sp3C->unk19 * sp30, 0.0f, D_807FBB40);
             D_807FBB40->unk155++;
             break;
         case 5:

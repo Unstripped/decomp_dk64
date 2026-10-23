@@ -122,11 +122,11 @@ void func_800336C0(void) {
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_80033784.s")
 
-void func_80690814(void *, s32);
-void func_80690A28(s32, s32, f32, f32, f32, f32, f32, void *);
+void projectileGetTargetCoords(void *, s32);
+void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 void bossSpawnObjectAtWaypoint(u8 *arg0) {
-    func_80690814(D_807FBB40, 1);
-    func_80690A28(0x2C, 2, D_807FBB40->unk4->unk38, D_807FDCA0->unk14[arg0[3]].unk0, D_807FDCA0->unk14[arg0[3]].unk2, D_807FDCA0->unk14[arg0[3]].unk4, 1200.0f, D_807FBB40);
+    projectileGetTargetCoords(D_807FBB40, 1);
+    projectileAimAndSpawn(0x2C, 2, D_807FBB40->unk4->unk38, D_807FDCA0->unk14[arg0[3]].unk0, D_807FDCA0->unk14[arg0[3]].unk2, D_807FDCA0->unk14[arg0[3]].unk4, 1200.0f, D_807FBB40);
 }
 
 s32 func_800339D8(BossE_F0D0_Sub14 *arg0, u8 *arg1) {

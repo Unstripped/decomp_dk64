@@ -62,7 +62,7 @@ void func_80614A64(Actor *);
 ActorSub140 *func_80665F24(Actor *);
 void func_806663F8(Actor *);
 void func_80669A6C(Actor *);
-void func_80672B1C(Actor *);
+void actorUpdateMovementFlags(Actor *);
 void func_80675EE0(Actor *);
 void actorInitDamage(Actor *);
 void func_80677EC8(s32);
@@ -336,7 +336,7 @@ void actorDespawnByOwner(s32 arg0) {
 void func_806136B4(void);
 void func_8071586C(Actor *);
 void func_807233B4(Actor *);
-void func_8066E21C(ActorSub140 *);
+void actorSub140Free(ActorSub140 *);
 void func_8072F09C(Actor *);
 void func_8070DA74(Actor *);
 void renderCallbacksDisableForActor(Actor *);
@@ -392,7 +392,7 @@ void actorFreeImmediate(Actor *arg0) {
             D_807FB930[i].unk4 = D_807FB930[D_807FBB34].unk4;
         }
     }
-    func_8066E21C(arg0->unk140);
+    actorSub140Free(arg0->unk140);
     func_8072F09C(arg0);
     if (((R2EActor *)arg0)->unk118 != NULL) {
         heapFree(((R2EActor *)arg0)->unk118);
@@ -465,7 +465,7 @@ void func_80678BBC(Actor *arg0) {
         func_806EB194();
     }
     if (arg0->unk144 & 4) {
-        func_80672B1C(arg0);
+        actorUpdateMovementFlags(arg0);
     } else if (arg0->unk140 != NULL) {
         arg0->unk140->unk6C = 0;
     }
@@ -481,7 +481,7 @@ typedef struct R3B_Actor {
 
 void func_80665FB4(Actor *);
 void func_80678E6C(Actor *);
-void func_8066EBF4(Actor *);
+void actorUpdateModelMatrices(Actor *);
 void func_806790F4(s32);
 void func_8067A1DC(Actor *);
 void actorUpdateEffects(Actor *);
@@ -503,7 +503,7 @@ void func_80678CC8(Actor *actor) {
         }
     }
     func_80678E14(actor);
-    func_8066EBF4(actor);
+    actorUpdateModelMatrices(actor);
     func_806790F4(0);
     func_8067A1DC(actor);
     actorFreeCallbackList(actor);
@@ -535,7 +535,7 @@ void func_80678E14(Actor *actor) {
     }
 }
 
-u8 func_8066F250();
+u8 actorClearTargetAngle();
 extern u8 D_807FBC55;
 void func_806EB0C0(s32, s32, u8);
 extern u8 D_807FC929;
@@ -548,7 +548,7 @@ void func_80678E6C(Actor *actor) {
             actor->unkFC = 0;
             actor->unkFD = 0;
         }
-        actor->unkFC |= func_8066F250(actor, &actor->unkF4, &actor->unkF6, &sp27);
+        actor->unkFC |= actorClearTargetAngle(actor, &actor->unkF4, &actor->unkF6, &sp27);
         sp27 |= D_807FBC55;
         if (sp27 != 0) {
             if (!(actor->unk6A & 0x10)) {

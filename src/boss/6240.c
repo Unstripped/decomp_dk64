@@ -91,7 +91,7 @@ void func_8002A55C(u8 arg0, f32 arg1) {
     }
 }
 
-void func_80671C0C(void *, s32, f32 *, f32 *, f32 *);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void func_8071498C(void *);
 void func_80714950(void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
@@ -108,7 +108,7 @@ void bossSpawnSparkles(void) {
     s16 i;
     s32 r1;
 
-    func_80671C0C(D_807FBB40, 1, &sp6C, &sp68, &sp64);
+    actorGetNodePos(D_807FBB40, 1, &sp6C, &sp68, &sp64);
     sp6C += (f32)(((func_80611A44() >> 15) % 80) - 40);
     sp68 += (f32)(((func_80611A44() >> 15) % 100) + 50);
     sp64 += (f32)(((func_80611A44() >> 15) % 80) - 40);
