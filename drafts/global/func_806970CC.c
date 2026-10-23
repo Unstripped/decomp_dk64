@@ -1,4 +1,4 @@
-// func_806970CC (src/global/936B0.c): 3 insns: regalloc on unkEE+0x800 (lh in t1, addiu in t2 vs v1) with addu operand order matched
+// func_806970CC (src/global/936B0.c): 3 insns: regalloc on unkEE+0x800 (t1, t2 vs v1); v1 matched with v1 = unkEE + 0x800; andi/subu/addu need t3/t6/t7
 #include "common.h"
 
 #include "actor.h"

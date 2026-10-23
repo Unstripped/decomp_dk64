@@ -1,4 +1,4 @@
-// func_80694948 (src/global/936B0.c): xori v0 vs addiu t5 ordering in unk154 despawn block
+// func_80694948 (src/global/936B0.c): 2 insns: xori vs addiu in unk154 block; M93D_ACTOR->unk154++ == 2 emits xori then addiu with sb in delay slot but adds move a0, v1
 #include "common.h"
 
 #include "actor.h"

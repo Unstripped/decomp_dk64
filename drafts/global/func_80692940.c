@@ -1,4 +1,4 @@
-// func_80692940 (src/global/936B0.c): 2 insns: v0 vs a0 in condition evaluation; frame 0x50 vs 0x48
+// func_80692940 (src/global/936B0.c): 2 insns: v0 vs a0 for condition evaluation, frame 0x50 vs 0x48; all 330 instructions match with inline ternary and 0x48 frame
 #include "common.h"
 
 #include "actor.h"

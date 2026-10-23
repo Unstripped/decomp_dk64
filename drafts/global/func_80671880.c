@@ -1,4 +1,4 @@
-// func_80671880 (src/global/70FD0.c): 4 insns diff (s5 vs s6 swapped, bne s5, v0 vs bne v0, s6). Perfect stack frame 0xC0 and sp6C at 0x6C, spAC/B0/B4 at 0xAC/B0/B4
+// func_80671880 (src/global/70FD0.c): Closest diff: only 4 insns (s5 vs s6 swapped: li, lw, bne, addu). 121/125 insns match exactly, perfect stack 0xC0 and all stack offsets.
 #include "common.h"
 #include "actor.h"
 
@@ -879,7 +879,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 s32 func_806732A8(s32, s16);
 void func_806713E4(M70E_Actor *, u8);
-void func_80671528();
+void func_80671528(M70E_Actor *, f32 *, f32 *, f32 *, s32);
 
 void func_806710E0(M70H_Actor *arg0, s32 arg1, s32 arg2, s32 arg3) {
     s16 sp36;
@@ -999,8 +999,6 @@ ret_32_3:
     return 0x32;
 }
 
-extern u8 D_807444FC;
-
 typedef struct M70M_Node {
     f32 unk0;
     f32 unk4;
@@ -1037,6 +1035,8 @@ typedef struct M70M_Actor {
     M70M_SubActor *unk140;
 } M70M_Actor;
 
+extern u8 D_807444FC;
+
 void func_80671880(arg0, arg1)
 M70M_Actor *arg0;
 u8 arg1;
@@ -1050,16 +1050,14 @@ u8 arg1;
     M70M_Node *node;
     u8 val;
     s32 minus_one;
-    s32 base;
-    ActorSub4 *temp_v0;
+    Mtx *base;
 
     var_fs1 = 0.15f;
     sub = arg0->unk140;
     if (arg1 || sub->unk7C != sub->unk80) {
         minus_one = -1;
-        temp_v0 = arg0->unk4;
-        if (temp_v0 != NULL) {
-            var_fs1 = temp_v0->unk38;
+        if (arg0->unk4 != NULL) {
+            var_fs1 = arg0->unk4->unk38;
         }
         if (arg0->unk64 & 0x800) {
             var_fs1 = arg0->unk120;
@@ -1077,7 +1075,7 @@ u8 arg1;
                     memcpy(sp6C, sub->unk70, 0x40);
                     guMtxXFMF(sp6C, node->unk0, node->unk4, node->unk8, &spB4, &spB0, &spAC);
                 } else {
-                    guMtxXFML((Mtx *)((((u32)node->unk20 >> 6) << 6) + base), node->unk0, node->unk4, node->unk8, &spB4, &spB0, &spAC);
+                    guMtxXFML(&base[(u32)node->unk20 >> 6], node->unk0, node->unk4, node->unk8, &spB4, &spB0, &spAC);
                 }
                 node->unk10 = (s32)(spB4 * 8.0f);
                 node->unk14 = (s32)(spB0 * 8.0f);

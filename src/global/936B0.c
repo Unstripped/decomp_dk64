@@ -541,9 +541,106 @@ void func_80691930(u8 arg0, u8 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_806919E0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_806921DC.s")
+typedef struct M93L_ActorState2C {
+    u32 unk0;
+    char pad4[0xE];
+    u8 unk12;
+    u8 unk13;
+} M93L_ActorState2C;
 
-void func_806921DC(s32);
+typedef struct M93L_ConfigSub124 {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+} M93L_ConfigSub124;
+
+typedef struct M93L_Actor21DC {
+    u8 pad0[0x60];
+    u32 unk60;
+    u32 unk64;
+    u16 unk68;
+    u16 unk6A;
+    u8 pad6C[2];
+    s16 unk6E;
+    u8 pad70[0xB8 - 0x70];
+    f32 unkB8;
+    f32 unkBC;
+    f32 unkC0;
+    u8 padC4[0xEE - 0xC4];
+    s16 unkEE;
+    u8 padF0[0xFC - 0xF0];
+    u8 unkFC;
+    u8 padFD[0x124 - 0xFD];
+    M93L_ConfigSub124 *unk124;
+    u8 pad128[0x144 - 0x128];
+    u8 unk144;
+    u8 pad145[0x174 - 0x145];
+    void *unk174;
+} M93L_Actor21DC;
+
+#define M93L_ACTOR21DC ((M93L_Actor21DC *)D_807FBB40)
+
+extern u8 D_80720120;
+extern u8 D_80720BE8;
+extern u32 D_8076A068;
+extern u8 D_807FBB85;
+void func_8071C914(void);
+void func_807149A8(s32);
+void func_807149FC(s32);
+s32 func_80611A44(void);
+void func_8066EB40(Actor *, f32);
+void func_8066E8E4(Actor *, f32, f32, f32, f32, s32);
+void func_8066E854(Actor *, f32, f32, f32, s32);
+void func_8067ACB4(Actor *);
+void func_806651FC(Actor *);
+void func_80665564(Actor *, f32);
+void actorDespawn(Actor *);
+s32 func_80714C08(void *, f32, Actor *, s32, s32);
+
+void func_806921DC(s32 arg0) {
+    M93L_ActorState2C *sp2C;
+
+    sp2C = (M93L_ActorState2C *)M93L_ACTOR21DC->unk174;
+    if (!(M93L_ACTOR21DC->unk60 & 0x10)) {
+        M93L_ACTOR21DC->unk6A &= (M93L_ACTOR21DC->unk6E = -2);
+        M93L_ACTOR21DC->unkEE = (s16)((M93L_ACTOR21DC->unk124->unk0 / 6.2831855f) * 4095.0f);
+        M93L_ACTOR21DC->unkB8 = M93L_ACTOR21DC->unk124->unk4;
+        M93L_ACTOR21DC->unkC0 = M93L_ACTOR21DC->unk124->unk8;
+        M93L_ACTOR21DC->unk144 = 0x3C;
+        func_8066EB40(D_807FBB40, 40.0f);
+        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, 30.0f, -1);
+        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        func_807149FC(1);
+        func_80714998(2);
+        func_807149B8(1);
+        func_8071498C(func_8071C914);
+        func_80714950((s32)(func_80611A44() >> 15) % 360);
+        func_807149A8(2000);
+        switch ((u8)arg0) {
+        case 0:
+            func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
+            func_80714C08(&D_80720120, M93L_ACTOR21DC->unk124->unkC, D_807FBB40, 1, 2);
+            break;
+        case 1:
+            func_807149C8(0xC8, 0xC8, 0xFA, 0x9B);
+            func_80714C08(&D_80720BE8, M93L_ACTOR21DC->unk124->unkC, D_807FBB40, 1, 2);
+            break;
+        }
+        sp2C->unk13 = (u8)(u32)M93L_ACTOR21DC->unk124->unk10;
+        sp2C->unk0 = D_8076A068;
+        sp2C->unk12 = 0;
+        M93L_ACTOR21DC->unk60 |= 0x80000;
+    }
+    func_8067ACB4(D_807FBB40);
+    func_806651FC(D_807FBB40);
+    func_80665564(D_807FBB40, 4.0f);
+    if ((M93L_ACTOR21DC->unk6A & 1) || (M93L_ACTOR21DC->unkFC != 0) || (D_807FBB85 != 0) || ((u32)(sp2C->unk0 + 24) < D_8076A068)) {
+        actorDespawn(D_807FBB40);
+    }
+}
+
 void func_806919E0(void *);
 extern u8 D_807201D4;
 
@@ -632,29 +729,17 @@ extern u8 D_807202D0;
 extern s16 D_807502D0;
 extern f32 D_807502E4;
 extern s16 D_80750344;
-extern u32 D_8076A068;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807200EC;
-extern u8 D_80720120;
 extern M93C_PlayerEntry *D_807FC924;
 extern u8 D_807FC928;
 extern u8 D_8072029C;
 extern u8 D_80720BA0;
 extern s16 D_8075035C;
 extern s16 D_80750370;
-extern u8 D_807FBB85;
 
-void func_8066EB40(Actor *, f32);
-void func_8066E8E4(Actor *, f32, f32, f32, f32, s32);
-void func_8066E854(Actor *, f32, f32, f32, s32);
-void func_807149FC(s32);
-s32 func_80714C08(void *, f32, Actor *, s32, s32);
-void func_8067ACB4(Actor *);
-void func_806651FC(Actor *);
-void func_80665564(Actor *, f32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void actorDespawn(Actor *);
 void func_8071D260(void);
 void func_8071A8B0(void);
 void func_8071ABDC(void);
@@ -1320,7 +1405,6 @@ void func_80695BAC(void) {
 
 extern u8 D_80720340;
 extern f32 D_80750274;
-s32 func_80611A44(void);
 void func_8071496C(s16);
 
 typedef struct M93G_Actor {
