@@ -867,20 +867,92 @@ void func_80655BF0(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655DD0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656B98.s")
-
 typedef struct {
-    u8 pad0[0x4C];
-    u8 *unk4C;
-    s32 unk50;
-    u8 pad54[0x174];
+    /* 0x000 */ u8 pad0[0x5];
+    /* 0x005 */ u8 unk5;
+    /* 0x006 */ u8 pad6[0x26];
+    /* 0x02C */ s32 unk2C;
+    /* 0x030 */ s32 unk30;
+    /* 0x034 */ s32 unk34;
+    /* 0x038 */ s32 unk38;
+    /* 0x03C */ u8 pad3C[0x10];
+    /* 0x04C */ u8 *unk4C;
+    /* 0x050 */ s32 unk50;
+    /* 0x054 */ u8 pad54[0x174];
 } M55P5EffectSlot;
 
 typedef struct {
-    s16 unk0;
-    u8 unk2;
-    u8 pad3[0x21];
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ u8 unk2;
+    /* 0x03 */ u8 pad3[0x1];
+    /* 0x04 */ s32 unk4[4];
+    /* 0x14 */ s32 unk14[4];
 } M55P5EffectEntry;
+
+
+#define R2P5_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+
+#ifdef NON_MATCHING
+s32 func_80656B98(arg0, arg1, arg2)
+u32 *arg0;
+s32 arg1;
+u8 arg2;
+{
+    M55P5EffectEntry *entry;
+    struct M55P2SearchEntry *node;
+    Gfx *gfx;
+    s32 i;
+    s32 found;
+
+    gfx = (Gfx *)arg0;
+    R2P5_WRITE_GFX(gfx++, 0xE7000000, 0);
+    if (((M55P5EffectSlot *)D_807F6C18)[arg1].unk5 != 2) {
+        switch (arg2) {
+        case 0:
+            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk2C));
+            break;
+        case 1:
+            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk30));
+            break;
+        case 2:
+            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk34));
+            break;
+        case 3:
+            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk38));
+            break;
+        }
+    } else {
+        for (i = 0; i < ((M55P5EffectSlot *)D_807F6C18)[arg1].unk50; i++) {
+            if (((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk4[arg2] == -1) {
+                continue;
+            }
+            found = 0;
+            node = D_807F70B0;
+            do {
+                if (node->unk2 == ((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk0) {
+                    found = 1;
+                } else {
+                    node++;
+                }
+            } while (found == 0);
+            if (node->unk18 == 0) {
+                continue;
+            }
+            if ((((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk2 & (1 << arg2)) == 0) {
+                continue;
+            }
+            R2P5_WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk14[arg2]));
+            R2P5_WRITE_GFX(gfx++, 0xE7000000, 0);
+            R2P5_WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((M55P5EffectEntry *)((M55P5EffectSlot *)D_807F6C18)[arg1].unk4C)[i].unk4[arg2]));
+            R2P5_WRITE_GFX(gfx++, 0xE7000000, 0);
+        }
+    }
+    return (s32)gfx;
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656B98.s")
+#endif
 
 void func_80656E58(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
     s32 i = 0;
@@ -934,12 +1006,102 @@ void func_8065756C(s16 arg0) {
     D_807F6C80++;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806575D0.s")
+typedef struct {
+    /* 0x00 */ s64 unk0;
+    /* 0x08 */ s64 unk8;
+    /* 0x10 */ s64 unk10;
+    /* 0x18 */ s64 unk18;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ u8 pad24[0x4];
+    /* 0x28 */ u8 unk28;
+    /* 0x29 */ u8 pad29[0x7];
+} M55P5GridPoint;
+
+typedef struct {
+    /* 0x00 */ f32 unk0[4];
+    /* 0x10 */ f32 unk10[4];
+    /* 0x20 */ f32 unk20[4];
+} M55P5GridSrc;
+
+typedef struct {
+    /* 0x00 */ f32 unk0[4];
+    /* 0x10 */ f32 unk10[4];
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ f32 unk24;
+} M55P5GridDst;
+
+
+
+extern M55P5GridPoint *D_807F6C24;
+extern void func_80657CB0(s32, f32, f32, f32, f32 *, f32 *, f32 *);
+extern void func_80657974(s32, f32, f32, f32, M55P5GridDst *);
+extern s32 func_8065776C(u8 *);
+
+s32 func_806575D0(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+    f32 h;
+    f32 x;
+    f32 sp7C;
+    f32 sp78;
+    f32 sp74;
+    u8 sp4C[0x28];
+    f32 sp48;
+    f32 sp44;
+    f32 sp40;
+
+    sp40 = (f32)D_807F6C24[arg0].unk10;
+    sp44 = (f32)D_807F6C24[arg0].unk8;
+    sp48 = (f32)D_807F6C24[arg0].unk0;
+    h = (f32)D_807F6C24[arg0].unk18;
+    x = (h + (sp48 * arg1 + sp44 * arg2 + sp40 * arg3)) / D_807F6C24[arg0].unk20;
+    if (x < 0.0) {
+        x = 0.0 - x;
+    }
+    if (x > 80.0) {
+        return 0;
+    }
+    func_80657CB0(arg0, arg1, arg2, arg3, &sp7C, &sp78, &sp74);
+    func_80657974(arg0, sp7C, sp78, sp74, (M55P5GridDst *)sp4C);
+    if (func_8065776C(sp4C)) {
+        return 1;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_8065776C.s")
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657974.s")
+extern M55P5GridSrc *D_807F6C14;
+
+void func_80657974(s32 arg0, f32 arg1, f32 arg2, f32 arg3, M55P5GridDst *arg4) {
+    s32 k;
+
+    switch (D_807F6C24[arg0].unk28) {
+    case 0:
+        arg4->unk20 = arg1;
+        arg4->unk24 = arg2;
+        for (k = 0; k < 4; k++) {
+            arg4->unk0[k] = D_807F6C14[arg0].unk0[k];
+            arg4->unk10[k] = D_807F6C14[arg0].unk10[k];
+        }
+        break;
+    case 1:
+        arg4->unk20 = arg1;
+        arg4->unk24 = arg3;
+        for (k = 0; k < 4; k++) {
+            arg4->unk0[k] = D_807F6C14[arg0].unk0[k];
+            arg4->unk10[k] = D_807F6C14[arg0].unk20[k];
+        }
+        break;
+    case 2:
+        arg4->unk20 = arg2;
+        arg4->unk24 = arg3;
+        for (k = 0; k < 4; k++) {
+            arg4->unk0[k] = D_807F6C14[arg0].unk10[k];
+            arg4->unk10[k] = D_807F6C14[arg0].unk20[k];
+        }
+        break;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657CB0.s")
 
