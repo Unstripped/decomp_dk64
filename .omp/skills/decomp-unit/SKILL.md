@@ -24,9 +24,9 @@ ok-fine, not here; this skill is the procedure.
 
 ROADMAP order: overlays smallest-first by `<ovl>_TEXT_SIZE` in `Makefile`, two at a time
 (they are independent); then the listed global subsystems. All nine overlays are C units
-since the boss unit (2026-10-22): next units are global subsystems (the next actor files
-named at the end of ROADMAP's actor bullet, currently `70FD0` and `936B0`) or further
-matching rounds on near-misses listed in
+since the boss unit (2026-10-22): next units are global subsystems (the next candidate
+files named at the end of ROADMAP's section 9 bullets, e.g. `15050`, `68960`, `699B0`,
+`9BF30`) or further matching rounds on near-misses listed in
 ROADMAP. A global subsystem is a set of `asm/global/<file>.s` files: find them from what
 the overlays' named functions call (`grep -o 'func_80[67]…'` in their C) and from the
 globals each file references most (`grep -oE '%hi\(D_[0-9A-F]+\)' asm/global/<f>.s | sort | uniq -c`).
