@@ -862,7 +862,26 @@ void func_8065756C(s16 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657CB0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657E24.s")
+void func_80657E24(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 *arg8, s32 *arg9, s32 *arg10, s32 *arg11) {
+    if ((arg0 == arg2) || (arg1 == arg3)) {
+        *arg8 = arg4;
+        *arg9 = arg5;
+        *arg10 = arg6;
+        *arg11 = arg7;
+        return;
+    }
+    if ((arg4 == arg6) || (arg5 == arg7)) {
+        *arg8 = arg0;
+        *arg9 = arg1;
+        *arg10 = arg2;
+        *arg11 = arg3;
+        return;
+    }
+    *arg8 = (arg0 < arg4) ? arg0 : arg4;
+    *arg9 = (arg1 < arg5) ? arg1 : arg5;
+    *arg10 = (arg6 < arg2) ? arg2 : arg6;
+    *arg11 = (arg7 < arg3) ? arg3 : arg7;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657F14.s")
 
@@ -876,11 +895,49 @@ void func_8065756C(s16 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658624.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806588E0.s")
+void func_80658930(u8 *);
+
+void func_806588E0(s32 arg0) {
+    u8 *p;
+
+    p = (u8 *)func_8066B0F8(0x14, arg0, 1, 1);
+    func_80658930(p);
+    if (p != NULL) {
+        assetFreeBuffer(p, 0xBED, 0x22);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658930.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658B08.s")
+extern s16 D_807F7358;
+extern s16 D_807F735A;
+extern s16 D_807F735C;
+extern s16 D_807F735E;
+
+s32 func_80658B08();
+
+s32 func_80658B08(arg0, arg1, arg2)
+s8 arg0;
+u8 *arg1;
+s16 arg2;
+{
+    s16 i;
+    s16 n;
+    s32 off;
+
+    n = 0;
+    if (arg0 == -1) {
+        return 0;
+    }
+    for (i = 0; i < D_807F6C20 && n < arg2; ) {
+        off = i * 10;
+        if (*(s16 *)(D_807F6C1C + off + 2) == arg0) {
+            arg1[n++] = *(s16 *)(D_807F6C1C + off + 4);
+        }
+        i++;
+    }
+    return n;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658BD0.s")
 
@@ -890,6 +947,18 @@ void func_8065756C(s16 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658DAC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658E58.s")
+void func_80658E58();
+
+void func_80658E58(arg0, arg1, arg2, arg3)
+s16 arg0;
+s16 arg1;
+s16 arg2;
+s16 arg3;
+{
+    D_807F7358 = arg0;
+    D_807F735A = arg1;
+    D_807F735C = arg2;
+    D_807F735E = arg3;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658E8C.s")
