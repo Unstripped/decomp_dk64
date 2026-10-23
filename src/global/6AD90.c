@@ -555,7 +555,51 @@ s32 func_80669C6C(R1C_BoundingBox *arg0, f32 arg1) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80669CB4.s")
+s32 func_80669CB4(R1C_TriangleF *arg0, f32 arg1, f32 arg2) {
+    f32 x0, x1, x2;
+    f32 z0, z1, z2;
+    f32 min;
+    f32 max;
+
+    x0 = arg0->x[0];
+    x1 = arg0->x[1];
+    x2 = arg0->x[2];
+
+    min = (x0 < x1) ? x0 : x1;
+    if (!(min < x2)) {
+        min = x2;
+    }
+    if (arg1 < min) {
+        return 0;
+    }
+    max = (x1 < x0) ? x0 : x1;
+    if (!(x2 < max)) {
+        max = x2;
+    }
+    if (max < arg1) {
+        return 0;
+    }
+
+    z0 = arg0->z[0];
+    z1 = arg0->z[1];
+    z2 = arg0->z[2];
+
+    min = (z0 < z1) ? z0 : z1;
+    if (!(min < z2)) {
+        min = z2;
+    }
+    if (arg2 < min) {
+        return 0;
+    }
+    max = (z1 < z0) ? z0 : z1;
+    if (!(z2 < max)) {
+        max = z2;
+    }
+    if (max < arg2) {
+        return 0;
+    }
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80669E04.s")
 
