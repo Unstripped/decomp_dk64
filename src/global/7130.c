@@ -1267,7 +1267,98 @@ s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060956C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80609B80.s")
+#pragma intrinsic(sqrtf)
+f32 sqrtf(f32);
+
+extern u8 D_807FC929;
+
+typedef struct {
+    char pad[0xC4];
+    s32 unkC4;
+} Aud7130M2_SoundContextD580;
+
+void func_80609B80(f32, f32, f32, s16, u8, u8, u8, u8, f32);
+
+void func_80609B80(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7, f32 arg8) {
+    s32 dx;
+    s32 dy;
+    s32 dz;
+    s32 vol;
+    f32 angle;
+    f32 pitch;
+    u8 sp47;
+    u8 sp46;
+
+    sp47 = 0;
+    sp46 = 0;
+
+    if (((Aud7130M2_SoundContextD580 *)D_807FD580)->unkC4 != 0) {
+        n_alSndpDeallocate(((Aud7130M2_SoundContextD580 *)D_807FD580)->unkC4);
+    }
+
+    angle = mathAngleBetweenPointsRad(D_807FC924[D_807FC929].unk210, D_807FC924[D_807FC929].unk218, arg0, arg2) - D_807FC924[D_807FC929].unk2C4;
+    if (angle < 0.0f) {
+        angle += 6.2831855f;
+    }
+
+    if (angle > 1.5707964f && (f64)angle < 4.71238911151886) {
+        sp47 = 1;
+    }
+
+    if (arg7 == 0) {
+        vol = ((f64)(u32)arg4 * 32767.0) / 255.0;
+        if (D_80770DE4 < 23.0f) {
+            angle = 0.0f;
+        }
+    } else {
+        dx = D_807FC924[D_807FC929].unk210 - arg0;
+        dy = D_807FC924[D_807FC929].unk214 - arg1;
+        dz = D_807FC924[D_807FC929].unk218 - arg2;
+        D_80770DE4 = sqrtf((f32)(dx * dx + dy * dy + dz * dz));
+
+        if (D_80770DE4 < 23.0f) {
+            angle = 0.0f;
+            sp47 = 0;
+        }
+
+        if (angle > 0.7853982f && (f64)angle < 5.497787296772003) {
+            D_80770DE4 = (1.0f - (func_80612D1C(((2.0 * (f64)angle) / 3.0) + 2.617993950843811) * arg8)) * D_80770DE4;
+        }
+
+        if (D_80770DE4 < 1.0f) {
+            D_80770DE4 = 1.0f;
+        }
+
+        vol = (((f32)(arg7 * 4000) / sqrtf(D_80770DE4)) - (((f32)(arg7 * 4000) / 7.74596600000000013) - 32767.0));
+        if (vol >= 0x8000) {
+            vol = 0x7FFF;
+        }
+        vol = ((f64)(arg4 * vol)) / 255.0;
+    }
+
+    if (vol >= 1001) {
+        if (arg6 != 0) {
+            vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg6 / 155.0))) * (f64)vol;
+            pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg6 / 100.0)) + (1.0 - ((f64)(u32)arg6 / 255.0));
+        } else {
+            pitch = 1.0f;
+        }
+
+        pitch = (f32)(((f64)((f32)(u32)arg5 * pitch)) / 127.0);
+
+        if (D_8077058E >= 21) {
+            sp46 = (D_8077058E * 100) / 255;
+        }
+
+        angle = (f32)((f64)(1.0f - func_80612D1C(angle)) * 63.5);
+
+        if (sp47 != 0) {
+            sp46 |= 0x80;
+        }
+
+        n_alSndpAllocate(D_8076D1F8, arg3, (u16)vol, (u8)angle, pitch, sp46, &((Aud7130M2_SoundContextD580 *)D_807FD580)->unkC4);
+    }
+}
 
 typedef struct {
     u8 pad[0xF8];
