@@ -1072,7 +1072,65 @@ s32 func_80671D64(M70E_Actor *arg0, s32 arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671E00.s")
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671F54.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80672134.s")
+s16 func_80672A70();
+
+s16 func_80672134(arg0, arg1, arg2, arg3)
+s16 arg0;
+s16 arg1;
+s16 arg2;
+s16 arg3;
+{
+    s16 var_a3;
+    f32 var_fv1;
+    s16 bisect;
+    s16 diff1;
+    s16 diff2;
+
+    if (arg1 >= arg0) {
+        if (arg2 >= arg0 && arg1 >= arg2) {
+            return 0x270F;
+        }
+    } else if (arg2 >= arg0 || arg1 >= arg2) {
+        return 0x270F;
+    }
+
+    var_a3 = arg2 + 0x800;
+    if (var_a3 >= 0x1000) {
+        var_a3 -= 0x1000;
+    }
+
+    bisect = func_80672A70(arg0, arg1);
+    if ((arg0 - bisect) > 0) {
+        diff1 = arg0 - bisect;
+    } else {
+        diff1 = -(arg0 - bisect);
+    }
+    if (diff1 >= 0x800) {
+        diff1 = 0xFFF - diff1;
+    }
+    if ((var_a3 - bisect) > 0) {
+        diff2 = var_a3 - bisect;
+    } else {
+        diff2 = -(var_a3 - bisect);
+    }
+    if (diff2 >= 0x800) {
+        diff2 = 0xFFF - diff2;
+    }
+
+    if (diff1 != 0) {
+        var_fv1 = (f32)diff2 / (f32)diff1;
+    } else {
+        var_fv1 = 0.0f;
+    }
+
+    if (var_fv1 > 1.0) {
+        var_fv1 = 1.0f;
+    }
+    if (var_fv1 < 0.2) {
+        var_fv1 = 0.0f;
+    }
+    return (s16)(s32)((f32)arg3 * var_fv1);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80672328.s")
 
@@ -1232,7 +1290,6 @@ ret_0:
     return 0;
 }
 
-s16 func_80672A70();
 
 s16 func_806728F0(arg0, arg1, arg2)
 s16 arg0;
