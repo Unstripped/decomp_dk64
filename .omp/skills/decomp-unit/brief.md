@@ -32,10 +32,18 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
   or `./diff.sh`: they rebuild shared outputs and race.
 - Starter C: `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`.
 - Put every scratch/probe file under `.scratch/<YourName>/`, never in the repo root.
-- PRIVATE COPY mode: copy `src/<seg>/<file>.c` once to `.scratch/<YourName>/<file>.c`
-  (or use `git show <commit>:src/<seg>/<file>.c > ...` if your task specifies an exact base),
-  never re-copy mid-run, edit only the copy, check with
+- PRIVATE COPY mode: create your copy ONCE from the exact base commit in your task
+  (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`), never re-copy
+  mid-run, edit only the copy, check with
   `tools/fdiff.sh .scratch/<YourName>/<file>.c src/<seg>/<file>.c [FUNC]`.
+- Keep a blank line before every `#pragma GLOBAL_ASM` line, including the last one in
+  the file.
+- If the text is identical but fdiff prints `FAILED: Relocations mismatch` only because the
+  expected asm used a raw address constant where your C uses the symbol, keep the
+  function as GLOBAL_ASM, save the draft, and report it as "text-identical, reloc only":
+  the orchestrator checks it against the ROM hash.
+- If code matches but `.rodata` differs only by zero padding between functions, report it:
+  that is a hidden translation-unit boundary, not something to fix in C.
 - Key compiler patterns: when you discover a pattern that resolves a common near-miss
   (e.g. post-increment equality `if (reg++ == N)` placing stores in delay slots, K&R spills,
   unrolled loop idioms), report it clearly or message siblings via `write agent://<id>`.
@@ -66,7 +74,9 @@ largest. After a serious effort on one function, move on and come back if budget
 Use the whole budget before reporting. A function that won't match gets its exact
 original `#pragma GLOBAL_ASM(...)` line back, and its best draft (the function plus the
 local declarations it needs) is persisted for later sessions with
-`python3 tools/drafts.py save <seg> <FUNC> <file> --note "<closest diff, what you tried>"`
+`python3 tools/drafts.py save <seg> <FUNC> .scratch/<YourName>/<FUNC>_best.c --note "<closest diff, what you tried>"`,
+where `<FUNC>_best.c` holds ONLY that function and the declarations it needs (never your
+whole private copy: `save` rejects files with `#pragma GLOBAL_ASM` lines)
 (writes `drafts/<seg>/<FUNC>.c`, replacing the old draft). Start from the stored draft
 (`python3 tools/drafts.py show <seg> <FUNC>`) if there is one. Your final file MUST give OK or
 TEXT OK: never leave non-matching C in it.
