@@ -2,14 +2,15 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct R1F67890_Entry14 {
+typedef struct R2F684C0_Entry14 {
     f32 unk0;
-    u8 pad4[0xD];
+    u8 pad4[0xC];
+    u8 unk10;
     u8 unk11;
     u8 pad12[2];
-} R1F67890_Entry14;
+} R2F684C0_Entry14;
 
-extern R1F67890_Entry14 *D_807F93F4;
+extern R2F684C0_Entry14 *D_807F93F4;
 extern s32 D_807F93F8;
 s32 func_80663594(s32, s32);
 
@@ -22,10 +23,10 @@ s32 func_806634A4(s32 arg0) {
     s32 var_s0;
     s32 var_s1;
     s32 var_v0;
-    R1F67890_Entry14 *var_v1;
+    R2F684C0_Entry14 *var_v1;
 
-    var_s1 = sp38;
     var_fs0 = 100000000.0f;
+    var_s1 = sp38;
     do {
         var_s0 = 0;
         var_fv1 = 0.0f;
