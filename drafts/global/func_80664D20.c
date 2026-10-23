@@ -1,5 +1,35 @@
-// func_80664D20 (src/global/699B0.c): Unreferenced late_rodata double 0.0 at 0x80758E28 from original TU padding shifts rodata by 8 bytes when compiled from single C file; logic matches.
-typedef struct R2A_Struct8BA0_Full {
+// func_80664D20 (src/global/699B0.c): MATCH: removed redundant if(D_807F9448 > 0) and used index idx = D_807F9440[i]
+#include "common.h"
+#include "actor.h"
+
+typedef struct {
+    u8 unk0;
+    u8 pad[0x1F];
+} R1A_Struct8BA0;
+
+extern R1A_Struct8BA0 D_80748BA0[];
+extern u8 D_807F9440[];
+extern s32 D_807F9448;
+
+void func_80664CB0(arg0)
+s16 arg0;
+{
+    s32 limit;
+    u8 *ptr;
+    s32 i;
+
+    limit = 13;
+    D_807F9448 = 0;
+    for (i = 0, ptr = (u8 *)D_80748BA0; i < limit; i++, ptr += 0x20) {
+        if (arg0 == *ptr) {
+            if (D_807F9448 != 8) {
+                D_807F9440[D_807F9448++] = i;
+            }
+        }
+    }
+}
+
+typedef struct R3T_Struct8BA0_Full {
     u8 pad0[2];
     s16 unk2;
     s16 unk4;
@@ -13,16 +43,16 @@ typedef struct R2A_Struct8BA0_Full {
     u8 pad16[2];
     f32 unk18;
     f32 unk1C;
-} R2A_Struct8BA0_Full;
+} R3T_Struct8BA0_Full;
 
 typedef struct {
     char pad[0x21C];
     f32 unk21C;
     f32 unk220;
     f32 unk224;
-} R2A_Player;
+} R3T_Player;
 
-extern R2A_Player *D_807FC924;
+extern R3T_Player *D_807FC924;
 extern u8 D_807FC928;
 extern u32 D_8076A064;
 extern s32 D_8072140C;
@@ -44,9 +74,9 @@ void func_80717D4C(void);
 
 void func_80664D20(void) {
     s32 i;
-    u8 *ptr;
-    R2A_Struct8BA0_Full *node;
-    R2A_Player *player;
+    u8 idx;
+    R3T_Struct8BA0_Full *node;
+    R3T_Player *player;
     f32 dz;
     f32 dx;
     f32 dy;
@@ -54,11 +84,10 @@ void func_80664D20(void) {
     f32 factor;
 
     if (D_807FC928 < 2) {
-        ptr = D_807F9440;
-        if (D_807F9448 > 0) {
-            for (i = 0; i < D_807F9448; i++, ptr++) {
-                player = D_807FC924;
-                node = (R2A_Struct8BA0_Full *)((u8 *)D_80748BA0 + (*ptr << 5));
+        for (i = 0; i < D_807F9448; i++) {
+            idx = D_807F9440[i];
+            player = D_807FC924;
+            node = (R3T_Struct8BA0_Full *)((u8 *)D_80748BA0 + (idx << 5));
                 dz = player->unk224 - (f32)node->unk6;
                 dx = player->unk21C - (f32)node->unk2;
                 dy = player->unk220 - (f32)node->unk4;
@@ -95,6 +124,5 @@ void func_80664D20(void) {
                     }
                 }
             }
-        }
     }
 }
