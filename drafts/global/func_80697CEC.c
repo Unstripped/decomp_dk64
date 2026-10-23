@@ -1,4 +1,4 @@
-// func_80697CEC (src/global/9BF30.c): MATCHES (fdiff TEXT OK): the four remaining differences are only .rodata %lo addends (own data sections). The 2-instruction preheader order (addiu of &D_8071FBA0 before bnez, move s1,zero in its delay slot) needs the loop written as 'for (var_s1 = 0; var_s1 < 0xC; var_s1 += 2)' - a do/while puts move s1,zero before the branch
+// func_80697CEC (src/global/9BF30.c): stage 6, NOT a match: text equal but its float constants land at different .rodata offsets (4 %lo addends differ) and global.gz grows; fix the constant emission order/types. Preheader order needs 'for (var_s1 = 0; var_s1 < 0xC; var_s1 += 2)'
 typedef struct M9B_Config124 {
     f32 unk0;
     f32 unk4;

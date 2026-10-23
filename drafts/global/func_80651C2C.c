@@ -1,25 +1,36 @@
-// func_80651C2C (src/global/55B20.c): near miss; regalloc/scheduling stage
-typedef struct M55P1_Unk807F6C18 {
-    u8 unk0; u8 unk1; u8 unk2; u8 unk3; u8 unk4; u8 pad5[0xF];
-    s32 unk14; u8 pad18[0x4]; s32 unk1C; u8 pad20[0x48];
-    s32 unk68; s32 unk6C; s32 unk70; s32 unk74; u8 pad78[0x150];
-} M55P1_Unk807F6C18;
+// func_80651C2C (src/global/55B20.c): stage 5: reversed declaration order (a2v,a1v,a0v,b2v,b1v,b0v) reproduces target stack slots 0x88/0x90/0x98 and 0x70/0x78/0x80; remaining: the grid element pointer D_807F6C14[arg0] is colored to s0 (target a2, recomputed per use), pushing the output pointer to s1 and the frame to 0xa8 vs 0xa0.
+typedef struct R2P1bGridSrc {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ u8 padC[0x4];
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ u8 pad1C[0x4];
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ f32 unk24;
+    /* 0x28 */ f32 unk28;
+    /* 0x2C */ u8 pad2C[0x4];
+} R2P1bGridSrc;
 
-extern u8 D_807F7078[];
-extern s32 D_807F6C28;
-extern M55P1_Unk807F6C18 *D_807F6C18;
-extern u8 *D_807F6C1C;
-extern s32 D_807F6C20;
-extern u8 *D_807F6C2C;
-extern s32 D_807F70AC;
+typedef struct R2P1bCross {
+    /* 0x00 */ s64 unk0;
+    /* 0x08 */ s64 unk8;
+    /* 0x10 */ s64 unk10;
+    /* 0x18 */ s64 unk18;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ f32 unk24;
+    /* 0x28 */ u8 unk28;
+} R2P1bCross;
 
-void func_80651C2C(s32 arg0, M55P1_Unk51C2C_Out *arg1) {
-    s64 a0v;
-    s64 a1v;
+void func_80651C2C(s32 arg0, void *arg1p) {
     s64 a2v;
-    s64 b0v;
-    s64 b1v;
+    s64 a1v;
+    s64 a0v;
     s64 b2v;
+    s64 b1v;
+    s64 b0v;
     s64 dot;
     s64 x;
     s64 y;
@@ -28,41 +39,41 @@ void func_80651C2C(s32 arg0, M55P1_Unk51C2C_Out *arg1) {
     f32 f8;
     f32 len;
 
-    a0v = (s64)(D_807F6C14[arg0].unk0 - D_807F6C14[arg0].unk4);
-    a1v = (s64)(D_807F6C14[arg0].unk10 - D_807F6C14[arg0].unk14);
-    a2v = (s64)(D_807F6C14[arg0].unk20 - D_807F6C14[arg0].unk24);
-    b0v = (s64)(D_807F6C14[arg0].unk0 - D_807F6C14[arg0].unk8);
-    b1v = (s64)(D_807F6C14[arg0].unk10 - D_807F6C14[arg0].unk18);
-    b2v = (s64)(D_807F6C14[arg0].unk20 - D_807F6C14[arg0].unk28);
-    arg1->unk0 = a1v * b2v - a2v * b1v;
-    arg1->unk8 = a2v * b0v - a0v * b2v;
-    arg1->unk10 = a0v * b1v - a1v * b0v;
-    f8 = (f32)arg1->unk8;
-    f0 = (f32)arg1->unk0;
-    arg1->unk18 = (s64)-(D_807F6C14[arg0].unk24 * (f32)arg1->unk10 + (f0 * D_807F6C14[arg0].unk4 + f8 * D_807F6C14[arg0].unk14));
-    dot = arg1->unk8 * arg1->unk8 + arg1->unk0 * arg1->unk0 + arg1->unk10 * arg1->unk10;
+    a0v = (s64)(((R2P1bGridSrc *)D_807F6C14)[arg0].unk0 - ((R2P1bGridSrc *)D_807F6C14)[arg0].unk4);
+    a1v = (s64)(((R2P1bGridSrc *)D_807F6C14)[arg0].unk10 - ((R2P1bGridSrc *)D_807F6C14)[arg0].unk14);
+    a2v = (s64)(((R2P1bGridSrc *)D_807F6C14)[arg0].unk20 - ((R2P1bGridSrc *)D_807F6C14)[arg0].unk24);
+    b0v = (s64)(((R2P1bGridSrc *)D_807F6C14)[arg0].unk0 - ((R2P1bGridSrc *)D_807F6C14)[arg0].unk8);
+    b1v = (s64)(((R2P1bGridSrc *)D_807F6C14)[arg0].unk10 - ((R2P1bGridSrc *)D_807F6C14)[arg0].unk18);
+    b2v = (s64)(((R2P1bGridSrc *)D_807F6C14)[arg0].unk20 - ((R2P1bGridSrc *)D_807F6C14)[arg0].unk28);
+    ((R2P1bCross *)arg1p)->unk0 = a1v * b2v - a2v * b1v;
+    ((R2P1bCross *)arg1p)->unk8 = a2v * b0v - a0v * b2v;
+    ((R2P1bCross *)arg1p)->unk10 = a0v * b1v - a1v * b0v;
+    f8 = (f32)((R2P1bCross *)arg1p)->unk8;
+    f0 = (f32)((R2P1bCross *)arg1p)->unk0;
+    ((R2P1bCross *)arg1p)->unk18 = (s64)-(((R2P1bGridSrc *)D_807F6C14)[arg0].unk24 * (f32)((R2P1bCross *)arg1p)->unk10 + (f0 * ((R2P1bGridSrc *)D_807F6C14)[arg0].unk4 + f8 * ((R2P1bGridSrc *)D_807F6C14)[arg0].unk14));
+    dot = ((R2P1bCross *)arg1p)->unk8 * ((R2P1bCross *)arg1p)->unk8 + ((R2P1bCross *)arg1p)->unk0 * ((R2P1bCross *)arg1p)->unk0 + ((R2P1bCross *)arg1p)->unk10 * ((R2P1bCross *)arg1p)->unk10;
     len = (f32)dot;
-    arg1->unk24 = len;
-    arg1->unk20 = sqrtf(len);
-    x = arg1->unk0;
+    ((R2P1bCross *)arg1p)->unk24 = len;
+    ((R2P1bCross *)arg1p)->unk20 = sqrtf(len);
+    x = ((R2P1bCross *)arg1p)->unk0;
     if (x < 0) {
         x = -x;
     }
-    y = arg1->unk8;
+    y = ((R2P1bCross *)arg1p)->unk8;
     if (y < 0) {
         y = -y;
     }
-    z = arg1->unk10;
+    z = ((R2P1bCross *)arg1p)->unk10;
     if (z < 0) {
         z = -z;
     }
     if ((z >= x) && (z >= y)) {
-        arg1->unk28 = 0;
+        ((R2P1bCross *)arg1p)->unk28 = 0;
     }
     if ((y >= x) && (y >= z)) {
-        arg1->unk28 = 1;
+        ((R2P1bCross *)arg1p)->unk28 = 1;
     }
     if ((x >= y) && (x >= z)) {
-        arg1->unk28 = 2;
+        ((R2P1bCross *)arg1p)->unk28 = 2;
     }
 }

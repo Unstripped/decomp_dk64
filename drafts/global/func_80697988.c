@@ -1,4 +1,4 @@
-// func_80697988 (src/global/9BF30.c): stage 6, exact size 0x364 (217 insns) and near-identical instruction stream; remaining: lbu a0 vs v0 for sub->unk11, the two 'mul.s' commutative operand orders in the sub->unk11==1 block, the second RMW's lui/addiu+lw address form, the heapFree/actorDespawn frame spill, and the (temp>32.0) clip folding to li 32 where expected emits trunc.w.d of the comparison's double 32.0. Key: block A uses the D_807FBB40 macro (not a local) so the actor pointer never gets the a1->s0 copy; block B uses a local re-assigned after each call
+// func_80697988 (src/global/9BF30.c): stage 6, size 0x368 (218 vs 217), 162-line asm-differ; remaining: (a) sub->unk11 lands in v0 where the target has a0 (both dispatch loads), (b) both 'mul.s' in the unk11==1 block come out with swapped commutative operands ($f0 first vs sub->unkC first), (c) the unk11==1 despawn wants a fresh lui/lw of D_807FBB40 instead of move a1,s0 + sw 48(sp), (d) 1 extra insn. Wins found: block A must use the D_807FBB40 macro (a local gets an a1->s0 copy per load); block B needs a local re-assigned after calls; 'max = 32.0' f64 local is what makes the (temp > 32.0) clip emit trunc.w.d of the comparison's double 32.0 instead of li 32; ACTOR2->unk7C/unk84 '+=' halves the diff (compound assignment), '=' + 'x + y' is worse
 typedef struct M9B_ActorState {
     s16 unk0;
     u8 pad2;
@@ -26,6 +26,7 @@ void func_80697988(void) {
     M9B_ActorState *sub;
     Actor *actor;
     f64 temp;
+    f64 max;
 
     sub = ACTOR2->unk174;
     if (!(ACTOR2->unk60 & 0x10)) {
@@ -41,8 +42,8 @@ void func_80697988(void) {
     }
     if (sub->unk11 != 0) {
         if (sub->unk11 == 1) {
-            ACTOR2->unk7C = ACTOR2->unk7C + (sub->unkC * func_80612794(ACTOR2->unkE6));
-            ACTOR2->unk84 = ACTOR2->unk84 + (sub->unkC * func_80612790(ACTOR2->unkE6));
+            ACTOR2->unk7C += sub->unkC * func_80612794(ACTOR2->unkE6);
+            ACTOR2->unk84 += sub->unkC * func_80612790(ACTOR2->unkE6);
             actor = D_807FBB40;
             if (actor->unk15F != 0) {
                 actor->unk15F -= 1;
@@ -58,8 +59,9 @@ void func_80697988(void) {
         if (ACTOR2->unk15F != 0) {
             sub->unk8 += sub->unkC;
             temp = (f64)sub->unk8 * 0.3;
+            max = 32.0;
             if (temp > 32.0) {
-                sub->unk0 = 32.0;
+                sub->unk0 = max;
             } else {
                 sub->unk0 = temp;
             }

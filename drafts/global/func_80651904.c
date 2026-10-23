@@ -1,19 +1,12 @@
-// func_80651904 (src/global/55B20.c): near miss; regalloc/scheduling stage
-typedef struct M55P1_Unk807F6C18 {
-    u8 unk0; u8 unk1; u8 unk2; u8 unk3; u8 unk4; u8 pad5[0xF];
-    s32 unk14; u8 pad18[0x4]; s32 unk1C; u8 pad20[0x48];
-    s32 unk68; s32 unk6C; s32 unk70; s32 unk74; u8 pad78[0x150];
-} M55P1_Unk807F6C18;
+// func_80651904 (src/global/55B20.c): stage 5: instructions structurally identical; IDO copies a0-a3 into s0-s3, uses s8 and saves ra, target keeps a0-a3 and s0-s7 with no ra save. Needs u8 5th param (lbu 0x3b(sp)); file prototype must be 'void func_80651904(R2P1bNode8 *, s32, u8 *, s32 *, u8, s32);' (the base prototype declares s32/void* and conflicts).
+typedef struct R2P1bNode8 {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s32 unk4;
+} R2P1bNode8;
 
-extern u8 D_807F7078[];
-extern s32 D_807F6C28;
-extern M55P1_Unk807F6C18 *D_807F6C18;
-extern u8 *D_807F6C1C;
-extern s32 D_807F6C20;
-extern u8 *D_807F6C2C;
-extern s32 D_807F70AC;
+extern struct M55P2SearchEntry *D_807F70B0;
 
-void func_80651904(M55P1_Unk80651904_Node *var_a0, s32 var_a1, u8 *arg2, s32 *arg3, u8 arg4, s32 arg5) {
+void func_80651904(R2P1bNode8 *var_a0, s32 var_a1, u8 *arg2, s32 *arg3, u8 arg4, s32 arg5) {
     s32 temp_s1;
     s32 temp_s5;
     s32 temp_s6;
