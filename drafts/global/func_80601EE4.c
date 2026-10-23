@@ -1,4 +1,4 @@
-// func_80601EE4 (src/global/6710.c): stage 5, behaviourally equivalent audio task setup and dispatch
+// func_80601EE4 (src/global/6710.c): stage 5, frame 0x38 vs 0x40, task struct field stores
 #include "common.h"
 #include "actor.h"
 
@@ -25,10 +25,15 @@ typedef struct Aud6710_AudioTask {
     void *self;
 } Aud6710_AudioTask;
 
+typedef struct Aud6710_AudioCtx {
+    void *cmdBuffers[2];
+    void *tasks[3];
+} Aud6710_AudioCtx;
+
+extern Aud6710_AudioCtx D_8076D4D0;
 extern u32 D_805FB000[];
 extern u32 D_805FB0D0[];
 extern s32 D_807452C8;
-extern void *D_8076D4D0[];
 extern u8 D_8076D4C0;
 extern OSMesgQueue D_8076D6D0;
 extern s32 D_80770194;
@@ -50,24 +55,31 @@ s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
 
     physSampleBuf = osVirtualToPhysical(task->sampleBuffer);
     func_80602314();
-    aiLen = *(volatile u32 *)0xA4500004 >> 2;
+    aiLen = IO_READ(AI_LEN_REG) >> 2;
     if (aiBuf != NULL) {
         osAiSetNextBuffer(aiBuf->buf, aiBuf->len * 4);
     }
-    if ((s32)aiLen < 0x5C && D_80770558 == 0) {
-        task->sampleCount = D_8077019C;
-        D_80770558 = 2;
-    } else if ((s32)aiLen >= 0x115 && D_80770558 == 0) {
-        task->sampleCount = D_80770194;
-        D_80770558 = 2;
-    } else {
-        task->sampleCount = 0x2E0;
-        if (D_80770558 != 0) {
-            D_80770558--;
+    if ((s32)aiLen < 0x5C) {
+        if (D_80770558 == 0) {
+            task->sampleCount = D_8077019C;
+            D_80770558 = 2;
+            goto done_sample;
         }
     }
+    if ((s32)aiLen >= 0x115) {
+        if (D_80770558 == 0) {
+            task->sampleCount = D_80770194;
+            D_80770558 = 2;
+            goto done_sample;
+        }
+    }
+    task->sampleCount = 0x2E0;
+    if (D_80770558 != 0) {
+        D_80770558--;
+    }
+done_sample:
 
-    cmdLen = n_alAudioFrame(D_8076D4D0[D_807452C8], &cmdCount, physSampleBuf, task->sampleCount);
+    cmdLen = n_alAudioFrame(D_8076D4D0.cmdBuffers[D_807452C8], &cmdCount, physSampleBuf, task->sampleCount);
     if (cmdCount == 0) {
         return 0;
     }
@@ -75,22 +87,22 @@ s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
     task->next = NULL;
     task->msgQ = &D_8076D6D0;
     task->msg = (OSMesg)&task->msgBuf;
-    task->task.t.type = 1;
+    task->flags = 1;
     task->client = &D_8076D4C0;
-    task->task.t.data_ptr = (u64 *)D_8076D4D0[D_807452C8];
-    task->task.t.data_size = ((cmdLen - (s32)D_8076D4D0[D_807452C8]) >> 3) << 3;
-    task->flags = 2;
+    task->task.t.data_ptr = (u64 *)D_8076D4D0.cmdBuffers[D_807452C8];
+    task->task.t.type = 2;
     task->task.t.ucode_boot = (u64 *)&D_805FB000;
     task->task.t.ucode_boot_size = (u8 *)&D_805FB0D0 - (u8 *)&D_805FB000;
-    task->state = 0;
+    task->task.t.flags = 0;
     task->task.t.ucode = (u64 *)&func_80741310;
     task->task.t.ucode_data = (u64 *)&D_80760590;
     task->task.t.ucode_data_size = 0x800;
-    task->task.t.dram_stack = NULL;
-    task->task.t.dram_stack_size = 0x400;
+    task->task.t.yield_data_size = 0x400;
+    task->task.t.data_size = ((cmdLen - (s32)D_8076D4D0.cmdBuffers[D_807452C8]) >> 3) << 3;
+    task->task.t.yield_data_ptr = NULL;
 
     osWritebackDCacheAll();
-    osSendMesg(func_8060EE58(&gScheduler), &task->next, OS_MESG_BLOCK);
+    osSendMesg(func_8060EE58(&gScheduler), &task->next, OS_MESG_NOBLOCK);
     D_807452C8 ^= 1;
     return 1;
 }

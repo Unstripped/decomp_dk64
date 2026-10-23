@@ -1,16 +1,18 @@
-// func_80659320 (src/global/5E020.c): stage 5, score 70: unrolled pointer loop zeroing 100 entries, v0/v1 swap and store order
+// func_80659320 (src/global/5E020.c): matched: for (i = 0; i < 100; i++) on 100-entry pointer array triggers IDO unrolling
 #include "common.h"
 
-extern void *D_807F7370[100];
-extern void *D_807F7500;
+typedef struct Cam1_Node {
+    s32 key;
+    s32 value;
+    struct Cam1_Node *next;
+} Cam1_Node;
+
+extern Cam1_Node *D_807F7370[];
 
 void func_80659320(void) {
-    void **p = D_807F7370;
+    s32 i;
 
-    do {
-        *p++ = NULL;
-        *p++ = NULL;
-        *p++ = NULL;
-        *p++ = NULL;
-    } while (p != (void **)&D_807F7500);
+    for (i = 0; i < 100; i++) {
+        D_807F7370[i] = NULL;
+    }
 }

@@ -1,4 +1,4 @@
-// func_80659350 (src/global/5E020.c): stage 6, score 20: 2 insns, addiu s3/s2 commutative order in loop setup
+// func_80659350 (src/global/5E020.c): matched: for (i = 0; i < 100; i++) gives exact commutative order s3/s2 in loop setup
 #include "common.h"
 
 typedef struct Cam1_Node {
@@ -8,18 +8,16 @@ typedef struct Cam1_Node {
 } Cam1_Node;
 
 extern Cam1_Node *D_807F7370[];
-extern void *D_807F7500;
 void heapFree(void *);
 void func_80659320(void);
 
 void func_80659350(void) {
-    Cam1_Node **it = D_807F7370;
-    Cam1_Node **end = (Cam1_Node **)&D_807F7500;
+    s32 i;
     Cam1_Node *node;
     Cam1_Node *next;
 
-    do {
-        node = *it;
+    for (i = 0; i < 100; i++) {
+        node = D_807F7370[i];
         if (node != NULL) {
             do {
                 next = node->next;
@@ -27,7 +25,6 @@ void func_80659350(void) {
                 node = next;
             } while (node != NULL);
         }
-        it++;
-    } while (it != end);
+    }
     func_80659320();
 }
