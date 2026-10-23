@@ -1,10 +1,131 @@
 #include "common.h"
 #include "actor.h"
 
+typedef struct Aud6710_DmaNode {
+    struct Aud6710_DmaNode *next;
+    struct Aud6710_DmaNode *prev;
+    u32 unk8;
+    u32 unkC;
+    void *unk10;
+} Aud6710_DmaNode;
+
+typedef struct Aud6710_AudioTask {
+    void *sampleBuffer;
+    s16 sampleCount;
+    s16 pad6;
+    struct Aud6710_AudioTask *next;
+    s32 state;
+    u32 flags;
+    void *framebuffer;
+    OSTask task;
+    void *client;
+    OSMesgQueue *msgQ;
+    OSMesg msg;
+    u32 pad64;
+    s16 msgBuf;
+    s16 pad6A;
+    void *self;
+} Aud6710_AudioTask;
+
+typedef struct Aud6710_AudioCtx {
+    void *cmdBuffers[2];
+    void *tasks[3];
+} Aud6710_AudioCtx;
+
+typedef struct Aud6710_Config218 {
+    u32 words[0x218 / 4];
+} Aud6710_Config218;
+
+typedef struct Aud6710_InitArg {
+    u8 pad0[0x10];
+    void *dmaNew;
+    ALHeap *heap;
+    s32 unk18;
+    u8 pad1C[4];
+    void *synConfig;
+    void *unk24;
+} Aud6710_InitArg;
+
+typedef struct Aud6710_Arg2 {
+    u8 pad0[8];
+    u32 cmdCount;
+} Aud6710_Arg2;
+
+extern OSThread D_8076D4E8;
+extern Aud6710_AudioCtx D_8076D4D0;
+extern s32 D_8000DCB4;
+extern Aud6710_Config218 D_807452D0;
+extern OSMesgQueue D_8076D698;
+extern OSMesg D_8076D6B0[8];
+extern OSMesgQueue D_8076D6D0;
+extern OSMesg D_8076D6E8[8];
+extern s32 D_8076D708;
+extern Aud6710_DmaNode D_8076FE68[];
+extern s32 D_80770194;
+extern s32 D_8077019C;
+extern s32 D_807701A0;
+extern s32 *D_807701A4;
+extern OSMesgQueue D_807704A8;
+extern OSMesg D_807704C0[32];
+
+void *func_806022DC();
+void n_alInit();
+void func_80601D24();
+#ifdef NON_MATCHING
+void func_80601A10(Aud6710_InitArg *arg0, s32 arg1, Aud6710_Arg2 *arg2) {
+    Aud6710_Config218 sp44;
+    Aud6710_DmaNode *curr;
+    Aud6710_DmaNode *prev;
+    s32 i;
+
+    arg0->dmaNew = func_806022DC;
+    arg0->unk18 = D_8000DCB4;
+    D_80770194 = 0x228;
+    D_8077019C = 0x398;
+    sp44 = D_807452D0;
+    arg0->synConfig = &sp44;
+    arg0->unk24 = (u8 *)&sp44 + 0x10C;
+    n_alInit(&D_8076D708, arg0);
+    D_807701A4 = &D_8076D708;
+
+    D_8076FE68[0].prev = NULL;
+    D_8076FE68[0].next = NULL;
+
+    curr = &D_8076FE68[1];
+    prev = &D_8076FE68[0];
+    for (i = 0; i < 39; i++, prev++, curr++) {
+        alLink((ALLink *)curr, (ALLink *)prev);
+        prev->unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
+    }
+    prev->unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
+
+    for (curr = (Aud6710_DmaNode *)D_8076D4D0.cmdBuffers; curr < (Aud6710_DmaNode *)D_8076D4D0.tasks; ) {
+        *(void **)curr = alHeapDBAlloc(NULL, 0, arg0->heap, 1, arg2->cmdCount * 8);
+        curr = (Aud6710_DmaNode *)((u8 *)curr + 4);
+    }
+
+    D_807701A0 = arg2->cmdCount;
+    for (curr = (Aud6710_DmaNode *)D_8076D4D0.cmdBuffers; curr < (Aud6710_DmaNode *)&D_8076D4D0.tasks[1]; ) {
+        Aud6710_AudioTask *task = alHeapDBAlloc(NULL, 0, arg0->heap, 1, sizeof(Aud6710_AudioTask));
+        *(Aud6710_AudioTask **)((u8 *)curr + 8) = task;
+        task->msgBuf = 2;
+        task->self = task;
+        task->sampleBuffer = alHeapDBAlloc(NULL, 0, arg0->heap, 1, D_8077019C * 4);
+        curr = (Aud6710_DmaNode *)((u8 *)curr + 4);
+    }
+
+    osCreateMesgQueue(&D_8076D6D0, D_8076D6E8, 8);
+    osCreateMesgQueue(&D_8076D698, D_8076D6B0, 8);
+    osCreateMesgQueue(&D_807704A8, D_807704C0, 0x20);
+
+    osCreateThread(&D_8076D4E8, 4, func_80601D24, NULL, D_8076FE68, arg1);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6710/func_80601A10.s")
+#endif
 
 extern s8 D_807452CC;
-extern OSThread D_8076D4E8;
 
 void func_80601CC0(void) {
     D_807452CC = 1;
@@ -23,40 +144,27 @@ typedef struct Aud6710_Sched {
     void *audioListHead;
 } Aud6710_Sched;
 
-typedef struct Aud6710_AudioCtx {
-    u32 unk0[2];
-    void *tasks[3];
-} Aud6710_AudioCtx;
-
-extern Aud6710_AudioCtx D_8076D4D0;
 extern u8 D_8076D4C0;
-extern OSMesgQueue D_8076D698;
-extern OSMesgQueue D_8076D6D0;
-extern s32 D_8076D708;
 extern Aud6710_Sched gScheduler;
 extern u32 D_807452C0;
 s32 func_80602144();
 
 void schedAddClient(void *, void *, OSMesgQueue *, s32, s32);
-void func_80601EE4(void *, void *);
+s32 func_80601EE4();
 void func_80602104();
 void func_8060A500(void);
 void n_alClose(void *);
-#ifdef NON_MATCHING
 void func_80601D24(s32 arg0) {
-    OSMesg sp58;
-    void *var_s0;
     s32 done;
+    OSMesg sp58;
     s32 first;
+    void *var_s0;
     s32 numBuffers;
-    s32 retraceMsg;
-
     done = 0;
     var_s0 = NULL;
     first = 1;
     schedAddClient(&gScheduler, &D_8076D4C0, &D_8076D698, 2, 2);
-    retraceMsg = 5;
-    osSendMesg(&D_8076D698, (OSMesg)retraceMsg, 0);
+    osSendMesg(&D_8076D698, (OSMesg)5, 0);
     numBuffers = 3;
     do {
         osRecvMesg(&D_8076D698, &sp58, 1);
@@ -66,10 +174,10 @@ void func_80601D24(s32 arg0) {
                 osSendMesg(&gScheduler.interruptQ, (OSMesg)0x29E, 1);
             }
             func_80601EE4(D_8076D4D0.tasks[D_807452C0 % numBuffers], var_s0);
+            arg0 = first != 0;
+            first = 0;
             var_s0 = D_8076D4D0.tasks[(D_807452C0 + 1) % numBuffers];
-            if (first != 0) {
-                first = 0;
-            } else {
+            if (!arg0) {
                 osRecvMesg(&D_8076D6D0, &sp58, 1);
                 func_80602104(var_s0);
             }
@@ -82,33 +190,98 @@ void func_80601D24(s32 arg0) {
     } while (!done);
     n_alClose(&D_8076D708);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6710/func_80601D24.s")
-#endif
+typedef struct Aud6710_AiBuf {
+    void *buf;
+    s16 len;
+} Aud6710_AiBuf;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6710/func_80601EE4.s")
+
+extern u32 D_805FB000[];
+extern u32 D_805FB0D0[];
+extern s32 D_807452C8;
+extern s32 D_80770558;
+extern u32 func_80741310[];
+extern u64 D_80760590[];
+
+void func_80602314(void);
+s32 n_alAudioFrame(void *, s32 *, u32, s16);
+OSMesgQueue *func_8060EE58(void *);
 
 #ifdef NON_MATCHING
-extern s32 D_807454E8;
+s32 func_80601EE4(Aud6710_AudioTask *task, Aud6710_AiBuf *aiBuf) {
+    u32 physSampleBuf;
+    s32 cmdCount;
+    u32 aiLen;
+    s32 cmdLen;
 
-void func_80602104(s32 arg0) {
-    if (((osAiGetLength() >> 2) == 0) && (D_807454E8 == 0)) {
-        D_807454E8 = 0;
+    physSampleBuf = osVirtualToPhysical(task->sampleBuffer);
+    func_80602314();
+    aiLen = IO_READ(AI_LEN_REG) >> 2;
+    if (aiBuf != NULL) {
+        osAiSetNextBuffer(aiBuf->buf, aiBuf->len * 4);
     }
+    if ((s32)aiLen < 0x5C) {
+        if (D_80770558 == 0) {
+            task->sampleCount = D_8077019C;
+            D_80770558 = 2;
+            goto done_sample;
+        }
+    }
+    if ((s32)aiLen >= 0x115) {
+        if (D_80770558 == 0) {
+            task->sampleCount = D_80770194;
+            D_80770558 = 2;
+            goto done_sample;
+        }
+    }
+    task->sampleCount = 0x2E0;
+    if (D_80770558 != 0) {
+        D_80770558--;
+    }
+done_sample:
+
+    cmdLen = n_alAudioFrame(D_8076D4D0.cmdBuffers[D_807452C8], &cmdCount, physSampleBuf, task->sampleCount);
+    if (cmdCount == 0) {
+        return 0;
+    }
+
+    task->next = NULL;
+    task->msgQ = &D_8076D6D0;
+    task->msg = (OSMesg)&task->msgBuf;
+    task->flags = 1;
+    task->client = &D_8076D4C0;
+    task->task.t.data_ptr = (u64 *)D_8076D4D0.cmdBuffers[D_807452C8];
+    task->task.t.type = 2;
+    task->task.t.ucode_boot = (u64 *)&D_805FB000;
+    task->task.t.ucode_boot_size = (u8 *)&D_805FB0D0 - (u8 *)&D_805FB000;
+    task->task.t.flags = 0;
+    task->task.t.ucode = (u64 *)&func_80741310;
+    task->task.t.ucode_data = (u64 *)&D_80760590;
+    task->task.t.ucode_data_size = 0x800;
+    task->task.t.yield_data_size = 0x400;
+    task->task.t.data_size = ((cmdLen - (s32)D_8076D4D0.cmdBuffers[D_807452C8]) >> 3) << 3;
+    task->task.t.yield_data_ptr = NULL;
+
+    osWritebackDCacheAll();
+    osSendMesg(func_8060EE58(&gScheduler), &task->next, OS_MESG_NOBLOCK);
+    D_807452C8 ^= 1;
+    return 1;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6710/func_80602104.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/6710/func_80601EE4.s")
 #endif
 
-typedef struct Aud6710_DmaNode {
-    struct Aud6710_DmaNode *next;
-    struct Aud6710_DmaNode *prev;
-    u32 unk8;
-    u32 unkC;
-    void *unk10;
-} Aud6710_DmaNode;
+extern s32 D_807454E8[];
+
+void func_80602104(s32 arg0) {
+    s32 zero = 0;
+    if (((osAiGetLength() >> 2) == 0) && (D_807454E8[zero] == 0)) {
+        D_807454E8[zero] = 0;
+    }
+}
+
 
 typedef struct Aud6710_Struct80770188 {
     u8 unk0;
@@ -118,20 +291,19 @@ typedef struct Aud6710_Struct80770188 {
 } Aud6710_Struct80770188;
 
 extern Aud6710_Struct80770188 D_80770188;
-extern Aud6710_DmaNode D_8076FE68;
 extern OSIoMesg D_807701A8[];
 extern u32 D_807452C4;
-extern OSMesgQueue D_807704A8;
 
 #ifdef NON_MATCHING
 s32 func_80602144(u32 addr, s32 len, void *state) {
+    Aud6710_DmaNode *next;
     void *sp44;
+    s32 pad[2];
     Aud6710_DmaNode *node;
     Aud6710_DmaNode *last;
     s32 head;
     u32 dmaIndex;
     s32 end;
-
     last = NULL;
     head = (s32)D_80770188.unk4;
     node = (Aud6710_DmaNode *)head;
@@ -141,7 +313,7 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
             if (addr < node->unk8) {
                 break;
             }
-            if (end >= (s32)(addr + len)) {
+            if (end >= (s32)addr + len) {
                 last = node;
                 node->unkC = D_807452C0;
                 return osVirtualToPhysical((u8 *)node->unk10 + (addr - node->unk8));
@@ -156,7 +328,8 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
         return osVirtualToPhysical((void *)head);
     }
 
-    D_80770188.unk8 = node->next;
+    next = node->next;
+    D_80770188.unk8 = next;
     alUnlink((ALLink *)node);
     if (last != NULL) {
         alLink((ALLink *)node, (ALLink *)last);
@@ -193,7 +366,7 @@ s32 func_80602144(u32 addr, s32 len, void *state) {
 void *func_806022DC(Aud6710_Struct80770188 **arg0) {
     if (D_80770188.unk0 == 0) {
         D_80770188.unk4 = 0;
-        D_80770188.unk8 = &D_8076FE68;
+        D_80770188.unk8 = &D_8076FE68[0];
         D_80770188.unk0 = 1;
     }
     *arg0 = &D_80770188;
