@@ -167,6 +167,35 @@ def apply_absolute(text, relocs, absolute):
         text[off:off + 4] = ((word & 0xFFFF0000) | field).to_bytes(4, "big")
     return bytes(text), remaining
 
+def word_at(text, off):
+    return int.from_bytes(text[off:off + 4], "big")
+
+def splat_address(name):
+    """Address of a splat `D_XXXXXXXX` label, else None."""
+    if len(name) == 10 and name.startswith("D_"):
+        try:
+            return int(name[2:], 16)
+        except ValueError:
+            return None
+    return None
+
+def same_splat_address(b_tgt, e_tgt, rtype, b_word, e_word):
+    """False only when both targets are splat labels whose relocated field resolves differently
+    (REL addends sit in the instruction). Named targets have no known address: accepted."""
+    b_addr, e_addr = splat_address(b_tgt), splat_address(e_tgt)
+    if b_addr is None or e_addr is None:
+        return True
+    def lo(addr, word):
+        imm = word & 0xFFFF
+        return (addr + (imm - 0x10000 if imm & 0x8000 else imm)) & 0xFFFF
+    def hi(addr, word):
+        return (((addr + 0x8000) >> 16) + (word & 0xFFFF)) & 0xFFFF
+    if rtype == "R_MIPS_LO16":
+        return lo(b_addr, b_word) == lo(e_addr, e_word)
+    if rtype == "R_MIPS_HI16":
+        return hi(b_addr, b_word) == hi(e_addr, e_word)
+    return b_addr == e_addr
+
 def text_matches(built_o, expected_o):
     """Code matches if .text equals modulo relocated fields and every relocation hits the same target,
     except relocations the built object points at its own data sections (static data the C now
@@ -192,8 +221,12 @@ def text_matches(built_o, expected_o):
                 return False
         elif b_tgt != e_tgt:
             # Expected may reach named data through an unnamed splat label (e.g. an array end
-            # bound `sym + size` becomes D_<addr>); accept only for non-code targets.
+            # bound `sym + size` becomes D_<addr>); accept only for non-code targets, and when
+            # both sides are splat labels only if they resolve to the same address (two swapped
+            # externs, `D_807FBB4C == D_807FDC94` vs the reverse, passed here once).
             if not e_tgt.startswith("D_") or b_tgt in e_code:
+                return False
+            if not same_splat_address(b_tgt, e_tgt, b_type, word_at(b_text, b_off), word_at(e_text, e_off)):
                 return False
     return True
 

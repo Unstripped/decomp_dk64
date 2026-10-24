@@ -80,9 +80,13 @@ shows up as a standalone `asm/<seg>/nonmatchings/<file>/D_XXXXXXXX.s`: give the 
 After any symbol fix, delete the freshly generated (still unedited) stub `src/<seg>/<file>.c`
 files and re-split (stubs keep `GLOBAL_ASM` lines for the vanished standalone files), then
 `touch src/<seg>/*.c` (make does not rebuild objects whose asm changed).
-Add `#include "actor.h"` (global) under `#include "common.h"` in every new stub before
-round 1: otherwise every round-1 copy adds it and each merge after the first conflicts on
-that line.
+Seed every new stub before round 1, under `#include "common.h"`: `#include "actor.h"` (global)
+and the file family's shared hot externs with one agreed type (behaviour files:
+`extern Actor *D_807FBB40; extern Actor *D_807FBB4C; extern ActorGlobalState D_807FBB70;
+extern u8 D_807FBD70;`); the brief then forbids redeclaring them and asks for agent-prefixed
+view macros (`#define R1DA ((R1DView *)D_807FBB40)`) for missing fields. Otherwise every
+round-1 copy adds them with its own type and each merge after the first conflicts (the
+`BA790`–`BDEE0` unit, seeded, needed no unify agent). Commit the seeded stubs, then snapshot.
 
 Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 `Overlays: split <a> (<files>) and <b> (<files>) as C units (GLOBAL_ASM baseline)`.
@@ -93,12 +97,17 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    contiguous by address; functions over ~400 insns held back for later rounds, each
    on its own agent using the large-function method (stage-order work plus a bounded
    permuter run once at stage 5–6). Large agents matched 0 in five units, then 6 of 10 in
-   the `ACDC0`–`B7490` unit: the 430–650-insn enemy-behaviour functions share one shape, so
+   the `ACDC0`–`B7490` unit and 2 of 5 directly in the `BA790`–`BDEE0` unit, whose other three
+   (parked at stage 6) all matched in one near-miss round: the 430–760-insn enemy-behaviour
+   functions share one shape, so
    each finished large agent's key tricks (`s32 sel` switch copy, spare K&R arg pinning
-   `$a1`) went into the next large agent's task text; 800+-insn HUD functions still parked
+   `$a1`, non-void callee return types for v0/v1 swaps) went into the next large and
+   near-miss agent's task text; 800+-insn HUD functions still parked
    at stage 4–6. Dispatch large agents as soon as slots free, smallest first, and forward
-   every large-function trick. Later rounds ≤6 functions per agent, near-misses
-   first. Near-miss rounds and large functions use the stage order, `tools/uopt_trace.sh`,
+   every large-function trick (`write agent://<id>`, one by one). Later rounds ≤6 functions
+   per agent, near-misses first; a stage-6 near-miss of 1–8 insns is worth one dedicated
+   agent each (5 of 6 matched in that unit, 6–35 min).
+   Near-miss rounds and large functions use the stage order, `tools/uopt_trace.sh`,
    and permuter. Never a function in two agents' lists, and never one in none: before
    dispatch, diff the union of the lists (round 1 plus held-back large functions) against
    `ls asm/<seg>/nonmatchings/<file>/func_*.s` (the audio unit silently skipped two
@@ -176,8 +185,18 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    Drafts copied before the latest snapshot (an agent still running from an older round):
    `merge --base <commit the copy started from> src/... .scratch/<A>/...`, else the merge
    reverts everything committed since.
-   Round 1 on a fresh file always yields per-agent types (`ActAActor`, `BehBActor`) that
-   clash: dispatch one unify fix-up agent per file right after round 1 (PRIVATE COPY, merged
+   Callee prototype clashes are now the usual merge failure (cfe "redeclaration" or
+   "prototype and non-prototype"): one agent's `void f();` K&R vs another's prototyped
+   definition, `u8` vs `s32` first parameter, `void *` vs `Actor *`. Fix inline: keep the
+   declaration that already matches in `src` (or the definition), delete the other, re-run
+   `merge src/<seg>/<f>.c` (re-prunes and re-checks) and `--non-matching`. If the kept
+   prototype changes the other agent's code (an `andi` appears or vanishes), adapt that
+   function's local types (`u8 sel` instead of `s32 sel` restored `func_806BA76C`), never
+   the prototype a matched caller relies on. Move a declaration above its first user when a
+   pasted function needs it earlier in the file.
+   Round 1 on a fresh file without a seeded top block yields per-agent types
+   (`ActAActor`, `BehBActor`) that clash: dispatch one unify fix-up agent per file right
+   after round 1 (PRIVATE COPY, merged
    like a round; it extends the shared header in place, additively only), that
    creates/extends a shared header (`include/actor.h`) with one struct per object and moves
    all declarations to one top block. Two files sharing a header: serialize their unify
@@ -206,8 +225,12 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    `build/dk64.us.z64: OK` (AGENTS.md: never commit a non-matching state). Per-file
    `tools/objdiff.sh` OK/TEXT OK is only a pre-check: TEXT OK hid a `.rodata` shift once (a C
    jump table dropped the 4-byte late_rodata pad before an asm function's floats, `7AF60`
-   `func_8067680C`, committed and only caught later); `objdiff.py` now fails on `.rodata`
-   byte diffs, but the ROM hash stays the gate. Run the gate as its own step: `touch` the
+   `func_8067680C`) and two swapped externs in one comparison (`D_807FBB4C == D_807FDC94`,
+   `func_806BB32C`); `objdiff.py` now fails on `.rodata` byte diffs and on `D_` labels that
+   resolve to different addresses, but the ROM hash stays the gate. A merge whose check
+   prints `FAILED` after the agent's copy passed means the unified declarations changed
+   another function's code: `objdump -dr` both objects and diff before anything else. Run
+   the gate as its own step: `touch` the
    merged files, run `tools/dk make`, and commit only after seeing `build/dk64.us.z64: OK`
    (a `make | grep 'FAIL|OK' && git commit` chain committed a red tree: grep also matches
    the FAILED line). Commit `<Seg>: match N/T <file> functions`.
@@ -313,9 +336,9 @@ Before the final yield:
   global with its own type. After such a header change, message each running agent on an
   affected file (one by one) with the new type names and tell it to drop its local externs.
 - Per-file actor views: every agent on a fresh behaviour file declared its own
-  `extern <Agent>Actor *D_807FBB40;`, so `B2CE0` needed three unify passes. After the first
-  unify, name the file's view (`M3Actor`, `B7490A` macro) in every later task and in a
-  message to running agents; merges after that were clean.
+  `extern <Agent>Actor *D_807FBB40;`, so `B2CE0` needed three unify passes. Seeding the stub
+  top block before round 1 (section 2) and requiring agent-prefixed view macros removed the
+  unify step entirely in the `BA790`–`BDEE0` unit.
 - A parked definition with a prototype rejects parked callers passing extra args (cfe:
   argument count). Write the parked definition K&R-style (`void f(a, b) T *a; s32 b; {`):
   same code for int/pointer params, and the file's `void f();` declaration then accepts both.

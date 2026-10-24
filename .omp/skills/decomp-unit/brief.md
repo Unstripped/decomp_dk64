@@ -27,7 +27,13 @@ or merge temporaries, s32 vs narrow temps, scope temps per switch case; commutat
 operand order; sequential vs chained assignment; exact prototypes (void vs s32 return,
 f32 vs unprototyped, a callback symbol declared as a function rather than `&D_...`);
 nested call argument vs sequential assignment; ternary vs if/else; `do {} while` vs
-`while`. Loop-invariant hoisting order follows first use in the loop.
+`while`. Loop-invariant hoisting order follows first use in the loop. A `$v0`/`$v1`/`$a0`
+swap between a pointer temp and a value temp: give the callees on that path a non-void
+(`s32`) return type even if the result is unused (fixed three functions in one unit). A
+`lbu a0; move v1,a0` copy with swapped registers: compare `adjsave` of the CSE temp and the
+variable in `uopt_trace.sh -l 5` and give the variable more uses/reloads in later blocks.
+Before reporting a match, diff `objdump -dr` relocations of your function against expected:
+swapped externs in a comparison look identical in the text.
 
 # Concurrency rules (several agents run at once)
 - NEVER run `tools/dk make` (any target), `make split`, `python3 -m splat`, `make expected`,
@@ -75,7 +81,9 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
 - NEVER redeclare a global the file (or `include/`) already declares, with any type: an
   agent-local `extern MyActor *D_807FBB40;` breaks the merge. Cast instead:
   `#define MyA ((MyActorView *)D_807FBB40)` with a local view struct holding only the
-  fields you need.
+  fields you need. The same holds for callees: if the file already declares one, use that
+  declaration; when your code needs another parameter type, adapt your locals or cast the
+  data (`u8 sel` instead of `s32 sel`), and report it.
 - Merge hygiene: change only your functions' lines. New externs/prototypes/structs go
   IMMEDIATELY ABOVE your first function that uses them, never in the top block or another
   agent's range. Never change an existing declaration, with one exception: a prototype
