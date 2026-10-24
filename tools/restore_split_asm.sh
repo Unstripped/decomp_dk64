@@ -12,9 +12,15 @@
 set -eu
 commit=$1
 yaml=$2
-wt=.scratch/wt-restore
-git worktree remove --force "$wt" 2>/dev/null || true
-git worktree add -f "$wt" "$commit" >/dev/null
+mkdir -p .scratch
+# Unique per invocation (inside the repo so the tools/dk container sees it);
+# only this run's worktree is ever removed.
+wt=$(mktemp -d .scratch/wt-restore.XXXXXX)
+cleanup() {
+    git worktree remove --force "$wt" 2>/dev/null || rm -rf "$wt"
+}
+trap cleanup EXIT INT TERM
+git worktree add -f "$wt" "$commit" >/dev/null 2>&1
 ln -sfn ../../bin "$wt/bin"
 tools/dk sh -c "cd $wt && python3 -m splat split $yaml >/dev/null 2>&1"
 n=0
@@ -25,5 +31,4 @@ for f in $(cd "$wt" && find asm -path '*/nonmatchings/*' -name '*.s'); do
         n=$((n + 1))
     fi
 done
-git worktree remove --force "$wt"
 echo "restored $n file(s)"
