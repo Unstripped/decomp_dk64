@@ -403,7 +403,6 @@ typedef struct L1P2C0 {
 extern L1P2C0 *D_807FC924;
 s32 func_806BA240(u8, s16);
 
-#ifdef NON_MATCHING
 typedef struct R1DNode {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ f32 unk4;
@@ -442,10 +441,8 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
     f32 sp4C;
     f32 sp48;
     f32 sp44;
-    u8 kind;
-    R1DSub4 *sub;
+    u8 node;
     s32 var;
-    s32 node;
 
     p = R1DA->unk178;
     tgt = R1DA0->unk1C;
@@ -464,17 +461,15 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
         func_806BA130();
     }
     if (D_807FBB40->unk154 == 0x15) {
-        kind = D_807FDC9C->unkA;
         node = D_807FDC9C->unkA;
         if (node == 5 || node == 7) {
-            sub = (R1DSub4 *)tgt->unk4;
-            if ((sub->unk64 == 0x21E || sub->unk64 == 0x21F) && sub->unk0->unk4 >= 4.0f && sub->unk0->unk4 <= 12.0f) {
+            if ((((R1DSub4 *)tgt->unk4)->unk64 == 0x21E || ((R1DSub4 *)tgt->unk4)->unk64 == 0x21F) && ((R1DSub4 *)tgt->unk4)->unk0->unk4 >= 4.0f && ((R1DSub4 *)tgt->unk4)->unk0->unk4 <= 12.0f) {
                 D_807FBB40->unk132 = 4;
             } else {
                 D_807FBB40->unk132 = 2;
             }
         }
-        if ((node ^ 0) == 1) { /* ^ 0 makes uopt emit bnel a3,node (const first) */
+        if (node == 1) {
             D_807FBB40->unk132 = 8;
         }
         if (R1DA->unkF0 != 0) {
@@ -513,9 +508,6 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
         R1DA0->unk20 = R1DA0->unk20 + 1;
         actorGetNodePos(tgt, node, &sp4C, &sp48, &sp44);
         if (R1D90->unk1A & 0x80) {
-            s16 sv0;
-            s16 sv1;
-
             if (!(R1D90->unk1C & 0x80)) {
                 R1DA->unkC0 = 300.0f;
             }
@@ -526,27 +518,21 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
             if (arg1 != 0) {
                 func_80613C48(D_807FBB40, arg1, 0.0f, 4.0f);
             }
-            sv0 = p[0];
-            sv1 = p[1];
-            p[0] = sv0 + (-sv0) * 0.1;
-            p[1] = sv1 + (-sv1) * 0.1;
+            p[0] = (-p[0]) * 0.1 + p[0];
+            p[1] = (-p[1]) * 0.1 + p[1];
             if (node < 0xB) {
                 D_807FBB40->unkE6 = tgt->unkE6;
             }
             D_807FBB40->unk7C = sp4C;
             D_807FBB40->unk84 = sp44;
             D_807FBB40->unk80 = sp48;
-            if (func_806B9EB4(kind, arg0, sp4C, sp48, sp44) != 0) {
+            if (func_806B9EB4(node, arg0, sp4C, sp48, sp44) != 0) {
                 return 1;
             }
         }
     }
     return 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/BDEE0/func_806BA240.s")
-#endif
 
 void func_8072B7CC(s32);
 
