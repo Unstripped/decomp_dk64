@@ -1,53 +1,237 @@
 #include "common.h"
 #include "actor.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A5C60.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A5DF0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A5EAC.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A5F44.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A5FA4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A6004.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A6094.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A60BC.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A60E4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A610C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A6134.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A615C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A61D0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A6230.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A62B4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A62D4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A6348.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A63A8.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A6408.s")
+typedef struct M8SfxEntry {
+    /* 0x0 */ u16 unk0;
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5;
+} M8SfxEntry; /* size = 6 */
 
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
+extern s32 D_807FBB64;
+extern u32 D_807FBB68;
+extern u8 D_807FC928;
+extern M8SfxEntry D_80750400[];
+
+extern u8 D_807204BC[];
+extern u8 D_80720508[];
+extern u8 D_807205C4[];
+extern u8 D_807205E8[];
+extern u8 D_80720710[];
+extern u8 D_80720768[];
+extern u8 D_807207BC[];
+extern u8 D_807207E0[];
+extern u8 D_807209EC[];
+extern u8 D_80720A10[];
+extern u8 D_80720A34[];
+extern u8 D_80720A58[];
+extern u8 D_807211D0[];
+extern u8 D_80721378[];
+
+void func_806A5DF0(s16, f32, f32, f32, s32, s32, s32, s32);
+void func_806A6004(void *, s32);
+void func_806A6230(void);
+void func_80714A08(f32, f32);
+s32 func_80714C08(void *, f32, void *, s32, s32);
+void sfxAllocateChannel(s32, f32);
+void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
+void func_807149C8(s32, s32, s32, u8);
+void func_80714998(s32);
+void func_807149B8(s32);
+void func_807149FC(s32);
+void func_806A664C(f32);
+void func_806A5EAC(void *, void *, f32);
+
+void func_806A5C60(Actor *arg0) {
+    s32 i;
+    s32 found;
+    s32 j;
+    s16 step;
+    s16 offset;
+
+    i = 0;
+    found = 0;
+    offset = 0;
+    if (D_807FC928 >= 2) {
+        return;
+    }
+    if (D_807FBB64 & 0x4000) {
+        return;
+    }
+    while (found == 0 && D_80750400[i].unk0 != 0) {
+        if (D_80750400[i].unk0 == arg0->unk58) {
+            found = 1;
+        } else {
+            i++;
+        }
+    }
+    if (found == 0) {
+        return;
+    }
+    if (D_80750400[i].unk4 != 0) {
+        sfxAllocateChannel(D_80750400[i].unk4, 1.0f);
+    }
+    step = (s16)(0xFFF / D_80750400[i].unk5);
+    for (j = 0; j < D_80750400[i].unk5; j++) {
+        func_806A5DF0(D_80750400[i].unk2, arg0->unk7C, arg0->unk80, arg0->unk84, offset, 1, -1, 0);
+        offset = offset + step;
+    }
+}
+
+void func_806A5DF0(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7) {
+    s32 pad[6];
+    f32 vec[3];
+    f32 scale;
+
+    scale = 0.15f;
+    if (D_807FBB68 & 0x10) {
+        scale = scale + scale;
+    }
+    vec[0] = (f32)(u8)arg5;
+    vec[1] = (f32)(s16)arg4;
+    vec[2] = (f32)(s16)arg6;
+    actorListSpawnNodeEntry(arg0, arg1, arg2, arg3, 0, scale, arg7, vec);
+}
+
+void func_806A5EAC(void *arg0, void *arg1, f32 arg2) {
+    if (D_807FBB68 & 0x10) {
+        arg2 = arg2 + arg2;
+    }
+    func_807149FC(-1);
+    func_807149B8(1);
+    func_80714998(2);
+    *(s32 *)((u8 *)arg0 + 4) = func_80714C08(arg1, arg2 * 0.35, D_807FBB40, 1, 2);
+}
+
+void func_806A5F44(void) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(4.5f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_806A5EAC(temp, D_80720710, 1.0f);
+    }
+}
+
+void func_806A5FA4(void) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(4.5f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_806A5EAC(temp, D_80720508, 1.0f);
+    }
+}
+
+void func_806A6004(void *arg0, s32 arg1) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(4.5f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        if (arg1 != D_807FBB4C->unk58) {
+            func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
+        }
+        func_806A5EAC(temp, arg0, 1.0f);
+    }
+}
+
+void func_806A6094(void) {
+    func_806A6004(D_807209EC, 3);
+}
+
+void func_806A60BC(void) {
+    func_806A6004(D_80720A10, 6);
+}
+
+void func_806A60E4(void) {
+    func_806A6004(D_807207E0, 4);
+}
+
+void func_806A610C(void) {
+    func_806A6004(D_80720A34, 2);
+}
+
+void func_806A6134(void) {
+    func_806A6004(D_80720A58, 5);
+}
+
+void func_806A615C(void) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(4.5f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_80714A08(-0.35f, 0.35f);
+        func_806A5EAC(temp, D_80720768, 1.0f);
+    }
+}
+
+void func_806A61D0(void) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(4.5f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_806A5EAC(temp, D_807204BC, 1.0f);
+    }
+}
+
+void func_806A6230(void) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(4.5f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        if ((D_807FBB64 & 0x80000) || (D_807FBB64 & 0x2000)) {
+            D_807FBB40->unk15F = 1;
+        }
+        func_806A5EAC(temp, D_807207BC, 1.0f);
+    }
+}
+
+void func_806A62B4(void) {
+    func_806A6230();
+}
+
+void func_806A62D4(void) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(4.5f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_807149C8(0xFF, 0xFF, 0, 0xFF);
+        func_806A5EAC(temp, D_807211D0, 1.5f);
+    }
+}
+
+void func_806A6348(void) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(4.5f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_806A5EAC(temp, D_807205C4, 1.0f);
+    }
+}
+
+void func_806A63A8(void) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(4.5f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_806A5EAC(temp, D_807205E8, 1.0f);
+    }
+}
+
+void func_806A6408(void) {
+    void *temp = D_807FBB40->unk174;
+
+    func_806A664C(12.0f);
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_806A5EAC(temp, D_80721378, 2.0f);
+    }
+}
+
 extern u8 D_807203B0;
 extern u8 D_807203D4;
 extern u8 D_807203F8;
 extern u8 D_8072041C;
 extern u8 D_80720440;
-void func_806A664C(f32);
-void func_806A5EAC(void *, void *, f32);
 
 void func_806A6468(void) {
     void *temp_v1;
@@ -140,7 +324,6 @@ typedef struct AA960ActorSub174 {
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_80686CF8(Actor *);
-void sfxAllocateChannel(s32, f32);
 
 void func_806A736C(void) {
     AA960ActorSub174 *temp_v1;
@@ -223,13 +406,8 @@ void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8066EB40(Actor *, f32);
 void actorDespawn(void *);
-void func_80714998(s32);
-void func_807149FC(s32);
-void func_807149B8(s32);
 void func_80714950(s32);
-void func_807149C8(s32, s32, s32, u8);
 void func_8071498C(void (*)(void));
-void func_80714C08(void *, f32, void *, s32, s32);
 void func_8071D28C(void);
 void func_8071EB70(void);
 void func_806F8BC4(s32, s32, s32);
