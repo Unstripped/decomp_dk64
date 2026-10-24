@@ -1,4 +1,8 @@
-// func_8069A7C8 (src/global/9DD70.c): parked NON_MATCHING: same blocks/frame; FP temp regalloc + one extra c.lt.d (235 vs 236)
+// func_8069A7C8 (src/global/9DD70.c): stage 5 (parked, same blocks/frame/saved regs; 235 vs ~235+pad). Fixed: final node->unk8 store must be '0.0 - (float_sum)' (double literal forces cvt.d.s/sub.d/cvt.s.d after a float mul.s+add.s). Remaining: s0/s1/s2 role swap (original: s2 = globals+4i, s0 = globals+12i re-derived via 'move s0,s2' in the preheader), sqrt term load order (original loads entries[i].unk8 (68) before unk0 (60) although the C has unk8 first -> needs a scheduling nudge, e.g. splitting the terms into temps), FP temp allocation in the unk8 decay block (f19/f18/f10 vs f7/f6/...) and the .rodata literal order (lwc1 0(at) vs 8(at)).
+extern Actor *D_807FBB40;
+extern ActorGlobalState D_807FBB70;
+/* Behaviourally equivalent, same blocks/frame/saved regs; remaining diff is FP
+   temporary allocation (and one insn): 235 vs 236 insns. */
 typedef struct {
     u8 unk0;
     u8 unk1;
@@ -116,7 +120,7 @@ void func_8069A7C8(void) {
     if ((f64)state->unk8 < 0.5) {
         state->unk8 = 0.0f;
     }
-    ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk8 = (f32)(0.0 - ((f64)(func_80612D1C((f32)((f64)state->unkC * 0.5)) * state->unk8) + state->unk0));
+    ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk8 = 0.0 - (func_80612D1C((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
     state->unk4 = D_807FBB70.unk39;
     func_806319C4(D_807FBB40, 0);
 }
