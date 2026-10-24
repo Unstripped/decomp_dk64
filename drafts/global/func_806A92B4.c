@@ -1,4 +1,4 @@
-// func_806A92B4 (src/global/ACDC0.c): stage 4: frame 0x1a0 + callee-saved set match, behaviourally equivalent C; text 80B short; regalloc differs (tab/list/ret not spilled like target; 0.75f/0xFA000000/2 hoist differs, multu vs shifts for *0x69)
+// func_806A92B4 (src/global/ACDC0.c): stage 4: frame 0x1a0 + callee-saved set match, C believed equivalent; text 80B short (20816 vs 20896). Open: tab/list/ret should be uncolored (stack) as in target, const 2 hoisted in s8 + x/y in s0/s1 + 0xFA000000 in s5 + 0.75f in f28; *0x69 must be shifts (no hoisted const); target a2 narrowing of func_806ABB98/806FC530 comes from s16 params (see unified decls). 0.65 call arg must be double literal 0.65 (lui/ori) to avoid CSE with rodata 0.65f. Permuter 600s from stage 4: no useful result (score 28k).
 Gfx *func_806A921C(Gfx *);
 Gfx *func_806ABB98(Gfx *, s32, s32, f32, char *);
 Gfx *func_806FC530(Gfx *, s32, s32, s32, char *, s32);
@@ -312,7 +312,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
             }
             break;
         case 3:
-            dl = func_806ABB98(func_806ABB98(dl, 0x280, 0x74, 0.5f, D_807FC7E0[D_807FC818[D_807FC80C] + 18]), 0x280, 0x3C, 0.65f, D_807FC7E0[6]);
+            dl = func_806ABB98(func_806ABB98(dl, 0x280, 0x74, 0.5f, D_807FC7E0[D_807FC818[D_807FC80C] + 18]), 0x280, 0x3C, 0.65, D_807FC7E0[6]);
             fa = hud->unk4;
             fb = hud->unk0;
             if (fa < fb) {
