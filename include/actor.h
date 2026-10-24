@@ -205,4 +205,47 @@ typedef struct Actor {
     /* 0x174 */ void *unk174;
 } Actor;
 
+// Per-behaviour state objects reached through D_807FDC90..D_807FDC9C.
+// Fields are named by offset; sizes are the largest offset seen so far.
+typedef struct Struct807FDC90 {
+    /* 0x00 */ u8 pad0[0xA];
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ u8 pad10[8];
+    /* 0x18 */ u16 unk18;
+    /* 0x1A */ u8 pad1A[0xE];
+    /* 0x28 */ u8 unk28[4];
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ u8 pad2E[2];
+    /* 0x30 */ f32 unk30;
+} Struct807FDC90;
+
+typedef struct Struct807FDC98 {
+    /* 0x00 */ u8 pad0[0x46];
+    /* 0x46 */ u16 unk46;
+} Struct807FDC98;
+
+typedef struct Struct807FDC9C {
+    /* 0x00 */ u8 pad0[6];
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ u8 pad8[2];
+    /* 0x0A */ u8 unkA;
+    /* 0x0B */ u8 unkB;
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 padD[3];
+    /* 0x10 */ u8 unk10;
+} Struct807FDC9C;
+
+// D_807FD580: typedef only; other files still declare D_807FD580 with their own types.
+typedef struct Struct807FD580 {
+    /* 0x000 */ u8 pad0[0x1F0];
+    /* 0x1F0 */ s32 unk1F0;
+} Struct807FD580;
+
+extern Struct807FDC90 *D_807FDC90;
+extern Actor *D_807FDC94;
+extern Struct807FDC98 *D_807FDC98;
+extern Struct807FDC9C *D_807FDC9C;
+
 #endif
