@@ -1,9 +1,6 @@
-// func_806A1AC4 (src/global/A6280.c): stage 3: switches on unk154/unk155 + all calls/constants match; frame 0x68 vs 0x50 (too many local slots: i, cb, speed, dx, dz); do NOT declare an Actor *actor local (original only has a CSE temp in s1); func_8071E864 pointer is spilled to 0x40(sp); speed must be computed before func_8071498C
-extern Actor *D_807FBB40;
+// func_806A1AC4 (src/global/A6280.c): stage 4: frame 0x58 vs 0x50 (one extra unused slot before cb at 0x44 vs 0x40); +2 instrs (sll/sra sign-extend of i at func_80714950 call); double conversion now cvt.d.w (speed = intExpr * 0.01); dz inlined; i s16; cb spilled
 extern Actor *D_807FBB4C;
 
-void func_806319C4(Actor *, s32);
-void func_80613C48(Actor *, s16, f32, f32);
 
 extern s32 D_8076A064;
 extern s32 D_8071FFA0;
@@ -28,11 +25,12 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void func_8072881C(s32, void *);
 void func_8071E864(void);
 
+void func_80613C48(Actor *, s16, f32, f32);
+
 void func_806A1AC4(void) {
     s16 i;
     void *cb;
     f32 dx;
-    f32 dz;
     f32 speed;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -62,8 +60,7 @@ void func_806A1AC4(void) {
             D_807FBB40->unk154 = 1;
         } else if (func_8073110C(0xFB, 0) == 0 && func_8073110C(0x21, 2) == 0) {
             dx = D_807FBB40->unk7C - D_807FBB4C->unk7C;
-            dz = D_807FBB40->unk84 - D_807FBB4C->unk84;
-            if (dx * dx + dz * dz < 19600.0f) {
+            if (dx * dx + (D_807FBB40->unk84 - D_807FBB4C->unk84) * (D_807FBB40->unk84 - D_807FBB4C->unk84) < 19600.0f) {
                 func_8070D8C0(D_807FBB4C, 0x1F, 0);
                 func_8073129C(0x21, 1, 2);
             }
@@ -83,7 +80,7 @@ void func_806A1AC4(void) {
             if (!(D_8076A064 & 7)) {
                 cb = (void *)func_8071E864;
                 for (i = 0; i < 0xC; i++) {
-                    speed = (f32)((((func_80611A44() >> 15) % 32767) % 171) + 0x96) * 0.01;
+                    speed = (((func_80611A44() >> 15) % 32767) % 171 + 0x96) * 0.01;
                     func_8071498C(cb);
                     func_80714950(i);
                     func_807149B8(1);

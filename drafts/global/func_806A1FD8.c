@@ -1,45 +1,40 @@
-// func_806A1FD8 (src/global/A6280.c): stage 5: basic blocks, calls and saved regs (s0-s3,f20) all match; frame 0x78 vs 0x68 (IDO reserves 2-3 extra unused slots, likely from the chained unk114->items[i] deref / double temp); found spill 0x5f vs 0x5b, count spill 0x64 matches; cast (f32)(f64)sp50+10.0 must stay double math
-typedef struct M6Sub174 {
+// func_806A1FD8 (src/global/A6280.c): stage 6: score 10 - 212/212 instrs identical (incl. sll s1,zero,2) except frame 0x70 vs 0x68 (one unused 8-byte slot at 0x68). All stack slots match: sp50/sp54/sp4C 0x4C/50/54, found 0x5B, count 0x64. NEEDED: local decl order sub,act,count,i,node,found and 'do { i = 0; } while (0);' for i (plain i=0 emits move s1,zero and grows frame). list local must not be cached; unk155 is an array -> unk155[0]
+extern Actor *D_807FBB4C;
+
+typedef struct A6R2Av {
+    u8 pad0[0x130];
+    u8 unk130;
+    u8 unk131;
+    u8 pad132[0x178 - 0x132];
+    void *unk178;
+} A6R2Av;
+
+typedef struct A6R2Sub174 {
     s16 unk0;
     u8 pad2[2];
     f32 unk4;
     f32 unk8;
-} M6Sub174;
+} A6R2Sub174;
 
-typedef struct M6ActorView {
-    u8 pad0[0x130];
-    u8 unk130;
-    u8 unk131;
-} M6ActorView;
-
-extern Actor *D_807FBB4C;
 extern s32 D_8071FF18;
 
 void actorDespawn(Actor *);
 s16 actorListFindIdByActor(Actor *);
 s32 actorListLookupEntry(u16);
 s32 actorTableContains();
-s32 func_8073110C(s16, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void func_80714998(s32);
-void func_807149B8(s32);
-void func_8071498C(void *);
-void func_80714950(s32);
-void func_807149C8(s32, s32, s32, s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
 void func_80717D4C(void);
 void func_806A5DF0(s32, f32, f32, f32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 
 void func_806A1FD8(void) {
-    M6Sub174 *sub;
-    ActorList *list;
+    A6R2Sub174 *sub;
     Actor *act;
     s32 count;
     s32 i;
-    u8 found;
     s32 node;
+    u8 found;
     f32 sp54;
     f32 sp50;
     f32 sp4C;
@@ -50,18 +45,17 @@ void func_806A1FD8(void) {
         sub->unk0 = 0;
         sub->unk4 = 0.0f;
         sub->unk8 = D_807FBB40->unk80;
-        ((M6ActorView *)D_807FBB40)->unk130 = 0x46;
-        ((M6ActorView *)D_807FBB40)->unk131 = 0x14;
+        ((A6R2Av *)D_807FBB40)->unk130 = 0x46;
+        ((A6R2Av *)D_807FBB40)->unk131 = 0x14;
         if (func_8073110C(actorListLookupEntry(actorListFindIdByActor(D_807FBB40)), 0) != 0) {
             actorDespawn(D_807FBB40);
         }
     }
-    if (D_807FBB4C->unk154 == 0x2D && D_807FBB4C->unk155 != 0) {
+    if (D_807FBB4C->unk154 == 0x2D && D_807FBB4C->unk155[0] != 0) {
         found = 0;
-        list = D_807FBB40->unk114;
-        if (list != NULL) {
-            count = list->count;
-            i = 0;
+        if (D_807FBB40->unk114 != NULL) {
+            count = D_807FBB40->unk114->count;
+            do { i = 0; } while (0);
             if (count != 0) {
                 do {
                     act = (Actor *)D_807FBB40->unk114->items[i];
