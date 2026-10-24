@@ -70,7 +70,12 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
   addend differences like `0(at)` vs `532(at)`). A function whose size differs shifts
   everything after it: get the size right first.
 - NEVER edit shared headers in `include/` (another agent may own them this round); use a
-  local struct/cast prefixed with your agent name.
+  local struct/cast prefixed with your agent name. Headers are live, not copied: if the
+  orchestrator messages you about a header change, drop your conflicting local externs.
+- NEVER redeclare a global the file (or `include/`) already declares, with any type: an
+  agent-local `extern MyActor *D_807FBB40;` breaks the merge. Cast instead:
+  `#define MyA ((MyActorView *)D_807FBB40)` with a local view struct holding only the
+  fields you need.
 - Merge hygiene: change only your functions' lines. New externs/prototypes/structs go
   IMMEDIATELY ABOVE your first function that uses them, never in the top block or another
   agent's range. Never change an existing declaration, with one exception: a prototype
@@ -141,6 +146,8 @@ whole private copy: `save` rejects files with `#pragma GLOBAL_ASM` lines)
 TEXT OK: never leave non-matching C in it.
 
 # Report (final message)
+(Write it in full as your LAST message: if an async job notice arrives after it, repeat the
+whole report rather than replying "earlier report stands".)
 1. Newly matched functions; remaining GLOBAL_ASM (or parked NON_MATCHING) with stage
    reached (stages 1–6), a one-line closest-diff note each (and confirm you saved its draft
    or parked it under NON_MATCHING).

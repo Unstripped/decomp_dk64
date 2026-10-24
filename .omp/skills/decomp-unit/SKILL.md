@@ -92,7 +92,12 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 1. Partition by instruction count: round 1 ~600–1,300 per agent, ≤20 functions,
    contiguous by address; functions over ~400 insns held back for later rounds, each
    on its own agent using the large-function method (stage-order work plus a bounded
-   permuter run once at stage 5–6). Later rounds ≤6 functions per agent, near-misses
+   permuter run once at stage 5–6). Large agents matched 0 in five units, then 6 of 10 in
+   the `ACDC0`–`B7490` unit: the 430–650-insn enemy-behaviour functions share one shape, so
+   each finished large agent's key tricks (`s32 sel` switch copy, spare K&R arg pinning
+   `$a1`) went into the next large agent's task text; 800+-insn HUD functions still parked
+   at stage 4–6. Dispatch large agents as soon as slots free, smallest first, and forward
+   every large-function trick. Later rounds ≤6 functions per agent, near-misses
    first. Near-miss rounds and large functions use the stage order, `tools/uopt_trace.sh`,
    and permuter. Never a function in two agents' lists, and never one in none: before
    dispatch, diff the union of the lists (round 1 plus held-back large functions) against
@@ -295,11 +300,28 @@ Before the final yield:
 - `make split` while agents run deletes `asm/<seg>/nonmatchings/<file>/<FUNC>.s` of every
   function matched since the agents' base commit, so their copies (still `GLOBAL_ASM` for
   those) stop compiling and agents rebuild them from the current `src` (losing the base).
-  The brief forbids it; to recover, check out the split commit in a worktree
-  (`git worktree add .scratch/wt <split commit>`, `ln -s ../../bin .scratch/wt/bin`),
-  re-split it there (`tools/dk sh -c 'cd .scratch/wt && python3 -m splat split dk64.global.us.yaml'`)
-  and copy the missing `.s` files back. A copy rebuilt from a later `src` merges with
+  The brief forbids it for agents, but in the `ACDC0` unit 89 `.s` files vanished at once,
+  minutes before a parallel user session in the same tree committed a `7130` match (most
+  likely its `make split`). Recover with
+  `tools/restore_split_asm.sh <split commit> dk64.global.us.yaml` (re-splits that commit in a
+  temporary worktree and copies back every missing `.s`, recreating fully matched files'
+  directories; never overwrites), then message the running agents not to re-copy. A copy
+  rebuilt from a later `src` merges with
   `--base` = the commit whose file differs least from it (`git show <c>:<file> | diff - copy`).
+- `include/` is live, not part of any private copy: a unify agent that extends
+  `include/actor.h` with an `extern` for a global breaks every running copy that declares that
+  global with its own type. After such a header change, message each running agent on an
+  affected file (one by one) with the new type names and tell it to drop its local externs.
+- Per-file actor views: every agent on a fresh behaviour file declared its own
+  `extern <Agent>Actor *D_807FBB40;`, so `B2CE0` needed three unify passes. After the first
+  unify, name the file's view (`M3Actor`, `B7490A` macro) in every later task and in a
+  message to running agents; merges after that were clean.
+- A parked definition with a prototype rejects parked callers passing extra args (cfe:
+  argument count). Write the parked definition K&R-style (`void f(a, b) T *a; s32 b; {`):
+  same code for int/pointer params, and the file's `void f();` declaration then accepts both.
+- An agent whose last message answers a late async-job notice ("the permuter finished,
+  earlier report stands") hides its real report: read `history://<id>` and take the last
+  `## 1.` section.
 - Declarations inside a parked `#ifdef NON_MATCHING` block are invisible to the matching
   build: matched code below it that relies on them silently gets K&R promotion (f32 args
   passed as doubles). After every merge that adds a parked block also compile the
@@ -356,7 +378,6 @@ Before the final yield:
 
 |Date|Unit|Rounds × agents|Matched per round|Result|
 |---|---|---|---|---|
-|2026-10-22|boss (ovl07), last overlay|split inline (11 TUs, 9C60 = 3); match 6/6/6; 5 "continue" re-prompts|46 / 8 / 4|boss 58/79, 15 named; `tools/rodata_owners.py` added; best-draft handoff between rounds|
 |2026-10-22|global actor core (7CA80 + 80150)|split inline; match 6 / 11 rolling (incl. 4 one-function large agents) / 4; +2 unify fix-ups|85 / 21 / 3|7CA80 62/73, 80150 47/64, 31 named; `include/actor.h`; merge_drafts keeps first duplicate, `--base REV`; large (600–1400 insn) agents: 0 matches, best 8–19 insns off|
 |2026-10-22|global actor behaviour (79890, 7A510, 7AF60, 7BBD0, 89250; 77B90 reverted to asm)|split inline; rolling per-file rounds, 22 matching agents total (7 / 6 / 6 / 3) + 1 unify|50 / 21 / 6 / 1|79890 6/8, 7A510 8/13, 7AF60 27/29, 7BBD0 3/6, 89250 34/40, 35 named; one matched function reverted after the ROM check (C jump table lost late_rodata pad) → `objdiff.py` now fails on `.rodata` byte diffs; `rodata_owners.py` <1 s on global; shared brief via `local://brief.md`|
 |2026-10-22|global actor lists / animation / render (8CA50, 8D3E0, 8F050, 8F4B0 → 8F4B0 + 90D80 hidden TU)|split inline; 6 round-1 agents, then 14 rolling (incl. 5 one-function large agents) + 1 unify|75 / 7 / 3|8CA50 18/19, 8D3E0 40/47, 8F050 5/7, 8F4B0 11/15, 90D80 11/17, 53 named; data-alignment rule for hidden TUs; file-local unify from a pre-merged copy; round-1 agents with 28 functions left 10 unattempted at ~13 min → smaller round-1 lists; naming agent edited tools/ (reverted)|
@@ -366,3 +387,4 @@ Before the final yield:
 |2026-10-23|global audio manager / fog / hash table / lights (6710 → 6710 + 7130 hidden TU, 5DE10, 5E020, 5E2F0)|split inline (data-pad hidden TU, f64 pair fix); round 1 aborted by user and relaunched on the same copies; rolling per-agent merges, 20 matching agents (6 / then 14 rolling, incl. 4 one-function large agents) + namer; clashes unified inline|48 / 18 (rolling; last 7 agents 1)|68/83 (6710 7/9, 7130 32/42, 5DE10 4/4, 5E020 8/8, 5E2F0 17/20), 67 named; 2 functions (`func_8060956C`, `func_80609B80`) were left out of every task list until a reviewer caught it, both matched at once → before round 1, check that the task lists cover every function in the files; 12 parked NON_MATCHING; large agents 0 again (best: 1179-insn `func_8065A884` stage 4); cross-agent prototype clash reverted then fixed next round; namer's global-only re-split broke overlay links → whole `make split`|
 |2026-10-23|global model slots / map chunks / projectile behaviours (54150, 55B20, 9BF30, 9CE20)|split inline (no hidden TU); rolling per-agent merges, 28 matching agents (9 round-1 incl. 6 on one fresh `55B20`, 5 one-function large, 14 rounds 2–4) + 1 unify + namer|49 / 14 / 4 / 0|67/117 (54150 16/28, 55B20 45/80, 9BF30 2/4, 9CE20 4/5), 67 named, +13,032 bytes, 37 parked; type clash on almost every `55B20` merge (unified inline, struct names then passed in later contexts); `merge_drafts.py` pruned live declarations kept only inside parked `#ifdef` blocks → fixed; `objdiff.py` asm-differ `-n`; round-1 agents quit at 11–13 min → "whole budget" line in every context; one "reloc-only" paste failed the ROM (real scheduling diff), two later ones matched; large agents 0 matches again (3 parked at stage 4–5)|
 |2026-10-24|global text markers / round banner / attached actors / effect sprites (9DD70, A2F10, A6280, A7710, A8400 → A8400 + AA960 hidden TU)|split inline (data-pad hidden TU, found before round 1); 9 round-1 agents, then rolling; machine crash killed 14 running agents mid-unit → salvaged 4 passing copies, relaunched the rest; ~35 matching agents total (incl. 10 one-function large) + namer|74 / 15 / 5 (+5 salvaged) / 0|94/127 incl. one hidden empty function (9DD70 27/37, A2F10 20/25, A6280 4/8, A7710 4/7, A8400 5/13, AA960 33/36), 52 named, +18,832 bytes, 18 parked; unsymbolised 8-byte empty functions inside splat `.s` files → listed in the brief; an agent's `make split` mid-run deleted matched functions' asm under 15 agents → restored from a worktree split, split ban in the brief; parked-block declarations clashed with matched code 7 times → `--non-matching` compile after each merge; misspelled extern passed fdiff → grep externs; large agents 0 matches again (8 parked at stage 4–6, best: 1-insn `func_8069E088`); a parallel session's uncommitted `55B20` work in the tree → stage only unit files|
+|2026-10-24|global HUD text screens / enemy behaviours (ACDC0, B1F60, B2CE0, B5EC0, B6C50, B7490)|split inline (no hidden TU; leading unreferenced strings stay rodata GLOBAL_ASM); 6 round-1 agents, then rolling: 10 one-function large agents, 7 near-miss agents (rounds 2–4), 5 unify passes (B7490, B1F60, B2CE0 ×3, ACDC0) + namer|55 round 1 (incl. 3 reloc-only pastes) / large 6 of 10 / near-miss 7|69/79 incl. the empty stub (ACDC0 15/21, B1F60 6/7, B2CE0 13/13, B5EC0 11/11, B6C50 2/2, B7490 22/25), 23 named, +35,320 bytes, 9 parked + 1 draft; first unit where large agents matched (430–650-insn enemy updates, tricks forwarded between large agents); unify of `D_807FDC90`–`9C` into `include/actor.h` broke running copies (live header) → message agents; per-agent `D_807FBB40` views forced 3 B2CE0 unifies → brief bans redeclaring globals; 89 `.s` deleted mid-unit (parallel session split) → `tools/restore_split_asm.sh`; an agent's late async-notice reply hid its report → read `history://`|
