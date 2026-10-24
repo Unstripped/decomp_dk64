@@ -39,7 +39,7 @@ extern u32 D_80744478;
 extern u8 D_80750AD4;
 void renderCallbacksRegister(void *, void *, s32);
 s32 actorSpawn(s32, s32);
-void actorDespawn(Actor *);
+s32 actorDespawn(Actor *);
 void func_8069FA40(Gfx *, Actor *);
 
 #define WRITE_GFX(pkt, _w0, _w1)                                               \
@@ -478,7 +478,73 @@ void func_806A0310(void) {
     func_806A018C();
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_806A0330.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    u8 padC[0x24];
+} M5_A2F10Pos;
+
+s32 func_8061CB50(void);
+void billboardSetFlags(s32);
+void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void func_8061F0B0(void *, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+void func_8071496C(s16);
+void func_807149B8(s32);
+void func_8071498C(void *);
+void func_807149C8(s32, s32, s32, s32);
+void func_80714CC0(void *, f32, f32, f32, f32);
+void func_8071BB14(void);
+extern void *D_807F5D10;
+extern u8 D_807FBD70;
+extern f32 D_80750398;
+extern u8 D_80720BE8;
+
+void func_806A0330(void) {
+    M5_A2F10Pos pos;
+    s32 i;
+
+    if (!(M5_A2F10_ACTOR->unk60 & 0x10)) {
+        M5_A2F10_ACTOR->unk144 = 0x1C;
+        M5_A2F10_ACTOR->unkC0 = 0.0f;
+        M5_A2F10_ACTOR->unk12A = 0x7D0;
+        M5_A2F10_ACTOR->unkA4 = 99999.0f;
+        func_80665564(D_807FBB40, 0.0f);
+    }
+    if (func_8061CB50() != 0) {
+        M5_A2F10_ACTOR->unk132 = 2;
+    } else {
+        M5_A2F10_ACTOR->unk132 = 1;
+    }
+    func_8067ACB4(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
+    func_80665564(D_807FBB40, 0.0f);
+    M5_A2F10_ACTOR->unkC0 += D_80750398;
+    if (M5_A2F10_ACTOR->unkA4 != 99999.0f) {
+        billboardSetFlags(1);
+        func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x18, 0x18, 1, 0x96, 0xB4, 0, 1.0f);
+    } else {
+        actorDespawn(D_807FBB40);
+    }
+    if (D_807FBD70 == 4 || M5_A2F10_ACTOR->unkFC != 0
+        || ((M5_A2F10_ACTOR->unk6A & 1) && !(M5_A2F10_ACTOR->unk6C & 1))) {
+        func_8061F0B0(D_807F5D10, 0xF, 0xF);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x162, 0xE1, 0x3C, 1);
+        for (i = 1; i != 7; i++) {
+            actorGetNodePos(D_807FBB40, i, &pos.unk8, &pos.unk4, &pos.unk0);
+            func_8071496C(i);
+            func_807149B8(1);
+            func_8071498C(func_8071BB14);
+            func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
+            func_80714CC0(&D_80720BE8, 1.5f, pos.unk8, pos.unk4, pos.unk0);
+        }
+        actorDespawn(D_807FBB40);
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+
 
 void func_806A05D4(void) {
     func_806319C4(D_807FBB40, 0);
@@ -531,7 +597,6 @@ void func_806A081C(Actor *arg0) {
     arg0->unk6A |= 0x800;
 }
 
-#ifdef NON_MATCHING
 u8 func_80665AAC(Actor *);
 s32 actorIsActive(Actor *);
 s32 actorTableContains(Actor *);
@@ -556,11 +621,11 @@ void func_806A0864(void) {
         sub->unk0 = (s32) M5_A2F10_ACTOR->unk11C;
         sub->unk8 = M5_A2F10_ACTOR->unk11C->unk58;
     }
-    if (!actorTableContains((Actor *) sub->unk0) || M5_A2F10_ACTOR->unk11C->unk54 != sub->unk4) {
+    if (!actorTableContains((Actor *) sub->unk0) || sub->unk4 != M5_A2F10_ACTOR->unk11C->unk54) {
         actorDespawn(D_807FBB40);
         return;
     }
-    if (!(func_80665AAC((Actor *) sub->unk0) && M5_A2F10_ACTOR->unk11C->unk58 == sub->unk8
+    if (!(func_80665AAC((Actor *) sub->unk0) && sub->unk8 == M5_A2F10_ACTOR->unk11C->unk58
           && actorIsActive((Actor *) sub->unk0) && (((M5_A2F10Target *) sub->unk0)->unk68 & 0x40))) {
         actorDespawn(D_807FBB40);
         ((M5_A2F10Target *) sub->unk0)->unk6A &= 0xF7FF;
@@ -593,12 +658,7 @@ void func_806A0864(void) {
     }
 }
 
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_806A0864.s")
-#endif
-
-#ifdef NON_MATCHING
 void func_80663BE8(void *);
 
 void func_806A0B74(void) {
@@ -606,9 +666,6 @@ void func_806A0B74(void) {
     float mtx1[4][4];
     float mtx3[4][4];
     float mtx2[4][4];
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
     M5_A2F10Sub *sub;
     Mtx *dst;
     s32 i;
@@ -622,12 +679,12 @@ void func_806A0B74(void) {
         sub->unk0 = (s32) M5_A2F10_ACTOR->unk11C;
         sub->unk8 = M5_A2F10_ACTOR->unk11C->unk58;
     }
-    if (!actorTableContains((Actor *) sub->unk0) || M5_A2F10_ACTOR->unk11C->unk54 != sub->unk4) {
+    if (!actorTableContains((Actor *) sub->unk0) || sub->unk4 != M5_A2F10_ACTOR->unk11C->unk54) {
         actorDespawn(D_807FBB40);
         func_80663BE8(D_807FBB40);
         return;
     }
-    if (!(M5_A2F10_ACTOR->unk11C->unk58 == sub->unk8 && actorIsActive((Actor *) sub->unk0)
+    if (!(sub->unk8 == M5_A2F10_ACTOR->unk11C->unk58 && actorIsActive((Actor *) sub->unk0)
           && (((M5_A2F10Target *) sub->unk0)->unk68 & 0x80))) {
         actorDespawn(D_807FBB40);
         func_80663BE8(D_807FBB40);
@@ -665,14 +722,16 @@ void func_806A0B74(void) {
         guMtxF2L(mtx3, dst);
         dst++;
     }
-    guMtxXFMF(mtx1, M5_A2F10_ACTOR->unk7C, M5_A2F10_ACTOR->unk80, M5_A2F10_ACTOR->unk84, &sp58, &sp54, &sp50);
-    guMtxXFMF(mtx2, sp58, sp54, sp50, &M5_A2F10_ACTOR->unk7C, &M5_A2F10_ACTOR->unk80, &M5_A2F10_ACTOR->unk84);
+    {
+        f32 sp58;
+        f32 sp54;
+        f32 sp50;
+
+        guMtxXFMF(mtx1, M5_A2F10_ACTOR->unk7C, M5_A2F10_ACTOR->unk80, M5_A2F10_ACTOR->unk84, &sp58, &sp54, &sp50);
+        guMtxXFMF(mtx2, sp58, sp54, sp50, &M5_A2F10_ACTOR->unk7C, &M5_A2F10_ACTOR->unk80, &M5_A2F10_ACTOR->unk84);
+    }
 }
 
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_806A0B74.s")
-#endif
 
 void animSetLoopLimit(void *, s32, s32);
 void animSetFinished(void *, s32, s32);
