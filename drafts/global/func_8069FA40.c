@@ -1,4 +1,4 @@
-// func_8069FA40 (src/global/A2F10.c): stage 2: full structure from m2c+asm; frame 0x108 vs 0x100 (8B extra), locals shifted +8; needs 2 f64 temps to fill 0x2C..0x64 gap; sp2C=(s16)sp65 via word store+lh
+// func_8069FA40 (src/global/A2F10.c): stage 2/3: single f64 local gives frame 0x100 and every stack offset identical to the target except one anonymous f32 temp at 0x38 (target 0x2C, shares that slot with a spilled s32) and the s32 label copy is copy-propagated away (target keeps it: sw a2C + lh a2E); code order otherwise identical
 typedef struct M4ActorTail {
     /* 0x000 */ u8 pad0[0x60];
     /* 0x060 */ u32 unk60;
@@ -16,10 +16,10 @@ typedef struct M4ActorTail {
     /* 0x15F */ u8 unk15F;
     /* 0x160 */ f64 unk160;
 } M4ActorTail;
-
 extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
 extern Gfx D_1000118;
+#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
+
 extern char *D_80750338[];
 Gfx *func_8070068C(Gfx *);
 void *_sprintf(char *, const char *, ...);
@@ -27,12 +27,6 @@ void *func_80610FE8(s32);
 void heapFreeDeferred(void *);
 s16 func_806FBD5C(u8, char *);
 Gfx *func_806FC530(Gfx *, s32, s16, s16, s32, s32);
-#define WRITE_GFX(pkt, _w0, _w1)                                               \
-    {                                                                          \
-        Gfx *_g = (Gfx *)(pkt);                                                \
-        _g->words.w0 = (_w0);                                                  \
-        _g->words.w1 = (_w1);                                                  \
-    }
 
 void func_8069FA40(Gfx *arg0, Actor *arg1) {
     f32 spFC;
@@ -44,14 +38,11 @@ void func_8069FA40(Gfx *arg0, Actor *arg1) {
     u8 sp65;
     u8 sp64;
     s32 sp2C;
-    f64 timer;
     f64 scale;
 
-    timer = (f64)((M4ActorTail *)arg1)->unkE0 - 2.0;
-    if (timer < 0.01) {
+    scale = (f64)((M4ActorTail *)arg1)->unkE0 - 2.0;
+    if (scale < 0.01) {
         scale = 0.01;
-    } else {
-        scale = timer;
     }
     sp64 = 0;
     spFC = (f32)(scale * 0.3);

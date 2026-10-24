@@ -67,9 +67,11 @@ void func_806319C4(void *, s32);
 
 void func_8069E210(void) {
     Actor *actor;
+    Actor **p;
     s16 i;
 
     actor = D_807FBB40;
+    p = &D_807FBB40;
     if (!(actor->unk60 & 0x10)) {
         actor->unk60 &= ~4;
         func_80613C48(D_807FBB40, 0x407, 0.0f, 0.0f);
@@ -106,7 +108,7 @@ void func_8069E210(void) {
     }
     if (0.0f == ((M4Sub4Inner *)((M4Sub4 *)actor->unk4)->unk0)->unk24) {
         actor->unk60 &= ~4;
-        actor = D_807FBB40;
+        actor = *p;
     }
     func_806319C4(actor, 0);
 }
@@ -149,13 +151,8 @@ void func_8069E5B8(void) {
     }
 }
 
-#ifdef NON_MATCHING
-s32 func_8069E660(Actor *arg0, f32 arg1, f32 arg2) {
-    f32 dx;
-    f32 dz;
-
-    dx = arg0->unk80 - 8.0f;
-    return dx <= D_807FBB40->unk80 &&
+int func_8069E660(Actor *arg0, f32 arg1, f32 arg2) {
+    return arg0->unk80 - 8.0f <= D_807FBB40->unk80 &&
            D_807FBB40->unk80 < arg0->unk80 + arg1 &&
            arg2 > (arg0->unk7C - D_807FBB40->unk7C) *
                       (arg0->unk7C - D_807FBB40->unk7C) +
@@ -163,10 +160,6 @@ s32 func_8069E660(Actor *arg0, f32 arg1, f32 arg2) {
                       (arg0->unk84 - D_807FBB40->unk84) &&
            arg0->unk144 != 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_8069E660.s")
-#endif
 
 s32 func_8069E724(s32 arg0) {
     switch (arg0 - 2) {
