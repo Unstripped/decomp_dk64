@@ -734,7 +734,6 @@ f32 func_80612E40(f32);
 s32 func_806C8DE0(s32);
 s32 func_806F6E58(s32);
 s32 func_806FA7A4(s32);
-s32 func_8073110C(s16, s32);
 s32 func_807319D8(s32, s32, s32);
 s32 func_80731A04(s32, s32, s32, s32);
 void func_806AB4EC(ACDC0HudEntry *, s32, s32, s32, f32, u8, s32);
@@ -1175,11 +1174,13 @@ Gfx *func_806ABB98(Gfx *dl, s16 arg1, s16 arg2, f32 scale, void *arg4) {
 }
 
 #ifdef NON_MATCHING
+extern s8 D_807FC7F9;
+
 s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
     s32 dir;
+    s32 new_var;
     s32 idx;
     s32 v;
-    s32 cur;
     s32 d;
     s32 idx2;
 
@@ -1192,8 +1193,7 @@ s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
         }
         if (dir != 0) {
             idx = arg0->unk15;
-            cur = arg0->unk8[idx];
-            v = cur + dir;
+            v = arg0->unk8[idx] + dir;
             if (dir) {
             }
             if (v < 0) {
@@ -1202,7 +1202,7 @@ s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
             if (D_807505D0 < v) {
                 v = 0;
             }
-            if (v != cur) {
+            if (v != arg0->unk8[idx]) {
                 arg0->unk15 = 1 - idx;
                 arg0->unk8[arg0->unk15] = v;
                 arg0->unkC[arg0->unk15] = dir * 0xFA;
@@ -1223,10 +1223,11 @@ s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
         arg0->unkC[0] -= d;
         arg0->unkC[1] -= d;
         if (arg0->unkC[idx2] == 0) {
-            arg0->unk8[1 - idx2] = arg0->unk8[idx2];
+            new_var = 1 - idx2;
+            arg0->unk8[new_var] = arg0->unk8[idx2];
             d = arg0->unk15;
             arg1 = 0;
-            D_807FC7F8[1 - d] = 0;
+            (&D_807FC7F9)[-d] = 0;
             func_80609140(0x97, 0x4650, 63.0f, 1.0f, 0, 0);
             D_8075052C = 3;
         }
@@ -1242,24 +1243,17 @@ s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
 void func_806ABE3C(void) {
     s16 *p;
     s16 *p0;
-    s16 *q;
     ACDC0CountEntry *e;
     s32 n;
     s32 i;
-    u8 *u;
     s32 k;
     s32 m;
 
-    p0 = (s16 *)((u8 *)&D_807FC82A - 2);
-    do {
+    p0 = (s16 *)((u8 *)&D_807FC82A - 2); do {
         *p0++ = 0;
     } while (p0 < (s16 *)((u8 *)&D_807FC82A + 10));
     n = 0;
-    e = D_807FC950;
-    k = 0;
-    do {
-        n += e->unk42[0];
-        n += e->unk42[1];
+    e = D_807FC950; k = 0; do { n += e->unk42[0]; n += e->unk42[1];
         for (i = 2; i < 14; i++) {
             n += D_807FC950[k].unk42[i];
         }
@@ -1268,8 +1262,7 @@ void func_806ABE3C(void) {
     } while (e < D_807FCB26);
     D_807FC828 = n;
     n = 0;
-    p = D_80744710;
-    do {
+    p = D_80744710; do {
         if (func_8073110C(*p, 0) != 0) {
             n++;
         }
@@ -1279,8 +1272,7 @@ void func_806ABE3C(void) {
     D_807FC832 = func_80731AA8(0x24D, 0x14, 0);
     D_807FC82E = func_80731AA8(0x225, 0x28, 0);
     m = 0;
-    p = D_807505B8;
-    do {
+    p = D_807505B8; do {
         if (*p >= 0 && func_8073110C(*p, 0) != 0) {
             m++;
         }

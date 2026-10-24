@@ -1,4 +1,4 @@
-// func_806ABE3C (src/global/ACDC0.c): R2ACDC0: text diff only a1/a2 swap in sum-loop init (original: e=a1 init, IV copy move a2,a1; mine reversed) and s1/s2 addiu order in loops 1-3 (original end-first); loop1 uses D_807FC82A-2/+10 casts (reloc symbol differs, same address); sum loop uses D_807FC950[k] inner + e pointer cond, separate m counter for loop 3 fixes move s0,zero placement
+// func_806ABE3C (src/global/ACDC0.c): R3ACDC0 stage 6: text identical except sum-loop init direction (orig addiu a1,t6 / move a2,a1; mine addiu a2,t6 / move a1,a2) and reloc names (orig splat D_807FC828/D_807FC836/D_80750535; start/end via D_807FC82A -/+ because using D_807FC828/D_807FC836 directly shares the address into t0/s3). KEY QUIRK: init and 'do {' on ONE source line (p = X; do {) fixes the lui/addiu emission order of the loops; also 'e = D_807FC950; k = 0; do { n += ...' on one line.
 typedef struct ACDC0CountEntry {
     /* 0x00 */ u8 pad0[0x42];
     /* 0x42 */ u16 unk42[14];
@@ -28,24 +28,17 @@ s32 func_80731AA8(s32, s32, s32);
 void func_806ABE3C(void) {
     s16 *p;
     s16 *p0;
-    s16 *q;
     ACDC0CountEntry *e;
     s32 n;
     s32 i;
-    u8 *u;
     s32 k;
     s32 m;
 
-    p0 = (s16 *)((u8 *)&D_807FC82A - 2);
-    do {
+    p0 = (s16 *)((u8 *)&D_807FC82A - 2); do {
         *p0++ = 0;
     } while (p0 < (s16 *)((u8 *)&D_807FC82A + 10));
     n = 0;
-    e = D_807FC950;
-    k = 0;
-    do {
-        n += e->unk42[0];
-        n += e->unk42[1];
+    e = D_807FC950; k = 0; do { n += e->unk42[0]; n += e->unk42[1];
         for (i = 2; i < 14; i++) {
             n += D_807FC950[k].unk42[i];
         }
@@ -54,8 +47,7 @@ void func_806ABE3C(void) {
     } while (e < D_807FCB26);
     D_807FC828 = n;
     n = 0;
-    p = D_80744710;
-    do {
+    p = D_80744710; do {
         if (func_8073110C(*p, 0) != 0) {
             n++;
         }
@@ -65,8 +57,7 @@ void func_806ABE3C(void) {
     D_807FC832 = func_80731AA8(0x24D, 0x14, 0);
     D_807FC82E = func_80731AA8(0x225, 0x28, 0);
     m = 0;
-    p = D_807505B8;
-    do {
+    p = D_807505B8; do {
         if (*p >= 0 && func_8073110C(*p, 0) != 0) {
             m++;
         }
