@@ -71,7 +71,6 @@ void sfxPlayActorSound(M4Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxPlayFromActorWithAltitudeCheck(M4Actor *, s16, u8, s16, u8);
 void sfxStopSlotSound(M4Actor *, u8);
 
-#ifdef NON_MATCHING
 void func_806B1F50(void) {
     u8 sp37;
 
@@ -161,10 +160,6 @@ void func_806B1F50(void) {
     }
     func_806319C4((M4Actor *)*(s32 *)&D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B6C50/func_806B1F50.s")
-#endif
 
 extern M4Actor *D_807FBB4C;
 extern s32 D_80720340;
