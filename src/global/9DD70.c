@@ -267,6 +267,8 @@ extern ActorGlobalState D_807FBB70;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069A750.s")
 
+Mtx *func_80610FE8(s32);
+
 #ifdef NON_MATCHING
 /* Behaviourally equivalent, same blocks/frame/saved regs; remaining diff is FP
    temporary allocation (and one insn): 235 vs 236 insns. */
@@ -312,7 +314,6 @@ typedef struct {
     M1ProximityNode *nodes[4];
 } M1ProximityGlobal;
 
-Mtx *func_80610FE8(s32);
 f32 func_80612D1C(f32);
 void func_806319C4(Actor *, s32);
 
@@ -439,7 +440,6 @@ s32 func_8069B85C(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069B908.s")
 
-#ifdef NON_MATCHING
 typedef struct M2_CamState {
     u8 pad0[0x210];
     f32 unk210;
@@ -449,6 +449,7 @@ typedef struct M2_CamState {
 
 void func_8069CD9C(void) {
     f32 frac;
+    f32 dzTmp;
     f32 dx;
     f32 dz;
     f32 dy;
@@ -466,8 +467,11 @@ void func_8069CD9C(void) {
         D_807FBB40->unk12C[5] = val;
         D_807FBB40->unk12A = 0x2BC;
     }
+    /* dz is computed before dx into a temp: this is what makes IDO emit the
+       target's dx, dz, dy float load/sub scheduling (dx, dy, dz otherwise). */
+    dzTmp = D_807FBB40->unk84 - ((M2_CamState *)D_807FC924)->unk218;
     dx = D_807FBB40->unk7C - ((M2_CamState *)D_807FC924)->unk210;
-    dz = D_807FBB40->unk84 - ((M2_CamState *)D_807FC924)->unk218;
+    dz = dzTmp;
     dy = D_807FBB40->unk80 - ((M2_CamState *)D_807FC924)->unk214;
     dist = dx * dx + dy * dy;
     if (dz * dz + dist < 18000.0) {
@@ -477,10 +481,6 @@ void func_8069CD9C(void) {
     }
     func_8069B908();
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069CD9C.s")
-#endif
 
 void func_8069CF54(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -528,9 +528,6 @@ void func_8069D0D8(void) {
     func_8069B908();
 }
 
-Mtx *func_80610FE8(s32);
-
-#ifdef NON_MATCHING
 typedef struct M2_Sub {
     void *unk0;
     u16 unk4;
@@ -552,10 +549,9 @@ void func_8069D0F8(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, u8
     if (actorSpawn(0xE8, 0) != 0) {
         sub = D_807FBB44->unk174;
         if (arg0 & 0x80) {
-            f32 f = (f32)arg2;
-            sub->unkA = func_806FDB8C((s16)(arg0 & 0xFF7F), arg3, 2, 160.0f, f, 0.0f);
+            sub->unkA = func_806FDB8C((s16)(arg0 & 0xFF7F), arg3, 2, 160.0f, (f32)arg2, 0.0f);
             *(s16 *)((u8 *)D_807FBB44 + 0xEE) = 1;
-            D_807FBB44->unk80 = f;
+            D_807FBB44->unk80 = (f32)arg2;
             return;
         }
         if (arg1 == 0) {
@@ -569,7 +565,7 @@ void func_8069D0F8(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, u8
         D_807FBB44->unk16B = 0xFF;
         D_807FBB44->unk16C = 0xFF;
         len = strlen((char *)arg3) + 1;
-        sub->unk0 = func_80610FE8(len);
+        sub->unk0 = (void *)func_80610FE8(len);
         _strcpy((char *)sub->unk0, (char *)arg3);
         sub->unk4 = arg4;
         sub->unk6 = arg5;
@@ -577,10 +573,6 @@ void func_8069D0F8(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, u8
         sub->unk9 = arg7;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069D0F8.s")
-#endif
 
 extern u8 D_807FC928;
 s32 func_80714450();
