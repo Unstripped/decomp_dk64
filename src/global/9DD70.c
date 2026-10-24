@@ -1,35 +1,268 @@
 #include "common.h"
 #include "actor.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_80699070.s")
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+f32 func_80611BB4(f32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_80699128.s")
+void func_80699070(s16 *arg0, s16 *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+    f32 dx;
+    f32 dz;
+
+    *arg1 = mathAngleBetweenPoints2D(arg2, arg4, arg5, arg7);
+    dx = arg5 - arg2;
+    dz = arg7 - arg4;
+    *arg0 = (s16)(s32)(((f64)func_80611BB4(arg6 - arg3, sqrtf((dx * dx) + (dz * dz))) * 2048.0) / 3.1415927410125732);
+}
+
+#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
+
+extern u8 D_807444FC;
+extern s32 D_807FC924;
+extern u8 D_807FC929;
+extern Gfx D_2000180;
+Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
+Gfx *func_80614B34(Gfx *, Actor *);
+
+void func_80699128(Gfx *arg0, Actor *arg1) {
+    WRITE_GFX(arg0++, 0xDA380007, osVirtualToPhysical((void *)((u8 *)D_807FC924 + (D_807FC929 * 0x2F0) + (D_807444FC << 6) + 0x88)));
+    WRITE_GFX(arg0++, 0xDA380005, osVirtualToPhysical((void *)((u8 *)D_807FC924 + (D_807FC929 * 0x2F0) + (D_807444FC << 6) + 8)));
+    WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
+    WRITE_GFX(arg0++, 0xE7000000, 0);
+    WRITE_GFX(arg0++, 0xD9FDFFFF, 0);
+    WRITE_GFX(arg0++, 0xFA0000FF, 0xFFFFFFFF);
+    func_80614B34(renderSetSegment6AndFog(arg0, arg1->unk128, 1), arg1);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_80699284.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_806998C8.s")
+void func_80699284(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_806998F0.s")
+void func_806998C8(void) {
+    func_80699284();
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_80699914.s")
+/* Empty stub: the 8 bytes after func_806998C8 (a bare `jr ra; nop`) are a second
+   function that splat merged into func_806998C8 for lack of a symbol. */
+void func_806998E8(void) {
+}
+
+void func_80699958(s32, s32);
+
+void func_806998F0(void) {
+    func_80699958(8, 0);
+}
+
+extern Actor *D_807FBB40;
+
+void func_80699914(void) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unk12A = 0x3E8;
+    }
+    func_80699958(0x1C, 1);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_80699958.s")
 
+#ifdef NON_MATCHING
+/* Behaviourally equivalent: the original also stores the incoming a1 to its
+   home slot (4(sp)) at entry; that store is never read. 79 vs 78 insns. */
+typedef struct {
+    u8 pad0[0x98];
+    f32 unk98[4];
+    f32 unkA8[4];
+    u8 unkB8[4];
+} M1ActorSlots;
+
+void func_8069A614(f32 arg0, s32 arg1) {
+    M1ActorSlots *slots = (M1ActorSlots *)D_807FBB40->unk174;
+    s16 i;
+    s32 found;
+    f64 temp;
+
+    arg1 &= 0xFF;
+    found = 0;
+    i = 0;
+    do {
+        if (slots->unkB8[i] == 0) {
+            found = 1;
+        } else {
+            i++;
+        }
+    } while (i < 4 && found == 0);
+    if (found != 0) {
+        slots->unkB8[i] = 1;
+        switch (arg1) {
+        case 0:
+            slots->unkA8[i] = 10.0f;
+            temp = (f64)arg0 / 843.0;
+            if (temp > 0.0) {
+                slots->unk98[i] = (f32)temp;
+                return;
+            }
+            slots->unk98[i] = (f32)-temp;
+            return;
+        case 1:
+            slots->unkA8[i] = 12.0f;
+            temp = (f64)arg0 / 480.0;
+            if (temp > 0.0) {
+                slots->unk98[i] = (f32)temp;
+                return;
+            }
+            slots->unk98[i] = (f32)-temp;
+            break;
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069A614.s")
+#endif
+
+extern ActorGlobalState D_807FBB70;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069A750.s")
 
+#ifdef NON_MATCHING
+/* Behaviourally equivalent, same blocks/frame/saved regs; remaining diff is FP
+   temporary allocation (and one insn): 235 vs 236 insns. */
+typedef struct {
+    u8 unk0;
+    u8 unk1;
+    u8 pad2[2];
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    u8 unk10;
+    u8 pad11[3];
+} M1Sub4Node;
+
+typedef struct {
+    u8 pad0[0x24];
+    M1Sub4Node *unk24;
+} M1Sub4;
+
+typedef struct {
+    f32 unk0;
+    u8 unk4;
+    u8 pad5[3];
+    f32 unk8;
+    s32 unkC;
+} M1ProximityState;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+} M1ProximityEntry;
+
+typedef struct {
+    u8 pad0[0xB8];
+    f32 unkB8;
+} M1ProximityNode;
+
+typedef struct {
+    u8 pad0[0x3C];
+    M1ProximityEntry entries[4];
+    u8 pad6C[0x10];
+    M1ProximityNode *nodes[4];
+} M1ProximityGlobal;
+
+s32 func_80610FE8(s32);
+f32 func_80612D1C(f32);
+void func_806319C4(Actor *, s32);
+
+void func_8069A7C8(void) {
+    M1ProximityGlobal *globals;
+    M1ProximityState *state;
+    f32 acc;
+    f32 dist;
+    f32 limit;
+    f32 value;
+    s32 flags;
+    s32 i;
+
+    flags = D_807FBB40->unk60;
+    acc = 0.0f;
+    state = (M1ProximityState *)D_807FBB40->unk174;
+    if (!(flags & 0x10)) {
+        D_807FBB40->unk60 = flags | 0x400;
+        ((M1Sub4 *)D_807FBB40->unk4)->unk24 = (M1Sub4Node *)func_80610FE8(0x20);
+        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk0 = 1;
+        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk1 = 0xFF;
+        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk4 = 0.0f;
+        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unkC = 0.0f;
+        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk8 = 0.0f;
+        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk10 = 0xFF;
+        D_807FBB40->unk12A = 0x3E8;
+        state->unk4 = 0;
+        state->unkC = 0;
+        state->unk0 = 0.0f;
+        state->unk8 = 0.0f;
+    }
+    globals = (M1ProximityGlobal *)&D_807FBB70;
+    i = 0;
+    if ((s32)D_807FBB70.unk39 > 0) {
+        do {
+            dist = sqrtf((globals->entries[i].unk8 * globals->entries[i].unk8) + (globals->entries[i].unk0 * globals->entries[i].unk0));
+            if (dist > 1347.0f) {
+                dist = 1347.0f;
+            }
+            acc += 1347.0f - dist;
+            value = (f32)((f64)globals->nodes[i]->unkB8 * 0.1);
+            if (state->unk8 < value) {
+                state->unk8 = value;
+            }
+            i++;
+        } while (i < (s32)D_807FBB70.unk39);
+    }
+    if (acc > 1347.0f) {
+        acc = 1347.0f;
+    }
+    limit = (f32)((f64)acc / 10.0);
+    if (state->unk0 < limit) {
+        state->unk0 = (f32)((f64)state->unk0 + ((f64)(limit - state->unk0) * 0.25));
+        if (limit < state->unk0) {
+            state->unk0 = limit;
+        }
+    }
+    if (limit < state->unk0) {
+        state->unk0 = (f32)((f64)state->unk0 - ((f64)(state->unk0 - limit) * 0.5));
+        if (state->unk0 < limit) {
+            state->unk0 = limit;
+        }
+    }
+    state->unkC++;
+    if ((f64)state->unk8 == 0.0) {
+        state->unkC = 0;
+    }
+    if (D_807FBB70.unk39 != state->unk4) {
+        state->unk8 = 12.0f;
+    }
+    state->unk8 = (f32)((f64)state->unk8 - ((f64)state->unk8 / 40.0));
+    if ((f64)state->unk8 < 0.5) {
+        state->unk8 = 0.0f;
+    }
+    ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk8 = (f32)(0.0 - ((f64)(func_80612D1C((f32)((f64)state->unkC * 0.5)) * state->unk8) + state->unk0));
+    state->unk4 = D_807FBB70.unk39;
+    func_806319C4(D_807FBB40, 0);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069A7C8.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069AB74.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069AFF0.s")
+void func_8069AB74(void);
+
+void func_8069AFF0(void) {
+    func_8069AB74();
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069B010.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069B3FC.s")
 
-extern Actor *D_807FBB40;
 extern s32 D_8076A068;
 extern s16 D_80744490;
 s32 actorTableContains();
