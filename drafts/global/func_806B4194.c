@@ -1,4 +1,4 @@
-// func_806B4194 (src/global/B7490.c): R2B7490 stage 5: u8 c[4]/c[2] + f32 f + u32 var_v0, switch order 2,1,0,default; callee proto func_807149C8(s32,s32,s32,u8) with c[2]&0xFF gives target 'andi a2,a0,0xff'. Remaining ~19 rows: target ends chain with bnel v0,2,default (dead default 'move v0,zero' stub kept after case 0) whereas mine emits beql v0,2 + b (default stub in delay slot); li a0 vs t8/t9 temps for c[2] stores in cases 1/0; lui t8 vs t0 for D_8076A064. default position/case order permutations have no effect.
+// func_806B4194 (src/global/B7490.c): R2B7490 stage 6 (14 rows, all reg naming): u8 c[4]/c[2] + f32 f + u32 var_v0, cases 2,1,0, 'default: var_v0 = 0;' WITHOUT trailing break (fixes the bnel/dead default stub layout), callee proto func_807149C8(s32,s32,s32,u8) with c[2]&0xFF gives 'andi a2,a0,0xff'. Remaining: D_8076A064 hi in t0 (uopt candidate) vs target ugen t8; case 1/0 c[2] const temp t8/t9 vs target a0 (uopt candidate 33 = (u8)c2 gets a0 in target for cases 1/0 only).
 void func_807149C8(s32, s32, s32, u8);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
@@ -25,7 +25,6 @@ void func_806B4194(void) {
             break;
         default:
             var_v0 = 0;
-            break;
     }
     if ((var_v0 != 0) && ((D_8076A064 % var_v0) == 0)) {
         func_80714998(3);

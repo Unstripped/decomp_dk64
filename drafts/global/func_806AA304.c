@@ -1,4 +1,4 @@
-// func_806AA304 (src/global/ACDC0.c): stage 3-4: size equal; remaining: prologue schedule, case2 q-loop regalloc (q->s0, cnt s8 v1), sum/found-zero loop
+// func_806AA304 (src/global/ACDC0.c): same size, ~35 diff lines (k-loop slti/bne, sum addu order, spill slots, s0 &D_807210EC CSE, case3 tail sched)
 typedef struct {
     /* 0x00 */ u8 pad0[2];
     /* 0x02 */ u8 unk2;
@@ -46,6 +46,7 @@ extern s8 D_807FC818[];
 extern s16 D_807FC828[];
 extern s16 D_807FC82A;
 extern s16 D_807FC82E;
+extern s16 D_807FC838;
 extern s16 D_807FC83A;
 extern s8 D_807FC83C;
 extern u16 D_807FCC40;
@@ -88,9 +89,9 @@ void func_806AA304(L9Hud *arg0, s32 arg1) {
     L9HudEntry *ent;
     s32 j;
     s32 i;
-    s32 k;
     s8 cnt8;
     s16 xs;
+    s8 *fp;
     s32 sum;
     s32 sum3;
     s32 cnt;
@@ -162,14 +163,14 @@ void func_806AA304(L9Hud *arg0, s32 arg1) {
         if (idx != 7) {
             i = idx;
             if (idx != 8) {
-                func_806AB808(arg0, 0x1E, 0x2A, 0xC, -0xA, ent->unk26[idx] + ent->unkA[idx], 2, 0);
+                func_806AB808(arg0, 0x1E, 0x2A, 0xC, -0xA, ent->unkA[idx] + ent->unk26[idx], 2, 0);
                 func_806AB4EC(arg0, (void *)0, 0x1E, 0x2A, 0.75f, 2, 2);
             } else {
                 i = 7;
             }
             if (D_807FC82E > 0) {
                 if (idx != 8) {
-                    D_807FC80F = (L9ENT(D_8074E77C)->unk26[idx] + L9ENT(D_8074E77C)->unkA[idx]) >= 0x4B;
+                    D_807FC80F = (L9ENT(D_8074E77C)->unkA[idx] + L9ENT(D_8074E77C)->unk26[idx]) >= 0x4B;
                 } else {
                     D_807FC80F = func_80731A04(0x225, i, i, D_8074E77C);
                 }
@@ -180,8 +181,7 @@ void func_806AA304(L9Hud *arg0, s32 arg1) {
             }
         }
         if (arg1 == 0) {
-            i = 0;
-            do {
+            for (i = 0; i < 5; i++) {
                 void *s;
                 if (D_80750530[i]) {
                     s = D_80750518[i];
@@ -190,14 +190,13 @@ void func_806AA304(L9Hud *arg0, s32 arg1) {
                 }
                 func_806AB4EC(arg0, s, i, i, 0.75f, 2, 0xA);
                 func_806AB4EC(arg0, s, i + 5, i + 5, 0.75f, 2, 0xA);
-                i++;
-            } while (i != 5);
+            }
         }
         if (idx != 8) {
             func_806AB4EC(arg0, (void *)9, 0x91, 0xCB, 1.0f, 2, 2);
             sum = 0;
-            for (k = 0; k < 5; k++) {
-                if (func_80731A04(0x1D5, 0, 7, k)) {
+            for (i = 0; i < 5; i++) {
+                if (func_80731A04(0x1D5, 0, 7, i)) {
                     sum = 1;
                 }
             }
@@ -222,16 +221,16 @@ void func_806AA304(L9Hud *arg0, s32 arg1) {
         sum = 0;
         sum3 = 0;
         for (i = 0; i < 5; i++) {
-            sum = sum + L9ENT(i)->unkA[idx] + L9ENT(i)->unk26[idx];
+            sum = sum + L9ENT(i)->unk26[idx] + L9ENT(i)->unkA[idx];
             sum3 += L9ENT(i)->unk42[idx];
         }
+        cnt8 = 0;
         for (i = 0; i < 4; i++) {
             found[i] = 0;
         }
-        cnt8 = 0;
-        for (q = D_80755DA8; q->unk0 != 0xFF; q++) {
-            if (idx == func_805FF030(q->unk0, 1)) {
-                xs = q->unk4;
+        for (i = 0; D_80755DA8[i].unk0 != 0xFF; i++) {
+            if (func_805FF030(D_80755DA8[i].unk0, 1) == idx) {
+                xs = D_80755DA8[i].unk4;
                 if (xs >= 0x24D && xs < 0x261 && cnt8 < 4) {
                     found[cnt8] = func_8073110C(xs, 0);
                     cnt8++;
@@ -249,7 +248,7 @@ void func_806AA304(L9Hud *arg0, s32 arg1) {
             i = 0;
             do {
                 if (idx != 8) {
-                    D_807FC80F = (L9ENT(i)->unk26[idx] + L9ENT(i)->unkA[idx]) >= 0x4B;
+                    D_807FC80F = (L9ENT(i)->unkA[idx] + L9ENT(i)->unk26[idx]) >= 0x4B;
                 } else {
                     D_807FC80F = func_80731A04(0x225, j, j, i);
                 }
@@ -296,17 +295,20 @@ void func_806AA304(L9Hud *arg0, s32 arg1) {
         }
         break;
     case 3:
+        p = D_807FC828;
         D_807FC83C = 0;
-        for (i = 0; i < 8; i++) {
-            if (D_807FC828[i] > 0) {
+        do {
+            if (*p > 0) {
                 D_807FC83C++;
             }
-        }
+            p++;
+        } while (p < &D_807FC838);
         D_807FC83A = 0x1000 / D_807FC83C;
         x = 0;
         cnt = 0;
-        for (i = 0; i < 8; i++) {
-            if (D_807FC828[i] > 0) {
+        p = D_807FC828;
+        for (i = 0; i < 8; i++, p++) {
+            if (*p > 0) {
                 if (i != 5) {
                     f = 0.75f;
                     flag = 5;
