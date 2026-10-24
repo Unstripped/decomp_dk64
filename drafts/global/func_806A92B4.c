@@ -1,19 +1,4 @@
-// func_806A92B4 (src/global/ACDC0.c): stage 4: frame 0x1a0 + callee-saved set match, C believed equivalent; text 80B short (20816 vs 20896). Open: tab/list/ret should be uncolored (stack) as in target, const 2 hoisted in s8 + x/y in s0/s1 + 0xFA000000 in s5 + 0.75f in f28; *0x69 must be shifts (no hoisted const); target a2 narrowing of func_806ABB98/806FC530 comes from s16 params (see unified decls). 0.65 call arg must be double literal 0.65 (lui/ori) to avoid CSE with rodata 0.65f. Permuter 600s from stage 4: no useful result (score 28k).
-Gfx *func_806A921C(Gfx *);
-Gfx *func_806ABB98(Gfx *, s32, s32, f32, char *);
-Gfx *func_806FC530(Gfx *, s32, s32, s32, char *, s32);
-s32 _sprintf(char *, const char *, ...);
-extern char **D_807FC7E0;
-void heapFreeDeferred(void *);
-void *func_80610FE8(s32);
-s32 func_805FF030(u8, s32);
-s32 func_80712628(void);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
-Gfx *func_806AA09C(s32, s16, s16, s32, Gfx *, s32, f32);
-Gfx *func_806ABA6C(Gfx *, void *, s16);
-
+// func_806A92B4 (src/global/ACDC0.c): stage 4 (frame 0x1a0, callee-saved set), unified decls; reg-blind insn match ~85% (890 vs 874 insns; text 16 insns short). Findings (apply with: tab = (ACDC0CountEntry *)((u8 *)D_807FC7F8 + 0x158) [same address, reloc-only diff] AND func_8068C5A8 4th param u8 in the top block): hoisted const 2 lands in s8 like the target, 'li a3,2' per call, no li s7,200 (shifts), const 0x140 stays unfolded via the y0 narrow var, stack slots hud/i/tab/ret/sp138 match (0x15c/0x158/0x144/0x140/0x138). Why: uopt keys hoisted constants by (symbol,offset): entry tab=&D_807FC950 and case 2 D_807FC950[j] shared one lda candidate that out-prioritised const 2 for s8; the original's entry constant is a different (sym,off). Still open: list should be on the stack (mine in s0), x/y vars should be s0/s1 (mine off=s2,y=s0), dl packets via _g temps (v0/v1) - adding any Gfx* temp (macro gDPSetPrimColor) spills dl to the stack (-ve save), fb should spill at 0xa8 not 0x108, loop-1 x/y expression scheduling. Permuter 600s on the earlier base: no useful result.
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -25,66 +10,44 @@ typedef struct {
     s8 unk14;
     u8 pad15[2];
     s8 unk17;
-} L8_Hud;
+} L8bHud;
 
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    s16 unkE;
-    s8 unk10;
-    char unk11[7];
-} L8_Item;
-
-typedef struct {
-    u8 pad0[0x42];
-    u16 unk42[8];
-    u8 pad52[0xC];
-} L8_Row;
-
-typedef struct {
-    u8 pad0[0x2FC];
-    u8 unk2FC;
-} L8_Tab;
-
-extern L8_Item *D_807FC7F0[];
-extern s8 D_807FC7F8[];
-extern L8_Tab D_807FC950;
+f32 func_80612790(s16);
+f32 func_80612794(s16);
+s32 func_805FF030(s32, s32);
+s32 func_80712628(void);
+Gfx *func_806AA09C(s16, s16, s16, s16, Gfx *, s8, f32);
+Gfx *func_806ABA6C(Gfx *, ACDC0HudEntry *, s32);
 extern s16 D_807FC992[];
 extern u8 D_807FCC4C;
 extern s8 D_807FCC4B;
 extern s32 D_8076A064;
 extern u8 D_8076A0AB;
-extern s8 D_807505CC;
 extern s8 D_80750538;
-extern s8 D_80750530[];
-extern s8 D_80750560[];
 extern s16 D_8075056C[];
 extern s8 D_807FC80C;
 extern s8 D_807FC818[];
-extern s16 D_807FC828[];
 extern f32 D_807FC840[];
 extern f32 D_807FC868[];
 extern f32 D_807FC890[];
 
 Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
     char buf[0x40];
-    L8_Hud *hud;
+    L8bHud *hud;
+    s16 j;
     s16 i;
-    L8_Tab *tab;
+    s32 y;
+    s32 off;
+    s32 t0;
+    ACDC0TextEntry *it;
+    ACDC0CountEntry *tab;
     Gfx *ret;
     Gfx *list;
     s32 sp138;
-    s16 j;
-    s32 x;
-    s32 y;
     s16 ang;
     s16 y0;
     s8 s2;
-    s32 off;
-    L8_Item *it;
+    s32 x; /* unused: reserves the frame slot the target has */
     f32 fa;
     f32 fb;
     f32 fc;
@@ -92,10 +55,9 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
     f32 fe;
     f32 ff;
     f32 fh;
-    s32 t0;
 
     hud = actor->unk174;
-    tab = &D_807FC950;
+    tab = D_807FC950;
     sp138 = func_805FF030(D_8076A0AB, 1);
     list = func_80610FE8(0x1F40);
     heapFreeDeferred(list);
@@ -107,25 +69,27 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
         if (it != 0) {
             for (j = 0; j < D_807FC7F8[i]; j++) {
                 fa = hud->unk0;
-                if (it[j].unk10 == 2) {
+                if ((s8)it[j].unk10 == 2) {
                     fa += hud->unk4;
                 }
-                x = it[j].unk8;
+                off = it[j].unk8;
                 y = it[j].unkA;
-                x = x * 4 + (s32)(fa * it[j].unk0);
+                off = off * 4 + (s32)(fa * it[j].unk0);
                 y = y * 4 + (s32)(fa * it[j].unk4);
-                x = x + it[j].unkC * 4;
+                off = off + it[j].unkC * 4;
                 y = y + it[j].unkE * 4 + hud->unkC[i] * 4;
-                dl = func_806FC530(dl, 1, (s16)x, (s16)y, it[j].unk11, 1);
+                dl = func_806FC530(dl, 1, (s16)off, (s16)y, it[j].unk11, 1);
             }
         }
     }
     switch (hud->unk12) {
         case 0:
             s2 = D_807FCC4B;
-            y0 = 0xA0 - (s32)((f32)0x140 * hud->unk0);
+            y0 = 0x140; /* narrow var: keeps (f32)0x140 unfolded */
+            y0 = 0xA0 - (s32)((f32)y0 * hud->unk0);
             j = 0;
             if (D_807FCC4C > 0) {
+                f32 fb;
                 fb = (f32)(u32)((D_807FCC4C * 0x34 - 0x34) & 0xFF);
                 do {
                     s32 off;
@@ -171,7 +135,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                         s2 = s2 - 4;
                     }
                     j++;
-                } while (j < tab->unk2FC);
+                } while (j < ((u8 *)tab)[0x2FC]);
             }
             gDPPipeSync(dl++);
             y = 0x198;
@@ -195,14 +159,14 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                         dl->words.w1 = ((ang >> 1) & 0xFF) | 0xFFFFFF00;
                         dl++;
                     }
-                    if (j == 2 && (sp138 == 7 || (sp138 == 8 && func_80712628() != 0 && D_807505CC == 0))) {
+                    if (j == 2 && (sp138 == 7 || (sp138 == 8 && func_80712628() != 0 && *(s8 *)D_807505CC == 0))) {
                         j++;
                     }
                     i = j;
-                    if (j == 1 && D_807505CC != 0) {
+                    if (j == 1 && *(s8 *)D_807505CC != 0) {
                         i = 4;
                     }
-                    if (i == 2 && D_807505CC != 0) {
+                    if (i == 2 && *(s8 *)D_807505CC != 0) {
                         i = 5;
                     }
                     dl = func_806ABB98(dl, 0x280, y, 0.7f, D_807FC7E0[i]);
@@ -245,7 +209,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                             D_807FC840[j + i * 5] = (f32)(s16)(y + 0x20) - fd;
                             D_807FC868[j + i * 5] = (f32)(s16)((s32)(fc - (f32)y0) + off) - fe;
                             D_807FC890[j + i * 5] = ff;
-                            if (D_80750530[j] != 0) {
+                            if (((s8 *)&D_80750530)[j] != 0) {
                                 D_807FC890[j + i * 5] = (f32)((f64)D_807FC890[j + i * 5] * 0.75);
                             }
                             j++;
@@ -253,7 +217,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                         } while (j < 5);
                         gDPPipeSync(dl++);
                     }
-                    dl = func_806ABA6C(dl, hud, i);
+                    dl = func_806ABA6C(dl, (ACDC0HudEntry *)hud, i);
                 }
                 j = hud->unk8[i];
                 if (j != 8) {
@@ -284,13 +248,13 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
             for (i = 0; i < 2; i++) {
                 off = hud->unkC[i] * 4;
                 if (off < 0x3B6 && off >= -0x3B5) {
-                    dl = func_806ABA6C(dl, hud, i);
+                    dl = func_806ABA6C(dl, (ACDC0HudEntry *)hud, i);
                 }
                 y = hud->unk8[i];
                 t0 = 0;
                 j = 0;
                 do {
-                    t0 += ((L8_Row *)&D_807FC950)[j].unk42[D_80750560[y]];
+                    t0 += D_807FC950[j].unk42[D_80750560[y]];
                     j++;
                 } while (j < 5);
                 if (y != 8) {
@@ -324,7 +288,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
             if (fc < 0.01f) {
                 fc = 0.01f;
             }
-            dl = func_806AA09C(0x280, 0x33C, D_807FC828[D_807FC818[D_807FC80C]], D_8075056C[D_807FC818[D_807FC80C]], dl, 1, fc);
+            dl = func_806AA09C(0x280, 0x33C, (&D_807FC828)[D_807FC818[D_807FC80C]], D_8075056C[D_807FC818[D_807FC80C]], dl, 1, fc);
             break;
     }
     dl->words.w0 = 0xDF000000;
