@@ -1,13 +1,190 @@
 #include "common.h"
 #include "actor.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806A80C0.s")
+typedef struct ACDC0TextEntry {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ u8 unk10;
+    /* 0x11 */ char unk11[7];
+} ACDC0TextEntry; // size = 0x18
+
+typedef struct ACDC0HudEntry {
+    /* 0x00 */ u8 pad0[8];
+    /* 0x08 */ s16 unk8[2];
+    /* 0x0C */ s16 unkC[2];
+    /* 0x10 */ u8 pad10[2];
+    /* 0x12 */ s8 unk12;
+    /* 0x13 */ u8 pad13;
+    /* 0x14 */ s8 unk14;
+    /* 0x15 */ s8 unk15;
+} ACDC0HudEntry;
+
+typedef struct ACDC0TextObj {
+    /* 0x000 */ u8 pad0[0x340];
+    /* 0x340 */ f32 unk340;
+    /* 0x344 */ f32 unk344;
+    /* 0x348 */ u8 pad348[0x18];
+    /* 0x360 */ f32 unk360;
+    /* 0x364 */ f32 unk364;
+    /* 0x368 */ u8 pad368[2];
+    /* 0x36A */ u8 unk36A;
+    /* 0x36B */ u8 unk36B;
+    /* 0x36C */ u8 unk36C;
+    /* 0x36D */ u8 pad36D[0x17];
+    /* 0x384 */ f32 *unk384;
+} ACDC0TextObj;
+
+typedef struct ACDC0CountEntry {
+    /* 0x00 */ u8 pad0[0x42];
+    /* 0x42 */ u16 unk42[14];
+} ACDC0CountEntry; // size = 0x5E
+
+typedef struct ACDC0Axis {
+    u8 pad0[3];
+    s8 unk3;
+} ACDC0Axis;
+
+typedef struct ACDC0Player {
+    u8 pad0[0x294];
+    ACDC0Axis *unk294;
+    u16 *unk298;
+    u8 pad29C[0x2F0 - 0x29C];
+} ACDC0Player;
+
+#define ACDC0_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
+
+extern Gfx D_1000118;
+extern Mtx D_2000180;
+extern Mtx D_20000C0;
+
+extern s8 D_80750560[9];
+extern ACDC0TextEntry *D_807FC7F0[2];
+extern s8 D_807FC7F8[2];
+extern u32 D_807FBB60;
+extern Actor *D_807FBB40;
+extern Actor *D_807FBB44;
+extern Actor *D_807FBB4C;
+extern char **D_807FC7E0;
+extern void **D_807FC7E8;
+extern s8 D_807FC80F;
+extern u8 D_807FC810;
+extern f32 D_807FC808;
+extern s8 D_8075052C;
+extern s8 D_807505D0;
+extern s16 D_807FC828;
+extern s16 D_807FC82A;
+extern s16 D_807FC82C;
+extern s16 D_807FC82E;
+extern s16 D_807FC830;
+extern s16 D_807FC832;
+extern s16 D_807FC834;
+extern s16 D_807FC836;
+extern s16 D_807FC838;
+extern ACDC0CountEntry D_807FC950[];
+extern ACDC0CountEntry D_807FCB26[];
+extern s16 D_80744710[];
+extern s16 D_80744720[];
+extern s16 D_807505B2[];
+extern s16 D_807505B8[];
+extern s16 D_807505CC[];
+extern u8 D_80750530;
+extern u8 D_80750531[];
+extern u16 D_807ECD58;
+extern s32 D_8076A0A8;
+extern u8 D_807505F8[];
+extern u8 D_807505F9[];
+extern s8 D_807FC80E;
+extern s8 D_807FC8B9;
+extern ACDC0Player *D_807FC924;
+extern s8 D_8076A105;
+
+void heapFree(void *);
+void heapFreeDeferred(void *);
+void *func_80610FE8(s32);
+s32 _sprintf(char *, const char *, ...);
+Gfx *func_806FC530(Gfx *, s32, s16, s32, void *, s32);
+s32 func_806FBD5C();
+Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *func_80703374(Gfx *, s32, s32, s32, s32);
+Gfx *func_806A921C(Gfx *);
+Gfx *func_806ABB98(Gfx *, s16, s16, f32, void *);
+void func_806AA304(ACDC0HudEntry *, s32, s32);
+void func_806AC07C();
+void func_80714998(u8);
+void func_8071495C(void);
+void func_807149FC(s32);
+void func_80714950(void *);
+void func_8071498C(void (*)());
+void func_80714A28(s32);
+ACDC0TextObj *func_80714CC0(s32, f32, f32, f32, f32);
+s32 func_806FACE8(s32);
+f32 func_806119FC(s32);
+f32 sqrtf(f32);
+void func_80609140(s32, s32, f32, f32, s32, s32);
+s32 func_8073110C(s16, s32);
+s32 func_80731AA8(s32, s32, s32);
+void actorSpawn(s32, s32);
+void actorDespawn(Actor *);
+char *func_8070E750(s32, s32, s32);
+void func_8061CC40(s32, s32, s32);
+void func_80724994(s32, s32, s32, s32, s32);
+void func_805FF378(s32, s32);
+void func_805FF544(void);
+void func_805FF898(void);
+void func_806291B4(s32);
+void func_80714638(void);
+void renderCallbacksRegister(void *, void *, s32);
+
+s32 func_806A80C0(s8 arg0) {
+    s32 i;
+
+    if (arg0 == D_80750560[0]) {
+        return 0;
+    }
+    for (i = 1; i < 9; i++) {
+        if (arg0 == D_80750560[i]) {
+            return i;
+        }
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806A8158.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806A9124.s")
+void func_806A9124(void) {
+    s32 i;
+    u8 *sub;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806A921C.s")
+    sub = D_807FBB4C->unk174;
+    D_807FBB60 |= 0x40;
+    if (!(*(s32 *)(sub + 0x1F0) & 0x20000000)) {
+        D_807FBB60 |= 0x10030;
+    }
+    heapFree(D_807FC7F0[0]);
+    D_807FC7F8[1] = D_807FC7F8[0] = (s32)(D_807FC7F0[1] = D_807FC7F0[0] = 0);
+    for (i = 0; i < 0x6C; i += 4) {
+        heapFreeDeferred(*(void **)((u8 *)D_807FC7E0 + i));
+    }
+    heapFreeDeferred(D_807FC7E0);
+    for (i = 0; i < 0x24; i += 4) {
+        heapFreeDeferred(*(void **)((u8 *)D_807FC7E8 + i));
+    }
+    heapFreeDeferred(D_807FC7E8);
+}
+
+Gfx *func_806A921C(Gfx *dl) {
+    ACDC0_WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
+    ACDC0_WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
+    ACDC0_WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
+    ACDC0_WRITE_GFX(dl++, 0xE7000000, 0);
+    ACDC0_WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
+    ACDC0_WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
+    return dl;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AA80.s")
 
@@ -39,32 +216,363 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806A92B4.s")
 
+#ifdef NON_MATCHING
+Gfx *func_806AA09C(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale) {
+    Mtx *mtx;
+    s32 w;
+    f32 m1[4][4];
+    f32 m2[4][4];
+    char buf1[8];
+    char buf2[8];
+
+    mtx = func_80610FE8(0x40);
+    heapFreeDeferred(mtx);
+    if (n1 >= 0x64) {
+        w = 0x7C;
+    } else if (n1 >= 10) {
+        w = 0x5C;
+    } else {
+        w = 0x3C;
+    }
+    if (flag != 0) {
+        x = (f32)x - (f32)w * scale;
+    }
+    guScaleF(m1, scale, scale, 1.0f);
+    guTranslateF(m2, x, y, 0.0f);
+    guMtxCatF(m1, m2, m1);
+    guMtxF2L(m1, mtx);
+    ACDC0_WRITE_GFX(dl++, 0xDA380002, (u32)mtx);
+    _sprintf(buf1, "%d", n1);
+    _sprintf(buf2, "%d", n2);
+    dl = func_806FC530(func_806FC530(dl, 1, 0, -0x28, buf1, 0x80), 1, w, 0x28, buf2, 0);
+    ACDC0_WRITE_GFX(dl++, 0xD8380002, 0x40);
+    ACDC0_WRITE_GFX(dl++, 0xE7000000, 0);
+    return func_8068C5A8(dl, 0x9F, 0, 2, 0x20, 0x20, (s32)((f32)x + (f32)(w - 0x10) * scale), (s32)((f32)y + 45.0f * scale), scale * 3.125, scale * 3.125, 0, 0.0f);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806AA09C.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806AA304.s")
 
+#ifdef NON_MATCHING
+void func_806AB4EC(ACDC0HudEntry *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, u8 arg5, s32 arg6) {
+    ACDC0TextObj *obj;
+    f32 *buf;
+    f32 dx;
+    f32 dy;
+    f32 len;
+    f32 fy;
+
+    func_80714998(arg5);
+    func_8071495C();
+    func_807149FC(-1);
+    func_80714950(arg0);
+    func_8071498C(func_806AC07C);
+    func_80714A28(0x101);
+    if (arg1 < 0) {
+        fy = arg2;
+        obj = func_80714CC0(arg1, arg4, fy, (f32)arg3, -10.0f);
+    } else {
+        fy = arg2;
+        obj = func_80714CC0(func_806FACE8(arg1), arg4, fy, (f32)arg3, -10.0f);
+    }
+    arg1 = 7;
+    if (arg6 == 6) {
+        arg1 = 10;
+    }
+    buf = func_80610FE8(arg1 * 4);
+    obj->unk384 = buf;
+    if (arg6 == 9) {
+        arg6 = 7;
+        obj->unk360 = -obj->unk360;
+    }
+    arg6 = arg6;
+    buf[0] = arg6;
+    buf[1] = arg0->unk15;
+    buf[2] = obj->unk340;
+    buf[3] = obj->unk344;
+    switch (arg6) {
+    case 1:
+    case 2:
+    case 7:
+    case 13:
+        dx = 640.0f - buf[2];
+        dy = 480.0f - buf[3];
+        len = sqrtf(dx * dx + dy * dy);
+        buf[4] = -(dx / len) * (1040.0f - len);
+        buf[5] = -(dy / len) * (1040.0f - len);
+        buf[6] = obj->unk364;
+        if (arg6 == 13) {
+            buf[0] = 2.0f;
+            obj->unk36C = 0;
+            obj->unk36B = 0;
+            obj->unk36A = 0xFF;
+        }
+        break;
+    case 6:
+        buf[4] = 0.0f;
+        buf[5] = 0.0f;
+        buf[6] = 0.0f;
+        buf[7] = 0.0f;
+        buf[8] = func_806119FC(arg6) * 4096.0f;
+        if (arg2 < 0xA0) {
+            obj->unk360 = -obj->unk360;
+        }
+        buf[9] = 0.0f;
+        break;
+    case 10:
+        buf[2] = fy;
+        break;
+    case 14:
+        buf[0] = 3.0f;
+        obj->unk36C = 0;
+        obj->unk36B = 0;
+        obj->unk36A = 0xFF;
+    default:
+        buf[4] = arg4;
+        buf[5] = 0.0f;
+        break;
+    }
+    if (D_807FC80F == 0) {
+        obj->unk36A = 0x64;
+        obj->unk36B = 0x64;
+        obj->unk36C = 0x64;
+    }
+    D_807FC80F = 1;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806AB4EC.s")
+#endif
+
+#ifdef NON_MATCHING
+void func_806AB808(ACDC0HudEntry *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s32 arg5, s32 arg6, s32 arg7) {
+    s32 pad;
+    s32 idx;
+    u8 *src;
+    u8 *dst;
+    s32 i;
+    f32 len;
+    ACDC0TextEntry *list;
+    s8 flag;
+    u8 buf[11];
+
+    flag = 0;
+    if (arg7 & 0x80) {
+        flag = 1;
+        arg7 &= ~0x80;
+    }
+    switch (arg7) {
+    case 1:
+        _sprintf((char *)buf, "%02d", arg5);
+        break;
+    case 2:
+        _sprintf((char *)buf, "%d", arg5);
+        arg3 -= func_806FBD5C(1, buf) >> 1;
+        break;
+    default:
+        _sprintf((char *)buf, "%d", arg5);
+        break;
+    }
+    if (flag != 0) {
+        arg3 -= func_806FBD5C(1, buf);
+    }
+    D_807FC810 = func_806FBD5C(1, buf);
+    idx = D_807FC7F8[arg0->unk15];
+    list = D_807FC7F0[arg0->unk15];
+    len = sqrtf((640.0f - (f32)(arg1 * 4)) * (640.0f - (f32)(arg1 * 4)) + (480.0f - (f32)(arg2 * 4)) * (480.0f - (f32)(arg2 * 4)));
+    list[idx].unk0 = -((640.0f - (f32)(arg1 * 4)) / len) * (1040.0f - len);
+    list[idx].unk4 = -((480.0f - (f32)(arg2 * 4)) / len) * (1040.0f - len);
+    list[idx].unk8 = arg1;
+    list[idx].unkA = arg2;
+    list[idx].unkC = arg3;
+    list[idx].unkE = arg4;
+    list[idx].unk10 = arg6;
+    i = 0;
+    src = buf;
+    dst = (u8 *)&list[idx];
+    if (buf[0] != 0) {
+        do {
+            dst[0x11] = src[0];
+            i++;
+            dst++;
+            src++;
+        } while (src[0] != 0);
+    }
+    ((u8 *)&list[idx])[0x11 + i] = 0;
+    D_807FC7F8[arg0->unk15]++;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806AB808.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806ABA6C.s")
+Gfx *func_806ABA6C(Gfx *dl, ACDC0HudEntry *arg1, s32 arg2) {
+    u8 padHi[0xC];
+    s32 col;
+    void *tex;
+    u8 pad[0x1C];
+    s32 y2;
+    s32 y;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806ABB98.s")
+    y = arg1->unkC[arg2] * 4;
+    tex = D_807FC7E8[D_80750560[arg1->unk8[arg2]]];
+    if (arg1->unk12 == 1) {
+        col = arg1->unk14;
+    } else {
+        col = 5;
+    }
+    ACDC0_WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
+    y2 = y + 0x40;
+    dl = func_806ABB98(func_806ABB98(dl, 0x280, y2, 0.7f, tex), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[col + 9]);
+    D_807FC808 = (f32)func_806FBD5C(1, tex) * 1.4;
+    return dl;
+}
+
+Gfx *func_806ABB98(Gfx *dl, s16 arg1, s16 arg2, f32 scale, void *arg4) {
+    f32 m1[4][4];
+    f32 m2[4][4];
+    Mtx *mtx;
+
+    mtx = func_80610FE8(0x40);
+    heapFreeDeferred(mtx);
+    guScaleF(m1, scale, scale, 1.0f);
+    guTranslateF(m2, arg1, arg2, 0.0f);
+    guMtxCatF(m1, m2, m1);
+    guMtxF2L(m1, mtx);
+    ACDC0_WRITE_GFX(dl++, 0xDA380002, (u32)mtx);
+    dl = func_806FC530(dl, 1, 0, 0, arg4, 0x80);
+    ACDC0_WRITE_GFX(dl++, 0xD8380002, 0x40);
+    return dl;
+}
+
+#ifdef NON_MATCHING
+s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
+    s32 dir;
+    s32 idx;
+    s32 v;
+    s32 cur;
+    s32 d;
+    s32 idx2;
+
+    if (arg1 == 0) {
+        dir = 0;
+        if (arg2 & 8) {
+            dir = 1;
+        } else if (arg2 & 4) {
+            dir = -1;
+        }
+        if (dir != 0) {
+            idx = arg0->unk15;
+            cur = arg0->unk8[idx];
+            v = cur + dir;
+            if (v < 0) {
+                v = D_807505D0;
+            }
+            if (D_807505D0 < v) {
+                v = 0;
+            }
+            if (v != cur) {
+                arg0->unk15 = 1 - idx;
+                arg0->unk8[arg0->unk15] = v;
+                arg0->unkC[arg0->unk15] = dir * 0xFA;
+                func_806AA304(arg0, 0, idx);
+                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            }
+        }
+    }
+    if (arg1 != 0) {
+        idx2 = arg0->unk15;
+        d = arg0->unkC[idx2];
+        if (d >= 0x15) {
+            d = 0x14;
+        }
+        if (d < -0x14) {
+            d = -0x14;
+        }
+        arg0->unkC[0] -= d;
+        arg0->unkC[1] -= d;
+        if (arg0->unkC[idx2] == 0) {
+            (arg0->unk8 + (-idx2))[1] = arg0->unk8[idx2];
+            d = arg0->unk15;
+            arg1 = 0;
+            D_807FC7F8[1 - d] = 0;
+            func_80609140(0x97, 0x4650, 63.0f, 1.0f, 0, 0);
+            D_8075052C = 3;
+        }
+    }
+    return arg1;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806ABC94.s")
+#endif
+
+#ifdef NON_MATCHING
+void func_806ABE3C(void) {
+    s16 *p;
+    s16 *p0;
+    s16 *q;
+    ACDC0CountEntry *e;
+    s32 n;
+    s32 i;
+    u8 *u;
+
+    p0 = (s16 *)((u8 *)&D_807FC82A - 2);
+    do {
+        *p0++ = 0;
+    } while (p0 < (s16 *)((u8 *)&D_807FC82A + 10));
+    n = 0;
+    e = D_807FC950;
+    do {
+        n += e->unk42[0] + e->unk42[1];
+        for (i = 2; i < 14; i++) {
+            n += e->unk42[i];
+        }
+        e++;
+    } while (e < D_807FCB26);
+    D_807FC828 = n;
+    n = 0;
+    p = D_80744710;
+    do {
+        if (func_8073110C(*p, 0) != 0) {
+            n++;
+        }
+        p++;
+    } while (p < D_80744720);
+    D_807FC82C = n;
+    D_807FC832 = func_80731AA8(0x24D, 0x14, 0);
+    D_807FC82E = func_80731AA8(0x225, 0x28, 0);
+    n = 0;
+    p = D_807505B8;
+    do {
+        if (*p >= 0 && func_8073110C(*p, 0) != 0) {
+            n++;
+        }
+        p++;
+    } while (p < D_807505CC);
+    D_807FC82A = n;
+    D_807FC834 = func_8073110C(0x84, 0);
+    D_807FC830 = func_8073110C(0x17B, 0);
+    D_807FC836 = func_80731AA8(0x1FD, 0x28, 0);
+    D_80750530 = 1;
+    for (i = 0; i < 4; i++) {
+        D_80750531[i] = func_8073110C(D_807505B2[i - 1], 0);
+    }
+    D_807FC838 = 1;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806ABE3C.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806AC048.s")
+Gfx *func_806AC048(Gfx *dl, Actor *actor) {
+    return func_80703374(dl, 0, 0, 0, 0x46);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806AC07C.s")
-
-Gfx *func_806A921C(Gfx *);
-Gfx *func_806ABB98(Gfx *, s32, s32, f32, char *);
-Gfx *func_80703374(Gfx *, s32, s32, s32, s32);
-Gfx *func_806FC530(Gfx *, s32, s32, s32, char *, s32);
-s32 _sprintf(char *, const char *, ...);
-extern char **D_807FC7E0;
 
 Gfx *func_806ACA88(Gfx *dl, Actor *actor) {
     char buf[0x28];
@@ -95,20 +603,12 @@ Gfx *func_806ACA88(Gfx *dl, Actor *actor) {
     return func_806FC530(dl, 1, 0x208, 0x21C, buf, 1);
 }
 
-extern Actor *D_807FBB44;
-extern s32 D_807FBB60;
-void actorSpawn(s32, s32);
-
 void func_806ACC00(u8 arg0) {
     actorSpawn(0x156, 0);
     D_807FBB44->unk15F = arg0;
     D_807FBB44->unk64 |= 2;
     D_807FBB60 |= 0x40001;
 }
-
-extern Actor *D_807FBB40;
-void actorDespawn(Actor *);
-void heapFreeDeferred(void *);
 
 void func_806ACC64(void) {
     s16 i;
@@ -120,18 +620,6 @@ void func_806ACC64(void) {
     heapFreeDeferred(D_807FC7E0);
     actorDespawn(D_807FBB40);
 }
-
-extern u16 D_807ECD58;
-extern s32 D_8076A0A8;
-void *func_80610FE8(s32);
-char *func_8070E750(s32, s32, s32);
-void func_8061CC40(s32, s32, s32);
-void func_80724994(s32, s32, s32, s32, s32);
-void func_805FF378(s32, s32);
-void func_805FF544(void);
-void func_805FF898(void);
-void func_806ACC64(void);
-void renderCallbacksRegister(void *, void *, s32);
 
 void func_806ACCE8(void) {
     s32 i;
@@ -185,8 +673,6 @@ void func_806ACCE8(void) {
     renderCallbacksRegister(func_806ACA88, D_807FBB40, 5);
 }
 
-extern u8 D_807505F8[];
-extern u8 D_807505F9[];
 Gfx *func_806ACF10(Gfx *dl, Actor *actor) {
     u8 sel;
     u8 c;
@@ -200,27 +686,6 @@ Gfx *func_806ACF10(Gfx *dl, Actor *actor) {
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
     return func_806ABB98(dl, 0x280, 0x208, 0.7f, D_807FC7E0[3]);
 }
-
-typedef struct {
-    u8 pad0[3];
-    s8 unk3;
-} M2_ACDC0_Axis;
-
-typedef struct {
-    u8 pad0[0x294];
-    M2_ACDC0_Axis *unk294;
-    u16 *unk298;
-    u8 pad29C[0x2F0 - 0x29C];
-} M2_ACDC0_Player;
-
-extern s8 D_807FC80E;
-extern s8 D_807FC8B9;
-extern M2_ACDC0_Player *D_807FC924;
-extern s8 D_8076A105;
-void func_80609140(s32, s32, f32, f32, s32, s32);
-void func_806291B4(s32);
-void func_80714638(void);
-Gfx *func_806AC048(Gfx *, Actor *);
 
 void func_806ACFFC(void) {
     s32 i;
@@ -241,7 +706,7 @@ void func_806ACFFC(void) {
     }
     i = D_807FC8B9;
     off = i * 0x2F0;
-    if (((M2_ACDC0_Player *)((u8 *)D_807FC924 + off))->unk294->unk3 >= 0x33 || ((M2_ACDC0_Player *)((u8 *)D_807FC924 + off))->unk294->unk3 < -0x32) {
+    if (((ACDC0Player *)((u8 *)D_807FC924 + off))->unk294->unk3 >= 0x33 || ((ACDC0Player *)((u8 *)D_807FC924 + off))->unk294->unk3 < -0x32) {
         if (!(D_807FC80E & 1)) {
             D_807FBB40->unk155[0] = 1 - D_807FBB40->unk155[0];
             D_807FC80E |= 1;
@@ -250,7 +715,7 @@ void func_806ACFFC(void) {
     } else {
         D_807FC80E &= 0xFFFE;
     }
-    btn = *((M2_ACDC0_Player *)((u8 *)D_807FC924 + off))->unk298;
+    btn = *((ACDC0Player *)((u8 *)D_807FC924 + off))->unk298;
     if (btn & 0x8000) {
         if (D_807FBB40->unk155[0] == 0) {
             D_807FBB60 |= 0x10070;
