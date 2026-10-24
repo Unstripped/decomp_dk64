@@ -230,7 +230,7 @@ extern u8 D_20000C0[];
 extern u8 D_2000180[];
 
 s32 _sprintf(char *, const char *, ...);
-Gfx *func_806ABB98(Gfx *, s32, s32, f32, char *);
+Gfx *hudDrawScaledText(Gfx *, s32, s32, f32, char *);
 Gfx *func_806FC530(Gfx *, s32, s32, s32, char *, s32);
 char *func_8070E750(s32, s32, s32);
 

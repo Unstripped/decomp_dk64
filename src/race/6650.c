@@ -118,7 +118,7 @@ void sfxStopSlotSound(Actor_BB40 *, u8);
 void func_8070D8C0(Actor_BB40 *, s32, s32);
 void func_8063DA40(s32, s32);
 void func_8073129C(s32, s32, s32);
-void func_806ACC00(s32);
+void hudSpawnTextScreen(s32);
 void func_80026CA8(void);
 void func_80026D2C(f32);
 void func_8068ECF4(s32, u8);

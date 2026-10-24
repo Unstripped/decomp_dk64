@@ -17,7 +17,7 @@ s32 func_80629148(void *, ?);                       /* extern */
 s16 func_80665DE0(?32, ?32, void *, s32, s32);      /* extern */
 ? func_8067E278(?, ?);                              /* extern */
 ? func_806AD260(?, ?, ?);                           /* extern */
-? func_806AD9AC();                                  /* extern */
+? actorSpawnLinkedFollower();                                  /* extern */
 s16 func_806CC190(s16, s16, ?);                     /* extern */
 ? func_807248B0(void *, f32);                       /* extern */
 s32 func_80726D7C(?);                               /* extern */
@@ -66,7 +66,7 @@ void func_8002C964(void) {
         D_807FBB40->unk132 = 4;
         D_807FBB40->unk154 = 0x1E;
         func_807248B0(D_807FBB40, (f32) (2.0 * (f64) D_807FBB40->unk4->unk34));
-        func_806AD9AC();
+        actorSpawnLinkedFollower();
     }
     if (((D_807FBD70 == 9) || (D_807FBB85 != 0)) && (temp_a0->unk154 != 0x37)) {
         if (func_8073110C(0xF7, 0) != 0) {

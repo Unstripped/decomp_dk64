@@ -204,7 +204,7 @@ void func_806AD7AC(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_806AD84C(void) {
+void actorFollowLinkedNodeFadeUpdate(void) {
     Actor *linked;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -236,7 +236,7 @@ void func_806AD84C(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_806AD9AC(void) {
+void actorSpawnLinkedFollower(void) {
     actorSpawn(0x118, 0xC0);
     D_807FBB44->unk11C = (s32)D_807FBB40;
     D_807FBB44->unk12A = 0x7D0;
@@ -250,7 +250,7 @@ void func_806AD9F4(void) {
         if (D_807FBB40->unk80 != D_807FBB40->unkA4) {
             D_807FBB40->unk154 = 0x1E;
             func_80614EBC(D_807FBB40, 0x2F8);
-            func_806AD9AC();
+            actorSpawnLinkedFollower();
         }
     }
     if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->unk154 != 0x37) {

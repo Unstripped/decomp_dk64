@@ -1,9 +1,9 @@
-// func_806B42A8 (src/global/B7490.c): stage 6: only 3 diffs. needs file-level proto s32 func_8072D13C(u8, s32) (K&R decl gives move a0,a2 not andi a0,a2,0xff) + t6/t8 swap at lh *var_t2 vs lh unk6 (scratch temp order); trailing 'if (!D_807FBB40->unk154) {}' dummy read stops &D_807FBB40 being hoisted into t0 (any read of D_807FBB40 field after func_806319C4 works); st=E before first test + st=E at end of if-body + switch(st), E reused as call arg gives lbu a2/move v1,a2 pairs; func_806B3F90 now s32 (no return) so no function-pointer cast
+// func_806B42A8 (src/global/B7490.c): stage 6: only 3 diffs. needs file-level proto s32 func_8072D13C(u8, s32) (K&R decl gives move a0,a2 not andi a0,a2,0xff) + t6/t8 swap at lh *var_t2 vs lh unk6 (scratch temp order); trailing 'if (!D_807FBB40->unk154) {}' dummy read stops &D_807FBB40 being hoisted into t0 (any read of D_807FBB40 field after func_806319C4 works); st=E before first test + st=E at end of if-body + switch(st), E reused as call arg gives lbu a2/move v1,a2 pairs; actorFlyTowardPosition now s32 (no return) so no function-pointer cast
 s32 func_8061CB50(void *);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void sfxSpawnTableNodes(Actor *);
-/* func_806B3F90 must be defined as s32 func_806B3F90(B7490Pos *, u8) (no return statement): v0&1 is read here; needs B7490Pos struct from B7490.c */
+/* actorFlyTowardPosition must be defined as s32 actorFlyTowardPosition(B7490Pos *, u8) (no return statement): v0&1 is read here; needs B7490Pos struct from B7490.c */
 /* needs file-level "s32 func_8072D13C(u8, s32);" (currently K&R "s32 func_8072D13C();") for the final andi a0,a2,0xff */
 
 void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
@@ -61,7 +61,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
                     D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
                     D_807FDC90->unk2C = 0x64;
                 case 1:
-                    if ((func_806B3F90((B7490Pos *) D_807FDC90, 0x23) & 1) || (D_807FBB40->unk80 < (f32) (D_807FDC90->unkC + 0xF))) {
+                    if ((actorFlyTowardPosition((B7490Pos *) D_807FDC90, 0x23) & 1) || (D_807FBB40->unk80 < (f32) (D_807FDC90->unkC + 0xF))) {
                         D_807FBB40->unk154 = D_807FDC9C->unk10;
                         D_807FBB40->unk155[0] = 0;
                     }

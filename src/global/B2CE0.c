@@ -1,23 +1,23 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct M3Sub4 {
+typedef struct B2CE0Sub4 {
     /* 0x00 */ u8 pad0[0x34];
     /* 0x34 */ f32 unk34;
     /* 0x38 */ f32 unk38;
     /* 0x3C */ f32 unk3C;
     /* 0x40 */ u8 pad40[0x24];
     /* 0x64 */ u16 unk64;
-} M3Sub4;
+} B2CE0Sub4;
 
-typedef struct M3Sub178 {
+typedef struct B2CE0Sub178 {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 unk2;
-} M3Sub178;
+} B2CE0Sub178;
 
-typedef struct M3Actor {
+typedef struct B2CE0Actor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ M3Sub4 *unk4;
+    /* 0x004 */ B2CE0Sub4 *unk4;
     /* 0x008 */ u8 pad8[4];
     /* 0x00C */ f32 unkC[4][4];
     /* 0x04C */ u8 pad4C[0xC];
@@ -59,22 +59,22 @@ typedef struct M3Actor {
     /* 0x160 */ u8 pad160[8];
     /* 0x168 */ s16 unk168;
     /* 0x16A */ u8 pad16A[0xE];
-    /* 0x178 */ M3Sub178 *unk178;
-} M3Actor;
+    /* 0x178 */ B2CE0Sub178 *unk178;
+} B2CE0Actor;
 
-typedef struct M3Node {
+typedef struct B2CE0Node {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ f32 unk24;
-} M3Node;
+} B2CE0Node;
 
-typedef struct M3ModelHdr {
+typedef struct B2CE0ModelHdr {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
     /* 0x12 */ u8 pad12[0x12];
     /* 0x24 */ f32 unk24;
-} M3ModelHdr;
+} B2CE0ModelHdr;
 
-typedef struct M3View90 {
+typedef struct B2CE0View90 {
     /* 0x00 */ u8 pad0[0x1A];
     /* 0x1A */ u16 unk1A;
     /* 0x1C */ u8 pad1C[2];
@@ -84,37 +84,37 @@ typedef struct M3View90 {
     /* 0x26 */ s16 unk26;
     /* 0x28 */ u8 pad28[0xD];
     /* 0x35 */ u8 unk35;
-} M3View90;
+} B2CE0View90;
 
-typedef struct M3View9C {
+typedef struct B2CE0View9C {
     /* 0x00 */ u8 pad0[0xD];
     /* 0x0D */ u8 unkD;
-} M3View9C;
+} B2CE0View9C;
 
-extern M3Actor *D_807FBB40;
-extern M3Actor *D_807FBB44;
+extern B2CE0Actor *D_807FBB40;
+extern B2CE0Actor *D_807FBB44;
 
 s32 func_80611A44(void);
-void func_806319C4(M3Actor *, s32);
+void func_806319C4(B2CE0Actor *, s32);
 
 void func_80612BC0(f32 (*)[4], f32);
 void func_80666280(s32);
 void func_80729E6C(void);
-void func_8067ACB4(M3Actor *);
-void actorApplyVelocity(M3Actor *);
-void func_80665564(M3Actor *, f32);
-void func_8065D254(M3Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void func_8067ACB4(B2CE0Actor *);
+void actorApplyVelocity(B2CE0Actor *);
+void func_80665564(B2CE0Actor *, f32);
+void func_8065D254(B2CE0Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void actorDespawn(M3Actor *);
+void actorDespawn(B2CE0Actor *);
 extern u8 D_8071FBC8[];
 extern ActorGlobalState D_807FBB70;
 void func_8072B79C(s32, s32, s32);
 void func_80724CA4(s32, s32);
-void func_80614EBC(M3Actor *, s32);
+void func_80614EBC(B2CE0Actor *, s32);
 void func_80724E48(u8);
 u32 func_8072AB74(u32, f32, f32, s32, f32);
-void func_8072B324(M3Actor *, s32);
+void func_8072B324(B2CE0Actor *, s32);
 void func_8072A450();
 void func_8072DE44();
 s32 func_8072E54C();
@@ -131,9 +131,9 @@ void func_8072E1A4(s32, void *);
 void sfxSpawnTableNodes(void *);
 void func_806AD260();
 void effectSpawnOctagonRing(f32, f32, f32, f32);
-s32 func_80726164(M3Actor *, s16, s16, s16, s32);
-void projectileGetTargetCoords(M3Actor *, s32);
-void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, M3Actor *);
+s32 func_80726164(B2CE0Actor *, s16, s16, s16, s32);
+void projectileGetTargetCoords(B2CE0Actor *, s32);
+void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, B2CE0Actor *);
 void func_8072881C(s32, void *);
 s32 func_8072E22C(s32);
 extern s32 D_807FDCA0;
@@ -184,10 +184,10 @@ void func_806ADFE0(void) {
 }
 
 s32 actorSpawn(s32, s32);
-u32 actorGetNodePos(M3Actor *, s16, f32 *, f32 *, f32 *);
+u32 actorGetNodePos(B2CE0Actor *, s16, f32 *, f32 *, f32 *);
 void func_807248B0(void *, s32);
 
-void func_806AE2B0(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
+void actorSpawnChildAtNode(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
     f32 sp2C;
     f32 sp28;
     f32 sp24;
@@ -210,7 +210,7 @@ void func_8070033C(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void func_806EB0C0(s32, M3Actor *, s32);
+void func_806EB0C0(s32, B2CE0Actor *, s32);
 
 void func_806AE394(f32 arg0, f32 arg1) {
     f32 sp64;
@@ -238,13 +238,13 @@ void func_806AE394(f32 arg0, f32 arg1) {
     }
 }
 
-typedef struct L5View {
+typedef struct B2CE0ActorView134 {
     /* 0x000 */ u8 pad0[0x134];
     /* 0x134 */ s16 unk134;
-} L5View;
+} B2CE0ActorView134;
 
 extern s32 D_8076A0A8;
-void actorClearNodeFlag(M3Actor *, s32);
+void actorClearNodeFlag(B2CE0Actor *, s32);
 void func_8063DA40(s32, s32);
 
 void func_806AE588(void) {
@@ -264,14 +264,14 @@ void func_806AE588(void) {
     sel = D_807FBB40->unk154;
     if ((sel != 0x32) || (D_807FBB70.unk15 != 0)) {
         if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (sel != 0x37)) {
-            if (((L5View *)D_807FBB40)->unk134 < -1) {
+            if (((B2CE0ActorView134 *)D_807FBB40)->unk134 < -1) {
                 func_8072D714(D_807FBB70.unk1FC, 0x202);
                 D_807FBB40->unkC0 = 250.0f;
             } else {
                 func_8072D714(D_807FBB70.unk1FC, 0x201);
                 D_807FBB40->unkC0 = 200.0f;
             }
-            ((M3View90 *)D_807FDC90)->unk35 = 2;
+            ((B2CE0View90 *)D_807FDC90)->unk35 = 2;
             D_807FBB40->unk138 &= 0xFFFF7FFF;
         } else if (D_807FBB70.unk200 == 4) {
             func_8072DEA8(0x1FF, 0x31, D_807FBB70.unk1FC);
@@ -284,7 +284,7 @@ void func_806AE588(void) {
     sw = sel;
     switch (sel) {
     case 0x31:
-        if ((D_807FBB40->unk155 != 0) || ((*(M3Node **)D_807FBB40->unk4)->unk24 == 0.0f)) {
+        if ((D_807FBB40->unk155 != 0) || ((*(B2CE0Node **)D_807FBB40->unk4)->unk24 == 0.0f)) {
             func_8072DE44(0x1FB);
         }
         func_8072AB74(0, 0.0f, 0.0f, 0x4300, 0.0f);
@@ -413,14 +413,14 @@ void func_806AE588(void) {
 }
 
 void func_806AEE08(void) {
-    if ((func_80611A44() >> 15) % 1000 >= 0x3D5 && func_8072DE10(0xFA0) != 0 && !(((M3View90 *)D_807FDC90)->unk1A & 0x80)) {
+    if ((func_80611A44() >> 15) % 1000 >= 0x3D5 && func_8072DE10(0xFA0) != 0 && !(((B2CE0View90 *)D_807FDC90)->unk1A & 0x80)) {
         D_807FBB40->unk154 = 0x25;
         D_807FBB40->unk155 = 0;
     }
 }
 
 void func_806AEE84(void) {
-    M3Sub178 *sp34;
+    B2CE0Sub178 *sp34;
     f32 sp30;
 
     sp34 = D_807FBB40->unk178;
@@ -446,7 +446,7 @@ void func_806AEE84(void) {
     }
     switch (D_807FBB40->unk154) {
         case 0x31:
-            if (D_807FBB40->unk155 != 0 || (*(M3ModelHdr **)D_807FBB40->unk4)->unk24 == 0.0f) {
+            if (D_807FBB40->unk155 != 0 || (*(B2CE0ModelHdr **)D_807FBB40->unk4)->unk24 == 0.0f) {
                 func_8072DE44(0x2AB);
             }
             func_8072AB74(0, 0.0f, 0.0f, 0x4200, 0.0f);
@@ -467,7 +467,7 @@ void func_806AEE84(void) {
                 case 2:
                     func_806AEE08();
                     func_8072A450();
-                    if ((func_80611A44() >> 15) % 1000 >= 0x3DF && (*(M3ModelHdr **)D_807FBB40->unk4)->unk10 != 0x4C4) {
+                    if ((func_80611A44() >> 15) % 1000 >= 0x3DF && (*(B2CE0ModelHdr **)D_807FBB40->unk4)->unk10 != 0x4C4) {
                         func_8072DE44(0x2AB);
                     }
             }
@@ -577,7 +577,7 @@ void func_806AF688(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_8072B79C(0x2C0, 0x2C1, 0x2C1);
         func_80724CA4(0xE, 1);
-        ((M3View90 *)D_807FDC90)->unk1A |= 0x800;
+        ((B2CE0View90 *)D_807FDC90)->unk1A |= 0x800;
         D_807FBB40->unk60 |= 0x400;
     }
     func_806AE394(40.0f, 70.0f);
@@ -647,11 +647,11 @@ void func_807149FC(s32);
 void func_8071498C(void (*)());
 void func_80714998(s32);
 void func_80714950(s32);
-void func_80714C08(void *, f32, M3Actor *, s32, s32);
+void func_80714C08(void *, f32, B2CE0Actor *, s32, s32);
 void func_8071910C();
 extern u8 D_8072073C;
 
-void func_806AFA60(u8 arg0) {
+void effectSpawnActorParticleBurst(u8 arg0) {
     s16 i;
     f32 temp;
 
@@ -678,28 +678,28 @@ void func_806AFB58(void) {
     }
     if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (D_807FBB40->unk154 != 0x37)) {
         func_8072D714(D_807FBB70.unk1FC, 0x2DD);
-        ((M3View90 *)D_807FDC90)->unk35 = 2;
+        ((B2CE0View90 *)D_807FDC90)->unk35 = 2;
         D_807FBB40->unk138 &= 0xFFFF7FFF;
     } else if ((D_807FBB70.unk200 == 4) || (D_807FBB70.unk200 == 5)) {
         if (D_807FBB40->unk146 & 1) {
-            ((M3View90 *)D_807FDC90)->unk1E = 0xF;
-            ((M3View90 *)D_807FDC90)->unk1F = 0xF;
+            ((B2CE0View90 *)D_807FDC90)->unk1E = 0xF;
+            ((B2CE0View90 *)D_807FDC90)->unk1F = 0xF;
             D_807FBB40->unkEC = -1;
-            func_806AE2B0(0xC2, 0x800, 1, 0x190);
+            actorSpawnChildAtNode(0xC2, 0x800, 1, 0x190);
             D_807FBB44->unk15F = 1;
-            func_806AFA60(1);
+            effectSpawnActorParticleBurst(1);
         } else if (D_807FBB40->unk146 & 2) {
-            func_806AFA60(2);
+            effectSpawnActorParticleBurst(2);
         }
         D_807FBB40->unk146 = D_807FBB40->unk146 * 2;
         func_8072DEA8(0x2DC, 0x31, D_807FBB70.unk1FC);
-        ((M3View90 *)D_807FDC90)->unk26 = 0;
+        ((B2CE0View90 *)D_807FDC90)->unk26 = 0;
         D_807FBB40->unkB8 = 0.0f;
     }
     sel = D_807FBB40->unk154;
     switch (D_807FBB40->unk154) {
     case 0x31:
-        if ((D_807FBB40->unk155 != 0) || ((*(M3Node **)D_807FBB40->unk4)->unk24 == 0.0f)) {
+        if ((D_807FBB40->unk155 != 0) || ((*(B2CE0Node **)D_807FBB40->unk4)->unk24 == 0.0f)) {
             func_8072DE44(0x2D7, sel);
         }
         func_8072AB74(0, 0.0f, 0.0f, 0x4200, 0.0f);
@@ -843,7 +843,7 @@ void func_806B0354(void) {
         case 0x23:
             switch (D_807FBB40->unk155) {
                 case 0:
-                    func_8072B324(D_807FBB40, ((M3View9C *)D_807FDC9C)->unkD);
+                    func_8072B324(D_807FBB40, ((B2CE0View9C *)D_807FDC9C)->unkD);
                     D_807FBB40->unk155++;
                 case 1:
                     if ((func_80611A44() >> 15) % 1000 >= 0x3E4) {
@@ -919,32 +919,32 @@ s32 func_806B0770(void) {
     return found;
 }
 
-typedef struct L4Actor {
+typedef struct B2CE0ActorTail {
     /* 0x000 */ u8 pad0[0x130];
     /* 0x130 */ u8 unk130;
     /* 0x131 */ u8 unk131;
     /* 0x132 */ u8 pad132[6];
     /* 0x138 */ s32 unk138;
-} L4Actor;
+} B2CE0ActorTail;
 
-typedef struct L4Sub24 {
+typedef struct B2CE0NodeHdr {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ f32 unk24;
-} L4Sub24;
+} B2CE0NodeHdr;
 
-typedef struct L4Sub4Ptr {
-    /* 0x0 */ L4Sub24 *unk0;
-} L4Sub4Ptr;
+typedef struct B2CE0Sub4Ptr {
+    /* 0x0 */ B2CE0NodeHdr *unk0;
+} B2CE0Sub4Ptr;
 
-typedef struct L4Sub64 {
+typedef struct B2CE0Sub64 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
-} L4Sub64;
+} B2CE0Sub64;
 
-typedef struct L4DC90 {
+typedef struct B2CE0View90Ptr {
     /* 0x0 */ u8 pad0[4];
     /* 0x4 */ s32 unk4;
-} L4DC90;
+} B2CE0View90Ptr;
 
 s32 func_806B0770();
 void func_8072DEA8(s32, s32, s32);
@@ -960,14 +960,14 @@ void func_806B0848(void) {
         f64 m = 255.0;
 
         d = (f64)D_807FBB40->unk4->unk38 / 0.15 * 100.0;
-        if (d > m) ((L4Actor *)D_807FBB40)->unk130 = m; else ((L4Actor *)D_807FBB40)->unk130 = d;
+        if (d > m) ((B2CE0ActorTail *)D_807FBB40)->unk130 = m; else ((B2CE0ActorTail *)D_807FBB40)->unk130 = d;
         d = (f64)D_807FBB40->unk4->unk38 / 0.15 * 100.0;
-        if (d > m) ((L4Actor *)D_807FBB40)->unk131 = m; else ((L4Actor *)D_807FBB40)->unk131 = d;
+        if (d > m) ((B2CE0ActorTail *)D_807FBB40)->unk131 = m; else ((B2CE0ActorTail *)D_807FBB40)->unk131 = d;
         func_8072B79C(0x35E, 0x35F, 0x360);
     }
     if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->unk154 != 0x37) {
         func_8072D714(D_807FBB70.unk1FC, 0x367);
-        ((L4Actor *)D_807FBB40)->unk138 &= 0xFFFF7FFF;
+        ((B2CE0ActorTail *)D_807FBB40)->unk138 &= 0xFFFF7FFF;
     } else if (D_807FBB70.unk200 == 4) {
         func_8072DEA8(0x365, 0x31, D_807FBB70.unk1FC);
     } else if (D_807FBB70.unk200 == 5) {
@@ -997,7 +997,7 @@ void func_806B0848(void) {
             }
             break;
         case 0x31:
-            if (D_807FBB40->unk155 != 0 || ((L4Sub4Ptr *)D_807FBB40->unk4)->unk0->unk24 == 0.0f) {
+            if (D_807FBB40->unk155 != 0 || ((B2CE0Sub4Ptr *)D_807FBB40->unk4)->unk0->unk24 == 0.0f) {
                 func_8072DE44(0x35F);
             }
             func_8072AB74(0, 0.0f, 0.0f, 0x4200, 0.0f);
@@ -1011,10 +1011,10 @@ void func_806B0848(void) {
                     D_807FBB40->unk155 = 1;
                     break;
                 case 2:
-                    D_807FBB40->unk132 = ((L4Sub64 *)D_807FBB40->unk4)->unk64 == 0x362 ? 4 : 2;
+                    D_807FBB40->unk132 = ((B2CE0Sub64 *)D_807FBB40->unk4)->unk64 == 0x362 ? 4 : 2;
                     break;
                 case 3:
-                    D_807FBB40->unk132 = ((L4Sub64 *)D_807FBB40->unk4)->unk64 == 0x362 ? 8 : 1;
+                    D_807FBB40->unk132 = ((B2CE0Sub64 *)D_807FBB40->unk4)->unk64 == 0x362 ? 8 : 1;
                     break;
                 case 4:
                     D_807FBB40->unk132 = 1;
@@ -1035,7 +1035,7 @@ void func_806B0848(void) {
                     D_807FBB40->unk155++;
                     break;
                 case 4:
-                    ((L4DC90 *)D_807FDC90)->unk4 = D_807FBB4C;
+                    ((B2CE0View90Ptr *)D_807FDC90)->unk4 = D_807FBB4C;
                     func_8072DE44(0x35F);
                     break;
             }

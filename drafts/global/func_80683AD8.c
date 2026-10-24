@@ -17,7 +17,7 @@ extern s16 D_80744494;
 extern u32 D_8076A064;
 
 Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
-Gfx *func_806ABB98(Gfx *, s16, s16, f32, s32);
+Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, s32);
 s32 func_806FD894(s32);
 
 Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
@@ -102,7 +102,7 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
         dlist[0].words.w0 = 0xFA000000;
         dlist[0].words.w1 = (s32) (((u32) (var_fv0 * 255.0f) & 0xFF) | ~0xFF);
         dlist++;
-        dlist = func_806ABB98(dlist, (s16) (s32) temp_fa0_2, (s16) (s32) spF0, 0.15f, sp6C);
+        dlist = hudDrawScaledText(dlist, (s16) (s32) temp_fa0_2, (s16) (s32) spF0, 0.15f, sp6C);
     }
     if (temp_s1->unk4 != 0) {
         temp_v0 = func_80683A80((ActorGroup5 *)temp_s1, temp_s1->unk7);
@@ -128,7 +128,7 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
             dlist[0].words.w0 = 0xFA000000;
             dlist[0].words.w1 = (s32) (((u32) (var_fv0_2 * 255.0f) & 0xFF) | ~0xFF);
             dlist++;
-            dlist = func_806ABB98(dlist, (s16) (s32) temp_fa0_3, (s16) (s32) spF0, 0.15f, temp_v0);
+            dlist = hudDrawScaledText(dlist, (s16) (s32) temp_fa0_3, (s16) (s32) spF0, 0.15f, temp_v0);
         }
     }
     return dlist;

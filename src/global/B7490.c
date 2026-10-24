@@ -89,7 +89,7 @@ s32 func_80726164(void *, s16, s16, s16, s32);
 f32 sqrtf(f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 void func_8072881C();
-void func_806B4194(void);
+void actorSpawnPeriodicBoneEffect(void);
 void func_806B42A8(void (*)(), u16, u16, s16);
 void func_806B49B0(u8, s16, s16);
 void actorSpawnNodeEntryAtActor(s32, s32);
@@ -195,17 +195,17 @@ void func_806B2790(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_806B2D5C(void) {
+void actorEmptyStub(void) {
 }
 
 typedef struct {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ f32 unk24;
-} L1Sub24;
+} B7490Node;
 
 typedef struct {
-    /* 0x00 */ L1Sub24 *unk0;
-} L1Sub4;
+    /* 0x00 */ B7490Node *unk0;
+} B7490Sub4Ptr;
 
 void func_8072DEA8(s32, s32, s32, void *);
 void func_8072881C(s32, void *);
@@ -229,7 +229,7 @@ void func_806B2D64(void) {
     switch (st) {
         case 0x31:
             effectSpawnSparks(0x1F, 2);
-            if ((D_807FBB40->unk155[0] != 0) || (((L1Sub4 *)D_807FBB40->unk4)->unk0->unk24 == 0.0f)) {
+            if ((D_807FBB40->unk155[0] != 0) || (((B7490Sub4Ptr *)D_807FBB40->unk4)->unk0->unk24 == 0.0f)) {
                 func_8072DE44(0x2E2);
             }
             break;
@@ -267,7 +267,7 @@ void func_806B2D64(void) {
             }
             break;
         case 1:
-            func_806B2D5C();
+            actorEmptyStub();
             B7490A->unkE4 += 800.0f * func_80612794(D_807FDC90->unk18 * 10);
             if (((func_80611A44() >> 15) % 1000) >= 0x3D5) {
                 func_8072AA80();
@@ -276,7 +276,7 @@ void func_806B2D64(void) {
             break;
         case 0x10:
         case 0x23:
-            func_806B2D5C();
+            actorEmptyStub();
             func_8072A920(D_807FBB40->unk154, 0, D_807FDC94->unk7C, ((D_807FBB40->unkAC - D_807FBB40->unk15E) < D_807FDC94->unk80) ? (D_807FBB40->unkAC - D_807FBB40->unk15E) : D_807FDC94->unk80, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, 0x2040);
             if (D_807FBD70 == 2) {
                 D_807FBB40->unk154 = 0x27;
@@ -288,7 +288,7 @@ void func_806B2D64(void) {
             D_807FBB40->unk132 = 2;
         case 7:
         case 0x35:
-            func_806B2D5C();
+            actorEmptyStub();
             func_8072A920(D_807FBB40->unk154, 0, D_807FDC90->unkA, (D_807FDC90->unkC < (D_807FBB40->unkAC - D_807FBB40->unk15E)) ? D_807FDC90->unkC : (D_807FBB40->unkAC - D_807FBB40->unk15E), D_807FDC90->unkE, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         case 0x37:
@@ -496,12 +496,12 @@ void func_806B3680(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/B7490/func_806B3680.s")
 #endif
 
-void func_806B3C30(u8 arg0) {
+void projectileSpawnFromActorNode(u8 arg0) {
     projectileGetTargetCoords(D_807FBB40, arg0);
     projectileSpawnNodeEntry(0x32, 1, 0.3f, ((s16 *)D_807FBB40)[0xEE / 2], 80.0f, 0.0f, D_807FBB40);
 }
 
-void func_806B3C94(void) {
+void projectileAimAtTargetFromActor(void) {
     projectileSetTargetCoords(D_807FBB40->unk7C, D_807FBB40->unk80 - 5.0f, D_807FBB40->unk84);
     projectileAimAndSpawn(0x51, 1, 0.3f, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, 80.0f, D_807FBB40);
 }
@@ -516,7 +516,7 @@ void func_806B3D18(void) {
             }
             break;
         case 2:
-            func_806B3C30(2);
+            projectileSpawnFromActorNode(2);
             D_807FBB40->unk155[0] = 3;
             break;
     }
@@ -528,7 +528,7 @@ void func_806B3DA4(void) {
         return;
     }
     if (func_8072E0A8(0x96, 0x96)) {
-        func_806B3C30(1);
+        projectileSpawnFromActorNode(1);
         D_807FDC90->unk2C = D_80750340;
     }
 }
@@ -537,7 +537,7 @@ void func_806B3E08(void) {
     if (D_807FDC90->unk2C != 0) {
         D_807FDC90->unk2C--;
         if (D_8076A064 & 1) {
-            func_806B3C94();
+            projectileAimAtTargetFromActor();
         }
     } else if (func_8072E0A8(0x96, 0x96)) {
         D_807FDC90->unk2C = 0x14;
@@ -563,7 +563,7 @@ void func_806B3F3C(void) {
     }
 }
 
-s32 func_806B3F90(B7490Pos *arg0, u8 arg1) {
+s32 actorFlyTowardPosition(B7490Pos *arg0, u8 arg1) {
     f32 dz;
     f32 dx;
     f32 dist;
@@ -584,7 +584,7 @@ s32 func_806B3F90(B7490Pos *arg0, u8 arg1) {
 void func_807149C8(u8, u8, u8, u8);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
-void func_806B4194(void) {
+void actorSpawnPeriodicBoneEffect(void) {
     u8 col2;
     u8 col;
     f32 f;
@@ -677,7 +677,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
                     D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
                     D_807FDC90->unk2C = 0x64;
                 case 1:
-                    if ((func_806B3F90((B7490Pos *) D_807FDC90, 0x23) & 1) || (D_807FBB40->unk80 < (f32) (D_807FDC90->unkC + 0xF))) {
+                    if ((actorFlyTowardPosition((B7490Pos *) D_807FDC90, 0x23) & 1) || (D_807FBB40->unk80 < (f32) (D_807FDC90->unkC + 0xF))) {
                         D_807FBB40->unk154 = D_807FDC9C->unk10;
                         D_807FBB40->unk155[0] = 0;
                     }
@@ -753,7 +753,7 @@ void func_806B48B8(void) {
 void func_806B4904(void) {
     func_80729B00();
     func_806B42A8(func_806B3D18, 0x254, 0x252, 0x108);
-    func_806B4194();
+    actorSpawnPeriodicBoneEffect();
     func_8072881C(0, D_807FDC90->unk28);
 }
 
@@ -815,7 +815,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
                     func_80614EBC(D_807FBB40, arg2);
                     D_807FBB40->unk155[0] = 3;
                 case 3:
-                    func_806B3F90((void *) D_807FDC90, 0x26);
+                    actorFlyTowardPosition((void *) D_807FDC90, 0x26);
                     break;
             }
             break;

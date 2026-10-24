@@ -110,8 +110,8 @@ Gfx *func_806FC530(Gfx *, s32, s16, s32, void *, s32);
 s32 func_806FBD5C();
 Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 Gfx *func_80703374(Gfx *, s32, s32, s32, s32);
-Gfx *func_806A921C(Gfx *);
-Gfx *func_806ABB98(Gfx *, s16, s16, f32, void *);
+Gfx *hudSetupTextState(Gfx *);
+Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, void *);
 void func_806AA304();
 void func_806AC07C();
 void func_80714998(u8);
@@ -139,7 +139,7 @@ void func_806291B4(s32);
 void func_80714638(void);
 void renderCallbacksRegister(void *, void *, s32);
 
-s32 func_806A80C0(s8 arg0) {
+s32 hudFindItemIndex(s8 arg0) {
     s32 i;
 
     if (arg0 == D_80750560[0]) {
@@ -212,9 +212,9 @@ void func_80600044();
 void func_8073129C(s32, s32, s32);
 void func_806ABE3C();
 s32 func_806ABC94();
-Gfx *func_806AC048(Gfx *, Actor *);
+Gfx *hudDrawDimOverlay(Gfx *, Actor *);
 Gfx *func_806A92B4(Gfx *, Actor *);
-void func_806A9124(void);
+void hudFreeBuffers(void);
 
 #define L10_CC (*(s8 *)D_807505CC)
 #define L10_LIST ((s8 *)&D_80750530)
@@ -277,7 +277,7 @@ void func_806A8158(void) {
         hud->unk0 = 1.0f;
         hud->unk4 = 0.0f;
         hud->unk14 = func_806C8DE0(0);
-        hud->unk8[0] = func_806A80C0(func_805FF030(D_8076A0AB, 1));
+        hud->unk8[0] = hudFindItemIndex(func_805FF030(D_8076A0AB, 1));
         if (D_807505D0 < hud->unk8[0]) {
             hud->unk8[0] = 0;
         }
@@ -533,7 +533,7 @@ void func_806A8158(void) {
             x = hud->unk13;
             hud->unk0 = 1.0f;
             if (-1 == x) {
-                func_806A9124();
+                hudFreeBuffers();
             } else {
                 hud->unk12 = x;
                 hud->unk16 = -1;
@@ -560,7 +560,7 @@ void func_806A8158(void) {
         hud->unk0 = D_80750584[D_8075052C];
         ((L10Player *)D_807FC924)->unk214 = D_807FC7FC + hud->unk0 * 100.0;
     }
-    renderCallbacksRegister(func_806AC048, D_807FBB40, 1);
+    renderCallbacksRegister(hudDrawDimOverlay, D_807FBB40, 1);
     renderCallbacksRegister(func_806A92B4, D_807FBB40, 5);
 }
 
@@ -571,7 +571,7 @@ void func_806A8158(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806A8158.s")
 #endif
 
-void func_806A9124(void) {
+void hudFreeBuffers(void) {
     s32 i;
     u8 *sub;
 
@@ -592,7 +592,7 @@ void func_806A9124(void) {
     heapFreeDeferred(D_807FC7E8);
 }
 
-Gfx *func_806A921C(Gfx *dl) {
+Gfx *hudSetupTextState(Gfx *dl) {
     ACDC0_WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
     ACDC0_WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
     ACDC0_WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
@@ -1134,7 +1134,7 @@ void func_806AB808(ACDC0HudEntry *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, 
     D_807FC7F8[arg0->unk15]++;
 }
 
-Gfx *func_806ABA6C(Gfx *dl, ACDC0HudEntry *arg1, s32 arg2) {
+Gfx *hudDrawItemLabel(Gfx *dl, ACDC0HudEntry *arg1, s32 arg2) {
     u8 padHi[0xC];
     s32 col;
     void *tex;
@@ -1151,12 +1151,12 @@ Gfx *func_806ABA6C(Gfx *dl, ACDC0HudEntry *arg1, s32 arg2) {
     }
     ACDC0_WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
     y2 = y + 0x40;
-    dl = func_806ABB98(func_806ABB98(dl, 0x280, y2, 0.7f, tex), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[col + 9]);
+    dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, tex), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[col + 9]);
     D_807FC808 = (f32)func_806FBD5C(1, tex) * 1.4;
     return dl;
 }
 
-Gfx *func_806ABB98(Gfx *dl, s16 arg1, s16 arg2, f32 scale, void *arg4) {
+Gfx *hudDrawScaledText(Gfx *dl, s16 arg1, s16 arg2, f32 scale, void *arg4) {
     f32 m1[4][4];
     f32 m2[4][4];
     Mtx *mtx;
@@ -1293,7 +1293,7 @@ void func_806ABE3C(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806ABE3C.s")
 #endif
 
-Gfx *func_806AC048(Gfx *dl, Actor *actor) {
+Gfx *hudDrawDimOverlay(Gfx *dl, Actor *actor) {
     return func_80703374(dl, 0, 0, 0, 0x46);
 }
 
@@ -1517,7 +1517,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806AC07C.s")
 #endif
 
-Gfx *func_806ACA88(Gfx *dl, Actor *actor) {
+Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
     char buf[0x28];
     s32 remaining;
     s32 val;
@@ -1534,7 +1534,7 @@ Gfx *func_806ACA88(Gfx *dl, Actor *actor) {
     } else {
         val = actor->unk128;
     }
-    dl = func_806A921C(func_80703374(dl, 0, 0, 0, val));
+    dl = hudSetupTextState(func_80703374(dl, 0, 0, 0, val));
     gDPSetCombineLERP(dl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     dl->words.w0 = 0xFA000000;
     dl->words.w1 = (actor->unk128 & 0xFF) | 0xFFFFFF00;
@@ -1546,14 +1546,14 @@ Gfx *func_806ACA88(Gfx *dl, Actor *actor) {
     return func_806FC530(dl, 1, 0x208, 0x21C, buf, 1);
 }
 
-void func_806ACC00(u8 arg0) {
+void hudSpawnTextScreen(u8 arg0) {
     actorSpawn(0x156, 0);
     D_807FBB44->unk15F = arg0;
     D_807FBB44->unk64 |= 2;
     D_807FBB60 |= 0x40001;
 }
 
-void func_806ACC64(void) {
+void hudFreeTextAndDespawn(void) {
     s16 i;
 
     D_807FBB60 |= 0x40;
@@ -1564,7 +1564,7 @@ void func_806ACC64(void) {
     actorDespawn(D_807FBB40);
 }
 
-void func_806ACCE8(void) {
+void hudTextScreenUpdate(void) {
     s32 i;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -1583,12 +1583,12 @@ void func_806ACCE8(void) {
             switch (D_807FBB40->unk15F) {
                 case 2:
                     func_8061CC40(0, 0x20, 1);
-                    func_806ACC64();
+                    hudFreeTextAndDespawn();
                     break;
                 case 3:
                 case 4:
                     func_80724994(3, 7, 0x30, 0, 0);
-                    func_806ACC64();
+                    hudFreeTextAndDespawn();
                     break;
                 default:
                     func_805FF378(D_8076A0A8, 0);
@@ -1601,7 +1601,7 @@ void func_806ACCE8(void) {
                 case 4:
                     func_80724994(3, 7, 0x3C, 0, 0);
                 case 2:
-                    func_806ACC64();
+                    hudFreeTextAndDespawn();
                     break;
                 case 1:
                     func_805FF544();
@@ -1613,24 +1613,24 @@ void func_806ACCE8(void) {
             D_807FBB40->unk154 = 1;
         }
     }
-    renderCallbacksRegister(func_806ACA88, D_807FBB40, 5);
+    renderCallbacksRegister(hudDrawTextScreen, D_807FBB40, 5);
 }
 
-Gfx *func_806ACF10(Gfx *dl, Actor *actor) {
+Gfx *hudDrawTwoOptionMenu(Gfx *dl, Actor *actor) {
     u8 sel;
     u8 c;
 
-    dl = func_806A921C(dl);
+    dl = hudSetupTextState(dl);
     sel = actor->unk155[0] == 0;
     c = D_807505F8[sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
-    dl = func_806ABB98(dl, 0x280, 0x1B8, 0.7f, D_807FC7E0[0]);
+    dl = hudDrawScaledText(dl, 0x280, 0x1B8, 0.7f, D_807FC7E0[0]);
     c = D_807505F9[-sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
-    return func_806ABB98(dl, 0x280, 0x208, 0.7f, D_807FC7E0[3]);
+    return hudDrawScaledText(dl, 0x280, 0x208, 0.7f, D_807FC7E0[3]);
 }
 
-void func_806ACFFC(void) {
+void hudTwoOptionMenuUpdate(void) {
     s32 i;
     s32 off;
     u16 btn;
@@ -1672,6 +1672,6 @@ void func_806ACFFC(void) {
             D_807FBB40->unk155[0] = 2;
         }
     }
-    renderCallbacksRegister(func_806AC048, D_807FBB40, 1);
-    renderCallbacksRegister(func_806ACF10, D_807FBB40, 5);
+    renderCallbacksRegister(hudDrawDimOverlay, D_807FBB40, 1);
+    renderCallbacksRegister(hudDrawTwoOptionMenu, D_807FBB40, 5);
 }

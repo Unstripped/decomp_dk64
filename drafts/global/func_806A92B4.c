@@ -17,7 +17,7 @@ f32 func_80612794(s16);
 s32 func_805FF030(s32, s32);
 s32 func_80712628(void);
 Gfx *func_806AA09C(s16, s16, s16, s16, Gfx *, s8, f32);
-Gfx *func_806ABA6C(Gfx *, ACDC0HudEntry *, s32);
+Gfx *hudDrawItemLabel(Gfx *, ACDC0HudEntry *, s32);
 extern s16 D_807FC992[];
 extern u8 D_807FCC4C;
 extern s8 D_807FCC4B;
@@ -63,7 +63,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
     heapFreeDeferred(list);
     gSPDisplayList(dl++, list);
     ret = dl;
-    dl = func_806A921C(list);
+    dl = hudSetupTextState(list);
     for (i = 0; i < 2; i++) {
         it = D_807FC7F0[i];
         if (it != 0) {
@@ -169,18 +169,18 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                     if (i == 2 && *(s8 *)D_807505CC != 0) {
                         i = 5;
                     }
-                    dl = func_806ABB98(dl, 0x280, y, 0.7f, D_807FC7E0[i]);
+                    dl = hudDrawScaledText(dl, 0x280, y, 0.7f, D_807FC7E0[i]);
                     j++;
                     y += 0x44;
                 } while (j < 3);
             } else {
                 dl->words.w1 = (ang & 0xFF) | 0xFFFFFF00;
                 dl->words.w0 = 0xFA000000;
-                dl = func_806ABB98(dl + 1, 0x280, 0x198, 0.7f, D_807FC7E0[7]);
+                dl = hudDrawScaledText(dl + 1, 0x280, 0x198, 0.7f, D_807FC7E0[7]);
                 _sprintf(buf, "q %s", D_807FC7E0[16]);
-                dl = func_806ABB98(dl, 0x280, 0x1E8, 1.0f, buf);
+                dl = hudDrawScaledText(dl, 0x280, 0x1E8, 1.0f, buf);
                 _sprintf(buf, "b %s", D_807FC7E0[17]);
-                dl = func_806ABB98(dl, 0x280, 0x238, 1.0f, buf);
+                dl = hudDrawScaledText(dl, 0x280, 0x238, 1.0f, buf);
             }
             break;
         case 1:
@@ -217,7 +217,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                         } while (j < 5);
                         gDPPipeSync(dl++);
                     }
-                    dl = func_806ABA6C(dl, (ACDC0HudEntry *)hud, i);
+                    dl = hudDrawItemLabel(dl, (ACDC0HudEntry *)hud, i);
                 }
                 j = hud->unk8[i];
                 if (j != 8) {
@@ -248,7 +248,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
             for (i = 0; i < 2; i++) {
                 off = hud->unkC[i] * 4;
                 if (off < 0x3B6 && off >= -0x3B5) {
-                    dl = func_806ABA6C(dl, (ACDC0HudEntry *)hud, i);
+                    dl = hudDrawItemLabel(dl, (ACDC0HudEntry *)hud, i);
                 }
                 y = hud->unk8[i];
                 t0 = 0;
@@ -276,7 +276,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
             }
             break;
         case 3:
-            dl = func_806ABB98(func_806ABB98(dl, 0x280, 0x74, 0.5f, D_807FC7E0[D_807FC818[D_807FC80C] + 18]), 0x280, 0x3C, 0.65, D_807FC7E0[6]);
+            dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, 0x74, 0.5f, D_807FC7E0[D_807FC818[D_807FC80C] + 18]), 0x280, 0x3C, 0.65, D_807FC7E0[6]);
             fa = hud->unk4;
             fb = hud->unk0;
             if (fa < fb) {

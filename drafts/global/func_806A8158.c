@@ -57,9 +57,9 @@ void func_80600044();
 void func_8073129C(s32, s32, s32);
 void func_806ABE3C();
 s32 func_806ABC94();
-Gfx *func_806AC048(Gfx *, Actor *);
+Gfx *hudDrawDimOverlay(Gfx *, Actor *);
 Gfx *func_806A92B4(Gfx *, Actor *);
-void func_806A9124(void);
+void hudFreeBuffers(void);
 
 #define L10_CC (*(s8 *)D_807505CC)
 #define L10_LIST ((s8 *)&D_80750530)
@@ -122,7 +122,7 @@ void func_806A8158(void) {
         hud->unk0 = 1.0f;
         hud->unk4 = 0.0f;
         hud->unk14 = func_806C8DE0(0);
-        hud->unk8[0] = func_806A80C0(func_805FF030(D_8076A0AB, 1));
+        hud->unk8[0] = hudFindItemIndex(func_805FF030(D_8076A0AB, 1));
         if (D_807505D0 < hud->unk8[0]) {
             hud->unk8[0] = 0;
         }
@@ -378,7 +378,7 @@ void func_806A8158(void) {
             x = hud->unk13;
             hud->unk0 = 1.0f;
             if (-1 == x) {
-                func_806A9124();
+                hudFreeBuffers();
             } else {
                 hud->unk12 = x;
                 hud->unk16 = -1;
@@ -405,7 +405,7 @@ void func_806A8158(void) {
         hud->unk0 = D_80750584[D_8075052C];
         ((L10Player *)D_807FC924)->unk214 = D_807FC7FC + hud->unk0 * 100.0;
     }
-    renderCallbacksRegister(func_806AC048, D_807FBB40, 1);
+    renderCallbacksRegister(hudDrawDimOverlay, D_807FBB40, 1);
     renderCallbacksRegister(func_806A92B4, D_807FBB40, 5);
 }
 

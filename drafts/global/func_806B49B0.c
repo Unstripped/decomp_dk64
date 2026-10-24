@@ -48,7 +48,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
                     func_80614EBC(D_807FBB40, arg2);
                     D_807FBB40->unk155[0] = 3;
                 case 3:
-                    func_806B3F90((void *) D_807FDC90, 0x26);
+                    actorFlyTowardPosition((void *) D_807FDC90, 0x26);
                     break;
             }
             break;
