@@ -71,7 +71,7 @@ void func_80729B00(void);
 void func_8072C918(s32, s32, s32);
 void func_8072D13C(u32, s32);
 void func_806319C4(Actor *, s32);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
+s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxSpawnTableNodes(void *);
 void sfxStopSlotSound(Actor *, s32);
@@ -618,7 +618,6 @@ void func_806BA8C8(void) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct L4Sub178 {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 unk2;
@@ -641,7 +640,7 @@ void func_806BA8C8(void);
 f32 func_80612D10(f32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s32 func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80612CA0(f32 (*)[4], f32);
 s16 func_806CC190(s16, s16, f32);
 
@@ -653,7 +652,7 @@ u8 arg2;
     L4Sub178 *s1;
     f32 spA4[4][4];
     f32 sp64[4][4];
-    s32 sgn;
+    s16 sgn;
     s32 dir;
     f32 sp58;
     s16 a;
@@ -684,6 +683,7 @@ u8 arg2;
                 s1->unk4--;
                 if (s1->unk4 < 2) {
                     L4A->unk155++;
+                    dir = s1->unk4;
                     s1->unk4 = 0;
                     D_807FDC90->unk30 = 0.0f;
                 }
@@ -756,10 +756,6 @@ u8 arg2;
         func_806319C4(D_807FBB40, 1);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/BDEE0/func_806BA93C.s")
-#endif
 
 typedef struct R1EView90 {
     /* 0x00 */ u8 pad0[0x2E];
