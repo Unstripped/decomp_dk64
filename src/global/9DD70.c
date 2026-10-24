@@ -33,6 +33,9 @@ void func_80699128(Gfx *arg0, Actor *arg1) {
     func_80614B34(renderSetSegment6AndFog(arg0, arg1->unk128, 1), arg1);
 }
 
+extern void *D_807FD580;
+void animSetNodeItem(Actor *, s32, s16, s32);
+
 #ifdef NON_MATCHING
 typedef struct L1_PlayerState {
     /* 0x000 */ u8 pad0[0x88];
@@ -67,7 +70,6 @@ typedef struct L1_CamState {
 #define L1_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 extern Actor *D_807FBB40;
-extern L1_PlayerState *D_807FD580;
 
 s32 func_806FFF88(void);
 void func_80613C48(Actor *, s16, f32, f32);
@@ -75,7 +77,6 @@ void func_80614D00(Actor *, f32, f32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void func_807002AC(s16 *, s32 *, f32);
-void animSetNodeItem(void *, s32, s16, s32);
 void func_806F91B4(s32, u8, s32);
 void sfxAllocateChannel(s32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
@@ -129,15 +130,15 @@ void func_80699284(void) {
     } else {
         animSetNodeItem(D_807FBB40, 0, 0, (s32)spEC[0]->unk4);
         if (D_807FBB40->unk155[0] == 0) {
-            if (D_807FD580->unk1EC == 1) {
-                func_806F91B4(0xC, D_807FD580->unk1A4, 1);
+            if (((L1_PlayerState *)D_807FD580)->unk1EC == 1) {
+                func_806F91B4(0xC, ((L1_PlayerState *)D_807FD580)->unk1A4, 1);
                 sfxAllocateChannel(0x2E, 1.0f);
-            } else if (D_807FD580->unk1EC == 2) {
+            } else if (((L1_PlayerState *)D_807FD580)->unk1EC == 2) {
                 func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
             }
             D_807FBB40->unk155[0]++;
         }
-        if (D_807FD580->unk1EC != 0xFF && spEC[0]->unk10 != 0) {
+        if (((L1_PlayerState *)D_807FD580)->unk1EC != 0xFF && spEC[0]->unk10 != 0) {
             renderCallbacksRegister(&func_806FF628, D_807FBB40, 3);
         }
     }
@@ -642,7 +643,67 @@ Gfx *func_8069D930(Gfx *gfx, Actor *actor) {
     return gfx;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069DA54.s")
+void renderCallbacksRegister(void *, void *, s32);
+void heapFree(void *);
+void actorDespawn(Actor *);
+void func_8069D424(Gfx *, Actor *);
+
+void func_8069DA54(void) {
+    u8 *model;
+
+    model = (u8 *)D_807FBB40->unk174;
+    if (*(s16 *)(D_807FBB40->unkE8 + 6) != 0) {
+        renderCallbacksRegister(func_8069D930, D_807FBB40, 3);
+        return;
+    }
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unk168 = *(u16 *)(model + 4);
+    }
+    switch (D_807FBB40->unk154) {
+    case 0:
+        if (D_807FBB40->unk168 != 0) {
+            D_807FBB40->unk168--;
+        } else {
+            D_807FBB40->unk154 = 1;
+        }
+        break;
+    case 1:
+        if (D_807FBB40->unk155[0] != 3) {
+            renderCallbacksRegister(func_8069D424, D_807FBB40, 3);
+        }
+        switch (D_807FBB40->unk155[0]) {
+        case 0:
+            if (D_807FBB40->unk15F <= 0xFF - model[8]) {
+                D_807FBB40->unk15F += model[8];
+            } else {
+                D_807FBB40->unk15F = 0xFF;
+                D_807FBB40->unk155[0]++;
+                D_807FBB40->unk168 = *(u16 *)(model + 6);
+            }
+            break;
+        case 1:
+            if (D_807FBB40->unk168 != 0) {
+                D_807FBB40->unk168--;
+            } else {
+                D_807FBB40->unk155[0]++;
+            }
+            break;
+        case 2:
+            if (D_807FBB40->unk15F >= model[9]) {
+                D_807FBB40->unk15F -= model[9];
+            } else {
+                D_807FBB40->unk155[0]++;
+                D_807FBB40->unk15F = 0;
+            }
+            break;
+        case 3:
+            heapFree(*(void **)model);
+            actorDespawn(D_807FBB40);
+            break;
+        }
+        break;
+    }
+}
 
 /* Row-major copy: the target keeps the row offset (i * arg2) * 4 as the loop
    invariant and adds arg1 + j * 4 inside, so arg1 is written before the offset. */
@@ -662,7 +723,6 @@ void func_8069DC10(s32 *arg0, s32 *arg1, u8 arg2) {
 void *func_806FBB9C(s16);
 void animSetLoopLimit(Actor *, s32, s16);
 void animSetSpeed(Actor *, s32, f32);
-void animSetNodeItem(Actor *, s32, s16, s32);
 
 s32 func_8069DC80(u8 arg0, void *arg1, u8 arg2, u8 arg3, u8 arg4) {
     void *temp;
@@ -680,7 +740,52 @@ s32 func_8069DC80(u8 arg0, void *arg1, u8 arg2, u8 arg3, u8 arg4) {
     return (s32)arg1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069DD40.s")
+extern u8 D_8076A0AB;
+extern u16 D_807FC930[];
+extern u16 D_807446C0[];
+u8 func_805FF030(u8, u8);
+void func_8063DA40(s32, s32);
+s32 func_8069DC80(u8, void *, u8, u8, u8);
+
+void func_8069DD40(void) {
+    s32 *model;
+    s32 dummy;
+    s32 t;
+    s32 ten;
+    s32 unk;
+    u16 val;
+
+    model = (s32 *)D_807FBB40->unk174;
+    if (!(D_807FBB40->unk60 & 0x10) || (*(u32 *)((u8 *)D_807FD580 + 0x1F0) & 0x20000)) {
+        t = func_805FF030(D_8076A0AB, 0);
+        if (t >= 8) {
+            t = 0;
+        }
+        unk = t << 1;
+        val = *(u16 *)((u8 *)D_807FC930 + unk);
+        model[0] = func_8069DC80(0x21, (void *)model[0], 0, val / 100, 0x20);
+        model[1] = func_8069DC80(0x21, (void *)model[1], 1, val % 100 / 10, 0x20);
+        model[2] = func_8069DC80(0x21, (void *)model[2], 2, val % 10, 0x20);
+        D_807FBB40->unk16A = 0xFF;
+        D_807FBB40->unk16B = 0xFF;
+        D_807FBB40->unk16C = 0xFF;
+        D_807FBB40->unk60 |= 0x800000;
+        *(u32 *)((u8 *)D_807FD580 + 0x1F0) &= ~0x20000;
+        if (val >= *(u16 *)((u8 *)D_807446C0 + unk)) {
+            D_807FBB40->unk60 &= ~0x8000;
+            D_807FBB40->unk128 = 0;
+            D_807FBB40->unk144 = 1;
+            func_8063DA40(8, 2);
+            ten = 10;
+            func_8063DA40(9, ten);
+            func_8063DA40(ten, ten);
+            func_8063DA40(11, ten);
+            func_8063DA40(13, ten);
+            func_8063DA40(12, ten);
+        }
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
 void func_8069DF58(void) {
     s32 *model;

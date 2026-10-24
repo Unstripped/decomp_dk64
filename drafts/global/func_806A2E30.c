@@ -1,8 +1,16 @@
-// func_806A2E30 (src/global/A7710.c): stage 1-2: complete C transcription (timer countdown display: 3-way switch on unk154, sprintf %.2d formats, rotation ramp). Compiles to 2160 of 3312 bytes; block order/regalloc and the sprintf buffer/stack layout still differ. func_806A36F4 (empty) included after it.
-/* func_806A2E30 (src/global/A7710.c): stage 1 - structurally complete C transcribed
-   from the asm/m2c (three-way switch on actor->unk154, countdown timer formatting,
-   rotation ramp). Not yet block-ordered/regalloc-matched; saved as the starting point.
-   func_806A36F4 (the empty function at 0x806A36F4) follows this function. */
+// func_806A2E30 (src/global/A7710.c): stage 1-2: builds; frame 0xa8 vs 0x88, text 3184 vs 3312, block order wrong; target facts recorded (6 rodata strings, buffer sp+0x60, D_807FC7D0=hi/D_807FC7D4=lo)
+/* func_806A2E30 (src/global/A7710.c) - stage 1-2. Structurally complete C transcribed
+   from the asm (three-way switch on actor->unk154, timer formatting, rotation ramp).
+   COMPILED in this session: builds, but frame 0xa8 vs target 0x88 and .text 3184 vs
+   3312 bytes; block order still wrong. Target facts confirmed from the asm:
+   - frame 0x88, ra at 0x1c, sub pointer spilled at 0x5c, text buffer at sp+0x60 (0x24 bytes)
+   - SIX rodata strings: "%.2d"(0x8075A5B0), "%.2d:%.2d:00"(0x8075A5B8), "%.2d"(0x8075A5C8),
+     "%.2d:%.2d:%.2d"(0x8075A5D0), "00:00:00"(0x8075A5E0 and 0x8075A5EC) - i.e. two
+     separate sprintf pairs, the draft only has the first pair
+   - the hidden empty function func_806A36F4 follows (already emitted below)
+   - the timestamp pair is D_807FC7D0 = HIGH word / D_807FC7D4 = LOW word (2B38 stores
+     hi at C7D4 and lo at C7D0), the opposite of what this draft assumes.
+*/
 typedef struct A7R2TimerState {
     /* 0x00 */ s32 unk0;      /* timer, high word */
     /* 0x04 */ u32 unk4;      /* timer, low word */
