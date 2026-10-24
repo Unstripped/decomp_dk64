@@ -95,26 +95,27 @@ u16 arg2;
             func_8072D714(D_807FBB70.unk1FC, arg0, actor);
         }
     }
-    switch (D_807FBB40->unk154) {
+    actor = D_807FBB40;
+    switch (actor->unk154) {
         case 1:
         case 0x10:
         case 0x15:
         case 0x23:
-            func_8072AB74(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, (D_807FBB40->unk6A & 1) ? arg2 : (arg2 | 2), 0.0f);
+            func_8072AB74(actor->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, (actor->unk6A & 1) ? arg2 : (arg2 | 2), 0.0f);
             break;
         case 2:
         case 3:
         case 7:
         case 0x35:
-            func_8072AB74(D_807FBB40->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, arg2, 0.0f);
+            func_8072AB74(actor->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, arg2, 0.0f);
             break;
         case 0x37:
-            switch (B1F60A->unk155) {
+            switch (((B1F60Actor *)actor)->unk155) {
                 case 0:
                     func_8072AB74(0x37, 0.0f, 0.0f, (arg2 | 0x4200) & 0xFFFF, 0.0f);
                     break;
                 case 1:
-                    sfxSpawnTableNodes(D_807FBB40);
+                    sfxSpawnTableNodes(actor);
                     if (arg1 != 0) {
                         B1F60A->unk155 = 2;
                         break;
@@ -315,20 +316,17 @@ void func_806AD9F4(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
 void func_806ADDD8(void) {
-    u32 k = 0x31A;
-
     func_80729B00();
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FDC98->unk46 |= 0x40;
-        ((B1F60View98 *)D_807FDC98)->unk28 = k;
+        ((B1F60View98 *)D_807FDC98)->unk28 = 0x31A;
     }
     switch (D_807FBB40->unk154) {
         case 0:
         case 1:
             if (func_8072E22C(0x12C) != 0) {
-                func_80614EBC(D_807FBB40, k);
+                func_80614EBC(D_807FBB40, 0x31A);
                 D_807FBB40->unk154 = 0x23;
                 B1F60A->unk155 = 0;
             }
@@ -344,13 +342,13 @@ void func_806ADDD8(void) {
             }
             break;
         case 0x1E:
-            if (B1F60A->unk4->unk64 == k) {
+            if (B1F60A->unk4->unk64 == 0x31A) {
                 D_807FBB40->unk154 = 0x23;
                 B1F60A->unk155 = 0;
             }
             break;
         case 0x23:
-            if (B1F60A->unk4->unk64 == k && B1F60A->unk4->unk0->unk4 > 4.0f) {
+            if (B1F60A->unk4->unk64 == 0x31A && B1F60A->unk4->unk0->unk4 > 4.0f) {
                 func_8072AB74(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
             }
             if (func_8072E22C(0x12C) == 0) {
@@ -360,12 +358,8 @@ void func_806ADDD8(void) {
             }
             break;
         default:
-            func_8072B7CC(k);
+            func_8072B7CC(0x31A);
             break;
     }
     func_806319C4(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B1F60/func_806ADDD8.s")
-#endif

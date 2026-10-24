@@ -1,4 +1,4 @@
-// func_806AC07C (src/global/ACDC0.c): stage 4: frame 0x58 ok, switch/cases structurally close (type/item/t copies match); remaining: item ptr a2 vs v1/a3 head regs, t=0.0f mtc1 vs mov.s, (s16) arg 'sra t; move a0' pattern, D_8076A064 temp v0, ~50 insn diffs, text 16B short
+// func_806AC07C (src/global/ACDC0.c): stage 5: size+frame match (20896B). Diffs: item head ptr v1 vs a2, type a0 vs v1, 4.0 const f12 vs f16, zero const reuse (mov.s vs mtc1 zero,f14) in case0/3/6, case6 tail scheduling, case10 (i-5)*4 hoist (addiu -20)
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -57,7 +57,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
     s32 type;
     s32 sp40;
     s32 tmp;
-    s16 ang;
+    s32 ang;
     s32 i;
 
     src = arg0->unk35C;
@@ -100,7 +100,8 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
                 t += src->unk4;
             }
             if (type == 7) {
-                arg0->unk364 = (f64)func_80612794((D_8076A064 * 0x78) & 0xFFF) * 0.35 + item->unk18;
+                ang = (D_8076A064 * 0x78) & 0xFFF;
+                arg0->unk364 = (f64)func_80612794(ang) * 0.35 + item->unk18;
             }
             arg0->unk340 = item->unk10 * t + item->unk8;
             arg0->unk344 = item->unk14 * t + item->unkC + (f32)sp40;
@@ -116,8 +117,8 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             if (t > 1.0f) {
                 t = 1.0f;
             }
-            sc = 180.0f;
             ang = (s32)((f64)item->unk8 * 0.25) - src->tbl[2];
+            sc = 180.0f;
             if (type != 3) {
                 sc = 240.0f;
             }
@@ -128,10 +129,12 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             arg0->unk340 = (f64)(func_80612794(ang) * sc) + 640.0;
             arg0->unk344 = (480.0 - (f64)(func_80612790(ang) * sc)) + (f64)sp40;
             if (type == 8) {
-                arg0->unk344 = arg0->unk344 + func_80612794((D_8076A064 * 0x78) & 0xFFF) * 10.0f;
+                ang = (D_8076A064 * 0x78) & 0xFFF;
+                arg0->unk344 = arg0->unk344 + func_80612794(ang) * 10.0f;
             }
             if (type == 0xF) {
-                arg0->unk364 = arg0->unk364 * (1.0 + (f64)func_80612794((D_8076A064 * 0x78) & 0xFFF) * 0.2);
+                ang = (D_8076A064 * 0x78) & 0xFFF;
+                arg0->unk364 = arg0->unk364 * (1.0 + (f64)func_80612794(ang) * 0.2);
             }
             if (type == 5 || type == 8 || type == 0xF) {
                 i = 0xFF - (s32)(((f64)arg0->unk344 - 240.0) * 1.5);
@@ -154,9 +157,8 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
                     tmp = (s32)item->unk20 & 0xFFF;
                     item->unk20 = tmp;
                     sc = ((f64)func_806119FC() * 40.0 + 20.0) * 4.0;
-                    ang = tmp;
-                    item->unk18 = (f64)func_80612794(ang) * ((f64)sc * 0.8);
-                    item->unk1C = func_80612790(ang) * sc;
+                    item->unk18 = (f64)func_80612794(tmp) * ((f64)sc * 0.8);
+                    item->unk1C = func_80612790(tmp) * sc;
                     if ((f64)func_806119FC() < 0.25) {
                         item->unk24 = (f64)func_806119FC() * 40.0 + 15.0;
                     } else {
@@ -181,7 +183,8 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             }
             item->unk14 = item->unk14 + sc;
             arg0->unk340 = item->unk10 + item->unk8;
-            sc = func_80612794((D_8076A064 * 0x78) & 0xFFF);
+            ang = (D_8076A064 * 0x78) & 0xFFF;
+            sc = func_80612794(ang);
             arg0->unk344 = sc * 10.0f + (item->unkC + item->unk14 + (f32)sp40 + 960.0f * t);
             t = 0.0f;
             break;
