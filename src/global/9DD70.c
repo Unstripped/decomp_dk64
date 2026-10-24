@@ -483,7 +483,28 @@ void *func_8069D358(void *arg0, M2_Pos *arg1, s16 arg2, f32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069D424.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069D930.s")
+#define M3_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+
+extern Gfx D_1000118;
+void func_806319C4(Actor *, s32);
+Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
+
+Gfx *func_8069D930(Gfx *gfx, Actor *actor) {
+    void *model;
+
+    model = actor->unk174;
+    M3_WRITE_GFX(gfx++, 0xDE000000, &D_1000118);
+    M3_WRITE_GFX(gfx++, 0xE7000000, 0);
+    M3_WRITE_GFX(gfx++, 0xFA000000, 0xFFFFFFFF);
+    M3_WRITE_GFX(gfx++, 0xFC11FE23, 0xFFFFF3F9);
+    M3_WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
+    if (actor->unk168++ < 100) {
+        gfx = func_806FE078(gfx, *(u8 *)((u8 *)model + 0xA), 2, 160.0f, actor->unk80, 0.0f, 1.0f);
+    } else {
+        gfx = func_806FE078(gfx, *(u8 *)((u8 *)model + 0xA), 1, 160.0f, actor->unk80, 0.0f, 1.0f);
+    }
+    return gfx;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069DA54.s")
 
@@ -495,8 +516,17 @@ void *func_8069D358(void *arg0, M2_Pos *arg1, s16 arg2, f32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069DF58.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069E018.s")
+void func_8069E018(void) {
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069E040.s")
+void func_80614EBC(Actor *, s32);
+
+void func_8069E040(void) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_80614EBC(D_807FBB40, 0x299);
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069E088.s")
