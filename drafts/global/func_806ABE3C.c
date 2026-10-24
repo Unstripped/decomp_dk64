@@ -1,8 +1,8 @@
-// func_806ABE3C (src/global/ACDC0.c): stage 5 (24 diff lines, regalloc/order only): distinct address exprs defeat CSE (loop 1 via &D_807FC82A-2/+10 so scalar stores keep 'lui at'); loop 4 as for(i=0;i<4;i++) D_80750531[i]=f(D_807505B2[i-1]) matches; remaining: sum loop (expected a1 + 'move a2,a1' with t6 hi temp), s1/s2 addiu init order in loops 2/3, move s0,zero placement. Parked NON_MATCHING
-typedef struct M1CountEntry {
+// func_806ABE3C (src/global/ACDC0.c): R2ACDC0: text diff only a1/a2 swap in sum-loop init (original: e=a1 init, IV copy move a2,a1; mine reversed) and s1/s2 addiu order in loops 1-3 (original end-first); loop1 uses D_807FC82A-2/+10 casts (reloc symbol differs, same address); sum loop uses D_807FC950[k] inner + e pointer cond, separate m counter for loop 3 fixes move s0,zero placement
+typedef struct ACDC0CountEntry {
     /* 0x00 */ u8 pad0[0x42];
     /* 0x42 */ u16 unk42[14];
-} M1CountEntry; // size = 0x5E
+} ACDC0CountEntry; // size = 0x5E
 
 extern s16 D_807FC828;
 extern s16 D_807FC82A;
@@ -13,8 +13,8 @@ extern s16 D_807FC832;
 extern s16 D_807FC834;
 extern s16 D_807FC836;
 extern s16 D_807FC838;
-extern M1CountEntry D_807FC950[];
-extern M1CountEntry D_807FCB26[];
+extern ACDC0CountEntry D_807FC950[];
+extern ACDC0CountEntry D_807FCB26[];
 extern s16 D_80744710[];
 extern s16 D_80744720[];
 extern s16 D_807505B2[];
@@ -29,10 +29,12 @@ void func_806ABE3C(void) {
     s16 *p;
     s16 *p0;
     s16 *q;
-    M1CountEntry *e;
+    ACDC0CountEntry *e;
     s32 n;
     s32 i;
     u8 *u;
+    s32 k;
+    s32 m;
 
     p0 = (s16 *)((u8 *)&D_807FC82A - 2);
     do {
@@ -40,12 +42,15 @@ void func_806ABE3C(void) {
     } while (p0 < (s16 *)((u8 *)&D_807FC82A + 10));
     n = 0;
     e = D_807FC950;
+    k = 0;
     do {
-        n += e->unk42[0] + e->unk42[1];
+        n += e->unk42[0];
+        n += e->unk42[1];
         for (i = 2; i < 14; i++) {
-            n += e->unk42[i];
+            n += D_807FC950[k].unk42[i];
         }
         e++;
+        k++;
     } while (e < D_807FCB26);
     D_807FC828 = n;
     n = 0;
@@ -59,15 +64,15 @@ void func_806ABE3C(void) {
     D_807FC82C = n;
     D_807FC832 = func_80731AA8(0x24D, 0x14, 0);
     D_807FC82E = func_80731AA8(0x225, 0x28, 0);
-    n = 0;
+    m = 0;
     p = D_807505B8;
     do {
         if (*p >= 0 && func_8073110C(*p, 0) != 0) {
-            n++;
+            m++;
         }
         p++;
     } while (p < D_807505CC);
-    D_807FC82A = n;
+    D_807FC82A = m;
     D_807FC834 = func_8073110C(0x84, 0);
     D_807FC830 = func_8073110C(0x17B, 0);
     D_807FC836 = func_80731AA8(0x1FD, 0x28, 0);

@@ -1,5 +1,5 @@
-// func_806ABC94 (src/global/ACDC0.c): stage 5-6: regalloc only: dir/v/d/ptr use v0/v1/a3 swapped vs expected (expected dir=v1, v=v0, d=v1, ptr=v0); (arg0->unk8+(-idx))[1] gives subu where expected has move/negu/addu. Permuter 2x300s best 375->305 not clean. Parked NON_MATCHING
-typedef struct M1HudEntry {
+// func_806ABC94 (src/global/ACDC0.c): R2ACDC0: empty 'if (dir) {}' after v = cur + dir makes dir=v1 v=v0 (matches); unk8[1 - idx2] gives negu+addu like original. Remaining regalloc: cur lands in a1 (orig a0, so 'move a0,s0' hoisted early in mine) and second half idx2/ptr/d regs (orig idx2=t0 with 'move t0,t4', ptr=v0, d=v1). decl order irrelevant; permuter no help.
+typedef struct ACDC0HudEntry {
     /* 0x00 */ u8 pad0[8];
     /* 0x08 */ s16 unk8[2];
     /* 0x0C */ s16 unkC[2];
@@ -8,16 +8,15 @@ typedef struct M1HudEntry {
     /* 0x13 */ u8 pad13;
     /* 0x14 */ s8 unk14;
     /* 0x15 */ s8 unk15;
-} M1HudEntry;
+} ACDC0HudEntry;
 
 extern s8 D_807FC7F8[2];
-
 extern s8 D_8075052C;
 extern s8 D_807505D0;
-void func_806AA304(M1HudEntry *, s32, s32);
+void func_806AA304(ACDC0HudEntry *, s32, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 
-s32 func_806ABC94(M1HudEntry *arg0, s32 arg1, s32 arg2) {
+s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
     s32 dir;
     s32 idx;
     s32 v;
@@ -36,6 +35,8 @@ s32 func_806ABC94(M1HudEntry *arg0, s32 arg1, s32 arg2) {
             idx = arg0->unk15;
             cur = arg0->unk8[idx];
             v = cur + dir;
+            if (dir) {
+            }
             if (v < 0) {
                 v = D_807505D0;
             }
@@ -63,7 +64,7 @@ s32 func_806ABC94(M1HudEntry *arg0, s32 arg1, s32 arg2) {
         arg0->unkC[0] -= d;
         arg0->unkC[1] -= d;
         if (arg0->unkC[idx2] == 0) {
-            (arg0->unk8 + (-idx2))[1] = arg0->unk8[idx2];
+            arg0->unk8[1 - idx2] = arg0->unk8[idx2];
             d = arg0->unk15;
             arg1 = 0;
             D_807FC7F8[1 - d] = 0;

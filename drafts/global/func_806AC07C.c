@@ -1,4 +1,4 @@
-// func_806AC07C (src/global/ACDC0.c): stage 5: size+frame match (20896B), ~35 insn diffs: item head ptr v1 vs a2, type a0 vs v1, 4.0 const f12 vs f16, zero const f16 reuse (swc1 f16 vs mtc1 zero,f14) in case3, case6 t=0 mov.s order, case10 (i-5)*4 hoist addiu -20. Needs f32 func_806119FC() unprototyped, s8 D_80750530 array access
+// func_806AC07C (src/global/ACDC0.c): stage 5-6: size+frame match (20896B), ~21 non-reg insn diffs left: item head ptr v1 vs a2 / type a0 vs v1, 4.0 const f12 vs f16, case6 mtc1 zero/mov.s order, case10 (i-5)*4 hoist addiu -20. t=0.0 (double literal) in case3/6 avoids zero-const CSE. Needs f32 func_806119FC() unprototyped; D_80750530 as s8 array
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -125,7 +125,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             sc = sc * t;
             arg0->unk360 = (f64)(item->unk10 * t) * 4.0;
             arg0->unk364 = arg0->unk360;
-            t = 0.0f;
+            t = 0.0;
             arg0->unk340 = (f64)(func_80612794(ang) * sc) + 640.0;
             arg0->unk344 = (480.0 - (f64)(func_80612790(ang) * sc)) + (f64)sp40;
             if (type == 8) {
@@ -186,7 +186,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             arg0->unk340 = item->unk10 + item->unk8;
             sc = func_80612794(ang);
             arg0->unk344 = sc * 10.0f + (item->unkC + item->unk14 + (f32)sp40 + 960.0f * t);
-            t = 0.0f;
+            t = 0.0;
             break;
         case 10:
             i = (s32)item->unk8;
