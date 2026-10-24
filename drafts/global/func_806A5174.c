@@ -1,4 +1,4 @@
-// func_806A5174 (src/global/A8400.c): stage 6: text+rodata byte-identical except temp register allocation (124/403 insns differ only in t/v reg choice) and jtbl/double reloc form; frame 0x80, stack offsets exact
+// func_806A5174 (src/global/A8400.c): stage 6: 405 insns, frame 0x80, stack offsets and rodata byte-identical; only temp-register choice differs (raw diff 364 lines, all t/v renames) + jtbl/double reloc form. Same blocks/callee-saved. Best levers found: double literals must be exact truncated values (131.1999969482421875 etc.), clamp = 3-arg macro, 8 declared locals (2 unused between sp74 and sp68) to get frame 0x80.
 typedef struct L8bNode {
     /* 0x00 */ u8 pad0[0x2C];
     /* 0x2C */ u8 unk2C;
