@@ -13,24 +13,24 @@ This repository contains no game data. You need your own copy of the ROM to buil
 Percentages are matched C function bytes out of all function bytes in each code segment. Assets (textures, models, text) are not counted; see [ROADMAP.md](ROADMAP.md).
 
 <!-- progress:start -->
-**Overall: 17.06%** of code bytes matched (296,516 / 1,737,916 bytes, 1,462 / 4,470 functions)
+**Overall: 17.77%** of code bytes matched (308,908 / 1,737,916 bytes, 1,464 / 4,470 functions)
 
 `███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`
 
 | Segment | Contents | Progress | Bytes | Functions |
 |---|---|---|--:|--:|
 | `boot` | boot, libultra, inflate | `████████████████░░░░` 79.6% | 42,820 / 53,796 | 191 / 229 |
-| `global` | main game code | `██░░░░░░░░░░░░░░░░░░` 12.3% | 163,224 / 1,323,560 | 887 / 3,572 |
+| `global` | main game code | `███░░░░░░░░░░░░░░░░░` 12.6% | 166,752 / 1,323,560 | 888 / 3,572 |
 | `multiplayer` | `ovl02`, multiplayer modes | `███████████░░░░░░░░░` 54.7% | 6,636 / 12,132 | 26 / 31 |
 | `minecart` | `ovl03`, minecart rides | `████████░░░░░░░░░░░░` 39.5% | 7,640 / 19,344 | 18 / 25 |
 | `bonus` | `ovl04`, bonus barrels | `██░░░░░░░░░░░░░░░░░░` 9.1% | 3,544 / 38,980 | 16 / 47 |
 | `race` | `ovl05`, races | `████░░░░░░░░░░░░░░░░` 21.2% | 10,172 / 47,872 | 59 / 113 |
 | `critter` | `ovl06`, critter minigames | `███░░░░░░░░░░░░░░░░░` 15.0% | 3,380 / 22,500 | 25 / 55 |
-| `boss` | `ovl07`, boss fights | `██████░░░░░░░░░░░░░░` 29.1% | 20,920 / 71,796 | 58 / 79 |
+| `boss` | `ovl07`, boss fights | `████████░░░░░░░░░░░░` 41.5% | 29,784 / 71,796 | 59 / 79 |
 | `arcade` | `ovl08`, Donkey Kong arcade | `█████░░░░░░░░░░░░░░░` 27.1% | 15,712 / 57,888 | 62 / 98 |
 | `jetpac` | `ovl09`, Jetpac | `███████░░░░░░░░░░░░░` 36.2% | 10,416 / 28,804 | 63 / 108 |
 | `menu` | `ovl10`, main menu / file select | `████░░░░░░░░░░░░░░░░` 19.7% | 12,052 / 61,244 | 57 / 113 |
-| **Total** |  | `███░░░░░░░░░░░░░░░░░` 17.1% | 296,516 / 1,737,916 | 1,462 / 4,470 |
+| **Total** |  | `████░░░░░░░░░░░░░░░░` 17.8% | 308,908 / 1,737,916 | 1,464 / 4,470 |
 <!-- progress:end -->
 
 Refresh after a matching build with `tools/dk python3 tools/progress.py --readme`.

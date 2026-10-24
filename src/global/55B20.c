@@ -1792,7 +1792,6 @@ s32 mapNodeIdListContains(s16 arg0, s32 arg1) {
 
 extern s16 D_807F6BF0[];
 
-#ifdef NON_MATCHING
 typedef struct {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 unk1;
@@ -1829,18 +1828,13 @@ typedef struct {
             /* 0x076 */ s16 unk76;
         } h;
     } tile;
+    /* 0x078 */ u8 pad78[0x1C8 - 0x78];
 } MapChunkTile;
 
 typedef struct {
     /* 0x000 */ u8 pad0[0x8];
     /* 0x008 */ s32 unk8;
 } MapChunkArg;
-
-typedef struct {
-    /* 0x000 */ u8 pad0[0x8];
-    /* 0x008 */ s32 unk8;
-    /* 0x00C */ s32 unkC;
-} MapWaterEntry;
 
 typedef struct {
     /* 0x000 */ u8 pad0[0x27C];
@@ -1867,164 +1861,155 @@ Gfx *func_8063A968(Gfx *, s32);
 Gfx *func_8065D994(Gfx *, s16);
 Gfx *func_80630B70(Gfx *, s32, s32, s32, f32, s32, s16, s32);
 Gfx *func_80027034(Gfx *);
-Gfx *effectWaterRenderSurfaces(Gfx *, s16, s16);
+Gfx *effectWaterRenderSurfaces();
 Gfx *fogRender(Gfx *);
 Gfx *renderDepthSortedTargets(Gfx *);
 void mapSetClipBounds();
 
-void func_80655DD0(Gfx *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5) {
-    s32 flags;
-    Gfx *gfx;
-    Gfx *v;
+void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5) {
     s32 i;
-    s16 idx;
+    s32 idx;
+    s32 dl;
     u8 flag;
 
-    flag = (D_807F5FEC != 0);
-    if (flag != 0) {
-        flag = (((MapPlayerFog *)D_807FC924)[D_807FC929].unk27C == 45.0);
-    }
-    WRITE_GFX(arg0, 0xE7000000, 0);
-    gfx = arg0 + 1;
-    flags = arg5 & 0x10;
-    if (flags != 0) {
-        WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-        WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)D_807F5DE8));
-        WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
+    idx = 0;
+    flag = (D_807F5FEC != 0) && (((MapPlayerFog *)D_807FC924)[D_807FC929].unk27C == 45.0);
+    gDPPipeSync(gfx++);
+    if (arg5 & 0x10) {
+        gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+        gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
         gfx = func_8062CEA8(gfx, arg1, 1);
         if (((MapChunkArg *)arg1)->unk8 != -1) {
-            WRITE_GFX(gfx++, 0xE7000000, 0);
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkArg *)arg1)->unk8));
+            gDPPipeSync(gfx++);
+            gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapChunkArg *)arg1)->unk8));
         }
         gfx = effectWaterRenderSurfaces(gfx, 0, 0);
         for (i = 0; i < D_807F6C08; i++) {
-            if (((MapWaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unk8 != -1) {
-                WRITE_GFX(gfx++, 0xE7000000, 0);
-                WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapWaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unk8));
+            if (((MapRelocEntry *)D_807F6C0C)[D_807F6BF0[i]].unk8 != -1) {
+                gDPPipeSync(gfx++);
+                gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapRelocEntry *)D_807F6C0C)[D_807F6BF0[i]].unk8));
             }
-            if (((MapWaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unkC != -1) {
-                WRITE_GFX(gfx++, 0xE7000000, 0);
-                WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapWaterEntry *)(D_807F6C0C + (D_807F6BF0[i] * 0x10)))->unkC));
+            if (((MapRelocEntry *)D_807F6C0C)[D_807F6BF0[i]].unkC != -1) {
+                gDPPipeSync(gfx++);
+                gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapRelocEntry *)D_807F6C0C)[D_807F6BF0[i]].unkC));
             }
         }
-        WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
+        gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     }
     for (i = D_807F6C80 - 1; i >= 0; i--) {
         idx = D_807F6C58[i];
         if (MAP_CHUNK_TILE_AT(idx).unk0 == 1) {
             if (MAP_CHUNK_TILE_AT(idx).unk2 != 0) {
-                func_8062EE48(idx & 0xFF);
+                func_8062EE48(idx);
                 MAP_CHUNK_TILE_AT(idx).unk2 = 0;
             }
-            WRITE_GFX(gfx++, 0xE7000000, 0);
-            WRITE_GFX(gfx++, ((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk6C * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk68 * 4.0f) & 0xFFF) << 0xC),
-                        ((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk74 * 4.0f) & 0xFFF) | (((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk70 * 4.0f) & 0xFFF) << 0xC));
+            gDPPipeSync(gfx++);
+            gDPSetScissor(gfx++, G_SC_NON_INTERLACE, MAP_CHUNK_TILE_AT(idx).tile.w.unk68, MAP_CHUNK_TILE_AT(idx).tile.w.unk6C, MAP_CHUNK_TILE_AT(idx).tile.w.unk70, MAP_CHUNK_TILE_AT(idx).tile.w.unk74);
             mapSetClipBounds(MAP_CHUNK_TILE_AT(idx).tile.h.unk6A, MAP_CHUNK_TILE_AT(idx).tile.h.unk6E, MAP_CHUNK_TILE_AT(idx).tile.h.unk72, MAP_CHUNK_TILE_AT(idx).tile.h.unk76);
             gfx = fogRender(gfx);
-            if (flags != 0) {
-                gfx = func_8062EDA8(gfx, idx & 0xFF);
+            if (arg5 & 0x10) {
+                gfx = func_8062EDA8(gfx, idx);
                 if (MAP_CHUNK_TILE_AT(idx).unk2C != -1) {
-                    WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-                    WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
-                    WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
-                    v = (Gfx *)func_80656B98(gfx, idx, 0);
-                    WRITE_GFX(v++, 0xE7000000, 0);
-                    WRITE_GFX(v++, 0xDA380003, &D_2000180);
-                    gfx = v;
+                    gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
+                    gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+                    gfx = (Gfx *)func_80656B98(gfx, idx, 0);
+                    gDPPipeSync(gfx++);
+                    gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 }
                 if (MAP_CHUNK_TILE_AT(idx).unk34 != -1) {
-                    WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-                    WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
-                    WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
-                    v = (Gfx *)func_80656B98(gfx, idx, 2);
-                    WRITE_GFX(v++, 0xE7000000, 0);
-                    WRITE_GFX(v++, 0xDA380003, &D_2000180);
-                    gfx = v;
+                    gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
+                    gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+                    gfx = (Gfx *)func_80656B98(gfx, idx, 2);
+                    gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 }
             }
-            WRITE_GFX(gfx++, 0xE7000000, 0);
+            gDPPipeSync(gfx++);
             if (!(D_807FBB64 & 0x01000000)) {
                 gfx = func_8065D994(gfx, idx);
             }
             gfx = func_8063A968(gfx, MAP_CHUNK_TILE_AT(idx).unk24);
             D_807F6009 = 0xFF;
-            gfx = func_80630B70(gfx, (flag != 0) ? MAP_CHUNK_TILE_AT(idx).unk18 : MAP_CHUNK_TILE_AT(idx).unk14, arg2, arg3, arg4, arg5, idx, flag);
-            if (flags != 0) {
-                WRITE_GFX(gfx++, 0xD9000000, 0);
-                WRITE_GFX(gfx++, 0xD9FFFFFF, 0x200004);
+            if (flag != 0) {
+                dl = MAP_CHUNK_TILE_AT(idx).unk18;
+            } else {
+                dl = MAP_CHUNK_TILE_AT(idx).unk14;
+            }
+            gfx = func_80630B70(gfx, dl, arg2, arg3, arg4, arg5, idx, flag);
+            if (arg5 & 0x10) {
+                gSPClearGeometryMode(gfx++, 0xFFFFFFFF);
+                gSPSetGeometryMode(gfx++, 0x200004);
                 gfx = fogRender(gfx);
-                gfx = func_8062EDA8(gfx, idx & 0xFF);
+                gfx = func_8062EDA8(gfx, idx);
                 if (MAP_CHUNK_TILE_AT(idx).unk30 != -1) {
-                    WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-                    WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
-                    WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
-                    v = (Gfx *)func_80656B98(gfx, idx, 1);
-                    WRITE_GFX(v++, 0xDA380003, &D_2000180);
-                    WRITE_GFX(v++, 0xE7000000, 0);
-                    gfx = v;
+                    gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
+                    gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+                    gfx = (Gfx *)func_80656B98(gfx, idx, 1);
+                    gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gDPPipeSync(gfx++);
                 }
                 if (MAP_CHUNK_TILE_AT(idx).unk38 != -1) {
-                    WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-                    WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
-                    WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
-                    v = (Gfx *)func_80656B98(gfx, idx, 3);
-                    WRITE_GFX(v++, 0xE7000000, 0);
-                    WRITE_GFX(v++, 0xDA380003, &D_2000180);
-                    gfx = v;
+                    gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
+                    gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+                    gfx = (Gfx *)func_80656B98(gfx, idx, 3);
+                    gDPPipeSync(gfx++);
+                    gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 }
             }
         }
     }
-    if (flags != 0) {
-        WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-        WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)D_807F5DE8));
-        WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
+    if (arg5 & 0x10) {
+        gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+        gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
         gfx = func_8062CEA8(gfx, arg1, 2);
         if (D_807FBB64 & 0x1000) {
-            WRITE_GFX(gfx++, 0xE7000000, 0);
+            gDPPipeSync(gfx++);
             gfx = func_80027034(gfx);
-            WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
+            gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         }
         gfx = effectWaterRenderSurfaces(gfx, idx, 1);
-        WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
-        WRITE_GFX(gfx++, 0xE7000000, 0);
+        gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gDPPipeSync(gfx++);
         gfx = renderDepthSortedTargets(gfx);
     }
     for (i = D_807F6C80 - 1; i >= 0; i--) {
         idx = D_807F6C58[i];
         if (MAP_CHUNK_TILE_AT(idx).unk0 == 1) {
-            WRITE_GFX(gfx++, 0xE7000000, 0);
-            WRITE_GFX(gfx++, ((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk6C * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk68 * 4.0f) & 0xFFF) << 0xC),
-                        ((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk74 * 4.0f) & 0xFFF) | (((s32)((f32)MAP_CHUNK_TILE_AT(idx).tile.w.unk70 * 4.0f) & 0xFFF) << 0xC));
+            gDPPipeSync(gfx++);
+            gDPSetScissor(gfx++, G_SC_NON_INTERLACE, MAP_CHUNK_TILE_AT(idx).tile.w.unk68, MAP_CHUNK_TILE_AT(idx).tile.w.unk6C, MAP_CHUNK_TILE_AT(idx).tile.w.unk70, MAP_CHUNK_TILE_AT(idx).tile.w.unk74);
             mapSetClipBounds(MAP_CHUNK_TILE_AT(idx).tile.h.unk6A, MAP_CHUNK_TILE_AT(idx).tile.h.unk6E, MAP_CHUNK_TILE_AT(idx).tile.h.unk72, MAP_CHUNK_TILE_AT(idx).tile.h.unk76);
             D_807F6009 = 0xFF;
-            gfx = func_80630B70(gfx, (flag != 0) ? MAP_CHUNK_TILE_AT(idx).unk20 : MAP_CHUNK_TILE_AT(idx).unk1C, arg2, arg3, arg4, arg5, idx, flag);
+            if (flag != 0) {
+                dl = MAP_CHUNK_TILE_AT(idx).unk20;
+            } else {
+                dl = MAP_CHUNK_TILE_AT(idx).unk1C;
+            }
+            gfx = func_80630B70(gfx, dl, arg2, arg3, arg4, arg5, idx, flag);
             if (D_807FBB64 & 0x01000000) {
                 gfx = func_8065D994(gfx, idx);
             }
         }
     }
-    if (flags != 0) {
-        WRITE_GFX(gfx++, 0xDA380003, osVirtualToPhysical(D_807F7074));
-        WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)D_807F5DE8));
-        WRITE_GFX(gfx++, 0xDB06001C, osVirtualToPhysical(D_807F5DEC));
-        v = func_8062CEA8(gfx, arg1, 3);
-        WRITE_GFX(v++, 0xDA380003, &D_2000180);
-        WRITE_GFX(v++, 0xE7000000, 0);
-        gfx = v;
+    if (arg5 & 0x10) {
+        gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+        gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+        gfx = func_8062CEA8(gfx, arg1, 3);
+        gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gDPPipeSync(gfx++);
     }
-    WRITE_GFX(gfx++, 0xE7000000, 0);
-    WRITE_GFX(gfx++, ((s32)((f32)D_807FC924[D_807FC929].unk274 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)D_807FC924[D_807FC929].unk270 * 4.0f) & 0xFFF) << 0xC),
-                ((s32)((f32)D_807FC924[D_807FC929].unk276 * 4.0f) & 0xFFF) | (((s32)((f32)D_807FC924[D_807FC929].unk272 * 4.0f) & 0xFFF) << 0xC));
+    gDPPipeSync(gfx++);
+    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276);
     mapSetClipBounds(D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276);
     D_807F600C = 0;
     gfx = func_80630B70(gfx, D_807F5FFC, arg2, arg3, arg4, arg5, -1, 0);
     func_8065D994(gfx, -1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655DD0.s")
-#endif
 
 typedef struct {
     /* 0x000 */ u8 pad0[0x5];

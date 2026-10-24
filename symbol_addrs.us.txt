@@ -128,6 +128,7 @@ mapTriangleBoundsContainPoint = 0x80654E84; // type:func
 mapChunkFreeIdleBuffers = 0x80655AD0; // type:func
 mapChunkReleaseAndAdvance = 0x80655BF0; // type:func
 mapNodeIdListContains = 0x80655CF8; // type:func
+mapChunksRender = 0x80655DD0; // type:func
 mapChunkEffectSetFlag = 0x80656E58; // type:func
 mapChunkHitListExcludes = 0x806574B8; // type:func
 mapChunkIdListAddUniqueLimited = 0x80657508; // type:func
