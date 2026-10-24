@@ -114,12 +114,12 @@ segments:
       - [0xA7710, c, A7710]
       - [0xA8400, c, A8400]
       - [0xAA960, c, AA960] # hidden TU: A8400 rodata ends with an 8-byte pad at 0x15F6A0; data D_80750400 (16-aligned) used only by func_806A5C60
-      - [0xACDC0, asm]
-      - [0xB1F60, asm]
-      - [0xB2CE0, asm]
-      - [0xB5EC0, asm]
-      - [0xB6C50, asm]
-      - [0xB7490, asm]
+      - [0xACDC0, c, ACDC0]
+      - [0xB1F60, c, B1F60]
+      - [0xB2CE0, c, B2CE0]
+      - [0xB5EC0, c, B5EC0]
+      - [0xB6C50, c, B6C50]
+      - [0xB7490, c, B7490]
       - [0xBA790, asm]
       - [0xBB300, asm]
       - [0xBC3B0, asm]
@@ -237,7 +237,13 @@ segments:
       - [0x15F2B0, .rodata, A7710]
       - [0x15F440, .rodata, A8400]
       - [0x15F6A0, .rodata, AA960]
-      - [0x15F780, rodata]
+      - [0x15F780, .rodata, ACDC0] # unreferenced strings 0x15F780-0x15F7EC run into ACDC0's first label with no gap
+      - [0x15FA20, .rodata, B1F60]
+      - [0x15FB20, .rodata, B2CE0]
+      - [0x15FFA0, .rodata, B5EC0]
+      - [0x1600C0, .rodata, B6C50]
+      - [0x1600F0, .rodata, B7490]
+      - [0x160420, rodata]
       - { start: 0x165D50, type: bss, vram: 0x80761050 }
 
   - [0x165D50]
