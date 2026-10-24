@@ -1,4 +1,4 @@
-// func_806A18A8 (src/global/A6280.c): stage 6: identical text except one branch: 806a1ac4 'unk64!=0x233' path emits beq->join vs expected beql->else-if test (IDO folds the redundant c.le.s; could not defeat folding); frame 0x48, regs s0/f0 all match; needs 8-byte jr ra;nop pad at end of the asm label (unsymbolised empty function)
+// func_806A18A8 (src/global/A6280.c): stage 6: 1 instruction pair off. 212 instrs identical except: the 'unk64 != 0x233' exit emits 'beq t7,at,<join>' + nop where ROM has 'beql t7,at,<else-if test>' + 'c.le.s f0,f2'. Everything else (frame 0x48, s0, both c.le.s delay-slot dups, one mtc1 of 50.0f in f2, b join) matches. Tried: plain else, else{if}, separate ifs (gets beql->else-test but rematerialises 50.0f and no f2 reuse), negated test, local limit var, literal-first, explicit byte offset, do{...}while(0) and block wraps around the inner if/body; permuter 240s found nothing better than base. Emits an 8-byte jr ra;nop pad at 0x806A1ABC: add 'static void stub_806A1ABC(void) {}' after the function
 typedef struct M6ActorView {
     u8 pad0[0x178];
     void *unk178;

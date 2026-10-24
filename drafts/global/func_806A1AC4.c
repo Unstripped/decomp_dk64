@@ -1,4 +1,5 @@
 // func_806A1AC4 (src/global/A6280.c): stage 4: frame 0x58 vs 0x50 (one extra unused slot before cb at 0x44 vs 0x40); +2 instrs (sll/sra sign-extend of i at func_80714950 call); double conversion now cvt.d.w (speed = intExpr * 0.01); dz inlined; i s16; cb spilled
+extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 
 

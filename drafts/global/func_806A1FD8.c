@@ -1,4 +1,5 @@
 // func_806A1FD8 (src/global/A6280.c): stage 6: score 10 - 212/212 instrs identical (incl. sll s1,zero,2) except frame 0x70 vs 0x68 (one unused 8-byte slot at 0x68). All stack slots match: sp50/sp54/sp4C 0x4C/50/54, found 0x5B, count 0x64. NEEDED: local decl order sub,act,count,i,node,found and 'do { i = 0; } while (0);' for i (plain i=0 emits move s1,zero and grows frame). list local must not be cached; unk155 is an array -> unk155[0]
+extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 
 typedef struct A6R2Av {
