@@ -76,7 +76,7 @@ void bonusInitActors(u8 **arg0, u8 arg1) {
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/func_800261B8.s")
 void func_80609140(s32, s32, f32, f32, s32, s32);
-void func_8069D2AC(s32, s32, s32, s32, s32, s32, s32, s32);
+void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 s32 func_806EB0C0(s32, s32, s32);
 void func_80627948(void *, s32, s32, s32);
@@ -84,7 +84,7 @@ s32 func_8070E750(s32, s32, s32);
 
 void func_800264E0(u8 arg0, u8 arg1) {
     func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
-    func_8069D2AC(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
+    textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
     *(u8 *)((u8 *)*(void **)((u8 *)D_807FBB40 + 0x11C) + 0x154) = 0;
     sfxAllocateChannel(0x28, 1.0f);
     func_806EB0C0(0x44, 0, 0);
@@ -96,7 +96,7 @@ void func_800264E0(u8 arg0, u8 arg1) {
 
 void func_800265C0(u8 arg0, u8 arg1) {
     *(u8 *)((u8 *)*(void **)((u8 *)D_807FBB40 + 0x11C) + 0x154) = 0;
-    func_8069D2AC(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
+    textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
     sfxAllocateChannel(0x57, 1.0f);
     func_806EB0C0(0x43, 0, 0);
     *(u8 *)((u8 *)D_807FBB40 + 0x154) += 1;

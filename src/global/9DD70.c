@@ -4,7 +4,7 @@
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 func_80611BB4(f32, f32);
 
-void func_80699070(s16 *arg0, s16 *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void mathAngleBetweenPoints3D(s16 *arg0, s16 *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     f32 dx;
     f32 dz;
 
@@ -23,7 +23,7 @@ extern Gfx D_2000180;
 Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
 Gfx *func_80614B34(Gfx *, Actor *);
 
-void func_80699128(Gfx *arg0, Actor *arg1) {
+void renderSetupSegmentsAndFog(Gfx *arg0, Actor *arg1) {
     WRITE_GFX(arg0++, 0xDA380007, osVirtualToPhysical((void *)((u8 *)D_807FC924 + (D_807FC929 * 0x2F0) + (D_807444FC << 6) + 0x88)));
     WRITE_GFX(arg0++, 0xDA380005, osVirtualToPhysical((void *)((u8 *)D_807FC924 + (D_807FC929 * 0x2F0) + (D_807444FC << 6) + 8)));
     WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
@@ -37,7 +37,7 @@ extern void *D_807FD580;
 void animSetNodeItem(Actor *, s32, s16, s32);
 
 #ifdef NON_MATCHING
-typedef struct L1_PlayerState {
+typedef struct PlayerControlState {
     /* 0x000 */ u8 pad0[0x88];
     /* 0x088 */ s32 unk88;
     /* 0x08C */ u8 pad8C[0x1A4 - 0x8C];
@@ -46,17 +46,17 @@ typedef struct L1_PlayerState {
     /* 0x1EC */ u8 unk1EC;
     /* 0x1ED */ u8 pad1ED[0x1F0 - 0x1ED];
     /* 0x1F0 */ u32 unk1F0;
-} L1_PlayerState;
+} PlayerControlState;
 
-typedef struct L1_Sub174 {
-    /* 0x00 */ L1_PlayerState *unk0;
+typedef struct PanSubState {
+    /* 0x00 */ PlayerControlState *unk0;
     /* 0x04 */ s16 *unk4;
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ u16 unk10;
-} L1_Sub174;
+} PanSubState;
 
-typedef struct L1_CamState {
+typedef struct CameraView {
     /* 0x000 */ u8 pad0[0x210];
     /* 0x210 */ f32 unk210;
     /* 0x214 */ f32 unk214;
@@ -65,9 +65,9 @@ typedef struct L1_CamState {
     /* 0x228 */ f32 unk228;
     /* 0x22C */ f32 unk22C;
     /* 0x230 */ f32 unk230;
-} L1_CamState;
+} CameraView;
 
-#define L1_MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define PAN_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 extern Actor *D_807FBB40;
 
@@ -81,19 +81,19 @@ void func_806F91B4(s32, u8, s32);
 void sfxAllocateChannel(s32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
-void func_80699070(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
+void mathAngleBetweenPoints3D(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
 s32 func_806EB0C0(s32, s32, s32, void *);
 void assetFreeBuffer(s32, s32, s32);
 void heapFreeDeferred(Mtx *);
 void actorDespawn(Actor *);
 void func_806319C4(Actor *, s32);
-void func_80699128(Gfx *, Actor *);
+void renderSetupSegmentsAndFog(Gfx *, Actor *);
 void func_806FF628(void);
 
 void func_80699284(void) {
     /* 1-element array: forces the target's spilled-pointer codegen (loads from
        0xEC(sp) with per-block reuse) instead of a callee-saved s1. */
-    L1_Sub174 *spEC[1];
+    PanSubState *spEC[1];
     s16 spEA;
     s16 spE8;
     f32 mtx1[4][4];
@@ -122,7 +122,7 @@ void func_80699284(void) {
     if (sp66 == 0x1B) {
         sfxStopSlotSound(D_807FBB40, 0);
     }
-    t = L1_MIN(1.0, ((sp66 - 0x1E) < 0 ? 0 : (sp66 - 0x1E)) / 60.0f * 5.0);
+    t = PAN_MIN(1.0, ((sp66 - 0x1E) < 0 ? 0 : (sp66 - 0x1E)) / 60.0f * 5.0);
     if (t < 1.0 && D_807FBB40->unk58 != 0xD9) {
         l1Dest = &(&spEC[0]->unk8)[D_807444FC];
         func_807002AC((s16 *)spEC[0]->unk4, l1Dest, t);
@@ -130,27 +130,27 @@ void func_80699284(void) {
     } else {
         animSetNodeItem(D_807FBB40, 0, 0, (s32)spEC[0]->unk4);
         if (D_807FBB40->unk155[0] == 0) {
-            if (((L1_PlayerState *)D_807FD580)->unk1EC == 1) {
-                func_806F91B4(0xC, ((L1_PlayerState *)D_807FD580)->unk1A4, 1);
+            if (((PlayerControlState *)D_807FD580)->unk1EC == 1) {
+                func_806F91B4(0xC, ((PlayerControlState *)D_807FD580)->unk1A4, 1);
                 sfxAllocateChannel(0x2E, 1.0f);
-            } else if (((L1_PlayerState *)D_807FD580)->unk1EC == 2) {
+            } else if (((PlayerControlState *)D_807FD580)->unk1EC == 2) {
                 func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
             }
             D_807FBB40->unk155[0]++;
         }
-        if (((L1_PlayerState *)D_807FD580)->unk1EC != 0xFF && spEC[0]->unk10 != 0) {
+        if (((PlayerControlState *)D_807FD580)->unk1EC != 0xFF && spEC[0]->unk10 != 0) {
             renderCallbacksRegister(&func_806FF628, D_807FBB40, 3);
         }
     }
-    func_80699070(&spE8, &spEA, ((L1_CamState *)D_807FC924)->unk210, ((L1_CamState *)D_807FC924)->unk214, ((L1_CamState *)D_807FC924)->unk218, ((L1_CamState *)D_807FC924)->unk228, ((L1_CamState *)D_807FC924)->unk22C, ((L1_CamState *)D_807FC924)->unk230);
-    t = L1_MIN(30.0, sp66) / 30.0;
+    mathAngleBetweenPoints3D(&spE8, &spEA, ((CameraView *)D_807FC924)->unk210, ((CameraView *)D_807FC924)->unk214, ((CameraView *)D_807FC924)->unk218, ((CameraView *)D_807FC924)->unk228, ((CameraView *)D_807FC924)->unk22C, ((CameraView *)D_807FC924)->unk230);
+    t = PAN_MIN(30.0, sp66) / 30.0;
     D_807FBB40->unkE6 = spEA;
     l1Angle = (f32)spE8 - (2048.0f + -2048.0f * t);
     *(s16 *)D_807FBB40->unkE8 = l1Angle;
     guRotateF(mtx1, spE8 / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
     guRotateF(mtx2, spEA / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx1, mtx2, mtx1);
-    guTranslateF(mtx2, ((L1_CamState *)D_807FC924)->unk210, ((L1_CamState *)D_807FC924)->unk214, ((L1_CamState *)D_807FC924)->unk218);
+    guTranslateF(mtx2, ((CameraView *)D_807FC924)->unk210, ((CameraView *)D_807FC924)->unk214, ((CameraView *)D_807FC924)->unk218);
     guMtxCatF(mtx1, mtx2, mtx1);
     guMtxXFMF(mtx1, 0.0f, 0.0f, -30.0f * t, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
     if (spEC[0]->unk10 != 0) {
@@ -179,7 +179,7 @@ void func_80699284(void) {
     } else {
         guTranslateF((f32 (*)[4])((u8 *)D_807FBB40 + 0xC), 0.0f, -70.0f, 0.0f);
         func_806319C4(D_807FBB40, 1);
-        renderCallbacksRegister(&func_80699128, D_807FBB40, 3);
+        renderCallbacksRegister(&renderSetupSegmentsAndFog, D_807FBB40, 3);
     }
 }
 #else
@@ -214,36 +214,36 @@ void func_80699914(void) {
 }
 
 #ifdef NON_MATCHING
-typedef struct L2Node {
+typedef struct WaveNode {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
     /* 0x02 */ u8 pad2[2];
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
-} L2Node;
+} WaveNode;
 
-typedef struct L2Sub4 {
+typedef struct NodeListHead {
     /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ L2Node *unk24;
-} L2Sub4;
+    /* 0x24 */ WaveNode *unk24;
+} NodeListHead;
 
-typedef struct L2Entry {
+typedef struct ProximityEntry {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
-} L2Entry;
+} ProximityEntry;
 
-typedef struct L2Globals {
+typedef struct ProximityGlobals {
     /* 0x00 */ u8 pad0[0x39];
     /* 0x39 */ u8 unk39;
     /* 0x3A */ u8 pad3A[2];
-    /* 0x3C */ L2Entry entries[4];
+    /* 0x3C */ ProximityEntry entries[4];
     /* 0x6C */ u8 pad6C[0x10];
     /* 0x7C */ void *unk7C[4];
-} L2Globals;
+} ProximityGlobals;
 
-typedef struct L2State {
+typedef struct WaveState {
     /* 0x000 */ s16 unk0;
     /* 0x002 */ u8 pad2[2];
     /* 0x004 */ f32 unk4[28];
@@ -254,7 +254,7 @@ typedef struct L2State {
     /* 0x098 */ f32 unk98[4];
     /* 0x0A8 */ f32 unkA8[4];
     /* 0x0B8 */ u8 unkB8[4];
-} L2State;
+} WaveState;
 
 extern u8 D_807FBBEC;
 extern ActorGlobalState D_807FBB70;
@@ -263,7 +263,7 @@ void func_80614D00(Actor *, f32, f32);
 Mtx *func_80610FE8(s32);
 void func_806319C4(Actor *, s32);
 s32 func_8069A750(void);
-void func_8069A614(f32, u8);
+void actorAddNodeForceSlot(f32, u8);
 f32 func_80612D1C(f32);
 void *memcpy(void *, const void *, unsigned int);
 
@@ -272,8 +272,8 @@ void func_80699958(u8 arg0, u8 arg1) {
     f32 sp128[26];
     f32 spBC;
     f32 var_fa0;
-    L2State *state;
-    L2Globals *g;
+    WaveState *state;
+    ProximityGlobals *g;
     s32 i;
     s32 j;
     s32 found;
@@ -281,17 +281,17 @@ void func_80699958(u8 arg0, u8 arg1) {
     f32 dist;
     f32 val;
 
-    state = (L2State *)D_807FBB40->unk174;
+    state = (WaveState *)D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((L2Sub4 *)D_807FBB40->unk4)->unk24 = (L2Node *)func_80610FE8((arg0 * 0x10) + 0x10);
+        ((NodeListHead *)D_807FBB40->unk4)->unk24 = (WaveNode *)func_80610FE8((arg0 * 0x10) + 0x10);
         for (i = 0; i < arg0; i++) {
-            ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[i].unk0 = i;
-            ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[i].unk1 = (i == arg0 - 1) ? 0xFF : i + 1;
-            ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[i].unk4 = 0.0f;
-            ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[i].unkC = 0.0f;
-            ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[i].unk8 = 0.0f;
+            ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk0 = i;
+            ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk1 = (i == arg0 - 1) ? 0xFF : i + 1;
+            ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk4 = 0.0f;
+            ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unkC = 0.0f;
+            ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk8 = 0.0f;
         }
-        ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[arg0].unk0 = 0xFF;
+        ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[arg0].unk0 = 0xFF;
         for (i = 0; i < arg0; i++) {
             state->unk4[i] = 0.0f;
         }
@@ -317,7 +317,7 @@ void func_80699958(u8 arg0, u8 arg1) {
         sp128[i] = 0.0f;
         spC0[i] = 0.0f;
     }
-    g = (L2Globals *)&D_807FBB70;
+    g = (ProximityGlobals *)&D_807FBB70;
     i = 0;
     if ((s32)D_807FBB70.unk39 > 0) {
         do {
@@ -330,10 +330,10 @@ void func_80699958(u8 arg0, u8 arg1) {
             if (!found) {
                 switch (arg1) {
                 case 0:
-                    func_8069A614(g->entries[i].unk8, arg1);
+                    actorAddNodeForceSlot(g->entries[i].unk8, arg1);
                     break;
                 case 1:
-                    func_8069A614(g->entries[i].unk0, arg1);
+                    actorAddNodeForceSlot(g->entries[i].unk0, arg1);
                     break;
                 }
             }
@@ -350,7 +350,7 @@ void func_80699958(u8 arg0, u8 arg1) {
                 }
             }
             if (!found) {
-                func_8069A614(state->unk84[i], arg1);
+                actorAddNodeForceSlot(state->unk84[i], arg1);
             }
             i++;
         } while (i < (s32)state->unk94);
@@ -477,12 +477,12 @@ void func_80699958(u8 arg0, u8 arg1) {
                     state->unk4[i] = sp128[i];
                 }
             }
-            ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[i].unk8 = spC0[i] + state->unk4[i];
+            ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk8 = spC0[i] + state->unk4[i];
             i++;
         } while (i != arg0);
     }
-    ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[0].unk8 = 0.0f;
-    ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[arg0 - 1].unk8 = 0.0f;
+    ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[0].unk8 = 0.0f;
+    ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[arg0 - 1].unk8 = 0.0f;
     func_806319C4(D_807FBB40, 0);
 }
 #else
@@ -495,12 +495,12 @@ typedef struct {
     f32 unk98[4];
     f32 unkA8[4];
     u8 unkB8[4];
-} M1ActorSlots;
+} ActorMotionSlots;
 
 /* arg1 is u8: IDO homes the raw incoming a1 to its caller slot (sw a1,4(sp))
    even in this leaf function and re-narrows it with andi before use. */
-void func_8069A614(f32 arg0, u8 arg1) {
-    M1ActorSlots *slots = (M1ActorSlots *)D_807FBB40->unk174;
+void actorAddNodeForceSlot(f32 arg0, u8 arg1) {
+    ActorMotionSlots *slots = (ActorMotionSlots *)D_807FBB40->unk174;
     s16 i;
     s32 found;
     f64 temp;
@@ -557,12 +557,12 @@ typedef struct {
     f32 unkC;
     u8 unk10;
     u8 pad11[3];
-} M1Sub4Node;
+} ModelNodeRecord;
 
 typedef struct {
     u8 pad0[0x24];
-    M1Sub4Node *unk24;
-} M1Sub4;
+    ModelNodeRecord *unk24;
+} ModelNodeList;
 
 typedef struct {
     f32 unk0;
@@ -570,32 +570,32 @@ typedef struct {
     u8 pad5[3];
     f32 unk8;
     s32 unkC;
-} M1ProximityState;
+} ProximityState;
 
 typedef struct {
     f32 unk0;
     f32 unk4;
     f32 unk8;
-} M1ProximityEntry;
+} ProximitySample;
 
 typedef struct {
     u8 pad0[0xB8];
     f32 unkB8;
-} M1ProximityNode;
+} ProximityNode;
 
 typedef struct {
     u8 pad0[0x3C];
-    M1ProximityEntry entries[4];
+    ProximitySample entries[4];
     u8 pad6C[0x10];
-    M1ProximityNode *nodes[4];
-} M1ProximityGlobal;
+    ProximityNode *nodes[4];
+} ProximitySource;
 
 f32 func_80612D1C(f32);
 void func_806319C4(Actor *, s32);
 
 void func_8069A7C8(void) {
-    M1ProximityGlobal *globals;
-    M1ProximityState *state;
+    ProximitySource *globals;
+    ProximityState *state;
     f32 acc;
     f32 dist;
     f32 limit;
@@ -605,23 +605,23 @@ void func_8069A7C8(void) {
 
     flags = D_807FBB40->unk60;
     acc = 0.0f;
-    state = (M1ProximityState *)D_807FBB40->unk174;
+    state = (ProximityState *)D_807FBB40->unk174;
     if (!(flags & 0x10)) {
         D_807FBB40->unk60 = flags | 0x400;
-        ((M1Sub4 *)D_807FBB40->unk4)->unk24 = (M1Sub4Node *)func_80610FE8(0x20);
-        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk0 = 1;
-        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk1 = 0xFF;
-        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk4 = 0.0f;
-        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unkC = 0.0f;
-        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk8 = 0.0f;
-        ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk10 = 0xFF;
+        ((ModelNodeList *)D_807FBB40->unk4)->unk24 = (ModelNodeRecord *)func_80610FE8(0x20);
+        ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk0 = 1;
+        ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk1 = 0xFF;
+        ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk4 = 0.0f;
+        ((ModelNodeList *)D_807FBB40->unk4)->unk24->unkC = 0.0f;
+        ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk8 = 0.0f;
+        ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk10 = 0xFF;
         D_807FBB40->unk12A = 0x3E8;
         state->unk4 = 0;
         state->unkC = 0;
         state->unk0 = 0.0f;
         state->unk8 = 0.0f;
     }
-    globals = (M1ProximityGlobal *)&D_807FBB70;
+    globals = (ProximitySource *)&D_807FBB70;
     i = 0;
     if ((s32)D_807FBB70.unk39 > 0) {
         do {
@@ -664,7 +664,7 @@ void func_8069A7C8(void) {
     if ((f64)state->unk8 < 0.5) {
         state->unk8 = 0.0f;
     }
-    ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk8 = 0.0 - (func_80612D1C((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
+    ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk8 = 0.0 - (func_80612D1C((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
     state->unk4 = D_807FBB70.unk39;
     func_806319C4(D_807FBB40, 0);
 }
@@ -692,7 +692,7 @@ void func_8069B908(void);
 void func_80689114(s16, f32, f32, f32, s16, f32, s32);
 s32 func_8073110C(s32, s32);
 
-s32 func_8069B85C(void) {
+s32 actorHasCallbackTargetThisFrame(void) {
     ActorCallbackNode *node = D_807FBB40->unk13C;
 
     while (node != NULL) {
@@ -716,14 +716,14 @@ s32 func_8069B85C(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069B908.s")
 
-typedef struct M2_CamState {
+typedef struct CameraPos {
     u8 pad0[0x210];
     f32 unk210;
     f32 unk214;
     f32 unk218;
-} M2_CamState;
+} CameraPos;
 
-void func_8069CD9C(void) {
+void actorUpdateTimerBarAndRange(void) {
     f32 frac;
     f32 dzTmp;
     f32 dx;
@@ -745,10 +745,10 @@ void func_8069CD9C(void) {
     }
     /* dz is computed before dx into a temp: this is what makes IDO emit the
        target's dx, dz, dy float load/sub scheduling (dx, dy, dz otherwise). */
-    dzTmp = D_807FBB40->unk84 - ((M2_CamState *)D_807FC924)->unk218;
-    dx = D_807FBB40->unk7C - ((M2_CamState *)D_807FC924)->unk210;
+    dzTmp = D_807FBB40->unk84 - ((CameraPos *)D_807FC924)->unk218;
+    dx = D_807FBB40->unk7C - ((CameraPos *)D_807FC924)->unk210;
     dz = dzTmp;
-    dy = D_807FBB40->unk80 - ((M2_CamState *)D_807FC924)->unk214;
+    dy = D_807FBB40->unk80 - ((CameraPos *)D_807FC924)->unk214;
     dist = dx * dx + dy * dy;
     if (dz * dz + dist < 18000.0) {
         D_807FBB40->unk60 |= 0x400;
@@ -758,7 +758,7 @@ void func_8069CD9C(void) {
     func_8069B908();
 }
 
-void func_8069CF54(void) {
+void actorSpawnEffectAndTick(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk12C[4] = 0x3C;
         D_807FBB40->unk12C[5] = 0x3C;
@@ -804,23 +804,23 @@ void func_8069D0D8(void) {
     func_8069B908();
 }
 
-typedef struct M2_Sub {
+typedef struct TextMarkerState {
     void *unk0;
     u16 unk4;
     u16 unk6;
     u8 unk8;
     u8 unk9;
     u8 unkA;
-} M2_Sub;
+} TextMarkerState;
 
 s32 actorSpawn(s32, s32);
 s32 func_806FDB8C(s16, s32, s32, f32, f32, f32);
 s32 func_806FBD5C(s16, s32);
 extern Actor *D_807FBB44;
 
-void func_8069D0F8(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, u8 arg6, u8 arg7) {
+void textSpawnMarker(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, u8 arg6, u8 arg7) {
     s32 len;
-    M2_Sub *sub;
+    TextMarkerState *sub;
 
     if (actorSpawn(0xE8, 0) != 0) {
         sub = D_807FBB44->unk174;
@@ -855,29 +855,29 @@ s32 func_80714450();
 s32 func_807142D8();
 s32 func_8071432C();
 s32 func_80712658();
-void func_8069D0F8(u8, s16, s16, s32, u16, u16, u8, u8);
+void textSpawnMarker(u8, s16, s16, s32, u16, u16, u8, u8);
 
-void func_8069D2AC(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, u8 arg6, u8 arg7) {
+void textSpawnMarkerChecked(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, u8 arg6, u8 arg7) {
     if (D_807FC928 < 2) {
         if (func_80714450() == 0) {
             if (func_807142D8() == 0) {
                 if (func_8071432C() != 0 || func_80712658() != 0) {
-                    func_8069D0F8(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                    textSpawnMarker(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 }
             }
         }
     }
 }
 
-typedef struct M2_Pos {
+typedef struct ActorPositionView {
     u8 pad0[0x7C];
     f32 unk7C;
     f32 unk80;
-} M2_Pos;
+} ActorPositionView;
 
 void heapFreeDeferred(Mtx *);
 
-void *func_8069D358(void *arg0, M2_Pos *arg1, s16 arg2, f32 arg3) {
+void *renderAppendScaledMatrix(void *arg0, ActorPositionView *arg1, s16 arg2, f32 arg3) {
     Mtx *temp;
     f32 mtxA[4][4];
     f32 mtxB[4][4];
@@ -895,21 +895,21 @@ void *func_8069D358(void *arg0, M2_Pos *arg1, s16 arg2, f32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069D424.s")
 
-#define M3_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+#define WRITE_GFX_U32(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern Gfx D_1000118;
 void func_806319C4(Actor *, s32);
 Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
 
-Gfx *func_8069D930(Gfx *gfx, Actor *actor) {
+Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     void *model;
 
     model = actor->unk174;
-    M3_WRITE_GFX(gfx++, 0xDE000000, &D_1000118);
-    M3_WRITE_GFX(gfx++, 0xE7000000, 0);
-    M3_WRITE_GFX(gfx++, 0xFA000000, 0xFFFFFFFF);
-    M3_WRITE_GFX(gfx++, 0xFC11FE23, 0xFFFFF3F9);
-    M3_WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
+    WRITE_GFX_U32(gfx++, 0xDE000000, &D_1000118);
+    WRITE_GFX_U32(gfx++, 0xE7000000, 0);
+    WRITE_GFX_U32(gfx++, 0xFA000000, 0xFFFFFFFF);
+    WRITE_GFX_U32(gfx++, 0xFC11FE23, 0xFFFFF3F9);
+    WRITE_GFX_U32(gfx++, 0xDA380003, &D_2000180);
     if (actor->unk168++ < 100) {
         gfx = func_806FE078(gfx, *(u8 *)((u8 *)model + 0xA), 2, 160.0f, actor->unk80, 0.0f, 1.0f);
     } else {
@@ -923,12 +923,12 @@ void heapFree(void *);
 void actorDespawn(Actor *);
 void func_8069D424(Gfx *, Actor *);
 
-void func_8069DA54(void) {
+void textMarkerUpdate(void) {
     u8 *model;
 
     model = (u8 *)D_807FBB40->unk174;
     if (*(s16 *)(D_807FBB40->unkE8 + 6) != 0) {
-        renderCallbacksRegister(func_8069D930, D_807FBB40, 3);
+        renderCallbacksRegister(textMarkerRender, D_807FBB40, 3);
         return;
     }
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -982,7 +982,7 @@ void func_8069DA54(void) {
 
 /* Row-major copy: the target keeps the row offset (i * arg2) * 4 as the loop
    invariant and adds arg1 + j * 4 inside, so arg1 is written before the offset. */
-void func_8069DC10(s32 *arg0, s32 *arg1, u8 arg2) {
+void textCopyGlyphBlock(s32 *arg0, s32 *arg1, u8 arg2) {
     s16 i;
     s16 j;
 
@@ -999,7 +999,7 @@ void *func_806FBB9C(s16);
 void animSetLoopLimit(Actor *, s32, s16);
 void animSetSpeed(Actor *, s32, f32);
 
-s32 func_8069DC80(u8 arg0, void *arg1, u8 arg2, u8 arg3, u8 arg4) {
+s32 textBuildDigitNode(u8 arg0, void *arg1, u8 arg2, u8 arg3, u8 arg4) {
     void *temp;
 
     temp = func_806FBB9C(arg0 + arg3);
@@ -1008,7 +1008,7 @@ s32 func_8069DC80(u8 arg0, void *arg1, u8 arg2, u8 arg3, u8 arg4) {
     }
     /* Reusing the parameter keeps both pointers in one callee-saved register. */
     arg1 = (void *)func_80610FE8(arg4 << 7);
-    func_8069DC10((s32 *)arg1, (s32 *)temp, arg4);
+    textCopyGlyphBlock((s32 *)arg1, (s32 *)temp, arg4);
     animSetLoopLimit(D_807FBB40, arg2, -1);
     animSetSpeed(D_807FBB40, arg2, 0.0f);
     animSetNodeItem(D_807FBB40, arg2, 0, (s32)arg1);
@@ -1020,9 +1020,9 @@ extern u16 D_807FC930[];
 extern u16 D_807446C0[];
 u8 func_805FF030(u8, u8);
 void func_8063DA40(s32, s32);
-s32 func_8069DC80(u8, void *, u8, u8, u8);
+s32 textBuildDigitNode(u8, void *, u8, u8, u8);
 
-void func_8069DD40(void) {
+void textUpdateThreeDigitCounter(void) {
     s32 *model;
     s32 dummy;
     s32 t;
@@ -1038,9 +1038,9 @@ void func_8069DD40(void) {
         }
         unk = t << 1;
         val = *(u16 *)((u8 *)D_807FC930 + unk);
-        model[0] = func_8069DC80(0x21, (void *)model[0], 0, val / 100, 0x20);
-        model[1] = func_8069DC80(0x21, (void *)model[1], 1, val % 100 / 10, 0x20);
-        model[2] = func_8069DC80(0x21, (void *)model[2], 2, val % 10, 0x20);
+        model[0] = textBuildDigitNode(0x21, (void *)model[0], 0, val / 100, 0x20);
+        model[1] = textBuildDigitNode(0x21, (void *)model[1], 1, val % 100 / 10, 0x20);
+        model[2] = textBuildDigitNode(0x21, (void *)model[2], 2, val % 10, 0x20);
         D_807FBB40->unk16A = 0xFF;
         D_807FBB40->unk16B = 0xFF;
         D_807FBB40->unk16C = 0xFF;
@@ -1062,15 +1062,15 @@ void func_8069DD40(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_8069DF58(void) {
+void textUpdateTwoDigitCounter(void) {
     s32 *model;
     Actor *actor;
 
     actor = D_807FBB40;
     model = (s32 *)actor->unk174;
     if (!(actor->unk60 & 0x10)) {
-        model[0] = func_8069DC80(0x14, (void *)model[0], 0, actor->unk155[0] / 10, 0x10);
-        model[1] = func_8069DC80(0x14, (void *)model[1], 1, D_807FBB40->unk155[0] % 10, 0x10);
+        model[0] = textBuildDigitNode(0x14, (void *)model[0], 0, actor->unk155[0] / 10, 0x10);
+        model[1] = textBuildDigitNode(0x14, (void *)model[1], 1, D_807FBB40->unk155[0] % 10, 0x10);
         actor = D_807FBB40;
     }
     func_806319C4(actor, 0);
@@ -1081,7 +1081,7 @@ void func_8069E018(void) {
 }
 
 void func_80614EBC(Actor *, s32);
-void func_8069E040(void) {
+void actorPlaySoundAndFinish(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80614EBC(D_807FBB40, 0x299);
     }

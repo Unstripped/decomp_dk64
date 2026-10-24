@@ -1,19 +1,19 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct M8SfxEntry {
+typedef struct SfxTableEntry {
     /* 0x0 */ u16 unk0;
     /* 0x2 */ s16 unk2;
     /* 0x4 */ u8 unk4;
     /* 0x5 */ u8 unk5;
-} M8SfxEntry; /* size = 6 */
+} SfxTableEntry; /* size = 6 */
 
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB64;
 extern u32 D_807FBB68;
 extern u8 D_807FC928;
-extern M8SfxEntry D_80750400[];
+extern SfxTableEntry D_80750400[];
 
 extern u8 D_807204BC[];
 extern u8 D_80720508[];
@@ -30,8 +30,8 @@ extern u8 D_80720A58[];
 extern u8 D_807211D0[];
 extern u8 D_80721378[];
 
-void func_806A5DF0(s16, f32, f32, f32, s32, s32, s32, s32);
-void func_806A6004(void *, s32);
+void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
+void effectSpawnAttachedSpriteColored(void *, s32);
 void func_806A6230(void);
 void func_80714A08(f32, f32);
 s32 func_80714C08(void *, f32, void *, s32, s32);
@@ -42,9 +42,9 @@ void func_80714998(s32);
 void func_807149B8(s32);
 void func_807149FC(s32);
 void func_806A664C(f32);
-void func_806A5EAC(void *, void *, f32);
+void effectSpawnAttachedSprite(void *, void *, f32);
 
-void func_806A5C60(Actor *arg0) {
+void sfxSpawnTableNodes(Actor *arg0) {
     s32 i;
     s32 found;
     s32 j;
@@ -75,12 +75,12 @@ void func_806A5C60(Actor *arg0) {
     }
     step = (s16)(0xFFF / D_80750400[i].unk5);
     for (j = 0; j < D_80750400[i].unk5; j++) {
-        func_806A5DF0(D_80750400[i].unk2, arg0->unk7C, arg0->unk80, arg0->unk84, offset, 1, -1, 0);
+        actorSpawnNodeEntryScaled(D_80750400[i].unk2, arg0->unk7C, arg0->unk80, arg0->unk84, offset, 1, -1, 0);
         offset = offset + step;
     }
 }
 
-void func_806A5DF0(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7) {
+void actorSpawnNodeEntryScaled(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7) {
     s32 pad[6];
     f32 vec[3];
     f32 scale;
@@ -95,7 +95,7 @@ void func_806A5DF0(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4, s32 arg5, s
     actorListSpawnNodeEntry(arg0, arg1, arg2, arg3, 0, scale, arg7, vec);
 }
 
-void func_806A5EAC(void *arg0, void *arg1, f32 arg2) {
+void effectSpawnAttachedSprite(void *arg0, void *arg1, f32 arg2) {
     if (D_807FBB68 & 0x10) {
         arg2 = arg2 + arg2;
     }
@@ -110,7 +110,7 @@ void func_806A5F44(void) {
 
     func_806A664C(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_806A5EAC(temp, D_80720710, 1.0f);
+        effectSpawnAttachedSprite(temp, D_80720710, 1.0f);
     }
 }
 
@@ -119,11 +119,11 @@ void func_806A5FA4(void) {
 
     func_806A664C(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_806A5EAC(temp, D_80720508, 1.0f);
+        effectSpawnAttachedSprite(temp, D_80720508, 1.0f);
     }
 }
 
-void func_806A6004(void *arg0, s32 arg1) {
+void effectSpawnAttachedSpriteColored(void *arg0, s32 arg1) {
     void *temp = D_807FBB40->unk174;
 
     func_806A664C(4.5f);
@@ -131,28 +131,28 @@ void func_806A6004(void *arg0, s32 arg1) {
         if (arg1 != D_807FBB4C->unk58) {
             func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
         }
-        func_806A5EAC(temp, arg0, 1.0f);
+        effectSpawnAttachedSprite(temp, arg0, 1.0f);
     }
 }
 
 void func_806A6094(void) {
-    func_806A6004(D_807209EC, 3);
+    effectSpawnAttachedSpriteColored(D_807209EC, 3);
 }
 
 void func_806A60BC(void) {
-    func_806A6004(D_80720A10, 6);
+    effectSpawnAttachedSpriteColored(D_80720A10, 6);
 }
 
 void func_806A60E4(void) {
-    func_806A6004(D_807207E0, 4);
+    effectSpawnAttachedSpriteColored(D_807207E0, 4);
 }
 
 void func_806A610C(void) {
-    func_806A6004(D_80720A34, 2);
+    effectSpawnAttachedSpriteColored(D_80720A34, 2);
 }
 
 void func_806A6134(void) {
-    func_806A6004(D_80720A58, 5);
+    effectSpawnAttachedSpriteColored(D_80720A58, 5);
 }
 
 void func_806A615C(void) {
@@ -161,7 +161,7 @@ void func_806A615C(void) {
     func_806A664C(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80714A08(-0.35f, 0.35f);
-        func_806A5EAC(temp, D_80720768, 1.0f);
+        effectSpawnAttachedSprite(temp, D_80720768, 1.0f);
     }
 }
 
@@ -170,7 +170,7 @@ void func_806A61D0(void) {
 
     func_806A664C(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_806A5EAC(temp, D_807204BC, 1.0f);
+        effectSpawnAttachedSprite(temp, D_807204BC, 1.0f);
     }
 }
 
@@ -182,7 +182,7 @@ void func_806A6230(void) {
         if ((D_807FBB64 & 0x80000) || (D_807FBB64 & 0x2000)) {
             D_807FBB40->unk15F = 1;
         }
-        func_806A5EAC(temp, D_807207BC, 1.0f);
+        effectSpawnAttachedSprite(temp, D_807207BC, 1.0f);
     }
 }
 
@@ -196,7 +196,7 @@ void func_806A62D4(void) {
     func_806A664C(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_807149C8(0xFF, 0xFF, 0, 0xFF);
-        func_806A5EAC(temp, D_807211D0, 1.5f);
+        effectSpawnAttachedSprite(temp, D_807211D0, 1.5f);
     }
 }
 
@@ -205,7 +205,7 @@ void func_806A6348(void) {
 
     func_806A664C(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_806A5EAC(temp, D_807205C4, 1.0f);
+        effectSpawnAttachedSprite(temp, D_807205C4, 1.0f);
     }
 }
 
@@ -214,7 +214,7 @@ void func_806A63A8(void) {
 
     func_806A664C(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_806A5EAC(temp, D_807205E8, 1.0f);
+        effectSpawnAttachedSprite(temp, D_807205E8, 1.0f);
     }
 }
 
@@ -223,7 +223,7 @@ void func_806A6408(void) {
 
     func_806A664C(12.0f);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_806A5EAC(temp, D_80721378, 2.0f);
+        effectSpawnAttachedSprite(temp, D_80721378, 2.0f);
     }
 }
 
@@ -257,7 +257,7 @@ void func_806A6468(void) {
             anim = &D_80720440;
             break;
         }
-        func_806A5EAC(temp_v1, anim, 1.0f);
+        effectSpawnAttachedSprite(temp_v1, anim, 1.0f);
         if (D_807FBB40->unk154 == 0x63) {
             D_807FBB40->unk154 = 1;
             D_807FBB40->unk15F = 2;
@@ -295,26 +295,26 @@ void func_806A6574(void) {
             anim = &D_80720F6C;
             break;
         }
-        func_806A5EAC(temp_v1, anim, 1.0f);
+        effectSpawnAttachedSprite(temp_v1, anim, 1.0f);
     }
 }
 
 #ifdef NON_MATCHING
 
-typedef struct L9bState174 {
+typedef struct BehaviourState {
     /* 0x0 */ u8 unk0;
     /* 0x1 */ u8 unk1;
     /* 0x2 */ u8 pad2[2];
     /* 0x4 */ u8 *unk4;
     /* 0x8 */ u16 unk8;
     /* 0xA */ s16 unkA;
-} L9bState174;
+} BehaviourState;
 
-typedef struct L9bConfig124 {
+typedef struct BehaviourConfig {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ f32 unk4;
     /* 0x8 */ f32 unk8;
-} L9bConfig124;
+} BehaviourConfig;
 
 extern ActorGlobalState D_807FBB70;
 extern s16 D_8075038C;
@@ -334,21 +334,21 @@ void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void actorDespawn(void *);
 
 void func_806A664C(f32 arg0) {
-    L9bState174 *state;
+    BehaviourState *state;
     s32 v;
 
-    state = (L9bState174 *)D_807FBB40->unk174;
+    state = (BehaviourState *)D_807FBB40->unk174;
     if (D_807FBB68 & 0x10) {
         arg0 *= 2.0f;
     }
     if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk154 = (u8)(s32)((L9bConfig124 *)D_807FBB40->unk124)->unk0;
-        *(s16 *)((u8 *)D_807FBB40 + 0xEE) = (s16)(s32)((L9bConfig124 *)D_807FBB40->unk124)->unk4;
+        D_807FBB40->unk154 = (u8)(s32)((BehaviourConfig *)D_807FBB40->unk124)->unk0;
+        *(s16 *)((u8 *)D_807FBB40 + 0xEE) = (s16)(s32)((BehaviourConfig *)D_807FBB40->unk124)->unk4;
         D_807FBB40->unkE6 = *(s16 *)((u8 *)D_807FBB40 + 0xEE);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         state->unk0 = 0;
         state->unk1 = 0;
-        state->unkA = (s16)(s32)((L9bConfig124 *)D_807FBB40->unk124)->unk8;
+        state->unkA = (s16)(s32)((BehaviourConfig *)D_807FBB40->unk124)->unk8;
         *(s16 *)((u8 *)D_807FBB40 + 0xFA) = 0x270F;
     }
     if (D_807FBB70.unk0 != 0) {
@@ -458,13 +458,13 @@ void func_806A664C(f32 arg0) {
 
 #endif
 
-typedef struct AA960Config124 {
+typedef struct ActorConfig {
     f32 unk0;
     f32 unk4;
     f32 unk8;
-} AA960Config124;
+} ActorConfig;
 
-typedef struct AA960State174 {
+typedef struct EffectState {
     u8 unk0;
     u8 unk1;
     s8 unk2;
@@ -473,7 +473,7 @@ typedef struct AA960State174 {
     s16 unk6;
     u16 unk8;
     s16 unkA;
-} AA960State174;
+} EffectState;
 
 extern ActorGlobalState D_807FBB70;
 extern s16 D_80750384;
@@ -493,21 +493,21 @@ void func_806319C4(Actor *, s32);
 
 #ifdef NON_MATCHING
 
-typedef struct AA960PhysicsActor {
+typedef struct PhysicsActor {
     u8 pad0[0xC0];
     f32 unkC0;
     u8 padC4[0xEE - 0xC4];
     s16 unkEE;
     u8 padF0[0xFA - 0xF0];
     s16 unkFA;
-} AA960PhysicsActor;
+} PhysicsActor;
 
-#define AA960_PHY ((AA960PhysicsActor *)D_807FBB40)
+#define AA960_PHY ((PhysicsActor *)D_807FBB40)
 
 void func_806A6DB4(u8);
 
 void func_806A6DB4(u8 arg0) {
-    AA960State174 *temp_v1;
+    EffectState *temp_v1;
     s32 temp;
 
     temp_v1 = D_807FBB40->unk174;
@@ -517,12 +517,12 @@ void func_806A6DB4(u8 arg0) {
         D_807FBB40->unk16B = 0xFF;
         D_807FBB40->unk16C = 0xFF;
         D_807FBB40->unk60 &= ~0x8000;
-        D_807FBB40->unk154 = (s32)((AA960Config124 *)D_807FBB40->unk124)->unk0;
-        AA960_PHY->unkEE = ((AA960Config124 *)D_807FBB40->unk124)->unk4;
+        D_807FBB40->unk154 = (s32)((ActorConfig *)D_807FBB40->unk124)->unk0;
+        AA960_PHY->unkEE = ((ActorConfig *)D_807FBB40->unk124)->unk4;
         D_807FBB40->unkE6 = AA960_PHY->unkEE;
         temp_v1->unk0 = 0;
         temp_v1->unk1 = 1;
-        temp_v1->unkA = ((AA960Config124 *)D_807FBB40->unk124)->unk8;
+        temp_v1->unkA = ((ActorConfig *)D_807FBB40->unk124)->unk8;
         AA960_PHY->unkFA = 0x270F;
         func_806C9974(0, 0x40);
     }
@@ -626,22 +626,22 @@ void func_806A734C(void) {
     func_806A6DB4(1);
 }
 
-typedef struct AA960ActorPhysics {
+typedef struct ActorPhysics {
     u8 pad0[0xC0];
     f32 unkC0;
     f32 unkC4;
-} AA960ActorPhysics;
+} ActorPhysics;
 
-typedef struct AA960ActorSub174 {
+typedef struct EffectCounter {
     u8 pad0[0x8];
     u16 unk8;
-} AA960ActorSub174;
+} EffectCounter;
 
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_80686CF8(Actor *);
 
-void func_806A736C(void) {
-    AA960ActorSub174 *temp_v1;
+void actorUpdateSfxAndGround(void) {
+    EffectCounter *temp_v1;
 
     temp_v1 = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -659,14 +659,14 @@ void func_806A736C(void) {
     if (D_807FBB40->unk80 < D_807FBB40->unkAC) {
         D_807FBB40->unkB8 = 0.0f;
         D_807FBB40->unk80 = D_807FBB40->unkAC;
-        ((AA960ActorPhysics *)D_807FBB40)->unkC0 = ((AA960ActorPhysics *)D_807FBB40)->unkC4;
+        ((ActorPhysics *)D_807FBB40)->unkC0 = ((ActorPhysics *)D_807FBB40)->unkC4;
     }
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x96, 0x78, 0, 1.0f);
 }
 
 void effectSpawnRingBursts(Actor *, f32, f32, s32);
 
-void func_806A7518(void) {
+void actorSpawnRingBurstAndUpdate(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk60 |= 0x400;
         effectSpawnRingBursts(D_807FBB40, 20.0f, 40.0f, 0x1E);
@@ -714,7 +714,7 @@ f32 func_80612794(s16);
 void func_80714A28(s32);
 
 void func_806A7600(void *arg0) {
-    AA960State174 *temp_v1;
+    EffectState *temp_v1;
     s32 temp;
     s32 cond;
 
@@ -848,23 +848,23 @@ void func_806A7BB8(void) {
 }
 
 
-typedef struct AA960SfxTable {
+typedef struct SfxTable {
     s32 unk0[7];
-} AA960SfxTable;
+} SfxTable;
 
 extern u8 D_8074E77C;
 extern u8 D_807FBD70;
 extern u8 D_807FC954[];
 extern u32 D_8076A064;
 extern u8 D_80721170;
-extern AA960SfxTable D_807504A4;
+extern SfxTable D_807504A4;
 s32 func_80611A44(void);
 s32 func_806F8EDC(s32, s32);
 
-void func_806A7BDC(void) {
+void effectActorSparkleTick(void) {
     s32 flag;
     s32 idx;
-    AA960SfxTable table;
+    SfxTable table;
 
     flag = D_807FC954[D_8074E77C * 94] & 1;
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -904,17 +904,17 @@ void func_806A7BDC(void) {
     }
 }
 
-typedef struct AA960ActorSub4 {
+typedef struct ActorDrawBuffer {
     u8 pad0[0x20];
     void *unk20;
-} AA960ActorSub4;
+} ActorDrawBuffer;
 
-typedef struct AA960SparkleSub174 {
+typedef struct SparkleState {
     f32 unk0;
     s16 unk4;
-} AA960SparkleSub174;
+} SparkleState;
 
-typedef struct AA960SparkleBuffer {
+typedef struct SparkleBuffer {
     u8 unk0;
     u8 unk1;
     u8 pad2[2];
@@ -922,7 +922,7 @@ typedef struct AA960SparkleBuffer {
     f32 unk8;
     f32 unkC;
     u8 unk10;
-} AA960SparkleBuffer;
+} SparkleBuffer;
 
 extern u8 D_807504C8;
 extern u8 D_807504CC;
@@ -932,14 +932,14 @@ extern f32 D_807504C4;
 void *func_80610FE8(s32);
 void heapClearBlock(void *);
 
-void func_806A7EF0(void) {
-    AA960SparkleSub174 *temp_v1;
-    AA960SparkleBuffer *temp_v0;
+void effectActorShrinkTick(void) {
+    SparkleState *temp_v1;
+    SparkleBuffer *temp_v0;
 
     temp_v1 = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((AA960ActorSub4 *)D_807FBB40->unk4)->unk20 = func_80610FE8(0x20);
-        heapClearBlock(((AA960ActorSub4 *)D_807FBB40->unk4)->unk20);
+        ((ActorDrawBuffer *)D_807FBB40->unk4)->unk20 = func_80610FE8(0x20);
+        heapClearBlock(((ActorDrawBuffer *)D_807FBB40->unk4)->unk20);
         temp_v1->unk4 = 0;
         temp_v1->unk0 = 1.0f;
         D_807FBB40->unk60 &= ~0x8000;
@@ -954,7 +954,7 @@ void func_806A7EF0(void) {
         actorDespawn(D_807FBB40);
     } else {
         temp_v1->unk0 *= D_807504C0;
-        temp_v0 = ((AA960ActorSub4 *)D_807FBB40->unk4)->unk20;
+        temp_v0 = ((ActorDrawBuffer *)D_807FBB40->unk4)->unk20;
         temp_v0->unk0 = D_807504C8;
         temp_v0->unk1 = 0xFF;
         temp_v0->unk4 = temp_v1->unk0;

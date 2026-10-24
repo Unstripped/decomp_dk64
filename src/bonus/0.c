@@ -77,12 +77,12 @@ void n_alSndpAllocate(s32, s32, s32, s32, f32, s32, void *);
 void func_806A2A10(s32, s32, u8);
 void func_8061CC30(void);
 u16 func_8061CC40(s32, s32, s32);
-void func_806A2B08(void *);
-void func_8069D2AC(s32, s32, s32, s32, s32, s32, s32, s32);
+void actorSetStateTwo(void *);
+void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_8070E750(s32, s32, s32);
 void func_80726EE0(s32);
 void sfxAllocateChannel(s32, f32);
-void func_806A5DF0(s32, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 void func_805FF898(void);
 void func_806C9974(s32, s32);
 void func_80737AC4(void *, s32, s16);
@@ -119,16 +119,16 @@ void func_80024E38(void) {
         if (*(u16 *)(temp_s0 + 0x18) != 0) {
             (*(u16 *)(temp_s0 + 0x18))--;
         } else {
-            func_806A2B08(*(void **)((u8 *)D_807FBB40 + 0x11C));
+            actorSetStateTwo(*(void **)((u8 *)D_807FBB40 + 0x11C));
             *(u8 *)((u8 *)D_807FBB40 + 0x154) = 1;
         }
         break;
     case 1:
         if (*(u8 *)(*(u8 **)((u8 *)D_807FBB40 + 0x11C) + 0x154) == 5) {
-            func_8069D2AC(0x81, 0, 0x78, func_8070E750(0x1A, 0x15, 1), 0, 0x28, 8, 8);
+            textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, 0x15, 1), 0, 0x28, 8, 8);
             func_80726EE0(0);
             sfxAllocateChannel(0x28, 1.0f);
-            func_806A5DF0(0x56, 588.0f, 240.0f, 582.0f, 0, 0, bonusGetSoundForMap(), 0);
+            actorSpawnNodeEntryScaled(0x56, 588.0f, 240.0f, 582.0f, 0, 0, bonusGetSoundForMap(), 0);
             *(u8 *)((u8 *)D_807FBB40 + 0x154) = 2;
         }
         if (*(u8 *)((u8 *)D_807FBB4C + 0x154) == 0x39) {

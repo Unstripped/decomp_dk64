@@ -5,7 +5,7 @@ void func_806A3700(s32 arg0, s32 arg1) {
 }
 
 #ifdef NON_MATCHING
-typedef struct A8R2bMdl {
+typedef struct SpriteModel {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u8 unk2;
     /* 0x03 */ u8 pad3;
@@ -13,28 +13,28 @@ typedef struct A8R2bMdl {
     /* 0x08 */ f32 unk8;
     /* 0x0C */ u8 padC[0x8C];
     /* 0x98 */ f32 unk98;
-} A8R2bMdl;
+} SpriteModel;
 
-typedef struct A8R2bDrawNode {
+typedef struct SpriteDrawNode {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 unk2;
     /* 0x03 */ u8 unk3;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ u8 padC[0x4];
-    /* 0x10 */ A8R2bMdl unk10;
-} A8R2bDrawNode;
+    /* 0x10 */ SpriteModel unk10;
+} SpriteDrawNode;
 
-typedef struct A8R2bSrc {
+typedef struct SpriteSource {
     /* 0x00 */ u8 pad0[0x18];
     /* 0x18 */ f32 unk18;
-} A8R2bSrc;
+} SpriteSource;
 
-typedef struct A8R2bPos {
+typedef struct DrawPos {
     /* 0x00 */ u8 pad0[0x44];
     /* 0x44 */ f32 unk44;
     /* 0x48 */ f32 unk48;
-} A8R2bPos;
+} DrawPos;
 
 extern u8 D_807444FC;
 extern u16 D_8075A740;
@@ -52,8 +52,8 @@ void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     f32 sp4C;
     f32 sp38;
     f32 tmp;
-    A8R2bDrawNode *node;
-    A8R2bMdl *mdl;
+    SpriteDrawNode *node;
+    SpriteModel *mdl;
     Gfx *dl;
 
     dl = (Gfx *) *arg0;
@@ -63,7 +63,7 @@ void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     mdl = &node->unk10;
     if ((mdl->unk0 != 0) && (mdl->unk2 != 0)) {
         sp60 = (f32) node->unk0 * 0.5f * 4.0f;
-        sp5C = ((A8R2bSrc *) arg2)->unk18 * 0.5f * 4.0f;
+        sp5C = ((SpriteSource *) arg2)->unk18 * 0.5f * 4.0f;
         guTranslateF(sp68, -sp60, -sp5C, 0.0f);
         guMtxCatF(spA8, sp68, spA8);
         mdl->unk98 = (f32) ((f64) mdl->unk98 + 0.320000000000000007);
@@ -96,7 +96,7 @@ void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     }
     guScaleF(sp68, 1.0f, 1.0f, 1.0f);
     guMtxCatF(spA8, sp68, spA8);
-    guTranslateF(sp68, (f32) (((f64) ((A8R2bPos *) arg1)->unk44 + (f64) node->unk4) * 4.0), (f32) (((f64) ((A8R2bPos *) arg1)->unk48 + (f64) node->unk8) * 4.0), 0.0f);
+    guTranslateF(sp68, (f32) (((f64) ((DrawPos *) arg1)->unk44 + (f64) node->unk4) * 4.0), (f32) (((f64) ((DrawPos *) arg1)->unk48 + (f64) node->unk8) * 4.0), 0.0f);
     guMtxCatF(spA8, sp68, spA8);
     guMtxF2L(spA8, (Mtx *) ((u8 *) mdl + (D_807444FC << 6) + 8));
     dl[0].words.w0 = 0xDA380003;
@@ -115,26 +115,26 @@ void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
 
 void func_806A370C(s32 *, void *, void *, void *);
 
-typedef struct M7Actor {
+typedef struct DrawActor {
     /* 0x00 */ u8 pad0[0x11];
     /* 0x11 */ u8 unk11;
-} M7Actor;
+} DrawActor;
 
-typedef struct M7Node {
+typedef struct DrawNode {
     /* 0x00 */ u8 pad0[0xA0];
-    /* 0xA0 */ struct M7Node *unkA0;
-} M7Node;
+    /* 0xA0 */ struct DrawNode *unkA0;
+} DrawNode;
 
-typedef struct M7Sub {
+typedef struct DrawListHead {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 pad1[0xB];
-    /* 0x0C */ struct M7Node *unkC;
-} M7Sub;
+    /* 0x0C */ struct DrawNode *unkC;
+} DrawListHead;
 
-void func_806A3B78(s32 *arg0, M7Actor *arg1, M7Sub *arg2, u8 arg3, u8 *arg4) {
+void renderAppendNodeChain(s32 *arg0, DrawActor *arg1, DrawListHead *arg2, u8 arg3, u8 *arg4) {
     s32 sp44;
     s32 i;
-    M7Node *node;
+    DrawNode *node;
 
     sp44 = *arg0;
     node = arg2->unkC;
@@ -157,7 +157,7 @@ void func_806A3B78(s32 *arg0, M7Actor *arg1, M7Sub *arg2, u8 arg3, u8 *arg4) {
 s32 texCacheFindOrLoad(s32);
 void func_80702464(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);
 
-Gfx *func_806A3C6C(Gfx *arg0, s32 arg1, u8 arg2, s32 arg3) {
+Gfx *renderTextureSprite(Gfx *arg0, s32 arg1, u8 arg2, s32 arg3) {
     s32 tex;
 
     tex = texCacheFindOrLoad((arg3 + 0x52) & 0xFFFF);
@@ -173,13 +173,13 @@ Gfx *func_806A3C6C(Gfx *arg0, s32 arg1, u8 arg2, s32 arg3) {
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-typedef struct M7Angle {
+typedef struct MotionAngles {
     /* 0x00 */ u8 pad0[0x38];
     /* 0x38 */ s16 unk38;
     /* 0x3A */ s16 unk3A;
-} M7Angle;
+} MotionAngles;
 
-void func_806A3DA0(f32 *arg0, f32 *arg1, f32 arg2, f32 arg3, M7Angle *arg4) {
+void mathAddWaveOffset(f32 *arg0, f32 *arg1, f32 arg2, f32 arg3, MotionAngles *arg4) {
     *arg0 += (arg2 * arg3) * 24.0f * func_80612794((s16) ((s16) ((s32) ((f32) arg4->unk38 + (arg2 * 3000.0f))) & 0xFFF));
     *arg1 += (arg2 * arg3) * 16.0f * func_80612790((s16) ((s16) ((s32) ((f32) arg4->unk3A + (arg2 * 3000.0f))) & 0xFFF));
 }
@@ -187,7 +187,7 @@ void func_806A3DA0(f32 *arg0, f32 *arg1, f32 arg2, f32 arg3, M7Angle *arg4) {
 #ifdef NON_MATCHING
 extern u8 D_807444FC;
 
-typedef struct A8R2bAnim {
+typedef struct SpriteAnim {
     /* 0x00 */ u8 pad0[0x20];
     /* 0x20 */ f32 unk20;
     /* 0x24 */ f32 unk24;
@@ -195,10 +195,10 @@ typedef struct A8R2bAnim {
     /* 0x2C */ f32 unk2C;
     /* 0x30 */ f32 unk30;
     /* 0x34 */ u8 *unk34;
-} A8R2bAnim;
+} SpriteAnim;
 
 
-s32 func_806A3E9C(s32 arg0, A8R2bAnim *arg1, s32 arg2) {
+s32 func_806A3E9C(s32 arg0, SpriteAnim *arg1, s32 arg2) {
     f32 spE8[4][4];
     f32 spA8[4][4];
     f32 spA4;
@@ -222,12 +222,12 @@ s32 func_806A3E9C(s32 arg0, A8R2bAnim *arg1, s32 arg2) {
             scale = (f32) (((f64) i * 0.0800000000000000017) * 1.9f * 4.0 * 0.5);
             guScaleF(spA8, scale, scale, 1.0f);
             guMtxCatF(spE8, spA8, spE8);
-            func_806A3DA0(&spA4, &spA0, (f32) ((f64) i * 0.0800000000000000017), 1.0f, (M7Angle *) arg1);
+            mathAddWaveOffset(&spA4, &spA0, (f32) ((f64) i * 0.0800000000000000017), 1.0f, (MotionAngles *) arg1);
             guTranslateF(spA8, spA4 * 4.0f, spA0 * 4.0f, 0.0f);
             guMtxCatF(spE8, spA8, spE8);
             off = idx * 2;
             guMtxF2L(spE8, (Mtx *) (arg1->unk34 + ((off + D_807444FC) << 6)));
-            ret = (s32) func_806A3C6C((Gfx *) ret, (s32) (arg1->unk34 + ((off + D_807444FC) << 6)), (u32) ((((f64) (idx * 300) * 0.0800000000000000017) > 150.0) ? 150.0 : ((f64) (idx * 300) * 0.0800000000000000017)) & 0xFF, arg2);
+            ret = (s32) renderTextureSprite((Gfx *) ret, (s32) (arg1->unk34 + ((off + D_807444FC) << 6)), (u32) ((((f64) (idx * 300) * 0.0800000000000000017) > 150.0) ? 150.0 : ((f64) (idx * 300) * 0.0800000000000000017)) & 0xFF, arg2);
             i = (i + 1) & 0xFF;
             idx = i;
         } while (cnt >= idx);
@@ -240,16 +240,16 @@ s32 func_806A3E9C(s32 arg0, A8R2bAnim *arg1, s32 arg2) {
 #endif
 
 #ifdef NON_MATCHING
-typedef struct A8R2bBounds {
+typedef struct ScreenBounds {
     /* 0x000 */ u8 pad0[0x270];
     /* 0x270 */ s16 unk270;
     /* 0x272 */ s16 unk272;
     /* 0x274 */ s16 unk274;
     /* 0x276 */ s16 unk276;
     /* 0x278 */ u8 pad278[0x2F0 - 0x278];
-} A8R2bBounds;
+} ScreenBounds;
 
-extern A8R2bBounds *D_807FC924;
+extern ScreenBounds *D_807FC924;
 extern u8 D_807FC929;
 extern u8 D_807444FC;
 extern Gfx D_1000118;
@@ -259,19 +259,19 @@ void *func_80610FE8(s32);
 void heapFreeDeferred(void *);
 s32 func_806A3E9C();
 
-typedef struct L7bNode L7bNode;
+typedef struct UINode UINode;
 
-struct L7bNode {
+struct UINode {
     /* 0x00 */ u8 pad0[0x18];
     /* 0x18 */ f32 unk18;
-    /* 0x1C */ L7bNode *unk1C;
+    /* 0x1C */ UINode *unk1C;
 };
 
-typedef struct L7bState {
+typedef struct UIState {
     /* 0x000 */ u8 pad0[0x4];
     /* 0x004 */ void *unk4;
     /* 0x008 */ u8 pad8[0x4];
-    /* 0x00C */ L7bNode *unkC;
+    /* 0x00C */ UINode *unkC;
     /* 0x010 */ u8 unk10;
     /* 0x011 */ u8 pad11[0xB];
     /* 0x01C */ u8 unk1C;
@@ -286,7 +286,7 @@ typedef struct L7bState {
     /* 0x048 */ f32 unk48;
     /* 0x04C */ f32 unk4C;
     /* 0x050 */ f32 unk50;
-} L7bState;
+} UIState;
 
 Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
     /* Unused slots below/above the live locals: they reproduce the original
@@ -306,8 +306,8 @@ Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
     s32 padN;
     Gfx *dl;
     Gfx *start;
-    L7bState *state;
-    L7bNode *node;
+    UIState *state;
+    UINode *node;
     f32 scale;
     f32 alpha;
     s32 i;
@@ -342,7 +342,7 @@ Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
     if (alpha > 150.0f) {
         alpha = 150.0f;
     }
-    dl = func_806A3C6C(dl, (s32) (state->unk34 + (D_807444FC << 6)), (u8) alpha, half);
+    dl = renderTextureSprite(dl, (s32) (state->unk34 + (D_807444FC << 6)), (u8) alpha, half);
     if (state->unk1D != 0) {
         WRITE_GFX(dl++, ((s32) (state->unk48 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) (state->unk44 * 4.0f) & 0xFFF) << 12),
                   (((s32) (state->unk4C * 4.0f) & 0xFFF) << 12) | ((s32) (state->unk50 * 4.0f) & 0xFFF));
@@ -350,7 +350,7 @@ Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
     i = 0;
     while (((s32) state->unk10 >= i) && (node != NULL) && (stop == 0)) {
         WRITE_GFX(dl++, 0xE7000000, 0);
-        func_806A3B78((s32 *) &dl, (M7Actor *) state, (M7Sub *) node, (u8) (i == state->unk10), &stop);
+        renderAppendNodeChain((s32 *) &dl, (DrawActor *) state, (DrawListHead *) node, (u8) (i == state->unk10), &stop);
         if (stop == 0) {
             node = node->unk1C;
         }
@@ -382,7 +382,7 @@ void func_80714A68(s16, s16, s16, s16);
 void *func_80714CC0(void *, f32, f32, f32, f32);
 extern void *D_80755390[];
 
-typedef struct M7Model {
+typedef struct SpriteObject {
     /* 0x000 */ u8 pad0[0x340];
     /* 0x340 */ f32 unk340;
     /* 0x344 */ f32 unk344;
@@ -395,26 +395,26 @@ typedef struct M7Model {
     /* 0x390 */ s16 unk390;
     /* 0x392 */ s16 unk392;
     /* 0x394 */ s16 unk394;
-} M7Model;
+} SpriteObject;
 
-typedef struct M7ModelSlot {
+typedef struct SpriteObjectSlot {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u8 unk2;
     /* 0x03 */ u8 pad3;
-    /* 0x04 */ M7Model *unk4;
-} M7ModelSlot;
+    /* 0x04 */ SpriteObject *unk4;
+} SpriteObjectSlot;
 
-typedef struct M7Sprite {
+typedef struct SpriteRow {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 pad2[1];
     /* 0x03 */ u8 unk3;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ u8 padC[4];
-    /* 0x10 */ M7ModelSlot unk10;
-} M7Sprite;
+    /* 0x10 */ SpriteObjectSlot unk10;
+} SpriteRow;
 
-typedef struct M7Vector {
+typedef struct SpriteVector {
     /* 0x00 */ u8 pad0[0x18];
     /* 0x18 */ f32 unk18;
     /* 0x1C */ u8 pad1C[0x28];
@@ -422,14 +422,14 @@ typedef struct M7Vector {
     /* 0x48 */ f32 unk48;
     /* 0x4C */ f32 unk4C;
     /* 0x50 */ f32 unk50;
-} M7Vector;
+} SpriteVector;
 
-void func_806A495C(M7Sprite *arg0, M7Vector *arg1, M7Vector *arg2) {
+void func_806A495C(SpriteRow *arg0, SpriteVector *arg1, SpriteVector *arg2) {
     f32 sp38 = (f32) arg0->unk0 * 0.5f;
     f32 sp34 = arg0->unk4;
     f32 sp30 = arg0->unk8;
-    M7ModelSlot *slot = &arg0->unk10;
-    M7Model *model;
+    SpriteObjectSlot *slot = &arg0->unk10;
+    SpriteObject *model;
 
     if (slot->unk4 == NULL) {
         func_807149FC(-1);
@@ -458,17 +458,17 @@ void func_806A495C(M7Sprite *arg0, M7Vector *arg1, M7Vector *arg2) {
 #endif
 
 #ifdef NON_MATCHING
-typedef struct M7Node2 {
+typedef struct SpriteNode {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 unk2;
     /* 0x03 */ u8 unk3;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ u8 padC[0x94];
-    /* 0xA0 */ struct M7Node2 *unkA0;
-} M7Node2;
+    /* 0xA0 */ struct SpriteNode *unkA0;
+} SpriteNode;
 
-typedef struct M7State {
+typedef struct SpriteChainState {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ s32 unk4;
     /* 0x08 */ u8 pad8[8];
@@ -479,31 +479,31 @@ typedef struct M7State {
     /* 0x1D */ u8 unk1D;
     /* 0x1E */ u8 pad1E[0x37];
     /* 0x55 */ u8 unk55;
-} M7State;
+} SpriteChainState;
 
-typedef struct M7Holder {
+typedef struct SpriteHolder {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 pad1[7];
     /* 0x08 */ s32 unk8;
-    /* 0x0C */ M7Node2 *unkC;
+    /* 0x0C */ SpriteNode *unkC;
     /* 0x10 */ u16 unk10;
     /* 0x12 */ u8 pad12[2];
     /* 0x14 */ f32 unk14;
-} M7Holder;
+} SpriteHolder;
 
-typedef struct M7Player {
+typedef struct ActorStateView {
     /* 0x000 */ u8 pad0[0x154];
     /* 0x154 */ u8 unk154;
-} M7Player;
+} ActorStateView;
 
-void func_806A4B84(f32 arg0, M7Player *arg1, M7State *arg2, M7Holder *arg3, u8 arg4, u8 *arg5) {
+void func_806A4B84(f32 arg0, ActorStateView *arg1, SpriteChainState *arg2, SpriteHolder *arg3, u8 arg4, u8 *arg5) {
     f32 var_fs0;
     s32 var_a0;
     s32 var_s3;
     s16 temp16;
     u8 var_a0_2;
     u8 temp;
-    M7Node2 *node;
+    SpriteNode *node;
 
     node = arg3->unkC;
     var_s3 = 0;
@@ -551,7 +551,7 @@ void func_806A4B84(f32 arg0, M7Player *arg1, M7State *arg2, M7Holder *arg3, u8 a
         node->unk8 = arg0;
         node->unk3 = var_a0_2;
         if (arg3->unk0 & 2) {
-            func_806A495C((M7Sprite *) node, (M7Vector *) arg3, (M7Vector *) arg2);
+            func_806A495C((SpriteRow *) node, (SpriteVector *) arg3, (SpriteVector *) arg2);
         }
         temp16 = node->unk0;
         node = node->unkA0;
@@ -565,13 +565,13 @@ void func_806A4B84(f32 arg0, M7Player *arg1, M7State *arg2, M7Holder *arg3, u8 a
 #endif
 
 #ifdef NON_MATCHING
-typedef struct A8R2bNode A8R2bNode;
+typedef struct ChainNode ChainNode;
 
-typedef struct A8R2bState {
+typedef struct ChainState {
     /* 0x00 */ u8 pad0[0x4];
     /* 0x04 */ void *unk4;
     /* 0x08 */ u8 pad8[0x4];
-    /* 0x0C */ A8R2bNode *unkC;
+    /* 0x0C */ ChainNode *unkC;
     /* 0x10 */ u8 unk10;
     /* 0x11 */ u8 pad11;
     /* 0x12 */ u8 unk12;
@@ -586,21 +586,21 @@ typedef struct A8R2bState {
     /* 0x48 */ f32 unk48;
     /* 0x4C */ f32 unk4C;
     /* 0x50 */ f32 unk50;
-} A8R2bState;
+} ChainState;
 
-struct A8R2bNode {
+struct ChainNode {
     /* 0x00 */ u8 pad0[0x18];
     /* 0x18 */ f32 unk18;
-    /* 0x1C */ A8R2bNode *unk1C;
+    /* 0x1C */ ChainNode *unk1C;
 };
 
-void func_8070D9AC(A8R2bNode *);
+void func_8070D9AC(ChainNode *);
 void func_8070E808(Actor *, void *);
 
 void func_806A4DDC(Actor *arg0) {
-    A8R2bState *state;
-    A8R2bNode *node;
-    A8R2bNode *cur;
+    ChainState *state;
+    ChainNode *node;
+    ChainNode *cur;
     f32 acc;
     f32 dt;
     f32 sum;
@@ -620,7 +620,7 @@ void func_806A4DDC(Actor *arg0) {
         lim = 1.0f;
     }
     state->unk40 = lim;
-    func_806A3DA0(&arg0->unk7C, &arg0->unk80, dt, lim, (M7Angle *) state);
+    mathAddWaveOffset(&arg0->unk7C, &arg0->unk80, dt, lim, (MotionAngles *) state);
     wide = (f64) (state->unk20 * 136.8f) * 0.5;
     state->unk44 = arg0->unk7C - wide;
     high = (f64) (state->unk20 * 79.799995f) * 0.5;
@@ -670,7 +670,7 @@ void func_806A4DDC(Actor *arg0) {
             func_8070D9AC(cur);
             i--;
         } else {
-            func_806A4B84(acc, (M7Player *) arg0, (M7State *) state, (M7Holder *) cur, (u8) (i == state->unk10), &stop);
+            func_806A4B84(acc, (ActorStateView *) arg0, (SpriteChainState *) state, (SpriteHolder *) cur, (u8) (i == state->unk10), &stop);
             if (stop == 0) {
                 node = node->unk1C;
                 acc = sum;
@@ -697,12 +697,12 @@ void func_806A4DDC(Actor *arg0) {
 #endif
 
 #ifdef NON_MATCHING
-typedef struct L8bNode {
+typedef struct SpriteFrameNode {
     /* 0x00 */ u8 pad0[0x2C];
     /* 0x2C */ u8 unk2C;
-} L8bNode;
+} SpriteFrameNode;
 
-typedef struct L8bData {
+typedef struct SpriteActorData {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ u8 pad4[0x54];
     /* 0x58 */ u32 unk58;
@@ -713,12 +713,12 @@ typedef struct L8bData {
     /* 0x88 */ u8 pad88[0xD6];
     /* 0x15E */ u8 unk15E;
     /* 0x15F */ u8 pad15F[0x1D];
-    /* 0x17C */ L8bNode *unk17C;
-} L8bData;
+    /* 0x17C */ SpriteFrameNode *unk17C;
+} SpriteActorData;
 
-typedef struct L8bSub {
+typedef struct SpriteSub {
     /* 0x00 */ u8 pad0[0x4];
-    /* 0x04 */ L8bData *unk4;
+    /* 0x04 */ SpriteActorData *unk4;
     /* 0x08 */ u8 pad8[0x18];
     /* 0x20 */ f32 unk20;
     /* 0x24 */ f32 unk24;
@@ -727,21 +727,21 @@ typedef struct L8bSub {
     /* 0x30 */ f32 unk30;
     /* 0x34 */ u8 pad34[0x8];
     /* 0x3C */ u8 unk3C;
-} L8bSub;
+} SpriteSub;
 
-typedef struct L8bXform {
+typedef struct PositionView {
     /* 0x00 */ u8 pad0[0x7C];
     /* 0x7C */ f32 unk7C;
     /* 0x80 */ f32 unk80;
-} L8bXform;
+} PositionView;
 
-typedef struct L8bBounds {
+typedef struct MapBounds {
     /* 0x000 */ u8 pad0[0x270];
     /* 0x270 */ s16 unk270;
     /* 0x272 */ s16 unk272;
     /* 0x274 */ s16 unk274;
     /* 0x276 */ s16 unk276;
-} L8bBounds;
+} MapBounds;
 
 extern u8 D_807FC929;
 extern s16 D_80744490;
@@ -750,19 +750,19 @@ void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 s32 func_80613448(void *);
 s32 func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
-#define L8B_CUR ((L8bBounds *) ((u8 *) D_807FC924 + (D_807FC929 * 0x2F0)))
-#define L8B_CLAMP(x, l, h) ((x) < (l) ? (l) : ((h) < (x) ? (h) : (x)))
+#define CURRENT_BOUNDS ((MapBounds *) ((u8 *) D_807FC924 + (D_807FC929 * 0x2F0)))
+#define CLAMP_TO_BOUNDS(x, l, h) ((x) < (l) ? (l) : ((h) < (x) ? (h) : (x)))
 
-struct M8Sub;
+struct SpriteBehaviour;
 
-void func_806A5174(Actor *arg0, struct M8Sub *arg1, f32 arg2) {
+void func_806A5174(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) {
     f32 sp7C, sp78;
     s32 sp74;
     f32 lo, hi;
     f32 sp68, sp64, sp60;
 
     sp74 = 0;
-    switch (((L8bSub *) arg1)->unk4->unk58) {
+    switch (((SpriteSub *) arg1)->unk4->unk58) {
     case 0x22:
     case 0x2E:
     case 0x7C:
@@ -771,16 +771,16 @@ void func_806A5174(Actor *arg0, struct M8Sub *arg1, f32 arg2) {
     case 0x7F:
     case 0xDA:
     case 0x100:
-        ((L8bSub *) arg1)->unk3C = 1;
-        ((L8bSub *) arg1)->unk24 = (f32) L8B_CUR->unk274;
-        ((L8bSub *) arg1)->unk28 = (f32) L8B_CUR->unk276;
+        ((SpriteSub *) arg1)->unk3C = 1;
+        ((SpriteSub *) arg1)->unk24 = (f32) CURRENT_BOUNDS->unk274;
+        ((SpriteSub *) arg1)->unk28 = (f32) CURRENT_BOUNDS->unk276;
         break;
     case 0xFE:
-        sp74 = ((L8bSub *) arg1)->unk4->unk17C->unk2C;
+        sp74 = ((SpriteSub *) arg1)->unk4->unk17C->unk2C;
         break;
     default:
-        if (((L8bSub *) arg1)->unk4->unk0 != 0) {
-            switch (func_80613448(((L8bSub *) arg1)->unk4)) {
+        if (((SpriteSub *) arg1)->unk4->unk0 != 0) {
+            switch (func_80613448(((SpriteSub *) arg1)->unk4)) {
             case 0x11:
             case 0x12:
             case 0x1D:
@@ -826,30 +826,30 @@ void func_806A5174(Actor *arg0, struct M8Sub *arg1, f32 arg2) {
         }
         break;
     }
-    if ((((L8bSub *) arg1)->unk4->unk0 == 0) && (((L8bSub *) arg1)->unk3C == 0)) {
-        ((L8bSub *) arg1)->unk3C = 1;
-        ((L8bSub *) arg1)->unk24 = (f32) L8B_CUR->unk270;
-        ((L8bSub *) arg1)->unk28 = (f32) L8B_CUR->unk272;
+    if ((((SpriteSub *) arg1)->unk4->unk0 == 0) && (((SpriteSub *) arg1)->unk3C == 0)) {
+        ((SpriteSub *) arg1)->unk3C = 1;
+        ((SpriteSub *) arg1)->unk24 = (f32) CURRENT_BOUNDS->unk270;
+        ((SpriteSub *) arg1)->unk28 = (f32) CURRENT_BOUNDS->unk272;
     }
-    if (((L8bSub *) arg1)->unk3C == 0) {
+    if (((SpriteSub *) arg1)->unk3C == 0) {
         if (sp74 == 0) {
-            sp68 = ((L8bSub *) arg1)->unk4->unk7C;
-            sp64 = ((L8bSub *) arg1)->unk4->unk80 + 1.5 * ((L8bSub *) arg1)->unk4->unk15E;
-            sp60 = ((L8bSub *) arg1)->unk4->unk84;
+            sp68 = ((SpriteSub *) arg1)->unk4->unk7C;
+            sp64 = ((SpriteSub *) arg1)->unk4->unk80 + 1.5 * ((SpriteSub *) arg1)->unk4->unk15E;
+            sp60 = ((SpriteSub *) arg1)->unk4->unk84;
         } else {
-            actorGetNodePos(((L8bSub *) arg1)->unk4, sp74, &sp68, &sp64, &sp60);
+            actorGetNodePos(((SpriteSub *) arg1)->unk4, sp74, &sp68, &sp64, &sp60);
         }
         if (func_80626F8C(sp68, sp64, sp60, &sp7C, &sp78, 0, 1.0f, D_807FC929) != 0) {
-            sp7C = ((L8bSub *) arg1)->unk24;
-            sp78 = ((L8bSub *) arg1)->unk28;
+            sp7C = ((SpriteSub *) arg1)->unk24;
+            sp78 = ((SpriteSub *) arg1)->unk28;
         }
-        sp7C = L8B_CLAMP(sp7C, (f32) (L8B_CUR->unk270 - 0x64), (f32) (L8B_CUR->unk274 + 0x64));
-        sp78 = L8B_CLAMP(sp78, (f32) (L8B_CUR->unk272 - 0x64), (f32) (L8B_CUR->unk276 + 0x64));
-        ((L8bSub *) arg1)->unk24 = sp7C;
-        ((L8bSub *) arg1)->unk28 = sp78;
+        sp7C = CLAMP_TO_BOUNDS(sp7C, (f32) (CURRENT_BOUNDS->unk270 - 0x64), (f32) (CURRENT_BOUNDS->unk274 + 0x64));
+        sp78 = CLAMP_TO_BOUNDS(sp78, (f32) (CURRENT_BOUNDS->unk272 - 0x64), (f32) (CURRENT_BOUNDS->unk276 + 0x64));
+        ((SpriteSub *) arg1)->unk24 = sp7C;
+        ((SpriteSub *) arg1)->unk28 = sp78;
     }
-    sp7C = ((L8bSub *) arg1)->unk24;
-    sp78 = ((L8bSub *) arg1)->unk28;
+    sp7C = ((SpriteSub *) arg1)->unk24;
+    sp78 = ((SpriteSub *) arg1)->unk28;
     if (((f32) D_80744490 * 0.5f) < sp7C) {
         sp7C = sp7C - 131.1999969482421875;
     } else {
@@ -858,37 +858,37 @@ void func_806A5174(Actor *arg0, struct M8Sub *arg1, f32 arg2) {
     if (sp78 > 60.7999992370605469) {
         sp78 = sp78 - 60.7999992370605469;
     }
-    sp7C = (f32) L8B_CLAMP((f64) sp7C, (f64) L8B_CUR->unk270 + 91.1999969482421875 + 5.0,
-                           (f64) L8B_CUR->unk274 - 96.1999969482421875);
-    sp78 = (f32) L8B_CLAMP((f64) sp78, (f64) L8B_CUR->unk272 + 60.7999992370605469 + 5.0,
-                           (f64) L8B_CUR->unk276 - 65.7999992370605469);
-    ((L8bSub *) arg1)->unk2C = ((sp7C - ((L8bSub *) arg1)->unk2C) * arg2) + ((L8bSub *) arg1)->unk2C;
-    ((L8bSub *) arg1)->unk30 = ((sp78 - ((L8bSub *) arg1)->unk30) * arg2) + ((L8bSub *) arg1)->unk30;
-    ((L8bXform *) arg0)->unk7C = (((((L8bSub *) arg1)->unk2C - ((L8bSub *) arg1)->unk24) * ((L8bSub *) arg1)->unk20) + ((L8bSub *) arg1)->unk24);
-    ((L8bXform *) arg0)->unk80 = (((((L8bSub *) arg1)->unk30 - ((L8bSub *) arg1)->unk28) * ((L8bSub *) arg1)->unk20) + ((L8bSub *) arg1)->unk28);
+    sp7C = (f32) CLAMP_TO_BOUNDS((f64) sp7C, (f64) CURRENT_BOUNDS->unk270 + 91.1999969482421875 + 5.0,
+                           (f64) CURRENT_BOUNDS->unk274 - 96.1999969482421875);
+    sp78 = (f32) CLAMP_TO_BOUNDS((f64) sp78, (f64) CURRENT_BOUNDS->unk272 + 60.7999992370605469 + 5.0,
+                           (f64) CURRENT_BOUNDS->unk276 - 65.7999992370605469);
+    ((SpriteSub *) arg1)->unk2C = ((sp7C - ((SpriteSub *) arg1)->unk2C) * arg2) + ((SpriteSub *) arg1)->unk2C;
+    ((SpriteSub *) arg1)->unk30 = ((sp78 - ((SpriteSub *) arg1)->unk30) * arg2) + ((SpriteSub *) arg1)->unk30;
+    ((PositionView *) arg0)->unk7C = (((((SpriteSub *) arg1)->unk2C - ((SpriteSub *) arg1)->unk24) * ((SpriteSub *) arg1)->unk20) + ((SpriteSub *) arg1)->unk24);
+    ((PositionView *) arg0)->unk80 = (((((SpriteSub *) arg1)->unk30 - ((SpriteSub *) arg1)->unk28) * ((SpriteSub *) arg1)->unk20) + ((SpriteSub *) arg1)->unk28);
 }
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A5174.s")
 #endif
 
-typedef struct M8SeqNode {
+typedef struct ChainRowNode {
     /* 0x00 */ u8 pad0[0xC];
     /* 0x0C */ u8 *unkC;
     /* 0x10 */ u8 pad10[8];
     /* 0x18 */ f32 unk18;
-    /* 0x1C */ struct M8SeqNode *unk1C;
-} M8SeqNode;
+    /* 0x1C */ struct ChainRowNode *unk1C;
+} ChainRowNode;
 
-typedef struct M8SeqHead {
+typedef struct ChainRowHead {
     /* 0x00 */ u8 pad0[0xC];
-    /* 0x0C */ M8SeqNode *unkC;
+    /* 0x0C */ ChainRowNode *unkC;
     /* 0x10 */ u8 pad10[4];
     /* 0x14 */ f32 unk14;
-} M8SeqHead;
+} ChainRowHead;
 
-void func_806A57C0(M8SeqHead *arg0) {
-    M8SeqNode *node;
+void renderCalcChainCenterOffset(ChainRowHead *arg0) {
+    ChainRowNode *node;
     s32 sum;
 
     sum = 0;
@@ -911,7 +911,7 @@ void func_806A57C0(M8SeqHead *arg0) {
 }
 
 #ifdef NON_MATCHING
-typedef struct M8Sub {
+typedef struct SpriteBehaviour {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u8 pad2[0x2];
     /* 0x04 */ void *unk4;
@@ -930,7 +930,7 @@ typedef struct M8Sub {
     /* 0x3A */ s16 unk3A;
     /* 0x3C */ u8 pad3C[0x19];
     /* 0x55 */ u8 unk55;
-} M8Sub;
+} SpriteBehaviour;
 
 extern Actor *D_807FBB40;
 extern u16 D_807ECD58;
@@ -940,13 +940,13 @@ extern u8 D_807503F0;
 void *func_80610FE8(s32);
 void func_8061CB08(void);
 void func_806A4DDC(Actor *);
-void func_806A5174(Actor *, M8Sub *, f32);
-void func_8070DA28(M8Sub *);
+void func_806A5174(Actor *, SpriteBehaviour *, f32);
+void func_8070DA28(SpriteBehaviour *);
 void func_8070DA74(void *);
 void renderCallbacksRegister(void *, void *, s32);
 
 void func_806A5868(void) {
-    M8Sub *sub;
+    SpriteBehaviour *sub;
     f32 sp18;
     u8 state;
     u8 v0;
@@ -995,7 +995,7 @@ void func_806A5868(void) {
             D_807FBB40->unk154 = 1;
             sub->unk1D = D_807503F0;
             func_8070E808(D_807FBB40, sub->unk4);
-            func_806A57C0((M8SeqHead *)sub);
+            renderCalcChainCenterOffset((ChainRowHead *)sub);
         }
     } else if (state == 2) {
         f = 2.0f;

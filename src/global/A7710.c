@@ -3,13 +3,13 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A7710/func_806A2A10.s")
 
-void func_806A2B08(Actor *actor) {
+void actorSetStateTwo(Actor *actor) {
     actor->unk154 = 2;
     actor->unk155[0] = 0;
     actor->unk128 = 0xFF;
 }
 
-void func_806A2B20(Actor *actor) {
+void actorSetStateOne(Actor *actor) {
     if (actor != NULL) {
         actor->unk154 = 1;
         actor->unk155[0] = 0;
@@ -18,35 +18,35 @@ void func_806A2B20(Actor *actor) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A7710/func_806A2B38.s")
 
-void func_806A2B80(Actor *actor) {
+void actorSetStateThree(Actor *actor) {
     actor->unk154 = 3;
     actor->unk155[0] = 0;
 }
 
-typedef struct A7R2GfxRes {
+typedef struct GfxResource {
     /* 0x0 */ u8 pad[4];
     /* 0x4 */ void *unk4;
-} A7R2GfxRes;
+} GfxResource;
 
-typedef struct A7R2ActorSub {
+typedef struct RenderActorSub {
     /* 0x00 */ u8 pad[0x10];
     /* 0x10 */ u8 unk10;
-} A7R2ActorSub;
+} RenderActorSub;
 
-typedef struct A7R2RenderState {
+typedef struct RenderState {
     /* 0x276 */ u8 pad[0x276];
     /* 0x276 */ s16 unk276;
-} A7R2RenderState;
+} RenderState;
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 extern Gfx D_1000118;
 extern Mtx D_2000180;
 extern Gfx D_8071FC58;
-extern A7R2RenderState *D_807FC924;
+extern RenderState *D_807FC924;
 s32 func_805FCA64(void);
 Gfx *func_8070068C(Gfx *);
-A7R2GfxRes *func_806FD9B4(u8);
+GfxResource *func_806FD9B4(u8);
 Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
 Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
 f32 func_80612D1C(f32);
@@ -54,8 +54,8 @@ f32 func_80612D10(f32);
 void func_8071495C(void);
 void func_80714CC0(void *, f32, f32, f32, f32);
 
-Gfx *func_806A2B90(Gfx *gfx, Actor *actor) {
-    A7R2ActorSub *sub;
+Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
+    RenderActorSub *sub;
     /* unused: the original function reserves 0x18 and 8 bytes of its frame here */
     u8 stackPad0[0x18];
     f32 angle;

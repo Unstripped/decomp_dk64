@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct M4ActorTail {
+typedef struct ActorTail {
     /* 0x000 */ u8 pad0[0x60];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 pad64[0x18];
@@ -17,7 +17,7 @@ typedef struct M4ActorTail {
     /* 0x0F0 */ u8 padF0[0x6F];
     /* 0x15F */ u8 unk15F;
     /* 0x160 */ f64 unk160;
-} M4ActorTail;
+} ActorTail;
 
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
@@ -28,7 +28,7 @@ extern ActorEntry D_807FB930[];
 
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
-void func_806A5DF0(s16, s32, s32, s32, s16, u8, s16, s32);
+void actorSpawnNodeEntryScaled(s16, s32, s32, s32, s16, u8, s16, s32);
 void func_8067A70C(Actor *, Actor *, s32, f32, f32, s32, s32);
 
 extern Gfx D_1000118;
@@ -50,14 +50,14 @@ void func_8069FA40(Gfx *, Actor *);
     }
 
 #ifdef NON_MATCHING
-typedef struct M4Sub4 {
+typedef struct ActorSub4Head {
     /* 0x00 */ void *unk0;
-} M4Sub4;
+} ActorSub4Head;
 
-typedef struct M4Sub4Inner {
+typedef struct ActorSub4Node {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ f32 unk24;
-} M4Sub4Inner;
+} ActorSub4Node;
 
 void func_80613C48(Actor *, s16, f32, f32);
 void func_80613CA8(Actor *, s16, f32, f32);
@@ -106,7 +106,7 @@ void func_8069E210(void) {
             actor = D_807FBB40;
         }
     }
-    if (0.0f == ((M4Sub4Inner *)((M4Sub4 *)actor->unk4)->unk0)->unk24) {
+    if (0.0f == ((ActorSub4Node *)((ActorSub4Head *)actor->unk4)->unk0)->unk24) {
         actor->unk60 &= ~4;
         actor = *p;
     }
@@ -117,15 +117,15 @@ void func_8069E210(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_8069E210.s")
 #endif
 
-void func_8069E490(s32 arg0, s16 arg1) {
+void actorSpawnNodeEntryAtActor(s32 arg0, s16 arg1) {
     Actor *actor;
 
     actor = D_807FBB40;
-    func_806A5DF0(arg0, *(s32 *)&actor->unk7C, *(s32 *)&actor->unk80,
+    actorSpawnNodeEntryScaled(arg0, *(s32 *)&actor->unk7C, *(s32 *)&actor->unk80,
                   *(s32 *)&actor->unk84, 0, 0, arg1, (s32)actor);
 }
 
-void func_8069E4E0(s16 arg0) {
+void actorPlaceAttachedChildren(s16 arg0) {
     Actor *actor;
     s16 i;
 
@@ -139,7 +139,7 @@ void func_8069E4E0(s16 arg0) {
     }
 }
 
-void func_8069E5B8(void) {
+void actorAttachChildCallbacks(void) {
     Actor *actor;
     s16 i;
 
@@ -151,7 +151,7 @@ void func_8069E5B8(void) {
     }
 }
 
-int func_8069E660(Actor *arg0, f32 arg1, f32 arg2) {
+int actorIsTargetInRange(Actor *arg0, f32 arg1, f32 arg2) {
     return arg0->unk80 - 8.0f <= D_807FBB40->unk80 &&
            D_807FBB40->unk80 < arg0->unk80 + arg1 &&
            arg2 > (arg0->unk7C - D_807FBB40->unk7C) *
@@ -179,7 +179,7 @@ s32 func_8069E724(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_8069E774.s")
 
-s32 func_8069EF50(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4) {
+s32 actorIsTargetInCylinder(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4) {
     Actor *actor;
     f32 dx;
     f32 dz;
@@ -195,28 +195,28 @@ s32 func_8069EF50(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4) {
 }
 
 #ifdef NON_MATCHING
-typedef struct L5bNode {
+typedef struct ModelNodeView {
     /* 0x00 */ u8 pad0[0x4];
     /* 0x04 */ f32 unk4;
     /* 0x08 */ u8 pad8[0x4];
     /* 0x0C */ s16 unkC;
     /* 0x0E */ u8 padE[0x16];
     /* 0x24 */ f32 unk24;
-} L5bNode;
+} ModelNodeView;
 
-typedef struct L5bSub4 {
-    /* 0x00 */ L5bNode *unk0;
+typedef struct ModelSubView {
+    /* 0x00 */ ModelNodeView *unk0;
     /* 0x04 */ u8 pad4[0x30];
     /* 0x34 */ f32 unk34;
     /* 0x38 */ f32 unk38;
     /* 0x3C */ f32 unk3C;
     /* 0x40 */ u8 pad40[0x8];
     /* 0x48 */ f32 unk48;
-} L5bSub4;
+} ModelSubView;
 
-typedef struct L5bActor {
+typedef struct ActorView {
     /* 0x000 */ u8 pad0[0x4];
-    /* 0x004 */ L5bSub4 *unk4;
+    /* 0x004 */ ModelSubView *unk4;
     /* 0x008 */ u8 pad8[0x58];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 pad64[0x18];
@@ -237,13 +237,13 @@ typedef struct L5bActor {
     /* 0x16A */ u8 unk16A;
     /* 0x16B */ u8 unk16B;
     /* 0x16C */ u8 unk16C;
-} L5bActor;
+} ActorView;
 
 void animSetLoopLimit(void *, s32, s32);
 void animSetSpeed(void *, s32, f32);
 void animSetFinished(void *, s32, s32);
 s32 animIsPlaying(void *, s32);
-L5bNode *animGetNodeByIndex(void *, s32);
+ModelNodeView *animGetNodeByIndex(void *, s32);
 void lightSetFlags(s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, u32, u32, u32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
@@ -256,8 +256,8 @@ void func_806319C4(void *, s32);
 extern u8 D_807444EC;
 extern s32 D_807FBB68;
 
-#define L5B_A0 ((L5bActor *)D_807FBB40)
-#define L5B_A1 ((L5bActor *)D_807FBB44)
+#define CUR_ACTOR ((ActorView *)D_807FBB40)
+#define SPAWNED_ACTOR ((ActorView *)D_807FBB44)
 
 void func_8069F020(void) {
     u8 sp67;
@@ -267,96 +267,96 @@ void func_8069F020(void) {
     f32 sp58;
     f32 sp54;
     f32 sp50;
-    L5bNode *node;
+    ModelNodeView *node;
 
-    sp67 = (L5B_A0->unkF0 == 0xBB) ? 0x28 : 0x23;
-    sp64 = (L5B_A0->unkF0 == 0x6A) ? 0x78 : 0x190;
+    sp67 = (CUR_ACTOR->unkF0 == 0xBB) ? 0x28 : 0x23;
+    sp64 = (CUR_ACTOR->unkF0 == 0x6A) ? 0x78 : 0x190;
     if (D_807444EC == 1) {
         actorDespawn((Actor *)D_807FBB40);
     }
-    if (!(L5B_A0->unk60 & 0x10)) {
-        L5B_A0->unk12A = 0x3E8;
-        L5B_A0->unk60 |= 0x400;
+    if (!(CUR_ACTOR->unk60 & 0x10)) {
+        CUR_ACTOR->unk12A = 0x3E8;
+        CUR_ACTOR->unk60 |= 0x400;
         animSetLoopLimit(D_807FBB40, 0, 1);
         animSetSpeed(D_807FBB40, 0, 0.5f);
         animSetFinished(D_807FBB40, 0, 1);
-        L5B_A0->unkEE = 0x3C;
+        CUR_ACTOR->unkEE = 0x3C;
     }
-    if (L5B_A0->unk168 != 0) {
+    if (CUR_ACTOR->unk168 != 0) {
         sp60 = 1.0f;
-        if (L5B_A0->unkEE < 0x1E) {
-            sp60 = L5B_A0->unkEE / 30.0;
+        if (CUR_ACTOR->unkEE < 0x1E) {
+            sp60 = CUR_ACTOR->unkEE / 30.0;
         }
         lightSetFlags(1);
-        lightAdd(L5B_A0->unk7C, L5B_A0->unk80, L5B_A0->unk84, 0.0f, 0.0f, 0.0f,
-                 L5B_A0->unk4->unk34 * 300.0f, 0,
-                 (u32)((f32)L5B_A0->unk16A * sp60),
-                 (u32)((f32)L5B_A0->unk16B * sp60),
-                 (u32)((f32)L5B_A0->unk16C * sp60));
-        L5B_A0->unk4->unk34 = (f32)((f64)L5B_A0->unk4->unk34 * L5B_A0->unk160);
-        L5B_A0->unk4->unk3C = (f32)((f64)L5B_A0->unk4->unk3C * L5B_A0->unk160);
+        lightAdd(CUR_ACTOR->unk7C, CUR_ACTOR->unk80, CUR_ACTOR->unk84, 0.0f, 0.0f, 0.0f,
+                 CUR_ACTOR->unk4->unk34 * 300.0f, 0,
+                 (u32)((f32)CUR_ACTOR->unk16A * sp60),
+                 (u32)((f32)CUR_ACTOR->unk16B * sp60),
+                 (u32)((f32)CUR_ACTOR->unk16C * sp60));
+        CUR_ACTOR->unk4->unk34 = (f32)((f64)CUR_ACTOR->unk4->unk34 * CUR_ACTOR->unk160);
+        CUR_ACTOR->unk4->unk3C = (f32)((f64)CUR_ACTOR->unk4->unk3C * CUR_ACTOR->unk160);
     }
-    switch (L5B_A0->unk154) {
+    switch (CUR_ACTOR->unk154) {
     case 0:
-        if (L5B_A0->unk168 == 0) {
-            L5B_A0->unk4->unk34 =
-                (f32)((f64)L5B_A0->unk4->unk34 * L5B_A0->unk160);
-            L5B_A0->unk4->unk3C =
-                (f32)((f64)L5B_A0->unk4->unk3C * L5B_A0->unk160);
+        if (CUR_ACTOR->unk168 == 0) {
+            CUR_ACTOR->unk4->unk34 =
+                (f32)((f64)CUR_ACTOR->unk4->unk34 * CUR_ACTOR->unk160);
+            CUR_ACTOR->unk4->unk3C =
+                (f32)((f64)CUR_ACTOR->unk4->unk3C * CUR_ACTOR->unk160);
         }
-        if (L5B_A0->unk4->unk0->unk24 == 0.0f ||
-            L5B_A0->unk4->unk0->unk4 > 5.0f) {
-            L5B_A0->unk154 = 1;
+        if (CUR_ACTOR->unk4->unk0->unk24 == 0.0f ||
+            CUR_ACTOR->unk4->unk0->unk4 > 5.0f) {
+            CUR_ACTOR->unk154 = 1;
             animSetFinished(D_807FBB40, 0, 0);
         }
         break;
     case 1:
-        node = L5B_A0->unk4->unk0;
+        node = CUR_ACTOR->unk4->unk0;
         if (node->unk24 == 0.0f) {
-            if (animGetNodeByIndex(L5B_A0, 0)->unkC < 0xE) {
-                node = L5B_A0->unk4->unk0;
+            if (animGetNodeByIndex(CUR_ACTOR, 0)->unkC < 0xE) {
+                node = CUR_ACTOR->unk4->unk0;
             } else {
                 goto promote;
             }
         }
         if (node->unk4 > 9.0f) {
 promote:
-            L5B_A0->unk154 = 2;
-            if (L5B_A0->unk15F != 0 && actorSpawn(0x102, L5B_A0->unkF0) != 0) {
-                if (L5B_A0->unk4->unk0->unk4 > 9.0f) {
+            CUR_ACTOR->unk154 = 2;
+            if (CUR_ACTOR->unk15F != 0 && actorSpawn(0x102, CUR_ACTOR->unkF0) != 0) {
+                if (CUR_ACTOR->unk4->unk0->unk4 > 9.0f) {
                     func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
-                    func_80614D00(D_807FBB44, L5B_A0->unk4->unk48, 0.0f);
+                    func_80614D00(D_807FBB44, CUR_ACTOR->unk4->unk48, 0.0f);
                 }
-                func_8067B238(D_807FBB44, L5B_A0, L5B_A0->unk4->unk38);
-                L5B_A1->unkF0 = L5B_A0->unkF0;
-                L5B_A1->unk4->unk34 = (f32)((f64)L5B_A0->unk4->unk34 + 0.02);
-                L5B_A1->unk4->unk3C = (f32)((f64)L5B_A0->unk4->unk3C + 0.02);
-                L5B_A1->unk15F = L5B_A0->unk15F - 1;
-                L5B_A1->unk160 = L5B_A0->unk160;
+                func_8067B238(D_807FBB44, CUR_ACTOR, CUR_ACTOR->unk4->unk38);
+                SPAWNED_ACTOR->unkF0 = CUR_ACTOR->unkF0;
+                SPAWNED_ACTOR->unk4->unk34 = (f32)((f64)CUR_ACTOR->unk4->unk34 + 0.02);
+                SPAWNED_ACTOR->unk4->unk3C = (f32)((f64)CUR_ACTOR->unk4->unk3C + 0.02);
+                SPAWNED_ACTOR->unk15F = CUR_ACTOR->unk15F - 1;
+                SPAWNED_ACTOR->unk160 = CUR_ACTOR->unk160;
             }
         }
         break;
     case 2:
-        if (animIsPlaying(L5B_A0, 0) == 0) {
-            L5B_A0->unk154 = 3;
-            if (L5B_A0->unk168 != 0) {
-                L5B_A0->unk60 &= ~4;
+        if (animIsPlaying(CUR_ACTOR, 0) == 0) {
+            CUR_ACTOR->unk154 = 3;
+            if (CUR_ACTOR->unk168 != 0) {
+                CUR_ACTOR->unk60 &= ~4;
             } else {
-                actorDespawn((Actor *)L5B_A0);
+                actorDespawn((Actor *)CUR_ACTOR);
             }
         }
         break;
     case 3:
-        L5B_A0->unkEE--;
-        if (L5B_A0->unkEE == 0) {
-            actorDespawn((Actor *)L5B_A0);
+        CUR_ACTOR->unkEE--;
+        if (CUR_ACTOR->unkEE == 0) {
+            actorDespawn((Actor *)CUR_ACTOR);
         }
         break;
     }
-    if (L5B_A0->unkF0 != 0x6A && !(D_807FBB68 & 2)) {
-        if ((L5B_A0->unk60 & 4) && (L5B_A0->unk60 & 0x10)) {
-            sp50 = L5B_A0->unk80;
-            actorGetNodePos((Actor *)L5B_A0, 1, &sp5C, &sp58, &sp54);
+    if (CUR_ACTOR->unkF0 != 0x6A && !(D_807FBB68 & 2)) {
+        if ((CUR_ACTOR->unk60 & 4) && (CUR_ACTOR->unk60 & 0x10)) {
+            sp50 = CUR_ACTOR->unk80;
+            actorGetNodePos((Actor *)CUR_ACTOR, 1, &sp5C, &sp58, &sp54);
             sp58 += 50.0f;
             if (collisionCheckGroundAtPoint(sp5C, sp54, &sp58) != 0) {
                 f32 dist;
@@ -366,35 +366,35 @@ promote:
                 } else {
                     dist = sp58 - sp50;
                 }
-                if (dist < 40.0f || !(L5B_A0->unk60 & 0x10)) {
-                    L5B_A0->unk80 = sp58;
+                if (dist < 40.0f || !(CUR_ACTOR->unk60 & 0x10)) {
+                    CUR_ACTOR->unk80 = sp58;
                 }
             }
         }
     }
-    if (L5B_A0->unk168 == 0 || L5B_A0->unk154 != 3) {
-        if (func_8069EF50((s16)L5B_A0->unk7C, (s16)(L5B_A0->unk80 - 20.0f),
-                          (s16)L5B_A0->unk84, sp67,
-                          L5B_A0->unk4->unk34 * (f32)sp64) != 0 &&
-            func_8069EF50((s16)L5B_A0->unk7C, (s16)(L5B_A0->unk80 - 20.0f),
-                          (s16)L5B_A0->unk84, sp67,
-                          L5B_A0->unk4->unk34 * (f32)(sp64 - 0x14)) == 0) {
-            func_806EB0C0(0x2E, L5B_A0, 0);
+    if (CUR_ACTOR->unk168 == 0 || CUR_ACTOR->unk154 != 3) {
+        if (actorIsTargetInCylinder((s16)CUR_ACTOR->unk7C, (s16)(CUR_ACTOR->unk80 - 20.0f),
+                          (s16)CUR_ACTOR->unk84, sp67,
+                          CUR_ACTOR->unk4->unk34 * (f32)sp64) != 0 &&
+            actorIsTargetInCylinder((s16)CUR_ACTOR->unk7C, (s16)(CUR_ACTOR->unk80 - 20.0f),
+                          (s16)CUR_ACTOR->unk84, sp67,
+                          CUR_ACTOR->unk4->unk34 * (f32)(sp64 - 0x14)) == 0) {
+            func_806EB0C0(0x2E, CUR_ACTOR, 0);
         }
     }
-    func_806319C4(L5B_A0, 0);
+    func_806319C4(CUR_ACTOR, 0);
 }
 
-#undef L5B_A1
+#undef SPAWNED_ACTOR
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_8069F020.s")
 #endif
 
-void func_8069F904(Gfx *arg0, Actor *arg1) {
+void renderScaledSprite(Gfx *arg0, Actor *arg1) {
     f32 scale;
 
-    scale = ((M4ActorTail *)arg1)->unkE0;
+    scale = ((ActorTail *)arg1)->unkE0;
     WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
     WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
     WRITE_GFX(arg0++, 0xE200001C, 0x00504340);
@@ -424,72 +424,72 @@ void func_8069F904(Gfx *arg0, Actor *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A44C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_8069FA40.s")
-void func_8069FDA0(void) {
+void actorUpdateBannerFade(void) {
     f32 ratio;
     s16 sp22;
 
-    if (!(((M4ActorTail *)D_807FBB40)->unk60 & 0x10)) {
-        ((M4ActorTail *)D_807FBB40)->unkEE =
-            (s16)((M4ActorTail *)D_807FBB40)->unk160;
+    if (!(((ActorTail *)D_807FBB40)->unk60 & 0x10)) {
+        ((ActorTail *)D_807FBB40)->unkEE =
+            (s16)((ActorTail *)D_807FBB40)->unk160;
     }
-    if ((f64)(u32)D_80744478 * 0.5 < ((M4ActorTail *)D_807FBB40)->unk160) {
-        ((M4ActorTail *)D_807FBB40)->unk160 -=
+    if ((f64)(u32)D_80744478 * 0.5 < ((ActorTail *)D_807FBB40)->unk160) {
+        ((ActorTail *)D_807FBB40)->unk160 -=
             (f64)(u32)D_80744478 * 0.5;
-        ratio = (f32)(((M4ActorTail *)D_807FBB40)->unk160 /
-                      (f64)(f32)((M4ActorTail *)D_807FBB40)->unkEE);
-        ((M4ActorTail *)D_807FBB40)->unkE0 =
+        ratio = (f32)(((ActorTail *)D_807FBB40)->unk160 /
+                      (f64)(f32)((ActorTail *)D_807FBB40)->unkEE);
+        ((ActorTail *)D_807FBB40)->unkE0 =
             (f32)((f64)ratio * -8.0 + 12.0);
-        ((M4ActorTail *)D_807FBB40)->unkE6 = (s16)(255.0f * ratio);
-        if (((M4ActorTail *)D_807FBB40)->unk15F >= 0x14 &&
-            ((M4ActorTail *)D_807FBB40)->unk15F < 0x1E) {
-            renderCallbacksRegister(func_8069F904, D_807FBB40, 3);
+        ((ActorTail *)D_807FBB40)->unkE6 = (s16)(255.0f * ratio);
+        if (((ActorTail *)D_807FBB40)->unk15F >= 0x14 &&
+            ((ActorTail *)D_807FBB40)->unk15F < 0x1E) {
+            renderCallbacksRegister(renderScaledSprite, D_807FBB40, 3);
         } else {
             renderCallbacksRegister(func_8069FA40, D_807FBB40, 3);
         }
-        if (((M4ActorTail *)D_807FBB40)->unk15F == 0 &&
-            (s16)(s32)((M4ActorTail *)D_807FBB40)->unk160 == 3) {
+        if (((ActorTail *)D_807FBB40)->unk15F == 0 &&
+            (s16)(s32)((ActorTail *)D_807FBB40)->unk160 == 3) {
             actorSpawn(0x104, 0);
-            ((M4ActorTail *)D_807FBB44)->unk160 =
-                (f64)((M4ActorTail *)D_807FBB40)->unkEE;
-            ((M4ActorTail *)D_807FBB44)->unk15F = D_80750AD4;
-            ((M4ActorTail *)D_807FBB44)->unk80 = 80.0f;
-            ((M4ActorTail *)D_807FBB44)->unk7C = 640.0f;
+            ((ActorTail *)D_807FBB44)->unk160 =
+                (f64)((ActorTail *)D_807FBB40)->unkEE;
+            ((ActorTail *)D_807FBB44)->unk15F = D_80750AD4;
+            ((ActorTail *)D_807FBB44)->unk80 = 80.0f;
+            ((ActorTail *)D_807FBB44)->unk7C = 640.0f;
             func_80609140((s16)(D_80750AD4 + 0x3F3), 0x7FFF, 63.0f, 1.0f, 0,
                           0);
             return;
         }
-        if (((M4ActorTail *)D_807FBB40)->unk15F >= 0x1E &&
-            ((M4ActorTail *)D_807FBB40)->unk15F < 0x25 &&
-            (s16)(s32)((M4ActorTail *)D_807FBB40)->unk160 == 5) {
+        if (((ActorTail *)D_807FBB40)->unk15F >= 0x1E &&
+            ((ActorTail *)D_807FBB40)->unk15F < 0x25 &&
+            (s16)(s32)((ActorTail *)D_807FBB40)->unk160 == 5) {
             actorSpawn(0x104, 0);
-            ((M4ActorTail *)D_807FBB44)->unk160 =
-                (f64)((M4ActorTail *)D_807FBB40)->unkEE;
-            if (((M4ActorTail *)D_807FBB40)->unk15F == 0x23) {
-                ((M4ActorTail *)D_807FBB44)->unk15F = 0x24;
-            } else if (((M4ActorTail *)D_807FBB40)->unk15F == 0x24) {
-                ((M4ActorTail *)D_807FBB44)->unk15F = 0x25;
+            ((ActorTail *)D_807FBB44)->unk160 =
+                (f64)((ActorTail *)D_807FBB40)->unkEE;
+            if (((ActorTail *)D_807FBB40)->unk15F == 0x23) {
+                ((ActorTail *)D_807FBB44)->unk15F = 0x24;
+            } else if (((ActorTail *)D_807FBB40)->unk15F == 0x24) {
+                ((ActorTail *)D_807FBB44)->unk15F = 0x25;
             } else {
-                ((M4ActorTail *)D_807FBB44)->unk15F = 0x26;
+                ((ActorTail *)D_807FBB44)->unk15F = 0x26;
             }
-            ((M4ActorTail *)D_807FBB44)->unk80 = 80.0f;
-            ((M4ActorTail *)D_807FBB44)->unk7C = 500.0f;
+            ((ActorTail *)D_807FBB44)->unk80 = 80.0f;
+            ((ActorTail *)D_807FBB44)->unk7C = 500.0f;
         }
     } else {
-        if ((((M4ActorTail *)D_807FBB40)->unk15F & 0xC0) != 0 &&
-            (((M4ActorTail *)D_807FBB40)->unk15F & 0x3F) != 0) {
-        sp22 = 0x3FC - (((M4ActorTail *)D_807FBB40)->unk15F & 0x3F);
+        if ((((ActorTail *)D_807FBB40)->unk15F & 0xC0) != 0 &&
+            (((ActorTail *)D_807FBB40)->unk15F & 0x3F) != 0) {
+        sp22 = 0x3FC - (((ActorTail *)D_807FBB40)->unk15F & 0x3F);
         actorSpawn(0x104, 0);
-        ((M4ActorTail *)D_807FBB44)->unk160 =
-            (f64)((M4ActorTail *)D_807FBB40)->unkEE;
-        ((M4ActorTail *)D_807FBB44)->unk15F =
-            (((M4ActorTail *)D_807FBB40)->unk15F & 0xC0) +
-            (((M4ActorTail *)D_807FBB40)->unk15F & 0x3F) - 1;
-        if (((M4ActorTail *)D_807FBB40)->unk15F & 0x80) {
+        ((ActorTail *)D_807FBB44)->unk160 =
+            (f64)((ActorTail *)D_807FBB40)->unkEE;
+        ((ActorTail *)D_807FBB44)->unk15F =
+            (((ActorTail *)D_807FBB40)->unk15F & 0xC0) +
+            (((ActorTail *)D_807FBB40)->unk15F & 0x3F) - 1;
+        if (((ActorTail *)D_807FBB40)->unk15F & 0x80) {
             sp22 += 2;
         }
         func_80609140(sp22, 0x7FFF, 63.0f, 1.0f, 0, 0);
-        ((M4ActorTail *)D_807FBB44)->unk80 = 80.0f;
-        ((M4ActorTail *)D_807FBB44)->unk7C = 600.0f;
+        ((ActorTail *)D_807FBB44)->unk80 = 80.0f;
+        ((ActorTail *)D_807FBB44)->unk7C = 600.0f;
         }
         actorDespawn(D_807FBB40);
     }
@@ -500,13 +500,13 @@ typedef struct {
     f32 unk4;
     f32 unk8;
     f32 unkC;
-} M5_A2F10Quad;
+} NodeQuad;
 
 typedef struct {
     f32 unk0;
     f32 unk4;
     f32 unk8;
-} M5_A2F10Vec3;
+} Position3f;
 
 typedef struct {
     s32 unk0;
@@ -517,11 +517,11 @@ typedef struct {
     /* 0x00F */ u8 unkF;
     u8 pad10[0x1F0];
     s16 unk200;
-} M5_A2F10Sub;
+} SubStateView;
 
 typedef struct {
-    /* 0x000 */ struct M5_A2F10Model *unk0;
-    /* 0x004 */ struct M5_A2F10Sub4 *unk4;
+    /* 0x000 */ struct ActorModel *unk0;
+    /* 0x004 */ struct ActorSub4View *unk4;
     /* 0x008 */ void *unk8;
     /* 0x00C */ u8 padC[0x50];
     /* 0x05C */ u16 unk5C;
@@ -550,9 +550,9 @@ typedef struct {
     /* 0x0F0 */ u8 padF0[0xC];
     /* 0x0FC */ u8 unkFC;
     /* 0x0FD */ u8 padFD[0x1F];
-    /* 0x11C */ struct M5_A2F10SpActor *unk11C;
+    /* 0x11C */ struct SiblingActor *unk11C;
     /* 0x120 */ u8 pad120[4];
-    /* 0x124 */ M5_A2F10Vec3 *unk124;
+    /* 0x124 */ Position3f *unk124;
     /* 0x128 */ s16 unk128;
     /* 0x12A */ s16 unk12A;
     /* 0x12C */ u8 pad12C[6];
@@ -571,22 +571,22 @@ typedef struct {
     /* 0x16B */ u8 unk16B;
     /* 0x16C */ u8 unk16C;
     /* 0x16D */ u8 pad16D[7];
-    /* 0x174 */ M5_A2F10Sub *unk174;
-} M5_A2F10Actor;
+    /* 0x174 */ SubStateView *unk174;
+} AttachedActor;
 
-typedef struct M5_A2F10Sub4 {
+typedef struct ActorSub4View {
     /* 0x000 */ u8 pad0[0x24];
-    /* 0x024 */ M5_A2F10Quad *unk24;
+    /* 0x024 */ NodeQuad *unk24;
     /* 0x028 */ u8 pad28[0xC];
     /* 0x034 */ f32 unk34;
     /* 0x038 */ f32 unk38;
     /* 0x03C */ f32 unk3C;
-} M5_A2F10Sub4;
+} ActorSub4View;
 
-typedef struct M5_A2F10Model {
+typedef struct ActorModel {
     /* 0x000 */ u8 pad0[0x20];
     /* 0x020 */ u8 unk20;
-} M5_A2F10Model;
+} ActorModel;
 
 typedef struct {
     /* 0x000 */ u8 pad0[0x58];
@@ -604,9 +604,9 @@ typedef struct {
     /* 0x146 */ s16 unk146;
     /* 0x148 */ u8 pad148[0xE];
     /* 0x156 */ u8 unk156;
-} M5_A2F10Target;
+} ParentActor;
 
-typedef struct M5_A2F10SpActor {
+typedef struct SiblingActor {
     /* 0x000 */ u8 pad0[8];
     /* 0x008 */ void *unk8;
     /* 0x00C */ u8 padC[0x48];
@@ -629,7 +629,7 @@ typedef struct M5_A2F10SpActor {
     /* 0x174 */ void *unk174;
     /* 0x178 */ u8 pad178[0x88];
     /* 0x200 */ s16 unk200;
-} M5_A2F10SpActor;
+} SiblingActor;
 
 s32 func_80611A44(void);
 void func_806319C4(void *, s32);
@@ -638,39 +638,39 @@ void func_8067ACB4(Actor *);
 void actorApplyVelocity(Actor *);
 extern f32 D_80750394;
 
-#define M5_A2F10_ACTOR ((M5_A2F10Actor *) D_807FBB40)
+#define ATTACHED_ACTOR ((AttachedActor *) D_807FBB40)
 
-void func_806A018C(void) {
-    M5_A2F10Sub *sub;
+void actorUpdateSpinAndVelocity(void) {
+    SubStateView *sub;
     s32 pad;
 
-    sub = M5_A2F10_ACTOR->unk174;
-    if (!(M5_A2F10_ACTOR->unk60 & 0x10)) {
-        M5_A2F10_ACTOR->unkB8 = M5_A2F10_ACTOR->unk124->unk0;
-        M5_A2F10_ACTOR->unkEE = M5_A2F10_ACTOR->unk124->unk4;
-        M5_A2F10_ACTOR->unkC0 = M5_A2F10_ACTOR->unk124->unk8;
-        M5_A2F10_ACTOR->unk144 = 1;
+    sub = ATTACHED_ACTOR->unk174;
+    if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
+        ATTACHED_ACTOR->unkB8 = ATTACHED_ACTOR->unk124->unk0;
+        ATTACHED_ACTOR->unkEE = ATTACHED_ACTOR->unk124->unk4;
+        ATTACHED_ACTOR->unkC0 = ATTACHED_ACTOR->unk124->unk8;
+        ATTACHED_ACTOR->unk144 = 1;
         sub->unk0 = (func_80611A44() >> 15) % 0x46;
         sub->unk4 = (func_80611A44() >> 15) % 0xC8;
     }
     func_8067ACB4(D_807FBB40);
     actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
-    M5_A2F10_ACTOR->unkC0 += D_80750394;
-    M5_A2F10_ACTOR->unkE8 += sub->unk4;
-    M5_A2F10_ACTOR->unkE4 += sub->unk0;
-    if (M5_A2F10_ACTOR->unkFC != 0 || ((M5_A2F10_ACTOR->unk6A & 1) && !(M5_A2F10_ACTOR->unk6C & 1))) {
+    ATTACHED_ACTOR->unkC0 += D_80750394;
+    ATTACHED_ACTOR->unkE8 += sub->unk4;
+    ATTACHED_ACTOR->unkE4 += sub->unk0;
+    if (ATTACHED_ACTOR->unkFC != 0 || ((ATTACHED_ACTOR->unk6A & 1) && !(ATTACHED_ACTOR->unk6C & 1))) {
         actorDespawn(D_807FBB40);
     }
     func_806319C4(D_807FBB40, 0);
 }
 
 void func_806A02F0(void) {
-    func_806A018C();
+    actorUpdateSpinAndVelocity();
 }
 
 void func_806A0310(void) {
-    func_806A018C();
+    actorUpdateSpinAndVelocity();
 }
 
 typedef struct {
@@ -678,7 +678,7 @@ typedef struct {
     f32 unk4;
     f32 unk8;
     u8 padC[0x24];
-} M5_A2F10Pos;
+} NodePosition;
 
 s32 func_8061CB50(void);
 void billboardSetFlags(s32);
@@ -697,34 +697,34 @@ extern u8 D_807FBD70;
 extern f32 D_80750398;
 extern u8 D_80720BE8;
 
-void func_806A0330(void) {
-    M5_A2F10Pos pos;
+void actorFallAndBurstUpdate(void) {
+    NodePosition pos;
     s32 i;
 
-    if (!(M5_A2F10_ACTOR->unk60 & 0x10)) {
-        M5_A2F10_ACTOR->unk144 = 0x1C;
-        M5_A2F10_ACTOR->unkC0 = 0.0f;
-        M5_A2F10_ACTOR->unk12A = 0x7D0;
-        M5_A2F10_ACTOR->unkA4 = 99999.0f;
+    if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
+        ATTACHED_ACTOR->unk144 = 0x1C;
+        ATTACHED_ACTOR->unkC0 = 0.0f;
+        ATTACHED_ACTOR->unk12A = 0x7D0;
+        ATTACHED_ACTOR->unkA4 = 99999.0f;
         func_80665564(D_807FBB40, 0.0f);
     }
     if (func_8061CB50() != 0) {
-        M5_A2F10_ACTOR->unk132 = 2;
+        ATTACHED_ACTOR->unk132 = 2;
     } else {
-        M5_A2F10_ACTOR->unk132 = 1;
+        ATTACHED_ACTOR->unk132 = 1;
     }
     func_8067ACB4(D_807FBB40);
     actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
-    M5_A2F10_ACTOR->unkC0 += D_80750398;
-    if (M5_A2F10_ACTOR->unkA4 != 99999.0f) {
+    ATTACHED_ACTOR->unkC0 += D_80750398;
+    if (ATTACHED_ACTOR->unkA4 != 99999.0f) {
         billboardSetFlags(1);
         func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x18, 0x18, 1, 0x96, 0xB4, 0, 1.0f);
     } else {
         actorDespawn(D_807FBB40);
     }
-    if (D_807FBD70 == 4 || M5_A2F10_ACTOR->unkFC != 0
-        || ((M5_A2F10_ACTOR->unk6A & 1) && !(M5_A2F10_ACTOR->unk6C & 1))) {
+    if (D_807FBD70 == 4 || ATTACHED_ACTOR->unkFC != 0
+        || ((ATTACHED_ACTOR->unk6A & 1) && !(ATTACHED_ACTOR->unk6C & 1))) {
         func_8061F0B0(D_807F5D10, 0xF, 0xF);
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x162, 0xE1, 0x3C, 1);
         for (i = 1; i != 7; i++) {
@@ -745,39 +745,39 @@ void func_806A05D4(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_806A05FC(void) {
-    M5_A2F10Sub *sub;
+void actorShadowFollowUpdate(void) {
+    SubStateView *sub;
     s32 temp;
     s32 v;
 
-    sub = M5_A2F10_ACTOR->unk11C->unk174;
-    if (!(M5_A2F10_ACTOR->unk60 & 0x10)) {
-        M5_A2F10_ACTOR->unk60 &= 0xFFFF7FFF;
-        M5_A2F10_ACTOR->unk128 = 0xFF;
-        M5_A2F10_ACTOR->unk60 |= 0x800000;
-        M5_A2F10_ACTOR->unk16A = 0xFF;
-        M5_A2F10_ACTOR->unk16B = 0xFF;
-        M5_A2F10_ACTOR->unk16C = 0xFF;
-        M5_A2F10_ACTOR->unk160 = (f64) M5_A2F10_ACTOR->unk11C->unk15E * 0.1 * 0.15;
+    sub = ATTACHED_ACTOR->unk11C->unk174;
+    if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
+        ATTACHED_ACTOR->unk60 &= 0xFFFF7FFF;
+        ATTACHED_ACTOR->unk128 = 0xFF;
+        ATTACHED_ACTOR->unk60 |= 0x800000;
+        ATTACHED_ACTOR->unk16A = 0xFF;
+        ATTACHED_ACTOR->unk16B = 0xFF;
+        ATTACHED_ACTOR->unk16C = 0xFF;
+        ATTACHED_ACTOR->unk160 = (f64) ATTACHED_ACTOR->unk11C->unk15E * 0.1 * 0.15;
     }
-    M5_A2F10_ACTOR->unk7C = M5_A2F10_ACTOR->unk11C->unk7C;
-    M5_A2F10_ACTOR->unk80 = M5_A2F10_ACTOR->unk11C->unk80;
-    M5_A2F10_ACTOR->unk84 = M5_A2F10_ACTOR->unk11C->unk84;
-    if (M5_A2F10_ACTOR->unk128 & 8) {
-        M5_A2F10_ACTOR->unk4->unk34 = (M5_A2F10_ACTOR->unk160 * 0.8 - M5_A2F10_ACTOR->unk4->unk34) * 0.3 + M5_A2F10_ACTOR->unk4->unk34;
+    ATTACHED_ACTOR->unk7C = ATTACHED_ACTOR->unk11C->unk7C;
+    ATTACHED_ACTOR->unk80 = ATTACHED_ACTOR->unk11C->unk80;
+    ATTACHED_ACTOR->unk84 = ATTACHED_ACTOR->unk11C->unk84;
+    if (ATTACHED_ACTOR->unk128 & 8) {
+        ATTACHED_ACTOR->unk4->unk34 = (ATTACHED_ACTOR->unk160 * 0.8 - ATTACHED_ACTOR->unk4->unk34) * 0.3 + ATTACHED_ACTOR->unk4->unk34;
     } else {
-        M5_A2F10_ACTOR->unk4->unk34 = (M5_A2F10_ACTOR->unk160 * 1.2 - M5_A2F10_ACTOR->unk4->unk34) * 0.3 + M5_A2F10_ACTOR->unk4->unk34;
+        ATTACHED_ACTOR->unk4->unk34 = (ATTACHED_ACTOR->unk160 * 1.2 - ATTACHED_ACTOR->unk4->unk34) * 0.3 + ATTACHED_ACTOR->unk4->unk34;
     }
-    M5_A2F10_ACTOR->unk4->unk3C = M5_A2F10_ACTOR->unk4->unk34;
+    ATTACHED_ACTOR->unk4->unk3C = ATTACHED_ACTOR->unk4->unk34;
     temp = sub->unk200;
     v = temp > 0 ? temp : 0;
     if (v < 0xFF) {
         v = temp > 0 ? temp : 0;
-        M5_A2F10_ACTOR->unk128 = v;
+        ATTACHED_ACTOR->unk128 = v;
     } else {
-        M5_A2F10_ACTOR->unk128 = 0xFF;
+        ATTACHED_ACTOR->unk128 = 0xFF;
     }
-    if (M5_A2F10_ACTOR->unk128 == 0 || M5_A2F10_ACTOR->unk11C->unk154 != 0x7C) {
+    if (ATTACHED_ACTOR->unk128 == 0 || ATTACHED_ACTOR->unk11C->unk154 != 0x7C) {
         actorDespawn(D_807FBB40);
     } else {
         func_806319C4(D_807FBB40, 0);
@@ -786,7 +786,7 @@ void func_806A05FC(void) {
 
 s32 func_80613448(Actor *);
 
-void func_806A081C(Actor *arg0) {
+void actorSpawnAttachedTo(Actor *arg0) {
     actorSpawn(0x6A, func_80613448(arg0));
     D_807FBB44->unk11C = (s32) arg0;
     arg0->unk6A |= 0x800;
@@ -798,52 +798,52 @@ s32 actorTableContains(Actor *);
 void func_806131D4(void *, s16);
 extern u8 D_807444FC;
 
-void func_806A0864(void) {
+void actorMirrorParentModelY(void) {
     Mtx mtxL;
     float mtx1[4][4];
     float mtx3[4][4];
     float mtx2[4][4];
-    M5_A2F10Sub *sub;
+    SubStateView *sub;
     Mtx *dst;
     s32 i;
 
-    sub = M5_A2F10_ACTOR->unk174;
-    if (!(M5_A2F10_ACTOR->unk60 & 0x10)) {
-        M5_A2F10_ACTOR->unk60 |= 0x8100000;
-        M5_A2F10_ACTOR->unk60 &= 0xFFFF7FFF;
+    sub = ATTACHED_ACTOR->unk174;
+    if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
+        ATTACHED_ACTOR->unk60 |= 0x8100000;
+        ATTACHED_ACTOR->unk60 &= 0xFFFF7FFF;
         func_806131D4(D_807FBB40, func_80613448(D_807FBB40));
-        sub->unk4 = M5_A2F10_ACTOR->unk11C->unk54;
-        sub->unk0 = (s32) M5_A2F10_ACTOR->unk11C;
-        sub->unk8 = M5_A2F10_ACTOR->unk11C->unk58;
+        sub->unk4 = ATTACHED_ACTOR->unk11C->unk54;
+        sub->unk0 = (s32) ATTACHED_ACTOR->unk11C;
+        sub->unk8 = ATTACHED_ACTOR->unk11C->unk58;
     }
-    if (!actorTableContains((Actor *) sub->unk0) || sub->unk4 != M5_A2F10_ACTOR->unk11C->unk54) {
+    if (!actorTableContains((Actor *) sub->unk0) || sub->unk4 != ATTACHED_ACTOR->unk11C->unk54) {
         actorDespawn(D_807FBB40);
         return;
     }
-    if (!(func_80665AAC((Actor *) sub->unk0) && sub->unk8 == M5_A2F10_ACTOR->unk11C->unk58
-          && actorIsActive((Actor *) sub->unk0) && (((M5_A2F10Target *) sub->unk0)->unk68 & 0x40))) {
+    if (!(func_80665AAC((Actor *) sub->unk0) && sub->unk8 == ATTACHED_ACTOR->unk11C->unk58
+          && actorIsActive((Actor *) sub->unk0) && (((ParentActor *) sub->unk0)->unk68 & 0x40))) {
         actorDespawn(D_807FBB40);
-        ((M5_A2F10Target *) sub->unk0)->unk6A &= 0xF7FF;
+        ((ParentActor *) sub->unk0)->unk6A &= 0xF7FF;
         return;
     }
     {
-        M5_A2F10_ACTOR->unk128 = 0xFF;
-        M5_A2F10_ACTOR->unk146 = ((M5_A2F10Target *) sub->unk0)->unk146;
-        M5_A2F10_ACTOR->unk7C = ((M5_A2F10Target *) sub->unk0)->unk7C;
-        M5_A2F10_ACTOR->unk80 = ((M5_A2F10Target *) sub->unk0)->unk80;
-        M5_A2F10_ACTOR->unkA8 = ((M5_A2F10Target *) sub->unk0)->unkA8;
-        M5_A2F10_ACTOR->unk84 = ((M5_A2F10Target *) sub->unk0)->unk84;
-        M5_A2F10_ACTOR->unk60 |= 0x200;
-        M5_A2F10_ACTOR->unk8 = ((void **) ((u8 *) M5_A2F10_ACTOR->unk4 + 0x14))[D_807444FC];
-        memcpy(M5_A2F10_ACTOR->unk8, M5_A2F10_ACTOR->unk11C->unk8, M5_A2F10_ACTOR->unk0->unk20 << 6);
+        ATTACHED_ACTOR->unk128 = 0xFF;
+        ATTACHED_ACTOR->unk146 = ((ParentActor *) sub->unk0)->unk146;
+        ATTACHED_ACTOR->unk7C = ((ParentActor *) sub->unk0)->unk7C;
+        ATTACHED_ACTOR->unk80 = ((ParentActor *) sub->unk0)->unk80;
+        ATTACHED_ACTOR->unkA8 = ((ParentActor *) sub->unk0)->unkA8;
+        ATTACHED_ACTOR->unk84 = ((ParentActor *) sub->unk0)->unk84;
+        ATTACHED_ACTOR->unk60 |= 0x200;
+        ATTACHED_ACTOR->unk8 = ((void **) ((u8 *) ATTACHED_ACTOR->unk4 + 0x14))[D_807444FC];
+        memcpy(ATTACHED_ACTOR->unk8, ATTACHED_ACTOR->unk11C->unk8, ATTACHED_ACTOR->unk0->unk20 << 6);
         guMtxIdentF(mtx1);
         mtx1[1][1] = -1.0f;
-        guTranslateF(mtx2, -M5_A2F10_ACTOR->unk7C, -M5_A2F10_ACTOR->unkA8, -M5_A2F10_ACTOR->unk84);
+        guTranslateF(mtx2, -ATTACHED_ACTOR->unk7C, -ATTACHED_ACTOR->unkA8, -ATTACHED_ACTOR->unk84);
         guMtxCatF(mtx2, mtx1, mtx1);
         guMtxF2L(mtx1, &mtxL);
-        guTranslateF(mtx2, M5_A2F10_ACTOR->unk7C, M5_A2F10_ACTOR->unkA8, M5_A2F10_ACTOR->unk84);
-        dst = M5_A2F10_ACTOR->unk8;
-        for (i = 0; i < M5_A2F10_ACTOR->unk0->unk20; i++) {
+        guTranslateF(mtx2, ATTACHED_ACTOR->unk7C, ATTACHED_ACTOR->unkA8, ATTACHED_ACTOR->unk84);
+        dst = ATTACHED_ACTOR->unk8;
+        for (i = 0; i < ATTACHED_ACTOR->unk0->unk20; i++) {
             guMtxL2F(mtx3, dst);
             guMtxCatF(mtx3, mtx1, mtx3);
             guMtxCatF(mtx3, mtx2, mtx3);
@@ -856,45 +856,45 @@ void func_806A0864(void) {
 
 void func_80663BE8(void *);
 
-void func_806A0B74(void) {
+void actorMirrorParentModelAxis(void) {
     Mtx mtxL;
     float mtx1[4][4];
     float mtx3[4][4];
     float mtx2[4][4];
-    M5_A2F10Sub *sub;
+    SubStateView *sub;
     Mtx *dst;
     s32 i;
 
-    sub = M5_A2F10_ACTOR->unk174;
-    if (!(M5_A2F10_ACTOR->unk60 & 0x10)) {
-        M5_A2F10_ACTOR->unk60 |= 0x8100000;
-        M5_A2F10_ACTOR->unk60 &= 0xFFFF7FFF;
+    sub = ATTACHED_ACTOR->unk174;
+    if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
+        ATTACHED_ACTOR->unk60 |= 0x8100000;
+        ATTACHED_ACTOR->unk60 &= 0xFFFF7FFF;
         func_806131D4(D_807FBB40, func_80613448(D_807FBB40));
-        sub->unk4 = M5_A2F10_ACTOR->unk11C->unk54;
-        sub->unk0 = (s32) M5_A2F10_ACTOR->unk11C;
-        sub->unk8 = M5_A2F10_ACTOR->unk11C->unk58;
+        sub->unk4 = ATTACHED_ACTOR->unk11C->unk54;
+        sub->unk0 = (s32) ATTACHED_ACTOR->unk11C;
+        sub->unk8 = ATTACHED_ACTOR->unk11C->unk58;
     }
-    if (!actorTableContains((Actor *) sub->unk0) || sub->unk4 != M5_A2F10_ACTOR->unk11C->unk54) {
+    if (!actorTableContains((Actor *) sub->unk0) || sub->unk4 != ATTACHED_ACTOR->unk11C->unk54) {
         actorDespawn(D_807FBB40);
         func_80663BE8(D_807FBB40);
         return;
     }
-    if (!(sub->unk8 == M5_A2F10_ACTOR->unk11C->unk58 && actorIsActive((Actor *) sub->unk0)
-          && (((M5_A2F10Target *) sub->unk0)->unk68 & 0x80))) {
+    if (!(sub->unk8 == ATTACHED_ACTOR->unk11C->unk58 && actorIsActive((Actor *) sub->unk0)
+          && (((ParentActor *) sub->unk0)->unk68 & 0x80))) {
         actorDespawn(D_807FBB40);
         func_80663BE8(D_807FBB40);
-        ((M5_A2F10Target *) sub->unk0)->unk156--;
+        ((ParentActor *) sub->unk0)->unk156--;
         return;
     }
-    M5_A2F10_ACTOR->unk128 = sub->unkF;
-    M5_A2F10_ACTOR->unk146 = M5_A2F10_ACTOR->unk11C->unk146;
-    M5_A2F10_ACTOR->unk7C = M5_A2F10_ACTOR->unk11C->unk7C;
-    M5_A2F10_ACTOR->unk80 = M5_A2F10_ACTOR->unk11C->unk80;
-    M5_A2F10_ACTOR->unkA8 = M5_A2F10_ACTOR->unk11C->unkA8;
-    M5_A2F10_ACTOR->unk84 = M5_A2F10_ACTOR->unk11C->unk84;
-    M5_A2F10_ACTOR->unk60 |= 0x200;
-    M5_A2F10_ACTOR->unk8 = ((void **) ((u8 *) M5_A2F10_ACTOR->unk4 + 0x14))[D_807444FC];
-    memcpy(M5_A2F10_ACTOR->unk8, M5_A2F10_ACTOR->unk11C->unk8, M5_A2F10_ACTOR->unk0->unk20 << 6);
+    ATTACHED_ACTOR->unk128 = sub->unkF;
+    ATTACHED_ACTOR->unk146 = ATTACHED_ACTOR->unk11C->unk146;
+    ATTACHED_ACTOR->unk7C = ATTACHED_ACTOR->unk11C->unk7C;
+    ATTACHED_ACTOR->unk80 = ATTACHED_ACTOR->unk11C->unk80;
+    ATTACHED_ACTOR->unkA8 = ATTACHED_ACTOR->unk11C->unkA8;
+    ATTACHED_ACTOR->unk84 = ATTACHED_ACTOR->unk11C->unk84;
+    ATTACHED_ACTOR->unk60 |= 0x200;
+    ATTACHED_ACTOR->unk8 = ((void **) ((u8 *) ATTACHED_ACTOR->unk4 + 0x14))[D_807444FC];
+    memcpy(ATTACHED_ACTOR->unk8, ATTACHED_ACTOR->unk11C->unk8, ATTACHED_ACTOR->unk0->unk20 << 6);
     guMtxIdentF(mtx1);
     if (sub->unkE & 1) {
         mtx1[0][0] = -1.0f;
@@ -909,8 +909,8 @@ void func_806A0B74(void) {
         guMtxF2L(mtx1, &mtxL);
         guTranslateF(mtx2, 0.0f, 0.0f, sub->unkC);
     }
-    dst = M5_A2F10_ACTOR->unk8;
-    for (i = 0; i < M5_A2F10_ACTOR->unk0->unk20; i++) {
+    dst = ATTACHED_ACTOR->unk8;
+    for (i = 0; i < ATTACHED_ACTOR->unk0->unk20; i++) {
         guMtxL2F(mtx3, dst);
         guMtxCatF(mtx3, mtx1, mtx3);
         guMtxCatF(mtx3, mtx2, mtx3);
@@ -922,8 +922,8 @@ void func_806A0B74(void) {
         f32 sp54;
         f32 sp50;
 
-        guMtxXFMF(mtx1, M5_A2F10_ACTOR->unk7C, M5_A2F10_ACTOR->unk80, M5_A2F10_ACTOR->unk84, &sp58, &sp54, &sp50);
-        guMtxXFMF(mtx2, sp58, sp54, sp50, &M5_A2F10_ACTOR->unk7C, &M5_A2F10_ACTOR->unk80, &M5_A2F10_ACTOR->unk84);
+        guMtxXFMF(mtx1, ATTACHED_ACTOR->unk7C, ATTACHED_ACTOR->unk80, ATTACHED_ACTOR->unk84, &sp58, &sp54, &sp50);
+        guMtxXFMF(mtx2, sp58, sp54, sp50, &ATTACHED_ACTOR->unk7C, &ATTACHED_ACTOR->unk80, &ATTACHED_ACTOR->unk84);
     }
 }
 
@@ -932,7 +932,7 @@ void animSetLoopLimit(void *, s32, s32);
 void animSetFinished(void *, s32, s32);
 void animSetFrameAndSubframe(void *, s32, s32, f32);
 
-void func_806A0F78(void *arg0, u8 arg1, u8 arg2) {
+void animSetChannelFrames(void *arg0, u8 arg1, u8 arg2) {
     animSetLoopLimit(arg0, 0, 1);
     animSetFinished(arg0, 0, 1);
     animSetFrameAndSubframe(arg0, 0, arg1, 0.0f);
@@ -942,7 +942,7 @@ void func_806A0F78(void *arg0, u8 arg1, u8 arg2) {
 }
 
 
-void func_806A1008(u8 arg0, u8 arg1) {
+void actorSetGroupState(u8 arg0, u8 arg1) {
     Actor *actor;
     s16 i;
 
@@ -957,15 +957,15 @@ void func_806A1008(u8 arg0, u8 arg1) {
 
 typedef struct {
     f32 *unk0;
-} M5_A2F10Mat;
+} MatrixArray;
 
-void func_806A10BC(M5_A2F10Mat *arg0) {
-    M5_A2F10Quad *dst;
+void actorSetNodeValuesForFrame(MatrixArray *arg0) {
+    NodeQuad *dst;
     s16 i;
 
-    dst = M5_A2F10_ACTOR->unk4->unk24;
+    dst = ATTACHED_ACTOR->unk4->unk24;
     for (i = 0; i < 7; i++) {
-        dst->unkC = (f64) arg0->unk0[i * 0x34 + M5_A2F10_ACTOR->unk168];
+        dst->unkC = (f64) arg0->unk0[i * 0x34 + ATTACHED_ACTOR->unk168];
         dst++;
     }
 }
@@ -980,73 +980,73 @@ void func_807248B0(Actor *, f32);
 extern u8 D_807503D4[];
 extern u8 D_807503E0[];
 
-#define M5_A2F10_SPAWNED ((M5_A2F10Actor *) D_807FBB44)
+#define ATTACHED_ACTOR_SPAWNED ((AttachedActor *) D_807FBB44)
 
 void func_806A112C(void) {
-    M5_A2F10Sub *sub;
+    SubStateView *sub;
     s16 i;
     u8 n;
     f32 d;
     f32 val;
 
-    sub = M5_A2F10_ACTOR->unk174;
-    if (!(M5_A2F10_ACTOR->unk60 & 0x10)) {
-        M5_A2F10_ACTOR->unk60 |= 0x400;
+    sub = ATTACHED_ACTOR->unk174;
+    if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
+        ATTACHED_ACTOR->unk60 |= 0x400;
         func_80724D28(0, 7);
         for (i = 0; i < 7; i++) {
-            ((u8 *) M5_A2F10_ACTOR->unk4->unk24)[i * 0x10] = i;
-            ((u8 *) M5_A2F10_ACTOR->unk4->unk24)[i * 0x10 + 1] = 0xFF;
+            ((u8 *) ATTACHED_ACTOR->unk4->unk24)[i * 0x10] = i;
+            ((u8 *) ATTACHED_ACTOR->unk4->unk24)[i * 0x10 + 1] = 0xFF;
         }
-        if (M5_A2F10_ACTOR->unk15F == 0) {
-            val = (f32) ((f64) M5_A2F10_ACTOR->unk4->unk38 / 0.15);
+        if (ATTACHED_ACTOR->unk15F == 0) {
+            val = (f32) ((f64) ATTACHED_ACTOR->unk4->unk38 / 0.15);
             sub->unk0 = func_8066B0F8(0x13, 6, 1, 1);
-            func_806A0F78(D_807FBB40, D_807503D4[0], D_807503E0[0]);
+            animSetChannelFrames(D_807FBB40, D_807503D4[0], D_807503E0[0]);
             n = 1;
             d = 75.0f * val;
             for (i = 1; i < 12; i++) {
                 actorSpawn(0x94, 0xE1);
-                M5_A2F10_SPAWNED->unk174->unk0 = sub->unk0;
-                M5_A2F10_SPAWNED->unk15F = i;
-                M5_A2F10_SPAWNED->unkE6 = M5_A2F10_ACTOR->unkE6 + ((i / 3) << 10);
-                M5_A2F10_SPAWNED->unk7C = M5_A2F10_ACTOR->unk7C -
-                    func_80612794(M5_A2F10_SPAWNED->unkE6) * d;
-                M5_A2F10_SPAWNED->unk80 = M5_A2F10_ACTOR->unk80 +
+                ATTACHED_ACTOR_SPAWNED->unk174->unk0 = sub->unk0;
+                ATTACHED_ACTOR_SPAWNED->unk15F = i;
+                ATTACHED_ACTOR_SPAWNED->unkE6 = ATTACHED_ACTOR->unkE6 + ((i / 3) << 10);
+                ATTACHED_ACTOR_SPAWNED->unk7C = ATTACHED_ACTOR->unk7C -
+                    func_80612794(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
+                ATTACHED_ACTOR_SPAWNED->unk80 = ATTACHED_ACTOR->unk80 +
                     (f32) ((u8) (i % 3) * 17);
-                M5_A2F10_SPAWNED->unk84 = M5_A2F10_ACTOR->unk84 -
-                    func_80612790(M5_A2F10_SPAWNED->unkE6) * d;
-                func_807248B0(D_807FBB44, M5_A2F10_ACTOR->unk4->unk38);
-                func_806A0F78(D_807FBB44, D_807503D4[n], D_807503E0[n++]);
+                ATTACHED_ACTOR_SPAWNED->unk84 = ATTACHED_ACTOR->unk84 -
+                    func_80612790(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
+                func_807248B0(D_807FBB44, ATTACHED_ACTOR->unk4->unk38);
+                animSetChannelFrames(D_807FBB44, D_807503D4[n], D_807503E0[n++]);
             }
-            M5_A2F10_ACTOR->unk7C -= d * func_80612794(M5_A2F10_ACTOR->unkE6);
-            M5_A2F10_ACTOR->unk84 -= d * func_80612790(M5_A2F10_ACTOR->unkE6);
+            ATTACHED_ACTOR->unk7C -= d * func_80612794(ATTACHED_ACTOR->unkE6);
+            ATTACHED_ACTOR->unk84 -= d * func_80612790(ATTACHED_ACTOR->unkE6);
         }
     }
-    switch (M5_A2F10_ACTOR->unk154) {
+    switch (ATTACHED_ACTOR->unk154) {
     case 1:
-        M5_A2F10_ACTOR->unk168++;
-        if (M5_A2F10_ACTOR->unk168 == 7) {
-            M5_A2F10_ACTOR->unk154++;
-            M5_A2F10_ACTOR->unk168 = 0;
+        ATTACHED_ACTOR->unk168++;
+        if (ATTACHED_ACTOR->unk168 == 7) {
+            ATTACHED_ACTOR->unk154++;
+            ATTACHED_ACTOR->unk168 = 0;
         }
         break;
     case 2:
-        func_806A10BC((M5_A2F10Mat *) sub);
-        M5_A2F10_ACTOR->unk168++;
-        if (M5_A2F10_ACTOR->unk168 == 11) {
-            M5_A2F10_ACTOR->unk154++;
+        actorSetNodeValuesForFrame((MatrixArray *) sub);
+        ATTACHED_ACTOR->unk168++;
+        if (ATTACHED_ACTOR->unk168 == 11) {
+            ATTACHED_ACTOR->unk154++;
         }
         break;
     case 3:
-        func_806A10BC((M5_A2F10Mat *) sub);
-        M5_A2F10_ACTOR->unk168++;
-        if (M5_A2F10_ACTOR->unk168 >= 52) {
-            M5_A2F10_ACTOR->unk168 = ((func_80611A44() >> 15) % 1000) % 3;
-            M5_A2F10_ACTOR->unk154 = 0;
+        actorSetNodeValuesForFrame((MatrixArray *) sub);
+        ATTACHED_ACTOR->unk168++;
+        if (ATTACHED_ACTOR->unk168 >= 52) {
+            ATTACHED_ACTOR->unk168 = ((func_80611A44() >> 15) % 1000) % 3;
+            ATTACHED_ACTOR->unk154 = 0;
         }
         break;
     case 10:
-        M5_A2F10_ACTOR->unk168 = 11;
-        func_806A10BC((M5_A2F10Mat *) sub);
+        ATTACHED_ACTOR->unk168 = 11;
+        actorSetNodeValuesForFrame((MatrixArray *) sub);
         break;
     }
     func_806319C4(D_807FBB40, 0);

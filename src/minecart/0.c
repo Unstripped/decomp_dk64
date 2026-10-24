@@ -125,14 +125,14 @@ extern Struct_807FBB4C *D_807FBB4C;
 
 void func_80609140(s32, s32, f32, f32, s32, s32);
 s32 func_8070E750();
-void func_8069D2AC(s32, s32, s32, s32, s32, s32, s32, s32);
+void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 s32 func_806EB0C0();
 void func_8061CC40();
 
 void func_80024000(u8 arg0, u8 arg1) {
     func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
-    func_8069D2AC(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
+    textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
     sfxAllocateChannel(0x28, 1.0f);
     func_806EB0C0(0x44, 0, 0);
@@ -144,7 +144,7 @@ void func_80024000(u8 arg0, u8 arg1) {
 
 void func_800240DC(u8 arg0, u8 arg1) {
     s32 temp = func_8070E750(0x1A, arg1, 1);
-    func_8069D2AC(0x81, 0, 0x78, temp, 0, 0x28, 8, 8);
+    textSpawnMarkerChecked(0x81, 0, 0x78, temp, 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
     sfxAllocateChannel(0x2A, 1.0f);
     func_806EB0C0(0x43, 0, 0);

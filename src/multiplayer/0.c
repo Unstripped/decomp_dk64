@@ -699,7 +699,7 @@ void func_800269C8(u8 arg0, s8 arg1) {
         if (D_807552E8 == 5) {
             func_80025F84();
         }
-        func_806A5DF0(0x7A, s0->unk7C, s0->unk80, s0->unk84, s0->unkE6, 1, -1, 0);
+        actorSpawnNodeEntryScaled(0x7A, s0->unk7C, s0->unk80, s0->unk84, s0->unkE6, 1, -1, 0);
         s1->unk2FA = 0;
     }
 }

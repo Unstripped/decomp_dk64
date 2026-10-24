@@ -58,7 +58,7 @@ void func_80686390(Actor *, f32, f32, f32, f32);
 void animSetSpeed(Actor *, s32, f32);
 void animSetLoopLimit(Actor *, s32, s32);
 s32 animIsPlaying(Actor *, s32);
-void func_806A081C(Actor *);
+void actorSpawnAttachedTo(Actor *);
 void func_80714950();
 void func_8071495C(void);
 void func_8071496C(s32);
@@ -423,7 +423,7 @@ void actorUpdateEffects(Actor *arg0) {
         }
     }
     if ((arg0->unk68 & 0x40) && func_80665AAC(arg0) && !(arg0->unk6A & 0x800) && (arg0->unkA4 <= arg0->unk80)) {
-        func_806A081C(arg0);
+        actorSpawnAttachedTo(arg0);
     }
     if (arg0->unk68 & 0x80) {
         triggerZoneCheckEntry(arg0);

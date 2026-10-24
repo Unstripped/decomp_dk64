@@ -88,7 +88,7 @@ typedef struct {
 } Boss3C_Struct_8478;
 
 void sfxAllocateChannel(s32, f32);
-void func_806A5DF0(s32, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 void func_80714950(void *);
 void func_8071498C(void *);
 void func_807149B8(s32);
@@ -124,7 +124,7 @@ u8 arg5;
         func_80714950(D_807FDC94);
         func_80714CC0(D_8074E880[((func_80611A44() >> 15) % 1000) % 3], 1.8f, D_807FDC94->unk7C, D_807FDC94->unk80 + (f32)D_807FDC94->unk15E, D_807FDC94->unk84);
     }
-    func_806A5DF0(0x48, (f32)arg1, (f32)arg2, (f32)arg3, (s32)arg4, (s32)arg5, sp4C, 0);
+    actorSpawnNodeEntryScaled(0x48, (f32)arg1, (f32)arg2, (f32)arg3, (s32)arg4, (s32)arg5, sp4C, 0);
 }
 
 typedef struct {
@@ -135,11 +135,11 @@ typedef struct {
 extern BossB_Struct_807FBB40 *D_807FBB40;
 
 void func_806A2A10(s32, s32, s32);
-void func_806A2B08(s32);
+void actorSetStateTwo(s32);
 
 void func_80028680(void) {
     func_806A2A10(-0x7F83, 0xD2, 0xB4);
-    func_806A2B08(D_807FBB40->unk11C);
+    actorSetStateTwo(D_807FBB40->unk11C);
 }
 
 #define Boss2C_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }

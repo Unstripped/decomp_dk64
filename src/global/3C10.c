@@ -134,7 +134,7 @@ f32 func_80612794(s16);
 void func_8061CC40(void *, s32, s32);
 void func_8063BEC0(void *, void *, s16, s16);
 s32 func_80689C20(s32, s32, u8, f32, f32, f32);
-void func_806A5DF0(s32, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 u8 func_806C8DE0(s32);
 void func_806F5378(void);
 void func_806F8BC4(s32, s32, s32);
@@ -364,7 +364,7 @@ void func_805FF670(void) {
                 temp_fs0 = (var_s1 * 2) + 30;
                 temp_s2 = D_807FBB4C->unk7C - func_80612794(D_807FBB4C->unkE6) * temp_fs0;
                 temp_f0 = D_807FBB4C->unk84 - func_80612790(D_807FBB4C->unkE6) * temp_fs0;
-                func_806A5DF0(
+                actorSpawnNodeEntryScaled(
                     0x35,
                     temp_s2,
                     D_807FBB4C->unk80 + offset + (f32)(var_s1 * step),
