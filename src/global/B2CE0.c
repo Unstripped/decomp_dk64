@@ -1,12 +1,23 @@
 #include "common.h"
 #include "actor.h"
 
+typedef struct M3Sub4 {
+    /* 0x00 */ u8 pad0[0x34];
+    /* 0x34 */ f32 unk34;
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ f32 unk3C;
+    /* 0x40 */ u8 pad40[0x24];
+    /* 0x64 */ u16 unk64;
+} M3Sub4;
+
 typedef struct M3Actor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ActorSub4 *unk4;
+    /* 0x004 */ M3Sub4 *unk4;
     /* 0x008 */ u8 pad8[4];
     /* 0x00C */ f32 unkC[4][4];
-    /* 0x04C */ u8 pad4C[0x14];
+    /* 0x04C */ u8 pad4C[0xC];
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ u8 pad5C[4];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u32 unk64;
     /* 0x068 */ u8 pad68[2];
@@ -61,6 +72,11 @@ typedef struct M3View90 {
     /* 0x35 */ u8 unk35;
 } M3View90;
 
+typedef struct M3View9C {
+    /* 0x00 */ u8 pad0[0xD];
+    /* 0x0D */ u8 unkD;
+} M3View9C;
+
 extern M3Actor *D_807FBB40;
 extern M3Actor *D_807FBB44;
 
@@ -99,6 +115,14 @@ void func_8072DC7C(s32);
 void func_8072DEA8(s32, s32, s32);
 void func_8072E1A4(s32, void *);
 void sfxSpawnTableNodes(void *);
+void func_806AD260();
+void effectSpawnOctagonRing(f32, f32, f32, f32);
+s32 func_80726164(M3Actor *, s16, s16, s16, s32);
+void func_8072881C(s32, void *);
+s32 func_8072E22C(s32);
+extern s32 D_807FDCA0;
+extern u16 D_807FBB34;
+extern ActorEntry D_807FB930[];
 
 void func_806ADFE0(void) {
     f32 sp88[4][4];
@@ -451,10 +475,111 @@ void func_806AFB58(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B2CE0/func_806B02EC.s")
+void func_806B02EC(void) {
+    func_80729B00();
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_8072B79C(0, 0x31E, 0x31F);
+    }
+    func_806AD260(0x320, 0, 0);
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B2CE0/func_806B0354.s")
+void func_806B0354(void) {
+    func_80729B00();
+    if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->unk154 != 0x37) {
+        func_8072D714(D_807FBB70.unk1FC, 0x37A);
+        D_807FBB40->unk138 &= ~0x8000;
+    }
+    switch (D_807FBB40->unk154) {
+        case 4:
+            if (D_807FBB40->unk4->unk64 == 0x378) {
+                D_807FBB40->unk154 = 0x23;
+                D_807FBB40->unk155 = 0;
+            } else if (func_8072E22C(0x64) != 0
+                       && func_80726164(D_807FBB40, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FDCA0) != 0) {
+                func_80614EBC(D_807FBB40, 0x37B);
+                D_807FBB40->unk154 = 0x23;
+                D_807FBB40->unk155 = 0;
+                effectSpawnOctagonRing(0.7f, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f, D_807FBB40->unk84);
+            }
+            break;
+        case 0x23:
+            switch (D_807FBB40->unk155) {
+                case 0:
+                    func_8072B324(D_807FBB40, ((M3View9C *)D_807FDC9C)->unkD);
+                    D_807FBB40->unk155++;
+                case 1:
+                    if ((func_80611A44() >> 15) % 1000 >= 0x3E4) {
+                        D_807FBB40->unk155++;
+                        func_80614EBC(D_807FBB40, 0x379);
+                        func_8072B324(D_807FBB40, 0);
+                    } else {
+                        if (D_807FBB40->unk4->unk64 == 0x378) {
+                            func_8072AB74(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+                        } else {
+                            func_8072E1A4(0xA, D_807FDC94);
+                        }
+                        if (func_8072E22C(0xC8) == 0
+                            || func_80726164(D_807FBB40, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FDCA0) == 0) {
+                            func_80614EBC(D_807FBB40, 0x37C);
+                            D_807FBB40->unk154 = 4;
+                            D_807FBB40->unk155 = 0;
+                            func_8072B324(D_807FBB40, 0);
+                        }
+                    }
+                    break;
+                case 2:
+                    func_8072AB74(0, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+                    break;
+            }
+            break;
+        case 0x37:
+            switch (D_807FBB40->unk155) {
+                case 0:
+                    func_8072AB74(0, 0.0f, 0.0f, 0x200, 0.0f);
+                    break;
+                case 1:
+                    sfxSpawnTableNodes(D_807FBB40);
+                    D_807FBB40->unk155++;
+                case 2:
+                    func_8072DC7C(0xA);
+                    break;
+                case 3:
+                    D_807FBB40->unk154 = 0x40;
+                    break;
+            }
+            break;
+        default:
+            func_8072B7CC(0x378);
+            break;
+    }
+    func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B2CE0/func_806B0770.s")
+s32 func_806B0770(void) {
+    s32 found;
+    s16 i;
+    Actor *other;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+
+    found = 0;
+    for (i = 0; !found && i < D_807FBB34; i++) {
+        other = D_807FB930[i].actor;
+        if (other->unk58 == 0x29) {
+            dx = other->unk7C - D_807FBB40->unk7C;
+            dy = other->unk80 - D_807FBB40->unk80;
+            dz = other->unk84 - D_807FBB40->unk84;
+            if (dx * dx + dy * dy + dz * dz < 10000.0f) {
+                D_807FBB40->unk154 = 0x28;
+                found = 1;
+                D_807FBB40->unk155 = 0;
+            }
+        }
+    }
+    return found;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/B2CE0/func_806B0848.s")
