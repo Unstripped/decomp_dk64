@@ -18,6 +18,8 @@ by writing JSON to `xd://mcp__ok_fine_read_concept`:
 Read the matched functions already in your file and REUSE its declarations and structs.
 <file-specific facts: shared header (e.g. include/actor.h), key globals, names so far>
 <IDO tricks the previous rounds of this unit found (from their reports, section 3)>
+<hidden empty functions (8-byte `jr $ra; nop` merged into a preceding `.s`): addresses and
+their owners; the C needs `void func_ADDR(void) {}` right after the owner>
 
 Register-allocation toolbox (most later-round near misses are regalloc only): access a
 global struct pointer directly vs caching it in a local; local declaration order; split
@@ -28,8 +30,10 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
 `while`. Loop-invariant hoisting order follows first use in the loop.
 
 # Concurrency rules (several agents run at once)
-- NEVER run `tools/dk make` (any target), `make split`, `make expected`, `make clean`
-  or `./diff.sh`: they rebuild shared outputs and race.
+- NEVER run `tools/dk make` (any target), `make split`, `python3 -m splat`, `make expected`,
+  `make clean` or `./diff.sh`: they rebuild shared outputs and race (`make split` deletes the
+  asm of every function matched since your base). If a `.s` your copy references is
+  missing, report it and work on other functions; never rebuild your copy from `src`.
 - Starter C: `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`.
 - Put every scratch/probe file under `.scratch/<YourName>/`, never in the repo root.
 - PRIVATE COPY mode: create your copy ONCE from the exact base commit in your task
@@ -38,7 +42,12 @@ nested call argument vs sequential assignment; ternary vs if/else; `do {} while`
   `tools/fdiff.sh .scratch/<YourName>/<file>.c src/<seg>/<file>.c [FUNC]`.
 - Keep a blank line before every `#pragma GLOBAL_ASM` line, including the last one in
   the file. A parked function's `#ifdef NON_MATCHING` block must wrap only that function
-  and the declarations nothing else uses; declarations matched code needs stay outside it.
+  and the declarations nothing else uses; declarations matched code needs stay outside it
+  (inside the block they vanish from the matching build: an f32 callee then gets
+  double-promoted args). Parked C calling a function now defined in the file with another
+  prototype casts at the call site; check with `tools/fdiff.sh --non-matching`.
+- Before reporting, grep every extern/symbol you added in `asm/`: fdiff does not catch a
+  misspelled symbol, only the link does.
 - If the text is identical but fdiff prints `FAILED: Relocations mismatch` only because the
   expected asm used a raw address constant or a named label where your C uses the symbol
   (or `.rodata+off`), keep the function as GLOBAL_ASM, save the draft, and report it as

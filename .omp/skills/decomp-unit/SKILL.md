@@ -25,7 +25,7 @@ ok-fine, not here; this skill is the procedure.
 ROADMAP order: overlays smallest-first by `<ovl>_TEXT_SIZE` in `Makefile`, two at a time
 (they are independent); then the listed global subsystems. All nine overlays are C units
 since the boss unit (2026-10-22): next units are global subsystems (the next candidate
-files named at the end of ROADMAP's section 9 bullets, e.g. `9DD70`, `A2F10`, `A6280`)
+files named at the end of ROADMAP's section 9 bullets, e.g. `ACDC0`, `B1F60`, `B2CE0`)
 or further matching rounds on near-misses listed in
 ROADMAP. A global subsystem is a set of `asm/global/<file>.s` files: find them from what
 the overlays' named functions call (`grep -o 'func_80[67]…'` in their C) and from the
@@ -283,11 +283,37 @@ Before the final yield:
   the blank line; check the file tail when a merge is followed by an undefined reference.
 - `write agent://all` also wakes every idle (finished) agent, which then answers and may act:
   message running agents one by one instead.
-- An aborted dispatch (user interrupt) leaves each agent's `.scratch/<Name>/` private copy
-  behind with partial edits. Relaunch with the same names, an explicit copy path, and
-  "your copy ALREADY EXISTS from <commit>: do not re-create it; fdiff it first and fix or
-  revert any non-matching function"; merge with `--base <that commit>` as usual. The
-  relaunched agents get new ids (`<Name>-2`) but write to the paths given in the task.
+- An aborted dispatch (user interrupt or machine crash) leaves each agent's `.scratch/<Name>/`
+  private copy behind with partial edits. First run `tools/fdiff.sh` on every surviving copy:
+  merge the ones that pass (`--base <its commit>`; check the stage notes of anything it
+  parked in its saved draft), move the others to `.scratch/<Name>.old/`, and relaunch fresh
+  copies from HEAD telling the agent to harvest its per-function C from the `.old` copy
+  (a crashed copy was mid-edit: one had redeclaration errors, one was 16 bytes too big;
+  harvesting gave 19 matches in 8 minutes). Agents that had no copy yet restart as usual.
+  Check `git status` for unrelated uncommitted work (a parallel session's `55B20.c`
+  match appeared during this unit): stage only the unit's files, never `git add -A`.
+- `make split` while agents run deletes `asm/<seg>/nonmatchings/<file>/<FUNC>.s` of every
+  function matched since the agents' base commit, so their copies (still `GLOBAL_ASM` for
+  those) stop compiling and agents rebuild them from the current `src` (losing the base).
+  The brief forbids it; to recover, check out the split commit in a worktree
+  (`git worktree add .scratch/wt <split commit>`, `ln -s ../../bin .scratch/wt/bin`),
+  re-split it there (`tools/dk sh -c 'cd .scratch/wt && python3 -m splat split dk64.global.us.yaml'`)
+  and copy the missing `.s` files back. A copy rebuilt from a later `src` merges with
+  `--base` = the commit whose file differs least from it (`git show <c>:<file> | diff - copy`).
+- Declarations inside a parked `#ifdef NON_MATCHING` block are invisible to the matching
+  build: matched code below it that relies on them silently gets K&R promotion (f32 args
+  passed as doubles). After every merge that adds a parked block also compile the
+  `NON_MATCHING` side (`tools/fdiff.sh --non-matching src/<seg>/<f>.c src/<seg>/<f>.c`):
+  this unit hit 7 redeclaration clashes between parked blocks and later matched code
+  (fix: one declaration outside the blocks, casts at parked call sites). A stray prototype
+  of function X inside another function's parked block also makes `permute.py`/`uopt_trace.sh`
+  treat X as parked.
+- fdiff does not resolve symbols: a misspelled extern (`D_807F50398`) passed fdiff and broke
+  the link; the gate catches it, and the brief tells agents to grep added externs in `asm/`.
+- Hidden empty functions: splat merges an unsymbolised `jr $ra; nop` (8 bytes, not a branch
+  target) into the preceding function's `.s`; the matching C needs `void func_ADDR(void) {}`
+  after it. List them before round 1 (two `jr $ra` lines two instructions apart in one
+  `.s`, second not a `.L` target) and put them in the brief.
 - Two agents' functions can be individually matching yet clash in one TU (caller declared
   `void f();` K&R-style, callee defined `void f(s32, f32)`: cfe rejects the pair). Merge,
   revert one side to its `GLOBAL_ASM` line, save its draft with the clash in the note, and
@@ -328,7 +354,6 @@ Before the final yield:
 
 |Date|Unit|Rounds × agents|Matched per round|Result|
 |---|---|---|---|---|
-|2026-10-21|arcade (ovl08) + menu (ovl10)|split 2; match 6/6/6 (+1 type-unify fix-up)|81 / 31 / 7|arcade 62/98, menu 57/113, 84 named; tools added after this run|
 |2026-10-22|boss (ovl07), last overlay|split inline (11 TUs, 9C60 = 3); match 6/6/6; 5 "continue" re-prompts|46 / 8 / 4|boss 58/79, 15 named; `tools/rodata_owners.py` added; best-draft handoff between rounds|
 |2026-10-22|global actor core (7CA80 + 80150)|split inline; match 6 / 11 rolling (incl. 4 one-function large agents) / 4; +2 unify fix-ups|85 / 21 / 3|7CA80 62/73, 80150 47/64, 31 named; `include/actor.h`; merge_drafts keeps first duplicate, `--base REV`; large (600–1400 insn) agents: 0 matches, best 8–19 insns off|
 |2026-10-22|global actor behaviour (79890, 7A510, 7AF60, 7BBD0, 89250; 77B90 reverted to asm)|split inline; rolling per-file rounds, 22 matching agents total (7 / 6 / 6 / 3) + 1 unify|50 / 21 / 6 / 1|79890 6/8, 7A510 8/13, 7AF60 27/29, 7BBD0 3/6, 89250 34/40, 35 named; one matched function reverted after the ROM check (C jump table lost late_rodata pad) → `objdiff.py` now fails on `.rodata` byte diffs; `rodata_owners.py` <1 s on global; shared brief via `local://brief.md`|
@@ -338,3 +363,4 @@ Before the final yield:
 |2026-10-23|global render caches / effect nodes / water / target table / trigger zones (61AA0, 63810, 63EC0, 67890, 684C0)|split inline (no hidden TU); rolling per-agent merges, 20 matching agents (round 1: 6; then 14 rolling, incl. 4 one-function large agents) + 1 unify (2 passes) + namer|54 / 14 (rolling; last 9 agents 0)|68/89 (61AA0 15/22, 63810 1/3, 63EC0 44/53, 67890 3/5, 684C0 5/6), 68 named, +12,008 bytes; a focused 6-near-miss list after the unify matched 6/6; large agents 0 again; red commit from a `grep && commit` chain and a stale merge object → gate as its own step, `touch` before `make`|
 |2026-10-23|global audio manager / fog / hash table / lights (6710 → 6710 + 7130 hidden TU, 5DE10, 5E020, 5E2F0)|split inline (data-pad hidden TU, f64 pair fix); round 1 aborted by user and relaunched on the same copies; rolling per-agent merges, 20 matching agents (6 / then 14 rolling, incl. 4 one-function large agents) + namer; clashes unified inline|48 / 18 (rolling; last 7 agents 1)|68/83 (6710 7/9, 7130 32/42, 5DE10 4/4, 5E020 8/8, 5E2F0 17/20), 67 named; 2 functions (`func_8060956C`, `func_80609B80`) were left out of every task list until a reviewer caught it, both matched at once → before round 1, check that the task lists cover every function in the files; 12 parked NON_MATCHING; large agents 0 again (best: 1179-insn `func_8065A884` stage 4); cross-agent prototype clash reverted then fixed next round; namer's global-only re-split broke overlay links → whole `make split`|
 |2026-10-23|global model slots / map chunks / projectile behaviours (54150, 55B20, 9BF30, 9CE20)|split inline (no hidden TU); rolling per-agent merges, 28 matching agents (9 round-1 incl. 6 on one fresh `55B20`, 5 one-function large, 14 rounds 2–4) + 1 unify + namer|49 / 14 / 4 / 0|67/117 (54150 16/28, 55B20 45/80, 9BF30 2/4, 9CE20 4/5), 67 named, +13,032 bytes, 37 parked; type clash on almost every `55B20` merge (unified inline, struct names then passed in later contexts); `merge_drafts.py` pruned live declarations kept only inside parked `#ifdef` blocks → fixed; `objdiff.py` asm-differ `-n`; round-1 agents quit at 11–13 min → "whole budget" line in every context; one "reloc-only" paste failed the ROM (real scheduling diff), two later ones matched; large agents 0 matches again (3 parked at stage 4–5)|
+|2026-10-24|global text markers / round banner / attached actors / effect sprites (9DD70, A2F10, A6280, A7710, A8400 → A8400 + AA960 hidden TU)|split inline (data-pad hidden TU, found before round 1); 9 round-1 agents, then rolling; machine crash killed 14 running agents mid-unit → salvaged 4 passing copies, relaunched the rest; ~35 matching agents total (incl. 10 one-function large) + namer|74 / 15 / 5 (+5 salvaged) / 0|94/127 incl. one hidden empty function (9DD70 27/37, A2F10 20/25, A6280 4/8, A7710 4/7, A8400 5/13, AA960 33/36), 52 named, +18,832 bytes, 18 parked; unsymbolised 8-byte empty functions inside splat `.s` files → listed in the brief; an agent's `make split` mid-run deleted matched functions' asm under 15 agents → restored from a worktree split, split ban in the brief; parked-block declarations clashed with matched code 7 times → `--non-matching` compile after each merge; misspelled extern passed fdiff → grep externs; large agents 0 matches again (8 parked at stage 4–6, best: 1-insn `func_8069E088`); a parallel session's uncommitted `55B20` work in the tree → stage only unit files|
