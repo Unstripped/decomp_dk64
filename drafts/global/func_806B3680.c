@@ -1,4 +1,4 @@
-// func_806B3680 (src/global/B7490.c): R2B7490 stage 6: ~17 asm rows differ. Key fix: last inner 'default:' must NOT end in break (falls off switch end): 58->18 diffs. Needs B7490A/B7490Actor from src/global/B7490.c. Remaining: first-switch T/st regs swapped (target T=v1 st=v0, (s16) arg from T), lw D_807FDC90 before unk4 (t0/t9 order), &func_8071ABDC spill sp44 (mine sp40), final if(2||3) move v0,a0 copy.
+// func_806B3680 (src/global/B7490.c): R3B7490a stage 6, 9 asm rows (was 17). Fixed vs prior draft: 'if (D_807FDC90->unk30 > (dx = D_807FBB40->unk4->unk38))' (lw D_807FDC90 before unk4) and 'for (i = 0; i < 0xC; i++)' (hoisted &func_8071ABDC addiu before move s0,zero). Remaining: first switch T/st regs swapped (4 rows: target lbu v1, move v0,v1; mine lbu v0, move v1,v0); &func_8071ABDC spill sp44 vs sp40 (3 rows); final if (2||3) lacks move v0,a0 copy (2 rows). Adding 's32 sel' (sel=unk154; if (sel==2||sel==3) call(unk154,1)) fixes spill slot + final if but grows frame 0x60->0x68 (floats shift +8); u8/s16/u16 sel, s32/u8 st, switch on field directly, 600s permuter: no help.
 void func_806B3680(void) {
     f32 dx;
     f32 var;
@@ -56,20 +56,17 @@ void func_806B3680(void) {
                     D_807FDC90->unk30 = 2.0 * D_807FBB40->unk4->unk38;
                     D_807FBB40->unk155[0]++;
                 case 1:
-                    dx = D_807FBB40->unk4->unk38;
-                    if (dx < D_807FDC90->unk30) {
+                    if (D_807FDC90->unk30 > (dx = D_807FBB40->unk4->unk38)) {
                         func_807248B0(D_807FBB40, dx * 1.01);
                     } else {
-                        i = 0;
-                        do {
+                        for (i = 0; i < 0xC; i++) {
                             func_807149B8(1);
                             func_807149FC(2);
                             func_80714950(i + 0x0B020000);
                             func_8071498C(func_8071ABDC);
                             func_80714998(1);
                             func_80714CC0(D_8072073C, 2.0 * D_807FBB40->unk4->unk38, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
-                            i++;
-                        } while (i < 0xC);
+                        }
                         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x3D, 0xFF, 0x7F, 0);
                         func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x35C, 0xFF, 0x7F, 0, 0x32, 0.3f, 0);
                         func_8067E278(0, 1);

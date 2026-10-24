@@ -198,7 +198,6 @@ void func_806B2790(void) {
 void func_806B2D5C(void) {
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ f32 unk24;
@@ -326,10 +325,6 @@ void func_806B2D64(void) {
     func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
     func_806319C4(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B7490/func_806B2D64.s")
-#endif
 
 void func_806B3420(void) {
     f32 dx;
@@ -452,20 +447,17 @@ void func_806B3680(void) {
                     D_807FDC90->unk30 = 2.0 * D_807FBB40->unk4->unk38;
                     D_807FBB40->unk155[0]++;
                 case 1:
-                    dx = D_807FBB40->unk4->unk38;
-                    if (dx < D_807FDC90->unk30) {
+                    if (D_807FDC90->unk30 > (dx = D_807FBB40->unk4->unk38)) {
                         func_807248B0(D_807FBB40, dx * 1.01);
                     } else {
-                        i = 0;
-                        do {
+                        for (i = 0; i < 0xC; i++) {
                             func_807149B8(1);
                             func_807149FC(2);
                             func_80714950(i + 0x0B020000);
                             func_8071498C(func_8071ABDC);
                             func_80714998(1);
                             func_80714CC0(D_8072073C, 2.0 * D_807FBB40->unk4->unk38, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
-                            i++;
-                        } while (i < 0xC);
+                        }
                         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x3D, 0xFF, 0x7F, 0);
                         func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x35C, 0xFF, 0x7F, 0, 0x32, 0.3f, 0);
                         func_8067E278(0, 1);

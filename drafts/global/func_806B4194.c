@@ -1,4 +1,4 @@
-// func_806B4194 (src/global/B7490.c): R2B7490 stage 6 (14 rows, all reg naming): u8 c[4]/c[2] + f32 f + u32 var_v0, cases 2,1,0, 'default: var_v0 = 0;' WITHOUT trailing break (fixes the bnel/dead default stub layout), callee proto func_807149C8(s32,s32,s32,u8) with c[2]&0xFF gives 'andi a2,a0,0xff'. Remaining: D_8076A064 hi in t0 (uopt candidate) vs target ugen t8; case 1/0 c[2] const temp t8/t9 vs target a0 (uopt candidate 33 = (u8)c2 gets a0 in target for cases 1/0 only).
+// func_806B4194 (src/global/B7490.c): R3B7490a stage 6, 14 rows unchanged: only reg naming. Target: cases 1/0 c[2] consts in a0 (not ugen t8/t9), so ugen temps shift (lui D_8076A064 = t8, not t0). Tried: u8 col temp, struct/union/u8[3] for c, (u8)c[2], arg3 proto u8 w/o mask, arg order, s32 var_v0, decl orders, && forms, 600s permuter (no improvement from 80).
 void func_807149C8(s32, s32, s32, u8);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
