@@ -323,8 +323,10 @@ Before the final yield:
   struct types for one pointer) is fixed inline: keep the wider struct (the one indexed
   with the right stride), delete the other declaration, gate.
 - Park under `NON_MATCHING` only stage 4+ drafts (same blocks and saved registers); a
-  stage-3 draft of a 3,000-insn function (`func_806057F8`, frame 0x1F8 vs 0x160) stays in
-  `drafts/` only: its equivalence is not reviewable.
+  stage-3 draft of a 3,000-insn function stays in `drafts/` only: its equivalence is not
+  reviewable. Such drafts can still match: `func_806057F8` went from stage 3 to ROM match
+  by rewriting m2c temps as direct array accesses and fixing diffs top-down (ok-fine
+  `notes/ido-uopt-statics-and-live-ranges`).
 - Agents passed their whole private copy to `drafts.py save`, storing 25 whole-file
   "drafts"; `save` now refuses files with `GLOBAL_ASM` lines and the brief says to save a
   `<FUNC>_best.c` holding only the function.
