@@ -22,7 +22,7 @@ typedef struct M6Sub4 {
 void func_806319C4(Actor *, s32);
 void func_80724CA4(s32, s32);
 void func_8067B238(Actor *, void *, f32);
-void func_806B6600(s32);
+void actorUpdatePulseIntensity(s32);
 void func_80614EBC(Actor *, s32);
 void func_80614D00(void *, f32, f32);
 void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -38,7 +38,7 @@ void func_806A18A8(void) {
     }
     func_8067B238(D_807FBB40, sp40, 0.15f);
     if (D_807FBB40->unk154 != 0) {
-        func_806B6600(1);
+        actorUpdatePulseIntensity(1);
         if (sp44->unk1 == 0) {
             D_807FBB40->unk154 = 0;
         }

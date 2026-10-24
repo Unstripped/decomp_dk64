@@ -6,8 +6,8 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
 
-// L3: view of the current actor (D_807FBB40) with the fields func_806B5A90 needs typed.
-typedef struct L3Actor {
+// View of the current actor (D_807FBB40) with the fields func_806B5A90 and func_806B640C need typed.
+typedef struct BA790Actor {
     /* 0x000 */ u8 pad0[0x58];
     /* 0x058 */ s32 unk58;
     /* 0x05C */ u8 pad5C[4];
@@ -33,14 +33,19 @@ typedef struct L3Actor {
     /* 0x13C */ u8 pad13C[0x18];
     /* 0x154 */ u8 unk154;
     /* 0x155 */ u8 unk155;
-} L3Actor;
+    /* 0x156 */ u8 pad156[0x22];
+    /* 0x178 */ s16 *unk178;
+} BA790Actor;
 
-typedef struct L3View9C {
-    /* 0x00 */ u8 pad0[0xD];
+typedef struct BA790View9C {
+    /* 0x00 */ u8 pad0[0xA];
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ u8 padC[1];
     /* 0x0D */ u8 unkD;
-} L3View9C;
+} BA790View9C;
 
-#define L3A ((L3Actor *)D_807FBB40)
+#define BA790A ((BA790Actor *)D_807FBB40)
+#define BA790S9C ((BA790View9C *)D_807FDC9C)
 
 extern u8 D_807FBB85;
 extern u8 D_807444EC;
@@ -48,7 +53,7 @@ extern s32 D_8076A064;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
 extern s32 D_807F5D10;
-extern L3Actor *D_807FBD6C;
+extern BA790Actor *D_807FBD6C;
 extern u8 D_80720630;
 
 void func_8072D99C();
@@ -90,10 +95,10 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
     s32 r;
 
     ret = 0;
-    if (L3A->unkEE < L3A->unkE6) {
-        diff = L3A->unkE6 - L3A->unkEE;
+    if (BA790A->unkEE < BA790A->unkE6) {
+        diff = BA790A->unkE6 - BA790A->unkEE;
     } else {
-        diff = L3A->unkEE - L3A->unkE6;
+        diff = BA790A->unkEE - BA790A->unkE6;
     }
     if (D_807FBD70 == 9 || D_807FBB85 != 0) {
         if (D_807FBB40->unk154 != 0x37 && D_807FBB40->unk154 != 0x38) {
@@ -102,13 +107,13 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
                 if (D_807444EC == 1) {
                     if (D_807FBB40->unk60 & 4) {
                         D_807FBB40->unk154 = 0x38;
-                        L3A->unk155 = 0;
+                        BA790A->unk155 = 0;
                     } else {
                         func_8072D99C();
                     }
                 } else {
                     D_807FBB40->unk154 = 0x37;
-                    L3A->unk155 = 0;
+                    BA790A->unk155 = 0;
                 }
                 break;
             case 0xB6:
@@ -121,22 +126,22 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
     }
     if (diff >= 0x1F5 && diff < 0xE0C) {
         func_80685210(0.5f, 0x32, (D_8076A064 & 1) + 2);
-        L3A->unkB8 = L3A->unkB8 / 2;
-        if (L3A->unk6E == -1) {
+        BA790A->unkB8 = BA790A->unkB8 / 2;
+        if (BA790A->unk6E == -1) {
             sfxPlayActorSound(D_807FBB40, 0x122, 0, 0, 0, 0xFF, 1.0f, 0);
         }
     } else {
-        if (L3A->unk6E != -1 && D_80770710[D_80770628[L3A->unk6E]] == 0x122) {
+        if (BA790A->unk6E != -1 && D_80770710[D_80770628[BA790A->unk6E]] == 0x122) {
             sfxStopSlotSound(D_807FBB40, 0);
         }
     }
     switch (D_807FBB40->unk154) {
     case 0x33:
         if (D_807FBD70 == 2) {
-            L3A->unkC0 = 150.0f;
-            L3A->unkEE = D_807FBD6C->unkEE;
+            BA790A->unkC0 = 150.0f;
+            BA790A->unkEE = D_807FBD6C->unkEE;
         }
-        if (L3A->unk155) {
+        if (BA790A->unk155) {
             x = 0;
         } else {
             x = 2;
@@ -149,9 +154,9 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
     case 0:
     case 4:
         sfxStopSlotSound(D_807FBB40, 0);
-        if (L3A->unk155 == 0) {
+        if (BA790A->unk155 == 0) {
             func_80665564(D_807FBB40, 6.0f);
-            L3A->unk155 = 1;
+            BA790A->unk155 = 1;
         }
         if (D_807444EC != 1) {
             if (D_807FBB40->unk58 == 0xB6) {
@@ -163,19 +168,19 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
         }
         if (D_807FBB40->unk154 == 0x33) {
             ret = 1;
-            L3A->unkB8 = ((L3View9C *)D_807FDC9C)->unkD;
+            BA790A->unkB8 = ((BA790View9C *)D_807FDC9C)->unkD;
             q = mathAngleBetweenPoints2D(D_807FDC94->unk7C, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk84);
-            L3A->unkE6 = q;
-            L3A->unkEE = q;
+            BA790A->unkE6 = q;
+            BA790A->unkEE = q;
         }
         break;
     case 0x38:
-        switch (L3A->unk155) {
+        switch (BA790A->unk155) {
         case 1:
             break;
         case 0:
             func_80614EBC(D_807FBB40, 0x24B);
-            L3A->unk155 = L3A->unk155 + 1;
+            BA790A->unk155 = BA790A->unk155 + 1;
             break;
         case 2:
             func_8067E278(0, 1);
@@ -184,7 +189,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
         }
         break;
     case 0x37:
-        sel = L3A->unk155;
+        sel = BA790A->unk155;
         if (sel >= 2) {
             if (sel - 0x82 < 0) {
                 x = 0;
@@ -203,7 +208,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             } else {
                 func_8072D99C();
             }
-            sel = L3A->unk155;
+            sel = BA790A->unk155;
             if (sel >= 0x17) {
                 x = 0x16;
             } else {
@@ -213,28 +218,28 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             if (fv > 130.0) {
                 fv = 200.0f;
             }
-            lightAdd(L3A->unk7C, L3A->unk80, L3A->unk84, 0.0f, 0.0f, 0.0f, fv, 0, 0xFF, 0xFF, 0xFF);
-            sel = L3A->unk155;
+            lightAdd(BA790A->unk7C, BA790A->unk80, BA790A->unk84, 0.0f, 0.0f, 0.0f, fv, 0, 0xFF, 0xFF, 0xFF);
+            sel = BA790A->unk155;
         }
         if (sel < 4) {
             func_8072AB74(0x33, D_807FDC94->unk7C, D_807FDC94->unk84, 0x20, 6.0f);
-            sel = L3A->unk155;
+            sel = BA790A->unk155;
         }
         switch (sel) {
         case 0:
             func_80614EBC(D_807FBB40, 0x24B);
-            L3A->unk155 = L3A->unk155 + 1;
+            BA790A->unk155 = BA790A->unk155 + 1;
             break;
         case 2:
             sfxSpawnTableNodes(D_807FBB40);
             func_8067E278(1, 1);
             actorSetNodeFlag(D_807FBB40, 3);
-            func_8061EF4C(D_807F5D10, 5, 0x14, L3A->unk7C, L3A->unk80, L3A->unk84, 200.0f, 400.0f);
-            L3A->unk155 = L3A->unk155 + 1;
+            func_8061EF4C(D_807F5D10, 5, 0x14, BA790A->unk7C, BA790A->unk80, BA790A->unk84, 200.0f, 400.0f);
+            BA790A->unk155 = BA790A->unk155 + 1;
             break;
         case 4:
             sfxStopSlotSound(D_807FBB40, 0);
-            L3A->unkEE = L3A->unkE6;
+            BA790A->unkEE = BA790A->unkE6;
             sfxPlayActorSound(D_807FBB40, 0x136, 0, 0, 0, 0xFF, 1.0f, 0);
             func_807149FC(5);
             func_807149B8(1);
@@ -242,18 +247,18 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             func_80714998(1);
             func_80714A08(-0.4f, 0.4f);
             func_8071498C(func_8071B8EC);
-            func_80714CC0(&D_80720630, 0.3f, L3A->unk7C, L3A->unkA4 + 7.0f, L3A->unk84);
-            L3A->unk60 &= ~4;
-            L3A->unk155 = L3A->unk155 + 1;
+            func_80714CC0(&D_80720630, 0.3f, BA790A->unk7C, BA790A->unkA4 + 7.0f, BA790A->unk84);
+            BA790A->unk60 &= ~4;
+            BA790A->unk155 = BA790A->unk155 + 1;
             break;
         case 1:
         case 3:
             break;
         case 5:
-            L3A->unk138 = 0;
+            BA790A->unk138 = 0;
             actorClearNodeFlag(D_807FBB40, 3);
         default:
-            L3A->unk155 = L3A->unk155 + 1;
+            BA790A->unk155 = BA790A->unk155 + 1;
             break;
         }
         break;
@@ -273,20 +278,6 @@ void func_806B63E0(void) {
     func_806B5A90(0x2710, 0);
 }
 
-typedef struct R1AView {
-    /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ s16 *unk178;
-} R1AView;
-
-#define R1AA ((R1AView *)D_807FBB40)
-
-typedef struct R1AView9C {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 unkA;
-} R1AView9C;
-
-#define R1A9C ((R1AView9C *)D_807FDC9C)
-
 extern u8 D_807444EC;
 extern s32 D_8076A0A8;
 
@@ -296,7 +287,7 @@ void func_8068A858(void *, void *, void *);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void func_806B640C(void) {
-    s16 *p = R1AA->unk178;
+    s16 *p = BA790A->unk178;
     s16 i;
     s32 sel;
     s32 a;
@@ -304,7 +295,7 @@ void func_806B640C(void) {
     func_80729B00();
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorClearNodeFlag(D_807FBB40, 3);
-        *p = -R1A9C->unkA;
+        *p = -BA790S9C->unkA;
     }
     if (D_807444EC == 1) {
         for (i = 0; i < D_807FBB70.unk254; i++) {

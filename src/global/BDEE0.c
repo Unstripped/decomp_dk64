@@ -6,46 +6,74 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
 
-typedef struct L5Node {
-    /* 0x00 */ u8 pad0[0x24];
+typedef struct BDEE0Node {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ u8 pad8[8];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ u8 pad12[0x12];
     /* 0x24 */ f32 unk24;
-} L5Node;
+} BDEE0Node;
 
-typedef struct L5Sub1C {
+typedef struct BDEE0Sub1C {
     /* 0x00 */ u8 pad0[6];
     /* 0x06 */ u16 unk6;
-} L5Sub1C;
+} BDEE0Sub1C;
 
-typedef struct L5Sub4 {
-    /* 0x00 */ L5Node *unk0;
+typedef struct BDEE0Sub4 {
+    /* 0x00 */ BDEE0Node *unk0;
     /* 0x04 */ u8 pad4[0x18];
-    /* 0x1C */ L5Sub1C *unk1C;
-} L5Sub4;
+    /* 0x1C */ BDEE0Sub1C *unk1C;
+    /* 0x20 */ u8 pad20[0x44];
+    /* 0x64 */ u16 unk64;
+} BDEE0Sub4;
 
-typedef struct L5View {
+// Actor view whose unk178 is a s16 array (func_806B91E0, func_806BA130, func_806BA240).
+typedef struct BDEE0ActorAlt {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ L5Sub4 *unk4;
+    /* 0x004 */ BDEE0Sub4 *unk4;
     /* 0x008 */ u8 pad8[0x68];
     /* 0x070 */ s16 unk70;
-    /* 0x072 */ u8 pad72[0x106];
+    /* 0x072 */ u8 pad72[0x4E];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ u8 padC4[0x2C];
+    /* 0x0F0 */ s16 unkF0;
+    /* 0x0F2 */ u8 padF2[0x42];
+    /* 0x134 */ s16 unk134;
+    /* 0x136 */ u8 pad136[0x42];
     /* 0x178 */ s16 *unk178;
-} L5View;
+} BDEE0ActorAlt;
 
-#define L5A ((L5View *)D_807FBB40)
+#define BDEE0AA ((BDEE0ActorAlt *)D_807FBB40)
 
-typedef struct L5View90 {
-    /* 0x00 */ u8 pad0[0x2E];
+typedef struct BDEE0View90 {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ Actor *unk4;
+    /* 0x08 */ u8 pad8[0xE];
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 pad18[2];
+    /* 0x1A */ u16 unk1A;
+    /* 0x1C */ u16 unk1C;
+    /* 0x1E */ u8 pad1E[0x10];
     /* 0x2E */ s16 unk2E;
-} L5View90;
+} BDEE0View90;
 
-#define L590 ((L5View90 *)D_807FDC90)
+#define BDEE0S90 ((BDEE0View90 *)D_807FDC90)
 
-typedef struct L5View9C {
+typedef struct BDEE0View98 {
+    /* 0x00 */ u8 pad0[0x28];
+    /* 0x28 */ u16 unk28;
+    /* 0x2A */ s16 unk2A;
+} BDEE0View98;
+
+#define BDEE0S98 ((BDEE0View98 *)D_807FDC98)
+
+typedef struct BDEE0View9C {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 unkA;
-} L5View9C;
+} BDEE0View9C;
 
-#define L59C ((L5View9C *)D_807FDC9C)
+#define BDEE0S9C ((BDEE0View9C *)D_807FDC9C)
 
 extern u8 D_80770629[];
 extern f32 D_80770B68[];
@@ -78,14 +106,14 @@ void sfxStopSlotSound(Actor *, s32);
 
 void func_806B91E0(void) {
     u16 sp36 = 0;
-    s16 *sp30 = L5A->unk178;
+    s16 *sp30 = BDEE0AA->unk178;
 
     func_80729B00();
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_8072B79C(0x321, 0x322, 0x323);
         func_80724CA4(0x11, 1);
         actorClearNodeFlag(D_807FBB40, 4);
-        *sp30 = L59C->unkA * 10;
+        *sp30 = BDEE0S9C->unkA * 10;
     }
     if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->unk154 != 0x37) {
         D_807FDC90->unk2C = 0x1388;
@@ -106,16 +134,16 @@ void func_806B91E0(void) {
                 D_807FBB40->unk155[0]++;
                 D_807FDC90->unk2C = 0xD;
             }
-            L5A->unk4->unk1C->unk6 += 0x7D0;
+            BDEE0AA->unk4->unk1C->unk6 += 0x7D0;
             break;
         case 1:
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
                 break;
             }
-            if (L590->unk2E != 0) {
+            if (BDEE0S90->unk2E != 0) {
                 D_807FBB40->unk155[0] = 0;
-                L590->unk2E--;
+                BDEE0S90->unk2E--;
                 D_807FDC90->unk2C = 0xA;
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1BA, 0x96, 0x7F, 0);
                 break;
@@ -125,7 +153,7 @@ void func_806B91E0(void) {
         }
         break;
     case 0x31:
-        if ((D_807FBB40->unk155[0] != 0) || (L5A->unk4->unk0->unk24 == 0.0f)) {
+        if ((D_807FBB40->unk155[0] != 0) || (BDEE0AA->unk4->unk0->unk24 == 0.0f)) {
             func_8072DE44(0x322);
         }
         func_8072AB74(0, 0.0f, 0.0f, 0x4300, 0.0f);
@@ -151,7 +179,7 @@ void func_806B91E0(void) {
         }
         break;
     case 0x27:
-        L5A->unk4->unk1C->unk6 -= D_807FBB40->unkB8 * 50.0f;
+        BDEE0AA->unk4->unk1C->unk6 -= D_807FBB40->unkB8 * 50.0f;
         func_8072AB74(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
         switch (D_807FBB40->unk155[0]) {
         case 0:
@@ -185,7 +213,7 @@ void func_806B91E0(void) {
     case 0x10:
         if ((D_807FBB40->unk154 != 0x11) && (D_807FBB40->unk154 != 0x27)) {
             if (D_807FBB40->unk155[0] == 0) {
-                *sp30 = L59C->unkA * 2;
+                *sp30 = BDEE0S9C->unkA * 2;
                 D_807FBB40->unk155[0] = 1;
             }
             if (*sp30 != 0) {
@@ -200,11 +228,11 @@ void func_806B91E0(void) {
                     D_807FBB40->unk155[0] = 0;
                     D_807FBB40->unk155[0] = 1;
                     D_807FDC90->unk2C = 0;
-                    L590->unk2E = 4;
+                    BDEE0S90->unk2E = 4;
                 }
             }
         }
-        L5A->unk4->unk1C->unk6 -= D_807FBB40->unkB8 * 50.0f;
+        BDEE0AA->unk4->unk1C->unk6 -= D_807FBB40->unkB8 * 50.0f;
         func_8072AB74(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, sp36, 0.0f);
         break;
     case 2:
@@ -214,7 +242,7 @@ void func_806B91E0(void) {
         func_8072AB74(D_807FBB40->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0, 0.0f);
         break;
     case 0x37:
-        L5A->unk4->unk1C->unk6 -= D_807FDC90->unk2C;
+        BDEE0AA->unk4->unk1C->unk6 -= D_807FDC90->unk2C;
         if (D_807FDC90->unk2C != 0) {
             D_807FDC90->unk2C -= 0x32;
         }
@@ -241,11 +269,11 @@ void func_806B91E0(void) {
         break;
     }
     if (D_807FBB40->unkB8 != 0.0f) {
-        if (L5A->unk70 == -1) {
+        if (BDEE0AA->unk70 == -1) {
             sfxPlayActorSound(D_807FBB40, 0x10A, 0, 1, 1, 0xFF, 1.0f, 0);
         } else {
             f64 t = ((f64)D_807FBB40->unkB8 * 0.6) / 40.0;
-            u8 idx = D_80770629[L5A->unk70 * 2];
+            u8 idx = D_80770629[BDEE0AA->unk70 * 2];
 
             D_80770B68[idx] = (t < 0.0 ? 0.0 : t) + 0.4;
             D_80770BC0[idx] = 1.0f;
@@ -282,7 +310,7 @@ void func_8071720C(void);
 void func_80717D4C(void);
 extern void *D_8074E880[];
 
-void func_806B9CE0(u8 arg0, s8 arg1) {
+void actorSpawnRandomParticleNearActor(u8 arg0, s8 arg1) {
     s32 pad;
     s32 sp28;
     s32 sp24;
@@ -305,20 +333,20 @@ void func_806B9CE0(u8 arg0, s8 arg1) {
 }
 
 extern u8 D_80750628[];
-typedef struct L1S1C {
+typedef struct BDEE0DCA0 {
     u8 pad0[0x1C];
     s32 unk1C;
     u8 unk20;
-} L1S1C;
+} BDEE0DCA0;
 
-extern L1S1C *D_807FDCA0;
+extern BDEE0DCA0 *D_807FDCA0;
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_80611A70(f32, f32, f32 *, f32 *);
 f32 func_80611BB4(f32, f32);
 void func_80612BC0(f32 (*)[4], f32);
 void func_80612C30(f32 (*)[4], f32);
 
-s32 func_806B9EB4(u8 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
+s32 actorBuildNodeAlignedMatrix(u8 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 spA[4][4];
     f32 spB[4][4];
     f32 sp3C;
@@ -351,83 +379,35 @@ s32 func_806B9EB4(u8 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
     return 0;
 }
 
-typedef struct R1DView {
-    /* 0x000 */ u8 pad0[0xC0];
-    /* 0x0C0 */ f32 unkC0;
-    /* 0x0C4 */ u8 padC4[0x2C];
-    /* 0x0F0 */ s16 unkF0;
-    /* 0x0F2 */ u8 padF2[0x42];
-    /* 0x134 */ s16 unk134;
-    /* 0x136 */ u8 pad136[0x42];
-    /* 0x178 */ s16 *unk178;
-} R1DView;
-
-typedef struct R1DView90 {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ Actor *unk4;
-    /* 0x08 */ u8 pad8[0xE];
-    /* 0x16 */ s16 unk16;
-    /* 0x18 */ u8 pad18[2];
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u16 unk1C;
-} R1DView90;
-
-typedef struct R1DView98 {
-    /* 0x00 */ u8 pad0[0x2A];
-    /* 0x2A */ s16 unk2A;
-} R1DView98;
-
-#define R1DA ((R1DView *)D_807FBB40)
-#define R1D90 ((R1DView90 *)D_807FDC90)
-#define R1D98 ((R1DView98 *)D_807FDC98)
-
 
 void func_806BA130(void) {
     D_807FBB40->unk5C = 2;
     D_807FBB40->unk154 = 0x23;
     D_807FBB40->unk155[0] = 0;
-    R1DA->unk134 = 1;
+    BDEE0AA->unk134 = 1;
     D_807FBB40->unk132 = 1;
-    R1D90->unk4 = D_807FBB4C;
-    func_80614EBC(D_807FBB40, R1D98->unk2A);
+    BDEE0S90->unk4 = D_807FBB4C;
+    func_80614EBC(D_807FBB40, BDEE0S98->unk2A);
     D_807FBB40->unkE6 = ((func_80611A44() >> 15) % 1024) + D_807FBB4C->unkE6 - 0x200;
     D_807FBB40->unkB8 = ((func_80611A44() >> 15) % 100) + 0x32;
-    R1DA->unkC0 = ((func_80611A44() >> 15) % 150) + 0x64;
+    BDEE0AA->unkC0 = ((func_80611A44() >> 15) % 150) + 0x64;
 }
 
-typedef struct L1P2C0 {
+typedef struct BDEE0DC924 {
     u8 pad0[0x2C0];
     u8 unk2C0;
-} L1P2C0;
+} BDEE0DC924;
 
-extern L1P2C0 *D_807FC924;
+extern BDEE0DC924 *D_807FC924;
 s32 func_806BA240(u8, s16);
 
-typedef struct R1DNode {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 pad8[8];
-    /* 0x10 */ s16 unk10;
-} R1DNode;
-
-typedef struct R1DSub4 {
-    /* 0x00 */ R1DNode *unk0;
-    /* 0x04 */ u8 pad4[0x60];
-    /* 0x64 */ u16 unk64;
-} R1DSub4;
-
-typedef struct R1DViewTgt {
-    /* 0x000 */ u8 pad0[0x134];
-    /* 0x134 */ s16 unk134;
-} R1DViewTgt;
-
-typedef struct R1DViewA0 {
+typedef struct BDEE0DCA0Tgt {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ Actor *unk1C;
     /* 0x20 */ u8 unk20;
-} R1DViewA0;
+} BDEE0DCA0Tgt;
 
-#define R1DA0 ((R1DViewA0 *)D_807FDCA0)
+#define BDEE0DCA0T ((BDEE0DCA0Tgt *)D_807FDCA0)
 
 extern u8 D_8071FB34[];
 void func_80609140(s32, s32, f32, f32, s32, s32);
@@ -444,9 +424,9 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
     u8 node;
     s32 var;
 
-    p = R1DA->unk178;
-    tgt = R1DA0->unk1C;
-    if (tgt != NULL && tgt->unk154 == 0x23 && R1DA0->unk20 < 10) {
+    p = BDEE0AA->unk178;
+    tgt = BDEE0DCA0T->unk1C;
+    if (tgt != NULL && tgt->unk154 == 0x23 && BDEE0DCA0T->unk20 < 10) {
         if (D_807FBB40->unk154 != 0x15 && D_807FBB40->unk154 != 0x17) {
             D_807FBB40->unk5C = 0x80;
             D_807FBB40->unk154 = 0x15;
@@ -463,7 +443,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
     if (D_807FBB40->unk154 == 0x15) {
         node = D_807FDC9C->unkA;
         if (node == 5 || node == 7) {
-            if ((((R1DSub4 *)tgt->unk4)->unk64 == 0x21E || ((R1DSub4 *)tgt->unk4)->unk64 == 0x21F) && ((R1DSub4 *)tgt->unk4)->unk0->unk4 >= 4.0f && ((R1DSub4 *)tgt->unk4)->unk0->unk4 <= 12.0f) {
+            if ((((BDEE0Sub4 *)tgt->unk4)->unk64 == 0x21E || ((BDEE0Sub4 *)tgt->unk4)->unk64 == 0x21F) && ((BDEE0Sub4 *)tgt->unk4)->unk0->unk4 >= 4.0f && ((BDEE0Sub4 *)tgt->unk4)->unk0->unk4 <= 12.0f) {
                 D_807FBB40->unk132 = 4;
             } else {
                 D_807FBB40->unk132 = 2;
@@ -472,8 +452,8 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
         if (node == 1) {
             D_807FBB40->unk132 = 8;
         }
-        if (R1DA->unkF0 != 0) {
-            R1DA->unkF0 = R1DA->unkF0 - 1;
+        if (BDEE0AA->unkF0 != 0) {
+            BDEE0AA->unkF0 = BDEE0AA->unkF0 - 1;
         }
         if (tgt->unk155[0] != 0) {
             if (tgt->unk155[0] == 1 && D_807FBD70 == 2 && func_8072DCF4(tgt, D_807FBB4C, 0x1F40) != 0) {
@@ -489,29 +469,29 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
                     tgt->unk155[0] = 2;
                 }
             } else if (D_807FBD70 == 4) {
-                R1D90->unk16 = ((R1DSub4 *)D_807FDC94->unk4)->unk0->unk10;
+                BDEE0S90->unk16 = ((BDEE0Sub4 *)D_807FDC94->unk4)->unk0->unk10;
                 D_807FBB40->unk60 |= 0x20000000;
-                if (R1DA->unkF0 == 0) {
-                    R1DA->unkF0 = 0x28;
+                if (BDEE0AA->unkF0 == 0) {
+                    BDEE0AA->unkF0 = 0x28;
                     func_80714CC0(D_8071FB34, 2.0f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
                     func_80609140(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     func_80614EBC(tgt, 0x220);
                     tgt->unk155[0] = 2;
-                    ((R1DViewTgt *)tgt)->unk134 = ((R1DViewTgt *)tgt)->unk134 - 1;
-                    if (((R1DViewTgt *)tgt)->unk134 == 0) {
+                    ((BDEE0ActorAlt *)tgt)->unk134 = ((BDEE0ActorAlt *)tgt)->unk134 - 1;
+                    if (((BDEE0ActorAlt *)tgt)->unk134 == 0) {
                         tgt->unk154 = 0x37;
                         tgt->unk155[0] = 0;
                     }
                 }
             }
         }
-        R1DA0->unk20 = R1DA0->unk20 + 1;
+        BDEE0DCA0T->unk20 = BDEE0DCA0T->unk20 + 1;
         actorGetNodePos(tgt, node, &sp4C, &sp48, &sp44);
-        if (R1D90->unk1A & 0x80) {
-            if (!(R1D90->unk1C & 0x80)) {
-                R1DA->unkC0 = 300.0f;
+        if (BDEE0S90->unk1A & 0x80) {
+            if (!(BDEE0S90->unk1C & 0x80)) {
+                BDEE0AA->unkC0 = 300.0f;
             }
-            if (R1DA->unkC0 > 0.0f) {
+            if (BDEE0AA->unkC0 > 0.0f) {
                 return 0;
             }
             D_807FBB40->unk144 = 0x24;
@@ -526,7 +506,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
             D_807FBB40->unk7C = sp4C;
             D_807FBB40->unk84 = sp44;
             D_807FBB40->unk80 = sp48;
-            if (func_806B9EB4(node, arg0, sp4C, sp48, sp44) != 0) {
+            if (actorBuildNodeAlignedMatrix(node, arg0, sp4C, sp48, sp44) != 0) {
                 return 1;
             }
         }
@@ -544,7 +524,7 @@ void func_806BA76C(f32 arg0) {
     s32 flags;
 
     sel = D_807FBB40->unk154;
-    p = R1DA->unk178;
+    p = BDEE0AA->unk178;
     x = D_807FDC90->unkA;
     z = D_807FDC90->unkE;
     switch (sel) {
@@ -604,22 +584,26 @@ void func_806BA8C8(void) {
     }
 }
 
-typedef struct L4Sub178 {
+typedef struct BDEE0Sub178 {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 unk2;
     /* 0x4 */ u16 unk4;
-} L4Sub178;
+} BDEE0Sub178;
 
-typedef struct L4View {
+// Actor view whose unk178 is a BDEE0Sub178 (func_806BA93C, func_806BB874).
+typedef struct BDEE0Actor {
     /* 0x000 */ u8 pad0[0xC];
     /* 0x00C */ f32 unkC[4][4];
-    /* 0x04C */ u8 pad4C[0x108];
+    /* 0x04C */ u8 pad4C[0xE4];
+    /* 0x130 */ u8 unk130;
+    /* 0x131 */ u8 unk131;
+    /* 0x132 */ u8 pad132[0x22];
     /* 0x154 */ u8 unk154;
     /* 0x155 */ u8 unk155;
     /* 0x156 */ u8 pad156[0x22];
-    /* 0x178 */ L4Sub178 *unk178;
-} L4View;
-#define L4A ((L4View *)D_807FBB40)
+    /* 0x178 */ BDEE0Sub178 *unk178;
+} BDEE0Actor;
+#define BDEE0A ((BDEE0Actor *)D_807FBB40)
 
 void func_806BA76C(f32);
 void func_806BA8C8(void);
@@ -635,7 +619,7 @@ u8 arg0;
 u8 arg1;
 u8 arg2;
 {
-    L4Sub178 *s1;
+    BDEE0Sub178 *s1;
     f32 spA4[4][4];
     f32 sp64[4][4];
     s16 sgn;
@@ -643,7 +627,7 @@ u8 arg2;
     f32 sp58;
     s16 a;
 
-    s1 = L4A->unk178;
+    s1 = BDEE0A->unk178;
     if (D_807FDC9C->unkA && func_806BA240(0x64, 0)) {
         return;
     }
@@ -661,14 +645,14 @@ u8 arg2;
             break;
         case 0x37:
             func_8072AB74(0x37, 0.0f, 0.0f, 0x12, 0.0f);
-            if (L4A->unk155 == 0) {
+            if (BDEE0A->unk155 == 0) {
                 D_807FDC90->unk2C += s1->unk4;
                 if (D_807FDC90->unk2C == 0x196 || D_807FDC90->unk2C == 0x244 || D_807FDC90->unk2C == 0x307 || D_807FDC90->unk2C == 0x3B1 || D_807FDC90->unk2C == 0x45C || D_807FDC90->unk2C == 0x508) {
                     sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x17D, 0x9B, (s16)(s1->unk4 + 0x5A), 0);
                 }
                 s1->unk4--;
                 if (s1->unk4 < 2) {
-                    L4A->unk155++;
+                    BDEE0A->unk155++;
                     dir = s1->unk4;
                     s1->unk4 = 0;
                     D_807FDC90->unk30 = 0.0f;
@@ -706,7 +690,7 @@ u8 arg2;
         }
         guMtxCatF(spA4, sp64, spA4);
         if (D_807FBB40->unk154 == 0x37) {
-            switch (L4A->unk155) {
+            switch (BDEE0A->unk155) {
             case 1:
                 D_807FDC90->unk2C = func_806CC190((D_807FDC90->unk2C << 12) / 0x168, 0, 3.0f) * 0x168 / 4096;
                 s1->unk0 = s1->unk0 + (-s1->unk0) * 0.3;
@@ -720,7 +704,7 @@ u8 arg2;
                 if (s1->unk4 >= 0x5B) {
                     s1->unk4 = 0x5A;
                     if (D_807FDC90->unk30 < 3.0f) {
-                        L4A->unk155++;
+                        BDEE0A->unk155++;
                     } else {
                         func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1B1, (u32)(D_807FDC90->unk30 * 255.0f / 20.0f), (s32)(D_807FDC90->unk30 + 100.0f), 0, 0x3C, 0.3f, 0);
                         D_807FDC90->unk30 = -(D_807FDC90->unk30 * 0.5);
@@ -738,17 +722,10 @@ u8 arg2;
             guMtxCatF(spA4, sp64, spA4);
         }
         guTranslateF(sp64, (f32)(-sgn * arg0), 0.0f, 0.0f);
-        guMtxCatF(spA4, sp64, L4A->unkC);
+        guMtxCatF(spA4, sp64, BDEE0A->unkC);
         func_806319C4(D_807FBB40, 1);
     }
 }
-
-typedef struct R1EView90 {
-    /* 0x00 */ u8 pad0[0x2E];
-    /* 0x2E */ s16 unk2E;
-} R1EView90;
-
-#define R1E90 ((R1EView90 *)D_807FDC90)
 
 void func_806BB32C(void) {
     func_80729B00();
@@ -758,26 +735,16 @@ void func_806BB32C(void) {
         D_807FBB40->unk16C = 0xFA;
     }
     if (D_807FBB40->unk154 == 0x17) {
-        func_806B9CE0(0, 0);
+        actorSpawnRandomParticleNearActor(0, 0);
     }
-    if (R1E90->unk2E != 0) {
-        R1E90->unk2E--;
+    if (BDEE0S90->unk2E != 0) {
+        BDEE0S90->unk2E--;
         D_807FBB40->unkFC = 0;
-        if (R1E90->unk2E == 0 && D_807FDC94 == D_807FBB4C) {
+        if (BDEE0S90->unk2E == 0 && D_807FDC94 == D_807FBB4C) {
             D_807FBB40->unk144 = 0x24;
         }
     }
 }
-
-typedef struct R1EView4 {
-    /* 0x00 */ u8 pad0[0x64];
-    /* 0x64 */ u16 unk64;
-} R1EView4;
-
-typedef struct R1EView98 {
-    /* 0x00 */ u8 pad0[0x28];
-    /* 0x28 */ u16 unk28;
-} R1EView98;
 
 void func_806D0430(f32);
 void func_807248B0(Actor *, f32);
@@ -795,7 +762,7 @@ void func_806BB400(void) {
         D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, D_807FBB40->unk7C, D_807FBB40->unk84);
         func_80614EBC(D_807FBB40, 0x21B);
         D_807FDC98->unk46 |= 8;
-        ((R1EView98 *)D_807FDC98)->unk28 = 0x21C;
+        ((BDEE0View98 *)D_807FDC98)->unk28 = 0x21C;
     }
     switch (D_807FBB40->unk154) {
         case 4:
@@ -811,7 +778,7 @@ void func_806BB400(void) {
                     goto join;
                 join:
                 case 1:
-                    if (((R1EView4 *)D_807FBB40->unk4)->unk64 != 0x21C) {
+                    if (((BDEE0Sub4 *)D_807FBB40->unk4)->unk64 != 0x21C) {
                         func_80614EBC(D_807FBB40, 0x21C);
                     }
                     func_8072AB74(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
@@ -829,30 +796,30 @@ void func_806BB400(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-typedef struct R1EView174 {
-    /* 0x00 */ struct R1EView174Sub *unk0;
+typedef struct BDEE0Sub174 {
+    /* 0x00 */ struct BDEE0Sub174Hdr *unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ u8 pad8[0x26];
     /* 0x2E */ s16 unk2E;
-} R1EView174;
+} BDEE0Sub174;
 
-typedef struct R1EView174Sub {
+typedef struct BDEE0Sub174Hdr {
     /* 0x00 */ u8 pad0[0x46];
     /* 0x46 */ u16 unk46;
-} R1EView174Sub;
+} BDEE0Sub174Hdr;
 
 extern Actor *D_807FBB44;
 
 s32 func_807271F4(u8, s16, s16, s16, s32, s32, s32);
 
-s32 func_806BB604(u8 arg0, s16 arg1, s16 arg2, s32 arg3) {
-    R1EView174 *v;
+s32 actorSpawnJitteredChild(u8 arg0, s16 arg1, s16 arg2, s32 arg3) {
+    BDEE0Sub174 *v;
     s32 r3;
     s32 r2;
     s32 r1;
 
     if (D_807FDC90->unk2C != 0) {
-        func_806B9CE0(0, 0xA);
+        actorSpawnRandomParticleNearActor(0, 0xA);
         D_807FDC90->unk2C--;
         return 0;
     }
@@ -887,29 +854,19 @@ void func_806BB81C(void) {
     sfxAllocateChannel(0x3B, 1.0f);
 }
 
-typedef struct L1View {
-    /* 0x000 */ u8 pad0[0x130];
-    /* 0x130 */ u8 unk130;
-    /* 0x131 */ u8 unk131;
-    /* 0x132 */ u8 pad132[0x22];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-} L1View;
-#define L1A ((L1View *)D_807FBB40)
-
-typedef struct L1Tbl {
+typedef struct BDEE0Tbl {
     u8 b[11];
-} L1Tbl;
+} BDEE0Tbl;
 
-typedef struct L1D1D8 {
+typedef struct BDEE0DD580 {
     u8 pad0[0x1D8];
     f32 unk1D8;
-} L1D1D8;
+} BDEE0DD580;
 
-extern L1D1D8 *D_807FD580;
+extern BDEE0DD580 *D_807FD580;
 extern s32 D_807FBB68;
 extern s32 D_807F5D10;
-extern L1Tbl D_80750638;
+extern BDEE0Tbl D_80750638;
 
 void func_806BB81C();
 s32 func_80726D7C(s32);
@@ -930,7 +887,7 @@ void func_806BB874(void) {
     s16 i;
     s16 x;
     s16 y;
-    L1Tbl tbl;
+    BDEE0Tbl tbl;
     u8 t;
     s32 w;
 
@@ -938,11 +895,11 @@ void func_806BB874(void) {
     y = (func_80611A44() >> 15) % 250 + 0xC8;
     func_80729B00();
     if (!(D_807FBB40->unk60 & 0x10)) {
-        L1A->unk130 = 0x3C;
-        L1A->unk131 = 0x3C;
+        BDEE0A->unk130 = 0x3C;
+        BDEE0A->unk131 = 0x3C;
         D_807FBB40->unk12A = 0x3E8;
         D_807FBB40->unk154 = 0;
-        L1A->unk155 = 0;
+        BDEE0A->unk155 = 0;
         func_80614EBC(D_807FBB40, 0x3DC);
         D_807FDC90->unk2C = 0x78;
         D_807FBB40->unk64 |= 0x20;
@@ -957,12 +914,12 @@ void func_806BB874(void) {
         break;
     }
     case 1:
-        switch (L1A->unk155) {
+        switch (BDEE0A->unk155) {
         case 0:
             if (D_807FDC90->unk2C-- < 0x3C) {
                 D_807FBB40->unk60 |= 0x400;
                 func_80614EBC(D_807FBB40, 0x3DD);
-                L1A->unk155++;
+                BDEE0A->unk155++;
             }
             break;
         case 2:
@@ -978,7 +935,7 @@ void func_806BB874(void) {
         }
         break;
     case 2:
-        if (func_806BB604(0x2A, x, y, 0) != 0) {
+        if (actorSpawnJitteredChild(0x2A, x, y, 0) != 0) {
             D_807FBB40->unk154++;
         }
         break;
@@ -990,8 +947,8 @@ void func_806BB874(void) {
         break;
     case 4:
         func_806BB81C();
-        func_806BB604(0x28, x, y, 0);
-        if (func_806BB604(0x29, (s16)(x + 0x28), (s16)(y + 0x50), 0) != 0) {
+        actorSpawnJitteredChild(0x28, x, y, 0);
+        if (actorSpawnJitteredChild(0x29, (s16)(x + 0x28), (s16)(y + 0x50), 0) != 0) {
             D_807FBB40->unk154++;
         }
         break;
@@ -1003,8 +960,8 @@ void func_806BB874(void) {
         break;
     case 6:
         func_806BB81C();
-        func_806BB604(0x2B, x, y, 0);
-        if (func_806BB604(0x2C, (s16)(x + 0x28), (s16)(y + 0x50), 0) != 0) {
+        actorSpawnJitteredChild(0x2B, x, y, 0);
+        if (actorSpawnJitteredChild(0x2C, (s16)(x + 0x28), (s16)(y + 0x50), 0) != 0) {
             D_807FBB40->unk154++;
         }
         break;
@@ -1016,7 +973,7 @@ void func_806BB874(void) {
             func_8061CC40(D_807FBB40, 0x1F, 1);
             D_807FBB40->unk154++;
             D_807FDC90->unk2C = 0x1E;
-            L1A->unk155 = 0xA;
+            BDEE0A->unk155 = 0xA;
         }
         break;
     case 8:
@@ -1024,12 +981,12 @@ void func_806BB874(void) {
             D_807FDC90->unk2C--;
         } else {
             tbl = D_80750638;
-            t = 0xA - L1A->unk155;
-            if (L1A->unk155 == 0xA) {
+            t = 0xA - BDEE0A->unk155;
+            if (BDEE0A->unk155 == 0xA) {
                 func_806BB81C();
             }
-            if (L1A->unk155) {
-                func_806BB604((u8)(tbl.b[L1A->unk155--] + 0x22), (s16)(t * 8 + 0x64), (s16)(t * 20 + 0xFA), D_807FDCA0->unk1C);
+            if (BDEE0A->unk155) {
+                actorSpawnJitteredChild((u8)(tbl.b[BDEE0A->unk155--] + 0x22), (s16)(t * 8 + 0x64), (s16)(t * 20 + 0xFA), D_807FDCA0->unk1C);
             } else {
                 D_807FBB40->unk60 &= 0xFFFF7FFF;
                 D_807FBB40->unk144 = 1;

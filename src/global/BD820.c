@@ -6,21 +6,23 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
 
-typedef struct R1CBView {
-    /* 0x000 */ u8 pad0[0x12A];
+typedef struct BD820Actor {
+    /* 0x000 */ u8 pad0[0xC0];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ u8 padC4[0x66];
     /* 0x12A */ s16 unk12A;
     /* 0x12C */ u8 pad12C[4];
     /* 0x130 */ u8 unk130;
     /* 0x131 */ u8 unk131;
-} R1CBView;
+} BD820Actor;
 
-typedef struct R1CBS9C {
+typedef struct BD820View9C {
     /* 0x00 */ u8 pad0[0xF];
     /* 0x0F */ u8 unkF;
-} R1CBS9C;
+} BD820View9C;
 
-#define R1CBA ((R1CBView *)D_807FBB40)
-#define R1CB9C ((R1CBS9C *)D_807FDC9C)
+#define BD820A ((BD820Actor *)D_807FBB40)
+#define BD820S9C ((BD820View9C *)D_807FDC9C)
 
 extern void *D_8074E880[];
 extern u8 D_8071FFA0[];
@@ -43,7 +45,7 @@ u8 func_805FF0C8(void);
 void func_8063C1EC(s32, s32);
 void func_806B8C78(void);
 
-void func_806B8B20(s16 x, s16 y, s16 z, s16 arg3) {
+void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 arg3) {
     func_8071498C(func_8071C9E8);
     func_807149FC(-1);
     func_807149B8(1);
@@ -59,13 +61,6 @@ void func_806B8BDC(s16 x, s16 y, s16 z) {
     func_807149C8(0xFF, 0xFF, 0xFF, 0xC8);
     func_80714CC0(D_8071FFA0, 2.0f, x, y, z);
 }
-
-typedef struct R1CBViewC0 {
-    /* 0x000 */ u8 pad0[0xC0];
-    /* 0x0C0 */ f32 unkC0;
-} R1CBViewC0;
-
-#define R1CBC0 ((R1CBViewC0 *)D_807FBB40)
 
 extern s16 D_807F6248;
 extern s16 D_807F624C;
@@ -84,28 +79,28 @@ void func_806B8C78(void) {
         case 1:
             switch (D_807FBB40->unk155[0]) {
                 case 0:
-                    R1CBC0->unkC0 = 0.0f;
+                    BD820A->unkC0 = 0.0f;
                     func_80614EBC(D_807FBB40, 0x290);
                     D_807FBB40->unk155[0]++;
                     break;
                 case 2:
                     if (D_807FBB40->unk80 > -20.0f) {
-                        D_807FBB40->unk80 = D_807FBB40->unk80 - R1CBC0->unkC0;
+                        D_807FBB40->unk80 = D_807FBB40->unk80 - BD820A->unkC0;
                     }
-                    t = R1CBC0->unkC0 + 0.5;
-                    R1CBC0->unkC0 = (t < 8.0) ? t : 8.0;
+                    t = BD820A->unkC0 + 0.5;
+                    BD820A->unkC0 = (t < 8.0) ? t : 8.0;
                     break;
             }
             break;
         case 2:
-            func_806B8B20(0x258, 0x64, 0x1E5, 0x64);
-            func_806B8B20(0x258, 0x96, 0x1E5, 0x64);
-            func_806B8B20(0x258, 0xC8, 0x1E5, 0x67);
-            func_806B8B20(0x258, 0xFA, 0x1E5, 0x68);
-            func_806B8B20(0x258, 0x12C, 0x1E5, 0x6C);
-            func_806B8B20(0x258, 0x15E, 0x1E5, 0x6E);
-            func_806B8B20(0x258, 0x190, 0x1E5, 0x73);
-            func_806B8B20(0x258, 0x1C2, 0x1E5, 0x74);
+            effectSpawnRandomParticleAtPoint(0x258, 0x64, 0x1E5, 0x64);
+            effectSpawnRandomParticleAtPoint(0x258, 0x96, 0x1E5, 0x64);
+            effectSpawnRandomParticleAtPoint(0x258, 0xC8, 0x1E5, 0x67);
+            effectSpawnRandomParticleAtPoint(0x258, 0xFA, 0x1E5, 0x68);
+            effectSpawnRandomParticleAtPoint(0x258, 0x12C, 0x1E5, 0x6C);
+            effectSpawnRandomParticleAtPoint(0x258, 0x15E, 0x1E5, 0x6E);
+            effectSpawnRandomParticleAtPoint(0x258, 0x190, 0x1E5, 0x73);
+            effectSpawnRandomParticleAtPoint(0x258, 0x1C2, 0x1E5, 0x74);
             D_807FBB40->unk154++;
             D_807FDC90->unk2C = 0x46;
             break;
@@ -152,16 +147,16 @@ void func_806B904C(void) {
 
     func_80729B00();
     if (!(D_807FBB40->unk60 & 0x10)) {
-        v = ((f64)R1CB9C->unkF / 255.0) * 0.75;
+        v = ((f64)BD820S9C->unkF / 255.0) * 0.75;
         D_807FBB40->unk4->unk34 = v;
         D_807FBB40->unk4->unk38 = v;
         D_807FBB40->unk4->unk3C = v;
         if (func_805FF0C8() != 0) {
             D_807FBB40->unk154 = 0x40;
         } else {
-            R1CBA->unk12A = 0x3E8;
-            R1CBA->unk130 = 0x3C;
-            R1CBA->unk131 = 0x3C;
+            BD820A->unk12A = 0x3E8;
+            BD820A->unk130 = 0x3C;
+            BD820A->unk131 = 0x3C;
             func_80613C48(D_807FBB40, 0x482, 0.0f, 0.0f);
         }
         func_8063C1EC(5, 0x10);
