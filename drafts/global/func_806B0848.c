@@ -1,4 +1,4 @@
-// func_806B0848 (src/global/B2CE0.c): stage 5: text identical except order of 4 hoisted 'li 1' (fcsr consts) at top (want t2,t0,t7,t5); u32 func_8072AB74 decl needed (shared decl is void); reloc: D_8075B1B0/B8/jtbl show as .rodata
+// func_806B0848 (src/global/B2CE0.c): MATCHED (TEXT OK) in private copy and in HEAD-merged test copy. Needs: u32 func_8072AB74 decl (void => v0/v1 swap in switch 4); 'sel' local copy of unk154 as switch var; each 255-clamp if/else on ONE source line (changes order of hoisted li 1); f64 m=255.0 local; ternaries for 0x362/0x361 & 4:2 / 8:1 stores. Draft uses L4Actor.unk138; at HEAD use M3Actor unk138 and *(M3Node **)unk4.
 typedef struct L4Actor {
     /* 0x000 */ u8 pad0[0x130];
     /* 0x130 */ u8 unk130;
@@ -27,36 +27,29 @@ typedef struct L4DC90 {
 } L4DC90;
 
 s32 func_806B0770();
-s16 func_806CC190(s16, s16, s32);
+s16 func_806CC190(s16, s16, f32);
 void func_8072D714(s32, s32);
 void func_8072DEA8(s32, s32, s32);
-void sfxSpawnTableNodes(M3Actor *);
+void sfxSpawnTableNodes(void *);
 void func_8072DC7C(s32);
-void func_8072E1A4(s32, Actor *);
+void func_8072E1A4(s32, void *);
 s32 func_8072E22C(s32);
-s32 func_8072DE10(s32);
 void func_8072C918(s32, s32, s32);
 extern s32 D_8076A064;
 extern s32 D_807FBB4C;
 
 void func_806B0848(void) {
+    s32 sel;
+
     func_80729B00();
     if (!(D_807FBB40->unk60 & 0x10)) {
         f64 d;
         f64 m = 255.0;
 
         d = (f64)D_807FBB40->unk4->unk38 / 0.15 * 100.0;
-        if (d > m) {
-            ((L4Actor *)D_807FBB40)->unk130 = m;
-        } else {
-            ((L4Actor *)D_807FBB40)->unk130 = d;
-        }
+        if (d > m) ((L4Actor *)D_807FBB40)->unk130 = m; else ((L4Actor *)D_807FBB40)->unk130 = d;
         d = (f64)D_807FBB40->unk4->unk38 / 0.15 * 100.0;
-        if (d > m) {
-            ((L4Actor *)D_807FBB40)->unk131 = m;
-        } else {
-            ((L4Actor *)D_807FBB40)->unk131 = d;
-        }
+        if (d > m) ((L4Actor *)D_807FBB40)->unk131 = m; else ((L4Actor *)D_807FBB40)->unk131 = d;
         func_8072B79C(0x35E, 0x35F, 0x360);
     }
     if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->unk154 != 0x37) {
@@ -67,12 +60,14 @@ void func_806B0848(void) {
     } else if (D_807FBB70.unk200 == 5) {
         func_8072DEA8(0x366, 0x31, D_807FBB70.unk1FC);
     }
-    if (D_807FBB40->unk154 == 4) {
+    sel = D_807FBB40->unk154;
+    if (sel == 4) {
         D_807FBB40->unk154 = 1;
+        sel = D_807FBB40->unk154;
     }
-    switch (D_807FBB40->unk154) {
+    switch (sel) {
         case 0x37:
-            D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, D_807FBB40->unkEE, 0x40E00000);
+            D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, D_807FBB40->unkEE, 7.0f);
             switch (D_807FBB40->unk155) {
                 case 0:
                     func_8072AB74(0x37, 0.0f, 0.0f, 0x202, 0.0f);
