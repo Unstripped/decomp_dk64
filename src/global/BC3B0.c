@@ -135,7 +135,6 @@ void func_806B7C74(R1BCursor *c, f32 tx, f32 ty) {
     c->y = R1BMIN(R1BMAX(c->y + c->vy, 0.0f), D_80744494);
 }
 
-#ifdef NON_MATCHING
 typedef struct R1BDC90 {
     /* 0x00 */ u8 pad0[0x2C];
     /* 0x2C */ s16 unk2C;
@@ -161,7 +160,7 @@ s32 func_8061CC00(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void actorSetStateTwo(s32);
 s16 func_80672A70(s16, s16);
-void func_8061CC40(void *, s32, s32);
+s32 func_8061CC40(void *, s32, s32);
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
@@ -175,11 +174,7 @@ void func_806B7EA0(void) {
         D_807FDC98->unk46 |= 0x60;
         D_807FBB64 |= 2;
         func_806A2A10(0xDC, 0x2A, R1BS9C->unkA ? R1BS9C->unkA : 10, &D_807FBB64);
-        if (R1BS9C->unkA != 0) {
-            R1BS90->unk2E = 0xF;
-        } else {
-            R1BS90->unk2E = 0x78;
-        }
+        R1BS90->unk2E = R1BS9C->unkA != 0 ? 0xF : 0x78;
         if (R1BS9C->unkA != 0) {
             c->unk18 = R1BS9C->unkA;
         } else {
@@ -249,10 +244,6 @@ void func_806B7EA0(void) {
         renderCallbacksRegister(func_806B76B0, D_807FBB40, 3);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/BC3B0/func_806B7EA0.s")
-#endif
 
 typedef struct R1CView {
     /* 0x000 */ u8 pad0[0x178];
