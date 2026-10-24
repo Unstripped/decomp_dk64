@@ -108,11 +108,12 @@ segments:
       - [0x936B0, c, 936B0]
       - [0x9BF30, c, 9BF30]
       - [0x9CE20, c, 9CE20]
-      - [0x9DD70, asm]
-      - [0xA2F10, asm]
-      - [0xA6280, asm]
-      - [0xA7710, asm]
-      - [0xA8400, asm]
+      - [0x9DD70, c, 9DD70]
+      - [0xA2F10, c, A2F10]
+      - [0xA6280, c, A6280]
+      - [0xA7710, c, A7710]
+      - [0xA8400, c, A8400]
+      - [0xAA960, c, AA960] # hidden TU: A8400 rodata ends with an 8-byte pad at 0x15F6A0; data D_80750400 (16-aligned) used only by func_806A5C60
       - [0xACDC0, asm]
       - [0xB1F60, asm]
       - [0xB2CE0, asm]
@@ -230,7 +231,13 @@ segments:
       - [0x15EC70, .rodata, 936B0]
       - [0x15EEF0, .rodata, 9BF30]
       - [0x15EF40, .rodata, 9CE20]
-      - [0x15EFD0, rodata]
+      - [0x15EFD0, .rodata, 9DD70]
+      - [0x15F110, .rodata, A2F10] # kong-name strings (pointer table D_807503A4) run into A2F10's "ROUND" with no gap
+      - [0x15F250, .rodata, A6280]
+      - [0x15F2B0, .rodata, A7710]
+      - [0x15F440, .rodata, A8400]
+      - [0x15F6A0, .rodata, AA960]
+      - [0x15F780, rodata]
       - { start: 0x165D50, type: bss, vram: 0x80761050 }
 
   - [0x165D50]
