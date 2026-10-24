@@ -1,18 +1,11 @@
-// func_8069D424 (src/global/9DD70.c): stage 3-4: macro-style gfx++ packet writes now match the target's store pattern exactly and the frame is 0x60 (was 0x68) after folding the double clamp into a single f64 local; remaining: mode/state bytes sit at 0x5A/0x5B vs 0x56/0x57 (one 4-byte spill slot too many before them), the unk15F*0.0078125 double block differs, and the switch/branch dispatch order differs (target beqz/bnel chain, Gfx cursor in s0, Actor* in s1)
+// func_8069D424 (src/global/9DD70.c): stage 3-4: same size (322 vs 323 insns), frame 0x60, Gfx writes match. Declarations cleaned: reuses the file's existing func_8069D358/M2_Pos/func_806FBD5C(s32) prototypes (cast at call sites) and a local M2_GfxWord pair type. Remaining: branch/switch dispatch order for the unk155 if/else-if chain (~19 extra insns around the func_807040D0 calls), Gfx cursor s1 vs s0, the unk15F*0.0078125 double block, state/mode bytes at 0x5A/0x5B vs 0x56/0x57.
 extern Actor *D_807FBB40;
 extern s16 D_80744490;
-void *func_8069D358(void *, void *, s16, f32);
 
-typedef struct M2_Pos {
-    u8 pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-} M2_Pos;
-
-typedef struct M2_Gfx {
+typedef struct M2_GfxWord {
     s32 w0;
     s32 w1;
-} M2_Gfx;
+} M2_GfxWord;
 
 extern Gfx D_1000118;
 extern s32 D_8074E880[];
@@ -25,28 +18,9 @@ void func_8071495C(void);
 void func_8071498C(void *);
 void func_80714950(s32);
 void func_80714CC0(s32, f32, f32, f32, f32);
-void func_806FC530(M2_Gfx *, s16, s16, s16, s32, s32);
+
 
 #define M2_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-
-typedef struct M2_Gfx {
-    s32 w0;
-    s32 w1;
-} M2_Gfx;
-
-extern Gfx D_1000118;
-
-extern s32 D_8074E880[];
-extern s8 func_80717404;
-s32 func_80611A44(void);
-void func_807040D0(s16);
-void func_807149B8(s32);
-void func_8071495C(void);
-void func_8071498C(void *);
-void func_80714950(s32);
-void func_80714CC0(s32, f32, f32, f32, f32);
-void func_806FC530(M2_Gfx *, s16, s16, s16, s32, s32);
-
 void func_8069D424(Gfx *gfx, Actor *actor) {
     s32 *sub;
     u8 state;
@@ -120,5 +94,5 @@ void func_8069D424(Gfx *gfx, Actor *actor) {
     }
 
     M2_WRITE_GFX(gfx++, 0xFA000000, (actor->unk16A << 24) | (actor->unk16B << 16) | (actor->unk16C << 8) | actor->unk15F);
-    func_806FC530((M2_Gfx *)gfx, (s16)mode, a2, a3, *(s32 *)sub, state);
+    func_806FC530((M2_GfxWord *)gfx, (s16)mode, a2, a3, *(s32 *)sub, state);
 }

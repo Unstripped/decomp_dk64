@@ -1,8 +1,4 @@
-// func_8069A7C8 (src/global/9DD70.c): stage 5 (parked, same blocks/frame/saved regs; 235 vs ~235+pad). Fixed: final node->unk8 store must be '0.0 - (float_sum)' (double literal forces cvt.d.s/sub.d/cvt.s.d after a float mul.s+add.s). Remaining: s0/s1/s2 role swap (original: s2 = globals+4i, s0 = globals+12i re-derived via 'move s0,s2' in the preheader), sqrt term load order (original loads entries[i].unk8 (68) before unk0 (60) although the C has unk8 first -> needs a scheduling nudge, e.g. splitting the terms into temps), FP temp allocation in the unk8 decay block (f19/f18/f10 vs f7/f6/...) and the .rodata literal order (lwc1 0(at) vs 8(at)).
-extern Actor *D_807FBB40;
-extern ActorGlobalState D_807FBB70;
-/* Behaviourally equivalent, same blocks/frame/saved regs; remaining diff is FP
-   temporary allocation (and one insn): 235 vs 236 insns. */
+// func_8069A7C8 (src/global/9DD70.c): stage 6: same size (235/235), same blocks/frame/saved regs. Fixed the sqrt term order so the loop loads 0x44 before 0x3C like the target. Remaining: s0/s2 induction-pointer roles (target: s2=globals base, s0=copy for entries), loop-preheader scheduling, FP temp allocation around the double 0.0 compare/0.5 constants.
 typedef struct {
     u8 unk0;
     u8 unk1;
@@ -45,7 +41,6 @@ typedef struct {
     M1ProximityNode *nodes[4];
 } M1ProximityGlobal;
 
-s32 func_80610FE8(s32);
 f32 func_80612D1C(f32);
 void func_806319C4(Actor *, s32);
 
@@ -81,7 +76,7 @@ void func_8069A7C8(void) {
     i = 0;
     if ((s32)D_807FBB70.unk39 > 0) {
         do {
-            dist = sqrtf((globals->entries[i].unk8 * globals->entries[i].unk8) + (globals->entries[i].unk0 * globals->entries[i].unk0));
+            dist = sqrtf((globals->entries[i].unk0 * globals->entries[i].unk0) + (globals->entries[i].unk8 * globals->entries[i].unk8));
             if (dist > 1347.0f) {
                 dist = 1347.0f;
             }
