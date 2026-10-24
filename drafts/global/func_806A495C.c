@@ -1,4 +1,4 @@
-// func_806A495C (src/global/A8400.c): stage 4: frame 0x38 vs 0x40 (expected spills the slot pointer across the func_80714CC0 call), s0/s1 assignment swapped
+// func_806A495C (src/global/A8400.c): stage 5: frame 0x40 + s0/s1 match; M7ModelSlot* local keeps arg0 in s1 and forces the slot-pointer spill. Remaining: target also re-stores sp34 in the func_807149FC delay slot (1 extra swc1), loads arg0->unk4/unk8 before both stores, and uses \ for sp34; FP regalloc + that redundant spill only.
 void func_8071495C(void);
 void func_80714998(s32);
 void func_807149B8(s32);
@@ -50,32 +50,30 @@ typedef struct M7Vector {
 } M7Vector;
 
 void func_806A495C(M7Sprite *arg0, M7Vector *arg1, M7Vector *arg2) {
-    f32 sp38;
-    f32 sp34;
-    f32 sp30;
+    f32 sp38 = (f32) arg0->unk0 * 0.5f;
+    f32 sp34 = arg0->unk4;
+    f32 sp30 = arg0->unk8;
+    M7ModelSlot *slot = &arg0->unk10;
     M7Model *model;
 
-    sp38 = (f32) arg0->unk0 * 0.5f;
-    sp34 = arg0->unk4;
-    sp30 = arg0->unk8;
-    if (arg0->unk10.unk4 == NULL) {
+    if (slot->unk4 == NULL) {
         func_807149FC(-1);
         func_807149B8(0);
         func_8071495C();
         func_80714998(2);
         func_80714A68((s16) (s32) arg2->unk44, (s16) (s32) arg2->unk48, (s16) (s32) arg2->unk4C,
                       (s16) (s32) arg2->unk50);
-        model = func_80714CC0(D_80755390[arg0->unk10.unk0], 1.0f, arg2->unk44, arg2->unk48, 1.0f);
-        arg0->unk10.unk4 = model;
-        if (arg0->unk10.unk2 != 0) {
+        model = func_80714CC0(D_80755390[slot->unk0], 1.0f, arg2->unk44, arg2->unk48, 1.0f);
+        slot->unk4 = model;
+        if (slot->unk2 != 0) {
             model->unk360 *= -1.0f;
         }
     }
-    arg0->unk10.unk4->unk340 = (f32) ((arg2->unk44 + (sp34 + sp38)) * 4.0);
-    arg0->unk10.unk4->unk344 = (f32) ((arg2->unk48 + (sp30 + (arg1->unk18 * 0.5f))) * 4.0);
-    arg0->unk10.unk4->unk36D = arg0->unk3;
-    arg0->unk10.unk4->unk38E = (s16) (s32) arg2->unk44;
-    arg0->unk10.unk4->unk390 = (s16) (s32) arg2->unk48;
-    arg0->unk10.unk4->unk392 = (s16) (s32) arg2->unk4C;
-    arg0->unk10.unk4->unk394 = (s16) (s32) arg2->unk50;
+    slot->unk4->unk340 = (f32) (((f64) arg2->unk44 + (sp34 + sp38)) * 4.0);
+    slot->unk4->unk344 = (f32) (((f64) arg2->unk48 + (sp30 + (arg1->unk18 * 0.5f))) * 4.0);
+    slot->unk4->unk36D = arg0->unk3;
+    slot->unk4->unk38E = (s16) (s32) arg2->unk44;
+    slot->unk4->unk390 = (s16) (s32) arg2->unk48;
+    slot->unk4->unk392 = (s16) (s32) arg2->unk4C;
+    slot->unk4->unk394 = (s16) (s32) arg2->unk50;
 }

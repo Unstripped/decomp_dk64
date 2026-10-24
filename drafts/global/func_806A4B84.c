@@ -1,7 +1,4 @@
-// func_806A4B84 (src/global/A8400.c): stage 4: loop and double math match (136.8f in double); frame/regalloc differ (expected keeps arg1 in s7, hoists arg2->unk1D load into branch delay slots)
-void func_806A3700(s32, s32);
-void func_806A495C(void *, void *, void *);
-
+// func_806A4B84 (src/global/A8400.c): stage 4/5: double math, 0x96*0.5 trunc and loop match; if/else min form needed. Remaining: arg1 wants s7 (mine s5) and the 0.5 double pair f16/f17 (mine f22/f23); 3 instructions short.
 typedef struct M7Node2 {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 unk2;
@@ -86,15 +83,16 @@ void func_806A4B84(f32 arg0, M7Player *arg1, M7State *arg2, M7Holder *arg3, u8 a
                 }
             }
         }
-        var_a0_2 = node->unk2;
         if (arg2->unk1D < node->unk2) {
             var_a0_2 = arg2->unk1D;
+        } else {
+            var_a0_2 = node->unk2;
         }
         node->unk4 = var_fs0;
         node->unk8 = arg0;
         node->unk3 = var_a0_2;
         if (arg3->unk0 & 2) {
-            func_806A495C(node, arg3, arg2);
+            func_806A495C((M7Sprite *) node, (M7Vector *) arg3, (M7Vector *) arg2);
         }
         temp16 = node->unk0;
         node = node->unkA0;

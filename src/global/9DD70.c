@@ -644,13 +644,57 @@ Gfx *func_8069D930(Gfx *gfx, Actor *actor) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069DA54.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069DC10.s")
+/* Row-major copy: the target keeps the row offset (i * arg2) * 4 as the loop
+   invariant and adds arg1 + j * 4 inside, so arg1 is written before the offset. */
+void func_8069DC10(s32 *arg0, s32 *arg1, u8 arg2) {
+    s16 i;
+    s16 j;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069DC80.s")
+    i = 0;
+    do {
+        for (j = 0; j < arg2; j++) {
+            *arg0++ = *(s32 *)((u8 *)arg1 + j * 4 + i * arg2 * 4);
+        }
+        i++;
+    } while (i < 0x20);
+}
+
+void *func_806FBB9C(s16);
+void animSetLoopLimit(Actor *, s32, s16);
+void animSetSpeed(Actor *, s32, f32);
+void animSetNodeItem(Actor *, s32, s16, s32);
+
+s32 func_8069DC80(u8 arg0, void *arg1, u8 arg2, u8 arg3, u8 arg4) {
+    void *temp;
+
+    temp = func_806FBB9C(arg0 + arg3);
+    if (arg1 != NULL) {
+        heapFreeDeferred((Mtx *)arg1);
+    }
+    /* Reusing the parameter keeps both pointers in one callee-saved register. */
+    arg1 = (void *)func_80610FE8(arg4 << 7);
+    func_8069DC10((s32 *)arg1, (s32 *)temp, arg4);
+    animSetLoopLimit(D_807FBB40, arg2, -1);
+    animSetSpeed(D_807FBB40, arg2, 0.0f);
+    animSetNodeItem(D_807FBB40, arg2, 0, (s32)arg1);
+    return (s32)arg1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069DD40.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069DF58.s")
+void func_8069DF58(void) {
+    s32 *model;
+    Actor *actor;
+
+    actor = D_807FBB40;
+    model = (s32 *)actor->unk174;
+    if (!(actor->unk60 & 0x10)) {
+        model[0] = func_8069DC80(0x14, (void *)model[0], 0, actor->unk155[0] / 10, 0x10);
+        model[1] = func_8069DC80(0x14, (void *)model[1], 1, D_807FBB40->unk155[0] % 10, 0x10);
+        actor = D_807FBB40;
+    }
+    func_806319C4(actor, 0);
+}
 
 void func_8069E018(void) {
     func_806319C4(D_807FBB40, 0);
