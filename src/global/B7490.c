@@ -485,7 +485,8 @@ void func_806B3680(void) {
             func_8072B7CC(0x32E);
             break;
     }
-    if (D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 3) {
+    st = (s32)D_807FBB40->unk154;
+    if (D_807FBB40->unk154 == 2 || st == 3) {
         func_8072D13C(D_807FBB40->unk154, 1);
     }
     func_806319C4(D_807FBB40, 0);
@@ -580,29 +581,29 @@ void func_806B3F90(B7490Pos *arg0, u8 arg1) {
     func_8072AB74(arg1, arg0->x, arg0->z, 0x2E0, 0.0f);
 }
 
-#ifdef NON_MATCHING
-void func_807149C8(s32, s32, s32, u8);
+void func_807149C8(u8, u8, u8, u8);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void func_806B4194(void) {
-    u8 c[4];
+    u8 col2;
+    u8 col;
     f32 f;
     u32 var_v0;
 
     switch (B7490A->unk134) {
         case 2:
-            c[2] = 0xC8;
+            col = 0xC8;
             var_v0 = 0x20;
             f = 0.5f;
             break;
         case 1:
             var_v0 = 0x18;
-            c[2] = 0x64;
+            col = 0x64;
             f = 1.0f;
             break;
         case 0:
             var_v0 = 8;
-            c[2] = 0x32;
+            col = 0x32;
             f = 1.5f;
             break;
         default:
@@ -610,14 +611,10 @@ void func_806B4194(void) {
     }
     if ((var_v0 != 0) && ((D_8076A064 % var_v0) == 0)) {
         func_80714998(3);
-        func_807149C8(c[2], c[2], c[2] & 0xFF, *(u8 *) ((u8 *) D_807FBB40 + 0x129));
+        func_807149C8(col, col, col, *(u8 *) ((u8 *) D_807FBB40 + 0x129));
         effectSpawnBoneDefault(D_807FBB40, 1, f, 0.0f, 0.0f, 0.0f, -0x50);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B7490/func_806B4194.s")
-#endif
 
 #ifdef NON_MATCHING
 s32 func_8061CB50(void *);

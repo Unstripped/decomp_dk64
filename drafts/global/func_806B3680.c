@@ -1,4 +1,4 @@
-// func_806B3680 (src/global/B7490.c): R3B7490a stage 6, 9 asm rows (was 17). Fixed vs prior draft: 'if (D_807FDC90->unk30 > (dx = D_807FBB40->unk4->unk38))' (lw D_807FDC90 before unk4) and 'for (i = 0; i < 0xC; i++)' (hoisted &func_8071ABDC addiu before move s0,zero). Remaining: first switch T/st regs swapped (4 rows: target lbu v1, move v0,v1; mine lbu v0, move v1,v0); &func_8071ABDC spill sp44 vs sp40 (3 rows); final if (2||3) lacks move v0,a0 copy (2 rows). Adding 's32 sel' (sel=unk154; if (sel==2||sel==3) call(unk154,1)) fixes spill slot + final if but grows frame 0x60->0x68 (floats shift +8); u8/s16/u16 sel, s32/u8 st, switch on field directly, 600s permuter: no help.
+// func_806B3680 (src/global/B7490.c): R4B7490 stage 6, 7 rows (was 9): remaining = first switch (target lbu v1; move v0,v1 -- mine lbu v0; move v1,v0) and func_8071ABDC spill slot sp44 vs sp40 (3 rows). Fixed final if with ONE var reused: st = (s32)D_807FBB40->unk154; if (D_807FBB40->unk154 == 2 || st == 3) call(unk154,1) (the (s32)/+0/|0 cast gives copy in v0; plain or (u8)/(u32) gives v1/t5). Spill slot: removing dz (ternary assigned to var: var=(dx<dy)?dx:dy) moves spill to 0x44 but result reg f14 not f12; inline ternary / dz var both keep 0x40 (ternary temp costs a slot). register kw, decl order, extra dead locals, st as s16/s32 (frame grows to 0x68) no help. 2x600s permuter no help.
 void func_806B3680(void) {
     f32 dx;
     f32 var;
@@ -94,7 +94,8 @@ void func_806B3680(void) {
             func_8072B7CC(0x32E);
             break;
     }
-    if (D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 3) {
+    st = (s32)D_807FBB40->unk154;
+    if (D_807FBB40->unk154 == 2 || st == 3) {
         func_8072D13C(D_807FBB40->unk154, 1);
     }
     func_806319C4(D_807FBB40, 0);
