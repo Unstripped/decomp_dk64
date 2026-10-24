@@ -52,11 +52,11 @@ void func_80729B00(void);
 void func_8067ACB4(Actor *);
 void func_806319C4(void *, s32);
 void effectSpawnSparks(s32, s32);
-void func_8072AB74(s32, f32, f32, s32, f32);
+s32 func_8072AB74(s32, f32, f32, s32, f32);
 void func_8072A920(s16, s32, f32, f32, f32, s32, f32, f32, s32);
 void func_8072A86C(s16, f32, f32, f32, s32);
 void func_8072B7CC(s32);
-s32 func_8072D13C();
+s32 func_8072D13C(u8, s32);
 void func_8072D714(s32, s32);
 void func_8072DE44();
 void func_8072DC7C();
@@ -563,7 +563,7 @@ void func_806B3F3C(void) {
     }
 }
 
-void func_806B3F90(B7490Pos *arg0, u8 arg1) {
+s32 func_806B3F90(B7490Pos *arg0, u8 arg1) {
     f32 dz;
     f32 dx;
     f32 dist;
@@ -578,7 +578,7 @@ void func_806B3F90(B7490Pos *arg0, u8 arg1) {
     dy = (B7490A->unk80 < arg0->y) ? 0.0f : B7490A->unk80 - arg0->y;
     B7490A->unkC4 = -(dy / t);
     B7490A->unkE8 = func_806CC190(B7490A->unkE8, (s32)((mathCalculatePitchAngle(arg0->x, arg0->y, arg0->z, B7490A->unk7C, B7490A->unk80, B7490A->unk84, 0x46) * 2048.0) / 3.1415927410125732), 3.3f);
-    func_8072AB74(arg1, arg0->x, arg0->z, 0x2E0, 0.0f);
+    return func_8072AB74(arg1, arg0->x, arg0->z, 0x2E0, 0.0f);
 }
 
 void func_807149C8(u8, u8, u8, u8);
@@ -638,15 +638,17 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
             D_807FDC9C->unkB = 0x28;
         }
     }
-    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (D_807FBB40->unk154 != 0x37)) {
+    st = D_807FBB40->unk154;
+    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (st != 0x37)) {
         func_8072D714(D_807FBB70.unk1FC, arg1);
         B7490A->unkC0 = 300.0f;
         *var_t2 = 0;
         D_807FDC90->unk2C = 0x2BC;
+        st = D_807FBB40->unk154;
     }
     var_t0 = D_807FDC90->unkA;
     var_t1 = D_807FDC90->unkE;
-    switch (D_807FBB40->unk154) {
+    switch (st) {
         case 1:
         case 0x10:
         case 0x23:
@@ -675,8 +677,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
                     D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
                     D_807FDC90->unk2C = 0x64;
                 case 1:
-                    /* func_806B3F90 is defined above as void; the target uses its v0 result. */
-                    if ((((s32 (*)()) func_806B3F90)(D_807FDC90, 0x23) & 1) || (D_807FBB40->unk80 < (f32) (D_807FDC90->unkC + 0xF))) {
+                    if ((func_806B3F90((B7490Pos *) D_807FDC90, 0x23) & 1) || (D_807FBB40->unk80 < (f32) (D_807FDC90->unkC + 0xF))) {
                         D_807FBB40->unk154 = D_807FDC9C->unk10;
                         D_807FBB40->unk155[0] = 0;
                     }
@@ -697,12 +698,12 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
                     sfxSpawnTableNodes(D_807FBB40);
                     if (D_807FBB40->unk58 == 0x11D) {
                         D_807FBB40->unk155[0] = 3;
-                    } else {
-                        B7490A->unkC0 = 50.0f;
-                        D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
-                case 2:
-                        func_8072AB74(0x37, 0.0f, 0.0f, 0x222, 0.0f);
+                        break;
                     }
+                    B7490A->unkC0 = 50.0f;
+                    D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
+                case 2:
+                    func_8072AB74(0x37, 0.0f, 0.0f, 0x222, 0.0f);
                     break;
                 case 3:
                     func_8072DC7C(0xA);
@@ -725,10 +726,12 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
             break;
         case 2:
         case 3:
-            func_8072D13C(st, 1);
+            func_8072D13C(D_807FBB40->unk154, 1);
             break;
     }
     func_806319C4(D_807FBB40, 0);
+    if (!D_807FBB40->unk154) {
+    }
 }
 #else
 
@@ -768,10 +771,9 @@ void func_80724CA4(s32, s32);
 
 void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
     s16 *temp_v0;
-    s16 sp32;
-    u8 var_t0;
     s32 *dead1;
     s32 *dead2;
+    s16 sp32;
 
     temp_v0 = B7490A->unk178;
     dead1 = (s32 *) temp_v0;
@@ -788,8 +790,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
         D_807FBB40->unk154 = 0x37;
         D_807FBB40->unk155[0] = 0;
     }
-    var_t0 = arg0;
-    switch (var_t0) {
+    switch (arg0) {
         case 2:
         case 3:
             if (D_807FBB40->unk155[0] == 0) {
@@ -830,7 +831,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
             func_8072B7CC(arg1);
             break;
     }
-    switch (var_t0) {
+    switch (arg0) {
         case 2:
         case 3:
             func_8072D13C(arg0, 1);

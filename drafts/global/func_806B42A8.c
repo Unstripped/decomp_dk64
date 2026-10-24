@@ -1,8 +1,10 @@
-// func_806B42A8 (src/global/B7490.c): R2B7490 stage 4: structure + jump tables right. Needs func_806B3F90 to return s32 (target uses v0 & 1; parked C casts the void def to s32(*)()), B7490Actor.unk6E (split pad0 at 0x6E). Variant with s32 st only before the final switch: 13024 vs 13056 bytes (missing the 8 'or v1,a2,zero' copies of target's T=a2/st=v1 pattern; end call is andi a0,a2,0xff). Adding st before the first D_807FBB70 test gives target size but IDO hoists &D_807FBB40 into t0 (209 rows). 2790-style T/st fix (use st in first call arg) not found here.
+// func_806B42A8 (src/global/B7490.c): stage 6: only 3 diffs. needs file-level proto s32 func_8072D13C(u8, s32) (K&R decl gives move a0,a2 not andi a0,a2,0xff) + t6/t8 swap at lh *var_t2 vs lh unk6 (scratch temp order); trailing 'if (!D_807FBB40->unk154) {}' dummy read stops &D_807FBB40 being hoisted into t0 (any read of D_807FBB40 field after func_806319C4 works); st=E before first test + st=E at end of if-body + switch(st), E reused as call arg gives lbu a2/move v1,a2 pairs; func_806B3F90 now s32 (no return) so no function-pointer cast
 s32 func_8061CB50(void *);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void sfxSpawnTableNodes(Actor *);
+/* func_806B3F90 must be defined as s32 func_806B3F90(B7490Pos *, u8) (no return statement): v0&1 is read here; needs B7490Pos struct from B7490.c */
+/* needs file-level "s32 func_8072D13C(u8, s32);" (currently K&R "s32 func_8072D13C();") for the final andi a0,a2,0xff */
 
 void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
     s16 *var_t2;
@@ -20,15 +22,17 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
             D_807FDC9C->unkB = 0x28;
         }
     }
-    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (D_807FBB40->unk154 != 0x37)) {
+    st = D_807FBB40->unk154;
+    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (st != 0x37)) {
         func_8072D714(D_807FBB70.unk1FC, arg1);
         B7490A->unkC0 = 300.0f;
         *var_t2 = 0;
         D_807FDC90->unk2C = 0x2BC;
+        st = D_807FBB40->unk154;
     }
     var_t0 = D_807FDC90->unkA;
     var_t1 = D_807FDC90->unkE;
-    switch (D_807FBB40->unk154) {
+    switch (st) {
         case 1:
         case 0x10:
         case 0x23:
@@ -57,8 +61,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
                     D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
                     D_807FDC90->unk2C = 0x64;
                 case 1:
-                    /* func_806B3F90 is defined above as void; the target uses its v0 result. */
-                    if ((((s32 (*)()) func_806B3F90)(D_807FDC90, 0x23) & 1) || (D_807FBB40->unk80 < (f32) (D_807FDC90->unkC + 0xF))) {
+                    if ((func_806B3F90((B7490Pos *) D_807FDC90, 0x23) & 1) || (D_807FBB40->unk80 < (f32) (D_807FDC90->unkC + 0xF))) {
                         D_807FBB40->unk154 = D_807FDC9C->unk10;
                         D_807FBB40->unk155[0] = 0;
                     }
@@ -79,12 +82,12 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
                     sfxSpawnTableNodes(D_807FBB40);
                     if (D_807FBB40->unk58 == 0x11D) {
                         D_807FBB40->unk155[0] = 3;
-                    } else {
-                        B7490A->unkC0 = 50.0f;
-                        D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
-                case 2:
-                        func_8072AB74(0x37, 0.0f, 0.0f, 0x222, 0.0f);
+                        break;
                     }
+                    B7490A->unkC0 = 50.0f;
+                    D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
+                case 2:
+                    func_8072AB74(0x37, 0.0f, 0.0f, 0x222, 0.0f);
                     break;
                 case 3:
                     func_8072DC7C(0xA);
@@ -107,8 +110,10 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
             break;
         case 2:
         case 3:
-            func_8072D13C(st, 1);
+            func_8072D13C(D_807FBB40->unk154, 1);
             break;
     }
     func_806319C4(D_807FBB40, 0);
+    if (!D_807FBB40->unk154) {
+    }
 }

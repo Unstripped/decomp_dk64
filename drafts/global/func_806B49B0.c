@@ -1,13 +1,12 @@
-// func_806B49B0 (src/global/B7490.c): R2B7490 stage 4: behaviour right, 8 insns short. arg0 (u8 on stack) is 'not colored (-ve save)' in uopt so switch var is loaded late into t8; target colors it t0 for the whole function (early temps start t1). var_t0 as s16 gives right size (68 rows) but is a type hack. Dead s32* locals fix frame 0x40. Permuter hint: switch(var_t0) read before var_t0 = arg0 (UB) drops score 4274->762, i.e. var must be live from function entry.
+// func_806B49B0 (src/global/B7490.c): stage 4-5: 8 insns short. plain switch(arg0): switch temp 1085|1 and expr ucvt(arg0) uncolored (-ve save) so t0 never allocated; locals order temp_v0,dead1,dead2,sp32 gives sp32 at 0x32 like target. var_t0=arg0 copies get copy-propagated into call args (lw a0,0x24); s16/s8 var gives var in memory + lh t0 temp (8 bytes too big). Permuter got 762 only with UB uninitialised var switch(var_t0){var_t0=arg0;..}: shows target t0 web has only compares uses.
 extern f32 D_807502EC;
 void func_80724CA4(s32, s32);
 
 void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
     s16 *temp_v0;
-    s16 sp32;
-    u8 var_t0;
     s32 *dead1;
     s32 *dead2;
+    s16 sp32;
 
     temp_v0 = B7490A->unk178;
     dead1 = (s32 *) temp_v0;
@@ -24,8 +23,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
         D_807FBB40->unk154 = 0x37;
         D_807FBB40->unk155[0] = 0;
     }
-    var_t0 = arg0;
-    switch (var_t0) {
+    switch (arg0) {
         case 2:
         case 3:
             if (D_807FBB40->unk155[0] == 0) {
@@ -66,7 +64,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
             func_8072B7CC(arg1);
             break;
     }
-    switch (var_t0) {
+    switch (arg0) {
         case 2:
         case 3:
             func_8072D13C(arg0, 1);
