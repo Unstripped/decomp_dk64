@@ -172,7 +172,6 @@ void func_806B6C88(s16 arg0, s16 arg1) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct L2Sub178 {
     /* 0x0 */ s16 pad0;
     /* 0x2 */ s16 unk2;
@@ -241,8 +240,6 @@ void func_806B6DB0(s32 arg0) {
     u8 near;
     s32 tgt;
     s32 sel;
-    f32 dx;
-    f32 dz;
 
     p = ((L2Actor *)D_807FBB40)->unk178;
     if (((L2Actor *)D_807FBB40)->unkEE < D_807FBB40->unkE6) {
@@ -250,12 +247,7 @@ void func_806B6DB0(s32 arg0) {
     } else {
         diff = ((L2Actor *)D_807FBB40)->unkEE - D_807FBB40->unkE6;
     }
-    dx = D_807FBB40->unk7C - D_807FDC94->unk7C;
-    dz = D_807FBB40->unk84 - D_807FDC94->unk84;
-    near = 0;
-    if (dx * dx + dz * dz < 2500.0f) {
-        near = 1;
-    }
+    near = ((D_807FBB40->unk7C - D_807FDC94->unk7C) * (D_807FBB40->unk7C - D_807FDC94->unk7C) + (D_807FBB40->unk84 - D_807FDC94->unk84) * (D_807FBB40->unk84 - D_807FDC94->unk84)) < 2500.0f;
     if (!(D_807FBB40->unk60 & 0x10)) {
         ((L2View98 *)D_807FDC98)->unk34 = 1.0f;
         func_80724CA4(2, 2);
@@ -395,10 +387,6 @@ void func_806B6DB0(s32 arg0) {
     }
     func_806319C4(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/BB300/func_806B6DB0.s")
-#endif
 
 void func_806B75F4(void) {
     func_80729B00();
