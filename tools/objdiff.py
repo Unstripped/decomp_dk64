@@ -179,22 +179,37 @@ def splat_address(name):
             return None
     return None
 
-def same_splat_address(b_tgt, e_tgt, rtype, b_word, e_word):
-    """False only when both targets are splat labels whose relocated field resolves differently
-    (REL addends sit in the instruction). Named targets have no known address: accepted."""
+def sext16(v):
+    v &= 0xFFFF
+    return v - 0x10000 if v & 0x8000 else v
+
+def pair_addends(text, relocs):
+    """{offset: full addend} for HI16/LO16 relocations (REL: addends sit in the instructions).
+    Per the MIPS ABI a HI16 pairs with the next LO16 of the same target, and a LO16 with the
+    latest HI16 of its target; the full addend is (hi << 16) + sext(lo)."""
+    addends = {}
+    pending = {}  # target -> HI16 offsets awaiting their LO16
+    last_hi = {}  # target -> latest HI16 immediate
+    for off, rtype, tgt in relocs:
+        imm = word_at(text, off) & 0xFFFF
+        if rtype == "R_MIPS_HI16":
+            pending.setdefault(tgt, []).append(off)
+            last_hi[tgt] = imm
+            addends[off] = imm << 16
+        elif rtype == "R_MIPS_LO16":
+            full = (last_hi.get(tgt, 0) << 16) + sext16(imm)
+            for hi_off in pending.pop(tgt, []):
+                addends[hi_off] = full
+            addends[off] = full
+    return addends
+
+def same_splat_address(b_tgt, e_tgt, b_addend, e_addend):
+    """False only when both targets are splat labels whose relocations resolve to different
+    addresses (label + paired HI16/LO16 addend). Named targets have no known address: accepted."""
     b_addr, e_addr = splat_address(b_tgt), splat_address(e_tgt)
     if b_addr is None or e_addr is None:
         return True
-    def lo(addr, word):
-        imm = word & 0xFFFF
-        return (addr + (imm - 0x10000 if imm & 0x8000 else imm)) & 0xFFFF
-    def hi(addr, word):
-        return (((addr + 0x8000) >> 16) + (word & 0xFFFF)) & 0xFFFF
-    if rtype == "R_MIPS_LO16":
-        return lo(b_addr, b_word) == lo(e_addr, e_word)
-    if rtype == "R_MIPS_HI16":
-        return hi(b_addr, b_word) == hi(e_addr, e_word)
-    return b_addr == e_addr
+    return (b_addr + b_addend) & 0xFFFFFFFF == (e_addr + e_addend) & 0xFFFFFFFF
 
 def text_matches(built_o, expected_o):
     """Code matches if .text equals modulo relocated fields and every relocation hits the same target,
@@ -213,6 +228,8 @@ def text_matches(built_o, expected_o):
     if len(b_relocs) != len(e_relocs) or masked_text(b_text, b_relocs) != masked_text(e_text, e_relocs):
         return False
     e_code = set(e_syms.values()) | {".text"}
+    b_addends = pair_addends(b_text, b_relocs)
+    e_addends = pair_addends(e_text, e_relocs)
     for (b_off, b_type, b_tgt), (e_off, e_type, e_tgt) in zip(b_relocs, e_relocs):
         if (b_off, b_type) != (e_off, e_type):
             return False
@@ -226,7 +243,7 @@ def text_matches(built_o, expected_o):
             # externs, `D_807FBB4C == D_807FDC94` vs the reverse, passed here once).
             if not e_tgt.startswith("D_") or b_tgt in e_code:
                 return False
-            if not same_splat_address(b_tgt, e_tgt, b_type, word_at(b_text, b_off), word_at(e_text, e_off)):
+            if not same_splat_address(b_tgt, e_tgt, b_addends.get(b_off, 0), e_addends.get(e_off, 0)):
                 return False
     return True
 
