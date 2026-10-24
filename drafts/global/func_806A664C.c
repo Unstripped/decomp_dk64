@@ -1,4 +1,4 @@
-// func_806A664C (src/global/AA960.c): stage 6: full structural match (474 instrs, same frame/saves); only temp-register assignment differs by one (expected state in t0, mine v1; all temps shifted). Tried: state decl order, init-at-decl, block-scoped v, int-vs-float zeros at modelNode/subNode, u8 cast for sfx arg, case 0 break. s16 func_80672A70 to match src.
+// func_806A664C (src/global/AA960.c): stage 6: opcode stream 100% identical (475 instrs, same blocks/frame/saves, size exact); only uopt temp-register assignment differs uniformly by one (target state ptr in t0, mine v1; all temps shifted, 167 instrs). Tried state decl order/init/cast, block-scoped v, int vs float 0 args, (u8) vs (u8)(s32) sfx arg, case-0 break for table range, struct-vs-byte-offset state->unk4, s16 func_80672A70 proto, one 600s permuter run (best score 160, still regalloc).
 typedef struct L9bState174 {
     /* 0x0 */ u8 unk0;
     /* 0x1 */ u8 unk1;
@@ -7,13 +7,11 @@ typedef struct L9bState174 {
     /* 0x8 */ u16 unk8;
     /* 0xA */ s16 unkA;
 } L9bState174;
-
 typedef struct L9bConfig124 {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ f32 unk4;
     /* 0x8 */ f32 unk8;
 } L9bConfig124;
-
 extern ActorGlobalState D_807FBB70;
 extern s16 D_8075038C;
 void func_8067ACB4(Actor *);
@@ -30,11 +28,10 @@ s32 func_806F5C30(s32);
 void func_806F5F2C(s32, s32, s16, s16, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void actorDespawn(void *);
-
 void func_806A664C(f32 arg0) {
-    L9bState174 *state = D_807FBB40->unk174;
+    L9bState174 *state;
     s32 v;
-
+    state = (L9bState174 *)D_807FBB40->unk174;
     if (D_807FBB68 & 0x10) {
         arg0 *= 2.0f;
     }
@@ -55,7 +52,6 @@ void func_806A664C(f32 arg0) {
     if (D_807FBB40->unkFC != 0) {
         if (func_806725A0(D_807FBB40, *(s16 *)((u8 *)D_807FBB40 + 0xEE)) == 0) {
             s32 temp;
-
             temp = func_80672A70(D_807FBB40->unkF4, D_807FBB40->unkF6);
             *(s16 *)((u8 *)D_807FBB40 + 0xEE) = temp + (temp - ((*(s16 *)((u8 *)D_807FBB40 + 0xEE) + 0x800) & 0xFFF));
         }
