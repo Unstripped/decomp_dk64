@@ -6,15 +6,253 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/BC3B0/func_806B76B0.s")
+typedef struct R1BSub174 {
+    /* 0x00 */ u8 pad0[0x2C];
+    /* 0x2C */ s16 unk2C;
+} R1BSub174;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/BC3B0/func_806B7830.s")
+typedef struct R1BView {
+    /* 0x000 */ u8 pad0[0x6E];
+    /* 0x06E */ s16 unk6E;
+    /* 0x070 */ u8 pad70[0x104];
+    /* 0x174 */ R1BSub174 *unk174;
+    /* 0x178 */ f32 *unk178;
+} R1BView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/BC3B0/func_806B7BB8.s")
+#define R1B_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/BC3B0/func_806B7C74.s")
+extern u8 D_1000118[];
+extern u8 D_2000080[];
+
+Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+
+Gfx *func_806B76B0(Gfx *dl, Actor *actor) {
+    R1BSub174 *sub = ((R1BView *)actor)->unk174;
+    f32 *pos = ((R1BView *)actor)->unk178;
+
+    gDPPipeSync(dl++);
+    if (actor->unk154 == 0x11) {
+        gDPSetPrimColor(dl++, 0, 0, 200, 0, 0, 255);
+    } else if (sub->unk2C != 0) {
+        gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, 255);
+    } else {
+        gDPSetPrimColor(dl++, 0, 0, 220, 180, 0, 255);
+    }
+    R1B_WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
+    R1B_WRITE_GFX(dl++, 0xE200001C, 0x504240);
+    R1B_WRITE_GFX(dl++, 0xDE000000, D_1000118);
+    R1B_WRITE_GFX(dl++, 0xDA380007, D_2000080);
+    return func_8068C5A8(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], 0.5f, 0.5f, 0x2D, 0.0f);
+}
+
+f32 func_80612794(s16);
+
+Gfx *func_806B7830(Gfx *dl, Actor *actor) {
+    R1BSub174 *sub = ((R1BView *)actor)->unk174;
+    f32 *pos = ((R1BView *)actor)->unk178;
+    f32 t;
+    f32 x;
+    f32 y;
+    s16 angle;
+    s16 i;
+
+    t = sub->unk2C / 20.0f;
+    gDPPipeSync(dl++);
+    gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, 255);
+    dl = func_8068C5A8(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], t * 7.5 + 0.5, t * 7.5 + 0.5, (s32)(90.0f * t + 45.0f), 0.0f);
+    angle = (s16)(s32)(2048.0f * t);
+    i = 0;
+    do {
+        x = (0.0f - pos[0]) * t + pos[0];
+        y = (240.0f - pos[1]) * t + pos[1];
+        gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, (u32)(-255.0f * t + 255.0f));
+        dl = func_8068C5A8(func_8068C5A8(dl, 0x42, 3, 1, 0x40, 0x40, (s32)x, 0x78, 0.5f, 4.0f, 0, 0.0f), 0x42, 3, 1, 0x40, 0x40, 0xA0, (s32)y, 0.5f, 5.0f, 0x5A, 0.0f);
+        t += 0.1 * func_80612794(angle);
+        i++;
+        t = (t > 1.0) ? 1.0 : t;
+    } while (i < 5);
+    return dl;
+}
+
+void projectileSetTargetCoords(f32, f32, f32);
+void projectileAimAndSpawn(s16, s32, f32, f32, f32, f32, f32, void *);
+extern s32 D_8076A0A8;
+
+void func_806B7BB8(void *arg0) {
+    s32 id;
+
+    if ((D_8076A0A8 != 0x5A) && (D_8076A0A8 != 0x64)) {
+        id = 0x1E;
+    } else {
+        id = 0x63;
+    }
+    projectileSetTargetCoords(D_807FDC94->unk7C, D_807FDC94->unk80 + 100.0f, D_807FDC94->unk84);
+    projectileAimAndSpawn(id, 1, 0.5f, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, 285.0f, D_807FBB40);
+}
+
+typedef struct R1BCursor {
+    /* 0x0 */ f32 x;
+    /* 0x4 */ f32 y;
+    /* 0x8 */ f32 vx;
+    /* 0xC */ f32 vy;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ u8 pad16[2];
+    /* 0x18 */ f32 unk18;
+} R1BCursor;
+
+#define R1BMAX(a, b) ((a) > (b) ? (a) : (b))
+#define R1BMIN(a, b) ((a) < (b) ? (a) : (b))
+
+extern s16 D_80744490;
+extern s16 D_80744494;
+
+void func_806B7C74(R1BCursor *c, f32 tx, f32 ty) {
+    if (tx < c->x) {
+        c->vx -= 0.6;
+        if (c->vx < -5.0f) {
+            c->vx = -5.0f;
+        }
+    } else if (c->x < tx) {
+        c->vx += 0.6;
+        if (c->vx > 5.0f) {
+            c->vx = 5.0f;
+        }
+    }
+    if (ty < c->y) {
+        c->vy -= 0.6;
+        if (c->vy < -5.0f) {
+            c->vy = -5.0f;
+        }
+    } else if (c->y < ty) {
+        c->vy += 0.6;
+        if (c->vy > 5.0f) {
+            c->vy = 5.0f;
+        }
+    }
+    c->x = R1BMIN(R1BMAX(c->x + c->vx, 0.0f), D_80744490);
+    c->y = R1BMIN(R1BMAX(c->y + c->vy, 0.0f), D_80744494);
+}
+
+#ifdef NON_MATCHING
+typedef struct R1BDC90 {
+    /* 0x00 */ u8 pad0[0x2C];
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ s16 unk2E;
+} R1BDC90;
+
+typedef struct R1BDC9C {
+    /* 0x00 */ u8 pad0[0xA];
+    /* 0x0A */ s16 unkA;
+} R1BDC9C;
+
+#define R1BA ((R1BView *)D_807FBB40)
+#define R1BS90 ((R1BDC90 *)D_807FDC90)
+#define R1BS9C ((R1BDC9C *)D_807FDC9C)
+
+extern s32 D_807FBB64;
+extern s32 D_807FBB68;
+
+void func_80729B00(void);
+void func_806A2A10(s32, s32, u8, s32 *);
+s32 func_8061CB50(void);
+s32 func_8061CC00(void);
+void func_80609140(s32, s32, f32, f32, s32, s32);
+void actorSetStateTwo(s32);
+s16 func_80672A70(s16, s16);
+void func_8061CC40(void *, s32, s32);
+void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+void renderCallbacksRegister(void *, void *, s32);
+
+void func_806B7EA0(void) {
+    R1BCursor *c;
+    f32 sp40;
+    f32 sp3C;
+    c = (R1BCursor *)R1BA->unk178;
+    func_80729B00();
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FDC98->unk46 |= 0x60;
+        D_807FBB64 |= 2;
+        func_806A2A10(0xDC, 0x2A, R1BS9C->unkA ? R1BS9C->unkA : 10, &D_807FBB64);
+        if (R1BS9C->unkA != 0) {
+            R1BS90->unk2E = 0xF;
+        } else {
+            R1BS90->unk2E = 0x78;
+        }
+        if (R1BS9C->unkA != 0) {
+            c->unk18 = R1BS9C->unkA;
+        } else {
+            c->unk18 = 10.0f;
+        }
+    }
+    if (R1BS90->unk2E != 0) {
+        if (func_8061CB50() == 0) {
+            R1BS90->unk2E = R1BS90->unk2E - 1;
+        }
+        if (R1BS90->unk2E != 0) {
+            return;
+        }
+        D_807FBB40->unk154 = 0x23;
+        D_807FBB40->unk155[0] = 0;
+        func_80609140(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        actorSetStateTwo(D_807FBB40->unk11C);
+        D_807FBB68 |= 1;
+        D_807FBB64 |= 2;
+    }
+    if (((Actor *)D_807FBB40->unk11C)->unk154 == 5 && D_807FBB40->unk154 != 0x11) {
+        if (D_807FDC94->unkFC != 0) {
+            D_807FDC94->unkE6 = func_80672A70(D_807FDC94->unkF4, D_807FDC94->unkF6);
+        }
+        func_8061CC40(0, 6, 5);
+        D_807FBB40->unk154 = 0x11;
+        D_807FBB40->unk155[0] = 0;
+        c->unk10 = (s32)D_807FDC94->unk7C;
+        c->unk12 = (s32)(D_807FDC94->unk80 + (u32)D_807FDC94->unk15E);
+        c->unk14 = (s32)D_807FDC94->unk84;
+        R1BS90->unk2C = 0x14;
+    }
+    R1BA->unk6E = R1BA->unk6E + 1;
+    if (c->unk18 < (f32)R1BA->unk6E) {
+        func_80609140(0x15B, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
+        R1BA->unk6E = 0;
+        if (c->unk18 > 2.0f) {
+            c->unk18 -= 0.18;
+        }
+    }
+    if (D_807FBB40->unk154 != 0x11) {
+        if (D_807FBB40->unk154 == 0x23 && func_8061CC00() == 0) {
+            func_80626F8C(D_807FDC94->unk7C, D_807FDC94->unk80 + (u32)D_807FDC94->unk15E, D_807FDC94->unk84, &sp40, &sp3C, 0, 1.0f, 0);
+            func_806B7C74(c, sp40, sp3C);
+        }
+    } else {
+        if (func_8061CC00() == 0) {
+            renderCallbacksRegister(func_806B7830, D_807FBB40, 3);
+        }
+        if (R1BS90->unk2C != 0) {
+            R1BS90->unk2C = R1BS90->unk2C - 1;
+            if (R1BS90->unk2C == 5) {
+                func_80609140(0x175, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            }
+        } else {
+            func_806B7BB8(c);
+            R1BS90->unk2E = 0x64;
+            if (R1BS9C->unkA != 0) {
+                c->unk18 = R1BS9C->unkA;
+            } else {
+                c->unk18 = 10.0f;
+            }
+        }
+        func_80626F8C(c->unk10, c->unk12, c->unk14, &c->x, &c->y, 0, 1.0f, 0);
+    }
+    if (func_8061CC00() == 0) {
+        renderCallbacksRegister(func_806B76B0, D_807FBB40, 3);
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/BC3B0/func_806B7EA0.s")
+#endif
 
 typedef struct R1CView {
     /* 0x000 */ u8 pad0[0x178];
@@ -67,8 +305,6 @@ void func_80714950(s32);
 void func_8071498C(void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void projectileSetTargetCoords(f32, f32, f32);
-void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
 void func_806B88B8(void);
 
