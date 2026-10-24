@@ -6,7 +6,6 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
 
-#ifdef NON_MATCHING
 // L3: view of the current actor (D_807FBB40) with the fields func_806B5A90 needs typed.
 typedef struct L3Actor {
     /* 0x000 */ u8 pad0[0x58];
@@ -186,16 +185,16 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
         break;
     case 0x37:
         sel = L3A->unk155;
-        if (L3A->unk155 >= 2) {
-            if (L3A->unk155 - 0x82 < 0) {
+        if (sel >= 2) {
+            if (sel - 0x82 < 0) {
                 x = 0;
             } else {
-                x = L3A->unk155 - 0x82;
+                x = sel - 0x82;
             }
-            if (L3A->unk155 * 6 >= 0x23) {
+            if (sel * 6 >= 0x23) {
                 r = 0x22;
             } else {
-                r = (L3A->unk155 * 6) & 0xFF;
+                r = (sel * 6) & 0xFF;
             }
             q = r;
             t = (u32)((1.0 - (f64)x * 0.03125) * 230.0) & 0xFF;
@@ -204,10 +203,11 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             } else {
                 func_8072D99C();
             }
-            if (L3A->unk155 >= 0x17) {
+            sel = L3A->unk155;
+            if (sel >= 0x17) {
                 x = 0x16;
             } else {
-                x = L3A->unk155;
+                x = sel;
             }
             fv = ((22.0 - (f64)x) / 20.0) * 200.0;
             if (fv > 130.0) {
@@ -264,11 +264,6 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
     func_806319C4(D_807FBB40, 0);
     return ret;
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/BA790/func_806B5A90.s")
-#endif
 
 s32 func_806B5A90();
 void func_80729B00(void);
