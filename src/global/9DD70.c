@@ -67,8 +67,6 @@ typedef struct L1_CamState {
 #define L1_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 extern Actor *D_807FBB40;
-extern s32 D_807FC924;
-extern u8 D_807444FC;
 extern L1_PlayerState *D_807FD580;
 
 s32 func_806FFF88(void);
@@ -216,9 +214,6 @@ void func_80699914(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_80699958.s")
 
-#ifdef NON_MATCHING
-/* Behaviourally equivalent: the original also stores the incoming a1 to its
-   home slot (4(sp)) at entry; that store is never read. 79 vs 78 insns. */
 typedef struct {
     u8 pad0[0x98];
     f32 unk98[4];
@@ -226,13 +221,14 @@ typedef struct {
     u8 unkB8[4];
 } M1ActorSlots;
 
-void func_8069A614(f32 arg0, s32 arg1) {
+/* arg1 is u8: IDO homes the raw incoming a1 to its caller slot (sw a1,4(sp))
+   even in this leaf function and re-narrows it with andi before use. */
+void func_8069A614(f32 arg0, u8 arg1) {
     M1ActorSlots *slots = (M1ActorSlots *)D_807FBB40->unk174;
     s16 i;
     s32 found;
     f64 temp;
 
-    arg1 &= 0xFF;
     found = 0;
     i = 0;
     do {
@@ -266,10 +262,6 @@ void func_8069A614(f32 arg0, s32 arg1) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069A614.s")
-#endif
 
 extern ActorGlobalState D_807FBB70;
 
@@ -395,7 +387,7 @@ void func_8069A7C8(void) {
     if ((f64)state->unk8 < 0.5) {
         state->unk8 = 0.0f;
     }
-    ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk8 = (f32)(0.0 - ((f64)(func_80612D1C((f32)((f64)state->unkC * 0.5)) * state->unk8) + state->unk0));
+    ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk8 = 0.0 - (func_80612D1C((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
     state->unk4 = D_807FBB70.unk39;
     func_806319C4(D_807FBB40, 0);
 }
@@ -673,7 +665,6 @@ void func_8069E018(void) {
 }
 
 void func_80614EBC(Actor *, s32);
-
 void func_8069E040(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80614EBC(D_807FBB40, 0x299);
