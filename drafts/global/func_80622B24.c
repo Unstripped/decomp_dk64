@@ -1,4 +1,4 @@
-// func_80622B24 (src/global/201B0.c): 201B0.c: stage 5, 1944 vs 1941 insns; remaining: u8 type ucvt spill-temp priority (post-switch reload placement), D_807F5CFA arg reg (v0+move vs a1), temp-area offsets 4 low
+// func_80622B24 (src/global/201B0.c): parked NON_MATCHING in src (clean C, 1945 insns: u8 type ucvt piece colored t0 after switch). This draft: same C plus post_a/post_b goto labels so the three call-region switch exits (case 4, case-16 look path, calc_look end) reach distinct join blocks -> type fully spilled like target: 1941 insns, opcode/operand stream identical, only ugen scratch numbering diverges from case 10's second call (sll t4 vs t5) onward. Find the natural control flow that yields the same blocks.
 typedef struct CamState {
     /* 0x00 */ u8 pad0[0xC];
     /* 0x0C */ f32 unkC;
@@ -178,7 +178,7 @@ void func_806228BC(CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 f32 func_80622ABC(f32, f32, f32);
 void func_80626CAC(CamState *, f32 *, f32 *, f32, f32, f32);
 f32 func_80627A00(f64, f32, f32, f32, f32);
-void func_8062773C(CamActor *);
+s32 func_8062773C(CamActor *);
 s32 func_806CC284(s16, s16, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
@@ -192,7 +192,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     CamState *cam;
     s16 *list;
     s16 count;
-    s16 yaw;
+    u8 type;
     CamPathPos *pos;
     f32 dz;
     f32 dx;
@@ -211,7 +211,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     f32 lookZ;
     f32 scale;
     f32 t;
-    u8 node;
+    s32 pad1;
     f32 dist;
     f32 height;
     s16 angle;
@@ -227,7 +227,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     CamSplineKey8 *k2;
     CamSplineKey8 *k3;
     f32 blend;
-    s32 pad3;
+    s16 yaw;
     f32 pitchD;
     f32 pitchT;
     s32 pad4;
@@ -238,8 +238,8 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     s32 pad5;
     f32 yOffset;
 
-    p = &D_807476FC->unkD8[D_807F5CF2];
     cam = arg0->unk174;
+    p = &D_807476FC->unkD8[D_807F5CF2];
     savedX = *arg1;
     savedY = *arg2;
     savedZ = *arg3;
@@ -341,8 +341,6 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     }
     if (D_807444EC != 0) {
         if (D_807444EC == 1) {
-            u8 type;
-
             type = p->unk1;
             if (type == 7) {
                 list = D_807476FC->unkD0[D_807476F4].unk4;
@@ -393,7 +391,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                     } else {
                         goto calc_look;
                     }
-                    break;
+                    goto post_a;
                 case 1:
                     posX = p->u.pos.unk0;
                     posY = p->u.pos.unk2;
@@ -454,8 +452,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                             func_80627A00(arg7->unk160, k0->unk7, k1->unk7, k2->unk7, k3->unk7) / 127.0 * 2048.0;
                     }
                 calc_look:
-                    node = D_807F5CFA;
-                    if (node == 0) {
+                    if (!D_807F5CFA) {
                         lookX = func_80612794(arg7->unkE6) * D_807F5CEE + arg7->unk7C;
                         lookZ = func_80612790(arg7->unkE6) * D_807F5CEE + arg7->unk84;
                         if (arg7->unk15E != 0) {
@@ -464,10 +461,12 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                             lookY = arg7->unk80;
                         }
                     } else {
-                        actorGetNodePos(D_807F5CE8, node, &lookX, &lookY, &lookZ);
+                        actorGetNodePos(D_807F5CE8, D_807F5CFA, &lookX, &lookY, &lookZ);
                     }
-                    break;
+                    goto post_b;
             }
+        post_a:
+        post_b:
             if (type == 7) {
                 blend = func_80612794(D_807F5D00 * 1024.0f + 3072.0f) + 1.0;
                 angleD = mathAngleBetweenPoints2D(D_807F5D24, D_807F5D2C, D_807F5D18, D_807F5D20);
