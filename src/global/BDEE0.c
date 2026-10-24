@@ -312,7 +312,7 @@ typedef struct L1S1C {
 } L1S1C;
 
 extern L1S1C *D_807FDCA0;
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_80611A70(f32, f32, f32 *, f32 *);
 f32 func_80611BB4(f32, f32);
 void func_80612BC0(f32 (*)[4], f32);
@@ -464,8 +464,8 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
         func_806BA130();
     }
     if (D_807FBB40->unk154 == 0x15) {
-        node = D_807FDC9C->unkA;
         kind = D_807FDC9C->unkA;
+        node = D_807FDC9C->unkA;
         if (node == 5 || node == 7) {
             sub = (R1DSub4 *)tgt->unk4;
             if ((sub->unk64 == 0x21E || sub->unk64 == 0x21F) && sub->unk0->unk4 >= 4.0f && sub->unk0->unk4 <= 12.0f) {
@@ -474,7 +474,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
                 D_807FBB40->unk132 = 2;
             }
         }
-        if (1 == node) {
+        if ((node ^ 0) == 1) { /* ^ 0 makes uopt emit bnel a3,node (const first) */
             D_807FBB40->unk132 = 8;
         }
         if (R1DA->unkF0 != 0) {

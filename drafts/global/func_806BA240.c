@@ -1,4 +1,4 @@
-// func_806BA240 (src/global/BDEE0.c): R1D stage 6: only regalloc diffs left (8 insns): the u8 unkA temp lands in v1 not t5, D_807FDC90 ptr in v0 not v1, bne operand order (a3,t9) on node==1; layout (frame 0x58, node 0x34) matches via node=x;kind=x two loads + unused locals sub,var and sv0/sv1 s16 declared in the inner block
+// func_806BA240 (src/global/BDEE0.c): NM2: 6 insns regalloc: u8 temp v1 vs t5. Needs s32 actorGetNodePos + (node ^ 0) == 1. kind=x;node=kind gives t5 but frame 0x60.
 typedef struct R1DView {
     /* 0x000 */ u8 pad0[0xC0];
     /* 0x0C0 */ f32 unkC0;
@@ -29,7 +29,7 @@ extern void *D_807FDC9C;
 s32 func_80611A44(void);
 void func_80614EBC(Actor *, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_806BA130(void);
 s32 func_806B9EB4(u8, u8, f32, f32, f32);
 
@@ -94,8 +94,8 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
         func_806BA130();
     }
     if (D_807FBB40->unk154 == 0x15) {
-        node = D_807FDC9C->unkA;
         kind = D_807FDC9C->unkA;
+        node = D_807FDC9C->unkA;
         if (node == 5 || node == 7) {
             sub = (R1DSub4 *)tgt->unk4;
             if ((sub->unk64 == 0x21E || sub->unk64 == 0x21F) && sub->unk0->unk4 >= 4.0f && sub->unk0->unk4 <= 12.0f) {
@@ -104,7 +104,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
                 D_807FBB40->unk132 = 2;
             }
         }
-        if (1 == node) {
+        if ((node ^ 0) == 1) { /* ^ 0 flips bnel operand order */
             D_807FBB40->unk132 = 8;
         }
         if (R1DA->unkF0 != 0) {
