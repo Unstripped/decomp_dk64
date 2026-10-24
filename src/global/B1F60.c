@@ -1,37 +1,86 @@
 #include "common.h"
 #include "actor.h"
 
+typedef struct B1F60Sub0 {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ f32 unk4;
+} B1F60Sub0;
+
+typedef struct B1F60Sub4 {
+    /* 0x00 */ B1F60Sub0 *unk0;
+    /* 0x04 */ u8 pad4[0x60];
+    /* 0x64 */ u16 unk64;
+} B1F60Sub4;
+
+// File-local view of Actor for the fields the shared Actor lacks or types differently.
+typedef struct B1F60Actor {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ B1F60Sub4 *unk4;
+    /* 0x008 */ u8 pad8[0xB8];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ u8 padC4[0x24];
+    /* 0x0E8 */ s16 unkE8;
+    /* 0x0EA */ u8 padEA[4];
+    /* 0x0EE */ s16 unkEE;
+    /* 0x0F0 */ u8 padF0[0x65];
+    /* 0x155 */ u8 unk155;
+} B1F60Actor;
+
+typedef struct B1F60View90 {
+    /* 0x00 */ u8 pad0[0x1A];
+    /* 0x1A */ u16 unk1A;
+} B1F60View90;
+
+typedef struct B1F60View98 {
+    /* 0x00 */ u8 pad0[0x28];
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ s16 unk2A;
+} B1F60View98;
+
+typedef struct B1F60View9C {
+    /* 0x00 */ u8 pad0[0xD];
+    /* 0x0D */ u8 unkD;
+} B1F60View9C;
+
+typedef struct B1F60Global924 {
+    /* 0x000 */ u8 pad0[0x2C8];
+    /* 0x2C8 */ s16 unk2C8;
+} B1F60Global924;
+
+#define B1F60A ((B1F60Actor *)D_807FBB40)
+
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
+extern ActorGlobalState D_807FBB70;
+extern s32 D_8076A0A8;
+extern B1F60Global924 *D_807FC924;
+
 void actorSpawn(s32, s32);
-void func_806AD260();
-void func_80729B00(void);
-void func_80724CA4(s32, s32);
-void func_8072B79C(s32, s32, s32);
-void func_80724E48(u8);
+Actor *actorFindByType(s32);
+void actorDespawn(Actor *);
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+void sfxSpawnTableNodes(Actor *);
+s32 func_80611A44(void);
+void func_80614EBC(Actor *, s32);
 void func_806319C4(Actor *, s32);
+void func_80724CA4(s32, s32);
+void func_80724E48(u8);
+void func_80729B00(void);
+void func_8072881C(s32, void *);
+u32 func_8072AB74(u8, f32, f32, u16, f32);
+void func_8072B324(Actor *, s32);
+void func_8072B79C(s32, s32, s32);
+void func_8072B7CC(s32);
+void func_8072C918(s32, s32, s32);
+void func_8072D13C(s32, s32);
+void func_8072D714();
+void func_8072DC7C(s32);
+void func_8072DE44(s32);
+void func_8072DEA8(s32, s32, s32);
+s32 func_8072E22C(s32);
+void func_806AD260();
 
 #ifdef NON_MATCHING
-typedef struct {
-    u8 pad0[0xC0];
-    f32 unkC0;
-} M2_ActorC0;
-
-typedef struct {
-    u8 pad0[0x28];
-    s16 unk28;
-    s16 unk2A;
-} M2_View98;
-
-extern ActorGlobalState D_807FBB70;
-void func_8072D714(s32, s32, Actor *);
-void func_8072AB74(s32, f32, f32, u16, f32);
-void sfxSpawnTableNodes(Actor *);
-void func_8072DC7C(s32);
-void func_8072B7CC(s32);
-void func_8072D13C(s32, s32);
-void func_8072C918(s32, s32, s32);
-
 void func_806AD260(arg0, arg1, arg2)
 s16 arg0;
 u8 arg1;
@@ -42,7 +91,7 @@ u16 arg2;
     if (arg0 != 0 && (D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0)) {
         actor = D_807FBB40;
         if (actor->unk154 != 0x37) {
-            ((M2_ActorC0 *)actor)->unkC0 = 200.0f;
+            ((B1F60Actor *)actor)->unkC0 = 200.0f;
             func_8072D714(D_807FBB70.unk1FC, arg0, actor);
         }
     }
@@ -60,18 +109,18 @@ u16 arg2;
             func_8072AB74(D_807FBB40->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, arg2, 0.0f);
             break;
         case 0x37:
-            switch (D_807FBB40->unk155[0]) {
+            switch (B1F60A->unk155) {
                 case 0:
                     func_8072AB74(0x37, 0.0f, 0.0f, (arg2 | 0x4200) & 0xFFFF, 0.0f);
                     break;
                 case 1:
                     sfxSpawnTableNodes(D_807FBB40);
                     if (arg1 != 0) {
-                        D_807FBB40->unk155[0] = 2;
+                        B1F60A->unk155 = 2;
                         break;
                     }
-                    ((M2_ActorC0 *)D_807FBB40)->unkC0 = 100.0f;
-                    D_807FBB40->unk155[0]++;
+                    B1F60A->unkC0 = 100.0f;
+                    B1F60A->unk155++;
                 case 2:
                     func_8072AB74(0x37, 0.0f, 0.0f, (arg2 | 0x4200) & 0xFFFF, 0.0f);
                     break;
@@ -84,7 +133,7 @@ u16 arg2;
             }
             break;
         default:
-            func_8072B7CC(((M2_View98 *)D_807FDC98)->unk28);
+            func_8072B7CC(((B1F60View98 *)D_807FDC98)->unk28);
             break;
     }
     switch (D_807FBB40->unk154) {
@@ -92,7 +141,7 @@ u16 arg2;
         case 3:
             func_8072D13C(D_807FBB40->unk154, 1);
         default:
-            func_8072C918(0x4C90, ((M2_View98 *)D_807FDC98)->unk28, ((M2_View98 *)D_807FDC98)->unk2A);
+            func_8072C918(0x4C90, ((B1F60View98 *)D_807FDC98)->unk28, ((B1F60View98 *)D_807FDC98)->unk2A);
         case 0x37:
         case 0x40:
             break;
@@ -102,19 +151,6 @@ u16 arg2;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/B1F60/func_806AD260.s")
 #endif
-
-typedef struct {
-    u8 pad0[0x1A];
-    u16 unk1A;
-} M2_View90;
-
-typedef struct {
-    u8 pad0[0xD];
-    u8 unkD;
-} M2_View9C;
-
-extern s32 D_8076A0A8;
-Actor *actorFindByType(s32);
 
 void func_806AD54C(void) {
     Actor *found;
@@ -133,21 +169,21 @@ void func_806AD54C(void) {
         found = actorFindByType(0x11A);
         if (found != NULL) {
             if (found->unk154 != 0) {
-                if (!(((M2_View90 *)D_807FDC90)->unk1A & 0x8000)) {
+                if (!(((B1F60View90 *)D_807FDC90)->unk1A & 0x8000)) {
                     dx = found->unk7C - D_807FBB40->unk7C;
                     dz = found->unk84 - D_807FBB40->unk84;
                     if ((dx * dx) + (dz * dz) < 1600.0f) {
                         dir = (((found->unkE6 - D_807FBB40->unkE6) & 0xFFF) > 0x800) ? 1 : -1;
-                        D_807FBB40->unkB8 = (f64)(u32)((M2_View9C *)D_807FDC9C)->unkD * 1.8;
+                        D_807FBB40->unkB8 = (f64)(u32)((B1F60View9C *)D_807FDC9C)->unkD * 1.8;
                         D_807FBB40->unkE6 += dir * 0x190;
-                        *(s16 *)((u8 *)D_807FBB40 + 0xEE) = D_807FBB40->unkE6;
-                        ((M2_View90 *)D_807FDC90)->unk1A |= 0x8000;
+                        B1F60A->unkEE = D_807FBB40->unkE6;
+                        ((B1F60View90 *)D_807FDC90)->unk1A |= 0x8000;
                         D_807FBB40->unk154 = 0x10;
-                        D_807FBB40->unk155[0] = 0;
+                        B1F60A->unk155 = 0;
                     }
                 }
             } else {
-                ((M2_View90 *)D_807FDC90)->unk1A &= 0x7FFF;
+                ((B1F60View90 *)D_807FDC90)->unk1A &= 0x7FFF;
             }
         }
     }
@@ -167,24 +203,8 @@ void func_806AD7AC(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-typedef struct {
-    u8 pad0[0x6A];
-    u16 unk6A;
-    u8 pad6C[0xE8 - 0x6C];
-    s16 unkE8;
-} M2_Linked;
-
-typedef struct {
-    u8 pad0[0x2C8];
-    s16 unk2C8;
-} M2_Global924;
-
-extern M2_Global924 *D_807FC924;
-void actorDespawn(Actor *);
-void actorGetNodePos(M2_Linked *, s32, f32 *, f32 *, f32 *);
-
 void func_806AD84C(void) {
-    M2_Linked *linked;
+    Actor *linked;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk4->unk34 = 0.05f;
@@ -194,13 +214,13 @@ void func_806AD84C(void) {
     }
     switch (D_807FBB40->unk154) {
         case 0:
-            linked = (M2_Linked *)D_807FBB40->unk11C;
+            linked = (Actor *)D_807FBB40->unk11C;
             if (linked == NULL || (linked->unk6A & 1)) {
                 D_807FBB40->unk154 = 1;
                 D_807FBB40->unk60 &= ~0x8000;
             } else {
                 actorGetNodePos(linked, 2, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
-                *(s16 *)((u8 *)D_807FBB40 + 0xE8) = ((M2_Linked *)D_807FBB40->unk11C)->unkE8;
+                B1F60A->unkE8 = ((B1F60Actor *)D_807FBB40->unk11C)->unkE8;
             }
             break;
         case 1:
@@ -221,6 +241,131 @@ void func_806AD9AC(void) {
     D_807FBB44->unk12A = 0x7D0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B1F60/func_806AD9F4.s")
+void func_806AD9F4(void) {
+    func_80729B00();
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FDC98->unk46 |= 0x200;
+        func_8072B79C(0x2F4, 0x2F4, 0x2F4);
+        if (D_807FBB40->unk80 != D_807FBB40->unkA4) {
+            D_807FBB40->unk154 = 0x1E;
+            func_80614EBC(D_807FBB40, 0x2F8);
+            func_806AD9AC();
+        }
+    }
+    if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->unk154 != 0x37) {
+        func_8072D714(D_807FBB70.unk1FC, 0x2F7);
+        func_8072B324(D_807FBB40, 0);
+        D_807FBB40->unkB8 = -200.0f;
+    } else if (D_807FBB70.unk200 == 4) {
+        D_807FBB40->unk132 = 2;
+        func_8072DEA8(0x2F6, 0x27, D_807FBB70.unk1FC);
+        D_807FBB40->unkB8 = D_807FBB40->unkB8 * 2;
+        D_807FDC90->unk2C = 0x1F4;
+    }
+    switch (D_807FBB40->unk154) {
+        case 0x1E:
+            func_8072AB74(0, D_807FDC94->unk7C, D_807FDC94->unk84, 0x4202, 0.0f);
+            if (B1F60A->unk155 != 0) {
+                func_8072DE44(0x2F4);
+            }
+            break;
+        case 0x27:
+            func_8072AB74(0, D_807FDC94->unk7C, D_807FDC94->unk84, 0x4300, 0.0f);
+            D_807FBB40->unkE6 += D_807FDC90->unk2C;
+            if (D_807FDC90->unk2C >= 0x15) {
+                D_807FDC90->unk2C -= 0x14;
+            } else {
+                D_807FDC90->unk2C = 0;
+                B1F60A->unkEE = D_807FBB40->unkE6;
+            }
+            if (B1F60A->unk155 != 0 && D_807FDC90->unk2C == 0) {
+                D_807FBB40->unk132 = 1;
+                func_8072DE44(0x2F4);
+            }
+            break;
+        case 0x28:
+            switch (B1F60A->unk155) {
+                case 0:
+                    func_8072B324(D_807FBB40, 0);
+                    func_80614EBC(D_807FBB40, 0x2F5);
+                    B1F60A->unk155++;
+                case 1:
+                    func_8072AB74(0, D_807FDC94->unk7C, D_807FDC94->unk84, 0x4200, 0.0f);
+                    if (D_807FBB40->unkB8 < 1.0f) {
+                        B1F60A->unk155++;
+                    }
+                    break;
+                case 3:
+                    func_8072DE44(0x2F4);
+                    break;
+            }
+            break;
+        case 1:
+            if ((func_80611A44() >> 15) % 1000 >= 0x3E4) {
+                if (D_807FBB40->unk6A & 1) {
+                    D_807FBB40->unk154 = 0x28;
+                    B1F60A->unk155 = 0;
+                }
+            }
+        default:
+            func_806AD260(0, 1, 0);
+            break;
+    }
+    func_8072881C(0, D_807FDC90->unk28);
+    func_806319C4(D_807FBB40, 0);
+}
+
+#ifdef NON_MATCHING
+void func_806ADDD8(void) {
+    u32 k = 0x31A;
+
+    func_80729B00();
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FDC98->unk46 |= 0x40;
+        ((B1F60View98 *)D_807FDC98)->unk28 = k;
+    }
+    switch (D_807FBB40->unk154) {
+        case 0:
+        case 1:
+            if (func_8072E22C(0x12C) != 0) {
+                func_80614EBC(D_807FBB40, k);
+                D_807FBB40->unk154 = 0x23;
+                B1F60A->unk155 = 0;
+            }
+            break;
+        case 4:
+            if (B1F60A->unk4->unk64 != 0x319) {
+                D_807FBB40->unk154 = 0x23;
+                B1F60A->unk155 = 0;
+            } else if (func_8072E22C(0x64) != 0) {
+                func_80614EBC(D_807FBB40, 0x31B);
+                D_807FBB40->unk154 = 0x1E;
+                B1F60A->unk155 = 0;
+            }
+            break;
+        case 0x1E:
+            if (B1F60A->unk4->unk64 == k) {
+                D_807FBB40->unk154 = 0x23;
+                B1F60A->unk155 = 0;
+            }
+            break;
+        case 0x23:
+            if (B1F60A->unk4->unk64 == k && B1F60A->unk4->unk0->unk4 > 4.0f) {
+                func_8072AB74(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+            }
+            if (func_8072E22C(0x12C) == 0) {
+                func_80614EBC(D_807FBB40, 0x31C);
+                D_807FBB40->unk154 = 0;
+                B1F60A->unk155 = 0;
+            }
+            break;
+        default:
+            func_8072B7CC(k);
+            break;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/B1F60/func_806ADDD8.s")
+#endif
