@@ -1,4 +1,4 @@
-// func_806AC07C (src/global/ACDC0.c): stage 5-6: size+frame match (20896B), ~21 non-reg insn diffs left: item head ptr v1 vs a2 / type a0 vs v1, 4.0 const f12 vs f16, case6 mtc1 zero/mov.s order, case10 (i-5)*4 hoist addiu -20. t=0.0 (double literal) in case3/6 avoids zero-const CSE. Needs f32 func_806119FC() unprototyped; D_80750530 as s8 array
+// func_806AC07C (src/global/ACDC0.c): stage 5-6: size 20896B + frame 0x58 match; remaining regalloc only (item head ptr v1 vs a2, type a0 vs v1, 4.0 const f12 vs f16) + case6 'mtc1 zero,f2; mov.s f14,f2' vs direct mtc1 + one scheduling swap. Tricks: t=0.0 double literal in case3/6 (avoid zero-const CSE), s16 five=5 in case10 (avoid iv-elim addiu -20), head via arg0->unk384->unk0 + item copy (a2 temp + move a3), ang/tmp s32 vars passed to s16 params (CSE'd conv). Needs f32 func_806119FC() unprototyped, D_80750530 s8 array
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -59,6 +59,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
     s32 tmp;
     s32 ang;
     s32 i;
+    s16 five;
 
     src = arg0->unk35C;
     if (arg0->unk384 != NULL) {
@@ -196,8 +197,9 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             arg0->unk364 = D_807FC890[i];
             D_807FC840[i] = -200.0f;
             D_807FC868[i] = -200.0f;
-            if (i >= 5) {
-                i -= 5;
+            five = 5;
+            if (i >= five) {
+                i -= five;
             }
             if (D_80750530[i] == 0) {
                 arg0->unk36A = D_8075054C[i][0];
