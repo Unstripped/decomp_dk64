@@ -1,4 +1,4 @@
-// func_806A6DB4 (src/global/AA960.c): stage 5: frame 0x40, blocks match; remaining: one extra home-slot spill of the func_80672A70 result (temp reused by the sfx switch), plus reload/move ordering in the case-3 tail
+// func_806A6DB4 (src/global/AA960.c): stage 6: size/frame/blocks/literals match; only temp-register naming differs (expected v1/t1/t2 vs built t6/t7/t9/t0 in the func_80672A70 tail, and tN rotations after). Key fixes vs old draft: (a) the unk58-sfx call and temp_v1->unk0++ are INSIDE the if((unk6A&1)&&!(unk6C&1)) block; (b) unkB8 / 2 (integer constant, so IDO emits div.s by 2.0f; /2.0f folds to *0.5f); (c) 'temp = 0xC8;' before the switch makes uopt color the sfx-id temp (no home-slot store); temp shared with the func_80672A70 result.
 typedef struct AA960Config124 {
     f32 unk0;
     f32 unk4;
@@ -16,7 +16,6 @@ typedef struct AA960State174 {
     s16 unkA;
 } AA960State174;
 
-extern Actor *D_807FBB40;
 extern ActorGlobalState D_807FBB70;
 extern s16 D_80750384;
 extern s16 D_8075038C;
@@ -118,20 +117,21 @@ void func_806A6DB4(u8 arg0) {
             AA960_PHY->unkC0 = (f32)D_8075038C;
         }
         if ((D_807FBB40->unk6A & 1) && !(D_807FBB40->unk6C & 1)) {
+            temp = 0xC8;
             switch (temp_v1->unk0) {
             case 0:
                 AA960_PHY->unkC0 = 1600.0f;
-                D_807FBB40->unkB8 = D_807FBB40->unkB8 / 2.0f;
+                D_807FBB40->unkB8 = D_807FBB40->unkB8 / 2;
                 temp = 0xC8;
                 break;
             case 1:
                 AA960_PHY->unkC0 = 1200.0f;
-                D_807FBB40->unkB8 = D_807FBB40->unkB8 / 2.0f;
+                D_807FBB40->unkB8 = D_807FBB40->unkB8 / 2;
                 temp = 0x64;
                 break;
             case 2:
                 AA960_PHY->unkC0 = 800.0f;
-                D_807FBB40->unkB8 = D_807FBB40->unkB8 / 2.0f;
+                D_807FBB40->unkB8 = D_807FBB40->unkB8 / 2;
                 temp = 0x46;
                 break;
             case 3:
@@ -143,11 +143,11 @@ void func_806A6DB4(u8 arg0) {
                 }
                 break;
             }
+            if (D_807FBB40->unk58 == 0x48) {
+                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2A1, temp, 0x7F, 0, 0, 0.0f, 0);
+            }
+            temp_v1->unk0++;
         }
-        if (D_807FBB40->unk58 == 0x48) {
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2A1, temp, 0x7F, 0, 0, 0.0f, 0);
-        }
-        temp_v1->unk0++;
         break;
     case 0x64:
         break;

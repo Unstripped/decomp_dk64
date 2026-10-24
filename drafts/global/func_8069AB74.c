@@ -1,4 +1,14 @@
-// func_8069AB74 (src/global/9DD70.c): 287/289 insns; frame 0x78 vs 0x70 (unreproduced dead local slots 0x60-0x68, 0x40-0x53) and lightAdd 3rd/4th float args passed raw in a2/a3; needs narrow-param/home-slot quirk
+// func_8069AB74 (src/global/9DD70.c): stage 3: 287/289, frame 0x70 vs 0x78 + dead slots 0x40-0x53/0x60-0x6B; real-file prototypes need *(f32*)&int trick, 0.0f/1.0f for 80613C48, *(s16*)unk12C for lightSetTargetId, local 806319C4 proto
+// Compiling this against the real 9DD70.c needs these adaptations (each one
+// requires a local prototype ABOVE the function or the file's later declarations
+// are not visible to it in cfe -> implicit int decl / redeclaration errors):
+//   void func_806319C4(Actor *, s32);            /* duplicate of line 88, still needed */
+//   func_80613C48(D_807FBB40, 0x402, 0.0f, 1.0f);   /* file prototype is (Actor*,s16,f32,f32) */
+//   func_80614D00(D_807FBB40, *(f32 *)&((M1BossNode *)D_807FBB40->unk124)->unk0, 1.0f)
+//       /* float args travel in GPRs; *(f32*)&int gives the exact `lw a1` w/o cvt */
+//   lightSetTargetId(*(s16 *)D_807FBB40->unk12C);    /* unk12C is u8[6]; needs lh */
+// With those fixes it builds but grows to 301 insns, so the s32-proto form above is
+// still the closest. Missing frame bytes: dead slots 0x40-0x53 and 0x60-0x6B.
 typedef struct {
     s16 unk0;
     u8 pad2[2];

@@ -1,11 +1,17 @@
-// func_806A2A10 (src/global/A7710.c): stage 6: 2 insns short - missing 'move t6,a0; sh t6,0x1A' narrow home store of the s16 first param; all else identical
-// The target prologue issues `move t6,a0; sh t6,0x1A(sp)` (a narrow home store of the
-// first s16 parameter) before the actorSpawn call; this source only homes the three
-// argument words plus the u8 (sb a2,0x23) and reads the s16 params at 0x1A/0x1E.
-// Everything else is instruction-identical (same registers, same &D_807FBB44
-// materialisation in both the pre-branch and the if-body). Tried: s16 s16 u8 prototype,
-// K&R definition, s32 arg0 + s16 local, `id = arg0` / `id = (s16)arg0`, `arg0 = (s16)arg0`,
-// address-taken parameter, volatile local - IDO folds all of them into the a0 home.
+// func_806A2A10 (src/global/A7710.c): stage 6: missing only 'or t6,a0; sh t6,0x1A' narrow home of the s16 first param (plus its scheduling knock-on); ANSI/K&R/u16/s32+s16-local/volatile variants all omit it
+/* func_806A2A10 (src/global/A7710.c) - stage 6, 2 instructions short.
+ * Target prologue: sw a0,0x18; sw a1,0x1C; sw a2,0x20; `move t6,a0; sh t6,0x1A`;
+ * addiu a0,0xB0; `sb a2,0x23`; jal actorSpawn (a1=0 in delay slot). The s16 first
+ * parameter gets BOTH a word home (0x18) and a narrow halfword home (0x1A, the low
+ * half of the same slot) and is later reloaded with `lh a3,0x1A`; the u8 third
+ * parameter likewise gets `sb a2,0x23`. This source emits every instruction of the
+ * body identically but only the u8 narrow home.
+ * Probed without producing the `or t6,a0; sh t6,0x1A` pair: ANSI (s16,s16,u8),
+ * K&R definition, u16 first param, u16/s16 with casts, s32 first param + s16 local,
+ * `id` local declared/folded, `(s16)` casts, address-taken/volatile locals.
+ * Nothing needs a local slot (frame is only 0x18, ra at 0x14), so 0x1A can only be
+ * arg0's own home; IDO simply does not narrow-home an s16 param here.
+ */
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern void *D_807FD580;
