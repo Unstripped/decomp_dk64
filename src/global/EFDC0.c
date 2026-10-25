@@ -85,7 +85,29 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_806CFF9C(Actor *);
 void func_806F8BC4(s32, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB0C0.s")
+s32 func_806EB0C0(s16 priority, void *actor, u8 player) {
+    u8 playerByte;
+    s32 offset;
+    s32 priorityCopy;
+    EfAQueuedCall *entry;
+
+    priorityCopy = priority;
+    playerByte = player;
+    offset = playerByte * 0x2F0;
+    entry = (EfAQueuedCall *)((u8 *)D_807FC924 + offset);
+    if (entry->unk29C < priorityCopy) {
+        entry->unk29C = priorityCopy;
+        ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2A0 = actor;
+        ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2A8 = D_807FD6F0.unk0;
+        ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2AC = D_807FD6F0.unk4;
+        ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2B0 = D_807FD6F0.unk8;
+        if (actor != NULL) {
+            ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2A4 = ((EfAActor *)actor)->unk54;
+        }
+        return 1;
+    }
+    return 0;
+}
 
 void func_806EB178(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     D_807FD6F0.unk0 = arg1;
@@ -93,7 +115,24 @@ void func_806EB178(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     D_807FD6F0.unk8 = arg3;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB194.s")
+#define EfN9_Q ((EfAQueuedCall *)D_807FC924)
+
+extern void (*D_80752C70[])(void);
+s32 actorTableContains(Actor *);
+
+void func_806EB194(void) {
+    if (EfN9_Q[D_807FC929].unk29C >= 0) {
+        if (EfN9_Q[D_807FC929].unk2A0 != NULL) {
+            if ((actorTableContains(EfN9_Q[D_807FC929].unk2A0) == 0) ||
+                (((EfAActor *)EfN9_Q[D_807FC929].unk2A0)->unk54 != EfN9_Q[D_807FC929].unk2A4)) {
+                EfN9_Q[D_807FC929].unk2A0 = NULL;
+            }
+        }
+        D_80752C70[EfN9_Q[D_807FC929].unk29C]();
+    }
+    EfN9_Q[D_807FC929].unk29C = -1;
+}
+
 
 void func_806CD424(s16, f32, f32);
 void func_806CFECC(void);
@@ -763,7 +802,22 @@ void func_806ECCDC(void) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ECDD4.s")
+s32 func_806EB400(Actor *);
+void func_806EEAF8(s16);
+
+void func_806ECDD4(void) {
+    s32 value;
+
+    if (func_806EB400(D_807FBB48) != 0) {
+        value = 1;
+        if (D_807FBB68 & 2) {
+            value = 0;
+        } else {
+            value = 1;
+        }
+        func_806EEAF8((s16)value);
+    }
+}
 
 void func_806ECE2C(void) {
     if ((D_807FC928 >= 2) || (D_807FBB48->unk58 != 6) || (EfN4CamBlocks[D_807FC929].unk2C0 == 1)) {
@@ -870,6 +924,7 @@ s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED244.s")
 
+
 void func_806ED420(void) {
     f32 divisor;
     u8 character;
@@ -949,7 +1004,6 @@ typedef struct EfCPlayerD4 {
 } EfCPlayerD4;
 
 s32 func_806C9974(u8, s8);
-s32 func_806EB400(Actor *);
 
 void func_806EE10C(void) {
     if (func_806EB400(D_807FBB48) != 0) {
