@@ -1,4 +1,4 @@
-// func_806FB418 (src/global/FCCD0.c): no note
+// func_806FB418 (src/global/FCCD0.c): stage 6: loop shape and size exact; only loop counter/pointer scheduling differs (900 s permuter best score 30)
 extern u8 D_807FCB26;
 
 s32 func_806FB418(void) {
