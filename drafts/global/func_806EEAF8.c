@@ -1,4 +1,4 @@
-// func_806EEAF8 (src/global/EFDC0.c): Stage 1 behavioral reconstruction from local asm/m2c; current frame 0x68 vs target 0x40 and broad control-flow/regalloc differences. Corrected countdown nonzero path to return.
+// func_806EEAF8 (src/global/EFDC0.c): Stage 1 behavioral reconstruction with target-ordered entry float calculation and corrected multiplayer early return; frame remains 0x50 versus target 0x40, with global-pointer register allocation and both switch layouts unresolved.
 #include "common.h"
 #include "actor.h"
 
@@ -70,6 +70,7 @@ extern s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 void func_806EEAF8(s16 arg0) {
     u8 sp33;
     s32 sp2C;
+    f32 temp_fv1;
     f32 var_fv0;
     s16 temp_v0_2;
     s16 temp_v0_4;
@@ -78,23 +79,19 @@ void func_806EEAF8(s16 arg0) {
     s32 var_v1;
     s8 temp_v0;
     u8 var_t9;
-    Actor *temp_a0;
     Actor *temp_s0;
-    Actor *temp_s0_2;
     Actor *temp_v0_3;
-    EfL2PlayerBlock *temp_v1_2;
-    EfL2PlayerBlock *temp_v1_3;
-    EfL2PlayerBlock *var_v1_2;
 
     sp33 = 0;
     if (D_807FBB48->unk6A & 4) {
+        temp_fv1 = D_807FBB40->unkAC - D_807FBB40->unkA4;
         if (EfL2Player[D_807FC929].unk2C0 == 1) {
             var_fv0 = D_8075386C[D_807FD584];
         } else {
             var_fv0 = D_8075389C[D_807FD584];
         }
         var_t9 = 0;
-        if (var_fv0 < (D_807FBB40->unkAC - D_807FBB40->unkA4)) {
+        if (var_fv0 < temp_fv1) {
             var_t9 = 1;
         }
         sp33 = var_t9;
@@ -108,9 +105,8 @@ void func_806EEAF8(s16 arg0) {
         if (EfL2PS->unkD4 == 0) {
             func_806CA2AC();
             func_806CF42C(D_807FBB48);
-            temp_a0 = EfL2PS->unk88;
-            if ((temp_a0 != NULL) &&
-                ((temp_v1 = temp_a0->unk58, temp_v1 == 0x1D) || (temp_v1 == 0x57) ||
+            if ((EfL2PS->unk88 != NULL) &&
+                ((temp_v1 = EfL2PS->unk88->unk58, temp_v1 == 0x1D) || (temp_v1 == 0x57) ||
                  (temp_v1 == 0x50) || (temp_v1 == 0x3E))) {
                 EfL2PS->unkD4 = D_807530E0[D_807FD584];
                 func_80614EBC(EfL2PS->unk88, 0x292);
@@ -121,9 +117,11 @@ void func_806EEAF8(s16 arg0) {
             } else {
                 sp2C = 0;
                 if (D_807FC928 >= 2) {
-                    if (func_806CA1B4(EfL2Player[D_807FC929].unk29C) != 0) {
-                        temp_v1_2 = &EfL2Player[D_807FC929];
-                        func_806CA0E8(D_807FBB48, temp_v1_2->unk2A0, temp_v1_2->unk29C);
+                    if (func_806CA1B4(EfL2Player[D_807FC929].unk29C) == 0) {
+                        return;
+                    }
+                        func_806CA0E8(D_807FBB48, EfL2Player[D_807FC929].unk2A0,
+                                      EfL2Player[D_807FC929].unk29C);
                         if ((func_80714608(0) != 0) && (D_807FBB48->unk154 == 0x3C) &&
                             (EfL2Player[D_807FC929].unk29C != 0xE)) {
                             EfL2PS->unk250 -= arg0 * 0xA;
@@ -136,7 +134,6 @@ void func_806EEAF8(s16 arg0) {
                                 return;
                             }
                         }
-                    }
                 }
                 if (((D_807FC928 != 1) || (EfL2Player[D_807FC929].unk29C != 0x2B)) &&
                     (func_807142D8() == 0)) {
@@ -160,10 +157,8 @@ void func_806EEAF8(s16 arg0) {
                         EfL2PS->unk38 = D_807531FC[D_807FD584] * 5.0f;
                         EfL2A48->unkC4 = D_8075310C[D_807FD584];
                     }
-                    var_v1_2 = &EfL2Player[D_807FC929];
                 } else {
-                    var_v1_2 = &EfL2Player[D_807FC929];
-                    temp_v0_2 = var_v1_2->unk29C;
+                    temp_v0_2 = EfL2Player[D_807FC929].unk29C;
                     if (temp_v0_2 >= 0xF) {
                         switch (temp_v0_2) {
                         case 0x31:
@@ -177,7 +172,6 @@ void func_806EEAF8(s16 arg0) {
                                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0);
                                 func_80614E78(D_807FBB40, 0x1E);
                             }
-                            var_v1_2 = &EfL2Player[D_807FC929];
                             break;
                         case 0x2B:
                             if (sp33 != 0) {
@@ -189,7 +183,6 @@ void func_806EEAF8(s16 arg0) {
                                 D_807FBB48->unk155[0] = 0;
                                 func_80614E78(D_807FBB48, 0x25);
                             }
-                            var_v1_2 = &EfL2Player[D_807FC929];
                             break;
                         case 0x32:
                             if (sp33 != 0) {
@@ -201,13 +194,11 @@ void func_806EEAF8(s16 arg0) {
                                 D_807FBB48->unk155[0] = 0;
                                 func_80614E78(D_807FBB48, 0x26);
                             }
-                            var_v1_2 = &EfL2Player[D_807FC929];
                             break;
                         case 0x37:
                             temp_s0->unk154 = 0x33;
                             D_807FBB48->unk155[0] = 0;
                             func_80614EBC(D_807FBB48, 4);
-                            var_v1_2 = &EfL2Player[D_807FC929];
                             break;
                         case 0x2E:
                         case 0x2F:
@@ -234,7 +225,6 @@ void func_806EEAF8(s16 arg0) {
                             } else {
                                 func_80614EBC(temp_s0, 0x81);
                             }
-                            var_v1_2 = &EfL2Player[D_807FC929];
                             break;
                         }
                     } else if (temp_v0_2 == 0xE) {
@@ -242,29 +232,27 @@ void func_806EEAF8(s16 arg0) {
                         D_807FBB48->unk155[0] = 0;
                         func_80614E78(D_807FBB48, 0x26);
                         EfL2A48->unkC4 = D_8075310C[D_807FD584];
-                        var_v1_2 = &EfL2Player[D_807FC929];
                     }
-                }
+                    }
 after_action:
-                temp_v0_3 = var_v1_2->unk2A0;
+                temp_v0_3 = EfL2Player[D_807FC929].unk2A0;
                 if (temp_v0_3 != NULL) {
                     var_a0 = mathAngleBetweenPoints2D(temp_s0->unk7C, temp_s0->unk84, temp_v0_3->unk7C, temp_v0_3->unk84);
                 } else {
                     var_a0 = (temp_s0->unkE6 + 0x800) & 0xFFF;
                 }
                 temp_s0->unkE6 = var_a0;
-                temp_v1_3 = &EfL2Player[D_807FC929];
-                temp_v0_4 = temp_v1_3->unk29C;
+                temp_v0_4 = EfL2Player[D_807FC929].unk29C;
                 switch (temp_v0_4) {
                 case 0x2E:
                 case 0x2F:
-                    temp_s0_2 = D_807FBB48;
-                    if (temp_s0_2->unk6A & 4) {
+                    if (D_807FBB48->unk6A & 4) {
                         EfL2A48->unkB8 = D_8075305C[D_807FD584];
                         EfL2PS->unkD4 = D_807530B0[D_807FD584];
                     } else {
                         if (D_807FC928 >= 2) {
-                            func_806CA048(func_806C9FD8(temp_v1_3->unk2A0, &D_807FD584), D_807FD580);
+                            func_806CA048(func_806C9FD8(EfL2Player[D_807FC929].unk2A0, &D_807FD584),
+                                          D_807FD580);
                         }
                         EfL2A48->unkC0 = D_80753040[D_807FD584];
                         EfL2A48->unkB8 = D_8075305C[D_807FD584];
@@ -274,7 +262,8 @@ after_action:
                     break;
                 case 0x32:
                     if (D_807FC928 >= 2) {
-                        func_806CA048(func_806C9FD8(temp_v1_3->unk2A0, &D_807FD584), D_807FD580);
+                        func_806CA048(func_806C9FD8(EfL2Player[D_807FC929].unk2A0, &D_807FD584),
+                                      D_807FD580);
                     }
                     EfL2PS->unkD4 = D_807530D0[D_807FD584];
                     EfL2A48->unkB8 = D_807530F0[D_807FD584];
@@ -282,7 +271,8 @@ after_action:
                     break;
                 case 0xE:
                     if (D_807FC928 >= 2) {
-                        func_806CA048(func_806C9FD8(temp_v1_3->unk2A0, &D_807FD584), D_807FD580);
+                        func_806CA048(func_806C9FD8(EfL2Player[D_807FC929].unk2A0, &D_807FD584),
+                                      D_807FD580);
                     }
                     if (func_80714608(0) != 0) {
                         EfL2A48->unkC0 = D_80753128[D_807FD584] * 10.0f;
