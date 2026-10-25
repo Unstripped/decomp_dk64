@@ -1,4 +1,4 @@
-// func_806F6F28 (src/global/F9450.c): Stage 1 m2c starter; reviewed 96-instruction caller/update flow.
+// func_806F6F28 (src/global/F9450.c): Stage 4: recovered 0x2F0 player-stride flag propagation; saved-register allocation remains unmatched
 ? func_806F603C();                                  /* extern */
 ? func_806F69A8(s32);                               /* extern */
 s32 func_806F6E58(u8);                              /* extern */

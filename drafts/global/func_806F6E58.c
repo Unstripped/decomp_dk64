@@ -1,4 +1,4 @@
-// func_806F6E58 (src/global/F9450.c): Stage 1 m2c starter; reviewed 33-instruction predicate target.
+// func_806F6E58 (src/global/F9450.c): Stage 4: recovered byte comparison and controller mask; boolean temporary register allocation remains unmatched
 s32 func_8073110C(?, ?);                            /* extern */
 extern ? D_80754238;
 extern ? D_807FC950;

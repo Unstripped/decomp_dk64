@@ -1,4 +1,4 @@
-// func_806F4F50 (src/global/F9450.c): stage 1: m2c reconstruction retained for later type recovery
+// func_806F4F50 (src/global/F9450.c): Stage 4: reconstructed node unlink/relink; frame and pointer-base register allocation remain unmatched
 s32 func_806F4EBC(f32, f32, s16, s16 **, s32, s32); /* extern */
 extern s32 D_80754244;
 extern s16 D_807FD720;

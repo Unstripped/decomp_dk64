@@ -1,4 +1,4 @@
-// func_806F50C8 (src/global/F9450.c): stage 1: m2c reconstruction retained for later type recovery
+// func_806F50C8 (src/global/F9450.c): Stage 4: reconstructed node allocation and tail insertion; local stack layout remains unmatched
 void *func_80610FE8(?);                             /* extern */
 ? func_806357F8(s16, f32 *, f32 *, f32 *, ? *, ? *, ? *, ? *, ? *, s32); /* extern */
 s8 func_806F4E74(s16);                              /* extern */

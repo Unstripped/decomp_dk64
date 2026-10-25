@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
+
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
@@ -1020,7 +1021,32 @@ void func_806EE2B8(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE454.s")
+void func_806EE454(void) {
+    s32 shouldNotify = 1;
+
+    func_806CA2AC();
+    if ((func_806EB400(D_807FBB48) != 0) && (func_806C9974(D_807FC929, -1) != 0)) {
+        shouldNotify = 0;
+        if ((D_807FBB48->unk6A & 4) != 0) {
+            func_80614E78(D_807FBB48, 0x29);
+        } else {
+            func_80614E78(D_807FBB48, 0x27);
+        }
+        D_807FBB48->unk154 = 0x36;
+        D_807FBB48->unk155[0] = 0;
+    } else {
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0);
+        func_80614E78(D_807FBB40, 0x1E);
+        D_807FBB40->unk154 = 0x20;
+        D_807FBB40->unk155[0] = 1;
+    }
+    if ((((EfCPlayerD4 *)D_807FD580)->unkD4 == 0) && (D_807FC928 < 2)) {
+        ((EfCPlayerD4 *)D_807FD580)->unkD4 = D_807530B0[D_807FD584];
+    }
+    if (shouldNotify != 0) {
+        func_8061F0B0(((EfCPlayer104 *)D_807FD580)->unk104, 0x14, 0x14);
+    }
+}
 
 typedef struct {
     u8 pad0[0x2A8];
@@ -1077,7 +1103,22 @@ extern s32 func_806EB400(Actor *);
 extern s16 D_807FD6F2;
 extern void func_806EEAF8(s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE74C.s")
+typedef struct EfN7TransitionState {
+    u8 pad0[0x88];
+    Actor *unk88;
+} EfN7TransitionState;
+void func_806EE74C(void) {
+    void *new_var;
+
+    if (func_806EB400(D_807FBB48) != 0) {
+        if ((D_8076A0A8 != 0x52) && (D_8076A0A8 != 0xE)) {
+            func_806EEAF8(0x40);
+            return;
+        }
+        new_var = ((EfN7TransitionState *)D_807FD580)->unk88->unk174;
+        ((u8 *)new_var)[0x45] = 1;
+    }
+}
 
 void func_806EE7B8(void) {
     if (func_806EB400(D_807FBB48) != 0) {
@@ -1156,11 +1197,52 @@ void func_806EE994(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EEA5C.s")
+typedef struct EfN7ActionObject {
+    u8 pad0[0x58];
+    s32 unk58;
+} EfN7ActionObject;
+
+typedef struct EfN7ActionState {
+    u8 pad0[0xDC];
+    EfN7ActionObject *unkDC;
+} EfN7ActionState;
+
+void func_806EEA5C(void) {
+    if (func_806EB400(D_807FBB48) != 0) {
+        s32 action = 1;
+
+        ((EfN7ActionState *)D_807FD580)->unkDC = (EfN7ActionObject *)EfDPlayer[D_807FC929].unk2A0;
+        if ((((EfN7ActionState *)D_807FD580)->unkDC != NULL) &&
+            (((EfN7ActionState *)D_807FD580)->unkDC->unk58 == 0x123)) {
+            action = 2;
+        }
+        func_806EEAF8((s16)action);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EEAF8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EF830.s")
+void func_806EF830(void) {
+    void *new_var;
+    if ((D_807FBB48->unk154 == 0x36) || (D_807FBB48->unk154 == 0x39) ||
+        (D_807FBB48->unk154 == 0x3A) || (D_807FBB48->unk154 == 0x71) ||
+        (D_807FBB48->unk154 == 0x73) || (D_807FBB48->unk154 == 0x74)) {
+        return;
+    }
+    func_806CA2AC();
+    D_807FBB48->unk60 &= 0xFFFF7FFF;
+    func_80614E78(D_807FBB48, 0x27);
+    D_807FBB48->unk154 = 0x39;
+    D_807FBB48->unk155[0] = 0;
+    ((u8 *)D_807FD580)[0x11C] = 0x19;
+    func_8061B610(((void **)D_807FD580)[0x41]);
+    if ((D_8076A0A8 != 0x52) && (D_8076A0A8 != 0xE)) {
+        func_806C9974(D_807FC929, -0x40);
+    } else {
+        new_var = ((EfN7TransitionState *)D_807FD580)->unk88->unk174;
+        ((u8 *)new_var)[0x45] = 1;
+    }
+}
 
 extern void func_806CF42C(Actor *);
 extern void func_8061CC40(Actor *, s32, s32);
@@ -1192,7 +1274,36 @@ void func_806EFA1C(void) {
     D_807FBB40->unk155[0] = 0;
 }
 
+#ifdef NON_MATCHING
+typedef struct EfN7SpawnParams {
+    u16 values[5];
+} EfN7SpawnParams;
+
+extern u16 D_8075D380[];
+extern void actorSpawn(s32, s32);
+
+void func_806EFA3C(void) {
+    EfN7SpawnParams spawnParams;
+    f32 height = D_807FBB48->unk4->unk34;
+
+    *(u32 *)&spawnParams.values[0] = *(u32 *)&D_8075D380[0];
+    *(u32 *)&spawnParams.values[2] = *(u32 *)&D_8075D380[2];
+    spawnParams.values[4] = D_8075D380[4];
+    actorSpawn(0x140, 0xB9);
+    if (D_807FBB48->unk58 == 2) {
+        height *= 1.25;
+    }
+    func_8067B238(D_807FBB44, D_807FBB48, height);
+    func_80614EBC(D_807FBB44, ((u16 *)&spawnParams)[D_8074E77C[((u8 *)D_807FD580)[0x1A4]]]);
+    D_807FBB44->unk60 |= 0x40000000;
+    func_80614E78(D_807FBB48, 0x88);
+    D_807FBB40->unk154 = 0x79;
+    D_807FBB40->unk155[0] = 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EFA3C.s")
+#endif
 
 
 typedef struct {
