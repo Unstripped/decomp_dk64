@@ -4043,7 +4043,166 @@ void func_806DAA14(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DCF60.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DD24C.s")
+typedef struct L6Actor {
+    /* 0x000 */ u8 pad0[0x6A];
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u8 pad6C[0x14];
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ u8 pad84[0x28];
+    /* 0x0AC */ f32 unkAC;
+    /* 0x0B0 */ u8 padB0[0xA5];
+    /* 0x155 */ u8 unk155;
+} L6Actor;
+
+typedef struct L6Player {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ f32 unk4;
+    /* 0x008 */ s16 unk8;
+    /* 0x00A */ u8 padA[0x82];
+    /* 0x08C */ u8 unk8C;
+    /* 0x08D */ u8 pad8D[7];
+    /* 0x094 */ f32 unk94;
+    /* 0x098 */ u8 pad98[8];
+    /* 0x0A0 */ u8 padA0[0x60];
+    /* 0x100 */ s32 unk100;
+} L6Player;
+
+#define L6_A ((L6Actor *)D_807FBB40)
+#define L6_P ((L6Player *)D_807FD580)
+
+extern s16 D_80753CA4[];
+extern f32 D_80753C30[];
+extern f32 D_80753C4C[];
+extern f32 D_80753C68[];
+extern u8 func_807300BC;
+void func_806DC3A4(f32);
+
+void func_806DD24C(void) {
+    ActorCallbackNode *node;
+    s32 pad[1];
+    f32 sp1C;
+    f32 f;
+    f64 d;
+
+    if (L6_A->unk155 != 0 && (!(L6_A->unk6A & 0x40) || ((L6_A->unk6A & 4) && (f64)(L6_A->unkAC - L6_A->unk80) > 3.0))) {
+        func_806CFF1C(D_807FBB40);
+        if (L6_P->unk8C != 0) {
+            func_806D374C();
+            return;
+        }
+        func_806D36CC();
+        return;
+    }
+    L6_P->unk100 = D_80753CA4[D_807FD584];
+    node = func_80610FE8(0x14);
+    node->callback = &func_807300BC;
+    node->unk8 = (s32)D_807FBB48;
+    node->unk4 = 1;
+    actorRegisterGlobalCallback(node);
+    switch (L6_A->unk155) {
+    case 0:
+        func_806DF6D4(5);
+        L6_P->unk94 = 0.0f;
+        break;
+    case 1:
+        if (func_806DF6D4(0x59) == 0) {
+            switch (L6_P->unk8) {
+            case 1:
+                sp1C = D_80753C30[D_807FD584];
+                L6_A->unk155 = 3;
+                func_80614E78(D_807FBB48, 0x71);
+                break;
+            case 0:
+                sp1C = D_80753C68[D_807FD584];
+                break;
+            case -1:
+                sp1C = D_80753C4C[D_807FD584];
+                L6_A->unk155 = 4;
+                func_80614E78(D_807FBB48, 0x72);
+                break;
+            }
+            func_806DC3A4(sp1C);
+            func_80614D00(D_807FBB40, 1.0f, 0.0f);
+        }
+        break;
+    case 2:
+        if (func_806DF6D4(0x59) == 0) {
+            if (L6_P->unk94 == 0.0f && L6_P->unk4 == 0.0f) {
+                L6_A->unk155 = 1;
+                func_80614E78(D_807FBB48, 0x73);
+            } else if (L6_P->unk94 > 0.0f && L6_P->unk4 > 0.0f) {
+                L6_A->unk155 = 3;
+                func_80614E78(D_807FBB48, 0x71);
+            } else if (L6_P->unk94 < 0.0f && L6_P->unk4 < 0.0f) {
+                L6_A->unk155 = 4;
+                func_80614E78(D_807FBB48, 0x72);
+            }
+            func_806DC3A4(D_80753C68[D_807FD584]);
+            d = L6_P->unk94 * 0.025;
+            if (d > 0.0) {
+                f = d;
+            } else {
+                f = -d;
+            }
+            func_80614D00(D_807FBB40, f, 0.0f);
+        }
+        break;
+    case 3:
+        if (func_806DF6D4(0x59) == 0) {
+            if (L6_P->unk94 <= 0.0f) {
+                L6_A->unk155 = 2;
+            }
+            switch (L6_P->unk8) {
+            case -1:
+                sp1C = D_80753C4C[D_807FD584] * 2;
+                break;
+            case 0:
+                sp1C = D_80753C68[D_807FD584];
+                break;
+            case 1:
+                sp1C = D_80753C30[D_807FD584];
+                break;
+            }
+            func_806DC3A4(sp1C);
+            d = L6_P->unk94 * 0.025;
+            if (d > 0.0) {
+                f = d;
+            } else {
+                f = -d;
+            }
+            func_80614D00(D_807FBB40, f, 0.0f);
+        }
+        break;
+    case 4:
+        if (func_806DF6D4(0x59) == 0) {
+            if (L6_P->unk94 >= 0.0f) {
+                L6_A->unk155 = 2;
+            }
+            switch (L6_P->unk8) {
+            case -1:
+                sp1C = D_80753C4C[D_807FD584];
+                break;
+            case 0:
+                sp1C = D_80753C68[D_807FD584];
+                break;
+            case 1:
+                sp1C = D_80753C30[D_807FD584];
+                break;
+            }
+            func_806DC3A4(sp1C);
+            d = L6_P->unk94 * 0.025;
+            if (d > 0.0) {
+                f = d;
+            } else {
+                f = -d;
+            }
+            func_80614D00(D_807FBB40, f, 0.0f);
+        }
+        break;
+    }
+    func_806CC970();
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DD874.s")
 
