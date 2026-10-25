@@ -1,4 +1,4 @@
-// func_80704130 (src/global/103AB0.c): stage 6 direct u8-to-f64 expression matches target instruction count and conversion blocks; remaining differences are register allocation and late-rodata relocation labels
+// func_80704130 (src/global/103AB0.c): stage 6; 600-second permuter best score 55 only added repeated u8 masking; readable cast did not improve the register diff
 typedef struct {
     s16 unk0;
     s16 unk2;

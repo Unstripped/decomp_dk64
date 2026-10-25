@@ -1,4 +1,4 @@
-// func_806F91B4 (src/global/FCCD0.c): Stage 3: stat-update control flow reconstructed; frame and local allocation differ.
+// func_806F91B4 (src/global/FCCD0.c): Stage 3 semantic draft: per-player stat slot and active-character table selection reconstructed; stack/register allocation remains unmatched.
 typedef struct R2FCCD0eStatSlot {
     u16 *unk0;
     u8 pad4[0x28];

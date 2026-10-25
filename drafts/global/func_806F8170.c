@@ -1,4 +1,4 @@
-// func_806F8170 (src/global/FCCD0.c): Stage 4: wrapper operations match; blocked on func_806F8004 frame shift.
+// func_806F8170 (src/global/FCCD0.c): Stage 6: matched; retained in the private FCCD0.c replacement with TEXT OK.
 typedef struct R2FCCD0eTransformSlot {
     void *unk0;
     u16 unk4;

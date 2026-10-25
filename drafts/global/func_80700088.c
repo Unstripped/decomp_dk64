@@ -1,4 +1,4 @@
-// func_80700088 (src/global/103AB0.c): Stage 1 m2c behavioral draft; compiled attempts recorded where applicable.
+// func_80700088 (src/global/103AB0.c): stage 1; 600-second permuter best score 225 folds temp_v1 into arg1, but broad scheduling differences remain
 s32 func_80700088(f32 arg0, s32 arg1) {
     s32 temp_v1;
 

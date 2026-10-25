@@ -1,4 +1,4 @@
-// func_806F8EDC (src/global/FCCD0.c): Stage 3: selector logic reconstructed; register allocation and jump-table relocation differ.
+// func_806F8EDC (src/global/FCCD0.c): Stage 3 selector reconstruction: active-character indexed threshold selection and switch cases recovered; register allocation remains unmatched.
 extern s32 func_806F6EDC();
 extern s32 func_8073110C(s32, s32);
 extern u8 D_807FC953[];
