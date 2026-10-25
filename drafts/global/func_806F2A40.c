@@ -1,4 +1,4 @@
-// func_806F2A40 (src/global/F56F0.c): Stage 3: all blocks and behavior recovered. Current draft misses target 8-byte frame/s0 output-pointer cache and reg allocation; target has shared 0.7 double load and differs in temp order.
+// func_806F2A40 (src/global/F56F0.c): Stage 3 semantic draft; target needs 8-byte s0 output cache. Bounded 600s -j2 permuter found scoring mutations as low as 1790, none reviewed as a faithful cutover.
 typedef struct F5CPlayerState {
     u8 pad0[0x21E];
     u16 unk21E;

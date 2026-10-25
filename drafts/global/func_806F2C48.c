@@ -1,4 +1,4 @@
-// func_806F2C48 (src/global/F56F0.c): Stage 4: all target blocks/calls/entry stores recovered, including sin/cos decomposition. Checked candidate is 16 bytes long: target frame 0x30, draft frame 0x38; remaining differences are local spill placement and register allocation.
+// func_806F2C48 (src/global/F56F0.c): Stage 4 semantic draft: all blocks/calls/entry stores recovered. Target frame 0x30 versus draft 0x38, 16 bytes long; uopt trace showed stack/coloring remains unresolved.
 typedef struct F5CState16 { u8 pad0[0x16]; s16 unk16; } F5CState16;
 typedef struct F5CTurnActor { u8 pad0[0x6A]; u16 unk6A; u8 pad6C[0xDC - 0x6C]; s16 unkDC; s16 unkDE; u8 padE0[6]; s16 unkE6; } F5CTurnActor;
 typedef struct F5CTurnEntry { s8 unk0; u8 unk1; s16 unk2; s16 unk4; s16 unk6; } F5CTurnEntry;
