@@ -335,7 +335,34 @@ void func_8071F3C0(Ud1ActorView *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F444.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F660.s")
+typedef struct {
+    u8 unk0[0x32C];
+    u8 unk32C;
+    u8 unk32D[0xB];
+    u8 unk338[0x1C];
+    s32 unk354;
+    s32 unk358;
+    u8 unk35C[4];
+    f32 unk360;
+    f32 unk364;
+} Ud1F660ActorView;
+
+void func_80612CA0(f32 (*arg0)[4], f32 arg1);
+
+void func_8071F660(Ud1F660ActorView *arg0, void *arg1) {
+    f32 sp68[4][4];
+    f32 sp28[4][4];
+    f32 sp24;
+
+    sp24 = (f32) arg0->unk358 / (f32) (arg0->unk354 - 1);
+    arg0->unk360 = (f32) ((f64) func_80612794((s16) (s32) (sp24 * 2048.0f)) * 3.0);
+    arg0->unk364 = arg0->unk360;
+    guScaleF(sp68, arg0->unk360, arg0->unk360, 0.0f);
+    func_80612CA0(sp28, sp24 * 180.0f);
+    guMtxCatF(sp68, sp28, sp68);
+    guMtxF2L(sp68, (Mtx *) ((s32) arg0 + (D_807444FC << 6) + 0x128));
+    arg0->unk32C = 2;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F758.s")
 

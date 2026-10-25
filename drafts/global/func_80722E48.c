@@ -1,4 +1,4 @@
-// func_80722E48 (src/global/127B00.c): stage 1 m2c recovery; needs local Uc1 array view and codegen refinement
+// func_80722E48 (src/global/127B00.c): stage 1: m2c starter regenerated in second pass; not yet integrated after priority small-function matches
 ? *func_80610FE8(s32);                              /* extern */
 extern ? D_807FDB90;
 extern ? D_807FDBF8;
