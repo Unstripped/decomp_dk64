@@ -1,17 +1,31 @@
-// func_806EC8C4 (src/global/EFDC0.c): stage 1 m2c starter; actor/player views and call prototypes unresolved
-? func_80614E78(void *, ?);                         /* extern */
-? func_80614EBC(void *, ?);                         /* extern */
-extern void *D_807FBB48;
-extern void *D_807FBB90;
-extern void *D_807FD580;
+// func_806EC8C4 (src/global/EFDC0.c): EfN3: text-identical switch reconstruction; relocation remains against jtbl_8075D3A4.
+typedef struct EfN3PlayerState {
+    u8 pad0[0x1B0];
+    struct EfN3Target *unk1B0;
+    s32 unk1B4;
+} EfN3PlayerState;
+
+typedef struct EfN3Target {
+    u8 pad0[0x54];
+    s32 unk54;
+    s32 unk58;
+} EfN3Target;
+
+typedef struct EfN3Actor {
+    u8 pad0[0x154];
+    u8 unk154;
+    u8 unk155;
+} EfN3Actor;
+
+#define EFN3_P ((EfN3PlayerState *)D_807FD580)
+#define EFN3_A48 ((EfN3Actor *)D_807FBB48)
+
+extern Actor *D_807FBB90;
 
 void func_806EC8C4(void) {
-    u32 temp_v1;
-
-    D_807FD580->unk1B0 = (void *) D_807FBB90;
-    D_807FD580->unk1B4 = (s32) D_807FD580->unk1B0->unk54;
-    temp_v1 = D_807FD580->unk1B0->unk58;
-    switch (temp_v1) {                              /* irregular */
+    EFN3_P->unk1B0 = (EfN3Target *)D_807FBB90;
+    EFN3_P->unk1B4 = EFN3_P->unk1B0->unk54;
+    switch ((u32)EFN3_P->unk1B0->unk58) {
     case 0x3D:
     case 0x3F:
     case 0x40:
@@ -25,6 +39,6 @@ void func_806EC8C4(void) {
         func_80614E78(D_807FBB48, 0x2B);
         break;
     }
-    D_807FBB48->unk154 = 0x47;
-    D_807FBB48->unk155 = 0;
+    EFN3_A48->unk154 = 0x47;
+    EFN3_A48->unk155 = 0;
 }

@@ -457,15 +457,125 @@ void func_806EC3BC(void) {
     func_80614D00(D_807FBB40, 0.5f, 0.0f);
 }
 
+typedef struct EfN3PlayerState {
+    u8 pad0[0x10];
+    s16 unk10;
+    u8 pad12[0xA];
+    f32 unk1C;
+    u8 pad20[0xC];
+    f32 unk2C;
+    f32 unk30;
+    u8 pad34[4];
+    f32 unk38;
+    u8 pad3C[0xC];
+    s16 unk48;
+    s16 unk4A;
+    s16 unk4C;
+    s16 unk4E;
+    s16 unk50;
+    f32 unk54;
+    s32 unk58;
+    u8 pad5C[0x94];
+    f32 unkF0;
+    u8 padF4[0x18];
+    s8 unk10C;
+    u8 pad10D[0xA3];
+    u8 pad1B0[8];
+} EfN3PlayerState;
+
+typedef struct EfN3Actor {
+    u8 pad0[0x58];
+    s32 unk58;
+    u8 pad5C[0x24];
+    f32 unk80;
+    u8 pad84[0x1C];
+    f32 unkA0;
+    u8 padA4[8];
+    f32 unkAC;
+    u8 padB0[8];
+    f32 unkB8;
+    u8 padBC[4];
+    f32 unkC0;
+    u8 padC4[0x2A];
+    s16 unkEE;
+    u8 padF0[4];
+    s16 unkF4;
+    u8 padF6[0x5E];
+    u8 unk154;
+    u8 unk155;
+} EfN3Actor;
+
+
+typedef struct EfN3Camera {
+    u8 pad0[0x2C0];
+    u8 unk2C0;
+    u8 pad2C1[0x2F];
+} EfN3Camera;
+
+#define EFN3_P ((EfN3PlayerState *)D_807FD580)
+#define EFN3_A40 ((EfN3Actor *)D_807FBB40)
+#define EFN3_A48 ((EfN3Actor *)D_807FBB48)
+#define EFN3_C ((EfN3Camera *)D_807FC924)
+
+extern f32 D_807531C4[];
+extern f32 D_807531FC[];
+extern f32 D_807534E4[];
+extern f32 D_80753500[];
+extern s16 D_8075351C[];
+extern f32 D_80753908[];
+extern f32 D_80753924[];
+extern f32 D_80753940[];
+extern f32 D_80753D70[];
+extern f32 D_80753D8C[];
+extern s32 D_80767CC0;
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC4AC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC708.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC800.s")
+void func_806EC708(void) {
+    EFN3_A48->unk154 = 0x51;
+    EFN3_A48->unk155 = 0;
+    EFN3_P->unk54 = D_80753908[D_807FD584];
+    EFN3_P->unk50 = 0;
+    EFN3_P->unk38 = D_807531FC[D_807FD584];
+    EFN3_P->unk2C = D_80753924[D_807FD584];
+    EFN3_P->unk30 = D_80753940[D_807FD584];
+    func_80614E78(D_807FBB48, 0x3E);
+    func_80614D00(D_807FBB40, 1.0f, 0.0f);
+    EFN3_P->unk58 = D_80767CC0 - 0x1E;
+}
+
+void func_806EC800(void) {
+    f32 current;
+    f32 limit;
+
+    EFN3_A48->unk154 = 0x50;
+    EFN3_A48->unk155 = 0;
+    EFN3_A40->unkC0 = -10.0f;
+    EFN3_P->unk50 = 0;
+    current = EFN3_A40->unkB8;
+    limit = D_807531C4[D_807FD584];
+    if (current < limit) {
+        EFN3_A40->unkB8 = current;
+    } else {
+        EFN3_A40->unkB8 = limit;
+    }
+    EFN3_P->unk38 = D_807531FC[D_807FD584];
+    func_80614E78(D_807FBB48, 0x3C);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC8C4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC994.s")
+void func_806EC994(void) {
+    func_80614E78(D_807FBB48, 8);
+    func_80614D00(D_807FBB48, 1.0f, 0.0f);
+    func_80613AF8(D_807FBB48, 0x2E, 0.0f, 6.0f);
+    EFN3_A48->unk154 = 0x46;
+    EFN3_A48->unk155 = 0;
+    EFN3_P->unk38 = D_807534E4[D_807FD584];
+    EFN3_P->unk2C = D_80753500[D_807FD584];
+    EFN3_P->unk48 = D_8075351C[D_807FD584];
+    EFN3_P->unk4C = -1;
+}
 
 void func_806ECA74(void) {
     ((EfBActor *)D_807FBB40)->unk154 = 0x24;
@@ -474,9 +584,26 @@ void func_806ECA74(void) {
     EFB_P->unkC8 = 0x32;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ECAC4.s")
-
 void func_80614D90(Actor *);
+
+void func_806ECAC4(void) {
+    f32 value;
+
+    if (EFN3_C[D_807FC929].unk2C0 == 1) {
+        value = D_80753D70[D_807FD584];
+    } else {
+        value = D_80753D8C[D_807FD584];
+    }
+    EFN3_A48->unk154 = 0x5B;
+    EFN3_A48->unk155 = 0;
+    EFN3_P->unk10C = (s8)value;
+    EFN3_A48->unk80 = EFN3_P->unkF0 - EFN3_P->unk10C;
+    EFN3_A48->unkEE = EFN3_A48->unkF4 + 0x14;
+    EFN3_A48->unkC0 = 0.0f;
+    func_80614E78(D_807FBB48, 0x75);
+    func_80614D90(D_807FBB48);
+}
+
 
 void func_806ECBD4(void) {
     D_807FBB48->unk6A |= 0x40;
@@ -1183,7 +1310,6 @@ typedef struct EfEActor78 {
 
 #define EfEActor ((EfEActor78 *)D_807FBB48)
 
-extern f32 D_807531FC[];
 
 void func_806F0878(void) {
     if (EfEActor->unk78 == 0xC) {
