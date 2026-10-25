@@ -1,4 +1,4 @@
-// func_806F5DF8 (src/global/F9450.c): stage 4; exact size/frame and repeated global reloads, but target uses a0 loop offset/v1 current pointer and direct beql exit
+// func_806F5DF8 (src/global/F9450.c): stage 4; exact size/frame and repeated global reloads, but target uses a0 loop offset/v1 pointer and direct beql exit. 600s permuter improved 1595→775 only by moving a required conditional store before its occupancy test, so no valid hint.
 typedef struct {
     s32 unk0;
     s32 unk4;

@@ -121,8 +121,6 @@ void func_806F6204(F9F1_Node *, u8, F9F1_Rect *);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F50C8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F5270.s")
-
 typedef struct F9A_LinkedNode {
     s16 unk0;
     s16 unk2;
@@ -134,6 +132,59 @@ typedef struct F9A_LinkedNode {
 
 extern F9A_LinkedNode *D_807FD730;
 void heapFree(void *);
+extern s16 D_807FD720;
+void func_806F95C8(void);
+
+void func_806F5270(void) {
+    s32 var_s2;
+    s32 var_s3;
+    F9F1_Node *temp_s0;
+    F9F1_Node *var_s1;
+    F9A_LinkedNode *temp_s1;
+    F9A_LinkedNode *var_s0;
+
+    if (D_80754244 != NULL) {
+        var_s2 = 0;
+        var_s3 = 0;
+        if (D_807FD720 > 0) {
+            do {
+                var_s1 = *(F9F1_Node **) ((u8 *) D_80754244 + var_s3);
+                if (var_s1 != NULL) {
+                    do {
+                        temp_s0 = var_s1->next;
+                        heapFree(var_s1);
+                        var_s1 = temp_s0;
+                    } while (temp_s0 != NULL);
+                }
+                var_s2 += 1;
+                var_s3 += 4;
+            } while (var_s2 < D_807FD720);
+        }
+        heapFree(D_80754244);
+        D_80754244 = NULL;
+    }
+    var_s1 = D_807FD72C;
+    if (var_s1 != NULL) {
+        do {
+            temp_s0 = var_s1->next;
+            heapFree(var_s1);
+            var_s1 = temp_s0;
+        } while (temp_s0 != NULL);
+    }
+    if (D_807FD730 != NULL) {
+        var_s0 = D_807FD730;
+        if (D_807FD730 != NULL) {
+            do {
+                temp_s1 = var_s0->next;
+                heapFree(var_s0);
+                var_s0 = temp_s1;
+            } while (temp_s1 != NULL);
+        }
+        D_807FD730 = NULL;
+    }
+    func_806F95C8();
+}
+
 
 typedef struct F9A_CleanupNode {
     u8 pad0[0x18];
