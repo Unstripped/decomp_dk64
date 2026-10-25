@@ -1,4 +1,4 @@
-// func_8070DA28 (src/global/112080.c): stage 3: do/while, while, for, and early-return forms all preserve size but schedule the call argument and loop branch differently; closest do/while delays the next-pointer load after the call instead of filling its delay slot.
+// func_8070DA28 (src/global/112080.c): Stage 3: ANSI and K&R loop forms, do/while, while, for, early return, and explicit current-node staging all miss the target branch-likely scheduling.
 typedef struct S112aFreeNode {
     u8 flags;
     u8 pad1[0xB];

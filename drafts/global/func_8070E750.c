@@ -1,4 +1,4 @@
-// func_8070E750 (src/global/112080.c): stage 3: compatible s32 three-argument result prototype; correct allocator/copy flow, but typed accesses add 0x18 frame bytes
+// func_8070E750 (src/global/112080.c): stage 4: exact 0x30 frame with direct table traversal; stack homes and scratch register allocation still differ from target
 extern void *func_80610FE8(s32);
 extern void *func_8070DDDC(s32, s32);
 extern u8 D_807550C8;
@@ -34,12 +34,10 @@ s32 func_8070E750(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp20;
     s32 sp1C;
     s32 sp18;
-    s32 temp_v0_2;
-    s32 var_a0;
+    R112cTextTable *temp_v0;
     u16 temp_a3;
     R112cTextResource *temp_a1;
     R112cTextChoice *temp_a2;
-    R112cTextTable *temp_v0;
     R112cTextValue *temp_v1;
 
     temp_v0 = func_8070DDDC(arg0 & 0xFFFF, 1);
@@ -49,15 +47,11 @@ s32 func_8070E750(s32 arg0, s32 arg1, s32 arg2) {
     sp20 = (s32) temp_v1->text + temp_v0->offset;
     temp_a3 = temp_v1->length;
     sp1C = temp_a3;
-    temp_v0_2 = (s32) func_80610FE8(temp_a3 + 1);
-    var_a0 = temp_v0_2;
+    sp18 = (s32) func_80610FE8(sp1C + 1);
     if (arg2 & 1) {
-        sp18 = temp_v0_2;
-        heapFreeDeferred(var_a0);
-        var_a0 = sp18;
+        heapFreeDeferred(sp18);
     }
-    sp18 = var_a0;
-    memcpy(var_a0, sp20, sp1C);
+    memcpy(sp18, sp20, sp1C);
     *(u8 *) (sp18 + sp1C) = 0;
     return sp18;
 }
