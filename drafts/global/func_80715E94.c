@@ -1,4 +1,4 @@
-// func_80715E94 (src/global/119370.c): stage 1: behaviorally reconstructed effect display-list builder from local asm; frame/saved-register mismatch; f64 255.0 literal included
+// func_80715E94 (src/global/119370.c): stage 2: behaviorally reconstructed effect display-list builder with target case order; current 9824-byte text vs target 10400-byte text, saved set s0-s7/fp but frame 0x168 vs target 0x160; uopt l6 traced. Permuter setup failed because its source extractor duplicates the absolute scratch include's typedefs.
 typedef struct L1TextureNode {
     u8 pad0[0xA];
     u8 unkA;
@@ -61,6 +61,9 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
     L1TextureNode *node;
     Gfx *glist;
     s32 i;
+    s32 tile;
+    s32 rows;
+    s32 divisor;
     s16 chunk;
     u8 red;
     u8 green;
@@ -133,39 +136,75 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
             L1_WRITE_GFX(glist++, 0xE7000000, 0);
             switch (node->unkB) {
                 case 0:
+                    tile = (((node->unkC * node->unkE) + 3) >> 2) - 1;
+                    if (tile >= 0x7FF) {
+                        tile = 0x7FF;
+                    }
+                    divisor = node->unkC / 16;
+                    if (divisor <= 0) {
+                        divisor = 1;
+                    }
+                    rows = (divisor + 0x7FF) / divisor;
                     L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), effect->unk370);
                     L1_WRITE_GFX(glist++, 0xF5100000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
-                    L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | ((((node->unkC / 16 > 0 ? node->unkC / 16 : 1) + 0x7FF) / (node->unkC / 16 > 0 ? node->unkC / 16 : 1)) & 0xFFF) | (((((node->unkC * node->unkE) + 3) / 4) - 1) < 0x7FF ? ((((node->unkC * node->unkE) + 3) / 4) - 1 : 0x7FF) << 12));
+                    L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | rows | (tile << 12));
                     L1_WRITE_GFX(glist++, 0xE7000000, 0);
-                    L1_WRITE_GFX(glist++, 0xF5000000 | ((node->unkA & 7) << 21) | ((((node->unkC / 2 + 7) / 8) & 0x1FF) << 9), 0x80200);
+                    L1_WRITE_GFX(glist++, 0xF5000000 | ((node->unkA & 7) << 21) | ((((node->unkC / 2) + 7) >> 3) << 9), 0x80200);
                     L1_WRITE_GFX(glist++, 0xF2000000, ((((node->unkC - 1) * 4) & 0xFFF) << 12) | (((node->unkE - 1) * 4) & 0xFFF));
                     break;
                 case 1:
+                    tile = (((node->unkC * node->unkE) + 1) >> 1) - 1;
+                    if (tile >= 0x7FF) {
+                        tile = 0x7FF;
+                    }
+                    divisor = node->unkC / 8;
+                    if (divisor <= 0) {
+                        divisor = 1;
+                    }
+                    rows = (divisor + 0x7FF) / divisor;
                     L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), effect->unk370);
                     L1_WRITE_GFX(glist++, 0xF5100000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
-                    L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | ((((node->unkC / 8 > 0 ? node->unkC / 8 : 1) + 0x7FF) / (node->unkC / 8 > 0 ? node->unkC / 8 : 1)) & 0xFFF) | (((((node->unkC * node->unkE) + 1) / 2) - 1) < 0x7FF ? ((((node->unkC * node->unkE) + 1) / 2) - 1 : 0x7FF) << 12));
+                    L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | rows | (tile << 12));
                     L1_WRITE_GFX(glist++, 0xE7000000, 0);
-                    L1_WRITE_GFX(glist++, 0xF5000000 | ((node->unkA & 7) << 21) | 0x80000 | ((((node->unkC + 7) / 8) & 0x1FF) << 9), 0x80200);
+                    L1_WRITE_GFX(glist++, 0xF5000000 | ((node->unkA & 7) << 21) | 0x80000 | ((((node->unkC + 7) >> 3) & 0x1FF) << 9), 0x80200);
                     L1_WRITE_GFX(glist++, 0xF2000000, ((((node->unkC - 1) * 4) & 0xFFF) << 12) | (((node->unkE - 1) * 4) & 0xFFF));
                     break;
                 case 2:
+                    tile = (node->unkC * node->unkE) - 1;
+                    if (tile >= 0x7FF) {
+                        tile = 0x7FF;
+                    }
+                    divisor = (node->unkC * 2) / 8;
+                    if (divisor <= 0) {
+                        divisor = 1;
+                    }
+                    rows = (divisor + 0x7FF) / divisor;
                     L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), effect->unk370);
                     L1_WRITE_GFX(glist++, 0xF5100000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
-                    L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | (((((node->unkC * 2) / 8 > 0 ? (node->unkC * 2) / 8 : 1) + 0x7FF) / ((node->unkC * 2) / 8 > 0 ? (node->unkC * 2) / 8 : 1)) & 0xFFF) | (((node->unkC * node->unkE) - 1 < 0x7FF ? (node->unkC * node->unkE) - 1 : 0x7FF) << 12));
+                    L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | rows | (tile << 12));
                     L1_WRITE_GFX(glist++, 0xE7000000, 0);
-                    L1_WRITE_GFX(glist++, 0xF5000000 | ((node->unkA & 7) << 21) | 0x100000 | (((((node->unkC * 2) + 7) / 8) & 0x1FF) << 9), 0x80200);
+                    L1_WRITE_GFX(glist++, 0xF5000000 | ((node->unkA & 7) << 21) | 0x100000 | (((((node->unkC * 2) + 7) >> 3) & 0x1FF) << 9), 0x80200);
                     L1_WRITE_GFX(glist++, 0xF2000000, ((((node->unkC - 1) * 4) & 0xFFF) << 12) | (((node->unkE - 1) * 4) & 0xFFF));
                     break;
                 case 3:
+                    tile = (node->unkC * node->unkE) - 1;
+                    if (tile >= 0x7FF) {
+                        tile = 0x7FF;
+                    }
+                    divisor = (node->unkC * 4) / 8;
+                    if (divisor <= 0) {
+                        divisor = 1;
+                    }
+                    rows = (divisor + 0x7FF) / divisor;
                     L1_WRITE_GFX(glist++, 0xFD180000 | ((node->unkA & 7) << 21), effect->unk370);
                     L1_WRITE_GFX(glist++, 0xF5180000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
-                    L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | (((((node->unkC * 4) / 8 > 0 ? (node->unkC * 4) / 8 : 1) + 0x7FF) / ((node->unkC * 4) / 8 > 0 ? (node->unkC * 4) / 8 : 1)) & 0xFFF) | (((node->unkC * node->unkE) - 1 < 0x7FF ? (node->unkC * node->unkE) - 1 : 0x7FF) << 12));
+                    L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | rows | (tile << 12));
                     L1_WRITE_GFX(glist++, 0xE7000000, 0);
-                    L1_WRITE_GFX(glist++, 0xF5000000 | ((node->unkA & 7) << 21) | 0x180000 | (((((node->unkC * 2) + 7) / 8) & 0x1FF) << 9), 0x80200);
+                    L1_WRITE_GFX(glist++, 0xF5000000 | ((node->unkA & 7) << 21) | 0x180000 | (((((node->unkC * 2) + 7) >> 3) & 0x1FF) << 9), 0x80200);
                     L1_WRITE_GFX(glist++, 0xF2000000, ((((node->unkC - 1) * 4) & 0xFFF) << 12) | (((node->unkE - 1) * 4) & 0xFFF));
                     break;
             }
