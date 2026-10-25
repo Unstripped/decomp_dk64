@@ -1,4 +1,4 @@
-// func_8070E750 (src/global/112080.c): stage 4: exact 0x30 frame with direct table traversal; stack homes and scratch register allocation still differ from target
+// func_8070E750 (src/global/112080.c): stage 4: direct table traversal has exact 0x30 frame; stack-home layout and scratch-register allocation differ
 extern void *func_80610FE8(s32);
 extern void *func_8070DDDC(s32, s32);
 extern u8 D_807550C8;
@@ -36,16 +36,10 @@ s32 func_8070E750(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp18;
     R112cTextTable *temp_v0;
     u16 temp_a3;
-    R112cTextResource *temp_a1;
-    R112cTextChoice *temp_a2;
-    R112cTextValue *temp_v1;
 
     temp_v0 = func_8070DDDC(arg0 & 0xFFFF, 1);
-    temp_a1 = temp_v0->entries[arg1].resource;
-    temp_a2 = temp_a1->choices + D_807550C8;
-    temp_v1 = temp_a2->value;
-    sp20 = (s32) temp_v1->text + temp_v0->offset;
-    temp_a3 = temp_v1->length;
+    sp20 = (s32) (temp_v0->entries[arg1].resource->choices + D_807550C8)->value->text + temp_v0->offset;
+    temp_a3 = (temp_v0->entries[arg1].resource->choices + D_807550C8)->value->length;
     sp1C = temp_a3;
     sp18 = (s32) func_80610FE8(sp1C + 1);
     if (arg2 & 1) {
