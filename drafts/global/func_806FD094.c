@@ -1,4 +1,4 @@
-// func_806FD094 (src/global/100180.c): Stage 1 m2c draft saved; layout routine remains.
+// func_806FD094 (src/global/100180.c): Compiled stage-1 layout reconstruction; frame and matrix/display-list register allocation remain far from target.
 void *func_80610FE8(s32);                           /* extern */
 ? func_806FB914(u8, u8 *);                          /* extern */
 void *func_806FBEF0(void *, u8, s16);               /* extern */

@@ -1,4 +1,4 @@
-// func_806FCC88 (src/global/100180.c): Stage 1 m2c draft saved; display routine remains.
+// func_806FCC88 (src/global/100180.c): Compiled stage-1 display reconstruction; frame and display-list setup remain far from target.
 void *func_80610FE8(s32);                           /* extern */
 ? func_806FB914(u8, u8 *);                          /* extern */
 void *func_806FBEF0(void *, u8, s16);               /* extern */

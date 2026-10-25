@@ -1,4 +1,4 @@
-// func_8070A848 (src/global/10E1D0.c): stage 6: output/input pointers match target with var_v1 declared before var_v0, but mask stays a1 rather than a0 and loop temporary coloring remains shifted; tried declaration order, pointer update order, explicit mask local, and direct argument walking
+// func_8070A848 (src/global/10E1D0.c): stage 6: 900-second permuter best score 65; hint replaced saved source's old input word with post-increment var_v1[1], so it is not behaviorally equivalent and was not adopted. Closest valid form declares var_v1 before var_v0, fixing pointer roles but not mask/temp coloring.
 void func_8070A848(s32 *arg0, s32 *arg1) {
     s32 temp_t3;
     s32 var_a2;

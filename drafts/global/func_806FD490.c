@@ -1,4 +1,4 @@
-// func_806FD490 (src/global/100180.c): Stage 1 m2c draft saved; text renderer remains.
+// func_806FD490 (src/global/100180.c): Compiled stage-1 renderer reconstruction; macro output and register allocation remain far from target.
 ? func_806FB914(s16, u8 *);                         /* extern */
 void *func_806FBEF0(void *, s32, ?);                /* extern */
 extern ? D_2000000;

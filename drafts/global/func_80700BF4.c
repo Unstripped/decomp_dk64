@@ -1,4 +1,4 @@
-// func_80700BF4 (src/global/103AB0.c): Stage 1 m2c behavioral draft; compiled attempts recorded where applicable.
+// func_80700BF4 (src/global/103AB0.c): Compiled target-selection draft; structure strides and floating register allocation remain unmatched.
 s16 func_807009F4(s16);                             /* extern */
 s16 func_80700AE4(s16, s16, s16);                   /* extern */
 extern u8 D_807444FC;

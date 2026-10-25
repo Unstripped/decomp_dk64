@@ -1,4 +1,4 @@
-// func_807094D0 (src/global/10E1D0.c): stage 6: exact control flow, frame, calls, and stores; remaining 100 instruction diff is coloring of switch constants and post-case globals. Tried explicit shared temp and repeated literal 2.
+// func_807094D0 (src/global/10E1D0.c): stage 6: 900-second permuter best score 4415; readable hint hoists final 1.0f into local volume. Remaining control-flow/global register coloring mismatch.
 extern u8 D_807444EC;
 extern u8 D_807444F4;
 extern s32 D_8076D1F8;
@@ -13,6 +13,7 @@ void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, s32 *);
 void func_807094D0(arg0)
 u8 arg0;
 {
+    f32 volume;
     s32 temp_t6;
 
     temp_t6 = arg0;
@@ -35,5 +36,6 @@ u8 arg0;
         }
         break;
     }
-    n_alSndpAllocate(D_8076D1F8, 0x1BC, 0x7FFF, 0x3F, 1.0f, 0, &D_807FD9C8);
+    volume = 1.0f;
+    n_alSndpAllocate(D_8076D1F8, 0x1BC, 0x7FFF, 0x3F, volume, 0, &D_807FD9C8);
 }
