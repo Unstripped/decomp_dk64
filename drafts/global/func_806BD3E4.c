@@ -1,4 +1,5 @@
-// func_806BD3E4 (src/global/C1E70.c): Stage 6, 13 insn diffs (26 diff lines): uopt gives &D_807FBB40 (bb4) v0 not a2 (target lui a2 sits in the beqz delay slot; as1 can't hoist lui v0 since v0 is the branch reg), sh zero,0x26(sp) lands in jal actorSpawn delay slot instead of sb D_807506B4, li 40/15 (sp28/sp2B) t6/t7 swapped, li -1 is t9 not v0. Fixed vs old draft: 's8 *cnt = &D_807506B4;' + 'n = *cnt;' (local pointer to the counter stops uopt caching &D_807506B4 in t1: an if(D_807506B4){} read before the switch has same effect), sp28 = 0 after dx/dz (lwc1 order A7c,A84,B7c,B84), 'if (sp28)' instead of '!= 0' (lhu t1; move a2,t1). Parked NON_MATCHING in private copy. Tried: array/char/s32/u8 forms of D_807506B4, decl order, dead reads of D_807FBB40/4C/44 anywhere, if/else/goto variants of the early return, local ptr to &D_807FBB40, ptrs to other globals, v3=0 position, 'n=-1; D_807506B4=n', callee proto variants, permuter ~600s.
+// func_806BD3E4 (src/global/C1E70.c): Stage 6, 2 insn diffs left (li v0,-1 / sb v0,D_807506B4 use t9 not v0 in the -1 store). Fixed vs old draft: (1) actorSpawn(0x73,0xC4,&D_807FBB40) with K&R 's32 actorSpawn();' - 3rd arg gives the else-block &D_807FBB40 range lu->reg=a2, so uopt picks a2 not v0 (preference, not forbidden set); (2) 'D_807506B4 = 0; actorSpawn(...)' on ONE source line fixes sh zero,0x26(sp)/sb zero delay-slot order (as1 does not reorder across .loc lines); (3) 'sp2B = 0xF; sp28 = 0x28;' on ONE line fixes li t6/t7 order AND sh/sb store order (separate lines gave li or store order wrong, never both). Tried for -1: n=-1 local, idx/v3/sp28 locals, ~0, 0xFF, (s8), *cnt=-1, duplicate stores, same-line with calls, s32 returns on func_8073129C/func_80609140, 10 min permuter (-j2): none changes t9 (copy-prop folds the constant; target v0 = bottom-pool temp, not top-down store-constant temp).
+/* NOTE: needs line 14 of C1E70.c changed from 's32 actorSpawn(s32, s32);' to 's32 actorSpawn();' (3rd arg &D_807FBB40 pins the else-block &D_807FBB40 into a2). */
 extern s16 D_8076A0A6;
 extern s8 D_807506B4;
 extern s8 D_807506A8[];
@@ -50,8 +51,7 @@ void func_806BD3E4(void) {
         D_807FBB40->unk12A = 0x7D0;
         D_807FBB40->unk60 |= 0x400;
         v3 = 0;
-        D_807506B4 = 0;
-        actorSpawn(0x73, 0xC4);
+        D_807506B4 = 0; actorSpawn(0x73, 0xC4, &D_807FBB40);
         func_8067B238(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
         D_807FBB44->unk64 |= 0x20;
         D_807FBB44->unk60 |= 0x400;
@@ -96,8 +96,7 @@ void func_806BD3E4(void) {
         case 3:
             if (D_807FBB40->unk155[0] & 1) {
                 D_807FBB40->unk155[0]++;
-                sp28 = 0x28;
-                sp2B = 0xF;
+                sp2B = 0xF; sp28 = 0x28;
             }
             break;
     }

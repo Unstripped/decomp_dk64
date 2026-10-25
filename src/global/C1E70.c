@@ -11,7 +11,7 @@ extern s8 D_80750660;
 extern u8 D_807FC8D0;
 
 s32 func_8073110C(s16, s32);
-s32 actorSpawn(s32, s32);
+s32 actorSpawn();
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
@@ -131,8 +131,7 @@ void func_806BD3E4(void) {
         D_807FBB40->unk12A = 0x7D0;
         D_807FBB40->unk60 |= 0x400;
         v3 = 0;
-        D_807506B4 = 0;
-        actorSpawn(0x73, 0xC4);
+        D_807506B4 = 0; actorSpawn(0x73, 0xC4, &D_807FBB40);
         func_8067B238(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
         D_807FBB44->unk64 |= 0x20;
         D_807FBB44->unk60 |= 0x400;
@@ -177,8 +176,7 @@ void func_806BD3E4(void) {
         case 3:
             if (D_807FBB40->unk155[0] & 1) {
                 D_807FBB40->unk155[0]++;
-                sp28 = 0x28;
-                sp2B = 0xF;
+                sp2B = 0xF; sp28 = 0x28;
             }
             break;
     }
