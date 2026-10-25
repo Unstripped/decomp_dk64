@@ -251,9 +251,38 @@ void func_80713270(void) {
     }
     func_807124B8(0x4C, 0, 2);
 }
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807132DC.s")
+#define R117D_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+extern Gfx D_1000118;
+extern Mtx D_20000C0;
+extern Mtx D_2000180;
+Gfx *func_805FD030(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_8071338C.s")
+void *func_807132DC(void) {
+    Gfx *gfx = func_805FD030();
+
+    R117D_WRITE_GFX(gfx++, 0xDE000000, &D_1000118);
+    R117D_WRITE_GFX(gfx++, 0xDA380007, &D_20000C0);
+    R117D_WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
+    R117D_WRITE_GFX(gfx++, 0xE7000000, 0);
+    R117D_WRITE_GFX(gfx++, 0xFC11FE23, 0xFFFFF7FB);
+    R117D_WRITE_GFX(gfx++, 0xFA000000, 0xFFFFFFFF);
+    R117D_WRITE_GFX(gfx++, 0xED028028, 0x4D4394);
+    return gfx;
+}
+extern Mtx D_807FDAC0;
+void *func_8070E750(s32, s32, s32);
+Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
+
+void func_8071338C(Gfx *arg0) {
+    f32 temp_f0 = 20.0f;
+    void *temp_v0;
+
+    temp_v0 = func_8070E750(0xC, 0, 1);
+    R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
+    R117D_WRITE_GFX(arg0++, 0xDA380003, &D_807FDAC0);
+    func_806FC530(arg0, 1, 0x118, (s16) ((temp_f0 + temp_f0) * 4.0f), temp_v0, 4);
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/D_8075E5C0.s")
 
@@ -274,9 +303,6 @@ void func_807138A4(void) {
 }
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807138CC.s")
 
-#define R117D_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-extern Gfx D_1000118;
-extern Mtx D_20000C0;
 
 Gfx *func_80713AA8(Gfx *arg0) {
     R117D_WRITE_GFX(arg0++, 0xE7000000, 0);
