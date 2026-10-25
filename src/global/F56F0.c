@@ -175,8 +175,30 @@ f32 func_806F1AE0(F5BActor *arg0, F5BAccel *arg1, f32 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F2A40.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F2C48.s")
+typedef struct F5CEntry {
+    u8 unk0;
+    u8 unk1;
+    u8 pad2[2];
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+} F5CEntry;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F2EDC.s")
+extern f32 func_80612794(s16);
+
+
+void func_806F2EDC(s32 arg0, F5CEntry *arg1, s32 *arg2, u8 arg3, u8 arg4, f32 arg5, f32 arg6) {
+    f32 angle;
+
+    angle = func_80612794((s16)(arg5 * 2048.0f));
+    arg1[*arg2].unk0 = arg3;
+    arg1[*arg2].unk1 = arg4;
+    arg1[*arg2].unk4 = 1.0f;
+    arg1[*arg2].unk8 = ((f32)angle * arg6) + 1.0;
+    arg1[*arg2].unkC = 1.0f;
+    *arg2 += 1;
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F2FC0.s")
 
