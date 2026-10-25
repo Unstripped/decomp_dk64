@@ -4541,15 +4541,307 @@ void func_806DBB04(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DC170.s")
+typedef struct G19Actor {
+    /* 0x00 */ u8 pad0[0x4];
+    /* 0x04 */ u8 *unk4;
+    /* 0x08 */ u8 pad8[0x50];
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ u8 pad5C[0x4];
+    /* 0x60 */ u32 unk60;
+    /* 0x64 */ u8 pad64[0x6];
+    /* 0x6A */ u16 unk6A;
+    /* 0x6C */ u8 pad6C[0x10];
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ f32 unk84;
+    /* 0x88 */ u8 pad88[0x4];
+    /* 0x8C */ f32 unk8C;
+    /* 0x90 */ u8 pad90[0x28];
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[0x4];
+    /* 0xC0 */ f32 unkC0;
+    /* 0xC4 */ f32 unkC4;
+    /* 0xC8 */ u8 padC8[0x1E];
+    /* 0xE6 */ s16 unkE6;
+    /* 0xE8 */ s16 unkE8;
+    /* 0xEA */ u8 padEA[0x4];
+    /* 0xEE */ s16 unkEE;
+    /* 0xF0 */ u8 padF0[0xA];
+    /* 0xFA */ s16 unkFA;
+    /* 0xFC */ u8 padFC[0x48];
+    /* 0x144 */ u8 unk144;
+    /* 0x145 */ u8 pad145[0x10];
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[0x22];
+    /* 0x178 */ s32 unk178;
+} G19Actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DC3A4.s")
+typedef struct G19Player {
+    /* 0x00 */ u8 pad0[0x4];
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ u8 pad8[0x2];
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ u8 padC[0x20];
+    /* 0x2C */ f32 unk2C;
+    /* 0x30 */ f32 unk30;
+    /* 0x34 */ u8 pad34[0x4];
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ s16 unk3C;
+    /* 0x3E */ u8 pad3E[0xA];
+    /* 0x48 */ s16 unk48;
+    /* 0x4A */ u8 pad4A[0x4A];
+    /* 0x94 */ f32 unk94;
+    /* 0x98 */ u8 pad98[0x6C];
+    /* 0x104 */ s32 unk104;
+    /* 0x108 */ u8 pad108[0x28];
+    /* 0x130 */ void *unk130;
+    /* 0x134 */ u8 pad134[0x18];
+    /* 0x14C */ f32 unk14C;
+    /* 0x150 */ f32 unk150;
+    /* 0x154 */ s16 unk154;
+    /* 0x156 */ u8 pad156[0x2];
+    /* 0x158 */ struct G19Actor *unk158;
+    /* 0x15C */ u8 pad15C[0x48];
+    /* 0x1A4 */ u8 unk1A4;
+    /* 0x1A5 */ u8 pad1A5[0x4B];
+    /* 0x1F0 */ s32 unk1F0;
+    /* 0x1F4 */ u8 pad1F4[0x10];
+    /* 0x204 */ f32 unk204;
+    /* 0x208 */ f32 unk208;
+    /* 0x20C */ f32 unk20C;
+    /* 0x210 */ u8 pad210[0xC];
+    /* 0x21C */ s16 unk21C;
+    /* 0x21E */ u8 pad21E[0x1E];
+    /* 0x23C */ u16 unk23C;
+    /* 0x23E */ u8 pad23E[0x2A];
+    /* 0x268 */ u8 unk268;
+} G19Player;
+
+#define G19_A ((G19Actor *)D_807FBB40)
+#define G19_P ((G19Player *)D_807FD580)
+
+
+void func_806DC170(void) {
+    s16 t;
+    f32 f;
+    s32 i;
+
+    func_806DF6D4(1);
+    G19_A->unkB8 = 0.0f;
+    switch (G19_A->unk155) {
+    case 0:
+        G19_A->unk144 = 1;
+        G19_P->unk23C = 0xA;
+        G19_A->unk155++;
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2EB, 0xFF, 0x7F, 2);
+        break;
+    case 1:
+        if (G19_P->unk23C >= 2) {
+            G19_P->unk23C--;
+        } else {
+            G19_A->unk155++;
+        }
+        break;
+    case 2:
+        actorClearMovementFlags(D_807FBB40);
+        G19_A->unk7C = G19_P->unk204;
+        G19_A->unk80 = G19_P->unk208;
+        G19_A->unk8C = G19_A->unk80;
+        G19_A->unk84 = G19_P->unk20C;
+        t = G19_P->unk21C;
+        G19_A->unkEE = t;
+        G19_A->unkE6 = t;
+        func_8061EB04(D_807FBB40, G19_P->unk1A4);
+        func_806C8220(0, (void *)G19_A->unk178, G19_A->unk58);
+        G19_A->unk155++;
+        break;
+    case 3:
+        if (G19_P->unk23C < 0xA) {
+            G19_P->unk23C++;
+        } else {
+            G19_A->unk155++;
+        }
+        break;
+    case 4:
+        G19_P->unk268 = 0x3C;
+        func_806CFF9C(D_807FBB40);
+        break;
+    }
+    f = (f32)G19_P->unk23C * 0.015;
+    i = 0;
+    do {
+        *(f32 *)(G19_A->unk4 + i + 0x34) = f;
+        i += 4;
+    } while (i != 0xC);
+    func_806CC970();
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_806DC3A4(f32 arg0) {
+    f32 cur = G19_P->unk94;
+    f32 tgt = G19_P->unk4;
+
+    if (cur < tgt) {
+        cur += arg0;
+        if (tgt < cur) {
+            cur = tgt;
+        }
+    } else if (tgt < cur) {
+        cur -= arg0;
+        if (cur < tgt) {
+            cur = tgt;
+        }
+    }
+    G19_P->unk94 = cur;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DC410.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DCA7C.s")
+void func_806DCF60(void);
+#define G19_B ((G19Actor *)D_807FBB48)
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DCF60.s")
+void func_806DCA7C(void) {
+    f32 dist;
+    f32 sp50;
+    f32 sp4C;
+    f32 spd;
+    f32 sp44;
+    f32 sp40;
+    f32 sp3C;
+    s32 diff;
+    s32 absd;
+    s16 t;
+
+    G19_A->unk60 &= 0xFFBFFFFF;
+    G19_A->unk6A &= 0xFFBF;
+    t = G19_A->unkE8;
+    G19_A->unkE8 = (f64)t + (f64)-t * 0.1;
+    switch (G19_A->unk155) {
+    case 0:
+        func_806DCF60();
+        G19_A->unkB8 = G19_P->unk14C / 2;
+        G19_A->unkEE = G19_P->unk154;
+        diff = G19_A->unkEE - G19_A->unkE6;
+        if (diff < -0x800) {
+            diff += 0x1000;
+        }
+        if (diff >= 0x801) {
+            diff -= 0x1000;
+        }
+        if (diff > 0) {
+            absd = diff;
+        } else {
+            absd = -diff;
+        }
+        if (absd < 0x400) {
+            func_80614E78(D_807FBB40, 0x6D);
+        } else {
+            func_80614E78(D_807FBB40, 0x6E);
+        }
+        func_806DF5A0(&G19_A->unkE6, G19_A->unkEE, 0x78, 0x600);
+        G19_A->unkC0 = G19_P->unk150;
+        G19_A->unk155++;
+        func_806DF6D4(0x27);
+        G19_P->unk30 = G19_P->unk30 / 2;
+        func_806CC948();
+        break;
+    case 2:
+        if (G19_P->unk158 == 0) {
+            func_80614E78(D_807FBB48, 0x6F);
+            G19_A->unk155 = 3;
+            break;
+        }
+    case 1:
+        func_806DCF60();
+        if (G19_A->unk58 == 5) {
+            func_806DF6D4(0x28);
+        } else {
+            func_806DF6D4(0x27);
+        }
+        G19_A->unkB8 = G19_P->unk14C;
+        G19_A->unkEE = G19_P->unk154;
+        func_806DF5A0(&G19_A->unkE6, G19_A->unkEE, 0x78, 0x600);
+        G19_P->unkA = G19_A->unkEE;
+        G19_P->unk4 = 150.0f;
+        G19_P->unk38 = 150.0f;
+        if (G19_P->unk158 != 0) {
+            actorGetNodePos((Actor *)G19_P->unk158, 1, &sp44, &sp40, &sp3C);
+            sp4C = sp40 - D_807FBB48->unk80;
+            sp4C = (f64)sp4C / ((f64)D_807FBB48->unk4->unk38 * 0.16666666675);
+            dist = (f32)((f64)sqrtf((sp44 - D_807FBB48->unk7C) * (sp44 - D_807FBB48->unk7C) + (sp3C - D_807FBB48->unk84) * (sp3C - D_807FBB48->unk84)) / ((f64)D_807FBB48->unk4->unk38 * 0.16666666675));
+            spd = G19_B->unkB8;
+            sp50 = dist / spd - 1.0f;
+            if (sp50 < 1.0f) {
+                sp50 = 1.0f;
+            }
+        }
+        if ((G19_P->unk158 != 0) && (sp50 < 30.0f)) {
+            G19_B->unkC0 = (0.0 - ((D_80753CD0[D_807FD584] * 0.5 * (f64)(sp50 * sp50)) - (f64)sp4C)) / (f64)sp50;
+            G19_B->unkC4 = -0.001f;
+        } else {
+            G19_P->unk158 = 0;
+            func_806CFE7C();
+        }
+        func_806CC948();
+        break;
+    case 3:
+        func_806DF6D4(0x30);
+        func_806CFE7C();
+        func_806CC8B8();
+        G19_P->unk30 = 10.0f;
+        break;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+
+void func_806DCF60(void) {
+    f32 best = 100.0f;
+    G19Actor *cur = G19_P->unk158;
+    G19Actor *a;
+    s16 ang;
+    s16 d;
+    s32 i;
+    f32 dx;
+    f32 dz;
+    f32 dist;
+    f32 v;
+
+    if ((cur != NULL) || (G19_A->unk155 == 1)) {
+        if (cur == NULL) {
+            for (i = 0; i < gActiveActorCount; i++) {
+                a = (G19Actor *)gActiveActors[i].actor;
+                if (!(a->unk60 & 0x2000) && (a->unk60 & 0x04000000) && ((void *)a != G19_P->unk130) && ((void *)a != (void *)D_807FBB48)) {
+                    ang = (s32)(((f64)(mathAngleBetweenPointsRad(a->unk7C, a->unk84, D_807FBB48->unk7C, D_807FBB48->unk84) * 57.295776f) / 360.0) * 4095.0);
+                    d = func_806CC14C(ang, G19_P->unk154);
+                    dx = a->unk7C - D_807FBB48->unk7C;
+                    dz = a->unk84 - D_807FBB48->unk84;
+                    dist = sqrtf(dx * dx + dz * dz);
+                    if ((d < 0x258) && (dist < best)) {
+                        if (D_807FBB48->unk80 < a->unk80) {
+                            v = a->unk80 - D_807FBB48->unk80;
+                        } else {
+                            v = -(a->unk80 - D_807FBB48->unk80);
+                        }
+                        if (v < 100.0) {
+                            best = dist;
+                            G19_P->unk154 = ang;
+                            G19_P->unk158 = a;
+                        }
+                    }
+                }
+            }
+        } else {
+            ang = (s32)(((f64)(mathAngleBetweenPointsRad(cur->unk7C, cur->unk84, D_807FBB48->unk7C, D_807FBB48->unk84) * 57.295776f) / 360.0) * 4095.0);
+            if (func_806CC14C(ang, G19_P->unk154) < 0x258) {
+                G19_P->unk154 = ang;
+            }
+        }
+    }
+}
 
 typedef struct L6Actor {
     /* 0x000 */ u8 pad0[0x6A];
@@ -4712,17 +5004,107 @@ void func_806DD24C(void) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DD874.s")
+extern f32 D_80753CB4[];
+
+void func_806DD874(void) {
+    G19_A->unkFA = 0x12C;
+    func_806CC8A8();
+    switch (G19_A->unk155) {
+    case 1:
+        G19_A->unkEE = (G19_A->unkE6 + 0x800) & 0xFFF;
+        G19_A->unkC0 = D_80753CB4[D_807FD584];
+        G19_A->unkB8 = 100.0f;
+        func_806CFECC();
+        G19_A->unk155++;
+        G19_P->unk3C = 3;
+        func_806DF6D4(0x29);
+        G19_P->unk2C = 30.0f;
+        G19_P->unk48 = 0x64;
+        func_806CFD68();
+        G19_P->unk30 = G19_P->unk30 / 2;
+        func_806CC948();
+        break;
+    case 2:
+        if (G19_A->unk58 == 5) {
+            func_806DF6D4(0x2A);
+        } else {
+            func_806DF6D4(0x29);
+        }
+        G19_P->unk38 = 150.0f;
+        func_806D3608();
+        func_806CFD68();
+        if (D_807FD618[D_807FC929].unk0 != 0.0f) {
+            func_806DF494(&G19_A->unkE6, G19_P->unkA, G19_P->unk48);
+        }
+        if (G19_P->unk3C != 0) {
+            func_806CC948();
+            G19_P->unk3C--;
+        } else {
+            func_806CC8B8();
+        }
+        break;
+    case 3:
+        func_806DF6D4(0x30);
+        func_806CFE7C();
+        func_806CC8B8();
+        break;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DDAB0.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DE264.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DE930.s")
+void func_806DE930(void) {
+    G19_P->unk4 = 0.0f;
+    if ((func_806DF6D4(1) == 0) && (G19_A->unk6A & 1)) {
+        func_806CDD24(D_807FBB40, G19_A->unkB8, 0, 1);
+    }
+    if (D_8076A0A8 == 0x52) {
+        G19_P->unk30 = D_80753250[D_807FD584] * 5.0;
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DE9F4.s")
+extern s32 D_80750FDC;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DEAA4.s")
+void func_806DE9F4(void) {
+    if (G19_A->unk155 == 0) {
+        func_8061C464(G19_P->unk104, D_807FBB40, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
+        G19_A->unk155++;
+    }
+    func_806D38AC(1);
+    G19_P->unk30 = D_80750FDC;
+}
+
+
+void func_806DEAA4(void) {
+    switch (G19_A->unk155) {
+    case 0:
+        func_8061C6A8((void *)G19_P->unk104, D_807FBB40, 4, 0, 0x19, 0, 5, -3, 0xA, 0, 0.15f);
+        func_80614E78(D_807FBB40, 0x85);
+        G19_A->unk155++;
+    case 2:
+        func_8061C6A8((void *)G19_P->unk104, D_807FBB40, 4, 0x396, 0x19, 0, 5, 0xB, 0xB, 0, 0.15f);
+        G19_A->unk155++;
+        break;
+    case 4:
+        func_8061C6A8((void *)G19_P->unk104, D_807FBB40, 4, 0xE74, 0x14, 0, 5, 0x13, 0xA, 0, 0.15f);
+        G19_A->unk155++;
+        break;
+    case 6:
+        func_8061C6A8((void *)G19_P->unk104, D_807FBB40, 4, 0x800, 0x11, 0, 5, 0x29, 0xA, 0, 0.15f);
+        G19_A->unk155++;
+        break;
+    case 8:
+        func_8061EB04(D_807FBB40, 0);
+        G19_P->unk1F0 |= 4;
+        break;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
 typedef struct G20Actor {
     /* 0x000 */ u8 pad0[0x155];
