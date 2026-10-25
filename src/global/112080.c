@@ -5,7 +5,10 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D380.s")
+void func_8070D380(s32 size, void *dst, s32 *src) {
+    memcpy(dst, *src, size);
+    *src += size;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D3CC.s")
 
