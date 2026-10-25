@@ -4015,21 +4015,417 @@ void func_806DAA14(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DAADC.s")
+typedef struct G18Player {
+    /* 0x000 */ u8 pad0[0x4C];
+    /* 0x04C */ s16 unk4C;
+    /* 0x04E */ u8 pad4E[6];
+    /* 0x054 */ f32 unk54;
+    /* 0x058 */ u8 pad58[0x3C];
+    /* 0x094 */ f32 unk94;
+    /* 0x098 */ f32 unk98;
+    /* 0x09C */ f32 unk9C;
+    /* 0x0A0 */ f32 unkA0;
+    /* 0x0A4 */ f32 unkA4;
+    /* 0x0A8 */ f32 unkA8;
+    /* 0x0AC */ f32 unkAC;
+    /* 0x0B0 */ u8 padB0[0x2C];
+    /* 0x0DC */ struct G18Actor *unkDC;
+    /* 0x0E0 */ u8 padE0[0xC4];
+    /* 0x1A4 */ u8 unk1A4;
+    /* 0x1A5 */ u8 pad1A5[7];
+    /* 0x1AC */ void *unk1AC;
+    /* 0x1B0 */ s32 unk1B0;
+    /* 0x1B4 */ u8 pad1B4[0x3C];
+    /* 0x1F0 */ s32 unk1F0;
+    /* 0x1F4 */ u8 pad1F4[0x10];
+    /* 0x204 */ f32 unk204;
+    /* 0x208 */ f32 unk208;
+    /* 0x20C */ f32 unk20C;
+    /* 0x210 */ f32 unk210;
+    /* 0x214 */ f32 unk214;
+    /* 0x218 */ f32 unk218;
+    /* 0x21C */ u8 pad21C[0x20];
+    /* 0x23C */ u16 unk23C;
+} G18Player;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DABE4.s")
+typedef struct G18Actor {
+    /* 0x000 */ u8 pad0[0x58];
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ u8 pad5C[4];
+    /* 0x060 */ u32 unk60;
+    /* 0x064 */ u8 pad64[0x18];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[4];
+    /* 0x08C */ f32 unk8C;
+    /* 0x090 */ u8 pad90[0x28];
+    /* 0x0B8 */ f32 unkB8;
+    /* 0x0BC */ u8 padBC[4];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ u8 padC4[0x22];
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ u8 padE8[6];
+    /* 0x0EE */ s16 unkEE;
+    /* 0x0F0 */ u8 padF0[0x38];
+    /* 0x128 */ s16 unk128;
+    /* 0x12A */ u8 pad12A[0x1A];
+    /* 0x144 */ u8 unk144;
+    /* 0x145 */ u8 pad145[0x10];
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[0x22];
+    /* 0x178 */ void *unk178;
+} G18Actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DADA0.s")
+typedef struct G18State {
+    /* 0x000 */ u8 pad0[0xD8];
+    /* 0x0D8 */ f32 unkD8;
+    /* 0x0DC */ u8 padDC[4];
+    /* 0x0E0 */ f32 unkE0;
+    /* 0x0E4 */ u8 unkE4;
+    /* 0x0E5 */ u8 padE5[7];
+    /* 0x0EC */ struct G18Actor *unkEC;
+} G18State;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DAF5C.s")
+#define G18_P ((G18Player *)D_807FD580)
+#define G18_A ((G18Actor *)D_807FBB40)
+#define G18_S ((G18State *)&D_807FBB70)
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DB08C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DB0C4.s")
+void func_806DAADC(void) {
+    G18_P->unk1F0 &= 0xFEFFFFFF;
+    func_806DF6D4(0x3A);
+    func_806CEED8();
+    switch (G18_A->unk155) {
+        case 0:
+            func_806CEE64(0.5f);
+            break;
+        case 1:
+            func_806CEE64(0.5f);
+            if (G18_P->unk1AC != NULL) {
+                actorAppendCallback(G18_P->unk1AC, D_807FBB40, 0x2000, 0, 0, 0);
+            }
+            G18_P->unk1AC = NULL;
+            G18_P->unk1B0 = 0;
+            G18_A->unk155++;
+            break;
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DB3AC.s")
+extern f32 D_80753364[];
+extern f32 D_80753380[];
+extern f32 D_8075339C[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DB670.s")
+void func_806DABE4(void) {
+    G18_P->unk1F0 &= 0xFEFFFFFF;
+    func_806DF6D4(1);
+    switch (G18_A->unk155) {
+        case 0:
+            func_806CEE64(1.0f);
+            G18_A->unkB8 = 0.0f;
+            break;
+        case 1:
+            func_8067A784(D_807FBB40, G18_P->unk1AC, D_807FBB48->unkE6, D_807533B8[D_807FD584], (s32)D_8075339C[D_807FD584]);
+            G18_P->unk1AC = NULL;
+            G18_P->unk1B0 = 0;
+            G18_A->unk155++;
+            G18_A->unkB8 = D_80753364[D_807FD584];
+            G18_A->unkEE = G18_A->unkE6;
+            break;
+        default:
+            if (G18_A->unkB8 != 0.0f) {
+                G18_A->unkEE = G18_A->unkE6;
+                G18_A->unkB8 -= D_80753380[D_807FD584];
+                if (G18_A->unkB8 < 0.0f) {
+                    G18_A->unkB8 = 0.0f;
+                }
+            }
+            break;
+    }
+    func_806CC948();
+    func_806319C4(D_807FBB40, 0);
+}
+
+extern f32 D_807533D4[];
+extern f32 D_807533F0[];
+
+void func_806DADA0(void) {
+    G18_P->unk1F0 &= 0xFEFFFFFF;
+    func_806DF6D4(1);
+    switch (G18_A->unk155) {
+        case 0:
+            func_806CEE64(1.0f);
+            G18_A->unkB8 = 0.0f;
+            break;
+        case 1:
+            func_8067A784(D_807FBB40, G18_P->unk1AC, D_807FBB48->unkE6, D_807533F0[D_807FD584], (s32)D_807533D4[D_807FD584]);
+            G18_P->unk1AC = NULL;
+            G18_P->unk1B0 = 0;
+            G18_A->unk155++;
+            G18_A->unkB8 = D_80753364[D_807FD584];
+            G18_A->unkEE = G18_A->unkE6;
+            break;
+        default:
+            if (G18_A->unkB8 != 0.0f) {
+                G18_A->unkEE = G18_A->unkE6;
+                G18_A->unkB8 -= D_80753380[D_807FD584];
+                if (G18_A->unkB8 < 0.0f) {
+                    G18_A->unkB8 = 0.0f;
+                }
+            }
+            break;
+    }
+    func_806CC948();
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_806DAF5C(void) {
+    G18_P->unk1F0 &= 0xFEFFFFFF;
+    func_806CEE64(1.0f);
+    func_806CEED8();
+    switch (G18_A->unk155) {
+        case 0:
+            func_80614D00(D_807FBB40, 1.0f, 0);
+            func_806DF6D4(0x21);
+            break;
+        case 1:
+            G18_A->unkC0 = G18_P->unk54;
+            func_806CFECC();
+            func_806D3FA0();
+            G18_A->unk155++;
+            func_806DF6D4(0x21);
+            func_806CFD68();
+            break;
+        case 2:
+            func_806D3608();
+            func_806DF6D4(0x39);
+            func_806CFD68();
+            break;
+        case 3:
+            func_806DF6D4(0x38);
+            func_806CFE7C();
+            break;
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_806DB08C(void) {
+    func_806DF6D4(0x12);
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
+
+extern s16 D_8075326C[];
+
+
+void func_806DB0C4(void) {
+    f32 dx;
+    f32 dz;
+
+    if (G18_S->unkE4 != 0) {
+        G18_P->unkDC = G18_S->unkEC;
+        G18_P->unk9C = G18_A->unk7C;
+        G18_P->unkA0 = G18_A->unk84;
+        G18_P->unkA4 = G18_S->unkD8;
+        G18_P->unkA8 = G18_S->unkE0;
+        G18_P->unkAC = 0.0f;
+        dx = G18_P->unkA4 - G18_P->unk9C;
+        dz = G18_P->unkA8 - G18_P->unkA0;
+        G18_P->unk94 = sqrtf(dx * dx + dz * dz) * 0.8;
+        G18_P->unk98 = func_80611BB4(dx, dz) * 4096.0f / 6.2831855f;
+        G18_P->unk4C = -1;
+    }
+    G18_P->unkAC += 0.02;
+    if (G18_P->unkAC > 1.0) {
+        if (G18_P->unkDC != NULL) {
+            G18_P->unk98 = func_80611BB4(G18_P->unkDC->unk7C - G18_P->unk9C, G18_P->unkDC->unk84 - G18_P->unkA0) * 4096.0f / 6.2831855f;
+            if ((s16)(s32)G18_P->unk98 == G18_A->unkE6) {
+                func_806CFF9C(D_807FBB40);
+            }
+        }
+        G18_P->unkAC = 1.0f;
+    }
+    dx = G18_P->unkAC;
+    G18_A->unk7C = G18_P->unk9C + (G18_P->unkA4 - G18_P->unk9C) * dx;
+    G18_A->unk84 = G18_P->unkA0 + (G18_P->unkA8 - G18_P->unkA0) * G18_P->unkAC;
+    func_806CC970();
+    func_806CDD24(D_807FBB40, G18_P->unk94, G18_P->unk94, 0);
+    func_806DF494(&G18_A->unkE6, (s16)(s32)G18_P->unk98, (s16)(D_8075326C[D_807FD584] / 2));
+    G18_A->unkEE = G18_A->unkE6;
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void matrixCacheSetDefaultLimit(void);
+void matrixCacheRestoreLimit(void);
+void actorClearMovementFlags(void *);
+void func_806C8220(s32, void *, s32);
+void func_8061EB04(Actor *, u8);
+void func_806291B4(s32);
+
+void func_806DB3AC(void) {
+    G18_A->unkB8 = 0.0f;
+    switch (G18_A->unk155) {
+        case 0:
+            G18_A->unk144 = 1;
+            G18_A->unk60 &= 0xFFFF7FFF;
+            G18_A->unk128 = 0xFF;
+            func_806086CC(G18_A->unk7C, G18_A->unk80, G18_A->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+            G18_A->unk155++;
+            break;
+        case 1:
+            G18_A->unk128 -= 0xF;
+            if (G18_A->unk128 < 0x10) {
+                matrixCacheSetDefaultLimit();
+                G18_A->unk155++;
+            }
+            break;
+        case 2:
+            actorClearMovementFlags(D_807FBB40);
+            G18_A->unk7C = G18_P->unk204;
+            G18_A->unk80 = G18_P->unk208 + 10.0;
+            G18_A->unk8C = G18_A->unk80;
+            G18_A->unk84 = G18_P->unk20C;
+            func_806C8220(0, G18_A->unk178, G18_A->unk58);
+            func_8061EB04(D_807FBB40, G18_P->unk1A4);
+            func_806291B4(6);
+            G18_P->unk23C = 0x14;
+            func_806086CC(G18_A->unk7C, G18_A->unk80, G18_A->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+            G18_A->unk155++;
+            break;
+        case 3:
+            G18_P->unk23C--;
+            if (G18_P->unk23C == 0) {
+                G18_A->unk155++;
+            }
+            break;
+        case 4:
+            G18_A->unk128 += 0xF;
+            if (G18_A->unk128 >= 0xF1) {
+                G18_A->unk60 |= 0x8000;
+                G18_A->unk155++;
+            }
+            break;
+        case 5:
+            func_806C8D20(D_807FBB40);
+            matrixCacheRestoreLimit();
+            func_806CFF9C(D_807FBB40);
+            func_806DF6D4(0x30);
+            break;
+    }
+    func_806CC970();
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_8067B238(void *, void *, f32);
+void func_80602498(void);
+void func_806CCB0C(void);
+
+
+
+void func_806DB670(void) {
+    G18_A->unkB8 = 0.0f;
+    switch (G18_A->unk155) {
+        case 0:
+            G18_A->unk144 = 1;
+            if (actorSpawn(0x3C, 0x98)) {
+                func_8067B238(D_807FBB44, D_807FBB40, 0.15f);
+            }
+            G18_A->unk155++;
+            break;
+        case 1:
+            G18_A->unk155++;
+            G18_P->unk23C = 4;
+            break;
+        case 2:
+            G18_A->unk7C = (G18_P->unk210 - G18_A->unk7C) * 0.5 + G18_A->unk7C;
+            G18_A->unk80 = (G18_P->unk214 - G18_A->unk80) * 0.5 + G18_A->unk80;
+            G18_A->unk84 = (G18_P->unk218 - G18_A->unk84) * 0.5 + G18_A->unk84;
+            if (G18_P->unk23C != 0) {
+                G18_P->unk23C--;
+                if (G18_P->unk23C == 0) {
+                    G18_A->unk60 &= 0xFFFF7FFF;
+                    G18_A->unk128 = 0;
+                }
+            }
+            break;
+        case 3:
+            G18_A->unk60 &= 0xFFFF7FFF;
+            G18_A->unk128 = 0;
+            G18_A->unk155++;
+            break;
+        case 5:
+            G18_P->unk23C = 0x14;
+            break;
+        case 6:
+            G18_P->unk23C--;
+            if (G18_P->unk23C == 0) {
+                matrixCacheSetDefaultLimit();
+                G18_A->unk155++;
+            }
+            break;
+        case 7:
+            D_807FBB60 &= 0xFFFCFFDF;
+            actorClearMovementFlags(D_807FBB40);
+            G18_A->unk7C = G18_P->unk204;
+            G18_A->unk80 = G18_P->unk208;
+            G18_A->unk8C = G18_A->unk80;
+            G18_A->unk84 = G18_P->unk20C;
+            func_806C8220(0, G18_A->unk178, G18_A->unk58);
+            func_8061EB04(D_807FBB40, G18_P->unk1A4);
+            G18_P->unk23C = 0x14;
+            func_806291B4(2);
+            G18_A->unk155++;
+            break;
+        case 8:
+            D_807FBB60 |= 0x30020;
+            G18_P->unk23C--;
+            if (G18_P->unk23C == 0) {
+                func_80602498();
+                if (actorSpawn(0x3C, 0x98)) {
+                    func_8067B238(D_807FBB44, D_807FBB40, 0.15f);
+                }
+                G18_A->unk155++;
+                G18_P->unk23C = 0xC;
+            }
+            break;
+        case 10:
+            if (G18_P->unk23C != 0) {
+                G18_P->unk23C--;
+                if (G18_P->unk23C == 0) {
+                    G18_A->unk7C = G18_P->unk210;
+                    G18_A->unk80 = G18_P->unk214;
+                    G18_A->unk84 = G18_P->unk218;
+                    G18_A->unk60 |= 0x8000;
+                }
+            }
+            break;
+        case 11:
+            func_806DF6D4(0x20);
+            func_80614E78(D_807FBB40, 0x1B);
+            func_806CFE7C();
+            G18_A->unk155++;
+            break;
+        case 12:
+        case 13:
+            func_806DF6D4(0x20);
+            func_806CCB0C();
+            break;
+        case 14:
+            func_80617770(D_807FBB40, 0x2F, 0);
+            G18_A->unk155++;
+        case 15:
+            func_806C8D20(D_807FBB40);
+            matrixCacheRestoreLimit();
+            func_806DF6D4(0x30);
+            break;
+    }
+    func_806CC970();
+    func_806319C4(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DBB04.s")
 
@@ -4284,7 +4680,6 @@ typedef struct G20ActorE {
 
 s32 func_806F8EB4();
 void func_8061CC40(void *, s32, s32);
-void func_8067B238(void *, void *, f32);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
 void func_80629174();
