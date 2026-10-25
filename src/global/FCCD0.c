@@ -235,7 +235,57 @@ void func_806F96CC(R1FCCD0bEffect *arg0, u32 arg1) {
     arg0->unk8 = (f32)(var_v1 * 0x30);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9744.s")
+typedef struct R1FCCD0bEffectNode {
+    u8 pad0[2];
+    s16 unk2;
+    u8 unk4;
+    u8 pad5[3];
+    void *unk8;
+} R1FCCD0bEffectNode;
+
+void func_806F94AC(void *, s32);
+s32 func_806FACE8(s32);
+void func_80714944(s32);
+void func_80714950(void *);
+void func_8071495C(void);
+void func_8071498C(void (*)(void));
+void func_80714998(u8);
+void func_807149C8(s32, s32, s32, s32);
+void func_807149FC(s32);
+void func_80714A28(s32);
+void *func_80714CC0(s32, f32, f32, f32, f32);
+void func_8071BE04(void);
+
+void func_806F9744(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+    u8 unused_byte;
+    s32 unused_word;
+    s32 sp2C;
+    R1FCCD0bEffectNode *temp_s0;
+
+    temp_s0 = *(R1FCCD0bEffectNode **)((u8 *)arg0 + 0x14);
+    sp2C = 2;
+    func_8071495C();
+    func_807149FC(-1);
+    if (arg1 == 0xE) {
+        sp2C = 1;
+    }
+    func_80714998(((u8 *)&sp2C)[3]);
+    func_80714944(arg4);
+    func_80714950(arg0);
+    func_8071498C(func_8071BE04);
+    func_80714A28(0x21);
+    if (arg1 == 3) {
+        func_807149C8(0xFF, 0, 0, 0xFF);
+    }
+    temp_s0->unk8 = func_80714CC0(func_806FACE8(arg1), 1.0f, arg2, arg3, -10.0f);
+    temp_s0->unk2 = 0;
+    if (arg1 == 7) {
+        temp_s0->unk4 = 1;
+    } else {
+        temp_s0->unk4 = 0;
+    }
+    func_806F94AC(temp_s0->unk8, arg1);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9848.s")
 
