@@ -28,17 +28,68 @@ extern u8 D_8074E77C[];
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F12FC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1350.s")
+void func_806E225C();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1378.s")
+void func_806F1350(s32 arg0) {
+    func_806E225C(0, 1);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1380.s")
+void func_806F1378(s32 arg0) {}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F13C8.s")
+typedef struct F5AActorSub4 {
+    u8 pad0[0x88];
+    s32 unk88;
+} F5AActorSub4;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F142C.s")
+void func_80614FD8(f32 *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F149C.s")
+void func_806F1380(Actor *arg0) {
+    f32 temp;
+
+    func_80614FD8(&temp);
+    ((F5AActorSub4 *)arg0->unk4)->unk88 = (s32)(arg0->unkB8 - temp);
+}
+
+typedef struct F5APlayerState {
+    u8 pad0[0x4C];
+    s16 unk4C;
+} F5APlayerState;
+
+#define F5A_PS ((F5APlayerState *)D_807FD580)
+
+void func_80614F28(u8 *);
+s32 func_806CD9A0(Actor *, f32, f32, s16, s16);
+
+void func_806F13C8(Actor *arg0) {
+    u8 temp;
+
+    func_80614F28(&temp);
+    ((F5AActorSub4 *)arg0->unk4)->unk88 =
+        func_806CD9A0(arg0, arg0->unkB8, arg0->unkB8, F5A_PS->unk4C, D_807FD584) - temp;
+}
+
+typedef struct F5APlayerCoefficient {
+    f32 value;
+    u8 pad4[0x30];
+} F5APlayerCoefficient;
+
+extern F5APlayerCoefficient D_807FD618[];
+void func_806CFF9C(void);
+
+void func_806F142C(void) {
+    f32 value;
+
+    func_806CFF9C();
+    value = D_807FBB40->unkB8;
+    D_807FBB40->unkB8 =
+        D_807FD618[D_807FC929].value * (value - (value / 2)) + (value / 2);
+}
+
+void func_806D0150(Actor *);
+
+void func_806F149C(Actor *arg0) {
+    func_806D0150(arg0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F14BC.s")
 
