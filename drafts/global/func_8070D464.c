@@ -1,4 +1,5 @@
-// func_8070D464 (src/global/112080.c): stage 2: both flag branches and loops recovered; closest diff has preserved argument and callee-save allocation mismatch
+// func_8070D464 (src/global/112080.c): stage 2: branch structure and allocation chains recovered; argument/callee-save allocation remains
+// stage 2: branch structure and allocation chains recovered; argument/callee-save allocation remains
 typedef struct S112dVariant {
     u8 flags;
     u8 pad1[7];

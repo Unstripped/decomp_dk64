@@ -1,4 +1,5 @@
-// func_8070D754 (src/global/112080.c): stage 5: full cache lookup/allocate body; exact instruction shape except post-spawn register allocation
+// func_8070D754 (src/global/112080.c): stage 5: exact instruction shape except D_807FBB44 address and final state pointer register allocation
+// stage 5: exact instruction shape except D_807FBB44 address and final state pointer register allocation
 typedef struct S112dLink {
     void *key;
     Actor *actor;
