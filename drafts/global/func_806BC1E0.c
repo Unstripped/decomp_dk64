@@ -1,0 +1,403 @@
+// func_806BC1E0 (src/global/C0EE0.c): stage 4: structure matches (switch/case order, loops, constants); frame 0x90 vs 0x88 (H hidden region 2 words bigger, -76 switch temp); remaining diffs scheduling in case 3/4 and FP epilogue
+typedef struct LgBObj {
+    /* 0x00 */ u8 pad0[0x10];
+    /* 0x10 */ s16 unk10;
+} LgBObj;
+
+typedef struct LgBModel {
+    /* 0x00 */ LgBObj *unk0;
+    /* 0x04 */ u8 pad4[0x34];
+    /* 0x38 */ f32 unk38;
+} LgBModel;
+
+typedef struct LgBState {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ f32 unk1C;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ f32 unk24;
+    /* 0x28 */ f32 unk28;
+    /* 0x2C */ f32 unk2C;
+    /* 0x30 */ f32 unk30;
+    /* 0x34 */ s16 unk34;
+    /* 0x36 */ s8 unk36;
+    /* 0x37 */ s8 unk37;
+    /* 0x38 */ u8 unk38;
+    /* 0x39 */ u8 unk39;
+} LgBState;
+
+typedef struct LgBActor {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ LgBModel *unk4;
+    /* 0x008 */ u8 pad8[0x58];
+    /* 0x060 */ u32 unk60;
+    /* 0x064 */ u8 pad64[0x18];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x94];
+    /* 0x11C */ Actor *unk11C;
+    /* 0x120 */ u8 pad120[8];
+    /* 0x128 */ s16 unk128;
+    /* 0x12A */ u8 pad12A[0x34];
+    /* 0x15E */ u8 unk15E;
+    /* 0x15F */ u8 pad15F[0x19];
+    /* 0x178 */ LgBState *unk178;
+} LgBActor;
+
+#define LGB ((LgBActor *)D_807FBB40)
+
+extern s8 D_80750650;
+extern s8 D_807FC8C0[16];
+extern s8 D_807FC8D0;
+extern u16 D_807ECD58;
+extern u16 D_807ECD60;
+extern void func_806BCF98();
+void func_80729B00(void);
+void func_806BD0CC(void);
+void func_80629174(void);
+s32 func_8073110C(s32, s32);
+void func_8061CC40();
+s32 func_80629148(void);
+void renderCallbacksRegister(void *, void *, s32);
+void func_8061CB08(void);
+void func_806CFF9C(void *);
+s32 func_8061CB50(void);
+void func_80614EBC(void *, s32);
+void func_806A2A10(s32, s32, s32);
+void func_8073129C();
+void sfxAllocateChannel(s32, f32);
+void sfxStopChannel(s32, s32);
+void actorSetStateTwo(void *);
+void actorDespawn(void *);
+void func_8063DA40(s32, s32);
+void func_8063DA78(s16, s32, s32);
+f32 func_806119FC(void);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+void func_80613C48(void *, s32, f32, f32);
+void func_80614644(void *, void *, f32);
+void func_806319C4(void *, s32);
+
+void func_806BC1E0(void) {
+    f32 old;
+    f32 t;
+    f32 a;
+    f32 b;
+    f32 acc;
+    f32 sp70;
+    LgBState *st;
+    s16 dx;
+    s16 dy;
+    LgBObj *obj;
+    s8 *p;
+    s16 i;
+    s16 best;
+    s16 adx;
+    s16 ady;
+    s8 v;
+    s16 n;
+    s8 cand[16];
+    s16 ones;
+    s16 zeros;
+
+    st = LGB->unk178;
+    obj = LGB->unk4->unk0;
+    func_80729B00();
+    if (!(LGB->unk60 & 0x10)) {
+        st->unk4 = 0.0f;
+        func_806BD0CC();
+        LGB->unk128 = 0x80;
+        LGB->unk60 &= 0xFFFF7FFF;
+        st->unk24 = LGB->unk7C;
+        st->unk28 = LGB->unk80;
+        st->unk2C = LGB->unk84;
+        st->unk30 = LGB->unk4->unk38;
+        func_80629174();
+    }
+    switch (st->unk38) {
+    case 0:
+        if (func_8073110C(0x10F, 0) == 0) {
+            if ((LGB->unk7C - D_807FBB4C->unk7C) * (LGB->unk7C - D_807FBB4C->unk7C) + (LGB->unk84 - D_807FBB4C->unk84) * (LGB->unk84 - D_807FBB4C->unk84) < 14400.0) {
+                func_8061CC40(D_807FBB40, 0, 1);
+                st->unk39 = 0;
+                st->unk38 = 1;
+            }
+        }
+        break;
+    case 1:
+        if (func_80629148() != 0) {
+            st->unk38 = 2;
+        }
+        break;
+    case 2:
+        switch (st->unk39) {
+        case 0:
+            renderCallbacksRegister(func_806BCF98, D_807FBB40, 5);
+            if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
+                func_8061CB08();
+                st->unk39 = 1;
+                D_807FBB4C->unk154 = 0xC;
+                D_807FBB4C->unk155[0] = 0;
+                func_806CFF9C(D_807FBB4C);
+            }
+            if ((D_807ECD58 & 0x4000) && !(D_807ECD60 & 0x4000)) {
+                func_8061CB08();
+                st->unk39 = 2;
+                D_807FBB4C->unk154 = 0xC;
+                D_807FBB4C->unk155[0] = 0;
+                func_806CFF9C(D_807FBB4C);
+            }
+            break;
+        case 1:
+            func_8061CC40(D_807FBB40, 1, 1);
+            st->unk39 = 3;
+            break;
+        case 3:
+            if (func_80629148() != 0) {
+                D_80750650 = 1;
+                st->unk38 = 3;
+                st->unk4 = 0.025f;
+                st->unk0 = 0.0f;
+                st->unk8 = LGB->unk7C;
+                st->unkC = LGB->unk80;
+                st->unk14 = 294.0f;
+                st->unk18 = 0.0f;
+                st->unk10 = LGB->unk84;
+                st->unk36 = 3;
+                st->unk37 = 0;
+                st->unk1C = 359.0f;
+                st->unk20 = -500.0f;
+                func_80614EBC(D_807FBB40, 0x31C);
+                func_806A2A10(0xDC, 0x2A, 0x3C);
+                func_8073129C(0x30, 1, 2);
+                sfxAllocateChannel(0x78, 1.0f);
+                actorSetStateTwo(LGB->unk11C);
+            }
+            break;
+        case 2:
+            if (func_8061CB50() == 0) {
+                if ((LGB->unk7C - D_807FBB4C->unk7C) * (LGB->unk7C - D_807FBB4C->unk7C) + (LGB->unk84 - D_807FBB4C->unk84) * (LGB->unk84 - D_807FBB4C->unk84) > 25600.0) {
+                    st->unk39 = 0;
+                    st->unk38 = 0;
+                }
+            }
+            break;
+        }
+        break;
+    case 3:
+    case 4:
+        if (st->unk4 == 0.0f) {
+            if (st->unk38 == 3) {
+                st->unk38 = 4;
+            }
+            if (LGB->unk11C != NULL && LGB->unk11C->unk154 == 5) {
+                ones = 0;
+                zeros = 0;
+                p = D_807FC8C0;
+                do {
+                    v = *p;
+                    p++;
+                    if (v == 1) {
+                        ones++;
+                    }
+                    if (v == 0) {
+                        zeros++;
+                    }
+                } while ((u32)p < (u32)&D_807FC8D0);
+                func_8073129C(0x30, 0, 2, ones);
+                func_80614EBC(D_807FBB40, 0x31C);
+                D_80750650 = 1;
+                if (ones < zeros) {
+                    st->unk38 = 6;
+                } else {
+                    st->unk38 = 7;
+                }
+                st->unk4 = 0.0125f;
+                st->unk0 = 0.0f;
+                st->unkC = 0.0f;
+                st->unk8 = LGB->unk7C;
+                st->unk10 = LGB->unk84;
+                st->unk34 = 0x1E;
+                st->unk14 = st->unk24;
+                st->unk18 = st->unk28;
+                st->unk1C = st->unk2C;
+                st->unk20 = -500.0f;
+            } else {
+                func_80614EBC(D_807FBB40, 0);
+                D_80750650 = 0;
+                best = 4;
+                n = 0;
+                i = 0;
+                do {
+                    v = D_807FC8C0[i];
+                    if (v == 0 || v == -1) {
+                        dx = (i & 3) - st->unk36;
+                        dy = (i >> 2) - st->unk37;
+                        if (dx > 0) {
+                            adx = dx;
+                        } else {
+                            adx = -dx;
+                        }
+                        if (dy > 0) {
+                            ady = dy;
+                        } else {
+                            ady = -dy;
+                        }
+                        if (adx < ady) {
+                            if (dy > 0) {
+                                adx = dy;
+                            } else {
+                                adx = -dy;
+                            }
+                        }
+                        if (adx > 0) {
+                            if (adx < best) {
+                                cand[0] = i;
+                                n = 1;
+                                best = adx;
+                            } else if (adx == best) {
+                                cand[n] = i;
+                                n++;
+                            }
+                        }
+                    }
+                    i++;
+                } while (i < 16);
+                if (n > 0) {
+                    a = func_806119FC();
+                    v = cand[(s32)(a * (f32)(n - 1))];
+                    dx = (v & 3) - st->unk36;
+                    dy = (v >> 2) - st->unk37;
+                    if (dx < -1) {
+                        dx = -1;
+                    }
+                    if (dx >= 2) {
+                        dx = 1;
+                    }
+                    if (dy < -1) {
+                        dy = -1;
+                    }
+                    if (dy >= 2) {
+                        dy = 1;
+                    }
+                    st->unk36 += dx;
+                    st->unk37 += dy;
+                }
+                st->unk0 = 0.0f;
+                st->unk4 = 0.01369863f;
+                st->unk8 = st->unk14;
+                st->unkC = 0.0f;
+                st->unk10 = st->unk1C;
+                st->unk18 = 0.0f;
+                st->unk14 = (f64)st->unk36 * -11.666666666666666 + 329.0 + (f64)st->unk37 * -28.666666666666668;
+                st->unk20 = -250.0f;
+                st->unk1C = (f64)st->unk36 * 28.333333333333332 + 274.0 + (f64)st->unk37 * -11.333333333333334;
+            }
+        }
+        break;
+    case 6:
+        if (st->unk34 == 0 && st->unk4 == 0.0f) {
+            sfxStopChannel(0x78, 1);
+            sfxAllocateChannel(0x56, 1.0f);
+            func_80614EBC(D_807FBB40, 0x31C);
+            actorDespawn(LGB->unk11C);
+            func_8061CC40(D_807FBB40, 2, 1);
+            st->unk38 = 8;
+        }
+        break;
+    case 8:
+        if (func_80629148() != 0) {
+            func_806BD0CC();
+            if (func_8073110C(0x10F, 0) == 0) {
+                func_8063DA40(0x10, 0xA);
+            }
+            st->unk38 = 0xA;
+            sfxStopChannel(0x56, 1);
+            sfxAllocateChannel(0x67, 1.0f);
+        }
+        break;
+    case 10:
+        break;
+    case 7:
+        if (st->unk34 == 0 && st->unk4 == 0.0f) {
+            actorDespawn(LGB->unk11C);
+            func_80614EBC(D_807FBB40, 0x31C);
+            func_8061CC40(D_807FBB40, 3, 1);
+            st->unk38 = 9;
+            sfxStopChannel(0x78, 1);
+            sfxAllocateChannel(0x57, 1.0f);
+        }
+        break;
+    case 9:
+        if (func_80629148() != 0) {
+            sfxStopChannel(0x57, 1);
+            sfxAllocateChannel(0x67, 1.0f);
+            func_806BD0CC();
+            st->unk39 = 0;
+            st->unk38 = 2;
+        }
+        break;
+    default:
+        break;
+    }
+    LGB->unk60 |= 0x400;
+    LGB->unk15E = 0x14;
+    st->unk34--;
+    if (st->unk34 < 0) {
+        st->unk34 = 0;
+    }
+    sp70 = st->unk30;
+    if (st->unk4 != 0.0f && st->unk34 == 0) {
+        old = st->unk0;
+        st->unk0 = old + st->unk4;
+        if (D_80750650 == 0) {
+            if (old < 0.63f && st->unk0 >= 0.63f) {
+                func_8063DA78(st->unk36 + st->unk37 * 4, 1, 1);
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x361, 0xFF, 0x7F, 0xA);
+            }
+        } else {
+            sp70 += (st->unk0 - 0.5f) * 0.25f;
+        }
+        if ((f64)st->unk0 >= 1.0) {
+            st->unk0 = 0.0f;
+            st->unk4 = 0.0f;
+            LGB->unk7C = st->unk14;
+            LGB->unk80 = st->unk18;
+            LGB->unk84 = st->unk1C;
+        } else {
+            t = st->unk0;
+            if (D_80750650 == 0) {
+                t = 2.0 * (f64)st->unk0;
+                if ((f64)t > 1.0) {
+                    t = 1.0f;
+                }
+            }
+            a = st->unk8;
+            LGB->unk7C = a + t * (st->unk14 - a);
+            b = st->unk10;
+            LGB->unk84 = b + t * (st->unk1C - b);
+            if (D_80750650 == 0) {
+                a = st->unkC;
+                LGB->unk80 = a + t * (st->unk18 - a);
+            } else {
+                acc = st->unk20;
+                a = st->unkC;
+                old = st->unk0;
+                LGB->unk80 = (f64)a + ((f64)((f32)((f64)(st->unk18 - a) - (f64)acc * 0.5) * old) + (f64)(old * old * acc) * 0.5);
+            }
+        }
+        if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
+            if (obj->unk10 != 0x5C3) {
+                func_80613C48(D_807FBB40, 0x5C3, 0.0f, 0.0f);
+            }
+            func_80614644(D_807FBB40, obj, st->unk0 * 40.0f);
+        }
+    }
+    LGB->unk4->unk38 = LGB->unk4->unk38 + (sp70 - LGB->unk4->unk38) * 0.25f;
+    func_806319C4(D_807FBB40, 0);
+}

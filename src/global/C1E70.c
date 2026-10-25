@@ -81,7 +81,6 @@ void func_806BD170(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/C1E70/func_806BD3E4.s")
 
-#ifdef NON_MATCHING
 extern f32 D_807FC8D4;
 
 s32 func_806BDD2C(void);
@@ -102,16 +101,11 @@ typedef struct R1C0C1Act178 {
     /* 0x178 */ R1C0C1Ptr178 *unk178;
 } R1C0C1Act178;
 
-typedef struct R1C0C1Pair {
-    /* 0x00 */ s16 a;
-    /* 0x02 */ s16 b;
-} R1C0C1Pair;
-
 typedef struct R1C0C1Blob8 {
     /* 0x00 */ s8 b[8];
 } R1C0C1Blob8;
 
-extern R1C0C1Pair D_80750664[];
+extern s16 D_80750664[];
 extern s16 D_80750684[];
 extern R1C0C1Blob8 D_807506B8;
 extern u8 D_80720A7C;
@@ -207,7 +201,7 @@ void func_806BD7B0(void) {
                 p->unk0->unk80 += 5.0;
                 if (st->unk0 == 0x10E) {
                     func_8073129C(0x315, 1, 0);
-                    func_80712524(D_80750664[7].a, D_80750664[7].b);
+                    func_80712524(D_80750664[14], D_80750664[15]);
                 }
             }
             limit = 0xB4;
@@ -217,7 +211,7 @@ void func_806BD7B0(void) {
                 }
             }
             st->unk0++;
-            if ((limit == st->unk0) != 0) {
+            if (limit == st->unk0) {
                 if (st->unk2 == 2 || st->unk2 == 7) {
                     func_8073129C(st->unk2 + 0x1BC, 1, 0);
                     if (func_806BDD2C() == 0) {
@@ -226,7 +220,7 @@ void func_806BD7B0(void) {
                         D_807506A4 = 1;
                     }
                 } else {
-                    func_80712524(D_80750664[st->unk2].a, D_80750664[st->unk2].b);
+                    func_80712524(D_80750664[st->unk2 * 2], D_80750664[st->unk2 * 2 + 1]);
                 }
             }
             break;
@@ -236,10 +230,6 @@ void func_806BD7B0(void) {
     D_807FBB40->unk15E = 0x28;
     func_806319C4(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C1E70/func_806BD7B0.s")
-#endif
 
 s32 func_806BDD2C(void) {
     s32 i;
