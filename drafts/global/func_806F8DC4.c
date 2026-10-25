@@ -1,9 +1,9 @@
-// func_806F8DC4 (src/global/FCCD0.c): m2c behavioural starter; 60-insn resource limit selector.
-s32 func_805FF030(u8, ?);                           /* extern */
-s32 func_806C8DE0(?);                               /* extern */
-s32 func_80731A04(?, s32, s32, s32);                /* extern */
+// func_806F8DC4 (src/global/FCCD0.c): stage 4: branch order and instruction count align; global address expression differs
 extern u8 D_8076A0AB;
-extern ? D_807FC992;
+extern u8 D_807FC950[][0x306];
+extern s32 func_805FF030();
+s32 func_806C8DE0(s32);
+s32 func_80731A04(s32, s32, s32, s32);
 
 void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
     s32 sp1C;
@@ -22,7 +22,7 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
         } else if (func_80731A04(0x225, sp1C, sp1C, temp_a3) != 0) {
             *arg0 = 0xFF;
         }
-    } else if (arg1 < (s32) *(&D_807FC992 + ((temp_v0 * 0x5E) + (sp1C * 2)))) {
+    } else if (arg1 < ((u16 *)&D_807FC950[temp_v0][0x42])[sp1C]) {
         *arg0 = 0xFF;
     }
 }
