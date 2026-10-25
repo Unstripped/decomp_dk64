@@ -117,7 +117,47 @@ void func_807158C0(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80715908.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80715A3C.s")
+typedef struct Ua2bRouteEntry {
+    s32 value;
+    s32 column;
+} Ua2bRouteEntry;
+
+s32 func_8066B0F8(s32, s16, s32, s32);
+
+void func_80715A3C(s16 *arg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5) {
+    u8 category;
+    s32 i;
+    s32 index;
+    s32 value;
+    s32 *out;
+    Ua2bRouteEntry *entry;
+
+    i = 0;
+    if (arg3 > 0) {
+        out = arg5;
+        index = arg3 * arg4;
+        entry = (Ua2bRouteEntry *)arg2;
+        entry += index;
+        do {
+            if (entry->column == -1) {
+                if (arg1) {
+                    category = 0x19;
+                } else {
+                    category = 7;
+                }
+                value = func_8066B0F8(category, arg0[index + i], 0, 0);
+                *out = value;
+                entry->value = value;
+            } else {
+                *out = entry->value;
+            }
+            i += 1;
+            out += 1;
+            entry += 1;
+            (entry + (-1))->column = arg4;
+        } while (i != arg3);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80715B30.s")
 
