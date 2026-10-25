@@ -40,10 +40,14 @@ for f in asm/global/*.s; do echo "$f $(grep -c ^glabel $f) $(grep -c '^ *\/\* [0
 Skip hand-written asm before converting: a file with 64-bit ops or `$k0`/`$k1` is not IDO
 C (`77B90` collision code: 579 `ld`/`sd`/`dmult`; also `15010`, `16B60`, `61690`):
 `grep -cE '\s(dmult|ld|sd|daddu?)\s|\$k[01]' asm/global/<f>.s` must be 0.
-When a rodata pad leaves several 16-aligned starts, the bss clusters each candidate's
-functions touch decide it (`42630`/`478F0`: `func_80642940` reads the first TU's
-`D_807F621C`–`24`, `func_80642BF0` the next TU's `D_8071FF18`); a flagged data pad after a
-`{x, 0, 0}` float triple is a 3-float struct, not a TU end. Keep the carved files all
+When a rodata pad leaves several 16-aligned starts, use which bss/data symbols each
+candidate's functions touch as a tie-breaker, not proof (`42630`/`478F0`: `func_80642940`
+reads `D_807F621C`–`24` like the first TU's functions, `func_80642BF0` reads `D_8071FF18`
+like the next; globals can be shared across TUs, so this only ranks candidates). A flagged
+data pad after one nonzero float and two zero words (`D_807482A4`) may be a 3-float
+struct or a scalar plus 8-byte TU padding; an all-`GLOBAL_ASM` gate cannot tell them apart,
+so record the choice as tentative in ROADMAP and re-check when a function in the suspect
+range is matched (its rodata/data ownership then settles it). Keep the carved files all
 `GLOBAL_ASM` and commit the split on its own before any matching; a single big function
 can then be worked on a private copy with `.scratch/<name>/splice.sh`-style scripts
 (regenerate the copy from `git show HEAD:src/...` + the function draft each time).
