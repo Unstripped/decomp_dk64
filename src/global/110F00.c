@@ -71,33 +71,124 @@ void func_8070C8F4(M110aMat *arg0, f32 arg1, f32 arg2, f32 arg3) {
     arg0->m[2][2] = var_fv1;
 }
 
+f32 func_80612D1C(f32);
+f32 func_80612D10(f32);
+void func_8070C89C(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3);
+
+void func_8070CCC4(f32 arg0[4][4]);
+void func_8070C990(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C990.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C9E8.s")
+void func_8070C9E8(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
+    f32 sp18[4][4];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CA2C.s")
+    func_8070C89C(sp18, arg1, arg2, arg3);
+    guMtxF2L(sp18, arg0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CA70.s")
+void func_8070CA2C(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
+    f32 sp18[4][4];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CAB4.s")
+    func_8070C8F4((M110aMat *)sp18, arg1, arg2, arg3);
+    guMtxF2L(sp18, arg0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CB2C.s")
+void func_8070CA70(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
+    f32 sp18[4][4];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CBA4.s")
+    func_8070C990(sp18, arg1, arg2, arg3);
+    guMtxF2L(sp18, arg0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CC1C.s")
+void func_8070CAB4(f32 arg0[4][4], f32 arg1) {
+    f32 temp;
+    f32 sin;
+    f32 cos;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CC54.s")
+    temp = arg1 * 0.0174532925199432955;
+    sin = func_80612D1C(temp);
+    cos = func_80612D10(temp);
+    func_8070CCC4(arg0);
+    arg0[1][2] = sin;
+    arg0[2][1] = -sin;
+    arg0[1][1] = cos;
+    arg0[2][2] = cos;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CC8C.s")
+void func_8070CB2C(f32 arg0[4][4], f32 arg1) {
+    f32 temp;
+    f32 sin;
+    f32 cos;
+
+    temp = arg1 * 0.0174532925199432955;
+    sin = func_80612D1C(temp);
+    cos = func_80612D10(temp);
+    func_8070CCC4(arg0);
+    arg0[2][0] = sin;
+    arg0[0][2] = -sin;
+    arg0[0][0] = cos;
+    arg0[2][2] = cos;
+}
+
+void func_8070CBA4(f32 arg0[4][4], f32 arg1) {
+    f32 temp;
+    f32 sin;
+    f32 cos;
+
+    temp = arg1 * 0.0174532925199432955;
+    sin = func_80612D1C(temp);
+    cos = func_80612D10(temp);
+    func_8070CCC4(arg0);
+    arg0[0][1] = sin;
+    arg0[1][0] = -sin;
+    arg0[0][0] = cos;
+    arg0[1][1] = cos;
+}
+
+void func_8070CC1C(Mtx *arg0, f32 arg1) {
+    f32 sp18[4][4];
+
+    func_8070CAB4(sp18, arg1);
+    guMtxF2L(sp18, arg0);
+}
+
+void func_8070CC54(Mtx *arg0, f32 arg1) {
+    f32 sp18[4][4];
+
+    func_8070CB2C(sp18, arg1);
+    guMtxF2L(sp18, arg0);
+}
+
+void func_8070CC8C(Mtx *arg0, f32 arg1) {
+    f32 sp18[4][4];
+
+    func_8070CBA4(sp18, arg1);
+    guMtxF2L(sp18, arg0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CCC4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CD14.s")
+void func_8070CD14(Mtx *arg0) {
+    f32 sp18[4][4];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CD44.s")
+    func_8070CCC4(sp18);
+    guMtxF2L(sp18, arg0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CD8C.s")
+void func_8070CD44(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3) {
+    func_8070CCC4(arg0);
+    arg0[3][0] = arg1;
+    arg0[3][1] = arg2;
+    arg0[3][2] = arg3;
+}
+
+void func_8070CD8C(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
+    f32 sp18[4][4];
+
+    func_8070CD44(sp18, arg1, arg2, arg3);
+    guMtxF2L(sp18, arg0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CDD0.s")
 
