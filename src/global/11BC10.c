@@ -613,7 +613,27 @@ void func_8071B89C(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071B8EC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071BB14.s")
+typedef struct {
+    f32 angle;
+    f32 speed;
+} M3Bb14State;
+
+void func_8071BB14(Ub2ActorView *arg0, s8 *arg1) {
+    f32 sp70[4][4];
+    f32 sp30[4][4];
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(8);
+        ((M3Bb14State *)arg0->unk384)->angle = (f32)((func_806119A0() % 36000U) / 100U);
+        ((M3Bb14State *)arg0->unk384)->speed = (f32)((f64)(func_806119A0() % 10000U) / 7000.0);
+    }
+    arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)((M3Bb14State *)arg0->unk384)->speed + 1.0));
+    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp30, ((M3Bb14State *)arg0->unk384)->angle, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(sp70, sp30, sp70);
+    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    arg0->pad0[0x32C] = 2;
+}
 
 typedef struct {
     f32 unk0;
