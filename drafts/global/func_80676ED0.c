@@ -30,8 +30,8 @@ u8 func_80676ED0(Beh7BB_Actor *arg0, s32 arg1, s32 arg2) {
     sp68 = sub140->unkC;
     D_807FB600 = 0;
     i = 0;
-    if (D_807FBB34 > 0) {
-        entry = D_807FB930;
+    if (gActiveActorCount > 0) {
+        entry = gActiveActors;
         do {
             other = (Beh7BB_Actor *)entry->actor;
             other_sub140 = other->unk140;
@@ -60,7 +60,7 @@ u8 func_80676ED0(Beh7BB_Actor *arg0, s32 arg1, s32 arg2) {
             }
             i++;
             entry++;
-        } while (i < D_807FBB34);
+        } while (i < gActiveActorCount);
     }
     return ret;
 }

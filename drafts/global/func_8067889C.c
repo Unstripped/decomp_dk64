@@ -10,9 +10,9 @@ u8 arg0;
     Actor *actor;
 
     i = D_807FBB3C = 0;
-    if (i < D_807FBB34) {
+    if (i < gActiveActorCount) {
         do {
-            actor = D_807FB930[i].actor;
+            actor = gActiveActors[i].actor;
             D_807FBE08 = 0;
             D_807FBB40 = actor;
             if (1 == arg0) {
@@ -28,6 +28,6 @@ update:
             D_8074C0A0[D_807FBB40->unk58]();
             func_80678CC8(D_807FBB40);
             i = D_807FBB3C;
-        } while ((D_807FBB3C = ++i) < D_807FBB34);
+        } while ((D_807FBB3C = ++i) < gActiveActorCount);
     }
 }

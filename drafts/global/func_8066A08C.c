@@ -25,8 +25,8 @@ s32 func_80666FC8(f32, f32, f32, s32);
 
 extern s8 D_807F94AD;
 extern u8 D_807F94BC;
-extern ActorEntry D_807FB930[];
-extern u16 D_807FBB34;
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
 
 s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     f32 pad;
@@ -67,10 +67,10 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     hit = 0;
     hit_y = 999999.0f;
     (void)2000.0;
-    actor_count = D_807FBB34;
+    actor_count = gActiveActorCount;
     i = 0;
     if ((s32)actor_count > 0) {
-        entry = D_807FB930;
+        entry = gActiveActors;
         do {
             actor = entry->actor;
             if (!(actor->unk60 & 0x2000)) {
@@ -124,7 +124,7 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
             }
             i++;
             entry++;
-        } while (i < (s32)D_807FBB34);
+        } while (i < (s32)gActiveActorCount);
     }
 
     if (hit != 0 && func_80666FC8(*arg4, hit_y, (f32)((f64)arg3 + 4.0), 0) != 0) {

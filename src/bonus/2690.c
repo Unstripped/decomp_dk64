@@ -154,8 +154,8 @@ typedef struct {
     s32 pad;
 } ActorEntry_B930;
 
-extern ActorEntry_B930 D_807FB930[];
-extern u16 D_807FBB34;
+extern ActorEntry_B930 gActiveActors[];
+extern u16 gActiveActorCount;
 extern s16 D_8002D900;
 typedef struct {
     char pad[0x24];

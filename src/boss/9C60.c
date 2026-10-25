@@ -79,8 +79,8 @@ typedef struct {
     s32 pad;
 } BossC_9C60_Entry;
 
-extern BossC_9C60_Entry D_807FB930[];
-extern u16 D_807FBB34;
+extern BossC_9C60_Entry gActiveActors[];
+extern u16 gActiveActorCount;
 
 void actorDespawn(void *);
 
@@ -88,8 +88,8 @@ void bossDespawnEntities(void) {
     s16 i;
     BossC_9C60_Target *actor;
 
-    for (i = 0; i < D_807FBB34; i++) {
-        actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
         if (actor->unk58 == 0xAA) {
             actorDespawn(actor);
         }

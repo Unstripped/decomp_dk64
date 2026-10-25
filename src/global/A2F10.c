@@ -23,8 +23,8 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
-extern u16 D_807FBB34;
-extern ActorEntry D_807FB930[];
+extern u16 gActiveActorCount;
+extern ActorEntry gActiveActors[];
 
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
@@ -129,8 +129,8 @@ void actorPlaceAttachedChildren(s16 arg0) {
     Actor *actor;
     s16 i;
 
-    for (i = 0; i < D_807FBB34; i++) {
-        actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
         if ((s32)actor->unk11C == (s32)D_807FBB40) {
             func_8067A70C(D_807FBB40, actor, *(s32 *)&D_807FBB40->unk7C,
                           D_807FBB40->unk80 + (f32)arg0, D_807FBB40->unk84, 2,
@@ -143,8 +143,8 @@ void actorAttachChildCallbacks(void) {
     Actor *actor;
     s16 i;
 
-    for (i = 0; i < D_807FBB34; i++) {
-        actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
         if ((s32)actor->unk11C == (s32)D_807FBB40) {
             actorAppendCallback(actor, (s32)D_807FBB40, 0x2000000, 1, 0, NULL);
         }
@@ -946,8 +946,8 @@ void actorSetGroupState(u8 arg0, u8 arg1) {
     Actor *actor;
     s16 i;
 
-    for (i = 0; i < D_807FBB34; i++) {
-        actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
         if (actor->unk58 == 0x94 && actor->unk15F / 3 == arg0) {
             actor->unk154 = arg1;
             actor->unk155[0] = 0;

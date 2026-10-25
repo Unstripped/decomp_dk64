@@ -267,8 +267,8 @@ void lightAdd(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 ar
 extern s32 D_80748304;
 extern s32 D_80748308;
 extern u8 D_807FC928;
-extern ActorEntry D_807FB930[];
-extern u16 D_807FBB34;
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
 s32 lightCheckPlayerDistance(LightVolume *);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_8072177C(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
@@ -303,8 +303,8 @@ void func_8065A884(void) {
 
     lightCount = 0;
     lightIdx = 0;
-    if (D_807FBB34 > 0) {
-        for (actorIdx = 0; actorIdx < D_807FBB34; actorIdx++) {
+    if (gActiveActorCount > 0) {
+        for (actorIdx = 0; actorIdx < gActiveActorCount; actorIdx++) {
             spC8[actorIdx] = 0;
         }
     }
@@ -313,8 +313,8 @@ void func_8065A884(void) {
             light = &D_807F7500[lightIdx];
             if ((lightCheckPlayerDistance(light) != 0) && (lightCount < 12)) {
                 lightCount++;
-                for (actorIdx = 0; actorIdx < D_807FBB34; actorIdx++) {
-                    actor = D_807FB930[actorIdx].actor;
+                for (actorIdx = 0; actorIdx < gActiveActorCount; actorIdx++) {
+                    actor = gActiveActors[actorIdx].actor;
                     if (!(actor->unk60 & 0x2000)) {
                         if (light->unk39 != 0) {
                             if (light->unk39 == 1) {
@@ -472,10 +472,10 @@ void func_8065A884(void) {
             }
         }
     }
-    if (D_807FBB34 > 0) {
-        for (actorIdx = 0; actorIdx < D_807FBB34; actorIdx++) {
+    if (gActiveActorCount > 0) {
+        for (actorIdx = 0; actorIdx < gActiveActorCount; actorIdx++) {
             if (spC8[actorIdx] == 0) {
-                actor = D_807FB930[actorIdx].actor;
+                actor = gActiveActors[actorIdx].actor;
                 if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
                     if (actor->unk4 != NULL) {
                         spC0 = actor->unk4->unk34;

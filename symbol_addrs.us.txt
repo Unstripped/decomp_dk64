@@ -239,6 +239,12 @@ effectSpawnRandomParticleAtPoint = 0x806B8B20; // type:func
 actorSpawnRandomParticleNearActor = 0x806B9CE0; // type:func
 actorBuildNodeAlignedMatrix = 0x806B9EB4; // type:func
 actorSpawnJitteredChild = 0x806BB604; // type:func
+actorPlaySoundSpawnBoneEffects = 0x806C27DC; // type:func
+actorSpawnOctagonRingsByTimer = 0x806C28B8; // type:func
+effectSpawnColoredParticleAtPoint = 0x806C2A64; // type:func
+actorSpawnParticlesAlongNodeLoop = 0x806C2B2C; // type:func
+actorSpawnParticlesAlongNodeRanges = 0x806C2D7C; // type:func
+actorUpdateNearestSpotlight = 0x806C6530; // type:func
 
 gTimerQueue = 0x807452A0;
 audioInit = 0x80600D50; // type:func
@@ -435,6 +441,8 @@ actorTableRemove = 0x8067AEFC; // type:func
 actorTableContains = 0x8067AF44; // type:func
 actorTableBinarySearch = 0x8067AF74; // type:func
 actorTableSort = 0x8067B01C; // type:func
+gActiveActors = 0x807FB930;
+gActiveActorCount = 0x807FBB34;
 
 // Tag barrel behavior
 tagBarrelResetMovement = 0x8067E348; // type:func

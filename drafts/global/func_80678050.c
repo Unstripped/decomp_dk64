@@ -149,11 +149,11 @@ u16 arg0;
         func_8067AE90((Actor *)actor);
         func_806761D0((Actor *)actor);
         {
-            u16 idx = D_807FBB34;
-            D_807FB930[idx].actor = (Actor *)actor;
-            D_807FB930[idx].unk4 = 0;
+            u16 idx = gActiveActorCount;
+            gActiveActors[idx].actor = (Actor *)actor;
+            gActiveActors[idx].unk4 = 0;
             D_807FBB3E = idx;
-            D_807FBB34 = idx + 1;
+            gActiveActorCount = idx + 1;
             D_807FBB44 = (Actor *)actor;
         }
         return 1;

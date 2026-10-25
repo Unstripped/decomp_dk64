@@ -40,8 +40,8 @@ typedef struct ActorPayloadABC0 {
 
 extern u16 D_8074D624[];
 extern u8 D_807F94B4;
-extern ActorEntry D_807FB930[];
-extern u16 D_807FBB34;
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
@@ -180,10 +180,10 @@ void actorInit(void) {
     D_807FBB5C = (void *)(D_807FBB50->unk4 + (s32)D_807FBB50);
 
     for (i = 0; i < 64; i++) {
-        D_807FB930[i].actor = NULL;
-        D_807FB930[i].unk4 = 0;
+        gActiveActors[i].actor = NULL;
+        gActiveActors[i].unk4 = 0;
     }
-    D_807FBB34 = 0;
+    gActiveActorCount = 0;
 
     actorTableClear();
 
@@ -288,9 +288,9 @@ void actorFlushDespawnQueue(void) {
 }
 
 void actorRegisterActive(Actor *arg0) {
-    D_807FB930[D_807FBB34].actor = arg0;
-    D_807FB930[D_807FBB34].unk4 = 0;
-    D_807FBB34++;
+    gActiveActors[gActiveActorCount].actor = arg0;
+    gActiveActors[gActiveActorCount].unk4 = 0;
+    gActiveActorCount++;
 }
 
 void sfxStopSlotSound(Actor *, s32);
@@ -301,17 +301,17 @@ void actorDeregisterActive(Actor *arg0) {
     sfxStopSlotSound(arg0, 0);
     sfxStopSlotSound(arg0, 1);
     i = 0;
-    if (arg0 != D_807FB930[0].actor && D_807FBB34 > 0) {
+    if (arg0 != gActiveActors[0].actor && gActiveActorCount > 0) {
         do {
             i++;
-            if (arg0 == D_807FB930[i].actor) {
+            if (arg0 == gActiveActors[i].actor) {
                 break;
             }
-        } while (i < D_807FBB34);
+        } while (i < gActiveActorCount);
     }
-    if (--D_807FBB34 != 0) {
-        D_807FB930[i].actor = D_807FB930[D_807FBB34].actor;
-        D_807FB930[i].unk4 = D_807FB930[D_807FBB34].unk4;
+    if (--gActiveActorCount != 0) {
+        gActiveActors[i].actor = gActiveActors[gActiveActorCount].actor;
+        gActiveActors[i].unk4 = gActiveActors[gActiveActorCount].unk4;
     }
     func_8062D26C(arg0);
     arg0->unk150 = 0;
@@ -322,8 +322,8 @@ void actorDespawnByOwner(s32 arg0) {
 
     D_807FBE09 = 1;
     D_807FBF10 = 0;
-    for (i = 0; i < D_807FBB34; i++) {
-        Actor *actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        Actor *actor = gActiveActors[i].actor;
         if (arg0 == actor->unk11C) {
             actorDespawn(actor);
             actor->unk11C = 0;
@@ -366,9 +366,9 @@ void actorFreeImmediate(Actor *arg0) {
     if (temp != NULL) {
         actorAppendCallback(temp, (s32)arg0, 0x80000, 0, 0, NULL);
     }
-    for (i = 0; i < D_807FBB34; i++) {
-        if ((s32)arg0 == D_807FB930[i].actor->unk11C) {
-            D_807FB930[i].actor->unk11C = 0;
+    for (i = 0; i < gActiveActorCount; i++) {
+        if ((s32)arg0 == gActiveActors[i].actor->unk11C) {
+            gActiveActors[i].actor->unk11C = 0;
         }
     }
     i = 0;
@@ -376,20 +376,20 @@ void actorFreeImmediate(Actor *arg0) {
     func_807233B4(arg0);
     sfxStopSlotSound(arg0, 0);
     sfxStopSlotSound(arg0, 1);
-    if (D_807FB930[0].actor != arg0) {
-        if (D_807FBB34 > 0) {
+    if (gActiveActors[0].actor != arg0) {
+        if (gActiveActorCount > 0) {
             do {
                 i++;
-                if (D_807FB930[i].actor == arg0) {
+                if (gActiveActors[i].actor == arg0) {
                     break;
                 }
-            } while (i < D_807FBB34);
+            } while (i < gActiveActorCount);
         }
     }
-    if (i != D_807FBB34) {
-        if (--D_807FBB34 != 0) {
-            D_807FB930[i].actor = D_807FB930[D_807FBB34].actor;
-            D_807FB930[i].unk4 = D_807FB930[D_807FBB34].unk4;
+    if (i != gActiveActorCount) {
+        if (--gActiveActorCount != 0) {
+            gActiveActors[i].actor = gActiveActors[gActiveActorCount].actor;
+            gActiveActors[i].unk4 = gActiveActors[gActiveActorCount].unk4;
         }
     }
     actorSub140Free(arg0->unk140);
@@ -432,8 +432,8 @@ static void func_8067881C(void) {}
 
 void func_80678B04(void) {
     s32 i;
-    for (i = 0; i < D_807FBB34; i++) {
-        Actor *actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        Actor *actor = gActiveActors[i].actor;
         if (!(actor->unk60 & 0x08000000) && (actor->unk60 & 0x500) && (actor->unk60 & 0x4000)) {
             func_80614A64(actor);
         }
@@ -884,8 +884,8 @@ s32 (*arg2)(Actor *);
     u16 count = 0;
     s32 i;
 
-    for (i = 0; i < D_807FBB34; i++) {
-        Actor *actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        Actor *actor = gActiveActors[i].actor;
         if (arg0 == actor->unk11C && actor->unk5C == arg1) {
             if (arg2 == NULL || arg2(actor)) {
                 count++;
@@ -908,8 +908,8 @@ void actorTableSort(void);
 
 Actor *actorFindByType(u16 arg0) {
     s32 i;
-    for (i = 0; i < D_807FBB34; i++) {
-        Actor *actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        Actor *actor = gActiveActors[i].actor;
         if (actor->unk58 == arg0) {
             return actor;
         }
@@ -919,8 +919,8 @@ Actor *actorFindByType(u16 arg0) {
 
 s32 actorIsActive(Actor *arg0) {
     s32 i;
-    for (i = 0; i < D_807FBB34; i++) {
-        Actor *actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        Actor *actor = gActiveActors[i].actor;
         if (arg0 == actor) {
             return 1;
         }

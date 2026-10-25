@@ -50,8 +50,8 @@ void func_8072A920(s32, s32, f32, f32, f32, s32, f32, f32, s32);
 s32 func_8072881C(s32, void *);
 void func_806319C4(Actor *, s32);
 
-extern ActorEntry D_807FB930[];
-extern u16 D_807FBB34;
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
 extern u32 D_8076A064;
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 func_80612790(s16);
@@ -59,7 +59,7 @@ f32 func_80612794(s16);
 void lightSetFovAngles(f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
-void func_806C6530(void) {
+void actorUpdateNearestSpotlight(void) {
     R1C8CBSub178 *p;
     s32 best;
     Actor *found;
@@ -75,8 +75,8 @@ void func_806C6530(void) {
     p = R1V->unk178;
     found = NULL;
     best = 999999;
-    for (i = 0; i < D_807FBB34; i++) {
-        e = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        e = gActiveActors[i].actor;
         if (e->unk58 == 0xF0 || e->unk58 == 0xF9) {
             dx = e->unk7C - D_807FBB4C->unk7C;
             dy = e->unk80 - D_807FBB4C->unk80;
@@ -158,7 +158,7 @@ void func_806C6884(s16 arg0, s16 arg1, u16 arg2) {
     func_8072B324(D_807FBB40, (s32)((u32)dist * 2.0));
     func_8072A920(0x23, arg0, D_807FDC94->unk7C, D_807FDC94->unk80 + arg0 * 3.0, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, arg2 | 0x2000);
     D_807FBB40->unk80 += 0.5 * func_80612794(D_8076A064 * 40);
-    func_806C6530();
+    actorUpdateNearestSpotlight();
     func_806319C4(D_807FBB40, 0);
 }
 

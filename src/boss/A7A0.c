@@ -45,15 +45,15 @@ typedef struct {
     s32 pad;
 } BossC_A7A0_Entry;
 
-extern BossC_A7A0_Entry D_807FB930[];
-extern u16 D_807FBB34;
+extern BossC_A7A0_Entry gActiveActors[];
+extern u16 gActiveActorCount;
 
 void bossResetMinions(BossC_A7A0_Actor *arg0) {
     s16 i;
     BossC_A7A0_Actor *actor;
 
-    for (i = 0; i < D_807FBB34; i++) {
-        actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
         if ((arg0 == NULL || actor != arg0) && actor->unk58 == 0xDE) {
             actor->unk60 &= ~0x8000;
             actor->unk154 = 1;

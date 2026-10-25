@@ -40,8 +40,8 @@ typedef struct Beh7984A_ActorEntry {
     Beh7984A_Actor *actor;
 } Beh7984A_ActorEntry;
 
-extern u16 D_807FBB34;
-extern Beh7984A_ActorEntry D_807FB930[];
+extern u16 gActiveActorCount;
+extern Beh7984A_ActorEntry gActiveActors[];
 extern void *D_807FB620;
 extern void *D_807FB624;
 extern s32 D_807FB628;
@@ -82,8 +82,8 @@ void func_80674E14(Beh7984A_Actor *arg0) {
     sub_unk8 = sub140->unk8;
     sub_unkC = sub140->unkC;
     i = 0;
-    if (D_807FBB34 > 0) {
-        entry = D_807FB930;
+    if (gActiveActorCount > 0) {
+        entry = gActiveActors;
         do {
             D_807FB620 = NULL;
             D_807FB624 = NULL;
@@ -141,6 +141,6 @@ void func_80674E14(Beh7984A_Actor *arg0) {
             }
             i++;
             entry++;
-        } while (i < D_807FBB34);
+        } while (i < gActiveActorCount);
     }
 }

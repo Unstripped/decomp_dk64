@@ -22,9 +22,9 @@ void func_806789E4(void) {
     (&D_807FBFE8)[1] = NULL;
     i = 0;
     D_807FBB3C = i;
-    if (i < D_807FBB34) {
+    if (i < gActiveActorCount) {
         do {
-            actor = D_807FB930[i].actor;
+            actor = gActiveActors[i].actor;
             D_807FBB40 = actor;
             if (((R3B_Actor9E4 *)actor)->unk64 & 2) {
                 func_80678BBC(actor);
@@ -36,7 +36,7 @@ void func_806789E4(void) {
                 func_80614A64(actor);
             }
             i = D_807FBB3C;
-        } while ((D_807FBB3C = ++i) < D_807FBB34);
+        } while ((D_807FBB3C = ++i) < gActiveActorCount);
     }
     func_806790F4(1);
     func_80678B04();

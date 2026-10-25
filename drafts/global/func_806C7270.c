@@ -1,4 +1,4 @@
-// func_806C7270 (src/global/CBEA0.c): diff: D_80750754/D_807FC8E8 hi regs a1/a2 swapped, sra/andi temps, E8 store via at; decl order frac,x0,y0,e,actor,i,t,k gives frame 0x30; 0 vs 0.0f ints; EC=1 in else
+// func_806C7270 (src/global/CBEA0.c): stage 6, 8 diff lines left (bb at 0x330-0x3c8 only): no 'k' local + D_807506D5[idx*6] gives all globals regs a1/a2 + E8 in a1 in interp block matching; remaining: (t>>1) CSE temp in a0 vs target t9, andi/sll swap (delay slot), lui base D_8075075C early (t4) vs late t1, y1/y0 load order. k local breaks E8 range (hole in interp bb); register/ordering/decl-order/expression-form variants and 2x600s permuter did not fix. Reloc-only: D_8075C3E0 vs .rodata (0.1f).
 typedef struct R1C2CB_Entry {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 unk2;
@@ -15,6 +15,7 @@ extern Actor *D_807FBB40;
 extern s8 D_80750754;
 extern s16 D_80750758;
 extern R1C2CB_Entry D_807506D0[];
+extern s8 D_807506D5[];
 extern R1C2CB_Pair D_8075075C[];
 extern s16 D_807FC8E0;
 extern s16 D_807FC8E2;
@@ -35,7 +36,6 @@ void func_806C7270(void) {
     Actor *actor;
     s32 i;
     s32 t;
-    s32 k;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FC8F0 = func_8066B0F8(0x13, 7, 1, 1);
@@ -66,7 +66,7 @@ void func_806C7270(void) {
         D_807FC8E4--;
         if (D_807FC8E4 <= 0) {
             if (D_80750754 >= 0) {
-                D_80750758 += D_807506D0[D_80750754].unk5;
+                D_80750758 += D_807506D5[D_80750754 * 6];
             }
             if (D_80750758 >= D_807FC8E0) {
                 D_80750758 = 0;
@@ -84,9 +84,8 @@ void func_806C7270(void) {
         D_807FC8EC = 1;
     } else {
         t = D_807506D0[D_80750754].unk0 - D_807FC8E2;
-        k = t >> 1;
-        if (k < 0x16) {
-            e = &D_8075075C[k];
+        if ((t >> 1) < 0x16) {
+            e = &D_8075075C[t >> 1];
             frac = (f64)(f32)(t & 1) * 0.5;
             x0 = e[0].unk0;
             y0 = e[0].unk4;

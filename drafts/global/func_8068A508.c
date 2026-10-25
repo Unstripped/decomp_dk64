@@ -48,8 +48,8 @@ typedef struct Act8CA_Actor4C {
     s32 unk4C;
 } Act8CA_Actor4C;
 
-extern u16 D_807FBB34;
-extern R2CA_ActorEntry D_807FB930[];
+extern u16 gActiveActorCount;
+extern R2CA_ActorEntry gActiveActors[];
 extern R2CA_PlayerC924 *D_807FC924;
 extern u8 D_807FC928;
 extern s32 D_807552F4[];
@@ -74,8 +74,8 @@ void func_8068A508(void) {
     s32 a2;
 
     var_s1 = 0;
-    if ((s32)D_807FBB34 > 0) {
-        entry_ptr = D_807FB930;
+    if ((s32)gActiveActorCount > 0) {
+        entry_ptr = gActiveActors;
         do {
             actor = entry_ptr->actor;
             if (!(actor->unk60 & 0x2000) && (actor->unk60 & 0x100)) {
@@ -117,6 +117,6 @@ void func_8068A508(void) {
             }
             var_s1++;
             entry_ptr++;
-        } while (var_s1 < (s32)D_807FBB34);
+        } while (var_s1 < (s32)gActiveActorCount);
     }
 }

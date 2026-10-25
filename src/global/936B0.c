@@ -1505,15 +1505,15 @@ void projectileHomingParticleUpdate(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_806970CC.s")
 
-extern ActorEntry D_807FB930[];
-extern u16 D_807FBB34;
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 
 void actorAppendActiveCallback8(void) {
     s16 i;
 
-    for (i = 0; i < D_807FBB34; i++) {
-        Actor *actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        Actor *actor = gActiveActors[i].actor;
 
         if (actor->unk5C & 4) {
             actorAppendCallback(actor, (s32)D_807FBB40, 8, 0, 0, NULL);

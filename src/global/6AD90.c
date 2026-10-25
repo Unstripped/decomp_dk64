@@ -348,16 +348,16 @@ void dynamicBufferPurgeExpired(void) {
         }
     }
 }
-extern ActorEntry D_807FB930[];
-extern u16 D_807FBB34;
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
 
 void actorClearBufferReferences(s32 arg0) {
     s32 i;
     u32 min = D_807F9514[arg0].unk0;
     u32 max = D_807F9514[arg0].unk4;
 
-    for (i = 0; i < D_807FBB34; i++) {
-        Actor *actor = D_807FB930[i].actor;
+    for (i = 0; i < gActiveActorCount; i++) {
+        Actor *actor = gActiveActors[i].actor;
         u32 val = actor->unk150;
 
         if (!(actor->unk60 & 0x2000) && val >= min && max >= val) {

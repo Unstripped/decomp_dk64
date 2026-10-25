@@ -1282,7 +1282,7 @@ void func_806C226C(void) {
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void effectSpawnActorBone(Actor *, u8, f32);
 
-void func_806C27DC(void) {
+void actorPlaySoundSpawnBoneEffects(void) {
     f32 scale = D_807FBB40->unk4->unk38 / 0.15;
 
     sfxPlayActorSound(D_807FBB40, 0x114, 0x50, 0, 0, 0xFF, 0.5f, 0);
@@ -1306,7 +1306,7 @@ typedef struct R1C46bSub4 {
     /* 0x0 */ R1C46bInner *unk0;
 } R1C46bSub4;
 
-void func_806C28B8(void) {
+void actorSpawnOctagonRingsByTimer(void) {
     f32 v;
     f32 sp78;
     f32 sp74;
@@ -1317,7 +1317,7 @@ void func_806C28B8(void) {
 
     v = ((R1C46bSub4 *)D_807FBB40->unk4)->unk0->unk4;
     if (v > 83.0f) {
-        func_806C27DC();
+        actorPlaySoundSpawnBoneEffects();
         v = ((R1C46bSub4 *)D_807FBB40->unk4)->unk0->unk4;
     }
     if (v > 2.0f && v < 90.0f) {
@@ -1337,7 +1337,7 @@ void func_807149A8(s32);
 void func_80714944(s32);
 void func_80717D84();
 
-void func_806C2A64(u8 arg0, u8 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5, void *arg6, f32 arg7) {
+void effectSpawnColoredParticleAtPoint(u8 arg0, u8 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5, void *arg6, f32 arg7) {
     func_807149A8(1000);
     func_80714998(0xFF);
     func_80714944(((func_80611A44() >> 15) % 0x7FFF) % 11);
@@ -1349,7 +1349,7 @@ void func_806C2A64(u8 arg0, u8 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5, void
 
 extern u8 D_80747B00[];
 
-void func_806C2B2C(u8 arg0, u8 arg1, u8 arg2, void *arg3) {
+void actorSpawnParticlesAlongNodeLoop(u8 arg0, u8 arg1, u8 arg2, void *arg3) {
     f32 scale;
     f32 spA8;
     f32 spA4;
@@ -1372,18 +1372,18 @@ void func_806C2B2C(u8 arg0, u8 arg1, u8 arg2, void *arg3) {
             } else {
                 actorGetNodePos(D_807FBB40, arg0, &sp9C, &sp98, &sp94);
             }
-            func_806C2A64(D_80747B00[arg2 * 3], D_80747B00[arg2 * 3 + 1], D_80747B00[arg2 * 3 + 2], (sp9C - spA8) * frac + spA8, (sp98 - spA4) * frac + spA4, (sp94 - spA0) * frac + spA0, arg3, scale);
+            effectSpawnColoredParticleAtPoint(D_80747B00[arg2 * 3], D_80747B00[arg2 * 3 + 1], D_80747B00[arg2 * 3 + 2], (sp9C - spA8) * frac + spA8, (sp98 - spA4) * frac + spA4, (sp94 - spA0) * frac + spA0, arg3, scale);
         }
     }
 }
 
 extern u8 D_8071FFA0[];
 
-void func_806C2D7C(void) {
-    func_806C2B2C(1, 0xB, 6, D_8071FFA0);
-    func_806C2B2C(0x20, 0x30, 6, D_8071FFA0);
-    func_806C2B2C(0xC, 0x16, 2, D_8071FFA0);
-    func_806C2B2C(0x17, 0x1F, 2, D_8071FFA0);
+void actorSpawnParticlesAlongNodeRanges(void) {
+    actorSpawnParticlesAlongNodeLoop(1, 0xB, 6, D_8071FFA0);
+    actorSpawnParticlesAlongNodeLoop(0x20, 0x30, 6, D_8071FFA0);
+    actorSpawnParticlesAlongNodeLoop(0xC, 0x16, 2, D_8071FFA0);
+    actorSpawnParticlesAlongNodeLoop(0x17, 0x1F, 2, D_8071FFA0);
 }
 
 typedef struct LgC2DF4Inner {
@@ -1589,7 +1589,7 @@ void func_806C2DF4(void) {
                 func_807248B0(D_807FBB40, sp54);
                 LgV->unkE8 = 0xC8;
                 func_806BFBB4();
-                func_806C2D7C();
+                actorSpawnParticlesAlongNodeRanges();
                 break;
             case 0x68:
                 if (D_8076A0A8 == 0xCD) {
@@ -1706,15 +1706,15 @@ void func_806C2DF4(void) {
             func_80685F60(D_807FBB40);
             break;
         case 0x43E:
-            func_806C28B8();
+            actorSpawnOctagonRingsByTimer();
             break;
         case 0x43D:
         case 0x440:
-            func_806C27DC();
+            actorPlaySoundSpawnBoneEffects();
             break;
         case 0x43F:
             if (LgV->unk4->unk0->unk4 < 68.0f) {
-                func_806C27DC();
+                actorPlaySoundSpawnBoneEffects();
             }
             if (65.0f < LgV->unk4->unk0->unk4) {
                 sfxStopSlotSound(D_807FBB40, 0);

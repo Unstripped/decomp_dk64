@@ -137,8 +137,8 @@ void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, B2CE0Actor *);
 void func_8072881C(s32, void *);
 s32 func_8072E22C(s32);
 extern s32 D_807FDCA0;
-extern u16 D_807FBB34;
-extern ActorEntry D_807FB930[];
+extern u16 gActiveActorCount;
+extern ActorEntry gActiveActors[];
 
 void func_806ADFE0(void) {
     f32 sp88[4][4];
@@ -903,8 +903,8 @@ s32 func_806B0770(void) {
     f32 dz;
 
     found = 0;
-    for (i = 0; !found && i < D_807FBB34; i++) {
-        other = D_807FB930[i].actor;
+    for (i = 0; !found && i < gActiveActorCount; i++) {
+        other = gActiveActors[i].actor;
         if (other->unk58 == 0x29) {
             dx = other->unk7C - D_807FBB40->unk7C;
             dy = other->unk80 - D_807FBB40->unk80;
