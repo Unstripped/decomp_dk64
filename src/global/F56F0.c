@@ -232,11 +232,91 @@ void func_806F1048(Actor *arg0) {
     func_806C8D20(D_807FBB40);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F10E8.s")
+typedef struct F5N3ActorState {
+    u8 pad0[0x58];
+    u32 state;
+    u8 pad5C[0x88];
+    s16 unkE4;
+    u8 padE6[2];
+    s16 unkE8;
+} F5N3ActorState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1250.s")
+typedef struct F5N3ActorSub10E8 {
+    u8 pad0[0x38];
+    f32 unk38;
+} F5N3ActorSub10E8;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F12FC.s")
+void func_806F0C18(Actor *);
+s32 actorSpawn(s32, s32);
+void func_8067B238(Actor *, Actor *, f32);
+void func_80613194(Actor *, s32);
+
+void func_806F10E8(Actor *arg0) {
+    switch (((F5N3ActorState *) arg0)->state) {
+        case 2:
+        case 0xC4:
+            func_806F0C18(arg0);
+            actorSpawn(0xEF, 0xA6);
+            func_8067B238(D_807FBB44, arg0, ((F5N3ActorSub10E8 *) arg0->unk4)->unk38 * 1.25);
+            ((F5N3ActorState *) D_807FBB44)->unkE4 = ((F5N3ActorState *) arg0)->unkE4;
+            ((F5N3ActorState *) D_807FBB44)->unkE8 = ((F5N3ActorState *) arg0)->unkE8;
+            D_807FBB44->unk60 |= 0x40000000;
+            break;
+        case 3:
+        case 0xC5:
+            func_806F0C18(arg0);
+            func_80613194(arg0, 2);
+            break;
+        case 4:
+        case 0xC6:
+            func_806F0C18(arg0);
+            func_80613194(arg0, 7);
+            break;
+        case 5:
+        case 0xC7:
+            func_806F0C18(arg0);
+            func_80613194(arg0, 0xA);
+            break;
+        case 6:
+        case 0xC8:
+            func_806F0C18(arg0);
+            func_80613194(arg0, 0xD);
+            break;
+    }
+}
+
+typedef struct F5N3ActorExtra {
+    u8 pad0[0x1F0];
+    s32 flags;
+} F5N3ActorExtra;
+
+void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxAllocateChannel(s32, f32);
+void sfxStopChannel(s32, s32);
+extern s32 D_807FBB68;
+
+void func_806F1250(Actor *arg0) {
+    F5N3ActorExtra *extra = arg0->unk174;
+
+    if (arg0->unk58 == 6) {
+        func_80613194(arg0, 0x10);
+        func_806086CC(arg0->unk7C, arg0->unk80, arg0->unk84, 0x2E2, 0xFF, 0xA0, 0, 0x32, 0.0f, 0);
+        if (!(D_807FBB68 & 2)) {
+            sfxAllocateChannel(0x6C, 1.0f);
+        }
+    }
+    extra->flags |= 0x40;
+}
+
+void func_806F12FC(Actor *arg0) {
+    F5N3ActorExtra *extra = arg0->unk174;
+
+    if (arg0->unk58 == 6) {
+        func_80613214();
+        sfxStopChannel(0x6C, 0);
+    }
+    extra->flags &= ~0x40;
+}
 
 void func_806E225C();
 
@@ -305,9 +385,58 @@ void func_806F149C(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1668.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1768.s")
+typedef struct F5N3PlayerState1768 {
+    u8 pad0[0x8E];
+    u8 unk8E;
+    u8 pad8F[2];
+    u8 unk91;
+} F5N3PlayerState1768;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1858.s")
+typedef struct F5N3TableEntry1768 {
+    u8 unk0;
+    u8 unk1;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+} F5N3TableEntry1768;
+
+#define F5N3_PLAYER_1768 ((F5N3PlayerState1768 *) D_807FD580)
+
+extern u16 D_80752F20[];
+
+void func_806F1768(s32 arg0, F5N3TableEntry1768 *arg1, s32 *arg2) {
+    s32 temp_v1;
+    u16 temp_v0;
+    temp_v0 = 7U;
+    temp_v1 = F5N3_PLAYER_1768->unk8E - 0x14;
+    if ((temp_v1 >= 0) && ((u32) temp_v1 < temp_v0)) {
+        temp_v0 = D_80752F20[temp_v1];
+        arg1[*arg2].unk0 = 0x7F;
+        arg1[*arg2].unk1 = F5N3_PLAYER_1768->unk91 != 0 ? 9 : 8;
+        arg1[*arg2].unk2 = 0;
+        arg1[*arg2].unk4 = F5N3_PLAYER_1768->unk91 != 0 ? temp_v0 : -temp_v0;
+        arg1[*arg2].unk6 = 0;
+        *arg2 += 1;
+    }
+}
+
+extern u16 D_80752F30[];
+
+void func_806F1858(s32 arg0, F5N3TableEntry1768 *arg1, s32 *arg2) {
+    s32 temp_v1;
+    u16 temp_v0;
+    temp_v0 = 4U;
+    temp_v1 = F5N3_PLAYER_1768->unk8E - 0x14;
+    if ((temp_v1 >= 0) && ((u32) temp_v1 < temp_v0)) {
+        temp_v0 = D_80752F30[temp_v1];
+        arg1[*arg2].unk0 = 0x7F;
+        arg1[*arg2].unk1 = 4;
+        arg1[*arg2].unk2 = 0;
+        arg1[*arg2].unk4 = temp_v0;
+        arg1[*arg2].unk6 = 0;
+        *arg2 += 1;
+    }
+}
 
 typedef struct {
     u8 unk0;
