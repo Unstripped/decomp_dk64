@@ -403,7 +403,21 @@ s32 func_806C8DE0(s32 arg0) {
 
 void func_806C8F8C(void *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C8E58.s")
+void func_806C8E58(s16 arg0) {
+    s32 found;
+    u8 i;
+
+    found = 0;
+    i = D_8074E77C[D_807FC929] = 0;
+    do {
+        if (arg0 == D_8075C410[i].unk0) {
+            found = 1;
+        } else {
+            D_8074E77C[D_807FC929] = i + 1; i = D_8074E77C[D_807FC929];
+        }
+    } while (found == 0);
+    func_806C8F8C(&D_8075C410[i]);
+}
 
 typedef struct G00View8C {
     /* 0x00 */ u8 pad0[0x8C];
@@ -756,38 +770,46 @@ extern s32 D_807FBB64;
 #ifdef NON_MATCHING
 void func_800268C0();
 
+/* stage 6: K&R `s8 arg0` + `v = arg0; arg0 = 0;` gives the entry sll/sra/move, the dead home store, frame 0x20 and the
+ * 0x1f(sp) spill. Named c/pl locals put c=v0, pl=v1, p=a0 in the first block. The call passes only (1, arg1): a third
+ * `v` argument makes uopt forbid a2 for v (arg-setup block), so v stays in a2 only with the 2-arg call (callee reads a2).
+ * Remaining diff: target keeps flags/unk58 in v1 and copies p to v0 (`move v0,a0`) for the unk58 load. */
 s8 func_806C9830(arg0, arg1)
     s8 arg0;
     Actor *arg1;
 {
     s8 v;
+    G01Ctl *c;
+    G01Player *pl;
     Actor *p;
+    u16 f;
 
     v = arg0;
     arg0 = 0;
 
     if (D_807FC928 >= 2) {
-        p = ((G01Player *)D_807FC924)[((G01Act *)arg1)->unk174->unk1A4].unk2A0;
+        c = ((G01Act *)arg1)->unk174; pl = c->unk1A4 + (G01Player *)D_807FC924; p = pl->unk2A0;
         if (p != NULL) {
-            if (p->unk5C & 1) {
+            f = p->unk5C;
+            if (f & 1) {
                 v = -1;
                 if (D_807FBB64 & 0x04000000) {
-                    func_800268C0(1, arg1, v);
+                    func_800268C0(1, arg1);
                 }
-            } else if (p->unk5C & 4) {
+            } else if (f & 4) {
                 if (p->unk58 == 0x29 || p->unk58 == 0xAB) {
                     v = -3;
                     if (D_807FBB64 & 0x04000000) {
-                        func_800268C0(2, arg1, v);
+                        func_800268C0(2, arg1);
                     }
                 } else {
                     v = -2;
                     if (D_807FBB64 & 0x04000000) {
-                        func_800268C0(1, arg1, v);
+                        func_800268C0(1, arg1);
                     }
                 }
             } else if (D_807FBB64 & 0x04000000) {
-                func_800268C0(1, arg1, v);
+                func_800268C0(1, arg1);
             }
         }
     }
