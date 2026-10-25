@@ -1,4 +1,4 @@
-// func_806C850C (src/global/CC800.c): G00 NmCC800c: stage 5-6. Text structure matches except sel regalloc (target sel only in s2 w/ andi s2,a1,0xff; ours s0 + copy s3), li -1 sharing (target one li v1,-1 promoted), lui 3f80/mtc1 position. Prototyped (s32,u8) + s32 sel=arg1 gives andi+home sw a1 and frame 0x30. Slot copies need non-CSE'd loads: volatile array loads reproduce them (extern volatile G00Slot34 D_807FD610[]). new_var=1 / -new_var hint improved score. flt = D_8075C4B0 before unk26 store.
+// func_806C850C (src/global/CC800.c): func_806C850C stage 6 (Nm3CC800): regalloc only, ~88 diff lines. u32 sel = arg1 gives single 'andi sel,a1,0xff' reg (no param copy), -new_var keeps -1 from folding to 255; extern volatile G00Slot34 D_807FD610[] + array accesses reproduce uncached slot loads. Remaining: uopt colors &D_807FBB48 const (adjsave 2.25=9/4) before sel (8/7 per use, +1/7 per extra use) so sel=s3/D=s2 vs target sel=s2/D=s3; -1 stores share li a1 (s8 unk247 + literal -1: shared li but in a1 not v1); slot load temps f8/f10/f16..f18 vs target f10,f16,f18..f8. Tried: s8/u8/s16/u16/register sel types, K&R, direct param use (param uncolored, lbu from home), dead if(sel){}, sel^=0, dead tests of D, two slot pointers (CSE'd), permuter 600s (no gain).
 typedef struct G00Sub4 {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ u8 *unk1C;
@@ -103,16 +103,17 @@ void func_806E2C74(Actor *);
 s32 func_8073110C(s32, s32);
 void func_806F09F0(Actor *, u16);
 void func_806CFF9C(Actor *);
-void *func_80610FE8(s32);
 void func_806C90C4(s32);
 void func_806C8984(void);
 void func_806C8D20(Actor *);
 
+/* Parked (stage 6, regalloc only): `u32 sel = arg1` gives the single `andi sel,a1,0xff` register, but uopt colors the
+ * &D_807FBB48 constant (adjsave 2.25) before sel (1.14), so ours has sel=s3/D=s2 where the target has sel=s2/D=s3.
+ * Volatile slot reads stand in for the target's uncached loads; `-new_var` keeps the -1 stores from folding to 255. */
 void func_806C850C(s32 arg0, u8 arg1) {
     G00Row *row;
-    G00Slot34 *slot;
     f32 flt;
-    s32 sel;
+    u32 sel;
     s32 new_var;
 
     sel = arg1;
@@ -192,15 +193,14 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_A48->unkDE = 0x400;
     G00_P->unk1B0 = 0;
     G00_P->unk1AC = 0;
-    slot = (G00Slot34 *)&D_807FD610[sel];
-    slot->unk14 = D_807FD610[sel].unk4;
-    slot->unk18 = D_807FD610[sel].unk4;
-    slot->unk1C = D_807FD610[sel].unk4;
-    slot->unk22 = D_807FD610[sel].unk28;
-    slot->unk24 = D_807FD610[sel].unk28;
-    slot->unk26 = D_807FD610[sel].unk28;
-    slot->unk20 = D_807FD610[sel].unk28;
-    slot->unk10 = D_807FD610[sel].unk4;
+    D_807FD610[sel].unk14 = D_807FD610[sel].unk4;
+    D_807FD610[sel].unk18 = D_807FD610[sel].unk4;
+    D_807FD610[sel].unk1C = D_807FD610[sel].unk4;
+    D_807FD610[sel].unk22 = D_807FD610[sel].unk28;
+    D_807FD610[sel].unk24 = D_807FD610[sel].unk28;
+    D_807FD610[sel].unk26 = D_807FD610[sel].unk28;
+    D_807FD610[sel].unk20 = D_807FD610[sel].unk28;
+    D_807FD610[sel].unk10 = D_807FD610[sel].unk4;
     func_806CFF9C(D_807FBB48);
     func_806C90C4(arg0);
     func_806C8984();
