@@ -835,15 +835,473 @@ s16 func_806CD988(Actor *arg0) {
     return ret;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CD9A0.s")
+extern f32 D_80753170[];
+extern f32 D_8075318C[];
+extern f32 D_807531A8[];
+extern f32 D_807531C4[];
+extern f32 D_807531E0[];
+extern s32 D_8076A0A8;
+extern u8 D_807444EC;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CDD24.s")
+s16 func_806CD9A0(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
+    f32 max;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CE174.s")
+    if (arg2 < arg1) {
+        max = arg1;
+    } else {
+        max = arg2;
+    }
+    if ((arg0->unk6A | arg0->unk6C) & 1) {
+        switch (arg3) {
+            case 0:
+            case 1:
+            case 2:
+                if (arg2 != 0.0f) {
+                    if (arg2 < D_8075318C[arg4]) {
+                        arg3 = 3;
+                    } else if (arg2 < D_807531C4[arg4]) {
+                        arg3 = 4;
+                    } else {
+                        arg3 = 5;
+                    }
+                }
+                break;
+            case 3:
+                if (arg2 == 0.0f && arg1 < D_80753170[arg4]) {
+                    arg3 = 0;
+                    break;
+                }
+                if (D_807531C4[arg4] < arg2) {
+                    arg3 = 5;
+                } else if (D_8075318C[arg4] < arg2) {
+                    arg3 = 4;
+                }
+                break;
+            case 4:
+                if (max < D_807531A8[arg4]) {
+                    if (arg2 < D_80753170[arg4]) {
+                        arg3 = 0;
+                    } else {
+                        arg3 = 3;
+                    }
+                } else if (D_807531C4[arg4] < arg2) {
+                    arg3 = 5;
+                }
+                break;
+            case 5:
+                if (max < D_807531E0[arg4]) {
+                    arg3 = 4;
+                }
+                break;
+            default:
+                if (arg1 < D_80753170[arg4]) {
+                    arg3 = 0;
+                } else if (arg1 < D_807531A8[arg4]) {
+                    arg3 = 3;
+                } else if (arg1 < D_807531E0[arg4]) {
+                    arg3 = 4;
+                } else {
+                    arg3 = 5;
+                }
+                break;
+        }
+        if (D_807FD580->unk1F0 & 0x100) {
+            if (arg3 == 4 || arg3 == 5) {
+                arg3 = 3;
+            }
+        }
+        if (arg3 == 0) {
+            if (D_8076A0A8 == 1 || D_8076A0A8 == 5 || D_8076A0A8 == 0x19 || D_8076A0A8 == 0xF) {
+                arg3 = 2;
+                goto end;
+            }
+        }
+        if (arg3 == 0) {
+            if (D_807FC928 >= 2 || (D_807FD580->unk1F0 & 0x40) || !(arg0->unk60 & 4) || D_807444EC == 1) {
+                arg3 = 1;
+                goto end;
+            }
+        }
+        if (arg3 == 1) {
+            if (D_807FC928 < 2 && !(D_807FD580->unk1F0 & 0x40) && (arg0->unk60 & 4) && D_807444EC != 1) {
+                arg3 = 0;
+                goto end;
+            }
+        }
+    } else {
+        arg3 = 6;
+    }
+end:
+    return arg3;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CE4E4.s")
+typedef struct G04PlayerView {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ u8 pad8[0x26 - 8];
+    /* 0x26 */ s16 unk26;
+    /* 0x28 */ u8 pad28[0x4C - 0x28];
+    /* 0x4C */ s16 unk4C;
+    /* 0x4E */ u8 pad4E[0x1F0 - 0x4E];
+    /* 0x1F0 */ s32 unk1F0;
+} G04PlayerView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CE7A0.s")
+#define G04_P ((G04PlayerView *)D_807FD580)
+
+typedef struct G04Model {
+    /* 0x00 */ u8 pad0[0x24];
+    /* 0x24 */ f32 unk24;
+} G04Model;
+
+typedef struct G04ActorView {
+    /* 0x00 */ u8 pad0[0xB8];
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[4];
+    /* 0xC0 */ f32 unkC0;
+} G04ActorView;
+
+s16 func_806CE7A0(Actor *, f32, f32, s16, s16);
+void func_806D0408(void);
+void func_80614EBC(Actor *, s32);
+void func_80614D00(Actor *, f32, f32);
+void func_80613C48(void *, s16, f32, f32);
+void func_80613A50(Actor *, s32);
+
+extern u8 D_8074E77C[];
+void func_80613AF8(void *, s32, f32, f32);
+void func_806D03BC(void);
+
+s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
+    s16 sp36;
+    f32 scale;
+    s16 sp2E;
+    s16 sp2C;
+
+    sp36 = arg0->unk154;
+    sp2E = G04_P->unk4C;
+    sp2C = func_806CD9A0(arg0, arg1, arg2, G04_P->unk4C, D_807FD584);
+    if (sp2C != 6) {
+        ((G04ActorView *)arg0)->unkC0 = 0.0f;
+    }
+    if (sp2E < 0) {
+        func_806D03BC();
+    }
+    if (sp2E != sp2C) {
+        switch (sp2C) {
+            case 0:
+                if (G04_P->unk1F0 & 0x100) {
+                    func_80614EBC(arg0, 0x1AD);
+                } else {
+                    func_80614E78(arg0, 9);
+                }
+                func_80614D00(arg0, 1.0f, 0.0f);
+                sp36 = 0xC;
+                break;
+            case 1:
+                if (G04_P->unk1F0 & 0x100) {
+                    func_80614EBC(arg0, 0x1AD);
+                } else {
+                    func_80614EBC(arg0, 0x13);
+                }
+                func_80614D00(arg0, 1.0f, 0.0f);
+                sp36 = 0xC;
+                break;
+            case 2:
+                func_80614E78(arg0, 0x87);
+                func_80614D00(arg0, 1.0f, 0.0f);
+                sp36 = 0xC;
+                break;
+            case 3:
+                if (G04_P->unk1F0 & 0x100) {
+                    func_80614EBC(arg0, 0x76);
+                    func_80613C48(arg0, 0x2AC, 0.0f, 6.0f);
+                } else {
+                    func_80613AF8(arg0, 2, 0.0f, 6.0f);
+                    func_80614E78(arg0, 1);
+                }
+                if (sp2E == 4 || sp2E == 5) {
+                    func_80613A50(arg0, 2);
+                }
+                sp36 = 0xD;
+                break;
+            case 4:
+                func_80614E78(arg0, 2);
+                func_80613AF8(arg0, 3, 0.0f, 6.0f);
+                if (sp2E == 3) {
+                    switch (D_8074E77C[D_807FC929]) {
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                            func_80613A50(arg0, 4);
+                            break;
+                    }
+                }
+                if (sp2E == 5) {
+                    func_80613A50(arg0, 2);
+                }
+                sp36 = 0xD;
+                break;
+            case 5:
+                func_80614E78(arg0, 3);
+                func_80613AF8(arg0, 4, 0.0f, 6.0f);
+                if (sp2E == 3 || sp2E == 4) {
+                    func_80613A50(arg0, 4);
+                }
+                sp36 = 0xD;
+                break;
+            case 6:
+                func_80614E78(arg0, 0x1B);
+                func_80614D90(arg0);
+                D_807FBB40->unk9C = D_807FBB40->unk80;
+                sp36 = 0x1E;
+                break;
+        }
+        G04_P->unk4C = sp2C;
+    }
+    if (G04_P->unk4C >= 3) {
+        if (G04_P->unk26 == 100) {
+            scale = ((G04ActorView *)arg0)->unkB8;
+        } else {
+            scale = G04_P->unk4;
+        }
+        scale = scale * 0.025;
+        if (G04_P->unk4C == 5) {
+            scale = scale * 0.6;
+        }
+        if (scale > 1.25f) {
+            scale = scale - (scale - 1.25f) * 0.4;
+        }
+        if ((*(G04Model **)arg0->unk4)->unk24 != 0.0f) {
+            if (G04_P->unk26 == 100) {
+                func_80614D00(arg0, scale, 2.0f);
+            } else {
+                if (scale < 0.5) {
+                    scale = 0.5f;
+                }
+                func_80614D00(arg0, scale, 10.0f);
+            }
+        }
+    }
+    return sp36;
+}
+
+s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
+    s16 sp36;
+    f32 scale;
+    s16 sp2E;
+    s16 sp2C;
+
+    sp36 = arg0->unk154;
+    sp2E = G04_P->unk4C;
+    sp2C = func_806CD9A0(arg0, arg1, arg2, G04_P->unk4C, D_807FD584);
+    ((G04ActorView *)arg0)->unkC0 = 0.0f;
+    if (sp2E < 0) {
+        func_806D03BC();
+    }
+    if (sp2E != sp2C) {
+        switch (sp2C) {
+            case 0:
+                func_80614E78(arg0, 0x51);
+                func_80614D00(arg0, 1.0f, 0.0f);
+                sp36 = 0x5D;
+                break;
+            case 1:
+                func_80614EBC(arg0, 0x23);
+                func_80614D00(arg0, 1.0f, 0.0f);
+                sp36 = 0x5D;
+                break;
+            case 3:
+                func_80614E78(arg0, 0x57);
+                func_80613AF8(arg0, 0x5C, 0.0f, 6.0f);
+                if (sp2E == 4 || sp2E == 5) {
+                    func_80613A50(arg0, 2);
+                }
+                sp36 = 0x5E;
+                break;
+            case 4:
+                func_80614E78(arg0, 0x56);
+                func_80613AF8(arg0, 0x58, 0.0f, 6.0f);
+                if (sp2E == 3) {
+                    switch (D_8074E77C[D_807FC929]) {
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                            func_80613A50(arg0, 4);
+                            break;
+                    }
+                }
+                if (sp2E == 5) {
+                    func_80613A50(arg0, 0xA);
+                }
+                sp36 = 0x5E;
+                break;
+            case 5:
+                func_80614E78(arg0, 0x55);
+                func_80613AF8(arg0, 0x60, 0.0f, 6.0f);
+                switch (D_8074E77C[D_807FC929]) {
+                    case 4:
+                    case 5:
+                        if (sp2E == 3) {
+                            func_80613A50(arg0, 8);
+                        }
+                        break;
+                    default:
+                        if (sp2E == 3 || sp2E == 4) {
+                            func_80613A50(arg0, 0);
+                        }
+                        break;
+                }
+                sp36 = 0x5E;
+                break;
+            case 6:
+                func_80614E78(arg0, 0x58);
+                func_80614D90(arg0);
+                D_807FBB40->unk9C = D_807FBB40->unk80;
+                sp36 = 0x1F;
+                break;
+        }
+        G04_P->unk4C = sp2C;
+    }
+    if (G04_P->unk4C >= 3) {
+        scale = ((G04ActorView *)arg0)->unkB8;
+        scale = scale * 0.025;
+        if (G04_P->unk4C == 5) {
+            scale = scale * 0.6;
+        }
+        if (scale > 1.25f) {
+            scale = scale - (scale - 1.25f) * 0.4;
+        }
+        if ((*(G04Model **)arg0->unk4)->unk24 != 0.0f) {
+            func_80614D00(arg0, scale, 2.0f);
+        }
+    }
+    return sp36;
+}
+
+s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
+    s16 sp36;
+    f32 scale;
+    s16 sp2E;
+    s16 sp2C;
+
+    sp36 = arg0->unk154;
+    sp2E = G04_P->unk4C;
+    sp2C = func_806CE7A0(arg0, arg1, arg2, G04_P->unk4C, D_807FD584);
+    ((G04ActorView *)arg0)->unkC0 = 0.0f;
+    if (sp2E < 0) {
+        func_806D0408();
+    }
+    if (sp2E != sp2C) {
+        switch (sp2C) {
+            case 0:
+            case 1:
+            case 2:
+                func_80614EBC(arg0, 0x150);
+                func_80614D00(arg0, 1.0f, 0.0f);
+                sp36 = 0x3F;
+                break;
+            case 4:
+                func_80614EBC(arg0, 0x151);
+                func_80613C48(arg0, 0x163, 0.0f, 6.0f);
+                if (sp2E == 5) {
+                    func_80613A50(arg0, 4);
+                }
+                sp36 = 0x40;
+                break;
+            case 5:
+                func_80614EBC(arg0, 0x152);
+                func_80613C48(arg0, 0x162, 0.0f, 6.0f);
+                if (sp2E == 4) {
+                    func_80613A50(arg0, 0xC);
+                }
+                sp36 = 0x40;
+                break;
+            case 6:
+                func_80614E78(arg0, 0x1B);
+                func_80614D90(arg0);
+                D_807FBB40->unk9C = D_807FBB40->unk80;
+                sp36 = 0x1E;
+                break;
+        }
+        G04_P->unk4C = sp2C;
+    }
+    if (G04_P->unk4C >= 3) {
+        if (G04_P->unk26 == 100) {
+            scale = ((G04ActorView *)arg0)->unkB8;
+        } else {
+            scale = G04_P->unk4;
+        }
+        scale = scale * 0.025;
+        if (G04_P->unk4C == 5) {
+            scale = scale * 0.6;
+        }
+        if (scale > 1.25f) {
+            scale = scale - (scale - 1.25f) * 0.4;
+        }
+        if ((*(G04Model **)arg0->unk4)->unk24 != 0.0f) {
+            if (G04_P->unk26 == 100) {
+                func_80614D00(arg0, scale, 2.0f);
+            } else {
+                if (scale < 0.5) {
+                    scale = 0.5f;
+                }
+                func_80614D00(arg0, scale, 10.0f);
+            }
+        }
+    }
+    return sp36;
+}
+
+s16 func_806CE7A0(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
+    f32 max;
+
+    if (arg2 < arg1) {
+        max = arg1;
+    } else {
+        max = arg2;
+    }
+    if ((arg0->unk6A | arg0->unk6C) & 1) {
+        switch (arg3) {
+            case 0:
+            case 1:
+            case 2:
+                if (arg2 != 0.0f) {
+                    if (arg2 < D_807531C4[arg4]) {
+                        arg3 = 4;
+                    } else {
+                        arg3 = 5;
+                    }
+                }
+                break;
+            case 4:
+                if (arg2 < D_80753170[arg4]) {
+                    arg3 = 0;
+                } else if (D_807531C4[arg4] < arg2) {
+                    arg3 = 5;
+                }
+                break;
+            case 5:
+                if (max < D_807531E0[arg4]) {
+                    arg3 = 4;
+                }
+                break;
+            default:
+                if (arg1 < D_80753170[arg4]) {
+                    arg3 = 0;
+                } else if (arg1 < D_807531E0[arg4]) {
+                    arg3 = 4;
+                } else {
+                    arg3 = 5;
+                }
+                break;
+        }
+    } else {
+        arg3 = 6;
+    }
+    return arg3;
+}
 
 typedef struct G05PlayerView {
     /* 0x000 */ s16 unk0;
@@ -874,9 +1332,6 @@ typedef struct G05Model {
 } G05Model;
 
 s32 func_806CEB44(f32, f32);
-void func_806D03BC(void);
-void func_80614EBC(Actor *, s32);
-void func_80614D00(Actor *, f32, f32);
 
 s16 func_806CE928(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     s16 sp26;
@@ -1272,7 +1727,6 @@ void func_806CF4B8(Actor *arg0) {
     }
 }
 
-extern u8 D_8074E77C[];
 extern u8 D_80750AD0;
 extern u8 D_8071FC40;
 void func_80718BF4(void);
@@ -1400,7 +1854,6 @@ u8 func_806CFC90(Actor *, f32 *, u8, f32);
 s32 func_806725A0(Actor *, s16);
 s32 func_80666AEC(void);
 void collisionGetCoords(void *, s16 *);
-extern s32 D_8076A0A8;
 extern f32 D_80753E10[];
 extern s16 D_80753E00[];
 
@@ -1534,9 +1987,9 @@ void func_806CFF1C(Actor *arg0) {
     }
 }
 
-s8 func_806CDD24(Actor *, f32, f32, s32);
-s8 func_806CE174(Actor *, f32, f32, s32);
-s8 func_806CE4E4(Actor *, f32, f32, s32);
+s16 func_806CDD24(Actor *, f32, f32, s32);
+s16 func_806CE174(Actor *, f32, f32, s32);
+s16 func_806CE4E4(Actor *, f32, f32, s32);
 void func_806C8D20(Actor *);
 void func_806D0150(Actor *);
 
@@ -1609,7 +2062,6 @@ void func_806D01AC(void) {
     G06_P->unk38 = D_807532D4[D_807FD584];
 }
 
-extern f32 D_80753170[];
 extern f32 D_80753338[];
 extern f32 D_80753218[];
 extern f32 D_807531FC[];
