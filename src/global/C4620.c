@@ -353,11 +353,11 @@ s32 func_8072AB74(u8, f32, f32, s32, f32);
 s32 func_8072D13C(u8, s32);
 
 void func_806BFBF4(void) {
+    s16 j;
+    s16 t;
     s16 i;
     LgBFCmd *cmd;
     LgBFState *state;
-    s16 j;
-    s16 t;
     f32 ratio;
     f32 ratio2;
     u8 *col;
@@ -527,15 +527,15 @@ void func_806BFBF4(void) {
                 break;
             case 12:
                 state->unkE = cmd->unk4;
-                state->unk1E = state->unk1C;
                 state->unk10 = cmd->unk6;
+                state->unk1E = state->unk1C;
                 LgBV->unk154 = 0xE;
                 LgBV->unk155 = 0;
                 break;
             case 14:
                 state->unkE = cmd->unk4;
-                state->unk1E = state->unk1C;
                 state->unk10 = cmd->unk6;
+                state->unk1E = state->unk1C;
                 LgBV->unk154 = 0xF;
                 LgBV->unk155 = 0;
                 break;
@@ -573,12 +573,12 @@ void func_806BFBF4(void) {
         LgBV->unkE8 = func_806CC284(state->unkC, state->unkA, ratio);
     }
     if (state->unk26 != 0) {
-        ratio2 = (f32)(u32)state->unk26-- / (f32)(u32)state->unk25;
-        LgBV->unkE4 = func_806CC284(state->unk8, state->unk6, ratio2);
+        ratio = (f32)(u32)state->unk26-- / (f32)(u32)state->unk25;
+        LgBV->unkE4 = func_806CC284(state->unk8, state->unk6, ratio);
     }
     if (state->unk24 != 0) {
-        ratio2 = (f32)(u32)state->unk24-- / (f32)(u32)state->unk23;
-        LgBV->unkE6 = func_806CC284(state->unk4, state->unk2, ratio2);
+        ratio = (f32)(u32)state->unk24-- / (f32)(u32)state->unk23;
+        LgBV->unkE6 = func_806CC284(state->unk4, state->unk2, ratio);
         LgBV->unkEE = LgBV->unkE6;
     }
     if (state->unk2A != 0) {

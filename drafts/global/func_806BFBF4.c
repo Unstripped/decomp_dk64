@@ -1,4 +1,4 @@
-// func_806BFBF4 (src/global/C4620.c): Stage 5-6: ~105/1323 insns differ (regalloc/scheduling only; same saved set s0-s4+f20/f22, frame 152, timers/switch bodies match). Remaining: entry li/lw s2 slot order, tail remat order (li a0,3 first), particle-loop 0xFE const in s4, case 0xD hoist of &D_807FDC94, i at 150(sp) vs 146. Tricks: for+continue (!=3) drops s6; state->unk32*3u drops s5; 4 f32 temps for timers; 0.0f not 0; func_8072881C must return s32 (later decl void conflicts); permuter 600s best 5784 vs base 7738 no hint.
+// func_806BFBF4 (src/global/C4620.c): Stage 5-6 (regalloc only): ~91 structural diff lines of 1545 (was ~117), frame 152/saved regs/size within +9 insns. Needs s32 func_8072881C (C4620.c later decl 'void' -> 's32'; other TUs already s32) else cast gives jalr. FIXED this round: local decl order j,t,i first (puts i at 146(sp)); timers 1-3 share f32 ratio, timer4 ratio2 (fixes f0/f2 swap); cases 12/14 store order unkE,unk10,unk1E. REMAINING: (1) const-3 live range lump split after case 6: our T6 &D_807FDCA0 takes a0 (target a1) so ours remats li a0,3 at all later case tails (+9 insns); (2) entry: li 255 not hoisted above bnez, lw s2 not in delay slot; (3) continue edge reaches addiu not lh (target latch starts with lh a2); (4) particle loop: &sp70 CSE takes s4 instead of const 254 (priority 254 adjsave -1.17 vs &sp70); (5) case 0xD hoists &D_807FDC94 above beqz (node lands a1 not v0). Tried without effect: local decl permutations of ptr/f32 locals, node var removal, f32 sp[3] array, do-while/if==3 loop forms, break/default, 0xFE local var, 600+840s permuter (best is a dead u64 local, no hint).
 typedef struct LgBFInner {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -178,11 +178,11 @@ s32 func_8072AB74(u8, f32, f32, s32, f32);
 s32 func_8072D13C(u8, s32);
 
 void func_806BFBF4(void) {
+    s16 j;
+    s16 t;
     s16 i;
     LgBFCmd *cmd;
     LgBFState *state;
-    s16 j;
-    s16 t;
     f32 ratio;
     f32 ratio2;
     u8 *col;
@@ -352,15 +352,15 @@ void func_806BFBF4(void) {
                 break;
             case 12:
                 state->unkE = cmd->unk4;
-                state->unk1E = state->unk1C;
                 state->unk10 = cmd->unk6;
+                state->unk1E = state->unk1C;
                 LgBV->unk154 = 0xE;
                 LgBV->unk155 = 0;
                 break;
             case 14:
                 state->unkE = cmd->unk4;
-                state->unk1E = state->unk1C;
                 state->unk10 = cmd->unk6;
+                state->unk1E = state->unk1C;
                 LgBV->unk154 = 0xF;
                 LgBV->unk155 = 0;
                 break;
@@ -398,12 +398,12 @@ void func_806BFBF4(void) {
         LgBV->unkE8 = func_806CC284(state->unkC, state->unkA, ratio);
     }
     if (state->unk26 != 0) {
-        ratio2 = (f32)(u32)state->unk26-- / (f32)(u32)state->unk25;
-        LgBV->unkE4 = func_806CC284(state->unk8, state->unk6, ratio2);
+        ratio = (f32)(u32)state->unk26-- / (f32)(u32)state->unk25;
+        LgBV->unkE4 = func_806CC284(state->unk8, state->unk6, ratio);
     }
     if (state->unk24 != 0) {
-        ratio2 = (f32)(u32)state->unk24-- / (f32)(u32)state->unk23;
-        LgBV->unkE6 = func_806CC284(state->unk4, state->unk2, ratio2);
+        ratio = (f32)(u32)state->unk24-- / (f32)(u32)state->unk23;
+        LgBV->unkE6 = func_806CC284(state->unk4, state->unk2, ratio);
         LgBV->unkEE = LgBV->unkE6;
     }
     if (state->unk2A != 0) {
