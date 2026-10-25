@@ -281,13 +281,72 @@ void func_80718380(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071A1E4.s")
 
+typedef struct {
+    u8 pad0[0x16];
+    s16 unk16;
+} Ub5Timer;
+
+typedef struct {
+    u8 pad0[0x330];
+    Ub5Timer *unk330;
+    u8 pad334[0xC];
+    f32 unk340;
+    f32 unk344;
+    f32 unk348;
+    u8 pad34C[2];
+    s16 unk34E;
+    u8 pad34F[0xC];
+    s32 unk35C;
+} Ub5Actor;
+
+void lightSetFlags(s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071A440.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071A674.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071A8B0.s")
+void func_8071A8B0(Ub5Actor *arg0, s8 *arg1) {
+    f32 var_fv0;
+    f32 var_ft4;
+    s16 temp_v0;
+    s32 temp_v0_2;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071AADC.s")
+    temp_v0 = arg0->unk330->unk16;
+    var_fv0 = (f32)(temp_v0 - arg0->unk34E) / (f32)temp_v0;
+    if ((f64)var_fv0 > 0.7) {
+        var_fv0 = 1.0f;
+    }
+    temp_v0_2 = arg0->unk35C;
+    if (((u32)temp_v0_2 >> 16) != 0) {
+        var_ft4 = (f32)(temp_v0_2 & 0xFFFF) * var_fv0;
+    } else {
+        var_ft4 = (f32)(temp_v0_2 & 0xFFFF);
+    }
+    lightSetFlags(1);
+    lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, var_ft4, 0, 0xFF, (u32)((-80.0f * var_fv0) + 255.0f), (u32)((-205.0f * var_fv0) + 255.0f));
+}
+
+void func_8071AADC(Ub5Actor *arg0, s8 *arg1) {
+    f32 var_fv0;
+    f32 var_fv1;
+    s16 temp_v0;
+    s32 temp_v0_2;
+
+    temp_v0 = arg0->unk330->unk16;
+    var_fv0 = (f32)(temp_v0 - arg0->unk34E) / (f32)temp_v0;
+    if ((f64)var_fv0 > 0.7) {
+        var_fv0 = 1.0f;
+    }
+    temp_v0_2 = arg0->unk35C;
+    if (((u32)temp_v0_2 >> 16) != 0) {
+        var_fv1 = (f32)(temp_v0_2 & 0xFFFF) * var_fv0;
+    } else {
+        var_fv1 = (f32)(temp_v0_2 & 0xFFFF);
+    }
+    lightSetFlags(1);
+    lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, var_fv1, 0, 0xFF, 0xFF, 0xFF);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071ABDC.s")
 
@@ -303,7 +362,6 @@ void func_80718380(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071B520.s")
 
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void func_8071B758(Ub2ActorView *arg0, s8 *arg1) {
     f32 ratio;

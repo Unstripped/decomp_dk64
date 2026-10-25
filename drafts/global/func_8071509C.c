@@ -1,4 +1,4 @@
-// func_8071509C (src/global/119370.c): Stage 3: reconstructed the four-vertex quad grid from asm. Direct fdiff compiles; vertex pointer representation needs register/block-order work.
+// func_8071509C (src/global/119370.c): Stage 3: reconstructed quad grid; updated initial X computation to match asm hoisting before mode-dependent Y.
 #include "common.h"
 typedef struct Ua1ListNode { u8 pad0[8]; u8 columns; u8 rows; u8 padA[2]; s16 width; s16 height; } Ua1ListNode;
 typedef struct Ua1Effect Ua1Effect;
@@ -10,10 +10,12 @@ void func_8071509C(Ua1Effect *arg0) {
     s32 column;
     s32 row;
     s32 vertexIndex;
+    s32 startX;
     s32 x;
     s32 y;
 
     node = *(Ua1ListNode **)((u8 *) arg0 + 0x330);
+    startX = -(node->columns * node->width) / 2;
     if (*((u8 *) arg0 + 0x36F) == 0) {
         y = -(node->rows * node->height) / 2;
     } else {
@@ -21,7 +23,7 @@ void func_8071509C(Ua1Effect *arg0) {
     }
     vertexIndex = 0;
     for (row = 0; row < node->rows; row++) {
-        x = -(node->columns * node->width) / 2;
+        x = startX;
         for (column = 0; column < node->columns; column++) {
             vertex = (Ua1Vertex *) ((u8 *) arg0 + 0x28) + vertexIndex;
             vertex[0].x = x;
