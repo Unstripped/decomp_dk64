@@ -649,13 +649,106 @@ void func_806ECBD4(void) {
     func_80614D90(D_807FBB48);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ECC48.s")
+typedef struct EfN4PlayerState {
+    u8 pad0[0x3C];
+    s16 unk3C;
+    u8 pad3E[0xA];
+    s16 unk48;
+    u8 pad4A[6];
+    s16 unk50;
+    u8 pad52[2];
+    f32 unk54;
+    u8 pad58[0xC];
+    s16 unk64;
+    u8 pad66[2];
+    f32 unk68;
+    u8 pad6C[0x20];
+    u8 unk8C;
+    u8 pad8D[0x2F];
+    s16 unkBC;
+    s16 unkBE;
+    u8 padC0[0x44];
+    Actor *unk104;
+    u8 pad108[0x1C];
+    f32 unk124;
+} EfN4PlayerState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ECCDC.s")
+typedef struct EfN4Cam {
+    u8 pad0[0x2A0];
+    Actor *unk2A0;
+    u8 pad2A4[0x1C];
+    u8 unk2C0;
+    u8 pad2C1[0x2F];
+} EfN4Cam;
+
+#define EfN4PS ((EfN4PlayerState *)D_807FD580)
+#define EfN4CamBlocks ((EfN4Cam *)D_807FC924)
+
+typedef struct EfN4ActorC0 {
+    u8 pad0[0xC0];
+    f32 unkC0;
+} EfN4ActorC0;
+
+extern s32 D_807FBB68;
+extern f32 D_807535CC[];
+extern s16 D_8075380C[];
+void func_8061F164(void *, s32);
+s16 actorListFindIdByActor(Actor *);
+void sfxStopSlotSound(Actor *, u8);
+void func_806CFE7C(void);
+void func_806CA2AC(void);
+void func_806CF398(Actor *);
+
+
+
+void func_806ECC48(void) {
+    void *callback;
+
+    callback = EfN4PS->unk104->unk174;
+    D_807FBB48->unk6A |= 0x40;
+    D_807FBB48->unk64 &= ~0x2000;
+    D_807FBB48->unk154 = 0x59;
+    D_807FBB48->unk155[0] = 0;
+    func_80614E78(D_807FBB48, 0x70);
+    func_80614D90(D_807FBB48);
+    func_8061F164(callback, 0x14);
+}
+
+void func_806ECCDC(void) {
+    void *callback;
+
+    callback = EfN4PS->unk104->unk174;
+    D_807FBB40->unk154 = 0x17;
+    D_807FBB40->unk155[0] = 0;
+    if (D_807FBB68 & 2) {
+        EfN4PS->unk54 = D_807535CC[D_807FD584] * 1.3;
+    } else {
+        EfN4PS->unk54 = D_807535CC[D_807FD584];
+    }
+    D_807FBB48->unkB8 = EfN4PS->unk124;
+    EfN4PS->unk50 = 0;
+    EfN4PS->unk3C = 0xA;
+    func_80614E78(D_807FBB40, 0x10);
+    func_8061F164(callback, 0x14);
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ECDD4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ECE2C.s")
+void func_806ECE2C(void) {
+    if ((D_807FC928 >= 2) || (D_807FBB48->unk58 != 6) || (EfN4CamBlocks[D_807FC929].unk2C0 == 1)) {
+        ((EfN4ActorC0 *)D_807FBB48)->unkC0 = 260.0f;
+        func_806CFE7C();
+        EfN4PS->unk50 = 0;
+        EfN4PS->unk48 = 0x64;
+        func_80614E78(D_807FBB48, 0x1F);
+        func_80614D00(D_807FBB48, 1.0f, 0.0f);
+        D_807FBB48->unk154 = 0x30;
+        D_807FBB48->unk155[0] = 0;
+        func_806CF42C(D_807FBB48);
+    }
+}
+
 
 typedef struct EfCActorC0 {
     u8 pad0[0xC0];
@@ -667,7 +760,6 @@ typedef struct EfCPlayer48 {
     s16 unk50;
 } EfCPlayer48;
 
-void func_806CFE7C(void);
 
 void func_806ECF1C(void) {
     ((EfCActorC0 *)D_807FBB48)->unkC0 = 260.0f;
@@ -701,9 +793,43 @@ void func_806ECF9C(void) {
     ((EfCPlayer68 *)D_807FD580)->unk50 = 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED050.s")
+void func_806ED050(void) {
+    if ((D_807FBB40->unk154 != 2) && (D_8074E77C[D_807FC929] == 6)) {
+        D_807FBB40->unk154 = 0x29;
+        D_807FBB40->unk155[0] = 0;
+        func_80614E78(D_807FBB40, 0x3F);
+        EfN4PS->unk64 = 0;
+        EfN4PS->unk68 = D_8075380C[D_807FD584];
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED0FC.s")
+
+void func_806ED0FC(void) {
+    Actor *target;
+
+    func_806CA2AC();
+    func_806CF398(D_807FBB48);
+    EfN4PS->unk8C = 0;
+    func_806F0C18(D_807FBB40);
+    sfxStopSlotSound(D_807FBB40, 0);
+    sfxStopSlotSound(D_807FBB40, 1);
+    func_80614E78(D_807FBB48, 0x21);
+    target = EfN4CamBlocks[D_807FC929].unk2A0;
+    if (target != NULL) {
+        EfN4PS->unkBC = target->unk58;
+        EfN4PS->unkBE = actorListFindIdByActor(EfN4CamBlocks[D_807FC929].unk2A0);
+    } else {
+        EfN4PS->unkBC = 0;
+        EfN4PS->unkBE = -1;
+    }
+    if (D_807FBB40->unk6A & 4) {
+        D_807FBB48->unk154 = 0x43;
+        D_807FBB48->unk155[0] = 0;
+        return;
+    }
+    D_807FBB48->unk154 = 0x42;
+    D_807FBB48->unk155[0] = 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED244.s")
 
@@ -727,7 +853,6 @@ void func_806EDFF8(void) {
     func_806CFF9C(D_807FBB48);
 }
 
-void func_806CF398(Actor *);
 
 void func_806EE02C(void) {
     func_806CF398(D_807FBB48);
@@ -769,7 +894,6 @@ typedef struct EfCPlayerD4 {
 
 s32 func_806C9974(u8, s8);
 s32 func_806EB400(Actor *);
-void func_806CA2AC(void);
 extern s16 D_807530B0[];
 
 void func_806EE10C(void) {
@@ -933,7 +1057,6 @@ void func_806EE7B8(void) {
     }
 }
 
-extern s32 D_807FBB68;
 extern void func_806F1048(Actor *);
 extern s32 func_8061CB50(void);
 
@@ -1327,7 +1450,6 @@ void func_806F0700(void) {
     EfEPS->unk4C = -1;
 }
 
-extern f32 D_807535CC[];
 
 void func_806F07CC(void) {
     sfxPlayFromActorWithAltitudeCheck(D_807FBB48, 0xF3, 0xFF, 0x7F, 0x19);
