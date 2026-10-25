@@ -181,7 +181,7 @@ f32 func_80622ABC(f32, f32, f32);
 void func_80626CAC(CamState *, f32 *, f32 *, f32, f32, f32);
 f32 func_80627A00(f64, f32, f32, f32, f32);
 s32 func_8062773C(CamActor *);
-s32 func_806CC284(s16, s16, f32);
+s16 func_806CC284(s16, s16, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 void renderBonusTargetMarker();
@@ -338,7 +338,6 @@ f32 sqrtf(f32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_80622ABC.s")
 
-#ifdef NON_MATCHING
 void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6, CamActor *arg7) {
     CamState *cam;
     s16 *list;
@@ -352,7 +351,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     f32 savedX;
     f32 savedY;
     f32 savedZ;
-    f32 ratio;
+    f32 pad0;
     u8 idx[4];
     f32 posX;
     f32 posY;
@@ -368,7 +367,8 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     s16 angle;
     s16 angleD;
     s16 angleT;
-    s32 pad2[3];
+    f64 ratio;
+    s32 pad2;
     CamSplineKeyE *e0;
     CamSplineKeyE *e1;
     CamSplineKeyE *e2;
@@ -542,7 +542,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                     } else {
                         goto calc_look;
                     }
-                    break;
+                    goto look_set;
                 case 1:
                     posX = p->u.pos.unk0;
                     posY = p->u.pos.unk2;
@@ -614,8 +614,10 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                     } else {
                         actorGetNodePos(D_807F5CE8, D_807F5CFA, &lookX, &lookY, &lookZ);
                     }
-                    break;
+                    goto look_done;
             }
+        look_set: /* two consecutive labels: the empty block keeps uopt from colouring type across the switch */
+        look_done:
             if (type == 7) {
                 blend = func_80612794(D_807F5D00 * 1024.0f + 3072.0f) + 1.0;
                 angleD = mathAngleBetweenPoints2D(D_807F5D24, D_807F5D2C, D_807F5D18, D_807F5D20);
@@ -638,9 +640,9 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                 *arg1 = CAM_LERP(posX, D_807F5D18, blend);
                 *arg2 = CAM_LERP(posY, D_807F5D1C, blend);
                 *arg3 = CAM_LERP(posZ, D_807F5D20, blend);
-                *arg4 = func_80612794(yaw) * dist2D + *arg1;
-                *arg6 = func_80612790(yaw) * dist2D + *arg3;
-                *arg5 = func_80612D1C(pitch) * dist3D + *arg2;
+                *arg4 = *arg1 + func_80612794(yaw) * dist2D;
+                *arg6 = *arg3 + func_80612790(yaw) * dist2D;
+                *arg5 = *arg2 + func_80612D1C(pitch) * dist3D;
                 return;
             }
             if (type != 8 && type != 0xC && type != 6) {
@@ -766,10 +768,6 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_80622B24.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_80624978.s")
 
