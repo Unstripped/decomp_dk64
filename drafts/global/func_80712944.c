@@ -1,4 +1,4 @@
-// func_80712944 (src/global/117190.c): Stage 6: all instructions and access order match; only register allocation uses a0/v0/v1 instead of target a2/v1/a0.
+// func_80712944 (src/global/117190.c): Stage 6: complete instruction and access order; pointer/mask register allocation remains.
 extern u16 D_80755308;
 extern u8 D_8075530C;
 extern u8 D_80755310;
