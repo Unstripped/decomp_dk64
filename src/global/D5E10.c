@@ -429,14 +429,20 @@ void func_806D1F28(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
+typedef struct NmD5E10aTbl {
+    u16 unk0[3];
+} NmD5E10aTbl;
+
+extern NmD5E10aTbl D_80750FB0;
 s32 func_807143E8();
 s32 func_80600340();
 void func_80688D20(s16, s16, s32, f32);
 
 void func_806D205C(void) {
     s16 sp2C[2];
-    u16 sp1C[3] = { 0x1C, 0x86, 0x6B };
+    s32 r;
+    s32 t;
+    NmD5E10aTbl sp1C = D_80750FB0;
 
     func_806EB0C0(0x3C, 0, D_807FC929);
     G08_P->unk4 = 0.0f;
@@ -453,17 +459,16 @@ void func_806D205C(void) {
     }
     if ((func_80629148() != 0) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
         if (func_807143E8() == 0) {
-            func_80688D20(sp2C[1], (s16)func_80600340(sp1C, 3, sp2C), 7, 2.0f);
+            r = func_80600340(&sp1C, 3, sp2C);
+            t = r;
+            func_80688D20(sp2C[1], t, 7, 2.0f);
         }
         func_805FF898();
         G08_A40->unk155++;
     }
     func_806319C4(D_807FBB40, 0);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D205C.s")
-#endif
 
 void func_806D21E4(void) {
     func_806DF6D4(0);
@@ -1592,7 +1597,40 @@ void func_806D45A4(void) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D4758.s")
+void func_806D4758(void) {
+    s32 sel = G11_A->unk155;
+    switch (sel) {
+        case 0:
+            if (G11_P->unk3E != 0) {
+                if (func_806CC14C(G11_A->unkEE, G11_P->unk40)) {}
+                func_806CD424(G11_P->unk40, 50.0f, G11_P->unk38);
+                G11_P->unk3E--;
+            }
+            func_806DF6D4(0x23);
+            if (D_8074E77C[D_807FC929] == 2) {
+                G11_P->unk4 = G11_P->unk4 * 0.63;
+            }
+            func_806CC8B8();
+            break;
+        case 1:
+            func_806DF6D4(0x23);
+            sel = D_8074E77C[D_807FC929];
+            if (sel == 0 || sel == 2) {
+                G11_P->unk4 = G11_P->unk4 * 0.63;
+            }
+            func_806CFE7C();
+            func_806D3608();
+            func_806CC8B8();
+            break;
+        case 2:
+            func_806CC8B8();
+            if (func_806DF6D4(0x31) == 0 && G11_A->unkB8 < G11_P->unk4) {
+                func_806CFF9C(D_807FBB40);
+            }
+            break;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
 void func_806D491C(void) {
     switch (G11_A->unk155) {
@@ -1654,12 +1692,11 @@ typedef struct G12Player {
 
 void func_806F142C();
 
-#ifdef NON_MATCHING
 void func_806D4A70(void) {
     switch (G08_A40->unk155) {
     case 0:
         if (G12_P->unk3E != 0) {
-            func_806CC14C(G08_A40->unkEE, G12_P->unk40);
+            if (func_806CC14C(G08_A40->unkEE, G12_P->unk40)) {}
             func_806CD424(G12_P->unk40, 50.0f, G12_P->unk38);
             G12_P->unk3E--;
         }
@@ -1676,7 +1713,7 @@ void func_806D4A70(void) {
     case 1:
         func_806DF6D4(0x24);
         if (G12_P->unk3E != 0) {
-            func_806CC14C(G08_A40->unkEE, G12_P->unk40);
+            if (func_806CC14C(G08_A40->unkEE, G12_P->unk40)) {}
             func_806CD424(G12_P->unk40, 30.0f, G12_P->unk38);
             G12_P->unk3E--;
         }
@@ -1697,10 +1734,7 @@ void func_806D4A70(void) {
     }
     func_806319C4(D_807FBB40, 0);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D4A70.s")
-#endif
 
 extern f32 D_80753620[];
 extern f32 D_8075363C[];

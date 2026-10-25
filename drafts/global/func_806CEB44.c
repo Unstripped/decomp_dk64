@@ -1,4 +1,4 @@
-// func_806CEB44 (src/global/CEAE0.c): regalloc/branch: matches except selector/ret in v0 vs v1 plus bc1tl likely branches (target uses plain bc1t sharing jr/move v0,v1). Without trailing return ret lands in v0 (permuter hint: unreachable 'return ret' in last case, no trailing return, gives bc1t but v0). tried if-chain, ret assign, ret types.
+// func_806CEB44 (src/global/CEAE0.c): G05 stage 6: selector/ret now in v1 (s32 ret = G05_P->unk4C; switch(ret); default ret=1; return ret) and all else matches (li v1,1 delay, layout); only diff: target has plain bc1t/bc1f with nop delays sharing 'jr ra; move v0,v1' while ours emits bc1tl/bc1fl with duplicated move and li v1,1 not in b delay slot. Variant with no trailing return and 'return ret;' at end of default gives plain bc1t + li in b delay (exact layout) but ret lands in v0 (no move tail). Tried: if-chain, goto end, per-case returns, ret/sel copy, s16/u32/s8 ret, int return, comma/dead returns.
 typedef struct G05PlayerView {
     /* 0x000 */ s16 unk0;
     /* 0x002 */ u8 pad2[0x4C - 2];
@@ -25,17 +25,15 @@ typedef struct G05PlayerView {
 extern f32 D_807532B8[];
 
 s32 func_806CEB44(f32 arg0, f32 arg1) {
-    s32 ret;
+    s32 ret = G05_P->unk4C;
 
-    switch (G05_P->unk4C) {
+    switch (ret) {
         case 0:
-            ret = 0;
             if (arg1 != 0.0f) {
                 return 1;
             }
             break;
         case 1:
-            ret = 1;
             if (arg1 == 0.0f && arg0 < D_807532B8[D_807FD584]) {
                 return 0;
             }
