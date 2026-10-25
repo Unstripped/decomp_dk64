@@ -1,4 +1,4 @@
-// func_80715B30 (src/global/119370.c): Stage 4: 0x110 frame and saved s0 match. 600-second permuter search found the readable u8 arg1 improvement (score 420); matrix offsets and mode coloring still differ.
+// func_80715B30 (src/global/119370.c): stage 4: 0x110 frame and s0 reached; matrix stack offsets and mode coloring remain
 #include "common.h"
 s32 func_80611E60(s32);
 void func_80612CA0(f32 (*)[4], f32);

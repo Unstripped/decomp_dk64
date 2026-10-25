@@ -1,4 +1,4 @@
-// func_80714D08 (src/global/119370.c): Stage 4: 0x30 frame and saved s0-s2 confirmed; reviewed level-6 uopt coloring. 600-second permuter improved 7463 to 6783 only by non-semantic field-store deletion, so no mutation was adopted.
+// func_80714D08 (src/global/119370.c): stage 4: 0x30 frame and s0-s2 reached; parameter/FPR/register order remains
 #include "common.h"
 typedef struct Ua1ListNode {
     void *unk0;

@@ -1,4 +1,4 @@
-// func_80722E48 (src/global/127B00.c): stage 4: Uc1Pt10 assignment now emits target LWL/LWR+SWL/SWR halfword tail; remaining saved-register allocation uses s2 for 10 and s3 for cursor versus target s8/s3 constants and s2 cursor
+// func_80722E48 (src/global/127B00.c): stage 4: exact 10-byte lhu/sh copy tail; frame and saved-register coloring remain
 typedef struct Uc1Path { u8 *unk0; s16 unk4; } Uc1Path;
 typedef struct Uc1Playback Uc1Playback;
 typedef struct Uc1Pt10 { s16 unk0; s16 unk2; s16 unk4; s16 unk6; s16 unk8; } Uc1Pt10;

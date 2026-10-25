@@ -1,4 +1,4 @@
-// func_8072167C (src/global/126260.c): Text-identical C; final private-copy relocation gate remained mismatched.
+// func_8072167C (src/global/126260.c): stage 6: instruction-identical C with function-owned 0.1 literal; fdiff reports only rodata relocation
 extern s16 D_80755680;
 extern f32 D_80755684;
 extern f32 D_80755688;

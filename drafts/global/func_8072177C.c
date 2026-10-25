@@ -1,4 +1,4 @@
-// func_8072177C (src/global/126260.c): Stage 4: correct pointer-base calculation still spills arg0 and hoists arg1 extension.
+// func_8072177C (src/global/126260.c): stage 4: narrow-argument home spills present; arg0 spill and v0/v1 allocation remain
 extern s32 D_807FDB70;
 extern u8 D_807FDB74;
 
