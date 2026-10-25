@@ -1,4 +1,4 @@
-// func_806D8B08 (src/global/D5E10.c): text-identical, reloc only: C matches instruction-for-instruction (nv2 form, goto end tail), fdiff FAILED only because the switch jump table reloc is .rodata+0x124 vs jtbl_8075CE14; parked NON_MATCHING in src copy
+// func_806D8B08 (src/global/D5E10.c): stage 6, NOT reloc-only: un-parked as C the ROM fails (global.text FAILED) although fdiff shows only the jtbl reloc; diff the built global.text.bin against expected to find the real difference (likely rodata/jtbl placement or a %lo addend). Parked NON_MATCHING in src.
 #include "common.h"
 #include "actor.h"
 
