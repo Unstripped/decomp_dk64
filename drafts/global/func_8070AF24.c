@@ -1,4 +1,4 @@
-// func_8070AF24 (src/global/10E1D0.c): stage 3: behavior recovered; mismatches are a saved s0/global-address CSE and 8-byte frame excess
+// func_8070AF24 (src/global/10E1D0.c): compilable render-buffer reconstruction; register allocation and store scheduling remain
 typedef struct R1F10E1D0bRenderBuffer {
     s32 unk0;
     s32 unk4;
@@ -20,13 +20,14 @@ extern void *D_807FD9A8;
 extern s32 D_807FD9AC;
 extern s32 D_807FD9B0;
 extern s32 D_807FD9B8;
-extern s32 D_80744470;
+extern u8 D_80744470;
+
 s32 func_80610FE8(s32);
 s32 func_8066B0F8();
-void func_807095E4(s32, s32, void **);
-void func_80709890(s32, void **, s32 *, s32);
-void func_80709ACC(void *);
-void func_8070A848(s32, s32);
+void func_807095E4();
+void func_80709890();
+void func_80709ACC();
+void func_8070A848();
 
 void func_8070AF24(void) {
     s32 temp_v0;
@@ -43,7 +44,7 @@ void func_8070AF24(void) {
     D_807FD9B8 = func_8066B0F8(0x13, 1, 1, 1);
     temp_v0 = func_80610FE8(D_80744490 * D_80744494 * 2);
     D_807FD9B0 = temp_v0;
-    func_8070A848(temp_v0, *(&D_80744470 + (D_807444FC * 4)));
+    func_8070A848(temp_v0, *((s32 *)(&D_80744470 + (D_807444FC * 4))));
     func_80709890(D_807FD9B8, &D_807FD9A8, &D_807FD9AC, 0);
     func_80709ACC(D_807FD9A8);
     D_807FD9A4 = ((R1F10E1D0bRenderBuffer *)D_807FD9A8)->unk8;

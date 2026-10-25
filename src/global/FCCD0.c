@@ -29,6 +29,17 @@ u8 arg0;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8170.s")
 
+typedef struct R2FCCD0cSlot {
+    void *unk0;
+    u8 pad4[0x1C];
+    s32 unk20;
+    s32 unk24;
+    void *unk28;
+    u8 unk2C;
+    u8 pad2D[3];
+} R2FCCD0cSlot;
+
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8278.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F833C.s")
@@ -40,7 +51,30 @@ void func_806F8A8C(u8 arg0, u8 arg1, s32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8AD4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8BC4.s")
+void func_806F8BC4(s32 arg0, u8 arg1, s32 arg2) {
+    R2FCCD0cSlot *temp_v0;
+
+    if ((D_807FC928 < 2) && (func_807142D8() == 0)) {
+        if (arg0 == 8) {
+            func_806F8BC4(9, arg1, arg2 + 0xA);
+            if (D_8076A0A8 == 0xF) {
+                return;
+            }
+        }
+        ((R2FCCD0cSlot *)D_80754280)[arg0].unk24 = arg1;
+        temp_v0 = &((R2FCCD0cSlot *)D_80754280)[arg0];
+        if (temp_v0->unk20 == 0) {
+            temp_v0->pad4[3] = arg2;
+        } else {
+            temp_v0->pad4[3] = 0;
+        }
+        ((R2FCCD0cSlot *)D_80754280)[arg0].unk20 = 1;
+        temp_v0 = &((R2FCCD0cSlot *)D_80754280)[arg0];
+        if (temp_v0->pad4[2] == 0) {
+            temp_v0->pad4[2] = arg1 != 0;
+        }
+    }
+}
 
 
 void func_806F8CB0(s32 arg0) {
@@ -107,6 +141,7 @@ void func_806F8EB4(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F91B4.s")
 
 extern s32 func_805FF030();
+
 void func_806F93EC(u16 *arg0, s32 arg1) {
     *arg0 |= 1 << func_805FF030(arg1 & 0xFF, 1);
 }
