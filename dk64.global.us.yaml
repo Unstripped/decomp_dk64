@@ -73,7 +73,8 @@ segments:
       - [0x2F550, asm]
       - [0x35000, asm]
       - [0x36880, asm]
-      - [0x42630, asm]
+      - [0x42630, c, 42630]
+      - [0x478F0, c, 478F0] # hidden TU: 42630 rodata ends with an 8-byte pad at 0x15D630 (func_806425FC owns D_80758920); func_80642940 shares bss D_807F621C–24 with 42630, func_80642BF0 shares D_8071FF18 with func_80642C78
       - [0x54150, c, 54150]
       - [0x55B20, c, 55B20]
       - [0x5DE10, c, 5DE10]
@@ -208,6 +209,8 @@ segments:
       - [0x15BFD0, rodata]
       - [0x15C1A0, .rodata, 201B0]
       - [0x15CC70, rodata]
+      - [0x15D260, .rodata, 42630]
+      - [0x15D630, .rodata, 478F0]
       - [0x15D8E0, .rodata, 54150]
       - [0x15D960, .rodata, 55B20]
       - [0x15D9A0, .rodata, 5E2F0]
