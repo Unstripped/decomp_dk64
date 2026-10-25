@@ -1,4 +1,4 @@
-// func_807189BC (src/global/11BC10.c): Stage 3: compiled projectile behavior draft; target requires s1-held projectile and a non-prototyped float-bit third argument to func_80718124.
+// func_807189BC (src/global/11BC10.c): Stage 3: compiled against the unified f32 func_80718124 prototype; target holds projectile in s1 with a 0x28 frame while draft spills it in a 0x40 frame.
 typedef struct {
     u8 pad0[0xAC];
     f32 unkAC;
@@ -45,7 +45,7 @@ void func_807189BC(Ub2ActorView *arg0, s8 *arg1) {
     arg0->unk344 = (f32) ((f64) arg0->unk344 + ((f64) var_v1->unk4 / 500.0));
     if ((f32) var_v1->unk6 <= arg0->unk344) {
         *arg1 = 1;
-        func_80718124((f32) ((f64) arg0->unk360 * 1.5), arg0->unk340, (s32) (f32) var_v1->unk6, arg0->unk348);
+        func_80718124((f32) ((f64) arg0->unk360 * 1.5), arg0->unk340, (f32) var_v1->unk6, arg0->unk348);
     }
     temp_v0_2 = arg0->unk36D;
     if ((s32) temp_v0_2 >= 0xC) {
