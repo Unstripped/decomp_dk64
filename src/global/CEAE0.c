@@ -588,7 +588,7 @@ void func_806CA5F8(s32 arg0) {
         func_806CA26C();
         {
             s8 v = LCA_P->unk248;
-            if (v >= 0 && v != LCA_P->unk1A4) {
+            if (v >= 0 && (u32)v != LCA_P->unk1A4) {
                 sp64 = LCA_SLOT(v).unk4;
             } else {
                 s8 w = LCA_P->unk249;
@@ -633,7 +633,8 @@ void func_806CA5F8(s32 arg0) {
                 dz = LCA_SLOT(0).unk218 - sp54;
                 dx = LCA_SLOT(0).unk210 - sp5C;
                 dy = LCA_SLOT(0).unk214 - sp58;
-                fx->unk360 = D_807FBB40->unk4->unk34 * (1000.0f / sqrtf(dz * dz + (dx * dx + dy * dy))) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)LCA_P->unk250;
+                dz = sqrtf(dz * dz + (dx * dx + dy * dy));
+                fx->unk360 = D_807FBB40->unk4->unk34 * (1000.0f / dz) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)LCA_P->unk250;
                 fx->unk364 = fx->unk360;
             }
         }

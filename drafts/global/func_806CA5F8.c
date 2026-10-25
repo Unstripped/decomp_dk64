@@ -1,4 +1,4 @@
-// func_806CA5F8 (src/global/CEAE0.c): stage 6 near-miss: C is behaviourally identical (opcodes/immediates/frame/stack/branch layout match; only register choices differ): ~124 diff lines of 1257, all regalloc (fx web a1 split + s0 copy, D_807FBB48 ptr v0 vs v1 in 4 blocks, FP temp phase f4/f18 after sqrtf, one beq operand order). Needs: goto layout for sp6B (switch costs frame), dead priority tests (x && x) at 5 spots (permuter-found), pad[1]+f32 holes for stack. 5 permuter runs of 900s each, last found nothing.
+// func_806CA5F8 (src/global/CEAE0.c): stage 6 near-miss, ~24 real differing insns of 1250 (all regalloc; was ~124): (1) fx: target keeps LCA_P->unk254 temp in a1 (lw a1; beqz a1; move a0,a1 -> func_80715908; reload lw a1 after create/free; join 'move s0,a1') with s0 only AFTER the join; ours keeps fx in s0 whole + 'move a1,s0'; (2) 4 blocks D_807FBB48 ptr (create-path args, node-pos/func_80626F8C x3) target v1, ours v0: candidate gets v1 if actorGetNodePos/func_8071495C/func_80626F8C return s32 (v0 hard-forbidden) but then D_807FD580 ptr flips to v0 and the whole early part reshuffles (139 vs 38 diff lines). Fixed this round: float rotation after sqrtf (dz = sqrtf(...) reusing dz local, no frame change; a new f32 local grows frame/shifts u8 slots), beq operand order ((u32)v != unk1A4). Tried without success: fx as two locals / arg0 param as carrier / old local (frame +8) / 1-arg call / PRE-only join, s32 returns of every callee, dead-test position scans, 4 permuter runs x 900s.
 typedef struct LCA5F8Fx {
     /* 0x000 */ u8 pad0[0x340];
     /* 0x340 */ f32 unk340;
@@ -89,7 +89,6 @@ typedef struct LCA5F8Fn {
 #define LCA_SLOT(i) (((LCA5F8Slot *)D_807FC924)[i])
 
 extern LCA5F8Fn D_80750B50[];
-extern LCA5F8Pad D_807FD610[];
 extern s32 D_8076A068;
 extern s32 D_8076A090;
 extern s32 D_8076A094;
@@ -258,7 +257,7 @@ void func_806CA5F8(s32 arg0) {
         func_806CA26C();
         {
             s8 v = LCA_P->unk248;
-            if (v >= 0 && v != LCA_P->unk1A4) {
+            if (v >= 0 && (u32)v != LCA_P->unk1A4) {
                 sp64 = LCA_SLOT(v).unk4;
             } else {
                 s8 w = LCA_P->unk249;
@@ -303,7 +302,8 @@ void func_806CA5F8(s32 arg0) {
                 dz = LCA_SLOT(0).unk218 - sp54;
                 dx = LCA_SLOT(0).unk210 - sp5C;
                 dy = LCA_SLOT(0).unk214 - sp58;
-                fx->unk360 = D_807FBB40->unk4->unk34 * (1000.0f / sqrtf(dz * dz + (dx * dx + dy * dy))) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)LCA_P->unk250;
+                dz = sqrtf(dz * dz + (dx * dx + dy * dy));
+                fx->unk360 = D_807FBB40->unk4->unk34 * (1000.0f / dz) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)LCA_P->unk250;
                 fx->unk364 = fx->unk360;
             }
         }
