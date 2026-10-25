@@ -363,13 +363,28 @@ void func_80718380(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EDEC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EEA4.s")
+void func_8071EEA4(Ub2ActorView *arg0, s32 arg1) {
+    arg0->unk364 = (f32) (((f64) arg0->unk35C / 100.0) + 1.0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EEE0.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EFDC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F034.s")
+typedef struct {
+    u8 unk0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+} Ud1dPositionSource;
+
+void func_8071F034(Ub2ActorView *arg0, s32 arg1) {
+    if (*(s16 *) ((u8 *) arg0 + 0x34E) == 0) {
+        arg0->unk340 = ((Ud1dPositionSource *) D_807FBB4C)->unk7C;
+        arg0->unk344 = ((Ud1dPositionSource *) D_807FBB4C)->unk80;
+        arg0->unk348 = ((Ud1dPositionSource *) D_807FBB4C)->unk84;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F078.s")
 
