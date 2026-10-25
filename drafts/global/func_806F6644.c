@@ -1,61 +1,49 @@
-// func_806F6644 (src/global/F9450.c): Stage 1 m2c starter; reviewed 217-instruction target control flow.
-s32 hashTableLookup(s16, u8 *);                     /* extern */
-extern ? D_8074E77C;
-extern s32 D_807F6000;
-extern s32 D_807FC924;
-extern u8 D_807FC929;
-extern ? D_807FC952;
+// func_806F6644 (src/global/F9450.c): stage 4: branch and data access reconstruction; text has register-allocation differences
+s32 func_806F6644(s16 arg0, u8 arg1, u16 arg2) {
+    u8 flags;
 
-s32 func_806F6644(s16 arg0, ? arg1, s32 arg2) {
-    s32 temp_t6;
-    s32 var_v0;
-    u8 temp_a0;
-
-    temp_t6 = arg2 & 0xFFFF;
-    switch (temp_t6) {                              /* irregular */
+    switch (arg2) {
     case 0x11:
-        if ((*(&D_807FC952 + ((D_807FC929 * 0x306) + (*(&D_8074E77C + D_807FC929) * 0x5E))) & 3) != 3) {
+        if ((D_807FC952[D_807FC929 * 0x306 + D_8074E77C[D_807FC929] * 0x5E] & 3) != 3) {
             return 0;
         }
-    default:
-block_18:
-        temp_a0 = (D_807F6000 + (hashTableLookup(arg0) * 0x90))->unk8C;
-        if ((temp_a0 & 8) && ((D_807FC924 + (D_807FC929 * 0x2F0))->unk4->unk58 != 2)) {
-            return 0;
-        }
-        if ((temp_a0 & 2) && ((D_807FC924 + (D_807FC929 * 0x2F0))->unk4->unk58 != 3)) {
-            return 0;
-        }
-        if ((temp_a0 & 4) && ((D_807FC924 + (D_807FC929 * 0x2F0))->unk4->unk58 != 5)) {
-            return 0;
-        }
-        if ((temp_a0 & 0x10) && ((D_807FC924 + (D_807FC929 * 0x2F0))->unk4->unk58 != 4)) {
-            return 0;
-        }
-        var_v0 = 1;
-        if ((temp_a0 & 1) && ((D_807FC924 + (D_807FC929 * 0x2F0))->unk4->unk58 != 6)) {
-            var_v0 = 0;
-        }
-        return var_v0;
+        break;
     case 0x8F:
-        if (!(*(&D_807FC952 + ((D_807FC929 * 0x306) + (*(&D_8074E77C + D_807FC929) * 0x5E))) & 1)) {
+        if ((D_807FC952[D_807FC929 * 0x306 + D_8074E77C[D_807FC929] * 0x5E] & 1) == 0) {
             return 0;
         }
-        goto block_18;
+        break;
     case 0x98:
-        if (!((D_807FC924 + (D_807FC929 * 0x2F0))->unk4->unk174->unk1F4 & 1)) {
+        if ((F9F2_PLAYER[D_807FC929].unk4->unk174->unk1F4 & 1) == 0) {
             return 0;
         }
-        goto block_18;
+        break;
     case 0x8E:
-        if (!((D_807FC924 + (D_807FC929 * 0x2F0))->unk4->unk174->unk1F4 & 2)) {
+        if ((F9F2_PLAYER[D_807FC929].unk4->unk174->unk1F4 & 2) == 0) {
             return 0;
         }
-        goto block_18;
+        break;
     case 0x90:
-        if (((hashTableLookup(arg0, &D_807FC929) * 0x90) + D_807F6000)->unk7C->unk64 != 0xFF) {
+        if (*(s16 *)((u8 *)D_807F6000[hashTableLookup(arg0)].unk7C + 0x64) != 0xFF) {
             return 0;
         }
-        goto block_18;
+        break;
     }
+    flags = D_807F6000[hashTableLookup(arg0)].unk8C;
+    if ((flags & 8) && (F9F2_PLAYER[D_807FC929].unk4->unk58 != 2)) {
+        return 0;
+    }
+    if ((flags & 2) && (F9F2_PLAYER[D_807FC929].unk4->unk58 != 3)) {
+        return 0;
+    }
+    if ((flags & 4) && (F9F2_PLAYER[D_807FC929].unk4->unk58 != 5)) {
+        return 0;
+    }
+    if ((flags & 0x10) && (F9F2_PLAYER[D_807FC929].unk4->unk58 != 4)) {
+        return 0;
+    }
+    if ((flags & 1) && (F9F2_PLAYER[D_807FC929].unk4->unk58 != 6)) {
+        return 0;
+    }
+    return 1;
 }

@@ -861,9 +861,35 @@ void func_806ED0FC(void) {
     D_807FBB48->unk155[0] = 0;
 }
 
+typedef struct EfN8PlayerD4 {
+    u8 pad0[0xD4];
+    s16 unkD4;
+} EfN8PlayerD4;
+extern s16 D_807530B0[];
+s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED244.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED420.s")
+void func_806ED420(void) {
+    f32 divisor;
+    u8 character;
+
+    if (((EfN8PlayerD4 *)D_807FD580)->unkD4 == 0) {
+        func_806CA2AC();
+        func_8072DB68(3);
+        character = D_8074E77C[D_807FC929];
+        divisor = 2.0f;
+        if (character != 2) {
+            if (character == 3) {
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB48, 0xB9, 0xFF, 0x7F, 0x14);
+            }
+        } else {
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB48, 0xD2, 0xFF, 0x7F, 0x14);
+        }
+        ((EfN8PlayerD4 *)D_807FD580)->unkD4 = D_807530B0[D_807FD584];
+        D_807FBB48->unkB8 = D_807FBB48->unkB8 / divisor;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED508.s")
 
@@ -924,7 +950,6 @@ typedef struct EfCPlayerD4 {
 
 s32 func_806C9974(u8, s8);
 s32 func_806EB400(Actor *);
-extern s16 D_807530B0[];
 
 void func_806EE10C(void) {
     if (func_806EB400(D_807FBB48) != 0) {
@@ -983,7 +1008,6 @@ typedef struct EfCPlayer104 {
     void *unk104;
 } EfCPlayer104;
 
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
 void func_806EE2B8(void) {
     s32 value = 1;
