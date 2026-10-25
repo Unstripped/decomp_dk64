@@ -12,15 +12,225 @@ extern s16 D_807FD584;
 extern s32 D_8076A0A8;
 extern u8 D_8074E77C[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F09F0.s")
+void func_8068A764(Actor *, u8);
+void func_8068A784(Actor *, u8);
+void func_806F09F0(Actor *arg0, u16 arg1) {
+    switch (arg1) {
+    case 0xC5:
+    case 3:
+        func_8068A784(arg0, 0);
+        func_8068A784(arg0, 1);
+        func_8068A784(arg0, 2);
+        break;
+    case 0xC8:
+    case 6:
+        func_8068A764(arg0, 0);
+        func_8068A784(arg0, 1);
+        break;
+    case 0xC6:
+    case 4:
+        func_8068A764(arg0, 0);
+        func_8068A784(arg0, 1);
+        break;
+    case 0xC7:
+    case 5:
+        func_8068A764(arg0, 0);
+        func_8068A784(arg0, 1);
+        break;
+    case 0xC4:
+    case 2:
+        func_8068A764(arg0, 0);
+        func_8068A784(arg0, 1);
+        break;
+    case 7:
+        func_8068A764(arg0, 1);
+        func_8068A784(arg0, 0);
+        break;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F0B34.s")
+s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F0C18.s")
+void func_806F0B34(Actor *arg0) {
+    switch (D_8074E77C[D_807FC929]) {
+    case 0:
+        sfxPlayFromActorWithAltitudeCheck(arg0, 0x17C, 0xFF, 0x7F, 0x19);
+        break;
+    case 1:
+        sfxPlayFromActorWithAltitudeCheck(arg0, 0x17C, 0xC8, 0xA0, 5);
+        break;
+    case 2:
+        sfxPlayFromActorWithAltitudeCheck(arg0, 0x17C, 0xFF, 0x7F, 5);
+        break;
+    case 3:
+        sfxPlayFromActorWithAltitudeCheck(arg0, 0x185, 0xFF, 0x7F, 0x19);
+        break;
+    default:
+        sfxPlayFromActorWithAltitudeCheck(arg0, 0x18F, 0xFF, 0x7F, 0x19);
+        break;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F0D68.s")
+typedef struct F5N2ActorExtra {
+    u8 pad0[0x8C];
+    u8 unk8C;
+    u8 pad8D[0x117];
+    u8 unk1A4;
+} F5N2ActorExtra;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1048.s")
+s32 func_80613448(void);
+
+void func_806F0C18(Actor *arg0) {
+    s32 pad;
+    F5N2ActorExtra *extra;
+
+    switch (func_80613448()) {
+    case 1:
+    case 2:
+    case 3:
+        func_8068A784(arg0, 0);
+        func_8068A784(arg0, 1);
+        break;
+    case 0xC:
+    case 0xD:
+    case 0xE:
+    case 0xF:
+    case 0x10:
+        func_8068A764(arg0, 0);
+        func_8068A784(arg0, 1);
+        break;
+    case 0xDB:
+        func_8068A764(arg0, 1);
+        func_8068A784(arg0, 0);
+        break;
+    case 6:
+    case 7:
+    case 8:
+        func_8068A764(arg0, 0);
+        func_8068A784(arg0, 1);
+        break;
+    case 9:
+    case 0xA:
+    case 0xB:
+        func_8068A764(arg0, 0);
+        func_8068A784(arg0, 1);
+        break;
+    case 4:
+    case 5:
+        func_8068A764(arg0, 0);
+        func_8068A784(arg0, 1);
+        break;
+    }
+    if (arg0->unk5C & 1) {
+        extra = arg0->unk174;
+        if (extra->unk8C != 0) {
+            func_806F0B34(arg0);
+            extra->unk8C = 0;
+        }
+    }
+}
+
+extern u8 D_807FC952[];
+s32 func_806C8DE0(u8);
+s32 func_80714608(s32);
+void func_806F5A48(u8, s32, Actor *, s32);
+
+void func_806F0D68(Actor *arg0) {
+    s32 pad;
+    F5N2ActorExtra *extra;
+
+    switch (func_80613448()) {
+    case 1:
+    case 2:
+        func_8068A764(arg0, 0);
+        func_8068A764(arg0, 1);
+        break;
+    case 0xC:
+    case 0xD:
+    case 0xE:
+    case 0xF:
+    case 0x10:
+        func_8068A784(arg0, 0);
+        func_8068A764(arg0, 1);
+        break;
+    case 0xDB:
+        func_8068A784(arg0, 1);
+        func_8068A764(arg0, 0);
+        break;
+    case 6:
+    case 7:
+        func_8068A784(arg0, 0);
+        func_8068A764(arg0, 1);
+        break;
+    case 9:
+    case 0xA:
+        func_8068A784(arg0, 0);
+        func_8068A764(arg0, 1);
+        break;
+    case 4:
+        func_8068A784(arg0, 0);
+        func_8068A764(arg0, 1);
+        break;
+    }
+    if (arg0->unk5C & 1) {
+        extra = arg0->unk174;
+        if (extra->unk8C == 0) {
+            switch (D_8074E77C[D_807FC929]) {
+            case 0:
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0x186, 0xFF, 0x64, 0x19);
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0x17C, 0xFF, 0x64, 0x19);
+                break;
+            case 1:
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0x17C, 0xC8, 0xBE, 5);
+                break;
+            case 2:
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0x186, 0xFF, 0x7F, 0x19);
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0x17C, 0xFF, 0xA0, 5);
+                break;
+            case 3:
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0x185, 0xFF, 0x7F, 0x19);
+                break;
+            default:
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0x18E, 0xFF, 0x7F, 0x19);
+                break;
+            }
+            extra->unk8C = 1;
+        }
+        if (func_80714608(0) != 0) {
+            D_807FC952[extra->unk1A4 * 0x306 + func_806C8DE0(extra->unk1A4) * 0x5E] = 1;
+            func_806F5A48(extra->unk1A4, 0, arg0, 0x8F);
+        }
+    }
+}
+
+typedef struct F5N2ActorState {
+    u8 pad0[0x1F0];
+    s32 flags;
+} F5N2ActorState;
+
+void func_80613214(void);
+void func_806C8D20(Actor *);
+
+void func_806F1048(Actor *arg0) {
+    F5N2ActorState *state = arg0->unk174;
+
+    switch (arg0->unk58) {
+    case 4:
+    case 0xC6:
+        state->flags &= ~0x100;
+    case 3:
+    case 5:
+    case 6:
+    case 0xC5:
+    case 0xC7:
+    case 0xC8:
+        if (!(state->flags & 0x40)) {
+            func_80613214();
+        }
+        break;
+    }
+    func_806C8D20(D_807FBB40);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F10E8.s")
 
