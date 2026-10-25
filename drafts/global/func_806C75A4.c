@@ -1,4 +1,4 @@
-// func_806C75A4 (src/global/CBEA0.c): structure+frame+stack offsets match; diff: s0/s1/s2 rotation (sel,tbl,&E8 vs expected tbl,E8,sel; i/yoff swapped), x/y floats stored to stack in cases, sx/sy f2/f12 swap
+// func_806C75A4 (src/global/CBEA0.c): stage 6: size matches (2400B), branches/stack/gfx stores match; only s-reg rotation left: expected tbl=s0,&E8=s1,sel=s2 and yoff=s1,i=s2 (mine sel=s0,tbl=s1,&E8=s2 / i=s1,yoff=s2) + resulting t/f temp order in first block. Fixed this round: x += 8.0 / x -= 8.0 as separate statements (x gets $f0, y spilled), yoff = -unk5 * 0x23 (negu into var reg). uopt: priority=savings/((nlive-2)/4+2); sel 8/5=1.6 > tbl 6/6 > &E8 5/6, i 62/5 > yoff 31/3 - expected needs reverse; tried sel types, copies, loop forms (for/while/++i), decl order, register kw, tbl placement: no change
 extern Actor *D_807FBB40;
 extern s8 D_80750754;
 extern s16 D_80750758;
@@ -96,11 +96,13 @@ Gfx *func_806C75A4(Gfx *gdl, Actor *arg1) {
         break;
     case 1:
         y = 120.0f;
-        x = (f32)(*tbl * D_807FC8E8 + -70.0) + 8.0;
+        x = *tbl * D_807FC8E8 + -70.0;
+        x += 8.0;
         break;
     case 3:
         y = 120.0f;
-        x = (f32)(390.0 - *tbl * D_807FC8E8) - 8.0;
+        x = 390.0 - *tbl * D_807FC8E8;
+        x -= 8.0;
         break;
     }
     guTranslateF(mf2, x * 4.0, y * 4.0, 0.0f);
@@ -117,7 +119,7 @@ Gfx *func_806C75A4(Gfx *gdl, Actor *arg1) {
         } while (i < D_80750758);
         i = 0;
     }
-    yoff = D_807506D0[D_80750754].unk5 * -0x23;
+    yoff = -D_807506D0[D_80750754].unk5 * 0x23;
     if (D_807506D0[D_80750754].unk5 > 0) {
         do {
             gdl = func_806FC530(gdl, 1, -(s16)(func_806FBD5C(1, p) * 2), yoff, p, 0);
