@@ -197,23 +197,29 @@ def strip_other_fns(source: str, keep_fn: str) -> str:
     return result
 
 
-def deduplicate_externs(source: str) -> str:
-    """Deduplicate extern variable declarations, keeping the last one to avoid conflicts."""
+def deduplicate_externs(source: str, func_name: str) -> str:
+    """Deduplicate extern variable declarations.
+
+    Keeps, per symbol, the last declaration before func_name's definition (the one the
+    kept function compiles against), or the first one when all follow it.
+    """
     lines = source.splitlines()
-    extern_syms = {}
+    func_pat = re.compile(rf"\b{re.escape(func_name)}\s*\([^;]*$|\b{re.escape(func_name)}\s*\([^;]*\)\s*\{{")
+    func_line = next((i for i, l in enumerate(lines) if func_pat.search(l) and not l.lstrip().startswith("extern")), len(lines))
+    decl_re = re.compile(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*(?:\[[^\]]*\])*\s*;")
+    keep = {}
     for i, l in enumerate(lines):
-        m = re.search(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*;", l)
+        m = decl_re.search(l)
         if m:
             sym = m.group(1)
-            extern_syms[sym] = i
+            if sym not in keep or i < func_line:
+                keep[sym] = i
 
     new_lines = []
     for i, l in enumerate(lines):
-        m = re.search(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*;", l)
-        if m:
-            sym = m.group(1)
-            if extern_syms[sym] != i:
-                continue
+        m = decl_re.search(l)
+        if m and keep[m.group(1)] != i:
+            continue
         new_lines.append(l)
     return "\n".join(new_lines)
 
@@ -389,10 +395,19 @@ compiler_type = "ido"
             from_path = src_path
             from_text = src_text
         else:
-            from_path = ROOT / "drafts" / seg / f"{func}.c"
-            if not from_path.exists():
-                sys.exit(f"error: input file '{from_path}' not found (provide a draft or --from FILE.c)")
-            from_text = from_path.read_text(encoding="utf-8", errors="ignore")
+            # A function already written as C in the given --src (e.g. a private copy) is
+            # taken from there; otherwise fall back to the stored draft.
+            src_has_c = re.search(rf"^[^\n;#]*\b{re.escape(func)}\s*\([^;]*\)\s*\{{", src_text, re.M) and not re.search(
+                rf"#pragma\s+GLOBAL_ASM\(\"[^\"]*/{re.escape(func)}\.s\"\)", src_text
+            )
+            if src_has_c:
+                from_path = src_path
+                from_text = src_text
+            else:
+                from_path = ROOT / "drafts" / seg / f"{func}.c"
+                if not from_path.exists():
+                    sys.exit(f"error: input file '{from_path}' not found (provide a draft or --from FILE.c)")
+                from_text = from_path.read_text(encoding="utf-8", errors="ignore")
 
     # Determine if NON_MATCHING should be enabled
     use_non_matching = bool(args.non_matching)
@@ -435,7 +450,7 @@ compiler_type = "ido"
         else:
             combined = src_text + "\n\n" + draft_text
 
-    combined = deduplicate_externs(combined)
+    combined = deduplicate_externs(combined, func)
     combined = strip_other_fns(combined, func)
     combined = re.sub(r"#pragma\s+GLOBAL_ASM\([^\)]*\)", "", combined)
 
