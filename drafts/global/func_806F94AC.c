@@ -1,4 +1,4 @@
-// func_806F94AC (src/global/FCCD0.c): m2c behavioural starter; 27-insn scale update.
+// func_806F94AC (src/global/FCCD0.c): m2c draft; local raw-pointer candidate nearly matched but has floating-register allocation differences
 void func_806F94AC(void *arg0, s32 arg1) {
     f32 temp_fa0;
     f32 var_fv1;
