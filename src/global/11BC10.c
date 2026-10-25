@@ -15,10 +15,56 @@ f32 func_80612794(s16);
 f32 func_80612D10(f32);
 f32 func_80612D1C(f32);
 
+typedef struct {
+    u8 pad0[0x32C];
+    u8 unk32C;
+    u8 pad32D[0x13];
+    f32 unk340;
+    f32 unk344;
+    f32 unk348;
+    u8 pad34C[0x10];
+    s32 unk35C;
+    f32 unk360;
+    f32 unk364;
+    u8 pad368[0x1C];
+    void *unk384;
+} Ub1ActorView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80716F10.s")
+void func_80716F10(Ub1ActorView *arg0, void *arg1) {
+    f32 sp68[4][4];
+    f32 sp28[4][4];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80716FB4.s")
+    guScaleF(sp68, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp28, (f32)arg0->unk35C, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(sp68, sp28, sp68);
+    guMtxF2L(sp68, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    arg0->unk32C = 2;
+}
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+} Ub1Rotation;
+
+void func_80716FB4(Ub1ActorView *arg0, void *arg1) {
+    f32 sp70[4][4];
+    f32 sp30[4][4];
+    Ub1Rotation *var_v1;
+
+    var_v1 = (Ub1Rotation *)arg0->unk384;
+    if (var_v1 == NULL) {
+        arg0->unk384 = func_80610FE8(8);
+        ((Ub1Rotation *)arg0->unk384)->unk0 = (func_806119A0() % 36000U) / 100U;
+        ((Ub1Rotation *)arg0->unk384)->unk4 = (func_806119A0() % 400U) / 100U;
+        var_v1 = (Ub1Rotation *)arg0->unk384;
+    }
+    var_v1->unk0 += var_v1->unk4;
+    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp30, ((Ub1Rotation *)arg0->unk384)->unk0, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(sp70, sp30, sp70);
+    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    arg0->unk32C = 2;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717100.s")
 
@@ -26,7 +72,28 @@ f32 func_80612D1C(f32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717404.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717760.s")
+void func_80714950(s32);
+void func_80717404();
+void func_8071498C(void *);
+void func_807149B8(s32);
+void func_80714CC0(s32, f32, f32, f32, f32);
+extern s32 D_8074E880[];
+
+void func_80717760(Ub1ActorView *arg0, u8 *arg1) {
+    s32 temp_v0;
+
+    temp_v0 = arg0->unk35C;
+    *((u8 *)arg0 + 0x36D) = 0;
+    if (temp_v0 != 0) {
+        arg0->unk35C = temp_v0 - 1;
+        func_807149B8(1);
+        func_8071498C(func_80717404);
+        func_80714950(0xA);
+        func_80714CC0(D_8074E880[((func_80611A44() >> 0xF) % 1000) % 3], 0.8f, arg0->unk340, arg0->unk344, arg0->unk348);
+        return;
+    }
+    *arg1 = 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717814.s")
 
@@ -55,11 +122,7 @@ typedef struct {
 } Ub2ActorView;
 
 
-void func_80716FB4(s32, s32);
-void func_8071498C(void (*)(void));
 void func_80714998(s32);
-void func_807149B8(s32);
-void func_80714CC0(u8 *, f32, f32, s32, f32);
 void func_80718380();
 extern u8 D_8071FEF4;
 
@@ -127,14 +190,14 @@ void func_80718080(Ub2ActorView *arg0) {
 
 void func_807180F4(s32 arg0, s32 arg1) {
     func_80717D4C();
-    func_80716FB4(arg0, arg1);
+    func_80716FB4((Ub1ActorView *)arg0, (void *)arg1);
 }
 
-void func_80718124(f32 arg0, f32 arg1, s32 arg2, f32 arg3) {
+void func_80718124(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     func_807149B8(1);
     func_80714998(3);
     func_8071498C(&func_80718380);
-    func_80714CC0(&D_8071FEF4, arg0, arg1, arg2, arg3);
+    func_80714CC0((s32)&D_8071FEF4, arg0, arg1, arg2, arg3);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80718188.s")

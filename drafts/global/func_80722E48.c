@@ -1,19 +1,22 @@
-// func_80722E48 (src/global/127B00.c): stage 2: typed C compiles but differs in register allocation and aligned 12-byte point copy; target uses 10-byte unaligned LWL/LWR records
+// func_80722E48 (src/global/127B00.c): stage 4: Uc1Pt10 assignment now emits target LWL/LWR+SWL/SWR halfword tail; remaining saved-register allocation uses s2 for 10 and s3 for cursor versus target s8/s3 constants and s2 cursor
 typedef struct Uc1Path { u8 *unk0; s16 unk4; } Uc1Path;
 typedef struct Uc1Playback Uc1Playback;
-typedef struct Uc1PackedPathPoint { s32 unk0; s32 unk4; u16 unk8; } Uc1PackedPathPoint;
+typedef struct Uc1Pt10 { s16 unk0; s16 unk2; s16 unk4; s16 unk6; s16 unk8; } Uc1Pt10;
 extern Uc1Path *D_807FDB90[];
 extern Uc1Playback *D_807FDBF8[];
 void *func_80610FE8(s32);
 
 void func_80722E48(s16 *arg0) {
     Uc1Path **temp_s1;
-    Uc1PackedPathPoint *var_a0;
+    u8 *var_s2;
+    Uc1Pt10 *var_a0;
     s16 temp_s5;
     s16 temp_s7;
     s16 var_s0;
     s16 var_s4;
     s16 var_s4_2;
+    s32 var_s3;
+    s32 temp_s8;
 
     var_s4 = 0;
     do {
@@ -21,26 +24,28 @@ void func_80722E48(s16 *arg0) {
         var_s4 += 1;
     } while (var_s4 < 0x1A);
     temp_s7 = *arg0;
-    arg0 += 1;
+    var_s2 = (u8 *)arg0 + 2;
     var_s4_2 = 0;
+    temp_s8 = 0xA;
     if (temp_s7 > 0) {
+        var_s3 = 0xA;
         do {
-            temp_s5 = *arg0;
-            arg0 += 1;
+            temp_s5 = *(s16 *)var_s2;
+            var_s2 += 2;
             temp_s1 = &D_807FDB90[temp_s5];
             *temp_s1 = func_80610FE8(8);
-            (*temp_s1)->unk4 = *arg0;
-            arg0 += 2;
-            (*temp_s1)->unk0 = func_80610FE8(((*temp_s1)->unk4 + 1) * 0xA);
+            (*temp_s1)->unk4 = *(s16 *)var_s2;
+            var_s2 += 4;
+            (*temp_s1)->unk0 = func_80610FE8(((*temp_s1)->unk4 + 1) * temp_s8);
             var_s4_2 += 1;
             var_s0 = 0;
-            var_a0 = (Uc1PackedPathPoint *)arg0;
+            var_a0 = (Uc1Pt10 *)var_s2;
             while (var_s0 < (*temp_s1)->unk4) {
-                ((Uc1PackedPathPoint *)(*temp_s1)->unk0)[var_s0] = *var_a0;
+                *(Uc1Pt10 *)((*temp_s1)->unk0 + var_s0 * var_s3) = *var_a0;
                 var_s0 += 1;
                 var_a0 += 1;
             }
-            arg0 = (s16 *)var_a0;
+            var_s2 = (u8 *)var_a0;
         } while (var_s4_2 < temp_s7);
     }
     var_s4_2 = 0;
