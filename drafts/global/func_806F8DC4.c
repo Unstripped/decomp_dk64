@@ -1,6 +1,6 @@
-// func_806F8DC4 (src/global/FCCD0.c): stage 4: exact branch/call sequence and stores; index multiplication expansion differs
+// func_806F8DC4 (src/global/FCCD0.c): matched TEXT OK: preserve u8[0x5E] row indexing and cast to u16 at offset 0x42
 extern u8 D_8076A0AB;
-extern u16 D_807FC992[][0x2D];
+extern u8 D_807FC950[][0x5E];
 extern s32 func_805FF030();
 s32 func_806C8DE0(s32);
 s32 func_80731A04(s32, s32, s32, s32);
@@ -22,7 +22,7 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
         } else if (func_80731A04(0x225, sp1C, sp1C, temp_a3) != 0) {
             *(u8 *)arg0 = 0xFF;
         }
-    } else if (arg1 < D_807FC992[temp_v0][sp1C]) {
+    } else if (arg1 < ((u16 *)&D_807FC950[temp_v0][0x42])[sp1C]) {
         *(u8 *)arg0 = 0xFF;
     }
 }
