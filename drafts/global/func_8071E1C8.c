@@ -1,19 +1,10 @@
-// func_8071E1C8 (src/global/11BC10.c): stage 4: target frame/save shape matches; closest diff keeps state pointer in v0 through null guard before moving it to s0
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-} Ub7E110Motion;
-
+// func_8071E1C8 (src/global/11BC10.c): stage 4: deferred state-pointer assignment until after null guard, improving fdiff score from 1519 to 1404; remaining FP expression and stack-temporary differences.
 typedef struct {
     u8 pad0[0x7C];
     f32 unk7C;
     f32 unk80;
     f32 unk84;
-} Ub7E1C8Target;
+} NM2E1Target;
 
 extern s32 actorTableContains(void *);
 
@@ -26,15 +17,15 @@ void func_8071E1C8(Ub2ActorView *arg0, s8 *arg1) {
     f32 temp_fa0;
     f32 temp_fv0;
     f32 var_fv1;
-    Ub7E1C8Target *temp_s2;
+    NM2E1Target *temp_s2;
     Ub7E110Motion *temp_v0;
 
-    temp_v0 = arg0->unk384;
-    if (temp_v0 == NULL) {
+    if (arg0->unk384 == NULL) {
         *arg1 = 1;
         return;
     }
-    temp_s2 = (Ub7E1C8Target *)(u32)arg0->unk35C;
+    temp_v0 = arg0->unk384;
+    temp_s2 = (NM2E1Target *)(u32)arg0->unk35C;
     if (actorTableContains(temp_s2) == 0) {
         *arg1 = 1;
         return;
