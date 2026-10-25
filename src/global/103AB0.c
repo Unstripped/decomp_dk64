@@ -75,7 +75,11 @@ void func_806FFF5C(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80701098.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80701C90.s")
+extern s8 D_807FD890;
+
+void func_80701C90(void) {
+    D_807FD890 = 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80701CA0.s")
 

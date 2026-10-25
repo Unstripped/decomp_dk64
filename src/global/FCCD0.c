@@ -61,13 +61,81 @@ void func_806F8EB4(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9518.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F95C8.s")
+void func_806F9518(s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9608.s")
+void func_806F95C8(void) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F966C.s")
+    i = 0;
+    do {
+        func_806F9518(i);
+        i++;
+    } while (i != 0xF);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F96CC.s")
+typedef struct R1FCCD0bAllocRecord {
+    s32 unk0;
+    u8 pad4[0x10];
+    void *unk14;
+} R1FCCD0bAllocRecord;
+
+void *func_80610FE8(s32);
+void heapClearBlock(void *);
+
+void func_806F9608(R1FCCD0bAllocRecord **arg0) {
+    R1FCCD0bAllocRecord *temp;
+
+    temp = func_80610FE8(0x1C);
+    *arg0 = temp;
+    heapClearBlock(temp);
+    (*arg0)->unk0 = 1;
+    (*arg0)->unk14 = func_80610FE8(0xC);
+    heapClearBlock((*arg0)->unk14);
+}
+
+void func_806F966C(R1FCCD0bAllocRecord **arg0) {
+    R1FCCD0bAllocRecord *temp;
+
+    temp = func_80610FE8(0x1C);
+    *arg0 = temp;
+    heapClearBlock(temp);
+    (*arg0)->unk0 = 0;
+    (*arg0)->unk14 = func_80610FE8(0x88);
+    heapClearBlock((*arg0)->unk14);
+}
+
+typedef struct R1FCCD0bEffect {
+    u8 pad0[4];
+    f32 unk4;
+    f32 unk8;
+    s32 unkC;
+} R1FCCD0bEffect;
+
+void func_806F96CC(R1FCCD0bEffect *arg0, u32 arg1) {
+    s32 var_v0;
+    s32 var_v1;
+
+    var_v0 = 0;
+    var_v1 = 0;
+    arg0->unkC = 0;
+    switch (arg1) {
+    case 0:
+    case 13:
+    case 14:
+        var_v0 = -1;
+        break;
+    case 9:
+    case 10:
+    case 12:
+        var_v1 = 1;
+        break;
+    default:
+        var_v0 = 1;
+        break;
+    }
+    arg0->unk4 = (f32)(var_v0 * 0x30);
+    arg0->unk8 = (f32)(var_v1 * 0x30);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9744.s")
 
