@@ -4,7 +4,7 @@ typedef struct {
     f32 unk4;
 } Ub9Motion2;
 
-void func_80719EF4(Ub2ActorView *arg0, s8 *arg1) {
+void func_80719EF4(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp1C;
     Ub9Motion2 *temp_v0;
     Ub9Motion2 *temp_v1;

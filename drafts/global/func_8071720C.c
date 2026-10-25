@@ -15,7 +15,7 @@ typedef struct {
     s32 unk35C;
     u8 pad360[0x24];
     Ub1Motion8 *unk384;
-} Ub1ActorView;
+} RotatingEffectActorView;
 
 void *func_80610FE8(s32);
 s32 func_80611A44(void);
@@ -24,7 +24,7 @@ f32 func_80612794(s16);
 void lightSetFlags(s32);
 void lightAdd(f32, f32, f32, s32, f32, f32, f32, s32, s32, s32, s32);
 
-void func_8071720C(Ub1ActorView *arg0, void *arg1) {
+void func_8071720C(RotatingEffectActorView *arg0, void *arg1) {
     Ub1Motion8 *temp_v0;
     Ub1Motion8 *var_v1;
 

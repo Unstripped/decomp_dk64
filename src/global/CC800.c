@@ -642,9 +642,9 @@ void func_80614E78(Actor *, s32);
 void func_80613C48(Actor *, s32, f32, f32);
 void func_806CFE7C(void);
 void func_806F0D68(Actor *);
-void func_807215D0(s32, s32);
-void func_807215AC(s32, s32, s32);
-void func_80721560(s32, s32, s32, s32, s32, s32);
+void commandSetFlags(s32, s32);
+void commandSetColor(s32, s32, s32);
+void commandSetParameters(s32, s32, s32, s32, s32, s32);
 void func_80028840(void);
 void actorSpawnChildActor(Actor *);
 void func_806C7B50(s32, u8, Actor *);
@@ -712,9 +712,9 @@ void func_806C8984(void) {
         L6V->unk88 = D_807FBB44;
         return;
     case 0x4C:
-        func_807215D0(0, 0);
-        func_807215AC(0x6B, 0x30, 0x50);
-        func_80721560(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
+        commandSetFlags(0, 0);
+        commandSetColor(0x6B, 0x30, 0x50);
+        commandSetParameters(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
         func_80028840();
     case 0x28:
     case 0x51:

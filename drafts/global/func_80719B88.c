@@ -1,7 +1,7 @@
 // func_80719B88 (src/global/11BC10.c): Stage 6: frame and all operations match; one extra register copy around countdown selection remains.
-void func_80719A0C(Ub2ActorView *, s8 *);
+void func_80719A0C(TimedEffectActorView *, s8 *);
 
-void func_80719B88(Ub2ActorView *arg0, s8 *arg1) {
+void func_80719B88(TimedEffectActorView *arg0, s8 *arg1) {
     u8 temp_t6;
     u8 temp_v0;
     u8 var_v1;

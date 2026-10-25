@@ -27,7 +27,7 @@ typedef struct {
     s8 unkC;
     s8 unkD;
     s8 unkE;
-} Ud1CommandState;
+} CommandState;
 
 typedef struct {
     s32 unk0;
@@ -39,12 +39,12 @@ typedef struct {
     u8 unkC;
     u8 unkD;
     u8 unkE;
-} Ud1Command;
+} Command;
 
-extern Ud1CommandState D_807FDB60;
+extern CommandState D_807FDB60;
 extern s32 D_807FDB70;
 
-void func_80721560(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
+void commandSetParameters(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
     D_807FDB76 = arg0;
     D_807FDB78 = arg1;
     D_807FDB7A = arg2;
@@ -53,18 +53,18 @@ void func_80721560(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
     D_807FDB80 = arg5;
 }
 
-void func_807215AC(s8 arg0, s8 arg1, s8 arg2) {
+void commandSetColor(s8 arg0, s8 arg1, s8 arg2) {
     D_807FDB60.unkB = arg0;
     D_807FDB60.unkC = arg1;
     D_807FDB60.unkD = arg2;
 }
 
-void func_807215D0(s8 arg0, s8 arg1) {
+void commandSetFlags(s8 arg0, s8 arg1) {
     D_807FDB7C = arg0;
     D_807FDB7D = arg1;
 }
 
-void func_807215EC(void) {
+void commandStateInit(void) {
     D_807FDB60.unk8 = 0;
     D_807FDB60.unkB = 0x6B;
     D_807FDB60.unkC = 0x30;
@@ -73,8 +73,8 @@ void func_807215EC(void) {
     D_807FDB60.unk6 = D_807FDB60.unk8;
     D_807FDB60.unk4 = D_807FDB60.unk8;
     D_807FDB70 = (s32) func_80610FE8(0x200);
-    func_80721560(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
-    func_807215D0(1, 1);
+    commandSetParameters(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
+    commandSetFlags(1, 1);
 }
 
 extern s16 D_80755680;
@@ -93,7 +93,7 @@ void func_8072167C(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/126260/func_80721814.s")
 
-void func_80722280(void) {
+void commandQueueReset(void) {
     D_807FDB74 = 0;
     D_807FDB75 = 0;
 }

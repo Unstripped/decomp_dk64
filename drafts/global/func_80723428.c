@@ -1,6 +1,6 @@
 // func_80723428 (src/global/127B00.c): stage 4: 0x20 frame conflicts with required sp+0x1C pointer home slot
-typedef struct Uc1Playback Uc1Playback;
-extern Uc1Playback *D_807FDBF8[];
+typedef struct PathPlayback PathPlayback;
+extern PathPlayback *D_807FDBF8[];
 void heapFree(s32, s32);
 
 void func_80723428(s32 arg0) {

@@ -1,4 +1,4 @@
-// func_80723020 (src/global/127B00.c): stage 2: compiled typed Uc1Path/Uc1Playback/Uc1Point candidate; it reproduces point copy as LWL/LWR/SWL/SWR plus halfword, but allocation/control-flow register pressure leaves frame 0x48 rather than target 0x70 and target saved-register topology unmatched
+// func_80723020 (src/global/127B00.c): stage 2: compiled typed PathEntry/PathPlayback/PathPoint candidate; it reproduces point copy as LWL/LWR/SWL/SWR plus halfword, but allocation/control-flow register pressure leaves frame 0x48 rather than target 0x70 and target saved-register topology unmatched
 void *func_80610FE8(s32);                           /* extern */
 ? memcpy(void *, ? *, ?);                           /* extern */
 extern ? D_807FDB90;

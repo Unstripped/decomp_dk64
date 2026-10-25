@@ -1,5 +1,5 @@
 // func_8071A038 (src/global/11BC10.c): Stage 3: behavioural matrix reconstruction compiled; frame/register allocation remains.
-void func_8071A038(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071A038(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp78[4][4];
     f32 sp38[4][4];
     f32 sp34;

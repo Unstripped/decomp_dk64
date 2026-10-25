@@ -2,7 +2,7 @@
 // func_80718188 draft: behavior recovered; target requires different register lifetime and branch-likely shape.
 extern s16 D_807502D0;
 
-void func_80718188(Ub2ActorView *arg0, s8 *arg1) {
+void func_80718188(TimedEffectActorView *arg0, s8 *arg1) {
     s16 *temp_v0;
     s16 *temp_v1;
     s16 *var_v1;

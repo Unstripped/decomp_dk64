@@ -1,7 +1,7 @@
 // func_80724154 (src/global/127B00.c): stage 2: m2c control flow reproduces float comparisons and 0.05 stepping; direct-parameter candidate has target frame/register set but colors arg4/arg5 s5/s4 instead of target s4/s5; pointer copies grow frame
 f32 func_80724308(s32, f32, f32, f32, s32, f32);
-typedef struct Uc1Path { u8 *unk0; s16 unk4; } Uc1Path;
-extern Uc1Path *D_807FDB90[];
+typedef struct PathEntry { u8 *unk0; s16 unk4; } PathEntry;
+extern PathEntry *D_807FDB90[];
 
 s32 func_80724154(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 *arg4, f32 *arg5) {
     f32 temp_fv0;

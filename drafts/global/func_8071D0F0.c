@@ -7,7 +7,7 @@ extern u16 D_807FC930[];
 extern NM1bD0Flags *D_807FD580;
 void actorGetNodePos(s32, u8, f32 *, f32 *, f32 *);
 s32 func_805FF030(u8, s32, f32, f32);
-void func_8071D0F0(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
     f64 pad;
     NM1bD0Motion *motion;
     s32 node;

@@ -2,13 +2,13 @@
 #include "actor.h"
 
 void *func_80610FE8(s32);
-typedef struct Uc1Path {
+typedef struct PathEntry {
     u8 *unk0;
     s16 unk4;
-} Uc1Path;
+} PathEntry;
 
 
-typedef struct Uc1Playback {
+typedef struct PathPlayback {
     s32 unk0;
     u8 *unk4;
     s16 unk8;
@@ -24,16 +24,16 @@ typedef struct Uc1Playback {
     s32 unk1C;
     u8 unk20;
     u8 unk21;
-} Uc1Playback;
+} PathPlayback;
 
-extern Uc1Path *D_807FDB90[];
+extern PathEntry *D_807FDB90[];
 
 
 void assetFreeBuffer(s32, s32, s32);
 s32 func_8066B0F8(s32, s32, s32, s32);
 void func_80722E48(s16 *);
 
-void func_80722E00(s32 arg0) {
+void pathFreeAsset(s32 arg0) {
     s32 sp1C;
     s32 temp_v0;
 
@@ -45,7 +45,7 @@ void func_80722E00(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/127B00/func_80722E48.s")
 
-s32 func_80722FEC(u8 arg0) {
+s32 pathExists(u8 arg0) {
     if (D_807FDB90[arg0] != NULL) {
         return 1;
     }
@@ -53,11 +53,11 @@ s32 func_80722FEC(u8 arg0) {
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/127B00/func_80723020.s")
-extern Uc1Playback *D_807FDBF8[];
+extern PathPlayback *D_807FDBF8[];
 
 
 void func_80723284(s32 arg0, u8 arg1) {
-    Uc1Playback *temp_v0;
+    PathPlayback *temp_v0;
 
     if (arg0 != -1) {
         temp_v0 = D_807FDBF8[arg0];
@@ -68,7 +68,7 @@ void func_80723284(s32 arg0, u8 arg1) {
 }
 
 void func_807232B8(s32 arg0, u8 arg1) {
-    Uc1Playback *temp_v0;
+    PathPlayback *temp_v0;
 
     if (arg0 != -1) {
         temp_v0 = D_807FDBF8[arg0];
@@ -79,7 +79,7 @@ void func_807232B8(s32 arg0, u8 arg1) {
 }
 
 void func_807232EC(s32 arg0, u8 arg1) {
-    Uc1Playback *temp_v0;
+    PathPlayback *temp_v0;
 
     if (arg0 != -1) {
         temp_v0 = D_807FDBF8[arg0];
@@ -90,7 +90,7 @@ void func_807232EC(s32 arg0, u8 arg1) {
 }
 
 void func_80723320(s32 arg0, s32 arg1) {
-    Uc1Playback *temp_v0;
+    PathPlayback *temp_v0;
 
     if (arg0 != -1) {
         temp_v0 = D_807FDBF8[arg0];
@@ -101,7 +101,7 @@ void func_80723320(s32 arg0, s32 arg1) {
 }
 
 void func_8072334C(s32 arg0, u8 arg1) {
-    Uc1Playback *temp_v0;
+    PathPlayback *temp_v0;
 
     if (arg0 != -1) {
         temp_v0 = D_807FDBF8[arg0];
@@ -112,7 +112,7 @@ void func_8072334C(s32 arg0, u8 arg1) {
 }
 
 void func_80723380(s32 arg0, u8 arg1) {
-    Uc1Playback *temp_v0;
+    PathPlayback *temp_v0;
 
     if (arg0 != -1) {
         temp_v0 = D_807FDBF8[arg0];
@@ -124,9 +124,9 @@ void func_80723380(s32 arg0, u8 arg1) {
 
 void func_80723428(s32);
 
-void func_807233B4(s32 arg0) {
-    Uc1Playback **var_s1;
-    Uc1Playback *temp_v0;
+void pathPlaybackStopForActor(s32 arg0) {
+    PathPlayback **var_s1;
+    PathPlayback *temp_v0;
     s32 var_s0;
 
     var_s1 = D_807FDBF8;
@@ -148,7 +148,7 @@ void func_807233B4(s32 arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/127B00/func_807238D4.s")
 
 u8 func_80723C98(s32 arg0) {
-    Uc1Playback *temp_v1;
+    PathPlayback *temp_v1;
 
     if ((arg0 == -1) || ((temp_v1 = D_807FDBF8[arg0]) == NULL)) {
         return 0;
@@ -164,6 +164,6 @@ u8 func_80723C98(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/127B00/func_80724308.s")
 
-s16 func_807245D8(s32 arg0) {
+s16 pathEntryCount(s32 arg0) {
     return D_807FDB90[arg0]->unk4;
 }

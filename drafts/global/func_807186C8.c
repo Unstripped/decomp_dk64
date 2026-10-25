@@ -16,9 +16,9 @@ typedef struct {
     f32 angleIncrement;
 } M2Interpolation;
 
-void func_807186C8(Ub2ActorView *arg0, s8 *arg1) {
-    Ub2bMtxF spA0;
-    Ub2bMtxF sp60;
+void func_807186C8(TimedEffectActorView *arg0, s8 *arg1) {
+    EffectMatrix spA0;
+    EffectMatrix sp60;
     f32 end[3];
     f32 start[3];
     f32 result[3];

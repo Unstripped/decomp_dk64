@@ -4,7 +4,7 @@ typedef struct { u8 pad0[0x1F0]; u32 unk1F0; } Ub7DC90Flags;
 typedef struct { f32 unk0; f32 unk4; f32 unk8; f32 unkC; f32 unk10; f32 unk14; } Ub7DC90Motion;
 typedef struct { u8 pad0[0x7C]; f32 unk7C; f32 unk80; f32 unk84; } Ub7DC90Position;
 
-void func_8071DC90(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071DC90(TimedEffectActorView *arg0, s8 *arg1) {
     Ub7DC90Target *sp28;
     f32 sp20;
     f32 temp_fv0;

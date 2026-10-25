@@ -17,7 +17,7 @@ typedef struct {
 
 void collisionGetFloorHeight(void *);
 
-void func_8071D94C(void *arg0, Ub2ActorView *arg1, s8 *arg2) {
+void func_8071D94C(void *arg0, TimedEffectActorView *arg1, s8 *arg2) {
     Ub3bFallingState *state;
     Ub3bPositionSource *source;
     s16 sp34;

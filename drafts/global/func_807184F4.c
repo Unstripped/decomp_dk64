@@ -9,9 +9,9 @@ typedef struct {
     f32 unkAC;
 } Ub3TargetView;
 
-void func_807184F4(Ub2ActorView *arg0, s8 *arg1) {
-    Ub2bMtxF sp70;
-    Ub2bMtxF sp30;
+void func_807184F4(TimedEffectActorView *arg0, s8 *arg1) {
+    EffectMatrix sp70;
+    EffectMatrix sp30;
     Ub3TwoFloats *temp_v0;
     Ub3TwoFloats *temp_v0_3;
     f32 var_ft2;

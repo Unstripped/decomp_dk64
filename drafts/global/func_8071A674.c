@@ -1,7 +1,7 @@
 // func_8071A674 (src/global/11BC10.c): stage 3: compiled C with target light body; direct post-increment loop and one-argument lightSetFlags retain target call sequence. Closest candidate frame is 0x58 versus target 0x48; end-pointer allocation and one remaining stack local differ.
 extern s32 D_8002FBB0[];
 extern s32 D_8002FBC0;
-void func_8071A674(Ub5Actor *arg0, s8 *arg1) {
+void func_8071A674(TimedLightActorView *arg0, s8 *arg1) {
     f64 temp_fv1;
     f32 var_fv0;
     s32 *var_v0;

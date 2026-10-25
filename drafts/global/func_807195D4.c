@@ -4,10 +4,10 @@ typedef struct {
     f32 unk4;
 } Ub3TwoFloats;
 
-void func_807195D4(Ub2ActorView *arg0, s8 *arg1) {
+void func_807195D4(TimedEffectActorView *arg0, s8 *arg1) {
     f32 spB0;
-    Ub2bMtxF sp6C;
-    Ub2bMtxF sp2C;
+    EffectMatrix sp6C;
+    EffectMatrix sp2C;
     f32 temp_fv0;
 
     if (arg0->unk384 == NULL) {

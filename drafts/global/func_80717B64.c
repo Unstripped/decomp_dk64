@@ -19,7 +19,7 @@ typedef struct {
     u8 unk36D;
     u8 pad36E[0x16];
     void *unk384;
-} Ub2ActorView;
+} TimedEffectActorView;
 
 typedef struct {
     u8 pad0[0x16];
@@ -42,7 +42,7 @@ typedef struct {
 extern Ub2PlayerView *D_807FC924;
 
 void func_80717B64(arg0, arg1)
-Ub2ActorView *arg0;
+TimedEffectActorView *arg0;
 s8 *arg1;
 {
     Ub2FalloffState *sp24;

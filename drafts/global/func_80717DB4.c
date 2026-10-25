@@ -12,7 +12,7 @@ typedef struct {
     s32 unk35C;
     u8 pad360[0x24];
     void *unk384;
-} Ub2ActorView;
+} TimedEffectActorView;
 
 typedef struct {
     f32 unk0;
@@ -24,7 +24,7 @@ typedef struct {
 } Ub2OrbitMotion;
 
 void func_80717DB4(arg0, arg1)
-Ub2ActorView *arg0;
+TimedEffectActorView *arg0;
 s8 *arg1;
 {
     Ub2OrbitMotion *temp_v0;

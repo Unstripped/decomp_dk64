@@ -455,7 +455,7 @@ void func_805FF2F4();
 void func_80709464(u8);
 void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
-void func_80715908(void *, void *);
+void effectFreeAndUnlink(void *, void *);
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
 s32 playerStateQueueCallback(s32, Actor *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
@@ -620,7 +620,7 @@ void func_806CA5F8(s32 arg0) {
                 fx = LCA_P->unk254;
                 if (fx != NULL) {
                     LCA_P->unk254 = NULL;
-                    func_80715908(fx, fx);
+                    effectFreeAndUnlink(fx, fx);
                     fx = LCA_P->unk254;
                 }
             }

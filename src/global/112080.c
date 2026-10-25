@@ -252,7 +252,7 @@ typedef struct S112aFreeNode {
     struct S112aFreeNode *next;
 } S112aFreeNode;
 
-void func_80715908(s32);
+void effectFreeAndUnlink(s32);
 extern void heapFreeDeferred();
 
 void func_8070D9AC(S112aFreeNode *arg0) {
@@ -270,7 +270,7 @@ void func_8070D9AC(S112aFreeNode *arg0) {
             if (flags != 0) {
                 handle = current->handle;
                 if (handle != 0) {
-                    func_80715908(handle);
+                    effectFreeAndUnlink(handle);
                 }
             }
             heapFreeDeferred(current);

@@ -4,7 +4,7 @@
 ? func_806303C4(?, ?, void *, ?32, f32, ?32, s32, s32, s32, s32, s32); /* extern */
 ? func_806335B0(s16, ?, u8, void *, void *, void *); /* extern */
 s8 func_806531B8(?32, f32, ?, ?, ?32, ?);           /* extern */
-? func_80715908(void *);                            /* extern */
+? effectFreeAndUnlink(void *);                       /* extern */
 ? func_80715A3C(s32, u8, s32, s32, s32, void *);    /* extern */
 ? func_80715B30(void *, u8, s32, s32, f32, f32, f32, ?32, f32, ?32, s32); /* extern */
 ? memcpy(void *, void *, ?);                        /* extern */
@@ -107,7 +107,7 @@ void func_80715270(s32 arg0) {
                     var_s2->unk32D = 1U;
                 }
                 if (var_s2->unk32D != 0) {
-                    func_80715908(var_s2);
+                    effectFreeAndUnlink(var_s2);
                 } else {
                     temp_v1 = D_80750AB4;
                     var_s0_2 = 1;

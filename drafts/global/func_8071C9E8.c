@@ -13,7 +13,7 @@ extern s16 D_80755650[];
 extern s32 D_8071FB08;
 s16 func_806CC190(s16, s16, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void func_8071C9E8(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071C9E8(TimedEffectActorView *arg0, s8 *arg1) {
     f32 spA0[4][4]; f32 sp60[4][4]; M3C9State *state; s32 random; u8 choice;
     state = arg0->unk384;
     if (state == NULL) { choice = (func_80611A44() >> 0xF) % 1000 % 6; arg0->unk384 = func_80610FE8(0xE); state = arg0->unk384; state->speed = (func_80611A44() >> 0xF) % 5 + 10; state->x = D_80755650[choice * 3]; state->z = D_80755650[choice * 3 + 1]; state->target_y = D_80755650[choice * 3 + 2]; state->rotation = 0; state->y = (s16)arg0->unk344; }

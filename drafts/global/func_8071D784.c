@@ -14,7 +14,7 @@ typedef struct {
 extern f32 D_80755674;
 extern f32 D_80755678;
 
-void func_8071D784(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071D784(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp90[4][4];
     f32 sp50[4][4];
     f32 sp48;

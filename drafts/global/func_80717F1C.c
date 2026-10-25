@@ -13,14 +13,14 @@ typedef struct {
     f32 unk360;
     u8 pad364[0x20];
     void *unk384;
-} Ub2ActorView;
+} TimedEffectActorView;
 
 typedef struct {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
-} Ub2VelocityMotion;
+} VelocityMotionState;
 
 typedef struct {
     u8 pad0[0xB8];
@@ -30,13 +30,13 @@ typedef struct {
 } Ub2SourceView;
 
 void func_80717F1C(arg0, arg1)
-Ub2ActorView *arg0;
+TimedEffectActorView *arg0;
 s8 *arg1;
 {
-    Ub2VelocityMotion *sp24;
+    VelocityMotionState *sp24;
     Ub2SourceView *temp_s0;
-    Ub2VelocityMotion *temp_v0;
-    Ub2VelocityMotion *var_v0;
+    VelocityMotionState *temp_v0;
+    VelocityMotionState *var_v0;
 
     var_v0 = arg0->unk384;
     if (var_v0 == NULL) {

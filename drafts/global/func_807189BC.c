@@ -15,7 +15,7 @@ typedef struct {
     s16 unk6;
 } NM2Projectile;
 
-void func_807189BC(Ub2ActorView *arg0, s8 *arg1) {
+void func_807189BC(TimedEffectActorView *arg0, s8 *arg1) {
     s32 sp20;
     f64 temp_fv0;
     NM2Projectile *var_v1;

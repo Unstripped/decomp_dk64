@@ -9,6 +9,8 @@ typedef struct L1TextureNode {
     u8 unk14;
 } L1TextureNode;
 
+typedef struct EffectNode EffectNode;
+
 typedef struct L1EffectView {
     u8 pad0[0x21];
     u8 unk21;
@@ -56,7 +58,7 @@ s32 func_8065C334(f32, f32, s32, s32, u8 *, u8 *, u8 *, s32);
 s32 mapChunkContainsPoint(s16, s16, s16);
 s32 mapChunkIsInUse(s16);
 
-Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
+Gfx *func_80715E94(EffectNode *arg0, Gfx *arg1, s16 arg2) {
     L1EffectView *effect = (L1EffectView *)arg0;
     L1EffectView *cursor;
     Gfx *glist;

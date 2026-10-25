@@ -334,8 +334,8 @@ void actorDespawnByOwner(s32 arg0) {
 }
 
 void func_806136B4(void);
-void func_8071586C(Actor *);
-void func_807233B4(Actor *);
+void effectFreeByResource(Actor *);
+void pathPlaybackStopForActor(Actor *);
 void actorSub140Free(ActorSub140 *);
 void func_8072F09C(Actor *);
 void func_8070DA74(Actor *);
@@ -372,8 +372,8 @@ void actorFreeImmediate(Actor *arg0) {
         }
     }
     i = 0;
-    func_8071586C(arg0);
-    func_807233B4(arg0);
+    effectFreeByResource(arg0);
+    pathPlaybackStopForActor(arg0);
     sfxStopSlotSound(arg0, 0);
     sfxStopSlotSound(arg0, 1);
     if (gActiveActors[0].actor != arg0) {

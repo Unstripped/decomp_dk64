@@ -65,8 +65,8 @@ void func_806F397C(void *, s32, s16, s32);
 void func_80608528(void *, s16, s32, s32, s32);
 void func_80602A94(s16, f32);
 void func_80602B60(s16, s32);
-void func_807215AC(s32, s32, s32);
-void func_80721560(s32, s32, s32, s32, s32, s32);
+void commandSetColor(s32, s32, s32);
+void commandSetParameters(s32, s32, s32, s32, s32, s32);
 void func_80653F68(s16);
 void func_80659F7C(f32, f32, f32, f32, s32);
 void func_80659DB0(f32, f32, f32, s16);
@@ -255,8 +255,8 @@ void func_8068AD7C(void) {
             D_807FC621 = temp_s0[0];
             D_807FC622 = temp_s0[1];
             if (D_807FC622 != 0) {
-                func_807215AC(0x35, 0x18, 0x28);
-                func_80721560(0x320, 0x82, 0, 0x64, 0x64, 0x64);
+                commandSetColor(0x35, 0x18, 0x28);
+                commandSetParameters(0x320, 0x82, 0, 0x64, 0x64, 0x64);
             }
             break;
         case 0x18:

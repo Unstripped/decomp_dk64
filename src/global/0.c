@@ -175,11 +175,11 @@ void func_80712B80(void);
 void func_80712BD4(void);
 s32 func_80714060(s32);
 s32 func_80714464(void);
-void func_80714670(void);
+void effectResetLists(void);
 void func_80715270(s32);
-void func_807215EC(void);
-void func_80722280(void);
-void func_80722E00(s32);
+void commandStateInit(void);
+void commandQueueReset(void);
+void pathFreeAsset(s32);
 void func_80724C78(s32);
 void func_8072E740(s32);
 void func_8072ED90(void);
@@ -780,7 +780,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     glist = (Gfx *)func_80714060(func_806FAB20(func_80709344((s32)glist)));
     func_806FBC34();
     texCacheUpdate();
-    func_80722280();
+    commandQueueReset();
     *arg1 = glist;
     *arg2 = glist2;
 }
@@ -930,11 +930,11 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
     if (D_807444EC == 0) {
         D_8076A0A0 = func_8066B0F8(0x13, 0, 1, 1);
         func_80705B30();
-        func_807215EC();
+        commandStateInit();
         func_806F3760(D_8076A0AA);
         func_8072ED90();
         mapSearchTableReset();
-        func_80722E00(D_8076A0A8);
+        pathFreeAsset(D_8076A0A8);
         sp2C = func_8066B0F8(1, D_8076A0A8, 1, 1);
         func_80630300();
         mapChunkAllocLists(sp2C);
@@ -959,7 +959,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         }
         func_80712B80();
         func_806C7D40(D_807444E8);
-        func_80714670();
+        effectResetLists();
         sp28 = func_8066B0F8(0x10, D_8076A0A8, 1, 1);
         func_80724C78(sp28);
         if (sp28 != 0) {

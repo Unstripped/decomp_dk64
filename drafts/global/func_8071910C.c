@@ -14,7 +14,7 @@ extern s32 D_8072073C;
 extern s32 D_807212B0;
 extern s32 D_807212C8;
 
-void func_8071910C(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071910C(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp98[4][4];
     f32 sp58[4][4];
     f32 sp54;

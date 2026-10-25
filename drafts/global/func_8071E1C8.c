@@ -8,7 +8,7 @@ typedef struct {
 
 extern s32 actorTableContains(void *);
 
-void func_8071E1C8(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071E1C8(TimedEffectActorView *arg0, s8 *arg1) {
     f64 pad0;
     f64 pad1;
     f64 pad2;
@@ -18,7 +18,7 @@ void func_8071E1C8(Ub2ActorView *arg0, s8 *arg1) {
     f32 temp_fv0;
     f32 var_fv1;
     NM2E1Target *temp_s2;
-    Ub7E110Motion *temp_v0;
+    TimedMotionState *temp_v0;
 
     if (arg0->unk384 == NULL) {
         *arg1 = 1;

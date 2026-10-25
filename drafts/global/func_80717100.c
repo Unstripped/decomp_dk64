@@ -7,8 +7,8 @@ typedef struct {
     s16 unk8;
 } NM1bMotion10;
 
-void func_80717100(Ub1ActorView *arg0, void *arg1) {
-    Ub1ActorView *actor;
+void func_80717100(RotatingEffectActorView *arg0, void *arg1) {
+    RotatingEffectActorView *actor;
     NM1bMotion10 *motion;
     s16 angle_delta;
 

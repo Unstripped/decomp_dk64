@@ -6,7 +6,7 @@ extern void lightSetFlags(s32);
 extern void lightSetRadius(s32);
 extern void lightSetTargetId(s16);
 
-void func_8071E3EC(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071E3EC(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp4C;
     f32 sp48;
     f32 sp44;

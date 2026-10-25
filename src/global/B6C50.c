@@ -63,7 +63,7 @@ void func_807149B8(s32);
 void func_807149C8(s32, s32, s32, s32);
 void func_807149FC(s32);
 void func_80714C08(void *, f32, void *, s32, s32);
-void func_8071586C(B6C50Actor *);
+void effectFreeByResource(B6C50Actor *);
 void func_80726EE0(s32);
 void func_80729B00(void);
 s32 sfxAllocateChannel(s32, f32);
@@ -141,7 +141,7 @@ void func_806B1F50(void) {
                 D_807FBB40->unk138 &= ~0x8000;
                 sfxStopSlotSound(D_807FBB40, 0);
                 func_80726EE0(0);
-                func_8071586C((B6C50Actor *)D_807FDC94);
+                effectFreeByResource((B6C50Actor *)D_807FDC94);
                 actorDespawn(D_807FBB40->unk11C);
                 D_807FBB40->unk154 = 0x27;
                 D_807FBB40->unk155 = 0;

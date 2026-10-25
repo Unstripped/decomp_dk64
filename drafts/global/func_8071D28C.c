@@ -24,7 +24,7 @@ void func_807149FC(s32);
 void func_80714A28(s32);
 void func_8071D260(void);
 
-void func_8071D28C(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071D28C(TimedEffectActorView *arg0, s8 *arg1) {
     Ub3bOrbitState *state;
     Ub3bPositionSource *source;
     f32 x;

@@ -562,7 +562,7 @@ void func_80025F84(void) {
     }
 }
 
-void func_80715908(s32);
+void effectFreeAndUnlink(s32);
 
 typedef struct Struct_80025FFC_MpHigh {
     char pad[0x50];
@@ -577,7 +577,7 @@ void func_80025FFC(Struct_80025FFC_MpHigh *arg0) {
     if (arg0->unk70 != 0) {
         for (i = 0; i < D_807FC928 * 2; i++) {
             if (arg0->unk50[i] != 0) {
-                func_80715908(arg0->unk50[i]);
+                effectFreeAndUnlink(arg0->unk50[i]);
             }
             arg0->unk50[i] = 0;
         }

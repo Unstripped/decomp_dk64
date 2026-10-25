@@ -11,9 +11,9 @@ typedef struct {
     f32 unkAC;
 } NM1FloorSource;
 
-void func_8071D94C(void *, Ub2ActorView *, s8 *);
+void func_8071D94C(void *, TimedEffectActorView *, s8 *);
 
-void func_8071DB74(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071DB74(TimedEffectActorView *arg0, s8 *arg1) {
     NM1FallingState *motion;
     NM1FallingState *motion_for_floor;
     NM1FloorSource *floor;

@@ -16,7 +16,7 @@ typedef struct AllocNode {
 } AllocNode;
 
 extern void *D_80754280;
-void func_80715908(s32);
+void effectFreeAndUnlink(s32);
 void heapFree(void *);
 
 void func_806F9518(s32 arg0) {
@@ -33,7 +33,7 @@ void func_806F9518(s32 arg0) {
             temp_s0 = *var_s1;
             temp_s2 = &temp_s0->next;
             if (temp_s0->type == 1) {
-                func_80715908(*(s32 *)((u8 *)temp_s0->unk14 + 8));
+                effectFreeAndUnlink(*(s32 *)((u8 *)temp_s0->unk14 + 8));
                 temp_s0 = *var_s1;
             }
             heapFree(temp_s0->unk14);

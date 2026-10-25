@@ -157,7 +157,7 @@ void func_807149A8(s16);
 void func_80714C08(void *, f32, Actor *, s32, s32);
 void func_80718BF4(void);
 void func_807245F0(Actor *, s32);
-void func_80724874(Actor *);
+void animationOwnerFreeBuffer(Actor *);
 
 void func_8067C71C(void) {
     R2J_Actor174 *temp_s1 = R2J_ACTOR->unk174;
@@ -205,7 +205,7 @@ void func_8067C71C(void) {
             func_806791EC(D_807FBB40, 0x8000);
             func_8067A170(temp_s1->unk0, 1);
             R2J_ACTOR->unk144 = 0x2C;
-            func_80724874(D_807FBB40);
+            animationOwnerFreeBuffer(D_807FBB40);
         } else {
             func_806CF4B8(D_807FBB40);
         }

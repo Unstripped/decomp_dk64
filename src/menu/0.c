@@ -71,7 +71,7 @@ void menuSpawnPositionalActor(MenuStruct_80024000 *arg0) {
     arg0->unk8 = func_80714CC0(&D_80720268, 0x3E99999A, 0x43350000, 0x40400000, 82.0f);
 }
 
-void func_80715908(MenuActor_340 *);
+void effectFreeAndUnlink(MenuActor_340 *);
 
 void menuUpdateFallingActor(MenuStruct_80024000 *arg0) {
     MenuActor_340 *temp_v0 = arg0->unk8;
@@ -82,7 +82,7 @@ void menuUpdateFallingActor(MenuStruct_80024000 *arg0) {
     arg0->unk6++;
     if (arg0->unk6 >= 0x16) {
         arg0->unk6 = 0;
-        func_80715908(arg0->unk8);
+        effectFreeAndUnlink(arg0->unk8);
         arg0->unk8 = NULL;
     }
 }

@@ -8,7 +8,7 @@ typedef struct {
     u8 unk15E;
 } Ub3bPlayerView;
 
-void func_8071D5BC(Ub2ActorView *arg0, s8 *arg1) {
+void func_8071D5BC(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp80[4][4];
     f32 sp40[4][4];
     Ub3bPlayerView *player;

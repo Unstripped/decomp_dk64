@@ -255,7 +255,7 @@ void func_8071498C(void *);
 void func_80714998(s32);
 void func_807149FC(s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
-void func_80715908(s32);
+void effectFreeAndUnlink(s32);
 
 extern Actor_BB44 *D_807FBB44;
 s32 func_80611A44(void);

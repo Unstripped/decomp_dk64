@@ -1,4 +1,4 @@
-// func_806CA5F8 (src/global/CEAE0.c): stage 6 near-miss, ~24 real differing insns of 1250 (all regalloc; was ~124): (1) fx: target keeps LCA_P->unk254 temp in a1 (lw a1; beqz a1; move a0,a1 -> func_80715908; reload lw a1 after create/free; join 'move s0,a1') with s0 only AFTER the join; ours keeps fx in s0 whole + 'move a1,s0'; (2) 4 blocks D_807FBB48 ptr (create-path args, node-pos/func_80626F8C x3) target v1, ours v0: candidate gets v1 if actorGetNodePos/func_8071495C/func_80626F8C return s32 (v0 hard-forbidden) but then D_807FD580 ptr flips to v0 and the whole early part reshuffles (139 vs 38 diff lines). Fixed this round: float rotation after sqrtf (dz = sqrtf(...) reusing dz local, no frame change; a new f32 local grows frame/shifts u8 slots), beq operand order ((u32)v != unk1A4). Tried without success: fx as two locals / arg0 param as carrier / old local (frame +8) / 1-arg call / PRE-only join, s32 returns of every callee, dead-test position scans, 4 permuter runs x 900s.
+// func_806CA5F8 (src/global/CEAE0.c): stage 6 near-miss, ~24 real differing insns of 1250 (all regalloc; was ~124): (1) fx: target keeps LCA_P->unk254 temp in a1 (lw a1; beqz a1; move a0,a1 -> effectFreeAndUnlink; reload lw a1 after create/free; join 'move s0,a1') with s0 only AFTER the join; ours keeps fx in s0 whole + 'move a1,s0'; (2) 4 blocks D_807FBB48 ptr (create-path args, node-pos/func_80626F8C x3) target v1, ours v0: candidate gets v1 if actorGetNodePos/func_8071495C/func_80626F8C return s32 (v0 hard-forbidden) but then D_807FD580 ptr flips to v0 and the whole early part reshuffles (139 vs 38 diff lines). Fixed this round: float rotation after sqrtf (dz = sqrtf(...) reusing dz local, no frame change; a new f32 local grows frame/shifts u8 slots), beq operand order ((u32)v != unk1A4). Tried without success: fx as two locals / arg0 param as carrier / old local (frame +8) / 1-arg call / PRE-only join, s32 returns of every callee, dead-test position scans, 4 permuter runs x 900s.
 typedef struct LCA5F8Fx {
     /* 0x000 */ u8 pad0[0x340];
     /* 0x340 */ f32 unk340;
@@ -124,7 +124,7 @@ void func_805FF2F4();
 void func_80709464(u8);
 void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
-void func_80715908(void *, void *);
+void effectFreeAndUnlink(void *, void *);
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
 s32 playerStateQueueCallback(s32, Actor *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
@@ -289,7 +289,7 @@ void func_806CA5F8(s32 arg0) {
                 fx = LCA_P->unk254;
                 if (fx != NULL) {
                     LCA_P->unk254 = NULL;
-                    func_80715908(fx, fx);
+                    effectFreeAndUnlink(fx, fx);
                     fx = LCA_P->unk254;
                 }
             }

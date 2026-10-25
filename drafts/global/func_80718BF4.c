@@ -13,7 +13,7 @@ typedef struct {
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 s32 collisionGetFloorHeight(s32 *);
 
-void func_80718BF4(Ub2ActorView *arg0, s8 *arg1) {
+void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
     f64 temp_fv1;
     f32 sp3C;
     f32 sp30;

@@ -1,10 +1,10 @@
 // func_807245F0 (src/global/1292F0.c): Stage 3: behavioral state view compiled; frame is 0xA0 versus target 0x78, and state-pointer layout/register allocation remains.
 void *func_80610FE8(?);                             /* extern */
-s32 func_80722FEC(s32);                             /* extern */
+s32 pathExists(s32);                                 /* extern */
 ? func_80723CCC(s16, s32, f32, f32 *, f32 *, f32 *, f32 *); /* extern */
 ? func_80723F88(s16, s32, s32, s32, void *, void *); /* extern */
 ? func_80724154(s16, s32, s32, s32, void *, void *); /* extern */
-s32 func_807245D8(s16);                             /* extern */
+s32 pathEntryCount(s16);                             /* extern */
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);  /* extern */
 
 void func_807245F0(void *arg0, u8 arg1) {
@@ -42,7 +42,7 @@ void func_807245F0(void *arg0, u8 arg1) {
         temp_v1 = arg0->unkB0;
         arg0->unk118 = temp_v0_2;
         var_s0 = temp_v0_2;
-        if ((temp_v1 != -1) && (func_80722FEC(temp_v1 & 0xFF) != 0)) {
+        if ((temp_v1 != -1) && (pathExists(temp_v1 & 0xFF) != 0)) {
             var_s0->unk12 = (s16) arg0->unkB0;
         } else {
             var_s0->unk12 = -1;
@@ -81,7 +81,7 @@ void func_807245F0(void *arg0, u8 arg1) {
         var_s0->unk10 = 0x23;
         var_s0->unkE = (s16) (((0x1000 - (s32) (temp_ft2 / 3.1415927410125732)) + 0x800) & 0xFFF);
         temp_v1_2 = var_s0->unk4;
-        temp_a0_2 = func_807245D8(var_s0->unk12) - 1;
+        temp_a0_2 = pathEntryCount(var_s0->unk12) - 1;
         if (temp_v1_2 >= temp_a0_2) {
             if (temp_a0_2 == temp_v1_2) {
                 sp47 = 1;

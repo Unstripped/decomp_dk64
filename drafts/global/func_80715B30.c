@@ -3,7 +3,7 @@
 s32 func_80611E60(s32);
 void func_80612CA0(f32 (*)[4], f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
-f32 func_80715E38(f32, f32, f32, f32, f32, f32);
+f32 distance3D(f32, f32, f32, f32, f32, f32);
 extern s16 D_807FDB34;
 
 void func_80715B30(Mtx *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, u8 arg10) {
@@ -19,7 +19,7 @@ void func_80715B30(Mtx *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f
 
     mode = arg1 & 0xFF;
     if (arg10 == 0) {
-        distance = func_80715E38(arg4, arg5, arg6, arg7, arg8, arg9);
+        distance = distance3D(arg4, arg5, arg6, arg7, arg8, arg9);
         value = distance;
         if ((f64)distance < 0.1) value = 1.0f;
         distance = (arg5 - arg8) / value;

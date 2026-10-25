@@ -1,14 +1,14 @@
 // func_80714D08 (src/global/119370.c): stage 4: 0x30 frame and s0-s2 reached; parameter/FPR/register order remains
 #include "common.h"
-typedef struct Ua1ListNode {
+typedef struct EffectGridNode {
     void *unk0;
     s32 unk4;
     u8 unk8;
     u8 unk9;
     u8 padA[0x1A];
-    struct Ua1ListNode *unk24;
-} Ua1ListNode;
-typedef struct Ua1Effect {
+    struct EffectGridNode *unk24;
+} EffectGridNode;
+typedef struct EffectNode {
     u8 pad0[0x20];
     u8 itemCount;
     u8 pad21[0x317];
@@ -20,12 +20,12 @@ typedef struct Ua1Effect {
     u8 pad388[4];
     u16 flags;
     u8 pad38E[0xA];
-    struct Ua1Effect *previous;
-    struct Ua1Effect *next;
-} Ua1Effect;
-extern Ua1ListNode *D_807FDB00;
-extern Ua1Effect *D_807FDB04;
-extern Ua1Effect *D_807FDB08;
+    struct EffectNode *previous;
+    struct EffectNode *next;
+} EffectNode;
+extern EffectGridNode *D_807FDB00;
+extern EffectNode *D_807FDB04;
+extern EffectNode *D_807FDB08;
 extern s8 D_807FDB0C, D_807FDB0D, D_807FDB0E, D_807FDB0F;
 extern s32 D_807FDB10, D_807FDB14, D_807FDB2C, D_807FDB30, D_807FBB64;
 extern s16 D_807FDB1A, D_807FDB38, D_807FDB3A, D_807FDB3C, D_807FDB3E, D_807FDB40, D_807FDB42;
@@ -33,22 +33,22 @@ extern u8 D_807FDB18, D_807FDB1C, D_807FDB1D, D_807FDB28, D_80750AB4;
 extern f32 D_807FDB20, D_807FDB24;
 extern u16 D_807FDB36;
 void *func_80610FE8(s32);
-void func_80714778(Ua1ListNode *);
-void func_80714A9C(void);
-void func_8071509C(Ua1Effect *);
+void effectGridRegister(EffectGridNode *);
+void effectResetState(void);
+void func_8071509C(EffectNode *);
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 
 void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
-    Ua1ListNode *node;
-    Ua1Effect *effect;
-    Ua1Effect *cursor;
+    EffectGridNode *node;
+    EffectNode *effect;
+    EffectNode *cursor;
     f32 x;
     f32 y;
     f32 z;
     s32 found;
     s32 i;
 
-    func_80714778((Ua1ListNode *)arg0);
+    effectGridRegister((EffectGridNode *)arg0);
     node = D_807FDB00;
     found = 0;
     if (node != NULL) {
@@ -61,7 +61,7 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
         } while ((found == 0) && (node != NULL));
     }
     if (found == 0) {
-        func_80714A9C();
+        effectResetState();
         return;
     }
     effect = func_80610FE8(0x3A0);
@@ -124,7 +124,7 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
     } else {
         UA1_D08_FIELD(s16, effect, 0x34C) = D_807FDB3A;
     }
-    UA1_D08_FIELD(Ua1ListNode *, effect, 0x330) = node;
+    UA1_D08_FIELD(EffectGridNode *, effect, 0x330) = node;
     effect->next = NULL;
     effect->allocation = NULL;
     UA1_D08_FIELD(s32, effect, 0x328) = D_807FDB14;
@@ -139,10 +139,10 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
     for (i = 0; i < D_80750AB4; i++) {
         *((void **)cursor + 0) = func_80610FE8(0x200);
         *((void **)cursor + 1) = func_80610FE8(0x200);
-        cursor = (Ua1Effect *)((u8 *)cursor + 8);
+        cursor = (EffectNode *)((u8 *)cursor + 8);
     }
     *((u8 *)effect + 0x20) = D_80750AB4;
     func_8071509C(effect);
-    func_80714A9C();
+    effectResetState();
 }
 #undef UA1_D08_FIELD
