@@ -1,4 +1,4 @@
-// func_806F54E0 (src/global/F9450.c): stage 3: recovered dispatcher guard, switch cases, calls, fallthroughs, and completion flag; 0xB7 per-player structure updates and target spill layout remain unresolved
+// func_806F54E0 (src/global/F9450.c): Stage 3: recovered both jump-table dispatches and B7 player-block increments; C trial compiles but has a 0x28 frame and premature s16 argument sign extension versus target 0x30/full a1 spill.
 extern s32 func_805FF030(u8, s32);
 extern void func_80609140(s32, s32, f32, f32, s32, s32);
 extern void func_8060DEC8(void);

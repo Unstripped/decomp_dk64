@@ -1,4 +1,4 @@
-// func_806F69A8 (src/global/F9450.c): Stage 1 m2c starter; reviewed 300-instruction target update flow.
+// func_806F69A8 (src/global/F9450.c): Stage 1: m2c update-flow reconstruction reviewed against all 300 target instructions; concrete node/matrix parameter types remain needed before a compile/match trial.
 ? func_8062FF10(f32 (*)[4], f32 (*)[4]);            /* extern */
 ? func_806355DC(s16, ?);                            /* extern */
 ? func_806357F8(s16, f32 *, f32 *, f32 *, ? *, ? *, ? *, ? *, ? *, s32); /* extern */

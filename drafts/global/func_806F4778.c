@@ -1,4 +1,4 @@
-// func_806F4778 (src/global/F9450.c): stage 1: m2c reconstruction retained for later type recovery
+// func_806F4778 (src/global/F9450.c): Stage 1: m2c initializer reconstruction reviewed against all 382 target instructions; concrete asset/grid/list types remain needed before a compile/match trial.
 ? assetFreeBuffer(s32, ?, ?);                       /* extern */
 ? assetSetImmediateFree();                          /* extern */
 void *func_80610FE8(s32, s16 *, s16 *);             /* extern */

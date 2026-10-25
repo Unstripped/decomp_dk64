@@ -1,4 +1,4 @@
-// func_806ED5C0 (src/global/EFDC0.c): from .scratch/EfN9/func_806ED5C0_best.c
+// func_806ED5C0 (src/global/EFDC0.c): stage 4: offset-accurate volatile word load reaches 0x58; shared switch shape is close but stack and value register allocation remain
 typedef struct EfN9Actor58 {
     u8 pad0[0x58];
     s32 unk58;
