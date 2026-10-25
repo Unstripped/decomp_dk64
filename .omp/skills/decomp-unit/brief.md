@@ -40,6 +40,8 @@ swapped externs in a comparison look identical in the text.
   `make clean` or `./diff.sh`: they rebuild shared outputs and race (`make split` deletes the
   asm of every function matched since your base). If a `.s` your copy references is
   missing, report it and work on other functions; never rebuild your copy from `src`.
+- Never `pkill`/`kill` by pattern (`pkill -f "permute.py run"` killed every sibling's
+  permuter): stop only a PID you started.
 - Starter C: `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`.
 - Put every scratch/probe file under `.scratch/<YourName>/`, never in the repo root.
 - PRIVATE COPY mode: create your copy ONCE from the exact base commit in your task
@@ -75,6 +77,9 @@ swapped externs in a comparison look identical in the text.
   (private objects: `build/.scratch/.scratch_<YourName>_<file>.c.o`; ignore pure `%lo`
   addend differences like `0(at)` vs `532(at)`). A function whose size differs shifts
   everything after it: get the size right first.
+  A whole-file FAILED in functions you never touched is normal for a copy older than the
+  orchestrator's latest merges: a function still GLOBAL_ASM in your copy but C in the
+  expected object differs in REL addends. Judge your own function's diff and say so.
 - NEVER edit shared headers in `include/` (another agent may own them this round); use a
   local struct/cast prefixed with your agent name. Headers are live, not copied: if the
   orchestrator messages you about a header change, drop your conflicting local externs.
