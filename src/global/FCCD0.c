@@ -41,7 +41,11 @@ extern u8 D_807444FC;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8DC4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8EB4.s")
+extern s32 func_80731AA8(s32, s32, s32);
+
+void func_806F8EB4(void) {
+    func_80731AA8(0x24D, 0x14, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8EDC.s")
 
