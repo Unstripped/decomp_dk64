@@ -10,11 +10,61 @@ void func_8070D380(s32 size, void *dst, s32 *src) {
     *src += size;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D3CC.s")
+typedef struct S112a2Record {
+    u8 count;
+    u8 pad1[3];
+    u8 *data;
+} S112a2Record;
+
+extern void *func_80610FE8(s32);
+
+void func_8070D3CC(S112a2Record *arg0, s32 *arg1) {
+    s32 i;
+    u8 *data;
+
+    func_8070D380(1, arg0, arg1);
+    data = arg0->data = func_80610FE8(arg0->count * 8);
+    for (i = 0; i < arg0->count; i++) {
+        func_8070D380(8, data, arg1);
+        data += 8;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D464.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D568.s")
+typedef struct S112a2ItemList {
+    u8 count;
+    u8 pad1[3];
+    void *items;
+} S112a2ItemList;
+
+typedef struct S112a2Item {
+    u8 flags;
+    u8 pad1[3];
+    u8 *data;
+    u8 pad8[4];
+    u8 tail[4];
+} S112a2Item;
+
+void func_8070D464(void *, s32 *);
+void func_8070D568(S112a2ItemList *arg0, s32 *arg1) {
+    s32 i;
+    S112a2Item *item;
+
+    func_8070D380(1, arg0, arg1);
+    item = arg0->items = func_80610FE8(arg0->count * 16);
+    for (i = 0; i < arg0->count; i++, item++) {
+        func_8070D380(1, item, arg1);
+        if (item->flags & 4) {
+            item->data = func_80610FE8(4);
+            func_8070D380(4, item->data, arg1);
+        } else {
+            item->data = NULL;
+        }
+        func_8070D464(item, arg1);
+        func_8070D380(4, item->tail, arg1);
+    }
+}
 
 extern s32 D_807550C0;
 
@@ -33,8 +83,7 @@ typedef struct S112aItemList {
     void *items;
 } S112aItemList;
 
-extern void *func_80610FE8(s32);
-void func_8070D568(S112aItemList *, s32 *);
+void func_8070D568(S112a2ItemList *, s32 *);
 
 void func_8070D654(S112aItemList *arg0, s32 *arg1) {
     s32 i;
@@ -42,7 +91,7 @@ void func_8070D654(S112aItemList *arg0, s32 *arg1) {
 
     item = arg0->items = func_80610FE8(arg0->count * 8);
     for (i = 0; i < arg0->count; i++) {
-        func_8070D568(item, arg1);
+        func_8070D568((S112a2ItemList *)item, arg1);
         item = (S112aItemList *)((u8 *)item + 8);
     }
 }
@@ -90,7 +139,16 @@ S112aListNode *func_8070D928(u16 id) {
     return node;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D970.s")
+void func_8070D970(arg0)
+u16 arg0;
+{
+    S112aListNode *node;
+
+    node = func_8070D928(arg0);
+    if (node != NULL) {
+        node->count--;
+    }
+}
 
 typedef struct S112aChildNode {
     u8 pad0[0x14];
