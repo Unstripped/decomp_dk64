@@ -1,4 +1,4 @@
-// func_8070F2FC (src/global/1135F0.c): Stage 1 macro draft: correct three-command gSPTextureRectangle form reaches target 0x58 frame and block order, but differs from first floating-point allocation and has an extra arg2 sign-extension.
+// func_8070F2FC (src/global/1135F0.c): stage 4: semantic F3DEX2 texture rectangle helper; score 8522, frame/register allocation remains divergent
 typedef struct R1135bTexture {
     s32 image;
     u8 pad4[4];
@@ -62,7 +62,7 @@ void func_8070F2FC(Gfx **arg0, s16 arg1, s16 arg2) {
         } else {
             var_t3 = D_807FD9D2;
         }
-        gSPTextureRectangle(temp_v0++, arg1 * 4, arg2 * 4, temp_t0, temp_t1,
+        gSPTextureRectangle(temp_v0++, temp_ft3 * 4, temp_ft3_2 * 4, temp_t0, temp_t1,
                             G_TX_RENDERTILE, var_v1, var_a0, var_t2, var_t3);
         temp_v0_2 = temp_t5_2 + 2;
         sp20 = temp_v0_2;
