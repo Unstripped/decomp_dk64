@@ -1,4 +1,4 @@
-// func_806F1B58 (src/global/F56F0.c): Stage 5: correct blocks and result flow; target keeps predicate/result in v0/t8 while draft uses v1 plus final move. uopt trace and 600s permutation search run.
+// func_806F1B58 (src/global/F56F0.c): Stage 5: correct blocks and result flow; target keeps predicate/result in v0/t8 while draft uses v1 plus final move. uopt trace and 600s permutation search reached zero only by omitting the non-void fallthrough return, so it was rejected as undefined behavior.
 typedef struct {
     u8 pad0[0x14];
     u8 unk14;

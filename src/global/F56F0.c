@@ -131,10 +131,30 @@ typedef struct {
 
 #define F5B_PLAYER_STATE ((F5BPlayerState *)D_807FD580)
 
+extern u16 D_80752F38[];
 extern u16 D_80752F40[];
 extern f32 func_80612790(s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F18F4.s")
+void func_806F18F4(s32 arg0, F5BSlot *arg1, s32 *arg2) {
+    s32 tableIndex;
+    u16 angle;
+    s32 zero;
+
+    angle = 0x16;
+    tableIndex = F5B_PLAYER_STATE->unk8E - angle;
+    if ((tableIndex >= 0) && ((u32)tableIndex < 4U)) {
+        angle = D_80752F38[tableIndex];
+        arg1[*arg2].unk0 = 0x7F;
+        arg1[*arg2].unk1 = 1;
+        if (1) {
+            zero = 0;
+            arg1[*arg2].unk2 = zero;
+        }
+        arg1[*arg2].unk4 = angle;
+        arg1[*arg2].unk6 = zero;
+        *arg2 += 1;
+    }
+}
 
 void func_806F1990(s32 arg0, F5BSlot *arg1, s32 *arg2) {
     u16 temp_v0;
@@ -214,7 +234,17 @@ extern u8 D_807FD716;
 
 void func_806F4528(void *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F3760.s")
+void func_806F3760(s16 arg0) {
+    s32 sp1C;
+    s32 temp_v0;
+
+    temp_v0 = func_8066B0F8(0x15, arg0, 1, 0);
+    sp1C = temp_v0;
+    func_806F4528((void *)temp_v0);
+    if (sp1C != 0) {
+        assetFreeBuffer(sp1C, 0x4C, 0x56);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F37BC.s")
 
@@ -257,7 +287,21 @@ void func_806F3DB0(void) {
     D_807FD716 |= 2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F3DC8.s")
+void func_806F3DC8(u16 *arg0, s16 *arg1, u8 *arg2, u16 arg3) {
+    s16 temp_v0;
+    u8 temp_v0_2;
+
+    temp_v0 = *arg1;
+    if (temp_v0 != 0) {
+        *arg1 = temp_v0 - 1;
+        return;
+    }
+    temp_v0_2 = *arg2;
+    if (temp_v0_2 != 0) {
+        *arg2 = temp_v0_2 - 1;
+        *arg0 |= arg3;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F3E0C.s")
 
