@@ -1841,21 +1841,405 @@ void func_806E521C(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E527C.s")
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E52D0.s")
+s32 func_806E527C(void) {
+    s32 ret;
+    s32 i;
+    Actor *actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E5488.s")
+    ret = 0;
+    for (i = 0; i < gActiveActorCount && ret == 0; i++) {
+        actor = gActiveActors[i].actor;
+        ret = actor->unk60 & 0x2000000;
+    }
+    return ret;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E560C.s")
+typedef struct G26Mob {
+    /* 0x00 */ u8 pad0[0x58];
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ u8 pad5C[0x6A - 0x5C];
+    /* 0x6A */ u16 unk6A;
+    /* 0x6C */ u8 pad6C[0x7C - 0x6C];
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ f32 unk84;
+    /* 0x88 */ f32 unk88;
+    /* 0x8C */ f32 unk8C;
+    /* 0x90 */ f32 unk90;
+    /* 0x94 */ f32 unk94;
+    /* 0x98 */ f32 unk98;
+    /* 0x9C */ u8 pad9C[0x10C - 0x9C];
+    /* 0x10C */ s16 unk10C;
+    /* 0x10E */ u8 pad10E[2];
+    /* 0x110 */ u8 unk110;
+} G26Mob;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E56EC.s")
+extern u32 D_8076A064;
+extern s32 D_807FBB68;
+void func_806F91B4(s32, s32, s32);
+u8 func_806E5488(G26Mob *arg0);
+int func_806E560C(G26Mob *arg0);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E5C2C.s")
+void func_806E52D0(void) {
+    u8 r;
+    u32 n;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E5C74.s")
+    if ((G25_PAD(D_807FD63C, u16) & 8) && (D_8076A064 >= 3) && (D_807FD568[4] & 1) &&
+        !(D_807FBB64 & 0x4000) && !(D_807FBB68 & 1) &&
+        (*((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C0) != 2) &&
+        (func_806E5488((G26Mob *)D_807FBB40) == 0) && (func_806E527C() == 0) &&
+        (*((u8 *)D_807FD580 + 0x245) == 0)) {
+        r = func_806E560C((G26Mob *)D_807FBB40);
+        if ((D_8076A0A8 != 0xCD) || (r != 0)) {
+            n = r;
+            if ((func_806F8AD4(7, D_807FC929) != 0) || (n != 0)) {
+                func_806EB0C0(0x53, 0, *((u8 *)D_807FD580 + 0x1A4));
+                if (!(D_807FBB68 & 2)) {
+                    D_807FBB40->unk144 = 1;
+                }
+                if (n == 0) {
+                    func_806F91B4(7, D_807FC929, -1);
+                }
+            }
+            if (n == 0) {
+                func_806F8BC4(7, 0, 0);
+            }
+        }
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E5D60.s")
+f32 sqrtf(f32);
+s32 func_8063C328();
+
+u8 func_806E5488(G26Mob *arg0) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+
+    if (arg0->unk110 == 1) {
+        dx = arg0->unk94 - arg0->unk88;
+        dz = arg0->unk98 - arg0->unk90;
+        if (sqrtf(dx * dx + dz * dz) > 1.0) {
+            return 1;
+        }
+    }
+    if (arg0->unk6A & 8) {
+        dx = arg0->unk7C - arg0->unk88;
+        dz = arg0->unk80 - arg0->unk8C;
+        dy = arg0->unk84 - arg0->unk90;
+        if (sqrtf(dx * dx + dz * dz + dy * dy) > 1.0) {
+            return 1;
+        }
+    }
+    if ((arg0->unk110 == 1) && (func_8063C328(arg0->unk10C) == 0x88)) {
+        return 1;
+    }
+    if ((arg0->unk110 == 1) && (func_8063C328(arg0->unk10C) == 0x219)) {
+        return 1;
+    }
+    if ((arg0->unk110 == 1) && (func_8063C328(arg0->unk10C) == 0x132)) {
+        return 1;
+    }
+    return 0;
+}
+
+int func_806E560C(G26Mob *arg0) {
+    u8 ret;
+
+    ret = 0;
+    if (arg0->unk110 == 1) {
+        switch (func_8063C328(arg0->unk10C, arg0)) {
+            case 0xA8:
+                if (arg0->unk58 == 2) {
+                    ret = 1;
+                }
+                break;
+            case 0xA9:
+                if (arg0->unk58 == 3) {
+                    ret = 1;
+                }
+                break;
+            case 0xAA:
+                if (arg0->unk58 == 5) {
+                    ret = 1;
+                }
+                break;
+            case 0xAB:
+                if (arg0->unk58 == 6) {
+                    ret = 1;
+                }
+                break;
+            case 0xAC:
+                if (arg0->unk58 == 4) {
+                    ret = 1;
+                }
+                break;
+        }
+    }
+    return ret;
+}
+
+typedef struct G26Gs {
+    /* 0x00 */ u8 pad0[2];
+    /* 0x02 */ u8 unk2;
+    /* 0x03 */ u8 pad3;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ u8 unk14;
+} G26Gs;
+
+typedef struct G26Plr {
+    /* 0x000 */ u8 pad0[0x50];
+    /* 0x050 */ s16 unk50;
+    /* 0x052 */ u8 pad52[2];
+    /* 0x054 */ f32 unk54;
+    /* 0x058 */ u8 pad58[0xC0 - 0x58];
+    /* 0x0C0 */ s16 unkC0;
+    /* 0x0C2 */ u8 padC2[0x1F0 - 0xC2];
+    /* 0x1F0 */ s32 unk1F0;
+    /* 0x1F4 */ u8 pad1F4[0x1FE - 0x1F4];
+    /* 0x1FE */ s16 unk1FE;
+    /* 0x200 */ u8 pad200[4];
+    /* 0x204 */ f32 unk204;
+    /* 0x208 */ f32 unk208;
+    /* 0x20C */ f32 unk20C;
+    /* 0x210 */ u8 pad210[0x21C - 0x210];
+    /* 0x21C */ s16 unk21C;
+    /* 0x21E */ u8 pad21E[0x242 - 0x21E];
+    /* 0x242 */ s16 unk242;
+    /* 0x244 */ u8 pad244[0x268 - 0x244];
+    /* 0x268 */ u8 unk268;
+} G26Plr;
+
+typedef struct G26Act {
+    /* 0x000 */ u8 pad0[0x7C];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0xC0 - 0x88];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ f32 unkC4;
+    /* 0x0C8 */ u8 padC8[0x144 - 0xC8];
+    /* 0x144 */ u8 unk144;
+    /* 0x145 */ u8 pad145[0x154 - 0x145];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+} G26Act;
+
+#define G26_GS ((G26Gs *)&D_807FBB70)
+#define G26_PL ((G26Plr *)D_807FD580)
+#define G26_AC ((G26Act *)D_807FBB40)
+
+extern u8 D_807F6903;
+extern s32 D_8076A094;
+extern u8 D_8076A0B2;
+extern f32 D_807536AC[];
+extern u8 D_8072014C[];
+void func_8071F034(void);
+void func_805FF158(s32);
+void func_805FF9AC(s32, s32, s32, s32);
+void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void func_806C93E4(void *, void *);
+s32 func_8061CC40(void *, s32, s32);
+void func_806F1250(Actor *);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+void timerQueueAdd(void *, s32, s32, s32, s32);
+void func_807149B8(s32);
+void func_8071498C(void *);
+void func_8071496C(s16);
+void func_80714CC0(void *, f32, f32, f32, f32);
+void func_80686CF8(Actor *);
+void func_806E5C2C(s32, s32, s32);
+
+s32 func_806E56EC() {
+    s32 i;
+
+    if (G26_GS->unk2 != 0) {
+        switch (G26_GS->unk14) {
+            case 9:
+                if (G26_PL->unk268 == 0) {
+                    G26_PL->unk204 = G26_GS->unk4;
+                    G26_PL->unk208 = G26_GS->unk8;
+                    G26_PL->unk20C = G26_GS->unkC;
+                    G26_PL->unk21C = G26_GS->unk10;
+                    func_806EB0C0(0x1E, 0, D_807FC929);
+                    func_806C93E4(D_807FBB40, D_807FD580);
+                    return 1;
+                }
+                break;
+            case 5:
+                if (D_807F6903 == 0) {
+                    if (++D_8076A094 < 0x5DD) {
+                        G26_PL->unk204 = G26_GS->unk4;
+                        G26_PL->unk208 = G26_GS->unk8;
+                        G26_PL->unk20C = G26_GS->unkC;
+                        func_806EB0C0(0x1C, 0, D_807FC929);
+                        func_806C93E4(D_807FBB40, D_807FD580);
+                        return 1;
+                    }
+                }
+                break;
+            case 3:
+                if (D_807F6903 == 0) {
+                    if (++D_8076A094 < 0x5DD) {
+                        G26_PL->unk204 = G26_GS->unk4;
+                        G26_PL->unk208 = G26_GS->unk8;
+                        G26_PL->unk20C = G26_GS->unkC;
+                        func_806EB0C0(0x1D, 0, D_807FC929);
+                        func_806C93E4(D_807FBB40, D_807FD580);
+                        return 1;
+                    }
+                }
+                break;
+            case 10:
+                if (D_8076A0B2 == 0) {
+                    func_806086CC(G26_AC->unk7C, G26_AC->unk80, G26_AC->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+                    func_805FF158(0);
+                    func_805FF9AC(G26_GS->unk10, G26_GS->unk12, 0, 0);
+                }
+                return 1;
+            case 4:
+                if (!(G26_PL->unk1F0 & 0x40)) {
+                    func_806F1250(D_807FBB4C);
+                    G26_PL->unk1FE = G26_GS->unk10;
+                }
+                return 1;
+            case 0:
+                if (D_8076A064 >= 4) {
+                    func_8061CC40(D_807FBB40, 0x26, 5);
+                    sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x18, 0xFF, 0x7F, 0x19);
+                    G26_AC->unk154 = 0x18;
+                    G26_AC->unk155 = 0;
+                    G26_AC->unk144 = 1;
+                    G26_PL->unk54 = D_807535CC[D_807FD584] * 2.5;
+                    G26_PL->unk50 = 0x28;
+                    func_80614E78(D_807FBB40, 0x22);
+                    timerQueueAdd(func_806E5C2C, 0x14, G26_GS->unk10, G26_GS->unk12, 0);
+                    for (i = 0; i != 0x14; i++) {
+                        func_807149B8(1);
+                        func_8071498C(func_8071F034);
+                        func_8071496C(i);
+                        func_80714CC0(D_8072014C, 0.8f, G26_AC->unk7C, G26_AC->unk80, G26_AC->unk84);
+                    }
+                    func_80686CF8(D_807FBB4C);
+                    return 1;
+                }
+                break;
+            case 2:
+                G26_AC->unk154 = 0x1B;
+                G26_AC->unk155 = 0;
+                G26_PL->unk54 = D_807536AC[D_807FD584];
+                G26_PL->unk50 = 0;
+                func_80614E78(D_807FBB40, 0x14);
+                return 1;
+            case 6:
+                G26_AC->unk154 = 0x6E;
+                G26_AC->unk155 = 0;
+                G26_AC->unkC0 = 0.0f;
+                G26_AC->unkC4 = G26_GS->unk10 * 0.2 + 2.0;
+                G26_PL->unkC0 = G26_GS->unk12;
+                func_80614EBC(D_807FBB40, 0x169);
+                return 1;
+            case 7:
+                G26_AC->unk144 = 1;
+                G26_PL->unk242 = G26_GS->unk10;
+                G26_AC->unk154 = 0x76;
+                G26_AC->unk155 = 0;
+                func_80614E78(D_807FBB40, 0x86);
+                return 1;
+        }
+    }
+    return 0;
+}
+
+void func_8070B308(s32);
+
+void func_806E5C2C(s32 arg0, s32 arg1, s32 arg2) {
+    if (arg1 != 0) {
+        func_8070B308(2);
+        func_805FF158(0);
+    }
+    func_805FF9AC(arg0, 0, 0, 0);
+}
+
+typedef struct G26Obj {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ u8 pad8[0xAC - 0x8];
+    /* 0xAC */ u32 unkAC;
+    /* 0xB0 */ u8 padB0[2];
+    /* 0xB2 */ s16 unkB2;
+    /* 0xB4 */ f32 unkB4;
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[0xF1 - 0xBC];
+    /* 0xF1 */ u8 unkF1;
+    /* 0xF2 */ u8 padF2;
+    /* 0xF3 */ u8 unkF3;
+    /* 0xF4 */ u8 padF4;
+    /* 0xF5 */ u8 unkF5;
+} G26Obj;
+
+typedef struct G26Holder {
+    /* 0x000 */ u8 pad0[0xB4];
+    /* 0x0B4 */ f32 unkB4;
+    /* 0x0B8 */ u8 padB8[0x174 - 0xB8];
+    /* 0x174 */ G26Obj *unk174;
+} G26Holder;
+
+typedef struct G26Player {
+    /* 0x000 */ u8 pad0[0x104];
+    /* 0x104 */ G26Holder *unk104;
+    /* 0x108 */ u8 pad108[0x1CC - 0x108];
+    /* 0x1CC */ f32 unk1CC;
+} G26Player;
+
+#define G26_P ((G26Player *)D_807FD580)
+extern u8 D_80750AB8;
+
+int func_806E5C74(void) {
+    f32 fv;
+    f32 t;
+
+    fv = G25_A->unkB4;
+    if (G25_A->unk6A & 2) {
+        t = G25_A->unk80 - G25_A->unkAC;
+        if (!(fv < t)) {
+            fv = t;
+        }
+    }
+    return ((G25_PAD(D_807FD63C, u16) & 0x2000) != 0) && ((f64)G26_P->unk1CC * 66.0 < (f64)fv) &&
+           (D_8074E77C[D_807FC929] != 6) && (D_807FD568[1] != 0);
+}
+
+void func_80613AF8(void *, s32, f32, f32);
+
+void func_806E5D60(void) {
+    if (func_806E5C74() != 0) {
+        switch (D_807FD568[1]) {
+            case 2:
+                func_80614E78(D_807FBB40, 0x17);
+                func_80613AF8(D_807FBB40, 0x18, 0.0f, 3.0f);
+                func_80614D00(D_807FBB40, 1.35f, 0.0f);
+                break;
+            case 3:
+                func_80614E78(D_807FBB40, 0x19);
+                break;
+            default:
+                func_80614E78(D_807FBB40, 0x16);
+                func_80613AF8(D_807FBB40, 0x17, 0.0f, 3.0f);
+                func_80614D00(D_807FBB40, 1.35f, 0.0f);
+                break;
+        }
+        G25_A->unk154 = 0x1C;
+        G25_A->unk155 = 0;
+    }
+}
 
 void func_806E5E58(void) {
 }
@@ -1863,19 +2247,92 @@ void func_806E5E58(void) {
 void func_806E5E60(void) {
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E5E68.s")
+void func_806E5E68(void) {
+    if (!(G25_P->unk1F0 & 0x20)) {
+        func_806EB0C0(0x24, 0, D_807FC929);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E5EA8.s")
+void func_806E5EA8(void) {
+    func_806EB0C0(0x24, 0, D_807FC929);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E5ED4.s")
+void func_806E5ED4(void) {
+    if ((G25_PAD(D_807FD63C, u16) & 2) && (D_807FD568[2] & 1) &&
+        (*((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C0) == 1) && !(G25_P->unk1F0 & 0x30) &&
+        (func_80714608(0) == 0)) {
+        func_806EB0C0(0x14, 0, D_807FC929);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E5FA0.s")
+void func_806E5FA0(void) {
+    if ((G25_PAD(D_807FD63C, u16) & 2) && (D_807FD568[2] & 1) && !(D_807FBB64 & 0x200) &&
+        (*((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C0) == 1) && !(G25_P->unk1F0 & 0x30) &&
+        (func_80714608(0) == 0)) {
+        func_806EB0C0(0x15, 0, D_807FC929);
+    }
+}
+
+#ifdef NON_MATCHING
+void func_806261CC(void *, s32);
+void func_80626110(void *, s32, s32);
+
+void func_806E607C(void) {
+    G26Obj *obj;
+
+    obj = G26_P->unk104->unk174;
+    obj->unkAC |= 4;
+    if (G25_PAD(D_807FD63C, u16) & 0x10) {
+        if ((D_807FBB64 & 1) || ((D_807FC928 >= 2) && (D_80750AB8 == 0))) {
+            if (obj->unkAC & 0x10000) {
+                func_806261CC(G26_P->unk104, 0);
+                return;
+            }
+            func_80626110(G26_P->unk104, 0, 0);
+            return;
+        }
+        if (!(obj->unkAC & 0x4000)) {
+            obj->unkAC ^= 2;
+            if ((obj->unkF1 < 3) && (obj->unkF5 == 0) && (obj->unkF3 != 2)) {
+                obj->unkF1 = 0x14;
+                obj->unkB2 = G25_A->unkE6;
+                G26_P->unk104->unkB4 = obj->unkB8;
+                obj->unkF5 = 0xA;
+            }
+        }
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E607C.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E61D0.s")
+void func_806E61D0(void) {
+    G26Obj *obj;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E6234.s")
+    if (!(D_807FBB64 & 1) && ((D_807FC928 < 2) || (D_80750AB8 != 0))) {
+        obj = G26_P->unk104->unk174;
+        obj->unk4 = 0;
+        obj->unkAC &= ~4;
+    }
+}
+
+extern u8 D_807FC8B9;
+extern s32 D_807FBB60;
+extern f32 D_807FD888;
+s32 func_8061CB50(void);
+s32 func_8071432C(void);
+s32 func_8062919C(void);
+s32 func_806291A8(void);
+
+void func_806E6234(void) {
+    if ((G25_PAD(D_807FD63C, u16) & 0x1000) && (func_8061CB50() == 0) && (D_807FD888 == 0.0f) &&
+        ((func_8071432C() != 0) || (func_8071441C() != 0) || (func_807142D8() != 0)) &&
+        (func_8062919C() == 0) && (func_806291A8() == 0)) {
+        D_807FC8B9 = D_807FC929;
+        D_807FBB60 |= 1;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E6318.s")
 
@@ -2035,7 +2492,6 @@ void renderCallbacksRegister(void *, void *, s32);
 void actorDrawAnimatedEffect(s32, void *);
 void func_80613C48(void *, s16, f32, f32);
 void func_80614D48(void *, f32, f32);
-s32 func_8061CB50(void);
 
 void func_806E8244(void) {
     G29State *st;
@@ -2459,7 +2915,6 @@ extern s16 D_807539DC[];
 extern s16 D_807539EC[];
 s32 func_806E9D1C();
 void func_806F8D58(s32, s32);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 
 void func_806E8F04(void) {
     if (G29_PAR->unk155 == 1) {
@@ -2703,7 +3158,6 @@ typedef struct G30Cam {
 } G30Cam;
 
 s32 func_80609140(s32, s32, f32, f32, s32, s32);
-void func_806F91B4(s32, s32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void func_806E9BA8(arg0) s32 arg0; {
@@ -2731,8 +3185,6 @@ void func_806E9CFC(void) {
     func_806E9BA8(0x65);
 }
 
-extern u8 D_80750AB8;
-extern f32 D_807FD888;
 s32 func_806EB178();
 
 s32 func_806E9D1C(arg0, arg1, arg2) s16 arg0; u8 arg1; u8 arg2; {
@@ -2845,7 +3297,6 @@ void func_806EA04C(void) {
 }
 
 #ifdef NON_MATCHING
-extern s32 D_807FBB68;
 void func_8062217C();
 
 void func_806EA0A4(void) {
