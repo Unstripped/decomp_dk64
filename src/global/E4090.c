@@ -338,7 +338,6 @@ s32 func_806DF6D4(s32 arg0) {
 
 #ifdef NON_MATCHING
 u16 func_806DFF34(u16 arg0, u16 *arg1) {
-    u16 *unused = &arg0;
     u32 var_v0;
     u16 var_v1;
     u16 var_a2;
@@ -349,7 +348,9 @@ u16 func_806DFF34(u16 arg0, u16 *arg1) {
     if (var_v0 != 0) {
         do {
             var_v1 |= var_v0;
+            if (&arg0) {}
             arg1++;
+            if (var_v0 & arg0) {}
             if (var_v0 & arg0) {
                 var_a2 |= arg1[0];
             }
@@ -1438,7 +1439,6 @@ u8 arg1;
     }
 }
 
-#ifdef NON_MATCHING
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 s32 func_80671E00(f32, f32, f32, f32, void *, void *, s32, s32);
 
@@ -1465,14 +1465,10 @@ u8 func_806E2B20(void *arg0) {
         do {
             temp3 = sp68;
         } while (0);
-        sp63 = func_80671E00(((sp7C - sp78) * var_fs1) + sp78, ((sp74 - sp70) * var_fs1) + sp70, ((sp6C - sp68) * var_fs1) + temp3, 10.0f, &sp66, &sp64, 0, 0);
+        sp63 = func_80671E00(((sp7C - sp78) * var_fs1) + sp78, ((sp74 - sp70) * var_fs1) + sp70, temp3 = ((sp6C - sp68) * var_fs1) + temp3, 10.0f, &sp66, &sp64, 0, 0);
     }
     return sp63;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E2B20.s")
-#endif
 
 typedef struct G23State90 {
     /* 0x00 */ u8 pad0[0x90];
