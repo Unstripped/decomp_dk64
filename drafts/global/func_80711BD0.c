@@ -1,4 +1,4 @@
-// func_80711BD0 (src/global/114270.c): Stage 5: exact frame, saved registers, threshold unsigned divisions, and prologue; remaining FP constant register allocation and clamp block scheduling.
+// func_80711BD0 (src/global/114270.c): Stage 6: exact frame, saved registers, unsigned threshold divisions, and FP constant allocation; residual clamp branch-likely scheduling and one local rodata constant.
 typedef struct R114cPlayerView {
     u8 pad0[0x2C4];
     f32 unk2C4;
@@ -25,6 +25,7 @@ void renderCallbacksRegister(void *, void *, s32);
 
 void func_80711BD0(f32 arg0, s16 arg1, s16 arg2, u8 arg3) {
     f32 temp_fv1;
+    f64 new_var;
     f32 var_fs0;
     f64 temp_fv0;
     f64 var_fv1;
@@ -64,14 +65,15 @@ void func_80711BD0(f32 arg0, s16 arg1, s16 arg2, u8 arg3) {
                     } else {
                         var_fv1 = 0.3;
                     }
-                    if (var_fv1 < 2.0) {
+                    new_var = 2.0;
+                    if (var_fv1 < new_var) {
                         if (temp_fv0 > 0.3) {
                             var_fs0 = (f32)temp_fv0;
                         } else {
                             var_fs0 = (f32)0.3;
                         }
                     } else {
-                        var_fs0 = (f32)2.0;
+                        var_fs0 = (f32)new_var;
                     }
                 }
                 var_fs0 = (f32)((f64)var_fs0 + 0.2);

@@ -124,8 +124,49 @@ void func_80712944(OSContPad *arg0) {
         arg0[i].button &= D_80755308;
     }
 }
+extern u8 D_80755324;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80712A40.s")
+typedef struct R117gTimedState {
+    u64 time;
+    s32 unk8;
+    s32 duration;
+    u8 active;
+} R117gTimedState;
+
+extern u64 D_807445B8;
+extern u64 D_807445C0;
+extern s8 D_80746B60;
+extern u32 D_807FBB60;
+extern R117gTimedState D_80755340;
+extern s32 D_80755320;
+
+void func_8060B6CC(void);
+void func_806119F0(u32);
+
+void func_80712A40(void) {
+    u64 elapsed;
+
+    func_8060B6CC();
+    if ((D_80755318 == 3) || (D_80755318 == 4)) {
+        func_806119F0(0x8E32B6F7U);
+        D_80746B60 = 1;
+    } else {
+        func_806119F0((u32)osGetTime());
+        D_80746B60 = 0;
+    }
+    D_8075530C = 0;
+    D_80755310 = 0;
+    D_80755314 = D_80755318;
+    D_80755324 = 0;
+    D_80755320 = 0;
+    if (D_807FBB60 & 2) {
+        elapsed = osGetTime() - D_807445C0;
+        D_807445B8 += elapsed;
+        if (D_80755340.active != 0) {
+            D_80755340.time += elapsed;
+        }
+    }
+}
 
 extern u8 D_80755328;
 extern s8 D_8074E77C;
@@ -249,7 +290,6 @@ void func_8071321C(void) {
     }
 }
 
-extern u8 D_80755324;
 void func_80713270(void) {
     if (D_80755324 == 0) {
         if (D_80755314 != 1) {
