@@ -1,11 +1,4 @@
-// func_806BD3E4 (src/global/C1E70.c): Structure matches (frame, switch, idx loop). Not matched: uopt picks a2 (not v0) for &D_807FBB40 after the func_806BDD2C branch, so t-regs drift all through; D_807506B4 address cached in t1 here but target uses per-access lui; sh zero,0x26(sp) vs sb D_807506B4 delay-slot order; lwc1 order A7c,A84,B7c,B84. func_80614EBC s32 return needed. Tried decl order, dx/dz orderings, local n s8, permuter 280s no gain.
-extern Actor *D_807FBB44;
-extern s8 D_80750660;
-
-s32 func_8073110C(s16, s32);
-s32 actorSpawn(s32, s32);
-void func_806BD170(void);
-
+// func_806BD3E4 (src/global/C1E70.c): Stage 6, 13 insn diffs (26 diff lines): uopt gives &D_807FBB40 (bb4) v0 not a2 (target lui a2 sits in the beqz delay slot; as1 can't hoist lui v0 since v0 is the branch reg), sh zero,0x26(sp) lands in jal actorSpawn delay slot instead of sb D_807506B4, li 40/15 (sp28/sp2B) t6/t7 swapped, li -1 is t9 not v0. Fixed vs old draft: 's8 *cnt = &D_807506B4;' + 'n = *cnt;' (local pointer to the counter stops uopt caching &D_807506B4 in t1: an if(D_807506B4){} read before the switch has same effect), sp28 = 0 after dx/dz (lwc1 order A7c,A84,B7c,B84), 'if (sp28)' instead of '!= 0' (lhu t1; move a2,t1). Parked NON_MATCHING in private copy. Tried: array/char/s32/u8 forms of D_807506B4, decl order, dead reads of D_807FBB40/4C/44 anywhere, if/else/goto variants of the early return, local ptr to &D_807FBB40, ptrs to other globals, v3=0 position, 'n=-1; D_807506B4=n', callee proto variants, permuter ~600s.
 extern s16 D_8076A0A6;
 extern s8 D_807506B4;
 extern s8 D_807506A8[];
@@ -24,28 +17,29 @@ s32 sfxAllocateChannel(s32, f32);
 s16 func_80609140(s16, s32, f32, f32, u8, u8);
 void func_8073129C(s16, s32, s32);
 
-typedef struct R1C0C1Ptr178 {
+typedef struct NmBD3E4Ptr178 {
     /* 0x00 */ Actor *unk0;
-} R1C0C1Ptr178;
+} NmBD3E4Ptr178;
 
-typedef struct R1C0C1Sub4 {
+typedef struct NmBD3E4Sub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
-} R1C0C1Sub4;
+} NmBD3E4Sub4;
 
-typedef struct R1C0C1Act178 {
+typedef struct NmBD3E4Act178 {
     /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ R1C0C1Ptr178 *unk178;
-} R1C0C1Act178;
+    /* 0x178 */ NmBD3E4Ptr178 *unk178;
+} NmBD3E4Act178;
 
 void func_806BD3E4(void) {
-    R1C0C1Ptr178 *sp34 = ((R1C0C1Act178 *)D_807FBB40)->unk178;
+    NmBD3E4Ptr178 *sp34 = ((NmBD3E4Act178 *)D_807FBB40)->unk178;
     f32 dx;
     f32 dz;
     u8 sp2B;
     u16 sp28;
     s16 v3 = D_8076A0A6;
     s16 idx;
+    s8 *cnt = &D_807506B4;
     s8 n;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -81,9 +75,9 @@ void func_806BD3E4(void) {
             idx++;
         }
     }
-    sp28 = 0;
     dx = D_807FBB40->unk7C - D_807FBB4C->unk7C;
     dz = D_807FBB40->unk84 - D_807FBB4C->unk84;
+    sp28 = 0;
     D_807FC8D4 = dx * dx + dz * dz;
     switch (D_807FBB40->unk154) {
         case 1:
@@ -108,15 +102,15 @@ void func_806BD3E4(void) {
             break;
     }
     if (func_8061CB50() == 0) {
-        if (((R1C0C1Sub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
+        if (((NmBD3E4Sub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
             func_80614EBC(D_807FBB40, 0x2F0);
         }
     }
-    if (sp28 != 0) {
+    if (sp28) {
         func_8061F0B0(D_807F5D10, sp2B, sp28);
     }
     if (idx >= 0) {
-        n = D_807506B4;
+        n = *cnt;
         if (idx == D_807506A8[n]) {
             n++;
             D_807506B4 = n;
