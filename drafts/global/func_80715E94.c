@@ -1,4 +1,4 @@
-// func_80715E94 (src/global/119370.c): stage 2: behaviorally reconstructed effect display-list builder with target case order; current 9824-byte text vs target 10400-byte text, saved set s0-s7/fp but frame 0x168 vs target 0x160; uopt l6 traced. Permuter setup failed because its source extractor duplicates the absolute scratch include's typedefs.
+// func_80715E94 (src/global/119370.c): stage 2: behavior reconstruction with target-style per-case duplicated division guards; 9888-byte .text versus 10400-byte target; frame/register allocation still differs
 typedef struct L1TextureNode {
     u8 pad0[0xA];
     u8 unkA;
@@ -64,6 +64,7 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
     s32 tile;
     s32 rows;
     s32 divisor;
+    s32 divisor2;
     s16 chunk;
     u8 red;
     u8 green;
@@ -141,10 +142,15 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
                         tile = 0x7FF;
                     }
                     divisor = node->unkC / 16;
+                    rows = divisor;
                     if (divisor <= 0) {
-                        divisor = 1;
+                        rows = 1;
                     }
-                    rows = (divisor + 0x7FF) / divisor;
+                    divisor2 = divisor;
+                    if (divisor <= 0) {
+                        divisor2 = 1;
+                    }
+                    rows = (rows + 0x7FF) / divisor2;
                     L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), effect->unk370);
                     L1_WRITE_GFX(glist++, 0xF5100000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
@@ -159,10 +165,15 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
                         tile = 0x7FF;
                     }
                     divisor = node->unkC / 8;
+                    rows = divisor;
                     if (divisor <= 0) {
-                        divisor = 1;
+                        rows = 1;
                     }
-                    rows = (divisor + 0x7FF) / divisor;
+                    divisor2 = divisor;
+                    if (divisor <= 0) {
+                        divisor2 = 1;
+                    }
+                    rows = (rows + 0x7FF) / divisor2;
                     L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), effect->unk370);
                     L1_WRITE_GFX(glist++, 0xF5100000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
@@ -177,10 +188,15 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
                         tile = 0x7FF;
                     }
                     divisor = (node->unkC * 2) / 8;
+                    rows = divisor;
                     if (divisor <= 0) {
-                        divisor = 1;
+                        rows = 1;
                     }
-                    rows = (divisor + 0x7FF) / divisor;
+                    divisor2 = divisor;
+                    if (divisor <= 0) {
+                        divisor2 = 1;
+                    }
+                    rows = (rows + 0x7FF) / divisor2;
                     L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), effect->unk370);
                     L1_WRITE_GFX(glist++, 0xF5100000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
@@ -195,10 +211,15 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
                         tile = 0x7FF;
                     }
                     divisor = (node->unkC * 4) / 8;
+                    rows = divisor;
                     if (divisor <= 0) {
-                        divisor = 1;
+                        rows = 1;
                     }
-                    rows = (divisor + 0x7FF) / divisor;
+                    divisor2 = divisor;
+                    if (divisor <= 0) {
+                        divisor2 = 1;
+                    }
+                    rows = (rows + 0x7FF) / divisor2;
                     L1_WRITE_GFX(glist++, 0xFD180000 | ((node->unkA & 7) << 21), effect->unk370);
                     L1_WRITE_GFX(glist++, 0xF5180000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);

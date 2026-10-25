@@ -1,4 +1,4 @@
-// func_8071EEE0 (src/global/11BC10.c): m2c starter; not integrated before handoff
+// func_8071EEE0 (src/global/11BC10.c): stage 4: frame and state arithmetic match; matrix-call state spill/register allocation differs
 void *func_80610FE8(?);                             /* extern */
 ? func_80612CA0(f32 (*)[4], s32);                   /* extern */
 extern u8 D_807444FC;

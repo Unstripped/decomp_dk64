@@ -1,4 +1,4 @@
-// func_8071EB70 (src/global/11BC10.c): m2c starter; not integrated before handoff
+// func_8071EB70 (src/global/11BC10.c): stage 3: m2c behavior recovered; frame/type integration remains
 f32 *func_80610FE8(?, void *);                      /* extern */
 extern void *D_807FC924;
 
