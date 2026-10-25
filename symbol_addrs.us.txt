@@ -245,6 +245,11 @@ effectSpawnColoredParticleAtPoint = 0x806C2A64; // type:func
 actorSpawnParticlesAlongNodeLoop = 0x806C2B2C; // type:func
 actorSpawnParticlesAlongNodeRanges = 0x806C2D7C; // type:func
 actorUpdateNearestSpotlight = 0x806C6530; // type:func
+func_806D1270 = 0x806D1270; // type:func
+func_806E1864 = 0x806E1864; // type:func
+func_806E5E58 = 0x806E5E58; // type:func
+func_806E5E60 = 0x806E5E60; // type:func
+func_806EAFEC = 0x806EAFEC; // type:func
 
 gTimerQueue = 0x807452A0;
 audioInit = 0x80600D50; // type:func
