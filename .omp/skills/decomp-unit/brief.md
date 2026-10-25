@@ -163,7 +163,9 @@ local declarations it needs) is persisted for later sessions with
 `python3 tools/drafts.py save <seg> <FUNC> .scratch/<YourName>/<FUNC>_best.c --note "<closest diff, what you tried>"`,
 where `<FUNC>_best.c` holds ONLY that function and the declarations it needs (never your
 whole private copy: `save` rejects files with `#pragma GLOBAL_ASM` lines)
-(writes `drafts/<seg>/<FUNC>.c`, replacing the old draft). Start from the stored draft
+(writes `drafts/<seg>/<FUNC>.c`, replacing the old draft). EVERY unmatched function gets a
+saved draft, including ones your task lists as "no stored draft" (that only means there is
+nothing to start from). Start from the stored draft
 (`python3 tools/drafts.py show <seg> <FUNC>`) if there is one. Your final file MUST give OK or
 TEXT OK: never leave non-matching C in it.
 
