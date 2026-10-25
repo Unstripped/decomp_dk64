@@ -1,9 +1,10 @@
-// func_80712BD4 (src/global/117190.c): stage 4: exact 0x304-byte frame/block layout; remaining register allocation and table-address scheduling (D_8075531C pointer and D_8075E5C2 label)
-// func_80712BD4 stage 4: correct frame/block order; remaining differences are register allocation and table-address scheduling.
+// func_80712BD4 (src/global/117190.c): stage4 semantic draft; named u16 D_8075E5C2 index preserves table relocation; permuter baseline 1242
 typedef struct R117iPlayerView {
     s32 unk0;
     s32 unk4;
 } R117iPlayerView;
+
+extern u16 D_8075E5C2[];
 
 extern u8 D_807467CC;
 extern u8 D_8076A0AB;
@@ -68,7 +69,7 @@ void func_80712BD4(void) {
         D_8075532C += 1;
         duration = func_8060B49C(((R117iPlayerView *)D_807FC924)->unk4, D_8075E5C0[index * 4]);
         D_8075531C = duration;
-        limit = *(u16 *)&D_8075E5C0[(D_80755328 * 4) + 2];
+        limit = D_8075E5C2[D_80755328 * 2];
         next = D_80755328 + 1;
         if ((u16)duration < limit) {
             D_8075531C = duration;
