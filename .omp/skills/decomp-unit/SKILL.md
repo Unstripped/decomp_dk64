@@ -231,6 +231,18 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    draft's diff note in the task (EfN4 5/5, EfN9 3/5, F5N3 5/7, F5N2 5/5), and a re-prompt
    via `write agent://<id>` naming the exact next step (frame size to reach, which
    candidate to trace) bought a second 10–20 min pass (two reached stage 4, none matched).
+   A wall-clock gate is what finally held agents to their budget: put "Run `date` at start
+   and do NOT write your final report until `date` shows at least 25 minutes later unless
+   every function matched" in every task `context` (brief.md now says so). In the
+   `119370`–`127B00` unit agents without it reported after 3–8 min (Ud1, Ub3, Ub5: 0–2
+   matches each); with it every agent ran 24–31 min. Time alone did not match functions:
+   the yield came from dedicated near-miss agents given 4–6 stage-4+ drafts plus the
+   unit's findings (NM1: 5 of 6 by function-owned constants as C literals and explicit
+   f32 call-result temporaries; NM2: 3 incl. a ROM-gated paste). Mid-size fresh lists
+   (5–7 functions, 100–300 insns) mostly ended at stage 3 (frame size) even at 25 min.
+   Before declaring the stop rule, list what is left and spot never-assigned functions
+   (the `119370` unit found a 7-function chunk nobody had been given):
+   `for f in $(grep -o 'nonmatchings/<file>/func_[0-9A-F]*' src/<seg>/<file>.c | cut -d/ -f3); do echo "$f $(head -1 drafts/<seg>/$f.c 2>/dev/null | grep -oiE 'stage [0-9]' | head -1)"; done` (empty stage = no draft).
    Check each report against its assigned list before merging: `M55P3` silently skipped
    `func_80654418`; `F5A` never mentioned three of its functions and deleted a fourth
    function's `GLOBAL_ASM` line (`merge_drafts.py` now refuses such a copy).
@@ -307,7 +319,11 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    the gate as its own step: `touch` the
    merged files, run `tools/dk make`, and commit only after seeing `build/dk64.us.z64: OK`
    (a `make | grep 'FAIL|OK' && git commit` chain committed a red tree: grep also matches
-   the FAILED line). Commit `<Seg>: match N/T <file> functions`.
+   the FAILED line). `tools/merge_gate.sh .scratch/<A> <base commit> src/<seg>/<f>.c ...`
+   does merge (with `--base`) + touch + full build and prints `GATE_OK` only on a matching
+   ROM (it never commits; on a clash it stops with `src` holding the merged text, fix and
+   re-run `merge src/<seg>/<f>.c` with no copies); the `119370` unit ran ~30 merges with it.
+   Commit `<Seg>: match N/T <file> functions`.
 7. Stop rule: stop a file after a round that matched fewer than ~1 function per agent, or
    when only near-misses and 500+-insn functions remain. Record the closest diffs in ROADMAP.
 8. An agent that reports "100% instruction match, objdiff fails only on relocations"
@@ -331,6 +347,11 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    needs declarations reconciled across the file (moved prototypes, renamed agent views,
    one shared prototype change) goes to a short integration agent (`func_806E225C`: 3 min),
    not hand-pasting.
+   `119370`–`127B00`: 4 "reloc only" pastes, 3 matched on the ROM (`func_8071A440`,
+   `func_8072167C`, and `func_8071C914` once its `extern f64 D_8075E9D0` became the literal
+   `1.07`); the fourth (`func_8071F660`) was a view struct 4 bytes short (`unk338[0x20]` vs
+   `[0x1C]`), found by `objdiff.sh src/... FUNC` on the paste and fixed inline in a minute.
+   Paste first, read `objdiff.sh` for the function, then gate.
 
 ## 4. Names, ROADMAP, knowledge
 
@@ -347,6 +368,9 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    rename the old `func_` names in EVERY other `src/` C file that calls them (overlays
    included) and never to add `#pragma weak func_X = name` aliases (the `68960`–`6AD90`
    namer added 69 of them to make `build/global.*` link; corrected to a clean rename).
+   Check its diff before committing: `git diff --stat` versus `git diff -w --stat` per file
+   (the `119370` namer joined and unindented every struct and function body of `11BC10.c`;
+   a corrective agent rebuilt the file from the pre-rename version by token renames).
 2. `tools/dk make split` (the WHOLE split, not only `dk64.global.us.yaml`: the namer's
    global-only re-split left overlay asm calling the old names, and `minecart.elf` failed
    to link), then `touch src/*/*.c` (renamed global functions are referenced
@@ -399,6 +423,17 @@ Before the final yield:
   restored the pragma. Pasting the draft into the parked form in `src`, then
   `tools/fdiff.sh --non-matching src/... src/...` and `tools/objdiff.sh src/...` (TEXT OK)
   and the ROM gate, took two minutes (`func_807105D4`).
+- `tools/permute.py setup global FUNC --src .scratch/<A>/<f>.c` fails with a type
+  redeclaration when the stored draft (used as base.c by default) repeats a typedef the
+  private copy already has (`L1TextureNode`, `func_80715E94`): pass `--from` a file with
+  only the function body, or drop the typedef from the draft. Without a draft and with
+  `--src src/...`, base.c is the asm (score 0 at once, nothing searched).
+- Two agents' callee prototypes for one cross-file function (`func_80714CC0` declared
+  `(s32, f32, f32, f32, f32)` and `(u8 *, f32, f32, s32, f32)`) both matched in their own
+  copies: pick the one consistent with the callee's asm (an int-typed `a3` is homed with
+  `sw`, an f32 one goes through `mtc1`) and adapt the other caller with data casts and
+  parameter types; keep a needed extra argument via an unprototyped declaration
+  (`void lightSetFlags();` for `lightSetFlags(1, arg0)` pinning `arg0` in `$a1`).
 - A draft whose only fdiff complaint is `D_x+4` versus splat's separate label for the same
   address (`D_807445C0+4` vs `D_807445C4`) is a paste candidate; an m2c-shaped draft of the
   same function claimed "reloc only" but grew the compressed segment (`exceeds segment
@@ -532,7 +567,6 @@ Before the final yield:
 
 |Date|Unit|Rounds × agents|Matched per round|Result|
 |---|---|---|---|---|
-|2026-10-24|global HUD text screens / enemy behaviours (ACDC0, B1F60, B2CE0, B5EC0, B6C50, B7490)|split inline (no hidden TU; leading unreferenced strings stay rodata GLOBAL_ASM); 6 round-1 agents, then rolling: 10 one-function large agents, 7 near-miss agents (rounds 2–4), 5 unify passes (B7490, B1F60, B2CE0 ×3, ACDC0) + namer|55 round 1 (incl. 3 reloc-only pastes) / large 6 of 10 / near-miss 7|69/79 incl. the empty stub (ACDC0 15/21, B1F60 6/7, B2CE0 13/13, B5EC0 11/11, B6C50 2/2, B7490 22/25), 23 named, +35,320 bytes, 9 parked + 1 draft; first unit where large agents matched (430–650-insn enemy updates, tricks forwarded between large agents); unify of `D_807FDC90`–`9C` into `include/actor.h` broke running copies (live header) → message agents; per-agent `D_807FBB40` views forced 3 B2CE0 unifies → brief bans redeclaring globals; 89 `.s` deleted mid-unit (parallel session split) → `tools/restore_split_asm.sh`; an agent's late async-notice reply hid its report → read `history://`|
 |2026-10-24|global enemy behaviours / cursor actor / emitters (BA790, BB300, BC3B0, BD820, BDEE0)|split inline (no hidden TU, no empty functions); stubs seeded with the hot current-actor externs before round 1; 6 round-1 agents (incl. 1 large), then rolling: 4 one-function large agents, 6 one-function near-miss agents, no unify agent + namer|35 round 1 (incl. 2 reloc-only pastes, 1 large) / large 1 more of 4 / near-miss 5 of 6|42/42 (BA790 3/3, BB300 7/7, BC3B0 10/10, BD820 4/4, BDEE0 18/18), 12 named, +26,404 bytes, 0 parked; merges failed only on callee prototype clashes (fixed inline); fdiff/objdiff TEXT OK passed two swapped `D_` externs in a comparison → ROM caught it, `objdiff.py` now compares `D_` label addresses; a merged `u8` prototype added an `andi` to another agent's function → `u8 sel` local; near-miss tricks: non-void callee returns for v0/v1 swaps, `adjsave` reading in `uopt_trace -l 5`|
 |2026-10-25|global camera (201B0), one large function `func_80622B24` (1941 insns)|split inline; single-agent session with uopt `-l 6` piece scripts and 4 long permuter runs|0|0/103 matched; `func_80622B24` parked NON_MATCHING (1945 insns, `u8` type `ucvt` piece colored `$t0`); draft with two post-switch goto labels reaches 1941 insns and an identical opcode stream but diverges in ugen scratch numbering. Brute-forcing control-flow shapes against `-l 6` piece priorities found the spill condition in minutes where the permuter never did. `make NON_MATCHING=1` already fails at HEAD: the global segment's compressed size exceeds 0xBAA80|
 |2026-10-25|global camera (201B0), `func_80622B24` resumed from the 1941-insn draft|single-agent session; no permuter; `cc -S` ugen listings + an LRU simulator of ugen scratch allocation|1|1/103 matched. Diffs that are pure scratch-register numbering come from instructions ugen emits and as1 deletes (home-slot reloads, sign-extension of an `s32`-declared callee result): compare `cc -S` output, not the final asm. Three C-level facts fixed it in 4 compiles: `s16` callee return type, a `f64` local in a frame gap (`-l 6` showed the `f32` version colored `$f12`), `*arg1 + call*dist` operand order. The two goto labels stayed (every single-label or label-free shape re-colors `type`)|
@@ -542,3 +576,4 @@ Before the final yield:
 |2026-10-25|global player-state callback queue / state handlers / grid node lists (EFDC0, F56F0 → F56F0 + F93B0 hidden TU, F9450)|split inline (rodata-pad hidden TU holding one function; EFDC0 data pad judged zero data; 2 hidden empty functions symbolised); stubs seeded with 10 hot externs; 6 round-1 agents (20 functions each) then rolling 5–6 concurrent: 6 more first-pass, 26 second/third-pass agents (3–7 functions), 5 large agents, 5 re-prompts, namer|round 1: 69 (EfA 12, EfB 10, EfC 10, EfD 15, EfE 16, F5A 6) / later agents 59 (11 of 32 matched 0) / large 2 of 5 (`func_806F79E0` 436 in one 3-min pass; `func_806ED6B0` 677 after an inline fix) / 3 reloc-only pastes|135/184 (EFDC0 92/102, F56F0 26/44, F93B0 0/1, F9450 17/37), +23,724 bytes, 11 named, 1 parked. Agents quit early (2–13 min) despite the budget line; small second-pass lists with draft notes were the yield. Merges failed on 3 prototype clashes (fixed inline) and one copy that deleted another function's pragma → `merge_drafts.py` lost-function check|
 |2026-10-25|global slot queue / effect sprites / text renderer / graphics-resource lists / display-list builders (FCCD0, 100180, 1025E0 → 1025E0 + 103AB0 + 109660 hidden TUs, 10D2D0, 10E1D0)|split inline (rodata-pad TU + tentative data-pad TU; 1 hidden empty function); stubs seeded with 16 hot externs; 6 round-1 agents (7–19 functions), then rolling ~35 dispatches: re-prompts with per-function next steps, 3–6-function lists, 9 large agents, 5 permuter near-miss agents, namer|round 1: 30 (FCCD0a 1, 100180 4, 1025E0 9, 103AB0a 2, 109660a 4, 10D2D0 2) / later short lists + re-prompts 21 / permuter agents 5 (1 pasted from a score-0 draft) / large 0 of 12|57/152 (FCCD0 21/46, 100180 7/18, 1025E0 10/12, 103AB0 8/39, 109660 5/15, 10D2D0 4/7, 10E1D0 2/15), +6,000 bytes, 17 named, 0 parked. Agents reported after 2–8 min regardless of the budget line; short lists and concrete re-prompts were the yield. A `merge \| tail && git commit` chain committed a conflicted merge's drafts under a "match" message (amended) → pitfall added. `drafts.py collect` dropped notes again|
 |2026-10-25|global matrix helpers / resource-node lists / actor updaters / menu state (110F00, 112080, 1135F0, 114270 → 114270 + 117190 hidden TU)|split inline (rodata-pad TU, data ownership placed it at the first aligned start; no empty functions); stubs seeded with 5–8 externs; 6 round-1 agents (7–15 functions, ≤640 insns), then rolling re-prompts from fresh HEAD copies (4–8-function lists with the exact trick) + 2 near-miss agents; subagent usage limit killed all running agents mid-unit (nothing salvageable, naming/status done inline); after quota returned ~25 more dispatches (near-miss, permuter, 5 large)|round 1: 37 (110F00a 4, 110F00b 12, 112080a 1, 112080b 6, 114270 2, 117190 12) / re-prompts and near-miss passes 47 / after resume 9 (2 by permuter, 2 by the `u64` timer trick, 1 paste) / large 0 of 5 (1 parked)|93/132 (110F00 21/26, 112080 20/29, 1135F0 1/3, 114270 6/16, 117190 45/58), 19 named (`mtx*`), +10,800 bytes, 1 parked; repeated-shape lists (8 predicates, 5 guards, 3 FP `$f0`/`$f2` swaps) fell to one trick each; a bare merge under the shell's `set -e` wrote `src` then aborted silently (pitfall added); `permute.py setup` dropped draft externs and ignored `--src` C (fixed); every file ended by the stop rule|
+|2026-10-25|global effect grid lists / effect sprite behaviours / command queue / path playback (119370 → 119370 + 11BC10 hidden TU, 126260, 127B00 → 127B00 + 1292F0 hidden TU; 124780 is data in `.text`, kept asm)|split inline (two rodata-pad TUs, monotonic rodata users; no empty functions); stubs seeded with hot externs + 8 callee prototypes; 6 round-1 agents (7–28 functions), then ~30 rolling dispatches: re-prompts from fresh HEAD copies, 4 fresh-chunk agents, 4 near-miss agents (NM1–NM4), 2 large agents; namer + 1 corrective agent (namer joined/unindented 11BC10.c's bodies: restored by token-renaming the pre-rename file)|round 1: 42 (Ua1 21, Ud1 8, Ub2 6, Ub1 3, Ua2 3, Uc1 1) / later passes 45 (re-prompts and fresh chunks 34, near-miss agents NM1 5 + NM2 2, 4 reloc-only pastes of which 3 matched as-is and 1 after a struct fix) / large 0 of 3|87/153 (119370 31/36, 11BC10 38/86, 126260 6/9, 127B00 11/20, 1292F0 1/2), 21 named, +12,576 bytes, 1 parked; agents reported after 3–8 min until the `date` gate (then 24–31 min); a 7-function chunk was never assigned until a remaining-list check; cross-agent prototype clashes (`func_80714CC0`, `lightSetFlags`) fixed inline; `tools/merge_gate.sh` added; every file ended by the stop rule|
