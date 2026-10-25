@@ -1,4 +1,4 @@
-// func_806F4DC0 (src/global/F9450.c): stage 4: recovered frame, all blocks, queue traversal, allocation, and field stores; head-pointer/register allocation diverges
+// func_806F4DC0 (src/global/F9450.c): Stage 4: recovered frame, traversal, allocation, and stores; head-pointer register allocation remains.
 typedef struct F9A_PositionNode {
     f32 unk0;
     f32 unk4;

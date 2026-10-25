@@ -1,4 +1,4 @@
-// func_806F6EDC (src/global/F9450.c): Stage 4 close structural draft; target prologue, loop, call, and sign-extension match. Current mismatch is delay-slot scheduling and return register.
+// func_806F6EDC (src/global/F9450.c): Stage 4: target prologue/call/sign extension and return register are close; branch target and delay-slot scheduling remain.
 extern s32 func_806F6E58();
 
 s32 func_806F6EDC(void) {

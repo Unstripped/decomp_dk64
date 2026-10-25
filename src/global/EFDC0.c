@@ -23,12 +23,16 @@ typedef struct EfAQueuedCall {
 } EfAQueuedCall;
 
 typedef struct EfAPlayer {
-    u8 pad0[0x2C];
+    u8 pad0[4];
+    f32 unk4;
+    u8 pad8[2];
+    s16 unkA;
+    u8 padC[0x20];
     f32 unk2C;
     u8 pad30[8];
     f32 unk38;
-    s32 unk3C;
-    u8 pad40[0xC];
+    s16 unk3C;
+    u8 pad3E[0xE];
     s16 unk4C;
     s16 unk4E;
     s16 unk50;
@@ -44,7 +48,9 @@ typedef struct EfAPlayer {
 } EfAPlayer;
 
 typedef struct EfAActor {
-    u8 pad0[0x60];
+    u8 pad0[0x54];
+    s32 unk54;
+    u8 pad58[8];
     s32 unk60;
     u8 pad64[0x54];
     f32 unkB8;
@@ -60,22 +66,6 @@ typedef struct EfAActor {
     void *unk174;
 } EfAActor;
 
-typedef struct EfASubActor {
-    u8 pad0[0xB2];
-    s16 unkB2;
-    f32 unkB4;
-    f32 unkB8;
-    f32 unkBC;
-    u8 padC0[0x14];
-    s32 unkD4;
-    u8 padD8[0x17];
-    u8 unkEF;
-    u8 unkF0;
-    u8 padF1[2];
-    s8 unkF3;
-    u8 padF4[0xFC];
-    s32 unk1F0;
-} EfASubActor;
 
 typedef struct EfAParameters {
     s32 unk0;
@@ -83,13 +73,10 @@ typedef struct EfAParameters {
     s32 unk8;
 } EfAParameters;
 
-#define EfA_Q ((EfAQueuedCall *)D_807FC924)
 #define EfA_P ((EfAPlayer *)D_807FD580)
 #define EfA_A40 ((EfAActor *)D_807FBB40)
-#define EfA_A48 ((EfAActor *)D_807FBB48)
 
 extern EfAParameters D_807FD6F0;
-extern void (*D_80752C70[])(void);
 void func_80614D48(Actor *, f32, f32);
 void func_80614E78(Actor *, s32);
 void func_80614EBC(Actor *, s32);
@@ -107,9 +94,36 @@ void func_806EB178(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB194.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB2B8.s")
+void func_806CD424(s16, f32, f32);
+void func_806CFECC(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB364.s")
+void func_806EB2B8(void) {
+    func_806CFECC();
+    D_807FBB40->unk154 = 0x22;
+    D_807FBB40->unk155[0] = 0;
+    EfA_A40->unkC0 = 100.0f;
+    EfA_P->unk50 = 0;
+    EfA_P->unk2C = 100.0f;
+    if (EfA_P->unk3C == 0) {
+        func_806CD424(EfA_P->unkA, EfA_P->unk4, EfA_P->unk38);
+    }
+    EfA_P->unk2C = 10.0f;
+    func_80614EBC(D_807FBB40, 0x17B);
+}
+
+void func_806EB364(void) {
+    if (D_8074E77C[D_807FC929] == 6) {
+        func_806CFF9C(D_807FBB48);
+        return;
+    }
+    D_807FBB40->unk154 = 0x3D;
+    D_807FBB40->unk155[0] = 0;
+    if (EfA_P->unk4E == 0x22) {
+        func_80614EBC(D_807FBB40, 0x131);
+        return;
+    }
+    func_80614E78(D_807FBB40, 0xD);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB400.s")
 
@@ -126,7 +140,22 @@ void func_806EB4F8(void) {
     func_80614E78(D_807FBB40, 0x4A);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB544.s")
+extern s32 func_806F8AD4(s32, u8);
+
+void func_806EB544(void) {
+    s32 selector;
+    f32 unused;
+
+    selector = 2;
+    if (func_806F8AD4(3, EfA_P->unk1A4) != 0) {
+        selector = 3;
+    }
+    func_806F8BC4(selector, 0, 0);
+    D_807FBB40->unk154 = 0x60;
+    D_807FBB40->unk155[0] = 0;
+    EfA_P->unk1A3 = 0;
+    func_80614E78(D_807FBB40, 0x4B);
+}
 
 typedef struct EfN2Player {
     u8 pad0[0x64];
