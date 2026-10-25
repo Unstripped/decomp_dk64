@@ -14,7 +14,8 @@
         copies it only prunes and checks (use after resolving conflicts by hand).
         --base REV uses `git show REV:<src>` as the base instead of the snapshot: for drafts
         copied before a later snapshot (agents still running from an earlier round), pass
-        the commit their copy started from.
+        the commit their copy started from. A copy that dropped another function's
+        GLOBAL_ASM line without defining it is refused before merging (exit 1, src untouched).
 
 Runs on the host (needs git and tools/dk). Exit codes: 0 OK / TEXT OK, 1 compile error
 or mismatch, 2 merge conflicts (src untouched; conflicted result in .scratch/merged/).
@@ -94,6 +95,20 @@ def prune(lines, base_lines):
     return [l for i, l in enumerate(lines) if i not in drop]
 
 
+def lost_functions(base_text, draft_text):
+    """Functions whose GLOBAL_ASM line is in the base but neither that line nor a definition
+    is in the draft: an agent deleted another function's pragma (the link then fails with an
+    undefined reference from data, e.g. a callback table)."""
+    lost = []
+    for path, name in re.findall(r'GLOBAL_ASM\("([^"]*/(\w+)\.s)"\)', base_text):
+        if f'GLOBAL_ASM("{path}")' in draft_text:
+            continue
+        if re.search(rf"^[A-Za-z_][\w \t\*]*\b{re.escape(name)}\([^;]*$", draft_text, re.M):
+            continue
+        lost.append(name)
+    return lost
+
+
 def merge(src, drafts, rev=None):
     base = base_path(src)
     if rev:
@@ -110,6 +125,15 @@ def merge(src, drafts, rev=None):
     # Start from the CURRENT src, not the base: edits made to src after the snapshot
     # (inline fixes, DIRECT agents) are one more side of the merge and are never lost.
     shutil.copyfile(src, out)
+    with open(base) as f:
+        base_text = f.read()
+    for d in drafts:
+        with open(d) as f:
+            lost = lost_functions(base_text, f.read())
+        if lost:
+            print(f"Error: {d} lost {', '.join(lost)} (no GLOBAL_ASM line, no definition); "
+                  f"restore them in the copy first. {src} untouched.", file=sys.stderr)
+            return 1
     conflicts = 0
     for d in drafts:
         r = subprocess.run(["git", "merge-file", "-L", src, "-L", "base", "-L", d, out, base, d])

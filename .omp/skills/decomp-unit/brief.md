@@ -48,6 +48,8 @@ swapped externs in a comparison look identical in the text.
   (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`), never re-copy
   mid-run, edit only the copy, check with
   `tools/fdiff.sh .scratch/<YourName>/<file>.c src/<seg>/<file>.c [FUNC]`.
+- Never delete the `#pragma GLOBAL_ASM` line of a function you did not match (a copy that
+  lost one broke the link; `merge_drafts.py` now refuses it).
 - Keep a blank line before every `#pragma GLOBAL_ASM` line, including the last one in
   the file. A parked function's `#ifdef NON_MATCHING` block must wrap only that function
   and the declarations nothing else uses; declarations matched code needs stay outside it
