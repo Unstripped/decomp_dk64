@@ -1,4 +1,4 @@
-// func_8071DB74 (src/global/11BC10.c): stage 5: state pointer remains v0 rather than target v1, omitting target move v0,v1; assignment-expression flags now match
+// func_8071DB74 (src/global/11BC10.c): stage 5: state pointer stays v0 rather than target v1; the target move v0,v1 after the guard remains absent.
 typedef struct {
     f32 unk0;
     f32 unk4;

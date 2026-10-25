@@ -1,4 +1,4 @@
-// func_8071C9E8 (src/global/11BC10.c): stage 4 behavioral draft compiled; target frame/saved registers match in the initial version, but state-pointer lifetime and local stack offsets differ; matrix tail matches structurally
+// func_8071C9E8 (src/global/11BC10.c): stage 4: behavioral draft compiled; state-pointer lifetime and local stack offsets differ
 typedef struct {
     s16 angle;
     s16 y;

@@ -1,4 +1,4 @@
-// func_8071F758 (src/global/11BC10.c): Stage 5: correct frame and matrix sequence; state lifetime/register allocation differs at setup and interpolation.
+// func_8071F758 (src/global/11BC10.c): stage 5: behavior and matrix sequence reached; target needs state in v1 then s0 and matrix bases sp+0x6C/sp+0x2C rather than current allocation.
 typedef struct {
     f32 unk0;
     f32 unk4;

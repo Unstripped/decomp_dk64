@@ -1,4 +1,4 @@
-// func_807195D4 (src/global/11BC10.c): stage 4: target 0xB8 frame and s0 reached; scalar/matrix-local ordering trials shifted matrix bases by +4 or +8 (target sp+0x6C/sp+0x2C), with remaining FP allocation differences.
+// func_807195D4 (src/global/11BC10.c): stage 4: target frame and s0 reached; matrix bases remain +8 and FP allocation differs
 typedef struct {
     f32 unk0;
     f32 unk4;

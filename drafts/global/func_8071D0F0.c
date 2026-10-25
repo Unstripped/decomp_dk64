@@ -1,4 +1,4 @@
-// func_8071D0F0 (src/global/11BC10.c): stage 5: target 0x38 frame and saved s0 reached; corrected u16-table index and f32 call argument order, remaining pointer/global register allocation and stack-slot placement
+// func_8071D0F0 (src/global/11BC10.c): stage 5: frame 0x38 and s0 saved reached; direct state reload matches allocation path, but stack local, global materialization, and argument register allocation remain.
 typedef struct { f32 timer; f32 x; f32 y; f32 z; } NM1bD0Motion;
 typedef struct { u8 pad0[0x7C]; f32 x; f32 y; f32 z; } NM1bD0Actor;
 typedef struct { u8 pad0[0x1F0]; s32 flags; } NM1bD0Flags;

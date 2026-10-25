@@ -1,4 +1,4 @@
-// func_8071E1C8 (src/global/11BC10.c): stage 4: deferred state-pointer assignment until after null guard, improving fdiff score from 1519 to 1404; remaining FP expression and stack-temporary differences.
+// func_8071E1C8 (src/global/11BC10.c): stage 4: deferred state-pointer assignment through null guard; reviewed 600s permuter run improved baseline 1404 to 545 using a separate 2.0f temp, not merged pending behavioral review
 typedef struct {
     u8 pad0[0x7C];
     f32 unk7C;

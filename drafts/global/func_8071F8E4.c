@@ -1,4 +1,4 @@
-// func_8071F8E4 (src/global/11BC10.c): Stage 5: correct frame and behavior; matrix local offsets and initial state-pointer register allocation remain.
+// func_8071F8E4 (src/global/11BC10.c): stage 5: matrix-local declaration reordering reaches target sp+0x78/sp+0x38; initial state pointer is still s0 rather than target v0 followed by move s0,v0.
 typedef struct {
     f32 unk0;
     f32 unk4;

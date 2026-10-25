@@ -1,4 +1,4 @@
-// func_8071CDE0 (src/global/11BC10.c): stage 4 behavioral draft compiled; frame and matrix tail match, but state-pointer allocation and initial-register order differ; uses u8 height at actor+0x15E
+// func_8071CDE0 (src/global/11BC10.c): stage 4: frame and matrix tail match; state-pointer allocation and initial-register order differ
 typedef struct { s16 angle; s16 y; s16 speed; s16 rotation; } M3Cde0State;
 typedef struct { u8 pad0[0x7C]; f32 x; f32 y; f32 z; u8 pad88[0xD6]; u8 height; } M3Cde0Actor;
 extern s32 D_8071FB08;

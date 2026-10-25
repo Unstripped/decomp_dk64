@@ -1,4 +1,4 @@
-// func_8071F444 (src/global/11BC10.c): Stage 4: reduced frame to target 0x20 and retained callee-saved set; remaining differences are allocation/scheduling around state initialization and floating expressions.
+// func_8071F444 (src/global/11BC10.c): stage 4: target 0x20 frame and callee-saved set retained; state-init/FP scheduling differs
 typedef struct {
     f32 unk0;
     f32 unk4;

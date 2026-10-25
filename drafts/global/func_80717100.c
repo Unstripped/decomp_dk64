@@ -1,4 +1,4 @@
-// func_80717100 (src/global/11BC10.c): stage 5: target 0x20 frame and s1 actor/s0 motion reached; direct actor guard fixes saves, remaining temporary/register allocation in angle update and arithmetic
+// func_80717100 (src/global/11BC10.c): stage 5: target 0x20 frame and s1/s0 saves remain; angle temporary is still allocated in v0 rather than target t7 (permuter best 100).
 typedef struct {
     s16 unk0;
     s16 unk2;

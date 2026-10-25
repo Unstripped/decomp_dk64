@@ -1,4 +1,4 @@
-// func_807189BC (src/global/11BC10.c): stage 4: retained frame 0x28 and explored source-pointer/temporary order; best score 2685 after correcting the zero clamp, but source local remains sp+0x24 rather than target sp+0x20.
+// func_807189BC (src/global/11BC10.c): stage 4: retained 0x28 frame; source-pointer local remains sp+0x24 rather than target sp+0x20 after corrected zero clamp.
 typedef struct {
     u8 pad0[0xAC];
     f32 unkAC;
