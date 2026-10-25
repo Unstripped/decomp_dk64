@@ -1,24 +1,20 @@
-// func_8070DA28 (src/global/112080.c): Stage 3: K&R do/while preserves size and flow, but target's beqz/bnel delay scheduling remains unmatched; goto loop and hoisted forms also failed.
-typedef struct S112aFreeNode {
+// func_8070DA28 (src/global/112080.c): Stage 3 K&R/do-while candidate; target still needs beqz and bnel delay-slot scheduling.
+typedef struct P112bNode {
     u8 flags;
     u8 pad1[0xB];
     void *children;
     u8 pad10[0xC];
-    struct S112aFreeNode *next;
-} S112aFreeNode;
+    struct P112bNode *next;
+} P112bNode;
 
-typedef struct N112FreeList {
+typedef struct P112bFreeList {
     u8 pad0[0xC];
-    S112aFreeNode *first;
+    P112bNode *first;
     u8 state;
-} N112FreeList;
+} P112bFreeList;
 
-void func_8070D9AC(S112aFreeNode *);
-
-void func_8070DA28(arg0)
-N112FreeList *arg0;
-{
-    S112aFreeNode *node;
+void func_8070DA28(P112bFreeList *arg0) {
+    P112bNode *node;
 
     node = arg0->first;
     if (node != NULL) {

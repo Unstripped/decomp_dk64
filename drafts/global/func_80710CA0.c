@@ -1,4 +1,7 @@
-// func_80710CA0 (src/global/114270.c): stage 4: behaviour and switch reconstructed; target frame 0x150 and saved-register set reached with six-word pad, but local stack slots and register allocation still diverge
+// func_80710CA0 (src/global/114270.c): stage 6: target local offsets reached for flags at 0xBE/0xBF and matrices at 0xC8/0x108; loop count remains 0x7C vs 0x64 and frame 0x160 vs 0x150. uopt trace level 6 and 900-second -j2 permuter run completed; no match.
+#include "common.h"
+#include "actor.h"
+
 typedef struct L10CA0Gfx { u32 w0; u32 w1; } L10CA0Gfx;
 typedef struct L10CA0Header { u16 count; u8 pad2[2]; void *entries; } L10CA0Header;
 typedef struct L10CA0Entry {
@@ -9,6 +12,16 @@ typedef struct L10CA0Entry {
 typedef struct L10CA0StateView { u8 pad0[0xB4]; f32 unkB4; u8 padB8[0xBC]; void *unk174; } L10CA0StateView;
 typedef struct L10CA0PlayerView { u8 pad0[0x90]; f32 unk90; u8 pad94[0x66]; u8 unkFA; u8 padFB[0x119]; f32 unk214; } L10CA0PlayerView;
 typedef struct L10CA0TimerView { u8 pad0[0xBC]; s16 unkBC; } L10CA0TimerView;
+typedef struct L10CA0RenderLocals {
+    s32 sp64;
+    u8 pad68[0x3E];
+    u8 spBE;
+    u8 spBF;
+    u8 padC0[8];
+    f32 spC8[4][4];
+    f32 sp108[4][4];
+} L10CA0RenderLocals;
+
 extern void *D_807F5D10, *D_807FBB4C, *D_807FD580, *D_807FC924, *D_807FDA20, *D_807FDAB0;
 extern u16 *D_807550E0;
 extern f32 D_807FD9EC;
@@ -30,17 +43,10 @@ s32 arg1;
     L10CA0Entry *entry;
     L10CA0StateView *state = (L10CA0StateView *)D_807F5D10;
     L10CA0PlayerView *player = (L10CA0PlayerView *)state->unk174;
-    f32 spC8[4][4];
-    f32 sp108[4][4];
-    s32 pad0[6];
-    u8 spBE = 0;
-    u8 spBF = 0;
-    s32 sp64;
+    L10CA0RenderLocals locals;
     s32 var_s6 = 0;
     s8 var_s5;
     u16 temp_s0 = header->count;
-    f64 scale;
-    f64 absScale;
 
     if ((((u8 *)D_807FBB4C)[0x154] == 3) || (((u8 *)D_807FBB4C)[0x154] == 5)) {
         f32 rem = 180.0f - state->unkB4;
@@ -52,10 +58,10 @@ s32 arg1;
         D_807FD9EC = 240.0f;
     }
     if ((((u8 *)D_807FBB4C)[0x154] == 0x42) && ((((L10CA0TimerView *)D_807FD580)->unkBC == 0x62) || (((L10CA0TimerView *)D_807FD580)->unkBC == 0x88))) {
-        spBE = 1;
+        locals.spBE = 1;
     }
     if ((player->unkFA != 0) && (((L10CA0PlayerView *)D_807FC924)->unk214 < player->unk90 + 3.0f)) {
-        spBF = 1;
+        locals.spBF = 1;
     }
     gdl2 = gdl++; gdl2->w0 = 0xE7000000; gdl2->w1 = 0;
     gdl2 = gdl++; gdl2->w0 = 0xDE000000; gdl2->w1 = (u32)&D_1000118;
@@ -66,10 +72,10 @@ s32 arg1;
     gdl2 = gdl++; gdl2->w0 = 0xE3001201; gdl2->w1 = 0x2000;
     gdl2 = gdl++; gdl2->w0 = 0xE200001C; gdl2->w1 = 0x504340;
     if (D_80755264[D_807FDA1C * 0x14] == 1) gdl = (L10CA0Gfx *)func_807105D4((Gfx *)gdl, 0);
-    for (var_s5 = 0x7F, sp64 = temp_s0; (var_s5 >= 0) && (sp64 != var_s6); var_s5 = (s8)(s16)(var_s5 - 1)) {
+    for (var_s5 = 0x7F, locals.sp64 = temp_s0; (var_s5 >= 0) && (locals.sp64 != var_s6); var_s5 = (s8)(s16)(var_s5 - 1)) {
         entry = (L10CA0Entry *)header->entries + var_s5;
         D_807FDAB0 = entry; D_807FDAB4 = D_807FDA1E;
-        if ((entry->unkB0 != 0) && ((entry->unk0 == -1) || mapChunkContainsPoint((s16)entry->unk8, (s16)entry->unkC, entry->unk0)) && !spBF && !spBE) {
+        if ((entry->unkB0 != 0) && ((entry->unk0 == -1) || mapChunkContainsPoint((s16)entry->unk8, (s16)entry->unkC, entry->unk0)) && !locals.spBF && !locals.spBE) {
             gdl2 = gdl++; gdl2->w0 = 0xFA000000; gdl2->w1 = (D_807FDA1B << 24) | (D_807FDA1B << 16) | (D_807FDA1B << 8) | entry->unkB1;
             if (D_807FDA1C == 4) {
                 switch (entry->unk20) {
@@ -80,13 +86,12 @@ s32 arg1;
             } else if (D_80755264[D_807FDA1C * 0x14] >= 2) {
                 gdl = (L10CA0Gfx *)func_807105D4((Gfx *)gdl, entry->unkB2++ % D_80755264[D_807FDA1C * 0x14]);
             }
-            scale = (f64)entry->unk10 * 4.0; absScale = scale > 0.0 ? scale : -scale;
-            guScaleF(sp108, (f32)scale, (f32)absScale, 1.0f);
-            if (D_807FDA1C == 3) { entry->unk22 = (s16)((f32)entry->unk22 + entry->unk28); func_80612CA0(spC8, (f32)entry->unk22); }
-            else if (D_807FDA1C == 4) func_80612CA0(spC8, (f32)entry->unk24);
-            else func_80612CA0(spC8, (f32)D_807FDA1E);
-            guMtxCatF(sp108, spC8, sp108); guTranslateF(spC8, (f32)((f64)entry->unk8 * 4.0), (f32)((f64)entry->unkC * 4.0), -50.0f); guMtxCatF(sp108, spC8, sp108);
-            guMtxF2L(sp108, (Mtx *)((u8 *)entry + (D_807444FC << 6) + 0x30));
+            guScaleF(locals.sp108, (f32)((f64)entry->unk10 * 4.0), (f32)(((f64)entry->unk10 * 4.0) > 0.0 ? ((f64)entry->unk10 * 4.0) : -((f64)entry->unk10 * 4.0)), 1.0f);
+            if (D_807FDA1C == 3) { entry->unk22 = (s16)((f32)entry->unk22 + entry->unk28); func_80612CA0(locals.spC8, (f32)entry->unk22); }
+            else if (D_807FDA1C == 4) func_80612CA0(locals.spC8, (f32)entry->unk24);
+            else func_80612CA0(locals.spC8, (f32)D_807FDA1E);
+            guMtxCatF(locals.sp108, locals.spC8, locals.sp108); guTranslateF(locals.spC8, (f32)((f64)entry->unk8 * 4.0), (f32)((f64)entry->unkC * 4.0), -50.0f); guMtxCatF(locals.sp108, locals.spC8, locals.sp108);
+            guMtxF2L(locals.sp108, (Mtx *)((u8 *)entry + (D_807444FC << 6) + 0x30));
             gdl2 = gdl++; gdl2->w0 = 0xDA380003; gdl2->w1 = (u32)((u8 *)entry + (D_807444FC << 6) + 0x30);
             gdl2 = gdl++; gdl2->w0 = 0x01004008; gdl2->w1 = (u32)osVirtualToPhysical(D_807FDA20);
             gdl2 = gdl++; gdl2->w0 = 0x06000204; gdl2->w1 = 0x406;
