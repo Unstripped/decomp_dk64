@@ -1,6 +1,4 @@
-// func_806C9830 (src/global/CC800.c): G01 stage 6 near-miss: s8 var kept in a3/memory instead of a2 + spill 0x1F(sp)
-/* Needs (from the CC800 copy): G01Ctl (unk1A4 u8 at 0x1A4, unk174 pointer at Actor+0x174 via G01Act),
- * G01Player with `Actor *unk2A0` at 0x2A0 (0x2F0-byte stride), D_807FC924 array, D_807FC928 u8. */
+// func_806C9830 (src/global/CC800.c): K&R s8 arg0 + 's8 v = arg0; arg0 = 0;' (v declared before p) matches entry sll/sra+move, home store, frame 0x20, spill 0x1f; only diff v in a3 vs a2 and p in v0 vs a0+move v0,a0. Tried proto/K&R s8/s32/char params, dead uses, q copy, inline p, call protos, permuter (semantics-breaking only)
 typedef struct G01Ctl {
     /* 0x000 */ u8 pad0[0x1A4];
     /* 0x1A4 */ u8 unk1A4;
@@ -21,12 +19,18 @@ extern G01Player *D_807FC924;
 extern s32 D_807FBB64;
 void func_800268C0();
 
-/* stage 6: target keeps the s8 variable in $a2 (param converted once: sll/sra then move a2,t8; spill sb/lb at 0x1F(sp),
- * frame 0x20, home store sw a0,0x20(sp) never reloaded). Every C form tried puts the variable in $a3 (`lb a3,35(sp)`
- * from the param home) or keeps it memory-only in the param home byte (27(sp)); frame is 0x18 instead of 0x20. */
-s8 func_806C9830(s32 arg0, Actor *arg1) {
+/* stage 6: K&R `s8 arg0` + local `s8 v = arg0; arg0 = 0;` gives the target's single entry conversion (sll/sra, move) and the
+ * dead home store sw a0,0x20(sp), frame 0x20 and the 0x1f(sp) spill slot (v declared before p). Remaining diff: v lands in a3
+ * (target a2, so the call-arg `li a2` merges with the spill) and p in v0 (target a0 plus `move v0,a0`). */
+s8 func_806C9830(arg0, arg1)
+    s8 arg0;
+    Actor *arg1;
+{
+    s8 v;
     Actor *p;
-    s8 v = arg0;
+
+    v = arg0;
+    arg0 = 0;
 
     if (D_807FC928 >= 2) {
         p = D_807FC924[((G01Act *)arg1)->unk174->unk1A4].unk2A0;

@@ -503,7 +503,6 @@ typedef struct G01Pos {
 void func_806C8220(s32, void *, s32);
 void func_806F833C(s32);
 
-#ifdef NON_MATCHING
 typedef struct G01Arg8F8C {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
@@ -532,16 +531,17 @@ void func_806C8F8C(void *arg) {
     G01A->unk4->unk1C = func_80610FE8(0x100);
     *G01A->unk4->unk1C = 0;
     G01A->unk4->unk20 = func_80610FE8(0x100);
+    if (1) {}
+    if (1) {}
+    if (1) {}
+    if (1) {}
+    if (1) {}
     *G01A->unk4->unk20 = 0xFF;
     G01A->unk4->unk24 = func_80610FE8(0x100);
     *G01A->unk4->unk24 = 0xFF;
     func_806C8220(1, G01A->unk178, G01A->unk58);
     func_806F833C(0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C8F8C.s")
-#endif
 
 extern s16 D_8076AEE2;
 extern s32 D_807FBB60;
@@ -756,9 +756,15 @@ extern s32 D_807FBB64;
 #ifdef NON_MATCHING
 void func_800268C0();
 
-s8 func_806C9830(s32 arg0, Actor *arg1) {
+s8 func_806C9830(arg0, arg1)
+    s8 arg0;
+    Actor *arg1;
+{
+    s8 v;
     Actor *p;
-    s8 v = arg0;
+
+    v = arg0;
+    arg0 = 0;
 
     if (D_807FC928 >= 2) {
         p = ((G01Player *)D_807FC924)[((G01Act *)arg1)->unk174->unk1A4].unk2A0;
@@ -841,7 +847,6 @@ s8 arg1;
     return 0;
 }
 
-#ifdef NON_MATCHING
 extern s32 D_807552E4;
 extern s8 D_80750ACC;
 extern s32 D_807FD56C;
@@ -863,8 +868,10 @@ void func_806C9AE0(void) {
             for (j = 0; j < 6; j++) {
                 p->ent[j].unk1 = 1;
             }
+            p->unk2FC = 1;
+        } else {
+            p->unk2FC = 1;
         }
-        p->unk2FC = 1;
         func_80709464(i);
         p++;
     }
@@ -872,10 +879,6 @@ void func_806C9AE0(void) {
     D_80750ACC = 0;
     D_807FD56C = 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C9AE0.s")
-#endif
 
 void func_806C9C1C(s32);
 

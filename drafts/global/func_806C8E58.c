@@ -1,4 +1,4 @@
-// func_806C8E58 (src/global/CC800.c): G00 stage 6: only regs differ (8 rows): target i=v0, &D_8074E77C[idx]=v1, found a1, row ptr a2; ours i=v1, ptr a3 (uopt trace -l 5: a ghost CSE candidate for (u8)((i+1)&255), adjsave 30, takes v0 first, pushes i to v1 and ptr to a3). Tried: s32/int/u8 callee return, s32/u32 i, u8* local for the flag ptr, i^=0 / found^=0 / dead ptr uses, while/for forms, decl order, unchained store (worse), 480s permuter (no gain, base 40).
+// func_806C8E58 (src/global/CC800.c): stage 6, only regs (8 rows): target i=v0 ptr=v1 found=a1 row=a2; ours i=v1 ptr=a3 (ghost CSE cand for (u8)((i+1)&255), adjsave 30 > i 16, takes v0 first; target colors i then ptr before found/row). Tried (this + earlier runs): s32/u8 i/found, while(!found), if-order, explicit row var, flag ptr local (any decl order), dead loads/ifs of i and flag, unchained stores (worse), K&R s16 param, 2 permuter runs 480s+900s (28k its) no gain
 void func_806C8F8C(void *);
 
 void func_806C8E58(s16 arg0) {
