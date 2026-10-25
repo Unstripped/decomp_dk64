@@ -1,9 +1,9 @@
-// func_807002AC (src/global/103AB0.c): Stage 1 m2c behavioral draft; compiled attempts recorded where applicable.
-s16 *func_80610FE8(?);                              /* extern */
-s16 func_80700088(?, u16);                          /* extern */
-? heapFreeDeferred(s16 *);                          /* extern */
+// func_807002AC (src/global/103AB0.c): Stage 5 conversion loop; frame and behavior reconstructed, remaining s0/s2 allocation and loop schedule mismatch.
+s16 *func_80610FE8(s32);
+void heapFreeDeferred(void *);
+s16 func_80700088(f32, u16);
 
-void func_807002AC(u16 *arg0, s16 **arg1, ? arg2) {
+void func_807002AC(u16 *arg0, s16 **arg1, f32 arg2) {
     s16 *temp_v0;
     s16 *var_s0;
     s16 var_s1;
@@ -18,9 +18,9 @@ void func_807002AC(u16 *arg0, s16 **arg1, ? arg2) {
     var_s0 = *arg1;
     do {
         temp_a1 = *var_s2;
-        var_s2 += 2;
-        var_s1 += 1;
+        var_s2++;
+        var_s1++;
         *var_s0 = func_80700088(arg2, temp_a1);
-        var_s0 += 2;
+        var_s0++;
     } while (var_s1 < 0x5000);
 }

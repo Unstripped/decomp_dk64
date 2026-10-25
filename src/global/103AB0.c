@@ -83,9 +83,15 @@ void func_80701C90(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80701CA0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807023E8.s")
+void func_807024E0(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80702464.s")
+void func_807023E8(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12) {
+    func_807024E0(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, 1, 0x10, 0, 0);
+}
+
+void func_80702464(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14) {
+    func_807024E0(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, 0, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807024E0.s")
 
