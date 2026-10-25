@@ -32,6 +32,12 @@ void func_8070F570(void) {
 typedef struct M114aAngle {
     s32 unk0;
     f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    u8 unk14[0x9C];
+    u8 unkB0;
+    u8 unkB1;
 } M114aAngle;
 
 void func_8070FC40(M114aAngle *arg0) {
@@ -46,7 +52,38 @@ void func_8070FC40(M114aAngle *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_8070FCCC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_8071006C.s")
+void func_8070FA58(M114aAngle *);
+
+s32 func_8071006C(M114aAngle *arg0) {
+    s32 var_v1;
+    f32 new_var;
+    s32 temp_v0;
+    u8 temp_v0_2;
+
+    func_8070FA58(arg0);
+    func_8070FC40(arg0);
+    temp_v0 = arg0->unkB0;
+    var_v1 = (s32)temp_v0 < 0xF;
+    arg0->unkB0 = (u8)(temp_v0 + 1);
+    arg0->unk8 = (f32)arg0->unk4;
+    temp_v0 = 0x50;
+    if (var_v1 == 0) {
+        temp_v0_2 = arg0->unkB1;
+        if ((s32)temp_v0_2 >= 0x50) {
+            arg0->unkB1 = (u8)(temp_v0_2 - temp_v0);
+        }
+    }
+    new_var = (f32)((1.0 / ((f64)arg0->unk10 * 4.0)) * 60.0);
+    var_v1 = 0;
+    arg0->unkC = (f32)((f64)arg0->unkC + ((f64)((30.0f - (new_var - 30.0f)) + 30.0f) * 0.2));
+    if (arg0->unkC > 240.0f) {
+        var_v1 = 1;
+    }
+    if (var_v1 == 0) {
+        var_v1 = (s32)arg0->unkB1 < 0x50;
+    }
+    return var_v1 & 0xFF;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_80710174.s")
 

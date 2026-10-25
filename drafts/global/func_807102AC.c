@@ -1,4 +1,4 @@
-// func_807102AC (src/global/114270.c): Baseline semantic reconstruction; byte-test and floating-point scheduling differ.
+// func_807102AC (src/global/114270.c): Stage 4 semantic reconstruction; threshold ordering and floating-point register allocation remain.
 typedef struct M114aAngle {
     s32 unk0;
     f32 unk4;

@@ -1,4 +1,4 @@
-// func_8070FA58 (src/global/114270.c): Baseline pursuit reconstruction; stack-slot layout and register allocation differ.
+// func_8070FA58 (src/global/114270.c): Stage 3 pursuit reconstruction; stack frame remains 0x40 versus target 0x38.
 typedef struct M114aPlayerView {
     u8 unk0[0x210];
     f32 unk210;
