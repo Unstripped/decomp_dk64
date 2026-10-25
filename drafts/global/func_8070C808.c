@@ -1,8 +1,4 @@
-// func_8070C808 (src/global/110F00.c): stage 1: affine vector transform reconstructed; register allocation and schedule still differ
-typedef struct M110aMat {
-    f32 m[4][4];
-} M110aMat;
-
+// func_8070C808 (src/global/110F00.c): stage 4: exact leaf size/frame; target evaluates product sums before translation, while this candidate retains translation outermost; uopt trace inspected
 void func_8070C808(M110aMat *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
     f32 temp_fv0;
     f32 temp_fv1;

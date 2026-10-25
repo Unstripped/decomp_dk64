@@ -1,10 +1,4 @@
-// func_8070C89C (src/global/110F00.c): stage 1: projection matrix assignments reconstructed; division-result FP register allocation remains inverted
-typedef struct M110aMat {
-    f32 m[4][4];
-} M110aMat;
-
-void func_8070CCC4();
-
+// func_8070C89C (src/global/110F00.c): stage 6: instruction order/frame exact; first and second division results are allocated f0/f2 instead of target f2/f0, moving one repeated store
 void func_8070C89C(M110aMat *arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 temp_fv1;
     f32 temp_fv0;

@@ -6,6 +6,8 @@ typedef struct M110aMat {
 } M110aMat;
 
 void func_8070CCC4();
+void func_8070CDD0(M110aMat *, M110aMat *, f32, f32, f32);
+void func_8070D07C(M110aMat *, M110aMat *, f32, f32, f32, f32, f32, f32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C200.s")
 
@@ -192,8 +194,22 @@ void func_8070CD8C(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CDD0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070D020.s")
+void func_8070D020(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4) {
+    M110aMat sp60;
+    M110aMat sp20;
+
+    func_8070CDD0(&sp60, &sp20, arg2, arg3, arg4);
+    guMtxF2L(sp60.m, arg0);
+    guMtxF2L(sp20.m, arg1);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070D07C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070D300.s")
+void func_8070D300(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+    M110aMat sp68;
+    M110aMat sp28;
+
+    func_8070D07C(&sp68, &sp28, arg2, arg3, arg4, arg5, arg6, arg7);
+    guMtxF2L(sp68.m, arg0);
+    guMtxF2L(sp28.m, arg1);
+}
