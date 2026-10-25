@@ -1,23 +1,4 @@
-// func_806DF6D4 (src/global/E4090.c): stage 5: frame 0x48, slots, 622 insns and op stream equal (only sll/addu order in then-branch + .rodata relocs); ~290 reg-name diffs (pad ptr v1 vs a1, const regs a2/a3/t0 order, ctl a0 vs v1). Needs G21Table extended (unk0,unk10[4],unk20[4],unk31) moved above. Permuter hints: local LE40Tbl *tbl, (D_807FD610 + D_807FC929)->unk2F = 0 cut reg diffs to 140 but broke branch-likely.
-typedef struct G21Table {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10[4];
-    /* 0x20 */ s16 unk20[4];
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ u16 unk2A;
-    /* 0x2C */ u16 unk2C;
-    /* 0x2E */ s8 unk2E;
-    /* 0x2F */ s8 unk2F;
-    /* 0x30 */ u8 unk30;
-    /* 0x31 */ u8 unk31;
-    /* 0x32 */ u8 pad32[2];
-} G21Table; // size = 0x34
-
-extern G21Table D_807FD610[];
-
+// func_806DF6D4 (src/global/E4090.c): Stage 6: ~21 insn reg diffs left (Q ptr a1 vs a3, loop base a3 vs a1, mfc1 v0 vs v1). Permuter-found dead tests: if(LE40_E.unk2E){}+if(D_807FC929){} in loop, (i ^ 0) loop cond, ang=-80 before clamp, unk20[D_807FC929*0], hi temp for mul.s order.
 u16 func_806DFF34(u16, u16 *);
 f32 func_80611BB4(f32, f32);
 f32 sqrtf(f32);
@@ -63,13 +44,14 @@ s32 func_806DF6D4(s32 arg0) {
     s16 ang;
 
     old = D_807FBB48->unk154;
+    ang = -80;
     LE40_PAD(D_807FD63A, u16) = func_806DFF34(D_807ECDEC->unk0, D_80750FF0);
     LE40_E.unk2C = func_806DFF34(D_807ECDF0, D_80750FF0);
     if (LE40_P->unk1F4 & 0x20) {
         LE40_E.unk2A = 0;
         LE40_E.unk2C = 0;
     }
-    D_807ECDEC->unk2 = LE40_MIN(LE40_MAX(D_807ECDEC->unk2, -80), 80);
+    D_807ECDEC->unk2 = LE40_MIN((D_807ECDEC->unk2 > ang ? D_807ECDEC->unk2 : -80), 80);
     D_807ECDEC->unk3 = LE40_MIN(LE40_MAX(D_807ECDEC->unk3, -80), 80);
     LE40_E.unk2E = D_807ECDEC->unk2;
     LE40_E.unk2F = D_807ECDEC->unk3;
@@ -118,7 +100,8 @@ s32 func_806DF6D4(s32 arg0) {
         b = hi;
     }
     if (b != 0.0f) {
-        mag = mag * (f32)(1.0 - (a / b) * 0.15);
+        hi = (f32)(1.0 - (a / b) * 0.15);
+        mag = mag * hi;
     }
     if (mag > 70.0f) {
         mag = 70.0f;
@@ -136,11 +119,15 @@ s32 func_806DF6D4(s32 arg0) {
         t = ang = func_80611BB4(LE40_Q->unk2E, -LE40_Q->unk2F) * 4096.0f / 6.2831855f;
         LE40_Q->unk28 = (*(s16 *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C8) + t) & 0xFFF;
     } else {
-        ang = LE40_Q->unk20[0];
+        ang = LE40_Q->unk20[D_807FC929 * 0];
     }
-    for (i = 3; i != 0; i--) {
+    for (i = 3; (i ^ 0) != 0; i--) {
         LE40_E.unk20[i] = LE40_E.unk20[i - 1];
         LE40_E.unk10[i] = LE40_E.unk10[i - 1];
+        if (LE40_E.unk2E) {
+        }
+        if (D_807FC929) {
+        }
     }
     LE40_Q->unk20[0] = ang;
     LE40_Q->unk10[0] = mag;
@@ -184,6 +171,8 @@ s32 func_806DF6D4(s32 arg0) {
         D_80751004[arg0].fn[14]();
     }
     if (!D_807FD610) {
+        if (!LE40_E.unk2F) {
+        }
     }
     D_80751004[arg0].fn[16]();
     return D_807FBB48->unk154 - old;
