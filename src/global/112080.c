@@ -276,7 +276,52 @@ void func_8070DD18(M112bRecordListHolder *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DED4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070E2AC.s")
+extern s32 func_8070DED4(s32, s32, u16);
+extern u8 D_807550C8;
+
+typedef struct R112cDrawCommand {
+    s32 unk0;
+    u16 unk4;
+} R112cDrawCommand;
+
+typedef struct R112cDrawList {
+    u8 count;
+    u8 pad1[3];
+    void *commands;
+} R112cDrawList;
+
+typedef struct R112cDrawListContainer {
+    u8 pad0[8];
+    R112cDrawList *list;
+} R112cDrawListContainer;
+
+typedef struct R112cDrawContext {
+    u8 pad0[0xC];
+    s32 unkC;
+} R112cDrawContext;
+
+void func_8070E2AC(s32 arg0, void *arg1, void *arg2) {
+    s32 var_s0;
+    s32 var_s1;
+    R112cDrawList *temp_s2;
+    R112cDrawCommand *temp_v0;
+    R112cDrawContext *var_s3;
+    s32 var_s4;
+
+    temp_s2 = (R112cDrawList *) ((u8 *) ((R112cDrawListContainer *) arg1)->list + (D_807550C8 * 8));
+    var_s3 = arg2;
+    var_s4 = arg0;
+    var_s0 = 0;
+    var_s1 = 0;
+    if (temp_s2->count > 0) {
+        do {
+            temp_v0 = (R112cDrawCommand *) ((u8 *) temp_s2->commands + var_s1);
+            func_8070DED4(var_s4, temp_v0->unk0 + var_s3->unkC, temp_v0->unk4);
+            var_s0 += 1;
+            var_s1 += 8;
+        } while (var_s0 < temp_s2->count);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070E34C.s")
 
@@ -284,7 +329,53 @@ void func_8070DD18(M112bRecordListHolder *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070E750.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070E808.s")
+extern void *func_8070D754(void *);
+extern void func_8070E548(Actor *, u16, u8);
+extern void timerQueueAdd();
+extern void func_8061DA84(void);
+
+typedef struct R112cE808State {
+    u8 pad0[0x54];
+    u8 unk54;
+} R112cE808State;
+
+typedef struct R112cE808Item {
+    u16 unk0;
+    u8 unk2;
+    u8 pad3;
+    void *unk4;
+} R112cE808Item;
+
+typedef struct R112cE808Node {
+    u8 pad0[8];
+    R112cE808Item *unk8;
+} R112cE808Node;
+
+typedef struct R112cE808Arg1 {
+    u8 pad0[0x60];
+    s32 unk60;
+} R112cE808Arg1;
+
+void func_8070E808(Actor *arg0, void *arg1) {
+    R112cE808State *sp24;
+    R112cE808Node *temp_v0;
+    
+
+    sp24 = arg0->unk174;
+    temp_v0 = func_8070D754(arg1);
+    if (temp_v0->unk8 == NULL) {
+        ((R112cE808Arg1 *) arg1)->unk60 &= 0xFDFFFFFF;
+        if (sp24->unk54 & 1) {
+            timerQueueAdd(func_8061DA84, 0x1E, 0, 0, 0);
+        }
+        arg0->unk154 = 4;
+        return;
+    }
+    func_8070E548(arg0, temp_v0->unk8->unk0, temp_v0->unk8->unk2);
+    arg1 = temp_v0->unk8;
+    temp_v0->unk8 = ((R112cE808Item *) arg1)->unk4;
+    heapFreeDeferred(arg1);
+}
 
 extern void *D_807550C4;
 extern s8 D_807550CC;
