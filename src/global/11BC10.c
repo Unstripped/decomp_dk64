@@ -311,7 +311,37 @@ void func_80718380(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071BB14.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071BC80.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+} Ub6Motion;
+
+void func_8071BC80(Ub2ActorView *arg0, s8 *arg1) {
+    f32 sp90[4][4];
+    f32 sp50[4][4];
+    f32 sp4C;
+    f32 sp48;
+    f32 sp44;
+    f32 sp40;
+    Ub6Motion *var_v0;
+
+    var_v0 = arg0->unk384;
+    if (var_v0 == NULL) {
+        arg0->unk384 = func_80610FE8(0xC);
+        guRotateF(sp90, -(f32)((func_806119A0() % 36000U) / 1000U), 1.0f, 0.0f, 0.0f);
+        guRotateF(sp50, (f32)((arg0->unk35C * 0x168) / 4096), 0.0f, 1.0f, 0.0f);
+        guMtxCatF(sp90, sp50, sp90);
+        guMtxXFMF(sp90, 0.0f, 0.0f, 10.0f, &sp48, &sp44, &sp40);
+        ((Ub6Motion *)arg0->unk384)->unk0 = sp48;
+        ((Ub6Motion *)arg0->unk384)->unk4 = sp44;
+        ((Ub6Motion *)arg0->unk384)->unk8 = sp40;
+        var_v0 = arg0->unk384;
+    }
+    arg0->unk340 += var_v0->unk0;
+    arg0->unk344 += var_v0->unk4;
+    arg0->unk348 += var_v0->unk8;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071BE04.s")
 
@@ -321,7 +351,32 @@ void func_80718380(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071C48C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071C620.s")
+void func_8071C620(Ub2ActorView *arg0, s8 *arg1) {
+    f32 sp90[4][4];
+    f32 sp50[4][4];
+    f32 sp4C;
+    f32 sp48;
+    f32 sp44;
+    Ub6Motion *var_v0;
+
+    var_v0 = arg0->unk384;
+    if (var_v0 == NULL) {
+        arg0->unk384 = func_80610FE8(0xC);
+        guRotateF(sp90, (f32)((func_806119A0() % 36000U) / 100U), 1.0f, 0.0f, 0.0f);
+        guRotateF(sp50, (f32)((func_806119A0() % 36000U) / 100U), 0.0f, 0.0f, 1.0f);
+        guMtxCatF(sp90, sp50, sp90);
+        guRotateF(sp90, (f32)((func_806119A0() % 36000U) / 100U), 0.0f, 1.0f, 0.0f);
+        guMtxCatF(sp90, sp50, sp90);
+        guMtxXFMF(sp90, 0.0f, 0.0f, 0.5f, &sp4C, &sp48, &sp44);
+        ((Ub6Motion *)arg0->unk384)->unk0 = sp4C;
+        ((Ub6Motion *)arg0->unk384)->unk4 = sp48;
+        ((Ub6Motion *)arg0->unk384)->unk8 = sp44;
+        var_v0 = arg0->unk384;
+    }
+    arg0->unk340 += var_v0->unk0;
+    arg0->unk344 += var_v0->unk4;
+    arg0->unk348 += var_v0->unk8;
+}
 
 void func_8071C818(Ub2ActorView *arg0, s8 *arg1) {
     f32 sp70[4][4];
