@@ -965,7 +965,6 @@ void func_806D2DC4(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
 extern f32 D_807536E4[];
 extern s32 D_807FBB68;
 void func_80687400();
@@ -1053,10 +1052,6 @@ void func_806D2E9C(void) {
     }
     func_806319C4(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2E9C.s")
-#endif
 
 void func_806D3224(void) {
     G10_A->unkEE = G10_A->unkE6;
