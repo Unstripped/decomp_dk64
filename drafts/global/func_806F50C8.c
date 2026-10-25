@@ -1,22 +1,4 @@
-// func_806F50C8 (src/global/F9450.c): Stage 4: recovered allocation, field fill, and tail insertion; target stack slot layout remains different
-typedef struct F9F1_Node {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    u8 unkE;
-    u8 padF;
-    s16 unk10;
-    u8 unk12;
-    u8 unk13;
-    u8 unk14;
-    u8 pad15[3];
-    struct F9F1_Node *next;
-} F9F1_Node;
-
+// func_806F50C8 (src/global/F9450.c): Stage 4: stack-slot layout remains
 extern F9F1_Node **D_80754244;
 extern F9F1_Node *D_807FD72C;
 extern s16 D_807FD720;

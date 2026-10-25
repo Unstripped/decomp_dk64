@@ -300,7 +300,30 @@ void func_806F6554(u8 arg0, F9F1_Rect *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6F28.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F70A8.s")
+extern u8 D_807FD798;
+extern s16 D_807FD790;
+
+s32 func_806F70A8(s16 arg0) {
+    s32 step;
+    s16 *var_a1;
+    s16 *start;
+    s32 var_v0;
+
+    var_v0 = 0;
+    start = &D_807FD790;
+    step = 1;
+    if ((s32) D_807FD798 > (arg0 * 0)) {
+        var_a1 = start;
+        do {
+            var_v0 += 1;
+            if (arg0 == *var_a1) {
+                return 1;
+            }
+            var_a1 += step;
+        } while (var_v0 < (s32) D_807FD798);
+    }
+    return 0;
+}
 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F70FC.s")

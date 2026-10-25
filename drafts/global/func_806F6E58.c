@@ -1,4 +1,4 @@
-// func_806F6E58 (src/global/F9450.c): Stage 4: all operations align except boolean temporary register allocation
+// func_806F6E58 (src/global/F9450.c): Stage 4: boolean temporary register allocation remains
 s32 func_8073110C(s32, s32);
 extern u8 D_80754238[];
 extern u8 D_807FC950[];

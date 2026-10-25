@@ -1,22 +1,4 @@
-// func_806F4F50 (src/global/F9450.c): Stage 4: recovered unlink/relink and output coordinates; target frame and node-array register allocation remain different
-typedef struct F9F1_Node {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    u8 unkE;
-    u8 padF;
-    s16 unk10;
-    u8 unk12;
-    u8 unk13;
-    u8 unk14;
-    u8 pad15[3];
-    struct F9F1_Node *next;
-} F9F1_Node;
-
+// func_806F4F50 (src/global/F9450.c): Stage 4: frame and node-array register allocation remain
 extern F9F1_Node **D_80754244;
 extern s16 D_807FD720;
 s32 func_806F4EBC(f32, f32);

@@ -1,4 +1,4 @@
-// func_806F6F28 (src/global/F9450.c): Stage 4: recovered 0x2F0 indexed flag propagation; target saved-register allocation and frame remain different
+// func_806F6F28 (src/global/F9450.c): Stage 4: 0x2F0-stride flag propagation frame and saved registers remain
 typedef struct F9F1_FlagBlock {
     u8 pad0[0x1F4];
     s32 flags;
