@@ -80,7 +80,12 @@ extern u8 D_8074E77C[];
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F70FC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F7378.s")
+f32 func_806F7378(s32 arg0) {
+    if (arg0 == 0x8C) {
+        return -13.0f;
+    }
+    return 0.0f;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F73A0.s")
 
