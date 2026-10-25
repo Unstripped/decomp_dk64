@@ -1,4 +1,4 @@
-// func_807102AC (src/global/114270.c): Stage 4 semantic reconstruction; threshold ordering and floating-point register allocation remain.
+// func_807102AC (src/global/114270.c): Stage 5: F101 allocation pattern makes every instruction match except 0.07 rodata relocation/scheduling; improved source applied transiently.
 typedef struct M114aAngle {
     s32 unk0;
     f32 unk4;
