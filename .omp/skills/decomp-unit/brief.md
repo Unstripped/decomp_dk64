@@ -127,7 +127,9 @@ swapped externs in a comparison look identical in the text.
   Never paste permuter output unreviewed. Several agents share the CPU: always pass an
   explicit small `-j 2` and a `--seconds` limit. NEVER run `tools/dk make`.
 - NON_MATCHING parking: a function that will not match but whose C is behaviourally equivalent
-  (remaining diff only regalloc/scheduling/stack layout, reviewed) may be parked in your copy as:
+  (remaining diff only regalloc/scheduling/stack layout, reviewed; stage 4+ only: same
+  callee-saved set AND frame size) may be parked in your copy as (stage 2-3 drafts stay
+  on their GLOBAL_ASM line with the draft saved):
 
 ```c
 #ifdef NON_MATCHING
