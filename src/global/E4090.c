@@ -3768,25 +3768,225 @@ void func_806EAA44(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EAAA0.s")
+typedef struct G32Act {
+    /* 0x000 */ u8 pad0[0x80];
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ u8 pad84[0x28];
+    /* 0x0AC */ f32 unkAC;
+    /* 0x0B0 */ u8 padB0[8];
+    /* 0x0B8 */ f32 unkB8;
+    /* 0x0BC */ u8 padBC[4];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ u8 padC4[0x22];
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ u8 padE8[0x6C];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[0x1E];
+    /* 0x174 */ struct G32State *unk174;
+} G32Act;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EAB44.s")
+typedef struct G32State {
+    /* 0x000 */ u8 pad0[0x8C];
+    /* 0x08C */ u8 unk8C;
+    /* 0x08D */ u8 pad8D[0x77];
+    /* 0x104 */ void *unk104;
+    /* 0x108 */ u8 pad108[0xEC];
+    /* 0x1F4 */ u32 unk1F4;
+} G32State;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EAC8C.s")
+void func_806EAAA0(void) {
+    if ((D_807FD610[D_807FC929].unk2A & 0x2000) && (D_807FD610[D_807FC929].unk2C & 4) && !(D_807FBB64 & 2)) {
+        func_806E9804(8);
+        return;
+    }
+    if ((D_807FD610[D_807FC929].unk2C & 0xC) == 4) {
+        func_806EAB44(D_807FBB40, 1);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EACBC.s")
+void func_806CFECC(void);
+void func_806F0D68(void *);
+void func_806F0C18(void *);
+s16 func_8062773C(void *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EACEC.s")
+void func_806EAB44(arg0, arg1)
+G32Act *arg0;
+u8 arg1;
+{
+    G32State *state;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EAE04.s")
+    state = arg0->unk174;
+    if (!(state->unk1F4 & 0x10)) {
+        func_80609140(0x27, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    }
+    if (arg1) {
+        if (D_8074E77C[D_807FC929] == 7) {
+            if (arg0->unkAC - arg0->unk80 < 20.0f) {
+                arg0->unk154 = 0x7E;
+                arg0->unk155 = 0;
+            } else {
+                arg0->unk154 = 0x7F;
+                arg0->unk155 = 0;
+            }
+        } else {
+            arg0->unk154 = 0x4F;
+            arg0->unk155 = 3;
+        }
+    } else {
+        arg0->unk154 = 1;
+        arg0->unk155 = 0;
+        func_806CFF9C((Actor *)arg0);
+        if (arg0->unk154 == 0xC) {
+            arg0->unk155 = 0xA;
+        }
+    }
+    if (state->unk8C) {
+        func_806F0D68(arg0);
+    } else {
+        func_806F0C18(arg0);
+    }
+    arg0->unkB8 = 0.0f;
+    arg0->unkE6 = func_8062773C(state->unk104);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EAE60.s")
+typedef struct G32Inner {
+    /* 0x00 */ u8 pad0[0xE];
+    /* 0x0E */ u8 unkE;
+} G32Inner;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EAF6C.s")
+typedef struct G32Mid {
+    /* 0x000 */ u8 pad0[0x154];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[0x22];
+    /* 0x178 */ G32Inner *unk178;
+} G32Mid;
+
+typedef struct G32Plr {
+    /* 0x000 */ u8 pad0[0x3C];
+    /* 0x03C */ s16 unk3C;
+    /* 0x03E */ u8 pad3E[0x12];
+    /* 0x050 */ s16 unk50;
+    /* 0x052 */ u8 pad52[6];
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ u8 pad5C[0x2C];
+    /* 0x088 */ G32Mid *unk88;
+    /* 0x08C */ u8 pad8C[0x7C];
+    /* 0x108 */ f32 unk108;
+    /* 0x10C */ u8 pad10C[0xF4];
+    /* 0x200 */ s16 unk200;
+} G32Plr;
+
+#define G32_P ((G32Plr *)D_807FD580)
+
+void func_806EAC8C(void) {
+    G32Inner *inner;
+
+    inner = G32_P->unk88->unk178;
+    if (inner->unkE == 5) {
+        inner->unkE = 10;
+    }
+}
+
+void func_806EACBC(void) {
+    G32Inner *inner;
+
+    inner = G32_P->unk88->unk178;
+    if (inner->unkE == 5) {
+        inner->unkE = 0xF;
+    }
+}
+
+void func_806EACEC(void) {
+    if (G31_PAD(D_807FD63C, u16) & 0x8000) {
+        G32_P->unk58 = D_80767CC0;
+    }
+    if (D_807FBB40->unk6A & 1) {
+        if ((D_80767CC0 - G32_P->unk58) < 0xF) {
+            func_806CFECC();
+            ((G32Act *)D_807FBB40)->unkC0 = D_807535CC[D_807FD584];
+            G32_P->unk50 = 0;
+            G32_P->unk3C = 0;
+            G32_P->unk58 = D_80767CC0 - 0x1E;
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x309, 0xFF, 0x7F, 0);
+        }
+    }
+}
+
+void func_806EAE04(void) {
+    G32Mid *mid;
+
+    mid = G32_P->unk88;
+    if (mid->unk154 == 0) {
+        if (G31_PAD(D_807FD63C, u16) & 0x4000) {
+            mid->unk154 = 1;
+        }
+    }
+}
+
+void func_806EAE60(void) {
+    G21Table *pad;
+    s32 v;
+
+    pad = &D_807FD610[D_807FC929];
+    if ((pad->unk2E >= 0x29) || (pad->unk2F >= 0x29)) {
+        if (G32_P->unk108 != 0.0f) {
+            G32_P->unk108 = 0.0f;
+            v = G32_P->unk200 - 5;
+            if (v <= 0) {
+                G32_P->unk200 = 1;
+            } else {
+                G32_P->unk200 = v;
+            }
+            return;
+        }
+    }
+    if ((pad->unk2E < -0x28) || (pad->unk2F < -0x28)) {
+        if (G32_P->unk108 == 0.0f) {
+            G32_P->unk108 = 1.0f;
+            v = G32_P->unk200 - 5;
+            if (v <= 0) {
+                G32_P->unk200 = 1;
+            } else {
+                G32_P->unk200 = v;
+            }
+        }
+    }
+}
+
+void func_806EAF6C(void) {
+    G32Mid *mid;
+
+    mid = G32_P->unk88;
+    if (G31_PAD(D_807FD63C, u16) & 0x8000) {
+        switch (mid->unk154) {
+            case 2:
+                mid->unk154 = 4;
+                mid->unk155 = 0;
+                break;
+            case 5:
+                mid->unk155++;
+                break;
+        }
+    }
+}
 
 void func_806EAFEC(void) {
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EAFF4.s")
+void func_806EAFF4(void) {
+    if (G31_PAD(D_807FD63A, u16) & 0x2000) {
+        ((G32Act *)D_807FBB40)->unkC0 = 0.0f;
+    } else {
+        ((G32Act *)D_807FBB40)->unkC0 = 120.0f;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EB058.s")
+void func_806EB058(void) {
+    if (G31_PAD(D_807FD63A, u16) & 0xC) {
+        ((G32Act *)D_807FBB40)->unkC0 = 0.0f;
+    } else {
+        ((G32Act *)D_807FBB40)->unkC0 = -120.0f;
+    }
+}
