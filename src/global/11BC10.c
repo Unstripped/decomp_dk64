@@ -292,7 +292,31 @@ void func_80718380(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80719A0C.s")
 
+#ifdef NON_MATCHING
+void func_80719A0C(Ub2ActorView *, s8 *);
+
+void func_80719B88(Ub2ActorView *arg0, s8 *arg1) {
+    u8 temp_t6;
+    u8 temp_v0;
+    u8 var_v1;
+
+    func_80719A0C(arg0, arg1);
+    temp_v0 = arg0->unk36D;
+    var_v1 = 0x10;
+    arg0->unk344 = (f32)((f64)arg0->unk344 + 0.8);
+    if ((s32)temp_v0 < 0x10) {
+        var_v1 = temp_v0;
+    }
+    temp_t6 = temp_v0 - var_v1;
+    arg0->unk36D = temp_t6;
+    if (!(temp_t6 & 0xFF)) {
+        *arg1 = 1;
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80719B88.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80719C00.s")
 
