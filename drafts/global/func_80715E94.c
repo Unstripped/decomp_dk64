@@ -1,4 +1,4 @@
-// func_80715E94 (src/global/119370.c): stage 2: behavior reconstruction with target-style per-case duplicated division guards; 9888-byte .text versus 10400-byte target; frame/register allocation still differs
+// func_80715E94 (src/global/119370.c): stage 2: behavior reconstruction; loop now preserves arg0 for vertex and post-loop fields while advancing the 4-byte texture cursor, matching the target ownership; target-style duplicate division guards; latest compiled trial before cursor correction was 9888 versus 10400 bytes
 typedef struct L1TextureNode {
     u8 pad0[0xA];
     u8 unkA;
@@ -58,7 +58,7 @@ s32 mapChunkIsInUse(s16);
 
 Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
     L1EffectView *effect = (L1EffectView *)arg0;
-    L1TextureNode *node;
+    L1EffectView *cursor;
     Gfx *glist;
     s32 i;
     s32 tile;
@@ -131,9 +131,10 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
     }
     L1_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)effect + (D_807FC929 << 7) + (D_807444FC << 6) + 0x128));
 
+    cursor = effect;
     for (i = 0; i < effect->unk380; i++) {
         node = effect->unk330;
-        if (D_807F6009 != 5 || D_807F600C != (s32)effect->unk370) {
+        if (D_807F6009 != 5 || D_807F600C != (s32)cursor->unk370) {
             L1_WRITE_GFX(glist++, 0xE7000000, 0);
             switch (node->unkB) {
                 case 0:
@@ -151,7 +152,7 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
                         divisor2 = 1;
                     }
                     rows = (rows + 0x7FF) / divisor2;
-                    L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), effect->unk370);
+                    L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), cursor->unk370);
                     L1_WRITE_GFX(glist++, 0xF5100000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
                     L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | rows | (tile << 12));
@@ -174,7 +175,7 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
                         divisor2 = 1;
                     }
                     rows = (rows + 0x7FF) / divisor2;
-                    L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), effect->unk370);
+                    L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), cursor->unk370);
                     L1_WRITE_GFX(glist++, 0xF5100000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
                     L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | rows | (tile << 12));
@@ -197,7 +198,7 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
                         divisor2 = 1;
                     }
                     rows = (rows + 0x7FF) / divisor2;
-                    L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), effect->unk370);
+                    L1_WRITE_GFX(glist++, 0xFD100000 | ((node->unkA & 7) << 21), cursor->unk370);
                     L1_WRITE_GFX(glist++, 0xF5100000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
                     L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | rows | (tile << 12));
@@ -220,7 +221,7 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
                         divisor2 = 1;
                     }
                     rows = (rows + 0x7FF) / divisor2;
-                    L1_WRITE_GFX(glist++, 0xFD180000 | ((node->unkA & 7) << 21), effect->unk370);
+                    L1_WRITE_GFX(glist++, 0xFD180000 | ((node->unkA & 7) << 21), cursor->unk370);
                     L1_WRITE_GFX(glist++, 0xF5180000 | ((node->unkA & 7) << 21), 0x07080200);
                     L1_WRITE_GFX(glist++, 0xE6000000, 0);
                     L1_WRITE_GFX(glist++, 0xF3000000, 0x07000000 | rows | (tile << 12));
@@ -229,11 +230,11 @@ Gfx *func_80715E94(Ua1Effect *arg0, Gfx *arg1, s16 arg2) {
                     L1_WRITE_GFX(glist++, 0xF2000000, ((((node->unkC - 1) * 4) & 0xFFF) << 12) | (((node->unkE - 1) * 4) & 0xFFF));
                     break;
             }
-            D_807F600C = (s32)effect->unk370;
+            D_807F600C = (s32)cursor->unk370;
         }
         L1_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical((u8 *)effect + (i << 6) + 0x28));
         L1_WRITE_GFX(glist++, 0x06000206, 0x406);
-        effect = (L1EffectView *)((u8 *)effect + 4);
+        cursor = (L1EffectView *)((u8 *)cursor + 4);
     }
     L1_WRITE_GFX(glist++, 0xD8380002, 0x40);
     L1_WRITE_GFX(glist++, 0xE7000000, 0);

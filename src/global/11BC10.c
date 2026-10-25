@@ -95,7 +95,28 @@ void func_80717760(Ub1ActorView *arg0, u8 *arg1) {
     *arg1 = 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717814.s")
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+} NM1Motion4;
+
+void func_80717814(Ub1ActorView *arg0, void *arg1) {
+    Ub1ActorView *actor;
+    NM1Motion4 *motion;
+
+    actor = arg0;
+    if (actor->unk384 == NULL) {
+        actor->unk384 = func_80610FE8(4);
+        motion = actor->unk384;
+        motion->unk0 = (func_80611A44() >> 15) % 4095;
+        motion->unk2 = ((func_80611A44() >> 15) % 10) + 2;
+    }
+    motion = actor->unk384;
+    actor->unk340 += 0.2 * actor->unk35C * func_80612794(motion->unk0);
+    actor->unk344 += 0.2 * actor->unk35C * func_80612790(motion->unk0);
+    motion->unk0 += 0x46;
+    actor->unk35C += motion->unk2;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717930.s")
 
@@ -352,13 +373,95 @@ void func_8071AADC(Ub5Actor *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071AF30.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071B1AC.s")
+typedef struct {
+    u8 pad0[0xB8];
+    f32 unkB8;
+    u8 padBC[0x32];
+    s16 unkEE;
+} NM1ParentView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071B24C.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+} NM1MotionView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071B2EC.s")
+typedef struct {
+    u8 pad0[0x330];
+    void *unk330;
+    u8 pad334[4];
+    void *unk338;
+    u8 pad33C[4];
+    f32 unk340;
+    f32 unk344;
+    f32 unk348;
+    u8 pad34C[0x12];
+    s16 unk35E;
+    u8 pad360[0x24];
+    void *unk384;
+} NM1ActorView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071B44C.s")
+void func_8071B1AC(NM1ActorView *arg0, s8 *arg1) {
+    f32 new_var;
+    f32 speed;
+
+    speed = 0.35f;
+    arg0->unk344 = (f32)((f64)arg0->unk344 - ((f64)speed * 0.5));
+    new_var = func_80612794(arg0->unk35E);
+    arg0->unk340 = (f32)(arg0->unk340 + (0.35f * new_var));
+    new_var = func_80612790(arg0->unk35E);
+    arg0->unk348 = (f32)(arg0->unk348 + (0.35f * new_var));
+}
+
+void func_8071B24C(NM1ActorView *arg0, s8 *arg1) {
+    f32 new_var;
+    f32 speed;
+
+    speed = 0.35f;
+    arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)speed * 0.5));
+    new_var = func_80612794(arg0->unk35E);
+    arg0->unk340 = (f32)(arg0->unk340 + (0.35f * new_var));
+    new_var = func_80612790(arg0->unk35E);
+    arg0->unk348 = (f32)(arg0->unk348 + (0.35f * new_var));
+}
+
+void func_8071B2EC(NM1ActorView *arg0, s8 *arg1) {
+    f32 speed;
+    f32 call_result;
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(8);
+        ((NM1MotionView *)arg0->unk384)->unk0 = (f32)((NM1ParentView *)arg0->unk338)->unkEE;
+        ((NM1MotionView *)arg0->unk384)->unk4 = ((NM1ParentView *)arg0->unk338)->unkB8 + 30.0f;
+    }
+    speed = 0.35f;
+    arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)speed * 0.5));
+    speed = (f32)((f64)((NM1MotionView *)arg0->unk384)->unk4 * 0.02);
+    call_result = func_80612794((s16)(s32)((NM1MotionView *)arg0->unk384)->unk0);
+    arg0->unk340 = (f32)(arg0->unk340 + (speed * call_result));
+    call_result = func_80612790((s16)(s32)((NM1MotionView *)arg0->unk384)->unk0);
+    arg0->unk348 = (f32)(arg0->unk348 + (speed * call_result));
+    ((NM1MotionView *)arg0->unk384)->unk4 -= 15.0f;
+    if (((NM1MotionView *)arg0->unk384)->unk4 < 0.0f) {
+        ((NM1MotionView *)arg0->unk384)->unk4 = 0.0f;
+    }
+}
+
+void func_8071B44C(NM1ActorView *arg0, s8 *arg1) {
+    f32 speed;
+    f32 call_result;
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(4);
+        ((NM1MotionView *)arg0->unk384)->unk0 = ((NM1ParentView *)arg0->unk338)->unkB8;
+    }
+    speed = 0.35f;
+    arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)speed * 0.5));
+    speed = (f32)((f64)((NM1MotionView *)arg0->unk384)->unk0 * 0.02);
+    call_result = func_80612794(arg0->unk35E);
+    arg0->unk340 = (f32)(arg0->unk340 + (speed * call_result));
+    call_result = func_80612790(arg0->unk35E);
+    arg0->unk348 = (f32)(arg0->unk348 + (speed * call_result));
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071B520.s")
 
