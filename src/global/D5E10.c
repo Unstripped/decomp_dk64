@@ -803,45 +803,432 @@ void func_806D2AA0(s16 arg0) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2B90.s")
+void func_806D2B90(void) {
+    func_806D2AA0(4);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2BB0.s")
+void func_806D2BB0(void) {
+    func_806D2AA0(5);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2BD0.s")
+typedef struct G10Sub4 {
+    /* 0x00 */ u8 pad0[0x38];
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ u8 pad3C[0x28];
+    /* 0x64 */ u16 unk64;
+} G10Sub4;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2C54.s")
+typedef struct G10Actor {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ G10Sub4 *unk4;
+    /* 0x008 */ u8 pad8[0x5C];
+    /* 0x064 */ u32 unk64;
+    /* 0x068 */ u8 pad68[2];
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u8 pad6C[2];
+    /* 0x06E */ s16 unk6E;
+    /* 0x070 */ u8 pad70[0xC];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x14];
+    /* 0x09C */ f32 unk9C;
+    /* 0x0A0 */ u8 padA0[4];
+    /* 0x0A4 */ f32 unkA4;
+    /* 0x0A8 */ u8 padA8[0xC];
+    /* 0x0B4 */ f32 unkB4;
+    /* 0x0B8 */ f32 unkB8;
+    /* 0x0BC */ u8 padBC[4];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ f32 unkC4;
+    /* 0x0C8 */ u8 padC8[0x18];
+    /* 0x0E0 */ f32 unkE0;
+    /* 0x0E4 */ u8 padE4[2];
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ u8 padE8[6];
+    /* 0x0EE */ s16 unkEE;
+    /* 0x0F0 */ u8 padF0[8];
+    /* 0x0F8 */ s16 unkF8;
+    /* 0x0FA */ u8 padFA[0x4A];
+    /* 0x144 */ u8 unk144;
+    /* 0x145 */ u8 pad145[0xF];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+} G10Actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2CAC.s")
+#define G10_A ((G10Actor *)D_807FBB40)
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2D38.s")
+extern u8 D_807463B8;
+s32 func_8061CB50();
+void func_806C9F74();
+void sfxStopSlotSound();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2DC4.s")
+void func_806D2BD0(void) {
+    func_806D2954(0xC);
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+    if ((func_8061CB50() != 0) && (G10_A->unk6E != -1)) {
+        sfxStopSlotSound(D_807FBB40, 0);
+    }
+    if (D_807463B8 == 3) {
+        func_806C9F74(D_807FBB40);
+    }
+}
+
+void func_806D2C54(void) {
+    func_806D2A14(0x10);
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+    if (D_807463B8 == 3) {
+        func_806C9F74(D_807FBB40);
+    }
+}
+
+typedef struct G10Player {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ f32 unk4;
+    /* 0x008 */ u8 pad8[2];
+    /* 0x00A */ s16 unkA;
+    /* 0x00C */ s16 unkC;
+    /* 0x00E */ s16 unkE;
+    /* 0x010 */ u8 pad10[0x1C];
+    /* 0x02C */ f32 unk2C;
+    /* 0x030 */ u8 pad30[0x12];
+    /* 0x042 */ u8 unk42;
+    /* 0x043 */ u8 pad43[0xD];
+    /* 0x050 */ s16 unk50;
+    /* 0x052 */ u8 pad52[2];
+    /* 0x054 */ f32 unk54;
+    /* 0x058 */ u8 pad58[0xAC];
+    /* 0x104 */ s32 unk104;
+    /* 0x108 */ u8 pad108[0x98];
+    /* 0x1A0 */ u16 unk1A0;
+    /* 0x1A2 */ u8 unk1A2;
+    /* 0x1A3 */ u8 pad1A3[0x4D];
+    /* 0x1F0 */ s32 unk1F0;
+    /* 0x1F4 */ u8 pad1F4[0x4C];
+    /* 0x240 */ u8 unk240;
+} G10Player;
+
+#define G10_P ((G10Player *)D_807FD580)
+
+extern f32 D_80753A5C[];
+void func_806EAB44();
+
+void func_806D2CAC(void) {
+    G10_P->unk2C = D_80753AFC[D_807FD584];
+    func_806D2954(0xD);
+    func_806CC638(D_80753A5C[D_807FD584]);
+    if (func_806D850C() != 0) {
+        func_806EAB44(D_807FBB40, 1);
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_806D2D38(void) {
+    G10_P->unk2C = D_80753AFC[D_807FD584];
+    func_806D2A14(0x11);
+    func_806CC638(D_80753A5C[D_807FD584]);
+    if (func_806D850C() != 0) {
+        func_806EAB44(D_807FBB40, 1);
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+
+extern u32 D_8076A064;
+s8 func_806CDD24(void *, f32, f32, s32);
+s8 func_806CE174(void *, f32, f32, s32);
+
+void func_806D2DC4(void) {
+    s32 sel = 0x13;
+
+    G10_A->unkEE = G10_A->unkE6;
+    G10_A->unk64 |= 0x200;
+    if (G10_A->unk155 != 0) {
+        G10_A->unk155--;
+        sel = 0x14;
+    }
+    if ((D_8076A064 >= 2) && (func_806DF6D4(sel) == 0)) {
+        s8 temp = func_806CDD24(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
+
+        if (temp != 0xC) {
+            G10_A->unk154 = temp ^ 0;
+            G10_A->unk155 = 0;
+        }
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
+
+#ifdef NON_MATCHING
+extern f32 D_807536E4[];
+extern s32 D_807FBB68;
+void func_80687400();
+s32 func_806F8AD4();
+void func_806F91B4();
+f32 func_806F46B0(s16);
+void sfxPlayFromActorWithAltitudeCheck();
+
+typedef struct G10Actor4C {
+    /* 0x000 */ u8 pad0[0x12C];
+    /* 0x12C */ s16 unk12C;
+} G10Actor4C;
+
+void func_806D2E9C(void) {
+    f32 v;
+    f32 r;
+    s32 sel;
+
+    if (D_807FBB68 & 2) {
+        f64 t = (G10_A->unk80 - 120.0f) * 0.5;
+
+        v = (t > 0.0) ? t : 0.0;
+        if (G10_A->unk7C < 590.0f - v) {
+            G10_A->unk7C = 590.0f - v;
+        }
+        if (987.0f + v < G10_A->unk7C) {
+            G10_A->unk7C = 987.0f + v;
+        }
+        if (G10_A->unk84 < 571.0f - v) {
+            G10_A->unk84 = 571.0f - v;
+        }
+        if (965.0f + v < G10_A->unk84) {
+            G10_A->unk84 = 965.0f + v;
+        }
+        G10_A->unk144 &= 0xFFF7;
+    }
+    func_806DF6D4(0x1B);
+    r = func_806F46B0(((G10Actor4C *)D_807FBB4C)->unk12C);
+    sel = 0x7E;
+    if (r < G10_A->unk80) {
+        G10_A->unkC4 = D_807536E4[D_807FD584];
+        if (G10_A->unkC0 > 0.0f) {
+            G10_A->unkC0 = G10_A->unkC0 * 0.7;
+        }
+    }
+    if (G10_P->unk1A2 != 0) {
+        s32 x = G10_P->unk1A0;
+
+        if (x >= 0x8000) {
+            x -= 0x10000;
+        }
+        x += 0x9E8;
+        if (x >= 0x7D1) {
+            sel = 0x7D;
+        } else if (x < -0x7D0) {
+            sel = 0x80;
+        } else {
+            sel = 0x7F;
+        }
+    }
+    if ((sel != G10_A->unk4->unk64) && (G10_A->unk4->unk64 != 0x81)) {
+        func_80614EBC(D_807FBB40, sel);
+    }
+    if ((G10_P->unk1F0 & 0x40000000) && (G10_P->unk240 == 0)) {
+        func_80687400();
+        G10_P->unk240 = 0x1E;
+    }
+    if (G10_P->unk240 != 0) {
+        G10_P->unk240--;
+    }
+    if ((G10_A->unk6A & 1) || (G10_P->unk240 == 1)) {
+        if (D_807FBB68 & 2) {
+            G10_A->unk144 |= 8;
+        }
+        func_806CFF9C(D_807FBB40);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 1, 0xFF, 0x7F, 0x1E);
+    }
+    if (func_8061CB50() == 0) {
+        func_806CC948();
+        if ((func_806F8AD4(5, D_807FC929) != 0) && !(G10_P->unk1F0 & 0x10000)) {
+            func_806F91B4(5, D_807FC929, -1);
+        }
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2E9C.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D3224.s")
+void func_806D3224(void) {
+    G10_A->unkEE = G10_A->unkE6;
+    if (func_806DF6D4(0x1D) == 0) {
+        s8 temp = func_806CE174(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D32C0.s")
+        if (temp != 0x5D) {
+            G10_A->unk154 = temp ^ 0;
+            G10_A->unk155 = 0;
+        }
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D332C.s")
+void func_806D32C0(void) {
+    if ((D_8076A0A8 == 0x4E) || (D_8076A0A8 == 0x4F) || (D_8076A0A8 == 0x83)) {
+        func_806DF6D4(0x1F);
+    } else {
+        func_806DF6D4(0x1E);
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D34B4.s")
+extern f32 D_807531E0[];
+s32 func_806CC14C(s16, s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D3530.s")
+void func_806D332C(void) {
+    f32 f;
+
+    if (G10_A->unk155 == 0) {
+        G10_A->unk155++;
+        G10_P->unkC = -1;
+        G10_P->unkE = -1;
+    }
+    if (func_806DF6D4(0x13) == 0) {
+        s8 temp = func_806CDD24(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
+
+        if (temp != 0xD) {
+            G10_A->unk154 = temp ^ 0;
+            G10_A->unk155 = 0;
+        }
+    }
+    if ((func_8061CB50() == 0) && ((f = D_807531E0[D_807FD584]) < G10_A->unkB8) && (f < G10_P->unk4) &&
+        (G10_P->unkC >= 0) && (func_806CC14C(G10_P->unkC, G10_P->unkA) >= 0x401) &&
+        (func_806CC14C(G10_A->unkEE, G10_P->unkA) >= 0x539)) {
+        G10_A->unk154 = 0xE;
+        G10_A->unk155 = 0;
+        func_806CC948();
+    } else {
+        func_806CC8B8();
+    }
+    G10_P->unkC = G10_P->unkE;
+    G10_P->unkE = G10_P->unkA;
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_806D34B4(void) {
+    if (func_806DF6D4(0x1C) == 0) {
+        s8 temp = func_806CE174(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
+
+        if (temp != 0x5E) {
+            G10_A->unk154 = temp ^ 0;
+            G10_A->unk155 = 0;
+        }
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_806D3530(void) {
+    if (((G10_A->unk9C - G10_A->unk80) > 50.0f) && (G10_A->unkB4 > 250.0f)) {
+        G10_P->unk42++;
+    } else {
+        G10_P->unk42 = 0;
+    }
+    if ((G10_P->unk42++ >= 0xB) || (G10_A->unk80 < -10.0f)) {
+        func_806EB0C0(0x2D, 0, D_807FC929);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D3608.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D36CC.s")
+void func_806CFE7C();
+void func_806D3608();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D374C.s")
+void func_806D36CC(void) {
+    switch (G10_A->unk155) {
+        case 0:
+            func_806DF6D4(0x20);
+            func_806D3608();
+            break;
+        case 1:
+            func_806DF6D4(0x31);
+            func_806CFE7C();
+            break;
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D37CC.s")
+void func_806D374C(void) {
+    switch (G10_A->unk155) {
+        case 0:
+            func_806DF6D4(0x20);
+            func_806D3608();
+            break;
+        case 1:
+            func_806DF6D4(0x32);
+            func_806CFE7C();
+            break;
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D38AC.s")
+void func_806D37CC(void) {
+    if (G10_A->unk155 == 0) {
+        func_806DF6D4(0x20);
+        func_806CC8B8();
+        if (G10_A->unk6A & 1) {
+            if (G10_A->unkE0 != 0.0f) {
+                func_806CFF9C(D_807FBB40);
+            } else {
+                func_806CFE7C(D_807FBB40);
+                func_806EB0C0(0x35, 0, D_807FC929);
+            }
+        }
+    } else {
+        func_806DF6D4(0x20);
+        G10_P->unk4 = 0.0f;
+        G10_A->unkB8 = 0.0f;
+        func_806CC8B8();
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_80685210(f32, s32, s32);
+void func_806224CC(s32, void *);
+
+void func_806D38AC(s32 arg0) {
+    func_80685210(0.5f, 0x64, 5);
+    G10_A->unkF8 = 0x12C;
+    if ((G10_A->unk80 - G10_A->unkA4) > 5.0f) {
+        if (G10_A->unkC4 == -260.0f) {
+            func_806CFE7C(D_807FBB40);
+        } else if (G10_A->unkC4 != -30.0f) {
+            G10_A->unk6A |= 0x1000;
+        } else {
+            f32 g = G10_A->unkC0;
+
+            if (g > 0.0f) {
+                G10_A->unkC0 = 0.0f;
+            } else {
+                G10_A->unkC0 = g;
+            }
+        }
+        G10_A->unk154 = 0x14;
+        G10_A->unk155 = 0;
+        G10_P->unk54 = G10_A->unkC0;
+        G10_P->unk50 = 0;
+        func_80614E78(D_807FBB40, 0x67);
+    }
+    func_806DF6D4(arg0);
+    func_806CC8B8();
+    if (!(G10_A->unk6A & 0x200)) {
+        func_806CFF9C(D_807FBB40);
+        sfxStopSlotSound(D_807FBB40, 0);
+        func_806224CC(G10_P->unk104, D_807FBB40);
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D3A38.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D3AC8.s")
+void func_806D3AC8(void) {
+    func_806D38AC(0x3D);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D3AE8.s")
 
