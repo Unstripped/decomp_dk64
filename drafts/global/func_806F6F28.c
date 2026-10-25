@@ -1,27 +1,24 @@
-// func_806F6F28 (src/global/F9450.c): Stage 4: 0x2F0-stride flag propagation frame and saved registers remain
-typedef struct F9F1_FlagBlock {
+// func_806F6F28 (src/global/F9450.c): Stage 4: 0x2F0-stride flag propagation behavior; target frame 0x48 vs draft 0x50.
+typedef struct F9N6_FlagBlock {
     u8 pad0[0x1F4];
     s32 flags;
-} F9F1_FlagBlock;
+} F9N6_FlagBlock;
 
-typedef struct F9F1_PlayerRef {
+typedef struct F9N6_PlayerRef {
     u8 pad0[0x154];
     u8 unk154;
     u8 pad155[0x1F];
-    F9F1_FlagBlock *unk174;
-} F9F1_PlayerRef;
+    F9N6_FlagBlock *unk174;
+} F9N6_PlayerRef;
 
-typedef struct F9F1_PlayerBlock {
+typedef struct F9N6_PlayerBlock {
     u8 pad0[4];
-    F9F1_PlayerRef *unk4;
+    F9N6_PlayerRef *unk4;
     u8 pad8[0x2E8];
-} F9F1_PlayerBlock;
+} F9N6_PlayerBlock;
 
 extern s32 D_807FBB64;
-extern void *D_807FC924;
-extern u8 D_807FC928;
 extern u8 D_807FD738;
-extern u8 D_8074E77C[];
 void func_806F603C(void);
 void func_806F69A8(u8);
 s32 func_8073110C(s32, s32);
@@ -33,7 +30,7 @@ void func_806F6F28(void) {
     s32 temp_t7;
     s32 var_fp;
     s32 var_s0;
-    F9F1_FlagBlock *temp_v0;
+    F9N6_FlagBlock *temp_v0;
 
     var_fp = 0;
     sp45 = 0;
@@ -50,7 +47,7 @@ void func_806F6F28(void) {
     if (D_807FC928 > 0) {
         do {
             temp_lo = var_s0 * 0x2F0;
-            temp_v0 = ((F9F1_PlayerBlock *)D_807FC924)[var_s0].unk4->unk174;
+            temp_v0 = ((F9N6_PlayerBlock *)D_807FC924)[var_s0].unk4->unk174;
             if (var_fp != 0) {
                 temp_v0->flags |= 1;
             } else {
@@ -61,7 +58,7 @@ void func_806F6F28(void) {
             } else {
                 temp_v0->flags &= -3;
             }
-            if ((((F9F1_PlayerBlock *)D_807FC924)[var_s0].unk4->unk154 != 0x36) && (D_807FD738 == 0)) {
+            if ((((F9N6_PlayerBlock *)D_807FC924)[var_s0].unk4->unk154 != 0x36) && (D_807FD738 == 0)) {
                 func_806F69A8(var_s0 & 0xFF);
             }
             temp_t7 = (var_s0 + 1) & 0xFF;

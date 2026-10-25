@@ -1,4 +1,4 @@
-// func_806F69A8 (src/global/F9450.c): Stage 1: m2c update-flow reconstruction reviewed against all 300 target instructions; concrete node/matrix parameter types remain needed before a compile/match trial.
+// func_806F69A8 (src/global/F9450.c): Stage 1: full semantic C trial compiles. Corrected the preliminary rectangle-chain next offset to 0x10 and update-node fields through 0x1C; trial remains off (0x150 versus target 0x170 frame, local placement/register pressure, and table stride codegen).
 ? func_8062FF10(f32 (*)[4], f32 (*)[4]);            /* extern */
 ? func_806355DC(s16, ?);                            /* extern */
 ? func_806357F8(s16, f32 *, f32 *, f32 *, ? *, ? *, ? *, ? *, ? *, s32); /* extern */

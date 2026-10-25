@@ -1,4 +1,14 @@
-// func_806F70FC (src/global/F9450.c): stage 4: random effect reconstruction; float lifetime and allocation remain divergent
+// func_806F70FC (src/global/F9450.c): Stage 4: randomized effect spawn and float math reconstructed; f32 lifetime/register allocation remains divergent.
+u32 func_806119A0(void);
+void func_80714950(s32);
+void func_8071496C(s16);
+void func_8071498C(void *);
+void func_807149B8(s32);
+void func_80714CC0(void *, f32, f32, f32, f32);
+extern u8 D_8071FC58;
+extern u8 func_8071C48C;
+extern u8 func_8071C620;
+
 void func_806F70FC(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
     f32 var_ft0;
     f32 var_ft0_2;

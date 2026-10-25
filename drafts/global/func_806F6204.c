@@ -1,4 +1,4 @@
-// func_806F6204 (src/global/F9450.c): stage 4: faithful traversal, activation, queue, and dispatch behavior; register allocation remains divergent
+// func_806F6204 (src/global/F9450.c): Stage 4: faithful traversal, activation, queue, and dispatch behavior; frame/register allocation diverges (0x78 vs target 0x48 with locally reconstructed views).
 void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
     s16 temp_s1;
     s16 temp_s1_2;

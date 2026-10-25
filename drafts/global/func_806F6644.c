@@ -1,4 +1,4 @@
-// func_806F6644 (src/global/F9450.c): stage 4: branch and data access reconstruction; text has register-allocation differences
+// func_806F6644 (src/global/F9450.c): Stage 6: branch and data access reconstruction; identical control flow with register-allocation differences.
 s32 func_806F6644(s16 arg0, u8 arg1, u16 arg2) {
     u8 flags;
 
