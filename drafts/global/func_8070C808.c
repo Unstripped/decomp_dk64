@@ -1,5 +1,5 @@
 // func_8070C808 (src/global/110F00.c): stage 4: staged product sums then translations improves fdiff to 805; $f12 operand order and later output scheduling remain; exhaustive 600s permuter search from prior outermost-translation draft found no zero; uopt trace inspected
-void func_8070C808(M110aMat *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
+void func_8070C808(Mat4F *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
     f32 temp_fv0;
     f32 temp_fv1;
     f32 temp_fa0;

@@ -1,5 +1,5 @@
 // func_8070D07C (src/global/110F00.c): compilable structured candidate; frame 0x70 vs target 0x88 and register allocation differ
-void func_8070D07C(M110aMat *arg0, M110aMat *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     f32 temp_fv0;
     f32 temp_fv1;
     f32 temp_fv2;
@@ -12,8 +12,8 @@ void func_8070D07C(M110aMat *arg0, M110aMat *arg1, f32 arg2, f32 arg3, f32 arg4,
 
     if ((arg2 == 0.0f) && (arg4 == 0.0f)) {
         if (arg3 == 0.0f) {
-            func_8070CCC4(arg0);
-            func_8070CCC4(arg1);
+            mtxIdentityF(arg0);
+            mtxIdentityF(arg1);
             return;
         }
         temp_fv0 = 1.0f;

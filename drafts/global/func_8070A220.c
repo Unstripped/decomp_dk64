@@ -29,8 +29,8 @@ typedef struct R2F10E1D0c_Animation {
     R2F10E1D0c_AnimationEntry *entries;
 } R2F10E1D0c_Animation;
 
-void func_8070C590(f32 *, f32 *, f32 *);
-void func_8070CBA4(f32 *, f32);
+void mtxMulAffineF(f32 *, f32 *, f32 *);
+void mtxRotateZDegF(f32 *, f32);
 void func_8070D07C(f32 *, f32 *, f32, f32, f32, f32, f32, f32, f32, f32);
 
 void func_8070A220(R2F10E1D0c_Model *model, R2F10E1D0c_Animation *animation, s32 frame) {
@@ -60,9 +60,9 @@ void func_8070A220(R2F10E1D0c_Model *model, R2F10E1D0c_Animation *animation, s32
             func_8070D07C(&source_matrix[0][0], &matrix[0][0],
                 source->x - destination->x, source->y - destination->y, source->z - destination->z,
                 -source->x, -source->y, -source->z, 0.0f, 0.0f);
-            func_8070CBA4(&rotation[0][0], entry->scale * (f32)(entry->start - frame_end));
-            func_8070C590(&rotation[0][0], &source_matrix[0][0], &step_matrix[0][0]);
-            func_8070C590(&matrix[0][0], &step_matrix[0][0], &matrix[0][0]);
+            mtxRotateZDegF(&rotation[0][0], entry->scale * (f32)(entry->start - frame_end));
+            mtxMulAffineF(&rotation[0][0], &source_matrix[0][0], &step_matrix[0][0]);
+            mtxMulAffineF(&matrix[0][0], &step_matrix[0][0], &matrix[0][0]);
             for (i = 0; i < count; i++) {
                 R2F10E1D0c_Vec3 *vertex = &model->vertices[indices[i]];
                 f32 x = vertex->x;
