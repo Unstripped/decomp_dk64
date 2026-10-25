@@ -1,4 +1,4 @@
-// func_806EC4AC (src/global/EFDC0.c): EfN3: reconstructed control flow and arithmetic; frame/register allocation remains unmatched.
+// func_806EC4AC (src/global/EFDC0.c): Stage 3: bounded permutation improved score from 5815 to 4671; frame and floating-register allocation remain unmatched.
 typedef struct EfN3PlayerState {
     u8 pad0[0x10];
     s16 unk10;
@@ -50,7 +50,6 @@ void func_806EC4AC(void) {
     f32 var_fa1;
     f32 var_fs0;
     f32 var_ft5;
-    f32 var_fv1;
     s16 temp_v0;
     s32 temp_v1;
 
@@ -64,17 +63,16 @@ void func_806EC4AC(void) {
     }
     temp_ft4 = EFN3_A48->unkAC;
     temp_fv0_2 = D_807538D8[D_807FD584];
-    var_fv1 = EFN3_A48->unkA0 - temp_ft4;
-    if (temp_fv0_2 < var_fv1) {
-        var_fv1 = temp_fv0_2;
+    var_ft5 = EFN3_A48->unkA0 - temp_ft4;
+    if (temp_fv0_2 < var_ft5) {
+        var_ft5 = temp_fv0_2;
     }
     temp_v0 = D_807538E8[D_807FD584];
-    temp_fa0 = (((D_807538F8[D_807FD584] - temp_v0) * (var_fv1 / temp_fv0_2)) + temp_v0) - ((temp_ft4 - D_8075388C[D_807FD584]) - EFN3_A48->unk80);
+    temp_fa0 = (((D_807538F8[D_807FD584] - temp_v0) * (var_ft5 / temp_fv0_2)) + temp_v0) - ((temp_ft4 - D_8075388C[D_807FD584]) - EFN3_A48->unk80);
     temp_fa0 *= 40.0f;
     if (temp_fa0 > 0.0f) {
-        var_fa1 = (f32)((f64)EFN3_A48->unkC0 * (0.5 + (f64)((var_fv1 * 40.0f) / (2.0f * (temp_fv0_2 * 40.0f)))));
-        var_ft5 = (var_fa1 * var_fa1) / (2.0f * temp_fa0);
-        if (var_ft5 < var_fs0) {
+        var_fa1 = (f32)((f64)EFN3_A48->unkC0 * (0.5 + (f64)((var_ft5 * 40.0f) / (2.0f * (temp_fv0_2 * 40.0f)))));
+        if (((var_fa1 * var_fa1) / (2.0f * temp_fa0)) < var_fs0) {
             goto block_9;
         }
     } else {
