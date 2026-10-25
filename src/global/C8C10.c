@@ -33,7 +33,226 @@ extern Struct807FD580 *D_807FD580;
 void func_806C55D8(void) {
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C8C10/func_806C55E0.s")
+typedef struct LgC55E0Sub4 {
+    /* 0x00 */ u8 pad0[0x64];
+    /* 0x64 */ u16 unk64;
+} LgC55E0Sub4;
+
+typedef struct LgC55E0A {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ LgC55E0Sub4 *unk4;
+    /* 0x008 */ u8 pad8[0x58];
+    /* 0x060 */ u32 unk60;
+    /* 0x064 */ u8 pad64[0x18];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x5C];
+    /* 0x0E4 */ s16 unkE4;
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ s16 unkE8;
+    /* 0x0EA */ u8 padEA[0x40];
+    /* 0x12A */ s16 unk12A;
+    /* 0x12C */ u8 pad12C[0x28];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[0x12];
+    /* 0x168 */ s16 unk168;
+    /* 0x16A */ u8 pad16A[0x16];
+    /* 0x180 */ s16 *unk180;
+} LgC55E0A;
+
+typedef struct LgC55E0G {
+    /* 0x000 */ u8 pad0[0x1F0];
+    /* 0x1F0 */ u32 unk1F0;
+    /* 0x1F4 */ u32 unk1F4;
+} LgC55E0G;
+
+typedef struct LgC55E0S90 {
+    /* 0x00 */ u8 pad0[0x25];
+    /* 0x25 */ u8 unk25;
+    /* 0x26 */ u8 pad26[2];
+    /* 0x28 */ u8 unk28[4];
+    /* 0x2C */ s16 unk2C;
+} LgC55E0S90;
+
+#define LA ((LgC55E0A *)D_807FBB40)
+#define LA4C ((LgC55E0A *)D_807FBB4C)
+#define LG ((LgC55E0G *)D_807FD580)
+#define LS90 ((LgC55E0S90 *)D_807FDC90)
+
+void func_80729B00(void);
+void func_8072B79C(s32, s32, s32);
+void func_80728950(s32);
+s32 func_8061CB50(void);
+void func_807289B0(s32, s32);
+void func_8061CC40(Actor *, s32, s32);
+s32 func_80629148(void);
+void func_80614EBC(Actor *, s32);
+void func_8070D8C0(Actor *, s32, u8);
+void func_8061CB08(void);
+void func_806FB370(s32, s32, s32);
+void func_806F8BC4(s32, s32, s32);
+void func_806C4E8C(void);
+void hudSpawnTextScreen(s32);
+void func_8072DC7C(s32);
+s32 func_80724A20(void);
+void func_807266E8(Actor *, Struct807FDC9C *);
+void actorClearMovementFlags(void *);
+f32 func_80612790(s16);
+f32 func_80612794(s16);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 func_806C4AC4(s32, s32);
+s32 func_8072881C(s32, void *);
+void effectSpawnSmoke(u8);
+
+void func_806C55E0(void) {
+    s32 pad;
+    s16 *sp20;
+
+    sp20 = LA->unk180;
+    func_80729B00();
+    if (!(LG->unk1F0 & 0x100000)) {
+        LA->unk154 = 0x40;
+        return;
+    }
+    if (!(LA->unk60 & 0x10)) {
+        func_8072B79C(0x357, 0x357, 0x359);
+        D_807FDC98->unk46 |= 0x20;
+        LA->unk154 = 0x1E;
+        LA->unk12A = 0x3E8;
+        func_80728950(0);
+    }
+    switch (LA->unk154) {
+        case 0x1E:
+            effectSpawnSmoke(1);
+            func_80724A20();
+            break;
+        case 0x27:
+            switch (LA->unk155) {
+                case 0:
+                    if (func_8061CB50() == 0) {
+                        func_807289B0(0, 0);
+                        func_8061CC40(D_807FBB40, 0x13, 1);
+                        LA->unk155++;
+                    }
+                    break;
+                case 1:
+                    if (func_80629148() != 0) {
+                        func_80614EBC(D_807FBB40, 0x354);
+                        LA->unk155++;
+                    }
+                    break;
+                case 3:
+                    func_8070D8C0(D_807FBB40, 0x15, 0);
+                    LA->unk155++;
+                    break;
+                case 4:
+                    if (!(LA->unk60 & 0x2000000)) {
+                        func_8061CB08();
+                        LA->unk154 = 0x28;
+                    }
+                    break;
+            }
+            break;
+        case 0x28:
+            if (LA4C->unk154 == 0x63) {
+                if ((LA->unk7C - LA4C->unk7C) * (LA->unk7C - LA4C->unk7C) + (LA->unk84 - LA4C->unk84) * (LA->unk84 - LA4C->unk84) < 10000.0f) {
+                    func_8061CC40(D_807FBB40, 0x15, 1);
+                    func_8070D8C0(D_807FBB40, 0x15, 1);
+                    LA->unk154 = 0x29;
+                    LA->unk155 = 0;
+                }
+            }
+            break;
+        case 0x29:
+            switch (LA->unk155) {
+                case 0:
+                    if (!(LA->unk60 & 0x2000000)) {
+                        func_80614EBC(D_807FBB40, 0x358);
+                        LA->unk155 = 1;
+                    }
+                    break;
+                case 2:
+                    func_8061CB08();
+                    D_807FDC98->unk46 |= 0x24;
+                    LA->unk154 = 2;
+                    func_806FB370(5, 0, 1);
+                    func_806F8BC4(5, 1, 0);
+                    *sp20 = 0x78;
+                    LS90->unk2C = 0x10;
+                    LA->unk168 = 0;
+                    func_80614EBC(D_807FBB40, 0x357);
+                    break;
+            }
+            break;
+        case 0x2A:
+            switch (LA->unk155) {
+                case 0:
+                    LA->unkE4 = 0;
+                    LA->unkE8 = 0;
+                    if (!(LA->unk60 & 0x2000000)) {
+                        func_8061CB08();
+                        func_806C4E8C();
+                        if (LA->unk4->unk64 == 0x35A && LA4C->unk154 == 0x63) {
+                            hudSpawnTextScreen(4);
+                            LA->unk155 = 3;
+                        } else {
+                            LA->unk155++;
+                            LA->unk60 &= ~0x8000;
+                        }
+                    }
+                    break;
+                case 1:
+                    func_8072DC7C(5);
+                    break;
+                case 2:
+                    LA->unk154 = 0x3C;
+                    break;
+                case 3:
+                    func_80724A20();
+                    break;
+            }
+            break;
+        case 0x30:
+            func_80614EBC(D_807FBB40, 0x355);
+            func_807266E8(D_807FBB40, D_807FDC9C);
+            LS90->unk25 = 0;
+            LA->unk168 = 0;
+            actorClearMovementFlags(D_807FBB4C);
+            LA4C->unk80 = LA->unk80;
+            LA4C->unk7C = func_80612794(LA->unkE6) * 50.0f + LA->unk7C;
+            LA4C->unk84 = func_80612790(LA->unkE6) * 50.0f + LA->unk84;
+            LA4C->unkE6 = mathAngleBetweenPoints2D(LA->unk7C, LA->unk84, LA4C->unk7C, LA4C->unk84);
+            func_8061CC40(D_807FBB40, 0x15, 1);
+            func_8070D8C0(D_807FBB40, 0x15, 1);
+            LA->unk154 = 0x29;
+            LA->unk155 = 0;
+            break;
+    }
+    LG->unk1F4 &= ~0x40;
+    switch (func_806C4AC4(0x78, 0x10)) {
+        case 1:
+            func_807266E8(D_807FBB40, D_807FDC9C);
+            func_8070D8C0(D_807FBB40, 0x15, 2);
+            func_80614EBC(D_807FBB40, 0x35A);
+            LA->unk154 = 0x2A;
+            LA->unk155 = 0;
+            func_8061CC40(D_807FBB40, 0x16, 1);
+            break;
+        case 2:
+            func_807266E8(D_807FBB40, D_807FDC9C);
+            func_8070D8C0(D_807FBB40, 0x15, 3);
+            func_80614EBC(D_807FBB40, 0x35B);
+            LA->unk154 = 0x2A;
+            LA->unk155 = 0;
+            func_8061CC40(D_807FBB40, 0x14, 1);
+            break;
+    }
+    if (LA->unk154 != 0x1E) {
+        func_8072881C(0, LS90->unk28);
+    }
+}
 
 typedef struct R1C8CBG {
     /* 0x000 */ u8 pad0[0x1F4];
@@ -109,15 +328,10 @@ extern s16 D_807FD802;
 extern s16 D_807FD804;
 extern s16 D_807FD806;
 void actorAttachChildCallbacks(void);
-void actorClearMovementFlags(void *);
 void actorDespawn(Actor *);
 void actorPlaceAttachedChildren(s32);
 void actorSpawnNodeEntryAtActor(s32, s16);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
 void func_80614E78(Actor *, s32);
-void func_80614EBC(Actor *, s32);
-void func_8061CB08(void);
 void func_806319C4(Actor *, s32);
 void func_80724CA4(s32, s32);
 void func_80724E48(u8);
@@ -134,8 +348,6 @@ s32 func_80731784(s16, s16, s32 *);
 void func_8073129C(s16, s32, s32);
 void func_8060DEC8();
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-void func_80729B00(void);
-void func_8070D8C0(Actor *, s32, u8);
 s32 func_8073195C(s16);
 void lightSetColor(f32, f32, f32, s16);
 void sfxAllocateChannel(s32, f32);
