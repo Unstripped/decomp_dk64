@@ -1,72 +1,64 @@
-// func_8071509C (src/global/119370.c): Stage 1 m2c reconstruction: 2-D geometry setup; local views still need concretizing before a matching attempt.
-void func_8071509C(void *arg0) {
-    s32 var_a3;
-    s32 var_t2;
-    s32 var_t4;
-    s32 var_t5;
-    s32 var_v1;
-    void *temp_a2;
-    void *temp_a2_2;
-    void *temp_v0;
-    void *var_a2;
+// func_8071509C (src/global/119370.c): Stage 3: reconstructed the four-vertex quad grid from asm. Direct fdiff compiles; vertex pointer representation needs register/block-order work.
+#include "common.h"
+typedef struct Ua1ListNode { u8 pad0[8]; u8 columns; u8 rows; u8 padA[2]; s16 width; s16 height; } Ua1ListNode;
+typedef struct Ua1Effect Ua1Effect;
+typedef struct Ua1Vertex { s16 x; s16 y; s16 z; s16 flag; s16 s; s16 t; u8 r; u8 g; u8 b; u8 a; } Ua1Vertex;
 
-    temp_v0 = arg0->unk330;
-    var_v1 = 0;
-    if (arg0->unk36F == 0) {
-        var_t2 = (s32) -(temp_v0->unk9 * temp_v0->unkE) / 2;
+void func_8071509C(Ua1Effect *arg0) {
+    Ua1ListNode *node;
+    Ua1Vertex *vertex;
+    s32 column;
+    s32 row;
+    s32 vertexIndex;
+    s32 x;
+    s32 y;
+
+    node = *(Ua1ListNode **)((u8 *) arg0 + 0x330);
+    if (*((u8 *) arg0 + 0x36F) == 0) {
+        y = -(node->rows * node->height) / 2;
     } else {
-        var_t2 = (s32) (temp_v0->unk9 * temp_v0->unkE) / 2;
+        y = (node->rows * node->height) / 2;
     }
-    var_t4 = 0;
-    if ((s32) temp_v0->unk9 > 0) {
-        do {
-            var_a3 = (s32) -(temp_v0->unk8 * temp_v0->unkC) / 2;
-            var_t5 = 0;
-            if ((s32) temp_v0->unk8 > 0) {
-                var_a2 = arg0 + (var_v1 * 0x10) + 0x28;
-                do {
-                    var_a2->unk0 = (s16) var_a3;
-                    var_a2->unk2 = (s16) var_t2;
-                    var_a2->unk4 = 0;
-                    var_a2->unk8 = 0;
-                    var_a2->unkA = 0;
-                    var_a2->unk12 = (s16) var_t2;
-                    var_a2->unk14 = 0;
-                    var_a2->unk10 = (s16) (temp_v0->unkC + var_a3);
-                    var_a2->unk1A = 0;
-                    var_a2->unk20 = (s16) var_a3;
-                    var_a2->unk18 = (s16) (temp_v0->unkC << 5);
-                    temp_a2 = var_a2 + 0x20;
-                    if (arg0->unk36F == 0) {
-                        temp_a2->unk2 = (s16) (temp_v0->unkE + var_t2);
-                    } else {
-                        temp_a2->unk2 = (s16) (var_t2 - temp_v0->unkE);
-                    }
-                    temp_a2->unk4 = 0;
-                    temp_a2->unk8 = 0;
-                    temp_a2_2 = temp_a2 + 0x10;
-                    temp_a2_2->unk-6 = (s16) (temp_v0->unkE << 5);
-                    temp_a2->unk10 = (s16) (temp_v0->unkC + var_a3);
-                    if (arg0->unk36F == 0) {
-                        temp_a2_2->unk2 = (s16) (temp_v0->unkE + var_t2);
-                    } else {
-                        temp_a2_2->unk2 = (s16) (var_t2 - temp_v0->unkE);
-                    }
-                    temp_a2_2->unk4 = 0;
-                    var_t5 += 1;
-                    var_v1 = var_v1 + 2 + 1 + 1;
-                    temp_a2_2->unk8 = (s16) (temp_v0->unkC << 5);
-                    var_a2 = temp_a2_2 + 0x10;
-                    var_a2->unk-6 = (s16) (temp_v0->unkE << 5);
-                    var_a3 += temp_v0->unkC;
-                } while (var_t5 < (s32) temp_v0->unk8);
-            }
-            var_t4 += 1;
-            if (arg0->unk36F == 0) {
-                var_t2 += temp_v0->unkE;
+    vertexIndex = 0;
+    for (row = 0; row < node->rows; row++) {
+        x = -(node->columns * node->width) / 2;
+        for (column = 0; column < node->columns; column++) {
+            vertex = (Ua1Vertex *) ((u8 *) arg0 + 0x28) + vertexIndex;
+            vertex[0].x = x;
+            vertex[0].y = y;
+            vertex[0].z = 0;
+            vertex[0].s = 0;
+            vertex[0].t = 0;
+            vertex[1].y = y;
+            vertex[1].z = 0;
+            vertex[1].x = node->width + x;
+            vertex[1].t = 0;
+            vertex[2].x = x;
+            vertex[1].s = node->width << 5;
+            if (*((u8 *) arg0 + 0x36F) == 0) {
+                vertex[2].y = node->height + y;
             } else {
-                var_t2 -= temp_v0->unkE;
+                vertex[2].y = y - node->height;
             }
-        } while (var_t4 < (s32) temp_v0->unk9);
+            vertex[2].z = 0;
+            vertex[2].s = node->height << 5;
+            vertex[2].t = 0;
+            vertex[3].x = node->width + x;
+            if (*((u8 *) arg0 + 0x36F) == 0) {
+                vertex[3].y = node->height + y;
+            } else {
+                vertex[3].y = y - node->height;
+            }
+            vertex[3].z = 0;
+            vertex[3].s = node->width << 5;
+            vertex[3].t = node->height << 5;
+            vertexIndex += 4;
+            x += node->width;
+        }
+        if (*((u8 *) arg0 + 0x36F) == 0) {
+            y += node->height;
+        } else {
+            y -= node->height;
+        }
     }
 }

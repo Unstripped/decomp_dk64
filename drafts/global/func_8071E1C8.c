@@ -1,4 +1,4 @@
-// func_8071E1C8 (src/global/11BC10.c): stage 3: behavior and blocks follow asm; frame is 0x30 rather than target 0x48, with early reg allocation differences
+// func_8071E1C8 (src/global/11BC10.c): stage 4: target frame and save shape now match (0x48); first mismatch is retaining arg0 in s1 and moving the state pointer from v0 to s0 after the null guard
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -18,6 +18,9 @@ typedef struct {
 extern s32 actorTableContains(void *);
 
 void func_8071E1C8(Ub2ActorView *arg0, s8 *arg1) {
+    f64 pad0;
+    f64 pad1;
+    f64 pad2;
     f32 sp3C;
     f32 sp2C;
     f32 temp_fa0;
