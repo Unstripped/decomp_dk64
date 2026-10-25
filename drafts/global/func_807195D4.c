@@ -1,4 +1,4 @@
-// func_807195D4 (src/global/11BC10.c): stage 4: target frame and s0 reached; matrix bases remain +8 and FP allocation differs
+// func_807195D4 (src/global/11BC10.c): stage 4: target frame and s0 reached; matrix bases remain +8 and FP allocation differs; 600s permuter baseline 403 reached 33 but candidate is unreviewed
 typedef struct {
     f32 unk0;
     f32 unk4;
