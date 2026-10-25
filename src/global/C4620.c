@@ -881,7 +881,369 @@ void func_806C2D7C(void) {
     func_806C2B2C(0x17, 0x1F, 2, D_8071FFA0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C4620/func_806C2DF4.s")
+typedef struct LgC2DF4Inner {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ u8 pad8[8];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ u8 pad12[0x12];
+    /* 0x24 */ f32 unk24;
+} LgC2DF4Inner;
+
+typedef struct LgC2DF4Sub4 {
+    /* 0x00 */ LgC2DF4Inner *unk0;
+    /* 0x04 */ u8 pad4[0x34];
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ u8 pad3C[0x28];
+    /* 0x64 */ u16 unk64;
+} LgC2DF4Sub4;
+
+typedef struct LgC2DF4State {
+    /* 0x00 */ u16 unk0;
+    /* 0x02 */ u8 pad2[0x2A];
+    /* 0x2C */ u8 unk2C;
+} LgC2DF4State;
+
+typedef struct LgC2DF4Actor {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ LgC2DF4Sub4 *unk4;
+    /* 0x008 */ u8 pad8[0x58];
+    /* 0x060 */ u32 unk60;
+    /* 0x064 */ u8 pad64[6];
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u16 unk6C;
+    /* 0x06E */ u8 pad6E[0xE];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x40];
+    /* 0x0C8 */ f32 unkC8;
+    /* 0x0CC */ u8 unkCC;
+    /* 0x0CD */ u8 padCD[0x19];
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ s16 unkE8;
+    /* 0x0EA */ u8 padEA[0x40];
+    /* 0x12A */ s16 unk12A;
+    /* 0x12C */ u8 pad12C[0x14];
+    /* 0x140 */ ActorSub140 *unk140;
+    /* 0x144 */ u8 unk144;
+    /* 0x145 */ u8 pad145;
+    /* 0x146 */ s16 unk146;
+    /* 0x148 */ u8 pad148[0xC];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[0x26];
+    /* 0x17C */ LgC2DF4State *unk17C;
+} LgC2DF4Actor;
+
+typedef struct LgC2DF4S9C {
+    /* 0x00 */ u8 pad0[0x14];
+    /* 0x14 */ u8 unk14;
+} LgC2DF4S9C;
+
+#define LgV ((LgC2DF4Actor *)D_807FBB40)
+
+void func_806136B4(Actor *);
+void func_806134B4(Actor *, u16);
+ActorSub140 *func_80665F24(Actor *);
+void func_807248B0(Actor *, f32);
+void func_80728950(s32);
+void func_807289B0(s32, s32);
+void func_8072E2B0(Actor *, s32 *, s32 *, s32 *);
+void func_806871DC(s32);
+void func_80686F90(s32, s16, s16);
+void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
+void effectSpawnActorScale(Actor *);
+void func_80685F60(Actor *);
+void sfxStopSlotSound(Actor *, s32);
+void actorSetGroupState(u8, u8);
+void func_8072177C(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
+void effectSpawnJointBeam(s32, s32, s32, s32);
+void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+extern s32 D_807FBB68;
+
+void func_806C2DF4(void) {
+    LgC2DF4State *state;
+    s32 sp60;
+    s32 sp5C;
+    s32 sp58;
+    f32 sp54;
+    s32 rnd;
+
+    state = LgV->unk17C;
+    func_80729B00();
+    if (!(LgV->unk60 & 0x10)) {
+        sp54 = LgV->unk4->unk38;
+        func_806136B4(D_807FBB40);
+        func_806134B4(D_807FBB40, state->unk0);
+        LgV->unk140 = func_80665F24(D_807FBB40);
+        LgV->unk146 = 0;
+        LgV->unk12A = 0xFA0;
+        D_807FDC98->unk46 |= 0x20;
+        LgV->unk60 &= 0xFEFFFFFF;
+        LgV->unk144 = 1;
+        switch (state->unk0) {
+            case 0x21:
+                if (D_8076A0A8 == 0x98 || D_8076A0A8 == 0x1C) {
+                    LgV->unk60 |= 0x400;
+                    D_807FDC98->unk46 |= 0x100;
+                }
+            case 0x22:
+            case 0x23:
+                func_80724CA4(2, 1);
+                break;
+            case 0x1:
+            case 0x4:
+            case 0x6:
+            case 0x9:
+            case 0xC:
+                D_807FDC98->unk46 |= 0x1000;
+                LgV->unk60 |= 0x400;
+                LgV->unkCC = 1;
+                LgV->unk60 |= 0x1000;
+                func_80724CA4(2, 1);
+                func_806F0C18(D_807FBB40);
+                break;
+            case 0x17:
+                LgV->unkCC = 1;
+            case 0x18:
+            case 0x49:
+                state->unk2C = 9;
+            case 0x6B:
+            case 0x88:
+                LgV->unk60 |= 0x1000;
+            case 0x38:
+            case 0x3A:
+            case 0x3C:
+            case 0x58:
+                D_807FDC98->unk46 |= 0x100;
+            case 0x27:
+            case 0x2D:
+            case 0x66:
+                LgV->unk60 |= 0x400;
+                break;
+            case 0x31:
+                if (D_807FBB68 & 2) {
+                    animSetLoopLimit(D_807FBB40, 1, 1);
+                    animSetFinished(D_807FBB40, 1, 1);
+                    animSetFrameAndSubframe(D_807FBB40, 1, 1, 0);
+                }
+                D_807FDC98->unk46 |= 0x1000;
+                D_807FDC98->unk46 |= 0x100;
+                LgV->unk60 |= 0x400;
+                break;
+            case 0x12:
+                LgV->unkCC = 1;
+                if (!(D_807FBB68 & 2)) {
+                    LgV->unk146 = 1;
+                }
+                break;
+            case 0x80:
+                LgV->unk60 |= 0x800000;
+                D_807FDC98->unk46 |= 0x100;
+                LgV->unk60 |= 0x400;
+                break;
+            case 0x37:
+                LgV->unk60 |= 0x400;
+                animSetLoopLimit(D_807FBB40, 0, 1);
+                animSetFinished(D_807FBB40, 0, 1);
+                animSetFrameAndSubframe(D_807FBB40, 0, ((LgC2DF4S9C *)D_807FDC9C)->unk14, 0);
+                break;
+            case 0x45:
+                sp54 *= 10.0f;
+            case 0x3D:
+                LgV->unkCC = 2;
+                LgV->unk60 |= 0x400;
+                break;
+            case 0x3B:
+                LgV->unkC8 = -10.0f;
+                LgV->unk60 |= 0x400;
+                break;
+            case 0x25:
+                LgV->unkC8 = -2000.0f;
+                LgV->unk60 |= 0x400;
+                LgV->unk146 = -1;
+                break;
+            case 0x11:
+                D_807FDC98->unk46 |= 0x1000;
+                if (D_8076A0A8 == 0x4C) {
+                    LgV->unk146 = 0;
+                } else {
+                    LgV->unk146 = 2;
+                }
+            case 0x13:
+            case 0xDC:
+            case 0xDD:
+            case 0xDE:
+            case 0xDF:
+            case 0xE3:
+                LgV->unk60 |= 0x400;
+                break;
+            case 0xE2:
+                sp54 *= 8.0f;
+                func_807248B0(D_807FBB40, sp54);
+                LgV->unkE8 = 0xC8;
+                func_806BFBB4();
+                func_806C2D7C();
+                break;
+            case 0x68:
+                if (D_8076A0A8 == 0xCD) {
+                    LgV->unk146 = 1;
+                } else {
+                    LgV->unk146 = 5;
+                }
+            case 0x70:
+                D_807FDC98->unk46 |= 0x1000;
+                LgV->unkCC = 1;
+            case 0x69:
+                LgV->unk60 |= 0x400;
+                LgV->unk60 |= 0x1000;
+                break;
+        }
+        func_807248B0(D_807FBB40, sp54);
+        if (D_8076A0A8 == 0xD0) {
+            D_807FDC98->unk46 |= 0x100;
+            LgV->unk60 &= 0xFEFFFFFF;
+        }
+    }
+    func_8072E2B0(D_807FBB40, &sp60, &sp5C, &sp58);
+    func_806BF920();
+    func_806BFBF4();
+    LgV->unk6A = 0;
+    LgV->unk6C = 0;
+    if (D_807FDC94 != D_807FBB4C) {
+        func_80724E48(7);
+    }
+    switch (LgV->unk4->unk0->unk10) {
+        case 0x3EA:
+            LgV->unk146 = 0;
+            break;
+        case 0x8E:
+        case 0x320:
+        case 0x32F:
+        case 0x341:
+        case 0x3CC:
+        case 0x52F:
+        case 0x63A:
+            if (D_807FDC98->unk46 & 0x1000) {
+                D_807FDC98->unk46 &= ~0x1000;
+                func_80728950(0);
+                if (state->unk0 == 0x68) {
+                    func_80728950(1);
+                }
+            }
+            break;
+        case 0x530:
+            func_807289B0(1, 0);
+            break;
+        case 0x531:
+        case 0x62C:
+            if (!(D_807FDC98->unk46 & 0x1000)) {
+                D_807FDC98->unk46 |= 0x1000;
+                func_807289B0(0, 0);
+            }
+            break;
+        case 0x92:
+            if (!(D_807FDC98->unk46 & 0x1000) && LgV->unk4->unk0->unk4 >= 127.0f) {
+                D_807FDC98->unk46 |= 0x1000;
+                func_807289B0(0, 0);
+            }
+            break;
+        case 0x434:
+            if (LgV->unk4->unk0->unk4 < 60.0f) {
+                break;
+            }
+        case 0x436:
+            if (!(D_8076A064 & 1)) {
+                func_807149A8(0x7D0);
+                func_80714998(3);
+                func_807149C8(0x32, 0x32, 0x32, 0xFF);
+                effectSpawnBoneDefault(D_807FBB40, 1, 1.3f, 0, 0, 0, -0x50);
+            }
+            break;
+        case 0x4DA:
+        case 0x4DB:
+        case 0x4DC:
+        case 0x4DD:
+        case 0x4DE:
+            if (!(D_8076A064 & 3)) {
+                func_807149B8(1);
+                func_8071498C(func_8071C818);
+                func_80714C08(&D_8071FB08, 0.6f, D_807FBB40, 2, 0);
+            }
+            break;
+        case 0x4C7:
+            if (LgV->unk4->unk0->unk4 >= 23.0f && LgV->unk155 != 0) {
+                LgV->unk155 = 0;
+                projectileGetTargetCoords(D_807FBB40, 2);
+                projectileSpawnNodeEntry(0x29, 0xCB, 0.4f, LgV->unkE6, 400.0f, 0, D_807FBB40);
+            }
+            break;
+        case 0x54D:
+            if (LgV->unk4->unk0->unk24 == 0) {
+                LgV->unk154 = 0x40;
+            } else if (LgV->unk4->unk0->unk4 < 210.0f) {
+                func_806871DC(2);
+            } else if (LgV->unk4->unk0->unk4 < 235.0f) {
+                func_806871DC(3);
+            }
+            break;
+        case 0x549:
+            if (LgV->unk4->unk0->unk4 > 65.0f && LgV->unk4->unk0->unk4 < 101.0f) {
+                rnd = func_80611A44();
+                func_80686F90(2, (rnd >> 15) % 2048 + LgV->unkE6 - 0x400, (func_80611A44() >> 15) % 2048);
+            }
+            break;
+        case 0x498:
+            if (LgV->unk4->unk0->unk4 < 2.0f) {
+                effectSpawnActorScale(D_807FBB40);
+            }
+            func_80685F60(D_807FBB40);
+            break;
+        case 0x43E:
+            func_806C28B8();
+            break;
+        case 0x43D:
+        case 0x440:
+            func_806C27DC();
+            break;
+        case 0x43F:
+            if (LgV->unk4->unk0->unk4 < 68.0f) {
+                func_806C27DC();
+            }
+            if (65.0f < LgV->unk4->unk0->unk4) {
+                sfxStopSlotSound(D_807FBB40, 0);
+            }
+            break;
+        case 0x52E:
+            if (LgV->unk4->unk0->unk4 < 2.0f) {
+                func_80714C08(&D_8071FB34, 1.5f, D_807FBB40, 6, 0);
+            }
+            break;
+        case 0x527:
+        case 0x528:
+            actorSetGroupState(3, 0xA);
+            break;
+        case 0x52A:
+            actorSetGroupState(3, 3);
+            break;
+    }
+    if (D_8076A0A8 == 0xD0 && (LgV->unk60 & 0x1000)) {
+        func_8072177C(D_807FBB40, LgV->unk7C, LgV->unk80 + 30.0f, LgV->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    }
+    if (LgV->unk4->unk64 == 0x22A) {
+        if ((func_80611A44() >> 15) % 100 >= 0x47 || LgV->unk155 != 0) {
+            effectSpawnJointBeam(7, 0xB, 0x11, 0x20);
+            effectSpawnJointBeam(0xC, 0x10, 0x11, 0x20);
+            func_806086CC(LgV->unk7C, LgV->unk80, LgV->unk84, 0x8A, 0x64, 0x7F, 0x28, 0, 0.3f, 0);
+            LgV->unk60 |= 4;
+        } else {
+            LgV->unk60 &= ~4;
+            sfxStopSlotSound(D_807FBB40, 0);
+        }
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
 extern s16 D_80750AC8;
 void func_8063DA40(s32, s32);
