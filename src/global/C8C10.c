@@ -4,7 +4,7 @@
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
-extern void *D_807FD580;
+extern Struct807FD580 *D_807FD580;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/C8C10/func_806C3F10.s")
 
