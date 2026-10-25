@@ -299,7 +299,7 @@ typedef struct {
     s32 unk35C;
 } Ub5Actor;
 
-void lightSetFlags(s32);
+void lightSetFlags();
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071A440.s")
@@ -432,7 +432,48 @@ void func_8071BC80(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071C24C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071C48C.s")
+typedef struct {
+    u8 pad0[0x16];
+    s16 unk16;
+} Ub6bLightData;
+
+typedef struct {
+    u8 pad0[0x330];
+    Ub6bLightData *unk330;
+    u8 pad334[0xC];
+    f32 unk340;
+    f32 unk344;
+    f32 unk348;
+    s16 unk34C;
+    s16 unk34E;
+    u8 pad350;
+    u8 unk351;
+    u8 pad352[0xA];
+    u32 unk35C;
+} Ub6bLightActorView;
+
+
+void func_8071C48C(Ub6bLightActorView *arg0, s8 *arg1) {
+    f32 sp3C;
+    f32 sp38;
+    s16 temp_v0;
+    u32 temp_v0_2;
+
+    temp_v0 = arg0->unk330->unk16;
+    sp3C = (f32)(temp_v0 - arg0->unk34E) / (f32)temp_v0;
+    if ((f64)sp3C > 0.7) {
+        sp3C = 1.0f;
+    }
+    temp_v0_2 = arg0->unk35C;
+    if ((temp_v0_2 >> 0x10) != 0) {
+        sp38 = (f32)(s32)(temp_v0_2 & 0xFFFF) * sp3C;
+    } else {
+        sp38 = (f32)(s32)(temp_v0_2 & 0xFFFF);
+    }
+    lightSetFlags(1, arg0);
+    lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, sp38, 0, 0,
+             (u32)((-80.0f * sp3C) + 255.0f), 0xFF);
+}
 
 void func_8071C620(Ub2ActorView *arg0, s8 *arg1) {
     f32 sp90[4][4];
