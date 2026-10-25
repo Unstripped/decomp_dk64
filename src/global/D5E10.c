@@ -47,45 +47,344 @@ void func_806D1270(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D21E4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2238.s")
+typedef struct G09Actor {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ struct G09ActorSub4 *unk4;
+    /* 0x008 */ u8 pad8[0x58];
+    /* 0x060 */ u32 unk60;
+    /* 0x064 */ u8 pad64[6];
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u16 unk6C;
+    /* 0x06E */ u8 pad6E[0x52];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ u8 padC4[4];
+    /* 0x0C8 */ f32 unkC8;
+    /* 0x0CC */ u8 padCC[0x88];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[0x1E];
+    /* 0x174 */ void *unk174;
+} G09Actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D22A0.s")
+typedef struct G09ActorSub4 {
+    /* 0x00 */ u8 pad0[0x64];
+    /* 0x64 */ u16 unk64;
+} G09ActorSub4;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D22C0.s")
+#define G09_A ((G09Actor *)D_807FBB40)
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2330.s")
+s32 func_806DF6D4();
+void func_80614E78(Actor *, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2378.s")
+void func_806D2238(void) {
+    func_806DF6D4(1);
+    if (G09_A->unk155 == 0) {
+        func_80614E78(D_807FBB40, 0);
+        G09_A->unk155 = 1;
+        G09_A->unk60 &= ~4;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D239C.s")
+void func_806D22A0(void) {
+    func_806DF6D4(1);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D24A8.s")
+void func_806D22C0(void) {
+    func_806DF6D4(0x62);
+    switch (G09_A->unk155) {
+        case 1:
+        case 2:
+            G09_A->unk155++;
+            break;
+        case 0:
+        case 0x3C:
+        case 0x3D:
+            break;
+        default:
+            G09_A->unk155++;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D24E4.s")
+void *func_80610FE8(s32);
+void actorRegisterGlobalCallback(ActorCallbackNode *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D25CC.s")
+void func_806D2330(void *arg0) {
+    ActorCallbackNode *node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D266C.s")
+    node = func_80610FE8(0x14);
+    node->callback = arg0;
+    node->unk8 = (s32)D_807FBB48;
+    node->unk4 = 1;
+    actorRegisterGlobalCallback(node);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D26D8.s")
+void actorSnapToBone();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2744.s")
+void func_806D2378(void) {
+    func_806D2330(&actorSnapToBone);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2784.s")
+typedef struct G09Player {
+    /* 0x000 */ u8 pad0[0x54];
+    /* 0x054 */ f32 unk54;
+    /* 0x058 */ u8 pad58[0x30];
+    /* 0x088 */ G09Actor *unk88;
+    /* 0x08C */ u8 unk8C;
+    /* 0x08D */ u8 pad8D[0x35];
+    /* 0x0C2 */ s16 unkC2;
+    /* 0x0C4 */ u8 padC4[0x12C];
+    /* 0x1F0 */ s32 unk1F0;
+} G09Player;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D27A4.s")
+#define G09_P ((G09Player *)D_807FD580)
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D281C.s")
+extern s32 D_8076A0A8;
+s32 func_80629148();
+void func_806CC970();
+void func_806CC948();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D28E4.s")
+void func_806D239C(void) {
+    func_806D2378();
+    switch (D_8076A0A8) {
+        case 0x37:
+            func_806DF6D4(0x5F);
+            func_806CC970();
+            return;
+        case 0x6A:
+            func_806DF6D4(0x60);
+            func_806CC970();
+            return;
+        case 0x4D:
+        case 0x81:
+        case 0x82:
+            if ((G09_P->unk1F0 & 8) && (func_80629148() != 0)) {
+                G09_P->unk88->unk154 = 0xA;
+                G09_A->unk155++;
+            }
+            func_806DF6D4(0x5B);
+            func_806CC970();
+            return;
+        default:
+            func_806DF6D4(0x5C);
+            G09_A->unkC0 = G09_A->unkC8;
+            func_806CC948();
+            return;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2904.s")
+void func_806D24A8(void) {
+    func_806D2378();
+    func_806DF6D4(0x5D);
+    G09_A->unkC0 = G09_A->unkC8;
+    func_806CC948();
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2954.s")
+void func_806CFD68();
+void func_806CFECC();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2A14.s")
+void func_806D24E4(void) {
+    func_806D2378();
+    switch (G09_A->unk155) {
+        case 0:
+            func_806DF6D4(0x5E);
+            func_806CC948();
+            return;
+        case 1:
+            G09_A->unkC0 = G09_P->unk54;
+            func_806CFECC();
+            G09_A->unk155++;
+            func_806DF6D4(0x5E);
+            func_806CFD68();
+            func_806CC948();
+            return;
+        case 2:
+            func_806CC948();
+            func_806DF6D4(0x5E);
+            func_806CFD68();
+            return;
+        case 3:
+            func_806DF6D4(0x5C);
+            func_806CC948();
+            return;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2AA0.s")
+void func_806D25CC(void) {
+    switch (D_8076A0A8) {
+        case 0x6A:
+            func_806DF6D4(0x60);
+            func_806CC970();
+            break;
+        case 0x37:
+            func_806DF6D4(0x5F);
+            func_806CC970();
+            break;
+        case 0x4D:
+            func_806DF6D4(0x5B);
+            func_806CC970();
+            break;
+        default:
+            func_806DF6D4(0x5C);
+            G09_A->unkC0 = G09_A->unkC8;
+            func_806CC948();
+            break;
+    }
+}
+
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+void func_806F4D70(u8, f32, f32, f32, f32);
+
+void func_806D266C(void) {
+    f32 sp2C;
+    f32 sp28;
+    f32 sp24;
+
+    func_806D2378();
+    func_806D25CC();
+    actorGetNodePos(D_807FBB40, 3, &sp2C, &sp28, &sp24);
+    func_806F4D70(D_807FC929, sp2C, sp28, sp24, 25.0f);
+}
+
+void func_806D26D8(void) {
+    f32 sp2C;
+    f32 sp28;
+    f32 sp24;
+
+    func_806D2378();
+    func_806D25CC();
+    actorGetNodePos(D_807FBB40, 2, &sp2C, &sp28, &sp24);
+    func_806F4D70(D_807FC929, sp2C, sp28, sp24, 25.0f);
+}
+
+void actorSyncTransformFromParent();
+
+void func_806D2744(s32 arg0) {
+    func_806D2330(&actorSyncTransformFromParent);
+    func_806DF6D4(arg0);
+    G09_A->unk6C = G09_A->unk6A;
+}
+
+void func_806D2784(void) {
+    func_806D2744(0x61);
+}
+
+void func_805FF8F8(void);
+s32 func_8061CB98();
+void func_80614EBC(Actor *, s32);
+
+void func_806D27A4(void) {
+    func_806D2744(0x63);
+    if (func_8061CB98(5) != 0) {
+        if (G09_A->unk4->unk64 != 0x3B0) {
+            func_80614EBC(D_807FBB40, 0x3B0);
+        }
+        if ((func_80629148() != 0) || (G09_A->unk155 != 0)) {
+            func_805FF8F8();
+        }
+    }
+}
+
+void func_806EB0C0();
+
+void func_806D281C(void) {
+    s16 *sp;
+
+    sp = G09_P->unk88->unk174;
+    if (G09_A->unk155 != 0) {
+        G09_A->unk154 = 0x6D;
+        G09_A->unk155 = 0;
+    } else {
+        func_806EB0C0(0x3C, 0, D_807FC929, sp);
+    }
+    *sp += G09_P->unkC2;
+    if (G09_P->unkC2 >= 8) {
+        G09_P->unkC2 -= 7;
+    } else if (G09_P->unkC2 < -7) {
+        G09_P->unkC2 += 7;
+    } else {
+        G09_P->unkC2 = 0;
+    }
+    func_806D2744(1);
+}
+
+void func_806D28E4(void) {
+    func_806D2744(0x64);
+}
+
+void func_806319C4();
+void func_806CFF9C();
+
+void func_806D2904(void) {
+    func_806319C4(D_807FBB40, 0);
+    if (G09_A->unk155++ >= 0xC9) {
+        func_806CFF9C(D_807FBB40);
+    }
+}
+
+typedef struct G09Sub568 {
+    /* 0x0 */ u8 pad0[2];
+    /* 0x2 */ u8 unk2;
+} G09Sub568;
+
+extern G09Sub568 *D_807FD568;
+s32 func_805FCA64();
+void renderCallbacksRegister();
+void func_806FF01C();
+void func_806FF75C();
+
+void func_806D2954(s16 arg0) {
+    if ((G09_P->unk8C != 0) && (func_805FCA64() != 0)) {
+        if (D_807FD568->unk2 == 7) {
+            arg0 = 0xF;
+            renderCallbacksRegister(&func_806FF75C, D_807FBB40, 5);
+        } else {
+            arg0 = 0xE;
+            renderCallbacksRegister(&func_806FF01C, D_807FBB40, 5);
+        }
+    }
+    if (G09_A->unk155 != 0) {
+        arg0 = 5;
+        G09_A->unk155--;
+    }
+    func_806DF6D4(arg0);
+}
+
+void func_806FF32C();
+void func_806FF358();
+
+void func_806D2A14(s16 arg0) {
+    if (G09_A->unk155 != 0) {
+        arg0 = 5;
+        G09_A->unk155--;
+    }
+    if (func_805FCA64(arg0) != 0) {
+        if (func_806DF6D4(arg0) == 0) {
+            renderCallbacksRegister(&func_806FF358, D_807FBB40, 3);
+        }
+        renderCallbacksRegister(&func_806FF32C, D_807FBB40, 3);
+    }
+}
+
+s32 actorSpawn();
+void func_806FFB2C();
+
+void func_806D2AA0(s16 arg0) {
+    func_806DF6D4(1);
+    if (G09_A->unk155 < 6) {
+        renderCallbacksRegister(&func_806FFB2C, D_807FBB40, 3);
+        G09_A->unk155++;
+    } else {
+        G09_A->unk154 = arg0;
+        G09_A->unk155 = 0;
+    }
+    if (G09_A->unk155 == 2) {
+        actorSpawn(0xCA, 0x8D);
+        G09_P->unk88 = (G09Actor *)D_807FBB44;
+        *(void **)((G09Actor *)D_807FBB44)->unk174 = D_807FD580;
+        G09_P->unk1F0 |= 0x8000;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D2B90.s")
 
