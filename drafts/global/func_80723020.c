@@ -1,4 +1,4 @@
-// func_80723020 (src/global/127B00.c): stage 1: m2c starter regenerated in second pass; not yet integrated after priority small-function matches
+// func_80723020 (src/global/127B00.c): stage 1: m2c starter regenerated in third pass; next work is type/prototype recovery and block ordering
 void *func_80610FE8(s32);                           /* extern */
 ? memcpy(void *, ? *, ?);                           /* extern */
 extern ? D_807FDB90;

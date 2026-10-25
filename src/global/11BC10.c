@@ -323,7 +323,22 @@ void func_80718380(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071C620.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071C818.s")
+void func_8071C818(Ub2ActorView *arg0, s8 *arg1) {
+    f32 sp70[4][4];
+    f32 sp30[4][4];
+
+    arg0->unk360 = (f32)((f64)arg0->unk360 - 0.05);
+    arg0->unk364 = (f32)((f64)arg0->unk364 - 0.05);
+    if (arg0->unk360 <= 0.0f) {
+        *arg1 = 1;
+    }
+    arg0->unk35C = arg0->unk35C + 5;
+    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp30, (f32)arg0->unk35C, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(sp70, sp30, sp70);
+    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    arg0->pad0[0x32C] = 2;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071C914.s")
 
@@ -333,7 +348,21 @@ void func_80718380(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D0F0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D260.s")
+void func_8071D260(Ub2ActorView *arg0, s8 *arg1) {
+    u16 difference;
+    s32 amount;
+    u8 remaining;
+    s32 completed;
+
+    amount = arg0->unk35C;
+    difference = arg0->unk36D - amount;
+    completed = 1;
+    remaining = difference;
+    arg0->unk36D = remaining;
+    if (amount >= remaining) {
+        *arg1 = completed;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D28C.s")
 
