@@ -2,6 +2,7 @@
 extern void *func_80610FE8(s32);
 extern void *func_8070DDDC(s32, s32);
 extern u8 D_807550C8;
+extern void heapFreeDeferred(void *);
 
 typedef struct N112TextValue {
     char *text;

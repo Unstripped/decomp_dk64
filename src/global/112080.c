@@ -228,7 +228,30 @@ typedef struct M112bRecordListArray {
     void *unkC;
 } M112bRecordListArray;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DB9C.s")
+void func_8070DB9C(M112bRecord *arg0) {
+    s32 i;
+    s32 flags;
+    void *temp;
+
+    temp = arg0->unk4;
+    if (temp != NULL) {
+        heapFreeDeferred(temp);
+    }
+    flags = arg0->flags;
+    i = 0;
+    if (flags & 1) {
+        do {
+            func_8070DB7C(&arg0->unk8[i]);
+            i++;
+        } while (i != 1);
+        heapFreeDeferred(arg0->unk8);
+        return;
+    }
+    if (flags & 2) {
+        heapFreeDeferred(arg0->unk8->unk4);
+        heapFreeDeferred(arg0->unk8);
+    }
+}
 
 
 void func_8070DC40(M112bRecordList *arg0) {
