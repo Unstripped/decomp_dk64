@@ -664,7 +664,16 @@ void func_806F0344(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806F03C4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806F0624.s")
+void func_806E9964(EfEPlayerState *);
+
+void func_806F0624(void) {
+    EfEPS->unk1F4 |= 0x10;
+    func_806E9964(EfEPS);
+    D_807FBB48->unk154 = 0x83;
+    D_807FBB48->unk155[0] = 0;
+    D_807FBB48->unk60 |= 0x40000004;
+    D_807FBB48->unk60 &= ~1;
+}
 
 void func_806F06A4(void) {
     D_807FBB48->unk154 = 0x87;
