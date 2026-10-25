@@ -185,7 +185,7 @@ typedef struct {
 
 void *func_80610FE8(s32);
 
-void func_806F53EC(F9A_SourceNode *arg0) {
+F9A_DestinationNode *func_806F53EC(F9A_SourceNode *arg0) {
     F9A_DestinationNode *temp_v0;
 
     temp_v0 = func_80610FE8(0x20);
@@ -196,6 +196,7 @@ void func_806F53EC(F9A_SourceNode *arg0) {
     temp_v0->unk2 = arg0->unk2;
     temp_v0->unk19 = arg0->unk12;
     temp_v0->unk1A = arg0->unk13;
+    return temp_v0;
 }
 
 s32 func_806F544C(s32 arg0, s32 arg1, u8 arg2) {
@@ -300,6 +301,7 @@ void func_806F6554(u8 arg0, F9F1_Rect *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6F28.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F70A8.s")
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F70FC.s")
 
