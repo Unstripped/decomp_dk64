@@ -11,10 +11,99 @@ extern Struct807FD580 *D_807FD580;
 extern s16 D_807FD584;
 extern s32 D_8076A0A8;
 extern u8 D_8074E77C[];
+typedef struct EfAQueuedCall {
+    u8 pad0[0x29C];
+    s16 unk29C;
+    Actor *unk2A0;
+    s32 unk2A4;
+    s32 unk2A8;
+    s32 unk2AC;
+    s32 unk2B0;
+    u8 pad2B4[0x3C];
+} EfAQueuedCall;
+
+typedef struct EfAPlayer {
+    u8 pad0[0x2C];
+    f32 unk2C;
+    u8 pad30[8];
+    f32 unk38;
+    s32 unk3C;
+    u8 pad40[0xC];
+    s16 unk4C;
+    s16 unk4E;
+    s16 unk50;
+    u8 pad52[0x12];
+    s32 unk64;
+    u8 pad68[0x24];
+    u8 unk8C;
+    u8 pad90[0x74];
+    Actor *unk104;
+    u8 pad108[0x9B];
+    u8 unk1A3;
+    u8 unk1A4;
+} EfAPlayer;
+
+typedef struct EfAActor {
+    u8 pad0[0x60];
+    s32 unk60;
+    u8 pad64[0x54];
+    f32 unkB8;
+    f32 unkBC;
+    f32 unkC0;
+    f32 unkC4;
+    u8 padC8[0x1E];
+    s16 unkE6;
+    u8 padE8[0x6C];
+    u8 unk154;
+    u8 unk155;
+    u8 pad156[0x1E];
+    void *unk174;
+} EfAActor;
+
+typedef struct EfASubActor {
+    u8 pad0[0xB2];
+    s16 unkB2;
+    f32 unkB4;
+    f32 unkB8;
+    f32 unkBC;
+    u8 padC0[0x14];
+    s32 unkD4;
+    u8 padD8[0x17];
+    u8 unkEF;
+    u8 unkF0;
+    u8 padF1[2];
+    s8 unkF3;
+    u8 padF4[0xFC];
+    s32 unk1F0;
+} EfASubActor;
+
+typedef struct EfAParameters {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+} EfAParameters;
+
+#define EfA_Q ((EfAQueuedCall *)D_807FC924)
+#define EfA_P ((EfAPlayer *)D_807FD580)
+#define EfA_A40 ((EfAActor *)D_807FBB40)
+#define EfA_A48 ((EfAActor *)D_807FBB48)
+
+extern EfAParameters D_807FD6F0;
+extern void (*D_80752C70[])(void);
+void func_80614D48(Actor *, f32, f32);
+void func_80614E78(Actor *, s32);
+void func_80614EBC(Actor *, s32);
+void func_80609140(s32, s32, f32, f32, s32, s32);
+void func_806CFF9C(Actor *);
+void func_806F8BC4(s32, s32, s32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB0C0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB178.s")
+void func_806EB178(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    D_807FD6F0.unk0 = arg1;
+    D_807FD6F0.unk4 = arg2;
+    D_807FD6F0.unk8 = arg3;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB194.s")
 
@@ -24,33 +113,119 @@ extern u8 D_8074E77C[];
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB400.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB4B4.s")
+void func_806EB4B4(void) {
+    D_807FBB40->unk154 = 0x23;
+    D_807FBB40->unk155[0] = 0;
+    func_80614EBC(D_807FBB48, 0x3BC);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB4F8.s")
+void func_806EB4F8(void) {
+    D_807FBB40->unk154 = 0x5F;
+    D_807FBB40->unk155[0] = 0;
+    EfA_P->unk1A3 = 0;
+    func_80614E78(D_807FBB40, 0x4A);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB544.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB5C8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB6D8.s")
+void func_806EB6D8(void) {
+    EfA_P->unk4C = -1;
+    EfA_P->unk38 = 170.0f;
+    D_807FBB40->unk154 = 0x3F;
+    D_807FBB40->unk155[0] = 0;
+    EfA_P->unk4E = 0;
+    func_80614EBC(D_807FBB40, 0x14F);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB744.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB8CC.s")
+void func_806EB8CC(void) {
+    func_806EB744();
+    D_807FBB48->unk154 = 2;
+    D_807FBB48->unk155[0] = 0;
+    D_807FBB48->unk155[0] = 0xA;
+    if (EfA_P->unk8C != 0) {
+        func_80614EBC(D_807FBB48, 0x23);
+    } else {
+        func_80614EBC(D_807FBB48, 0x13);
+    }
+    EfA_P->unk50 = 0;
+    EfA_P->unk38 = 0.0f;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB964.s")
+void func_806EB964(void) {
+    func_80609140(0x1B9, 0x7FFF, 63.0f, 1.0f, 0xA, 0);
+    func_806EB744();
+    D_807FBB48->unk154 = 4;
+    D_807FBB48->unk155[0] = 0;
+    D_807FBB48->unk155[0] = 0xA;
+    func_80614EBC(D_807FBB48, 0x13);
+    EfA_P->unk50 = 0;
+    EfA_P->unk38 = 0.0f;
+    func_806F8BC4(6, 1, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EBA04.s")
+void func_806EBA04(void) {
+    func_806EB744();
+    D_807FBB48->unk154 = 3;
+    D_807FBB48->unk155[0] = 0;
+    D_807FBB48->unk155[0] = 0xA;
+    func_80614EBC(D_807FBB48, 0);
+    EfA_P->unk50 = 0;
+    EfA_P->unk38 = 0.0f;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EBA74.s")
+void func_806EBA74(void) {
+    func_806EB744();
+    D_807FBB48->unk154 = 5;
+    D_807FBB48->unk155[0] = 0;
+    D_807FBB48->unk155[0] = 0xA;
+    func_80614EBC(D_807FBB48, 0);
+    EfA_P->unk50 = 0;
+    EfA_P->unk38 = 0.0f;
+    func_806F8BC4(6, 1, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EBAF4.s")
+void func_806EBAF4(void) {
+    D_807FBB40->unk154 = 0x4F;
+    D_807FBB40->unk155[0] = 2;
+    func_80614E78(D_807FBB40, 0x34);
+    EfA_P->unk50 = 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EBB44.s")
+void func_806EBB44(void) {
+    extern u32 D_807FBB60;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EBBD0.s")
+    D_807FBB60 |= 0x4000;
+    D_807FBB48->unk154 = 1;
+    D_807FBB48->unk155[0] = 0;
+    func_80614EBC(D_807FBB48, 0);
+    func_80614D48(D_807FBB48, 0, 0);
+    EfA_P->unk50 = 0;
+    EfA_P->unk4C = -1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EBC60.s")
+void func_806EBBD0(void) {
+    D_807FBB48->unk154 = 6;
+    D_807FBB48->unk155[0] = 0;
+    func_80614EBC(D_807FBB48, 0);
+    func_80614D48(D_807FBB48, 0, 0);
+    EfA_P->unk50 = 0;
+    EfA_P->unk4C = -1;
+    *(s32 *)((u8 *)D_807FBB48 + 0x60) &= ~4;
+}
+
+void func_806EBC60(void) {
+    D_807FBB48->unk154 = 0x6B;
+    D_807FBB48->unk155[0] = 0;
+    func_80614EBC(D_807FBB48, 0);
+    func_80614D48(D_807FBB48, 0, 0);
+    EfA_P->unk50 = 0;
+    EfA_P->unk4C = -1;
+    *(s32 *)((u8 *)D_807FBB48 + 0x60) &= ~4;
+}
 
 
 typedef struct EfBActor {
@@ -95,12 +270,8 @@ typedef struct EfBCamera {
 #define EFB_P ((EfBPlayer *)D_807FD580)
 
 void func_806CF42C(Actor *);
-void func_806CFF9C(Actor *);
 void func_8072DB68(s32);
 void func_80026004();
-void func_80614EBC(Actor *, s32);
-void func_80614E78(Actor *, s32);
-void func_80614D48(Actor *, f32, f32);
 void func_806F1250(Actor *);
 
 void func_806EBCF0(void) {
