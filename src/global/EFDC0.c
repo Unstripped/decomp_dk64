@@ -606,27 +606,140 @@ void func_806EE2B8(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE454.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE5A4.s")
+typedef struct {
+    u8 pad0[0x2A8];
+    s32 unk2A8;
+    u8 pad2AC[0x44];
+} EfDE5Player;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE634.s")
+extern void func_806CA2AC(void);
+extern void func_80614E78(Actor *, s32);
+extern void sfxStopChannel(s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE660.s")
+void func_806EE5A4(void) {
+    func_806CA2AC();
+    sfxStopChannel(0x6B, 0);
+    D_807FBB40->unk168 = ((EfDE5Player *)D_807FC924)[D_807FC929].unk2A8;
+    func_80614E78(D_807FBB40, 0x1D);
+    D_807FBB48->unk154 = 0x6F;
+    D_807FBB48->unk155[0] = 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE6B0.s")
+extern void func_806CFE7C(void);
+extern void func_806CFF1C(Actor *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE700.s")
+void func_806EE634(void) {
+    func_806CFE7C();
+    func_806CFF1C(D_807FBB40);
+}
+
+extern void func_806CF398(Actor *);
+extern void func_806CFF9C(Actor *);
+
+void func_806EE660(void) {
+    func_806CF398(D_807FBB48);
+    func_80614E78(D_807FBB48, 0x32);
+    D_807FBB48->unk154 = 0x52;
+    D_807FBB48->unk155[0] = 0;
+}
+
+void func_806EE6B0(void) {
+    func_806CF398(D_807FBB48);
+    func_80614E78(D_807FBB48, 0x86);
+    D_807FBB48->unk154 = 0x53;
+    D_807FBB48->unk155[0] = 0;
+}
+
+void func_806EE700(void) {
+    func_806CF398(D_807FBB48);
+    func_806CFF9C(D_807FBB48);
+    D_807FBB48->unk154 = 0x54;
+    D_807FBB48->unk155[0] = 0;
+}
+
+extern s32 func_806EB400(Actor *);
+extern s16 D_807FD6F2;
+extern void func_806EEAF8(s16);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE74C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE7B8.s")
+void func_806EE7B8(void) {
+    if (func_806EB400(D_807FBB48) != 0) {
+        func_806EEAF8(D_807FD6F2);
+        func_806CFE7C();
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE7F4.s")
+extern s32 D_807FBB68;
+extern void func_806F1048(Actor *);
+extern s32 func_8061CB50(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE878.s")
+void func_806EE7F4(void) {
+    if ((D_807FBB68 & 2) != 0) {
+        func_806F1048(D_807FBB48);
+        sfxStopChannel(0xC, 0);
+    }
+    if (func_806EB400(D_807FBB48) != 0) {
+        if (((D_807FBB68 & 2) != 0) && (func_8061CB50() != 0)) {
+            return;
+        }
+        func_806EEAF8(1);
+        func_806CFE7C();
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE924.s")
+typedef struct {
+    u8 pad0[0xDC];
+    s32 unkDC;
+} EfDPlayerStateDc;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EE994.s")
+typedef struct {
+    u8 pad0[0x2A0];
+    s32 unk2A0;
+    u8 pad2A4[0x4C];
+} EfDPlayerBlock;
+
+#define EfDStateDc ((EfDPlayerStateDc *)D_807FD580)
+#define EfDPlayer ((EfDPlayerBlock *)D_807FC924)
+extern void actorSpawnAttachment(Actor *, f32);
+extern void actorAppendActiveCallback8(void);
+
+void func_806EE878(void) {
+    if (func_806EB400(D_807FBB48) != 0) {
+        EfDStateDc->unkDC = EfDPlayer[D_807FC929].unk2A0;
+        if (EfDPlayer[D_807FC929].unk2A0 == 0) {
+            actorSpawnAttachment(D_807FBB48, 3.2f);
+        }
+        func_806EEAF8(1);
+        func_806CFE7C();
+        actorAppendActiveCallback8();
+    }
+}
+
+
+void func_806EE924(void) {
+    if (func_806EB400(D_807FBB48) != 0) {
+        EfDStateDc->unkDC = EfDPlayer[D_807FC929].unk2A0;
+        func_806EEAF8(1);
+        func_806CFE7C();
+    }
+}
+
+extern void func_80614EBC(Actor *, s32);
+extern void func_80614D00(Actor *, f32, f32);
+
+void func_806EE994(void) {
+    if (func_806EB400(D_807FBB40) != 0) {
+        EfDStateDc->unkDC = EfDPlayer[D_807FC929].unk2A0;
+        D_807FBB40->unk144 = 1;
+        D_807FBB40->unk154 = 0x34;
+        D_807FBB40->unk155[0] = 0;
+        func_80614EBC(D_807FBB40, 0);
+        func_806C9974(D_807FC929, -0x40);
+        func_806CFE7C();
+        func_80614D00(D_807FBB40, 0.0f, 0.0f);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EEA5C.s")
 
@@ -634,17 +747,95 @@ void func_806EE2B8(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EF830.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EF944.s")
+extern void func_806CF42C(Actor *);
+extern void func_8061CC40(Actor *, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EFA08.s")
+void func_806EF944(void) {
+    if (func_806EB400(D_807FBB48) != 0) {
+        if (D_807FBB48->unk154 != 0x3B) {
+            if (func_8061CB50() == 0) {
+                func_806CA2AC();
+                func_806CF42C(D_807FBB48);
+                D_807FBB48->unk144 = 1;
+                func_80614E78(D_807FBB48, 0x2A);
+                D_807FBB48->unk154 = 0x3B;
+                D_807FBB48->unk155[0] = 0;
+                func_806C9974(D_807FC929, -0x40);
+                func_8061CC40(D_807FBB48, 0xB, 0x85);
+                D_807FBB48->unkB8 = 0.0f;
+            }
+        }
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EFA1C.s")
+void func_806EFA08(void) {
+    ((u8 *)D_807FD580)[0x1FC] = 1;
+}
+
+void func_806EFA1C(void) {
+    D_807FBB40->unk154 = 0x6A;
+    D_807FBB40->unk155[0] = 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EFA3C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EFB4C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EFC38.s")
+typedef struct {
+    u8 pad0[0x210];
+    f32 unk210;
+    u8 pad214[4];
+    f32 unk218;
+    u8 pad21C[0xD4];
+} EfDNavigationPlayer;
+
+extern void func_806C9F74(Actor *);
+extern s16 func_80672A70(s16, s16);
+extern s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+extern void func_80627948(Actor *, s32, s32, s32);
+
+void func_806EFB4C(void) {
+    sfxStopChannel(0x6B, 0);
+    func_806CA2AC();
+    func_806C9F74(D_807FBB48);
+    func_806CF42C(D_807FBB48);
+    func_80614E78(D_807FBB48, 0x5B);
+    D_807FBB48->unk154 = 0x70;
+    D_807FBB48->unk155[0] = 0;
+    if (D_807FBB48->unkFC != 0) {
+        D_807FBB48->unkE6 = func_80672A70(D_807FBB48->unkF4, D_807FBB48->unkF6);
+    } else {
+        D_807FBB48->unkE6 = mathAngleBetweenPoints2D(
+            ((EfDNavigationPlayer *)D_807FC924)[D_807FC929].unk210,
+            ((EfDNavigationPlayer *)D_807FC924)[D_807FC929].unk218,
+            D_807FBB48->unk7C,
+            D_807FBB48->unk84);
+    }
+    func_80627948(D_807FBB48, 0x15, 0x1F, 5);
+}
+
+void func_806EFC38(void) {
+    func_806CA2AC();
+    func_806CF42C(D_807FBB48);
+    func_806C9F74(D_807FBB48);
+    if (D_807FBB48->unk154 != 0x6D) {
+        func_80614E78(D_807FBB48, 0x5B);
+        D_807FBB48->unk154 = 0x71;
+        D_807FBB48->unk155[0] = 0;
+    }
+    D_807FBB48->unkE6 = mathAngleBetweenPoints2D(
+        ((EfDNavigationPlayer *)D_807FC924)[D_807FC929].unk210,
+        ((EfDNavigationPlayer *)D_807FC924)[D_807FC929].unk218,
+        D_807FBB48->unk7C,
+        D_807FBB48->unk84);
+    if (D_8076A0A8 == 8) {
+        func_8061CC40(D_807FBB48, 2, 1);
+        D_807FBB48->unk155[0] = 0xFF;
+        ((u16 *)D_807FD580)[0x11E] = 0xFFFF;
+    } else {
+        func_8061CC40(D_807FBB48, 5, 5);
+        ((s16 *)D_807FD580)[0x11E] = 100;
+    }
+}
 
 typedef struct EfEPlayerState {
     /* 0x000 */ u8 pad0[0x30];
