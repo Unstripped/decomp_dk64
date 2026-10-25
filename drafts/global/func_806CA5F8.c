@@ -1,4 +1,4 @@
-// func_806CA5F8 (src/global/CEAE0.c): stage 6: block layout/stack/frame match; only regalloc diffs remain (fx a1/s0 split, v0/v1 ptr-vs-value swaps, FP temp phase f4/f18). Uses goto layout for sp6B dispatch, dead tests 'if (D_807FBB48 && D_807FBB48) {}' and 'if (!D_8076A0A8 && !D_8076A0A8) {}' (permuter-found priority flips).
+// func_806CA5F8 (src/global/CEAE0.c): stage 6 near-miss: C is behaviourally identical (opcodes/immediates/frame/stack/branch layout match; only register choices differ): ~124 diff lines of 1257, all regalloc (fx web a1 split + s0 copy, D_807FBB48 ptr v0 vs v1 in 4 blocks, FP temp phase f4/f18 after sqrtf, one beq operand order). Needs: goto layout for sp6B (switch costs frame), dead priority tests (x && x) at 5 spots (permuter-found), pad[1]+f32 holes for stack. 5 permuter runs of 900s each, last found nothing.
 typedef struct LCA5F8Fx {
     /* 0x000 */ u8 pad0[0x340];
     /* 0x340 */ f32 unk340;
@@ -247,11 +247,11 @@ void func_806CA5F8(s32 arg0) {
     if (D_807FC928 >= 2) {
         if (D_807FBB40->unk6A & 1) {
             if (LCA_P->unk24A != 0) {
-                if (D_807FBB48 && D_807FBB48) {
-                }
                 LCA_P->unk24A = LCA_P->unk24A - 1;
             } else {
                 LCA_P->unk248 = -1;
+                if (D_807FBB48 && D_807FBB48) {
+                }
                 LCA_P->unk249 = 0;
             }
         }
@@ -279,6 +279,8 @@ void func_806CA5F8(s32 arg0) {
                     func_807149C8(0xFF, 0xFF, 0xFF, 0x78);
                     func_8071495C();
                     LCA_P->unk254 = (LCA5F8Fx *)func_80714CC0(&D_80720020, 0.7f, D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84);
+                    if (D_807FC924 && D_807FC924) {
+                    }
                     fx = LCA_P->unk254;
                 }
             } else {
@@ -363,11 +365,15 @@ done:
     LCA_P->unk1F8 = LCA_P->unk1F0;
     if (LCA_P->unk268 != 0) {
         LCA_P->unk268 = LCA_P->unk268 - 1;
+        if (D_807FBB48 && D_807FBB48) {
+        }
     }
     if ((D_807FBB40->unk7C < (f32)D_807F5FE4 || D_807FBB40->unk84 < (f32)D_807F5FE6 || (f32)D_807F5FE8 < D_807FBB40->unk7C || (f32)D_807F5FEA < D_807FBB40->unk84 || sp68 != 0) && LCA_P->unk244 == 0 && (u32)D_8076A064 >= 0x65 && !(D_807FBB64 & 0x4000) && D_8076A0A8 != 0xE) {
         if (D_807FC928 == 1) {
             if (func_8073110C(0x186, 0) == 0) {
                 func_805FF188(0xB0, 1);
+            }
+            if (!D_807FC929 && !D_807FC929) {
             }
             func_80709464(D_807FC929);
             func_805FF1B0(D_807FC929);
