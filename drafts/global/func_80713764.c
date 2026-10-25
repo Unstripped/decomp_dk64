@@ -1,4 +1,4 @@
-// func_80713764 (src/global/117190.c): Stage 2: display-list writes and draw call recovered; floating-point scheduling and frame differ substantially.
+// func_80713764 (src/global/117190.c): Stage 2: display-list writes and draw call recovered; FP and pointer scheduling remain off.
 extern s16 D_80744490;
 extern s16 D_80744494;
 Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);

@@ -1,4 +1,4 @@
-// func_80712574 (src/global/117190.c): Closest C mirrors state/timer loop; frame and temporary placement remain off
+// func_80712574 (src/global/117190.c): Stage 2: timer scan structure recovered; direct global form has 8 instruction/register differences in loop.
 void func_80712574(void) {
     s32 found = 0;
     u8 index = 0;

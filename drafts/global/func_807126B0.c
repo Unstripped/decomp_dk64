@@ -1,4 +1,4 @@
-// func_807126B0 (src/global/117190.c): Player-stride writes recovered; aggregate expression/register allocation remains off
+// func_807126B0 (src/global/117190.c): Stage 2: player-stride byte stores recovered; current void-pointer declaration emits loads rather than expected direct player-base addressing.
 void func_807126B0(s32 arg0, s32 arg1, s8 arg2, s8 arg3, s8 arg4, s8 arg5, s8 arg6) {
     s32 i = 1;
     u8 *player = (u8 *)D_807FC924 + (i * 0x2F0);

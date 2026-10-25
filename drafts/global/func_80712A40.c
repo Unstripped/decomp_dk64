@@ -1,4 +1,4 @@
-// func_80712A40 (src/global/117190.c): Stage 2: state reset, mode-dependent timer seed, and carry-aware timer accumulation recovered; stack/register allocation differs.
+// func_80712A40 (src/global/117190.c): Stage 6: state reset and carry-aware accumulation text matched; only D_807445C4 versus D_807445C0+4 relocation remains with u64 representation.
 typedef struct R117dTimePair {
     s32 unk0;
     u32 unk4;
