@@ -1,4 +1,4 @@
-// func_8070DDDC (src/global/112080.c): stage 2: m2c resource-node creation flow compiled in private copy, but pointer typing changed both frame and register allocation
+// func_8070DDDC (src/global/112080.c): stage 2: resource-node creation candidate compiled; stack and global traversal allocation differ
 // Best stage-2 reconstruction is retained in the private copy history; this draft records the m2c control flow.
 s32 func_8070DDDC(u16 arg0, s32 arg1) {
     s32 sp20;

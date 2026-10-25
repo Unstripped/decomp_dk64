@@ -1,4 +1,4 @@
-// func_8070DA74 (src/global/112080.c): stage 2: compiled typed queue-removal draft; target requires distinct initial global-load and queue traversal shape
+// func_8070DA74 (src/global/112080.c): stage 2: queue removal candidate compiled; initial global-load and traversal shape differ
 // func_8070DA74: stage-2 m2c reconstruction; typed private-copy attempt compiled.
 void func_8070DA74(void *arg0) {
     void *sp2C;
