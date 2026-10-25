@@ -5771,7 +5771,7 @@ void lightSetColor(f32, f32, f32, s16);
 void func_80629174();
 void effectSpawnKongRing();
 void func_80709464(u8);
-void func_806F8BC4(s32, s32, s32);
+void slotQueueUpdate(s32, s32, s32);
 extern s32 D_80750FE0;
 extern s32 D_80750FF0;
 
@@ -5840,7 +5840,7 @@ void func_806DED44(void) {
             p = &D_80750FE0;
             do {
                 func_806F91B4(*p, 0, 0x270F);
-                func_806F8BC4(*p, 0, 0);
+                slotQueueUpdate(*p, 0, 0);
             } while (++p != &D_80750FF0);
         }
         break;

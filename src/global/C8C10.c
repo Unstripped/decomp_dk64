@@ -681,7 +681,7 @@ typedef struct LgC55E0S90 {
 void func_80728950(s32);
 void func_807289B0(s32, s32);
 void func_8061CB08(void);
-void func_806F8BC4(s32, s32, s32);
+void slotQueueUpdate(s32, s32, s32);
 void func_806C4E8C(void);
 void func_8072DC7C(s32);
 void func_807266E8(Actor *, Struct807FDC9C *);
@@ -760,7 +760,7 @@ void func_806C55E0(void) {
                     D_807FDC98->unk46 |= 0x24;
                     LA->unk154 = 2;
                     func_806FB370(5, 0, 1);
-                    func_806F8BC4(5, 1, 0);
+                    slotQueueUpdate(5, 1, 0);
                     *sp20 = 0x78;
                     LS90->unk2C = 0x10;
                     LA->unk168 = 0;

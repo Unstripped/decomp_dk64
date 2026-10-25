@@ -46,7 +46,7 @@ extern Gfx D_8071FC58;
 extern RenderState *D_807FC924;
 s32 func_805FCA64(void);
 Gfx *func_8070068C(Gfx *);
-GfxResource *func_806FD9B4(u8);
+GfxResource *gfxResourceFindById(u8);
 Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
 Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
 f32 func_80612D1C(f32);
@@ -76,7 +76,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
             gfx = func_8070068C(gfx);
             gfx = func_806FC530(gfx, 0x86, (s16)(s32)(actor->unk7C * 4.0f),
                                 (s16)((D_807FC924->unk276 * 4) - 0x3C),
-                                func_806FD9B4(sub->unk10)->unk4, 1);
+                                gfxResourceFindById(sub->unk10)->unk4, 1);
         } else {
             angle = (f32)(6.28318548202514648 - 2.0 * *(f64 *)actor->unk160);
             offset = 8;

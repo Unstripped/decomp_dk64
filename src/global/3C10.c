@@ -137,7 +137,7 @@ s32 func_80689C20(s32, s32, u8, f32, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 u8 func_806C8DE0(s32);
 void func_806F5378(void);
-void func_806F8BC4(s32, s32, s32);
+void slotQueueUpdate(s32, s32, s32);
 s32 func_80712798(void);
 void func_80712F10(s32 *, s32 *);
 s32 func_807143E8(void);
@@ -355,7 +355,7 @@ void func_805FF670(void) {
 
     if (D_80744820 != 0) {
         func_8061CC40(D_807FBB4C, 2, 5);
-        func_806F8BC4(1, 0, 0);
+        slotQueueUpdate(1, 0, 0);
         var_s1 = 0;
         if ((s32) D_80744820 > 0) {
             offset = 20.0f;

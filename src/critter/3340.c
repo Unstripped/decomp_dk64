@@ -32,7 +32,7 @@ void effectSpawnBurst(s32);
 void func_80614E78(Actor_3340 *, s32);
 void sfxPlayFromActorWithAltitudeCheck(Actor_3340 *, s32, s32, s32, s32);
 void sfxStopSlotSound(Actor_3340 *, s32);
-void func_806F8BC4(s32, s32, s32);
+void slotQueueUpdate(s32, s32, s32);
 void func_806F91B4(s32, u8, s32);
 void func_806319C4(Actor_3340 *, s32);
 
@@ -125,7 +125,7 @@ void func_80027DC0(void) {
         } else if (func_80629148(actor) != 0) {
             (*s0)->unk155 = 1;
             sfxPlayActorSound(D_807FBB4C, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
-            func_806F8BC4(6, 0, 0);
+            slotQueueUpdate(6, 0, 0);
             func_806F91B4(6, D_807FD580->unk1A4, 0x3E7);
         }
         break;

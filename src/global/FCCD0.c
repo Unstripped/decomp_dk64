@@ -19,7 +19,7 @@ extern u8 D_807444FC;
 
 extern void *D_80754280;
 
-s32 func_806F7FD0(arg0)
+s32 slotQueueGetAddress(arg0)
 u8 arg0;
 {
     return (arg0 * 0x2D0) + (s32)D_80754280;
@@ -39,7 +39,7 @@ typedef struct R2FCCD0eTransformSlot {
     u8 pad1C[0x14];
 } R2FCCD0eTransformSlot;
 
-void func_806F8170(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
+void slotQueueGetPosition(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
     if (arg0 < 0) {
         func_806F8004(16.5f, 0.0f, arg1, arg2, arg3);
     } else if (arg0 == 8) {
@@ -68,9 +68,9 @@ typedef struct R2FCCD0cSlot {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F833C.s")
 
-extern s32 func_806F7FD0(s32);
+extern s32 slotQueueGetAddress(s32);
 void func_806F8A8C(u8 arg0, u8 arg1, s32 arg2) {
-    *(s16 *)((u8 *)func_806F7FD0(arg1 & 0xFF) + (arg0 * 0x30) + 4) = arg2;
+    *(s16 *)((u8 *)slotQueueGetAddress(arg1 & 0xFF) + (arg0 * 0x30) + 4) = arg2;
 }
 
 s32 func_806C8DE0(s32);
@@ -78,12 +78,12 @@ s32 func_80731A04(s32, s32, s32, s32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8AD4.s")
 
-void func_806F8BC4(s32 arg0, u8 arg1, s32 arg2) {
+void slotQueueUpdate(s32 arg0, u8 arg1, s32 arg2) {
     R2FCCD0cSlot *temp_v0;
 
     if ((D_807FC928 < 2) && (func_807142D8() == 0)) {
         if (arg0 == 8) {
-            func_806F8BC4(9, arg1, arg2 + 0xA);
+            slotQueueUpdate(9, arg1, arg2 + 0xA);
             if (D_8076A0A8 == 0xF) {
                 return;
             }
@@ -122,7 +122,7 @@ void func_806F8CB0(s32 arg0) {
 }
 
 
-void func_806F8CFC(arg0, arg1)
+void slotQueueClearFlags(arg0, arg1)
 s32 arg0;
 u8 arg1;
 {
@@ -132,13 +132,13 @@ u8 arg1;
     *((u8 *)D_80754280 + temp_v0 + 7) = 0;
     *((u8 *)D_80754280 + temp_v0 + 6) = 0;
     if (arg0 == 8) {
-        func_806F8D58(9, 0);
+        slotQueueCancel(9, 0);
     }
 }
 
 extern void *D_80754284;
 
-int func_806F8D58(arg0)
+int slotQueueCancel(arg0)
 s32 arg0;
 {
     s32 mask;
@@ -152,7 +152,7 @@ s32 arg0;
             var_v0 = *(void **)((u8 *)var_v0 + 4);
         } while (var_v0 != NULL);
     }
-    func_806F8CFC();
+    slotQueueClearFlags();
 }
 
 extern s32 func_805FF030();
@@ -191,16 +191,16 @@ void func_806F8EB4(void) {
 
 
 
-void func_806F93EC(u16 *arg0, s32 arg1) {
+void bitfieldSetMappedFlag(u16 *arg0, s32 arg1) {
     *arg0 |= 1 << func_805FF030(arg1 & 0xFF, 1);
 }
 
-void func_806F942C(u16 *arg0, s32 arg1) {
+void bitfieldClearMappedFlag(u16 *arg0, s32 arg1) {
     *arg0 &= ~(1 << func_805FF030(arg1 & 0xFF, 1));
 }
 
 
-s32 func_806F9470(u16 arg0, s32 arg1) {
+s32 bitfieldHasMappedFlag(u16 arg0, s32 arg1) {
     return (1 << func_805FF030(arg1 & 0xFF, 1)) & arg0 & 0xFF;
 }
 
@@ -210,7 +210,7 @@ s32 func_806F9470(u16 arg0, s32 arg1) {
 
 void func_806F9518(s32);
 
-void func_806F95C8(void) {
+void slotQueueReleaseAll(void) {
     s32 i;
 
     i = 0;
@@ -258,7 +258,7 @@ typedef struct R1FCCD0bEffect {
     s32 unkC;
 } R1FCCD0bEffect;
 
-void func_806F96CC(R1FCCD0bEffect *arg0, u32 arg1) {
+void effectSetDirection(R1FCCD0bEffect *arg0, u32 arg1) {
     s32 var_v0;
     s32 var_v1;
 
@@ -305,7 +305,7 @@ void func_80714A28(s32);
 void *func_80714CC0(s32, f32, f32, f32, f32);
 void func_8071BE04(void);
 
-void func_806F9744(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+void effectSpawnSprite(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     u8 unused_byte;
     s32 unused_word;
     s32 sp2C;
@@ -352,7 +352,7 @@ extern u8 D_807FD7A0;
 extern u8 D_807FD7B8;
 extern u8 D_807FD7D0;
 
-void func_806F9AF0(NmFCCD0ActorView *arg0, s8 *arg1) {
+void effectSpriteUpdatePosition(NmFCCD0ActorView *arg0, s8 *arg1) {
     f32 *temp_a2;
     f32 *temp_v0;
     int new_var;
@@ -409,7 +409,7 @@ s32 func_806FA7A4(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FAFE4.s")
 
-void func_806FB218(void)
+void slotQueueClearAllFlags(void)
 {
   s32 i;
   s32 offset;
@@ -417,7 +417,7 @@ void func_806FB218(void)
  i = 0; offset = 0; do {
     if ((*((((u8 *) D_80754280) + offset) + 6)) != 0)
     {
-      func_806F8CFC(i, 0);
+      slotQueueClearFlags(i, 0);
     }
     i++;
     offset += 0x30;
@@ -425,9 +425,9 @@ void func_806FB218(void)
   while (i != 0xF);
 }
 
-void func_806FB290(void) {
+void slotQueueReset(void) {
     func_806FAFE4();
-    func_806F95C8();
+    slotQueueReleaseAll();
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FB2B8.s")

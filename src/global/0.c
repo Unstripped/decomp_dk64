@@ -152,7 +152,7 @@ void func_806F4778(void);
 s32 func_806FAB20(s32);
 void func_806FBB58(void);
 void func_806FBC34(void);
-void func_806FD9A0(void);
+void gfxResourceListReset(void);
 s32 func_807007B8(s32);
 void func_80700BF4(void);
 void func_80701C90(void);
@@ -924,7 +924,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
     D_807F6010 = 0;
     collisionInitTables();
     func_806FBB58();
-    func_806FD9A0();
+    gfxResourceListReset();
     func_807040E0(0xFF, 0xFF, 0xFF);
     func_80704108(0xFF, 0xFF, 0xFF);
     if (D_807444EC == 0) {

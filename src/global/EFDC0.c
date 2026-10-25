@@ -83,7 +83,7 @@ void func_80614E78(Actor *, s32);
 void func_80614EBC(Actor *, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_806CFF9C(Actor *);
-void func_806F8BC4(s32, s32, s32);
+void slotQueueUpdate(s32, s32, s32);
 
 s32 playerStateQueueCallback(s16 priority, void *actor, u8 player) {
     u8 playerByte;
@@ -190,7 +190,7 @@ void func_806EB544(void) {
     if (func_806F8AD4(3, EfA_P->unk1A4) != 0) {
         selector = 3;
     }
-    func_806F8BC4(selector, 0, 0);
+    slotQueueUpdate(selector, 0, 0);
     D_807FBB40->unk154 = 0x60;
     D_807FBB40->unk155[0] = 0;
     EfA_P->unk1A3 = 0;
@@ -263,7 +263,7 @@ void func_806EB964(void) {
     func_80614EBC(D_807FBB48, 0x13);
     EfA_P->unk50 = 0;
     EfA_P->unk38 = 0.0f;
-    func_806F8BC4(6, 1, 0);
+    slotQueueUpdate(6, 1, 0);
 }
 
 void func_806EBA04(void) {
@@ -284,7 +284,7 @@ void func_806EBA74(void) {
     func_80614EBC(D_807FBB48, 0);
     EfA_P->unk50 = 0;
     EfA_P->unk38 = 0.0f;
-    func_806F8BC4(6, 1, 0);
+    slotQueueUpdate(6, 1, 0);
 }
 
 void func_806EBAF4(void) {
@@ -491,7 +491,7 @@ void func_806EC044(void) {
     *(s16 *)((u8 *)D_807FBB48 + 0xE4) = 0;
     *(s16 *)((u8 *)D_807FBB48 + 0xE8) = 0;
     func_8061CC40(D_807FBB48, 0, 1);
-    func_806F8BC4(0, 1, 0);
+    slotQueueUpdate(0, 1, 0);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC1A8.s")
@@ -1072,7 +1072,7 @@ void func_806ED6B0(void) {
                 EfL1A48->unkB8 = 0.0f;
                 EfL1PS->unk38 = 300.0f;
                 flag = 1;
-                func_806F8BC4(5, 1, 0);
+                slotQueueUpdate(5, 1, 0);
                 break;
             }
         case 0x62:

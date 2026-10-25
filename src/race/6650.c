@@ -122,8 +122,8 @@ void hudSpawnTextScreen(s32);
 void func_80026CA8(void);
 void func_80026D2C(f32);
 void func_8068ECF4(s32, u8);
-void func_806F8BC4(s32, s32, s32);
-void func_806F8D58(s32, s32);
+void slotQueueUpdate(s32, s32, s32);
+void slotQueueCancel(s32, s32);
 void func_806F4D70(u8, s32, s32, s32, f32);
 void renderCallbacksRegister(void *, void *, s32);
 typedef struct {

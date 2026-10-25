@@ -91,7 +91,7 @@ void animSetFinished(Actor *, s32, s32);
 s32 actorListFindIdByActor(Actor *);
 void func_8068A764(Actor *, u8);
 void func_8069B908(void);
-void func_806F8D58(s32, s32);
+void slotQueueCancel(s32, s32);
 s32 func_8070E750(s32, s32, s32);
 void func_80714950(s32);
 void func_8071496C(s32);
@@ -443,7 +443,7 @@ void tagBarrelTriggerRecoil(void) {
     D_807FBB40->unk144 = 1;
     D_807FBB40->unk60 &= ~0x8000;
     D_807FBB40->unk128 = 0;
-    func_806F8D58(5, 0);
+    slotQueueCancel(5, 0);
 }
 
 void tagBarrelCheckRecoil(void) {

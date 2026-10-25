@@ -133,7 +133,7 @@ typedef struct F9A_LinkedNode {
 extern F9A_LinkedNode *D_807FD730;
 void heapFree(void *);
 extern s16 D_807FD720;
-void func_806F95C8(void);
+void slotQueueReleaseAll(void);
 
 void gridFreeAllNodeLists(void) {
     s32 var_s2;
@@ -182,7 +182,7 @@ void gridFreeAllNodeLists(void) {
         }
         D_807FD730 = NULL;
     }
-    func_806F95C8();
+    slotQueueReleaseAll();
 }
 
 

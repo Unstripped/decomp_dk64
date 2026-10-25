@@ -684,7 +684,7 @@ void func_80714950(s32);
 void func_8071498C(void (*)(void));
 void func_8071D28C(void);
 void func_8071EB70(void);
-void func_806F8BC4(s32, s32, s32);
+void slotQueueUpdate(s32, s32, s32);
 void func_806F91B4(s32, s32, s32);
 
 void func_806A7600(void *);
@@ -803,7 +803,7 @@ void func_806A7600(void *arg0) {
             if (temp_v1->unk6 != -1) {
                 func_8073129C(temp_v1->unk6, 1, 0);
             }
-            func_806F8BC4(0, 0, 0);
+            slotQueueUpdate(0, 0, 0);
             func_806F91B4(0, 0, 0xA);
         }
     }
@@ -886,7 +886,7 @@ void effectActorSparkleTick(void) {
                 func_80714950(100);
                 func_80714C08((void *)table.unk0[idx], 0.2f, D_807FBB40, 1, 0);
                 sfxAllocateChannel(0x7F, 1.0f);
-                func_806F8BC4(7, 0, 0);
+                slotQueueUpdate(7, 0, 0);
                 func_806F91B4(7, 0, (s16)func_806F8EDC(7, 0));
             }
         }

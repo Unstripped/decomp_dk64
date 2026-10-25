@@ -136,7 +136,7 @@ extern void func_8071D0F0(void);
 
 u8 func_805FF030(u8, s32);
 s32 func_806F8AD4(s32, s32);
-void func_806F8D58(s32, s32);
+void slotQueueCancel(s32, s32);
 void func_806F91B4(s32, s32, s32, void *);
 void func_8061C518(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_807248B0(Actor *, f32);
@@ -205,7 +205,7 @@ void func_806BE09C(void) {
                     for (i = 0; i < 5; i++) sum += ((u16 *)(D_807FC950[i] + 0x26))[idx];
                     if (sum >= D_807446C0[idx]) {
                         R1C2CBS->unk2C = 0;
-                        func_806F8D58(0, 0);
+                        slotQueueCancel(0, 0);
                     }
                     func_8071498C(func_8071D0F0);
                     func_807149FC(-1);

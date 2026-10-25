@@ -22,7 +22,7 @@ typedef struct G21Actor1A0 {
 
 void func_80614E78(void *, s32);
 s32 func_806F8AD4(u8, u8);
-void func_806F8BC4(s32, s32, s32);
+void slotQueueUpdate(s32, s32, s32);
 
 void func_806DF390(s32 arg0, G21Actor1A0 *arg1, u8 arg2) {
     s32 id;
@@ -44,7 +44,7 @@ void func_806DF3D0(s32 arg0, G21Actor1A0 *arg1, u8 arg2) {
     if (func_806F8AD4(3, arg1->unk1A4)) {
         a = 3;
     }
-    func_806F8BC4(a, 0, 0);
+    slotQueueUpdate(a, 0, 0);
     if (arg2) {
         id = 0x4D;
     }
@@ -1284,7 +1284,7 @@ u8 arg1;
         if (!arg0) {
             flags &= ~4;
         }
-        func_806F8BC4(sel, 0, 0);
+        slotQueueUpdate(sel, 0, 0);
         if (func_806F8AD4((u8)sel, D_807FC929)) {
             if (func_8067ACDC(D_807FBB40, 4, (s32)actorIsActiveType2B) < D_80753E64[D_807FD584]) {
                 hasFlag = flags & 2;
@@ -2455,7 +2455,7 @@ void func_806E52D0(void) {
                 }
             }
             if (n == 0) {
-                func_806F8BC4(7, 0, 0);
+                slotQueueUpdate(7, 0, 0);
             }
         }
     }
@@ -4020,7 +4020,7 @@ extern s16 D_80750338;
 extern s16 D_807539DC[];
 extern s16 D_807539EC[];
 s32 func_806E9D1C();
-void func_806F8D58(s32, s32);
+void slotQueueCancel(s32, s32);
 
 void func_806E8F04(void) {
     if (G29_PAR->unk155 == 1) {
@@ -4226,8 +4226,8 @@ void func_806E9964(arg0) Struct807FD580 *arg0; {
     } else {
         func_806EAB44(a, (u8)flag);
     }
-    func_806F8D58(6, 1);
-    func_806F8D58(0xC, 1);
+    slotQueueCancel(6, 1);
+    slotQueueCancel(0xC, 1);
     arg0->unk1F0 &= ~0x8000;
 }
 

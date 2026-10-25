@@ -97,7 +97,7 @@ extern Struct_807FC924 *D_807FC924;
 extern s16 D_80750AC4;
 extern s32 D_8076A0A8;
 
-void func_806F8BC4(s32, s32, s32);
+void slotQueueUpdate(s32, s32, s32);
 void func_806319C4(void *, s32);
 void func_800253C0(void *, s16, u8);
 void func_8061C6A8(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -215,7 +215,7 @@ void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
     if (!(temp_v1 & 0x10)) {
         D_807FBB40->unk60 = temp_v1 | 0x1400;
         if (D_8076A0A8 == 6 || D_8076A0A8 == 0x37 || D_8076A0A8 == 0x6A) {
-            func_806F8BC4(0xB, 1, 0);
+            slotQueueUpdate(0xB, 1, 0);
             D_80750AC4 = 0;
         }
     }

@@ -65,12 +65,12 @@ typedef struct R1F1025E0Node {
 extern R1F1025E0Node *D_80754AD0;
 extern s16 D_80754AD4;
 
-void func_806FD9A0(void) {
+void gfxResourceListReset(void) {
     D_80754AD0 = NULL;
     D_80754AD4 = 0;
 }
 
-R1F1025E0Node *func_806FD9B4(s16 arg0) {
+R1F1025E0Node *gfxResourceFindById(s16 arg0) {
     R1F1025E0Node *var_v1;
 
     var_v1 = D_80754AD0;
@@ -84,17 +84,17 @@ loop_2:
     return var_v1;
 }
 
-R1F1025E0Entry *func_806FD9FC(R1F1025E0Entry *arg0, s16 arg1, s16 arg2) {
-    *arg0 = func_806FD9B4(arg1)->unk8[arg2];
+R1F1025E0Entry *gfxResourceCopyEntry(R1F1025E0Entry *arg0, s16 arg1, s16 arg2) {
+    *arg0 = gfxResourceFindById(arg1)->unk8[arg2];
     return arg0;
 }
 
 f32 func_806FDA8C(s16 arg0) {
-    return func_806FD9B4(arg0)->unk18;
+    return gfxResourceFindById(arg0)->unk18;
 }
 
 void func_806FDAB8(s16 arg0, f32 arg1) {
-    func_806FD9B4(arg0)->unk18 = arg1;
+    gfxResourceFindById(arg0)->unk18 = arg1;
 }
 
 void heapFree(void *);
@@ -127,7 +127,7 @@ loop_2:
 
 void _strcpy(s32, s32);
 void func_806FDF1C(s16 arg0, s32 arg1) {
-    _strcpy((s32)func_806FD9B4(arg0)->unk4, arg1);
+    _strcpy((s32)gfxResourceFindById(arg0)->unk4, arg1);
 }
 
 s16 func_806CC190(s16, s16, f32);

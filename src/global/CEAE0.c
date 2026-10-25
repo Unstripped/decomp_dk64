@@ -266,7 +266,7 @@ s32 func_8073110C(s32, s32);
 s32 func_806F8AD4(s32, u8);
 void effectSpawnBurst(s32);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
-void func_806F8BC4(s32, s32, s32);
+void slotQueueUpdate(s32, s32, s32);
 s32 func_806FA7A4(s32);
 void func_806F91B4(s32, u8, s16);
 void func_80614E78(Actor *, s32);
@@ -295,7 +295,7 @@ void func_806CA2E4(void) {
             if (G02_P->unkC8 == 0 && (G02_A->unk6A & 1)) {
                 G02_A->unk154 = 0x2D;
                 G02_A->unk155 = 0;
-                func_806F8BC4(5, 0, 0);
+                slotQueueUpdate(5, 0, 0);
                 func_806F91B4(5, G02_P->unk1A4, -func_806FA7A4(5));
                 func_80614E78(D_807FBB40, 0x42);
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF2, 0xFF, 0x7F, 0);
