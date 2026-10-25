@@ -585,7 +585,37 @@ void func_806F3760(s16 arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F37BC.s")
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    u8 pad6[0xC];
+    s16 unk12;
+    u8 pad14[2];
+    s16 unk16;
+} F5N4Coord;
+
+typedef struct {
+    u8 pad0[0xE6];
+    s16 unkE6;
+    u8 padE8[6];
+    s16 unkEE;
+} F5N4ActorView;
+
+void actorClearMovementFlags(void *);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+
+void func_806F37BC(Actor *arg0, F5N4Coord *arg1) {
+    s16 angle;
+
+    actorClearMovementFlags(arg0);
+    arg0->unk7C = arg1->unk0;
+    arg0->unk80 = arg1->unk2;
+    arg0->unk84 = arg1->unk4;
+    angle = mathAngleBetweenPoints2D(arg1->unk12, arg1->unk16, arg1->unk0, arg1->unk4);
+    ((F5N4ActorView *)arg0)->unkEE = angle;
+    ((F5N4ActorView *)arg0)->unkE6 = angle;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F386C.s")
 
