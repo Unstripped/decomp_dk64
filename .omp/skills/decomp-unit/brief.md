@@ -150,6 +150,11 @@ swapped externs in a comparison look identical in the text.
 # Method
 Your budget is finite: near-misses first, then never-attempted functions from smallest to
 largest. After a serious effort on one function, move on and come back if budget remains.
+Every assigned function must be written as compilable C and fdiff'd at least once before
+you report: "stage 1, m2c starter saved" without a compile counts as unattempted.
+When the permuter (or anything else) reaches score 0, put the readable C into your copy in
+place of the function's `GLOBAL_ASM` line and confirm with fdiff: a match left only in a
+draft is not merged.
 Use the whole budget (~25+ minutes) before reporting: a report after 12 minutes with
 functions never attempted is a failure. Report every assigned function, matched or not. A function that won't match gets its exact
 original `#pragma GLOBAL_ASM(...)` line back (or is parked under `#ifdef NON_MATCHING`
