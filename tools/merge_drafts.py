@@ -14,8 +14,9 @@
         copies it only prunes and checks (use after resolving conflicts by hand).
         --base REV uses `git show REV:<src>` as the base instead of the snapshot: for drafts
         copied before a later snapshot (agents still running from an earlier round), pass
-        the commit their copy started from. A copy that dropped another function's
-        GLOBAL_ASM line without defining it is refused before merging (exit 1, src untouched).
+        the commit their copy started from. A copy that dropped another function's (or
+        standalone data/rodata symbol's) GLOBAL_ASM line without a C definition of it is
+        refused before merging (exit 1, src untouched).
 
 Runs on the host (needs git and tools/dk). Exit codes: 0 OK / TEXT OK, 1 compile error
 or mismatch, 2 merge conflicts (src untouched; conflicted result in .scratch/merged/).
@@ -96,14 +97,20 @@ def prune(lines, base_lines):
 
 
 def lost_functions(base_text, draft_text):
-    """Functions whose GLOBAL_ASM line is in the base but neither that line nor a definition
+    """Symbols whose GLOBAL_ASM line is in the base but neither that line nor a C definition
     is in the draft: an agent deleted another function's pragma (the link then fails with an
-    undefined reference from data, e.g. a callback table)."""
+    undefined reference from data, e.g. a callback table). A function counts as defined by
+    `T name(...)` without a trailing `;`; a standalone data/rodata pragma (`D_....s`) by a
+    non-extern file-scope object definition `T name[...] = ...;` / `T name;`."""
     lost = []
     for path, name in re.findall(r'GLOBAL_ASM\("([^"]*/(\w+)\.s)"\)', base_text):
         if f'GLOBAL_ASM("{path}")' in draft_text:
             continue
-        if re.search(rf"^[A-Za-z_][\w \t\*]*\b{re.escape(name)}\([^;]*$", draft_text, re.M):
+        n = re.escape(name)
+        if re.search(rf"^[A-Za-z_][\w \t\*]*\b{n}\([^;]*$", draft_text, re.M):
+            continue
+        if re.search(rf"^(?!extern\b)[A-Za-z_][\w \t\*]*\b{n}\s*(\[[^\]]*\]\s*)*(=|;)",
+                     draft_text, re.M):
             continue
         lost.append(name)
     return lost
