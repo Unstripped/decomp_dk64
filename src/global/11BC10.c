@@ -528,9 +528,40 @@ void func_8071D260(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071DC90.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071E028.s")
+void func_8071E028(Ub2ActorView *arg0, s8 *arg1) {
+    f32 sp68[4][4];
+    f32 sp28[4][4];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071E110.s")
+    guScaleF(sp68, arg0->unk360, arg0->unk364, 0.0f);
+    guTranslateF(sp28, 0.0f, arg0->unk364 * 20.0f, 0.0f);
+    guMtxCatF(sp68, sp28, sp68);
+    guRotateF(sp28, (f32)arg0->unk35C, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(sp68, sp28, sp68);
+    guMtxF2L(sp68, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    arg0->pad0[0x32C] = 2;
+}
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+} Ub7E110Motion;
+
+void func_8071E110(Ub2ActorView *arg0, u8 arg1, u16 arg2, f32 arg3, f32 arg4, s32 arg5) {
+    Ub7E110Motion *temp_v0;
+
+    temp_v0 = func_80610FE8(0x18);
+    arg0->unk384 = temp_v0;
+    temp_v0->unk0 = (f32)(u32)arg1;
+    temp_v0->unk4 = arg4;
+    temp_v0->unk8 = arg3;
+    temp_v0->unkC = 1.0f / (f32)arg5;
+    temp_v0->unk10 = 0.0f;
+    temp_v0->unk14 = (f32)(u32)arg2;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071E1C8.s")
 
