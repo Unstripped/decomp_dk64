@@ -1,4 +1,4 @@
-// func_80711410 (src/global/114270.c): stage 4: target frame and saved-register set match; FP conversion scheduling and later register allocation differ
+// func_80711410 (src/global/114270.c): stage 4: target frame and saved-register set match; callback-volume, clamp, random count, and spawn loop reconstructed. A 1200-second two-worker permuter search did not yield a readable score-zero candidate; FP conversion scheduling and allocation still differ.
 typedef struct R114dPlayerView {
     u8 pad0[0x2C4];
     f32 unk2C4;
