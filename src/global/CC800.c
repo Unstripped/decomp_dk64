@@ -544,7 +544,6 @@ void func_806C8F8C(void *arg) {
 #endif
 
 extern s16 D_8076AEE2;
-#ifdef NON_MATCHING
 extern s32 D_807FBB60;
 extern s8 D_80770DC9;
 G01Pos *func_806C96C4(s32);
@@ -581,19 +580,11 @@ void func_806C90C4(s32 arg0) {
         break;
     }
     G01A->unk6A &= 0xFDFF;
-    if ((s32)p->unk7 <= 0) {
-        sp24->unk104->unk15F = 1;
-    } else {
-        sp24->unk104->unk15F = p->unk7;
-    }
+    sp24->unk104->unk15F = ((s32)p->unk7 <= 0) ? 1 : p->unk7;
     if (p->unk9 & 1) {
         D_80770DC9 = 1;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C90C4.s")
-#endif
 
 void func_806C9434(s32);
 void actorClearMovementFlags(void *);
@@ -890,15 +881,14 @@ void func_806C9C1C(s32);
 
 #ifdef NON_MATCHING
 extern s32 D_80750B34[];
-extern s32 D_80750B48;
 void func_806F91B4(s32, u8, s32);
 
 void func_806C9C1C(s32 arg0) {
-    s32 *p = D_80750B34;
+    s32 i;
 
-    do {
-        func_806F91B4(*p, arg0, 0x270F);
-    } while (++p != &D_80750B48);
+    for (i = 0; i < 5; i++) {
+        func_806F91B4(D_80750B34[i], arg0, 0x270F);
+    }
     func_806F833C(0);
 }
 #else
@@ -931,7 +921,6 @@ void func_806C9D20(u8 arg0) {
     p->unk23C = p->unk230;
 }
 
-#ifdef NON_MATCHING
 typedef struct G01Row {
     /* 0x00 */ u8 pad0[0x42];
     /* 0x42 */ u16 unk42[8];
@@ -943,17 +932,12 @@ s32 func_806C9D7C(void) {
     s32 i;
     s32 v;
 
-    i = 0;
-    do {
+    v = 0;
+    for (i = 0; i < 8 && !v; i++) {
         v = row->unk42[i] > 0;
-        i++;
-    } while (i < 8 && !v);
+    }
     return v;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C9D7C.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/D_8075C410.s")
 
