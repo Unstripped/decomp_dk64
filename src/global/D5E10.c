@@ -4216,12 +4216,274 @@ void func_806DD24C(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DEAA4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DECD4.s")
+typedef struct G20Actor {
+    /* 0x000 */ u8 pad0[0x155];
+    /* 0x155 */ u8 unk155;
+} G20Actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DED44.s")
+#define G20_A ((G20Actor *)D_807FBB40)
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DF050.s")
+void func_8061CB08();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DF1A0.s")
+void func_806DECD4(void) {
+    if (G20_A->unk155 == 1) {
+        func_8061CB08();
+        G20_A->unk155++;
+        func_806CFF9C(D_807FBB40);
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DF280.s")
+typedef struct G20Sub4 {
+    /* 0x00 */ u8 pad0[0x34];
+    /* 0x34 */ f32 unk34;
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ f32 unk3C;
+} G20Sub4;
+
+typedef struct G20Sub174 {
+    /* 0x000 */ u8 pad0[0x1A4];
+    /* 0x1A4 */ u8 unk1A4;
+} G20Sub174;
+
+typedef struct G20Light {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ void *unkC;
+    /* 0x10 */ void *unk10;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ u8 pad1C[2];
+    /* 0x1E */ u8 unk1E;
+} G20Light;
+
+typedef struct G20ActorE {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ G20Sub4 *unk4;
+    /* 0x008 */ u8 pad8[0x58];
+    /* 0x060 */ u32 unk60;
+    /* 0x064 */ u8 pad64[0x80];
+    /* 0x0E4 */ s16 unkE4;
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ s16 unkE8;
+    /* 0x0EA */ u8 padEA[0x32];
+    /* 0x11C */ void *unk11C;
+    /* 0x120 */ u8 pad120[0xC];
+    /* 0x12C */ s16 unk12C;
+    /* 0x12E */ u8 pad12E[0x26];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[0x1E];
+    /* 0x174 */ void *unk174;
+} G20ActorE;
+
+#define G20_E40 ((G20ActorE *)D_807FBB40)
+#define G20_E44 ((G20ActorE *)D_807FBB44)
+
+s32 func_806F8EB4();
+void func_8061CC40(void *, s32, s32);
+void func_8067B238(void *, void *, f32);
+void lightGetColor(f32 *, f32 *, f32 *, s16);
+void lightSetColor(f32, f32, f32, s16);
+void func_80629174();
+void effectSpawnKongRing();
+void func_80709464(u8);
+void func_806F8BC4(s32, s32, s32);
+extern s32 D_80750FE0;
+extern s32 D_80750FF0;
+
+void func_806DED44(void) {
+    G20Light *light;
+    G20Sub174 *owner;
+    s32 col;
+    s32 *p;
+    s32 sel;
+    s32 a1;
+
+    func_806DF6D4(1);
+    func_806D9924(D_807FBB40);
+    sel = G20_E40->unk155;
+    switch (sel) {
+    case 0:
+        if (func_806F8EB4() == 0x14) {
+            a1 = 0x1A;
+        } else {
+            a1 = 0x11;
+        }
+        func_8061CC40(D_807FBB40, a1, 5);
+        G20_E40->unk155 = 1;
+        break;
+    case 1:
+        D_807FBB60 &= 0xFFFEFFCF;
+        actorSpawn(0x141, 0x3D);
+        func_8067B238(D_807FBB44, D_807FBB40, G20_E40->unk4->unk38 * 2);
+        G20_E44->unk60 |= 0x40000000;
+        G20_E44->unkE6 += 0x800;
+        G20_E44->unkE6 &= 0xFFF;
+        G20_E44->unk11C = D_807FBB40;
+        func_80614EBC(D_807FBB44, 0x2B7);
+        light = G20_E44->unk174;
+        light->unk10 = D_807FBB40;
+        light->unk18 = G20_E40->unk12C;
+        col = light->unk18;
+        if (col == -1) {
+            light->unk18 = 0;
+            col = 0;
+        }
+        light->unk16 = G20_E40->unkE8;
+        light->unk14 = G20_E40->unkE4;
+        lightGetColor(&light->unk0, &light->unk4, &light->unk8, col);
+        lightSetColor(1.0f, 1.0f, 1.0f, ((s16 *)light)[0x1A / 2]);
+        actorSpawn(0x136, 0xA8);
+        func_8067B238(D_807FBB44, D_807FBB40, G20_E40->unk4->unk34);
+        G20_E44->unk60 |= 0x40000000;
+        light->unkC = D_807FBB44;
+        light->unk1E = func_806F8EB4() == 0x14;
+        G20_E40->unk155 = 2;
+        break;
+    case 2:
+        if (func_80629148()) {
+            func_80629174();
+            effectSpawnKongRing();
+            sfxAllocateChannel(0x3B, 1.0f);
+            G20_E40->unk155 = 3;
+        }
+    case 3:
+        if (func_80629148()) {
+            owner = G20_E40->unk174;
+            func_80629174();
+            func_806CFF9C(D_807FBB40);
+            func_80709464(owner->unk1A4);
+            p = &D_80750FE0;
+            do {
+                func_806F91B4(*p, 0, 0x270F);
+                func_806F8BC4(*p, 0, 0);
+            } while (++p != &D_80750FF0);
+        }
+        break;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+
+typedef struct G20Block {
+    /* 0x000 */ u8 unk0;
+    /* 0x001 */ u8 pad1[0x2E9];
+    /* 0x2EA */ u8 unk2EA;
+    /* 0x2EB */ u8 unk2EB;
+    /* 0x2EC */ u8 pad2EC[4];
+} G20Block;
+
+typedef struct G20ActorC {
+    /* 0x000 */ u8 pad0[0x60];
+    /* 0x060 */ u32 unk60;
+    /* 0x064 */ u8 pad64[0xC4];
+    /* 0x128 */ s16 unk128;
+    /* 0x12A */ u8 pad12A[0x4A];
+    /* 0x174 */ G20Sub174 *unk174;
+} G20ActorC;
+
+#define G20_C ((G20ActorC *)D_807FBB40)
+
+#define G20_BLK ((G20Block *)D_807FC924)
+extern u8 D_80750AB8;
+
+void func_806DF050(void) {
+    G20Sub174 *sub = G20_C->unk174;
+    s32 step;
+    s16 cur;
+
+    func_806EB0C0(0x5C, 0, D_807FC929);
+    if (D_80750AB8 == 0) {
+        G20_BLK[sub->unk1A4].unk2EA = 1;
+    }
+    G20_BLK[sub->unk1A4].unk2EB = 1;
+    G20_C->unk60 &= 0xFFFF7FFF;
+    cur = G20_C->unk128;
+    step = (cur < 4) ? cur : 4;
+    G20_C->unk128 = cur - step;
+    if (G20_C->unk128 == 0) {
+        if (D_80750AB8 == 0) {
+            G20_BLK[sub->unk1A4].unk0 = 0;
+        }
+        G20_C->unk60 &= ~4;
+    }
+    func_806CC948();
+    func_806319C4(D_807FBB40, 0);
+}
+
+typedef struct G20Target {
+    /* 0x000 */ u8 pad0[0x220];
+    /* 0x220 */ f32 unk220;
+    /* 0x224 */ u8 pad224[4];
+    /* 0x228 */ f32 unk228;
+    /* 0x22C */ f32 unk22C;
+    /* 0x230 */ f32 unk230;
+    /* 0x234 */ f32 unk234;
+} G20Target;
+
+typedef struct G20ActorB {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ G20Sub4 *unk4;
+    /* 0x008 */ u8 pad8[0x74];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x5C];
+    /* 0x0E4 */ s16 unkE4;
+    /* 0x0E6 */ u8 padE6[0x8E];
+    /* 0x174 */ G20Target *unk174;
+} G20ActorB;
+
+#define G20_B ((G20ActorB *)D_807FBB40)
+
+void func_806DF1A0(void) {
+    G20Target *t = G20_B->unk174;
+
+    G20_B->unk4->unk34 *= 0.92;
+    G20_B->unk4->unk38 = G20_B->unk4->unk34;
+    G20_B->unk4->unk3C = G20_B->unk4->unk34;
+    G20_B->unk7C += (t->unk22C - G20_B->unk7C) * 0.125f;
+    G20_B->unk80 += (t->unk230 - G20_B->unk80) * 0.125f;
+    G20_B->unk84 += (t->unk234 - G20_B->unk84) * 0.125f;
+    G20_B->unkE4 += 0xFF;
+    func_806319C4(D_807FBB40, 0);
+}
+
+typedef struct G20ActorD {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ G20Sub4 *unk4;
+    /* 0x008 */ u8 pad8[0x74];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x5C];
+    /* 0x0E4 */ s16 unkE4;
+    /* 0x0E6 */ u8 padE6[0x6E];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[0x1E];
+    /* 0x174 */ G20Target *unk174;
+} G20ActorD;
+
+#define G20_D ((G20ActorD *)D_807FBB40)
+
+void func_806DF280(void) {
+    G20Target *t = G20_D->unk174;
+
+    G20_D->unk4->unk34 *= 1.08;
+    if (G20_D->unk4->unk34 > 0.15) {
+        G20_D->unk4->unk34 = 0.15f;
+        G20_D->unk154 = 0xC;
+        G20_D->unk155 = 0;
+        G20_D->unkE4 = -0xFF;
+    }
+    G20_D->unk4->unk38 = G20_D->unk4->unk34;
+    G20_D->unk4->unk3C = G20_D->unk4->unk34;
+    G20_D->unk7C += t->unk220;
+    G20_D->unk84 += t->unk228;
+    G20_D->unkE4 += 0xFF;
+    G20_D->unkE4 &= 0xFFF;
+    func_806319C4(D_807FBB40, 0);
+}
