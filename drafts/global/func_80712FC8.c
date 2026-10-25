@@ -1,4 +1,4 @@
-// func_80712FC8 (src/global/117190.c): Menu dispatch behavior recovered; signed comparison/compiler shape remains off
+// func_80712FC8 (src/global/117190.c): Stage 2: menu dispatch semantics recovered; condition shape unresolved
 void func_80712FC8(void) {
     s32 arg0;
     s32 arg1;

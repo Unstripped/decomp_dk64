@@ -1,4 +1,4 @@
-// func_80712F10 (src/global/117190.c): State-transition condition behavior recovered; compiler shape remains off
+// func_80712F10 (src/global/117190.c): Stage 2: condition semantics recovered; branch shape unresolved
 void func_80712F10(s32 *arg0, s32 *arg1) {
     if (D_80755314 == 0xC) {
         if (((D_807FBB68 & 2) == 0) || ((D_8076A0A8 == 0xCF) || (*arg0 == 0x22))) {
