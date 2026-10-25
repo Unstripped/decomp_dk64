@@ -33,15 +33,80 @@ extern Actor *D_807FBB48;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DA74.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DB7C.s")
+extern void heapFreeDeferred();
+typedef struct M112bFreeEntry {
+    void *unk0;
+    void *unk4;
+} M112bFreeEntry;
+
+
+void func_8070DB7C(M112bFreeEntry *arg0) {
+    heapFreeDeferred(arg0->unk4);
+}
+
+typedef struct M112bRecord {
+    u8 flags;
+    u8 pad1[3];
+    void *unk4;
+    M112bFreeEntry *unk8;
+    void *unkC;
+} M112bRecord;
+
+typedef struct M112bRecordList {
+    u8 count;
+    u8 pad1[3];
+    M112bRecord *entries;
+} M112bRecordList;
+
+typedef struct M112bRecordListArray {
+    u8 count;
+    u8 pad1[3];
+    M112bRecordList *entries;
+    void *unk8;
+    void *unkC;
+} M112bRecordListArray;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DB9C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DC40.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DCA4.s")
+void func_8070DC40(M112bRecordList *arg0) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DD18.s")
+    i = 0;
+    if (arg0->count > 0) {
+        do {
+            func_8070DB9C(&arg0->entries[i]);
+            i++;
+        } while (i < arg0->count);
+    }
+    heapFreeDeferred(arg0->entries);
+}
+
+
+void func_8070DCA4(M112bRecordListArray *arg0) {
+    s32 i;
+
+    i = 0;
+    if (arg0->count > 0) {
+        do {
+            func_8070DC40(&arg0->entries[i]);
+            i++;
+        } while (i < arg0->count);
+    }
+    heapFreeDeferred(arg0->entries);
+    heapFreeDeferred(arg0->unkC);
+    heapFreeDeferred(arg0);
+}
+
+typedef struct M112bRecordListHolder {
+    void *unk0;
+    M112bRecordListArray *unk4;
+} M112bRecordListHolder;
+
+void func_8070DD18(M112bRecordListHolder *arg0) {
+    func_8070DCA4(arg0->unk4);
+    heapFreeDeferred(arg0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DD44.s")
 
@@ -59,6 +124,15 @@ extern Actor *D_807FBB48;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070E808.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070E8C8.s")
+extern s32 D_807550C0;
+extern void *D_807550C4;
+extern s8 D_807550CC;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070E8DC.s")
+void func_8070E8C8(void) {
+    D_807550C0 = 0;
+    D_807550C4 = 0;
+}
+
+void func_8070E8DC(s8 arg0) {
+    D_807550CC = arg0;
+}
