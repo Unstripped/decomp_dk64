@@ -330,7 +330,8 @@ s32 func_806DF6D4(s32 arg0) {
 
 #ifdef NON_MATCHING
 u16 func_806DFF34(u16 arg0, u16 *arg1) {
-    u16 var_v0;
+    u16 *unused = &arg0;
+    u32 var_v0;
     u16 var_v1;
     u16 var_a2;
 
@@ -1323,9 +1324,10 @@ u8 func_806E2B20(void *arg0) {
     actorGetNodePos(arg0, 4, &sp78, &sp70, &sp68);
     actorGetNodePos(arg0, 0xA, &sp7C, &sp74, &sp6C);
     for (; var_fs1 <= 1.0 && sp63 == 0; var_fs1 += 0.2) {
-        temp3 = ((sp6C - sp68) * var_fs1) + sp68;
-        sp63 = func_80671E00(((sp7C - sp78) * var_fs1) + sp78, ((sp74 - sp70) * var_fs1) + sp70, temp3, 10.0f, &sp66,
-                             &sp64, 0, 0);
+        do {
+            temp3 = sp68;
+        } while (0);
+        sp63 = func_80671E00(((sp7C - sp78) * var_fs1) + sp78, ((sp74 - sp70) * var_fs1) + sp70, ((sp6C - sp68) * var_fs1) + temp3, 10.0f, &sp66, &sp64, 0, 0);
     }
     return sp63;
 }
@@ -1616,19 +1618,24 @@ void func_806E35D8(void) {
 }
 
 
-#ifdef NON_MATCHING
 void func_806E36B4(void) {
     u32 sel;
+    G24Act *p;
 
+    do {
+        if (!D_807FBB40 && !D_807FBB40) {}
+    } while (0);
     if (G24_PAD(D_807FD63C, u16) & 0x8000) {
         G24_M->unk58 = D_80767CC0;
     }
     if ((D_80767CC0 - G24_M->unk58) < 0xF) {
-        G24_A->unk154 = 0x4C;
+        p = (G24Act *)D_807FBB40;
+        p->unk154 = 0x4C;
         G24_A->unk155 = 0;
         G24_M->unk54 = D_807535CC[D_807FD584];
         G24_M->unk50 = 0;
         sel = G24_M->unk1AC->unk58;
+        sel ^= 0;
         switch (sel) {
             case 0x3D:
             case 0x3F:
@@ -1646,10 +1653,6 @@ void func_806E36B4(void) {
         G24_M->unk58 = D_80767CC0 - 0x1E;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E36B4.s")
-#endif
 
 
 void func_806CFEA4(void);
