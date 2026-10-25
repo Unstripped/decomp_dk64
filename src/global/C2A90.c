@@ -69,7 +69,7 @@ typedef struct R1C2CB_ActorC0 {
 void func_80614EBC(void *, s32);
 void func_806319C4(Actor *, s32);
 void func_8061C600(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_8072881C(s32, void *);
+s32 func_8072881C(s32, void *);
 
 void func_806BDEC8(void) {
     R1C2CB_Sub174 *sub = D_807FBB4C->unk174;
@@ -314,7 +314,6 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *arg1) {
     return gdl;
 }
 
-#ifdef NON_MATCHING
 typedef struct LgBE8Sub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
@@ -415,7 +414,7 @@ void func_806BE8BC(void) {
     s16 i;
     s16 j;
     s16 ang;
-    u8 sel;
+    s32 sel;
 
     sp37 = func_8073110C(0xF8, 0);
     func_80729B00();
@@ -575,13 +574,12 @@ void func_806BE8BC(void) {
                 renderCallbacksRegister(actorDrawAnimatedEffect, D_807FBB40, 3);
             }
             if (((func_80611A44() >> 0xF) % 1000) >= 0x3DF && LgBA->unk4->unk64 == 0x302) {
-                s32 a1;
                 if (D_8076A064 & 1) {
-                    a1 = 0x303;
+                    sel = 0x303;
                 } else {
-                    a1 = 0x304;
+                    sel = 0x304;
                 }
-                func_80614EBC(D_807FBB40, a1);
+                func_80614EBC(D_807FBB40, sel);
             }
             if (D_807FBB70.unk0 != 0) {
                 if (D_807FBB70.unk1[0] >= D_807506C0[LgBA->unk15F] && LgBA->unk15F < 0x10U) {
@@ -603,7 +601,7 @@ void func_806BE8BC(void) {
                     LgBA->unk155 = 0;
                 }
             }
-            ((s32 (*)(s32, void *, void *))func_8072881C)(0, LgBS->unk28, &D_807FBB70);
+            func_8072881C(0, LgBS->unk28);
             func_8072AB74(LgBA->unk154, LgBS->unkA, LgBS->unkE, 0x10, 0.0f);
             func_8072D13C(LgBA->unk154, 0);
             break;
@@ -614,10 +612,6 @@ void func_806BE8BC(void) {
     func_8072A450();
     func_806319C4(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C2A90/func_806BE8BC.s")
-#endif
 
 typedef struct LgBF218Sub124 {
     /* 0x00 */ u8 pad0[8];
