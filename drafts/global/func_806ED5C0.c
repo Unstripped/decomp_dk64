@@ -1,50 +1,68 @@
-// func_806ED5C0 (src/global/EFDC0.c): stage 1: m2c reconstruction of actor-map event routing; stack-local source at 0x1A remains unresolved
-s32 actorListFindIdByActor();                       /* extern */
-? func_8061CC40(?, ?, ?);                           /* extern */
-s32 func_8073110C(s16, ?);                          /* extern */
-? func_8073129C(s16, ?, ?);                         /* extern */
-extern s32 D_8076A0A8;
+// func_806ED5C0 (src/global/EFDC0.c): stage 3: routing behavior recovered and target frame retained; switch/register allocation differs
+s32 func_8073110C(s32, s32);
+void func_8073129C(s32, s32, s32);
+s16 actorListFindIdByActor(Actor *);
 
-void func_806ED5C0(void *arg0) {
+void func_806ED5C0(Actor *arg0) {
     u16 sp24;
     s32 sp18;
     s16 var_v0;
     s32 temp_v0;
 
-    sp24 = (u16) arg0->unk58;
-    temp_v0 = actorListFindIdByActor();
-    switch (D_8076A0A8) {                           /* switch 1; irregular */
-    case 26:                                        /* switch 1 */
+    sp24 = (u16)arg0->unk58;
+    temp_v0 = actorListFindIdByActor(arg0);
+    switch (D_8076A0A8) {
+    case 26:
         if (temp_v0 == 0x11) {
             return;
         }
-    default:                                        /* switch 1 */
-block_6:
-        switch (sp24) {                             /* switch 2; irregular */
-        case 0x19:                                  /* switch 2 */
+    default:
+        switch (sp24) {
+        case 0x19:
             var_v0 = 0x169;
-block_15:
-            sp18 = (s32) var_v0;
-            if (func_8073110C(var_v0, 0) == 0) {
-                func_8061CC40(0, 0x16, 5);
-                func_8073129C(unksp1A, 1, 0);
-            }
-            return;
-        case 0x28:                                  /* switch 2 */
+            break;
+        case 0x28:
             var_v0 = 0x168;
-            goto block_15;
-        case 0x39:                                  /* switch 2 */
+            break;
+        case 0x39:
             var_v0 = 0x16B;
-            goto block_15;
-        case 0x38:                                  /* switch 2 */
+            break;
+        case 0x38:
             var_v0 = 0x16A;
-            goto block_15;
+            break;
+        default:
+            return;
         }
-        break;
-    case 48:                                        /* switch 1 */
+        sp18 = (s32)var_v0;
+        if (func_8073110C(var_v0, 0) == 0) {
+            func_8061CC40(NULL, 0x16, 5);
+            func_8073129C((s16)sp18, 1, 0);
+        }
+        return;
+    case 48:
         if (temp_v0 != 0x17) {
-            goto block_6;
+            switch (sp24) {
+            case 0x19:
+                var_v0 = 0x169;
+                break;
+            case 0x28:
+                var_v0 = 0x168;
+                break;
+            case 0x39:
+                var_v0 = 0x16B;
+                break;
+            case 0x38:
+                var_v0 = 0x16A;
+                break;
+            default:
+                return;
+            }
+            sp18 = (s32)var_v0;
+            if (func_8073110C(var_v0, 0) == 0) {
+                func_8061CC40(NULL, 0x16, 5);
+                func_8073129C((s16)sp18, 1, 0);
+            }
         }
-        break;
+        return;
     }
 }

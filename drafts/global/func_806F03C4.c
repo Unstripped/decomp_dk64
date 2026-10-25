@@ -1,41 +1,40 @@
-// func_806F03C4 (src/global/EFDC0.c): Semantic switch candidate; IDO retains D_807FBB48 in s0 and expands the frame, unlike target's repeated global loads.
+// func_806F03C4 (src/global/EFDC0.c): stage 3: full jump-table behavior recovered; compiler retains actor-global address in s0
 void func_806F03C4(void) {
     s32 sp1C;
     s32 var_a3;
-    void *camera;
+    EfECamBlock *camera;
 
     switch (D_807FBB48->unk58) {
     case 2:
         sp1C = 7;
-        camera = (u8 *)D_807FC924 + (D_807FC929 * 0x2F0);
+        camera = &EfECam[D_807FC929];
         break;
     case 3:
         sp1C = 0;
-        camera = (u8 *)D_807FC924 + (D_807FC929 * 0x2F0);
+        camera = &EfECam[D_807FC929];
         break;
     case 4:
         EfEPS->unk1F0 |= 0x100;
         sp1C = 4;
-        camera = (u8 *)D_807FC924 + (D_807FC929 * 0x2F0);
+        camera = &EfECam[D_807FC929];
         break;
     case 5:
-        camera = (u8 *)D_807FC924 + (D_807FC929 * 0x2F0);
+        camera = &EfECam[D_807FC929];
         var_a3 = 0x1F;
-        if (((EfECamBlock *)camera)->unk2C0 == 1) {
+        if (camera->unk2C0 == 1) {
             var_a3 = 8;
         }
         sp1C = var_a3;
         break;
     case 6:
         sp1C = 9;
-        camera = (u8 *)D_807FC924 + (D_807FC929 * 0x2F0);
+        camera = &EfECam[D_807FC929];
         break;
     default:
-        camera = (u8 *)D_807FC924 + (D_807FC929 * 0x2F0);
+        camera = &EfECam[D_807FC929];
         break;
     }
-    D_807FBB48->unkE6 = mathAngleBetweenPoints2D(((EfECamBlock *)camera)->unk210,
-                                                  ((EfECamBlock *)camera)->unk218,
+    D_807FBB48->unkE6 = mathAngleBetweenPoints2D(camera->unk210, camera->unk218,
                                                   D_807FBB48->unk7C, D_807FBB48->unk84);
     if (D_807FBB68 & 2) {
         EfEPS->unk1F0 &= ~0x100;
