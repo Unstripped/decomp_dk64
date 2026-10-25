@@ -1,4 +1,13 @@
-// func_806EB400 (src/global/EFDC0.c): Stage 4 predicate reconstruction: only register allocation and branch scheduling remain.
+// func_806EB400 (src/global/EFDC0.c): Stage 4: semantic reconstruction; target keeps predicate in v1 through global test.
+typedef struct EfASubActor {
+    u8 pad0[0xD4];
+    s16 unkD4;
+    u8 padD6[0x11A];
+    s32 unk1F0;
+} EfASubActor;
+
+#define EfA_Q ((EfAQueuedCall *)D_807FC924)
+
 s32 func_806EB400(Actor *arg0) {
     s32 temp_t6;
     s32 var_a1;

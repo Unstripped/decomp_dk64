@@ -1,4 +1,4 @@
-// func_806EB744 (src/global/EFDC0.c): Stage 4: correct frame, saved register, and basic blocks; remaining global-load and register allocation differences.
+// func_806EB744 (src/global/EFDC0.c): Stage 4: correct frame and subactor layout; global-load register allocation remains.
 typedef struct EfN2SubActor {
     u8 pad0[0xB2];
     s16 unkB2;

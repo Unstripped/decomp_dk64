@@ -1,10 +1,12 @@
-// func_806F03C4 (src/global/EFDC0.c): stage 3: full jump-table behavior recovered; compiler retains actor-global address in s0
+// func_806F03C4 (src/global/EFDC0.c): Stage 3: actor-local switch attempt; target requires global reload allocation.
 void func_806F03C4(void) {
     s32 sp1C;
     s32 var_a3;
+    Actor *actor;
     EfECamBlock *camera;
 
-    switch (D_807FBB48->unk58) {
+    actor = D_807FBB48;
+    switch (actor->unk58) {
     case 2:
         sp1C = 7;
         camera = &EfECam[D_807FC929];
