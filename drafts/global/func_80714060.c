@@ -1,4 +1,4 @@
-// func_80714060 (src/global/117190.c): Stage 2: recovered render path, security text, and both switch dispatches; nested guards and explicit no-op cases required, but s0/frame allocation and dispatch scheduling remain.
+// func_80714060 (src/global/117190.c): Stage 2 renderer and two state switch drafts recovered. The scratch file's currently-decompiled helper prototypes conflict with target direct-call signatures, so function-pointer casts compile as jalr and do not match; retain the direct-call draft for subsequent signature reconciliation.
 extern s8 D_807552E0;
 extern s32 D_8076A064;
 void func_8061CC40(s32, s16, s32);
