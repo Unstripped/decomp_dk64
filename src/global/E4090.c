@@ -2273,8 +2273,7 @@ void func_806E5FA0(void) {
     }
 }
 
-#ifdef NON_MATCHING
-void func_806261CC(void *, s32);
+void func_806261CC(void *);
 void func_80626110(void *, s32, s32);
 
 void func_806E607C(void) {
@@ -2285,7 +2284,7 @@ void func_806E607C(void) {
     if (G25_PAD(D_807FD63C, u16) & 0x10) {
         if ((D_807FBB64 & 1) || ((D_807FC928 >= 2) && (D_80750AB8 == 0))) {
             if (obj->unkAC & 0x10000) {
-                func_806261CC(G26_P->unk104, 0);
+                func_806261CC(G26_P->unk104);
                 return;
             }
             func_80626110(G26_P->unk104, 0, 0);
@@ -2302,10 +2301,6 @@ void func_806E607C(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E607C.s")
-#endif
 
 void func_806E61D0(void) {
     G26Obj *obj;
@@ -2423,7 +2418,6 @@ void func_806E64D0(void) {
     G27_P->unk38 = D_80753988[D_807FD584];
 }
 
-#ifdef NON_MATCHING
 extern s16 D_80753B54[];
 extern s16 D_80753B64[];
 
@@ -2439,7 +2433,7 @@ void func_806E65BC(void) {
     }
     if (D_807FD610[D_807FC929].unk30 != 0) {
         ang ^= 0;
-        G27_A->unkE6 = (ang - (D_807FD610[D_807FC929].unk2E / 2)) & 0xFFF;
+        G27_A->unkE6 = (u16)(ang - (D_807FD610[D_807FC929].unk2E / 2)) & 0xFFF;
         var_a1 = D_80753B54[D_807FD584] * ((D_807FD610[D_807FC929].unk2E >= 0) ? 1 : -1);
         var_a1 &= 0xFFF;
     } else {
@@ -2454,10 +2448,6 @@ void func_806E65BC(void) {
     }
     func_806DF494(&G27_A->unkE8, D_80753B64[D_807FD584], 0x10);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E65BC.s")
-#endif
 
 void func_806E67D8(void) {
     f32 var_fv0;
@@ -2911,7 +2901,6 @@ void func_806E7C70(void) {
     st->unk2 = G28_PADS->unk2E;
 }
 
-#ifdef NON_MATCHING
 extern s16 D_80750338;
 
 void func_806E7DF4(void) {
@@ -2924,16 +2913,11 @@ void func_806E7DF4(void) {
     if (st->unk0 != 0) {
         G28_PAD(D_807FD63E, s8) = 0;
     } else {
-        flag = 0;
-        a1 = 3;
-        if (G28_P->unk88->unk154 == 5) {
-            flag = 1;
-        }
-        if (*st->unk34 & 0x80) {
-            a1 = 1;
-        }
+        flag = (G28_P->unk88->unk154 == 5) ? 1 : 0;
+        a1 = (*st->unk34 & 0x80) ? 1 : 3;
         if (flag) {
             G28_PADS->unk2E = G28_PADS->unk2E * -1;
+            if (flag * -1) {}
         }
         if (G28_P->unk1F0 & 0x10000002) {
             G28_PADS->unk2E = G28_PADS->unk2E * -1;
@@ -2975,10 +2959,6 @@ void func_806E7DF4(void) {
     }
     st->unk3E = (G28_PAD(D_807FD63F, s8) / 1.5) + 80.0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E7DF4.s")
-#endif
 
 typedef struct G29Anim0 {
     u8 pad0[4];
@@ -3873,12 +3853,11 @@ void func_806EA04C(void) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_8062217C();
 
 void func_806EA0A4(void) {
     G31State *state;
-    s32 max;
+    u8 max;
     s32 cur;
 
     state = G31_PLAYER->unk104->unk174;
@@ -3888,7 +3867,7 @@ void func_806EA0A4(void) {
         max = 3;
     }
     cur = state->unkEF;
-    if ((cur != 0) && ((G31_PAD(D_807FD63C, u16) & 0xC) == 4) && ((max == state->unkEE) || (state->unkFC == 0))) {
+    if ((cur != 0) && ((G31_PAD(D_807FD63C, u16) & 0xC) == 4) && ((state->unkEE == max) || (state->unkFC == 0))) {
         state->unkF0 = cur;
         if (cur < max) {
             state->unkEF = cur + 1;
@@ -3904,10 +3883,6 @@ void func_806EA0A4(void) {
         state->unkF6 = 0xF;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806EA0A4.s")
-#endif
 
 void func_806EA200(void) {
     G31State *state;
