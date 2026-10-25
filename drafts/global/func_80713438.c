@@ -1,4 +1,4 @@
-// func_80713438 (src/global/117190.c): Stage 3: m2c control flow and calls; target keeps separate double multiply by 2.0 and display-list store scheduling differs.
+// func_80713438 (src/global/117190.c): Stage 3: behavior and target frame recovered; target preserves separate double multiplies and display-list scheduling differs.
 s32 func_8070E750(s32, s32, s32);
 s32 func_80610FE8(s32);
 void heapFreeDeferred(s32);
