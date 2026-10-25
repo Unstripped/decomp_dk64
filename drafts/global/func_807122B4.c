@@ -1,36 +1,34 @@
-// func_807122B4 (src/global/114270.c): stage 4: target frame and saved-register set match; callback volume conversion, pointer-register choice, and control-flow scheduling differ
+// func_807122B4 (src/global/114270.c): stage 4: frame and saved-register set match; (f64)(u32) volume emits the target's single unsigned-conversion fixup, but pointer-register allocation and block scheduling differ
 extern u8 D_80755264[];
 extern void *D_807FD9F0[];
 void assetFreeBuffer(void *, s32, s32);
 void heapFreeDeferred(void *);
 
 void *func_807122B4(void) {
-    f64 var_ft1;
-    s16 var_s0;
-    void *var_v0;
-    u8 *var_v1;
+    f64 volume;
+    s16 i;
+    void *queue;
 
-    var_v0 = D_807550E0;
-    var_v1 = D_8077058C;
-    if (*(u16 *)var_v0 != 0) {
-        var_ft1 = (f64)*var_v1;
-        *var_v1 = (u8)(u32)(var_ft1 * 0.9);
+    queue = D_807550E0;
+    if (*(u16 *)queue != 0) {
+        volume = (f64)(u32)D_8077058C[0];
+        D_8077058C[0] = (u8)(u32)(volume * 0.9);
         renderCallbacksRegister((void *)func_80710CA0, NULL, 1);
         return NULL;
     }
     if (D_807FDA1C != 6) {
-        *var_v1 = 0;
-        heapFreeDeferred(*(void **)((u8 *)var_v0 + 4));
-        var_s0 = 0;
+        D_8077058C[0] = 0;
+        heapFreeDeferred(*(void **)((u8 *)queue + 4));
+        i = 0;
         if ((s32)D_80755264[D_807FDA1C * 0x14] > 0) {
             do {
-                assetFreeBuffer(D_807FD9F0[var_s0], 0x34A, 0x64);
-                var_s0 += 1;
-            } while (var_s0 < (s32)D_80755264[D_807FDA1C * 0x14]);
+                assetFreeBuffer(D_807FD9F0[i], 0x34A, 0x64);
+                i += 1;
+            } while (i < (s32)D_80755264[D_807FDA1C * 0x14]);
         }
         D_807FDA1C = 6;
         D_807FDA28 = 0;
-        var_v0 = (void *)1;
+        queue = (void *)1;
     }
-    return var_v0;
+    return queue;
 }

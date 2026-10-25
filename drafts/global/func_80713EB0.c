@@ -1,5 +1,5 @@
-// func_80713EB0 (src/global/117190.c): stage 4: reusing first parameter gives target frame and 0x20 selection spill; one premature move a0,a3 remains and indexed global sum folds fixed offsets
-// func_80713EB0: stage 4. Reusing the first parameter for selection gives the target 0x20 parameter-home spill and 0x20 frame. Remaining: compiler emits one premature move a0,a3 before the mode branch; indexed global sum is folded into fixed offsets instead of target's base-plus-index form.
+// func_80713EB0 (src/global/117190.c): stage 4: readable split accumulation lowers permuter/fdiff score 1317→900; target frame/spills match, remaining a0,a3 move and indexed sum
+// func_80713EB0: stage 4. First-parameter reuse gives target 0x20 frame and selection spill. A readable split accumulation lowered the permuter score from 1317 to 900, but the premature move a0,a3 and base-plus-index global sum still differ.
 extern s16 D_807FC828;
 extern s16 D_807FC82A;
 extern s16 D_807FC82C;
@@ -24,7 +24,8 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
             }
         } else {
             func_806ABE3C(arg0);
-            temp_v1 = D_807FC828 + D_807FC82A + D_807FC82C + (&D_807FC828)[3] + (&D_807FC828)[4] + (&D_807FC828)[5] + (&D_807FC828)[6];
+            temp_v1 = D_807FC828 + D_807FC82A + D_807FC82C;
+            temp_v1 += (&D_807FC828)[3] + (&D_807FC828)[4] + (&D_807FC828)[5] + (&D_807FC828)[6];
             if (arg2 == 1) {
                 if (temp_v1 < 0x118) {
                     arg0 = -1;
