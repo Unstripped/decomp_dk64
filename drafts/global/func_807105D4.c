@@ -1,4 +1,4 @@
-// func_807105D4 (src/global/114270.c): Stage 6: exact three-case gDPLoadTextureBlock command expansion and 0x70 frame; remaining four-byte parameter-home/prologue scheduling difference, score 160. uopt trace and 900-second -j 2 permuter run produced no better valid candidate.
+// func_807105D4 (src/global/114270.c): Stage 6: three-case gDPLoadTextureBlock reconstruction; only remaining mismatch is the target's early sw a1,0x74(sp). K&R, u8/s16 formal, address-taking, and parameter reassignment variants did not reproduce it.
 typedef struct L105D4TextureDescriptor {
     u8 unk0[8];
     u8 format;
