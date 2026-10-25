@@ -1,4 +1,4 @@
-// func_80715270 (src/global/119370.c): stage 1: fresh m2c reconstruction retained for the large display-list builder
+// func_80715270 (src/global/119370.c): Stage 1: m2c reconstruction retained for the large display-list/effect update; target inspection confirms 0x80 frame and s0-s7 state traversal. It needs concrete runtime view/prototype recovery before a meaningful compiler attempt.
 ? actorGetNodePos(void *, u8, void *, void *, void *); /* extern */
 ? assetFreeBuffer(s32, ?, ?);                       /* extern */
 ? func_806303C4(?, ?, void *, ?32, f32, ?32, s32, s32, s32, s32, s32); /* extern */

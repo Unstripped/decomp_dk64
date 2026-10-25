@@ -1,42 +1,30 @@
-// func_80717100 (src/global/11BC10.c): stage 4: recovered allocation and arithmetic; target frame and callee saves are reproduced, but pointer live-range register allocation differs
+// func_80717100 (src/global/11BC10.c): stage 5: target 0x20 frame and s1 actor/s0 motion reached; direct actor guard fixes saves, remaining temporary/register allocation in angle update and arithmetic
 typedef struct {
     s16 unk0;
     s16 unk2;
     s16 unk4;
     s16 unk6;
     s16 unk8;
-} Ub1Motion10;
-
-typedef struct {
-    u8 pad0[0x340];
-    f32 unk340;
-    u8 pad344[0x14];
-    s32 unk35C;
-    u8 pad360[0x24];
-    Ub1Motion10 *unk384;
-} Ub1ActorView;
-
-void *func_80610FE8(s32);
-s32 func_80611A44(void);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+} NM1bMotion10;
 
 void func_80717100(Ub1ActorView *arg0, void *arg1) {
-    Ub1Motion10 *temp_v0;
-    Ub1Motion10 *var_v1;
+    Ub1ActorView *actor;
+    NM1bMotion10 *motion;
+    s16 angle_delta;
 
-    var_v1 = arg0->unk384;
-    if (var_v1 == NULL) {
-        temp_v0 = func_80610FE8(0xA);
-        arg0->unk384 = temp_v0;
-        temp_v0->unk0 = (func_80611A44() >> 15) % 4095;
-        temp_v0->unk2 = arg0->unk35C;
-        temp_v0->unk4 = arg0->unk35C >> 16;
-        temp_v0->unk6 = arg0->unk340;
-        temp_v0->unk8 = arg0->unk348;
-        var_v1 = arg0->unk384;
+    actor = arg0;
+    if (actor->unk384 == NULL) {
+        actor->unk384 = func_80610FE8(0xA);
+        motion = actor->unk384;
+        motion->unk0 = (func_80611A44() >> 15) % 4095;
+        motion->unk2 = actor->unk35C;
+        motion->unk4 = actor->unk35C >> 16;
+        motion->unk6 = actor->unk340;
+        motion->unk8 = actor->unk348;
     }
-    var_v1->unk0 += var_v1->unk4;
-    arg0->unk340 = func_80612794(var_v1->unk0) * var_v1->unk2 + var_v1->unk6;
-    arg0->unk348 = func_80612790(var_v1->unk0) * var_v1->unk2 + var_v1->unk8;
+    motion = actor->unk384;
+    angle_delta = motion->unk4;
+    motion->unk0 += angle_delta;
+    actor->unk340 = func_80612794(motion->unk0) * motion->unk2 + motion->unk6;
+    actor->unk348 = func_80612790(motion->unk0) * motion->unk2 + motion->unk8;
 }

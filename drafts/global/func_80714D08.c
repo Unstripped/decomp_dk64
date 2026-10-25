@@ -1,4 +1,4 @@
-// func_80714D08 (src/global/119370.c): Stage 3: full allocator/list-linker reconstruction compiles; revised initial list search to the target m2c do/while found-flag shape (s0/s1/v0). Remaining work is FP scheduling and local register allocation.
+// func_80714D08 (src/global/119370.c): Stage 4: 0x30 frame and saved s0-s2 confirmed; reviewed level-6 uopt coloring. 600-second permuter improved 7463 to 6783 only by non-semantic field-store deletion, so no mutation was adopted.
 #include "common.h"
 typedef struct Ua1ListNode {
     void *unk0;

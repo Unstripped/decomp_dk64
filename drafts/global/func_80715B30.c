@@ -1,4 +1,4 @@
-// func_80715B30 (src/global/119370.c): Stage 3: complete matrix construction compiles. m2c identifies target locals in order angle/spF8, scale/spB4, transform/sp74, Mtx/sp30, mode/sp2C; this draft orders them accordingly for the next fdiff pass.
+// func_80715B30 (src/global/119370.c): Stage 4: 0x110 frame and saved s0 match. 600-second permuter search found the readable u8 arg1 improvement (score 420); matrix offsets and mode coloring still differ.
 #include "common.h"
 s32 func_80611E60(s32);
 void func_80612CA0(f32 (*)[4], f32);
@@ -6,7 +6,7 @@ f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 func_80715E38(f32, f32, f32, f32, f32, f32);
 extern s16 D_807FDB34;
 
-void func_80715B30(Mtx *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, u8 arg10) {
+void func_80715B30(Mtx *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, u8 arg10) {
     s32 angle;
     f32 scale[4][4];
     f32 transform[4][4];

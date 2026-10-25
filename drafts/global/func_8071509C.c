@@ -1,4 +1,4 @@
-// func_8071509C (src/global/119370.c): Stage 3: reconstructed quad grid; updated initial X computation to match asm hoisting before mode-dependent Y.
+// func_8071509C (src/global/119370.c): Stage 3: reconstructed quad grid; target inspection confirms vertex-index/pointer increments and mode-dependent Y direction. Closest checked diff remains 1930; loop register scheduling differs.
 #include "common.h"
 typedef struct Ua1ListNode { u8 pad0[8]; u8 columns; u8 rows; u8 padA[2]; s16 width; s16 height; } Ua1ListNode;
 typedef struct Ua1Effect Ua1Effect;

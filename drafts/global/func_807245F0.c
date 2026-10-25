@@ -1,4 +1,4 @@
-// func_807245F0 (src/global/1292F0.c): Stage 1 m2c starter; local state layout still required.
+// func_807245F0 (src/global/1292F0.c): Stage 3: behavioral state view compiled; frame is 0xA0 versus target 0x78, and state-pointer layout/register allocation remains.
 void *func_80610FE8(?);                             /* extern */
 s32 func_80722FEC(s32);                             /* extern */
 ? func_80723CCC(s16, s32, f32, f32 *, f32 *, f32 *, f32 *); /* extern */
