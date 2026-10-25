@@ -879,7 +879,6 @@ void func_806C9AE0(void) {
 
 void func_806C9C1C(s32);
 
-#ifdef NON_MATCHING
 extern s32 D_80750B34[];
 void func_806F91B4(s32, u8, s32);
 
@@ -891,10 +890,6 @@ void func_806C9C1C(s32 arg0) {
     }
     func_806F833C(0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C9C1C.s")
-#endif
 
 void func_8073129C(s32, s32, s32);
 
