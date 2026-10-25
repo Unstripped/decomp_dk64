@@ -2725,27 +2725,447 @@ void func_806D79E4(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D7A28.s")
+typedef struct G15PlayerB {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ f32 unk4;
+    /* 0x008 */ u8 pad8[2];
+    /* 0x00A */ s16 unkA;
+    /* 0x00C */ u8 padC[0x3C];
+    /* 0x048 */ s16 unk48;
+    /* 0x04A */ u8 pad4A[0xD2];
+    /* 0x11C */ u8 unk11C;
+    /* 0x11D */ u8 unk11D;
+    /* 0x11E */ u8 pad11E[0xD2];
+    /* 0x1F0 */ s32 unk1F0;
+} G15PlayerB;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D7DF8.s")
+#define G15_PB ((G15PlayerB *)D_807FD580)
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D7E88.s")
+extern s32 D_807FBB68;
+extern f32 D_80753024[];
+extern f32 D_80753094[];
+void func_80609140(s32, s32, f32, f32, s32, s32);
+void func_80627948(void *, s32, s32, s32);
+void func_806CF918();
+s32 func_80714608(s32);
+void func_807149C8(s32, s32, s32, s32);
+void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D7F48.s")
+void func_806D7A28(void) {
+    u8 flag;
+    u8 v2;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D7FE8.s")
+    func_806EB0C0(0x3C, 0, D_807FC929);
+    func_806DF6D4(1);
+    switch (G08_A40->unk155) {
+        case 0:
+            G08_A40->unkC4 = D_80753024[D_807FD584];
+            if (D_807FBB68 & 2) {
+                func_80609140(0x424, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            }
+            if (D_807FC928 == 1) {
+                func_80627948(D_807FBB4C, 0xC, 0x25, 0x85);
+            }
+            G08_A40->unk155++;
+        case 1:
+            G08_P->unk4 = D_80753094[D_807FD584];
+            G15_PB->unkA = G08_A40->unkEE;
+            func_806DF494(&G08_A40->unkE6, (s16)((G08_A40->unkEE + 0x800) & 0xFFF), (s16)(G15_PB->unk48 * 2));
+            func_806CC8B8();
+            G15_PB->unk11C = 0xF;
+            G15_PB->unk11D = 0;
+            break;
+        case 2:
+            G08_A40->unk155++;
+            G08_A40->unkB8 = 0.0f;
+            func_806CC970();
+            break;
+        case 3:
+            flag = func_80714608(0);
+            if (G15_PB->unk11C == 0 && G15_PB->unk11D == 0) {
+                if (!flag) {
+                    func_806CF918(G15_PB->unk11C, (u32)flag);
+                }
+                G15_PB->unk11D = 1;
+            } else {
+                G15_PB->unk11C = G15_PB->unk11C - 1;
+            }
+            if (G15_PB->unk11D != 0) {
+                v2 = G15_PB->unk11C;
+                if (v2 >= 0xBF) {
+                    if (!flag && v2 % 3 == 0) {
+                        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, (s16)(((v2 & 2) / 2) + 0x57), 0xFF, 0x7F, 0x1E);
+                    }
+                } else if (flag) {
+                    func_80712830(D_807FBB40, D_807FC929);
+                }
+            }
+            if ((G15_PB->unk1F0 & 0x1000) && !(D_8076A064 & 3)) {
+                func_807149C8(0x64, 0x64, 0x64, 0xC8);
+                func_80714998(2);
+                effectSpawnBoneDefault(D_807FBB40, (s16)(((func_80611A44() >> 15) % 32767) % 8 + 1), 0.4f, 0.0f, 0.0f, 0.0f, -0x50);
+            }
+            G08_A40->unkB8 = 0.0f;
+            func_806CC970();
+            break;
+        default:
+            if (D_807FC928 >= 2) {
+                func_80712830(D_807FBB40, D_807FC929);
+            }
+            G15_PB->unk1F0 &= ~0x1000;
+            break;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D8070.s")
+void func_806D7DF8(void) {
+    switch (G08_A40->unk155) {
+        case 0:
+            func_806DF6D4(0x45);
+            G08_P->unk4 = 0.0f;
+            break;
+        case 1:
+            func_806DF6D4(0x44);
+            G08_P->unk4 = 0.0f;
+            break;
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D80A8.s")
+void func_806D7E88(void) {
+    s16 new_var;
+    u8 v;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D8308.s")
+    switch (G08_A40->unk155) {
+        case 0:
+            func_806DF6D4(0x46);
+            G08_P->unk4 = 0.0f;
+            break;
+        case 1:
+            if (func_806DF6D4(0x46) == 0) {
+                v = func_806CE4E4(D_807FBB40, G08_A40->unkB8, G08_P->unk4, 1);
+                new_var = v;
+                if (v != 0x3F) {
+                    G08_A40->unk154 = new_var;
+                    G08_A40->unk155 = 0;
+                }
+            }
+            break;
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D850C.s")
+void func_806D7F48(void) {
+    u32 r;
+    s16 v;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D87FC.s")
+    func_806CBE90();
+    if (func_806DF6D4(0x46) == 0) {
+        r = func_806CE4E4(D_807FBB40, G08_A40->unkB8, G08_P->unk4, 1);
+        if (r != 0x40) {
+            v = r;
+            G08_A40->unk154 = v;
+            G08_A40->unk155 = 0;
+            if (v == 0x3F) {
+                G08_A40->unk155 = 1;
+            }
+        }
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D8A64.s")
+void func_806D7FE8(void) {
+    switch (G08_A40->unk155) {
+        case 0:
+            func_806DF6D4(1);
+            break;
+        case 1:
+            G08_A40->unk154 = 0x3C;
+            G08_A40->unk155 = 1;
+            func_80614E78(D_807FBB40, 0xB);
+            break;
+    }
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_806D8070(void) {
+    func_806DF6D4(1);
+    func_806CC8B8();
+    func_806319C4(D_807FBB40, 0);
+}
+
+extern f32 D_80753454[];
+extern f32 D_80753470[];
+extern f32 D_8075348C[];
+extern s16 D_807534A8[];
+extern f32 D_80753738[];
+void func_806CFE30();
+
+void func_806D80A8(void) {
+    switch (G08_A40->unk155) {
+        case 0:
+            func_80614D00(D_807FBB40, 1.0f, 0);
+            func_806DF6D4(0x47);
+            func_806CC948();
+            func_806CD8EC();
+            G08_P->unk2C = D_80753470[D_807FD584];
+            G08_P->unk30 = D_8075348C[D_807FD584];
+            G08_P->unk38 = D_80753454[D_807FD584];
+            G08_P->unk48 = D_807534A8[D_807FD584];
+            break;
+        case 1:
+            G08_A40->unkC0 = *(f32 *)((u8 *)D_807FD580 + 0x54);
+            G08_A40->unkC4 = D_80753738[D_807FD584];
+            G08_A40->unkB8 = 0.0f;
+            G08_A40->unk155++;
+            func_806DF6D4(0x47);
+            func_806CFE30();
+            func_806CC948();
+            break;
+        case 2:
+            func_806DF494(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
+            func_806CFE30();
+            func_806D3608();
+            func_806CC8B8();
+            func_806DF494(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
+            func_806DF6D4(0x47);
+            break;
+        case 3:
+            func_806DF6D4(0x35);
+            if (D_807FD618[D_807FC929].unk0 != 0.0f) {
+                func_80614D00(D_807FBB40, 3.0f, 0.0f);
+            }
+            G08_P->unk4 = 0.0f;
+            func_806CFE7C();
+            func_806CC8B8();
+            break;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+
+extern f32 D_80753770[];
+extern f32 D_807537A8[];
+extern f32 D_807537C4[];
+#define G15_EA(a) (*(s16 *)((u8 *)(a) + 0xEA))
+
+void func_806D8308(void) {
+    switch (G08_A40->unk155) {
+        case 0:
+            G15_EA(D_807FBB40) = G08_A40->unkEE;
+            func_80614D00(D_807FBB40, 1.0f, 0);
+            func_806DF6D4(0x48);
+            func_806CC948();
+            break;
+        case 1:
+            G08_A40->unkC0 = *(f32 *)((u8 *)D_807FD580 + 0x54);
+            G08_A40->unkC4 = D_807537A8[D_807FD584];
+            G08_A40->unkB8 = D_80753770[D_807FD584];
+            G15_EA(D_807FBB40) = G08_A40->unkEE;
+            G08_A40->unk155++;
+            func_806DF6D4(0x48);
+            func_806CFE30();
+            func_806CC948();
+            break;
+        case 2:
+            func_806CFE30();
+            func_806D3608();
+            func_806CC948();
+            func_806DF6D4(0x48);
+            break;
+        case 3:
+            G08_P->unk30 = D_807537C4[D_807FD584];
+            func_806DF6D4(0x33);
+            func_806CFE7C();
+            func_806CC8B8();
+            break;
+        case 4:
+            if (G08_P->unk4 > 10.0f) {
+                func_806CFF9C(D_807FBB40);
+            }
+            G08_P->unk30 = D_807537C4[D_807FD584];
+            func_806DF6D4(0x33);
+            func_806CFE7C();
+            func_806CC8B8();
+            break;
+    }
+    func_806319C4(D_807FBB40, 0);
+}
+
+typedef struct G15Actor {
+    /* 0x00 */ u8 pad0[0x80];
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ u8 pad84[0x20];
+    /* 0xA4 */ f32 unkA4;
+    /* 0xA8 */ u8 padA8[4];
+    /* 0xAC */ f32 unkAC;
+    /* 0xB0 */ u8 padB0[0x10];
+    /* 0xC0 */ f32 unkC0;
+    /* 0xC4 */ u8 padC4[0x22];
+    /* 0xE6 */ s16 unkE6;
+    /* 0xE8 */ u8 padE8[0x6C];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+} G15Actor;
+
+typedef struct G15PlayerEntry {
+    /* 0x000 */ u8 pad0[0x2C0];
+    /* 0x2C0 */ u8 unk2C0;
+    /* 0x2C1 */ u8 pad2C1[0x2F];
+} G15PlayerEntry;
+
+#define G15_A ((G15Actor *)D_807FBB40)
+
+extern G15PlayerEntry *D_807FC924;
+extern s16 D_8075387C[];
+extern s16 D_8075388C[];
+extern s16 D_807538B8[];
+extern s16 D_807539DC[];
+extern s16 D_807539EC[];
+s32 func_806E770C();
+void func_80613AF8(Actor *, s32, f32, f32);
+
+s32 func_806D850C(void) {
+    f32 sp2C;
+    f32 lim;
+    s32 idx;
+
+    if (D_807FC924[D_807FC929].unk2C0 == 1) {
+        sp2C = D_8075388C[D_807FD584];
+    } else {
+        sp2C = D_807538C8[D_807FD584];
+    }
+    if (G15_A->unk154 == 0x4E && func_806E770C() != 0 && G15_A->unk155 != 0 &&
+        G15_A->unk80 + sp2C < G15_A->unkAC - 10.0f) {
+        G08_P->unk12 = D_807539EC[D_807FD584];
+        G08_P->unk14 = G15_A->unkE6;
+        G08_P->unk10 = (s32)(D_807539DC[D_807FD584] * 0.5);
+        G15_A->unk154 = 0x4F;
+        G15_A->unk155 = 1;
+        if (G15_A->unkC0 > 0.0f) {
+            G15_A->unkC0 = 0.0f;
+        }
+        func_80614E78(D_807FBB40, 0x36);
+        func_80613AF8(D_807FBB40, 0x31, 0, 8.0f);
+        func_80614D00(D_807FBB40, 0.5f, 0);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x10, 0xFF, 0x7F, 1);
+    }
+    if (G15_A->unkAC < G15_A->unk80 + sp2C) {
+        G15_A->unk80 = G15_A->unkAC - sp2C;
+    }
+    idx = D_807FC929;
+    lim = (D_807FC924[idx].unk2C0 == 1) ? D_8075387C[D_807FD584] : D_807538B8[D_807FD584];
+    if (G15_A->unkAC - G15_A->unkA4 < lim) {
+        func_806EB0C0(2, 0, idx);
+        return 1;
+    }
+    return 0;
+}
+
+typedef struct G15Sub4 {
+    /* 0x00 */ u8 pad0[0x48];
+    /* 0x48 */ f32 unk48;
+} G15Sub4;
+
+typedef struct G15ActorB {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ G15Sub4 *unk4;
+    /* 0x08 */ u8 pad8[0x58];
+    /* 0x60 */ u32 unk60;
+    /* 0x64 */ u8 pad64[0x50];
+    /* 0xB4 */ f32 unkB4;
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[4];
+    /* 0xC0 */ f32 unkC0;
+    /* 0xC4 */ u8 padC4[0x91];
+    /* 0x155 */ u8 unk155;
+} G15ActorB;
+
+#define G15_B ((G15ActorB *)D_807FBB40)
+
+extern f32 D_80753988[];
+extern f32 D_807539A4[];
+
+void func_806D87FC(void) {
+    f32 fa0;
+    f32 fv1;
+    f32 fv0;
+    f32 fa1;
+
+    fa0 = G15_B->unkC0;
+    fv1 = D_807539A4[D_807FD584];
+    fa1 = D_80753988[D_807FD584];
+    if (fa0 < 0.0f) {
+        fv0 = -fa0 / 3.0f;
+        if (!(fv0 < fv1)) {
+            fv1 = fv0;
+        }
+    }
+    if (G15_B->unkB4 == 0.0f && (f64)fa0 < -0.1) {
+        G15_B->unkC0 = -0.1f;
+        fa0 = G15_B->unkC0;
+    }
+    fa0 = G15_B->unkC0;
+    G15_B->unkC0 = func_806CD898(fa0, fa1, fv1);
+    G08_P->unk24 = 0;
+    switch (G15_B->unk155) {
+        case 0:
+            func_806DF6D4(0x4E);
+            func_806CC8F0();
+            break;
+        case 1:
+            func_806DF6D4(0x4D);
+            func_806CC8F0();
+            if (G15_B->unkB8 != 0.0f) {
+                func_80614E78(D_807FBB40, 0x3A);
+                G15_B->unk155 = 2;
+            }
+            break;
+        default:
+            func_806DF6D4(0x4D);
+            func_806CC8F0();
+            if (G15_B->unkB8 == 0.0f) {
+                func_80614E78(D_807FBB40, 0x33);
+                G15_B->unk155 = 1;
+            } else {
+                fv0 = G08_P->unk4 * 1.5 / 40.0;
+                if (G15_B->unk4->unk48 < fv0) {
+                    func_80614D00(D_807FBB40, fv0, 0.0f);
+                } else {
+                    func_80614D00(D_807FBB40, fv0, 5.0f);
+                }
+            }
+            break;
+    }
+    func_806D850C();
+    G15_B->unk60 &= ~1;
+    func_806319C4(D_807FBB40, 0);
+}
+
+void func_806D8A64(void) {
+    G08Actor *a;
+
+    G08_P->unk24 = 0;
+    a = G08_A40;
+    switch (a->unk155) {
+        case 0:
+            func_80614D00(a, 1.0f, 0);
+            func_806DF6D4(0x4B);
+            func_806CC8B8();
+            a = G08_A40;
+            break;
+        case 1:
+            a->unkE8 = 0;
+            *(s16 *)G08_A40->unkE4 = 0;
+            func_806CFF9C(D_807FBB40);
+            a = G08_A40;
+            break;
+    }
+    func_806319C4(a, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D8B08.s")
 
