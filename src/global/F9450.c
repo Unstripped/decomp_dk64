@@ -85,6 +85,38 @@ s32 func_806F4EBC(f32 arg0, f32 arg1) {
     return (D_807FD722 * temp_ft1) + temp_ft3;
 }
 
+typedef struct F9F1_Rect {
+    f32 unk0;
+    u8 pad4[4];
+    f32 unk8;
+    f32 unkC;
+} F9F1_Rect;
+
+typedef struct F9F1_Node {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    u8 unkE;
+    u8 padF;
+    s16 unk10;
+    u8 unk12;
+    u8 unk13;
+    u8 unk14;
+    u8 pad15[3];
+    struct F9F1_Node *next;
+} F9F1_Node;
+
+extern s8 D_807FCC4B[];
+extern F9F1_Node **D_80754244;
+extern s16 D_807FD726;
+extern s16 D_807FD728;
+extern F9F1_Node *D_807FD72C;
+void func_806F6204(F9F1_Node *, u8, F9F1_Rect *);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F4F50.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F50C8.s")
@@ -234,7 +266,28 @@ void func_806F5FE8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F603C.s")
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6204.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6554.s")
+
+void func_806F6554(u8 arg0, F9F1_Rect *arg1) {
+    f32 temp_fa0;
+    f32 temp_fa1;
+    f32 temp_fv0;
+    s32 temp_v0;
+
+    if (D_807FCC4B[arg0 * 0x306] > 0) {
+        temp_fv0 = arg1->unkC;
+        temp_fa0 = arg1->unk0;
+        if (temp_fa0 <= ((f32) D_807FD726 + temp_fv0)) {
+            temp_fa1 = arg1->unk8;
+            if (temp_fa1 <= ((f32) D_807FD728 + temp_fv0)) {
+                temp_v0 = func_806F4EBC(temp_fa0, temp_fa1);
+                if (temp_v0 >= 0) {
+                    func_806F6204(D_80754244[temp_v0], arg0, arg1);
+                }
+            }
+        }
+        func_806F6204(D_807FD72C, arg0, arg1);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6644.s")
 
