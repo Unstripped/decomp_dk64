@@ -281,6 +281,7 @@ gridFreeAllNodeLists = 0x806F5270; // type:func
 gridDispatchRect = 0x806F6554; // type:func
 listContainsS16 = 0x806F70A8; // type:func
 playerStateHandleSoundEffects = 0x806F79E0; // type:func
+func_806FB488 = 0x806FB488; // type:func
 
 gTimerQueue = 0x807452A0;
 audioInit = 0x80600D50; // type:func

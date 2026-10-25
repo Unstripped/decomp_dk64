@@ -141,11 +141,13 @@ segments:
       - [0xF56F0, c, F56F0]
       - [0xF93B0, c, F93B0] # hidden TU: rodata pad after D_8075D848 (func_806F3E0C) at 0x162550; func_806F46B0 (the only function) owns D_8075D850
       - [0xF9450, c, F9450]
-      - [0xFCCD0, asm]
-      - [0x100180, asm]
-      - [0x1025E0, asm]
-      - [0x10D2D0, asm]
-      - [0x10E1D0, asm]
+      - [0xFCCD0, c, FCCD0]
+      - [0x100180, c, 100180]
+      - [0x1025E0, c, 1025E0]
+      - [0x103AB0, c, 103AB0] # hidden TU: rodata pad after D_8075DE60 (func_806FE078) at 0x162B70; func_806FEDB0 is the only 16-aligned start before D_8075DE70's user func_806FEF7C
+      - [0x109660, c, 109660] # hidden TU (tentative): data pad after D_80754CC8 (func_80704484) at 0x1599E0; first 16-aligned start after it (func_80704960, no data/rodata users before func_80704B20); rodata D_8075DF90 is 16-aligned, layout-neutral
+      - [0x10D2D0, c, 10D2D0]
+      - [0x10E1D0, c, 10E1D0]
       - [0x110F00, asm]
       - [0x112080, asm]
       - [0x1135F0, asm]
@@ -272,7 +274,14 @@ segments:
       - [0x1622F0, .rodata, F56F0]
       - [0x162550, .rodata, F93B0]
       - [0x162560, .rodata, F9450]
-      - [0x162760, rodata]
+      - [0x162760, .rodata, FCCD0]
+      - [0x162920, .rodata, 100180]
+      - [0x162A40, .rodata, 1025E0]
+      - [0x162B70, .rodata, 103AB0]
+      - [0x162C90, .rodata, 109660]
+      - [0x1630F0, .rodata, 10D2D0]
+      - [0x163130, .rodata, 10E1D0]
+      - [0x163170, rodata]
       - { start: 0x165D50, type: bss, vram: 0x80761050 }
       - { start: 0x165D50, type: .bss, vram: 0x80770DF0, name: 7130 } # D_80770DF0..D_80770F38 (func_806057F8's static pitch at 0x80770F38)
       - { start: 0x165D50, type: bss, vram: 0x80770F40, name: 165D50_80770F40 }
