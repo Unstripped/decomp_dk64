@@ -2422,10 +2422,8 @@ void func_806CF138(G05CbArg2 *arg0) {
     sp58 = sqrtf((sp64 - sp60) * (sp64 - sp60) + ((sp74 - sp70) * (sp74 - sp70) + sp5C * sp5C));
     sp54 = func_806118FC(sp5C / sp58) * 57.29577637f;
     sp48 = func_80612794(arg0->unk0->unkE6) * 50.0f;
-    if (!sp50) {}
     sp4C = func_80612790(arg0->unk0->unkE6) * 50.0f;
     sp40 = sp74 - sp70;
-    if (sp34) {}
     sp44 = sp64 - sp60;
     sp3C = sp44 * sp4C + sp48 * sp40;
     sp38 = sqrtf(sp4C * sp4C + sp48 * sp48);
