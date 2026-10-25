@@ -314,4 +314,114 @@ f32 func_806F7378(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F73A0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F79E0.s")
+typedef struct {
+    u8 pad0[0x1A4];
+    u8 unk1A4;
+} F9L2_PlayerState;
+
+#define F9L2_PS ((F9L2_PlayerState *)D_807FD580)
+
+extern Actor *D_807FBB4C;
+extern u8 D_80745838;
+
+void func_80609140(s32, s32, f32, f32, s32, s32);
+void func_80687C48(void);
+void func_80687CC8(void);
+void func_806EB0C0();
+void sfxAllocateChannel(s32, f32);
+
+void func_806F79E0(s16 arg0, s32 arg1) {
+    f32 temp_fv0;
+    f32 temp_fv0_2;
+    f64 var_ft0;
+    f64 var_ft1;
+    f64 var_ft1_2;
+    f64 var_ft3;
+    f64 var_ft4;
+    s32 var_v0;
+
+    switch (arg0) {
+    case 0x8E:
+        sfxAllocateChannel(0x23, (f32) (1.0 - ((f64) D_80745838 * 0.3)));
+        return;
+    case 0x57:
+        sfxAllocateChannel(0x21, (f32) (1.0 - ((f64) D_80745838 * 0.3)));
+        return;
+    case 0x56:
+        func_80609140(0x147, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        return;
+    case 0x11:
+    case 0x8F:
+        func_80609140(0x157, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        return;
+    case 0x98:
+        func_80609140(0x263, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        return;
+    case 0xDD:
+    case 0xDE:
+    case 0xDF:
+    case 0xE0:
+    case 0xE1:
+        sfxAllocateChannel(0x45, 1.0f);
+        return;
+    case 0x90:
+        sfxAllocateChannel(0x12, 1.0f);
+        func_80687C48();
+        temp_fv0 = D_807FBB4C->unk80;
+        if (((temp_fv0 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->unk154 != 0x63) && (!(D_807FBB4C->unk6A & 4) || !((D_807FBB4C->unkAC - temp_fv0) > 20.0f))) {
+            func_806EB0C0(0x29, 0, F9L2_PS->unk1A4);
+            return;
+        }
+        return;
+    case 0x74:
+    case 0x288:
+        sfxAllocateChannel(0x12, 1.0f);
+        temp_fv0_2 = D_807FBB4C->unk80;
+        if (((temp_fv0_2 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->unk154 != 0x63) && (!(D_807FBB4C->unk6A & 4) || !((D_807FBB4C->unkAC - temp_fv0_2) > 20.0f))) {
+            func_806EB0C0(0x29, 0, F9L2_PS->unk1A4);
+            return;
+        }
+        break;
+    case 0xA:
+    case 0xD:
+    case 0x16:
+    case 0x1E:
+    case 0x1F:
+    case 0x1CF:
+    case 0x1D0:
+        func_80609140(0x2A0, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        return;
+    case 0x1C:
+    case 0x1D:
+    case 0x23:
+    case 0x24:
+    case 0x27:
+        sfxAllocateChannel(0x17, (f32) (1.0 - ((f64) D_80745838 * 0.3)));
+        return;
+    case 0x2B:
+        break;
+    case 0xB7:
+        sfxAllocateChannel(0x91, (f32) (1.0 - ((f64) D_80745838 * 0.3)));
+        return;
+    case 0xEC:
+    case 0x1D2:
+        sfxAllocateChannel(0x20, (f32) (1.0 - ((f64) D_80745838 * 0.3)));
+        return;
+    case 0x13C:
+        sfxAllocateChannel(0x12, 1.0f);
+        var_v0 = 0x41;
+        if (D_8076A0A8 == 0x11) {
+            var_v0 = 0x29;
+        }
+        func_806EB0C0((s16) var_v0, 0, F9L2_PS->unk1A4);
+        return;
+    case 0x18D:
+        sfxAllocateChannel(0x12, 1.0f);
+        func_806EB0C0(0x42, 0, F9L2_PS->unk1A4);
+        func_80687CC8();
+        return;
+    case 0x1D1:
+        func_80609140(0xAE, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        break;
+    }
+}

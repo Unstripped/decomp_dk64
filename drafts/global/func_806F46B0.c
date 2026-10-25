@@ -1,20 +1,19 @@
-// func_806F46B0 (src/global/F93B0.c): stage 3: matched loop blocks and instruction count; limit constant is folded and register allocation remains divergent
+// func_806F46B0 (src/global/F93B0.c): stage 3; matched loop blocks and instruction count, but IDO folds the limit into slti instead of target li v0,13 plus slt
 typedef struct {
     s16 map;
     s8 character;
     u8 pad3;
     s16 value;
-} F9N3_MapHeight;
+} F9N5_MapHeight;
 
-extern s32 D_8076A0A8;
-extern F9N3_MapHeight D_80753EA0[];
+extern F9N5_MapHeight D_80753EA0[];
 
 f32 func_806F46B0(s16 arg0) {
     s16 var_v1;
     s32 temp_v0;
     s32 temp_a1;
     s8 temp_a3;
-    F9N3_MapHeight *temp_a0;
+    F9N5_MapHeight *temp_a0;
 
     temp_v0 = 13;
     temp_a1 = D_8076A0A8;
