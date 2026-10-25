@@ -93,7 +93,7 @@ extern G08Slot D_807FD63A[];
 s32 func_806DF6D4();
 void func_806319C4();
 void func_806CFF9C();
-void func_806EB0C0();
+s32 func_806EB0C0();
 void func_806CC8B8();
 void func_806CC8F0();
 void func_806C8D20();
@@ -2585,12 +2585,9 @@ void func_806D7238(void) {
 }
 
 void func_806D72D4(void) {
-    G14Actor *a;
-
     func_806EB0C0(0x3C, 0, D_807FC929);
     G14_A->unk64 |= 0x200;
-    a = G14_A;
-    switch (a->unk155) {
+    switch (G14_A->unk155) {
     case 0:
         func_806DF6D4(3);
         G14_P->unk4 = D_807530F0[D_807FD584];
@@ -4427,7 +4424,122 @@ void func_806DB670(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DBB04.s")
+typedef struct LBPlayer {
+    /* 0x000 */ u8 pad0[0xCC];
+    /* 0x0CC */ s16 unkCC;
+    /* 0x0CE */ u8 padCE[0x36];
+    /* 0x104 */ void *unk104;
+    /* 0x108 */ f32 unk108;
+    /* 0x10C */ u8 pad10C[0xE4];
+    /* 0x1F0 */ s32 unk1F0;
+} LBPlayer;
+
+typedef struct LBActor {
+    /* 0x000 */ u8 pad0[0x80];
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ u8 pad84[0x20];
+    /* 0x0A4 */ f32 unkA4;
+    /* 0x0A8 */ u8 padA8[0x10];
+    /* 0x0B8 */ f32 unkB8;
+    /* 0x0BC */ u8 padBC[4];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ u8 padC4[0x20];
+    /* 0x0E4 */ s16 unkE4;
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ u8 padE8[0x6D];
+    /* 0x155 */ u8 unk155;
+} LBActor;
+
+#define LB_A ((LBActor *)D_807FBB40)
+#define LB_P ((LBPlayer *)D_807FD580)
+
+extern u8 D_8071FC58;
+extern u8 D_8071FCC0;
+void func_8071720C();
+void func_8061C6A8(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+
+void func_806DBB04(void) {
+    f32 sp6C;
+    f32 sp68;
+    f32 sp64;
+    u8 sp63;
+    f32 sp5C;
+    f32 sp58;
+    f32 sp54;
+    f32 var_fv1;
+
+    func_806DF6D4(1);
+    switch (LB_A->unk155) {
+    case 0:
+        LB_P->unk108 = 50.0f;
+        LB_A->unk155 = LB_A->unk155 + 1;
+        break;
+    case 1:
+        if (LB_P->unk108 != 0.0f) {
+            LB_P->unk108 = LB_P->unk108 - 1.0f;
+        } else if (LB_A->unk80 - LB_A->unkA4 < 60.0f) {
+            LB_A->unk80 = LB_A->unk80 + 1.0f;
+        } else {
+            LB_P->unk108 = 150.0f;
+            LB_A->unk155 = LB_A->unk155 + 1;
+            func_8061C6A8(LB_P->unk104, D_807FBB40, 6, 0, 0x1E, 0, 5, 0x2D, 0x14, 0xC8, 0.15f);
+        }
+        break;
+    case 2:
+        LB_P->unk108 = LB_P->unk108 - 1.0f;
+        if (LB_P->unk108 == 0.0f) {
+            LB_P->unk108 = 150.0f;
+            LB_A->unk155 = LB_A->unk155 + 1;
+        }
+        var_fv1 = (func_80612794(LB_P->unkCC) > 0.0f) ? func_80612794(LB_P->unkCC) : -func_80612794(LB_P->unkCC);
+        LB_A->unkE6 = (f64)LB_A->unkE6 + 120.0 * (0.5 + (f64)var_fv1);
+        break;
+    case 3:
+        LB_P->unk108 = LB_P->unk108 - 1.0f;
+        if (LB_P->unk108 == 0.0f) {
+            LB_P->unk108 = 500.0f;
+            LB_A->unk155 = LB_A->unk155 + 1;
+        }
+        var_fv1 = (func_80612794(LB_P->unkCC) > 0.0f) ? func_80612794(LB_P->unkCC) : -func_80612794(LB_P->unkCC);
+        LB_A->unkE6 = (f64)LB_A->unkE6 + 120.0 * (0.5 + (f64)var_fv1);
+        var_fv1 = func_80612794((s16)(LB_P->unkCC + 0x400));
+        LB_A->unkE4 = (f32)LB_A->unkE4 + 60.0f * var_fv1;
+        break;
+    case 4:
+        func_806EB0C0(0x1B, 0, 0);
+        LB_P->unk1F0 |= 4;
+        LB_A->unkE4 = 0;
+        LB_A->unkE6 = 0;
+        break;
+    }
+    LB_P->unkCC = LB_P->unkCC + 6;
+    LB_P->unkCC = LB_P->unkCC & 0xFFF;
+    if (!(D_8076A064 & 1)) {
+        sp63 = (func_80611A44() >> 15) % 65535 % 3;
+        actorGetNodePos(D_807FBB40, 5, &sp5C, &sp58, &sp54);
+        sp5C += (f32)((func_80611A44() >> 15) % 65535 % 16 - 8);
+        sp58 += (f32)((func_80611A44() >> 15) % 65535 % 16 - 8);
+        sp54 += (f32)((func_80611A44() >> 15) % 65535 % 16 - 8);
+        func_80714998(2);
+        func_807149B8(1);
+        func_8071498C(func_8071720C);
+        func_80714950((func_80611A44() >> 15) % 100 + 0x64);
+        if (sp63 == 2) {
+            func_80714CC0((s32)&D_8071FCC0, 0.5f, sp5C, sp58, sp54);
+        } else if (sp63 == 1) {
+            func_80714CC0((s32)&D_8071FC8C, 0.5f, sp5C, sp58, sp54);
+        } else {
+            func_80714CC0((s32)&D_8071FC58, 0.5f, sp5C, sp58, sp54);
+        }
+    }
+    LB_A->unkC0 = 0.0f;
+    LB_A->unkB8 = 0.0f;
+    func_806CC970();
+    actorGetNodePos(D_807FBB40, 0xC, &sp6C, &sp68, &sp64);
+    lightAdd(sp6C, sp68, sp64, 0.0f, 0.0f, 0.0f, 80.0f, 0, 0xFF, 0xFF, 0);
+    func_806319C4(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DC170.s")
 
