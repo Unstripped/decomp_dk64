@@ -171,7 +171,9 @@ typedef struct Actor {
     /* 0x0F8 */ u8 unkF8[4];
     /* 0x0FC */ u8 unkFC;
     /* 0x0FD */ u8 unkFD;
-    /* 0x0FE */ u8 unkFE[0x12];
+    /* 0x0FE */ u8 unkFE[0xE];
+    /* 0x10C */ s16 unk10C;
+    /* 0x10E */ u8 unk10E[2];
     /* 0x110 */ u8 unk110;
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *unk114;
