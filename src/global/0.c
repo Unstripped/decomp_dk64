@@ -142,7 +142,7 @@ void texCacheUpdate(void);
 s32 renderCallbacksExecute(s32, s32);
 void renderCallbacksReset(void);
 void func_806C7C10(void);
-Struct806C7C94 *func_806C7C94(s32);
+Struct806C7C94 *cameraFindViewportEntry(s32);
 void func_806C7D40(s32);
 void func_806C95D0(s32);
 void func_806C9AE0(void);
@@ -731,7 +731,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     if ((D_8074447C != 0) || (D_80744480 != 0) || (D_80744484 != 0) || (D_80744488 != 0) || (D_8074448C != 0)) {
         Struct806C7C94 *temp_v0_6;
         s16 dx, dy;
-        temp_v0_6 = func_806C7C94(0);
+        temp_v0_6 = cameraFindViewportEntry(0);
         D_807FC924->rect[0] = (s16)(temp_v0_6->unk4 + D_8074447C);
         D_807FC924->rect[2] = (s16)(temp_v0_6->unk8 - D_80744480);
         D_807FC924->rect[1] = (s16)(temp_v0_6->unk6 + D_80744484);

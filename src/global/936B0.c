@@ -447,17 +447,17 @@ void projectileAimAndSpawn(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32
     projectileCalculateTrajectoryAndSpawn(mathAngleBetweenPoints2D(arg3, arg5, D_807FC7B0, D_807FC7B8), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
 
-s16 func_806CC14C(s16, s16);
+s16 mathAngleDistance(s16, s16);
 void projectileClampAngleAndSpawn(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, s32 arg9) {
     s16 sp3C;
     s16 sp38;
     s16 var_s0;
 
     var_s0 = mathAngleBetweenPoints2D(arg5, arg7, D_807FC7B0, D_807FC7B8);
-    if (arg1 < func_806CC14C(arg0, var_s0)) {
+    if (arg1 < mathAngleDistance(arg0, var_s0)) {
         sp3C = (arg0 - arg1) & 0xFFF;
         sp38 = (arg0 + arg1) & 0xFFF;
-        if (func_806CC14C(var_s0, sp3C) < func_806CC14C(var_s0, sp38)) {
+        if (mathAngleDistance(var_s0, sp3C) < mathAngleDistance(var_s0, sp38)) {
             var_s0 = sp3C;
         } else {
             var_s0 = sp38;

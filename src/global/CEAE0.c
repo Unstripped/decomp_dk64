@@ -975,7 +975,7 @@ void func_806CBE44(void) {
 }
 
 extern f32 D_80753250[];
-s32 func_806CC14C(s16, s16);
+s32 mathAngleDistance(s16, s16);
 void func_80614D90(Actor *);
 
 void func_806CBE90(void) {
@@ -996,14 +996,14 @@ void func_806CBE90(void) {
             return;
         }
         if (G02_A->unkE0 != 0.0f && G02_P->unkC2 >= 0x15 && G02_A->unk154 != 0x17) {
-            if (func_806CC14C(G02_A->unkD8, G02_A->unkE6) < 0x200) {
+            if (mathAngleDistance(G02_A->unkD8, G02_A->unkE6) < 0x200) {
                 if (D_80750B54[D_807FBB48->unk154][0] & 0x200) {
                     func_806EAB44(D_807FBB40, 0);
                 }
                 func_806EB0C0(0x21, NULL, D_807FC929);
                 return;
             }
-            if (func_806CC14C(G02_A->unkD8, G02_A->unkEE) < 0x400 || G02_A->unkB8 < 15.0f) {
+            if (mathAngleDistance(G02_A->unkD8, G02_A->unkEE) < 0x400 || G02_A->unkB8 < 15.0f) {
                 if (D_80750B54[D_807FBB48->unk154][0] & 0x200) {
                     func_806EAB44(D_807FBB40, 0);
                 }
@@ -1024,7 +1024,7 @@ s16 func_806CC10C(arg0, arg1) s16 arg0; s16 arg1; {
     return var_v1;
 }
 
-s32 func_806CC14C(arg0, arg1) s16 arg0; s16 arg1; {
+s32 mathAngleDistance(arg0, arg1) s16 arg0; s16 arg1; {
     s16 d = arg1 - arg0;
     s16 temp = d & 0xFFF;
     s16 var_v1 = temp;
@@ -1066,7 +1066,7 @@ s16 func_806CC190(s16 arg0, s16 arg1, f32 arg2) {
     return arg0 & 0xFFF;
 }
 
-s16 func_806CC284(s16 arg0, s16 arg1, f32 arg2) {
+s16 mathAngleLerp(s16 arg0, s16 arg1, f32 arg2) {
     s16 diff;
     s16 absd;
     s16 sign;
@@ -1157,7 +1157,7 @@ void func_806CCC54(s32);
 void func_806CBE90(void);
 void func_806CC970(void);
 void func_806CCB0C(void);
-f32 func_806CD898(f32, f32, f32);
+f32 mathApproachF32(f32, f32, f32);
 
 extern s16 D_80753A3C[];
 extern s16 D_80753A4C[];
@@ -1195,7 +1195,7 @@ void func_806CC364(u8 arg0) {
 extern f32 D_807539C0[];
 
 void func_806CC5DC(void) {
-    D_807FBB40->unkB8 = func_806CD898(D_807FBB40->unkB8, 0.0f, D_807539C0[D_807FD584]);
+    D_807FBB40->unkB8 = mathApproachF32(D_807FBB40->unkB8, 0.0f, D_807539C0[D_807FD584]);
     func_806CC970();
     func_806CC364(1);
 }
@@ -1231,7 +1231,7 @@ void func_806CC638(f32 arg0) {
     } else {
         cs = func_80612794(G03_A->unkE8);
         vz = G03_A->unkB8 * -cs;
-        G03_A->unkC0 = func_806CD898(G03_A->unkC0, vz, 2.0f);
+        G03_A->unkC0 = mathApproachF32(G03_A->unkC0, vz, 2.0f);
         vx = 0.0f;
         adj = 0.0f;
         rate = G03_P->unk30;
@@ -1247,8 +1247,8 @@ void func_806CC638(f32 arg0) {
             G03_A->unkC0 = -0.1f;
         }
     }
-    G03_A->unkC0 = func_806CD898(G03_A->unkC0, vz, rate * 2.0);
-    G03_A->unkB8 = func_806CD898(G03_A->unkB8, vx, rate);
+    G03_A->unkC0 = mathApproachF32(G03_A->unkC0, vz, rate * 2.0);
+    G03_A->unkB8 = mathApproachF32(G03_A->unkB8, vx, rate);
     G03_A->unkEE = G03_A->unkE6;
     actorStepPhysics(D_807FBB40, G03_A->unkEE, G03_A->unkE6);
     actorApplyVelocityCustom(D_807FBB40, G03_A->unkB8, G03_A->unkC0);
@@ -1296,7 +1296,7 @@ void func_806CC970(void) {
     f32 dz;
 
     func_806CCC54(0);
-    if (func_806CC14C(G03_A->unkE6, G03_A->unkEE) < 0x400) {
+    if (mathAngleDistance(G03_A->unkE6, G03_A->unkEE) < 0x400) {
         angle = G03_A->unkE6;
     } else {
         angle = (G03_A->unkE6 + 0x800) & 0xFFF;
@@ -1583,7 +1583,7 @@ void func_806CD424(s16 arg0, f32 arg1, f32 arg2) {
             lim2 = -(func_80612790(arg0) * rate);
         }
     }
-    vA = func_806CD898(cur, tgt, lim1);
+    vA = mathApproachF32(cur, tgt, lim1);
     cur = func_80612790(prev) * G03_A->unkB8;
     tgt = func_80612790(arg0) * arg1;
     if (f != 0.0f) {
@@ -1595,7 +1595,7 @@ void func_806CD424(s16 arg0, f32 arg1, f32 arg2) {
         dist = dist * ((G03_P->unk26 * 63.0 + 100.0) / 6400.0);
         lim2 = (dist - rate) * f + rate;
     }
-    vB = func_806CD898(cur, tgt, lim2);
+    vB = mathApproachF32(cur, tgt, lim2);
     G03_A->unkB8 = sqrtf(vA * vA + vB * vB);
     if (arg2 < G03_A->unkB8) {
         G03_A->unkB8 = arg2;
@@ -1605,7 +1605,7 @@ void func_806CD424(s16 arg0, f32 arg1, f32 arg2) {
     }
 }
 
-f32 func_806CD898(f32 arg0, f32 arg1, f32 arg2) {
+f32 mathApproachF32(f32 arg0, f32 arg1, f32 arg2) {
     if (arg0 < arg1) {
         arg0 += arg2;
         if (arg1 < arg0) {
@@ -1635,7 +1635,7 @@ void func_806CD8EC(void) {
 }
 
 
-s16 func_806CD988(Actor *arg0) {
+s16 actorGetStateFlags(Actor *arg0) {
     s16 ret = D_80750B54[arg0->unk154][0];
     return ret;
 }
@@ -3247,7 +3247,7 @@ void func_806D0EBC(s32 arg0) {
     }
 }
 
-s16 func_806D1080(f32 arg0, f32 arg1) {
+s16 mathAngleFromVector2D(f32 arg0, f32 arg1) {
     s16 angle = (s32)(func_80611BB4(arg0, arg1) * 4096.0f / 6.2831855f);
 
     angle -= 0x400;

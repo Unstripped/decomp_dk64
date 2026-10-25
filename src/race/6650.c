@@ -171,7 +171,7 @@ extern s32 D_807FBB64;
 f32 func_80612794(s16);
 f32 func_80612790(s16);
 f32 func_80611BB4(f32, f32);
-s16 func_806D1080(f32, f32);
+s16 mathAngleFromVector2D(f32, f32);
 s16 func_806CC190(s16, s16, f32, s16);
 void actorStepPhysics(Actor_BB40 *, s16, s16);
 void actorApplyVelocity(Actor_BB40 *);

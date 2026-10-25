@@ -1,7 +1,7 @@
 // func_80690C60 (src/global/936B0.c): actor targeting/aiming logic with path following
 s16 func_80665DE0(f32, f32, f32, f32);
 s32 func_80690F30(u16, void **, void *, s32, s32, s32, f32 *, f32 *, f32 *);
-s16 func_806CC14C(s16, s16);
+s16 mathAngleDistance(s16, s16);
 void func_80714950(s32);
 void func_8071498C(void *);
 void func_80714CC0(s32, f32, f32, f32, f32);
@@ -42,13 +42,13 @@ void func_80690C60(u16 arg0, Actor *arg1, s32 arg2, u8 arg3) {
         if (func_80690F30(arg0, (void **)&sp78, arg1, 0, (s32)arg3, arg3 == 0, &sp4C, &sp48, &sp44) != 0) {
             temp_v0 = func_80665DE0(sp4C, sp44, arg1->unk7C, arg1->unk84);
             sp76 = temp_v0;
-            temp_lo = func_806CC14C(temp_v0, arg1->unkEE) / 10;
+            temp_lo = mathAngleDistance(temp_v0, arg1->unkEE) / 10;
             temp_v1 = arg1->unkEE;
             temp_t0 = (temp_v1 + temp_lo) & 0xFFF;
             sp6E = (temp_v1 - temp_lo) & 0xFFF;
             sp70 = temp_t0;
-            sp6C = func_806CC14C(temp_t0, sp76);
-            if (sp6C < func_806CC14C(sp6E, sp76)) {
+            sp6C = mathAngleDistance(temp_t0, sp76);
+            if (sp6C < mathAngleDistance(sp6E, sp76)) {
                 arg1->unkEE = sp70;
             } else {
                 arg1->unkEE = sp6E;

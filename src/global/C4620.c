@@ -335,7 +335,7 @@ void func_80729E6C(void);
 void func_8072A450(void);
 void func_8072DC7C(s32);
 void func_8072E320(f32);
-s32 func_806CC284(s16, s16, f32);
+s32 mathAngleLerp(s16, s16, f32);
 void func_8068A858(void *, void *, void *);
 void heapFree(void *);
 s32 func_80611A44(void);
@@ -570,15 +570,15 @@ void func_806BFBF4(void) {
     }
     if (state->unk28 != 0) {
         ratio = (f32)(u32)state->unk28-- / (f32)(u32)state->unk27;
-        LgBV->unkE8 = func_806CC284(state->unkC, state->unkA, ratio);
+        LgBV->unkE8 = mathAngleLerp(state->unkC, state->unkA, ratio);
     }
     if (state->unk26 != 0) {
         ratio = (f32)(u32)state->unk26-- / (f32)(u32)state->unk25;
-        LgBV->unkE4 = func_806CC284(state->unk8, state->unk6, ratio);
+        LgBV->unkE4 = mathAngleLerp(state->unk8, state->unk6, ratio);
     }
     if (state->unk24 != 0) {
         ratio = (f32)(u32)state->unk24-- / (f32)(u32)state->unk23;
-        LgBV->unkE6 = func_806CC284(state->unk4, state->unk2, ratio);
+        LgBV->unkE6 = mathAngleLerp(state->unk4, state->unk2, ratio);
         LgBV->unkEE = LgBV->unkE6;
     }
     if (state->unk2A != 0) {

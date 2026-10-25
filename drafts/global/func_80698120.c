@@ -80,7 +80,7 @@ void func_806319C4(void *, s32);
 void *func_80610FE8(s32);
 s32 func_80611A44(void);
 f32 func_80612D1C(f32);
-s32 func_806CC14C(s16, s16);
+s32 mathAngleDistance(s16, s16);
 s32 func_807142D8(void);
 s32 func_8073110C(s32, s32);
 void func_8072EE7C(Actor *, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, f32, f32, s32);
@@ -202,7 +202,7 @@ void func_80698120(s32 arg0) {
     }
     if ((D_807FBB4C->unk6A & 0x40) && data->unk14 == 0 && D_807FBB40 == player->unk130) {
         data->unk0 = 15.0f;
-        if (func_806CC14C(D_807FBB4C->unkE6, D_807FBB40->unkE6) < 0x400) {
+        if (mathAngleDistance(D_807FBB4C->unkE6, D_807FBB40->unkE6) < 0x400) {
             data->unkC = 3.1415927f;
         } else {
             data->unkC = 0.0f;

@@ -181,7 +181,7 @@ f32 func_80622ABC(f32, f32, f32);
 void func_80626CAC(CamState *, f32 *, f32 *, f32, f32, f32);
 f32 func_80627A00(f64, f32, f32, f32, f32);
 s32 func_8062773C(CamActor *);
-s16 func_806CC284(s16, s16, f32);
+s16 mathAngleLerp(s16, s16, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 void renderBonusTargetMarker();
@@ -530,7 +530,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                     pos = &p->u.pos;
                     dist = CAM_LERP(pos->unk6, pos->unk4, t);
                     height = CAM_LERP(pos->unkA, pos->unk8, t);
-                    angle = func_806CC284(pos->unk2, pos->unk0, t);
+                    angle = mathAngleLerp(pos->unk2, pos->unk0, t);
                     posX = func_80612794(arg7->unkE6 - angle) * dist + arg7->unk7C;
                     posZ = func_80612790(arg7->unkE6 - angle) * dist + arg7->unk84;
                     posY = arg7->unk80 + height;
@@ -625,7 +625,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                 pitchD = mathCalculatePitchAngle(D_807F5D18, D_807F5D1C, D_807F5D20, D_807F5D24, D_807F5D28,
                                                  D_807F5D2C, 0);
                 pitchT = mathCalculatePitchAngle(posX, posY, posZ, lookX, lookY, lookZ, 0);
-                yaw = func_806CC284(angleT, angleD, blend);
+                yaw = mathAngleLerp(angleT, angleD, blend);
                 pitch = func_80622ABC(pitchT, pitchD, blend);
                 dist2D = CAM_LERP(sqrtf((lookX - posX) * (lookX - posX) + (lookZ - posZ) * (lookZ - posZ)),
                                   sqrtf((D_807F5D24 - D_807F5D18) * (D_807F5D24 - D_807F5D18) +

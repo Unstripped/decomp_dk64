@@ -154,7 +154,7 @@ void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 void actorAppendActiveCallback8(void);
 s32 func_806CC10C(s16, s16);
-s32 func_806CC14C(s16, s16);
+s32 mathAngleDistance(s16, s16);
 s32 func_80724A20(void);
 void func_80729B00(void);
 void func_8072AB74(s32, f32, f32, s32, f32);
@@ -352,7 +352,7 @@ block_28:
         case 2:
             if (func_8061CB50() == 0) {
                 if (ACTOR->unk154 == 0x46) {
-                    if (func_806CC14C(ACTOR->unkE6, mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84)) < 0x320) {
+                    if (mathAngleDistance(ACTOR->unkE6, mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84)) < 0x320) {
                         func_80614EBC(ACTOR, 0x218);
                         ACTOR->unk155++;
                     }

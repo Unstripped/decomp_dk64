@@ -888,7 +888,7 @@ extern u8 D_807FC929;
 extern s32 D_807FB5DC;
 extern s16 D_807FB5F6;
 
-s32 func_806CC14C(s16, s16);
+s32 mathAngleDistance(s16, s16);
 s32 func_806744A8(ActorFacingWork *, s32, s32, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -906,11 +906,11 @@ void actorUpdateFacingAndOffset(ActorFacingWork *arg0, s32 arg1, s32 arg2, s32 a
     f32 temp_f0;
     s32 temp_v1;
 
-    sp36 = func_806CC14C(arg0->unk48, D_807FB544);
-    temp = func_806CC14C((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FB544);
+    sp36 = mathAngleDistance(arg0->unk48, D_807FB544);
+    temp = mathAngleDistance((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FB544);
     if ((sp36 < 0x321) || (temp < 0x321)) {
-        func_806CC14C(arg0->unk48, D_807FD580->unkEA);
-        func_806CC14C((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FD580->unkEA);
+        mathAngleDistance(arg0->unk48, D_807FD580->unkEA);
+        mathAngleDistance((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FD580->unkEA);
         sub = ((ActorFacingWork *)D_807FB540)->unk140;
         func_806744A8(arg0, sub->unk0, sub->unk4, sub->unk8, sub->unkC);
         sp28 = D_807FB5D0;

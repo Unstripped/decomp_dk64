@@ -135,7 +135,7 @@ segments:
       - [0xCBEA0, c, CBEA0]
       - [0xCC800, c, CC800] # one TU: the rodata_owners pad flag after D_8075C430 is the .rodata/late_rodata edge (func_806C850C and func_806C8D2C use both sides)
       - [0xCEAE0, c, CEAE0]
-      - [0xD5E10, c, D5E10] # hidden TU: rodata pad after D_8075CCE0 (func_806D1080); func_806D10D0 uses CEAE0 data D_80750B54, D_80750FB0 (func_806D205C) starts this TU's data
+      - [0xD5E10, c, D5E10] # hidden TU: rodata pad after D_8075CCE0 (mathAngleFromVector2D); func_806D10D0 uses CEAE0 data D_80750B54, D_80750FB0 (func_806D205C) starts this TU's data
       - [0xE4090, c, E4090] # hidden TU: rodata pad after D_8075D0D0 (func_806DF280); func_806DF6D4 owns D_8075D0E0; first 16-aligned start after func_806DF280
       - [0xEFDC0, asm]
       - [0xF56F0, asm]

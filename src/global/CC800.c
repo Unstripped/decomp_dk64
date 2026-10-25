@@ -14,7 +14,7 @@ extern u16 D_807FD63C;
 
 extern s16 D_807FC930[];
 
-void func_806C7B00(void) {
+void collectibleCountsClear(void) {
     s16 i;
 
     for (i = 0; i < 0xE; i++) {
@@ -155,7 +155,7 @@ typedef struct G00Entry {
 extern G00Entry D_80750948[];
 extern u8 D_80750ABC;
 
-G00Entry *func_806C7C94(u8 arg0) {
+G00Entry *cameraFindViewportEntry(u8 arg0) {
     u8 i;
     s32 found;
 
@@ -226,7 +226,7 @@ void func_806C7D40(s32 arg0) {
         blk->unk248 = 0.0f;
         blk->unk240 = 0.0f;
         blk->unk244 = 1.0f;
-        e = func_806C7C94(sel);
+        e = cameraFindViewportEntry(sel);
         blk->unk270 = e->unk4;
         blk->unk272 = e->unk6;
         blk->unk274 = e->unk8;
@@ -300,7 +300,7 @@ void func_806C80E4(void) {
     ((G00View1F0 *)D_807FBB4C->unk174)->unk1F0 |= 0x01000000;
 }
 
-void func_806C81DC(s16 arg0, s16 arg1) {
+void cameraSetViewportYRange(s16 arg0, s16 arg1) {
     G00Block *p;
 
     p = D_807FC924;
@@ -1267,7 +1267,7 @@ s8 arg1;
 extern s32 D_807552E4;
 extern s8 D_80750ACC;
 extern s32 D_807FD56C;
-void func_806C7B00();
+void collectibleCountsClear();
 
 void func_806C9AE0(void) {
     G01Slot *p = (G01Slot *)D_807FC950;
@@ -1292,7 +1292,7 @@ void func_806C9AE0(void) {
         func_80709464(i);
         p++;
     }
-    func_806C7B00();
+    collectibleCountsClear();
     D_80750ACC = 0;
     D_807FD56C = 0;
 }

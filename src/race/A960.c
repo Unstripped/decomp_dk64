@@ -23,7 +23,7 @@ void raceScaleVelocity(u8 *arg0, f32 arg1) {
 #pragma GLOBAL_ASM("asm/race/nonmatchings/A960/func_8002F0AC.s")
 
 f32 func_80611BB4(f32, f32);
-s32 func_806CC14C(s16, s16);
+s32 mathAngleDistance(s16, s16);
 extern void *D_807FBB40;
 
 s32 raceIsFacingWaypoint(u8 *arg0) {
@@ -31,7 +31,7 @@ s32 raceIsFacingWaypoint(u8 *arg0) {
     f32 diff_z = *(f32 *)((u8 *)D_807FBB40 + 0x84) - (f32)*(s16 *)(arg0 + 4);
     s16 angle = (s32)(func_80611BB4(diff_x, diff_z) * 651.8986206f) & 0xFFF;
 
-    return (func_806CC14C(angle, *(s16 *)(arg0 + 6)) < 0x400) & 0xFF;
+    return (mathAngleDistance(angle, *(s16 *)(arg0 + 6)) < 0x400) & 0xFF;
 }
 
 f32 func_8002F04C(f32, f32, f32, f32, f32, f32, f32, f32);

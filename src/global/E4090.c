@@ -59,7 +59,7 @@ void func_806DF44C(s32 arg0, G21Actor1A0 *arg1, u8 arg2) {
     }
 }
 
-void func_806DF494(s16 *arg0, s16 arg1, s16 arg2) {
+void mathAngleStepToward(s16 *arg0, s16 arg1, s16 arg2) {
     s16 temp_v0;
     s16 var_a2;
     s32 var_t0;
@@ -93,7 +93,7 @@ void func_806DF494(s16 *arg0, s16 arg1, s16 arg2) {
     }
 }
 
-void func_806DF5A0(s16 *arg0, s16 arg1, s16 arg2, s16 arg3) {
+void mathAngleStepTowardThreshold(s16 *arg0, s16 arg1, s16 arg2, s16 arg3) {
     s16 temp_v0;
     s16 var_a2;
 
@@ -120,7 +120,7 @@ void func_806DF5A0(s16 *arg0, s16 arg1, s16 arg2, s16 arg3) {
     }
 }
 
-void func_806DF670(s16 *arg0, s16 arg1, s16 arg2) {
+void mathAngleStepForward(s16 *arg0, s16 arg1, s16 arg2) {
     s16 temp_v0;
 
     temp_v0 = arg1 - *arg0;
@@ -471,7 +471,7 @@ void func_806E0178(void) {
         var_fv0 = 400.0f;
     }
     var_fv0 = var_fv0 * 0.2;
-    func_806DF494(&G21_ACTOR_EE->unkEE, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
+    mathAngleStepToward(&G21_ACTOR_EE->unkEE, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
 }
 
 void func_806E0294(void) {
@@ -497,7 +497,7 @@ void func_806E0294(void) {
         var_fv0 = 400.0f;
     }
     var_fv0 = var_fv0 * ((f64)G21_PLAYER->unk48 / 400.0);
-    func_806DF494(&D_807FBB40->unkE6, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
+    mathAngleStepToward(&D_807FBB40->unkE6, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
 }
 
 extern u8 D_807FD640[];
@@ -572,18 +572,18 @@ void func_806E04E0(void) {
             var_fv0 = 400.0f;
         }
         var_fv0 = var_fv0 * ((f64)G21_PLAYER->unk48 / 400.0);
-        func_806DF494(&D_807FBB40->unkE6, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
+        mathAngleStepToward(&D_807FBB40->unkE6, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
     }
 }
 
 void func_806E0654(void) {
     func_806E007C();
-    func_806DF494(&D_807FBB40->unkE6, G21_ACTOR_EE->unkEA, G21_PLAYER->unk48);
+    mathAngleStepToward(&D_807FBB40->unkE6, G21_ACTOR_EE->unkEA, G21_PLAYER->unk48);
 }
 
 void func_806E0694(void) {
     func_806E007C();
-    func_806DF494(&D_807FBB40->unkE6, G21_PLAYER->unkA, G21_PLAYER->unk48);
+    mathAngleStepToward(&D_807FBB40->unkE6, G21_PLAYER->unkA, G21_PLAYER->unk48);
     G21_PLAYER->unk4 = 0.0f;
 }
 
@@ -595,7 +595,7 @@ void func_806E06E8(void) {
     } else {
         var_a1 = G21_ACTOR_EE->unkEE + 0x800;
     }
-    func_806DF494(&D_807FBB40->unkE6, var_a1, G21_PLAYER->unk48 / 4);
+    mathAngleStepToward(&D_807FBB40->unkE6, var_a1, G21_PLAYER->unk48 / 4);
     G21_PLAYER->unk4 = 0.0f;
 }
 
@@ -607,7 +607,7 @@ void func_806E077C(void) {
     } else {
         var_a1 = G21_ACTOR_EE->unkEE;
     }
-    func_806DF494(&D_807FBB40->unkE6, var_a1, G21_PLAYER->unk48 / 4);
+    mathAngleStepToward(&D_807FBB40->unkE6, var_a1, G21_PLAYER->unk48 / 4);
     G21_PLAYER->unk4 = 0.0f;
 }
 
@@ -674,7 +674,7 @@ extern u16 *D_807FBB54;
 void func_80614EBC(void *, s32);
 void func_80614D00(void *, f32, f32);
 void func_8072FE60(f32);
-s16 func_806CC14C(s16, s16);
+s16 mathAngleDistance(s16, s16);
 void func_806E1630(void);
 
 extern u8 D_8074E77C[];
@@ -702,7 +702,7 @@ void func_806E07F8(void) {
     var_fv0 = (f32)((f64)var_fv0 * (0.25 + 0.75 * (G22_A->unkB8 / G22_M->unk38)));
     if (var_fv0 > 1.0f) {
     }
-    func_806DF494(&G22_A->unkE6, temp_a1, G22_M->unk48 / 4);
+    mathAngleStepToward(&G22_A->unkE6, temp_a1, G22_M->unk48 / 4);
     if (G22_A->unk154 != 0x14) {
         if (G22_A->unk154 == 0xF && (G22_A->unk4->unk0->unk10 == 0x1F2 || G22_A->unk4->unk0->unk10 == 0x1B3)) {
             temp_v1 = &D_807FD610[D_807FC929];
@@ -779,7 +779,7 @@ void func_806E0BEC(void) {
             var_fv0 = 400.0f;
         }
         var_fv0 = var_fv0 * ((f64)G22_M->unk48 / 400.0);
-        func_806DF494(&D_807FBB40->unkE6, G22_M->unkA, (s16)(s32)(var_fv0 * var_fv1));
+        mathAngleStepToward(&D_807FBB40->unkE6, G22_M->unkA, (s16)(s32)(var_fv0 * var_fv1));
     }
 }
 
@@ -874,7 +874,7 @@ void func_806E0FAC(void) {
         } else {
             var_fv1 = -var_fv0;
         }
-        func_806DF494(&G22_A->unkE6, temp_a1, (s16)(s32)var_fv1);
+        mathAngleStepToward(&G22_A->unkE6, temp_a1, (s16)(s32)var_fv1);
         if (var_fv0 != 0.0f) {
             if (G22_A->unk154 != 0x3C) {
                 if (G22_A->unk154 == 0x62) {
@@ -962,8 +962,8 @@ void func_806E1630(void) {
         }
     }
     if (outside) {
-        sp1C = func_806CC14C(cur, lo);
-        if (sp1C < func_806CC14C(D_807FBB40->unkE6, G22_M->unk19E)) {
+        sp1C = mathAngleDistance(cur, lo);
+        if (sp1C < mathAngleDistance(D_807FBB40->unkE6, G22_M->unk19E)) {
             D_807FBB40->unkE6 = G22_M->unk19C;
         } else {
             D_807FBB40->unkE6 = G22_M->unk19E;
@@ -989,8 +989,8 @@ void func_806E1728(void) {
 
 void func_806E17F4(void) {
     func_806E007C();
-    func_806DF494(&G21_ACTOR_EE->unkEE, G22_M->unkA, G22_M->unk48);
-    func_806DF494(&D_807FBB40->unkE6, G21_ACTOR_EE->unkEE, G22_M->unk48);
+    mathAngleStepToward(&G21_ACTOR_EE->unkEE, G22_M->unkA, G22_M->unk48);
+    mathAngleStepToward(&D_807FBB40->unkE6, G21_ACTOR_EE->unkEE, G22_M->unk48);
     func_806DFFDC(D_807FBB40->unkE6);
 }
 
@@ -2395,7 +2395,7 @@ void func_806E521C(void) {
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 
-s32 func_806E527C(void) {
+s32 actorAnyActiveHasFlag2000000(void) {
     s32 ret;
     s32 i;
     Actor *actor;
@@ -2440,7 +2440,7 @@ void func_806E52D0(void) {
     if ((G25_PAD(D_807FD63C, u16) & 8) && (D_8076A064 >= 3) && (D_807FD568[4] & 1) &&
         !(D_807FBB64 & 0x4000) && !(D_807FBB68 & 1) &&
         (*((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C0) != 2) &&
-        (func_806E5488((G26Mob *)D_807FBB40) == 0) && (func_806E527C() == 0) &&
+        (func_806E5488((G26Mob *)D_807FBB40) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
         (*((u8 *)D_807FD580 + 0x245) == 0)) {
         r = func_806E560C((G26Mob *)D_807FBB40);
         if ((D_8076A0A8 != 0xCD) || (r != 0)) {
@@ -2944,10 +2944,10 @@ void func_806E63B8(void) {
     }
     G27_P->unk4 = G27_P->unk4 / 4;
     if (D_807FD610[D_807FC929].unk4 != 0.0f) {
-        func_806DF494(&G27_A->unkE6, D_807FD610[D_807FC929].unk28, G27_P->unk48);
+        mathAngleStepToward(&G27_A->unkE6, D_807FD610[D_807FC929].unk28, G27_P->unk48);
     }
-    func_806DF494(&G27_A->unkE8, 0, 0x10);
-    func_806DF494(&G27_A->unkE4, 0, 0x10);
+    mathAngleStepToward(&G27_A->unkE8, 0, 0x10);
+    mathAngleStepToward(&G27_A->unkE4, 0, 0x10);
 }
 
 void func_806E64D0(void) {
@@ -2959,8 +2959,8 @@ void func_806E64D0(void) {
     } else {
         var_a1 = 0;
     }
-    func_806DF494(&G27_A->unkE4, var_a1, 0x10);
-    func_806DF494(&G27_A->unkE8, G27_P->unk12, 0x10);
+    mathAngleStepToward(&G27_A->unkE4, var_a1, 0x10);
+    mathAngleStepToward(&G27_A->unkE8, G27_P->unk12, 0x10);
     G27_P->unk38 = D_80753988[D_807FD584];
 }
 
@@ -2985,14 +2985,14 @@ void func_806E65BC(void) {
     } else {
         var_a1 = 0;
     }
-    func_806DF494(&G27_A->unkE4, var_a1, 0x10);
+    mathAngleStepToward(&G27_A->unkE4, var_a1, 0x10);
     if (D_807FD610[D_807FC929].unk2F != 0) {
         var_a1 = (D_80753B44[D_807FD584] * D_807FD610[D_807FC929].unk2F) / 70;
         var_a1 = var_a1 & 0xFFF;
-        func_806DF494(&G27_A->unkE8, var_a1, (s16)(s32)((((f64)D_807FD610[D_807FC929].unk2F * 0.125) > 0.0 ? ((f64)D_807FD610[D_807FC929].unk2F * 0.125) : -((f64)D_807FD610[D_807FC929].unk2F * 0.125)) + (f64)var_t1));
+        mathAngleStepToward(&G27_A->unkE8, var_a1, (s16)(s32)((((f64)D_807FD610[D_807FC929].unk2F * 0.125) > 0.0 ? ((f64)D_807FD610[D_807FC929].unk2F * 0.125) : -((f64)D_807FD610[D_807FC929].unk2F * 0.125)) + (f64)var_t1));
         return;
     }
-    func_806DF494(&G27_A->unkE8, D_80753B64[D_807FD584], 0x10);
+    mathAngleStepToward(&G27_A->unkE8, D_80753B64[D_807FD584], 0x10);
 }
 
 void func_806E67D8(void) {
@@ -3018,10 +3018,10 @@ void func_806E67D8(void) {
             var_fv0 = 400.0f;
         }
         var_fv0 = var_fv0 * ((f64)G27_P->unk48 / 400.0);
-        func_806DF494(&G27_A->unkE6, temp_a1, (s16)(s32)(var_fv0 * var_fv1));
+        mathAngleStepToward(&G27_A->unkE6, temp_a1, (s16)(s32)(var_fv0 * var_fv1));
     }
-    func_806DF494(&G27_A->unkE8, 0, 0x10);
-    func_806DF494(&G27_A->unkE4, 0, 0x10);
+    mathAngleStepToward(&G27_A->unkE8, 0, 0x10);
+    mathAngleStepToward(&G27_A->unkE4, 0, 0x10);
     G27_P->unk12 = 0;
     G27_P->unk14 = G27_A->unkE6;
     G27_P->unk10 = D_8075395C[D_807FD584];
@@ -3054,10 +3054,10 @@ void func_806E6A38(void) {
             var_fv0 = 400.0f;
         }
         var_fv0 = var_fv0 * 0.45;
-        func_806DF494(&G27_A->unkE6, temp_a1, (s16)(s32)(var_fv0 * var_fv1));
+        mathAngleStepToward(&G27_A->unkE6, temp_a1, (s16)(s32)(var_fv0 * var_fv1));
     }
-    func_806DF494(&G27_A->unkE8, 0, 0x10);
-    func_806DF494(&G27_A->unkE4, 0, 0x10);
+    mathAngleStepToward(&G27_A->unkE8, 0, 0x10);
+    mathAngleStepToward(&G27_A->unkE4, 0, 0x10);
 }
 
 void func_806E6B98(void) {
@@ -3080,13 +3080,13 @@ void func_806E6B98(void) {
     } else {
         var_a1 = 0;
     }
-    func_806DF494(&G27_A->unkE4, var_a1, 0x10);
+    mathAngleStepToward(&G27_A->unkE4, var_a1, 0x10);
     var_a1 = (D_80753B44[D_807FD584] * D_807FD610[D_807FC929].unk2F) / 70;
     var_a1 = var_a1 & 0xFFF;
     if (D_8074E77C[D_807FC929] == 7) {
         var_a2 = (s16)(s32)((((f64)D_807FD610[D_807FC929].unk2F * 0.5) > 0.0 ? ((f64)D_807FD610[D_807FC929].unk2F * 0.5) : -((f64)D_807FD610[D_807FC929].unk2F * 0.5)) + 16.0);
     }
-    func_806DF494(&G27_A->unkE8, var_a1, var_a2);
+    mathAngleStepToward(&G27_A->unkE8, var_a1, var_a2);
 }
 
 void func_806E6DE8(void) {
@@ -4450,7 +4450,7 @@ void func_806EA26C(void) {
 }
 
 
-f32 func_806EA2D8(void) {
+f32 aimStickSpeedScale(void) {
     return (G31_PAD(D_807FD63A, u16) & 0x2000) ? 0.2 : 1.0;
 }
 
@@ -4462,7 +4462,7 @@ typedef struct G31Cam {
 
 extern G31Cam *D_807FC924;
 
-void func_806EA334(void) {
+void cameraZoomIn(void) {
     f32 limit;
     f32 next;
     G31Cam *cam;
@@ -4483,7 +4483,7 @@ void func_806EA334(void) {
     }
 }
 
-void func_806EA460(void) {
+void cameraZoomOut(void) {
     f32 next;
     G31Cam *cam;
     s32 buttons;
@@ -4524,7 +4524,7 @@ void func_806EA600(void) {
     func_806EA5CC();
 }
 
-void func_806EA628(void) {
+void aimUpdateFromStick(void) {
     G31State *state;
     s16 *angle;
     f32 *dist;
@@ -4533,9 +4533,9 @@ void func_806EA628(void) {
     if (!(D_807FD580->unk1F0 & 0x8000)) {
         state = G31_PLAYER->unk104->unk174;
         angle = &state->unkB2;
-        *angle = (f64)*angle - (((f64)func_806EA2D8() * ((f64)G31_PAD(D_807FD63E, s8) * 0.08) * 4096.0) / 360.0);
+        *angle = (f64)*angle - (((f64)aimStickSpeedScale() * ((f64)G31_PAD(D_807FD63E, s8) * 0.08) * 4096.0) / 360.0);
         dist = &state->unkB8;
-        *dist = ((f64)G31_PAD(D_807FD63F, s8) * 0.04 * func_806EA2D8()) + (f64)*dist;
+        *dist = ((f64)G31_PAD(D_807FD63F, s8) * 0.04 * aimStickSpeedScale()) + (f64)*dist;
         *angle &= 0xFFF;
         if ((f32)(state->unkBC + 0x32) < *dist) {
             *dist = state->unkBC + 0x32;

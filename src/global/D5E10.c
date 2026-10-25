@@ -137,11 +137,11 @@ void func_806D1278(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-f32 func_806CD898(f32, f32, f32);
+f32 mathApproachF32(f32, f32, f32);
 void func_80614EBC(Actor *, s32);
 
 void func_806D12CC(void) {
-    G08_A40->unkC0 = func_806CD898(G08_A40->unkC0, 50.0f, 4.0f);
+    G08_A40->unkC0 = mathApproachF32(G08_A40->unkC0, 50.0f, 4.0f);
     switch (G08_A40->unk155) {
         case 0:
             G08_P->unk24 = 0;
@@ -164,8 +164,8 @@ void func_806D12CC(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_806DF494();
-s32 func_806D1080(f32, f32);
+void mathAngleStepToward();
+s32 mathAngleFromVector2D(f32, f32);
 void func_806CC948();
 
 void func_806D1420(void) {
@@ -175,9 +175,9 @@ void func_806D1420(void) {
     if (G08_A40->unk155 == 0) {
         G08_P->unk48 = 0xA;
         G08_A40->unkC4 = -8.0f;
-        G08_A40->unkE8 = func_806D1080(G08_A40->unkB8, G08_A40->unkC0);
-        func_806DF494(G08_A40->unkE4, 0, 0x32);
-        func_806DF494(&G08_A40->unkE8, (s16)func_806D1080(G08_A40->unkB8, G08_A40->unkC0), 0xA);
+        G08_A40->unkE8 = mathAngleFromVector2D(G08_A40->unkB8, G08_A40->unkC0);
+        mathAngleStepToward(G08_A40->unkE4, 0, 0x32);
+        mathAngleStepToward(&G08_A40->unkE8, (s16)mathAngleFromVector2D(G08_A40->unkB8, G08_A40->unkC0), 0xA);
         func_806DF6D4(0x6A);
         a = G08_A40;
         a->unkEE = a->unkE6;
@@ -210,7 +210,7 @@ void func_806D1568(void) {
         case 0:
             func_806DF6D4(0x4C);
             temp2 = -G08_A40->unkC0 * 0.125;
-            G08_A40->unkC0 = func_806CD898(G08_A40->unkC0, 0.0f, temp2);
+            G08_A40->unkC0 = mathApproachF32(G08_A40->unkC0, 0.0f, temp2);
             if (G08_P->unk24 >= 6) {
                 if ((G08_A40->unkB8 != 0.0f) || (G08_P->unk10 != 0)) {
                     G08_A40->unk155 = 3;
@@ -222,7 +222,7 @@ void func_806D1568(void) {
             func_806CC5DC();
             break;
         case 1:
-            func_806DF494(&G08_A40->unkE8, (s16)func_806D1080(G08_A40->unkB8, G08_A40->unkC0), 0x32);
+            mathAngleStepToward(&G08_A40->unkE8, (s16)mathAngleFromVector2D(G08_A40->unkB8, G08_A40->unkC0), 0x32);
             G08_P->unk38 = 500.0f;
             func_806DF6D4(0x57);
             func_806CC638(0.0f);
@@ -283,7 +283,7 @@ void func_806CD8EC();
 void func_806CC970();
 
 void func_806D19A8(void) {
-    G08_A40->unkC0 = func_806CD898(G08_A40->unkC0, 50.0f, 4.0f);
+    G08_A40->unkC0 = mathApproachF32(G08_A40->unkC0, 50.0f, 4.0f);
     switch (G08_A40->unk155) {
         case 0:
             G08_P->unk48 = 0x50;
@@ -537,7 +537,7 @@ void func_806D22C0(void) {
 void *func_80610FE8(s32);
 void actorRegisterGlobalCallback(ActorCallbackNode *);
 
-void func_806D2330(void *arg0) {
+void actorRegisterCurrentActorGlobalCallback(void *arg0) {
     ActorCallbackNode *node;
 
     node = func_80610FE8(0x14);
@@ -549,8 +549,8 @@ void func_806D2330(void *arg0) {
 
 void actorSnapToBone();
 
-void func_806D2378(void) {
-    func_806D2330(&actorSnapToBone);
+void actorRegisterSnapToBoneCallback(void) {
+    actorRegisterCurrentActorGlobalCallback(&actorSnapToBone);
 }
 
 typedef struct G09Player {
@@ -570,7 +570,7 @@ typedef struct G09Player {
 extern s32 D_8076A0A8;
 
 void func_806D239C(void) {
-    func_806D2378();
+    actorRegisterSnapToBoneCallback();
     switch (D_8076A0A8) {
         case 0x37:
             func_806DF6D4(0x5F);
@@ -599,7 +599,7 @@ void func_806D239C(void) {
 }
 
 void func_806D24A8(void) {
-    func_806D2378();
+    actorRegisterSnapToBoneCallback();
     func_806DF6D4(0x5D);
     G09_A->unkC0 = G09_A->unkC8;
     func_806CC948();
@@ -609,7 +609,7 @@ void func_806CFD68();
 void func_806CFECC();
 
 void func_806D24E4(void) {
-    func_806D2378();
+    actorRegisterSnapToBoneCallback();
     switch (G09_A->unk155) {
         case 0:
             func_806DF6D4(0x5E);
@@ -665,7 +665,7 @@ void func_806D266C(void) {
     f32 sp28;
     f32 sp24;
 
-    func_806D2378();
+    actorRegisterSnapToBoneCallback();
     func_806D25CC();
     actorGetNodePos(D_807FBB40, 3, &sp2C, &sp28, &sp24);
     func_806F4D70(D_807FC929, sp2C, sp28, sp24, 25.0f);
@@ -676,7 +676,7 @@ void func_806D26D8(void) {
     f32 sp28;
     f32 sp24;
 
-    func_806D2378();
+    actorRegisterSnapToBoneCallback();
     func_806D25CC();
     actorGetNodePos(D_807FBB40, 2, &sp2C, &sp28, &sp24);
     func_806F4D70(D_807FC929, sp2C, sp28, sp24, 25.0f);
@@ -685,7 +685,7 @@ void func_806D26D8(void) {
 void actorSyncTransformFromParent();
 
 void func_806D2744(s32 arg0) {
-    func_806D2330(&actorSyncTransformFromParent);
+    actorRegisterCurrentActorGlobalCallback(&actorSyncTransformFromParent);
     func_806DF6D4(arg0);
     G09_A->unk6C = G09_A->unk6A;
 }
@@ -1078,7 +1078,7 @@ void func_806D32C0(void) {
 }
 
 extern f32 D_807531E0[];
-s32 func_806CC14C(s16, s16);
+s32 mathAngleDistance(s16, s16);
 
 void func_806D332C(void) {
     f32 f;
@@ -1097,8 +1097,8 @@ void func_806D332C(void) {
         }
     }
     if ((func_8061CB50() == 0) && ((f = D_807531E0[D_807FD584]) < G10_A->unkB8) && (f < G10_P->unk4) &&
-        (G10_P->unkC >= 0) && (func_806CC14C(G10_P->unkC, G10_P->unkA) >= 0x401) &&
-        (func_806CC14C(G10_A->unkEE, G10_P->unkA) >= 0x539)) {
+        (G10_P->unkC >= 0) && (mathAngleDistance(G10_P->unkC, G10_P->unkA) >= 0x401) &&
+        (mathAngleDistance(G10_A->unkEE, G10_P->unkA) >= 0x539)) {
         G10_A->unk154 = 0xE;
         G10_A->unk155 = 0;
         func_806CC948();
@@ -1391,7 +1391,7 @@ void func_806D3D5C(void) {
 
 extern f32 D_8075327C[];
 extern s16 D_80753298[];
-void func_806DF5A0(s16 *, s16, s16, s16);
+void mathAngleStepTowardThreshold(s16 *, s16, s16, s16);
 
 void func_806D3DE4(void) {
     switch (G11_A->unk155) {
@@ -1411,12 +1411,12 @@ void func_806D3DE4(void) {
         case 2:
             func_806DF6D4(0x41);
             func_806CD8EC();
-            func_806DF5A0(&G11_A->unkE6, G11_P->unkA, D_80753298[D_807FD584], 0xC00);
+            mathAngleStepTowardThreshold(&G11_A->unkE6, G11_P->unkA, D_80753298[D_807FD584], 0xC00);
             func_806CC948();
             break;
         case 3:
             func_806DF6D4(0x41);
-            func_806DF5A0(&G11_A->unkE6, G11_P->unkA, D_80753298[D_807FD584], 0xC00);
+            mathAngleStepTowardThreshold(&G11_A->unkE6, G11_P->unkA, D_80753298[D_807FD584], 0xC00);
             if (G11_P->unk4 == 0.0f) {
                 func_806CFF9C(D_807FBB40);
             }
@@ -1599,7 +1599,7 @@ void func_806D4758(void) {
     switch (sel) {
         case 0:
             if (G11_P->unk3E != 0) {
-                if (func_806CC14C(G11_A->unkEE, G11_P->unk40)) {}
+                if (mathAngleDistance(G11_A->unkEE, G11_P->unk40)) {}
                 func_806CD424(G11_P->unk40, 50.0f, G11_P->unk38);
                 G11_P->unk3E--;
             }
@@ -1693,7 +1693,7 @@ void func_806D4A70(void) {
     switch (G08_A40->unk155) {
     case 0:
         if (G12_P->unk3E != 0) {
-            if (func_806CC14C(G08_A40->unkEE, G12_P->unk40)) {}
+            if (mathAngleDistance(G08_A40->unkEE, G12_P->unk40)) {}
             func_806CD424(G12_P->unk40, 50.0f, G12_P->unk38);
             G12_P->unk3E--;
         }
@@ -1710,7 +1710,7 @@ void func_806D4A70(void) {
     case 1:
         func_806DF6D4(0x24);
         if (G12_P->unk3E != 0) {
-            if (func_806CC14C(G08_A40->unkEE, G12_P->unk40)) {}
+            if (mathAngleDistance(G08_A40->unkEE, G12_P->unk40)) {}
             func_806CD424(G12_P->unk40, 30.0f, G12_P->unk38);
             G12_P->unk3E--;
         }
@@ -1893,7 +1893,7 @@ void func_806D5218(void) {
     case 1:
         func_806DF6D4(5);
         func_806CC8B8();
-        func_806DF494(&G08_A40->unkEE, G08_A40->unkE6, (s16)(G08_P->unk48 * 1.25));
+        mathAngleStepToward(&G08_A40->unkEE, G08_A40->unkE6, (s16)(G08_P->unk48 * 1.25));
         break;
     }
     func_806319C4(D_807FBB40, 0);
@@ -1993,7 +1993,7 @@ void func_806D5834(void) {
         func_806DF6D4(9);
         G12_P->unk30 = 10.0f;
         func_806CD8EC();
-        func_806DF494(&G08_A40->unkEE, G08_A40->unkE6, (s16)(G12_P->unk48 * 1.25));
+        mathAngleStepToward(&G08_A40->unkEE, G08_A40->unkE6, (s16)(G12_P->unk48 * 1.25));
         break;
     case 2:
         if ((u32)(D_80767CC0 - G12_P->unk5C) < 0x32) {
@@ -2064,7 +2064,7 @@ void func_806D59E4(void) {
             func_806DF6D4(9);
             G13_P->unk30 = 10.0f;
             func_806CD8EC();
-            func_806DF494(&G13_A->unkEE, G13_A->unkE6, (s16)(s32)(G13_P->unk48 * 1.25));
+            mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, (s16)(s32)(G13_P->unk48 * 1.25));
             break;
         case 2:
             if ((u32)(D_80767CC0 - G13_P->unk5C) < 0x32) {
@@ -2088,13 +2088,13 @@ void func_806D5B44(void) {
             G13_A->unk155++;
         case 1:
             func_806DF6D4(0xA);
-            func_806DF494(&G13_A->unkEE, G13_A->unkE6, (s16)(s32)(G13_P->unk48 * 1.25));
+            mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, (s16)(s32)(G13_P->unk48 * 1.25));
             break;
         case 2:
             func_806DF6D4(0xA);
             G13_P->unk30 = 50.0f;
             func_806CD8EC();
-            func_806DF494(&G13_A->unkEE, G13_A->unkE6, (s16)(s32)(G13_P->unk48 * 1.25));
+            mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, (s16)(s32)(G13_P->unk48 * 1.25));
             break;
     }
     func_806CC948();
@@ -2104,7 +2104,7 @@ void func_806D5B44(void) {
 extern f32 D_807531FC[];
 
 void func_806D5CCC(void) {
-    func_806DF494(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
+    mathAngleStepToward(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
     func_806D3608();
     switch (D_8074E77C[D_807FC929]) {
         case 1:
@@ -2220,7 +2220,7 @@ void func_806CBE90();
 void func_806CC8A8();
 
 void func_806D61B8(void) {
-    func_806DF494(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
+    mathAngleStepToward(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
     func_806D3608();
     switch (G13_A->unk155) {
         case 0:
@@ -2237,7 +2237,7 @@ void func_806D61B8(void) {
             }
             func_806CBE90();
             func_806CC948();
-            func_806DF494(&G13_A->unkEE, G13_A->unkE6, G13_P->unk48);
+            mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, G13_P->unk48);
             if (G13_A->unkFC != 0) {
                 G13_A->unkB8 = G13_A->unkB8 * 0.9;
             }
@@ -2252,7 +2252,7 @@ void func_806D61B8(void) {
             func_806DF6D4(0x18);
             func_806CD424(G13_A->unkE6, G13_P->unk68, G13_P->unk68);
             func_806CC948();
-            func_806DF494(&G13_A->unkEE, G13_A->unkE6, G13_P->unk48);
+            mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, G13_P->unk48);
             break;
         case 3:
             G13_P->unk30 = D_80753558[D_807FD584];
@@ -2335,7 +2335,7 @@ void func_806D6558(void) {
                 G13_P->unk68 = D_8075352C[D_807FD584];
                 break;
             }
-            func_806DF494(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
+            mathAngleStepToward(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
             func_806CBE90();
             func_806CD8EC();
             func_806CC948();
@@ -2435,7 +2435,7 @@ void func_80714998(s32);
 
 s32 func_806D69A4(void) {
     if (G14_A->unkFC != 0) {
-        if (func_806CC14C(G14_A->unkE6, ((((G14_A->unkF6 - G14_A->unkF4) & 0xFFF) / 2) + G14_A->unkF4 + 0x800) & 0xFFF) < 0x2BC) {
+        if (mathAngleDistance(G14_A->unkE6, ((((G14_A->unkF6 - G14_A->unkF4) & 0xFFF) / 2) + G14_A->unkF4 + 0x800) & 0xFFF) < 0x2BC) {
             if (G14_A->unkB8 > 150.0f) {
                 func_80614E78(D_807FBB40, 0x49);
                 G14_A->unkEE = (G14_A->unkE6 + 0x800) % 4096;
@@ -2449,7 +2449,7 @@ s32 func_806D69A4(void) {
             func_806CFF9C(D_807FBB40);
             return 1;
         }
-        func_806DF494(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
+        mathAngleStepToward(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
     }
     return 0;
 }
@@ -2484,7 +2484,7 @@ void func_806D6B00(void) {
         if (func_806D69A4() != 0) {
             break;
         }
-        func_806DF494(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
+        mathAngleStepToward(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
         func_806CBE90();
         func_806CD8EC();
         func_806CC948();
@@ -2537,7 +2537,7 @@ void func_806D6B00(void) {
 }
 
 void func_806D6F0C(void) {
-    func_806DF494(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
+    mathAngleStepToward(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
     func_806DF6D4(8);
     func_806CC8B8();
     func_806319C4(D_807FBB40, 0);
@@ -2551,7 +2551,7 @@ void func_806D6F64(void) {
         func_806DF6D4(3);
         G14_P->unk4 = D_8075305C[D_807FD584];
         G14_P->unkA = G14_A->unkEE;
-        func_806DF494(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
+        mathAngleStepToward(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
         break;
     case 1:
         func_806DF6D4(3);
@@ -2662,7 +2662,7 @@ void func_806D7510(void) {
     case 0:
         func_806EB0C0(0x3C, 0, D_807FC929);
         func_806DF6D4(4);
-        func_806DF494(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
+        mathAngleStepToward(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
         if (G14_A->unkFC != 0) {
             G14_A->unkB8 = G14_A->unkB8 * 0.5;
         }
@@ -2701,7 +2701,7 @@ void func_806D7704(void) {
             G14_P->unk1A3 = 0;
         }
         G14_P->unkA = G14_A->unkEE;
-        func_806DF494(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
+        mathAngleStepToward(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
         break;
     case 1:
         func_806DF6D4(3);
@@ -2798,7 +2798,7 @@ void func_806D7A28(void) {
         case 1:
             G08_P->unk4 = D_80753094[D_807FD584];
             G15_PB->unkA = G08_A40->unkEE;
-            func_806DF494(&G08_A40->unkE6, (s16)((G08_A40->unkEE + 0x800) & 0xFFF), (s16)(G15_PB->unk48 * 2));
+            mathAngleStepToward(&G08_A40->unkE6, (s16)((G08_A40->unkEE + 0x800) & 0xFFF), (s16)(G15_PB->unk48 * 2));
             func_806CC8B8();
             G15_PB->unk11C = 0xF;
             G15_PB->unk11D = 0;
@@ -2955,11 +2955,11 @@ void func_806D80A8(void) {
             func_806CC948();
             break;
         case 2:
-            func_806DF494(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
+            mathAngleStepToward(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
             func_806CFE30();
             func_806D3608();
             func_806CC8B8();
-            func_806DF494(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
+            mathAngleStepToward(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
             func_806DF6D4(0x47);
             break;
         case 3:
@@ -3137,7 +3137,7 @@ void func_806D87FC(void) {
         fa0 = G15_B->unkC0;
     }
     fa0 = G15_B->unkC0;
-    G15_B->unkC0 = func_806CD898(fa0, fa1, fv1);
+    G15_B->unkC0 = mathApproachF32(fa0, fa1, fv1);
     G08_P->unk24 = 0;
     switch (G15_B->unk155) {
         case 0:
@@ -3289,7 +3289,7 @@ void func_806D8B08(void) {
         case 0:
             func_806DF6D4(0x4C);
             t = D_80753A5C[D_807FD584];
-            G16_A->unkC0 = func_806CD898(G16_A->unkC0, t, G16_P->unk1C);
+            G16_A->unkC0 = mathApproachF32(G16_A->unkC0, t, G16_P->unk1C);
             if (t <= G16_A->unkC0) {
                 if (G16_A->unkB8 != 0.0f || G16_P->unk10 != 0) {
                     G16_A->unk155 = 3;
@@ -3810,7 +3810,7 @@ void func_806D9D58(void) {
         break;
     case 1:
         func_806DF6D4(0x43);
-        func_806DF494(&G17_A->unkE6, G17_A->unkEE, 0x32);
+        mathAngleStepToward(&G17_A->unkE6, G17_A->unkEE, 0x32);
         G17_A->unk80 = G17_P->unk238;
         func_806CC8B8();
         if (G17_P->unk238 - G17_A->unk168 > 50.0f) {
@@ -3845,7 +3845,7 @@ void func_806D9FD0(void) {
         G17_P->unk2C = 5.0f;
         break;
     case 1:
-        func_806DF494(&G17_A->unkE6, G17_A->unkEE, 0x32);
+        mathAngleStepToward(&G17_A->unkE6, G17_A->unkEE, 0x32);
         func_806DF6D4(0x43);
         G17_A->unkC4 -= 0.036;
         func_806CC8B8();
@@ -3862,9 +3862,9 @@ void func_806D9FD0(void) {
         }
         break;
     case 2:
-        func_806DF494(&G17_A->unkE6, G17_A->unkEE, 0x32);
+        mathAngleStepToward(&G17_A->unkE6, G17_A->unkEE, 0x32);
         func_806DF6D4(0x43);
-        func_806DF494(&G17_A->unkE6, G17_A->unkEE, 0x32);
+        mathAngleStepToward(&G17_A->unkE6, G17_A->unkEE, 0x32);
         G17_A->unk168++;
         G17_A->unk80 += func_80612794(G17_A->unk168 << 5) * 0.25;
         func_806CC8F0();
@@ -3921,7 +3921,7 @@ void func_806DA3E4(void) {
     G17_A->unkB8 = 0.0f;
     G17_A->unk7C = (G17_P->unk22C - G17_A->unk7C) * 0.2 + G17_A->unk7C;
     G17_A->unk84 = (G17_P->unk234 - G17_A->unk84) * 0.2 + G17_A->unk84;
-    func_806DF494(&G17_A->unkE6, (s16)mathAngleBetweenPoints2D(G17_P->unk220, G17_P->unk228, G17_A->unk7C, G17_A->unk84), 0x32);
+    mathAngleStepToward(&G17_A->unkE6, (s16)mathAngleBetweenPoints2D(G17_P->unk220, G17_P->unk228, G17_A->unk7C, G17_A->unk84), 0x32);
     func_806CC970();
     func_806319C4(D_807FBB40, 0);
 }
@@ -3991,7 +3991,7 @@ void func_806DA7EC(void) {
     if (D_807FD618[D_807FC929].unk0 != 0.0f) {
         func_80614D00(D_807FBB40, 3.0f, 0.0f);
     }
-    func_806DF494(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
+    mathAngleStepToward(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
     G17_P->unk4 = 0.0f;
     func_806CC8B8();
     func_806319C4(D_807FBB40, 0);
@@ -4002,7 +4002,7 @@ void func_806DA89C(void) {
     if (D_807FD618[D_807FC929].unk0 != 0.0f) {
         func_80614D00(D_807FBB40, 2.0f, 0.0f);
     }
-    func_806DF494(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
+    mathAngleStepToward(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
     G17_P->unk4 = 0.0f;
     func_806CC8B8();
     func_806319C4(D_807FBB40, 0);
@@ -4276,7 +4276,7 @@ void func_806DB0C4(void) {
     G18_A->unk84 = G18_P->unkA0 + (G18_P->unkA8 - G18_P->unkA0) * G18_P->unkAC;
     func_806CC970();
     func_806CDD24(D_807FBB40, G18_P->unk94, G18_P->unk94, 0);
-    func_806DF494(&G18_A->unkE6, (s16)(s32)G18_P->unk98, (s16)(D_8075326C[D_807FD584] / 2));
+    mathAngleStepToward(&G18_A->unkE6, (s16)(s32)G18_P->unk98, (s16)(D_8075326C[D_807FD584] / 2));
     G18_A->unkEE = G18_A->unkE6;
     func_806319C4(D_807FBB40, 0);
 }
@@ -4780,14 +4780,14 @@ void func_806DC410(void) {
     node->unk8 = (s32)D_807FBB48;
     node->unk4 = 1;
     actorRegisterGlobalCallback(node);
-    func_806DF494(&LD5_A->unkE6, LD5_A->unkEE, 0xC8);
+    mathAngleStepToward(&LD5_A->unkE6, LD5_A->unkEE, 0xC8);
     switch (LD5_A->unk155) {
     case 0:
         func_806DF6D4(5);
         LD5_P->unk94 = 0.0f;
         LD5_P->unk158 = 0;
         LD5_A->unkEE = LD5_P->unk130->unkE6;
-        if (func_806CC14C(LD5_A->unkE6, LD5_P->unk130->unkE6) >= 0x400) {
+        if (mathAngleDistance(LD5_A->unkE6, LD5_P->unk130->unkE6) >= 0x400) {
             LD5_A->unkEE = (LD5_A->unkEE + 0x800) & 0xFFF;
         }
         break;
@@ -4931,7 +4931,7 @@ void func_806DCA7C(void) {
         } else {
             func_80614E78(D_807FBB40, 0x6E);
         }
-        func_806DF5A0(&G19_A->unkE6, G19_A->unkEE, 0x78, 0x600);
+        mathAngleStepTowardThreshold(&G19_A->unkE6, G19_A->unkEE, 0x78, 0x600);
         G19_A->unkC0 = G19_P->unk150;
         G19_A->unk155++;
         func_806DF6D4(0x27);
@@ -4953,7 +4953,7 @@ void func_806DCA7C(void) {
         }
         G19_A->unkB8 = G19_P->unk14C;
         G19_A->unkEE = G19_P->unk154;
-        func_806DF5A0(&G19_A->unkE6, G19_A->unkEE, 0x78, 0x600);
+        mathAngleStepTowardThreshold(&G19_A->unkE6, G19_A->unkEE, 0x78, 0x600);
         G19_P->unkA = G19_A->unkEE;
         G19_P->unk4 = 150.0f;
         G19_P->unk38 = 150.0f;
@@ -5009,7 +5009,7 @@ void func_806DCF60(void) {
                 a = (G19Actor *)gActiveActors[i].actor;
                 if (!(a->unk60 & 0x2000) && (a->unk60 & 0x04000000) && ((void *)a != G19_P->unk130) && ((void *)a != (void *)D_807FBB48)) {
                     ang = (s32)(((f64)(mathAngleBetweenPointsRad(a->unk7C, a->unk84, D_807FBB48->unk7C, D_807FBB48->unk84) * 57.295776f) / 360.0) * 4095.0);
-                    d = func_806CC14C(ang, G19_P->unk154);
+                    d = mathAngleDistance(ang, G19_P->unk154);
                     dx = a->unk7C - D_807FBB48->unk7C;
                     dz = a->unk84 - D_807FBB48->unk84;
                     dist = sqrtf(dx * dx + dz * dz);
@@ -5029,7 +5029,7 @@ void func_806DCF60(void) {
             }
         } else {
             ang = (s32)(((f64)(mathAngleBetweenPointsRad(cur->unk7C, cur->unk84, D_807FBB48->unk7C, D_807FBB48->unk84) * 57.295776f) / 360.0) * 4095.0);
-            if (func_806CC14C(ang, G19_P->unk154) < 0x258) {
+            if (mathAngleDistance(ang, G19_P->unk154) < 0x258) {
                 G19_P->unk154 = ang;
             }
         }
@@ -5222,7 +5222,7 @@ void func_806DD874(void) {
         func_806D3608();
         func_806CFD68();
         if (D_807FD618[D_807FC929].unk0 != 0.0f) {
-            func_806DF494(&G19_A->unkE6, G19_P->unkA, G19_P->unk48);
+            mathAngleStepToward(&G19_A->unkE6, G19_P->unkA, G19_P->unk48);
         }
         if (G19_P->unk3C != 0) {
             func_806CC948();
