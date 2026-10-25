@@ -128,7 +128,37 @@ void func_806EB4F8(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB544.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB5C8.s")
+typedef struct EfN2Player {
+    u8 pad0[0x64];
+    s16 unk64;
+    u8 pad66[0x62];
+    s16 unkC8;
+} EfN2Player;
+
+void func_806EB5C8(void) {
+    switch (D_8074E77C[D_807FC929]) {
+    case 0:
+    case 1:
+    case 2:
+        EfA_A40->unkC0 = 50.0f;
+        EfA_A40->unkC4 = -2.5f;
+        break;
+    case 3:
+        EfA_A40->unkC0 = 140.0f;
+        EfA_A40->unkC4 = -20.0f;
+        break;
+    case 4:
+    case 5:
+        EfA_A40->unkC0 = 40.0f;
+        EfA_A40->unkC4 = -7.0f;
+        break;
+    }
+    EfA_A40->unk154 = 0x2A;
+    EfA_A40->unk155 = 0;
+    func_80614E78(D_807FBB40, 0x43);
+    ((EfN2Player *)D_807FD580)->unk64 = 0;
+    ((EfN2Player *)D_807FD580)->unkC8 = 0x32;
+}
 
 void func_806EB6D8(void) {
     EfA_P->unk4C = -1;
@@ -347,13 +377,85 @@ void func_806EC014(void) {
     func_806CFF9C(D_807FBB40);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC044.s")
+typedef struct EfN2ModelSlot {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    u8 padC[0x84];
+} EfN2ModelSlot;
+
+typedef struct EfN2PlayerState {
+    u8 pad0[0x10];
+    s16 unk10;
+    s16 unk12;
+    s16 unk14;
+} EfN2PlayerState;
+
+extern EfN2ModelSlot *D_807F6000;
+extern s16 D_807539DC[];
+extern s16 D_807539EC[];
+void func_80614D00(Actor *, f32, f32);
+void func_806F0C18(void *);
+void actorClearMovementFlags(void *);
+s32 hashTableLookup(s32);
+void func_8061CC40(Actor *, s32, s32);
+void func_80613C48(Actor *, s32, f32, f32);
+void func_8067B238(Actor *, Actor *, f32);
+void func_80613AF8(Actor *, s32, f32, f32);
+
+void func_806EC044(void) {
+    f32 speed;
+
+    speed = 1.0f;
+    func_806F0C18(D_807FBB40);
+    D_807FBB48->unk154 = 0x6C;
+    D_807FBB48->unk155[0] = 0;
+    func_80614EBC(D_807FBB48, 0x3B);
+    if (D_8074E77C[0] == 0) {
+        speed = 0.5f;
+    }
+    func_80614D00(D_807FBB48, speed, 0.0f);
+    actorClearMovementFlags(D_807FBB48);
+    D_807FBB48->unk7C = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk0;
+    D_807FBB48->unk80 = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk4 + 5.0f;
+    D_807FBB48->unk84 = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk8;
+    *(s16 *)((u8 *)D_807FBB48 + 0xE4) = 0;
+    *(s16 *)((u8 *)D_807FBB48 + 0xE8) = 0;
+    func_8061CC40(D_807FBB48, 0, 1);
+    func_806F8BC4(0, 1, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC1A8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC2CC.s")
+void func_806EC2CC(void) {
+    Actor *actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC3BC.s")
+    D_807FBB48->unk154 = 0x75;
+    D_807FBB48->unk155[0] = 0;
+    func_80614EBC(D_807FBB48, 0);
+    EFB_P->unk50 = 0;
+    EFB_P->unk4C = -1;
+    D_807FBB48->unk60 &= ~1;
+    EFB_P->unk88 = (EfBActor *)EFB_C[D_807FC929].unk2A0;
+    actor = (Actor *)EFB_P->unk88;
+    func_8067B238(D_807FBB48, actor, actor->unk4->unk34);
+    D_807FBB48->unk144 = 1;
+    func_80613C48(D_807FBB48, 0x22A, 0.0f, 0.0f);
+}
+
+void func_806EC3BC(void) {
+    ((EfN2PlayerState *)D_807FD580)->unk12 = D_807539EC[D_807FD584];
+    ((EfN2PlayerState *)D_807FD580)->unk14 = D_807FBB40->unkE6;
+    ((EfN2PlayerState *)D_807FD580)->unk10 = D_807539DC[D_807FD584];
+    D_807FBB40->unk154 = 0x4F;
+    D_807FBB40->unk155[0] = 1;
+    if (*(f32 *)D_807FBB40->unkC0 > 0.0f) {
+        *(f32 *)D_807FBB40->unkC0 = 0.0f;
+    }
+    func_80614E78(D_807FBB40, 0x36);
+    func_80613AF8(D_807FBB40, 0x31, 0.0f, 8.0f);
+    func_80614D00(D_807FBB40, 0.5f, 0.0f);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC4AC.s")
 
@@ -403,7 +505,6 @@ typedef struct EfCPlayer48 {
     s16 unk50;
 } EfCPlayer48;
 
-void func_80614D00(Actor *, f32, f32);
 void func_806CFE7C(void);
 
 void func_806ECF1C(void) {
@@ -876,7 +977,6 @@ typedef struct EfECamBlock {
 } EfECamBlock;
 
 #define EfECam ((EfECamBlock *)D_807FC924)
-void func_8061CC40(Actor *, s32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void func_806EFD50(void) {

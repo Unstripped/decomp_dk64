@@ -1,8 +1,4 @@
-// func_806ECDD4 (src/global/EFDC0.c): stage 4: behavior reconstructed; only branch-likely scheduling differs (target beqz/nop/redundant branch versus current beqzl delay-slot conversion)
-s32 func_806EB400(Actor *);
-void func_806EEAF8(s16);
-extern s32 D_807FBB68;
-
+// func_806ECDD4 (src/global/EFDC0.c): Stage 4 branch scheduling mismatch; uopt traced and permuter setup attempted.
 void func_806ECDD4(void) {
     s32 value;
 
@@ -10,6 +6,8 @@ void func_806ECDD4(void) {
         value = 1;
         if (D_807FBB68 & 2) {
             value = 0;
+        } else {
+            value = value;
         }
         func_806EEAF8((s16)value);
     }

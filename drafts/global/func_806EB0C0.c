@@ -1,21 +1,22 @@
-// func_806EB0C0 (src/global/EFDC0.c): m2c starter; inferred queued-call view
-extern s32 D_807FC924;
-extern ? D_807FD6F0;
+// func_806EB0C0 (src/global/EFDC0.c): Stage 4 behavior reconstruction: branch and register allocation remain; explicit offset and signed priority.
+s32 func_806EB0C0(s16 priority, void *actor, s32 player) {
+    s32 playerByte;
+    s32 offset;
+    s32 priorityCopy;
+    EfAQueuedCall *entry;
 
-s32 func_806EB0C0(s16 arg0, void *arg1, s32 arg2) {
-    s32 temp_v0;
-    void *temp_v1;
-
-    temp_v0 = (arg2 & 0xFF) * 0x2F0;
-    temp_v1 = D_807FC924 + temp_v0;
-    if (temp_v1->unk29C < arg0) {
-        temp_v1->unk29C = arg0;
-        (D_807FC924 + temp_v0)->unk2A0 = arg1;
-        (D_807FC924 + temp_v0)->unk2A8 = (s32) D_807FD6F0.unk0;
-        (D_807FC924 + temp_v0)->unk2AC = (s32) D_807FD6F0.unk4;
-        (D_807FC924 + temp_v0)->unk2B0 = (s32) D_807FD6F0.unk8;
-        if (arg1 != NULL) {
-            (D_807FC924 + temp_v0)->unk2A4 = (s32) arg1->unk54;
+    priorityCopy = priority;
+    playerByte = player & 0xFF;
+    offset = playerByte * 0x2F0;
+    entry = (EfAQueuedCall *)((u8 *)D_807FC924 + offset);
+    if (entry->unk29C < priorityCopy) {
+        entry->unk29C = priorityCopy;
+        ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2A0 = actor;
+        ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2A8 = D_807FD6F0.unk0;
+        ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2AC = D_807FD6F0.unk4;
+        ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2B0 = D_807FD6F0.unk8;
+        if (actor != NULL) {
+            ((EfAQueuedCall *)((u8 *)D_807FC924 + offset))->unk2A4 = ((EfAActor *)actor)->unk54;
         }
         return 1;
     }

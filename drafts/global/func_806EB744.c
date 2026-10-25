@@ -1,49 +1,58 @@
-// func_806EB744 (src/global/EFDC0.c): m2c starter; player and subactor views needed
-? func_80609140(?, ?, ?, ?, s32, s32);              /* extern */
-? func_8062217C(void *, ?);                         /* extern */
-? func_80627878(void *);                            /* extern */
-? func_806F0D68(void *);                            /* extern */
-? sfxStopSlotSound(void *, ?);                      /* extern */
-extern void *D_807FBB48;
-extern s32 D_807FC924;
-extern u8 D_807FC929;
-extern void *D_807FD580;
+// func_806EB744 (src/global/EFDC0.c): Stage 4: correct frame, saved register, and basic blocks; remaining global-load and register allocation differences.
+typedef struct EfN2SubActor {
+    u8 pad0[0xB2];
+    s16 unkB2;
+    f32 unkB4;
+    f32 unkB8;
+    s16 unkBC;
+    u8 padBE[0x31];
+    u8 unkEF;
+    u8 unkF0;
+    u8 padF1[2];
+    s8 unkF3;
+} EfN2SubActor;
+
+typedef struct EfN2TargetActor {
+    u8 pad0[0xB4];
+    f32 unkB4;
+} EfN2TargetActor;
+
+void func_80627878(void *);
+void func_8062217C(void *, s32);
+void func_806F0D68(Actor *);
+void sfxStopSlotSound(Actor *, u8);
 
 void func_806EB744(void) {
-    s16 sp2A;
-    f32 temp_fv0;
-    s16 var_v1;
-    s32 temp_t6;
-    u8 temp_v0;
-    void *temp_s0;
-    void *var_a0;
+    s16 speed;
+    EfN2SubActor *subactor;
+    Actor *actor;
+    s32 state;
+    u8 type;
 
-    var_a0 = D_807FD580->unk104;
-    temp_s0 = var_a0->unk174;
-    temp_v0 = temp_s0->unkEF;
-    var_v1 = (s16) (s32) temp_s0->unkB8;
-    if (temp_v0 != 0) {
-        temp_s0->unkF0 = temp_v0;
-        var_v1 = 0x80;
-        var_a0 = D_807FD580->unk104;
+    actor = EfA_P->unk104;
+    subactor = actor->unk174;
+    type = subactor->unkEF;
+    speed = subactor->unkB8;
+    if (type != 0) {
+        subactor->unkF0 = type;
+        speed = 0x80;
+        actor = EfA_P->unk104;
     }
-    sp2A = var_v1;
-    func_80627878(var_a0);
-    func_8062217C(D_807FD580->unk104, 0);
-    temp_t6 = (D_807FC924 + (D_807FC929 * 0x2F0))->unk2A8;
-    temp_s0->unkF3 = (s8) temp_t6;
-    if ((temp_t6 & 0xFF) == 3) {
+    func_80627878(actor);
+    func_8062217C(EfA_P->unk104, 0);
+    state = EfA_Q[D_807FC929].unk2A8;
+    subactor->unkF3 = state;
+    if ((u8)state == 3) {
         sfxStopSlotSound(D_807FBB48, 0);
-        func_80609140(0x26, 0x7FFF, 0x427C0000, 0x3F800000, 0, 0);
-        if ((D_807FC924 + (D_807FC929 * 0x2F0))->unk2AC != 0) {
+        func_80609140(0x26, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        if (EfA_Q[D_807FC929].unk2AC != 0) {
             func_806F0D68(D_807FBB48);
         }
     }
-    temp_s0->unkBC = 0x80;
-    temp_fv0 = (f32) sp2A;
-    D_807FD580->unk104->unkB4 = temp_fv0;
-    temp_s0->unkB8 = temp_fv0;
-    temp_s0->unkB2 = (s16) (D_807FBB48->unkE6 + 0x800);
+    subactor->unkBC = 0x80;
+    ((EfN2TargetActor *)EfA_P->unk104)->unkB4 = speed;
+    subactor->unkB8 = speed;
+    subactor->unkB2 = D_807FBB48->unkE6 + 0x800;
     D_807FBB48->unkB8 = 0.0f;
-    D_807FBB48->unk6A = (u16) (D_807FBB48->unk6A | 0x2000);
+    D_807FBB48->unk6A |= 0x2000;
 }

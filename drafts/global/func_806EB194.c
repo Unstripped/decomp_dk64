@@ -1,22 +1,20 @@
-// func_806EB194 (src/global/EFDC0.c): m2c starter; callback queue dispatch
-s32 actorTableContains(s32, u8 *, ?);               /* extern */
-extern ? D_80752C70;
-extern s32 D_807FC924;
-extern u8 D_807FC929;
+// func_806EB194 (src/global/EFDC0.c): Callback dispatcher reconstruction: behavior recovered; stack/register allocation differs.
+s32 actorTableContains(Actor *);
 
 void func_806EB194(void) {
-    s32 temp_a0;
-    void *var_v0;
+    EfAQueuedCall *entry;
 
-    var_v0 = D_807FC924 + (D_807FC929 * 0x2F0);
-    if (var_v0->unk29C >= 0) {
-        temp_a0 = var_v0->unk2A0;
-        if ((temp_a0 != 0) && ((actorTableContains(temp_a0, &D_807FC929, 0x2F0) == 0) || (var_v0 = D_807FC924 + (D_807FC929 * 0x2F0), (var_v0->unk2A0->unk54 != var_v0->unk2A4)))) {
-            (D_807FC924 + (D_807FC929 * 0x2F0))->unk2A0 = 0;
-            var_v0 = D_807FC924 + (D_807FC929 * 0x2F0);
+    entry = &EfA_Q[D_807FC929];
+    if (entry->unk29C >= 0) {
+        if (entry->unk2A0 != NULL) {
+            if ((actorTableContains(entry->unk2A0) == 0) ||
+                (((EfAActor *)entry->unk2A0)->unk54 != entry->unk2A4)) {
+                EfA_Q[D_807FC929].unk2A0 = NULL;
+                entry = &EfA_Q[D_807FC929];
+            }
         }
-        *(&D_80752C70 + (var_v0->unk29C * 4))();
-        var_v0 = D_807FC924 + (D_807FC929 * 0x2F0);
+        D_80752C70[entry->unk29C]();
+        entry = &EfA_Q[D_807FC929];
     }
-    var_v0->unk29C = -1;
+    entry->unk29C = -1;
 }
