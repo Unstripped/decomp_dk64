@@ -131,6 +131,7 @@ s32 func_80710174(M114aAngle *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_807102AC.s")
 
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_807103E0.s")
 
 #ifdef NON_MATCHING
@@ -145,7 +146,6 @@ extern u8 D_80755264;
 extern u32 D_807FD9F0[];
 extern u8 D_807FDA18;
 extern u8 D_807FDA19;
-extern u8 D_807FDA1C;
 
 #define L105D4_TEXTURE ((L105D4TextureDescriptor *)((u8 *)&D_80755264 + (D_807FDA1C * 0x14)))
 
@@ -175,21 +175,54 @@ Gfx *func_807105D4(Gfx *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_80711410.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_80711950.s")
-
 typedef struct R114cPlayerView {
     u8 pad0[0x2C4];
     f32 unk2C4;
 } R114cPlayerView;
 
-
+extern s32 D_807FBB60;
 extern s16 D_807FDA1E;
 extern u8 D_807FDA1B;
-s32 func_80611A44(void);
+u32 func_806119A0(void);
 f32 func_80612D10(f32);
 void func_8070F5CC(u8, s16, f32, s16, s32, s32);
 void func_80710CA0(void);
 void renderCallbacksRegister(void *, void *, s32);
+
+void func_80711950(f32 arg0, s16 arg1, s16 arg2) {
+    s32 random;
+    s32 count;
+    s32 i;
+    f32 value;
+
+    if (D_807FBB60 & 0x10) {
+        D_807FDA1E = (s16)(func_80612D10(((R114cPlayerView *)D_807FC924)->unk2C4) * arg1);
+        if (arg0 < 1.0) {
+            arg0 *= 100.0f;
+            random = func_806119A0() / 10000;
+            if ((f32)(s32)((u32)random % 100U) < arg0) {
+                count = 1;
+            } else {
+                count = 0;
+            }
+        } else {
+            count = (s32)arg0;
+        }
+        D_807FDA1B = 0xFF;
+        for (i = 0; i < count; i++) {
+            random = func_806119A0() / 10000;
+            value = (f32)((f64)((u32)random % 125U) / 1000.0);
+            random = func_806119A0() / 10000;
+            func_8070F5CC(1, arg2, (f32)((f64)value + 0.075), (s16)(s32)((u32)random % 320U), -10, 200);
+        }
+        if (*D_807550E0 != 0) {
+            renderCallbacksRegister(&func_80710CA0, 0, 1);
+        }
+    }
+}
+
+
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_80711BD0.s")
 

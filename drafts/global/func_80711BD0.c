@@ -1,4 +1,4 @@
-// func_80711BD0 (src/global/114270.c): Stage 6: exact frame, saved registers, unsigned threshold divisions, and FP constant allocation; residual clamp branch-likely scheduling and one local rodata constant.
+// func_80711BD0 (src/global/114270.c): Stage 6: exact frame, saved registers, unsigned threshold divisions, and FP constant allocation; residual clamp branch-likely scheduling and one local rodata constant. A 900-second random search reached 505 only by changing the clamp's false-path result, so it was not adopted.
 
 extern void *D_807FC924;
 extern u16 *D_807550E0;
