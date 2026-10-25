@@ -22,6 +22,7 @@ typedef struct L112dGroup {
     u8 unk0;
     u8 pad1[0xB];
     L112dEntry *entries;
+    u8 pad10[4];
     f32 width;
     f32 height;
     struct L112dGroup *next;
