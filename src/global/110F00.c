@@ -52,7 +52,20 @@ void func_8070C590(M110aMat *arg0, M110aMat *arg1, M110aMat *arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C808.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C89C.s")
+void func_8070C89C(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3) {
+    f32 temp_fv1;
+    f32 temp_fv0;
+
+    func_8070CCC4(arg0);
+    temp_fv0 = arg1 / arg3;
+    arg0[1][1] = temp_fv0;
+    temp_fv1 = arg2 / arg3;
+    if (temp_fv1) {
+    }
+    arg0[2][2] = temp_fv0;
+    arg0[1][2] = temp_fv1;
+    arg0[2][1] = -temp_fv1;
+}
 
 void func_8070C8F4(M110aMat *arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 var_fv0;
@@ -80,7 +93,21 @@ void func_8070C89C(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3);
 void func_8070CCC4(f32 arg0[4][4]);
 void func_8070C990(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C990.s")
+void func_8070C990(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3) {
+    f32 temp_fv0;
+    f32 temp_fv1;
+
+    func_8070CCC4(arg0);
+    temp_fv0 = arg1 / arg3;
+    temp_fv1 = temp_fv0;
+    arg0[0][0] = temp_fv1;
+    if (1) {
+        temp_fv0 = arg2 / arg3;
+        arg0[0][1] = temp_fv0;
+        arg0[1][0] = -temp_fv0;
+    }
+    arg0[1][1] = temp_fv1;
+}
 
 void func_8070C9E8(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 sp18[4][4];
@@ -169,7 +196,33 @@ void func_8070CC8C(Mtx *arg0, f32 arg1) {
     guMtxF2L(sp18, arg0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CCC4.s")
+void func_8070CCC4(f32 arg0[4][4]) {
+    f32 one;
+    f32 zero;
+    s32 index;
+
+    one = 1.0f;
+    zero = 0.0f;
+    if (one) {
+    }
+    arg0[1][0] = zero;
+    arg0[2][0] = zero;
+    arg0[3][0] = zero;
+    arg0[0][1] = zero;
+    arg0[2][1] = zero;
+    arg0[3][1] = zero;
+    arg0[0][2] = zero;
+    arg0[1][2] = zero;
+    arg0[3][2] = zero;
+    arg0[0][3] = zero;
+    arg0[1][3] = zero;
+    arg0[2][3] = zero;
+    index = 2;
+    arg0[0][0] = one;
+    arg0[1][1] = one;
+    arg0[2][index] = one;
+    arg0[3][3] = one;
+}
 
 void func_8070CD14(Mtx *arg0) {
     f32 sp18[4][4];
