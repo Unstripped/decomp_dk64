@@ -9,65 +9,26 @@ void *func_80610FE8(s32);
 u32 func_806119A0(void);
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714670.s")
+typedef struct Ua1ListNode {
+    void *unk0;
+    s32 unk4;
+    u8 unk8;
+    u8 unk9;
+    u8 unkA;
+    u8 unkB;
+    s16 unkC;
+    s16 unkE;
+    s16 unk10;
+    s16 unk12;
+    s16 unk14;
+    s16 unk16;
+    s16 unk18;
+    void *unk1C;
+    void *unk20;
+    struct Ua1ListNode *unk24;
+} Ua1ListNode;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_807146A4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_807146E0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_807146F4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714708.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714778.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714944.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714950.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_8071495C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_8071496C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_8071497C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_8071498C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714998.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_807149A8.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_807149B8.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_807149C8.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_807149FC.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A08.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A28.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A38.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A58.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A68.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A9C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714B84.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714C08.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714CC0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714D08.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_8071509C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80715270.s")
-
-typedef struct Ua2Effect {
+typedef struct Ua1Effect {
     u8 pad0[0x20];
     u8 itemCount;
     u8 pad21[0x317];
@@ -79,16 +40,207 @@ typedef struct Ua2Effect {
     u8 pad388[4];
     u16 flags;
     u8 pad38E[0xA];
-    struct Ua2Effect *previous;
-    struct Ua2Effect *next;
-} Ua2Effect;
+    struct Ua1Effect *previous;
+    struct Ua1Effect *next;
+} Ua1Effect;
 
-extern Ua2Effect *D_807FDB04;
 
-void func_80715908(Ua2Effect *);
+extern Ua1ListNode *D_807FDB00;
+extern Ua1Effect *D_807FDB04;
+extern Ua1Effect *D_807FDB08;
+extern s8 D_807FDB0C;
+extern s8 D_807FDB0D;
+extern s8 D_807FDB0E;
+extern s8 D_807FDB0F;
+extern s32 D_807FDB10;
+extern s32 D_807FDB14;
+extern s8 D_807FDB18;
+extern s16 D_807FDB1A;
+extern s8 D_807FDB1C;
+extern s8 D_807FDB1D;
+extern f32 D_807FDB20;
+extern f32 D_807FDB24;
+extern s8 D_807FDB28;
+extern s32 D_807FDB2C;
+extern s32 D_807FDB30;
+extern u16 D_807FDB36;
+extern s16 D_807FDB38;
+extern s16 D_807FDB3A;
+extern s16 D_807FDB3C;
+extern s16 D_807FDB3E;
+extern s16 D_807FDB40;
+extern s16 D_807FDB42;
+
+void func_80714A9C(void);
+
+void func_80714670(void) {
+    D_807FDB00 = NULL;
+    D_807FDB04 = NULL;
+    D_807FDB08 = NULL;
+    func_80714A9C();
+}
+
+s32 func_807146A4(s32 arg0) {
+    Ua1ListNode *node = D_807FDB00;
+
+    if (node != NULL) {
+        do {
+            if (arg0 == node->unk4) {
+                return (s32) node->unk0;
+            }
+            node = node->unk24;
+        } while (node != NULL);
+    }
+    return (s32) D_807FDB00->unk0;
+}
+
+void func_807146E0(Ua1ListNode *arg0, u8 *arg1, u8 *arg2) {
+    *arg1 = ((u8 *) arg0)[4];
+    *arg2 = ((u8 *) arg0)[5];
+}
+
+void func_807146F4(Ua1ListNode *arg0, s16 *arg1, s16 *arg2) {
+    *arg1 = arg0->unkE;
+    *arg2 = arg0->unk10;
+}
+
+void func_80714708(Ua1ListNode *arg0, s16 *arg1, s16 *arg2) {
+    s16 pad0;
+    s16 pad1;
+    u8 sp1B;
+    u8 sp1A;
+    func_807146E0(arg0, &sp1B, &sp1A);
+    func_807146F4(arg0, arg1, arg2);
+    *arg1 *= sp1B;
+    *arg2 *= sp1A;
+}
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714778.s")
+
+void func_80714944(s32 arg0) {
+    D_807FDB30 = arg0;
+}
+
+void func_80714950(s32 arg0) {
+    D_807FDB2C = arg0;
+}
+
+void func_8071495C(void) {
+    D_807FDB1D = 1;
+}
+
+void func_8071496C(s16 arg0) {
+    D_807FDB1A = arg0;
+}
+
+void func_8071497C(s16 arg0) {
+    D_807FDB34 = arg0;
+}
+
+void func_8071498C(s32 arg0) {
+    D_807FDB14 = arg0;
+}
+
+void func_80714998(s8 arg0) {
+    D_807FDB1C = arg0;
+}
+
+void func_807149A8(s16 arg0) {
+    D_807FDB3A = arg0;
+}
+
+void func_807149B8(s8 arg0) {
+    D_807FDB18 = arg0;
+}
+
+void func_807149C8(s8 arg0, s8 arg1, s8 arg2, s8 arg3) {
+    D_807FDB0C = arg0;
+    D_807FDB0D = arg1;
+    D_807FDB0E = arg2;
+    D_807FDB0F = arg3;
+}
+
+void func_807149FC(s32 arg0) {
+    D_807FDB10 = arg0;
+}
+
+void func_80714A08(f32 arg0, f32 arg1) {
+    D_807FDB20 = arg0;
+    D_807FDB24 = arg1;
+    D_807FDB28 = 1;
+}
+
+void func_80714A28(s16 arg0) {
+    D_807FDB36 = arg0;
+}
+
+#ifdef NON_MATCHING
+void func_80714A38(s16 arg0) {
+    u16 *temp = &D_807FDB36;
+
+    *temp = *temp | (arg0 & 0xFF);
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A38.s")
+#endif
+
+void func_80714A58(s16 arg0) {
+    D_807FDB38 = arg0;
+}
+
+void func_80714A68(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+    D_807FDB3C = arg0;
+    D_807FDB3E = arg1;
+    D_807FDB40 = arg2;
+    D_807FDB42 = arg3;
+}
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A9C.s")
+
+void func_806335B0();
+void func_80714D08(s32, s32, s32, s32, f32, void *, s32, s32, s32);
+
+void func_80714B84(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 arg4) {
+    s32 sp3C;
+    s32 sp38;
+    f32 sp34;
+
+    func_806335B0(arg2, 1, arg3, &sp3C, &sp38, &sp34);
+    func_80714D08(arg0, arg1, sp3C, sp38, sp34, 0, arg2, arg3, (s32) arg4);
+}
+
+#ifdef NON_MATCHING
+void actorGetNodePos(void *, s32, s32 *, s32 *, f32 *);
+
+void func_80714C08(s32 arg0, s32 arg1, void *arg2, s32 arg3, u8 arg4) {
+    s32 sp3C;
+    s32 sp38;
+    f32 sp34;
+
+    actorGetNodePos(arg2, arg3, &sp3C, &sp38, &sp34);
+    if (!(((Actor *) arg2)->unk60 & 0x200) && (((Actor *) arg2)->unk4 != NULL) && (D_807FDB36 & 0x80)) {
+        func_80714A38(0x40);
+    }
+    func_80714D08(arg0, arg1, sp3C, sp38, sp34, arg2, 0, arg3, (s32) arg4);
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714C08.s")
+#endif
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714CC0.s")
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714D08.s")
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_8071509C.s")
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80715270.s")
+
+void func_80715908(Ua1Effect *);
 
 void func_8071586C(s32 arg0) {
-    Ua2Effect *effect;
+    Ua1Effect *effect;
 
     effect = D_807FDB04;
     if (effect != NULL) {
@@ -102,8 +254,8 @@ void func_8071586C(s32 arg0) {
 }
 
 void func_807158C0(void) {
-    Ua2Effect *effect;
-    Ua2Effect *next;
+    Ua1Effect *effect;
+    Ua1Effect *next;
 
     effect = D_807FDB04;
     if (effect != NULL) {
