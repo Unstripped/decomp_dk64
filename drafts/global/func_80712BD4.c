@@ -1,4 +1,4 @@
-// func_80712BD4 (src/global/117190.c): stage4 semantic draft; named u16 D_8075E5C2 index preserves table relocation; permuter baseline 1242
+// func_80712BD4 (src/global/117190.c): stage5 semantic draft; random permuter reduced score 1242 to 765 with a live s32 new_var that moves the next-index computation before duration storage; named u16 D_8075E5C2 keeps table relocation
 typedef struct R117iPlayerView {
     s32 unk0;
     s32 unk4;
@@ -21,7 +21,9 @@ void func_8060DEC8(void);
 void actorSpawn(s32, s32);
 
 void func_80712BD4(void) {
+
     u8 blocked;
+    s32 new_var;
     u8 index;
     s16 duration;
     u16 limit;
@@ -66,11 +68,11 @@ void func_80712BD4(void) {
         break;
     case 3:
         index = D_80755328;
-        D_8075532C += 1;
         duration = func_8060B49C(((R117iPlayerView *)D_807FC924)->unk4, D_8075E5C0[index * 4]);
+        new_var = D_80755328 + 1;
         D_8075531C = duration;
         limit = D_8075E5C2[D_80755328 * 2];
-        next = D_80755328 + 1;
+        next = new_var;
         if ((u16)duration < limit) {
             D_8075531C = duration;
         } else {

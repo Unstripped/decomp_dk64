@@ -63,7 +63,7 @@ void heapClearBlock(void *);
 u32 func_80611A44(void);
 void *func_8066B0F8(s32, s32, s32, s32);
 
-void func_8070F5CC(u8 type, s16 arg1, f32 arg2, s16 arg3, s16 arg4, u8 arg5) {
+void func_8070F5CC(u8 type, s16 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5) {
     R114c4EffectPool *pool;
     R114c4SpawnView *entry;
     R114c4TextureSetup *setup;
@@ -93,10 +93,10 @@ void func_8070F5CC(u8 type, s16 arg1, f32 arg2, s16 arg3, s16 arg4, u8 arg5) {
     entry->unkB0 = 1;
     entry->unk4 = (f32)arg3;
     entry->unk8 = (f32)arg3;
-    entry->unkC = (f32)arg4;
+    entry->unkC = (f32)(s16)arg4;
     entry->unk10 = arg2;
     entry->unk0 = arg1;
-    entry->unkB1 = arg5;
+    entry->unkB1 = (u8)arg5;
     entry->unk14 = ((R114c4PlayerView *)D_807FC924)->unk2C4;
     entry->unk18 = ((R114c4PlayerView *)D_807FC924)->unk210;
     entry->unk1C = ((R114c4PlayerView *)D_807FC924)->unk218;
