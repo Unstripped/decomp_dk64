@@ -1,26 +1,8 @@
-// func_80718188 (src/global/11BC10.c): Recovered logic; function call ABI and pointer register allocation differ from target.
+// func_80718188 (src/global/11BC10.c): Stage-4 behavior candidate: target needs D_807502D0 address in v0 and branch-likely call path; candidate preserves logic but not register allocation.
+// func_80718188 draft: behavior recovered; target requires different register lifetime and branch-likely shape.
 extern s16 D_807502D0;
 
-typedef struct {
-    u8 pad0[0x330];
-    void *unk330;
-    u8 pad334[4];
-    void *unk338;
-    u8 pad33C[4];
-    f32 unk340;
-    f32 unk344;
-    f32 unk348;
-    u8 pad34C[0x10];
-    s32 unk35C;
-    f32 unk360;
-    u8 pad364[0x20];
-    void *unk384;
-} Ub2ActorView;
-
-void func_80718188(arg0, arg1)
-Ub2ActorView *arg0;
-s8 *arg1;
-{
+void func_80718188(Ub2ActorView *arg0, s8 *arg1) {
     s16 *temp_v0;
     s16 *temp_v1;
     s16 *var_v1;
@@ -40,6 +22,6 @@ s8 *arg1;
     }
     if (arg0->unk344 < (f32) arg0->unk35C) {
         *arg1 = 1;
-        func_80718124((f32) ((f64) arg0->unk360 * 1.5), arg0->unk340, (f32) arg0->unk35C, arg0->unk348);
+        func_80718124((f32) ((f64) arg0->unk360 * 1.5), arg0->unk340, arg0->unk35C, arg0->unk348);
     }
 }

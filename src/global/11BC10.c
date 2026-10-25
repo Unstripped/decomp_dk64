@@ -101,14 +101,15 @@ void func_80717D84(Ub2ActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717DB4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717F1C.s")
-
 typedef struct {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
 } Ub2VelocityMotion;
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717F1C.s")
+
 
 void func_80718080(Ub2ActorView *arg0) {
     f32 temp_fv0;
@@ -138,9 +139,58 @@ void func_80718124(f32 arg0, f32 arg1, s32 arg2, f32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80718188.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071827C.s")
+typedef f32 Ub2bMtxF[4][4];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80718380.s")
+void func_8071827C(Ub2ActorView *arg0, s8 *arg1) {
+    Ub2bMtxF sp70;
+    Ub2bMtxF sp30;
+    u8 temp_v0;
+
+    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp30, 90.0f, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(sp70, sp30, sp70);
+    guTranslateF(sp30, arg0->unk340, arg0->unk344, arg0->unk348);
+    guMtxCatF(sp70, sp30, sp70);
+    temp_v0 = arg0->unk36D;
+    arg0->unk360 = (f32) ((f64) arg0->unk360 + 0.07);
+    arg0->unk364 = (f32) ((f64) arg0->unk364 + 0.07);
+    if ((s32) temp_v0 >= 0xA) {
+        arg0->unk36D = (u8) (temp_v0 - 0xA);
+    } else {
+        arg0->unk36D = 0U;
+    }
+    guMtxF2L(sp70, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    ((u8 *) arg0)[0x32C] = 3;
+}
+
+void func_80718380(Ub2ActorView *arg0, s8 *arg1) {
+    Ub2bMtxF sp70;
+    Ub2bMtxF sp30;
+    u32 temp_v1;
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(4);
+        temp_v1 = (u32) (func_806119A0() % 36000U) / 100U;
+        *(f32 *) arg0->unk384 = (f32) temp_v1;
+    }
+    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp30, 90.0f, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(sp70, sp30, sp70);
+    guRotateF(sp30, *(f32 *) arg0->unk384, 0.0f, 1.0f, 0.0f);
+    guMtxCatF(sp70, sp30, sp70);
+    guTranslateF(sp30, arg0->unk340, arg0->unk344, arg0->unk348);
+    guMtxCatF(sp70, sp30, sp70);
+    if ((s32) arg0->unk36D >= 0xA) {
+        arg0->unk36D -= 0xA;
+    } else {
+        arg0->unk36D = 0U;
+    }
+    guMtxF2L(sp70, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    ((u8 *) arg0)[0x32C] = 3;
+    if (arg0->unk36D == 0) {
+        *arg1 = 1;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807184F4.s")
 
