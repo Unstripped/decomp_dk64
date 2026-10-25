@@ -172,9 +172,105 @@ G00Entry *func_806C7C94(u8 arg0) {
     return &D_80750948[i];
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C7D40.s")
+typedef struct G00Player306 {
+    /* 0x000 */ u8 pad0[0x2FB];
+    /* 0x2FB */ s8 unk2FB;
+    /* 0x2FC */ u8 pad2FC;
+    /* 0x2FD */ s8 unk2FD;
+    /* 0x2FE */ u8 pad2FE[8];
+} G00Player306;
 
+void *func_80610FE8(s32);
+void heapClearBlock(void *);
+void func_806C850C(s32, u8);
+void func_80708BB8(void *);
+void func_80709464(u8);
+void func_806C80E4(void);
+extern u8 D_807FC950[][0x5E];
+extern G00Sub6 D_807ECD10[];
+extern s16 D_807ECD48[];
+extern u32 D_8074458C[];
+extern f32 D_807444C4;
+extern u8 D_80750AD0;
+extern s32 D_807FBB64;
+extern u32 D_807FBB68;
 extern u16 D_807FD570;
+
+void func_806C7D40(s32 arg0) {
+    G00Block *blk;
+    s32 i;
+    u8 sel;
+    G00Entry *e;
+
+    D_807FC924 = func_80610FE8(D_807FC928 * 0x2F0);
+    heapClearBlock(D_807FC924);
+    for (i = 0; i < D_807FC928; i++) {
+        blk = &D_807FC924[i];
+        blk->unk0 = 1;
+        sel = i;
+        D_807FC929 = i;
+        func_806C850C(arg0++, sel);
+        blk->unk4 = D_807FBB48;
+        if (i == 0) {
+            D_807FBB4C = D_807FBB48;
+        }
+        blk->unk218 = 100.0f;
+        blk->unk214 = 100.0f;
+        blk->unk210 = 100.0f;
+        blk->unk224 = 100.0f;
+        blk->unk220 = 100.0f;
+        blk->unk21C = 100.0f;
+        blk->unk230 = 0.0f;
+        blk->unk22C = 0.0f;
+        blk->unk228 = 0.0f;
+        blk->unk248 = 0.0f;
+        blk->unk240 = 0.0f;
+        blk->unk244 = 1.0f;
+        e = func_806C7C94(sel);
+        blk->unk270 = e->unk4;
+        blk->unk272 = e->unk6;
+        blk->unk274 = e->unk8;
+        blk->unk276 = e->unkA;
+        if (osViGetCurrentMode() == D_8074458C[osTvType + osTvType]) {
+            blk->unk270 *= 2;
+            blk->unk272 *= 2;
+            blk->unk274 += 1;
+            blk->unk274 *= 2;
+            blk->unk274 -= 1;
+            blk->unk276 += 1;
+            blk->unk276 *= 2;
+            blk->unk276 -= 1;
+        }
+        blk->unk278 = blk->unk274 - blk->unk270;
+        blk->unk27A = blk->unk276 - blk->unk272;
+        blk->unk27C = 45.0f;
+        blk->unk284 = 10.0f;
+        blk->unk280 = (f32)blk->unk278 / (f32)blk->unk27A;
+        blk->unk288 = D_807444C4;
+        blk->unk290 = 0;
+        blk->unk294 = &D_807ECD10[i];
+        blk->unk298 = &D_807ECD48[i];
+        blk->unk29C = -1;
+        blk->unk2C0 = 1;
+        blk->unk2C1 = 1;
+        blk->unk2EA = 0;
+        blk->unk2EB = 0;
+        func_80708BB8(blk->unk2DC);
+        if (((D_807FBB64 & 1) && !(D_807FBB68 & 2)) ||
+            (((G00Player306 *)D_807FC950)[i].unk2FB + ((G00Player306 *)D_807FC950)[i].unk2FD <= 0)) {
+            func_80709464(sel);
+        }
+    }
+    if (D_807FD570 != 0) {
+        func_806C80E4();
+        D_807FD570 = 0;
+    }
+    if (D_807FC928 >= 2) {
+        actorSpawn(0x13E, 0);
+    }
+    D_80750AD0 = (D_80750AB8 == 0) && (D_807FC928 >= 2);
+}
+
 
 typedef struct G00View1F0 {
     /* 0x000 */ u8 pad0[0x1F0];
@@ -214,7 +310,107 @@ void func_806C81DC(s16 arg0, s16 arg1) {
     p->unk280 = (f32)p->unk278 / (f32)p->unk27A;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C8220.s")
+typedef struct G00Tbl8 {
+    /* 0x00 */ f32 f[8];
+} G00Tbl8;
+
+typedef struct G00Tbl11 {
+    /* 0x00 */ f32 f[11];
+} G00Tbl11;
+
+typedef struct G00Tbl4 {
+    /* 0x00 */ f32 f[4];
+} G00Tbl4;
+
+typedef struct G00Vtx {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+} G00Vtx;
+
+typedef struct G00Out {
+    /* 0x000 */ f32 unk0;
+    /* 0x004 */ f32 unk4;
+    /* 0x008 */ f32 unk8;
+    /* 0x00C */ f32 unkC;
+    /* 0x010 */ f32 unk10;
+    /* 0x014 */ u8 unk14;
+    /* 0x015 */ u8 pad15[3];
+    /* 0x018 */ s32 unk18;
+    /* 0x01C */ G00Vtx unk1C[12];
+} G00Out; // size = 0x13C
+
+extern G00Tbl8 D_80750AD8;
+extern G00Tbl11 D_80750AF8;
+extern G00Tbl4 D_80750B24;
+
+void func_806C8220(s32 arg0, void *arg1, s32 arg2) {
+    f32 pad0;
+    G00Tbl8 sp74;
+    G00Tbl11 sp48;
+    G00Tbl4 sp38;
+    f32 *tbl;
+    f32 sign;
+    s32 count;
+    s32 n;
+    s32 i;
+    s32 j;
+    G00Vtx *v;
+    G00Vtx *new_var;
+    G00Out *out;
+
+    sp74 = D_80750AD8;
+    count = 1;
+    n = 4;
+    sp48 = D_80750AF8;
+    out = arg1;
+    tbl = sp38.f;
+    sp38 = D_80750B24;
+    sign = 1.0f;
+    switch ((u32)arg2) {
+    case 3:
+        count = 1;
+        n = 11;
+        tbl = sp48.f;
+        break;
+    case 5:
+        count = 2;
+        n = 8;
+        tbl = sp74.f;
+        break;
+    case 2:
+        count = 1;
+        n = 4;
+        tbl = sp38.f;
+        break;
+    default:
+        return;
+    }
+    for (i = 0; i < count; i++) {
+        v = out->unk1C;
+        out->unk14 = 2;
+        out->unk18 = arg2;
+        out->unkC = 0.0f;
+        out->unk8 = 0.0f;
+        out->unk4 = 0.0f;
+        out->unk0 = 0.0f;
+        out->unk10 = -128.0f;
+        do {
+            for (j = 0; j < n; j++, v++) {
+                v->unk4 = 0.0;
+                new_var = v;
+                new_var->unk0 = tbl[j] * sign;
+                new_var->unk8 = 0.0;
+                new_var->unk14 = 0.0f; new_var->unkC = 0.0f; new_var->unk10 = 0.0f;
+            }
+            out++;
+        } while (0);
+        sign = -sign;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C850C.s")
 
@@ -529,7 +725,6 @@ void func_806136B4(Actor *, void *);
 void actorSub140Free(ActorSub140 *);
 void func_806134B4(Actor *, u16);
 ActorSub140 *func_80665F24(Actor *);
-void *func_80610FE8(s32);
 
 void func_806C8F8C(void *arg) {
     G01Arg8F8C *arg0 = arg;
@@ -660,10 +855,8 @@ void func_806C93E4(Actor *arg0, Struct807FD580 *arg1) {
     arg0->unk128 = 0xFF;
 }
 
-extern u8 D_807FC950[][0x5E];
 void func_800268DC(Actor *, void *, void *);
 void sfxStopSlotSound(Actor *, u8);
-void func_80709464(u8);
 s32 func_8061CB50(void);
 void func_8061EA78(void);
 void func_8061EB04(Actor *, u8);
@@ -766,7 +959,6 @@ G01Pos *func_806C96C4(s32 arg0) {
     return &D_807FC900[arg0];
 }
 
-extern s32 D_807FBB64;
 #ifdef NON_MATCHING
 void func_800268C0();
 
