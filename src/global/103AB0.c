@@ -19,13 +19,23 @@ extern u8 D_807444FC;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FEDB0.s")
 
+typedef struct {
+    u8 unk0[0x1A4];
+    u8 unk1A4;
+} R1F103AB0aState;
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FEF7C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF01C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF144.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF32C.s")
+s32 func_806FEDB0(s32, u8);
+void func_806FF144(s32);
+
+void func_806FF32C(s32 arg0, Actor *arg1) {
+    func_806FF144(func_806FEDB0(arg0, ((R1F103AB0aState *)arg1->unk174)->unk1A4));
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF358.s")
 
@@ -39,7 +49,11 @@ extern u8 D_807444FC;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FFEAC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FFF5C.s")
+void func_8066B0F8();
+
+void func_806FFF5C(void) {
+    func_8066B0F8(0x19, 0x138B, 1, 1);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FFF88.s")
 
