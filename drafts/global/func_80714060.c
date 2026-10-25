@@ -1,4 +1,4 @@
-// func_80714060 (src/global/117190.c): Stage 2 renderer and two state switch drafts recovered. The scratch file's currently-decompiled helper prototypes conflict with target direct-call signatures, so function-pointer casts compile as jalr and do not match; retain the direct-call draft for subsequent signature reconciliation.
+// func_80714060 (src/global/117190.c): Stage 3 direct-call renderer/switch draft. Replacing function-pointer casts with direct calls reaches target dispatch shapes, but frame and first switch still differ. Needed prototype reconciliation: func_807132DC should return Gfx * and accept an optional Gfx * caller value; func_807138A4, func_807138CC, func_80713B40, func_80713DFC, and func_80713EA8 must return/accept Gfx * at dispatcher call sites. Unprototyping existing helpers must be validated across their current C callers.
 extern s8 D_807552E0;
 extern s32 D_8076A064;
 void func_8061CC40(s32, s16, s32);

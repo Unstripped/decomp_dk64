@@ -1,4 +1,4 @@
-// func_80713B40 (src/global/117190.c): Stage 2 m2c fade/display-list/text draft: recovers color clamps and scaled text, but stack frame remains 0x30 versus target 0x28 and signed fade arithmetic/register allocation differs.
+// func_80713B40 (src/global/117190.c): Stage 4 fade/display-list/text draft. The s16 fade temporary preserves the target's sign-extension shape but still emits a 0x30 frame (target 0x28); widening it to s32 worsened to 0x38. Need merge/drop the extra pointer or return temp without folding signed fade arithmetic.
 extern u8 D_80755378[];
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, void *);
 
