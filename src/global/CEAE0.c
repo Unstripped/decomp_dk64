@@ -60,8 +60,7 @@ void func_806C9F44(void) {
 extern s16 D_80750B54[][4];
 void func_806EAB44(Actor *, u8);
 
-#ifdef NON_MATCHING
-void func_806E9964(Struct807FD580 *, s32);
+void func_806E9964(Struct807FD580 *);
 
 void func_806C9F74(Actor *arg0) {
     u8 temp_v0 = arg0->unk154;
@@ -70,13 +69,9 @@ void func_806C9F74(Actor *arg0) {
     if (flags & 0x200) {
         func_806EAB44(arg0, temp_v0 != 2);
     } else if (flags & 0x100) {
-        func_806E9964(D_807FD580, temp_v0 != 2);
+        func_806E9964(D_807FD580);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806C9F74.s")
-#endif
 
 Actor *func_806C9FD8(Actor *arg0) {
     Actor *temp_v1 = arg0;
@@ -197,7 +192,6 @@ typedef struct G03PlayerSlot {
 extern G03PlayerSlot *D_807FC924;
 s32 func_806CA1B4(s32);
 
-#ifdef NON_MATCHING
 typedef struct G02PlayerSlot {
     /* 0x0 */ s32 unk0;
     /* 0x4 */ Actor *unk4;
@@ -220,15 +214,11 @@ s32 func_806CA1B4(s32 arg0) {
             actor = func_807270C0(temp, 0);
         }
     }
-    if (actor != NULL && G02_MODEL(actor)->unk10 == G02_P->unk24C && (s32)G02_P->unk24E >= arg0) {
+    if (actor != NULL && G02_MODEL(actor)->unk10 == *(u16 *)((u8 *)D_807FD580 + 0x24C) && (s32)G02_P->unk24E >= arg0) {
         ret = 0;
     }
     return ret;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CA1B4.s")
-#endif
 
 void func_806CA26C(void) {
     if (func_806CA1B4(-1) != 0) {
@@ -1624,17 +1614,15 @@ s16 func_806CE928(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
 extern f32 D_807532B8[];
 
 s32 func_806CEB44(f32 arg0, f32 arg1) {
-    s32 ret;
+    s32 ret = G05_P->unk4C;
 
-    switch (G05_P->unk4C) {
+    switch (ret) {
         case 0:
-            ret = 0;
             if (arg1 != 0.0f) {
                 return 1;
             }
             break;
         case 1:
-            ret = 1;
             if (arg1 == 0.0f && arg0 < D_807532B8[D_807FD584]) {
                 return 0;
             }
@@ -2602,7 +2590,6 @@ void func_806D0A84(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
 typedef struct G07StateView {
     /* 0x000 */ u8 pad0[0x1A4];
     /* 0x1A4 */ u8 unk1A4;
@@ -2611,35 +2598,32 @@ typedef struct G07StateView {
 u8 func_806D0DE4(Actor *arg0, Actor *arg1) {
     s32 var_a0;
     s32 var_a2;
-    u16 temp_a1;
-    u16 temp_t0;
     u8 var_v0;
     u8 var_v1;
+    G07StateView *st0;
+    G07StateView *st1;
 
     var_v0 = 1;
     var_v1 = 1;
     var_a2 = 1;
-    if ((D_807FC928 < 2) || (temp_a1 = arg0->unk5C, ((temp_a1 & 4) != 0)) || (temp_t0 = arg1->unk5C, ((temp_t0 & 4) != 0))) {
+    if ((D_807FC928 < 2) || ((arg0->unk5C & 4) != 0) || ((arg1->unk5C & 4) != 0)) {
         return 0;
     }
-    if (temp_a1 & 1) {
-        var_v0 = ((G07PlayerSlot *)D_807FC924)[((G07StateView *)arg0->unk174)->unk1A4].unk2C0;
+    if (arg0->unk5C & 1) {
+        st0 = (G07StateView *)arg0->unk174;
+        var_v0 = ((G07PlayerSlot *)D_807FC924)[st0->unk1A4].unk2C0;
     }
-    if (temp_t0 & 1) {
-        var_v1 = ((G07PlayerSlot *)D_807FC924)[((G07StateView *)arg1->unk174)->unk1A4].unk2C0;
+    if (arg1->unk5C & 1) {
+        st1 = (G07StateView *)arg1->unk174;
+        var_v1 = ((G07PlayerSlot *)D_807FC924)[st1->unk1A4].unk2C0;
         var_a2 = arg1->unk154 != 0x7C;
     }
     var_a0 = var_v0 < var_v1;
     if (var_a0 != 0) {
         var_a0 = var_a2 != 0;
     }
-    return var_a0 & 0xFF;
+    return var_a0;
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806D0DE4.s")
-#endif
 
 extern s16 D_8075388C[];
 extern s16 D_807538C8[];
