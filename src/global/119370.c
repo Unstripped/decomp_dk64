@@ -174,16 +174,11 @@ void func_80714A28(s16 arg0) {
     D_807FDB36 = arg0;
 }
 
-#ifdef NON_MATCHING
-void func_80714A38(s16 arg0) {
+void func_80714A38(u8 arg0) {
     u16 *temp = &D_807FDB36;
 
-    *temp = *temp | (arg0 & 0xFF);
+    *temp = *temp | arg0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A38.s")
-#endif
 
 void func_80714A58(s16 arg0) {
     D_807FDB38 = arg0;
@@ -199,37 +194,36 @@ void func_80714A68(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714A9C.s")
 
 void func_806335B0();
-void func_80714D08(s32, s32, s32, s32, f32, void *, s32, s32, s32);
+void func_80714D08(s32, f32, f32, f32, f32, void *, s32, s32, s32);
 
-void func_80714B84(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 arg4) {
-    s32 sp3C;
-    s32 sp38;
+void func_80714B84(s32 arg0, f32 arg1, s32 arg2, s32 arg3, u8 arg4) {
+    f32 sp3C;
+    f32 sp38;
     f32 sp34;
 
     func_806335B0(arg2, 1, arg3, &sp3C, &sp38, &sp34);
-    func_80714D08(arg0, arg1, sp3C, sp38, sp34, 0, arg2, arg3, (s32) arg4);
+    func_80714D08(arg0, arg1, sp3C, sp38, sp34, NULL, arg2, arg3, (s32) arg4);
 }
 
-#ifdef NON_MATCHING
-void actorGetNodePos(void *, s32, s32 *, s32 *, f32 *);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 
-void func_80714C08(s32 arg0, s32 arg1, void *arg2, s32 arg3, u8 arg4) {
-    s32 sp3C;
-    s32 sp38;
+void func_80714C08(s32 arg0, f32 arg1, void *arg2, s32 arg3, u8 arg4) {
+    f32 sp3C;
+    f32 sp38;
     f32 sp34;
+    u16 new_var;
 
     actorGetNodePos(arg2, arg3, &sp3C, &sp38, &sp34);
-    if (!(((Actor *) arg2)->unk60 & 0x200) && (((Actor *) arg2)->unk4 != NULL) && (D_807FDB36 & 0x80)) {
+    new_var = ((Actor *) arg2)->unk60 & 0x200;
+    if ((!new_var && (((Actor *) arg2)->unk4 != NULL)) && (D_807FDB36 & 0x80)) {
         func_80714A38(0x40);
     }
     func_80714D08(arg0, arg1, sp3C, sp38, sp34, arg2, 0, arg3, (s32) arg4);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714C08.s")
-#endif
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714CC0.s")
+void func_80714CC0(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
+    func_80714D08(arg0, arg1, arg2, arg3, arg4, NULL, 0, 0, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714D08.s")
 

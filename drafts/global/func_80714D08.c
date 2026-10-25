@@ -1,4 +1,4 @@
-// func_80714D08 (src/global/119370.c): Stage 1 m2c-derived draft; not compiled to a match.
+// func_80714D08 (src/global/119370.c): Stage 1 m2c reconstruction: allocation and state initialization recovered; local effect view and IDO register allocation remain.
 void *func_80610FE8(f32, f32, ?);                   /* extern */
 ? func_80714778(f32);                               /* extern */
 ? func_80714A9C(f32, f32, ?);                       /* extern */

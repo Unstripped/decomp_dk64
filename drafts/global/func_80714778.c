@@ -1,4 +1,4 @@
-// func_80714778 (src/global/119370.c): Stage 1 m2c-derived draft; not compiled to a match.
+// func_80714778 (src/global/119370.c): Stage 1 m2c reconstruction: list-node allocation and descriptor-table initialization recovered; local view types remain.
 void *func_80610FE8(s32, void *);                   /* extern */
 ? func_807146E0(void *, void *, void *);            /* extern */
 ? func_807146F4(void *, void *, void *);            /* extern */

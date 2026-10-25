@@ -1,4 +1,4 @@
-// func_8071509C (src/global/119370.c): Stage 1 m2c-derived draft; not compiled to a match.
+// func_8071509C (src/global/119370.c): Stage 1 m2c reconstruction: 2-D geometry setup; local views still need concretizing before a matching attempt.
 void func_8071509C(void *arg0) {
     s32 var_a3;
     s32 var_t2;

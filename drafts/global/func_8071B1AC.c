@@ -1,15 +1,11 @@
-// func_8071B1AC (src/global/11BC10.c): stage 5: correct field offsets and call order; closest diff differs in 0.35 double constant materialization and FPR allocation
-#include "common.h"
-
+// func_8071B1AC (src/global/11BC10.c): Stage 5: core field updates and calls match, but C literal lowering shares one 0.35f and emits .175 double rather than target three distinct float rodata constants.
 typedef struct {
     u8 pad0[0x340];
     f32 unk340;
     f32 unk344;
     f32 unk348;
+    u8 pad34C[0x12];
 } Ub4ActorView;
-
-f32 func_80612794(s16);
-f32 func_80612790(s16);
 
 void func_8071B1AC(Ub4ActorView *arg0, s8 *arg1) {
     arg0->unk344 = (f32)((f64)arg0->unk344 - ((f64)0.35f * 0.5));
