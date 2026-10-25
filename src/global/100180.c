@@ -56,10 +56,26 @@ void func_806FB8B0(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FB914.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FBB58.s")
+s32 func_80610FE8(s32);
+void heapClearBlock(s32);
+extern u8 *D_807FD7F4;
+
+void func_806FBB58(void) {
+    s32 allocation;
+    s32 *allocation_slot;
+    s32 temp_v0;
+    u8 **heap_buffer;
+
+    D_807FD7F0 = func_80610FE8(0xAC);
+    temp_v0 = func_80610FE8(0x2B);
+    heap_buffer = &D_807FD7F4;
+    allocation_slot = (s32 *)heap_buffer;
+    allocation = (*allocation_slot = temp_v0);
+    heapClearBlock(allocation);
+}
 
 void *func_8066B0F8(s32, s16, u8, s32);
-extern u8 *D_807FD7F4;
+
 
 void *func_806FBB9C(s16 arg0) {
     s16 temp_a1;

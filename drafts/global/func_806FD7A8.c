@@ -1,4 +1,4 @@
-// func_806FD7A8 (src/global/100180.c): Stage 3: frame and control flow reconstructed; outer font index remains allocated in a0 rather than target a2. A 900-second permuter run improved only to score 485 and found no safe match.
+// func_806FD7A8 (src/global/100180.c): Stage 3: frame and control flow reconstructed; outer font index remains allocated in a0 rather than target a2. A 900-second permuter run improved to score 70 but found no clean score-zero match.
 s16 func_806FD7A8(s16 arg0, s32 arg1) {
     s16 temp_a2;
     u8 var_v1;
