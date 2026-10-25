@@ -1,40 +1,31 @@
-// func_8070D464 (src/global/112080.c): Stage 2: recovered both flag branches and allocation/list loops; closest candidate differs in allocator argument preservation and register allocation.
-typedef struct S112a2Record {
-    u8 count;
-    u8 pad1[3];
-    u8 *data;
-} S112a2Record;
-
-typedef struct S112a2Variant {
+// func_8070D464 (src/global/112080.c): stage 2: both flag branches and loops recovered; closest diff has preserved argument and callee-save allocation mismatch
+typedef struct S112dVariant {
     u8 flags;
     u8 pad1[7];
     S112a2Record *data;
-} S112a2Variant;
+} S112dVariant;
 
-extern void *func_80610FE8(s32);
-void func_8070D380(s32, void *, s32 *);
-void func_8070D3CC(S112a2Record *, s32 *);
-
-void func_8070D464(S112a2Variant *arg0, s32 *arg1) {
+void func_8070D464(void *arg0, s32 *arg1) {
     s32 i;
     S112a2Record *data;
+    u8 *payload;
 
-    if (arg0->flags & 1) {
-        data = func_80610FE8(8);
-        arg0->data = data;
+    if (((S112dVariant *)arg0)->flags & 1) {
+        data = ((S112dVariant *)arg0)->data = func_80610FE8(8);
         for (i = 0; i != 1; i++) {
             func_8070D3CC(data, arg1);
             data = (S112a2Record *)((u8 *)data + 8);
         }
         return;
     }
-    if (arg0->flags & 2) {
-        data = func_80610FE8(8);
-        arg0->data = data;
-        func_8070D380(1, data, arg1);
-        data->data = func_80610FE8(data->count * 4);
-        for (i = 0; i < data->count; i++) {
-            func_8070D380(4, data->data + i * 4, arg1);
-        }
+    if ((((S112dVariant *)arg0)->flags & 2) == 0) {
+        return;
+    }
+    data = ((S112dVariant *)arg0)->data = func_80610FE8(8);
+    func_8070D380(1, data, arg1);
+    payload = data->data = func_80610FE8(data->count * 4);
+    for (i = 0; i < data->count; i++) {
+        func_8070D380(4, payload, arg1);
+        payload += 4;
     }
 }

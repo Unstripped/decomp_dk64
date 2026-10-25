@@ -1,4 +1,4 @@
-// func_80712830 (src/global/117190.c): Stage 5: correct helper prototypes recover target control flow; remaining delayed call argument, local stack offsets, and register allocation.
+// func_80712830 (src/global/117190.c): Stage 5: target control flow and 0x30 frame recovered; remaining helper-call scheduling, result local stack offsets, and register allocation.
 typedef struct R117d2MenuObject {
     u8 unk0[0x155];
     u8 unk155;

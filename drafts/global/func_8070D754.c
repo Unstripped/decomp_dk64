@@ -1,4 +1,37 @@
-// func_8070D754 (src/global/112080.c): stage 2: compilable structural reconstruction; instruction scheduling and local types remain.
-typedef struct M112aLink { void *key; Actor *actor; void *entries; struct M112aLink *next; } M112aLink;
-extern M112aLink *D_807550C4; extern void *func_80610FE8(s32); extern void heapClearBlock(void *); extern void actorSpawn(s32, s32, void *); extern Actor *D_807FBB44;
-M112aLink *func_8070D754(void *arg0) { M112aLink **link = &D_807550C4; M112aLink *node; while (*link != NULL && (*link)->key != arg0) link = &(*link)->next; node = *link; if (node == NULL) { node = func_80610FE8(0x10); *link = node; heapClearBlock(node); node->key = arg0; actorSpawn(0x12B, 0, arg0); node->actor = D_807FBB44; } return node; }
+// func_8070D754 (src/global/112080.c): stage 5: full cache lookup/allocate body; exact instruction shape except post-spawn register allocation
+typedef struct S112dLink {
+    void *key;
+    Actor *actor;
+    void *entries;
+    struct S112dLink *next;
+} S112dLink;
+
+typedef struct S112dActorKeyState {
+    u8 pad0[4];
+    void *key;
+} S112dActorKeyState;
+
+extern void *D_807550C4;
+extern void heapClearBlock(void *);
+extern void actorSpawn(s32, s32, void *);
+
+void *func_8070D754(void *arg0) {
+    S112dLink **link;
+
+    link = (S112dLink **)&D_807550C4;
+    if ((*link != NULL) && ((*link)->key != arg0)) {
+        do {
+            link = &(*link)->next;
+        } while ((*link != NULL) && ((*link)->key != arg0));
+    }
+    if (*link == NULL) {
+        *link = func_80610FE8(0x10);
+        heapClearBlock(*link);
+        (*link)->key = arg0;
+        actorSpawn(0x12B, 0, arg0);
+        D_807FBB44->unk154 = 0;
+        (*link)->actor = D_807FBB44;
+        ((S112dActorKeyState *)D_807FBB44->unk174)->key = arg0;
+    }
+    return *link;
+}

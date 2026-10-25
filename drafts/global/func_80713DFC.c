@@ -1,4 +1,4 @@
-// func_80713DFC (src/global/117190.c): Stage 4: behavior and draw commands recovered; frame, result register, and immediate scheduling differ.
+// func_80713DFC (src/global/117190.c): Stage 4: behavior recovered; frame and return register remain different.
 extern s16 D_80744490;
 extern s32 D_80755348;
 extern s32 D_807FBB60;

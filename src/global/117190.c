@@ -110,7 +110,20 @@ void func_807127F4(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80712830.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80712944.s")
+extern u16 D_80755308;
+extern u8 D_8075530C;
+extern u8 D_80755310;
+
+void func_80712944(OSContPad *arg0) {
+    s32 i;
+
+    controllerGetReadData();
+    for (i = 0; i < 4; i++) {
+        arg0[i].stick_x &= D_8075530C;
+        arg0[i].stick_y &= D_80755310;
+        arg0[i].button &= D_80755308;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80712A40.s")
 
@@ -435,6 +448,7 @@ s32 func_80714464(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807144B8.s")
 
 void func_806C9AE0(void);
+
 
 void func_8071458C(void) {
     s32 var_a0;

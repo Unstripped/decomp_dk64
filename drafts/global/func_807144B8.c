@@ -1,4 +1,4 @@
-// func_807144B8 (src/global/117190.c): stage 4: correct calls and control flow; stack is 0x20 not target 0x18, and branch value spills
+// func_807144B8 (src/global/117190.c): Stage 4: behavior recovered; 0x20 frame versus target 0x18 and final call argument allocation remain.
 extern s8 D_8074452C;
 extern s32 D_807445B8;
 extern u32 D_807445BC;
