@@ -1,4 +1,4 @@
-// func_807103E0 (src/global/114270.c): Stage 3 m2c reconstruction; target uses a 0x28 frame while this starter uses 0x48.
+// func_807103E0 (src/global/114270.c): Stage 3: m2c reconstruction is behaviorally complete, but temporary FP values inflate the frame to 0x48 versus target 0x28.
 typedef struct M114aAngle {
     s32 unk0;
     f32 unk4;

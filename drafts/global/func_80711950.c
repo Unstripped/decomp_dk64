@@ -1,4 +1,4 @@
-// func_80711950 (src/global/114270.c): stage 4: exact frame and saved registers; random quotient/modulo and FP scheduling remain
+// func_80711950 (src/global/114270.c): Stage 4: retained signed random local draft. Testing u32 local produces unsigned-to-float correction code absent from target; target divu therefore comes from the RNG return, while modulo-to-float needs signed handling.
 typedef struct R114bPlayerView {
     u8 unk0[0x2C4];
     f32 unk2C4;
