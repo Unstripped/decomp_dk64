@@ -1,20 +1,21 @@
-// func_80700AE4 (src/global/103AB0.c): Stage 1 m2c behavioral draft; compiled attempts recorded where applicable.
-extern s16 D_80744490;
-extern ? D_80754BC4;
+// func_80700AE4 (src/global/103AB0.c): Stage 6: compiled tile query reconstruction; local copy slot and register allocation remain divergent.
+typedef struct { s32 unk0; u32 unk4; s32 unk8; s32 unkC; s32 unk10; s32 unk14; s32 unk18; s32 unk1C; s32 unk20; s32 unk24; s32 unk28; s32 unk2C; s32 unk30; s32 unk34; s32 unk38; s32 unk3C; } R2F103AB0dTileCopy;
+typedef struct { u8 unk0[0x270]; s16 unk270; s16 unk272; s16 unk274; s16 unk276; } R2F103AB0dPlayerView;
+extern R2F103AB0dTileCopy D_80754BC4;
 extern s32 D_8076A060;
 extern void *D_807FC924;
-
+extern s16 D_80744490;
+#define R2F103AB0dPlayer ((R2F103AB0dPlayerView *)D_807FC924)
 s32 func_80700AE4(s16 arg0, s16 arg1) {
-    ? sp18;
-    u16 temp_a2;
-    void *temp_t1;
-
-    M2C_MEMCPY_ALIGNED(&sp18, &D_80754BC4, 0x3C);
-    sp18.unk3C = (s32) D_80754BC4.unk3C;
-    if ((arg0 < D_807FC924->unk270) || (D_807FC924->unk274 < arg0) || (arg1 < D_807FC924->unk272) || (D_807FC924->unk276 < arg1)) {
-        return 0xFFFF;
-    }
-    temp_a2 = *(D_8076A060 + (((D_80744490 * arg1) + arg0) * 2));
-    temp_t1 = &sp18 + ((((s32) temp_a2 >> 0xD) & 7) * 8);
-    return ((u32) (temp_t1->unk4 + ((((s32) temp_a2 >> 2) & 0x7FF) << temp_t1->unk0)) >> 3) & 0xFFFF;
+    f64 pad;
+    R2F103AB0dTileCopy tileCopy;
+    u16 tile;
+    s32 *tileInfo;
+    u16 *map;
+    tileCopy = D_80754BC4;
+    map = (u16 *)D_8076A060;
+    if ((arg0 < R2F103AB0dPlayer->unk270) || (R2F103AB0dPlayer->unk274 < arg0) || (arg1 < R2F103AB0dPlayer->unk272) || (R2F103AB0dPlayer->unk276 < arg1)) return 0xFFFF;
+    tile = *(u16 *)((u8 *)map + (((D_80744490 * arg1) + arg0) * 2));
+    tileInfo = (s32 *)&tileCopy + (((tile >> 0xD) & 7) * 2);
+    return ((u32)(tileInfo[1] + (((tile >> 2) & 0x7FF) << tileInfo[0])) >> 3) & 0xFFFF;
 }

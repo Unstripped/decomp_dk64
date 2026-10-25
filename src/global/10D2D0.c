@@ -55,7 +55,6 @@ void func_80708BB8(R1F10D2D0_InitData *arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/10D2D0/func_80709344.s")
 
 
-
 s32 func_8070943C(void) {
     s32 ret;
 
@@ -65,6 +64,15 @@ s32 func_8070943C(void) {
 
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10D2D0/func_80709464.s")
+void func_80709464(u8 arg0) {
+    s32 temp_v0;
+    s32 temp_v1;
+    s32 product_factor;
+
+    temp_v0 = func_8070943C();
+    temp_v1 = (arg0 * 0x306) + (s32)D_807FC950;
+    *(u8 *)(temp_v1 + 0x2FD) = 0;
+    *(s8 *)(temp_v1 + 0x2FB) = (s8)(*(u8 *)(temp_v1 + 0x2FC) * (product_factor = temp_v0));
+}
 
 

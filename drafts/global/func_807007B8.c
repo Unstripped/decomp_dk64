@@ -1,71 +1,53 @@
-// func_807007B8 (src/global/103AB0.c): Stage 1 m2c behavioral draft; compiled attempts recorded where applicable.
-void *func_8070068C(void *);                        /* extern */
-void *func_80701098(void *, s32, s32, s32, s32, s32); /* extern */
-extern ? D_2000180;
-extern u8 D_807444FC;
+// func_807007B8 (src/global/103AB0.c): Stage 5: compiled display-list and trail renderer reconstruction; command-store scheduling remains divergent.
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    s32 unkC;
+} R2F103AB0dTrailPoint;
+
 extern u8 D_80754BC0;
-extern ? D_807FD808;
-extern ? D_807FD838;
+extern R2F103AB0dTrailPoint D_807FD808[2];
+extern u8 D_807FD838[2][3];
+extern s32 D_807444FC;
+extern u8 D_2000180;
+extern Gfx *func_8070068C(Gfx *);
+extern Gfx *func_80701098(Gfx *, f32, f32, f32, s32, u8);
 
-void *func_807007B8(void *arg0) {
-    s16 var_s0;
-    u8 *temp_v1;
-    u8 temp_v0_2;
-    void *temp_s1;
-    void *temp_t2;
-    void *temp_v0;
-    void *var_s1;
-    void *var_s1_2;
+#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
-    var_s1 = arg0;
+Gfx *func_807007B8(Gfx *arg0) {
+    s16 i;
+    u8 age;
+    R2F103AB0dTrailPoint *point;
+    Gfx *dl;
+
+    dl = arg0;
     if (D_80754BC0 != 0) {
-        arg0->unk0 = 0xE7000000;
-        arg0->unk4 = 0;
-        temp_v0 = func_8070068C(arg0 + 8);
-        temp_v0->unk0 = 0xDA380003;
-        temp_v0->unk4 = &D_2000180;
-        temp_v0->unk10 = 0xD9000000;
-        temp_v0->unk18 = 0xD9FFFFFF;
-        temp_v0->unk1C = 0x200004;
-        temp_v0->unk20 = 0xE3000A01;
-        temp_v0->unk28 = 0xE3000C00;
-        temp_v0->unk30 = 0xE3001201;
-        temp_v0->unk2C = 0x80000;
-        temp_v0->unk34 = 0x2000;
-        temp_v0->unk8 = 0xE7000000;
-        temp_v0->unkC = 0;
-        temp_v0->unk14 = 0;
-        temp_v0->unk24 = 0;
-        temp_v0->unk3C = 0x80008000;
-        temp_v0->unk38 = 0xD7000002;
-        temp_v0->unk44 = 0xFF2FFFFF;
-        temp_v0->unk40 = 0xFC119623;
-        temp_v0->unk4C = 0x504340;
-        temp_v0->unk48 = 0xE200001C;
-        temp_v0->unk54 = 0xC0;
-        temp_v0->unk50 = 0xE3001801;
-        temp_v0->unk5C = 0x30;
-        temp_v0->unk58 = 0xE3001A01;
-        var_s1_2 = temp_v0 + 0x60;
-        var_s0 = 0;
-        if ((s32) D_80754BC0 > 0) {
-            do {
-                temp_t2 = &D_807FD808 + (var_s0 * 0x10);
-                temp_v1 = &D_807FD838 + ((D_807444FC ^ 1) * 3) + var_s0;
-                temp_v0_2 = *temp_v1;
-                if (temp_v0_2 != 0) {
-                    *temp_v1 = temp_v0_2 - 1;
-                    var_s1_2 = func_80701098(var_s1_2, subroutine_arg1, subroutine_arg2, temp_t2->unk8, temp_t2->unkC, (s32) temp_v0_2);
-                }
-                var_s0 += 1;
-            } while (var_s0 < (s32) D_80754BC0);
+        WRITE_GFX(dl++, 0xE7000000, 0);
+        dl = func_8070068C(dl);
+        WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
+        WRITE_GFX(dl++, 0xE7000000, 0);
+        WRITE_GFX(dl++, 0xD9000000, 0);
+        WRITE_GFX(dl++, 0xD9FFFFFF, 0x200004);
+        WRITE_GFX(dl++, 0xE3000A01, 0);
+        WRITE_GFX(dl++, 0xE3000C00, 0x80000);
+        WRITE_GFX(dl++, 0xE3001201, 0x2000);
+        WRITE_GFX(dl++, 0xD7000002, 0x80008000);
+        WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
+        WRITE_GFX(dl++, 0xE200001C, 0x504340);
+        WRITE_GFX(dl++, 0xE3001801, 0xC0);
+        WRITE_GFX(dl++, 0xE3001A01, 0x30);
+        for (i = 0; i < (s32)D_80754BC0; i++) {
+            point = &D_807FD808[i];
+            age = D_807FD838[D_807444FC ^ 1][i];
+            if (age != 0) {
+                D_807FD838[D_807444FC ^ 1][i] = age - 1;
+                dl = func_80701098(dl, point->unk0, point->unk4, point->unk8, point->unkC, age);
+            }
         }
-        temp_s1 = var_s1_2 + 8;
-        var_s1_2->unk0 = 0xE3001801;
-        var_s1_2->unk4 = 0;
-        var_s1_2->unk8 = 0xE3001A01;
-        temp_s1->unk4 = 0;
-        var_s1 = temp_s1 + 8;
+        WRITE_GFX(dl++, 0xE3001801, 0);
+        WRITE_GFX(dl++, 0xE3001A01, 0);
     }
-    return var_s1;
+    return dl;
 }

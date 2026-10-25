@@ -1,4 +1,4 @@
-// func_806FB370 (src/global/FCCD0.c): stage 4: exact arithmetic, different register allocation
+// func_806FB370 (src/global/FCCD0.c): stage 6: target arithmetic/control flow; only register allocation remains
 void func_806FB370(u8 arg0, u8 arg1, u8 arg2) {
     s32 playerOffset;
     u8 *slot;

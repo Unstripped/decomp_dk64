@@ -1,4 +1,6 @@
-// func_806FB418 (src/global/FCCD0.c): stage 4: exact loop arithmetic, different register allocation
+// func_806FB418 (src/global/FCCD0.c): stage 4: exact control flow and instruction sequence; allocation differs
+extern u8 D_807FCB26;
+
 s32 func_806FB418(void) {
     u8 *row;
     u16 *values;
