@@ -320,7 +320,9 @@ Gfx *func_80713AA8(Gfx *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713DFC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713EA8.s")
+s32 func_80713EA8(s32 arg0) {
+    return arg0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713EB0.s")
 
