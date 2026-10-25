@@ -1,4 +1,4 @@
-// func_806D2E9C (src/global/D5E10.c): Closest: text diff only li a1,0x7e position (target after lwc1 unk80, mine before lui), beqzl vs beqz+nop after 'if (unk1A2)' ('sel = sel;' after the if-chain removes that), and the 0x80/0x7F else-arms (target keeps both li in own blocks, mine hoists li 0x7f into beqz delay). Also reloc-only: D_FFFF09E8 hi/lo split and rodata (floats 590/987/571/965, double 0.7) are symbols in expected. Tried ternary vs if/else for v, nested ternary, swapped arms, local f32 u, comma, permuter 7min.
+// func_806D2E9C (src/global/D5E10.c): TEXT-IDENTICAL; reloc only (D_FFFF09E8 hi/lo, rodata consts via .rodata). Fix: else { sel = 0x7E; } on the if(unk1A2) block.
 typedef struct G10Sub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
@@ -44,7 +44,7 @@ void func_80687400();
 s32 func_806F8AD4();
 void func_806F91B4();
 f32 func_806F46B0(s16);
-void sfxPlayFromActorWithAltitudeCheck();
+s32 sfxPlayFromActorWithAltitudeCheck();
 
 void func_806D2E9C(void) {
     f32 v;
@@ -92,6 +92,8 @@ void func_806D2E9C(void) {
         } else {
             sel = 0x7F;
         }
+    } else {
+        sel = 0x7E;
     }
     if ((sel != G10_A->unk4->unk64) && (G10_A->unk4->unk64 != 0x81)) {
         func_80614EBC(D_807FBB40, sel);

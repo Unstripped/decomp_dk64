@@ -1025,6 +1025,8 @@ void func_806D2E9C(void) {
         } else {
             sel = 0x7F;
         }
+    } else {
+        sel = 0x7E;
     }
     if ((sel != G10_A->unk4->unk64) && (G10_A->unk4->unk64 != 0x81)) {
         func_80614EBC(D_807FBB40, sel);
@@ -3276,16 +3278,15 @@ typedef struct G16Actor {
 #define G16_P ((G16Player *)D_807FD580)
 #define G16_A ((G16Actor *)D_807FBB40)
 
-#ifdef NON_MATCHING
 extern s16 D_80753A88[];
 extern f32 D_80753AE0[];
 void effectSpawnAuraBurst(u8);
 void func_806D0EBC(void *);
 
 void func_806D8B08(void) {
-    s16 v;
     f32 t;
     f32 fv0;
+    s16 v;
 
     G16_P->unk24 = G16_P->unk24 + 1;
     G16_P->unk2C = D_80753AFC[D_807FD584];
@@ -3378,10 +3379,6 @@ void func_806D8B08(void) {
 end:
     func_806319C4(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806D8B08.s")
-#endif
 
 void func_806D8FCC(void) {
     G16_P->unk24 = 0;
@@ -5250,7 +5247,6 @@ void func_806DD874(void) {
 
 s32 func_806CFC90(Actor *, f32 *, s32, f32);
 
-#ifdef NON_MATCHING
 typedef struct LD5CActor {
     /* 0x000 */ u8 pad0[0x60];
     /* 0x060 */ u32 unk60;
@@ -5320,7 +5316,7 @@ void collisionGetCoords(void *, s16 *);
 void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocity(Actor *);
 void func_80665548(void);
-void func_80665564(Actor *, s32);
+void func_80665564(Actor *, f32);
 
 void func_806DDAB0(void) {
     f32 sp64;
@@ -5443,6 +5439,8 @@ void func_806DDAB0(void) {
             v = x;
             v |= 1;
         }
+    } else {
+        v = 0;
     }
     if (a != 0 || v != 0) {
         LD5C_P->unkFC = 0x14;
@@ -5462,10 +5460,6 @@ void func_806DDAB0(void) {
     func_80665564(D_807FBB40, 0);
     func_806319C4(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DDAB0.s")
-#endif
 
 typedef struct LD5Anim {
     /* 0x0 */ u8 pad0[4];
