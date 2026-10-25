@@ -121,6 +121,45 @@ S112aParsedList *func_8070D6D8(s32 arg0) {
     return header;
 }
 
+typedef struct S112dLink {
+    void *key;
+    Actor *actor;
+    void *entries;
+    struct S112dLink *next;
+} S112dLink;
+
+typedef struct S112dActorKeyState {
+    u8 pad0[4];
+    void *key;
+} S112dActorKeyState;
+
+extern void *D_807550C4;
+extern s8 D_807550CC;
+extern void heapClearBlock(void *);
+extern unsigned long actorSpawn(s32, s32, void *);
+
+void *func_8070D754(void *arg0) {
+    S112dLink **link;
+    S112dActorKeyState *state;
+    link = (S112dLink **)&D_807550C4;
+    if ((*link != NULL) && ((*link)->key != arg0)) {
+        do {
+            link = &(*link)->next;
+        } while ((*link != NULL) && ((*link)->key != arg0));
+    }
+    if (*link == NULL) {
+        *link = func_80610FE8(0x10);
+        heapClearBlock(*link);
+        (*link)->key = arg0;
+        actorSpawn(0x12B, 0, arg0);
+        D_807FBB44->unk154 = 0;
+        (*link)->actor = D_807FBB44;
+        state = (S112dActorKeyState *)D_807FBB44->unk174;
+        state->key = arg0;
+    }
+    return *link;
+}
+
 typedef struct S112dEntry {
     u16 id;
     u8 count;
@@ -133,8 +172,6 @@ typedef struct S112dContainer {
     Actor *actor;
     S112dEntry *entries;
 } S112dContainer;
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D754.s")
 
 void func_8070D82C(S112dContainer *arg0, u16 arg1, u8 arg2) {
     S112dEntry **entry;
@@ -152,7 +189,30 @@ void func_8070D82C(S112dContainer *arg0, u16 arg1, u8 arg2) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D8C0.s")
+typedef struct S112dActorValueState {
+    u8 pad0[0x54];
+    u8 value;
+} S112dActorValueState;
+
+void func_8070D8C0(Actor *arg0, s32 arg1, u8 arg2) {
+    S112dActorValueState *state;
+    Actor *actor;
+    S112dLink *node;
+    u8 value;
+
+    node = func_8070D754(arg0);
+    if (1) {
+        value = D_807550CC;
+    }
+    state = (S112dActorValueState *)node->actor->unk174;
+    state->value = value & 0xFFu;
+    if (1) {
+        D_807550CC = 0;
+        actor = arg0;
+        func_8070D82C((S112dContainer *)node, arg1, arg2);
+        actor->unk60 |= 0x2000000;
+    }
+}
 
 S112aListNode *func_8070D928(u16 id) {
     S112aListNode *node;
@@ -427,8 +487,6 @@ void func_8070E808(Actor *arg0, void *arg1) {
     heapFreeDeferred(arg1);
 }
 
-extern void *D_807550C4;
-extern s8 D_807550CC;
 
 
 void func_8070E8C8(void) {
