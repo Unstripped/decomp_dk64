@@ -121,9 +121,36 @@ S112aParsedList *func_8070D6D8(s32 arg0) {
     return header;
 }
 
+typedef struct S112dEntry {
+    u16 id;
+    u8 count;
+    u8 pad3;
+    struct S112dEntry *next;
+} S112dEntry;
+
+typedef struct S112dContainer {
+    u8 pad0[4];
+    Actor *actor;
+    S112dEntry *entries;
+} S112dContainer;
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D754.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D82C.s")
+void func_8070D82C(S112dContainer *arg0, u16 arg1, u8 arg2) {
+    S112dEntry **entry;
+
+    entry = &arg0->entries;
+    while (*entry != NULL) {
+        entry = &(*entry)->next;
+    }
+    *entry = func_80610FE8(8);
+    (*entry)->id = arg1;
+    (*entry)->count = arg2;
+    (*entry)->next = NULL;
+    if (arg0->actor->unk154 == 4) {
+        arg0->actor->unk154 = 0;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070D8C0.s")
 
@@ -402,6 +429,7 @@ void func_8070E808(Actor *arg0, void *arg1) {
 
 extern void *D_807550C4;
 extern s8 D_807550CC;
+
 
 void func_8070E8C8(void) {
     D_807550C0 = 0;
