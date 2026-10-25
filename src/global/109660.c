@@ -106,4 +106,18 @@ void func_80705C00(s16 arg0, s16 arg1, u8 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_8070835C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_80708574.s")
+extern f32 D_80754CE8;
+
+void func_80708574(f32 arg0) {
+    f64 var_fv0;
+
+    var_fv0 = (f64)arg0;
+    if (var_fv0 < 0.0) {
+        arg0 = 0.0f;
+        var_fv0 = (f64)arg0;
+    }
+    if (var_fv0 > 1.0) {
+        arg0 = 1.0f;
+    }
+    D_80754CE8 = arg0;
+}
