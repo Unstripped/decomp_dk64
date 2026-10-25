@@ -1,4 +1,4 @@
-// func_806CEFBC (src/global/CEAE0.c): stage 5: analysis: target keeps sp44/sp40/sp3C/sp38 as UNCOLORED vars (stores kept, loads of arg0->unk8 not hoisted above the first store) with mid1/mid2 in pool temps f16/f18; ours forwards the mids in-block (copy-prop) so the stores vanish and loads hoist. Dead 'if (var) {}' tests split blocks and store ALL mids (v9A), not just mid3. Arrays/structs/array elements, assignments in call args, in-place lerp, address-of tricks, hill-climbed dead tests (best 29 vs 32 base) all fail; no source form found that stores only mid3.
+// func_806CEFBC (src/global/CEAE0.c): stage 5: asm-differ ~509 (was 3139): dead tests 'if (sp44) {} if (sp48) {}' AFTER the final call keep sp44 as candidate and the store at 0x44 (loads no longer hoist above it) but sp48 is stored too, sp4C is sunk to its use (mids computed order sp48,sp44,sp4C) and the colors differ. Target: mid1/mid2 colored f16/f18 with no stores, mid3 stored (uncolored), 4 loads f0/f2/f12/f14, lerps stored. Permuter (900s, best 170) reuses an address-taken var (sp64 = mid3, store kept) -> store kept without the extra tests, wrong slot; making sp44 address-taken via 'p = &sp44' also keeps its store but sinks mids and adds 8 frame bytes.
 s32 func_806CF2EC(s32 *, s32 *);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 typedef struct G05CbArg {
@@ -35,4 +35,6 @@ void func_806CEFBC(G05CbArg *arg0) {
     sp3C = (sp48 - arg0->unk8->unk80) * arg0->unk0 + arg0->unk8->unk80;
     sp38 = (sp44 - arg0->unk8->unk84) * arg0->unk0 + arg0->unk8->unk84;
     func_8067A70C(arg0->unk4, arg0->unk8, sp40, sp3C, sp38, 2, 1);
+    if (sp44) {}
+    if (sp48) {}
 }

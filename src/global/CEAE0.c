@@ -2351,6 +2351,8 @@ void func_806CEFBC(G05CbArg *arg0) {
     sp3C = (sp48 - arg0->unk8->unk80) * arg0->unk0 + arg0->unk8->unk80;
     sp38 = (sp44 - arg0->unk8->unk84) * arg0->unk0 + arg0->unk8->unk84;
     func_8067A70C(arg0->unk4, arg0->unk8, sp40, sp3C, sp38, 2, 1);
+    if (sp44) {}
+    if (sp48) {}
 }
 #else
 
@@ -2414,17 +2416,21 @@ void func_806CF138(G05CbArg2 *arg0) {
 
     func_806CF2EC(&sp30, &sp2C);
     actorGetNodePos(arg0->unk0, sp30, &sp70, &sp68, &sp60);
+    if (sp68) {}
     actorGetNodePos(arg0->unk0, sp2C, &sp74, &sp6C, &sp64);
     sp5C = sp6C - sp68;
     sp58 = sqrtf((sp64 - sp60) * (sp64 - sp60) + ((sp74 - sp70) * (sp74 - sp70) + sp5C * sp5C));
     sp54 = func_806118FC(sp5C / sp58) * 57.29577637f;
     sp48 = func_80612794(arg0->unk0->unkE6) * 50.0f;
+    if (!sp50) {}
     sp4C = func_80612790(arg0->unk0->unkE6) * 50.0f;
-    sp44 = sp64 - sp60;
     sp40 = sp74 - sp70;
+    if (sp34) {}
+    sp44 = sp64 - sp60;
     sp3C = sp44 * sp4C + sp48 * sp40;
     sp38 = sqrtf(sp4C * sp4C + sp48 * sp48);
     sp34 = sqrtf(sp44 * sp44 + sp40 * sp40);
+    if (sp4C) {}
     func_8067AA58(arg0->unk0, arg0->unk4, sp54, 90.0 - func_80611850(sp3C / (sp38 * sp34)) * 57.29577637f);
 }
 #else
