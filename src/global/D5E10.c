@@ -4695,7 +4695,174 @@ void func_806DC3A4(f32 arg0) {
     G19_P->unk94 = cur;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DC410.s")
+typedef struct LD5Actor {
+    /* 0x000 */ u8 pad0[0x6A];
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u8 pad6C[0x7A];
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ u8 padE8[6];
+    /* 0x0EE */ s16 unkEE;
+    /* 0x0F0 */ u8 padF0[0x65];
+    /* 0x155 */ u8 unk155;
+} LD5Actor;
+
+typedef struct LD5Player {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ f32 unk4;
+    /* 0x008 */ s16 unk8;
+    /* 0x00A */ u8 padA[0x82];
+    /* 0x08C */ u8 unk8C;
+    /* 0x08D */ u8 pad8D[7];
+    /* 0x094 */ f32 unk94;
+    /* 0x098 */ u8 pad98[0x68];
+    /* 0x100 */ s32 unk100;
+    /* 0x104 */ u8 pad104[0x2C];
+    /* 0x130 */ LD5Actor *unk130;
+    /* 0x134 */ u8 pad134[0x24];
+    /* 0x158 */ s32 unk158;
+} LD5Player;
+
+#define LD5_A ((LD5Actor *)D_807FBB40)
+#define LD5_P ((LD5Player *)D_807FD580)
+
+extern s16 D_80753C84[];
+extern f32 D_80753C30[];
+extern f32 D_80753C4C[];
+extern f32 D_80753C68[];
+extern u8 func_807300BC;
+void func_806DC3A4(f32);
+
+void func_806DC410(void) {
+    ActorCallbackNode *node;
+    s32 pad[1];
+    f32 sp1C;
+    f32 f;
+    f64 d;
+
+    if (LD5_A->unk155 != 0 && !(LD5_A->unk6A & 0x40)) {
+        func_806CFF1C(D_807FBB40);
+        if (LD5_P->unk8C != 0) {
+            func_806D374C();
+            return;
+        }
+        func_806D36CC();
+        return;
+    }
+    LD5_P->unk100 = D_80753C84[D_807FD584];
+    node = func_80610FE8(0x14);
+    node->callback = &func_807300BC;
+    node->unk8 = (s32)D_807FBB48;
+    node->unk4 = 1;
+    actorRegisterGlobalCallback(node);
+    func_806DF494(&LD5_A->unkE6, LD5_A->unkEE, 0xC8);
+    switch (LD5_A->unk155) {
+    case 0:
+        func_806DF6D4(5);
+        LD5_P->unk94 = 0.0f;
+        LD5_P->unk158 = 0;
+        LD5_A->unkEE = LD5_P->unk130->unkE6;
+        if (func_806CC14C(LD5_A->unkE6, LD5_P->unk130->unkE6) >= 0x400) {
+            LD5_A->unkEE = (LD5_A->unkEE + 0x800) & 0xFFF;
+        }
+        break;
+    case 1:
+        if (func_806DF6D4(0x58) == 0) {
+            switch (LD5_P->unk8) {
+            case 1:
+                sp1C = D_80753C30[D_807FD584];
+                LD5_A->unk155 = 3;
+                func_80614E78(D_807FBB48, 0x6A);
+                break;
+            case 0:
+                sp1C = D_80753C68[D_807FD584];
+                break;
+            case -1:
+                sp1C = D_80753C4C[D_807FD584];
+                LD5_A->unk155 = 4;
+                func_80614E78(D_807FBB48, 0x6B);
+                break;
+            }
+            func_806DC3A4(sp1C);
+            func_80614D00(D_807FBB40, 1.0f, 0.0f);
+        }
+        break;
+    case 2:
+        if (func_806DF6D4(0x58) == 0) {
+            if (LD5_P->unk94 == 0.0f && LD5_P->unk4 == 0.0f) {
+                LD5_A->unk155 = 1;
+                func_80614E78(D_807FBB48, 0x6C);
+            } else if (LD5_P->unk94 > 0.0f && LD5_P->unk4 > 0.0f) {
+                LD5_A->unk155 = 3;
+                func_80614E78(D_807FBB48, 0x6A);
+            } else if (LD5_P->unk94 < 0.0f && LD5_P->unk4 < 0.0f) {
+                LD5_A->unk155 = 4;
+                func_80614E78(D_807FBB48, 0x6B);
+            }
+            func_806DC3A4(D_80753C68[D_807FD584]);
+            d = LD5_P->unk94 * 0.025;
+            if (d > 0.0) {
+                f = d;
+            } else {
+                f = -d;
+            }
+            func_80614D00(D_807FBB40, f, 0.0f);
+        }
+        break;
+    case 3:
+        if (func_806DF6D4(0x58) == 0) {
+            if (LD5_P->unk94 <= 0.0f) {
+                LD5_A->unk155 = 2;
+            }
+            switch (LD5_P->unk8) {
+            case -1:
+                sp1C = D_80753C4C[D_807FD584] * 2;
+                break;
+            case 0:
+                sp1C = D_80753C68[D_807FD584];
+                break;
+            case 1:
+                sp1C = D_80753C30[D_807FD584];
+                break;
+            }
+            func_806DC3A4(sp1C);
+            d = LD5_P->unk94 * 0.025;
+            if (d > 0.0) {
+                f = d;
+            } else {
+                f = -d;
+            }
+            func_80614D00(D_807FBB40, f, 0.0f);
+        }
+        break;
+    case 4:
+        if (func_806DF6D4(0x58) == 0) {
+            if (LD5_P->unk94 >= 0.0f) {
+                LD5_A->unk155 = 2;
+            }
+            switch (LD5_P->unk8) {
+            case -1:
+                sp1C = D_80753C4C[D_807FD584];
+                break;
+            case 0:
+                sp1C = D_80753C68[D_807FD584];
+                break;
+            case 1:
+                sp1C = D_80753C30[D_807FD584];
+                break;
+            }
+            func_806DC3A4(sp1C);
+            d = LD5_P->unk94 * 0.025;
+            if (d > 0.0) {
+                f = d;
+            } else {
+                f = -d;
+            }
+            func_80614D00(D_807FBB40, f, 0.0f);
+        }
+        break;
+    }
+    func_806CC970();
+}
 
 void func_806DCF60(void);
 #define G19_B ((G19Actor *)D_807FBB48)
@@ -4871,11 +5038,6 @@ typedef struct L6Player {
 #define L6_P ((L6Player *)D_807FD580)
 
 extern s16 D_80753CA4[];
-extern f32 D_80753C30[];
-extern f32 D_80753C4C[];
-extern f32 D_80753C68[];
-extern u8 func_807300BC;
-void func_806DC3A4(f32);
 
 void func_806DD24C(void) {
     ActorCallbackNode *node;
@@ -5052,9 +5214,416 @@ void func_806DD874(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DDAB0.s")
+s32 func_806CFC90(Actor *, f32 *, s32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DE264.s")
+#ifdef NON_MATCHING
+typedef struct LD5CActor {
+    /* 0x000 */ u8 pad0[0x60];
+    /* 0x060 */ u32 unk60;
+    /* 0x064 */ u8 pad64[0x18];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x1C];
+    /* 0x0A4 */ f32 unkA4;
+    /* 0x0A8 */ u8 padA8[0x10];
+    /* 0x0B8 */ f32 unkB8;
+    /* 0x0BC */ u8 padBC[4];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ u8 padC4[0x22];
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ u8 padE8[6];
+    /* 0x0EE */ s16 unkEE;
+    /* 0x0F0 */ u8 padF0[4];
+    /* 0x0F4 */ s16 unkF4;
+    /* 0x0F6 */ s16 unkF6;
+    /* 0x0F8 */ u8 padF8[4];
+    /* 0x0FC */ u8 unkFC;
+    /* 0x0FD */ u8 padFD[0x57];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+} LD5CActor;
+
+typedef struct LD5CPlayer {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ f32 unk4;
+    /* 0x008 */ s16 unk8;
+    /* 0x00A */ u8 padA[0xD6];
+    /* 0x0E0 */ f32 unkE0;
+    /* 0x0E4 */ f32 unkE4;
+    /* 0x0E8 */ u8 padE8[2];
+    /* 0x0EA */ s16 unkEA;
+    /* 0x0EC */ s16 unkEC;
+    /* 0x0EE */ u8 padEE[2];
+    /* 0x0F0 */ f32 unkF0;
+    /* 0x0F4 */ f32 unkF4;
+    /* 0x0F8 */ u8 unkF8;
+    /* 0x0F9 */ u8 padF9[3];
+    /* 0x0FC */ s32 unkFC;
+} LD5CPlayer;
+
+typedef struct LD5Pad {
+    /* 0x00 */ u8 pad0[0x2C];
+    /* 0x2C */ u16 unk2C;
+    /* 0x2E */ u8 pad2E;
+    /* 0x2F */ s8 unk2F;
+    /* 0x30 */ u8 pad30[4];
+} LD5Pad;
+
+#define LD5C_A ((LD5CActor *)D_807FBB40)
+#define LD5C_P ((LD5CPlayer *)D_807FD580)
+
+extern LD5Pad D_807FD610[];
+extern s8 D_807FD63F;
+extern f32 D_80753D70[];
+extern f32 D_80753D8C[];
+extern s16 D_80753DA8[];
+extern s16 D_80753DB8[];
+u8 actorSetTargetAngleAndCheck(Actor *, s16);
+s32 func_80672A70(s16, s16);
+s32 func_80666AEC(void);
+void collisionGetCoords(void *, s16 *);
+void actorStepPhysics(Actor *, s16, s16);
+void actorApplyVelocity(Actor *);
+void func_80665548(void);
+void func_80665564(Actor *, s32);
+
+void func_806DDAB0(void) {
+    f32 sp64;
+    u8 k;
+    u8 sp62;
+    s16 sp60;
+    f32 t;
+    s16 h;
+    u8 a;
+    f32 f;
+    f32 sp50;
+    u8 v;
+    u8 flag;
+    s16 sp4C;
+    s16 sp4A;
+    u8 sp49;
+    s32 x;
+
+    sp49 = 0;
+    if (D_807FC924[D_807FC929].unk2C0 == 1) {
+        sp50 = D_80753D70[D_807FD584];
+    } else {
+        sp50 = D_80753D8C[D_807FD584];
+    }
+    switch (LD5C_A->unk155) {
+    case 0:
+        func_806DF6D4(0x5A);
+        LD5C_P->unkEC = LD5C_A->unkE6;
+        LD5C_P->unkF8 = 5;
+        LD5C_A->unk155 = 2;
+        break;
+    case 1:
+    case 2:
+    case 3:
+        if (LD5C_P->unkF8 != 0) {
+            LD5C_P->unkF8 -= 1;
+        }
+        if (func_806DF6D4(0x5A) == 0) {
+            switch (LD5C_P->unk8) {
+            case -1:
+                if (LD5C_A->unk155 == 1) {
+                    t = LD5C_A->unkB8 * 0.025;
+                    f = t > 0.1 ? t : 0.1;
+                    func_80614D00(D_807FBB40, f, 1.0f);
+                } else {
+                    func_80614E78(D_807FBB48, 0x77);
+                    LD5C_A->unk155 = 1;
+                }
+                break;
+            case 0:
+                if (LD5C_A->unk155 != 2) {
+                    func_80614E78(D_807FBB48, 0x76);
+                    LD5C_A->unk155 = 2;
+                }
+                break;
+            case 1:
+                if (LD5C_A->unk155 == 3) {
+                    t = LD5C_A->unkB8 * 0.025;
+                    f = t > 0.1 ? t : 0.1;
+                    func_80614D00(D_807FBB40, f, 0.0f);
+                } else {
+                    func_80614E78(D_807FBB48, 0x78);
+                    LD5C_A->unk155 = 3;
+                }
+                break;
+            }
+        }
+        LD5C_A->unkC0 = 0.0f;
+        LD5C_A->unkB8 = LD5C_P->unk4;
+        if (func_806CFC90(D_807FBB40, &sp64, 1, 15.0f) != 0) {
+            if (LD5C_A->unk80 <= sp64 && sp64 - sp50 - LD5C_A->unk80 < 10.0f && func_80666AEC() != 0) {
+                LD5C_A->unk80 = sp64 - sp50;
+                sp49 = 1;
+            }
+        }
+        if (LD5C_A->unkB8 < 0.0f) {
+            if (LD5C_A->unkB8 > 0.0f) {
+                LD5C_A->unkB8 = LD5C_A->unkB8;
+            } else {
+                LD5C_A->unkB8 = -LD5C_A->unkB8;
+            }
+            sp60 = LD5C_P->unkEA + 0x400;
+            sp60 &= 0xFFF;
+            LD5C_A->unkEE = LD5C_A->unkF4 + 0xA;
+        } else if (LD5C_A->unkB8 > 0.0f) {
+            sp60 = LD5C_P->unkEA - 0x400;
+            sp60 &= 0xFFF;
+            LD5C_A->unkEE = LD5C_A->unkF6 - 0xA;
+        }
+        sp62 = actorSetTargetAngleAndCheck(D_807FBB40, sp60);
+        if (sp62 == 0) {
+            LD5C_A->unkB8 = 0.0f;
+        }
+        LD5C_P->unkEC = func_80672A70(LD5C_A->unkF4, LD5C_A->unkF6) + 0x800;
+        LD5C_P->unkEC &= 0xFFF;
+        LD5C_A->unkE6 = func_806CC190(LD5C_A->unkE6, LD5C_P->unkEC, 3.0f);
+        LD5C_A->unk7C = LD5C_P->unkE0;
+        LD5C_A->unk84 = LD5C_P->unkE4;
+        if (sp62 == 0 || LD5C_A->unkB8 == 0.0) {
+            LD5C_A->unk60 |= 0x800;
+        } else {
+            LD5C_A->unk60 &= ~0x800;
+        }
+        break;
+    }
+    flag = D_807FD610[D_807FC929].unk2F < -0x32 && (D_807FD610[D_807FC929].unk2C & 0x2000);
+    if (D_807FC924[D_807FC929].unk2C0 == 1) {
+        a = flag;
+        a |= LD5C_A->unk80 - LD5C_A->unkA4 < D_80753DA8[D_807FD584];
+    } else {
+        a = flag;
+        a |= LD5C_A->unk80 - LD5C_A->unkA4 < D_80753DB8[D_807FD584];
+    }
+    v = 0;
+    if (LD5C_P->unkF8 == 0) {
+        x = LD5C_A->unkFC == 0 || sp49 == 0;
+        v = x;
+        collisionGetCoords(&sp4C, &sp4A);
+        if (sp4A < 0x385) {
+            v = x;
+            v |= 1;
+        }
+    }
+    if (a != 0 || v != 0) {
+        LD5C_P->unkFC = 0x14;
+        func_806CFF9C(D_807FBB40);
+        LD5C_A->unk60 &= ~0x800;
+    }
+    if (*(s8 *)((u8 *)&D_807FD63F + D_807FC929 * 0x34) >= 0x33 && LD5C_P->unkF8 == 0 && v == 0) {
+        func_80614E78(D_807FBB48, 0x79);
+        LD5C_A->unk154 = 0x5C;
+        LD5C_A->unk155 = 0;
+        LD5C_P->unkF0 = LD5C_A->unk80 + sp50;
+        LD5C_P->unkF4 = LD5C_P->unkF0;
+    }
+    actorStepPhysics(D_807FBB40, LD5C_A->unkEE, LD5C_A->unkEE);
+    actorApplyVelocity(D_807FBB40);
+    func_80665548();
+    func_80665564(D_807FBB40, 0);
+    func_806319C4(D_807FBB40, 0);
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/D5E10/func_806DDAB0.s")
+#endif
+
+typedef struct LD5Anim {
+    /* 0x0 */ u8 pad0[4];
+    /* 0x4 */ f32 unk4;
+} LD5Anim;
+
+typedef struct LD5BActor {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ LD5Anim **unk4;
+    /* 0x008 */ u8 pad8[0x50];
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ u8 pad5C[4];
+    /* 0x060 */ s32 unk60;
+    /* 0x064 */ u8 pad64[6];
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u8 pad6C[0x10];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x1C];
+    /* 0x0A4 */ f32 unkA4;
+    /* 0x0A8 */ u8 padA8[0x10];
+    /* 0x0B8 */ f32 unkB8;
+    /* 0x0BC */ u8 padBC[4];
+    /* 0x0C0 */ f32 unkC0;
+    /* 0x0C4 */ u8 padC4[0x22];
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ u8 padE8[6];
+    /* 0x0EE */ s16 unkEE;
+    /* 0x0F0 */ u8 padF0[0x65];
+    /* 0x155 */ u8 unk155;
+} LD5BActor;
+
+typedef struct LD5BPlayer {
+    /* 0x000 */ u8 pad0[0xE0];
+    /* 0x0E0 */ f32 unkE0;
+    /* 0x0E4 */ f32 unkE4;
+    /* 0x0E8 */ u8 padE8[8];
+    /* 0x0F0 */ f32 unkF0;
+    /* 0x0F4 */ f32 unkF4;
+} LD5BPlayer;
+
+#define LD5B_A ((LD5BActor *)D_807FBB40)
+#define LD5B_P ((LD5BPlayer *)D_807FD580)
+
+void func_80678DD8(Actor *);
+void func_80614A64(Actor *);
+
+void func_806DE264(void) {
+    f32 sp4C;
+    f32 sp48;
+    f32 sp44;
+    f32 f;
+    f32 sp3C;
+    f32 d;
+
+    LD5B_A->unkC0 = 0.0f;
+    LD5B_A->unkB8 = 0.0f;
+    func_806DF6D4(1);
+    if (func_806CFC90(D_807FBB40, &sp3C, 1, 15.0f) != 0) {
+        LD5B_P->unkF0 = sp3C;
+    }
+    if (LD5B_P->unkF0 < LD5B_P->unkF4) {
+        f = LD5B_P->unkF4 - LD5B_P->unkF0;
+    } else {
+        f = -(LD5B_P->unkF4 - LD5B_P->unkF0);
+    }
+    if (f > 20.0) {
+        func_806CFF1C(D_807FBB40);
+        func_806319C4(D_807FBB40, 0);
+        return;
+    }
+    LD5B_P->unkF4 = LD5B_P->unkF0;
+    LD5B_A->unk60 |= 0x08000000;
+    func_806319C4(D_807FBB40, 0);
+    func_80678DD8(D_807FBB40);
+    switch (LD5B_A->unk155) {
+    case 0:
+        switch (LD5B_A->unk58) {
+        case 4:
+            f = (*LD5B_A->unk4)->unk4;
+            if (f < 25.0f) {
+                actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+                d = sp48 - LD5B_A->unk80;
+                LD5B_A->unk80 = LD5B_P->unkF0 - d;
+                f = (*LD5B_A->unk4)->unk4;
+            }
+            if (f < 25.0f) {
+                LD5B_A->unk7C = LD5B_P->unkE0;
+                LD5B_A->unk84 = LD5B_P->unkE4;
+            } else if (f < 31.0f) {
+                LD5B_A->unkEE = LD5B_A->unkE6;
+                LD5B_A->unkB8 = 70.0f;
+                LD5B_A->unk80 = LD5B_P->unkF0;
+            } else {
+                LD5B_A->unk80 = LD5B_P->unkF0;
+            }
+            break;
+        case 5:
+            f = (*LD5B_A->unk4)->unk4;
+            if (f < 17.0f) {
+                actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+                d = sp48 - LD5B_A->unk80;
+                LD5B_A->unk80 = LD5B_P->unkF0 - d;
+                f = (*LD5B_A->unk4)->unk4;
+            }
+            if (f < 19.0f) {
+                LD5B_A->unk7C = LD5B_P->unkE0;
+                LD5B_A->unk84 = LD5B_P->unkE4;
+            } else if (f < 29.0f) {
+                LD5B_A->unkEE = LD5B_A->unkE6;
+                LD5B_A->unkB8 = 40.0f;
+                LD5B_A->unk80 = LD5B_P->unkF0;
+            } else {
+                LD5B_A->unk80 = LD5B_P->unkF0;
+            }
+            break;
+        case 2:
+            actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+            d = sp48 - LD5B_A->unk80;
+                LD5B_A->unk80 = LD5B_P->unkF0 - d;
+            if ((*LD5B_A->unk4)->unk4 > 16.0f) {
+                LD5B_A->unkEE = LD5B_A->unkE6;
+                LD5B_A->unk80 = LD5B_P->unkF0;
+                LD5B_A->unkB8 = 30.0f;
+            } else {
+                LD5B_A->unk7C = LD5B_P->unkE0;
+                LD5B_A->unk84 = LD5B_P->unkE4;
+            }
+            break;
+        case 6:
+        case 7:
+            f = (*LD5B_A->unk4)->unk4;
+            if (f < 18.0f) {
+                actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+                d = sp48 - LD5B_A->unk80;
+                LD5B_A->unk80 = LD5B_P->unkF0 - d;
+                LD5B_A->unk7C = LD5B_P->unkE0;
+                LD5B_A->unk84 = LD5B_P->unkE4;
+            } else if (f < 26.0f) {
+                LD5B_A->unkEE = LD5B_A->unkE6;
+                LD5B_A->unkB8 = 50.0f;
+                LD5B_A->unk80 = LD5B_P->unkF0;
+            } else {
+                if (LD5B_P->unkF0 < LD5B_A->unkA4) {
+                    f = LD5B_A->unkA4 - LD5B_P->unkF0;
+                } else {
+                    f = -(LD5B_A->unkA4 - LD5B_P->unkF0);
+                }
+                if (f >= 20.0) {
+                    func_806CFF1C(D_807FBB40);
+                } else {
+                    LD5B_A->unk80 = LD5B_A->unkA4;
+                }
+            }
+            break;
+        default:
+            actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+            d = sp48 - LD5B_A->unk80;
+                LD5B_A->unk80 = LD5B_P->unkF0 - d;
+            if ((*LD5B_A->unk4)->unk4 > 14.0f) {
+                LD5B_A->unkEE = LD5B_A->unkE6;
+                LD5B_A->unkB8 = 10.0f;
+                LD5B_A->unk80 = LD5B_P->unkF0;
+            } else {
+                LD5B_A->unk7C = LD5B_P->unkE0;
+                LD5B_A->unk84 = LD5B_P->unkE4;
+            }
+            break;
+        }
+        func_806CC970();
+        break;
+    case 1:
+        func_806CC970();
+        if (LD5B_P->unkF0 < LD5B_A->unkA4) {
+            f = LD5B_A->unkA4 - LD5B_P->unkF0;
+        } else {
+            f = -(LD5B_A->unkA4 - LD5B_P->unkF0);
+        }
+        if (f < 20.0) {
+            LD5B_A->unk80 = LD5B_A->unkA4;
+            LD5B_A->unk6A |= 1;
+            LD5B_A->unkC0 = -50.0f;
+            func_806CFF9C(D_807FBB40);
+        } else {
+            func_806CFF1C(D_807FBB40);
+        }
+        break;
+    }
+    func_806319C4(D_807FBB40, 0);
+    func_80614A64(D_807FBB40);
+}
 
 void func_806DE930(void) {
     G19_P->unk4 = 0.0f;
