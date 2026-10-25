@@ -32,23 +32,109 @@ f32 func_80612D1C(f32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717930.s")
 
+typedef struct {
+    u8 pad0[0x330];
+    void *unk330;
+    u8 pad334[4];
+    void *unk338;
+    u8 pad33C[4];
+    f32 unk340;
+    f32 unk344;
+    f32 unk348;
+    s16 unk34C;
+    u8 pad34E[2];
+    u8 unk350;
+    u8 pad351[0xB];
+    s32 unk35C;
+    f32 unk360;
+    f32 unk364;
+    u8 pad368[5];
+    u8 unk36D;
+    u8 pad36E[0x16];
+    void *unk384;
+} Ub2ActorView;
+
+
+void func_80716FB4(s32, s32);
+void func_8071498C(void (*)(void));
+void func_80714998(s32);
+void func_807149B8(s32);
+void func_80714CC0(u8 *, f32, f32, s32, f32);
+void func_80718380();
+extern u8 D_8071FEF4;
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717B64.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717CE8.s")
+void func_80717CE8(arg0, arg1)
+Ub2ActorView *arg0;
+s8 *arg1;
+{
+    if (arg0->unk36D != 0xFF) {
+        arg0->unk36D += 0x14;
+    }
+    if ((s32) arg0->unk36D >= 0xEB) {
+        arg0->unk36D = 0xFFU;
+    }
+    arg0->unk344 = (f32) ((f64) arg0->unk344 - ((f64) arg0->unk35C / 100.0));
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717D4C.s")
+void func_80717D4C(arg0, arg1)
+Ub2ActorView *arg0;
+s8 *arg1;
+{
+    arg0->unk344 = (f32) ((f64) arg0->unk344 - ((f64) arg0->unk35C / 100.0));
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717D84.s")
+void func_80717D84(Ub2ActorView *arg0, s8 *arg1) {
+    s32 temp_v0;
+    u8 temp_v1;
+
+    temp_v0 = arg0->unk35C;
+    temp_v1 = arg0->unk36D;
+    if (temp_v0 < (s32) temp_v1) {
+        arg0->unk36D = (u8) (temp_v1 - temp_v0);
+        return;
+    }
+    arg0->unk36D = 0U;
+    *arg1 = 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717DB4.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717F1C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80718080.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+} Ub2VelocityMotion;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807180F4.s")
+void func_80718080(Ub2ActorView *arg0) {
+    f32 temp_fv0;
+    Ub2VelocityMotion *temp_v0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80718124.s")
+    func_80717F1C();
+    temp_v0 = arg0->unk384;
+    arg0->unk360 = temp_v0->unkC * temp_v0->unk8;
+    arg0->unk364 = arg0->unk360;
+    temp_fv0 = temp_v0->unkC;
+    if (temp_fv0 < 2.0f) {
+        temp_v0->unkC = (f32) ((f64) temp_fv0 + 0.2);
+    }
+}
+
+void func_807180F4(s32 arg0, s32 arg1) {
+    func_80717D4C();
+    func_80716FB4(arg0, arg1);
+}
+
+void func_80718124(f32 arg0, f32 arg1, s32 arg2, f32 arg3) {
+    func_807149B8(1);
+    func_80714998(3);
+    func_8071498C(&func_80718380);
+    func_80714CC0(&D_8071FEF4, arg0, arg1, arg2, arg3);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80718188.s")
 
