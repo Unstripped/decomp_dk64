@@ -41,6 +41,7 @@ typedef struct R2FCCD0cSlot {
 
 
 
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8278.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F833C.s")
@@ -329,7 +330,15 @@ void func_806F9744(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FA5A4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FA7A4.s")
+s32 func_806FA7A4(s32 arg0) {
+    s32 var_v1;
+
+    var_v1 = 1;
+    if (arg0 == 5) {
+        var_v1 = 0x96;
+    }
+    return var_v1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FA7BC.s")
 
@@ -345,7 +354,10 @@ void func_806F9744(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FB218.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FB290.s")
+void func_806FB290(void) {
+    func_806FAFE4();
+    func_806F95C8();
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FB2B8.s")
 
