@@ -1,4 +1,4 @@
-// func_8071DC90 (src/global/11BC10.c): stage 3: typed behavioral draft compiled; target frame 0x30 versus current 0x50, and the movement update order diverges after the angle wraps
+// func_8071DC90 (src/global/11BC10.c): stage 3: typed motion reconstruction; target frame 0x30 versus candidate 0x50 from retained temporaries
 typedef struct { u8 pad0[0x174]; void *unk174; } Ub7DC90Target;
 typedef struct { u8 pad0[0x1F0]; u32 unk1F0; } Ub7DC90Flags;
 typedef struct { f32 unk0; f32 unk4; f32 unk8; f32 unkC; f32 unk10; f32 unk14; } Ub7DC90Motion;

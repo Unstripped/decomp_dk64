@@ -1,4 +1,4 @@
-// func_8071E1C8 (src/global/11BC10.c): stage 4: target frame and save shape now match (0x48); first mismatch is retaining arg0 in s1 and moving the state pointer from v0 to s0 after the null guard
+// func_8071E1C8 (src/global/11BC10.c): stage 4: target frame/save shape matches; closest diff keeps state pointer in v0 through null guard before moving it to s0
 typedef struct {
     f32 unk0;
     f32 unk4;

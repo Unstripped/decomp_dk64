@@ -1,152 +1,148 @@
-// func_80714D08 (src/global/119370.c): Stage 2: m2c semantic allocator/list linker. A full raw-field reconstruction compiles in Ua1c but needs block and ABI/register work; use m2c draft as starting map.
-void *func_80610FE8(f32, f32, ?);                   /* extern */
-? func_80714778(f32);                               /* extern */
-? func_80714A9C(f32, f32, ?);                       /* extern */
-? func_8071509C(void *);                            /* extern */
-extern u8 D_80750AB4;
-extern s32 D_807FBB64;
-extern void *D_807FDB00;
-extern void *D_807FDB04;
-extern void *D_807FDB08;
-extern u8 D_807FDB0C;
-extern u8 D_807FDB0D;
-extern u8 D_807FDB0E;
-extern u8 D_807FDB0F;
-extern s32 D_807FDB10;
-extern s32 D_807FDB14;
-extern u8 D_807FDB18;
-extern s16 D_807FDB1A;
-extern u8 D_807FDB1C;
-extern u8 D_807FDB1D;
-extern f32 D_807FDB20;
-extern f32 D_807FDB24;
-extern u8 D_807FDB28;
-extern s32 D_807FDB2C;
-extern s32 D_807FDB30;
+// func_80714D08 (src/global/119370.c): Stage 3: full allocator/list-linker reconstruction compiles; revised initial list search to the target m2c do/while found-flag shape (s0/s1/v0). Remaining work is FP scheduling and local register allocation.
+#include "common.h"
+typedef struct Ua1ListNode {
+    void *unk0;
+    s32 unk4;
+    u8 unk8;
+    u8 unk9;
+    u8 padA[0x1A];
+    struct Ua1ListNode *unk24;
+} Ua1ListNode;
+typedef struct Ua1Effect {
+    u8 pad0[0x20];
+    u8 itemCount;
+    u8 pad21[0x317];
+    s32 resource;
+    u8 pad33C[0x33];
+    u8 mode;
+    u8 pad370[0x14];
+    void *allocation;
+    u8 pad388[4];
+    u16 flags;
+    u8 pad38E[0xA];
+    struct Ua1Effect *previous;
+    struct Ua1Effect *next;
+} Ua1Effect;
+extern Ua1ListNode *D_807FDB00;
+extern Ua1Effect *D_807FDB04;
+extern Ua1Effect *D_807FDB08;
+extern s8 D_807FDB0C, D_807FDB0D, D_807FDB0E, D_807FDB0F;
+extern s32 D_807FDB10, D_807FDB14, D_807FDB2C, D_807FDB30, D_807FBB64;
+extern s16 D_807FDB1A, D_807FDB38, D_807FDB3A, D_807FDB3C, D_807FDB3E, D_807FDB40, D_807FDB42;
+extern u8 D_807FDB18, D_807FDB1C, D_807FDB1D, D_807FDB28, D_80750AB4;
+extern f32 D_807FDB20, D_807FDB24;
 extern u16 D_807FDB36;
-extern s16 D_807FDB38;
-extern s16 D_807FDB3A;
-extern s16 D_807FDB3C;
-extern s16 D_807FDB3E;
-extern s16 D_807FDB40;
-extern s16 D_807FDB42;
+void *func_80610FE8(s32);
+void func_80714778(Ua1ListNode *);
+void func_80714A9C(void);
+void func_8071509C(Ua1Effect *);
+#define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 
-void *func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, s32 arg6, s32 arg7, u8 arg8) {
-    void *sp2C;
-    f32 var_fa0;
-    f32 var_fa1;
-    f32 var_fv1;
-    s32 var_s1;
-    s32 var_v0;
-    u8 temp_v1;
-    void *temp_v0;
-    void *var_s0;
-    void *var_s0_2;
+void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
+    Ua1ListNode *node;
+    Ua1Effect *effect;
+    Ua1Effect *cursor;
+    f32 x;
+    f32 y;
+    f32 z;
+    s32 found;
+    s32 i;
 
-    func_80714778(arg1);
-    var_s0 = D_807FDB00;
-    var_v0 = 0;
-    if (var_s0 != NULL) {
-loop_1:
-        if (arg0 == var_s0->unk0) {
-            var_v0 = 1;
-        } else {
-            var_s0 = var_s0->unk24;
-        }
-        if ((var_v0 == 0) && (var_s0 != NULL)) {
-            goto loop_1;
-        }
+    func_80714778((Ua1ListNode *)arg0);
+    node = D_807FDB00;
+    found = 0;
+    if (node != NULL) {
+        do {
+            if (node->unk0 == (void *)arg0) {
+                found = 1;
+            } else {
+                node = node->unk24;
+            }
+        } while ((found == 0) && (node != NULL));
     }
-    if (var_v0 == 0) {
-        func_80714A9C(arg1, arg3, 0x3A0);
-        return NULL;
+    if (found == 0) {
+        func_80714A9C();
+        return;
     }
-    temp_v0 = func_80610FE8(arg1, arg3, 0x3A0);
-    var_fv1 = arg2;
-    var_fa0 = arg1;
-    var_fa1 = arg3;
+    effect = func_80610FE8(0x3A0);
     if (D_807FDB04 != NULL) {
-        D_807FDB08->unk39C = temp_v0;
-        temp_v0->unk398 = (void *) D_807FDB08;
+        D_807FDB08->next = effect;
+        effect->previous = D_807FDB08;
     } else {
-        D_807FDB04 = temp_v0;
-        temp_v0->unk398 = NULL;
+        D_807FDB04 = effect;
+        effect->previous = NULL;
     }
-    D_807FDB08 = temp_v0;
+    D_807FDB08 = effect;
+    x = arg1;
+    y = arg3;
+    z = arg2;
     if (D_807FDB1D != 0) {
-        var_fv1 *= 4.0f;
-        var_fa1 *= 4.0f;
-        var_fa0 *= 4.0f;
+        z *= 4.0f;
+        y *= 4.0f;
+        x *= 4.0f;
         arg4 *= 4.0f;
         D_807FDB20 *= 4.0f;
         D_807FDB24 *= 4.0f;
     }
-    temp_v0->unk340 = var_fv1;
-    temp_v0->unk344 = var_fa1;
-    temp_v0->unk348 = arg4;
+    UA1_D08_FIELD(f32, effect, 0x340) = z;
+    UA1_D08_FIELD(f32, effect, 0x344) = y;
+    UA1_D08_FIELD(f32, effect, 0x348) = arg4;
     if (D_807FDB28 != 0) {
-        temp_v0->unk360 = (f32) D_807FDB20;
-        temp_v0->unk364 = (f32) D_807FDB24;
+        UA1_D08_FIELD(f32, effect, 0x360) = D_807FDB20;
+        UA1_D08_FIELD(f32, effect, 0x364) = D_807FDB24;
     } else {
-        temp_v0->unk360 = var_fa0;
-        temp_v0->unk364 = var_fa0;
+        UA1_D08_FIELD(f32, effect, 0x360) = x;
+        UA1_D08_FIELD(f32, effect, 0x364) = x;
     }
     if (D_807FDB0F != 0) {
-        temp_v0->unk36A = (u8) D_807FDB0C;
-        temp_v0->unk36B = (u8) D_807FDB0D;
-        temp_v0->unk36C = (u8) D_807FDB0E;
-        temp_v0->unk36D = (u8) D_807FDB0F;
+        UA1_D08_FIELD(u8, effect, 0x36A) = D_807FDB0C;
+        UA1_D08_FIELD(u8, effect, 0x36B) = D_807FDB0D;
+        UA1_D08_FIELD(u8, effect, 0x36C) = D_807FDB0E;
+        UA1_D08_FIELD(u8, effect, 0x36D) = D_807FDB0F;
     } else {
-        temp_v0->unk36A = (u8) var_s0->unk10;
-        temp_v0->unk36B = (u8) var_s0->unk11;
-        temp_v0->unk36C = (u8) var_s0->unk12;
-        temp_v0->unk36D = (u8) var_s0->unk13;
+        UA1_D08_FIELD(u8, effect, 0x36A) = *((u8 *)node + 0x10);
+        UA1_D08_FIELD(u8, effect, 0x36B) = *((u8 *)node + 0x11);
+        UA1_D08_FIELD(u8, effect, 0x36C) = *((u8 *)node + 0x12);
+        UA1_D08_FIELD(u8, effect, 0x36D) = *((u8 *)node + 0x13);
     }
-    temp_v0->unk36E = (u8) D_807FDB18;
-    temp_v0->unk36F = (u8) D_807FDB1D;
-    temp_v0->unk368 = (s16) D_807FDB1A;
-    temp_v0->unk380 = (s32) (var_s0->unk8 * var_s0->unk9);
-    temp_v0->unk334 = arg8;
-    temp_v0->unk338 = arg5;
-    temp_v0->unk33C = (s16) arg6;
-    temp_v0->unk33E = (s8) arg7;
-    temp_v0->unk34E = (s16) D_807FDB30;
-    temp_v0->unk351 = 0;
-    temp_v0->unk350 = (u8) D_807FDB1C;
-    temp_v0->unk358 = 0;
-    temp_v0->unk354 = (s32) D_807FDB10;
-    temp_v0->unk35C = (s32) D_807FDB2C;
+    UA1_D08_FIELD(u8, effect, 0x36E) = D_807FDB18;
+    effect->mode = D_807FDB1D;
+    UA1_D08_FIELD(s16, effect, 0x368) = D_807FDB1A;
+    UA1_D08_FIELD(s32, effect, 0x380) = *((u8 *)node + 8) * *((u8 *)node + 9);
+    UA1_D08_FIELD(u8, effect, 0x334) = arg8;
+    effect->resource = (s32)arg5;
+    UA1_D08_FIELD(s16, effect, 0x33C) = arg6;
+    UA1_D08_FIELD(s8, effect, 0x33E) = arg7;
+    UA1_D08_FIELD(s16, effect, 0x34E) = D_807FDB30;
+    UA1_D08_FIELD(u8, effect, 0x351) = 0;
+    UA1_D08_FIELD(u8, effect, 0x350) = D_807FDB1C;
+    UA1_D08_FIELD(s32, effect, 0x358) = 0;
+    UA1_D08_FIELD(s32, effect, 0x354) = D_807FDB10;
+    UA1_D08_FIELD(s32, effect, 0x35C) = D_807FDB2C;
     if (D_807FBB64 & 0x100) {
-        temp_v0->unk34C = 0x7D0;
+        UA1_D08_FIELD(s16, effect, 0x34C) = 0x7D0;
     } else {
-        temp_v0->unk34C = (s16) D_807FDB3A;
+        UA1_D08_FIELD(s16, effect, 0x34C) = D_807FDB3A;
     }
-    temp_v0->unk330 = var_s0;
-    temp_v0->unk39C = 0;
-    temp_v0->unk384 = 0;
-    temp_v0->unk328 = (s32) D_807FDB14;
-    temp_v0->unk38A = -1;
-    temp_v0->unk388 = (s16) D_807FDB38;
-    temp_v0->unk38C = (u16) D_807FDB36;
-    temp_v0->unk38E = (s16) D_807FDB3C;
-    temp_v0->unk390 = (s16) D_807FDB3E;
-    var_s0_2 = temp_v0;
-    var_s1 = 0;
-    temp_v0->unk392 = (s16) D_807FDB40;
-    temp_v0->unk394 = (s16) D_807FDB42;
-    temp_v1 = D_80750AB4;
-    sp2C = temp_v0;
-    if ((s32) temp_v1 > 0) {
-        sp2C = temp_v0;
-        do {
-            var_s0_2->unk0 = func_80610FE8(7.17e-43f);
-            var_s0_2->unk4 = func_80610FE8(7.17e-43f);
-            var_s1 += 1;
-            var_s0_2 += 8;
-        } while (var_s1 < (s32) D_80750AB4);
+    UA1_D08_FIELD(Ua1ListNode *, effect, 0x330) = node;
+    effect->next = NULL;
+    effect->allocation = NULL;
+    UA1_D08_FIELD(s32, effect, 0x328) = D_807FDB14;
+    UA1_D08_FIELD(s8, effect, 0x38A) = -1;
+    UA1_D08_FIELD(s16, effect, 0x388) = D_807FDB38;
+    effect->flags = D_807FDB36;
+    UA1_D08_FIELD(s16, effect, 0x38E) = D_807FDB3C;
+    UA1_D08_FIELD(s16, effect, 0x390) = D_807FDB3E;
+    UA1_D08_FIELD(s16, effect, 0x392) = D_807FDB40;
+    UA1_D08_FIELD(s16, effect, 0x394) = D_807FDB42;
+    cursor = effect;
+    for (i = 0; i < D_80750AB4; i++) {
+        *((void **)cursor + 0) = func_80610FE8(0x200);
+        *((void **)cursor + 1) = func_80610FE8(0x200);
+        cursor = (Ua1Effect *)((u8 *)cursor + 8);
     }
-    sp2C->unk20 = temp_v1;
-    func_8071509C(sp2C);
+    *((u8 *)effect + 0x20) = D_80750AB4;
+    func_8071509C(effect);
     func_80714A9C();
-    return sp2C;
 }
+#undef UA1_D08_FIELD

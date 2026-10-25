@@ -1,4 +1,4 @@
-// func_8071910C (src/global/11BC10.c): stage 3: m2c-derived behavioral draft; frame is 0xF8 with s1 live for retained state pointers, versus target 0xD8 using only s0
+// func_8071910C (src/global/11BC10.c): stage 3: behavioral m2c-derived draft; cached state pointers still yield 0xF8 with s1 rather than target 0xD8/s0-only. Next step is direct arg0->unk384 accesses.
 typedef struct {
     f32 unk0;
     f32 unk4;

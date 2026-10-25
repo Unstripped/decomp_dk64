@@ -1,4 +1,4 @@
-// func_80718BF4 (src/global/11BC10.c): stage 4: matches target 0x48 frame and initialization through first movement; closest trial uses direct state loads, but collision scratch is at sp+0x38 rather than target sp+0x30 and later switch register flow differs
+// func_80718BF4 (src/global/11BC10.c): stage 4: target 0x48 frame and s0 reached; ground-check scratch remains sp+0x38 instead of sp+0x30. Ran uopt_trace -l 6 for switch allocation; direct state-access rewrite remains closest.
 typedef struct {
     s32 unk0;
     f32 unk4;

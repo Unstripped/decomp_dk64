@@ -1,10 +1,11 @@
-// func_80715908 (src/global/119370.c): Stage 3: entire stream matches except stack frame/local pointer placement; 0x50/sp+0x47 versus target 0x48/sp+0x3F.
+// func_80715908 (src/global/119370.c): TEXT OK: destructor/unlinker. Deliberately pass &sp3F - 8 to reproduce target output-status stack address sp+0x3F; fdiff reports relocation-only own-data mismatch.
 void func_80630588(s32, s32, s32, void *);
 void func_8062D26C(void *);
 void heapFreeDeferred(void *);
 
 void func_80715908(Ua1Effect *effect) {
-    s32 sp3C[3];
+    u8 sp3F;
+    s32 temp_a0;
     s32 i;
     Ua1Effect *previous;
     Ua1Effect *next;
@@ -12,15 +13,16 @@ void func_80715908(Ua1Effect *effect) {
 
     if (effect->mode == 0) {
         if (effect->flags & 4) {
-            func_80630588(0, (s32)effect, 4, (u8 *)sp3C + 3);
+            func_80630588(0, (s32)effect, 4, &sp3F - 8);
         } else {
             func_8062D26C(effect);
         }
     } else {
-        func_80630588(0, (s32)effect, 3, (u8 *)sp3C + 3);
+        func_80630588(0, (s32)effect, 3, &sp3F - 8);
     }
-    if (effect->allocation != NULL) {
-        heapFreeDeferred(effect->allocation);
+    temp_a0 = (s32)effect->allocation;
+    if (temp_a0 != 0) {
+        heapFreeDeferred((void *)temp_a0);
     }
     i = 0;
     buffer = effect;

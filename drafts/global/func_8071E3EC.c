@@ -1,4 +1,4 @@
-// func_8071E3EC (src/global/11BC10.c): stage 3: typed behavioral draft compiled; target frame 0x58 versus current 0x68 and light helper argument/type scheduling differs
+// func_8071E3EC (src/global/11BC10.c): stage 3: closest candidate reconstructs state and light cases; target frame 0x58 versus candidate 0x68, with remaining helper ABI/float-promotion scheduling
 typedef struct { f32 unk0; f32 unk4; f32 unk8; } Ub7E3ECState;
 extern s32 func_806531B8(f32, f32, s32, s32);
 extern void lightAdd(f32, f32, s32, s32, f32, f32, f32, s32, u32, u32, u32);

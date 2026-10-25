@@ -622,7 +622,16 @@ void func_8071EEA4(Ub2ActorView *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EEE0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EFDC.s")
+void func_8071EFDC(Ub2ActorView *arg0, s8 *arg1) {
+    s32 temp_t7;
+
+    arg0->unk360 = (f32)((f64)arg0->unk360 * 1.05);
+    arg0->unk364 = (f32)(((f64)arg0->unk364 * 1.05) * 1.0);
+    temp_t7 = (arg0->unk36D = (arg0->unk36D & 0xFFu) - 5);
+    if ((temp_t7 & 0xFF) < 6) {
+        *arg1 = 1;
+    }
+}
 
 typedef struct {
     u8 unk0[0x7C];
