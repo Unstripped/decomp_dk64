@@ -1350,9 +1350,183 @@ s32 func_806CCC10(void) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CCC54.s")
+typedef struct NmCEAE0bSub174 {
+    /* 0x00 */ u8 pad0[0x14];
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+} NmCEAE0bSub174;
+
+typedef struct NmCEAE0bP88 {
+    /* 0x000 */ u8 pad0[0x174];
+    /* 0x174 */ NmCEAE0bSub174 *unk174;
+} NmCEAE0bP88;
+
+typedef struct NmCEAE0bPlayer {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ u8 pad8[2];
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ u8 padC[0x24];
+    /* 0x30 */ f32 unk30;
+    /* 0x34 */ u8 pad34[4];
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ u8 pad3C[0x4C];
+    /* 0x88 */ NmCEAE0bP88 *unk88;
+    /* 0x8C */ u8 pad8C[0x36];
+    /* 0xC2 */ s16 unkC2;
+    /* 0xC4 */ u8 padC4[0x14];
+    /* 0xD8 */ u8 unkD8;
+} NmCEAE0bPlayer;
+
+typedef struct NmCEAE0bActor {
+    /* 0x00 */ u8 pad0[0x6A];
+    /* 0x6A */ u16 unk6A;
+    /* 0x6C */ u8 pad6C[0x48];
+    /* 0xB4 */ f32 unkB4;
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[0x20];
+    /* 0xDC */ s16 unkDC;
+    /* 0xDE */ u8 padDE[2];
+    /* 0xE0 */ f32 unkE0;
+    /* 0xE4 */ u8 padE4[0xA];
+    /* 0xEE */ s16 unkEE;
+    /* 0xF0 */ u8 padF0[0xC];
+    /* 0xFC */ u8 unkFC;
+    /* 0xFD */ u8 padFD[0x57];
+    /* 0x154 */ u8 unk154;
+} NmCEAE0bActor;
+
+#define NMB_A ((NmCEAE0bActor *)D_807FBB40)
+#define NMB_P ((NmCEAE0bPlayer *)D_807FD580)
 
 f32 func_80611BB4(f32, f32);
+
+void func_806CCC54(arg0) u8 arg0; {
+    f32 fa1;
+    f32 fv1;
+    f32 sp44;
+    f32 sp40;
+    f32 speed;
+    f32 sp38;
+    s16 ang;
+    s16 m;
+    NmCEAE0bSub174 *sub;
+
+    switch (NMB_A->unk154) {
+        case 15:
+        case 16:
+        case 17:
+        case 18:
+        case 19:
+        case 20:
+            speed = NMB_A->unkB8;
+            ang = NMB_A->unkEE;
+            sub = NMB_P->unk88->unk174;
+            if (!sub) {
+            }
+            if (!sub) {
+            }
+            if (!sub) {
+            }
+            NMB_P->unkD8 = NMB_A->unkFC;
+            if (D_807FD586) {}
+            D_807FD586 = 0;
+            sp38 = func_80612794((s16)(s32)(NMB_A->unkE0 * 11.4)) * 10.0;
+            fa1 = D_807FD610[D_807FC929].unk2F;
+            if (fa1 < 0.0f) {
+                fa1 = fa1 * (NMB_A->unkB8 / 1600.0);
+                if (NMB_A->unkB8 < 210.0f) {
+                    fa1 = 0.0f;
+                }
+            } else {
+                fa1 = fa1 / 10.0;
+            }
+            m = (ang - NMB_A->unkDC > 0 ? ang - NMB_A->unkDC : -(ang - NMB_A->unkDC)) % 4096;
+            if ((m >= 0x401 && m < 0xC00) || !(NMB_A->unk6A & 0x200)) {
+                fa1 = 0.0f;
+            }
+            fv1 = -D_807FD610[D_807FC929].unk2E / 5.5;
+            if (NMB_A->unkB8 < 50.0f) {
+                fv1 = fv1 * 0.21739130434782608;
+            } else if (NMB_A->unkB8 < 230.0f) {
+                fv1 = (NMB_A->unkB8 * fv1) / 230.0;
+            }
+            if (sub->unk14 < sub->unk18) {
+                fa1 = 0.0f;
+            }
+            sp44 = func_80612794(ang) * speed;
+            sp40 = func_80612790(ang) * speed;
+            if (NMB_A->unk6A & 1) {
+                sp44 += func_80612794(NMB_A->unkDC) * sp38;
+                sp40 += func_80612790(NMB_A->unkDC) * sp38;
+                sp44 += func_80612794(NMB_A->unkEE) * fa1;
+                sp40 += func_80612790(NMB_A->unkEE) * fa1;
+                sp44 += func_80612790(NMB_A->unkEE) * fv1;
+                sp40 -= func_80612794(NMB_A->unkEE) * fv1;
+            } else if ((NMB_A->unkB4 > 30.0f || sp38 == 0.0f || m < 0x400 || m >= 0xC01) &&
+                       sub->unk18 == sub->unk14) {
+                sp44 += (func_80612794(NMB_P->unkA) * NMB_P->unk4) / 40.0;
+                sp40 += (func_80612790(NMB_P->unkA) * NMB_P->unk4) / 40.0;
+            }
+            speed = sqrtf(sp44 * sp44 + sp40 * sp40);
+            if (!(NMB_A->unk6A & 0x1000) && 700.0f < speed) {
+                speed = 700.0f;
+            }
+            fv1 = func_80611BB4(sp44, sp40);
+            if (arg0 != 0) {
+                NMB_A->unkB8 = speed;
+                NMB_A->unkEE = (s32)((fv1 * 4096.0) / 6.2831855f);
+                if (NMB_A->unk6A & 1) {
+                    if (!(NMB_A->unk6A & 0x200)) {
+                        NMB_P->unk30 = 20.0f;
+                    } else {
+                        NMB_P->unk30 = (NMB_A->unkB8 * NMB_A->unkB8) / 35000.0;
+                    }
+                    func_806CD8EC();
+                    return;
+                }
+            }
+            return;
+        default:
+            if (NMB_P->unkC2 >= 0x15) {
+                sp38 = NMB_A->unkE0;
+            } else {
+                sp38 = 0.0f;
+            }
+            if (sp38 != 0.0f && NMB_P->unkC2 >= 0x15 && (NMB_A->unk6A & 1)) {
+                speed = NMB_A->unkB8;
+                ang = NMB_A->unkEE;
+            } else {
+                speed = NMB_P->unk4;
+                ang = NMB_P->unkA;
+            }
+            if (D_807FD586 == 0 && NMB_P->unkD8 != 0 && NMB_A->unkFC == 0) {
+                NMB_A->unkEE = ang;
+            }
+            NMB_P->unkD8 = NMB_A->unkFC;
+            D_807FD586 = 0;
+            if (D_807FD586) {}
+            if (D_807FD586) {}
+            if (D_807FD586) {}
+            fa1 = func_80612794(ang) * speed;
+            sp44 = func_80612794(NMB_A->unkDC) * sp38;
+            sp44 = fa1 + sp44;
+            fa1 = func_80612790(ang) * speed;
+            sp40 = func_80612790(NMB_A->unkDC) * sp38;
+            sp40 = fa1 + sp40;
+            speed = sqrtf(sp44 * sp44 + sp40 * sp40);
+            ang = (s32)((func_80611BB4(sp44, sp40) * 4096.0) / 6.2831855f);
+            if (arg0 != 0) {
+                if (speed != 0.0f) {
+                    func_806CD424(ang, speed, NMB_P->unk38);
+                } else {
+                    func_806CD8EC();
+                }
+            }
+            break;
+    }
+}
+
 
 void func_806CD424(s16 arg0, f32 arg1, f32 arg2) {
     f32 vA;
@@ -2024,7 +2198,6 @@ s16 func_806CE928(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     return sp26;
 }
 
-#ifdef NON_MATCHING
 extern f32 D_807532B8[];
 
 s32 func_806CEB44(f32 arg0, f32 arg1) {
@@ -2033,27 +2206,24 @@ s32 func_806CEB44(f32 arg0, f32 arg1) {
     switch (ret) {
         case 0:
             if (arg1 != 0.0f) {
-                return 1;
+                ret = 1;
             }
             break;
         case 1:
             if (arg1 == 0.0f && arg0 < D_807532B8[D_807FD584]) {
-                return 0;
+                ret = 0;
             }
             break;
         default:
-            ret = 1;
             if (arg0 < D_807532B8[D_807FD584]) {
-                return 0;
+                ret = 0;
+            } else {
+                ret = 1;
             }
             break;
     }
     return ret;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CEB44.s")
-#endif
 
 extern s16 D_807532A8[];
 f32 mathAngleBetweenPointsDeg(s16, s16, s16, s16);

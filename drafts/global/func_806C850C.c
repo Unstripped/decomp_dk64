@@ -1,4 +1,4 @@
-// func_806C850C (src/global/CC800.c): G00: K&R s32 arg1 + #define sel (arg1 & 0xFF) is closest (frame ok); remaining: sel in s2/arg1 copy in s0 vs target (sel only in s2, 4 s-regs). u8 param form reads sel from stack home instead (lbu 0x3f(sp)).
+// func_806C850C (src/global/CC800.c): G00 NmCC800c: stage 5-6. Text structure matches except sel regalloc (target sel only in s2 w/ andi s2,a1,0xff; ours s0 + copy s3), li -1 sharing (target one li v1,-1 promoted), lui 3f80/mtc1 position. Prototyped (s32,u8) + s32 sel=arg1 gives andi+home sw a1 and frame 0x30. Slot copies need non-CSE'd loads: volatile array loads reproduce them (extern volatile G00Slot34 D_807FD610[]). new_var=1 / -new_var hint improved score. flt = D_8075C4B0 before unk26 store.
 typedef struct G00Sub4 {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ u8 *unk1C;
@@ -98,24 +98,24 @@ extern f32 D_8075C4B0;
 extern Actor *D_807F5D10;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
-extern G00Slot34 D_807FD610[];
+extern volatile G00Slot34 D_807FD610[];
 void func_806E2C74(Actor *);
 s32 func_8073110C(s32, s32);
 void func_806F09F0(Actor *, u16);
-void func_806CFF9C(void *);
+void func_806CFF9C(Actor *);
+void *func_80610FE8(s32);
 void func_806C90C4(s32);
 void func_806C8984(void);
 void func_806C8D20(Actor *);
 
-#define sel (arg1 & 0xFF)
-void func_806C850C(arg0, arg1)
-s32 arg0;
-s32 arg1;
-{
+void func_806C850C(s32 arg0, u8 arg1) {
     G00Row *row;
     G00Slot34 *slot;
     f32 flt;
+    s32 sel;
+    s32 new_var;
 
+    sel = arg1;
     if (D_807FC928 >= 2) {
         D_8074E77C[sel] = D_8074E77C[controllerGetPort(sel)];
     }
@@ -138,12 +138,13 @@ s32 arg1;
     ((G00Sub4 *)D_807FBB44->unk4)->unk20 = func_80610FE8(0x200);
     *((G00Sub4 *)D_807FBB44->unk4)->unk20 = 0xFF;
     ((G00Sub4 *)D_807FBB44->unk4)->unk24 = func_80610FE8(0x200);
+    new_var = 1;
     *((G00Sub4 *)D_807FBB44->unk4)->unk24 = 0xFF;
     D_807FBB48 = D_807FBB44;
     D_807FD580 = D_807FBB44->unk174;
-    G00_P->unk247 = -1;
+    G00_P->unk247 = -new_var;
     G00_P->unk1A4 = sel;
-    G00_P->unk11E = -1;
+    G00_P->unk11E = -new_var;
     G00_P->unk244 = 0;
     G00_P->unk120 = -0x64;
     D_807FD584 = row->unk4;
@@ -156,6 +157,7 @@ s32 arg1;
     }
     D_807FBB44->unk60 |= 0x100000;
     func_806C8D20(D_807FBB48);
+    flt = D_8075C4B0;
     G00_P->unk26 = 0x64;
     G00_A48->unkC4 = D_80753578[D_807FD584];
     G00_A48->unkC8 = D_807535E8[D_807FD584];
@@ -167,7 +169,6 @@ s32 arg1;
     G00_P->unk16 = 0;
     G00_P->unk10C = 0;
     G00_P->unk1A0 = 0;
-    flt = D_8075C4B0;
     G00_P->unk1C0 = flt;
     G00_P->unk1C4 = flt;
     G00_P->unk1C8 = flt;
@@ -179,7 +180,7 @@ s32 arg1;
     G00_P->unkC8 = -1;
     G00_P->unkCA = 0;
     G00_P->unkC8 = -1;
-    G00_P->unk264 = -1;
+    G00_P->unk264 = -new_var;
     G00_P->unk258 = 1.0f;
     G00_P->unk25C = 1.0f;
     if (func_8073110C(0xCE, 0) != 0) {
@@ -190,16 +191,16 @@ s32 arg1;
     func_806F09F0(D_807FBB48, *(u16 *)((u8 *)D_807FBB48 + 0x5A));
     G00_A48->unkDE = 0x400;
     G00_P->unk1B0 = 0;
-    slot = &D_807FD610[sel];
     G00_P->unk1AC = 0;
-    slot->unk14 = slot->unk4;
-    slot->unk18 = slot->unk4;
-    slot->unk1C = slot->unk4;
-    slot->unk22 = slot->unk28;
-    slot->unk24 = slot->unk28;
-    slot->unk26 = slot->unk28;
-    slot->unk20 = slot->unk28;
-    slot->unk10 = slot->unk4;
+    slot = (G00Slot34 *)&D_807FD610[sel];
+    slot->unk14 = D_807FD610[sel].unk4;
+    slot->unk18 = D_807FD610[sel].unk4;
+    slot->unk1C = D_807FD610[sel].unk4;
+    slot->unk22 = D_807FD610[sel].unk28;
+    slot->unk24 = D_807FD610[sel].unk28;
+    slot->unk26 = D_807FD610[sel].unk28;
+    slot->unk20 = D_807FD610[sel].unk28;
+    slot->unk10 = D_807FD610[sel].unk4;
     func_806CFF9C(D_807FBB48);
     func_806C90C4(arg0);
     func_806C8984();

@@ -1,12 +1,12 @@
-// func_806CEFBC (src/global/CEAE0.c): stage 5: structure matches; target keeps xm/ym/zm-mids as div.s by 2.0 (use '/ 2' int, not 2.0f which becomes mul 0.5), stores results sp44/sp40/sp3C/sp38 to stack (not promoted in mine, only sp38 stored) and computes all three mids before loading arg0->unk8/unk0; sched/store diffs remain.
+// func_806CEFBC (src/global/CEAE0.c): stage 5: analysis: target keeps sp44/sp40/sp3C/sp38 as UNCOLORED vars (stores kept, loads of arg0->unk8 not hoisted above the first store) with mid1/mid2 in pool temps f16/f18; ours forwards the mids in-block (copy-prop) so the stores vanish and loads hoist. Dead 'if (var) {}' tests split blocks and store ALL mids (v9A), not just mid3. Arrays/structs/array elements, assignments in call args, in-place lerp, address-of tricks, hill-climbed dead tests (best 29 vs 32 base) all fail; no source form found that stores only mid3.
+s32 func_806CF2EC(s32 *, s32 *);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 typedef struct G05CbArg {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ Actor *unk4;
     /* 0x8 */ Actor *unk8;
 } G05CbArg;
 
-s32 func_806CF2EC(s32 *, s32 *);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void func_8067A70C(Actor *, Actor *, f32, f32, f32, s32, s32);
 
 void func_806CEFBC(G05CbArg *arg0) {
