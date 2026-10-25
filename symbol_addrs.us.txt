@@ -268,6 +268,8 @@ func_806E1864 = 0x806E1864; // type:func
 func_806E5E58 = 0x806E5E58; // type:func
 func_806E5E60 = 0x806E5E60; // type:func
 func_806EAFEC = 0x806EAFEC; // type:func
+func_806F006C = 0x806F006C; // type:func
+func_806F0074 = 0x806F0074; // type:func
 
 gTimerQueue = 0x807452A0;
 audioInit = 0x80600D50; // type:func
