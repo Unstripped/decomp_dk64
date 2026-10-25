@@ -6,13 +6,73 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern Struct807FD580 *D_807FD580;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C2A90/func_806BDD90.s")
+typedef struct R1C2CB_Actor {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ ActorSub4 *unk4;
+    /* 0x008 */ u8 pad8[0xBC];
+    /* 0x0C4 */ f32 unkC4;
+    /* 0x0C8 */ u8 padC8[0x62];
+    /* 0x12A */ s16 unk12A;
+    /* 0x12C */ u8 pad12C[4];
+    /* 0x130 */ u8 unk130;
+    /* 0x131 */ u8 unk131;
+} R1C2CB_Actor;
+
+#define R1C2CBA ((R1C2CB_Actor *)D_807FBB40)
+
+void func_80729B00(void);
+void func_80729E6C(void);
+u8 func_805FF0C8(void);
+void func_80724CA4(s32, s32);
+void actorApplyVelocity(Actor *);
+void func_80665564(Actor *, f32);
+
+u8 func_806BDD90(void) {
+    s16 i;
+
+    func_80729B00();
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        if (func_805FF0C8() != 0) {
+            D_807FBB40->unk154 = 0x40;
+        } else {
+            R1C2CBA->unk130 = 0x3C;
+            R1C2CBA->unk131 = 0x3C;
+            R1C2CBA->unk12A = 0x3E8;
+            func_80724CA4(2, 1);
+            D_807FDC90->unk30 = D_807FBB40->unk4->unk38;
+            R1C2CBA->unkC4 = (f64)R1C2CBA->unkC4 / 1.5;
+        }
+    }
+    func_80729E6C();
+    actorApplyVelocity(D_807FBB40);
+    func_80665564(D_807FBB40, 0.0f);
+    for (i = 0; i < D_807FBB70.unk254; i++) {
+        if (D_807FBB70.unk258[i] == 3) {
+            return ((u8 *)D_807FBB70.unk278[i])[3];
+        }
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/C2A90/func_806BDEC8.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/C2A90/func_806BE09C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C2A90/func_806BE674.s")
+extern u8 D_807506C0[];
+void func_8068A1CC(u8);
+void func_8068A20C(u8);
+
+void func_806BE674(u8 arg0) {
+    s16 i;
+
+    for (i = 0; i < 0x10U; i++) {
+        if (arg0) {
+            func_8068A1CC(D_807506C0[i]);
+        } else {
+            func_8068A20C(D_807506C0[i]);
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/C2A90/func_806BE6F0.s")
 
