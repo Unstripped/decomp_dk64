@@ -1,18 +1,20 @@
-// func_8070D970 (src/global/112080.c): stage 2: correct decrement control flow; caller temporary still differs from target.
-typedef struct M112aLookupNode {
+// func_8070D970 (src/global/112080.c): stage 3: taking arg0’s address obtains the required stack home; with s32 target the remaining mismatch is only target’s andi into t6 before the call versus IDO scheduling it into a0 in the call delay slot.
+typedef struct S112aListNode {
     u16 id;
     u8 count;
     u8 pad3[9];
-    struct M112aLookupNode *next;
-} M112aLookupNode;
+    struct S112aListNode *next;
+} S112aListNode;
 
-M112aLookupNode *func_8070D928(s32);
+S112aListNode *func_8070D928(u16);
 
 void func_8070D970(s32 arg0) {
+    s32 *arg;
     s32 target;
-    M112aLookupNode *node;
+    S112aListNode *node;
 
-    target = arg0 & 0xFFFF;
+    arg = &arg0;
+    target = *arg & 0xFFFF;
     node = func_8070D928(target);
     if (node != NULL) {
         node->count--;
