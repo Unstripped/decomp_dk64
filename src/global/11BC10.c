@@ -176,9 +176,76 @@ f32 func_80612D1C(f32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F1D0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F2F8.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+} Ud1MotionState;
+typedef struct {
+    u8 unk0[4];
+    f32 *unk4;
+} Ud1ScaleRoot;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F3C0.s")
+typedef struct {
+    u8 unk0[0x38];
+    f32 unk38;
+} Ud1ScaleSource;
+
+typedef struct {
+    u8 unk0[0x338];
+    Ud1ScaleRoot *unk338;
+    u8 unk33C[4];
+    f32 unk340;
+    f32 unk344;
+    f32 unk348;
+    u8 unk34C[2];
+    s16 unk34E;
+    u8 unk350;
+    u8 unk351[3];
+    s32 unk354;
+    s32 unk358;
+    s32 unk35C;
+    f32 unk360;
+    f32 unk364;
+    u8 unk368[0x1C];
+    Ud1MotionState *unk384;
+} Ud1ActorView;
+
+void func_8071F2F8(Ud1ActorView *arg0, s32 arg1) {
+    f32 temp_fv0;
+    Ud1MotionState *temp_v0;
+    Ud1MotionState *var_v1;
+
+    var_v1 = arg0->unk384;
+    if (var_v1 == NULL) {
+        temp_v0 = func_80610FE8(8);
+        arg0->unk384 = temp_v0;
+        temp_v0->unk0 = (f32) (arg0->unk35C & 0xFFFF);
+        temp_v0->unk4 = (f32) ((s32) arg0->unk35C >> 0x10);
+        var_v1 = arg0->unk384;
+    }
+    arg0->unk344 = arg0->unk344 + var_v1->unk0;
+    temp_fv0 = var_v1->unk0;
+    if (temp_fv0 > -20.0f) {
+        var_v1->unk0 = (f32) ((f64) temp_fv0 - ((f64) var_v1->unk4 * 0.01));
+    }
+}
+
+void func_8071F3C0(Ud1ActorView *arg0, s32 arg1) {
+    Ud1MotionState *temp_v0;
+    Ud1MotionState *var_v1;
+
+    var_v1 = arg0->unk384;
+    if (var_v1 == NULL) {
+        temp_v0 = func_80610FE8(4);
+        arg0->unk384 = temp_v0;
+        temp_v0->unk0 = (f32) ((f64) arg0->unk364 * 6.666666666666667);
+        var_v1 = arg0->unk384;
+    }
+    arg0->unk360 = ((Ud1ScaleSource *) arg0->unk338->unk4)->unk38 * var_v1->unk0;
+    arg0->unk364 = arg0->unk360;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F444.s")
 
