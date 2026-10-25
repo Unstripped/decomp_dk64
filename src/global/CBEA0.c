@@ -79,7 +79,6 @@ void func_806C7260(void) {
 void func_806C7268(void) {
 }
 
-#ifdef NON_MATCHING
 typedef struct R1C2CB_Entry {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 unk2;
@@ -87,6 +86,9 @@ typedef struct R1C2CB_Entry {
     /* 0x5 */ s8 unk5;
 } R1C2CB_Entry;
 
+extern R1C2CB_Entry D_807506D0[];
+
+#ifdef NON_MATCHING
 typedef struct R1C2CB_Pair {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ f32 unk4;
@@ -95,7 +97,6 @@ typedef struct R1C2CB_Pair {
 extern Actor *D_807FBB40;
 extern s8 D_80750754;
 extern s16 D_80750758;
-extern R1C2CB_Entry D_807506D0[];
 extern s8 D_807506D5[];
 extern R1C2CB_Pair D_8075075C[];
 extern s16 D_807FC8E0;
@@ -168,10 +169,8 @@ void func_806C7270(void) {
         if ((t >> 1) < 0x16) {
             e = &D_8075075C[t >> 1];
             frac = (f64)(f32)(t & 1) * 0.5;
-            x0 = e[0].unk0;
-            y0 = e[0].unk4;
-            D_807FC8E8 = (e[1].unk0 - x0) * frac + x0;
-            D_807FC8EC = (e[1].unk4 - y0) * frac + y0;
+            D_807FC8E8 = e[0].unk0 + (e[1].unk0 - e[0].unk0) * (x0 = frac);
+            D_807FC8EC = e[0].unk4 + (e[1].unk4 - e[0].unk4) * x0;
         } else {
             D_807FC8E8 = 1.0f;
             D_807FC8EC = 1.0f;
@@ -189,15 +188,6 @@ extern s16 D_80750758;
 extern f32 D_807FC8E8;
 extern f32 D_807FC8EC;
 extern u8 *D_807FC8F0;
-#ifndef NON_MATCHING
-typedef struct R1C2CB_Entry {
-    s16 unk0;
-    s16 unk2;
-    s8 unk4;
-    s8 unk5;
-} R1C2CB_Entry;
-extern R1C2CB_Entry D_807506D0[];
-#endif
 
 #define R1C2CB_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 

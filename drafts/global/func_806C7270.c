@@ -1,4 +1,4 @@
-// func_806C7270 (src/global/CBEA0.c): stage 6, 8 diff lines left (bb at 0x330-0x3c8 only): no 'k' local + D_807506D5[idx*6] gives all globals regs a1/a2 + E8 in a1 in interp block matching; remaining: (t>>1) CSE temp in a0 vs target t9, andi/sll swap (delay slot), lui base D_8075075C early (t4) vs late t1, y1/y0 load order. k local breaks E8 range (hole in interp bb); register/ordering/decl-order/expression-form variants and 2x600s permuter did not fix. Reloc-only: D_8075C3E0 vs .rodata (0.1f).
+// func_806C7270 (src/global/CBEA0.c): Stage 6, 9 diff pairs (was 17): remaining sra/andi regs (target: sra->t9 temp, andi->a0; ours sra->a0 cand 85, andi->t9), lui hi(D_8075075C) t2 vs t4 (position now matches), sll temp reg, first mul.s operand order. Found: no x0/y0 loads (e[0] repeated, 'e0 + diff*frac') fixes y0/x0 load order + add order; in-expression '(x0 = frac)' on the first mul and 'x0' in the second hoists the lui into place (statement 'x0 = frac;' does nothing, dead-store dropped) but flips first mul.s operands. Temp pool order seen: t4,t9,t2,t1; target has sra/slti uncolored temp and andi colored a0: 85 (t>>1) must lose a0 - k/i locals, odd local, t&=1, if-swap, e/frac before the if, flat f32 array, 2x600s permuter all failed. Reloc-only D_8075C3E0 vs .rodata.
 typedef struct R1C2CB_Entry {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 unk2;
@@ -87,10 +87,8 @@ void func_806C7270(void) {
         if ((t >> 1) < 0x16) {
             e = &D_8075075C[t >> 1];
             frac = (f64)(f32)(t & 1) * 0.5;
-            x0 = e[0].unk0;
-            y0 = e[0].unk4;
-            D_807FC8E8 = (e[1].unk0 - x0) * frac + x0;
-            D_807FC8EC = (e[1].unk4 - y0) * frac + y0;
+            D_807FC8E8 = e[0].unk0 + (e[1].unk0 - e[0].unk0) * (x0 = frac);
+            D_807FC8EC = e[0].unk4 + (e[1].unk4 - e[0].unk4) * x0;
         } else {
             D_807FC8E8 = 1.0f;
             D_807FC8EC = 1.0f;
