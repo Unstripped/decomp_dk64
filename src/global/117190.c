@@ -207,7 +207,19 @@ void func_807138A4(void) {
 }
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807138CC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713AA8.s")
+#define R117D_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+extern Gfx D_1000118;
+extern Mtx D_20000C0;
+
+Gfx *func_80713AA8(Gfx *arg0) {
+    R117D_WRITE_GFX(arg0++, 0xE7000000, 0);
+    R117D_WRITE_GFX(arg0++, 0xDE000000, &D_1000118);
+    R117D_WRITE_GFX(arg0++, 0xE3000A01, 0);
+    R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
+    R117D_WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
+    R117D_WRITE_GFX(arg0++, 0xDA380007, &D_20000C0);
+    return arg0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713B40.s")
 
