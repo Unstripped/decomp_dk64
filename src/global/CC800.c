@@ -218,7 +218,129 @@ void func_806C81DC(s16 arg0, s16 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C850C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C8984.s")
+extern s32 D_8076A0A8;
+extern s16 D_80753354[];
+
+typedef struct L6C8984View {
+    /* 0x00 */ u8 pad0[0x48];
+    /* 0x48 */ s16 unk48;
+    /* 0x4A */ u8 pad4A[0x3E];
+    /* 0x88 */ Actor *unk88;
+} L6C8984View;
+
+#define L6V ((L6C8984View *)D_807FD580)
+
+void func_80614EBC(Actor *, s32);
+void func_80614E78(Actor *, s32);
+void func_80613C48(Actor *, s32, f32, f32);
+void func_806CFE7C(void);
+void func_806F0D68(Actor *);
+void func_807215D0(s32, s32);
+void func_807215AC(s32, s32, s32);
+void func_80721560(s32, s32, s32, s32, s32, s32);
+void func_80028840(void);
+void actorSpawnChildActor(Actor *);
+void func_806C7B50(s32, u8, Actor *);
+
+void func_806C8984(void) {
+    f32 scale;
+
+    scale = -1.0f;
+    switch (D_8076A0A8) {
+    case 0x50:
+        actorSpawn(0x146, 0);
+        return;
+    case 0xF:
+        actorSpawn(0x14F, 0);
+        return;
+    case 0xB1:
+    case 0xB4:
+    case 0xB5:
+    case 0xB6:
+        actorSpawn(0x150, 0);
+        return;
+    case 0xB8:
+    case 0xBF:
+        actorSpawn(0x153, 0);
+        return;
+    case 0x27:
+        if (scale < 0.0f) {
+            scale = 0.8f;
+        }
+    case 0x5:
+        if (scale < 0.0f) {
+            scale = 1.8f;
+        }
+    case 0x1:
+        if (scale < 0.0f) {
+            scale = 1.6f;
+        }
+        D_807FBB48->unk4->unk34 = D_807FBB48->unk4->unk34 * scale;
+        D_807FBB48->unk4->unk38 = D_807FBB48->unk4->unk38 * scale;
+        D_807FBB48->unk4->unk3C = D_807FBB48->unk4->unk3C * scale;
+        return;
+    case 0x68:
+    case 0x88:
+    case 0x89:
+        func_806CFE7C();
+        func_80614EBC(D_807FBB48, 0);
+        func_80613C48(D_807FBB48, 0, 0.0f, 0.0f);
+        D_807FBB48->unk154 = 0x7D;
+        D_807FBB48->unk155[0] = 0;
+        D_807FBB48->unk60 &= 0xFFFF7FFF;
+        D_807FBB48->unk128 = 0;
+        actorSpawn(0x11A, 0x21);
+        func_80614EBC(D_807FBB44, 0x232);
+        D_807FBB44->unk11C = (s32)D_807FBB48;
+        L6V->unk88 = D_807FBB44;
+        return;
+    case 0x6:
+        func_806C7B50(0x1D, 0, D_807FBB48);
+        return;
+    case 0x20:
+    case 0x79:
+    case 0x7A:
+    case 0x7B:
+        actorSpawn(0xDA, 0x94);
+        L6V->unk88 = D_807FBB44;
+        return;
+    case 0x4C:
+        func_807215D0(0, 0);
+        func_807215AC(0x6B, 0x30, 0x50);
+        func_80721560(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
+        func_80028840();
+    case 0x28:
+    case 0x51:
+        D_807FBB48->unk154 = 0x77;
+        D_807FBB48->unk155[0] = 0;
+        return;
+    case 0x4E:
+    case 0x4F:
+    case 0x83:
+        func_806F0D68(D_807FBB48);
+        L6V->unk48 = D_80753354[D_807FD584];
+        D_807FBB48->unk154 = 0x62;
+        D_807FBB48->unk155[0] = 0;
+        func_80614E78(D_807FBB48, 0x52);
+        return;
+    case 0xD3:
+        D_807FBB48->unk154 = 0x5F;
+        D_807FBB48->unk155[0] = 0;
+        func_80614E78(D_807FBB48, 0x4B);
+        return;
+    case 0x53:
+    case 0x99:
+    case 0xC5:
+    case 0xD0:
+    case 0xD5:
+        D_807FBB48->unk154 = 0x77;
+        D_807FBB48->unk155[0] = 0;
+        return;
+    case 0x6F:
+        actorSpawnChildActor(D_807FBB48);
+        return;
+    }
+}
 
 void func_806C8D20(Actor *arg0) {
     arg0->unk144 = 0x3C;
@@ -428,7 +550,6 @@ extern s8 D_80770DC9;
 G01Pos *func_806C96C4(s32);
 void func_80614D00(Actor *, f32, f32);
 void func_8067ACB4(Actor *);
-void func_80614E78(Actor *, s32);
 void func_806F39E8(Actor *, void *, s32);
 
 void func_806C90C4(s32 arg0) {
