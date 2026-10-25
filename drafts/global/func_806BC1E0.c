@@ -1,4 +1,4 @@
-// func_806BC1E0 (src/global/C0EE0.c): stage 4: structure matches (switch/case order, loops, constants); frame 0x90 vs 0x88 (H hidden region 2 words bigger, -76 switch temp); remaining diffs scheduling in case 3/4 and FP epilogue
+// func_806BC1E0 (src/global/C0EE0.c): Stage 5 (frame 0x88, all stack offsets sp70/obj/n/cand/ones/zeros match; hidden-region trick: 'f32 new_var'-style CSE temp + one f64 local declared after zeros). ~30 differing insns left: scheduling in case3/4 init stores, loop-1 setup (pointer loop vs s32 j strength-reduced; j gives bnel vs sltu), loop-2 i in a0 not v1, f18 zero-constant rematerialisation after sfxPlay call, li/mfc1 arg forms. Permuter 600s run best 6400 (stack-diff score) from 10537, mutations mostly decl order + temp var.
 typedef struct LgBObj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -86,15 +86,15 @@ void func_806319C4(void *, s32);
 void func_806BC1E0(void) {
     f32 old;
     f32 t;
-    f32 a;
     f32 b;
+    f32 a;
     f32 acc;
     f32 sp70;
     LgBState *st;
     s16 dx;
     s16 dy;
     LgBObj *obj;
-    s8 *p;
+    s32 j;
     s16 i;
     s16 best;
     s16 adx;
@@ -104,6 +104,7 @@ void func_806BC1E0(void) {
     s8 cand[16];
     s16 ones;
     s16 zeros;
+    f64 fx;
 
     st = LGB->unk178;
     obj = LGB->unk4->unk0;
@@ -164,13 +165,13 @@ void func_806BC1E0(void) {
                 st->unk4 = 0.025f;
                 st->unk0 = 0.0f;
                 st->unk8 = LGB->unk7C;
-                st->unkC = LGB->unk80;
                 st->unk14 = 294.0f;
-                st->unk18 = 0.0f;
+                st->unkC = LGB->unk80;
                 st->unk10 = LGB->unk84;
+                st->unk18 = 0.0f;
                 st->unk36 = 3;
-                st->unk37 = 0;
                 st->unk1C = 359.0f;
+                st->unk37 = 0;
                 st->unk20 = -500.0f;
                 func_80614EBC(D_807FBB40, 0x31C);
                 func_806A2A10(0xDC, 0x2A, 0x3C);
@@ -198,17 +199,15 @@ void func_806BC1E0(void) {
             if (LGB->unk11C != NULL && LGB->unk11C->unk154 == 5) {
                 ones = 0;
                 zeros = 0;
-                p = D_807FC8C0;
-                do {
-                    v = *p;
-                    p++;
+                for (j = 0; j < 16; j++) {
+                    v = D_807FC8C0[j];
                     if (v == 1) {
                         ones++;
                     }
                     if (v == 0) {
                         zeros++;
                     }
-                } while ((u32)p < (u32)&D_807FC8D0);
+                }
                 func_8073129C(0x30, 0, 2, ones);
                 func_80614EBC(D_807FBB40, 0x31C);
                 D_80750650 = 1;
@@ -219,8 +218,8 @@ void func_806BC1E0(void) {
                 }
                 st->unk4 = 0.0125f;
                 st->unk0 = 0.0f;
-                st->unkC = 0.0f;
                 st->unk8 = LGB->unk7C;
+                st->unkC = 0.0f;
                 st->unk10 = LGB->unk84;
                 st->unk34 = 0x1E;
                 st->unk14 = st->unk24;
@@ -291,12 +290,13 @@ void func_806BC1E0(void) {
                 st->unk0 = 0.0f;
                 st->unk4 = 0.01369863f;
                 st->unk8 = st->unk14;
+                fx = st->unk36;
                 st->unkC = 0.0f;
                 st->unk10 = st->unk1C;
+                st->unk14 = fx * -11.666666666666666 + 329.0 + (f64)st->unk37 * -28.666666666666668;
                 st->unk18 = 0.0f;
-                st->unk14 = (f64)st->unk36 * -11.666666666666666 + 329.0 + (f64)st->unk37 * -28.666666666666668;
+                st->unk1C = fx * 28.333333333333332 + 274.0 + (f64)st->unk37 * -11.333333333333334;
                 st->unk20 = -250.0f;
-                st->unk1C = (f64)st->unk36 * 28.333333333333332 + 274.0 + (f64)st->unk37 * -11.333333333333334;
             }
         }
         break;
@@ -372,7 +372,8 @@ void func_806BC1E0(void) {
         } else {
             t = st->unk0;
             if (D_80750650 == 0) {
-                t = 2.0 * (f64)st->unk0;
+                old = st->unk0;
+                t = 2.0 * (f64)old;
                 if ((f64)t > 1.0) {
                     t = 1.0f;
                 }
@@ -393,7 +394,7 @@ void func_806BC1E0(void) {
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
             if (obj->unk10 != 0x5C3) {
-                func_80613C48(D_807FBB40, 0x5C3, 0.0f, 0.0f);
+                func_80613C48(D_807FBB40, 0x5C3, 0, 0);
             }
             func_80614644(D_807FBB40, obj, st->unk0 * 40.0f);
         }
