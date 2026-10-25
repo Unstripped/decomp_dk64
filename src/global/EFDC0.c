@@ -563,7 +563,42 @@ void func_806EC800(void) {
     func_80614E78(D_807FBB48, 0x3C);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC8C4.s")
+typedef struct EfN3bTarget {
+    u8 pad0[0x54];
+    s32 unk54;
+    s32 unk58;
+} EfN3bTarget;
+
+typedef struct EfN3bPlayerState {
+    u8 pad0[0x1B0];
+    EfN3bTarget *unk1B0;
+    s32 unk1B4;
+} EfN3bPlayerState;
+
+#define EFN3B_P ((EfN3bPlayerState *)D_807FD580)
+
+extern Actor *D_807FBB90;
+
+void func_806EC8C4(void) {
+    EFN3B_P->unk1B0 = (EfN3bTarget *)D_807FBB90;
+    EFN3B_P->unk1B4 = EFN3B_P->unk1B0->unk54;
+    switch ((u32)EFN3B_P->unk1B0->unk58) {
+    case 0x3D:
+    case 0x3F:
+    case 0x40:
+    case 0x41:
+    case 0x42:
+    case 0x55:
+    case 0x82:
+        func_80614EBC(D_807FBB48, 0x1C8);
+        break;
+    default:
+        func_80614E78(D_807FBB48, 0x2B);
+        break;
+    }
+    EFN3_A48->unk154 = 0x47;
+    EFN3_A48->unk155 = 0;
+}
 
 void func_806EC994(void) {
     func_80614E78(D_807FBB48, 8);
