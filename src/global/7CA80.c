@@ -121,7 +121,7 @@ s32 func_8067B3F4(s32);
 s32 func_8067B42C(s32);
 void func_80689418(void);
 void actorListRemoveByActor(void);
-void func_806EB194(void);
+void playerStateDispatchQueuedCallback(void);
 void func_80732354(s32, s32, s32, s32);
 void heapFree(void *);
 
@@ -462,7 +462,7 @@ void func_80678BBC(Actor *arg0) {
     }
     func_806794EC(arg0);
     if (arg0 == D_807FBB48) {
-        func_806EB194();
+        playerStateDispatchQueuedCallback();
     }
     if (arg0->unk144 & 4) {
         actorUpdateMovementFlags(arg0);
@@ -537,7 +537,7 @@ void func_80678E14(Actor *actor) {
 
 u8 actorClearTargetAngle();
 extern u8 D_807FBC55;
-void func_806EB0C0(s32, s32, u8);
+void playerStateQueueCallback(s32, s32, u8);
 extern u8 D_807FC929;
 
 void func_80678E6C(Actor *actor) {
@@ -554,7 +554,7 @@ void func_80678E6C(Actor *actor) {
             if (!(actor->unk6A & 0x10)) {
                 actor->unk6A |= 0x10;
                 if (actor == D_807FBB48) {
-                    func_806EB0C0(4, 0, D_807FC929);
+                    playerStateQueueCallback(4, 0, D_807FC929);
                 }
             }
         }

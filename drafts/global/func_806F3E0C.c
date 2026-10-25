@@ -40,7 +40,7 @@ typedef struct F5L1CamBlock {
 f32 func_80612D10(f32);
 f32 func_80612D1C(f32);
 void func_806D03BC(void);
-void func_806EB0C0(s16, s32, s32, F5L1Waypoint **);
+void playerStateQueueCallback(s16, s32, s32, F5L1Waypoint **);
 f32 mathAngleBetweenPointsDeg(s16, s16, s32, s32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 extern u8 D_807444EC;
@@ -120,7 +120,7 @@ void func_806F3E0C(F5L1Control *arg0, s32 arg1) {
                 sp3C = var_t0;
                 sp38 = var_t1;
                 sp4C = temp_t3;
-                func_806EB0C0(D_807FD718, D_807FD71C, 0, &D_807FD70C);
+                playerStateQueueCallback(D_807FD718, D_807FD71C, 0, &D_807FD70C);
             }
             temp_t3->flags |= 1;
             sp38 = var_t1;
@@ -137,9 +137,9 @@ void func_806F3E0C(F5L1Control *arg0, s32 arg1) {
     arg0->flags = 0U;
     sp38 = var_t1;
     sp3C = var_t0;
-    func_806F3DC8(&arg0->flags, &var_t0->timer3, &var_t0->timer0, 0x8000);
-    func_806F3DC8(&arg0->flags, &var_t0->timer4, &var_t0->timer1, 0x4000);
-    func_806F3DC8(&arg0->flags, &var_t0->timer5, &var_t0->timer2, 0x2000);
+    timerDecrementOrSetFlag(&arg0->flags, &var_t0->timer3, &var_t0->timer0, 0x8000);
+    timerDecrementOrSetFlag(&arg0->flags, &var_t0->timer4, &var_t0->timer1, 0x4000);
+    timerDecrementOrSetFlag(&arg0->flags, &var_t0->timer5, &var_t0->timer2, 0x2000);
     var_a0 = 0;
     temp_v0 = var_t0->delay;
     if (temp_v0 != 0) {

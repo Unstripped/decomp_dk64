@@ -11,7 +11,7 @@ s16 func_8063D990(s16);                             /* extern */
 s32 func_806F5C30(u32);                             /* extern */
 ? func_806F5F2C(u32, ?, s16, s16, s32);             /* extern */
 f32 func_806F7378(u32);                             /* extern */
-? func_806F79E0(?, s32);                            /* extern */
+? playerStateHandleSoundEffects(?, s32);                /* extern */
 s32 func_80714608(?);                               /* extern */
 ? func_80731410(s16, s16, s16, s32);                /* extern */
 s32 func_8073198C(s16);                             /* extern */
@@ -91,38 +91,38 @@ loop_13:
                                         temp_v0_2 = temp_s2->unk58;
                                         switch (temp_v0_2) { /* irregular */
                                         case 0x7A:
-                                            func_806F79E0(0x1D2, temp_s6 & 0xFF);
+                                            playerStateHandleSoundEffects(0x1D2, temp_s6 & 0xFF);
                                             func_806F54E0(temp_s6 & 0xFF, 0x1D2, 0);
                                             break;
                                         case 0x79:
-                                            func_806F79E0(0x8E, temp_s6 & 0xFF);
+                                            playerStateHandleSoundEffects(0x8E, temp_s6 & 0xFF);
                                             temp_s7->unk264 = 0;
                                             break;
                                         case 0x2F:
-                                            func_806F79E0(0x57, temp_s6 & 0xFF);
+                                            playerStateHandleSoundEffects(0x57, temp_s6 & 0xFF);
                                             func_806F54E0(temp_s6 & 0xFF, 0x57, 0);
                                             break;
                                         case 0x77:
-                                            func_806F79E0(0x1D0, temp_s6 & 0xFF);
+                                            playerStateHandleSoundEffects(0x1D0, temp_s6 & 0xFF);
                                             temp_s7->unk264 = 1;
                                             break;
                                         case 0x78:
-                                            func_806F79E0(0x1CF, temp_s6 & 0xFF);
+                                            playerStateHandleSoundEffects(0x1CF, temp_s6 & 0xFF);
                                             temp_s7->unk264 = 2;
                                             break;
                                         case 0x33:
-                                            func_806F79E0(0x8F, temp_s6 & 0xFF);
+                                            playerStateHandleSoundEffects(0x8F, temp_s6 & 0xFF);
                                             if ((func_80714608(0) != 0) && (temp_fp->unk174->unk8C == 0)) {
                                                 func_806F0D68(temp_fp);
                                                 func_806CFF9C(temp_fp);
                                             }
                                             break;
                                         case 0x34:
-                                            func_806F79E0(0x56, temp_s6 & 0xFF);
+                                            playerStateHandleSoundEffects(0x56, temp_s6 & 0xFF);
                                             temp_s7->unk264 = 3;
                                             break;
                                         case 0x76:
-                                            func_806F79E0(0x1D1, temp_s6 & 0xFF);
+                                            playerStateHandleSoundEffects(0x1D1, temp_s6 & 0xFF);
                                             temp_s7->unk264 = 4;
                                             break;
                                         }

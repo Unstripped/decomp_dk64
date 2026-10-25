@@ -251,7 +251,7 @@ s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 void func_80613C48(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
 void func_8067B238(void *, void *, f32);
-void func_806EB0C0(s32, void *, s32);
+void playerStateQueueCallback(s32, void *, s32);
 void func_806319C4(void *, s32);
 extern u8 D_807444EC;
 extern s32 D_807FBB68;
@@ -379,7 +379,7 @@ promote:
             actorIsTargetInCylinder((s16)CUR_ACTOR->unk7C, (s16)(CUR_ACTOR->unk80 - 20.0f),
                           (s16)CUR_ACTOR->unk84, sp67,
                           CUR_ACTOR->unk4->unk34 * (f32)(sp64 - 0x14)) == 0) {
-            func_806EB0C0(0x2E, CUR_ACTOR, 0);
+            playerStateQueueCallback(0x2E, CUR_ACTOR, 0);
         }
     }
     func_806319C4(CUR_ACTOR, 0);

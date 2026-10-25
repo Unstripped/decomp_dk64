@@ -695,7 +695,7 @@ void func_8002E464(void *arg0, RaceUnknownActor *arg1) {
     func_8002CAC8(arg0, arg1, arg1->unk174);
 }
 
-void func_806EB0C0(s32, RaceUnknownActor *, u8, RaceUnknownActor *);
+void playerStateQueueCallback(s32, RaceUnknownActor *, u8, RaceUnknownActor *);
 void func_8002F490(RaceStruct3 *);
 void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
 
@@ -710,13 +710,13 @@ void func_8002E484(void) {
     temp_s0 = (RaceStruct3 *)temp_a1->unk174;
     var_a3 = D_807FC924[temp_s0->unk28].unk4;
     if (!(temp_a1->unk60 & 0x10)) {
-        func_806EB0C0(0x4E, temp_a1, temp_s0->unk28, var_a3);
+        playerStateQueueCallback(0x4E, temp_a1, temp_s0->unk28, var_a3);
         D_807FBB40->unk154 = 0;
         D_807FBB40->unk155 = 0;
         temp_a1 = D_807FBB40;
     }
     if ((temp_s0->unk34 == 2) && (temp_a1->unk154 == 0)) {
-        func_806EB0C0(0x57, NULL, temp_s0->unk28, var_a3);
+        playerStateQueueCallback(0x57, NULL, temp_s0->unk28, var_a3);
         temp_a1 = D_807FBB40;
         temp_a1->unk154++;
         temp_a1 = D_807FBB40;

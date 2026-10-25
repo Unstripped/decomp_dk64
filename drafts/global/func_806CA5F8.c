@@ -126,7 +126,7 @@ void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
 void func_80715908(void *, void *);
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
-s32 func_806EB0C0(s32, Actor *, u8);
+s32 playerStateQueueCallback(s32, Actor *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 sqrtf(f32);
 void func_807149FC(s32);
@@ -228,7 +228,7 @@ void func_806CA5F8(s32 arg0) {
         D_807FBB40->unk64 &= ~0x200;
     }
     if ((D_807FD580->unk1F0 & 0x01000000) && D_807FBB8C != 0 && D_807FBB40->unk154 != 0x47) {
-        func_806EB0C0(3, NULL, D_807FC929);
+        playerStateQueueCallback(3, NULL, D_807FC929);
     }
     sp6B = func_80666AA0();
     sp6A = func_80666A94();
@@ -312,7 +312,7 @@ void func_806CA5F8(s32 arg0) {
         LCA_P->unkD4 = LCA_P->unkD4 - 1;
     }
     if (sp6A != 0) {
-        func_806EB0C0(0x3F, sp64, D_807FC929);
+        playerStateQueueCallback(0x3F, sp64, D_807FC929);
     }
     if (sp6B == 1) {
         goto case1;
@@ -327,7 +327,7 @@ case1:
         LCA_P->unkD6 = 0;
     } else {
         LCA_P->unkD6 = LCA_P->unkD6 + 1;
-        func_806EB0C0(0x2E, sp64, D_807FC929);
+        playerStateQueueCallback(0x2E, sp64, D_807FC929);
         if (D_807FBB40->unk154 != 0x36 && D_807FBB40->unk154 != 0x3B && LCA_P->unkD4 == 0) {
             s32 snd = 0x2C0;
             if (D_8076A0A8 == 0x30) {
@@ -344,14 +344,14 @@ case2:
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2C0, 0xFF, 0x7F, 0);
         }
         if (D_8076A0A8 == 0x53 || D_8076A0A8 == 0xC5) {
-            func_806EB0C0(0x40, sp64, D_807FC929);
+            playerStateQueueCallback(0x40, sp64, D_807FC929);
         } else {
-            func_806EB0C0(0x30, sp64, D_807FC929);
+            playerStateQueueCallback(0x30, sp64, D_807FC929);
         }
     }
 done:
     if (sp69 != 0) {
-        func_806EB0C0(0, sp64, D_807FC929);
+        playerStateQueueCallback(0, sp64, D_807FC929);
         if (LCA_P->unkD4 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2C0, 0xFF, 0x7F, 0);
         }

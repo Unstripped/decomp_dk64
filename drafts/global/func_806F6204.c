@@ -67,7 +67,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
                     break;
                 }
                 if ((s32)var_v0_2 >= 2) {
-                    func_806F79E0(var_s0->unk2, temp_s3 & 0xFF);
+                    playerStateHandleSoundEffects(var_s0->unk2, temp_s3 & 0xFF);
                     func_806355DC(var_s0->unk0, 1);
                 }
                 if (D_807FBB64 & 0x10000) {

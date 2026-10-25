@@ -254,8 +254,8 @@ void func_8068B8FC(void);
 void func_806A2A10(s32, s32, u8, void *);
 void func_806C92C4(s16);
 void func_806CF398(Actor *);
-void func_806EB0C0(s16, s32, s32);
-void func_806EB178(s32, s16, s16, s16);
+void playerStateQueueCallback(s16, s32, s32);
+void playerStateSetCallbackParameters(s32, s16, s16, s16);
 void func_806F4F50(s16, f32, f32, f32);
 void func_806FB370(u8, u8, u8);
 void func_8070B308(s32);
@@ -431,7 +431,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk9B |= cmd->a;
         break;
     case 0x73:
-        func_806EB178(0, cmd->a, cmd->b, cmd->c);
+        playerStateSetCallbackParameters(0, cmd->a, cmd->b, cmd->c);
         break;
     case 0x72:
         actorListGetOrSetState(cmd->a, CMDB(cmd)->b, 1);
@@ -851,7 +851,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         actorAppendCallback(D_807FC924->unk4, 0, 0x400000, CMDB(cmd)->a, 0, 0);
         break;
     case 0x19:
-        func_806EB0C0(cmd->a, 0, 0);
+        playerStateQueueCallback(cmd->a, 0, 0);
         break;
     case 0x2C:
         func_806335B0(csId, 1, cmd->a, &cx, &cy, &cz);

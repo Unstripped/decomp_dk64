@@ -70,7 +70,7 @@ void func_8002DC60(void);
 void func_8061CC40(void *, s32, s32);
 s32 func_8061CB98(s32);
 void func_8072AB74(s32, f32, f32, s32, f32);
-void func_806EB0C0(s32, void *, s32);
+void playerStateQueueCallback(s32, void *, s32);
 void func_8066EB40(void *, f32);
 void func_8066E5F8(void *, s32, s32);
 s32 func_80629148(void);
@@ -137,7 +137,7 @@ void func_8002EA7C(void) {
             break;
         case 0x2C:
             if (ACTOR40->unk155 == 0) {
-                func_806EB0C0(0x36, ACTOR40, 0);
+                playerStateQueueCallback(0x36, ACTOR40, 0);
                 func_8002EA14();
                 ACTOR40->unk154 = 0x42;
                 ACTOR40->unk155 = 0;

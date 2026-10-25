@@ -182,7 +182,7 @@ void actorAllocSubBuffer(Actor *arg0, s32 arg1) {
     heapClearBlock(((ProjectileActorBase *)arg0)->unk4->unk1C);
 }
 
-void func_806EB0C0(s32, Actor *, u8);
+void playerStateQueueCallback(s32, Actor *, u8);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void animSetSpeed(Actor *, s32, f32);
 void animSetLoopLimit(Actor *, s32, s32);
@@ -195,7 +195,7 @@ void actorInitAnimations(Actor *arg0, Actor *arg1) {
 
     sp37[3] = 0;
     temp_v0 = arg1->unk174;
-    func_806EB0C0(0x4C, arg0, temp_v0->unk1A4);
+    playerStateQueueCallback(0x4C, arg0, temp_v0->unk1A4);
     if (D_8076A0A8 == 0x6F) {
         sp37[3] = 0x3C;
     }
@@ -348,7 +348,7 @@ void actorUpdatePlayerInteraction(void) {
     if (!(G_PLAYER_INTERACT_ACTOR->unk60 & 0x10)) {
         G_PLAYER_INTERACT_ACTOR->unkC4 = D_80750300;
         G_PLAYER_INTERACT_ACTOR->unk144 = 0x3C;
-        func_806EB0C0(0x4C, D_807FBB40, sp54->unk1A4);
+        playerStateQueueCallback(0x4C, D_807FBB40, sp54->unk1A4);
     }
     if (func_8061CB50() == 0 || (func_8061CB50() != 0 && (D_807FBB4C->unk6A & 0x100))) {
         actorGetNodePos(D_807FBB40, 1, &sp44, &sp40, (f32 *)&sp3C);

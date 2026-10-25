@@ -45,7 +45,7 @@ s32 func_8061CB50(void);
 void func_8061F0B0(void *, s32, s32);
 f32 func_80612794(s16);
 void func_8066EB40(void *, f32);
-void func_806EB0C0(s16, Actor *, s32);
+void playerStateQueueCallback(s16, Actor *, s32);
 s32 func_80714608(s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorGetOrSetNodeScale(void *, s32, f32);
@@ -181,7 +181,7 @@ void func_8069E774(void) {
                     (i != sp80->unk1A4 && target->unk154 != 0x84)) {
                     if (func_8069E660(target, (f32)target->unk15E, sp88) !=
                         0) {
-                        func_806EB0C0(sp60, D_807FBB40, i & 0xFF);
+                        playerStateQueueCallback(sp60, D_807FBB40, i & 0xFF);
                     }
                 }
             }

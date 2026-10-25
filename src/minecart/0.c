@@ -127,7 +127,7 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 s32 func_8070E750();
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
-s32 func_806EB0C0();
+s32 playerStateQueueCallback();
 void func_8061CC40();
 
 void func_80024000(u8 arg0, u8 arg1) {
@@ -135,7 +135,7 @@ void func_80024000(u8 arg0, u8 arg1) {
     textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
     sfxAllocateChannel(0x28, 1.0f);
-    func_806EB0C0(0x44, 0, 0);
+    playerStateQueueCallback(0x44, 0, 0);
     D_807FBB40->unk154++;
     if (arg0 != 0) {
         func_8061CC40(D_807FBB4C, 5, 5);
@@ -147,7 +147,7 @@ void func_800240DC(u8 arg0, u8 arg1) {
     textSpawnMarkerChecked(0x81, 0, 0x78, temp, 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
     sfxAllocateChannel(0x2A, 1.0f);
-    func_806EB0C0(0x43, 0, 0);
+    playerStateQueueCallback(0x43, 0, 0);
     D_807FBB40->unk154++;
     if (arg0 != 0) {
         func_8061CC40(D_807FBB4C, 5, 5);
@@ -231,7 +231,7 @@ void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
             s1->unk34 = arg1;
             s1->unk10 = arg0;
             s1->unk30 = arg1;
-            func_806EB0C0(0x45, D_807FBB40, s1->unk8);
+            playerStateQueueCallback(0x45, D_807FBB40, s1->unk8);
             D_807FBB40->unk154++;
             goto case_1;
         }

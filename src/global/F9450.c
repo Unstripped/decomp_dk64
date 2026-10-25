@@ -12,11 +12,11 @@ extern s16 D_807FD584;
 extern s32 D_8076A0A8;
 extern u8 D_8074E77C[];
 
-void func_806F5270(void);
+void gridFreeAllNodeLists(void);
 void func_806F4778(void);
 
 void func_806F4750(void) {
-    func_806F5270();
+    gridFreeAllNodeLists();
     func_806F4778();
 }
 
@@ -73,7 +73,7 @@ s32 func_806F4E74(s16 arg0) {
 extern s16 D_807FD722;
 extern s16 D_807FD724;
 
-s32 func_806F4EBC(f32 arg0, f32 arg1) {
+s32 gridCoordsToIndex(f32 arg0, f32 arg1) {
     s32 temp_ft1;
     s32 temp_ft3;
 
@@ -135,7 +135,7 @@ void heapFree(void *);
 extern s16 D_807FD720;
 void func_806F95C8(void);
 
-void func_806F5270(void) {
+void gridFreeAllNodeLists(void) {
     s32 var_s2;
     s32 var_s3;
     F9F1_Node *temp_s0;
@@ -319,7 +319,7 @@ void func_806F5FE8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6204.s")
 
 
-void func_806F6554(u8 arg0, F9F1_Rect *arg1) {
+void gridDispatchRect(u8 arg0, F9F1_Rect *arg1) {
     f32 temp_fa0;
     f32 temp_fa1;
     f32 temp_fv0;
@@ -331,7 +331,7 @@ void func_806F6554(u8 arg0, F9F1_Rect *arg1) {
         if (temp_fa0 <= ((f32) D_807FD726 + temp_fv0)) {
             temp_fa1 = arg1->unk8;
             if (temp_fa1 <= ((f32) D_807FD728 + temp_fv0)) {
-                temp_v0 = func_806F4EBC(temp_fa0, temp_fa1);
+                temp_v0 = gridCoordsToIndex(temp_fa0, temp_fa1);
                 if (temp_v0 >= 0) {
                     func_806F6204(D_80754244[temp_v0], arg0, arg1);
                 }
@@ -354,7 +354,7 @@ void func_806F6554(u8 arg0, F9F1_Rect *arg1) {
 extern u8 D_807FD798;
 extern s16 D_807FD790;
 
-s32 func_806F70A8(s16 arg0) {
+s32 listContainsS16(s16 arg0) {
     s32 step;
     s16 *var_a1;
     s16 *start;
@@ -401,10 +401,10 @@ extern u8 D_80745838;
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_80687C48(void);
 void func_80687CC8(void);
-void func_806EB0C0();
+void playerStateQueueCallback();
 void sfxAllocateChannel(s32, f32);
 
-void func_806F79E0(s16 arg0, s32 arg1) {
+void playerStateHandleSoundEffects(s16 arg0, s32 arg1) {
     f32 temp_fv0;
     f32 temp_fv0_2;
     f64 var_ft0;
@@ -443,7 +443,7 @@ void func_806F79E0(s16 arg0, s32 arg1) {
         func_80687C48();
         temp_fv0 = D_807FBB4C->unk80;
         if (((temp_fv0 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->unk154 != 0x63) && (!(D_807FBB4C->unk6A & 4) || !((D_807FBB4C->unkAC - temp_fv0) > 20.0f))) {
-            func_806EB0C0(0x29, 0, F9L2_PS->unk1A4);
+            playerStateQueueCallback(0x29, 0, F9L2_PS->unk1A4);
             return;
         }
         return;
@@ -452,7 +452,7 @@ void func_806F79E0(s16 arg0, s32 arg1) {
         sfxAllocateChannel(0x12, 1.0f);
         temp_fv0_2 = D_807FBB4C->unk80;
         if (((temp_fv0_2 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->unk154 != 0x63) && (!(D_807FBB4C->unk6A & 4) || !((D_807FBB4C->unkAC - temp_fv0_2) > 20.0f))) {
-            func_806EB0C0(0x29, 0, F9L2_PS->unk1A4);
+            playerStateQueueCallback(0x29, 0, F9L2_PS->unk1A4);
             return;
         }
         break;
@@ -487,11 +487,11 @@ void func_806F79E0(s16 arg0, s32 arg1) {
         if (D_8076A0A8 == 0x11) {
             var_v0 = 0x29;
         }
-        func_806EB0C0((s16) var_v0, 0, F9L2_PS->unk1A4);
+        playerStateQueueCallback((s16) var_v0, 0, F9L2_PS->unk1A4);
         return;
     case 0x18D:
         sfxAllocateChannel(0x12, 1.0f);
-        func_806EB0C0(0x42, 0, F9L2_PS->unk1A4);
+        playerStateQueueCallback(0x42, 0, F9L2_PS->unk1A4);
         func_80687CC8();
         return;
     case 0x1D1:

@@ -125,7 +125,7 @@ void func_806F397C(void *, void *, s32, s32);
 void func_8061CC40(s32, s32, s32);
 void func_80629174(void);
 void func_80025FB4(void *, void *, s32);
-void func_806EB0C0(s32, void *, s32);
+void playerStateQueueCallback(s32, void *, s32);
 
 s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     s32 flag = func_8073110C((s16)arg2, 0) == 0;
@@ -139,10 +139,10 @@ s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             func_8061CC40(0, 0, 1);
         } else {
             func_8061CC40(0, 4, 1);
-            func_806EB0C0(0x1B, D_807FBB40, 0);
+            playerStateQueueCallback(0x1B, D_807FBB40, 0);
         }
     } else {
-        func_806EB0C0(0x1B, D_807FBB40, 0);
+        playerStateQueueCallback(0x1B, D_807FBB40, 0);
         func_8061CC40(0, 0xB, 1);
     }
     func_80629174();
@@ -159,7 +159,7 @@ void menuTransitionToSubmenu(Struct_80025D14 *arg0, void *arg1) {
     func_80025FB4(arg0, arg1, 0);
     arg0->unkD = 0;
     arg0->unkE = 0;
-    func_806EB0C0(0x1B, D_807FBB40, 0);
+    playerStateQueueCallback(0x1B, D_807FBB40, 0);
 }
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80026874.s")

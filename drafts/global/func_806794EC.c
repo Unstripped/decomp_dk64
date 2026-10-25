@@ -6,7 +6,7 @@ s32 func_80672328(void *, ?32, ?32);                /* extern */
 void *func_8067A09C(void *);                        /* extern */
 ? func_8067AC38();                                  /* extern */
 s32 func_8067AF44(void *);                          /* extern */
-? func_806EB0C0(?, void *, u8);                     /* extern */
+? playerStateQueueCallback(?, void *, u8);                     /* extern */
 ? memcpy(? *, void *, ?);                           /* extern */
 extern s32 D_807FBB48;
 extern ? D_807FBB70;
@@ -68,40 +68,40 @@ void func_806794EC(void *arg0) {
                     case 0:                         /* switch 2 */
                         D_807FBB70.unk16 = 1;
                         if (arg0 == D_807FBB48) {
-                            func_806EB0C0(0x10, NULL, D_807FC929);
+                            playerStateQueueCallback(0x10, NULL, D_807FC929);
                         }
                         break;
                     case 1:                         /* switch 2 */
                         D_807FBB70.unk17 = 1;
                         if (arg0 == D_807FBB48) {
-                            func_806EB0C0(0xE, var_s2->unk8, D_807FC929);
+                            playerStateQueueCallback(0xE, var_s2->unk8, D_807FC929);
                         }
                         break;
                     case 2:                         /* switch 2 */
                         D_807FBB70.unk18 = 1;
                         if (arg0 == D_807FBB48) {
-                            func_806EB0C0(0x12, NULL, D_807FC929);
+                            playerStateQueueCallback(0x12, NULL, D_807FC929);
                         }
                         break;
                     case 3:                         /* switch 2 */
                         D_807FBB70.unk19 = 1;
                         if (arg0 == D_807FBB48) {
-                            func_806EB0C0(0x13, NULL, D_807FC929);
+                            playerStateQueueCallback(0x13, NULL, D_807FC929);
                         }
                         break;
                     case 6:                         /* switch 2 */
                         D_807FBB70.unk1B = 1;
                         if (arg0 == D_807FBB48) {
-                            func_806EB0C0(0x36, var_s2->unk8, D_807FC929);
+                            playerStateQueueCallback(0x36, var_s2->unk8, D_807FC929);
                         }
                         break;
                     case 4:                         /* switch 2 */
                     case 5:                         /* switch 2 */
                         if (arg0 == D_807FBB48) {
                             if (temp_v0_2 == 4) {
-                                func_806EB0C0(0x2B, var_s2->unk8, D_807FC929);
+                                playerStateQueueCallback(0x2B, var_s2->unk8, D_807FC929);
                             } else {
-                                func_806EB0C0(0x32, var_s2->unk8, D_807FC929);
+                                playerStateQueueCallback(0x32, var_s2->unk8, D_807FC929);
                             }
                             temp_v1 = var_s2->unk8;
                             if ((temp_v1 != NULL) && (temp_v1->unk5C & 2)) {
@@ -129,7 +129,7 @@ void func_806794EC(void *arg0) {
                     D_807FD580->unk6C = (f32) (s16) temp_v0_4->unk8;
                     D_807FBB70.unk1A = 1;
                     if (arg0 == D_807FBB48) {
-                        func_806EB0C0(0x17, var_s2->unk8, D_807FC929);
+                        playerStateQueueCallback(0x17, var_s2->unk8, D_807FC929);
                     }
                     break;
                 case 0x10:                          /* switch 1 */
@@ -185,7 +185,7 @@ void func_806794EC(void *arg0) {
                 case 0x80:                          /* switch 1 */
                     arg0->unk60 = (s32) (arg0->unk60 | 8);
                     if (arg0 == D_807FBB48) {
-                        func_806EB0C0(0x16, var_s2->unk8, D_807FC929);
+                        playerStateQueueCallback(0x16, var_s2->unk8, D_807FC929);
                     }
                     break;
                 case 0x40:                          /* switch 1 */

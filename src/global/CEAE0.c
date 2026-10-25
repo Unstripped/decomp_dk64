@@ -457,7 +457,7 @@ void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
 void func_80715908(void *, void *);
 void func_80626F8C(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
-s32 func_806EB0C0(s32, Actor *, u8);
+s32 playerStateQueueCallback(s32, Actor *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 sqrtf(f32);
 void func_807149FC(s32);
@@ -559,7 +559,7 @@ void func_806CA5F8(s32 arg0) {
         D_807FBB40->unk64 &= ~0x200;
     }
     if ((D_807FD580->unk1F0 & 0x01000000) && D_807FBB8C != 0 && D_807FBB40->unk154 != 0x47) {
-        func_806EB0C0(3, NULL, D_807FC929);
+        playerStateQueueCallback(3, NULL, D_807FC929);
     }
     sp6B = func_80666AA0();
     sp6A = func_80666A94();
@@ -643,7 +643,7 @@ void func_806CA5F8(s32 arg0) {
         LCA_P->unkD4 = LCA_P->unkD4 - 1;
     }
     if (sp6A != 0) {
-        func_806EB0C0(0x3F, sp64, D_807FC929);
+        playerStateQueueCallback(0x3F, sp64, D_807FC929);
     }
     if (sp6B == 1) {
         goto case1;
@@ -658,7 +658,7 @@ case1:
         LCA_P->unkD6 = 0;
     } else {
         LCA_P->unkD6 = LCA_P->unkD6 + 1;
-        func_806EB0C0(0x2E, sp64, D_807FC929);
+        playerStateQueueCallback(0x2E, sp64, D_807FC929);
         if (D_807FBB40->unk154 != 0x36 && D_807FBB40->unk154 != 0x3B && LCA_P->unkD4 == 0) {
             s32 snd = 0x2C0;
             if (D_8076A0A8 == 0x30) {
@@ -675,14 +675,14 @@ case2:
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2C0, 0xFF, 0x7F, 0);
         }
         if (D_8076A0A8 == 0x53 || D_8076A0A8 == 0xC5) {
-            func_806EB0C0(0x40, sp64, D_807FC929);
-        } else {
-            func_806EB0C0(0x30, sp64, D_807FC929);
+        playerStateQueueCallback(0x40, sp64, D_807FC929);
+    } else {
+        playerStateQueueCallback(0x30, sp64, D_807FC929);
         }
     }
 done:
     if (sp69 != 0) {
-        func_806EB0C0(0, sp64, D_807FC929);
+        playerStateQueueCallback(0, sp64, D_807FC929);
         if (LCA_P->unkD4 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2C0, 0xFF, 0x7F, 0);
         }
@@ -799,7 +799,7 @@ void func_80714A28(s32);
 void func_80714950(s32);
 void func_80714C08(void *, f32, void *, s32, s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
-s32 func_806EB0C0(s32, Actor *, u8);
+s32 playerStateQueueCallback(s32, Actor *, u8);
 void func_806D0408(void);
 void func_806D0468(Actor *, u8);
 void func_806D06A0(void);
@@ -836,7 +836,7 @@ void func_806CB53C(void) {
             v0 = LB_P->unk23E;
         }
         if (v0 == 1) {
-            func_806EB0C0(0x3B, NULL, D_807FC929);
+            playerStateQueueCallback(0x3B, NULL, D_807FC929);
             LB_P->unk1FD = 0;
         }
     } else {
@@ -970,7 +970,7 @@ void func_806CB53C(void) {
 
 void func_806CBE44(void) {
     if (D_807FBB70.unk2 != 0 && D_807FBB70.unk3[0x11] == 1) {
-        func_806EB0C0(0x20, NULL, D_807FC929);
+        playerStateQueueCallback(0x20, NULL, D_807FC929);
     }
 }
 
@@ -1000,14 +1000,14 @@ void func_806CBE90(void) {
                 if (D_80750B54[D_807FBB48->unk154][0] & 0x200) {
                     func_806EAB44(D_807FBB40, 0);
                 }
-                func_806EB0C0(0x21, NULL, D_807FC929);
+                playerStateQueueCallback(0x21, NULL, D_807FC929);
                 return;
             }
             if (mathAngleDistance(G02_A->unkD8, G02_A->unkEE) < 0x400 || G02_A->unkB8 < 15.0f) {
                 if (D_80750B54[D_807FBB48->unk154][0] & 0x200) {
                     func_806EAB44(D_807FBB40, 0);
                 }
-                func_806EB0C0(0x22, NULL, D_807FC929);
+                playerStateQueueCallback(0x22, NULL, D_807FC929);
             }
         }
     }
@@ -2681,7 +2681,7 @@ void func_806CF9CC(void) {
                     }
                 }
             }
-            if (hit != 0 && func_806EB0C0(0xA, NULL, D_807FC929) != 0) {
+            if (hit != 0 && playerStateQueueCallback(0xA, NULL, D_807FC929) != 0) {
                 G06_P->unkF0 = sp3C;
             }
         }
@@ -3237,7 +3237,7 @@ void func_806D0EBC(s32 arg0) {
         limit = D_807538B8[D_807FD584];
     }
     if (G03_A->unkAC - G03_A->unkA4 < limit) {
-        func_806EB0C0(2, NULL, D_807FC929);
+        playerStateQueueCallback(2, NULL, D_807FC929);
         return;
     }
     if (G03_A->unkAC < G03_A->unk80 + height) {

@@ -83,7 +83,7 @@ void func_8061CC40(void *, s32, s32);
 void func_806225C0(s32);
 void func_806B49B0(u8, s16, s16);
 void func_8070D8C0(Actor *, s32, u8);
-void func_806EB0C0();
+void playerStateQueueCallback();
 
 void func_806C3F10(u8 arg0, u8 arg1, u8 arg2) {
     s16 *sp3C = R1C8aA->unk178;
@@ -117,7 +117,7 @@ void func_806C3F10(u8 arg0, u8 arg1, u8 arg2) {
                     D_807FBB40->unk155[0] = 0;
                     D_807FDC9C->unk10 = 0x29;
                     R1C8aD->unk1F0 |= 0x10000;
-                    func_806EB0C0(0x54, 0, 0);
+                    playerStateQueueCallback(0x54, 0, 0);
                     R1C8aS->unk1A |= 0x8000;
                 } else {
                     func_8070D8C0(D_807FBB40, 0x10, 0);
@@ -220,7 +220,7 @@ void func_806C4414(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
         if (arg3 == R1C8aC->unk13) {
             var = arg0;
         } else {
-            func_806EB0C0(0x46, 0, 0);
+            playerStateQueueCallback(0x46, 0, 0);
             if (func_806F8AD4(0xB, 0) < arg5) {
                 D_807FBB40->unk15F = 0;
                 var = arg1;

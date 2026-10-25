@@ -94,7 +94,7 @@ void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
             }
         }
         if (var_a2 != 0) {
-            func_806EB0C0((s16)sp3C, (s32)arg1, D_807FC929);
+            playerStateQueueCallback((s16)sp3C, (s32)arg1, D_807FC929);
         }
     }
 }

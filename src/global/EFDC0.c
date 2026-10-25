@@ -85,7 +85,7 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_806CFF9C(Actor *);
 void func_806F8BC4(s32, s32, s32);
 
-s32 func_806EB0C0(s16 priority, void *actor, u8 player) {
+s32 playerStateQueueCallback(s16 priority, void *actor, u8 player) {
     u8 playerByte;
     s32 offset;
     s32 priorityCopy;
@@ -109,7 +109,7 @@ s32 func_806EB0C0(s16 priority, void *actor, u8 player) {
     return 0;
 }
 
-void func_806EB178(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void playerStateSetCallbackParameters(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     D_807FD6F0.unk0 = arg1;
     D_807FD6F0.unk4 = arg2;
     D_807FD6F0.unk8 = arg3;
@@ -120,7 +120,7 @@ void func_806EB178(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 extern void (*D_80752C70[])(void);
 s32 actorTableContains(Actor *);
 
-void func_806EB194(void) {
+void playerStateDispatchQueuedCallback(void) {
     if (EfN9_Q[D_807FC929].unk29C >= 0) {
         if (EfN9_Q[D_807FC929].unk2A0 != NULL) {
             if ((actorTableContains(EfN9_Q[D_807FC929].unk2A0) == 0) ||

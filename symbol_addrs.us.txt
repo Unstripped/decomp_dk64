@@ -270,6 +270,17 @@ func_806E5E60 = 0x806E5E60; // type:func
 func_806EAFEC = 0x806EAFEC; // type:func
 func_806F006C = 0x806F006C; // type:func
 func_806F0074 = 0x806F0074; // type:func
+playerStateQueueCallback = 0x806EB0C0; // type:func
+playerStateSetCallbackParameters = 0x806EB178; // type:func
+playerStateDispatchQueuedCallback = 0x806EB194; // type:func
+actorSetPositionAndFacingAngle = 0x806F37BC; // type:func
+deferredEntryFree = 0x806F3950; // type:func
+timerDecrementOrSetFlag = 0x806F3DC8; // type:func
+gridCoordsToIndex = 0x806F4EBC; // type:func
+gridFreeAllNodeLists = 0x806F5270; // type:func
+gridDispatchRect = 0x806F6554; // type:func
+listContainsS16 = 0x806F70A8; // type:func
+playerStateHandleSoundEffects = 0x806F79E0; // type:func
 
 gTimerQueue = 0x807452A0;
 audioInit = 0x80600D50; // type:func

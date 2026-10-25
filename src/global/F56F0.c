@@ -605,7 +605,7 @@ typedef struct {
 void actorClearMovementFlags(void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-void func_806F37BC(Actor *arg0, F5N4Coord *arg1) {
+void actorSetPositionAndFacingAngle(Actor *arg0, F5N4Coord *arg1) {
     s16 angle;
 
     actorClearMovementFlags(arg0);
@@ -627,7 +627,7 @@ typedef struct {
 
 void heapFreeDeferred(void *);
 
-void func_806F3950(F5DDeferredEntry *arg0) {
+void deferredEntryFree(F5DDeferredEntry *arg0) {
     heapFreeDeferred(arg0->unk4);
     arg0->unk0 = 0;
 }
@@ -656,7 +656,7 @@ void func_806F3DB0(void) {
     D_807FD716 |= 2;
 }
 
-void func_806F3DC8(u16 *arg0, s16 *arg1, u8 *arg2, u16 arg3) {
+void timerDecrementOrSetFlag(u16 *arg0, s16 *arg1, u8 *arg2, u16 arg3) {
     s16 temp_v0;
     u8 temp_v0_2;
 

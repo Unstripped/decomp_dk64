@@ -48,7 +48,7 @@ void sfxAllocateChannel(s32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 void func_80699070(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
-s32 func_806EB0C0(s32, s32, s32, void *);
+s32 playerStateQueueCallback(s32, s32, s32, void *);
 void assetFreeBuffer(s32, s32, s32);
 void heapFreeDeferred(Mtx *);
 void actorDespawn(Actor *);
@@ -130,7 +130,7 @@ void func_80699284(void) {
     }
     if (sp5F || !(spEC[0]->unk0->unk1F0 & 0x8000)) {
         if (spEC[0]->unk0->unk1EC == 1) {
-            func_806EB0C0(0x58, 0, 0, (void *)spEC[0]);
+            playerStateQueueCallback(0x58, 0, 0, (void *)spEC[0]);
         }
         sfxStopSlotSound(D_807FBB40, 0);
         spEC[0]->unk0->unk1F0 &= ~0x8000;

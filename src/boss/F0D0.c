@@ -54,7 +54,7 @@ void func_80714950(s32);
 s32 func_80611A44(void);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void actorDespawn(void *);
-void func_806EB0C0(s32, void *, s32);
+void playerStateQueueCallback(s32, void *, s32);
 void func_8061EF4C(void *, s32, s32, f32, f32, f32, f32, f32);
 extern void *D_807F5D10;
 extern void *D_8071720C;
@@ -165,7 +165,7 @@ void func_8003575C(void) {
             dz = D_807FBB4C->unk84 - D_807FBB40->unk84;
             if (dx * dx + dz * dz < 4225.0f) {
                 if (D_807FBB4C->unk154 != 0x31) {
-                    func_806EB0C0(0x2E, D_807FBB40, 0);
+                    playerStateQueueCallback(0x2E, D_807FBB40, 0);
                 }
                 D_807FBB40->unk154++;
             }

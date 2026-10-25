@@ -8,10 +8,10 @@ s16 func_8063D990(s16);                             /* extern */
 s32 func_806F4E74(s16);                             /* extern */
 s32 func_806F544C(s8, s16, u8);                     /* extern */
 ? func_806F54E0(s32, s16, u8);                      /* extern */
-? func_806F6554(s32, void *);                       /* extern */
+? gridDispatchRect(s32, void *);                       /* extern */
 ? func_806F70FC(f32, f32, f32, ?, f32, s32);        /* extern */
 ? func_806F73A0(s32);                               /* extern */
-? func_806F79E0(s16, s32);                          /* extern */
+? playerStateHandleSoundEffects(s16, s32);              /* extern */
 ? func_806F8170(s8, f32 *, f32 *, f32 *);           /* extern */
 ? func_806F8BC4(s32, ?, ?);                         /* extern */
 ? func_807314F4(s16, s16);                          /* extern */
@@ -66,11 +66,11 @@ void func_806F69A8(s32 arg0) {
     D_807FD798 = 0;
     func_806F73A0(temp_s4 & 0xFF);
     D_807FD734 = 0;
-    func_806F6554(temp_s4 & 0xFF, (temp_s4 * 0x10) + &D_807FD740);
+    gridDispatchRect(temp_s4 & 0xFF, (temp_s4 * 0x10) + &D_807FD740);
     var_s0 = *(&D_807FD780 + (temp_s4 * 4));
     if (var_s0 != NULL) {
         do {
-            func_806F6554(temp_s4 & 0xFF, var_s0);
+            gridDispatchRect(temp_s4 & 0xFF, var_s0);
             var_s0 = var_s0->unk10;
         } while (var_s0 != NULL);
     }
@@ -97,7 +97,7 @@ void func_806F69A8(s32 arg0) {
                         var_s0_2->unk10 = 1U;
                         func_806398E4(var_s0_2->unk0, 1, 0);
                         if (var_s0_2->unk19 != 0) {
-                            func_806F79E0(var_s0_2->unk2, temp_s4 & 0xFF);
+                            playerStateHandleSoundEffects(var_s0_2->unk2, temp_s4 & 0xFF);
                         }
                         if ((temp_s1 >= 0) && !(D_807FBB64 & 0x4000) && ((temp_s1 != 0xB) || !(D_807FBB64 & 0x10000000))) {
                             func_806F8BC4(func_806F544C(temp_s1, var_s0_2->unk2, var_s0_2->unk1A), 0, 0);

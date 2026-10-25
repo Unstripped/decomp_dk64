@@ -412,7 +412,7 @@ typedef struct BDEE0DCA0Tgt {
 extern u8 D_8071FB34[];
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_80613C48(void *, s16, f32, f32);
-s32 func_806EB0C0(s32, void *, s32);
+s32 playerStateQueueCallback(s32, void *, s32);
 s32 func_8072DCF4(void *, void *, s32);
 
 s32 func_806BA240(u8 arg0, s16 arg1) {
@@ -458,7 +458,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
         if (tgt->unk155[0] != 0) {
             if (tgt->unk155[0] == 1 && D_807FBD70 == 2 && func_8072DCF4(tgt, D_807FBB4C, 0x1F40) != 0) {
                 if (D_807FC924->unk2C0 == 1) {
-                    func_806EB0C0(0x32, D_807FBB40, 0);
+                    playerStateQueueCallback(0x32, D_807FBB40, 0);
                 } else {
                     if (((func_80611A44() >> 15) % 1000) >= 0x1F5) {
                         var = 0x21F;

@@ -1,7 +1,7 @@
 // func_806F4F50 (src/global/F9450.c): Stage 4: frame and node-array register allocation remain
 extern F9F1_Node **D_80754244;
 extern s16 D_807FD720;
-s32 func_806F4EBC(f32, f32);
+s32 gridCoordsToIndex(f32, f32);
 
 void func_806F4F50(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
     F9F1_Node *sp1C;
@@ -41,7 +41,7 @@ void func_806F4F50(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
             sp1C = var_v1;
         } while ((var_t0 == 0) && (var_a2 < D_807FD720));
     }
-    temp_v0 = func_806F4EBC(arg1, arg3);
+    temp_v0 = gridCoordsToIndex(arg1, arg3);
     if ((D_807FD720 >= temp_v0) && (temp_v0 >= 0)) {
         temp_a0 = temp_v0 * 4;
         sp1C->next = *(F9F1_Node **)((u8 *)D_80754244 + temp_a0);

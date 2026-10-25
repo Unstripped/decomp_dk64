@@ -801,7 +801,7 @@ s32 mpFindFurthestSpawn(s32 arg0) {
 void func_806C9434(s32);
 s32 mpFindFurthestSpawn(s32);
 void func_806CFF9C(void *);
-void func_806EB0C0(s32, s32, u8);
+void playerStateQueueCallback(s32, s32, u8);
 extern u8 D_807FCC4B[];
 
 typedef struct Struct_80026D40_Target_MpHigh {
@@ -823,7 +823,7 @@ void func_80026D40(Struct_80026D40_Target_MpHigh *arg0, s32 arg1) {
     if (D_807552E8 == 4 && mpGetPlayerScore(arg1) == 0) {
         *(u8 *)((u8 *)D_807FCC4B + arg1 * 0x306) = 0;
         arg0->unk155++;
-        func_806EB0C0(0x5B, 0, arg1);
+        playerStateQueueCallback(0x5B, 0, arg1);
         arg0->unk144 = 1;
         return;
     }

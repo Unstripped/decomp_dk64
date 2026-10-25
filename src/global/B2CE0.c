@@ -210,7 +210,7 @@ void func_8070033C(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void func_806EB0C0(s32, B2CE0Actor *, s32);
+void playerStateQueueCallback(s32, B2CE0Actor *, s32);
 
 void func_806AE394(f32 arg0, f32 arg1) {
     f32 sp64;
@@ -231,7 +231,7 @@ void func_806AE394(f32 arg0, f32 arg1) {
     if (D_807FBB40->unk154 != 0) {
         if ((D_807FDC94->unk7C - sp64) * (D_807FDC94->unk7C - sp64) + (D_807FDC94->unk80 - D_807FBB40->unk80) * (D_807FDC94->unk80 - D_807FBB40->unk80) + (D_807FDC94->unk84 - sp5C) * (D_807FDC94->unk84 - sp5C) < arg1 * arg1) {
             D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FDC94->unk7C, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk84);
-            func_806EB0C0(0x43, D_807FBB40, 0);
+            playerStateQueueCallback(0x43, D_807FBB40, 0);
             D_807FBB40->unk154 = 0;
             D_807FBB40->unk155 = 0;
         }

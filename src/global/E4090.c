@@ -1169,11 +1169,11 @@ void func_806E1F8C(void) {
 
 extern s32 D_8076A0A8;
 extern u8 D_807FCA6A[];
-void func_806EB0C0(s32, s32, u8);
+void playerStateQueueCallback(s32, s32, u8);
 
 void func_806E208C(void) {
     if ((D_807FD610[D_807FC929].unk2C & 0x8000) && (D_807FCA6A[D_807FC929 * 0x306] >= 2) && (D_8076A0A8 != 0xE)) {
-        func_806EB0C0(9, 0, D_807FC929);
+        playerStateQueueCallback(9, 0, D_807FC929);
         G23_P->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -2131,7 +2131,7 @@ void func_806E41EC(void) {
     }
     if (D_807FBB8C && (func_8073110C(0x185, 0) || (D_807FBB64 & 0x10000000) || (D_807FC928 >= 2) ||
                        func_8071441C())) {
-        func_806EB0C0(3, 0, D_807FC929);
+        playerStateQueueCallback(3, 0, D_807FC929);
         return;
     }
     if (func_806E4580()) {
@@ -2184,7 +2184,7 @@ s32 func_806E4580(void) {
         G25_P->unk220 = G25_GS->unk4;
         G25_P->unk224 = G25_GS->unk8;
         G25_P->unk228 = G25_GS->unkC;
-        func_806EB0C0(0x1F, 0, D_807FC929);
+        playerStateQueueCallback(0x1F, 0, D_807FC929);
         return 1;
     }
     return 0;
@@ -2206,7 +2206,7 @@ void func_806E4634(void) {
             }
         }
         if ((3.0f < v) && (D_8074E77C[D_807FC929] != 6)) {
-            func_806EB0C0(0xF, 0, D_807FC929);
+            playerStateQueueCallback(0xF, 0, D_807FC929);
         }
     }
 }
@@ -2230,12 +2230,12 @@ void func_806E4740(void) {
             switch (D_8074E77C[D_807FC929]) {
                 case 2:
                     if (D_807FCA0C[D_807FC929 * 0x306] > 0) {
-                        func_806EB0C0(0x25, 0, D_807FC929);
+                        playerStateQueueCallback(0x25, 0, D_807FC929);
                     }
                     break;
                 case 4:
                     if (D_807FCAC8[D_807FC929 * 0x306] >= 2) {
-                        func_806EB0C0(0x26, 0, D_807FC929);
+                        playerStateQueueCallback(0x26, 0, D_807FC929);
                     }
                     break;
                 case 1:
@@ -2446,7 +2446,7 @@ void func_806E52D0(void) {
         if ((D_8076A0A8 != 0xCD) || (r != 0)) {
             n = r;
             if ((func_806F8AD4(7, D_807FC929) != 0) || (n != 0)) {
-                func_806EB0C0(0x53, 0, *((u8 *)D_807FD580 + 0x1A4));
+                playerStateQueueCallback(0x53, 0, *((u8 *)D_807FD580 + 0x1A4));
                 if (!(D_807FBB68 & 2)) {
                     D_807FBB40->unk144 = 1;
                 }
@@ -2614,7 +2614,7 @@ s32 func_806E56EC() {
                     G26_PL->unk208 = G26_GS->unk8;
                     G26_PL->unk20C = G26_GS->unkC;
                     G26_PL->unk21C = G26_GS->unk10;
-                    func_806EB0C0(0x1E, 0, D_807FC929);
+                    playerStateQueueCallback(0x1E, 0, D_807FC929);
                     func_806C93E4(D_807FBB40, D_807FD580);
                     return 1;
                 }
@@ -2625,7 +2625,7 @@ s32 func_806E56EC() {
                         G26_PL->unk204 = G26_GS->unk4;
                         G26_PL->unk208 = G26_GS->unk8;
                         G26_PL->unk20C = G26_GS->unkC;
-                        func_806EB0C0(0x1C, 0, D_807FC929);
+                        playerStateQueueCallback(0x1C, 0, D_807FC929);
                         func_806C93E4(D_807FBB40, D_807FD580);
                         return 1;
                     }
@@ -2637,7 +2637,7 @@ s32 func_806E56EC() {
                         G26_PL->unk204 = G26_GS->unk4;
                         G26_PL->unk208 = G26_GS->unk8;
                         G26_PL->unk20C = G26_GS->unkC;
-                        func_806EB0C0(0x1D, 0, D_807FC929);
+                        playerStateQueueCallback(0x1D, 0, D_807FC929);
                         func_806C93E4(D_807FBB40, D_807FD580);
                         return 1;
                     }
@@ -2795,19 +2795,19 @@ void func_806E5E60(void) {
 
 void func_806E5E68(void) {
     if (!(G25_P->unk1F0 & 0x20)) {
-        func_806EB0C0(0x24, 0, D_807FC929);
+        playerStateQueueCallback(0x24, 0, D_807FC929);
     }
 }
 
 void func_806E5EA8(void) {
-    func_806EB0C0(0x24, 0, D_807FC929);
+    playerStateQueueCallback(0x24, 0, D_807FC929);
 }
 
 void func_806E5ED4(void) {
     if ((G25_PAD(D_807FD63C, u16) & 2) && (D_807FD568[2] & 1) &&
         (*((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C0) == 1) && !(G25_P->unk1F0 & 0x30) &&
         (func_80714608(0) == 0)) {
-        func_806EB0C0(0x14, 0, D_807FC929);
+        playerStateQueueCallback(0x14, 0, D_807FC929);
     }
 }
 
@@ -2815,7 +2815,7 @@ void func_806E5FA0(void) {
     if ((G25_PAD(D_807FD63C, u16) & 2) && (D_807FD568[2] & 1) && !(D_807FBB64 & 0x200) &&
         (*((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C0) == 1) && !(G25_P->unk1F0 & 0x30) &&
         (func_80714608(0) == 0)) {
-        func_806EB0C0(0x15, 0, D_807FC929);
+        playerStateQueueCallback(0x15, 0, D_807FC929);
     }
 }
 
@@ -3094,7 +3094,7 @@ void func_806E6DE8(void) {
         G27_P->unk58 = D_80767CC0;
     }
     if (D_80767CC0 - G27_P->unk58 < 0xF) {
-        func_806EB0C0(1, 0, D_807FC929);
+        playerStateQueueCallback(1, 0, D_807FC929);
     }
 }
 
@@ -3351,7 +3351,7 @@ void func_806E7780(void) {
         var_fv0 = D_8075389C[D_807FD584];
     }
     if ((btn & 0x2000) && (var_fv0 < G28_A->unkB4) && func_806E770C()) {
-        func_806EB0C0(0x3E, 0, D_807FC929);
+        playerStateQueueCallback(0x3E, 0, D_807FC929);
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x10, 0xFF, 0x7F, 1);
     }
 }
@@ -4156,7 +4156,7 @@ s32 func_806E9580(void) {
                 n = 0x3C;
             }
             if (((f32)n < diff) && func_806E770C()) {
-                func_806EB0C0(0x3E, 0, D_807FC929);
+                playerStateQueueCallback(0x3E, 0, D_807FC929);
                 func_806CA2AC();
             } else if (D_807FBB40->unk6A & 1) {
                 if (*((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C0) == 1) {
@@ -4165,7 +4165,7 @@ s32 func_806E9580(void) {
                     lim = D_8075389C[D_807FD584];
                 }
                 if (lim < diff) {
-                    func_806EB0C0(0x3D, 0, D_807FC929);
+                    playerStateQueueCallback(0x3D, 0, D_807FC929);
                     ret = 1;
                     func_806CA2AC();
                 }
@@ -4176,7 +4176,7 @@ s32 func_806E9580(void) {
                     lim = D_807538C8[D_807FD584];
                 }
                 if (lim < G30_A->unkB4 + diff) {
-                    func_806EB0C0(0x3D, 0, D_807FC929);
+                    playerStateQueueCallback(0x3D, 0, D_807FC929);
                     func_80614EBC(D_807FBB40, 0);
                     if (G30_M->unkC4) {
                         n_alSndpDeallocate(G30_M->unkC4);
@@ -4287,12 +4287,12 @@ void func_806E9CFC(void) {
     func_806E9BA8(0x65);
 }
 
-s32 func_806EB178();
+s32 playerStateSetCallbackParameters();
 
 s32 func_806E9D1C(arg0, arg1, arg2) s16 arg0; u8 arg1; u8 arg2; {
     if (((D_807FC928 < 2) || (D_80750AB8 != 1)) && (D_807FD888 == 0.0f) && (G30_A->unkE0 == 0.0f)) {
-        func_806EB178(D_807FC929, arg1, arg2, 0);
-        func_806EB0C0(arg0, 0, D_807FC929);
+        playerStateSetCallbackParameters(D_807FC929, arg1, arg2, 0);
+        playerStateQueueCallback(arg0, 0, D_807FC929);
         G30_A->unkB8 = 0.0f;
         return 1;
     }

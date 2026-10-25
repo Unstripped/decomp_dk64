@@ -12,7 +12,7 @@ f32 func_80612790(s16);                             /* extern */
 ? func_80666290(void *, ? *, ? *, ? *, ? *, s32);   /* extern */
 ? func_8067ACB4(void *);                            /* extern */
 ? func_80685B44(? *, ?, ?, ?, s32, s32, s32, s32, s32); /* extern */
-? func_806EB0C0(?, void *, ?);                      /* extern */
+? playerStateQueueCallback(?, void *, ?);                      /* extern */
 extern ? D_8071FFA0;
 extern s16 D_807502D0;
 extern f32 D_807502F8;
@@ -62,7 +62,7 @@ void func_80696574(void) {
         temp_v1 = temp_v0->unk88;
         if ((temp_v1 != NULL) && ((temp_a0 = temp_v1->unk58, (temp_a0 == 0x1D)) || (temp_a0 == 0x50))) {
             func_8061F0B0(temp_v0->unk104, 0xA, 0x14);
-            func_806EB0C0(0x34, D_807FBB40, 0);
+            playerStateQueueCallback(0x34, D_807FBB40, 0);
             func_80685B44(&D_8071FFA0, 0, 0x3F800000, 4, 0x14, 0x96, (s32) D_807FBB40->unk7C, (s32) D_807FBB40->unk80, (s32) D_807FBB40->unk84);
             actorDespawn(D_807FBB40);
         }

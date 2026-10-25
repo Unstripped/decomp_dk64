@@ -55,7 +55,7 @@ void func_806F386C(u8 arg0, s32 arg1, s32 arg2, s16 arg3, s32 arg4) {
         D_807FD718 = arg3;
         D_807FD71C = arg2;
         if (arg4 == 0) {
-            func_806F37BC((Actor *)arg1, D_807FD70C);
+            actorSetPositionAndFacingAngle((Actor *)arg1, D_807FD70C);
         }
     }
 }
