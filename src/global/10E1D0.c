@@ -39,9 +39,15 @@ extern u8 D_807444FC;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_8070B05C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_8070B308.s")
+extern u8 D_80755070;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_8070B318.s")
+void func_8070B308(u8 arg0) {
+    D_80755070 = arg0;
+}
+
+u8 func_8070B318(void) {
+    return D_80755070;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_8070B324.s")
 
