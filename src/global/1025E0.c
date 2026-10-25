@@ -18,9 +18,16 @@ extern u8 D_807444F8;
 extern u8 D_807444FC;
 
 extern s32 func_806FBD5C(s16, s32);
-s32 func_806FC530();
+void func_806FC530(s32, s16, s16, s16, s32, u8);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1025E0/func_806FD8E0.s")
+void func_806FD8E0(s32 arg0, s16 arg1, s32 arg2, s16 arg3, u8 arg4) {
+    s16 width;
+    s16 height;
+
+    width = (D_80744490 - func_806FBD5C(arg1, arg2)) * 2;
+    height = arg3 * 4;
+    func_806FC530(arg0, arg1, width, height, arg2, arg4);
+}
 
 void func_806FD950(s32 arg0, s16 arg1, s32 arg2, s16 arg3) {
     func_806FC530(arg0, arg1, 0x60, (s16)(arg3 * 4), arg2, 1);
