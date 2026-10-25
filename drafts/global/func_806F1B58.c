@@ -1,5 +1,12 @@
-// func_806F1B58 (src/global/F56F0.c): stage 5: m2c reconstruction; target keeps predicate in v0 while current uses v1 plus return move
-s32 func_806F1B58(void *arg0, void *arg1, s32 arg2) {
+// func_806F1B58 (src/global/F56F0.c): Stage 5: correct blocks and result flow; target keeps predicate/result in v0/t8 while draft uses v1 plus final move. uopt trace and 600s permutation search run.
+typedef struct {
+    u8 pad0[0x14];
+    u8 unk14;
+    u8 pad15[3];
+    s32 unk18;
+} F5N1Predicate;
+
+s32 func_806F1B58(F5BActor *arg0, F5N1Predicate *arg1, s32 arg2) {
     s32 temp_t8;
     s32 var_v0;
 
