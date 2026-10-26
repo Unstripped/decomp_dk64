@@ -228,7 +228,34 @@ void func_8060CB9C(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060CBBC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D0A8.s")
+extern void func_8060C758(s32, s32);
+extern u8 D_807ECEA8[];
+extern s8 D_807EDEA8;
+extern void func_8060CB74(void);
+
+void func_8060D0A8(void) {
+    s32 unused;
+    s32 sp28;
+    s8 *var_v0;
+    s32 var_s0;
+
+    var_v0 = &D_807EDEA8;
+    var_s0 = 0;
+    sp28 = (s32) D_807467C8;
+    do {
+        *var_v0 = var_s0;
+        var_s0 += 1;
+        var_v0 += 1;
+    } while (var_s0 < 4);
+    bzero(D_807ECEA8, 0x800);
+    func_8060CB74();
+    var_s0 = 0;
+    do {
+        func_8060C758(var_s0 & 0xFF, var_s0 == 3);
+        var_s0 += 1;
+    } while (var_s0 != 4);
+    D_807467C8 = (u8) sp28;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D14C.s")
 
@@ -281,7 +308,36 @@ void func_8060E1A8(void) {
     func_8060B8F8(0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E25C.s")
+extern s32 func_8060B9D0();
+extern s32 func_807142D8(void);
+extern void func_80731030(void);
+extern u8 D_807EDEB0[];
+extern u8 D_807FC928;
+
+u8 *func_8060E25C(s32 arg0) {
+    u8 *result;
+    s32 selector;
+
+    selector = arg0 & 0xFF;
+    result = NULL;
+    switch (selector) {
+    case 0:
+        if ((func_807142D8() != 0) || (D_807FC928 >= 2)) {
+            func_80731030();
+            if (arg0) {
+            }
+            bzero(D_807EDEB0, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
+            result = D_807EDEB0;
+        } else {
+            result = D_807ECEA8 + ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * func_8060B9D0(D_807467C8));
+        }
+        break;
+    case 1:
+        result = ((s32) (((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8) + D_807ECEA8;
+        break;
+    }
+    return result;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E3B0.s")
 
@@ -307,5 +363,6 @@ void func_8060E430(u16 arg0, u8 arg1, u8 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/D_80757044.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/D_80757064.s")
+
 
 
