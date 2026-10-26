@@ -107,19 +107,79 @@ s32 func_806150F8(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061537C.s")
 
+typedef struct P19bValue {
+    void *unk0;
+    f32 unk4;
+    u8 pad8[0x1C];
+    f32 unk24;
+} P19bValue;
+
+typedef struct P19bState {
+    P19bValue *unk0;
+    P19bValue *unk4;
+    s32 *unk8;
+    u8 padC[4];
+    f32 unk10;
+    u8 pad14[0x10];
+    f32 unk24;
+    s16 unk28;
+    s16 unk2A;
+    s16 unk2C;
+    u8 pad2E[0x12];
+    f32 unk40;
+    f32 unk44;
+    f32 unk48;
+    u8 pad4C[0x2C];
+    s32 unk78;
+    u8 pad7C[4];
+    f32 unk80;
+    s32 unk84;
+    s32 unk88;
+} P19bState;
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061540C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061551C.s")
+s32 func_8061551C(Actor *arg0) {
+    P19bState *state;
+
+    D_807F5AF0++;
+    state = (P19bState *)arg0->unk4;
+    if (*state->unk8 != 0) {
+        state->unk78 |= 0x10;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615558.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806155F4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061562C.s")
+s32 func_8061562C(Actor *arg0) {
+    if (((P19bState *)arg0->unk4)->unk88 == 0) {
+        D_807F5AF0++;
+        return 1;
+    }
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615664.s")
+s32 func_80615664(Actor *arg0) {
+    if (((P19bState *)arg0->unk4)->unk4->unk0 == 0) {
+        D_807F5AF0++;
+        return 1;
+    }
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806156A0.s")
+s32 func_806156A0(Actor *arg0) {
+    P19bState *state;
+
+    state = (P19bState *)arg0->unk4;
+    if (state->unk28 == state->unk2C) {
+        D_807F5AF0++;
+        return 1;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806156DC.s")
 
@@ -128,6 +188,7 @@ s32 func_806150F8(Actor *arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061580C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806158E8.s")
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061594C.s")
 
@@ -146,7 +207,6 @@ s32 func_806150F8(Actor *arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615B84.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615BDC.s")
-
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615C34.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615CE4.s")
