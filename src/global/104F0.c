@@ -56,7 +56,25 @@ void func_8060B8F8(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060B968.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060B9D0.s")
+extern u8 D_807EDEA8[];
+
+s32 func_8060B9D0(s32 arg0) {
+    s32 temp_t8;
+    s32 var_v1;
+
+    if (D_807EDEA8) {
+    }
+    var_v1 = 0;
+loop_1:
+    if (arg0 == D_807EDEA8[var_v1]) {
+        return var_v1;
+    }
+    temp_t8 = (var_v1 = (var_v1 + 1) & 0xFF);
+    if (temp_t8 >= 4) {
+        return 0;
+    }
+    goto loop_1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BA14.s")
 
@@ -230,7 +248,6 @@ void func_8060CB9C(void) {
 
 extern void func_8060C758(s32, s32);
 extern u8 D_807ECEA8[];
-extern s8 D_807EDEA8;
 extern void func_8060CB74(void);
 
 void func_8060D0A8(void) {
@@ -239,7 +256,7 @@ void func_8060D0A8(void) {
     s8 *var_v0;
     s32 var_s0;
 
-    var_v0 = &D_807EDEA8;
+    var_v0 = (s8 *)D_807EDEA8;
     var_s0 = 0;
     sp28 = (s32) D_807467C8;
     do {

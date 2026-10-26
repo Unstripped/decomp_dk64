@@ -1,4 +1,4 @@
-// func_8060D7A8 (src/global/104F0.c): stage 4: frame/callee-saved set and arithmetic/control flow match after correcting unsigned-to-double conversion; remaining diff is global-base allocation (target s0, candidate s2) and branch-likely scheduling around D_807FC952.
+// func_8060D7A8 (src/global/104F0.c): stage 4: D_807FC950 base is s2 while target uses s0, and loop pointer/counter registers are shifted. Tried local declaration reordering, early entry-base materialization, uopt tracing, and a 600-second permuter run; best score 573 but required moving entry advance outside the loop, so retained semantic baseline draft.
 extern s32 flagGet(s32, s32);
 extern s32 func_806F6EDC(void);
 extern s32 func_806F8EDC(s32, s32);
@@ -7,8 +7,8 @@ extern u8 D_807FC950[];
 extern u8 D_807FC952;
 
 void func_8060D7A8(void) {
-    u8 *entry;
     s32 value;
+    u8 *entry;
     s32 i;
 
     if (func_806F6EDC() != 0) {
