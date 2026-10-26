@@ -518,25 +518,156 @@ s32 func_80617400(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617770.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061796C.s")
+void func_80617770(Actor *, s16, u8);
+void sfxStopSlotSound(Actor *, u8);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
+void sfxSetVolumeAndPan(u8, f32, f32);
+void sfxAllocateChannel(s32, f32);
+void sfxStopChannel(s32, u8);
+void func_8070D8C0(Actor *, u16, u8);
+void func_80617DFC(Actor *, s16);
+extern u8 D_80746D60[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806179C0.s")
+typedef struct P19eActorSub4 {
+    u8 pad0[0x10];
+    s16 unk10;
+} P19eActorSub4;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617A60.s")
+typedef struct P19eActorInner {
+    P19eActorSub4 *unk0;
+} P19eActorInner;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617AF0.s")
+typedef struct P19eActorStateView {
+    u8 pad0[0x72];
+    s16 unk72;
+} P19eActorStateView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617B38.s")
+typedef struct P19eActionValue {
+    u8 pad0[4];
+    f32 value;
+} P19eActionValue;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617BD8.s")
+typedef struct P19eActionState {
+    P19eActionValue *unk0;
+    P19eActionValue *unk4;
+    u8 pad8[0x7C];
+    s32 unk84;
+} P19eActionState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617C6C.s")
+s32 func_8061796C(Actor *arg0) {
+    s16 sp1E;
+    u8 sp1D;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617CC0.s")
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    func_80614F28(&sp1D);
+    func_80617770(arg0, sp1E, sp1D);
+    return 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617D14.s")
+s32 func_806179C0(Actor *arg0) {
+    s16 sp2E;
+    u8 sp2D;
+    u8 sp2C;
+    u8 sp2B;
+    s8 sp2A;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617D20.s")
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp2E);
+    func_80614F28(&sp2D);
+    func_80614F28(&sp2B);
+    func_80614F28(&sp2C);
+    func_80614F28((u8 *)&sp2A);
+    sfxStopSlotSound(arg0, sp2D);
+    sfxPlayActorSound(arg0, sp2E, sp2C, 1, sp2D, sp2B, 1.0f, sp2A);
+    return 1;
+}
+
+s32 func_80617A60(Actor *arg0) {
+    f32 sp1C;
+    u8 sp1B;
+    u8 sp1A;
+
+    D_807F5AF0++;
+    func_80614F28(&sp1A);
+    func_80614FD8((u8 *)&sp1C);
+    func_80614F28(&sp1B);
+    sfxSetVolumeAndPan(((u8 *)arg0)[sp1A * 2 + 0x6F], sp1C, (f32)sp1B);
+    return 1;
+}
+
+s32 func_80617AF0(Actor *arg0) {
+    u8 sp1F;
+
+    D_807F5AF0++;
+    func_80614F28(&sp1F);
+    sfxStopSlotSound(arg0, sp1F);
+    return 1;
+}
+
+s32 func_80617B38(Actor *arg0) {
+    s16 sp2E;
+    u8 sp2D;
+    u8 sp2C;
+    s8 sp2B;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp2E);
+    func_80614F28(&sp2D);
+    func_80614F28(&sp2C);
+    func_80614F28((u8 *)&sp2B);
+    sfxPlayActorSound(arg0, sp2E, sp2C, 1, sp2D, 0xFF, 1.0f, sp2B);
+    ((P19eActorStateView *)arg0)->unk72 = ((P19eActorInner *)arg0->unk4)->unk0->unk10;
+    return 1;
+}
+
+s32 func_80617BD8(Actor *arg0) {
+    u8 sp1F;
+    u8 sp1E;
+
+    D_807F5AF0++;
+    func_80614F28(&sp1F);
+    func_80614F28(&sp1E);
+    sfxAllocateChannel(D_80746D60[sp1F], (f32)((f64)sp1E / 255.0));
+    return 1;
+}
+
+s32 func_80617C6C(Actor *arg0) {
+    u8 sp1F;
+
+    D_807F5AF0++;
+    func_80614F28(&sp1F);
+    sfxStopChannel(D_80746D60[sp1F], 0);
+    return 1;
+}
+
+s32 func_80617CC0(Actor *arg0) {
+    u16 sp1E;
+    u8 sp1D;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    func_80614F28(&sp1D);
+    func_8070D8C0(arg0, sp1E, sp1D);
+    return 1;
+}
+
+s32 func_80617D14(Actor *arg0) {
+    return 1;
+}
+
+void func_80617D20(Actor *arg0) {
+    P19eActionState *state;
+    P19eActionValue *value;
+
+    state = (P19eActionState *)arg0->unk4;
+    if (state->unk84 != 0) {
+        value = state->unk4;
+    } else {
+        value = state->unk0;
+    }
+    func_80617DFC(arg0, (s16)value->value);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617D70.s")
 
