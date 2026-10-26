@@ -7,11 +7,53 @@ extern Actor *D_807FBB44;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614D00.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614D48.s")
+typedef struct Perm2D48Value {
+    u8 pad0[0x24];
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+} Perm2D48Value;
+
+typedef struct Perm2D48State {
+    Perm2D48Value *unk0;
+} Perm2D48State;
+
+void func_80614D48(Actor *arg0, f32 arg1, f32 arg2) {
+    Perm2D48Value *temp_v0;
+
+    temp_v0 = ((Perm2D48State *)arg0->unk4)->unk0;
+    if (arg2 > 0.0f) {
+        temp_v0->unk34 = arg2;
+        temp_v0->unk2C = arg1;
+        temp_v0->unk30 = 0.0f;
+        temp_v0->unk28 = temp_v0->unk24;
+        return;
+    }
+    temp_v0->unk24 = arg1;
+    temp_v0->unk34 = 0.0f;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614D90.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614E78.s")
+
+typedef struct Perm2E78ActorView {
+    u8 pad0[0x58];
+    s32 unk58;
+} Perm2E78ActorView;
+
+extern u16 *D_807FBB54;
+extern s32 D_807F5AF4;
+
+void func_80614EBC(Actor *arg0, s32 arg1);
+
+void func_80614E78(Actor *arg0, s32 arg1) {
+    s32 index;
+
+    index = ((arg1 * 7) + ((Perm2E78ActorView *)arg0)->unk58) - 2;
+    func_80614EBC(arg0, *(D_807FBB54 + index));
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614EBC.s")
 
@@ -130,7 +172,18 @@ s32 func_80615134(Actor *arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806151BC.s")
+s32 func_806151BC(Actor *arg0) {
+    u8 sp1F;
+
+    D_807F5AF0++;
+    func_80614F28(&sp1F);
+    if (sp1F) {
+        ((P19aState *)arg0->unk4)->unk7C = sp1F - 1;
+        ((P19aState *)arg0->unk4)->flags |= 2;
+        return 0;
+    }
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061522C.s")
 
@@ -437,9 +490,8 @@ typedef struct P19c2ScriptCursor {
     u8 *unk6C;
 } P19c2ScriptCursor;
 
-void func_80614E78(Actor *, u16);
-void func_80614EBC(Actor *, u16);
-extern s32 D_807F5AF4;
+void func_80614E78(Actor *, s32);
+void func_80614EBC(Actor *, s32);
 
 s32 func_80616318(Actor *arg0) {
     u16 sp1E;
