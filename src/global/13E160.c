@@ -7,6 +7,7 @@ typedef struct SynCoreParam {
     s16 pad;
     s32 value;
     s32 delta;
+    u8 pad14[0x10];
 } SynCoreParam;
 
 typedef struct SynCoreAuxBus {
@@ -66,10 +67,111 @@ extern SynCoreSynth *D_807563E4;
 s32 _n_timeToSamplesNoRound(s32);
 s32 __n_nextSampleTime(SynCorePlayer **);
 void _n_collectPVoices(void);
+void n_alFxPull(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13E160/n_alSynNew.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13E160/n_alAudioFrame.s")
+void n_alSynNew(SynCoreConfig *config) {
+    s32 i;
+    s32 j;
+    s32 padI;
+    ALLink *pvoice;
+    s32 padPVoice;
+    SynCorePVoice *pvoices;
+    ALHeap *heap;
+    s32 padParams;
+    SynCoreParam *params;
+    SynCoreParam *param;
+
+    heap = config->heap;
+    D_807563E4->head = NULL;
+    D_807563E4->numPVoices = config->maxPVoices;
+    D_807563E4->curSamples = 0;
+    D_807563E4->paramSamples = 0;
+    D_807563E4->outputRate = config->outputRate;
+    D_807563E4->maxOutSamples = 0xB8;
+    D_807563E4->dma = config->dma;
+    D_807563E4->outBuffer = NULL;
+    D_807563E4->unk4C = 1;
+    if (config->maxFXBusses >= 3) D_807563E4->maxAuxBusses = 2;
+    else if (config->maxFXBusses <= 0) D_807563E4->maxAuxBusses = 1;
+    else D_807563E4->maxAuxBusses = config->maxFXBusses;
+    D_807563E4->auxBuses = alHeapDBAlloc(NULL, 0, heap, D_807563E4->maxAuxBusses, 0x48);
+    if (D_807563E4->maxAuxBusses > (i = 0)) do {
+        D_807563E4->auxBuses[i].count = 0;
+        D_807563E4->auxBuses[i].maxPVoices = config->maxPVoices;
+        D_807563E4->auxBuses[i].pvoices = alHeapDBAlloc(NULL, 0, heap, config->maxPVoices, 4);
+        if (config->fxType[i] != 0) D_807563E4->auxBuses[i].effect = func_8073D160(i, config, heap);
+        else D_807563E4->auxBuses[i].effect = NULL;
+        D_807563E4->auxBuses[i].filter = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
+        *(s16 *)((u8 *)D_807563E4->auxBuses[i].filter + 2) = 0;
+        *(void **)((u8 *)D_807563E4->auxBuses[i].filter + 0x2C) = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+        *(void **)((u8 *)D_807563E4->auxBuses[i].filter + 0x30) = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+    } while (++i < D_807563E4->maxAuxBusses);
+    D_807563E4->mainBus = alHeapDBAlloc(NULL, 0, heap, 1, 0x14);
+    *(void **)((u8 *)D_807563E4->mainBus + 4) = n_alFxPull;
+    D_807563E4->pFreeList.next = NULL;
+    D_807563E4->pFreeList.prev = NULL;
+    D_807563E4->pLameList.next = NULL;
+    D_807563E4->pLameList.prev = NULL;
+    D_807563E4->pAllocList.next = NULL;
+    D_807563E4->pAllocList.prev = NULL;
+    pvoices = alHeapDBAlloc(NULL, 0, heap, config->maxPVoices, 0xC0);
+    if (config->maxPVoices > (i = 0)) do {
+        pvoice = (ALLink *)&pvoices[i];
+        alLink(pvoice, &D_807563E4->pFreeList);
+        *(s32 *)((u8 *)pvoice + 8) = 0;
+        alN_PVoiceNew(pvoice, D_807563E4->dma, heap);
+        if (D_807563E4->maxAuxBusses > (j = 0)) do {
+            D_807563E4->auxBuses[j].pvoices[D_807563E4->auxBuses[j].count] = pvoice, D_807563E4->auxBuses[j].count++;
+        } while (++j < D_807563E4->maxAuxBusses);
+    } while (++i < config->maxPVoices);
+    params = alHeapDBAlloc(NULL, 0, heap, config->maxUpdates, 0x24);
+    D_807563E4->paramFreeList = NULL;
+    if (config->maxUpdates > (i = 0)) do {
+        param = &params[i];
+        param->next = (ALLink *)D_807563E4->paramFreeList;
+        D_807563E4->paramFreeList = param;
+    } while (++i < config->maxUpdates);
+    D_807563E4->paramPool = heap;
+}
+
+s32 n_alAudioFrame(s32 cmdList, s32 *cmdLen, s32 outBuf, s32 outLen) {
+    SynCorePlayer *player;
+    s16 unused;
+    s32 output;
+    s32 original;
+    s32 samples;
+    s32 buffer;
+
+    unused = 0;
+    output = cmdList;
+    buffer = outBuf;
+    if (D_807563E4->head == NULL) {
+        *cmdLen = 0;
+        return cmdList;
+    }
+    if ((D_807563E4->paramSamples = __n_nextSampleTime(&player), (D_807563E4->paramSamples - D_807563E4->curSamples) < outLen)) {
+        do {
+            D_807563E4->paramSamples &= ~0xF;
+            player->callTime += _n_timeToSamplesNoRound(player->handler(player));
+        } while ((D_807563E4->paramSamples = __n_nextSampleTime(&player), (D_807563E4->paramSamples - D_807563E4->curSamples) < outLen));
+    }
+    D_807563E4->paramSamples &= ~0xF;
+    if (outLen > 0) {
+        do {
+            samples = D_807563E4->maxOutSamples < outLen ? D_807563E4->maxOutSamples : outLen;
+            original = output;
+            D_807563E4->outBuffer = (void *)buffer;
+            output = func_8073E800(D_807563E4->curSamples, original);
+            outLen -= samples;
+            buffer += samples * sizeof(s16) * 2;
+            D_807563E4->curSamples += samples;
+        } while (outLen > 0);
+    }
+    *cmdLen = (output - cmdList) >> 3;
+    _n_collectPVoices();
+    return output;
+}
 
 SynCoreParam *__n_allocParam(void) {
     SynCoreParam *param;
