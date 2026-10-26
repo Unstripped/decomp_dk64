@@ -1,4 +1,11 @@
+#define _OS_EXCEPTION_H_
+#include <PR/ultratypes.h>
+typedef u32 OSIntMask;
+typedef u32 OSHWIntr;
+
 #include "common.h"
+
+extern s32 osGetIntMask(s32 arg0);
 
 struct GeSndState;
 
@@ -139,8 +146,8 @@ extern GeSndState *D_807563C4;
 void n_alSndpSetVol();
 void n_alSndpSetPitch();
 void n_alSndpSetPan();
-void n_alSndpSetPriority();
-s32 n_alSndpAllocate(s32, s32, s32, s32, f32, s32, s32);
+u16 n_alSndpSetPriority();
+struct GfSndState *n_alSndpAllocate(void *, s16, u16, u8, f32, u8, struct GfSndState **);
 s32 n_alSynAllocVoice(void *, void *);
 void n_alSynSetVol(void *, s32, s32);
 void n_alSynStartVoiceParams(void *, void *, f32, s32, u8, s32, s32, f32, s32, s32);
@@ -371,7 +378,7 @@ void __n_sndpVoiceHandler(GeSndEvt *event) {
                 if (state->flags & 0x10) {
                     s32 id;
 
-                    id = n_alSndpAllocate(event->arg12, event->arg8.i, state->vol, state->pan, state->pitch, state->fxMix, state->unk30);
+                    id = (s32)n_alSndpAllocate((void *)event->arg12, event->arg8.i, state->vol, state->pan, state->pitch, state->fxMix, (struct GfSndState **)state->unk30);
                 }
                 break;
             default:
@@ -384,38 +391,370 @@ void __n_sndpVoiceHandler(GeSndEvt *event) {
     } while (!done && state && !mask);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpSetVol.s")
+typedef struct {
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
+    u8 b4;
+    s8 b5;
+} GfKeyMap;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpSetPitch.s")
+typedef struct {
+    s32 attackTime;
+    s32 decayTime;
+} GfEnv;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpSetPan.s")
+typedef struct {
+    GfEnv *env;
+    GfKeyMap *keymap;
+} GfSound;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpSetPriority.s")
+typedef struct GfSndState {
+    struct GfSndState *next;
+    struct GfSndState *prev;
+    GfSound *sound;
+    u8 voice[0x1C];
+    f32 pitchRatio;
+    f32 pitch;
+    struct GfSndState **handle;
+    s32 unk34;
+    s16 vol;
+    s16 pad3A;
+    s32 unk3C;
+    u8 priority;
+    u8 pan;
+    u8 fxMix;
+    u8 flags;
+    u8 state;
+} GfSndState;
+
+typedef struct {
+    u16 type;
+    GfSndState *state;
+    s32 arg;
+    s32 arg2;
+} GfSndEvt;
+
+typedef struct {
+    u8 pad0[0x14];
+    ALEventQueue evtq;
+    u8 pad28[0x14];
+    GfSndState *unk3C;
+} GfSndp;
+
+extern GfSndState *D_807563C0;
+
+extern void n_alSynStopVoice(void *);
+extern void n_alSynFreeVoice(void *);
+void n_alSndpPlay(GfSndState *state);
+
+void n_alSndpSetVol(GfSndState *state) {
+    if (state->flags & 4) {
+        n_alSynStopVoice(&state->voice);
+        n_alSynFreeVoice(&state->voice);
+    }
+    n_alSndpPlay(state);
+    n_alSndpSetPan(&((GfSndp *)D_807563CC)->evtq, state, 0xFFFF);
+}
+
+void n_alSndpSetPitch(GfSndState *state) {
+    GfSndEvt ev;
+    f32 pitch;
+
+    pitch = alCents2Ratio(state->sound->keymap->b5) * state->pitch;
+    ev.type = 0x10;
+    ev.state = state;
+    ev.arg = *(s32 *)&pitch;
+    alEvtqPostEvent(&((GfSndp *)D_807563CC)->evtq, (ALEvent *)&ev, 33333);
+}
+
+void n_alSndpSetPan(evtq, state, mask)
+ALEventQueue *evtq;
+GfSndState *state;
+u16 mask;
+{
+    ALLink *thisNode;
+    ALLink *nextNode;
+    ALEventListItem *thisItem;
+    ALEventListItem *nextItem;
+    GfSndEvt *thisEvent;
+    s32 intMask;
+
+    intMask = osGetIntMask(1);
+    thisNode = evtq->allocList.next;
+    while (thisNode != 0) {
+        nextNode = thisNode->next;
+        thisItem = (ALEventListItem *)thisNode;
+        nextItem = (ALEventListItem *)nextNode;
+        thisEvent = (GfSndEvt *)&thisItem->evt;
+        if (thisEvent->state == state && (thisEvent->type & mask)) {
+            if (nextItem) {
+                nextItem->delta += thisItem->delta;
+            }
+            alUnlink(thisNode);
+            alLink(thisNode, (ALLink *)evtq);
+        }
+        thisNode = nextNode;
+    }
+    osGetIntMask(intMask);
+}
+
+u16 n_alSndpSetPriority(u16 *a0, u16 *a1) {
+    u16 n0;
+    u16 n8;
+    u16 n4;
+    GfSndState *p0 = D_807563C0;
+    GfSndState *p8 = (GfSndState *)D_807563C8;
+    GfSndState *p4 = (GfSndState *)D_807563C4;
+
+    for (n0 = 0; p0; n0++, p0 = p0->next) {
+    }
+    for (n8 = 0; p8; n8++, p8 = p8->next) {
+    }
+    for (n4 = 0; p4; n4++, p4 = p4->prev) {
+    }
+    *a0 = n8;
+    *a1 = n0;
+    return n4;
+}
+
+GfSndState *n_alSndpSetFXMix(void *sndp, GfSound *sound);
+
+#ifdef NON_MATCHING
+GfSndState *n_alSndpSetFXMix(void *sndp, GfSound *sound) {
+    GfSndState *state;
+    GfKeyMap *km = sound->keymap;
+    s32 stolen;
+    s32 intMask;
+
+    intMask = osGetIntMask(1);
+    state = (GfSndState *)D_807563C8;
+    if (state) {
+        D_807563C8 = (u8 *)state->next;
+        alUnlink((ALLink *)state);
+        if (D_807563C0) {
+            state->next = D_807563C0;
+            state->prev = 0;
+            D_807563C0->prev = state;
+            D_807563C0 = state;
+        } else {
+            state->prev = 0;
+            state->next = state->prev;
+            D_807563C0 = state;
+            D_807563C4 = (GeSndState *)state;
+        }
+        osGetIntMask(intMask);
+        stolen = sound->env->decayTime == -1;
+        state->sound = sound;
+        state->priority = stolen + 0x40;
+        state->state = 5;
+        state->pitch = 1.0f;
+        state->unk34 = 2;
+        state->flags = km->b3 & 0xF0;
+        state->handle = 0;
+        if (state->flags & 0x20) {
+            state->pitchRatio = alCents2Ratio(km->b4 * 100 - 6000);
+        } else {
+            state->pitchRatio = alCents2Ratio(km->b4 * 100 + km->b5 - 6000);
+        }
+        if (stolen) {
+            state->flags |= 2;
+        }
+        state->fxMix = 0;
+        state->pan = 0x40;
+        state->vol = 0x7FFF;
+    } else {
+        osGetIntMask(intMask);
+    }
+    return state;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpSetFXMix.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpPlay.s")
+void n_alSndpPlay(GfSndState *state) {
+    if (D_807563C0 == state) {
+        D_807563C0 = state->next;
+    }
+    if ((GfSndState *)D_807563C4 == state) {
+        D_807563C4 = (GeSndState *)state->prev;
+    }
+    alUnlink((ALLink *)state);
+    if (D_807563C8) {
+        state->next = (GfSndState *)D_807563C8;
+        state->prev = 0;
+        ((GfSndState *)D_807563C8)->prev = state;
+        D_807563C8 = (u8 *)state;
+    } else {
+        state->prev = 0;
+        state->next = state->prev;
+        D_807563C8 = (u8 *)state;
+    }
+    if (state->flags & 4) {
+        D_807563D0--;
+    }
+    state->state = 0;
+    if (state->handle) {
+        if (*state->handle == state) {
+            *state->handle = 0;
+        }
+        state->handle = 0;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpPlayAt.s")
+void n_alSndpPlayAt(GfSndState *state, u8 priority) {
+    if (state) {
+        state->priority = (s16)priority;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpStop.s")
+u8 n_alSndpStop(GfSndState *state) {
+    if (state) {
+        return state->state;
+    } else {
+        return 0;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpAllocate.s")
+GfSndState *n_alSndpAllocate(void *a0, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 fxMix, GfSndState **handle) {
+    GfSndState *state;
+    GfSndState *ret;
+    GfKeyMap *km;
+    GfSound *sound;
+    s16 lastId;
+    s32 delay48;
+    s32 delta;
+    s32 total;
+    s32 val;
+    GfSndEvt ev1;
+    GfSndEvt ev2;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpDeallocate.s")
+    ret = 0;
+    lastId = 0;
+    total = 0;
+    if (sndId) {
+        do {
+            sound = ((GfSound **)((u8 *)((void **)a0)[3] + sndId * 4))[3];
+            state = n_alSndpSetFXMix(a0, sound);
+            if (state) {
+                ((GfSndp *)D_807563CC)->unk3C = state;
+                ev1.type = 1;
+                ev1.state = state;
+                val = pan + state->pan - 0x40;
+                if (val >= 0x80) {
+                    val = 0x7F;
+                } else if (val < 0) {
+                    val = 0;
+                }
+                state->pan = val;
+                state->vol = ((u32)vol * state->vol) >> 15;
+                state->pitch = state->pitch * pitch;
+                state->fxMix = fxMix;
+                delta = sound->keymap->b1 * 33333;
+                if (state->flags & 0x10) {
+                    state->flags &= ~0x10;
+                    alEvtqPostEvent(&((GfSndp *)D_807563CC)->evtq, (ALEvent *)&ev1, total + 1);
+                    delay48 = delta + 1;
+                    lastId = sndId;
+                } else {
+                    alEvtqPostEvent(&((GfSndp *)D_807563CC)->evtq, (ALEvent *)&ev1, delta + 1);
+                }
+                ret = state;
+            }
+            total += delta;
+            km = sound->keymap;
+            sndId = km->b0 + ((km->b2 & 0xC0) << 2);
+            sndId = sndId + ((km->b2 & 0x20) << 5);
+        } while (sndId && state);
+        if (ret) {
+            ret->flags |= 1;
+            ret->handle = handle;
+            if (lastId) {
+                ret->flags |= 0x10;
+                ev2.type = 0x200;
+                ev2.state = ret;
+                ev2.arg = lastId;
+                ev2.arg2 = (s32)a0;
+                alEvtqPostEvent(&((GfSndp *)D_807563CC)->evtq, (ALEvent *)&ev2, delay48);
+            }
+        }
+    }
+    if (handle) {
+        *handle = ret;
+    }
+    return ret;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpGetState.s")
+void n_alSndpDeallocate(GfSndState *state) {
+    GfSndEvt ev;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpSetSound.s")
+    ev.type = 0x400;
+    ev.state = state;
+    if (state) {
+        ev.state->flags &= ~0x10;
+        alEvtqPostEvent(&((GfSndp *)D_807563CC)->evtq, (ALEvent *)&ev, 0);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpGetSound.s")
+void n_alSndpGetState(u8 mask) {
+    s32 intMask;
+    GfSndEvt ev;
+    GfSndState *state;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpDelete.s")
+    intMask = osGetIntMask(1);
+    state = D_807563C0;
+    while (state) {
+        ev.type = 0x400;
+        ev.state = state;
+        if ((state->flags & mask) == mask) {
+            ev.state->flags &= ~0x10;
+            alEvtqPostEvent(&((GfSndp *)D_807563CC)->evtq, (ALEvent *)&ev, 0);
+        }
+        state = state->next;
+    }
+    osGetIntMask(intMask);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/func_80737AC4.s")
+void n_alSndpSetSound(void) {
+    n_alSndpGetState(1);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/func_80737B2C.s")
+void n_alSndpGetSound(void) {
+    n_alSndpGetState(0x11);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/func_80737B48.s")
+void n_alSndpDelete(void) {
+    n_alSndpGetState(3);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/func_80737B58.s")
+void func_80737AC4(GfSndState *state, s16 type, s32 arg) {
+    GfSndEvt ev;
+
+    ev.type = type;
+    ev.state = state;
+    ev.arg = arg;
+    if (state) {
+        alEvtqPostEvent(&((GfSndp *)D_807563CC)->evtq, (ALEvent *)&ev, 0);
+    }
+}
+
+u16 func_80737B2C(u8 idx) {
+    return ((u16 *)D_807FF0E4)[idx];
+}
+
+void func_80737B58(u8 idx, u16 val) {
+    GfSndState *state = D_807563C0;
+    s32 i;
+    GfSndEvt ev;
+
+    ((u16 *)D_807FF0E4)[idx] = val;
+    for (i = 0; state; i++, state = state->next) {
+        if ((state->sound->keymap->b2 & 0x1F) == idx) {
+            ev.type = 0x800;
+            ev.state = state;
+            alEvtqPostEvent(&((GfSndp *)D_807563CC)->evtq, (ALEvent *)&ev, 0);
+        }
+    }
+}
