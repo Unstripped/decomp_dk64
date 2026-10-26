@@ -15,23 +15,85 @@ extern Actor *D_807FBB44;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614EBC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614F28.s")
+void func_80614F28(u8 *arg0) {
+    *arg0 = *D_807F5AF0++;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614F4C.s")
+void func_80614F4C(u8 *arg0) {
+    arg0++;
+    arg0[-1] = *D_807F5AF0++;
+    arg0[0] = *D_807F5AF0++;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614F88.s")
+void func_80614F88(u8 *arg0) {
+    arg0 += 2;
+    arg0[-2] = *D_807F5AF0++;
+    arg0[-1] = *D_807F5AF0++;
+    arg0[0] = *D_807F5AF0++;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614FD8.s")
+void func_80614FD8(u8 *arg0) {
+    arg0 += 3;
+    arg0[-3] = *D_807F5AF0++;
+    arg0[-2] = *D_807F5AF0++;
+    arg0[-1] = *D_807F5AF0++;
+    arg0[0] = *D_807F5AF0++;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061503C.s")
+s32 func_8061503C(s32 arg0) {
+    D_807F5AF0++;
+    return 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061505C.s")
+s32 func_8061505C(s32 arg0) {
+    D_807F5AF0++;
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061507C.s")
+typedef struct P19aState {
+    u8 pad0[0x78];
+    s32 flags;
+    s32 unk7C;
+    f32 unk80;
+    s32 unk84;
+    s32 unk88;
+} P19aState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806150C8.s")
+s32 func_8061507C(Actor *arg0) {
+    s16 sp1E;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806150F8.s")
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    ((P19aState *)arg0->unk4)->unk88 = sp1E;
+    return 1;
+}
+
+s32 func_806150C8(Actor *arg0) {
+    P19aState *temp_v0;
+    s32 temp_v1;
+
+    temp_v0 = (P19aState *)arg0->unk4;
+    temp_v1 = temp_v0->unk88;
+    if (temp_v1 != 0) {
+        temp_v0->unk88 = temp_v1 - 1;
+    }
+    D_807F5AF0++;
+    return 1;
+}
+
+s32 func_806150F8(Actor *arg0) {
+    P19aState *temp_v1;
+    s32 temp_a1;
+
+    temp_v1 = (P19aState *)arg0->unk4;
+    temp_a1 = temp_v1->unk88;
+    if (temp_a1 != 0) {
+        temp_v1->unk88 = temp_a1 - 1;
+        return 0;
+    }
+    D_807F5AF0++;
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615134.s")
 
