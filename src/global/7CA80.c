@@ -122,7 +122,7 @@ s32 func_8067B42C(s32);
 void func_80689418(void);
 void actorListRemoveByActor(void);
 void playerStateDispatchQueuedCallback(void);
-void func_80732354(s32, s32, s32, s32);
+void faultSetMessage(s32, s32, s32, s32);
 void heapFree(void *);
 
 typedef struct R3B_StructFB630 {
@@ -261,7 +261,7 @@ s32 actorQueueOrDespawn(Actor *arg0) {
 
     if (D_807FBE09 != 0) {
         if (D_807FBF10 == 0x40) {
-            func_80732354(0xC, 0, 0, 0);
+            faultSetMessage(0xC, 0, 0, 0);
         }
         if (arg0 == D_807FBB40) {
             D_807FBE08 = 1;
@@ -613,7 +613,7 @@ void actorRegisterGlobalCallback(ActorCallbackNode *arg0) {
         }
     }
     if (!found) {
-        func_80732354(0xE, 0, 0, 0);
+        faultSetMessage(0xE, 0, 0, 0);
     } else {
         D_807FBFE0[i] = arg0;
     }
@@ -672,7 +672,7 @@ void actorAppendCallback(Actor *actor, s32 arg1, s32 arg2, u8 arg3, s32 arg4, vo
 
 void actorQueueDelayedCallback(s32 arg0, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *arg5, s32 arg6) {
     if (D_807FBFD8 == 16) {
-        func_80732354(0xF, 0, 0, 0);
+        faultSetMessage(0xF, 0, 0, 0);
     }
     D_807FBF18[D_807FBFD8].node = actorAllocCallbackNode(arg1, arg2, arg3, arg4, arg5);
     D_807FBF18[D_807FBFD8].arg0 = arg0;
@@ -940,7 +940,7 @@ void actorTableInsert(Actor *arg0) {
     if (D_807FC3F0 < 256) {
         D_807FBFF0[D_807FC3F0++] = (s32)arg0;
     } else {
-        func_80732354(0x13, arg0->unk58, 0, 0);
+        faultSetMessage(0x13, arg0->unk58, 0, 0);
     }
     actorTableSort();
 }

@@ -965,7 +965,7 @@ void sfxStopSlotSound(Actor *arg0, u8 arg1) {
 }
 
 
-void func_80732354(s32, s32, s32, s32);
+void faultSetMessage(s32, s32, s32, s32);
 
 #ifdef NON_MATCHING
 void func_80605380(s16 arg0) {
@@ -982,7 +982,7 @@ void func_80605380(s16 arg0) {
     }
 
     if (t0 < 0 || t0 >= 23) {
-        func_80732354(9, t0, 0, 0);
+        faultSetMessage(9, t0, 0, 0);
         a1 = D_80770628[arg0];
         t0 = D_80770740[a1];
     }

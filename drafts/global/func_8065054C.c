@@ -17,7 +17,7 @@ typedef struct M54B_Slot {
 extern M54B_Slot D_807F6960[];
 extern u32 D_807F6BE0;
 extern u8 D_807444FC;
-void func_80732354(s32, s32, s32, s32);
+void faultSetMessage(s32, s32, s32, s32);
 
 void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
     s32 found;
@@ -44,5 +44,5 @@ void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
         slot->unkC = D_807444FC ^ 1;
         return;
     }
-    func_80732354(0xB, 0, 0, 0);
+    faultSetMessage(0xB, 0, 0, 0);
 }

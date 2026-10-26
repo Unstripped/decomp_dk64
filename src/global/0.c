@@ -185,8 +185,8 @@ void volumeTriggerTableInit(s32);
 void proxPathListClear(void);
 void func_80731030(void);
 s32 flagGet(s32, s32);
-void func_80732354(s32, s32, s32, s32);
-void func_8073239C(void);
+void faultSetMessage(s32, s32, s32, s32);
+void faultThreadInit(void);
 void func_806F6F28(void);
 
 void seg11DmaRead(s32, s32, void *);
@@ -472,7 +472,7 @@ void func_805FBC5C(void) {
     controllerInit();
     audioInit();
     func_8070B308(0);
-    func_8073239C();
+    faultThreadInit();
     osWritebackDCacheAll();
     osCreateMesgQueue(&D_8076A110, &D_8076A108, 2);
     osSetTimer(&D_8076A130, 0xD693A4, 0, &D_8076A110, D_8076A128);
@@ -840,7 +840,7 @@ void func_805FE71C(Gfx *arg0, u8 arg1, s32 *arg2, u8 arg3) {
     gSPEndDisplayList(glistp++);
     *arg2 = glistp - (Gfx *)D_8076A050[arg1];
     if (*arg2 >= D_8076A058) {
-        func_80732354(0x12, 0, 0, 0);
+        faultSetMessage(0x12, 0, 0, 0);
     }
 }
 

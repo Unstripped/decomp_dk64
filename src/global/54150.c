@@ -305,7 +305,7 @@ typedef struct ModelAnimGroup {
 } ModelAnimGroup;
 
 extern MtxCopyRequest D_807F6960[];
-void func_80732354(s32, s32, s32, s32);
+void faultSetMessage(s32, s32, s32, s32);
 void func_8064FA7C();
 
 #ifdef NON_MATCHING
@@ -354,7 +354,7 @@ void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
         slot->unkC = D_807444FC ^ 1;
         return;
     }
-    func_80732354(0xB, 0, 0, 0);
+    faultSetMessage(0xB, 0, 0, 0);
 }
 #else
 

@@ -7,7 +7,7 @@ extern u16 D_807FEF86;
 extern s32 D_807FEF70;
 extern s32 D_807FEF74;
 
-void func_80731B20(s32 a0, s32 a1, s32 a2) {
+void faultFontInit(s32 a0, s32 a1, s32 a2) {
     D_807FEF80 = a0;
     D_807FEF78 = 2;
     D_807FEF84 = 0xFFFF;
@@ -16,7 +16,7 @@ void func_80731B20(s32 a0, s32 a1, s32 a2) {
     D_807FEF74 = a2;
 }
 
-void func_80731B60(s32 a0) {
+void faultFontSetColorMode(s32 a0) {
     if (a0 == 0) {
         D_807FEF84 = 0xFFFF;
     } else {
@@ -28,7 +28,7 @@ extern u8 D_8074450C;
 extern s16 D_80744490;
 extern u8 D_80756130[];
 
-void func_80731B88(u8 c) {
+void faultDrawGlyph(u8 c) {
     u8 *glyph;
     u16 *dst;
     s32 row;
@@ -60,7 +60,7 @@ void func_80731B88(u8 c) {
 extern s32 D_807FEF7C;
 int vsprintf(u8 *buf, const u8 *fmt, va_list ap);
 
-void func_80731D20(const char *fmt, ...) {
+void faultPrintf(const char *fmt, ...) {
     u8 *p;
     u8 buf[0x80];
     u8 c;
@@ -86,7 +86,7 @@ void func_80731D20(const char *fmt, ...) {
                 D_807FEF74 += D_807FEF78;
                 break;
             default:
-                func_80731B88(c);
+                faultDrawGlyph(c);
                 D_807FEF70 += D_807FEF78;
                 break;
         }
@@ -146,9 +146,9 @@ extern s32 D_807FF024;
 extern s32 D_807FF028;
 #ifdef NON_MATCHING
 extern char *D_80756360[];
-void func_80732158(OSThread *a0);
+void faultUnwindStack(OSThread *a0);
 
-void func_80731E68(OSThread *a0) {
+void faultDrawRegs(OSThread *a0) {
     s32 y;
     s32 x;
     s32 j;
@@ -162,32 +162,32 @@ void func_80731E68(OSThread *a0) {
         D_807FEF7C = x;
         D_807FEF70 = x;
         D_807FEF74 = y;
-        func_80731D20("DK 64\n");
-        func_80731D20("%X\n", (s32)ctx->pc);
-        func_80731D20("%X\n", (s32)ctx->ra);
+        faultPrintf("DK 64\n");
+        faultPrintf("%X\n", (s32)ctx->pc);
+        faultPrintf("%X\n", (s32)ctx->ra);
         if (D_807563B8 >= 4) {
             for (j = 0; j < D_807FF018; j++) {
-                func_80731D20("%X\n", D_807FEF88[j].unk0);
+                faultPrintf("%X\n", D_807FEF88[j].unk0);
             }
         }
     }
     if (D_807FF01C != 0) {
-        func_80731D20("%s %x %x %x", D_80756360[D_807FF01C], D_807FF020, D_807FF024, D_807FF028);
+        faultPrintf("%s %x %x %x", D_80756360[D_807FF01C], D_807FF020, D_807FF024, D_807FF028);
     }
     if (D_807563B8 < 4) {
         D_807563B8++;
     }
     if (D_807563B8 == 4) {
-        func_80732158(a0);
+        faultUnwindStack(a0);
     }
 }
 
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/func_80731E68.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/faultDrawRegs.s")
 #endif
 
-s32 func_8073202C(s32 a0, s32 *a1, s32 *a2) {
+s32 unwindDecodeLoadRa(s32 a0, s32 *a1, s32 *a2) {
     if ((a0 & 0xFFFF0000) == 0x8FBF0000) {
         *a2 = *(s32 *)((u8 *)a1 + (s16)(a0 & 0xFFFF));
         return 1;
@@ -195,7 +195,7 @@ s32 func_8073202C(s32 a0, s32 *a1, s32 *a2) {
     return 0;
 }
 
-s32 func_80732064(s32 a0, s32 *a1) {
+s32 unwindDecodeAddiuSp(s32 a0, s32 *a1) {
     if ((a0 & 0xFFFF0000) == 0x27BD0000) {
         s32 v = *a1;
         v += (s16)(a0 & 0xFFFF);
@@ -205,9 +205,9 @@ s32 func_80732064(s32 a0, s32 *a1) {
     return 0;
 }
 
-s32 func_8073209C(u32 a0, s32 *a1, s32 a2, s32 *a3) {
+s32 unwindDecodeJrRa(u32 a0, s32 *a1, s32 a2, s32 *a3) {
     if ((a0 & 0x3FFFFFF) == 0x3E00008) {
-        func_80732064(**(s32 **)a3, a1);
+        unwindDecodeAddiuSp(**(s32 **)a3, a1);
         if (D_807FF018 != 0 && a2 == D_807FEF88[D_807FF018 - 1].unk0) {
             D_807FEF88[D_807FF018 - 1].unk4++;
         } else {
@@ -221,7 +221,7 @@ s32 func_8073209C(u32 a0, s32 *a1, s32 a2, s32 *a3) {
     return 0;
 }
 
-void func_80732158(OSThread *a0) {
+void faultUnwindStack(OSThread *a0) {
     s32 x1;
     s32 *pc;
     s32 r;
@@ -237,12 +237,12 @@ void func_80732158(OSThread *a0) {
     done = 0;
     while (pc != 0 && D_807FF018 < 18 && !done) {
         insn = *pc++;
-        r = func_8073209C(insn, &sp, ra, (s32 *)&pc);
+        r = unwindDecodeJrRa(insn, &sp, ra, (s32 *)&pc);
         if (r == 0) {
-            r = func_8073202C(insn, (s32 *)sp, &ra);
+            r = unwindDecodeLoadRa(insn, (s32 *)sp, &ra);
         }
         if (r == 0) {
-            func_80732064(insn, &sp);
+            unwindDecodeAddiuSp(insn, &sp);
         }
         done = D_807FF018 != 0 ? D_807FEF88[D_807FF018 - 1].unk4 >= 16 : 0;
     }
@@ -253,9 +253,9 @@ extern OSMesgQueue D_807FEF58;
 
 extern s32 D_80744470[];
 extern u8 D_807563B4;
-void func_80731E68(OSThread *a0);
+void faultDrawRegs(OSThread *a0);
 
-void func_80732280(void *arg) {
+void faultThreadMain(void *arg) {
     OSMesg msg;
     OSThread *thread;
     s32 i;
@@ -275,8 +275,8 @@ void func_80732280(void *arg) {
                 for (i = 0; i < 2; i++) {
                     osViBlack(0);
                     D_807FEF80 = D_80744470[i];
-                    func_80731E68(thread);
-                    func_80731E68(thread);
+                    faultDrawRegs(thread);
+                    faultDrawRegs(thread);
                 }
             }
         }
@@ -285,7 +285,7 @@ void func_80732280(void *arg) {
 
 void func_8061D4E4(s32);
 
-void func_80732354(u8 a0, s32 a1, s32 a2, s32 a3) {
+void faultSetMessage(u8 a0, s32 a1, s32 a2, s32 a3) {
     D_807FF01C = a0;
     D_807FF020 = a1;
     D_807FF024 = a2;
@@ -296,12 +296,12 @@ void func_80732354(u8 a0, s32 a1, s32 a2, s32 a3) {
 extern OSMesg D_807FEF50;
 extern OSThread D_807FDDA0;
 extern u8 D_807563B0;
-void func_80732280(void *);
+void faultThreadMain(void *);
 
-void func_8073239C(void) {
+void faultThreadInit(void) {
     __osSetFpcCsr(__osGetFpcCsr() | 0x400);
     osCreateMesgQueue(&D_807FEF58, &D_807FEF50, 1);
-    osCreateThread(&D_807FDDA0, 8, func_80732280, 0, &D_807FEF50, 0x32);
+    osCreateThread(&D_807FDDA0, 8, faultThreadMain, 0, &D_807FEF50, 0x32);
     osStartThread(&D_807FDDA0);
     D_807563B0 = 1;
 }

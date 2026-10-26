@@ -1,4 +1,4 @@
-// func_80605380 (src/global/7130.c): Stage 6 (frame 0x30 exact, 99/100 insns, diff score 92: uopt assigns t0 before a1 causing t0->$a1, a1->$a2 which drops move $a1, $t0 before func_80732354; tested permuter and var ordering)
+// func_80605380 (src/global/7130.c): Stage 6 (frame 0x30 exact, 99/100 insns, diff score 92: uopt assigns t0 before a1 causing t0->$a1, a1->$a2 which drops move $a1, $t0 before faultSetMessage; tested permuter and var ordering)
 #include "common.h"
 
 extern s16 D_80770628[];
@@ -10,7 +10,7 @@ extern s16 D_807707A0[][22];
 extern s16 D_807705F8[];
 extern void *D_807705A0[];
 
-void func_80732354(s32, s32, s32, s32);
+void faultSetMessage(s32, s32, s32, s32);
 
 void func_80605380(s16 arg0) {
     s16 a1 = D_80770628[arg0];
@@ -26,7 +26,7 @@ void func_80605380(s16 arg0) {
     }
 
     if (t0 < 0 || t0 >= 23) {
-        func_80732354(9, t0, 0, 0);
+        faultSetMessage(9, t0, 0, 0);
         a1 = D_80770628[arg0];
         t0 = D_80770740[a1];
     }

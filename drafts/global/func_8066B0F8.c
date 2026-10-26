@@ -16,7 +16,7 @@ void func_8066B4D4(s32, u32, u32 *, s32 *);
 void *func_8066B5C8(s32, u32);
 void func_8066B5F4(void);
 void func_8066B8C8(void *, s32, u32);
-void func_80732354(s32, s32, s32, s32);
+void faultSetMessage(s32, s32, s32, s32);
 void *heapAllocFromPool(s32, s32);
 
 extern u8 D_80748E18[];
@@ -79,7 +79,7 @@ void *func_8066B0F8(s32 arg0, u32 arg1, u8 arg2, s32 arg3) {
         }
     } else {
         if (D_807F9680 == 0xC0) {
-            func_80732354(6, 0, 0, 0);
+            faultSetMessage(6, 0, 0, 0);
         }
         D_807FA8A0[D_807F9680].unk8 = *temp_t0;
         if (*temp_t0 != 0) {

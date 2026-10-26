@@ -1033,7 +1033,7 @@ typedef struct CollisionBstNode {
     /* 0x18 */ struct CollisionBstNode *right;
 } CollisionBstNode;
 
-void func_80732354(s32, s32, s32, s32);
+void faultSetMessage(s32, s32, s32, s32);
 void collisionQueueSearch(s32, u8 *, u16 *, s32 *);
 void collisionBstLookupOrAssert(CollisionBstNode *arg0, u32 arg1, s32 *arg2, s32 *arg3) {
     u8 sp2F;
@@ -1045,7 +1045,7 @@ void collisionBstLookupOrAssert(CollisionBstNode *arg0, u32 arg1, s32 *arg2, s32
         sp2C = 0;
         sp28 = 0;
         collisionQueueSearch(arg1, &sp2F, &sp2C, &sp28);
-        func_80732354(7, sp2F, sp2C, D_8076A064 - sp28);
+        faultSetMessage(7, sp2F, sp2C, D_8076A064 - sp28);
     }
     if (arg1 == arg0->unk0) {
         *arg2 = arg0->unk4;
