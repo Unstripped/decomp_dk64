@@ -683,7 +683,7 @@ void sfxSetVolumeAndPan(u8, f32, f32);
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, u8);
 void func_8070D8C0(Actor *, u16, u8);
-void func_80617DFC(Actor *, s16);
+s32 func_80617DFC(Actor *, s16);
 extern u8 D_80746D60[];
 
 typedef struct P19eActorSub4 {
@@ -866,7 +866,80 @@ void func_80617D94(Actor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617DFC.s")
+typedef struct P19b4State {
+    u8 pad0[0x68];
+    u8 *unk68;
+    u8 pad6C[0x1C];
+    s32 unk88;
+} P19b4State;
+
+s32 func_80617DFC(Actor *arg0, s16 arg1) {
+    u8 sp2F;
+    s16 sp2C;
+    s16 sp2A;
+
+    D_807F5AF0++;
+    while (1) {
+        func_80614F28(&sp2F);
+        func_80614F4C((u8 *)&sp2C);
+        switch (sp2F) {
+        case 0:
+            D_807F5AF0 -= 2;
+            return 1;
+        case 1:
+            if (arg1 == sp2C) {
+                func_80614F4C((u8 *)&sp2A);
+                D_807F5AF0 = ((P19b4State *)arg0->unk4)->unk68 + sp2A;
+                return 1;
+            }
+            break;
+        case 2:
+            if (arg1 < sp2C) {
+                func_80614F4C((u8 *)&sp2A);
+                D_807F5AF0 = ((P19b4State *)arg0->unk4)->unk68 + sp2A;
+                return 1;
+            }
+            break;
+        case 3:
+            if (sp2C < arg1) {
+                func_80614F4C((u8 *)&sp2A);
+                D_807F5AF0 = ((P19b4State *)arg0->unk4)->unk68 + sp2A;
+                return 1;
+            }
+            break;
+        case 4:
+            if (arg1 == sp2C) {
+                func_80614F4C((u8 *)&sp2A);
+                ((P19b4State *)arg0->unk4)->unk88 = sp2A;
+                func_80617D94(arg0);
+                return 1;
+            }
+            break;
+        case 5:
+            if (arg1 < sp2C) {
+                func_80614F4C((u8 *)&sp2A);
+                ((P19b4State *)arg0->unk4)->unk88 = sp2A;
+                func_80617D94(arg0);
+                return 1;
+            }
+            break;
+        case 6:
+            if (sp2C < arg1) {
+                func_80614F4C((u8 *)&sp2A);
+                ((P19b4State *)arg0->unk4)->unk88 = sp2A;
+                func_80617D94(arg0);
+                return 1;
+            }
+            break;
+        case 7:
+            func_80614F4C((u8 *)&sp2A);
+            ((P19b4State *)arg0->unk4)->unk88 = sp2A;
+            func_80617D94(arg0);
+            return 1;
+        }
+        D_807F5AF0 += 2;
+    }
+}
 
 s32 func_80617FFC(Actor *arg0) {
     f32 sp1C;
