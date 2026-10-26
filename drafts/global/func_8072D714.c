@@ -1,4 +1,4 @@
-// func_8072D714 (src/global/12E800.c): stage 5: frame 40 and sdc1 f2@24 now match (key: leading unused 'f64 unused;' local reserves the 8 bytes; trailing/mid placement does not); remaining diff: target keeps 66.0f first operand 'mul.s fa0,ft3(66.0),ft0' with 66.0/0.5 constants hoisted right after the call and cur loaded as f0, built multiplies (f32)(f+0.5)*66.0 with constants later (1 insn longer: 192 vs 191).
+// func_8072D714 (src/global/12E800.c): stage 5: leading unused f64 fixes frame; remaining only float reg/ordering: target x=f12 cur=f0 with 66.0f/0.5 hoisted after the call, built x=f0 cur=f12; s32 func_8002D7E8 and cur/x locals tried, no change.
 extern u16 D_80744508;
 extern s32 D_8076A0A8;
 typedef struct D1ActorViewI {

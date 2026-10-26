@@ -1,4 +1,4 @@
-// func_8072D13C (src/global/12E800.c): stage 5: instruction count (415), frame 0x38 and every stack slot (off@0x18,key@0x2A,moved@0x2D,z/y/x,type@0x34) now match via 3 leading + 2 mid unused u8 locals (p1-p3 before type, q1,q2 before key; unused locals reserve home slots). Remaining: temp/base regs (target keeps D_807FDC90 in v1, &DC90 in t4, idx loaded straight into t3 then ra=idx copy; built v0/t3/t2) and scheduling of the early loads. Not yet permuted.
+// func_8072D13C (src/global/12E800.c): stage 5: 414/415 insns, frame/slots match; fixed branch structure ((arg1&1)&&stationary shares one else; key=(v<cnt)?v:0). Remaining: registers (target idx t3 loaded straight, DC90 in v1, dir in ra) and scheduling; two permuter runs 540-600s best 3330 from 4645 (not close).
 typedef struct D1Pair {
     /* 0x00 */ u8 a;
     /* 0x01 */ u8 b;
@@ -106,14 +106,10 @@ u8 func_8072D13C(u8 arg0, u8 arg1) {
     y = D1PT(off)->y;
     z = D1PT(off)->z;
     moved = ((D1AK->unk7C - x) * (D1AK->unk7C - x) + (D1AK->unk84 - z) * (D1AK->unk84 - z)) < (f32)(D1PT(off)->r * D1PT(off)->r);
-    if (arg1 & 1) {
-        if (D1AK->unk88 == D1AK->unk7C && D1AK->unk90 == D1AK->unk84) {
-            D1DC90K->unk20++;
-            if (D1DC90K->unk20++ > 0x10) {
-                moved = 1;
-                D1DC90K->unk20 = 0;
-            }
-        } else {
+    if ((arg1 & 1) && D1AK->unk88 == D1AK->unk7C && D1AK->unk90 == D1AK->unk84) {
+        D1DC90K->unk20++;
+        if (D1DC90K->unk20++ > 0x10) {
+            moved = 1;
             D1DC90K->unk20 = 0;
         }
     } else {
@@ -122,10 +118,7 @@ u8 func_8072D13C(u8 arg0, u8 arg1) {
     switch (arg0) {
         case 0x49:
             v = idx + 1;
-            key = 0;
-            if (v < D1DC9CG->unk11) {
-                key = v;
-            }
+            key = (v < D1DC9CG->unk11) ? v : 0;
             D1AK->unkEE = D1AK->unkE6 = mathAngleBetweenPoints2D(D1PT(((D1Pair *)D1DC98G->unk20)[key].a * 10)->x, D1PT(((D1Pair *)D1DC98G->unk20)[key].a * 10)->z, x, z);
         case 0x42:
         case 0x5B:

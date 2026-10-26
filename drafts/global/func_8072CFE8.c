@@ -1,4 +1,4 @@
-// func_8072CFE8 (src/global/12E800.c): PARKED NON_MATCHING, stage 6: identical opcodes/frame; only regs differ: target next=v1 (lbu t7,andi t8,addiu v1), idx=v0; built next=v0 idx=v1 (first lbu goes straight to v0). Tried s32/u8 idx, shared v, no next var, permuter 200s best 175.
+// func_8072CFE8 (src/global/12E800.c): PARKED NON_MATCHING, stage 6: 'idx = 0; if (next < cnt) idx = (u8)next;' (dead first assignment) gives target idx=v0/next=v1 (first-appearance rule); remaining: lbu coalesces into v1 (target loads into temp t7 then andi t8, addiu v1) and 1 insn shorter than ternary form. Ternary + 'idx = 0' first gives 51 insns (=target) but regs t8/t9 vs t9/t1 still off.
 typedef struct D1Pair {
     /* 0x00 */ u8 a;
     /* 0x01 */ u8 b;
@@ -40,7 +40,10 @@ void func_8072CFE8(s16 *arg0, s16 *arg1, s16 *arg2) {
     s32 idx;
     s32 v;
 
-    idx = ((D1DC90G->unk25 & 0x7F) + 1 < D1DC9CG->unk11) ? (u8)((D1DC90G->unk25 & 0x7F) + 1) : 0;
+    idx = 0;
+    if (((D1DC90G->unk25 & 0x7F) + 1) < D1DC9CG->unk11) {
+        idx = (u8)((D1DC90G->unk25 & 0x7F) + 1);
+    }
     v = ((D1Pair *)D1DC98G->unk20)[idx].a;
     *arg0 = D1DCA0->unk14[v].x;
     *arg1 = D1DCA0->unk14[v].y;

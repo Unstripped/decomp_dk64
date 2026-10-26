@@ -1226,7 +1226,10 @@ void func_8072CFE8(s16 *arg0, s16 *arg1, s16 *arg2) {
     s32 idx;
     s32 v;
 
-    idx = ((D1DC90G->unk25 & 0x7F) + 1 < D1DC9CG->unk11) ? (u8)((D1DC90G->unk25 & 0x7F) + 1) : 0;
+    idx = 0;
+    if (((D1DC90G->unk25 & 0x7F) + 1) < D1DC9CG->unk11) {
+        idx = (u8)((D1DC90G->unk25 & 0x7F) + 1);
+    }
     v = ((D1Pair *)D1DC98G->unk20)[idx].a;
     *arg0 = D1DCA0->unk14[v].x;
     *arg1 = D1DCA0->unk14[v].y;
@@ -1238,24 +1241,23 @@ void func_8072CFE8(s16 *arg0, s16 *arg1, s16 *arg2) {
 #endif
 
 
-#ifdef NON_MATCHING
+void func_8072CFE8(s16 *, s16 *, s16 *);
 
 s32 func_8072D08C(void) {
+    u8 idx;
     u8 key;
     s16 x;
     s16 y;
     s16 z;
 
-    key = ((D1Pair *)D1DC98G->unk20)[D1DC90G->unk25 & 0x7F].a;
+    idx = D1DC90G->unk25 & 0x7F;
+    key = ((D1Pair *)D1DC98G->unk20)[idx].a;
     func_8072CFE8(&x, &y, &z);
     return mathAngleBetweenPoints2D(x, z, D1DCA0->unk14[key].x, D1DCA0->unk14[key].z);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072D08C.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072D13C.s")
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072D714.s")
 
