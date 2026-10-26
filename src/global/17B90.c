@@ -103,9 +103,54 @@ void func_80613C48(P17bControllerView *arg0, s16 arg1, f32 arg2, f32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614644.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614A54.s")
+typedef struct {
+    u8 pad0[4];
+    f32 unk4;
+} P17cParent;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614A64.s")
+typedef struct {
+    P17cParent *unk0;
+} P17cState;
+
+typedef struct {
+    u8 pad0[4];
+    P17cState *unk4;
+} P17cStateOwner;
+
+f32 func_80614A54(P17cStateOwner *arg0) {
+    return arg0->unk4->unk0->unk4;
+}
+
+typedef struct {
+    u8 pad0[4];
+    void *unk4;
+    s32 unk8;
+    u8 padC[0x54];
+    s32 unk60;
+    u8 pad64[0x18];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+} P17cActorView;
+
+extern u8 D_807444FC;
+void func_806195D0(f32, f32);
+void actorTouchSub140Timestamp();
+void func_80614A64(P17cActorView *arg0) {
+    f32 x = arg0->unk7C;
+    if (x >= -8192.0f) {
+        f32 y = arg0->unk80;
+        if (y >= -8192.0f) {
+            f32 z = arg0->unk84;
+            if ((z >= -8192.0f) && (x <= 8192.0f) && (y <= 8192.0f) && (z <= 8192.0f)) {
+                arg0->unk8 = *(s32 *) ((u8 *) arg0->unk4 + (D_807444FC * 4) + 0x14);
+                func_806195D0(z, 8192.0f);
+                actorTouchSub140Timestamp(arg0);
+                arg0->unk60 |= 0x200;
+            }
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614B34.s")
 
