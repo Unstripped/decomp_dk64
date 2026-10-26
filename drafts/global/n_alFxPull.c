@@ -1,4 +1,4 @@
-// n_alFxPull (src/global/141EF0.c): stage 3: built .text 5776 bytes vs expected 5808; remaining diff includes delay-flag loop preheader evaluation/order and swap-branch delay slot
+// n_alFxPull (src/global/141EF0.c): stage 4: built .text 5808 vs expected 5808; embedded index assignment matches delay-flag preheader order and swap branch delay slot; lbu destination/relocations remain
 Acmd *n_alFxPull(s32 arg0, Acmd *arg1, s32 arg2) {
     Acmd *sp84;
     FxPullRing *sp80;
@@ -49,8 +49,8 @@ Acmd *n_alFxPull(s32 arg0, Acmd *arg1, s32 arg2) {
     if (D_807FF0F4[arg2] != 0) {
         sp84 = _n_saveBuffer(sp80, 1, sp80->unk28[1], 0x930, sp84);
     }
-    (void)*(volatile u8 *)&D_807FF0F4[arg2];
-    for (sp54 = 0; D_807FF0F4[arg2] >= sp54; sp54++) {
+    (void)D_807FF0F4[arg2 + (sp54 = 0)];
+    while (1) {
         sp48 = sp84++;
         sp48->words.w0 = (sp76 & 0xFFFFFF) | 0x02000000;
         sp48->words.w1 = 0x170;
@@ -67,9 +67,10 @@ Acmd *n_alFxPull(s32 arg0, Acmd *arg1, s32 arg2) {
                     sp46 = sp7A;
                     sp7A = sp7C;
                     sp7C = sp46;
-                } else {
-                    sp84 = _n_loadBuffer(sp80, sp54, sp70, sp7C, 0xB8, sp84);
+                    goto after_load;
                 }
+                sp84 = _n_loadBuffer(sp80, sp54, sp70, sp7C, 0xB8, sp84);
+            after_load:
                 sp84 = _n_loadOutputBuffer(sp80, sp60, sp54, sp7A, sp84);
                 if (sp60->unk8 != 0) {
                     sp40 = sp84++;
@@ -127,6 +128,10 @@ Acmd *n_alFxPull(s32 arg0, Acmd *arg1, s32 arg2) {
         sp80->unk28[sp54] += 0x170;
         if ((u32)(sp80->unk20[sp54] + (sp80->unk0 * 2)) < (u32)sp80->unk28[sp54]) {
             sp80->unk28[sp54] -= sp80->unk0 * 2;
+        }
+        sp54++;
+        if (D_807FF0F4[arg2] < sp54) {
+            break;
         }
     }
     return sp84;
