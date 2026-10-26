@@ -19,7 +19,23 @@ void func_8060B7F0(void) {
     } while (var_s0 != 8);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060B84C.s")
+extern s8 D_80746834;
+extern OSMesgQueue D_807EE0D0;
+
+void func_8060B84C(f32 arg0) {
+    OSTimer timer;
+    u64 padding;
+    OSMesg timerMsg;
+    OSMesg received;
+    u64 duration;
+
+    duration = (u64)(arg0 * 1000.0f);
+    duration = (duration * 3000) / 64;
+    osSetTimer(&timer, duration, 0, &D_807EE0D0, timerMsg);
+    D_80746834 = 1;
+    osRecvMesg(&D_807EE0D0, &received, 1);
+    D_80746834 = 0;
+}
 
 extern s8 D_80744460;
 extern void (*D_807467D0[])(void);
@@ -125,7 +141,6 @@ void func_8060E128(void *arg0) {
 extern OSMesgQueue D_807ECCF0;
 extern s32 D_807EDEAC;
 extern OSMesg D_807EE0B0[];
-extern OSMesgQueue D_807EE0D0;
 extern OSThread D_807EE0E8;
 extern u64 D_807F0298[];
 extern s8 D_807467E0;
