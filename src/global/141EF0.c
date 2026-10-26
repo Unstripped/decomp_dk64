@@ -6,9 +6,83 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/141EF0/_n_loadOutputBuffer.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/141EF0/_n_loadBuffer.s")
+Acmd *_n_loadBuffer(void *arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, Acmd *arg5) {
+    Acmd *sp34;
+    s32 sp30;
+    s32 sp2C;
+    u8 *sp28;
+    u8 *sp24;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/141EF0/_n_saveBuffer.s")
+    sp34 = arg5;
+    sp24 = (*(s32 *)arg0 * 2) + *(u8 **)((u8 *)arg0 + (arg1 * 4) + 0x20);
+    if (arg2 < *(u8 **)((u8 *)arg0 + (arg1 * 4) + 0x20)) {
+        arg2 += *(s32 *)arg0 * 2;
+    }
+    sp28 = arg2 + (arg4 * 2);
+    if (sp28 > sp24) {
+        sp30 = (sp28 - sp24) >> 1;
+        sp2C = (sp24 - arg2) >> 1;
+        {
+            Acmd *sp20;
+            sp20 = sp34++;
+            sp20->words.w0 = 0x04000000 | (((sp2C * 2) & 0xFFF) << 12) | (arg3 & 0xFFF);
+            sp20->words.w1 = osVirtualToPhysical(arg2);
+        }
+        {
+            Acmd *sp1C;
+            sp1C = sp34++;
+            sp1C->words.w0 = 0x04000000 | (((sp30 * 2) & 0xFFF) << 12) | ((arg3 + (sp2C * 2)) & 0xFFF);
+            sp1C->words.w1 = osVirtualToPhysical(*(void **)((u8 *)arg0 + (arg1 * 4) + 0x20));
+        }
+    } else {
+        {
+            Acmd *sp18;
+            sp18 = sp34++;
+            sp18->words.w0 = 0x04000000 | (((arg4 * 2) & 0xFFF) << 12) | (arg3 & 0xFFF);
+            sp18->words.w1 = osVirtualToPhysical(arg2);
+        }
+    }
+    return sp34;
+}
+
+Acmd *_n_saveBuffer(void *arg0, s32 arg1, u8 *arg2, s32 arg3, Acmd *arg4) {
+    Acmd *sp34;
+    s32 sp30;
+    s32 sp2C;
+    u8 *sp28;
+    u8 *sp24;
+
+    sp34 = arg4;
+    sp24 = (*(s32 *)arg0 * 2) + *(u8 **)((u8 *)arg0 + (arg1 * 4) + 0x20);
+    if (arg2 < *(u8 **)((u8 *)arg0 + (arg1 * 4) + 0x20)) {
+        arg2 += *(s32 *)arg0 * 2;
+    }
+    sp28 = arg2 + 0x170;
+    if (sp28 > sp24) {
+        sp30 = (sp28 - sp24) >> 1;
+        sp2C = (sp24 - arg2) >> 1;
+        {
+            Acmd *sp20;
+            sp20 = sp34++;
+            sp20->words.w0 = 0x06000000 | (((sp2C * 2) & 0xFFF) << 12) | (arg3 & 0xFFF);
+            sp20->words.w1 = osVirtualToPhysical(arg2);
+        }
+        {
+            Acmd *sp1C;
+            sp1C = sp34++;
+            sp1C->words.w0 = 0x06000000 | (((sp30 * 2) & 0xFFF) << 12) | ((arg3 + (sp2C * 2)) & 0xFFF);
+            sp1C->words.w1 = osVirtualToPhysical(*(void **)((u8 *)arg0 + (arg1 * 4) + 0x20));
+        }
+    } else {
+        {
+            Acmd *sp18;
+            sp18 = sp34++;
+            sp18->words.w0 = 0x06170000 | (arg3 & 0xFFF);
+            sp18->words.w1 = osVirtualToPhysical(arg2);
+        }
+    }
+    return sp34;
+}
 
 typedef struct {
     u8 pad0[2];
@@ -34,9 +108,28 @@ Acmd *_n_filterBuffer(ReverbFilterBuffer *arg0, s32 arg1, s32 arg2, Acmd *arg3) 
     arg0->unk28 = 0;
     return sp24;
 }
+typedef struct {
+    u8 pad0[0x10];
+    f32 unk10;
+    f32 unk14;
+    u8 pad18[4];
+    f32 unk1C;
+} FxNMModState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/141EF0/_doModFunc.s")
+f32 _doModFunc(FxNMModState *arg0, s32 arg1) {
+    f32 sp4;
 
+    arg0->unk14 += arg0->unk10 * arg1;
+    if (arg0->unk14 > 2.0f) {
+        arg0->unk14 -= 4.0f;
+    } else {
+        arg0->unk14 = arg0->unk14;
+    }
+    sp4 = arg0->unk14;
+    sp4 = (sp4 < 0.0f) ? -sp4 : sp4;
+    sp4 -= 1.0f;
+    return arg0->unk1C * sp4;
+}
 
 typedef struct {
     u8 pad0[0x40];
