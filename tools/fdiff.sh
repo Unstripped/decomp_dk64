@@ -36,7 +36,7 @@ OBJ="build/.scratch/${COPY//\//_}.o"
 mkdir -p build/.scratch
 
 # The compile command make would run for the original, retargeted at the copy.
-CMD=$(make -n -W "$ORIG" "build/${ORIG%.c}.o" | grep -E 'asm-processor|ido5.3/cc' | tail -1)
+CMD=$(make -n -W "$ORIG" "build/${ORIG%.c}.o" | grep -E 'asm-processor|/opt/ido[0-9.]+/cc' | tail -1)
 [ -n "$CMD" ] || { echo "Error: no compile rule found for $ORIG" >&2; exit 1; }
 eval "${CMD% -o *} $EXTRA_CFLAGS -o $OBJ $COPY"
 

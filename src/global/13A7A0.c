@@ -521,7 +521,6 @@ u16 n_alSndpSetPriority(u16 *a0, u16 *a1) {
 
 GfSndState *n_alSndpSetFXMix(void *sndp, GfSound *sound);
 
-#ifdef NON_MATCHING
 GfSndState *n_alSndpSetFXMix(void *sndp, GfSound *sound) {
     GfSndState *state;
     GfKeyMap *km = sound->keymap;
@@ -569,10 +568,6 @@ GfSndState *n_alSndpSetFXMix(void *sndp, GfSound *sound) {
     }
     return state;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A7A0/n_alSndpSetFXMix.s")
-#endif
 
 void n_alSndpPlay(GfSndState *state) {
     if (D_807563C0 == state) {

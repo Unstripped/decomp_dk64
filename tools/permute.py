@@ -108,25 +108,29 @@ def deduce_src(asm_path: Path, seg: str, func: str) -> Path:
     sys.exit(f"error: could not determine src C file for '{func}'")
 
 
-def get_compile_flags(src_file: Path) -> str:
-    """Determine IDO 5.3 CFLAGS used by make for this src file."""
+def get_compile_flags(src_file: Path) -> tuple[str, str]:
+    """Determine the IDO compiler and CFLAGS make uses for this src file."""
     rel_src = src_file.relative_to(ROOT)
     rel_obj = Path("build") / rel_src.with_suffix(".o")
 
     cmd = ["make", "-n", "-W", str(rel_src), str(rel_obj)]
     res = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
 
+    cc = "/opt/ido5.3/cc"
     cflags = ""
     for line in res.stdout.splitlines():
-        if "ido5.3/cc" in line or "asm-processor" in line:
+        m_cc = re.search(r"/opt/ido[0-9.]+/cc", line)
+        if m_cc or "asm-processor" in line:
+            if m_cc:
+                cc = m_cc.group(0)
             if "--" in line:
-                # asm-processor format: ... /opt/ido5.3/cc -- <as flags> -- <cflags> -o <obj> <src>
+                # asm-processor format: ... /opt/idoX/cc -- <as flags> -- <cflags> -o <obj> <src>
                 parts = line.split("--")
                 cflags = parts[-1].strip()
                 cflags = cflags.split("-o")[0].strip()
             else:
-                # direct cc format: /opt/ido5.3/cc <cflags> -o <obj> <src>
-                m = re.search(r"/opt/ido5.3/cc\s+(.*?)\s+-o", line)
+                # direct cc format: /opt/idoX/cc <cflags> -o <obj> <src>
+                m = re.search(r"/opt/ido[0-9.]+/cc\s+(.*?)\s+-o", line)
                 if m:
                     cflags = m.group(1).strip()
 
@@ -136,7 +140,7 @@ def get_compile_flags(src_file: Path) -> str:
             "-c -Wab,-r4300_mul -non_shared -G 0 -Xcpluscomm -signed -woff 649,654,838,807 "
             "-I include -D_FINALROM -DF3DEX_GBI_2 -DTARGET_N64 -D_MIPS_SZLONG=32 -O2 -mips2"
         )
-    return cflags
+    return cc, cflags
 
 
 def extract_func_definition(source: str, func_name: str) -> str:
@@ -363,10 +367,10 @@ def cmd_setup(args: argparse.Namespace) -> None:
         sys.exit(f"error assembling target.o:\n{res_as.stderr}")
 
     # 3. Build compile.sh
-    cflags = get_compile_flags(src_file=src_path)
+    cc, cflags = get_compile_flags(src_file=src_path)
     compile_sh = out_dir / "compile.sh"
     sh_content = f"""#!/bin/bash
-/opt/ido5.3/cc {cflags} "$1" -o "$3"
+{cc} {cflags} "$1" -o "$3"
 """
     compile_sh.write_text(sh_content, encoding="utf-8")
     compile_sh.chmod(0o755)

@@ -2,10 +2,21 @@
 
 f32 func_80612D1C(f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/137630/func_80732930.s")
+f32 func_80732930(u8 n) {
+    f32 base = 1.030992985f;
+    f32 result = 1.0f;
+
+    while (n != 0) {
+        if (n & 1) {
+            result = result * base;
+        }
+        base = base * base;
+        n >>= 1;
+    }
+    return result;
+}
 
 struct GbNode_s;
-f32 func_80732930(u8 n);
 
 typedef struct GbNode_s {
     struct GbNode_s *next;
