@@ -1,4 +1,4 @@
-// __n_initFromBank (src/global/13ECE0.c): stage 3: all setup and loop body match; remaining diff is two boolean-normalization instructions in bank selection loop
+// __n_initFromBank (src/global/13ECE0.c): stage 3: TEXT OK
 void __n_initFromBank(VoiceMapCSPlayer *seqp, ALBank *bank) {
     s32 chan;
     ALInstrument *inst;
@@ -7,7 +7,7 @@ void __n_initFromBank(VoiceMapCSPlayer *seqp, ALBank *bank) {
     if ((chan = 0, inst == NULL)) {
         do {
             inst = bank->instArray[chan];
-        } while ((inst == NULL) & ++chan);
+        } while ((chan++, inst == NULL));
     }
     for (chan = 0; chan < seqp->maxChannels; chan++) {
         __n_resetPerfChanState(seqp, chan);

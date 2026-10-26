@@ -343,7 +343,25 @@ u8 __n_vsPan(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
 void __n_resetPerfChanState(VoiceMapCSPlayer *seqp, s32 chan);
 void __n_setInstChanState(VoiceMapCSPlayer *seqp, ALInstrument *inst, s32 chan);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13ECE0/__n_initFromBank.s")
+void __n_initFromBank(VoiceMapCSPlayer *seqp, ALBank *bank) {
+    s32 chan;
+    ALInstrument *inst;
+
+    inst = NULL;
+    if ((chan = 0, inst == NULL)) {
+        do {
+            inst = bank->instArray[chan];
+        } while ((chan++, inst == NULL));
+    }
+    for (chan = 0; chan < seqp->maxChannels; chan++) {
+        __n_resetPerfChanState(seqp, chan);
+        __n_setInstChanState(seqp, inst, chan);
+    }
+    if (bank->percussion != NULL) {
+        __n_resetPerfChanState(seqp, chan);
+        __n_setInstChanState(seqp, bank->percussion, 9);
+    }
+}
 
 void __n_initChanState(VoiceMapCSPlayer *seqp) {
     s32 chan;

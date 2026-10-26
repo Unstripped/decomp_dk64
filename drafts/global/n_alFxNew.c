@@ -1,4 +1,4 @@
-// n_alFxNew (src/global/140600.c): stage 4: frame and all allocation/initialization blocks match; remaining control-flow, pointer-load, loop-condition, unsigned conversion, and FP scratch differences
+// n_alFxNew (src/global/140600.c): stage 5: all allocation/init blocks and target-size core shape recovered; remaining branch layout, loop compare, temporary register, and own-data relocation differences
 void n_alFxNew(void **arg0, void *arg1, s16 arg2, ALHeap *arg3) {
     u16 sp36;
     u16 sp34;
@@ -11,7 +11,7 @@ void n_alFxNew(void **arg0, void *arg1, s16 arg2, ALHeap *arg3) {
     sp24 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x30);
     *arg0 = sp24;
     if (((u8 *)arg1 + arg2)[0x1C] == 6) {
-        sp2C = (s32 *)((u8 *)arg1 + (arg2 * 4) + 0x20);
+        sp2C = *(s32 **)((u8 *)arg1 + (arg2 * 4) + 0x20);
     } else {
         sp2C = D_80756458;
     }
@@ -30,8 +30,7 @@ void n_alFxNew(void **arg0, void *arg1, s16 arg2, ALHeap *arg3) {
         do {
             sp24->unk24[sp32] = 0;
             sp24->unk20[sp32] = sp24->unk24[sp32];
-            sp32 += 1;
-        } while (sp32 < sp24->unk0);
+        } while ((u32)((sp32 += 1) & 0xFFFF) < (u32)sp24->unk0);
     }
     sp36 = 0;
     if ((s32)sp24->unk8 > 0) {
@@ -50,7 +49,7 @@ void n_alFxNew(void **arg0, void *arg1, s16 arg2, ALHeap *arg3) {
             if (sp2C[sp34] != 0) {
                 sp28->unk10 = ((f32)sp2C[sp34] / 1000.0f * 2.0f) / (f32)*(s32 *)((u8 *)arg1 + 0x18);
                 sp34 += 1;
-                sp28->unk1C = ((f32)sp2C[sp34] / 173123.4062f) * (f32)(sp28->unk4 - sp28->unk0);
+                sp28->unk1C = ((f32)sp2C[sp34] / 173123.4062f) * (f32)(u32)(sp28->unk4 - sp28->unk0);
                 sp34 += 1;
                 sp28->unk14 = 1.0f;
                 sp28->unk18 = 0;

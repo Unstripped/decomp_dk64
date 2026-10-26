@@ -1,4 +1,4 @@
-// n_alAuxBusPull (src/global/1445A0.c): stage 4: exact size; remaining temporary register allocation and own-rodata label difference
+// n_alAuxBusPull (src/global/1445A0.c): stage 6: TEXT OK; reversed comparison operand order matches temporary register allocation
 AuxAcmd *n_alAuxBusPull(void *arg0, AuxAcmd *arg1, s32 arg2, s32 *arg3) {
     AuxAcmd *ptr;
     AuxBus *bus;
@@ -26,7 +26,7 @@ AuxAcmd *n_alAuxBusPull(void *arg0, AuxAcmd *arg1, s32 arg2, s32 *arg3) {
             ptr = n_alEnvmixerPull(pvoices[i], arg0, ptr);
             (*arg3)++;
             count++;
-            if (max < pvoices[i]->env->resample->pitch) {
+            if (pvoices[i]->env->resample->pitch > max) {
                 max = pvoices[i]->env->resample->pitch;
             }
         }

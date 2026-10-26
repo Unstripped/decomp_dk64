@@ -1,11 +1,11 @@
-// __n_seqpReleaseVoice (src/global/13ECE0.c): stage 4: semantic reconstruction with target local-slot layout; Docker unavailable for compile verification
+// __n_seqpReleaseVoice (src/global/13ECE0.c): stage 4: TEXT OK
 void __n_seqpReleaseVoice(VoiceMapCSPlayer *seqp, ALVoice *voice, s32 delta) {
+    ALEvent evt;
     ALVoiceState *vs;
     ALEventListItem *item;
     ALEventListItem *next;
-    ALEventListItem *current;
+    ALEventListItem *volatile current;
     ALEventListItem *nextItem;
-    ALEvent evt;
 
     vs = voice->clientPrivate;
     if (vs->envPhase == 0) {
@@ -25,14 +25,15 @@ void __n_seqpReleaseVoice(VoiceMapCSPlayer *seqp, ALVoice *voice, s32 delta) {
                 item = next;
             } while (item != NULL);
         }
-        vs->velocity = 0;
-        vs->envPhase = 3;
-        vs->envGain = 0;
-        vs->envEndTime = seqp->curTime + delta;
-        n_alSynSetPriority(voice, 0);
-        n_alSynSetVol(voice, 0, delta);
-        evt.type = 5;
-        evt.msg.osc.vs = (ALVoiceState *)voice;
-        alEvtqPostEvent(&seqp->evtq, &evt, delta + 0x7D00);
     }
+    vs->velocity = 0;
+    vs->envPhase = 3;
+    vs->envGain = 0;
+    vs->envEndTime = seqp->curTime + delta;
+    n_alSynSetPriority(voice, 0);
+    n_alSynSetVol(voice, 0, delta);
+    evt.type = 5;
+    evt.msg.osc.vs = (ALVoiceState *)voice;
+    delta = delta + 0x7D00;
+    alEvtqPostEvent(&seqp->evtq, &evt, delta);
 }

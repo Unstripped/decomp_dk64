@@ -1,4 +1,4 @@
-// _decodeChunk (src/global/144E00.c): stage 4: decoder layout correct through ADPCM init; remaining zero-copy local and RAW restart control-flow shape
+// _decodeChunk (src/global/144E00.c): stage 4: m2c temporaries make frame 0x40 (target 0x28); direct struct draft matched through 0x80740914, but both zero-loop paths require lw s0,0x1C then sw s0,0x18/0x14, and RAW type-1 restart re-loads wave/loop at 0x80740A3C
 void _decodeChunk(void *arg0, s32 arg1, s32 *arg2) {
     void *sp24;
     s32 *temp_t6;
