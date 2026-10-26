@@ -1,17 +1,11 @@
-// func_80613448 (src/global/17B90.c): stage 4; candidate has correct lhu table load and stride but adds saved argument/repeated u16 truncation; remaining loop register scheduling
-typedef struct {
-    u16 unk0;
-    u16 unk2;
-    s32 unk4;
-    s32 unk8;
-} P17c3StateEntry;
-
-extern P17c3StateEntry D_807FB630[];
+// func_80613448 (src/global/17B90.c): stage 4; permuter best 140; remaining state-table loop register allocation and scheduling
+typedef struct { u16 unk0; u16 unk2; s32 unk4; s32 unk8; } Perm3StateEntry;
+extern Perm3StateEntry D_807FB630[];
 extern s16 D_807FBB30;
 
 u16 func_80613448(u32 *arg0) {
     u16 var_v1;
-    P17c3StateEntry *var_a0;
+    Perm3StateEntry *var_a0;
 
     var_v1 = (u16)D_807FBB30;
     if ((s32)var_v1 >= 0) {

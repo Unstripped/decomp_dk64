@@ -39,7 +39,42 @@ void func_80613214(P17aController *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_8061324C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613358.s")
+typedef struct {
+    u32 unk0;
+    u32 unk4;
+} Perm3Command;
+
+typedef struct {
+    Perm3Command *unk0;
+} Perm3CommandArray;
+
+typedef struct {
+    u8 pad0[4];
+    Perm3CommandArray *unk4;
+} Perm3CommandStorage;
+
+typedef struct {
+    Perm3CommandStorage *unk0;
+    u8 pad4[0x5C];
+    u32 unk60;
+} Perm3CommandOwner;
+
+void func_80613358(Perm3CommandOwner *arg0, s32 arg1, Perm3Command *arg2) {
+    u32 *arg2_words;
+    Perm3Command *commands;
+    Perm3Command *destination;
+
+    arg2_words = &arg2->unk0;
+    if (!(arg0->unk60 & 0x10)) {
+        goto command_lookup;
+command_lookup:
+        commands = arg0->unk0->unk4->unk0;
+        destination = commands + arg1;
+        if ((destination->unk0 != *arg2_words) || (arg2->unk4 != destination->unk4)) {
+            memcpy(destination, arg2, 8);
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_806133C8.s")
 
@@ -121,8 +156,8 @@ typedef struct {
     P17bStateHolder *unk4;
 } P17bControllerView;
 
-void func_80613CA8(P17bControllerView *, s16, f32, f32);
 
+void func_80613CA8(P17bControllerView *, s16, f32, f32);
 
 void func_80613C48(P17bControllerView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     P17bState *state;
