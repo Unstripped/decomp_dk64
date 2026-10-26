@@ -1,5 +1,5 @@
-// func_806119FC (src/global/166A0.c): stage 2: m2c candidate; requires matched RNG return prototype.
-s32 func_806119A0();                                /* extern */
+// func_806119FC (src/global/166A0.c): stage 3; m2c, branch returns, ternary, and sequenced-assignment candidates fdiffed; closest m2c has one early cvt.s.w/mov.s and FPR allocation difference, target converts in bgez delay slot.
+s32 func_806119A0(void);
 
 f32 func_806119FC(void) {
     f32 var_ft1;
