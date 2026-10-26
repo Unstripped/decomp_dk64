@@ -747,7 +747,6 @@ void func_80726E60(u16 arg0, u8 arg1) {
     }
 }
 
-#ifdef NON_MATCHING
 void actorDespawn(void *);
 void actorQueueDelayedCallback(void *, s32, s32, s32, s32, s32, s32);
 void func_8061CFCC(void *);
@@ -756,7 +755,6 @@ void func_80726EE0(u8 arg0) {
     s16 i;
     C1Node *node;
     s32 mode;
-    u32 sel;
 
     mode = arg0;
     node = D_80755694->nodes;
@@ -764,16 +762,17 @@ void func_80726EE0(u8 arg0) {
         if (node->unk46 & 0x80) {
             continue;
         }
-        sel = mode;
         if ((node->unk42 == 5) && (node->unk18->unk5C & 2)) {
             actorQueueDelayedCallback(node->unk18, 0, 8, 0, 0, 0, 1);
+            do {
+            } while (0);
         } else if ((node->unk42 == 6) && (node->unk18->unk5C & 2)) {
             node->unk42 = 7;
             node->unk24 = node->unk14 * 0x1E;
             func_8061CFCC(node->unk18);
             actorDespawn(node->unk18);
         }
-        switch (sel) {
+        switch (mode) {
             case 0:
             case 1:
                 node->unk46 |= 2;
@@ -784,10 +783,6 @@ void func_80726EE0(u8 arg0) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726EE0.s")
-#endif
 
 Actor *func_807270C0(s16, u16);
 
