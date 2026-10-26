@@ -1,4 +1,4 @@
-// func_8072C918 (src/global/12E800.c): stage 6, 3 diff lines left (plus reloc-only jtbl_8075FE10 / 0.667 literal): (a) case 0x23 'beq t5,v0' operand order (target lbu t5,0x36(v1); beq t5,v0; mine beq v0,t5), (b) the 'C1D90->unk20-- == 0' flag lands in a0 (target sltiu t4,v0,1 / beqz t4). Same size 19120, frame 0x58, every slot equal. Source: locals st,dist,u8 pad0,u8 type,u8 sp4D,s16 ang,u32 ret,s32 near,C1Act *me; no float/s16 temps (SQ macro); 'ret = f(); type = ret;' + '(s32)ret >= 7' keeps ret raw in v0; me = C1B40 at top (sp3C); reuse me for the unk178 pointer in case 0x34 (me = (C1Act *)C1B40->unk178; *(s16 *)me) puts it in v1; dead 'near == 5', 'dist == 3', 'ang != 0' tests before the switch.
+// func_8072C918 (src/global/12E800.c): stage 6, ONE diff instruction left (+ reloc-only jtbl_8075FE10 / .rodata+off literal): case 0x23 'beq t5,v0' (target) vs 'beq v0,t5' (mine) operand order, independent of source operand order/structure. 'near = (C1D90->unk20-- == 0); if (near) {...}' (reusing near for the flag) fixed the sltiu t4 diff. Same size 19120, frame 0x58, every slot equal. Tried for the beq: swaps, casts, nested/else forms, dead reads, callee s32 retyping (59C/870/B324/614EBC), u8 local copy of unk36, no-ret variants.
 typedef struct C1Sub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
@@ -193,7 +193,8 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
                 func_8072B59C(type, C1D9C->unkD, arg2);
                 return;
             }
-            if (C1D90->unk20-- == 0) {
+            near = (C1D90->unk20-- == 0);
+            if (near) {
                 func_8072B59C(C1D9C->unk10, C1D9C->unkC, arg1);
             }
             break;
