@@ -1,4 +1,4 @@
-// func_80615E74 (src/global/19A00.c): stage 3: m2c behavioural starter; typed view candidate compiled and fdiff'd, remaining frame/register allocation and source-order differences
+// func_80615E74 (src/global/19A00.c): stage 3: compiled typed candidate; target and candidate frame are 0x30, but state offset/register scheduling and float absolute-difference lowering remain.
 ? func_80614F28(u8 *);                              /* extern */
 extern s32 D_807F5AF0;
 

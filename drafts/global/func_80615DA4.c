@@ -1,4 +1,4 @@
-// func_80615DA4 (src/global/19A00.c): stage 3: m2c behavioural starter; typed view candidate compiled and fdiff'd, remaining frame/register allocation and source-order differences
+// func_80615DA4 (src/global/19A00.c): stage 3: compiled typed candidate; target frame is 0x28 versus candidate 0x30. Tried current shared state view; state-local allocation remains.
 ? func_80614F28(u8 *, void *, void *);              /* extern */
 extern s32 D_807F5AF0;
 

@@ -1,4 +1,4 @@
-// func_806161D0 (src/global/19A00.c): stage 3: m2c behavioural starter; typed view candidate compiled and fdiff'd, remaining frame/register allocation and source-order differences
+// func_806161D0 (src/global/19A00.c): stage 3: compiled typed candidate; state selection and float negation scheduling remain.
 extern s32 D_807F5AF0;
 
 s32 func_806161D0(void *arg0) {

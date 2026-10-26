@@ -1,4 +1,4 @@
-// func_80616A1C (src/global/19A00.c): stage 3: callback table type and local frame layout remain unresolved
+// func_80616A1C (src/global/19A00.c): stage 3: compiled typed callback-table candidate; callback type, local layout, and call scheduling remain.
 ? func_80614F4C(s16 *);                             /* extern */
 extern ? D_80746D64;
 extern s32 D_807F5AF0;

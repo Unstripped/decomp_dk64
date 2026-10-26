@@ -1,4 +1,4 @@
-// func_80616518 (src/global/19A00.c): stage 3: m2c behavioural starter; typed view candidate compiled and fdiff'd, remaining frame/register allocation and source-order differences
+// func_80616518 (src/global/19A00.c): stage 3: compiled typed candidate; active command selection and local/frame allocation remain.
 ? func_80614F4C(u16 *, void *);                     /* extern */
 extern s32 D_807F5AF0;
 

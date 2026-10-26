@@ -1,4 +1,4 @@
-// func_806169C0 (src/global/19A00.c): stage 3: callback-table element type and call signature remain unresolved
+// func_806169C0 (src/global/19A00.c): stage 3: compiled typed callback-table candidate; callback table declaration and frame allocation remain.
 ? func_80614F4C(s16 *);                             /* extern */
 extern ? D_80746D64;
 extern s32 D_807F5AF0;
