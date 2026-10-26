@@ -1,4 +1,4 @@
-// func_80717F1C (src/global/11BC10.c): Logic matches target instruction sequence apart from stack frame/constant ownership; inferred source and velocity state views.
+// func_80717F1C (src/global/11BC10.c): stage 3: target frame 0x28/$s0 save vs draft 0x30/$s0 save, 89/89 insns; blocks match but frame and constant ownership still differ.
 typedef struct {
     u8 pad0[0x330];
     void *unk330;

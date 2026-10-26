@@ -1,4 +1,4 @@
-// func_80717DB4 (src/global/11BC10.c): Complete recovered logic; typed local motion state changes compiler register allocation.
+// func_80717DB4 (src/global/11BC10.c): stage 3: target frame 0x20/$s0,$s1 saves vs draft 0x28/$s0 save, 90/91 insns; recovered motion-state blocks still differ in saved-register lifetime.
 typedef struct {
     u8 pad0[0x330];
     void *unk330;

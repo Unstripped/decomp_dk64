@@ -1,4 +1,4 @@
-// func_80718188 (src/global/11BC10.c): Stage-4 behavior candidate: target needs D_807502D0 address in v0 and branch-likely call path; candidate preserves logic but not register allocation.
+// func_80718188 (src/global/11BC10.c): stage 4: target/draft frame 0x20 and $s0 save, 61/61 insns; branch-likely block order matches, but D_807502D0 is based in v0 target/a0 draft and FP temps differ.
 // func_80718188 draft: behavior recovered; target requires different register lifetime and branch-likely shape.
 extern s16 D_807502D0;
 

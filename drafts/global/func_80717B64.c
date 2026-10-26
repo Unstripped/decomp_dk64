@@ -1,4 +1,4 @@
-// func_80717B64 (src/global/11BC10.c): Accurate control flow and inferred state layouts; register allocation/stack frame mismatch.
+// func_80717B64 (src/global/11BC10.c): stage 3: target frame 0x28/no $s* saves vs draft 0x48/no $s* saves, 97/96 insns; control flow is recovered but register lifetimes and frame still differ.
 typedef struct {
     u8 pad0[0x330];
     void *unk330;
