@@ -1,53 +1,61 @@
-// func_80614B34 (src/global/17B90.c): stage 4: typed C has correct instruction count but frame is 0x48 versus target 0x30; remaining diff is local/register allocation and branch scheduling.
-s32 animSetSegments(s32 *, s32 *);                  /* extern */
-s32 *func_80614C38(s32, void *, void *);            /* extern */
+// func_80614B34 (src/global/17B90.c): stage 4; 5 fdiff attempts. Frame/save set exact with f64 padding. Command behavior/types resolved; closest remaining diff is stack-pointer lifetime around two osVirtualToPhysical calls and loop pointer/constant allocation. Tried reduced locals, f64 padding, explicit sp24/sp20/next pointers (frame became 0x40), early pointer increments, and separate output/command locals.
+typedef struct {
+    void *unk0;
+    u32 *unk4;
+    u8 pad8[0x19];
+    u8 unk21;
+} P17c2DrawDisplay;
 
-s32 *func_80614B34(s32 *arg0, void *arg1) {
-    s32 *sp24;
-    s32 *sp20;
-    s32 *temp_a1;
-    s32 *temp_v0_3;
-    s32 *temp_v0_4;
-    s32 *var_a2;
-    s32 temp_t2;
-    s32 var_a0;
-    s32 var_v1;
-    void *temp_v0;
-    void *temp_v0_2;
-    void *var_s0;
+typedef struct {
+    P17c2DrawDisplay *unk0;
+    u8 pad4[4];
+    void *unk8;
+    u8 padC[0x40];
+    P17c2DrawDisplay *unk4C;
+    P17c2DrawDisplay *unk50;
+} P17c2DrawActor;
 
-    temp_v0 = arg1->unk4C;
-    var_s0 = arg1->unk0;
-    if (temp_v0 != NULL) {
-        var_s0 = temp_v0;
+u32 *animSetSegments(u32 *, P17c2DrawActor *);
+u32 *func_80614C38();
+
+u32 *func_80614B34(u32 *arg0, P17c2DrawActor *arg1) {
+    f64 pad;
+    P17c2DrawDisplay *display;
+    u32 *temp;
+    u32 *var_a2;
+    u32 command;
+    s32 i;
+    s32 offset;
+
+    display = arg1->unk0;
+    if (arg1->unk4C != NULL) {
+        display = arg1->unk4C;
     }
-    temp_v0_2 = arg1->unk50;
-    if (temp_v0_2 != NULL) {
-        var_s0 = temp_v0_2;
+    if (arg1->unk50 != NULL) {
+        display = arg1->unk50;
     }
-    temp_v0_3 = func_80614C38(animSetSegments(arg0, arg0), arg1, var_s0);
-    sp24 = temp_v0_3;
-    *temp_v0_3 = 0xDB060010;
-    arg0 = temp_v0_3 + 8;
-    temp_a1 = arg0;
-    sp24->unk4 = osVirtualToPhysical(arg1->unk8);
-    temp_a1->unk0 = 0xDB06000C;
-    arg0 = temp_a1 + 8;
-    sp20 = temp_a1;
+    arg0 = animSetSegments(arg0, arg1);
+    arg0 = func_80614C38(arg0, arg1, display);
+    temp = arg0;
+    temp[0] = 0xDB060010;
+    arg0 = temp + 2;
+    temp[1] = osVirtualToPhysical(arg1->unk8);
+    temp = arg0;
+    temp[0] = 0xDB06000C;
+    arg0 = temp + 2;
+    temp[1] = osVirtualToPhysical(display->unk0);
     var_a2 = arg0;
-    var_v1 = 0;
-    temp_a1->unk4 = osVirtualToPhysical(var_s0->unk0);
-    var_a0 = 0;
-    if ((s32) var_s0->unk21 > 0) {
+    command = 0xDE000000;
+    i = 0;
+    offset = 0;
+    if ((s32) display->unk21 > 0) {
         do {
-            temp_v0_4 = var_a2;
-            temp_v0_4->unk0 = 0xDE000000;
-            var_v1 += 1;
-            var_a2 += 8;
-            temp_t2 = *(var_s0->unk4 + var_a0);
-            var_a0 += 4;
-            temp_v0_4->unk4 = temp_t2;
-        } while (var_v1 < (s32) var_s0->unk21);
+            var_a2[0] = command;
+            var_a2[1] = *(u32 *) ((u8 *) display->unk4 + offset);
+            i++;
+            offset += 4;
+            var_a2 += 2;
+        } while (i < (s32) display->unk21);
     }
     return var_a2;
 }

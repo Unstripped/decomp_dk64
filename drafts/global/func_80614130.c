@@ -1,44 +1,23 @@
-// func_80614130 (src/global/17B90.c): stage 3: m2c reconstruction compiles; frame grows to 0x30 when preserving unsigned count, needs target 0x18 register allocation and load ordering
-typedef struct {
-    s32 id;
-    s32 refcount;
-    void *asset;
-} P17bAssetCacheEntry;
-
-extern P17bAssetCacheEntry D_807FB7B0[];
+// func_80614130 (src/global/17B90.c): stage 4; remaining diff is stack frame reduction from 0x30 to 0x18 and loop temporary allocation
+typedef struct { s32 id; s32 refcount; void *asset; } Entry;
+extern Entry D_807FB7B0[];
+extern s16 D_807FBB32;
 void *func_8066B0F8(s32, s32, s32, s32);
-
-void *func_80614130(s32 arg0) {
-    P17bAssetCacheEntry *entry;
-    u16 count;
-    u32 i;
+void *func_80614130(s32 id) {
+    s32 i;
+    Entry *entry;
     void *asset;
-
-    if (arg0 < 0) {
-        return NULL;
+    if (id < 0) return NULL;
+    entry = D_807FB7B0;
+    for (i = 0; i < D_807FBB32; i++, entry++) {
+        if (entry->id == id) { entry->refcount++; return entry->asset; }
     }
-    count = D_807FBB32;
-    i = 0;
-    if (count != 0) {
-        entry = D_807FB7B0;
-        do {
-            i++;
-            if (arg0 == entry->id) {
-                entry->refcount++;
-                return entry->asset;
-            }
-            entry++;
-        } while (i < count);
-    }
-    if (count >= 0x20) {
-        return NULL;
-    }
-    asset = func_8066B0F8(0xB, arg0, 1, 1);
+    if (D_807FBB32 >= 0x20) return NULL;
+    asset = func_8066B0F8(0xB, id, 1, 1);
     *(u16 *)((u8 *)asset + 6) += 6;
-    entry = &D_807FB7B0[count];
-    entry->refcount++;
+    entry->id = id;
     entry->asset = asset;
-    D_807FBB32 = count + 1;
-    entry->id = arg0;
+    entry->refcount++;
+    D_807FBB32++;
     return asset;
 }

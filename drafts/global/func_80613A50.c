@@ -1,15 +1,11 @@
-// func_80613A50 (src/global/17B90.c): stage 1: m2c starter recovered from local asm; requires typed animation views and C compile
-? func_80614644(void *, f32, s16);                  /* extern */
-
-void func_80613A50(void *arg0, s8 arg1) {
-    s32 temp_ft4;
-    void *temp_a1;
-    void *temp_v0;
-    void *temp_v1;
-
-    temp_v1 = arg0->unk4;
-    temp_a1 = temp_v1->unk0;
-    temp_v0 = temp_v1->unk8;
-    temp_ft4 = (s32) ((temp_a1->unk18 - temp_a1->unk14) + 1.0f);
-    func_80614644(temp_a1, ((temp_v0->unk4 * (f32) (s16) temp_ft4) / (f32) (s16) (s32) ((temp_v0->unk18 - temp_v0->unk14) + 1.0f)) + (f32) arg1, (s16) temp_ft4);
+// func_80613A50 (src/global/17B90.c): stage 4; exact instruction count; remaining diff is FP/integer register allocation and multiply scheduling
+typedef struct { u8 pad[0x14]; f32 a; f32 b; } State;
+typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } Scale;
+typedef struct { State *state; u8 pad[4]; Scale *scale; } Holder;
+typedef struct { u8 pad[4]; Holder *holder; } Controller;
+void func_80614644(Controller *, State *, f32, s16);
+void func_80613A50(Controller *arg0, s8 arg1) {
+    s16 count = (s32)((arg0->holder->state->b - arg0->holder->state->a) + 1.0f);
+    s16 span = (s32)((arg0->holder->scale->b - arg0->holder->scale->a) + 1.0f);
+    func_80614644(arg0, arg0->holder->state, ((arg0->holder->scale->scale * (f32)count) / (f32)span) + (f32)arg1, count);
 }
