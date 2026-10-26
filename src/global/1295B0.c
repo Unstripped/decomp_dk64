@@ -206,7 +206,149 @@ void func_80724DB0(s16 arg0, s16 arg1) {
     ((u8 *)table)[arg1 << 4] = 0xFF;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80724E48.s")
+typedef struct C1SpawnEntry {
+    /* 0x00 */ u16 unk0;
+    /* 0x02 */ u16 unk2;
+    /* 0x04 */ u8 pad4[0xA];
+    /* 0x0E */ u8 unkE;
+    /* 0x0F */ u8 padF[9];
+} C1SpawnEntry; // size = 0x18
+
+extern C1SpawnEntry D_8075EB80[];
+
+typedef struct A1Tbl18 {
+    /* 0x00 */ u8 pad0[0xC];
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ u8 pad0E[0xA];
+} A1Tbl18;
+
+typedef struct A1Cam {
+    /* 0x0 */ u8 pad0[2];
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ u16 unk4;
+    /* 0x6 */ s16 unk6;
+} A1Cam;
+
+typedef struct A1Plr {
+    /* 0x000 */ u8 pad0[0x210];
+    /* 0x210 */ f32 unk210;
+    /* 0x214 */ f32 unk214;
+    /* 0x218 */ f32 unk218;
+    /* 0x21C */ u8 pad21C[0x98];
+    /* 0x2B4 */ f32 unk2B4;
+    /* 0x2B8 */ f32 unk2B8;
+    /* 0x2BC */ f32 unk2BC;
+} A1Plr;
+
+typedef struct A1S90 {
+    /* 0x00 */ u8 pad0[0xA];
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ u8 pad10[0x14];
+    /* 0x24 */ u8 unk24;
+} A1S90;
+
+typedef struct A1S98 {
+    /* 0x00 */ u8 pad0[0x44];
+    /* 0x44 */ u8 unk44;
+} A1S98;
+
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
+s16 func_806CC190(s16, s16, f32);
+extern u8 D_807444EC;
+#define A1PLR ((A1Plr *)D_807FC924)
+#define A1DC90 ((A1S90 *)D_807FDC90)
+#define A1DC98 ((A1S98 *)D_807FDC98)
+#define A1CAM(a) ((A1Cam *)((A1Sub4 *)(a)->unk4)->unk1C)
+
+void func_80724E48(u8 arg0) {
+    f32 angle;
+    f32 sp38;
+    f32 sp34;
+    A1Cam *sp30;
+    f32 sp2C;
+    f32 sp28;
+    s32 pitchArg;
+    s16 res;
+
+    sp38 = 0.0f;
+    angle = 0.0f;
+    if (arg0 == 8) {
+        pitchArg = 0x46;
+        sp34 = D_807FBB4C->unkE6 * 3.1415927f * (1.0 / 2048.0);
+        sp30 = A1CAM(D_807FBB4C);
+        sp28 = 1.0431069f;
+    } else {
+        sp34 = D_807FBB40->unkE6 * 3.1415927f * (1.0 / 2048.0);
+        sp30 = A1CAM(D_807FBB40);
+        pitchArg = ((A1Tbl18 *)D_8075EB80)[A1DC98->unk44].unkD;
+        sp28 = ((A1Tbl18 *)D_8075EB80)[A1DC98->unk44].unkC * 4 * 3.1415927f * (1.0 / 2048.0);
+        if (pitchArg == 0xFF) {
+            pitchArg = 0x3E8;
+        }
+    }
+    if ((s32)sp30 != 0) {
+        sp2C = (f64)(u32)sp30->unk4 / 65535.0 * 6.2831854820251465;
+        if (D_807444EC == 1 && arg0 != 5 && arg0 != 7) {
+            arg0 = 6;
+        }
+        switch (arg0) {
+            case 8:
+                sp38 = mathCalculatePitchAngle(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, pitchArg);
+                angle = mathAngleBetweenPointsRad(D_807FBB40->unk7C, D_807FBB40->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk84) - sp34;
+                break;
+            case 7:
+                sp38 = mathCalculatePitchAngle(D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, pitchArg);
+                angle = mathAngleBetweenPointsRad(D_807FDC94->unk7C, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk84) - sp34;
+                break;
+            case 6:
+                sp38 = mathCalculatePitchAngle(A1PLR->unk210, A1PLR->unk214, A1PLR->unk218, D_807FBB40->unk7C, D_807FBB40->unk80 + (u32)D_807FBB40->unk15E, D_807FBB40->unk84, pitchArg);
+                angle = mathAngleBetweenPointsRad(A1PLR->unk210, A1PLR->unk218, D_807FBB40->unk7C, D_807FBB40->unk84) - sp34;
+                break;
+            case 0:
+                sp38 = mathCalculatePitchAngle(A1PLR->unk2B4, A1PLR->unk2B8, A1PLR->unk2BC, D_807FBB40->unk7C, D_807FBB40->unk80 + (u32)D_807FBB40->unk15E, D_807FBB40->unk84, pitchArg);
+            case 1:
+                angle = mathAngleBetweenPointsRad(A1PLR->unk2B4, A1PLR->unk2BC, D_807FBB40->unk7C, D_807FBB40->unk84) - sp34;
+                break;
+            case 2:
+                angle = A1DC90->unk24 * 2 * 0.017453292f;
+                break;
+            case 3:
+                sp38 = mathCalculatePitchAngle(A1DC90->unkA, A1DC90->unkC, A1DC90->unkE, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, pitchArg);
+                angle = mathAngleBetweenPointsRad(A1DC90->unkA, A1DC90->unkE, D_807FBB40->unk7C, D_807FBB40->unk84) - sp34;
+                break;
+        }
+        if (angle < 0.0f) {
+            angle += 6.2831855f;
+        }
+        if (sp28 != 0.0f) {
+            if (sp28 < angle && angle <= 3.1415927f) {
+                angle = sp28;
+                if (sp2C > 3.1415927f) {
+                    angle = sp28 + 6.2831855f;
+                }
+            } else if (angle < 6.2831855f - sp28 && angle > 3.1415927f) {
+                angle = 6.2831855f - sp28;
+                if (sp2C < 3.1415927f) {
+                    angle = angle - 6.2831855f;
+                }
+            }
+        }
+        if (angle > 3.1415927f) {
+            angle -= 6.2831855f;
+        }
+        if (sp2C > 3.1415927f) {
+            sp2C -= 6.2831855f;
+        }
+        res = func_806CC190((s32)(sp2C * 2048.0 / 3.1415927410125732), (s32)(angle * 2048.0 / 3.1415927410125732), 5.0f);
+        sp30->unk2 = (u32)(sp38 / 6.2831855f * 65535.0);
+        sp30->unk4 = (u32)(res / 4095.0 * 65535.0);
+        sp30->unk6 = 0;
+    }
+}
 
 #ifdef NON_MATCHING
 s32 func_807255A8(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, f32 *arg8, f32 *arg9) {
@@ -242,10 +384,10 @@ s32 func_807255A8(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
     if (d1 != 0.0f && d2 != 0.0f && ((s32)((u32)d1 ^ (u32)d2)) >= 0) {
         return 0;
     }
-    if (a1 * b2 == a2 * b1) {
+    det = a1 * b2 - a2 * b1;
+    if (det == 0.0f) {
         return 2;
     }
-    det = a1 * b2 - a2 * b1;
     two = 2.0f;
     if (det < 0.0f) {
         half = -det / two;
@@ -379,14 +521,6 @@ s32 func_80725DC0(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80727194.s")
 
-typedef struct C1SpawnEntry {
-    /* 0x00 */ u16 unk0;
-    /* 0x02 */ u16 unk2;
-    /* 0x04 */ u8 pad4[0xA];
-    /* 0x0E */ u8 unkE;
-    /* 0x0F */ u8 padF[9];
-} C1SpawnEntry; // size = 0x18
-
 typedef struct C1ActorView {
     /* 0x000 */ u8 pad0[0x58];
     /* 0x058 */ s32 unk58;
@@ -454,7 +588,6 @@ typedef struct C1NodeList {
 #define C1ACT44 ((C1ActorView *)D_807FBB44)
 
 extern C1NodeList *D_80755694;
-extern C1SpawnEntry D_8075EB80[];
 s32 actorSpawn(s32, s32);
 void func_80726744(void *, void *);
 
