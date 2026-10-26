@@ -15,7 +15,7 @@ extern void *D_807FBB44;
 void func_8002BBD0(void *, s32);
 void actorSpawn(s32, s32);
 void func_8002BC2C(void *, s32, void *, void *);
-void *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
+void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BCB0(void *, s32, void *, void *);
 void actorInitFromSpawnPoint(void *, void *);
 
@@ -45,7 +45,7 @@ void func_800292D0(u8 *arg0) {
     }
     var_s0 = 0;
     if (D_807FC928 == 1) {
-        sp54 = func_807271F4(1, 0, 0, 0, 0, 0, 0);
+        sp54 = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         sp58 = *(u8 **)(sp54 + 0x178);
         sp58[0x27] = 1;
         func_8002BC2C(arg0, var_s1, sp54, sp58);

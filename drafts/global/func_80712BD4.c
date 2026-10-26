@@ -12,7 +12,7 @@ extern u8 D_8075532C;
 extern s32 D_80755334;
 extern s32 D_807552EC;
 extern Mtx D_807FDAC0;
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 s32 func_805FF030(u8, s32);
 s16 func_8060B49C(s32, u8);
 void func_8060E1A8(void);
@@ -29,7 +29,7 @@ void func_80712BD4(void) {
     u16 limit;
     u8 next;
 
-    blocked = func_8073110C(0x302, 0);
+    blocked = flagGet(0x302, 0);
     D_80755334 = 0;
     D_80755330 = 0;
     if (D_807467CC == 0) {

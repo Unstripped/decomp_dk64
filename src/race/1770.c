@@ -17,7 +17,7 @@ extern s16 D_80750AC4;
 extern void *D_807FBB44;
 void func_8002BBD0(void *, s32);
 void func_8002BC2C(void *, s32, void *, void *);
-void *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
+void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 
 void func_80025E9C(u8 *arg0) {
     u8 *sp54;
@@ -41,7 +41,7 @@ void func_80025E9C(u8 *arg0) {
     s0[0x36] = 1;
     s0[0x28] = 0;
     s1 = *(u8 **)(s2 + 0x178);
-    sp40 = (u8 *)func_807271F4(1, 0, 0, 0, 0, 0, 0);
+    sp40 = (u8 *)spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
     *(u8 **)(s1 + 0x30) = sp40;
     temp = *(u8 **)(sp40 + 0x184);
     *(u8 **)(temp + 4) = s0;

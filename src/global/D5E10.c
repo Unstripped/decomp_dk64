@@ -2716,12 +2716,12 @@ void func_806D7704(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_807248B0(Actor *, f32);
+void actorSetUniformScale(Actor *, f32);
 
 void func_806D7878(void) {
     f64 t = D_807FBB40->unk4->unk38;
 
-    func_807248B0(D_807FBB40, (0.001 - t) * 0.01 + t);
+    actorSetUniformScale(D_807FBB40, (0.001 - t) * 0.01 + t);
     G14_A->unk128 -= 0x14;
     if (G14_A->unk128 < 0) {
         G14_A->unk128 = 0;

@@ -1,6 +1,6 @@
 // func_806ED508 (src/global/EFDC0.c): Stage 3: selected-event s32 low-half attempt; frame and spill placement remain.
-s32 func_8073110C(s32, s32);
-void func_8073129C(s32, s32, s32);
+s32 flagGet(s32, s32);
+void flagSet(s32, s32, s32);
 
 void func_806ED508(s32 arg0) {
     s32 sp1C;
@@ -22,11 +22,11 @@ void func_806ED508(s32 arg0) {
     }
     sp1C = temp_t6;
     sp18 = sp26;
-    if (func_8073110C(sp26, 0) == 0) {
+    if (flagGet(sp26, 0) == 0) {
         if (sp1C == 0x81) {
             D_807FBB48->unkB8 = 0.0f;
         }
         func_8061CC40(NULL, sp24, 5);
-        func_8073129C(*(s16 *)((u8 *)&sp18 + 2), 1, 0);
+        flagSet(*(s16 *)((u8 *)&sp18 + 2), 1, 0);
     }
 }

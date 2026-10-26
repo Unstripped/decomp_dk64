@@ -319,7 +319,7 @@ void func_80690190(void *, s32, void *);
 s32 func_8061CB50(void);
 void lightAdd(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32);
 void func_8070033C(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 
 void actorUpdatePlayerInteraction(void) {
     ProjectileActorSub174 *sp5C;
@@ -353,7 +353,7 @@ void actorUpdatePlayerInteraction(void) {
     if (func_8061CB50() == 0 || (func_8061CB50() != 0 && (D_807FBB4C->unk6A & 0x100))) {
         actorGetNodePos(D_807FBB40, 1, &sp44, &sp40, (f32 *)&sp3C);
         lightAdd(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xFF, 0xFF, 0xFF);
-        if (func_8073110C(0x6B, 2) == 0) {
+        if (flagGet(0x6B, 2) == 0) {
             if (func_8061CB50() != 0 && (D_807FBB4C->unk6A & 0x100)) {
                 actorGetNodePos(D_807FBB40, 2, &sp44, &sp40, (f32 *)&sp3C);
                 func_8070033C(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 0.0f, 0xFF, 0xFF, 0xFF);

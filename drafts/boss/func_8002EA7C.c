@@ -63,13 +63,13 @@ typedef struct Boss2E_A7A0_DC9C {
 extern u8 *D_80035A80[];
 extern Boss2E_A7A0_DC90 *D_807FDC90;
 extern Boss2E_A7A0_DC94 *D_807FDC94;
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_80028878(u8 *);
 void func_80724CA4(s32, s32);
 void func_8002DC60(void);
 void func_8061CC40(void *, s32, s32);
 s32 func_8061CB98(s32);
-void func_8072AB74(s32, f32, f32, s32, f32);
+void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void playerStateQueueCallback(s32, void *, s32);
 void func_8066EB40(void *, f32);
 void func_8066E5F8(void *, s32, s32);
@@ -92,7 +92,7 @@ void func_8002EA7C(void) {
 
     sp178 = (Boss2E_A7A0_178 *)D_807FBB40->unk178;
     sp28 = D_80035A80[sp178->unk14];
-    func_80729B00();
+    behaviourFrameBegin();
     func_80028878(sp28);
     if (!(ACTOR40->unk60 & 0x10)) {
         ACTOR40->unk146 = 1;
@@ -112,13 +112,13 @@ void func_8002EA7C(void) {
         case 0x2B:
             switch (ACTOR40->unk155) {
             case 0:
-                func_8072B324(D_807FBB40, 0);
+                actorSetTargetSpeed(D_807FBB40, 0);
                 func_8061CC40(ACTOR4C, 9, 1);
                 func_8002E9B8(0x3F5, 0x679);
                 ACTOR40->unk155++;
                 break;
             case 2:
-                func_8072B324(D_807FBB40, DC9C->unkD);
+                actorSetTargetSpeed(D_807FBB40, DC9C->unkD);
                 func_8002E9B8(0x3F4, 0x678);
                 ACTOR40->unk155++;
                 break;
@@ -131,7 +131,7 @@ void func_8002EA7C(void) {
                     ACTOR40->unk154 = 0x2C;
                     ACTOR40->unk155 = 0;
                 }
-                func_8072AB74(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+                actorMoveWithinZone(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
                 break;
             }
             break;
@@ -178,12 +178,12 @@ void func_8002EA7C(void) {
                 } else {
                     func_80614EBC(D_807FBB40, 0x3F2);
                     func_80614EBC(sp178->unk0, 0x3F1);
-                    func_8072B324(D_807FBB40, 0);
+                    actorSetTargetSpeed(D_807FBB40, 0);
                     ACTOR40->unk155++;
                 }
                 break;
             case 1:
-                func_8072AB74(0, 0.0f, 0.0f, 0x310, 0.0f);
+                actorMoveWithinZone(0, 0.0f, 0.0f, 0x310, 0.0f);
                 break;
             case 2:
                 func_8002E7A0(NULL);

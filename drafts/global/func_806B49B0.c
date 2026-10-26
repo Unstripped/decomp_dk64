@@ -30,7 +30,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
                 func_80614EBC(D_807FBB40, arg1);
                 D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
             }
-            func_8072AB74(arg0, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0xE1, 0.0f);
+            actorMoveWithinZone(arg0, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0xE1, 0.0f);
             if (D_807FBB40->unk80 < (f32) sp32) {
                 if (D_807FBB40->unk155[0] == 2) {
                     D_807FBB40->unk80 = (f32) ((f64) D_807FBB40->unk80 + ((f64) (f32) (u32) D_807FDC9C->unkB * 0.03125));
@@ -53,7 +53,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
             }
             break;
         case 0x37:
-            func_8072AB74(0x37, 0.0f, 0.0f, 0x22, 0.0f);
+            actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x22, 0.0f);
             if (D_807FBB40->unk6A & 1) {
                 D_807FBB40->unk154 = 0x40;
             }

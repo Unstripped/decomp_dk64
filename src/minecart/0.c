@@ -324,7 +324,7 @@ extern f32 D_807502F8;
 extern s16 D_80750338;
 extern s32 D_80028C40;
 
-void func_80729E6C(void);
+void actorApplyGravity(void);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 
 void func_80024914(void) {
@@ -352,7 +352,7 @@ void func_80024914(void) {
         D_807FBB40->unkC4 = (f32) D_807502F8;
     }
     temp_s0->unk0 = (s16)((f32)temp_s0->unk0 + D_807FBB40->unkC0 * temp_fv0);
-    func_80729E6C();
+    actorApplyGravity();
     if (temp_s0->unk0 < 0) {
         temp_s0->unk0 = 0;
         if (temp_a1 != 0) {

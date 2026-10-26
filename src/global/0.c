@@ -181,10 +181,10 @@ void commandStateInit(void);
 void commandQueueReset(void);
 void pathFreeAsset(s32);
 void func_80724C78(s32);
-void func_8072E740(s32);
-void func_8072ED90(void);
+void volumeTriggerTableInit(s32);
+void proxPathListClear(void);
 void func_80731030(void);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void func_80732354(s32, s32, s32, s32);
 void func_8073239C(void);
 void func_806F6F28(void);
@@ -932,7 +932,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         func_80705B30();
         commandStateInit();
         func_806F3760(D_8076A0AA);
-        func_8072ED90();
+        proxPathListClear();
         mapSearchTableReset();
         pathFreeAsset(D_8076A0A8);
         sp2C = func_8066B0F8(1, D_8076A0A8, 1, 1);
@@ -952,7 +952,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         lightInitGlobals();
         actorInit();
         actorSpawnInitialSet();
-        func_8072E740(D_8076A0A8);
+        volumeTriggerTableInit(D_8076A0A8);
         func_80626264(sp28 = func_8066B0F8(8, D_8076A0A8, 1, 1));
         if (sp28 != 0) {
             assetFreeBuffer(sp28, 0x8D0, 2);
@@ -983,7 +983,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         collisionBstRebalanceAll();
         D_807F6008 = 0;
         if ((func_8070B318() == 0) && (D_807444EC != 2)) {
-            if ((D_8076A0A8 == 0x11) && (func_8073110C(0x302, 0) != 0)) {
+            if ((D_8076A0A8 == 0x11) && (flagGet(0x302, 0) != 0)) {
                 sfxAllocateChannel(0x74, 1.0f);
             } else {
                 temp_a0 = D_80745BDC[D_8076A0A8][0];

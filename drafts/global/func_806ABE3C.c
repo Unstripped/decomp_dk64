@@ -22,8 +22,8 @@ extern s16 D_807505B8[];
 extern s16 D_807505CC[];
 extern u8 D_80750530;
 extern u8 D_80750531[];
-s32 func_8073110C(s16, s32);
-s32 func_80731AA8(s32, s32, s32);
+s32 flagGet(s16, s32);
+s32 flagCountRange(s32, s32, s32);
 
 void func_806ABE3C(void) {
     s16 *p;
@@ -48,28 +48,28 @@ void func_806ABE3C(void) {
     D_807FC828 = n;
     n = 0;
     p = D_80744710; do {
-        if (func_8073110C(*p, 0) != 0) {
+        if (flagGet(*p, 0) != 0) {
             n++;
         }
         p++;
     } while (p < D_80744720);
     D_807FC82C = n;
-    D_807FC832 = func_80731AA8(0x24D, 0x14, 0);
-    D_807FC82E = func_80731AA8(0x225, 0x28, 0);
+    D_807FC832 = flagCountRange(0x24D, 0x14, 0);
+    D_807FC82E = flagCountRange(0x225, 0x28, 0);
     m = 0;
     p = D_807505B8; do {
-        if (*p >= 0 && func_8073110C(*p, 0) != 0) {
+        if (*p >= 0 && flagGet(*p, 0) != 0) {
             m++;
         }
         p++;
     } while (p < D_807505CC);
     D_807FC82A = m;
-    D_807FC834 = func_8073110C(0x84, 0);
-    D_807FC830 = func_8073110C(0x17B, 0);
-    D_807FC836 = func_80731AA8(0x1FD, 0x28, 0);
+    D_807FC834 = flagGet(0x84, 0);
+    D_807FC830 = flagGet(0x17B, 0);
+    D_807FC836 = flagCountRange(0x1FD, 0x28, 0);
     D_80750530 = 1;
     for (i = 0; i < 4; i++) {
-        D_80750531[i] = func_8073110C(D_807505B2[i - 1], 0);
+        D_80750531[i] = flagGet(D_807505B2[i - 1], 0);
     }
     D_807FC838 = 1;
 }

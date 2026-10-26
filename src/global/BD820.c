@@ -30,7 +30,7 @@ extern void func_8071C9E8(void);
 extern void func_80717D4C(void);
 
 s32 func_80611A44(void);
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_806319C4(Actor *, s32);
 void func_8071496C(s16);
 void func_8071498C(void *);
@@ -145,7 +145,7 @@ void func_806B904C(void) {
     s16 i;
     f32 v;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         v = ((f64)BD820S9C->unkF / 255.0) * 0.75;
         D_807FBB40->unk4->unk34 = v;

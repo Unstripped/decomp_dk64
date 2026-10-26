@@ -25,7 +25,7 @@ extern u8 D_80033FB0;
 extern u8 D_80033FB1;
 extern u8 D_80033FB2;
 
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_8068A858(u8 *, u8 *, u8 *);
 s32 func_80629148(void);
 void func_80629174(void);

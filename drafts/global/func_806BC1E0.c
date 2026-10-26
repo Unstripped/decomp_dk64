@@ -58,10 +58,10 @@ extern s8 D_807FC8D0;
 extern u16 D_807ECD58;
 extern u16 D_807ECD60;
 extern void func_806BCF98();
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_806BD0CC(void);
 void func_80629174(void);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void func_8061CC40();
 s32 func_80629148(void);
 void renderCallbacksRegister(void *, void *, s32);
@@ -70,7 +70,7 @@ void func_806CFF9C(void *);
 s32 func_8061CB50(void);
 void func_80614EBC(void *, s32);
 void func_806A2A10(s32, s32, s32);
-void func_8073129C();
+void flagSet();
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
 void actorSetStateTwo(void *);
@@ -108,7 +108,7 @@ void func_806BC1E0(void) {
 
     st = LGB->unk178;
     obj = LGB->unk4->unk0;
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(LGB->unk60 & 0x10)) {
         st->unk4 = 0.0f;
         func_806BD0CC();
@@ -122,7 +122,7 @@ void func_806BC1E0(void) {
     }
     switch (st->unk38) {
     case 0:
-        if (func_8073110C(0x10F, 0) == 0) {
+        if (flagGet(0x10F, 0) == 0) {
             if ((LGB->unk7C - D_807FBB4C->unk7C) * (LGB->unk7C - D_807FBB4C->unk7C) + (LGB->unk84 - D_807FBB4C->unk84) * (LGB->unk84 - D_807FBB4C->unk84) < 14400.0) {
                 func_8061CC40(D_807FBB40, 0, 1);
                 st->unk39 = 0;
@@ -175,7 +175,7 @@ void func_806BC1E0(void) {
                 st->unk20 = -500.0f;
                 func_80614EBC(D_807FBB40, 0x31C);
                 func_806A2A10(0xDC, 0x2A, 0x3C);
-                func_8073129C(0x30, 1, 2);
+                flagSet(0x30, 1, 2);
                 sfxAllocateChannel(0x78, 1.0f);
                 actorSetStateTwo(LGB->unk11C);
             }
@@ -208,7 +208,7 @@ void func_806BC1E0(void) {
                         zeros++;
                     }
                 }
-                func_8073129C(0x30, 0, 2, ones);
+                flagSet(0x30, 0, 2, ones);
                 func_80614EBC(D_807FBB40, 0x31C);
                 D_80750650 = 1;
                 if (ones < zeros) {
@@ -313,7 +313,7 @@ void func_806BC1E0(void) {
     case 8:
         if (func_80629148() != 0) {
             func_806BD0CC();
-            if (func_8073110C(0x10F, 0) == 0) {
+            if (flagGet(0x10F, 0) == 0) {
                 func_8063DA40(0x10, 0xA);
             }
             st->unk38 = 0xA;

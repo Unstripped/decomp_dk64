@@ -55,7 +55,7 @@ void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 void effectSpawnMultiTierRing(f32, s32, f32, f32, f32);
 
 void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    A1Group *group;
+    Zone *group;
     s16 x;
     s16 y;
     s16 z;
@@ -180,7 +180,7 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 fx6 = D_80755794;
                 *(A2BytePair *)idx6 = *(A2BytePair *)&D_8075579C;
                 sel6 = (func_80611A44() >> 0xF) % 2;
-                ang6 = mathAngleBetweenPoints2D((f32)((A1Item *)(group->unk14 + arg2))->unk0, (f32)((A1Item *)(group->unk14 + arg2))->unk4, (f32)x, (f32)z);
+                ang6 = mathAngleBetweenPoints2D((f32)((ZoneEntry *)(group->unk14 + arg2))->unk0, (f32)((ZoneEntry *)(group->unk14 + arg2))->unk4, (f32)x, (f32)z);
                 func_807149B8(1);
                 func_807149FC(idx6[sel6]);
                 func_8071498C(func_80717404);

@@ -272,13 +272,13 @@ void func_80723428(s32);
 void func_80723484(s32);
 void func_807238D4(s32, f32 *, f32 *, f32 *);
 void func_80724994(s32, s16, s16, s32, s32);
-void func_80724A9C(u8, u8, u8);
-void func_8072EC94(s16, u8);
-void func_8072ECFC(s16, s16, s16, s16);
-void func_8072ED9C(s16, u8, u8);
+void zoneEntrySetDisabled(u8, u8, u8);
+void volumeTriggerSetEnabled(s16, u8);
+void volumeTriggerSetPosition(s16, s16, s16, s16);
+void proxPathSetEnabled(s16, u8, u8);
 void func_8072EE0C(s16, u8, u8);
-s32 func_8073110C(s16, s32, s32);
-void func_8073129C(s16, u8, s32);
+s32 flagGet(s16, s32, s32);
+void flagSet(s16, u8, s32);
 s32 hashTableLookup();
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
@@ -404,7 +404,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x7B:
         func_806335B0(csId, 1, cmd->b, &x, &y, &z);
-        func_8072ECFC(cmd->a, x, y, z);
+        volumeTriggerSetPosition(cmd->a, x, y, z);
         break;
     case 0x7A:
         effectNodeSetSubVal(cmd->a, CMDB(cmd)->b);
@@ -418,7 +418,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x75:
-        func_8072EC94(cmd->a, CMDB(cmd)->b);
+        volumeTriggerSetEnabled(cmd->a, CMDB(cmd)->b);
         break;
     case 0x78:
         func_806335B0(csId, 1, cmd->a, &px, &py, &pz);
@@ -446,13 +446,13 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         func_80631B8C(cmd->a);
         break;
     case 0x6B:
-        func_8073129C(cmd->a, CMDB(cmd)->b, 0);
+        flagSet(cmd->a, CMDB(cmd)->b, 0);
         break;
     case 0x79:
-        func_8073129C(cmd->a, CMDB(cmd)->b, 2);
+        flagSet(cmd->a, CMDB(cmd)->b, 2);
         break;
     case 0x84:
-        func_8073129C(cmd->a, CMDB(cmd)->b, 1);
+        flagSet(cmd->a, CMDB(cmd)->b, 1);
         break;
     case 0x66:
         if (D_807F61F0.unk8 == 0) {
@@ -500,7 +500,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         func_805FF158(CMDB(cmd)->a);
         break;
     case 0x5C:
-        func_80724A9C(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
+        zoneEntrySetDisabled(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
         break;
     case 0x5B:
         func_806C92C4(cmd->a);
@@ -543,7 +543,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         modelAnimEntrySetUnkC(csId, cmd->a, h);
         break;
     case 0x4B:
-        func_8072ED9C(csId, CMDB(cmd)->a, CMDB(cmd)->b);
+        proxPathSetEnabled(csId, CMDB(cmd)->a, CMDB(cmd)->b);
         break;
     case 0x46:
         cs->unk70 = cmd->a;
@@ -636,7 +636,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (func_805FEF74(D_8076A0A8) != 0) {
             exit = D_807480AC[slot];
             map = D_8074809C[slot];
-            if (func_8073110C(D_807480BC[slot], 0, exit) == 0) {
+            if (flagGet(D_807480BC[slot], 0, exit) == 0) {
                 exit = 0;
                 if (map == 0x57) {
                     exit = 0x15;

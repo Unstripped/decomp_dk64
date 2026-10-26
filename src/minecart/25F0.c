@@ -80,7 +80,7 @@ extern struct ActorD580 *D_807FD580;
 extern struct Struct_DC9C *D_807FDC9C;
 extern u32 D_8076A064;
 
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_80614EBC(struct Struct_BB40 *, s32);
 void actorSpawn(s32, s32);
 void func_8067B238(void *, void *, f32);
@@ -97,7 +97,7 @@ void func_800265F0(void) {
     u8 sp47;
 
     sp47 = 0x96;
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(((Struct_BB40_McBig2 *)D_807FBB40)->unk60 & 0x10)) {
         func_80614EBC((struct Struct_BB40 *)D_807FBB40, 0x310);
         actorSpawn(0x11C, 0x4C);
@@ -316,7 +316,7 @@ void func_8071498C(s32 *);
 void func_807149B8(s32);
 void func_80714A28(s32);
 void func_80714CC0(s32, f32, f32, s32, f32);
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_80724CA4(s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(Struct_BB40 *, s32, s32, s32, s32);
 void func_8061F0B0(s32, s32, s32);
@@ -326,7 +326,7 @@ s32 func_8072DE10(s32);
 void func_80614EBC(Struct_BB40 *, s32);
 void func_80027CF4(void);
 void func_8068ECF4(s32, s32);
-void func_8072B438(s32);
+void actorApproachTargetSpeed(s32);
 void func_800253C0(CartSub *, s32, s32);
 void actorGetNodePos(Struct_BB40 *, s32, f32 *, f32 *, f32 *);
 void func_8072177C(Struct_BB40 *, s16, s16, s16, s32, s32, s32, s32, s32);
@@ -441,7 +441,7 @@ void func_800280BC(void) {
     f32 sp44;
     AllocSub *alloc;
     cart = D_807FBB40->unk178;
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80724CA4(2, 1);
         D_807FDC90->unk35 = 6;
@@ -477,7 +477,7 @@ case_1:
         func_80027CF4();
         func_80027E04();
         func_8068ECF4(6, 0xFF);
-        func_8072B438(0x200);
+        actorApproachTargetSpeed(0x200);
         func_800253C0(cart, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp44, &sp48, &sp4C);
         func_8072177C(D_807FBB40, (s16) (s32) sp44, (s16) (s32) sp48, (s16) (s32) sp4C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
@@ -506,7 +506,7 @@ void func_8002835C(void) {
     s32 pad0, pad1, pad2;
 
     sp74 = (CartSub *) D_807FBB40->unk178;
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         if ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82)) {
             actorGetOrSetNodeScale(D_807FBB40, 1, 50.0f);
@@ -547,7 +547,7 @@ case_1:
             actorGetNodePos(D_807FBB40, 1, &sp58, &sp5C, &sp60);
             actorGetNodePos(D_807FBB40, 2, &sp64, &sp68, &sp6C);
         }
-        func_8072B438(0x200);
+        actorApproachTargetSpeed(0x200);
         func_800253C0(sp74, 0x7FFF, 0x23);
         if ((D_807FBB40->unk154 == 2) && ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82))) {
             D_807FBB40->unk154 = 1;

@@ -690,7 +690,7 @@ extern s16 D_80744490;
 s32 actorTableContains();
 void func_8069B908(void);
 void func_80689114(s16, f32, f32, f32, s16, f32, s32);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 
 s32 actorHasCallbackTargetThisFrame(void) {
     ActorCallbackNode *node = D_807FBB40->unk13C;
@@ -768,7 +768,7 @@ void actorSpawnEffectAndTick(void) {
     func_8069B908();
     if (!(D_807FBB40->unk60 & 0x10)) {
         if (*(s32 *)((u8 *)D_807FBB40->unk124 + 0x8) == 1) {
-            if (func_8073110C(0xFD, 0) != 0) {
+            if (flagGet(0xFD, 0) != 0) {
                 D_807FBB40->unk132 = 4;
             }
         }
@@ -1090,7 +1090,7 @@ void actorPlaySoundAndFinish(void) {
 
 #ifdef NON_MATCHING
 void func_80613C48(Actor *, s16, f32, f32);
-void func_8073129C(s32, s32, s32);
+void flagSet(s32, s32, s32);
 void func_8070E8DC(void);
 s32 func_80600530(void);
 void func_8070D8C0(Actor *, s32, u8);
@@ -1115,8 +1115,8 @@ void func_8069E088(void) {
         unk = 0;
         D_807FBB40->unk154 = 0x64;
         func_8070E8DC();
-        if (func_8073110C(0x178, 0) == 0) {
-            func_8073129C(0x178, 1, 0);
+        if (flagGet(0x178, 0) == 0) {
+            flagSet(0x178, 1, 0);
         } else {
             unk = func_80600530() * 5 + D_807F6951 + 1;
         }

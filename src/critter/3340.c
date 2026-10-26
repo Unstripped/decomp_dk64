@@ -19,12 +19,12 @@ extern Actor_3340 *D_807FBB4C;
 extern Actor_3340 *D_807FD580;
 extern s32 D_8076A064;
 
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void sfxPlayActorSound(Actor_3340 *, s32, s32, s32, s32, s32, f32, s32);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void func_80614EBC(Actor_3340 *, s32);
-s32 func_80731AA8(s32, s32, s32);
-void func_8073129C(s32, s32, s32);
+s32 flagCountRange(s32, s32, s32);
+void flagSet(s32, s32, s32);
 void func_8061CC40(Actor_3340 *, s32, s32);
 void func_80629174(void);
 s32 func_80629148(Actor_3340 *);
@@ -71,17 +71,17 @@ void func_80027DC0(void) {
     s32 var_t5;
     s32 var_t6;
 
-    func_80729B00();
+    behaviourFrameBegin();
     s0 = &D_807FBB40;
     actor = *s0;
     if (!(actor->unk60 & 0x10)) {
         sfxPlayActorSound(actor, 0x10F, 0x46, 1, 0, 0x1E, 1.0f, 0);
         (*s0)->unk154 = 0;
-        if (func_8073110C(0x179, 0) == 0) {
+        if (flagGet(0x179, 0) == 0) {
             (*s0)->unk154 = 1;
-        } else if (func_8073110C(0x189, 0) != 0) {
+        } else if (flagGet(0x189, 0) != 0) {
             func_80614EBC(*s0, 0x2B5);
-        } else if (func_80731AA8(0x24D, 0x14, 0) == 0x14) {
+        } else if (flagCountRange(0x24D, 0x14, 0) == 0x14) {
             func_80614EBC(*s0, 0x2B5);
             (*s0)->unk154 = 3;
         }
@@ -96,7 +96,7 @@ void func_80027DC0(void) {
             var_t5 = 1;
         }
         if (var_t5 != 0) {
-            func_8073129C(0x179, 1, 0);
+            flagSet(0x179, 1, 0);
             func_8061CC40(D_807FBB4C, 0, 1);
             func_80629174();
             (*s0)->unk154 = 2;

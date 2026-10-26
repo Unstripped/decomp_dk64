@@ -7,7 +7,7 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern void *D_807FC924;
 
-void func_807248B0(Actor *arg0, f32 arg1) {
+void actorSetUniformScale(Actor *arg0, f32 arg1) {
     arg0->unk4->unk34 = arg1;
     arg0->unk4->unk38 = arg1;
     arg0->unk4->unk3C = arg1;
@@ -19,7 +19,7 @@ void func_807248B0(Actor *arg0, f32 arg1) {
 void *func_80610FE8(s32);
 void heapClearBlock(void *);
 void heapFreeDeferred(void *);
-void func_8072E7DC(s32, void *);
+void actorFindActiveByType(s32, void *);
 void func_8067AB20(void *, void *, s32, s32, s16 *, s32);
 
 void func_80724994(u8 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
@@ -32,7 +32,7 @@ void func_80724994(u8 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     sp24[1] = arg2;
     sp24[2] = arg3;
     sp24[3] = arg4;
-    func_8072E7DC(0xB, &sp20);
+    actorFindActiveByType(0xB, &sp20);
     func_8067AB20(0, sp20, 0x01000000, arg0, sp24, 0);
 }
 
@@ -55,33 +55,33 @@ s32 func_80724A20(void) {
     return found;
 }
 
-typedef struct A1Item {
+typedef struct ZoneEntry {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 unk2;
     /* 0x4 */ s16 unk4;
     /* 0x6 */ u8 unk6;
     /* 0x7 */ u8 pad7[3];
-} A1Item;
+} ZoneEntry;
 
-typedef struct A1Group {
+typedef struct Zone {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
     /* 0x12 */ u8 pad12[2];
-    /* 0x14 */ A1Item *unk14;
+    /* 0x14 */ ZoneEntry *unk14;
     /* 0x18 */ u8 unk18;
     /* 0x19 */ u8 pad19[0xB];
-} A1Group; // size = 0x24
+} Zone; // size = 0x24
 
-typedef struct A1Table {
+typedef struct ZoneTable {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ A1Group *unk4;
-} A1Table;
+    /* 0x4 */ Zone *unk4;
+} ZoneTable;
 
-extern A1Table *D_80755690;
+extern ZoneTable *D_80755690;
 
-void func_80724A9C(u8 arg0, u8 arg1, u8 arg2) {
-    A1Group *group;
+void zoneEntrySetDisabled(u8 arg0, u8 arg1, u8 arg2) {
+    Zone *group;
     s16 i;
     u8 idx;
 
@@ -103,8 +103,8 @@ void func_80724A9C(u8 arg0, u8 arg1, u8 arg2) {
     }
 }
 
-void func_80724B5C(u8 arg0, u8 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
-    A1Group *group;
+void zoneEntryGetPosition(u8 arg0, u8 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
+    Zone *group;
     s16 i;
     u8 idx;
 
@@ -145,7 +145,7 @@ void func_80724C2C(s16 arg0) {
     A1ACT->unkB8 = arg0;
 }
 
-extern struct C1NodeList *D_80755694;
+extern struct SpawnNodeList *D_80755694;
 void func_80728300(void *, void *, void *);
 
 void func_80724C78(void *arg0) {
@@ -206,15 +206,15 @@ void func_80724DB0(s16 arg0, s16 arg1) {
     ((u8 *)table)[arg1 << 4] = 0xFF;
 }
 
-typedef struct C1SpawnEntry {
+typedef struct SpawnEntry {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u16 unk2;
     /* 0x04 */ u8 pad4[0xA];
     /* 0x0E */ u8 unkE;
     /* 0x0F */ u8 padF[9];
-} C1SpawnEntry; // size = 0x18
+} SpawnEntry; // size = 0x18
 
-extern C1SpawnEntry D_8075EB80[];
+extern SpawnEntry D_8075EB80[];
 
 typedef struct A1Tbl18 {
     /* 0x00 */ u8 pad0[0xC];
@@ -417,7 +417,7 @@ s32 func_807255A8(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807255A8.s")
 #endif
 
-u8 func_80725B38(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5) {
+u8 rectContainsPoint2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5) {
     s32 ret;
 
     ret = arg0 >= arg2;
@@ -451,7 +451,7 @@ typedef struct A1Poly {
     /* 0xC */ A1PolyVert *verts;
 } A1Poly;
 
-u8 func_80725BA4(s16 arg0, s16 arg1, A1Poly *arg2) {
+u8 polygonContainsPoint2D(s16 arg0, s16 arg1, A1Poly *arg2) {
     s32 res;
     f32 sp68;
     f32 sp64;
@@ -460,7 +460,7 @@ u8 func_80725BA4(s16 arg0, s16 arg1, A1Poly *arg2) {
     u8 edgeHits;
 
     hits = 0;
-    if (func_80725B38(arg0, arg1, arg2->unk0, arg2->unk2, arg2->unk4, arg2->unk6)) {
+    if (rectContainsPoint2D(arg0, arg1, arg2->unk0, arg2->unk2, arg2->unk4, arg2->unk6)) {
         edgeHits = 0;
         i = 1;
         if (arg2->count >= 2) {
@@ -486,7 +486,7 @@ u8 func_80725BA4(s16 arg0, s16 arg1, A1Poly *arg2) {
 
 void func_8061F2B8(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 
-s32 func_80725DC0(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6) {
+s32 segmentIntersectsCircle2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6) {
     f32 outX;
     f32 outY;
     f32 outZ;
@@ -527,7 +527,7 @@ typedef struct C1Link {
     /* 0x1C */ C1ActorView *unk1C;
 } C1Link;
 
-typedef struct C1Node {
+typedef struct SpawnNode {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 pad1[3];
     /* 0x04 */ s16 unk4;
@@ -551,17 +551,17 @@ typedef struct C1Node {
     /* 0x44 */ u8 unk44;
     /* 0x45 */ u8 pad45;
     /* 0x46 */ u16 unk46;
-} C1Node; // size = 0x48
+} SpawnNode; // size = 0x48
 
-typedef struct C1NodeList {
+typedef struct SpawnNodeList {
     /* 0x0 */ s16 count;
     /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ C1Node *nodes;
-} C1NodeList;
+    /* 0x4 */ SpawnNode *nodes;
+} SpawnNodeList;
 
 #define C1ACT44 ((C1ActorView *)D_807FBB44)
 
-extern C1NodeList *D_80755694;
+extern SpawnNodeList *D_80755694;
 s32 actorSpawn(s32, s32);
 void func_80726744(void *, void *);
 
@@ -589,7 +589,7 @@ typedef struct F1Tbl {
 #define F1ENT(t, i) ((F1Ent *)((t)->ents14 + (i) * 0xA))
 
 
-s32 func_80725DC0(s16, s16, s16, s16, s16, s16, s16);
+s32 segmentIntersectsCircle2D(s16, s16, s16, s16, s16, s16, s16);
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80725ED4.s")
 
 typedef struct F1Pt6 {
@@ -599,7 +599,7 @@ typedef struct F1Pt6 {
 } F1Pt6;
 
 
-s32 func_80726164(Actor *arg0, s16 arg1, s16 arg2, s16 arg3, F1Tbl *arg4) {
+s32 zoneCanReachPoint(Actor *arg0, s16 arg1, s16 arg2, s16 arg3, F1Tbl *arg4) {
     s32 res;
     f32 f1;
     f32 f2;
@@ -636,7 +636,7 @@ s32 func_80726164(Actor *arg0, s16 arg1, s16 arg2, s16 arg3, F1Tbl *arg4) {
         for (i = 0; res && i < arg4->count10; i++) {
             if (!(F1ENT(arg4, i)->flags & 0x80)) {
                 if (((F1ENT(arg4, i)->flags & 0x7F) == 0) || ((F1ENT(arg4, i)->flags & 0x7F) == 5)) {
-                    if (func_80725DC0((s32)x, (s32)z, arg1, arg3, F1ENT(arg4, i)->x, F1ENT(arg4, i)->z, F1ENT(arg4, i)->radius) != 0) {
+                    if (segmentIntersectsCircle2D((s32)x, (s32)z, arg1, arg3, F1ENT(arg4, i)->x, F1ENT(arg4, i)->z, F1ENT(arg4, i)->radius) != 0) {
                         if (((f32)F1ENT(arg4, i)->y <= y) && (y <= (f32)(F1ENT(arg4, i)->height + F1ENT(arg4, i)->y))) {
                             res = 0;
                         }
@@ -700,7 +700,7 @@ typedef struct F1Pt {
     /* 0x8 */ s16 unk8;
 } F1Pt;
 
-void func_807266E8(Actor *arg0, F1Pt *arg1) {
+void actorSetPositionFromPoint(Actor *arg0, F1Pt *arg1) {
     arg0->unk7C = arg1->unk4;
     arg0->unk80 = arg1->unk6;
     arg0->unk8C = arg1->unk6;
@@ -846,8 +846,8 @@ extern s32 D_8076A0A8;
 void func_80614EBC(void *, s32);
 s16 func_80613448(void *, s32);
 void func_80665564(void *, s32);
-void func_8072B79C(s16, s16, s16, s16);
-void func_8072B324(void *, u8);
+void behaviourSetAnimIds(s16, s16, s16, s16);
+void actorSetTargetSpeed(void *, u8);
 s32 func_80611A44(void);
 #define A4P4 ((A4Player *)D_807FC924)
 
@@ -880,11 +880,11 @@ void func_80726744(void *arg0, void *arg1) {
         func_80614EBC(act, ang);
     }
     D_807FDC98 = (Struct807FDC98 *)node;
-    func_8072B79C(ang + 0, ang | 0, ang * 1, ang);
+    behaviourSetAnimIds(ang + 0, ang | 0, ang * 1, ang);
     if (act->unk4 != 0) {
-        func_807248B0((Actor *)act, ((node->unkF * 5) / 255.0) * 0.15);
+        actorSetUniformScale((Actor *)act, ((node->unkF * 5) / 255.0) * 0.15);
     }
-    func_807266E8((Actor *)act, (void *)node);
+    actorSetPositionFromPoint((Actor *)act, (void *)node);
     act->unkDE = 0x400;
     act->unkC4 = D_807502E8;
     act->unkC8 = D_807502E0;
@@ -892,7 +892,7 @@ void func_80726744(void *arg0, void *arg1) {
     if (entry->unkE == 0) {
         act->unk12A = 0x7D0;
     }
-    func_8072B324(act, node->unkC);
+    actorSetTargetSpeed(act, node->unkC);
     st->unk0 = node;
     v = act->unkE6;
     act->unkEE = v;
@@ -1039,19 +1039,19 @@ void func_80726744(void *arg0, void *arg1) {
 
 
 
-u8 func_80726DEC(u8, u8);
+u8 spawnNodeHasState(u8, u8);
 
-u8 func_80726D7C(u8 arg0) {
-    return func_80726DEC(arg0, 5) || func_80726DEC(arg0, 6);
+u8 spawnNodeHasActor(u8 arg0) {
+    return spawnNodeHasState(arg0, 5) || spawnNodeHasState(arg0, 6);
 }
 
-u8 func_80726DC0(u8 arg0) {
-    return func_80726DEC(arg0, 7);
+u8 spawnNodeIsInCooldown(u8 arg0) {
+    return spawnNodeHasState(arg0, 7);
 }
 
-u8 func_80726DEC(u8 arg0, u8 arg1) {
+u8 spawnNodeHasState(u8 arg0, u8 arg1) {
     s16 i;
-    C1Node *node;
+    SpawnNode *node;
 
     node = D_80755694->nodes;
     for (i = 0; i < D_80755694->count; i++, node++) {
@@ -1062,9 +1062,9 @@ u8 func_80726DEC(u8 arg0, u8 arg1) {
     return 0;
 }
 
-void func_80726E60(u16 arg0, u8 arg1) {
+void spawnNodesSetActorStateByFlag(u16 arg0, u8 arg1) {
     s16 i;
-    C1Node *node;
+    SpawnNode *node;
 
     node = D_80755694->nodes;
     for (i = 0; i < D_80755694->count; i++, node++) {
@@ -1082,7 +1082,7 @@ void func_8061CFCC(void *);
 
 void func_80726EE0(u8 arg0) {
     s16 i;
-    C1Node *node;
+    SpawnNode *node;
     s32 mode;
 
     mode = arg0;
@@ -1113,10 +1113,10 @@ void func_80726EE0(u8 arg0) {
     }
 }
 
-Actor *func_807270C0(s16, u16);
+Actor *spawnNodeActivate(s16, u16);
 
-void func_8072707C(s16 arg0, u8 arg1, u16 arg2) {
-    C1ActorView *a = (C1ActorView *)func_807270C0(arg0, arg2);
+void spawnNodeActivateAndSetState(s16 arg0, u8 arg1, u16 arg2) {
+    C1ActorView *a = (C1ActorView *)spawnNodeActivate(arg0, arg2);
 
     if (a != NULL) {
         a->unk154 = arg1;
@@ -1126,9 +1126,9 @@ void func_8072707C(s16 arg0, u8 arg1, u16 arg2) {
 
 void actorRegisterActive(void *);
 
-Actor *func_807270C0(s16 arg0, u16 arg1) {
+Actor *spawnNodeActivate(s16 arg0, u16 arg1) {
     s16 i;
-    C1Node *node;
+    SpawnNode *node;
 
     node = D_80755694->nodes;
     for (i = 0; i < D_80755694->count; i++, node++) {
@@ -1146,9 +1146,9 @@ Actor *func_807270C0(s16 arg0, u16 arg1) {
     return 0;
 }
 
-u8 func_80727194(C1ActorView *arg0) {
+u8 spawnNodeIdForActor(C1ActorView *arg0) {
     s16 i;
-    C1Node *node;
+    SpawnNode *node;
 
     node = D_80755694->nodes;
     for (i = 0; i < D_80755694->count; i++, node++) {
@@ -1159,10 +1159,10 @@ u8 func_80727194(C1ActorView *arg0) {
     return 0;
 }
 
-Actor *func_807271F4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6) {
+Actor *spawnNodeSpawnById(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6) {
     s16 i;
-    C1Node *node;
-    C1SpawnEntry *entry;
+    SpawnNode *node;
+    SpawnEntry *entry;
 
     node = D_80755694->nodes;
     for (i = 0; i < D_80755694->count; i++, node++) {
@@ -1214,13 +1214,13 @@ s32 func_80611A44(void);
 
 #define C1IDX (((C1Tbl98 *)D_807FDC98)->unk20[arg1][0] * 0xA)
 
-void func_807273A8(s16 arg0, u8 arg1) {
+void spawnNodeSpawnAtTablePoint(s16 arg0, u8 arg1) {
     u8 tbl;
     s16 sp34;
 
     tbl = ((C1Tbl98 *)D_807FDC98)->unk20[arg1][0];
     sp34 = (s16)(s32)((mathAngleBetweenPointsDeg((s32)D_807FDC94->unk7C, (s32)D_807FDC94->unk84, C1PTS[tbl].x, C1PTS[tbl].z) * 4096.0f) / 360.0f);
-    if (func_807271F4(arg0, C1PTS[tbl].x, C1PTS[tbl].y, C1PTS[tbl].z, sp34, ((func_80611A44() >> 0xF) % 100) + 0x64, ((func_80611A44() >> 0xF) % 100) + 0xC8) != 0) {
+    if (spawnNodeSpawnById(arg0, C1PTS[tbl].x, C1PTS[tbl].y, C1PTS[tbl].z, sp34, ((func_80611A44() >> 0xF) % 100) + 0x64, ((func_80611A44() >> 0xF) % 100) + 0xC8) != 0) {
         C1ACT44->unk154 = 0x17;
         C1ACT44->unk155 = 0;
     }
@@ -1228,7 +1228,7 @@ void func_807273A8(s16 arg0, u8 arg1) {
 
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-void func_8072752C(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8) {
+void spawnNodeSpawnFacingPoint(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8) {
     s16 sp46;
     f32 sp40;
     s32 dx;
@@ -1241,22 +1241,22 @@ void func_8072752C(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s
     sp46 = mathAngleBetweenPoints2D((f32)arg4, (f32)arg6, (f32)arg1, (f32)arg3);
     sp40 = sqrtf((f32)((dx * dx) + (dy * dy) + (dz * dz)));
     dy = (s32)(sqrtf((f32)((dx * dx) + (dz * dz))) / (sp40 / (f32)arg7));
-    if (func_807271F4(arg0, arg1, arg2, arg3, sp46, dy, arg8) != 0) {
+    if (spawnNodeSpawnById(arg0, arg1, arg2, arg3, sp46, dy, arg8) != 0) {
         C1ACT44->unk154 = 0x17;
         C1ACT44->unk155 = 0;
     }
 }
 
 extern s32 D_8076A0A8;
-s32 func_807317FC(s16, s16);
+s32 spawnFlagConditionMet(s16, s16);
 
 void func_80727678(void) {
     s32 pad;
     s16 sp4A;
-    C1Node *node;
+    SpawnNode *node;
     s16 j;
     s16 *ptr;
-    C1SpawnEntry *entry;
+    SpawnEntry *entry;
 
     node = D_80755694->nodes;
     for (sp4A = 0; sp4A < D_80755694->count; sp4A++, node++) {
@@ -1265,9 +1265,9 @@ void func_80727678(void) {
             if (node->unk13 == *ptr) {
                 switch (D_807FBB70.unk258[j]) {
                     case 1:
-                        if ((node->unk42 == 0) && (func_807317FC(((s16 *)&D_8076A0A8)[1], node->unk13) != 0) && (entry = &D_8075EB80[node->unk44], actorSpawn(entry->unk0, entry->unk2) != 0)) {
+                        if ((node->unk42 == 0) && (spawnFlagConditionMet(((s16 *)&D_8076A0A8)[1], node->unk13) != 0) && (entry = &D_8075EB80[node->unk44], actorSpawn(entry->unk0, entry->unk2) != 0)) {
                             func_80726744(D_807FBB44, node);
-                        } else if ((node->unk42 == 3) && (func_807317FC(((s16 *)&D_8076A0A8)[1], node->unk13) != 0)) {
+                        } else if ((node->unk42 == 3) && (spawnFlagConditionMet(((s16 *)&D_8076A0A8)[1], node->unk13) != 0)) {
                             entry = &D_8075EB80[node->unk44];
                             if (actorSpawn(entry->unk0, entry->unk2) != 0) {
                                 func_80726744(D_807FBB44, node);
@@ -1295,7 +1295,7 @@ void func_80727678(void) {
 extern u8 D_80755698[];
 extern Struct807FD580 *D_807FD580;
 
-void func_807278C0(C1Node *arg0) {
+void spawnNodeSelectEntry(SpawnNode *arg0) {
     u8 temp_v0;
 
     if ((D_8076A0A8 == 0x30) && (D_807FD580->unk1F0 & 0x100000) && (temp_v0 = arg0->unk0, (D_80755698[temp_v0] != 0xA))) {
@@ -1346,21 +1346,21 @@ extern s32 D_807FBB64;
 extern u8 D_807FC928;
 void actorDeregisterActive(void *);
 s16 func_806531B8(f32, f32, f32, s32);
-u8 func_80727F20(C1Node *, s32);
-u8 func_80728004(C1Node *, s32);
-u8 func_807280C8(C1Node *, s32);
-u8 func_8072818C(C1Node *, s32);
+u8 spawnNodeInRangeAndVisible(SpawnNode *, s32);
+u8 spawnNodeActorInRangeAndVisible(SpawnNode *, s32);
+u8 func_807280C8(SpawnNode *, s32);
+u8 func_8072818C(SpawnNode *, s32);
 void sfxStopChannel(s32, s32);
 void sfxStopSlotSound(void *, s32);
 
-void func_80727958(void) {
+void spawnNodesUpdate(void) {
     s16 i;
-    C1Node *node;
+    SpawnNode *node;
     s32 dist;
     u8 active;
     s32 best;
     s16 p;
-    C1SpawnEntry *entry;
+    SpawnEntry *entry;
     C1ActorView *pa;
     f32 dz;
     f32 dx;
@@ -1397,7 +1397,7 @@ void func_80727958(void) {
                     node->unk43 += 1;
                     node->unk42 = node->unk12;
                     node->unk40 = func_806531B8((f32)node->unk4, (f32)node->unk6, (f32)node->unk8, 0);
-                    func_807278C0(node);
+                    spawnNodeSelectEntry(node);
                     entry = &D_8075EB80[node->unk44];
                     if (actorSpawn(entry->unk0, entry->unk2) != 0) {
                         func_80726744(D_807FBB44, node);
@@ -1407,8 +1407,8 @@ void func_80727958(void) {
                 }
             }
         } else if (node->unk42 == 2) {
-            if ((func_80727F20(node, dist) != 0) && (func_807317FC(D_8076A0AA, node->unk13) != 0)) {
-                func_807278C0(node);
+            if ((spawnNodeInRangeAndVisible(node, dist) != 0) && (spawnFlagConditionMet(D_8076A0AA, node->unk13) != 0)) {
+                spawnNodeSelectEntry(node);
                 entry = &D_8075EB80[node->unk44];
                 if (actorSpawn(entry->unk0, entry->unk2) != 0) {
                     func_80726744(D_807FBB44, node);
@@ -1449,7 +1449,7 @@ void func_80727958(void) {
                 if (func_8072818C(node, dist) != 0) {
                     actorDespawn(node->unk18);
                     node->unk42 = node->unk12;
-                } else if (func_80728004(node, dist) != 0) {
+                } else if (spawnNodeActorInRangeAndVisible(node, dist) != 0) {
                     actorRegisterActive(node->unk18);
                     node->unk42 = 5;
                     node->unk46 |= 0x8000;
@@ -1472,7 +1472,7 @@ void func_80727958(void) {
 
 s32 mapChunkIsVisibleForPlayer(s32, s16);
 
-u8 func_80727F20(C1Node *arg0, s32 arg1) {
+u8 spawnNodeInRangeAndVisible(SpawnNode *arg0, s32 arg1) {
     f32 dx;
     f32 dy;
     f32 dz;
@@ -1497,7 +1497,7 @@ u8 func_80727F20(C1Node *arg0, s32 arg1) {
     return ret;
 }
 
-u8 func_80728004(C1Node *arg0, s32 arg1) {
+u8 spawnNodeActorInRangeAndVisible(SpawnNode *arg0, s32 arg1) {
     f32 dx;
     f32 dy;
     f32 dz;
@@ -1550,7 +1550,7 @@ typedef struct C1Holder {
 
 #define C1TBL ((C1Entry24List *)D_80755690)
 
-void func_8072827C(C1Holder *arg0) {
+void zoneAssignToBehaviour(C1Holder *arg0) {
     s16 i;
     C1Entry24 *entry;
 
@@ -1613,7 +1613,7 @@ void func_80728950(u8 arg0) {
     animSetFrameAndSubframe(D_807FBB40, arg0, 2, 0.0f);
 }
 
-void func_807289B0(u8 arg0, u8 arg1) {
+void currentActorAnimSetFrame(u8 arg0, u8 arg1) {
     animSetFrameAndSubframe(D_807FBB40, arg0, arg1, 0.0f);
 }
 
@@ -1674,7 +1674,7 @@ void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 void effectSpawnMultiTierRing(f32, s32, f32, f32, f32);
 
 void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    A1Group *group;
+    Zone *group;
     s16 x;
     s16 y;
     s16 z;
@@ -1799,7 +1799,7 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 fx6 = D_80755794;
                 *(A2BytePair *)idx6 = *(A2BytePair *)&D_8075579C;
                 sel6 = (func_80611A44() >> 0xF) % 2;
-                ang6 = mathAngleBetweenPoints2D((f32)((A1Item *)(group->unk14 + arg2))->unk0, (f32)((A1Item *)(group->unk14 + arg2))->unk4, (f32)x, (f32)z);
+                ang6 = mathAngleBetweenPoints2D((f32)((ZoneEntry *)(group->unk14 + arg2))->unk0, (f32)((ZoneEntry *)(group->unk14 + arg2))->unk4, (f32)x, (f32)z);
                 func_807149B8(1);
                 func_807149FC(idx6[sel6]);
                 func_8071498C(func_80717404);
@@ -1884,7 +1884,7 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
 void func_80729AA4(u8 arg0) {
     Actor *a;
 
-    a = func_807270C0(arg0, 0);
+    a = spawnNodeActivate(arg0, 0);
     if (a == 0) {
         a = D_807FBB4C;
     }

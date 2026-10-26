@@ -21,7 +21,7 @@ extern s32 D_807FBB64;
 extern u8 D_807FD738;
 void func_806F603C(void);
 void func_806F69A8(u8);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 s32 func_806F6E58(s16);
 
 void func_806F6F28(void) {
@@ -37,7 +37,7 @@ void func_806F6F28(void) {
     if (D_807FBB64 & 0x10000) {
         func_806F603C();
     }
-    if (func_8073110C(0x179, 0) != 0) {
+    if (flagGet(0x179, 0) != 0) {
         var_fp = 1;
     }
     if (func_806F6E58(D_8074E77C[0]) != 0) {

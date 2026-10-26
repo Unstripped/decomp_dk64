@@ -154,7 +154,7 @@ typedef struct BC3B0CursorCfg {
 extern s32 D_807FBB64;
 extern s32 D_807FBB68;
 
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_806A2A10(s32, s32, u8, s32 *);
 s32 func_8061CB50(void);
 s32 func_8061CC00(void);
@@ -170,7 +170,7 @@ void func_806B7EA0(void) {
     f32 sp40;
     f32 sp3C;
     c = (BC3B0Cursor *)BC3B0CA->unk178;
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FDC98->unk46 |= 0x60;
         D_807FBB64 |= 2;
@@ -276,7 +276,7 @@ extern u32 D_8076A064;
 extern u8 D_807201D4[];
 extern void func_80717D4C(void);
 
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_8066EB40(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
@@ -293,7 +293,7 @@ void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
 void actorUpdateBurstProjectileEmitter(void);
 
 void actorUpdatePeriodicParticleEmitter(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         BC3B0S90->unk30 = BC3B0S9C->unkB;
         func_8066EB40(D_807FBB40, 300.0f);
@@ -324,7 +324,7 @@ void actorUpdatePeriodicParticleEmitter(void) {
 }
 
 void actorUpdateAimedProjectileEmitter(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         BC3B0S90->unk2E = BC3B0S98->unkB;
     }
@@ -357,7 +357,7 @@ void actorUpdateBurstProjectileEmitter(void) {
     s16 *b = BC3B0EA->unk17C;
     s16 kind;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         BC3B0S90->unk30 = BC3B0S9C->unkB;
         *a = BC3B0S9C->unkD;

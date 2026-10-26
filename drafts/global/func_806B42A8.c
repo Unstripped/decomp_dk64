@@ -49,7 +49,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
                     arg0();
                 }
             }
-            func_8072AB74(D_807FBB40->unk154, (f32) var_t0, (f32) var_t1, 0x2C1, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, (f32) var_t0, (f32) var_t1, 0x2C1, 0.0f);
             B7490A->unkE8 = func_806CC190(B7490A->unkE8, 0, 5.0f);
             break;
         case 0x26:
@@ -76,7 +76,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
             }
             switch (D_807FBB40->unk155[0]) {
                 case 0:
-                    func_8072AB74(0x37, 0.0f, 0.0f, 0x200, 0.0f);
+                    actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
                     break;
                 case 1:
                     sfxSpawnTableNodes(D_807FBB40);
@@ -87,7 +87,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
                     B7490A->unkC0 = 50.0f;
                     D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
                 case 2:
-                    func_8072AB74(0x37, 0.0f, 0.0f, 0x222, 0.0f);
+                    actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x222, 0.0f);
                     break;
                 case 3:
                     func_8072DC7C(0xA);

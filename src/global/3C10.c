@@ -142,8 +142,8 @@ s32 func_80712798(void);
 void func_80712F10(s32 *, s32 *);
 s32 func_807143E8(void);
 s32 func_8071441C(void);
-s32 func_8073110C(s32, s32);
-void func_8073129C();
+s32 flagGet(s32, s32);
+void flagSet();
 void func_807313BC(void);
 void heapFree(void *);
 
@@ -270,7 +270,7 @@ void func_805FF2F4(void) {
         sp1C = D_8076A0A8;
         sp18 = 0;
     }
-    func_8073129C(0x6E, 1, 2, sp1C);
+    flagSet(0x6E, 1, 2, sp1C);
     func_805FF378(sp1C, sp18);
 }
 
@@ -582,8 +582,8 @@ u8 func_80600454(s16 arg0, u8 *arg1) {
         *arg1 = D_80756630[i];
         if (i < 13) {
             temp = i + 0x307;
-            ret = func_8073110C(temp, 0) == 0;
-            func_8073129C(temp, 1, 0);
+            ret = flagGet(temp, 0) == 0;
+            flagSet(temp, 1, 0);
         } else {
             ret = 1;
         }

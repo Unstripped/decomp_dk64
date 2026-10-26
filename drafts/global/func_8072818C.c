@@ -1,5 +1,5 @@
-// func_8072818C (src/global/1295B0.c): stage 6 (10 diff lines): FP register/schedule only (mul.s order, multu a0,a0 placement). Reusing f32 r for dy (permuter hint) fixed stack/regs; statement order z,x,y. needs C1Node/C1PLAYERS; sqrtf(arg1) then (s32)(r*1.5).
-u8 func_8072818C(C1Node *arg0, s32 arg1) {
+// func_8072818C (src/global/1295B0.c): stage 6 (10 diff lines): FP register/schedule only (mul.s order, multu a0,a0 placement). Reusing f32 r for dy (permuter hint) fixed stack/regs; statement order z,x,y. needs SpawnNode/C1PLAYERS; sqrtf(arg1) then (s32)(r*1.5).
+u8 func_8072818C(SpawnNode *arg0, s32 arg1) {
     f32 dx;
     f32 dz;
     f32 r;

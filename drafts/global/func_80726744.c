@@ -136,8 +136,8 @@ extern s32 D_8076A0A8;
 void func_80614EBC(void *, s32);
 s16 func_80613448(void *, s32);
 void func_80665564(void *, s32);
-void func_8072B79C(s16, s16, s16, s16);
-void func_8072B324(void *, u8);
+void behaviourSetAnimIds(s16, s16, s16, s16);
+void actorSetTargetSpeed(void *, u8);
 s32 func_80611A44(void);
 #define A4P4 ((A4Player *)D_807FC924)
 
@@ -170,11 +170,11 @@ void func_80726744(void *arg0, void *arg1) {
         func_80614EBC(act, ang);
     }
     D_807FDC98 = (Struct807FDC98 *)node;
-    func_8072B79C(ang + 0, ang | 0, ang * 1, ang);
+    behaviourSetAnimIds(ang + 0, ang | 0, ang * 1, ang);
     if (act->unk4 != 0) {
-        func_807248B0((Actor *)act, ((node->unkF * 5) / 255.0) * 0.15);
+        actorSetUniformScale((Actor *)act, ((node->unkF * 5) / 255.0) * 0.15);
     }
-    func_807266E8((Actor *)act, (void *)node);
+    actorSetPositionFromPoint((Actor *)act, (void *)node);
     act->unkDE = 0x400;
     act->unkC4 = D_807502E8;
     act->unkC8 = D_807502E0;
@@ -182,7 +182,7 @@ void func_80726744(void *arg0, void *arg1) {
     if (entry->unkE == 0) {
         act->unk12A = 0x7D0;
     }
-    func_8072B324(act, node->unkC);
+    actorSetTargetSpeed(act, node->unkC);
     st->unk0 = node;
     v = act->unkE6;
     act->unkEE = v;

@@ -65,7 +65,7 @@ void func_807149FC(s32);
 void func_80714C08(void *, f32, void *, s32, s32);
 void effectFreeByResource(B6C50Actor *);
 void func_80726EE0(s32);
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 s32 sfxAllocateChannel(s32, f32);
 void sfxPlayActorSound(B6C50Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxPlayFromActorWithAltitudeCheck(B6C50Actor *, s16, u8, s16, u8);
@@ -74,7 +74,7 @@ void sfxStopSlotSound(B6C50Actor *, u8);
 void func_806B1F50(void) {
     u8 sp37;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FDC98->unk46 |= 0xA0;
         D_807FBB40->unk60 |= 0x400;
@@ -166,7 +166,7 @@ extern s32 D_80720340;
 
 B6C50Actor *actorFindByType(s32);
 void func_80613C48(B6C50Actor *, s16, f32, f32);
-void func_8072AB74(s32, f32, f32, s32, f32);
+void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void func_8072B7CC(s32);
 f32 sqrtf(f32);
 
@@ -175,7 +175,7 @@ void func_806B24B8(void) {
     f32 dx;
     f32 dz;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         found = actorFindByType(0x110);
         if (found != NULL) {
@@ -209,7 +209,7 @@ void func_806B24B8(void) {
                 D_807FBB40->unkF0 = 1;
             }
         }
-        func_8072AB74(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+        actorMoveWithinZone(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
     } else {
         func_8072B7CC(0x1F8);
     }

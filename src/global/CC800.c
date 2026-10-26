@@ -514,7 +514,7 @@ extern f32 D_80753578[];
 extern f32 D_807535E8[];
 extern volatile G00Slot34 D_807FD610[];
 void func_806E2C74(Actor *);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void func_806F09F0(Actor *, u16);
 void func_806CFF9C(Actor *);
 void func_806C90C4(s32);
@@ -598,7 +598,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_P->unk264 = -new_var;
     G00_P->unk258 = 1.0f;
     G00_P->unk25C = 1.0f;
-    if (func_8073110C(0xCE, 0) != 0) {
+    if (flagGet(0xCE, 0) != 0) {
         G00_P->unk1F0 |= 0x100000;
     }
     func_806C8220(1, G00_A48->unk178, D_807FBB48->unk58);
@@ -1133,11 +1133,11 @@ void func_806C95D0(s32 arg0) {
     D_807FC908.unk4 = D_807FD574.unk4;
 }
 
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 
 void func_806C9658(s32 arg0) {
     if (arg0 == 0x1E) {
-        if (func_8073110C(0xA0, 0) != 0) {
+        if (flagGet(0xA0, 0) != 0) {
             D_807FC900[18].unk2 = 0x65D;
             D_807FC900[23].unk2 = 0x65D;
         } else {
@@ -1311,7 +1311,7 @@ void func_806C9C1C(s32 arg0) {
     func_806F833C(0);
 }
 
-void func_8073129C(s32, s32, s32);
+void flagSet(s32, s32, s32);
 
 void func_806C9C80(s32 arg0, s32 arg1, s32 arg2) {
     s32 idx = func_806C8DE0(arg0);
@@ -1321,7 +1321,7 @@ void func_806C9C80(s32 arg0, s32 arg1, s32 arg2) {
     p[4] = 0xF;
     p[1] = 3;
     p[0] = 3;
-    func_8073129C(0x179, 1, 0);
+    flagSet(0x179, 1, 0);
     func_806C9C1C(arg0);
 }
 

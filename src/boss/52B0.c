@@ -156,8 +156,8 @@ void actorAppendActiveCallback8(void);
 s32 func_806CC10C(s16, s16);
 s32 mathAngleDistance(s16, s16);
 s32 func_80724A20(void);
-void func_80729B00(void);
-void func_8072AB74(s32, f32, f32, s32, f32);
+void behaviourFrameBegin(void);
+void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void func_8072E1A4(s32, void *);
 
 #define ACTOR ((Boss3F_52B0_Actor *)D_807FBB40)
@@ -175,7 +175,7 @@ void func_80029468(void) {
     sp4C = ACTOR->unk178;
     sp44 = D_80035A00[sp4C->unk14];
     sp42 = mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84);
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(ACTOR->unk60 & 0x10)) {
         ACTOR->unkCE = 0x64;
         ACTOR->unk15F = 0;
@@ -441,7 +441,7 @@ block_28:
             }
             break;
         }
-        func_8072AB74(0x23, 0.0f, 0.0f, 0x202, 0.0f);
+        actorMoveWithinZone(0x23, 0.0f, 0.0f, 0x202, 0.0f);
         break;
     default:
         func_80027BA8(sp44, 0, 0.0f);

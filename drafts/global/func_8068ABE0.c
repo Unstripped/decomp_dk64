@@ -1,6 +1,6 @@
 // func_8068ABE0 (src/global/8F4B0.c): sparse switch needing explicit case breaks for jtbl_80759D00 in .late_rodata; held back by func_8068AD7C asm rodata alignment
-s32 func_8073110C(s16, s32, s32);
-void func_8073129C(s16, s32, s32, s16);
+s32 flagGet(s16, s32, s32);
+void flagSet(s16, s32, s32, s16);
 void func_805FF378(s16, s32);
 void func_80712524(s32, s16);
 extern s8 D_8074452C;
@@ -37,7 +37,7 @@ loop_1:
         sp1C = temp_a0;
         sp36 = -1;
         var_a3 = -1;
-        if (func_8073110C(temp_a0, 0, -1) == 0) {
+        if (flagGet(temp_a0, 0, -1) == 0) {
             var_v0_2 = 0;
             switch (arg0) {
             case 0x7:
@@ -77,7 +77,7 @@ loop_1:
             if (var_a3 != -1) {
                 sp20 = var_v0_2;
                 sp36 = var_a3;
-                func_8073129C(temp_a0, 1, 0, var_a3);
+                flagSet(temp_a0, 1, 0, var_a3);
                 if (D_8074452C != 0) {
                     func_805FF378(arg0, sp20);
                     return 1;

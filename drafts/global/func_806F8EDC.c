@@ -1,6 +1,6 @@
 // func_806F8EDC (src/global/FCCD0.c): Stage 3 selector reconstruction: active-character indexed threshold selection and switch cases recovered; register allocation remains unmatched.
 extern s32 func_806F6EDC();
-extern s32 func_8073110C(s32, s32);
+extern s32 flagGet(s32, s32);
 extern u8 D_807FC953[];
 extern u8 D_807FC954[];
 
@@ -62,7 +62,7 @@ s32 func_806F8EDC(s32 arg0, s32 arg1) {
         }
         break;
     case 6:
-        if (func_8073110C(0x179, 0) != 0) {
+        if (flagGet(0x179, 0) != 0) {
             var_a0 = (func_806F8EB4() + 0xA) & 0xFFFF;
         } else {
             var_a0 = 0;

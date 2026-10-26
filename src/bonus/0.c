@@ -25,13 +25,13 @@ Gfx *func_80024000(Gfx *gdl, void *arg1) {
     return gdl;
 }
 
-void func_8072707C(s32, s32, s32);
+void spawnNodeActivateAndSetState(s32, s32, s32);
 void bonusInitSounds(void) {
-    func_8072707C(1, 0x40, 0);
-    func_8072707C(2, 0x40, 0);
-    func_8072707C(3, 0x40, 0);
-    func_8072707C(4, 0x40, 0);
-    func_8072707C(5, 0x40, 0);
+    spawnNodeActivateAndSetState(1, 0x40, 0);
+    spawnNodeActivateAndSetState(2, 0x40, 0);
+    spawnNodeActivateAndSetState(3, 0x40, 0);
+    spawnNodeActivateAndSetState(4, 0x40, 0);
+    spawnNodeActivateAndSetState(5, 0x40, 0);
 }
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/0/func_80024158.s")
@@ -72,7 +72,7 @@ s32 bonusGetSoundForMap(void) {
     }
 }
 
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void n_alSndpAllocate(s32, s32, s32, s32, f32, s32, void *);
 void func_806A2A10(s32, s32, u8);
 void func_8061CC30(void);
@@ -98,17 +98,17 @@ void func_80024E38(void) {
     u8 *temp_s0;
 
     temp_s0 = *(u8 **)((u8 *)D_807FBB40 + 0x178);
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(*(u32 *)((u8 *)D_807FBB40 + 0x60) & 0x10)) {
         *(u16 *)temp_s0 = 0x12C;
         *(s16 *)(temp_s0 + 0xA) = 0;
         *(s16 *)(temp_s0 + 0x8) = 0;
         n_alSndpAllocate(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, temp_s0 + 4);
         func_806A2A10(0xDC, 0x2A, *(u8 *)((u8 *)D_807FDC9C + 0xB));
-        func_8072707C(1, 0x40, 0x10);
-        func_8072707C(2, 0x40, 0x10);
-        func_8072707C(3, 0x40, 0x10);
-        func_8072707C(4, 0x40, 0x10);
+        spawnNodeActivateAndSetState(1, 0x40, 0x10);
+        spawnNodeActivateAndSetState(2, 0x40, 0x10);
+        spawnNodeActivateAndSetState(3, 0x40, 0x10);
+        spawnNodeActivateAndSetState(4, 0x40, 0x10);
         *(u8 *)((u8 *)D_807FBB40 + 0x154) = 0;
         *(u8 *)((u8 *)D_807FBB40 + 0x155) = 0;
         func_8061CC30();

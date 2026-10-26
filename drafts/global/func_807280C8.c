@@ -1,7 +1,7 @@
 // func_807280C8 (src/global/1295B0.c): stage 6, 5 diff lines: sum assigned back into dz; only cvt.s.w(arg1) schedule differs
 s32 mapChunkIsVisibleForPlayer(s32, s16);
 
-u8 func_807280C8(C1Node *arg0, s32 arg1) {
+u8 func_807280C8(SpawnNode *arg0, s32 arg1) {
     f32 dx;
     f32 dy;
     f32 dz;

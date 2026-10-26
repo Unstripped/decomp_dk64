@@ -38,7 +38,7 @@ extern u8 D_807506C0[];
 extern u8 D_807FBD70;
 
 s16 actorListFindIdByActor(Actor *);
-void *func_807270C0(s32, s32);
+void *spawnNodeActivate(s32, s32);
 void animSetStartFrame(Actor *, s32, s32);
 s32 animIsPlaying(Actor *, s32);
 void animSetSpeed(Actor *, s32, f32);
@@ -57,7 +57,7 @@ void actorSeekTargetUpdate(void) {
     f32 dz;
 
     sp36 = actorListFindIdByActor(D_807FBB40);
-    sp30 = func_807270C0(2, 0);
+    sp30 = spawnNodeActivate(2, 0);
     if (!(D_807FBB40->unk60 & 0x10)) {
         ((ActorView *)D_807FBB40)->unk130 = 0x46;
         ((ActorView *)D_807FBB40)->unk131 = 0x32;

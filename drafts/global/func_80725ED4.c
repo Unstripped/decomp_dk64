@@ -27,8 +27,8 @@ typedef struct F1Tbl {
 
 #define F1ENT(t, i) ((F1Ent *)((t)->ents14 + (i) * 0xA))
 
-s32 func_80725DC0(s16, s16, s16, s16, s16, s16, s16);
-s32 func_80726164(Actor *, s16, s16, s16, F1Tbl *);
+s32 segmentIntersectsCircle2D(s16, s16, s16, s16, s16, s16, s16);
+s32 zoneCanReachPoint(Actor *, s16, s16, s16, F1Tbl *);
 s32 func_80611A44(void);
 
 s32 func_80725ED4(u8 arg0, Actor *arg1, F1Tbl *arg2, s16 *arg3, s16 *arg4, s16 *arg5) {
@@ -49,8 +49,8 @@ s32 func_80725ED4(u8 arg0, Actor *arg1, F1Tbl *arg2, s16 *arg3, s16 *arg4, s16 *
     for (i = 0; i < arg2->count10 && !stop; i++) {
         e = F1ENT(arg2, i);
         if (!(e->flags & 0x80) && ((e->flags & 0x7F) == 3)) {
-            if (func_80725DC0((s32)arg1->unk7C, (s32)arg1->unk84, e->x, e->z, (s32)D_807FDC94->unk7C, (s32)D_807FDC94->unk84, 0x14) == 0) {
-                if (func_80726164(arg1, e->x, e->y, e->z, arg2) != 0) {
+            if (segmentIntersectsCircle2D((s32)arg1->unk7C, (s32)arg1->unk84, e->x, e->z, (s32)D_807FDC94->unk7C, (s32)D_807FDC94->unk84, 0x14) == 0) {
+                if (zoneCanReachPoint(arg1, e->x, e->y, e->z, arg2) != 0) {
                     if (((arg0 & 1) && (d = (s32)(((D_807FDC94->unk7C - e->x) * (D_807FDC94->unk7C - e->x)) + ((D_807FDC94->unk84 - e->z) * (D_807FDC94->unk84 - e->z))), best < d)) ||
                         ((arg0 & 2) && (d = (s32)(((arg1->unk7C - e->x) * (arg1->unk7C - e->x)) + ((arg1->unk84 - e->z) * (arg1->unk84 - e->z))), d < best))) {
                         best = d;

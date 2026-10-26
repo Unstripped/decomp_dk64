@@ -1,6 +1,6 @@
 // func_806F54E0 (src/global/F9450.c): Stage 3 semantic reconstruction: K&R s32 middle parameter and nested 0x306/0x5E action layout yield exact 0x30 frame/prologue and near-exact 0xB7 block; switch layout, call argument ordering, and signed return remain.
 s32 func_805FF030(u8, s32);
-s16 func_807319D8(s32, s32, u8);
+s16 flagGridIndex(s32, s32, u8);
 s32 func_806C9974(u8, s8);
 void func_8060DEC8(void);
 void func_806F91B4(s32, u8, s32);
@@ -41,7 +41,7 @@ u8 arg2;
         temp_v0 = func_806F544C(D_80753EF2[func_806F4E74(arg1) * 0x14], arg1, arg2);
         switch (arg1) {
         case 0xDD: case 0xDE: case 0xDF: case 0xE0: case 0xE1:
-            func_8073129C(func_807319D8(0x1D5, func_805FF030(D_8076A0AB, 1), D_8074E77C[(u8)arg0]), 1, 0);
+            flagSet(flagGridIndex(0x1D5, func_805FF030(D_8076A0AB, 1), D_8074E77C[(u8)arg0]), 1, 0);
         case 0x74: case 0x288:
             func_806F91B4(temp_v0, arg0, 1);
             shouldComplete = 1;
@@ -51,16 +51,16 @@ u8 arg2;
                 func_80609140(0x331, 0x7FFF, 63.0f, 1.0f, 5, 0);
             }
         case 0xA: case 0xD: case 0x16: case 0x1E: case 0x1F:
-            func_8073129C(0x18B, 1, 0);
+            flagSet(0x18B, 1, 0);
             func_806F91B4(temp_v0, arg0, 1);
             break;
         case 0x1C: case 0x1D: case 0x23: case 0x24: case 0x27:
-            func_8073129C(0x18C, 1, 0);
+            flagSet(0x18C, 1, 0);
         case 0x98: case 0xEC: case 0x1D2:
             func_806F91B4(temp_v0, arg0, 1);
             break;
         case 0x56:
-            func_8073129C(0x173, 1, 0);
+            flagSet(0x173, 1, 0);
             func_806F91B4(temp_v0, arg0, 1);
             break;
         case 0xB7:

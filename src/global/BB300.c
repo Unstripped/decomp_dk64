@@ -50,9 +50,9 @@ extern f32 D_807502E8;
 s32 actorSpawn(s32, s32);
 void func_80614EBC(void *, s32);
 void func_8067B238(void *, void *, f32);
-void func_8072B324(void *, s32);
+void actorSetTargetSpeed(void *, s32);
 void *memcpy(void *, const void *, unsigned int);
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_80724C2C(s32);
 void func_806B6DB0();
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
@@ -127,11 +127,11 @@ typedef struct BB300View90 {
 void effectSpawnRing();
 void actorDespawn(Actor *);
 void func_806319C4(void *, s32);
-s32 func_8072AB74(s32, f32, f32, s32, f32);
+s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
 void func_8072B7CC();
 
 void func_806B6958(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         BB300S90->unk35 = BB300S90->unk35 * 2;
         BB300S90->unk2C = 0xD2;
@@ -155,7 +155,7 @@ void func_806B6958(void) {
         actorDespawn(D_807FBB40);
     }
     if (D_807FBB40->unk154 == 0x23) {
-        func_8072AB74(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+        actorMoveWithinZone(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
     } else {
         func_8072B7CC(0x237);
     }
@@ -173,7 +173,7 @@ void func_806B6C88(s16 arg0, s16 arg1) {
         BB300A44->unkC4 = D_807502E8;
         BB300A44->unkC8 = D_807502E0;
         BB300A44->unkB8 = 0.0f;
-        func_8072B324(D_807FBB40, arg0 * 1.25);
+        actorSetTargetSpeed(D_807FBB40, arg0 * 1.25);
         memcpy(BB300A44->unk174, BB300A->unk174, 0x3C);
     }
 }
@@ -219,7 +219,7 @@ void actorUpdatePulseIntensity(u8);
 void func_80724CA4(s32, s32);
 void func_80724E48();
 void func_8072881C(s32, void *);
-void func_8072B59C();
+void actorSetBehaviourState();
 void func_8072C918(s32, s32, s32);
 void func_8072D13C(s32, s32);
 void func_8072D714(s32, s32);
@@ -264,7 +264,7 @@ void func_806B6DB0(s32 arg0) {
         } else {
             p->unk2 = -0x8C;
         }
-        func_8072B59C(0x14, 0xA, 0x235);
+        actorSetBehaviourState(0x14, 0xA, 0x235);
         sel = D_807FBB40->unk154;
     }
     switch (sel) {
@@ -288,13 +288,13 @@ void func_806B6DB0(s32 arg0) {
             break;
         case 2:
             sfxStopSlotSound(D_807FBB40, 0);
-            func_8072B59C(1, ((BB300View9C *)D_807FDC9C)->unkC, 0x232);
+            actorSetBehaviourState(1, ((BB300View9C *)D_807FDC9C)->unkC, 0x232);
             ((BB300ActorAlt *)D_807FBB40)->unkEE = D_807FBB40->unkE6;
             break;
         }
         func_80724E48(5);
         actorUpdatePulseIntensity(0);
-        func_8072AB74(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x300, 0.0f);
+        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x300, 0.0f);
         break;
     case 1:
         if ((func_80611A44() >> 15) % 1000 >= 0x3E3) {
@@ -306,7 +306,7 @@ void func_806B6DB0(s32 arg0) {
         func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
         func_80724E48((u8)(D_807FBB40->unk154 == 1 ? 2 : 0));
         actorUpdatePulseIntensity(near);
-        func_8072AB74(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x400, 0.0f);
+        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x400, 0.0f);
         break;
     case 2:
     case 3:
@@ -315,36 +315,36 @@ void func_806B6DB0(s32 arg0) {
         func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
         func_80724E48((u8)(D_807FBB40->unk154 == 0x35 ? 2 : 3));
         actorUpdatePulseIntensity(0);
-        func_8072AB74(D_807FBB40->unk154, BB300S90->unkA, BB300S90->unkE, 0x400, 0.0f);
+        actorMoveWithinZone(D_807FBB40->unk154, BB300S90->unkA, BB300S90->unkE, 0x400, 0.0f);
         break;
     case 0x11:
         func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
         actorUpdatePulseIntensity(0);
-        func_8072AB74(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 2, 0.0f);
+        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 2, 0.0f);
         switch (((BB300ActorAlt *)D_807FBB40)->unk155) {
         case 1:
             break;
         case 0:
-            func_8072B324(D_807FBB40, 0);
+            actorSetTargetSpeed(D_807FBB40, 0);
             func_80614EBC(D_807FBB40, 0x234);
             ((BB300ActorAlt *)D_807FBB40)->unk155 += 1;
             break;
         case 2:
-            func_8072B59C(1, ((BB300View9C *)D_807FDC9C)->unkC, 0x232);
+            actorSetBehaviourState(1, ((BB300View9C *)D_807FDC9C)->unkC, 0x232);
             break;
         }
         break;
     case 0x37:
         switch (((BB300ActorAlt *)D_807FBB40)->unk155) {
         case 0:
-            func_8072AB74(0x37, 0.0f, 0.0f, 0x20, 0.0f);
+            actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x20, 0.0f);
             break;
         case 1:
             sfxSpawnTableNodes(D_807FBB40);
             ((BB300ActorAlt *)D_807FBB40)->unkC0 = 100.0f;
             ((BB300ActorAlt *)D_807FBB40)->unk155 += 1;
         case 2:
-            func_8072AB74(0x37, 0.0f, 0.0f, 0x20, 0.0f);
+            actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x20, 0.0f);
             break;
         case 3:
             if (BB300S90->unk1A & 1) {
@@ -384,12 +384,12 @@ void func_806B6DB0(s32 arg0) {
 }
 
 void func_806B75F4(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     func_806B6DB0(0x2710);
 }
 
 void func_806B761C(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     if (D_807FBD70 == 4) {
         func_80724C2C(-0x64);
     }
@@ -397,7 +397,7 @@ void func_806B761C(void) {
 }
 
 void func_806B7660(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     if (D_807FBD70 == 4) {
         func_80724C2C(-0x64);
     }

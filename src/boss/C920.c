@@ -48,7 +48,7 @@ extern void *D_807F5D10;
 
 void func_800290D4(s32);
 s32 playerStateQueueCallback(s32, void *, s32);
-void func_80724B5C(s32, s32, void *, void *, void *);
+void zoneEntryGetPosition(s32, s32, void *, void *, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void func_80614EBC(void *, s32);
 s32 func_8061CB50(void);
@@ -68,11 +68,11 @@ void func_80030920(s32 arg0) {
     func_800290D4(1);
     D_807FBB40->unk144 = 0x24;
     playerStateQueueCallback(0x19, D_807FBB40, 0);
-    func_80724B5C(1, 8, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
+    zoneEntryGetPosition(1, 8, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
     D_807FDC90->unkA = D_807FBB40->unk7C;
     D_807FDC90->unkC = D_807FBB40->unk80;
     D_807FDC90->unkE = D_807FBB40->unk84;
-    func_80724B5C(1, 0x20, &D_807FBB4C->unk7C, &D_807FBB4C->unk80, &D_807FBB4C->unk84);
+    zoneEntryGetPosition(1, 0x20, &D_807FBB4C->unk7C, &D_807FBB4C->unk80, &D_807FBB4C->unk84);
     D_807FBB4C->unkE6 = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk84);
     temp_t7 = D_807FBB4C->unkE6 + 0x800;
     D_807FBB40->unkE6 = temp_t7;

@@ -48,7 +48,7 @@ void func_806A1FD8(void) {
         sub->unk8 = D_807FBB40->unk80;
         ((A6R2Av *)D_807FBB40)->unk130 = 0x46;
         ((A6R2Av *)D_807FBB40)->unk131 = 0x14;
-        if (func_8073110C(actorListLookupEntry(actorListFindIdByActor(D_807FBB40)), 0) != 0) {
+        if (flagGet(actorListLookupEntry(actorListFindIdByActor(D_807FBB40)), 0) != 0) {
             actorDespawn(D_807FBB40);
         }
     }

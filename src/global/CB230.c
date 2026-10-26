@@ -43,9 +43,9 @@ typedef struct R1C8CBView98 {
 #define R1V ((R1C8CBActor *)D_807FBB40)
 
 f32 sqrtf(f32);
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
-void func_8072B324(Actor *, s32);
+void actorSetTargetSpeed(Actor *, s32);
 void func_8072A920(s32, s32, f32, f32, f32, s32, f32, f32, s32);
 s32 func_8072881C(s32, void *);
 void func_806319C4(Actor *, s32);
@@ -132,7 +132,7 @@ void func_806C6884(s16 arg0, s16 arg1, u16 arg2) {
     f32 dx;
     f32 dz;
 
-    func_80729B00();
+    behaviourFrameBegin();
     dx = D_807FBB40->unk7C - D_807FDC94->unk7C;
     dz = D_807FBB40->unk84 - D_807FDC94->unk84;
     dist = (u16)sqrtf(dx * dx + dz * dz);
@@ -155,7 +155,7 @@ void func_806C6884(s16 arg0, s16 arg1, u16 arg2) {
     } else {
         dist = dist - arg1;
     }
-    func_8072B324(D_807FBB40, (s32)((u32)dist * 2.0));
+    actorSetTargetSpeed(D_807FBB40, (s32)((u32)dist * 2.0));
     func_8072A920(0x23, arg0, D_807FDC94->unk7C, D_807FDC94->unk80 + arg0 * 3.0, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, arg2 | 0x2000);
     D_807FBB40->unk80 += 0.5 * func_80612794(D_8076A064 * 40);
     actorUpdateNearestSpotlight();
@@ -177,7 +177,7 @@ extern Actor *D_807FBB44;
 void func_806A2A10(s32, s32, u8);
 void actorSetStateTwo(Actor *);
 void func_805FF9AC(s32, s32, s32, s32);
-void func_807248B0(Actor *, f32);
+void actorSetUniformScale(Actor *, f32);
 void func_80614EBC(Actor *, s32);
 void func_80614D00(Actor *, f32, f32);
 void func_8061CC30(void);
@@ -197,7 +197,7 @@ void func_806C6BC8(void) {
     f32 y;
     f32 z;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         R1V->unk12A = 0x7D0;
         R1V->unk130 = 0xFF;
@@ -222,7 +222,7 @@ void func_806C6BC8(void) {
             if (R1S->unk2C != 0) {
                 ratio = (f32)R1S->unk2C / (f32)R1S->unk2E;
                 actorGetNodePos(D_807FBB40, 2, &x, &y, &z);
-                func_807248B0(D_807FBB4C, ratio * 0.13 + 0.02);
+                actorSetUniformScale(D_807FBB4C, ratio * 0.13 + 0.02);
                 D_807FBB4C->unk7C += (x - D_807FBB4C->unk7C) * 0.05;
                 D_807FBB4C->unk80 += (y - D_807FBB4C->unk80) * 0.05;
                 D_807FBB4C->unk84 += (z - D_807FBB4C->unk84) * 0.05;
@@ -236,7 +236,7 @@ void func_806C6BC8(void) {
             if (R1S->unk2E != 0) {
                 D_807FBB40->unk80 += 2.0f;
                 R1S->unk2E--;
-                func_807248B0(D_807FBB40, R1S->unk30 + (0.01 - R1S->unk30) * (R1S->unk2E / 150.0));
+                actorSetUniformScale(D_807FBB40, R1S->unk30 + (0.01 - R1S->unk30) * (R1S->unk2E / 150.0));
             } else {
                 R1V->unk154 = 2;
                 R1V->unk155 = 0;
@@ -255,11 +255,11 @@ void func_806C6BC8(void) {
             } else {
                 switch (R1V->unk155) {
                     case 5:
-                        func_8072B324(D_807FBB40, D_807FDC9C->unkC);
+                        actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
                         R1V->unk155 = 0;
                         break;
                     case 3:
-                        func_8072B324(D_807FBB40, 0);
+                        actorSetTargetSpeed(D_807FBB40, 0);
                         func_80614EBC(D_807FBB40, 0x2BB);
                         R1V->unk155 = 4;
                     case 4:

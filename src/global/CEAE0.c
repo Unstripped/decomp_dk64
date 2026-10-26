@@ -126,7 +126,7 @@ typedef struct G02PlayerState {
 #define G02_MODEL(a) (*(G02ModelRef **)(a)->unk4)
 
 void sfxStopSlotSound(Actor *, s32);
-s8 func_80727194(Actor *);
+s8 spawnNodeIdForActor(Actor *);
 
 void func_806CA048(Actor *arg0, G02PlayerState *arg1) {
     s32 flag = 0;
@@ -140,7 +140,7 @@ void func_806CA048(Actor *arg0, G02PlayerState *arg1) {
         arg1->unk249 = 0;
     } else if (arg0->unk5C & 2) {
         arg1->unk248 = -1;
-        arg1->unk249 = func_80727194(arg0);
+        arg1->unk249 = spawnNodeIdForActor(arg0);
     } else {
         flag = 1;
     }
@@ -167,7 +167,7 @@ void func_806CA0E8(Actor *arg0, Actor *arg1, s32 arg2) {
         temp_v1->unk247 = p->unk1A4;
         temp_v1->unk246 = 0;
     } else if (arg1->unk5C == 2) {
-        temp_v1->unk246 = func_80727194(arg1);
+        temp_v1->unk246 = spawnNodeIdForActor(arg1);
         ok = 1;
         temp_v1->unk247 = -1;
     } else {
@@ -198,7 +198,7 @@ typedef struct G02PlayerSlot {
     /* 0x8 */ u8 pad8[0x2E8];
 } G02PlayerSlot;
 
-Actor *func_807270C0(s32, s32);
+Actor *spawnNodeActivate(s32, s32);
 
 s32 func_806CA1B4(s32 arg0) {
     s8 idx = G02_P->unk247;
@@ -211,7 +211,7 @@ s32 func_806CA1B4(s32 arg0) {
         s8 temp = G02_P->unk246;
 
         if (temp > 0) {
-            actor = func_807270C0(temp, 0);
+            actor = spawnNodeActivate(temp, 0);
         }
     }
     if (actor != NULL && G02_MODEL(actor)->unk10 == *(u16 *)((u8 *)D_807FD580 + 0x24C) && (s32)G02_P->unk24E >= arg0) {
@@ -262,7 +262,7 @@ typedef struct G02ActorView {
 extern s32 D_8076A064;
 extern s32 D_807FBB64;
 extern u16 D_807FD63A[][0x1A];
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 s32 func_806F8AD4(s32, u8);
 void effectSpawnBurst(s32);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
@@ -273,7 +273,7 @@ void func_80614E78(Actor *, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 
 void func_806CA2E4(void) {
-    if (G02_P->unkC8 != -1 && (func_8073110C(0x179, 0) == 0 || G02_A->unkE0 != 0.0f || (D_807FBB64 & 0x800000) || func_806F8AD4(5, G02_P->unk1A4) == 0)) {
+    if (G02_P->unkC8 != -1 && (flagGet(0x179, 0) == 0 || G02_A->unkE0 != 0.0f || (D_807FBB64 & 0x800000) || func_806F8AD4(5, G02_P->unk1A4) == 0)) {
         func_806CA2AC();
         G02_P->unkC8 = -1;
         return;
@@ -442,7 +442,7 @@ void func_806CF580(void);
 void func_806CF9CC(void);
 void sfxStopChannel(s32, s32);
 void func_806F4D70(u8, f32, f32, f32, f32);
-void func_8072F120(void);
+void proxPathUpdateAllPlayers(void);
 s32 collisionGetHitStatus();
 u8 func_80666A94();
 u8 func_80666AA0();
@@ -544,7 +544,7 @@ void func_806CA5F8(s32 arg0) {
         LCA_P->unkCA = LCA_P->unkCA - 1;
     }
     if (D_807FBB40->unk68 & 0x20) {
-        func_8072F120();
+        proxPathUpdateAllPlayers();
     }
     func_806F4D70(D_807FC929, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, D_807FBB40->unk4->unk38 / 0.15 * 20.0);
     if (D_807FC928 == 1) {
@@ -593,7 +593,7 @@ void func_806CA5F8(s32 arg0) {
             } else {
                 s8 w = LCA_P->unk249;
                 if (w > 0) {
-                    sp64 = func_807270C0(w, 0);
+                    sp64 = spawnNodeActivate(w, 0);
                 }
             }
         }
@@ -701,7 +701,7 @@ done:
     }
     if ((D_807FBB40->unk7C < (f32)D_807F5FE4 || D_807FBB40->unk84 < (f32)D_807F5FE6 || (f32)D_807F5FE8 < D_807FBB40->unk7C || (f32)D_807F5FEA < D_807FBB40->unk84 || sp68 != 0) && LCA_P->unk244 == 0 && (u32)D_8076A064 >= 0x65 && !(D_807FBB64 & 0x4000) && D_8076A0A8 != 0xE) {
         if (D_807FC928 == 1) {
-            if (func_8073110C(0x186, 0) == 0) {
+            if (flagGet(0x186, 0) == 0) {
                 func_805FF188(0xB0, 1);
             }
             if (!D_807FC929 && !D_807FC929) {

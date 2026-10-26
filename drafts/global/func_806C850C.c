@@ -100,7 +100,7 @@ extern f32 D_80753578[];
 extern f32 D_807535E8[];
 extern volatile G00Slot34 D_807FD610[];
 void func_806E2C74(Actor *);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void func_806F09F0(Actor *, u16);
 void func_806CFF9C(Actor *);
 void func_806C90C4(s32);
@@ -184,7 +184,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_P->unk264 = -new_var;
     G00_P->unk258 = 1.0f;
     G00_P->unk25C = 1.0f;
-    if (func_8073110C(0xCE, 0) != 0) {
+    if (flagGet(0xCE, 0) != 0) {
         G00_P->unk1F0 |= 0x100000;
     }
     func_806C8220(1, G00_A48->unk178, D_807FBB48->unk58);

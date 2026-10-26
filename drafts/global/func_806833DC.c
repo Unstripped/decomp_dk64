@@ -52,7 +52,7 @@ void func_806833DC(R2G_TagBarrelData *arg0) {
                 func_80602A94(0x65, 1.0f);
                 func_80602CE0(0x65, 0x7E - D_8074E848[arg0->unk6], 1);
             }
-            func_8073129C(func_805FF018(D_807FBB40->unk58, arg0->unk6), 1, 0);
+            flagSet(func_805FF018(D_807FBB40->unk58, arg0->unk6), 1, 0);
             func_80682E38(arg0);
             func_80627878(sp30->unk104);
             arg0->unk38 = sp34->unkE6;

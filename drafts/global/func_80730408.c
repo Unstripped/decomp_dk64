@@ -97,8 +97,8 @@ s32 hashTableLookup();
 void func_80627B58(f32);
 void func_80611A70(f32, f32, f32 *, f32 *);
 f32 func_80611BB4(f32, f32);
-void func_80730AEC(u8, f32, H1ProxNode *, f32 *, f32 *, f32 *);
-void func_80730E18(Mtx *, Mtx *, f32, Mtx *);
+void proxPathInterpolatePosition(u8, f32, H1ProxNode *, f32 *, f32 *, f32 *);
+void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
 
 void func_80730408(H1ActorB *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3, f32 arg4) {
     f32 one;
@@ -137,7 +137,7 @@ void func_80730408(H1ActorB *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3
             idx = 0;
         }
     }
-    func_80730AEC(idx, a, arg2, &p0[0], &p0[1], &p0[2]);
+    proxPathInterpolatePosition(idx, a, arg2, &p0[0], &p0[1], &p0[2]);
     one = 1.0f;
     b = arg4 + 0.1;
     idx2 = arg3;
@@ -148,8 +148,8 @@ void func_80730408(H1ActorB *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3
             b = 1.0f;
         }
     }
-    func_80730AEC(idx2, b, arg2, &p1[0], &p1[1], &p1[2]);
-    func_80730AEC(arg3, arg4, arg2, &p2[0], &p2[1], &p2[2]);
+    proxPathInterpolatePosition(idx2, b, arg2, &p1[0], &p1[1], &p1[2]);
+    proxPathInterpolatePosition(arg3, arg4, arg2, &p2[0], &p2[1], &p2[2]);
     savedScale = arg1->unk148;
     arg1->unk148 = one;
     arg0->unk7C = (p2[0] - arg1->unk13C) * arg1->unk148 + arg1->unk13C;
@@ -177,7 +177,7 @@ void func_80730408(H1ActorB *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3
     if (savedScale < 1.0) {
         guMtxF2L((f32 (*)[4])arg1->unk15C, &mB);
         guMtxF2L(arg0->unkC, &mC);
-        func_80730E18(&mB, &mC, 1.0 - arg1->unk148, &mA);
+        mtxLerpL(&mB, &mC, 1.0 - arg1->unk148, &mA);
         guMtxL2F(arg0->unkC, &mA);
     }
     arg1->unk148 = arg1->unk148 + 0.1;

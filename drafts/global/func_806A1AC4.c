@@ -8,14 +8,14 @@ extern s32 D_8071FFA0;
 extern ActorGlobalState D_807FBB70;
 
 void func_80728950(s32);
-void func_807248B0(Actor *, f32);
-s32 func_8073110C(s16, s32);
+void actorSetUniformScale(Actor *, f32);
+s32 flagGet(s16, s32);
 void func_80614EBC(Actor *, s32);
-void func_807289B0(s32, s32);
+void currentActorAnimSetFrame(s32, s32);
 void func_8070DA74(Actor *);
 void func_8070D8C0(Actor *, s32, s32);
 void func_8061CC40(Actor *, s32, s32);
-void func_8073129C(s32, s32, s32);
+void flagSet(s32, s32, s32);
 s32 func_80611A44(void);
 void func_8071498C(void *);
 void func_80714950(s16);
@@ -37,12 +37,12 @@ void func_806A1AC4(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk60 &= ~0x8000;
         func_80728950(0);
-        func_807248B0(D_807FBB40, 1.2f);
+        actorSetUniformScale(D_807FBB40, 1.2f);
         D_807FBB40->unk60 |= 0x400;
         D_807FBB40->unk12A = 0x3E8;
-        if (func_8073110C(0xFB, 0) != 0) {
+        if (flagGet(0xFB, 0) != 0) {
             func_80613C48(D_807FBB40, 0x597, 0.0f, 0.0f);
-            func_807289B0(0, 0);
+            currentActorAnimSetFrame(0, 0);
             D_807FBB40->unk154 = 3;
         } else {
             func_80613C48(D_807FBB40, 0x598, 0.0f, 0.0f);
@@ -57,13 +57,13 @@ void func_806A1AC4(void) {
             func_8070DA74(D_807FBB40);
             func_8070D8C0(D_807FBB40, 0x1F, 1);
             func_8061CC40(D_807FBB40, 0x12, 1);
-            func_8073129C(0xFB, 1, 0);
+            flagSet(0xFB, 1, 0);
             D_807FBB40->unk154 = 1;
-        } else if (func_8073110C(0xFB, 0) == 0 && func_8073110C(0x21, 2) == 0) {
+        } else if (flagGet(0xFB, 0) == 0 && flagGet(0x21, 2) == 0) {
             dx = D_807FBB40->unk7C - D_807FBB4C->unk7C;
             if (dx * dx + (D_807FBB40->unk84 - D_807FBB4C->unk84) * (D_807FBB40->unk84 - D_807FBB4C->unk84) < 19600.0f) {
                 func_8070D8C0(D_807FBB4C, 0x1F, 0);
-                func_8073129C(0x21, 1, 2);
+                flagSet(0x21, 1, 2);
             }
         }
         break;
@@ -92,15 +92,15 @@ void func_806A1AC4(void) {
             }
             break;
         case 2:
-            func_807289B0(0, 0);
+            currentActorAnimSetFrame(0, 0);
             D_807FBB40->unk155[0]++;
             break;
         case 4:
-            func_807289B0(0, 2);
+            currentActorAnimSetFrame(0, 2);
             D_807FBB40->unk155[0]++;
             break;
         case 6:
-            func_807289B0(0, 0);
+            currentActorAnimSetFrame(0, 0);
             D_807FBB40->unk154++;
             break;
         }

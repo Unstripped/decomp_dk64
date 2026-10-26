@@ -143,7 +143,7 @@ extern void *D_80746B80[];
 extern LgBFDCA0 *D_807FDCA0;
 
 void func_806F09F0(Actor *, u16);
-void func_8072B324(Actor *, s32);
+void actorSetTargetSpeed(Actor *, s32);
 void func_80614EBC(void *, s32);
 void func_80614D00(Actor *, f32, f32);
 s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
@@ -153,10 +153,10 @@ void func_8072334C(s32, s32);
 void func_80723484(s32);
 void func_807238D4(s32, f32 *, f32 *, f32 *);
 s32 func_80723C98();
-void func_807248B0(Actor *, f32);
-void *func_807270C0(s32, s32);
+void actorSetUniformScale(Actor *, f32);
+void *spawnNodeActivate(s32, s32);
 s32 func_8072881C(s32, void *);
-void func_80729E6C(void);
+void actorApplyGravity(void);
 void func_8072A450(void);
 void func_8072DC7C(s32);
 void func_8072E320(f32);
@@ -174,7 +174,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void func_80717D4C(void);
 void actorApplyVelocityCustom(void *, f32, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-s32 func_8072AB74(u8, f32, f32, s32, f32);
+s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
 s32 func_8072D13C(u8, s32);
 
 void func_806BFBF4(void) {
@@ -200,7 +200,7 @@ void func_806BFBF4(void) {
         state->unk33 = 0x12;
         state->unk22 = 0x64;
         func_806F09F0(D_807FBB40, (u16)D_807FBB40->unk58);
-        func_8072B324(D_807FBB40, 0);
+        actorSetTargetSpeed(D_807FBB40, 0);
         LgBV->unk60 &= 0xFFFDFFFF;
         if (D_8076A0A8 == 0x4C) {
             LgBV->unk60 &= 0xFEFFFFFF;
@@ -288,7 +288,7 @@ void func_806BFBF4(void) {
                 LgBS98->unk20[1] = 0;
                 LgBS98->unk20[0] = cmd->unk4;
                 LgBS90->unk25 = 0;
-                func_8072B324(D_807FBB40, cmd->unk6);
+                actorSetTargetSpeed(D_807FBB40, cmd->unk6);
                 break;
             case 6:
                 LgBV->unkB8 = 0.0f;
@@ -341,11 +341,11 @@ void func_806BFBF4(void) {
                     state->unk29 = cmd->unk6;
                     state->unk2A = cmd->unk6;
                 } else {
-                    func_807248B0(D_807FBB40, cmd->unk4 * 0.01);
+                    actorSetUniformScale(D_807FBB40, cmd->unk4 * 0.01);
                 }
                 break;
             case 9:
-                LgBS90->unk4 = func_807270C0(cmd->unk4, 0);
+                LgBS90->unk4 = spawnNodeActivate(cmd->unk4, 0);
                 break;
             case 11:
                 state->unk1C = cmd->unk4;
@@ -382,7 +382,7 @@ void func_806BFBF4(void) {
                 LgBV->unk60 &= 0xFF7FFFFF;
                 break;
             case 26:
-                LgBS90->unk4 = func_807270C0(cmd->unk4, 0);
+                LgBS90->unk4 = spawnNodeActivate(cmd->unk4, 0);
                 LgBV->unk15F = cmd->unk6;
                 LgBV->unk154 = 0xD;
                 LgBV->unk155 = 0;
@@ -408,7 +408,7 @@ void func_806BFBF4(void) {
     }
     if (state->unk2A != 0) {
         ratio2 = (f32)(u32)state->unk2A-- / (f32)(u32)state->unk29;
-        func_807248B0(D_807FBB40, LgBS90->unk30 + (state->unk14 - LgBS90->unk30) * ratio2);
+        actorSetUniformScale(D_807FBB40, LgBS90->unk30 + (state->unk14 - LgBS90->unk30) * ratio2);
     }
     if (state->unk30 != 0xFF) {
         for (j = 0; j < state->unk31 && state->unk30 != 0xFF; j++) {
@@ -463,27 +463,27 @@ void func_806BFBF4(void) {
                 if (LgBV->unk154 == 0xF) {
                     LgBV->unk80 = v1->unk2 + (a3->unk2 - v1->unk2) * frac;
                 } else {
-                    func_8072AB74(0, v1->unk0, v1->unk4, 0x212, 0.0f);
+                    actorMoveWithinZone(0, v1->unk0, v1->unk4, 0x212, 0.0f);
                 }
             } else {
                 LgBV->unk154 = 0;
                 LgBV->unk155 = 0;
-                func_8072B324(D_807FBB40, 0);
+                actorSetTargetSpeed(D_807FBB40, 0);
             }
             break;
         case 0x2:
-            func_8072AB74(2, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
+            actorMoveWithinZone(2, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
             if (func_8072D13C(2, 0) != 0) {
                 LgBV->unk154 = 0;
                 LgBV->unk155 = 0;
-                func_8072B324(D_807FBB40, 0);
+                actorSetTargetSpeed(D_807FBB40, 0);
             }
             break;
         case 0x0:
-            func_8072AB74(0, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
+            actorMoveWithinZone(0, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
             break;
         case 0x1D:
-            func_80729E6C();
+            actorApplyGravity();
             actorApplyVelocityCustom(D_807FBB40, 0.0f, LgBV->unkC0);
             break;
         case 0x37:

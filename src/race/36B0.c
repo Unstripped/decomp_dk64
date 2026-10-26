@@ -148,10 +148,10 @@ typedef struct {
 } StructBB70_Race;
 extern StructBB70_Race D_807FBB70;
 extern u8 *D_807FDC9C;
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_80028E20(void *);
 void actorClearNodeFlag(void *, s32);
-void *func_807270C0(s32, s32);
+void *spawnNodeActivate(s32, s32);
 void func_8067E278(s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
@@ -169,13 +169,13 @@ void func_80029054(void) {
 
     temp_s1 = *(u8 **)((u8 *)D_807FBB40 + 0x178);
     sp50 = *(u8 **)((u8 *)D_807FBB40 + 0x17C);
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(*(s32 *)((u8 *)D_807FBB40 + 0x60) & 0x10)) {
         func_80028E20(sp50);
         *(u8 *)((u8 *)D_807FBB40 + 0x144) = 0x3C;
         *(f32 *)(temp_s1 + 4) = 0.5f;
         actorClearNodeFlag(D_807FBB40, 1);
-        *(void **)(sp50 + 0x30) = func_807270C0(1, 0);
+        *(void **)(sp50 + 0x30) = spawnNodeActivate(1, 0);
         *(s32 *)((u8 *)D_807FBB40 + 0x60) &= ~1;
     }
     temp_v0 = *(u8 **)(sp50 + 0x30);

@@ -3,7 +3,7 @@ s32 func_8066B0F8(s32, s32, s32, s32);
 void func_80724D28(s32, s32);
 f32 func_80612794(s16);
 f32 func_80612790(s16);
-void func_807248B0(Actor *, f32);
+void actorSetUniformScale(Actor *, f32);
 void func_806A0F78(void *, u8, u8);
 void func_806A10BC(M5_A2F10Mat *);
 s32 func_80611A44(void);
@@ -47,7 +47,7 @@ void func_806A112C(void) {
                     (f32) ((u8) (i % 3) * 17);
                 M5_A2F10_SPAWNED->unk84 = M5_A2F10_ACTOR->unk84 -
                     func_80612790(M5_A2F10_SPAWNED->unkE6) * d;
-                func_807248B0(D_807FBB44, M5_A2F10_ACTOR->unk4->unk38);
+                actorSetUniformScale(D_807FBB44, M5_A2F10_ACTOR->unk4->unk38);
                 func_806A0F78(D_807FBB44, D_807503D4[n], D_807503E0[n++]);
             }
             M5_A2F10_ACTOR->unk7C -= d * func_80612794(M5_A2F10_ACTOR->unkE6);

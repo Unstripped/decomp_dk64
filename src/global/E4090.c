@@ -673,7 +673,7 @@ extern f32 D_80753DE4[];
 extern u16 *D_807FBB54;
 void func_80614EBC(void *, s32);
 void func_80614D00(void *, f32, f32);
-void func_8072FE60(f32);
+void proxPathAdvance(f32);
 s16 mathAngleDistance(s16, s16);
 void func_806E1630(void);
 
@@ -921,7 +921,7 @@ void func_806E1334(void) {
     } else {
         G22_M->unk8 = 0;
     }
-    func_8072FE60(((s8 *)&D_807FD63F)[D_807FC929 * 0x34] / 80.0);
+    proxPathAdvance(((s8 *)&D_807FD63F)[D_807FC929 * 0x34] / 80.0);
     D_807FBB40->unkE6 += D_807FD63E[D_807FC929].unk0;
     D_807FBB40->unkE6 &= 0xFFF;
     func_806E1630();
@@ -938,7 +938,7 @@ void func_806E14DC(void) {
     } else {
         G22_M->unk8 = 0;
     }
-    func_8072FE60(((s8 *)&D_807FD63F)[D_807FC929 * 0x34] / 80.0);
+    proxPathAdvance(((s8 *)&D_807FD63F)[D_807FC929 * 0x34] / 80.0);
 }
 
 void func_806E1630(void) {
@@ -1493,7 +1493,7 @@ void func_806E2C74(Actor *arg0) {
 }
 
 extern s32 D_807FBB64;
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 s32 func_807142D8(void);
 s32 func_8071441C(void);
 
@@ -1510,7 +1510,7 @@ s32 func_806E2CC4(void) {
                 if (var_v1 != 0) {
                     var_v1 = func_8067ACDC(D_807FBB40, 4, 0) < D_80753E64[D_807FD584];
                     if (var_v1 != 0) {
-                        var_v1 = func_8073110C(0x184, 0) != 0;
+                        var_v1 = flagGet(0x184, 0) != 0;
                         if (var_v1 == 0) {
                             var_v1 = (D_807FBB64 & 0x10000000) != 0;
                             if (var_v1 == 0) {
@@ -2129,7 +2129,7 @@ void func_806E41EC(void) {
     if (G25_PAD(D_807FD63C, u16) & 0x4000) {
         G25_P->unk5C = D_80767CC0;
     }
-    if (D_807FBB8C && (func_8073110C(0x185, 0) || (D_807FBB64 & 0x10000000) || (D_807FC928 >= 2) ||
+    if (D_807FBB8C && (flagGet(0x185, 0) || (D_807FBB64 & 0x10000000) || (D_807FC928 >= 2) ||
                        func_8071441C())) {
         playerStateQueueCallback(3, 0, D_807FC929);
         return;
@@ -3319,7 +3319,7 @@ void func_806E7658(void) {
 s32 func_806E770C(void) {
     s32 var_v1;
 
-    var_v1 = func_8073110C(0x182, 0) != 0;
+    var_v1 = flagGet(0x182, 0) != 0;
     if (var_v1 == 0) {
         var_v1 = (D_807FBB64 & 0x10000000) != 0;
         if (var_v1 == 0) {
@@ -4191,7 +4191,7 @@ s32 func_806E9580(void) {
 }
 
 void func_806E9804(arg0) s16 arg0; {
-    if (func_8073110C(0x179, 0)) {
+    if (flagGet(0x179, 0)) {
         if (G30_PAD(D_807FD63C, u16) & 4) {
             func_806E9D1C(arg0, 0xB, 0);
         }

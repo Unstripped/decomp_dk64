@@ -94,7 +94,7 @@ typedef struct {
 } Actor_BB40;
 extern Actor_BB40 *D_807FBB40;
 
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_8002DE78(void *, s32, void *, void *);
 void actorOrNodeFlags(void *, s32, s32);
 void func_8002E644(void *);
@@ -117,7 +117,7 @@ void playerStateQueueCallback();
 void sfxStopSlotSound(Actor_BB40 *, u8);
 void func_8070D8C0(Actor_BB40 *, s32, s32);
 void func_8063DA40(s32, s32);
-void func_8073129C(s32, s32, s32);
+void flagSet(s32, s32, s32);
 void hudSpawnTextScreen(s32);
 void func_80026CA8(void);
 void func_80026D2C(f32);
@@ -217,7 +217,7 @@ void func_8061CB08(void);
 void func_8002BBD0(void *, s32);
 void actorSpawn(s32, s32);
 void func_8002BC2C(void *, s32, void *, void *);
-void *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
+void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BCB0(void *, s32, void *, void *);
 void actorInitFromSpawnPoint(void *, void *);
 
@@ -247,7 +247,7 @@ void raceInitParticipants(Struct_arg0 *arg0) {
     }
     var_s0 = 0;
     if (D_807FC928 == 1) {
-        sp54 = func_807271F4(1, 0, 0, 0, 0, 0, 0);
+        sp54 = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         sp58 = sp54->unk178;
         sp58->unk27 = 1;
         func_8002BC2C(arg0, var_s1, sp54, sp58);
@@ -305,14 +305,14 @@ s32 func_8002B6C8(void *arg0, void *arg1) {
 }
 
 
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void func_8061CC40(void *, s32, s32);
 void func_80629174(void);
 void func_805FF544(void);
 
 void func_8002B6F4(u8 *arg0, s32 arg1) {
     if (arg0[0x35] == 0) {
-        if (func_8073110C(0x145, 0) == 0) {
+        if (flagGet(0x145, 0) == 0) {
             func_8061CC40(D_807FBB40, 1, 1);
             func_80629174();
         } else {

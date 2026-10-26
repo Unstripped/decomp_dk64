@@ -4,7 +4,7 @@
 s32 actorSpawn(s32, s32);
 void func_8072E868(void);
 void func_80727678(void);
-void func_80727958(void);
+void spawnNodesUpdate(void);
 
 void actorSpawnInitialSet(void) {
     actorSpawn(0xA, 0);
@@ -21,7 +21,7 @@ void func_8068A810(void) {
 
 void func_8068A830(void) {
     func_80727678();
-    func_80727958();
+    spawnNodesUpdate();
 }
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8F4B0/func_8068A858.s")
 
@@ -56,13 +56,13 @@ typedef struct {
     /* 0x1E */ s16 unk1E;
 } Actor174;
 
-void func_8072E7DC(s32, void *);
+void actorFindActiveByType(s32, void *);
 
 void func_8068B830(s16 arg0, s16 arg1, s16 arg2) {
     Actor *sp1C;
     Actor174 *temp_v0;
 
-    func_8072E7DC(0xC, &sp1C);
+    actorFindActiveByType(0xC, &sp1C);
     temp_v0 = (Actor174 *)sp1C->unk174;
     temp_v0->unk0 = arg0;
     temp_v0->unk4 = (f64)(f32)arg1 / 100.0;
@@ -73,7 +73,7 @@ void func_8068B8A4(f32 arg0) {
     Actor *sp1C;
     Actor174 *temp_v0;
 
-    func_8072E7DC(0xC, &sp1C);
+    actorFindActiveByType(0xC, &sp1C);
     temp_v0 = (Actor174 *)sp1C->unk174;
     temp_v0->unkC = arg0;
     temp_v0->unk10 = arg0;
@@ -88,7 +88,7 @@ void func_8068B8FC(void) {
     Actor *sp1C;
     u8 *ptr;
 
-    func_8072E7DC(0xC, &sp1C);
+    actorFindActiveByType(0xC, &sp1C);
     ptr = sp1C->unk174;
     *ptr = 0xFF;
 }

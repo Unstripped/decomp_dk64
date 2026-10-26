@@ -351,19 +351,19 @@ void arcadeCheckGameOver(void) {
     }
 }
 
-s32 func_8073110C(s32, s32);
-void func_8073129C(s32, s32, s32);
+s32 flagGet(s32, s32);
+void flagSet(s32, s32, s32);
 void func_805FF898(void);
 void func_805FF378(s32, s32);
 extern u8 D_8004A73C;
 extern u8 D_8004A770;
 void arcadeExit(void) {
     if (D_8004A73C == 0) {
-        if (D_8004A770 != 0 && D_8004A740 != 0 && func_8073110C(0x84, 0) == 0) {
-            if (func_8073110C(0x82, 0) != 0) {
-                func_8073129C(0x11, 1, 2);
+        if (D_8004A770 != 0 && D_8004A740 != 0 && flagGet(0x84, 0) == 0) {
+            if (flagGet(0x82, 0) != 0) {
+                flagSet(0x11, 1, 2);
             } else {
-                func_8073129C(0x10, 1, 2);
+                flagSet(0x10, 1, 2);
             }
         }
         if (D_8004A740 != 0) {

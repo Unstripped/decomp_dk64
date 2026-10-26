@@ -6,7 +6,7 @@ extern s16 D_807505AE[];
 extern u8 D_807FC992[];
 extern u8 D_807FD7E4;
 extern void *D_2000180;
-extern s8 func_8073110C(s16, s32);
+extern s8 flagGet(s16, s32);
 extern Gfx *func_806F9D8C(s32, R3FCCD0fBatchArg *, Gfx *);
 
 Gfx *func_806FA1A4(s32 arg0, R3FCCD0fBatchArg *arg1, Gfx *arg2) {
@@ -22,7 +22,7 @@ Gfx *func_806FA1A4(s32 arg0, R3FCCD0fBatchArg *arg1, Gfx *arg2) {
 
     x = (f32)((f64)x - (4.0 * (6.0 - ((1.0 - (f64)func_80612794(arg1->unk10)) * (f64)arg1->unk4))));
     for (i = 0; i < 5; i++) {
-        s32 valid = (i == 0) || func_8073110C(D_807505AE[i], 0);
+        s32 valid = (i == 0) || flagGet(D_807505AE[i], 0);
         if (valid != 0) {
             f32 scale = (i == active_player) ? 2.0f : 1.5f;
             if (i == active_player) {

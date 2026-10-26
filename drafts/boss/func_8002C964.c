@@ -19,14 +19,14 @@ s16 func_80665DE0(?32, ?32, void *, s32, s32);      /* extern */
 ? func_806AD260(?, ?, ?);                           /* extern */
 ? actorSpawnLinkedFollower();                                  /* extern */
 s16 func_806CC190(s16, s16, ?);                     /* extern */
-? func_807248B0(void *, f32);                       /* extern */
-s32 func_80726D7C(?);                               /* extern */
-? func_80729B00();                                  /* extern */
-? func_8072AB74(?, ?32, ?32, ?, f32);               /* extern */
-? func_8072B324(void *, u8);                        /* extern */
+? actorSetUniformScale(void *, f32);                       /* extern */
+s32 spawnNodeHasActor(?);                               /* extern */
+? behaviourFrameBegin();                                  /* extern */
+? actorMoveWithinZone(?, ?32, ?32, ?, f32);               /* extern */
+? actorSetTargetSpeed(void *, u8);                        /* extern */
 ? func_8072D714(s32, ?);                            /* extern */
 ? func_8072D9D4();                                  /* extern */
-s32 func_8073110C(?, ?);                            /* extern */
+s32 flagGet(?, ?);                            /* extern */
 extern s32 D_807F5D10;
 extern void *D_807FBB40;
 extern u8 D_807FBB85;
@@ -54,7 +54,7 @@ void func_8002C964(void) {
     void *temp_a0_2;
 
     sp3C = D_807FBB40->unk178;
-    func_80729B00();
+    behaviourFrameBegin();
     temp_a0 = D_807FBB40;
     if (!(temp_a0->unk60 & 0x10)) {
         func_8002C748(0);
@@ -65,11 +65,11 @@ void func_8002C964(void) {
         D_807FBB40->unk60 = (s32) (D_807FBB40->unk60 | 0x400);
         D_807FBB40->unk132 = 4;
         D_807FBB40->unk154 = 0x1E;
-        func_807248B0(D_807FBB40, (f32) (2.0 * (f64) D_807FBB40->unk4->unk34));
+        actorSetUniformScale(D_807FBB40, (f32) (2.0 * (f64) D_807FBB40->unk4->unk34));
         actorSpawnLinkedFollower();
     }
     if (((D_807FBD70 == 9) || (D_807FBB85 != 0)) && (temp_a0->unk154 != 0x37)) {
-        if (func_8073110C(0xF7, 0) != 0) {
+        if (flagGet(0xF7, 0) != 0) {
             func_8067E278(0, 1);
             D_807FBB40->unk154 = 0x40;
         } else {
@@ -100,7 +100,7 @@ void func_8002C964(void) {
             D_807FBB40->unk80 = (f32) (D_807FBB40->unk80 + 2.0f);
             D_807FBB40->unkE6 = (s16) (D_807FBB40->unkE6 + D_807FDC90->unk2C);
             temp_fv0 = (f64) D_807FBB40->unk4->unk38;
-            func_807248B0(D_807FBB40, (f32) (((0.3 - temp_fv0) * 0.05) + temp_fv0));
+            actorSetUniformScale(D_807FBB40, (f32) (((0.3 - temp_fv0) * 0.05) + temp_fv0));
             break;
         case 2:                                     /* switch 2 */
             D_807FDC90->unk2C = (s16) (D_807FDC90->unk2C - 0x14);
@@ -121,7 +121,7 @@ void func_8002C964(void) {
                 D_807FDC90->unk28 = (s32) (D_807FDC90->unk28 | 0x8000);
                 D_807FBB40->unk132 = 1;
                 D_807FBB40->unk154 = 0x23;
-                func_8072B324(D_807FBB40, D_807FDC9C->unkD);
+                actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkD);
                 D_807FBB40->unk144 = 0x24;
                 func_80614EBC(D_807FBB40, 0x2F4);
             }
@@ -165,7 +165,7 @@ void func_8002C964(void) {
             D_807FBB40->unk155 = 1U;
             break;
         case 1:                                     /* switch 4 */
-            if ((func_80726D7C(2) == 0) && (func_80726D7C(3) == 0) && (func_80726D7C(4) == 0)) {
+            if ((spawnNodeHasActor(2) == 0) && (spawnNodeHasActor(3) == 0) && (spawnNodeHasActor(4) == 0)) {
                 D_807FBB40->unk155 = 2U;
                 D_807FDC90->unk2C = 0x96;
                 D_807FDC90->unk28 = (s32) (D_807FDC90->unk28 | 0x8000);
@@ -205,7 +205,7 @@ void func_8002C964(void) {
         }
         break;
     case 0x23:                                      /* switch 1 */
-        func_8072AB74(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+        actorMoveWithinZone(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
         break;
     case 0x37:                                      /* switch 1 */
         func_806AD260(0x2F7, 1, 0);

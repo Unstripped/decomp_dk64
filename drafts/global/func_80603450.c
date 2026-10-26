@@ -78,7 +78,7 @@ extern Aud7130L2_D580 *D_807FD580;
 
 s32 func_8062F388(Aud7130L2_Emitter **);
 void func_80664044(s32, s32, s32, f32);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void func_80737AC4(s32, s32, ...);
 f32 func_80611BB4(f32, f32);
 f32 func_80612D1C(f32);
@@ -307,9 +307,9 @@ void func_80603450(void) {
         if ((D_807FBB60 & 2) || !(D_807FBB60 & 0x10)) {
             var_fs1 = 0.0f;
         } else {
-            if (s2 == 11 && func_8073110C(0x302, 0)) {
+            if (s2 == 11 && flagGet(0x302, 0)) {
                 var_fs1 = 0.0f;
-            } else if (s2 == 13 && func_8073110C(0x4C, 0)) {
+            } else if (s2 == 13 && flagGet(0x4C, 0)) {
                 var_fs1 = 0.0f;
             } else {
                 if (s2 == 1) {

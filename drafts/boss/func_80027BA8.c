@@ -7,8 +7,8 @@
 s32 func_80629148(u8, void *);                      /* extern */
 ? func_80629174(u8, void *);                        /* extern */
 ? func_8070D8C0(void *, u8, u8, void *);            /* extern */
-? func_8072AB74(?, f32, f32, u16, f32);             /* extern */
-? func_8072B324(void *, u8, u8, void *);            /* extern */
+? actorMoveWithinZone(?, f32, f32, u16, f32);             /* extern */
+? actorSetTargetSpeed(void *, u8, u8, void *);            /* extern */
 s32 func_8072D13C(u8, ?);                           /* extern */
 extern u8 D_807444EC;
 extern u8 D_8076A0B1;
@@ -88,7 +88,7 @@ u8 func_80027BA8(s32 arg0, u16 arg1, f32 arg2) {
         temp_v0_3 = temp_s0->unk15;
         temp_s0->unk15 = (u8) (temp_v0_3 + 1);
         sp2F = 1;
-        func_8072B324(temp_a3, *(temp_v0_3 + arg0), temp_a2, temp_a3);
+        actorSetTargetSpeed(temp_a3, *(temp_v0_3 + arg0), temp_a2, temp_a3);
         var_t1 = 1;
         break;
     case 0x5C:                                      /* switch 1 */
@@ -105,7 +105,7 @@ u8 func_80027BA8(s32 arg0, u16 arg1, f32 arg2) {
     case 0x42:                                      /* switch 1 */
 block_16:
         sp2F = var_t1;
-        func_8072AB74(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, arg1, arg2);
+        actorMoveWithinZone(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, arg1, arg2);
         if (func_8072D13C(D_807FBB40->unk154, 0) == 0) {
         default:                                    /* switch 1 */
 block_64:
@@ -149,19 +149,19 @@ block_64:
             temp_s0->unk8 = (s16) *(temp_v0_7 + arg0);
             D_807FBB40->unk155 = 1U;
             sp2F = 0;
-            func_8072B324(D_807FBB40, D_807FDC9C->unkD, temp_a2, temp_a3);
+            actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkD, temp_a2, temp_a3);
             var_t1 = sp2F;
         } else {
             temp_v0_8 = D_807FDC90->unk4;
             sp2F = 0;
             sp34 = temp_v1;
-            func_8072AB74(0x23, temp_v0_8->unk7C, temp_v0_8->unk84, arg1, arg2);
+            actorMoveWithinZone(0x23, temp_v0_8->unk7C, temp_v0_8->unk84, arg1, arg2);
             var_t1 = 0;
             temp_s0->unk8 = (s16) (temp_s0->unk8 - 1);
             if ((temp_s0->unk8 == 0) || (temp_v1->unk1F0 & 0x80000)) {
                 temp_v1->unk1F0 = (s32) (temp_v1->unk1F0 & 0xFFF7FFFF);
                 sp2F = 1;
-                func_8072B324(D_807FBB40, D_807FDC9C->unkC);
+                actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
                 var_t1 = 1;
             }
         }

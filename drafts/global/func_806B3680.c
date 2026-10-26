@@ -20,7 +20,7 @@ void func_806B3680(void) {
         }
     }
     var = var * var;
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk64 |= 4;
         func_8067ACB4(D_807FBB40);
@@ -41,7 +41,7 @@ void func_806B3680(void) {
     st = D_807FBB40->unk154;
     switch (st) {
         case 4:
-            func_8072AB74(0, 0.0f, 0.0f, 2, 0.0f);
+            actorMoveWithinZone(0, 0.0f, 0.0f, 2, 0.0f);
             if (D_807FBB40->unk80 < D_807FBB40->unkAC) {
                 D_807FBB40->unk80 = D_807FBB40->unkAC;
                 B7490A->unkC0 = B7490A->unkC4;
@@ -57,7 +57,7 @@ void func_806B3680(void) {
                     D_807FBB40->unk155[0]++;
                 case 1:
                     if (D_807FDC90->unk30 > (dx = D_807FBB40->unk4->unk38)) {
-                        func_807248B0(D_807FBB40, dx * 1.01);
+                        actorSetUniformScale(D_807FBB40, dx * 1.01);
                     } else {
                         for (i = 0; i < 0xC; i++) {
                             func_807149B8(1);

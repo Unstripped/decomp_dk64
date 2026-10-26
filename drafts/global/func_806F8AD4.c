@@ -12,7 +12,7 @@ extern u8 D_8076A0AB;
 extern s32 func_806F7FD0(s32);
 extern s32 func_805FF030();
 s32 func_806C8DE0(s32);
-s32 func_80731A04(s32, s32, s32, s32);
+s32 flagGridSumRows(s32, s32, s32, s32);
 
 u16 func_806F8AD4(u8 arg0, u8 arg1) {
     u16 sp26;
@@ -39,10 +39,10 @@ u16 func_806F8AD4(u8 arg0, u8 arg1) {
             temp_a1 = temp_v0;
             if (arg0 != 0xA) {
                 if (arg0 == 0xC) {
-                    var_a2 = func_80731A04(0x1D5, temp_a1, temp_v0, sp1C);
+                    var_a2 = flagGridSumRows(0x1D5, temp_a1, temp_v0, sp1C);
                 }
             } else {
-                var_a2 = func_80731A04(0x225, temp_a1, temp_a1, sp1C);
+                var_a2 = flagGridSumRows(0x225, temp_a1, temp_a1, sp1C);
             }
         }
         break;

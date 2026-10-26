@@ -33,11 +33,11 @@ typedef struct C1Rec24List {
     /* 0x4 */ C1Rec24 *unk4;
 } C1Rec24List;
 
-void func_80728300(s16 *arg0, C1Rec24List *arg1, C1NodeList *arg2) {
+void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
     s16 *src;
     s16 *p;
     C1Rec24 *rec;
-    C1Node *node;
+    SpawnNode *node;
     s16 i;
     s16 j;
     s16 cnt;
@@ -169,6 +169,6 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, C1NodeList *arg2) {
             } while (j < node->unk11);
         }
         p = src;
-        func_8072827C((C1Holder *)node);
+        zoneAssignToBehaviour((C1Holder *)node);
     }
 }

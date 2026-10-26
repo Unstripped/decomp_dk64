@@ -74,7 +74,7 @@ void func_806F8A8C(u8 arg0, u8 arg1, s32 arg2) {
 }
 
 s32 func_806C8DE0(s32);
-s32 func_80731A04(s32, s32, s32, s32);
+s32 flagGridSumRows(s32, s32, s32, s32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8AD4.s")
 
@@ -168,10 +168,10 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
     *arg0 = 0x7F;
     if (arg2 != 8) {
         if (arg2 != 0xA) {
-            if ((arg2 == 0xC) && (func_80731A04(0x1D5, sp1C, sp1C, temp_a3) != 0)) {
+            if ((arg2 == 0xC) && (flagGridSumRows(0x1D5, sp1C, sp1C, temp_a3) != 0)) {
                 *(u8 *)arg0 = 0xFF;
             }
-        } else if (func_80731A04(0x225, sp1C, sp1C, temp_a3) != 0) {
+        } else if (flagGridSumRows(0x225, sp1C, sp1C, temp_a3) != 0) {
             *(u8 *)arg0 = 0xFF;
         }
     } else if (arg1 < ((u16 *)&D_807FC950[temp_v0][0x42])[sp1C]) {
@@ -179,10 +179,10 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
     }
 }
 
-extern s32 func_80731AA8(s32, s32, s32);
+extern s32 flagCountRange(s32, s32, s32);
 
 void func_806F8EB4(void) {
-    func_80731AA8(0x24D, 0x14, 0);
+    flagCountRange(0x24D, 0x14, 0);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8EDC.s")

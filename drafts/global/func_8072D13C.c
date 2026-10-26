@@ -165,7 +165,7 @@ u8 func_8072D13C(u8 arg0, u8 arg1) {
                 D1DC90K->unk2C = D1PT(off)->unk8;
                 break;
             case 5:
-                func_8072B324(D_807FBB40, D1PT(off)->unk8);
+                actorSetTargetSpeed(D_807FBB40, D1PT(off)->unk8);
                 return moved;
             case 7:
                 D1AK->unk154 = 0x3B;

@@ -123,13 +123,13 @@ typedef struct BossC_A7A0_DC9C {
 } BossC_A7A0_DC9C;
 
 extern BossC_A7A0_DC9C *D_807FDC9C;
-void func_8072B324(BossC_A7A0_Actor *, s32);
+void actorSetTargetSpeed(BossC_A7A0_Actor *, s32);
 
 void func_8002EA14(void) {
     BossC_A7A0_178 *sp1C = D_807FBB40->unk178;
 
     func_8002E9B8(0x406, 0x674);
-    func_8072B324(D_807FBB40, D_807FDC9C->unkC + (sp1C->unk14 * 10) + 15);
+    actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC + (sp1C->unk14 * 10) + 15);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/A7A0/func_8002EA7C.s")

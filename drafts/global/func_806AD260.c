@@ -19,7 +19,7 @@ typedef struct B1F60View98 {
 extern Actor *D_807FBB40;
 extern ActorGlobalState D_807FBB70;
 void sfxSpawnTableNodes(Actor *);
-u32 func_8072AB74(u8, f32, f32, u16, f32);
+u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void func_8072B7CC(s32);
 void func_8072C918(s32, s32, s32);
 void func_8072D13C(s32, s32);
@@ -47,18 +47,18 @@ u16 arg2;
         case 0x10:
         case 0x15:
         case 0x23:
-            func_8072AB74(actor->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, (actor->unk6A & 1) ? arg2 : (arg2 | 2), 0.0f);
+            actorMoveWithinZone(actor->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, (actor->unk6A & 1) ? arg2 : (arg2 | 2), 0.0f);
             break;
         case 2:
         case 3:
         case 7:
         case 0x35:
-            func_8072AB74(actor->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, arg2, 0.0f);
+            actorMoveWithinZone(actor->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, arg2, 0.0f);
             break;
         case 0x37:
             switch (((B1F60Actor *)actor)->unk155) {
                 case 0:
-                    func_8072AB74(0x37, 0.0f, 0.0f, (arg2 | 0x4200) & 0xFFFF, 0.0f);
+                    actorMoveWithinZone(0x37, 0.0f, 0.0f, (arg2 | 0x4200) & 0xFFFF, 0.0f);
                     break;
                 case 1:
                     sfxSpawnTableNodes(actor);
@@ -69,7 +69,7 @@ u16 arg2;
                     B1F60A->unkC0 = 100.0f;
                     B1F60A->unk155++;
                 case 2:
-                    func_8072AB74(0x37, 0.0f, 0.0f, (arg2 | 0x4200) & 0xFFFF, 0.0f);
+                    actorMoveWithinZone(0x37, 0.0f, 0.0f, (arg2 | 0x4200) & 0xFFFF, 0.0f);
                     break;
                 case 3:
                     func_8072DC7C(0xA);

@@ -909,7 +909,7 @@ typedef struct Menu3R3_StructC828 {
 
 extern Menu3R3_StructC828 D_807FC828;
 void func_806ABE3C(void);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 
 s32 menuCalculateGamePercentage(void) {
     f32 pct;
@@ -929,7 +929,7 @@ s32 menuCalculateGamePercentage(void) {
     }
 
     if ((f64)pct == 100.0) {
-        if (func_8073110C(0x12D, 0) != 0 && func_8073110C(0x12D, 0) != 0) {
+        if (flagGet(0x12D, 0) != 0 && flagGet(0x12D, 0) != 0) {
             pct = (f64)pct + 1.0;
         }
     }

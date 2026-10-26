@@ -137,10 +137,10 @@ typedef struct BossC_6240_Actor {
 } BossC_6240_Actor;
 
 extern BossC_6240_Actor *D_807FBB4C;
-s32 func_80725BA4(s16, s16, s32);
+s32 polygonContainsPoint2D(s16, s16, s32);
 
 void bossClampPosition(s32 arg0) {
-    if (!func_80725BA4((s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84, arg0)) {
+    if (!polygonContainsPoint2D((s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84, arg0)) {
         D_807FBB4C->unk7C = D_807FBB4C->unk88;
         D_807FBB4C->unk84 = D_807FBB4C->unk90;
     }

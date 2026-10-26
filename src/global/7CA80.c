@@ -337,7 +337,7 @@ void func_806136B4(void);
 void effectFreeByResource(Actor *);
 void pathPlaybackStopForActor(Actor *);
 void actorSub140Free(ActorSub140 *);
-void func_8072F09C(Actor *);
+void proxPathRemoveActor(Actor *);
 void func_8070DA74(Actor *);
 void renderCallbacksDisableForActor(Actor *);
 void actorTableRemove();
@@ -393,7 +393,7 @@ void actorFreeImmediate(Actor *arg0) {
         }
     }
     actorSub140Free(arg0->unk140);
-    func_8072F09C(arg0);
+    proxPathRemoveActor(arg0);
     if (((R2EActor *)arg0)->unk118 != NULL) {
         heapFree(((R2EActor *)arg0)->unk118);
     }

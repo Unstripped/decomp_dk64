@@ -12,7 +12,7 @@ void func_806C9AE0(void);
 void func_80731030(void);
 void func_8060DC3C(u8, s32);
 s32 func_8060C6B8(s32, s32, s32, u8);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void func_805FF4D8(s32, s32);
 
 void func_807144B8(u8 arg0) {
@@ -30,7 +30,7 @@ void func_807144B8(u8 arg0) {
     D_8074E77C = 0;
     if ((func_8060C6B8(0xD, 0, 0, D_807467C8) != 0) || (var_a0 = 0x99, (D_8074452C != 0))) {
         var_a0 = 0xB0;
-        if (func_8073110C(0x186, 0) != 0) {
+        if (flagGet(0x186, 0) != 0) {
             var_a0 = 0x22;
             goto block_6;
         }

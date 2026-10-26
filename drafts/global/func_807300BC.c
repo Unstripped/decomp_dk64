@@ -84,8 +84,8 @@ typedef struct H1ActorB {
 } H1ActorB;
 
 void func_8072FDD4(H1ProxNode *, f32, u8 *, f32 *);
-void func_80730D60(Actor *, u8, u8, u8, void **, void **);
-void func_80730E18(Mtx *, Mtx *, f32, Mtx *);
+void proxPathGetSegmentMatrices(Actor *, u8, u8, u8, void **, void **);
+void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
 void func_80730408(H1ActorB *, H1ActorState *, H1ProxNode *, u8, f32);
 
 void func_807300BC(H1ActorB **arg0) {
@@ -132,8 +132,8 @@ void func_807300BC(H1ActorB **arg0) {
     idB = node->unk34[idx].unk1;
     switch (node->unk6) {
     case 0:
-        func_80730D60(node->unk0, node->unk4, idA, idB, &p128, &p124);
-        func_80730E18(p128, p124, 1.0 - t, &mtx);
+        proxPathGetSegmentMatrices(node->unk0, node->unk4, idA, idB, &p128, &p124);
+        mtxLerpL(p128, p124, 1.0 - t, &mtx);
         guRotateF(m6, (s16)(0, (actor->unkE6 - state->unk130->unkE6) & 0xFFF) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
         guTranslateF(mA, 0.0f, state->unk138 + -80.0, 0.0f);
         guMtxCatF(m6, mA, mA);

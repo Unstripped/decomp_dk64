@@ -54,7 +54,7 @@ void func_807127B4();
 s32 func_806C8DE0();
 s32 func_806CC10C(s16, s16);
 void func_80600044();
-void func_8073129C(s32, s32, s32);
+void flagSet(s32, s32, s32);
 void func_806ABE3C();
 s32 func_806ABC94();
 Gfx *hudDrawDimOverlay(Gfx *, Actor *);
@@ -112,7 +112,7 @@ void func_806A8158(void) {
         D_807FC8B8 = 0;
         D_80750580 = 1;
         D_807505D0 = 7;
-        while (D_807505D0 >= 0 && func_8073110C(D_807505D0 + 0x1C5, 0) == 0) {
+        while (D_807505D0 >= 0 && flagGet(D_807505D0 + 0x1C5, 0) == 0) {
             D_807505D0--;
         }
         D_807505D0++;
@@ -245,7 +245,7 @@ void func_806A8158(void) {
                         } else if (func_805FEF74(D_8076A0A8) == 0) {
                             x = D_807FBB64 & 1;
                             if (x != 0 && a2 == 8) {
-                                func_8073129C(0x5C, 1, 2);
+                                flagSet(0x5C, 1, 2);
                                 func_805FF378(0x22, 0xC);
                             } else if (x != 0 && D_8076A0A8 != 0x3C) {
                                 func_805FF378(0x2A, 2);

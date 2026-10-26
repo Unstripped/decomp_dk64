@@ -94,7 +94,7 @@ void func_8071498C(void *);
 void func_807149B8(s32);
 void func_807149FC(s32);
 void func_80714CC0(s32, f32, f32, f32, f32);
-s32 func_8073110C(s16, s32);
+s32 flagGet(s16, s32);
 void D_8071CDE0(void);
 
 extern s32 D_8074E880[];
@@ -113,7 +113,7 @@ u8 arg5;
 
     sfxAllocateChannel(0x36, 1.0f);
     sp4C = (s16)arg0;
-    if (func_8073110C((s16)arg0, 0) != 0) {
+    if (flagGet((s16)arg0, 0) != 0) {
         func_80028458();
         return;
     }
@@ -183,13 +183,13 @@ void bossDrawRoundText(Gfx *arg0, s32 arg1) {
 
 static void func_80028818(void) {}
 
-void func_8073129C(s32, s32, s32);
+void flagSet(s32, s32, s32);
 
 void bossResetAudioChannels(void) {
-    func_8073129C(0x51, 0, 2);
-    func_8073129C(0x52, 0, 2);
-    func_8073129C(0x53, 0, 2);
-    func_8073129C(0x54, 0, 2);
+    flagSet(0x51, 0, 2);
+    flagSet(0x52, 0, 2);
+    flagSet(0x53, 0, 2);
+    flagSet(0x54, 0, 2);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/3840/func_80028878.s")
@@ -220,7 +220,7 @@ typedef struct {
 extern BossB_Struct_800359D0 D_800359D0[];
 extern s32 D_8076A0A8;
 
-s32 func_8073110C(s16, s32);
+s32 flagGet(s16, s32);
 
 void bossUpdateStageState(s16 *arg0) {
     s16 i = 0;
@@ -228,7 +228,7 @@ void bossUpdateStageState(s16 *arg0) {
         i++;
     }
     if (D_800359D0[i].unk0 != 0 && D_800359D0[i].unk4 == *arg0) {
-        if (func_8073110C(D_800359D0[i].unk2, 2) != 0) {
+        if (flagGet(D_800359D0[i].unk2, 2) != 0) {
             *arg0 = D_800359D0[i].unk5;
         }
     }
@@ -240,6 +240,6 @@ void bossPlayStageMusic(void) {
         i++;
     }
     if (D_800359D0[i].unk0 != 0) {
-        func_8073129C(D_800359D0[i].unk2, 1, 2);
+        flagSet(D_800359D0[i].unk2, 1, 2);
     }
 }

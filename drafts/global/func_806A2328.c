@@ -8,7 +8,7 @@ f32 func_80612794(s16);                             /* extern */
 ? func_8065D254(void *, ?, ?, ?, s32, s32, s32, s32, s32, s32, f32); /* extern */
 ? func_80665564(void *, ?);                         /* extern */
 ? func_8067ACB4(f64, f32, void *);                  /* extern */
-? func_807248B0(void *, s32);                       /* extern */
+? actorSetUniformScale(void *, s32);                       /* extern */
 s16 mathAngleBetweenPoints2D(f32, f32, void **, f32, f32); /* extern */
 extern void *D_807FBB40;
 extern void *D_807FBB4C;
@@ -37,7 +37,7 @@ void func_806A2328(f64 arg0, f32 arg1) {
     temp_s2 = temp_s0->unk174;
     if (!(temp_v0 & 0x10)) {
         temp_s0->unk60 = (s32) (temp_v0 | 0x1000);
-        func_807248B0(D_807FBB40, D_807FBB40->unk124->unkC);
+        actorSetUniformScale(D_807FBB40, D_807FBB40->unk124->unkC);
         D_807FBB40->unk168 = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, &D_807FBB4C, D_807FBB4C->unk7C, D_807FBB4C->unk84);
         D_807FBB40->unkF0 = (s16) (s32) ((f64) ((D_807FBB4C->unk80 + (f32) D_807FBB4C->unk15E) - D_807FBB40->unk80) * 0.5);
         temp_fv0 = D_807FBB40->unk7C - D_807FBB4C->unk7C;

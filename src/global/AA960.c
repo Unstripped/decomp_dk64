@@ -700,8 +700,8 @@ extern u8 D_807FBD70;
 extern u32 D_8076A068;
 s32 actorListFindIdByActor(Actor *);
 s32 actorListLookupEntry(s32);
-s32 func_8073110C(s32, s32);
-void func_8073129C(s32, s32, s32);
+s32 flagGet(s32, s32);
+void flagSet(s32, s32, s32);
 s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
 void func_807232B8(s32, s32);
 void func_80723284(s32, s32);
@@ -725,7 +725,7 @@ void func_806A7600(void *arg0) {
         } else {
             temp_v1->unk6 = actorListLookupEntry(actorListFindIdByActor(D_807FBB40) & 0xFFFF);
         }
-        if (temp_v1->unk6 != -1 && func_8073110C(temp_v1->unk6, 0) != 0) {
+        if (temp_v1->unk6 != -1 && flagGet(temp_v1->unk6, 0) != 0) {
             actorDespawn(D_807FBB40);
             return;
         }
@@ -761,7 +761,7 @@ void func_806A7600(void *arg0) {
             } else {
                 temp = -1;
             }
-            cond = temp == -1 || func_8073110C(temp, 0) != 0;
+            cond = temp == -1 || flagGet(temp, 0) != 0;
             if (cond != 0) {
                 func_807149B8(1);
                 cond = 1;
@@ -801,7 +801,7 @@ void func_806A7600(void *arg0) {
             func_80724994(3, 1, 0x27, 0, 0);
         } else {
             if (temp_v1->unk6 != -1) {
-                func_8073129C(temp_v1->unk6, 1, 0);
+                flagSet(temp_v1->unk6, 1, 0);
             }
             slotQueueUpdate(0, 0, 0);
             func_806F91B4(0, 0, 0xA);

@@ -640,7 +640,7 @@ f32 func_8002E1C8(RaceUnknownActor *arg0, f32 arg1, RaceCurvePoint *arg2, RaceVe
 }
 
 extern u8 D_807FC928;
-RaceUnknownActor *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
+RaceUnknownActor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BC2C(RaceUnknownActor *, s32, RaceUnknownActor *, RaceUnknown174 *);
 
 void func_8002E2C8(RaceUnknownActor *arg0) {
@@ -659,7 +659,7 @@ void func_8002E2C8(RaceUnknownActor *arg0) {
     }
     func_8002BBD0(arg0, var_s4);
     if (D_807FC928 == 1) {
-        sp54 = func_807271F4(1, 0, 0, 0, 0, 0, 0);
+        sp54 = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         sp58 = sp54->unk178;
         sp58->unk27 = 1;
         func_8002BC2C(arg0, 0, sp54, sp58);

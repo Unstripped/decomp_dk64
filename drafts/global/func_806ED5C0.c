@@ -4,8 +4,8 @@ typedef struct EfN9Actor58 {
     s32 unk58;
 } EfN9Actor58;
 
-s32 func_8073110C(s16, s32);
-void func_8073129C(s32, s32, s32);
+s32 flagGet(s16, s32);
+void flagSet(s32, s32, s32);
 
 void func_806ED5C0(Actor *arg0) {
     u16 sp24;
@@ -44,8 +44,8 @@ void func_806ED5C0(Actor *arg0) {
         return;
     }
     sp18 = (s32)var_v0;
-    if (func_8073110C((s16)sp18, 0) == 0) {
+    if (flagGet((s16)sp18, 0) == 0) {
         func_8061CC40(NULL, 0x16, 5);
-        func_8073129C((s16)sp18, 1, 0);
+        flagSet((s16)sp18, 1, 0);
     }
 }

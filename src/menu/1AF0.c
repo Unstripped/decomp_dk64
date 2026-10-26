@@ -1,5 +1,5 @@
 #include "common.h"
-s32 func_8073110C(s16, s32);
+s32 flagGet(s16, s32);
 
 typedef struct {
     char pad0[4];
@@ -128,12 +128,12 @@ void func_80025FB4(void *, void *, s32);
 void playerStateQueueCallback(s32, void *, s32);
 
 s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
-    s32 flag = func_8073110C((s16)arg2, 0) == 0;
+    s32 flag = flagGet((s16)arg2, 0) == 0;
 
     func_80025FB4(arg0, arg1, flag);
     arg0->unkD = 0;
     arg0->unkE = 0;
-    if (func_8073110C(0x61, 2) == 0) {
+    if (flagGet(0x61, 2) == 0) {
         if (flag != 0) {
             func_806F397C(D_807FBB4C, D_807FBB40, 0, 0x1B);
             func_8061CC40(0, 0, 1);
@@ -173,7 +173,7 @@ void func_80026B28(Struct_80025D14 *, void *, s32);
 void func_80026DAC(Struct_80025D14 *, void *, s32);
 
 void menuDispatchCurrentMenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
-    s32 flag = func_8073110C((s16)arg2, 0) == 0;
+    s32 flag = flagGet((s16)arg2, 0) == 0;
 
     switch (arg0->unkD) {
     case 0:
@@ -203,7 +203,7 @@ extern s32 D_8063FA48;
 void controllerUpdate(void);
 void controllerLatchPad(void);
 extern s32 D_8076A0A8;
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_806BFBF4(void);
 void func_806319C4(void *, s32);
 
@@ -213,7 +213,7 @@ void menuCheckControllerAntiPiracy(void) {
     s32 pad[4];
     s32 *dest;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (D_8076A0A8 == 0x19) {
         temp = D_807FBB40->unk178;
         ptr = D_807FC950[D_8074E77C];
@@ -240,13 +240,13 @@ void menuCheckControllerAntiPiracy(void) {
         menuDispatchCurrentMenuAction(temp, ptr, 0x175);
     }
     if (D_807FBB40->unk60 & 0x10000000) {
-        func_80729B00();
+        behaviourFrameBegin();
         func_806BFBF4();
     }
     func_806319C4(D_807FBB40, 0);
 }
 void func_80027738(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     if (D_8076A0A8 == 1) {
         Struct_80025D14 *temp = D_807FBB40->unk178;
         u8 *ptr = D_807FC950[D_8074E77C];
@@ -257,7 +257,7 @@ void func_80027738(void) {
         menuDispatchCurrentMenuAction(temp, ptr, 0x176);
     }
     if (D_807FBB40->unk60 & 0x10000000) {
-        func_80729B00();
+        behaviourFrameBegin();
         func_806BFBF4();
     }
     func_806319C4(D_807FBB40, 0);

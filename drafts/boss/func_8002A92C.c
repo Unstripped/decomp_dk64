@@ -185,14 +185,14 @@ void func_806FB370(s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void func_807158C0(void);
 void func_8072881C(s32, void *);
-void func_80729B00(void);
-void func_80729E6C(void);
-void func_80729EB0(s32, f32, f32, s32);
+void behaviourFrameBegin(void);
+void actorApplyGravity(void);
+void actorTurnTowardTarget(s32, f32, f32, s32);
 void func_8072A450(void);
-void func_8072AB74(s32, f32, f32, s32, f32);
-void func_8072B324(void *, u8);
+void actorMoveWithinZone(s32, f32, f32, s32, f32);
+void actorSetTargetSpeed(void *, u8);
 s32 func_8072D13C(s32, s32);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, void *);
 void n_alSndpDeallocate(s32);
 
@@ -233,7 +233,7 @@ void func_8002A92C(void) {
     sp7E = 1;
     sp7F = 1;
     sp80 = ACTOR->unk80;
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(ACTOR->unk60 & 0x10)) {
         func_80626110(D_807F5D10, 0, 0);
         func_806FB370(5, 0, 1);
@@ -346,7 +346,7 @@ block_178:
     case 0x56:                                      /* switch 1 */
         sp7E = 0;
         ACTOR->unk132 = 4;
-        func_8072AB74(0x45, 606.0f, 566.0f, 0x292, 0.0f);
+        actorMoveWithinZone(0x45, 606.0f, 566.0f, 0x292, 0.0f);
         if (ACTOR->unk155 == 1) {
             func_8002A8B8((s32)((u8 *)D_807FDCA0 + 0x24));
         }
@@ -403,7 +403,7 @@ block_178:
         switch (ACTOR->unk155) {                          /* switch 2 */
         case 0:                                     /* switch 2 */
             if (D_8076A0A8 != 0xC5) {
-                if (func_8073110C(0x69, 2) != 0) {
+                if (flagGet(0x69, 2) != 0) {
                     goto block_71;
                 }
                 func_80613C48(D_807FBB40, 0x539, 0, 0);
@@ -490,7 +490,7 @@ block_71:
         }
         goto block_178;
     case 0x28:                                      /* switch 1 */
-        func_80729EB0(0x23, 606.0f, 566.0f, 0);
+        actorTurnTowardTarget(0x23, 606.0f, 566.0f, 0);
         switch (ACTOR->unk155) {                          /* switch 5 */
         case 0:                                     /* switch 5 */
             D_807FDC90->unk25 = (u8) (D_807FDC90->unk25 + 4);
@@ -532,7 +532,7 @@ block_71:
             ACTOR->unk155 = 1U;
             /* fallthrough */
         case 1:                                     /* switch 6 */
-            func_8072AB74(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0x291, 0.0f);
+            actorMoveWithinZone(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0x291, 0.0f);
             if (func_8072D13C(0x42, 0) != 0) {
                 ACTOR->unkC0 = 100.0f;
                 func_80614EBC(D_807FBB40, 0x2C8);
@@ -544,7 +544,7 @@ block_71:
             }
             break;
         case 2:                                     /* switch 6 */
-            func_8072AB74(0x45, 606.0f, 566.0f, 0x292, 0.0f);
+            actorMoveWithinZone(0x45, 606.0f, 566.0f, 0x292, 0.0f);
             break;
         case 3:                                     /* switch 6 */
             ACTOR->unk154 = (u8) *(temp_s1->unk15 + sp84);
@@ -583,7 +583,7 @@ block_71:
             var_fv1 = ACTOR->unkA4;
             var_fv0 = ACTOR->unk80;
             if ((var_fv1 + 180.0f) < var_fv0) {
-                func_8072B324(ACTOR, D_807FDC9C->unkC);
+                actorSetTargetSpeed(ACTOR, D_807FDC9C->unkC);
                 ACTOR->unk154 = (u8) *(temp_s1->unk15 + sp84);
                 temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
                 ACTOR->unk155 = 0U;
@@ -596,7 +596,7 @@ block_71:
         }
         goto block_178;
     case 0x11:                                      /* switch 1 */
-        func_8072AB74(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x293, 0.0f);
+        actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x293, 0.0f);
         if (func_80629148() != 0) {
             ACTOR->unk154 = (u8) *(temp_s1->unk15 + sp84);
             temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
@@ -604,7 +604,7 @@ block_71:
         }
         goto block_178;
     case 0x46:                                      /* switch 1 */
-        func_8072AB74(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x293, 0.0f);
+        actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x293, 0.0f);
                 switch (ACTOR->unk155) {                        /* switch 9 */
         case 0:                                     /* switch 9 */
             temp_s1->unk18 = sp84[temp_s1->unk15++];
@@ -643,7 +643,7 @@ block_71:
             break;
         case 2:                                     /* switch 10 */
             sp7F = 0;
-            func_80729E6C();
+            actorApplyGravity();
             ACTOR->unk80 = (f32) (ACTOR->unk80 + ACTOR->unkC0);
             if (ACTOR->unk80 < (f32) D_807FDC90->unkC) {
                 ACTOR->unk155 = 3U;
@@ -673,7 +673,7 @@ block_71:
             sp7F = 0;
             var_fv0 = ACTOR->unk80;
             ACTOR->unk80 = (f32) (((f64) ((f32) (D_807FDC90->unkC + 5) - var_fv0) * 0.12) + (f64) var_fv0);
-            func_80729EB0(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0);
+            actorTurnTowardTarget(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0);
                         var_v0_3 = D_807FDC90->unkC;
             var_fv0 = ACTOR->unk80;
             if ((f32) (var_v0_3 - 0x12C) < var_fv0) {
@@ -696,7 +696,7 @@ block_71:
             func_806871DC(1);
             break;
         case 7:                                     /* switch 10 */
-            func_8072B324(ACTOR, D_807FDC9C->unkC);
+            actorSetTargetSpeed(ACTOR, D_807FDC9C->unkC);
             ACTOR->unk154 = 0x11U;
             ACTOR->unk155 = 0U;
             break;
@@ -718,7 +718,7 @@ block_71:
             ACTOR->unk80 = (f32) (((f64) (var_fv0 - sp80) * 0.03) + (f64) sp80);
             ACTOR->unkC0 = 0.0f;
         } else {
-            func_80729E6C();
+            actorApplyGravity();
             if ((f32) D_807FDC90->unkC < ACTOR->unk80) {
                 func_806653C0(D_807FBB40, 0, ACTOR->unkC0);
             }

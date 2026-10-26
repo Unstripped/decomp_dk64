@@ -4,7 +4,7 @@ extern s16 D_807FC828;
 extern s16 D_807FC82A;
 extern s16 D_807FC82C;
 void func_806ABE3C(s32);
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 
 void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp18;
@@ -13,12 +13,12 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
     if (arg0 >= 0) {
         if (D_80755314 == 0xE) {
             if (arg2 == 1) {
-                if (func_8073110C(0x2A, 1) == 0) {
+                if (flagGet(0x2A, 1) == 0) {
                     arg0 = -1;
                 }
             }
             if (arg2 == 2) {
-                if (func_8073110C(0x2B, 1) == 0) {
+                if (flagGet(0x2B, 1) == 0) {
                     arg0 = -1;
                 }
             }
@@ -31,14 +31,14 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
                     arg0 = -1;
                 } else {
                     sp18 = temp_v1;
-                    func_8073129C(0x2A, 1, 1);
+                    flagSet(0x2A, 1, 1);
                 }
             }
             if (arg2 == 2) {
                 if (temp_v1 < 0x119) {
                     arg0 = -1;
                 } else {
-                    func_8073129C(0x2B, 1, 1);
+                    flagSet(0x2B, 1, 1);
                 }
             }
         }

@@ -165,9 +165,9 @@ void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, BossC_9C60_Actor *);
 void func_80724CA4(s32, s32);
 void func_80724E48(s32);
 s32 func_8072881C(s32, void *);
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_8072A450(void);
-void func_8072B324(BossC_9C60_Actor *, s32);
+void actorSetTargetSpeed(BossC_9C60_Actor *, s32);
 void func_8072E1A4(s32, void *);
 
 void func_8002DE04(void) {
@@ -180,7 +180,7 @@ void func_8002DE04(void) {
     sp3C = D_807FBB40->unk178;
     sp38 = D_80035A60[sp3C->unk14];
     sp30 = (D_807FBB4C->unk6A & 1) ? 0.7 : 1.0;
-    func_80729B00();
+    behaviourFrameBegin();
     func_80028878(sp38);
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80626110(D_807F5D10, 0, 0);
@@ -339,7 +339,7 @@ void func_8002DE04(void) {
             }
             break;
         case 4:
-            func_8072B324(D_807FBB40, D_807FDC9C->unkC);
+            actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
             sp3C->unk15 = 0;
             sp3C->unk14++;
             sp38 = D_80035A60[sp3C->unk14];

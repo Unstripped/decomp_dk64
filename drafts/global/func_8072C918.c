@@ -64,9 +64,9 @@ typedef struct C1Dc9c {
 #define C1D98 ((C1Dc98 *)D_807FDC98)
 #define C1D9C ((C1Dc9c *)D_807FDC9C)
 
-s32 func_80726164(Actor *, s16, s16, s16, void *);
+s32 zoneCanReachPoint(Actor *, s16, s16, s16, void *);
 s32 func_8072DE10(u16);
-void func_8072DE44(s32);
+void actorSetDefaultState(s32);
 
 void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
     D1S174 *st;
@@ -92,7 +92,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
     } else {
         ang = C1D90->unk8 - me->unkEE;
     }
-    if ((func_80726164((Actor *)me, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FDCA0) != 0) && !(C1D98->unk46 & 0x2000) && !(st->unk1F0 & 0x8000)) {
+    if ((zoneCanReachPoint((Actor *)me, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FDCA0) != 0) && !(C1D98->unk46 & 0x2000) && !(st->unk1F0 & 0x8000)) {
         C1D90->unk1A |= 0x400;
     } else {
         C1D90->unk1A &= 0xFBFF;
@@ -113,7 +113,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
                 func_80614EBC(D_807FBB40, C1D98->unk28);
             }
             if (C1D90->unk26 != C1D9C->unkC) {
-                func_8072B324(D_807FBB40, C1D9C->unkC);
+                actorSetTargetSpeed(D_807FBB40, C1D9C->unkC);
             }
         case 4:
         case 0x11:
@@ -121,12 +121,12 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
             if ((near & 0xFF) && (C1B40->unk60 & 0x100) && (sp4D != 0) && (C1D90->unk1A & 0x400)) {
                 if (C1D90->unk1A & 0x800) {
                     if (func_8072DE10(0x2710) != 0) {
-                        func_8072B59C(type, C1D9C->unkD, arg2);
+                        actorSetBehaviourState(type, C1D9C->unkD, arg2);
                         return;
                     }
                 }
                 if (!(C1D90->unk1A & 0x800)) {
-                    func_8072B59C(type, C1D9C->unkD, arg2);
+                    actorSetBehaviourState(type, C1D9C->unkD, arg2);
                     return;
                 }
             }
@@ -134,7 +134,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
         case 0x34:
             me = (C1Act *)C1B40->unk178;
             if (dist < *(s16 *)me) {
-                func_8072B59C(0x24, 0, arg1);
+                actorSetBehaviourState(0x24, 0, arg1);
                 return;
             }
         case 0x23:
@@ -144,7 +144,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
             }
             if (near & 0xFF) {
                 if (!(C1D90->unk1A & 0x400)) {
-                    func_8072B59C(0x35, (s16)(s32)(C1D9C->unkC * 0.667), arg1);
+                    actorSetBehaviourState(0x35, (s16)(s32)(C1D9C->unkC * 0.667), arg1);
                     C1D90->unk20 = 0x3C;
                     C1D90->unkA = D_807FDC94->unk88;
                     C1D90->unkC = D_807FDC94->unk8C;
@@ -152,24 +152,24 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
                     return;
                 }
                 if (C1D90->unk26 < C1D9C->unkD) {
-                    func_8072B59C(type, C1D9C->unkD, arg2);
+                    actorSetBehaviourState(type, C1D9C->unkD, arg2);
                     return;
                 }
             } else {
-                func_8072B59C(C1D9C->unk10, C1D9C->unkC, arg1);
+                actorSetBehaviourState(C1D9C->unk10, C1D9C->unkC, arg1);
                 return;
             }
             break;
         case 0x33:
             if ((!(near & 0xFF) || !(C1D90->unk1A & 0x400)) && (C1B40->unk6A & 1)) {
-                func_8072B59C(C1D9C->unk10, C1D9C->unkC, arg1);
+                actorSetBehaviourState(C1D9C->unk10, C1D9C->unkC, arg1);
                 return;
             }
             break;
         case 7:
             if ((SQ(D_807FBB40->unk84 - C1D90->unkE) + SQ(D_807FBB40->unk7C - C1D90->unkA)) < 400.0f) {
                 if (!(C1D90->unk1A & 0x80)) {
-                    func_8072DE44(C1D98->unk28);
+                    actorSetDefaultState(C1D98->unk28);
                 } else {
                     func_8072C870(7, C1D9C->unkD, arg2);
                 }
@@ -180,22 +180,22 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
             }
             if (near & 0xFF) {
                 if (!(C1D90->unk1A & 0x400)) {
-                    func_8072B59C(C1D9C->unk10, C1D9C->unkC, arg1);
+                    actorSetBehaviourState(C1D9C->unk10, C1D9C->unkC, arg1);
                     return;
                 }
             } else {
-                func_8072B59C(C1D9C->unk10, C1D9C->unkC, arg1);
+                actorSetBehaviourState(C1D9C->unk10, C1D9C->unkC, arg1);
                 return;
             }
             break;
         case 0x35:
             if (C1D90->unk1A & 0x400) {
-                func_8072B59C(type, C1D9C->unkD, arg2);
+                actorSetBehaviourState(type, C1D9C->unkD, arg2);
                 return;
             }
             near = (C1D90->unk20-- == 0);
             if (near) {
-                func_8072B59C(C1D9C->unk10, C1D9C->unkC, arg1);
+                actorSetBehaviourState(C1D9C->unk10, C1D9C->unkC, arg1);
             }
             break;
     }

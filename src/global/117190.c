@@ -8,7 +8,7 @@ extern u32 D_807FBB68;
 extern u8 D_80755314;
 extern u8 D_80755318;
 
-extern s32 func_80731AA8(s32, s32, s32);
+extern s32 flagCountRange(s32, s32, s32);
 extern s8 D_8075536C;
 extern s32 D_80755338;
 extern s32 D_8075533C;
@@ -44,7 +44,7 @@ void func_80712524(s32 arg0, s32 arg1) {
 }
 
 s32 func_80712548(void) {
-    return func_80731AA8(0x1FD, 0x28, 0) + 0xA;
+    return flagCountRange(0x1FD, 0x28, 0) + 0xA;
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80712574.s")
@@ -88,11 +88,11 @@ s32 func_80712798(void) {
 
 }
 void func_805FFFC8(void);
-void func_8073129C(s32, s32, s32);
+void flagSet(s32, s32, s32);
 
 void func_807127B4(void) {
     func_805FFFC8();
-    func_8073129C(0x314, 1, 0);
+    flagSet(0x314, 1, 0);
     func_807124B8(0x1C, 0x17, 7);
 }
 
@@ -373,7 +373,7 @@ Gfx *func_80713AA8(Gfx *arg0) {
 
 extern u64 D_807445B0;
 extern u16 D_80755358[];
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 void sfxAllocateChannel(s32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 
@@ -382,7 +382,7 @@ void func_80713C8C(void) {
 
     D_8075531C = 1;
     if (D_80755340.active != 0) {
-        if (func_8073110C(0x302, 0) != 0) {
+        if (flagGet(0x302, 0) != 0) {
             func_8071261C();
             sfxAllocateChannel(0x74, 1.0f);
             return;

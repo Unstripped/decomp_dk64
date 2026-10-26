@@ -489,8 +489,8 @@ void func_80025794(void) {
     }
 }
 
-void *func_807270C0(s16, s32);
-void *func_807271F4(s32, s32, s32, s32, s32, s32, s32);
+void *spawnNodeActivate(s16, s32);
+void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 
 typedef struct Struct_80025B48_Actor_MpNearHi {
     char pad[0x154];
@@ -530,9 +530,9 @@ void func_80025B48(Struct_80025B48_Struct_MpNearHi *arg0) {
         if (var_a2 == 3) {
             var_a2 += (((func_80611A44() >> 15) % 0x7FFF) % 5);
         }
-        arg0->unk18 = func_807270C0(var_a2, 0);
+        arg0->unk18 = spawnNodeActivate(var_a2, 0);
         if (arg0->unk18 == NULL) {
-            arg0->unk18 = func_807271F4((s16)var_a2, 0, 0, 0, 0, 0, 0);
+            arg0->unk18 = spawnNodeSpawnById((s16)var_a2, 0, 0, 0, 0, 0, 0);
         }
         if (arg0->unk18 != NULL) {
             arg0->unk18->unk154 = 0x36;

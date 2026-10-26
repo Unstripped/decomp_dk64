@@ -22,7 +22,7 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
     if (D_807FBB64 & 1) {
         arg0->unk155++;
         if (D_807FBB68 & 2) {
-            func_8073129C(0x5C, 1, 2);
+            flagSet(0x5C, 1, 2);
             var_a0 = 0x22;
             var_a1 = 0xC;
         } else {

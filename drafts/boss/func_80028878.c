@@ -16,8 +16,8 @@ f32 func_80602D4C(?);                               /* extern */
 s32 func_8071441C();                                /* extern */
 ? func_80714CC0(? *, ?, ?32, f32, f32);             /* extern */
 ? func_80724A20();                                  /* extern */
-s32 func_8073110C(s16, ?, void *);                  /* extern */
-? func_8073129C(s16, ?, ?);                         /* extern */
+s32 flagGet(s16, ?, void *);                  /* extern */
+? flagSet(s16, ?, ?);                         /* extern */
 ? func_80737AC4(s32, ?, s16);                       /* extern */
 ? n_alSndpAllocate(s32, ?, ?, ?, f32, s32, s32);    /* extern */
 extern s16 D_800359A0;
@@ -73,7 +73,7 @@ void func_80028878(s32 arg0) {
         func_806FB370(2, 0, 1);
         D_807FBB40->unk60 = (s32) (D_807FBB40->unk60 & 0xFFFDFFFF);
         if ((sp44->unk14 == 0) || (D_807FBB40->unk58 != 0x126)) {
-            if (func_8073110C(0x5A, 2, D_807FBB40) == 0) {
+            if (flagGet(0x5A, 2, D_807FBB40) == 0) {
                 func_80709464(0);
             }
             temp_t0 = D_80750AD4 + 1;
@@ -81,7 +81,7 @@ void func_80028878(s32 arg0) {
             if ((temp_t0 & 0xFF) >= 0xD) {
                 func_80602B60(0x2B, 0);
                 func_80709464(0);
-                func_8073129C(0x55, 0, 2);
+                flagSet(0x55, 0, 2);
                 func_80712524(0xD7, 0);
                 D_80750AD4 = 0;
                 D_807FBB40->unk154 = 0x6AU;
@@ -126,42 +126,42 @@ block_25:
             D_807FBB40->unk154 = 0x6AU;
             D_807FBB40->unk155 = 0U;
             func_8061CC40(D_807FBB40, *(&D_800359C4 + (sp43 * 2)), 1);
-            func_8073129C(0x5A, 1, 2);
+            flagSet(0x5A, 1, 2);
             goto block_25;
         }
         break;
     }
     if (!(var_a2->unk60 & 0x10)) {
         if (func_8071441C() != 0) {
-            func_8073129C(0x55, 0, 2);
+            flagSet(0x55, 0, 2);
         }
         var_a0 = 0x5C;
-        if ((func_8073110C(0x5D, 2) == 0) || (var_a0 = sp43, (func_8073110C(0x5C, 2) != 0))) {
+        if ((flagGet(0x5D, 2) == 0) || (var_a0 = sp43, (flagGet(0x5C, 2) != 0))) {
             func_80028820(var_a0);
             D_80750AD4 = 1;
-            if (func_8073110C(0x5D, 2) == 0) {
+            if (flagGet(0x5D, 2) == 0) {
                 func_8061CC40(D_807FBB40, 0x19, 1);
-                func_8073129C(0x5D, 1, 2);
+                flagSet(0x5D, 1, 2);
             } else {
                 func_8061CC40(D_807FBB40, D_800359A0, 1);
             }
-            func_8073129C(0x5C, 0, 2);
-            func_8073129C(0x55, 1, 2);
+            flagSet(0x5C, 0, 2);
+            flagSet(0x55, 1, 2);
         } else {
             temp_a0 = var_a0 + 0x55;
             sp30 = (s32) temp_a0;
-            if (func_8073110C(temp_a0, 2) == 0) {
+            if (flagGet(temp_a0, 2) == 0) {
                 func_8061CC40(D_807FBB40, (&D_800359A0)[sp43], 1);
-                func_8073129C(unksp32, 1, 2);
-            } else if (func_8073110C(0x5A, 2) != 0) {
-                if (func_8073110C(0x5B, 2) != 0) {
+                flagSet(unksp32, 1, 2);
+            } else if (flagGet(0x5A, 2) != 0) {
+                if (flagGet(0x5B, 2) != 0) {
                     func_8061CC40(D_807FBB40, *(&D_800359AC + (sp43 * 2)), 1);
-                    func_8073129C(0x5A, 0, 2);
+                    flagSet(0x5A, 0, 2);
                 } else {
                     func_80602B60(0x2B, 0);
                     D_807FBB40->unk154 = 0x6AU;
                     D_807FBB40->unk155 = 0U;
-                    func_8073129C(0x5B, 1, 2);
+                    flagSet(0x5B, 1, 2);
                     func_80712524(0xD7, 1);
                     D_80750AD4 -= 1;
                 }

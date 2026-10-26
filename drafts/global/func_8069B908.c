@@ -16,7 +16,7 @@
 extern Actor *D_807FBB40;
 extern ActorGlobalState D_807FBB70;
 extern s32 D_8076A068;
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 s32 func_8069B85C(void);
 
 typedef struct L3b_Sub174 {
@@ -141,7 +141,7 @@ void func_8069B908(void) {
         }
         if (D_807FBB40->unk58 == 0x3D) {
             if (D_8076A0A8 == 0xC3) {
-                if (func_8073110C(0x267, 0) != 0) {
+                if (flagGet(0x267, 0) != 0) {
                     func_8068A2FC(D_807FBB40);
                 }
             }
@@ -149,7 +149,7 @@ void func_8069B908(void) {
                 D_807FBB40->unk64 |= 0x400;
             }
         } else if (D_807FBB40->unk58 == 0x43) {
-            if (func_8073110C(0x9A, 0) != 0) {
+            if (flagGet(0x9A, 0) != 0) {
                 func_8068A2FC(D_807FBB40);
             }
         }
@@ -284,14 +284,14 @@ void func_8069B908(void) {
         if (D_807FBB40->unk58 == 0x3D && sp13C->unk28 == 0) {
             switch (actorListFindIdByActor(D_807FBB40)) {
             case 0x17:
-                if (func_8073110C(0x19, 0) == 0) {
+                if (flagGet(0x19, 0) == 0) {
                     func_806A5DF0(0x2D, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f,
                                   D_807FBB40->unk84, 0, 2, 0x19, 0);
                     sfxAllocateChannel(0x14, 1.0f);
                 }
                 break;
             case 6:
-                if (func_8073110C(0x1D, 0) == 0) {
+                if (flagGet(0x1D, 0) == 0) {
                     func_806A5DF0(0x6E, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f,
                                   D_807FBB40->unk84, 0, 2, 0x1D, 0);
                 }

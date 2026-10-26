@@ -79,10 +79,10 @@ void func_806319C4(Boss2F_9230_Actor *, s32);
 void func_80641874();
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 s32 func_8072881C(s32, void *);
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_8072A450(void);
-void func_8072AB74(s32, f32, f32, s32, f32);
-void func_8072B324(Boss2F_9230_Actor *, s32);
+void actorMoveWithinZone(s32, f32, f32, s32, f32);
+void actorSetTargetSpeed(Boss2F_9230_Actor *, s32);
 void func_8072DEA8(s32, s32, void *);
 void func_8072E1A4(s32, void *);
 
@@ -93,7 +93,7 @@ void func_8002D230(void) {
 
     sp44 = D_807FBB40->unk178;
     sp3C = D_80035A50[sp44->unk14];
-    func_80729B00();
+    behaviourFrameBegin();
     func_80028878(sp3C);
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80626110(D_807F5D10, 0, 0);
@@ -243,17 +243,17 @@ void func_8002D230(void) {
     case 0x31:
         switch (D_807FBB40->unk155) {
         case 0:
-            func_8072AB74(0, 0.0f, 0.0f, 0x4310, 0.0f);
+            actorMoveWithinZone(0, 0.0f, 0.0f, 0x4310, 0.0f);
             break;
         case 1:
             D_807FBB40->unkB8 = -40.0f;
             D_807FBB40->unk155++;
             /* fallthrough */
         case 2:
-            func_8072AB74(0, 0.0f, 0.0f, 0x4310, 0.0f);
+            actorMoveWithinZone(0, 0.0f, 0.0f, 0x4310, 0.0f);
             break;
         case 3:
-            func_8072B324(D_807FBB40, D_807FDC9C->unkC);
+            actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
             sp44->unk15 = 0;
             sp44->unk16 = 0;
             sp44->unk14++;

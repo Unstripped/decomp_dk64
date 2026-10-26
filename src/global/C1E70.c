@@ -10,7 +10,7 @@ extern s8 D_807506A4;
 extern s8 D_80750660;
 extern u8 D_807FC8D0;
 
-s32 func_8073110C(s16, s32);
+s32 flagGet(s16, s32);
 s32 actorSpawn();
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -39,7 +39,7 @@ void func_806BD170(void) {
     i = 0;
     count = 0;
     for (; i < 8; i++) {
-        if (func_8073110C(i + 0x1BC, 0) == 0) {
+        if (flagGet(i + 0x1BC, 0) == 0) {
             actorSpawn(0x14E, 0xCD);
             D_807FBB44->unk12A = 0x7D0;
             D_807FBB44->unk60 |= 0x800400;
@@ -59,7 +59,7 @@ void func_806BD170(void) {
             sub->unk0 = 0;
             sub->unk4 = D_807FBB40;
             sub->unk2 = i;
-            if (func_8073110C(D_80744710[i], 0) != 0) {
+            if (flagGet(D_80744710[i], 0) != 0) {
                 sp50 = i;
                 sp54 = D_807FBB44;
                 sp54->unk154 = 5;
@@ -68,7 +68,7 @@ void func_806BD170(void) {
         }
     }
     D_807506A4 = 0;
-    if (func_8073110C(0x1BB, 0) == 0) {
+    if (flagGet(0x1BB, 0) == 0) {
         sp50 = -1;
     }
     if (D_80750660 == 0 && sp50 != -1) {
@@ -96,7 +96,7 @@ s32 func_8061CB50(void);
 void func_8061F0B0(s32, s32, s32);
 s32 sfxAllocateChannel(s32, f32);
 s16 func_80609140(s16, s32, f32, f32, u8, u8);
-void func_8073129C(s16, s32, s32);
+void flagSet(s16, s32, s32);
 
 typedef struct NmBD3E4Ptr178 {
     /* 0x00 */ Actor *unk0;
@@ -143,7 +143,7 @@ void func_806BD3E4(void) {
         if (D_80750660 != 0) {
             D_80750660 = 0;
         }
-        if (func_8073110C(0x1BB, 0) == 0) {
+        if (flagGet(0x1BB, 0) == 0) {
             D_807FBB40->unk154 = 1;
         }
     }
@@ -195,8 +195,8 @@ void func_806BD3E4(void) {
             D_807506B4 = n;
             if (D_807506A8[n] == -1) {
                 func_80609140(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
-                func_8073129C(0x28, 1, 1);
-                func_8073129C(0x26, 1, 1);
+                flagSet(0x28, 1, 1);
+                flagSet(0x26, 1, 1);
                 D_807506B4 = -1;
             }
         } else {
@@ -220,7 +220,7 @@ s32 func_8061CC40(void *, s32, s32);
 s32 func_8061CB50(void);
 s32 sfxAllocateChannel(s32, f32);
 s16 func_80609140(s16, s32, f32, f32, u8, u8);
-void func_8073129C(s16, s32, s32);
+void flagSet(s16, s32, s32);
 
 typedef struct R1C0C1Ptr178 {
     /* 0x00 */ Actor *unk0;
@@ -330,7 +330,7 @@ void func_806BD7B0(void) {
                 p = ((R1C0C1Act178 *)st->unk4)->unk178;
                 p->unk0->unk80 += 5.0;
                 if (st->unk0 == 0x10E) {
-                    func_8073129C(0x315, 1, 0);
+                    flagSet(0x315, 1, 0);
                     func_80712524(D_80750664[14], D_80750664[15]);
                 }
             }
@@ -343,7 +343,7 @@ void func_806BD7B0(void) {
             st->unk0++;
             if (limit == st->unk0) {
                 if (st->unk2 == 2 || st->unk2 == 7) {
-                    func_8073129C(st->unk2 + 0x1BC, 1, 0);
+                    flagSet(st->unk2 + 0x1BC, 1, 0);
                     if (func_806BDD2C() == 0) {
                         func_8061CB08();
                         sfxStopChannel(0x7D, 1);
@@ -365,7 +365,7 @@ s32 func_806BDD2C(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        if (func_8073110C(i + 0x1BC, 0) == 0) {
+        if (flagGet(i + 0x1BC, 0) == 0) {
             return 0;
         }
     }

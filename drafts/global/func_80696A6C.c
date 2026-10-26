@@ -59,7 +59,7 @@ extern f32 D_80770BC0[];
 void func_80604CBC(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void func_80605314(Actor *, s32);
 void func_8067E278(s32, s32);
-void func_807248B0(Actor *, f32);
+void actorSetUniformScale(Actor *, f32);
 f32 func_80665E94(f32, f32, f32, f32, f32, f32, s32);
 f32 func_80612794(s16);
 void func_807149A8(s32);
@@ -91,7 +91,7 @@ void func_80696A6C(void) {
         }
         sp44->unk10 = 0xF;
         sp44->unk11 = 0;
-        func_807248B0(D_807FBB40, (f64)M93K_ACTOR->unk124->unkC * 0.15);
+        actorSetUniformScale(D_807FBB40, (f64)M93K_ACTOR->unk124->unkC * 0.15);
     }
     sp44->unk11++;
     if (sp44->unk10 < sp44->unk11) {

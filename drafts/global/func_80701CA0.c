@@ -1,7 +1,7 @@
 // func_80701CA0 (src/global/103AB0.c): Stage 2 m2c reconstruction; behavior decoded from local asm, but frame/register allocation and typed local views still need work.
 void *func_805FCFD8(s32);                           /* extern */
 void *func_80610FE8(?);                             /* extern */
-s32 func_8073110C(?, ?);                            /* extern */
+s32 flagGet(?, ?);                            /* extern */
 ? heapFreeDeferred(void *);                         /* extern */
 extern ? D_2000000;
 extern ? D_2000080;
@@ -210,7 +210,7 @@ block_39:
         break;
     case 0x1E:                                      /* switch 1 */
         temp_v0_3 = D_807FC924->unk290;
-        if (((temp_v0_3 == 9) || (temp_v0_3 == 0xA)) && (func_8073110C(0x9C, 0) != 0)) {
+        if (((temp_v0_3 == 9) || (temp_v0_3 == 0xA)) && (flagGet(0x9C, 0) != 0)) {
 
         } else {
         case 0x1F:                                  /* switch 1 */

@@ -62,7 +62,7 @@ void func_8067DCC0(void);
 void func_80685210(f32, s16, s16);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
-u32 func_8072AB74(u32, f32, f32, u16, f32);
+u32 actorMoveWithinZone(u32, f32, f32, u16, f32);
 void func_8072C918(s32, s32, s32);
 void func_80665564(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -146,7 +146,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
         } else {
             x = 2;
         }
-        func_8072AB74(0x33, D_807FDC94->unk7C, D_807FDC94->unk84, x, 6.0f);
+        actorMoveWithinZone(0x33, D_807FDC94->unk7C, D_807FDC94->unk84, x, 6.0f);
         if (D_807FBB40->unk58 == 0xB6) {
             func_8072C918(arg0, 0x24E, 0x24D);
         }
@@ -222,7 +222,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             sel = BA790A->unk155;
         }
         if (sel < 4) {
-            func_8072AB74(0x33, D_807FDC94->unk7C, D_807FDC94->unk84, 0x20, 6.0f);
+            actorMoveWithinZone(0x33, D_807FDC94->unk7C, D_807FDC94->unk84, 0x20, 6.0f);
             sel = BA790A->unk155;
         }
         switch (sel) {
@@ -271,10 +271,10 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
 }
 
 s32 func_806B5A90();
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 
 void func_806B63E0(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     func_806B5A90(0x2710, 0);
 }
 
@@ -292,7 +292,7 @@ void func_806B640C(void) {
     s32 sel;
     s32 a;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorClearNodeFlag(D_807FBB40, 3);
         *p = -BA790S9C->unkA;

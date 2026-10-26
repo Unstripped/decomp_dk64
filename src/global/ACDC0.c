@@ -125,8 +125,8 @@ s32 func_806FACE8(s32);
 f32 func_806119FC(void);
 f32 sqrtf(f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
-s32 func_8073110C(s16, s32);
-s32 func_80731AA8(s32, s32, s32);
+s32 flagGet(s16, s32);
+s32 flagCountRange(s32, s32, s32);
 void actorSpawn(s32, s32);
 void actorDespawn(Actor *);
 char *func_8070E750(s32, s32, s32);
@@ -209,7 +209,7 @@ void func_807127B4();
 s32 func_806C8DE0();
 s32 func_806CC10C(s16, s16);
 void func_80600044();
-void func_8073129C(s32, s32, s32);
+void flagSet(s32, s32, s32);
 void func_806ABE3C();
 s32 func_806ABC94();
 Gfx *hudDrawDimOverlay(Gfx *, Actor *);
@@ -267,7 +267,7 @@ void func_806A8158(void) {
         D_807FC8B8 = 0;
         D_80750580 = 1;
         D_807505D0 = 7;
-        while (D_807505D0 >= 0 && func_8073110C(D_807505D0 + 0x1C5, 0) == 0) {
+        while (D_807505D0 >= 0 && flagGet(D_807505D0 + 0x1C5, 0) == 0) {
             D_807505D0--;
         }
         D_807505D0++;
@@ -400,7 +400,7 @@ void func_806A8158(void) {
                         } else if (func_805FEF74(D_8076A0A8) == 0) {
                             x = D_807FBB64 & 1;
                             if (x != 0 && a2 == 8) {
-                                func_8073129C(0x5C, 1, 2);
+                                flagSet(0x5C, 1, 2);
                                 func_805FF378(0x22, 0xC);
                             } else if (x != 0 && D_8076A0A8 != 0x3C) {
                                 func_805FF378(0x2A, 2);
@@ -734,8 +734,8 @@ f32 func_80612E40(f32);
 s32 func_806C8DE0(s32);
 s32 func_806F6E58(s32);
 s32 func_806FA7A4(s32);
-s32 func_807319D8(s32, s32, s32);
-s32 func_80731A04(s32, s32, s32, s32);
+s32 flagGridIndex(s32, s32, s32);
+s32 flagGridSumRows(s32, s32, s32, s32);
 void func_806AB4EC(ACDC0HudEntry *, s32, s32, s32, f32, u8, s32);
 void func_806AB808(ACDC0HudEntry *, s16, s16, s16, s16, s32, s32, s32);
 
@@ -787,11 +787,11 @@ void func_806AA304(arg0, arg1)
         if (idx >= 9) {
             idx = 7;
         }
-        if (idx != 7 && func_8073110C(0x18B, 0)) {
+        if (idx != 7 && flagGet(0x18B, 0)) {
             func_806AB808(arg0, 0x1E, 0x1E, 0xC, -0xA, e2->unkA[idx], 1, 0);
             func_806AB4EC(arg0, 0, 0x1E, 0x1E, 0.75f, 2, 1);
         }
-        if (func_8073110C(0x184, 0)) {
+        if (flagGet(0x184, 0)) {
             func_806AB808(arg0, 0x1E, 0x5A, 0xC, -0xA, D_807FCC44, 1, 1);
             func_806AB4EC(arg0, 4, 0x1E, 0x5A, 0.75f, 2, 1);
         }
@@ -804,7 +804,7 @@ void func_806AA304(arg0, arg1)
             func_806AB808(arg0, 0x1E, 0xA0, 0xC, -0xA, (s32)func_80612E40((f32)(u32)D_807FCC46 / f), 1, 1);
             func_806AB4EC(arg0, 5, 0x1E, 0xA0, 0.65f, 2, 1);
         }
-        if (func_8073110C(0x18C, 0)) {
+        if (flagGet(0x18C, 0)) {
             func_806AB808(arg0, 0x122, 0x5A, -0xF, -0xA, e2->unk6, 1, 0x80);
             func_806AB4EC(arg0, 1, 0x122, 0x5A, 0.75f, 2, 1);
         }
@@ -812,7 +812,7 @@ void func_806AA304(arg0, arg1)
             func_806AB808(arg0, 0x122, 0x7D, -0xC, -0xA, ent->unk8, 2, 0x81);
             func_806AB4EC(arg0, 7, 0x122, 0x7D, 0.75f, 2, 7);
         }
-        if (func_8073110C(0x179, 0)) {
+        if (flagGet(0x179, 0)) {
             func_806AB808(arg0, 0x122, 0xA0, -0xC, -0xA, D_807FCC48, 1, 0x81);
             func_806AB4EC(arg0, 6, 0x122, 0xA0, 0.65f, 2, 1);
         }
@@ -835,10 +835,10 @@ void func_806AA304(arg0, arg1)
                 if (idx != 8) {
                     D_807FC80F = (L9ENT(D_8074E77C)->unkA[idx] + L9ENT(D_8074E77C)->unk26[idx]) >= 0x4B;
                 } else {
-                    D_807FC80F = func_80731A04(0x225, i, i, D_8074E77C);
+                    D_807FC80F = flagGridSumRows(0x225, i, i, D_8074E77C);
                 }
                 func_806AB4EC(arg0, 0xA, 0x113, 0x7D, 0.75f, 2, 2);
-                if (func_80731A04(0x225, i, i, D_8074E77C)) {
+                if (flagGridSumRows(0x225, i, i, D_8074E77C)) {
                     func_806AB4EC(arg0, (s32)&D_80721518, 0x113, 0x7D, 0.35f, 2, 0xD);
                 }
             }
@@ -859,15 +859,15 @@ void func_806AA304(arg0, arg1)
             func_806AB4EC(arg0, 9, 0x91, 0xCB, 1.0f, 2, 2);
             sum = 0;
             for (i = 0; i < 5; i++) {
-                if (func_80731A04(0x1D5, 0, 7, i)) {
+                if (flagGridSumRows(0x1D5, 0, 7, i)) {
                     sum = 1;
                 }
             }
             if (sum) {
-                D_807FC80F = func_8073110C(func_807319D8(0x1D5, idx, D_8074E77C), 0);
+                D_807FC80F = flagGet(flagGridIndex(0x1D5, idx, D_8074E77C), 0);
                 i = 0;
                 func_806AB4EC(arg0, 0xC, 0x26, 0x7D, 0.75f, 2, 2);
-                if (func_8073110C(func_807319D8(0x1FD, idx, D_8074E77C), 0)) {
+                if (flagGet(flagGridIndex(0x1FD, idx, D_8074E77C), 0)) {
                     func_806AB4EC(arg0, (s32)&D_80721518, 0x26, 0x7D, 0.35f, 2, 0xD);
                 }
             }
@@ -896,7 +896,7 @@ void func_806AA304(arg0, arg1)
             if (func_805FF030(D_80755DA8[i].unk0, 1) == idx) {
                 xs = D_80755DA8[i].unk4;
                 if (xs >= 0x24D && xs < 0x261 && cnt8 < 4) {
-                    found[cnt8++] = func_8073110C(xs, 0);
+                    found[cnt8++] = flagGet(xs, 0);
                 }
             }
         }
@@ -913,19 +913,19 @@ void func_806AA304(arg0, arg1)
                 if (idx != 8) {
                     D_807FC80F = (L9ENT(i)->unkA[idx] + L9ENT(i)->unk26[idx]) >= 0x4B;
                 } else {
-                    D_807FC80F = func_80731A04(0x225, j, j, i);
+                    D_807FC80F = flagGridSumRows(0x225, j, j, i);
                 }
                 func_806AB4EC(arg0, 0xA, D_807505A4[i], 0, 0.75f, 2, 3);
-                if (func_80731A04(0x225, j, j, i)) {
+                if (flagGridSumRows(0x225, j, j, i)) {
                     func_806AB4EC(arg0, (s32)&D_80721518, D_807505A4[i], 0, 0.35f, 2, 0xE);
                 }
                 i++;
             } while (i != 5);
             if (D_807FC82A > 0) {
-                D_807FC80F = func_8073110C(D_807505B8[idx], 0);
+                D_807FC80F = flagGet(D_807505B8[idx], 0);
                 func_806AB4EC(arg0, (s32)&D_807210EC, 0xA0, 0x78, 1.0f, 2, 4);
             }
-            if (func_8073110C(0x179, 0)) {
+            if (flagGet(0x179, 0)) {
                 D_807FC80F = found[0];
                 func_806AB4EC(arg0, (s32)&D_80721094, 0x3C, 0x78, 1.0f, 2, 6);
                 D_807FC80F = found[1];
@@ -933,12 +933,12 @@ void func_806AA304(arg0, arg1)
             }
         } else {
             if (D_807FC82A > 0) {
-                D_807FC80F = func_8073110C(D_807505B8[idx], 0);
+                D_807FC80F = flagGet(D_807505B8[idx], 0);
                 func_806AB4EC(arg0, (s32)&D_807210EC, 0xA0, 0x55, 1.0f, 2, 4);
-                D_807FC80F = func_8073110C(D_807505CA, 0);
+                D_807FC80F = flagGet(D_807505CA, 0);
                 func_806AB4EC(arg0, (s32)&D_807210EC, 0xA0, 0x91, 1.0f, 2, 4);
             }
-            if (func_8073110C(0x179, 0)) {
+            if (flagGet(0x179, 0)) {
                 D_807FC80F = found[0];
                 func_806AB4EC(arg0, (s32)&D_80721094, 0x3C, 0x5A, 1.0f, 2, 6);
                 D_807FC80F = found[1];
@@ -1263,28 +1263,28 @@ void func_806ABE3C(void) {
     D_807FC828 = n;
     n = 0;
     p = D_80744710; do {
-        if (func_8073110C(*p, 0) != 0) {
+        if (flagGet(*p, 0) != 0) {
             n++;
         }
         p++;
     } while (p < D_80744720);
     D_807FC82C = n;
-    D_807FC832 = func_80731AA8(0x24D, 0x14, 0);
-    D_807FC82E = func_80731AA8(0x225, 0x28, 0);
+    D_807FC832 = flagCountRange(0x24D, 0x14, 0);
+    D_807FC82E = flagCountRange(0x225, 0x28, 0);
     m = 0;
     p = D_807505B8; do {
-        if (*p >= 0 && func_8073110C(*p, 0) != 0) {
+        if (*p >= 0 && flagGet(*p, 0) != 0) {
             m++;
         }
         p++;
     } while (p < D_807505CC);
     D_807FC82A = m;
-    D_807FC834 = func_8073110C(0x84, 0);
-    D_807FC830 = func_8073110C(0x17B, 0);
-    D_807FC836 = func_80731AA8(0x1FD, 0x28, 0);
+    D_807FC834 = flagGet(0x84, 0);
+    D_807FC830 = flagGet(0x17B, 0);
+    D_807FC836 = flagCountRange(0x1FD, 0x28, 0);
     D_80750530 = 1;
     for (i = 0; i < 4; i++) {
-        D_80750531[i] = func_8073110C(D_807505B2[i - 1], 0);
+        D_80750531[i] = flagGet(D_807505B2[i - 1], 0);
     }
     D_807FC838 = 1;
 }

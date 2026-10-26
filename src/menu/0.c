@@ -264,12 +264,12 @@ extern u8 D_8074E77C;
 extern s16 D_8076AEF2;
 
 void func_806F397C(void *, s32, s32, s32);
-void func_8073129C(s32, s32, s32);
-s32 func_8073110C(s32, s32);
-u8 func_80731AA8(s32, s32, s32);
-u8 func_80731A04(s32, s32, s32, u8);
+void flagSet(s32, s32, s32);
+s32 flagGet(s32, s32);
+u8 flagCountRange(s32, s32, s32);
+u8 flagGridSumRows(s32, s32, s32, u8);
 void func_80024788(MenuStruct_80024000 *);
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_806BFBF4(void);
 void func_806319C4(void *, s32);
 
@@ -286,16 +286,16 @@ void menuDispatchAction(void) {
     temp_s0 = D_807FBB40->unk180;
     if (!(D_807FBB40->unk60 & 0x10)) {
         sp20 = 1;
-        temp_s0->unk2 = func_80731AA8(0x1FD, 0x28, 0);
-        temp_s0->unk1A = func_80731A04(0x1D5, 0, 7, D_8074E77C);
-        temp_s0->unk1A -= func_80731A04(0x1FD, 0, 7, D_8074E77C);
+        temp_s0->unk2 = flagCountRange(0x1FD, 0x28, 0);
+        temp_s0->unk1A = flagGridSumRows(0x1D5, 0, 7, D_8074E77C);
+        temp_s0->unk1A -= flagGridSumRows(0x1FD, 0, 7, D_8074E77C);
         if (D_8076AEF2 != 0x1C) {
-            if (func_8073110C(0x174, 0) == 0) {
+            if (flagGet(0x174, 0) == 0) {
                 temp_s0->unk0 = 0;
                 temp_s0->unk1 = 0;
                 sp20 = 0;
                 func_806F397C(D_807FBB4C, 0, 0, 0);
-                func_8073129C(0x174, 1, 0);
+                flagSet(0x174, 1, 0);
             } else {
                 if (temp_s0->unk2 == 0x28) {
                     temp_s0->unk0 = 2;
@@ -346,7 +346,7 @@ void menuDispatchAction(void) {
         menuProcessOptionInput(temp_s0);
         break;
     }
-    func_80729B00();
+    behaviourFrameBegin();
     func_806BFBF4();
     func_806319C4(D_807FBB40, 0);
 }

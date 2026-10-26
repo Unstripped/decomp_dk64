@@ -45,14 +45,14 @@ s32 func_80629148();                                /* extern */
 ? func_807149B8(?);                                 /* extern */
 ? func_80714C08(? *, ?, void *, ?, s32);            /* extern */
 ? func_80714CC0(? *, ?, f32, f32, f32);             /* extern */
-? func_807248B0(void *, f32);                       /* extern */
+? actorSetUniformScale(void *, f32);                       /* extern */
 s32 func_80724A20();                                /* extern */
-? func_80729B00();                                  /* extern */
-? func_80729E6C();                                  /* extern */
+? behaviourFrameBegin();                                  /* extern */
+? actorApplyGravity();                                  /* extern */
 ? func_8072A450();                                  /* extern */
 ? func_8072E1A4(?, void *, ?, void **);             /* extern */
-? func_8072EC94(s16, ?);                            /* extern */
-s32 func_8073110C(?, ?);                            /* extern */
+? volumeTriggerSetEnabled(s16, ?);                            /* extern */
+s32 flagGet(?, ?);                            /* extern */
 extern ? D_80035B84;
 extern ? D_80035B98;
 extern ? D_80035BD8;
@@ -149,12 +149,12 @@ void func_80033AF0(void) {
         sp83 = 0;
     }
     sp7F = 0;
-    func_80729B00();
+    behaviourFrameBegin();
     func_8067ACB4(D_807FBB40);
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unkCC = 1;
         D_807FBB40->unk144 = 0x24;
-        if (func_8073110C(0x6A, 2) != 0) {
+        if (flagGet(0x6A, 2) != 0) {
             func_80614EBC(D_807FBB40, 0x226);
             func_8061CC40(D_807FBB40, 0x14, 1);
             sp88->unk0 = 9U;
@@ -166,7 +166,7 @@ void func_80033AF0(void) {
         } else {
             D_807FBB40->unk146 = 0;
             D_807FDC90->unk30 = (f32) D_807FBB40->unk4->unk38;
-            func_807248B0(D_807FBB40, (f32) ((f64) D_807FDC90->unk30 * 0.333));
+            actorSetUniformScale(D_807FBB40, (f32) ((f64) D_807FDC90->unk30 * 0.333));
             D_807FBB40->unk154 = 0x1EU;
             D_807FBB40->unk155 = 0U;
             D_807FBB40->unk80 = (f32) (D_807FBB40->unk80 + 650.0f);
@@ -294,7 +294,7 @@ block_200:
         case 0:                                     /* switch 2 */
             func_80684A00(4, 1);
             sp7F = 1;
-            func_80729E6C();
+            actorApplyGravity();
             func_806653C0(D_807FBB40, 0, D_807FBB40->unkC0);
             func_80665564(D_807FBB40, 0);
             var_s0 = D_807FBB40;
@@ -362,7 +362,7 @@ block_200:
         case 9:                                     /* switch 2 */
             temp_fv0 = var_s0->unk4->unk38;
             if (temp_fv0 < D_807FDC90->unk30) {
-                func_807248B0(var_s0, (f32) ((f64) temp_fv0 * 1.01));
+                actorSetUniformScale(var_s0, (f32) ((f64) temp_fv0 * 1.01));
                 func_800336C0();
                 sp7F = 1;
             } else {
@@ -724,7 +724,7 @@ block_131:
                 var_s0_4 = 0;
                 D_807FBB40->unk154 = 0x40U;
                 do {
-                    func_8072EC94(var_s0_4, 0);
+                    volumeTriggerSetEnabled(var_s0_4, 0);
                     var_s0_4 += 1;
                 } while (var_s0_4 < 7);
             }

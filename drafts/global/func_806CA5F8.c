@@ -111,7 +111,7 @@ void func_806CF580(void);
 void func_806CF9CC(void);
 void sfxStopChannel(s32, s32);
 void func_806F4D70(u8, f32, f32, f32, f32);
-void func_8072F120(void);
+void proxPathUpdateAllPlayers(void);
 s32 collisionGetHitStatus();
 u8 func_80666A94();
 u8 func_80666AA0();
@@ -213,7 +213,7 @@ void func_806CA5F8(s32 arg0) {
         LCA_P->unkCA = LCA_P->unkCA - 1;
     }
     if (D_807FBB40->unk68 & 0x20) {
-        func_8072F120();
+        proxPathUpdateAllPlayers();
     }
     func_806F4D70(D_807FC929, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, D_807FBB40->unk4->unk38 / 0.15 * 20.0);
     if (D_807FC928 == 1) {
@@ -262,7 +262,7 @@ void func_806CA5F8(s32 arg0) {
             } else {
                 s8 w = LCA_P->unk249;
                 if (w > 0) {
-                    sp64 = func_807270C0(w, 0);
+                    sp64 = spawnNodeActivate(w, 0);
                 }
             }
         }
@@ -370,7 +370,7 @@ done:
     }
     if ((D_807FBB40->unk7C < (f32)D_807F5FE4 || D_807FBB40->unk84 < (f32)D_807F5FE6 || (f32)D_807F5FE8 < D_807FBB40->unk7C || (f32)D_807F5FEA < D_807FBB40->unk84 || sp68 != 0) && LCA_P->unk244 == 0 && (u32)D_8076A064 >= 0x65 && !(D_807FBB64 & 0x4000) && D_8076A0A8 != 0xE) {
         if (D_807FC928 == 1) {
-            if (func_8073110C(0x186, 0) == 0) {
+            if (flagGet(0x186, 0) == 0) {
                 func_805FF188(0xB0, 1);
             }
             if (!D_807FC929 && !D_807FC929) {

@@ -77,17 +77,17 @@ extern Boss2E_C920_D580 *D_807FD580;
 extern Boss2E_C920_DC98 *D_807FDC98;
 extern Boss2E_C920_DC9C *D_807FDC9C;
 
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 void func_80028878(u8 *);
 void func_80626110(void *, s32, s32);
 void func_80724CA4(s32, s32);
 void func_806D0430(f32);
 void func_800290D4(s32);
-void func_8073129C(s32, s32, s32);
+void flagSet(s32, s32, s32);
 void func_8061CC40(void *, s32, s32);
 void func_80641874(s32, s32);
-void func_8072B324(void *, s32);
-void func_8072AB74(s32, f32, f32, s32, f32);
+void actorSetTargetSpeed(void *, s32);
+void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void func_80614D00(void *, f32, f32);
 void func_80614EBC(void *, s32);
 s32 func_8061CB50(void);
@@ -117,7 +117,7 @@ void func_80030EC4(void) {
     actor = (Boss2E_C920_Actor *)D_807FBB40;
     sp178 = actor->unk178;
     sp28 = D_80035AC0[sp178->unk14];
-    func_80729B00();
+    behaviourFrameBegin();
     func_80028878(sp28);
     actor = (Boss2E_C920_Actor *)D_807FBB40;
     if (!(actor->unk60 & 0x10)) {
@@ -132,7 +132,7 @@ void func_80030EC4(void) {
         actor->unk60 &= ~0x8000;
         func_806D0430(0.45f);
         func_800290D4(0);
-        func_8073129C(0x5F, 0, 2);
+        flagSet(0x5F, 0, 2);
         actor = (Boss2E_C920_Actor *)D_807FBB40;
     }
     if (D_807FDC90->unk1A & 1) {
@@ -155,7 +155,7 @@ void func_80030EC4(void) {
         }
     }
     if ((D_807FC924->unk2C0 == 1 || actor->unk154 == 0x42 || actor->unk154 == 0x27) && actor->unk144 == 1) {
-        func_8072B324(D_807FBB40, 0);
+        actorSetTargetSpeed(D_807FBB40, 0);
         actor->unk154 = 0x29;
         actor->unk155 = 1;
     }
@@ -163,7 +163,7 @@ void func_80030EC4(void) {
     case 0x29:
         switch (actor->unk155) {
         case 0:
-            func_8072AB74(0, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x309, 0.0f);
+            actorMoveWithinZone(0, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x309, 0.0f);
             break;
         case 1:
             if (sp178->unk14 >= 2) {
@@ -196,7 +196,7 @@ void func_80030EC4(void) {
                     func_80614EBC(D_807FBB4C, 0);
                     func_80614EBC(D_807FBB40, 0);
                     func_8061CC40(D_807FBB40, 0x16, 1);
-                    func_8073129C(0x1B0, 1, 0);
+                    flagSet(0x1B0, 1, 0);
                 }
             } else {
                 actor->unk132 = 1;
@@ -230,7 +230,7 @@ void func_80030EC4(void) {
         case 12:
             if (func_8061CB50() == 0) {
                 func_806D0468(D_807FBB4C, 1);
-                func_8072B324(D_807FBB40, D_807FDC9C->unkC);
+                actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
                 if (actor->unk132 != 1) {
                     if (func_806C9974(0, -1) != 0) {
                         func_80614E78(D_807FBB4C, 0x27);
@@ -269,12 +269,12 @@ void func_80030EC4(void) {
             } else {
                 func_80614EBC(D_807FBB40, 0x402);
             }
-            func_8072B324(D_807FBB40, 0);
+            actorSetTargetSpeed(D_807FBB40, 0);
             actor->unk155++;
             break;
         case 1:
             actor->unkE6 = func_806CC190(actor->unkE6, (s16)(actor->unkEC + 0x800), 0x41200000);
-            func_8072AB74(0, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x309, 0.0f);
+            actorMoveWithinZone(0, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x309, 0.0f);
             break;
         case 2:
             actor->unkEE = actor->unkE6;
@@ -282,13 +282,13 @@ void func_80030EC4(void) {
             actor->unk155++;
             /* fallthrough */
         case 3:
-            func_8072AB74(0, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x309, 0.0f);
+            actorMoveWithinZone(0, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x309, 0.0f);
             break;
         case 4:
             actor->unkB8 = actor->unkB8;
             actor->unkE6 = actor->unkEC + 0x800;
             actor->unkEE = actor->unkE6;
-            func_8072B324(D_807FBB40, D_807FDC9C->unkC);
+            actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
             actor->unk154 = sp28[sp178->unk15++];
             actor->unk155 = 0;
             break;

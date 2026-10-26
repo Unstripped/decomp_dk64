@@ -5,7 +5,7 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB48;
 extern void *D_807FC924;
 
-typedef struct H1ProxSub {
+typedef struct ProxPathSegment {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
     /* 0x02 */ u8 pad2[2];
@@ -18,9 +18,9 @@ typedef struct H1ProxSub {
     /* 0x16 */ s16 unk16;
     /* 0x18 */ u8 unk18;
     /* 0x19 */ u8 pad19[3];
-} H1ProxSub; // size = 0x1C
+} ProxPathSegment; // size = 0x1C
 
-typedef struct H1ProxNode {
+typedef struct ProxPath {
     /* 0x00 */ Actor *unk0;
     /* 0x04 */ u8 unk4;
     /* 0x05 */ u8 unk5;
@@ -40,20 +40,20 @@ typedef struct H1ProxNode {
     /* 0x30 */ u8 unk30;
     /* 0x31 */ u8 unk31;
     /* 0x32 */ u8 pad32[2];
-    /* 0x34 */ H1ProxSub *unk34;
-    /* 0x38 */ struct H1ProxNode *next;
-} H1ProxNode; // size = 0x3C
+    /* 0x34 */ ProxPathSegment *unk34;
+    /* 0x38 */ struct ProxPath *next;
+} ProxPath; // size = 0x3C
 
-extern H1ProxNode *D_807FDCC0;
+extern ProxPath *D_807FDCC0;
 void *func_80610FE8(s32);
 void heapFree(void *);
 
-void func_8072ED90(void) {
+void proxPathListClear(void) {
     D_807FDCC0 = NULL;
 }
 
-void func_8072ED9C(Actor *arg0, u8 arg1, u8 arg2) {
-    H1ProxNode *node;
+void proxPathSetEnabled(Actor *arg0, u8 arg1, u8 arg2) {
+    ProxPath *node;
     s32 found;
 
     node = D_807FDCC0;
@@ -71,7 +71,7 @@ void func_8072ED9C(Actor *arg0, u8 arg1, u8 arg2) {
 }
 
 void func_8072EE0C(Actor *arg0, u8 arg1, u8 arg2) {
-    H1ProxNode *node;
+    ProxPath *node;
     s32 found;
 
     node = D_807FDCC0;
@@ -88,9 +88,9 @@ void func_8072EE0C(Actor *arg0, u8 arg1, u8 arg2) {
     }
 }
 
-void func_8072EE7C(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 argA, u8 argB, f32 argC, f32 argD, u8 argE) {
-    H1ProxNode **tail;
-    H1ProxNode *node;
+void proxPathAdd(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 argA, u8 argB, f32 argC, f32 argD, u8 argE) {
+    ProxPath **tail;
+    ProxPath *node;
 
     tail = &D_807FDCC0;
     node = D_807FDCC0;
@@ -119,8 +119,8 @@ void func_8072EE7C(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, f3
     node->unk34 = func_80610FE8(arg4 * 0x1C);
 }
 
-void func_8072EF7C(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, f32 arg6, f32 arg7, u8 arg8, s16 arg9, s16 argA, s16 argB, s16 argC) {
-    H1ProxNode *node;
+void proxPathSetSegment(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, f32 arg6, f32 arg7, u8 arg8, s16 arg9, s16 argA, s16 argB, s16 argC) {
+    ProxPath *node;
     s32 found;
 
     node = D_807FDCC0;
@@ -146,10 +146,10 @@ void func_8072EF7C(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, f3
     }
 }
 
-void func_8072F09C(Actor *arg0) {
-    H1ProxNode **prev;
-    H1ProxNode *node;
-    H1ProxNode *next;
+void proxPathRemoveActor(Actor *arg0) {
+    ProxPath **prev;
+    ProxPath *node;
+    ProxPath *next;
 
     prev = &D_807FDCC0;
     node = *prev;
@@ -166,25 +166,25 @@ void func_8072F09C(Actor *arg0) {
     }
 }
 
-typedef struct H1Player {
+typedef struct PlayerSlot {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 pad1[3];
     /* 0x004 */ Actor *unk4;
     /* 0x008 */ u8 pad8[0x2E8];
-} H1Player; // size = 0x2F0
+} PlayerSlot; // size = 0x2F0
 
 extern u8 D_807FC928;
 extern u32 D_807FBB64;
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 s32 func_807142D8(void);
-void func_8072F230(Actor *, u8, u8);
+void proxPathAttachNearestToPlayer(Actor *, u8, u8);
 
-void func_8072F120(void) {
+void proxPathUpdateAllPlayers(void) {
     u8 i;
 
     for (i = 0; i < D_807FC928; i++) {
-        if (((H1Player *)D_807FC924)[i].unk0 != 0) {
-            func_8072F230(((H1Player *)D_807FC924)[i].unk4, i, func_8073110C(0x183, 0) || (D_807FBB64 & 0x10000000) || D_807FC928 >= 2 || func_807142D8());
+        if (((PlayerSlot *)D_807FC924)[i].unk0 != 0) {
+            proxPathAttachNearestToPlayer(((PlayerSlot *)D_807FC924)[i].unk4, i, flagGet(0x183, 0) || (D_807FBB64 & 0x10000000) || D_807FC928 >= 2 || func_807142D8());
         }
     }
 }
@@ -214,19 +214,19 @@ typedef struct H1ActorState {
 } H1ActorState;
 
 f32 sqrtf(f32);
-u8 func_8072F4A8(Actor *, u8, f32 *, f32 *, f32 *);
-s32 func_8072F59C(Actor *, H1ProxNode *, f32 *, u8 *);
-f32 func_8072FA14(Actor *, H1ActorState *, H1ProxNode *, u8);
-void func_8072FCC4(H1ProxNode *, u8, f32, f32 *);
+u8 proxPathGetActorPosition(Actor *, u8, f32 *, f32 *, f32 *);
+s32 proxPathFindNearestSegment(Actor *, ProxPath *, f32 *, u8 *);
+f32 proxPathAttachToSegment(Actor *, H1ActorState *, ProxPath *, u8);
+void proxPathGetDistanceAt(ProxPath *, u8, f32, f32 *);
 void playerStateQueueCallback(s32, void *, s32);
 
-void func_8072F230(Actor *arg0, u8 arg1, u8 arg2) {
+void proxPathAttachNearestToPlayer(Actor *arg0, u8 arg1, u8 arg2) {
     f32 dx;
     f32 x;
     f32 y;
     f32 z;
-    H1ProxNode *node;
-    H1ProxNode *best;
+    ProxPath *node;
+    ProxPath *best;
     f32 d;
     f32 bestDist;
     s32 isPlayer;
@@ -248,7 +248,7 @@ void func_8072F230(Actor *arg0, u8 arg1, u8 arg2) {
         isPlayer = ((H1PlayerBlock *)D_807FC924)[state->unk1A4].unk2C0 == 2;
     }
     while (node != NULL) {
-        got = func_8072F4A8(node->unk0, node->unk4, &x, &y, &z);
+        got = proxPathGetActorPosition(node->unk0, node->unk4, &x, &y, &z);
         dx = arg0->unk7C - x;
         dy = arg0->unk80 - y;
                 dz = arg0->unk84 - z;
@@ -256,7 +256,7 @@ void func_8072F230(Actor *arg0, u8 arg1, u8 arg2) {
         if (dist < node->unk1C && node->unk31 != 0) {
             if (node->unk6 == 1 || (arg2 != 0 && (node->unk0->unk60 & 0x04000000))) {
                 if (got == 0 || !(u8)isPlayer) {
-                    if (func_8072F59C(arg0, node, &d, &sub)) {
+                    if (proxPathFindNearestSegment(arg0, node, &d, &sub)) {
                         if (d < bestDist) {
                             bestDist = d;
                             best = node;
@@ -269,7 +269,7 @@ void func_8072F230(Actor *arg0, u8 arg1, u8 arg2) {
         node = node->next;
     }
     if (best != NULL) {
-        func_8072FCC4(best, bestSub, func_8072FA14(arg0, state, best, bestSub), &out);
+        proxPathGetDistanceAt(best, bestSub, proxPathAttachToSegment(arg0, state, best, bestSub), &out);
         state->unk138 = out;
         state->unk130 = best->unk0;
         state->unk134 = best->unk5;
@@ -304,7 +304,7 @@ typedef struct H1SlotEntry {
 extern H1SlotEntry *D_807F6000;
 s32 hashTableLookup();
 
-u8 func_8072F4A8(Actor *arg0, u8 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
+u8 proxPathGetActorPosition(Actor *arg0, u8 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     s16 slot;
     u8 ret;
 
@@ -336,9 +336,9 @@ extern s16 D_807FD584;
 extern s16 D_80753B74[];
 s32 mathAngleDistance(s16, s16);
 f32 func_80611BB4(f32, f32);
-s32 func_8072F8D4(H1ProxNode *, s32, s16);
+s32 func_8072F8D4(ProxPath *, s32, s16);
 
-s32 func_8072F59C(Actor *arg0, H1ProxNode *arg1, f32 *arg2, u8 *arg3) {
+s32 proxPathFindNearestSegment(Actor *arg0, ProxPath *arg1, f32 *arg2, u8 *arg3) {
     s32 i;
     f32 bz;
     f32 by;
@@ -401,7 +401,7 @@ s32 func_8072F59C(Actor *arg0, H1ProxNode *arg1, f32 *arg2, u8 *arg3) {
 
 s32 func_806725E4(s16, s16, s16, s32);
 
-s32 func_8072F8D4(H1ProxNode *arg0, s32 arg1, s16 arg2) {
+s32 func_8072F8D4(ProxPath *arg0, s32 arg1, s16 arg2) {
     s16 slot;
     s32 delta;
 
@@ -422,7 +422,7 @@ s32 func_8072F8D4(H1ProxNode *arg0, s32 arg1, s16 arg2) {
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 void *memcpy(void *, const void *, unsigned int);
 
-f32 func_8072FA14(Actor *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3) {
+f32 proxPathAttachToSegment(Actor *arg0, H1ActorState *arg1, ProxPath *arg2, u8 arg3) {
     u8 idA;
     u8 idB;
     f32 bz;
@@ -478,7 +478,7 @@ f32 func_8072FA14(Actor *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3) {
     return t;
 }
 
-void func_8072FCC4(H1ProxNode *arg0, u8 arg1, f32 arg2, f32 *arg3) {
+void proxPathGetDistanceAt(ProxPath *arg0, u8 arg1, f32 arg2, f32 *arg3) {
     s32 i;
 
     *arg3 = 0.0f;
@@ -489,7 +489,7 @@ void func_8072FCC4(H1ProxNode *arg0, u8 arg1, f32 arg2, f32 *arg3) {
 }
 
 #ifdef NON_MATCHING
-void func_8072FDD4(H1ProxNode *arg0, f32 arg1, u8 *arg2, f32 *arg3) {
+void func_8072FDD4(ProxPath *arg0, f32 arg1, u8 *arg2, f32 *arg3) {
     u8 i;
     f32 rem;
     f32 prev;
@@ -538,9 +538,9 @@ extern H1CamState *D_807FD580;
 extern u32 D_80744478;
 void func_806CFF9C(Actor *);
 
-void func_8072FE60(f32 arg0) {
+void proxPathAdvance(f32 arg0) {
     f32 step;
-    H1ProxNode *node;
+    ProxPath *node;
     s32 found;
 
     node = D_807FDCC0;
@@ -602,17 +602,17 @@ typedef struct H1ActorB {
     /* 0x174 */ H1ActorState *unk174;
 } H1ActorB;
 
-void func_8072FDD4(H1ProxNode *, f32, u8 *, f32 *);
-void func_80730D60(Actor *, u8, u8, u8, void **, void **);
-void func_80730E18(Mtx *, Mtx *, f32, Mtx *);
-void func_80730408(H1ActorB *, H1ActorState *, H1ProxNode *, u8, f32);
+void func_8072FDD4(ProxPath *, f32, u8 *, f32 *);
+void proxPathGetSegmentMatrices(Actor *, u8, u8, u8, void **, void **);
+void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
+void func_80730408(H1ActorB *, H1ActorState *, ProxPath *, u8, f32);
 
 void func_807300BC(H1ActorB **arg0) {
     H1ActorB *actor;
     H1ActorState *state;
     u8 idx;
     f32 t;
-    H1ProxNode *node;
+    ProxPath *node;
     void *p128;
     void *p124;
     s32 found;
@@ -651,8 +651,8 @@ void func_807300BC(H1ActorB **arg0) {
     idB = node->unk34[idx].unk1;
     switch (node->unk6) {
     case 0:
-        func_80730D60(node->unk0, node->unk4, idA, idB, &p128, &p124);
-        func_80730E18(p128, p124, 1.0 - t, &mtx);
+        proxPathGetSegmentMatrices(node->unk0, node->unk4, idA, idB, &p128, &p124);
+        mtxLerpL(p128, p124, 1.0 - t, &mtx);
         guRotateF(m6, (s16)(0, (actor->unkE6 - state->unk130->unkE6) & 0xFFF) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
         guTranslateF(mA, 0.0f, state->unk138 + -80.0, 0.0f);
         guMtxCatF(m6, mA, mA);
@@ -693,7 +693,7 @@ void func_807300BC(H1ActorB **arg0) {
 
 f32 func_80627A00(f64, f32, f32, f32, f32);
 
-void func_80730AEC(u8 arg0, f32 arg1, H1ProxNode *arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
+void proxPathInterpolatePosition(u8 arg0, f32 arg1, ProxPath *arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
     u8 ids[4];
     f32 p[4][3];
 
@@ -725,7 +725,7 @@ s32 actorStepSubNodeList(void *, s32);
 void *func_8063367C(Actor *, s32, s32);
 void heapFreeDeferred(void *);
 
-void func_80730D60(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, void **arg4, void **arg5) {
+void proxPathGetSegmentMatrices(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, void **arg4, void **arg5) {
     void *tmp;
 
     switch (arg1) {
@@ -745,7 +745,7 @@ void func_80730D60(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, void **arg4, void **a
     }
 }
 
-void func_80730E18(Mtx *arg0, Mtx *arg1, f32 arg2, Mtx *arg3) {
+void mtxLerpL(Mtx *arg0, Mtx *arg1, f32 arg2, Mtx *arg3) {
     f32 m1[4][4];
     f32 m2[4][4];
     s32 i;

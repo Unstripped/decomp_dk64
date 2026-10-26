@@ -41,7 +41,7 @@ void func_806A2A10(s32, s32, s32);
 void func_8061CB08(void);
 void actorSetStateTwo(void *);
 void sfxAllocateChannel(s32, f32);
-void func_8073129C(s16, s32, s32);
+void flagSet(s16, s32, s32);
 s32 func_806FDB8C(s32, char *, s32, f32, f32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_805FF800(s32 *, s32 *);
@@ -153,7 +153,7 @@ void func_80029118(void) {
         temp_t3 = var_s0[0] + var_s0[1];
         var_s0[0] = temp_t3;
         if (temp_t3 != 0x0A78F00E) {
-            func_8073129C((D_8076A0A8 == 0xB6) ? 0x184 : 0x183, 0, 0);
+            flagSet((D_8076A0A8 == 0xB6) ? 0x184 : 0x183, 0, 0);
         }
         sp30 = D_807FBB40;
         break;
@@ -188,7 +188,7 @@ void func_80029118(void) {
                         sp70 = 0x185;
                         break;
                     }
-                    func_8073129C(sp70, 1, 0);
+                    flagSet(sp70, 1, 0);
                 }
                 D_807FCC44 = D_80029FA4;
                 func_806F8A8C(4, 0, D_80029FA4);

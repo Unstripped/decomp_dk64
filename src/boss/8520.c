@@ -25,7 +25,7 @@ extern BossA_Struct_807FBB44 *D_807FBB44;
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-void func_807271F4(s16, s16, s16, s16, s32, s32, s32);
+void spawnNodeSpawnById(s16, s16, s16, s16, s32, s32, s32);
 
 void func_8002C520(s16 arg0, s16 arg1, s16 arg2) {
     f32 pad;
@@ -34,7 +34,7 @@ void func_8002C520(s16 arg0, s16 arg1, s16 arg2) {
 
     sinVal = func_80612794(arg2);
     fArg1 = arg1;
-    func_807271F4(
+    spawnNodeSpawnById(
         arg0,
         sinVal * fArg1 + D_807FBB40->unk7C,
         D_807FDC9C->unk6,

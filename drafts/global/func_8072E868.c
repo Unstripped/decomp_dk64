@@ -42,7 +42,7 @@ typedef struct {
 extern F1Hook D_807557A0[];
 void *func_8066B0F8(s32, s32, s32, s32);
 s32 assetFreeBuffer(void *, s32, s32);
-s32 func_8072E7DC(s16, Actor **);
+s32 actorFindActiveByType(s16, Actor **);
 
 
 extern u8 D_807FBDC4;
@@ -50,8 +50,8 @@ extern s16 D_807FDCB8;
 extern s16 D_807FDCBA;
 extern s16 D_807FDCBC;
 void func_8067AB20(void *, void *, s32, s32, void *, s32);
-s32 func_8072EA90(F1Entry *);
-s32 func_8072EC94(s32, u8);
+s32 volumeTriggerUpdate(F1Entry *);
+s32 volumeTriggerSetEnabled(s32, u8);
 
 void func_8072E868(void) {
     s32 ua0;
@@ -67,10 +67,10 @@ void func_8072E868(void) {
         ptr = D_807FBB70.unk278[k];
         switch (D_807FBB70.unk258[k]) {
             case 1:
-                func_8072EC94(*ptr, 1);
+                volumeTriggerSetEnabled(*ptr, 1);
                 break;
             case 2:
-                func_8072EC94(*ptr, 0);
+                volumeTriggerSetEnabled(*ptr, 0);
                 break;
         }
     }
@@ -78,7 +78,7 @@ void func_8072E868(void) {
     if (0) {
     }
     for (i = 0; i < D_80755A14->count; i++, e++) {
-        if (func_8072EA90(e)) {
+        if (volumeTriggerUpdate(e)) {
             for (j = 0; j < e->unkE; j++) {
                 if (D_807557A0[e->subs[j].unk0].unkC == NULL || D_807557A0[e->subs[j].unk0].unkC()) {
                     flag = 0;

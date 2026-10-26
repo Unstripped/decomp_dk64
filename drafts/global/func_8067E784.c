@@ -144,7 +144,7 @@ void func_8067E784(void) {
                 ret = 0x10;
             }
             if (ret >= 0) {
-                func_8073129C(ret, 1, 1);
+                flagSet(ret, 1, 1);
             }
             playerState->unk1FD = 1;
         }

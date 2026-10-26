@@ -82,9 +82,9 @@ s32 func_80611A44(void);
 f32 func_80612D1C(f32);
 s32 mathAngleDistance(s16, s16);
 s32 func_807142D8(void);
-s32 func_8073110C(s32, s32);
-void func_8072EE7C(Actor *, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, f32, f32, s32);
-void func_8072EF7C(Actor *, s32, s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
+s32 flagGet(s32, s32);
+void proxPathAdd(Actor *, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, f32, f32, s32);
+void proxPathSetSegment(Actor *, s32, s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
 
 void func_80698120(s32 arg0) {
     L98120_Data *data;
@@ -111,15 +111,15 @@ void func_80698120(s32 arg0) {
         data->unk18 = 0.0f;
         data->unk24 = (f32)((f64)(s32)((func_80611A44() >> 15) % 100) / 1000.0 + 0.1);
         ((L98120_Sub4 *)D_807FBB40->unk4)->unk1C = func_80610FE8(0x80);
-        func_8072EE7C(D_807FBB40, 0, 0, 0, (u8)arg0, 0.0f, (f32)((f64)(u8)arg0 * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
+        proxPathAdd(D_807FBB40, 0, 0, 0, (u8)arg0, 0.0f, (f32)((f64)(u8)arg0 * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
         for (i = 1; i <= (u8)arg0; i++) {
-            func_8072EF7C(D_807FBB40, 0, (u8)(i - 1), (u8)i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);
+            proxPathSetSegment(D_807FBB40, 0, (u8)(i - 1), (u8)i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);
         }
         ((u8 *)D_807FBB40)[0x130] = 0x3C;
         ((u8 *)D_807FBB40)[0x131] = 0xC8;
         data->unk14 = 0;
         data->unk15 = 0;
-        data->unk28 = func_8073110C(0x183, 0) != 0 || (D_807FBB64 & 0x10000000) != 0 || func_807142D8() != 0;
+        data->unk28 = flagGet(0x183, 0) != 0 || (D_807FBB64 & 0x10000000) != 0 || func_807142D8() != 0;
     }
     if (D_807FBB4C->unk154 == 0x63 || data->unk28 == 0 ||
         (*(s32 *)D_807FBB40->unk124 == 1 && !(player->unk1F0 & 0x40))) {

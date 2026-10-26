@@ -20,9 +20,9 @@ s32 func_806832F4(s32 arg0, s32 arg1) {
     case 48:
         sp28 = func_805FEF10(&sp20);
         if (sp28 != 0) {
-            sp24 = func_8073110C(sp20.unk2, 0);
+            sp24 = flagGet(sp20.unk2, 0);
             if (arg1 != 0 && sp24 == 0) {
-                func_8073129C(sp20.unk2, 1, 0);
+                flagSet(sp20.unk2, 1, 0);
                 func_8061CC40(D_807FBB4C, 0x19, 4);
                 D_807FBB40->unk144 = 1;
                 D_807FBB40->unk155[0] = 0xB;

@@ -976,7 +976,7 @@ s32 func_8066B0F8(s32, s32, s32, s32);
 void func_80724D28(s32, s32);
 f32 func_80612794(s16);
 f32 func_80612790(s16);
-void func_807248B0(Actor *, f32);
+void actorSetUniformScale(Actor *, f32);
 extern u8 D_807503D4[];
 extern u8 D_807503E0[];
 
@@ -1014,7 +1014,7 @@ void func_806A112C(void) {
                     (f32) ((u8) (i % 3) * 17);
                 ATTACHED_ACTOR_SPAWNED->unk84 = ATTACHED_ACTOR->unk84 -
                     func_80612790(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
-                func_807248B0(D_807FBB44, ATTACHED_ACTOR->unk4->unk38);
+                actorSetUniformScale(D_807FBB44, ATTACHED_ACTOR->unk4->unk38);
                 animSetChannelFrames(D_807FBB44, D_807503D4[n], D_807503E0[n++]);
             }
             ATTACHED_ACTOR->unk7C -= d * func_80612794(ATTACHED_ACTOR->unkE6);

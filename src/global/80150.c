@@ -103,8 +103,8 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void func_8071ABDC(void);
 void func_8071B89C(void);
 void func_8071BB14(void);
-s32 func_8073110C(s16, s32);
-void func_8073129C(s16, s32, s32);
+s32 flagGet(s16, s32);
+void flagSet(s16, s32, s32);
 
 s32 func_8067B450(void *actor) {
     s32 count = 4;
@@ -113,7 +113,7 @@ s32 func_8067B450(void *actor) {
 
     for (i = 0; i < count; i++) {
         if (D_8076A0A8 == D_8074E7A0[i].map && val == D_8074E7A0[i].unk2) {
-            return func_8073110C(D_8074E7A0[i].unk4, 0);
+            return flagGet(D_8074E7A0[i].unk4, 0);
         }
     }
     return 0;
@@ -610,14 +610,14 @@ void func_80681B14(void) {
     TagBarrelState *sub = D_807FBB40->unk174;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
-        if (func_8073110C(0x302, 0) != 0) {
+        if (flagGet(0x302, 0) != 0) {
             actorDespawn(D_807FBB40);
             return;
         }
     }
     func_806809F0();
     if (D_807FBB40->unk154 == 0xC && sub->unkD < 3) {
-        func_8073129C(D_8074E7E0[sub->unkA], 1, 2);
+        flagSet(D_8074E7E0[sub->unkA], 1, 2);
         func_8067DCC0();
         actorDespawn(D_807FBB40);
     }
@@ -630,22 +630,22 @@ void func_80681BD8(void) {
     s32 i;
 
     func_806809F0();
-    if (func_8073110C(0x17F, 0) == 0) {
+    if (flagGet(0x17F, 0) == 0) {
         D_807FBB40->unk154 = 0x14;
         D_807FBB40->unk144 = 1;
         D_807FBB40->unk60 &= ~0x8000;
         D_807FBB40->unk128 = 0;
     } else {
-        if (func_8073110C(0x187, 0) == 0) {
+        if (flagGet(0x187, 0) == 0) {
             count = 0;
             if (D_807FBB40->unk154 == 0xB) {
                 i = 0;
                 do {
-                    count += (func_8073110C((s16)(i + 0x182), 0) != 0);
+                    count += (flagGet((s16)(i + 0x182), 0) != 0);
                 } while (++i != 4);
                 if (count == 4) {
                     func_8061CC40(D_807FBB4C, 3, 1);
-                    func_8073129C(0x187, 1, 0);
+                    flagSet(0x187, 1, 0);
                 }
             }
         }
@@ -663,7 +663,7 @@ void func_80681BD8(void) {
             sp28 = 0x185;
             break;
         }
-        if (func_8073110C(sp28, 0) != 0) {
+        if (flagGet(sp28, 0) != 0) {
             sub->unkC_b = 1;
             sub->unkA = 0;
             if (D_807FBB40->unk154 == 0) {
@@ -731,7 +731,7 @@ void tagBarrelSpawnKongs(R2FStruct_80682E38 *arg0) {
     D_807FBB44->unk84 = D_807FBB40->unk84 + func_80612790(D_807FBB40->unkE6) * 35.0f;
 
     for (i = 0; i < 5; i++) {
-        if (func_8073110C(func_805FF018(D_807FBB40->unk58, i), 0)) {
+        if (flagGet(func_805FF018(D_807FBB40->unk58, i), 0)) {
             actorType = 0x13C;
             model = ((R2FKongAction *)D_8074E814)[i].unk0;
         } else {
@@ -870,7 +870,7 @@ void tagBarrelInitUnlockedKongs(Actor *arg0) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        if (func_8073110C(func_805FF018(arg0->unk58, i), 0)) {
+        if (flagGet(func_805FF018(arg0->unk58, i), 0)) {
             func_8068A764(arg0, D_8074E814[i].unk4);
         }
     }

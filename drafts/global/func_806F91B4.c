@@ -10,8 +10,8 @@ typedef struct R2FCCD0eStatSlot {
 extern s32 func_805FEF10(s16 *);
 extern void func_80687C48(void);
 extern void func_806F8278(u8);
-extern void func_8073129C(s16, s32, s32);
-extern s16 func_807319D8(s32, s32, u8, s32);
+extern void flagSet(s16, s32, s32);
+extern s16 flagGridIndex(s32, s32, u8, s32);
 extern void sfxAllocateChannel(s32, f32);
 extern u8 D_8074E77C[];
 
@@ -54,14 +54,14 @@ void func_806F91B4(s32 arg0, u8 arg1, s16 arg2) {
                     *temp_v1_2 = temp_v0_2;
                 }
                 if ((sp24 == 0x180) && (func_805FEF10(&sp3C) != 0)) {
-                    func_8073129C(sp3C, 1, 0);
+                    flagSet(sp3C, 1, 0);
                 }
                 if ((arg2 > 0) && (sp24 == 0)) {
                     temp_v0_2 = func_805FF030(D_8076A0AB, 1);
                     temp_a3 = *(u16 *)(sp48 + (temp_v0_2 * 2) + 0x26) + *(u16 *)(sp48 + (temp_v0_2 * 2) + 0xA);
                     if ((temp_a3 >= 0x4B) && ((temp_a3 - arg2) < 0x4B)) {
                         sp38 = temp_a3;
-                        func_8073129C(func_807319D8(0x225, temp_v0_2, D_8074E77C[arg1], temp_a3), 1, 0);
+                        flagSet(flagGridIndex(0x225, temp_v0_2, D_8074E77C[arg1], temp_a3), 1, 0);
                         func_80687C48();
                     }
                     if ((temp_a3 == 0x64) && ((temp_a3 - arg2) < 0x64)) {

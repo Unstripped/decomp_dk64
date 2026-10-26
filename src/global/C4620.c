@@ -318,7 +318,7 @@ extern void *D_80746B80[];
 extern LgBFDCA0 *D_807FDCA0;
 
 void func_806F09F0(Actor *, u16);
-void func_8072B324(Actor *, s32);
+void actorSetTargetSpeed(Actor *, s32);
 void func_80614EBC(void *, s32);
 void func_80614D00(Actor *, f32, f32);
 s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
@@ -328,10 +328,10 @@ void func_8072334C(s32, s32);
 void func_80723484(s32);
 void func_807238D4(s32, f32 *, f32 *, f32 *);
 s32 func_80723C98();
-void func_807248B0(Actor *, f32);
-void *func_807270C0(s32, s32);
+void actorSetUniformScale(Actor *, f32);
+void *spawnNodeActivate(s32, s32);
 void func_8072881C(s32, void *);
-void func_80729E6C(void);
+void actorApplyGravity(void);
 void func_8072A450(void);
 void func_8072DC7C(s32);
 void func_8072E320(f32);
@@ -349,7 +349,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void func_80717D4C(void);
 void actorApplyVelocityCustom(void *, f32, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-s32 func_8072AB74(u8, f32, f32, s32, f32);
+s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
 s32 func_8072D13C(u8, s32);
 
 void func_806BFBF4(void) {
@@ -375,7 +375,7 @@ void func_806BFBF4(void) {
         state->unk33 = 0x12;
         state->unk22 = 0x64;
         func_806F09F0(D_807FBB40, (u16)D_807FBB40->unk58);
-        func_8072B324(D_807FBB40, 0);
+        actorSetTargetSpeed(D_807FBB40, 0);
         LgBV->unk60 &= 0xFFFDFFFF;
         if (D_8076A0A8 == 0x4C) {
             LgBV->unk60 &= 0xFEFFFFFF;
@@ -463,7 +463,7 @@ void func_806BFBF4(void) {
                 LgBS98->unk20[1] = 0;
                 LgBS98->unk20[0] = cmd->unk4;
                 LgBS90->unk25 = 0;
-                func_8072B324(D_807FBB40, cmd->unk6);
+                actorSetTargetSpeed(D_807FBB40, cmd->unk6);
                 break;
             case 6:
                 LgBV->unkB8 = 0.0f;
@@ -516,11 +516,11 @@ void func_806BFBF4(void) {
                     state->unk29 = cmd->unk6;
                     state->unk2A = cmd->unk6;
                 } else {
-                    func_807248B0(D_807FBB40, cmd->unk4 * 0.01);
+                    actorSetUniformScale(D_807FBB40, cmd->unk4 * 0.01);
                 }
                 break;
             case 9:
-                LgBS90->unk4 = func_807270C0(cmd->unk4, 0);
+                LgBS90->unk4 = spawnNodeActivate(cmd->unk4, 0);
                 break;
             case 11:
                 state->unk1C = cmd->unk4;
@@ -557,7 +557,7 @@ void func_806BFBF4(void) {
                 LgBV->unk60 &= 0xFF7FFFFF;
                 break;
             case 26:
-                LgBS90->unk4 = func_807270C0(cmd->unk4, 0);
+                LgBS90->unk4 = spawnNodeActivate(cmd->unk4, 0);
                 LgBV->unk15F = cmd->unk6;
                 LgBV->unk154 = 0xD;
                 LgBV->unk155 = 0;
@@ -583,7 +583,7 @@ void func_806BFBF4(void) {
     }
     if (state->unk2A != 0) {
         ratio2 = (f32)(u32)state->unk2A-- / (f32)(u32)state->unk29;
-        func_807248B0(D_807FBB40, LgBS90->unk30 + (state->unk14 - LgBS90->unk30) * ratio2);
+        actorSetUniformScale(D_807FBB40, LgBS90->unk30 + (state->unk14 - LgBS90->unk30) * ratio2);
     }
     if (state->unk30 != 0xFF) {
         for (j = 0; j < state->unk31 && state->unk30 != 0xFF; j++) {
@@ -638,27 +638,27 @@ void func_806BFBF4(void) {
                 if (LgBV->unk154 == 0xF) {
                     LgBV->unk80 = v1->unk2 + (a3->unk2 - v1->unk2) * frac;
                 } else {
-                    func_8072AB74(0, v1->unk0, v1->unk4, 0x212, 0.0f);
+                    actorMoveWithinZone(0, v1->unk0, v1->unk4, 0x212, 0.0f);
                 }
             } else {
                 LgBV->unk154 = 0;
                 LgBV->unk155 = 0;
-                func_8072B324(D_807FBB40, 0);
+                actorSetTargetSpeed(D_807FBB40, 0);
             }
             break;
         case 0x2:
-            func_8072AB74(2, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
+            actorMoveWithinZone(2, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
             if (func_8072D13C(2, 0) != 0) {
                 LgBV->unk154 = 0;
                 LgBV->unk155 = 0;
-                func_8072B324(D_807FBB40, 0);
+                actorSetTargetSpeed(D_807FBB40, 0);
             }
             break;
         case 0x0:
-            func_8072AB74(0, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
+            actorMoveWithinZone(0, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
             break;
         case 0x1D:
-            func_80729E6C();
+            actorApplyGravity();
             actorApplyVelocityCustom(D_807FBB40, 0.0f, LgBV->unkC0);
             break;
         case 0x37:
@@ -696,8 +696,8 @@ typedef struct R1C46aS90 {
 extern Actor *D_807FBB44;
 void func_80614EBC(void *, s32);
 void func_8070D8C0(Actor *, s32, u8);
-void func_8072B324(Actor *, s32);
-s32 func_8072AB74(u8, f32, f32, s32, f32);
+void actorSetTargetSpeed(Actor *, s32);
+s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
 s32 func_8072D13C(u8, s32);
 s32 func_80724A20(void);
 s32 func_80629148(void);
@@ -712,12 +712,12 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
     if (!(R1V->unk60 & 0x10)) {
         func_806F0C18(D_807FBB40);
         D_807FDC98->unk46 |= 0x200;
-        func_8072B324(D_807FBB40, 0);
+        actorSetTargetSpeed(D_807FBB40, 0);
     }
     func_80724A20();
     switch (R1V->unk154) {
         case 5:
-            func_8072AB74(0, 0.0f, 0.0f, 2, 0.0f);
+            actorMoveWithinZone(0, 0.0f, 0.0f, 2, 0.0f);
         case 0:
             if (func_80629148()) {
                 R1V->unk154 = 0x12;
@@ -725,7 +725,7 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
             }
             break;
         case 2:
-            func_8072AB74(2, R1S90->unkA, R1S90->unkE, 0, 0.0f);
+            actorMoveWithinZone(2, R1S90->unkA, R1S90->unkE, 0, 0.0f);
             func_8072D13C(2, 0);
             break;
         case 0x12:
@@ -807,8 +807,8 @@ void func_806C13AC(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     }
 }
 
-s32 func_8073110C(s32, s32);
-void func_8073129C(s32, s32, s32);
+s32 flagGet(s32, s32);
+void flagSet(s32, s32, s32);
 
 void func_806C151C(u16 arg0, u8 arg1, s16 arg2) {
     f32 dx;
@@ -824,9 +824,9 @@ void func_806C151C(u16 arg0, u8 arg1, s16 arg2) {
         near = 1;
     }
     if ((u8)near) {
-        if (!func_8073110C(arg2, 2)) {
+        if (!flagGet(arg2, 2)) {
             func_8070D8C0(D_807FBB40, arg0, arg1);
-            func_8073129C(arg2, 1, 2);
+            flagSet(arg2, 1, 2);
         }
     }
 }
@@ -834,16 +834,16 @@ void func_806C151C(u16 arg0, u8 arg1, s16 arg2) {
 void func_806C15E8(void) {
     D_807FDC98->unk46 |= 0x1000;
     R1V->unk146 = 0;
-    func_8072B324(D_807FBB40, 0);
+    actorSetTargetSpeed(D_807FBB40, 0);
     R1V->unkCC = 1;
 }
 
-void func_80729B00(void);
+void behaviourFrameBegin(void);
 extern s32 D_8076A0A8;
 void func_806BFBF4(void);
 
 void func_806C1640(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(R1V->unk60 & 0x10)) {
         func_806C15E8();
         if (D_8076A0A8 == 0x4C) {
@@ -881,7 +881,7 @@ void func_806C1734(void) {
     s16 sp2A;
     u8 sp29;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(R1V->unk60 & 0x10)) {
         func_806C15E8();
     }
@@ -927,7 +927,7 @@ void func_806C1734(void) {
         }
     } else {
         func_806C10A0(0, 3, 0x3D8);
-        if (func_8073110C(4, 0)) {
+        if (flagGet(4, 0)) {
             func_806C151C(3, 3, 0);
         }
     }
@@ -942,7 +942,7 @@ extern Actor *D_807FDC94;
 extern u8 D_8071FBA0;
 
 void func_806C19F4(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(R1V->unk60 & 0x10)) {
         func_806C15E8();
         R1V->unk140->unk14 = 180.0f;
@@ -971,7 +971,7 @@ void func_806C1B50(void) {
     u8 kind;
     u32 thr;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(R1V->unk60 & 0x10)) {
         func_806C15E8();
         func_806F09F0(D_807FBB40, R1V->unk5A);
@@ -1014,7 +1014,7 @@ void renderCallbacksRegister(void *, void *, s32);
 void func_807035C4();
 
 void func_806C1CCC(void) {
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(R1V->unk60 & 0x10)) {
         R1V->unkC8 = -2000.0f;
         R1V->unkC4 = -200.0f;
@@ -1053,7 +1053,7 @@ void func_807149FC(s32);
 void func_806C1E44(void) {
     s32 i;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         animSetLoopLimit(D_807FBB40, 0, 1);
         animSetFinished(D_807FBB40, 0, 1);
@@ -1061,7 +1061,7 @@ void func_806C1E44(void) {
             case 0x14:
                 D_807FBB40->unk12C[4] = 0xFF;
                 D_807FBB40->unk12C[5] = 0xFF;
-                if (func_8073110C(0x4C, 0) == 0) {
+                if (flagGet(0x4C, 0) == 0) {
                     animSetFrameAndSubframe(D_807FBB40, 0, 1, 0);
                     func_80614EBC(D_807FBB40, 0x2BD);
                     D_807FBB40->unk154 = 0;
@@ -1137,11 +1137,11 @@ void func_806C1E44(void) {
                 case 0:
                     func_80614EBC(D_807FBB40, 0x2BF);
                     animSetFrameAndSubframe(D_807FBB40, 0, 2, 0);
-                    func_8072B324(D_807FBB40, D_807FDC9C->unkC);
+                    actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
                     D_807FBB40->unk155[0] = 1;
                     break;
                 case 2:
-                    func_8072AB74(2, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0, 0.0f);
+                    actorMoveWithinZone(2, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0, 0.0f);
                     func_8072D13C(2, 0);
                     break;
             }
@@ -1159,9 +1159,9 @@ void func_80718BF4(void);
 void func_8072A920(s16, s32, f32, f32, f32, s32, f32, f32, s32);
 void func_806335B0(s16, s32, s32, f32 *, f32 *, f32 *);
 s16 func_806CC190(s16, s16, f32);
-void func_80724B5C(s32, s32, f32 *, f32 *, f32 *);
+void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
 void func_8072E1A4(s32, void *);
-s32 func_8072E22C(s32);
+s32 actorIsTargetWithinDistance(s32);
 void func_8072881C(s32, void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void func_8061CC40(void *, s32, s32);
@@ -1184,12 +1184,12 @@ typedef struct R1C46bState9C {
 void func_806C226C(void) {
     s16 i;
 
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         ((R1C46bActor *)D_807FBB40)->unkC4 = D_807502F4;
         D_807FBB40->unk80 = D_807FBB40->unkA4;
         D_807FBB40->unk12A = 0x4B0;
-        if (func_8073110C(0x9E, 0) != 0) {
+        if (flagGet(0x9E, 0) != 0) {
             if (((R1C46bState9C *)D_807FDC9C)->unk13 == 0x16) {
                 D_807FBB40->unk154 = 0x28;
                 D_807FBB40->unk155[0] = 0;
@@ -1206,7 +1206,7 @@ void func_806C226C(void) {
             D_807FBB40->unk154 = 0x27;
             D_807FBB40->unk155[0] = 0;
             func_8061CC40(D_807FBB40, 0x16, 1);
-            func_8073129C(0x9E, 1, 0);
+            flagSet(0x9E, 1, 0);
         }
     }
     switch (D_807FBB40->unk154) {
@@ -1223,7 +1223,7 @@ void func_806C226C(void) {
                 if ((D_807FBB40->unk6A ^ D_807FBB40->unk6C) & 1) {
                     func_80614EBC(D_807FBB40, 0x2A4);
                 }
-                func_8072AB74(2, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x200, 0.0f);
+                actorMoveWithinZone(2, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x200, 0.0f);
                 if (((R1C46bActor *)D_807FBB40)->unkC0 < -10.0f) {
                     ((R1C46bActor *)D_807FBB40)->unkE8 = func_806CC190(((R1C46bActor *)D_807FBB40)->unkE8, 0x400, 10.0f);
                 }
@@ -1236,15 +1236,15 @@ void func_806C226C(void) {
         case 0x28:
             switch (D_807FBB40->unk155[0]) {
                 case 0:
-                    func_80724B5C(2, 3, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
+                    zoneEntryGetPosition(2, 3, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
                     func_80614EBC(D_807FBB40, 0x2A6);
                     ((R1C46bActor *)D_807FBB40)->unkE8 = 0;
                     D_807FBB40->unk155[0]++;
                 case 1:
-                    if (func_8072E22C(0xC8) != 0) {
+                    if (actorIsTargetWithinDistance(0xC8) != 0) {
                         D_807FBB40->unk155[0]++;
-                        if (func_8073110C(0xC1, 0) != 0) {
-                            if (D_8074E77C == 0 && func_8073110C(0xA5, 0) == 0) {
+                        if (flagGet(0xC1, 0) != 0) {
+                            if (D_8074E77C == 0 && flagGet(0xA5, 0) == 0) {
                                 func_8070D8C0(D_807FBB40, 0x1C, 2);
                             } else if (D_8074E77C != 0) {
                                 func_8070D8C0(D_807FBB40, 0x1C, 0);
@@ -1260,7 +1260,7 @@ void func_806C226C(void) {
                     }
                     break;
                 case 2:
-                    if (func_8073110C(0xC1, 0) == 0 && func_8072E22C(0x12C) == 0) {
+                    if (flagGet(0xC1, 0) == 0 && actorIsTargetWithinDistance(0x12C) == 0) {
                         D_807FBB40->unk155[0] = 1;
                     }
                     break;
@@ -1451,10 +1451,10 @@ typedef struct LgC2DF4S9C {
 void func_806136B4(Actor *);
 void func_806134B4(Actor *, u16);
 ActorSub140 *func_80665F24(Actor *);
-void func_807248B0(Actor *, f32);
+void actorSetUniformScale(Actor *, f32);
 void func_80728950(s32);
-void func_807289B0(s32, s32);
-void func_8072E2B0(Actor *, s32 *, s32 *, s32 *);
+void currentActorAnimSetFrame(s32, s32);
+void actorGetNodePosOrPosition(Actor *, s32 *, s32 *, s32 *);
 void func_806871DC(s32);
 void func_80686F90(s32, s16, s16);
 void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
@@ -1476,7 +1476,7 @@ void func_806C2DF4(void) {
     s32 rnd;
 
     state = LgV->unk17C;
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(LgV->unk60 & 0x10)) {
         sp54 = LgV->unk4->unk38;
         func_806136B4(D_807FBB40);
@@ -1586,7 +1586,7 @@ void func_806C2DF4(void) {
                 break;
             case 0xE2:
                 sp54 *= 8.0f;
-                func_807248B0(D_807FBB40, sp54);
+                actorSetUniformScale(D_807FBB40, sp54);
                 LgV->unkE8 = 0xC8;
                 func_806BFBB4();
                 actorSpawnParticlesAlongNodeRanges();
@@ -1605,13 +1605,13 @@ void func_806C2DF4(void) {
                 LgV->unk60 |= 0x1000;
                 break;
         }
-        func_807248B0(D_807FBB40, sp54);
+        actorSetUniformScale(D_807FBB40, sp54);
         if (D_8076A0A8 == 0xD0) {
             D_807FDC98->unk46 |= 0x100;
             LgV->unk60 &= 0xFEFFFFFF;
         }
     }
-    func_8072E2B0(D_807FBB40, &sp60, &sp5C, &sp58);
+    actorGetNodePosOrPosition(D_807FBB40, &sp60, &sp5C, &sp58);
     func_806BF920();
     func_806BFBF4();
     LgV->unk6A = 0;
@@ -1639,19 +1639,19 @@ void func_806C2DF4(void) {
             }
             break;
         case 0x530:
-            func_807289B0(1, 0);
+            currentActorAnimSetFrame(1, 0);
             break;
         case 0x531:
         case 0x62C:
             if (!(D_807FDC98->unk46 & 0x1000)) {
                 D_807FDC98->unk46 |= 0x1000;
-                func_807289B0(0, 0);
+                currentActorAnimSetFrame(0, 0);
             }
             break;
         case 0x92:
             if (!(D_807FDC98->unk46 & 0x1000) && LgV->unk4->unk0->unk4 >= 127.0f) {
                 D_807FDC98->unk46 |= 0x1000;
-                func_807289B0(0, 0);
+                currentActorAnimSetFrame(0, 0);
             }
             break;
         case 0x434:
@@ -1763,19 +1763,19 @@ void func_806C3A8C(void) {
     u8 sp20;
 
     dist = (D_807FBB4C->unk7C - D_807FBB40->unk7C) * (D_807FBB4C->unk7C - D_807FBB40->unk7C) + (D_807FBB4C->unk80 - D_807FBB40->unk80) * (D_807FBB4C->unk80 - D_807FBB40->unk80) + (D_807FBB4C->unk84 - D_807FBB40->unk84) * (D_807FBB4C->unk84 - D_807FBB40->unk84);
-    func_80729B00();
+    behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk15E = 0x19;
         func_8067ACB4(D_807FBB40);
-        if (func_8073110C(0x1E, 2) == 0) {
+        if (flagGet(0x1E, 2) == 0) {
             func_8061CC40(D_807FBB40, 0x14, 1);
-            func_8073129C(0x1E, 1, 2);
+            flagSet(0x1E, 1, 2);
         }
-        if (func_8073110C(0xBF, 0) == 0) {
-            if (func_8073110C(0xBA, 0) && func_8073110C(0xBB, 0) && func_8073110C(0xBC, 0) && func_8073110C(0xBD, 0) && func_8073110C(0xBE, 0)) {
+        if (flagGet(0xBF, 0) == 0) {
+            if (flagGet(0xBA, 0) && flagGet(0xBB, 0) && flagGet(0xBC, 0) && flagGet(0xBD, 0) && flagGet(0xBE, 0)) {
                 D_807FBB40->unk154 = 0x27;
                 D_807FBB40->unk155[0] = 0;
-            } else if (func_8073110C(0xBA, 0) || func_8073110C(0xBB, 0) || func_8073110C(0xBC, 0) || func_8073110C(0xBD, 0) || func_8073110C(0xBE, 0)) {
+            } else if (flagGet(0xBA, 0) || flagGet(0xBB, 0) || flagGet(0xBC, 0) || flagGet(0xBD, 0) || flagGet(0xBE, 0)) {
                 D_807FBB40->unk154 = 0x1F;
                 D_807FBB40->unk155[0] = 0;
             } else {
@@ -1807,11 +1807,11 @@ void func_806C3A8C(void) {
             break;
         case 0x1F:
             if ((u8)(dist < 0x2710) && D_807FBB40->unk155[0] == 0) {
-                sp20 = func_8073110C(0xBD, 0);
-                sp21 = func_8073110C(0xBC, 0);
-                sp22 = func_8073110C(0xBB, 0);
-                sp23 = func_8073110C(0xBA, 0);
-                D_80750AC8 = func_8073110C(0xBE, 0) + sp23 + sp22 + sp21 + sp20;
+                sp20 = flagGet(0xBD, 0);
+                sp21 = flagGet(0xBC, 0);
+                sp22 = flagGet(0xBB, 0);
+                sp23 = flagGet(0xBA, 0);
+                D_80750AC8 = flagGet(0xBE, 0) + sp23 + sp22 + sp21 + sp20;
                 func_8070D8C0(D_807FBB40, 0x17, 2);
                 D_807FBB40->unk155[0]++;
             }

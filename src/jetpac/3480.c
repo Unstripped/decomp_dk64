@@ -118,7 +118,7 @@ void func_800275F4(JetpacInner *arg0) {
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/func_80027BE8.s")
 
-s32 func_8073110C(s32, s32);
+s32 flagGet(s32, s32);
 extern u8 D_8002F3C8;
 extern JetpacSprite D_8002D968[];
 extern JetpacItem D_8002DCEC;
@@ -128,7 +128,7 @@ void func_80027D64(void *arg0) {
     JetpacItem *item;
     s32 count = 5;
 
-    if (D_8002F3C8 != 0 && *(s32 *)((u8 *)arg0 + 4) >= 5000 && func_8073110C(0x17B, 0) == 0 && func_8073110C(0x62, 2) == 0) {
+    if (D_8002F3C8 != 0 && *(s32 *)((u8 *)arg0 + 4) >= 5000 && flagGet(0x17B, 0) == 0 && flagGet(0x62, 2) == 0) {
         count = 6;
         sp24.unk40 = count;
     } else {
