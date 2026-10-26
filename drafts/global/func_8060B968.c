@@ -1,4 +1,4 @@
-// func_8060B968 (src/global/104F0.c): stage 4: direct-parameter CRC candidate fdiffed; remaining target uses a1 stack home and checksum v1 while this candidate uses a2
+// func_8060B968 (src/global/104F0.c): stage 6: direct C has target loop/control flow; remaining register allocation in CRC table lookup (best permuter score 165 after 600s).
 extern u32 D_807463C0[];
 
 u32 func_8060B968(u8 *arg0, s32 arg1) {

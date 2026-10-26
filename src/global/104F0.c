@@ -53,6 +53,7 @@ void func_8060B8F8(s32 arg0) {
 
 
 
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060B968.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060B9D0.s")
@@ -185,7 +186,17 @@ s32 func_8060C430(s32 arg0, u32 arg1, s32 arg2) {
     return arg1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C648.s")
+extern s32 func_8060B9D0();
+extern void func_8060BB18();
+extern void func_8060C340();
+
+void func_8060C648(s32 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
+    u16 sp26;
+    u8 sp25;
+
+    func_8060C340(&sp26, &sp25, arg0, arg1, (s32)arg2, func_8060B9D0(arg3));
+    func_8060BB18(func_8060C430(arg0, arg4, 1), sp26, sp25);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C6B8.s")
 
@@ -274,8 +285,8 @@ void func_8060E1A8(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E3B0.s")
 
-extern s32 func_8060B9D0(u8);
-extern void func_8060BB18(u8, s32, s32);
+extern s32 func_8060B9D0();
+extern void func_8060BB18();
 extern void func_8060C340();
 extern s32 func_8071432C(void);
 
