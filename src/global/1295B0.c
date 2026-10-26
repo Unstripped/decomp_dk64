@@ -1345,8 +1345,6 @@ extern s16 D_8076A0AA;
 extern s32 D_807FBB64;
 extern u8 D_807FC928;
 void actorDeregisterActive(void *);
-void actorDespawn(void *);
-void func_8061CFCC(void *);
 s16 func_806531B8(f32, f32, f32, s32);
 u8 func_80727F20(C1Node *, s32);
 u8 func_80728004(C1Node *, s32);
