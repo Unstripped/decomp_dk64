@@ -2,7 +2,102 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/141EF0/n_alFxPull.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/141EF0/n_alFxParamHdl.s")
+typedef struct {
+    u8 pad0[0x40];
+    s32 unk40;
+    u8 pad44[4];
+    u32 unk48;
+} ReverbSynth;
+
+extern ReverbSynth *D_807563E4;
+
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    u8 padE[2];
+    f32 unk10;
+    u8 pad14[8];
+    f32 unk1C;
+    void *unk20;
+    void *unk24;
+} FxParamEntry;
+
+typedef struct {
+    s32 unk0;
+    FxParamEntry *unk4;
+    u8 unk8;
+} FxParamState;
+
+void _init_lpfilter();
+
+s32 n_alFxParamHdl(FxParamState *arg0, s32 arg1, s32 *arg2) {
+    FxParamState *sp2C;
+    u32 sp28;
+    s32 sp24;
+    s32 sp20;
+    f32 sp1C;
+
+    sp2C = arg0;
+    sp28 = arg1 & 7;
+    sp24 = arg1 >> 3;
+    sp20 = *arg2;
+    if (sp24 >= sp2C->unk8) {
+        return 0;
+    }
+    switch (sp28) {
+    case 0:
+        sp2C->unk4[sp24].unk0 = ((s32)(sp20 * (u32)D_807563E4->unk40) / 1000) & ~7;
+        break;
+    case 1:
+        sp2C->unk4[sp24].unk4 = ((s32)(sp20 * (u32)D_807563E4->unk40) / 1000) & ~7;
+        break;
+    case 2:
+        sp2C->unk4[sp24].unkA = sp20;
+        break;
+    case 3:
+        sp2C->unk4[sp24].unk8 = sp20;
+        break;
+    case 4:
+        sp2C->unk4[sp24].unkC = sp20;
+        break;
+    case 5:
+        sp2C->unk4[sp24].unk10 = (((f32)sp20 / 1000.0f) * 2.0f) / (f32)D_807563E4->unk40;
+        break;
+    case 6:
+        sp1C = (f32)sp20;
+        break;
+    case 7:
+        if (sp2C->unk4[sp24].unk20 != NULL) {
+            *(s16 *)sp2C->unk4[sp24].unk20 = sp20;
+            _init_lpfilter(sp2C->unk4[sp24].unk20);
+        }
+        break;
+    }
+    if ((u32)sp2C->unk4[sp24].unk0 >= (u32)(sp2C->unk0 - 0x10)) {
+        sp2C->unk4[sp24].unk0 = sp2C->unk0 - 0x10;
+    }
+    if ((u32)sp2C->unk4[sp24].unk0 >= (u32)(sp2C->unk0 - 8)) {
+        sp2C->unk4[sp24].unk0 = sp2C->unk0 - 8;
+    }
+    if ((u32)sp2C->unk4[sp24].unk0 >= (u32)sp2C->unk4[sp24].unk4) {
+        sp2C->unk4[sp24].unk4 = sp2C->unk4[sp24].unk0 + 8;
+    }
+    if (sp2C->unk4[sp24].unk24 != NULL) {
+        if (sp28 != 6) {
+            if (sp2C->unk4[sp24].unk4 - sp2C->unk4[sp24].unk0 != 0) {
+                sp1C = (sp2C->unk4[sp24].unk1C / (f32)(u32)(sp2C->unk4[sp24].unk4 - sp2C->unk4[sp24].unk0)) * 173123.4062f;
+            } else {
+                sp1C = 0.0f;
+            }
+        }
+        sp2C->unk4[sp24].unk1C = (f32)(u32)(sp2C->unk4[sp24].unk4 - sp2C->unk4[sp24].unk0) * (sp1C / 173123.4062f);
+    }
+    return 0;
+}
+
 typedef struct {
     s32 unk0;
     u8 pad4[0x1C];
@@ -195,14 +290,6 @@ f32 _doModFunc(FxNMModState *arg0, s32 arg1) {
     return arg0->unk1C * sp4;
 }
 
-typedef struct {
-    u8 pad0[0x40];
-    s32 unk40;
-    u8 pad44[4];
-    u32 unk48;
-} ReverbSynth;
-
-extern ReverbSynth *D_807563E4;
 extern Acmd *n_alMainBusPull();
 Acmd *func_8073E800(void *arg0, s16 *arg1) {
     Acmd *sp24;
@@ -219,3 +306,4 @@ Acmd *func_8073E800(void *arg0, s16 *arg1) {
     sp1C->words.w1 = D_807563E4->unk48;
     return sp24;
 }
+
