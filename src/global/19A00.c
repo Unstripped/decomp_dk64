@@ -1172,7 +1172,44 @@ s32 func_80617400(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806174B4.s")
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+
+s32 func_806174B4(Actor *arg0) {
+    f32 sp54;
+    f32 sp50;
+    f32 sp4C;
+    s16 sp4A;
+    unsigned char sp49;
+    Actor *node_actor;
+    u8 sp43;
+    u8 sp42;
+    u8 sp41;
+    u8 sp40;
+    u8 sp3F;
+    f32 sp38;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp4A);
+    func_80614F28(&sp40);
+    func_80614F28(&sp3F);
+    func_80614F28(&sp49);
+    func_80614F28(&sp43);
+    func_80614FD8((u8 *)&sp38);
+    func_80614F28(&sp42);
+    func_80614F28(&sp41);
+    if (arg0->unk60 & 4) {
+        if (sp42) {
+            node_actor = arg0;
+            actorGetNodePos(node_actor, sp42, &sp54, &sp50, &sp4C);
+        } else {
+            sp54 = arg0->unk7C;
+            sp50 = arg0->unk80;
+            sp4C = arg0->unk84;
+        }
+        func_806086CC(sp54, sp50, sp4C, sp4A, sp40, sp3F, sp49, sp43, sp38, sp41);
+    }
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806175C4.s")
 
@@ -1732,7 +1769,6 @@ void func_80618B6C(Actor *arg0) {
     func_8061EF4C(((P19e4GlobalState *)D_807FD580)->unk104, sp2E, sp2F, sp3C, sp38, sp34, (f32)sp32, (f32)sp30);
 }
 
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, Actor *, u8);
 void actorSetNodeFlag();
 void actorClearNodeFlag();
