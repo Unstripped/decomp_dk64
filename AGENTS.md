@@ -68,6 +68,7 @@ python3 tools/emu/emu.py build         # builds the dk64-emu Docker image (ares-
 
 Compiler notes:
 - Game code: IDO 5.3 `-O2 -mips2`. libultra: ultralib's J flags by directory (`os/` `-O1`, `gu/`/`mgu/`/`libc/` `-O3`, `io/` `-O2` with listed `-O1` files, `libc/ll*` `-mips3 -32`); see the libultra block in `Makefile`.
+- Rare's audio library (global `0x80732420` on: libaudio heap/bnkf, n_csplayer, n_sndplayer, oscillators) is IDO **7.1** `-g` (unoptimised): files listed in `GLOBAL_G_FILES` in `Makefile` build with `/opt/ido7.1/cc`. At `-g` every local lives in its stack slot (first-declared local highest) and statements compile in source order; `uopt_trace.sh` does not apply. `fdiff.sh`/`permute.py` take the compiler from make.
 - `while (cond) {}` compiles to a rotated loop with `beqzl`; the original often uses `do {} while (cond);`.
 - asm-processor needs `/opt/asm-processor/prelude.inc` (sets `noreorder`). splat's `nonmatching` macro is disabled because asm-processor miscounts its lines.
 - `objdiff.sh` exit 3 with `TEXT OK` is normal once C replaces a `GLOBAL_ASM` baseline: IDO emits relocations in a different order than gas, uses plain constants where splat made absolute symbols (`D_80100000`), and addresses jump tables as `.rodata`+addend. The ROM hash from `tools/dk make` is the gate; re-run `make expected` after a matching build.
