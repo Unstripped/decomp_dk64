@@ -38,8 +38,10 @@ if ! tail -3 .scratch/gate.log | grep -q 'build/dk64.us.z64: OK'; then
   exit 1
 fi
 for src in "$@"; do
-  if tools/fdiff.sh --non-matching "$src" "$src" 2>&1 | grep -E 'cfe: Error|Error:' | head -3 | grep .; then
-    echo "GATE_FAIL: NON_MATCHING compile of $src"
+  nmlog=.scratch/nonmatching_$(basename "$src").log
+  if ! tools/fdiff.sh --non-matching "$src" "$src" > "$nmlog" 2>&1; then
+    grep -iE 'error' "$nmlog" | head -5
+    echo "GATE_FAIL: NON_MATCHING compile of $src (log: $nmlog)"
     exit 1
   fi
 done
