@@ -122,7 +122,11 @@ s32 func_8060C430(s32 arg0, u32 arg1, s32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C6B8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C724.s")
+extern s32 func_8060C6B8(s32, u8, u8, u8);
+
+s32 func_8060C724(u8 arg0) {
+    return func_8060C6B8(0x10, 0, 0, arg0) + 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C758.s")
 

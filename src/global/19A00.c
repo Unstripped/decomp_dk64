@@ -557,7 +557,15 @@ s32 func_806167D4(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806167EC.s")
+s32 func_806167EC(Actor *arg0) {
+    s16 sp1E;
+
+    /* Preserve IDO's evaluation tree for its register allocation. */
+    D_807F5AF0 = (0, 1) + (D_807F5AF0 + (((P19dState *)arg0->unk4)->unk88 * 2));
+    func_80614F4C((u8 *)&sp1E);
+    D_807F5AF0 = ((P19dState *)arg0->unk4)->unk68 + sp1E;
+    return (sp1E = 1);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616850.s")
 
@@ -594,7 +602,16 @@ s32 func_80616964(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616A9C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616BA4.s")
+s32 func_80616BA4(Actor *arg0) {
+    u8 sp1F;
+    u8 temp;
+
+    D_807F5AF0++;
+    func_80614F28(&sp1F);
+    arg0->unk154 = (temp = sp1F);
+    arg0->unk155[0] = 0;
+    return 1;
+}
 
 s32 func_80616BF0(Actor *arg0) {
     D_807F5AF0++;
