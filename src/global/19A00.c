@@ -187,15 +187,80 @@ s32 func_806150F8(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806165F0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616644.s")
+typedef struct P19dState {
+    u8 pad0[0x5C];
+    u16 unk5C;
+    u8 pad5E[2];
+    s32 unk60;
+    u16 unk64;
+    u8 pad66[2];
+    u8 *unk68;
+    u8 *unk6C;
+    void (*unk70)(Actor *);
+    s32 unk74;
+    s32 unk78;
+    s32 unk7C;
+    f32 unk80;
+    s32 unk84;
+    s32 unk88;
+} P19dState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806166A8.s")
+s32 func_80616644(Actor *arg0) {
+    s16 sp1E;
+    P19dState *temp_v0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061670C.s")
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    temp_v0 = (P19dState *)arg0->unk4;
+    if (temp_v0->unk88 != 0) {
+        D_807F5AF0 = temp_v0->unk68 + sp1E;
+    }
+    return 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616770.s")
+s32 func_806166A8(Actor *arg0) {
+    s16 sp1E;
+    P19dState *temp_v0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806167D4.s")
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    temp_v0 = (P19dState *)arg0->unk4;
+    if (temp_v0->unk88 == 0) {
+        D_807F5AF0 = temp_v0->unk68 + sp1E;
+    }
+    return 1;
+}
+
+s32 func_8061670C(Actor *arg0) {
+    s16 sp1E;
+    P19dState *temp_v0;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    temp_v0 = (P19dState *)arg0->unk4;
+    if (temp_v0->unk88 > 0) {
+        D_807F5AF0 = temp_v0->unk68 + sp1E;
+    }
+    return 1;
+}
+
+s32 func_80616770(Actor *arg0) {
+    s16 sp1E;
+    P19dState *temp_v0;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    temp_v0 = (P19dState *)arg0->unk4;
+    if (temp_v0->unk88 < 0) {
+        D_807F5AF0 = temp_v0->unk68 + sp1E;
+    }
+    return 1;
+}
+
+s32 func_806167D4(Actor *arg0) {
+    D_807F5AF0 = ((P19dState *)arg0->unk4)->unk68;
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806167EC.s")
 
@@ -213,19 +278,61 @@ s32 func_806150F8(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616BA4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616BF0.s")
+s32 func_80616BF0(Actor *arg0) {
+    D_807F5AF0++;
+    arg0->unk155[0] = 0;
+    arg0->unk154++;
+    return 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616C1C.s")
+s32 func_80616C1C(Actor *arg0) {
+    u8 sp1F;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616C64.s")
+    D_807F5AF0++;
+    func_80614F28(&sp1F);
+    arg0->unk155[0] = sp1F;
+    return 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616C8C.s")
+s32 func_80616C64(Actor *arg0) {
+    D_807F5AF0++;
+    arg0->unk155[0]++;
+    return 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616CB8.s")
+s32 func_80616C8C(Actor *arg0) {
+    Actor *temp_v1;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616D5C.s")
+    D_807F5AF0++;
+    temp_v1 = (Actor *)arg0->unk11C;
+    temp_v1->unk155[0]++;
+    return 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616D84.s")
+s32 func_80611A44();
+
+s32 func_80616CB8(Actor *arg0) {
+    u8 sp1F;
+    u8 sp1E;
+
+    D_807F5AF0++;
+    func_80614F28(&sp1F);
+    func_80614F28(&sp1E);
+    ((P19dState *)arg0->unk4)->unk88 = (s32)(((s32)((s32)(func_80611A44() >> 0xF) % 32767) % (s32)((sp1E - sp1F) + 1)) + sp1F);
+    return 1;
+}
+
+s32 func_80616D5C(Actor *arg0) {
+    D_807F5AF0++;
+    ((P19dState *)arg0->unk4)->unk84 = 1;
+    return 1;
+}
+
+s32 func_80616D84(Actor *arg0) {
+    D_807F5AF0++;
+    ((P19dState *)arg0->unk4)->unk84 = 0;
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616DA8.s")
 
