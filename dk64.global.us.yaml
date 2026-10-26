@@ -71,12 +71,13 @@ segments:
       - [0x1E2D0, asm] # hand-written: entries without prologues, j into alabels, shared non-ABI $s/$f state; uses 1F9A0's table like 16B60
       - [0x1F9A0, asm] # f32 table in .text (0x204 words, 0x8061ACA0), read by 16B60's hand-written asm and 1E2D0: data, not C
       - [0x201B0, c, 201B0]
-      - [0x2C700, asm]
-      - [0x2C910, asm]
-      - [0x2DE90, asm]
-      - [0x2F550, asm]
-      - [0x35000, asm]
-      - [0x36880, asm]
+      - [0x2C700, c, 2C700]
+      - [0x2C910, c, 2C910]
+      - [0x2DE90, c, 2DE90]
+      - [0x2F550, c, 2F550]
+      - [0x35000, c, 35000]
+      - [0x36880, c, 36880]
+      - [0x41090, c, 41090] # hidden TU: rodata pad after D_807584E4 (func_8063B4C0) at 0x15D1F0; data D_80747D80 (16-aligned) first used by func_8063C390, and func_8063BF34..func_8063C328 still use 36880's D_807F6000/D_807F6240 bss
       - [0x42630, c, 42630]
       - [0x478F0, c, 478F0] # hidden TU: 42630 rodata ends with an 8-byte pad at 0x15D630 (func_806425FC owns D_80758920); func_80642940 shares bss D_807F621C–24 with 42630, func_80642BF0 shares D_8071FF18 with func_80642C78
       - [0x54150, c, 54150]
@@ -230,7 +231,12 @@ segments:
       - [0x15C070, .rodata, 19A00]
       - [0x15C190, rodata]
       - [0x15C1A0, .rodata, 201B0]
-      - [0x15CC70, rodata]
+      - [0x15CC70, .rodata, 2C910]
+      - [0x15CE00, .rodata, 2DE90]
+      - [0x15CE60, .rodata, 2F550]
+      - [0x15CED0, .rodata, 35000]
+      - [0x15CF00, .rodata, 36880]
+      - [0x15D1F0, .rodata, 41090]
       - [0x15D260, .rodata, 42630]
       - [0x15D630, .rodata, 478F0]
       - [0x15D8E0, .rodata, 54150]
