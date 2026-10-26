@@ -425,16 +425,18 @@ typedef struct C1Node {
     /* 0x04 */ s16 unk4;
     /* 0x06 */ s16 unk6;
     /* 0x08 */ s16 unk8;
-    /* 0x0A */ u8 padA[8];
+    /* 0x0A */ u8 padA[7];
+    /* 0x11 */ u8 unk11;
     /* 0x12 */ u8 unk12;
     /* 0x13 */ u8 unk13;
     /* 0x14 */ u8 unk14;
     /* 0x15 */ u8 pad15[3];
     /* 0x18 */ C1ActorView *unk18;
     /* 0x1C */ C1Link *unk1C;
-    /* 0x20 */ u8 pad20[4];
+    /* 0x20 */ u8 (*unk20)[2];
     /* 0x24 */ s16 unk24;
-    /* 0x26 */ u8 pad26[0x1A];
+    /* 0x26 */ u8 pad26[0x16];
+    /* 0x3C */ f32 unk3C;
     /* 0x40 */ s16 unk40;
     /* 0x42 */ u8 unk42;
     /* 0x43 */ u8 unk43;
@@ -627,7 +629,11 @@ typedef struct C1Sub174 {
 typedef struct C1PlayerView {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ C1ActorView *unk4;
-    /* 0x008 */ u8 pad8[0x2E8];
+    /* 0x008 */ u8 pad8[0x208];
+    /* 0x210 */ f32 unk210;
+    /* 0x214 */ f32 unk214;
+    /* 0x218 */ f32 unk218;
+    /* 0x21C */ u8 pad21C[0xD4];
 } C1PlayerView; // size = 0x2F0
 
 #define C1S90 ((C1State90 *)D_807FDC90)
@@ -642,10 +648,10 @@ void actorDespawn(void *);
 void actorRegisterActive(void *);
 void func_8061CFCC(void *);
 s16 func_806531B8(f32, f32, f32, s32);
-s32 func_80727F20(void *, s32);
-s32 func_80728004(void *, s32);
-s32 func_807280C8(void *, s32);
-s32 func_8072818C(void *, s32);
+u8 func_80727F20(C1Node *, s32);
+u8 func_80728004(C1Node *, s32);
+u8 func_807280C8(C1Node *, s32);
+u8 func_8072818C(C1Node *, s32);
 void sfxStopChannel(s32, s32);
 void sfxStopSlotSound(void *, s32);
 
@@ -766,26 +772,165 @@ void func_80727958(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80727F20.s")
+s32 mapChunkIsVisibleForPlayer(s32, s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80728004.s")
+u8 func_80727F20(C1Node *arg0, s32 arg1) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    s32 ret;
+
+    dz = C1PLAYERS[0].unk218 - arg0->unk8;
+    dx = C1PLAYERS[0].unk210 - arg0->unk4;
+    dy = C1PLAYERS[0].unk214 - arg0->unk6;
+    ret = 0;
+    if (((dz * dz) + ((dx * dx) + (dy * dy))) < arg1) {
+        ret = 1;
+    }
+    if (ret) {
+        ret = D_80755698[arg0->unk44] == 6;
+        if (!ret) {
+            ret = (arg0->unk46 & 0x20) != 0;
+            if (!ret) {
+                ret = mapChunkIsVisibleForPlayer(0, arg0->unk40) != 0;
+            }
+        }
+    }
+    return ret;
+}
+
+u8 func_80728004(C1Node *arg0, s32 arg1) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    s32 ret;
+
+    dz = C1PLAYERS[0].unk218 - arg0->unk18->unk84;
+    dx = C1PLAYERS[0].unk210 - arg0->unk18->unk7C;
+    dy = C1PLAYERS[0].unk214 - arg0->unk18->unk80;
+    ret = 0;
+    if (((dz * dz) + ((dx * dx) + (dy * dy))) < arg1) {
+        ret = 1;
+    }
+    if (ret) {
+        ret = (arg0->unk18->unk5C & 0x40) != 0;
+        if (!ret) {
+            ret = (arg0->unk46 & 0x20) != 0;
+            if (!ret) {
+                ret = mapChunkIsVisibleForPlayer(0, arg0->unk40) != 0;
+            }
+        }
+    }
+    return ret;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807280C8.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_8072818C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_8072827C.s")
+typedef struct C1Entry24 {
+    /* 0x00 */ u8 pad0[0x18];
+    /* 0x18 */ u8 unk18;
+    /* 0x19 */ u8 pad19[3];
+    /* 0x1C */ void *unk1C;
+    /* 0x20 */ u8 unk20;
+    /* 0x21 */ u8 pad21[3];
+} C1Entry24; // size = 0x24
+
+typedef struct C1Entry24List {
+    /* 0x0 */ s16 count;
+    /* 0x2 */ u8 pad2[2];
+    /* 0x4 */ C1Entry24 *unk4;
+} C1Entry24List;
+
+typedef struct C1Holder {
+    /* 0x00 */ u8 pad0[0xE];
+    /* 0x0E */ u8 unkE;
+    /* 0x0F */ u8 padF[0xD];
+    /* 0x1C */ C1Entry24 *unk1C;
+} C1Holder;
+
+#define C1TBL ((C1Entry24List *)D_80755690)
+
+void func_8072827C(C1Holder *arg0) {
+    s16 i;
+    C1Entry24 *entry;
+
+    entry = C1TBL->unk4;
+    i = 0;
+    if (C1TBL->count > 0) {
+        do {
+            entry->unk1C = 0;
+            entry->unk20 = 0;
+            if (entry->unk18 == arg0->unkE) {
+                arg0->unk1C = entry;
+                break;
+            }
+            i++;
+            entry++;
+        } while (i < C1TBL->count);
+    }
+    if (arg0->unk1C == 0) {
+        arg0->unk1C = C1TBL->unk4;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80728300.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_8072881C.s")
+void animSetLoopLimit(void *, s32, s32);
+void animSetFinished(void *, s32, s32);
+void animSetFrameAndSubframe(void *, s32, s32, f32);
+void animSetSpeed(void *, s32, f32);
+void animSetLoopMode(void *, s32, s32);
+void animSetDirection(void *, s32, s32);
+void animSetEndFrame(void *, s32, s32);
+void animClearStartFrame(void *, s32);
+s32 animIsPlaying(void *, s32);
+extern u32 D_8076A064;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80728950.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807289B0.s")
+u8 func_8072881C(u8 arg0, u32 *arg1) {
+    u8 ret;
+
+    ret = 0;
+    if ((arg0 & 0x80) || (((*arg1 + 0x32) < D_8076A064) && (((func_80611A44() >> 0xF) % 1000) >= 0x3C1) && (animIsPlaying(D_807FBB40, arg0) == 0))) {
+        arg0 &= 0x7F;
+        animSetSpeed(D_807FBB40, arg0, 1.0f);
+        animSetLoopMode(D_807FBB40, arg0, 1);
+        animSetDirection(D_807FBB40, arg0, 0);
+        animSetEndFrame(D_807FBB40, arg0, 3);
+        animClearStartFrame(D_807FBB40, arg0);
+        animSetFrameAndSubframe(D_807FBB40, arg0, 0, 0.0f);
+        animSetLoopLimit(D_807FBB40, arg0, 2);
+        *arg1 = D_8076A064;
+        ret = 1;
+    }
+    return ret;
+}
+
+
+void func_80728950(u8 arg0) {
+    animSetLoopLimit(D_807FBB40, arg0, 1);
+    animSetFinished(D_807FBB40, arg0, 1);
+    animSetFrameAndSubframe(D_807FBB40, arg0, 2, 0.0f);
+}
+
+void func_807289B0(u8 arg0, u8 arg1) {
+    animSetFrameAndSubframe(D_807FBB40, arg0, arg1, 0.0f);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807289E8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80729AA4.s")
+Actor *func_807270C0(s16, s32);
+
+void func_80729AA4(u8 arg0) {
+    Actor *a;
+
+    a = func_807270C0(arg0, 0);
+    if (a == 0) {
+        a = D_807FBB4C;
+    }
+    a->unk6A |= 0x100;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/D_8075EB80.s")
