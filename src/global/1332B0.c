@@ -102,7 +102,6 @@ void func_8072E740(s32 arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     /* 0x0 */ Actor *actor;
     /* 0x4 */ s32 unk4;
@@ -116,10 +115,12 @@ s32 func_8072E7DC(s16 arg0, Actor **arg1) {
     s32 i = 0;
     Actor *actor;
 
+    if (i) {
+    }
     if (gActiveActorCount > 0) {
         do {
             actor = gActiveActors[i].actor;
-            if (actor->unk58 == arg0) {
+            if (actor->unk58 == (arg0 & 0xFFFFFFFFu)) {
                 found = 1;
             } else {
                 i++;
@@ -129,10 +130,6 @@ s32 func_8072E7DC(s16 arg0, Actor **arg1) {
     *arg1 = actor;
     return found;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1332B0/func_8072E7DC.s")
-#endif
 
 #ifdef NON_MATCHING
 extern u8 D_807FBDC4;
@@ -246,11 +243,13 @@ s32 func_8072EA90(F1Entry *arg0) {
 }
 
 
-#ifdef NON_MATCHING
 s32 func_8072EC94(s32 arg0, u8 arg1) {
-    F1Entry *e = D_80755A14->entries;
-    s32 found = 0;
+    s32 found;
+    F1Entry *e;
     s32 i;
+
+    found = 0;
+    e = D_80755A14->entries;
 
     for (i = 0; i < D_80755A14->count && !found; i++, e++) {
         if (arg0 == e->unkA) {
@@ -258,19 +257,15 @@ s32 func_8072EC94(s32 arg0, u8 arg1) {
             found = 1;
         }
     }
-    return found;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1332B0/func_8072EC94.s")
-#endif
-
-#ifdef NON_MATCHING
 s32 func_8072ECFC(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    F1Entry *e = D_80755A14->entries;
-    s32 found = 0;
+    s32 found;
+    F1Entry *e;
     s32 i;
 
+    found = 0;
+    e = D_80755A14->entries;
     for (i = 0; i < D_80755A14->count && !found; i++, e++) {
         if (arg0 == e->unkA) {
             e->unk0 = arg1;
@@ -279,9 +274,4 @@ s32 func_8072ECFC(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
             found = 1;
         }
     }
-    return found;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1332B0/func_8072ECFC.s")
-#endif

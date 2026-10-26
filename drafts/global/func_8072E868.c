@@ -1,4 +1,4 @@
-// func_8072E868 (src/global/1332B0.c): // func_8072E868 (src/global/1332B0.c): stage 5: frame/slots OK with 2 dummy locals; remaining regalloc: loop1 count/val regs (a0/v1 vs v1/a0, limit v0), e/j in s1/s2 swapped, flag-compute scheduling. switch() on unk258[k] is the right shape (IV-eliminated pointer loop). Permuter 420s no gain.
+// func_8072E868 (src/global/1332B0.c): stage 5: only regalloc left. loop1: limit D_807FBDC4 in a0 / switch value v1 (target v1 / a0); e,j in s1,s2 swapped; flag-compute scheduling. Tried: s32 return for func_8067AB20, sel local, dead reads, & 0xFFFFFFFFu on limit/value, k->flag reuse (permuter 675 hint, no change), np=&subs[j].unk0 pointer local (worse). Permuter 420s best 675.
 #include "common.h"
 #include "actor.h"
 
