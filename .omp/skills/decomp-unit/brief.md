@@ -161,9 +161,13 @@ you report: "stage 1, m2c starter saved" without a compile counts as unattempted
 When the permuter (or anything else) reaches score 0, put the readable C into your copy in
 place of the function's `GLOBAL_ASM` line and confirm with fdiff: a match left only in a
 draft is not merged.
-Run `date` when you start and do NOT write your final report until `date` shows at least
-25 minutes later, unless every assigned function matched: a report after 3-12 minutes with
-functions at stage 1-3 is a failure. A frame-size mismatch is stage 3 at most.
+Stop on outcome, not time: report as soon as every assigned function is matched, or is back
+on its exact `GLOBAL_ASM` line with a saved draft whose note names the stage and the exact
+remaining diff, and you have no untried idea left (a few attempts in a row that no longer
+shrink the diff). Never wait or idle to fill time. Save the draft after every attempt that
+improves it, so nothing is lost if your context runs out. Keep context small: diff one
+function's objdump at a time and pipe long output through `head`. A function reported at
+stage 1-3 with untried next steps is unfinished work. A frame-size mismatch is stage 3 at most.
 A function's own rodata constants (the `dlabel D_8075xxxx` blocks inside its `.s`) are C
 literals of the right type (`0.35f`, `1.07`), one occurrence per rodata entry in source
 order; never `extern f64 D_8075...` for them (identical code, but `.rodata` fails).

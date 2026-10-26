@@ -229,26 +229,20 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    its functions with the last known diff note and stage reached; agents start from the
    stored draft
    (`tools/drafts.py show SEG FUNC`; drafts are keyed by segment because overlays share names like `func_80024000`), not from m2c.
-   Agents finish after 15–25 min whatever the list length; re-prompting an idle agent to
-   "continue" returned the same report with no new matches (boss round 1, 5 tries):
-   dispatch the next round instead. Round-1 agents of the `55B20` unit stopped at 11–13 min
-   with functions never attempted; adding "Use your WHOLE budget (~25+ minutes) before
-   reporting" to every later task `context` made agents run 20–37 min. In the `EFDC0`–`F9450`
-   unit the same line did not help: 20-function round-1 agents reported after 4–13 min with
-   half their list at raw m2c (stage 1), large-function agents after 2–8 min. What worked
-   there: second-pass agents of 4–6 functions starting from the stored drafts with each
-   draft's diff note in the task (EfN4 5/5, EfN9 3/5, F5N3 5/7, F5N2 5/5), and a re-prompt
-   via `write agent://<id>` naming the exact next step (frame size to reach, which
-   candidate to trace) bought a second 10–20 min pass (two reached stage 4, none matched).
-   A wall-clock gate is what finally held agents to their budget: put "Run `date` at start
-   and do NOT write your final report until `date` shows at least 25 minutes later unless
-   every function matched" in every task `context` (brief.md now says so). In the
-   `119370`–`127B00` unit agents without it reported after 3–8 min (Ud1, Ub3, Ub5: 0–2
-   matches each); with it every agent ran 24–31 min. Time alone did not match functions:
-   the yield came from dedicated near-miss agents given 4–6 stage-4+ drafts plus the
-   unit's findings (NM1: 5 of 6 by function-owned constants as C literals and explicit
-   f32 call-result temporaries; NM2: 3 incl. a ROM-gated paste). Mid-size fresh lists
-   (5–7 functions, 100–300 insns) mostly ended at stage 3 (frame size) even at 25 min.
+   Agents' budget is their context window (model-dependent: Codex agents have 272k), not
+   wall-clock time, so the brief gates on outcome: report when every function is matched or
+   back on its `GLOBAL_ASM` line with a draft noting stage + exact remaining diff, and no
+   untried idea is left. A 25-minute `date` gate used until the n_audio unit only made
+   finished agents sleep (FxPull waited out the clock on a stage-3 draft); removed.
+   Size lists to the context: ~1,000 insns per agent, functions over ~400 insns alone; diffs
+   one function at a time. Continuation is the orchestrator's job: when an agent reports
+   with functions left, dispatch a FRESH agent from the stored drafts with each draft's diff
+   note and the exact next step (frame size to reach, expression to flip), rather than
+   re-prompting the old one to "continue" (boss round 1: 5 re-prompts, no new matches).
+   What produced matches across units: second-pass agents of 4–6 functions starting from
+   stage-4+ drafts plus the unit's findings (EfN4 5/5, F5N2 5/5, NM1 5/6), concrete
+   re-prompts naming one trick, and fresh-eyes agents on a sibling's near-miss (n_audio:
+   PermLpf 2/2, FxParam 1/1, after the original agents' third passes found nothing).
    Before declaring the stop rule, list what is left and spot never-assigned functions
    (the `119370` unit found a 7-function chunk nobody had been given):
    `for f in $(grep -o 'nonmatchings/<file>/func_[0-9A-F]*' src/<seg>/<file>.c | cut -d/ -f3); do echo "$f $(head -1 drafts/<seg>/$f.c 2>/dev/null | grep -oiE 'stage [0-9]' | head -1)"; done` (empty stage = no draft).
