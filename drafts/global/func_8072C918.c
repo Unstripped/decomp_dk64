@@ -1,4 +1,4 @@
-// func_8072C918 (src/global/12E800.c): stage 2-3: behaviourally equivalent C (compiles; text 18976+ vs 19120 bytes). Not matched: target keeps an s16 |D_807FDC90->unk8 - actor->unkEE| temp live across both early calls (sh t2,0x4A(sp) spilled/reloaded, frame 0x58, locals sp3C/40/4A/4D/4E/50/54) but nothing visible reads it; my C lets uopt delete it, frame 0x60, 36 insns short. Also target keeps raw v0 (ret, used in 0x23 compares) and a masked copy in a3 (type). Switch/jtbl layout reproduced (case order 1-3,4/0x11/0x19,0x34->0x23,0x33,7->0x10,0x35). func_80726164 is (Actor*, s16 x, s16 y, s16 z, void *D_807FDCA0), m2c misread. Needs D_807FDC9C view etc as in file.
+// func_8072C918 (src/global/12E800.c): stage 4: compiles, 19056/19120 bytes (16 insns short), frame 0x60 vs 0x58; register assignment matches target (dist t1, ang t2, st t3, near t4, ret v0, type a3 not yet) but spill slots/home layout differ (target homes: st 0x54 dist 0x50 type 0x4E sp4D 0x4D ang 0x4A near 0x40 bb40-temp 0x3C; mine temp slots 0x24/0x34/0x5c). Key trick: the target keeps ang=|DC90->unk8 - actor->unkEE| live (spilled around both early calls) although nothing reads it: an empty 'if (ang != 0) {}' before the switch reproduces that (plain unused ang gets deleted). Also ret (s32, raw v0, used in case 0x23 compares) + type (u8 copy). func_80726164 is (Actor*, s16 x, s16 y, s16 z, void *D_807FDCA0). permuter unusable (late_rodata).
 typedef struct C1Sub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
@@ -106,6 +106,8 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
     }
     ret = func_8072C670(dist < 0x1388, &sp4D);
     type = ret;
+    if (ang != 0) {
+    }
     switch (C1B40->unk154) {
         case 1:
         case 2:
