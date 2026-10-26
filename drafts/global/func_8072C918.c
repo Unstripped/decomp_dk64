@@ -1,4 +1,4 @@
-// func_8072C918 (src/global/12E800.c): stage 4: compiles, 19056/19120 bytes (16 insns short), frame 0x60 vs 0x58; register assignment matches target (dist t1, ang t2, st t3, near t4, ret v0, type a3 not yet) but spill slots/home layout differ (target homes: st 0x54 dist 0x50 type 0x4E sp4D 0x4D ang 0x4A near 0x40 bb40-temp 0x3C; mine temp slots 0x24/0x34/0x5c). Key trick: the target keeps ang=|DC90->unk8 - actor->unkEE| live (spilled around both early calls) although nothing reads it: an empty 'if (ang != 0) {}' before the switch reproduces that (plain unused ang gets deleted). Also ret (s32, raw v0, used in case 0x23 compares) + type (u8 copy). func_80726164 is (Actor*, s16 x, s16 y, s16 z, void *D_807FDCA0). permuter unusable (late_rodata).
+// func_8072C918 (src/global/12E800.c): stage 6, 3 diff lines left (plus reloc-only jtbl_8075FE10 / 0.667 literal): (a) case 0x23 'beq t5,v0' operand order (target lbu t5,0x36(v1); beq t5,v0; mine beq v0,t5), (b) the 'C1D90->unk20-- == 0' flag lands in a0 (target sltiu t4,v0,1 / beqz t4). Same size 19120, frame 0x58, every slot equal. Source: locals st,dist,u8 pad0,u8 type,u8 sp4D,s16 ang,u32 ret,s32 near,C1Act *me; no float/s16 temps (SQ macro); 'ret = f(); type = ret;' + '(s32)ret >= 7' keeps ret raw in v0; me = C1B40 at top (sp3C); reuse me for the unk178 pointer in case 0x34 (me = (C1Act *)C1B40->unk178; *(s16 *)me) puts it in v1; dead 'near == 5', 'dist == 3', 'ang != 0' tests before the switch.
 typedef struct C1Sub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
@@ -71,35 +71,28 @@ void func_8072DE44(s32);
 void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
     D1S174 *st;
     s32 dist;
-    s32 near;
-    s16 ang;
-    u8 sp4D;
+    u8 pad0;
     u8 type;
-    s32 ret;
-    f32 dx;
-    f32 dy;
-    f32 dz;
-    s16 a;
-    s16 b;
-    u8 c;
+    u8 sp4D;
+    s16 ang;
+    u32 ret;
+    s32 near;
+    C1Act *me;
 
     st = D_807FDC94->unk174;
-    dx = D_807FBB40->unk7C - D_807FDC94->unk7C;
-    dy = D_807FBB40->unk80 - D_807FDC94->unk80;
-    dz = D_807FBB40->unk84 - D_807FDC94->unk84;
-    dist = (s32)((dx * dx) + (dy * dy) + (dz * dz));
+    me = C1B40;
+#define SQ(x) ((x) * (x))
+    dist = (s32)(SQ(me->unk7C - D_807FDC94->unk7C) + SQ(me->unk80 - D_807FDC94->unk80) + SQ(me->unk84 - D_807FDC94->unk84));
     near = dist < arg0;
     if (near == 0) {
         near = (C1D98->unk46 & 4) != 0;
     }
-    a = C1D90->unk8;
-    b = C1B40->unkEE;
-    if (a < b) {
-        ang = b - a;
+    if (C1D90->unk8 < me->unkEE) {
+        ang = me->unkEE - C1D90->unk8;
     } else {
-        ang = a - b;
+        ang = C1D90->unk8 - me->unkEE;
     }
-    if ((func_80726164(D_807FBB40, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FDCA0) != 0) && !(C1D98->unk46 & 0x2000) && !(st->unk1F0 & 0x8000)) {
+    if ((func_80726164((Actor *)me, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FDCA0) != 0) && !(C1D98->unk46 & 0x2000) && !(st->unk1F0 & 0x8000)) {
         C1D90->unk1A |= 0x400;
     } else {
         C1D90->unk1A &= 0xFBFF;
@@ -108,14 +101,18 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
     type = ret;
     if (ang != 0) {
     }
+    if (near == 5) {
+    }
+    if (dist == 3) {
+    }
     switch (C1B40->unk154) {
         case 1:
         case 2:
         case 3:
-            if (C1D98->unk26 == C1B40->unk4->unk64) {
+            if (C1B40->unk4->unk64 == C1D98->unk26) {
                 func_80614EBC(D_807FBB40, C1D98->unk28);
             }
-            if (C1D9C->unkC != C1D90->unk26) {
+            if (C1D90->unk26 != C1D9C->unkC) {
                 func_8072B324(D_807FBB40, C1D9C->unkC);
             }
         case 4:
@@ -135,28 +132,27 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
             }
             break;
         case 0x34:
-            if (dist < *C1B40->unk178) {
+            me = (C1Act *)C1B40->unk178;
+            if (dist < *(s16 *)me) {
                 func_8072B59C(0x24, 0, arg1);
                 return;
             }
         case 0x23:
-            if ((C1D90->unk36 != ret) && ((sp4D == 0) || (ret >= 7))) {
+            if ((ret != C1D90->unk36) && ((sp4D == 0) || ((s32)ret >= 7))) {
                 func_8072C870(type, C1D9C->unkD, arg2);
                 return;
             }
             if (near & 0xFF) {
                 if (!(C1D90->unk1A & 0x400)) {
-                    c = C1D9C->unkC;
-                    func_8072B59C(0x35, (s16)(s32)(c * 0.667), arg1);
+                    func_8072B59C(0x35, (s16)(s32)(C1D9C->unkC * 0.667), arg1);
                     C1D90->unk20 = 0x3C;
                     C1D90->unkA = D_807FDC94->unk88;
                     C1D90->unkC = D_807FDC94->unk8C;
                     C1D90->unkE = D_807FDC94->unk90;
                     return;
                 }
-                c = C1D9C->unkD;
-                if (C1D90->unk26 < c) {
-                    func_8072B59C(type, c, arg2);
+                if (C1D90->unk26 < C1D9C->unkD) {
+                    func_8072B59C(type, C1D9C->unkD, arg2);
                     return;
                 }
             } else {
@@ -171,9 +167,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
             }
             break;
         case 7:
-            dz = D_807FBB40->unk84 - C1D90->unkE;
-            dx = D_807FBB40->unk7C - C1D90->unkA;
-            if (((dz * dz) + (dx * dx)) < 400.0f) {
+            if ((SQ(D_807FBB40->unk84 - C1D90->unkE) + SQ(D_807FBB40->unk7C - C1D90->unkA)) < 400.0f) {
                 if (!(C1D90->unk1A & 0x80)) {
                     func_8072DE44(C1D98->unk28);
                 } else {
@@ -181,7 +175,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
                 }
             }
         case 0x10:
-            if (C1D90->unk36 != type) {
+            if (type != C1D90->unk36) {
                 func_8072C870(type, C1D9C->unkD, arg2);
             }
             if (near & 0xFF) {
@@ -199,9 +193,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
                 func_8072B59C(type, C1D9C->unkD, arg2);
                 return;
             }
-            c = C1D90->unk20;
-            C1D90->unk20 = c - 1;
-            if (c == 0) {
+            if (C1D90->unk20-- == 0) {
                 func_8072B59C(C1D9C->unk10, C1D9C->unkC, arg1);
             }
             break;
