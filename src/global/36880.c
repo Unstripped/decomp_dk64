@@ -70,7 +70,6 @@ void func_80631F58(u8 *, u8 **, u8 **);
 s32 func_80631EB8(u16);
 void assetSetImmediateFree(void);
 
-#ifdef NON_MATCHING
 extern u8 D_80747D78;
 
 void func_80631C3C(void) {
@@ -108,10 +107,6 @@ void func_80631C3C(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80631C3C.s")
-#endif
 
 u16 func_80631D8C(u8 arg0) {
     u16 total;
