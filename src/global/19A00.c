@@ -55,7 +55,49 @@ void func_80614E78(Actor *arg0, s32 arg1) {
     func_80614EBC(arg0, *(D_807FBB54 + index));
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614EBC.s")
+extern u8 *D_807FBB50;
+
+typedef struct Perm4gEBCState {
+    u8 pad0[0x64];
+    s16 unk64;
+    u8 pad66[2];
+    u8 *unk68;
+    u8 *unk6C;
+    s32 unk70;
+    u8 pad74[4];
+    s32 unk78;
+    s32 unk7C;
+    f32 unk80;
+    u8 pad84[4];
+    s32 unk88;
+} Perm4gEBCState;
+
+void func_80614EBC(Actor *arg0, s32 arg1) {
+    Perm4gEBCState *state;
+    unsigned int base;
+    s32 script;
+
+    state = (Perm4gEBCState *)arg0->unk4;
+    state->unk70 = 0;
+    state->unk78 = 0;
+    state->unk7C = 0;
+    state->unk88 = 0;
+    state->unk80 = 0.0f;
+    if (arg1 == 0) {
+        state->unk68 = NULL;
+        D_807F5AF0 = NULL;
+        D_807F5AF4 = 0;
+        return;
+    }
+    state->unk64 = arg1;
+    base = (s32)D_807FBB50;
+    script = (long long)(*(s32 *)(base + (arg1 * 4)) + base);
+    state->unk68 = (u8 *)script;
+    state->unk6C = (u8 *)script;
+    D_807F5AF0 = (u8 *)script;
+    if (script && script) {
+    }
+}
 
 void func_80614F28(u8 *arg0) {
     *arg0 = *D_807F5AF0++;
@@ -1142,7 +1184,6 @@ s32 func_80616C8C(Actor *arg0) {
     return 1;
 }
 
-s32 func_80611A44();
 
 s32 func_80616CB8(Actor *arg0) {
     u8 sp1F;
