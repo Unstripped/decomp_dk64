@@ -449,7 +449,198 @@ void func_8072AA80(void) {
     D1DC90->unkC = rnd % (lim - base + 1) + base;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072AB74.s")
+typedef struct E3Actor {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ ActorSub4 *unk4;
+    /* 0x08 */ u8 pad8[0x34];
+    /* 0x3C */ u8 pad3C[0x20];
+    /* 0x5C */ u16 unk5C;
+    /* 0x5E */ u8 pad5E[0x1E];
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ f32 unk84;
+    /* 0x88 */ f32 unk88;
+    /* 0x8C */ f32 unk8C;
+    /* 0x90 */ f32 unk90;
+    /* 0x94 */ u8 pad94[0x10];
+    /* 0xA4 */ f32 unkA4;
+    /* 0xA8 */ u8 padA8[0x10];
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[4];
+    /* 0xC0 */ f32 unkC0;
+    /* 0xC4 */ u8 padC4[0x22];
+    /* 0xE6 */ s16 unkE6;
+    /* 0xE8 */ u8 padE8[6];
+    /* 0xEE */ s16 unkEE;
+    /* 0xF0 */ u8 padF0[0xC];
+    /* 0xFC */ u8 unkFC;
+    /* 0xFD */ u8 unkFD;
+} E3Actor;
+
+typedef struct E3Dc90 {
+    /* 0x00 */ u8 pad0[8];
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ u8 padA[6];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ u8 pad12[2];
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ u8 pad16[4];
+    /* 0x1A */ u16 unk1A;
+    /* 0x1C */ u16 unk1C;
+    /* 0x1E */ u8 pad1E[4];
+    /* 0x22 */ u8 unk22;
+    /* 0x23 */ u8 unk23;
+} E3Dc90;
+
+typedef struct E3Dc98 {
+    /* 0x00 */ u8 pad0[0x34];
+    /* 0x34 */ f32 unk34;
+    /* 0x38 */ u8 pad38[0xE];
+    /* 0x46 */ u16 unk46;
+} E3Dc98;
+
+typedef struct E3DcA0 {
+    /* 0x00 */ u8 pad0[0x19];
+    /* 0x19 */ u8 unk19;
+} E3DcA0;
+
+#define E3A ((E3Actor *)D_807FBB40)
+#define E3C90 ((E3Dc90 *)D_807FDC90)
+#define E3C98 ((E3Dc98 *)D_807FDC98)
+#define E3CA0 ((E3DcA0 *)D_807FDCA0)
+
+s32 mathAngleDistance(s16, s16);
+void func_8067ACB4(Actor *);
+void func_80729EB0(u8, f32, f32, u16);
+void func_80666280(s32);
+void actorStepPhysics(Actor *, s16, s16);
+void actorApplyVelocityCustom(Actor *, f32, f32);
+void func_80665564(Actor *, f32);
+void func_8072B438(u16);
+void actorApplyVelocity(Actor *);
+u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
+s32 func_80725BA4(s16, s16, void *);
+s32 func_807264B0(Actor *, f32, f32, void *, s16 *);
+f32 func_80612790(s16);
+
+u32 func_8072AB74(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
+    f32 area;
+    s16 sp52;
+    s16 *sp4C;
+    f32 dd0;
+    f32 dd1;
+    u8 sp43;
+
+    area = D_807FBB40->unk4->unk38 / 0.15;
+    sp43 = 0;
+    sp4C = &E3C90->unk8;
+    E3C90->unk1C = E3C90->unk1A;
+    E3C90->unk1A &= 0xBD7F;
+    if ((E3A->unk7C - arg1) * (E3A->unk7C - arg1) + (E3A->unk84 - arg2) * (E3A->unk84 - arg2) < 1600.0f * area) {
+        E3C90->unk1A |= 0x80;
+        if (mathAngleDistance(*sp4C, E3A->unkE6) >= 0x191) {
+            E3A->unkB8 *= E3C98->unk34;
+        }
+    }
+    func_8067ACB4(D_807FBB40);
+    if (E3A->unkB8 != 0.0f || (arg3 & 4)) {
+        func_80729EB0(arg0, arg1, arg2, arg3);
+    }
+    if (!(arg3 & 0x1001)) {
+        func_80729E6C();
+    }
+    if (!(E3C98->unk46 & 0x200)) {
+        func_80666280(2);
+    }
+    if (E3CA0->unk19 == 1 && (arg0 != 0x37 || !(E3C98->unk46 & 0x10))) {
+        func_80666280(1);
+    }
+    if (arg3 & 0x4000) {
+        E3A->unkFC = 0;
+    }
+    if (arg0 != 0x37 && !(E3C90->unk1A & 2)) {
+        actorStepPhysics(D_807FBB40, E3A->unkEE, E3A->unkE6);
+    }
+    if (arg3 & 2) {
+        if (!(arg3 & 1)) {
+            actorApplyVelocityCustom(D_807FBB40, 0, E3A->unkC0);
+        }
+        func_80665564(D_807FBB40, arg4);
+        if (!(arg3 & 0x2000)) {
+            func_8072A714();
+        }
+        if (!(arg3 & 0x10)) {
+            func_8072A450();
+        }
+        return 0;
+    }
+    if (!(arg3 & 0x20)) {
+        func_8072B438(arg3);
+    }
+    if (arg3 & 0x800) {
+        actorApplyVelocityCustom(D_807FBB40, 0, E3A->unkC0);
+    } else if (arg3 & 1) {
+        actorApplyVelocityCustom(D_807FBB40, E3A->unkB8, 0);
+    } else {
+        actorApplyVelocity(D_807FBB40);
+    }
+    if (!(arg3 & 8)) {
+        func_80665564(D_807FBB40, arg4);
+    } else if (E3CA0->unk19 != 1 && (arg3 & 0x10)) {
+        collisionCheckActorFloor(D_807FBB40, E3A->unk7C, E3A->unk8C, E3A->unk84, &E3A->unkA4);
+    }
+    if (!(arg3 & 0x2000)) {
+        func_8072A714();
+    }
+    if (!(arg3 & 0x10)) {
+        func_8072A450();
+    }
+    E3A->unkFC = 0;
+    E3A->unkFD = 0;
+    if ((E3C98->unk46 & 0x20) || (E3A->unk5C & 0x40)) {
+        return 0;
+    }
+    if (arg0 == 0x37 && (E3C98->unk46 & 0x10)) {
+        if (func_80725BA4(E3A->unk7C, E3A->unk84, D_807FDCA0) == 0) {
+            E3A->unkB8 = ((E3A->unkB8 >= 0.0f) ? 1 : -1) * 30;
+            return 0;
+        }
+        E3C90->unk1A |= 0x4000;
+        if (0) {
+        }
+        return 0;
+    }
+    if (func_80725BA4(E3A->unk7C, E3A->unk84, D_807FDCA0) != 0) {
+        E3C90->unk1A |= 0x4000;
+        if (func_807264B0(D_807FBB40, E3A->unk88, E3A->unk90, D_807FDCA0, &sp52) == 0) {
+            if (func_80725BA4(func_80612794(E3A->unkEE) * E3A->unkB8 + E3A->unk7C, func_80612790(E3A->unkEE) * E3A->unkB8 + E3A->unk84, D_807FDCA0) == 0) {
+                if (E3C90->unk22-- == 0) {
+                    *sp4C += 0x800;
+                    *sp4C &= 0xFFF;
+                    E3C90->unk22 = E3C90->unk23 * 4;
+                }
+            }
+        } else if (arg0 == 0x37 || arg0 == 0) {
+            E3A->unkB8 = 0.0f;
+            E3A->unk7C = E3C90->unk10;
+            E3A->unk84 = E3C90->unk14;
+            return 0;
+        }
+        E3C90->unk10 = E3A->unk7C;
+        E3C90->unk14 = E3A->unk84;
+    } else {
+        sp43 = 1;
+        E3C90->unk1A |= 0x200;
+        E3A->unk7C = E3C90->unk10;
+        E3A->unk84 = E3C90->unk14;
+        if (E3C90->unk22-- == 0) {
+            *sp4C += 0x800;
+            *sp4C &= 0xFFF;
+            E3C90->unk22 = E3C90->unk23 * 6;
+        }
+    }
+    return sp43;
+}
 
 typedef struct D1Unk174 {
     /* 0x00 */ u8 pad0[0x26];
@@ -545,7 +736,6 @@ void func_8072B59C(u8 arg0, s16 arg1, s32 arg2) {
 }
 
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-f32 func_80612790(s16);
 
 void func_8072B608(void) {
     u32 phase;
@@ -670,7 +860,6 @@ typedef struct F1Act {
 #define F1S9C ((F1Dc9c *)D_807FDC9C)
 
 s32 func_80725ED4(s32, Actor *, void *, s16 *, s16 *, s16 *);
-void func_8067ACB4(Actor *);
 s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_807232B8(s32, s32);
