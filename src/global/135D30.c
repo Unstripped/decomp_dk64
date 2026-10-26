@@ -148,11 +148,52 @@ void func_8073129C(s16 arg0, u8 arg1, u8 arg2) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/135D30/func_807313BC.s")
+extern E2Ent D_807FDCD0[];
+s32 func_805FF938(s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/135D30/func_80731410.s")
+void func_807313BC(void) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/135D30/func_807314F4.s")
+    for (i = 0; i < 0x18; i++) {
+        if (func_805FF938(D_807FDCD0[i].unk0) == 0) {
+            D_807FDCD0[i].unk7 = 0;
+        }
+    }
+}
+
+void func_80731410(s16 arg0, s16 arg1, s16 arg2, u8 arg3) {
+    s32 i;
+
+    for (i = 0; i < 0x18; i++) {
+        if (D_807FDCD0[i].unk7 == 0) {
+            D_807FDCD0[i].unk0 = arg0;
+            D_807FDCD0[i].unk2 = arg1;
+            D_807FDCD0[i].unk4 = arg2;
+            D_807FDCD0[i].unk6 = arg3;
+            D_807FDCD0[i].unk7 = 1;
+            return;
+        }
+    }
+}
+
+void func_807314F4(s16 arg0, s16 arg1) {
+    s32 i;
+    s32 n = 0x71;
+
+    for (i = 0; i < n; i++) {
+        if (arg0 == D_80755A20[i].unk0 && arg1 == D_80755A20[i].unk2) {
+            func_8073129C(D_80755A20[i].unk4, 1, 0);
+            return;
+        }
+    }
+    for (i = 0; i < 0x18; i++) {
+        if (D_807FDCD0[i].unk7 != 0 && arg0 == D_807FDCD0[i].unk0 && arg1 == D_807FDCD0[i].unk2) {
+            func_8073129C(D_807FDCD0[i].unk4, 1, 0);
+            D_807FDCD0[i].unk7 = 0;
+            return;
+        }
+    }
+}
 
 s32 func_807315D4(s16 arg0, s16 arg1) {
     s32 i;
@@ -166,7 +207,22 @@ s32 func_807315D4(s16 arg0, s16 arg1) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/135D30/func_80731654.s")
+u8 func_80731654(s16 arg0, s16 arg1) {
+    s32 i;
+    s32 n = 0x71;
+
+    for (i = 0; i < n; i++) {
+        if (arg0 == D_80755A20[i].unk0 && arg1 == D_80755A20[i].unk2) {
+            return D_80755A20[i].unk6;
+        }
+    }
+    for (i = 0; i < 0x18; i++) {
+        if (D_807FDCD0[i].unk7 != 0 && arg0 == D_807FDCD0[i].unk0 && arg1 == D_807FDCD0[i].unk2) {
+            return D_807FDCD0[i].unk6;
+        }
+    }
+    return 0;
+}
 
 #ifdef NON_MATCHING
 extern E2Ent D_80755DA8[];
