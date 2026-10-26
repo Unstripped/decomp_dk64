@@ -201,7 +201,12 @@ typedef struct H1ActorState {
     /* 0x134 */ u8 unk134;
     /* 0x135 */ u8 pad135[3];
     /* 0x138 */ f32 unk138;
-    /* 0x13C */ u8 pad13C[0x60];
+    /* 0x13C */ f32 unk13C;
+    /* 0x140 */ f32 unk140;
+    /* 0x144 */ f32 unk144;
+    /* 0x148 */ f32 unk148;
+    /* 0x14C */ u8 pad14C[0x10];
+    /* 0x15C */ u8 unk15C[0x40];
     /* 0x19C */ s16 unk19C;
     /* 0x19E */ s16 unk19E;
     /* 0x1A0 */ u8 pad1A0[4];
@@ -287,9 +292,13 @@ typedef struct H1SlotEntry {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
-    /* 0x0C */ u8 padC[0x18];
+    /* 0x0C */ u8 padC[8];
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ u8 pad18[0xC];
     /* 0x24 */ u32 *unk24;
-    /* 0x28 */ u8 pad28[0x68];
+    /* 0x28 */ u8 pad28[0x5C];
+    /* 0x84 */ s16 unk84;
+    /* 0x86 */ u8 pad86[0xA];
 } H1SlotEntry; // size = 0x90
 
 extern H1SlotEntry *D_807F6000;
@@ -320,24 +329,446 @@ u8 func_8072F4A8(Actor *arg0, u8 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     return ret;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_8072F59C.s")
+void func_8061F2B8(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
+void func_806335B0(void *, s32, s32, f32 *, f32 *, f32 *);
+extern s16 D_807FD584;
+extern s16 D_80753B74[];
+s32 mathAngleDistance(s16, s16);
+f32 func_80611BB4(f32, f32);
+s32 func_8072F8D4(H1ProxNode *, s32, s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_8072F8D4.s")
+s32 func_8072F59C(Actor *arg0, H1ProxNode *arg1, f32 *arg2, u8 *arg3) {
+    s32 i;
+    f32 bz;
+    f32 by;
+    f32 bx;
+    f32 az;
+    f32 ay;
+    f32 ax;
+    s32 ang;
+    u8 ret;
+    u8 idA;
+    u8 idB;
+    f32 best;
+    f32 r2;
+    f32 ox;
+    f32 oy;
+    f32 oz;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_8072FA14.s")
+    ret = 0;
+    best = 999999.0f;
+    if (arg0->unk154 == 0x5A || arg0->unk154 == 0x58) {
+        r2 = arg1->unk24 * arg1->unk24;
+    } else {
+        r2 = arg1->unk20 * arg1->unk20;
+    }
+    if (arg1->unk6 == 1) {
+        r2 += D_80753B74[D_807FD584];
+    }
+    for (i = 0; i < arg1->unk7; i++) {
+        if (arg1->unk34[i].unk18 == 0) {
+            idA = arg1->unk34[i].unk0;
+            idB = arg1->unk34[i].unk1;
+            switch (arg1->unk4) {
+            case 0:
+                actorGetNodePos(arg1->unk0, idA, &ax, &ay, &az);
+                actorGetNodePos(arg1->unk0, idB, &bx, &by, &bz);
+                break;
+            case 1:
+            case 2:
+                func_806335B0(arg1->unk0, 1, idA, &ax, &ay, &az);
+                func_806335B0(arg1->unk0, 1, idB, &bx, &by, &bz);
+                break;
+            }
+            func_8061F2B8(arg0->unk7C, arg0->unk80, arg0->unk84, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
+            *arg2 = (arg0->unk7C - ox) * (arg0->unk7C - ox) + (arg0->unk80 - oy) * (arg0->unk80 - oy) + (arg0->unk84 - oz) * (arg0->unk84 - oz);
+            if (*arg2 < r2 && *arg2 < best) {
+                ang = func_80611BB4(ox - arg0->unk7C, oz - arg0->unk84) * 4096.0 / 6.2831855f;
+                if (mathAngleDistance(ang, arg0->unkE6) < 0x2BC) {
+                    if (func_8072F8D4(arg1, i, arg0->unkE6)) {
+                        best = *arg2;
+                        ret = 1;
+                        *arg3 = i;
+                    }
+                }
+            }
+        }
+    }
+    *arg2 = sqrtf(best);
+    return ret;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_8072FCC4.s")
+s32 func_806725E4(s16, s16, s16, s32);
+
+s32 func_8072F8D4(H1ProxNode *arg0, s32 arg1, s16 arg2) {
+    s16 slot;
+    s32 delta;
+
+    if (arg0->unk4 == 0) {
+        return 1;
+    }
+    slot = hashTableLookup(arg0->unk0);
+    if (!(D_807F6000[slot].unk84 == 0xC9 || D_807F6000[slot].unk84 == 0xCA || D_807F6000[slot].unk84 == 0x1CB || D_807F6000[slot].unk84 == 0x1F7 || D_807F6000[slot].unk84 == 0x1F8)) {
+        return 1;
+    }
+    delta = D_807F6000[slot].unk14 * 4096.0f / 360.0f;
+    if (func_806725E4((s16)((arg0->unk34[arg1].unk10 + delta) & 0xFFF), (s16)((arg0->unk34[arg1].unk14 + delta) & 0xFFF), arg2, 0)) {
+        return 1;
+    }
+    return 0;
+}
+
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+void *memcpy(void *, const void *, unsigned int);
+
+f32 func_8072FA14(Actor *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3) {
+    u8 idA;
+    u8 idB;
+    f32 bz;
+    f32 by;
+    f32 bx;
+    f32 az;
+    f32 ay;
+    f32 ax;
+    f32 ox;
+    f32 oy;
+    f32 oz;
+    f32 t;
+    f32 px;
+    f32 py;
+    f32 pz;
+
+    idA = arg2->unk34[arg3].unk0;
+    idB = arg2->unk34[arg3].unk1;
+    switch (arg2->unk4) {
+    case 0:
+        actorGetNodePos(arg2->unk0, idA, &ax, &ay, &az);
+        actorGetNodePos(arg2->unk0, idB, &bx, &by, &bz);
+        break;
+    case 1:
+    case 2:
+        func_806335B0(arg2->unk0, 1, idA, &ax, &ay, &az);
+        func_806335B0(arg2->unk0, 1, idB, &bx, &by, &bz);
+        break;
+    }
+    actorGetNodePos(arg0, 1, &px, &py, &pz);
+    func_8061F2B8(px, py, pz, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
+    t = (oy - ay) / (by - ay);
+    if (arg2->unk18 == 2 || arg2->unk18 == 3) {
+        if (arg3 == 0) {
+            if (t < 0.05) {
+                t = 0.05f;
+            }
+        }
+    }
+    if (arg2->unk18 == 1 || arg2->unk18 == 3) {
+        if (arg3 + 1 == arg2->unk7) {
+            if (t > 0.95) {
+                t = 0.95f;
+            }
+        }
+    }
+    arg1->unk13C = arg0->unk7C;
+    arg1->unk140 = arg0->unk80;
+    arg1->unk144 = arg0->unk84;
+    arg1->unk148 = 0.0f;
+    memcpy(arg1->unk15C, (u8 *)arg0 + 0xC, 0x40);
+    arg0->unkE6 = mathAngleBetweenPointsRad(ox, oz, arg0->unk7C, arg0->unk84) * 57.29577637f / 360.0 * 4095.0;
+    return t;
+}
+
+void func_8072FCC4(H1ProxNode *arg0, u8 arg1, f32 arg2, f32 *arg3) {
+    s32 i;
+
+    *arg3 = 0.0f;
+    for (i = 0; i < arg1; i++) {
+        *arg3 = *arg3 + arg0->unk34[i].unk4;
+    }
+    *arg3 = *arg3 + arg0->unk34[arg1].unk4 * arg2;
+}
+
+#ifdef NON_MATCHING
+void func_8072FDD4(H1ProxNode *arg0, f32 arg1, u8 *arg2, f32 *arg3) {
+    u8 i;
+    f32 rem;
+    f32 prev;
+    H1ProxSub *sub;
+
+    rem = arg1;
+    i = 0;
+    sub = arg0->unk34;
+    do {
+        prev = rem;
+        rem -= sub[i++].unk4;
+    } while (rem > 0.0 && i < arg0->unk7);
+    i--;
+    *arg2 = i;
+    *arg3 = prev / arg0->unk34[i].unk4;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_8072FDD4.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_8072FE60.s")
+typedef struct H1CamState {
+    /* 0x000 */ u8 pad0[0x124];
+    /* 0x124 */ f32 unk124;
+    /* 0x128 */ f32 unk128;
+    /* 0x12C */ u8 unk12C;
+    /* 0x12D */ u8 pad12D[3];
+    /* 0x130 */ Actor *unk130;
+    /* 0x134 */ u8 unk134;
+    /* 0x135 */ u8 pad135[3];
+    /* 0x138 */ f32 unk138;
+    /* 0x13C */ u8 pad13C[0x68];
+    /* 0x1A4 */ u8 unk1A4;
+} H1CamState;
+
+typedef struct H1ActorView {
+    /* 0x00 */ u8 pad0[0x6A];
+    /* 0x6A */ u16 unk6A;
+    /* 0x6C */ u8 pad6C[0x7A];
+    /* 0xE6 */ s16 unkE6;
+    /* 0xE8 */ u8 padE8[6];
+    /* 0xEE */ s16 unkEE;
+} H1ActorView;
+
+#define H1BB48 ((H1ActorView *)D_807FBB48)
+
+extern H1CamState *D_807FD580;
+extern u32 D_80744478;
+void func_806CFF9C(Actor *);
+
+void func_8072FE60(f32 arg0) {
+    f32 step;
+    H1ProxNode *node;
+    s32 found;
+
+    node = D_807FDCC0;
+    found = 0;
+    while (node != NULL && !found) {
+        if (node->unk0 == D_807FD580->unk130 && node->unk5 == D_807FD580->unk134) {
+            found = 1;
+        } else {
+            node = node->next;
+        }
+    }
+    if (!found || node->unk31 == 0) {
+        H1BB48->unk6A &= ~0x40;
+        return;
+    }
+    D_807FD580->unk124 = node->unk28;
+    D_807FD580->unk128 = node->unk2C;
+    D_807FD580->unk12C = node->unk30;
+    step = D_80744478 * 0.5;
+    D_807FD580->unk138 = D_807FD580->unk138 + node->unk14 * step * arg0;
+    H1BB48->unk6A &= ~0x80;
+    if (node->unkC < D_807FD580->unk138) {
+        if (node->unk18 == 1 || node->unk18 == 3) {
+            H1BB48->unkEE = H1BB48->unkE6;
+            playerStateQueueCallback(0xD, NULL, D_807FD580->unk1A4);
+        }
+        D_807FD580->unk138 = node->unkC;
+    }
+    if (D_807FD580->unk138 < node->unk8) {
+        if (node->unk18 == 2 || node->unk18 == 3) {
+            H1BB48->unkEE = H1BB48->unkE6;
+            func_806CFF9C(D_807FBB48);
+        }
+        D_807FD580->unk138 = node->unk8;
+    }
+    if (node->unkC <= D_807FD580->unk138 || D_807FD580->unk138 <= node->unk8) {
+        H1BB48->unk6A |= 0x80;
+    }
+}
+
+#ifdef NON_MATCHING
+typedef struct H1ActorB {
+    /* 0x000 */ u8 pad0[0xC];
+    /* 0x00C */ f32 unkC[4][4];
+    /* 0x04C */ u8 pad4C[0xC];
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ u8 pad5C[8];
+    /* 0x064 */ u32 unk64;
+    /* 0x068 */ u8 pad68[2];
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u8 pad6C[0x10];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x5E];
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ s16 unkE8;
+    /* 0x0EA */ u8 padEA[0x8A];
+    /* 0x174 */ H1ActorState *unk174;
+} H1ActorB;
+
+void func_8072FDD4(H1ProxNode *, f32, u8 *, f32 *);
+void func_80730D60(Actor *, u8, u8, u8, void **, void **);
+void func_80730E18(Mtx *, Mtx *, f32, Mtx *);
+void func_80730408(H1ActorB *, H1ActorState *, H1ProxNode *, u8, f32);
+
+void func_807300BC(H1ActorB **arg0) {
+    H1ActorB *actor;
+    H1ActorState *state;
+    u8 idx;
+    f32 t;
+    H1ProxNode *node;
+    void *p128;
+    void *p124;
+    s32 found;
+    Mtx mtx;
+    f32 mA[4][4];
+    f32 m6[4][4];
+    u8 idA;
+    u8 idB;
+    s32 nodeId;
+    f32 dx;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 dz;
+    f32 dy;
+    f32 dist;
+    f32 ang;
+
+    actor = *arg0;
+    node = D_807FDCC0;
+    state = actor->unk174;
+    found = 0;
+    while (node != NULL && !found) {
+        if (node->unk0 == state->unk130 && node->unk5 == state->unk134) {
+            found = 1;
+        } else {
+            node = node->next;
+        }
+    }
+    if (!found || (actor->unk64 & 0x2000)) {
+        actor->unk6A &= ~0x40;
+        return;
+    }
+    func_8072FDD4(node, state->unk138, &idx, &t);
+    idA = node->unk34[idx].unk0;
+    idB = node->unk34[idx].unk1;
+    switch (node->unk6) {
+    case 0:
+        func_80730D60(node->unk0, node->unk4, idA, idB, &p128, &p124);
+        func_80730E18(p128, p124, 1.0 - t, &mtx);
+        guRotateF(m6, (s16)(0, (actor->unkE6 - state->unk130->unkE6) & 0xFFF) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+        guTranslateF(mA, 0.0f, state->unk138 + -80.0, 0.0f);
+        guMtxCatF(m6, mA, mA);
+        guMtxL2F(actor->unkC, &mtx);
+        guMtxCatF(mA, actor->unkC, actor->unkC);
+        actorGetNodePos(actor, 8, &actor->unk7C, &actor->unk80, &actor->unk84);
+        state->unk19C = 0;
+        state->unk19E = 0xFFF;
+        if (D_807FBB40->unk6A & 0x40) {
+            if (actor->unk58 != 2 && actor->unk58 != 5) {
+                nodeId = 0xD;
+            } else {
+                nodeId = 0xF;
+            }
+            actorGetNodePos(actor, nodeId, &x, &y, &z);
+            dy = y - actor->unk80;
+            dx = x - actor->unk7C;
+            dz = z - actor->unk84;
+            dist = sqrtf(dx * dx + dz * dz);
+            ang = func_80611BB4(dist, dy);
+            actor->unkE8 = 0.0 - ang * 2048.0 / 3.1415927f;
+        } else {
+            actor->unkE8 = 0;
+        }
+        break;
+    case 1:
+        func_80730408(actor, state, node, idx, t);
+        actorGetNodePos(actor, 1, &actor->unk7C, &actor->unk80, &actor->unk84);
+        break;
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_807300BC.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_80730408.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_80730AEC.s")
+f32 func_80627A00(f64, f32, f32, f32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_80730D60.s")
+void func_80730AEC(u8 arg0, f32 arg1, H1ProxNode *arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
+    u8 ids[4];
+    f32 p[4][3];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_80730E18.s")
+    ids[0] = arg2->unk34[arg0 - 1 > 0 ? arg0 - 1 : 0].unk0;
+    ids[1] = arg2->unk34[arg0].unk0;
+    ids[2] = arg2->unk34[arg0].unk1;
+    ids[3] = arg2->unk34[arg0 + 1 < arg2->unk7 - 1 ? arg0 + 1 : arg2->unk7 - 1].unk1;
+    switch (arg2->unk4) {
+    case 1:
+    case 2:
+        func_806335B0(arg2->unk0, 1, ids[0], &p[0][0], &p[0][1], &p[0][2]);
+        func_806335B0(arg2->unk0, 1, ids[1], &p[1][0], &p[1][1], &p[1][2]);
+        func_806335B0(arg2->unk0, 1, ids[2], &p[2][0], &p[2][1], &p[2][2]);
+        func_806335B0(arg2->unk0, 1, ids[3], &p[3][0], &p[3][1], &p[3][2]);
+        break;
+    case 0:
+        actorGetNodePos(arg2->unk0, ids[0], &p[0][0], &p[0][1], &p[0][2]);
+        actorGetNodePos(arg2->unk0, ids[1], &p[0][0], &p[0][1], &p[0][2]);
+        actorGetNodePos(arg2->unk0, ids[1], &p[0][0], &p[0][1], &p[0][2]);
+        actorGetNodePos(arg2->unk0, ids[2], &p[0][0], &p[0][1], &p[0][2]);
+        break;
+    }
+    *arg3 = func_80627A00(arg1, p[0][0], p[1][0], p[2][0], p[3][0]);
+    *arg4 = func_80627A00(arg1, p[0][1], p[1][1], p[2][1], p[3][1]);
+    *arg5 = func_80627A00(arg1, p[0][2], p[1][2], p[2][2], p[3][2]);
+}
+
+s32 actorStepSubNodeList(void *, s32);
+void *func_8063367C(Actor *, s32, s32);
+void heapFreeDeferred(void *);
+
+void func_80730D60(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, void **arg4, void **arg5) {
+    void *tmp;
+
+    switch (arg1) {
+    case 0:
+        *arg4 = (void *)actorStepSubNodeList(arg0, arg2);
+        *arg5 = (void *)actorStepSubNodeList(arg0, arg3);
+        break;
+    case 1:
+    case 2:
+        tmp = func_8063367C(arg0, 1, arg2);
+        *arg4 = tmp;
+        heapFreeDeferred(tmp);
+        tmp = func_8063367C(arg0, 1, arg3);
+        *arg5 = tmp;
+        heapFreeDeferred(tmp);
+        break;
+    }
+}
+
+void func_80730E18(Mtx *arg0, Mtx *arg1, f32 arg2, Mtx *arg3) {
+    f32 m1[4][4];
+    f32 m2[4][4];
+    s32 i;
+    s32 j;
+
+    guMtxL2F(m1, arg0);
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
+            m1[i][j] = m1[i][j] * arg2;
+        }
+    }
+    guMtxL2F(m2, arg1);
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
+            m2[i][j] = m2[i][j] * (1.0 - arg2);
+        }
+    }
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
+            m1[i][j] += m2[i][j];
+        }
+    }
+    guMtxF2L(m1, arg3);
+}
