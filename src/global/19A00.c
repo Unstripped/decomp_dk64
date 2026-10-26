@@ -231,7 +231,18 @@ s32 func_80615A94(s32 arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615ADC.s")
+void func_80614014(s32, u16, f32, u8);
+
+s32 func_80615ADC(s32 arg0) {
+    u16 sp1E;
+    u8 sp1D;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    func_80614F28(&sp1D);
+    func_80614014(arg0, sp1E, 0.0f, sp1D);
+    return 1;
+}
 
 s32 func_80615B34(s32 arg0) {
     s16 sp1E;
