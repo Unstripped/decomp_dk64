@@ -1,4 +1,4 @@
-// func_80614D90 (src/global/19A00.c): stage 2: m2c behavioral starter; remaining command-table type and loop/call regalloc
+// func_80614D90 (src/global/19A00.c): stage 4: typed script-loop candidate compiled; target frame/save set recovered, remaining saved-register assignment and loop scheduling
 // Stage 2: m2c behavioral starter; remaining diff: command-table type and loop/call regalloc.
 extern ? D_80746BEC;
 extern u8 *D_807F5AF0;

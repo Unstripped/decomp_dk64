@@ -1,4 +1,4 @@
-// func_80614D48 (src/global/19A00.c): stage 2: m2c behavioral starter; remaining state view types/register allocation
+// func_80614D48 (src/global/19A00.c): stage 4: typed nested state candidate compiled; body instruction shape recovered, remaining ABI/register allocation
 // Stage 2: m2c behavioral starter; remaining diff: field-view types/register allocation.
 void func_80614D48(void *arg0, f32 arg1, f32 arg2) {
     void *temp_v0;

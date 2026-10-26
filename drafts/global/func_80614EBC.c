@@ -1,4 +1,4 @@
-// func_80614EBC (src/global/19A00.c): stage 2: m2c behavioral starter; remaining state/table types and global materialization
+// func_80614EBC (src/global/19A00.c): stage 4: typed script-state initialization candidate compiled; exact stores recovered, remaining argument/global register allocation
 // Stage 2: m2c behavioral starter; remaining diff: state/table types and global pointer materialization.
 extern u8 *D_807F5AF0;
 extern s32 D_807F5AF4;

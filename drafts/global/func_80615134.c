@@ -1,4 +1,4 @@
-// func_80615134 (src/global/19A00.c): stage 2: m2c behavioral starter; remaining nested state view and delay-slot expression
+// func_80615134 (src/global/19A00.c): stage 4: typed command-state candidate compiled; control flow and instruction count recovered, remaining global/state register scheduling
 // Stage 2: m2c behavioral starter; remaining diff: nested state view and delay-slot expression shape.
 extern u8 *D_807F5AF0;
 

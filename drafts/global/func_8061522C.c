@@ -1,4 +1,4 @@
-// func_8061522C (src/global/19A00.c): stage 2: m2c behavioral starter; remaining RNG prototype, state view, modulo expression
+// func_8061522C (src/global/19A00.c): stage 4: typed random-range candidate compiled with target frame; remaining local byte offsets and register allocation
 // Stage 2: m2c behavioral starter; remaining diff: RNG prototype, state view, modulo expression.
 s32 func_80611A44();
 void func_80614F28(u8 *arg0);

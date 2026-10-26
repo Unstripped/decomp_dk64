@@ -1,4 +1,4 @@
-// func_806151BC (src/global/19A00.c): stage 2: m2c behavioral starter; remaining state view/register allocation
+// func_806151BC (src/global/19A00.c): stage 4: typed candidate compiled with target frame; remaining register allocation
 // Stage 2: m2c behavioral starter; remaining diff: state view/register allocation.
 void func_80614F28(u8 *arg0);
 extern u8 *D_807F5AF0;

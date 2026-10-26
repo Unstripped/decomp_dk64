@@ -101,9 +101,20 @@ s32 func_806150F8(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061522C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806152FC.s")
+s32 func_806152FC(Actor *arg0) {
+    D_807F5AF0++;
+    ((P19aState *)arg0->unk4)->flags |= 4;
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615328.s")
+s32 func_80615328(Actor *arg0) {
+    s16 sp1E;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    ((P19aState *)arg0->unk4)->flags |= sp1E;
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061537C.s")
 
