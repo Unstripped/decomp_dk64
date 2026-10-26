@@ -1,5 +1,9 @@
 #include "common.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/169F0/func_80611CF0.s")
+f32 func_80611CF0(f32 arg0) {
+    return (f32) (s32) arg0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/169F0/func_80611D08.s")
+s32 func_80611D08(f32 arg0) {
+    return (s32) arg0;
+}
