@@ -1,4 +1,4 @@
-// func_8072E868 (src/global/1332B0.c): stage 5: only regalloc left. loop1: limit D_807FBDC4 in a0 / switch value v1 (target v1 / a0); e,j in s1,s2 swapped; flag-compute scheduling. Tried: s32 return for func_8067AB20, sel local, dead reads, & 0xFFFFFFFFu on limit/value, k->flag reuse (permuter 675 hint, no change), np=&subs[j].unk0 pointer local (worse). Permuter 420s best 675.
+// func_8072E868 (src/global/1332B0.c): regalloc only (score 910): dead 'if (0) {}' after 'e = D_80755A14->entries;' fixes e/j s2/s1; left: loop1 limit v1/value a0 (mine a0/v1), hook fn-ptr v0 (mine v1), flag scheduling. Permuter hints: flag reuse as k + 'j++; j--' (575 but leaves addiu 0).
 #include "common.h"
 #include "actor.h"
 
@@ -75,6 +75,8 @@ void func_8072E868(void) {
         }
     }
     e = D_80755A14->entries;
+    if (0) {
+    }
     for (i = 0; i < D_80755A14->count; i++, e++) {
         if (func_8072EA90(e)) {
             for (j = 0; j < e->unkE; j++) {

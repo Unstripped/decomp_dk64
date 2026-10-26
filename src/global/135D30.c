@@ -88,7 +88,6 @@ u8 func_8073110C(s16 arg0, u8 arg1) {
     return (base[idx] >> (s16)(arg0 - idx * 8)) & 1;
 }
 
-#ifdef NON_MATCHING
 typedef struct E2Rng {
     s16 unk0;
     s16 unk2;
@@ -101,23 +100,24 @@ extern E2Rng D_80756024[];
 void func_807311C4(s16 arg0) {
     u32 i;
     s32 res = -1;
-    E2Rng *e = D_80756024;
+    E2Rng *e;
 
-    for (i = 0; i < 0x21 && res == -1; i++, e++) {
+    for (i = 0; i < 0x21 && res == -1; i++) {
+        e = &D_80756024[i];
         if (arg0 >= e->unk0 && arg0 <= e->unk2) {
             if (func_80731AA8(e->unk0, e->unk2 - e->unk0 + 1, 0) == e->unk4) {
                 res = e->unk6;
             }
         }
     }
+    if (i == 0x99) {
+    }
+    if (arg0 == 0x99) {
+    }
     if (res >= 0) {
         func_8073129C(res, 1, 1);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/135D30/func_807311C4.s")
-#endif
 
 void func_8073129C(s16 arg0, u8 arg1, u8 arg2) {
     u8 *base;
