@@ -493,14 +493,12 @@ void func_8072FDD4(H1ProxNode *arg0, f32 arg1, u8 *arg2, f32 *arg3) {
     u8 i;
     f32 rem;
     f32 prev;
-    H1ProxSub *sub;
 
     rem = arg1;
     i = 0;
-    sub = arg0->unk34;
     do {
         prev = rem;
-        rem -= sub[i++].unk4;
+        rem -= arg0->unk34[i++].unk4;
     } while (rem > 0.0 && i < arg0->unk7);
     i--;
     *arg2 = i;

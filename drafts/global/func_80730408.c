@@ -1,4 +1,4 @@
-// func_80730408 (src/global/133A90.c): stage 3: C structurally identical to target (no non-reg/stack diffs besides mfc/cvt scheduling), but frame 0x290 vs 0x288 (8 extra bytes of unused temp slots below locals; top-relative locals all match) and idx in v1 not v0 (uopt forbids v0 for the idx range through the func_80730AEC call block; target keeps idx v0). arg3 in s0 needs two idx vars + s32 idx w/ (s8) casts; f32 one=1.0f var (permuter hint) matters; func_80627B58 must be void; func_80611A70 takes (f32,f32,f32*,f32*). permuter 600s+480s best 1597.
+// func_80730408 (src/global/133A90.c): stage 4-5: pad2[4]->pad2[2] fixes frame to 0x288 (648) with the 133A90.c H1ActorB gaining ActorSub4 *unk4 at 4. Remaining: stack offset set differs only in 3 slots (target f64 temp@64, idx s32@72, f32 temp@208; mine idx@68, f64 temp@72, f32 temp@216) and idx v1 vs v0; 386 diff lines; decl adjacent swaps don't move it; permuter earlier best 1597 (stage 3 note kept in older draft).
 typedef struct H1ProxSub {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
@@ -119,7 +119,7 @@ void func_80730408(H1ActorB *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3
     f32 oy;
     f32 oz;
     f32 yaw;
-    f32 pad2[4];
+    f32 pad2[2];
     Mtx mA;
     s32 idx;
     f32 savedScale;
