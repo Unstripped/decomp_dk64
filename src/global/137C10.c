@@ -160,7 +160,6 @@ void n_alSynSetFXMix(ALVoice *, u8);
 void n_alSynSetPan(ALVoice *, f32);
 f32 func_8073BDC4(s32);
 
-#ifdef NON_MATCHING
 void __n_csqHandleMIDIMsg(GcCSPlayer *);
 void __n_seqpStopOsc(GcCSPlayer *, GcVoiceState *);
 void __n_unmapVoice(GcCSPlayer *, ALVoice *);
@@ -348,10 +347,6 @@ ALMicroTime __n_csqVoiceHandler(void *node) {
     return seqp->nextDelta;
 }
 
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/__n_csqVoiceHandler.s")
-#endif
 
 void __n_csqHandleMIDIMsg(GcCSPlayer *seqp) {
     ALEvent evt;
@@ -942,18 +937,13 @@ void n_alCSPSetSeq(ALEventQueue *evtq, ALEventListItem *item) {
     osGetIntMask(mask);
 }
 
-#ifdef NON_MATCHING
 void n_alCSPPlay(GcCSPlayer *seqp, f32 tempo) {
     if (seqp->target != NULL) {
-        seqp->uspt = seqp->target->qnpt * tempo;
+        seqp->uspt = (f32)tempo * (f32)seqp->target->qnpt;
     } else {
         seqp->uspt = 0x1E8;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/n_alCSPPlay.s")
-#endif
 
 extern s32 func_8073D060(ALCSeq *seq, s32 *ticks);
 
