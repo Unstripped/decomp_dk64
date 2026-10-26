@@ -117,7 +117,32 @@ f32 alCents2Ratio(s32 cents) {
     return ratio;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13ECE0/__n_unmapVoice.s")
+void __n_unmapVoice(VoiceMapCSPlayer *seqp, ALVoice *voice) {
+    VoiceMapVoiceState *prev;
+    VoiceMapVoiceState *vs;
+
+    prev = NULL;
+    vs = seqp->vAllocHead;
+    if (vs != NULL) {
+        do {
+            if (&vs->voice == voice) {
+                if (prev != NULL) {
+                    prev->next = vs->next;
+                } else {
+                    seqp->vAllocHead = vs->next;
+                }
+                if (seqp->vAllocTail == vs) {
+                    seqp->vAllocTail = prev;
+                }
+                vs->next = seqp->vFreeList;
+                seqp->vFreeList = vs;
+                seqp->unk89 = seqp->unk89 - 1;
+                return;
+            }
+            prev = vs;
+        } while ((vs = vs->next) != NULL);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/13ECE0/__n_seqpReleaseVoice.s")
 
@@ -178,6 +203,7 @@ s16 __n_vsVol(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
     vol = (u32)vol >> 15;
     return (s16)vol;
 }
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/13ECE0/func_8073A7B8.s")
 
