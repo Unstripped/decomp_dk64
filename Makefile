@@ -18,6 +18,7 @@ OBJCOPY := $(CROSS)objcopy
 PYTHON  := python3
 SPLAT   := $(PYTHON) -m splat split
 CC      := /opt/ido5.3/cc
+IDO71   ?= /opt/ido7.1
 ASM_PROC := $(PYTHON) /opt/asm-processor/build.py
 
 SPLAT_YAML := $(TARGET).yaml
@@ -126,10 +127,11 @@ $(foreach f,$(LIBULTRA_IO_O1),$(BUILD_DIR)/src/$(1)/libultra/io/$(f).o: OPT_FLAG
 endef
 $(foreach seg,$(LIBULTRA_SEGMENTS),$(eval $(call LIBULTRA_FLAGS,$(seg))))
 
-# Audio library TUs Rare built unoptimised (-g: no uopt, every arg homed, a dead `b` to
-# the epilogue after each return): alHeap*, bnkf, the 137630 helpers, n_csplayer, n_sndplayer.
+# Rare's audio library TUs: built with IDO 7.1, unoptimised (-g: no uopt, every arg homed, a dead
+# `b` to the epilogue after each return): alHeap*, bnkf, the 137630 oscillators, n_csplayer, n_sndplayer.
 GLOBAL_G_FILES := 137120 1371D0 137630 137C10 13A750 13A7A0
 $(GLOBAL_G_FILES:%=$(BUILD_DIR)/src/global/%.o): OPT_FLAGS := -g
+$(GLOBAL_G_FILES:%=$(BUILD_DIR)/src/global/%.o): CC := $(IDO71)/cc
 
 LDFLAGS := -T $(LD_SCRIPT) -Map $(ELF:.elf=.map) --no-check-sections --accept-unknown-input-arch --no-warn-mismatch \
            -T $(BUILD_DIR)/undefined_syms_auto.$(VERSION).txt \

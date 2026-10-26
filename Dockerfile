@@ -20,11 +20,14 @@ RUN python3 -m venv /opt/venv \
 ENV PATH=/opt/venv/bin:$PATH
 
 # IDO 5.3 (the compiler Rare used for DK64), static recompilation for the host arch.
+# IDO 7.1: Rare's audio library (the -g files in Makefile's GLOBAL_G_FILES) was built with it.
 RUN ARCH="$(dpkg --print-architecture)"; \
     case "$ARCH" in arm64) SUFFIX=linux-arm ;; amd64) SUFFIX=linux ;; *) echo "unsupported $ARCH"; exit 1 ;; esac; \
-    mkdir -p /opt/ido5.3 \
-    && curl -fsSL "https://github.com/decompals/ido-static-recomp/releases/download/v1.2/ido-5.3-recomp-${SUFFIX}.tar.gz" \
-       | tar -xz -C /opt/ido5.3
+    for V in 5.3 7.1; do \
+        mkdir -p /opt/ido$V \
+        && curl -fsSL "https://github.com/decompals/ido-static-recomp/releases/download/v1.2/ido-$V-recomp-${SUFFIX}.tar.gz" \
+           | tar -xz -C /opt/ido$V || exit 1; \
+    done
 
 # IDO 5.3 trace compiler for tools/uopt_trace.sh: uopt rebuilt from ido-static-recomp v1.2 with
 # tools/ido/ecvt_fcvt.patch (upstream stubs ecvt/fcvt with assert(0), which aborts -Wo,-zdbug traces).
