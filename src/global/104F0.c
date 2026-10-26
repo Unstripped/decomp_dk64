@@ -107,19 +107,58 @@ void func_8060D788(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060DC3C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060DEA8.s")
+void func_8060DEA8(void) {
+    func_8060B8F8(2);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060DEC8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E128.s")
+void func_8060E128(void *arg0) {
+    OSMesg msg;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E1A8.s")
+    while (TRUE) {
+        osRecvMesg(&D_807F02B8, &msg, 1);
+        D_807467D0[(s32)msg]();
+    }
+}
+
+extern OSMesgQueue D_807ECCF0;
+extern s32 D_807EDEAC;
+extern OSMesg D_807EE0B0[];
+extern OSMesgQueue D_807EE0D0;
+extern OSThread D_807EE0E8;
+extern u64 D_807F0298[];
+extern s8 D_807467E0;
+
+void func_8060E1A8(void) {
+    func_8060B7F0();
+    D_807EDEAC = osEepromProbe(&D_807ECCF0);
+    osCreateMesgQueue(&D_807EE0D0, D_807EE0B0, 8);
+    osCreateMesgQueue(&D_807F02B8, D_807F0298, 8);
+    osCreateThread(&D_807EE0E8, 9, func_8060E128, NULL, D_807F0298, 0xC);
+    osStartThread(&D_807EE0E8);
+    D_807467E0 = 1;
+    func_8060B8F8(0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E25C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E3B0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E430.s")
+extern s32 func_8060B9D0(u8);
+extern void func_8060BB18(u8, s32, s32);
+extern void func_8060C340();
+extern s32 func_8071432C(void);
+
+void func_8060E430(u16 arg0, u8 arg1, u8 arg2) {
+    u16 value;
+    u8 unk;
+
+    if (func_8071432C() != 0) {
+        func_8060C340(&value, &unk, 0, 0, arg2, func_8060B9D0(D_807467C8));
+        func_8060BB18(arg1, (value + arg0) & 0xFFFF, 1);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/D_80757020.s")
 
