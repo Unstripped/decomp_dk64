@@ -38,7 +38,7 @@ typedef struct SynCorePVoice {
     s32 envOffset;
 } SynCorePVoice;
 
-extern SynCoreSynth *D_807563E4;
+extern SynCoreSynth *n_syn;
 extern s32 osGetIntMask(s32);
 void n_alEnvmixerParam(void *, s32, SynCoreParam *);
 SynCoreParam *__n_allocParam(void);
@@ -147,29 +147,29 @@ void n_alSynAddPlayer(ALPlayer *player) {
     s32 intMask;
 
     intMask = osGetIntMask(1);
-    player->samplesLeft = D_807563E4->curSamples;
-    player->next = D_807563E4->head;
-    D_807563E4->head = player;
+    player->samplesLeft = n_syn->curSamples;
+    player->next = n_syn->head;
+    n_syn->head = player;
     osGetIntMask(intMask);
 }
 
-void func_8073B5D0(ALPlayer *player) {
+void n_alSynAddSndPlayer(ALPlayer *player) {
     s32 intMask;
 
     intMask = osGetIntMask(1);
-    player->samplesLeft = D_807563E4->curSamples;
-    player->next = D_807563E4->head;
-    D_807563E4->head = player;
+    player->samplesLeft = n_syn->curSamples;
+    player->next = n_syn->head;
+    n_syn->head = player;
     osGetIntMask(intMask);
 }
 
-void func_8073B640(ALPlayer *player) {
+void n_alSynAddCSPPlayer(ALPlayer *player) {
     s32 intMask;
 
     intMask = osGetIntMask(1);
-    player->samplesLeft = D_807563E4->curSamples;
-    player->next = D_807563E4->head;
-    D_807563E4->head = player;
+    player->samplesLeft = n_syn->curSamples;
+    player->next = n_syn->head;
+    n_syn->head = player;
     osGetIntMask(intMask);
 }
 
@@ -181,7 +181,7 @@ void n_alSynStopVoice(ALVoice *voice) {
         if (param == NULL) {
             return;
         }
-        param->timestamp = D_807563E4->paramSamples + ((SynCorePVoice *)voice->pvoice)->envOffset;
+        param->timestamp = n_syn->paramSamples + ((SynCorePVoice *)voice->pvoice)->envOffset;
         param->type = 0xF;
         param->next = NULL;
         n_alEnvmixerParam(voice->pvoice, 3, param);
@@ -198,7 +198,7 @@ void n_alSynFreeVoice(ALVoice *voice) {
             if (param == NULL) {
                 return;
             }
-            param->timestamp = D_807563E4->paramSamples + ((SynCorePVoice *)voice->pvoice)->envOffset;
+            param->timestamp = n_syn->paramSamples + ((SynCorePVoice *)voice->pvoice)->envOffset;
             param->type = 0;
             param->value = (s32)voice->pvoice;
             n_alEnvmixerParam(voice->pvoice, 3, param);

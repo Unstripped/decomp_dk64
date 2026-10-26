@@ -47,8 +47,8 @@ typedef struct SynAllocSynth {
     s32 delta;
 } SynAllocSynth;
 
-extern SynAllocSynth *D_807563E4;
-s32 func_8073CC94(SynAllocVoiceNode **, s16);
+extern SynAllocSynth *n_syn;
+s32 __n_allocPVoice(SynAllocVoiceNode **, s16);
 extern SynAllocParam *__n_allocParam(void);
 extern s32 n_alEnvmixerParam(void *, s32, void *);
 
@@ -63,7 +63,7 @@ s32 n_alSynAllocVoice(SynAllocVoice *voice, SynAllocVoiceConfig *config) {
     voice->fxBus = config->fxBus;
     voice->state = 0;
     voice->pvoice = NULL;
-    allocated = func_8073CC94(&pvoice, config->priority);
+    allocated = __n_allocPVoice(&pvoice, config->priority);
     if (pvoice != NULL) {
         if (allocated != 0) {
             pvoice->delta = 0x228;
@@ -72,7 +72,7 @@ s32 n_alSynAllocVoice(SynAllocVoice *voice, SynAllocVoiceConfig *config) {
             voice->pvoice = pvoice;
             param = __n_allocParam();
             if (param != NULL) {
-                param->delta = D_807563E4->delta;
+                param->delta = n_syn->delta;
                 param->type = 11;
                 param->data = 0;
                 param->moredata = 0x170;
@@ -81,7 +81,7 @@ s32 n_alSynAllocVoice(SynAllocVoice *voice, SynAllocVoiceConfig *config) {
             }
             param = __n_allocParam();
             if (param != NULL) {
-                param->delta = D_807563E4->delta + pvoice->delta;
+                param->delta = n_syn->delta + pvoice->delta;
                 param->type = 15;
                 param->next = NULL;
                 n_alEnvmixerParam(voice->pvoice, 3, param);
@@ -96,20 +96,20 @@ s32 n_alSynAllocVoice(SynAllocVoice *voice, SynAllocVoiceConfig *config) {
     return pvoice != NULL;
 }
 
-s32 func_8073CC94(SynAllocVoiceNode **out, s16 priority) {
+s32 __n_allocPVoice(SynAllocVoiceNode **out, s16 priority) {
     SynAllocVoiceNode *pvoice;
     SynAllocVoiceNode *candidate;
     s32 allocated = 0;
 
-    if ((pvoice = D_807563E4->list14) != NULL) {
+    if ((pvoice = n_syn->list14) != NULL) {
         *out = pvoice;
         alUnlink((ALLink *)pvoice);
-        alLink((ALLink *)pvoice, (ALLink *)((u8 *)D_807563E4 + 0xC));
-    } else if ((pvoice = D_807563E4->list4) != NULL) {
+        alLink((ALLink *)pvoice, (ALLink *)((u8 *)n_syn + 0xC));
+    } else if ((pvoice = n_syn->list4) != NULL) {
         *out = pvoice;
         alUnlink((ALLink *)pvoice);
-        alLink((ALLink *)pvoice, (ALLink *)((u8 *)D_807563E4 + 0xC));
-    } else if ((pvoice = D_807563E4->listC) != NULL) {
+        alLink((ALLink *)pvoice, (ALLink *)((u8 *)n_syn + 0xC));
+    } else if ((pvoice = n_syn->listC) != NULL) {
         do {
             candidate = pvoice;
             if ((candidate->voice->priority <= priority) && (candidate->delta == 0)) {

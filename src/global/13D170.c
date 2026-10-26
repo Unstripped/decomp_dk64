@@ -293,25 +293,25 @@ s32 __readVarLen(ALCSeq *seq, s32 track) {
     return value;
 }
 
-extern ALGlobals *D_807563E0;
-extern ALSynth *D_807563E4;
+extern ALGlobals *n_globals;
+extern ALSynth *n_syn;
 void n_alSynNew(ALSynConfig *config);
 void n_alSynDelete(void);
 
 void n_alInit(ALGlobals *glob, ALSynConfig *config) {
-    if (D_807563E0 == NULL) {
-        D_807563E0 = glob;
-        if (D_807563E4 == NULL) {
-            D_807563E4 = (ALSynth *)D_807563E0;
+    if (n_globals == NULL) {
+        n_globals = glob;
+        if (n_syn == NULL) {
+            n_syn = (ALSynth *)n_globals;
             n_alSynNew(config);
         }
     }
 }
 
 void n_alClose(ALGlobals *glob) {
-    if (D_807563E0 != NULL) {
+    if (n_globals != NULL) {
         n_alSynDelete();
-        D_807563E0 = NULL;
-        D_807563E4 = NULL;
+        n_globals = NULL;
+        n_syn = NULL;
     }
 }

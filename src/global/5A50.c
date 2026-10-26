@@ -1,15 +1,12 @@
-#define alCSPSetChlPriority alCSPSetChlPriority_unused
-#define alCSPSetChlPan alCSPSetChlPan_unused
 #define alCSPSendMidi alCSPSendMidi_unused
 #include "common.h"
-#undef alCSPSetChlPriority
-#undef alCSPSetChlPan
 #undef alCSPSendMidi
 
 void alCSPSendMidi();
 
-void alCSPSetChlPriority(ALCSPlayer *, u8, u8, u8, s32);
-void alCSPSetChlPan(ALCSPlayer *, f32, f32);
+void postCSPChannelCommand(ALCSPlayer *, u8, u8, u8, s32);
+void alCSPSetChlPanVolume(ALCSPlayer *, f32, f32);
+void alCSPSetChlFX2Mix(ALCSPlayer *, u8, u8);
 
 typedef struct {
     u8 pad[0xF8];
@@ -30,12 +27,12 @@ s32 __n_alCSeqNextDelta(Struct8076BF48 *, Struct8076C328 *, u8, s32);
 
 extern ALCSPlayer *gSeqPlayers[];
 void func_80737E90(ALCSPlayer *, s32);
-void func_80737F0C(ALCSPlayer *, s32, u8);
+void setCSPChannelStateValue(ALCSPlayer *, s32, u8);
 void func_80737FD8(ALCSPlayer *, s32);
-void func_8073801C(ALCSPlayer *, s32);
+void enableCSPChannel(ALCSPlayer *, s32);
 void func_80738080(ALCSPlayer *, s32, u8);
-void func_807380CC(ALCSPlayer *, s32, u8);
-void func_80738118(ALCSPlayer *, s32, u8);
+void setCSPChannelPortamento(ALCSPlayer *, s32, u8);
+void setCSPChannelStopControl(ALCSPlayer *, s32, u8);
 void func_8060B140(s32, s32 *, s32 *, s32, s32, s32, s32);
 extern s32 D_8000DDCC;
 extern s32 D_8076D200;
@@ -77,7 +74,7 @@ void func_806011D4(Struct806011D4 arg0) {
 }
 
 void func_806011E4(u8 arg0, s32 arg1, u8 arg2) {
-    func_80737F0C(gSeqPlayers[arg0], arg1, arg2);
+    setCSPChannelStateValue(gSeqPlayers[arg0], arg1, arg2);
 }
 
 void func_80601224(u8 arg0, s32 arg1) {
@@ -85,7 +82,7 @@ void func_80601224(u8 arg0, s32 arg1) {
 }
 
 void func_80601258(u8 arg0, s32 arg1) {
-    func_8073801C(gSeqPlayers[arg0], arg1);
+    enableCSPChannel(gSeqPlayers[arg0], arg1);
 }
 
 void func_8060128C(u8 arg0, u8 arg1, u8 arg2) {
@@ -93,7 +90,7 @@ void func_8060128C(u8 arg0, u8 arg1, u8 arg2) {
 }
 
 void func_806012D4(u8 arg0, u8 arg1, u8 arg2) {
-    func_807380CC(gSeqPlayers[arg0], arg1, arg2);
+    setCSPChannelPortamento(gSeqPlayers[arg0], arg1, arg2);
 }
 void func_8060131C(u8 arg0, s32 arg1, u8 arg2) {
     s32 i;
@@ -106,7 +103,7 @@ void func_8060131C(u8 arg0, s32 arg1, u8 arg2) {
 }
 
 void func_806013A0(u8 arg0, u8 arg1, u8 arg2) {
-    func_80738118(gSeqPlayers[arg0], arg1, arg2);
+    setCSPChannelStopControl(gSeqPlayers[arg0], arg1, arg2);
 }
 
 void func_806013E8(u8 arg0, s32 arg1, u8 arg2) {
@@ -114,7 +111,7 @@ void func_806013E8(u8 arg0, s32 arg1, u8 arg2) {
 
     for (i = 0; i < 16; i++) {
         if (arg1 & (1 << i)) {
-            func_80738118(gSeqPlayers[arg0], i, arg2);
+            setCSPChannelStopControl(gSeqPlayers[arg0], i, arg2);
         }
     }
 }
@@ -152,7 +149,7 @@ void func_806015E0(u8 arg0, s32 arg1, s32 arg2) {
 
     for (i = 0; i < 16; i++) {
         if (arg1 & (1 << i)) {
-            alCSPSetChlFXMix(gSeqPlayers[arg0], i, arg2);
+            alCSPSetChlFX2Mix(gSeqPlayers[arg0], i, arg2);
         }
     }
 }
@@ -171,16 +168,15 @@ void func_80601728(u8 arg0, u8 arg1, u8 arg2) {
 void seqPlayerSetTempo(u8 arg0, s32 tempo) {
     alCSPSetTempo(gSeqPlayers[arg0], tempo);
 }
-
-ALCSeq *seqPlayerGetSeq(u8 arg0) {
-    return alCSPGetSeq(gSeqPlayers[arg0]);
+s32 seqPlayerGetTempo(u8 arg0) {
+    return alCSPGetTempo(gSeqPlayers[arg0]);
 }
 void func_806017E8(u8 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
-    alCSPSetChlPriority(gSeqPlayers[arg0], arg1, arg2, arg3, arg4);
+    postCSPChannelCommand(gSeqPlayers[arg0], arg1, arg2, arg3, arg4);
 }
 
 void func_80601848(u8 arg0, f32 arg1, f32 arg2) {
-    alCSPSetChlPan(gSeqPlayers[arg0], arg1, arg2);
+    alCSPSetChlPanVolume(gSeqPlayers[arg0], arg1, arg2);
 }
 
 void func_8060188C(u8 arg0, s32 arg1) {

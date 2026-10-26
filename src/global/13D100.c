@@ -1,8 +1,6 @@
-#define alCSPSetChlPriority alCSPSetChlPriority_unused
 #include "common.h"
-#undef alCSPSetChlPriority
 
-void alCSPSetChlPriority(ALCSPlayer *seqp, u8 chan, u8 priority, u8 value, s32 command) {
+void postCSPChannelCommand(ALCSPlayer *seqp, u8 chan, u8 priority, u8 value, s32 command) {
     s32 unused;
     struct {
         s16 type;

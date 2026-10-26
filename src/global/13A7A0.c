@@ -44,7 +44,7 @@ extern GeSndp *D_807563CC;
 extern u8 *D_807563C8;
 extern s16 *D_807FF0E4;
 ALMicroTime __n_sndpVoiceHandler(void *);
-void func_8073B5D0(void *);
+void n_alSynAddSndPlayer(void *);
 
 void n_alSndpNew(GeSndpConfig *c) {
     u32 i;
@@ -70,7 +70,7 @@ void n_alSndpNew(GeSndpConfig *c) {
     D_807563CC->node.next = NULL;
     D_807563CC->node.handler = __n_sndpVoiceHandler;
     D_807563CC->node.clientData = D_807563CC;
-    func_8073B5D0(D_807563CC);
+    n_alSynAddSndPlayer(D_807563CC);
     evt.type = 0x20;
     alEvtqPostEvent(&D_807563CC->evtq, &evt, D_807563CC->frameTime);
     D_807563CC->nextDelta = alEvtqNextEvent(&D_807563CC->evtq, &D_807563CC->nextEvent);

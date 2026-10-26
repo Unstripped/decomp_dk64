@@ -20,7 +20,7 @@ typedef struct SynAllocResample {
 
 extern s32 _decodeChunk(void *, s32, void *);
 extern SynAllocAcmd *n_alSavePull(void *, s16 *, SynAllocAcmd *);
-extern void func_8073BE54(void *, f32);
+extern void rebuildLowPassCoefficients(void *, f32);
 
 SynAllocAcmd *n_alResamplePull(SynAllocResample *filter, s16 *outp, s32 arg2, SynAllocAcmd *p) {
     SynAllocAcmd *result = p;
@@ -45,7 +45,7 @@ SynAllocAcmd *n_alResamplePull(SynAllocResample *filter, s16 *outp, s32 arg2, Sy
     }
     if (filter->count > 0) {
         if (filter->flags != 0) {
-            func_8073BE54(&filter->samples, 22050.0f);
+            rebuildLowPassCoefficients(&filter->samples, 22050.0f);
         }
         {
             SynAllocAcmd *cmd;

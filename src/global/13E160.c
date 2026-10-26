@@ -63,7 +63,7 @@ typedef struct SynCorePVoice {
     u8 data[0xC0];
 } SynCorePVoice;
 
-extern SynCoreSynth *D_807563E4;
+extern SynCoreSynth *n_syn;
 s32 _n_timeToSamplesNoRound(s32);
 s32 __n_nextSampleTime(SynCorePlayer **);
 void _n_collectPVoices(void);
@@ -83,56 +83,56 @@ void n_alSynNew(SynCoreConfig *config) {
     SynCoreParam *param;
 
     heap = config->heap;
-    D_807563E4->head = NULL;
-    D_807563E4->numPVoices = config->maxPVoices;
-    D_807563E4->curSamples = 0;
-    D_807563E4->paramSamples = 0;
-    D_807563E4->outputRate = config->outputRate;
-    D_807563E4->maxOutSamples = 0xB8;
-    D_807563E4->dma = config->dma;
-    D_807563E4->outBuffer = NULL;
-    D_807563E4->unk4C = 1;
-    if (config->maxFXBusses >= 3) D_807563E4->maxAuxBusses = 2;
-    else if (config->maxFXBusses <= 0) D_807563E4->maxAuxBusses = 1;
-    else D_807563E4->maxAuxBusses = config->maxFXBusses;
-    D_807563E4->auxBuses = alHeapDBAlloc(NULL, 0, heap, D_807563E4->maxAuxBusses, 0x48);
-    if (D_807563E4->maxAuxBusses > (i = 0)) do {
-        D_807563E4->auxBuses[i].count = 0;
-        D_807563E4->auxBuses[i].maxPVoices = config->maxPVoices;
-        D_807563E4->auxBuses[i].pvoices = alHeapDBAlloc(NULL, 0, heap, config->maxPVoices, 4);
-        if (config->fxType[i] != 0) D_807563E4->auxBuses[i].effect = func_8073D160(i, config, heap);
-        else D_807563E4->auxBuses[i].effect = NULL;
-        D_807563E4->auxBuses[i].filter = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
-        *(s16 *)((u8 *)D_807563E4->auxBuses[i].filter + 2) = 0;
-        *(void **)((u8 *)D_807563E4->auxBuses[i].filter + 0x2C) = alHeapDBAlloc(NULL, 0, heap, 1, 8);
-        *(void **)((u8 *)D_807563E4->auxBuses[i].filter + 0x30) = alHeapDBAlloc(NULL, 0, heap, 1, 8);
-    } while (++i < D_807563E4->maxAuxBusses);
-    D_807563E4->mainBus = alHeapDBAlloc(NULL, 0, heap, 1, 0x14);
-    *(void **)((u8 *)D_807563E4->mainBus + 4) = n_alFxPull;
-    D_807563E4->pFreeList.next = NULL;
-    D_807563E4->pFreeList.prev = NULL;
-    D_807563E4->pLameList.next = NULL;
-    D_807563E4->pLameList.prev = NULL;
-    D_807563E4->pAllocList.next = NULL;
-    D_807563E4->pAllocList.prev = NULL;
+    n_syn->head = NULL;
+    n_syn->numPVoices = config->maxPVoices;
+    n_syn->curSamples = 0;
+    n_syn->paramSamples = 0;
+    n_syn->outputRate = config->outputRate;
+    n_syn->maxOutSamples = 0xB8;
+    n_syn->dma = config->dma;
+    n_syn->outBuffer = NULL;
+    n_syn->unk4C = 1;
+    if (config->maxFXBusses >= 3) n_syn->maxAuxBusses = 2;
+    else if (config->maxFXBusses <= 0) n_syn->maxAuxBusses = 1;
+    else n_syn->maxAuxBusses = config->maxFXBusses;
+    n_syn->auxBuses = alHeapDBAlloc(NULL, 0, heap, n_syn->maxAuxBusses, 0x48);
+    if (n_syn->maxAuxBusses > (i = 0)) do {
+        n_syn->auxBuses[i].count = 0;
+        n_syn->auxBuses[i].maxPVoices = config->maxPVoices;
+        n_syn->auxBuses[i].pvoices = alHeapDBAlloc(NULL, 0, heap, config->maxPVoices, 4);
+        if (config->fxType[i] != 0) n_syn->auxBuses[i].effect = n_alSynNewFx(i, config, heap);
+        else n_syn->auxBuses[i].effect = NULL;
+        n_syn->auxBuses[i].filter = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
+        *(s16 *)((u8 *)n_syn->auxBuses[i].filter + 2) = 0;
+        *(void **)((u8 *)n_syn->auxBuses[i].filter + 0x2C) = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+        *(void **)((u8 *)n_syn->auxBuses[i].filter + 0x30) = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+    } while (++i < n_syn->maxAuxBusses);
+    n_syn->mainBus = alHeapDBAlloc(NULL, 0, heap, 1, 0x14);
+    *(void **)((u8 *)n_syn->mainBus + 4) = n_alFxPull;
+    n_syn->pFreeList.next = NULL;
+    n_syn->pFreeList.prev = NULL;
+    n_syn->pLameList.next = NULL;
+    n_syn->pLameList.prev = NULL;
+    n_syn->pAllocList.next = NULL;
+    n_syn->pAllocList.prev = NULL;
     pvoices = alHeapDBAlloc(NULL, 0, heap, config->maxPVoices, 0xC0);
     if (config->maxPVoices > (i = 0)) do {
         pvoice = (ALLink *)&pvoices[i];
-        alLink(pvoice, &D_807563E4->pFreeList);
+        alLink(pvoice, &n_syn->pFreeList);
         *(s32 *)((u8 *)pvoice + 8) = 0;
-        alN_PVoiceNew(pvoice, D_807563E4->dma, heap);
-        if (D_807563E4->maxAuxBusses > (j = 0)) do {
-            D_807563E4->auxBuses[j].pvoices[D_807563E4->auxBuses[j].count] = pvoice, D_807563E4->auxBuses[j].count++;
-        } while (++j < D_807563E4->maxAuxBusses);
+        alN_PVoiceNew(pvoice, n_syn->dma, heap);
+        if (n_syn->maxAuxBusses > (j = 0)) do {
+            n_syn->auxBuses[j].pvoices[n_syn->auxBuses[j].count] = pvoice, n_syn->auxBuses[j].count++;
+        } while (++j < n_syn->maxAuxBusses);
     } while (++i < config->maxPVoices);
     params = alHeapDBAlloc(NULL, 0, heap, config->maxUpdates, 0x24);
-    D_807563E4->paramFreeList = NULL;
+    n_syn->paramFreeList = NULL;
     if (config->maxUpdates > (i = 0)) do {
         param = &params[i];
-        param->next = (ALLink *)D_807563E4->paramFreeList;
-        D_807563E4->paramFreeList = param;
+        param->next = (ALLink *)n_syn->paramFreeList;
+        n_syn->paramFreeList = param;
     } while (++i < config->maxUpdates);
-    D_807563E4->paramPool = heap;
+    n_syn->paramPool = heap;
 }
 
 s32 n_alAudioFrame(s32 cmdList, s32 *cmdLen, s32 outBuf, s32 outLen) {
@@ -146,26 +146,26 @@ s32 n_alAudioFrame(s32 cmdList, s32 *cmdLen, s32 outBuf, s32 outLen) {
     unused = 0;
     output = cmdList;
     buffer = outBuf;
-    if (D_807563E4->head == NULL) {
+    if (n_syn->head == NULL) {
         *cmdLen = 0;
         return cmdList;
     }
-    if ((D_807563E4->paramSamples = __n_nextSampleTime(&player), (D_807563E4->paramSamples - D_807563E4->curSamples) < outLen)) {
+    if ((n_syn->paramSamples = __n_nextSampleTime(&player), (n_syn->paramSamples - n_syn->curSamples) < outLen)) {
         do {
-            D_807563E4->paramSamples &= ~0xF;
+            n_syn->paramSamples &= ~0xF;
             player->callTime += _n_timeToSamplesNoRound(player->handler(player));
-        } while ((D_807563E4->paramSamples = __n_nextSampleTime(&player), (D_807563E4->paramSamples - D_807563E4->curSamples) < outLen));
+        } while ((n_syn->paramSamples = __n_nextSampleTime(&player), (n_syn->paramSamples - n_syn->curSamples) < outLen));
     }
-    D_807563E4->paramSamples &= ~0xF;
+    n_syn->paramSamples &= ~0xF;
     if (outLen > 0) {
         do {
-            samples = D_807563E4->maxOutSamples < outLen ? D_807563E4->maxOutSamples : outLen;
+            samples = n_syn->maxOutSamples < outLen ? n_syn->maxOutSamples : outLen;
             original = output;
-            D_807563E4->outBuffer = (void *)buffer;
-            output = func_8073E800(D_807563E4->curSamples, original);
+            n_syn->outBuffer = (void *)buffer;
+            output = n_alSynOutputPull(n_syn->curSamples, original);
             outLen -= samples;
             buffer += samples * sizeof(s16) * 2;
-            D_807563E4->curSamples += samples;
+            n_syn->curSamples += samples;
         } while (outLen > 0);
     }
     *cmdLen = (output - cmdList) >> 3;
@@ -177,41 +177,41 @@ SynCoreParam *__n_allocParam(void) {
     SynCoreParam *param;
 
     param = NULL;
-    if (D_807563E4->paramFreeList != NULL) {
-        param = D_807563E4->paramFreeList;
-        D_807563E4->paramFreeList = (SynCoreParam *)D_807563E4->paramFreeList->next;
+    if (n_syn->paramFreeList != NULL) {
+        param = n_syn->paramFreeList;
+        n_syn->paramFreeList = (SynCoreParam *)n_syn->paramFreeList->next;
         param->next = NULL;
     }
     return param;
 }
 
 void __n_freeParam(SynCoreParam *param) {
-    param->next = (ALLink *)D_807563E4->paramFreeList;
-    D_807563E4->paramFreeList = param;
+    param->next = (ALLink *)n_syn->paramFreeList;
+    n_syn->paramFreeList = param;
 }
 
 void _n_collectPVoices(void) {
     ALLink *voice;
     ALLink *current;
 
-    if ((voice = D_807563E4->pLameList.next) != NULL) {
+    if ((voice = n_syn->pLameList.next) != NULL) {
         do {
             current = voice;
             alUnlink(voice);
-            alLink(voice, &D_807563E4->pFreeList);
-        } while ((voice = D_807563E4->pLameList.next) != NULL);
+            alLink(voice, &n_syn->pFreeList);
+        } while ((voice = n_syn->pLameList.next) != NULL);
     }
 }
 
 void _n_freePVoice(ALLink *voice) {
     alUnlink(voice);
-    alLink(voice, &D_807563E4->pLameList);
+    alLink(voice, &n_syn->pLameList);
 }
 
 s32 _n_timeToSamplesNoRound(s32 time) {
     f32 samples;
 
-    samples = (((f32)time * (f32)D_807563E4->outputRate) / 1000000.0f) + 0.5f;
+    samples = (((f32)time * (f32)n_syn->outputRate) / 1000000.0f) + 0.5f;
     return (s32)samples;
 }
 
@@ -226,11 +226,11 @@ s32 __n_nextSampleTime(SynCorePlayer **player) {
 
     time = 0x7FFFFFFF;
     *player = NULL;
-    if ((current = D_807563E4->head) != NULL) {
+    if ((current = n_syn->head) != NULL) {
         do {
-            if ((current->callTime - D_807563E4->curSamples) < time) {
+            if ((current->callTime - n_syn->curSamples) < time) {
                 *player = current;
-                time = current->callTime - D_807563E4->curSamples;
+                time = current->callTime - n_syn->curSamples;
             }
         } while ((current = current->next) != NULL);
     }

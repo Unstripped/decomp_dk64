@@ -1,8 +1,6 @@
-#define alCSPSetChlPan alCSPSetChlPan_unused
 #include "common.h"
-#undef alCSPSetChlPan
 
-void alCSPSetChlVol(ALCSPlayer *seqp, u8 chan, u8 vol) {
+void alCSPSetChlFX1Mix(ALCSPlayer *seqp, u8 chan, u8 vol) {
     ALEvent evt;
 
     evt.type = AL_SEQP_MIDI_EVT;
@@ -13,7 +11,7 @@ void alCSPSetChlVol(ALCSPlayer *seqp, u8 chan, u8 vol) {
     alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }
 
-void alCSPSetChlPan(ALCSPlayer *seqp, f32 pan, f32 volume) {
+void alCSPSetChlPanVolume(ALCSPlayer *seqp, f32 pan, f32 volume) {
     s32 unused;
     struct {
         s16 type;
@@ -28,7 +26,7 @@ void alCSPSetChlPan(ALCSPlayer *seqp, f32 pan, f32 volume) {
     alEvtqPostEvent(&seqp->evtq, (ALEvent *)&evt, 0);
 }
 
-void alCSPSetChlFXMix(ALCSPlayer *seqp, u8 chan, u8 fxmix) {
+void alCSPSetChlFX2Mix(ALCSPlayer *seqp, u8 chan, u8 fxmix) {
     ALEvent evt;
 
     evt.type = AL_SEQP_MIDI_EVT;

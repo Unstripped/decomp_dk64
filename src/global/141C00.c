@@ -23,7 +23,7 @@ typedef struct SynAllocSynth {
     s32 delta;
 } SynAllocSynth;
 
-extern SynAllocSynth *D_807563E4;
+extern SynAllocSynth *n_syn;
 extern SynAllocParam *__n_allocParam(void);
 extern s32 n_alEnvmixerParam(void *, s32, void *);
 
@@ -35,7 +35,7 @@ void func_8073CF00(SynAllocVoice *voice, u8 arg1) {
         if (param == NULL) {
             return;
         }
-        param->delta = D_807563E4->delta + voice->pvoice->delta;
+        param->delta = n_syn->delta + voice->pvoice->delta;
         param->type = 12;
         param->data = arg1;
         param->next = NULL;
@@ -51,7 +51,7 @@ void func_8073CFB0(SynAllocVoice *voice, u8 arg1) {
         if (param == NULL) {
             return;
         }
-        param->delta = D_807563E4->delta + voice->pvoice->delta;
+        param->delta = n_syn->delta + voice->pvoice->delta;
         param->type = 17;
         param->data = arg1;
         param->next = NULL;
@@ -69,7 +69,7 @@ typedef struct SynAllocCSeq {
     s32 next[16];
 } SynAllocCSeq;
 
-s32 func_8073D060(SynAllocCSeq *seq, s32 *ticks) {
+s32 __n_alCSeqGetNextDelta(SynAllocCSeq *seq, s32 *ticks) {
     u32 i;
     s32 result = -1;
     s32 delta = seq->delta;

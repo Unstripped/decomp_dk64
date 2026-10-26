@@ -1,7 +1,7 @@
 #include "common.h"
 
-extern s32 *D_807563E4;
+extern s32 *n_syn;
 
 void n_alSynDelete(void) {
-    *D_807563E4 = 0;
+    *n_syn = 0;
 }

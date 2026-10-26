@@ -304,7 +304,7 @@ s16 __n_vsVol(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
 }
 
 
-u8 func_8073A7B8(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
+u8 n_alCSPClampVoiceFXMix(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
     s32 flags;
     s32 mix;
     f32 unused;

@@ -36,7 +36,7 @@ typedef struct AuxSynth {
     AuxBus *buses;
 } AuxSynth;
 
-extern AuxSynth *D_807563E4;
+extern AuxSynth *n_syn;
 extern AuxAcmd *n_alEnvmixerPull();
 
 AuxAcmd *n_alAuxBusPull(void *arg0, AuxAcmd *arg1, s32 arg2, s32 *arg3) {
@@ -49,7 +49,7 @@ AuxAcmd *n_alAuxBusPull(void *arg0, AuxAcmd *arg1, s32 arg2, s32 *arg3) {
     u32 ratio;
 
     ptr = arg1;
-    bus = D_807563E4->buses + arg2;
+    bus = n_syn->buses + arg2;
     pvoices = bus->pvoices;
     count = 0;
     max = 1;

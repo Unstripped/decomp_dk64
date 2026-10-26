@@ -11,10 +11,10 @@ typedef struct SynAllocSynthFx {
     SynAllocFx *fx;
 } SynAllocSynthFx;
 
-extern SynAllocSynthFx *D_807563E4;
+extern SynAllocSynthFx *n_syn;
 extern void n_alFxNew(void *, void *, s16, void *);
 
-void *func_8073D160(s16 arg0, void *arg1, void *arg2) {
-    n_alFxNew(&D_807563E4->fx[arg0].result, arg1, arg0, arg2);
-    return D_807563E4->fx[arg0].result;
+void *n_alSynNewFx(s16 arg0, void *arg1, void *arg2) {
+    n_alFxNew(&n_syn->fx[arg0].result, arg1, arg0, arg2);
+    return n_syn->fx[arg0].result;
 }

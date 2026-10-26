@@ -15,7 +15,7 @@ typedef struct {
     s32 delta;
 } SynPVoice;
 
-extern ALSynth *D_807563E4;
+extern ALSynth *n_syn;
 SynVoiceParam *__n_allocParam(void);
 s32 n_alEnvmixerParam(void *, s32, SynVoiceParam *);
 
@@ -27,7 +27,7 @@ void n_alSynSetPitch(ALVoice *voice, f32 pitch) {
         if (param == NULL) {
             return;
         }
-        param->delta = D_807563E4->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->delta = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
         param->type = 7;
         param->data.f = pitch;
         param->next = NULL;
@@ -43,7 +43,7 @@ void n_alSynSetPan(ALVoice *voice, f32 pan) {
         if (param == NULL) {
             return;
         }
-        param->delta = D_807563E4->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->delta = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
         param->type = 0x13;
         param->data.f = pan;
         param->next = NULL;
@@ -59,7 +59,7 @@ void n_alSynSetFXMix(ALVoice *voice, u8 fxmix) {
         if (param == NULL) {
             return;
         }
-        param->delta = D_807563E4->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->delta = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
         param->type = 0x12;
         param->data.i = fxmix;
         param->next = NULL;
@@ -77,7 +77,7 @@ typedef struct {
 
 f32 func_80611BB4(f32, f32);
 
-void func_8073BB10(f32 arg0, f32 arg1, f32 arg2, LpfNMBiquad *arg3, LpfNMBiquad *arg4) {
+void computeBiquadCoefficients(f32 arg0, f32 arg1, f32 arg2, LpfNMBiquad *arg3, LpfNMBiquad *arg4) {
     f32 sp3C;
     f32 sp38;
     f32 sp34;
@@ -136,7 +136,7 @@ void _init_lpfilter(SynLPFilter *filter) {
     }
 }
 
-f32 func_8073BDC4(s32 arg0) {
+f32 n_alSemitonesToPitchRatio(s32 arg0) {
     f32 sp4;
     f32 sp0;
 
@@ -159,9 +159,9 @@ f32 func_8073BDC4(s32 arg0) {
     return sp0;
 }
 
-void func_8073BB10(f32, f32, f32, LpfNMBiquad *, LpfNMBiquad *);
+void computeBiquadCoefficients(f32, f32, f32, LpfNMBiquad *, LpfNMBiquad *);
 
-void func_8073BE54(SynLPFilter *filter, f32 arg1) {
+void rebuildLowPassCoefficients(SynLPFilter *filter, f32 arg1) {
     s32 sp3C;
     LpfNMBiquad sp30;
     LpfNMBiquad sp24;
@@ -172,7 +172,7 @@ void func_8073BE54(SynLPFilter *filter, f32 arg1) {
     if (filter->unk2 < 10) {
         filter->unk2 = 10;
     }
-    func_8073BB10(arg1, (f32)filter->unk0 + 10.0f, (f32)filter->unk2 / 10.0f, &sp30, &sp24);
+    computeBiquadCoefficients(arg1, (f32)filter->unk0 + 10.0f, (f32)filter->unk2 / 10.0f, &sp30, &sp24);
     sp3C = 3;
     do {
         filter->coeff[sp3C] = 0;

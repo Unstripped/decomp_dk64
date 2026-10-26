@@ -1,7 +1,7 @@
 #include "common.h"
 
 extern s8 D_80745844;
-void func_80737C20(s32);
+void configureCSPOutputMode(s32);
 
 void menuSetAudioMode(void) {
     s32 val = 1;
@@ -13,7 +13,7 @@ void menuSetAudioMode(void) {
         val = 4;
         break;
     }
-    func_80737C20(val);
+    configureCSPOutputMode(val);
 }
 
 typedef struct Menu3A_Struct7E60 {

@@ -42,12 +42,12 @@ typedef struct {
     s16 unk2;
 } SynFXFilter;
 
-extern SynSynth *D_807563E4;
+extern SynSynth *n_syn;
 SynVoiceParam *__n_allocParam(void);
 s32 n_alEnvmixerParam(void *, s32, SynVoiceParam *);
 void n_alFxPull(void);
 void n_alFxParamHdl(s32, s16, s32);
-void func_8073BE54(SynFXFilter *, f32);
+void rebuildLowPassCoefficients(SynFXFilter *, f32);
 
 void func_8073C820(ALVoice *voice, u8 arg1) {
     SynVoiceParam *param;
@@ -57,7 +57,7 @@ void func_8073C820(ALVoice *voice, u8 arg1) {
         if (param == NULL) {
             return;
         }
-        param->delta = D_807563E4->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->delta = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
         param->type = 0x10;
         param->data.i = arg1;
         param->next = NULL;
@@ -65,40 +65,40 @@ void func_8073C820(ALVoice *voice, u8 arg1) {
     }
 }
 
-s32 func_8073C8D0(s16 arg0) {
+s32 n_alSynGetFXDelay(s16 arg0) {
     SynFilter *sp4;
 
-    sp4 = D_807563E4->outputFilter;
+    sp4 = n_syn->outputFilter;
     if (sp4->handler == n_alFxPull) {
-        return D_807563E4->fxBus[arg0].field20;
+        return n_syn->fxBus[arg0].field20;
     } else {
         return 0;
     }
 }
 
-s32 func_8073C948(s16 arg0) {
+s32 n_alSynGetFXFeedback(s16 arg0) {
     SynFilter *sp4;
 
-    sp4 = D_807563E4->outputFilter;
+    sp4 = n_syn->outputFilter;
     if (sp4->handler == n_alFxPull) {
-        return D_807563E4->fxBus[arg0].field44;
+        return n_syn->fxBus[arg0].field44;
     } else {
         return 0;
     }
 }
 
-void func_8073C9C0(s32 arg0, s16 arg1, s32 arg2) {
+void n_alSynSetFXParam(s32 arg0, s16 arg1, s32 arg2) {
     s32 sp1C;
 
     sp1C = arg0;
     n_alFxParamHdl(sp1C, arg1, arg2);
 }
 
-void func_8073CA04(SynFXFilter *arg0, s16 arg1, s32 *arg2) {
+void n_alSynSetFXFilterParam(SynFXFilter *arg0, s16 arg1, s32 *arg2) {
     if (arg1 == 8) {
         arg0->unk2 = (s16)(s32)((f32)*arg2 * 0.1f);
     } else if (arg1 == 9) {
         arg0->unk0 = (s16)*arg2;
     }
-    func_8073BE54(arg0, (f32)D_807563E4->outputRate);
+    rebuildLowPassCoefficients(arg0, (f32)n_syn->outputRate);
 }

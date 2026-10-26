@@ -34,7 +34,7 @@ typedef struct SynCorePVoice {
     s32 envOffset;
 } SynCorePVoice;
 
-extern SynCoreSynth *D_807563E4;
+extern SynCoreSynth *n_syn;
 SynCoreParam *__n_allocParam(void);
 s32 _n_timeToSamples(s32);
 void n_alEnvmixerParam(void *, s32, SynCoreParam *);
@@ -47,7 +47,7 @@ void n_alSynSetVol(ALVoice *voice, s16 volume, s32 delta) {
         if (param == NULL) {
             return;
         }
-        param->timestamp = D_807563E4->paramSamples + ((SynCorePVoice *)voice->pvoice)->envOffset;
+        param->timestamp = n_syn->paramSamples + ((SynCorePVoice *)voice->pvoice)->envOffset;
         param->type = 0xB;
         param->value = volume;
         param->delta = _n_timeToSamples(delta);

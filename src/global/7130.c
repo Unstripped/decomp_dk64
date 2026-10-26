@@ -1,9 +1,8 @@
-#define alCSPSetChlPan alCSPSetChlPan_unused
 #include "common.h"
-#undef alCSPSetChlPan
 #include "actor.h"
 
-void alCSPSetChlPan(ALCSPlayer *, f32, f32);
+void alCSPSetChlPanVolume(ALCSPlayer *, f32, f32);
+void alCSPSetChlFX1Mix(ALCSPlayer *, u8, u8);
 
 extern u16 D_80745658[];
 
@@ -200,7 +199,7 @@ s32 arg0;
 void sfxSetChannelTempo(s32 arg0, f32 arg1) {
     u8 v1 = sfxGetBankIndex((s16)arg0);
     if ((arg0 == D_807458DC[sfxGetChannelIndex((s16)arg0)]) && (arg0 == D_80770560[v1])) {
-        alCSPSetTempo(gSeqPlayers[v1], (s32)((s32)alCSPGetSeq(gSeqPlayers[v1]) * arg1));
+        alCSPSetTempo(gSeqPlayers[v1], (s32)((s32)alCSPGetTempo(gSeqPlayers[v1]) * arg1));
     }
 }
 
@@ -523,13 +522,13 @@ void func_80603450(void) {
             } else {
                 seqSetVolumeInstant(0, 0.6f);
             }
-            alCSPSetChlPan(gSeqPlayers[0], pan, vol);
+            alCSPSetChlPanVolume(gSeqPlayers[0], pan, vol);
         }
         for (s0 = 0; s0 < 4; s0++) {
             if (D_80745658[D_80770560[s0]] & 1) {
-                alCSPSetChlPan(gSeqPlayers[s0], pan, vol);
+                alCSPSetChlPanVolume(gSeqPlayers[s0], pan, vol);
             } else {
-                alCSPSetChlPan(gSeqPlayers[s0], 0.0f, 1.0f);
+                alCSPSetChlPanVolume(gSeqPlayers[s0], 0.0f, 1.0f);
             }
         }
         D_8077058D = D_8077058E;
@@ -699,7 +698,7 @@ void sfxSetChannelParam();
 void seqUpdateUnderwaterAudio(s32 arg0) {
     if (D_80745838 != 0) {
         if (arg0 == 0 && (D_80745658[D_80770560[arg0]] & 1)) {
-            alCSPSetChlPan(gSeqPlayers[0], 0.3f, 1.35f);
+            alCSPSetChlPanVolume(gSeqPlayers[0], 0.3f, 1.35f);
         }
         if (D_80770560[arg0] == 0x38) {
             sfxSetChannelParam(0x38, 0x3C00, 1);
@@ -709,14 +708,14 @@ void seqUpdateUnderwaterAudio(s32 arg0) {
                 sfxSetChannelParam(0x60, 0xE, 1);
             } else {
                 sfxSetChannelParam(0x60, 8, 1);
-                alCSPSetChlVol(D_8076BF24, 1, 0x7F);
-                alCSPSetChlVol(D_8076BF24, 2, 0x7F);
+                alCSPSetChlFX1Mix(D_8076BF24, 1, 0x7F);
+                alCSPSetChlFX1Mix(D_8076BF24, 2, 0x7F);
             }
             sfxSetChannelParam(0x60, 0x10, 0);
         }
     } else {
         if (arg0 == 0 && (D_80745658[D_80770560[arg0]] & 1)) {
-            alCSPSetChlPan(gSeqPlayers[0], 0.0f, 1.0f);
+            alCSPSetChlPanVolume(gSeqPlayers[0], 0.0f, 1.0f);
         }
         if (D_80770560[arg0] == 0x38) {
             sfxSetChannelParam(0x38, 0x3C00, 0);
@@ -728,8 +727,8 @@ void seqUpdateUnderwaterAudio(s32 arg0) {
             }
             sfxSetChannelParam(0x60, 0x10, 1);
             sfxSetChannelParam(0x60, 8, 0);
-            alCSPSetChlVol(D_8076BF24, 1, 0x64);
-            alCSPSetChlVol(D_8076BF24, 2, 0x64);
+            alCSPSetChlFX1Mix(D_8076BF24, 1, 0x64);
+            alCSPSetChlFX1Mix(D_8076BF24, 2, 0x64);
         }
     }
 }
@@ -1017,7 +1016,7 @@ void audioResetAll(void) {
         i = 1;
     }
     for (; i < 4; i++) {
-        alCSPSetChlPan(gSeqPlayers[i], 0.0f, 1.0f);
+        alCSPSetChlPanVolume(gSeqPlayers[i], 0.0f, 1.0f);
         if (alCSPGetState(gSeqPlayers[i]) == 1 && D_80770560[i] != 0x12) {
             alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
             D_80770560[i] = 0;
@@ -2110,7 +2109,7 @@ void *func_80610FE8(s32);
 void heapFree(void *);
 void func_8060B140(s32, void *, s32 *, s32, s32, s32, void *);
 void n_alCSeqNew(void *, void *);
-void func_80737F40(ALCSPlayer *);
+void resetCSPChannelStates(ALCSPlayer *);
 void seqUpdateVolume(s32);
 
 void seqLoadAndPlay(s32 arg0, u8 arg1, f32 arg2) {
@@ -2152,7 +2151,7 @@ void seqLoadAndPlay(s32 arg0, u8 arg1, f32 arg2) {
     heapFree((void *)temp);
     n_alCSeqNew(&D_8076BF48[arg0], D_8076BF38[arg0]);
     alSeqpSetSeq((ALSeqPlayer *)gSeqPlayers[arg0], (ALSeq *)&D_8076BF48[arg0]);
-    func_80737F40(gSeqPlayers[arg0]);
+    resetCSPChannelStates(gSeqPlayers[arg0]);
     seqUpdateVolume(arg0);
     alCSPPlay(gSeqPlayers[arg0]);
 }
@@ -2242,9 +2241,9 @@ void func_8060A6A0(s32 arg0, u8 arg1, f32 arg2) {
     vol = ((var_fv0 * 0.35) / 255.0) + 1.0;
     if (arg0 != 0) {
         if (D_80745658[D_80770560[arg0]] & 1) {
-            alCSPSetChlPan(gSeqPlayers[arg0], pan, vol);
+            alCSPSetChlPanVolume(gSeqPlayers[arg0], pan, vol);
         } else {
-            alCSPSetChlPan(gSeqPlayers[arg0], 0.0f, 1.0f);
+            alCSPSetChlPanVolume(gSeqPlayers[arg0], 0.0f, 1.0f);
         }
     }
     seqUpdateUnderwaterAudio(arg0);

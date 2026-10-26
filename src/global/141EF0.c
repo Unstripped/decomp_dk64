@@ -9,7 +9,7 @@ typedef struct {
     u32 unk48;
 } ReverbSynth;
 
-extern ReverbSynth *D_807563E4;
+extern ReverbSynth *n_syn;
 
 typedef struct {
     s32 unk0;
@@ -49,10 +49,10 @@ s32 n_alFxParamHdl(FxParamState *arg0, s32 arg1, s32 *arg2) {
     }
     switch (sp28) {
     case 0:
-        sp2C->unk4[sp24].unk0 = ((s32)(sp20 * (u32)D_807563E4->unk40) / 1000) & ~7;
+        sp2C->unk4[sp24].unk0 = ((s32)(sp20 * (u32)n_syn->unk40) / 1000) & ~7;
         break;
     case 1:
-        sp2C->unk4[sp24].unk4 = ((s32)(sp20 * (u32)D_807563E4->unk40) / 1000) & ~7;
+        sp2C->unk4[sp24].unk4 = ((s32)(sp20 * (u32)n_syn->unk40) / 1000) & ~7;
         break;
     case 2:
         sp2C->unk4[sp24].unkA = sp20;
@@ -64,7 +64,7 @@ s32 n_alFxParamHdl(FxParamState *arg0, s32 arg1, s32 *arg2) {
         sp2C->unk4[sp24].unkC = sp20;
         break;
     case 5:
-        sp2C->unk4[sp24].unk10 = (((f32)sp20 / 1000.0f) * 2.0f) / (f32)D_807563E4->unk40;
+        sp2C->unk4[sp24].unk10 = (((f32)sp20 / 1000.0f) * 2.0f) / (f32)n_syn->unk40;
         break;
     case 6:
         sp1C = (f32)sp20;
@@ -291,7 +291,7 @@ f32 _doModFunc(FxNMModState *arg0, s32 arg1) {
 }
 
 extern Acmd *n_alMainBusPull();
-Acmd *func_8073E800(void *arg0, s16 *arg1) {
+Acmd *n_alSynOutputPull(void *arg0, s16 *arg1) {
     Acmd *sp24;
     Acmd *sp20;
     Acmd *sp1C;
@@ -303,7 +303,7 @@ Acmd *func_8073E800(void *arg0, s16 *arg1) {
     sp20->words.w0 = 0x0D000000;
     sp1C = sp24++;
     sp1C->words.w0 = 0x062E0000;
-    sp1C->words.w1 = D_807563E4->unk48;
+    sp1C->words.w1 = n_syn->unk48;
     return sp24;
 }
 

@@ -7,9 +7,9 @@ extern u8 D_807FF0F4;
 extern u8 D_807FF0F6;
 extern u8 D_807FF0F8;
 
-void func_80737CF4(s32 arg0, s32 arg1);
+void updateCSPOutputChannelMode(s32 arg0, s32 arg1);
 
-void func_80737C20(u8 arg0) {
+void configureCSPOutputMode(u8 arg0) {
     s32 i;
 
     D_807FF0F0 = 0;
@@ -28,11 +28,11 @@ void func_80737C20(u8 arg0) {
     }
     i = 0;
     do {
-        func_80737CF4(i, 0);
+        updateCSPOutputChannelMode(i, 0);
     } while ((i += 1) < 2);
 }
 
-void func_80737CF4(s32 arg0, s32 arg1) {
+void updateCSPOutputChannelMode(s32 arg0, s32 arg1) {
     if (arg1 == 0) {
         arg1 = *(&D_807FF0F8 + arg0);
     }

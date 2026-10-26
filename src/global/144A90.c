@@ -33,10 +33,10 @@ typedef struct AdpcmNMSynth {
     s32 outputRate;
 } AdpcmNMSynth;
 
-extern AdpcmNMSynth *D_807563E4;
+extern AdpcmNMSynth *n_syn;
 extern u8 D_807FF0F4[];
 extern u8 D_807FF0F6[];
-extern void func_8073BE54(AdpcmNMFX *, f32);
+extern void rebuildLowPassCoefficients(AdpcmNMFX *, f32);
 
 AdpcmNMAcmd *n_alMainBusPull(s32 arg0, AdpcmNMAcmd *ptr) {
     AdpcmNMAcmd *result;
@@ -50,9 +50,9 @@ AdpcmNMAcmd *n_alMainBusPull(s32 arg0, AdpcmNMAcmd *ptr) {
         cmd->w0 = 0x020004E0;
         cmd->w1 = 0x2E0;
     }
-    if (D_807563E4->maxAuxBusses > (i = 0)) {
+    if (n_syn->maxAuxBusses > (i = 0)) {
         do {
-            result = D_807563E4->mainBus->pull(arg0, result, i);
+            result = n_syn->mainBus->pull(arg0, result, i);
             if (D_807FF0F4[i] != 0) {
                 if (D_807FF0F6[i] != 0) {
                     AdpcmNMAcmd *cmd;
@@ -89,12 +89,12 @@ AdpcmNMAcmd *n_alMainBusPull(s32 arg0, AdpcmNMAcmd *ptr) {
                     cmd->w1 = 0x07C004E0;
                 }
             }
-            if (D_807563E4->auxBuses[i].fx->count > 0) {
+            if (n_syn->auxBuses[i].fx->count > 0) {
                 AdpcmNMFX *fx;
 
-                fx = D_807563E4->auxBuses[i].fx;
+                fx = n_syn->auxBuses[i].fx;
                 if (fx->unk28 != 0) {
-                    func_8073BE54(fx, (f32)D_807563E4->outputRate);
+                    rebuildLowPassCoefficients(fx, (f32)n_syn->outputRate);
                 }
                 {
                     AdpcmNMAcmd *cmd;
@@ -119,7 +119,7 @@ AdpcmNMAcmd *n_alMainBusPull(s32 arg0, AdpcmNMAcmd *ptr) {
                 }
                 fx->unk28 = 0;
             }
-        } while (++i < D_807563E4->maxAuxBusses);
+        } while (++i < n_syn->maxAuxBusses);
     }
     return result;
 }

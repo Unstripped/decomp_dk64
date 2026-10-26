@@ -33,7 +33,7 @@ typedef struct SynAllocStartSynth {
     s32 delta;
 } SynAllocStartSynth;
 
-extern SynAllocStartSynth *D_807563E4;
+extern SynAllocStartSynth *n_syn;
 extern SynAllocStartParam *__n_allocParam(void);
 extern s32 n_alEnvmixerParam(void *, s32, void *);
 extern s32 _n_timeToSamples(s32);
@@ -46,7 +46,7 @@ void n_alSynStartVoiceParams(SynAllocStartVoice *voice, void *wave, f32 pitch, s
         if (param == NULL) {
             return;
         }
-        param->delta = D_807563E4->delta + voice->pvoice->delta;
+        param->delta = n_syn->delta + voice->pvoice->delta;
         param->next = NULL;
         param->type = 13;
         param->unity = voice->unity;
