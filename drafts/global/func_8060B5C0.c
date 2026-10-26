@@ -1,4 +1,4 @@
-// func_8060B5C0 (src/global/10130.c): from .scratch/SmallC/func_8060B5C0_best.c
+// func_8060B5C0 (src/global/10130.c): stage 4: frame and text size exact; formal pointer remains stack-homed rather than target s1, shifting saved-register assignment
 extern s16 D_807463A0;
 extern s16 *D_807463A8;
 extern s16 D_807463B0;

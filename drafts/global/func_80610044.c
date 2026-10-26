@@ -1,4 +1,4 @@
-// func_80610044 (src/global/14CF0.c): from .scratch/SmallC/func_80610044_best.c
+// func_80610044 (src/global/14CF0.c): stage 1: typed m2c recovery saved; not yet compiled in private translation unit
 typedef struct { u32 unk0[24]; } SmallCMsg;
 extern s8 D_80744460;
 extern u8 D_807444FC;

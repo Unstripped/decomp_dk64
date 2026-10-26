@@ -1,4 +1,4 @@
-// func_80610268 (src/global/14CF0.c): from .scratch/SmallC/func_80610268_best.c
+// func_80610268 (src/global/14CF0.c): stage 4: text size exact; post-osRecvMesg allocation reload uses a0/v0 rather than target v0/t8
 extern s8 D_80746834;
 extern OSMesgQueue D_807659E8;
 extern u8 D_807F059C[];

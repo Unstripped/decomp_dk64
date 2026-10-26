@@ -1,4 +1,4 @@
-// func_8060A7C0 (src/global/F4C0.c): from .scratch/SmallC/func_8060A7C0_best.c
+// func_8060A7C0 (src/global/F4C0.c): stage 4: 16-byte text deficit; direct pointer and global-array address forms still miss target initial zero-index address formation
 typedef struct { u8 unk0[0x5C]; u16 unk5C; } SmallCPlayerState;
 typedef struct { u8 unk0[0x1A4]; u8 unk1A4; } SmallCContext;
 typedef struct { u8 unk0[0x2C0]; u8 unk2C0; } SmallCRaceInfo;
