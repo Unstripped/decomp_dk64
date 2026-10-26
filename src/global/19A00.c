@@ -297,9 +297,34 @@ s32 func_806162C4(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616318.s")
+typedef struct P19c2ScriptCursor {
+    u8 pad0[0x6C];
+    u8 *unk6C;
+} P19c2ScriptCursor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616374.s")
+void func_80614E78(Actor *, u16);
+void func_80614EBC(Actor *, u16);
+extern s32 D_807F5AF4;
+
+s32 func_80616318(Actor *arg0) {
+    u16 sp1E;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    func_80614E78(arg0, sp1E);
+    D_807F5AF0 = ((P19c2ScriptCursor *)arg0->unk4)->unk6C;
+    return D_807F5AF4;
+}
+
+s32 func_80616374(Actor *arg0) {
+    u16 sp1E;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    func_80614EBC(arg0, sp1E);
+    D_807F5AF0 = ((P19c2ScriptCursor *)arg0->unk4)->unk6C;
+    return D_807F5AF4;
+}
 
 typedef struct P19cFlagState {
     u8 pad0[0x78];
