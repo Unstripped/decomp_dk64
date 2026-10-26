@@ -975,25 +975,110 @@ void func_806180FC(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618104.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618430.s")
+void func_80714950(s32);
+void func_8071498C(void *);
+void func_80714998(s32);
+void func_807149A8(s32);
+void func_807149B8(s32);
+void func_807149FC(s32);
+void func_80714A28(s32);
+void func_80714C08(void *, f32, Actor *, u8, s32);
+void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSpawnBone(Actor *, s32, f32, f32, f32, f32, s32);
+void actorGetNodePosOrPosition(Actor *, s32 *, f32 *, f32 *);
+void func_8061EF4C(s32, u8, u8, s32, f32, f32, f32, f32);
+extern void func_8071B1AC(void);
+extern void func_8071B24C(void);
+extern void func_8071B44C(void);
+extern u8 D_8071FE08[];
+extern u8 D_8071FF18[];
+extern void func_8071D28C(void);
+extern s32 D_807FBB60;
+extern f32 D_807F5AF8;
+extern f32 D_807F5AFC;
+extern f32 D_807F5B00;
+void actorSpawn(s32, s16);
+void actorDespawn(void *);
+void func_8067B238(Actor *, Actor *, s32);
+void func_806D9924(Actor *);
+void lightGetColor(f32 *, f32 *, f32 *, s16);
+void lightSetColor(f32, f32, f32, s16);
+
+
+typedef struct P19e4ActorState {
+    u8 pad0[0x34];
+    s32 unk34;
+} P19e4ActorState;
+
+typedef struct P19e4GlobalState {
+    u8 pad0[0x88];
+    Actor *unk88;
+    u8 pad8C[0x78];
+    s32 unk104;
+} P19e4GlobalState;
+
+typedef struct P19e4ActorView {
+    u8 pad0[0x58];
+    s32 unk58;
+    u8 pad5C[0x88];
+    s16 unkE4;
+    s16 unkE6;
+    s16 unkE8;
+    u8 padEA[4];
+    s16 unkEE;
+    u8 padF0[0x3C];
+    s16 unk12C;
+    u8 pad12E[0x46];
+    u8 *unk174;
+} P19e4ActorView;
+
+void func_80618430(Actor *arg0) {
+    u8 sp27;
+
+    func_80614F28(&sp27);
+    func_8071498C(func_8071B1AC);
+    func_80714998(2);
+    func_80714950(((P19e4ActorView *)arg0)->unkE6);
+    func_807149B8(1);
+    func_80714C08(D_8071FF18, 0.4f, arg0, sp27, 0);
+}
 
 void func_8061849C(Actor *arg0) {
     ((P19e3GlobalState *)D_807FD580)->unk1F0 |= 0x40000;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806184BC.s")
+void func_806184BC(Actor *arg0) {
+    u8 sp2F;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061859C.s")
+    func_80614F28(&sp2F);
+    if (sp2F == 0xFF) {
+        func_807149B8(0);
+        func_807149FC(1);
+        func_80714CC0(D_8071FE08, 0.7f, arg0->unk7C, arg0->unk80 + 7.0f, arg0->unk84);
+    } else {
+        func_8071498C(func_8071B24C);
+        func_80714998(2);
+        func_80714950((((P19e4ActorView *)arg0)->unkE6 + 0x800) & 0xFFF);
+        func_807149B8(1);
+        func_80714A28(0x80);
+        func_80714C08(D_8071FF18, 0.4f, arg0, sp2F, 0);
+    }
+}
+
+void func_8061859C(Actor *arg0) {
+    u8 sp27;
+
+    func_80614F28(&sp27);
+    func_8071498C(func_8071B44C);
+    func_80714998(2);
+    func_80714950(((P19e4ActorView *)arg0)->unkEE);
+    func_807149B8(1);
+    func_80714C08(D_8071FF18, 0.4f, arg0, sp27, 0);
+}
 
 extern s32 D_807FBB68;
 extern u8 D_8072006C;
 extern u8 D_80720B58;
-void func_80714950(Actor *);
-void func_8071498C(void (*)(void));
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_80714A28(s32);
-void func_80714C08(void *, f32, Actor *, u8, s32);
 void func_8071A440(void);
 void func_8071DB74(void);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, s16, s16, s32);
@@ -1014,12 +1099,19 @@ void func_80618608(Actor *arg0) {
         return;
     }
     sfxPlayFromActorWithAltitudeCheck(arg0, 0x8A, 0x96, 0x7F, 0x32);
-    func_80714950(arg0);
+    func_80714950((s32)arg0);
     func_8071498C(func_8071A440);
     func_80714C08(&D_8072006C, 0.4f, arg0, sp3F, 2);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618728.s")
+void func_80618728(Actor *arg0) {
+    func_807149A8(0x7D0);
+    func_80714998(3);
+    effectSpawnBone(arg0, 0x16, 0.8f, 0.0f, 0.0f, 0.0f, -0x78);
+    func_807149A8(0x7D0);
+    func_80714998(3);
+    effectSpawnBone(arg0, 0x17, 0.8f, 0.0f, 0.0f, 0.0f, -0x78);
+}
 
 void func_806187BC(Actor *arg0) {
     s16 sp1E;
@@ -1121,7 +1213,22 @@ void func_80618968(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618998.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618B6C.s")
+void func_80618B6C(Actor *arg0) {
+    s32 sp3C;
+    f32 sp38;
+    f32 sp34;
+    s16 sp32;
+    s16 sp30;
+    u8 sp2F;
+    u8 sp2E;
+
+    actorGetNodePosOrPosition(arg0, &sp3C, &sp38, &sp34);
+    func_80614F28(&sp2E);
+    func_80614F28(&sp2F);
+    func_80614F4C((u8 *)&sp32);
+    func_80614F4C((u8 *)&sp30);
+    func_8061EF4C(((P19e4GlobalState *)D_807FD580)->unk104, sp2E, sp2F, sp3C, sp38, sp34, (f32)sp32, (f32)sp30);
+}
 
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, Actor *, u8);
@@ -1183,22 +1290,60 @@ void func_80618D20(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618D68.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618E4C.s")
+void func_80618E4C(Actor *arg0) {
+    u8 sp1F;
+
+    func_80614F28(&sp1F);
+    if (sp1F != 0) {
+        arg0->unk60 &= 0xBFFFFFFF;
+        D_807FBB60 |= 0x10030;
+    } else {
+        arg0->unk60 |= 0x40000000;
+        D_807FBB60 &= 0xFFFEFFCF;
+        func_806D9924(arg0);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618EE8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618F74.s")
+void func_80618F74(Actor *arg0) {
+    u8 sp1F;
+    P19e4ActorView *actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80619018.s")
+    func_80614F28(&sp1F);
+    if (sp1F != 0) {
+        actorSpawn(0x136, 0xA8);
+        func_8067B238(D_807FBB44, arg0, ((P19e4ActorState *)arg0->unk4)->unk34);
+        ((P19e4GlobalState *)D_807FD580)->unk88 = D_807FBB44;
+    } else {
+        actor = (P19e4ActorView *)((P19e4GlobalState *)D_807FD580)->unk88;
+        if ((actor != NULL) && (actor->unk58 == 0x136)) {
+            actorDespawn(actor);
+            ((P19e4GlobalState *)D_807FD580)->unk88 = NULL;
+        }
+    }
+}
+
+void func_80619018(Actor *arg0) {
+    u8 sp1F;
+
+    func_80614F28(&sp1F);
+    if (sp1F != 0) {
+        if (((P19e4ActorView *)arg0)->unk12C != -1) {
+            lightGetColor(&D_807F5AF8, &D_807F5AFC, &D_807F5B00, ((P19e4ActorView *)arg0)->unk12C);
+            lightSetColor(107.0f, 48.0f, 80.0f, ((P19e4ActorView *)arg0)->unk12C);
+        }
+    } else if (((P19e4ActorView *)arg0)->unk12C != -1) {
+        lightSetColor(((f32 *)&D_807F5AF8)[0], ((f32 *)&D_807F5AF8)[1], ((f32 *)&D_807F5AF8)[2], ((P19e4ActorView *)arg0)->unk12C);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806190C0.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806192A4.s")
 
-void actorDespawn(void);
-
-void func_80619500(void) {
-    actorDespawn();
+void func_80619500(Actor *arg0) {
+    actorDespawn(arg0);
 }
 
 void *func_80619520(Actor *arg0) {
