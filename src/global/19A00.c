@@ -95,7 +95,40 @@ s32 func_806150F8(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615134.s")
+typedef struct P19aSelectorValue {
+    u8 pad0[0x24];
+    f32 unk24;
+    u8 pad28[4];
+    f32 unk2C;
+    u8 pad30[4];
+    f32 unk34;
+} P19aSelectorValue;
+
+typedef struct P19aSelectorState {
+    P19aSelectorValue *unk0;
+    P19aSelectorValue *unk4;
+    u8 pad8[0x70];
+    s32 unk78;
+    u8 pad7C[8];
+    s32 unk84;
+} P19aSelectorState;
+
+s32 func_80615134(Actor *arg0) {
+    P19aSelectorState *state;
+    P19aSelectorValue *value;
+
+    state = (P19aSelectorState *)arg0->unk4;
+    if (state->unk84 != 0) {
+        value = state->unk4;
+    } else {
+        value = state->unk0;
+    }
+    D_807F5AF0++;
+    if ((value->unk24 != 0.0f) || ((value->unk2C != 0.0f) && (value->unk34 != 0.0f))) {
+        ((P19aSelectorState *)arg0->unk4)->unk78 |= 1;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806151BC.s")
 
@@ -161,7 +194,22 @@ s32 func_8061551C(Actor *arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615558.s")
+s32 func_80615558(Actor *arg0) {
+    f32 sp1C;
+    P19bState *state;
+
+    state = (P19bState *)arg0->unk4;
+    D_807F5AF0++;
+    func_80614FD8((u8 *)&sp1C);
+    if (*state->unk8 != 0) {
+        if (sp1C < state->unk44) {
+            state->unk44 = sp1C;
+            state->unk40 = state->unk44 - (state->unk10 * state->unk44);
+        }
+        ((P19bState *)arg0->unk4)->unk78 |= 0x10;
+    }
+    return 0;
+}
 
 s32 func_806155F4(Actor *arg0) {
     if (((P19bState *)arg0->unk4)->unk88 != 0) {
@@ -1355,7 +1403,18 @@ void func_80618E4C(Actor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618EE8.s")
+extern s16 D_80746E10[];
+
+void func_80618EE8(Actor *arg0) {
+    u8 *script;
+
+    actorSpawn(0x135, D_80746E10[((P19e4ActorView *)arg0)->unk58]);
+    func_8067B238(D_807FBB44, arg0, ((P19e4ActorState *)arg0->unk4)->unk34);
+    ((P19e4ActorView *)D_807FBB44)->unkE8 = ((P19e4ActorView *)arg0)->unkE8;
+    ((P19e4ActorView *)D_807FBB44)->unkE4 = ((P19e4ActorView *)arg0)->unkE4;
+    script = ((P19e4ActorView *)D_807FBB44)->unk174;
+    func_80614F28(script + 6);
+}
 
 void func_80618F74(Actor *arg0) {
     u8 sp1F;
