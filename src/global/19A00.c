@@ -476,7 +476,56 @@ s32 func_80615C34(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615CE4.s")
+extern u8 D_80746D5C;
+
+s32 func_80615CE4(Actor *arg0) {
+    u8 sp27;
+    void *var_a1;
+    P19bState *temp_v0;
+
+    temp_v0 = (P19bState *)arg0->unk4;
+    if (temp_v0->unk84 != 0) {
+        var_a1 = temp_v0->unk4;
+    } else {
+        var_a1 = temp_v0->unk0;
+    }
+    D_807F5AF0++;
+    func_80614F28(&sp27);
+    func_80614644(arg0, var_a1, (f32)D_80746D5C);
+    if (D_80746D5C != 0) {
+        D_80746D5C += sp27;
+    } else {
+        D_80746D5C = 0;
+    }
+    return 1;
+}
+
+typedef struct Perm4cMotion {
+    void *unk0;
+    f32 unk4;
+    f32 unk8;
+    s16 unkC;
+    s16 unkE;
+    u8 pad10[0xC];
+    s16 unk1C;
+    s16 unk1E;
+    s16 unk20;
+    u8 pad22[2];
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+} Perm4cMotion;
+
+typedef struct Perm4cState {
+    Perm4cMotion *unk0;
+    Perm4cMotion *unk4;
+    u8 pad8[0x70];
+    s32 unk78;
+    u8 pad7C[8];
+    s32 unk84;
+} Perm4cState;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615DA4.s")
 
@@ -534,7 +583,32 @@ s32 func_8061600C(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061607C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061612C.s")
+s32 func_8061612C(Actor *arg0) {
+    f32 sp24;
+    f32 sp20;
+    Perm4cMotion *sp1C;
+    Perm4cState *temp_v1;
+
+    temp_v1 = (Perm4cState *)arg0->unk4;
+    if (temp_v1->unk84 != 0) {
+        sp1C = temp_v1->unk4;
+    } else {
+        sp1C = temp_v1->unk0;
+    }
+    D_807F5AF0++;
+    func_80614FD8((u8 *)&sp24);
+    func_80614FD8((u8 *)&sp20);
+    if (sp20 > 0.0f) {
+        sp1C->unk34 = sp20;
+        sp1C->unk2C = sp24;
+        sp1C->unk28 = sp1C->unk24;
+        sp1C->unk30 = 0.0f;
+    } else {
+        sp1C->unk24 = sp24;
+        sp1C->unk34 = 0.0f;
+    }
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806161D0.s")
 
