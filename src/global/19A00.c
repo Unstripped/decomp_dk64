@@ -1047,11 +1047,58 @@ s32 func_80616964(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806169C0.s")
+typedef void (*Perm4fCallback)();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616A1C.s")
+extern Perm4fCallback D_80746D64[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616A9C.s")
+s32 func_806169C0(Actor *arg0) {
+    s16 sp1E;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    D_80746D64[sp1E](arg0);
+    return D_807F5AF4;
+}
+
+typedef struct Perm4fCallbackState {
+    u8 pad0[0x70];
+    Perm4fCallback unk70;
+    u8 *unk74;
+} Perm4fCallbackState;
+
+s32 func_80616A1C(Actor *arg0) {
+    s16 sp1E;
+    Perm4fCallbackState *sp18;
+    sp18 = (Perm4fCallbackState *)arg0->unk4;
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    sp18->unk70 = D_80746D64[sp1E];
+    sp18->unk74 = D_807F5AF0;
+    if (sp1E != 0) {
+        sp18->unk70(arg0);
+    }
+    return D_807F5AF4;
+}
+
+void func_80609140(s16, s32, f32, f32, s32, s32);
+
+s32 func_80616A9C(s32 arg0) {
+    s16 sp26;
+    u8 sp25;
+    s16 sp22;
+    u8 sp21;
+    u8 sp20;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp26);
+    func_80614F28(&sp25);
+    func_80614F28(&sp20);
+    func_80614F4C((u8 *)&sp22);
+    func_80614F28(&sp21);
+    func_80609140(sp26, (s32)(((f64)sp25 * 32767.0) / 255.0), (f32)sp20,
+                  (f32)((f64)sp22 / 127.0), (s32)sp21, 0);
+    return 1;
+}
 
 s32 func_80616BA4(Actor *arg0) {
     u8 sp1F;
@@ -1147,7 +1194,41 @@ s32 func_80616DB4(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616E08.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617140.s")
+typedef struct Perm4fActorCommand {
+    u8 pad0[0x78];
+    u8 unk78;
+} Perm4fActorCommand;
+
+extern s32 D_807457C8;
+
+s16 func_8060A7C0(s16, Actor *, u8);
+void n_alSndpStop(s32);
+void sfxPlayFromActorDirect(Actor *, s16, u8, f32, s32, s32);
+
+s32 func_80617140(Actor *arg0) {
+    s16 sp2E;
+    s16 temp_v0;
+    u8 sp2B;
+    u8 sp2A;
+    u8 sp29;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp2E);
+    func_80614F28(&sp2B);
+    func_80614F28(&sp2A);
+    func_80614F28(&sp29);
+    if (D_807457C8 != 0) {
+        n_alSndpStop(D_807457C8);
+        D_807457C8 = 0;
+    }
+    temp_v0 = func_8060A7C0(sp2E, arg0, ((Perm4fActorCommand *)arg0)->unk78);
+    if (temp_v0 == 8) {
+        sp29 = 4;
+    }
+    sfxPlayFromActorDirect(arg0, temp_v0, sp2B, (f32)((f64)sp2A / 127.0),
+                           (s32)sp29, 0x4B);
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617238.s")
 
