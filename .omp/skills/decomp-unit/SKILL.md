@@ -130,6 +130,17 @@ ARRAY/struct globals too, with a full struct (`CC800`–`E4090` seeded only scal
 merges clashed on `D_807FD610` pad structs and `D_807FD63A` declared as scalar vs array,
 each fixed by hand-merging the agent structs into one). Commit the seeded stubs, then snapshot.
 
+`-g` files: asm-processor rejects tiny GLOBAL_ASM blocks (`too short .text block`) and
+asm-only data blocks (`.text block without an initial glabel`). Before the first build list
+glabels of ≤6 insns: a 4-insn `jr $ra; nop; jr $ra; nop` after a non-void leaf is that
+leaf's dead tail (delete the symbol, give the leaf `size:0x18`); write genuinely tiny
+functions as C at split time (n_audio: `alCSPGetState`, `n_alSynDelete`,
+`n_alSynSetPriority`); `.word` runs with RSP opcodes (`mtc0`, `jal` into IMEM) are microcode:
+carve them into their own `asm` subsegment.
+If `tools/dk` fails with `no space left on device`, Docker's disk is full: ask the user
+before pruning anything; after a prune the image may be gone (`docker build -t dk64-decomp .`,
+~75 s).
+
 Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 `Overlays: split <a> (<files>) and <b> (<files>) as C units (GLOBAL_ASM baseline)`.
 
@@ -221,6 +232,10 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
 2. For every file, BEFORE dispatch: `python3 tools/merge_drafts.py snapshot src/<seg>/<file>.c`.
 3. Write the filled [brief.md](brief.md) once to `local://brief.md` and pass the `context`
    "Read `local://brief.md` FIRST and follow it exactly, then read `local://findings.md`".
+   Fill the WHOLE template: it contains fenced code blocks, so never cut it at the first
+   ```` ``` ```` (the n_audio brief lost its Method and Report sections that way for most
+   of the unit). For a `-g` unit, add a section saying uopt/regalloc advice does not apply
+   and temp differences come from expression-tree shape.
    `local://findings.md` is the unit's running list of IDO tricks and struct/prototype facts:
    append each report's new quirks and the unified declarations right after merging it
    (`cat >> local://findings.md`), so every later agent gets all of them without
@@ -332,7 +347,12 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    address constants) goes straight to the ROM gate. On a clash it stops with `src` holding
    the merged text: fix it, then `tools/merge_gate.sh - - src/<seg>/<f>.c` re-checks
    (merge with no copies + gate). It rewrites `src` (pruning), so never run it on a file
-   another agent (the namer) is editing in place.
+   another agent (the namer) is editing in place. A second pass in the SAME private copy
+   merges with `--base <the commit that merged its first pass>`, not the copy's original
+   base (n_audio: `13ECE0` and `141EF0` conflicted with the original base, merged cleanly
+   with the pass-1 commit). Never chain `merge_gate.sh ... | grep ...; git commit`: on a
+   conflict `src` is untouched and the chain commits only `drafts/` under a "match" message;
+   commit only after reading `GATE_OK`.
    Commit `<Seg>: match N/T <file> functions`.
 7. Stop rule: stop a file after a round that matched fewer than ~1 function per agent, or
    when only near-misses and 500+-insn functions remain. Record the closest diffs in ROADMAP.
@@ -381,6 +401,14 @@ Gate: `tools/dk make` OK, then `tools/dk make expected`. Commit
    Check its diff before committing: `git diff --stat` versus `git diff -w --stat` per file
    (the `119370` namer joined and unindented every struct and function body of `11BC10.c`;
    a corrective agent rebuilt the file from the pre-rename version by token renames).
+   Also check that no function vanished (the n_audio namer deleted `seqPlayerSetTempo` while
+   renaming its neighbour): `for f in $(git diff --name-only -- src); do a=$(git show HEAD:$f | grep -cE '^[A-Za-z].*\) \{$|#pragma GLOBAL_ASM'); b=$(grep -cE '^[A-Za-z].*\) \{$|#pragma GLOBAL_ASM' $f); if [ "$a" != "$b" ]; then echo "$f $a -> $b"; fi; done`.
+   Renaming a function that a header prototypes (`PR/libaudio.h`'s `alCSPSetChlFXMix(ALCSPlayer *, u8, u8)`)
+   drops that prototype at -O2 callers (`5A50.c` lost two `andi`): declare the new name with
+   the old prototype in each caller file. A failing gate after the namer: compare
+   `build/global.map` section sizes against a map built from HEAD (`git stash`, build, copy,
+   `git stash pop`) to find the object that changed. Reject names that encode offsets or
+   parameter numbers (`setCSPPlayerField84`, `n_alSynSetParam10`): back to `func_`.
 2. `tools/dk make split` (the WHOLE split, not only `dk64.global.us.yaml`: the namer's
    global-only re-split left overlay asm calling the old names, and `minecart.elf` failed
    to link), then `touch src/*/*.c` (renamed global functions are referenced
@@ -582,7 +610,6 @@ Before the final yield:
 
 |Date|Unit|Rounds × agents|Matched per round|Result|
 |---|---|---|---|---|
-|2026-10-25|global camera (201B0), `func_80622B24` resumed from the 1941-insn draft|single-agent session; no permuter; `cc -S` ugen listings + an LRU simulator of ugen scratch allocation|1|1/103 matched. Diffs that are pure scratch-register numbering come from instructions ugen emits and as1 deletes (home-slot reloads, sign-extension of an `s32`-declared callee result): compare `cc -S` output, not the final asm. Three C-level facts fixed it in 4 compiles: `s16` callee return type, a `f64` local in a frame gap (`-l 6` showed the `f32` version colored `$f12`), `*arg1 + call*dist` operand order. The two goto labels stayed (every single-label or label-free shape re-colors `type`)|
 |2026-10-25|global enemy behaviours / particle node rings / spotlight / matrix sprites (C0EE0, C1E70, C2A90 → C2A90 + C4620 hidden TU, C8C10, CB230, CBEA0)|split inline (rodata-pad hidden TU; 26 hidden empty functions written into the seeded stub); stubs seeded; 6 round-1 agents, then rolling: 7 one-function large agents (smallest first), 8 near-miss agents, 3 second-pass near-miss agents + namer (mid-unit, split + `restore_split_asm.sh`); no unify agent|50 round 1 (incl. 1 reloc-only paste) / large 4 of 7 / near-miss 4 of 8 / second pass 1 of 3|84/88 functions (59/63 splat groups; C0EE0 3/4, C1E70 3/4, C2A90 7/7, C4620 22/23, C8C10 17/17, CB230 5/5, CBEA0 27/28), 6 functions + 2 actor-core globals named, ~+36,400 bytes, 4 parked; merges failed only on duplicate prototypes and on declarations inside parked blocks (caught by `--non-matching` after every merge); older copies printed whole-file FAILED from REL addends of since-merged functions (brief note added); a parallel session committed and re-split mid-unit without harm; an agent's broad `pkill` killed siblings' permuters (brief rule)|
 |2026-10-25|global cutscene script interpreter (42630 → 42630 + 478F0 hidden TU), the biggest unmatched function `func_8063FA48` (1847 insns, 151-case switch)|split inline (rodata pad + bss-cluster evidence); single-agent session: m2c, frame/slot forensics from the asm, `uopt_trace -l 5` adjsave trials via a splice/try harness (~5 s per variant), one 40-minute permuter run (34k iterations, best hints: `(0, cs)` copy, `i = b & 0x7F` placement, loop counter swap)|0|0/184 matched; `func_8063FA48` parked NON_MATCHING at stage 5–6 (1836/1847 insns, frame/s-regs/blocks match; 9 cases differ: sfx copy-then-mask pattern, 0x8D map/exit `$s1` priority, loop cursor/count/counter order). Wins came from frame forensics (packed `u8` trio, `s16` low-half slots, memory-resident switch-assigned locals), `if (x == 0) return;`, `extern D_807F61F4`, `s32 h = (s16)(...)` + K&R callee, statement order of two stores. Dead ends: in-isolation tests (copies propagate away; the full function is the only valid testbed), case-insensitive `.scratch` filenames (`vF.py` vs `vf.py` fork-bombed a trial)|
 |2026-10-25|global player state machine / angle math / camera viewports / aiming (CC800, CEAE0 → CEAE0 + D5E10 + E4090 hidden TUs)|split inline (2 rodata-pad TUs placed by data ownership, layout-neutral; CC800's pad flag was its late_rodata edge; 5 trailing hidden empty functions symbolised before the split); 33 round-1 agents rolling (424/458, 93%), 5 large agents (2–3 functions each), 10 near-miss + 5 second/third-pass agents, 1 integration agent + namer, 6 concurrent throughout|424 round 1 / large 6 of 11 directly / near-miss 22 of 36 + 2 reloc-only / second passes 3 of 10|466/474 functions (CC800 32/33, CEAE0 88/91, D5E10 154/154, E4090 192/196), +135,304 bytes, 18 named, 8 parked; `local://findings.md` appended after every merge replaced per-context trick lists; merges failed only on struct/scalar clashes of unseeded array globals (`D_807FD610`, `D_807FD63A`) and prototype param types; three stage-2/3 functions parked by agents were unparked; dead-test hill-climbing against objdiff scores was the main near-miss tool|
@@ -592,3 +619,4 @@ Before the final yield:
 |2026-10-25|global effect grid lists / effect sprite behaviours / command queue / path playback (119370 → 119370 + 11BC10 hidden TU, 126260, 127B00 → 127B00 + 1292F0 hidden TU; 124780 is data in `.text`, kept asm)|split inline (two rodata-pad TUs, monotonic rodata users; no empty functions); stubs seeded with hot externs + 8 callee prototypes; 6 round-1 agents (7–28 functions), then ~30 rolling dispatches: re-prompts from fresh HEAD copies, 4 fresh-chunk agents, 4 near-miss agents (NM1–NM4), 2 large agents; namer + 1 corrective agent (namer joined/unindented 11BC10.c's bodies: restored by token-renaming the pre-rename file)|round 1: 42 (Ua1 21, Ud1 8, Ub2 6, Ub1 3, Ua2 3, Uc1 1) / later passes 45 (re-prompts and fresh chunks 34, near-miss agents NM1 5 + NM2 2, 4 reloc-only pastes of which 3 matched as-is and 1 after a struct fix) / large 0 of 3|87/153 (119370 31/36, 11BC10 38/86, 126260 6/9, 127B00 11/20, 1292F0 1/2), 21 named, +12,576 bytes, 1 parked; agents reported after 3–8 min until the `date` gate (then 24–31 min); a 7-function chunk was never assigned until a remaining-list check; cross-agent prototype clashes (`func_80714CC0`, `lightSetFlags`) fixed inline; `tools/merge_gate.sh` added; every file ended by the stop rule|
 |2026-10-25|global spawn nodes / zones / behaviour-state helpers / volume triggers / proximity paths / flag bitsets (1295B0, 12E800, 1332B0, 133A90, 135D30)|split inline (no hidden TU, no empty functions; an unreferenced late_rodata float stopped splat's migration: `force_migration` fixed the first-build alignment error); stubs seeded with 3–5 hot externs; 6 round-1 agents (6–15 functions), then the same 6 re-prompted ~25 times (next chunk, own large function, fresh-eyes near-miss pass on a sibling's file) + namer; no new spawns|round 1: 61 (incl. 1 reloc-only paste) / chunks 2+: 40 + 4 reloc-only table-loop pastes / large 4 of 8 (983-insn `func_8072B7CC` by an `s32` callee return, 2 by ROM-gated reloc-only pastes; 3 parked at stage 5-6) / near-miss passes 7 (dead `return found;`, `do {} while (0);`, `& 0xFFFFFFFFu` + dead read)|116/133 (1295B0 37/45, 12E800 38/41, 1332B0 7/8, 133A90 17/20, 135D30 17/19), 69 named, +36,668 bytes, 11 parked; merges failed on duplicate callee prototypes across agents (brief now says grep the current file) and one hand-resolved 3-way conflict after an agent moved a typedef block (brief forbids it); `tools/merge_gate.sh` gained re-check mode, reloc-only pass-through and a NON_MATCHING compile gate; every file ended by the stop rule|
 |2026-10-26|global fault screen + audio library part 1 (136820 → 136820 + 137120 TU, 1371D0, 137630, 137C10, 13A750, 13A7A0)|split inline (TU start at `alHeapInit`: `-O2` game code vs unoptimised library; `-g` Makefile flags, 2 functions matched inline to prove the pipeline); no stub seeding; 6 round-1 agents (2 per big file in private copies), then re-prompts: 2 unify fix-ups, 1 compiler-research agent (found IDO 7.1; Dockerfile + Makefile switched inline), 3 unpark passes, 2 near-miss passes, namer (2 passes)|51 round 1 (incl. 2 inline) / +4 after IDO 7.1 / +1 near-miss (`faultThreadMain`) / +1 reloc-hidden branch fix|57/58 functions, +24,352 bytes, 44 named, 1 parked (`faultDrawRegs`, temp numbering; 2 passes). `-g` agents finished whole lists in 9–25 min. Two agents per file with file-local struct sets clashed at merge only in `NON_MATCHING` compiles (same-object `Gc*`/`Gd*`, `Ge*`/`Gf*` structs): re-prompting the finished agent on the merged copy fixed each in 3–5 min. `merge_drafts.py` refuses a copy that dropped a fake function's pragma (`func_80737B48`, a `-g` dead tail): re-add the line in a merge copy, merge, then delete it. A "text-identical, reloc-only" claim hid a wrong branch target (objdump labels normalise branches); the ROM gate caught it. `fdiff.sh`/`permute.py` now take the compiler from make|
+|2026-10-26|global n_audio library (13C920–145D70 → 31 units incl. 1445A0 hidden TU; RSP ucode 146010 carved out)|split inline, all IDO 7.1 `-g` (2 fake dead-tail functions resized, 3 tiny functions written as C at split); no stub seeding (one agent per file); 6 round-1 agents (whole files, 500–1,600 insns) + 3 rolling, then fresh-eyes near-miss agents from drafts (VoiceNM, SynNM, LpfNM, FxNM, EnvNM, AdpcmNM, PermLpf, FxParam, Decode, FxPull2, AdpcmPull) and concrete one-trick re-prompts; namer + corrective namer|round 1: 79 (Cseq 12/12 in 6 min, CspApi 25/25) / near-miss passes 33 (expression-tree flips, comma/embedded assignments, one orchestrator compare flip on a paste) / 2 left|115/117, +34,612 bytes, ~28 named, 0 parked; the 25-minute `date` gate made agents sleep (removed for an outcome stop rule sized to context); Docker disk filled mid-unit (image rebuilt); brief truncated at its first code fence; namer deleted a function and dropped header prototypes (gate caught both)|
