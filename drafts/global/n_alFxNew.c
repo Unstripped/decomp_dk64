@@ -1,4 +1,4 @@
-// n_alFxNew (src/global/140600.c): stage 5: all allocation/init blocks and target-size core shape recovered; remaining branch layout, loop compare, temporary register, and own-data relocation differences
+// n_alFxNew (src/global/140600.c): stage 5: 0x38 frame, slots, and all core blocks match; remaining initial branch layout, loop init/compare ordering, GPR temporaries, and own-data relocations (fdiff score 805)
 void n_alFxNew(void **arg0, void *arg1, s16 arg2, ALHeap *arg3) {
     u16 sp36;
     u16 sp34;
@@ -7,14 +7,24 @@ void n_alFxNew(void **arg0, void *arg1, s16 arg2, ALHeap *arg3) {
     LpfNMFx *sp28;
     LpfNMFxState *sp24;
 
+    extern s32 D_80756458[];
+
     sp2C = NULL;
     sp24 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x30);
     *arg0 = sp24;
     if (((u8 *)arg1 + arg2)[0x1C] == 6) {
-        sp2C = *(s32 **)((u8 *)arg1 + (arg2 * 4) + 0x20);
-    } else {
-        sp2C = D_80756458;
+        goto has_config;
     }
+    goto default_config;
+
+has_config:
+    sp2C = *(s32 **)((u8 *)arg1 + (arg2 * 4) + 0x20);
+    goto config_done;
+
+default_config:
+    sp2C = D_80756458;
+
+config_done:
     sp34 = 0;
     sp24->unk8 = (u8)sp2C[sp34];
     sp34 += 1;
@@ -30,7 +40,7 @@ void n_alFxNew(void **arg0, void *arg1, s16 arg2, ALHeap *arg3) {
         do {
             sp24->unk24[sp32] = 0;
             sp24->unk20[sp32] = sp24->unk24[sp32];
-        } while ((u32)((sp32 += 1) & 0xFFFF) < (u32)sp24->unk0);
+        } while (++sp32 < (u32)sp24->unk0);
     }
     sp36 = 0;
     if ((s32)sp24->unk8 > 0) {

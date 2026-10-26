@@ -1,4 +1,4 @@
-// n_alAdpcmPull (src/global/144E00.c): stage 2: m2c control-flow draft; requires shared decoder/filter layout and exact 0x80 local-slot ordering
+// n_alAdpcmPull (src/global/144E00.c): stage 2: target frame 0x80; non-switch s0 is the loop-boundary boolean at 0x807401B8-0x807401CC (test register local only after reproducing the 0x80 slot layout); shared decoder/filter structs still needed
 void *alLoadParam(void *, void *, s32, s32, s32, s32, s32); /* extern */
 
 void *n_alAdpcmPull(void *arg0, s16 *arg1, s32 arg2, void *arg3) {

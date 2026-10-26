@@ -1,4 +1,4 @@
-// n_alFxParamHdl (src/global/141EF0.c): stage 4: 0x30 frame, all switch cases and generated jump table shape; 32 bytes short in common post-switch resampler update and broad GPR allocation differences
+// n_alFxParamHdl (src/global/141EF0.c): stage 6: correct 0x30 frame and 339-instruction size; unsigned float conversions added, remaining mismatch is GPR allocation across switch/shared paths
 s32 n_alFxParamHdl(FxNMParamState *arg0, s32 arg1, s32 *arg2) {
     FxNMParamState *sp2C;
     u32 sp28;
@@ -54,12 +54,12 @@ s32 n_alFxParamHdl(FxNMParamState *arg0, s32 arg1, s32 *arg2) {
     if (sp2C->unk4[sp24].unk24 != NULL) {
         if (sp28 != 6) {
             if (sp2C->unk4[sp24].unk4 - sp2C->unk4[sp24].unk0 != 0) {
-                sp1C = (sp2C->unk4[sp24].unk1C / (f32)(sp2C->unk4[sp24].unk4 - sp2C->unk4[sp24].unk0)) * 173123.4062f;
+                sp1C = (sp2C->unk4[sp24].unk1C / (f32)(u32)(sp2C->unk4[sp24].unk4 - sp2C->unk4[sp24].unk0)) * 173123.4062f;
             } else {
                 sp1C = 0.0f;
             }
         }
-        sp2C->unk4[sp24].unk1C = (f32)(sp2C->unk4[sp24].unk4 - sp2C->unk4[sp24].unk0) * (sp1C / 173123.4062f);
+        sp2C->unk4[sp24].unk1C = (f32)(u32)(sp2C->unk4[sp24].unk4 - sp2C->unk4[sp24].unk0) * (sp1C / 173123.4062f);
     }
     return 0;
 }
