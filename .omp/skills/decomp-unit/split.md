@@ -14,7 +14,15 @@ Commands below run on the host unless prefixed `tools/dk`. `tools/unit_check.py`
 - Size: `python3 tools/unit_check.py count global` (all still-asm files) or
   `count global <file>...`.
 - Hand-written asm is not IDO C: `python3 tools/unit_check.py handasm global <file>...` must
-  print 0 (64-bit ops, `$k0`/`$k1`; `77B90`, `15010`, `16B60`, `61690` are hand-written).
+  print 0 (64-bit ops, `$k0`/`$k1`; `77B90`, `15010`, `16B60`, `61690` are hand-written). It
+  misses 64-bit-free hand asm: entries without a prologue using unsaved `$s`/`$f` state and
+  `j` into `alabel`s (`1E2D0`), or one function falling into the next (`17A10` cos→sin).
+- `python3 tools/unit_check.py boundaries <seg> <file>...` before the split: `falls into` is
+  hand-written fall-through or a spimdisasm split at a continuation label (the "function"
+  starts mid-body, e.g. in a `jal` delay slot: give the real function `size:` in the symbol
+  file); `trailing nops` after a `jr` is 16-byte TU padding, a hidden TU at the next function.
+- A `.word` run splat labels `func_` (an f32 table in `.text`, `1F9A0`) gets its own
+  `[0xOFF, asm]` subsegment.
 - Compiler per file: unoptimised code (every argument homed to the stack, a dead `b` to the
   epilogue after each `return`, two `jr $ra` ending a void leaf) is `-g`. Compile one small
   function at `-O2`, 5.3 `-g` and 7.1 `-g` and compare

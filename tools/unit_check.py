@@ -7,6 +7,11 @@
   empty-funcs <seg> <file>...      hidden empty functions: a `jr $ra` two instructions after the
                                    previous one and not a .L branch target (prints owner and address;
                                    owner == address is an already-symbolised empty function)
+  boundaries <seg> <file>...       per asm file, functions that do not end in jr/j/b (fall into the next
+                                   glabel: a spimdisasm split at a continuation label, fix with
+                                   `size:` in the symbol file, or hand-written fall-through) and
+                                   functions followed by 2+ nops before the next glabel (16-byte TU
+                                   padding: a hidden TU boundary at the next function)
   coverage <src.c> <agent>=<f1>,<f2>... [...]
                                    every GLOBAL_ASM function of <src.c> in exactly one list; prints
                                    duplicates, unassigned functions and listed names that are not
@@ -91,6 +96,23 @@ def cmd_empty(a):
                 if last is not None and i - last == 2 and not tgt:
                     print(g, f"func_{addr}")
                 last = i
+
+
+def cmd_boundaries(a):
+    for f in a.files:
+        funcs = {}
+        for g, _, mn, ops, _ in insns(asm_path(a.seg, f)):
+            funcs.setdefault(g, []).append((mn, ops))
+        names = list(funcs)
+        for i, g in enumerate(names[:-1]):
+            body = funcs[g]
+            ends = [k for k, (mn, _) in enumerate(body) if mn in ("jr", "j", "b")]
+            last = ends[-1] if ends else -1
+            pad = body[last + 2:]
+            if last < 0 or any(mn != "nop" for mn, _ in pad):
+                print(f"{f} {g}: falls into {names[i + 1]}")
+            elif len(pad) >= 2 and body[last][0] == "jr":
+                print(f"{f} {g}: {len(pad)} trailing nops (TU padding: hidden TU at {names[i + 1]})")
 
 
 def unmatched(src):
@@ -185,6 +207,7 @@ def main():
     c = s.add_parser("count"); c.add_argument("seg"); c.add_argument("files", nargs="*"); c.set_defaults(fn=cmd_count)
     c = s.add_parser("handasm"); c.add_argument("seg"); c.add_argument("files", nargs="+"); c.set_defaults(fn=cmd_handasm)
     c = s.add_parser("empty-funcs"); c.add_argument("seg"); c.add_argument("files", nargs="+"); c.set_defaults(fn=cmd_empty)
+    c = s.add_parser("boundaries"); c.add_argument("seg"); c.add_argument("files", nargs="+"); c.set_defaults(fn=cmd_boundaries)
     c = s.add_parser("coverage"); c.add_argument("src"); c.add_argument("lists", nargs="+"); c.set_defaults(fn=cmd_coverage)
     c = s.add_parser("left"); c.add_argument("srcs", nargs="+"); c.set_defaults(fn=cmd_left)
     c = s.add_parser("vanished"); c.add_argument("rev", nargs="?", default="HEAD"); c.set_defaults(fn=cmd_vanished)

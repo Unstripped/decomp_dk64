@@ -45,6 +45,7 @@ Check every file before converting it:
 - compiler: `-O2` game code or `-g` library code (split.md);
 - hidden TUs: `python3 tools/rodata_owners.py <seg>` (split.md);
 - hidden empty functions: `python3 tools/unit_check.py empty-funcs <seg> <file>...`.
+- false splits, fall-through hand asm, TU padding: `python3 tools/unit_check.py boundaries <seg> <file>...`.
 
 ## 2. Split into C ([split.md](split.md))
 
