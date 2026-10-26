@@ -1,4 +1,4 @@
-// func_80617238 (src/global/19A00.c): from .scratch/P19e/func_80617238_best.c
+// func_80617238 (src/global/19A00.c): stage 2: m2c behavioural reconstruction; exact player-index view, switch shape, and byte/local stack layout remain.
 typedef struct P19ePlayerState { u8 pad0[0x2C0]; u8 unk2C0; } P19ePlayerState;
 extern P19ePlayerState *D_807FC924;
 void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);

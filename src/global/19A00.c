@@ -460,9 +460,30 @@ s32 func_80616D84(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616DA8.s")
+typedef struct P19eActorView {
+    u8 pad0[0x17C];
+    void *unk17C;
+} P19eActorView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616DB4.s")
+typedef struct P19eScriptTarget {
+    u8 pad0[0xD];
+    u8 flags;
+} P19eScriptTarget;
+
+s32 func_80616DA8(s32 arg0) {
+    return 0;
+}
+
+s32 func_80616DB4(Actor *arg0) {
+    P19eScriptTarget *target;
+    u8 flag;
+
+    target = (P19eScriptTarget *)((P19eActorView *)arg0)->unk17C;
+    D_807F5AF0++;
+    func_80614F28(&flag);
+    target->flags |= flag;
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616E08.s")
 
@@ -470,7 +491,26 @@ s32 func_80616D84(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617238.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617400.s")
+void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+
+s32 func_80617400(Actor *arg0) {
+    s16 sp36;
+    u8 sp35;
+    u8 sp34;
+    u8 sp33;
+    u8 sp32;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp36);
+    func_80614F28(&sp33);
+    func_80614F28(&sp32);
+    func_80614F28(&sp35);
+    func_80614F28(&sp34);
+    if (arg0->unk60 & 4) {
+        func_806086CC(arg0->unk7C, arg0->unk80, arg0->unk84, sp36, sp33, sp32, sp35, sp34, 0.3f, 0);
+    }
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806174B4.s")
 
