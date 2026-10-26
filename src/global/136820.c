@@ -251,9 +251,9 @@ void func_80732158(OSThread *a0) {
 
 extern OSMesgQueue D_807FEF58;
 
-#ifdef NON_MATCHING
 extern s32 D_80744470[];
 extern u8 D_807563B4;
+void func_80731E68(OSThread *a0);
 
 void func_80732280(void *arg) {
     OSMesg msg;
@@ -262,26 +262,26 @@ void func_80732280(void *arg) {
     s32 x;
 
     osSetEventMesg(12, &D_807FEF58, (OSMesg)0x10);
-    do {
-        do {
+    for (;;) {
+        while (1) {
             osRecvMesg(&D_807FEF58, &msg, 1);
-        } while (D_807563B4 == 0);
+            if (D_807563B4 != 0) {
+                break;
+            }
+        }
         thread = (OSThread *)__osGetCurrFaultedThread();
-    } while (thread == 0);
-    while (1) {
-        for (i = 0; i < 2; i++) {
-            osViBlack(0);
-            D_807FEF80 = D_80744470[i];
-            func_80731E68(thread);
-            func_80731E68(thread);
+        if (thread != 0) {
+            for (;;) {
+                for (i = 0; i < 2; i++) {
+                    osViBlack(0);
+                    D_807FEF80 = D_80744470[i];
+                    func_80731E68(thread);
+                    func_80731E68(thread);
+                }
+            }
         }
     }
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/func_80732280.s")
-#endif
 
 void func_8061D4E4(s32);
 
