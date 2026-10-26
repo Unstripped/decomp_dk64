@@ -58,7 +58,7 @@ extern u32 D_8076A064;
 extern s32 D_8072140C;
 extern s32 D_8071FF18;
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_80714944(s32);
 void func_80714950(s32);
 void func_8071498C(void (*)(void));
@@ -100,7 +100,7 @@ void particleSpawnPathTrail(void) {
                             func_80714A28(4);
                             func_8071498C(func_80717B64);
                             func_807149FC(2);
-                            func_80714944((func_80611A44() % 10000) % 6);
+                            func_80714944((randomNonNegative() % 10000) % 6);
                             func_807149A8(node->unk14);
                             func_80714CC0(&D_8072140C, node->unk18,
                                           (f32)(node->unk8 - node->unk2) * t + (f32)node->unk2,
@@ -116,7 +116,7 @@ void particleSpawnPathTrail(void) {
                         func_8071498C(func_80717D4C);
                         func_80714950(-0xAA);
                         func_807149A8(node->unk14);
-                        factor = (f32)((f64)((func_80611A44() % 10000) % 1000) / 1000.0);
+                        factor = (f32)((f64)((randomNonNegative() % 10000) % 1000) / 1000.0);
                         func_80714CC0(&D_8071FF18, node->unk1C,
                                       (f32)(node->unk8 - node->unk2) * factor + (f32)node->unk2,
                                       (f32)(node->unkA - node->unk4) * factor + (f32)node->unk4,

@@ -29,7 +29,7 @@ void behaviourFrameBegin(void);
 void func_8068A858(u8 *, u8 *, u8 *);
 s32 func_80629148(void);
 void func_80629174(void);
-void func_80614EBC(MenuBB40_E550 *, s32);
+void actorScriptStart(MenuBB40_E550 *, s32);
 void func_806319C4(MenuBB40_E550 *, s32);
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/E550/func_80032550.s")

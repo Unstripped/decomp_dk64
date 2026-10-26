@@ -589,7 +589,7 @@ extern u8 D_807FBB85;
 void func_8071C914(void);
 void func_807149A8(s32);
 void func_807149FC(s32);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_8066EB40(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
@@ -616,7 +616,7 @@ void projectileSparkleUpdate(s32 arg0) {
         func_80714998(2);
         func_807149B8(1);
         func_8071498C(func_8071C914);
-        func_80714950((s32)(func_80611A44() >> 15) % 360);
+        func_80714950((s32)(randomNonNegative() >> 15) % 360);
         func_807149A8(2000);
         switch ((u8)arg0) {
         case 0:
@@ -1066,7 +1066,7 @@ void func_80614D00(Actor *, f32, f32);
 
 f32 func_80611BB4(f32, f32);
 void func_80695724(f32, u8);
-void func_80612BC0(void *, s32);
+void matrixMakeRotationX(void *, s32);
 
 typedef struct ProjectileRotSub174 {
     u8 pad0[8];
@@ -1301,7 +1301,7 @@ void actorApplyTransformAndRender(void) {
 
     sp1C = D_807FBB40->unk174;
     func_80695724(0.0f, 1);
-    func_80612BC0((u8 *)D_807FBB40 + 0xC, sp1C->unk8);
+    matrixMakeRotationX((u8 *)D_807FBB40 + 0xC, sp1C->unk8);
     func_806319C4(D_807FBB40, 1);
 }
 
@@ -1475,9 +1475,9 @@ void projectileHomingParticleUpdate(void) {
     var_s1 = 0;
     if ((G_PROJECTILE_HOMING_ACTOR->unk6A & 1) || ((G_PROJECTILE_HOMING_ACTOR->unkFC != 0) && ((u32)(D_8076A068 - *sp74) >= 6)) || D_807FBB85 != 0) {
         do {
-            temp_fs2 = ((f64)((func_80611A44() >> 15) % 8191) / 200.0) - 20.0;
-            temp_fs3 = ((f64)((func_80611A44() >> 15) % 8191) / 200.0) - 20.0;
-            temp_fs4 = ((f64)((func_80611A44() >> 15) % 8191) / 200.0) - 20.0;
+            temp_fs2 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
+            temp_fs3 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
+            temp_fs4 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
             func_8071496C(var_s1);
             func_807149B8(1);
             if (var_s1 == 0) {
@@ -1485,7 +1485,7 @@ void projectileHomingParticleUpdate(void) {
                 func_8071498C(func_8071A8B0);
             } else {
                 func_8071498C(func_80717D4C);
-                func_80714950(-150 - ((func_80611A44() >> 15) % 50));
+                func_80714950(-150 - ((randomNonNegative() >> 15) % 50));
             }
             func_80714CC0(&D_80720340, 1.6f, D_807FBB40->unk7C + temp_fs2, D_807FBB40->unk80 + temp_fs3, D_807FBB40->unk84 + temp_fs4);
             var_s1 += 2;

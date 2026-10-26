@@ -252,7 +252,7 @@ extern BossA_Struct_80024EAC_DC90 *D_807FDC90;
 extern BossA_Struct_80024EAC_DC94 *D_807FDC94;
 
 void func_80614D00(void *, f32, f32);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 s32 func_806CC10C(s16, s16);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 
@@ -266,14 +266,14 @@ void func_80024EAC(void) {
     res = func_806CC10C(D_807FDC90->unk8, D_807FBB40->unkE6);
     if (res > 0) {
         if (sp2A != 0x260) {
-            func_80614EBC(D_807FBB40, 0x260);
+            actorScriptStart(D_807FBB40, 0x260);
         }
     } else if (res < 0) {
         if (sp2A != 0x25F) {
-            func_80614EBC(D_807FBB40, 0x25F);
+            actorScriptStart(D_807FBB40, 0x25F);
         }
     } else if (sp2A != 0x25A) {
-        func_80614EBC(D_807FBB40, 0x25A);
+        actorScriptStart(D_807FBB40, 0x25A);
         func_80614D00(D_807FBB40, 1.0f, 0.0f);
     }
 }
@@ -480,7 +480,7 @@ void func_80027BA8(u8 *, s32, f32);
 void bossSpawnParticleRing();
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound();
-s32 func_80611A44();
+s32 randomNonNegative();
 void func_80613C48(void *, s16, f32, f32);
 void func_80613CA8(s32, s16, f32, f32);
 s32 func_8061CB50();
@@ -570,7 +570,7 @@ void func_800254D0(void) {
         D_807FBB40->unk138 = 0;
         D_807FBB40->unk144 = 1;
         func_80629174();
-        func_80614EBC(D_807FBB40, 0x262);
+        actorScriptStart(D_807FBB40, 0x262);
         func_8061CC40(D_807FBB40, 9, 1);
         D_807FBB40->unk154 = 0x37U;
         D_807FBB40->unk155 = 0U;
@@ -581,7 +581,7 @@ void func_800254D0(void) {
         D_807FBB40->unk138 = 0;
         D_80750190 = 1;
         func_8067E2E4(D_807FBB40, 0xC, 2.0f);
-        func_80614EBC(D_807FBB40, 0x262);
+        actorScriptStart(D_807FBB40, 0x262);
         temp_s1->unk15 = 0U;
         temp_s1->unk14 = (u8) (temp_s1->unk14 + 1);
         sp74 = D_800358B0[(D_8076A0A8 == 8) ? 0 : 1][temp_s1->unk14];
@@ -609,11 +609,11 @@ void func_800254D0(void) {
             break;
         case 2:                                     /* switch 2 */
             if (!(D_8076A064 & 3)) {
-                func_8067E2E4(D_807FBB40, (((s32) ((s32) (func_80611A44() >> 0xF) % 32767) % 10) + 0xD) & 0xFF, 1.0f);
+                func_8067E2E4(D_807FBB40, (((s32) ((s32) (randomNonNegative() >> 0xF) % 32767) % 10) + 0xD) & 0xFF, 1.0f);
             }
             if (func_80629148() != 0) {
                 func_80024000();
-                func_80614EBC(D_807FBB40, 0x263);
+                actorScriptStart(D_807FBB40, 0x263);
                 D_807FDC90->unk2C = 0x14;
                 D_807FBB40->unk155 = 3U;
                 D_807FBB40->unk60 = (s32) (D_807FBB40->unk60 | 0x800000);
@@ -639,7 +639,7 @@ void func_800254D0(void) {
             break;
         case 4:                                     /* switch 2 */
             D_807FBB40->unk72 = (s16) (D_807FBB40->unk72 + 1);
-            effectSpawnBoneDebris((s16) (((s32) ((s32) (func_80611A44() >> 0xF) % 32767) % 7) + 0x1D), 1);
+            effectSpawnBoneDebris((s16) (((s32) ((s32) (randomNonNegative() >> 0xF) % 32767) % 7) + 0x1D), 1);
             D_807FBB40->unkE6 = (s16) (D_807FBB40->unkE6 + D_807FBB40->unkEE);
             if (D_807FBB40->unkEE + 10 > 500) {
                 D_807FBB40->unkEE = 500;
@@ -720,7 +720,7 @@ void func_800254D0(void) {
             if (func_80629148() != 0) {
                 func_8067E2E4(D_807FBB40, 6, 1.0f);
                 func_8067E2E4(D_807FBB40, 7, 1.0f);
-                func_80614EBC(D_807FBB40, 0x26C);
+                actorScriptStart(D_807FBB40, 0x26C);
                 func_8002450C(sp78, 0, 5);
                 func_8002450C(sp78, 1, 5);
                 func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x22, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
@@ -751,7 +751,7 @@ void func_800254D0(void) {
                 }
             } else {
                 if (D_807FBB40->unk154 == 0x2F) {
-                    func_80614EBC(D_807FBB40, 0x268);
+                    actorScriptStart(D_807FBB40, 0x268);
                 }
                 sfxStopSlotSound(D_807FBB40, 1);
                 D_807FBB40->unk155 = 1U;
@@ -856,7 +856,7 @@ void func_800254D0(void) {
     case 0x2A:                                      /* switch 1 */
         switch (D_807FBB40->unk155) {                        /* switch 7; irregular */
         case 0:                                     /* switch 7 */
-            func_80614EBC(D_807FBB40, 0x257);
+            actorScriptStart(D_807FBB40, 0x257);
             D_807FBB40->unk155 = 1U;
             break;
         case 2:                                     /* switch 7 */
@@ -870,7 +870,7 @@ void func_800254D0(void) {
     case 0x57:                                      /* switch 1 */
         switch (D_807FBB40->unk155) {                          /* switch 8 */
         case 0:                                     /* switch 8 */
-            func_80614EBC(D_807FBB40, (D_807FBB40->unk154 == 0x57) ? 0x258 : 0x259);
+            actorScriptStart(D_807FBB40, (D_807FBB40->unk154 == 0x57) ? 0x258 : 0x259);
             D_807FBB40->unk155 = 1U;
             /* fallthrough */
         case 1:                                     /* switch 8 */
@@ -905,7 +905,7 @@ void func_800254D0(void) {
             temp_s1->unk18 = sp74[temp_s1->unk15++];
             temp_s1->unk19 = temp_s1->unk18;
             D_807FBB40->unk155 = 1U;
-            func_80614EBC(D_807FBB40, 0x269);
+            actorScriptStart(D_807FBB40, 0x269);
             break;
         case 2:                                     /* switch 9 */
             projectileGetTargetCoords(D_807FBB40, 5U);
@@ -916,7 +916,7 @@ void func_800254D0(void) {
                 temp_s1->unk19--;
                 D_807FBB40->unk155 = 1U;
             } else {
-                func_80614EBC(D_807FBB40, 0);
+                actorScriptStart(D_807FBB40, 0);
                 func_80613C48(D_807FBB40, 0x3A8, 0.0f, 10.0f);
                 D_807FBB40->unk155 = 3U;
                 D_807FDC90->unk2C = 0x1E;
@@ -930,7 +930,7 @@ void func_800254D0(void) {
             }
             break;
         case 4:                                     /* switch 9 */
-            projectileSetTargetCoords((f32) (((s32) (func_80611A44() >> 15) % 20)) + D_807FDC94->unk7C, D_807FDC94->unk80 + 400.0f, (f32) (((s32) (func_80611A44() >> 15) % 20)) + D_807FDC94->unk84);
+            projectileSetTargetCoords((f32) (((s32) (randomNonNegative() >> 15) % 20)) + D_807FDC94->unk7C, D_807FDC94->unk80 + 400.0f, (f32) (((s32) (randomNonNegative() >> 15) % 20)) + D_807FDC94->unk84);
             projectileAimAndSpawn(0x1E, 0xA, 1.2f, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, 600.0f, D_807FBB40);
             D_807FDC90->unk2C = 0x14;
             D_807FBB40->unk155 = 5U;
@@ -975,7 +975,7 @@ void func_800254D0(void) {
                 func_80024EAC();
                 D_807FDC90->unk2C = (s16) (D_807FDC90->unk2C - 1);
             } else {
-                func_80614EBC(D_807FBB40, (sp6F == 1) ? 0x25D : 0x25E);
+                actorScriptStart(D_807FBB40, (sp6F == 1) ? 0x25D : 0x25E);
                 D_807FBB40->unk155 = 3U;
             }
             break;
@@ -1007,9 +1007,9 @@ void func_800254D0(void) {
             D_807FDC90->unk2C = (s16) *(temp_s1->unk15 + sp74);
             temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
             if (func_8061CB50() != 0) {
-                func_80614EBC(D_807FBB40, 0x267);
+                actorScriptStart(D_807FBB40, 0x267);
             } else {
-                func_80614EBC(D_807FBB40, 0x261);
+                actorScriptStart(D_807FBB40, 0x261);
             }
             D_807FBB40->unk155 = 1U;
             /* fallthrough */
@@ -1037,14 +1037,14 @@ void func_800254D0(void) {
             break;
         case 2:                                     /* switch 12 */
             if (func_80629148() != 0) {
-                func_80614EBC(D_807FBB40, 0x263);
+                actorScriptStart(D_807FBB40, 0x263);
                 D_807FBB40->unk155 = 3U;
             }
             effectSpawnJointBeam(0xD, 0x16, 0x17, 0x1C);
             effectSpawnJointBeam(9, 0xB, 0xC, 0xC);
             break;
         case 3:                                     /* switch 12 */
-            effectSpawnBoneWhite(D_807FBB40, (s16) (((s32) ((s32) (func_80611A44() >> 0xF) % 32767) % 20) + 9), 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
+            effectSpawnBoneWhite(D_807FBB40, (s16) (((s32) ((s32) (randomNonNegative() >> 0xF) % 32767) % 20) + 9), 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
             if (func_80629148() != 0) {
                 D_807FBB40->unk138 = -1;
                 D_807FBB40->unk154 = (u8) *(temp_s1->unk15 + sp74);
@@ -1083,7 +1083,7 @@ void func_800254D0(void) {
     case 0x44:                                      /* switch 1 */
         switch (D_807FBB40->unk155) {                        /* switch 14; irregular */
         case 0:                                     /* switch 14 */
-            func_80614EBC(D_807FBB40, (D_807FBB40->unk154 == 0x44) ? 0x25C : 0x25B);
+            actorScriptStart(D_807FBB40, (D_807FBB40->unk154 == 0x44) ? 0x25C : 0x25B);
             D_807FBB40->unk155 = 1U;
             break;
         case 2:                                     /* switch 14 */
@@ -1103,13 +1103,13 @@ void func_800254D0(void) {
         case 4:                                     /* switch 15 */
             break;
         case 0:                                     /* switch 15 */
-            func_80614EBC(D_807FBB40, 0x26A);
+            actorScriptStart(D_807FBB40, 0x26A);
             D_807FBB40->unk155 = 1U;
             /* fallthrough */
         case 1:                                     /* switch 15 */
             actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x292, 0.0f);
             if (D_807FBB40->unk6A & 1) {
-                func_80614EBC(D_807FBB40, 0x26B);
+                actorScriptStart(D_807FBB40, 0x26B);
                 D_807FBB40->unk155 = 2U;
             }
             break;
@@ -1130,7 +1130,7 @@ void func_800254D0(void) {
     case 0x23:                                      /* switch 1 */
     case 0x42:                                      /* switch 1 */
         if (D_807FBB40->unk4->unk0->unk10 != 0x39A) {
-            func_80614EBC(D_807FBB40, 0x256);
+            actorScriptStart(D_807FBB40, 0x256);
         }
         /* fallthrough */
     default:                                        /* switch 1 */
@@ -1157,7 +1157,7 @@ void func_800254D0(void) {
 #undef D_807FDC90
 #undef D_807FDC94
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_80714998(s32);
 void func_807149C8(s32, s32, s32, s32);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
@@ -1169,7 +1169,7 @@ void func_80027770(void) {
         if (!(D_8076A064 & 0xF)) {
             val = 0xC;
         } else {
-            val = ((func_80611A44() >> 15) % 0x7FFF) % 7 + 0x1D;
+            val = ((randomNonNegative() >> 15) % 0x7FFF) % 7 + 0x1D;
         }
         func_80714998(3);
         func_807149C8(0x50, 0x50, 0x50, 0xC8);

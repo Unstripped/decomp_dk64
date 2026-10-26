@@ -88,7 +88,7 @@ extern s32 D_807F5D10;
 
 s32 func_806BDD2C(void);
 void func_8067B238(void *, void *, f32);
-s32 func_80614EBC(void *, s32);
+s32 actorScriptStart(void *, s32);
 void func_806319C4(void *, s32);
 s32 func_8061CC40(void *, s32, s32);
 s32 func_80629148();
@@ -161,14 +161,14 @@ void func_806BD3E4(void) {
     D_807FC8D4 = dx * dx + dz * dz;
     switch (D_807FBB40->unk154) {
         case 1:
-            func_80614EBC(D_807FBB40, 0x2EF);
+            actorScriptStart(D_807FBB40, 0x2EF);
             D_807FBB40->unk154 = 2;
             func_8061CC40(D_807FBB4C, 2, 1);
             break;
         case 2:
             if (func_80629148() != 0) {
                 sfxAllocateChannel(0x7D, 1.0f);
-                func_80614EBC(D_807FBB40, 0x2F1);
+                actorScriptStart(D_807FBB40, 0x2F1);
                 D_807FBB40->unk154 = 3;
                 D_807FBB40->unk155[0] = 0;
             }
@@ -182,7 +182,7 @@ void func_806BD3E4(void) {
     }
     if (func_8061CB50() == 0) {
         if (((NmBD3E4Sub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
-            func_80614EBC(D_807FBB40, 0x2F0);
+            actorScriptStart(D_807FBB40, 0x2F0);
         }
     }
     if (sp28) {
@@ -214,7 +214,7 @@ void func_806BD3E4(void) {
 extern f32 D_807FC8D4;
 
 s32 func_806BDD2C(void);
-s32 func_80614EBC(void *, s32);
+s32 actorScriptStart(void *, s32);
 void func_806319C4(void *, s32);
 s32 func_8061CC40(void *, s32, s32);
 s32 func_8061CB50(void);
@@ -283,7 +283,7 @@ void func_806BD7B0(void) {
                 sfxAllocateChannel(0x3B, 1.0f);
                 func_80609140(0x258, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 func_8061CC40(D_807FBB40, 0, 1);
-                func_80614EBC(D_807FBB40, 0x291);
+                actorScriptStart(D_807FBB40, 0x291);
                 D_807FBB40->unk155[0] = 0;
                 ((R1C0C1Spawned *)D_807FBB40)->unk146 = 1;
             }
@@ -304,7 +304,7 @@ void func_806BD7B0(void) {
                         sp30 = D_807506B8;
                         D_807FBB40->unk154 = 4;
                         sfxAllocateChannel(0x7D, 1.0f);
-                        func_80614EBC(st->unk4, D_80750684[st->unk2]);
+                        actorScriptStart(st->unk4, D_80750684[st->unk2]);
                         st->unk0 = 0;
                         st->unk4->unk154 = 3;
                         st->unk4->unk155[0] = 0;

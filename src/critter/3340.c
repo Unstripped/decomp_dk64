@@ -22,7 +22,7 @@ extern s32 D_8076A064;
 void behaviourFrameBegin(void);
 void sfxPlayActorSound(Actor_3340 *, s32, s32, s32, s32, s32, f32, s32);
 s32 flagGet(s32, s32);
-void func_80614EBC(Actor_3340 *, s32);
+void actorScriptStart(Actor_3340 *, s32);
 s32 flagCountRange(s32, s32, s32);
 void flagSet(s32, s32, s32);
 void func_8061CC40(Actor_3340 *, s32, s32);
@@ -80,9 +80,9 @@ void func_80027DC0(void) {
         if (flagGet(0x179, 0) == 0) {
             (*s0)->unk154 = 1;
         } else if (flagGet(0x189, 0) != 0) {
-            func_80614EBC(*s0, 0x2B5);
+            actorScriptStart(*s0, 0x2B5);
         } else if (flagCountRange(0x24D, 0x14, 0) == 0x14) {
-            func_80614EBC(*s0, 0x2B5);
+            actorScriptStart(*s0, 0x2B5);
             (*s0)->unk154 = 3;
         }
     }

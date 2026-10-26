@@ -161,7 +161,7 @@ extern u8 D_807FC928;
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-f32 func_80612D1C(f32);
+f32 sinApprox(f32);
 void func_8061B660(CamState *, f32 *, f32 *, f32 *, f32, f32, f32, f32);
 void func_8061B7E0(CamActor *, CamState *, f32, f32);
 void func_8061EDA0(CamState *, f32 *, f32 *, f32 *, s32, s32);
@@ -642,7 +642,7 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                 *arg3 = CAM_LERP(posZ, D_807F5D20, blend);
                 *arg4 = *arg1 + func_80612794(yaw) * dist2D;
                 *arg6 = *arg3 + func_80612790(yaw) * dist2D;
-                *arg5 = *arg2 + func_80612D1C(pitch) * dist3D;
+                *arg5 = *arg2 + sinApprox(pitch) * dist3D;
                 return;
             }
             if (type != 8 && type != 0xC && type != 6) {

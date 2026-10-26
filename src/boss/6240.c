@@ -20,7 +20,7 @@ typedef struct BossC_6240_Actor40 {
 extern BossC_6240_Actor40 *D_807FBB40;
 extern u32 D_8076A064;
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
@@ -35,7 +35,7 @@ void func_8002A240(void) {
         if (s0->unk4 == 0) {
             s0->unk8 += 0x400;
         }
-    } else if (((func_80611A44() >> 15) % 1000) >= 941) {
+    } else if (((randomNonNegative() >> 15) % 1000) >= 941) {
         s0->unk4 = 10;
     }
     D_807FBB40->unk80 += 8.0 * (f64)func_80612794((s16)(s32)((f64)(u32)D_8076A064 * 200.0));
@@ -109,9 +109,9 @@ void bossSpawnSparkles(void) {
     s32 r1;
 
     actorGetNodePos(D_807FBB40, 1, &sp6C, &sp68, &sp64);
-    sp6C += (f32)(((func_80611A44() >> 15) % 80) - 40);
-    sp68 += (f32)(((func_80611A44() >> 15) % 100) + 50);
-    sp64 += (f32)(((func_80611A44() >> 15) % 80) - 40);
+    sp6C += (f32)(((randomNonNegative() >> 15) % 80) - 40);
+    sp68 += (f32)(((randomNonNegative() >> 15) % 100) + 50);
+    sp64 += (f32)(((randomNonNegative() >> 15) % 80) - 40);
     func_807149B8(1);
     func_8071498C(func_8071EDEC);
     func_80714950(D_807FBB40);
@@ -121,8 +121,8 @@ void bossSpawnSparkles(void) {
         func_80714998(2);
         func_8071498C(func_8071720C);
         func_807149B8(1);
-        r1 = func_80611A44();
-        func_80714C08(D_8074E880[((r1 >> 15) % 1000) % 3], 1.5f, D_807FBB40, ((func_80611A44() >> 15) % 32767 % 22) + 2, 0);
+        r1 = randomNonNegative();
+        func_80714C08(D_8074E880[((r1 >> 15) % 1000) % 3], 1.5f, D_807FBB40, ((randomNonNegative() >> 15) % 32767 % 22) + 2, 0);
     }
 }
 

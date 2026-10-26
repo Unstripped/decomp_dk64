@@ -843,12 +843,12 @@ extern s32 D_807FBB68;
 extern u8 D_807FC928;
 extern u8 D_80755698[];
 extern s32 D_8076A0A8;
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 s16 func_80613448(void *, s32);
 void func_80665564(void *, s32);
 void behaviourSetAnimIds(s16, s16, s16, s16);
 void actorSetTargetSpeed(void *, u8);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 #define A4P4 ((A4Player *)D_807FC924)
 
 void func_80726744(void *arg0, void *arg1) {
@@ -877,7 +877,7 @@ void func_80726744(void *arg0, void *arg1) {
     }
     ang = entry->unk4;
     if (ang != 0) {
-        func_80614EBC(act, ang);
+        actorScriptStart(act, ang);
     }
     D_807FDC98 = (Struct807FDC98 *)node;
     behaviourSetAnimIds(ang + 0, ang | 0, ang * 1, ang);
@@ -1009,7 +1009,7 @@ void func_80726744(void *arg0, void *arg1) {
             break;
     }
     if (D_807FC928 >= 2) {
-        st->unk4 = A4P4[(func_80611A44() >> 0xF) % D_807FC928].unk4;
+        st->unk4 = A4P4[(randomNonNegative() >> 0xF) % D_807FC928].unk4;
     } else {
         st->unk4 = (void *)D_807FBB4C;
     }
@@ -1207,7 +1207,7 @@ typedef struct C1TblA0 {
 
 extern C1TblA0 *D_807FDCA0;
 f32 mathAngleBetweenPointsDeg(s32, s32, s16, s16);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 
 #define C1PTS ((C1Pt *)D_807FDCA0->unk14)
 #define C1PT(i) ((C1Pt *)(D_807FDCA0->unk14 + (i)))
@@ -1220,7 +1220,7 @@ void spawnNodeSpawnAtTablePoint(s16 arg0, u8 arg1) {
 
     tbl = ((C1Tbl98 *)D_807FDC98)->unk20[arg1][0];
     sp34 = (s16)(s32)((mathAngleBetweenPointsDeg((s32)D_807FDC94->unk7C, (s32)D_807FDC94->unk84, C1PTS[tbl].x, C1PTS[tbl].z) * 4096.0f) / 360.0f);
-    if (spawnNodeSpawnById(arg0, C1PTS[tbl].x, C1PTS[tbl].y, C1PTS[tbl].z, sp34, ((func_80611A44() >> 0xF) % 100) + 0x64, ((func_80611A44() >> 0xF) % 100) + 0xC8) != 0) {
+    if (spawnNodeSpawnById(arg0, C1PTS[tbl].x, C1PTS[tbl].y, C1PTS[tbl].z, sp34, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
         C1ACT44->unk154 = 0x17;
         C1ACT44->unk155 = 0;
     }
@@ -1591,7 +1591,7 @@ u8 func_8072881C(u8 arg0, u32 *arg1) {
     u8 ret;
 
     ret = 0;
-    if ((arg0 & 0x80) || (((*arg1 + 0x32) < D_8076A064) && (((func_80611A44() >> 0xF) % 1000) >= 0x3C1) && (animIsPlaying(D_807FBB40, arg0) == 0))) {
+    if ((arg0 & 0x80) || (((*arg1 + 0x32) < D_8076A064) && (((randomNonNegative() >> 0xF) % 1000) >= 0x3C1) && (animIsPlaying(D_807FBB40, arg0) == 0))) {
         arg0 &= 0x7F;
         animSetSpeed(D_807FBB40, arg0, 1.0f);
         animSetLoopMode(D_807FBB40, arg0, 1);
@@ -1649,7 +1649,7 @@ extern s32 D_807F5D10;
 
 u32 func_806119A0(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void func_8061F0B0(s32, s32, s32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
 void func_80686390(void *, f32, f32, f32, f32);
@@ -1709,9 +1709,9 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
     switch (arg0) {
         case 0:
             for (i = 0; i < arg3; i++) {
-                ox0 = (f32)((func_80611A44() >> 0xF) % 0x8000 % 40 - 20.0);
-                oy0 = (f32)((func_80611A44() >> 0xF) % 0x8000 % 20);
-                oz0 = (f32)((func_80611A44() >> 0xF) % 0x8000 % 40 - 20.0);
+                ox0 = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
+                oy0 = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 20);
+                oz0 = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
                 func_807149C8(0xE6, 0xE6, 0xE6, 0xC8);
                 func_8071498C(func_80717D4C);
                 func_80714950(-(i * 20));
@@ -1776,7 +1776,7 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                     break;
                 case 20:
                     actorSpawn(0x92, 0x73);
-                    func_80614EBC(D_807FBB44, 0x42A);
+                    actorScriptStart(D_807FBB44, 0x42A);
                     return;
                 case 30:
                 case 31:
@@ -1792,19 +1792,19 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             break;
         case 15:
             actorSpawn(0x92, 0x73);
-            func_80614EBC(D_807FBB44, 0x42A);
+            actorScriptStart(D_807FBB44, 0x42A);
             return;
         case 6:
             for (i = 0; i < arg3; i++) {
                 fx6 = D_80755794;
                 *(A2BytePair *)idx6 = *(A2BytePair *)&D_8075579C;
-                sel6 = (func_80611A44() >> 0xF) % 2;
+                sel6 = (randomNonNegative() >> 0xF) % 2;
                 ang6 = mathAngleBetweenPoints2D((f32)((ZoneEntry *)(group->unk14 + arg2))->unk0, (f32)((ZoneEntry *)(group->unk14 + arg2))->unk4, (f32)x, (f32)z);
                 func_807149B8(1);
                 func_807149FC(idx6[sel6]);
                 func_8071498C(func_80717404);
                 func_80714950((ang6 << 16) + 3);
-                func_80714CC0(((void **)&fx6)[sel6], (f32)((func_80611A44() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
+                func_80714CC0(((void **)&fx6)[sel6], (f32)((randomNonNegative() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
             }
             return;
         case 12:
@@ -1815,8 +1815,8 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
         case 8:
             scale8 = arg2 * 0.01;
             for (i = 0; i < arg3; i++) {
-                kx8 = ((func_80611A44() >> 0xF) % 0x8000 % 40 - 20.0) * scale8;
-                kz8 = ((func_80611A44() >> 0xF) % 0x8000 % 40 - 20.0) * scale8;
+                kx8 = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale8;
+                kz8 = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale8;
                 func_807149A8(0x7D0);
                 func_807149B8(1);
                 func_80714CC0(D_8071FB54, scale8 * 1.3, (f32)x + kx8, (f32)y, (f32)z + kz8);
@@ -1831,13 +1831,13 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 func_807149B8(1);
                 func_80714950(1);
                 func_8071496C(i * 3);
-                func_80714CC0(D_8074E880[(func_80611A44() >> 0xF) % 1000 % 3], arg3 * 0.01, (f32)x, (f32)y, (f32)z);
+                func_80714CC0(D_8074E880[(randomNonNegative() >> 0xF) % 1000 % 3], arg3 * 0.01, (f32)x, (f32)y, (f32)z);
             }
             return;
         case 10:
             for (i = 0; i < arg2; i++) {
-                ox10 = (f32)((func_80611A44() >> 0xF) % 300);
-                oy10 = (f32)((func_80611A44() >> 0xF) % 200);
+                ox10 = (f32)((randomNonNegative() >> 0xF) % 300);
+                oy10 = (f32)((randomNonNegative() >> 0xF) % 200);
                 func_8071495C();
                 func_80714CC0(D_8071FB34, arg3 * 0.01, ox10, oy10, -10.0f);
             }

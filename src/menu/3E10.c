@@ -858,7 +858,7 @@ typedef struct Menu3B_Struct_BB40 {
 
 extern Menu3B_Struct_BB40 *D_807FBB40;
 extern s8 D_80033734;
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void func_8061CC40(void *, s32, s32);
 
 void menuActorStateDispatch(void) {
@@ -866,7 +866,7 @@ void menuActorStateDispatch(void) {
 
     switch (actor->unk155) {
     case 0:
-        func_80614EBC(actor, 0x345);
+        actorScriptStart(actor, 0x345);
         D_807FBB40->unkE6 = 0;
         D_807FBB40->unk155 = 1;
         func_8061CC40(D_807FBB40, 0x13, 5);

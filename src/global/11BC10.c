@@ -9,11 +9,11 @@ extern Actor *D_807FBB4C;
 void *func_80610FE8(s32);
 u32 func_806119A0(void);
 f32 func_806119FC(void);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-f32 func_80612D10(f32);
-f32 func_80612D1C(f32);
+f32 cosApprox(f32);
+f32 sinApprox(f32);
 
 typedef struct {
     u8 pad0[0x32C];
@@ -89,7 +89,7 @@ void func_80717760(RotatingEffectActorView *arg0, u8 *arg1) {
         func_807149B8(1);
         func_8071498C(func_80717404);
         func_80714950(0xA);
-        func_80714CC0(D_8074E880[((func_80611A44() >> 0xF) % 1000) % 3], 0.8f, arg0->unk340, arg0->unk344, arg0->unk348);
+        func_80714CC0(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 0.8f, arg0->unk340, arg0->unk344, arg0->unk348);
         return;
     }
     *arg1 = 1;
@@ -108,8 +108,8 @@ void func_80717814(RotatingEffectActorView *arg0, void *arg1) {
     if (actor->unk384 == NULL) {
         actor->unk384 = func_80610FE8(4);
         motion = actor->unk384;
-        motion->unk0 = (func_80611A44() >> 15) % 4095;
-        motion->unk2 = ((func_80611A44() >> 15) % 10) + 2;
+        motion->unk0 = (randomNonNegative() >> 15) % 4095;
+        motion->unk2 = ((randomNonNegative() >> 15) % 10) + 2;
     }
     motion = actor->unk384;
     actor->unk340 += 0.2 * actor->unk35C * func_80612794(motion->unk0);
@@ -161,7 +161,7 @@ void func_80717930(OrbitEffectActorView *arg0, void *arg1) {
     if (arg0->unk384 == NULL) {
         arg0->unk384 = func_80610FE8(0xA);
         temp_v0 = arg0->unk384;
-        ((OrbitMotionState *)temp_v0)->unk0 = (func_80611A44() >> 0xF) % 4095;
+        ((OrbitMotionState *)temp_v0)->unk0 = (randomNonNegative() >> 0xF) % 4095;
         ((OrbitMotionState *)temp_v0)->unk2 = arg0->unk340;
         ((OrbitMotionState *)temp_v0)->unk4 = arg0->unk348;
         temp_v1 = arg0->unk35C;
@@ -998,7 +998,7 @@ typedef struct {
     f32 unk364;
 } SineScaleActorView;
 
-void func_80612CA0(f32 (*arg0)[4], f32 arg1);
+void matrixMakeRotationZ(f32 (*arg0)[4], f32 arg1);
 
 void func_8071F660(SineScaleActorView *arg0, void *arg1) {
     f32 sp68[4][4];
@@ -1009,7 +1009,7 @@ void func_8071F660(SineScaleActorView *arg0, void *arg1) {
     arg0->unk360 = (f32) ((f64) func_80612794((s16) (s32) (sp24 * 2048.0f)) * 3.0);
     arg0->unk364 = arg0->unk360;
     guScaleF(sp68, arg0->unk360, arg0->unk360, 0.0f);
-    func_80612CA0(sp28, sp24 * 180.0f);
+    matrixMakeRotationZ(sp28, sp24 * 180.0f);
     guMtxCatF(sp68, sp28, sp68);
     guMtxF2L(sp68, (Mtx *) ((s32) arg0 + (D_807444FC << 6) + 0x128));
     arg0->unk32C = 2;

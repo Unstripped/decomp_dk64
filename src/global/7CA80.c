@@ -207,7 +207,7 @@ typedef struct R2ASpawnInfo {
     s16 unk1A;
     s32 unk1C;
 } R2ASpawnInfo;
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 extern u8 D_8074D8D4[];
 extern s32 (*D_8074DA30[])(s32 *);
 
@@ -223,7 +223,7 @@ s32 actorSpawnFromInfo(R2ASpawnInfo *arg0) {
             D_807FBB44->unkE6 = arg0->unk18;
             D_807FBB44->unk15C = arg0->unk1A;
             if (arg0->unk8 != 0) {
-                func_80614EBC(D_807FBB44, arg0->unk8);
+                actorScriptStart(D_807FBB44, arg0->unk8);
             }
             return 1;
         }

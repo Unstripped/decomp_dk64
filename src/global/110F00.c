@@ -86,8 +86,8 @@ void mtxRotateYRatioF(Mat4F *arg0, f32 arg1, f32 arg2, f32 arg3) {
     arg0->m[2][2] = var_fv1;
 }
 
-f32 func_80612D1C(f32);
-f32 func_80612D10(f32);
+f32 sinApprox(f32);
+f32 cosApprox(f32);
 void mtxRotateXRatioF(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3);
 
 void mtxIdentityF(f32 arg0[4][4]);
@@ -136,8 +136,8 @@ void mtxRotateXDegF(f32 arg0[4][4], f32 arg1) {
     f32 cos;
 
     temp = arg1 * 0.0174532925199432955;
-    sin = func_80612D1C(temp);
-    cos = func_80612D10(temp);
+    sin = sinApprox(temp);
+    cos = cosApprox(temp);
     mtxIdentityF(arg0);
     arg0[1][2] = sin;
     arg0[2][1] = -sin;
@@ -151,8 +151,8 @@ void mtxRotateYDegF(f32 arg0[4][4], f32 arg1) {
     f32 cos;
 
     temp = arg1 * 0.0174532925199432955;
-    sin = func_80612D1C(temp);
-    cos = func_80612D10(temp);
+    sin = sinApprox(temp);
+    cos = cosApprox(temp);
     mtxIdentityF(arg0);
     arg0[2][0] = sin;
     arg0[0][2] = -sin;
@@ -166,8 +166,8 @@ void mtxRotateZDegF(f32 arg0[4][4], f32 arg1) {
     f32 cos;
 
     temp = arg1 * 0.0174532925199432955;
-    sin = func_80612D1C(temp);
-    cos = func_80612D10(temp);
+    sin = sinApprox(temp);
+    cos = cosApprox(temp);
     mtxIdentityF(arg0);
     arg0[0][1] = sin;
     arg0[1][0] = -sin;

@@ -142,17 +142,17 @@ extern R117gTimedState D_80755340;
 extern s32 D_80755320;
 
 void func_8060B6CC(void);
-void func_806119F0(u32);
+void setRandomSeed(u32);
 
 void func_80712A40(void) {
     u64 elapsed;
 
     func_8060B6CC();
     if ((D_80755318 == 3) || (D_80755318 == 4)) {
-        func_806119F0(0x8E32B6F7U);
+        setRandomSeed(0x8E32B6F7U);
         D_80746B60 = 1;
     } else {
-        func_806119F0((u32)osGetTime());
+        setRandomSeed((u32)osGetTime());
         D_80746B60 = 0;
     }
     D_8075530C = 0;

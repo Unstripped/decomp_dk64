@@ -48,7 +48,7 @@ extern s16 D_807502E0;
 extern f32 D_807502E8;
 
 s32 actorSpawn(s32, s32);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void func_8067B238(void *, void *, f32);
 void actorSetTargetSpeed(void *, s32);
 void *memcpy(void *, const void *, unsigned int);
@@ -165,7 +165,7 @@ void func_806B6958(void) {
 void func_806B6C88(s16 arg0, s16 arg1) {
     if (actorSpawn(0xD3, 0x24) != 0) {
         BB300A44->unk154 = 0x23;
-        func_80614EBC(D_807FBB44, 0x237);
+        actorScriptStart(D_807FBB44, 0x237);
         BB300A44->unkE6 = arg1;
         BB300A44->unkEE = BB300A44->unkE6;
         func_8067B238(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
@@ -214,7 +214,7 @@ typedef struct BB300View9C {
 extern s32 D_8076A064;
 extern s32 D_8076A0A8;
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void actorUpdatePulseIntensity(u8);
 void func_80724CA4(s32, s32);
 void func_80724E48();
@@ -297,7 +297,7 @@ void func_806B6DB0(s32 arg0) {
         actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x300, 0.0f);
         break;
     case 1:
-        if ((func_80611A44() >> 15) % 1000 >= 0x3E3) {
+        if ((randomNonNegative() >> 15) % 1000 >= 0x3E3) {
             D_807FBB40->unk154 = 0x11;
             ((BB300ActorAlt *)D_807FBB40)->unk155 = 0;
         }
@@ -326,7 +326,7 @@ void func_806B6DB0(s32 arg0) {
             break;
         case 0:
             actorSetTargetSpeed(D_807FBB40, 0);
-            func_80614EBC(D_807FBB40, 0x234);
+            actorScriptStart(D_807FBB40, 0x234);
             ((BB300ActorAlt *)D_807FBB40)->unk155 += 1;
             break;
         case 2:

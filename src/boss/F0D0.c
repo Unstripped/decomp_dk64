@@ -45,13 +45,13 @@ typedef struct {
 extern BossE_F0D0_Actor *D_807FBB40;
 extern BossE_F0D0_Actor *D_807FBB4C;
 extern BossE_F0D0_FDCA0 *D_807FDCA0;
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void func_80614D90(void *);
 void func_80714998(s32);
 void func_8071498C(void *);
 void func_807149B8(s32);
 void func_80714950(s32);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void actorDespawn(void *);
 void playerStateQueueCallback(s32, void *, s32);
@@ -64,12 +64,12 @@ void func_8003340C(u8 *arg0) {
 
     temp_v0 = D_807FBB40->unk4->unk64;
     if (temp_v0 != 0x223 && arg0[3] == arg0[1]) {
-        func_80614EBC(D_807FBB40, 0x223);
+        actorScriptStart(D_807FBB40, 0x223);
         func_80614D90(D_807FBB40);
         return;
     }
     if (temp_v0 != 0x224 && arg0[3] != arg0[1]) {
-        func_80614EBC(D_807FBB40, 0x224);
+        actorScriptStart(D_807FBB40, 0x224);
         func_80614D90(D_807FBB40);
     }
 }
@@ -117,7 +117,7 @@ void func_800336C0(void) {
     func_8071498C(&D_8071720C);
     func_807149B8(1);
     func_80714950(1);
-    func_80714CC0(D_8074E880[((func_80611A44() >> 15) % 1000) % 3], (f32) (f64) sp24, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+    func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) sp24, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_80033784.s")
@@ -135,7 +135,7 @@ s32 func_800339D8(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
         D_807FBB40->unk154 = arg1[arg0->unk15];
         arg0->unk15++;
         D_807FBB40->unk155 = 0;
-        func_80614EBC(D_807FBB40, 0);
+        actorScriptStart(D_807FBB40, 0);
         return 1;
     }
     return 0;

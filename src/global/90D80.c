@@ -117,7 +117,7 @@ void renderCallbacksRegister(void *func, void *actor, u8 layer) {
 void *func_80610FE8(s32);
 void heapFreeDeferred(void *);
 typedef f32 RenderMtxF[4][4];
-void func_80612CA0(RenderMtxF, f32);
+void matrixMakeRotationZ(RenderMtxF, f32);
 extern u32 D_807501E8;
 
 Gfx *renderRotatedQuad(Gfx *glist, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
@@ -131,7 +131,7 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
     gDPPipeSync(glist++);
     gDPLoadTextureBlock(glist++, (u8 *)(arg1 + 0x80000000), G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
 
-    func_80612CA0(spA0, (f32)arg4);
+    matrixMakeRotationZ(spA0, (f32)arg4);
     guTranslateF(sp60, (f32)arg2, (f32)arg3, 0.0f);
     guMtxCatF(spA0, sp60, spA0);
     guMtxF2L(spA0, mtx);

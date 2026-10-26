@@ -80,7 +80,7 @@ typedef struct EfAParameters {
 extern EfAParameters D_807FD6F0;
 void func_80614D48(Actor *, f32, f32);
 void func_80614E78(Actor *, s32);
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_806CFF9C(Actor *);
 void slotQueueUpdate(s32, s32, s32);
@@ -148,7 +148,7 @@ void func_806EB2B8(void) {
         func_806CD424(EfA_P->unkA, EfA_P->unk4, EfA_P->unk38);
     }
     EfA_P->unk2C = 10.0f;
-    func_80614EBC(D_807FBB40, 0x17B);
+    actorScriptStart(D_807FBB40, 0x17B);
 }
 
 void func_806EB364(void) {
@@ -159,7 +159,7 @@ void func_806EB364(void) {
     D_807FBB40->unk154 = 0x3D;
     D_807FBB40->unk155[0] = 0;
     if (EfA_P->unk4E == 0x22) {
-        func_80614EBC(D_807FBB40, 0x131);
+        actorScriptStart(D_807FBB40, 0x131);
         return;
     }
     func_80614E78(D_807FBB40, 0xD);
@@ -170,7 +170,7 @@ void func_806EB364(void) {
 void func_806EB4B4(void) {
     D_807FBB40->unk154 = 0x23;
     D_807FBB40->unk155[0] = 0;
-    func_80614EBC(D_807FBB48, 0x3BC);
+    actorScriptStart(D_807FBB48, 0x3BC);
 }
 
 void func_806EB4F8(void) {
@@ -235,7 +235,7 @@ void func_806EB6D8(void) {
     D_807FBB40->unk154 = 0x3F;
     D_807FBB40->unk155[0] = 0;
     EfA_P->unk4E = 0;
-    func_80614EBC(D_807FBB40, 0x14F);
+    actorScriptStart(D_807FBB40, 0x14F);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB744.s")
@@ -246,9 +246,9 @@ void func_806EB8CC(void) {
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
     if (EfA_P->unk8C != 0) {
-        func_80614EBC(D_807FBB48, 0x23);
+        actorScriptStart(D_807FBB48, 0x23);
     } else {
-        func_80614EBC(D_807FBB48, 0x13);
+        actorScriptStart(D_807FBB48, 0x13);
     }
     EfA_P->unk50 = 0;
     EfA_P->unk38 = 0.0f;
@@ -260,7 +260,7 @@ void func_806EB964(void) {
     D_807FBB48->unk154 = 4;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
-    func_80614EBC(D_807FBB48, 0x13);
+    actorScriptStart(D_807FBB48, 0x13);
     EfA_P->unk50 = 0;
     EfA_P->unk38 = 0.0f;
     slotQueueUpdate(6, 1, 0);
@@ -271,7 +271,7 @@ void func_806EBA04(void) {
     D_807FBB48->unk154 = 3;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
-    func_80614EBC(D_807FBB48, 0);
+    actorScriptStart(D_807FBB48, 0);
     EfA_P->unk50 = 0;
     EfA_P->unk38 = 0.0f;
 }
@@ -281,7 +281,7 @@ void func_806EBA74(void) {
     D_807FBB48->unk154 = 5;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
-    func_80614EBC(D_807FBB48, 0);
+    actorScriptStart(D_807FBB48, 0);
     EfA_P->unk50 = 0;
     EfA_P->unk38 = 0.0f;
     slotQueueUpdate(6, 1, 0);
@@ -300,7 +300,7 @@ void func_806EBB44(void) {
     D_807FBB60 |= 0x4000;
     D_807FBB48->unk154 = 1;
     D_807FBB48->unk155[0] = 0;
-    func_80614EBC(D_807FBB48, 0);
+    actorScriptStart(D_807FBB48, 0);
     func_80614D48(D_807FBB48, 0, 0);
     EfA_P->unk50 = 0;
     EfA_P->unk4C = -1;
@@ -309,7 +309,7 @@ void func_806EBB44(void) {
 void func_806EBBD0(void) {
     D_807FBB48->unk154 = 6;
     D_807FBB48->unk155[0] = 0;
-    func_80614EBC(D_807FBB48, 0);
+    actorScriptStart(D_807FBB48, 0);
     func_80614D48(D_807FBB48, 0, 0);
     EfA_P->unk50 = 0;
     EfA_P->unk4C = -1;
@@ -319,7 +319,7 @@ void func_806EBBD0(void) {
 void func_806EBC60(void) {
     D_807FBB48->unk154 = 0x6B;
     D_807FBB48->unk155[0] = 0;
-    func_80614EBC(D_807FBB48, 0);
+    actorScriptStart(D_807FBB48, 0);
     func_80614D48(D_807FBB48, 0, 0);
     EfA_P->unk50 = 0;
     EfA_P->unk4C = -1;
@@ -391,7 +391,7 @@ void func_806EBDAC(void) {
 void func_806EBDC4(void) {
     ((EfBActor *)D_807FBB48)->unk154 = 0x69;
     ((EfBActor *)D_807FBB48)->unk155 = 0;
-    func_80614EBC(D_807FBB48, 0);
+    actorScriptStart(D_807FBB48, 0);
     func_80614D48(D_807FBB48, 0.0f, 0.0f);
     EFB_P->unk50 = 0;
     EFB_P->unk4C = -1;
@@ -436,7 +436,7 @@ void func_806EBF74(void) {
 }
 
 void func_806EBFD0(void) {
-    func_80614EBC(D_807FBB48, 0x1A);
+    actorScriptStart(D_807FBB48, 0x1A);
     ((EfBActor *)D_807FBB48)->unk154 = 0x78;
     ((EfBActor *)D_807FBB48)->unk155 = 0;
 }
@@ -479,7 +479,7 @@ void func_806EC044(void) {
     func_806F0C18(D_807FBB40);
     D_807FBB48->unk154 = 0x6C;
     D_807FBB48->unk155[0] = 0;
-    func_80614EBC(D_807FBB48, 0x3B);
+    actorScriptStart(D_807FBB48, 0x3B);
     if (D_8074E77C[0] == 0) {
         speed = 0.5f;
     }
@@ -501,7 +501,7 @@ void func_806EC2CC(void) {
 
     D_807FBB48->unk154 = 0x75;
     D_807FBB48->unk155[0] = 0;
-    func_80614EBC(D_807FBB48, 0);
+    actorScriptStart(D_807FBB48, 0);
     EFB_P->unk50 = 0;
     EFB_P->unk4C = -1;
     D_807FBB48->unk60 &= ~1;
@@ -659,7 +659,7 @@ void func_806EC8C4(void) {
     case 0x42:
     case 0x55:
     case 0x82:
-        func_80614EBC(D_807FBB48, 0x1C8);
+        actorScriptStart(D_807FBB48, 0x1C8);
         break;
     default:
         func_80614E78(D_807FBB48, 0x2B);
@@ -684,7 +684,7 @@ void func_806EC994(void) {
 void func_806ECA74(void) {
     ((EfBActor *)D_807FBB40)->unk154 = 0x24;
     ((EfBActor *)D_807FBB40)->unk155 = 0;
-    func_80614EBC(D_807FBB40, 0x1B2);
+    actorScriptStart(D_807FBB40, 0x1B2);
     EFB_P->unkC8 = 0x32;
 }
 
@@ -1068,7 +1068,7 @@ void func_806ED6B0(void) {
             if (actorFindByType(0x25) != NULL) {
                 EfL1A48->unk154 = 0x63;
                 EfL1A48->unk155 = 0;
-                func_80614EBC(D_807FBB48, 0x7D);
+                actorScriptStart(D_807FBB48, 0x7D);
                 EfL1A48->unkB8 = 0.0f;
                 EfL1PS->unk38 = 300.0f;
                 flag = 1;
@@ -1110,7 +1110,7 @@ void func_806ED6B0(void) {
             EfL1PS->unk1F0 |= 0x20;
             EfL1A48->unk154 = 0x41;
             EfL1A48->unk155 = 0;
-            func_80614EBC(D_807FBB48, 0x156);
+            actorScriptStart(D_807FBB48, 0x156);
             EfL1A48->unkB8 = 0.0f;
             EfL1PS->unk50 = 4;
             func_806CFECC();
@@ -1118,7 +1118,7 @@ void func_806ED6B0(void) {
         case 0x31:
             EfL1A48->unk154 = 0x63;
             EfL1A48->unk155 = 0;
-            func_80614EBC(D_807FBB48, 0x7D);
+            actorScriptStart(D_807FBB48, 0x7D);
             EfL1A48->unkB8 = 0.0f;
             EfL1PS->unk38 = 300.0f;
             break;
@@ -1140,7 +1140,7 @@ void func_806ED6B0(void) {
                     EfL1A48->unk154 = 0x7F;
                     EfL1A48->unk155 = 0;
                 }
-                func_80614EBC(D_807FBB48, 0x317);
+                actorScriptStart(D_807FBB48, 0x317);
                 EfL1A48->unkB8 = 100.0f;
             }
             EfL1PS->unk50 = 4;
@@ -1495,7 +1495,7 @@ void func_806EE924(void) {
     }
 }
 
-extern void func_80614EBC(Actor *, s32);
+extern void actorScriptStart(Actor *, s32);
 extern void func_80614D00(Actor *, f32, f32);
 
 void func_806EE994(void) {
@@ -1504,7 +1504,7 @@ void func_806EE994(void) {
         D_807FBB40->unk144 = 1;
         D_807FBB40->unk154 = 0x34;
         D_807FBB40->unk155[0] = 0;
-        func_80614EBC(D_807FBB40, 0);
+        actorScriptStart(D_807FBB40, 0);
         func_806C9974(D_807FC929, -0x40);
         func_806CFE7C();
         func_80614D00(D_807FBB40, 0.0f, 0.0f);
@@ -1608,7 +1608,7 @@ void func_806EFA3C(void) {
         height *= 1.25;
     }
     func_8067B238(D_807FBB44, D_807FBB48, height);
-    func_80614EBC(D_807FBB44, ((u16 *)&spawnParams)[D_8074E77C[((u8 *)D_807FD580)[0x1A4]]]);
+    actorScriptStart(D_807FBB44, ((u16 *)&spawnParams)[D_8074E77C[((u8 *)D_807FD580)[0x1A4]]]);
     D_807FBB44->unk60 |= 0x40000000;
     func_80614E78(D_807FBB48, 0x88);
     D_807FBB40->unk154 = 0x79;
@@ -1790,7 +1790,7 @@ void func_806F0074(void) {
 void func_806F007C(void) {
     D_807FBB40->unk154 = 0x84;
     D_807FBB40->unk155[0] = 0;
-    func_80614EBC(D_807FBB40, 0);
+    actorScriptStart(D_807FBB40, 0);
 }
 
 extern f32 D_80753250[];
@@ -1845,7 +1845,7 @@ void func_806F027C(void) {
         func_806CA2AC();
         D_807FBB48->unk154 = 0x7C;
         D_807FBB48->unk155[0] = 0;
-        func_80614EBC(D_807FBB48, 0x13);
+        actorScriptStart(D_807FBB48, 0x13);
         actorSpawn(0x117, 0xC5);
         D_807FBB44->unk11C = (s32)D_807FBB48;
         func_806C8D20(D_807FBB48);
@@ -1859,7 +1859,7 @@ void func_806F0344(void) {
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk60 &= ~4;
     actorSpawn(0x11A, 0x21);
-    func_80614EBC(D_807FBB44, 0x232);
+    actorScriptStart(D_807FBB44, 0x232);
     D_807FBB44->unk11C = (s32)D_807FBB48;
 }
 
@@ -1879,7 +1879,7 @@ void func_806F0624(void) {
 void func_806F06A4(void) {
     D_807FBB48->unk154 = 0x87;
     D_807FBB48->unk155[0] = 0;
-    func_80614EBC(D_807FBB48, 0);
+    actorScriptStart(D_807FBB48, 0);
     EfEPS->unk50 = 0;
     EfEPS->unk4C = -1;
 }
@@ -1892,7 +1892,7 @@ typedef struct EfEActorE4 {
 void func_806F0700(void) {
     D_807FBB48->unk154 = 0x88;
     D_807FBB48->unk155[0] = 0;
-    func_80614EBC(D_807FBB48, 0);
+    actorScriptStart(D_807FBB48, 0);
     D_807FBB48->unk7C = EfEPS->unk22C;
     D_807FBB48->unk80 = EfEPS->unk230;
     D_807FBB48->unk84 = EfEPS->unk234;

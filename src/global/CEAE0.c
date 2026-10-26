@@ -788,10 +788,10 @@ extern s32 D_8071FB08;
 extern s32 D_8071FFA0;
 extern s32 func_80716FB4;
 extern s32 func_80717930;
-s32 func_80611A44();
+s32 randomNonNegative();
 s32 func_8061CB50();
 void func_80687400();
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 void func_8071498C(void *);
 void func_807149B8(s32);
 void func_807149FC(s32);
@@ -826,12 +826,12 @@ void func_806CB53C(void) {
             v0 = LB_P->unk23E;
         }
         if (v0 != 0) {
-            func_80714950((func_80611A44() >> 15) % 10 + 0x8008);
+            func_80714950((randomNonNegative() >> 15) % 10 + 0x8008);
             func_807149FC(2);
             func_8071498C(&func_80717930);
             func_807149B8(1);
             func_80714A28(6);
-            func_80714C08(&D_8071FFA0, ((func_80611A44() >> 15) % 50) / 80.0 + 0.5, D_807FBB40, 2, 0);
+            func_80714C08(&D_8071FFA0, ((randomNonNegative() >> 15) % 50) / 80.0 + 0.5, D_807FBB40, 2, 0);
             LB_P->unk23E = LB_P->unk23E - 1;
             v0 = LB_P->unk23E;
         }
@@ -873,7 +873,7 @@ void func_806CB53C(void) {
                 if (LB_P->unk1AC != 0 && D_807FBB48->unk58 == 6 && D_807FBB48->unk154 != 0x4A) {
                     D_807FBB48->unk154 = 0x4A;
                     D_807FBB48->unk155[0] = 0;
-                    func_80614EBC(D_807FBB48, 0x1CD);
+                    actorScriptStart(D_807FBB48, 0x1CD);
                 }
             }
             if (LB_P->unk1F0 & 0x10) {
@@ -1792,7 +1792,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
         switch (sp2C) {
             case 0:
                 if (G04_P->unk1F0 & 0x100) {
-                    func_80614EBC(arg0, 0x1AD);
+                    actorScriptStart(arg0, 0x1AD);
                 } else {
                     func_80614E78(arg0, 9);
                 }
@@ -1801,9 +1801,9 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 1:
                 if (G04_P->unk1F0 & 0x100) {
-                    func_80614EBC(arg0, 0x1AD);
+                    actorScriptStart(arg0, 0x1AD);
                 } else {
-                    func_80614EBC(arg0, 0x13);
+                    actorScriptStart(arg0, 0x13);
                 }
                 func_80614D00(arg0, 1.0f, 0.0f);
                 sp36 = 0xC;
@@ -1815,7 +1815,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 3:
                 if (G04_P->unk1F0 & 0x100) {
-                    func_80614EBC(arg0, 0x76);
+                    actorScriptStart(arg0, 0x76);
                     func_80613C48(arg0, 0x2AC, 0.0f, 6.0f);
                 } else {
                     func_80613AF8(arg0, 2, 0.0f, 6.0f);
@@ -1909,7 +1909,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0x5D;
                 break;
             case 1:
-                func_80614EBC(arg0, 0x23);
+                actorScriptStart(arg0, 0x23);
                 func_80614D00(arg0, 1.0f, 0.0f);
                 sp36 = 0x5D;
                 break;
@@ -2000,12 +2000,12 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
             case 0:
             case 1:
             case 2:
-                func_80614EBC(arg0, 0x150);
+                actorScriptStart(arg0, 0x150);
                 func_80614D00(arg0, 1.0f, 0.0f);
                 sp36 = 0x3F;
                 break;
             case 4:
-                func_80614EBC(arg0, 0x151);
+                actorScriptStart(arg0, 0x151);
                 func_80613C48(arg0, 0x163, 0.0f, 6.0f);
                 if (sp2E == 5) {
                     func_80613A50(arg0, 4);
@@ -2013,7 +2013,7 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0x40;
                 break;
             case 5:
-                func_80614EBC(arg0, 0x152);
+                actorScriptStart(arg0, 0x152);
                 func_80613C48(arg0, 0x162, 0.0f, 6.0f);
                 if (sp2E == 4) {
                     func_80613A50(arg0, 0xC);
@@ -2159,7 +2159,7 @@ s16 func_806CE928(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                     case 0x42:
                     case 0x55:
                     case 0x82:
-                        func_80614EBC(D_807FBB48, 0x1C9);
+                        actorScriptStart(D_807FBB48, 0x1C9);
                         break;
                     default:
                         func_80614E78(arg0, 0x2E);
@@ -2178,7 +2178,7 @@ s16 func_806CE928(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                     case 0x43:
                     case 0x55:
                     case 0x82:
-                        func_80614EBC(D_807FBB48, 0x1CA);
+                        actorScriptStart(D_807FBB48, 0x1CA);
                         break;
                     default:
                         func_80614E78(arg0, 0x2F);
@@ -2390,7 +2390,7 @@ typedef struct G05CbArg2 {
 } G05CbArg2;
 
 f32 func_80611850(f32);
-f32 func_806118FC(f32);
+f32 asinApprox(f32);
 void func_8067AA58(Actor *, Actor *, f32, f32);
 
 void func_806CF138(G05CbArg2 *arg0) {
@@ -2420,7 +2420,7 @@ void func_806CF138(G05CbArg2 *arg0) {
     actorGetNodePos(arg0->unk0, sp2C, &sp74, &sp6C, &sp64);
     sp5C = sp6C - sp68;
     sp58 = sqrtf((sp64 - sp60) * (sp64 - sp60) + ((sp74 - sp70) * (sp74 - sp70) + sp5C * sp5C));
-    sp54 = func_806118FC(sp5C / sp58) * 57.29577637f;
+    sp54 = asinApprox(sp5C / sp58) * 57.29577637f;
     sp48 = func_80612794(arg0->unk0->unkE6) * 50.0f;
     sp4C = func_80612790(arg0->unk0->unkE6) * 50.0f;
     sp40 = sp74 - sp70;
@@ -2990,7 +2990,7 @@ void func_806D0468(Actor *arg0, u8 arg1) {
 
 #define G07_P ((G07StateB *)D_807FD580)
 
-f32 func_80612D1C(f32);
+f32 sinApprox(f32);
 
 void func_806D06A0(void) {
     if (G07_P->unk1CC[0] < G07_P->unk1C0[0]) {
@@ -3018,9 +3018,9 @@ void func_806D06A0(void) {
         D_807FBB40->unk4->unk3C = G07_P->unk1CC[2];
         return;
     }
-    D_807FBB40->unk4->unk34 = G07_P->unk1CC[0] + func_80612D1C(G07_P->unk1E4 * 0.11) * G07_P->unk1DC;
-    D_807FBB40->unk4->unk38 = G07_P->unk1CC[1] + func_80612D1C(G07_P->unk1E4 * 0.2352) * G07_P->unk1DC;
-    D_807FBB40->unk4->unk3C = G07_P->unk1CC[2] + func_80612D1C(G07_P->unk1E4 * 0.176) * G07_P->unk1DC;
+    D_807FBB40->unk4->unk34 = G07_P->unk1CC[0] + sinApprox(G07_P->unk1E4 * 0.11) * G07_P->unk1DC;
+    D_807FBB40->unk4->unk38 = G07_P->unk1CC[1] + sinApprox(G07_P->unk1E4 * 0.2352) * G07_P->unk1DC;
+    D_807FBB40->unk4->unk3C = G07_P->unk1CC[2] + sinApprox(G07_P->unk1E4 * 0.176) * G07_P->unk1DC;
     G07_P->unk1DC = G07_P->unk1DC - G07_P->unk1E0;
     if (G07_P->unk1DC < 0.0) {
         G07_P->unk1DC = 0.0f;
@@ -3135,9 +3135,9 @@ void func_806D0A84(void) {
     f32 temp;
 
     if (!(G07_A->unk60 & 0x10)) {
-        func_80614EBC(D_807FBB40, state->unk0);
+        actorScriptStart(D_807FBB40, state->unk0);
         G07_A->unk60 |= 0x400;
-        G07_A->unk168 = (func_80611A44() >> 15) % 4096;
+        G07_A->unk168 = (randomNonNegative() >> 15) % 4096;
     }
     speed = (G07_A->unk4 != NULL ? G07_A->unk4->unk38 : 0.15f) * 6.66666667;
     if (actorTableContains(target) == 0 || target->unk54 != state->unk8) {
@@ -3147,7 +3147,7 @@ void func_806D0A84(void) {
     switch (G07_A->unk154) {
         case 0:
             if (target->unk4->unk64 != state->unkC) {
-                func_80614EBC(D_807FBB40, state->unk2);
+                actorScriptStart(D_807FBB40, state->unk2);
             } else {
                 func_8067B238(D_807FBB40, target, *(s32 *)&G07_A->unk4->unk34, state);
                 G07_A->unk80 += state->unk10;

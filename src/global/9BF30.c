@@ -29,7 +29,7 @@ void func_8066EB40(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-void func_80612C30(f32 (*)[4], f32);
+void matrixMakeRotationY(f32 (*)[4], f32);
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
@@ -106,7 +106,7 @@ Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xF5180000; _g->words.w1 = 0x07080200; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xE6000000; _g->words.w1 = 0x00000000; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xF3000000; _g->words.w1 = 0x073FF080; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xE7000000; _g->words.w1 = 0x00000000; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xF2000000; _g->words.w1 = 0x0007C07C; } ;
 
             guScaleF(mtx2, vscale, vscale, vscale);
-            func_80612C30(mtx1, (f32)(((*((s16 *)(D_807FC924 + 0x2C8))) * 0x168) / 4096));
+            matrixMakeRotationY(mtx1, (f32)(((*((s16 *)(D_807FC924 + 0x2C8))) * 0x168) / 4096));
             guMtxCatF(mtx2, mtx1, mtx2);
             guTranslateF(mtx1, arg1->unk7C + vx, arg1->unk80, arg1->unk84 + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
@@ -294,7 +294,7 @@ void func_807149A8(s32);
 void func_807149C8(s32, s32, s32, s32);
 void func_8071498C(void (*)(void));
 void func_80714950();
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_8066EB40(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
@@ -358,7 +358,7 @@ void projectileActorUpdate(void) {
                 func_807149B8(1);
                 func_80714950(var_s1 + 0xB000000);
                 func_8071498C(func_8071ABDC);
-                func_80714CC0(&D_8071FBA0, (f32)(((f64)((s32)(func_80611A44() >> 15) % 10) * 0.05) + 0.2),
+                func_80714CC0(&D_8071FBA0, (f32)(((f64)((s32)(randomNonNegative() >> 15) % 10) * 0.05) + 0.2),
                     G_ACTOR->unk7C, G_ACTOR->unk80, G_ACTOR->unk84);
             }
         }

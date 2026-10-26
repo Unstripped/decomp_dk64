@@ -178,12 +178,12 @@ void func_806A2A10(s32, s32, u8);
 void actorSetStateTwo(Actor *);
 void func_805FF9AC(s32, s32, s32, s32);
 void actorSetUniformScale(Actor *, f32);
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 void func_80614D00(Actor *, f32, f32);
 void func_8061CC30(void);
 s32 func_8061CC40(Actor *, s32, s32);
 void effectSpawnSparks(s32, s32);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_8063DA40(s32, s32);
 void actorDespawn(Actor *);
 void func_8072D13C(s32, s32);
@@ -244,7 +244,7 @@ void func_806C6BC8(void) {
             break;
         case 2:
             if (D_807FBD70 == 4) {
-                func_80614EBC(D_807FBB40, 0);
+                actorScriptStart(D_807FBB40, 0);
                 func_80614D00(D_807FBB40, 0.0f, 0.0f);
                 R1V->unk154 = 0;
                 R1V->unk155 = 0;
@@ -260,18 +260,18 @@ void func_806C6BC8(void) {
                         break;
                     case 3:
                         actorSetTargetSpeed(D_807FBB40, 0);
-                        func_80614EBC(D_807FBB40, 0x2BB);
+                        actorScriptStart(D_807FBB40, 0x2BB);
                         R1V->unk155 = 4;
                     case 4:
                     case 0:
                         effectSpawnSparks(3, 1);
                         if (R1V->unk155 == 0) {
-                            if ((func_80611A44() >> 15) % 1000 >= 0x3DF) {
+                            if ((randomNonNegative() >> 15) % 1000 >= 0x3DF) {
                                 R1V->unk155 = 3;
                             }
                         }
                         if (R1V->unk11C->unk154 == 5 || D_807FBB4C->unk58 != 3) {
-                            func_80614EBC(D_807FBB40, 0x2BA);
+                            actorScriptStart(D_807FBB40, 0x2BA);
                             func_80614D00(D_807FBB40, 0.0f, 0.0f);
                             func_8063DA40(0x33, 0);
                             actorDespawn((Actor *)R1V->unk11C);

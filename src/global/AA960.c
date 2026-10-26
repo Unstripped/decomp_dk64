@@ -858,7 +858,7 @@ extern u8 D_807FC954[];
 extern u32 D_8076A064;
 extern u8 D_80721170;
 extern SfxTable D_807504A4;
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 s32 func_806F8EDC(s32, s32);
 
 void effectActorSparkleTick(void) {
@@ -878,7 +878,7 @@ void effectActorSparkleTick(void) {
     if (flag != 0) {
         if (D_807FBD70 == 4) {
             if (D_8076A064 % 5 == 0) {
-                idx = (func_80611A44() >> 15) % 0xFF % 7;
+                idx = (randomNonNegative() >> 15) % 0xFF % 7;
                 table = D_807504A4;
                 func_8071498C(&func_8071D28C);
                 func_807149FC(-1);

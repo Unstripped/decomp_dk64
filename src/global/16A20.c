@@ -4,7 +4,7 @@
 
 s32 func_80611D20(s32);
 
-s32 func_80611DA0(s16 arg0) {
+s32 acosFixed16(s16 arg0) {
     s32 var_a0_2;
     s32 temp_v0;
 
@@ -21,7 +21,7 @@ s32 func_80611DA0(s16 arg0) {
     return var_a0_2 & 0xFFFF;
 }
 
-s16 func_80611DF4(s16 arg0) {
+s16 asinFixed16(s16 arg0) {
     s32 var_a0;
     s32 var_a0_2;
     s32 temp_v0;

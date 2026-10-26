@@ -28,7 +28,7 @@ extern u8 D_807FC928;
 extern s32 D_807FBB60;
 extern s8 D_8076A105;
 void func_80714638(void);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 typedef struct Struct_80026FA4_MpLow {
     s32 unk0;
     char pad[0x1C];
@@ -316,7 +316,7 @@ Struct_80026FA4_MpLow *mpFindCurrentMapEntry(void) {
 }
 
 s32 func_800253C8(void) {
-    return (((func_80611A44() >> 15) % 0x7FFF) % 211) + 0x5A;
+    return (((randomNonNegative() >> 15) % 0x7FFF) % 211) + 0x5A;
 }
 
 #pragma GLOBAL_ASM("asm/multiplayer/nonmatchings/0/func_80025404.s")
@@ -443,22 +443,22 @@ void func_80025794(void) {
                     if (item->unk6 == 0) {
                         num_outer = 1;
                     } else {
-                        num_outer = ((s32) (func_80611A44() >> 15) % 0x7FFF % 3) + 1;
+                        num_outer = ((s32) (randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
                     }
                     if (num_outer > 0) {
                         do {
                             k = 0;
-                            num_inner = ((s32) (func_80611A44() >> 15) % 0x7FFF % 3) + 1;
+                            num_inner = ((s32) (randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
                             temp_s4 = (s16) func_800253C8();
                             fs1 = (f32) ((((f64) func_806119FC() * 0.8) + 0.2) * (f64) item->unk6);
-                            angle = (s32) (func_80611A44() >> 15) % 4096;
+                            angle = (s32) (randomNonNegative() >> 15) % 4096;
                             fs3 = (f32) item->unk0;
                             fs0 = (f32) (item->unk2 - 23);
                             fs4 = (f32) item->unk4;
                             fs3 += fs1 * func_80612794(angle);
                             fs4 += fs1 * func_80612790(angle);
                             if (num_inner >= 2) {
-                                angle = (s32) (func_80611A44() >> 15) % 4096;
+                                angle = (s32) (randomNonNegative() >> 15) % 4096;
                                 fs1 = 15.0f;
                                 fs2 = 4096.0f / (f32) num_inner;
                             } else {
@@ -519,16 +519,16 @@ void func_80025B48(Struct_80025B48_Struct_MpNearHi *arg0) {
 
     if (arg0->unk1C == 0) {
         if (var_a2 != 0) {
-            arg0->unk1C = (((func_80611A44() >> 15) % 0x7FFF) % 271) + 30;
+            arg0->unk1C = (((randomNonNegative() >> 15) % 0x7FFF) % 271) + 30;
         }
     } else {
         arg0->unk1C--;
     }
 
     if (var_a2 != 0 && arg0->unk1C == 0) {
-        var_a2 = (((func_80611A44() >> 15) % 0x7FFF) % 3) + 1;
+        var_a2 = (((randomNonNegative() >> 15) % 0x7FFF) % 3) + 1;
         if (var_a2 == 3) {
-            var_a2 += (((func_80611A44() >> 15) % 0x7FFF) % 5);
+            var_a2 += (((randomNonNegative() >> 15) % 0x7FFF) % 5);
         }
         arg0->unk18 = spawnNodeActivate(var_a2, 0);
         if (arg0->unk18 == NULL) {

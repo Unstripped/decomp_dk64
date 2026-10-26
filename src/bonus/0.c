@@ -86,7 +86,7 @@ void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 void func_805FF898(void);
 void func_806C9974(s32, s32);
 void n_alSndpPostEvent(void *, s32, s16);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 extern s32 D_8076D1F8;
 extern void *D_807FBB40;
@@ -160,7 +160,7 @@ void func_80024E38(void) {
         if (*(u16 *)temp_s0 < 0x129) {
             *(u16 *)temp_s0 = 0x12C;
             if (*(u32 *)((u8 *)D_807FD580 + 0x1F0) & 0x40000) {
-                if (((func_80611A44() >> 15) % 1000) & 1) {
+                if (((randomNonNegative() >> 15) % 1000) & 1) {
                     func_80609140(0x1E7, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
                 } else {
                     func_80609140(0x1EA, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);

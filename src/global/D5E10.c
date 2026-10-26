@@ -138,7 +138,7 @@ void func_806D1278(void) {
 }
 
 f32 mathApproachF32(f32, f32, f32);
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 
 void func_806D12CC(void) {
     G08_A40->unkC0 = mathApproachF32(G08_A40->unkC0, 50.0f, 4.0f);
@@ -153,9 +153,9 @@ void func_806D12CC(void) {
         case 1:
             func_806CC8F0();
             if ((G08_A40->unkB8 > 10.0f) && (G08_A40->unk4->unk64 != 0x317)) {
-                func_80614EBC(D_807FBB40, 0x317);
+                actorScriptStart(D_807FBB40, 0x317);
             } else if ((G08_A40->unkB8 == 0.0f) && (G08_A40->unk4->unk64 != 0x314)) {
-                func_80614EBC(D_807FBB40, 0x314);
+                actorScriptStart(D_807FBB40, 0x314);
             }
             func_806DF6D4(0x67);
             break;
@@ -241,7 +241,7 @@ void func_806D1568(void) {
                     if (G08_P->unk50 != 0) {
                         G08_P->unk50--;
                         if (G08_P->unk50 == 0) {
-                            func_80614EBC(D_807FBB40, 0x315);
+                            actorScriptStart(D_807FBB40, 0x315);
                         }
                     }
                 }
@@ -267,7 +267,7 @@ void func_806D1568(void) {
                 if (G08_A40->unkC0 > 150.0f) {
                     G08_A40->unk154 = 0x82;
                     G08_A40->unk155 = 0;
-                    func_80614EBC(D_807FBB40, 0);
+                    actorScriptStart(D_807FBB40, 0);
                 } else {
                     G08_A40->unk154 = 0x7E;
                     G08_A40->unk155 = 0;
@@ -348,11 +348,11 @@ void func_806D1B60(void) {
             if (G08_A40->unkAC < G08_A40->unk80 + 4.0f) {
                 G08_A40->unk154 = 0x7E;
                 G08_A40->unk155 = 0;
-                func_80614EBC(D_807FBB40, 0x317);
+                actorScriptStart(D_807FBB40, 0x317);
             } else {
                 G08_A40->unk154 = 0x7F;
                 G08_A40->unk155 = 3;
-                func_80614EBC(D_807FBB40, 0x318);
+                actorScriptStart(D_807FBB40, 0x318);
                 G08_P->unk38 = 300.0f;
                 G08_P->unk10 = 0xF;
             }
@@ -701,7 +701,7 @@ void func_806D27A4(void) {
     func_806D2744(0x63);
     if (func_8061CB98(5) != 0) {
         if (G09_A->unk4->unk64 != 0x3B0) {
-            func_80614EBC(D_807FBB40, 0x3B0);
+            actorScriptStart(D_807FBB40, 0x3B0);
         }
         if ((func_80629148() != 0) || (G09_A->unk155 != 0)) {
             func_805FF8F8();
@@ -1028,7 +1028,7 @@ void func_806D2E9C(void) {
         sel = 0x7E;
     }
     if ((sel != G10_A->unk4->unk64) && (G10_A->unk4->unk64 != 0x81)) {
-        func_80614EBC(D_807FBB40, sel);
+        actorScriptStart(D_807FBB40, sel);
     }
     if ((G10_P->unk1F0 & 0x40000000) && (G10_P->unk240 == 0)) {
         func_80687400();
@@ -1908,7 +1908,7 @@ extern u8 D_80750FD4;
 extern f32 D_80750FD8;
 extern s32 D_8074E880[];
 extern f32 D_8075352C[];
-s32 func_80611A44();
+s32 randomNonNegative();
 void func_80714950(s32);
 void func_8071498C(void *);
 void func_807149B8(s32);
@@ -1930,13 +1930,13 @@ void func_806D5300(void) {
         scale = D_807FBB40->unk4->unk38 / 0.15;
         actorGetNodePos(D_807FBB40, 7, &sp90, &sp8C, &sp88);
         for (i = 0; i < D_80750FD4; i++) {
-            x = (func_80611A44() >> 15) % 10000 % D_80750FC8 - D_80750FC8 / 2;
-            y = (func_80611A44() >> 15) % 10000 % D_80750FCC - D_80750FCC / 2;
-            z = (func_80611A44() >> 15) % 10000 % D_80750FD0 - D_80750FD0 / 2;
+            x = (randomNonNegative() >> 15) % 10000 % D_80750FC8 - D_80750FC8 / 2;
+            y = (randomNonNegative() >> 15) % 10000 % D_80750FCC - D_80750FCC / 2;
+            z = (randomNonNegative() >> 15) % 10000 % D_80750FD0 - D_80750FD0 / 2;
             func_80714950(D_80750FC4);
             func_8071498C(&func_80717D4C);
             func_807149B8(1);
-            func_80714CC0(D_8074E880[func_80611A44() % 10000 % 3], D_80750FC0 * scale, x * scale + sp90, y * scale + sp8C, z * scale + sp88);
+            func_80714CC0(D_8074E880[randomNonNegative() % 10000 % 3], D_80750FC0 * scale, x * scale + sp90, y * scale + sp8C, z * scale + sp88);
         }
     }
     switch (G08_A40->unk155) {
@@ -2831,7 +2831,7 @@ void func_806D7A28(void) {
             if ((G15_PB->unk1F0 & 0x1000) && !(D_8076A064 & 3)) {
                 func_807149C8(0x64, 0x64, 0x64, 0xC8);
                 func_80714998(2);
-                effectSpawnBoneDefault(D_807FBB40, (s16)(((func_80611A44() >> 15) % 32767) % 8 + 1), 0.4f, 0.0f, 0.0f, 0.0f, -0x50);
+                effectSpawnBoneDefault(D_807FBB40, (s16)(((randomNonNegative() >> 15) % 32767) % 8 + 1), 0.4f, 0.0f, 0.0f, 0.0f, -0x50);
             }
             G08_A40->unkB8 = 0.0f;
             func_806CC970();
@@ -3754,9 +3754,9 @@ void func_806D9AD4(void) {
     func_806DF6D4(1);
     sel = G17_A->unk155;
     if (sel == 1 || sel == 2) {
-        func_80611A44();
-        sp28 = (s32)(func_80611A44() >> 15) % 30 + G17_A->unk80;
-        func_80611A44();
+        randomNonNegative();
+        sp28 = (s32)(randomNonNegative() >> 15) % 30 + G17_A->unk80;
+        randomNonNegative();
         func_807149B8(1);
         func_80714950((G17_P->unk23C << 16) + (s32)(15.0 * (G17_A->unk128 / 255.0)));
         func_8071498C(func_80717100);
@@ -3875,7 +3875,7 @@ void func_806D9FD0(void) {
         }
         break;
     case 3:
-        func_80614EBC(D_807FBB40, 0x16A);
+        actorScriptStart(D_807FBB40, 0x16A);
         func_806DF6D4(0x43);
         func_806CC8B8();
         G17_A->unk155++;
@@ -4542,15 +4542,15 @@ void func_806DBB04(void) {
     LB_P->unkCC = LB_P->unkCC + 6;
     LB_P->unkCC = LB_P->unkCC & 0xFFF;
     if (!(D_8076A064 & 1)) {
-        sp63 = (func_80611A44() >> 15) % 65535 % 3;
+        sp63 = (randomNonNegative() >> 15) % 65535 % 3;
         actorGetNodePos(D_807FBB40, 5, &sp5C, &sp58, &sp54);
-        sp5C += (f32)((func_80611A44() >> 15) % 65535 % 16 - 8);
-        sp58 += (f32)((func_80611A44() >> 15) % 65535 % 16 - 8);
-        sp54 += (f32)((func_80611A44() >> 15) % 65535 % 16 - 8);
+        sp5C += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
+        sp58 += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
+        sp54 += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
         func_80714998(2);
         func_807149B8(1);
         func_8071498C(func_8071720C);
-        func_80714950((func_80611A44() >> 15) % 100 + 0x64);
+        func_80714950((randomNonNegative() >> 15) % 100 + 0x64);
         if (sp63 == 2) {
             func_80714CC0((s32)&D_8071FCC0, 0.5f, sp5C, sp58, sp54);
         } else if (sp63 == 1) {
@@ -5804,7 +5804,7 @@ void func_806DED44(void) {
         G20_E44->unkE6 += 0x800;
         G20_E44->unkE6 &= 0xFFF;
         G20_E44->unk11C = D_807FBB40;
-        func_80614EBC(D_807FBB44, 0x2B7);
+        actorScriptStart(D_807FBB44, 0x2B7);
         light = G20_E44->unk174;
         light->unk10 = D_807FBB40;
         light->unk18 = G20_E40->unk12C;

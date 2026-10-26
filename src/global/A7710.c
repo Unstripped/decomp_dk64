@@ -49,8 +49,8 @@ Gfx *func_8070068C(Gfx *);
 GfxResource *gfxResourceFindById(u8);
 Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
 Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
-f32 func_80612D1C(f32);
-f32 func_80612D10(f32);
+f32 sinApprox(f32);
+f32 cosApprox(f32);
 void func_8071495C(void);
 void func_80714CC0(void *, f32, f32, f32, f32);
 
@@ -88,10 +88,10 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
             if (actor->unk154 == 2) {
                 gfx = func_8070068C(gfx);
                 func_8071495C();
-                sinAngle = func_80612D1C(angle);
+                sinAngle = sinApprox(angle);
                 func_80714CC0(&D_8071FC58, 0.5f,
                               (f32)((f64)sinAngle * 40.0 + (f64)(40.0f + actor->unk7C)),
-                              (f32)((f64)func_80612D10(angle) * 25.0 + (f64)actor->unk80),
+                              (f32)((f64)cosApprox(angle) * 25.0 + (f64)actor->unk80),
                               0.0f);
             }
         }

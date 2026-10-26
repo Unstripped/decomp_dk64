@@ -39,18 +39,18 @@ void func_800292B0(f32 arg0) {
 }
 
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_807149B8(s32);
 void func_80714998(s32);
 void func_807149C8(s32, s32, s32, s32);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void func_800293C0(void) {
-    func_80611A44();
+    randomNonNegative();
     func_807149B8(1);
     func_80714998(3);
     func_807149C8(0x78, 0x78, 0x78, 0xC8);
-    effectSpawnBoneDefault(D_807FBB40, (((func_80611A44() >> 15) % 0x7FFF) % 16) + 3, 2.0f, 0.0f, 0.0f, 0.0f, -0x96);
+    effectSpawnBoneDefault(D_807FBB40, (((randomNonNegative() >> 15) % 0x7FFF) % 16) + 3, 2.0f, 0.0f, 0.0f, 0.0f, -0x96);
 }
 
 typedef struct Boss3F_52B0_178 {
@@ -139,7 +139,7 @@ void func_80027BA8(u8 *, s32, f32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 s32 func_8061CB50(void);
 void func_8061CC40(void *, s32, s32);
 s32 func_80629148(void);
@@ -193,7 +193,7 @@ void func_80029468(void) {
     case 0x2D:
         switch (ACTOR->unk155) {
         case 0:
-            func_80614EBC(ACTOR, 0x219);
+            actorScriptStart(ACTOR, 0x219);
             ACTOR->unk155++;
             break;
         case 2:
@@ -219,35 +219,35 @@ void func_80029468(void) {
         switch (ACTOR->unk155) {
         case 0:
             if (func_80629148() != 0) {
-                func_80614EBC(D_807FBB4C, 0x3B1);
-                func_80614EBC(D_807FD580->unk88, 0x3B7);
+                actorScriptStart(D_807FBB4C, 0x3B1);
+                actorScriptStart(D_807FD580->unk88, 0x3B7);
                 ACTOR->unk155++;
             }
             break;
         case 1:
             if (func_80629148() != 0) {
-                func_80614EBC(D_807FBB4C, 0x3B2);
-                func_80614EBC(D_807FD580->unk88, 0x3B8);
+                actorScriptStart(D_807FBB4C, 0x3B2);
+                actorScriptStart(D_807FD580->unk88, 0x3B8);
                 ACTOR->unk155++;
             }
             break;
         case 2:
             if (func_80629148() != 0) {
-                func_80614EBC(D_807FBB4C, 0x3B3);
-                func_80614EBC(D_807FD580->unk88, 0x3B9);
+                actorScriptStart(D_807FBB4C, 0x3B3);
+                actorScriptStart(D_807FD580->unk88, 0x3B9);
                 ACTOR->unk155++;
             }
             break;
         case 3:
             if (func_80629148() != 0) {
-                func_80614EBC(ACTOR, 0x217);
+                actorScriptStart(ACTOR, 0x217);
                 ACTOR->unk155++;
             }
             break;
         case 4:
             if (func_80629148() != 0) {
-                func_80614EBC(D_807FBB4C, 0x3B4);
-                func_80614EBC(D_807FD580->unk88, 0x3BA);
+                actorScriptStart(D_807FBB4C, 0x3B4);
+                actorScriptStart(D_807FD580->unk88, 0x3BA);
                 ACTOR->unk155++;
             }
             break;
@@ -280,14 +280,14 @@ void func_80029468(void) {
             switch (ACTOR->unk155) {
             case 0:
                 ACTOR->unkE6 = 0;
-                func_80614EBC(ACTOR, 0x213);
+                actorScriptStart(ACTOR, 0x213);
                 func_8061CC40(ACTOR, 2, 1);
                 actorAppendActiveCallback8();
                 ACTOR->unk155++;
                 break;
             case 1:
                 if (func_80629148() != 0) {
-                    func_80614EBC(ACTOR, 0x21A);
+                    actorScriptStart(ACTOR, 0x21A);
                     ACTOR->unk155++;
                 }
                 break;
@@ -345,7 +345,7 @@ block_28:
             if (ACTOR->unk154 == 0x46) {
                 ACTOR->unk155 = 2;
             } else {
-                func_80614EBC(ACTOR, 0x214);
+                actorScriptStart(ACTOR, 0x214);
                 ACTOR->unk155++;
             }
             break;
@@ -353,11 +353,11 @@ block_28:
             if (func_8061CB50() == 0) {
                 if (ACTOR->unk154 == 0x46) {
                     if (mathAngleDistance(ACTOR->unkE6, mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84)) < 0x320) {
-                        func_80614EBC(ACTOR, 0x218);
+                        actorScriptStart(ACTOR, 0x218);
                         ACTOR->unk155++;
                     }
                 } else {
-                    func_80614EBC(ACTOR, 0x215);
+                    actorScriptStart(ACTOR, 0x215);
                     ACTOR->unk155++;
                 }
             }
@@ -368,7 +368,7 @@ block_28:
             switch (ACTOR->unk154) {
             case 0x2A:
                 projectileAimAndSpawn(0xA9, 1, 1.0f, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 2.0f, D_807FBB4C->unk84, 450.0f, ACTOR);
-                func_80614EBC(ACTOR, 0x213);
+                actorScriptStart(ACTOR, 0x213);
                 ACTOR->unk154 = sp44[sp4C->unk15++];
                 ACTOR->unk155 = 0;
                 break;
@@ -384,12 +384,12 @@ block_28:
             }
             break;
         case 6:
-            func_80614EBC(ACTOR, 0x213);
+            actorScriptStart(ACTOR, 0x213);
             ACTOR->unk155++;
             sp4C->unk18 = sp4C->unk19;
             break;
         case 7:
-            sp40 = ((func_80611A44() >> 15) % 1024) - 0x200;
+            sp40 = ((randomNonNegative() >> 15) % 1024) - 0x200;
             sp3C = ((f64)func_80612794(D_807FDC94->unkE6 + sp40) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk7C;
             sp38 = ((f64)func_80612790(D_807FDC94->unkE6 + sp40) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk84;
             projectileSetTargetCoords(sp3C, D_807FDC94->unk80 + 500.0f, sp38);
@@ -410,7 +410,7 @@ block_28:
                         ACTOR->unk155 = 7;
                     }
                 } else {
-                    func_80614EBC(ACTOR, 0x213);
+                    actorScriptStart(ACTOR, 0x213);
                     ACTOR->unk154 = sp44[sp4C->unk15++];
                     ACTOR->unk155 = 0;
                 }
@@ -428,7 +428,7 @@ block_28:
         switch (ACTOR->unk155) {
         case 0:
         case 1:
-            func_80614EBC(ACTOR, 0x213);
+            actorScriptStart(ACTOR, 0x213);
             sp4C->unk8 = sp44[sp4C->unk15++];
             ACTOR->unk155 = 2;
             break;

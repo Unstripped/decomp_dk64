@@ -46,7 +46,7 @@ extern s32 D_8076A0A8;
 extern u8 D_8072073C[];
 extern s16 D_80750340;
 
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 s32 func_8072E0A8(s32, s32);
 void behaviourFrameBegin(void);
 void func_8067ACB4(Actor *);
@@ -62,7 +62,7 @@ void actorSetDefaultState();
 void func_8072DC7C();
 void func_8072AA80(void);
 void func_8072C918(s32, s32, s32);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 f32 func_80612794(s16);
 s16 func_806CC190(s16, s16, f32);
 void actorClearNodeFlag(Actor *, s32);
@@ -119,7 +119,7 @@ void func_806B2790(void) {
             flag = 0;
             switch (D_807FBB40->unk155[0]) {
                 case 0:
-                    func_80614EBC(D_807FBB40, 0x2E0);
+                    actorScriptStart(D_807FBB40, 0x2E0);
                     D_807FBB40->unk155[0] = 1;
                     break;
                 case 2:
@@ -142,7 +142,7 @@ void func_806B2790(void) {
             break;
         case 1:
             B7490A->unkE4 += 800.0f * func_80612794(D_807FDC90->unk18 * 10);
-            if (((func_80611A44() >> 15) % 1000) >= 0x3D5) {
+            if (((randomNonNegative() >> 15) % 1000) >= 0x3D5) {
                 func_8072AA80();
             }
             func_8072A920(D_807FBB40->unk154, 0, D_807FDC94->unk7C, D_807FDC90->unkC, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, 0x2040);
@@ -236,7 +236,7 @@ void func_806B2D64(void) {
         case 0x27:
             switch (D_807FBB40->unk155[0]) {
                 case 0:
-                    func_80614EBC(D_807FBB40, 0x2E6);
+                    actorScriptStart(D_807FBB40, 0x2E6);
                     D_807FBB40->unk155[0] = 1;
                     break;
                 case 2:
@@ -253,7 +253,7 @@ void func_806B2D64(void) {
         case 0x25:
             switch (D_807FBB40->unk155[0]) {
                 case 0:
-                    func_80614EBC(D_807FBB40, 0x2E4);
+                    actorScriptStart(D_807FBB40, 0x2E4);
                     D_807FBB40->unk155[0] = 1;
                     break;
                 case 2:
@@ -269,7 +269,7 @@ void func_806B2D64(void) {
         case 1:
             actorEmptyStub();
             B7490A->unkE4 += 800.0f * func_80612794(D_807FDC90->unk18 * 10);
-            if (((func_80611A44() >> 15) % 1000) >= 0x3D5) {
+            if (((randomNonNegative() >> 15) % 1000) >= 0x3D5) {
                 func_8072AA80();
             }
             func_8072A920(D_807FBB40->unk154, 0, D_807FDC94->unk7C, D_807FDC90->unkC, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, 0x2040);
@@ -354,7 +354,7 @@ void func_806B3420(void) {
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else {
-                func_80614EBC(D_807FBB40, 0x35D);
+                actorScriptStart(D_807FBB40, 0x35D);
                 func_80614D00(D_807FBB40, 0.5f, 0.0f);
                 D_807FBB40->unk154 = 1;
                 D_807FBB40->unk155[0] = 0;
@@ -511,7 +511,7 @@ void func_806B3D18(void) {
     switch (D_807FBB40->unk155[0]) {
         case 0:
             if (func_8072E0A8(0x96, 0x96)) {
-                func_80614EBC(D_807FBB40, 0x253);
+                actorScriptStart(D_807FBB40, 0x253);
                 D_807FBB40->unk155[0] = 1;
             }
             break;
@@ -557,7 +557,7 @@ void func_806B3E7C(void) {
 
 
 void func_806B3F3C(void) {
-    if (((func_80611A44() >> 15) % 1000) >= 0x3E4) {
+    if (((randomNonNegative() >> 15) % 1000) >= 0x3E4) {
         D_807FBB40->unk154 = 0x1C;
         D_807FBB40->unk155[0] = 0;
     }
@@ -794,7 +794,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
         case 2:
         case 3:
             if (D_807FBB40->unk155[0] == 0) {
-                func_80614EBC(D_807FBB40, arg1);
+                actorScriptStart(D_807FBB40, arg1);
                 D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
             }
             actorMoveWithinZone(arg0, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0xE1, 0.0f);
@@ -812,7 +812,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
                 case 0:
                 case 1:
                 case 2:
-                    func_80614EBC(D_807FBB40, arg2);
+                    actorScriptStart(D_807FBB40, arg2);
                     D_807FBB40->unk155[0] = 3;
                 case 3:
                     actorFlyTowardPosition((void *) D_807FDC90, 0x26);
@@ -873,7 +873,7 @@ void func_806B4DCC(void) {
     if ((D_807FBD70 == 9) && (D_807FBB40->unk154 != 0x37)) {
         D_807FBB40->unk154 = 0x37;
         D_807FBB40->unk155[0] = 0;
-        func_80614EBC(D_807FBB40, 0x248);
+        actorScriptStart(D_807FBB40, 0x248);
         actorAttachChildCallbacks();
         sfxAllocateChannel(0x14, 1.0f);
         func_8063DA40(0x7F, 0xA);
@@ -903,9 +903,9 @@ void func_806B4DCC(void) {
             func_8072D9D4();
             func_8061CC40(D_807FBB40, 3, 5);
             if (((B7490Actor *) D_807FBB40)->unk134 & 1) {
-                func_80614EBC(D_807FBB40, 0x24A);
+                actorScriptStart(D_807FBB40, 0x24A);
             } else {
-                func_80614EBC(D_807FBB40, 0x249);
+                actorScriptStart(D_807FBB40, 0x249);
             }
         }
     }
@@ -958,11 +958,11 @@ void func_806B52DC(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FDC98->unk46 = D_807FDC98->unk46 | 0x60;
         D_807FDC98->unk46 = D_807FDC98->unk46 & 0xFFF7;
-        D_807FBB40->unkB8 = (f32) (((func_80611A44() >> 15) % 100) + 0x12C);
-        D_807FBB40->unk80 += (f32) ((func_80611A44() >> 15) % 30);
+        D_807FBB40->unkB8 = (f32) (((randomNonNegative() >> 15) % 100) + 0x12C);
+        D_807FBB40->unk80 += (f32) ((randomNonNegative() >> 15) % 30);
         D_807FBB40->unk60 = D_807FBB40->unk60 & 0xFFFF7FFF;
         D_807FBB40->unk128 = 0;
-        ((B7490Actor *) D_807FBB40)->unkEC = ((func_80611A44() >> 15) % 7) + 0xF;
+        ((B7490Actor *) D_807FBB40)->unkEC = ((randomNonNegative() >> 15) % 7) + 0xF;
     }
     func_8067ACB4(D_807FBB40);
     actorApplyVelocityCustom(D_807FBB40, D_807FBB40->unkB8, 0.0f);
@@ -1024,7 +1024,7 @@ void func_806B54BC(void) {
     dead = temp_s1->unk0; // dead store: reserves the extra frame slot above sp68
     if ((D_807FBB40->unk154 != 0x40) && (D_807FBB40->unk154 != 0x37) && ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0))) {
         sfxStopSlotSound(D_807FBB40, 0);
-        func_80614EBC(D_807FBB40, 0x331);
+        actorScriptStart(D_807FBB40, 0x331);
         D_807FBB40->unk154 = 0x37;
         D_807FBB40->unk155[0] = 0;
         sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, 0x16, 0xFF, 0x7F, 0x1E);
@@ -1035,7 +1035,7 @@ void func_806B54BC(void) {
         D_807FBB40->unkB8 = 40.0f;
         D_807FBB40->unk154 = 0x23;
         D_807FBB40->unk155[0] = 0;
-        B7490A->unkEC = ((func_80611A44() >> 15) % 7) + 0xF;
+        B7490A->unkEC = ((randomNonNegative() >> 15) % 7) + 0xF;
         temp_s1->unk0 = D_807FBB40->unk7C;
         temp_s1->unk4 = D_807FBB40->unk80;
         temp_s1->unk8 = D_807FBB40->unk84;

@@ -39,8 +39,8 @@ typedef struct DrawPos {
 extern u8 D_807444FC;
 extern u16 D_8075A740;
 
-f32 func_80612D1C(f32);
-s32 func_80611A44(void);
+f32 sinApprox(f32);
+s32 randomNonNegative(void);
 Gfx *func_806FC530(Gfx *, s32, s32, s32, u16 *, s32);
 
 void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
@@ -77,7 +77,7 @@ void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
         if ((mdl->unk0 & 4) != 0) {
             tmp = mdl->unk98;
             if (tmp <= 6.2831855f) {
-                tmp = (0.25f * (func_80612D1C(tmp - 1.5707964f) + 1.0f)) + 1.0f;
+                tmp = (0.25f * (sinApprox(tmp - 1.5707964f) + 1.0f)) + 1.0f;
             } else {
                 tmp = 1.0f;
             }
@@ -85,10 +85,10 @@ void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
             guMtxCatF(spA8, sp68, spA8);
         }
         if ((mdl->unk0 & 2) != 0) {
-            sp38 = func_80612D1C(mdl->unk98);
-            sp4C = ((20.0f - (f32) ((func_80611A44() >> 15) % 40)) / 20.0f) * (4.0f * sp38);
-            sp38 = func_80612D1C(mdl->unk98);
-            guTranslateF(sp68, sp4C, ((20.0f - (f32) ((func_80611A44() >> 15) % 40)) / 20.0f) * (4.0f * sp38), 0.0f);
+            sp38 = sinApprox(mdl->unk98);
+            sp4C = ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f) * (4.0f * sp38);
+            sp38 = sinApprox(mdl->unk98);
+            guTranslateF(sp68, sp4C, ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f) * (4.0f * sp38), 0.0f);
             guMtxCatF(spA8, sp68, spA8);
         }
         guTranslateF(sp68, sp60, sp5C, 0.0f);

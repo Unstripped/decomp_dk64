@@ -730,7 +730,7 @@ extern s32 D_80721474;
 extern s32 D_80721518;
 
 s32 func_805FF030(s32, s32);
-f32 func_80612E40(f32);
+f32 floatCeil(f32);
 s32 func_806C8DE0(s32);
 s32 func_806F6E58(s32);
 s32 func_806FA7A4(s32);
@@ -801,7 +801,7 @@ void func_806AA304(arg0, arg1)
         }
         if (func_806F6E58(D_8074E77C)) {
             f = func_806FA7A4(5);
-            func_806AB808(arg0, 0x1E, 0xA0, 0xC, -0xA, (s32)func_80612E40((f32)(u32)D_807FCC46 / f), 1, 1);
+            func_806AB808(arg0, 0x1E, 0xA0, 0xC, -0xA, (s32)floatCeil((f32)(u32)D_807FCC46 / f), 1, 1);
             func_806AB4EC(arg0, 5, 0x1E, 0xA0, 0.65f, 2, 1);
         }
         if (flagGet(0x18C, 0)) {

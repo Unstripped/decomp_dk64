@@ -73,7 +73,7 @@ void renderCallbacksRegister(void *, void *, s32);
 void func_8061CB08(void);
 void func_806CFF9C(void *);
 s32 func_8061CB50(void);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void func_806A2A10(s32, s32, s32);
 void flagSet();
 void sfxAllocateChannel(s32, f32);
@@ -178,7 +178,7 @@ void func_806BC1E0(void) {
                 st->unk1C = 359.0f;
                 st->unk37 = 0;
                 st->unk20 = -500.0f;
-                func_80614EBC(D_807FBB40, 0x31C);
+                actorScriptStart(D_807FBB40, 0x31C);
                 func_806A2A10(0xDC, 0x2A, 0x3C);
                 flagSet(0x30, 1, 2);
                 sfxAllocateChannel(0x78, 1.0f);
@@ -214,7 +214,7 @@ void func_806BC1E0(void) {
                     }
                 }
                 flagSet(0x30, 0, 2, ones);
-                func_80614EBC(D_807FBB40, 0x31C);
+                actorScriptStart(D_807FBB40, 0x31C);
                 D_80750650 = 1;
                 if (ones < zeros) {
                     st->unk38 = 6;
@@ -232,7 +232,7 @@ void func_806BC1E0(void) {
                 st->unk1C = st->unk2C;
                 st->unk20 = -500.0f;
             } else {
-                func_80614EBC(D_807FBB40, 0);
+                actorScriptStart(D_807FBB40, 0);
                 D_80750650 = 0;
                 best = 4;
                 n = 0;
@@ -309,7 +309,7 @@ void func_806BC1E0(void) {
         if (st->unk34 == 0 && st->unk4 == 0.0f) {
             sfxStopChannel(0x78, 1);
             sfxAllocateChannel(0x56, 1.0f);
-            func_80614EBC(D_807FBB40, 0x31C);
+            actorScriptStart(D_807FBB40, 0x31C);
             actorDespawn(LGB->unk11C);
             func_8061CC40(D_807FBB40, 2, 1);
             st->unk38 = 8;
@@ -331,7 +331,7 @@ void func_806BC1E0(void) {
     case 7:
         if (st->unk34 == 0 && st->unk4 == 0.0f) {
             actorDespawn(LGB->unk11C);
-            func_80614EBC(D_807FBB40, 0x31C);
+            actorScriptStart(D_807FBB40, 0x31C);
             func_8061CC40(D_807FBB40, 3, 1);
             st->unk38 = 9;
             sfxStopChannel(0x78, 1);

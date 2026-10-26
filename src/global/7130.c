@@ -316,7 +316,7 @@ void func_80664044(s32, s32, s32, f32);
 s32 flagGet(s32, s32);
 void n_alSndpPostEvent(s32, s32, ...);
 f32 func_80611BB4(f32, f32);
-f32 func_80612D1C(f32);
+f32 sinApprox(f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 void n_alSndpStop(s32);
@@ -674,7 +674,7 @@ void func_80603450(void) {
                 } else {
                     D_80770DD0 = 0.0f;
                 }
-                D_80770DCC = (f32)((f64)(1.0f - func_80612D1C(var_fs0)) * 63.5);
+                D_80770DCC = (f32)((f64)(1.0f - sinApprox(var_fs0)) * 63.5);
             } else {
                 D_80770DCC = 64.0f;
             }
@@ -1298,7 +1298,7 @@ void func_806057F8(void) {
                             break;
                         case 0x12B:
                             modelAnimEntryGetState(slot, 1, &animFrame, &animSpeed, &animFlags);
-                            factor = func_80612D1C((animFrame / 27.0) * 3.1415927410125732);
+                            factor = sinApprox((animFrame / 27.0) * 3.1415927410125732);
                             volume *= factor;
                             D_80770B68[i] = factor;
                             D_80770C18[i] = (factor * 0.4) + 0.8;
@@ -1322,8 +1322,8 @@ void func_806057F8(void) {
                             break;
                         case 0x11F:
                             if (D_807706F8[i] != 0) {
-                                factor = func_80612D1C(D_80770BC0[i] * 0.027925);
-                                D_80770C18[i] = (func_80612D1C((D_80770BC0[i] * 0.261799) - 1.570795) * 0.1) + (0.2 * factor) + 0.6;
+                                factor = sinApprox(D_80770BC0[i] * 0.027925);
+                                D_80770C18[i] = (sinApprox((D_80770BC0[i] * 0.261799) - 1.570795) * 0.1) + (0.2 * factor) + 0.6;
                                 D_80770BC0[i] += 1.0f;
                                 if (D_80770788[D_807707A0[i][0]] == 0) {
                                     D_80770DDC = 63.0f;
@@ -1331,8 +1331,8 @@ void func_806057F8(void) {
                                     D_80770DF0 = 0.0f;
                                 }
                             } else {
-                                factor = func_80612D1C(D_80770BC0[i] * 0.027925);
-                                D_80770C18[i] = (func_80612D1C((D_80770BC0[i] * 0.261799) - 1.570795) * 0.1) + (0.5 * factor) + 0.6;
+                                factor = sinApprox(D_80770BC0[i] * 0.027925);
+                                D_80770C18[i] = (sinApprox((D_80770BC0[i] * 0.261799) - 1.570795) * 0.1) + (0.5 * factor) + 0.6;
                                 D_80770B68[i] = 1.0 - ((D_80770BC0[i] - 90.0) / 20.0);
                                 D_80770B68[i] = (D_80770B68[i] > 1.0f) ? 1.0f : D_80770B68[i];
                                 D_80770B68[i] = (D_80770B68[i] < 0.0f) ? 0.0f : D_80770B68[i];
@@ -1814,7 +1814,7 @@ void func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5, s
 
         if ((f64)sp74 > 0.7853981852531433 && (f64)sp74 < 5.497787296772003) {
             arg0 = 1.0f;
-            D_80770DE4 *= arg0 - (func_80612D1C(((2.0 * (f64)sp74) / 3.0) + 2.617993950843811) * arg8);
+            D_80770DE4 *= arg0 - (sinApprox(((2.0 * (f64)sp74) / 3.0) + 2.617993950843811) * arg8);
         } else {
             arg0 = 1.0f;
         }
@@ -1830,7 +1830,7 @@ void func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5, s
     }
 
     if (var_a1 >= 1001) {
-        func_80609140(arg3, var_a1, (arg0 - func_80612D1C(sp74)) * 63.5, (f64)arg5 / 127.0, arg6, arg9);
+        func_80609140(arg3, var_a1, (arg0 - sinApprox(sp74)) * 63.5, (f64)arg5 / 127.0, arg6, arg9);
     }
 }
 #else
@@ -1983,9 +1983,9 @@ void sfxPlayAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, f32 arg5
         pan += 6.2831855f;
     }
     if (pan > 0.7853982f && (f64)pan < 5.497787296772003) {
-        vol = (s32)((((f64)func_80612D1C(((2.0 * (f64)pan) / 3.0) + 2.617993950843811) * 0.3) + 1.0) * (f64)vol);
+        vol = (s32)((((f64)sinApprox(((2.0 * (f64)pan) / 3.0) + 2.617993950843811) * 0.3) + 1.0) * (f64)vol);
     }
-    pan = (f32)((f64)(1.0f - func_80612D1C(pan)) * 63.5);
+    pan = (f32)((f64)(1.0f - sinApprox(pan)) * 63.5);
     if (D_80745838 != 0) {
         reverb = 30;
     } else if (D_8077058E >= 21) {
@@ -2057,7 +2057,7 @@ void func_80609B80(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, u8 arg5, u8 
         }
 
         if (angle > 0.7853982f && (f64)angle < 5.497787296772003) {
-            D_80770DE4 = (1.0f - (func_80612D1C(((2.0 * (f64)angle) / 3.0) + 2.617993950843811) * arg8)) * D_80770DE4;
+            D_80770DE4 = (1.0f - (sinApprox(((2.0 * (f64)angle) / 3.0) + 2.617993950843811) * arg8)) * D_80770DE4;
         }
 
         if (D_80770DE4 < 1.0f) {
@@ -2085,7 +2085,7 @@ void func_80609B80(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, u8 arg5, u8 
             sp46 = (D_8077058E * 100) / 255;
         }
 
-        angle = (f32)((f64)(1.0f - func_80612D1C(angle)) * 63.5);
+        angle = (f32)((f64)(1.0f - sinApprox(angle)) * 63.5);
 
         if (sp47 != 0) {
             sp46 |= 0x80;

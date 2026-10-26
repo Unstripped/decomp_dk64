@@ -102,7 +102,7 @@ void bossPhaseTick(void) {
 }
 
 
-void func_80614EBC(BossC_A7A0_Actor *, s32);
+void actorScriptStart(BossC_A7A0_Actor *, s32);
 void func_80614D90(BossC_A7A0_Actor *);
 void func_80613CA8(s32, s16, f32, f32);
 
@@ -112,7 +112,7 @@ s16 arg1;
 {
     BossC_A7A0_178 *sp1C = D_807FBB40->unk178;
 
-    func_80614EBC(D_807FBB40, arg0);
+    actorScriptStart(D_807FBB40, arg0);
     func_80614D90(D_807FBB40);
     func_80613CA8(sp1C->unk0, arg1, 0.0f, 6.0f);
 }

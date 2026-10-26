@@ -29,7 +29,7 @@ extern u8 D_8071FFA0[];
 extern void func_8071C9E8(void);
 extern void func_80717D4C(void);
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void behaviourFrameBegin(void);
 void func_806319C4(Actor *, s32);
 void func_8071496C(s16);
@@ -50,7 +50,7 @@ void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 arg3) {
     func_807149FC(-1);
     func_807149B8(1);
     func_8071496C(arg3);
-    func_80714CC0(D_8074E880[(func_80611A44() >> 15) % 1000 % 3], 1.8f, x, y, z);
+    func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 1.8f, x, y, z);
 }
 
 void func_806B8BDC(s16 x, s16 y, s16 z) {
@@ -65,7 +65,7 @@ void func_806B8BDC(s16 x, s16 y, s16 z) {
 extern s16 D_807F6248;
 extern s16 D_807F624C;
 
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 void actorSetTargetSlotByte(s32, u8);
@@ -80,7 +80,7 @@ void func_806B8C78(void) {
             switch (D_807FBB40->unk155[0]) {
                 case 0:
                     BD820A->unkC0 = 0.0f;
-                    func_80614EBC(D_807FBB40, 0x290);
+                    actorScriptStart(D_807FBB40, 0x290);
                     D_807FBB40->unk155[0]++;
                     break;
                 case 2:
@@ -115,7 +115,7 @@ void func_806B8C78(void) {
                 func_8063C1EC(6, 0x10);
                 func_8063C248(5, 0x10);
                 func_8063C248(7, 0x10);
-                if ((D_807FDC90->unk2C < 0x15 && (func_80611A44() >> 15) % 1000 < 0x12C) || D_807FBB40->unk154 == 0x40) {
+                if ((D_807FDC90->unk2C < 0x15 && (randomNonNegative() >> 15) % 1000 < 0x12C) || D_807FBB40->unk154 == 0x40) {
                     if (D_807FBB40->unk154 == 0x40) {
                         func_8063C1EC(5, 0x10);
                         func_8063C1EC(7, 0x10);

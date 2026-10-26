@@ -258,9 +258,9 @@ s32 func_80714CC0(void *, f32, f32, f32, f32);
 void effectFreeAndUnlink(s32);
 
 extern Actor_BB44 *D_807FBB44;
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 s32 actorSpawn(s32, s32);
-void func_80614EBC();
+void actorScriptStart();
 void func_80614D00(void *, f32, f32);
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80026690.s")
@@ -273,14 +273,14 @@ void func_800271B4(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) {
     u8 var_a3;
     Struct_174 *temp_v1;
 
-    if (arg4->unk28 < ((func_80611A44() >> 0xF) % 100)) {
+    if (arg4->unk28 < ((randomNonNegative() >> 0xF) % 100)) {
         var_a3 = 1;
     } else {
         var_a3 = 0;
     }
     if (actorSpawn(0xBA, var_a3 ? 0x32 : 0x33) != 0) {
         temp_v1 = D_807FBB44->unk174;
-        func_80614EBC(D_807FBB44, var_a3 ? 0x211 : 0x20F);
+        actorScriptStart(D_807FBB44, var_a3 ? 0x211 : 0x20F);
         func_80614D00(D_807FBB44, arg4->unk2C, 0.0f);
         D_807FBB44->unk7C = (f32) arg0;
         D_807FBB44->unk80 = (f32) (arg1 - 0x19);

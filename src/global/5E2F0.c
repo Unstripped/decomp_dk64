@@ -154,7 +154,7 @@ void lightLerpColors(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4) {
     }
 }
 
-f32 func_80612D10(f32);
+f32 cosApprox(f32);
 extern s16 D_80748300;
 extern f32 D_807F7ECC;
 extern f32 D_807F7ED0;
@@ -167,8 +167,8 @@ extern f32 D_807F7EE8;
 extern s16 D_807F7EFE;
 
 void lightInitGlobals(void) {
-    D_807F7ECC = func_80612D10(0.4363323152f);
-    D_807F7ED0 = func_80612D10(1.134464025f);
+    D_807F7ECC = cosApprox(0.4363323152f);
+    D_807F7ED0 = cosApprox(1.134464025f);
     D_807F7ED4 = 1.0f / (D_807F7ECC - D_807F7ED0);
     D_807F7ED8 = D_807F7ECC;
     D_807F7EDC = D_807F7ED0;
@@ -194,8 +194,8 @@ void lightClearActiveCount(void) {
 void lightSetFovAngles(f32 arg0, f32 arg1) {
     D_807F7EE4 = arg0;
     D_807F7EE8 = arg1;
-    D_807F7ED8 = func_80612D10(arg0 * 0.017453292f);
-    D_807F7EDC = func_80612D10(arg1 * 0.017453292f);
+    D_807F7ED8 = cosApprox(arg0 * 0.017453292f);
+    D_807F7EDC = cosApprox(arg1 * 0.017453292f);
     D_807F7EE0 = 1.0f / (D_807F7ED8 - D_807F7EDC);
 }
 

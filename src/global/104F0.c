@@ -22,7 +22,7 @@ void func_8060B7F0(void) {
 extern s8 D_80746834;
 extern OSMesgQueue D_807EE0D0;
 
-void func_8060B84C(f32 arg0) {
+void sleepMilliseconds(f32 arg0) {
     OSTimer timer;
     u64 padding;
     OSMesg timerMsg;
@@ -41,7 +41,7 @@ extern s8 D_80744460;
 extern void (*D_807467D0[])(void);
 extern OSMesgQueue D_807F02B8;
 
-void func_8060B8F8(s32 arg0) {
+void eepromDispatchCommand(s32 arg0) {
     if (osGetThreadId(NULL) == 9) {
         D_807467D0[arg0]();
         return;
@@ -249,10 +249,10 @@ void func_8060CB74(void) {
     func_8060C8AC(0xFF);
 }
 
-extern void func_8060B8F8(s32);
+extern void eepromDispatchCommand(s32);
 
 void func_8060CB9C(void) {
-    func_8060B8F8(3);
+    eepromDispatchCommand(3);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060CBBC.s")
@@ -304,12 +304,12 @@ void func_8060D788(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060DC3C.s")
 
 void func_8060DEA8(void) {
-    func_8060B8F8(2);
+    eepromDispatchCommand(2);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060DEC8.s")
 
-void func_8060E128(void *arg0) {
+void eepromThreadMain(void *arg0) {
     OSMesg msg;
 
     while (TRUE) {
@@ -325,15 +325,15 @@ extern OSThread D_807EE0E8;
 extern u64 D_807F0298[];
 extern s8 D_807467E0;
 
-void func_8060E1A8(void) {
+void eepromInit(void) {
     func_8060B7F0();
     D_807EDEAC = osEepromProbe(&D_807ECCF0);
     osCreateMesgQueue(&D_807EE0D0, D_807EE0B0, 8);
     osCreateMesgQueue(&D_807F02B8, D_807F0298, 8);
-    osCreateThread(&D_807EE0E8, 9, func_8060E128, NULL, D_807F0298, 0xC);
+    osCreateThread(&D_807EE0E8, 9, eepromThreadMain, NULL, D_807F0298, 0xC);
     osStartThread(&D_807EE0E8);
     D_807467E0 = 1;
-    func_8060B8F8(0);
+    eepromDispatchCommand(0);
 }
 
 extern s32 func_8060B9D0();

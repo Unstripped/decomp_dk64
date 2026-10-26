@@ -631,7 +631,7 @@ typedef struct SiblingActor {
     /* 0x200 */ s16 unk200;
 } SiblingActor;
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_806319C4(void *, s32);
 void func_80665564(Actor *, f32);
 void func_8067ACB4(Actor *);
@@ -650,8 +650,8 @@ void actorUpdateSpinAndVelocity(void) {
         ATTACHED_ACTOR->unkEE = ATTACHED_ACTOR->unk124->unk4;
         ATTACHED_ACTOR->unkC0 = ATTACHED_ACTOR->unk124->unk8;
         ATTACHED_ACTOR->unk144 = 1;
-        sub->unk0 = (func_80611A44() >> 15) % 0x46;
-        sub->unk4 = (func_80611A44() >> 15) % 0xC8;
+        sub->unk0 = (randomNonNegative() >> 15) % 0x46;
+        sub->unk4 = (randomNonNegative() >> 15) % 0xC8;
     }
     func_8067ACB4(D_807FBB40);
     actorApplyVelocity(D_807FBB40);
@@ -1040,7 +1040,7 @@ void func_806A112C(void) {
         actorSetNodeValuesForFrame((MatrixArray *) sub);
         ATTACHED_ACTOR->unk168++;
         if (ATTACHED_ACTOR->unk168 >= 52) {
-            ATTACHED_ACTOR->unk168 = ((func_80611A44() >> 15) % 1000) % 3;
+            ATTACHED_ACTOR->unk168 = ((randomNonNegative() >> 15) % 1000) % 3;
             ATTACHED_ACTOR->unk154 = 0;
         }
         break;

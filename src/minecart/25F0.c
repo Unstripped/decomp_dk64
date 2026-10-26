@@ -81,7 +81,7 @@ extern struct Struct_DC9C *D_807FDC9C;
 extern u32 D_8076A064;
 
 void behaviourFrameBegin(void);
-void func_80614EBC(struct Struct_BB40 *, s32);
+void actorScriptStart(struct Struct_BB40 *, s32);
 void actorSpawn(s32, s32);
 void func_8067B238(void *, void *, f32);
 s16 func_80613448(void *);
@@ -99,7 +99,7 @@ void func_800265F0(void) {
     sp47 = 0x96;
     behaviourFrameBegin();
     if (!(((Struct_BB40_McBig2 *)D_807FBB40)->unk60 & 0x10)) {
-        func_80614EBC((struct Struct_BB40 *)D_807FBB40, 0x310);
+        actorScriptStart((struct Struct_BB40 *)D_807FBB40, 0x310);
         actorSpawn(0x11C, 0x4C);
         func_8067B238(D_807FBB44, D_807FBB40, (f32)(1.5 * (f64)((Struct_BB40_McBig2 *)D_807FBB40)->unk4->unk38));
         D_807FBB44->unk11C = D_807FBB40;
@@ -149,7 +149,7 @@ void func_800265F0(void) {
     case 4:
     case 5:
         if (((Struct_BB40_McBig2 *)D_807FBB40)->unk155 == 0xFF) {
-            func_80614EBC((struct Struct_BB40 *)D_807FBB40, 0x311);
+            actorScriptStart((struct Struct_BB40 *)D_807FBB40, 0x311);
             ((Struct_BB40_McBig2 *)D_807FBB40)->unk154 = 1;
         }
         /* fallthrough */
@@ -310,7 +310,7 @@ void func_80024E78(CartSub *, void *, s32, s32);
 
 f32 func_80612794(s16);
 f32 func_80612790(s16);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_80714950(s32);
 void func_8071498C(s32 *);
 void func_807149B8(s32);
@@ -323,7 +323,7 @@ void func_8061F0B0(s32, s32, s32);
 void func_8067E278(s32, s32);
 void func_80724E48(s32);
 s32 func_8072DE10(s32);
-void func_80614EBC(Struct_BB40 *, s32);
+void actorScriptStart(Struct_BB40 *, s32);
 void func_80027CF4(void);
 void func_8068ECF4(s32, s32);
 void actorApproachTargetSpeed(s32);
@@ -347,19 +347,19 @@ void func_80026C54(void) {
     s32 sp24;
     f32 f10;
 
-    func_80714950(((func_80611A44() >> 15) % 100) + 300);
+    func_80714950(((randomNonNegative() >> 15) % 100) + 300);
     func_8071498C(&D_80717D4C);
     func_807149B8(1);
     func_80714A28(4);
-    sp24 = func_80611A44();
-    sp28 = func_80611A44();
+    sp24 = randomNonNegative();
+    sp28 = randomNonNegative();
     f10 = 10.0f;
     func_80714CC0(
         D_8074E880[((sp24 >> 15) % 1000) % 3],
         0.5f,
         (f32)((sp28 >> 15) % 20) + (D_807FBB40->unk7C - f10),
         *(s32 *)&D_807FBB40->unk80,
-        (f32)((func_80611A44() >> 15) % 20) + (D_807FBB40->unk84 - f10)
+        (f32)((randomNonNegative() >> 15) % 20) + (D_807FBB40->unk84 - f10)
     );
 }
 
@@ -378,7 +378,7 @@ void func_80027CF4(void) {
          dy = D_807FDC94->unk80 - D_807FBB40->unk80,
          dz = D_807FDC94->unk84 - D_807FBB40->unk84,
          dx * dx + dy * dy + dz * dz < 2500.0f)) {
-        func_80614EBC(D_807FBB40, 0x280);
+        actorScriptStart(D_807FBB40, 0x280);
     }
 }
 

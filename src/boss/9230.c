@@ -70,7 +70,7 @@ void func_805FF378(s32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void func_80614D00(void *, f32, f32);
-void func_80614EBC(Boss2F_9230_Actor *, s32);
+void actorScriptStart(Boss2F_9230_Actor *, s32);
 s32 func_8061CB50(void);
 void func_8061CC40(Boss2F_9230_Actor *, s32, s32);
 void func_80626110(s32, s32, s32);
@@ -121,7 +121,7 @@ void func_8002D230(void) {
     case 0:
         switch (D_807FBB40->unk155) {
         case 0:
-            func_80614EBC(D_807FBB40, 0x3EA);
+            actorScriptStart(D_807FBB40, 0x3EA);
             D_807FBB40->unk155++;
             break;
         case 2:
@@ -144,12 +144,12 @@ void func_8002D230(void) {
                 D_807FBB40->unkB8 *= 0.7;
             }
         } else if (D_807FBD70 == 2 && D_807FBB40->unk155 > 0) {
-            func_80614EBC(D_807FBB40, 0);
+            actorScriptStart(D_807FBB40, 0);
             D_807FBB40->unk154 = 0;
             D_807FBB40->unk155 = 0;
         } else
             if (D_807FBB4C->unk154 != 0x42 && D_807FBB4C->unk154 != 0x44 && D_807FBB40->unk155 > 0) {
-                func_80614EBC(D_807FBB40, 0);
+                actorScriptStart(D_807FBB40, 0);
                 D_807FBB40->unk154 = sp3C[sp44->unk15++];
                 D_807FBB40->unk155 = 0;
             } else {
@@ -165,7 +165,7 @@ void func_8002D230(void) {
                 /* fallthrough */
             case 2:
                 D_807FBB40->unk132 = 1;
-                func_80614EBC(D_807FBB40, 0x3EC);
+                actorScriptStart(D_807FBB40, 0x3EC);
                 D_807FBB40->unk155++;
                 break;
             case 4:
@@ -174,7 +174,7 @@ void func_8002D230(void) {
                     D_807FBB40->unk155 = 2;
                 } else {
                     D_807FBB40->unk132 = 2;
-                    func_80614EBC(D_807FBB40, 0x3E9);
+                    actorScriptStart(D_807FBB40, 0x3E9);
                     D_807FDC90->unk2C = sp44->unk19;
                     D_807FBB40->unk155++;
                 }
@@ -196,7 +196,7 @@ void func_8002D230(void) {
     case 0x2C:
         func_8072E1A4(0xA, D_807FBB4C);
         if (D_807FBB4C->unk154 == 0x42 && D_807FBB40->unk155 > 0) {
-            func_80614EBC(D_807FBB40, 0);
+            actorScriptStart(D_807FBB40, 0);
             D_807FBB40->unk154 = sp3C[sp44->unk15++];
             D_807FBB40->unk155 = 0;
         } else {
@@ -209,7 +209,7 @@ void func_8002D230(void) {
                 if (func_8061CB50() == 0) {
                     D_807FDC90->unk2C = sp44->unk18;
                     D_807FDC90->unk2E = 9;
-                    func_80614EBC(D_807FBB40, 0x3E7);
+                    actorScriptStart(D_807FBB40, 0x3E7);
                     D_807FBB40->unk155++;
                 }
                 break;
@@ -258,7 +258,7 @@ void func_8002D230(void) {
             sp44->unk16 = 0;
             sp44->unk14++;
             sp3C = D_80035A50[sp44->unk14];
-            func_80614EBC(D_807FBB40, 0x3E3);
+            actorScriptStart(D_807FBB40, 0x3E3);
             D_807FBB40->unk154 = sp3C[sp44->unk15++];
             D_807FBB40->unk155 = 0;
             break;
@@ -267,7 +267,7 @@ void func_8002D230(void) {
     case 0x37:
         switch (D_807FBB40->unk155) {
         case 0:
-            func_80614EBC(D_807FBB40, 0);
+            actorScriptStart(D_807FBB40, 0);
             func_8061CC40(D_807FBB40, 2, 1);
             D_807FBB40->unk155++;
             break;

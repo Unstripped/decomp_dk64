@@ -8,29 +8,29 @@ extern Struct807FD580 *D_807FD580;
 typedef struct {
     u8 unk0[0x50];
     void *unk50;
-} P17aController;
+} ControllerView;
 
 
 void *func_80612E90(void *, s16, s32);
-void func_80613794(P17aController *, s32);
+void func_80613794(ControllerView *, s32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80612E90.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_806130A4.s")
 
-void func_80613194(P17aController *arg0, s16 arg1) {
+void func_80613194(ControllerView *arg0, s16 arg1) {
     if (arg0->unk50 == NULL) {
         arg0->unk50 = func_80612E90(arg0, arg1, 0);
     }
 }
 
-void func_806131D4(P17aController *arg0, s16 arg1) {
+void func_806131D4(ControllerView *arg0, s16 arg1) {
     if (arg0->unk50 == NULL) {
         arg0->unk50 = func_80612E90(arg0, arg1, 1);
     }
 }
 
-void func_80613214(P17aController *arg0) {
+void func_80613214(ControllerView *arg0) {
     if (arg0->unk50 != NULL) {
         func_80613794(arg0, 2);
         arg0->unk50 = NULL;
@@ -42,27 +42,27 @@ void func_80613214(P17aController *arg0) {
 typedef struct {
     u32 unk0;
     u32 unk4;
-} Perm3Command;
+} ControllerCommand;
 
 typedef struct {
-    Perm3Command *unk0;
-} Perm3CommandArray;
+    ControllerCommand *unk0;
+} ControllerCommandArray;
 
 typedef struct {
     u8 pad0[4];
-    Perm3CommandArray *unk4;
-} Perm3CommandStorage;
+    ControllerCommandArray *unk4;
+} ControllerCommandStorage;
 
 typedef struct {
-    Perm3CommandStorage *unk0;
+    ControllerCommandStorage *unk0;
     u8 pad4[0x5C];
     u32 unk60;
-} Perm3CommandOwner;
+} ControllerCommandOwner;
 
-void func_80613358(Perm3CommandOwner *arg0, s32 arg1, Perm3Command *arg2) {
+void func_80613358(ControllerCommandOwner *arg0, s32 arg1, ControllerCommand *arg2) {
     u32 *arg2_words;
-    Perm3Command *commands;
-    Perm3Command *destination;
+    ControllerCommand *commands;
+    ControllerCommand *destination;
 
     arg2_words = &arg2->unk0;
     if (!(arg0->unk60 & 0x10)) {
@@ -89,26 +89,26 @@ typedef struct {
     void *unk1C;
     void *unk20;
     void *unk24;
-} P17LAnim;
+} ControllerAnimData;
 
 typedef struct {
     void *unk0;
-    P17LAnim *unk4;
-} P17LController;
+    ControllerAnimData *unk4;
+} ControllerAnimView;
 
 void animListFree(void *);
 void heapFreeDeferred();
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_806134B4.s")
 
-void func_806136B4(P17LController *arg0) {
+void func_806136B4(ControllerAnimView *arg0) {
     void *temp_a1;
     void *temp_a1_2;
     void *temp_a1_3;
 
-    func_80613794((P17aController *)arg0, 0);
-    func_80613794((P17aController *)arg0, 1);
-    func_80613794((P17aController *)arg0, 2);
+    func_80613794((ControllerView *)arg0, 0);
+    func_80613794((ControllerView *)arg0, 1);
+    func_80613794((ControllerView *)arg0, 2);
     animListFree((u8 *)arg0 + 0x158);
     func_80613944(arg0, arg0->unk4->unk0);
     func_80613944(arg0, arg0->unk4->unk4);
@@ -145,22 +145,22 @@ typedef struct {
     s16 unk10;
     u8 pad12[0x12];
     f32 unk24;
-} P17bState;
+} ControllerState;
 
 typedef struct {
-    P17bState *unk0;
-} P17bStateHolder;
+    ControllerState *unk0;
+} ControllerStateHolder;
 
 typedef struct {
     u8 pad0[4];
-    P17bStateHolder *unk4;
-} P17bControllerView;
+    ControllerStateHolder *unk4;
+} ControllerStateView;
 
 
-void func_80613CA8(P17bControllerView *, s16, f32, f32);
+void func_80613CA8(ControllerStateView *, s16, f32, f32);
 
-void func_80613C48(P17bControllerView *arg0, s16 arg1, f32 arg2, f32 arg3) {
-    P17bState *state;
+void func_80613C48(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+    ControllerState *state;
 
     state = arg0->unk4->unk0;
     if (arg1 == state->unk10) {
@@ -186,18 +186,18 @@ void func_80613C48(P17bControllerView *arg0, s16 arg1, f32 arg2, f32 arg3) {
 typedef struct {
     u8 pad0[4];
     f32 unk4;
-} P17cParent;
+} ControllerParent;
 
 typedef struct {
-    P17cParent *unk0;
-} P17cState;
+    ControllerParent *unk0;
+} ControllerSubState;
 
 typedef struct {
     u8 pad0[4];
-    P17cState *unk4;
-} P17cStateOwner;
+    ControllerSubState *unk4;
+} ControllerStateOwner;
 
-f32 func_80614A54(P17cStateOwner *arg0) {
+f32 func_80614A54(ControllerStateOwner *arg0) {
     return arg0->unk4->unk0->unk4;
 }
 
@@ -211,12 +211,12 @@ typedef struct {
     f32 unk7C;
     f32 unk80;
     f32 unk84;
-} P17cActorView;
+} ControllerActorView;
 
 extern u8 D_807444FC;
 void func_806195D0(f32, f32);
 void actorTouchSub140Timestamp();
-void func_80614A64(P17cActorView *arg0) {
+void func_80614A64(ControllerActorView *arg0) {
     f32 x = arg0->unk7C;
     if (x >= -8192.0f) {
         f32 y = arg0->unk80;

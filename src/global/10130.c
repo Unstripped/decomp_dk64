@@ -7,7 +7,7 @@ typedef struct {
     f32 unk84;
     u8 unk88[0x5E];
     s16 unkE6;
-} SmallARecord;
+} RecordTargetView;
 
 typedef struct {
     f32 unk0;
@@ -18,11 +18,11 @@ typedef struct {
     u8 unk10;
     u8 unk11;
     u8 unk12[];
-} SmallAInputRecord;
+} PositionRecord;
 
 extern u8 D_807FC950[];
 
-void func_8060B430(SmallARecord *arg0, SmallAInputRecord *arg1) {
+void func_8060B430(RecordTargetView *arg0, PositionRecord *arg1) {
     arg0->unk7C = arg1->unk0;
     arg0->unk80 = arg1->unk4;
     arg0->unk84 = arg1->unk8;
@@ -32,9 +32,9 @@ void func_8060B430(SmallARecord *arg0, SmallAInputRecord *arg1) {
 
 extern s16 D_807463B0;
 extern s8 D_807463B8;
-extern SmallAInputRecord D_807ECE20;
+extern PositionRecord D_807ECE20;
 
-s16 func_8060B49C(SmallARecord *arg0, s32 arg1) {
+s16 func_8060B49C(RecordTargetView *arg0, s32 arg1) {
     D_807463B8 = 2;
     func_8060B430(arg0, &D_807ECE20);
     return D_807463B0;

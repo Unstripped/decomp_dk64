@@ -6,7 +6,7 @@ typedef struct {
     f32 z;
 } Vec3f;
 
-Vec3f func_80612840(Vec3f a, Vec3f b) {
+Vec3f vec3fSub(Vec3f a, Vec3f b) {
     Vec3f r;
 
     r.x = a.x - b.x;
@@ -15,7 +15,7 @@ Vec3f func_80612840(Vec3f a, Vec3f b) {
     return r;
 }
 
-Vec3f func_806128A8(Vec3f a, Vec3f b) {
+Vec3f vec3fAdd(Vec3f a, Vec3f b) {
     Vec3f r;
 
     r.x = a.x + b.x;
@@ -24,7 +24,7 @@ Vec3f func_806128A8(Vec3f a, Vec3f b) {
     return r;
 }
 
-Vec3f func_80612910(Vec3f a, f32 s) {
+Vec3f vec3fScale(Vec3f a, f32 s) {
     Vec3f r;
 
     r.x = a.x * s;
@@ -33,7 +33,7 @@ Vec3f func_80612910(Vec3f a, f32 s) {
     return r;
 }
 
-Vec3f func_80612970(Vec3f a) {
+Vec3f vec3fNormalize(Vec3f a) {
     Vec3f r;
     f32 length;
 
@@ -46,11 +46,11 @@ Vec3f func_80612970(Vec3f a) {
     return r;
 }
 
-f32 func_80612A14(Vec3f a, Vec3f b) {
+f32 vec3fDot(Vec3f a, Vec3f b) {
     return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
-Vec3f func_80612A54(Vec3f a, Vec3f b) {
+Vec3f vec3fCross(Vec3f a, Vec3f b) {
     Vec3f r;
 
     r.x = (a.y * b.z) - (a.z * b.y);
@@ -59,7 +59,7 @@ Vec3f func_80612A54(Vec3f a, Vec3f b) {
     return r;
 }
 
-void func_80612AD8(Vec3f *arg0, f32 arg1, f32 arg2, f32 arg3) {
+void vec3fSet(Vec3f *arg0, f32 arg1, f32 arg2, f32 arg3) {
     arg0->x = arg1;
     arg0->y = arg2;
     arg0->z = arg3;

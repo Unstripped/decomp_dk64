@@ -50,7 +50,7 @@ void func_800290D4(s32);
 s32 playerStateQueueCallback(s32, void *, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 s32 func_8061CB50(void);
 void func_8061D4E4(void *);
 void func_8061C464(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -77,7 +77,7 @@ void func_80030920(s32 arg0) {
     temp_t7 = D_807FBB4C->unkE6 + 0x800;
     D_807FBB40->unkE6 = temp_t7;
     D_807FBB40->unkEE = temp_t7;
-    func_80614EBC(D_807FBB40, 0x3F9);
+    actorScriptStart(D_807FBB40, 0x3F9);
     if (func_8061CB50() != 0) {
         func_8061D4E4(D_807F5D10);
     }

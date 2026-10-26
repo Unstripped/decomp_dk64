@@ -1,6 +1,6 @@
 #include "common.h"
 
-f32 func_80612D1C(f32);
+f32 sinApprox(f32);
 
 f32 oscVibratoDepthPow(u8 n) {
     f32 base = 1.030992985f;
@@ -83,7 +83,7 @@ s32 oscUpdate(GbNode *arg0, f32 *arg1) {
             node->unk24 = 0;
         }
         f = (f32)node->unk24 / (f32)node->unk22;
-        f = func_80612D1C(f * 6.283185482f);
+        f = sinApprox(f * 6.283185482f);
         f = (f32)node->unk28.u.b * f;
         *arg1 = (f32)node->unk28.u.c + f;
         break;
@@ -93,7 +93,7 @@ s32 oscUpdate(GbNode *arg0, f32 *arg1) {
             node->unk24 = 0;
         }
         f = (f32)node->unk24 / (f32)node->unk22;
-        f = func_80612D1C(f * 6.283185482f) * node->unk28.f;
+        f = sinApprox(f * 6.283185482f) * node->unk28.f;
         *arg1 = alCents2Ratio((s32)f);
         break;
     default:
@@ -110,7 +110,7 @@ void oscStop(GbNode *arg0) {
 }
 
 f32 oscSinAngle(f32 arg0) {
-    return func_80612D1C(arg0 / 10430.37988f);
+    return sinApprox(arg0 / 10430.37988f);
 }
 
 void oscSetupConfig(ALSeqpConfig *arg0, s32 count) {

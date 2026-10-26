@@ -319,7 +319,7 @@ extern LgBFDCA0 *D_807FDCA0;
 
 void func_806F09F0(Actor *, u16);
 void actorSetTargetSpeed(Actor *, s32);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void func_80614D00(Actor *, f32, f32);
 s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
@@ -338,7 +338,7 @@ void func_8072E320(f32);
 s32 mathAngleLerp(s16, s16, f32);
 void func_8068A858(void *, void *, void *);
 void heapFree(void *);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_80714950(s32);
 void func_8071498C(void *);
 void func_80714998(s32);
@@ -428,14 +428,14 @@ void func_806BFBF4(void) {
                 break;
             case 2:
                 LgBV->unk4->unk0->unk10 = -1;
-                func_80614EBC(D_807FBB40, D_80747750[cmd->unk4]);
+                actorScriptStart(D_807FBB40, D_80747750[cmd->unk4]);
                 if (cmd->unk6 != 0) {
                     func_80614D00(D_807FBB40, cmd->unk6 / 100.0, 0.0f);
                 }
                 break;
             case 3:
                 if (LgBV->unk4->unk64 != 0) {
-                    func_80614EBC(D_807FBB40, 0);
+                    actorScriptStart(D_807FBB40, 0);
                 }
                 func_80613CA8(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 0.0f);
                 func_80614D00(D_807FBB40, 1.0f, 0.0f);
@@ -443,7 +443,7 @@ void func_806BFBF4(void) {
                 break;
             case 13:
                 if (LgBV->unk4->unk64 != 0) {
-                    func_80614EBC(D_807FBB40, 0);
+                    actorScriptStart(D_807FBB40, 0);
                 }
                 func_80613CA8(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 8.0f);
                 func_80614D00(D_807FBB40, 1.0f, 0.0f);
@@ -587,7 +587,7 @@ void func_806BFBF4(void) {
     }
     if (state->unk30 != 0xFF) {
         for (j = 0; j < state->unk31 && state->unk30 != 0xFF; j++) {
-            sp74 = (((func_80611A44() >> 15) % 32767) % 51 + 0x4B) * 0.01;
+            sp74 = (((randomNonNegative() >> 15) % 32767) % 51 + 0x4B) * 0.01;
             if (state->unk30 == 0xFE) {
                 actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68);
             } else if (func_80723C98(state->unk30, 4, &sp70, &sp6C) != 0) {
@@ -604,7 +604,7 @@ void func_806BFBF4(void) {
                 col = &D_80747B00[state->unk32 * 3u];
                 func_807149C8(col[0], col[1], col[2], 0xFF);
                 func_8071498C(func_80717D4C);
-                func_80714950(-10 - (func_80611A44() >> 15) % 30);
+                func_80714950(-10 - (randomNonNegative() >> 15) % 30);
                 func_80714CC0(D_80746B80[state->unk33], (f32)state->unk22 * 0.01 * sp74, sp70, sp6C, sp68);
             }
         }
@@ -694,7 +694,7 @@ typedef struct R1C46aS90 {
 #define R1S90 ((R1C46aS90 *)D_807FDC90)
 
 extern Actor *D_807FBB44;
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void func_8070D8C0(Actor *, s32, u8);
 void actorSetTargetSpeed(Actor *, s32);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
@@ -732,7 +732,7 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
             switch (R1V->unk155) {
                 case 0:
                     func_8070D8C0(D_807FBB40, arg1, arg0);
-                    func_80614EBC(D_807FBB40, arg2);
+                    actorScriptStart(D_807FBB40, arg2);
                     R1V->unk155++;
                     break;
                 case 2:
@@ -741,7 +741,7 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
                         actorSpawn(0xE1, 0x98);
                         func_8067B238(D_807FBB44, D_807FBB40, 0.21f);
                         actorGetNodePos(D_807FBB40, 1, &D_807FBB44->unk7C, &sp34, &D_807FBB44->unk84);
-                        func_80614EBC(D_807FBB44, 0x298);
+                        actorScriptStart(D_807FBB44, 0x298);
                         ((R1C46aActor *)D_807FBB44)->unk11C = R1V;
                         R1V->unk155++;
                     }
@@ -870,7 +870,7 @@ void func_80714950(s32);
 void func_8071A8B0(void);
 void func_80714C08(void *, f32, void *, s32, s32);
 void func_806F1048();
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void projectileGetTargetCoords(void *, s32);
 void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
 
@@ -915,7 +915,7 @@ void func_806C1734(void) {
                     break;
                 case 0x112:
                     if (sp2A >= 0x44 && sp2A < 0x64 && (D_8076A064 % 3) == 0) {
-                        rnd = func_80611A44() >> 15;
+                        rnd = randomNonNegative() >> 15;
                         sp29 = (rnd % 0x7FFF) % 2;
                         func_807149B8(1);
                         func_80714950(0x50);
@@ -1063,7 +1063,7 @@ void func_806C1E44(void) {
                 D_807FBB40->unk12C[5] = 0xFF;
                 if (flagGet(0x4C, 0) == 0) {
                     animSetFrameAndSubframe(D_807FBB40, 0, 1, 0);
-                    func_80614EBC(D_807FBB40, 0x2BD);
+                    actorScriptStart(D_807FBB40, 0x2BD);
                     D_807FBB40->unk154 = 0;
                     D_807FBB40->unk155[0] = 0;
                 } else {
@@ -1106,7 +1106,7 @@ void func_806C1E44(void) {
             switch (D_807FBB40->unk155[0]) {
                 case 0:
                     animSetFrameAndSubframe(D_807FBB40, 0, 0, 0);
-                    func_80614EBC(D_807FBB40, 0x2BE);
+                    actorScriptStart(D_807FBB40, 0x2BE);
                     D_807FBB40->unk155[0] = 1;
                     break;
                 case 3:
@@ -1135,7 +1135,7 @@ void func_806C1E44(void) {
         case 0x12:
             switch (D_807FBB40->unk155[0]) {
                 case 0:
-                    func_80614EBC(D_807FBB40, 0x2BF);
+                    actorScriptStart(D_807FBB40, 0x2BF);
                     animSetFrameAndSubframe(D_807FBB40, 0, 2, 0);
                     actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
                     D_807FBB40->unk155[0] = 1;
@@ -1202,7 +1202,7 @@ void func_806C226C(void) {
     }
     for (i = 0; i < D_807FBDC4; i++) {
         if (D_807FBDC8[i] == 3) {
-            func_80614EBC(D_807FBB40, 0x2A3);
+            actorScriptStart(D_807FBB40, 0x2A3);
             D_807FBB40->unk154 = 0x27;
             D_807FBB40->unk155[0] = 0;
             func_8061CC40(D_807FBB40, 0x16, 1);
@@ -1213,7 +1213,7 @@ void func_806C226C(void) {
         case 0x27:
             if (D_807FBB40->unk6A & 4) {
                 func_8072A920(2, 0, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkC, (f32)D_807FDC90->unkE, 0x46, 30.0f, 100.0f, 0);
-                if (((func_80611A44() >> 15) % 1000) >= 0x3A3) {
+                if (((randomNonNegative() >> 15) % 1000) >= 0x3A3) {
                     func_8071498C(func_80718BF4);
                     func_807149B8(1);
                     func_807149FC(-1);
@@ -1221,7 +1221,7 @@ void func_806C226C(void) {
                 }
             } else {
                 if ((D_807FBB40->unk6A ^ D_807FBB40->unk6C) & 1) {
-                    func_80614EBC(D_807FBB40, 0x2A4);
+                    actorScriptStart(D_807FBB40, 0x2A4);
                 }
                 actorMoveWithinZone(2, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x200, 0.0f);
                 if (((R1C46bActor *)D_807FBB40)->unkC0 < -10.0f) {
@@ -1237,7 +1237,7 @@ void func_806C226C(void) {
             switch (D_807FBB40->unk155[0]) {
                 case 0:
                     zoneEntryGetPosition(2, 3, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
-                    func_80614EBC(D_807FBB40, 0x2A6);
+                    actorScriptStart(D_807FBB40, 0x2A6);
                     ((R1C46bActor *)D_807FBB40)->unkE8 = 0;
                     D_807FBB40->unk155[0]++;
                 case 1:
@@ -1340,7 +1340,7 @@ void func_80717D84();
 void effectSpawnColoredParticleAtPoint(u8 arg0, u8 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5, void *arg6, f32 arg7) {
     func_807149A8(1000);
     func_80714998(0xFF);
-    func_80714944(((func_80611A44() >> 15) % 0x7FFF) % 11);
+    func_80714944(((randomNonNegative() >> 15) % 0x7FFF) % 11);
     func_807149C8(arg0, arg1, arg2, 0xFF);
     func_8071498C(func_80717D84);
     func_80714950(2);
@@ -1695,8 +1695,8 @@ void func_806C2DF4(void) {
             break;
         case 0x549:
             if (LgV->unk4->unk0->unk4 > 65.0f && LgV->unk4->unk0->unk4 < 101.0f) {
-                rnd = func_80611A44();
-                func_80686F90(2, (rnd >> 15) % 2048 + LgV->unkE6 - 0x400, (func_80611A44() >> 15) % 2048);
+                rnd = randomNonNegative();
+                func_80686F90(2, (rnd >> 15) % 2048 + LgV->unkE6 - 0x400, (randomNonNegative() >> 15) % 2048);
             }
             break;
         case 0x498:
@@ -1737,7 +1737,7 @@ void func_806C2DF4(void) {
         func_8072177C(D_807FBB40, LgV->unk7C, LgV->unk80 + 30.0f, LgV->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     }
     if (LgV->unk4->unk64 == 0x22A) {
-        if ((func_80611A44() >> 15) % 100 >= 0x47 || LgV->unk155 != 0) {
+        if ((randomNonNegative() >> 15) % 100 >= 0x47 || LgV->unk155 != 0) {
             effectSpawnJointBeam(7, 0xB, 0x11, 0x20);
             effectSpawnJointBeam(0xC, 0x10, 0x11, 0x20);
             func_806086CC(LgV->unk7C, LgV->unk80, LgV->unk84, 0x8A, 0x64, 0x7F, 0x28, 0, 0.3f, 0);
@@ -1798,7 +1798,7 @@ void func_806C3A8C(void) {
                     break;
                 case 1:
                     if ((u8)(dist < 0x2710)) {
-                        func_80614EBC(D_807FBB40, 0x3A4);
+                        actorScriptStart(D_807FBB40, 0x3A4);
                         func_8070D8C0(D_807FBB40, 0x17, 0);
                         D_807FBB40->unk155[0]++;
                     }

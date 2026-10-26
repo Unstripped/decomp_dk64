@@ -43,8 +43,8 @@ void sfxAllocateChannel(s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 s32 func_806119A0(void);
-s32 func_80611A44(void);
-void func_80614EBC(Actor *, s32);
+s32 randomNonNegative(void);
+void actorScriptStart(Actor *, s32);
 void func_806319C4(Actor *, s32);
 void triggerZoneCheckEntry(Actor *);
 s32 func_80665AAC(Actor *);
@@ -102,7 +102,7 @@ void effectSpawnRandomBoneDebris(u8 arg0, u8 arg1) {
 
     if (!(D_8076A064 & 3)) {
         sp2C = (f32)(D_807FBB40->unk4->unk38 / 0.15);
-        sp2B = ((func_80611A44() >> 15) % 0x7FFF) % ((arg1 - arg0) + 1) + arg0;
+        sp2B = ((randomNonNegative() >> 15) % 0x7FFF) % ((arg1 - arg0) + 1) + arg0;
         func_80714998(3);
         func_807149C8(0xE6, 0xE6, 0xE6, 0xE6);
         effectSpawnBoneDefault(D_807FBB40, sp2B, sp2C, 0.0f, 0.0f, 0.0f, -0x78);
@@ -175,15 +175,15 @@ void effectSpawnSmoke(u8 arg0) {
 
 void effectSpawnBurst(u8 arg0) {
     if (arg0) {
-        func_80714950(((s32)(func_80611A44() >> 15) % 10) + 0x8008);
+        func_80714950(((s32)(randomNonNegative() >> 15) % 10) + 0x8008);
     } else {
-        func_80714950(((s32)(func_80611A44() >> 15) % 8) + 6);
+        func_80714950(((s32)(randomNonNegative() >> 15) % 8) + 6);
     }
     func_807149FC(2);
     func_8071498C(func_80717930);
     func_807149B8(1);
     func_80714A28(4);
-    func_80714C08(&D_8072139C, (f32)(((f64)((s32)(func_80611A44() >> 15) % 50) / 80.0) + 0.1), D_807FBB40, 8, 0);
+    func_80714C08(&D_8072139C, (f32)(((f64)((s32)(randomNonNegative() >> 15) % 50) / 80.0) + 0.1), D_807FBB40, 8, 0);
 }
 
 void effectSpawnBoneDebris(s16 arg0, s8 arg1) {
@@ -194,14 +194,14 @@ void effectSpawnBoneDebris(s16 arg0, s8 arg1) {
 
     sp30 = (f32)(D_807FBB40->unk4->unk38 / 0.15);
     actorGetNodePos(D_807FBB40, arg0, &sp3C, &sp38, &sp34);
-    func_80714950((((s32)(func_80611A44() >> 15) % 100) + 0x190) * arg1);
+    func_80714950((((s32)(randomNonNegative() >> 15) % 100) + 0x190) * arg1);
     func_8071498C(func_80717D4C);
     func_807149B8(1);
-    func_80714CC0(D_8074E880[((func_80611A44() >> 15) % 1000) % 3],
+    func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
                    (f32)((f64)sp30 * 0.8),
-                   (f32)((func_80611A44() >> 15) % 20) + (sp3C - 10.0f),
+                   (f32)((randomNonNegative() >> 15) % 20) + (sp3C - 10.0f),
                    sp38,
-                   (f32)((func_80611A44() >> 15) % 20) + (sp34 - 10.0f));
+                   (f32)((randomNonNegative() >> 15) % 20) + (sp34 - 10.0f));
 }
 
 void func_8071F2F8(void);
@@ -224,11 +224,11 @@ void effectSpawnBoneDebrisScaled(s16 arg0, s16 arg1, s16 arg2) {
         var_fv1 = (f64)arg2 * 0.02;
     }
     func_807149FC((s32)var_fv1);
-    func_80714CC0(D_8074E880[((func_80611A44() >> 15) % 1000) % 3],
+    func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
                    (f32)((f64)sp48 * 0.8),
-                   (f32)((func_80611A44() >> 15) % 60) + (sp54 - 30.0f),
+                   (f32)((randomNonNegative() >> 15) % 60) + (sp54 - 30.0f),
                    sp50,
-                   (f32)((func_80611A44() >> 15) % 60) + (sp4C - 30.0f));
+                   (f32)((randomNonNegative() >> 15) % 60) + (sp4C - 30.0f));
 }
 
 extern s32 D_8071FC40;
@@ -399,16 +399,16 @@ void effectSpawnScatter(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     s32 sp24;
     s32 mod100k;
     s32 mod10;
-    if (((func_80611A44() >> 15) % 100) >= 51) {
+    if (((randomNonNegative() >> 15) % 100) >= 51) {
         func_80714998(2);
-        func_80714950((func_80611A44() >> 15) % 360);
+        func_80714950((randomNonNegative() >> 15) % 360);
         func_807149B8(1);
         func_807149C8(0x9B, 0x9B, 0x9B, 0xC8);
         func_8071498C(func_80719EF4);
-        sp24 = func_80611A44();
+        sp24 = randomNonNegative();
         mod100k = 100000;
         mod10 = 10;
-        func_80714CC0(&D_8071FFA0, arg0, (f32)(((sp24 >> 15) % mod100k) % mod10) + (arg1 - 5.0f), arg2, (f32)(((func_80611A44() >> 15) % mod100k) % mod10) + (arg3 - 5.0f));
+        func_80714CC0(&D_8071FFA0, arg0, (f32)(((sp24 >> 15) % mod100k) % mod10) + (arg1 - 5.0f), arg2, (f32)(((randomNonNegative() >> 15) % mod100k) % mod10) + (arg3 - 5.0f));
     }
 }
 #pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80685B44.s")
@@ -558,7 +558,7 @@ void effectActorGrowthTick(void) {
         D_807FBB40->unk60 &= ~0x8000;
         D_807FBB40->unk60 |= 0x800000;
         D_807FBB40->unk16A = 0xFF;
-        D_807FBB40->unk16B = ((func_80611A44() >> 15) % 75) + 0xB4;
+        D_807FBB40->unk16B = ((randomNonNegative() >> 15) % 75) + 0xB4;
         D_807FBB40->unk16C = 0x28;
         D_807FBB40->unk128 = 0xFF;
     }
@@ -588,7 +588,7 @@ void func_80687400(void) {
 void actorSpawnAttachment(Actor *arg0, f32 arg1) {
     actorSpawn(0xB3, 0x5D);
     D_807FBB44->unk60 |= 0x400;
-    func_80614EBC(D_807FBB44, 0x334);
+    actorScriptStart(D_807FBB44, 0x334);
     func_8067B238(D_807FBB44, arg0, arg0->unk4->unk38 * arg1);
 }
 
@@ -605,7 +605,7 @@ void effectSpawnKongRing(void) {
     s16 var_s1;
     s32 i;
 
-    var_s1 = (func_80611A44() >> 15) % 4096;
+    var_s1 = (randomNonNegative() >> 15) % 4096;
     temp_fs4 = (f32)(D_807FBB40->unk4->unk38 * (20.0 / 3.0));
     switch (D_807FBB40->unk58) {
     case 2:
@@ -623,12 +623,12 @@ void effectSpawnKongRing(void) {
 
     actorGetNodePos(D_807FBB40, var_a1, &sp98, &sp94, &sp90);
     for (i = 0; i < 64; i++) {
-        var_s1 += (func_80611A44() >> 15) % 1024;
+        var_s1 += (randomNonNegative() >> 15) % 1024;
         var_s1 &= 0xFFF;
         func_80714998(2);
         func_807149B8(1);
         func_8071498C(func_80717D4C);
-        func_80714950((void *)(s32)((f32)((((func_80611A44() >> 15) % 0x7FFF) % 51) + 100) * temp_fs4));
+        func_80714950((void *)(s32)((f32)((((randomNonNegative() >> 15) % 0x7FFF) % 51) + 100) * temp_fs4));
         func_8071496C((s16)(s32)((f32)i * (1.0f / 3.0f)));
         func_80714A28(0x20);
         var_fs0 = (func_80612794(var_s1) * (temp_fs4 * 18.0f)) + sp98;
@@ -671,8 +671,8 @@ u8 arg3;
     f32 sp48;
     u8 sp44[4];
 
-    sp44[1] = ((func_80611A44() >> 15) % 0x7FFF) % ((arg1 - arg0) + 1) + arg0;
-    sp44[0] = ((func_80611A44() >> 15) % 0x7FFF) % ((arg3 - arg2) + 1) + arg2;
+    sp44[1] = ((randomNonNegative() >> 15) % 0x7FFF) % ((arg1 - arg0) + 1) + arg0;
+    sp44[0] = ((randomNonNegative() >> 15) % 0x7FFF) % ((arg3 - arg2) + 1) + arg2;
     actorGetNodePos(D_807FBB40, sp44[1], &sp74, &sp70, &sp6C);
     actorGetNodePos(D_807FBB40, sp44[0], &sp68, &sp64, &sp60);
     func_80626F8C(sp74, sp70, sp6C, &sp58, &sp54, 0, 1.0f, 0);
@@ -690,13 +690,13 @@ u8 arg3;
     func_80714950((s32)sp5C);
     func_8071498C(func_8071E028);
     func_80714CC0(&D_80720B24, (f32)((f64)sp48 * 0.008), (f32)((f64)(sp74 + sp68) * 0.5), (f32)((f64)(sp70 + sp64) * 0.5), (f32)((f64)(sp6C + sp60) * 0.5));
-    if (((func_80611A44() >> 15) % 1000) & 1) {
+    if (((randomNonNegative() >> 15) % 1000) & 1) {
         lightSetFlags(1);
         lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f, 0.0f, 0.0f, 150.0f, 0, 150, 100, 255);
     }
-    if ((D_807FBB40->unk58 == 0xB9) && (((func_80611A44() >> 15) % 1000) >= 0x385)) {
-        func_806877C8((((func_80611A44() >> 15) % 0x7FFF) % 10) + 13 & 0xFF);
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (((func_80611A44() >> 15) % 1000) >= 501) ? 0x8A : 0xA1, 0xFF, 0x7F, 0x28, 0, 0.3f, 0);
+    if ((D_807FBB40->unk58 == 0xB9) && (((randomNonNegative() >> 15) % 1000) >= 0x385)) {
+        func_806877C8((((randomNonNegative() >> 15) % 0x7FFF) % 10) + 13 & 0xFF);
+        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (((randomNonNegative() >> 15) % 1000) >= 501) ? 0x8A : 0xA1, 0xFF, 0x7F, 0x28, 0, 0.3f, 0);
     }
 }
 

@@ -59,7 +59,7 @@ void func_8002FB7C();
 void func_8002FC98();
 void actorSpawn(s32, s32);
 void func_8067B238(void *, void *, f32);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void func_80724DB0(s32, s32, void *);
 void func_8072DA60(void);
 void func_806319C4(void *, s32);
@@ -110,7 +110,7 @@ u8 arg1;
         func_8002FC98(arg0, 0xF, 0, 0);
         temp_a1 = (0xA - D_807FBB40->unk134) & 0xFF;
         func_8002FC48(D_807FBB40, temp_a1);
-        func_80614EBC(D_807FBB40, 0x415);
+        actorScriptStart(D_807FBB40, 0x415);
     }
     if (D_807FBD70 == 5 || D_807FBD70 == 4) {
         func_8072DA60();

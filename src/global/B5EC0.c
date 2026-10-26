@@ -75,12 +75,12 @@ void actorSpawnGroundEffectAtNode(u8 arg0) {
     actorSpawnEffectChild(x, D_807FBB40->unkA4, z, 0.05f, 0.04f, D_807FBB40, 0);
 }
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 
 void func_806B1290(void) {
     if (((B5EC0View90 *)D_807FDC90)->unk18 >= 0x65
-        && (((((B5EC0View90 *)D_807FDC90)->unk1A & 0x80) && (func_80611A44() >> 15) % 1000 >= 0x3D5)
-            || ((func_80611A44() >> 15) % 1000 >= 0x3DF && (D_807FBB40->unk60 & 0x100)))) {
+        && (((((B5EC0View90 *)D_807FDC90)->unk1A & 0x80) && (randomNonNegative() >> 15) % 1000 >= 0x3D5)
+            || ((randomNonNegative() >> 15) % 1000 >= 0x3DF && (D_807FBB40->unk60 & 0x100)))) {
         ((B5EC0Actor *)D_807FBB40)->unk154 = 0x28;
         ((B5EC0Actor *)D_807FBB40)->unk155 = 0;
     }
@@ -106,7 +106,7 @@ void func_80724CA4(s32, s32);
 void func_8072D714(s32, s32);
 void func_8072DEA8(s32, s32, s32);
 void actorSetDefaultState();
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 s32 func_8061CB50(void);
 void actorSpawnGroundEffectAtNode(u8);
 s16 func_806CC190(s16, s16, f32);
@@ -190,7 +190,7 @@ void func_806B13B4(u8 arg0) {
     case 0x28:
         switch (((B5EC0Actor *)D_807FBB40)->unk155) {
         case 0:
-            func_80614EBC(D_807FBB40, 0x20D);
+            actorScriptStart(D_807FBB40, 0x20D);
             ((B5EC0Actor *)D_807FBB40)->unk155 = 1;
             break;
         case 2:
@@ -210,7 +210,7 @@ void func_806B13B4(u8 arg0) {
         switch (((B5EC0Actor *)D_807FBB40)->unk155) {
         case 0:
             actorSetTargetSpeed(D_807FBB40, 0);
-            func_80614EBC(D_807FBB40, 0x205);
+            actorScriptStart(D_807FBB40, 0x205);
             ((B5EC0Actor *)D_807FBB40)->unk155 += 1;
         case 1:
             actorMoveWithinZone(D_807FBB40->unk154, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0x200, 0.0f);
@@ -220,7 +220,7 @@ void func_806B13B4(u8 arg0) {
             break;
         case 2:
             func_8072A450();
-            if ((func_80611A44() >> 15) % 1000 >= 0x3E4) {
+            if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
                 actorSetDefaultState(0x203);
             }
             break;
@@ -231,11 +231,11 @@ void func_806B13B4(u8 arg0) {
         switch (((B5EC0Actor *)D_807FBB40)->unk155) {
         case 0:
             actorSetTargetSpeed(D_807FBB40, 0);
-            if ((func_80611A44() >> 15) % 1000 >= 0x259) {
-                func_80614EBC(D_807FBB40, 0x208);
+            if ((randomNonNegative() >> 15) % 1000 >= 0x259) {
+                actorScriptStart(D_807FBB40, 0x208);
                 ((B5EC0Actor *)D_807FBB40)->unk155 = 5;
             } else {
-                func_80614EBC(D_807FBB40, 0x206);
+                actorScriptStart(D_807FBB40, 0x206);
                 ((B5EC0Actor *)D_807FBB40)->unk155 = 1;
             }
             break;
@@ -248,7 +248,7 @@ void func_806B13B4(u8 arg0) {
         case 2:
             if (((B5EC0View90 *)D_807FDC90)->unk1A & 0x100) {
                 ((B5EC0View90 *)D_807FDC90)->unk1A &= 0xFEFF;
-                func_80614EBC(D_807FBB40, 0x207);
+                actorScriptStart(D_807FBB40, 0x207);
                 ((B5EC0Actor *)D_807FBB40)->unk155 = 3;
             } else {
                 actorSetDefaultState(0x203);
@@ -257,7 +257,7 @@ void func_806B13B4(u8 arg0) {
         case 3:
             if (((B5EC0View90 *)D_807FDC90)->unk1A & 0x100) {
                 ((B5EC0View90 *)D_807FDC90)->unk1A &= 0xFEFF;
-                func_80614EBC(D_807FBB40, 0x208);
+                actorScriptStart(D_807FBB40, 0x208);
                 ((B5EC0Actor *)D_807FBB40)->unk155 = 5;
             }
             break;

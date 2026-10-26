@@ -66,8 +66,8 @@ extern u8 D_8072038C;
 
 s16 func_805FF018(s32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-s32 func_80611A44(void);
-void func_80614EBC();
+s32 randomNonNegative(void);
+void actorScriptStart();
 void func_8061CC40(void *, s32, s32);
 void func_806319C4(Actor *, s32);
 void func_80665564(Actor *, f32);
@@ -380,9 +380,9 @@ void func_8067DF44(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     sp80 = (f64) arg3;
     sp7C = sp80 * 1.5;
     for (var_s0 = 0; var_s0 < 5; var_s0++) {
-        temp_fs1 = (f32) (((s32) (func_80611A44() >> 15) % 20) - 10) * arg3;
-        temp_fs2 = (f32) (((s32) (func_80611A44() >> 15) % 20) - 10) * arg3;
-        temp_fs0 = (f32) (((s32) (func_80611A44() >> 15) % 20) - 10) * arg3;
+        temp_fs1 = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * arg3;
+        temp_fs2 = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * arg3;
+        temp_fs0 = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * arg3;
         func_8071496C(4);
         func_807149B8(1);
         func_807149FC(1);
@@ -692,7 +692,7 @@ void func_80681BD8(void) {
 void func_80682DF4(void *arg0, u16 *arg1, s32 arg2) {
     arg2 = arg2 * 7;
     arg2 += *arg1 - 2;
-    func_80614EBC(arg0, D_807FBB54[arg2], arg2);
+    actorScriptStart(arg0, D_807FBB54[arg2], arg2);
 }
 
 typedef struct R2FStruct_80682E38 {
@@ -767,7 +767,7 @@ void tagBarrelUpdateSelectedKong(void) {
         animSetLoopLimit(D_807FBB40, 0, 1);
         animSetFinished(D_807FBB40, 0, 1);
         animSetFrameAndSubframe(D_807FBB40, 0, sp2C.arr[*sp28].unk2, 0.0f);
-        func_80614EBC(D_807FBB40, 0x329);
+        actorScriptStart(D_807FBB40, 0x329);
     }
     D_807FBB40->unk16D = D_807FBB40->unk15F;
     D_807FBB40->unkE6 += 0x32;

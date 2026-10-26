@@ -60,8 +60,8 @@ Actor *actorFindByType(s32);
 void actorDespawn(Actor *);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void sfxSpawnTableNodes(Actor *);
-s32 func_80611A44(void);
-void func_80614EBC(Actor *, s32);
+s32 randomNonNegative(void);
+void actorScriptStart(Actor *, s32);
 void func_806319C4(Actor *, s32);
 void func_80724CA4(s32, s32);
 void func_80724E48(u8);
@@ -249,7 +249,7 @@ void func_806AD9F4(void) {
         behaviourSetAnimIds(0x2F4, 0x2F4, 0x2F4);
         if (D_807FBB40->unk80 != D_807FBB40->unkA4) {
             D_807FBB40->unk154 = 0x1E;
-            func_80614EBC(D_807FBB40, 0x2F8);
+            actorScriptStart(D_807FBB40, 0x2F8);
             actorSpawnLinkedFollower();
         }
     }
@@ -288,7 +288,7 @@ void func_806AD9F4(void) {
             switch (B1F60A->unk155) {
                 case 0:
                     actorSetTargetSpeed(D_807FBB40, 0);
-                    func_80614EBC(D_807FBB40, 0x2F5);
+                    actorScriptStart(D_807FBB40, 0x2F5);
                     B1F60A->unk155++;
                 case 1:
                     actorMoveWithinZone(0, D_807FDC94->unk7C, D_807FDC94->unk84, 0x4200, 0.0f);
@@ -302,7 +302,7 @@ void func_806AD9F4(void) {
             }
             break;
         case 1:
-            if ((func_80611A44() >> 15) % 1000 >= 0x3E4) {
+            if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
                 if (D_807FBB40->unk6A & 1) {
                     D_807FBB40->unk154 = 0x28;
                     B1F60A->unk155 = 0;
@@ -326,7 +326,7 @@ void func_806ADDD8(void) {
         case 0:
         case 1:
             if (actorIsTargetWithinDistance(0x12C) != 0) {
-                func_80614EBC(D_807FBB40, 0x31A);
+                actorScriptStart(D_807FBB40, 0x31A);
                 D_807FBB40->unk154 = 0x23;
                 B1F60A->unk155 = 0;
             }
@@ -336,7 +336,7 @@ void func_806ADDD8(void) {
                 D_807FBB40->unk154 = 0x23;
                 B1F60A->unk155 = 0;
             } else if (actorIsTargetWithinDistance(0x64) != 0) {
-                func_80614EBC(D_807FBB40, 0x31B);
+                actorScriptStart(D_807FBB40, 0x31B);
                 D_807FBB40->unk154 = 0x1E;
                 B1F60A->unk155 = 0;
             }
@@ -352,7 +352,7 @@ void func_806ADDD8(void) {
                 actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
             }
             if (actorIsTargetWithinDistance(0x12C) == 0) {
-                func_80614EBC(D_807FBB40, 0x31C);
+                actorScriptStart(D_807FBB40, 0x31C);
                 D_807FBB40->unk154 = 0;
                 B1F60A->unk155 = 0;
             }

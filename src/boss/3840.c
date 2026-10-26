@@ -56,12 +56,12 @@ typedef struct {
 
 extern BossB_Struct_DC90 *D_807FDC90;
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 
 void func_80027950(BossB_Struct_80027950 *arg0, u8 *arg1) {
     u8 prev = D_807FDC90->unk25;
     do {
-        s32 rand = func_80611A44() >> 15;
+        s32 rand = randomNonNegative() >> 15;
         u8 offset = arg0->unk15;
         D_807FDC90->unk25 = arg1[offset] + ((rand % 65536) % (arg1[offset + 1] - arg1[offset] + 1));
     } while (D_807FDC90->unk25 == prev);
@@ -122,7 +122,7 @@ u8 arg5;
         func_807149FC(-1);
         func_807149B8(1);
         func_80714950(D_807FDC94);
-        func_80714CC0(D_8074E880[((func_80611A44() >> 15) % 1000) % 3], 1.8f, D_807FDC94->unk7C, D_807FDC94->unk80 + (f32)D_807FDC94->unk15E, D_807FDC94->unk84);
+        func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, D_807FDC94->unk7C, D_807FDC94->unk80 + (f32)D_807FDC94->unk15E, D_807FDC94->unk84);
     }
     actorSpawnNodeEntryScaled(0x48, (f32)arg1, (f32)arg2, (f32)arg3, (s32)arg4, (s32)arg5, sp4C, 0);
 }

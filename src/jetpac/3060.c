@@ -1,5 +1,5 @@
 #include "common.h"
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 
 
 u32 jetpacCheckAabbOverlap(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
@@ -58,7 +58,7 @@ void func_80027108(f32 arg0, f32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg
 }
 
 f32 jetpacRandFloat(void) {
-    return (f32)((func_80611A44() >> 15) % 60000) / 60000.0f;
+    return (f32)((randomNonNegative() >> 15) % 60000) / 60000.0f;
 }
 
 #if 0

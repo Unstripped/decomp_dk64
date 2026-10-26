@@ -331,12 +331,12 @@ typedef struct F5AActorSub4 {
     s32 unk88;
 } F5AActorSub4;
 
-void func_80614FD8(f32 *);
+void scriptReadU32(f32 *);
 
 void func_806F1380(Actor *arg0) {
     f32 temp;
 
-    func_80614FD8(&temp);
+    scriptReadU32(&temp);
     ((F5AActorSub4 *)arg0->unk4)->unk88 = (s32)(arg0->unkB8 - temp);
 }
 
@@ -347,13 +347,13 @@ typedef struct F5APlayerState {
 
 #define F5A_PS ((F5APlayerState *)D_807FD580)
 
-void func_80614F28(u8 *);
+void scriptReadU8(u8 *);
 s32 func_806CD9A0(Actor *, f32, f32, s16, s16);
 
 void func_806F13C8(Actor *arg0) {
     u8 temp;
 
-    func_80614F28(&temp);
+    scriptReadU8(&temp);
     ((F5AActorSub4 *)arg0->unk4)->unk88 =
         func_806CD9A0(arg0, arg0->unkB8, arg0->unkB8, F5A_PS->unk4C, D_807FD584) - temp;
 }

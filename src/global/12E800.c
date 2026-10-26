@@ -54,7 +54,7 @@ extern void *D_807FDCA0;
 extern u8 D_807444EC;
 extern s32 D_8076A0A8;
 extern u8 D_807FBB85;
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 void func_8067AC38(void);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void sfxStopSlotSound(Actor *, s32);
@@ -92,7 +92,7 @@ void behaviourFrameBegin(void) {
                     D_807FBB40->unk144 = 1;
                     D_807FBB40->unk154 = 0x39;
                     D_807FBB40->unk155[0] = 0;
-                    func_80614EBC(D_807FBB40, D1DC98D->unk2A);
+                    actorScriptStart(D_807FBB40, D1DC98D->unk2A);
                     sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0x14);
                     D1AE->unkC0 = -220.0f;
                 }
@@ -185,7 +185,7 @@ typedef struct D1ActorViewJ {
 #define D1DC90J ((D1Dc90ViewJ *)D_807FDC90)
 #define D1DC98J ((D1Dc98ViewJ *)D_807FDC98)
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
 s16 func_806CC190(s16, s16, f32);
@@ -204,11 +204,11 @@ void actorTurnTowardTarget(u8 mode, f32 arg1, f32 arg2, u16 flags) {
         case 1:
             if (D1DC90J->unk22-- == 0) {
                 s = D1DC90J->unk21;
-                *tgt = *cur + ((((func_80611A44() >> 15) % (s * 2)) - s) << 15) / 0x168;
+                *tgt = *cur + ((((randomNonNegative() >> 15) % (s * 2)) - s) << 15) / 0x168;
                 D1DC90J->unk22 = D1DC90J->unk23;
                 D1DC98J->unk46 &= ~0x2000;
                 if (D1AJ->unkE6 & 1) {
-                    D1DC90J->unk24 = (func_80611A44() >> 15) % 0xB4;
+                    D1DC90J->unk24 = (randomNonNegative() >> 15) % 0xB4;
                 }
             }
             break;
@@ -232,8 +232,8 @@ void actorTurnTowardTarget(u8 mode, f32 arg1, f32 arg2, u16 flags) {
             *tgt = mathAngleBetweenPoints2D(D1AJ->unk7C, D1AJ->unk84, arg1, arg2);
             break;
         case 0x35:
-            if ((func_80611A44() >> 15) % 0x1E == 0) {
-                D1DC90J->unk24 = (func_80611A44() >> 15) % 0xB4;
+            if ((randomNonNegative() >> 15) % 0x1E == 0) {
+                D1DC90J->unk24 = (randomNonNegative() >> 15) % 0xB4;
             }
         case 7:
             *tgt = mathAngleBetweenPoints2D(D1DC90J->unkA, D1DC90J->unkE, D1AJ->unk7C, D1AJ->unk84);
@@ -444,7 +444,7 @@ void func_8072AA80(void) {
     } else {
         lim = (s32)(s16)D1A3->unkAC - D1A3->unk15E;
     }
-    rnd = (func_80611A44() >> 15) % 0x7FFF;
+    rnd = (randomNonNegative() >> 15) % 0x7FFF;
     base = D1DC9C->unk6 + D1A3->unk15E;
     D1DC90->unkC = rnd % (lim - base + 1) + base;
 }
@@ -730,7 +730,7 @@ void actorSetBehaviourState(u8 arg0, s16 arg1, s32 arg2) {
     D1A3_154 = arg0;
     *((u8 *)D_807FBB40 + 0x155) = 0;
     if (arg2 != D1A3->unk4->unk64) {
-        func_80614EBC(D_807FBB40, arg2);
+        actorScriptStart(D_807FBB40, arg2);
     }
     actorSetTargetSpeed(D_807FBB40, arg1);
 }
@@ -888,7 +888,7 @@ void func_8072B7CC(s32 arg0) {
             F1S90->unk22 = 0x64;
             F1A->unk154 = 1;
             F1A->unk155 = 0;
-            F1A->unkB8 = (f32)(((func_80611A44() >> 0xF) % 50) + 0x3C);
+            F1A->unkB8 = (f32)(((randomNonNegative() >> 0xF) % 50) + 0x3C);
             break;
         case 8:
             switch (F1A->unk155) {
@@ -924,13 +924,13 @@ void func_8072B7CC(s32 arg0) {
                 case 1:
                     func_8072A920(2, 0, (f32)F1S90->unkA, (f32)F1S90->unkC, (f32)F1S90->unkE, 0x1E, 3.3f, 100.0f, 0x2240);
                     if (((F1A->unk84 - (f32)F1S90->unkE) * (F1A->unk84 - (f32)F1S90->unkE)) + (((F1A->unk7C - (f32)F1S90->unkA) * (F1A->unk7C - (f32)F1S90->unkA)) + ((F1A->unk80 - (f32)F1S90->unkC) * (F1A->unk80 - (f32)F1S90->unkC))) < 225.0f) {
-                        func_80614EBC(D_807FBB40, F1S98->unk26);
+                        actorScriptStart(D_807FBB40, F1S98->unk26);
                         F1A->unk155 = 2;
                     }
                     break;
                 case 2:
-                    if (((func_80611A44() >> 0xF) % 1000) >= 0x3E4) {
-                        func_80614EBC(D_807FBB40, F1S98->unk2A);
+                    if (((randomNonNegative() >> 0xF) % 1000) >= 0x3E4) {
+                        actorScriptStart(D_807FBB40, F1S98->unk2A);
                         F1A->unk155 = 3;
                     }
                     break;
@@ -964,7 +964,7 @@ void func_8072B7CC(s32 arg0) {
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x202, 0.0f);
             if (F1A->unk155 == 0) {
                 actorSetTargetSpeed(D_807FBB40, 0);
-                func_80614EBC(D_807FBB40, F1S98->unk26);
+                actorScriptStart(D_807FBB40, F1S98->unk26);
                 F1A->unk155 = 1;
             }
             func_80724E48(0);
@@ -972,13 +972,13 @@ void func_8072B7CC(s32 arg0) {
         case 0x19:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x202, 0.0f);
             if (((s16)F1S90->unk2C % 15) == 0) {
-                F1S90->unk24 = (func_80611A44() >> 0xF) % 180;
+                F1S90->unk24 = (randomNonNegative() >> 0xF) % 180;
             }
             func_80724E48(2);
             switch (F1A->unk155) {
                 case 0:
                     actorSetTargetSpeed(D_807FBB40, 0);
-                    func_80614EBC(D_807FBB40, F1S98->unk26);
+                    actorScriptStart(D_807FBB40, F1S98->unk26);
                     F1A->unk155 = 1;
                     break;
                 case 1:
@@ -997,7 +997,7 @@ void func_8072B7CC(s32 arg0) {
                 F1S90->unk1A &= 0xFFFD;
                 F1A->unk154 = 0x23;
                 F1A->unk155 = 0;
-                func_80614EBC(D_807FBB40, F1S98->unk2A);
+                actorScriptStart(D_807FBB40, F1S98->unk2A);
             } else {
                 F1A->unkE6 = (f32)F1A->unkE6 + (F1A->unkB8 * 2);
                 actorMoveWithinZone(0x17, 0.0f, 0.0f, (F1S90->unk1A & 2) ? 0x1020 : 0x20, 0.0f);
@@ -1015,7 +1015,7 @@ void func_8072B7CC(s32 arg0) {
                 F1A->unk144 = 0x24;
                 F1A->unk154 = F1S9C->unk10;
                 F1A->unk155 = 0;
-                func_80614EBC(D_807FBB40, F1S98->unk28);
+                actorScriptStart(D_807FBB40, F1S98->unk28);
                 func_80614D00(D_807FBB40, 1.0f, 0.0f);
                 actorSetTargetSpeed(D_807FBB40, F1S9C->unkC);
             }
@@ -1048,8 +1048,8 @@ void func_8072B7CC(s32 arg0) {
                 case 1:
                     func_8071498C(func_80717D4C);
                     func_807149B8(1);
-                    func_80714950(-0x28 - (((func_80611A44() >> 0xF) % 10000) % 120));
-                    func_80714CC0(D_8071FC58, 0.5f, (f32)((((func_80611A44() >> 0xF) % 20) + F1S9C->unk4) - 0xA), (f32)F1S9C->unk6, (f32)((((func_80611A44() >> 0xF) % 20) + F1S9C->unk8) - 0xA));
+                    func_80714950(-0x28 - (((randomNonNegative() >> 0xF) % 10000) % 120));
+                    func_80714CC0(D_8071FC58, 0.5f, (f32)((((randomNonNegative() >> 0xF) % 20) + F1S9C->unk4) - 0xA), (f32)F1S9C->unk6, (f32)((((randomNonNegative() >> 0xF) % 20) + F1S9C->unk8) - 0xA));
                     if (F1S90->unk39 != 0) {
                         f32 t;
 
@@ -1311,7 +1311,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
         case 2:
         case 3:
             if (C1B40->unk4->unk64 == C1D98->unk26) {
-                func_80614EBC(D_807FBB40, C1D98->unk28);
+                actorScriptStart(D_807FBB40, C1D98->unk28);
             }
             if (C1D90->unk26 != C1D9C->unkC) {
                 actorSetTargetSpeed(D_807FBB40, C1D9C->unkC);
@@ -1583,8 +1583,8 @@ void func_8072DAA4(void) {
     func_80714998(2);
     func_807149B8(1);
     func_8071498C(func_80717D4C);
-    func_80714950(-0x28 - ((func_80611A44() >> 15) % 15));
-    func_80714CC0(&D_8071FF18, (f32)(((func_80611A44() >> 15) % 1000) / 2000.0 + 0.5), D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+    func_80714950(-0x28 - ((randomNonNegative() >> 15) % 15));
+    func_80714CC0(&D_8071FF18, (f32)(((randomNonNegative() >> 15) % 1000) / 2000.0 + 0.5), D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
 }
 
 extern u8 D_807FC929;
@@ -1652,7 +1652,7 @@ void actorSetTargetSpeed(Actor *, s32);
 void actorSetDefaultState(s32 arg0) {
     D_807FBB40->unk154 = D_807FDC9C->unk10;
     D_807FBB40->unk155[0] = 0;
-    func_80614EBC(D_807FBB40, arg0);
+    actorScriptStart(D_807FBB40, arg0);
     actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
 }
 
@@ -1757,5 +1757,5 @@ void func_8072E320(f32 arg0) {
 }
 
 u8 func_8072E54C(void) {
-    return !(D_807FDC98->unk46 & 0x2000) && (((func_80611A44() >> 15) % 1000) >= 0x3E4);
+    return !(D_807FDC98->unk46 & 0x2000) && (((randomNonNegative() >> 15) % 1000) >= 0x3E4);
 }

@@ -264,7 +264,7 @@ Mtx *func_80610FE8(s32);
 void func_806319C4(Actor *, s32);
 s32 func_8069A750(void);
 void actorAddNodeForceSlot(f32, u8);
-f32 func_80612D1C(f32);
+f32 sinApprox(f32);
 void *memcpy(void *, const void *, unsigned int);
 
 void func_80699958(u8 arg0, u8 arg1) {
@@ -436,7 +436,7 @@ void func_80699958(u8 arg0, u8 arg1) {
                         val = 0.0f;
                     }
                     temp = (f64)state->unkB8[i];
-                    spC0[j] = spC0[j] + (val * state->unkA8[i] * func_80612D1C((f32)(temp * 0.5)));
+                    spC0[j] = spC0[j] + (val * state->unkA8[i] * sinApprox((f32)(temp * 0.5)));
                     j++;
                 } while (j != arg0);
             }
@@ -590,7 +590,7 @@ typedef struct {
     ProximityNode *nodes[4];
 } ProximitySource;
 
-f32 func_80612D1C(f32);
+f32 sinApprox(f32);
 void func_806319C4(Actor *, s32);
 
 void func_8069A7C8(void) {
@@ -664,7 +664,7 @@ void func_8069A7C8(void) {
     if ((f64)state->unk8 < 0.5) {
         state->unk8 = 0.0f;
     }
-    ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk8 = 0.0 - (func_80612D1C((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
+    ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk8 = 0.0 - (sinApprox((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
     state->unk4 = D_807FBB70.unk39;
     func_806319C4(D_807FBB40, 0);
 }
@@ -1080,10 +1080,10 @@ void func_8069E018(void) {
     func_806319C4(D_807FBB40, 0);
 }
 
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 void actorPlaySoundAndFinish(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_80614EBC(D_807FBB40, 0x299);
+        actorScriptStart(D_807FBB40, 0x299);
     }
     func_806319C4(D_807FBB40, 0);
 }

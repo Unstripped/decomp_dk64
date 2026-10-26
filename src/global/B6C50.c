@@ -49,7 +49,7 @@ s32 actorTableContains();
 void effectSpawnBoneDefault(B6C50Actor *, s16, f32, f32, f32, f32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-void func_80614EBC(B6C50Actor *, s32);
+void actorScriptStart(B6C50Actor *, s32);
 void func_8061CC40(B6C50Actor *, s32, s32);
 s32 func_80629148(void);
 void func_806319C4(B6C50Actor *, s32);
@@ -94,7 +94,7 @@ void func_806B1F50(void) {
         func_807149FC(-1);
         func_807149A8(D_807FBB44->unk12A * 0.75);
         func_80714C08(&D_8072030C, 0.28f, D_807FBB44, 1, 2);
-        func_80614EBC(D_807FBB40, 0x300);
+        actorScriptStart(D_807FBB40, 0x300);
         sfxPlayActorSound(D_807FBB40, 0x135, 0x64, 0, 0, 0x78, 1.0f, 0);
     }
     if (D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
@@ -146,7 +146,7 @@ void func_806B1F50(void) {
                 D_807FBB40->unk154 = 0x27;
                 D_807FBB40->unk155 = 0;
                 func_8061CC40(D_807FBB40, 3, 1);
-                func_80614EBC(D_807FBB40, 0x307);
+                actorScriptStart(D_807FBB40, 0x307);
                 D_807FBB40->unkE6 += 0x800;
                 D_807FBB40->unk84 += 5.0f;
             }

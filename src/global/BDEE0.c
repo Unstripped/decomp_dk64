@@ -86,10 +86,10 @@ void func_8072D714(s32, s32);
 void func_8072DEA8();
 void actorSetDefaultState();
 void actorSetTargetSpeed(Actor *, s32);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
 void func_8072A450();
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void actorUpdateAnimSpeedFromSpeed();
 s32 func_8072E54C();
 s32 func_8072DE10(u16);
@@ -162,7 +162,7 @@ void func_806B91E0(void) {
         switch (D_807FBB40->unk155[0]) {
         case 0:
             actorSetTargetSpeed(D_807FBB40, 0);
-            func_80614EBC(D_807FBB40, 0x321);
+            actorScriptStart(D_807FBB40, 0x321);
             D_807FBB40->unk155[0]++;
         case 1:
             actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
@@ -172,7 +172,7 @@ void func_806B91E0(void) {
             break;
         case 2:
             func_8072A450();
-            if ((func_80611A44() >> 15) % 1000 >= 0x3E4) {
+            if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
                 actorSetDefaultState(0x322);
             }
             break;
@@ -184,7 +184,7 @@ void func_806B91E0(void) {
         switch (D_807FBB40->unk155[0]) {
         case 0:
             actorSetTargetSpeed(D_807FBB40, 0);
-            func_80614EBC(D_807FBB40, 0x324);
+            actorScriptStart(D_807FBB40, 0x324);
             D_807FBB40->unk155[0] = 1;
             break;
         case 2:
@@ -326,10 +326,10 @@ void actorSpawnRandomParticleNearActor(u8 arg0, s8 arg1) {
             break;
     }
     func_807149B8(1);
-    sp20 = func_80611A44();
-    sp24 = func_80611A44();
-    sp28 = func_80611A44();
-    func_80714CC0(D_8074E880[((sp20 >> 15) % 1000) % 3], (f32)(((sp24 >> 15) % 256) * 0.001953125 + 0.5), (f32)((sp28 >> 15) % 6) + (D_807FBB40->unk7C - 3.0f), D_807FBB40->unk80 + (f32)arg1, (f32)((func_80611A44() >> 15) % 6) + (D_807FBB40->unk84 - 3.0f));
+    sp20 = randomNonNegative();
+    sp24 = randomNonNegative();
+    sp28 = randomNonNegative();
+    func_80714CC0(D_8074E880[((sp20 >> 15) % 1000) % 3], (f32)(((sp24 >> 15) % 256) * 0.001953125 + 0.5), (f32)((sp28 >> 15) % 6) + (D_807FBB40->unk7C - 3.0f), D_807FBB40->unk80 + (f32)arg1, (f32)((randomNonNegative() >> 15) % 6) + (D_807FBB40->unk84 - 3.0f));
 }
 
 extern u8 D_80750628[];
@@ -343,8 +343,8 @@ extern BDEE0DCA0 *D_807FDCA0;
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_80611A70(f32, f32, f32 *, f32 *);
 f32 func_80611BB4(f32, f32);
-void func_80612BC0(f32 (*)[4], f32);
-void func_80612C30(f32 (*)[4], f32);
+void matrixMakeRotationX(f32 (*)[4], f32);
+void matrixMakeRotationY(f32 (*)[4], f32);
 
 s32 actorBuildNodeAlignedMatrix(u8 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 spA[4][4];
@@ -362,9 +362,9 @@ s32 actorBuildNodeAlignedMatrix(u8 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) 
         func_80611A70(arg2, arg4, &sp3C, &sp34);
         ang = func_80611BB4(sp3C - arg2, sp34 - arg4);
         guTranslateF(spA, 0.0f, -arg1, 0.0f);
-        func_80612C30(spB, (D_807FBB40->unkE6 * 0x168) / 4096);
+        matrixMakeRotationY(spB, (D_807FBB40->unkE6 * 0x168) / 4096);
         guMtxCatF(spA, spB, spA);
-        func_80612BC0(spB, -90.0f);
+        matrixMakeRotationX(spB, -90.0f);
         guMtxCatF(spA, spB, spA);
         guAlignF(spB, (ang * 57.295776f) + 180.0f, sp3C - arg2, sp38 - arg3, sp34 - arg4);
         guMtxCatF(spA, spB, spA);
@@ -387,10 +387,10 @@ void func_806BA130(void) {
     BDEE0AA->unk134 = 1;
     D_807FBB40->unk132 = 1;
     BDEE0S90->unk4 = D_807FBB4C;
-    func_80614EBC(D_807FBB40, BDEE0S98->unk2A);
-    D_807FBB40->unkE6 = ((func_80611A44() >> 15) % 1024) + D_807FBB4C->unkE6 - 0x200;
-    D_807FBB40->unkB8 = ((func_80611A44() >> 15) % 100) + 0x32;
-    BDEE0AA->unkC0 = ((func_80611A44() >> 15) % 150) + 0x64;
+    actorScriptStart(D_807FBB40, BDEE0S98->unk2A);
+    D_807FBB40->unkE6 = ((randomNonNegative() >> 15) % 1024) + D_807FBB4C->unkE6 - 0x200;
+    D_807FBB40->unkB8 = ((randomNonNegative() >> 15) % 100) + 0x32;
+    BDEE0AA->unkC0 = ((randomNonNegative() >> 15) % 150) + 0x64;
 }
 
 typedef struct BDEE0DC924 {
@@ -431,7 +431,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
             D_807FBB40->unk5C = 0x80;
             D_807FBB40->unk154 = 0x15;
             D_807FBB40->unk155[0] = 0;
-            func_80614EBC(D_807FBB40, 0);
+            actorScriptStart(D_807FBB40, 0);
             D_807FBB40->unk132 = 2;
             p[3] = D_807FBB40->unk7C;
             p[4] = D_807FBB40->unk84;
@@ -460,12 +460,12 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
                 if (D_807FC924->unk2C0 == 1) {
                     playerStateQueueCallback(0x32, D_807FBB40, 0);
                 } else {
-                    if (((func_80611A44() >> 15) % 1000) >= 0x1F5) {
+                    if (((randomNonNegative() >> 15) % 1000) >= 0x1F5) {
                         var = 0x21F;
                     } else {
                         var = 0x21E;
                     }
-                    func_80614EBC(tgt, var);
+                    actorScriptStart(tgt, var);
                     tgt->unk155[0] = 2;
                 }
             } else if (D_807FBD70 == 4) {
@@ -475,7 +475,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
                     BDEE0AA->unkF0 = 0x28;
                     func_80714CC0(D_8071FB34, 2.0f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
                     func_80609140(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                    func_80614EBC(tgt, 0x220);
+                    actorScriptStart(tgt, 0x220);
                     tgt->unk155[0] = 2;
                     ((BDEE0ActorAlt *)tgt)->unk134 = ((BDEE0ActorAlt *)tgt)->unk134 - 1;
                     if (((BDEE0ActorAlt *)tgt)->unk134 == 0) {
@@ -607,11 +607,11 @@ typedef struct BDEE0Actor {
 
 void func_806BA76C(f32);
 void func_806BA8C8(void);
-f32 func_80612D10(f32);
+f32 cosApprox(f32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 s32 func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void func_80612CA0(f32 (*)[4], f32);
+void matrixMakeRotationZ(f32 (*)[4], f32);
 s16 func_806CC190(s16, s16, f32);
 
 void func_806BA93C(arg0, arg1, arg2)
@@ -661,7 +661,7 @@ u8 arg2;
             break;
         }
         if (s1->unk0 >= 0x801) {
-            sp58 = sqrtf((1.0 - func_80612D10(0.7853982f)) * (2 * (f32)(arg0 * 2) * (f32)(arg0 * 2)));
+            sp58 = sqrtf((1.0 - cosApprox(0.7853982f)) * (2 * (f32)(arg0 * 2) * (f32)(arg0 * 2)));
             if (s1->unk2) {
                 dir = 1;
             } else {
@@ -681,12 +681,12 @@ u8 arg2;
             sgn = 1;
         }
         guTranslateF(spA4, sgn * arg0, 0.0f, 0.0f);
-        func_80612CA0(sp64, func_80612794(s1->unk0) * (f32)(sgn * arg1));
+        matrixMakeRotationZ(sp64, func_80612794(s1->unk0) * (f32)(sgn * arg1));
         guMtxCatF(spA4, sp64, spA4);
         if (D_807FBB40->unk154 == 0x37) {
-            func_80612C30(sp64, (f32)(sgn * D_807FDC90->unk2C));
+            matrixMakeRotationY(sp64, (f32)(sgn * D_807FDC90->unk2C));
         } else {
-            func_80612C30(sp64, func_80612794(s1->unk0 - 0x400) * (f32)(-sgn * 0x2D));
+            matrixMakeRotationY(sp64, func_80612794(s1->unk0 - 0x400) * (f32)(-sgn * 0x2D));
         }
         guMtxCatF(spA4, sp64, spA4);
         if (D_807FBB40->unk154 == 0x37) {
@@ -696,7 +696,7 @@ u8 arg2;
                 s1->unk0 = s1->unk0 + (-s1->unk0) * 0.3;
                 guTranslateF(sp64, 0.0f, 0.0f, (f32)-arg2);
                 guMtxCatF(spA4, sp64, spA4);
-                func_80612BC0(sp64, (f32)s1->unk4);
+                matrixMakeRotationX(sp64, (f32)s1->unk4);
                 guMtxCatF(spA4, sp64, spA4);
                 guTranslateF(sp64, 0.0f, 0.0f, (f32)arg2);
                 D_807FDC90->unk30 += 2.0f;
@@ -714,7 +714,7 @@ u8 arg2;
             case 2:
                 guTranslateF(sp64, 0.0f, 0.0f, (f32)-arg2);
                 guMtxCatF(spA4, sp64, spA4);
-                func_80612BC0(sp64, 90.0f);
+                matrixMakeRotationX(sp64, 90.0f);
                 guMtxCatF(spA4, sp64, spA4);
                 guTranslateF(sp64, 0.0f, 0.0f, (f32)arg2);
                 break;
@@ -760,7 +760,7 @@ void func_806BB400(void) {
         actorSetUniformScale(D_807FBB40, 1.0f);
         D_807FBB40->unk15F = 0;
         D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, D_807FBB40->unk7C, D_807FBB40->unk84);
-        func_80614EBC(D_807FBB40, 0x21B);
+        actorScriptStart(D_807FBB40, 0x21B);
         D_807FDC98->unk46 |= 8;
         ((BDEE0View98 *)D_807FDC98)->unk28 = 0x21C;
     }
@@ -779,7 +779,7 @@ void func_806BB400(void) {
                 join:
                 case 1:
                     if (((BDEE0Sub4 *)D_807FBB40->unk4)->unk64 != 0x21C) {
-                        func_80614EBC(D_807FBB40, 0x21C);
+                        actorScriptStart(D_807FBB40, 0x21C);
                     }
                     actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
                     break;
@@ -823,9 +823,9 @@ s32 actorSpawnJitteredChild(u8 arg0, s16 arg1, s16 arg2, s32 arg3) {
         D_807FDC90->unk2C--;
         return 0;
     }
-    r1 = func_80611A44();
-    r2 = func_80611A44();
-    r3 = func_80611A44();
+    r1 = randomNonNegative();
+    r2 = randomNonNegative();
+    r3 = randomNonNegative();
     if (spawnNodeSpawnById(arg0,
                       (s16)((f32)((r1 >> 15) % 10) + (D_807FBB40->unk7C - 5.0f)),
                       (s16)(D_807FBB40->unk80 + 5.0f),
@@ -891,8 +891,8 @@ void func_806BB874(void) {
     u8 t;
     s32 w;
 
-    x = (func_80611A44() >> 15) % 100 + 0x64;
-    y = (func_80611A44() >> 15) % 250 + 0xC8;
+    x = (randomNonNegative() >> 15) % 100 + 0x64;
+    y = (randomNonNegative() >> 15) % 250 + 0xC8;
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         BDEE0A->unk130 = 0x3C;
@@ -900,7 +900,7 @@ void func_806BB874(void) {
         D_807FBB40->unk12A = 0x3E8;
         D_807FBB40->unk154 = 0;
         BDEE0A->unk155 = 0;
-        func_80614EBC(D_807FBB40, 0x3DC);
+        actorScriptStart(D_807FBB40, 0x3DC);
         D_807FDC90->unk2C = 0x78;
         D_807FBB40->unk64 |= 0x20;
     }
@@ -918,12 +918,12 @@ void func_806BB874(void) {
         case 0:
             if (D_807FDC90->unk2C-- < 0x3C) {
                 D_807FBB40->unk60 |= 0x400;
-                func_80614EBC(D_807FBB40, 0x3DD);
+                actorScriptStart(D_807FBB40, 0x3DD);
                 BDEE0A->unk155++;
             }
             break;
         case 2:
-            func_80686F90(0, (func_80611A44() >> 15) % 2048 + D_807FBB40->unkE6 - 0x400, (func_80611A44() >> 15) % 1024);
+            func_80686F90(0, (randomNonNegative() >> 15) % 2048 + D_807FBB40->unkE6 - 0x400, (randomNonNegative() >> 15) % 1024);
             break;
         case 3:
             D_807FBB68 |= 1;

@@ -637,7 +637,7 @@ typedef struct L6C8984View {
 
 #define L6V ((L6C8984View *)D_807FD580)
 
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 void func_80614E78(Actor *, s32);
 void func_80613C48(Actor *, s32, f32, f32);
 void func_806CFE7C(void);
@@ -690,14 +690,14 @@ void func_806C8984(void) {
     case 0x88:
     case 0x89:
         func_806CFE7C();
-        func_80614EBC(D_807FBB48, 0);
+        actorScriptStart(D_807FBB48, 0);
         func_80613C48(D_807FBB48, 0, 0.0f, 0.0f);
         D_807FBB48->unk154 = 0x7D;
         D_807FBB48->unk155[0] = 0;
         D_807FBB48->unk60 &= 0xFFFF7FFF;
         D_807FBB48->unk128 = 0;
         actorSpawn(0x11A, 0x21);
-        func_80614EBC(D_807FBB44, 0x232);
+        actorScriptStart(D_807FBB44, 0x232);
         D_807FBB44->unk11C = (s32)D_807FBB48;
         L6V->unk88 = D_807FBB44;
         return;

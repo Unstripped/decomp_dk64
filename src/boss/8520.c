@@ -54,20 +54,20 @@ typedef struct BossA_Struct_807FDC90 {
 
 extern BossA_Struct_807FDC90 *D_807FDC90;
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_8061CC40(void *, s32, s32);
 
 void func_8002C5F4(void) {
     s32 rand;
 
-    rand = func_80611A44();
-    func_8002C520(2, ((rand >> 15) % 100) + 300, (func_80611A44() >> 15) % 4096);
+    rand = randomNonNegative();
+    func_8002C520(2, ((rand >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
 
-    rand = func_80611A44();
-    func_8002C520(3, ((rand >> 15) % 100) + 300, (func_80611A44() >> 15) % 4096);
+    rand = randomNonNegative();
+    func_8002C520(3, ((rand >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
 
-    rand = func_80611A44();
-    func_8002C520(4, ((rand >> 15) % 100) + 300, (func_80611A44() >> 15) % 4096);
+    rand = randomNonNegative();
+    func_8002C520(4, ((rand >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
 
     if (!(D_807FDC90->unk1A & 0x8000)) {
         D_807FDC90->unk1A |= 0x8000;
@@ -101,7 +101,7 @@ typedef struct BossA_Struct_807FDC94 {
 
 extern BossA_Struct_807FDC94 *D_807FDC94;
 
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s32, s16, f32, f32, f32, f32, f32, void *);
 
@@ -109,7 +109,7 @@ void func_8002C8B4(void) {
     projectileGetTargetCoords(D_807FBB40, 1);
     projectileAimAndSpawn(
         0x116,
-        ((func_80611A44() >> 15) % 3) + 1,
+        ((randomNonNegative() >> 15) % 3) + 1,
         1.0f,
         D_807FDC94->unk7C,
         D_807FDC94->unk80 + (f32)D_807FDC94->unk15E,

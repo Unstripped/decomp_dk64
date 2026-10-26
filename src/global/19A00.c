@@ -7,23 +7,23 @@ extern Actor *D_807FBB44;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614D00.s")
 
-typedef struct Perm2D48Value {
+typedef struct RampValue {
     u8 pad0[0x24];
     f32 unk24;
     f32 unk28;
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} Perm2D48Value;
+} RampValue;
 
-typedef struct Perm2D48State {
-    Perm2D48Value *unk0;
-} Perm2D48State;
+typedef struct RampValueHolder {
+    RampValue *unk0;
+} RampValueHolder;
 
 void func_80614D48(Actor *arg0, f32 arg1, f32 arg2) {
-    Perm2D48Value *temp_v0;
+    RampValue *temp_v0;
 
-    temp_v0 = ((Perm2D48State *)arg0->unk4)->unk0;
+    temp_v0 = ((RampValueHolder *)arg0->unk4)->unk0;
     if (arg2 > 0.0f) {
         temp_v0->unk34 = arg2;
         temp_v0->unk2C = arg1;
@@ -38,26 +38,26 @@ void func_80614D48(Actor *arg0, f32 arg1, f32 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614D90.s")
 
 
-typedef struct Perm2E78ActorView {
+typedef struct ActorTypeView {
     u8 pad0[0x58];
     s32 unk58;
-} Perm2E78ActorView;
+} ActorTypeView;
 
 extern u16 *D_807FBB54;
 extern s32 D_807F5AF4;
 
-void func_80614EBC(Actor *arg0, s32 arg1);
+void actorScriptStart(Actor *arg0, s32 arg1);
 
 void func_80614E78(Actor *arg0, s32 arg1) {
     s32 index;
 
-    index = ((arg1 * 7) + ((Perm2E78ActorView *)arg0)->unk58) - 2;
-    func_80614EBC(arg0, *(D_807FBB54 + index));
+    index = ((arg1 * 7) + ((ActorTypeView *)arg0)->unk58) - 2;
+    actorScriptStart(arg0, *(D_807FBB54 + index));
 }
 
 extern u8 *D_807FBB50;
 
-typedef struct Perm4gEBCState {
+typedef struct ScriptLoadState {
     u8 pad0[0x64];
     s16 unk64;
     u8 pad66[2];
@@ -70,14 +70,14 @@ typedef struct Perm4gEBCState {
     f32 unk80;
     u8 pad84[4];
     s32 unk88;
-} Perm4gEBCState;
+} ScriptLoadState;
 
-void func_80614EBC(Actor *arg0, s32 arg1) {
-    Perm4gEBCState *state;
+void actorScriptStart(Actor *arg0, s32 arg1) {
+    ScriptLoadState *state;
     unsigned int base;
     s32 script;
 
-    state = (Perm4gEBCState *)arg0->unk4;
+    state = (ScriptLoadState *)arg0->unk4;
     state->unk70 = 0;
     state->unk78 = 0;
     state->unk7C = 0;
@@ -99,24 +99,24 @@ void func_80614EBC(Actor *arg0, s32 arg1) {
     }
 }
 
-void func_80614F28(u8 *arg0) {
+void scriptReadU8(u8 *arg0) {
     *arg0 = *D_807F5AF0++;
 }
 
-void func_80614F4C(u8 *arg0) {
+void scriptReadU16(u8 *arg0) {
     arg0++;
     arg0[-1] = *D_807F5AF0++;
     arg0[0] = *D_807F5AF0++;
 }
 
-void func_80614F88(u8 *arg0) {
+void scriptReadU24(u8 *arg0) {
     arg0 += 2;
     arg0[-2] = *D_807F5AF0++;
     arg0[-1] = *D_807F5AF0++;
     arg0[0] = *D_807F5AF0++;
 }
 
-void func_80614FD8(u8 *arg0) {
+void scriptReadU32(u8 *arg0) {
     arg0 += 3;
     arg0[-3] = *D_807F5AF0++;
     arg0[-2] = *D_807F5AF0++;
@@ -124,39 +124,39 @@ void func_80614FD8(u8 *arg0) {
     arg0[0] = *D_807F5AF0++;
 }
 
-s32 func_8061503C(s32 arg0) {
+s32 scriptOpNop(s32 arg0) {
     D_807F5AF0++;
     return 1;
 }
 
-s32 func_8061505C(s32 arg0) {
+s32 scriptOpYield(s32 arg0) {
     D_807F5AF0++;
     return 0;
 }
 
-typedef struct P19aState {
+typedef struct ScriptState {
     u8 pad0[0x78];
     s32 flags;
     s32 unk7C;
     f32 unk80;
     s32 unk84;
     s32 unk88;
-} P19aState;
+} ScriptState;
 
-s32 func_8061507C(Actor *arg0) {
+s32 scriptOpSetRegister(Actor *arg0) {
     s16 sp1E;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    ((P19aState *)arg0->unk4)->unk88 = sp1E;
+    scriptReadU16((u8 *)&sp1E);
+    ((ScriptState *)arg0->unk4)->unk88 = sp1E;
     return 1;
 }
 
-s32 func_806150C8(Actor *arg0) {
-    P19aState *temp_v0;
+s32 scriptOpDecrementRegister(Actor *arg0) {
+    ScriptState *temp_v0;
     s32 temp_v1;
 
-    temp_v0 = (P19aState *)arg0->unk4;
+    temp_v0 = (ScriptState *)arg0->unk4;
     temp_v1 = temp_v0->unk88;
     if (temp_v1 != 0) {
         temp_v0->unk88 = temp_v1 - 1;
@@ -165,11 +165,11 @@ s32 func_806150C8(Actor *arg0) {
     return 1;
 }
 
-s32 func_806150F8(Actor *arg0) {
-    P19aState *temp_v1;
+s32 scriptOpWaitRegisterCountdown(Actor *arg0) {
+    ScriptState *temp_v1;
     s32 temp_a1;
 
-    temp_v1 = (P19aState *)arg0->unk4;
+    temp_v1 = (ScriptState *)arg0->unk4;
     temp_a1 = temp_v1->unk88;
     if (temp_a1 != 0) {
         temp_v1->unk88 = temp_a1 - 1;
@@ -179,29 +179,29 @@ s32 func_806150F8(Actor *arg0) {
     return 1;
 }
 
-typedef struct P19aSelectorValue {
+typedef struct ScriptSelectorValue {
     u8 pad0[0x24];
     f32 unk24;
     u8 pad28[4];
     f32 unk2C;
     u8 pad30[4];
     f32 unk34;
-} P19aSelectorValue;
+} ScriptSelectorValue;
 
-typedef struct P19aSelectorState {
-    P19aSelectorValue *unk0;
-    P19aSelectorValue *unk4;
+typedef struct ScriptSelectorState {
+    ScriptSelectorValue *unk0;
+    ScriptSelectorValue *unk4;
     u8 pad8[0x70];
     s32 unk78;
     u8 pad7C[8];
     s32 unk84;
-} P19aSelectorState;
+} ScriptSelectorState;
 
 s32 func_80615134(Actor *arg0) {
-    P19aSelectorState *state;
-    P19aSelectorValue *value;
+    ScriptSelectorState *state;
+    ScriptSelectorValue *value;
 
-    state = (P19aSelectorState *)arg0->unk4;
+    state = (ScriptSelectorState *)arg0->unk4;
     if (state->unk84 != 0) {
         value = state->unk4;
     } else {
@@ -209,7 +209,7 @@ s32 func_80615134(Actor *arg0) {
     }
     D_807F5AF0++;
     if ((value->unk24 != 0.0f) || ((value->unk2C != 0.0f) && (value->unk34 != 0.0f))) {
-        ((P19aSelectorState *)arg0->unk4)->unk78 |= 1;
+        ((ScriptSelectorState *)arg0->unk4)->unk78 |= 1;
     }
     return 0;
 }
@@ -218,10 +218,10 @@ s32 func_806151BC(Actor *arg0) {
     u8 sp1F;
 
     D_807F5AF0++;
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     if (sp1F) {
-        ((P19aState *)arg0->unk4)->unk7C = sp1F - 1;
-        ((P19aState *)arg0->unk4)->flags |= 2;
+        ((ScriptState *)arg0->unk4)->unk7C = sp1F - 1;
+        ((ScriptState *)arg0->unk4)->flags |= 2;
         return 0;
     }
     return 1;
@@ -231,27 +231,27 @@ s32 func_806151BC(Actor *arg0) {
 
 s32 func_806152FC(Actor *arg0) {
     D_807F5AF0++;
-    ((P19aState *)arg0->unk4)->flags |= 4;
+    ((ScriptState *)arg0->unk4)->flags |= 4;
     return 0;
 }
 
-s32 func_80615328(Actor *arg0) {
+s32 scriptOpOrFlags(Actor *arg0) {
     s16 sp1E;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    ((P19aState *)arg0->unk4)->flags |= sp1E;
+    scriptReadU16((u8 *)&sp1E);
+    ((ScriptState *)arg0->unk4)->flags |= sp1E;
     return 0;
 }
 
-typedef struct Perm4eRateState {
+typedef struct ScriptRateState {
     u8 pad0[0x78];
     s32 unk78;
     u8 pad7C[4];
     f32 unk80;
     s32 unk84;
     s32 unk88;
-} Perm4eRateState;
+} ScriptRateState;
 
 s32 func_8061537C(Actor *arg0) {
     f32 sp1C;
@@ -259,25 +259,25 @@ s32 func_8061537C(Actor *arg0) {
 
     actor = arg0;
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp1C);
+    scriptReadU32((u8 *)&sp1C);
     if (sp1C < 0.0f) {
-        sp1C = (f32)((Perm4eRateState *)actor->unk4)->unk88;
+        sp1C = (f32)((ScriptRateState *)actor->unk4)->unk88;
     }
-    ((Perm4eRateState *)actor->unk4)->unk80 = sp1C;
-    ((Perm4eRateState *)actor->unk4)->unk78 |= 8;
+    ((ScriptRateState *)actor->unk4)->unk80 = sp1C;
+    ((ScriptRateState *)actor->unk4)->unk78 |= 8;
     return 0;
 }
 
-typedef struct P19bValue {
+typedef struct ScriptValue {
     void *unk0;
     f32 unk4;
     u8 pad8[0x1C];
     f32 unk24;
-} P19bValue;
+} ScriptValue;
 
-typedef struct P19bState {
-    P19bValue *unk0;
-    P19bValue *unk4;
+typedef struct ScriptValueState {
+    ScriptValue *unk0;
+    ScriptValue *unk4;
     s32 *unk8;
     u8 padC[4];
     f32 unk10;
@@ -296,41 +296,41 @@ typedef struct P19bState {
     f32 unk80;
     s32 unk84;
     s32 unk88;
-} P19bState;
+} ScriptValueState;
 
 s32 func_8061540C(Actor *arg0) {
     f32 sp24;
-    P19bValue *sp20;
+    ScriptValue *sp20;
     Actor *actor;
 
     actor = arg0;
-    if (((P19bState *)actor->unk4)->unk84 != 0) {
-        sp20 = ((P19bState *)actor->unk4)->unk4;
+    if (((ScriptValueState *)actor->unk4)->unk84 != 0) {
+        sp20 = ((ScriptValueState *)actor->unk4)->unk4;
     } else {
-        sp20 = ((P19bState *)actor->unk4)->unk0;
+        sp20 = ((ScriptValueState *)actor->unk4)->unk0;
     }
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp24);
+    scriptReadU32((u8 *)&sp24);
     if (sp24 < 0.0f) {
-        sp24 = (f32)((P19bState *)actor->unk4)->unk88;
+        sp24 = (f32)((ScriptValueState *)actor->unk4)->unk88;
     }
-    if ((((P19bState *)actor->unk4)->unk48 * sp20->unk24) > 0.0f) {
+    if ((((ScriptValueState *)actor->unk4)->unk48 * sp20->unk24) > 0.0f) {
         if (sp24 <= sp20->unk4) {
             return 1;
         }
     } else if (sp20->unk4 <= sp24) {
         return 1;
     }
-    ((P19bState *)actor->unk4)->unk80 = sp24;
-    ((P19bState *)actor->unk4)->unk78 |= 8;
+    ((ScriptValueState *)actor->unk4)->unk80 = sp24;
+    ((ScriptValueState *)actor->unk4)->unk78 |= 8;
     return 0;
 }
 
 s32 func_8061551C(Actor *arg0) {
-    P19bState *state;
+    ScriptValueState *state;
 
     D_807F5AF0++;
-    state = (P19bState *)arg0->unk4;
+    state = (ScriptValueState *)arg0->unk4;
     if (*state->unk8 != 0) {
         state->unk78 |= 0x10;
     }
@@ -339,31 +339,31 @@ s32 func_8061551C(Actor *arg0) {
 
 s32 func_80615558(Actor *arg0) {
     f32 sp1C;
-    P19bState *state;
+    ScriptValueState *state;
 
-    state = (P19bState *)arg0->unk4;
+    state = (ScriptValueState *)arg0->unk4;
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp1C);
+    scriptReadU32((u8 *)&sp1C);
     if (*state->unk8 != 0) {
         if (sp1C < state->unk44) {
             state->unk44 = sp1C;
             state->unk40 = state->unk44 - (state->unk10 * state->unk44);
         }
-        ((P19bState *)arg0->unk4)->unk78 |= 0x10;
+        ((ScriptValueState *)arg0->unk4)->unk78 |= 0x10;
     }
     return 0;
 }
 
-s32 func_806155F4(Actor *arg0) {
-    if (((P19bState *)arg0->unk4)->unk88 != 0) {
+s32 scriptOpWaitRegisterNonZero(Actor *arg0) {
+    if (((ScriptValueState *)arg0->unk4)->unk88 != 0) {
         D_807F5AF0++;
         return 1;
     }
     return 0;
 }
 
-s32 func_8061562C(Actor *arg0) {
-    if (((P19bState *)arg0->unk4)->unk88 == 0) {
+s32 scriptOpWaitRegisterZero(Actor *arg0) {
+    if (((ScriptValueState *)arg0->unk4)->unk88 == 0) {
         D_807F5AF0++;
         return 1;
     }
@@ -371,7 +371,7 @@ s32 func_8061562C(Actor *arg0) {
 }
 
 s32 func_80615664(Actor *arg0) {
-    if (((P19bState *)arg0->unk4)->unk4->unk0 == 0) {
+    if (((ScriptValueState *)arg0->unk4)->unk4->unk0 == 0) {
         D_807F5AF0++;
         return 1;
     }
@@ -379,9 +379,9 @@ s32 func_80615664(Actor *arg0) {
 }
 
 s32 func_806156A0(Actor *arg0) {
-    P19bState *state;
+    ScriptValueState *state;
 
-    state = (P19bState *)arg0->unk4;
+    state = (ScriptValueState *)arg0->unk4;
     if (state->unk28 == state->unk2C) {
         D_807F5AF0++;
         return 1;
@@ -389,69 +389,69 @@ s32 func_806156A0(Actor *arg0) {
     return 0;
 }
 
-typedef struct Perm4eActionResource {
+typedef struct ScriptActionResource {
     u8 pad0[0x12];
     u8 unk12;
-} Perm4eActionResource;
+} ScriptActionResource;
 
-typedef struct Perm4eAction {
-    Perm4eActionResource *unk0;
+typedef struct ScriptActionView {
+    ScriptActionResource *unk0;
     u8 pad4[0x10];
     f32 unk14;
-} Perm4eAction;
+} ScriptActionView;
 
 s32 func_806156DC(Actor *arg0) {
     f32 sp24;
-    Perm4eAction *sp20;
+    ScriptActionView *sp20;
 
-    if (((P19bState *)arg0->unk4)->unk84 != 0) {
-        sp20 = (Perm4eAction *)((P19bState *)arg0->unk4)->unk4;
+    if (((ScriptValueState *)arg0->unk4)->unk84 != 0) {
+        sp20 = (ScriptActionView *)((ScriptValueState *)arg0->unk4)->unk4;
     } else {
-        sp20 = (Perm4eAction *)((P19bState *)arg0->unk4)->unk0;
+        sp20 = (ScriptActionView *)((ScriptValueState *)arg0->unk4)->unk0;
     }
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp24);
+    scriptReadU32((u8 *)&sp24);
     if (sp24 < (f32)sp20->unk0->unk12) {
         sp20->unk14 = sp24;
     }
     return 1;
 }
 
-typedef struct P19b3ActionResource {
+typedef struct ScriptActionResourceInfo {
     u8 pad0[4];
     u16 unk4;
     u8 pad6[0xC];
     u8 unk12;
-} P19b3ActionResource;
+} ScriptActionResourceInfo;
 
-typedef struct P19b3Action {
-    P19b3ActionResource *unk0;
+typedef struct ScriptActionInfo {
+    ScriptActionResourceInfo *unk0;
     u8 pad4[0x10];
     f32 unk14;
     f32 unk18;
     s16 unk1C;
-} P19b3Action;
+} ScriptActionInfo;
 
-typedef struct P19b3State {
-    P19b3Action *unk0;
-    P19b3Action *unk4;
+typedef struct ScriptActionInfoState {
+    ScriptActionInfo *unk0;
+    ScriptActionInfo *unk4;
     u8 pad8[0x7C];
     s32 unk84;
-} P19b3State;
+} ScriptActionInfoState;
 
 s32 func_80615774(Actor *arg0) {
     f32 sp24;
-    P19b3Action *action;
-    P19b3State *state;
+    ScriptActionInfo *action;
+    ScriptActionInfoState *state;
 
-    state = (P19b3State *)arg0->unk4;
+    state = (ScriptActionInfoState *)arg0->unk4;
     if (state->unk84 != 0) {
         action = state->unk4;
     } else {
         action = state->unk0;
     }
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp24);
+    scriptReadU32((u8 *)&sp24);
     if (sp24 < action->unk0->unk12) {
         action->unk18 = sp24;
     }
@@ -461,16 +461,16 @@ s32 func_80615774(Actor *arg0) {
 s32 func_8061580C(Actor *arg0) {
     f32 sp24;
     f32 sp20;
-    P19b3Action *action;
+    ScriptActionInfo *action;
 
-    if (((P19b3State *)arg0->unk4)->unk84 != 0) {
-        action = ((P19b3State *)arg0->unk4)->unk4;
+    if (((ScriptActionInfoState *)arg0->unk4)->unk84 != 0) {
+        action = ((ScriptActionInfoState *)arg0->unk4)->unk4;
     } else {
-        action = ((P19b3State *)arg0->unk4)->unk0;
+        action = ((ScriptActionInfoState *)arg0->unk4)->unk0;
     }
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp24);
-    func_80614FD8((u8 *)&sp20);
+    scriptReadU32((u8 *)&sp24);
+    scriptReadU32((u8 *)&sp20);
     if (sp24 < action->unk0->unk12) {
         action->unk14 = sp24;
     }
@@ -481,11 +481,11 @@ s32 func_8061580C(Actor *arg0) {
 }
 
 s32 func_806158E8(Actor *arg0) {
-    P19b3Action *action;
-    P19b3State *state;
-    P19b3ActionResource *resource;
+    ScriptActionInfo *action;
+    ScriptActionInfoState *state;
+    ScriptActionResourceInfo *resource;
 
-    state = (P19b3State *)arg0->unk4;
+    state = (ScriptActionInfoState *)arg0->unk4;
     if (state->unk84 != 0) {
         action = state->unk4;
     } else {
@@ -510,7 +510,7 @@ void func_80613FB0(s32, u16, f32, u8);
 s32 func_8061594C(s32 arg0) {
     s16 sp1E;
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
+    scriptReadU16((u8 *)&sp1E);
     func_80613C48(arg0, sp1E, 0.0f, 1.0f);
     return 1;
 }
@@ -518,7 +518,7 @@ s32 func_8061594C(s32 arg0) {
 s32 func_8061599C(s32 arg0) {
     s16 sp1E;
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
+    scriptReadU16((u8 *)&sp1E);
     func_80613BA0(arg0, sp1E, 0.0f, 1.0f);
     return 1;
 }
@@ -530,7 +530,7 @@ s32 func_8061599C(s32 arg0) {
 s32 func_80615A94(s32 arg0) {
     s8 sp1F;
     D_807F5AF0++;
-    func_80614F28((u8 *)&sp1F);
+    scriptReadU8((u8 *)&sp1F);
     func_80613A50(arg0, sp1F);
     return 1;
 }
@@ -542,8 +542,8 @@ s32 func_80615ADC(s32 arg0) {
     u8 sp1D;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    func_80614F28(&sp1D);
+    scriptReadU16((u8 *)&sp1E);
+    scriptReadU8(&sp1D);
     func_80614014(arg0, sp1E, 0.0f, sp1D);
     return 1;
 }
@@ -551,7 +551,7 @@ s32 func_80615ADC(s32 arg0) {
 s32 func_80615B34(s32 arg0) {
     s16 sp1E;
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
+    scriptReadU16((u8 *)&sp1E);
     func_80613AF8(arg0, sp1E, 0.0f, 1.0f);
     return 1;
 }
@@ -562,21 +562,21 @@ s32 func_80615BDC(s32 arg0) {
     u16 sp1E;
     u8 sp1D;
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    func_80614F28(&sp1D);
+    scriptReadU16((u8 *)&sp1E);
+    scriptReadU8(&sp1D);
     func_80613FB0(arg0, sp1E, 0.0f, sp1D);
     return 1;
 }
 
-void func_80614644(Actor *, P19bValue *, f32);
+void func_80614644(Actor *, ScriptValue *, f32);
 
 s32 func_80615C34(Actor *arg0) {
     u8 sp27;
-    P19bValue *var_a1;
-    P19bValue *sp20;
-    P19bState *temp_v0;
+    ScriptValue *var_a1;
+    ScriptValue *sp20;
+    ScriptValueState *temp_v0;
 
-    temp_v0 = (P19bState *)arg0->unk4;
+    temp_v0 = (ScriptValueState *)arg0->unk4;
     if (temp_v0->unk84 != 0) {
         var_a1 = temp_v0->unk4;
     } else {
@@ -584,9 +584,9 @@ s32 func_80615C34(Actor *arg0) {
     }
     sp20 = var_a1;
     D_807F5AF0++;
-    func_80614F28(&sp27);
+    scriptReadU8(&sp27);
     if (sp27 == 0xFF) {
-        sp27 = ((P19bState *)arg0->unk4)->unk88;
+        sp27 = ((ScriptValueState *)arg0->unk4)->unk88;
     }
     func_80614644(arg0, sp20, (f32)sp27);
     return 1;
@@ -597,16 +597,16 @@ extern u8 D_80746D5C;
 s32 func_80615CE4(Actor *arg0) {
     u8 sp27;
     void *var_a1;
-    P19bState *temp_v0;
+    ScriptValueState *temp_v0;
 
-    temp_v0 = (P19bState *)arg0->unk4;
+    temp_v0 = (ScriptValueState *)arg0->unk4;
     if (temp_v0->unk84 != 0) {
         var_a1 = temp_v0->unk4;
     } else {
         var_a1 = temp_v0->unk0;
     }
     D_807F5AF0++;
-    func_80614F28(&sp27);
+    scriptReadU8(&sp27);
     func_80614644(arg0, var_a1, (f32)D_80746D5C);
     if (D_80746D5C != 0) {
         D_80746D5C += sp27;
@@ -616,7 +616,7 @@ s32 func_80615CE4(Actor *arg0) {
     return 1;
 }
 
-typedef struct Perm4cMotion {
+typedef struct ScriptMotion {
     void *unk0;
     f32 unk4;
     f32 unk8;
@@ -632,35 +632,35 @@ typedef struct Perm4cMotion {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} Perm4cMotion;
+} ScriptMotion;
 
-typedef struct Perm4cState {
-    Perm4cMotion *unk0;
-    Perm4cMotion *unk4;
+typedef struct ScriptMotionState {
+    ScriptMotion *unk0;
+    ScriptMotion *unk4;
     u8 pad8[0x70];
     s32 unk78;
     u8 pad7C[8];
     s32 unk84;
-} Perm4cState;
+} ScriptMotionState;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615DA4.s")
 
 s32 func_80615E74(Actor *arg0) {
     u8 sp2F;
     u8 sp2E;
-    Perm4cMotion *sp28;
+    ScriptMotion *sp28;
     f32 temp_fv1;
     f32 temp_fv0;
     s16 temp_v1_2;
 
-    if (((Perm4cState *)arg0->unk4)->unk84 != 0) {
-        sp28 = ((Perm4cState *)arg0->unk4)->unk4;
+    if (((ScriptMotionState *)arg0->unk4)->unk84 != 0) {
+        sp28 = ((ScriptMotionState *)arg0->unk4)->unk4;
     } else {
-        sp28 = ((Perm4cState *)arg0->unk4)->unk0;
+        sp28 = ((ScriptMotionState *)arg0->unk4)->unk0;
     }
     D_807F5AF0++;
-    func_80614F28(&sp2F);
-    func_80614F28(&sp2E);
+    scriptReadU8(&sp2F);
+    scriptReadU8(&sp2E);
     temp_v1_2 = sp28->unkC;
     if (temp_v1_2 == (sp2F & 0xFFFFFFFFu)) {
         temp_fv0 = (f32)temp_v1_2;
@@ -674,7 +674,7 @@ s32 func_80615E74(Actor *arg0) {
             sp28->unk8 = -(temp_fv1 - temp_fv0);
         }
         sp28->unkE = sp2E;
-        ((Perm4cState *)arg0->unk4)->unk78 |= 0x20;
+        ((ScriptMotionState *)arg0->unk4)->unk78 |= 0x20;
     } else {
         sp28->unkC = (temp_v1_2 + sp2E) - sp2F;
         sp28->unkE = (sp28->unkE + sp2E) - sp2F;
@@ -683,25 +683,25 @@ s32 func_80615E74(Actor *arg0) {
     return 1;
 }
 
-typedef struct P19c2Motion {
+typedef struct ScriptMotionFlagsView {
     u8 pad0[0x1C];
     s16 unk1C;
-} P19c2Motion;
+} ScriptMotionFlagsView;
 
-typedef struct P19c2State {
-    P19c2Motion *unk0;
-    P19c2Motion *unk4;
+typedef struct ScriptMotionFlagsState {
+    ScriptMotionFlagsView *unk0;
+    ScriptMotionFlagsView *unk4;
     u8 pad8[0x7C];
     s32 unk84;
-} P19c2State;
+} ScriptMotionFlagsState;
 
 s32 func_80615FA0(Actor *arg0) {
     s16 sp26;
-    P19c2Motion *var_v1;
+    ScriptMotionFlagsView *var_v1;
     void *sp20;
-    P19c2State *temp_v0;
+    ScriptMotionFlagsState *temp_v0;
 
-    temp_v0 = (P19c2State *)arg0->unk4;
+    temp_v0 = (ScriptMotionFlagsState *)arg0->unk4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -709,18 +709,18 @@ s32 func_80615FA0(Actor *arg0) {
     }
     sp20 = var_v1;
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp26);
-    ((P19c2Motion *)sp20)->unk1C |= sp26;
+    scriptReadU16((u8 *)&sp26);
+    ((ScriptMotionFlagsView *)sp20)->unk1C |= sp26;
     return 1;
 }
 
 s32 func_8061600C(Actor *arg0) {
     s16 sp26;
-    P19c2Motion *var_v1;
+    ScriptMotionFlagsView *var_v1;
     void *sp20;
-    P19c2State *temp_v0;
+    ScriptMotionFlagsState *temp_v0;
 
-    temp_v0 = (P19c2State *)arg0->unk4;
+    temp_v0 = (ScriptMotionFlagsState *)arg0->unk4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -728,21 +728,21 @@ s32 func_8061600C(Actor *arg0) {
     }
     sp20 = var_v1;
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp26);
-    ((P19c2Motion *)sp20)->unk1C &= ~sp26;
+    scriptReadU16((u8 *)&sp26);
+    ((ScriptMotionFlagsView *)sp20)->unk1C &= ~sp26;
     return 1;
 }
 
 s32 func_8061607C(Actor *arg0) {
     f32 var_fv0;
     f32 sp20;
-    Perm4cMotion *sp1C;
+    ScriptMotion *sp1C;
 
-    sp1C = ((Perm4cState *)arg0->unk4)->unk84 != 0
-        ? ((Perm4cState *)arg0->unk4)->unk4
-        : ((Perm4cState *)arg0->unk4)->unk0;
+    sp1C = ((ScriptMotionState *)arg0->unk4)->unk84 != 0
+        ? ((ScriptMotionState *)arg0->unk4)->unk4
+        : ((ScriptMotionState *)arg0->unk4)->unk0;
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp20);
+    scriptReadU32((u8 *)&sp20);
     if (sp1C->unk0 != NULL) {
         var_fv0 = *(f32 *)sp1C->unk0;
     } else {
@@ -763,18 +763,18 @@ s32 func_8061607C(Actor *arg0) {
 s32 func_8061612C(Actor *arg0) {
     f32 sp24;
     f32 sp20;
-    Perm4cMotion *sp1C;
-    Perm4cState *temp_v1;
+    ScriptMotion *sp1C;
+    ScriptMotionState *temp_v1;
 
-    temp_v1 = (Perm4cState *)arg0->unk4;
+    temp_v1 = (ScriptMotionState *)arg0->unk4;
     if (temp_v1->unk84 != 0) {
         sp1C = temp_v1->unk4;
     } else {
         sp1C = temp_v1->unk0;
     }
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp24);
-    func_80614FD8((u8 *)&sp20);
+    scriptReadU32((u8 *)&sp24);
+    scriptReadU32((u8 *)&sp20);
     if (sp20 > 0.0f) {
         sp1C->unk34 = sp20;
         sp1C->unk2C = sp24;
@@ -789,10 +789,10 @@ s32 func_8061612C(Actor *arg0) {
 
 s32 func_806161D0(Actor *arg0) {
     f32 temp_fv0;
-    Perm4cState *temp_v0;
-    Perm4cMotion *var_v1;
+    ScriptMotionState *temp_v0;
+    ScriptMotion *var_v1;
 
-    temp_v0 = (Perm4cState *)arg0->unk4;
+    temp_v0 = (ScriptMotionState *)arg0->unk4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -812,10 +812,10 @@ s32 func_806161D0(Actor *arg0) {
 
 s32 func_80616254(Actor *arg0) {
     f32 temp_fv0 = 0.0f;
-    Perm4cState *temp_v0;
-    Perm4cMotion *var_v1;
+    ScriptMotionState *temp_v0;
+    ScriptMotion *var_v1;
 
-    temp_v0 = (Perm4cState *)arg0->unk4;
+    temp_v0 = (ScriptMotionState *)arg0->unk4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -837,60 +837,60 @@ s32 func_806162C4(Actor *arg0) {
     s32 sp18;
 
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp1C);
-    func_80614FD8((u8 *)&sp18);
+    scriptReadU32((u8 *)&sp1C);
+    scriptReadU32((u8 *)&sp18);
     func_80614D00(arg0, sp1C, sp18);
     return 1;
 }
 
-typedef struct P19c2ScriptCursor {
+typedef struct ScriptCursorView {
     u8 pad0[0x6C];
     u8 *unk6C;
-} P19c2ScriptCursor;
+} ScriptCursorView;
 
 void func_80614E78(Actor *, s32);
-void func_80614EBC(Actor *, s32);
+void actorScriptStart(Actor *, s32);
 
 s32 func_80616318(Actor *arg0) {
     u16 sp1E;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
+    scriptReadU16((u8 *)&sp1E);
     func_80614E78(arg0, sp1E);
-    D_807F5AF0 = ((P19c2ScriptCursor *)arg0->unk4)->unk6C;
+    D_807F5AF0 = ((ScriptCursorView *)arg0->unk4)->unk6C;
     return D_807F5AF4;
 }
 
-s32 func_80616374(Actor *arg0) {
+s32 scriptOpGotoScript(Actor *arg0) {
     u16 sp1E;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    func_80614EBC(arg0, sp1E);
-    D_807F5AF0 = ((P19c2ScriptCursor *)arg0->unk4)->unk6C;
+    scriptReadU16((u8 *)&sp1E);
+    actorScriptStart(arg0, sp1E);
+    D_807F5AF0 = ((ScriptCursorView *)arg0->unk4)->unk6C;
     return D_807F5AF4;
 }
 
-typedef struct P19cFlagState {
+typedef struct ScriptFlagState {
     u8 pad0[0x78];
     s32 unk78;
-} P19cFlagState;
+} ScriptFlagState;
 
 s32 func_806163D0(Actor *arg0) {
-    P19cFlagState *temp_v1;
+    ScriptFlagState *temp_v1;
 
-    temp_v1 = (P19cFlagState *)arg0->unk4;
+    temp_v1 = (ScriptFlagState *)arg0->unk4;
     temp_v1->unk78 |= 0x8000;
     return 0;
 }
 
 s32 func_806163E8(Actor *arg0) {
     f32 sp24;
-    P19bValue *var_v1;
+    ScriptValue *var_v1;
     void *sp20;
-    P19bState *temp_v0;
+    ScriptValueState *temp_v0;
 
-    temp_v0 = (P19bState *)arg0->unk4;
+    temp_v0 = (ScriptValueState *)arg0->unk4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -898,22 +898,22 @@ s32 func_806163E8(Actor *arg0) {
     }
     sp20 = var_v1;
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp24);
-    ((P19bState *)arg0->unk4)->unk88 = ((P19bValue *)sp20)->unk4 - sp24;
+    scriptReadU32((u8 *)&sp24);
+    ((ScriptValueState *)arg0->unk4)->unk88 = ((ScriptValue *)sp20)->unk4 - sp24;
     return 1;
 }
 
-typedef struct P19cCountdownState {
+typedef struct ScriptCountdownState {
     u8 pad0[0x88];
     s32 unk88;
-} P19cCountdownState;
+} ScriptCountdownState;
 
 s32 func_80616470(Actor *arg0) {
     u16 sp1E;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    ((P19cCountdownState *)arg0->unk4)->unk88 = arg0->unk154 - sp1E;
+    scriptReadU16((u8 *)&sp1E);
+    ((ScriptCountdownState *)arg0->unk4)->unk88 = arg0->unk154 - sp1E;
     return 1;
 }
 
@@ -921,61 +921,61 @@ s32 func_806164C4(Actor *arg0) {
     u16 sp1E;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    ((P19cCountdownState *)arg0->unk4)->unk88 = arg0->unk155[0] - sp1E;
+    scriptReadU16((u8 *)&sp1E);
+    ((ScriptCountdownState *)arg0->unk4)->unk88 = arg0->unk155[0] - sp1E;
     return 1;
 }
 
-typedef struct Perm4eCommand {
+typedef struct ScriptCommandView {
     u8 pad0[0x10];
     s16 unk10;
-} Perm4eCommand;
+} ScriptCommandView;
 
 s32 func_80616518(Actor *arg0) {
     u16 sp26;
-    Perm4eCommand *sp20;
+    ScriptCommandView *sp20;
 
-    if (((P19bState *)arg0->unk4)->unk84 != 0) {
-        sp20 = (Perm4eCommand *)((P19bState *)arg0->unk4)->unk4;
+    if (((ScriptValueState *)arg0->unk4)->unk84 != 0) {
+        sp20 = (ScriptCommandView *)((ScriptValueState *)arg0->unk4)->unk4;
     } else {
-        sp20 = (Perm4eCommand *)((P19bState *)arg0->unk4)->unk0;
+        sp20 = (ScriptCommandView *)((ScriptValueState *)arg0->unk4)->unk0;
     }
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp26);
-    ((P19bState *)arg0->unk4)->unk88 = sp20->unk10 - sp26;
+    scriptReadU16((u8 *)&sp26);
+    ((ScriptValueState *)arg0->unk4)->unk88 = sp20->unk10 - sp26;
     return 1;
 }
 
-typedef struct P19cGlobalCountdown {
+typedef struct GlobalCountdownView {
     u8 pad0[0x4E];
     s16 unk4E;
-} P19cGlobalCountdown;
+} GlobalCountdownView;
 
 s32 func_80616594(Actor *arg0) {
     u16 sp1E;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    ((P19cCountdownState *)arg0->unk4)->unk88 =
-        ((P19cGlobalCountdown *)D_807FD580)->unk4E - sp1E;
+    scriptReadU16((u8 *)&sp1E);
+    ((ScriptCountdownState *)arg0->unk4)->unk88 =
+        ((GlobalCountdownView *)D_807FD580)->unk4E - sp1E;
     return 1;
 }
 
-typedef struct P19cCursorState {
+typedef struct ScriptBaseCursorState {
     u8 pad0[0x68];
     u8 *unk68;
-} P19cCursorState;
+} ScriptBaseCursorState;
 
-s32 func_806165F0(Actor *arg0) {
+s32 scriptOpJump(Actor *arg0) {
     s16 sp1E;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    D_807F5AF0 = ((P19cCursorState *)arg0->unk4)->unk68 + sp1E;
+    scriptReadU16((u8 *)&sp1E);
+    D_807F5AF0 = ((ScriptBaseCursorState *)arg0->unk4)->unk68 + sp1E;
     return 1;
 }
 
-typedef struct P19dState {
+typedef struct ScriptJumpState {
     u8 pad0[0x5C];
     u16 unk5C;
     u8 pad5E[2];
@@ -991,97 +991,97 @@ typedef struct P19dState {
     f32 unk80;
     s32 unk84;
     s32 unk88;
-} P19dState;
+} ScriptJumpState;
 
-s32 func_80616644(Actor *arg0) {
+s32 scriptOpJumpIfRegisterNonZero(Actor *arg0) {
     s16 sp1E;
-    P19dState *temp_v0;
+    ScriptJumpState *temp_v0;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    temp_v0 = (P19dState *)arg0->unk4;
+    scriptReadU16((u8 *)&sp1E);
+    temp_v0 = (ScriptJumpState *)arg0->unk4;
     if (temp_v0->unk88 != 0) {
         D_807F5AF0 = temp_v0->unk68 + sp1E;
     }
     return 1;
 }
 
-s32 func_806166A8(Actor *arg0) {
+s32 scriptOpJumpIfRegisterZero(Actor *arg0) {
     s16 sp1E;
-    P19dState *temp_v0;
+    ScriptJumpState *temp_v0;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    temp_v0 = (P19dState *)arg0->unk4;
+    scriptReadU16((u8 *)&sp1E);
+    temp_v0 = (ScriptJumpState *)arg0->unk4;
     if (temp_v0->unk88 == 0) {
         D_807F5AF0 = temp_v0->unk68 + sp1E;
     }
     return 1;
 }
 
-s32 func_8061670C(Actor *arg0) {
+s32 scriptOpJumpIfRegisterPositive(Actor *arg0) {
     s16 sp1E;
-    P19dState *temp_v0;
+    ScriptJumpState *temp_v0;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    temp_v0 = (P19dState *)arg0->unk4;
+    scriptReadU16((u8 *)&sp1E);
+    temp_v0 = (ScriptJumpState *)arg0->unk4;
     if (temp_v0->unk88 > 0) {
         D_807F5AF0 = temp_v0->unk68 + sp1E;
     }
     return 1;
 }
 
-s32 func_80616770(Actor *arg0) {
+s32 scriptOpJumpIfRegisterNegative(Actor *arg0) {
     s16 sp1E;
-    P19dState *temp_v0;
+    ScriptJumpState *temp_v0;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    temp_v0 = (P19dState *)arg0->unk4;
+    scriptReadU16((u8 *)&sp1E);
+    temp_v0 = (ScriptJumpState *)arg0->unk4;
     if (temp_v0->unk88 < 0) {
         D_807F5AF0 = temp_v0->unk68 + sp1E;
     }
     return 1;
 }
 
-s32 func_806167D4(Actor *arg0) {
-    D_807F5AF0 = ((P19dState *)arg0->unk4)->unk68;
+s32 scriptOpRestart(Actor *arg0) {
+    D_807F5AF0 = ((ScriptJumpState *)arg0->unk4)->unk68;
     return 1;
 }
 
-s32 func_806167EC(Actor *arg0) {
+s32 scriptOpJumpTable(Actor *arg0) {
     s16 sp1E;
 
     /* Preserve IDO's evaluation tree for its register allocation. */
-    D_807F5AF0 = (0, 1) + (D_807F5AF0 + (((P19dState *)arg0->unk4)->unk88 * 2));
-    func_80614F4C((u8 *)&sp1E);
-    D_807F5AF0 = ((P19dState *)arg0->unk4)->unk68 + sp1E;
+    D_807F5AF0 = (0, 1) + (D_807F5AF0 + (((ScriptJumpState *)arg0->unk4)->unk88 * 2));
+    scriptReadU16((u8 *)&sp1E);
+    D_807F5AF0 = ((ScriptJumpState *)arg0->unk4)->unk68 + sp1E;
     return (sp1E = 1);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616850.s")
 
-s32 func_806168E4(Actor *arg0) {
+s32 scriptOpCall(Actor *arg0) {
     u16 sp1E;
-    P19dState *sp18;
+    ScriptJumpState *sp18;
 
-    sp18 = (P19dState *)arg0->unk4;
+    sp18 = (ScriptJumpState *)arg0->unk4;
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
+    scriptReadU16((u8 *)&sp1E);
     sp18->unk5C = sp18->unk64;
     sp18->unk60 = D_807F5AF0 - sp18->unk68;
     func_80614E78(arg0, sp1E);
     D_807F5AF0 = sp18->unk6C;
     return D_807F5AF4;
 }
-s32 func_80616964(Actor *arg0) {
+s32 scriptOpReturn(Actor *arg0) {
     s32 sp1C;
-    P19dState *sp18;
+    ScriptJumpState *sp18;
 
-    sp1C = ((P19dState *)arg0->unk4)->unk88;
-    sp18 = (P19dState *)arg0->unk4;
-    func_80614EBC(arg0, sp18->unk5C);
+    sp1C = ((ScriptJumpState *)arg0->unk4)->unk88;
+    sp18 = (ScriptJumpState *)arg0->unk4;
+    actorScriptStart(arg0, sp18->unk5C);
     D_807F5AF0 = sp18->unk68 + sp18->unk60;
     sp18->unk5C = 0;
     sp18->unk60 = 0;
@@ -1089,31 +1089,31 @@ s32 func_80616964(Actor *arg0) {
     return 1;
 }
 
-typedef void (*Perm4fCallback)();
+typedef void (*ScriptCommandFn)();
 
-extern Perm4fCallback D_80746D64[];
+extern ScriptCommandFn D_80746D64[];
 
-s32 func_806169C0(Actor *arg0) {
+s32 scriptOpRunCommand(Actor *arg0) {
     s16 sp1E;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
+    scriptReadU16((u8 *)&sp1E);
     D_80746D64[sp1E](arg0);
     return D_807F5AF4;
 }
 
-typedef struct Perm4fCallbackState {
+typedef struct ScriptCommandState {
     u8 pad0[0x70];
-    Perm4fCallback unk70;
+    ScriptCommandFn unk70;
     u8 *unk74;
-} Perm4fCallbackState;
+} ScriptCommandState;
 
-s32 func_80616A1C(Actor *arg0) {
+s32 scriptOpSetCommandHandler(Actor *arg0) {
     s16 sp1E;
-    Perm4fCallbackState *sp18;
-    sp18 = (Perm4fCallbackState *)arg0->unk4;
+    ScriptCommandState *sp18;
+    sp18 = (ScriptCommandState *)arg0->unk4;
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
+    scriptReadU16((u8 *)&sp1E);
     sp18->unk70 = D_80746D64[sp1E];
     sp18->unk74 = D_807F5AF0;
     if (sp1E != 0) {
@@ -1132,11 +1132,11 @@ s32 func_80616A9C(s32 arg0) {
     u8 sp20;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp26);
-    func_80614F28(&sp25);
-    func_80614F28(&sp20);
-    func_80614F4C((u8 *)&sp22);
-    func_80614F28(&sp21);
+    scriptReadU16((u8 *)&sp26);
+    scriptReadU8(&sp25);
+    scriptReadU8(&sp20);
+    scriptReadU16((u8 *)&sp22);
+    scriptReadU8(&sp21);
     func_80609140(sp26, (s32)(((f64)sp25 * 32767.0) / 255.0), (f32)sp20,
                   (f32)((f64)sp22 / 127.0), (s32)sp21, 0);
     return 1;
@@ -1147,7 +1147,7 @@ s32 func_80616BA4(Actor *arg0) {
     u8 temp;
 
     D_807F5AF0++;
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     arg0->unk154 = (temp = sp1F);
     arg0->unk155[0] = 0;
     return 1;
@@ -1164,7 +1164,7 @@ s32 func_80616C1C(Actor *arg0) {
     u8 sp1F;
 
     D_807F5AF0++;
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     arg0->unk155[0] = sp1F;
     return 1;
 }
@@ -1185,60 +1185,60 @@ s32 func_80616C8C(Actor *arg0) {
 }
 
 
-s32 func_80616CB8(Actor *arg0) {
+s32 scriptOpSetRegisterRandom(Actor *arg0) {
     u8 sp1F;
     u8 sp1E;
 
     D_807F5AF0++;
-    func_80614F28(&sp1F);
-    func_80614F28(&sp1E);
-    ((P19dState *)arg0->unk4)->unk88 = (s32)(((s32)((s32)(func_80611A44() >> 0xF) % 32767) % (s32)((sp1E - sp1F) + 1)) + sp1F);
+    scriptReadU8(&sp1F);
+    scriptReadU8(&sp1E);
+    ((ScriptJumpState *)arg0->unk4)->unk88 = (s32)(((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % (s32)((sp1E - sp1F) + 1)) + sp1F);
     return 1;
 }
 
 s32 func_80616D5C(Actor *arg0) {
     D_807F5AF0++;
-    ((P19dState *)arg0->unk4)->unk84 = 1;
+    ((ScriptJumpState *)arg0->unk4)->unk84 = 1;
     return 1;
 }
 
 s32 func_80616D84(Actor *arg0) {
     D_807F5AF0++;
-    ((P19dState *)arg0->unk4)->unk84 = 0;
+    ((ScriptJumpState *)arg0->unk4)->unk84 = 0;
     return 1;
 }
 
-typedef struct P19eActorView {
+typedef struct ActorTargetView {
     u8 pad0[0x17C];
     void *unk17C;
-} P19eActorView;
+} ActorTargetView;
 
-typedef struct P19eScriptTarget {
+typedef struct ScriptTarget {
     u8 pad0[0xD];
     u8 flags;
-} P19eScriptTarget;
+} ScriptTarget;
 
-s32 func_80616DA8(s32 arg0) {
+s32 scriptOpHalt(s32 arg0) {
     return 0;
 }
 
 s32 func_80616DB4(Actor *arg0) {
-    P19eScriptTarget *target;
+    ScriptTarget *target;
     u8 flag;
 
-    target = (P19eScriptTarget *)((P19eActorView *)arg0)->unk17C;
+    target = (ScriptTarget *)((ActorTargetView *)arg0)->unk17C;
     D_807F5AF0++;
-    func_80614F28(&flag);
+    scriptReadU8(&flag);
     target->flags |= flag;
     return 1;
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616E08.s")
 
-typedef struct Perm4fActorCommand {
+typedef struct ActorSoundView {
     u8 pad0[0x78];
     u8 unk78;
-} Perm4fActorCommand;
+} ActorSoundView;
 
 extern s32 D_807457C8;
 
@@ -1254,15 +1254,15 @@ s32 func_80617140(Actor *arg0) {
     u8 sp29;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp2E);
-    func_80614F28(&sp2B);
-    func_80614F28(&sp2A);
-    func_80614F28(&sp29);
+    scriptReadU16((u8 *)&sp2E);
+    scriptReadU8(&sp2B);
+    scriptReadU8(&sp2A);
+    scriptReadU8(&sp29);
     if (D_807457C8 != 0) {
         n_alSndpStop(D_807457C8);
         D_807457C8 = 0;
     }
-    temp_v0 = func_8060A7C0(sp2E, arg0, ((Perm4fActorCommand *)arg0)->unk78);
+    temp_v0 = func_8060A7C0(sp2E, arg0, ((ActorSoundView *)arg0)->unk78);
     if (temp_v0 == 8) {
         sp29 = 4;
     }
@@ -1283,11 +1283,11 @@ s32 func_80617400(Actor *arg0) {
     u8 sp32;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp36);
-    func_80614F28(&sp33);
-    func_80614F28(&sp32);
-    func_80614F28(&sp35);
-    func_80614F28(&sp34);
+    scriptReadU16((u8 *)&sp36);
+    scriptReadU8(&sp33);
+    scriptReadU8(&sp32);
+    scriptReadU8(&sp35);
+    scriptReadU8(&sp34);
     if (arg0->unk60 & 4) {
         func_806086CC(arg0->unk7C, arg0->unk80, arg0->unk84, sp36, sp33, sp32, sp35, sp34, 0.3f, 0);
     }
@@ -1311,14 +1311,14 @@ s32 func_806174B4(Actor *arg0) {
     f32 sp38;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp4A);
-    func_80614F28(&sp40);
-    func_80614F28(&sp3F);
-    func_80614F28(&sp49);
-    func_80614F28(&sp43);
-    func_80614FD8((u8 *)&sp38);
-    func_80614F28(&sp42);
-    func_80614F28(&sp41);
+    scriptReadU16((u8 *)&sp4A);
+    scriptReadU8(&sp40);
+    scriptReadU8(&sp3F);
+    scriptReadU8(&sp49);
+    scriptReadU8(&sp43);
+    scriptReadU32((u8 *)&sp38);
+    scriptReadU8(&sp42);
+    scriptReadU8(&sp41);
     if (arg0->unk60 & 4) {
         if (sp42) {
             node_actor = arg0;
@@ -1347,39 +1347,39 @@ void func_8070D8C0(Actor *, u16, u8);
 s32 func_80617DFC(Actor *, s16);
 extern u8 D_80746D60[];
 
-typedef struct P19eActorSub4 {
+typedef struct ActorStateSubView {
     u8 pad0[0x10];
     s16 unk10;
-} P19eActorSub4;
+} ActorStateSubView;
 
-typedef struct P19eActorInner {
-    P19eActorSub4 *unk0;
-} P19eActorInner;
+typedef struct ActorStateInnerView {
+    ActorStateSubView *unk0;
+} ActorStateInnerView;
 
-typedef struct P19eActorStateView {
+typedef struct ActorStateSlotView {
     u8 pad0[0x72];
     s16 unk72;
-} P19eActorStateView;
+} ActorStateSlotView;
 
-typedef struct P19eActionValue {
+typedef struct ScriptActionValue {
     u8 pad0[4];
     f32 value;
-} P19eActionValue;
+} ScriptActionValue;
 
-typedef struct P19eActionState {
-    P19eActionValue *unk0;
-    P19eActionValue *unk4;
+typedef struct ScriptActionState {
+    ScriptActionValue *unk0;
+    ScriptActionValue *unk4;
     u8 pad8[0x7C];
     s32 unk84;
-} P19eActionState;
+} ScriptActionState;
 
 s32 func_8061796C(Actor *arg0) {
     s16 sp1E;
     u8 sp1D;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    func_80614F28(&sp1D);
+    scriptReadU16((u8 *)&sp1E);
+    scriptReadU8(&sp1D);
     func_80617770(arg0, sp1E, sp1D);
     return 1;
 }
@@ -1392,34 +1392,34 @@ s32 func_806179C0(Actor *arg0) {
     s8 sp2A;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp2E);
-    func_80614F28(&sp2D);
-    func_80614F28(&sp2B);
-    func_80614F28(&sp2C);
-    func_80614F28((u8 *)&sp2A);
+    scriptReadU16((u8 *)&sp2E);
+    scriptReadU8(&sp2D);
+    scriptReadU8(&sp2B);
+    scriptReadU8(&sp2C);
+    scriptReadU8((u8 *)&sp2A);
     sfxStopSlotSound(arg0, sp2D);
     sfxPlayActorSound(arg0, sp2E, sp2C, 1, sp2D, sp2B, 1.0f, sp2A);
     return 1;
 }
 
-s32 func_80617A60(Actor *arg0) {
+s32 scriptOpSetSoundVolumeAndPan(Actor *arg0) {
     f32 sp1C;
     u8 sp1B;
     u8 sp1A;
 
     D_807F5AF0++;
-    func_80614F28(&sp1A);
-    func_80614FD8((u8 *)&sp1C);
-    func_80614F28(&sp1B);
+    scriptReadU8(&sp1A);
+    scriptReadU32((u8 *)&sp1C);
+    scriptReadU8(&sp1B);
     sfxSetVolumeAndPan(((u8 *)arg0)[sp1A * 2 + 0x6F], sp1C, (f32)sp1B);
     return 1;
 }
 
-s32 func_80617AF0(Actor *arg0) {
+s32 scriptOpStopSlotSound(Actor *arg0) {
     u8 sp1F;
 
     D_807F5AF0++;
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     sfxStopSlotSound(arg0, sp1F);
     return 1;
 }
@@ -1431,31 +1431,31 @@ s32 func_80617B38(Actor *arg0) {
     s8 sp2B;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp2E);
-    func_80614F28(&sp2D);
-    func_80614F28(&sp2C);
-    func_80614F28((u8 *)&sp2B);
+    scriptReadU16((u8 *)&sp2E);
+    scriptReadU8(&sp2D);
+    scriptReadU8(&sp2C);
+    scriptReadU8((u8 *)&sp2B);
     sfxPlayActorSound(arg0, sp2E, sp2C, 1, sp2D, 0xFF, 1.0f, sp2B);
-    ((P19eActorStateView *)arg0)->unk72 = ((P19eActorInner *)arg0->unk4)->unk0->unk10;
+    ((ActorStateSlotView *)arg0)->unk72 = ((ActorStateInnerView *)arg0->unk4)->unk0->unk10;
     return 1;
 }
 
-s32 func_80617BD8(Actor *arg0) {
+s32 scriptOpAllocateSoundChannel(Actor *arg0) {
     u8 sp1F;
     u8 sp1E;
 
     D_807F5AF0++;
-    func_80614F28(&sp1F);
-    func_80614F28(&sp1E);
+    scriptReadU8(&sp1F);
+    scriptReadU8(&sp1E);
     sfxAllocateChannel(D_80746D60[sp1F], (f32)((f64)sp1E / 255.0));
     return 1;
 }
 
-s32 func_80617C6C(Actor *arg0) {
+s32 scriptOpStopSoundChannel(Actor *arg0) {
     u8 sp1F;
 
     D_807F5AF0++;
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     sfxStopChannel(D_80746D60[sp1F], 0);
     return 1;
 }
@@ -1465,8 +1465,8 @@ s32 func_80617CC0(Actor *arg0) {
     u8 sp1D;
 
     D_807F5AF0++;
-    func_80614F4C((u8 *)&sp1E);
-    func_80614F28(&sp1D);
+    scriptReadU16((u8 *)&sp1E);
+    scriptReadU8(&sp1D);
     func_8070D8C0(arg0, sp1E, sp1D);
     return 1;
 }
@@ -1476,10 +1476,10 @@ s32 func_80617D14(Actor *arg0) {
 }
 
 void func_80617D20(Actor *arg0) {
-    P19eActionState *state;
-    P19eActionValue *value;
+    ScriptActionState *state;
+    ScriptActionValue *value;
 
-    state = (P19eActionState *)arg0->unk4;
+    state = (ScriptActionState *)arg0->unk4;
     if (state->unk84 != 0) {
         value = state->unk4;
     } else {
@@ -1488,51 +1488,51 @@ void func_80617D20(Actor *arg0) {
     func_80617DFC(arg0, (s16)value->value);
 }
 
-typedef struct P19e3ActionState {
+typedef struct ScriptTimerSetState {
     u8 pad0[0x8A];
     s16 unk8A;
     f32 unk8C;
-} P19e3ActionState;
+} ScriptTimerSetState;
 
-typedef struct P19e3TimerState {
+typedef struct ScriptTimerState {
     u8 pad0[0x30];
     s16 unk30;
     u8 pad32[0x5A];
     f32 unk8C;
-} P19e3TimerState;
+} ScriptTimerState;
 
-typedef struct P19e3ActorFlags {
+typedef struct ActorFlagsView {
     u8 pad0[0x146];
     s16 unk146;
-} P19e3ActorFlags;
+} ActorFlagsView;
 
-typedef struct P19e3GlobalState {
+typedef struct GlobalFlagsView {
     u8 pad0[0x1F0];
     s32 unk1F0;
-} P19e3GlobalState;
+} GlobalFlagsView;
 
 void func_80617D70(Actor *arg0) {
-    func_80617DFC(arg0, ((P19e3ActionState *)arg0->unk4)->unk8A);
+    func_80617DFC(arg0, ((ScriptTimerSetState *)arg0->unk4)->unk8A);
 }
 
 void func_80617D94(Actor *arg0) {
     u8 sp27;
 
-    func_80614F28(&sp27);
+    scriptReadU8(&sp27);
     if (sp27 != 0) {
         do {
             D_807F5AF0 += 4;
-            func_80614F28(&sp27);
+            scriptReadU8(&sp27);
         } while (sp27 != 0);
     }
 }
 
-typedef struct P19b4State {
+typedef struct ScriptBranchState {
     u8 pad0[0x68];
     u8 *unk68;
     u8 pad6C[0x1C];
     s32 unk88;
-} P19b4State;
+} ScriptBranchState;
 
 s32 func_80617DFC(Actor *arg0, s16 arg1) {
     u8 sp2F;
@@ -1541,60 +1541,60 @@ s32 func_80617DFC(Actor *arg0, s16 arg1) {
 
     D_807F5AF0++;
     while (1) {
-        func_80614F28(&sp2F);
-        func_80614F4C((u8 *)&sp2C);
+        scriptReadU8(&sp2F);
+        scriptReadU16((u8 *)&sp2C);
         switch (sp2F) {
         case 0:
             D_807F5AF0 -= 2;
             return 1;
         case 1:
             if (arg1 == sp2C) {
-                func_80614F4C((u8 *)&sp2A);
-                D_807F5AF0 = ((P19b4State *)arg0->unk4)->unk68 + sp2A;
+                scriptReadU16((u8 *)&sp2A);
+                D_807F5AF0 = ((ScriptBranchState *)arg0->unk4)->unk68 + sp2A;
                 return 1;
             }
             break;
         case 2:
             if (arg1 < sp2C) {
-                func_80614F4C((u8 *)&sp2A);
-                D_807F5AF0 = ((P19b4State *)arg0->unk4)->unk68 + sp2A;
+                scriptReadU16((u8 *)&sp2A);
+                D_807F5AF0 = ((ScriptBranchState *)arg0->unk4)->unk68 + sp2A;
                 return 1;
             }
             break;
         case 3:
             if (sp2C < arg1) {
-                func_80614F4C((u8 *)&sp2A);
-                D_807F5AF0 = ((P19b4State *)arg0->unk4)->unk68 + sp2A;
+                scriptReadU16((u8 *)&sp2A);
+                D_807F5AF0 = ((ScriptBranchState *)arg0->unk4)->unk68 + sp2A;
                 return 1;
             }
             break;
         case 4:
             if (arg1 == sp2C) {
-                func_80614F4C((u8 *)&sp2A);
-                ((P19b4State *)arg0->unk4)->unk88 = sp2A;
+                scriptReadU16((u8 *)&sp2A);
+                ((ScriptBranchState *)arg0->unk4)->unk88 = sp2A;
                 func_80617D94(arg0);
                 return 1;
             }
             break;
         case 5:
             if (arg1 < sp2C) {
-                func_80614F4C((u8 *)&sp2A);
-                ((P19b4State *)arg0->unk4)->unk88 = sp2A;
+                scriptReadU16((u8 *)&sp2A);
+                ((ScriptBranchState *)arg0->unk4)->unk88 = sp2A;
                 func_80617D94(arg0);
                 return 1;
             }
             break;
         case 6:
             if (sp2C < arg1) {
-                func_80614F4C((u8 *)&sp2A);
-                ((P19b4State *)arg0->unk4)->unk88 = sp2A;
+                scriptReadU16((u8 *)&sp2A);
+                ((ScriptBranchState *)arg0->unk4)->unk88 = sp2A;
                 func_80617D94(arg0);
                 return 1;
             }
             break;
         case 7:
-            func_80614F4C((u8 *)&sp2A);
-            ((P19b4State *)arg0->unk4)->unk88 = sp2A;
+            scriptReadU16((u8 *)&sp2A);
+            ((ScriptBranchState *)arg0->unk4)->unk88 = sp2A;
             func_80617D94(arg0);
             return 1;
         }
@@ -1602,36 +1602,36 @@ s32 func_80617DFC(Actor *arg0, s16 arg1) {
     }
 }
 
-s32 func_80617FFC(Actor *arg0) {
+s32 scriptOpSetTimer(Actor *arg0) {
     f32 sp1C;
 
     D_807F5AF0++;
-    func_80614FD8((u8 *)&sp1C);
-    ((P19e3ActionState *)arg0->unk4)->unk8C = sp1C;
+    scriptReadU32((u8 *)&sp1C);
+    ((ScriptTimerSetState *)arg0->unk4)->unk8C = sp1C;
     return 1;
 }
 
 extern u32 D_80744478;
 
-s32 func_80618048(Actor *arg0) {
+s32 scriptOpWaitTimer(Actor *arg0) {
     f32 var_fv0;
-    P19e3TimerState *state;
+    ScriptTimerState *state;
 
-    state = (P19e3TimerState *)arg0->unk4;
+    state = (ScriptTimerState *)arg0->unk4;
     if (state->unk30 & 1) {
         var_fv0 = (f32)D_80744478 * 0.5f;
     } else {
         var_fv0 = 1.0f;
     }
     state->unk8C -= var_fv0;
-    if ((f64)((P19e3TimerState *)arg0->unk4)->unk8C <= 0.0) {
+    if ((f64)((ScriptTimerState *)arg0->unk4)->unk8C <= 0.0) {
         D_807F5AF0++;
         return 1;
     }
     return 0;
 }
 
-void func_806180FC(Actor *arg0) {
+void scriptCmdNop(Actor *arg0) {
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618104.s")
@@ -1666,19 +1666,19 @@ void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
 
 
-typedef struct P19e4ActorState {
+typedef struct ActorSpawnState {
     u8 pad0[0x34];
     s32 unk34;
-} P19e4ActorState;
+} ActorSpawnState;
 
-typedef struct P19e4GlobalState {
+typedef struct GlobalSpawnView {
     u8 pad0[0x88];
     Actor *unk88;
     u8 pad8C[0x78];
     s32 unk104;
-} P19e4GlobalState;
+} GlobalSpawnView;
 
-typedef struct P19e4ActorView {
+typedef struct ActorEffectView {
     u8 pad0[0x58];
     s32 unk58;
     u8 pad5C[0x88];
@@ -1691,27 +1691,27 @@ typedef struct P19e4ActorView {
     s16 unk12C;
     u8 pad12E[0x46];
     u8 *unk174;
-} P19e4ActorView;
+} ActorEffectView;
 
 void func_80618430(Actor *arg0) {
     u8 sp27;
 
-    func_80614F28(&sp27);
+    scriptReadU8(&sp27);
     func_8071498C(func_8071B1AC);
     func_80714998(2);
-    func_80714950(((P19e4ActorView *)arg0)->unkE6);
+    func_80714950(((ActorEffectView *)arg0)->unkE6);
     func_807149B8(1);
     func_80714C08(D_8071FF18, 0.4f, arg0, sp27, 0);
 }
 
 void func_8061849C(Actor *arg0) {
-    ((P19e3GlobalState *)D_807FD580)->unk1F0 |= 0x40000;
+    ((GlobalFlagsView *)D_807FD580)->unk1F0 |= 0x40000;
 }
 
 void func_806184BC(Actor *arg0) {
     u8 sp2F;
 
-    func_80614F28(&sp2F);
+    scriptReadU8(&sp2F);
     if (sp2F == 0xFF) {
         func_807149B8(0);
         func_807149FC(1);
@@ -1719,7 +1719,7 @@ void func_806184BC(Actor *arg0) {
     } else {
         func_8071498C(func_8071B24C);
         func_80714998(2);
-        func_80714950((((P19e4ActorView *)arg0)->unkE6 + 0x800) & 0xFFF);
+        func_80714950((((ActorEffectView *)arg0)->unkE6 + 0x800) & 0xFFF);
         func_807149B8(1);
         func_80714A28(0x80);
         func_80714C08(D_8071FF18, 0.4f, arg0, sp2F, 0);
@@ -1729,10 +1729,10 @@ void func_806184BC(Actor *arg0) {
 void func_8061859C(Actor *arg0) {
     u8 sp27;
 
-    func_80614F28(&sp27);
+    scriptReadU8(&sp27);
     func_8071498C(func_8071B44C);
     func_80714998(2);
-    func_80714950(((P19e4ActorView *)arg0)->unkEE);
+    func_80714950(((ActorEffectView *)arg0)->unkEE);
     func_807149B8(1);
     func_80714C08(D_8071FF18, 0.4f, arg0, sp27, 0);
 }
@@ -1748,7 +1748,7 @@ void func_80618608(Actor *arg0) {
     u8 sp3F;
     s16 var_s0;
 
-    func_80614F28(&sp3F);
+    scriptReadU8(&sp3F);
     if (D_807FBB68 & 2) {
         for (var_s0 = 0; var_s0 < 0x14; var_s0++) {
             func_807149B8(1);
@@ -1778,33 +1778,33 @@ void func_806187BC(Actor *arg0) {
     s16 sp1E;
     s16 sp1C;
 
-    func_80614F4C((u8 *)&sp1E);
-    func_80614F4C((u8 *)&sp1C);
+    scriptReadU16((u8 *)&sp1E);
+    scriptReadU16((u8 *)&sp1C);
 }
 
 void func_806187E8(Actor *arg0) {
     s16 sp1E;
 
-    func_80614F4C((u8 *)&sp1E);
-    ((P19e3ActorFlags *)arg0)->unk146 |= sp1E;
+    scriptReadU16((u8 *)&sp1E);
+    ((ActorFlagsView *)arg0)->unk146 |= sp1E;
 }
 
 void func_80618820(Actor *arg0) {
     s16 sp1E;
 
-    func_80614F4C((u8 *)&sp1E);
-    ((P19e3ActorFlags *)arg0)->unk146 &= ~sp1E;
+    scriptReadU16((u8 *)&sp1E);
+    ((ActorFlagsView *)arg0)->unk146 &= ~sp1E;
 }
 
 void func_8061885C(Actor *arg0) {
     f32 sp1C;
 
-    func_80614FD8((u8 *)&sp1C);
+    scriptReadU32((u8 *)&sp1C);
 }
 
 typedef struct {
     u8 pad0[4];
-    P19aState *unk4;
+    ScriptState *unk4;
     u8 pad8[0x50];
     s32 unk58;
     u8 pad5C[0xE];
@@ -1817,19 +1817,19 @@ typedef struct {
     s16 unkDE;
     u8 padE0[0x98];
     void *unk178;
-} P17b3ActorView;
+} ActorScriptView;
 
 typedef struct {
     u8 pad0[0x64];
     s16 unk64;
-} P17b3GlobalView;
+} GlobalToggleView;
 
 void func_80618880(Actor *arg0) {
-    P17b3ActorView *actor;
+    ActorScriptView *actor;
 
-    actor = (P17b3ActorView *)arg0;
-    if (((P17b3GlobalView *)D_807FD580)->unk64 != 0) {
-        ((P17b3GlobalView *)D_807FD580)->unk64 = 0;
+    actor = (ActorScriptView *)arg0;
+    if (((GlobalToggleView *)D_807FD580)->unk64 != 0) {
+        ((GlobalToggleView *)D_807FD580)->unk64 = 0;
         actor->unk4->unk88 = 0;
         return;
     }
@@ -1837,9 +1837,9 @@ void func_80618880(Actor *arg0) {
 }
 
 void func_806188B8(Actor *arg0) {
-    P17b3ActorView *actor;
+    ActorScriptView *actor;
 
-    actor = (P17b3ActorView *)arg0;
+    actor = (ActorScriptView *)arg0;
     if (actor->unkC0 < 0.0f) {
         actor->unk4->unk88 = 1;
         return;
@@ -1848,9 +1848,9 @@ void func_806188B8(Actor *arg0) {
 }
 
 void func_806188F4(Actor *arg0) {
-    P17b3ActorView *actor;
+    ActorScriptView *actor;
 
-    actor = (P17b3ActorView *)arg0;
+    actor = (ActorScriptView *)arg0;
     if ((actor->unk6A & actor->unk6C & 1) != 0) {
         actor->unk4->unk88 = 1;
         return;
@@ -1861,15 +1861,15 @@ void func_806188F4(Actor *arg0) {
 void func_8061892C(Actor *arg0) {
     s16 value;
 
-    func_80614F4C((u8 *)&value);
-    ((P17b3ActorView *)arg0)->unkC0 = (f32)value;
+    scriptReadU16((u8 *)&value);
+    ((ActorScriptView *)arg0)->unkC0 = (f32)value;
 }
 
 void func_80618968(Actor *arg0) {
     f32 value;
 
-    func_80614FD8((u8 *)&value);
-    ((P17b3ActorView *)arg0)->unkC4 = value;
+    scriptReadU32((u8 *)&value);
+    ((ActorScriptView *)arg0)->unkC4 = value;
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618998.s")
@@ -1884,21 +1884,21 @@ void func_80618B6C(Actor *arg0) {
     u8 sp2E;
 
     actorGetNodePosOrPosition(arg0, &sp3C, &sp38, &sp34);
-    func_80614F28(&sp2E);
-    func_80614F28(&sp2F);
-    func_80614F4C((u8 *)&sp32);
-    func_80614F4C((u8 *)&sp30);
-    func_8061EF4C(((P19e4GlobalState *)D_807FD580)->unk104, sp2E, sp2F, sp3C, sp38, sp34, (f32)sp32, (f32)sp30);
+    scriptReadU8(&sp2E);
+    scriptReadU8(&sp2F);
+    scriptReadU16((u8 *)&sp32);
+    scriptReadU16((u8 *)&sp30);
+    func_8061EF4C(((GlobalSpawnView *)D_807FD580)->unk104, sp2E, sp2F, sp3C, sp38, sp34, (f32)sp32, (f32)sp30);
 }
 
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, Actor *, u8);
 void actorSetNodeFlag();
 void actorClearNodeFlag();
 
-typedef struct P19b3GlobalState {
+typedef struct GlobalTimerView {
     u8 pad0[0xCA];
     u8 unkCA;
-} P19b3GlobalState;
+} GlobalTimerView;
 
 void func_80618C00(Actor *arg0, u8 arg1) {
     f32 sp3C;
@@ -1923,13 +1923,13 @@ void func_80618C8C(Actor *arg0) {
         node = 8;
     }
     func_80618C00(arg0, node);
-    ((P19b3GlobalState *)D_807FD580)->unkCA = 0x28;
+    ((GlobalTimerView *)D_807FD580)->unkCA = 0x28;
 }
 
 void func_80618CD8(Actor *arg0) {
     u8 sp1F;
 
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     if (sp1F & 0x80) {
         arg0->unk132 = (s16)(sp1F & 0x7F);
         return;
@@ -1940,7 +1940,7 @@ void func_80618CD8(Actor *arg0) {
 void func_80618D20(Actor *arg0) {
     u8 sp1F;
 
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     if (sp1F & 0x80) {
         arg0->unk132 = (s16)(sp1F & 0x7F);
         return;
@@ -1953,7 +1953,7 @@ void func_80618D20(Actor *arg0) {
 void func_80618E4C(Actor *arg0) {
     u8 sp1F;
 
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     if (sp1F != 0) {
         arg0->unk60 &= 0xBFFFFFFF;
         D_807FBB60 |= 0x10030;
@@ -1969,28 +1969,28 @@ extern s16 D_80746E10[];
 void func_80618EE8(Actor *arg0) {
     u8 *script;
 
-    actorSpawn(0x135, D_80746E10[((P19e4ActorView *)arg0)->unk58]);
-    func_8067B238(D_807FBB44, arg0, ((P19e4ActorState *)arg0->unk4)->unk34);
-    ((P19e4ActorView *)D_807FBB44)->unkE8 = ((P19e4ActorView *)arg0)->unkE8;
-    ((P19e4ActorView *)D_807FBB44)->unkE4 = ((P19e4ActorView *)arg0)->unkE4;
-    script = ((P19e4ActorView *)D_807FBB44)->unk174;
-    func_80614F28(script + 6);
+    actorSpawn(0x135, D_80746E10[((ActorEffectView *)arg0)->unk58]);
+    func_8067B238(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+    ((ActorEffectView *)D_807FBB44)->unkE8 = ((ActorEffectView *)arg0)->unkE8;
+    ((ActorEffectView *)D_807FBB44)->unkE4 = ((ActorEffectView *)arg0)->unkE4;
+    script = ((ActorEffectView *)D_807FBB44)->unk174;
+    scriptReadU8(script + 6);
 }
 
 void func_80618F74(Actor *arg0) {
     u8 sp1F;
-    P19e4ActorView *actor;
+    ActorEffectView *actor;
 
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     if (sp1F != 0) {
         actorSpawn(0x136, 0xA8);
-        func_8067B238(D_807FBB44, arg0, ((P19e4ActorState *)arg0->unk4)->unk34);
-        ((P19e4GlobalState *)D_807FD580)->unk88 = D_807FBB44;
+        func_8067B238(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+        ((GlobalSpawnView *)D_807FD580)->unk88 = D_807FBB44;
     } else {
-        actor = (P19e4ActorView *)((P19e4GlobalState *)D_807FD580)->unk88;
+        actor = (ActorEffectView *)((GlobalSpawnView *)D_807FD580)->unk88;
         if ((actor != NULL) && (actor->unk58 == 0x136)) {
             actorDespawn(actor);
-            ((P19e4GlobalState *)D_807FD580)->unk88 = NULL;
+            ((GlobalSpawnView *)D_807FD580)->unk88 = NULL;
         }
     }
 }
@@ -1998,14 +1998,14 @@ void func_80618F74(Actor *arg0) {
 void func_80619018(Actor *arg0) {
     u8 sp1F;
 
-    func_80614F28(&sp1F);
+    scriptReadU8(&sp1F);
     if (sp1F != 0) {
-        if (((P19e4ActorView *)arg0)->unk12C != -1) {
-            lightGetColor(&D_807F5AF8, &D_807F5AFC, &D_807F5B00, ((P19e4ActorView *)arg0)->unk12C);
-            lightSetColor(107.0f, 48.0f, 80.0f, ((P19e4ActorView *)arg0)->unk12C);
+        if (((ActorEffectView *)arg0)->unk12C != -1) {
+            lightGetColor(&D_807F5AF8, &D_807F5AFC, &D_807F5B00, ((ActorEffectView *)arg0)->unk12C);
+            lightSetColor(107.0f, 48.0f, 80.0f, ((ActorEffectView *)arg0)->unk12C);
         }
-    } else if (((P19e4ActorView *)arg0)->unk12C != -1) {
-        lightSetColor(((f32 *)&D_807F5AF8)[0], ((f32 *)&D_807F5AF8)[1], ((f32 *)&D_807F5AF8)[2], ((P19e4ActorView *)arg0)->unk12C);
+    } else if (((ActorEffectView *)arg0)->unk12C != -1) {
+        lightSetColor(((f32 *)&D_807F5AF8)[0], ((f32 *)&D_807F5AF8)[1], ((f32 *)&D_807F5AF8)[2], ((ActorEffectView *)arg0)->unk12C);
     }
 }
 
@@ -2013,15 +2013,15 @@ void func_80619018(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806192A4.s")
 
-void func_80619500(Actor *arg0) {
+void scriptCmdDespawnActor(Actor *arg0) {
     actorDespawn(arg0);
 }
 
 void *func_80619520(Actor *arg0) {
-    P17b3ActorView *actor;
+    ActorScriptView *actor;
     void *result;
 
-    actor = (P17b3ActorView *)arg0;
+    actor = (ActorScriptView *)arg0;
     result = NULL;
     if (actor->unk58 == 0x134) {
         result = actor->unk178;
@@ -2034,7 +2034,7 @@ void func_80619540(Actor *arg0) {
     u8 *result;
 
     result = func_80619520(arg0);
-    func_80614F28(&value);
+    scriptReadU8(&value);
     if (result != NULL) {
         result[0x35] = value;
     }
@@ -2050,8 +2050,8 @@ void func_80619580(Actor *arg0) {
 }
 
 void func_806195B4(Actor *arg0) {
-    P17b3ActorView *actor;
+    ActorScriptView *actor;
 
-    actor = (P17b3ActorView *)arg0;
+    actor = (ActorScriptView *)arg0;
     actor->unk4->unk88 = actor->unkDE >= 0x3DA;
 }

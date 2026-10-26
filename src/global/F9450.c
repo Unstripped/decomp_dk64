@@ -280,12 +280,12 @@ void func_806F5498(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F5CE4.s")
 
-extern s32 func_80611A44(void);
+extern s32 randomNonNegative(void);
 extern s32 D_80754248[];
 
 void func_806F5D80(s32 *arg0, s32 *arg1) {
-    *arg0 = D_80754248[((u32) (func_80611A44() >> 0xF) % 7U)];
-    *arg1 = ((s32) ((s32) (func_80611A44() >> 0xF) % 32767) % 391) + 0xD2;
+    *arg0 = D_80754248[((u32) (randomNonNegative() >> 0xF) % 7U)];
+    *arg1 = ((s32) ((s32) (randomNonNegative() >> 0xF) % 32767) % 391) + 0xD2;
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F5DF8.s")

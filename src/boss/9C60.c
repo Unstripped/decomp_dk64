@@ -152,7 +152,7 @@ void func_805FF158(s32);
 void func_805FF378(s32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void func_80614D90(BossC_9C60_Actor *);
-void func_80614EBC(BossC_9C60_Actor *, s32);
+void actorScriptStart(BossC_9C60_Actor *, s32);
 s32 func_8061CB50(void);
 void func_8061CC40(BossC_9C60_Actor *, s32, s32);
 void func_8061F0B0(s32, s32, s32);
@@ -188,7 +188,7 @@ void func_8002DE04(void) {
         D_807FBB40->unk154 = 0x1E;
         D_807FBB40->unk155 = 0;
         D_807FBB40->unkCC = 1;
-        func_80614EBC(D_807FBB40, 0x3E3);
+        actorScriptStart(D_807FBB40, 0x3E3);
         func_80724CA4(2, 1);
     }
     if (D_807FBB40->unk154 != 0x28) {
@@ -203,7 +203,7 @@ void func_8002DE04(void) {
         D_807FBB40->unkB8 = D_807FDC9C->unkC;
         break;
     case 0x27:
-        func_80614EBC(D_807FBB40, 0x3E1);
+        actorScriptStart(D_807FBB40, 0x3E1);
         D_807FBB40->unk154 = sp38[sp3C->unk15++];
         D_807FBB40->unk155 = 0;
         break;
@@ -229,7 +229,7 @@ void func_8002DE04(void) {
     case 0:
         switch (D_807FBB40->unk155) {
         case 0:
-            func_80614EBC(D_807FBB40, 0x3EA);
+            actorScriptStart(D_807FBB40, 0x3EA);
             D_807FBB40->unk155++;
             break;
         case 1:
@@ -251,7 +251,7 @@ void func_8002DE04(void) {
         case 1:
             if (func_8061CB50() == 0) {
                 D_807FDC90->unk2C = sp3C->unk18;
-                func_80614EBC(D_807FBB40, 0x3EF);
+                actorScriptStart(D_807FBB40, 0x3EF);
                 D_807FBB40->unk155++;
             }
             break;
@@ -262,7 +262,7 @@ void func_8002DE04(void) {
             D_807FBB40->unk155++;
             break;
         case 5:
-            func_80614EBC(D_807FBB40, 0x3F0);
+            actorScriptStart(D_807FBB40, 0x3F0);
             D_807FBB40->unk155++;
             break;
         case 7:
@@ -291,7 +291,7 @@ void func_8002DE04(void) {
         switch (D_807FBB40->unk155) {
         case 0:
             D_807FBB40->unk146 = 5;
-            func_80614EBC(D_807FBB40, sp3C->unk14 ? 0x409 : 0x408);
+            actorScriptStart(D_807FBB40, sp3C->unk14 ? 0x409 : 0x408);
             func_80614D90(D_807FBB40);
             func_80613C48(sp3C->unk0, 0x675, 0.0f, 0.0f);
             D_807FBB40->unk155++;
@@ -306,14 +306,14 @@ void func_8002DE04(void) {
         switch (D_807FBB40->unk155) {
         case 0:
             D_807FBB40->unk146 = 5;
-            func_80614EBC(D_807FBB40, 0);
+            actorScriptStart(D_807FBB40, 0);
             bossDespawnEntities();
             func_8061CC40(D_807FBB40, 1, 1);
             D_807FBB40->unk155++;
             break;
         case 1:
             if (func_80629148() != 0) {
-                func_80614EBC(D_807FBB40, 0x403);
+                actorScriptStart(D_807FBB40, 0x403);
                 D_807FBB40->unk155++;
             }
             break;
@@ -326,7 +326,7 @@ void func_8002DE04(void) {
                 } else {
                     bossAttachActor();
                     D_807FBB40->unk146 = 1;
-                    func_80614EBC(D_807FBB40, 0x404);
+                    actorScriptStart(D_807FBB40, 0x404);
                     func_80614D90(D_807FBB40);
                     func_80613C48(sp3C->unk0, 0x673, 0.0f, 0.0f);
                     D_807FBB40->unk155++;
@@ -343,7 +343,7 @@ void func_8002DE04(void) {
             sp3C->unk15 = 0;
             sp3C->unk14++;
             sp38 = D_80035A60[sp3C->unk14];
-            func_80614EBC(D_807FBB40, 0x406);
+            actorScriptStart(D_807FBB40, 0x406);
             func_80614D90(D_807FBB40);
             func_80613C48(sp3C->unk0, 0x674, 0.0f, 0.0f);
             D_807FBB40->unk154 = sp38[sp3C->unk15++];
@@ -355,7 +355,7 @@ void func_8002DE04(void) {
         switch (D_807FBB40->unk155) {
         case 0:
             D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FDCA0->unk14->unk28, D_807FDCA0->unk14->unk2C, D_807FBB40->unk7C, D_807FBB40->unk84);
-            func_80614EBC(D_807FBB40, 0);
+            actorScriptStart(D_807FBB40, 0);
             func_8061CC40(D_807FBB40, 2, 1);
             D_807FBB40->unk155++;
             break;

@@ -671,7 +671,7 @@ extern f32 D_80753BF8[];
 extern f32 D_80753DC8[];
 extern f32 D_80753DE4[];
 extern u16 *D_807FBB54;
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void func_80614D00(void *, f32, f32);
 void proxPathAdvance(f32);
 s16 mathAngleDistance(s16, s16);
@@ -729,7 +729,7 @@ void func_806E07F8(void) {
         temp_v1 = &D_807FD610[D_807FC929];
         if ((temp_v1->unk2E < 0x1E && G22_A->unk154 == 0x11) || (temp_v1->unk2F >= -0x1D && G22_A->unk154 == 0x13) || (temp_v1->unk2F < 0x1E && G22_A->unk154 == 0x12) || (temp_v1->unk2E >= -0x1D && G22_A->unk154 == 0x10)) {
             if (D_8074E77C[D_807FC929] == 2 && G22_A->unk154 != 0x12) {
-                func_80614EBC(D_807FBB40, 0x191);
+                actorScriptStart(D_807FBB40, 0x191);
             } else if (G22_A->unk155 == 1) {
                 switch (G22_A->unk154) {
                     case 0x11:
@@ -880,14 +880,14 @@ void func_806E0FAC(void) {
                 if (G22_A->unk154 == 0x62) {
                     temp_a1_2 = D_807FBB54[G22_A->unk58 + 0x23C];
                     if (G22_A->unk4->unk64 != temp_a1_2) {
-                        func_80614EBC(D_807FBB40, temp_a1_2);
+                        actorScriptStart(D_807FBB40, temp_a1_2);
                     }
                     func_80614D00(D_807FBB40, (f32)((f64)var_fv0 / 80.0), 0.0f);
                 }
             } else {
                 temp_a1_2 = D_807FBB54[G22_A->unk58 + 0x52];
                 if (G22_A->unk4->unk64 != temp_a1_2) {
-                    func_80614EBC(D_807FBB40, temp_a1_2);
+                    actorScriptStart(D_807FBB40, temp_a1_2);
                 }
                 func_80614D00(D_807FBB40, (f32)((f64)var_fv0 / 80.0), 0.0f);
             }
@@ -897,13 +897,13 @@ void func_806E0FAC(void) {
             if (G22_A->unk154 == 0x62) {
                 temp_a1_2 = D_807FBB54[G22_A->unk58 + 0x243];
                 if (G22_A->unk4->unk64 != temp_a1_2) {
-                    func_80614EBC(D_807FBB40, temp_a1_2);
+                    actorScriptStart(D_807FBB40, temp_a1_2);
                 }
             }
         } else if (G22_A->unk155 == 1) {
             temp_a1_2 = D_807FBB54[G22_A->unk58 + 0x4B];
             if (G22_A->unk4->unk64 != temp_a1_2) {
-                func_80614EBC(D_807FBB40, temp_a1_2);
+                actorScriptStart(D_807FBB40, temp_a1_2);
             }
         }
     }
@@ -1086,7 +1086,7 @@ void func_806E1A50(void) {
         G23_A->unk155 = 0;
         G23_P->unk54 = D_807535CC[D_807FD584];
         G23_P->unk50 = 0;
-        func_80614EBC(D_807FBB40, 0xB0);
+        actorScriptStart(D_807FBB40, 0xB0);
         G23_P->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -1127,7 +1127,7 @@ void func_806E1D38(void) {
         G23_A->unk155 = 0;
         G23_P->unk54 = D_807535CC[D_807FD584];
         G23_P->unk50 = 0;
-        func_80614EBC(D_807FBB40, 0xAF);
+        actorScriptStart(D_807FBB40, 0xAF);
         G23_P->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -1162,7 +1162,7 @@ void func_806E1F8C(void) {
         G23_A->unk155 = 0;
         G23_P->unk54 = D_807535CC[D_807FD584];
         G23_P->unk50 = 0;
-        func_80614EBC(D_807FBB40, 0x156);
+        actorScriptStart(D_807FBB40, 0x156);
         G23_P->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -1226,8 +1226,8 @@ void func_8061F0B0(s32, s32, s32);
 s32 func_80672630(void *, s32, s32);
 void func_80714950(s32);
 s32 func_80714C08(void *, f32, Actor *, s32, s32);
-f32 func_80612D10(f32);
-f32 func_80612D1C(f32);
+f32 cosApprox(f32);
+f32 sinApprox(f32);
 u8 func_806E2B20(void *);
 void func_806E2C74(Actor *);
 s32 actorIsActiveType2B(Actor *);
@@ -1378,8 +1378,8 @@ u8 arg1;
                     dz = LE40B_OBJ->unk230 - LE40B_OBJ->unk218;
                     dx = LE40B_OBJ->unk228 - LE40B_OBJ->unk210;
                     ang2 = func_80611BB4(LE40B_OBJ->unk22C - LE40B_OBJ->unk214, sqrtf(dz * dz + dx * dx));
-                    sp50 = D_80753E2C[D_807FD584] * func_80612D1C(ang2);
-                    sp54 = D_80753E2C[D_807FD584] * func_80612D10(ang2);
+                    sp50 = D_80753E2C[D_807FD584] * sinApprox(ang2);
+                    sp54 = D_80753E2C[D_807FD584] * cosApprox(ang2);
                     projectileSpawnNodeEntry(spawnId, (s16)flags, scale,
                                              mathAngleBetweenPoints2D(LE40B_OBJ->unk228, LE40B_OBJ->unk230, LE40B_OBJ->unk210, LE40B_OBJ->unk218),
                                              sp54, sp50, D_807FBB48);
@@ -1777,7 +1777,7 @@ void func_806E36B4(void) {
             case 0x42:
             case 0x55:
             case 0x82:
-                func_80614EBC(D_807FBB40, 0x1CB);
+                actorScriptStart(D_807FBB40, 0x1CB);
                 break;
             default:
                 func_80614E78(D_807FBB40, 0x30);
@@ -2157,7 +2157,7 @@ void func_806E41EC(void) {
         } else {
             G25_A->unk154 = 0x29;
             G25_A->unk155 = 0;
-            func_80614EBC(D_807FBB40, 0x1DF);
+            actorScriptStart(D_807FBB40, 0x1DF);
             G25_P->unk64 = 0;
             G25_P->unk68 = D_8075380C[D_807FD584];
         }
@@ -2291,7 +2291,7 @@ void func_806E4AD8(void) {
                     case 0x42:
                     case 0x55:
                     case 0x82:
-                        func_80614EBC(D_807FBB40, 0x1CD);
+                        actorScriptStart(D_807FBB40, 0x1CD);
                         break;
                     default:
                         func_80614E78(D_807FBB40, 0x2C);
@@ -2312,7 +2312,7 @@ void func_806E4C6C(void) {
             case 0x40:
             case 0x41:
             case 0x42:
-                func_80614EBC(D_807FBB40, 0x1CC);
+                actorScriptStart(D_807FBB40, 0x1CC);
                 break;
             default:
                 func_80614E78(D_807FBB40, 0x2D);
@@ -2690,7 +2690,7 @@ s32 func_806E56EC() {
                 G26_AC->unkC0 = 0.0f;
                 G26_AC->unkC4 = G26_GS->unk10 * 0.2 + 2.0;
                 G26_PL->unkC0 = G26_GS->unk12;
-                func_80614EBC(D_807FBB40, 0x169);
+                actorScriptStart(D_807FBB40, 0x169);
                 return 1;
             case 7:
                 G26_AC->unk144 = 1;
@@ -3254,7 +3254,7 @@ void func_806E7338(void) {
         G28_P->unk14 = G28_A->unkE6;
         if (G28_P->unk10 == 0) {
             G28_P->unk38 = 300.0f;
-            func_80614EBC(D_807FBB40, 0x318);
+            actorScriptStart(D_807FBB40, 0x318);
         } else {
             G28_P->unk38 = 250.0f;
         }
@@ -3281,7 +3281,7 @@ void func_806E7484(void) {
         G28_P->unk14 = G28_A->unkE6;
         if (G28_P->unk10 == 0) {
             G28_P->unk38 = 300.0f;
-            func_80614EBC(D_807FBB40, 0x318);
+            actorScriptStart(D_807FBB40, 0x318);
         } else {
             G28_P->unk38 = 250.0f;
         }
@@ -3486,7 +3486,7 @@ void func_806E7DF4(void) {
                 }
                 a1 = flag ? 0x81 : 0x7D;
                 func_80614E78(D_807FBB40, a1);
-                func_80614EBC(G28_P->unk88, flag ? 0x295 : 0x296);
+                actorScriptStart(G28_P->unk88, flag ? 0x295 : 0x296);
             } else {
                 st->unk3F = cnt + 1;
                 if (st->unk3F == 1 && (*st->unk34 & 0x40)) {
@@ -3494,7 +3494,7 @@ void func_806E7DF4(void) {
                 }
                 a1 = flag ? 0x7D : 0x81;
                 func_80614E78(D_807FBB40, a1);
-                func_80614EBC(G28_P->unk88, flag ? 0x296 : 0x295);
+                actorScriptStart(G28_P->unk88, flag ? 0x296 : 0x295);
             }
         }
     }
@@ -4058,9 +4058,9 @@ void func_806E9070(void) {
         G30_M->unk58 = G24_SCHED280 - 0x1E;
         func_80614E78(D_807FBB40, 0x7C);
         if (D_807FBB40->unk58 == 2) {
-            func_80614EBC(G30_M->unk88, 0x294);
+            actorScriptStart(G30_M->unk88, 0x294);
         } else {
-            func_80614EBC(G30_M->unk88, 0x293);
+            actorScriptStart(G30_M->unk88, 0x293);
         }
     }
 }
@@ -4100,7 +4100,7 @@ void func_806E9388(void) {
     if (G30_PAD(D_807FD63C, u16) & 0x4000) {
         G29_PAR->unk154 = 0x80;
         G29_PAR->unk155 = 0;
-        func_80614EBC(D_807FBB40, 0x316);
+        actorScriptStart(D_807FBB40, 0x316);
     }
 }
 
@@ -4108,7 +4108,7 @@ void func_806E93F8(void) {
     if (G30_PAD(D_807FD63C, u16) & 0x4000) {
         G29_PAR->unk154 = 0x81;
         G29_PAR->unk155 = 0;
-        func_80614EBC(D_807FBB40, 0x316);
+        actorScriptStart(D_807FBB40, 0x316);
     }
 }
 
@@ -4123,7 +4123,7 @@ void func_806E9468(void) {
         if (0.0f < G30_A->unkC0) {
             G30_A->unkC0 = 0.0f;
         }
-        func_80614EBC(D_807FBB40, 0x318);
+        actorScriptStart(D_807FBB40, 0x318);
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x10, 0xFF, 0x7F, 1);
     }
 }
@@ -4177,7 +4177,7 @@ s32 func_806E9580(void) {
                 }
                 if (lim < G30_A->unkB4 + diff) {
                     playerStateQueueCallback(0x3D, 0, D_807FC929);
-                    func_80614EBC(D_807FBB40, 0);
+                    actorScriptStart(D_807FBB40, 0);
                     if (G30_M->unkC4) {
                         n_alSndpStop(G30_M->unkC4);
                     }
