@@ -152,7 +152,13 @@ s32 func_8061551C(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615558.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806155F4.s")
+s32 func_806155F4(Actor *arg0) {
+    if (((P19bState *)arg0->unk4)->unk88 != 0) {
+        D_807F5AF0++;
+        return 1;
+    }
+    return 0;
+}
 
 s32 func_8061562C(Actor *arg0) {
     if (((P19bState *)arg0->unk4)->unk88 == 0) {
@@ -190,23 +196,63 @@ s32 func_806156A0(Actor *arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806158E8.s")
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061594C.s")
+void func_80613C48(s32, s16, f32, f32);
+void func_80613AF8(s32, s16, f32, f32);
+void func_80613BA0(s32, s16, f32, f32);
+void func_80613A50(s32, s8);
+void func_80613FB0(s32, u16, f32, u8);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061599C.s")
+
+s32 func_8061594C(s32 arg0) {
+    s16 sp1E;
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    func_80613C48(arg0, sp1E, 0.0f, 1.0f);
+    return 1;
+}
+
+s32 func_8061599C(s32 arg0) {
+    s16 sp1E;
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    func_80613BA0(arg0, sp1E, 0.0f, 1.0f);
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806159EC.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615A3C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615A94.s")
+s32 func_80615A94(s32 arg0) {
+    s8 sp1F;
+    D_807F5AF0++;
+    func_80614F28((u8 *)&sp1F);
+    func_80613A50(arg0, sp1F);
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615ADC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615B34.s")
+s32 func_80615B34(s32 arg0) {
+    s16 sp1E;
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    func_80613AF8(arg0, sp1E, 0.0f, 1.0f);
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615B84.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615BDC.s")
+s32 func_80615BDC(s32 arg0) {
+    u16 sp1E;
+    u8 sp1D;
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    func_80614F28(&sp1D);
+    func_80613FB0(arg0, sp1E, 0.0f, sp1D);
+    return 1;
+}
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615C34.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615CE4.s")
