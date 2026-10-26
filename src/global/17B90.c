@@ -59,11 +59,41 @@ void func_80613214(P17aController *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613BA0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613C48.s")
+typedef struct {
+    void *unk0;
+    u8 pad4[0xC];
+    s16 unk10;
+    u8 pad12[0x12];
+    f32 unk24;
+} P17bState;
+
+typedef struct {
+    P17bState *unk0;
+} P17bStateHolder;
+
+typedef struct {
+    u8 pad0[4];
+    P17bStateHolder *unk4;
+} P17bControllerView;
+
+void func_80613CA8(P17bControllerView *, s16, f32, f32);
+
+
+void func_80613C48(P17bControllerView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+    P17bState *state;
+
+    state = arg0->unk4->unk0;
+    if (arg1 == state->unk10) {
+        state->unk24 = *(f32 *)state->unk0;
+        return;
+    }
+    func_80613CA8(arg0, arg1, arg2, arg3);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613CA8.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613FB0.s")
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614014.s")
 
