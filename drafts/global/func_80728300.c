@@ -1,6 +1,4 @@
-// func_80728300 (src/global/1295B0.c): stage 3-4: text size matches (21072) after 's32 t = *src++; cnt = t; store t' read idiom; remaining diff = s-reg allocation: mine puts src/p pointers in s-regs (frame 0x58, uses s8) while target keeps them in t0/a3 (spilled around calls; frame 0x60, s0-s7 only: rec s0,j s1,cnt s2,prev s3,same s4,6 s5,0xA s6,i s7) and shifts for cnt*6 instead of multu s6. Needs C1Node: u8 unk11, u8(*unk20)[2], f32 unk3C.
-
-
+// func_80728300 (src/global/1295B0.c): stage 4: 338 vs 337 insns. Needs forward decl at line ~149 made unprototyped ('void func_80728300();', allowed) so typed params keep a1 spilled like the target. '(cnt << 1) * 3' / '(cnt << 1) * 5' at the two allocation calls gives the target's shift sequences and only 2 multu (drop the 6/10 constant from the call sites). Remaining: s-reg set: target s0-s7 (frame 0x60; src t0 and p a3 both caller-saved with spills) vs built s0-s8 (p gets s2, i gets s8, src v1). 'p = src' after the alloc call makes src take an s-reg (worse); dead 'if (i) {}' reads have no effect; two permuter runs 600s best 3414 from 4485 (only an extra u8 temp hint).
 typedef struct C1S6 {
     s16 v[3];
 } C1S6;
@@ -34,9 +32,6 @@ typedef struct C1Rec24List {
     /* 0x2 */ u8 pad2[2];
     /* 0x4 */ C1Rec24 *unk4;
 } C1Rec24List;
-
-void *func_80610FE8(s32);
-void heapClearBlock(void *);
 
 void func_80728300(s16 *arg0, C1Rec24List *arg1, C1NodeList *arg2) {
     s16 *src;
@@ -82,7 +77,7 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, C1NodeList *arg2) {
         }
         p = src;
         if (cnt != 0) {
-            rec->unkC = func_80610FE8(cnt * 6);
+            rec->unkC = func_80610FE8((cnt << 1) * 3);
         }
         if (cnt > 0) {
             do {
@@ -115,7 +110,7 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, C1NodeList *arg2) {
         }
         p = src;
         if (cnt != 0) {
-            rec->unk14 = func_80610FE8(cnt * 0xA);
+            rec->unk14 = func_80610FE8((cnt << 1) * 5);
         }
         if (cnt > 0) {
             do {
