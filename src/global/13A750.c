@@ -1,3 +1,9 @@
 #include "common.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13A750/alCSPSetBank.s")
+void alCSPSetBank(ALCSPlayer *seqp, ALBank *b) {
+    ALEvent evt;
+
+    evt.type = AL_SEQP_BANK_EVT;
+    evt.msg.spbank.bank = b;
+    alEvtqPostEvent(&seqp->evtq, &evt, 0);
+}
