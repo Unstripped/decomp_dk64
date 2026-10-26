@@ -688,6 +688,17 @@ D_80758FE8 = 0x80758FE8; // type:f64 force_migration:True function_owner:func_80
 D_80756F08 = 0x80756F08; // type:f64 size:0x8
 D_80756F10 = 0x80756F10; // type:f64 force_migration:True function_owner:sfxPlayAtPosition
 
+// 1295B0 late_rodata: unreferenced float after a referenced one stops splat's migration
+D_8075F66C = 0x8075F66C; // type:f32 size:0x4
+D_8075F670 = 0x8075F670; // type:f32 size:0x4 force_migration:True function_owner:func_80724E48
+
+// 12E800 late_rodata: unreferenced doubles around func_80729EB0's 0.1 constants
+D_8075FCF0 = 0x8075FCF0; // type:f64 size:0x8 force_migration:True function_owner:func_80729EB0
+D_8075FCF8 = 0x8075FCF8; // type:f64 size:0x8 force_migration:True function_owner:func_80729EB0
+D_8075FD00 = 0x8075FD00; // type:f64 size:0x8
+D_8075FD08 = 0x8075FD08; // type:f64 size:0x8 force_migration:True function_owner:func_80729EB0
+D_8075FD10 = 0x8075FD10; // type:f64 size:0x8 force_migration:True function_owner:func_80729EB0
+
 // Billboard rendering, effects, particle/target systems and trigger zones (61AA0-684C0)
 renderSetSegment6Override = 0x8065CDA0; // type:func
 renderReplaceSegment6Commands = 0x8065CDB0; // type:func

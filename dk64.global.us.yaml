@@ -159,11 +159,11 @@ segments:
       - [0x126260, c, 126260]
       - [0x127B00, c, 127B00]
       - [0x1292F0, c, 1292F0] # hidden TU: rodata pad after D_8075EB60 (func_80724154) at 0x163870; func_807245F0 (16-aligned) owns D_8075EB70/D_8075EB78
-      - [0x1295B0, asm]
-      - [0x12E800, asm]
-      - [0x1332B0, asm]
-      - [0x133A90, asm]
-      - [0x135D30, asm]
+      - [0x1295B0, c, 1295B0] # rodata 0x163880-0x164880: table D_8075EB80 (also read by 12E800) + floats/jtbls, TU end pad after D_8075FB70
+      - [0x12E800, c, 12E800] # rodata 0x164880-0x164C50 (first user func_80729EB0 reads D_8075FB80)
+      - [0x1332B0, c, 1332B0] # no rodata
+      - [0x133A90, c, 133A90] # rodata 0x164C50-0x164CF0, TU end pad after D_8075FFE0
+      - [0x135D30, c, 135D30] # no rodata
       - [0x136820, asm]
       - [0x1371D0, asm]
       - [0x137630, asm]
@@ -293,7 +293,10 @@ segments:
       - [0x163800, .rodata, 126260]
       - [0x163840, .rodata, 127B00]
       - [0x163870, .rodata, 1292F0]
-      - [0x163880, rodata]
+      - [0x163880, .rodata, 1295B0]
+      - [0x164880, .rodata, 12E800]
+      - [0x164C50, .rodata, 133A90]
+      - [0x164CF0, rodata]
       - { start: 0x165D50, type: bss, vram: 0x80761050 }
       - { start: 0x165D50, type: .bss, vram: 0x80770DF0, name: 7130 } # D_80770DF0..D_80770F38 (func_806057F8's static pitch at 0x80770F38)
       - { start: 0x165D50, type: bss, vram: 0x80770F40, name: 165D50_80770F40 }
