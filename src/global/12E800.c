@@ -470,32 +470,229 @@ void func_8072B79C(s16 arg0, s16 arg1, s16 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072D9D4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072DA60.s")
+typedef struct E2ActorView {
+    /* 0x00 */ u8 pad0[0x7C];
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ f32 unk84;
+    /* 0x88 */ f32 unk88;
+    /* 0x8C */ f32 unk8C;
+    /* 0x90 */ f32 unk90;
+    /* 0x94 */ u8 pad94[0x24];
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[0x10];
+    /* 0xCC */ u8 unkCC;
+    /* 0xCD */ u8 padCD[0x17];
+    /* 0xE4 */ s16 unkE4;
+    /* 0xE6 */ s16 unkE6;
+    /* 0xE8 */ s16 unkE8;
+    /* 0xEA */ u8 padEA[4];
+    /* 0xEE */ s16 unkEE;
+    /* 0xF0 */ u8 padF0[0x38];
+    /* 0x128 */ s16 unk128;
+    /* 0x12A */ u8 pad12A[0x2A];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+} E2ActorView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072DAA4.s")
+#define E2A ((E2ActorView *)D_807FBB40)
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072DB68.s")
+extern Actor *D_807FBD6C;
+extern u8 D_8071FB34;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072DC7C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072DCF4.s")
+void func_8072DA60(void) {
+    func_80714CC0(&D_8071FB34, 0.55f, D_807FBD6C->unk7C, D_807FBD6C->unk80, D_807FBD6C->unk84);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072DE10.s")
+void func_80714998(s32);
+void func_807149B8(s32);
+void func_8071498C(void *);
+void func_80714950(s32);
+extern u8 D_8071FF18;
+extern void func_80717D4C(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072DE44.s")
+void func_8072DAA4(void) {
+    func_80714998(2);
+    func_807149B8(1);
+    func_8071498C(func_80717D4C);
+    func_80714950(-0x28 - ((func_80611A44() >> 15) % 15));
+    func_80714CC0(&D_8071FF18, (f32)(((func_80611A44() >> 15) % 1000) / 2000.0 + 0.5), D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072DEA8.s")
+extern u8 D_807FC929;
+s32 func_806F8AD4(s32, u8);
+void func_806F91B4(s32, u8, s16);
+void slotQueueUpdate(s32, s32, s32);
+void sfxAllocateChannel(s32, f32);
+void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072E02C.s")
+void func_8072DB68(s32 arg0) {
+    u8 cnt;
+    s16 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072E0A8.s")
+    if (func_806F8AD4(0xB, D_807FC929) >= 4) {
+        cnt = 3;
+    } else {
+        cnt = func_806F8AD4(0xB, D_807FC929);
+    }
+    func_806F91B4(0xB, D_807FC929, -cnt);
+    slotQueueUpdate(0xB, 0, 0);
+    sfxAllocateChannel(0x41, 1.0f);
+    for (i = 0; i < cnt; i++) {
+        actorSpawnNodeEntryScaled(0x36, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, D_807FBB4C->unkE6 + i * 200 - 200, 1, -1, 0);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072E1A4.s")
+void func_8072DC7C(u8 arg0) {
+    func_8072AB74(0x37, 0.0f, 0.0f, 0x32, 0.0f);
+    E2A->unk128 -= arg0;
+    if (E2A->unk128 < 0) {
+        E2A->unk155++;
+        E2A->unk128 = 0;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072E22C.s")
+f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
+s32 func_8061CB50(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072E2B0.s")
+s32 func_8072DCF4(Actor *arg0, Actor *arg1, u16 arg2) {
+    f32 deg = mathAngleBetweenPointsDeg((s32)arg1->unk7C, (s32)arg1->unk84, (s32)arg0->unk7C, (s32)arg0->unk84);
+    s16 a = (f64)arg0->unkE6 / 4095.0 * 65536.0;
+    f32 t = 360.0 - deg;
+    s16 b = (f64)t / 360.0 * 65536.0;
+    s32 diff;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072E320.s")
+    if (a < b) {
+        diff = b - a;
+    } else {
+        diff = a - b;
+    }
+    if (diff < arg2) {
+        if (func_8061CB50() == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072E54C.s")
+s32 func_8072DE10(u16 arg0) {
+    return func_8072DCF4(D_807FBB40, D_807FDC94, arg0);
+}
+
+void func_8072B324(Actor *, s32);
+
+void func_8072DE44(s32 arg0) {
+    D_807FBB40->unk154 = D_807FDC9C->unk10;
+    D_807FBB40->unk155[0] = 0;
+    func_80614EBC(D_807FBB40, arg0);
+    func_8072B324(D_807FBB40, D_807FDC9C->unkC);
+}
+
+typedef struct E2Model {
+    /* 0x00 */ u8 pad0[0x10];
+    /* 0x10 */ s16 unk10;
+} E2Model;
+
+typedef struct E2Sub4 {
+    /* 0x00 */ E2Model *model;
+} E2Sub4;
+
+typedef struct E2D90View {
+    /* 0x00 */ u8 pad0[0x16];
+    /* 0x16 */ s16 unk16;
+} E2D90View;
+
+void func_8072D9D4(void);
+
+void func_8072DEA8(void *arg0, u8 arg1, Actor *arg2) {
+    f32 b8;
+
+    func_8072D9D4();
+    sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1CA, 0xFF, 0x7F, 0x14);
+    if (arg2 != NULL) {
+        if (arg2->unk5C & 4) {
+            E2A->unkEE = (((E2ActorView *)arg2)->unkEE + 0x800) & 0xFFF;
+        } else {
+            E2A->unkEE = (arg2->unkE6 + 0x800) & 0xFFF;
+        }
+        func_8072B59C(arg1, 0, (s32)arg0);
+        b8 = arg2->unkB8;
+        E2A->unkB8 = -(((b8 > 60.0f ? b8 : 60.0f) < 150.0f) ? (b8 > 60.0f ? b8 : 60.0f) : 150.0f);
+    } else {
+        func_8072B59C(arg1, 0, (s32)arg0);
+    }
+    if (arg2 == D_807FDC94) {
+        ((E2D90View *)D_807FDC90)->unk16 = ((E2Sub4 *)D_807FDC94->unk4)->model->unk10;
+        D_807FBB40->unk60 |= 0x20000000;
+    }
+}
+
+
+void func_8072E02C(void) {
+    E2A->unkE8 = func_806CC190(E2A->unkE8, 0, 5.0f);
+    E2A->unkE4 = E2A->unkE4 + (-E2A->unkE4) * 0.1;
+}
+
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+
+u8 func_8072E0A8(s32 arg0, s16 arg1) {
+    u8 close;
+    s16 ang;
+    s16 diff;
+
+    close = (((D_807FDC94->unk7C - D_807FBB40->unk7C) * (D_807FDC94->unk7C - D_807FBB40->unk7C) + (D_807FDC94->unk84 - D_807FBB40->unk84) * (D_807FDC94->unk84 - D_807FBB40->unk84)) < (f32)(arg0 * arg0));
+    ang = mathAngleBetweenPoints2D(D_807FDC94->unk7C, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk84);
+    if (ang < D_807FBB40->unkE6) {
+        diff = D_807FBB40->unkE6 - ang;
+    } else {
+        diff = ang - D_807FBB40->unkE6;
+    }
+    if (diff > 0x800) {
+        diff = 0x1000 - diff;
+    }
+    return diff < arg1 && close && D_807FDC94->unk154 != 0x42;
+}
+
+void func_8072E1A4(u8 arg0, Actor *arg1) {
+    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D(arg1->unk7C, arg1->unk84, D_807FBB40->unk7C, D_807FBB40->unk84), (u32)arg0);
+}
+
+u8 func_8072E22C(u16 arg0) {
+    f32 dx = D_807FBB40->unk7C - D_807FDC94->unk7C;
+    f32 dy = D_807FBB40->unk80 - D_807FDC94->unk80;
+    f32 dz = D_807FBB40->unk84 - D_807FDC94->unk84;
+
+    return (dx * dx + dy * dy + dz * dz) < (f32)(arg0 * arg0);
+}
+
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+
+void func_8072E2B0(Actor *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
+    if (((E2ActorView *)arg0)->unkCC != 0) {
+        actorGetNodePos(arg0, ((E2ActorView *)arg0)->unkCC & 0xFFFFFFFFu, arg1, arg2, arg3);
+    } else {
+        *arg1 = arg0->unk7C;
+        *arg2 = arg0->unk80;
+        *arg3 = arg0->unk84;
+    }
+}
+
+#define E2_MAX(a, b) ((a) > (b) ? (a) : (b))
+#define E2_MIN(a, b) ((a) < (b) ? (a) : (b))
+
+s32 func_806CC10C(s16, s16);
+
+void func_8072E320(f32 arg0) {
+    f32 v;
+
+    E2A->unkEE = E2A->unkE6;
+    E2A->unkE6 = func_806CC190(E2A->unkE6, mathAngleBetweenPoints2D(E2A->unk7C, E2A->unk84, E2A->unk88, E2A->unk90), 3.3f);
+    v = E2_MIN(E2_MAX(func_806CC10C(E2A->unkE6, E2A->unkEE) * arg0, -900.0f), 900.0f);
+    E2A->unkE4 = (v - E2A->unkE4) * 0.1 + E2A->unkE4;
+    E2A->unkE8 = func_806CC190(E2A->unkE8, mathCalculatePitchAngle(E2A->unk7C, E2A->unk80, E2A->unk84, E2A->unk88, E2A->unk8C, E2A->unk90, 0x1E) * 2048.0 / 3.1415927f, 3.3f);
+}
+
+u8 func_8072E54C(void) {
+    return !(D_807FDC98->unk46 & 0x2000) && (((func_80611A44() >> 15) % 1000) >= 0x3E4);
+}
