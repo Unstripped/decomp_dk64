@@ -262,7 +262,7 @@ u8 func_8060E3B0(u16, u8);
 s32 func_80631BCC(s16);
 s32 func_807315D4(s16, s16);
 s32 func_8063253C(s16, s32);
-s16 func_80632860(s32, s32, f32, f32, f32, f32, f32, f32, f32, f32, s32, s32, s32 *);
+s16 func_80632860(s32, s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, s32 *);
 void func_80632E74(s16, s16, u8 *);
 void func_8062D3E4(s32);
 void func_806306D0(s32);
@@ -479,35 +479,614 @@ s16 func_80632630(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5) {
     return sp5A;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80632860.s")
+typedef struct R36880bSub24 {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ u8 pad4[0x18];
+    /* 0x1C */ u8 unk1C;
+    /* 0x1D */ u8 unk1D;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 pad20[8];
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ s16 unk2A;
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ s16 unk2E;
+    /* 0x30 */ s16 unk30;
+    /* 0x32 */ u8 unk32;
+    /* 0x33 */ u8 unk33;
+    /* 0x34 */ u8 unk34;
+    /* 0x35 */ u8 unk35;
+    /* 0x36 */ u8 unk36;
+    /* 0x37 */ u8 unk37;
+    /* 0x38 */ u8 unk38;
+    /* 0x39 */ u8 unk39;
+} R36880bSub24;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80632E10.s")
+typedef struct R36880bSlot {
+    /* 0x00 */ u8 pad0[0x20];
+    /* 0x20 */ void *unk20;
+    /* 0x24 */ R36880bSub24 *unk24;
+    /* 0x28 */ u8 unk28[0x14];
+    /* 0x3C */ u8 unk3C;
+    /* 0x3D */ u8 unk3D;
+    /* 0x3E */ u8 pad3E[0xA];
+    /* 0x48 */ u8 unk48[0x24];
+    /* 0x6C */ u8 unk6C;
+    /* 0x6D */ u8 pad6D[0xB];
+    /* 0x78 */ u8 unk78[4];
+    /* 0x7C */ void *unk7C;
+    /* 0x80 */ u8 pad80[4];
+    /* 0x84 */ s16 unk84;
+    /* 0x86 */ s16 unk86;
+    /* 0x88 */ s16 unk88;
+    /* 0x8A */ u8 pad8A[6];
+} R36880bSlot;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80632E74.s")
+typedef struct R36880bObj1 {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ f32 unk1C;
+    /* 0x20 */ u8 pad20[0x96];
+    /* 0xB6 */ s16 unkB6;
+    /* 0xB8 */ u8 padB8[4];
+    /* 0xBC */ void *unkBC;
+    /* 0xC0 */ s16 unkC0;
+    /* 0xC2 */ u8 unkC2;
+    /* 0xC3 */ u8 unkC3;
+    /* 0xC4 */ u8 unkC4;
+    /* 0xC5 */ u8 unkC5;
+} R36880bObj1;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80632F20.s")
+typedef struct R36880bObj2 {
+    /* 0x00 */ u8 pad0[0x4C];
+    /* 0x4C */ s16 unk4C;
+    /* 0x4E */ u8 unk4E;
+    /* 0x4F */ u8 pad4F[5];
+    /* 0x54 */ void *unk54;
+    /* 0x58 */ s16 unk58;
+    /* 0x5A */ u8 unk5A;
+    /* 0x5B */ u8 unk5B;
+    /* 0x5C */ u8 unk5C;
+} R36880bObj2;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80632F74.s")
+typedef struct R36880bNode38 {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ u8 unk8;
+    /* 0x09 */ u8 unk9;
+    /* 0x0A */ u8 unkA;
+    /* 0x0B */ u8 unkB;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ u8 pad10[0x14];
+    /* 0x24 */ s16 unk24;
+    /* 0x26 */ u8 pad26[2];
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ s16 unk2A;
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ u8 unk2E;
+    /* 0x2F */ u8 pad2F;
+    /* 0x30 */ u8 unk30;
+    /* 0x31 */ u8 pad31[3];
+    /* 0x34 */ s32 unk34;
+} R36880bNode38;
+
+extern s32 D_807FBB64;
+extern s32 D_807FBB68;
+
+void func_806368F0(void *);
+void func_80636AE8(void *);
+void func_80636D38(void *, s32, s32);
+void func_8063524C(void *, f32, f32, f32, f32, f32, f32, f32, f32);
+void func_8063495C(void *, void *);
+void func_806349FC(void *, void *, s32);
+void func_8064F450(void *, void *);
+void func_8066C2D0(s32, void *, f32, f32, f32, f32, f32, f32, f32);
+void func_80633A1C(s32, void *, f32, f32, f32, f32, f32, f32, f32);
+void func_806348B4(void *);
+void dynamicBufferFree(void *);
+void hashTableInsert(s32, s32);
+s32 func_806303C4(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
+void func_80632E10(s16, u8 *);
+void func_80632F20(s32, u8 *);
+s32 func_80632F74(f32, f32, f32);
+void func_80632FCC(s16, u8);
+struct R36880bPathTable;
+void func_806330C4(s16, struct R36880bPathTable *, f32);
+struct R36880bVertTable;
+void func_806333F8(s32, struct R36880bVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
+void func_8063373C(s32, struct R36880bVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
+void func_806338F4(s32);
+
+#define R36880B_SLOT ((R36880bSlot *)((u8 *)D_807F6000 + arg0 * 0x90))
+#define R36880B_SLOTP ((R36880bSlot *)&D_807F6000[arg0])
+
+s16 func_80632860(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, u8 arg10, u8 arg11, s32 *arg12) {
+    s32 padA[1];
+    s32 sp68;
+    s32 padB[1];
+    R36880bObj1 *obj1;
+    R36880bObj2 *obj2;
+    R36880bSub24 *s0;
+    s32 type;
+    R36880bNode38 *node;
+    void **sp4C;
+
+    sp68 = *arg12;
+    func_806368F0(R36880B_SLOTP);
+    R36880B_SLOT->unk88 = D_807F6004;
+    hashTableInsert(R36880B_SLOT->unk88, arg0);
+    s0 = R36880B_SLOT->unk24;
+    type = s0->unk1C;
+    if (D_807FBB68 & 0x100) {
+        s0->unk0 &= ~0x10;
+    }
+    func_80632F20(arg1, (u8 *)s0);
+    if (D_807FBB64 & 0x100) {
+        s0->unk1E = 0x7D0;
+    } else if (D_807FBB64 & 0x400000) {
+        s0->unk1E = 0x1F4;
+    }
+    func_8064F450(R36880B_SLOTP->unk78, s0);
+    R36880B_SLOT->unk3C = 0;
+    R36880B_SLOT->unk3D = 0;
+    func_8066C2D0(arg0, s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    dynamicBufferFree(R36880B_SLOTP->unk28);
+    func_806338F4(arg0);
+    R36880B_SLOT->unk6C = 0;
+    func_80633A1C(arg0, s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    func_806348B4(R36880B_SLOTP->unk48);
+    func_806333F8(arg0, (struct R36880bVertTable *)s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 0);
+    func_8063373C(arg0, (struct R36880bVertTable *)s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 0);
+    func_806330C4(R36880B_SLOT->unk88, (struct R36880bPathTable *)s0, arg8);
+    if (type == 1) {
+        func_80636AE8(R36880B_SLOTP);
+    }
+    if (type != 1) {
+        if (type == 2) {
+            func_8063524C(R36880B_SLOTP, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+            func_806349FC(s0, R36880B_SLOTP, type);
+            obj2 = R36880B_SLOT->unk20;
+            sp4C = &obj2->unk54;
+            obj2->unk4C = D_807F6004;
+            obj2->unk4E = arg10;
+            obj2->unk5B = arg11;
+            obj2->unk58 = s0->unk1E;
+            obj2->unk5A = s0->unk1D;
+            obj2->unk5C = func_80632F74(arg2, arg3, arg4);
+        }
+    } else {
+        obj1 = R36880B_SLOT->unk20;
+        obj1->unk0 = arg2;
+        obj1->unk4 = arg3;
+        obj1->unk8 = arg4;
+        obj1->unkC = arg8;
+        obj1->unk10 = arg5;
+        obj1->unk14 = arg6;
+        obj1->unk18 = arg7;
+        obj1->unk1C = arg9;
+        obj1->unkB6 = D_807F6004;
+        obj1->unkC0 = s0->unk1E;
+        obj1->unkC2 = s0->unk1D;
+        obj1->unkC3 = arg11;
+        obj1->unkC4 = func_80632F74(arg2, arg3, arg4);
+        obj1->unkC5 = 0;
+        func_80632E10(arg1, &obj1->unkC5);
+        func_806349FC(s0, R36880B_SLOTP, type);
+        sp4C = &obj1->unkBC;
+    }
+    func_80636D38(R36880B_SLOTP, 0, 0);
+    if (type == 2) {
+        func_8063495C(s0, R36880B_SLOTP);
+    }
+    R36880B_SLOT->unk84 = arg1;
+    R36880B_SLOT->unk86 = type;
+    R36880B_SLOT->unk7C = NULL;
+    if (s0->unk28 != -1) {
+        node = func_80610FE8(0x38);
+        *sp4C = node;
+        node->unk34 = 0;
+        node->unk4 = 1.0f;
+        node->unkC = s0->unk2E;
+        node->unkE = s0->unk30;
+        node->unkA = s0->unk34;
+        node->unkB = s0->unk35;
+        node->unk8 = s0->unk32;
+        node->unk9 = s0->unk33;
+        node->unk24 = s0->unk2A;
+        node->unk28 = s0->unk2C;
+        node->unk2A = s0->unk36 * 10;
+        node->unk2C = s0->unk37 * 10;
+        node->unk2E = s0->unk38;
+        node->unk30 = s0->unk39;
+        node->unk0 = (s32)func_8066B0F8(0x19, s0->unk28, 1, 0);
+        func_80632FCC(arg0, 0);
+    }
+    *arg12 = func_806303C4(sp68, type, R36880B_SLOT->unk20, arg2, arg3, arg4, s0->unk1E, D_807F6004, 0, 0, 0);
+    D_807F6004 += 1;
+    return D_807F6004 - 1;
+}
+
+
+typedef struct R36880bMapPair {
+    /* 0x0 */ u16 map;
+    /* 0x2 */ u16 id;
+} R36880bMapPair;
+
+extern R36880bMapPair D_80747D50[];
+
+void func_80632E10(s16 arg0, u8 *arg1) {
+    s32 i;
+    s32 n;
+    i = 0;
+    n = 8;
+    for (; i < n; i++) {
+        if (D_8076A0A8 == D_80747D50[i].map && arg0 == D_80747D50[i].id) {
+            *arg1 |= 1;
+            return;
+        }
+    }
+}
+
+s32 func_80731654(s16, s16);
+
+void func_80632E74(s16 arg0, s16 arg1, u8 *arg2) {
+    switch (func_80731654(arg0, arg1)) {
+        case 2:
+            *arg2 |= 8;
+            break;
+        case 5:
+            *arg2 |= 4;
+            break;
+        case 6:
+            *arg2 |= 1;
+            break;
+        case 3:
+            *arg2 |= 2;
+            break;
+        case 4:
+            *arg2 |= 0x10;
+            break;
+    }
+}
+
+typedef struct R36880bMapTriple {
+    /* 0x0 */ u16 map;
+    /* 0x2 */ u16 id;
+    /* 0x4 */ u16 val;
+} R36880bMapTriple;
+
+extern R36880bMapTriple D_80747D30[];
+
+void func_80632F20(s32 arg0, u8 *arg1) {
+    s32 i;
+    s32 n;
+
+    n = 5;
+    for (i = 0; i < n; i++) {
+        if (D_8076A0A8 == D_80747D30[i].map && arg0 == D_80747D30[i].id) {
+            *(u16 *)(arg1 + 0x1E) = D_80747D30[i].val;
+            return;
+        }
+    }
+}
+
+s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
+u8 func_80667174(void);
+
+s32 func_80632F74(f32 x, f32 y, f32 z) {
+    f32 sp1C;
+
+    sp1C = y + 10.0f;
+    if (collisionCheckGroundAtPoint(x, z, &sp1C) != 0) {
+        return func_80667174();
+    }
+    return 0xF;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80632FCC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806330C4.s")
+typedef struct R36880bPathSeg {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ u8 unk10;
+    /* 0x11 */ u8 unk11;
+    /* 0x12 */ u8 unk12;
+    /* 0x13 */ u8 pad13;
+} R36880bPathSeg;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806333F8.s")
+typedef struct R36880bPathEntry {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ u8 unk14;
+    /* 0x15 */ u8 unk15;
+    /* 0x16 */ u8 segCount;
+    /* 0x17 */ u8 pad17;
+    /* 0x18 */ R36880bPathSeg segs[8];
+} R36880bPathEntry;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80633570.s")
+typedef struct R36880bPathTable {
+    /* 0x00 */ u8 pad0[0x5C];
+    /* 0x5C */ s32 unk5C;
+} R36880bPathTable;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806335B0.s")
+void func_806335B0(s32, u8, s32, f32 *, f32 *, f32 *);
+void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32, f32, u8);
+void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s16, s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063367C.s")
+void func_806330C4(s16 arg0, R36880bPathTable *arg1, f32 arg2) {
+    s32 j;
+    R36880bPathEntry *tbl;
+    s32 i;
+    s32 count;
+    f32 spC4;
+    f32 spC0;
+    f32 spBC;
+    f32 spB8;
+    f32 spB4;
+    f32 spB0;
+    f32 len;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063373C.s")
+    count = *(s32 *)(arg1->unk5C + (s32)arg1);
+    tbl = (R36880bPathEntry *)((u8 *)(arg1->unk5C + (s32)arg1) + 4);
+    for (i = 1; i <= count; i++) {
+        len = 0.0f;
+        for (j = 0; j < tbl[i - 1].segCount; j++) {
+            func_806335B0(arg0, 1, tbl[i - 1].segs[j].unk10, &spC0, &spB8, &spB0);
+            func_806335B0(arg0, 1, tbl[i - 1].segs[j].unk11, &spC4, &spBC, &spB4);
+            len += sqrtf((spB0 - spB4) * (spB0 - spB4) + ((spC0 - spC4) * (spC0 - spC4) + (spB8 - spBC) * (spB8 - spBC)));
+        }
+        proxPathAdd((Actor *)arg0, 1, i, 1, tbl[i - 1].segCount, 0.0f, len, tbl[i - 1].unk0 * arg2, tbl[i - 1].unkC * arg2, tbl[i - 1].unk10 * arg2, tbl[i - 1].unk10 * arg2, tbl[i - 1].unk14, tbl[i - 1].unk4, tbl[i - 1].unk8, tbl[i - 1].unk15);
+        for (j = 0; j < tbl[i - 1].segCount; j++) {
+            func_806335B0(arg0, 1, tbl[i - 1].segs[j].unk10, &spC0, &spB8, &spB0);
+            func_806335B0(arg0, 1, tbl[i - 1].segs[j].unk11, &spC4, &spBC, &spB4);
+            proxPathSetSegment((Actor *)arg0, i, j, tbl[i - 1].segs[j].unk10, tbl[i - 1].segs[j].unk11, sqrtf((spB0 - spB4) * (spB0 - spB4) + ((spC0 - spC4) * (spC0 - spC4) + (spB8 - spBC) * (spB8 - spBC))), tbl[i - 1].segs[j].unk0 * arg2, tbl[i - 1].segs[j].unk4 * arg2, tbl[i - 1].segs[j].unk12, tbl[i - 1].segs[j].unk8, tbl[i - 1].segs[j].unkC, tbl[i - 1].segs[j].unkA, tbl[i - 1].segs[j].unkE);
+        }
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806338B4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806338F4.s")
+void func_8066C610(s16, s8, f32 (*)[4]);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063393C.s")
+typedef struct R36880bPosNode {
+    /* 0x0 */ f32 x;
+    /* 0x4 */ f32 y;
+    /* 0x8 */ f32 z;
+    /* 0xC */ struct R36880bPosNode *next;
+} R36880bPosNode;
+
+typedef struct R36880bVertTable {
+    /* 0x00 */ u8 pad0[0x54];
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 unk58;
+} R36880bVertTable;
+
+typedef struct R36880bVert {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ s8 unk6;
+} R36880bVert;
+
+void func_806333F8(s32 arg0, R36880bVertTable *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, u8 arg9) {
+    R36880bPosNode *node;
+    R36880bPosNode **tail;
+    f32 *pz;
+    f32 sp6C[4][4];
+    f32 *py;
+    R36880bVert *vert;
+    s32 *tbl;
+    s32 count;
+
+    node = NULL;
+    tail = (R36880bPosNode **)((u8 *)&D_807F6000[arg0] + 0x70);
+    if (arg9 == 0) {
+        *tail = NULL;
+    }
+    tbl = (s32 *)(arg1->unk54 + (s32)arg1);
+    count = *tbl;
+    vert = (R36880bVert *)((u8 *)tbl + 4);
+    if (count != 0) {
+        do {
+            switch (arg9) {
+                case 0:
+                    node = func_80610FE8(0x10);
+                    *tail = node;
+                    tail = &node->next;
+                    node->next = NULL;
+                    py = &node->y;
+                    pz = &node->z;
+                    break;
+                case 1:
+                    if (node == NULL) {
+                        node = *tail;
+                    } else {
+                        node = node->next;
+                    }
+                    py = &node->y;
+                    pz = &node->z;
+                    break;
+                default:
+                    py = &node->y;
+                    pz = &node->z;
+                    break;
+            }
+            func_8066C610(arg0, vert->unk6, sp6C);
+            guMtxXFMF(sp6C, vert->x, vert->y, vert->z, &node->x, py, pz);
+            count--;
+            vert++;
+        } while (count != 0);
+    }
+}
+
+typedef struct R36880bListNode {
+    /* 0x0 */ u8 pad0[0xC];
+    /* 0xC */ struct R36880bListNode *next;
+} R36880bListNode;
+
+void func_80633570(R36880bListNode *arg0) {
+    R36880bListNode *next;
+
+    while (arg0 != NULL) {
+        next = arg0->next;
+        heapFree(arg0);
+        arg0 = next;
+    }
+}
+
+void func_806335B0(s32 arg0, u8 arg1, s32 arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
+    R36880bPosNode *node;
+    s32 n;
+
+    if (arg1 == 1) {
+        arg0 = hashTableLookup(arg0);
+    }
+    node = D_807F6000[arg0].unk74;
+    for (n = arg2 - 1; node != NULL && n != 0; n--) {
+        node = node->next;
+    }
+    if (node != NULL) {
+        *arg3 = node->x;
+        *arg4 = node->y;
+        *arg5 = node->z;
+    } else {
+        *arg5 = 0.0f;
+        *arg4 = 0.0f;
+        *arg3 = 0.0f;
+    }
+}
+
+Mtx *func_8063367C(s32 arg0, u8 arg1, s32 arg2) {
+    s32 idx;
+    f32 sp24[4][4];
+    Mtx *sp20;
+    u8 *base;
+    s8 *p;
+
+    idx = arg0;
+    if (arg1 == 1) {
+        idx = hashTableLookup(arg0);
+    }
+    base = D_807F6000[idx].unk24;
+    p = (s8 *)(base + *(s32 *)(base + 0x58)) + 4;
+    for (arg2--; p != NULL && arg2 != 0; arg2--) {
+        p += 8;
+    }
+    func_8066C610(idx, p[6], sp24);
+    sp20 = func_80610FE8(0x40);
+    guMtxF2L(sp24, sp20);
+    return sp20;
+}
+
+void func_8063373C(s32 arg0, R36880bVertTable *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, u8 arg9) {
+    R36880bPosNode *node;
+    R36880bPosNode **tail;
+    f32 *pz;
+    f32 spAC[4][4];
+    f32 sp6C[4][4];
+    f32 *py;
+    R36880bVert *vert;
+    s32 *tbl;
+    s32 count;
+
+    node = NULL;
+    tail = (R36880bPosNode **)((u8 *)&D_807F6000[arg0] + 0x74);
+    if (arg9 == 0) {
+        *tail = NULL;
+    }
+    tbl = (s32 *)(arg1->unk58 + (s32)arg1);
+    count = *tbl;
+    vert = (R36880bVert *)((u8 *)tbl + 4);
+    if (count != 0) {
+        do {
+            switch (arg9) {
+                case 0:
+                    node = func_80610FE8(0x10);
+                    *tail = node;
+                    tail = &node->next;
+                    node->next = NULL;
+                    py = &node->y;
+                    pz = &node->z;
+                    break;
+                case 1:
+                    if (node == NULL) {
+                        node = *tail;
+                    } else {
+                        node = node->next;
+                    }
+                    py = &node->y;
+                    pz = &node->z;
+                    break;
+                default:
+                    py = &node->y;
+                    pz = &node->z;
+                    break;
+            }
+            func_8066C610(arg0, vert->unk6, spAC);
+            guMtxXFMF(spAC, vert->x, vert->y, vert->z, &node->x, py, pz);
+            count--;
+            vert++;
+        } while (count != 0);
+    }
+}
+
+void func_806338B4(R36880bListNode *arg0) {
+    R36880bListNode *next;
+
+    while (arg0 != NULL) {
+        next = arg0->next;
+        heapFree(arg0);
+        arg0 = next;
+    }
+}
+
+typedef struct R36880bSlotTail {
+    /* 0x00 */ u8 pad0[0x24];
+    /* 0x24 */ u8 unk24;
+    /* 0x25 */ u8 unk25[2];
+} R36880bSlotTail;
+
+void func_806338F4(s32 arg0) {
+    R36880bSlotTail *p = (R36880bSlotTail *)((u8 *)&D_807F6000[arg0] + 0x48);
+    u8 i;
+
+    for (i = 0; i < 2; i++) {
+        p->unk25[i] = 0xFF;
+    }
+    p->unk24 = 0;
+}
+
+void func_8063393C(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
+    s32 i = 0;
+    u8 found = 0;
+    u8 key;
+    u8 *p;
+
+    if (arg1 == 1) {
+        arg0 = hashTableLookup(arg0);
+    }
+    p = (u8 *)D_807F6000 + arg0 * 0x90 + 0x6D;
+    key = arg3 ? arg2 : 0xFF;
+    while (i < 2 && found == 0) {
+        if (key == p[i]) {
+            found = 1;
+        } else {
+            i++;
+        }
+    }
+    p[i] = arg3 ? 0xFF : arg2;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80633A1C.s")
 
