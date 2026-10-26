@@ -912,7 +912,39 @@ void func_8061849C(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061859C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618608.s")
+extern s32 D_807FBB68;
+extern u8 D_8072006C;
+extern u8 D_80720B58;
+void func_80714950(Actor *);
+void func_8071498C(void (*)(void));
+void func_807149B8(s32);
+void func_807149FC(s32);
+void func_80714A28(s32);
+void func_80714C08(void *, f32, Actor *, u8, s32);
+void func_8071A440(void);
+void func_8071DB74(void);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, s16, s16, s32);
+
+void func_80618608(Actor *arg0) {
+    u8 sp3F;
+    s16 var_s0;
+
+    func_80614F28(&sp3F);
+    if (D_807FBB68 & 2) {
+        for (var_s0 = 0; var_s0 < 0x14; var_s0++) {
+            func_807149B8(1);
+            func_807149FC(-1);
+            func_8071498C(func_8071DB74);
+            func_80714A28(4);
+            func_80714C08(&D_80720B58, 0.1f, arg0, sp3F, 0);
+        }
+        return;
+    }
+    sfxPlayFromActorWithAltitudeCheck(arg0, 0x8A, 0x96, 0x7F, 0x32);
+    func_80714950(arg0);
+    func_8071498C(func_8071A440);
+    func_80714C08(&D_8072006C, 0.4f, arg0, sp3F, 2);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618728.s")
 
