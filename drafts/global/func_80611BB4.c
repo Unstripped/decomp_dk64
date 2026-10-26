@@ -1,4 +1,4 @@
-// func_80611BB4 (src/global/166A0.c): stage 2: m2c starter; remaining diff not yet reduced
+// func_80611BB4 (src/global/166A0.c): stage 2: m2c candidate; remaining atan-like branch and literal layout.
 f32 func_80611850(f32, f32);                        /* extern */
 
 f32 func_80611BB4(f32 arg0, f32 arg1) {

@@ -1,4 +1,4 @@
-// func_80611D20 (src/global/16A20.c): stage 2: m2c starter; remaining diff not yet reduced
+// func_80611D20 (src/global/16A20.c): stage 3: table interpolation recovered; remaining pointer/value register allocation after indexed table access.
 extern ? D_80746A50;
 extern ? D_80746ACC;
 extern ? D_80746B4C;

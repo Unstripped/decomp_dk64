@@ -1,4 +1,4 @@
-// func_80611DF4 (src/global/16A20.c): stage 2: m2c starter; remaining diff not yet reduced
+// func_80611DF4 (src/global/16A20.c): stage 2: m2c candidate; remaining branch orientation and return narrowing allocation.
 s32 func_80611D20(s16, s16);                        /* extern */
 
 s16 func_80611DF4(s16 arg0) {

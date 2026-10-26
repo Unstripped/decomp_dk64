@@ -1,4 +1,4 @@
-// func_806118FC (src/global/16550.c): stage 2: m2c starter; remaining diff not yet reduced
+// func_806118FC (src/global/16550.c): stage 2: m2c candidate; requires correct narrow cosine-table helper return type.
 s32 func_80611DF4(s16);                             /* extern */
 
 f32 func_806118FC(f32 arg0) {

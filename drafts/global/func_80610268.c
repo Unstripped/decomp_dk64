@@ -1,4 +1,4 @@
-// func_80610268 (src/global/14CF0.c): stage 4: text differs only post-osRecvMesg register allocation (v0/a0, t8/v0)
+// func_80610268 (src/global/14CF0.c): from .scratch/SmallC/func_80610268_best.c
 extern s8 D_80746834;
 extern OSMesgQueue D_807659E8;
 extern u8 D_807F059C[];

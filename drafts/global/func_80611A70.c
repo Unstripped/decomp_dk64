@@ -1,4 +1,4 @@
-// func_80611A70 (src/global/166A0.c): stage 2: m2c starter; remaining diff not yet reduced
+// func_80611A70 (src/global/166A0.c): stage 2: m2c candidate; remaining repeated f64 comparison layout.
 void func_80611A70(f32 arg0, f32 arg1, f32 *arg2, f32 *arg3) {
     f32 temp_fv0;
     f32 temp_fv0_2;

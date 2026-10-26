@@ -1,4 +1,4 @@
-// func_806119A0 (src/global/166A0.c): stage 2: m2c starter; remaining diff not yet reduced
+// func_806119A0 (src/global/166A0.c): stage 3: recovered __ll_mul call and low-word state update; remaining stack homes and unsigned 64-bit argument construction.
 u64 __ll_mul(?, s32, ?, ?);                         /* extern */
 extern s32 D_80746A40;
 

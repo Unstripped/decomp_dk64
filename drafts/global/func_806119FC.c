@@ -1,4 +1,4 @@
-// func_806119FC (src/global/166A0.c): stage 2: m2c starter; remaining diff not yet reduced
+// func_806119FC (src/global/166A0.c): stage 2: m2c candidate; requires matched RNG return prototype.
 s32 func_806119A0();                                /* extern */
 
 f32 func_806119FC(void) {

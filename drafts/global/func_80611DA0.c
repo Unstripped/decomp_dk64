@@ -1,4 +1,4 @@
-// func_80611DA0 (src/global/16A20.c): stage 2: m2c starter; remaining diff not yet reduced
+// func_80611DA0 (src/global/16A20.c): stage 2: m2c candidate; remaining branch orientation and return temporary allocation.
 s32 func_80611D20(s16, s16);                        /* extern */
 
 s32 func_80611DA0(s16 arg0) {

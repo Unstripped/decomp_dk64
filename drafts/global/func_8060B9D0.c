@@ -1,4 +1,4 @@
-// func_8060B9D0 (src/global/104F0.c): stage 4: correct control flow; target initializes D_807EDEA8 pointer in v0 and increments v1 in branch delay, while C keeps base in a2 and uses an extra temporary
+// func_8060B9D0 (src/global/104F0.c): stage 4: s32 formal matches unmasked target entry; remaining target holds table base in v0 and increments v1 in bnel delay, candidate uses a2 plus a1 temporary
 extern u8 D_807EDEA8[];
 
 s32 func_8060B9D0(s32 arg0) {
