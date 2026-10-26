@@ -202,7 +202,29 @@ s32 func_80615328(Actor *arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061537C.s")
+typedef struct Perm4eRateState {
+    u8 pad0[0x78];
+    s32 unk78;
+    u8 pad7C[4];
+    f32 unk80;
+    s32 unk84;
+    s32 unk88;
+} Perm4eRateState;
+
+s32 func_8061537C(Actor *arg0) {
+    f32 sp1C;
+    Actor *actor;
+
+    actor = arg0;
+    D_807F5AF0++;
+    func_80614FD8((u8 *)&sp1C);
+    if (sp1C < 0.0f) {
+        sp1C = (f32)((Perm4eRateState *)actor->unk4)->unk88;
+    }
+    ((Perm4eRateState *)actor->unk4)->unk80 = sp1C;
+    ((Perm4eRateState *)actor->unk4)->unk78 |= 8;
+    return 0;
+}
 
 typedef struct P19bValue {
     void *unk0;
@@ -234,7 +256,33 @@ typedef struct P19bState {
     s32 unk88;
 } P19bState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061540C.s")
+s32 func_8061540C(Actor *arg0) {
+    f32 sp24;
+    P19bValue *sp20;
+    Actor *actor;
+
+    actor = arg0;
+    if (((P19bState *)actor->unk4)->unk84 != 0) {
+        sp20 = ((P19bState *)actor->unk4)->unk4;
+    } else {
+        sp20 = ((P19bState *)actor->unk4)->unk0;
+    }
+    D_807F5AF0++;
+    func_80614FD8((u8 *)&sp24);
+    if (sp24 < 0.0f) {
+        sp24 = (f32)((P19bState *)actor->unk4)->unk88;
+    }
+    if ((((P19bState *)actor->unk4)->unk48 * sp20->unk24) > 0.0f) {
+        if (sp24 <= sp20->unk4) {
+            return 1;
+        }
+    } else if (sp20->unk4 <= sp24) {
+        return 1;
+    }
+    ((P19bState *)actor->unk4)->unk80 = sp24;
+    ((P19bState *)actor->unk4)->unk78 |= 8;
+    return 0;
+}
 
 s32 func_8061551C(Actor *arg0) {
     P19bState *state;
@@ -299,7 +347,33 @@ s32 func_806156A0(Actor *arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806156DC.s")
+typedef struct Perm4eActionResource {
+    u8 pad0[0x12];
+    u8 unk12;
+} Perm4eActionResource;
+
+typedef struct Perm4eAction {
+    Perm4eActionResource *unk0;
+    u8 pad4[0x10];
+    f32 unk14;
+} Perm4eAction;
+
+s32 func_806156DC(Actor *arg0) {
+    f32 sp24;
+    Perm4eAction *sp20;
+
+    if (((P19bState *)arg0->unk4)->unk84 != 0) {
+        sp20 = (Perm4eAction *)((P19bState *)arg0->unk4)->unk4;
+    } else {
+        sp20 = (Perm4eAction *)((P19bState *)arg0->unk4)->unk0;
+    }
+    D_807F5AF0++;
+    func_80614FD8((u8 *)&sp24);
+    if (sp24 < (f32)sp20->unk0->unk12) {
+        sp20->unk14 = sp24;
+    }
+    return 1;
+}
 
 typedef struct P19b3ActionResource {
     u8 pad0[4];
@@ -810,7 +884,25 @@ s32 func_806164C4(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616518.s")
+typedef struct Perm4eCommand {
+    u8 pad0[0x10];
+    s16 unk10;
+} Perm4eCommand;
+
+s32 func_80616518(Actor *arg0) {
+    u16 sp26;
+    Perm4eCommand *sp20;
+
+    if (((P19bState *)arg0->unk4)->unk84 != 0) {
+        sp20 = (Perm4eCommand *)((P19bState *)arg0->unk4)->unk4;
+    } else {
+        sp20 = (Perm4eCommand *)((P19bState *)arg0->unk4)->unk0;
+    }
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp26);
+    ((P19bState *)arg0->unk4)->unk88 = sp20->unk10 - sp26;
+    return 1;
+}
 
 typedef struct P19cGlobalCountdown {
     u8 pad0[0x4E];
