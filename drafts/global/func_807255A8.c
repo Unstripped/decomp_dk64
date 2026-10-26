@@ -1,4 +1,4 @@
-// func_807255A8 (src/global/1295B0.c): Stage 4 (frame 0x60 exact, 354/356 opcodes, first 238 insns identical): zero const f0/a1 f12 right until det compare, then IDO folds (a1*b2-a2*b1)<0 into sp8<sp4 so det is not kept in f12 and half/y regs shift; target keeps c.lt.s det,zero. Zero variable or 'd3 = 0.0f' avoids the fold (score 1377) but shifts early allocation (a1 f0). 15 f32/s16 locals needed (d1/d2 = 7th/8th for sp44/sp40); div by two needs a var (two = 2.0f)
+// func_807255A8 (src/global/1295B0.c): Stage 4 (frame 0x60 exact, 356/356 opcodes, score ~1377): det==0.0f form (det computed before the ==-return, folded to c.eq.s sp4,sp8) keeps det<0 unfolded (c.lt.s det,zero) but zero/a1 colouring is shifted (a1 f0, zero f2, b2 f12 vs target zero f0, b2 f2, a1 f12). Literal-zero version with 'a1*b2 == a2*b1' matches first 238 insns exactly but IDO folds (a1*b2-a2*b1)<0 into sp8<sp4. 15 locals needed (d1/d2 7th/8th), two=2.0f var needed.
 s32 func_807255A8(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, f32 *arg8, f32 *arg9) {
     f32 a1;
     f32 b1;
@@ -32,10 +32,10 @@ s32 func_807255A8(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
     if (d1 != 0.0f && d2 != 0.0f && ((s32)((u32)d1 ^ (u32)d2)) >= 0) {
         return 0;
     }
-    if (a1 * b2 == a2 * b1) {
+    det = a1 * b2 - a2 * b1;
+    if (det == 0.0f) {
         return 2;
     }
-    det = a1 * b2 - a2 * b1;
     two = 2.0f;
     if (det < 0.0f) {
         half = -det / two;
