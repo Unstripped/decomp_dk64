@@ -216,7 +216,18 @@ void func_8060C648(s32 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
     func_8060BB18(func_8060C430(arg0, arg4, 1), sp26, sp25);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C6B8.s")
+extern s32 func_8060BBE0();
+
+s32 func_8060C6B8(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
+    s32 new_var;
+    u16 sp22;
+    u8 sp21;
+
+    new_var = func_8060B9D0(arg3);
+    func_8060C340(&sp22, &sp21, arg0, arg1, arg2, new_var);
+    new_var = func_8060BBE0(sp22, sp21);
+    func_8060C430(arg0, new_var, 0);
+}
 
 extern s32 func_8060C6B8(s32, u8, u8, u8);
 
