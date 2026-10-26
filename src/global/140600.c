@@ -68,6 +68,13 @@ void n_alSynSetFXMix(ALVoice *voice, u8 fxmix) {
 }
 
 
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+} LpfNMBiquad;
+
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/140600/func_8073BB10.s")
 
 typedef struct {
@@ -128,7 +135,76 @@ f32 func_8073BDC4(s32 arg0) {
     return sp0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/140600/func_8073BE54.s")
+void func_8073BB10(f32, f32, f32, LpfNMBiquad *, LpfNMBiquad *);
+
+void func_8073BE54(SynLPFilter *filter, f32 arg1) {
+    s32 sp3C;
+    LpfNMBiquad sp30;
+    LpfNMBiquad sp24;
+
+    if (filter->unk2 == 0) {
+        return;
+    }
+    if (filter->unk2 < 10) {
+        filter->unk2 = 10;
+    }
+    func_8073BB10(arg1, (f32)filter->unk0 + 10.0f, (f32)filter->unk2 / 10.0f, &sp30, &sp24);
+    sp3C = 3;
+    do {
+        filter->coeff[sp3C] = 0;
+    } while (++sp3C < 8);
+    filter->coeff[0] = (s16)(s32)(((f32 *)&sp30)[0] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
+    filter->coeff[1] = (s16)(s32)(((f32 *)&sp30)[1] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
+    filter->coeff[2] = 0;
+    filter->coeff[8] = (s16)(s32)(((f32 *)&sp24)[1] * -16384.0f);
+    filter->coeff[9] = (s16)(s32)(((f32 *)&sp24)[2] * -16384.0f);
+    sp3C = 10;
+    do {
+        filter->coeff[sp3C] = 0;
+    } while (++sp3C < 16);
+}
+
+typedef struct {
+    u8 unk0[0x14];
+    void *unk14;
+    void *unk18;
+    u8 unk1C[8];
+    f32 unk24;
+    s32 unk28;
+} LpfNMDelay;
+
+typedef struct {
+    SynLPFilter base;
+    void *unk2C;
+    void *unk30;
+} LpfNMFilter;
+
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    u8 unkE[2];
+    f32 unk10;
+    f32 unk14;
+    s32 unk18;
+    f32 unk1C;
+    LpfNMFilter *unk20;
+    LpfNMDelay *unk24;
+} LpfNMFx;
+
+typedef struct {
+    s32 unk0;
+    LpfNMFx *unk4;
+    u8 unk8;
+    u8 unk9[0x17];
+    s16 *unk20;
+    s16 *unk24;
+    s16 *unk28;
+    s16 *unk2C;
+} LpfNMFxState;
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/140600/n_alFxNew.s")
 

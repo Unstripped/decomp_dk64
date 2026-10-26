@@ -1,26 +1,81 @@
-// n_alFxNew (src/global/140600.c): stage 1 m2c reconstruction: exact allocations and control flow recovered; field-view types and statement shapes remain
-typedef struct SynVoiceFxConfig SynVoiceFxConfig;
-typedef struct SynVoiceFxState SynVoiceFxState;
+// n_alFxNew (src/global/140600.c): stage 4: frame and all allocation/initialization blocks match; remaining control-flow, pointer-load, loop-condition, unsigned conversion, and FP scratch differences
+void n_alFxNew(void **arg0, void *arg1, s16 arg2, ALHeap *arg3) {
+    u16 sp36;
+    u16 sp34;
+    u16 sp32;
+    s32 *sp2C;
+    LpfNMFx *sp28;
+    LpfNMFxState *sp24;
 
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    u32 unk4;
-    s16 coeff[16];
-    s32 state;
-} SynVoiceLPFilter;
-
-void _init_lpfilter(SynVoiceLPFilter *);
-
-/*
- * m2c stage-1 reconstruction: allocate a 0x30-byte FX state; choose a preset
- * stream from arg1/arg2 or D_80756458; allocate and zero delay storage; then
- * allocate one 0x28-byte descriptor per preset line.  Each descriptor consumes
- * five scalar fields, optionally allocates a 0x38-byte delay object plus two
- * 0x20-byte buffers, and optionally allocates/configures a 0x38-byte low-pass
- * filter with two 8-byte buffers and _init_lpfilter().  Exact field views and
- * source statement shapes remain to be recovered.
- */
-void n_alFxNew(void **arg0, SynVoiceFxConfig *arg1, s16 arg2, ALHeap *arg3) {
-    /* saved stage-1 sketch; see asm for exact typed allocation sequence */
+    sp2C = NULL;
+    sp24 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x30);
+    *arg0 = sp24;
+    if (((u8 *)arg1 + arg2)[0x1C] == 6) {
+        sp2C = (s32 *)((u8 *)arg1 + (arg2 * 4) + 0x20);
+    } else {
+        sp2C = D_80756458;
+    }
+    sp34 = 0;
+    sp24->unk8 = (u8)sp2C[sp34];
+    sp34 += 1;
+    sp24->unk0 = sp2C[sp34];
+    sp34 += 1;
+    sp24->unk4 = alHeapDBAlloc(NULL, 0, arg3, sp24->unk8, 0x28);
+    sp24->unk20 = alHeapDBAlloc(NULL, 0, arg3, sp24->unk0, 2);
+    sp24->unk28 = sp24->unk20;
+    sp24->unk24 = alHeapDBAlloc(NULL, 0, arg3, sp24->unk0, 2);
+    sp24->unk2C = sp24->unk24;
+    sp32 = 0;
+    if (sp24->unk0 != 0) {
+        do {
+            sp24->unk24[sp32] = 0;
+            sp24->unk20[sp32] = sp24->unk24[sp32];
+            sp32 += 1;
+        } while (sp32 < sp24->unk0);
+    }
+    sp36 = 0;
+    if ((s32)sp24->unk8 > 0) {
+        do {
+            sp28 = &sp24->unk4[sp36];
+            sp28->unk0 = sp2C[sp34];
+            sp34 += 1;
+            sp28->unk4 = sp2C[sp34];
+            sp34 += 1;
+            sp28->unkA = (s16)sp2C[sp34];
+            sp34 += 1;
+            sp28->unk8 = (s16)sp2C[sp34];
+            sp34 += 1;
+            sp28->unkC = (s16)sp2C[sp34];
+            sp34 += 1;
+            if (sp2C[sp34] != 0) {
+                sp28->unk10 = ((f32)sp2C[sp34] / 1000.0f * 2.0f) / (f32)*(s32 *)((u8 *)arg1 + 0x18);
+                sp34 += 1;
+                sp28->unk1C = ((f32)sp2C[sp34] / 173123.4062f) * (f32)(sp28->unk4 - sp28->unk0);
+                sp34 += 1;
+                sp28->unk14 = 1.0f;
+                sp28->unk18 = 0;
+                sp28->unk24 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x38);
+                sp28->unk24->unk14 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x20);
+                sp28->unk24->unk18 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x20);
+                sp28->unk24->unk24 = 0.0f;
+                sp28->unk24->unk28 = 1;
+            } else {
+                sp28->unk24 = NULL;
+                sp34 += 1;
+                sp34 += 1;
+            }
+            if (sp2C[sp34] != 0) {
+                sp28->unk20 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x38);
+                sp28->unk20->unk2C = alHeapDBAlloc(NULL, 0, arg3, 1, 8);
+                sp28->unk20->unk30 = alHeapDBAlloc(NULL, 0, arg3, 1, 8);
+                sp28->unk20->base.unk0 = (s16)sp2C[sp34];
+                sp34 += 1;
+                _init_lpfilter((SynLPFilter *)sp28->unk20);
+            } else {
+                sp28->unk20 = NULL;
+                sp34 += 1;
+            }
+            sp36 += 1;
+        } while (sp36 < (s32)sp24->unk8);
+    }
 }
