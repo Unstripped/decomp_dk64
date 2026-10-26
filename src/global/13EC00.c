@@ -1,5 +1,16 @@
 #include "common.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13EC00/alSeqpStop.s")
+void alSeqpStop(ALSeqPlayer *seqp) {
+    ALEvent evt;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13EC00/alSeqpSetSeq.s")
+    evt.type = AL_SEQP_STOPPING_EVT;
+    alEvtqPostEvent(&seqp->evtq, &evt, 0);
+}
+
+void alSeqpSetSeq(ALSeqPlayer *seqp, ALSeq *seq) {
+    ALEvent evt;
+
+    evt.type = AL_SEQP_SEQ_EVT;
+    evt.msg.spseq.seq = seq;
+    alEvtqPostEvent(&seqp->evtq, &evt, 0);
+}

@@ -1,5 +1,65 @@
 #include "common.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13C920/func_80737C20.s")
+extern u8 D_807FF0F0;
+extern u8 D_807FF0F1;
+extern u8 D_807FF0F2;
+extern u8 D_807FF0F4;
+extern u8 D_807FF0F6;
+extern u8 D_807FF0F8;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13C920/func_80737CF4.s")
+void func_80737CF4(s32 arg0, s32 arg1);
+
+void func_80737C20(u8 arg0) {
+    s32 i;
+
+    D_807FF0F0 = 0;
+    D_807FF0F1 = 0;
+    D_807FF0F2 = 0;
+    switch (arg0) {
+        case 1:
+            D_807FF0F1 = 1;
+            break;
+        case 3:
+            D_807FF0F2 = 1;
+            break;
+        case 4:
+            D_807FF0F0 = 1;
+            break;
+    }
+    i = 0;
+    do {
+        func_80737CF4(i, 0);
+    } while ((i += 1) < 2);
+}
+
+void func_80737CF4(s32 arg0, s32 arg1) {
+    if (arg1 == 0) {
+        arg1 = *(&D_807FF0F8 + arg0);
+    }
+    *(&D_807FF0F4 + arg0) = 0;
+    *(&D_807FF0F6 + arg0) = 0;
+    switch (arg1) {
+        case 2:
+            if (D_807FF0F0 != 0) {
+                *(&D_807FF0F6 + arg0) = 1;
+            }
+            break;
+        case 3:
+            if (D_807FF0F0 != 0) {
+                *(&D_807FF0F4 + arg0) = 1;
+            }
+            break;
+        case 4:
+            if (D_807FF0F1 == 0) {
+                *(&D_807FF0F4 + arg0) = 1;
+            }
+            break;
+        case 5:
+            if (D_807FF0F1 == 0) {
+                *(&D_807FF0F4 + arg0) = 1;
+                *(&D_807FF0F6 + arg0) = 1;
+            }
+            break;
+    }
+    *(&D_807FF0F8 + arg0) = arg1;
+}

@@ -1,3 +1,23 @@
+#define alCSPSetChlPriority alCSPSetChlPriority_unused
 #include "common.h"
+#undef alCSPSetChlPriority
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13D100/alCSPSetChlPriority.s")
+void alCSPSetChlPriority(ALCSPlayer *seqp, u8 chan, u8 priority, u8 value, s32 command) {
+    s32 unused;
+    struct {
+        s16 type;
+        u16 unused2;
+        u8 chan;
+        u8 priority;
+        u8 value;
+        u8 pad;
+        s32 command;
+    } evt;
+
+    evt.type = AL_VIB_OSC_EVT + 2;
+    evt.chan = chan;
+    evt.priority = priority;
+    evt.value = value;
+    evt.command = command;
+    alEvtqPostEvent(&seqp->evtq, (ALEvent *)&evt, 0);
+}
