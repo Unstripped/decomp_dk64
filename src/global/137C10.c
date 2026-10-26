@@ -451,7 +451,6 @@ typedef struct {
 
 typedef s32 (*GdOscInit)(void **, f32 *, u8, u8, u8, u8, u8);
 
-#ifdef NON_MATCHING
 typedef struct {
     u8 pad00[0x3C];
     s32 unk3C;
@@ -524,7 +523,9 @@ void __n_csqRepostEvent(GcCSPlayer *seqp, ALEvent *event) {
                         D_807FF040[chan] = delta;
                         alEvtqPostEvent(&seqp->evtq, &evt, delta);
                     }
-                } else {
+                    break;
+                }
+                {
                     chanSt = &GdCH(seqp, chan);
                     sound = __n_lookupSoundQuick(seqp, key, vel, chan);
                     if (sound == NULL) {
@@ -856,10 +857,6 @@ void __n_csqRepostEvent(GcCSPlayer *seqp, ALEvent *event) {
             break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/__n_csqRepostEvent.s")
-#endif
 
 void n_alCSPPlay(GcCSPlayer *seqp, f32 tempo);
 void n_alCSPSetSeq(ALEventQueue *evtq, ALEventListItem *item);
