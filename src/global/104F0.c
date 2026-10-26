@@ -73,7 +73,50 @@ void func_8060B8F8(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C340.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C430.s")
+extern s32 _strchr(u8 *);
+extern u8 *D_80746800;
+
+s32 func_8060C430(s32 arg0, u32 arg1, s32 arg2) {
+    f32 temp_ft4;
+    f32 temp_ft4_2;
+    f32 var_fv0;
+    f32 var_fv0_2;
+
+    switch (arg0) {
+    case 17:
+        var_fv0 = 5.0f;
+        if (arg2 != 0) {
+            var_fv0 = 1.0f / var_fv0;
+        }
+        temp_ft4 = (f32) arg1 * var_fv0;
+        arg1 = (u32) temp_ft4;
+        break;
+    case 21:
+        var_fv0_2 = 50.0f;
+        if (arg2 != 0) {
+            var_fv0_2 = 1.0f / var_fv0_2;
+        }
+        temp_ft4_2 = (f32) arg1 * var_fv0_2;
+        arg1 = (u32) temp_ft4_2;
+        break;
+    case 18:
+    case 19:
+    case 20:
+    case 22:
+    case 23:
+    case 24:
+    case 26:
+    case 27:
+    case 28:
+        if (arg2 != 0) {
+            arg1 = _strchr(D_80746800) - (s32) D_80746800;
+        } else {
+            arg1 = D_80746800[arg1];
+        }
+        break;
+    }
+    return arg1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C648.s")
 
