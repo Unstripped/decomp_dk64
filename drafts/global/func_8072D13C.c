@@ -1,28 +1,5 @@
-// func_8072D13C (src/global/12E800.c): stage 5: 414/415 insns, frame/slots match; fixed branch structure ((arg1&1)&&stationary shares one else; key=(v<cnt)?v:0). Remaining: registers (target idx t3 loaded straight, DC90 in v1, dir in ra) and scheduling; two permuter runs 540-600s best 3330 from 4645 (not close).
-typedef struct D1Pair {
-    /* 0x00 */ u8 a;
-    /* 0x01 */ u8 b;
-} D1Pair;
+// func_8072D13C (src/global/12E800.c): stage 5, 235 diff lines: chained idx=(dir=unk25) + new_var temp; register numbering only
 
-typedef struct D1Dc9cViewG {
-    /* 0x00 */ u8 pad0[0xD];
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 pad0E[3];
-    /* 0x11 */ u8 unk11;
-} D1Dc9cViewG;
-
-typedef struct D1Dc98ViewG {
-    /* 0x00 */ u8 pad0[0x20];
-    /* 0x20 */ void *unk20;
-} D1Dc98ViewG;
-
-#define D1DC9CG ((D1Dc9cViewG *)D_807FDC9C)
-#define D1DC98G ((D1Dc98ViewG *)D_807FDC98)
-
-extern u16 D_80744508;
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 func_8072D08C(void);
-void func_8072B324(Actor *, s32);
 
 typedef struct D1Dc90ViewK {
     /* 0x00 */ u8 pad0[0xA];
@@ -88,6 +65,7 @@ u8 func_8072D13C(u8 arg0, u8 arg1) {
     s16 z;
     u8 moved;
     u8 q1;
+    u8 new_var;
     u8 q2;
     u8 key;
     s32 v;
@@ -95,8 +73,7 @@ u8 func_8072D13C(u8 arg0, u8 arg1) {
     s32 dir;
     s32 off;
 
-    idx = D1DC90K->unk25;
-    dir = idx;
+    idx = (dir = D1DC90K->unk25);
     dir = dir & 0x80;
     idx = idx & 0x7F;
     key = ((D1Pair *)D1DC98G->unk20)[idx].a;
@@ -171,7 +148,8 @@ u8 func_8072D13C(u8 arg0, u8 arg1) {
         D1DC90K->unk1A |= 4;
         switch (type) {
             case 1:
-                key = ((D1Pair *)D1DC98G->unk20)[idx].a;
+                new_var = ((D1Pair *)D1DC98G->unk20)[idx].a;
+                key = new_var;
                 D1AK->unkEE = D1AK->unkE6 = func_8072D08C();
                 D1AK->unk7C = D1PT(key * 10)->x;
                 D1AK->unk80 = D1PT(key * 10)->y;

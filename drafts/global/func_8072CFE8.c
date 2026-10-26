@@ -1,4 +1,4 @@
-// func_8072CFE8 (src/global/12E800.c): PARKED NON_MATCHING, stage 6: 'idx = 0; if (next < cnt) idx = (u8)next;' (dead first assignment) gives target idx=v0/next=v1 (first-appearance rule); remaining: lbu coalesces into v1 (target loads into temp t7 then andi t8, addiu v1) and 1 insn shorter than ternary form. Ternary + 'idx = 0' first gives 51 insns (=target) but regs t8/t9 vs t9/t1 still off.
+// func_8072CFE8 (src/global/12E800.c): stage 6, 8 diff lines: if((idx=(unk25&0x7F)+1)<cnt) idx=(u8)idx; else idx=0
 typedef struct D1Pair {
     /* 0x00 */ u8 a;
     /* 0x01 */ u8 b;
@@ -36,13 +36,19 @@ typedef struct D1Dc98ViewG {
 #define D1DC98G ((D1Dc98ViewG *)D_807FDC98)
 #define D1DCA0 ((D1DcA0View *)D_807FDCA0)
 
+typedef struct D1Pair {
+    /* 0x00 */ u8 a;
+    /* 0x01 */ u8 b;
+} D1Pair;
+
 void func_8072CFE8(s16 *arg0, s16 *arg1, s16 *arg2) {
     s32 idx;
     s32 v;
 
-    idx = 0;
-    if (((D1DC90G->unk25 & 0x7F) + 1) < D1DC9CG->unk11) {
-        idx = (u8)((D1DC90G->unk25 & 0x7F) + 1);
+    if ((idx = (D1DC90G->unk25 & 0x7F) + 1) < D1DC9CG->unk11) {
+        idx = (u8)idx;
+    } else {
+        idx = 0;
     }
     v = ((D1Pair *)D1DC98G->unk20)[idx].a;
     *arg0 = D1DCA0->unk14[v].x;
