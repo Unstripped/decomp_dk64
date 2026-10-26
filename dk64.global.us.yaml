@@ -67,7 +67,7 @@ segments:
       - [0x17B40, c, 17B40]
       - [0x17B90, c, 17B90]
       - [0x19A00, c, 19A00] # hidden TU: 17B90 rodata ends with a pad after D_80757360 at 0x15C070 (func_806134B4); layout-neutral: first 16-aligned start after func_8061421C (last D_80746B60/64 user)
-      - [0x1E2D0, c, 1E2D0]
+      - [0x1E2D0, asm] # hand-written: entries without prologues, j into alabels, shared non-ABI $s/$f state; uses 1F9A0's table like 16B60
       - [0x1F9A0, asm] # f32 table in .text (0x204 words, 0x8061ACA0), read by 16B60's hand-written asm and 1E2D0: data, not C
       - [0x201B0, c, 201B0]
       - [0x2C700, asm]
@@ -227,7 +227,7 @@ segments:
       - [0x15C050, .rodata, 17B40]
       - [0x15C060, .rodata, 17B90]
       - [0x15C070, .rodata, 19A00]
-      - [0x15C190, .rodata, 1E2D0]
+      - [0x15C190, rodata]
       - [0x15C1A0, .rodata, 201B0]
       - [0x15CC70, rodata]
       - [0x15D260, .rodata, 42630]
