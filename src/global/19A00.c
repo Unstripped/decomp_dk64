@@ -189,11 +189,87 @@ s32 func_806156A0(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806156DC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615774.s")
+typedef struct P19b3ActionResource {
+    u8 pad0[4];
+    u16 unk4;
+    u8 pad6[0xC];
+    u8 unk12;
+} P19b3ActionResource;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061580C.s")
+typedef struct P19b3Action {
+    P19b3ActionResource *unk0;
+    u8 pad4[0x10];
+    f32 unk14;
+    f32 unk18;
+    s16 unk1C;
+} P19b3Action;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806158E8.s")
+typedef struct P19b3State {
+    P19b3Action *unk0;
+    P19b3Action *unk4;
+    u8 pad8[0x7C];
+    s32 unk84;
+} P19b3State;
+
+s32 func_80615774(Actor *arg0) {
+    f32 sp24;
+    P19b3Action *action;
+    P19b3State *state;
+
+    state = (P19b3State *)arg0->unk4;
+    if (state->unk84 != 0) {
+        action = state->unk4;
+    } else {
+        action = state->unk0;
+    }
+    D_807F5AF0++;
+    func_80614FD8((u8 *)&sp24);
+    if (sp24 < action->unk0->unk12) {
+        action->unk18 = sp24;
+    }
+    return 1;
+}
+
+s32 func_8061580C(Actor *arg0) {
+    f32 sp24;
+    f32 sp20;
+    P19b3Action *action;
+
+    if (((P19b3State *)arg0->unk4)->unk84 != 0) {
+        action = ((P19b3State *)arg0->unk4)->unk4;
+    } else {
+        action = ((P19b3State *)arg0->unk4)->unk0;
+    }
+    D_807F5AF0++;
+    func_80614FD8((u8 *)&sp24);
+    func_80614FD8((u8 *)&sp20);
+    if (sp24 < action->unk0->unk12) {
+        action->unk14 = sp24;
+    }
+    if (sp20 < action->unk0->unk12) {
+        action->unk18 = sp20;
+    }
+    return 1;
+}
+
+s32 func_806158E8(Actor *arg0) {
+    P19b3Action *action;
+    P19b3State *state;
+    P19b3ActionResource *resource;
+
+    state = (P19b3State *)arg0->unk4;
+    if (state->unk84 != 0) {
+        action = state->unk4;
+    } else {
+        action = state->unk0;
+    }
+    resource = action->unk0;
+    D_807F5AF0++;
+    action->unk14 = 0.0f;
+    action->unk18 = (f32)(resource->unk12 - 1);
+    action->unk1C = resource->unk4;
+    return 1;
+}
 
 
 void func_80613C48(s32, s16, f32, f32);
@@ -942,13 +1018,63 @@ void func_80618968(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618B6C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618C00.s")
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+void actorSpawnEffectChild(f32, f32, f32, f32, f32, Actor *, u8);
+void actorSetNodeFlag();
+void actorClearNodeFlag();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618C8C.s")
+typedef struct P19b3GlobalState {
+    u8 pad0[0xCA];
+    u8 unkCA;
+} P19b3GlobalState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618CD8.s")
+void func_80618C00(Actor *arg0, u8 arg1) {
+    f32 sp3C;
+    f32 sp38;
+    f32 sp34;
+    f32 scale;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618D20.s")
+    scale = 0.04f;
+    actorGetNodePos(arg0, arg1, &sp3C, &sp38, &sp34);
+    if ((arg0->unk58 == 6) || (arg0->unk58 == 7)) {
+        scale = 0.1f;
+    }
+    actorSpawnEffectChild(sp3C, arg0->unkA4, sp34, 0.03f, scale, arg0, 0);
+}
+
+void func_80618C8C(Actor *arg0) {
+    u8 node;
+
+    if (arg0->unk58 == 2) {
+        node = 2;
+    } else {
+        node = 8;
+    }
+    func_80618C00(arg0, node);
+    ((P19b3GlobalState *)D_807FD580)->unkCA = 0x28;
+}
+
+void func_80618CD8(Actor *arg0) {
+    u8 sp1F;
+
+    func_80614F28(&sp1F);
+    if (sp1F & 0x80) {
+        arg0->unk132 = (s16)(sp1F & 0x7F);
+        return;
+    }
+    actorSetNodeFlag(arg0, sp1F);
+}
+
+void func_80618D20(Actor *arg0) {
+    u8 sp1F;
+
+    func_80614F28(&sp1F);
+    if (sp1F & 0x80) {
+        arg0->unk132 = (s16)(sp1F & 0x7F);
+        return;
+    }
+    actorClearNodeFlag(arg0, sp1F);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618D68.s")
 

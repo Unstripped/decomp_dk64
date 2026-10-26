@@ -1,4 +1,4 @@
-// func_806159EC (src/global/19A00.c): stage 4: typed and K&R calls emit move a2/a3, target requires li; remaining ABI/immediate selection.
+// func_806159EC (src/global/19A00.c): stage 4: integer ABI emits move for literal zero; f32 ABI emits mtc1/mfc1; target requires li a2/a3.
 void func_80613CA8(s32, s16, s32, s32);
 
 s32 func_806159EC(s32 arg0) {
