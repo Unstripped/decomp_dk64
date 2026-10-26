@@ -1,4 +1,4 @@
-// func_8060C830 (src/global/104F0.c): stage 3: direct mask and byte-local lifetime remain; closest wide temporary keeps word rather than target byte home slot.
+// func_8060C830 (src/global/104F0.c): stage 4: correct frame/control flow; remaining direct-mask register and byte home (target t6/sp+0x1B, candidate v0/word home). Tried u8/s32 formals, u8/s32 temporaries, direct value, and a legitimate union grouping; union grows the frame.
 void func_8060C830(s32 arg0, s32 arg1) {
     s32 temp_t6;
 

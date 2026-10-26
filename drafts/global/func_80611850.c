@@ -1,4 +1,4 @@
-// func_80611850 (src/global/16550.c): stage 4: five fdiff candidates (m2c, ternary, permuter best, pointer alias, declaration order); exact 43-instruction shape/frame, only FPR allocation remains (target f4/f6/f8/f10/f16 vs f2/f4/f6/f8/f10). uopt level 6 traced; permuter -j2 --seconds 600 best score 60.
+// func_80611850 (src/global/16550.c): stage 4: semantic best preserves exact 43-instruction shape/frame; remaining FPR allocation target f4/f6/f8/f10/f16 vs candidate f2/f4/f6/f8/f10 (score 60). Permuter -j2 --seconds 600 found score-10 mutation using an uninitialized condition and overflowing int constant; rejected as non-semantic. Five+ prior fdiff variants retained.
 s32 func_80611DA0(s16);
 
 f32 func_80611850(f32 arg0) {

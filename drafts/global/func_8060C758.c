@@ -1,4 +1,4 @@
-// func_8060C758 (src/global/104F0.c): stage 3: size/bank expression matches; remaining frame, argument-home, and temporary register allocation.
+// func_8060C758 (src/global/104F0.c): stage 3: recovered size/bank expression; remaining frame and argument-home allocation. Rechecked stored forms: explicit bank/size expands frame, direct expression loses target homes, s32 and narrow selector forms alter call argument spills, and scoped temporaries did not shrink the diff.
 extern u8 D_807ECEA8[];
 
 void func_8060C758(s32 arg0, s32 arg1) {

@@ -1,20 +1,18 @@
-// func_8060E3B0 (src/global/104F0.c): stage 6: exact code used (u8 *)&value - 1 to place the helper output at sp+0x23, but this writes outside the value object and is UB. A legitimate struct { u8 padding; u8 output; u16 value; } state candidate was fdiff'd; it grew the frame to 0x30 (target 0x28), placing output/value at sp+0x2D/sp+0x2E instead of sp+0x23/sp+0x24. Restored GLOBAL_ASM rather than retain the UB candidate.
-extern s32 func_8060B9D0();
-extern s32 func_8060BBE0(s32, s32);
-extern void func_8060C340();
+// func_8060E3B0 (src/global/104F0.c): stage 6: named s32 intermediate keeps the target frame and call flow; remaining local slots are output/value/result at sp+0x22/0x20/0x23 rather than target sp+0x23/0x24/0x27. Five legal declaration/order/grouping attempts plus 600-second permuter search; best search score 5 rewrites output to &arg1 but does not establish target sp+0x23.
 extern s32 func_8071432C(void);
-extern u8 D_807467C8;
 
 u8 func_8060E3B0(u16 arg0, u8 arg1) {
+    s32 new_var;
     u8 result;
-    u8 sp27;
+    u8 output;
     u16 value;
 
-    sp27 = 0;
-    result = sp27;
+    result = 0;
     if (func_8071432C() != 0) {
-        func_8060C340(&value, (u8 *)&value - 1, 0, 0, arg1, func_8060B9D0(D_807467C8));
-        result = func_8060BBE0((value + arg0) & 0xFFFF, 1);
+        new_var = func_8060B9D0(D_807467C8);
+        func_8060C340(&value, &output, 0, 0, arg1, new_var);
+        new_var = func_8060BBE0((value + arg0) & 0xFFFF, 1);
+        result = new_var;
     }
     return result;
 }
