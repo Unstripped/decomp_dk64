@@ -1,4 +1,4 @@
-// func_8072D13C (src/global/12E800.c): stage 3: size matches (415 insns) and structure/switch/ra-as-variable layout match; frame 0x30 vs target 0x38 (target locals: off@0x18, key@0x2A, moved@0x2D, z/y/x@0x2E/0x30/0x32, type@0x34 with 14 unused bytes 0x1C-0x29), t-reg numbering differs (target idx t3 loaded raw then dir=ra). Tried decl order permutations, idx=unk25; dir=idx&0x80; idx&=0x7F (gets size 415).
+// func_8072D13C (src/global/12E800.c): stage 5: instruction count (415), frame 0x38 and every stack slot (off@0x18,key@0x2A,moved@0x2D,z/y/x,type@0x34) now match via 3 leading + 2 mid unused u8 locals (p1-p3 before type, q1,q2 before key; unused locals reserve home slots). Remaining: temp/base regs (target keeps D_807FDC90 in v1, &DC90 in t4, idx loaded straight into t3 then ra=idx copy; built v0/t3/t2) and scheduling of the early loads. Not yet permuted.
 typedef struct D1Pair {
     /* 0x00 */ u8 a;
     /* 0x01 */ u8 b;
@@ -79,11 +79,16 @@ typedef struct D1ActorViewK {
 #define D1PT(off) ((D1PtB *)(D1DCA0B->unk14 + (off)))
 
 u8 func_8072D13C(u8 arg0, u8 arg1) {
+    u8 p1;
+    u8 p2;
+    u8 p3;
     u8 type;
     s16 x;
     s16 y;
     s16 z;
     u8 moved;
+    u8 q1;
+    u8 q2;
     u8 key;
     s32 v;
     s32 idx;
@@ -91,7 +96,8 @@ u8 func_8072D13C(u8 arg0, u8 arg1) {
     s32 off;
 
     idx = D1DC90K->unk25;
-    dir = idx & 0x80;
+    dir = idx;
+    dir = dir & 0x80;
     idx = idx & 0x7F;
     key = ((D1Pair *)D1DC98G->unk20)[idx].a;
     type = ((D1Pair *)D1DC98G->unk20)[idx].b;
