@@ -10,9 +10,10 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 ```
 
 - It runs `merge_drafts.py merge --base` per file, touches them, runs `tools/dk make`,
-  compiles each file's `NON_MATCHING` side, and only after `GATE_OK` prunes drafts and
-  commits exactly the given src files, `drafts/` and each `--stage` path (never other staged
-  changes). Read the output for `GATE_OK` / `COMMITTED`.
+  compiles each file's `NON_MATCHING` side, and only after `GATE_OK` deletes the drafts of
+  the files' newly matched functions and commits exactly the given src files, the drafts of
+  their functions (`unit_check.py drafts`) and each `--stage` path (never other drafts or
+  staged changes). Read the output for `GATE_OK` / `COMMITTED`.
 - `--stage` every file outside the given `src` files the merged build depends on (a header a
   unify agent extended, a symbol file); otherwise the gate passes on the working tree but the
   commit does not build. When unsure, gate without `--commit`, `git status`, commit the

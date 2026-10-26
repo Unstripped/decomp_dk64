@@ -9,7 +9,8 @@
 # (reloc-only: own late_rodata as .rodata+off, raw-address constants) goes on to the ROM gate.
 # After the build, every file is compiled with -DNON_MATCHING (parked blocks) and any cfe
 # error fails the gate. Without --commit it never commits. With --commit MSG it commits only
-# after GATE_OK: runs `drafts.py prune`, then commits exactly the given src files, drafts/ and
+# after GATE_OK: deletes the drafts of the given files' newly matched functions, then commits
+# exactly the given src files, the drafts of their functions (`unit_check.py drafts`) and
 # every --stage PATH (files the build depended on outside them: include/ headers, symbol
 # files), never other staged changes; any failure exits non-zero before committing, so no
 # pipe can turn a failed gate into a commit.
@@ -56,7 +57,7 @@ for src in "$@"; do
 done
 echo GATE_OK
 if [ -n "$msg" ]; then
-  python3 tools/drafts.py prune || exit 1
-  git add -- "$@" $extra && git add -A -- drafts && git commit -q -m "$msg" -- "$@" drafts $extra || { echo "COMMIT_FAILED"; exit 1; }
+  drafts=$(python3 tools/unit_check.py drafts --prune "$@") || exit 1
+  git add -A -- "$@" $drafts $extra && git commit -q -m "$msg" -- "$@" $drafts $extra || { echo "COMMIT_FAILED"; exit 1; }
   echo "COMMITTED $(git rev-parse --short HEAD)"
 fi

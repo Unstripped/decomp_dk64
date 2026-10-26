@@ -19,6 +19,11 @@
   pragma-tail <src.c>...           files ending in a #pragma GLOBAL_ASM directly after a function's
                                    closing `}`, or without a trailing newline (that file once built
                                    without its last function: undefined reference at link); exit 1
+  drafts [--prune] <src.c>...      draft paths (drafts/<seg>/<FUNC>.c, existing or deleted) of the
+                                   functions that are GLOBAL_ASM in these files at HEAD or now;
+                                   --prune first deletes the drafts of those no longer GLOBAL_ASM
+                                   (matched). Scope for merge_gate.sh --commit: other drafts stay
+                                   untouched
 """
 import argparse
 import glob
@@ -157,6 +162,23 @@ def cmd_tail(a):
     sys.exit(1 if bad else 0)
 
 
+def cmd_drafts(a):
+    tracked = set(subprocess.run(["git", "ls-files", "drafts"], cwd=ROOT, capture_output=True, text=True).stdout.split())
+    paths = set()
+    for src in a.srcs:
+        rel = os.path.relpath(os.path.abspath(src), ROOT)
+        old = subprocess.run(["git", "show", f"HEAD:{rel}"], cwd=ROOT, capture_output=True, text=True).stdout
+        now = {(s or "boot", f) for s, f in PRAGMA.findall(open(src).read())}
+        for seg, func in now | {(s or "boot", f) for s, f in PRAGMA.findall(old)}:
+            path = os.path.join("drafts", seg, func + ".c")
+            if a.prune and (seg, func) not in now and os.path.exists(os.path.join(ROOT, path)):
+                os.remove(os.path.join(ROOT, path))
+                print(f"pruned {path}", file=sys.stderr)
+            if path in tracked or os.path.exists(os.path.join(ROOT, path)):
+                paths.add(path)
+    print("\n".join(sorted(paths)))
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     s = p.add_subparsers(dest="cmd", required=True)
@@ -167,6 +189,7 @@ def main():
     c = s.add_parser("left"); c.add_argument("srcs", nargs="+"); c.set_defaults(fn=cmd_left)
     c = s.add_parser("vanished"); c.add_argument("rev", nargs="?", default="HEAD"); c.set_defaults(fn=cmd_vanished)
     c = s.add_parser("pragma-tail"); c.add_argument("srcs", nargs="+"); c.set_defaults(fn=cmd_tail)
+    c = s.add_parser("drafts"); c.add_argument("--prune", action="store_true"); c.add_argument("srcs", nargs="+"); c.set_defaults(fn=cmd_drafts)
     a = p.parse_args()
     a.fn(a)
 
