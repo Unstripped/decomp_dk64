@@ -495,32 +495,6 @@ s32 func_80725DC0(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
     return ((outX - arg4) * (outX - arg4) + (outZ - arg5) * (outZ - arg5) < (f32)(arg6 * arg6)) & 0xFF;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80725ED4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726164.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807264B0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807266E8.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726744.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726D7C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726DC0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726DEC.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726E60.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726EE0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_8072707C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807270C0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80727194.s")
-
 typedef struct C1ActorView {
     /* 0x000 */ u8 pad0[0x58];
     /* 0x058 */ s32 unk58;
@@ -590,6 +564,276 @@ typedef struct C1NodeList {
 extern C1NodeList *D_80755694;
 s32 actorSpawn(s32, s32);
 void func_80726744(void *, void *);
+
+typedef struct F1Ent {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ u8 flags;
+    /* 0x7 */ u8 radius;
+    /* 0x8 */ u8 height;
+    /* 0x9 */ u8 pad9;
+    /* 0xA */ s16 unkA;
+} F1Ent; // size = 0xC? (stride 0xA)
+
+typedef struct F1Tbl {
+    /* 0x00 */ u8 pad0[8];
+    /* 0x08 */ s16 count8;
+    /* 0x0A */ u8 padA[2];
+    /* 0x0C */ u8 *entsC;
+    /* 0x10 */ s16 count10;
+    /* 0x12 */ u8 pad12[2];
+    /* 0x14 */ u8 *ents14;
+} F1Tbl;
+
+#define F1ENT(t, i) ((F1Ent *)((t)->ents14 + (i) * 0xA))
+
+
+s32 func_80725DC0(s16, s16, s16, s16, s16, s16, s16);
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80725ED4.s")
+
+typedef struct F1Pt6 {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+} F1Pt6;
+
+
+s32 func_80726164(Actor *arg0, s16 arg1, s16 arg2, s16 arg3, F1Tbl *arg4) {
+    s32 res;
+    f32 f1;
+    f32 f2;
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 i;
+    s16 cross;
+    u8 edges;
+
+    cross = 0;
+    edges = 0;
+    x = arg0->unk7C;
+    y = arg0->unk80 + (f32)(u32)arg0->unk15E;
+    z = arg0->unk84;
+    for (i = 1; i < arg4->count8; i++) {
+        if ((i + 1) != arg4->count8) {
+            res = func_807255A8(arg1, arg3, -0x8000, -0x8000, ((F1Pt6 *)arg4->entsC)[i].x, ((F1Pt6 *)arg4->entsC)[i].z, ((F1Pt6 *)arg4->entsC)[i + 1].x, ((F1Pt6 *)arg4->entsC)[i + 1].z, &f1, &f2);
+        } else {
+            res = func_807255A8(arg1, arg3, -0x8000, -0x8000, ((F1Pt6 *)arg4->entsC)[i].x, ((F1Pt6 *)arg4->entsC)[i].z, ((F1Pt6 *)arg4->entsC)[1].x, ((F1Pt6 *)arg4->entsC)[1].z, &f1, &f2);
+        }
+        cross += (res != 0);
+        if (res == 3) {
+            edges++;
+        }
+    }
+    if (edges != 0) {
+        if (!(edges & 1) && (cross == edges)) {
+            cross--;
+        }
+    }
+    res = 1;
+    if (cross & 1) {
+        for (i = 0; res && i < arg4->count10; i++) {
+            if (!(F1ENT(arg4, i)->flags & 0x80)) {
+                if (((F1ENT(arg4, i)->flags & 0x7F) == 0) || ((F1ENT(arg4, i)->flags & 0x7F) == 5)) {
+                    if (func_80725DC0((s32)x, (s32)z, arg1, arg3, F1ENT(arg4, i)->x, F1ENT(arg4, i)->z, F1ENT(arg4, i)->radius) != 0) {
+                        if (((f32)F1ENT(arg4, i)->y <= y) && (y <= (f32)(F1ENT(arg4, i)->height + F1ENT(arg4, i)->y))) {
+                            res = 0;
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        res = 0;
+    }
+    return res;
+}
+
+#ifdef NON_MATCHING
+void func_806755A8(s32, s32, s32, s32, void *, void *);
+
+s32 func_807264B0(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 i;
+    s32 found;
+    F1Ent *e;
+
+    arg0->unkF4 = 0;
+    arg0->unkF6 = 0xFFF;
+    found = 0;
+    x = arg0->unk7C;
+    y = arg0->unk80;
+    z = arg0->unk84;
+    for (i = 0; i < arg3->count10; i++) {
+        e = F1ENT(arg3, i);
+        if (!((e->flags & 0xFFFF) & 0x80)) {
+            if (((e->flags & 0x7F) == 0) || ((e->flags & 0x7F) == 1) ||
+                (((e->flags & 0x7F) == 5) && ((f64)arg0->unkB8 < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
+                if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
+                    if (e->flags) {
+                    }
+                    if (((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius)) {
+                        func_806755A8((s32)x, (s32)z, e->x, e->z, &arg0->unkF4, &arg0->unkF6);
+                        found = 1;
+                        arg0->unkFC = 1;
+                        arg0->unkFD = 1;
+                    }
+                }
+            }
+        }
+    }
+    return found;
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807264B0.s")
+#endif
+
+typedef struct F1Pt {
+    /* 0x0 */ u8 pad0[2];
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ s16 unk6;
+    /* 0x8 */ s16 unk8;
+} F1Pt;
+
+void func_807266E8(Actor *arg0, F1Pt *arg1) {
+    arg0->unk7C = arg1->unk4;
+    arg0->unk80 = arg1->unk6;
+    arg0->unk8C = arg1->unk6;
+    arg0->unk84 = arg1->unk8;
+    arg0->unkE6 = arg1->unk2;
+}
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726744.s")
+
+u8 func_80726DEC(u8, u8);
+
+u8 func_80726D7C(u8 arg0) {
+    return func_80726DEC(arg0, 5) || func_80726DEC(arg0, 6);
+}
+
+u8 func_80726DC0(u8 arg0) {
+    return func_80726DEC(arg0, 7);
+}
+
+u8 func_80726DEC(u8 arg0, u8 arg1) {
+    s16 i;
+    C1Node *node;
+
+    node = D_80755694->nodes;
+    for (i = 0; i < D_80755694->count; i++, node++) {
+        if (node->unk13 == arg0) {
+            return node->unk42 == arg1;
+        }
+    }
+    return 0;
+}
+
+void func_80726E60(u16 arg0, u8 arg1) {
+    s16 i;
+    C1Node *node;
+
+    node = D_80755694->nodes;
+    for (i = 0; i < D_80755694->count; i++, node++) {
+        if (node->unk42 == 5) {
+            if (node->unk18->unk5C & arg0) {
+                node->unk18->unk154 = arg1;
+            }
+        }
+    }
+}
+
+#ifdef NON_MATCHING
+void actorDespawn(void *);
+void actorQueueDelayedCallback(void *, s32, s32, s32, s32, s32, s32);
+void func_8061CFCC(void *);
+
+void func_80726EE0(u8 arg0) {
+    s16 i;
+    C1Node *node;
+    s32 mode;
+    u32 sel;
+
+    mode = arg0;
+    node = D_80755694->nodes;
+    for (i = 0; i < D_80755694->count; i++, node++) {
+        if (node->unk46 & 0x80) {
+            continue;
+        }
+        sel = mode;
+        if ((node->unk42 == 5) && (node->unk18->unk5C & 2)) {
+            actorQueueDelayedCallback(node->unk18, 0, 8, 0, 0, 0, 1);
+        } else if ((node->unk42 == 6) && (node->unk18->unk5C & 2)) {
+            node->unk42 = 7;
+            node->unk24 = node->unk14 * 0x1E;
+            func_8061CFCC(node->unk18);
+            actorDespawn(node->unk18);
+        }
+        switch (sel) {
+            case 0:
+            case 1:
+                node->unk46 |= 2;
+                break;
+            case 2:
+                node->unk46 &= ~2;
+                break;
+        }
+    }
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726EE0.s")
+#endif
+
+Actor *func_807270C0(s16, u16);
+
+void func_8072707C(s16 arg0, u8 arg1, u16 arg2) {
+    C1ActorView *a = (C1ActorView *)func_807270C0(arg0, arg2);
+
+    if (a != NULL) {
+        a->unk154 = arg1;
+        a->unk155 = 0;
+    }
+}
+
+void actorRegisterActive(void *);
+
+Actor *func_807270C0(s16 arg0, u16 arg1) {
+    s16 i;
+    C1Node *node;
+
+    node = D_80755694->nodes;
+    for (i = 0; i < D_80755694->count; i++, node++) {
+        if (arg0 == node->unk13) {
+            if (node->unk42 == 5) {
+                node->unk46 |= arg1;
+                return (Actor *)node->unk18;
+            } else if ((node->unk42 == 6) && (arg1 & 0x400)) {
+                actorRegisterActive(node->unk18);
+                node->unk42 = 5;
+                return (Actor *)node->unk18;
+            }
+        }
+    }
+    return 0;
+}
+
+u8 func_80727194(C1ActorView *arg0) {
+    s16 i;
+    C1Node *node;
+
+    node = D_80755694->nodes;
+    for (i = 0; i < D_80755694->count; i++, node++) {
+        if ((arg0 == node->unk18) && (node->unk42 == 5)) {
+            return node->unk13;
+        }
+    }
+    return 0;
+}
 
 Actor *func_807271F4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6) {
     s16 i;
@@ -778,7 +1022,6 @@ extern s32 D_807FBB64;
 extern u8 D_807FC928;
 void actorDeregisterActive(void *);
 void actorDespawn(void *);
-void actorRegisterActive(void *);
 void func_8061CFCC(void *);
 s16 func_806531B8(f32, f32, f32, s32);
 u8 func_80727F20(C1Node *, s32);
@@ -1054,7 +1297,6 @@ void func_807289B0(u8 arg0, u8 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807289E8.s")
 
-Actor *func_807270C0(s16, s32);
 
 void func_80729AA4(u8 arg0) {
     Actor *a;

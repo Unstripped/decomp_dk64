@@ -1,11 +1,6 @@
-// func_8072D714 (src/global/12E800.c): stage 3: all opcodes/branches match except frame 0x20 vs target 0x28 (extra 8 unused local bytes), f64 spill regs (target raw f0 -> clamped f2, constant 2.0 in f12) and rodata reloc. Tried f/raw split, f32 x local, permuter 300s best 995.
+// func_8072D714 (src/global/12E800.c): stage 5: frame 40 and sdc1 f2@24 now match (key: leading unused 'f64 unused;' local reserves the 8 bytes; trailing/mid placement does not); remaining diff: target keeps 66.0f first operand 'mul.s fa0,ft3(66.0),ft0' with 66.0/0.5 constants hoisted right after the call and cur loaded as f0, built multiplies (f32)(f+0.5)*66.0 with constants later (1 insn longer: 192 vs 191).
 extern u16 D_80744508;
 extern s32 D_8076A0A8;
-s32 mathAngleDistance(s16, s16);
-void func_8072B59C(u8, s16, s32);
-void func_8072D9D4(void);
-void func_8002D7E8(s16);
-
 typedef struct D1ActorViewI {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ ActorSub4 *unk4;
@@ -29,10 +24,11 @@ typedef struct D1ActorViewI {
 
 s32 mathAngleDistance(s16, s16);
 void func_8072B59C(u8, s16, s32);
-void func_8072D9D4(void);
 void func_8002D7E8(s16);
+void func_8072D9D4(void);
 
 void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
+    f64 unused;
     f64 f;
     f64 raw;
     f32 x;
@@ -47,9 +43,8 @@ void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
             }
         }
         func_8072B59C(0x37, 0, arg1);
-        x = 66.0f * (f32)(f + 0.5);
-        if ((x < arg0->unkB8 ? arg0->unkB8 : x) < 150.0f) {
-            D1AI->unkB8 = -(x < arg0->unkB8 ? arg0->unkB8 : x);
+        if (((66.0f * (f32)(f + 0.5)) < arg0->unkB8 ? arg0->unkB8 : 66.0f * (f32)(f + 0.5)) < 150.0f) {
+            D1AI->unkB8 = -((66.0f * (f32)(f + 0.5)) < arg0->unkB8 ? arg0->unkB8 : 66.0f * (f32)(f + 0.5));
         } else {
             D1AI->unkB8 = -150.0f;
         }
