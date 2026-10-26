@@ -1,4 +1,4 @@
-// n_alAdpcmPull (src/global/144E00.c): stage 3: exact 0x80 frame and s0 loop-boundary boolean through 0x807401CC; ternary removes loop-boundary reload, remaining scratch-register expression shapes
+// n_alAdpcmPull (src/global/144E00.c): stage 3: exact 0x80 frame and s0 loop-boundary boolean; canonical arg2 > nSam loop comparison improves isolated score 41880 to 38193; remaining scratch-register expression shapes
 AdpcmNMAcmd *n_alAdpcmPull(AdpcmNMLoadFilter *arg0, s16 *arg1, s32 arg2, AdpcmNMAcmd *arg3) {
     AdpcmNMAcmd *sp7C;
     s16 sp7A;
@@ -58,7 +58,7 @@ AdpcmNMAcmd *n_alAdpcmPull(AdpcmNMLoadFilter *arg0, s16 *arg1, s32 arg2, AdpcmNM
         sp44->unk3C = sp44->unk20->unk0 + ((u32)sp44->unk14 >> 4) * 9 + 9;
         sp44->unk30 = sp44->unk14;
         sp50 = *arg1;
-        if (sp5C < arg2) {
+        if (arg2 > sp5C) {
             do {
                 arg2 -= sp5C;
                 sp58 = (((sp70 + 1) << 5) + sp50 + 0x10) & ~0x1F;
@@ -77,14 +77,13 @@ AdpcmNMAcmd *n_alAdpcmPull(AdpcmNMLoadFilter *arg0, s16 *arg1, s32 arg2, AdpcmNM
                 sp3C = sp7C++;
                 sp3C->w0 = (((sp44->unk34 * 2) + sp58) & 0xFFFFFF) | 0x0A000000;
                 sp3C->w1 = ((sp50 & 0xFFFF) << 0x10) | ((sp5C * 2) & 0xFFFF);
-            } while (sp5C < arg2);
+            } while (arg2 > sp5C);
         }
         sp44->unk34 = (sp44->unk34 + arg2) & 0xF;
         sp44->unk30 = sp44->unk30 + arg2;
-        sp44->unk3C = sp44->unk3C + (sp70 * 9);
         return sp7C;
     }
-    sp5C = sp70 * 0x10;
+    sp5C = sp70 << 4;
     sp68 = (sp44->unk3C + sp6C) - (sp44->unk20->unk0 + sp44->unk20->unk4);
     if (sp68 < 0) {
         sp68 = 0;
