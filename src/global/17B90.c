@@ -5,17 +5,39 @@ extern s16 D_807FBB30;
 extern s16 D_807FBB32;
 extern Struct807FD580 *D_807FD580;
 
+typedef struct {
+    u8 unk0[0x50];
+    void *unk50;
+} P17aController;
+
+
+void *func_80612E90(void *, s16, s32);
+void func_80613794(P17aController *, s32);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80612E90.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613044.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_806130A4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613194.s")
+void func_80613194(P17aController *arg0, s16 arg1) {
+    if (arg0->unk50 == NULL) {
+        arg0->unk50 = func_80612E90(arg0, arg1, 0);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_806131D4.s")
+void func_806131D4(P17aController *arg0, s16 arg1) {
+    if (arg0->unk50 == NULL) {
+        arg0->unk50 = func_80612E90(arg0, arg1, 1);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613214.s")
+void func_80613214(P17aController *arg0) {
+    if (arg0->unk50 != NULL) {
+        func_80613794(arg0, 2);
+        arg0->unk50 = NULL;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_8061324C.s")
 
