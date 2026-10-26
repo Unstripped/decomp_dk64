@@ -171,36 +171,38 @@ segments:
       - [0x137C10, c, 137C10] # -g; rodata 0x164EA0-0x165150 (jtbls)
       - [0x13A750, c, 13A750] # -g
       - [0x13A7A0, c, 13A7A0] # -g; rodata 0x165150-0x165190 (jtbl)
-      - [0x13C920, asm]
-      - [0x13CB30, asm]
-      - [0x13CB50, asm]
-      - [0x13CE70, asm]
-      - [0x13CFA0, asm]
-      - [0x13D020, asm]
-      - [0x13D0B0, asm]
-      - [0x13D100, asm]
-      - [0x13D170, asm]
-      - [0x13E0E0, asm]
-      - [0x13E160, asm]
-      - [0x13EC00, asm]
-      - [0x13EC90, asm]
-      - [0x13ECE0, asm]
-      - [0x13FED0, asm]
-      - [0x140530, asm]
-      - [0x140600, asm]
-      - [0x141520, asm]
-      - [0x1417C0, asm]
-      - [0x141AD0, asm]
-      - [0x141C00, asm]
-      - [0x141E40, asm]
-      - [0x141E60, asm]
-      - [0x141EF0, asm]
-      - [0x1435A0, asm]
-      - [0x1435C0, asm]
-      - [0x144A90, asm]
-      - [0x144E00, asm]
-      - [0x145950, asm]
-      - [0x145D70, asm]
+      - [0x13C920, c, 13C920] # -g
+      - [0x13CB30, c, 13CB30] # -g
+      - [0x13CB50, c, 13CB50] # -g
+      - [0x13CE70, c, 13CE70] # -g
+      - [0x13CFA0, c, 13CFA0] # -g
+      - [0x13D020, c, 13D020] # -g
+      - [0x13D0B0, c, 13D0B0] # -g
+      - [0x13D100, c, 13D100] # -g
+      - [0x13D170, c, 13D170] # -g
+      - [0x13E0E0, c, 13E0E0] # -g
+      - [0x13E160, c, 13E160] # -g; rodata 0x165190-0x1651A0
+      - [0x13EC00, c, 13EC00] # -g
+      - [0x13EC90, c, 13EC90] # -g
+      - [0x13ECE0, c, 13ECE0] # -g; rodata 0x1651A0-0x1651B0
+      - [0x13FED0, c, 13FED0] # -g
+      - [0x140530, c, 140530] # -g
+      - [0x140600, c, 140600] # -g; rodata 0x1651B0-0x1651D0
+      - [0x141520, c, 141520] # -g; rodata 0x1651D0-0x1651E0
+      - [0x1417C0, c, 1417C0] # -g
+      - [0x141AD0, c, 141AD0] # -g
+      - [0x141C00, c, 141C00] # -g
+      - [0x141E40, c, 141E40] # -g
+      - [0x141E60, c, 141E60] # -g
+      - [0x141EF0, c, 141EF0] # -g; rodata 0x1651E0-0x165210
+      - [0x1435A0, c, 1435A0] # -g
+      - [0x1435C0, c, 1435C0] # -g; rodata 0x165210-0x165260
+      - [0x1445A0, c, 1445A0] # -g; hidden TU: 1435C0's rodata ends with a pad after D_80760554 at 0x165260; n_alAuxBusPull is 16-aligned
+      - [0x144A90, c, 144A90] # -g
+      - [0x144E00, c, 144E00] # -g
+      - [0x145950, c, 145950] # -g; rodata 0x165270-0x165280
+      - [0x145D70, c, 145D70] # -g; rodata 0x165280-0x165290
+      - [0x146010, asm] # RSP microcode text (mtc0/RSP jal targets), not C; was the tail of splat's 145D70
       - [0x146C40, asm]
       - [0x149160, data, 0]
       - [0x1492E0, data, 3C10]
@@ -301,7 +303,16 @@ segments:
       - [0x164E90, .rodata, 137630]
       - [0x164EA0, .rodata, 137C10]
       - [0x165150, .rodata, 13A7A0]
-      - [0x165190, rodata]
+      - [0x165190, .rodata, 13E160]
+      - [0x1651A0, .rodata, 13ECE0]
+      - [0x1651B0, .rodata, 140600]
+      - [0x1651D0, .rodata, 141520]
+      - [0x1651E0, .rodata, 141EF0]
+      - [0x165210, .rodata, 1435C0]
+      - [0x165260, .rodata, 1445A0]
+      - [0x165270, .rodata, 145950]
+      - [0x165280, .rodata, 145D70]
+      - [0x165290, rodata]
       - { start: 0x165D50, type: bss, vram: 0x80761050 }
       - { start: 0x165D50, type: .bss, vram: 0x80770DF0, name: 7130 } # D_80770DF0..D_80770F38 (func_806057F8's static pitch at 0x80770F38)
       - { start: 0x165D50, type: bss, vram: 0x80770F40, name: 165D50_80770F40 }
