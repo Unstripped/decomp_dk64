@@ -227,25 +227,91 @@ s32 func_806156A0(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616254.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806162C4.s")
+void func_80614D00(Actor *, s32, s32);
+
+s32 func_806162C4(Actor *arg0) {
+    s32 sp1C;
+    s32 sp18;
+
+    D_807F5AF0++;
+    func_80614FD8((u8 *)&sp1C);
+    func_80614FD8((u8 *)&sp18);
+    func_80614D00(arg0, sp1C, sp18);
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616318.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616374.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806163D0.s")
+typedef struct P19cFlagState {
+    u8 pad0[0x78];
+    s32 unk78;
+} P19cFlagState;
+
+s32 func_806163D0(Actor *arg0) {
+    P19cFlagState *temp_v1;
+
+    temp_v1 = (P19cFlagState *)arg0->unk4;
+    temp_v1->unk78 |= 0x8000;
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806163E8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616470.s")
+typedef struct P19cCountdownState {
+    u8 pad0[0x88];
+    s32 unk88;
+} P19cCountdownState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806164C4.s")
+s32 func_80616470(Actor *arg0) {
+    u16 sp1E;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    ((P19cCountdownState *)arg0->unk4)->unk88 = arg0->unk154 - sp1E;
+    return 1;
+}
+
+s32 func_806164C4(Actor *arg0) {
+    u16 sp1E;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    ((P19cCountdownState *)arg0->unk4)->unk88 = arg0->unk155[0] - sp1E;
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616518.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616594.s")
+typedef struct P19cGlobalCountdown {
+    u8 pad0[0x4E];
+    s16 unk4E;
+} P19cGlobalCountdown;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806165F0.s")
+s32 func_80616594(Actor *arg0) {
+    u16 sp1E;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    ((P19cCountdownState *)arg0->unk4)->unk88 =
+        ((P19cGlobalCountdown *)D_807FD580)->unk4E - sp1E;
+    return 1;
+}
+
+typedef struct P19cCursorState {
+    u8 pad0[0x68];
+    u8 *unk68;
+} P19cCursorState;
+
+s32 func_806165F0(Actor *arg0) {
+    s16 sp1E;
+
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    D_807F5AF0 = ((P19cCursorState *)arg0->unk4)->unk68 + sp1E;
+    return 1;
+}
 
 typedef struct P19dState {
     u8 pad0[0x5C];
