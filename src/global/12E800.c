@@ -345,7 +345,7 @@ extern u8 D_80720120[];
 extern u16 D_80744508;
 s32 func_80666A94();
 s32 func_80666AA0();
-void func_80714CC0(void *, f32, f32, f32, f32);
+s32 func_80714CC0(void *, f32, f32, f32, f32);
 
 void func_8072A714(void) {
     if (D1A3->unk5C & 2) {
@@ -579,7 +579,324 @@ void func_8072B79C(s16 arg0, s16 arg1, s16 arg2) {
     D1DC98->unk2A = arg2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072B7CC.s")
+typedef struct F1Dc90 {
+    /* 0x00 */ u8 pad0[0xA];
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ u8 pad10[0xA];
+    /* 0x1A */ u16 unk1A;
+    /* 0x1C */ u8 pad1C[6];
+    /* 0x22 */ u8 unk22;
+    /* 0x23 */ u8 pad23;
+    /* 0x24 */ u8 unk24;
+    /* 0x25 */ u8 pad25;
+    /* 0x26 */ s16 unk26;
+    /* 0x28 */ u8 pad28[4];
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ s16 unk2E;
+    /* 0x30 */ u8 pad30[9];
+    /* 0x39 */ u8 unk39;
+} F1Dc90;
+
+typedef struct F1Dc98 {
+    /* 0x00 */ u8 pad0[0x26];
+    /* 0x26 */ s16 unk26;
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ s16 unk2A;
+    /* 0x2C */ u8 pad2C[0xC];
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ u8 pad3C[0xA];
+    /* 0x46 */ u16 unk46;
+} F1Dc98;
+
+typedef struct F1Dc9c {
+    /* 0x00 */ u8 pad0[2];
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ u8 padA[2];
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ u8 padE[2];
+    /* 0x10 */ u8 unk10;
+} F1Dc9c;
+
+typedef struct F1Act {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ ActorSub4 *unk4;
+    /* 0x08 */ u8 pad8[0x58];
+    /* 0x60 */ u32 unk60;
+    /* 0x64 */ u8 pad64[6];
+    /* 0x6A */ u16 unk6A;
+    /* 0x6C */ u8 pad6C[2];
+    /* 0x6E */ s16 unk6E;
+    /* 0x70 */ u8 pad70[2];
+    /* 0x72 */ s16 unk72;
+    /* 0x74 */ f32 unk74;
+    /* 0x78 */ u8 pad78[4];
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ f32 unk84;
+    /* 0x88 */ f32 unk88;
+    /* 0x8C */ f32 unk8C;
+    /* 0x90 */ f32 unk90;
+    /* 0x94 */ u8 pad94[0x24];
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[0x2A];
+    /* 0xE6 */ s16 unkE6;
+    /* 0xE8 */ u8 padE8[0x14];
+    /* 0xFC */ u8 unkFC;
+    /* 0xFD */ u8 padFD[0x2B];
+    /* 0x128 */ s16 unk128;
+    /* 0x12A */ u8 pad12A[8];
+    /* 0x132 */ s16 unk132;
+    /* 0x134 */ u8 pad134[4];
+    /* 0x138 */ u32 unk138;
+    /* 0x13C */ u8 pad13C[4];
+    /* 0x140 */ ActorSub140 *unk140;
+    /* 0x144 */ u8 unk144;
+    /* 0x145 */ u8 pad145[0xF];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[9];
+    /* 0x15F */ u8 unk15F;
+} F1Act;
+
+#define F1A ((F1Act *)D_807FBB40)
+#define F1S90 ((F1Dc90 *)D_807FDC90)
+#define F1S98 ((F1Dc98 *)D_807FDC98)
+#define F1S9C ((F1Dc9c *)D_807FDC9C)
+
+s32 func_80725ED4(s32, Actor *, void *, s16 *, s16 *, s16 *);
+void func_8067ACB4(Actor *);
+s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
+void func_80723284(s32, u8);
+void func_807232B8(s32, s32);
+void func_80723320(s32, s32);
+void func_8072334C(s32, s32);
+void func_80723484(s32);
+void func_807238D4(s32, f32 *, f32 *, f32 *);
+void func_80724E48(u8);
+void func_8072DC7C(u8);
+void func_8072DE44(s32);
+void func_8072E320(f32);
+u8 sfxSlotAllocateActor(Actor *, s16, u8, u8, u8, f32, s8);
+void actorQueueDelayedCallback();
+void func_8071498C(void *);
+void func_80714950(s32);
+void func_807149B8(s32);
+void func_80717D4C(void);
+extern u8 D_8071FC58[];
+
+void func_8072B7CC(s32 arg0) {
+    func_8067ACB4(D_807FBB40);
+    switch (F1A->unk154) {
+        case 9:
+            F1S98->unk46 |= 0x2040;
+            F1S98->unk46 &= 0xFFF7;
+            F1S90->unk22 = 0x64;
+            F1A->unk154 = 1;
+            F1A->unk155 = 0;
+            F1A->unkB8 = (f32)(((func_80611A44() >> 0xF) % 50) + 0x3C);
+            break;
+        case 8:
+            switch (F1A->unk155) {
+                case 0:
+                    F1A->unk15F = func_80723020(D_807FBB40, F1S9C->unk2, 0, 0.0f, 0.0f, 0.0f, 0);
+                    func_80723284(F1A->unk15F, (u32)((f64)(u32)F1S9C->unkC * 0.1));
+                    func_807232B8(F1A->unk15F, 1);
+                    func_80723320(F1A->unk15F, -1);
+                    func_8072334C(F1A->unk15F, 1);
+                    F1A->unk155++;
+                case 1:
+                    func_80723484(F1A->unk15F);
+                    func_807238D4(F1A->unk15F, &F1A->unk7C, &F1A->unk80, &F1A->unk84);
+                    if (F1S98->unk38 != 0.0f) {
+                        F1A->unkB8 = sqrtf(((F1A->unk7C - F1A->unk88) * (F1A->unk7C - F1A->unk88)) + ((F1A->unk80 - F1A->unk8C) * (F1A->unk80 - F1A->unk8C)) + ((F1A->unk84 - F1A->unk90) * (F1A->unk84 - F1A->unk90))) * 40.0f;
+                        func_8072B330(0);
+                        func_8072E320(6.0f);
+                    } else {
+                        func_8072E320(0.0f);
+                    }
+                    break;
+            }
+            break;
+        case 0x1C:
+            switch (F1A->unk155) {
+                case 0:
+                    if (func_80725ED4(2, D_807FBB40, D_807FDCA0, &F1S90->unkA, &F1S90->unkC, &F1S90->unkE) == 0) {
+                        F1A->unk154 = F1S9C->unk10;
+                        F1A->unk155 = 0;
+                        break;
+                    }
+                    F1A->unk155 = 1;
+                case 1:
+                    func_8072A920(2, 0, (f32)F1S90->unkA, (f32)F1S90->unkC, (f32)F1S90->unkE, 0x1E, 3.3f, 100.0f, 0x2240);
+                    if (((F1A->unk84 - (f32)F1S90->unkE) * (F1A->unk84 - (f32)F1S90->unkE)) + (((F1A->unk7C - (f32)F1S90->unkA) * (F1A->unk7C - (f32)F1S90->unkA)) + ((F1A->unk80 - (f32)F1S90->unkC) * (F1A->unk80 - (f32)F1S90->unkC))) < 225.0f) {
+                        func_80614EBC(D_807FBB40, F1S98->unk26);
+                        F1A->unk155 = 2;
+                    }
+                    break;
+                case 2:
+                    if (((func_80611A44() >> 0xF) % 1000) >= 0x3E4) {
+                        func_80614EBC(D_807FBB40, F1S98->unk2A);
+                        F1A->unk155 = 3;
+                    }
+                    break;
+                case 4:
+                    func_8072DE44(F1S98->unk28);
+                    break;
+            }
+            break;
+        case 0x39:
+            func_80614D00(D_807FBB40, 0.0f, 0.0f);
+            switch (F1A->unk155) {
+                case 0:
+                    func_8072AB74(0, 0.0f, 0.0f, 0x202, 0.0f);
+                    F1A->unk4->unk38 = (f32)((f64)F1A->unk4->unk38 * 0.7);
+                    F1A->unk4->unk34 = (f32)((f64)F1A->unk4->unk34 * 1.07);
+                    F1A->unk4->unk3C = (f32)((f64)F1A->unk4->unk3C * 1.07);
+                    if ((f64)F1A->unk4->unk38 < 0.01) {
+                        F1A->unk155 = 1;
+                    }
+                    break;
+                case 1:
+                    func_8072DC7C(0xA);
+                    break;
+                case 2:
+                    F1A->unk154 = 0x40;
+                    D_80744508++;
+                    break;
+            }
+            break;
+        case 0:
+            func_8072AB74(0, 0.0f, 0.0f, 0x202, 0.0f);
+            if (F1A->unk155 == 0) {
+                func_8072B324(D_807FBB40, 0);
+                func_80614EBC(D_807FBB40, F1S98->unk26);
+                F1A->unk155 = 1;
+            }
+            func_80724E48(0);
+            break;
+        case 0x19:
+            func_8072AB74(0, 0.0f, 0.0f, 0x202, 0.0f);
+            if (((s16)F1S90->unk2C % 15) == 0) {
+                F1S90->unk24 = (func_80611A44() >> 0xF) % 180;
+            }
+            func_80724E48(2);
+            switch (F1A->unk155) {
+                case 0:
+                    func_8072B324(D_807FBB40, 0);
+                    func_80614EBC(D_807FBB40, F1S98->unk26);
+                    F1A->unk155 = 1;
+                    break;
+                case 1:
+                    if (F1S90->unk2C != 0) {
+                        F1S90->unk2C = F1S90->unk2C - 1;
+                    } else {
+                        func_8072DE44(F1S98->unk28);
+                    }
+                    break;
+            }
+            break;
+        case 0x17:
+            if ((F1A->unk6A & 1) || (F1A->unkFC != 0)) {
+                func_8072B324(D_807FBB40, F1S9C->unkD);
+                F1A->unkB8 = (f32)F1S90->unk26;
+                F1S90->unk1A &= 0xFFFD;
+                F1A->unk154 = 0x23;
+                F1A->unk155 = 0;
+                func_80614EBC(D_807FBB40, F1S98->unk2A);
+            } else {
+                F1A->unkE6 = (f32)F1A->unkE6 + (F1A->unkB8 * 2);
+                func_8072AB74(0x17, 0.0f, 0.0f, (F1S90->unk1A & 2) ? 0x1020 : 0x20, 0.0f);
+            }
+            break;
+        case 0x3A:
+            if (F1A->unk155 == 0) {
+                if (D_807FBB85 == 0) {
+                    func_80614D00(D_807FBB40, 0.0f, 8.0f);
+                    func_8072B324(D_807FBB40, 0);
+                }
+                F1A->unk155 = F1A->unk155 + 1;
+            } else if ((D_807444EC == 0) && (D_807FDC94->unk154 != 0x42)) {
+                F1A->unk132 = 1;
+                F1A->unk144 = 0x24;
+                F1A->unk154 = F1S9C->unk10;
+                F1A->unk155 = 0;
+                func_80614EBC(D_807FBB40, F1S98->unk28);
+                func_80614D00(D_807FBB40, 1.0f, 0.0f);
+                func_8072B324(D_807FBB40, F1S9C->unkC);
+            }
+            break;
+        case 0x16:
+            if (F1A->unk155 == 0) {
+                F1A->unk155 = F1A->unk155 + 1;
+            } else {
+                F1A->unkE6 += 0x64;
+                if (D_8076A064 & 1) {
+                    F1A->unk80 += 1.0f;
+                }
+                if (D_807FBB4C->unk154 != 0x67) {
+                    actorQueueDelayedCallback(D_807FBB40, 0, 8, 0, 0, 0, 1);
+                }
+            }
+            break;
+        case 0x36:
+            switch (F1A->unk155) {
+                case 0:
+                    F1A->unk60 &= 0xFFFD7FFF;
+                    F1A->unk138 &= 0xFFFF7FFF;
+                    F1A->unk128 = 0;
+                    F1S90->unk39 = 0x5A;
+                    F1S90->unk2E = F1A->unk4->unk38 * (f32)F1A->unk140->unkC;
+                    F1A->unk80 -= (f32)F1S90->unk2E;
+                    F1A->unk72 = 0;
+                    F1A->unk155++;
+                    break;
+                case 1:
+                    func_8071498C(func_80717D4C);
+                    func_807149B8(1);
+                    func_80714950(-0x28 - (((func_80611A44() >> 0xF) % 10000) % 120));
+                    func_80714CC0(D_8071FC58, 0.5f, (f32)((((func_80611A44() >> 0xF) % 20) + F1S9C->unk4) - 0xA), (f32)F1S9C->unk6, (f32)((((func_80611A44() >> 0xF) % 20) + F1S9C->unk8) - 0xA));
+                    if (F1S90->unk39 != 0) {
+                        f32 t;
+
+                        F1S90->unk39 = F1S90->unk39 - 1;
+                        t = (f32)(u32)F1S90->unk39 / 90.0f;
+                        F1A->unk80 = (f32)F1S9C->unk6 + ((f32)((F1S9C->unk6 - F1S90->unk2E) - F1S9C->unk6) * t);
+                        if (F1A->unk6E == -1) {
+                            F1A->unk6E = sfxSlotAllocateActor(D_807FBB40, 0x131, 0, 0, 0xFF, 1.0f, 0);
+                        }
+                        F1A->unk74 = (f32)F1S9C->unk6 - F1A->unk80;
+                        F1A->unk72 = F1A->unk72 + 1;
+                        F1A->unkE6 = (f32)F1A->unkE6 + (((f32)F1S9C->unk6 - F1A->unk80) * 60.0f);
+                        F1A->unk128 = (-255.0f * t) + 255.0f;
+                    } else {
+                        sfxStopSlotSound(D_807FBB40, 0);
+                        F1A->unk154 = F1S9C->unk10;
+                        F1A->unk155 = 0;
+                        F1A->unk60 |= 0x28000;
+                        F1A->unk138 |= 0x8000;
+                        F1A->unk128 = 0xFF;
+                        F1A->unk80 = (f32)F1S9C->unk6;
+                    }
+                    break;
+            }
+            break;
+        case 0x3D:
+            func_8072B59C(0x3F, 0, arg0);
+            break;
+        case 0x3E:
+            func_8072B59C(1, F1S9C->unkC, arg0);
+            break;
+        case 0x3F:
+            func_80724E48(0);
+            break;
+    }
+}
 
 typedef struct D1Dc90ViewH {
     /* 0x00 */ u8 pad0[0xA];
@@ -610,7 +927,6 @@ typedef struct D1PlayerView {
 
 extern u8 D_807FC928;
 extern u32 D_807FBB64;
-s32 func_80725ED4(s32, Actor *, void *, s16 *, s16 *, s16 *);
 
 u8 func_8072C670(u8 arg0, u8 *arg1) {
     D1S174b *st = D_807FDC94->unk174;
@@ -800,9 +1116,6 @@ void func_8072DA60(void) {
 }
 
 void func_80714998(s32);
-void func_807149B8(s32);
-void func_8071498C(void *);
-void func_80714950(s32);
 extern u8 D_8071FF18;
 extern void func_80717D4C(void);
 
