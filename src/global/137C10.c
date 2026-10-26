@@ -7,18 +7,22 @@ typedef u32 OSHWIntr;
 
 extern s32 osGetIntMask(s32 arg0);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/n_alCSPlayerNew.s")
+typedef struct GcChanState {
+    /* 0x00 */ u8 unk0[8];
+    /* 0x08 */ u8 priority;
+    /* 0x09 */ u8 unk9[4];
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ u8 unkE;
+    /* 0x0F */ u8 unkF[2];
+    /* 0x11 */ u8 fxmix;
+    /* 0x12 */ s8 pan;
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ f32 pitchBend;
+    /* 0x18 */ u8 unk18[0x1C];
+} GcChanState; // size 0x34
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/__n_csqVoiceHandler.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/__n_csqHandleMIDIMsg.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/__n_csqHandleMetaMsg.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/__n_csqPostNextSeqEvent.s")
-
-typedef struct GdVoiceState_s {
-    /* 0x00 */ struct GdVoiceState_s *next;
+typedef struct GcVoiceState {
+    /* 0x00 */ struct GcVoiceState *next;
     /* 0x04 */ ALVoice voice;
     /* 0x20 */ ALSound *sound;
     /* 0x24 */ s32 envEndTime;
@@ -34,7 +38,382 @@ typedef struct GdVoiceState_s {
     /* 0x37 */ u8 flags;
     /* 0x38 */ void *tremOsc;
     /* 0x3C */ void *vibOsc;
-} GdVoiceState;
+} GcVoiceState; // size 0x40
+
+typedef struct GcEvent {
+    /* 0x00 */ u16 type;
+    union {
+        ALNoteEvent note;
+        ALVolumeEvent vol;
+        ALSeqpVolEvent spvol;
+        ALSeqpPriorityEvent sppriority;
+        ALSeqpSeqEvent spseq;
+        ALSeqpBankEvent spbank;
+        ALOscEvent osc;
+        struct {
+            f32 f0;
+            f32 f1;
+        } fpair;
+        struct {
+            u8 b0;
+            u8 b1;
+            u8 b2;
+            u32 w4;
+        } cmd;
+    } msg;
+} GcEvent;
+
+typedef struct GcCSPlayer {
+    /* 0x00 */ ALPlayer node;
+    /* 0x14 */ ALSynth *drvr;
+    /* 0x18 */ ALCSeq *target;
+    /* 0x1C */ ALMicroTime curTime;
+    /* 0x20 */ ALBank *bank;
+    /* 0x24 */ s32 uspt;
+    /* 0x28 */ s32 nextDelta;
+    /* 0x2C */ s32 state;
+    /* 0x30 */ u16 chanMask;
+    /* 0x32 */ s16 vol;
+    /* 0x34 */ u8 maxChannels;
+    /* 0x35 */ u8 debugFlags;
+    /* 0x38 */ GcEvent nextEvent;
+    /* 0x48 */ ALEventQueue evtq;
+    /* 0x5C */ ALMicroTime frameTime;
+    /* 0x60 */ GcChanState *chanState;
+    /* 0x64 */ GcVoiceState *vAllocHead;
+    /* 0x68 */ GcVoiceState *vAllocTail;
+    /* 0x6C */ GcVoiceState *vFreeList;
+    /* 0x70 */ ALOscInit initOsc;
+    /* 0x74 */ ALOscUpdate updateOsc;
+    /* 0x78 */ ALOscStop stopOsc;
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ s32 unk84;
+    /* 0x88 */ u8 unk88;
+    /* 0x89 */ u8 unk89;
+} GcCSPlayer;
+
+extern ALSynth *D_807563E4;
+void func_80737F40(GcCSPlayer *);
+void __n_initChanState(GcCSPlayer *);
+void func_8073B640(GcCSPlayer *);
+ALMicroTime __n_csqVoiceHandler(void *node);
+
+void n_alCSPlayerNew(GcCSPlayer *seqp, ALSeqpConfig *c) {
+    s32 i;
+    GcVoiceState *unused0;
+    GcVoiceState *unused1;
+    ALEventListItem *items;
+    GcVoiceState *vs;
+    GcVoiceState *vsArray;
+    ALHeap *hp = c->heap;
+
+    seqp->bank = NULL;
+    seqp->target = NULL;
+    seqp->drvr = D_807563E4;
+    seqp->chanMask = 0xFFFF;
+    func_80737F40(seqp);
+    seqp->uspt = 488;
+    seqp->nextDelta = 0;
+    seqp->state = 0;
+    seqp->vol = 0x7FFF;
+    seqp->debugFlags = c->debugFlags;
+    seqp->frameTime = 16000;
+    seqp->curTime = 0;
+    seqp->initOsc = c->initOsc;
+    seqp->updateOsc = c->updateOsc;
+    seqp->stopOsc = c->stopOsc;
+    seqp->unk7C = 0.0f;
+    seqp->unk80 = 1.0f;
+    seqp->unk84 = 0;
+    seqp->unk89 = 0;
+    seqp->unk88 = c->maxVoices;
+    seqp->nextEvent.type = 9;
+    seqp->maxChannels = c->maxChannels;
+    seqp->chanState = alHeapDBAlloc(NULL, 0, hp, c->maxChannels, 0x34);
+    __n_initChanState(seqp);
+    vsArray = alHeapDBAlloc(NULL, 0, hp, c->maxVoices, 0x40);
+    seqp->vFreeList = NULL;
+    for (i = 0; i < c->maxVoices; i++) {
+        vs = &vsArray[i];
+        vs->next = seqp->vFreeList;
+        seqp->vFreeList = vs;
+    }
+    seqp->vAllocHead = NULL;
+    seqp->vAllocTail = NULL;
+    items = alHeapDBAlloc(NULL, 0, hp, c->maxEvents, 0x1C);
+    alEvtqNew(&seqp->evtq, items, c->maxEvents);
+    seqp->node.next = NULL;
+    seqp->node.handler = __n_csqVoiceHandler;
+    seqp->node.clientData = seqp;
+    func_8073B640(seqp);
+}
+
+void n_alCSeqNextEvent(ALCSeq *, ALEvent *, s32);
+void __n_csqRepostEvent();
+void n_alCSPStop();
+void n_alCSPSetBank();
+s16 __n_vsVol(GcVoiceState *, GcCSPlayer *);
+s32 __n_vsDelta(GcVoiceState *, s32);
+void n_alSynSetVol(ALVoice *, s16, s32);
+void n_alSynSetFXMix(ALVoice *, u8);
+void n_alSynSetPan(ALVoice *, f32);
+f32 func_8073BDC4(s32);
+
+#ifdef NON_MATCHING
+void __n_csqHandleMIDIMsg(GcCSPlayer *);
+void __n_seqpStopOsc(GcCSPlayer *, GcVoiceState *);
+void __n_unmapVoice(GcCSPlayer *, ALVoice *);
+s32 __n_voiceNeedsNoteKill(GcCSPlayer *, ALVoice *, s32);
+void __n_seqpReleaseVoice(GcCSPlayer *, ALVoice *, s32);
+void __n_initFromBank(GcCSPlayer *, ALBank *);
+void n_alSynStopVoice(ALVoice *);
+void n_alSynFreeVoice(ALVoice *);
+void n_alSynSetPitch(ALVoice *, f32);
+u8 func_8073A7B8(GcVoiceState *, GcCSPlayer *);
+void func_8073C820(ALVoice *, u8);
+void *func_8073C8D0(u8);
+void func_8073C9C0(void *, s32, void *);
+void *func_8073C948(u8);
+void func_8073CA04(void *, u8, void *);
+
+ALMicroTime __n_csqVoiceHandler(void *node) {
+    GcCSPlayer *seqp = node;
+    ALEvent evt;
+    ALVoice *voice;
+    ALMicroTime delta;
+    GcVoiceState *vs;
+    void *oscState;
+    f32 oscValue;
+    u8 chan;
+    s32 unused;
+    void *cmdA;
+    void *cmdB;
+
+    do {
+        switch (seqp->nextEvent.type) {
+            case 0:
+                __n_csqHandleMIDIMsg(seqp);
+                break;
+            case 9:
+                evt.type = 9;
+                alEvtqPostEvent(&seqp->evtq, &evt, seqp->frameTime);
+                break;
+            case 5:
+                voice = seqp->nextEvent.msg.note.voice;
+                n_alSynStopVoice(voice);
+                n_alSynFreeVoice(voice);
+                vs = voice->clientPrivate;
+                if (vs->flags != 0) {
+                    __n_seqpStopOsc(seqp, vs);
+                }
+                __n_unmapVoice(seqp, voice);
+                break;
+            case 6:
+                voice = seqp->nextEvent.msg.note.voice;
+                vs = voice->clientPrivate;
+                if (vs->envPhase == 0) {
+                    vs->envPhase = 1;
+                }
+                delta = seqp->nextEvent.msg.vol.delta;
+                vs->envEndTime = seqp->curTime + delta;
+                vs->envGain = seqp->nextEvent.msg.vol.vol;
+                n_alSynSetVol(voice, __n_vsVol(vs, seqp), delta);
+                break;
+            case 22:
+                vs = (GcVoiceState *)seqp->nextEvent.msg.osc.vs;
+                oscState = seqp->nextEvent.msg.osc.oscState;
+                delta = seqp->updateOsc(oscState, &oscValue);
+                vs->tremelo = oscValue;
+                n_alSynSetVol(&vs->voice, __n_vsVol(vs, seqp), __n_vsDelta(vs, seqp->curTime));
+                evt.type = 0x16;
+                evt.msg.osc.vs = (ALVoiceState *)vs;
+                evt.msg.osc.oscState = oscState;
+                alEvtqPostEvent(&seqp->evtq, &evt, delta);
+                break;
+            case 23:
+                vs = (GcVoiceState *)seqp->nextEvent.msg.osc.vs;
+                oscState = seqp->nextEvent.msg.osc.oscState;
+                chan = seqp->nextEvent.msg.osc.chan;
+                delta = seqp->updateOsc(oscState, &oscValue);
+                vs->vibrato = oscValue;
+                n_alSynSetPitch(&vs->voice, seqp->chanState[chan].pitchBend * (vs->pitch * vs->vibrato));
+                if (seqp->chanState[chan].fxmix != 0) {
+                    n_alSynSetPan(&vs->voice, 440.0f * func_8073BDC4(vs->key - vs->sound->keyMap->keyBase) * seqp->chanState[chan].pitchBend * vs->vibrato);
+                }
+                evt.type = 0x17;
+                evt.msg.osc.vs = (ALVoiceState *)vs;
+                evt.msg.osc.oscState = oscState;
+                evt.msg.osc.chan = chan;
+                alEvtqPostEvent(&seqp->evtq, &evt, delta);
+                break;
+            case 2:
+            case 21:
+                __n_csqRepostEvent(seqp, &seqp->nextEvent);
+                break;
+            case 7:
+                n_alCSPSetBank(seqp, &seqp->nextEvent);
+                break;
+            case 10:
+                seqp->vol = seqp->nextEvent.msg.spvol.vol;
+                for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                    n_alSynSetVol(&vs->voice, __n_vsVol(vs, seqp), __n_vsDelta(vs, seqp->curTime));
+                }
+                break;
+            case 24:
+                seqp->unk7C = seqp->nextEvent.msg.fpair.f0;
+                seqp->unk80 = seqp->nextEvent.msg.fpair.f1;
+                for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                    func_8073C820(&vs->voice, func_8073A7B8(vs, seqp));
+                }
+                break;
+            case 25:
+                if (seqp->nextEvent.msg.cmd.b1 < 8) {
+                    cmdA = func_8073C8D0(seqp->nextEvent.msg.cmd.b0);
+                    if (cmdA != NULL) {
+                        func_8073C9C0(cmdA, (seqp->nextEvent.msg.cmd.b2 << 3) | (seqp->nextEvent.msg.cmd.b1 & 7), &seqp->nextEvent.msg.cmd.w4);
+                    }
+                } else {
+                    cmdB = func_8073C948(seqp->nextEvent.msg.cmd.b0);
+                    if (cmdB != NULL) {
+                        func_8073CA04(cmdB, seqp->nextEvent.msg.cmd.b1, &seqp->nextEvent.msg.cmd.w4);
+                    }
+                }
+                break;
+            case 15:
+                if (seqp->state != 1) {
+                    seqp->state = 1;
+                    n_alCSPStop(seqp);
+                }
+                break;
+            case 16:
+                if (seqp->state == 2) {
+                    for (vs = seqp->vAllocHead; vs != NULL; vs = seqp->vAllocHead) {
+                        n_alSynStopVoice(&vs->voice);
+                        n_alSynFreeVoice(&vs->voice);
+                        if (vs->flags != 0) {
+                            __n_seqpStopOsc(seqp, vs);
+                        }
+                        __n_unmapVoice(seqp, &vs->voice);
+                    }
+                    seqp->state = 0;
+                }
+                break;
+            case 17:
+                if (seqp->state == 1) {
+                    alEvtqFlushType(&seqp->evtq, 0);
+                    alEvtqFlushType(&seqp->evtq, 0x15);
+                    alEvtqFlushType(&seqp->evtq, 2);
+                    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                        if (__n_voiceNeedsNoteKill(seqp, &vs->voice, 50000)) {
+                            __n_seqpReleaseVoice(seqp, &vs->voice, 50000);
+                        }
+                    }
+                    for (chan = 0; chan < 16; chan++) {
+                        seqp->chanState[chan].unkD = seqp->chanState[chan].unkE;
+                        if (seqp->chanState[chan].unkD == 0) {
+                            seqp->chanMask &= (1 << chan) ^ 0xFFFF;
+                        } else {
+                            seqp->chanMask |= 1 << chan;
+                        }
+                    }
+                    seqp->state = 2;
+                    evt.type = 0x10;
+                    alEvtqPostEvent(&seqp->evtq, &evt, 0x7FFFFFFF);
+                }
+                break;
+            case 12:
+                chan = seqp->nextEvent.msg.sppriority.chan;
+                seqp->chanState[chan].priority = seqp->nextEvent.msg.sppriority.priority;
+                break;
+            case 13:
+                seqp->target = seqp->nextEvent.msg.spseq.seq;
+                seqp->chanMask = 0xFFFF;
+                if (seqp->bank != NULL) {
+                    __n_initFromBank(seqp, seqp->bank);
+                }
+                break;
+            case 14:
+                seqp->bank = seqp->nextEvent.msg.spbank.bank;
+                __n_initFromBank(seqp, seqp->bank);
+                break;
+            case 1:
+            case 3:
+            case 4:
+                break;
+        }
+        seqp->nextDelta = alEvtqNextEvent(&seqp->evtq, (ALEvent *)&seqp->nextEvent);
+    } while (seqp->nextDelta == 0);
+    seqp->curTime += seqp->nextDelta;
+    return seqp->nextDelta;
+}
+
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/__n_csqVoiceHandler.s")
+#endif
+
+void __n_csqHandleMIDIMsg(GcCSPlayer *seqp) {
+    ALEvent evt;
+
+    if (seqp->target == NULL) {
+        return;
+    }
+    n_alCSeqNextEvent(seqp->target, &evt, 1);
+    switch (evt.type) {
+        case 1:
+            __n_csqRepostEvent(seqp, &evt);
+            n_alCSPStop(seqp);
+            break;
+        case 3:
+            n_alCSPSetBank(seqp, &evt);
+            n_alCSPStop(seqp);
+            break;
+        case 4:
+            seqp->state = 2;
+            evt.type = 0x10;
+            alEvtqPostEvent(&seqp->evtq, &evt, 0x7FFFFFFF);
+            break;
+        case 18:
+        case 19:
+        case 20:
+            n_alCSPStop(seqp);
+            break;
+        default:
+            break;
+    }
+}
+
+void __n_csqHandleMetaMsg(GcCSPlayer *seqp, u8 chan) {
+    GcVoiceState *vs;
+    s16 vol;
+
+    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+        if (vs->channel == chan && vs->envPhase != 3) {
+            vol = __n_vsVol(vs, seqp);
+            n_alSynSetVol(&vs->voice, vol, __n_vsDelta(vs, seqp->curTime));
+        }
+    }
+}
+
+void __n_csqPostNextSeqEvent(GcCSPlayer *seqp, u8 chan) {
+    GcVoiceState *vs;
+    s16 fxmix;
+    s8 pan;
+    f32 pitchBend;
+
+    pan = seqp->chanState[chan].pan - 0x40;
+    pitchBend = seqp->chanState[chan].pitchBend;
+    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+        if (vs->channel == chan) {
+            fxmix = seqp->chanState[chan].fxmix;
+            n_alSynSetFXMix(&vs->voice, fxmix);
+            if (fxmix != 0) {
+                n_alSynSetPan(&vs->voice, func_8073BDC4(vs->key - vs->sound->keyMap->keyBase + pan) * 440.0f * pitchBend);
+            }
+        }
+    }
+}
 
 typedef struct {
     /* 0x00 */ ALInstrument *instrument;
@@ -77,68 +456,29 @@ typedef struct {
 
 typedef s32 (*GdOscInit)(void **, f32 *, u8, u8, u8, u8, u8);
 
-typedef struct {
-    /* 0x00 */ u8 pad00[0x10];
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ void *drvr;
-    /* 0x18 */ ALCSeq *target;
-    /* 0x1C */ s32 curTime;
-    /* 0x20 */ ALBank *bank;
-    /* 0x24 */ s32 uspt;
-    /* 0x28 */ s32 nextDelta;
-    /* 0x2C */ s32 state;
-    /* 0x30 */ u16 chanMask;
-    /* 0x32 */ s16 vol;
-    /* 0x34 */ u8 maxChannels;
-    /* 0x35 */ u8 debugFlags;
-    /* 0x38 */ ALEvent nextEvent;
-    /* 0x48 */ ALEventQueue evtq;
-    /* 0x5C */ s32 frameTime;
-    /* 0x60 */ GdChanState *chanState;
-    /* 0x64 */ GdVoiceState *vAllocHead;
-    /* 0x68 */ GdVoiceState *vAllocTail;
-    /* 0x6C */ GdVoiceState *vFreeList;
-    /* 0x70 */ GdOscInit initOsc;
-    /* 0x74 */ void *updateOsc;
-    /* 0x78 */ void *stopOsc;
-    /* 0x7C */ u8 pad7C[8];
-    /* 0x84 */ OSMesgQueue *msgq;
-    /* 0x88 */ u8 unk88;
-} GdCSPlayer;
-
 #ifdef NON_MATCHING
 typedef struct {
     u8 pad00[0x3C];
     s32 unk3C;
 } GdBankInfo;
 
-extern GdBankInfo *D_807563E4;
 extern s32 D_807FF040[];
 
-void __n_csqHandleMetaMsg();
-void __n_csqPostNextSeqEvent();
-ALSound *__n_lookupSoundQuick(GdCSPlayer *seqp, u8 key, u8 vel, u8 chan);
-GdVoiceState *__n_mapVoice(GdCSPlayer *seqp, u8 key, u8 vel, u8 chan);
-GdVoiceState *__n_lookupVoice(GdCSPlayer *seqp, u8 key, u8 chan);
-void __n_seqpReleaseVoice(GdCSPlayer *seqp, ALVoice *voice, s32 deltaTime);
-void __n_setInstChanState(GdCSPlayer *seqp, ALInstrument *inst, u8 chan);
-s32 __n_vsDelta(GdVoiceState *vs, s32 curTime);
-u8 __n_vsPan(GdVoiceState *vs, GdCSPlayer *seqp);
-s16 __n_vsVol(GdVoiceState *vs, GdCSPlayer *seqp);
-u8 func_8073A7B8(GdVoiceState *vs, GdCSPlayer *seqp);
-f32 func_8073BDC4(s32 cents);
-void func_8073C820(ALVoice *voice, u8 arg);
+ALSound *__n_lookupSoundQuick(GcCSPlayer *seqp, u8 key, u8 vel, u8 chan);
+GcVoiceState *__n_mapVoice(GcCSPlayer *seqp, u8 key, u8 vel, u8 chan);
+GcVoiceState *__n_lookupVoice(GcCSPlayer *seqp, u8 key, u8 chan);
+void __n_setInstChanState(GcCSPlayer *seqp, ALInstrument *inst, u8 chan);
+u8 __n_vsPan(GcVoiceState *vs, GcCSPlayer *seqp);
 void func_8073CF00(ALVoice *voice, u8 arg);
 void func_8073CFB0(ALVoice *voice, u8 arg);
 void n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config);
-void n_alSynSetPan(ALVoice *voice, f32 pan);
-void n_alSynSetPitch(ALVoice *voice, f32 pitch);
-void n_alSynSetVol(ALVoice *voice, s16 vol, s32 delta);
 void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *w, f32 pitch, s16 vol, u8 pan, u8 fxmix, u8 unityPitch, f32 arg7, u8 arg8, s32 arg9);
 
-void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
+#define GdCH(seqp, c) (((GdChanState *)(seqp)->chanState)[c])
+
+void __n_csqRepostEvent(GcCSPlayer *seqp, ALEvent *event) {
     ALVoice *voice;
-    GdVoiceState *vs;
+    GcVoiceState *vs;
     s32 status;
     u8 chan;
     u8 key;
@@ -149,7 +489,7 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
     s16 vol;
     ALEvent evt;
     s32 delta;
-    GdVoiceState *voiceState;
+    GcVoiceState *voiceState;
     u8 pan;
     GdChanState *chanSt;
     s32 sp90;
@@ -190,7 +530,7 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                         alEvtqPostEvent(&seqp->evtq, &evt, delta);
                     }
                 } else {
-                    chanSt = &seqp->chanState[chan];
+                    chanSt = &GdCH(seqp, chan);
                     sound = __n_lookupSoundQuick(seqp, key, vel, chan);
                     if (sound == NULL) {
                         return;
@@ -227,15 +567,15 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     if (chanSt->unk24 != 0) {
                         sp90 = chanSt->unk28;
                     } else {
-                        inst = seqp->chanState[chan].instrument;
+                        inst = GdCH(seqp, chan).instrument;
                         sp90 = inst->tremType;
                     }
                     oscVal = 127.0f;
                     if (sp90 != 0 && seqp->initOsc != NULL) {
                         if (chanSt->unk24 != 0) {
-                            delta = seqp->initOsc(&oscState, &oscVal, chanSt->unk28, chanSt->unk29, chanSt->unk2A, chanSt->unk2B, chanSt->unk31);
+                            delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, chanSt->unk28, chanSt->unk29, chanSt->unk2A, chanSt->unk2B, chanSt->unk31);
                         } else {
-                            delta = seqp->initOsc(&oscState, &oscVal, inst->tremType, inst->tremRate, inst->tremDepth, inst->tremDelay, chanSt->unk31);
+                            delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, inst->tremType, inst->tremRate, inst->tremDepth, inst->tremDelay, chanSt->unk31);
                         }
                         if (delta != 0) {
                             evt.type = 0x16;
@@ -255,9 +595,9 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     }
                     if (sp90 != 0 && seqp->initOsc != NULL) {
                         if (chanSt->unk24 != 0) {
-                            delta = seqp->initOsc(&oscState, &oscVal, chanSt->unk2C, chanSt->unk2D, chanSt->unk2E, chanSt->unk2F, chanSt->unk31);
+                            delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, chanSt->unk2C, chanSt->unk2D, chanSt->unk2E, chanSt->unk2F, chanSt->unk31);
                         } else {
-                            delta = seqp->initOsc(&oscState, &oscVal, inst->vibType, inst->vibRate, inst->vibDepth, inst->vibDelay, chanSt->unk31);
+                            delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, inst->vibType, inst->vibRate, inst->vibDepth, inst->vibDelay, chanSt->unk31);
                         }
                         if (delta != 0) {
                             evt.type = 0x17;
@@ -305,8 +645,8 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                         D_807FF040[chan] = delta;
                         alEvtqPostEvent(&seqp->evtq, &evt, delta);
                     }
-                    if ((chanSt->unk10 & 1) && seqp->msgq != NULL) {
-                        osSendMesg(seqp->msgq, (OSMesg)((D_807FF040[chan] & ~0xFF) | (chanSt->unk10 >> 2)), 0);
+                    if ((chanSt->unk10 & 1) && ((OSMesgQueue *)seqp->unk84) != NULL) {
+                        osSendMesg(((OSMesgQueue *)seqp->unk84), (OSMesg)((D_807FF040[chan] & ~0xFF) | (chanSt->unk10 >> 2)), 0);
                     }
                 }
                 break;
@@ -316,7 +656,7 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
             if (voiceState == NULL) {
                 return;
             }
-            chanSt = &seqp->chanState[chan];
+            chanSt = &GdCH(seqp, chan);
             if (voiceState->phase == 2) {
                 voiceState->phase = 4;
             } else {
@@ -327,8 +667,8 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     __n_seqpReleaseVoice(seqp, &voiceState->voice, voiceState->sound->envelope->releaseTime);
                 }
             }
-            if ((chanSt->unk10 & 2) && seqp->msgq != NULL) {
-                osSendMesg(seqp->msgq, (OSMesg)((key << 16) | 8 | (chanSt->unk10 >> 2)), 0);
+            if ((chanSt->unk10 & 2) && ((OSMesgQueue *)seqp->unk84) != NULL) {
+                osSendMesg(((OSMesgQueue *)seqp->unk84), (OSMesg)((key << 16) | 8 | (chanSt->unk10 >> 2)), 0);
             }
             break;
         case 0xA0:
@@ -350,7 +690,7 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
         case 0xB0:
             switch (byte1) {
                 case 0xA:
-                    seqp->chanState[chan].pan = byte2;
+                    GdCH(seqp, chan).pan = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
                             pan = __n_vsPan(vs, seqp);
@@ -359,17 +699,17 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0xFD:
-                    seqp->chanState[chan].unk0F = byte2;
+                    GdCH(seqp, chan).unk0F = byte2;
                     break;
                 case 0xFF:
-                    if (seqp->chanState[chan].unk0F == 0) {
-                        seqp->chanState[chan].unk0F = 0x90;
+                    if (GdCH(seqp, chan).unk0F == 0) {
+                        GdCH(seqp, chan).unk0F = 0x90;
                     }
-                    if (seqp->chanState[chan].unk0E != byte2) {
-                        if (seqp->chanState[chan].unk0E == seqp->chanState[chan].unk0D) {
-                            seqp->chanState[chan].unk0E = byte2;
+                    if (GdCH(seqp, chan).unk0E != byte2) {
+                        if (GdCH(seqp, chan).unk0E == GdCH(seqp, chan).unk0D) {
+                            GdCH(seqp, chan).unk0E = byte2;
                         } else {
-                            seqp->chanState[chan].unk0E = byte2;
+                            GdCH(seqp, chan).unk0E = byte2;
                             break;
                         }
                     } else {
@@ -377,9 +717,9 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     }
                     midi->byte1 = 0xFE;
                 case 0xFE:
-                    sp67 = seqp->chanState[chan].unk0D;
-                    sp66 = seqp->chanState[chan].unk0E;
-                    vel = seqp->chanState[chan].unk0F;
+                    sp67 = GdCH(seqp, chan).unk0D;
+                    sp66 = GdCH(seqp, chan).unk0E;
+                    vel = GdCH(seqp, chan).unk0F;
                     sp60 = sp66 - sp67;
                     if (sp60 > 0) {
                         if (vel & 0x80) {
@@ -395,7 +735,7 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                         }
                     }
                     sp67 += sp60;
-                    seqp->chanState[chan].unk0D = sp67;
+                    GdCH(seqp, chan).unk0D = sp67;
                     if (sp67 != sp66) {
                         alEvtqPostEvent(&seqp->evtq, event, seqp->uspt * 100);
                     }
@@ -407,8 +747,8 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     __n_csqHandleMetaMsg(seqp, chan);
                     break;
                 case 0xFC:
-                    seqp->chanState[chan].unk0D = byte2;
-                    seqp->chanState[chan].unk0E = byte2;
+                    GdCH(seqp, chan).unk0D = byte2;
+                    GdCH(seqp, chan).unk0E = byte2;
                     if (byte2 == 0) {
                         seqp->chanMask = seqp->chanMask & ((1 << chan) ^ 0xFFFF);
                     } else {
@@ -417,15 +757,15 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     __n_csqHandleMetaMsg(seqp, chan);
                     break;
                 case 0x21:
-                    seqp->chanState[chan].unk11 = byte2;
+                    GdCH(seqp, chan).unk11 = byte2;
                     __n_csqPostNextSeqEvent(seqp, chan);
                     break;
                 case 0x22:
-                    seqp->chanState[chan].unk12 = byte2;
+                    GdCH(seqp, chan).unk12 = byte2;
                     __n_csqPostNextSeqEvent(seqp, chan);
                     break;
                 case 0x23:
-                    seqp->chanState[chan].unk13 = byte2;
+                    GdCH(seqp, chan).unk13 = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
                             func_8073CFB0(&vs->voice, byte2);
@@ -433,12 +773,12 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0x1E:
-                    if (seqp->msgq != NULL) {
-                        osSendMesg(seqp->msgq, (OSMesg)(((byte2 & 7) | 0x10) | ((seqp->unk10 << 5) & ~0xFF)), 0);
+                    if (((OSMesgQueue *)seqp->unk84) != NULL) {
+                        osSendMesg(((OSMesgQueue *)seqp->unk84), (OSMesg)(((byte2 & 7) | 0x10) | ((seqp->node.samplesLeft << 5) & ~0xFF)), 0);
                     }
                     break;
                 case 0x7:
-                    seqp->chanState[chan].vol = byte2;
+                    GdCH(seqp, chan).vol = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan && vs->envPhase != 3) {
                             vol = __n_vsVol(vs, seqp);
@@ -447,10 +787,10 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0x10:
-                    seqp->chanState[chan].priority = byte2;
+                    GdCH(seqp, chan).priority = byte2;
                     break;
                 case 0x40:
-                    seqp->chanState[chan].sustain = byte2;
+                    GdCH(seqp, chan).sustain = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan && vs->phase != 3) {
                             if (byte2 >= 0x40) {
@@ -462,7 +802,7 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                             } else if (vs->phase == 4) {
                                 vs->phase = 3;
                                 if (chanSt->unk24 != 0) {
-                                    __n_seqpReleaseVoice(seqp, &vs->voice, (seqp->chanState[chan].unk20 < 0x3E80) ? 0x3E80 : seqp->chanState[chan].unk20);
+                                    __n_seqpReleaseVoice(seqp, &vs->voice, (GdCH(seqp, chan).unk20 < 0x3E80) ? 0x3E80 : GdCH(seqp, chan).unk20);
                                 } else {
                                     __n_seqpReleaseVoice(seqp, &vs->voice, (voiceState->sound->envelope->releaseTime < 0x3E80) ? 0x3E80 : voiceState->sound->envelope->releaseTime);
                                 }
@@ -471,32 +811,32 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0x5B:
-                    seqp->chanState[chan].fxmix = (seqp->chanState[chan].fxmix & 0x80) | byte2;
-                    byte2 = seqp->chanState[chan].fxmix >> 7;
+                    GdCH(seqp, chan).fxmix = (GdCH(seqp, chan).fxmix & 0x80) | byte2;
+                    byte2 = GdCH(seqp, chan).fxmix >> 7;
                 case 0x41:
-                    seqp->chanState[chan].fxmix = (seqp->chanState[chan].fxmix & 0x7F) | (byte2 << 7);
+                    GdCH(seqp, chan).fxmix = (GdCH(seqp, chan).fxmix & 0x7F) | (byte2 << 7);
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
-                            func_8073C820(&vs->voice, seqp->chanState[chan].fxmix);
+                            func_8073C820(&vs->voice, GdCH(seqp, chan).fxmix);
                         }
                     }
                     break;
                 case 0x5C:
-                    if (byte2 < D_807563E4->unk3C && byte2 >= 0) {
-                        seqp->chanState[chan].unk0B = byte2;
+                    if (byte2 < ((GdBankInfo *)D_807563E4)->unk3C && byte2 >= 0) {
+                        GdCH(seqp, chan).unk0B = byte2;
                     }
                     break;
                 case 0x1A:
                     break;
                 case 0x20:
-                    seqp->chanState[chan].unk32 = byte2;
+                    GdCH(seqp, chan).unk32 = byte2;
                     break;
                 default:
                     break;
             }
             break;
         case 0xC0:
-            sp90 = (seqp->chanState[chan].unk32 << 7) + key;
+            sp90 = (GdCH(seqp, chan).unk32 << 7) + key;
             if (sp90 < seqp->bank->instCount) {
                 sp5C = (s32)seqp->bank->instArray[sp90];
                 __n_setInstChanState(seqp, (ALInstrument *)sp5C, chan);
@@ -505,13 +845,13 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
             break;
         case 0xE0:
             sp58 = ((byte2 << 7) + byte1) - 0x2000;
-            sp50 = (seqp->chanState[chan].bendRange * sp58) / 8192;
+            sp50 = (GdCH(seqp, chan).bendRange * sp58) / 8192;
             sp54 = alCents2Ratio(sp50);
-            seqp->chanState[chan].pitchBend = sp54;
+            GdCH(seqp, chan).pitchBend = sp54;
             for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                 if (vs->channel == chan) {
                     n_alSynSetPitch(&vs->voice, vs->pitch * sp54 * vs->vibrato);
-                    if (seqp->chanState[chan].unk11 != 0) {
+                    if (GdCH(seqp, chan).unk11 != 0) {
                         n_alSynSetPan(&vs->voice, func_8073BDC4(vs->key - vs->sound->keyMap->keyBase) * 440.0f * sp54 * vs->vibrato);
                     }
                 }
@@ -526,10 +866,10 @@ void __n_csqRepostEvent(GdCSPlayer *seqp, ALEvent *event) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/137C10/__n_csqRepostEvent.s")
 #endif
 
-void n_alCSPPlay(GdCSPlayer *seqp, f32 tempo);
+void n_alCSPPlay(GcCSPlayer *seqp, f32 tempo);
 void n_alCSPSetSeq(ALEventQueue *evtq, ALEventListItem *item);
 
-void n_alCSPSetBank(GdCSPlayer *seqp, ALEvent *event) {
+void n_alCSPSetBank(GcCSPlayer *seqp, ALEvent *event) {
     ALTempoEvent *tevt = &event->msg.tempo;
     s32 tempo;
     s32 oldUspt;
@@ -603,7 +943,7 @@ void n_alCSPSetSeq(ALEventQueue *evtq, ALEventListItem *item) {
 }
 
 #ifdef NON_MATCHING
-void n_alCSPPlay(GdCSPlayer *seqp, f32 tempo) {
+void n_alCSPPlay(GcCSPlayer *seqp, f32 tempo) {
     if (seqp->target != NULL) {
         seqp->uspt = seqp->target->qnpt * tempo;
     } else {
@@ -617,7 +957,7 @@ void n_alCSPPlay(GdCSPlayer *seqp, f32 tempo) {
 
 extern s32 func_8073D060(ALCSeq *seq, s32 *ticks);
 
-void n_alCSPStop(GdCSPlayer *seqp) {
+void n_alCSPStop(GcCSPlayer *seqp) {
     ALEvent evt;
     s32 deltaTicks;
 
@@ -631,6 +971,6 @@ void n_alCSPStop(GdCSPlayer *seqp) {
     alEvtqPostEvent(&seqp->evtq, &evt, seqp->uspt * deltaTicks);
 }
 
-void n_alCSPGetState(GdCSPlayer *seqp, u8 arg) {
+void n_alCSPGetState(GcCSPlayer *seqp, u8 arg) {
     seqp->unk88 = arg;
 }
