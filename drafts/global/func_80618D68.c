@@ -1,4 +1,4 @@
-// func_80618D68 (src/global/19A00.c): stage 3: frame -0x48 target versus -0x4C/-0x50 candidates; direct m2c loop leaves function-pointer/table setup scheduling and u8 induction-variable truncation differences
+// func_80618D68 (src/global/19A00.c): stage 4: uopt trace confirms target save-set/roles; u8 candidate has target frame but target omits its post-increment truncation, while s32 variants enlarge frame
 typedef int s32;
 typedef unsigned char u8;
 typedef float f32;

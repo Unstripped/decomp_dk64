@@ -550,9 +550,32 @@ s32 func_806167D4(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616850.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806168E4.s")
+s32 func_806168E4(Actor *arg0) {
+    u16 sp1E;
+    P19dState *sp18;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616964.s")
+    sp18 = (P19dState *)arg0->unk4;
+    D_807F5AF0++;
+    func_80614F4C((u8 *)&sp1E);
+    sp18->unk5C = sp18->unk64;
+    sp18->unk60 = D_807F5AF0 - sp18->unk68;
+    func_80614E78(arg0, sp1E);
+    D_807F5AF0 = sp18->unk6C;
+    return D_807F5AF4;
+}
+s32 func_80616964(Actor *arg0) {
+    s32 sp1C;
+    P19dState *sp18;
+
+    sp1C = ((P19dState *)arg0->unk4)->unk88;
+    sp18 = (P19dState *)arg0->unk4;
+    func_80614EBC(arg0, sp18->unk5C);
+    D_807F5AF0 = sp18->unk68 + sp18->unk60;
+    sp18->unk5C = 0;
+    sp18->unk60 = 0;
+    sp18->unk88 = sp1C;
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806169C0.s")
 
