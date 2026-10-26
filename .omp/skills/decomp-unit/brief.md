@@ -103,6 +103,12 @@ swapped externs in a comparison look identical in the text.
   definition): read the callee/caller first. Prefix new
   type names with your agent name. When you revert a function
   to GLOBAL_ASM, delete the declarations you added for it. Don't reorder or reformat.
+  Never move an existing block (typedefs/externs) even if your function sits above it:
+  declare a forward `struct Tag *` or a new agent-prefixed view right above your function
+  (one moved block turned a merge into a hand-resolved 3-way conflict).
+  Other agents' merges land in `src` while you work: before declaring a callee or global
+  your file may already have, grep the current file too (`grep -n <name> src/<seg>/<file>.c`)
+  and reuse that declaration's exact type.
 - If your task says your private copy already exists (a relaunched agent), do not
   re-create it: fdiff it first and continue from it.
 - Skip formatters and linters. NEVER edit `tools/`, `Makefile` or the splat configs.
