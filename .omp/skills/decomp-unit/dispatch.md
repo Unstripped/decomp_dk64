@@ -53,11 +53,12 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 - Productive follow-ups: second passes of 4–6 functions from stage-4+ drafts with the
   findings; fresh-eyes agents on a sibling's near-miss; dedicated permuter agents told to
   put a score-0 result into their copy as C; dead-test placement hill-climbing against the
-  objdiff score. When typed-C passes stall at stage 3–4 (F4C0 unit: four zero-yield passes
-  in a row), switch to permuter agents with 4 stage-3/4 functions each, re-prompted with the
-  next 4: they matched 2–4 per pass where plain passes matched 0. Reject permuter C that
-  reads/writes outside an object (`(u8 *)&x - 1`); no-op idioms (`(0, 1) +`, `x = x`,
-  empty `if`) are accepted.
+  objdiff score. When typed-C passes stall (F4C0 unit: four zero-yield passes in a row),
+  switch to near-miss agents with 4 functions each, re-prompted with the next 4: they first
+  bring each function to the same blocks, frame and callee-saved set (stage 4, AGENTS.md
+  step 4), then run a bounded permuter search (`-j 2 --seconds`); they matched 2–4 per pass
+  where plain passes matched 0. Reject permuter C that reads/writes outside an object
+  (`(u8 *)&x - 1`); no-op idioms (`(0, 1) +`, `x = x`, empty `if`) are accepted.
 - Forward a key pattern that unblocks a common near-miss to running siblings at once,
   one by one (`write agent://<id>`; `agent://all` also wakes finished agents, which act).
 - Only a TU re-split of a file waits for every agent on that file.
