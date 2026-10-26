@@ -529,7 +529,43 @@ typedef struct Perm4cState {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615DA4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615E74.s")
+s32 func_80615E74(Actor *arg0) {
+    u8 sp2F;
+    u8 sp2E;
+    Perm4cMotion *sp28;
+    f32 temp_fv1;
+    f32 temp_fv0;
+    s16 temp_v1_2;
+
+    if (((Perm4cState *)arg0->unk4)->unk84 != 0) {
+        sp28 = ((Perm4cState *)arg0->unk4)->unk4;
+    } else {
+        sp28 = ((Perm4cState *)arg0->unk4)->unk0;
+    }
+    D_807F5AF0++;
+    func_80614F28(&sp2F);
+    func_80614F28(&sp2E);
+    temp_v1_2 = sp28->unkC;
+    if (temp_v1_2 == (sp2F & 0xFFFFFFFFu)) {
+        temp_fv0 = (f32)temp_v1_2;
+        temp_fv1 = sp28->unk4;
+        sp28->unk1E = temp_v1_2;
+        sp28->unk20 = sp2E;
+        sp28->unk1C |= 8;
+        if (temp_fv0 < temp_fv1) {
+            sp28->unk8 = temp_fv1 - temp_fv0;
+        } else {
+            sp28->unk8 = -(temp_fv1 - temp_fv0);
+        }
+        sp28->unkE = sp2E;
+        ((Perm4cState *)arg0->unk4)->unk78 |= 0x20;
+    } else {
+        sp28->unkC = (temp_v1_2 + sp2E) - sp2F;
+        sp28->unkE = (sp28->unkE + sp2E) - sp2F;
+        sp28->unk4 += sp2E - sp2F;
+    }
+    return 1;
+}
 
 typedef struct P19c2Motion {
     u8 pad0[0x1C];
@@ -581,7 +617,32 @@ s32 func_8061600C(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061607C.s")
+s32 func_8061607C(Actor *arg0) {
+    f32 var_fv0;
+    f32 sp20;
+    Perm4cMotion *sp1C;
+
+    sp1C = ((Perm4cState *)arg0->unk4)->unk84 != 0
+        ? ((Perm4cState *)arg0->unk4)->unk4
+        : ((Perm4cState *)arg0->unk4)->unk0;
+    D_807F5AF0++;
+    func_80614FD8((u8 *)&sp20);
+    if (sp1C->unk0 != NULL) {
+        var_fv0 = *(f32 *)sp1C->unk0;
+    } else {
+        var_fv0 = .0f;
+    }
+    if (sp20 > 0.0f) {
+        sp1C->unk34 = sp20;
+        sp1C->unk2C = var_fv0;
+        sp1C->unk30 = 0.0f;
+        sp1C->unk28 = sp1C->unk24;
+    } else {
+        sp1C->unk24 = var_fv0;
+        sp1C->unk34 = 0.0f;
+    }
+    return 1;
+}
 
 s32 func_8061612C(Actor *arg0) {
     f32 sp24;
@@ -610,9 +671,48 @@ s32 func_8061612C(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806161D0.s")
+s32 func_806161D0(Actor *arg0) {
+    f32 temp_fv0;
+    Perm4cState *temp_v0;
+    Perm4cMotion *var_v1;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616254.s")
+    temp_v0 = (Perm4cState *)arg0->unk4;
+    if (temp_v0->unk84 != 0) {
+        var_v1 = temp_v0->unk4;
+    } else {
+        var_v1 = temp_v0->unk0;
+    }
+    D_807F5AF0++;
+    temp_fv0 = var_v1->unk24;
+    if (temp_fv0 < 0.0f) {
+        var_v1->unk24 = 0.0f - temp_fv0;
+        if (var_v1->unk34 != (0.0f * 1.0f)) {
+            var_v1->unk2C = 0.0f - var_v1->unk2C;
+            var_v1->unk28 = 0.0f - var_v1->unk28;
+        }
+    }
+    return 1;
+}
+
+s32 func_80616254(Actor *arg0) {
+    f32 temp_fv0 = 0.0f;
+    Perm4cState *temp_v0;
+    Perm4cMotion *var_v1;
+
+    temp_v0 = (Perm4cState *)arg0->unk4;
+    if (temp_v0->unk84 != 0) {
+        var_v1 = temp_v0->unk4;
+    } else {
+        var_v1 = temp_v0->unk0;
+    }
+    D_807F5AF0++;
+    var_v1->unk24 = temp_fv0 - var_v1->unk24;
+    if (var_v1->unk34 != (0.0f * 1.0f)) {
+        var_v1->unk2C = temp_fv0 - var_v1->unk2C;
+        var_v1->unk28 = temp_fv0 - var_v1->unk28;
+    }
+    return 1;
+}
 
 void func_80614D00(Actor *, s32, s32);
 
