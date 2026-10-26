@@ -144,9 +144,77 @@ void __n_unmapVoice(VoiceMapCSPlayer *seqp, ALVoice *voice) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13ECE0/__n_seqpReleaseVoice.s")
+void __n_seqpReleaseVoice(VoiceMapCSPlayer *seqp, ALVoice *voice, s32 delta) {
+    ALEvent evt;
+    ALVoiceState *vs;
+    ALEventListItem *item;
+    ALEventListItem *next;
+    ALEventListItem *volatile current;
+    ALEventListItem *nextItem;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13ECE0/__n_voiceNeedsNoteKill.s")
+    vs = voice->clientPrivate;
+    if (vs->envPhase == 0) {
+        item = (ALEventListItem *)seqp->evtq.allocList.next;
+        if (item != NULL) {
+            do {
+                next = (ALEventListItem *)item->node.next;
+                current = item;
+                nextItem = next;
+                if ((current->evt.type == 6) && (current->evt.msg.osc.vs == (ALVoiceState *)voice)) {
+                    if (nextItem != NULL) {
+                        nextItem->delta = nextItem->delta + current->delta;
+                    }
+                    alUnlink(&item->node);
+                    alLink(&item->node, &seqp->evtq.freeList);
+                }
+                item = next;
+            } while (item != NULL);
+        }
+    }
+        vs->velocity = 0;
+        vs->envPhase = 3;
+        vs->envGain = 0;
+        vs->envEndTime = seqp->curTime + delta;
+        n_alSynSetPriority(voice, 0);
+        n_alSynSetVol(voice, 0, delta);
+        evt.type = 5;
+        evt.msg.osc.vs = (ALVoiceState *)voice;
+        delta = delta + 0x7D00;
+        alEvtqPostEvent(&seqp->evtq, &evt, delta);
+}
+
+u8 __n_voiceNeedsNoteKill(VoiceMapCSPlayer *seqp, ALVoice *voice, s32 delta) {
+    ALEventListItem *item;
+    ALEventListItem *next;
+    ALEventListItem *volatile current;
+    s32 elapsed;
+    u8 result;
+
+    elapsed = 0;
+    result = 1;
+    item = (ALEventListItem *)seqp->evtq.allocList.next;
+    if (item != NULL) {
+        do {
+            next = (ALEventListItem *)item->node.next;
+            current = item;
+            elapsed += current->delta;
+            if ((current->evt.type == 5) && (current->evt.msg.osc.vs == (ALVoiceState *)voice)) {
+                if (elapsed > delta) {
+                    if (next != NULL) {
+                        next->delta = next->delta + current->delta;
+                    }
+                    alUnlink(&item->node);
+                    alLink(&item->node, &seqp->evtq.freeList);
+                } else {
+                    result = 0;
+                }
+                break;
+            }
+            item = next;
+        } while (item != NULL);
+    }
+    return result;
+}
 
 VoiceMapVoiceState *__n_mapVoice(VoiceMapCSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
     VoiceMapVoiceState *vs;
@@ -188,7 +256,38 @@ VoiceMapVoiceState *__n_lookupVoice(VoiceMapCSPlayer *seqp, u8 key, u8 chan) {
     return NULL;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13ECE0/__n_lookupSoundQuick.s")
+typedef struct {
+    u8 pad[0xC];
+    ALSound *soundArray[];
+} VoiceNMLookupInstrument;
+
+ALSound *__n_lookupSoundQuick(VoiceMapCSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
+    ALInstrument *inst;
+    s32 min;
+    s32 max;
+    s32 mid;
+    ALKeyMap *keyMap;
+
+    inst = seqp->chanState[chan].instrument;
+    min = 1;
+    max = inst->soundCount;
+    while (max >= min) {
+        mid = (min + max) / 2;
+        keyMap = ((VoiceNMLookupInstrument *)inst)->soundArray[mid]->keyMap;
+        if ((key >= keyMap->keyMin) && (keyMap->keyMax >= key)
+            && (velocity >= keyMap->velocityMin) && (keyMap->velocityMax >= velocity)) {
+            return ((VoiceNMLookupInstrument *)inst)->soundArray[mid];
+        } else {
+            if ((key < keyMap->keyMin)
+                || ((velocity < keyMap->velocityMin) && (key <= keyMap->keyMax))) {
+                max = mid - 1;
+            } else {
+                min = mid + 1;
+            }
+        }
+    }
+    return NULL;
+}
 
 s16 __n_vsVol(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
     s32 vol;
@@ -205,7 +304,15 @@ s16 __n_vsVol(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13ECE0/func_8073A7B8.s")
+u8 func_8073A7B8(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
+    s32 flags;
+    s32 mix;
+    f32 unused;
+
+    flags = seqp->chanState[vs->channel].fxmix & 0x80;
+    mix = (s32)(((s32)(seqp->unk7C * 127.0f) + (seqp->chanState[vs->channel].fxmix & 0x7F)) * seqp->unk80);
+    return ((mix > 0x7F ? 0x7F : mix) < 0 ? 0 : (mix > 0x7F ? 0x7F : mix)) | flags;
+}
 
 s32 __n_vsDelta(VoiceMapVoiceState *vs, s32 time) {
     s32 delta;
