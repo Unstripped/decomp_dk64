@@ -79,12 +79,12 @@ extern Aud7130L2_D580 *D_807FD580;
 s32 func_8062F388(Aud7130L2_Emitter **);
 void func_80664044(s32, s32, s32, f32);
 s32 flagGet(s32, s32);
-void func_80737AC4(s32, s32, ...);
+void n_alSndpPostEvent(s32, s32, ...);
 f32 func_80611BB4(f32, f32);
 f32 func_80612D1C(f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
-void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, s32 *);
-void n_alSndpDeallocate(s32);
+void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
+void n_alSndpStop(s32);
 void func_8060A634(s32, f32);
 
 void func_80603450(void) {
@@ -337,7 +337,7 @@ void func_80603450(void) {
             if (timer != D_80770E38[s2]) {
                 D_80770E38[s2] = timer;
                 if (var_fs1 > 10.0f) {
-                    n_alSndpAllocate(D_8076D1F8, 0x1E, (u16)var_fs1, 0x3F, 0.4f, 0, &D_80770DF8[s2]);
+                    n_alSndpPlay(D_8076D1F8, 0x1E, (u16)var_fs1, 0x3F, 0.4f, 0, &D_80770DF8[s2]);
                     D_80770EB8[s2] = var_fs1 + 1.0f;
                     D_80770EF8[s2] = 300.0f;
                 }
@@ -347,24 +347,24 @@ void func_80603450(void) {
             if (var_fs1 > 10.0f) {
                 if (D_80770DF8[s2] == 0) {
                     if (D_80745B28[s2].unk0 < 0x800) {
-                        n_alSndpAllocate(D_8076D1F8, D_80745B28[s2].unk0, (u16)var_fs1, 0x3F, D_80745B28[s2].unk8, 0, &D_80770DF8[s2]);
+                        n_alSndpPlay(D_8076D1F8, D_80745B28[s2].unk0, (u16)var_fs1, 0x3F, D_80745B28[s2].unk8, 0, &D_80770DF8[s2]);
                     } else {
-                        n_alSndpAllocate(D_8076D1FC, D_80745B28[s2].unk0 - 0x7FF, (u16)var_fs1, 0x3F, D_80745B28[s2].unk8, 0, &D_80770DF8[s2]);
+                        n_alSndpPlay(D_8076D1FC, D_80745B28[s2].unk0 - 0x7FF, (u16)var_fs1, 0x3F, D_80745B28[s2].unk8, 0, &D_80770DF8[s2]);
                     }
                     D_80770E78[s2] = 0.0f;
                     D_80770EF8[s2] = 255.0f;
                 }
                 if (D_80770DF8[s2] != 0) {
-                    func_80737AC4(D_80770DF8[s2], 8, (s32)var_fs1);
+                    n_alSndpPostEvent(D_80770DF8[s2], 8, (s32)var_fs1);
                 }
                 if (D_80770DF0 < D_80770DF4) {
                     spE5 = 0x80;
                 }
                 if (D_80770DF8[s2] != 0) {
-                    func_80737AC4(D_80770DF8[s2], 0x100, (s32)spE5);
+                    n_alSndpPostEvent(D_80770DF8[s2], 0x100, (s32)spE5);
                 }
             } else if (D_80770DF8[s2] != 0) {
-                n_alSndpDeallocate(D_80770DF8[s2]);
+                n_alSndpStop(D_80770DF8[s2]);
             }
             D_80770EB8[s2] = var_fs1;
         }
@@ -407,11 +407,11 @@ void func_80603450(void) {
                         }
                     }
                 }
-                func_80737AC4(D_80770DF8[s2], 4, (s32)var_fs0);
+                n_alSndpPostEvent(D_80770DF8[s2], 4, (s32)var_fs0);
                 D_80770EF8[s2] = var_fs0;
             }
             if (spCC != D_80770E78[s2]) {
-                func_80737AC4(D_80770DF8[s2], 0x10, *(s32 *)&spCC);
+                n_alSndpPostEvent(D_80770DF8[s2], 0x10, *(s32 *)&spCC);
                 D_80770E78[s2] = spCC;
             }
         }
@@ -422,10 +422,10 @@ void func_80603450(void) {
     }
     if (D_8077058C[0] != 0) {
         if (D_807457DC == 0) {
-            n_alSndpAllocate(D_8076D1F8, 0x125, 0, 0x3F, 1.0f, 0, &D_807457DC);
+            n_alSndpPlay(D_8076D1F8, 0x125, 0, 0x3F, 1.0f, 0, &D_807457DC);
         }
         if (D_807457DC != 0) {
-            func_80737AC4(D_807457DC, 8, (s32)(((f64)(u32)D_8077058C[0] * 10767.0) / 255.0));
+            n_alSndpPostEvent(D_807457DC, 8, (s32)(((f64)(u32)D_8077058C[0] * 10767.0) / 255.0));
             spCC = (f32)(1.0 - (((f64)(u32)D_8077058E * 0.5) / 255.0));
             if (D_80770DC9 & (D_80770DD4 < 1000.0f)) {
                 Aud7130L2_Struct0 *s0 = &spC0[spE7];
@@ -442,11 +442,11 @@ void func_80603450(void) {
             } else {
                 D_80770DCC = 64.0f;
             }
-            func_80737AC4(D_807457DC, 0x10, *(s32 *)&spCC);
-            func_80737AC4(D_807457DC, 0x100, (s32)D_80770DD0);
-            func_80737AC4(D_807457DC, 4, (s32)D_80770DCC);
+            n_alSndpPostEvent(D_807457DC, 0x10, *(s32 *)&spCC);
+            n_alSndpPostEvent(D_807457DC, 0x100, (s32)D_80770DD0);
+            n_alSndpPostEvent(D_807457DC, 4, (s32)D_80770DCC);
         }
     } else if (D_807457DC != 0) {
-        n_alSndpDeallocate(D_807457DC);
+        n_alSndpStop(D_807457DC);
     }
 }

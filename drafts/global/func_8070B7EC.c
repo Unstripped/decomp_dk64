@@ -6,7 +6,7 @@ extern void *D_807FD9C0;
 extern f32 D_807FD9C4;
 extern u16 D_8076A09C;
 extern Gfx D_1000020[], D_2000000[], D_2000200[];
-void *func_80610FE8(s32); void heapFreeDeferred(void *); void func_8070A220(Lg10E1D0_RenderInfo *, s32, s32); void func_8070B05C(u16 *); void func_8070B324(f32, s32, s32 *); void func_80737AC4(); void *func_8066B0F8(s32, s32, s32, s32); void assetFreeBuffer(void *, s32, s32); void n_alSndpDeallocate(s32, s32, void *, s32);
+void *func_80610FE8(s32); void heapFreeDeferred(void *); void func_8070A220(Lg10E1D0_RenderInfo *, s32, s32); void func_8070B05C(u16 *); void func_8070B324(f32, s32, s32 *); void n_alSndpPostEvent(); void *func_8066B0F8(s32, s32, s32, s32); void assetFreeBuffer(void *, s32, s32); void n_alSndpStop(s32, s32, void *, s32);
 
 s32 func_8070B7EC(Gfx **arg0, s32 arg1, u16 *arg2) {
     Gfx *glist = *arg0;
@@ -26,7 +26,7 @@ s32 func_8070B7EC(Gfx **arg0, s32 arg1, u16 *arg2) {
             D_807FD9C4 = (f32)(((1.5 / ((first * 0.001 * first) + 1.0)) + (0.0002 * second * second)) - 0.2);
             volume = value < 110.0f ? 0x7FFF : (s32)(32767.0f - ((value - 110.0f) * 32767.0f / 10.0f));
         }
-        func_80737AC4(D_807FD9C8, 0x10, D_807FD9C4, volume); func_80737AC4(D_807FD9C8, 8, volume);
+        n_alSndpPostEvent(D_807FD9C8, 0x10, D_807FD9C4, volume); n_alSndpPostEvent(D_807FD9C8, 8, volume);
     }
     func_8070B324(1.0f - (f32)((f64)D_80755068 / 120.0), D_807444F8 == 1, channels);
     glist->words.w0 = 0xE3000A01; glist++->words.w1 = 0;
@@ -57,6 +57,6 @@ s32 func_8070B7EC(Gfx **arg0, s32 arg1, u16 *arg2) {
     D_807FD9C0 = func_8066B0F8(0xE, 0x6A - ((D_807FD9A0 / 26) < 0 ? 0 : ((D_807FD9A0 / 26) > 9 ? 9 : D_807FD9A0 / 26)), 1, 1);
     assetFreeBuffer(D_807FD9C0, 0x381, 0x4A);
     glist->words.w0 = 0xDE000000; glist++->words.w1 = (u32)start; *arg0 = glist;
-    if (D_80755068 < 0 || (f64)D_80755068 > 120.0) n_alSndpDeallocate(D_807FD9C8, D_807FD9A0, glist, D_80755068 < 0);
+    if (D_80755068 < 0 || (f64)D_80755068 > 120.0) n_alSndpStop(D_807FD9C8, D_807FD9A0, glist, D_80755068 < 0);
     return D_80755068 < 0 || (f64)D_80755068 > 120.0;
 }

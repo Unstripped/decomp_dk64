@@ -73,7 +73,7 @@ s32 bonusGetSoundForMap(void) {
 }
 
 void behaviourFrameBegin(void);
-void n_alSndpAllocate(s32, s32, s32, s32, f32, s32, void *);
+void n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void func_806A2A10(s32, s32, u8);
 void func_8061CC30(void);
 u16 func_8061CC40(s32, s32, s32);
@@ -85,7 +85,7 @@ void sfxAllocateChannel(s32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 void func_805FF898(void);
 void func_806C9974(s32, s32);
-void func_80737AC4(void *, s32, s16);
+void n_alSndpPostEvent(void *, s32, s16);
 s32 func_80611A44(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 extern s32 D_8076D1F8;
@@ -103,7 +103,7 @@ void func_80024E38(void) {
         *(u16 *)temp_s0 = 0x12C;
         *(s16 *)(temp_s0 + 0xA) = 0;
         *(s16 *)(temp_s0 + 0x8) = 0;
-        n_alSndpAllocate(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, temp_s0 + 4);
+        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, temp_s0 + 4);
         func_806A2A10(0xDC, 0x2A, *(u8 *)((u8 *)D_807FDC9C + 0xB));
         spawnNodeActivateAndSetState(1, 0x40, 0x10);
         spawnNodeActivateAndSetState(2, 0x40, 0x10);
@@ -155,7 +155,7 @@ void func_80024E38(void) {
             *(s16 *)(temp_s0 + 0xA) = temp_v1_2;
         }
     }
-    func_80737AC4(*(void **)(temp_s0 + 4), 8, *(s16 *)(temp_s0 + 0xA));
+    n_alSndpPostEvent(*(void **)(temp_s0 + 4), 8, *(s16 *)(temp_s0 + 0xA));
     if (*(u32 *)((u8 *)D_807FD580 + 0x1F0) & 0xC0000) {
         if (*(u16 *)temp_s0 < 0x129) {
             *(u16 *)temp_s0 = 0x12C;

@@ -97,7 +97,7 @@ extern ALSynth *D_807563E4;
 void func_80737F40(GcCSPlayer *);
 void __n_initChanState(GcCSPlayer *);
 void func_8073B640(GcCSPlayer *);
-ALMicroTime __n_csqVoiceHandler(void *node);
+ALMicroTime __n_CSPVoiceHandler(void *node);
 
 void n_alCSPlayerNew(GcCSPlayer *seqp, ALSeqpConfig *c) {
     s32 i;
@@ -144,15 +144,15 @@ void n_alCSPlayerNew(GcCSPlayer *seqp, ALSeqpConfig *c) {
     items = alHeapDBAlloc(NULL, 0, hp, c->maxEvents, 0x1C);
     alEvtqNew(&seqp->evtq, items, c->maxEvents);
     seqp->node.next = NULL;
-    seqp->node.handler = __n_csqVoiceHandler;
+    seqp->node.handler = __n_CSPVoiceHandler;
     seqp->node.clientData = seqp;
     func_8073B640(seqp);
 }
 
 void n_alCSeqNextEvent(ALCSeq *, ALEvent *, s32);
-void __n_csqRepostEvent();
-void n_alCSPStop();
-void n_alCSPSetBank();
+void __n_CSPHandleMIDIMsg();
+void __n_CSPPostNextSeqEvent();
+void __n_CSPHandleMetaMsg();
 s16 __n_vsVol(GcVoiceState *, GcCSPlayer *);
 s32 __n_vsDelta(GcVoiceState *, s32);
 void n_alSynSetVol(ALVoice *, s16, s32);
@@ -160,7 +160,7 @@ void n_alSynSetFXMix(ALVoice *, u8);
 void n_alSynSetPan(ALVoice *, f32);
 f32 func_8073BDC4(s32);
 
-void __n_csqHandleMIDIMsg(GcCSPlayer *);
+void __n_CSPHandleNextSeqEvent(GcCSPlayer *);
 void __n_seqpStopOsc(GcCSPlayer *, GcVoiceState *);
 void __n_unmapVoice(GcCSPlayer *, ALVoice *);
 s32 __n_voiceNeedsNoteKill(GcCSPlayer *, ALVoice *, s32);
@@ -176,7 +176,7 @@ void func_8073C9C0(void *, s32, void *);
 void *func_8073C948(u8);
 void func_8073CA04(void *, u8, void *);
 
-ALMicroTime __n_csqVoiceHandler(void *node) {
+ALMicroTime __n_CSPVoiceHandler(void *node) {
     GcCSPlayer *seqp = node;
     ALEvent evt;
     ALVoice *voice;
@@ -192,7 +192,7 @@ ALMicroTime __n_csqVoiceHandler(void *node) {
     do {
         switch (seqp->nextEvent.type) {
             case 0:
-                __n_csqHandleMIDIMsg(seqp);
+                __n_CSPHandleNextSeqEvent(seqp);
                 break;
             case 9:
                 evt.type = 9;
@@ -248,10 +248,10 @@ ALMicroTime __n_csqVoiceHandler(void *node) {
                 break;
             case 2:
             case 21:
-                __n_csqRepostEvent(seqp, &seqp->nextEvent);
+                __n_CSPHandleMIDIMsg(seqp, &seqp->nextEvent);
                 break;
             case 7:
-                n_alCSPSetBank(seqp, &seqp->nextEvent);
+                __n_CSPHandleMetaMsg(seqp, &seqp->nextEvent);
                 break;
             case 10:
                 seqp->vol = seqp->nextEvent.msg.spvol.vol;
@@ -282,7 +282,7 @@ ALMicroTime __n_csqVoiceHandler(void *node) {
             case 15:
                 if (seqp->state != 1) {
                     seqp->state = 1;
-                    n_alCSPStop(seqp);
+                    __n_CSPPostNextSeqEvent(seqp);
                 }
                 break;
             case 16:
@@ -348,7 +348,7 @@ ALMicroTime __n_csqVoiceHandler(void *node) {
 }
 
 
-void __n_csqHandleMIDIMsg(GcCSPlayer *seqp) {
+void __n_CSPHandleNextSeqEvent(GcCSPlayer *seqp) {
     ALEvent evt;
 
     if (seqp->target == NULL) {
@@ -357,12 +357,12 @@ void __n_csqHandleMIDIMsg(GcCSPlayer *seqp) {
     n_alCSeqNextEvent(seqp->target, &evt, 1);
     switch (evt.type) {
         case 1:
-            __n_csqRepostEvent(seqp, &evt);
-            n_alCSPStop(seqp);
+            __n_CSPHandleMIDIMsg(seqp, &evt);
+            __n_CSPPostNextSeqEvent(seqp);
             break;
         case 3:
-            n_alCSPSetBank(seqp, &evt);
-            n_alCSPStop(seqp);
+            __n_CSPHandleMetaMsg(seqp, &evt);
+            __n_CSPPostNextSeqEvent(seqp);
             break;
         case 4:
             seqp->state = 2;
@@ -372,14 +372,14 @@ void __n_csqHandleMIDIMsg(GcCSPlayer *seqp) {
         case 18:
         case 19:
         case 20:
-            n_alCSPStop(seqp);
+            __n_CSPPostNextSeqEvent(seqp);
             break;
         default:
             break;
     }
 }
 
-void __n_csqHandleMetaMsg(GcCSPlayer *seqp, u8 chan) {
+void __n_CSPUpdateChanVol(GcCSPlayer *seqp, u8 chan) {
     GcVoiceState *vs;
     s16 vol;
 
@@ -391,7 +391,7 @@ void __n_csqHandleMetaMsg(GcCSPlayer *seqp, u8 chan) {
     }
 }
 
-void __n_csqPostNextSeqEvent(GcCSPlayer *seqp, u8 chan) {
+void __n_CSPUpdateChanFxPan(GcCSPlayer *seqp, u8 chan) {
     GcVoiceState *vs;
     s16 fxmix;
     s8 pan;
@@ -470,7 +470,7 @@ void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *w, f32 pitch, s16 vol,
 
 #define GdCH(seqp, c) (((GdChanState *)(seqp)->chanState)[c])
 
-void __n_csqRepostEvent(GcCSPlayer *seqp, ALEvent *event) {
+void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
     ALVoice *voice;
     GcVoiceState *vs;
     s32 status;
@@ -740,7 +740,7 @@ void __n_csqRepostEvent(GcCSPlayer *seqp, ALEvent *event) {
                     } else {
                         seqp->chanMask &= ~(1 << chan);
                     }
-                    __n_csqHandleMetaMsg(seqp, chan);
+                    __n_CSPUpdateChanVol(seqp, chan);
                     break;
                 case 0xFC:
                     GdCH(seqp, chan).unk0D = byte2;
@@ -750,15 +750,15 @@ void __n_csqRepostEvent(GcCSPlayer *seqp, ALEvent *event) {
                     } else {
                         seqp->chanMask |= 1 << chan;
                     }
-                    __n_csqHandleMetaMsg(seqp, chan);
+                    __n_CSPUpdateChanVol(seqp, chan);
                     break;
                 case 0x21:
                     GdCH(seqp, chan).unk11 = byte2;
-                    __n_csqPostNextSeqEvent(seqp, chan);
+                    __n_CSPUpdateChanFxPan(seqp, chan);
                     break;
                 case 0x22:
                     GdCH(seqp, chan).unk12 = byte2;
-                    __n_csqPostNextSeqEvent(seqp, chan);
+                    __n_CSPUpdateChanFxPan(seqp, chan);
                     break;
                 case 0x23:
                     GdCH(seqp, chan).unk13 = byte2;
@@ -858,10 +858,10 @@ void __n_csqRepostEvent(GcCSPlayer *seqp, ALEvent *event) {
     }
 }
 
-void n_alCSPPlay(GcCSPlayer *seqp, f32 tempo);
-void n_alCSPSetSeq(ALEventQueue *evtq, ALEventListItem *item);
+void __n_setUsptFromTempo(GcCSPlayer *seqp, f32 tempo);
+void __n_CSPRepostEvent(ALEventQueue *evtq, ALEventListItem *item);
 
-void n_alCSPSetBank(GcCSPlayer *seqp, ALEvent *event) {
+void __n_CSPHandleMetaMsg(GcCSPlayer *seqp, ALEvent *event) {
     ALTempoEvent *tevt = &event->msg.tempo;
     s32 tempo;
     s32 oldUspt;
@@ -876,7 +876,7 @@ void n_alCSPSetBank(GcCSPlayer *seqp, ALEvent *event) {
         if (event->msg.tempo.type == 0x51) {
             oldUspt = seqp->uspt;
             tempo = (tevt->byte1 << 16) | (tevt->byte2 << 8) | tevt->byte3;
-            n_alCSPPlay(seqp, (f32)tempo);
+            __n_setUsptFromTempo(seqp, (f32)tempo);
             item = (ALEventListItem *)seqp->evtq.allocList.next;
             while (item != NULL) {
                 deltaTime += item->delta;
@@ -904,14 +904,14 @@ void n_alCSPSetBank(GcCSPlayer *seqp, ALEvent *event) {
                 nextItem = (ALEventListItem *)item->node.next;
                 quot = item->delta / oldUspt;
                 item->delta = seqp->uspt * quot;
-                n_alCSPSetSeq(&seqp->evtq, item);
+                __n_CSPRepostEvent(&seqp->evtq, item);
                 item = nextItem;
             }
         }
     }
 }
 
-void n_alCSPSetSeq(ALEventQueue *evtq, ALEventListItem *item) {
+void __n_CSPRepostEvent(ALEventQueue *evtq, ALEventListItem *item) {
     s32 mask;
     ALLink *node;
     ALLink *next;
@@ -934,7 +934,7 @@ void n_alCSPSetSeq(ALEventQueue *evtq, ALEventListItem *item) {
     osGetIntMask(mask);
 }
 
-void n_alCSPPlay(GcCSPlayer *seqp, f32 tempo) {
+void __n_setUsptFromTempo(GcCSPlayer *seqp, f32 tempo) {
     if (seqp->target != NULL) {
         seqp->uspt = (f32)tempo * (f32)seqp->target->qnpt;
     } else {
@@ -944,7 +944,7 @@ void n_alCSPPlay(GcCSPlayer *seqp, f32 tempo) {
 
 extern s32 func_8073D060(ALCSeq *seq, s32 *ticks);
 
-void n_alCSPStop(GcCSPlayer *seqp) {
+void __n_CSPPostNextSeqEvent(GcCSPlayer *seqp) {
     ALEvent evt;
     s32 deltaTicks;
 
@@ -958,6 +958,6 @@ void n_alCSPStop(GcCSPlayer *seqp) {
     alEvtqPostEvent(&seqp->evtq, &evt, seqp->uspt * deltaTicks);
 }
 
-void n_alCSPGetState(GcCSPlayer *seqp, u8 arg) {
+void n_alCSPSetMaxVoices(GcCSPlayer *seqp, u8 arg) {
     seqp->unk88 = arg;
 }

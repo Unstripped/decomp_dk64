@@ -1,8 +1,8 @@
 // func_80609140 (src/global/7130.c): Stage 6, exact 0x38 frame, 266/269 insns, diff is v0 vs v1 in reverb block
 #include "common.h"
 u32 func_806119A0(void);
-void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, s32 *);
-void n_alSndpPlayAt(s32, s32);
+void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
+void n_alSndpSetPriority(s32, s32);
 extern s32 D_807457E4[];
 extern u8 D_80745834;
 extern s32 D_8076D1F8;
@@ -37,13 +37,13 @@ s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
         }
 
         if (arg0 < 0x800) {
-            n_alSndpAllocate(D_8076D1F8, arg0, (u16)arg1, (u8)arg2, arg3, arg5, &D_807457E4[D_80745834]);
+            n_alSndpPlay(D_8076D1F8, arg0, (u16)arg1, (u8)arg2, arg3, arg5, &D_807457E4[D_80745834]);
         } else {
-            n_alSndpAllocate(D_8076D1FC, arg0 - 0x7FF, (u16)arg1, (u8)arg2, arg3, arg5, &D_807457E4[D_80745834]);
+            n_alSndpPlay(D_8076D1FC, arg0 - 0x7FF, (u16)arg1, (u8)arg2, arg3, arg5, &D_807457E4[D_80745834]);
         }
 
         if (arg0 == 0x137) {
-            n_alSndpPlayAt(D_807457E4[D_80745834], 100);
+            n_alSndpSetPriority(D_807457E4[D_80745834], 100);
         }
 
         res = -1;

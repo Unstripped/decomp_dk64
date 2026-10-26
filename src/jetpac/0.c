@@ -12,9 +12,9 @@ void func_80025904(s32);
 void func_8060C648(s32, s32, s32, s32, s32);
 void func_8060DEA8(void);
 extern s32 D_8002EC48;
-void n_alSndpDeallocate(s32);
+void n_alSndpStop(s32);
 extern s32 D_80770DF8[];
-void func_80737AC4(s32, ...);
+void n_alSndpPostEvent(s32, ...);
 void func_80026CEC(void);
 void func_8002ABDC(void);
 void func_8002AD8C(void);
@@ -23,7 +23,7 @@ void func_80026CA4(void);
 extern s32 D_8076D1F8;
 extern s16 D_8002BA52[];
 extern s32 D_80770E14[];
-void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, s32 *);
+void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 typedef struct {
     s32 stage;
     s32 score;
@@ -146,12 +146,12 @@ void func_80024E70(s32 arg0) {
         var_s0 = &D_80770DF8[arg0];
         do {
             if (*var_s0 != 0) {
-                n_alSndpDeallocate(*var_s0);
+                n_alSndpStop(*var_s0);
             }
             var_s0++;
         } while (var_s0 != D_80770E14);
     }
-    n_alSndpAllocate(D_8076D1F8, *(s16 *)((u8 *)D_8002BA52 + arg0 * 4), 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[arg0]);
+    n_alSndpPlay(D_8076D1F8, *(s16 *)((u8 *)D_8002BA52 + arg0 * 4), 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[arg0]);
 }
 #endif
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024E70.s")
@@ -159,13 +159,13 @@ void func_80024E70(s32 arg0) {
 void func_80024F24(s32 arg0, s32 arg1) {
     if (D_80770DF8[arg0] != 0) {
         s32 *p = &arg1;
-        func_80737AC4(D_80770DF8[arg0], 0x10, *p);
+        n_alSndpPostEvent(D_80770DF8[arg0], 0x10, *p);
     }
 }
 
 void func_80024F64(s32 arg0) {
     if (D_80770DF8[arg0] != 0) {
-        n_alSndpDeallocate(D_80770DF8[arg0]);
+        n_alSndpStop(D_80770DF8[arg0]);
     }
 }
 

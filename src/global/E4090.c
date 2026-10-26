@@ -4130,7 +4130,7 @@ void func_806E9468(void) {
 
 extern s16 D_8075388C[];
 extern s16 D_807538C8[];
-void n_alSndpDeallocate(s32);
+void n_alSndpStop(s32);
 void func_806CA2AC(void);
 
 s32 func_806E9580(void) {
@@ -4179,7 +4179,7 @@ s32 func_806E9580(void) {
                     playerStateQueueCallback(0x3D, 0, D_807FC929);
                     func_80614EBC(D_807FBB40, 0);
                     if (G30_M->unkC4) {
-                        n_alSndpDeallocate(G30_M->unkC4);
+                        n_alSndpStop(G30_M->unkC4);
                     }
                     ret = 1;
                     func_806CA2AC();

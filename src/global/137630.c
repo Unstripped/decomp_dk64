@@ -2,7 +2,7 @@
 
 f32 func_80612D1C(f32);
 
-f32 func_80732930(u8 n) {
+f32 oscVibratoDepthPow(u8 n) {
     f32 base = 1.030992985f;
     f32 result = 1.0f;
 
@@ -37,7 +37,7 @@ typedef struct GbNode_s {
 extern GbNode *D_807FF030;
 extern GbNode *D_807FF034;
 
-s32 func_807329AC(GbNode **out, f32 *arg1, u8 type, u8 arg3, u8 arg4, u8 arg5) {
+s32 oscInit(GbNode **out, f32 *arg1, u8 type, u8 arg3, u8 arg4, u8 arg5) {
     GbNode *node;
     s32 ret = 0;
 
@@ -59,7 +59,7 @@ s32 func_807329AC(GbNode **out, f32 *arg1, u8 type, u8 arg3, u8 arg4, u8 arg5) {
             *arg1 = node->unk28.u.c;
             break;
         case 0x80:
-            node->unk28.f = func_80732930(arg4);
+            node->unk28.f = oscVibratoDepthPow(arg4);
             node->unk24 = 0;
             node->unk22 = 0x103 - arg3;
             *arg1 = 1.0f;
@@ -71,7 +71,7 @@ s32 func_807329AC(GbNode **out, f32 *arg1, u8 type, u8 arg3, u8 arg4, u8 arg5) {
     return ret;
 }
 
-s32 func_80732B3C(GbNode *arg0, f32 *arg1) {
+s32 oscUpdate(GbNode *arg0, f32 *arg1) {
     f32 f;
     GbNode *node = arg0;
     s32 ret = 0x3E80;
@@ -102,18 +102,18 @@ s32 func_80732B3C(GbNode *arg0, f32 *arg1) {
     return ret;
 }
 
-void func_80732D80(GbNode *arg0) {
+void oscStop(GbNode *arg0) {
     GbNode *node = arg0;
 
     arg0->next = D_807FF030;
     D_807FF030 = arg0;
 }
 
-f32 func_80732DAC(f32 arg0) {
+f32 oscSinAngle(f32 arg0) {
     return func_80612D1C(arg0 / 10430.37988f);
 }
 
-void func_80732DEC(ALSeqpConfig *arg0, s32 count) {
+void oscSetupConfig(ALSeqpConfig *arg0, s32 count) {
     GbNode *ptr;
     s32 i;
 
@@ -125,7 +125,7 @@ void func_80732DEC(ALSeqpConfig *arg0, s32 count) {
         ptr = ptr->next;
     }
     ptr->next = NULL;
-    arg0->initOsc = func_807329AC;
-    arg0->updateOsc = func_80732B3C;
-    arg0->stopOsc = func_80732D80;
+    arg0->initOsc = oscInit;
+    arg0->updateOsc = oscUpdate;
+    arg0->stopOsc = oscStop;
 }

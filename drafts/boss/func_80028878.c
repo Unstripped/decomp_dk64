@@ -18,8 +18,8 @@ s32 func_8071441C();                                /* extern */
 ? func_80724A20();                                  /* extern */
 s32 flagGet(s16, ?, void *);                  /* extern */
 ? flagSet(s16, ?, ?);                         /* extern */
-? func_80737AC4(s32, ?, s16);                       /* extern */
-? n_alSndpAllocate(s32, ?, ?, ?, f32, s32, s32);    /* extern */
+? n_alSndpPostEvent(s32, ?, s16);                       /* extern */
+? n_alSndpPlay(s32, ?, ?, ?, f32, s32, s32);    /* extern */
 extern s16 D_800359A0;
 extern ? D_800359AC;
 extern ? D_800359B8;
@@ -88,8 +88,8 @@ void func_80028878(s32 arg0) {
                 D_807FBB40->unk155 = 0U;
             }
         }
-        n_alSndpAllocate(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, temp_s0 + 4);
-        n_alSndpAllocate(D_8076D1F8, 0x119, 0, 0x40, 1.0f, 0x80, temp_s0 + 8);
+        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, temp_s0 + 4);
+        n_alSndpPlay(D_8076D1F8, 0x119, 0, 0x40, 1.0f, 0x80, temp_s0 + 8);
     }
     func_80724A20();
     var_a2 = D_807FBB40;
@@ -194,8 +194,8 @@ block_52:
             temp_s0->unk10 = var_v1;
         }
     }
-    func_80737AC4(temp_s0->unk4, 8, temp_s0->unk10);
-    func_80737AC4(temp_s0->unk8, 8, temp_s0->unk10);
+    n_alSndpPostEvent(temp_s0->unk4, 8, temp_s0->unk10);
+    n_alSndpPostEvent(temp_s0->unk8, 8, temp_s0->unk10);
     var_v1_2 = temp_s0->unkD;
     if (var_v1_2 & 0x17) {
         var_a0_2 = 0x1E8;

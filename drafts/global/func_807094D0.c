@@ -8,7 +8,7 @@ extern s8 D_807FD9BD;
 extern f32 D_807FD9C4;
 extern s32 D_807FD9C8;
 void timerQueueCancel(void *);
-void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, s32 *);
+void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 
 void func_807094D0(arg0)
 u8 arg0;
@@ -37,5 +37,5 @@ u8 arg0;
         break;
     }
     volume = 1.0f;
-    n_alSndpAllocate(D_8076D1F8, 0x1BC, 0x7FFF, 0x3F, volume, 0, &D_807FD9C8);
+    n_alSndpPlay(D_8076D1F8, 0x1BC, 0x7FFF, 0x3F, volume, 0, &D_807FD9C8);
 }

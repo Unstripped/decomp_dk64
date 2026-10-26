@@ -2,9 +2,9 @@
 #include "common.h"
 
 u32 func_806119A0(void);
-void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, s32 *);
-void n_alSndpDeallocate(s32);
-void n_alSndpPlayAt(s32, s32);
+void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
+void n_alSndpStop(s32);
+void n_alSndpSetPriority(s32, s32);
 extern s32 D_807457D0[];
 extern u8 D_807457D8;
 extern s32 D_8076D1F8;
@@ -40,9 +40,9 @@ void func_80608DA8(s16 arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4) {
     }
 
     if (D_807457D0[D_807457D8] != 0) {
-        n_alSndpDeallocate(D_807457D0[D_807457D8]);
+        n_alSndpStop(D_807457D0[D_807457D8]);
     }
-    n_alSndpAllocate(D_8076D1F8, arg0, (u16)vol, (u8)pan, pitch, reverb, &D_807457D0[D_807457D8]);
-    n_alSndpPlayAt(D_807457D0[D_807457D8], 0);
+    n_alSndpPlay(D_8076D1F8, arg0, (u16)vol, (u8)pan, pitch, reverb, &D_807457D0[D_807457D8]);
+    n_alSndpSetPriority(D_807457D0[D_807457D8], 0);
     D_807457D8 ^= 1;
 }

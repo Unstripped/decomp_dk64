@@ -418,19 +418,19 @@ void arcadeSetStageMusic(void) {
     }
 }
 
-void n_alSndpDeallocate(s32);
+void n_alSndpStop(s32);
 extern s32 D_80770DF8;
 void arcadeStopSound(s32 arg0) {
     D_8004C714 = arg0;
     if (D_80770DF8 != 0) {
-        n_alSndpDeallocate(D_80770DF8);
+        n_alSndpStop(D_80770DF8);
     }
 }
 
 extern u8 D_8004BCE9[];
 extern s32 D_8076D1F8;
 extern u16 D_807ECD48;
-void n_alSndpAllocate(s32, s32, s32, s32, f32, s32, s32);
+void n_alSndpPlay(s32, s32, s32, s32, f32, s32, s32);
 void func_8002549C(void);
 void func_800311E0(void);
 void func_800313B8(void);
@@ -442,7 +442,7 @@ void arcadeGameplayLoop(Gfx **arg0) {
         arcadeStopSound(0x48);
     }
     if ((D_80770DF8 == 0) && (D_8004C714 > 0)) {
-        n_alSndpAllocate(D_8076D1F8, (s16)D_8004C714, 0x7FFF, 0x3F, 1.0f, 0, (s32)&D_80770DF8);
+        n_alSndpPlay(D_8076D1F8, (s16)D_8004C714, 0x7FFF, 0x3F, 1.0f, 0, (s32)&D_80770DF8);
     }
     if (D_8004A760 < D_8004A748) {
         D_8004A760 = D_8004A748;
@@ -553,7 +553,7 @@ void func_8070F2C8(s32, s16, s32, u8);
 void func_80025C08();
 void func_8070F2FC(s32 *, s16, s16);
 void arcadeStopSound(s32);
-void n_alSndpAllocate(s32, s32, s32, s32, f32, s32, s32);
+void n_alSndpPlay(s32, s32, s32, s32, f32, s32, s32);
 extern s32 D_8076D1F8;
 void func_800259D0(arg0)
 Gfx **arg0;
@@ -748,7 +748,7 @@ s16 arg3;
 
 void arcadeKillPlayer(void) {
     arcadeStopSound(0);
-    n_alSndpAllocate(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
+    n_alSndpPlay(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
     D_8004BCD0[D_8004C71F].unk19 = 8;
     D_8004BCD0[D_8004C71F].unk8 = 0.0f;
     D_8004BCD0[D_8004C71F].unk10 = 0.0f;
@@ -1358,7 +1358,7 @@ extern u8 D_80038BD8[];
 extern u8 D_8003E680[];
 extern u8 D_8003E868[];
 extern s32 D_8076D1F8;
-void n_alSndpAllocate(s32, s32, s32, s32, f32, s32, s32);
+void n_alSndpPlay(s32, s32, s32, s32, f32, s32, s32);
 /* ArcR4 declarations */
 extern ArcadeEntity D_8004A5F8;
 extern ArcadeEntity D_8004A3D8;
@@ -1475,7 +1475,7 @@ void func_80030210(s32 arg0) {
     s32 cond;
 
     if (0.0f == D_8004BCD0[arg0].unk10) {
-        n_alSndpAllocate(D_8076D1F8, 0x45, 0x7FFF, 0x3F, 1.0f, 0, 0);
+        n_alSndpPlay(D_8076D1F8, 0x45, 0x7FFF, 0x3F, 1.0f, 0, 0);
     }
     cond = 0;
     if (D_8004BCD0[arg0].unk10 > 40.0f) {

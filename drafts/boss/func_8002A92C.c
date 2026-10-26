@@ -193,8 +193,8 @@ void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(void *, u8);
 s32 func_8072D13C(s32, s32);
 s32 flagGet(s32, s32);
-void n_alSndpAllocate(s32, s16, s32, s32, f32, s32, void *);
-void n_alSndpDeallocate(s32);
+void n_alSndpPlay(s32, s16, s32, s32, f32, s32, void *);
+void n_alSndpStop(s32);
 
 
 #define ACTOR ((Boss3F_6240_Actor *)D_807FBB40)
@@ -309,9 +309,9 @@ void func_8002A92C(void) {
             sp6C = 0x14D;
         }
         if (temp_s1->unk1C != 0) {
-            n_alSndpDeallocate(temp_s1->unk1C);
+            n_alSndpStop(temp_s1->unk1C);
         }
-        n_alSndpAllocate(D_8076D1F8, sp6C, 0x7FFF, 0x3F, 1.0f, 0, (void *)((u8 *)temp_s1 + 0x1C));
+        n_alSndpPlay(D_8076D1F8, sp6C, 0x7FFF, 0x3F, 1.0f, 0, (void *)((u8 *)temp_s1 + 0x1C));
     } else if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (func_8067AF44(D_807FBB70.unk1FC) != 0) && (D_807FBB70.unk1FC->unk5C == 1)) {
         func_806D0468(D_807FBB4C, 2);
         func_8002A41C(1);
