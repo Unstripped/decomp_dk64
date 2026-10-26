@@ -1,4 +1,36 @@
-// n_alAdpcmPull (src/global/144E00.c): stage 3: exact 0x80 frame and s0 loop-boundary boolean; canonical arg2 > nSam loop comparison improves isolated score 41880 to 38193; remaining scratch-register expression shapes
+// n_alAdpcmPull (src/global/144E00.c): stage 6: exact 0x80 frame and 0x6A8 body; reverse initial unsigned bound comparison and sp60 preheader comparison/addition reduced diff 520 to 377. Remaining first divergence at 0x300 is a t1/t9 temporary-register cycle through the inner loop; sp64 tree variants (reassociate, reversed multiply, shift) did not improve it.
+typedef struct AdpcmNMAcmd {
+    u32 w0;
+    u32 w1;
+} AdpcmNMAcmd;
+
+typedef struct AdpcmPullWave {
+    s32 unk0;
+    s32 unk4;
+    u8 pad8[8];
+    s32 *loop;
+} AdpcmPullWave;
+
+typedef struct AdpcmNMLoadFilter {
+    u8 pad0[0xC];
+    void *unkC;
+    void *unk10;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    AdpcmPullWave *unk20;
+    s32 unk24;
+    s32 (*dma)(void *, s32, void *);
+    void *unk2C;
+    s32 unk30;
+    s32 unk34;
+    s32 unk38;
+    s32 unk3C;
+} AdpcmNMLoadFilter;
+
+AdpcmNMAcmd *alLoadParam(AdpcmNMAcmd *ptr, AdpcmNMLoadFilter *filter, s32 samples, s32 count, s16 out, s16 state, s32 flags);
+
+
 AdpcmNMAcmd *n_alAdpcmPull(AdpcmNMLoadFilter *arg0, s16 *arg1, s32 arg2, AdpcmNMAcmd *arg3) {
     AdpcmNMAcmd *sp7C;
     s16 sp7A;
@@ -30,7 +62,7 @@ AdpcmNMAcmd *n_alAdpcmPull(AdpcmNMLoadFilter *arg0, s16 *arg1, s32 arg2, AdpcmNM
     sp40 = sp7C++;
     sp40->w0 = (sp44->unk24 & 0xFFFFFF) | 0x0B000000;
     sp40->w1 = ((u32)sp44->unk20->loop + 8) & 0x1FFFFFFF;
-    sp48 = ((u32)sp44->unk18 < (u32)(sp44->unk30 + arg2)) && sp44->unk1C;
+    sp48 = ((u32)(sp44->unk30 + arg2) > (u32)sp44->unk18) && sp44->unk1C;
     if (sp48 != 0) {
         sp5C = sp44->unk18 - sp44->unk30;
     } else {
@@ -67,7 +99,7 @@ AdpcmNMAcmd *n_alAdpcmPull(AdpcmNMLoadFilter *arg0, s16 *arg1, s32 arg2, AdpcmNM
                     sp44->unk1C = sp44->unk1C - 1;
                 }
                 sp5C = ((u32)arg2 < (u32)(sp44->unk18 - sp44->unk14)) ? arg2 : sp44->unk18 - sp44->unk14;
-                sp74 = (sp5C + sp44->unk34) - 0x10;
+                sp74 = sp44->unk34 + sp5C - 0x10;
                 if (sp74 < 0) {
                     sp74 = 0;
                 }
@@ -81,6 +113,7 @@ AdpcmNMAcmd *n_alAdpcmPull(AdpcmNMLoadFilter *arg0, s16 *arg1, s32 arg2, AdpcmNM
         }
         sp44->unk34 = (sp44->unk34 + arg2) & 0xF;
         sp44->unk30 = sp44->unk30 + arg2;
+        sp44->unk3C = sp44->unk3C + (sp70 * 9);
         return sp7C;
     }
     sp5C = sp70 << 4;
@@ -89,8 +122,8 @@ AdpcmNMAcmd *n_alAdpcmPull(AdpcmNMLoadFilter *arg0, s16 *arg1, s32 arg2, AdpcmNM
         sp68 = 0;
     }
     sp60 = (sp68 / 9) * 0x10;
-    if ((sp5C + sp54) < sp60) {
-        sp60 = sp5C + sp54;
+    if (sp60 > (sp54 + sp5C)) {
+        sp60 = sp54 + sp5C;
     }
     sp6C -= sp68;
     if ((sp60 - (sp60 & 0xF)) < arg2) {
