@@ -1,0 +1,175 @@
+#!/usr/bin/env python3
+"""Host-side checks for one decomp unit (orchestrator bookkeeping; no build, no container).
+
+  count <seg> [<file>...]          functions and instructions per still-asm file (asm/<seg>/<file>.s),
+                                   or per GLOBAL_ASM function of src/<seg>/<file>.c when that exists
+  handasm <seg> <file>...          64-bit ops / $k0 $k1 per asm file (non-zero: hand-written, not IDO C)
+  empty-funcs <seg> <file>...      hidden empty functions: a `jr $ra` two instructions after the
+                                   previous one and not a .L branch target (prints owner and address;
+                                   owner == address is an already-symbolised empty function)
+  coverage <src.c> <agent>=<f1>,<f2>... [...]
+                                   every GLOBAL_ASM function of <src.c> in exactly one list; prints
+                                   duplicates, unassigned functions and listed names that are not
+                                   GLOBAL_ASM there; exit 1 on any
+  left <src.c>...                  GLOBAL_ASM functions left, with the stage of their stored draft
+                                   (`-` = no draft) and `parked` for #ifdef NON_MATCHING ones
+  vanished [<rev>]                 src/ files changed since <rev> (default HEAD) whose count of
+                                   function definitions + GLOBAL_ASM lines changed (a namer or
+                                   merge that deleted a function); exit 1 on any
+  pragma-tail <src.c>...           files ending in a #pragma GLOBAL_ASM directly after a function's
+                                   closing `}`, or without a trailing newline (that file once built
+                                   without its last function: undefined reference at link); exit 1
+"""
+import argparse
+import glob
+import os
+import re
+import subprocess
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INSN = re.compile(r"^\s*/\* [0-9A-F]+ [0-9A-F]{8} [0-9A-F]{8} \*/\s+(\S+)(.*)$")
+PRAGMA = re.compile(r'#pragma GLOBAL_ASM\("asm/(?:(\w+)/)?nonmatchings/[^"]*/(\w+)\.s"\)')
+HANDASM = re.compile(r"\s(dmult|dmultu|ddiv|ddivu|ld|sd|daddu?|dsubu?|dsll|dsra|dsrl)\s|\$k[01]")
+
+
+def asm_path(seg, f):
+    f = f[:-2] if f.endswith(".s") else f
+    return os.path.join(ROOT, "asm", seg, f + ".s") if seg != "boot" else os.path.join(ROOT, "asm", f + ".s")
+
+
+def insns(path):
+    """(glabel, address, mnemonic, operands, is_branch_target) per instruction."""
+    g, target, out = None, False, []
+    for line in open(path):
+        if line.startswith("glabel "):
+            g = line.split()[1]
+            continue
+        if re.match(r"^\s*\.L\w+:", line):
+            target = True
+            continue
+        m = INSN.match(line)
+        if m:
+            addr = line.split()[2]
+            out.append((g, addr, m.group(1), m.group(2), target))
+            target = False
+    return out
+
+
+def cmd_count(a):
+    for f in a.files or sorted(os.path.basename(p)[:-2] for p in glob.glob(os.path.join(ROOT, "asm", a.seg, "*.s"))):
+        src = os.path.join(ROOT, "src", a.seg, f + ".c")
+        if os.path.exists(src):
+            total = 0
+            for seg, func in PRAGMA.findall(open(src).read()):
+                p = glob.glob(os.path.join(ROOT, "asm", seg or "", "nonmatchings", "*", f"{func}.s"))
+                n = len(insns(p[0])) if p else 0
+                total += n
+                print(f"{n:6d} {func}")
+            print(f"{total:6d} total {f}")
+        else:
+            ins = insns(asm_path(a.seg, f))
+            print(f"{f} {len({i[0] for i in ins})} functions {len(ins)} insns")
+
+
+def cmd_handasm(a):
+    for f in a.files:
+        n = sum(1 for line in open(asm_path(a.seg, f)) if INSN.match(line) and HANDASM.search(line))
+        print(f"{n:6d} {f}")
+
+
+def cmd_empty(a):
+    for f in a.files:
+        ins, last = insns(asm_path(a.seg, f)), None
+        for i, (g, addr, mn, _, tgt) in enumerate(ins):
+            if mn == "jr" and "$ra" in ins[i][3]:
+                if last is not None and i - last == 2 and not tgt:
+                    print(g, f"func_{addr}")
+                last = i
+
+
+def unmatched(src):
+    return [func for _, func in PRAGMA.findall(open(src).read())]
+
+
+def cmd_coverage(a):
+    left = unmatched(a.src)
+    seen, bad = {}, False
+    for spec in a.lists:
+        agent, _, funcs = spec.partition("=")
+        for fn in filter(None, funcs.split(",")):
+            seen.setdefault(fn, []).append(agent)
+    for fn, agents in seen.items():
+        if len(agents) > 1:
+            print(f"duplicate {fn}: {' '.join(agents)}"); bad = True
+        if fn not in left:
+            print(f"not GLOBAL_ASM in {a.src}: {fn} ({agents[0]})"); bad = True
+    for fn in left:
+        if fn not in seen:
+            print(f"unassigned {fn}"); bad = True
+    print("coverage OK" if not bad else "coverage FAILED")
+    sys.exit(1 if bad else 0)
+
+
+def cmd_left(a):
+    for src in a.srcs:
+        text = open(src).read()
+        parked = set(re.findall(r"#ifdef NON_MATCHING.*?GLOBAL_ASM\(\"[^\"]*/(\w+)\.s\"\).*?#endif", text, re.S))
+        for seg, func in PRAGMA.findall(text):
+            seg = seg or "boot"
+            d = os.path.join(ROOT, "drafts", seg, func + ".c")
+            stage = "-"
+            if os.path.exists(d):
+                m = re.search(r"stage\s*([0-9](?:\s*[-–]\s*[0-9])?)", open(d).readline(), re.I)
+                stage = f"stage {m.group(1)}" if m else "draft (no stage)"
+            print(f"{src} {func} {stage}{' parked' if func in parked else ''}")
+
+
+def count_funcs(text):
+    return len(re.findall(r"^[A-Za-z].*\) \{$|^#pragma GLOBAL_ASM", text, re.M))
+
+
+def cmd_vanished(a):
+    files = subprocess.run(["git", "diff", "--name-only", a.rev, "--", "src"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
+    bad = False
+    for f in files:
+        if not f.endswith(".c") or not os.path.exists(os.path.join(ROOT, f)):
+            continue
+        old = subprocess.run(["git", "show", f"{a.rev}:{f}"], cwd=ROOT, capture_output=True, text=True)
+        if old.returncode:
+            continue
+        o, n = count_funcs(old.stdout), count_funcs(open(os.path.join(ROOT, f)).read())
+        if o != n:
+            print(f"{f} {o} -> {n}"); bad = True
+    print("vanished OK" if not bad else "vanished FAILED")
+    sys.exit(1 if bad else 0)
+
+
+def cmd_tail(a):
+    bad = False
+    for src in a.srcs:
+        text = open(src).read()
+        if not text.endswith("\n"):
+            print(f"{src}: no trailing newline"); bad = True
+        lines = [line for line in text.split("\n") if line.strip()]
+        if len(lines) > 1 and lines[-1].startswith("#pragma GLOBAL_ASM") and text.rstrip("\n").split("\n")[-2].strip() == "}":
+            print(f"{src}: last line is a GLOBAL_ASM directly after `}}`: add a blank line before it"); bad = True
+    sys.exit(1 if bad else 0)
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    s = p.add_subparsers(dest="cmd", required=True)
+    c = s.add_parser("count"); c.add_argument("seg"); c.add_argument("files", nargs="*"); c.set_defaults(fn=cmd_count)
+    c = s.add_parser("handasm"); c.add_argument("seg"); c.add_argument("files", nargs="+"); c.set_defaults(fn=cmd_handasm)
+    c = s.add_parser("empty-funcs"); c.add_argument("seg"); c.add_argument("files", nargs="+"); c.set_defaults(fn=cmd_empty)
+    c = s.add_parser("coverage"); c.add_argument("src"); c.add_argument("lists", nargs="+"); c.set_defaults(fn=cmd_coverage)
+    c = s.add_parser("left"); c.add_argument("srcs", nargs="+"); c.set_defaults(fn=cmd_left)
+    c = s.add_parser("vanished"); c.add_argument("rev", nargs="?", default="HEAD"); c.set_defaults(fn=cmd_vanished)
+    c = s.add_parser("pragma-tail"); c.add_argument("srcs", nargs="+"); c.set_defaults(fn=cmd_tail)
+    a = p.parse_args()
+    a.fn(a)
+
+
+if __name__ == "__main__":
+    main()

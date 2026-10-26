@@ -114,30 +114,13 @@ swapped externs in a comparison look identical in the text.
 - Skip formatters and linters. NEVER edit `tools/`, `Makefile` or the splat configs.
 
 # Large functions and near-misses
-- Stage order for non-trivial functions (OoT IDO 5.3 -O2 guide): (1) behaviourally equivalent C
-  (m2c), (2) basic-block order, (3) large reorderings, (4) same callee-saved register set
-  and frame size, (5) small reorderings, (6) register allocation. Report the stage reached
-  (stages 1–6); register-allocation tricks are wasted before stage 4.
-- Why large functions are hard: IDO's uopt assigns registers by priority-based coloring
-  (Chow & Hennessy, TOPLAS 1990): priority = estimated savings of a live range weighted by
-  block frequency and normalised by its length, highest first, with live-range splitting;
-  so a change in one loop shifts registers in another.
-- Diagnose register allocation with `tools/uopt_trace.sh [-l LEVEL] [-s src/<seg>/<file>.c] <file.c> [FUNC]`
-  on your private copy before guessing (level 6 = coloring trace, 5 = live ranges/savings;
-  see header comments in `tools/uopt_trace.sh` for candidate table and coloring order):
-  compare which candidate got which register with the target asm.
-- Permuter at stages 5–6: `tools/permute.py setup <seg> <FUNC> [--from FILE.c] [--src src/<seg>/<file>.c]`,
-  `tools/permute.py run <dir> -j 2 --seconds <S>` (always passes `--stack-diffs` and `--stop-on-zero`),
-  `tools/permute.py best <dir>`. Search-hint rule: permuter mutations are NOT semantics-preserving
-  (moves statements, randomises types, deletes if statements) and score checks disassembly
-  only (stack diffs with `--stack-diffs`, no relocations or data). A result is a search hint:
-  rewrite the idea into readable C that keeps the asm's behaviour, then verify with fdiff.
-  Never paste permuter output unreviewed. Several agents share the CPU: always pass an
-  explicit small `-j 2` and a `--seconds` limit. NEVER run `tools/dk make`.
-- NON_MATCHING parking: a function that will not match but whose C is behaviourally equivalent
-  (remaining diff only regalloc/scheduling/stack layout, reviewed; stage 4+ only: same
-  callee-saved set AND frame size) may be parked in your copy as (stage 2-3 drafts stay
-  on their GLOBAL_ASM line with the draft saved):
+- Follow AGENTS.md "Decompiling a function" step 4 (stage order, `tools/uopt_trace.sh`,
+  permuter search-hint rule, NON_MATCHING parking) with these exceptions: no ROM build (your
+  gates are `fdiff.sh` OK/TEXT OK and `--non-matching`), `uopt_trace.sh` before guessing at
+  any register question, permuter always with `-j 2` and a `--seconds` limit (shared CPU).
+  Report the stage reached (1–6) for every unmatched function.
+- Park only stage 4+ (same callee-saved set AND frame size, remaining diff only regalloc/
+  scheduling/stack layout) in your copy as below; stage 2–3 stays on its GLOBAL_ASM line:
 
 ```c
 #ifdef NON_MATCHING
