@@ -843,15 +843,75 @@ void func_8061885C(Actor *arg0) {
     func_80614FD8((u8 *)&sp1C);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618880.s")
+typedef struct {
+    u8 pad0[4];
+    P19aState *unk4;
+    u8 pad8[0x50];
+    s32 unk58;
+    u8 pad5C[0xE];
+    u16 unk6A;
+    u16 unk6C;
+    u8 pad6E[0x52];
+    f32 unkC0;
+    f32 unkC4;
+    u8 padC8[0x16];
+    s16 unkDE;
+    u8 padE0[0x98];
+    void *unk178;
+} P17b3ActorView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806188B8.s")
+typedef struct {
+    u8 pad0[0x64];
+    s16 unk64;
+} P17b3GlobalView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806188F4.s")
+void func_80618880(Actor *arg0) {
+    P17b3ActorView *actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061892C.s")
+    actor = (P17b3ActorView *)arg0;
+    if (((P17b3GlobalView *)D_807FD580)->unk64 != 0) {
+        ((P17b3GlobalView *)D_807FD580)->unk64 = 0;
+        actor->unk4->unk88 = 0;
+        return;
+    }
+    actor->unk4->unk88 = 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618968.s")
+void func_806188B8(Actor *arg0) {
+    P17b3ActorView *actor;
+
+    actor = (P17b3ActorView *)arg0;
+    if (actor->unkC0 < 0.0f) {
+        actor->unk4->unk88 = 1;
+        return;
+    }
+    actor->unk4->unk88 = 0;
+}
+
+void func_806188F4(Actor *arg0) {
+    P17b3ActorView *actor;
+
+    actor = (P17b3ActorView *)arg0;
+    if ((actor->unk6A & actor->unk6C & 1) != 0) {
+        actor->unk4->unk88 = 1;
+        return;
+    }
+    actor->unk4->unk88 = 0;
+}
+
+void func_8061892C(Actor *arg0) {
+    s16 value;
+
+    func_80614F4C((u8 *)&value);
+    ((P17b3ActorView *)arg0)->unkC0 = (f32)value;
+}
+
+void func_80618968(Actor *arg0) {
+    f32 value;
+
+    func_80614FD8((u8 *)&value);
+    ((P17b3ActorView *)arg0)->unkC4 = value;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618998.s")
 
@@ -879,12 +939,47 @@ void func_8061885C(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806192A4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80619500.s")
+void actorDespawn(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80619520.s")
+void func_80619500(void) {
+    actorDespawn();
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80619540.s")
+void *func_80619520(Actor *arg0) {
+    P17b3ActorView *actor;
+    void *result;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80619580.s")
+    actor = (P17b3ActorView *)arg0;
+    result = NULL;
+    if (actor->unk58 == 0x134) {
+        result = actor->unk178;
+    }
+    return result;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806195B4.s")
+void func_80619540(Actor *arg0) {
+    u8 value;
+    u8 *result;
+
+    result = func_80619520(arg0);
+    func_80614F28(&value);
+    if (result != NULL) {
+        result[0x35] = value;
+    }
+}
+
+void func_80619580(Actor *arg0) {
+    u8 *result;
+
+    result = func_80619520(arg0);
+    if (result != NULL) {
+        result[0x35]++;
+    }
+}
+
+void func_806195B4(Actor *arg0) {
+    P17b3ActorView *actor;
+
+    actor = (P17b3ActorView *)arg0;
+    actor->unk4->unk88 = actor->unkDE >= 0x3DA;
+}
