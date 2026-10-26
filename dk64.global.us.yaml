@@ -63,6 +63,7 @@ segments:
       - [0x16A20, c, 16A20]
       - [0x16B60, asm]
       - [0x17540, c, 17540]
+      - [0x17800, c, 17800] # hidden TU: setVec3f (func_80612AD8) ends with two nops of 16-byte TU padding; 17540 owns no rodata
       - [0x17A10, asm] # hidden TU (17540 rodata ends with a zero pad at 0x15C01C), hand-written: func_80612D10 adds pi/2 and falls through into the sine polynomial func_80612D1C (no jr $ra)
       - [0x17B40, c, 17B40]
       - [0x17B90, c, 17B90]
@@ -222,7 +223,7 @@ segments:
       - [0x15BF90, .rodata, 15050]
       - [0x15BFD0, .rodata, 16550]
       - [0x15BFF0, .rodata, 166A0]
-      - [0x15C010, .rodata, 17540]
+      - [0x15C010, .rodata, 17800]
       - [0x15C020, rodata]
       - [0x15C050, .rodata, 17B40]
       - [0x15C060, .rodata, 17B90]

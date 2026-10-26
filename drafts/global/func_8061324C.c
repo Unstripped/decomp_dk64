@@ -1,3 +1,5 @@
+// func_8061324C (src/global/17B90.c): stage 1; m2c starter retained. Remaining: table-entry/node types, nested scan loop, and allocation-list writeback.
+drafts/global/func_8061324C.c
 // func_8061324C (src/global/17B90.c): stage 1: m2c starter; needs concrete command/list-node structs and loop/control-flow matching
 void *func_80610FE8(?);                             /* extern */
 
