@@ -318,12 +318,81 @@ void func_8063D494(void) {
     D_807F6198 = 0.0f;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D4A4.s")
+Gfx *func_8063D4A4(Gfx *g) {
+    gDPPipeSync(g++);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 16, 1, 0x10000);
+    gSPClearGeometryMode(g++, -1);
+    gSPSetGeometryMode(g++, 0x200405);
+    gSPTexture(g++, 0xFFFF, 0xFFFF, 0, 0, 1);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
+    gDPSetCombine(g++, 0x121804, 0xFF13FFFF);
+    gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 255);
+    gDPSetTileSize(g++, 0, 0, (s32)D_807F6198, 0xFC, 0xFC);
+    return g;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D5AC.s")
+void func_8063D5AC(void) {
+    D_807F6198 -= 0.865;
+    if (D_807F6198 < 0.0) {
+        D_807F6198 = 255.0f;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D608.s")
+extern void *D_807F619C;
+extern f32 D_807F61A0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D638.s")
+void func_8063D608(void) {
+    D_807F619C = func_8066B0F8(0x19, 0x1765, 1, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D854.s")
+Gfx *func_8063D638(Gfx *g) {
+    s32 alpha;
+
+    gDPPipeSync(g++);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 16, 1, 0x10000);
+    gSPClearGeometryMode(g++, -1);
+    gSPSetGeometryMode(g++, 0x200405);
+    gSPTexture(g++, 0xFFFF, 0xFFFF, 0, 0, 1);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
+    gDPSetCombine(g++, 0x121803, 0xFF0FFFFF);
+    switch (D_8076A0A8) {
+        case 0x22:
+        case 0xBB:
+            alpha = 0xFF;
+            break;
+        case 0x36:
+        case 0xBC:
+            alpha = 0x96;
+            break;
+        default:
+            alpha = 0x50;
+            break;
+    }
+    gDPSetPrimColor(g++, 0, 0, 255, 255, 255, alpha);
+    gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, (u32)D_807F619C - 0x80000000);
+    gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 5, 0, 0, 5, 0);
+    gDPLoadSync(g++); gDPLoadBlock(g++, 7, 0, 0, 0x3FF, 0x100); gDPPipeSync(g++); gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 0, 0, 0, 5, 0, 0, 5, 0);
+    gDPSetTileSize(g++, 0, 0, 0, 0x7C, 0x7C);
+    gDPSetTileSize(g++, 0, 0, (s32)D_807F61A0, 0x7C, 0x7C);
+    gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 1, 0, 0, 5, 0, 0, 5, 0);
+    return g;
+}
+
+void func_8063D854(void) {
+    switch (D_8076A0A8) {
+        case 0xBB:
+            D_807F61A0 -= 2.0;
+            break;
+        case 0xBC:
+            D_807F61A0 -= 1.0;
+            break;
+        default:
+            D_807F61A0 -= 1.0;
+            break;
+    }
+    if (D_807F61A0 < 0.0) {
+        D_807F61A0 = 255.0f;
+    }
+}
