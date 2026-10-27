@@ -537,7 +537,7 @@ void func_80025168(s32 arg0) {
     D_8002EC30.unk0 = D_807ECDE8->unk0;
     if (0) {
     }
-    if (D_807ECDE8->unk2 >= 0x1F) {
+    if ((zero = D_807ECDE8->unk2) >= 0x1F) {
         D_8002EC30.unk0 |= 0x100;
     }
     if (D_807ECDE8->unk2 < -0x1E) {

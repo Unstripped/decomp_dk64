@@ -1,4 +1,4 @@
-// func_80025168 (src/jetpac/0.c): Stage 5-6: regalloc only (26 diff lines). Target: p=v0 (lui v0), x%60 in temp t1 (not a candidate), lb unk2 in a0; C gives p=a0, x%60 in v0 candidate, unk2 v0. '(s64)' cast on the first store (readable form of the permuter's & 0xFFFF.. hint; u64/s64/(s64)(s32) all equal) fixes the t-temps and a1/v1; 'if (0) { }' after 'D_8002EC30.unk0 = D_807ECDE8->unk0;' (permuter) fixes unk790->a1, D_807ECDE8->v1. Not fixed: x%60 stays a CSE candidate. Tried chained stores, local sec, non-volatile/cast-pointer stores, 12 'if (0)' positions, permuter 2x250s.
+// func_80025168 (src/jetpac/0.c): stage 5-6: 12 -> 7 diff lines (frame/size/regs identical). Remaining: target p=v0 (lui v0..addiu v0 for D_8002BA6C), x%60 in ring temp t1; ours p=a0, rem=v0 (uopt candidate 1243 adjsave 3.0 colours before p adjsave 2.0). Found by permuter: 'if ((zero = D_807ECDE8->unk2) >= 0x1F)' (reuse of dead local) puts unk2 in a0. Kept (s64) cast on first store and 'if (0) {}'. Tried: local sec/rem of every int width, rem via zero/flag/arg0, no-op casts on 60/30 expressions (192 combos), if(!p){} dummies, p position, p cast; permuter 4x270s
 typedef struct {
     u16 unk0;
     s8 unk2;
@@ -38,7 +38,7 @@ void func_80025168(s32 arg0) {
     D_8002EC30.unk0 = D_807ECDE8->unk0;
     if (0) {
     }
-    if (D_807ECDE8->unk2 >= 0x1F) {
+    if ((zero = D_807ECDE8->unk2) >= 0x1F) {
         D_8002EC30.unk0 |= 0x100;
     }
     if (D_807ECDE8->unk2 < -0x1E) {

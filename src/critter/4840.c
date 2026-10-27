@@ -132,14 +132,11 @@ Gfx *func_80028DE8(Gfx *glistp, Actor_4840 *actor) {
     return glistp;
 }
 
-#ifdef NON_MATCHING
 void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s16 arg4, u16 arg5) {
     u8 *s0;
     s16 sp2A;
-    s32 sp24;
 
-    sp24 = arg3 << 5;
-    sp2A = (D_80744490 - func_806FBD5C(arg0, D_8002A1C0 + sp24)) * 2;
+    sp2A = (D_80744490 - func_806FBD5C(arg0, (s32)D_8002A1C0 + (arg3 << 5))) * 2;
     if (D_8002A1C4 != NULL) {
         s0 = D_8002A1C4->unk174;
         heapFree(*(void **)(s0 + 8));
@@ -147,14 +144,14 @@ void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s16 arg4, u16 arg5) {
     } else {
         actorSpawn(0x10A, 0);
         s0 = D_807FBB44->unk174;
-        *(s16 *)s0 = arg2 * 4;
+        *(s16 *)D_807FBB44->unk174 = arg2 * 4;
         D_8002A1C4 = D_807FBB44;
-        D_807FBB44->unkEC = 0;
+        D_8002A1C4->unkEC = 0;
     }
-    D_8002A1C4->unk7C = (f32)func_800288A8((TextData *)s0, (char *)(D_8002A1C0 + sp24), sp2A);
+    D_8002A1C4->unk7C = (f32)func_800288A8((TextData *)s0, (char *)((s32)D_8002A1C0 + (arg3 << 5)), sp2A);
     D_8002A1C4->unkEE = 0;
     D_8002A1C4->unk168 = arg5 + 0xE;
-    _strcpy((char *)s0 + 0x820, (char *)(D_8002A1C0 + sp24));
+    _strcpy((char *)s0 + 0x820, (char *)((s32)D_8002A1C0 + (arg3 << 5)));
     arg4 = 1;
     do {
         s0[0x810 + arg4] = 0;
@@ -162,10 +159,6 @@ void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s16 arg4, u16 arg5) {
     } while (arg4 < 0x10);
     s0[0x810] = 0xC;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/4840/func_80028EE8.s")
-#endif
 
 void func_8002904C(void) {
     Actor_4840 *actor;
