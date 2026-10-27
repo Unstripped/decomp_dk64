@@ -2834,7 +2834,6 @@ typedef struct CamAutoRotateActor {
 } CamAutoRotateActor;
 
 extern s8 D_80744530;
-s32 func_807142D8(void);
 
 u8 camShouldAutoRotate(s32 arg0, CamState *arg1, CamActor *arg2) {
     return arg2->unk154 == 0x5B
