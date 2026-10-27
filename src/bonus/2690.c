@@ -214,7 +214,7 @@ void actorUpdateModelMatrix(void *, s32);
 extern u8 D_1000118[];
 extern u8 D_2000180[];
 Gfx *func_80026690();
-Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
+Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s32, void *);
 extern u8 D_20000C0[];
 extern u32 D_8076A064;
@@ -263,11 +263,190 @@ s32 actorSpawn(s32, s32);
 void actorScriptStart();
 void func_80614D00(void *, f32, f32);
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80026690.s")
+Gfx *func_80026690(Gfx *gdl, Actor_74A0 *arg1) {
+    Struct_7548 *temp_v0 = arg1->unk174;
+    s16 sp6A = temp_v0->unk1E;
+    s16 sp68 = temp_v0->unk20;
+    s32 pad;
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80026940.s")
+    gDPPipeSync(gdl++);
+    gDPSetCombineMode(gdl++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+    gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gSPDisplayList(gdl++, D_1000118);
+    gSPMatrix(gdl++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    gdl = func_8068C5A8(gdl, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp6A - 0x34), (s16)(sp68 - 0x34), 3.2f, 3.2f, 0xE1, 0.0f);
+    gdl = func_8068C5A8(gdl, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp6A + 0x34), (s16)(sp68 - 0x34), 3.2f, 3.2f, 0x13B, 0.0f);
+    gdl = func_8068C5A8(gdl, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp6A + 0x34), (s16)(sp68 + 0x34), 3.2f, 3.2f, 0x2D, 0.0f);
+    gdl = func_8068C5A8(gdl, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp6A - 0x34), (s16)(sp68 + 0x34), 3.2f, 3.2f, 0x87, 0.0f);
+    return gdl;
+}
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80026CF0.s")
+typedef struct {
+    char pad0[0x20];
+    u8 unk20;
+    char pad21;
+    s16 unk22;
+    u8 unk24;
+    u8 unk25;
+} BonusA_6940_178;
+typedef struct {
+    char pad[0x154];
+    u8 unk154;
+    char pad155[0x1F];
+    Struct_6940_174 *unk174;
+    BonusA_6940_178 *unk178;
+} BonusA_Actor6940;
+
+Gfx *func_80026940(Gfx *gdl, BonusA_Actor6940 *arg1) {
+    Struct_6940_174 *temp_s1 = arg1->unk174;
+    BonusA_6940_178 *temp_t0 = arg1->unk178;
+    s32 pad1[4];
+    s32 sp64;
+    s32 pad2[6];
+    s32 sp48;
+    s32 pad3[4];
+    s32 sp34;
+
+    if (arg1->unk154 == 0) {
+        if (temp_s1->unk26 != 0) {
+            gdl = func_80026690(gdl, (Actor_74A0 *)arg1);
+        }
+    }
+    gSPDisplayList(gdl++, D_1000118);
+    gDPPipeSync(gdl++);
+    gDPSetPrimColor(gdl++, 0, 0, 200, 200, 200, 255);
+    gDPSetCombineMode(gdl++, G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM);
+    gDPSetRenderMode(gdl++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
+    gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    if (arg1->unk154 != 1) {
+        gdl = func_8068DC54(func_806FE078(gdl, temp_t0->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &temp_t0->unk20, temp_t0->unk22, &temp_t0->unk24);
+    }
+    if (temp_s1->unk25 != 0) {
+        sp48 = D_80744490 >> 1;
+        sp64 = func_8070E750(0x1A, 6, 1);
+        gDPPipeSync(gdl++);
+        gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s1->unk25);
+        gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+        sp48 -= func_806FBD5C(1, sp64) >> 1;
+        gdl = func_806FC530(gdl, 1, sp48 << 2, (D_80744494 - func_806FD894(1)) * 2, sp64, 1);
+        temp_s1->unk25 -= (temp_s1->unk25 < 8) ? temp_s1->unk25 : 8;
+    }
+    if (temp_s1->unk24 != 0) {
+        sp34 = D_80744490 >> 1;
+        sp64 = func_8070E750(0x1A, 8, 1);
+        gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s1->unk24);
+        gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+        sp34 -= func_806FBD5C(1, sp64) >> 1;
+        gdl = func_806FC530(gdl, 1, sp34 << 2, (func_806FD894(1) + D_80744494) * 2, sp64, 1);
+        temp_s1->unk24 -= (temp_s1->unk24 < 8) ? temp_s1->unk24 : 8;
+    }
+    return gdl;
+}
+
+typedef struct {
+    char pad0[5];
+    u8 unk5;
+    char pad6[2];
+    s16 unk8;
+} BonusA_CF0_Inner;
+typedef struct {
+    char pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    char pad88[0x174 - 0x88];
+    BonusA_CF0_Inner *unk174;
+} BonusA_CF0_S1;
+typedef struct {
+    char pad0[4];
+    BonusA_CF0_S1 *unk4;
+} BonusA_CF0_Link;
+typedef struct {
+    char pad0[0x174];
+    BonusA_CF0_Link *unk174;
+} BonusA_CF0_Actor;
+typedef struct {
+    BonusA_CF0_Actor *unk0[6];
+} BonusA_CF0_List;
+typedef struct {
+    char pad0[0x154];
+    u8 unk154;
+    char pad155[0x1F];
+    Struct_6940_174 *unk174;
+    BonusA_CF0_List *unk178;
+} BonusA_ActorCF0;
+s32 func_806FDB8C(s32, s32, s32, f32, f32, f32);
+void func_806FDAEC(s16);
+
+Gfx *func_80026CF0(Gfx *gdl, BonusA_ActorCF0 *arg1) {
+    Struct_6940_174 *temp_s2 = arg1->unk174;
+    BonusA_CF0_List *temp_list = arg1->unk178;
+    s32 var_s5 = 0;
+    s32 var_s1;
+    s32 var_s3;
+    s32 i;
+    BonusA_CF0_S1 *temp_s1;
+    BonusA_CF0_Inner *temp_inner;
+    BonusA_CF0_Actor *temp_v0;
+    BonusA_CF0_Link *temp_v1;
+
+    if (arg1->unk154 == 0) {
+        if (temp_s2->unk26 != 0) {
+            gdl = func_80026690(gdl, (Actor_74A0 *)arg1);
+        }
+    }
+    if (temp_s2->unk25 != 0) {
+        var_s1 = D_80744490 >> 1;
+        var_s3 = func_8070E750(0x1A, 6, 1);
+        gDPPipeSync(gdl++);
+        gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s2->unk25);
+        gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+        var_s1 -= func_806FBD5C(1, var_s3) >> 1;
+        gdl = func_806FC530(gdl, 1, var_s1 << 2, (D_80744494 - func_806FD894(1)) * 2, var_s3, 1);
+        temp_s2->unk25 -= (temp_s2->unk25 < 8) ? temp_s2->unk25 : 8;
+    }
+    if (temp_s2->unk24 != 0) {
+        var_s1 = D_80744490 >> 1;
+        var_s3 = func_8070E750(0x1A, 7, 1);
+        gDPPipeSync(gdl++);
+        gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s2->unk24);
+        gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+        var_s1 -= func_806FBD5C(1, var_s3) >> 1;
+        gdl = func_806FC530(gdl, 1, var_s1 << 2, (func_806FD894(1) + D_80744494) * 2, var_s3, 1);
+        temp_s2->unk24 -= (temp_s2->unk24 < 8) ? temp_s2->unk24 : 8;
+    }
+    for (i = 0; i < 6; i++) {
+        temp_v0 = temp_list->unk0[i];
+        temp_v1 = temp_v0->unk174;
+        temp_s1 = temp_v1->unk4;
+        temp_inner = temp_s1->unk174;
+        if (temp_inner->unk5 != 0 && arg1->unk154 == 0) {
+            if (temp_inner->unk8 < 0) {
+                temp_inner->unk8 = func_806FDB8C(1, func_8070E750(0x1A, 9, 1), 9, temp_s1->unk7C * 0.25, temp_s1->unk80 * 0.25, temp_s1->unk84 * 0.25);
+            }
+            if (var_s5 == 0) {
+                gSPDisplayList(gdl++, D_1000118);
+                gDPPipeSync(gdl++);
+                gDPSetCombineMode(gdl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+                gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
+                gDPSetRenderMode(gdl++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
+                gSPSetGeometryMode(gdl++, G_SHADE | G_SHADING_SMOOTH);
+                gDPSetCycleType(gdl++, G_CYC_1CYCLE);
+                gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                var_s5 = 1;
+            }
+            gdl = func_806FE078(gdl, temp_inner->unk8, 9, temp_s1->unk7C, temp_s1->unk80 + 20.0f, temp_s1->unk84, 0.1f);
+        } else if (temp_inner->unk8 >= 0) {
+            func_806FDAEC(temp_inner->unk8);
+            temp_inner->unk8 = -1;
+        }
+    }
+    return gdl;
+}
 
 void func_800271B4(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) {
     u8 var_a3;
@@ -298,7 +477,32 @@ void func_80027308(u8 *arg0, s32 *arg1) {
     actorDespawn(D_807FBB40);
 }
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002733C.s")
+void func_8002733C(void *arg0) {
+    s16 i;
+    s16 y;
+    u8 *temp_s1;
+    s32 *temp_s3;
+    s32 p;
+    y = 0x118;
+    for (i = 0; i < 5; i++) {
+        p = (s32)D_8071A038;
+        temp_s3 = (s32 *)arg0 + i;
+        if (temp_s3[1] != 0) {
+            effectFreeAndUnlink(temp_s3[1]);
+        }
+        temp_s1 = (u8 *)arg0 + i;
+        temp_s1[0x18] = 0;
+        func_8071495C();
+        func_807149FC(-1);
+        func_80714998(2);
+        func_80714944(i * 3);
+        func_8071498C((void *)p);
+        func_80714950(temp_s1 + 0x18);
+        temp_s3[1] = func_80714CC0(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
+        y -= 0x1E;
+    }
+    func_80609140(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);
+}
 
 void func_800274A0(f32 arg0, f32 arg1, f32 arg2) {
     func_80609140(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
@@ -306,7 +510,50 @@ void func_800274A0(f32 arg0, f32 arg1, f32 arg2) {
     projectileAimAndSpawn(0x23, 1, 0.6f, arg0, arg1, arg2, 385.0f, D_807FBB40);
 }
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80027548.s")
+u8 func_80027548(f32 arg0, f32 arg1, f32 arg2) {
+    Struct_7548 *temp_s0 = D_807FBB40->unk174;
+    f32 sp50;
+    f32 sp4C;
+    s16 var_v0;
+    f32 temp_fv0;
+    u8 sp40[1];
+
+    sp40[0] = 0;
+    temp_s0->unk26 = 1;
+    camProjectToScreen(arg0, arg1, arg2, &sp50, &sp4C, 0, 4.0f, 0);
+    temp_s0->unk1E = sp50;
+    temp_s0->unk20 = sp4C;
+    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D(arg0, arg2, D_807FBB40->unk7C, D_807FBB40->unk84), 0x41200000);
+    temp_fv0 = sqrtf((D_807FBB40->unk7C - arg0) * (D_807FBB40->unk7C - arg0) + (D_807FBB40->unk84 - arg2) * (D_807FBB40->unk84 - arg2));
+    D_807FBB40->unkE8 = func_806CC190(D_807FBB40->unkE8, (s32)(((f64)func_80611BB4(D_807FBB40->unk80 - arg1, temp_fv0) * 2048.0) / 3.1415927410125732 + 150.0), 0x40A00000);
+    if ((D_807FD63C & 0xE000) != 0) {
+        if (D_807FBB40->unk154 == 0) {
+            sp40[0] = 1;
+            if (temp_s0->unk22 != 0) {
+                if (temp_s0->unk23 != 0 && temp_s0->unk18[0] == 0) {
+                    func_800274A0(arg0, arg1, arg2);
+                    temp_s0->unk23--;
+                    effectFreeAndUnlink(temp_s0->unk4[temp_s0->unk23]);
+                    func_8060E7EC(0, 0xFF, 3);
+                    temp_s0->unk4[temp_s0->unk23] = 0;
+                    for (var_v0 = 0; var_v0 < temp_s0->unk23; var_v0++) {
+                        temp_s0->unk18[var_v0] = 10;
+                    }
+                } else if (temp_s0->unk23 == 0) {
+                    if (D_807FBB40->unk155 == 0) {
+                        sp40[0] = 2;
+                        D_807FBB40->unk155 = 1;
+                    }
+                }
+            } else if (temp_s0->unk23 < 5) {
+                temp_s0->unk23 = 5;
+                func_8002733C(temp_s0);
+                D_807FBB40->unk155 = 0;
+            }
+        }
+    }
+    return sp40[0];
+}
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_800277F8.s")
 
@@ -364,14 +611,12 @@ s32 playerStateQueueCallback(s32, s32, s32);
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 u16 camStartPath(s32, s32, s32);
 void func_80028648(BonusB_Sub178 *);
-s32 func_80027548(f32, f32, f32);
 void func_800265C0(u8, u8);
 void func_800264E0(u8, u8);
 void actorSetStateTwo(void *);
 void sfxAllocateChannel(s32, f32);
 void func_806A2A10(s32, s32, u8);
 void func_8070D8C0(void *, s32, s32);
-void func_80026CF0(void);
 void renderCallbacksRegister(void *, void *, s32);
 
 void func_80027F14(void) {

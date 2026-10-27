@@ -5,25 +5,25 @@ typedef struct {
 } BonusC_9E54_S;
 
 void func_80029E54(void *arg0) {
+    void *a = arg0;
     s32 i;
     s16 *X = &D_8002D8CA - 1;
-    s8 *base = ((Actor_BB44 *)arg0)->unk178;
+    s8 *base = ((Actor_BB44 *)a)->unk178;
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x147, X[i - 1]) != 0) {
             BonusC_9E54_S *temp_v1 = (BonusC_9E54_S *)D_807FBB44->unk174;
             s16 *temp_a1 = D_807FBB44->unk17C;
-            Point3f *pt;
+            f32 *pt;
             f32 scale;
 
             *temp_a1 = X[i - 1];
-            temp_v1->unk0 = arg0;
+            temp_v1->unk0 = a;
             temp_v1->unk4 = i - 1;
-            pt = (Point3f *)((u8 *)*D_807F5FD4 + (base[(u8)(i - 1) + 8] & 0x7F) * 12);
-            pt++;
-            D_807FBB44->unk7C = pt->x;
-            D_807FBB44->unk80 = pt->y;
-            D_807FBB44->unk84 = pt->z;
+            pt = (f32 *)((u8 *)*D_807F5FD4 + ((base + 8)[temp_v1->unk4] & 0x7F) * 12) + 3;
+            D_807FBB44->unk7C = pt[0];
+            D_807FBB44->unk80 = pt[1];
+            D_807FBB44->unk84 = pt[2];
             D_807FBB44->unk154 = 0;
             D_807FBB44->unk60 |= 0x1000;
             D_807FBB44->unkE6 = 0x800;
