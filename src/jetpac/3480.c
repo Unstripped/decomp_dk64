@@ -273,6 +273,10 @@ void func_80027BE8(JetpacItem *arg0, s32 arg1) {
         if (arg1 < 3) {
             p = arg0->sprites;
             for (i = 0; i != 2; i++, p++, y += 8) {
+                if (!arg1) {
+                }
+                if (!inner) {
+                }
                 if ((inner->unkC < 8 && inner->unkC + arg1 * 2 + i >= 8) || (inner->unkC == 8 && (D_8002F3C0 & 0x10))) {
                     sp58.g = 0;
                 }
