@@ -1,4 +1,4 @@
-// func_80028E88 (src/jetpac/3480.c): stage 6 park (unchanged C): remaining prologue order (lui t6 vs v0 for D_8002EF90, lui s5 first, move s8,s3 / sw zero,0x10(sp) before move a3). Tried 6 local declaration orders, moving D_8002DE* externs, inlining de80/base - no change; permuter only whitespace
+// func_80028E88 (src/jetpac/3480.c): stage 6 park: loop end now matches (while ((color += 0x34) != D_8002F060) after base/ledge/fp incs; 'u8 *base=..; JetpacLedge *ledge=..;' on one line) and t-regs only +1 off. Left: prologue 'lui v0' vs 'lui t6' for D_8002EF90 (move s8,s3 after the hoisted addius in target), s5/s6/s7 lui order (target s5,s6,s7; ours s6,s7,s5), 'sw zero,0x10(sp)' after 'move a3,s8'. Tried decl orders x joins, color/color_fp from global or copy, for-loop headers, permuter
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -26,8 +26,7 @@ void func_80028E88(void) {
     u8 *color_fp = D_8002EF90;
     u8 *color = color_fp;
     void *de80 = &D_8002DE80;
-    u8 *base = (u8 *)&D_8002EC30;
-    JetpacLedge *ledge = D_8002EF80;
+    u8 *base = (u8 *)&D_8002EC30; JetpacLedge *ledge = D_8002EF80;
 
     do {
         s32 x = (s32)*(f32 *)(base + 0x350);
@@ -46,9 +45,8 @@ void func_80028E88(void) {
             } while (j < cur->unk30);
         }
         func_80025700(&D_8002DE98, x, y, color, 0);
-        color += 0x34;
         base += 0x34;
         ledge++;
         color_fp += 0x34;
-    } while (color != D_8002F060);
+    } while ((color += 0x34) != D_8002F060);
 }

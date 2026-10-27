@@ -740,8 +740,7 @@ void func_80028E88(void) {
     u8 *color_fp = D_8002EF90;
     u8 *color = color_fp;
     void *de80 = &D_8002DE80;
-    u8 *base = (u8 *)&D_8002EC30;
-    JetpacLedge *ledge = D_8002EF80;
+    u8 *base = (u8 *)&D_8002EC30; JetpacLedge *ledge = D_8002EF80;
 
     do {
         s32 x = (s32)*(f32 *)(base + 0x350);
@@ -760,11 +759,10 @@ void func_80028E88(void) {
             } while (j < cur->unk30);
         }
         func_80025700(&D_8002DE98, x, y, color, 0);
-        color += 0x34;
         base += 0x34;
         ledge++;
         color_fp += 0x34;
-    } while (color != D_8002F060);
+    } while ((color += 0x34) != D_8002F060);
 }
 #else
 
