@@ -48,7 +48,7 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_805FF800(s32 *, s32 *);
 void func_805FF628(s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
-Gfx *func_800296DC(Gfx *, Struct_807FBB40 *);
+Gfx *critterRenderCenterImage(Gfx *, Struct_807FBB40 *);
 
 #ifdef NON_MATCHING
 void func_80029118(void) {
@@ -198,7 +198,7 @@ void func_80029118(void) {
         D_807FBB40->unk154 = 0xFE;
         break;
     }
-    renderCallbacksRegister(&func_800296DC, D_807FBB40, 3);
+    renderCallbacksRegister(&critterRenderCenterImage, D_807FBB40, 3);
 }
 #else
 
@@ -211,7 +211,7 @@ extern u8 D_2000180[];
 
 Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
 
-Gfx *func_800296DC(Gfx *glistp, Struct_807FBB40 *arg1) {
+Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *arg1) {
     Struct_807FBB40_174 *t1 = arg1->unk174;
 
     gSPDisplayList(glistp++, &D_1000118);

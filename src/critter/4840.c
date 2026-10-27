@@ -8,12 +8,12 @@ typedef struct TextData {
 } TextData;
 
 void *func_80610FE8(s32);
-s16 func_800288A8(TextData *arg0, char *arg1, s16 arg2);
+s16 critterLayoutWords(TextData *arg0, char *arg1, s16 arg2);
 
 extern u8 D_1000118[];
 char *_strcpy(char *, const char *);
 char *_strtok(char *, const char *);
-Gfx *func_80028A9C(Gfx *, u8 *, char *, u8);
+Gfx *critterDrawWord(Gfx *, u8 *, char *, u8);
 
 typedef struct Actor_4840 {
     char pad0[0x7C];
@@ -35,7 +35,7 @@ extern Actor_4840 *D_807FBB44;
 
 extern Actor_4840 *D_807FBB40;
 void renderCallbacksRegister(void *, void *, s32);
-Gfx *func_80028DE8(Gfx *, Actor_4840 *);
+Gfx *critterRenderText(Gfx *, Actor_4840 *);
 
 s32 func_8066B0F8(s32, s32, s32, s32);
 extern s32 D_8002A1C0;
@@ -44,7 +44,7 @@ extern s32 D_8002A1C8;
 extern u16 D_8002A1CC;
 extern u16 D_8002A1CE;
 
-void func_80028840(void) {
+void critterInitText(void) {
     D_8002A1C0 = func_8066B0F8(0x13, 4, 1, 1);
     D_8002A1C8 = func_8066B0F8(0x13, 5, 1, 1);
     D_8002A1C4 = 0;
@@ -52,7 +52,7 @@ void func_80028840(void) {
     D_8002A1CC = 1;
 }
 
-s16 func_800288A8(TextData *arg0, char *arg1, s16 arg2) {
+s16 critterLayoutWords(TextData *arg0, char *arg1, s16 arg2) {
     s16 sp94[18];
     s16 sp70[18];
     char sp4C[36];
@@ -86,7 +86,7 @@ f32 func_80612794(s16);
 Gfx *func_806FC530(Gfx *, s32, s16, s16, s32, s32);
 extern u8 D_807444FC;
 
-Gfx *func_80028A9C(Gfx *glistp, u8 *arg1, char *arg2, u8 arg3) {
+Gfx *critterDrawWord(Gfx *glistp, u8 *arg1, char *arg2, u8 arg3) {
     f32 sp98[4][4];
     f32 sp58[4][4];
     u8 sp57;
@@ -114,7 +114,7 @@ Gfx *func_80028A9C(Gfx *glistp, u8 *arg1, char *arg2, u8 arg3) {
     return func_806FC530(glistp, 6, 0, 0, (s32)arg2, 0);
 }
 
-Gfx *func_80028DE8(Gfx *glistp, Actor_4840 *actor) {
+Gfx *critterRenderText(Gfx *glistp, Actor_4840 *actor) {
     u8 *s2 = actor->unk174;
     u8 var_s0;
     char *token;
@@ -125,14 +125,14 @@ Gfx *func_80028DE8(Gfx *glistp, Actor_4840 *actor) {
 
     _strcpy(sp38, (char *)s2 + 0x820);
     var_s0 = 0;
-    glistp = func_80028A9C(glistp, s2, _strtok(sp38, " "), var_s0++);
+    glistp = critterDrawWord(glistp, s2, _strtok(sp38, " "), var_s0++);
     while ((token = _strtok(NULL, " ")) != NULL) {
-        glistp = func_80028A9C(glistp, s2, token, var_s0++);
+        glistp = critterDrawWord(glistp, s2, token, var_s0++);
     }
     return glistp;
 }
 
-void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s16 arg4, u16 arg5) {
+void critterShowText(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s16 arg4, u16 arg5) {
     u8 *s0;
     s16 sp2A;
 
@@ -148,7 +148,7 @@ void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s16 arg4, u16 arg5) {
         D_8002A1C4 = D_807FBB44;
         D_8002A1C4->unkEC = 0;
     }
-    D_8002A1C4->unk7C = (f32)func_800288A8((TextData *)s0, (char *)((s32)D_8002A1C0 + (arg3 << 5)), sp2A);
+    D_8002A1C4->unk7C = (f32)critterLayoutWords((TextData *)s0, (char *)((s32)D_8002A1C0 + (arg3 << 5)), sp2A);
     D_8002A1C4->unkEE = 0;
     D_8002A1C4->unk168 = arg5 + 0xE;
     _strcpy((char *)s0 + 0x820, (char *)((s32)D_8002A1C0 + (arg3 << 5)));
@@ -160,7 +160,7 @@ void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s16 arg4, u16 arg5) {
     s0[0x810] = 0xC;
 }
 
-void func_8002904C(void) {
+void critterUpdateText(void) {
     Actor_4840 *actor;
     u8 *unk174;
     s16 temp_v1;
@@ -179,7 +179,7 @@ void func_8002904C(void) {
     }
     if (actor->unk168 != 0) {
         actor->unk168--;
-        renderCallbacksRegister(func_80028DE8, D_807FBB40, 3);
+        renderCallbacksRegister(critterRenderText, D_807FBB40, 3);
     }
     D_8002A1CE++;
 }

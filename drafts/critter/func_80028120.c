@@ -1,4 +1,4 @@
-// func_80028120 (src/critter/3340.c): stage 6: 13 diff lines left (was 157): case-1 k now coloured f2 whole-range via TWO empty 'if (!k) {}' after the cos call; func_80665564 2nd param is f32 (li a1,0). Left: case 2 only: target dist (cvt.d.s) in f12 and k=(f32)(3.0/dist) in f2; ours dist f2, k f0 (cvt expression candidates 107/127 outrank the vars; dummy uses of dist/k, var renames, f32 dist, function-scope dist, k=0 init all give identical code).
+// func_80028120 (src/critter/3340.c): stage 6 park (C unchanged), 13-line diff case 2 only: dist (f64 sqrtf conv, VN 745 shared with case-1 call-result conversions, adjsave 3.0) gets f2 and k f0; target dist f12, k f2. Tried: f32 temp / +0.0f / field round-trip / (f32) / locals w,t,k for sqrtf; case-1 r1/r2 locals and (f64) casts; if(!dist)/if(!k) dummies 1-3 at 6 slots; permuter 7min - all identical code (score 30)
 typedef struct J1b2Data {
     f32 unk0;
     f32 unk4;

@@ -1,6 +1,6 @@
 #include "common.h"
 
-void func_80024000(u8 *arg0, u8 *arg1, f32 arg2) {
+void critterSetTargetSpeed(u8 *arg0, u8 *arg1, f32 arg2) {
     switch (*arg1) {
     case 0:
     case 1:
@@ -108,7 +108,7 @@ void func_8002427C(u8 *arg0) {
             *(s16 *)(ptr + 0x1E4) = tbl.v[idx];
             *(s32 *)(ptr + 0x1E8) = 0;
             ptr[0x1E1] |= 4;
-            func_80024000(ptr, arg0, (f32)((f64)*(f32 *)(ptr + 0x38) * 0.5));
+            critterSetTargetSpeed(ptr, arg0, (f32)((f64)*(f32 *)(ptr + 0x38) * 0.5));
         }
     }
 }
@@ -197,14 +197,14 @@ void func_800245B8(void *arg0) {
     critterUpdateAudio(arg0);
 }
 
-void func_80025A3C(u8 *arg0);
+void critterBuildMatrix(u8 *arg0);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 extern u8 D_807444FC;
 extern Vtx D_80029870;
 extern Vtx D_800298D0;
 extern Vtx D_800298E0;
 extern Gfx D_80029B40;
-extern s32 D_80029BA8;
+extern s32 critterCurrentTexture;
 
 Gfx *func_800247F4(Gfx *gdl, u8 *arg1) {
     f32 sp90[4][4];
@@ -213,7 +213,7 @@ Gfx *func_800247F4(Gfx *gdl, u8 *arg1) {
     sp8C = *(f32 *)(arg1 + 0x48);
     gSPSetGeometryMode(gdl++, G_CULL_BACK);
     gDPLoadTextureBlock(gdl++, *(s32 *)(arg1 + 0x1E8), G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 4, G_TX_NOLOD, G_TX_NOLOD);
-    func_80025A3C(arg1);
+    critterBuildMatrix(arg1);
     gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x60), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPVertex(gdl++, &D_80029870, 6, 0);
     gSPDisplayList(gdl++, &D_80029B40);
@@ -229,7 +229,7 @@ Gfx *func_800247F4(Gfx *gdl, u8 *arg1) {
     gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x160), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &D_800298E0, 6, 7);
     gSP2Triangles(gdl++, 10, 11, 7, 0, 10, 7, 12, 0);
-    D_80029BA8 = 0;
+    critterCurrentTexture = 0;
     gDPPipeSync(gdl++);
     return gdl;
 }
@@ -259,11 +259,11 @@ Gfx *func_80024C88(Gfx *gdl, u8 *arg1) {
     f32 sp6C;
 
     sp6C = *(f32 *)(arg1 + 0x48);
-    if (D_80029BA8 != *(s32 *)(arg1 + 0x1E8)) {
-        D_80029BA8 = *(s32 *)(arg1 + 0x1E8);
-        gDPLoadTextureBlock(gdl++, D_80029BA8, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
+    if (critterCurrentTexture != *(s32 *)(arg1 + 0x1E8)) {
+        critterCurrentTexture = *(s32 *)(arg1 + 0x1E8);
+        gDPLoadTextureBlock(gdl++, critterCurrentTexture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
     }
-    func_80025A3C(arg1);
+    critterBuildMatrix(arg1);
     gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x60), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     matrixMakeRotationZ(sp70, sp6C);
     guMtxF2L(sp70, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0xE0));
@@ -334,9 +334,9 @@ void func_80024F28(void *arg0) {
     critterUpdateAudio(arg0);
 }
 
-extern s32 D_80029BA8;
+extern s32 critterCurrentTexture;
 extern u8 D_807444FC;
-void func_80025A3C(u8 *);
+void critterBuildMatrix(u8 *);
 extern Vtx D_80029940[];
 extern Vtx D_80029980[];
 void matrixMakeRotationY(f32 (*)[4], f32);
@@ -345,12 +345,12 @@ Gfx *func_8002516C(Gfx *gdl, u8 *arg1) {
     f32 spD0[4][4];
     f32 sp90[4][4];
 
-    if (D_80029BA8 != *(s32 *)(arg1 + 0x1E8)) {
-        D_80029BA8 = *(s32 *)(arg1 + 0x1E8);
-        gDPLoadTextureBlock(gdl++, D_80029BA8, G_IM_FMT_RGBA, G_IM_SIZ_16b, 48, 32, 0,
+    if (critterCurrentTexture != *(s32 *)(arg1 + 0x1E8)) {
+        critterCurrentTexture = *(s32 *)(arg1 + 0x1E8);
+        gDPLoadTextureBlock(gdl++, critterCurrentTexture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 48, 32, 0,
                             G_TX_CLAMP, G_TX_CLAMP, 6, 5, G_TX_NOLOD, G_TX_NOLOD);
     }
-    func_80025A3C(arg1);
+    critterBuildMatrix(arg1);
     gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x60), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     matrixMakeRotationY(spD0, *(f32 *)(arg1 + 0x4C));
     guMtxF2L(spD0, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x160));
@@ -391,12 +391,12 @@ void func_80025500(u8 *arg0) {
 extern Gfx D_80029A10;
 
 Gfx *func_800255C4(Gfx *gdl, u8 *arg1) {
-    if (D_80029BA8 != *(s32 *)(arg1 + 0x1E8)) {
-        D_80029BA8 = *(s32 *)(arg1 + 0x1E8);
-        gDPLoadTextureBlock(gdl++, D_80029BA8, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 0,
+    if (critterCurrentTexture != *(s32 *)(arg1 + 0x1E8)) {
+        critterCurrentTexture = *(s32 *)(arg1 + 0x1E8);
+        gDPLoadTextureBlock(gdl++, critterCurrentTexture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 0,
                             G_TX_CLAMP, G_TX_CLAMP, 5, 4, G_TX_NOLOD, G_TX_NOLOD);
     }
-    func_80025A3C(arg1);
+    critterBuildMatrix(arg1);
     gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x60), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPVertex(gdl++, &D_80029A10, 11, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 3, 1, 0);
@@ -417,7 +417,7 @@ extern Mtx D_2000200;
 extern u8 D_807444FC;
 extern Mtx D_2000180;
 
-Gfx *func_800257D4(Gfx *gdl) {
+Gfx *critterRenderSetup(Gfx *gdl) {
     gSPDisplayList(gdl++, &D_1000118);
     gDPPipeSync(gdl++);
     gDPSetCycleType(gdl++, G_CYC_1CYCLE);
@@ -428,7 +428,7 @@ Gfx *func_800257D4(Gfx *gdl) {
     return gdl;
 }
 
-void func_800258B0(f32 (*m)[4], s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void critterMakeMatrix(f32 (*m)[4], s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     f32 sp44;
     f32 sp40;
     f32 sp3C;
@@ -466,10 +466,10 @@ void func_800258B0(f32 (*m)[4], s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5
     m[3][3] = 1.0f;
 }
 
-void func_80025A3C(u8 *arg0) {
+void critterBuildMatrix(u8 *arg0) {
     f32 sp30[4][4];
 
-    func_800258B0(sp30, (s16)-*(s16 *)(arg0 + 2), *(s16 *)(arg0 + 0), 0,
+    critterMakeMatrix(sp30, (s16)-*(s16 *)(arg0 + 2), *(s16 *)(arg0 + 0), 0,
                   *(f32 *)(arg0 + 0x38) * 0.07f,
                   *(f32 *)(arg0 + 8),
                   *(f32 *)(arg0 + 0x14) + *(f32 *)(arg0 + 0xC),
@@ -487,7 +487,7 @@ Gfx *func_80024C88(Gfx *, u8 *);
 Gfx *func_8002516C(Gfx *, u8 *);
 void func_8065C334(f32, f32, s32, s32, u8 *, u8 *, u8 *, s32);
 
-Gfx *func_80025AD0(Gfx *gdl, u8 *arg1) {
+Gfx *critterRenderGroup(Gfx *gdl, u8 *arg1) {
     s32 col;
     s32 i;
     u8 *obj;
@@ -546,27 +546,27 @@ Gfx *func_80025AD0(Gfx *gdl, u8 *arg1) {
     return gdl;
 }
 
-s32 func_80025D1C(s32 gdl, u8 *arg1) {
+s32 critterRenderGroups(s32 gdl, u8 *arg1) {
     u8 *ptr;
     s32 i;
 
     if (arg1 == NULL) {
         return gdl;
     }
-    D_80029BA8 = 0;
+    critterCurrentTexture = 0;
     ptr = *(u8 **)(arg1 + 4);
     if (ptr != NULL) {
-        gdl = (s32)func_800257D4((Gfx *)gdl);
+        gdl = (s32)critterRenderSetup((Gfx *)gdl);
     }
     for (i = 0; i < (s32)arg1[0]; i++) {
-        gdl = (s32)func_80025AD0((Gfx *)gdl, ptr);
+        gdl = (s32)critterRenderGroup((Gfx *)gdl, ptr);
         ptr += 0xC;
     }
     return gdl;
 }
 
 
-void func_80025DB8(void *arg0, void *arg1, u8 arg2, s16 arg3, u8 arg4) {
+void critterSetOffsetAtAngle(void *arg0, void *arg1, u8 arg2, s16 arg3, u8 arg4) {
     f32 sp2C;
     f32 sp28;
     f32 base;
@@ -597,24 +597,24 @@ void func_80025DB8(void *arg0, void *arg1, u8 arg2, s16 arg3, u8 arg4) {
     *pz = func_80612790(arg3) * sp2C;
 }
 
-void func_80025DB8(void *, void *, u8, s16, u8);
+void critterSetOffsetAtAngle(void *, void *, u8, s16, u8);
 
-void func_80025F3C(void *arg0, void *arg1, u8 arg2, u8 arg3) {
-    func_80025DB8(arg0, arg1, arg2, (s16)(func_806119A0() & 0xFFF), arg3);
+void critterSetRandomOffset(void *arg0, void *arg1, u8 arg2, u8 arg3) {
+    critterSetOffsetAtAngle(arg0, arg1, arg2, (s16)(func_806119A0() & 0xFFF), arg3);
 }
 
-void func_80025F8C(s16 *arg0, u8 *arg1, u8 arg2) {
-    func_80025F3C(arg0, arg1, arg2, 0);
+void critterPlaceInZone(s16 *arg0, u8 *arg1, u8 arg2) {
+    critterSetRandomOffset(arg0, arg1, arg2, 0);
     *(f32 *)(arg1 + 8) += (f32)arg0[0];
     *(f32 *)(arg1 + 0xC) += (f32)arg0[1];
     *(f32 *)(arg1 + 0x10) += (f32)arg0[2];
 }
 
 extern u8 *D_807FBB48;
-extern void *D_80029BA4;
+extern void *critterPlayerZone;
 
 #ifdef NON_MATCHING
-extern void *D_80029BA4;
+extern void *critterPlayerZone;
 
 #define CR58 (*(u8 **)((u8 *)arg0 + 0x58))
 void func_8002601C(void *arg0) {
@@ -636,9 +636,9 @@ void func_8002601C(void *arg0) {
         dz = (f32)*(s16 *)(CR58 + 4) - *(f32 *)(D_807FBB48 + 0x84);
         dx = dx * dx + dz * dz;
         fv0 = 0.0f;
-        f = *(s16 *)((u8 *)D_80029BA4 + 2) < (*(s16 *)(CR58 + 2)) + half;
+        f = *(s16 *)((u8 *)critterPlayerZone + 2) < (*(s16 *)(CR58 + 2)) + half;
         if (f) {
-            f = (*(s16 *)(CR58 + 2)) - half < *(s16 *)((u8 *)D_80029BA4 + 2);
+            f = (*(s16 *)(CR58 + 2)) - half < *(s16 *)((u8 *)critterPlayerZone + 2);
         }
         f = (u8)f != 0;
         if (f) {
@@ -675,7 +675,7 @@ void func_8002601C(void *arg0) {
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_8002601C.s")
 #endif
 
-void *func_80026298(arg0, arg1)
+void *critterGetZone(arg0, arg1)
 void *arg0;
 u8 arg1;
 {
@@ -683,7 +683,7 @@ u8 arg1;
     return ptr + arg1 * 0x2C;
 }
 
-void func_800262C0(u8 *arg0, u8 *arg1) {
+void critterPickNewZone(u8 *arg0, u8 *arg1) {
     s32 temp_t8;
 
     temp_t8 = (func_806119A0() % (u32)(arg1[1] - 1)) & 0xFF;
@@ -693,11 +693,11 @@ void func_800262C0(u8 *arg0, u8 *arg1) {
     temp_t8 = (temp_t8 + 1) & 0xFF;
 end:
     arg0[0x50] = temp_t8;
-    *(void **)(arg0 + 0x54) = func_80026298(arg1, temp_t8);
+    *(void **)(arg0 + 0x54) = critterGetZone(arg1, temp_t8);
 }
 
 
-void func_80026338(u8 *arg0, u8 *arg1) {
+void critterTryActivate(u8 *arg0, u8 *arg1) {
     s32 lim;
 
     switch (arg1[0]) {
@@ -716,12 +716,12 @@ void func_80026338(u8 *arg0, u8 *arg1) {
         if (*(u8 *)(*(u8 **)(arg0 + 0x58) + 0x25) != 0) {
             arg0[0x1E0] = 2;
             if (arg0[0x1E2] == 0) {
-                *(void **)(arg0 + 0x54) = D_80029BA4;
+                *(void **)(arg0 + 0x54) = critterPlayerZone;
             } else {
-                func_800262C0(arg0, arg1);
+                critterPickNewZone(arg0, arg1);
             }
-            func_80025F3C(*(void **)(arg0 + 0x54), arg0, 1, 1);
-            func_80024000(arg0, arg1, *(f32 *)(arg0 + 0x38));
+            critterSetRandomOffset(*(void **)(arg0 + 0x54), arg0, 1, 1);
+            critterSetTargetSpeed(arg0, arg1, *(f32 *)(arg0 + 0x38));
         }
     }
 }
@@ -739,13 +739,13 @@ void critterCalcDistToPlayer(u8 *arg0) {
     }
 }
 
-void func_8002646C(u8 *arg0, u8 *arg1) {
+void critterFollowLeader(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg0 + 0x28) = *(f32 *)(arg1 + 0x28);
     *(void **)(arg0 + 0x58) = *(void **)(arg1 + 0x58);
     arg0[0x1E1] = arg1[0x1E1];
     if (*(void **)(arg1 + 0x54) != *(void **)(arg0 + 0x54)) {
         *(void **)(arg0 + 0x54) = *(void **)(arg1 + 0x54);
-        func_80025F3C(*(void **)(arg0 + 0x54), arg0, 1, 1);
+        critterSetRandomOffset(*(void **)(arg0 + 0x54), arg0, 1, 1);
     }
     arg0[0x1E0] = arg1[0x1E0];
     if (arg0[0x1E0] == 0 && !(arg0[0x1E1] & 4)) {
@@ -753,14 +753,14 @@ void func_8002646C(u8 *arg0, u8 *arg1) {
         return;
     }
     if ((u32)(func_806119A0() % 255U) < 50) {
-        func_80025F3C(*(void **)(arg0 + 0x54), arg0, 1, 1);
+        critterSetRandomOffset(*(void **)(arg0 + 0x54), arg0, 1, 1);
     }
 }
 
 
 s32 func_80026530(u8 *arg0, void *arg1) {
-    func_80024000(arg0, arg1, (f32)((f64)*(f32 *)(arg0 + 0x38) * 0.5));
-    func_80025F3C(*(void **)(arg0 + 0x54), arg0, 1, 1);
+    critterSetTargetSpeed(arg0, arg1, (f32)((f64)*(f32 *)(arg0 + 0x38) * 0.5));
+    critterSetRandomOffset(*(void **)(arg0 + 0x54), arg0, 1, 1);
     return 0;
 }
 
@@ -770,7 +770,7 @@ f32 func_80612800(s16);
 s16 func_806CC190(s16, s16, s32);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 
-void func_8002658C(u8 *arg0, void *arg1, s32 arg2, void *arg3) {
+void critterSteerToTarget(u8 *arg0, void *arg1, s32 arg2, void *arg3) {
     f32 tx;
     f32 ty;
     f32 tz;
@@ -838,22 +838,22 @@ void func_8002658C(u8 *arg0, void *arg1, s32 arg2, void *arg3) {
     }
 }
 
-void func_8002658C();
+void critterSteerToTarget();
 
-void func_80026874(u8 *arg0, u8 *arg1) {
+void critterUpdateIdle(u8 *arg0, u8 *arg1) {
     u8 flags;
 
     flags = arg0[0x1E1];
     if ((flags & 1) && (flags & 4)) {
-        func_8002658C(arg0, arg1, 0, func_80026530);
+        critterSteerToTarget(arg0, arg1, 0, func_80026530);
     }
     if (arg0[0x1E2] == 2) {
-        func_8002646C(arg0, *(void **)(arg1 + 8));
+        critterFollowLeader(arg0, *(void **)(arg1 + 8));
         return;
     }
     if (*(u8 *)(*(u8 **)(arg0 + 0x58) + 0x25) != 0) {
         critterCalcDistToPlayer(arg0);
-        func_80026338(arg0, arg1);
+        critterTryActivate(arg0, arg1);
     }
 }
 
@@ -864,26 +864,26 @@ void func_80026904(u8 *arg0, u8 *arg1) {
     u8 *temp_a0;
 
     if (arg0[0x1E2] == 2) {
-        func_8002646C(arg0, *(u8 **)(arg1 + 8));
+        critterFollowLeader(arg0, *(u8 **)(arg1 + 8));
         return;
     }
     if (arg0[0x1E2] == 0) {
         temp_a0 = *(u8 **)(arg0 + 0x58);
         if (temp_a0[0x25] != 0) {
             critterCalcDistToPlayer(arg0);
-            if (D_80029BA4 != *(void **)(arg0 + 0x54)) {
-                func_80026338(arg0, arg1);
+            if (critterPlayerZone != *(void **)(arg0 + 0x54)) {
+                critterTryActivate(arg0, arg1);
                 return;
             }
-            if (arg0[0x1E0] == 2 && *(f32 *)(arg0 + 0x3C) < (f32)*(s16 *)((u8 *)D_80029BA4 + 0xA)) {
+            if (arg0[0x1E0] == 2 && *(f32 *)(arg0 + 0x3C) < (f32)*(s16 *)((u8 *)critterPlayerZone + 0xA)) {
                 sp2E = mathAngleBetweenPoints2D(*(f32 *)(arg0 + 8), *(f32 *)(arg0 + 0x10), *(f32 *)(D_807FBB48 + 0x7C), *(f32 *)(D_807FBB48 + 0x84));
                 sp2E += (func_806119A0() & 0x7FF) - 0x400;
                 arg0[0x1E0] = 1;
-                func_80025DB8(*(void **)(arg0 + 0x54), arg0, 0, sp2E, 1);
+                critterSetOffsetAtAngle(*(void **)(arg0 + 0x54), arg0, 0, sp2E, 1);
             }
-        } else if (D_80029BA4 == *(void **)(arg0 + 0x54)) {
+        } else if (critterPlayerZone == *(void **)(arg0 + 0x54)) {
             *(u8 **)(arg0 + 0x54) = temp_a0;
-            func_80025F3C(temp_a0, arg0, 1, 1);
+            critterSetRandomOffset(temp_a0, arg0, 1, 1);
             arg0[0x40] = 0xFF;
         }
     }
@@ -902,14 +902,14 @@ s32 func_80026A5C(u8 *arg0, u8 *arg1) {
             *(f32 *)(arg0 + 0x34) = 0;
             return 1;
         }
-        func_800262C0(arg0, arg1);
-    } else if (D_80029BA4 == *(void **)(arg0 + 0x54)) {
+        critterPickNewZone(arg0, arg1);
+    } else if (critterPlayerZone == *(void **)(arg0 + 0x54)) {
         if (arg0[0x1E0] == 2) {
             arg0[0x1E0] = 1;
         } else {
             arg0[0x1E0] = 2;
         }
-        func_80025F3C(*(void **)(arg0 + 0x54), arg0, (u8)(arg0[0x1E0] == 2), 1);
+        critterSetRandomOffset(*(void **)(arg0 + 0x54), arg0, (u8)(arg0[0x1E0] == 2), 1);
     } else {
         *(s16 *)(arg0 + 2) = 0;
         *(f32 *)(arg0 + 0x34) = 0;
@@ -956,9 +956,9 @@ void critterDispatchAll(u8 *arg0) {
     for (var_s1 = 0; var_s1 < (s32)arg0[2]; var_s1++, var_s0 += 0x1F0) {
         func_8002601C(var_s0);
         if (var_s0[0x1E0] == 0) {
-            func_80026874(var_s0, arg0);
+            critterUpdateIdle(var_s0, arg0);
         } else {
-            func_8002658C(var_s0, arg0, (s32)func_80026904, cb);
+            critterSteerToTarget(var_s0, arg0, (s32)func_80026904, cb);
         }
         *(s16 *)(var_s0 + 0x44) = *(s16 *)(var_s0 + 0x42);
         if (var_s3 != NULL) {
@@ -973,7 +973,7 @@ typedef struct {
     s32 w[5];
 } C0cBlk5;
 
-void func_80026C9C(u8 *arg0) {
+void critterUpdateGroups(u8 *arg0) {
     s32 i;
     u8 *p;
     u8 *tbl;
@@ -983,30 +983,30 @@ void func_80026C9C(u8 *arg0) {
 
     if (arg0 != NULL) {
         p = *(u8 **)(arg0 + 4);
-        *(s16 *)D_80029BA4 = (s16)(s32) * (f32 *)(D_807FBB48 + 0x7C);
+        *(s16 *)critterPlayerZone = (s16)(s32) * (f32 *)(D_807FBB48 + 0x7C);
         tbl = D_80029BAC + sel * 0x78;
-        *(s16 *)((u8 *)D_80029BA4 + 4) = (s16)(s32) * (f32 *)(D_807FBB48 + 0x84);
+        *(s16 *)((u8 *)critterPlayerZone + 4) = (s16)(s32) * (f32 *)(D_807FBB48 + 0x84);
         for (i = 0; i < (s32)arg0[0]; i++, p += 0xC) {
             idx = *p;
             if (idx > 0) {
                 idx = idx - 1;
             }
             e = tbl + idx * 0x18;
-            *(s16 *)((u8 *)D_80029BA4 + 2) = (s16)(s32)((f32) * (s16 *)(e + 0x14) + *(f32 *)(D_807FBB48 + 0x80));
-            *(C0cBlk5 *)((u8 *)D_80029BA4 + 8) = *(C0cBlk5 *)e;
+            *(s16 *)((u8 *)critterPlayerZone + 2) = (s16)(s32)((f32) * (s16 *)(e + 0x14) + *(f32 *)(D_807FBB48 + 0x80));
+            *(C0cBlk5 *)((u8 *)critterPlayerZone + 8) = *(C0cBlk5 *)e;
             critterDispatchAll(p);
         }
     }
 }
 
-extern void *D_80029BA0;
+extern void *critterGroups;
 void *memcpy(void *, const void *, unsigned int);
 void *func_80610FE8(s32);
 void heapClearBlock(void *);
 s16 func_806531B8(f32, f32, f32, s32);
-void func_80027118();
+void critterInitGroup();
 
-void func_80026E0C(u8 *arg0) {
+void critterLoadData(u8 *arg0) {
     s32 g;
     u8 *grp;
     u8 *ent;
@@ -1014,14 +1014,14 @@ void func_80026E0C(u8 *arg0) {
     u8 *src;
 
     if (arg0 != NULL) {
-        memcpy(D_80029BA0, arg0, 1);
+        memcpy(critterGroups, arg0, 1);
         src = arg0 + 1;
-        for (g = 0; g < *(u8 *)D_80029BA0; g++) {
+        for (g = 0; g < *(u8 *)critterGroups; g++) {
             j = 0;
             if (g == 0) {
-                *(void **)((u8 *)D_80029BA0 + 4) = func_80610FE8(*(u8 *)D_80029BA0 * 0xC);
-                heapClearBlock(*(void **)((u8 *)D_80029BA0 + 4));
-                grp = *(u8 **)((u8 *)D_80029BA0 + 4);
+                *(void **)((u8 *)critterGroups + 4) = func_80610FE8(*(u8 *)critterGroups * 0xC);
+                heapClearBlock(*(void **)((u8 *)critterGroups + 4));
+                grp = *(u8 **)((u8 *)critterGroups + 4);
             } else {
                 grp += 0xC;
             }
@@ -1045,31 +1045,31 @@ void func_80026E0C(u8 *arg0) {
                     src += 0x20;
                 } while (j < grp[1]);
             }
-            func_80027118(grp);
+            critterInitGroup(grp);
         }
     }
 }
 
-extern void *D_80029BA0;
-void func_80026E0C();
-void func_80026FD0(void *arg0) {
-    D_80029BA8 = 0;
-    D_80029BA0 = func_80610FE8(8);
-    heapClearBlock(D_80029BA0);
-    func_80026E0C(arg0);
-    D_80029BA4 = func_80610FE8(0x2C);
-    heapClearBlock(D_80029BA4);
+extern void *critterGroups;
+void critterLoadData();
+void critterInit(void *arg0) {
+    critterCurrentTexture = 0;
+    critterGroups = func_80610FE8(8);
+    heapClearBlock(critterGroups);
+    critterLoadData(arg0);
+    critterPlayerZone = func_80610FE8(0x2C);
+    heapClearBlock(critterPlayerZone);
 }
 
 extern s32 D_807FBB60;
-void func_80026C9C();
+void critterUpdateGroups();
 
 s32 critterRender(s32 arg0) {
     if (D_807FBB60 & 0x10) {
         if (!(D_807FBB60 & 2)) {
-            func_80026C9C(D_80029BA0);
+            critterUpdateGroups(critterGroups);
         }
-        arg0 = func_80025D1C(arg0, D_80029BA0);
+        arg0 = critterRenderGroups(arg0, critterGroups);
     }
     return arg0;
 }
@@ -1103,7 +1103,7 @@ void func_8002427C(u8 *);
 s32 func_807142D8(void);
 extern f32 D_80029F7C;
 
-void func_80027118(u8 *arg0) {
+void critterInitGroup(u8 *arg0) {
     u8 *ent;
     s32 i;
     u8 flag;
@@ -1138,9 +1138,9 @@ void func_80027118(u8 *arg0) {
     i = 0;
     if ((s32)arg0[2] > 0) {
         do {
-            func_80025F8C(*(s16 **)(arg0 + 4), ent, 1);
+            critterPlaceInZone(*(s16 **)(arg0 + 4), ent, 1);
             if (func_807142D8() == 0) {
-                func_80025F3C(*(void **)(arg0 + 4), ent, 1, 1);
+                critterSetRandomOffset(*(void **)(arg0 + 4), ent, 1, 1);
             }
             *(void **)(ent + 0x54) = *(void **)(ent + 0x58) = *(void **)(arg0 + 4);
             ent[0x1E2] = flag;

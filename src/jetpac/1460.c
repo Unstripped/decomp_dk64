@@ -54,7 +54,7 @@ typedef struct {
 } JetpacGame;
 
 extern JetpacGame D_8002EC30;
-void func_80025368(JetpacPlayerData *arg0);
+void jetpacNextPlayerOrGameOver(JetpacPlayerData *arg0);
 typedef struct {
     s32 x;
     s32 y;
@@ -69,10 +69,10 @@ typedef struct JetpacCell {
     u8 color[4];
 } JetpacCell;
 
-extern JetpacCell D_8002F3D0[24][32];
+extern JetpacCell jetpacGrid[24][32];
 
 void jetpacInitGrid(void) {
-    JetpacCell *cell = &D_8002F3D0[0][0];
+    JetpacCell *cell = &jetpacGrid[0][0];
     s32 row;
     s32 col;
 
@@ -85,14 +85,14 @@ void jetpacInitGrid(void) {
     }
 }
 
-void func_800254B8(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     JetpacCell *cell;
     s32 i;
     JetpacCellItem *item;
 
     item = NULL;
     if (arg1 >= 0 && arg2 >= 0 && arg1 < 0x101 && arg2 < 0xC1) {
-        cell = &D_8002F3D0[0][0] + (arg1 / 8 + ((arg2 / 8) << 5));
+        cell = &jetpacGrid[0][0] + (arg1 / 8 + ((arg2 / 8) << 5));
         if (cell->count < 6) {
             item = &cell->items[cell->count++];
         }
@@ -150,7 +150,7 @@ typedef struct {
 
 extern J1aSprite D_80042BD0[][256];
 extern u8 D_807444FC;
-void func_800254B8(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 
 void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 ya;
@@ -212,7 +212,7 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
                         if (xd >= 0x100) {
                             xd -= 0x100;
                         }
-                        func_800254B8((JetpacSprite *)dst, xd, ya, arg3, arg4);
+                        jetpacGridAddSprite((JetpacSprite *)dst, xd, ya, arg3, arg4);
                         dx = xEnd;
                         xEnd = xEnd + arg1;
                         if (!w) {
@@ -237,7 +237,7 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 #endif
 
 
-void func_80025904(Gfx **arg0) {
+void jetpacGridDraw(Gfx **arg0) {
     JetpacCell *cell;
     JetpacCellItem *item;
     s32 item_idx;
@@ -246,7 +246,7 @@ void func_80025904(Gfx **arg0) {
     s32 row;
 
     g = *arg0;
-    cell = &D_8002F3D0[0][0];
+    cell = &jetpacGrid[0][0];
     for (row = 0; row < 24; row++) {
         col = 0;
         do {

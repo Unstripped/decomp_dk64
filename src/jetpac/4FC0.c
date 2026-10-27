@@ -45,8 +45,8 @@ typedef struct {
 } JetpacGlobal;
 
 extern JetpacGlobal D_8002EC30;
-s32 func_80027250(f32, f32, f32, f32, f32, f32, f32, f32);
-void func_8002976C(JetpacActor *actor);
+s32 jetpacCheckAabbOverlapWrapped(f32, f32, f32, f32, f32, f32, f32, f32);
+void jetpacActorUpdateStraight(JetpacActor *actor);
 
 extern void *D_8002E890;
 extern void *D_8002E8C0;
@@ -56,34 +56,34 @@ extern void *D_8002E8A8;
 extern s32 D_8002BA6C;
 extern void *D_8002E878;
 void func_80029F7C(JetpacActor *);
-void func_8002A758(JetpacActor *);
+void jetpacActorUpdateHop(JetpacActor *);
 void func_8002A67C(JetpacActor *);
-void func_8002998C(JetpacActor *actor);
-f32 func_8002A2DC(f32 arg0, f32 arg1);
+void jetpacActorUpdateBounce(JetpacActor *actor);
+f32 jetpacActorAccelClamp(f32 arg0, f32 arg1);
 f32 jetpacRandFloat(void);
 void func_80029B90(JetpacActor *);
-void func_80029C1C(JetpacActor *);
-void func_8002A254(JetpacActor *arg0);
-void func_8002A530(JetpacActor *actor);
+void jetpacActorUpdateWander(JetpacActor *);
+void jetpacActorInitHoming(JetpacActor *arg0);
+void jetpacActorUpdateHoming(JetpacActor *actor);
 f32 jetpacGetEntityCenterY(JetpacActor *);
 extern f32 D_8002F054;
 extern s32 D_8002F078;
-void func_8002A374(JetpacActor *actor);
-s32 func_80026FE0(void);
-void func_80029204(JetpacActor *actor);
+void jetpacActorSteerToPlayer(JetpacActor *actor);
+s32 jetpacIsSpawnDelay(void);
+void jetpacDrawActor(JetpacActor *actor);
 JetpacActor *jetpacFindFreeActor(void);
-extern JetpacActor D_8002F1DC[];
+extern JetpacActor jetpacActors[];
 extern JetpacActor D_8002E964;
 extern JetpacActor D_8002E914;
-JetpacActor *func_800292C4(void);
+JetpacActor *jetpacAllocActor(void);
 extern s32 D_8002E8F0;
-void func_80029450(void);
+void jetpacSpawnActor(void);
 s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
-s32 func_80029064(JetpacActor *);
-void func_800294EC(JetpacActor *, s32);
-void func_80024E70(s32 arg0);
+s32 jetpacCheckPlayerHit(JetpacActor *);
+void jetpacBounceOffLedge(JetpacActor *, s32);
+void jetpacPlaySound(s32 arg0);
 void func_80025700(void *, s32, s32, void *, s32);
-void func_80025A60(void *);
+void jetpacUpdateExplosion(void *);
 Gfx *func_806FD490(Gfx *, s32, s16, s16, s32);
 void func_80029640(JetpacActor *actor, f32 a1, f32 a2);
 void func_800298C8(JetpacActor *actor);
@@ -91,7 +91,7 @@ extern u8 D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3;
 extern u8 D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC;
 
 JetpacActor *jetpacFindFreeActor(void) {
-    JetpacActor *actor = D_8002F1DC;
+    JetpacActor *actor = jetpacActors;
     s32 i = 0;
 
     do {
@@ -110,11 +110,11 @@ typedef struct {
 
 extern s32 D_8002F064;
 extern s32 D_8002F07C;
-extern JetpacActor D_8002F050;
+extern JetpacActor jetpacPlayer;
 void jetpacSnapActorToGrid(JetpacActor *);
-void func_800291AC(JetpacActor *);
+void jetpacActorExplode(JetpacActor *);
 
-s32 func_80029064(JetpacActor *arg0) {
+s32 jetpacCheckPlayerHit(JetpacActor *arg0) {
     s32 pad[7];
     f32 loc[2];
     s32 ret;
@@ -141,27 +141,27 @@ s32 func_80029064(JetpacActor *arg0) {
     px += (f32)(p->unk1C + 2);
     py += (f32)(p->unk20 + 4);
     if (p->unk14 == 3) {
-        ret = func_80027250(ax, ay, x2, y2, px, py, loc[1], loc[0]);
+        ret = jetpacCheckAabbOverlapWrapped(ax, ay, x2, y2, px, py, loc[1], loc[0]);
     }
     if (ret != 0) {
         D_8002F064 = 4;
         D_8002F07C = 0;
-        jetpacSnapActorToGrid(&D_8002F050);
-        func_800291AC(arg0);
+        jetpacSnapActorToGrid(&jetpacPlayer);
+        jetpacActorExplode(arg0);
     }
     return ret;
 }
 
-void func_800291AC(JetpacActor *arg0) {
+void jetpacActorExplode(JetpacActor *arg0) {
     arg0->unk14 = 4;
     arg0->unk2C = 0;
     arg0->unk38 = 0;
     arg0->unk30 = (s32)arg0->unk0 & 0xFFF8;
     arg0->unk34 = (s32)arg0->unk4 & 0xFFF8;
-    func_80024E70(5);
+    jetpacPlaySound(5);
 }
 
-void func_80029204(JetpacActor *arg0) {
+void jetpacDrawActor(JetpacActor *arg0) {
     s32 temp_v0 = arg0->unk14;
 
     if (temp_v0 == 3) {
@@ -169,14 +169,14 @@ void func_80029204(JetpacActor *arg0) {
         return;
     }
     if (temp_v0 == 4) {
-        func_80025A60(&arg0->unk30);
+        jetpacUpdateExplosion(&arg0->unk30);
         if (arg0->unk38 < 7) {
             func_80025700(arg0->unk4C, (s32)arg0->unk0, (s32)arg0->unk4, &arg0->unk10, arg0->unk18);
         }
     }
 }
 
-JetpacActor *func_800292C4(void) {
+JetpacActor *jetpacAllocActor(void) {
     s32 pad;
     JetpacActor *actor;
     JetpacActor sp20;
@@ -210,7 +210,7 @@ JetpacActor *func_800292C4(void) {
 
 extern void (*D_8002E8F4[])(JetpacActor *);
 
-void func_80029450(void) {
+void jetpacSpawnActor(void) {
     s32 pad[2];
     void (*fn)(JetpacActor *);
     JetpacActor *actor;
@@ -222,7 +222,7 @@ void func_80029450(void) {
     p = g->players[g->currentPlayer].unk1C;
     idx = p[0];
     fn = D_8002E8F4[idx % 8];
-    actor = func_800292C4();
+    actor = jetpacAllocActor();
     if (actor != NULL) {
         fn(actor);
         actor->unk14 = 3;
@@ -243,7 +243,7 @@ typedef struct {
     J4Ledge ledges[4];
 } J4Global2;
 
-void func_800294EC(JetpacActor *arg0, s32 arg1) {
+void jetpacBounceOffLedge(JetpacActor *arg0, s32 arg1) {
     J4Ledge *l;
     f32 ax1;
     f32 ax2;
@@ -286,7 +286,7 @@ void func_80029640(JetpacActor *actor, f32 a1, f32 a2) {
         actor->unk8 = -a1;
         actor->unk18 = 1;
     }
-    p = D_8002F1DC;
+    p = jetpacActors;
     for (i = 0; i != 6; i++) {
         if (p->unk14 > 0) {
             if (p->unkC == 0.0f) {
@@ -310,15 +310,15 @@ void func_80029640(JetpacActor *actor, f32 a1, f32 a2) {
     }
 }
 
-void func_8002976C(JetpacActor *arg0) {
+void jetpacActorUpdateStraight(JetpacActor *arg0) {
     switch (arg0->unk14) {
     case 3:
         if (jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
                           (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
                           (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                           (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1) >= 0) {
-            func_800291AC(arg0);
-        } else if (func_80029064(arg0) == 0) {
+            jetpacActorExplode(arg0);
+        } else if (jetpacCheckPlayerHit(arg0) == 0) {
             arg0->unk0 += arg0->unk8;
             arg0->unk4 += arg0->unkC;
         }
@@ -339,12 +339,12 @@ void func_80029884(JetpacActor *actor) {
 }
 
 void func_800298C8(JetpacActor *actor) {
-    func_8002976C(actor);
+    jetpacActorUpdateStraight(actor);
     actor->unk4C = &D_8002E800[(s32)actor->unk0 % 2];
 }
 
 void func_8002992C(JetpacActor *arg0) {
-    arg0->unk48 = func_8002998C;
+    arg0->unk48 = jetpacActorUpdateBounce;
     arg0->unk44 = 0x50;
     if (arg0->unk4 < 88.0f) {
         arg0->unk8 = -1.2f;
@@ -355,7 +355,7 @@ void func_8002992C(JetpacActor *arg0) {
     arg0->unk4C = &D_8002E830;
 }
 
-void func_8002998C(JetpacActor *arg0) {
+void jetpacActorUpdateBounce(JetpacActor *arg0) {
     s32 res;
 
     switch (arg0->unk14) {
@@ -365,9 +365,9 @@ void func_8002998C(JetpacActor *arg0) {
                             (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
         if (res >= 0) {
-            func_800294EC(arg0, res);
+            jetpacBounceOffLedge(arg0, res);
         }
-        if (func_80029064(arg0) == 0) {
+        if (jetpacCheckPlayerHit(arg0) == 0) {
             if ((arg0->unk4 + arg0->unkC) < 24.0f) {
                 arg0->unkC = -arg0->unkC;
             }
@@ -388,7 +388,7 @@ void func_8002998C(JetpacActor *arg0) {
 }
 
 void func_80029AF8(JetpacActor *arg0) {
-    arg0->unk48 = func_80029C1C;
+    arg0->unk48 = jetpacActorUpdateWander;
     arg0->unk44 = 0x28;
     if (arg0->unk4 < 88.0f) {
         arg0->unk8 = -1.2f;
@@ -411,7 +411,7 @@ void func_80029B90(JetpacActor *arg0) {
     arg0->unkC = 0.0f;
 }
 
-void func_80029C1C(JetpacActor *arg0) {
+void jetpacActorUpdateWander(JetpacActor *arg0) {
     s32 res;
 
     switch (arg0->unk14) {
@@ -425,12 +425,12 @@ void func_80029C1C(JetpacActor *arg0) {
                             (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
         if (res >= 0) {
-            func_800294EC(arg0, res);
+            jetpacBounceOffLedge(arg0, res);
             if (arg0->unk2C < 10) {
                 arg0->unk2C = 10;
             }
         }
-        if (func_80029064(arg0) == 0) {
+        if (jetpacCheckPlayerHit(arg0) == 0) {
             if ((arg0->unk4 + arg0->unkC) < 24.0f) {
                 arg0->unkC = -arg0->unkC;
             }
@@ -476,19 +476,19 @@ void func_80029F7C(JetpacActor *arg0) {
                               (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
                               (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                               (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1) >= 0) {
-                func_800291AC(arg0);
+                jetpacActorExplode(arg0);
             } else {
                 arg0->unk40--;
             }
             if (arg0->unk40 == 0) {
-                func_800291AC(arg0);
+                jetpacActorExplode(arg0);
             }
         } else if (D_8002BA6C != 0 && arg0->unk4 < 32.0f) {
-            func_800291AC(arg0);
+            jetpacActorExplode(arg0);
         }
 
         if (arg0->unk14 == 3) {
-            func_80029064(arg0);
+            jetpacCheckPlayerHit(arg0);
         }
         if (arg0->unk14 == 4) {
             s32 *p = D_8002EC30.players[D_8002EC30.currentPlayer].unk1C;
@@ -534,24 +534,24 @@ void func_80029F7C(JetpacActor *arg0) {
     }
 }
 
-void func_8002A254(JetpacActor *arg0) {
-    arg0->unk48 = func_8002A530;
+void jetpacActorInitHoming(JetpacActor *arg0) {
+    arg0->unk48 = jetpacActorUpdateHoming;
     arg0->unk44 = 0x32;
     if (arg0->unk4 < 88.0f) {
         arg0->unk18 = 0;
     } else {
         arg0->unk18 = 1;
     }
-    func_8002A374(arg0);
+    jetpacActorSteerToPlayer(arg0);
 }
 
 void func_8002A2AC(JetpacActor *arg0) {
     arg0->unk28 = 8;
     arg0->unk4C = &D_8002E890;
-    func_8002A254(arg0);
+    jetpacActorInitHoming(arg0);
 }
 
-f32 func_8002A2DC(f32 arg0, f32 arg1) {
+f32 jetpacActorAccelClamp(f32 arg0, f32 arg1) {
     f64 d;
     f64 r;
 
@@ -567,7 +567,7 @@ f32 func_8002A2DC(f32 arg0, f32 arg1) {
 
 f32 jetpacGetEntityCenterX(JetpacActor *);
 
-void func_8002A374(JetpacActor *arg0) {
+void jetpacActorSteerToPlayer(JetpacActor *arg0) {
     f32 cx2;
     f32 dx;
     f32 dxw;
@@ -578,7 +578,7 @@ void func_8002A374(JetpacActor *arg0) {
     f32 cx1;
 
     cx1 = jetpacGetEntityCenterX(arg0);
-    cx2 = jetpacGetEntityCenterX(&D_8002F050);
+    cx2 = jetpacGetEntityCenterX(&jetpacPlayer);
     dx = cx2 - cx1;
     if (cx1 < cx2) {
         dxw = dx - 256.0f;
@@ -601,24 +601,24 @@ void func_8002A374(JetpacActor *arg0) {
     } else {
         ry = dyw;
     }
-    arg0->unk8 = func_8002A2DC(rx, arg0->unk8);
-    arg0->unkC = func_8002A2DC(ry, arg0->unkC);
+    arg0->unk8 = jetpacActorAccelClamp(rx, arg0->unk8);
+    arg0->unkC = jetpacActorAccelClamp(ry, arg0->unkC);
 }
 
-void func_8002A530(JetpacActor *arg0) {
+void jetpacActorUpdateHoming(JetpacActor *arg0) {
     s32 res;
 
     switch (arg0->unk14) {
     case 3:
-        func_8002A374(arg0);
+        jetpacActorSteerToPlayer(arg0);
         res = jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
                             (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
         if (res >= 0) {
-            func_800294EC(arg0, res);
+            jetpacBounceOffLedge(arg0, res);
         }
-        if (func_80029064(arg0) == 0) {
+        if (jetpacCheckPlayerHit(arg0) == 0) {
             if ((arg0->unk4 + arg0->unkC) < 24.0f) {
                 arg0->unkC = -arg0->unkC;
             }
@@ -643,7 +643,7 @@ void func_8002A67C(JetpacActor *arg0) {
 }
 
 void func_8002A6C0(JetpacActor *arg0) {
-    arg0->unk48 = func_8002A758;
+    arg0->unk48 = jetpacActorUpdateHop;
     arg0->unk44 = 0x3C;
     arg0->unk2C = (s32)(jetpacRandFloat() * 16.0f);
     if (arg0->unk4 < 88.0f) {
@@ -655,7 +655,7 @@ void func_8002A6C0(JetpacActor *arg0) {
     arg0->unk4C = &D_8002E8A8;
 }
 
-void func_8002A758(JetpacActor *arg0) {
+void jetpacActorUpdateHop(JetpacActor *arg0) {
     s32 res;
     f32 prev;
     f32 cur;
@@ -669,13 +669,13 @@ void func_8002A758(JetpacActor *arg0) {
                             (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
                             (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
         if (res >= 0) {
-            func_800294EC(arg0, res);
+            jetpacBounceOffLedge(arg0, res);
             cur = arg0->unkC;
             if (prev > 0.0f && cur < 0.0f) {
                 func_8002A67C(arg0);
             }
         }
-        if (func_80029064(arg0) == 0) {
+        if (jetpacCheckPlayerHit(arg0) == 0) {
             if ((arg0->unk4 + arg0->unkC) < 24.0f) {
                 arg0->unkC = -arg0->unkC;
             }
@@ -696,29 +696,29 @@ void func_8002A8F0(JetpacActor *actor) {
     actor->unk28 = 0xE;
     actor->unk4C = &D_8002E8C0;
     func_80029640(actor, 1.2f, 0.3f);
-    actor->unk48 = func_8002976C;
+    actor->unk48 = jetpacActorUpdateStraight;
 }
 
 void func_8002A944(JetpacActor *arg0) {
     arg0->unk28 = 0xE;
     arg0->unk4C = &D_8002E8D8;
-    func_8002A254(arg0);
+    jetpacActorInitHoming(arg0);
 }
 
-s32 func_8002A974(f32 x1, f32 y1, f32 x2, f32 y2) {
-    JetpacActor *actor = D_8002F1DC;
+s32 jetpacKillActorInBox(f32 x1, f32 y1, f32 x2, f32 y2) {
+    JetpacActor *actor = jetpacActors;
     s32 *playerData;
     s32 i;
 
     for (i = 0; i < 6; i++, actor++) {
         if (actor->unk14 == 3) {
-            if (func_80027250(x1, y1, x2, y2,
+            if (jetpacCheckAabbOverlapWrapped(x1, y1, x2, y2,
                               actor->unk0 + (f32)actor->unk1C,
                               actor->unk4 + (f32)actor->unk20,
                               actor->unk0 + (f32)actor->unk24,
                               actor->unk4 + (f32)actor->unk28)) {
                 playerData = D_8002EC30.players[D_8002EC30.currentPlayer].unk1C;
-                func_800291AC(actor);
+                jetpacActorExplode(actor);
                 playerData[1] += actor->unk44;
                 return 1;
             }
@@ -727,13 +727,13 @@ s32 func_8002A974(f32 x1, f32 y1, f32 x2, f32 y2) {
     return 0;
 }
 
-void func_8002AAD4(void) {
+void jetpacInitActors(void) {
     s32 i;
     JetpacActor sp24;
     JetpacActor *actor;
 
     sp24 = D_8002E964;
-    actor = D_8002F1DC;
+    actor = jetpacActors;
     i = 0;
     do {
         *actor++ = sp24;
@@ -741,19 +741,19 @@ void func_8002AAD4(void) {
     } while (i < 6);
 
     for (i = 0; i < 3; i++) {
-        func_80029450();
+        jetpacSpawnActor();
     }
     D_8002E8F0 = (s32)(jetpacRandFloat() * 180.0f);
 }
 
 extern s32 D_8002F3BC;
 
-void func_8002ABDC(void) {
-    JetpacActor *actor = D_8002F1DC;
+void jetpacUpdateActors(void) {
+    JetpacActor *actor = jetpacActors;
     s32 cnt = 0;
     s32 i;
 
-    if (func_80026FE0() == 0) {
+    if (jetpacIsSpawnDelay() == 0) {
         if (D_8002E8F0 > 0) {
             D_8002E8F0--;
         }
@@ -773,7 +773,7 @@ void func_8002ABDC(void) {
             D_8002E8F0 = (s32)(jetpacRandFloat() * 5.0f);
         }
         if (D_8002E8F0 == 0 && D_8002F3BC == 2) {
-            func_80029450();
+            jetpacSpawnActor();
             cnt++;
             if (cnt < 3) {
                 D_8002E8F0 = (s32)(jetpacRandFloat() * 5.0f);
@@ -784,20 +784,20 @@ void func_8002ABDC(void) {
     }
 }
 
-void func_8002AD8C(void) {
-    JetpacActor *actor = D_8002F1DC;
+void jetpacDrawActors(void) {
+    JetpacActor *actor = jetpacActors;
     s32 i;
 
-    if (func_80026FE0() == 0) {
+    if (jetpacIsSpawnDelay() == 0) {
         for (i = 0; i < 6; i++, actor++) {
             if (actor->unk14 >= 2 && actor->unk4C != NULL) {
-                func_80029204(actor);
+                jetpacDrawActor(actor);
             }
         }
     }
 }
 
-void func_8002AE00(Gfx **arg0) {
+void jetpacSetupTextRdp(Gfx **arg0) {
     Gfx *g = *arg0;
     WRITE_GFX(g++, 0xE7000000, 0);
     WRITE_GFX(g++, 0xE3000A01, 0);
@@ -808,21 +808,21 @@ void func_8002AE00(Gfx **arg0) {
     *arg0 = g;
 }
 
-void func_8002AE94(s8 arg0, s8 arg1, s8 arg2, s8 arg3) {
+void jetpacSetTextColor(s8 arg0, s8 arg1, s8 arg2, s8 arg3) {
     D_80045BE0 = arg0;
     D_80045BE1 = arg1;
     D_80045BE2 = arg2;
     D_80045BE3 = arg3;
 }
 
-void func_8002AEC8(s8 arg0, s8 arg1, s8 arg2, s8 arg3) {
+void jetpacSetTextHighlightColor(s8 arg0, s8 arg1, s8 arg2, s8 arg3) {
     D_8002E9C0 = arg0;
     D_8002E9C4 = arg1;
     D_8002E9C8 = arg2;
     D_8002E9CC = arg3;
 }
 
-void func_8002AEFC(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void jetpacDrawString(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     Gfx *g = *arg0;
 
     if (arg4 != 0) {

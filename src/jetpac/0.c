@@ -1,25 +1,25 @@
 #include "common.h"
 
 void jetpacInitLedges(void);
-void func_80024390(void);
-void func_800250A0(void);
+void jetpacResetPlayers(void);
+void jetpacStartStage(void);
 void func_80024408(s32);
-void func_800286D0(void);
+void jetpacUpdateRocketFlight(void);
 void jetpacInitRdp(s32);
 void func_80028E88(void);
 void func_800289EC(void);
-void func_80025904(s32);
+void jetpacGridDraw(s32);
 void func_8060C648(s32, s32, s32, s32, s32);
 void func_8060DEA8(void);
 extern s32 D_8002EC48;
 void n_alSndpStop(s32);
 extern s32 D_80770DF8[];
 void n_alSndpPostEvent(s32, ...);
-void func_80026CEC(void);
-void func_8002ABDC(void);
-void func_8002AD8C(void);
+void jetpacUpdateLasers(void);
+void jetpacUpdateActors(void);
+void jetpacDrawActors(void);
 void func_800285DC(void);
-void func_80026CA4(void);
+void jetpacDrawLasers(void);
 extern s32 D_8076D1F8;
 extern s16 D_8002BA52[];
 extern s32 D_80770E14[];
@@ -59,15 +59,15 @@ typedef struct {
 
 extern JetpacGlobal D_8002EC30;
 
-void func_80027D64(JetpacPlayer *);
-void func_800275F4(JetpacPlayer *);
-void func_80028340(JetpacPlayer *);
-void func_80024F9C(s32);
-void func_80028950(void);
-void func_80026DC8(void);
-void func_8002AAD4(void);
-void func_80028B54(JetpacPlayer *);
-void func_80028634(void);
+void jetpacSpawnBonusItem(JetpacPlayer *);
+void jetpacInitRocketParts(JetpacPlayer *);
+void jetpacSpawnFuelPod(JetpacPlayer *);
+void jetpacSetState(s32);
+void jetpacPlaceRocketAboveScreen(void);
+void jetpacInitPlayer(void);
+void jetpacInitActors(void);
+void jetpacSetRocketSpriteFrames(JetpacPlayer *);
+void jetpacPlaceRocketOnPad(void);
 extern s32 D_8002F064;
 
 void controllerStartRead(void);
@@ -80,7 +80,7 @@ Gfx *func_805FE4D4(Gfx *);
 Gfx *func_80610FE8(s32);
 void heapFreeDeferred(void *);
 void func_80025168();
-void func_8002419C(u8 *, Gfx **);
+void jetpacBuildDisplayList(u8 *, Gfx **);
 
 extern u8 D_807444FC;
 extern u8 D_807444EC;
@@ -97,7 +97,7 @@ extern Gfx D_1000090;
 extern Gfx D_1000040;
 extern Gfx D_2000080;
 
-void func_80024000(void) {
+void jetpacRunFrame(void) {
     Gfx *sp2C;
     u8 *sp28;
 
@@ -110,7 +110,7 @@ void func_80024000(void) {
     if ((D_8076A0B1 & 1) && D_807FD888 == 31.0f) {
         sp2C = D_8076A050[D_807444FC];
     } else {
-        func_8002419C(D_8076A048, &sp2C);
+        jetpacBuildDisplayList(D_8076A048, &sp2C);
     }
     sp2C = func_80704484(sp2C, 0);
     if (D_807444EC != 4) {
@@ -123,7 +123,7 @@ void func_80024000(void) {
 }
 
 #define J0a_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-void func_8002419C(u8 *arg0, Gfx **arg1) {
+void jetpacBuildDisplayList(u8 *arg0, Gfx **arg1) {
     Gfx *sp6C;
     Gfx *sp68;
     Gfx *glist;
@@ -155,7 +155,7 @@ void func_8002419C(u8 *arg0, Gfx **arg1) {
 
 extern JetpacPlayer D_8002EC4C[];
 
-void func_80024390(void) {
+void jetpacResetPlayers(void) {
     s32 i;
     for (i = 0; i < 2; i++) {
         D_8002EC30.players[i].stage = -1;
@@ -174,10 +174,10 @@ void func_80024390(void) {
 }
 
 extern s32 D_8002BA6C;
-s32 func_80026FE0(void);
-void func_8002AE00(s32);
-void func_8002AE94(s32, s32, s32, s32);
-void func_8002AEFC(s32, char *, s32, s32, s32);
+s32 jetpacIsSpawnDelay(void);
+void jetpacSetupTextRdp(s32);
+void jetpacSetTextColor(s32, s32, s32, s32);
+void jetpacDrawString(s32, char *, s32, s32, s32);
 s32 _sprintf(char *, char *, ...);
 
 #ifdef NON_MATCHING
@@ -191,36 +191,36 @@ void func_80024408(s32 arg0) {
     s32 i;
     s32 pad;
 
-    mask = func_80026FE0() & D_8002BA6C;
-    func_8002AE00(arg0);
-    func_8002AE94(0xFF, 0xFF, 0xFF, 0xFF);
-    func_8002AEFC(arg0, "1UP", 0x38, 0x18, mask != 0 && D_8002EF74 == 0);
+    mask = jetpacIsSpawnDelay() & D_8002BA6C;
+    jetpacSetupTextRdp(arg0);
+    jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+    jetpacDrawString(arg0, "1UP", 0x38, 0x18, mask != 0 && D_8002EF74 == 0);
     for (i = 0; i < 2; i++) {
         if (D_8002EC4C[i].lives > 0) {
             _sprintf(buf, "%d!", D_8002EC4C[i].lives);
-            func_8002AEFC(arg0, buf, i * 0x70 + 0x60, 0x18, 0);
+            jetpacDrawString(arg0, buf, i * 0x70 + 0x60, 0x18, 0);
         }
     }
-    func_8002AEFC(arg0, "2UP", 0xF8, 0x18, mask != 0 && D_8002EF74 == 1);
-    func_8002AE94(0, 0xFF, 0xFF, 0xFF);
-    func_8002AEFC(arg0, "HI", 0x98, 0x18, 0);
-    func_8002AE94(0xFF, 0xFF, 0, 0xFF);
+    jetpacDrawString(arg0, "2UP", 0xF8, 0x18, mask != 0 && D_8002EF74 == 1);
+    jetpacSetTextColor(0, 0xFF, 0xFF, 0xFF);
+    jetpacDrawString(arg0, "HI", 0x98, 0x18, 0);
+    jetpacSetTextColor(0xFF, 0xFF, 0, 0xFF);
     _sprintf(buf, "%06d", D_8002EC50);
-    func_8002AEFC(arg0, buf, 0x28, 0x20, 0);
+    jetpacDrawString(arg0, buf, 0x28, 0x20, 0);
     _sprintf(buf, "%06d", D_8002EC48);
-    func_8002AEFC(arg0, buf, 0x88, 0x20, 0);
+    jetpacDrawString(arg0, buf, 0x88, 0x20, 0);
     _sprintf(buf, "%06d", D_8002EDE4);
-    func_8002AEFC(arg0, buf, 0xE8, 0x20, 0);
+    jetpacDrawString(arg0, buf, 0xE8, 0x20, 0);
 }
 #else
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024408.s")
 #endif
 
-void func_8002463C(void) {
+void jetpacStartGame(void) {
     jetpacInitLedges();
-    func_80024390();
-    func_800250A0();
+    jetpacResetPlayers();
+    jetpacStartStage();
 }
 
 typedef struct {
@@ -240,27 +240,27 @@ typedef struct {
 } J0aGlobalView;
 #define J0aG ((J0aGlobalView *)&D_8002EC30)
 
-void func_8002466C(s32 arg0) {
+void jetpacStateSelection(s32 arg0) {
     s32 flags;
     char buf[0x24];
 
     func_80024408(arg0);
-    func_8002AE94(0xFF, 0xFF, 0xFF, 0xFF);
-    func_8002AEFC(arg0, "JETPAC GAME SELECTION", 0x50, 0x38, 0);
-    func_8002AEFC(arg0, "1@@@1@PLAYER@GAME", 0x50, 0x50, D_8002BA6C != 0 && J0aG->unk348 == 1);
-    func_8002AEFC(arg0, "2@@@2@PLAYER@GAME", 0x50, 0x60, D_8002BA6C != 0 && J0aG->unk348 == 2);
-    func_8002AEFC(arg0, "3@@@KEYBOARD", 0x50, 0x70, D_8002BA6C != 0 && J0aG->unk34C == 0);
-    func_8002AEFC(arg0, "4@@@KEMPSTON@JOYSTICK", 0x50, 0x80, D_8002BA6C != 0 && J0aG->unk34C != 0);
-    func_8002AEFC(arg0, "5   START GAME", 0x50, 0xB8, 0);
+    jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+    jetpacDrawString(arg0, "JETPAC GAME SELECTION", 0x50, 0x38, 0);
+    jetpacDrawString(arg0, "1@@@1@PLAYER@GAME", 0x50, 0x50, D_8002BA6C != 0 && J0aG->unk348 == 1);
+    jetpacDrawString(arg0, "2@@@2@PLAYER@GAME", 0x50, 0x60, D_8002BA6C != 0 && J0aG->unk348 == 2);
+    jetpacDrawString(arg0, "3@@@KEYBOARD", 0x50, 0x70, D_8002BA6C != 0 && J0aG->unk34C == 0);
+    jetpacDrawString(arg0, "4@@@KEMPSTON@JOYSTICK", 0x50, 0x80, D_8002BA6C != 0 && J0aG->unk34C != 0);
+    jetpacDrawString(arg0, "5   START GAME", 0x50, 0xB8, 0);
     _sprintf(buf, "%c1983 A.C.G. ALL RIGHTS RESERVED", 0x7F);
-    func_8002AEFC(arg0, buf, 0x20, 0xD8, 0);
+    jetpacDrawString(arg0, buf, 0x20, 0xD8, 0);
     if (J0aG->unk798 != 0) {
         if (!(J0aG->unk8 & 0x1000) && J0aG->unk799 < 0x78) {
             J0aG->unk799++;
             return;
         }
         J0aG->unk799 = 0;
-        func_8002463C();
+        jetpacStartGame();
         return;
     }
     flags = J0aG->unk8;
@@ -271,22 +271,22 @@ void func_8002466C(s32 arg0) {
         J0aG->unk34C ^= 1;
     }
     if (flags & 0x1000) {
-        func_8002463C();
+        jetpacStartGame();
     }
 }
 
-void func_800248A0(s32 arg0) {
+void jetpacStateLanding(s32 arg0) {
     func_80024408(arg0);
-    func_800286D0();
+    jetpacUpdateRocketFlight();
     jetpacInitRdp(arg0);
     func_80028E88();
     func_800289EC();
-    func_80025904(arg0);
+    jetpacGridDraw(arg0);
 }
 
 void jetpacPlayerStateUpdate(void);
 void jetpacItemsUpdate(void);
-void func_80026AB0(void);
+void jetpacDrawPlayer(void);
 
 typedef struct {
     u8 pad0[0x44];
@@ -294,7 +294,7 @@ typedef struct {
     u8 pad48[4];
 } J0aItem;
 
-void func_800248E8(s32 arg0) {
+void jetpacStateGameplay(s32 arg0) {
     JetpacPlayer *sp1C = &D_8002EC30.players[D_8002EC30.active_player];
 
     if (sp1C->score >= 1000000) {
@@ -304,22 +304,22 @@ void func_800248E8(s32 arg0) {
     if (((J0aItem *)&sp1C->pad14[sp1C->unk10 * 0x4C])->unk44) {
     }
     jetpacPlayerStateUpdate();
-    func_80026CEC();
+    jetpacUpdateLasers();
     sp1C->unk18C(&sp1C->unk148);
     {
         J0aItem *it = (J0aItem *)&sp1C->pad14[sp1C->unk10 * 0x4C];
         it->unk44(it);
     }
-    func_8002ABDC();
+    jetpacUpdateActors();
     jetpacInitRdp(arg0);
     func_80028E88();
-    func_80026AB0();
-    func_8002AD8C();
+    jetpacDrawPlayer();
+    jetpacDrawActors();
     jetpacItemsUpdate();
     func_800285DC();
-    func_80026CA4();
-    func_80025904(arg0);
-    if (func_80026FE0() != 0) {
+    jetpacDrawLasers();
+    jetpacGridDraw(arg0);
+    if (jetpacIsSpawnDelay() != 0) {
         J0aG->unk44C++;
     }
     if (J0aG->unk8 & 0x1000) {
@@ -328,7 +328,7 @@ void func_800248E8(s32 arg0) {
     }
 }
 
-void func_80024A4C(void) {
+void jetpacSaveHighScore(void) {
     func_8060C648(0x11, 0, 0, 0, D_8002EC48);
     func_8060DEA8();
 }
@@ -337,15 +337,15 @@ s32 flagGet(s32, s32);
 void func_805FF378(s32, s32);
 s32 func_8060C6B8(s32, s32, s32, s32);
 void func_8060C8AC(s32);
-void func_80025368(JetpacPlayer *);
+void jetpacNextPlayerOrGameOver(JetpacPlayer *);
 
 
-void func_80024A8C(s32 arg0) {
+void jetpacStatePause(s32 arg0) {
     func_80024408(arg0);
-    func_8002AE94(0xFF, 0xFF, 0xFF, 0xFF);
-    func_8002AEFC(arg0, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && D_8002EC30.unkC == 1);
-    func_8002AEFC(arg0, "DELETE@HISCORE", 0x68, 0x80, D_8002BA6C != 0 && D_8002EC30.unkC == 2);
-    func_8002AEFC(arg0, "EXIT@@JETPAC", 0x70, 0x90, D_8002BA6C != 0 && D_8002EC30.unkC == 0);
+    jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+    jetpacDrawString(arg0, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && D_8002EC30.unkC == 1);
+    jetpacDrawString(arg0, "DELETE@HISCORE", 0x68, 0x80, D_8002BA6C != 0 && D_8002EC30.unkC == 2);
+    jetpacDrawString(arg0, "EXIT@@JETPAC", 0x70, 0x90, D_8002BA6C != 0 && D_8002EC30.unkC == 0);
     if (D_8002EC30.unk8 & 0xE000) {
         switch (D_8002EC30.unkC) {
         default:
@@ -359,7 +359,7 @@ void func_80024A8C(s32 arg0) {
             if (D_8002EC30.high_score != 0) {
                 func_8060C8AC(1);
                 D_8002EC30.high_score = func_8060C6B8(0x11, 0, 0, 0);
-                func_80024A4C();
+                jetpacSaveHighScore();
             }
             break;
         }
@@ -378,24 +378,24 @@ void func_80024A8C(s32 arg0) {
     }
 }
 
-void func_80024C90(s32 arg0) {
+void jetpacStateTakeoff(s32 arg0) {
     JetpacPlayer *sp1C = &D_8002EC30.players[D_8002EC30.active_player];
 
     func_80024408(arg0);
-    func_80026CEC();
+    jetpacUpdateLasers();
     sp1C->unk18C(&sp1C->unk148);
-    func_800286D0();
-    func_8002ABDC();
+    jetpacUpdateRocketFlight();
+    jetpacUpdateActors();
     jetpacInitRdp(arg0);
     func_80028E88();
-    func_8002AD8C();
+    jetpacDrawActors();
     func_800289EC();
     func_800285DC();
-    func_80026CA4();
-    func_80025904(arg0);
+    jetpacDrawLasers();
+    jetpacGridDraw(arg0);
 }
 
-void func_80024D48(s32 arg0) {
+void jetpacStateGameOver(s32 arg0) {
     s32 sp4C;
     char sp2C[0x20];
 
@@ -407,8 +407,8 @@ void func_80024D48(s32 arg0) {
     } else {
         _sprintf(sp2C, "GAME OVER PLAYER %d", D_8002EC30.active_player + 1);
     }
-    func_8002AE94(0xFF, 0xFF, 0xFF, 0xFF);
-    func_8002AEFC(arg0, sp2C, sp4C * 8 + 0x20, 0x88, 0);
+    jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+    jetpacDrawString(arg0, sp2C, sp4C * 8 + 0x20, 0x88, 0);
     if ((u32)D_8002EC30.unk790 >= 0x79U) {
         if (D_8002EC30.unk798 != 0) {
             if (D_8002EC30.unk799 == 0) {
@@ -416,32 +416,32 @@ void func_80024D48(s32 arg0) {
                 func_805FF378(5, 0);
             }
         } else {
-            func_80025368(&D_8002EC30.players[D_8002EC30.active_player]);
+            jetpacNextPlayerOrGameOver(&D_8002EC30.players[D_8002EC30.active_player]);
         }
     }
 }
 
-void func_80024E70(s32 arg0) {
+void jetpacPlaySound(s32 arg0) {
     s32 *var_s0;
 
     if (arg0 < 7) { var_s0 = &D_80770DF8[arg0]; do { if (*var_s0 != 0) { n_alSndpStop(*var_s0); } var_s0++; } while (var_s0 != D_80770E14); }
     n_alSndpPlay(D_8076D1F8, *(s16 *)((u8 *)D_8002BA52 + arg0 * 4), 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[arg0]);
 }
 
-void func_80024F24(s32 arg0, s32 arg1) {
+void jetpacSetSoundPitch(s32 arg0, s32 arg1) {
     if (D_80770DF8[arg0] != 0) {
         s32 *p = &arg1;
         n_alSndpPostEvent(D_80770DF8[arg0], 0x10, *p);
     }
 }
 
-void func_80024F64(s32 arg0) {
+void jetpacStopSound(s32 arg0) {
     if (D_80770DF8[arg0] != 0) {
         n_alSndpStop(D_80770DF8[arg0]);
     }
 }
 
-void func_80024F9C(s32 arg0) {
+void jetpacSetState(s32 arg0) {
     s32 pad;
     JetpacPlayer *player = &D_8002EC30.players[D_8002EC30.active_player];
 
@@ -451,20 +451,20 @@ void func_80024F9C(s32 arg0) {
     case 3:
         break;
     case 1:
-        func_80028950();
+        jetpacPlaceRocketAboveScreen();
         break;
     case 2:
         if (D_8002EC30.unk78C == 1) {
             D_8002EC30.unk794 = 3;
             player->lives--;
         }
-        func_80026DC8();
-        func_8002AAD4();
-        func_80028B54(player);
+        jetpacInitPlayer();
+        jetpacInitActors();
+        jetpacSetRocketSpriteFrames(player);
         break;
     case 4:
         D_8002F064 = 1;
-        func_80028634();
+        jetpacPlaceRocketOnPad();
         D_8002EC30.unk794 = 3;
         player->lives++;
         break;
@@ -475,22 +475,22 @@ void func_80024F9C(s32 arg0) {
     D_8002EC30.unk78C = arg0;
 }
 
-void func_800250A0(void) {
+void jetpacStartStage(void) {
     JetpacPlayer *player = &D_8002EC30.players[D_8002EC30.active_player];
 
     if (player->stage < 0) {
         player->lives--;
     }
     player->stage++;
-    func_80027D64(player);
+    jetpacSpawnBonusItem(player);
     if ((player->stage & 3) == 0) {
-        func_800275F4(player);
+        jetpacInitRocketParts(player);
         player->unk114 = 0;
         player->unk10 = 1;
-        func_80024F9C(2);
+        jetpacSetState(2);
     } else {
-        func_80028340(player);
-        func_80024F9C(1);
+        jetpacSpawnFuelPod(player);
+        jetpacSetState(1);
     }
 }
 
@@ -503,8 +503,8 @@ typedef struct {
 
 extern u8 D_8002BA70;
 extern J0bPad *D_807ECDE8;
-void func_8002466C(s32);
-void func_800248E8(s32);
+void jetpacStateSelection(s32);
+void jetpacStateGameplay(s32);
 
 void func_80025168(s32 arg0) {
     u8 flag;
@@ -553,22 +553,22 @@ void func_80025168(s32 arg0) {
     }
     switch (D_8002EC30.unk78C) {
     case 0:
-        func_8002466C(arg0);
+        jetpacStateSelection(arg0);
         break;
     case 1:
-        func_800248A0(arg0);
+        jetpacStateLanding(arg0);
         break;
     case 2:
-        func_800248E8(arg0);
+        jetpacStateGameplay(arg0);
         break;
     case 3:
-        func_80024A8C(arg0);
+        jetpacStatePause(arg0);
         break;
     case 4:
-        func_80024C90(arg0);
+        jetpacStateTakeoff(arg0);
         break;
     case 5:
-        func_80024D48(arg0);
+        jetpacStateGameOver(arg0);
         break;
     }
     D_8002EC30.unk790 = D_8002EC30.unk790 + 1;
@@ -579,32 +579,32 @@ void func_80025168(s32 arg0) {
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80025168.s")
 #endif
 
-void func_80025368(JetpacPlayer *arg0) {
+void jetpacNextPlayerOrGameOver(JetpacPlayer *arg0) {
     s32 other_idx = D_8002EC30.active_player ^ 1;
     JetpacPlayer *other = &D_8002EC30.players[other_idx];
 
     if (arg0->lives < 0 && D_8002EC30.unk78C != 5) {
         if (D_8002EC30.high_score < arg0->score) {
             D_8002EC30.high_score = arg0->score;
-            func_80024A4C();
+            jetpacSaveHighScore();
         }
-        func_80024F9C(5);
+        jetpacSetState(5);
         return;
     }
 
     if (other->lives >= 0) {
         D_8002EC30.active_player = other_idx;
         if (other->stage < 0) {
-            func_800250A0();
+            jetpacStartStage();
             return;
         }
-        func_80024F9C(2);
+        jetpacSetState(2);
         return;
     }
     if (arg0->lives >= 0) {
-        func_80024F9C(2);
+        jetpacSetState(2);
         return;
     }
-    func_80024F9C(0);
+    jetpacSetState(0);
 }
 

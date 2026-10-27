@@ -42,7 +42,7 @@ void animSetFrameAndSubframe(void *, s32, s16, f32);
 void animSetFinished(void *, s32, s32);
 
 
-void func_80027340(s32 arg0) {
+void critterSetDigitFrames(s32 arg0) {
     s32 var_s0;
     f32 zero = 0.0f;
     s32 n = arg0;
@@ -120,7 +120,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 f32 func_806119FC(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 f32 sqrtf(f32);
-void func_80027340(s32);
+void critterSetDigitFrames(s32);
 
 void func_80027448(void) {
     s32 sp6C;
@@ -162,7 +162,7 @@ void func_80027448(void) {
                 J0B2_A->unk155 = 4;
             }
             actorScriptStart(D_807FBB40, 0x39E);
-            func_80027340(sp64);
+            critterSetDigitFrames(sp64);
         }
         *sp60 = 0;
         D_8002A1B0 = 0.0f;
@@ -211,7 +211,7 @@ void func_80027448(void) {
         case 10:
             *sp60 += 1;
             if (*sp60 == 0xA) {
-                func_80027340(sp64);
+                critterSetDigitFrames(sp64);
                 func_80609140(0xE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
             }
             if (*sp60 >= 0x2E) {
