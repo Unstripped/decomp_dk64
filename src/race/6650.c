@@ -114,7 +114,7 @@ extern s16 D_80750AC8;
 extern Actor_BB40 *D_807FBB40;
 
 void playerStateQueueCallback();
-void sfxStopSlotSound(Actor_BB40 *, u8);
+s32 sfxStopSlotSound(Actor_BB40 *, u8);
 void func_8070D8C0(Actor_BB40 *, s32, s32);
 void func_8063DA40(s32, s32);
 void flagSet(s32, s32, s32);
@@ -277,11 +277,106 @@ void func_8002AE6C(void *arg0, u8 *arg1) {
     actorDrawAnimatedEffect(func_8002CAC8(arg0, arg1, *(void **)(arg1 + 0x174)), arg1);
 }
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/6650/func_8002AE9C.s")
+void func_8002AE9C(void) {
+    Actor_BB40 *var_s1;
+    Struct_sp58 *var_s3;
+    s32 i;
+    u8 sp43;
+    s32 j;
+    u32 flags;
+
+    var_s1 = D_807FBB40;
+    var_s3 = var_s1->unk174;
+    j = var_s3->unk28;
+    sp43 = 0xB4;
+    if (!(var_s1->unk60 & 0x10)) {
+        playerStateQueueCallback(0x4D, var_s1, j);
+        D_807FBB40->unk144 = 0x3C;
+        var_s1 = D_807FBB40;
+        var_s1->unk60 &= 0xFFFDFFFF;
+        for (i = 0; i < 3; i++) {
+            D_807FBB40->unk4->unk34[i] *= 0.3;
+        }
+        var_s3->unk44 = 5;
+        actorOrNodeFlags(D_807FBB40, 2, 8);
+        func_80026CA8();
+    }
+    switch (var_s3->unk34) {
+        case 1:
+            if (var_s3->unk35 == 0) {
+                var_s3->unk35++;
+                slotQueueUpdate(0xB, 1, 0);
+            }
+        case 0:
+        case 2:
+        case 3:
+        case 4:
+            func_80026D2C(D_807FBB40->unkB8 * 0.0307692308f);
+            func_8002A7F8(var_s3);
+            break;
+        case 5:
+            if (var_s3->unk35 == 0) {
+                var_s3->unk35++;
+                slotQueueCancel(0xB, 0);
+                var_s1 = D_807FBB40;
+                var_s1->unk60 &= ~4;
+                D_807FBB40->unkB8 = 0.0f;
+                for (i = 0; i < 2; i++) {
+                    var_s1 = D_807FBB40;
+                    if (var_s1->unk6E[i] != -1) {
+                        sfxStopSlotSound(var_s1, i);
+                    }
+                }
+            }
+            break;
+    }
+    var_s1 = D_807FBB40;
+    flags = var_s1->unk60;
+    if (var_s3->unk4 <= 0 || var_s3->unk8 > 0) {
+        sp43 = 0xF0;
+    }
+    if (flags & 4) {
+        func_8068ECF4(1, sp43);
+        func_8068ECF4(2, sp43);
+        var_s1 = D_807FBB40;
+    }
+    if (var_s3->unk34 > 0 && var_s3->unk34 < 5) {
+        func_806F4D70(var_s3->unk28, var_s1->unk7C, var_s1->unk80, var_s1->unk84, var_s1->unk4->unk34[1] / 0.15 * 40.0);
+        renderCallbacksRegister(func_8002AE6C, D_807FBB40, 3);
+    }
+    var_s1 = D_807FBB40;
+    actorUpdateModelMatrix(var_s1, 0);
+}
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/6650/func_8002B180.s")
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/6650/func_8002B518.s")
+void func_8002B518(Struct_sp58 *arg0) {
+    switch (arg0->unk35) {
+        case 0:
+            if (D_807FBB40->unk60 & 0x2000000) {
+                arg0->unk35++;
+            }
+            break;
+        case 1:
+            if (!(D_807FBB40->unk60 & 0x2000000)) {
+                camResumePath();
+                arg0->unk35++;
+            }
+            break;
+        case 2:
+            if (currentActorTestClearFlag()) {
+                currentActorClearFlag();
+                arg0->unk35++;
+            }
+            break;
+    }
+    if (arg0->unk35 < 3) {
+        func_8002D72C(arg0->unk30);
+    } else {
+        func_8002D754(arg0->unk30);
+    }
+}
+
 void func_8002B610(Struct_sp58 *arg0, Struct_8002B610_Arg1 *arg1) {
     if (arg0->unk35 == 0) {
         Struct_8002B610_Sub *sub = arg1->unk4;
@@ -322,6 +417,110 @@ void func_8002B6F4(u8 *arg0, s32 arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/6650/func_8002B76C.s")
+void func_8002B76C(Struct_sp58 *arg0, void *arg1) {
+    s32 i;
+    s32 var;
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/6650/func_8002B964.s")
+    switch (arg0->unk35) {
+        case 0:
+            if (flagGet(0x145, 0) == 0) {
+                playerStateQueueCallback(0x55, 0, 0);
+                D_807FBB40->unkE4 = 0;
+                D_807FBB40->unkE8 = 0;
+                for (i = 0; i < 2; i++) {
+                    if (D_807FBB40->unk6E[i] != -1) {
+                        sfxStopSlotSound(D_807FBB40, i);
+                    }
+                }
+            }
+            arg0->unk35++;
+            break;
+        case 1:
+            if (currentActorTestClearFlag()) {
+                currentActorClearFlag();
+                func_8070D8C0(D_807FBB40, 0x22, (u8)func_8002B6C8(arg0, arg1));
+                arg0->unk35++;
+            }
+            break;
+        case 2:
+            if (!(D_807FBB40->unk60 & 0x2000000)) {
+                camResumePath();
+                arg0->unk35++;
+            }
+            break;
+        case 3:
+            if (currentActorTestClearFlag()) {
+                var = func_8002B6C8(arg0, arg1);
+                currentActorClearFlag();
+                if (var == 0) {
+                    func_8063DA40(1, 0xA);
+                    flagSet(0x145, 1, 0);
+                } else {
+                    hudSpawnTextScreen(1);
+                    arg0->unk35++;
+                }
+                arg0->unk35++;
+            }
+            break;
+        case 4:
+            if (currentActorTestClearFlag()) {
+                currentActorClearFlag();
+                func_805FF544();
+                arg0->unk35++;
+            }
+            break;
+    }
+}
+
+void func_8002B964(void) {
+    Struct_sp58 *var_s1;
+    Struct_sp20 *sp20;
+    s32 i;
+
+    var_s1 = D_807FBB40->unk178;
+    sp20 = D_807FBB40->unk17C;
+    behaviourFrameBegin();
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        sp20->unk10 = 1;
+        func_8002DE78(sp20, 5, &D_8002FC70, &D_8002FCA0);
+        D_807FBB40->unk144 = 0x3C;
+        D_807FBB40->unk60 &= 0xFFFDFFFE;
+        var_s1->unk10 = 1.0f;
+        for (i = 0; i < 3; i++) {
+            D_807FBB40->unk4->unk34[i] *= 0.3;
+        }
+        if (flagGet(0x38, 2) == 0 && flagGet(0x145, 0) == 0) {
+            camStartPath(D_807FBB40, 0, 1);
+            currentActorClearFlag();
+            flagSet(0x38, 1, 2);
+        } else {
+            var_s1->unk35 = 3;
+        }
+        D_80750AC8 = 0xA;
+        actorOrNodeFlags(D_807FBB40, 4, 8);
+    }
+    switch (var_s1->unk34) {
+        case 0:
+            func_8002B518(var_s1);
+            break;
+        case 1:
+            func_8002B610(var_s1, (Struct_8002B610_Arg1 *)sp20);
+            break;
+        case 4:
+            func_8002B6F4((u8 *)var_s1, (s32)sp20->unk4);
+            break;
+        case 5:
+            func_8002B76C(var_s1, sp20->unk4);
+            break;
+    }
+    if (var_s1->unk34 < 5) {
+        func_8002E644(sp20);
+        func_8002B180(var_s1, (Struct_8002B180_Arg1 *)sp20);
+        func_8002A7F8(var_s1);
+        func_800283D4(D_807FBB40->unkB8 * 0.0307692308f);
+    } else {
+        D_807FBB40->unkB8 = 0.0f;
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
+
