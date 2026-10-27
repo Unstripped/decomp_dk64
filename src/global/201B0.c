@@ -131,6 +131,7 @@ extern s32 D_8076A064;
 extern s32 D_8076A0A8;
 extern u8 D_8076A0B1;
 extern u8 D_8076A0B3;
+
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
@@ -2002,19 +2003,277 @@ u8 func_8062217C(CamActor *arg0, s16 arg1) {
     return old;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_80622334.s")
+typedef struct CamC2P {
+    /* 0x000 */ u8 pad0[0x2C0];
+    /* 0x2C0 */ u8 unk2C0;
+    /* 0x2C1 */ u8 pad2C1[0x2F];
+} CamC2P; // size = 0x2F0
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_806224CC.s")
+void func_80622334(CamActor *arg0, s16 arg1) {
+    CamState *st = arg0->unk174;
+    s16 idx;
+    s16 best;
+    s16 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_806225C0.s")
+    idx = D_8074E77C[st->unkFB] * 2 + (((CamC2P *)D_807FC924)[st->unkFB].unk2C0 != 1) + 7;
+    best = 1;
+    if (D_8076A0A8 == 0x9A) {
+        idx = 0;
+    } else if (D_807FBB68 & 2) {
+        idx = 2;
+    } else if ((D_807FBB64 & 1) && D_8076A0A8 != 0x6F) {
+        idx = 3;
+    } else if (D_807FBB64 & 0x80) {
+        idx = 4;
+    } else if (st->unkAC & 0x20000) {
+        idx = 5;
+    } else if (D_807FBB64 & 0x4000000) {
+        idx = 6;
+    } else if (st->unkF3 == 5 || st->unkF3 == 0xC || st->unkF3 == 0xA) {
+        idx = 1;
+    }
+    for (i = 2; i < 4; i++) {
+        if (arg1 >= D_80747B60[idx][i].unk2) {
+            best = i;
+        }
+    }
+    func_8062217C(arg0, best);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_806225D4.s")
+typedef struct CamC6E {
+    /* 0x00 */ u8 pad0[0x6E];
+    /* 0x6E */ s16 unk6E;
+} CamC6E;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_806227F0.s")
+typedef struct CamC224 {
+    /* 0x00 */ u8 pad0[0xC];
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 pad10[0x34];
+    /* 0x44 */ s32 unk44;
+    /* 0x48 */ u8 pad48[0x68];
+    /* 0xB0 */ s16 unkB0;
+    /* 0xB2 */ s16 unkB2;
+    /* 0xB4 */ u8 padB4[0x39];
+    /* 0xED */ u8 unkED;
+    /* 0xEE */ u8 padEE[5];
+    /* 0xF3 */ u8 unkF3;
+} CamC224;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_806228BC.s")
+extern CamC6E *D_807FBB48;
+void sfxStopSlotSound(void *, s32);
+void func_806224CC(CamActor *arg0, CamActor *arg1) {
+    CamC224 *s;
+    s32 pad1;
+    s32 pad2;
+    u8 pad3;
+    u8 prev;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_80622ABC.s")
+    s = (CamC224 *)arg0->unk174;
+    prev = s->unkF3;
+
+    if (D_807FBB48->unk6E != -1) {
+        sfxStopSlotSound(D_807FBB48, 0);
+    }
+    s->unk44 = 0;
+    s->unkB0 = 0;
+    s->unkF3 = 1;
+    s->unkC = -32768.0f;
+    switch (prev) {
+        case 3:
+        case 0xB:
+            func_8061F164((CamState *)s, 0xA);
+            s->unkB2 = arg1->unkE6;
+            break;
+        case 2:
+            if (s->unkED == 8) {
+                if (mathAngleDistance(s->unkB2, arg1->unkE6) < 0x400) {
+                    func_8061DB64(arg0);
+                }
+            }
+            s->unkED = 0xFF;
+        default:
+            func_8061F164((CamState *)s, 0x14);
+            break;
+    }
+}
+
+void func_806225C0(CamActor *arg0) {
+    CamState *st = arg0->unk174;
+
+    st->unk44 = 0;
+    st->unkF3 = 1;
+}
+
+typedef struct CamCTgt {
+    /* 0x000 */ u8 pad0[0x6A];
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u16 unk6C;
+    /* 0x06E */ u8 pad6E[0xE];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x5E];
+    /* 0x0E6 */ s16 unkE6;
+    /* 0x0E8 */ s16 unkE8;
+    /* 0x0EA */ u8 padEA[0x6A];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 pad155[0x1F];
+    /* 0x174 */ void *unk174;
+} CamCTgt;
+
+typedef struct CamC1F0 {
+    /* 0x000 */ u8 pad0[0x1F0];
+    /* 0x1F0 */ u32 unk1F0;
+} CamC1F0;
+
+typedef struct CamC44b {
+    /* 0x00 */ CamCTgt *unk0;
+    /* 0x04 */ u8 pad4[4];
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ u8 padC[4];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ u8 pad12[2];
+    /* 0x14 */ s16 unk14;
+} CamC44b;
+
+typedef struct CamCSt {
+    /* 0x00 */ CamCTgt *unk0;
+    /* 0x04 */ u8 pad4[0x40];
+    /* 0x44 */ CamC44b s44;
+    /* 0x5C */ u8 pad5C[0x9F];
+    /* 0xFB */ u8 unkFB;
+} CamCSt;
+
+void func_806225D4(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
+    CamCSt *st = (CamCSt *)arg0->unk174;
+    CamC44b *p = &st->s44;
+    s16 angle;
+    CamC1F0 *tgtState;
+    s8 mult;
+    s32 pad;
+
+    angle = (p->unk0->unkE6 + p->unk8) & 0xFFF;
+    tgtState = (CamC1F0 *)st->unk0->unk174;
+    mult = 1;
+    if (st->unk0->unk154 == 0x21 || st->unk0->unk154 == 0x38) {
+        return;
+    }
+    *arg1 = func_80612794(angle) * p->unkA + p->unk0->unk7C;
+    *arg3 = func_80612790(angle) * p->unkA + p->unk0->unk84;
+    *arg2 = p->unk0->unk80 + p->unk10;
+    if (D_8076A0A8 == 6 || D_8076A0A8 == 0xE || D_8076A0A8 == 0x37 || D_8076A0A8 == 0x6A) {
+        if (tgtState->unk1F0 & 0x10000002) {
+            mult = -1;
+        }
+        *arg2 += (mult * p->unkA) * func_80612794(p->unk0->unkE8);
+    }
+    if (p->unk14 != 0) {
+        p->unk14--;
+        if (p->unk14 == 0 || (!(st->unk0->unk6C & 1) && (st->unk0->unk6A & 1))) {
+            p->unk0 = 0;
+            func_8061EB04((Actor *)st->unk0, st->unkFB);
+            D_807FBB60 |= 0x2000;
+            if (D_8076A0B1 & 0x10) {
+                D_8076A0B1 &= ~0x10;
+                D_8076A0B3 = 0xFF;
+            }
+        }
+    }
+}
+
+typedef struct CamC44 {
+    /* 0x00 */ CamActor *unk0;
+    /* 0x04 */ CamActor *unk4;
+    /* 0x08 */ u8 pad8[4];
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ u8 pad10[2];
+    /* 0x12 */ s16 unk12;
+} CamC44;
+
+typedef struct CamCState {
+    /* 0x00 */ u8 pad0[0x44];
+    /* 0x44 */ CamC44 s44;
+} CamCState;
+
+void func_806227F0(CamState *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
+    CamC44 *p;
+    s16 angle;
+
+    p = &((CamCState *)arg0)->s44;
+    angle = (p->unk0->unkE6 + p->unkC) & 0xFFF;
+    *arg1 = func_80612794(angle) * p->unkE + p->unk4->unk7C;
+    *arg3 = func_80612790(angle) * p->unkE + p->unk4->unk84;
+    *arg2 = p->unk4->unk80 + p->unk12;
+}
+
+typedef struct CamC8Tgt {
+    /* 0x000 */ u8 pad0[0x7C];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x6C];
+    /* 0x0F4 */ s16 unkF4;
+    /* 0x0F6 */ s16 unkF6;
+    /* 0x0F8 */ u8 padF8[4];
+    /* 0x0FC */ u8 unkFC;
+    /* 0x0FD */ u8 padFD[0x57];
+    /* 0x154 */ u8 unk154;
+    /* 0x155 */ u8 pad155[9];
+    /* 0x15E */ u8 unk15E;
+} CamC8Tgt;
+
+typedef struct CamC8St {
+    /* 0x00 */ CamC8Tgt *unk0;
+    /* 0x04 */ u8 pad4[0xAE];
+    /* 0xB2 */ s16 unkB2;
+} CamC8St;
+
+typedef struct CamC8Act {
+    /* 0x00 */ u8 pad0[0xB4];
+    /* 0xB4 */ f32 unkB4;
+} CamC8Act;
+
+
+void func_806228BC(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
+    CamC8St *st = (CamC8St *)arg0->unk174;
+    CamC8Tgt *tgt = st->unk0;
+    s16 angle;
+    s32 h;
+
+    *arg1 = tgt->unk7C;
+    if (tgt->unk154 == 3 || tgt->unk154 == 5) {
+        h = tgt->unk15E < 0xF ? 0xF : tgt->unk15E;
+        *arg2 = h + tgt->unk80;
+    } else if (D_8076A0A8 == 0x30) {
+        h = tgt->unk15E < 0x16 ? 0x16 : tgt->unk15E;
+        *arg2 = h + tgt->unk80;
+    } else {
+        h = tgt->unk15E < 0xA ? 0xA : tgt->unk15E;
+        *arg2 = h + tgt->unk80;
+    }
+    *arg3 = tgt->unk84;
+    if (tgt->unkFC != 0) {
+        angle = func_80672A70(tgt->unkF4, tgt->unkF6);
+        *arg1 += 5.0 * func_80612794(angle);
+        *arg3 += 5.0 * func_80612790(angle);
+    }
+    *arg4 = tgt->unk7C - func_80612794(st->unkB2) * 50.0f;
+    *arg5 = tgt->unk80 - (((CamC8Act *)arg0)->unkB4 - 138.0f);
+    *arg6 = tgt->unk84 - func_80612790(st->unkB2) * 50.0f;
+}
+
+f32 func_80622ABC(f32 arg0, f32 arg1, f32 arg2) {
+    f32 diff = arg0 - arg1;
+
+    if (diff > 3.1415927f) {
+        arg1 += 6.2831855f;
+    } else if (diff < -3.1415927f) {
+        arg0 += 6.2831855f;
+    }
+    return arg0 + (arg1 - arg0) * arg2;
+}
 
 void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6, CamActor *arg7) {
     CamState *cam;
@@ -2447,11 +2706,102 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     }
 }
 
+#ifdef NON_MATCHING
+typedef struct CamC9Tgt {
+    /* 0x000 */ u8 pad0[0x58];
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ u8 pad5C[0xF8];
+    /* 0x154 */ u8 unk154;
+} CamC9Tgt;
+
+typedef struct CamC9St {
+    /* 0x00 */ CamC9Tgt *unk0;
+    /* 0x04 */ u8 pad4[0xA8];
+    /* 0xAC */ s32 unkAC;
+    /* 0xB0 */ u8 padB0[2];
+    /* 0xB2 */ s16 unkB2;
+    /* 0xB4 */ u8 padB4[0x3F];
+    /* 0xF3 */ u8 unkF3;
+} CamC9St;
+
+void func_80624978(CamC9St *arg0, s16 arg1, s16 arg2) {
+    s16 diff;
+    u16 dist;
+    f32 scale;
+    f32 limit;
+    u16 wrap;
+
+    diff = arg2 - arg0->unkB2;
+    dist = diff > 0 ? diff : -diff;
+    if (dist >= 0x801) {
+        wrap = 0x1000 - dist;
+    } else {
+        wrap = dist;
+    }
+    limit = arg1 / 3000.0f * wrap + 5.7f;
+    if ((((arg0->unkAC & 4) || arg0->unk0->unk58 == 8) && !(569.0f <= dist && dist <= 3527.0f)) ||
+        (D_807FBB64 & 0x8000) || arg0->unk0->unk154 == 0x82) {
+        scale = D_807F5CCC;
+    } else {
+        switch (arg0->unkF3) {
+            case 1:
+            case 5:
+                if (569.0f <= dist && dist <= 3527.0f) {
+                    scale = func_80612790((s16)((dist - 569.0f) / 2958.0f * 4096.0f)) * 0.5f + 0.5f;
+                } else if (dist < 0x14) {
+                    scale = dist / 20.0f;
+                } else {
+                    scale = 1.0f;
+                }
+                break;
+            case 10:
+                scale = 6.0f;
+                break;
+            case 12:
+                scale = 8.0f;
+                break;
+            case 13:
+                scale = 15.0f;
+                break;
+            default:
+                scale = 1.0f;
+                break;
+        }
+    }
+    limit = limit * scale;
+    if ((f32)dist < limit) {
+        limit = dist;
+    }
+    if (diff != 0) {
+        if ((diff > 0 && dist < 0x800) || (diff < 0 && dist >= 0x800)) {
+            arg0->unkB2 = arg0->unkB2 + limit;
+        } else {
+            arg0->unkB2 = arg0->unkB2 - limit;
+        }
+    }
+    arg0->unkB2 &= 0xFFF;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_80624978.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_80624CA4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_806252CC.s")
+f32 func_806252CC(f32 arg0, f32 arg1, f32 arg2) {
+    if (arg0 < arg1) {
+        arg0 += arg2;
+        if (arg1 < arg0) {
+            arg0 = arg1;
+        }
+    } else {
+        arg0 -= arg2;
+        if (arg0 < arg1) {
+            arg0 = arg1;
+        }
+    }
+    return arg0;
+}
 
 typedef struct CamE2Player CamE2Player;
 
@@ -3094,7 +3444,6 @@ typedef struct CamA3Act {
     /* 0xB4 */ f32 unkB4;
 } CamA3Act;
 
-void sfxStopSlotSound(void *, s32);
 void func_80627888(CamActor *);
 
 s32 func_8062773C(CamActor *arg0) {
