@@ -476,14 +476,13 @@ void func_8068ECF4(s32, s32);
 void sfxStopSlotSound(void *, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
-#ifdef NON_MATCHING
 void func_80026F04(void) {
     s32 len;
     u8 *sp78;
     u8 *s1;
     s16 sv;
     f32 off;
-    f32 f;
+    f32 pad; /* unused: its stack home is needed for the frame layout */
     u8 *o;
     u8 *o2;
     s32 i;
@@ -532,20 +531,20 @@ void func_80026F04(void) {
     } else if (s1[0x34] < 5) {
         sv = 0;
         if (s1[0x26] != 0) {
-            f = func_8002D2C0(s1);
-            if (f != 0) {
-                f = 1.5f * f + 1.5f;
-                racePlayCheckpointSfx(sp78, 0x1E, f);
+            sp50 = func_8002D2C0(s1);
+            if (sp50 != 0) {
+                sp50 = 1.5f * sp50 + 1.5f;
+                racePlayCheckpointSfx(sp78, 0x1E, sp50);
             }
             s1[0x26] = 0;
         }
         if (sp78[0x39] != 0) {
-            f32 t = sp78[0x39];
-            if (t > 10.0f) {
-                sv = (s32)((t - 10.0f) * 204.8f);
-                t = 300.0f;
-                *(f32 *)(sp78 + 0x20) = func_80612794(sv) * t;
-                *(f32 *)(sp78 + 0x24) = func_80612794(sv * 2) * t;
+            sp58 = sp78[0x39];
+            if (sp58 > 10.0f) {
+                sv = (s32)((sp58 - 10.0f) * 204.8f);
+                sp58 = 300.0f;
+                *(f32 *)(sp78 + 0x20) = func_80612794(sv) * sp58;
+                *(f32 *)(sp78 + 0x24) = func_80612794(sv * 2) * sp58;
             } else {
                 *(f32 *)(sp78 + 0x20) = 0.0f;
                 *(f32 *)(sp78 + 0x24) = 0.0f;
@@ -576,7 +575,11 @@ void func_80026F04(void) {
         sp50 = *(f32 *)((u8 *)D_807FBB40 + 0x84);
         sp54 = *(f32 *)((u8 *)D_807FBB40 + 0x80) + off;
         func_806F4D70(s1[0x28], sp58, sp54, sp50, 12.0f);
-        func_806F4DC0(s1[0x28], (sp58 + *(f32 *)((u8 *)D_807FBB40 + 0x88)) * 0.5, sp54, (sp50 + *(f32 *)((u8 *)D_807FBB40 + 0x90)) * 0.5, 12.0f);
+        sp58 += *(f32 *)((u8 *)D_807FBB40 + 0x88);
+        sp58 *= 0.5;
+        sp50 += *(f32 *)((u8 *)D_807FBB40 + 0x90);
+        sp50 *= 0.5;
+        func_806F4DC0(s1[0x28], sp58, sp54, sp50, 12.0f);
     }
     if (*(s32 *)((u8 *)D_807FBB40 + 0x60) & 4) {
         func_8068ECF4(1, 0xC8);
@@ -587,10 +590,6 @@ void func_80026F04(void) {
         renderCallbacksRegister(func_80026EE4, D_807FBB40, 3);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/1770/func_80026F04.s")
-#endif
 
 typedef struct {
     u8 pad0[0x15];
