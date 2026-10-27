@@ -530,11 +530,13 @@ void func_80025168(s32 arg0) {
         }
     }
     p = &D_8002BA6C;
-    *p = D_8002EC30.unk790;
+    *p = (s64)D_8002EC30.unk790;
     *p = D_8002EC30.unk790 % 60;
     *p = D_8002EC30.unk790 % 60 / 30;
     D_8002EC30.unk4 = D_8002EC30.unk0;
     D_8002EC30.unk0 = D_807ECDE8->unk0;
+    if (0) {
+    }
     if (D_807ECDE8->unk2 >= 0x1F) {
         D_8002EC30.unk0 |= 0x100;
     }

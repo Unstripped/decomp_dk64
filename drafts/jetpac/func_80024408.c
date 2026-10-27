@@ -1,4 +1,4 @@
-// func_80024408 (src/jetpac/0.c): Stage 6: text identical except the order of the two hoisted loop-prologue addiu (s1=&D_8002EC4C before s3="%d!" expected; C gives s3 then s1). Needs unused 3rd local (s32 pad/JetpacPlayer *p) for spill slots 0x4C/0x50, buf[0x50]. Tried lives temp, ptr induction, continue/do-while, permuter 150s: no change.
+// func_80024408 (src/jetpac/0.c): Stage 6: text identical except order of the two hoisted loop-prologue addiu (target lui s1,lui s3,addiu s1,addiu s3; C lui s1,lui s3,addiu s3,addiu s1). Verified with raw IDO asm: as1's scheduler gives only the mirrored order (first la -> addiu last) for ALL 1260 orderings of {move,lui/addiu(EC4C),lui/addiu(%d!),addu,li} in the preheader, with or without a following lw: the target stream needs another shape. Tried (fdiff-measured): fmt local before/in loop, pointer local, IV pointer, lives local, 0<x, != 2 bound, one-line if, operand swaps, early dead use of D_8002EC4C: no change.
 extern JetpacPlayer D_8002EC4C[];
 extern s32 D_8002BA6C;
 extern s32 D_8002EF74;

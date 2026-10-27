@@ -1,4 +1,4 @@
-// func_80025168 (src/jetpac/0.c): stage 5-6: frame 0x20 + s0 match; first 44 insns now match (a local 'zero' used for the 0 stores/args stops IDO CSEing &D_8002BA70 into v0; volatile s32 *p keeps the 3 stores to D_8002BA6C). Remaining diff is regalloc only: target value=a1, mfhi=t1, p=v0, pad ptr=v1/lb a0; mine value=v1, mfhi=v0, p=a2, pad ptr=a0/lb a1. Permuter hint: '(x) & 0xFFFFFFFFFFFFFFFF' on the first D_8002BA6C store gets 62 diff lines (vs 114) but is a hack, not used.
+// func_80025168 (src/jetpac/0.c): Stage 5-6: regalloc only (26 diff lines). Target: p=v0 (lui v0), x%60 in temp t1 (not a candidate), lb unk2 in a0; C gives p=a0, x%60 in v0 candidate, unk2 v0. '(s64)' cast on the first store (readable form of the permuter's & 0xFFFF.. hint; u64/s64/(s64)(s32) all equal) fixes the t-temps and a1/v1; 'if (0) { }' after 'D_8002EC30.unk0 = D_807ECDE8->unk0;' (permuter) fixes unk790->a1, D_807ECDE8->v1. Not fixed: x%60 stays a CSE candidate. Tried chained stores, local sec, non-volatile/cast-pointer stores, 12 'if (0)' positions, permuter 2x250s.
 typedef struct {
     u16 unk0;
     s8 unk2;
@@ -31,11 +31,13 @@ void func_80025168(s32 arg0) {
         }
     }
     p = &D_8002BA6C;
-    *p = D_8002EC30.unk790;
+    *p = (s64)D_8002EC30.unk790;
     *p = D_8002EC30.unk790 % 60;
     *p = D_8002EC30.unk790 % 60 / 30;
     D_8002EC30.unk4 = D_8002EC30.unk0;
     D_8002EC30.unk0 = D_807ECDE8->unk0;
+    if (0) {
+    }
     if (D_807ECDE8->unk2 >= 0x1F) {
         D_8002EC30.unk0 |= 0x100;
     }
