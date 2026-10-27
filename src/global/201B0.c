@@ -126,6 +126,8 @@ typedef struct Struct807FC924 {
 
 extern u8 D_807444EC;
 extern u8 D_807463B8;
+extern f32 D_807476A0;
+extern f32 D_807476A4;
 extern f32 D_807476A8;
 extern u8 D_807476B4;
 extern s16 D_807476B8;
@@ -134,14 +136,17 @@ extern s16 D_807476E4;
 extern s16 D_807476F4;
 extern CamPathData *D_807476FC;
 extern u8 D_80750AB8;
+extern s32 D_8076A064;
 extern s32 D_8076A0A8;
 extern u8 D_8076A0B1;
+extern u8 D_8076A0B3;
 extern s16 D_807F5CD0;
 extern void *D_807F5CE8;
 extern s16 D_807F5CEC;
 extern s16 D_807F5CEE;
 extern u16 D_807F5CF0;
 extern u16 D_807F5CF2;
+extern u16 D_807F5CF4;
 extern u8 D_807F5CFA;
 extern f32 D_807F5CFC;
 extern f32 D_807F5D00;
@@ -152,6 +157,7 @@ extern f32 D_807F5D24;
 extern f32 D_807F5D28;
 extern f32 D_807F5D2C;
 extern Actor *D_807FBB40;
+extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
 extern s32 D_807FBB64;
 extern s32 D_807FBB68;
@@ -259,6 +265,9 @@ f32 sqrtf(f32);
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061CF90.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061CFCC.s")
+
+void func_8061D058(void) {
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061D060.s")
 

@@ -1156,6 +1156,9 @@ alSaveParam = 0x807412B4; // type:func
 n_globals = 0x807563E0;
 n_syn = 0x807563E4;
 
+// Global 0x201B0-0x2C700: camera
+func_8061D058 = 0x8061D058; // type:func
+
 // Global 0x2C700-0x41090: splines, screen wipe, map tree and chunks, render entry lists, model slots, texture animation, surface effects
 splineEvalCubic = 0x80627A00; // type:func
 splineSetBasisTension = 0x80627B58; // type:func
