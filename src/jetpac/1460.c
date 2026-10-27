@@ -211,7 +211,84 @@ void func_80025F48(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) 
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025FC4.s")
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_800260DC.s")
+typedef struct J1bActor {
+    f32 x;
+    f32 y;
+    f32 vx;
+    f32 vy;
+    u8 color[4];
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    s32 unk28;
+    s32 unk2C;
+    s32 unk30;
+    u8 pad34[8];
+    s32 unk3C;
+    s32 unk40;
+    s32 unk44;
+    void (*unk48)(struct J1bActor *);
+    s32 unk4C;
+} J1bActor;
+
+J1bActor *func_80025C40(J1bActor *arg0);
+void func_80025CB0(J1bActor *arg0);
+void func_80024E70(s32 arg0);
+
+void func_800260DC(J1bActor *arg0) {
+    J1bActor *p;
+    s32 ix;
+    s32 iy;
+    s32 col;
+    f32 vy;
+    f32 absVy;
+
+    p = func_80025C40(arg0);
+    if (p == NULL) {
+        vy = arg0->vy;
+        if (vy > 0.0f) {
+            absVy = vy;
+        } else {
+            absVy = -vy;
+        }
+        if (absVy < 0.01f && arg0->y < 152.0f) {
+            func_80024E70(6);
+        }
+    } else {
+        p->unk18 = arg0->unk18;
+        if (p->unk18 != 0) {
+            p->x = (f32)(((s32)(arg0->x + (f32)arg0->unk1C) / 8) * 8);
+            p->vx = -8.0f;
+        } else {
+            p->x = (f32)(((s32)(arg0->x + (f32)arg0->unk24 + 6.0f) / 8) * 8);
+            p->vx = 8.0f;
+        }
+        ix = (s32)p->x;
+        p->unk1C = ix;
+        p->unk24 = ix;
+        p->y = arg0->y + 10.0f;
+        p->vy = 0.0f;
+        iy = (s32)p->y;
+        p->unk28 = iy + 1;
+        p->unk20 = iy;
+        col = (s32)(jetpacRandFloat() * 3.0f);
+        p->color[0] = 0xFF;
+        p->color[1] = 0xFF;
+        if (col < 2) {
+            p->color[col] = 0;
+        }
+        p->color[2] = 0xFF;
+        p->color[3] = 1;
+        p->unk14 = 3;
+        p->unk2C = 0;
+        p->unk40 = (s32)(jetpacRandFloat() * 8.0f) + 13;
+        p->unk48 = func_80025CB0;
+        p->unk4C = 0;
+        func_80024E70(6);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026318.s")
 
@@ -226,17 +303,94 @@ void func_80026A3C(JetpacActor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026AB0.s")
+extern JetpacState D_8002F050;
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026CA4.s")
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026CEC.s")
+#ifdef NON_MATCHING
+extern f32 D_8002F054;
+extern u8 D_8002F060[];
+extern s32 D_8002F064;
+extern s32 D_8002F068;
+extern s32 D_8002F080;
+extern JetpacExplosion D_8002F08C;
+extern s32 D_8002F094;
+extern JetpacSprite D_8002C330;
+extern JetpacSprite D_8002C348[];
+extern JetpacSprite D_8002C3A8[];
+
+void func_80026AB0(void) {
+    f32 x;
+    f32 y;
+    u8 *color;
+    s32 pad;
+    s32 idx;
+    s32 draw;
+
+    pad = 0;
+    draw = 1;
+    if (D_8002F064 >= 2) {
+        if (*(s32 *)&D_8002F060[4] == 4 && D_8002F094 >= 8) {
+            draw = 0;
+        }
+        idx = func_80025B70((JetpacActor *)&D_8002F050);
+        x = *(f32 *)&D_8002F050;
+        y = D_8002F054;
+        if (draw != 0) {
+            color = D_8002F060;
+            if (D_8002F080 == 0) {
+                func_80025700(&D_8002C3A8[idx], (s32)(f32)((s32)x & 0xFFFE), (s32)y, (s32)color, D_8002F068);
+            } else {
+                func_80025700(&D_8002C330, (s32)x, (s32)y, (s32)color, D_8002F068);
+                if (D_8002F068 == 0) {
+                    if (idx == 4) {
+                        x -= 1.0f;
+                    }
+                    x -= 3.0f;
+                } else {
+                    if (idx == 4) {
+                        x += 1.0f;
+                    }
+                    x += 10.0f;
+                }
+                func_80025700(&D_8002C348[idx], (s32)x, (s32)(y + 18.0f), (s32)color, D_8002F068);
+            }
+        }
+        if (D_8002F094 < 14) {
+            func_80025A60(&D_8002F08C);
+        }
+    }
+}
+#else
+
+#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026AB0.s")
+#endif
+
+extern JetpacActor D_8002F09C[];
+void func_80025FC4(JetpacActor *);
+void func_80026CA4(void) {
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        func_80025FC4(&D_8002F09C[i]);
+    }
+}
+
+void func_80026CEC(void) {
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        JetpacActor *a = &D_8002F050.actors[i];
+
+        if (a->unk48 != NULL) {
+            a->unk48(a);
+        }
+    }
+}
 
 extern s32 D_8002F064;
 void func_80024E70(s32);
 void func_80026318(JetpacActor *);
 s32 func_80026FE0(void);
 
-extern JetpacState D_8002F050;
 void jetpacPlayerStateUpdate(void) {
     if (!func_80026FE0()) {
         s32 state = D_8002F064;
@@ -256,9 +410,76 @@ void jetpacPlayerStateUpdate(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026DC8.s")
+#ifdef NON_MATCHING
+typedef struct {
+    u8 pad0[0x420];
+    f32 x;
+    f32 y;
+    f32 vx;
+    f32 vy;
+    u8 color[4];
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    s32 unk28;
+    s32 unk2C;
+    s32 unk30;
+    u8 pad454[0x464 - 0x454];
+    s32 unk44;
+    u8 tint[4];
+} J1bGameView;
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026FE0.s")
+extern JetpacActor D_8002C518;
+extern s32 D_8002F084;
+extern s32 D_8002F088;
+
+void func_80026DC8(void) {
+    J1bGameView *g = (J1bGameView *)&D_8002EC30;
+    JetpacActor tmpl;
+
+    tmpl = D_8002C518;
+    g->vx = 0.0f;
+    g->vy = 0.0f;
+    g->color[0] = 0xFF;
+    g->color[1] = 0xFF;
+    g->color[2] = 0xFF;
+    g->color[3] = 1;
+    g->unk14 = 1;
+    g->unk2C = 0;
+    g->unk18 = 0;
+    g->unk44 = 14;
+    g->tint[0] = 0xFF;
+    g->tint[3] = 1;
+    g->unk20 = 0;
+    g->unk1C = 0;
+    g->unk24 = 0x10;
+    g->unk28 = 0x18;
+    g->unk30 = 1;
+    g->x = 126.0f;
+    g->y = 160.0f;
+    func_80025BB8((JetpacActor *)&D_8002F050, 0);
+    D_8002F084 = 3;
+    D_8002F088 = 4;
+    D_8002F09C[0] = tmpl;
+    D_8002F09C[1] = tmpl;
+    D_8002F09C[2] = tmpl;
+    D_8002F09C[3] = tmpl;
+}
+#else
+
+#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026DC8.s")
+#endif
+
+extern s32 D_8002F07C;
+s32 func_80026FE0(void) {
+    s32 ret = D_8002F064 == 1;
+
+    if (ret) {
+        return D_8002F07C < 180;
+    }
+}
 
 void jetpacSnapActorToGrid(JetpacActor *arg0) {
     if (arg0->unk44 >= 0xE) {
