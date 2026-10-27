@@ -1,4 +1,4 @@
-// func_8002C76C (src/race/7BD0.c): stage 3: structure+all call args match; text size 11648 vs 11664 in this variant (multi-def if/else u8s), earlier ternary variant had equal size. frame 0x80 vs 0x78: target stack slots = 18 words (0x30..0x74): temp_t1@74, 2 reg locals @70/6C, buf ptr@68, u8 count@67, sp60, sp5C, 2 unknown @58/54, str1@50 str2@4C len@48, 5 unknown @44..34, s16 CSE@30(lh 0x32). Named locals declared before the last stack-resident one each take a 4-byte slot; WRITE_GFX block-local _g seem to take slots too (dropping one macro shrank frame). D_8002FCC0 is an s32 table; func_806FE078(Gfx*,s32,s32,f32,f32,f32,f32); strlen(u8*).
+// func_8002C76C (src/race/7BD0.c): stage 3 (pass 2): int regs/call args/structure match; frame 0x80 vs 0x78 (sp60 at 0x68 vs 0x60: two slot words too many). Slot model: named locals declared before the last stack-resident one take a slot in declaration order, but forward-substituted ones (var_a3) don't; unused pad locals sometimes did not add a slot (pad58 test: no frame change), extras at the bottom (~8 words of CSE/other) constant. Reusing var_a3 as the table index (dropping var_v0) shrank frame 0x88->0x80. Untried: drop sp48 slot via reuse, permuter with frame scoring.
 typedef struct RaceE76CView {
     char pad0[0x34];
     u8 unk34;
@@ -23,12 +23,11 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
     u8 var_t0_2;
     s32 sp60;
     s32 sp5C;
-    u8 var_a3;
     u8 var_t0;
     s32 sp50;
     s32 sp4C;
     s32 sp48;
-    s32 var_v0;
+    s32 var_a3;
 
     temp_v0 = arg1->unk48;
     temp_t0 = RaceE76C->unk37;
@@ -62,14 +61,14 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
         var_a3 = temp_t1->unk0;
     }
     if (var_a3 & 2) {
-        var_v0 = RaceE76C->unk36;
-        if ((var_v0 + 1) == temp_t1->unk1E) {
-            var_v0 = 3;
+        var_a3 = RaceE76C->unk36;
+        if ((var_a3 + 1) == temp_t1->unk1E) {
+            var_a3 = 3;
         }
         if (RaceE76C->unk45 != 0) {
-            var_v0 = 4;
+            var_a3 = 4;
         }
-        arg0 = func_806FC530(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), func_8070E750(0x26, D_8002FCC0[var_v0], 1), 4);
+        arg0 = func_806FC530(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), func_8070E750(0x26, D_8002FCC0[var_a3], 1), 4);
     }
     if (RaceE76C->unk34 >= 3 && RaceE76C->unk34 < 5) {
         arg0 = func_806FE078(arg0, RaceE76C->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
