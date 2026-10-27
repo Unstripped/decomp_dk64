@@ -253,7 +253,6 @@ void func_80027728(J3Item *arg0) {
 #endif
 
 
-#ifdef NON_MATCHING
 typedef struct {
     u8 r;
     u8 g;
@@ -275,16 +274,13 @@ void func_80027BE8(JetpacItem *arg0, s32 arg1) {
 
     *(s32 *)&sp58 = D_8002DCE8;
     inner = (JetpacInner *)((u8 *)&D_8002EC30 + D_8002EC30.unk344 * 0x194 + 0x1C);
+    if (D_8002F3C0) {
+    }
     if (arg0->unk1C >= 2) {
         x = (s32)arg0->unk8;
         y = (s32)jetpacRoundFloat(arg0->unkC);
         if (arg1 < 3) {
-            p = arg0->sprites;
-            for (i = 0; i != 2; i++, p++, y += 8) {
-                if (!arg1) {
-                }
-                if (!inner) {
-                }
+            for (i = 0, p = arg0->sprites; i != 2; i++, p++, y += 8) {
                 if ((inner->unkC < 8 && inner->unkC + arg1 * 2 + i >= 8) || (inner->unkC == 8 && (D_8002F3C0 & 0x10))) {
                     sp58.g = 0;
                 }
@@ -297,10 +293,6 @@ void func_80027BE8(JetpacItem *arg0, s32 arg1) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/func_80027BE8.s")
-#endif
 
 
 s32 flagGet(s32, s32);
