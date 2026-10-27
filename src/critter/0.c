@@ -634,7 +634,7 @@ void func_8002601C(void *arg0) {
         half = (*(s16 *)(CR58 + 0x10) + *(s16 *)(CR58 + 0xC)) >> 1;
         dx = (f32)*(s16 *)(CR58 + 0) - *(f32 *)(D_807FBB48 + 0x7C);
         dz = (f32)*(s16 *)(CR58 + 4) - *(f32 *)(D_807FBB48 + 0x84);
-        dist = dx * dx + dz * dz;
+        dx = dx * dx + dz * dz;
         fv0 = 0.0f;
         f = *(s16 *)((u8 *)D_80029BA4 + 2) < (*(s16 *)(CR58 + 2)) + half;
         if (f) {
@@ -643,7 +643,7 @@ void func_8002601C(void *arg0) {
         f = (u8)f != 0;
         if (f) {
             f = 0;
-            if (dist < (f32)*(s32 *)(CR58 + 0x18)) {
+            if (dx < (f32)*(s32 *)(CR58 + 0x18)) {
                 f = 1;
             }
         }

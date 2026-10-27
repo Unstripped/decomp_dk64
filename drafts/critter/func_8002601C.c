@@ -1,4 +1,8 @@
-// func_8002601C (src/critter/0.c): stage 5 parked NON_MATCHING: 160/160 insns, block structure + beqzl/sb delay slots identical; remaining diff regalloc only: D_807FBB48 ptr a1 (target a2), half-sum a2 (a1), andi/sltu temps a2/a1 (t5/a3), dx/dz FP f12/f14 (f14/f16), temp ring t9,t3 vs t7,t8 at head. Fixes found: dd must reuse an existing local (dist = dx*dx+dz*dz) to avoid uopt sinking it into the flag branch; f=(pl<py+half); if(f) f=..; f=(u8)f!=0; if(f){f=0;if(c)f=1;}; py/pl inline. Tried decl-order shuffle(300), stmt perms, dummies, permuter(unreliable: direct vs baseline score mismatch).
+// func_8002601C (src/critter/0.c): stage 5 improved (fdiff 2620 -> 300; permuter 2646 -> 300 found it): reuse dx for the first-block distance: 'dx = dx*dx + dz*dz;' then compare dx (pins the sum before the flag code like the target and drops the separate-temp scheduling; int regs a1/a2/a3 now match). Left: first block target dx=$f14,dz=$f16,dist=$f12 vs ours dx=f12,dz=f14,dist=f12-reuse; second block target dist=$f12,dz=f14,dx=f16,ddy=f18 vs ours dist=f18,dz=f12.. (target colours dist FIRST in both blocks = one high-priority web; ours dist is the last-coloured); int ring at 0x2108 (lui t3/t9 vs t9/t4). Tried: dummy dist uses (&&, <, !) pin but colour dist last and shift ints, decl order of f32 locals (no effect), separate vars per block, 24 role permutations of dx/dz/dist/ddy in block 1 (best 285), dummy uses before block 2 (removed before alloc).
+extern u8 D_807444FC;
+extern u8 *D_807FC924;
+extern u8 D_807FC929;
+extern u8 *D_807FBB48;
 extern void *D_80029BA4;
 
 #define CR58 (*(u8 **)((u8 *)arg0 + 0x58))
@@ -19,7 +23,7 @@ void func_8002601C(void *arg0) {
         half = (*(s16 *)(CR58 + 0x10) + *(s16 *)(CR58 + 0xC)) >> 1;
         dx = (f32)*(s16 *)(CR58 + 0) - *(f32 *)(D_807FBB48 + 0x7C);
         dz = (f32)*(s16 *)(CR58 + 4) - *(f32 *)(D_807FBB48 + 0x84);
-        dist = dx * dx + dz * dz;
+        dx = dx * dx + dz * dz;
         fv0 = 0.0f;
         f = *(s16 *)((u8 *)D_80029BA4 + 2) < (*(s16 *)(CR58 + 2)) + half;
         if (f) {
@@ -28,7 +32,7 @@ void func_8002601C(void *arg0) {
         f = (u8)f != 0;
         if (f) {
             f = 0;
-            if (dist < (f32)*(s32 *)(CR58 + 0x18)) {
+            if (dx < (f32)*(s32 *)(CR58 + 0x18)) {
                 f = 1;
             }
         }
