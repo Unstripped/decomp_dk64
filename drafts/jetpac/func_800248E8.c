@@ -1,22 +1,4 @@
-// func_800248E8 (src/jetpac/0.c): Stage 6 (parked NON_MATCHING in J0a2/0.c): frame/size/no-s0 now match; only diff: p in v1/score in v0 (target p=v0,score=v1) and target re-stores p (sw v0,0x1C(sp)) in the delay slot of jetpacPlayerStateUpdate. Key fixes: final-block accesses through a block-local JetpacGlobalView *g = J0aG (fewer &D_8002EC30 uses stops s0 promotion). Permuter hint: a dead 'if (!sp1C->unk10 && !sp1C->unk10){}' after func_80024408 reproduces the double store (score 612->320) but adds insns.
-typedef struct {
-    u8 pad0[8];
-    s32 unk8;
-    u8 unkC;
-    u8 padD[0x348 - 0xD];
-    s32 unk348;
-    s32 unk34C;
-    u8 pad350[0x44C - 0x350];
-    s32 unk44C;
-    u8 pad450[0x78C - 0x450];
-    s32 unk78C;
-    u8 pad790[0x798 - 0x790];
-    u8 unk798;
-    u8 unk799;
-} J0aGlobalView;
-#define J0aG ((J0aGlobalView *)&D_8002EC30)
-
-s32 func_80026FE0(void);
+// func_800248E8 (src/jetpac/0.c): Stage 6 (C1c re-check): only diff p in v1/score in v0 (target p=v0,score=v1) + target's extra sw v0,0x1C(sp) before jetpacPlayerStateUpdate. Tried (all identical 44-line diff): s32 return types on every callee (each and all), separate idx/score/pointer locals, register, pad local, pointer-from-offset forms, init-vs-assign, sc local, double read, &players[0]+i, pl base local, duplicated assignment (worse); permuter 240s -j2 best 592 (start 612), no hit. Earlier hint: dead 'if(!sp1C->unk10 && !sp1C->unk10){}' reproduces double store (612->320) but adds insns.
 void jetpacPlayerStateUpdate(void);
 void jetpacItemsUpdate(void);
 void func_80026AB0(void);
