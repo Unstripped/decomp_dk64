@@ -21,7 +21,7 @@ typedef struct {
 extern s32 *D_807F5FD4;
 extern void *D_807FBB40;
 f32 func_80612794(s16);
-void mathPickCloserTargetPoint3D(f32, f32, f32, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, f32 *, f32 *, f32 *);
+s32 mathPickCloserTargetPoint3D(f32, f32, f32, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, f32 *, f32 *, f32 *);
 
 void func_800257A4(u8 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     s32 padA;
@@ -174,6 +174,14 @@ void raceAdvanceCheckpoint(u16 *arg0, s8 *arg1, s32 arg2) {
 extern void *D_807FBB40;
 f32 func_80612790(s16);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+f32 func_80611BB4(f32, f32);
+s16 func_806CC190(s16, s16, f32);
+void func_80714950(void *);
+void func_8071498C(void *);
+extern u8 D_8071A674;
+extern u8 D_8072006C;
+extern s32 D_8002FBB0[4];
+extern u8 D_8002FBC0;
 void func_80026098(f32 *arg0, f32 *arg1) {
     s16 sp2E;
     s32 pad;
@@ -190,7 +198,7 @@ void func_80026098(f32 *arg0, f32 *arg1) {
     *(f32 *)((u8 *)D_807FBB40 + 0x80) = (f32) ((f64) *(f32 *)((u8 *)D_807FBB40 + 0x80) + ((f64) (arg0[1] - *(f32 *)((u8 *)D_807FBB40 + 0x80)) * 0.8));
 }
 
-s16 func_806CC10C(s16, s16, void *);
+s16 func_806CC10C();
 
 void func_800261E0(u8 *arg0) {
     s16 pad;
@@ -201,7 +209,7 @@ void func_800261E0(u8 *arg0) {
     f32 temp_fv0;
 
     temp_s0 = (s32)(*(f32 *)(arg0 + 0xC) + *(f32 *)(arg0 + 0x18));
-    sp24 = func_806CC10C(0, (s32)*(f32 *)(arg0 + 0x1C), arg0);
+    sp24 = func_806CC10C(0, (s16)(s32)*(f32 *)(arg0 + 0x1C), arg0);
     temp_s0 &= 0xFFF;
     sp20 = func_80612790(temp_s0);
     temp_fv0 = func_80612794(temp_s0);
@@ -216,7 +224,184 @@ void func_800261E0(u8 *arg0) {
     *(s16 *)((u8 *)D_807FBB40 + 0xE4) &= 0xFFF;
 }
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/1770/func_80026354.s")
+void func_800257A4(u8 *, f32 *, f32 *, s32, s32);
+void func_80026098(f32 *, f32 *);
+void func_800261E0(u8 *);
+s32 raceGetNextWaypointIndex(s32, s32);
+void raceAdvanceCheckpoint(u16 *, s8 *, s32);
+f32 func_80612790(s16);
+f32 func_80612794(s16);
+f32 func_80611BB4(f32, f32);
+s16 func_806CC190(s16, s16, f32);
+void func_80714950(void *);
+void func_8071498C(void *);
+s32 func_806119A0(void);
+s32 func_80714CC0(void *, f32, f32, f32, f32);
+void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+s32 mathPickCloserTargetPoint3D(f32, f32, f32, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, f32 *, f32 *, f32 *);
+extern s32 *D_807F5FD4;
+extern void *D_807FBB40;
+extern u8 D_8071A674;
+extern u8 D_8072006C;
+extern s32 D_8002FBB0[4];
+extern u8 D_8002FBC0;
+
+typedef struct {
+    u8 unk0;
+    u8 unk1;
+    u16 unk2;
+    u8 unk4;
+    u8 pad5[0xB];
+    u8 unk10;
+    u8 pad11[3];
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+    u8 pad20[8];
+    f32 unk28;
+    u8 pad2C[0xD];
+    u8 unk39;
+} LargeR3State;
+
+typedef struct {
+    u8 pad0[4];
+    f32 unk4;
+    u8 pad8[0x38];
+    f32 unk40;
+} LargeR3Rival;
+
+typedef struct {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x18];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0x30];
+    f32 unkB8;
+    u8 padBC[0x2A];
+    s16 unkE6;
+    s16 unkE8;
+    u8 padEA[4];
+    s16 unkEE;
+} LargeR3Actor;
+
+#define LR3ACT ((LargeR3Actor *)D_807FBB40)
+#define LR3ST ((LargeR3State *)arg0)
+#define LR3RIV ((LargeR3Rival *)arg1)
+#define LR3PT(i) (&(i)[points])
+#define LR3NXT LR3PT(next)
+
+void func_80026354(u8 *arg0, u8 *arg1, u8 arg2) {
+    s32 count;
+    s32 next;
+    s32 next2;
+    RaceAPoint3f *points;
+    RaceAPoint3f *cur;
+    RaceAPoint3f *nxt;
+    RaceAPoint3f *nxt2;
+    f32 pos[3];
+    f32 tgt[3];
+    f32 ang;
+    f32 thrust;
+    f32 oldAng;
+    f32 spd;
+    f32 dist;
+    u8 flag;
+    s16 sp54;
+    f32 hx;
+    f32 hy;
+    f32 hz;
+
+    count = (D_807F5FD4[arg0[0] + 1] - D_807F5FD4[arg0[0]]) / 12;
+    next = raceGetNextWaypointIndex(count, LR3ST->unk2);
+    next2 = raceGetNextWaypointIndex(count, next);
+    points = (RaceAPoint3f *)D_807F5FD4[arg0[0]];
+    cur = LR3PT(LR3ST->unk2);
+    nxt2 = LR3PT(next2);
+    nxt = LR3NXT;
+    oldAng = (f32)LR3ACT->unkEE;
+    flag = LR3ST->unk39;
+    if (!(LR3ACT->unk60 & 0x10)) {
+        LR3ACT->unk7C = cur->x;
+        LR3ACT->unk80 = cur->y;
+        LR3ACT->unk84 = cur->z;
+        LR3ACT->unkB8 = 0.0f;
+        LR3ACT->unkE6 = (s32)(((f64)mathAngleBetweenPointsRad(nxt->x, nxt->z, LR3ACT->unk7C, LR3ACT->unk84) * 2048.0) / 3.1415927410125732);
+        LR3ACT->unkEE = LR3ACT->unkE6;
+        LR3ST->unk18 = 0.0f;
+    }
+    nxt = LR3NXT;
+    if (flag != 0) {
+        thrust = 0.0f;
+        LR3ST->unk39--;
+        LR3ACT->unkB8 = 0.0f;
+        LR3ST->unk14 = 0.0f;
+        LR3ST->unk10 = 0;
+    } else {
+        thrust = LR3RIV->unk4;
+    }
+    if (LR3ST->unk10 != 0) {
+        LR3ST->unk10--;
+    } else {
+        LR3ST->unk14 = (f32)((f64)LR3ST->unk14 * 0.7);
+    }
+    spd = (f32)((f64)(LR3ACT->unkB8 * LR3ACT->unkB8 * 0.0033333334f) + 0.2);
+    LR3ACT->unkB8 = LR3ACT->unkB8 + (thrust - spd);
+    if (LR3ACT->unkB8 < 0.0f) {
+        LR3ACT->unkB8 = 0.0f;
+    }
+    ang = (f32)(((f64)mathAngleBetweenPointsRad(nxt->x, nxt->z, cur->x, cur->z) * 2048.0) / 3.1415927410125732);
+    pos[0] = func_80612794(LR3ACT->unkEE) * LR3ACT->unkB8 + LR3ACT->unk7C;
+    pos[2] = func_80612790(LR3ACT->unkEE) * LR3ACT->unkB8 + LR3ACT->unk84;
+    pos[1] = LR3ACT->unk80;
+    dist = sqrtf((cur->x - nxt->x) * (cur->x - nxt->x) + (cur->z - nxt->z) * (cur->z - nxt->z));
+    LR3ST->unk1C = func_806CC190((s16)(s32)LR3ST->unk1C, (s16)(s32)(((f64)func_80611BB4(cur->y - nxt->y, dist) * 2048.0) / 3.1415927410125732), 3.0f);
+    if ((f64)LR3ACT->unkB8 > 0.001) {
+        LR3ACT->unkEE = func_806CC190(LR3ACT->unkEE, (s16)(s32)ang, 50.0f / LR3ACT->unkB8);
+    }
+    if (mathPickCloserTargetPoint3D(pos[0], pos[1], pos[2], cur, nxt, nxt, nxt2, &tgt[0], &tgt[1], &tgt[2]) != 0) {
+        raceAdvanceCheckpoint((u16 *)arg0, (s8 *)arg1, count);
+        next = raceGetNextWaypointIndex(count, LR3ST->unk2);
+        next2 = raceGetNextWaypointIndex(count, next);
+        cur = LR3PT(LR3ST->unk2);
+        nxt2 = LR3PT(next2);
+    }
+    if (LR3ST->unk0 != LR3ST->unk1) {
+        func_800257A4(arg0, tgt, pos, next, next2);
+    } else if (LR3ST->unk4 != 0) {
+        LR3ST->unk4--;
+    }
+    func_80026098(tgt, pos);
+    sp54 = func_806CC10C(LR3ACT->unkEE, (s16)(s32)oldAng);
+    LR3ST->unk28 += -0.04f * LR3ACT->unkB8 * (f32)sp54 * func_80612790((s16)(s32)LR3ST->unk18);
+    LR3ST->unk28 -= 10.0f * LR3ACT->unkB8 * func_80612794((s16)(s32)LR3ST->unk18);
+    LR3ST->unk28 = LR3ST->unk28 * 0.7f;
+    LR3ST->unk18 = LR3ST->unk18 + LR3ST->unk28;
+    func_800261E0(arg0);
+    if (arg2 != 0) {
+        if ((f64)(u32)(func_806119A0() & 0xFF) < (f64)LR3ACT->unkB8 * 0.3 && LR3ST->unk0 == LR3ST->unk1) {
+            mathPickCloserTargetPoint3D(LR3ACT->unk7C, LR3ACT->unk80, LR3ACT->unk84, cur, LR3NXT, LR3NXT, nxt2, &hx, &hy, &hz);
+            func_80714950(D_807FBB40);
+            func_8071498C(&D_8071A674);
+            D_8002FBB0[D_8002FBC0] = func_80714CC0(&D_8072006C, 0.4f, hx, hy, hz);
+            D_8002FBC0++;
+            D_8002FBC0 = D_8002FBC0 % 4;
+            func_806086CC(hx, hy, hz, 0x8A, 0x96, 0x7F, 0x14, 0x50, 0.3f, 0);
+        }
+    }
+    if (arg1 != NULL) {
+        nxt = LR3NXT;
+        LR3RIV->unk40 = (LR3ACT->unk7C - nxt->x) * (LR3ACT->unk7C - nxt->x) + (LR3ACT->unk80 - nxt->y) * (LR3ACT->unk80 - nxt->y) + (LR3ACT->unk84 - nxt->z) * (LR3ACT->unk84 - nxt->z);
+    }
+}
+#undef LR3ACT
+#undef LR3ST
+#undef LR3RIV
+#undef LR3PT
+#undef LR3NXT
+
 
 typedef struct {
     s32 pad[15];
@@ -293,7 +478,7 @@ void func_80026EE4(void *arg0, u8 *arg1) {
 extern u8 D_807FBD70;
 extern void *D_807FBB4C;
 s32 raceGetPrevWaypointIndex(s32, s32);
-void func_80026354(void *, void *, s32);
+void func_80026354(u8 *, u8 *, u8);
 void actorUpdateModelMatrix(void *, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 func_807142D8(void);
@@ -439,7 +624,7 @@ extern u8 D_80720340[];
 extern u8 D_8071FFA0[];
 
 void func_807149B8(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+s32 func_80714CC0(void *, f32, f32, f32, f32);
 void func_8002D338(void *, void *);
 
 void func_800274C0(void) {
