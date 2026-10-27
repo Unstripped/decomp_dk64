@@ -257,3 +257,9 @@ menu_VRAM_END = 0x80033FD0;
 menu_BSS_START = 0x80033F10;
 menu_BSS_END = 0x80033FD0;
 mainThread_STACK = 0x807655E0;
+
+/* 201B0 data/bss interior labels (u64 low halves, CamPathData+0xC4) */
+D_807476CC = 0x807476CC;
+D_807476D4 = 0x807476D4;
+D_807F5BD4 = 0x807F5BD4;
+D_807F5CE4 = 0x807F5CE4;

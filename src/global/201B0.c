@@ -126,36 +126,11 @@ typedef struct Struct807FC924 {
 
 extern u8 D_807444EC;
 extern u8 D_807463B8;
-extern f32 D_807476A0;
-extern f32 D_807476A4;
-extern f32 D_807476A8;
-extern u8 D_807476B4;
-extern s16 D_807476B8;
-extern s16 D_807476BC;
-extern s16 D_807476E4;
-extern s16 D_807476F4;
-extern CamPathData *D_807476FC;
 extern u8 D_80750AB8;
 extern s32 D_8076A064;
 extern s32 D_8076A0A8;
 extern u8 D_8076A0B1;
 extern u8 D_8076A0B3;
-extern s16 D_807F5CD0;
-extern void *D_807F5CE8;
-extern s16 D_807F5CEC;
-extern s16 D_807F5CEE;
-extern u16 D_807F5CF0;
-extern u16 D_807F5CF2;
-extern u16 D_807F5CF4;
-extern u8 D_807F5CFA;
-extern f32 D_807F5CFC;
-extern f32 D_807F5D00;
-extern f32 D_807F5D18;
-extern f32 D_807F5D1C;
-extern f32 D_807F5D20;
-extern f32 D_807F5D24;
-extern f32 D_807F5D28;
-extern f32 D_807F5D2C;
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
@@ -163,6 +138,85 @@ extern s32 D_807FBB64;
 extern s32 D_807FBB68;
 extern Struct807FC924 *D_807FC924;
 extern u8 D_807FC928;
+
+typedef struct CamTimerStep {
+    /* 0x0 */ u32 unk0;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5;
+    /* 0x6 */ u16 unk6;
+} CamTimerStep; // size = 0x8
+
+// .bss 0x807F5B10-0x807F5D30
+CamPathData D_807F5B10;
+CamPathData D_807F5BF0;
+f32 D_807F5CCC;
+s16 D_807F5CD0;
+s16 D_807F5CD2;
+s16 D_807F5CD4;
+s16 D_807F5CD6;
+s16 D_807F5CD8;
+s16 D_807F5CDA;
+u64 D_807F5CE0;
+void *D_807F5CE8;
+s16 D_807F5CEC;
+s16 D_807F5CEE;
+u16 D_807F5CF0;
+u16 D_807F5CF2;
+u16 D_807F5CF4;
+u8 D_807F5CF6;
+u16 D_807F5CF8;
+u8 D_807F5CFA;
+f32 D_807F5CFC;
+f32 D_807F5D00;
+s16 D_807F5D04;
+s16 D_807F5D06;
+s16 D_807F5D08;
+s16 D_807F5D0A;
+void *D_807F5D0C;
+CamActor *D_807F5D10;
+u8 D_807F5D14;
+f32 D_807F5D18;
+f32 D_807F5D1C;
+f32 D_807F5D20;
+f32 D_807F5D24;
+f32 D_807F5D28;
+f32 D_807F5D2C;
+
+// .data 0x807476A0-0x80747750
+f32 D_807476A0 = 0.0f;
+f32 D_807476A4 = 0.0f;
+f32 D_807476A8 = 0.0f;
+f32 D_807476AC = 0.0f;
+f32 D_807476B0 = 0.0f;
+u8 D_807476B4 = 0;
+s16 D_807476B8 = 0;
+s16 D_807476BC = 0;
+s16 *D_807476C0 = NULL;
+u64 D_807476C8 = 0;
+u64 D_807476D0 = 0;
+u8 D_807476D8 = 0;
+s16 D_807476DC = 0;
+s16 D_807476E0 = 0;
+s16 D_807476E4 = 0;
+s16 D_807476E8 = 0;
+u8 D_807476EC = 0;
+s16 D_807476F0 = 0;
+s16 D_807476F4 = 0;
+s16 D_807476F8 = 0;
+CamPathData *D_807476FC = &D_807F5B10;
+CamPathData *D_80747700 = &D_807F5BF0;
+s16 *D_80747704 = NULL;
+CamTimerStep D_80747708[9] = {
+    { 0x14B4, 0xAC, 0x00 },
+    { 0x20B7, 0x98, 0x00 },
+    { 0x3C55, 0xAC, 0x01 },
+    { 0x45CE, 0x99, 0x07 },
+    { 0x4F60, 0x98, 0x08 },
+    { 0x672A, 0xAB, 0x00 },
+    { 0x1869F, 0x00, 0x00 },
+    { 0 },
+    { 0 },
+};
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 func_80612790(s16);
@@ -196,9 +250,24 @@ f32 sqrtf(f32);
 
 #define CAM_LERP(a, b, t) ((a) + ((b) - (a)) * (t))
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061B4B0.s")
+u8 func_8061B4B0(void) {
+    return D_807F5CE0 != 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061B4E4.s")
+extern u64 __ll_mul(u64, u64);
+extern u64 __ull_div(u64, u64);
+void func_80712524(s32, s32);
+
+void func_8061B4E4(void) {
+    u64 t = __ull_div(__ull_div(__ll_mul(osGetTime() - D_807F5CE0, 0x40), 0xBB8), 0x2710);
+
+    if ((u32)t >= D_80747708[D_807F5D14].unk0) {
+        func_80712524(D_80747708[D_807F5D14].unk4, D_80747708[D_807F5D14].unk5);
+        if (++D_807F5D14 >= 6) {
+            D_807F5CE0 = 0;
+        }
+    }
+}
 
 typedef struct CamAPlayer {
     /* 0x000 */ u8 pad0[0x210];
@@ -425,7 +494,97 @@ void func_8061CC30(void) {
     D_807476EC = 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061CC40.s")
+extern CamPathData D_807F5BF0;
+extern CamPathData D_807F5B10;
+extern void *D_807F5D0C;
+extern Actor *D_807FBB44;
+extern u8 D_807476D8;
+extern s16 D_807476F0;
+extern u8 D_80770DC9;
+extern u8 D_807F5CF6;
+extern u8 D_8074E77C;
+extern u8 D_807F5D14;
+typedef struct CamC_Struct807FD580 {
+    /* 0x00 */ u8 pad0[0x10];
+    /* 0x10 */ s16 unk10;
+} CamC_Struct807FD580;
+extern CamC_Struct807FD580 *D_807FD580;
+
+s32 actorSpawn(s32, s32);
+void func_80029140(s16 *);
+void currentActorClearFlag(void);
+s16 func_8061C804(s16);
+void setRandomSeed(s32);
+s32 func_8070B318(void);
+
+u16 func_8061CC40(void *arg0, s16 arg1, u8 arg2) {
+    u16 ret = 0;
+
+    if (D_807444EC == 1 && (D_807F5CF4 & 0x80)) {
+        return 0;
+    }
+    if ((arg2 & 4) && D_8076A0A8 != 0) {
+        D_807476FC = &D_807F5BF0;
+    } else {
+        D_807476FC = &D_807F5B10;
+    }
+    if (actorSpawn(0xAD, 0) != 0) {
+        D_807F5D0C = D_807FBB44;
+        D_807FBB44->unk144 = 1;
+    } else {
+        return 0;
+    }
+    if (!(arg2 & 4)) {
+        if (D_807FBB64 & 1) {
+            func_80029140(&arg1);
+        }
+    }
+    if (arg0 != NULL) {
+        D_807F5CE8 = arg0;
+    } else {
+        D_807F5CE8 = *(void **)((u8 *)D_807FC924 + 4);
+    }
+    D_807444EC = 1;
+    if (!(arg2 & 8)) {
+        D_8076A0B1 |= 0x10;
+        D_8076A0B3 = 0;
+    }
+    D_807476D0 = osGetTime();
+    D_807476F4 = arg1;
+    D_807476F8 = arg1;
+    D_807F5CF4 = arg2;
+    D_807F5CFA = 0;
+    D_807476D8 = 0;
+    D_807476E4 = 0;
+    D_807F5CEC = 0;
+    D_807F5CF0 = 0;
+    D_807F5CF2 = 0;
+    D_807F5CEE = 0;
+    D_807476F0 = 0;
+    D_807F5CF6 = D_80770DC9;
+    D_807FBB60 |= 0x2000;
+    D_807FBB60 &= ~0x1001;
+    D_807FBB4C->unkB8 = 0.0f;
+    if (D_8074E77C == 7) {
+        *(f32 *)D_807FBB4C->unkC0 = 0.0f;
+    }
+    D_807FBB4C->unk60 |= 0x400;
+    D_807FD580->unk10 = 0;
+    D_807F5D10->unkE4 = 0;
+    currentActorClearFlag();
+    if (D_807476EC != 0) {
+        ret = func_8061C804(arg1);
+    }
+    D_807476EC = 0;
+    if (arg1 == 0 && D_8076A0A8 == 0x99) {
+        setRandomSeed(0x8E32B6F7);
+        D_807F5CE0 = osGetTime();
+        D_807F5D14 = 0;
+    } else if (func_8070B318() == 0) {
+        D_807F5CE0 = 0;
+    }
+    return ret;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061CF24.s")
 
@@ -450,7 +609,6 @@ void func_8061D058(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061D934.s")
 
-extern u8 D_807476D8;
 extern u16 D_807F5CF8;
 extern u8 D_8076AEE0;
 extern f32 D_807FD88C;
@@ -569,7 +727,6 @@ void func_8061EA78(void) {
     }
 }
 
-extern CamPathData D_807F5B10;
 
 typedef struct CamECam {
     /* 0x00 */ u8 pad0[0x88];
