@@ -191,8 +191,6 @@ void func_80029118(void) {
         break;
     case 0xFF:
         D_80029FA8 = 0;
-        if (sp70 && sp70) {
-        }
         temp_s0->unk2 = func_806FDB8C(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
         temp_s0->unk0 = 0x78;
         D_807FBB40->unk154 = 0xFE;
