@@ -1,4 +1,4 @@
-// func_80029118 (src/critter/5110.c): stage 6 improved (fdiff score 890 -> 40; only remaining diff: the two global-address temps lui/lhu are v0 in ours, v1 in target at D_807FCC44 read (0x48) and D_80029FA4 read (case 0xFE)). Fix found: read D_807FCC44 through an alias symbol (extern u8 D_807FCC40[]; tmp = *(u16 *)&D_807FCC40[4]) into a u16 local so the address is no longer shared with the zero store (separate lui at); reloc-only difference (D_807FCC40+4 vs D_807FCC44). Frame needs 's32 pad88; u16 tmp;' instead of pad88[2]. Tried for v1: dropping/adding sp70 uses, alias read at 0x508, decl order: no effect.
+// func_80029118 (src/critter/5110.c): stage 6, fdiff score 20 (from 40): the D_807FCC44 read block now matches (tmp is v1). Only left: 0x508 block (case 0xFE) the non-folded address temp 'lui v0,%hi(D_80029FA4); lhu a2,%lo(v0)' is v0 in ours, v1 in target. Fix for the first: reuse the SAME local tmp (u16) for the second read: 'tmp = D_80029FA4; D_807FCC44 = tmp; func_806F8A8C(4, 0, D_80029FA4);' (extends tmp's web, recolours it to v1). Tried for 0x508: (s64)/(u64) casts, empty if(0) at each boundary, if(!tmp){}, tmp=0 on else path, second local tmp2, s32/u32 tmp, alias-symbol reads (+4 of D_80029FA0), sp70&&sp70 dummy after flagSet (much worse), moving the arg read into tmp: no gain. Two 300s permuter runs (-j 2) from the old and new park found nothing below 20.
 typedef struct Struct_807FBB40_174 {
     s16 unk0;
     u8 unk2;
@@ -177,7 +177,8 @@ void func_80029118(void) {
                     }
                     flagSet(sp70, 1, 0);
                 }
-                D_807FCC44 = D_80029FA4;
+                tmp = D_80029FA4;
+                D_807FCC44 = tmp;
                 func_806F8A8C(4, 0, D_80029FA4);
                 func_805FF800(&sp3C, &sp38);
                 func_805FF628(sp3C, 0);
