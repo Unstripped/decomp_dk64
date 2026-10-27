@@ -1092,7 +1092,30 @@ void func_8062E608(void *arg0, s32 *arg1, void *arg2) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E67C.s")
+void func_8062E67C(s16 *arg0, s16 *arg1, u8 arg2, f64 arg3, s16 *arg4) {
+    f32 t;
+
+    switch (arg2) {
+        case 0:
+            t = (arg3 - arg0[0]) / (arg1[0] - arg0[0]);
+            arg4[1] = (arg1[1] - arg0[1]) * t + arg0[1];
+            arg4[2] = (arg1[2] - arg0[2]) * t + arg0[2];
+            arg4[0] = arg3;
+            break;
+        case 1:
+            t = (arg3 - arg0[1]) / (arg1[1] - arg0[1]);
+            arg4[0] = (arg1[0] - arg0[0]) * t + arg0[0];
+            arg4[2] = (arg1[2] - arg0[2]) * t + arg0[2];
+            arg4[1] = arg3;
+            break;
+        case 2:
+            t = (arg3 - arg0[2]) / (arg1[2] - arg0[2]);
+            arg4[0] = (arg1[0] - arg0[0]) * t + arg0[0];
+            arg4[1] = (arg1[1] - arg0[1]) * t + arg0[1];
+            arg4[2] = arg3;
+            break;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E898.s")
 
@@ -1139,11 +1162,57 @@ R2F550a2Cmd *func_8062EDA8(R2F550a2Cmd *arg0, u8 arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062EDA8.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062EE48.s")
+typedef struct R2F550fChunk {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 unk1;
+    /* 0x02 */ u8 unk2;
+    /* 0x03 */ u8 unk3;
+    /* 0x04 */ u8 unk4;
+    /* 0x05 */ u8 unk5;
+    /* 0x06 */ u8 pad6[2];
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC[1];
+    /* 0x10 */ u8 pad10[0x6C];
+} R2F550fChunk; /* 0x7C */
+
+void assetFreeBuffer(s32, s32, s32);
+s32 func_8066B0F8(s32, s32, s32, s32);
+
+#define R2F550F_CHUNK ((R2F550fChunk *)D_807F5FC4)[i]
+
+void func_8062EE48(u8 arg0) {
+    s32 i;
+    s32 flag;
+
+    for (i = 0; i < D_807F5FC1; i++) {
+        if (arg0 == R2F550F_CHUNK.unk1) {
+            flag = 0;
+            R2F550F_CHUNK.unk4++;
+            if (R2F550F_CHUNK.unk4 == R2F550F_CHUNK.unk2) {
+                R2F550F_CHUNK.unk4 = 0;
+                R2F550F_CHUNK.unk5++;
+                if (R2F550F_CHUNK.unk5 == R2F550F_CHUNK.unk3) {
+                    R2F550F_CHUNK.unk5 = 0;
+                }
+                flag = 1;
+            }
+            if (R2F550F_CHUNK.unk8 == 0) {
+                flag = 1;
+            }
+            if (flag) {
+                if (R2F550F_CHUNK.unk8 != 0) {
+                    assetFreeBuffer(R2F550F_CHUNK.unk8, 0x7E3, 5);
+                }
+                R2F550F_CHUNK.unk8 = func_8066B0F8(7, R2F550F_CHUNK.unkC[R2F550F_CHUNK.unk5], 0, 0);
+            }
+        }
+    }
+}
+
+#undef R2F550F_CHUNK
 
 
 s32 mapChunkIsVisible(u8);
-void assetFreeBuffer(s32, s32, s32);
 
 void func_8062EFA0(void) {
     s32 i;
@@ -1158,15 +1227,156 @@ void func_8062EFA0(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F050.s")
+typedef struct R2F550fMapHdr {
+    /* 0x00 */ u8 pad0[8];
+    /* 0x08 */ u8 unk8;
+    /* 0x09 */ u8 pad9;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ u8 padC[2];
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ s16 unk18;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ s16 unk20;
+    /* 0x22 */ s16 unk22;
+    /* 0x24 */ s16 unk24;
+    /* 0x26 */ s16 unk26;
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ s16 unk2A;
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ u8 pad2E[2];
+    /* 0x30 */ s32 unk30;
+    /* 0x34 */ s32 unk34;
+    /* 0x38 */ s32 unk38;
+    /* 0x3C */ u8 pad3C[4];
+    /* 0x40 */ s32 unk40;
+    /* 0x44 */ s32 unk44;
+    /* 0x48 */ s32 unk48;
+} R2F550fMapHdr;
+
+#define R2F550F_HDR ((R2F550fMapHdr *)arg0)
+
+extern u8 *D_807F5DE0;
+extern f32 D_807F5FDC;
+extern f32 D_807444C4;
+extern s32 D_807FB5E0;
+extern s32 D_807FB5E4;
+extern s16 D_807FB5E8;
+extern s16 D_807FB5EA;
+extern s16 D_807F9450;
+extern s16 D_807F9452;
+extern s16 D_807F9454;
+extern s16 D_807F9456;
+extern s16 D_807FD574;
+extern s16 D_807FD576;
+extern s16 D_807FD578;
+extern s16 D_807F5FE4;
+extern s16 D_807F5FE6;
+extern s16 D_807F5FE8;
+extern s16 D_807F5FEA;
+extern s32 D_807F5FD0;
+extern s32 *D_807F5FD4;
+extern s32 D_807F5FC8;
+extern s32 D_807F5FCC;
+extern s32 D_807F5DE8;
+extern void *D_807F5DEC;
+
+f32 cosApprox(f32);
+void fogSetParams(u8);
+void renderSetSegment6Override(u8);
+void lightSetTargetColor(f32, f32, f32, s16);
+void lightCopyTargetColors(s16);
+void func_8065E040(s32);
+struct R2F550fNode;
+void func_8062F420(struct R2F550fNode *, s32, s32);
+void func_8062F3A0();
+void func_8062F328(s32);
+void func_8063C390(void);
+void func_80650ECC(void *);
+void func_8066C958(void *);
+void func_80666090(void *);
+void func_8065F1C0(void *);
+void func_80662B90(void *);
+void triggerZoneInit(void *);
+void func_8062F318(void);
+
+void func_8062F050(s32 arg0) {
+    s32 off30;
+    s32 off34;
+    s32 off38;
+    s32 off44;
+    s32 off40;
+    s32 off48;
+    s32 pad[5];
+    s32 sp28;
+
+    D_807F5DE0 = (u8 *)arg0;
+    sp28 = 0;
+    D_807F5FDC = cosApprox(0.7853981853f);
+    fogSetParams(R2F550F_HDR->unk8 & 1);
+    renderSetSegment6Override((R2F550F_HDR->unk8 >> 1) & 1);
+    D_807444C4 = R2F550F_HDR->unkA;
+    D_807FB5E0 = R2F550F_HDR->unk14 << 3;
+    D_807FB5E4 = R2F550F_HDR->unk16 << 3;
+    D_807FB5E8 = R2F550F_HDR->unk10;
+    D_807FB5EA = R2F550F_HDR->unk12;
+    D_807F9450 = R2F550F_HDR->unk1C;
+    D_807F9452 = R2F550F_HDR->unk1E;
+    D_807F9454 = R2F550F_HDR->unk18;
+    D_807F9456 = R2F550F_HDR->unk1A;
+    D_807FD574 = R2F550F_HDR->unk20;
+    D_807FD576 = R2F550F_HDR->unk22;
+    D_807FD578 = R2F550F_HDR->unk24;
+    D_807F5FE4 = R2F550F_HDR->unk26;
+    D_807F5FE6 = R2F550F_HDR->unk28;
+    D_807F5FE8 = R2F550F_HDR->unk2A;
+    D_807F5FEA = R2F550F_HDR->unk2C;
+    off40 = R2F550F_HDR->unk40;
+    off30 = R2F550F_HDR->unk30;
+    off34 = R2F550F_HDR->unk34;
+    off38 = R2F550F_HDR->unk38;
+    off44 = R2F550F_HDR->unk44;
+    off48 = R2F550F_HDR->unk48;
+    D_807F5FD0 = *(s32 *)(D_807F5DE0 + off40) + 1;
+    D_807F5FD4 = (s32 *)(D_807F5DE0 + off40 + 4);
+    D_807F5FC8 = *(s32 *)(D_807F5DE0 + off44);
+    D_807F5FCC = (s32)(D_807F5DE0 + off44 + 4);
+    D_807F5FC1 = *(s32 *)(D_807F5DE0 + off48);
+    D_807F5FC4 = (R2F550a2Chunk *)(D_807F5DE0 + off48 + 4);
+    D_807F5DE4 = (R2F550bObj *)(D_807F5DE0 + off30);
+    D_807F5DE8 = (s32)(D_807F5DE0 + off38);
+    D_807F5DEC = D_807F5DE0 + off34;
+    lightSetTargetColor(1.0f, 1.0f, 1.0f, -1);
+    lightCopyTargetColors(-1);
+    func_8065E040(R2F550F_HDR->unkE << 10);
+    func_8062F420((struct R2F550fNode *)(s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off34));
+    func_8062F3A0(D_807F5DE0 + off34, D_807F5DE0 + off38);
+    func_8062F328((s32)(D_807F5DE0 + off40));
+    func_8063C390();
+    func_8062B3C4((R2F550aNode *)D_807F5DE4, &sp28);
+    func_8062B478(sp28);
+    D_807F5E60 = (R2F550bTree *)func_8062BA74((R2F550bSrc *)D_807F5DE4);
+    func_80650ECC((void *)arg0);
+    func_8066C958((void *)arg0);
+    func_80666090((void *)arg0);
+    func_8065F1C0((void *)arg0);
+    func_80662B90((void *)arg0);
+    triggerZoneInit((void *)arg0);
+    func_8062F318();
+}
+
+#undef R2F550F_HDR
 
 void func_8062F318(void) {
     D_807F5FED = 1;
 }
 
 #ifdef NON_MATCHING
-extern s32 D_807F5FD0;
-extern s32 *D_807F5FD4;
 
 void func_8062F328(s32 arg0) {
     s32 i;
@@ -1186,8 +1396,6 @@ void func_8062F328(s32 arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F328.s")
 #endif
 
-extern s32 D_807F5FC8;
-extern s32 D_807F5FCC;
 
 s32 func_8062F388(s32 *arg0) {
     *arg0 = D_807F5FCC;
@@ -1195,7 +1403,6 @@ s32 func_8062F388(s32 *arg0) {
 }
 
 #ifdef NON_MATCHING
-s32 func_8066B0F8(s32, s32, s32, s32);
 
 void func_8062F3A0(R2F550a2Cmd *arg0, R2F550a2Cmd *arg1) {
     R2F550a2Cmd *p;
@@ -1219,9 +1426,90 @@ void func_8062F3A0(R2F550a2Cmd *arg0, R2F550a2Cmd *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F3A0.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F420.s")
+typedef struct R2F550fNode {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C[1];
+    /* 0x20 */ u8 pad20[0x98];
+    /* 0xB8 */ u8 unkB8;
+    /* 0xB9 */ u8 padB9[0xC];
+    /* 0xC5 */ u8 unkC5;
+} R2F550fNode;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F538.s")
+void func_8062F420(R2F550fNode *arg0, s32 arg1, s32 arg2) {
+    s32 i;
+
+    if (arg0 == NULL) {
+        return;
+    }
+    switch (arg0->unkB8) {
+        case 0:
+            arg0->unk0 += arg1;
+            arg0->unk4 += arg1;
+            func_8062F420((R2F550fNode *)arg0->unk0, arg1, arg2);
+            func_8062F420((R2F550fNode *)arg0->unk4, arg1, arg2);
+            return;
+        case 1:
+        case 2:
+            break;
+        default:
+            return;
+    }
+    if (arg0->unk8 != -1) {
+        arg0->unk8 += arg2;
+    }
+    if (arg0->unkC != -1) {
+        arg0->unkC += arg2;
+    }
+    if (arg0->unk10 != -1) {
+        arg0->unk10 += arg2;
+    }
+    if (arg0->unk14 != -1) {
+        arg0->unk14 += arg2;
+    }
+    if (arg0->unk18 != -1) {
+        arg0->unk18 += arg2;
+    }
+    for (i = 0; i < arg0->unkC5; i++) {
+        arg0->unk1C[i] += arg2;
+    }
+}
+
+void func_8062F538(f32 (*arg0)[3], s32 arg1, s32 arg2, s32 arg3) {
+    f32 t;
+    s32 i;
+
+    if (arg1 != 0) {
+        i = 0;
+        if (arg2 == 0) {
+            for (i = 0; i < 3; i++) {
+                t = arg0[arg2][i];
+                arg0[arg2][i] = arg0[arg1][i];
+                arg0[arg1][i] = t;
+            }
+            arg2 = arg1;
+        } else {
+            for (i = 0; i < 3; i++) {
+                t = arg0[arg3][i];
+                arg0[arg3][i] = arg0[arg1][i];
+                arg0[arg1][i] = t;
+            }
+            arg3 = arg1;
+        }
+    }
+    if (arg2 != 1) {
+        for (i = 0; i < 3; i++) {
+            t = arg0[arg3][i];
+            arg0[arg3][i] = arg0[arg2][i];
+            arg0[arg2][i] = t;
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F640.s")
 
