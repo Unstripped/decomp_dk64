@@ -164,6 +164,10 @@ void func_80028340();
 #ifdef NON_MATCHING
 void func_80027728(J3Item *arg0) {
     J3Inner *inner = (J3Inner *)((u8 *)&D_8002EC30 + D_8002EC30.unk344 * 0x194 + 0x1C);
+    f32 *new_var;
+    f32 *new_var2;
+    s32 *new_var3;
+    s32 new_var4;
 
     if (arg0->unk1C == 0) {
         return;
@@ -178,6 +182,9 @@ void func_80027728(J3Item *arg0) {
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
+    new_var = &D_8002F050;
+    new_var2 = &D_8002F054;
+    new_var3 = &D_8002F06C;
     if (arg0->unk38 == 0) {
         if (arg0->unk14 > 0.0f && D_8002F064 != 4) {
             f32 x = arg0->unk8;
@@ -192,8 +199,8 @@ void func_80027728(J3Item *arg0) {
         }
         if (D_8002F064 == 3) {
             if (func_80027250(arg0->unk8 + (f32)arg0->unk24, arg0->unkC + (f32)arg0->unk28, arg0->unk8 + (f32)arg0->unk2C, arg0->unkC + (f32)arg0->unk30,
-                              D_8002F050 + (f32)D_8002F06C, D_8002F054 + (f32)D_8002F070, D_8002F050 + (f32)D_8002F074,
-                              D_8002F054 + (f32)D_8002F078)) {
+                              (*new_var) + (f32)D_8002F06C, (*new_var2) + (f32)D_8002F070, (*new_var) + (f32)D_8002F074,
+                              (*new_var2) + (f32)D_8002F078)) {
                 arg0->unk38 = 1;
                 inner->unk4 += arg0->unk3C;
                 func_80024E70(4);
@@ -205,12 +212,13 @@ void func_80027728(J3Item *arg0) {
             arg0->unk38 = 0;
             arg0->unk14 = 0.8f;
         } else {
-            arg0->unk8 = (D_8002F050 - (f32)2 * D_8002F058 + (f32)D_8002F06C) + (D_8002F074 - D_8002F06C - arg0->unk2C + arg0->unk24) * 0.5;
+            new_var4 = *new_var3;
+            arg0->unk8 = (D_8002F050 - (f32)2 * D_8002F058 + (f32)new_var4) + (D_8002F074 - D_8002F06C - arg0->unk2C + arg0->unk24) * 0.5;
             arg0->unkC = D_8002F054 - D_8002F05C + (f32)D_8002F078 - (f32)arg0->unk30;
             if (func_80027330(arg0->unk8)) {
                 arg0->unk8 = 168.0f;
-                arg0->unk38 = 2;
                 arg0->unk14 = 0.8f;
+                arg0->unk38 = 2;
             }
         }
     }
@@ -324,6 +332,8 @@ void func_80027EC0(J3Item *arg0) {
     J3Inner *inner = (J3Inner *)((u8 *)&D_8002EC30 + D_8002EC30.unk344 * 0x194 + 0x1C);
     s32 v;
     s32 idx;
+    f32 *new_var;
+    f32 *new_var2;
 
     if (inner->unkC == 0) {
         return;
@@ -335,6 +345,8 @@ void func_80027EC0(J3Item *arg0) {
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
+    new_var = &D_8002F050;
+    new_var2 = &D_8002F054;
     if (arg0->unk38 == 0) {
         if (arg0->unk14 > 0.0f) {
             f32 x = arg0->unk8;
@@ -349,8 +361,8 @@ void func_80027EC0(J3Item *arg0) {
         }
         if (*(s32 *)((u8 *)&D_8002EC30 + 0x78C) == 2 && D_8002F064 == 3) {
             if (func_80027250(arg0->unk8 + (f32)arg0->unk24, arg0->unkC + (f32)arg0->unk28, arg0->unk8 + (f32)arg0->unk2C, arg0->unkC + (f32)arg0->unk30,
-                              D_8002F050 + (f32)D_8002F06C, D_8002F054 + (f32)D_8002F070, D_8002F050 + (f32)D_8002F074,
-                              D_8002F054 + (f32)D_8002F078)) {
+                              (*new_var) + (f32)D_8002F06C, (*new_var2) + (f32)D_8002F070, (*new_var) + (f32)D_8002F074,
+                              (*new_var2) + (f32)D_8002F078)) {
                 if (arg0->unk40 == 6) {
                     flagSet(0x62, 1, 2);
                 }

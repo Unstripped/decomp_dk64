@@ -1,11 +1,4 @@
-// func_80027EC0 (src/jetpac/3480.c): stage 5, parked NON_MATCHING: same frame; remaining: FP-load scheduling in the 8-arg func_80027250 call (as func_80027728), li t5,2 / sw 0x34 via a0 vs s0 at top, v0/v1 swap in switch case 1/3/4 (v vs inner->unk144).
-typedef struct {
-    u8 pad0[0x344];
-    s32 unk344;
-} JetpacGlobal;
-
-extern JetpacGlobal D_8002EC30;
-
+// func_80027EC0 (src/jetpac/3480.c): stage 5 park: same new_var/new_var2 call fix as 80027728 gets the lui at order right; remaining: li t5,2 placement + 'sw via a0 vs s0' at 'unk34+1' early return, and v0/v1 swap in switch cases 1/3/4 (v,t8/t4 temp numbering). Tried: switch (field), per-case scoped v/idx (all 16 combos), 't' for unk144, ++ forms - none improved
 typedef struct {
     u8 pad0[8];
     f32 unk8;
@@ -58,6 +51,8 @@ void func_80027EC0(J3Item *arg0) {
     J3Inner *inner = (J3Inner *)((u8 *)&D_8002EC30 + D_8002EC30.unk344 * 0x194 + 0x1C);
     s32 v;
     s32 idx;
+    f32 *new_var;
+    f32 *new_var2;
 
     if (inner->unkC == 0) {
         return;
@@ -69,6 +64,8 @@ void func_80027EC0(J3Item *arg0) {
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
+    new_var = &D_8002F050;
+    new_var2 = &D_8002F054;
     if (arg0->unk38 == 0) {
         if (arg0->unk14 > 0.0f) {
             f32 x = arg0->unk8;
@@ -83,8 +80,8 @@ void func_80027EC0(J3Item *arg0) {
         }
         if (*(s32 *)((u8 *)&D_8002EC30 + 0x78C) == 2 && D_8002F064 == 3) {
             if (func_80027250(arg0->unk8 + (f32)arg0->unk24, arg0->unkC + (f32)arg0->unk28, arg0->unk8 + (f32)arg0->unk2C, arg0->unkC + (f32)arg0->unk30,
-                              D_8002F050 + (f32)D_8002F06C, D_8002F054 + (f32)D_8002F070, D_8002F050 + (f32)D_8002F074,
-                              D_8002F054 + (f32)D_8002F078)) {
+                              (*new_var) + (f32)D_8002F06C, (*new_var2) + (f32)D_8002F070, (*new_var) + (f32)D_8002F074,
+                              (*new_var2) + (f32)D_8002F078)) {
                 if (arg0->unk40 == 6) {
                     flagSet(0x62, 1, 2);
                 }

@@ -1,11 +1,4 @@
-// func_80027728 (src/jetpac/3480.c): stage 5, parked NON_MATCHING: same frame/regs; only FP-load scheduling in the 8-arg func_80027250 call (D_8002F050/F054 lwc1 hoisted earlier than target, lui at order) + temp ring (v0 vs t7). Direct arg0->unk8 + (f32)unk24 (not x/y locals) fixes operand order; (f32)2 * D_8002F058 avoids x+x.
-typedef struct {
-    u8 pad0[0x344];
-    s32 unk344;
-} JetpacGlobal;
-
-extern JetpacGlobal D_8002EC30;
-
+// func_80027728 (src/jetpac/3480.c): stage 5/6 park: frame+regs match; text size equal after perm. Fixes found: (*new_var)=&D_8002F050,(*new_var2)=&D_8002F054 locals set before 'if (unk38==0)' reproduce lui at order in the 8-arg func_80027250 call; unk14=0.8f before unk38=2 (permuter); s32 new_var4=*new_var3(&D_8002F06C). Left: t7/v0 for D_8002F06C load in 'unk8 = ...' expr (lw v0 vs lw t7), 2 insns of mul.d/add.s operand order, and later-fn pressure (sw a1,0x6c(sp) in func_800286D0 region is other fn)
 typedef struct {
     u8 pad0[8];
     f32 unk8;
@@ -56,6 +49,10 @@ void func_80028340();
 
 void func_80027728(J3Item *arg0) {
     J3Inner *inner = (J3Inner *)((u8 *)&D_8002EC30 + D_8002EC30.unk344 * 0x194 + 0x1C);
+    f32 *new_var;
+    f32 *new_var2;
+    s32 *new_var3;
+    s32 new_var4;
 
     if (arg0->unk1C == 0) {
         return;
@@ -70,6 +67,9 @@ void func_80027728(J3Item *arg0) {
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
+    new_var = &D_8002F050;
+    new_var2 = &D_8002F054;
+    new_var3 = &D_8002F06C;
     if (arg0->unk38 == 0) {
         if (arg0->unk14 > 0.0f && D_8002F064 != 4) {
             f32 x = arg0->unk8;
@@ -84,8 +84,8 @@ void func_80027728(J3Item *arg0) {
         }
         if (D_8002F064 == 3) {
             if (func_80027250(arg0->unk8 + (f32)arg0->unk24, arg0->unkC + (f32)arg0->unk28, arg0->unk8 + (f32)arg0->unk2C, arg0->unkC + (f32)arg0->unk30,
-                              D_8002F050 + (f32)D_8002F06C, D_8002F054 + (f32)D_8002F070, D_8002F050 + (f32)D_8002F074,
-                              D_8002F054 + (f32)D_8002F078)) {
+                              (*new_var) + (f32)D_8002F06C, (*new_var2) + (f32)D_8002F070, (*new_var) + (f32)D_8002F074,
+                              (*new_var2) + (f32)D_8002F078)) {
                 arg0->unk38 = 1;
                 inner->unk4 += arg0->unk3C;
                 func_80024E70(4);
@@ -97,12 +97,13 @@ void func_80027728(J3Item *arg0) {
             arg0->unk38 = 0;
             arg0->unk14 = 0.8f;
         } else {
-            arg0->unk8 = (D_8002F050 - (f32)2 * D_8002F058 + (f32)D_8002F06C) + (D_8002F074 - D_8002F06C - arg0->unk2C + arg0->unk24) * 0.5;
+            new_var4 = *new_var3;
+            arg0->unk8 = (D_8002F050 - (f32)2 * D_8002F058 + (f32)new_var4) + (D_8002F074 - D_8002F06C - arg0->unk2C + arg0->unk24) * 0.5;
             arg0->unkC = D_8002F054 - D_8002F05C + (f32)D_8002F078 - (f32)arg0->unk30;
             if (func_80027330(arg0->unk8)) {
                 arg0->unk8 = 168.0f;
-                arg0->unk38 = 2;
                 arg0->unk14 = 0.8f;
+                arg0->unk38 = 2;
             }
         }
     }

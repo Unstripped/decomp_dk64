@@ -1,4 +1,4 @@
-// func_80028E88 (src/jetpac/3480.c): stage 6, parked NON_MATCHING: regs now right (s3 color, s8 color_fp via 'color_fp = D_8002EF90; color = color_fp'); remaining prologue order (lui t6 temp for EF90 vs v0, lui s5 first, addiu s7,s6,s5 order), a3 move before sw zero 0x10(sp), temps t8/t9 vs t9/t0.
+// func_80028E88 (src/jetpac/3480.c): stage 6 park (unchanged C): remaining prologue order (lui t6 vs v0 for D_8002EF90, lui s5 first, move s8,s3 / sw zero,0x10(sp) before move a3). Tried 6 local declaration orders, moving D_8002DE* externs, inlining de80/base - no change; permuter only whitespace
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -13,21 +13,14 @@ typedef struct {
     u8 pad2C[4];
     s32 unk30;
 } JetpacLedge;
-
-typedef struct {
-    u8 pad0[0x344];
-    s32 unk344;
-} JetpacGlobal;
-
-extern JetpacGlobal D_8002EC30;
-
+extern JetpacLedge D_8002EF80[];
+extern s32 D_8002EC30[];
 void func_80025700(void *, s32, s32, void *, s32);
 extern void *D_8002DE68;
 extern void *D_8002DE80;
 extern void *D_8002DE98;
 extern u8 D_8002EF90[];
 extern u8 D_8002F060[];
-extern JetpacLedge D_8002EF80[];
 
 void func_80028E88(void) {
     u8 *color_fp = D_8002EF90;
