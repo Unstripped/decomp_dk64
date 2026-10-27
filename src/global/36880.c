@@ -1670,7 +1670,6 @@ s32 func_80635214(u32 *arg0) {
 }
 
 
-#ifdef NON_MATCHING
 typedef struct R36880bVtx {
     /* 0x00 */ s16 x;
     /* 0x02 */ s16 y;
@@ -1720,9 +1719,9 @@ void func_8063524C(R36880bParent *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
 
     data = arg0->unk24;
     out = arg0->unk20;
+    q = (R36880bQuad *)(*(s32 *)(data + 0x70) + (s32)data + 4);
     out->unk0 = arg1;
     out->unk4 = arg2;
-    q = (R36880bQuad *)(*(s32 *)(data + 0x70) + (s32)data + 4);
     out->unk8 = arg3;
     out->unkC = arg7;
     out->unk10 = arg8;
@@ -1734,28 +1733,18 @@ void func_8063524C(R36880bParent *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
         out->rgba[1] = q->rgba[1];
         out->rgba[2] = q->rgba[2];
         out->rgba[3] = q->rgba[3];
-        for (j = 0; j != 4; j += 2) {
-            out->unk1C[i * 4 + j].x = q->x[j];
-            out->unk1C[i * 4 + j].y = q->y[j];
-            out->unk1C[i * 4 + j].z = q->z[j];
-            out->unk1C[i * 4 + j].s = q->uv[j][0];
-            out->unk1C[i * 4 + j].t = q->uv[j][1];
+        for (j = 0; j < 4; j++) {
+            out->unk1C[(i << 2) + j].x = q->x[j];
+            out->unk1C[(i << 2) + j].y = q->y[j];
+            out->unk1C[(i << 2) + j].z = q->z[j];
+            out->unk1C[(i << 2) + j].s = q->uv[j][0];
+            out->unk1C[(i << 2) + j].t = q->uv[j][1];
             sum += q->y[j];
-            out->unk1C[i * 4 + j + 1].x = q->x[j + 1];
-            out->unk1C[i * 4 + j + 1].y = q->y[j + 1];
-            out->unk1C[i * 4 + j + 1].z = q->z[j + 1];
-            out->unk1C[i * 4 + j + 1].s = q->uv[j + 1][0];
-            out->unk1C[i * 4 + j + 1].t = q->uv[j + 1][1];
-            sum += q->y[j + 1];
         }
         q++;
     }
     out->unk48 = sum / (out->unk20 * 4);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063524C.s")
-#endif
 
 
 
@@ -2489,7 +2478,6 @@ u8 func_80636A8C(s32 arg0) {
     return result;
 }
 
-#ifdef NON_MATCHING
 typedef struct R36880eSegOwner {
     /* 0x00 */ u8 pad0[0x20];
     /* 0x20 */ R36880eSeg *unk20;
@@ -2502,19 +2490,20 @@ void func_80636AE8(void *arg0) {
     R36880eSeg *seg;
     u32 mid;
     u32 count;
+    u32 len;
+    u32 start;
 
     seg = ((R36880eSegOwner *)arg0)->unk20;
     mid = seg->unkA8;
     head = seg->unkA0;
+    start = head;
+    len = seg->unkB0 - mid;
     head = (mid - head) >> 3;
-    count = (seg->unkB0 - mid) >> 3;
-    renderReplaceSegment6Commands(seg->unkA0, seg->unkA0 + head * 8, seg, seg->unkB0 - mid);
-    renderReplaceSegment6Commands(seg->unkA8, seg->unkA8 + count * 8, seg, count);
+    count = len >> 3;
+    renderReplaceSegment6Commands(start, (0, start) + head * 8, seg, len);
+    len = count;
+    renderReplaceSegment6Commands(seg->unkA8, seg->unkA8 + count * 8, seg, len);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636AE8.s")
-#endif
 
 void func_80636B50(R36880eCmd *arg0, R36880eCmd *arg1, u8 arg2) {
     u32 w;
@@ -2541,7 +2530,6 @@ void func_80636B50(R36880eCmd *arg0, R36880eCmd *arg1, u8 arg2) {
 }
 
 
-#ifdef NON_MATCHING
 typedef struct R36880eObjHdr {
     /* 0x00 */ u32 unk0;
     /* 0x04 */ u8 pad4[4];
@@ -2558,11 +2546,12 @@ void func_80636C00(void) {
     u32 mid;
     R36880eSeg *seg;
     u32 head;
-    u32 tail;
+    u32 count;
     u8 flag;
     R36880eObjHdr *obj;
     ModelSlot *slot;
     u32 start;
+    u32 len;
 
     if (D_80747D70 != 0) {
         D_80747D74 += 1;
@@ -2582,19 +2571,19 @@ void func_80636C00(void) {
                 }
                 seg = ((ModelSlot *)((u8 *)D_807F6000 + D_80747D74 * 0x90))->unk20;
                 mid = seg->unkA8;
-                start = seg->unkA0;
-                head = (mid - start) >> 3;
-                tail = (seg->unkB0 - mid) >> 3;
-                func_80636B50((R36880eCmd *)seg->unkA0, (R36880eCmd *)(seg->unkA0 + head * 8), flag);
-                func_80636B50((R36880eCmd *)seg->unkA8, (0, (R36880eCmd *)(seg->unkA8 + tail * 8)), flag);
+                head = seg->unkA0;
+                start = head;
+                len = seg->unkB0 - mid;
+                head = (mid - head) >> 3;
+                count = len >> 3;
+                func_80636B50((R36880eCmd *)start, (R36880eCmd *)((0, start) + head * 8), flag);
+                len = count;
+                count = 0;
+                func_80636B50((R36880eCmd *)seg->unkA8, (0, (R36880eCmd *)(seg->unkA8 + len * 8)), flag);
             }
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636C00.s")
-#endif
 
 
 
