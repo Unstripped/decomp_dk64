@@ -1,4 +1,4 @@
-// func_80636FFC (src/global/36880.c): stage 4 WIP: all instrs match except (1) frame/spill-slot layout (frame 0x138 ok, spill slots 0x70-0x7c etc fine but top-level locals pads guessed), (2) guRotateF arg setup: mine hoists addiu a0,&spB8 above c.eq.d (target keeps it after mfc1 a1), bc1tl vs bc1t on 3rd rotate, (3) flags local fl in v0 instead of a0 (target has extra move v0,a0). Needs s32 func_80636D38 prototype (changed from void).
+// func_80636FFC (src/global/36880.c): Stage 4, parked NON_MATCHING. Same callee-saved set (s0,s1) + frame 0x138; ~14 non-stack insn diffs left. (1) NEEDS prototype 's32 func_80636D38(void *, s32, s32)' (now void in 36880.c): with s32 the slot ptr gets v1 like target (void gives v0/v1 swap in the flags block); (2) guRotateF x3 blocks: as1 hoists 'addiu a0,sp,&spB8' (and 'lui at' for the z-axis block) above c.eq.d, bc1tl vs target's bc1t+lui delay on 3rd; target keeps them after 'mfc1 a1'; (3) flags local fl allocated v0 instead of a0 (target has 'lbu a0,0x8c(v1); ... move v0,a0'); (4) spill-slot layout: target spills at 0x3c,0x40,0x58,0x70-0x7c (13 gap words), mine 0x38,0x3c,0x50,0x60-0x6c - 4 fewer temp slots (each gSP macro _g = 1 slot); pad3[3]+dummy locals only fake top homes. Tried: permuter 600s -j2 (no gain), 5 separate model vars (worse), slot/fl scope variants, array type variants, s32 returns on callees.
 typedef struct {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u8 unk60;
@@ -56,7 +56,6 @@ s32 func_806D0964(s32, u8, s32);
 void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
 Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
-u32 osVirtualToPhysical(void *);
 
 #define L80636FFC_PLAYER(i) (((L80636FFCPlayer *)D_807FC924)[i])
 
@@ -79,7 +78,6 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
     s32 pad2;
     f32 sp88;
     f32 sp84;
-    s32 fl;
     s32 pad3[3];
 
     if (0) {
@@ -197,18 +195,18 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
     }
     if (sp92 != 0) {
         if (arg0->unkB6 != -1) {
-            fl = D_807F6000[sp90].unk8C;
+            s32 fl = D_807F6000[sp90].unk8C;
             if (fl != 0) {
-                if ((fl & 8) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 2) {
+                if ((fl & 0x8) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 2) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 2) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 3) {
+                if ((D_807F6000[sp90].unk8C & 0x2) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 3) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 4) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 5) {
+                if ((D_807F6000[sp90].unk8C & 0x4) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 5) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 1) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 6) {
+                if ((D_807F6000[sp90].unk8C & 0x1) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 6) {
                     sp92 = 0x64;
                 }
                 if ((D_807F6000[sp90].unk8C & 0x10) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 4) {
