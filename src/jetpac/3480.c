@@ -623,7 +623,16 @@ void func_800289EC(void) {
     } while (i != 3);
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/func_80028B54.s")
+extern void *D_8002D190[];
+
+void func_80028B54(s32 *arg0) {
+    s32 x = *arg0 / 4;
+    s32 i;
+
+    for (i = 0; i < 6; i++) {
+        D_8002D1A0[i].frame = D_8002D190[x % 4];
+    }
+}
 
 typedef struct {
     f32 unk0;
