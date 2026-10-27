@@ -1681,7 +1681,45 @@ void func_8063524C(R36880bParent *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
 
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80635468.s")
+typedef struct R36880dAsset {
+    /* 0x00 */ u8 pad0[0x14];
+    /* 0x14 */ void *unk14;
+    /* 0x18 */ void *unk18;
+    /* 0x1C */ void *unk1C;
+    /* 0x20 */ u8 unk20;
+    /* 0x21 */ u8 pad21[3];
+    /* 0x24 */ void *unk24[4];
+    /* 0x34 */ void *unk34[4];
+} R36880dAsset;
+
+void func_80635468(u8 *arg0, R36880dAsset *arg1) {
+    u8 type;
+    s32 i;
+    R36880dAsset *p;
+    s16 *src;
+
+    src = (s16 *)(arg0 + *(s32 *)(arg0 + 0x70) + 4);
+    if (*(s32 *)(arg0 + *(s32 *)(arg0 + 0x6C)) != 0) {
+        type = 7;
+    } else {
+        type = 0x19;
+    }
+    i = 0;
+    if (arg1->unk20 > (type * 0)) {
+        p = arg1;
+        do {
+            *(s32 *)((u8 *)p + 0x24) = (s32)func_8066B0F8(type, src[0], 1, 0);
+            if (src[1] != -1) {
+                *(s32 *)((u8 *)p + 0x34) = (s32)func_8066B0F8(type, src[1], 1, 0);
+            } else {
+                *(s32 *)((u8 *)p + 0x34) = 0;
+            }
+            i++;
+            p = (R36880dAsset *)((u8 *)p + 4);
+            src = (s16 *)((u8 *)src + 0x30);
+        } while (i < arg1->unk20);
+    }
+}
 
 void func_80635548(s32 arg0, u8 *arg1) {
     s32 *p;
@@ -1696,7 +1734,7 @@ void func_80635548(s32 arg0, u8 *arg1) {
     }
 }
 
-void func_806355DC(s16, s32);
+void func_806355DC();
 void hashTableClear(void);
 
 void func_80635588(void) {
@@ -1710,17 +1748,209 @@ void func_80635588(void) {
     hashTableClear();
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806355DC.s")
+typedef struct R36880dSlotF {
+    /* 0x00 */ u8 pad0[0x20];
+    /* 0x20 */ s32 unk20;
+    /* 0x24 */ u8 pad24[0x4C];
+    /* 0x70 */ R36880bListNode *unk70;
+    /* 0x74 */ R36880bListNode *unk74;
+    /* 0x78 */ u8 **unk78;
+    /* 0x7C */ u8 *unk7C;
+    /* 0x80 */ u8 pad80[8];
+    /* 0x88 */ s16 unk88;
+    /* 0x8A */ s16 unk8A;
+    /* 0x8C */ u8 pad8C[4];
+} R36880dSlotF;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806357F8.s")
+void actorClearEntrySlot(s16);
+void hashTableRemove(s32);
+void proxPathRemoveActor(s16);
+void func_80605380(s16);
+void func_8062D2AC(s32, s16 *, u8);
+void func_80630588(s32, s32, s32, u8 *);
+void func_8063DE68(void *);
+void modelSlotFree(u8 **);
+void func_80636074(ModelSlot *);
+
+void func_806355DC(arg0, arg1)
+s32 arg0;
+u8 arg1;
+{
+    s16 sp36;
+    s16 sp34;
+    u8 sp33;
+
+    if (arg1 == 1) {
+        arg0 = hashTableLookup(arg0);
+    }
+    func_8062D2AC(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk20, &sp34, 0);
+    func_80630588(0, ((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk20, 2, &sp33);
+    dynamicBufferFree((u8 *)&D_807F6000[arg0] + 0x28);
+    func_806348B4((u8 *)&D_807F6000[arg0] + 0x48);
+    func_80633570(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk70);
+    func_806338B4(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk74);
+    modelSlotFree(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk78);
+    func_80636074(&D_807F6000[arg0]);
+    if (((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C != NULL) {
+        func_8063DE68(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C);
+    }
+    D_807F6240[((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk8A] = -1;
+    actorClearEntrySlot(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk88);
+    sp36 = ((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk88;
+    hashTableRemove(sp36);
+    proxPathRemoveActor(sp36);
+    if (((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C != NULL) {
+        if (*(s16 *)(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x10) != -1) {
+            func_80605380(*(s16 *)(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x10));
+        }
+        if (*(s16 *)(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x12) != -1) {
+            func_80605380(*(s16 *)(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x12));
+        }
+    }
+    if (arg0 + 1 != D_80747D70) {
+        hashTableInsert(((R36880dSlotF *)((u8 *)D_807F6000 + D_80747D70 * 0x90 - 0x90))->unk88, arg0);
+    }
+    memcpy(&D_807F6000[arg0], &D_807F6000[D_80747D70] - 1, 0x90);
+    D_80747D70 -= 1;
+}
+
+typedef struct R36880dVec {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ f32 unk1C;
+} R36880dVec;
+
+#define R36880D_VEC(i) ((R36880dVec *)((u8 *)D_807F6000 + (i) * 0x90))
+
+void func_806357F8(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6, f32 *arg7, f32 *arg8, u8 arg9) {
+    if (arg9 == 1) {
+        arg0 = hashTableLookup(arg0);
+    }
+    *arg1 = R36880D_VEC(arg0)->unk0;
+    *arg2 = R36880D_VEC(arg0)->unk4;
+    *arg3 = R36880D_VEC(arg0)->unk8;
+    *arg4 = R36880D_VEC(arg0)->unk10;
+    *arg5 = R36880D_VEC(arg0)->unk14;
+    *arg6 = R36880D_VEC(arg0)->unk18;
+    *arg7 = R36880D_VEC(arg0)->unkC;
+    *arg8 = R36880D_VEC(arg0)->unk1C;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806358E8.s")
 
+#ifdef NON_MATCHING
+typedef struct R36880dActorBox {
+    /* 0x00 */ u8 pad0[0x5C];
+    /* 0x5C */ u16 unk5C;
+    /* 0x5E */ u8 pad5E[0x1E];
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ f32 unk84;
+} R36880dActorBox;
+
+typedef struct R36880dActorRef {
+    /* 0x0 */ R36880dActorBox *actor;
+    /* 0x4 */ s32 unk4;
+} R36880dActorRef;
+
+extern R36880dActorRef gActiveActors[];
+extern u16 gActiveActorCount;
+
+s32 func_80635EF0(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 arg5, u16 arg6) {
+    s32 i;
+    R36880dActorBox *b;
+    R36880dActorRef *p;
+    R36880dActorBox *a;
+
+    i = 0;
+    if (gActiveActorCount > 0) {
+        p = gActiveActors;
+        do {
+            a = p->actor;
+            i++;
+            b = a;
+            if (b->unk5C & arg6) {
+                if (arg0 - arg3 <= b->unk7C && arg1 - arg4 <= b->unk80 && arg2 - arg5 <= b->unk84 &&
+                    a->unk7C <= arg3 + arg0 && a->unk80 <= arg4 + arg1 && a->unk84 <= arg5 + arg2) {
+                    return 1;
+                }
+            }
+            p++;
+        } while (i < gActiveActorCount);
+    }
+    return 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80635EF0.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636014.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636074.s")
+typedef struct R36880dChain {
+    /* 0x00 */ u8 pad0[0x3C];
+    /* 0x3C */ void *unk3C;
+    /* 0x40 */ void *unk40;
+    /* 0x44 */ u8 pad44[0x90];
+    /* 0xD4 */ struct R36880dChain *unkD4;
+} R36880dChain;
+
+typedef struct R36880dOwner {
+    /* 0x00 */ u8 pad0[0x50];
+    /* 0x50 */ R36880dChain *unk50;
+    /* 0x54 */ s32 *unk54;
+    /* 0x58 */ u8 pad58[0x60];
+    /* 0xB8 */ R36880dChain *unkB8;
+    /* 0xBC */ s32 *unkBC;
+} R36880dOwner;
+
+void func_806365D0(ModelSlot *, void *, R36880dOwner *);
+void func_80636380(void *, R36880dAsset *);
+
+void func_80636074(ModelSlot *arg0) {
+    R36880dChain *node;
+    R36880dOwner *ownerA;
+    s32 *sp24;
+    R36880dOwner *ownerB;
+    R36880dChain *cur;
+
+    switch (arg0->unk86) {
+        case 2:
+            ownerA = arg0->unk20;
+            node = ownerA->unk50;
+            sp24 = ownerA->unk54;
+            func_80636380(arg0->unk24, (R36880dAsset *)ownerA);
+            break;
+        case 1:
+            ownerB = arg0->unk20;
+            node = ownerB->unkB8;
+            sp24 = ownerB->unkBC;
+            func_806365D0(arg0, arg0->unk24, ownerB);
+            break;
+    }
+    if (node != NULL) {
+        do {
+            if (node->unk3C != NULL) {
+                assetFreeBuffer(node->unk3C, 0x9DB, 7);
+            }
+            if (node->unk40 != NULL) {
+                assetFreeBuffer(node->unk40, 0x9DC, 7);
+            }
+            cur = node;
+            node = node->unkD4;
+            heapFree(cur);
+        } while (node != NULL);
+    }
+    if (sp24 != NULL) {
+        assetFreeBuffer((void *)*sp24, 0x9E5, 7);
+        heapFree(sp24);
+    }
+}
 
 typedef struct R36880b2Chain {
     /* 0x00 */ u8 pad0[0x3C];
@@ -1767,9 +1997,60 @@ walk:
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636210.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806362C4.s")
+void func_806362C4(s32 arg0, u8 arg1) {
+    s32 *sp1C;
+    s32 **sp18;
+    ModelSlot *slot;
+    s32 ***pp;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636380.s")
+    if (arg1 == 1) {
+        arg0 = hashTableLookup(arg0);
+    }
+    slot = &D_807F6000[arg0];
+    if (slot->unk86 != 1) {
+        if (slot->unk86 == 2) {
+            sp18 = (s32 **)((u8 *)slot->unk20 + 0x54);
+        }
+    } else {
+        sp18 = (s32 **)((u8 *)slot->unk20 + 0xBC);
+    }
+    pp = &sp18;
+    if (*pp != NULL) {
+        sp1C = **pp;
+        if (sp1C != NULL) {
+            assetFreeBuffer((void *)*sp1C, 0xA56, 7);
+            heapFree(sp1C);
+            **pp = NULL;
+        }
+    }
+}
+
+void heapFreeDeferred(void *);
+
+void func_80636380(void *arg0, R36880dAsset *arg1) {
+    s32 i;
+    void **p;
+
+    p = (void **)arg1;
+    i = 0;
+    if (arg1->unk20 > 0) {
+        do {
+            if (p[9] != NULL) {
+                assetFreeBuffer(p[9], 0xA69, 7);
+            }
+            if (p[13] != NULL) {
+                assetFreeBuffer(p[13], 0xA6A, 7);
+            }
+            i++;
+            p++;
+        } while (i < arg1->unk20);
+    }
+    assetFreeBuffer(arg0, 0xA6E, 7);
+    heapFreeDeferred(arg1->unk1C);
+    heapFreeDeferred(arg1);
+    heapFreeDeferred(arg1->unk14);
+    heapFreeDeferred(arg1->unk18);
+}
 
 typedef struct R36880b2Rec {
     /* 0x00 */ s32 unk0;
@@ -1803,7 +2084,41 @@ void func_80636448(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     rec->unk10 = arg4;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806364C4.s")
+typedef struct R36880dCount {
+    /* 0x00 */ u8 pad0[0x3C];
+    /* 0x3C */ s16 unk3C;
+} R36880dCount;
+
+void func_80636784(s32, s32, s32, s32, s32);
+
+void func_806364C4(void) {
+    R36880b2Rec *cur;
+    R36880b2Rec *prev;
+    R36880b2Rec *next;
+
+    cur = D_807F6160;
+    prev = NULL;
+    if (cur != NULL) {
+        do {
+            next = cur->unk18;
+            if (D_8076A064 == cur->unk14) {
+                ((R36880dCount *)cur->unk10)->unk3C -= 1;
+                func_80636784(cur->unk0, cur->unk4, 0, 0, ((R36880dCount *)cur->unk10)->unk3C == 0);
+                func_80636784(cur->unk8, cur->unkC, 0, 1, ((R36880dCount *)cur->unk10)->unk3C == 0);
+                assetFreeBuffer((void *)cur->unk10, 0xAB1, 7);
+                if (prev == NULL) {
+                    D_807F6160 = cur->unk18;
+                } else {
+                    prev->unk18 = cur->unk18;
+                }
+                heapFree(cur);
+            } else {
+                prev = cur;
+            }
+            cur = next;
+        } while (next != NULL);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806365D0.s")
 
