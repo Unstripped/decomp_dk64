@@ -143,25 +143,180 @@ void func_8063CA7C(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063CADC.s")
+extern f32 D_807F6180;
+extern f32 D_807F6184;
+extern void *D_807F6188;
+extern void *D_807F618C;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063CB40.s")
+void func_8063CADC(void) {
+    D_807F6180 = 255.0f;
+    D_807F6184 = 255.0f;
+    D_807F6188 = func_8066B0F8(7, 0x3B7, 0, 0);
+    D_807F618C = func_8066B0F8(7, 0x3B8, 0, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063CE64.s")
+Gfx *func_8063CB40(Gfx *g) {
+    gDPPipeSync(g++);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
+    gSPClearGeometryMode(g++, -1);
+    gSPSetGeometryMode(g++, 0x200005);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 16, 1, 0);
+    gSPTexture(g++, 0xFFFF, 0xFFFF, 1, 1, 1);
+    if (fogGetEnabled()) {
+        gSPSetGeometryMode(g++, 0x10000);
+        gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0xC8104A50);
+    } else {
+        gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
+    }
+    gDPSetCombine(g++, 0xFFFE41, 0xFFFFFFD3);
+    switch (D_8076A0A8) {
+        case 1:
+            gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 0xB4);
+            break;
+        case 0:
+        case 4:
+        case 7:
+        case 14:
+            gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 0x50);
+            break;
+        case 16:
+            gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 0x3C);
+            break;
+        case 12:
+            gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 0x96);
+            break;
+        default:
+            gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 0x50);
+            break;
+    }
+    gDPSetTileSize(g++, 1, 0, (s32)D_807F6180, 0x7C, 0x7C);
+    gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, D_807F6188);
+    gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 5, 0, 0, 5, 0);
+    gDPLoadSync(g++);
+    gDPLoadBlock(g++, 7, 0, 0, 0x3FF, 0x200);
+    gDPTileSync(g++);
+    gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 1, 0, 0, 5, 0, 0, 5, 0);
+    gDPSetTileSize(g++, 2, 0, (s32)D_807F6184, 0x7C, 0x7C);
+    gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, D_807F618C);
+    gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0x100, 7, 0, 0, 5, 0, 0, 5, 0);
+    gDPLoadSync(g++);
+    gDPLoadBlock(g++, 7, 0, 0, 0x3FF, 0x200);
+    gDPTileSync(g++);
+    gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0x100, 2, 0, 0, 5, 0, 0, 5, 0);
+    return g;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063CF0C.s")
+void func_8063CE64(void) {
+    D_807F6180 -= 1.234;
+    if (D_807F6180 < 0.0) {
+        D_807F6180 = 255.0f;
+    }
+    D_807F6184 -= 0.45;
+    if (D_807F6184 < 0.0) {
+        D_807F6184 = 255.0f;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063CF3C.s")
+extern void *D_807F6190;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D1D8.s")
+void func_8063CF0C(void) {
+    D_807F6190 = func_8066B0F8(7, 0x3E0, 1, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D288.s")
+extern f32 D_80747E00;
+extern f32 D_80747E04;
+extern s16 D_80747E08;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D2E4.s")
+Gfx *func_8063CF3C(Gfx *g) {
+    gDPPipeSync(g++);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
+    gSPClearGeometryMode(g++, -1);
+    gSPSetGeometryMode(g++, 0x200005);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 16, 1, 0);
+    gSPTexture(g++, 0xFFFF, 0xFFFF, 1, 1, 1);
+    if (fogGetEnabled()) {
+        gSPSetGeometryMode(g++, 0x10000);
+        gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0xC8104A50);
+        gDPSetCombine(g++, 0xFF9441, 0xFF0FFFFF);
+        gDPSetPrimColor(g++, 0, 0, 255, 255, 255, D_80747E08);
+    } else {
+        gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
+        gDPSetCombine(g++, 0xFF9441, 0xFF13FFFF);
+    }
+    gDPSetTextureImage(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 1, (u32)D_807F6190 - 0x80000000);
+    gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 6, 0, 0, 6, 0);
+    gDPLoadSync(g++);
+    gDPLoadBlock(g++, 7, 0, 0, 0x7FF, 0x100);
+    gDPPipeSync(g++); gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 0, 0, 0, 6, 0, 0, 6, 0); gDPSetTileSize(g++, 0, 0, 0, 0xFC, 0xFC);
+    gDPSetTileSize(g++, 1, 0, (s32)D_80747E00, 0xFC, 0xFC);
+    gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 1, 0, 0, 6, 1, 0, 6, 1);
+    gDPSetTileSize(g++, 2, 0, (s32)D_80747E04, 0xFC, 0xFC);
+    gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 2, 0, 0, 6, 1, 0, 6, 1);
+    return g;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D468.s")
+void func_8063D1D8(void) {
+    D_80747E00 -= 5.0;
+    if (D_80747E00 < 0.0) {
+        D_80747E00 = 255.0f;
+    }
+    D_80747E04 -= 2.0;
+    if (D_80747E04 < 0.0) {
+        D_80747E04 = 255.0f;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D494.s")
+typedef struct {
+    s16 unk0;
+    void *unk4;
+} R41090bEntry;
+
+extern R41090bEntry D_80747E0C[11];
+extern u8 D_807F6194;
+
+void func_8063D288(void) {
+    s32 i;
+
+    D_807F6194 = 0;
+    for (i = 0; i < 11; i++) {
+        D_80747E0C[i].unk4 = func_8066B0F8(7, D_80747E0C[i].unk0, 1, 0);
+    }
+}
+
+Gfx *func_8063D2E4(Gfx *g) {
+    u32 tex;
+
+    gDPPipeSync(g++);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 16, 1, 0x10000);
+    gSPClearGeometryMode(g++, -1);
+    gSPSetGeometryMode(g++, 0x200405);
+    gSPTexture(g++, 0xFFFF, 0xFFFF, 0, 0, 1);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
+    gDPSetCombine(g++, 0xFFFFFF, 0xFFFCF279);
+    gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 255);
+    tex = (u32)D_80747E0C[D_807F6194].unk4;
+    gDPSetTextureImage(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 1, tex - 0x80000000);
+    gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 5, 0, 0, 6, 0);
+    gDPLoadSync(g++);
+    gDPLoadBlock(g++, 7, 0, 0, 0x3FF, 0x100);
+    gDPPipeSync(g++);
+    gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 0, 0, 0, 5, 0, 0, 6, 0); gDPSetTileSize(g++, 0, 0, 0, 0xFC, 0x7C);
+    return g;
+}
+
+void func_8063D468(void) {
+    D_807F6194++;
+    if (D_807F6194 == 11) {
+        D_807F6194 = 0;
+    }
+}
+
+extern f32 D_807F6198;
+
+void func_8063D494(void) {
+    D_807F6198 = 0.0f;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/41090/func_8063D4A4.s")
 
