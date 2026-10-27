@@ -621,12 +621,10 @@ void func_80026874(u8 *arg0, u8 *arg1) {
     }
 }
 
-#ifdef NON_MATCHING
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void func_80026904(u8 *arg0, u8 *arg1) {
     s16 sp2E;
-    s32 temp_t2;
     u8 *temp_a0;
 
     if (arg0[0x1E2] == 2) {
@@ -643,9 +641,9 @@ void func_80026904(u8 *arg0, u8 *arg1) {
             }
             if (arg0[0x1E0] == 2 && *(f32 *)(arg0 + 0x3C) < (f32)*(s16 *)((u8 *)D_80029BA4 + 0xA)) {
                 sp2E = mathAngleBetweenPoints2D(*(f32 *)(arg0 + 8), *(f32 *)(arg0 + 0x10), *(f32 *)(D_807FBB48 + 0x7C), *(f32 *)(D_807FBB48 + 0x84));
-                temp_t2 = (sp2E + (func_806119A0() & 0x7FF)) - 0x400;
+                sp2E += (func_806119A0() & 0x7FF) - 0x400;
                 arg0[0x1E0] = 1;
-                func_80025DB8(*(void **)(arg0 + 0x54), arg0, 0, (s16)temp_t2, 1);
+                func_80025DB8(*(void **)(arg0 + 0x54), arg0, 0, sp2E, 1);
             }
         } else if (D_80029BA4 == *(void **)(arg0 + 0x54)) {
             *(u8 **)(arg0 + 0x54) = temp_a0;
@@ -654,12 +652,6 @@ void func_80026904(u8 *arg0, u8 *arg1) {
         }
     }
 }
-
-extern void *D_80029BA4;
-#else
-
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80026904.s")
-#endif
 
 s32 func_80026A5C(u8 *arg0, u8 *arg1) {
     u8 *temp_v0;
@@ -739,49 +731,38 @@ void critterDispatchAll(u8 *arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 extern u8 D_8074E77C;
 extern u8 D_80029BAC[];
 typedef struct {
     s32 w[5];
 } C0cBlk5;
 
-void func_80026C9C(void *C0cArg0) {
-    u8 *arg0 = C0cArg0;
+void func_80026C9C(u8 *arg0) {
     s32 i;
     u8 *p;
     u8 *tbl;
     u8 *e;
     s16 idx;
+    u8 sel = D_8074E77C;
 
     if (arg0 != NULL) {
         p = *(u8 **)(arg0 + 4);
         *(s16 *)D_80029BA4 = (s16)(s32) * (f32 *)(D_807FBB48 + 0x7C);
-        tbl = D_80029BAC + D_8074E77C * 0x78;
-        i = 0;
+        tbl = D_80029BAC + sel * 0x78;
         *(s16 *)((u8 *)D_80029BA4 + 4) = (s16)(s32) * (f32 *)(D_807FBB48 + 0x84);
-        if ((s32)arg0[0] > 0) {
-            do {
-                idx = *p;
-                if (idx > 0) {
-                    idx = idx - 1;
-                }
-                e = tbl + idx * 0x18;
-                *(s16 *)((u8 *)D_80029BA4 + 2) = (s16)(s32)(*(f32 *)(D_807FBB48 + 0x80) + (f32) * (s16 *)(e + 0x14));
-                *(C0cBlk5 *)((u8 *)D_80029BA4 + 8) = *(C0cBlk5 *)e;
-                critterDispatchAll(p);
-                i++;
-                p += 0xC;
-            } while (i < (s32)arg0[0]);
+        for (i = 0; i < (s32)arg0[0]; i++, p += 0xC) {
+            idx = *p;
+            if (idx > 0) {
+                idx = idx - 1;
+            }
+            e = tbl + idx * 0x18;
+            *(s16 *)((u8 *)D_80029BA4 + 2) = (s16)(s32)((f32) * (s16 *)(e + 0x14) + *(f32 *)(D_807FBB48 + 0x80));
+            *(C0cBlk5 *)((u8 *)D_80029BA4 + 8) = *(C0cBlk5 *)e;
+            critterDispatchAll(p);
         }
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80026C9C.s")
-#endif
-
-#ifdef NON_MATCHING
 extern void *D_80029BA0;
 extern s32 D_807F6C28;
 void *memcpy(void *, const void *, unsigned int);
@@ -790,8 +771,7 @@ void heapClearBlock(void *);
 s16 func_806531B8(f32, f32, f32, s32);
 void func_80027118();
 
-void func_80026E0C(void *C0cArg0) {
-    u8 *arg0 = C0cArg0;
+void func_80026E0C(u8 *arg0) {
     s32 g;
     u8 *grp;
     u8 *ent;
@@ -801,50 +781,42 @@ void func_80026E0C(void *C0cArg0) {
     if (arg0 != NULL) {
         memcpy(D_80029BA0, arg0, 1);
         src = arg0 + 1;
-        g = 0;
-        if (*(u8 *)D_80029BA0 > 0) {
-            do {
-                j = 0;
-                if (g == 0) {
-                    *(void **)((u8 *)D_80029BA0 + 4) = func_80610FE8(*(u8 *)D_80029BA0 * 0xC);
-                    heapClearBlock(*(void **)((u8 *)D_80029BA0 + 4));
-                    grp = *(u8 **)((u8 *)D_80029BA0 + 4);
-                } else {
-                    grp += 0xC;
-                }
-                memcpy(grp, src, 3);
-                src += 3;
-                if (grp[1] > 0) {
-                    do {
-                        if (j == 0) {
-                            *(void **)(grp + 4) = func_80610FE8(grp[1] * 0x2C);
-                            heapClearBlock(*(void **)(grp + 4));
-                            ent = *(u8 **)(grp + 4);
-                        } else {
-                            ent += 0x2C;
-                        }
-                        memcpy(ent, src, 0x20);
-                        if (D_807F6C28 != 0) {
-                            *(s16 *)(ent + 0x28) = func_806531B8((f32) * (s16 *)(ent + 0), (f32) * (s16 *)(ent + 2), (f32) * (s16 *)(ent + 4), 0);
-                            ent[0x24] = 0xFF;
-                        }
-                        j++;
-                        src += 0x20;
-                    } while (j < grp[1]);
-                }
-                func_80027118(grp);
-                g++;
-            } while (g < *(u8 *)D_80029BA0);
+        for (g = 0; g < *(u8 *)D_80029BA0; g++) {
+            j = 0;
+            if (g == 0) {
+                *(void **)((u8 *)D_80029BA0 + 4) = func_80610FE8(*(u8 *)D_80029BA0 * 0xC);
+                heapClearBlock(*(void **)((u8 *)D_80029BA0 + 4));
+                grp = *(u8 **)((u8 *)D_80029BA0 + 4);
+            } else {
+                grp += 0xC;
+            }
+            memcpy(grp, src, 3);
+            src += 3;
+            if (grp[1] > 0) {
+                do {
+                    if (j == 0) {
+                        *(void **)(grp + 4) = func_80610FE8(grp[1] * 0x2C);
+                        heapClearBlock(*(void **)(grp + 4));
+                        ent = *(u8 **)(grp + 4);
+                    } else {
+                        ent += 0x2C;
+                    }
+                    memcpy(ent, src, 0x20);
+                    if (D_807F6C28 != 0) {
+                        *(s16 *)(ent + 0x28) = func_806531B8((f32) * (s16 *)(ent + 0), (f32) * (s16 *)(ent + 2), (f32) * (s16 *)(ent + 4), 0);
+                        ent[0x24] = 0xFF;
+                    }
+                    j++;
+                    src += 0x20;
+                } while (j < grp[1]);
+            }
+            func_80027118(grp);
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80026E0C.s")
-#endif
 
 extern void *D_80029BA0;
-void func_80026E0C(void *);
+void func_80026E0C();
 void *func_80610FE8(s32);
 void heapClearBlock(void *);
 void func_80026FD0(void *arg0) {
@@ -857,7 +829,7 @@ void func_80026FD0(void *arg0) {
 }
 
 extern s32 D_807FBB60;
-void func_80026C9C(void *);
+void func_80026C9C();
 
 s32 critterRender(s32 arg0) {
     if (D_807FBB60 & 0x10) {
