@@ -1,6 +1,12 @@
 #!/bin/sh
-# Run a command inside the dk64-decomp toolchain container, e.g. `tools/dk make setup`.
-set -e
-cd "$(dirname "$0")/.."
-if [ -t 0 ] && [ -t 1 ]; then TTY=-it; else TTY=; fi
-exec docker run --rm $TTY -v "$PWD":/dk64 -w /dk64 dk64-decomp "$@"
+# Run a command in the dk64-decomp toolchain container, e.g. `tools/dk make setup`.
+# Thin wrapper over the dkd client (tools/dkd/client.py); see tools/dkd/ for the design.
+self=$0
+while [ -h "$self" ]; do
+    link=$(readlink "$self")
+    case $link in
+        /*) self=$link ;;
+        *) self=$(dirname "$self")/$link ;;
+    esac
+done
+exec python3 "$(dirname "$self")/dkd/client.py" "$@"

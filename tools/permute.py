@@ -33,21 +33,10 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # ---------------------------------------------------------------------------
 # Container re-exec when running on host without /opt/decomp-permuter
+# (tools/dk honours DK64_IMAGE)
 # ---------------------------------------------------------------------------
 if not os.path.exists("/opt/decomp-permuter"):
-    dk_image = os.environ.get("DK_IMAGE")
-    if dk_image:
-        cmd = ["docker", "run", "--rm"]
-        if sys.stdin.isatty() and sys.stdout.isatty():
-            cmd.append("-it")
-        cmd.extend(["-v", f"{ROOT}:/dk64", "-w", "/dk64", dk_image, "python3", "tools/permute.py"] + sys.argv[1:])
-    else:
-        dk_script = ROOT / "tools" / "dk"
-        if dk_script.exists():
-            cmd = [str(dk_script), "python3", "tools/permute.py"] + sys.argv[1:]
-        else:
-            sys.exit("error: /opt/decomp-permuter not found and tools/dk not found")
-    sys.exit(subprocess.call(cmd))
+    sys.exit(subprocess.call([str(ROOT / "tools" / "dk"), "python3", "tools/permute.py"] + sys.argv[1:]))
 
 
 # ---------------------------------------------------------------------------

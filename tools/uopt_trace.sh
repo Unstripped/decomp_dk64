@@ -155,14 +155,9 @@
 
 set -e
 
-# Re-exec inside container if run on the host
+# Re-exec inside the toolchain container (tools/dk honours DK64_IMAGE) if run on the host
 if [ ! -f /.dockerenv ] && [ ! -d /opt/ido5.3-trace ]; then
-    CONTAINER_IMAGE="${DK64_IMAGE:-dk64-decomp}"
-    TTY_FLAG=""
-    if [ -t 0 ] && [ -t 1 ]; then
-        TTY_FLAG="-it"
-    fi
-    exec docker run --rm $TTY_FLAG -v "$PWD":/dk64 -w /dk64 "$CONTAINER_IMAGE" tools/uopt_trace.sh "$@"
+    exec "$(dirname "$0")/dk" tools/uopt_trace.sh "$@"
 fi
 
 LEVEL=6

@@ -30,15 +30,21 @@ lost header prototype (missing `andi` at callers), a deleted function
 `asm/<seg>/nonmatchings/<file>/<FUNC>.s` of every function matched since the agents' base
 commit, so their copies stop compiling. Run
 `tools/restore_split_asm.sh <oldest running base or split commit> dk64.<seg>.us.yaml` right
-after it (copies back every missing `.s`, never overwrites), then tell running agents not to
-re-copy from `src`.
+after it (copies back every missing `.s`, never overwrites; after your own split run both under
+one lease: `tools/dk --hold sh -c 'tools/dk make split && tools/restore_split_asm.sh <base> <yaml>'`),
+then tell running agents not to re-copy from `src`.
 
 ## Environment
 
 - `tools/dk` fails with `no space left on device`: Docker's disk is full. Ask the user before
   pruning anything; after a prune rebuild the image (`docker build -t dk64-decomp .`, ~75 s).
-- Each `tools/dk` call is a fresh container: `/tmp` does not survive between calls, so
+- Each `tools/dk` call gets its own fresh `/tmp`, which does not survive between calls, so
   objdump-and-diff must be one `tools/dk sh -c '...'`.
+- `dk: ...` with exit 125 is a dkd error, not the command's: `tools/dk --status` shows the
+  server, lock holders and queue; `tools/dk --stop` stops it (the next call starts a new one). After a
+  `docker build` the next `tools/dk` call (image id cached ≤5 s) restarts the server once
+  running locked jobs finish. A stuck holder shows in `--status`: never kill other agents'
+  jobs, ask the user.
 - The persistent shell keeps `set -e` between calls: use it only inside `sh -c`.
 - Probe/test files belong in `.scratch/`. Older tracked probes in the repo root (`test_*.c`,
   `t.s`, `tl.c`): ask the user before removing them.

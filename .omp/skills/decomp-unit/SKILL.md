@@ -85,8 +85,9 @@ a parked `NON_MATCHING` function is stage 4+ and counts as unmatched.
    - `python3 tools/unit_check.py vanished` must print `vanished OK`;
    - no `#pragma weak` aliases, no edits under `tools/`, no names encoding offsets.
 2. `tools/dk make split` (the WHOLE split: overlay asm calls renamed global functions), then
-   `touch src/*/*.c`, `tools/dk make` OK, `tools/dk make expected`. If agents still run,
-   `tools/restore_split_asm.sh <oldest running base> dk64.global.us.yaml` right after the split.
+   `touch src/*/*.c`, `tools/dk make` OK, `tools/dk make expected`. If agents still run, do the
+   split and the restore as one lease (no other `tools/dk` call runs between them):
+   `tools/dk --hold sh -c 'tools/dk make split && tools/restore_split_asm.sh <oldest running base> dk64.global.us.yaml'`.
    A failing gate after the namer: troubleshooting.md "Namer broke the build".
 3. ROADMAP: one bullet per segment (files, data/rodata offsets, N of T matched per file,
    named groups, near-misses incl. parked ones, unattempted large functions; check every

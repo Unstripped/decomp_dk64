@@ -37,9 +37,10 @@ swapped externs in a comparison look identical in the text.
 
 # Concurrency rules (several agents run at once)
 - NEVER run `tools/dk make` (any target), `make split`, `python3 -m splat`, `make expected`,
-  `make clean` or `./diff.sh`: they rebuild shared outputs and race (`make split` deletes the
-  asm of every function matched since your base). If a `.s` your copy references is
-  missing, report it and work on other functions; never rebuild your copy from `src`.
+  `make clean` or `./diff.sh`: they change shared outputs for everyone (`make split` deletes
+  the asm of every function matched since your base). If a `.s` your copy references is
+  missing, report it and work on other functions; never rebuild your copy from `src`. A
+  `tools/dk` call pausing on `dk: waiting for ... lock` while the gate runs is normal: wait.
 - Never `pkill`/`kill` by pattern (`pkill -f "permute.py run"` killed every sibling's
   permuter): stop only a PID you started.
 - Starter C: `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`.
@@ -72,8 +73,8 @@ swapped externs in a comparison look identical in the text.
 - DIRECT mode (you are the only agent on the file): edit it in place, check with
   `tools/objdiff.sh src/<seg>/<file>.c [FUNC]`.
 - Both print `OK` (exit 0) or `TEXT OK` (exit 3) when code matches, else FAILED plus an
-  asm-differ diff of FUNC. Exact diff, in ONE call (each `tools/dk` call is a fresh
-  container, /tmp does not survive): `tools/dk sh -c 'mips-linux-gnu-objdump -d
+  asm-differ diff of FUNC. Exact diff, in ONE call (each `tools/dk` call gets its own fresh
+  /tmp, which does not survive): `tools/dk sh -c 'mips-linux-gnu-objdump -d
   --no-show-raw-insn <your .o> > /tmp/b; mips-linux-gnu-objdump -d --no-show-raw-insn
   expected/build/src/<seg>/<file>.o > /tmp/e; diff /tmp/e /tmp/b'`
   (private objects: `build/.scratch/.scratch_<YourName>_<file>.c.o`; ignore pure `%lo`
