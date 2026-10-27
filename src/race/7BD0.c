@@ -418,7 +418,76 @@ Gfx *func_8002C63C(Gfx *arg0, RaceUnknown174 *arg1) {
     return arg0;
 }
 
+#ifdef NON_MATCHING
+typedef struct RaceE76CView {
+    char pad0[0x34];
+    u8 unk34;
+    u8 unk35;
+    u8 unk36;
+    u8 unk37;
+    char pad38[0x45 - 0x38];
+    u8 unk45;
+    u8 unk46;
+} RaceE76CView;
+extern s32 D_8002FCC0[];
+u32 strlen(u8 *);
+Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
+#define RaceE76C ((RaceE76CView *)arg1)
+
+Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
+    RaceUnknown174 *temp_t1;
+    Struct806C7C94 *temp_v0;
+    void *sp68;
+    u8 var_t0;
+    s32 sp60;
+    s32 sp5C;
+    s32 sp50;
+    s32 sp4C;
+    s32 sp48;
+    s32 var_a3;
+
+    temp_v0 = arg1->unk48;
+    var_t0 = RaceE76C->unk37;
+    temp_t1 = arg1->unk30->unk174;
+    sp60 = temp_v0->unk4 + 8;
+    sp5C = temp_v0->unkA - 0x10;
+    WRITE_GFX(arg0++, 0xE7000000, 0);
+    WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFFF);
+    var_a3 = temp_t1->unk0;
+    if (var_a3 & 4) {
+        var_t0 = (var_t0 < temp_t1->unk24) ? var_t0 : temp_t1->unk24;
+        var_t0 = (var_t0 >= 2) ? var_t0 : 1;
+        sp50 = (s32)func_8070E750(0x26, 0xB, 1);
+        sp4C = (s32)func_8070E750(0x26, 0xC, 1);
+        sp48 = strlen((u8 *)sp50);
+        sp68 = func_80610FE8(sp48 + strlen((u8 *)sp4C) + 8);
+        heapFreeDeferred(sp68);
+        _sprintf(sp68, "%s %d %s %d", sp50, var_t0, sp4C, temp_t1->unk24);
+        arg0 = func_806FC530(arg0, 1, (s16)(s32)(2.0f * (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), sp68, 4);
+        WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
+        WRITE_GFX(arg0++, 0xDA380005, (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50));
+        sp5C = (s32)((f32)sp5C - (0.5f * (f32)func_806FD894(1)));
+        var_a3 = temp_t1->unk0;
+    }
+    if (var_a3 & 2) {
+        var_a3 = RaceE76C->unk36;
+        if ((var_a3 + 1) == temp_t1->unk1E) {
+            var_a3 = 3;
+        }
+        if (RaceE76C->unk45 != 0) {
+            var_a3 = 4;
+        }
+        arg0 = func_806FC530(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), func_8070E750(0x26, D_8002FCC0[var_a3], 1), 4);
+    }
+    if (RaceE76C->unk34 >= 3 && RaceE76C->unk34 < 5) {
+        arg0 = func_806FE078(arg0, RaceE76C->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
+    }
+    return arg0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002C76C.s")
+#endif
 
 
 s32 func_807142D8(void);
@@ -771,7 +840,60 @@ void func_8002D4A0(void) {
 }
 void func_8002D40C(void);
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002D524.s")
+void func_8002D524(void) {
+    RaceUnknown174 *t;
+    RacePair *base;
+    RacePair *p;
+    RacePair *q;
+    s32 i;
+    s32 j;
+    RacePair tmp;
+    u8 cnt;
+    u8 swap;
+
+    t = D_807FBB40->unk174;
+    cnt = 0;
+    base = t->unk20;
+    for (i = t->unk1E - 1; i >= 0; i--) {
+        for (j = 1; j <= i; j++) {
+            p = &base[j - 1];
+            q = &base[j];
+            swap = 0;
+            if (p->unk4->unk45 != 0 && q->unk4->unk45 == 0) {
+                swap = 1;
+            } else {
+                q = &base[j];
+                if (p->unk4->unk37 < q->unk4->unk37) {
+                    swap = 1;
+                } else if (p->unk4->unk37 == q->unk4->unk37) {
+                    if (p->unk4->unk3A < q->unk4->unk3A) {
+                        swap = 1;
+                    } else if (p->unk4->unk3A == q->unk4->unk3A && q->unk4->unk40 < p->unk4->unk40) {
+                        swap = 1;
+                    }
+                }
+            }
+            if (swap != 0) {
+                tmp = *p;
+                *p = *q;
+                *q = tmp;
+            }
+        }
+    }
+    q = base;
+    for (i = 0; i < t->unk1E; i++, q++) {
+        q->unk4->unk36 = i;
+        if (q->unk4->unk45 != 0 || (q->unk4->unk34 == 2 && t->unk24 < q->unk4->unk37)) {
+            func_8002D148(q, 3);
+            cnt++;
+        }
+    }
+    if (cnt >= t->unk1E - 1) {
+        func_8002D224(3);
+        func_8002D40C();
+        t->unk1C = 0;
+    }
+}
 
 void func_8002D72C(RaceUnknownActor *arg0) {
     RaceUnknown174 *temp_v0;
