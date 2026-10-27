@@ -428,9 +428,43 @@ Gfx *func_800257D4(Gfx *gdl) {
     return gdl;
 }
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_800258B0.s")
+void func_800258B0(f32 (*m)[4], s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+    f32 sp44;
+    f32 sp40;
+    f32 sp3C;
+    f32 sp38;
+    f32 sp34;
+    f32 temp_fa1;
+    f32 temp_fa1_2;
+    f32 temp_fs0;
+    f32 temp_fs1;
+    f32 temp_fv0;
 
-void func_800258B0(f32 (*)[4], s32, s32, s32, f32, f32, f32, f32);
+    temp_fs0 = func_80612794(arg1);
+    temp_fs1 = func_80612790(arg1);
+    sp40 = func_80612794(arg2);
+    sp34 = func_80612790(arg2);
+    sp3C = func_80612794(arg3);
+    temp_fv0 = func_80612790(arg3);
+    m[0][0] = sp34 * temp_fv0 * arg4;
+    m[0][1] = sp34 * sp3C * arg4;
+    m[0][2] = -sp40 * arg4;
+    m[0][3] = 0.0f;
+    temp_fa1 = temp_fs0 * sp40;
+    m[1][0] = ((temp_fa1 * temp_fv0) - (temp_fs1 * sp3C)) * arg4;
+    m[1][3] = 0.0f;
+    m[1][1] = ((temp_fa1 * sp3C) + (temp_fs1 * temp_fv0)) * arg4;
+    m[1][2] = temp_fs0 * sp34 * arg4;
+    temp_fa1_2 = temp_fs1 * sp40;
+    m[2][0] = ((temp_fa1_2 * temp_fv0) + (temp_fs0 * sp3C)) * arg4;
+    m[2][3] = 0.0f;
+    m[2][1] = ((temp_fa1_2 * sp3C) - (temp_fs0 * temp_fv0)) * arg4;
+    m[2][2] = temp_fs1 * sp34 * arg4;
+    m[3][0] = arg5;
+    m[3][1] = arg6;
+    m[3][2] = arg7;
+    m[3][3] = 1.0f;
+}
 
 void func_80025A3C(u8 *arg0) {
     f32 sp30[4][4];
@@ -591,36 +625,29 @@ void func_8002601C(void *arg0) {
     f32 dz;
     f32 dist;
     f32 ddy;
-    f32 dd;
     s16 half;
-    s16 py;
-    s16 pl;
     s32 f;
-    s32 g;
 
     fv0 = 0.0f;
     lim = (f32)(*(s32 *)(CR58 + 0x18) + 0x1DE84);
     if (D_807444FC != CR58[0x24]) {
+        half = (*(s16 *)(CR58 + 0x10) + *(s16 *)(CR58 + 0xC)) >> 1;
         dx = (f32)*(s16 *)(CR58 + 0) - *(f32 *)(D_807FBB48 + 0x7C);
         dz = (f32)*(s16 *)(CR58 + 4) - *(f32 *)(D_807FBB48 + 0x84);
-        half = (*(s16 *)(CR58 + 0x10) + *(s16 *)(CR58 + 0xC)) >> 1;
-        py = *(s16 *)(CR58 + 2);
-        pl = *(s16 *)((u8 *)D_80029BA4 + 2);
-        dd = dx * dx;
-        dd += dz * dz;
+        dist = dx * dx + dz * dz;
         fv0 = 0.0f;
-        f = pl < py + half;
+        f = *(s16 *)((u8 *)D_80029BA4 + 2) < (*(s16 *)(CR58 + 2)) + half;
         if (f) {
-            f = py - half < pl;
+            f = (*(s16 *)(CR58 + 2)) - half < *(s16 *)((u8 *)D_80029BA4 + 2);
         }
-        g = (u8)f != 0;
-        if (g) {
-            g = 0;
-            if (dd < (f32)*(s32 *)(CR58 + 0x18)) {
-                g = 1;
+        f = (u8)f != 0;
+        if (f) {
+            f = 0;
+            if (dist < (f32)*(s32 *)(CR58 + 0x18)) {
+                f = 1;
             }
         }
-        CR58[0x25] = g;
+        CR58[0x25] = f;
         CR58[0x24] = D_807444FC;
         m = D_807FC924 + D_807FC929 * 0x2F0;
         dz = (f32)*(s16 *)(CR58 + 4) - *(f32 *)(m + 0x218);
