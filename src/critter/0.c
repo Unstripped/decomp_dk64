@@ -61,8 +61,57 @@ void func_800240EC(u8 *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80024154.s")
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_8002427C.s")
+typedef struct { s16 v[3]; } C0aTbl;
+extern C0aTbl D_80029F6C;
+
+void func_80024154(u8 *arg0) {
+    u8 *ptr;
+    s32 i;
+    C0aTbl tbl;
+    u8 idx;
+
+    ptr = *(u8 **)(arg0 + 8);
+    tbl = D_80029F6C;
+    idx = 0;
+    i = 0;
+    if ((s32)arg0[2] > 0) {
+        do {
+            if ((idx == 0 && (f64)(u32)arg0[2] * 0.4 < (f64)i) || (idx == 1 && (f64)(u32)arg0[2] * 0.7 < (f64)i)) {
+                idx++;
+            }
+            *(f32 *)(ptr + 0x24) = 10.0f;
+            *(s16 *)(ptr + 0x1E4) = tbl.v[idx];
+            *(s32 *)(ptr + 0x1E8) = 0;
+            i++;
+            ptr += 0x1F0;
+        } while (i < (s32)arg0[2]);
+    }
+}
+typedef struct { s16 v[4]; } C0aTbl2;
+extern C0aTbl2 D_80029F74;
+
+void func_8002427C(u8 *arg0) {
+    u8 *ptr;
+    s32 i;
+    C0aTbl2 tbl;
+    u8 idx;
+
+    ptr = *(u8 **)(arg0 + 8);
+    tbl = D_80029F74;
+    idx = 0;
+    for (i = 0; i < (s32)arg0[2]; i++, ptr += 0x1F0) {
+        {
+            if ((idx == 0 && (f64)(u32)arg0[2] * 0.3 < (f64)i) || (idx == 1 && (f64)(u32)arg0[2] * 0.5 < (f64)i) || (idx == 2 && (f64)(u32)arg0[2] * 0.7 < (f64)i)) {
+                idx++;
+            }
+            *(f32 *)(ptr + 0x24) = 20.0f;
+            *(s16 *)(ptr + 0x1E4) = tbl.v[idx];
+            *(s32 *)(ptr + 0x1E8) = 0;
+            ptr[0x1E1] |= 4;
+            func_80024000(ptr, arg0, (f32)((f64)*(f32 *)(ptr + 0x38) * 0.5));
+        }
+    }
+}
 
 s32 func_8066B0F8(s32, s32, s32, s32);
 
@@ -109,9 +158,81 @@ void critterUpdateAudio(u8 *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_800245B8.s")
+s32 func_806119A0(void);
+void func_806086CC(f32, f32, s32, s16, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPosition(f32, f32, s32, s16, u8, f32, u8, u8);
+f32 func_80612790(s16);
+extern u8 D_80770DC9;
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_800247F4.s")
+void func_800245B8(void *arg0) {
+    s16 r;
+    f32 temp;
+    f32 sp3C;
+
+    if (((u8 *)arg0)[0x1E0] != 0 && (((u8 *)arg0)[0x1E1] & 1)) {
+        r = func_806119A0() % 255U;
+        sp3C = (f32)((f64)*(f32 *)((u8 *)arg0 + 0x28) * (1.0 / 3.0));
+        if (r < 6) {
+            func_806086CC(*(f32 *)((u8 *)arg0 + 8), *(f32 *)((u8 *)arg0 + 0xC), *(s32 *)((u8 *)arg0 + 0x10),
+                          (s16)((func_806119A0() & 3) + 0x1A9),
+                          0xFF, 0x7F, 0x1E, 0x5A, 0.7f, 0);
+        }
+        *(s16 *)((u8 *)arg0 + 0x42) = (s16)(s32)((f32)*(s16 *)((u8 *)arg0 + 0x42) + 1200.0f * sp3C);
+        *(s16 *)((u8 *)arg0 + 0x42) &= 0xFFF;
+        if (*(s16 *)((u8 *)arg0 + 0x44) > 0x800) {
+            if (*(s16 *)((u8 *)arg0 + 0x42) < 0x800) {
+                sfxPlayAtPosition(*(f32 *)((u8 *)arg0 + 8), *(f32 *)((u8 *)arg0 + 0xC), *(s32 *)((u8 *)arg0 + 0x10), 0x5E,
+                                  D_80770DC9 * 100 + 0x73, 2.0f, 0x1E, 0x4B);
+            }
+        } else {
+            if (*(s16 *)((u8 *)arg0 + 0x42) > 0x800) {
+                sfxPlayAtPosition(*(f32 *)((u8 *)arg0 + 8), *(f32 *)((u8 *)arg0 + 0xC), *(s32 *)((u8 *)arg0 + 0x10), 0x5F,
+                                  D_80770DC9 * 100 + 0x73, 2.0f, 0x1E, 0x4B);
+            }
+        }
+        temp = 1.0f - func_80612790(*(s16 *)((u8 *)arg0 + 0x42));
+        *(f32 *)((u8 *)arg0 + 0x48) = 60.0f * temp;
+        *(f32 *)((u8 *)arg0 + 0x14) = (f32)((f64)(*(f32 *)((u8 *)arg0 + 0x28) * temp) * 0.5);
+    }
+    critterUpdateAudio(arg0);
+}
+
+void func_80025A3C(u8 *arg0);
+void matrixMakeRotationZ(f32 (*)[4], f32);
+extern u8 D_807444FC;
+extern Vtx D_80029870;
+extern Vtx D_800298D0;
+extern Vtx D_800298E0;
+extern Gfx D_80029B40;
+extern s32 D_80029BA8;
+
+Gfx *func_800247F4(Gfx *gdl, u8 *arg1) {
+    f32 sp90[4][4];
+    f32 sp8C;
+
+    sp8C = *(f32 *)(arg1 + 0x48);
+    gSPSetGeometryMode(gdl++, G_CULL_BACK);
+    gDPLoadTextureBlock(gdl++, *(s32 *)(arg1 + 0x1E8), G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 4, G_TX_NOLOD, G_TX_NOLOD);
+    func_80025A3C(arg1);
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x60), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPVertex(gdl++, &D_80029870, 6, 0);
+    gSPDisplayList(gdl++, &D_80029B40);
+    gDPLoadTextureBlock(gdl++, *(s32 *)(arg1 + 0x1EC), G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 48, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 6, G_TX_NOLOD, G_TX_NOLOD);
+    matrixMakeRotationZ(sp90, -sp8C);
+    guMtxF2L(sp90, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0xE0));
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0xE0), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPVertex(gdl++, &D_800298D0, 4, 6);
+    gSP2Triangles(gdl++, 6, 7, 8, 0, 6, 8, 9, 0);
+    gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
+    matrixMakeRotationZ(sp90, sp8C);
+    guMtxF2L(sp90, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x160));
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x160), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPVertex(gdl++, &D_800298E0, 6, 7);
+    gSP2Triangles(gdl++, 10, 11, 7, 0, 10, 7, 12, 0);
+    D_80029BA8 = 0;
+    gDPPipeSync(gdl++);
+    return gdl;
+}
 
 f32 func_80612794(s32);
 
@@ -130,14 +251,92 @@ void func_80024B78(u8 *arg0) {
     critterUpdateAudio(arg0);
 }
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80024C88.s")
+extern Vtx D_800297F0;
+extern Vtx D_80029830;
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80024F28.s")
+Gfx *func_80024C88(Gfx *gdl, u8 *arg1) {
+    f32 sp70[4][4];
+    f32 sp6C;
+
+    sp6C = *(f32 *)(arg1 + 0x48);
+    if (D_80029BA8 != *(s32 *)(arg1 + 0x1E8)) {
+        D_80029BA8 = *(s32 *)(arg1 + 0x1E8);
+        gDPLoadTextureBlock(gdl++, D_80029BA8, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
+    }
+    func_80025A3C(arg1);
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x60), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    matrixMakeRotationZ(sp70, sp6C);
+    guMtxF2L(sp70, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0xE0));
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0xE0), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPVertex(gdl++, &D_800297F0, 4, 0);
+    gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 2, 3, 0);
+    gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
+    matrixMakeRotationZ(sp70, -sp6C);
+    guMtxF2L(sp70, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x160));
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x160), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPVertex(gdl++, &D_80029830, 4, 0);
+    gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 2, 3, 0);
+    gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
+    gDPPipeSync(gdl++);
+    return gdl;
+}
+
+s16 func_806CC10C(s16, s16);
+void func_807149B8(s32);
+void func_80714950(s32);
+void func_807149FC(s32);
+void func_8071498C(void *);
+void func_80714CC0(void *, f32, s32, s32, f32);
+extern u8 D_80718BF4;
+extern u8 D_8071FC40;
+
+void func_80024F28(void *arg0) {
+    s16 sp4E;
+    u8 pad;
+    f32 temp;
+    f32 sp44;
+    f32 sp40;
+    s16 sp3E;
+    f32 temp2;
+    s32 absv;
+
+    if (((u8 *)arg0)[0x1E1] & 1) {
+        sp4E = func_806119A0() % 400U;
+        temp = *(f32 *)((u8 *)arg0 + 0x30);
+        if (temp < 0.0f) {
+            sp40 = 0.0f;
+        } else {
+            sp40 = temp;
+        }
+        sp3E = func_806CC10C(*(s16 *)((u8 *)arg0 + 0), *(s16 *)((u8 *)arg0 + 4));
+        if (sp4E <= 0) {
+            func_807149B8(1);
+            func_80714950(1);
+            func_807149FC(-1);
+            func_8071498C(&D_80718BF4);
+            func_80714CC0(&D_8071FC40, 0, *(s32 *)((u8 *)arg0 + 8), *(s32 *)((u8 *)arg0 + 0xC), *(f32 *)((u8 *)arg0 + 0x10));
+        }
+        if (sp3E > 0) {
+            absv = sp3E;
+        } else {
+            absv = -sp3E;
+        }
+        if (absv >= 0x5B) {
+            func_806086CC(*(f32 *)((u8 *)arg0 + 8), *(f32 *)((u8 *)arg0 + 0xC), *(s32 *)((u8 *)arg0 + 0x10), 0x16F, 0x46, 0xDC, 0x1E, 0x5A, 0.7f, 0);
+        }
+        *(s16 *)((u8 *)arg0 + 0x42) = (s16)(s32)((200.0 * (1.5 + (f64)(150.0f * *(f32 *)((u8 *)arg0 + 0x30)))) + (f64)*(s16 *)((u8 *)arg0 + 0x42));
+        *(s16 *)((u8 *)arg0 + 0x42) &= 0xFFF;
+        temp2 = func_80612794(*(s16 *)((u8 *)arg0 + 0x42)) * (10.0f + 200.0f * sp40);
+        sp44 = temp2 * 1.0f + temp2 * ((f32)sp3E * 0.00024414062f);
+        *(f32 *)((u8 *)arg0 + 0x4C) = func_80612794((s16)(*(s16 *)((u8 *)arg0 + 0x42) + 0xC8)) * 2;
+        *(f32 *)((u8 *)arg0 + 0x48) = (f32)((f64)sp44 + (f64)sp3E * 0.2);
+    }
+    critterUpdateAudio(arg0);
+}
 
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_8002516C.s")
 
 s32 func_806119A0(void);
-void func_806086CC(f32, f32, s32, s16, s32, s32, s32, s32, f32, s32);
 
 void func_80025500(u8 *arg0) {
     if (arg0[0x1E0] != 0 && (arg0[0x1E1] & 1) && (s16)(func_806119A0() % 255U) < 6) {
@@ -219,7 +418,6 @@ s32 func_80025D1C(s32 arg0, u8 *arg1) {
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80025DB8.s")
 
 void func_80025DB8(void *, void *, u8, s16, u8);
-s32 func_806119A0(void);
 
 void func_80025F3C(void *arg0, void *arg1, u8 arg2, u8 arg3) {
     func_80025DB8(arg0, arg1, arg2, (s16)(func_806119A0() & 0xFFF), arg3);
@@ -257,7 +455,6 @@ end:
 
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80026338.s")
 
-extern u8 D_807444FC;
 extern u8 *D_807FBB48;
 
 void critterCalcDistToPlayer(u8 *arg0) {
@@ -379,7 +576,6 @@ void critterDispatchAll(u8 *arg0) {
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80026C9C.s")
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80026E0C.s")
 
-extern s32 D_80029BA8;
 extern void *D_80029BA0;
 extern void *D_80029BA4;
 void func_80026E0C(void *);
