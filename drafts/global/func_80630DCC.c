@@ -1,4 +1,4 @@
-// func_80630DCC (src/global/35000.c): stage 5: frame 0xE0 + all stack offsets + callee-saved set exact; prologue/first 395 insns match (ctl ptr local via comma-expr needed for a0/v1/v0). Remaining: (1) add.s/trunc/mfc1 v1 not hoisted before size<0.01 branch (uopt sinks it) -> 1 reg + order diff; (2) actorGetNodePos arg: T lbu v0 + move a1,v0, mine lbu a1 (arg-reg preference); (3) FP temp regs (T pool uses f16, mine claims it for 0.3 const); (4) .rodata reloc names only. Needs R35000aGfx + R35000A_WRITE_GFX from 35000.c; 3rd param of func_80630DCC declared R35000aGfx* (proto in file is void*); actorGetNodePos proto s32 2nd arg.
+// func_80630DCC (src/global/35000.c): func_80630DCC (src/global/35000.c): stage 5, parked NON_MATCHING in NM35 copy: frame 0xE0, stack offsets, callee-saved set exact; whole function matches except (1) size block: expected computes add.s/trunc.w.s/mfc1 v1 (s32)(size*size+dz*dz) BEFORE the dy<0.01 branch (uopt sinks it in mine: toy tests show a single-def int var, a prior-def var, f64/s32/f32 locals, ternary clamp all sink; only a real pre-branch use pins it) which also changes lw t3,4(s0) delay-slot choice and f-regs (expected f16/f18/f4/f6/v1; mine t4 + 0.3 const in f12 early); (2) FIXED: 'if (node)' instead of 'node != 0' with s32 actorGetNodePos proto gives lbu v0 + move a1,v0; 4 insns (16 bytes) shorter than expected overall due to (1). Needs R35000aGfx + R35000A_WRITE_GFX from 35000.c; func_80630DCC proto 3rd param is R35000aGfx *.
 typedef struct L80630DCCSub4 {
     /* 0x00 */ u8 pad0[0x38];
     /* 0x38 */ f32 unk38;
@@ -65,7 +65,7 @@ void *func_80614B34(void *, void *);
 s32 func_80658E8C(f32, f32, f32, u8, s32);
 void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 void *func_80722294(void *, void *, u8);
-void actorGetNodePos(void *, u8, f32 *, f32 *, f32 *);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
 void *renderSetSegment6AndFog(void *, s16, u8);
@@ -140,7 +140,7 @@ void *func_80630DCC(s32 arg0, void *arg1, R35000aGfx *arg2, u8 arg3) {
             spC9 = L80630DCC_ACT->unk16C;
         } else {
             node = L80630DCC_ACT->unkCD;
-            if (node != 0) {
+            if (node) {
                 actorGetNodePos(arg1, node, &sp88, &sp84, &sp80);
             } else {
                 sp88 = L80630DCC_ACT->unk7C;

@@ -287,6 +287,7 @@ R35000aNode *func_80630890(R35000aNode *arg0, f32 arg1, f32 arg2, f32 arg3, R350
     R35000aNode *base;
     s32 inserted;
     f32 dist;
+    f32 cmpB;
 
     dist = 0.0f;
     node = arg0;
@@ -325,17 +326,18 @@ R35000aNode *func_80630890(R35000aNode *arg0, f32 arg1, f32 arg2, f32 arg3, R350
                         dist = cur->unk10;
                     }
                 }
-                ins = cur->unk18;
                 dz = (f32)((cur->unk1C < cur->unk10) ? 9999.0 : cur->unk10);
+                ins = cur->unk18;
                 if (ins != NULL) {
                     do {
-                        dx = (f32)((ins->unk1C < ins->unk10) ? 9999.0 : ins->unk10);
-                        if (dz <= dx || cur->unk1C == -2) {
+                        cmpB = (f32)((ins->unk1C < ins->unk10) ? 9999.0 : ins->unk10);
+                        if (dz <= cmpB || cur->unk1C == -2) {
                             inserted = 1;
                             if (ins != cur->unk18) {
                                 cur->unk18->unk14 = cur->unk14;
-                                if (cur->unk14 != NULL) {
-                                    cur->unk14->unk18 = cur->unk18;
+                                node = cur->unk14;
+                                if (node != NULL) {
+                                    node->unk18 = cur->unk18;
                                 }
                                 node = ins->unk14;
                                 ins->unk14 = cur;
@@ -385,7 +387,7 @@ extern u8 D_807F6009;
 extern s32 D_807FBB60;
 extern u8 D_2000180[];
 
-void *func_80630DCC(s32, void *, void *, u8);
+void *func_80630DCC(s32, void *, R35000aGfx *, u8);
 void *func_80636FFC(void *, void *, f32, f32, f32, s32, s32, s32);
 void *func_80637B6C(void *, void *, f32, f32, f32, s32, s32, s32);
 void *func_80715E94(void *, void *, s16);
@@ -445,7 +447,192 @@ R35000aGfx *func_80630B70(R35000aGfx *arg0, R35000aNode *arg1, f32 arg2, f32 arg
     return arg0;
 }
 
+#ifdef NON_MATCHING
+typedef struct L80630DCCSub4 {
+    /* 0x00 */ u8 pad0[0x38];
+    /* 0x38 */ f32 unk38;
+} L80630DCCSub4;
+
+typedef struct L80630DCCCtl {
+    /* 0x000 */ u8 pad0[0x1A4];
+    /* 0x1A4 */ u8 unk1A4;
+} L80630DCCCtl;
+
+typedef struct L80630DCCActor {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ L80630DCCSub4 *unk4;
+    /* 0x008 */ u8 pad8[0x50];
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ u16 unk5C;
+    /* 0x05E */ u8 pad5E[2];
+    /* 0x060 */ u32 unk60;
+    /* 0x064 */ u32 unk64;
+    /* 0x068 */ u8 pad68[2];
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u8 pad6C[0x10];
+    /* 0x07C */ f32 unk7C;
+    /* 0x080 */ f32 unk80;
+    /* 0x084 */ f32 unk84;
+    /* 0x088 */ u8 pad88[0x45];
+    /* 0x0CD */ u8 unkCD;
+    /* 0x0CE */ s16 unkCE;
+    /* 0x0D0 */ u8 padD0[0x58];
+    /* 0x128 */ s16 unk128;
+    /* 0x12A */ s16 unk12A;
+    /* 0x12C */ s16 unk12C;
+    /* 0x12E */ u8 pad12E[2];
+    /* 0x130 */ u8 unk130;
+    /* 0x131 */ u8 unk131;
+    /* 0x132 */ u8 pad132[0x16];
+    /* 0x148 */ void *unk148[2];
+    /* 0x150 */ u8 pad150[0xE];
+    /* 0x15E */ u8 unk15E;
+    /* 0x15F */ u8 pad15F[0xB];
+    /* 0x16A */ u8 unk16A;
+    /* 0x16B */ u8 unk16B;
+    /* 0x16C */ u8 unk16C;
+    /* 0x16D */ u8 unk16D;
+    /* 0x16E */ u8 pad16E[6];
+    /* 0x174 */ L80630DCCCtl *unk174;
+} L80630DCCActor;
+
+typedef struct L80630DCCPlayer {
+    /* 0x000 */ u8 pad0[0x21C];
+    /* 0x21C */ f32 unk21C;
+    /* 0x220 */ f32 unk220;
+    /* 0x224 */ f32 unk224;
+    /* 0x228 */ u8 pad228[0x2F0 - 0x228];
+} L80630DCCPlayer;
+
+extern u8 D_807444FC;
+extern L80630DCCPlayer *D_807FC924;
+extern u8 D_807FC928;
+extern u8 D_807FC929;
+
+void func_80614A64(void *);
+void *func_80614B34(void *, void *);
+s32 func_80658E8C(f32, f32, f32, u8, s32);
+void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
+void *func_80722294(void *, void *, u8);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
+void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
+f32 renderScaleDistanceByFov(f32);
+void *renderSetSegment6AndFog(void *, s16, u8);
+
+#define L80630DCC_ACT ((L80630DCCActor *)arg1)
+#define L80630DCC_PLY ((L80630DCCPlayer *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0))
+
+void *func_80630DCC(s32 arg0, void *arg1, R35000aGfx *arg2, u8 arg3) {
+    L80630DCCCtl *ctl;
+    s32 flag;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    u8 spCB;
+    u8 spCA;
+    u8 spC9;
+    f64 x;
+    f32 size;
+    f32 spB8;
+    f64 d;
+
+    spB8 = 1.0f;
+    if (!(L80630DCC_ACT->unk60 & 4)) {
+        flag = 0;
+        if (D_807FC928 >= 2 && (L80630DCC_ACT->unk5C & 1) && (ctl = L80630DCC_ACT->unk174, D_807FC929 != ctl->unk1A4)) {
+            flag = 1;
+        }
+        if (flag == 0) {
+            return arg2;
+        }
+    }
+    if (L80630DCC_ACT->unk58 != 0x1F && L80630DCC_ACT->unk58 != 0x27 && L80630DCC_ACT->unk58 != 0xAE && !(L80630DCC_ACT->unk60 & 0x400)) {
+        dx = L80630DCC_PLY->unk21C - L80630DCC_ACT->unk7C;
+        dy = L80630DCC_PLY->unk220 - L80630DCC_ACT->unk80;
+        dz = L80630DCC_PLY->unk224 - L80630DCC_ACT->unk84;
+        dx = dx * dx;
+        dy = dy * dy;
+        dz = dz * dz;
+        if (sqrtf(dx + dy + dz) > renderScaleDistanceByFov(L80630DCC_ACT->unk12A)) {
+            return arg2;
+        }
+        if (func_80658E8C(L80630DCC_ACT->unk7C, L80630DCC_ACT->unk80, L80630DCC_ACT->unk84, L80630DCC_ACT->unk130, L80630DCC_ACT->unk131)) {
+            return arg2;
+        }
+    }
+    L80630DCC_ACT->unk60 |= 0x100;
+    if (!(L80630DCC_ACT->unk60 & 0x200)) {
+        func_80614A64(arg1);
+    }
+    R35000A_WRITE_GFX(arg2++, 0xE7000000, 0);
+    R35000A_WRITE_GFX(arg2++, 0xD9FFFFFF, 0x200001);
+    R35000A_WRITE_GFX(arg2++, 0xD9FEF9FF, 0);
+    if (L80630DCC_ACT->unk58 == 0x135) {
+        R35000A_WRITE_GFX(arg2++, 0xD9FFFFFE, 0);
+    }
+    R35000A_WRITE_GFX(arg2++, 0xDB06003C, osVirtualToPhysical(L80630DCC_ACT->unk148[D_807444FC]));
+    if (L80630DCC_ACT->unk60 & 0x1000) {
+        arg2 = func_80722294(arg2, arg1, D_807FC929);
+        R35000A_WRITE_GFX(arg2++, 0xD9FFFFFF, 0x20000);
+        R35000A_WRITE_GFX(arg2++, 0xFA0000FF, 0xFFFFFFFF);
+    } else {
+        u8 node;
+        s32 padE[1];
+        f32 sp88;
+        f32 sp84;
+        f32 sp80;
+        s32 padF[1];
+        R35000A_WRITE_GFX(arg2++, 0xD9FDFFFF, 0);
+        if (L80630DCC_ACT->unk60 & 0x800000) {
+            spCB = L80630DCC_ACT->unk16A;
+            spCA = L80630DCC_ACT->unk16B;
+            spC9 = L80630DCC_ACT->unk16C;
+        } else {
+            node = L80630DCC_ACT->unkCD;
+            if (node) {
+                actorGetNodePos(arg1, node, &sp88, &sp84, &sp80);
+            } else {
+                sp88 = L80630DCC_ACT->unk7C;
+                sp84 = L80630DCC_ACT->unk80;
+                sp80 = L80630DCC_ACT->unk84;
+            }
+            func_8065C334(sp88, sp84, sp80, L80630DCC_ACT->unkCE, &spCB, &spCA, &spC9, L80630DCC_ACT->unk12C);
+            if (!(L80630DCC_ACT->unk64 & 1)) {
+                dx = L80630DCC_ACT->unk16D / 15.0f;
+                spCB = spCB * dx;
+                spCA = spCA * dx;
+                spC9 = spC9 * dx;
+            }
+        }
+        R35000A_WRITE_GFX(arg2++, 0xFA0000FF, (spCB << 24) | (spCA << 16) | (spC9 << 8) | 0xFF);
+    }
+    if (L80630DCC_ACT->unk60 & 0x8000) {
+        renderCalcPlayerDistanceAlpha(L80630DCC_ACT->unk7C, L80630DCC_ACT->unk80, L80630DCC_ACT->unk84, L80630DCC_ACT->unk12A, -1, &L80630DCC_ACT->unk128);
+    }
+    if (L80630DCC_ACT->unk5C != 0x80 && L80630DCC_ACT->unk5C != 0x40 && L80630DCC_ACT->unk5C != 8) {
+        if ((L80630DCC_ACT->unk80 - 5.0f < L80630DCC_PLY->unk220 && L80630DCC_PLY->unk220 < L80630DCC_ACT->unk80 + 2.0 * L80630DCC_ACT->unk15E) || (L80630DCC_ACT->unk6A & 0x2000)) {
+            size = L80630DCC_ACT->unk84 - L80630DCC_PLY->unk224;
+            dz = L80630DCC_ACT->unk7C - L80630DCC_PLY->unk21C;
+            dy = L80630DCC_ACT->unk4->unk38;
+            if (dy < 0.01) {
+                dy = 0.01f;
+            }
+            spB8 = ((((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) > 0.3 ? ((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) - 0.3 : 0.0) < 1.0) ? (((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) > 0.3 ? ((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) - 0.3 : 0.0) : 1.0;
+        }
+    }
+    dx = L80630DCC_ACT->unk128 * spB8;
+    if (dx != 0.0f) {
+        arg2 = func_80614B34(renderSetSegment6AndFog(arg2, dx, 1), arg1);
+    }
+    R35000A_WRITE_GFX(arg2++, 0xE7000000, 0);
+    R35000A_WRITE_GFX(arg2++, 0xE3001001, 0);
+    R35000A_WRITE_GFX(arg2++, 0xE7000000, 0);
+    return arg2;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/35000/func_80630DCC.s")
+#endif
 
 typedef struct R35000aVec {
     /* 0x00 */ u8 pad0[0x34];
@@ -477,7 +664,6 @@ typedef struct R35000aActor {
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-#ifdef NON_MATCHING
 void func_8063162C(R35000aActor *arg0, f32 *arg1) {
     f32 sinA;
     f32 cosA;
@@ -486,9 +672,8 @@ void func_8063162C(R35000aActor *arg0, f32 *arg1) {
     f32 sinC;
     f32 cosC;
     f32 u;
+    f32 us;
     f32 pad0;
-    f32 pad1;
-    f32 pad2;
     f32 t20;
 
     sinA = func_80612790(arg0->unkE4);
@@ -498,15 +683,18 @@ void func_8063162C(R35000aActor *arg0, f32 *arg1) {
     sinC = func_80612790(arg0->unkE6);
     cosC = func_80612794(arg0->unkE6);
     u = arg0->unk4->unk34;
-    t20 = cosB * sinC;
-    *arg1++ = u * sinA * sinC + u * cosA * (cosB * cosC);
-    *arg1++ = u * cosA * sinB;
-    *arg1++ = u * cosA * t20 - u * sinA * cosC;
+    us = u * sinA;
+    u = u * cosA;
+    *arg1++ = us * sinC + u * (cosB * cosC);
+    *arg1++ = u * sinB;
+    *arg1++ = (f32)u * (cosB * sinC) - us * cosC;
     *arg1++ = 0.0f;
     u = arg0->unk4->unk38;
-    *arg1++ = u * sinA * (cosB * cosC) - u * cosA * sinC;
-    *arg1++ = u * sinA * sinB;
-    *arg1++ = u * cosA * cosC + u * sinA * t20;
+    us = u * sinA;
+    u = u * cosA;
+    *arg1++ = (f32)us * (cosB * cosC) - u * sinC;
+    *arg1++ = us * sinB;
+    *arg1++ = u * cosC + us * (cosB * sinC);
     *arg1++ = 0.0f;
     u = arg0->unk4->unk3C;
     *arg1++ = u * sinB * cosC;
@@ -518,10 +706,6 @@ void func_8063162C(R35000aActor *arg0, f32 *arg1) {
     *arg1++ = arg0->unk84;
     *arg1 = 1.0f;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/35000/func_8063162C.s")
-#endif
 
 
 
@@ -535,7 +719,6 @@ void func_8063162C(R35000aActor *arg0, f32 *arg1) {
 
 
 
-#ifdef NON_MATCHING
 void func_806317D4(R35000aActor *arg0, f32 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 sinA;
     f32 cosA;
@@ -544,9 +727,9 @@ void func_806317D4(R35000aActor *arg0, f32 *arg1, f32 arg2, f32 arg3, f32 arg4) 
     f32 sinC;
     f32 cosC;
     f32 u;
+    f32 us;
     f32 pad0;
-    f32 pad1;
-    f32 pad2;
+    f32 t20;
 
     sinA = func_80612790((s16)(s32)arg2);
     cosA = func_80612794((s16)(s32)arg2);
@@ -555,14 +738,18 @@ void func_806317D4(R35000aActor *arg0, f32 *arg1, f32 arg2, f32 arg3, f32 arg4) 
     sinC = func_80612790((s16)(s32)arg4);
     cosC = func_80612794((s16)(s32)arg4);
     u = arg0->unk4->unk34;
-    *arg1++ = u * sinA * sinC + u * cosA * (cosB * cosC);
-    *arg1++ = u * cosA * sinB;
-    *arg1++ = u * cosA * (cosB * sinC) - u * sinA * cosC;
+    us = u * sinA;
+    u = u * cosA;
+    *arg1++ = us * sinC + u * (cosB * cosC);
+    *arg1++ = u * sinB;
+    *arg1++ = (f32)u * (cosB * sinC) - us * cosC;
     *arg1++ = 0.0f;
     u = arg0->unk4->unk38;
-    *arg1++ = u * sinA * (cosB * cosC) - u * cosA * sinC;
-    *arg1++ = u * sinA * sinB;
-    *arg1++ = u * cosA * cosC + u * sinA * (cosB * sinC);
+    us = u * sinA;
+    u = u * cosA;
+    *arg1++ = (f32)us * (cosB * cosC) - u * sinC;
+    *arg1++ = us * sinB;
+    *arg1++ = u * cosC + us * (cosB * sinC);
     *arg1++ = 0.0f;
     u = arg0->unk4->unk3C;
     *arg1++ = u * sinB * cosC;
@@ -574,10 +761,6 @@ void func_806317D4(R35000aActor *arg0, f32 *arg1, f32 arg2, f32 arg3, f32 arg4) 
     *arg1++ = arg0->unk84;
     *arg1 = 1.0f;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/35000/func_806317D4.s")
-#endif
 
 void func_8063162C(R35000aActor *, f32 *);
 void func_806317D4(R35000aActor *, f32 *, f32, f32, f32);
