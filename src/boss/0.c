@@ -469,7 +469,7 @@ extern f32 D_807502F4;
 extern s32 D_8076A064;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 
 void func_80024000();
 void func_800251A0();
@@ -483,10 +483,10 @@ void sfxStopSlotSound();
 s32 randomNonNegative();
 void func_80613C48(void *, s16, f32, f32);
 void func_80613CA8(s32, s16, f32, f32);
-s32 func_8061CB50();
-void func_8061CC40(void *, s32, s32);
-void func_8061F0B0();
-void func_80626110();
+s32 camIsCutsceneActive();
+void camStartPath(void *, s32, s32);
+void camStartShake();
+void camSetSecondTarget();
 s32 currentActorTestClearFlag();
 void currentActorClearFlag();
 void actorUpdateModelMatrix();
@@ -534,7 +534,7 @@ void func_800254D0(void) {
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FDC98->unk38 = 0.002f;
-        func_80626110(D_807F5D10, 0, 0);
+        camSetSecondTarget(gCamActor, 0, 0);
         func_80027840(&D_80035CC0);
         D_807FBB40->unkC4 = (f32) D_807502F4;
         D_807FBB40->unkC8 = (f32) D_807502D8;
@@ -571,7 +571,7 @@ void func_800254D0(void) {
         D_807FBB40->unk144 = 1;
         currentActorClearFlag();
         actorScriptStart(D_807FBB40, 0x262);
-        func_8061CC40(D_807FBB40, 9, 1);
+        camStartPath(D_807FBB40, 9, 1);
         D_807FBB40->unk154 = 0x37U;
         D_807FBB40->unk155 = 0U;
     } else if (D_807FBB70[0x200] == 4) {
@@ -585,7 +585,7 @@ void func_800254D0(void) {
         temp_s1->unk15 = 0U;
         temp_s1->unk14 = (u8) (temp_s1->unk14 + 1);
         sp74 = D_800358B0[(D_8076A0A8 == 8) ? 0 : 1][temp_s1->unk14];
-        func_8061CC40(D_807FBB40, 4, 1);
+        camStartPath(D_807FBB40, 4, 1);
     }
     switch ((u32) D_807FBB40->unk154) {                     /* switch 1 */
     case 0x1F:                                      /* switch 1 */
@@ -883,7 +883,7 @@ void func_800254D0(void) {
             if (D_807FBB40->unk154 == 0x11) {
                 screenShakeStart(D_807FBB40->unk7C, D_807FBB40->unk84, 20.0f, 2.0f, 8.0f, 400.0f);
             }
-            func_8061F0B0(D_807F5D10, 5, 0x14);
+            camStartShake(gCamActor, 5, 0x14);
             break;
         case 5:                                     /* switch 8 */
             D_807FBB40->unkB8 = 0.0f;
@@ -1006,7 +1006,7 @@ void func_800254D0(void) {
             func_80025364();
             D_807FDC90->unk2C = (s16) *(temp_s1->unk15 + sp74);
             temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
-            if (func_8061CB50() != 0) {
+            if (camIsCutsceneActive() != 0) {
                 actorScriptStart(D_807FBB40, 0x267);
             } else {
                 actorScriptStart(D_807FBB40, 0x261);

@@ -484,14 +484,14 @@ u8 polygonContainsPoint2D(s16 arg0, s16 arg1, A1Poly *arg2) {
     return hits & 1;
 }
 
-void func_8061F2B8(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
+void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 
 s32 segmentIntersectsCircle2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6) {
     f32 outX;
     f32 outY;
     f32 outZ;
 
-    func_8061F2B8(arg4, 0.0f, arg5, arg0, 0.0f, arg1, arg2, 0.0f, arg3, &outX, &outY, &outZ);
+    camClosestPointOnSegment(arg4, 0.0f, arg5, arg0, 0.0f, arg1, arg2, 0.0f, arg3, &outX, &outY, &outZ);
     return ((outX - arg4) * (outX - arg4) + (outZ - arg5) * (outZ - arg5) < (f32)(arg6 * arg6)) & 0xFF;
 }
 
@@ -1078,7 +1078,7 @@ void spawnNodesSetActorStateByFlag(u16 arg0, u8 arg1) {
 
 void actorDespawn(void *);
 void actorQueueDelayedCallback(void *, s32, s32, s32, s32, s32, s32);
-void func_8061CFCC(void *);
+void camClearActorRefs(void *);
 
 void func_80726EE0(u8 arg0) {
     s16 i;
@@ -1098,7 +1098,7 @@ void func_80726EE0(u8 arg0) {
         } else if ((node->unk42 == 6) && (node->unk18->unk5C & 2)) {
             node->unk42 = 7;
             node->unk24 = node->unk14 * 0x1E;
-            func_8061CFCC(node->unk18);
+            camClearActorRefs(node->unk18);
             actorDespawn(node->unk18);
         }
         switch (mode) {
@@ -1382,11 +1382,11 @@ void spawnNodesUpdate(void) {
             dist = 0x7FFFFFFF;
         }
         if (active && (node->unk18->unk154 == 0x3B)) {
-            func_8061CFCC(node->unk18);
+            camClearActorRefs(node->unk18);
             actorDespawn(node->unk18);
             node->unk42 = 0;
         } else if (active && (node->unk18->unk154 == 0x3C)) {
-            func_8061CFCC(node->unk18);
+            camClearActorRefs(node->unk18);
             actorDespawn(node->unk18);
             node->unk42 = node->unk12;
             node->unk46 &= 0xFFFB;
@@ -1420,7 +1420,7 @@ void spawnNodesUpdate(void) {
             if (node->unk1C->unk1C == node->unk18) {
                 node->unk1C->unk1C = 0;
             }
-            func_8061CFCC(node->unk18);
+            camClearActorRefs(node->unk18);
             actorDespawn(node->unk18);
         } else if (active) {
             best = 0xF423F;
@@ -1644,13 +1644,13 @@ extern u8 D_8071FC40[];
 extern u8 D_8071FC58[];
 extern u8 D_8071FFA0[];
 extern void *D_8074E880[];
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 #define A2B44V ((A2B44 *)D_807FBB44)
 
 u32 func_806119A0(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void actorScriptStart(void *, s32);
-void func_8061F0B0(s32, s32, s32);
+void camStartShake(s32, s32, s32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
 void func_80686390(void *, f32, f32, f32, f32);
 void func_8068B80C(s16);
@@ -1724,7 +1724,7 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             break;
         case 1:
             effectSpawnMultiTierRing(0.36f, 1, (f32)x, (f32)(y + 5), (f32)z);
-            func_8061F0B0(D_807F5D10, 0x14, 0xF);
+            camStartShake(gCamActor, 0x14, 0xF);
             return;
         case 2:
             func_8068B80C(arg0);

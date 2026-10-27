@@ -25,7 +25,7 @@ s32 flagGet(s32, s32);
 void actorScriptStart(Actor_3340 *, s32);
 s32 flagCountRange(s32, s32, s32);
 void flagSet(s32, s32, s32);
-void func_8061CC40(Actor_3340 *, s32, s32);
+void camStartPath(Actor_3340 *, s32, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(Actor_3340 *);
 void effectSpawnBurst(s32);
@@ -97,7 +97,7 @@ void func_80027DC0(void) {
         }
         if (var_t5 != 0) {
             flagSet(0x179, 1, 0);
-            func_8061CC40(D_807FBB4C, 0, 1);
+            camStartPath(D_807FBB4C, 0, 1);
             currentActorClearFlag();
             (*s0)->unk154 = 2;
         }
@@ -135,7 +135,7 @@ void func_80027DC0(void) {
             var_t6 = 1;
         }
         if (var_t6 != 0) {
-            func_8061CC40(*s0, 0, 1);
+            camStartPath(*s0, 0, 1);
             currentActorClearFlag();
             (*s0)->unk154 = 4;
         }

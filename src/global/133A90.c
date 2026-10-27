@@ -329,7 +329,7 @@ u8 proxPathGetActorPosition(Actor *arg0, u8 arg1, f32 *arg2, f32 *arg3, f32 *arg
     return ret;
 }
 
-void func_8061F2B8(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
+void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void modelSlotGetNodePos(void *, s32, s32, f32 *, f32 *, f32 *);
 extern s16 D_807FD584;
@@ -381,7 +381,7 @@ s32 proxPathFindNearestSegment(Actor *arg0, ProxPath *arg1, f32 *arg2, u8 *arg3)
                 modelSlotGetNodePos(arg1->unk0, 1, idB, &bx, &by, &bz);
                 break;
             }
-            func_8061F2B8(arg0->unk7C, arg0->unk80, arg0->unk84, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
+            camClosestPointOnSegment(arg0->unk7C, arg0->unk80, arg0->unk84, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
             *arg2 = (arg0->unk7C - ox) * (arg0->unk7C - ox) + (arg0->unk80 - oy) * (arg0->unk80 - oy) + (arg0->unk84 - oz) * (arg0->unk84 - oz);
             if (*arg2 < r2 && *arg2 < best) {
                 ang = func_80611BB4(ox - arg0->unk7C, oz - arg0->unk84) * 4096.0 / 6.2831855f;
@@ -453,7 +453,7 @@ f32 proxPathAttachToSegment(Actor *arg0, H1ActorState *arg1, ProxPath *arg2, u8 
         break;
     }
     actorGetNodePos(arg0, 1, &px, &py, &pz);
-    func_8061F2B8(px, py, pz, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
+    camClosestPointOnSegment(px, py, pz, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
     t = (oy - ay) / (by - ay);
     if (arg2->unk18 == 2 || arg2->unk18 == 3) {
         if (arg3 == 0) {

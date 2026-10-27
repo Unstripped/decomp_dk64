@@ -680,10 +680,10 @@ typedef struct {
     u8 padC[0x24];
 } NodePosition;
 
-s32 func_8061CB50(void);
+s32 camIsCutsceneActive(void);
 void billboardSetFlags(s32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_8061F0B0(void *, s32, s32);
+void camStartShake(void *, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_8071496C(s16);
@@ -692,7 +692,7 @@ void func_8071498C(void *);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void func_8071BB14(void);
-extern void *D_807F5D10;
+extern void *gCamActor;
 extern u8 D_807FBD70;
 extern f32 D_80750398;
 extern u8 D_80720BE8;
@@ -708,7 +708,7 @@ void actorFallAndBurstUpdate(void) {
         ATTACHED_ACTOR->unkA4 = 99999.0f;
         func_80665564(D_807FBB40, 0.0f);
     }
-    if (func_8061CB50() != 0) {
+    if (camIsCutsceneActive() != 0) {
         ATTACHED_ACTOR->unk132 = 2;
     } else {
         ATTACHED_ACTOR->unk132 = 1;
@@ -725,7 +725,7 @@ void actorFallAndBurstUpdate(void) {
     }
     if (D_807FBD70 == 4 || ATTACHED_ACTOR->unkFC != 0
         || ((ATTACHED_ACTOR->unk6A & 1) && !(ATTACHED_ACTOR->unk6C & 1))) {
-        func_8061F0B0(D_807F5D10, 0xF, 0xF);
+        camStartShake(gCamActor, 0xF, 0xF);
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x162, 0xE1, 0x3C, 1);
         for (i = 1; i != 7; i++) {
             actorGetNodePos(D_807FBB40, i, &pos.unk8, &pos.unk4, &pos.unk0);

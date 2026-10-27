@@ -216,8 +216,8 @@ void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 s16 func_80609140(s16, s32, s32, f32, s32, s32);
 void func_8060B49C(Actor *, s16);
 void func_8060DEC8(void);
-void func_8061EF4C(s32, u8, u16, f32, f32, f32, f32, f32);
-void func_8061F510(u8, u8);
+void camStartShakeFromPoint(s32, u8, u16, f32, f32, f32, f32, f32);
+void camSetZoneWeight(u8, u8);
 void mapOffsetSlotSetEnabled(s16, u8);
 void mapOffsetSlotSetTarget(s16, f32, f32);
 void mapOffsetSlotAddTarget(s16, f32, f32);
@@ -350,7 +350,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807FBB4C->unkB8 = cmd->a;
         break;
     case 0x93:
-        func_8061F510(CMDB(cmd)->a, CMDB(cmd)->b);
+        camSetZoneWeight(CMDB(cmd)->a, CMDB(cmd)->b);
         break;
     case 0x94:
         func_80724994(2, cmd->a, 0, 0, 0);
@@ -915,7 +915,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSlotSetNodeScrollSpeed(csId, cmd->a, cmd->b, cmd->c);
         break;
     case 0x29:
-        func_8061EF4C(((CsCamState *)D_807FC924->unk4->unk174)->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
+        camStartShakeFromPoint(((CsCamState *)D_807FC924->unk4->unk174)->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
         break;
     case 0x44:
         D_807F6906 = cmd->a;

@@ -25,10 +25,10 @@ typedef struct Menu3A_Struct7E60 {
 } Menu3A_Struct7E60;
 
 void func_80030340();
-void func_8061D4E4(s32);
+void camEndPath(s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 extern s8 D_80033734;
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 
 void func_80027E60(void *arg0, s32 arg1) {
     Menu3A_Struct7E60 *temp_v0 = *(Menu3A_Struct7E60 **)((u8 *)arg0 + 0x174);
@@ -45,7 +45,7 @@ void func_80027E60(void *arg0, s32 arg1) {
         temp_v0->unk16 = -1;
         temp_v0->unk0 = 1.0f;
         func_80030340(arg0, 0, 0, 0);
-        func_8061D4E4(D_807F5D10);
+        camEndPath(gCamActor);
         func_80609140(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         D_80033734 = 0;
     }
@@ -859,7 +859,7 @@ typedef struct Menu3B_Struct_BB40 {
 extern Menu3B_Struct_BB40 *D_807FBB40;
 extern s8 D_80033734;
 void actorScriptStart(void *, s32);
-void func_8061CC40(void *, s32, s32);
+void camStartPath(void *, s32, s32);
 
 void menuActorStateDispatch(void) {
     Menu3B_Struct_BB40 *actor = D_807FBB40;
@@ -869,7 +869,7 @@ void menuActorStateDispatch(void) {
         actorScriptStart(actor, 0x345);
         D_807FBB40->unkE6 = 0;
         D_807FBB40->unk155 = 1;
-        func_8061CC40(D_807FBB40, 0x13, 5);
+        camStartPath(D_807FBB40, 0x13, 5);
         break;
     case 2:
         actor->unk155++;

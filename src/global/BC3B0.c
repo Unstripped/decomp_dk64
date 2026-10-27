@@ -156,13 +156,13 @@ extern s32 D_807FBB68;
 
 void behaviourFrameBegin(void);
 void func_806A2A10(s32, s32, u8, s32 *);
-s32 func_8061CB50(void);
+s32 camIsCutsceneActive(void);
 s32 func_8061CC00(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void actorSetStateTwo(s32);
 s16 func_80672A70(s16, s16);
-s32 func_8061CC40(void *, s32, s32);
-void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+s32 camStartPath(void *, s32, s32);
+void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
 void func_806B7EA0(void) {
@@ -183,7 +183,7 @@ void func_806B7EA0(void) {
         }
     }
     if (BC3B0S90->unk2E != 0) {
-        if (func_8061CB50() == 0) {
+        if (camIsCutsceneActive() == 0) {
             BC3B0S90->unk2E = BC3B0S90->unk2E - 1;
         }
         if (BC3B0S90->unk2E != 0) {
@@ -200,7 +200,7 @@ void func_806B7EA0(void) {
         if (D_807FDC94->unkFC != 0) {
             D_807FDC94->unkE6 = func_80672A70(D_807FDC94->unkF4, D_807FDC94->unkF6);
         }
-        func_8061CC40(0, 6, 5);
+        camStartPath(0, 6, 5);
         D_807FBB40->unk154 = 0x11;
         D_807FBB40->unk155[0] = 0;
         c->unk10 = (s32)D_807FDC94->unk7C;
@@ -218,7 +218,7 @@ void func_806B7EA0(void) {
     }
     if (D_807FBB40->unk154 != 0x11) {
         if (D_807FBB40->unk154 == 0x23 && func_8061CC00() == 0) {
-            func_80626F8C(D_807FDC94->unk7C, D_807FDC94->unk80 + (u32)D_807FDC94->unk15E, D_807FDC94->unk84, &sp40, &sp3C, 0, 1.0f, 0);
+            camProjectToScreen(D_807FDC94->unk7C, D_807FDC94->unk80 + (u32)D_807FDC94->unk15E, D_807FDC94->unk84, &sp40, &sp3C, 0, 1.0f, 0);
             actorCursorSteer(c, sp40, sp3C);
         }
     } else {
@@ -239,7 +239,7 @@ void func_806B7EA0(void) {
                 c->unk18 = 10.0f;
             }
         }
-        func_80626F8C(c->unk10, c->unk12, c->unk14, &c->x, &c->y, 0, 1.0f, 0);
+        camProjectToScreen(c->unk10, c->unk12, c->unk14, &c->x, &c->y, 0, 1.0f, 0);
     }
     if (func_8061CC00() == 0) {
         renderCallbacksRegister(actorCursorDrawSprite, D_807FBB40, 3);

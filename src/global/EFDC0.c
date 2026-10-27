@@ -467,7 +467,7 @@ void func_80614D00(Actor *, f32, f32);
 void func_806F0C18(void *);
 void actorClearMovementFlags(void *);
 s32 hashTableLookup(s32);
-void func_8061CC40(Actor *, s32, s32);
+void camStartPath(Actor *, s32, s32);
 void func_80613C48(Actor *, s32, f32, f32);
 void func_8067B238(Actor *, Actor *, f32);
 void func_80613AF8(Actor *, s32, f32, f32);
@@ -490,7 +490,7 @@ void func_806EC044(void) {
     D_807FBB48->unk84 = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk8;
     *(s16 *)((u8 *)D_807FBB48 + 0xE4) = 0;
     *(s16 *)((u8 *)D_807FBB48 + 0xE8) = 0;
-    func_8061CC40(D_807FBB48, 0, 1);
+    camStartPath(D_807FBB48, 0, 1);
     slotQueueUpdate(0, 1, 0);
 }
 
@@ -761,7 +761,7 @@ typedef struct EfN4ActorC0 {
 extern s32 D_807FBB68;
 extern f32 D_807535CC[];
 extern s16 D_8075380C[];
-void func_8061F164(void *, s32);
+void camStartBlendRamp(void *, s32);
 s16 actorListFindIdByActor(Actor *);
 void sfxStopSlotSound(Actor *, u8);
 void func_806CFE7C(void);
@@ -780,7 +780,7 @@ void func_806ECC48(void) {
     D_807FBB48->unk155[0] = 0;
     func_80614E78(D_807FBB48, 0x70);
     func_80614D90(D_807FBB48);
-    func_8061F164(callback, 0x14);
+    camStartBlendRamp(callback, 0x14);
 }
 
 void func_806ECCDC(void) {
@@ -798,7 +798,7 @@ void func_806ECCDC(void) {
     EfN4PS->unk50 = 0;
     EfN4PS->unk3C = 0xA;
     func_80614E78(D_807FBB40, 0x10);
-    func_8061F164(callback, 0x14);
+    camStartBlendRamp(callback, 0x14);
 }
 
 
@@ -1331,7 +1331,7 @@ void func_806EE2B8(void) {
         ((EfCPlayerD4 *)D_807FD580)->unkD4 = D_807530B0[D_807FD584];
     }
     if (value != 0) {
-        func_8061F0B0(((EfCPlayer104 *)D_807FD580)->unk104, 0x14, 0x14);
+        camStartShake(((EfCPlayer104 *)D_807FD580)->unk104, 0x14, 0x14);
     }
 }
 
@@ -1358,7 +1358,7 @@ void func_806EE454(void) {
         ((EfCPlayerD4 *)D_807FD580)->unkD4 = D_807530B0[D_807FD584];
     }
     if (shouldNotify != 0) {
-        func_8061F0B0(((EfCPlayer104 *)D_807FD580)->unk104, 0x14, 0x14);
+        camStartShake(((EfCPlayer104 *)D_807FD580)->unk104, 0x14, 0x14);
     }
 }
 
@@ -1442,7 +1442,7 @@ void func_806EE7B8(void) {
 }
 
 extern void func_806F1048(Actor *);
-extern s32 func_8061CB50(void);
+extern s32 camIsCutsceneActive(void);
 
 void func_806EE7F4(void) {
     if ((D_807FBB68 & 2) != 0) {
@@ -1450,7 +1450,7 @@ void func_806EE7F4(void) {
         sfxStopChannel(0xC, 0);
     }
     if (func_806EB400(D_807FBB48) != 0) {
-        if (((D_807FBB68 & 2) != 0) && (func_8061CB50() != 0)) {
+        if (((D_807FBB68 & 2) != 0) && (camIsCutsceneActive() != 0)) {
             return;
         }
         func_806EEAF8(1);
@@ -1559,12 +1559,12 @@ void func_806EF830(void) {
 }
 
 extern void func_806CF42C(Actor *);
-extern void func_8061CC40(Actor *, s32, s32);
+extern void camStartPath(Actor *, s32, s32);
 
 void func_806EF944(void) {
     if (func_806EB400(D_807FBB48) != 0) {
         if (D_807FBB48->unk154 != 0x3B) {
-            if (func_8061CB50() == 0) {
+            if (camIsCutsceneActive() == 0) {
                 func_806CA2AC();
                 func_806CF42C(D_807FBB48);
                 D_807FBB48->unk144 = 1;
@@ -1572,7 +1572,7 @@ void func_806EF944(void) {
                 D_807FBB48->unk154 = 0x3B;
                 D_807FBB48->unk155[0] = 0;
                 func_806C9974(D_807FC929, -0x40);
-                func_8061CC40(D_807FBB48, 0xB, 0x85);
+                camStartPath(D_807FBB48, 0xB, 0x85);
                 D_807FBB48->unkB8 = 0.0f;
             }
         }
@@ -1631,7 +1631,7 @@ typedef struct {
 extern void func_806C9F74(Actor *);
 extern s16 func_80672A70(s16, s16);
 extern s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-extern void func_80627948(Actor *, s32, s32, s32);
+extern void camStartPathNearWall(Actor *, s32, s32, s32);
 
 void func_806EFB4C(void) {
     sfxStopChannel(0x6B, 0);
@@ -1650,7 +1650,7 @@ void func_806EFB4C(void) {
             D_807FBB48->unk7C,
             D_807FBB48->unk84);
     }
-    func_80627948(D_807FBB48, 0x15, 0x1F, 5);
+    camStartPathNearWall(D_807FBB48, 0x15, 0x1F, 5);
 }
 
 void func_806EFC38(void) {
@@ -1668,11 +1668,11 @@ void func_806EFC38(void) {
         D_807FBB48->unk7C,
         D_807FBB48->unk84);
     if (D_8076A0A8 == 8) {
-        func_8061CC40(D_807FBB48, 2, 1);
+        camStartPath(D_807FBB48, 2, 1);
         D_807FBB48->unk155[0] = 0xFF;
         ((u16 *)D_807FD580)[0x11E] = 0xFFFF;
     } else {
-        func_8061CC40(D_807FBB48, 5, 5);
+        camStartPath(D_807FBB48, 5, 5);
         ((s16 *)D_807FD580)[0x11E] = 100;
     }
 }
@@ -1726,7 +1726,7 @@ void func_806EFD50(void) {
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unkE6 = mathAngleBetweenPoints2D(EfECam[D_807FC929].unk210, EfECam[D_807FC929].unk218,
                                                   D_807FBB48->unk7C, D_807FBB48->unk84);
-    func_8061CC40(D_807FBB48, 0x15, 5);
+    camStartPath(D_807FBB48, 0x15, 5);
 }
 
 typedef struct EfEActorC0 {

@@ -298,7 +298,7 @@ extern Struct_DC9C *D_807FDC9C;
 extern s32 D_80717D4C;
 extern s32 D_8074E880[];
 extern StructBB70 D_807FBB70;
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 extern s32 D_8076A0A8;
 extern s32 D_8072030C;
 extern s32 D_80028BD0;
@@ -319,7 +319,7 @@ void func_80714CC0(s32, f32, f32, s32, f32);
 void behaviourFrameBegin(void);
 void func_80724CA4(s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(Struct_BB40 *, s32, s32, s32, s32);
-void func_8061F0B0(s32, s32, s32);
+void camStartShake(s32, s32, s32);
 void func_8067E278(s32, s32);
 void func_80724E48(s32);
 s32 func_8072DE10(s32);
@@ -448,7 +448,7 @@ void func_800280BC(void) {
     }
     if (D_807FBB70.unk15 != 0) {
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF6, 0xFF, 0x7F, 0x1E);
-        func_8061F0B0(D_807F5D10, 0xA, 0x14);
+        camStartShake(gCamActor, 0xA, 0x14);
         D_807FBB40->unk154 = 0x40;
         func_8067E278(0, 1);
     }
@@ -519,7 +519,7 @@ void func_8002835C(void) {
     if ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) {
         func_8067E278(0, 1);
         D_807FBB40->unk154 = 0x40;
-        func_8061F0B0(D_807F5D10, 0xA, 0x14);
+        camStartShake(gCamActor, 0xA, 0x14);
     }
     switch (D_807FBB40->unk154) {
     case 0:

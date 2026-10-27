@@ -44,18 +44,18 @@ extern BossD_Actor *D_807FBB40;
 extern BossD_Actor *D_807FBB4C;
 extern BossD_D580 *D_807FD580;
 extern BossD_DC90 *D_807FDC90;
-extern void *D_807F5D10;
+extern void *gCamActor;
 
 void func_800290D4(s32);
 s32 playerStateQueueCallback(s32, void *, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void actorScriptStart(void *, s32);
-s32 func_8061CB50(void);
-void func_8061D4E4(void *);
-void func_8061C464(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+s32 camIsCutsceneActive(void);
+void camEndPath(void *);
+void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_806CFF9C(void *);
-void func_806224CC(void *, void *);
+void camReturnToFollow(void *, void *);
 void func_8063DA40(s32, s16);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 f32 func_80612790(s16);
@@ -78,10 +78,10 @@ void func_80030920(s32 arg0) {
     D_807FBB40->unkE6 = temp_t7;
     D_807FBB40->unkEE = temp_t7;
     actorScriptStart(D_807FBB40, 0x3F9);
-    if (func_8061CB50() != 0) {
-        func_8061D4E4(D_807F5D10);
+    if (camIsCutsceneActive() != 0) {
+        camEndPath(gCamActor);
     }
-    func_8061C464(D_807F5D10, D_807FBB4C, 4, 0x800, 0x5A, 0, 0x46, 0x64, 0x3A, 0, 0.3f);
+    camSetTarget(gCamActor, D_807FBB4C, 4, 0x800, 0x5A, 0, 0x46, 0x64, 0x3A, 0, 0.3f);
 }
 void func_80030AE0(BossD_Sub178 *arg0) {
     func_800290D4(0);
@@ -89,7 +89,7 @@ void func_80030AE0(BossD_Sub178 *arg0) {
     if (D_807FBB4C->unk154 != 0x36) {
         func_806CFF9C(D_807FBB4C);
     }
-    func_806224CC(D_807F5D10, D_807FBB4C);
+    camReturnToFollow(gCamActor, D_807FBB4C);
     D_807FD580->unk1D8 = 0.01f;
     func_8063DA40(0xB, (arg0->unk14 <= 0) ? 0 : 4);
     func_8063DA40(0xC, (arg0->unk14 < 2) ? 0 : 4);

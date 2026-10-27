@@ -45,12 +45,12 @@ u8 func_80025480(u8 **arg0, u8 arg1) {
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/func_800254B0.s")
 
-void func_8061C464(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 extern void *D_807FBB4C;
 
 void func_8002563C(s32 arg0) {
     void *temp_v0 = *(void **)((u8 *)D_807FBB4C + 0x174);
-    func_8061C464(*(void **)((u8 *)temp_v0 + 0x104), D_807FBB4C, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
+    camSetTarget(*(void **)((u8 *)temp_v0 + 0x104), D_807FBB4C, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
     *(u8 *)((u8 *)D_807FBB40 + 0x154) = 3;
     *(u8 *)((u8 *)D_807FBB40 + 0x155) = 1;
     *(s16 *)((u8 *)D_807FBB40 + 0x168) = 0;
@@ -79,7 +79,7 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 s32 playerStateQueueCallback(s32, s32, s32);
-void func_80627948(void *, s32, s32, s32);
+void camStartPathNearWall(void *, s32, s32, s32);
 s32 func_8070E750(s32, s32, s32);
 
 void func_800264E0(u8 arg0, u8 arg1) {
@@ -90,7 +90,7 @@ void func_800264E0(u8 arg0, u8 arg1) {
     playerStateQueueCallback(0x44, 0, 0);
     *(u8 *)((u8 *)D_807FBB40 + 0x154) += 1;
     if (arg0 != 0) {
-        func_80627948(D_807FBB4C, 5, 0x21, 5);
+        camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
     }
 }
 
@@ -101,6 +101,6 @@ void func_800265C0(u8 arg0, u8 arg1) {
     playerStateQueueCallback(0x43, 0, 0);
     *(u8 *)((u8 *)D_807FBB40 + 0x154) += 1;
     if (arg0 != 0) {
-        func_80627948(D_807FBB4C, 5, 0x21, 5);
+        camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
     }
 }

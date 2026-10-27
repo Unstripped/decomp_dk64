@@ -75,8 +75,8 @@ s32 bonusGetSoundForMap(void) {
 void behaviourFrameBegin(void);
 void n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void func_806A2A10(s32, s32, u8);
-void func_8061CC30(void);
-u16 func_8061CC40(s32, s32, s32);
+void camRequestPathLength(void);
+u16 camStartPath(s32, s32, s32);
 void actorSetStateTwo(void *);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_8070E750(s32, s32, s32);
@@ -111,8 +111,8 @@ void func_80024E38(void) {
         spawnNodeActivateAndSetState(4, 0x40, 0x10);
         *(u8 *)((u8 *)D_807FBB40 + 0x154) = 0;
         *(u8 *)((u8 *)D_807FBB40 + 0x155) = 0;
-        func_8061CC30();
-        *(u16 *)(temp_s0 + 0x18) = func_8061CC40(0, 0, 1);
+        camRequestPathLength();
+        *(u16 *)(temp_s0 + 0x18) = camStartPath(0, 0, 1);
     }
     switch (*(u8 *)((u8 *)D_807FBB40 + 0x154)) {
     case 0:

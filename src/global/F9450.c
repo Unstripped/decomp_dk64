@@ -259,13 +259,13 @@ s32 func_806F544C(s32 arg0, s32 arg1, u8 arg2) {
     return arg0;
 }
 
-void func_8061CC40(Actor *, s32, s32);
+void camStartPath(Actor *, s32, s32);
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
 
 void func_806F5498(void) {
     if (flagGet(0x16C, 0) == 0) {
-        func_8061CC40(NULL, 0x20, 5);
+        camStartPath(NULL, 0x20, 5);
         flagSet(0x16C, 1, 0);
     }
 }

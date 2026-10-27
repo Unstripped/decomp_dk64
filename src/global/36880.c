@@ -2669,7 +2669,7 @@ extern s32 D_807F5FD8;
 f32 renderScaleDistanceByFov(f32);
 void func_8065EB10(u8, s16, f32, f32, f32, s32, f32, s32);
 s32 func_80658E8C(f32, f32, f32, s32, s32);
-void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 void func_80658C10(void *, s16, s16, s16);
 u8 mapSearchTableGetValue(void *);
 void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
@@ -2741,7 +2741,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3,
         return arg1;
     }
     if (arg0->unk4E & 8) {
-        func_80626F8C(arg0->unk0, arg0->unk4, arg0->unk8, &sp1D8, &sp1D4, 0, 1.0f, D_807FC929);
+        camProjectToScreen(arg0->unk0, arg0->unk4, arg0->unk8, &sp1D8, &sp1D4, 0, 1.0f, D_807FC929);
         func_80658C10(arg0, sp1D8, sp1D4, sp1D0);
         if (mapSearchTableGetValue(arg0) != 0) {
             return arg1;

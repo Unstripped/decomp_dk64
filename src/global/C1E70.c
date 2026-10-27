@@ -84,16 +84,16 @@ extern s16 D_8076A0A6;
 extern s8 D_807506B4;
 extern s8 D_807506A8[];
 extern f32 D_807FC8D4;
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 
 s32 func_806BDD2C(void);
 void func_8067B238(void *, void *, f32);
 s32 actorScriptStart(void *, s32);
 void actorUpdateModelMatrix(void *, s32);
-s32 func_8061CC40(void *, s32, s32);
+s32 camStartPath(void *, s32, s32);
 s32 currentActorTestClearFlag();
-s32 func_8061CB50(void);
-void func_8061F0B0(s32, s32, s32);
+s32 camIsCutsceneActive(void);
+void camStartShake(s32, s32, s32);
 s32 sfxAllocateChannel(s32, f32);
 s16 func_80609140(s16, s32, f32, f32, u8, u8);
 void flagSet(s16, s32, s32);
@@ -163,7 +163,7 @@ void func_806BD3E4(void) {
         case 1:
             actorScriptStart(D_807FBB40, 0x2EF);
             D_807FBB40->unk154 = 2;
-            func_8061CC40(D_807FBB4C, 2, 1);
+            camStartPath(D_807FBB4C, 2, 1);
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
@@ -180,13 +180,13 @@ void func_806BD3E4(void) {
             }
             break;
     }
-    if (func_8061CB50() == 0) {
+    if (camIsCutsceneActive() == 0) {
         if (((NmBD3E4Sub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
             actorScriptStart(D_807FBB40, 0x2F0);
         }
     }
     if (sp28) {
-        func_8061F0B0(D_807F5D10, sp2B, sp28);
+        camStartShake(gCamActor, sp2B, sp28);
     }
     if (idx >= 0) {
         n = *cnt;
@@ -216,8 +216,8 @@ extern f32 D_807FC8D4;
 s32 func_806BDD2C(void);
 s32 actorScriptStart(void *, s32);
 void actorUpdateModelMatrix(void *, s32);
-s32 func_8061CC40(void *, s32, s32);
-s32 func_8061CB50(void);
+s32 camStartPath(void *, s32, s32);
+s32 camIsCutsceneActive(void);
 s32 sfxAllocateChannel(s32, f32);
 s16 func_80609140(s16, s32, f32, f32, u8, u8);
 void flagSet(s16, s32, s32);
@@ -242,7 +242,7 @@ extern u8 D_80720A7C;
 
 void sfxStopChannel(s32, s32);
 void func_8063DA40(s32, s32);
-void func_8061CB08(void);
+void camResumePath(void);
 void func_80712524(s32, s32);
 void func_80714950(s32);
 void func_8071498C(void (*)(void));
@@ -262,7 +262,7 @@ void func_806BD7B0(void) {
 
     switch (D_807FBB40->unk154) {
         case 5:
-            if (D_807506A4 != 0 && func_8061CB50() == 0) {
+            if (D_807506A4 != 0 && camIsCutsceneActive() == 0) {
                 st->unk0++;
                 if (st->unk0 >= 0x29) {
                     D_807506A4 = 0;
@@ -282,7 +282,7 @@ void func_806BD7B0(void) {
                 st->unk0 = 0;
                 sfxAllocateChannel(0x3B, 1.0f);
                 func_80609140(0x258, 0x7FFF, 63.0f, 1.0f, 5, 0);
-                func_8061CC40(D_807FBB40, 0, 1);
+                camStartPath(D_807FBB40, 0, 1);
                 actorScriptStart(D_807FBB40, 0x291);
                 D_807FBB40->unk155[0] = 0;
                 ((R1C0C1Spawned *)D_807FBB40)->unk146 = 1;
@@ -308,7 +308,7 @@ void func_806BD7B0(void) {
                         st->unk0 = 0;
                         st->unk4->unk154 = 3;
                         st->unk4->unk155[0] = 0;
-                        func_8061CC40(0, 1, 1);
+                        camStartPath(0, 1, 1);
                         func_8063DA40(sp30.b[st->unk2], 2);
                     }
                 }
@@ -345,7 +345,7 @@ void func_806BD7B0(void) {
                 if (st->unk2 == 2 || st->unk2 == 7) {
                     flagSet(st->unk2 + 0x1BC, 1, 0);
                     if (func_806BDD2C() == 0) {
-                        func_8061CB08();
+                        camResumePath();
                         sfxStopChannel(0x7D, 1);
                         D_807506A4 = 1;
                     }

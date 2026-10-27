@@ -55,8 +55,8 @@ s32 randomNonNegative(void);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void actorDespawn(void *);
 void playerStateQueueCallback(s32, void *, s32);
-void func_8061EF4C(void *, s32, s32, f32, f32, f32, f32, f32);
-extern void *D_807F5D10;
+void camStartShakeFromPoint(void *, s32, s32, f32, f32, f32, f32, f32);
+extern void *gCamActor;
 extern void *D_8071720C;
 extern void *D_8074E880[];
 void func_8003340C(u8 *arg0) {
@@ -175,7 +175,7 @@ void func_8003575C(void) {
         actorDespawn(D_807FBB40);
         break;
     }
-    func_8061EF4C(D_807F5D10, 5, 0x14, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
+    camStartShakeFromPoint(gCamActor, 5, 0x14, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 

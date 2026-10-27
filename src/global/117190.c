@@ -246,10 +246,10 @@ void func_80713088(void) {
     }
 }
 
-s32 func_8061CB50(void);
+s32 camIsCutsceneActive(void);
 
 void func_807130D4(void) {
-    if (func_8061CB50()) {
+    if (camIsCutsceneActive()) {
         D_8075531C = 0x1E;
     }
     if ((D_80755330 == 1) || (D_8075531C == 0) || (D_807ECD66 & 0x8000)) {

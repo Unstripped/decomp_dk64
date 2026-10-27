@@ -69,7 +69,7 @@ s32 func_8060FAE4(s32, s32);
 extern s32 controllerGetPort(s32);
 extern u8 controllerGetActiveMask(void);
 extern u32 screenWipeGetState(void);
-extern u32 func_8061CB50(void);
+extern u32 camIsCutsceneActive(void);
 extern s32 func_8071432C(void);
 extern s32 func_8071441C(void);
 extern s32 func_807143E8(void);
@@ -170,7 +170,7 @@ int func_8060E980(void) {
     return ((D_807FBB60 & 0x4002) != 0) ||
            ((D_8076A0B1 & 1) != 0) ||
            (screenWipeGetState() != 0) ||
-           (func_8061CB50() != 0) ||
+           (camIsCutsceneActive() != 0) ||
            (func_8071432C() == 0 && func_8071441C() == 0 && func_807143E8() == 0);
 }
 

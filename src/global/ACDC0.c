@@ -130,7 +130,7 @@ s32 flagCountRange(s32, s32, s32);
 void actorSpawn(s32, s32);
 void actorDespawn(Actor *);
 char *func_8070E750(s32, s32, s32);
-void func_8061CC40(s32, s32, s32);
+void camStartPath(s32, s32, s32);
 void func_80724994(s32, s32, s32, s32, s32);
 void func_805FF378(s32, s32);
 void func_805FF544(void);
@@ -1582,7 +1582,7 @@ void hudTextScreenUpdate(void) {
         if (D_807ECD58 & 0x8000) {
             switch (D_807FBB40->unk15F) {
                 case 2:
-                    func_8061CC40(0, 0x20, 1);
+                    camStartPath(0, 0x20, 1);
                     hudFreeTextAndDespawn();
                     break;
                 case 3:

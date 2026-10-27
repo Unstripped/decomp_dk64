@@ -456,7 +456,7 @@ void func_80709464(u8);
 void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
 void effectFreeAndUnlink(void *, void *);
-void func_80626F8C(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
+void camProjectToScreen(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
 s32 playerStateQueueCallback(s32, Actor *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 sqrtf(f32);
@@ -626,7 +626,7 @@ void func_806CA5F8(s32 arg0) {
             }
             if (fx != NULL) {
                 actorGetNodePos(D_807FBB48, 1, &sp5C, &sp58, &sp54);
-                func_80626F8C(sp5C, sp58, sp54, &sp4C, &sp48, NULL, 1.0f, 0);
+                camProjectToScreen(sp5C, sp58, sp54, &sp4C, &sp48, NULL, 1.0f, 0);
                 fx->unk340 = sp4C * 4.0f;
                 fx->unk344 = sp48 * 4.0f;
                 fx->unk348 = 5.0f;
@@ -688,10 +688,10 @@ done:
         }
     }
     actorGetNodePos(D_807FBB48, 6, &LCA_SLOT(D_807FC929).unk2B4, &LCA_SLOT(D_807FC929).unk2B8, &LCA_SLOT(D_807FC929).unk2BC);
-    func_80626F8C(D_807FBB48->unk7C, LCA_SLOT(D_807FC929).unk2B8, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
+    camProjectToScreen(D_807FBB48->unk7C, LCA_SLOT(D_807FC929).unk2B8, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
     LCA_P->unk10E = sp70;
     LCA_P->unk110 = sp6C;
-    func_80626F8C(D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
+    camProjectToScreen(D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
     LCA_P->unk112 = sp6C;
     LCA_P->unk1F8 = LCA_P->unk1F0;
     if (LCA_P->unk268 != 0) {
@@ -789,7 +789,7 @@ extern s32 D_8071FFA0;
 extern s32 func_80716FB4;
 extern s32 func_80717930;
 s32 randomNonNegative();
-s32 func_8061CB50();
+s32 camIsCutsceneActive();
 void func_80687400();
 void actorScriptStart(Actor *, s32);
 void func_8071498C(void *);
@@ -857,7 +857,7 @@ void func_806CB53C(void) {
             D_807FD610[D_807FC929].unk2C |= 2;
             D_807FD610[D_807FC929].unk2A |= 0x2000;
         }
-        if (!(D_80750B54[D_807FBB40->unk154][0] & 0x300) && !(LB_P->unk1F0 & 0x14000) && func_8061CB50() == 0 && !(LB_P->unk1F4 & 0x10)) {
+        if (!(D_80750B54[D_807FBB40->unk154][0] & 0x300) && !(LB_P->unk1F0 & 0x14000) && camIsCutsceneActive() == 0 && !(LB_P->unk1F4 & 0x10)) {
             func_806F91B4(5, LB_P->unk1A4, -1);
         }
     } else {
@@ -2929,7 +2929,7 @@ typedef struct G07StateB {
     /* 0x1E4 */ s32 unk1E4;
 } G07StateB;
 
-void func_8062217C(void *, s32);
+void camSetZoomLevel(void *, s32);
 
 void func_806D0468(Actor *arg0, u8 arg1) {
     G07StateB *state = arg0->unk174;
@@ -2985,7 +2985,7 @@ void func_806D0468(Actor *arg0, u8 arg1) {
             state->unk1E0 = 99999.0f;
         }
     }
-    func_8062217C(state->unk104, 2);
+    camSetZoomLevel(state->unk104, 2);
 }
 
 #define G07_P ((G07StateB *)D_807FD580)

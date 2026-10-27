@@ -34,7 +34,7 @@ extern MenuStruct_30A2 D_800330A2[];
 
 s32 func_805FF030(s32, s32);
 void func_8063DA40(s16, s32);
-void func_8061CC40(s32, s32, s32);
+void camStartPath(s32, s32, s32);
 
 void menuPlaySoundFromTable(MenuStruct_80024000 *arg0) {
     s32 temp_v1 = D_80032F48[func_805FF030(D_8076A0AB, 0)][arg0->unk1];
@@ -48,7 +48,7 @@ void menuPlaySoundFromTable(MenuStruct_80024000 *arg0) {
     if (temp_v1 == 4) {
         arg0->unk6 = 1;
     }
-    func_8061CC40(0, (s16)temp_v1, 1);
+    camStartPath(0, (s16)temp_v1, 1);
     arg0->unk1++;
 }
 
@@ -94,7 +94,7 @@ void func_805FF898(void);
 void menuResetAudioState(void) {
     func_806CFF9C(D_807FBB4C);
     func_805FF898();
-    func_8061CC40(0, 7, 1);
+    camStartPath(0, 7, 1);
 }
 
 typedef struct {
@@ -116,7 +116,7 @@ extern MenuBB40_60 *D_807FBB40;
 extern s16 D_80750AC8;
 s32 currentActorTestClearFlag(void);
 void func_8070D8C0(void *, s32, u8);
-void func_8061CB08(void);
+void camResumePath(void);
 void currentActorClearFlag();
 
 void menuPlaySoundFromTable(MenuStruct_80024000 *);
@@ -154,7 +154,7 @@ void menuMainStateStep(MenuStruct_80024000 *arg0, s32 arg1) {
         break;
     case 1:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
-            func_8061CB08();
+            camResumePath();
             arg0->unk1++;
         }
         break;
@@ -162,7 +162,7 @@ void menuMainStateStep(MenuStruct_80024000 *arg0, s32 arg1) {
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
             if (arg0->unk1A != 0) {
-                func_8061CC40(0, 5, 1);
+                camStartPath(0, 5, 1);
                 arg0->unk1++;
             } else {
                 arg0->unk0 = 4;
@@ -207,7 +207,7 @@ u8 arg1;
         break;
     case 1:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
-            func_8061CB08();
+            camResumePath();
             arg0->unk1++;
         }
         break;
@@ -252,7 +252,7 @@ void menuProcessOptionInput(MenuStruct_80024000 *arg0) {
         break;
     case 1:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
-            func_8061CB08();
+            camResumePath();
             arg0->unk1++;
         }
         break;
@@ -310,7 +310,7 @@ void menuDispatchAction(void) {
                     }
                 }
             }
-            func_8061CC40(0, (s16)sp20, 1);
+            camStartPath(0, (s16)sp20, 1);
         } else {
             temp_s0->unk0 = 5;
             temp_s0->unk1 = 0;

@@ -55,7 +55,7 @@ typedef struct BossA_Struct_807FDC90 {
 extern BossA_Struct_807FDC90 *D_807FDC90;
 
 s32 randomNonNegative(void);
-void func_8061CC40(void *, s32, s32);
+void camStartPath(void *, s32, s32);
 
 void func_8002C5F4(void) {
     s32 rand;
@@ -71,7 +71,7 @@ void func_8002C5F4(void) {
 
     if (!(D_807FDC90->unk1A & 0x8000)) {
         D_807FDC90->unk1A |= 0x8000;
-        func_8061CC40(D_807FBB44, 2, 1);
+        camStartPath(D_807FBB44, 2, 1);
     }
 }
 

@@ -52,7 +52,7 @@ extern u8 D_807444EC;
 extern s32 D_8076A064;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 extern BA790Actor *D_807FBD6C;
 extern u8 D_80720630;
 
@@ -73,7 +73,7 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void func_8072B7CC(s32);
 void actorSetNodeFlag(Actor *, s32);
 void actorClearNodeFlag(Actor *, s32);
-void func_8061EF4C(s32, s32, s32, f32, f32, f32, f32, f32);
+void camStartShakeFromPoint(s32, s32, s32, f32, f32, f32, f32, f32);
 void func_807149FC(s32);
 void func_807149B8(s32);
 void func_807149C8(s32, s32, s32, s32);
@@ -234,7 +234,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             sfxSpawnTableNodes(D_807FBB40);
             func_8067E278(1, 1);
             actorSetNodeFlag(D_807FBB40, 3);
-            func_8061EF4C(D_807F5D10, 5, 0x14, BA790A->unk7C, BA790A->unk80, BA790A->unk84, 200.0f, 400.0f);
+            camStartShakeFromPoint(gCamActor, 5, 0x14, BA790A->unk7C, BA790A->unk80, BA790A->unk84, 200.0f, 400.0f);
             BA790A->unk155 = BA790A->unk155 + 1;
             break;
         case 4:

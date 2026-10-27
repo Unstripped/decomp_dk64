@@ -54,7 +54,7 @@ typedef struct Boss2F_9230_DC9C {
 } Boss2F_9230_DC9C;
 
 extern u8 *D_80035A50[];
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 extern Boss2F_9230_Actor *D_807FBB40;
 extern void *D_807FBB44;
 extern Boss2F_9230_BB4C *D_807FBB4C;
@@ -71,9 +71,9 @@ void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void func_80614D00(void *, f32, f32);
 void actorScriptStart(Boss2F_9230_Actor *, s32);
-s32 func_8061CB50(void);
-void func_8061CC40(Boss2F_9230_Actor *, s32, s32);
-void func_80626110(s32, s32, s32);
+s32 camIsCutsceneActive(void);
+void camStartPath(Boss2F_9230_Actor *, s32, s32);
+void camSetSecondTarget(s32, s32, s32);
 s32 currentActorTestClearFlag();
 void actorUpdateModelMatrix(Boss2F_9230_Actor *, s32);
 void func_80641874();
@@ -96,7 +96,7 @@ void func_8002D230(void) {
     behaviourFrameBegin();
     func_80028878(sp3C);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_80626110(D_807F5D10, 0, 0);
+        camSetSecondTarget(gCamActor, 0, 0);
         D_807FBB40->unk146 = 5;
         D_807FBB40->unk154 = 0x1E;
         D_807FBB40->unk155 = 0;
@@ -140,7 +140,7 @@ void func_8002D230(void) {
                 D_807FBB40->unk155 = 0;
             } else {
                 func_8072DEA8(0x3EE, 0x31, D_807FBB4C);
-                func_8061CC40(D_807FBB40, 1, 1);
+                camStartPath(D_807FBB40, 1, 1);
                 D_807FBB40->unkB8 *= 0.7;
             }
         } else if (D_807FBD70 == 2 && D_807FBB40->unk155 > 0) {
@@ -206,7 +206,7 @@ void func_8002D230(void) {
                 D_807FBB40->unk155++;
                 /* fallthrough */
             case 1:
-                if (func_8061CB50() == 0) {
+                if (camIsCutsceneActive() == 0) {
                     D_807FDC90->unk2C = sp44->unk18;
                     D_807FDC90->unk2E = 9;
                     actorScriptStart(D_807FBB40, 0x3E7);
@@ -268,7 +268,7 @@ void func_8002D230(void) {
         switch (D_807FBB40->unk155) {
         case 0:
             actorScriptStart(D_807FBB40, 0);
-            func_8061CC40(D_807FBB40, 2, 1);
+            camStartPath(D_807FBB40, 2, 1);
             D_807FBB40->unk155++;
             break;
         case 1:

@@ -865,7 +865,7 @@ typedef struct BDEE0DD580 {
 
 extern BDEE0DD580 *D_807FD580;
 extern s32 D_807FBB68;
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 extern BDEE0Tbl D_80750638;
 
 void func_806BB81C();
@@ -873,10 +873,10 @@ s32 spawnNodeHasActor(s32);
 void func_80641874(s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-void func_8061CC40(void *, s32, s32);
-void func_8061C464(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_8061C458(s32, void *);
-void func_806224CC(s32, void *);
+void camStartPath(void *, s32, s32);
+void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void camSetTargetFocusActor(s32, void *);
+void camReturnToFollow(s32, void *);
 void func_80726EE0(s32);
 void func_806D0468(void *, s32);
 void func_8063DA40(s32, s32);
@@ -970,7 +970,7 @@ void func_806BB874(void) {
             func_80641874(0x11, 1);
             spawnNodeSpawnById(0x2D, func_80612794(D_807FBB40->unkE6) * 80.0f + D_807FBB40->unk7C, D_807FBB40->unk80, func_80612790(D_807FBB40->unkE6) * 80.0f + D_807FBB40->unk84, D_807FBB40->unkE6, 0, 0);
             D_807FDCA0->unk1C = (s32)D_807FBB44;
-            func_8061CC40(D_807FBB40, 0x1F, 1);
+            camStartPath(D_807FBB40, 0x1F, 1);
             D_807FBB40->unk154++;
             D_807FDC90->unk2C = 0x1E;
             BDEE0A->unk155 = 0xA;
@@ -991,8 +991,8 @@ void func_806BB874(void) {
                 D_807FBB40->unk60 &= 0xFFFF7FFF;
                 D_807FBB40->unk144 = 1;
                 D_807FBB40->unk154++;
-                func_8061C464(D_807F5D10, D_807FBB40, 4, 0x1129, 0x264, 0, 0, 0xAF, 0, 0, 1.0f);
-                func_8061C458(D_807F5D10, D_807FBB4C);
+                camSetTarget(gCamActor, D_807FBB40, 4, 0x1129, 0x264, 0, 0, 0xAF, 0, 0, 1.0f);
+                camSetTargetFocusActor(gCamActor, D_807FBB4C);
             }
             D_807FDC90->unk2C = 0xF;
         }
@@ -1006,7 +1006,7 @@ void func_806BB874(void) {
         }
         if (spawnNodeHasActor(0x2D) == 0) {
             func_80641874(0x11, 0xFF);
-            func_806224CC(D_807F5D10, D_807FBB4C);
+            camReturnToFollow(gCamActor, D_807FBB4C);
             func_80726EE0(0);
             D_807FBB68 &= ~1;
             if (D_807FC924->unk2C0 != 1) {
@@ -1019,7 +1019,7 @@ void func_806BB874(void) {
             D_807FBB4C->unk12A = 0x1F4;
             D_807FBB4C->unk60 &= ~0x400;
             D_807FBB40->unk144 = 0x24;
-            func_8061CC40(D_807FBB40, 0x1F, 5);
+            camStartPath(D_807FBB40, 0x1F, 5);
         }
         break;
     }

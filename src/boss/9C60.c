@@ -140,7 +140,7 @@ typedef struct Boss2F_9C60_Sub1C {
 } Boss2F_9C60_Sub1C;
 
 extern u8 *D_80035A60[];
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 extern Boss2F_9C60_BB4C *D_807FBB4C;
 extern Boss2F_9C60_DC90 *D_807FDC90;
 extern Boss2F_9C60_DC9C *D_807FDC9C;
@@ -153,10 +153,10 @@ void func_805FF378(s32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void func_80614D90(BossC_9C60_Actor *);
 void actorScriptStart(BossC_9C60_Actor *, s32);
-s32 func_8061CB50(void);
-void func_8061CC40(BossC_9C60_Actor *, s32, s32);
-void func_8061F0B0(s32, s32, s32);
-void func_80626110(s32, s32, s32);
+s32 camIsCutsceneActive(void);
+void camStartPath(BossC_9C60_Actor *, s32, s32);
+void camStartShake(s32, s32, s32);
+void camSetSecondTarget(s32, s32, s32);
 s32 currentActorTestClearFlag(void);
 void func_8063DA40(s16, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -183,7 +183,7 @@ void func_8002DE04(void) {
     behaviourFrameBegin();
     func_80028878(sp38);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_80626110(D_807F5D10, 0, 0);
+        camSetSecondTarget(gCamActor, 0, 0);
         D_807FBB40->unk146 = 5;
         D_807FBB40->unk154 = 0x1E;
         D_807FBB40->unk155 = 0;
@@ -249,7 +249,7 @@ void func_8002DE04(void) {
             D_807FBB40->unk155++;
             /* fallthrough */
         case 1:
-            if (func_8061CB50() == 0) {
+            if (camIsCutsceneActive() == 0) {
                 D_807FDC90->unk2C = sp3C->unk18;
                 actorScriptStart(D_807FBB40, 0x3EF);
                 D_807FBB40->unk155++;
@@ -308,7 +308,7 @@ void func_8002DE04(void) {
             D_807FBB40->unk146 = 5;
             actorScriptStart(D_807FBB40, 0);
             bossDespawnEntities();
-            func_8061CC40(D_807FBB40, 1, 1);
+            camStartPath(D_807FBB40, 1, 1);
             D_807FBB40->unk155++;
             break;
         case 1:
@@ -319,7 +319,7 @@ void func_8002DE04(void) {
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
-                func_8061F0B0(D_807F5D10, 5, 0x14);
+                camStartShake(gCamActor, 5, 0x14);
                 if (sp3C->unk14 == 3) {
                     D_807FBB40->unk154 = 0x37;
                     D_807FBB40->unk155 = 0;
@@ -356,7 +356,7 @@ void func_8002DE04(void) {
         case 0:
             D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FDCA0->unk14->unk28, D_807FDCA0->unk14->unk2C, D_807FBB40->unk7C, D_807FBB40->unk84);
             actorScriptStart(D_807FBB40, 0);
-            func_8061CC40(D_807FBB40, 2, 1);
+            camStartPath(D_807FBB40, 2, 1);
             D_807FBB40->unk155++;
             break;
         case 1:

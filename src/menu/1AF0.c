@@ -102,7 +102,7 @@ void menuResetSubmenuState(s8 *arg0, s32 *arg1) {
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_800262A8.s")
 
 void func_800262A8(Struct_80025D14 *, void *, s32);
-void func_8061CB08(void);
+void camResumePath(void);
 
 void menuDispatchSubmenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     switch (arg0->unkE) {
@@ -113,7 +113,7 @@ void menuDispatchSubmenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
         if (!(D_807FBB40->unk60 & 0x02000000)) {
             arg0->unkE = 0;
             arg0->unkD = arg0->unkF;
-            func_8061CB08();
+            camResumePath();
         }
         break;
     }
@@ -122,7 +122,7 @@ void menuDispatchSubmenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 
 extern void *D_807FBB4C;
 void func_806F397C(void *, void *, s32, s32);
-void func_8061CC40(s32, s32, s32);
+void camStartPath(s32, s32, s32);
 void currentActorClearFlag(void);
 void func_80025FB4(void *, void *, s32);
 void playerStateQueueCallback(s32, void *, s32);
@@ -136,14 +136,14 @@ s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     if (flagGet(0x61, 2) == 0) {
         if (flag != 0) {
             func_806F397C(D_807FBB4C, D_807FBB40, 0, 0x1B);
-            func_8061CC40(0, 0, 1);
+            camStartPath(0, 0, 1);
         } else {
-            func_8061CC40(0, 4, 1);
+            camStartPath(0, 4, 1);
             playerStateQueueCallback(0x1B, D_807FBB40, 0);
         }
     } else {
         playerStateQueueCallback(0x1B, D_807FBB40, 0);
-        func_8061CC40(0, 0xB, 1);
+        camStartPath(0, 0xB, 1);
     }
     currentActorClearFlag();
     D_807FBB40->unk60 |= 0x10000000;
@@ -154,7 +154,7 @@ s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 
 void menuTransitionToSubmenu(Struct_80025D14 *arg0, void *arg1) {
     arg0->unkA = 1;
-    func_8061CC40(0, 0xF, 1);
+    camStartPath(0, 0xF, 1);
     currentActorClearFlag();
     func_80025FB4(arg0, arg1, 0);
     arg0->unkD = 0;

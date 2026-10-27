@@ -100,8 +100,8 @@ extern s32 D_8076A0A8;
 void slotQueueUpdate(s32, s32, s32);
 void actorUpdateModelMatrix(void *, s32);
 void func_800253C0(void *, s16, u8);
-void func_8061C6A8(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-s32 func_8061CB50(void);
+void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+s32 camIsCutsceneActive(void);
 void func_8068ECF4(s32, s32);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
@@ -128,7 +128,7 @@ s32 func_8070E750();
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 s32 playerStateQueueCallback();
-void func_8061CC40();
+void camStartPath();
 
 void func_80024000(u8 arg0, u8 arg1) {
     func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -138,7 +138,7 @@ void func_80024000(u8 arg0, u8 arg1) {
     playerStateQueueCallback(0x44, 0, 0);
     D_807FBB40->unk154++;
     if (arg0 != 0) {
-        func_8061CC40(D_807FBB4C, 5, 5);
+        camStartPath(D_807FBB4C, 5, 5);
     }
 }
 
@@ -150,7 +150,7 @@ void func_800240DC(u8 arg0, u8 arg1) {
     playerStateQueueCallback(0x43, 0, 0);
     D_807FBB40->unk154++;
     if (arg0 != 0) {
-        func_8061CC40(D_807FBB4C, 5, 5);
+        camStartPath(D_807FBB4C, 5, 5);
     }
 }
 
@@ -241,7 +241,7 @@ void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
     case 1:
     case_1:
         func_800253C0(s1, arg2, arg3);
-        func_8061C6A8(sp90->unk104, D_807FBB40, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
+        camSetTargetScaled(sp90->unk104, D_807FBB40, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
         D_807FBB40->unk154++;
         break;
 
@@ -254,14 +254,14 @@ void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
         /* fallthrough */
     case 3:
     case 5:
-        if (D_807FBB40->unk168 == 0 && func_8061CB50() != 0) {
+        if (D_807FBB40->unk168 == 0 && camIsCutsceneActive() != 0) {
             D_807FBB40->unk168 = 1;
         }
         if (D_807FBB40->unk168 == 1 && D_807FBB40->unk155 == 0) {
-            if (func_8061CB50() != 0) {
+            if (camIsCutsceneActive() != 0) {
                 sp90->unk1F0 |= 8;
             } else {
-                func_8061C6A8(sp90->unk104, D_807FBB40, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
+                camSetTargetScaled(sp90->unk104, D_807FBB40, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
                 sp90->unk1F0 &= ~8;
                 s1->unk3E = 0x3C;
                 D_807FBB40->unk155++;

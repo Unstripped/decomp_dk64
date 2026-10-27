@@ -1647,7 +1647,7 @@ void func_80714C08(void *, f32, Actor *, u8, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void effectSpawnBone(Actor *, s32, f32, f32, f32, f32, s32);
 void actorGetNodePosOrPosition(Actor *, s32 *, f32 *, f32 *);
-void func_8061EF4C(s32, u8, u8, s32, f32, f32, f32, f32);
+void camStartShakeFromPoint(s32, u8, u8, s32, f32, f32, f32, f32);
 extern void func_8071B1AC(void);
 extern void func_8071B24C(void);
 extern void func_8071B44C(void);
@@ -1888,7 +1888,7 @@ void func_80618B6C(Actor *arg0) {
     scriptReadU8(&sp2F);
     scriptReadU16((u8 *)&sp32);
     scriptReadU16((u8 *)&sp30);
-    func_8061EF4C(((GlobalSpawnView *)D_807FD580)->unk104, sp2E, sp2F, sp3C, sp38, sp34, (f32)sp32, (f32)sp30);
+    camStartShakeFromPoint(((GlobalSpawnView *)D_807FD580)->unk104, sp2E, sp2F, sp3C, sp38, sp34, (f32)sp32, (f32)sp30);
 }
 
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, Actor *, u8);

@@ -2703,7 +2703,7 @@ typedef struct MapPlayerPosition {
     /* 0x224 */ f32 unk224;
 } MapPlayerPosition;
 
-void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 f32 sqrtf(f32);
 
 s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
@@ -2717,7 +2717,7 @@ s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
     s16 z1;
     f32 d;
 
-    func_80626F8C(arg0, arg1, arg2, &sp44, &sp40, 0, 1.0f, D_807FC929);
+    camProjectToScreen(arg0, arg1, arg2, &sp44, &sp40, 0, 1.0f, D_807FC929);
     x = (s16)sp44;
     z = (s16)sp40;
     d = sqrtf(((arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224) * (arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224))

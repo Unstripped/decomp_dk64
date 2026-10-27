@@ -1744,7 +1744,7 @@ void sfxPlayFromActorDirect(Actor *arg0, s16 arg1, u8 arg2, f32 arg3, u8 arg4, u
 
 extern u8 D_807FC928;
 
-void func_8061CF24(s16 *, s16 *, s16 *, s16 *);
+void camGetPathStartPose(s16 *, s16 *, s16 *, s16 *);
 s16 func_80609140(s16, s32, f32, f32, u8, u8);
 
 #ifdef NON_MATCHING
@@ -1779,7 +1779,7 @@ void func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5, s
     pos[1] = D_807FC924[closest_idx].unk214;
     pos[2] = D_807FC924[closest_idx].unk218;
     pos[3] = (D_807FC924[closest_idx].unk2C4 * 4096.0) / 6.2831854820251465;
-    func_8061CF24(&pos[0], &pos[1], &pos[2], &pos[3]);
+    camGetPathStartPose(&pos[0], &pos[1], &pos[2], &pos[3]);
 
     if (D_80770DE4 < 500.0f) {
         sp74 = 0.0f;

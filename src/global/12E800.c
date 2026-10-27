@@ -1621,7 +1621,7 @@ void func_8072DC7C(u8 arg0) {
 }
 
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-s32 func_8061CB50(void);
+s32 camIsCutsceneActive(void);
 
 s32 func_8072DCF4(Actor *arg0, Actor *arg1, u16 arg2) {
     f32 deg = mathAngleBetweenPointsDeg((s32)arg1->unk7C, (s32)arg1->unk84, (s32)arg0->unk7C, (s32)arg0->unk84);
@@ -1636,7 +1636,7 @@ s32 func_8072DCF4(Actor *arg0, Actor *arg1, u16 arg2) {
         diff = a - b;
     }
     if (diff < arg2) {
-        if (func_8061CB50() == 0) {
+        if (camIsCutsceneActive() == 0) {
             return 1;
         }
     }

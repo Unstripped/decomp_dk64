@@ -94,8 +94,8 @@ void func_80610044(void *, s32, s32, u8, s32, s32);
 void func_80610268(s32);
 void *func_80610FE8(s32);
 void func_80611730(void);
-void func_8061EA78(void);
-void func_80626264(s32);
+void camResetAllPlayers(void);
+void camInit(s32);
 void screenWipeReset(void);
 s32 screenWipeDraw(s32);
 f32 func_8062A850(void);
@@ -953,7 +953,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         actorInit();
         actorSpawnInitialSet();
         volumeTriggerTableInit(D_8076A0A8);
-        func_80626264(sp28 = func_8066B0F8(8, D_8076A0A8, 1, 1));
+        camInit(sp28 = func_8066B0F8(8, D_8076A0A8, 1, 1));
         if (sp28 != 0) {
             assetFreeBuffer(sp28, 0x8D0, 2);
         }
@@ -965,7 +965,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         if (sp28 != 0) {
             assetFreeBuffer(sp28, 0x8DD, 2);
         }
-        func_8061EA78();
+        camResetAllPlayers();
         renderCallbacksReset();
         func_806F4778();
         func_8070E8C8();

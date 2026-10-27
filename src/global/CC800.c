@@ -509,7 +509,7 @@ typedef struct G00Slot34 {
 extern s32 controllerGetPort(s32);
 extern s32 D_8076A0A8;
 extern f32 D_8075C4B0;
-extern Actor *D_807F5D10;
+extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
 extern volatile G00Slot34 D_807FD610[];
@@ -568,7 +568,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     actorSpawn(0xBC, 0);
     G00_P->unk104 = D_807FBB44;
     if (sel == 0) {
-        D_807F5D10 = D_807FBB44;
+        gCamActor = D_807FBB44;
     }
     D_807FBB44->unk60 |= 0x100000;
     func_806C8D20(D_807FBB48);
@@ -1068,9 +1068,9 @@ void func_806C93E4(Actor *arg0, Struct807FD580 *arg1) {
 
 void func_800268DC(Actor *, void *, void *);
 void sfxStopSlotSound(Actor *, u8);
-s32 func_8061CB50(void);
-void func_8061EA78(void);
-void func_8061EB04(Actor *, u8);
+s32 camIsCutsceneActive(void);
+void camResetAllPlayers(void);
+void camResetPlayer(Actor *, u8);
 void func_806C8D20(Actor *);
 void func_806CFF9C(Actor *);
 void func_806C90C4(s32);
@@ -1102,11 +1102,11 @@ void func_806C9434(s32 arg0) {
         func_800268DC(D_807FBB48, ctl, sp2C);
     }
     func_806C9304(D_807FBB48, ctl);
-    if (func_8061CB50() == 0) {
+    if (camIsCutsceneActive() == 0) {
         if (D_807FC928 >= 2 && D_80750AB8 == 1) {
-            func_8061EA78();
+            camResetAllPlayers();
         } else {
-            func_8061EB04(D_807FBB48, ctl->unk1A4);
+            camResetPlayer(D_807FBB48, ctl->unk1A4);
         }
     }
     func_806C8D20(D_807FBB48);

@@ -59,7 +59,7 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 
-void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 s16 func_806CC190(s16, s16, s32);
 f32 func_80611BB4(f32, f32);
 void func_8060E7EC(s32, s32, s32);

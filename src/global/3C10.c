@@ -131,7 +131,7 @@ void sfxAllocateChannel(s32, f32);
 void func_80611614(void *);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-void func_8061CC40(void *, s32, s32);
+void camStartPath(void *, s32, s32);
 void modelRecordFindAndSet(void *, void *, s16, s16);
 s32 func_80689C20(s32, s32, u8, f32, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
@@ -354,7 +354,7 @@ void func_805FF670(void) {
     s16 temp_f0;
 
     if (D_80744820 != 0) {
-        func_8061CC40(D_807FBB4C, 2, 5);
+        camStartPath(D_807FBB4C, 2, 5);
         slotQueueUpdate(1, 0, 0);
         var_s1 = 0;
         if ((s32) D_80744820 > 0) {

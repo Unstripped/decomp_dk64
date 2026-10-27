@@ -116,11 +116,11 @@ void actorFinishInRange(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-s32 func_8061CB50(void);
+s32 camIsCutsceneActive(void);
 void func_80613C48(Actor *, s16, f32, f32);
 
 void actorPlaySoundVariantAndFinish(void) {
-    if (func_8061CB50() != 0) {
+    if (camIsCutsceneActive() != 0) {
         func_80613C48(D_807FBB40, 0x640, 0, 8.0f);
     } else {
         func_80613C48(D_807FBB40, 0x63F, 0, 8.0f);

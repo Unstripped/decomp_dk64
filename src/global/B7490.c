@@ -98,7 +98,7 @@ void sfxAllocateChannel(s32, f32);
 void func_8063DA40(s32, s32);
 void actorPlaceAttachedChildren(s32);
 void func_8072D9D4(void);
-void func_8061CC40(void *, s32, s32);
+void camStartPath(void *, s32, s32);
 void behaviourSetAnimIds(s32, s32, s32);
 void actorApplyVelocityCustom(void *, f32, f32);
 void func_80665564(void *, f32);
@@ -617,7 +617,7 @@ void actorSpawnPeriodicBoneEffect(void) {
 }
 
 #ifdef NON_MATCHING
-s32 func_8061CB50(void *);
+s32 camIsCutsceneActive(void *);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void sfxSpawnTableNodes(Actor *);
@@ -661,7 +661,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
             if (D_807FBB40->unk80 < (f32) (D_807FDC9C->unk6 + *var_t2)) {
                 D_807FBB40->unk80 = (f32) ((f64) D_807FBB40->unk80 + ((f64) (u32) D_807FDC9C->unkB * 0.03125));
             } else {
-                if ((func_8061CB50(D_807FDC90) == 0) && (arg0 != NULL)) {
+                if ((camIsCutsceneActive(D_807FDC90) == 0) && (arg0 != NULL)) {
                     arg0();
                 }
             }
@@ -901,7 +901,7 @@ void func_806B4DCC(void) {
             D_807FDC90->unk2C = 0x1E;
             D_807FDC90->unk30 = (f32) ((f64) D_807FDC90->unk30 * 0.7);
             func_8072D9D4();
-            func_8061CC40(D_807FBB40, 3, 5);
+            camStartPath(D_807FBB40, 3, 5);
             if (((B7490Actor *) D_807FBB40)->unk134 & 1) {
                 actorScriptStart(D_807FBB40, 0x24A);
             } else {

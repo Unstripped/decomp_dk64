@@ -180,8 +180,8 @@ void func_805FF9AC(s32, s32, s32, s32);
 void actorSetUniformScale(Actor *, f32);
 void actorScriptStart(Actor *, s32);
 void func_80614D00(Actor *, f32, f32);
-void func_8061CC30(void);
-s32 func_8061CC40(Actor *, s32, s32);
+void camRequestPathLength(void);
+s32 camStartPath(Actor *, s32, s32);
 void effectSpawnSparks(s32, s32);
 s32 randomNonNegative(void);
 void func_8063DA40(s32, s32);
@@ -248,8 +248,8 @@ void func_806C6BC8(void) {
                 func_80614D00(D_807FBB40, 0.0f, 0.0f);
                 R1V->unk154 = 0;
                 R1V->unk155 = 0;
-                func_8061CC30();
-                R1S->unk2C = func_8061CC40(D_807FBB40, 0x18, 1) - 0x1E;
+                camRequestPathLength();
+                R1S->unk2C = camStartPath(D_807FBB40, 0x18, 1) - 0x1E;
                 R1S->unk2E = R1S->unk2C;
                 D_807FBB40->unk144 = 1;
             } else {

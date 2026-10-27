@@ -327,7 +327,7 @@ void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8066EB40(Actor *, f32);
 u32 func_806119A0(void);
-s32 func_8061CB50(void);
+s32 camIsCutsceneActive(void);
 s32 func_806F5C30(s32);
 void func_806F5F2C(s32, s32, s16, s16, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
@@ -428,7 +428,7 @@ void func_806A664C(f32 arg0) {
         }
         break;
     case 3:
-        if (func_8061CB50() == 0) {
+        if (camIsCutsceneActive() == 0) {
             state->unk8--;
         }
         if (state->unk8 == 0) {

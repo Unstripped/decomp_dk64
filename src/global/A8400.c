@@ -748,7 +748,7 @@ extern s16 D_80744490;
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 s32 func_80613448(void *);
-s32 func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
 #define CURRENT_BOUNDS ((MapBounds *) ((u8 *) D_807FC924 + (D_807FC929 * 0x2F0)))
 #define CLAMP_TO_BOUNDS(x, l, h) ((x) < (l) ? (l) : ((h) < (x) ? (h) : (x)))
@@ -839,7 +839,7 @@ void func_806A5174(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) {
         } else {
             actorGetNodePos(((SpriteSub *) arg1)->unk4, sp74, &sp68, &sp64, &sp60);
         }
-        if (func_80626F8C(sp68, sp64, sp60, &sp7C, &sp78, 0, 1.0f, D_807FC929) != 0) {
+        if (camProjectToScreen(sp68, sp64, sp60, &sp7C, &sp78, 0, 1.0f, D_807FC929) != 0) {
             sp7C = ((SpriteSub *) arg1)->unk24;
             sp78 = ((SpriteSub *) arg1)->unk28;
         }
@@ -938,7 +938,7 @@ extern u16 D_807ECD66;
 extern u8 D_807503F0;
 
 void *func_80610FE8(s32);
-void func_8061CB08(void);
+void camResumePath(void);
 void func_806A4DDC(Actor *);
 void func_806A5174(Actor *, SpriteBehaviour *, f32);
 void func_8070DA28(SpriteBehaviour *);
@@ -979,7 +979,7 @@ void func_806A5868(void) {
                     sub->unk55 = v0 & 0xFFFB;
                 }
                 if (sub->unk55 & 1) {
-                    func_8061CB08();
+                    camResumePath();
                     D_807FBB40->unk154 = 5;
                 }
             }

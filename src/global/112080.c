@@ -442,7 +442,7 @@ void func_8070E2AC(s32 arg0, void *arg1, void *arg2) {
 extern void *func_8070D754(void *);
 extern void func_8070E548(Actor *, u16, u8);
 extern void timerQueueAdd();
-extern void func_8061DA84(void);
+extern void camResumePathCallback(void);
 
 typedef struct R112cE808State {
     u8 pad0[0x54];
@@ -476,7 +476,7 @@ void func_8070E808(Actor *arg0, void *arg1) {
     if (temp_v0->unk8 == NULL) {
         ((R112cE808Arg1 *) arg1)->unk60 &= 0xFDFFFFFF;
         if (sp24->unk54 & 1) {
-            timerQueueAdd(func_8061DA84, 0x1E, 0, 0, 0);
+            timerQueueAdd(camResumePathCallback, 0x1E, 0, 0, 0);
         }
         arg0->unk154 = 4;
         return;

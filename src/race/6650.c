@@ -205,14 +205,14 @@ typedef struct {
     Struct_8002B610_Sub *unk4;
 } Struct_8002B610_Arg1;
 
-void func_8061C6A8(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_800282D8(void);
 
 void func_8002D72C(void *);
 void func_8002D754(void *);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
-void func_8061CB08(void);
+void camResumePath(void);
 
 void func_8002BBD0(void *, s32);
 void actorSpawn(s32, s32);
@@ -291,7 +291,7 @@ void func_8002B610(Struct_sp58 *arg0, Struct_8002B610_Arg1 *arg1) {
         Struct_174 *unk174 = actor->unk174;
         s32 c = 0xAE;
         s32 d = 0x2D;
-        func_8061C6A8(unk174->unk104, arg1->unk0, 4, 0x800, a, 0, b, c, d, 0, 0.2f);
+        camSetTargetScaled(unk174->unk104, arg1->unk0, 4, 0x800, a, 0, b, c, d, 0, 0.2f);
         arg0->unk35++;
     }
     func_800282D8();
@@ -306,14 +306,14 @@ s32 func_8002B6C8(void *arg0, void *arg1) {
 
 
 s32 flagGet(s32, s32);
-void func_8061CC40(void *, s32, s32);
+void camStartPath(void *, s32, s32);
 void currentActorClearFlag(void);
 void func_805FF544(void);
 
 void func_8002B6F4(u8 *arg0, s32 arg1) {
     if (arg0[0x35] == 0) {
         if (flagGet(0x145, 0) == 0) {
-            func_8061CC40(D_807FBB40, 1, 1);
+            camStartPath(D_807FBB40, 1, 1);
             currentActorClearFlag();
         } else {
             func_805FF544();

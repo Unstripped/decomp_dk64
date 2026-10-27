@@ -33,12 +33,12 @@ extern u8 D_807ECE00[];
 extern Struct_807FBB40 *D_807FBB40;
 extern u16 D_807FCC44;
 
-void func_8061CC40(s32, s32, s32);
+void camStartPath(s32, s32, s32);
 void func_806F8A8C(s32, s32, s32);
-s32 func_8061CB38(void);
+s32 camIsPathPaused(void);
 void func_8070D8C0(void *, s32, s32);
 void func_806A2A10(s32, s32, s32);
-void func_8061CB08(void);
+void camResumePath(void);
 void actorSetStateTwo(void *);
 void sfxAllocateChannel(s32, f32);
 void flagSet(s16, s32, s32);
@@ -73,7 +73,7 @@ void func_80029118(void) {
     temp_s0 = sp30->unk174;
     if (!(sp30->unk60 & 0x10)) {
         D_80029FA8 = 0;
-        func_8061CC40(0, 0, 1);
+        camStartPath(0, 0, 1);
         D_80029FA4 = D_807FCC44;
         D_807FCC44 = 0;
         func_806F8A8C(4, 0, 0);
@@ -101,7 +101,7 @@ void func_80029118(void) {
 
     switch (sp30->unk154) {
     case 0x0:
-        if ((D_807444EC == 1) && (func_8061CB38() != 0)) {
+        if ((D_807444EC == 1) && (camIsPathPaused() != 0)) {
             switch (D_8076A0A8) {
             case 0xB1:
                 sp74 = 0;
@@ -124,7 +124,7 @@ void func_80029118(void) {
         break;
     case 0x1:
         if (!(sp30->unk60 & 0x02000000)) {
-            func_8061CB08();
+            camResumePath();
             D_807FBB40->unk154 = 2;
             actorSetStateTwo(D_807FBB40->unk11C);
             sfxAllocateChannel(8, 1.0f);

@@ -149,7 +149,7 @@ typedef struct {
 
 extern Actor *D_807FBB48;
 extern ActorPlayerPos *D_807FC924;
-void func_8061CC40(s32, s32, u8);
+void camStartPath(s32, s32, u8);
 void func_8072167C(s16, s16, s16, s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
@@ -170,7 +170,7 @@ void func_8068BA2C(void) {
         switch ((u32)D_807FBB70.unk258[i]) {
         case 1:
             var_v0 = (ptr[1] != 0) ? 4 : 0;
-            func_8061CC40(0, ptr[0], var_v0 | 1);
+            camStartPath(0, ptr[0], var_v0 | 1);
             break;
         case 2:
             func_8072167C(ptr[0], ptr[1], ptr[2], ptr[3]);

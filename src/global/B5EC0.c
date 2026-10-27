@@ -107,7 +107,7 @@ void func_8072D714(s32, s32);
 void func_8072DEA8(s32, s32, s32);
 void actorSetDefaultState();
 void actorScriptStart(void *, s32);
-s32 func_8061CB50(void);
+s32 camIsCutsceneActive(void);
 void actorSpawnGroundEffectAtNode(u8);
 s16 func_806CC190(s16, s16, f32);
 void func_80724E48();
@@ -276,7 +276,7 @@ void func_806B13B4(u8 arg0) {
         }
     case 0x10:
     case 0x23:
-        if (func_8061CB50() == 0) {
+        if (camIsCutsceneActive() == 0) {
             func_806B1290();
             func_806B1348();
         }

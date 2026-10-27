@@ -68,7 +68,7 @@ s16 func_805FF018(s32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 randomNonNegative(void);
 void actorScriptStart();
-void func_8061CC40(void *, s32, s32);
+void camStartPath(void *, s32, s32);
 void actorUpdateModelMatrix(Actor *, s32);
 void func_80665564(Actor *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
@@ -644,7 +644,7 @@ void func_80681BD8(void) {
                     count += (flagGet((s16)(i + 0x182), 0) != 0);
                 } while (++i != 4);
                 if (count == 4) {
-                    func_8061CC40(D_807FBB4C, 3, 1);
+                    camStartPath(D_807FBB4C, 3, 1);
                     flagSet(0x187, 1, 0);
                 }
             }

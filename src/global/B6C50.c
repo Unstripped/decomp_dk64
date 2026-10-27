@@ -50,7 +50,7 @@ void effectSpawnBoneDefault(B6C50Actor *, s16, f32, f32, f32, f32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void actorScriptStart(B6C50Actor *, s32);
-void func_8061CC40(B6C50Actor *, s32, s32);
+void camStartPath(B6C50Actor *, s32, s32);
 s32 currentActorTestClearFlag(void);
 void actorUpdateModelMatrix(B6C50Actor *, s32);
 void func_80665564(B6C50Actor *, f32);
@@ -99,7 +99,7 @@ void func_806B1F50(void) {
     }
     if (D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
         D_807FBB40->unk11C->unk154 = 0;
-        func_8061CC40(D_807FBB40, 6, 5);
+        camStartPath(D_807FBB40, 6, 5);
         D_807FBB40->unk144 = 1;
         D_807FBB40->unk154 = 0x37;
         D_807FBB40->unk155 = 0;
@@ -145,7 +145,7 @@ void func_806B1F50(void) {
                 actorDespawn(D_807FBB40->unk11C);
                 D_807FBB40->unk154 = 0x27;
                 D_807FBB40->unk155 = 0;
-                func_8061CC40(D_807FBB40, 3, 1);
+                camStartPath(D_807FBB40, 3, 1);
                 actorScriptStart(D_807FBB40, 0x307);
                 D_807FBB40->unkE6 += 0x800;
                 D_807FBB40->unk84 += 5.0f;

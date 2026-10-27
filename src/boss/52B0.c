@@ -140,8 +140,8 @@ void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void actorScriptStart(void *, s32);
-s32 func_8061CB50(void);
-void func_8061CC40(void *, s32, s32);
+s32 camIsCutsceneActive(void);
+void camStartPath(void *, s32, s32);
 s32 currentActorTestClearFlag(void);
 void actorUpdateModelMatrix(void *, s32);
 void func_8063DA40();
@@ -274,14 +274,14 @@ void func_80029468(void) {
         if (sp4C->unk14 == 4) {
             ACTOR->unk154 = 0x37;
             ACTOR->unk155 = 0;
-            func_8061CC40(ACTOR, 4, 1);
+            camStartPath(ACTOR, 4, 1);
             actorAppendActiveCallback8();
         } else {
             switch (ACTOR->unk155) {
             case 0:
                 ACTOR->unkE6 = 0;
                 actorScriptStart(ACTOR, 0x213);
-                func_8061CC40(ACTOR, 2, 1);
+                camStartPath(ACTOR, 2, 1);
                 actorAppendActiveCallback8();
                 ACTOR->unk155++;
                 break;
@@ -350,7 +350,7 @@ block_28:
             }
             break;
         case 2:
-            if (func_8061CB50() == 0) {
+            if (camIsCutsceneActive() == 0) {
                 if (ACTOR->unk154 == 0x46) {
                     if (mathAngleDistance(ACTOR->unkE6, mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84)) < 0x320) {
                         actorScriptStart(ACTOR, 0x218);

@@ -68,7 +68,7 @@ typedef struct R1C2CB_ActorC0 {
 
 void actorScriptStart(void *, s32);
 void actorUpdateModelMatrix(Actor *, s32);
-void func_8061C600(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void camSetTargetCutscene(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_8072881C(s32, void *);
 
 void func_806BDEC8(void) {
@@ -83,7 +83,7 @@ void func_806BDEC8(void) {
         case 0:
             R1C2CBC0->unkC0 = 150.0f;
             actorScriptStart(D_807FBB40, 0x28E);
-            func_8061C600(sub->unk104, D_807FBB40, 4, 0xE77, 0xFA, 2, 0x32, 0x20, 0x3F, 0x4A, 0.16f);
+            camSetTargetCutscene(sub->unk104, D_807FBB40, 4, 0xE77, 0xFA, 2, 0x32, 0x20, 0x3F, 0x4A, 0.16f);
             D_807FDC90->unk2C = 0x32;
             D_807FBB40->unk155[0]++;
             break;
@@ -138,7 +138,7 @@ u8 func_805FF030(u8, s32);
 s32 func_806F8AD4(s32, s32);
 void slotQueueCancel(s32, s32);
 void func_806F91B4(s32, s32, s32, void *);
-void func_8061C518(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void camSetTargetCutsceneUnscaled(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void actorSetUniformScale(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void func_80724E48(s32);
@@ -170,7 +170,7 @@ void func_806BE09C(void) {
             D_807FBB40->unk155[0] = 0;
             R1C2CBS->unk2E = 0x32;
             actorScriptStart(D_807FBB40, 0x28A);
-            func_8061C518(sub->unk104, D_807FBB4C, 4, 0x990, 0x5A, -0x2E, 0x3C, 0xA, 0x20, 0, 0.3f);
+            camSetTargetCutsceneUnscaled(sub->unk104, D_807FBB4C, 4, 0x990, 0x5A, -0x2E, 0x3C, 0xA, 0x20, 0, 0.3f);
             angle = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk84);
             D_807FBB4C->unkE6 = angle;
             R1C2CBE->unkEE = D_807FBB4C->unkE6;
@@ -192,7 +192,7 @@ void func_806BE09C(void) {
             if (R1C2CBS->unk2E != 0) {
                 R1C2CBS->unk2E--;
                 if (R1C2CBS->unk2E == 0) {
-                    func_8061C518(sub->unk104, D_807FBB40, 4, 0x305, 0x14A, 3, 0x32, 0x7F, 0x5A, 0, 0.03f);
+                    camSetTargetCutsceneUnscaled(sub->unk104, D_807FBB40, 4, 0x305, 0x14A, 3, 0x32, 0x7F, 0x5A, 0, 0.03f);
                 }
             }
             if (R1C2CBS->unk2C != 0) {
@@ -374,17 +374,17 @@ typedef struct LgBE8S9C {
 #define LgBS ((LgBE8S90 *)D_807FDC90)
 #define LgB9C ((LgBE8S9C *)D_807FDC9C)
 
-extern void *D_807F5D10;
+extern void *gCamActor;
 extern s32 D_807FBB64;
 
 void effectSpawnSmoke(s32);
 void actorClearMovementFlags(void *);
 void hudSpawnTextScreen(s32);
-void func_8061CAD8(void);
-void func_8061CB08(void);
-s32 func_8061CC40(void *, s32, s32);
-void func_8061F510(s32, s32);
-void func_8062217C(void *, s32);
+void camPausePath(void);
+void camResumePath(void);
+s32 camStartPath(void *, s32, s32);
+void camSetZoneWeight(s32, s32);
+void camSetZoomLevel(void *, s32);
 s32 currentActorTestClearFlag();
 void func_8063DA40(s32, s32);
 void func_80641874(s32, s32);
@@ -465,8 +465,8 @@ void func_806BE8BC(void) {
             switch (sel) {
                 case 0:
                     if (currentActorTestClearFlag() != 0) {
-                        func_8061CAD8();
-                        func_8061CAD8();
+                        camPausePath();
+                        camPausePath();
                         LgBA->unk155++;
                         LgBA->unk168 = 0x78;
                     }
@@ -477,13 +477,13 @@ void func_806BE8BC(void) {
                 case 2:
                     sfxAllocateChannel(0xA9, 1.0f);
                     D_807FBB64 |= 4;
-                    func_8061CB08();
-                    func_8062217C(D_807F5D10, 3);
+                    camResumePath();
+                    camSetZoomLevel(gCamActor, 3);
                     actorScriptStart(D_807FBB40, 0x302);
                     actorSetTargetSpeed(D_807FBB40, (s32)((sp37 ? 1.5 : 1.0) * (u32)LgB9C->unkD));
                     LgBA->unk154 = 2;
                     LgBA->unk155 = 0;
-                    func_8061F510(1, 0xA);
+                    camSetZoneWeight(1, 0xA);
                     LgBG->unk1F4 |= 0x40;
                     break;
             }
@@ -494,7 +494,7 @@ void func_806BE8BC(void) {
                 LgBA->unk60 &= ~0x8000;
                 LgBA->unk128 = 0xFF;
                 func_806BE674(0);
-                func_8061CC40(D_807FBB40, 0xF, 5);
+                camStartPath(D_807FBB40, 0xF, 5);
                 LgBA->unkE6 = mathAngleBetweenPoints2D(LgBB->unk7C, LgBB->unk84, LgBA->unk7C, LgBA->unk84);
                 func_8070D8C0(D_807FBB40, 0x14, 4);
                 LgBA->unk154 = 0x37;
@@ -510,7 +510,7 @@ void func_806BE8BC(void) {
                     LgBA->unk60 &= ~0x8000;
                     LgBA->unk128 = 0xFF;
                     func_806BE674(0);
-                    func_8061CC40(D_807FBB40, 0x1F, 1);
+                    camStartPath(D_807FBB40, 0x1F, 1);
                     LgBA->unkE6 = mathAngleBetweenPoints2D(LgBB->unk7C, LgBB->unk84, LgBA->unk7C, LgBA->unk84);
                     actorScriptStart(D_807FBB40, 0x308);
                     func_8070E8DC(1);
@@ -548,7 +548,7 @@ void func_806BE8BC(void) {
                 if (LgBA->unk155 != 0) {
                     D_807FBB64 &= ~4;
                     LgBG->unk23F = 2;
-                    func_8061F510(1, 0);
+                    camSetZoneWeight(1, 0);
                     LgBG->unk1F4 &= ~0x40;
                     volumeTriggerSetEnabled(0x16, 0);
                     func_80726EE0(2);
@@ -679,8 +679,8 @@ extern LgBF218Global *D_80755690;
 void actorDespawn(void *);
 void actorClearMovementFlags(void *);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
-void func_8061CB08(void);
-s32 func_8061CC40(void *, s32, s32);
+void camResumePath(void);
+s32 camStartPath(void *, s32, s32);
 void func_8063DA40(s32, s32);
 void func_8067B238(void *, void *, f32);
 void func_8068A2FC(void *);
@@ -746,7 +746,7 @@ void func_806BF218(void) {
                                         if (flagGet(0x29, 2) == 0) {
                                             func_8070E8DC(1);
                                             func_8070D8C0(LA, 0x16, 0);
-                                            func_8061CC40(LA, 0x19, 1);
+                                            camStartPath(LA, 0x19, 1);
                                             flagSet(0x29, 1, 2);
                                         }
                                         LA->unk155++;
@@ -756,7 +756,7 @@ void func_806BF218(void) {
                                             if (flagGet(0x2A, 2) == 0) {
                                                 func_8070E8DC(1);
                                                 func_8070D8C0(LA, 0x16, 1);
-                                                func_8061CC40(LA, 0x19, 1);
+                                                camStartPath(LA, 0x19, 1);
                                                 flagSet(0x2A, 1, 2);
                                             }
                                             LA->unk155++;
@@ -796,7 +796,7 @@ void func_806BF218(void) {
                             ex = LA->unk7C - D_80755690->unk4->unk14->unk28;
                             ey = LA->unk80 - D_80755690->unk4->unk14->unk2A;
                             if ((ez * ez + (ex * ex + ey * ey)) < 22500.0f) {
-                                func_8061CC40(LA, 0x17, 1);
+                                camStartPath(LA, 0x17, 1);
                                 func_8070D8C0(LA, 0x16, 4);
                                 flagSet(0xFC, 1, 0);
                                 LA->unk155++;
@@ -804,7 +804,7 @@ void func_806BF218(void) {
                                 zoneEntryGetPosition(1, 5, &LB->unk7C, &LB->unk80, &LB->unk84);
                                 LB->unkE6 = mathAngleBetweenPoints2D(LA->unk7C, LA->unk84, LB->unk7C, LB->unk84);
                             } else {
-                                func_8061CC40(other, 0x12, 5);
+                                camStartPath(other, 0x12, 5);
                                 func_8070D8C0(LA, 0x16, 3);
                                 LA->unk154 = 3;
                                 LA->unk155 = 0;
@@ -836,7 +836,7 @@ void func_806BF218(void) {
                                 LA->unk11C->unk128 = LA->unk128;
                                 break;
                             case 1:
-                                func_8061CB08();
+                                camResumePath();
                                 func_8068A2FC(LA->unk11C);
                                 spawn[0] = 1;
                                 spawn[1] = 1;

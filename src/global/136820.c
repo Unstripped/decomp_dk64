@@ -283,14 +283,14 @@ void faultThreadMain(void *arg) {
     }
 }
 
-void func_8061D4E4(s32);
+void camEndPath(s32);
 
 void faultSetMessage(u8 a0, s32 a1, s32 a2, s32 a3) {
     D_807FF01C = a0;
     D_807FF020 = a1;
     D_807FF024 = a2;
     D_807FF028 = a3;
-    func_8061D4E4(0);
+    camEndPath(0);
 }
 
 extern OSMesg D_807FEF50;

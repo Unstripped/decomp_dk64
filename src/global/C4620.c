@@ -754,9 +754,9 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
     }
 }
 
-void func_8061D4E4(void *);
+void camEndPath(void *);
 void actorDespawn(Actor *);
-extern void *D_807F5D10;
+extern void *gCamActor;
 
 void func_806C1300(void) {
     switch (R1V->unk155) {
@@ -765,7 +765,7 @@ void func_806C1300(void) {
             R1V->unk155++;
             break;
         case 3:
-            func_8061D4E4(D_807F5D10);
+            camEndPath(gCamActor);
             R1V->unk11C->unk154 = 0x40;
             actorDespawn(D_807FBB40);
             break;
@@ -1164,8 +1164,8 @@ void func_8072E1A4(s32, void *);
 s32 actorIsTargetWithinDistance(s32);
 void func_8072881C(s32, void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_8061CC40(void *, s32, s32);
-s32 func_8061CB50(void);
+void camStartPath(void *, s32, s32);
+s32 camIsCutsceneActive(void);
 void func_8070E8DC(s32);
 
 typedef struct R1C46bActor {
@@ -1205,7 +1205,7 @@ void func_806C226C(void) {
             actorScriptStart(D_807FBB40, 0x2A3);
             D_807FBB40->unk154 = 0x27;
             D_807FBB40->unk155[0] = 0;
-            func_8061CC40(D_807FBB40, 0x16, 1);
+            camStartPath(D_807FBB40, 0x16, 1);
             flagSet(0x9E, 1, 0);
         }
     }
@@ -1250,7 +1250,7 @@ void func_806C226C(void) {
                                 func_8070D8C0(D_807FBB40, 0x1C, 0);
                             }
                         } else if (D_8074E77C == 0) {
-                            func_8061CC40(D_807FBB40, 0x1E, 1);
+                            camStartPath(D_807FBB40, 0x1E, 1);
                             func_8070E8DC(1);
                             func_8070D8C0(D_807FBB40, 0x1C, 1);
                             D_807FBB40->unk155[0] = 0x63;
@@ -1265,7 +1265,7 @@ void func_806C226C(void) {
                     }
                     break;
                 case 0x63:
-                    if (func_8061CB50() == 0 && !(D_807FBB40->unk60 & 0x2000000)) {
+                    if (camIsCutsceneActive() == 0 && !(D_807FBB40->unk60 & 0x2000000)) {
                         func_8070D8C0(D_807FBB40, 0x1C, 2);
                         D_807FBB40->unk155[0] = 3;
                     }
@@ -1768,7 +1768,7 @@ void func_806C3A8C(void) {
         D_807FBB40->unk15E = 0x19;
         func_8067ACB4(D_807FBB40);
         if (flagGet(0x1E, 2) == 0) {
-            func_8061CC40(D_807FBB40, 0x14, 1);
+            camStartPath(D_807FBB40, 0x14, 1);
             flagSet(0x1E, 1, 2);
         }
         if (flagGet(0xBF, 0) == 0) {
@@ -1817,17 +1817,17 @@ void func_806C3A8C(void) {
             }
             break;
         case 0x20:
-            if ((u8)(dist < 0x2710) && D_807FBB40->unk155[0] == 0 && func_8061CB50() == 0) {
-                func_8061CC40(D_807FBB40, 0x18, 1);
+            if ((u8)(dist < 0x2710) && D_807FBB40->unk155[0] == 0 && camIsCutsceneActive() == 0) {
+                camStartPath(D_807FBB40, 0x18, 1);
                 func_8070D8C0(D_807FBB40, 0x17, 3);
                 D_807FBB40->unk155[0]++;
             }
             break;
         case 0x27:
-            if (func_8061CB50() == 0) {
+            if (camIsCutsceneActive() == 0) {
                 switch (D_807FBB40->unk155[0]) {
                     case 0:
-                        func_8061CC40(D_807FBB40, 0x17, 1);
+                        camStartPath(D_807FBB40, 0x17, 1);
                         func_8070E8DC(1);
                         func_8070D8C0(D_807FBB40, 0x17, 1);
                         D_807FBB40->unk155[0]++;

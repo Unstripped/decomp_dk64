@@ -1222,7 +1222,7 @@ void projectileSetSpawnFlag(void);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, void *);
 void func_8060E7EC(u8, u8, s32);
-void func_8061F0B0(s32, s32, s32);
+void camStartShake(s32, s32, s32);
 s32 func_80672630(void *, s32, s32);
 void func_80714950(s32);
 s32 func_80714C08(void *, f32, Actor *, s32, s32);
@@ -1306,7 +1306,7 @@ u8 arg1;
                         sfx = 0x2A5;
                         vol = 5;
                         if (!arg0) {
-                            func_8061F0B0(LE40B_S->unk104, 7, 7);
+                            camStartShake(LE40B_S->unk104, 7, 7);
                         }
                         break;
                     case 6:
@@ -1316,7 +1316,7 @@ u8 arg1;
                         sfx = 0x2A5;
                         vol = 5;
                         if (!arg0) {
-                            func_8061F0B0(LE40B_S->unk104, 7, 7);
+                            camStartShake(LE40B_S->unk104, 7, 7);
                         }
                         break;
                     case 4:
@@ -2595,7 +2595,7 @@ void func_805FF158(s32);
 void func_805FF9AC(s32, s32, s32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_806C93E4(void *, void *);
-s32 func_8061CC40(void *, s32, s32);
+s32 camStartPath(void *, s32, s32);
 void func_806F1250(Actor *);
 void timerQueueAdd(void *, s32, s32, s32, s32);
 void func_8071496C(s16);
@@ -2658,7 +2658,7 @@ s32 func_806E56EC() {
                 return 1;
             case 0:
                 if (D_8076A064 >= 4) {
-                    func_8061CC40(D_807FBB40, 0x26, 5);
+                    camStartPath(D_807FBB40, 0x26, 5);
                     sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x18, 0xFF, 0x7F, 0x19);
                     G26_AC->unk154 = 0x18;
                     G26_AC->unk155 = 0;
@@ -2819,8 +2819,8 @@ void func_806E5FA0(void) {
     }
 }
 
-void func_806261CC(void *);
-void func_80626110(void *, s32, s32);
+void camClearSecondTarget(void *);
+void camSetSecondTarget(void *, s32, s32);
 
 void func_806E607C(void) {
     G26Obj *obj;
@@ -2830,10 +2830,10 @@ void func_806E607C(void) {
     if (G25_PAD(D_807FD63C, u16) & 0x10) {
         if ((D_807FBB64 & 1) || ((D_807FC928 >= 2) && (D_80750AB8 == 0))) {
             if (obj->unkAC & 0x10000) {
-                func_806261CC(G26_P->unk104);
+                camClearSecondTarget(G26_P->unk104);
                 return;
             }
-            func_80626110(G26_P->unk104, 0, 0);
+            camSetSecondTarget(G26_P->unk104, 0, 0);
             return;
         }
         if (!(obj->unkAC & 0x4000)) {
@@ -2861,13 +2861,13 @@ void func_806E61D0(void) {
 extern u8 D_807FC8B9;
 extern s32 D_807FBB60;
 extern f32 D_807FD888;
-s32 func_8061CB50(void);
+s32 camIsCutsceneActive(void);
 s32 func_8071432C(void);
 s32 screenWipeGetState(void);
 s32 screenWipeGetCooldown(void);
 
 void func_806E6234(void) {
-    if ((G25_PAD(D_807FD63C, u16) & 0x1000) && (func_8061CB50() == 0) && (D_807FD888 == 0.0f) &&
+    if ((G25_PAD(D_807FD63C, u16) & 0x1000) && (camIsCutsceneActive() == 0) && (D_807FD888 == 0.0f) &&
         ((func_8071432C() != 0) || (func_8071441C() != 0) || (func_807142D8() != 0)) &&
         (screenWipeGetState() == 0) && (screenWipeGetCooldown() == 0)) {
         D_807FC8B9 = D_807FC929;
@@ -3789,7 +3789,7 @@ void func_806E88D8(void) {
         }
         st = a->unk174;
         func_806E8724(a, st);
-        if (func_8061CB50() == 0 && G29_BB48->unk4->unk64 != 0x3B5) {
+        if (camIsCutsceneActive() == 0 && G29_BB48->unk4->unk64 != 0x3B5) {
             if (st->unkC < 0.2f && st->unkC > -0.2f && sp24 != G29_BB48->unk4->unk0->unk10) {
                 if (G29_BB48->unk4->unk0->unk24 >= 0.0f && G29_BB48->unk4->unk0->unk4 > 0.0f) {
                     func_80614D48(D_807FBB48, -1.0f, 5.0f);
@@ -4066,8 +4066,8 @@ void func_806E9070(void) {
 }
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void func_8061C2F0(void *, f32, f32, f32, f32, f32, f32, s32);
-void func_8061C6A8(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
+void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void func_806E918C(void) {
     f32 x1;
@@ -4080,13 +4080,13 @@ void func_806E918C(void) {
         if ((D_807FD63A[D_807FC929].unk0 & 0x10) && (G29_PAR->unk154 == 7)) {
             actorGetNodePos(G30_M->unk88, 3, &x1, &y1, &z1);
             actorGetNodePos(G30_M->unk88, 4, &x2, &y2, &z2);
-            func_8061C2F0(G30_M->unk104, x2, y2 + 8.0f, z2, (x2 - x1) + x2, (y2 - y1) + y2 + 5.0f, (z2 - z1) + z2, 1);
+            camSetFixedView(G30_M->unk104, x2, y2 + 8.0f, z2, (x2 - x1) + x2, (y2 - y1) + y2 + 5.0f, (z2 - z1) + z2, 1);
             D_807FD580->unk1F0 |= 2;
             D_807FBB40->unk60 |= 0x400;
         } else {
             if (D_807FD580->unk1F0 & 2) {
                 D_807FD580->unk1F0 &= ~2;
-                func_8061C6A8(G30_M->unk104, G30_M->unk88, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
+                camSetTargetScaled(G30_M->unk104, G30_M->unk88, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
                 if (G29_PAR->unk154 == 7) {
                     func_80614E78(D_807FBB40, 0x84);
                 }
@@ -4398,7 +4398,7 @@ void func_806EA04C(void) {
     }
 }
 
-void func_8062217C();
+void camSetZoomLevel();
 
 void func_806EA0A4(void) {
     G31State *state;
@@ -4419,7 +4419,7 @@ void func_806EA0A4(void) {
         } else {
             state->unkEF = 1;
         }
-        func_8062217C(G31_PLAYER->unk104, state->unkEF, &D_807FD580);
+        camSetZoomLevel(G31_PLAYER->unk104, state->unkEF, &D_807FD580);
         state->unkEE = state->unkEF;
         if ((state->unkEF != state->unkF0) && ((state->unk8 == 0) || (state->unk8 >= 0x96)) && (state->unkF3 != 2)) {
             func_80609140(0x27, 0x7FFF, 63.0f, 1.0f, 0, 0);
