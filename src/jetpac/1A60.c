@@ -281,7 +281,9 @@ typedef struct J1bActor {
 
 void func_80024E70(s32 arg0);
 
-void func_800260DC(J1bActor *arg0) {
+void func_800260DC(arg0)
+J1bActor *arg0;
+{
     J1bActor *p;
     s32 ix;
     s32 iy;
@@ -334,7 +336,6 @@ void func_800260DC(J1bActor *arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     f32 x;
     f32 y;
@@ -371,7 +372,6 @@ typedef struct {
 #define J0a2Flags (*(u32 *)&D_8002EC30)
 extern f32 D_8002EF84[];
 extern s32 D_8002EF74;
-#define J0a2Fire ((void (*)(void *, s32, s32))func_800260DC)
 s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
 s32 func_80028E04(s32, s32, s32);
 s32 func_80027330(f32);
@@ -389,14 +389,18 @@ void func_80026318(JetpacActor *arg0) {
     s32 sp34;
     s32 sp30;
     s32 idx;
+    s32 u;
+
+    s32 fire;
 
     sp54 = (J0a2Player *)&D_8002EC30.sessions[D_8002EF74].data;
+    fire = J0a2Flags & 0x4000;
     sp34 = J0a2Flags & 0x200;
     sp30 = J0a2Flags & 0x100;
     a2 = J0a2Flags & 0x8000;
     a1 = J0a2Flags & 0x2030;
-    if ((J0a2Flags & 0x4000) && J0a2A->unk38 >= 5) {
-        J0a2Fire(arg0, a1, a2);
+    if (fire && J0a2A->unk38 >= 5) {
+        func_800260DC((J1bActor *)arg0, a1, a2);
         J0a2A->unk38 = 0;
     } else if (J0a2A->unk38 < 5) {
         J0a2A->unk38++;
@@ -404,11 +408,14 @@ void func_80026318(JetpacActor *arg0) {
     if (a2 != 0 && (J0a2A->unk30 == 0 || a1 == 0)) {
         func_80025BB8(arg0, 1);
         J0a2A->unkC -= 0.2f;
-    } else if (J0a2A->unk30 != 0) {
+        u = J0a2A->unk30;
+    } else if ((u = J0a2A->unk30) != 0) {
         if (a1 != 0) {
             J0a2A->unkC = 0.0f;
+            u = (*(volatile s32 *)&J0a2A->unk30);
         } else {
             J0a2A->unkC += 0.2;
+            u = (*(volatile s32 *)&J0a2A->unk30);
         }
     }
     if (sp34 != 0) {
@@ -417,21 +424,25 @@ void func_80026318(JetpacActor *arg0) {
             J0a2A->unk18 = 1;
             func_80025BB8(arg0, J0a2A->unk30);
         }
+        u = J0a2A->unk30;
     } else if (sp30 != 0) {
         J0a2A->unk8 += 0.33333334f;
         if (J0a2A->unk18 != 0 && J0a2A->unk8 >= 0.0f) {
             J0a2A->unk18 = 0;
             func_80025BB8(arg0, J0a2A->unk30);
         }
+        u = J0a2A->unk30;
     } else {
         vx = J0a2A->unk8;
         if (vx > 0.0f) {
             J0a2A->unk8 = vx - 0.16666667f;
+            u = (*(volatile s32 *)&J0a2A->unk30);
         } else if (vx < 0.0f) {
             J0a2A->unk8 = vx + 0.16666667f;
+            u = (*(volatile s32 *)&J0a2A->unk30);
         }
     }
-    if (J0a2A->unk30 != 0) {
+    if (u != 0) {
         mx = 2.0f;
         my = 2.0f;
     } else {
@@ -440,8 +451,8 @@ void func_80026318(JetpacActor *arg0) {
     }
     vx = J0a2A->unk8;
     J0a2A->unk8 = (vx < -mx) ? -mx : ((mx < vx) ? mx : vx);
-    vx = J0a2A->unkC;
-    J0a2A->unkC = (vx < -my) ? -my : ((my < vx) ? my : vx);
+    vy = J0a2A->unkC;
+    J0a2A->unkC = (vy < -my) ? -my : ((my < vy) ? my : vy);
     if (J0a2A->unk8 < 0.1 && J0a2A->unk8 > -0.1) {
         J0a2A->unk8 = 0.0f;
     }
@@ -462,7 +473,7 @@ void func_80026318(JetpacActor *arg0) {
                 J0a2A->unk34 = idx;
                 J0a2A->unkC = 0.0f;
                 func_80025BB8(arg0, 0);
-                J0a2A->y = D_8002EF84[idx * 13] - 24.0f;
+                J0a2A->y = *(f32 *)((u8 *)D_8002EF84 + idx * 0x34) - 24.0f;
             } else {
                 J0a2A->unk8 *= -0.5f;
             }
@@ -495,7 +506,7 @@ void func_80026318(JetpacActor *arg0) {
     J0a2A->y = J0a2A->y + J0a2A->unkC;
     if (J0a2A->y < 18.0f) {
         J0a2A->y = 18.0f;
-        J0a2A->unkC = 0.0f;
+        J0a2A->unkC = 0;
     }
     if (J0a2A->y > 168.0f) {
         J0a2A->y = 168.0f;
@@ -504,10 +515,6 @@ void func_80026318(JetpacActor *arg0) {
         func_80024F9C(4);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1A60/func_80026318.s")
-#endif
 
 void func_80026A3C(JetpacActor *arg0) {
     JetpacPlayerData *p = &D_8002EC30.sessions[D_8002EC30.currentSession].data;
