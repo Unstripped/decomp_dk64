@@ -224,7 +224,7 @@ extern s16 D_8002D8CA;
 extern s16 D_8002D8D4[];
 extern s16 D_8002D8E0[];
 void actorClearAllNodeFlags(void *);
-void actorAppendModelNode(void *, s32, f32, s32, f32, s32);
+void actorAppendModelNode(void *, f32, f32, f32, f32, s32);
 void lightGetColor(f32 *, f32 *, f32 *, s32);
 void func_806BF920(void);
 extern s16 D_80744490;
@@ -1161,17 +1161,308 @@ void func_80028E3C(void) {
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80029364.s")
 
+#ifdef NON_MATCHING
+typedef struct {
+    char pad0[3];
+    u8 unk3;
+    char pad4[2];
+    char unk6[2];
+    char unk8[2];
+    s16 unkA;
+} BonusC_9B9C_A;
+
+typedef struct {
+    char pad0[0x11];
+    u8 unk11;
+    char unk12[2];
+    char unk14[2];
+    s16 unk16;
+} BonusC_9B9C_B;
+
+typedef struct {
+    char pad0[0x25];
+    u8 unk25;
+    char unk26[2];
+    char unk28[2];
+    s16 unk2A;
+} BonusC_9B9C_C;
+
+Gfx *func_80029B9C(Gfx *gdl, Actor_BB44 *arg1) {
+    Actor_BB44 *actor;
+    BonusC_9B9C_B *p0 = arg1->unk178;
+    BonusC_9B9C_A *p1 = arg1->unk178;
+    BonusC_9B9C_C *p2 = (void *)arg1->unk174;
+
+    actor = arg1;
+
+    if (actor->unk58 != 0x7E && actor->unk154 == 0 && ((u8 *)actor->unk174)[0x26] != 0) {
+        gdl = func_80026690(gdl, (void *)arg1);
+    }
+    gSPDisplayList(gdl++, &D_1000118);
+    gDPPipeSync(gdl++);
+    gDPSetPrimColor(gdl++, 0, 0, 200, 200, 200, 255);
+    gDPSetCombineMode(gdl++, G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM);
+    gDPSetRenderMode(gdl++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
+    gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    switch (actor->unk58) {
+    case 0x7D:
+        if (actor->unk154 != 3) {
+            gdl = func_8068DC54(func_806FE078(gdl, p0->unk11, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p0->unk14, p0->unk16, p0->unk12);
+        }
+        break;
+    case 0x7C:
+        if (actor->unk154 != 3) {
+            gdl = func_8068DC54(func_806FE078(gdl, p1->unk3, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p1->unk8, p1->unkA, p1->unk6);
+        }
+        break;
+    case 0x7E:
+        switch (actor->unk154) {
+        case 7:
+            break;
+        case 0:
+        case 1:
+        case 2:
+            gdl = func_8068DC54(func_806FE078(gdl, p2->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p2->unk28, p2->unk2A, p2->unk26);
+            break;
+        }
+        break;
+    }
+    return gdl;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80029B9C.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80029E54.s")
+typedef struct {
+    void *unk0;
+    u8 unk4;
+} BonusC_9E54_S;
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002A010.s")
+void func_80029E54(void *arg0) {
+    void *a = arg0;
+    s32 i;
+    s16 *X = &D_8002D8CA - 1;
+    s8 *base = ((Actor_BB44 *)a)->unk178;
+
+    for (i = 1; i != 7; i++) {
+        if (actorSpawn(0x147, X[i - 1]) != 0) {
+            BonusC_9E54_S *temp_v1 = (BonusC_9E54_S *)D_807FBB44->unk174;
+            s16 *temp_a1 = D_807FBB44->unk17C;
+            f32 *pt;
+            f32 scale;
+
+            *temp_a1 = X[i - 1];
+            temp_v1->unk0 = a;
+            temp_v1->unk4 = i - 1;
+            pt = (f32 *)((u8 *)*D_807F5FD4 + ((base + 8)[temp_v1->unk4] & 0x7F) * 12) + 3;
+            D_807FBB44->unk7C = pt[0];
+            D_807FBB44->unk80 = pt[1];
+            D_807FBB44->unk84 = pt[2];
+            D_807FBB44->unk154 = 0;
+            D_807FBB44->unk60 |= 0x1000;
+            D_807FBB44->unkE6 = 0x800;
+            if (i != 6) {
+                func_806F0C18(D_807FBB44, temp_a1);
+                actorScriptStart(D_807FBB44, D_8002D8D4[i - 1]);
+            }
+            if (i != 6) {
+                scale = 0.25f;
+            } else {
+                scale = 0.04f;
+            }
+            D_807FBB44->unk4->unk34 = scale;
+            D_807FBB44->unk4->unk38 = scale;
+            D_807FBB44->unk4->unk3C = scale;
+        }
+    }
+}
+
+void func_8002A010(void) {
+    f32 scale;
+    Struct_Sp50 *sp50;
+    Actor_BB44 *v;
+    Struct_T0 *sp48;
+    f32 sp44;
+    f32 sp40;
+    f32 sp3C;
+    f32 *p;
+    s8 var_a3;
+    s8 flags;
+    Struct_4 *u4;
+
+    sp50 = (Struct_Sp50 *)D_807FBB40->unk174;
+    v = sp50->unk0;
+    sp48 = (Struct_T0 *)v->unk178;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        if (sp50->unk4 != 5) {
+            actorClearAllNodeFlags(D_807FBB40);
+            actorAppendModelNode(D_807FBB40, 0.0f, 50.0f, 0.0f, 80.0f, -1);
+        }
+        D_807FBB40->unk144 = 0x24;
+    }
+    p = (f32 *)((u8 *)*D_807F5FD4 + (sp48->unk8[sp50->unk4] & 0x7F) * 12) + 3;
+    D_807FBB40->unk7C = p[0];
+    D_807FBB40->unk80 = p[1];
+    D_807FBB40->unk84 = p[2];
+    lightGetColor(&sp44, &sp40, &sp3C, 0);
+    if (sp44 < 0.1f) {
+        D_807FBB40->unk144 = 0;
+    } else {
+        D_807FBB40->unk144 = 0x24;
+    }
+    var_a3 = 0;
+    if (D_807FBB85 == 1 && sp48->unk0 >= -9) {
+        var_a3 = 1;
+    }
+    if (sp50->unk4 != 5) {
+        flags = sp48->unk8[sp50->unk4];
+        if (flags & 0x80) {
+            sp48->unk8[sp50->unk4] = flags & 0x7F;
+            actorScriptStart(D_807FBB40, D_8002D8D4[sp50->unk4]);
+        } else if (sp44 < 0.05f && D_807FBB40->unk4->unk68 != 0) {
+            actorScriptStart(D_807FBB40, 0);
+        }
+        if (var_a3 != 0) {
+            actorScriptStart(D_807FBB40, D_8002D8E0[sp50->unk4]);
+            func_80609140(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            if (sp48->unk16 != 0) {
+                sp48->unk16 += 1;
+            }
+        }
+        func_806BF920();
+    } else {
+        D_807FBB40->unk60 |= 0x1000;
+        D_807FBB40->unkE6 += 0x12C;
+        if (sp48->unk0 < -0x1C) {
+            D_807FBB40->unk154 = 0;
+        }
+        u4 = D_807FBB40->unk4;
+        scale = u4->unk34;
+        if (D_807FBB40->unk154 == 1) {
+            scale = scale - 0.005;
+            if (scale < 0.0) {
+                scale = 0.0f;
+            }
+        } else {
+            scale = 0.04f;
+        }
+        u4->unk34 = scale;
+        D_807FBB40->unk4->unk38 = scale;
+        D_807FBB40->unk4->unk3C = scale;
+        if (var_a3 != 0) {
+            func_80609140(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sp48->unk0 = 0;
+            sp48->unk16 -= 1;
+            D_807FBB40->unk154 = 1;
+        }
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002A398.s")
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002AAA4.s")
+typedef struct {
+    char pad[4];
+    u8 unk4;
+} BonusC_AAA4_T;
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002AD10.s")
+void func_8002AAA4(void) {
+    Struct_AAA4_174 *sp64;
+    Actor_AAA4_Target *temp_v1;
+    f32 dx;
+    f32 dz;
+    s32 sp54;
+    Struct_4_Unk0 *sp50;
+    Struct_4 *temp_v0;
+    BonusC_AAA4_T *new_var;
+    s32 i;
+
+    sp64 = (Struct_AAA4_174 *)D_807FBB40->unk174;
+    temp_v0 = D_807FBB40->unk4;
+    sp50 = temp_v0->unk0;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        actorScriptStart(D_807FBB40, 0x239);
+        D_807FBB40->unk144 = 0x24;
+        temp_v0 = D_807FBB40->unk4;
+    }
+    sp54 = temp_v0->unk64;
+    if (sp54 == 0x239) {
+        for (i = 0; i < gActiveActorCount; i++) {
+            temp_v1 = gActiveActors[i].actor;
+            if (temp_v1->unk58 == 0x149) {
+                dx = temp_v1->unk7C - D_807FBB40->unk7C;
+                dz = temp_v1->unk80 - D_807FBB40->unk80;
+                if (dx < 5.0 && dx > -5.0 && dz < 20.0f && dz > -20.0) {
+                    new_var = (BonusC_AAA4_T *)temp_v1->unk174;
+                    new_var->unk4 = 8;
+                    actorScriptStart(D_807FBB40, 0x23B);
+                }
+            }
+        }
+    }
+    if ((sp54 == 0x239 || sp54 == 0x23B || (sp54 == 0x238 && sp50 != NULL && sp50->unk4 > 48.0f)) && D_807FBB85 == 1) {
+        actorScriptStart(D_807FBB40, 0x23C);
+        sp64->unk6 = ((func_806119A0() & 7) + 6) * D_8002D900;
+    }
+    if (sp54 == 0x23A) {
+        sp64->unk6 -= 1;
+        if (sp64->unk6 == 0) {
+            actorScriptStart(D_807FBB40, 0x238);
+        }
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
+
+typedef struct {
+    char pad0[0xA];
+    s16 unkA;
+} BonusC_AD10_B;
+
+typedef struct {
+    BonusC_AD10_B *unk0;
+    s8 unk4;
+} BonusC_AD10_S;
+
+void func_8002AD10(void) {
+    Actor_74A0 *a;
+    BonusC_AD10_S *sp28;
+    Actor_BB44 *v;
+    BonusC_AD10_B *sp20;
+    f32 *p;
+
+    sp28 = (BonusC_AD10_S *)D_807FBB40->unk174;
+    v = (Actor_BB44 *)sp28->unk0;
+    sp20 = (BonusC_AD10_B *)v->unk178;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        actorScriptStart(D_807FBB40, 0x2B5, sp20);
+    }
+    if (sp28->unk4 == 0 || sp28->unk4 >= 5) {
+        D_807FBB40->unk7C = D_807FBB40->unk7C - 1.5;
+    }
+    p = (f32 *)*D_807F5FD4 + 9;
+    if (D_807FBB40->unk7C < *p - 50.0) {
+        if (sp20->unkA > 0) {
+            sp20->unkA -= 1;
+        }
+        actorDespawn(D_807FBB40);
+    }
+    if (sp28->unk4 != 0) {
+        sp28->unk4 -= 1;
+        if (sp28->unk4 < 4) {
+            if (sp28->unk4 == 3) {
+                func_80609140(0x2D2, 0x7FFF, 63.0f, 7.12f, 0, 1);
+            }
+            D_807FBB40->unk4->unk34 *= 0.8f;
+            D_807FBB40->unk4->unk38 *= 0.8f;
+            D_807FBB40->unk4->unk3C *= 0.8f;
+        }
+        if (sp28->unk4 == 0) {
+            actorDespawn(D_807FBB40);
+        }
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002AED8.s")
 
