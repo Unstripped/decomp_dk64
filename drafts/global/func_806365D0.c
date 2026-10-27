@@ -1,4 +1,4 @@
-// func_806365D0 (src/global/36880.c): stage 3+ (NM36A2): frame 0x40 and local homes now match (4 locals in order s3(R36880eLink*), head, tail, flag(u8): homes 0x3C/0x38/0x34/0x30 as target; arg2 typed R36880dOwner* per file prototype with SEG macro cast; func_80636784 is the file's (s32 x5) proto). Remaining: callee-saved set (target s0-s3: s1=A8,s2=A0,s3=B8 temps, s0=arg2; mine only s0) and head/tail should be colored v1/t0 with split spills around calls (mine stores them straight to homes). Using s3 var in all call args colors it (s1) but A8/A0 temps stay in v0/v1. Variant with explicit s1/s2/s3 vars gives s0-s2 but frame 0x48 (6 homes).
+// func_806365D0 (src/global/36880.c): stage 3 unchanged (NM36F2): draft compiles in copy with 20 hunks (callee-saved set s0-s3 vs mine s0-s2; head/tail spilled to 0x34/0x38 in mine vs register in target). Explicit a0/a8 locals give frame 0x48 (26 hunks) as noted before; no improvement.
 typedef struct R36880eCmd {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;

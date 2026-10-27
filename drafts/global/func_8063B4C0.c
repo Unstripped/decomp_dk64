@@ -1,4 +1,4 @@
-// func_8063B4C0 (src/global/36880.c): stage 4 (NM36A2): frame 0x58 and callee-saved (ra,s0,f20,f22) now match. Dead if(0){f(&idx);f(&tbl);} keeps idx/tbl in memory (idx 0x46, tbl spill 0x34); 'u8 *tbl = D_807F6000' declared after pad1..pad5 (pads between allow/idx and after idx reserve homes 0x4C..0x38). Remaining ~227 diff lines: allow should live in ra (target sb ra,0x53(sp) around hashTableLookup, mine t5), idx*0x90 compiles via multu with 144 constant hoisted (target sll/addu/sll each time), loop temps (i in a3/v0 vs t0, px/py/pz order, swapped lwc1 order), case-5 uses pointer e (target multu v1,t4 then sh to base).
+// func_8063B4C0 (src/global/36880.c): stage 5 (parked NON_MATCHING in src copy; was stage 4): 18 hunks, frame/callee-saved/ra-allow match, idx via sll/addu/sll matches. Permuter hints applied: (0, best) in compare, newv temp for pz (+0x84), 'if (!arg0) {}' in else of obj[0x54]==6, e->key store before e->done, joined prologue statements ('if (0) {..} allow = 1; if (arg0->unk24 == 1) { idx=..; tbl=..; obj=..; nv = 0; if (obj != NULL) {' on ONE line) with 'int nv' = 0 used for case 2, i = i + 1 form. Remaining: loop prologue i narrowing (target addiu t0; andi t6; slt uses t6; move t0,t6 at bottom vs mine andi t9; move t0,t9 and v0 copy of i), px/py/pz regs (target v1/a0/a1, mine a1/a2/a3), addu base/offset order at first slot access (addu t9,t8,t7 vs t7,t8), flag/allow temp t6 vs t9 (v0).
 typedef struct R36880fSrc {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ f32 unk4;
@@ -22,8 +22,10 @@ void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
     s32 pad4;
     s32 pad5;
     u8 *tbl;
+    u8 *newv;
     u8 i;
     R36880fEntry *e;
+    int nv;
     u8 *p;
     u8 flag;
     f32 *px;
@@ -31,19 +33,10 @@ void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
     f32 *pz;
     f32 best;
 
-    if (0) {
-        func_8063E078((s32)&idx);
-        func_8063E078((s32)&tbl);
-    }
-    if (arg0->unk24 == 1) {
-        allow = 1;
-        idx = hashTableLookup(arg0->unk1E);
-        tbl = (u8 *)D_807F6000;
-        obj = ((ModelSlot *)(tbl + idx * 0x90))->unk7C;
-        if (obj != NULL) {
+    if (0) { func_8063E078((s32)&idx); func_8063E078((s32)&tbl); } allow = 1; if (arg0->unk24 == 1) { idx = hashTableLookup(arg0->unk1E); tbl = (u8 *)D_807F6000; obj = ((ModelSlot *)(tbl + idx * 0x90))->unk7C; nv = 0; if (obj != NULL) {
             switch (obj[0x54]) {
             case 2:
-                allow = 0;
+                allow = nv;
                 break;
             case 0:
                 allow = arg1;
@@ -60,13 +53,16 @@ void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
                         if (obj[0x54] == 6) {
                             px = (f32 *)(*(u8 **)(p + 4) + 0x7C);
                             py = (f32 *)(*(u8 **)(p + 4) + 0x80);
-                            pz = (f32 *)(*(u8 **)(p + 4) + 0x84);
+                            newv = *(u8 **)(p + 4) + 0x84;
+                            pz = (f32 *)newv;
                         } else {
                             px = (f32 *)(p + 0x21C);
+                            if (!arg0) {
+                            }
                             py = (f32 *)(p + 0x220);
                             pz = (f32 *)(p + 0x224);
                         }
-                        if ((*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8)) < best) {
+                        if ((*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8)) < (0, best)) {
                             best = (*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8));
                         }
                     }
@@ -85,8 +81,8 @@ void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
                 e = &D_807F6030[D_807F6028];
                 e->id = arg0->unk1E;
                 D_807F6028++;
-                e->done = 0;
                 e->key = *(s32 *)(obj + 0x58);
+                e->done = 0;
                 break;
             }
             if (allow != 0) {

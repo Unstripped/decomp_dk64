@@ -1,4 +1,4 @@
-// func_8063B8D8 (src/global/36880.c): stage 5 (parked NON_MATCHING in src copy): 1 hunk / 2 insns left: target 'sll s7,t6,4; addiu s7,s7,8' (size var in place) vs mine 'sll t6,t6,4; addiu s7,t6,8'. Fixed by: if (!D_807F66F0) {} before *arg1 store (kills &D_807F66F0 CSE into s5), p++ as separate statement in loop1 (if (*p) {} ... p++), (u8 *)D_807F6000[hashTableLookup(..)].unk7C + 0x14 index form in loop2, and joining 'size=..; p=..; do{..}while; size+=call' onto ONE source line (scheduling of addiu s1). Tried: size split/u32/order variants, 3*16 forms, permuter 540s+240s (best 10 = same-line joins).
+// func_8063B8D8 (src/global/36880.c): stage 5 still (2 insns): 'sll s7,t6,4; addiu s7,s7,8' vs 'sll t6,t6,4; addiu s7,t6,8' (size var computed in place). NM36F2 tried size via sizeof(R36880fOut), tmp var, 3*16/shift forms, u32/s16 size types, trailing if (size) {}, permuter 420s (best = same 10). Parked NON_MATCHING in src.
 typedef struct R36880fOut {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
