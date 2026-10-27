@@ -413,27 +413,243 @@ void func_8061D058(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061D934.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061D968.s")
+extern u8 D_807476D8;
+extern u16 D_807F5CF8;
+extern u8 D_8076AEE0;
+extern f32 D_807FD88C;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061D9EC.s")
+void func_8061D898(void);
+void func_8061CB08(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061DA14.s")
+void func_8061D968(u8 arg0, u8 arg1) {
+    if (D_807476D8 != 0) {
+        D_807476D8--;
+        if (D_807476D8 != 0) {
+            D_807F5CF0 = D_807F5CF8;
+            func_8061D898();
+        }
+    } else {
+        D_807476D8 = arg1;
+        D_807F5CF8 = arg0;
+        D_807F5CF0 = arg0;
+        func_8061D898();
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061DA84.s")
+void func_8061D9EC(s32 arg0, s32 arg1, s32 arg2) {
+    D_8076AEE0 = 0;
+    D_807FD88C = -0.8f;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061DAAC.s")
+void timerQueueAdd(void *, s32, s32, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061DB64.s")
+void func_8061DA14(s32 arg0, s32 arg1, s32 arg2) {
+    D_8076A0B1 |= 0x40;
+    D_8076AEE0 = 0;
+    D_807FD88C = 0.8f;
+    timerQueueAdd(func_8061D9EC, 0x8000003C, 0, 0, 0);
+}
+
+void func_8061DA84(s32 arg0, s32 arg1, s32 arg2) {
+    func_8061CB08();
+}
+
+extern s16 D_807476DC;
+extern s16 D_807476E0;
+extern s16 D_807476E8;
+
+void func_8061DAAC(s16 arg0, s16 arg1, u16 arg2) {
+    D_807476E4 = arg2;
+    D_807476E8 = arg2;
+    D_807476DC = arg0 * 4096 / 360;
+    D_807476E0 = arg1 * 4096 / 360;
+}
+
+typedef struct CamEState {
+    /* 0x00 */ CamActor *unk0;
+    /* 0x04 */ u8 pad4[8];
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 pad10[0x50];
+    /* 0x60 */ f32 unk60;
+    /* 0x64 */ u8 pad64[8];
+    /* 0x6C */ f32 unk6C;
+    /* 0x70 */ f32 unk70;
+    /* 0x74 */ u8 pad74[0x2A];
+    /* 0x9E */ s16 unk9E;
+    /* 0xA0 */ f32 unkA0;
+    /* 0xA4 */ f32 unkA4;
+    /* 0xA8 */ u8 padA8[4];
+    /* 0xAC */ s32 unkAC;
+    /* 0xB0 */ s16 unkB0;
+    /* 0xB2 */ s16 unkB2;
+    /* 0xB4 */ u8 padB4[4];
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[0x2C];
+    /* 0xE8 */ s16 unkE8;
+    /* 0xEA */ s16 unkEA;
+    /* 0xEC */ u8 padEC[2];
+    /* 0xEE */ u8 unkEE;
+    /* 0xEF */ u8 unkEF;
+    /* 0xF0 */ u8 padF0[3];
+    /* 0xF3 */ u8 unkF3;
+    /* 0xF4 */ u8 padF4;
+    /* 0xF5 */ u8 unkF5;
+    /* 0xF6 */ u8 unkF6;
+    /* 0xF7 */ u8 padF7[4];
+    /* 0xFB */ u8 unkFB;
+} CamEState;
+
+void func_80620628(CamActor *, f32, s16, s32);
+
+void func_8061DB64(CamActor *arg0) {
+    CamEState *cam = (CamEState *)arg0->unk174;
+
+    func_80620628(arg0, -1.0f, cam->unk0->unkE6, 0);
+    cam->unkF5 = 0xF;
+    cam->unkF6 = 0xF;
+    D_807FBB60 &= ~0x2000;
+    cam->unkAC &= ~0x100000;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061DBD4.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061EA78.s")
+typedef struct CamEPlayerEntry {
+    /* 0x0 */ u8 unk0;
+    /* 0x1 */ u8 pad1[3];
+    /* 0x4 */ Actor *unk4;
+    /* 0x8 */ u8 pad8[0x2E8];
+} CamEPlayerEntry;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061EB04.s")
+void func_8061EB04(Actor *, u8);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061EDA0.s")
+void func_8061EA78(void) {
+    u8 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061EF4C.s")
+    for (i = 0; i < D_807FC928; i++) {
+        if (((CamEPlayerEntry *)D_807FC924)[i].unk0) {
+            func_8061EB04(((CamEPlayerEntry *)D_807FC924)[i].unk4, i);
+        }
+    }
+}
+
+extern CamPathData D_807F5B10;
+
+typedef struct CamECam {
+    /* 0x00 */ u8 pad0[0x88];
+    /* 0x88 */ f32 unk88;
+    /* 0x8C */ f32 unk8C;
+    /* 0x90 */ f32 unk90;
+    /* 0x94 */ u8 pad94[0x20];
+    /* 0xB4 */ f32 unkB4;
+    /* 0xB8 */ u8 padB8[0xA7];
+    /* 0x15F */ u8 unk15F;
+    /* 0x160 */ u8 pad160[0x14];
+    /* 0x174 */ CamEState *unk174;
+} CamECam;
+
+typedef struct CamEPlayerState {
+    /* 0x000 */ u8 pad0[0x104];
+    /* 0x104 */ CamECam *unk104;
+} CamEPlayerState;
+
+typedef struct CamEPlayerRec {
+    /* 0x000 */ u8 pad0[0x210];
+    /* 0x210 */ f32 unk210;
+    /* 0x214 */ f32 unk214;
+    /* 0x218 */ f32 unk218;
+    /* 0x21C */ u8 pad21C[0xC];
+    /* 0x228 */ f32 unk228;
+    /* 0x22C */ f32 unk22C;
+    /* 0x230 */ f32 unk230;
+    /* 0x234 */ u8 pad234[0xC];
+    /* 0x240 */ f32 unk240;
+    /* 0x244 */ f32 unk244;
+    /* 0x248 */ f32 unk248;
+    /* 0x24C */ u8 pad24C[0xA4];
+} CamEPlayerRec;
+
+void func_8061D4E4(CamECam *);
+void func_8061DBD4(CamECam *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
+s16 func_806531B8(f32, f32, f32, s32);
+
+#define CAMEREC(i) ((CamEPlayerRec *)&D_807FC924[i])
+
+void func_8061EB04(Actor *arg0, u8 arg1) {
+    CamEPlayerState *ps = arg0->unk174;
+    CamEState *st = ps->unk104->unk174;
+    CamECam *cam = ps->unk104;
+
+    D_807476FC = &D_807F5B10;
+    st->unk0 = (CamActor *)arg0;
+    st->unkFB = arg1;
+    st->unk60 = 5.0f;
+    if (D_807444EC == 1) {
+        func_8061D4E4(cam);
+    }
+    if (cam->unk15F != 0) {
+        st->unkB2 = (cam->unk15F / 255.0) * 4095.0;
+    } else {
+        st->unkB2 = (f64)arg0->unkE6;
+    }
+    cam->unk15F = 0;
+    D_807FBB60 |= 0x2000;
+    st->unkF3 = 1;
+    st->unk9E = arg0->unkE6;
+    func_8062217C((CamActor *)cam, (s16)(D_8076A0A8 == 0x9A ? 1 : ((D_807FBB64 & 1) ? 3 : 2)));
+    st->unkEE = st->unkEF;
+    st->unkA0 = st->unkA4;
+    cam->unkB4 = st->unkB8;
+    st->unkE8 = 0;
+    st->unkEA = st->unkE8;
+    st->unkAC |= 0x100;
+    st->unkB0 = 0;
+    st->unk6C = 123456.0f;
+    st->unk70 = 123456.0f;
+    st->unkC = -32768.0f;
+    *(s16 *)arg0->unk12C = func_806531B8(arg0->unk7C, arg0->unk80, arg0->unk84, 0);
+    func_8061DBD4(cam, &CAMEREC(arg1)->unk210, &CAMEREC(arg1)->unk214, &CAMEREC(arg1)->unk218,
+                  &CAMEREC(arg1)->unk228, &CAMEREC(arg1)->unk22C, &CAMEREC(arg1)->unk230,
+                  &CAMEREC(arg1)->unk240, &CAMEREC(arg1)->unk244, &CAMEREC(arg1)->unk248);
+    st->unkAC &= ~0x100;
+    cam->unk88 = ((CamEPlayerRec *)D_807FC924)[arg1].unk210;
+    cam->unk8C = ((CamEPlayerRec *)D_807FC924)[arg1].unk214;
+    cam->unk90 = ((CamEPlayerRec *)D_807FC924)[arg1].unk218;
+}
+
+s32 randomNonNegative(void);
+
+void func_8061EDA0(CamState *arg0, f32 *arg1, f32 *arg2, f32 *arg3, s32 arg4, s32 arg5) {
+    s32 r = randomNonNegative();
+
+    if (arg4 == 0) {
+        arg4 = 1;
+    }
+    *arg1 = *arg1 + (f64)((r % arg4) - (arg4 >> 1)) * 0.01;
+    *arg2 = *arg2 + (f64)(((r / 100) % arg4) - (arg4 >> 1)) * 0.01;
+    *arg3 = *arg3 + (f64)(((r / 10000) % arg4) - (arg4 >> 1)) * 0.01;
+    if ((u8)arg5) {
+        arg0->unkF2--;
+        arg0->unkC0 = arg0->unkC0 - arg0->unkC0 * 0.111;
+        arg0->unkC0++;
+    }
+}
+
+void func_8061F0B0(CamActor *, u8, u16);
+
+void func_8061EF4C(CamActor *arg0, u8 arg1, u16 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+    f32 dx = arg3 - arg0->unk7C;
+    f32 dy = arg4 - arg0->unk80;
+    f32 dz = arg5 - arg0->unk84;
+    f32 dist = sqrtf(dx * dx + dy * dy + dz * dz);
+
+    if (!(arg7 < dist)) {
+        if (dist < arg6) {
+            func_8061F0B0(arg0, arg1, arg2);
+        } else {
+            func_8061F0B0(arg0, arg1, (u16)(arg2 * ((arg7 - dist) / (arg7 - arg6))));
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061F0B0.s")
 
