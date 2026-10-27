@@ -44,7 +44,7 @@ typedef struct {
     s32 unk790;
 } JetpacGlobal;
 
-extern JetpacGlobal D_8002EC30;
+extern JetpacGlobal jetpacGame;
 s32 jetpacCheckAabbOverlapWrapped(f32, f32, f32, f32, f32, f32, f32, f32);
 void jetpacActorUpdateStraight(JetpacActor *actor);
 
@@ -126,7 +126,7 @@ s32 jetpacCheckPlayerHit(JetpacActor *arg0) {
     f32 px;
     f32 py;
 
-    p = &((J4Global *)&D_8002EC30)->unk420;
+    p = &((J4Global *)&jetpacGame)->unk420;
     ax = arg0->unk0;
     ay = arg0->unk4;
     px = p->unk0;
@@ -218,7 +218,7 @@ void jetpacSpawnActor(void) {
     s32 *p;
     s32 idx;
 
-    g = &D_8002EC30;
+    g = &jetpacGame;
     p = g->players[g->currentPlayer].unk1C;
     idx = p[0];
     fn = D_8002E8F4[idx % 8];
@@ -254,7 +254,7 @@ void jetpacBounceOffLedge(JetpacActor *arg0, s32 arg1) {
     f32 ly1;
     f32 ly2;
 
-    l = &((J4Global2 *)&D_8002EC30)->ledges[arg1];
+    l = &((J4Global2 *)&jetpacGame)->ledges[arg1];
     ax1 = arg0->unk0 + (f32)arg0->unk1C;
     ax2 = arg0->unk0 + (f32)arg0->unk24;
     lx1 = l->unk1C;
@@ -491,7 +491,7 @@ void func_80029F7C(JetpacActor *arg0) {
             jetpacCheckPlayerHit(arg0);
         }
         if (arg0->unk14 == 4) {
-            s32 *p = D_8002EC30.players[D_8002EC30.currentPlayer].unk1C;
+            s32 *p = jetpacGame.players[jetpacGame.currentPlayer].unk1C;
             p[1] += arg0->unk44;
             return;
         }
@@ -515,7 +515,7 @@ void func_80029F7C(JetpacActor *arg0) {
             }
         }
 
-        if (arg0->unk2C == 0 && (D_8002EC30.unk790 & 2)) {
+        if (arg0->unk2C == 0 && (jetpacGame.unk790 & 2)) {
             if (jetpacGetEntityCenterY(arg0) < D_8002F054 + (f32)D_8002F078) {
                 arg0->unkC = 0.8f;
             } else {
@@ -717,7 +717,7 @@ s32 jetpacKillActorInBox(f32 x1, f32 y1, f32 x2, f32 y2) {
                               actor->unk4 + (f32)actor->unk20,
                               actor->unk0 + (f32)actor->unk24,
                               actor->unk4 + (f32)actor->unk28)) {
-                playerData = D_8002EC30.players[D_8002EC30.currentPlayer].unk1C;
+                playerData = jetpacGame.players[jetpacGame.currentPlayer].unk1C;
                 jetpacActorExplode(actor);
                 playerData[1] += actor->unk44;
                 return 1;

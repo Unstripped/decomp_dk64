@@ -53,7 +53,7 @@ typedef struct {
     s32 currentSession;
 } JetpacGame;
 
-extern JetpacGame D_8002EC30;
+extern JetpacGame jetpacGame;
 void jetpacNextPlayerOrGameOver(JetpacPlayerData *arg0);
 typedef struct {
     s32 x;
@@ -369,7 +369,7 @@ typedef struct {
 } J0a2Player;
 
 #define J0a2A ((J0a2Actor *)arg0)
-#define J0a2Flags (*(u32 *)&D_8002EC30)
+#define J0a2Flags (*(u32 *)&jetpacGame)
 extern f32 D_8002EF84[];
 extern s32 D_8002EF74;
 s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
@@ -393,7 +393,7 @@ void jetpacUpdatePlayerMovement(JetpacActor *arg0) {
 
     s32 fire;
 
-    sp54 = (J0a2Player *)&D_8002EC30.sessions[D_8002EF74].data;
+    sp54 = (J0a2Player *)&jetpacGame.sessions[D_8002EF74].data;
     fire = J0a2Flags & 0x4000;
     sp34 = J0a2Flags & 0x200;
     sp30 = J0a2Flags & 0x100;
@@ -464,12 +464,12 @@ void jetpacUpdatePlayerMovement(JetpacActor *arg0) {
         idx = jetpacCheckLedgeCollision(J0a2A->unk1C + J0a2A->x + vx, J0a2A->unk20 + J0a2A->y + J0a2A->unkC,
                                         J0a2A->unk24 + J0a2A->x + vx, J0a2A->unk28 + J0a2A->y + J0a2A->unkC, 1);
         if (idx >= 0) {
-            if ((f32)*(s32 *)((u8 *)&D_8002EC30 + idx * 0x34 + 0x378) <= J0a2A->unk20 + J0a2A->y) {
+            if ((f32)*(s32 *)((u8 *)&jetpacGame + idx * 0x34 + 0x378) <= J0a2A->unk20 + J0a2A->y) {
                 J0a2A->unkC *= -0.4f;
                 if ((J0a2A->unkC > 0.0f ? J0a2A->unkC : -J0a2A->unkC) <= 0.15f) {
                     J0a2A->unkC = 0.0f;
                 }
-            } else if (J0a2A->unk28 + J0a2A->y <= (f32)*(s32 *)((u8 *)&D_8002EC30 + idx * 0x34 + 0x370)) {
+            } else if (J0a2A->unk28 + J0a2A->y <= (f32)*(s32 *)((u8 *)&jetpacGame + idx * 0x34 + 0x370)) {
                 J0a2A->unk34 = idx;
                 J0a2A->unkC = 0.0f;
                 jetpacSetFlying(arg0, 0);
@@ -517,7 +517,7 @@ void jetpacUpdatePlayerMovement(JetpacActor *arg0) {
 }
 
 void jetpacUpdatePlayerDeath(JetpacActor *arg0) {
-    JetpacPlayerData *p = &D_8002EC30.sessions[D_8002EC30.currentSession].data;
+    JetpacPlayerData *p = &jetpacGame.sessions[jetpacGame.currentSession].data;
 
     if (arg0->unk2C < 14) {
         arg0->unk2C++;
@@ -655,7 +655,7 @@ extern s32 D_8002F084;
 extern s32 D_8002F088;
 
 void jetpacInitPlayer(void) {
-    J1bGameView *g = (J1bGameView *)&D_8002EC30;
+    J1bGameView *g = (J1bGameView *)&jetpacGame;
     JetpacActor tmpl;
 
     tmpl = D_8002C518;

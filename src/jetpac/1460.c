@@ -53,8 +53,6 @@ typedef struct {
     s32 currentSession;
 } JetpacGame;
 
-extern JetpacGame D_8002EC30;
-void jetpacNextPlayerOrGameOver(JetpacPlayerData *arg0);
 typedef struct {
     s32 x;
     s32 y;

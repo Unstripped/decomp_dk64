@@ -57,7 +57,7 @@ typedef struct {
     u8 unk799;
 } JetpacGlobal;
 
-extern JetpacGlobal D_8002EC30;
+extern JetpacGlobal jetpacGame;
 
 void jetpacSpawnBonusItem(JetpacPlayer *);
 void jetpacInitRocketParts(JetpacPlayer *);
@@ -158,10 +158,10 @@ extern JetpacPlayer D_8002EC4C[];
 void jetpacResetPlayers(void) {
     s32 i;
     for (i = 0; i < 2; i++) {
-        D_8002EC30.players[i].stage = -1;
-        D_8002EC30.players[i].score = 0;
-        if (i < D_8002EC30.num_players) {
-            if (D_8002EC30.unk798 != 0) {
+        jetpacGame.players[i].stage = -1;
+        jetpacGame.players[i].score = 0;
+        if (i < jetpacGame.num_players) {
+            if (jetpacGame.unk798 != 0) {
                 D_8002EC4C[i].lives = 3;
             } else {
                 D_8002EC4C[i].lives = 5;
@@ -170,7 +170,7 @@ void jetpacResetPlayers(void) {
             D_8002EC4C[i].lives = -1;
         }
     }
-    D_8002EC30.active_player = 0;
+    jetpacGame.active_player = 0;
 }
 
 extern s32 D_8002BA6C;
@@ -238,7 +238,7 @@ typedef struct {
     u8 unk798;
     u8 unk799;
 } J0aGlobalView;
-#define J0aG ((J0aGlobalView *)&D_8002EC30)
+#define J0aG ((J0aGlobalView *)&jetpacGame)
 
 void jetpacStateSelection(s32 arg0) {
     s32 flags;
@@ -295,7 +295,7 @@ typedef struct {
 } J0aItem;
 
 void jetpacStateGameplay(s32 arg0) {
-    JetpacPlayer *sp1C = &D_8002EC30.players[D_8002EC30.active_player];
+    JetpacPlayer *sp1C = &jetpacGame.players[jetpacGame.active_player];
 
     if (sp1C->score >= 1000000) {
         sp1C->score -= 1000000;
@@ -343,43 +343,43 @@ void jetpacNextPlayerOrGameOver(JetpacPlayer *);
 void jetpacStatePause(s32 arg0) {
     func_80024408(arg0);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
-    jetpacDrawString(arg0, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && D_8002EC30.unkC == 1);
-    jetpacDrawString(arg0, "DELETE@HISCORE", 0x68, 0x80, D_8002BA6C != 0 && D_8002EC30.unkC == 2);
-    jetpacDrawString(arg0, "EXIT@@JETPAC", 0x70, 0x90, D_8002BA6C != 0 && D_8002EC30.unkC == 0);
-    if (D_8002EC30.unk8 & 0xE000) {
-        switch (D_8002EC30.unkC) {
+    jetpacDrawString(arg0, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && jetpacGame.unkC == 1);
+    jetpacDrawString(arg0, "DELETE@HISCORE", 0x68, 0x80, D_8002BA6C != 0 && jetpacGame.unkC == 2);
+    jetpacDrawString(arg0, "EXIT@@JETPAC", 0x70, 0x90, D_8002BA6C != 0 && jetpacGame.unkC == 0);
+    if (jetpacGame.unk8 & 0xE000) {
+        switch (jetpacGame.unkC) {
         default:
         case 0:
-            func_805FF378(D_8002EC30.unk798 != 0 ? 5 : 0x50, 0);
+            func_805FF378(jetpacGame.unk798 != 0 ? 5 : 0x50, 0);
             break;
         case 1:
-            D_8002EC30.unk78C = 2;
+            jetpacGame.unk78C = 2;
             break;
         case 2:
-            if (D_8002EC30.high_score != 0) {
+            if (jetpacGame.high_score != 0) {
                 func_8060C8AC(1);
-                D_8002EC30.high_score = func_8060C6B8(0x11, 0, 0, 0);
+                jetpacGame.high_score = func_8060C6B8(0x11, 0, 0, 0);
                 jetpacSaveHighScore();
             }
             break;
         }
     }
-    if (D_8002EC30.unk8 & 0x400) {
-        D_8002EC30.unkC++;
+    if (jetpacGame.unk8 & 0x400) {
+        jetpacGame.unkC++;
     }
-    if (D_8002EC30.unk8 & 0x800) {
-        D_8002EC30.unkC--;
+    if (jetpacGame.unk8 & 0x800) {
+        jetpacGame.unkC--;
     }
-    if (D_8002EC30.unkC >= 3) {
-        D_8002EC30.unkC = 0;
+    if (jetpacGame.unkC >= 3) {
+        jetpacGame.unkC = 0;
     }
-    if (D_8002EC30.unkC < 0) {
-        D_8002EC30.unkC = 2;
+    if (jetpacGame.unkC < 0) {
+        jetpacGame.unkC = 2;
     }
 }
 
 void jetpacStateTakeoff(s32 arg0) {
-    JetpacPlayer *sp1C = &D_8002EC30.players[D_8002EC30.active_player];
+    JetpacPlayer *sp1C = &jetpacGame.players[jetpacGame.active_player];
 
     func_80024408(arg0);
     jetpacUpdateLasers();
@@ -401,22 +401,22 @@ void jetpacStateGameOver(s32 arg0) {
 
     sp4C = 7;
     func_80024408(arg0);
-    if (D_8002EC30.unk798 != 0 && flagGet(0x62, 2) != 0) {
+    if (jetpacGame.unk798 != 0 && flagGet(0x62, 2) != 0) {
         _sprintf(sp2C, "RAREWARE COIN COLLECTED");
         sp4C = 5;
     } else {
-        _sprintf(sp2C, "GAME OVER PLAYER %d", D_8002EC30.active_player + 1);
+        _sprintf(sp2C, "GAME OVER PLAYER %d", jetpacGame.active_player + 1);
     }
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(arg0, sp2C, sp4C * 8 + 0x20, 0x88, 0);
-    if ((u32)D_8002EC30.unk790 >= 0x79U) {
-        if (D_8002EC30.unk798 != 0) {
-            if (D_8002EC30.unk799 == 0) {
-                D_8002EC30.unk799 = 1;
+    if ((u32)jetpacGame.unk790 >= 0x79U) {
+        if (jetpacGame.unk798 != 0) {
+            if (jetpacGame.unk799 == 0) {
+                jetpacGame.unk799 = 1;
                 func_805FF378(5, 0);
             }
         } else {
-            jetpacNextPlayerOrGameOver(&D_8002EC30.players[D_8002EC30.active_player]);
+            jetpacNextPlayerOrGameOver(&jetpacGame.players[jetpacGame.active_player]);
         }
     }
 }
@@ -443,9 +443,9 @@ void jetpacStopSound(s32 arg0) {
 
 void jetpacSetState(s32 arg0) {
     s32 pad;
-    JetpacPlayer *player = &D_8002EC30.players[D_8002EC30.active_player];
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.active_player];
 
-    D_8002EC30.unk794 = 0;
+    jetpacGame.unk794 = 0;
     switch (arg0) {
     case 0:
     case 3:
@@ -454,8 +454,8 @@ void jetpacSetState(s32 arg0) {
         jetpacPlaceRocketAboveScreen();
         break;
     case 2:
-        if (D_8002EC30.unk78C == 1) {
-            D_8002EC30.unk794 = 3;
+        if (jetpacGame.unk78C == 1) {
+            jetpacGame.unk794 = 3;
             player->lives--;
         }
         jetpacInitPlayer();
@@ -465,18 +465,18 @@ void jetpacSetState(s32 arg0) {
     case 4:
         D_8002F064 = 1;
         jetpacPlaceRocketOnPad();
-        D_8002EC30.unk794 = 3;
+        jetpacGame.unk794 = 3;
         player->lives++;
         break;
     case 5:
-        D_8002EC30.unk790 = 0;
+        jetpacGame.unk790 = 0;
         break;
     }
-    D_8002EC30.unk78C = arg0;
+    jetpacGame.unk78C = arg0;
 }
 
 void jetpacStartStage(void) {
-    JetpacPlayer *player = &D_8002EC30.players[D_8002EC30.active_player];
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.active_player];
 
     if (player->stage < 0) {
         player->lives--;
@@ -513,45 +513,45 @@ void func_80025168(s32 arg0) {
 
     zero = 0;
     if (D_8002BA70 != 0) {
-        D_8002EC30.unk78C = 0;
-        D_8002EC30.unk790 = 0;
-        D_8002EC30.unk794 = 3;
-        D_8002EC30.num_players = 1;
-        D_8002EC30.unk34C = 0;
+        jetpacGame.unk78C = 0;
+        jetpacGame.unk790 = 0;
+        jetpacGame.unk794 = 3;
+        jetpacGame.num_players = 1;
+        jetpacGame.unk34C = 0;
         D_8002BA70 = zero;
-        D_8002EC30.high_score = func_8060C6B8(0x11, zero, zero, zero);
+        jetpacGame.high_score = func_8060C6B8(0x11, zero, zero, zero);
         flag = flagGet(0x61, 2);
-        D_8002EC30.unk798 = flag;
+        jetpacGame.unk798 = flag;
         if (flag != zero) {
-            D_8002EC30.unk799 = 0;
+            jetpacGame.unk799 = 0;
         }
     }
     p = &D_8002BA6C;
-    *p = (s64)D_8002EC30.unk790;
-    *p = D_8002EC30.unk790 % 60;
-    *p = D_8002EC30.unk790 % 60 / 30;
-    D_8002EC30.unk4 = D_8002EC30.unk0;
-    D_8002EC30.unk0 = D_807ECDE8->unk0;
+    *p = (s64)jetpacGame.unk790;
+    *p = jetpacGame.unk790 % 60;
+    *p = jetpacGame.unk790 % 60 / 30;
+    jetpacGame.unk4 = jetpacGame.unk0;
+    jetpacGame.unk0 = D_807ECDE8->unk0;
     if (0) {
     }
     if ((zero = D_807ECDE8->unk2) >= 0x1F) {
-        D_8002EC30.unk0 |= 0x100;
+        jetpacGame.unk0 |= 0x100;
     }
     if (D_807ECDE8->unk2 < -0x1E) {
-        D_8002EC30.unk0 |= 0x200;
+        jetpacGame.unk0 |= 0x200;
     }
     if (D_807ECDE8->unk3 >= 0x1F) {
-        D_8002EC30.unk0 |= 0x800;
+        jetpacGame.unk0 |= 0x800;
     }
     if (D_807ECDE8->unk3 < -0x1E) {
-        D_8002EC30.unk0 |= 0x400;
+        jetpacGame.unk0 |= 0x400;
     }
-    D_8002EC30.unk8 = (D_8002EC30.unk0 ^ D_8002EC30.unk4) & D_8002EC30.unk0;
-    if ((u32)D_8002EC30.unk794 < 3) {
-        D_8002EC30.unk794++;
+    jetpacGame.unk8 = (jetpacGame.unk0 ^ jetpacGame.unk4) & jetpacGame.unk0;
+    if ((u32)jetpacGame.unk794 < 3) {
+        jetpacGame.unk794++;
         return;
     }
-    switch (D_8002EC30.unk78C) {
+    switch (jetpacGame.unk78C) {
     case 0:
         jetpacStateSelection(arg0);
         break;
@@ -571,7 +571,7 @@ void func_80025168(s32 arg0) {
         jetpacStateGameOver(arg0);
         break;
     }
-    D_8002EC30.unk790 = D_8002EC30.unk790 + 1;
+    jetpacGame.unk790 = jetpacGame.unk790 + 1;
 }
 
 #else
@@ -580,12 +580,12 @@ void func_80025168(s32 arg0) {
 #endif
 
 void jetpacNextPlayerOrGameOver(JetpacPlayer *arg0) {
-    s32 other_idx = D_8002EC30.active_player ^ 1;
-    JetpacPlayer *other = &D_8002EC30.players[other_idx];
+    s32 other_idx = jetpacGame.active_player ^ 1;
+    JetpacPlayer *other = &jetpacGame.players[other_idx];
 
-    if (arg0->lives < 0 && D_8002EC30.unk78C != 5) {
-        if (D_8002EC30.high_score < arg0->score) {
-            D_8002EC30.high_score = arg0->score;
+    if (arg0->lives < 0 && jetpacGame.unk78C != 5) {
+        if (jetpacGame.high_score < arg0->score) {
+            jetpacGame.high_score = arg0->score;
             jetpacSaveHighScore();
         }
         jetpacSetState(5);
@@ -593,7 +593,7 @@ void jetpacNextPlayerOrGameOver(JetpacPlayer *arg0) {
     }
 
     if (other->lives >= 0) {
-        D_8002EC30.active_player = other_idx;
+        jetpacGame.active_player = other_idx;
         if (other->stage < 0) {
             jetpacStartStage();
             return;
