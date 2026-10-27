@@ -284,7 +284,6 @@ void func_800248A0(s32 arg0) {
     func_80025904(arg0);
 }
 
-#ifdef NON_MATCHING
 void jetpacPlayerStateUpdate(void);
 void jetpacItemsUpdate(void);
 void func_80026AB0(void);
@@ -302,10 +301,15 @@ void func_800248E8(s32 arg0) {
         sp1C->score -= 1000000;
     }
     func_80024408(arg0);
+    if (((J0aItem *)&sp1C->pad14[sp1C->unk10 * 0x4C])->unk44) {
+    }
     jetpacPlayerStateUpdate();
     func_80026CEC();
     sp1C->unk18C(&sp1C->unk148);
-    ((J0aItem *)&sp1C->pad14[sp1C->unk10 * 0x4C])->unk44(&sp1C->pad14[sp1C->unk10 * 0x4C]);
+    {
+        J0aItem *it = (J0aItem *)&sp1C->pad14[sp1C->unk10 * 0x4C];
+        it->unk44(it);
+    }
     func_8002ABDC();
     jetpacInitRdp(arg0);
     func_80028E88();
@@ -318,18 +322,11 @@ void func_800248E8(s32 arg0) {
     if (func_80026FE0() != 0) {
         J0aG->unk44C++;
     }
-    {
-        J0aGlobalView *g = J0aG;
-        if (g->unk8 & 0x1000) {
-            g->unk78C = 3;
-            g->unkC = 1;
-        }
+    if (J0aG->unk8 & 0x1000) {
+        J0aG->unk78C = 3;
+        J0aG->unkC = 1;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_800248E8.s")
-#endif
 
 void func_80024A4C(void) {
     func_8060C648(0x11, 0, 0, 0, D_8002EC48);
