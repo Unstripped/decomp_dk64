@@ -31,7 +31,6 @@ void mathPickCloserTargetPoint3D(f32, f32, f32, Point3f *, Point3f *, Point3f *,
 f32 func_80027710(s32, s32, void *);
 
 #define RB_SQ(v) ((v) * (v))
-#ifdef NON_MATCHING
 f32 func_80027710(s32 arg0, s32 arg1, void *arg2) {
     s32 idx1;
     s32 idx2;
@@ -51,13 +50,8 @@ f32 func_80027710(s32 arg0, s32 arg1, void *arg2) {
     cur = &base[((Waypoint *)arg2)->unk2];
     mathPickCloserTargetPoint3D(*(f32 *)(arg1 + 0x7C), *(f32 *)(arg1 + 0x80), *(f32 *)(arg1 + 0x84), cur, p1, p1, p2, &out.x, &out.y, &out.z);
     d2 = RB_SQ(cur->x - p1->x) + RB_SQ(cur->y - p1->y) + RB_SQ(cur->z - p1->z);
-    e2 = RB_SQ(cur->z - out.z) + (RB_SQ(cur->y - out.y) + RB_SQ(cur->x - out.x));
-    return sqrtf(e2 / d2);
+    return sqrtf((e2 = RB_SQ(cur->z - out.z) + (RB_SQ(cur->x - out.x) + RB_SQ(cur->y - out.y))) / d2);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80027710.s")
-#endif
 
 f32 raceGetPathDistance(s32 arg0, u16 arg1, u16 arg2) {
     s32 index;
@@ -600,7 +594,6 @@ void func_80028AD0(void) {
     f32 sp30;
     f32 temp_fv0;
     f32 var_fv0;
-    f32 var_fv1;
     f32 temp_fv0_3;
     int temp_v0;
     u8 temp_v0_2;
@@ -659,11 +652,11 @@ void func_80028AD0(void) {
             var_fv0 = 0.0f;
         } else {
             if (temp_fv0_3 > 1.0f) {
-                var_fv1 = 1.0f;
+                temp_fv0 = 1.0f;
             } else {
-                var_fv1 = temp_fv0_3;
+                temp_fv0 = temp_fv0_3;
             }
-            var_fv0 = var_fv1;
+            var_fv0 = temp_fv0;
         }
         camSetFixedView(*(void **)(sp40 + 0x104), *(f32 *)((u8 *)D_807FBB40 + 0x7C), *(f32 *)((u8 *)D_807FBB40 + 0x80) + ((20.0f * var_fv0) + 20.0f), *(f32 *)((u8 *)D_807FBB40 + 0x84), *(f32 *)(sp50 + 0x7C), *(f32 *)(sp50 + 0x80) + 20.0f, *(f32 *)(sp50 + 0x84), 1);
     }

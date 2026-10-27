@@ -1,6 +1,4 @@
-// func_80028AD0 (src/race/36B0.c): stage 5 (parked NON_MATCHING): frame 0x60, slots, all integer regs match (int sp38/int temp_v0 instead of s32/s16 fixed the li t4,1 ring shift). Remaining: FP regalloc in the camSetFixedView clamp: expected dist copy temp_fv1 in $f2 (mov.s f2,f0 after func_80027920) and var_fv0/var_fv1 in f0/f2, mine uses f12/f2; ~7 FP-reg lines. Decl-order sweeps of the f32 locals, sp34 reuse, permuter 10+7 min no gain.
-extern s32 *D_807F5FD4;
-extern void *D_807FBB40;
+// func_80028AD0 (src/race/36B0.c): stage 5 (parked): frame 0x60, ints, slots OK; remaining ~50 diff lines = FP colouring in the clamp+camSetFixedView args. Root cause found with uopt_trace -l 5/6: the 20.0f constant (adjsave 2.0, 3 uses) is coloured before var_fv0 (1.5) so it takes $f0 and var_fv0 is pushed to $f12; target colours var_fv0=f0 first then 20.0f=f2. Using temp_fv0 in place of var_fv1 (alias an already-live f32) gets var_fv1=$f2 (56->50 lines). Tried, no effect: min/max ternary forms, aliasing var_fv0/d to sp30/sp34/temp_fv0 (64-combo grid), 20/20.0/int literal splits, an initial dead var_fv0 store, 20.0f via sp30/sp34 temp. Untried: any way to raise var_fv0 adjsave above 2.0 or drop the 20.0f constant below 1.5 without changing the instruction stream.
 typedef struct {
     char pad0[4];
     void *unk4;
@@ -24,7 +22,6 @@ void func_80028AD0(void) {
     f32 sp30;
     f32 temp_fv0;
     f32 var_fv0;
-    f32 var_fv1;
     f32 temp_fv0_3;
     int temp_v0;
     u8 temp_v0_2;
@@ -83,11 +80,11 @@ void func_80028AD0(void) {
             var_fv0 = 0.0f;
         } else {
             if (temp_fv0_3 > 1.0f) {
-                var_fv1 = 1.0f;
+                temp_fv0 = 1.0f;
             } else {
-                var_fv1 = temp_fv0_3;
+                temp_fv0 = temp_fv0_3;
             }
-            var_fv0 = var_fv1;
+            var_fv0 = temp_fv0;
         }
         camSetFixedView(*(void **)(sp40 + 0x104), *(f32 *)((u8 *)D_807FBB40 + 0x7C), *(f32 *)((u8 *)D_807FBB40 + 0x80) + ((20.0f * var_fv0) + 20.0f), *(f32 *)((u8 *)D_807FBB40 + 0x84), *(f32 *)(sp50 + 0x7C), *(f32 *)(sp50 + 0x80) + 20.0f, *(f32 *)(sp50 + 0x84), 1);
     }
