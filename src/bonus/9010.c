@@ -1,14 +1,238 @@
 
 #include "common.h"
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/9010/func_8002D010.s")
-
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/9010/func_8002D2F0.s")
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/9010/func_8002D6F8.s")
-
+extern Gfx D_1000118;
+extern Mtx D_2000180;
 extern s8 D_8002D92C;
-extern s8 D_8002D930;
 extern s8 D_8002DEF0[];
+extern s32 D_8076A0A8;
+extern void *D_807FBB40;
+s32 _sprintf(char *, const char *, ...);
+Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
+Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
+s32 func_806FBD5C(s32, char *);
+Gfx *func_806FC530(Gfx *, s32, s16, s16, char *, s32);
+
+typedef struct BonusEHud {
+    s16 unk0;
+    u8 pad2;
+    u8 unk3;
+    s16 unk4;
+    u8 unk6;
+    u8 unk7;
+    u8 unk8;
+    u8 pad9;
+    s16 unkA;
+    u8 unkC;
+    u8 unkD;
+} BonusEHud;
+
+Gfx *func_8002D010(Gfx *gdl, void *arg1) {
+    BonusEHud *hud = *(BonusEHud **)((u8 *)arg1 + 0x174);
+    s16 i;
+    s16 y;
+    char buf[24];
+
+    gSPDisplayList(gdl++, &D_1000118);
+    gDPPipeSync(gdl++);
+    gDPSetPrimColor(gdl++, 0, 0, 200, 200, 200, 255);
+    gDPSetCombineMode(gdl++, G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM);
+    gDPSetRenderMode(gdl++, G_RM_OPA_SURF, G_RM_TEX_EDGE2);
+    gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gdl = func_806FE078(gdl, hud->unk3, 8, 30.0f, 36.0f, 0.0f, 1.0f);
+    gdl = func_8068DC54(gdl, 0x26, 0x2D, &hud->unk8, hud->unkA, &hud->unk6);
+    if (hud->unk6 > 0) {
+        hud->unk6 -= 2;
+    }
+    switch (D_8076A0A8) {
+    case 0xBF:
+        if (*(u8 *)((u8 *)arg1 + 0x154) == 2) {
+            y = 0x1E0 - (D_8002D92C * 3 << 4);
+            for (i = -1; i < D_8002D92C; i++) {
+                if (i >= 0) {
+                    _sprintf(buf, "HIT %d", D_8002DEF0[i]);
+                } else if (D_8002D92C >= 2) {
+                    _sprintf(buf, "COMBO x2");
+                } else {
+                    buf[0] = 0;
+                }
+                gdl = func_806FC530(gdl, 6, 0x280 - func_806FBD5C(6, buf) * 2, y, buf, 1);
+                y += 0x30;
+            }
+        }
+        break;
+    case 0xB8:
+        if (hud->unkC != 0) {
+            hud->unkC -= 1;
+            if ((hud->unkC & 0x1F) < 0x14) {
+                gdl = func_806FE078(gdl, hud->unkD, 8, 100.0f, 100.0f, 0.0f, 1.0f);
+            }
+        }
+        break;
+    }
+    return gdl;
+}
+
+struct BonusEActor9;
+typedef struct BonusEActor9 {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x11C - 0x64];
+    struct BonusEActor9 *unk11C;
+    u8 pad120[0x154 - 0x120];
+    u8 unk154;
+    u8 pad155[0x174 - 0x155];
+    BonusEHud *unk174;
+} BonusEActor9;
+
+#define BA9 ((BonusEActor9 *)D_807FBB40)
+
+extern u8 D_807444EC;
+extern s16 D_80744518;
+extern u16 D_807ECD58;
+extern u16 D_807ECD60;
+extern void *D_807FBB4C;
+extern s8 D_8002D920;
+extern s8 D_8002D924;
+extern s8 D_8002D928;
+extern s8 D_8002D930;
+void camStartPath(void *, s32, s32);
+s32 camIsPathPaused(void);
+void camResumePath(void);
+void actorSetStateTwo(void *);
+void func_805FF378(s32, s32);
+void func_806A2A10(s32, s32, s32);
+s32 func_806FDB8C(s32, char *, s32, f32, f32, f32);
+void func_8070D8C0(void *, s32, u8);
+void renderCallbacksRegister(void *, void *, s32);
+
+void func_8002D2F0(void) {
+    BonusEHud *hud = BA9->unk174;
+    s32 sp28;
+
+    if (!(BA9->unk60 & 0x10)) {
+        camStartPath(0, 0, 1);
+        BA9->unk154 = 0;
+        hud->unk4 = 0x3C;
+        D_8002D92C = 0;
+        D_8002D930 = 0;
+        D_80744518 = 0;
+        hud->unk3 = func_806FDB8C(1, "SCORE", 8, 0.0f, 0.0f, 0.0f);
+        hud->unkD = func_806FDB8C(1, "LAP BONUS", 8, 0.0f, 0.0f, 0.0f);
+        D_8002D920 = 0;
+        D_8002D924 = 0;
+        D_8002D928 = 0;
+    }
+    switch (BA9->unk154) {
+    case 0:
+        if (D_807444EC == 1) {
+            if (camIsPathPaused()) {
+                switch (D_8076A0A8) {
+                case 0xBF:
+                    sp28 = 0x1F;
+                    break;
+                case 0xB8:
+                    sp28 = 0x20;
+                    break;
+                }
+                func_8070D8C0(D_807FBB40, 0, sp28);
+                BA9->unk154 = 1;
+                func_806A2A10(0xDC, 0x2A, *((u8 *)&hud->unk4 + 1));
+            } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
+                camStartPath(D_807FBB4C, 1, 1);
+                BA9->unk154 = 2;
+                func_806A2A10(0xDC, 0x2A, *((u8 *)&hud->unk4 + 1));
+                actorSetStateTwo(BA9->unk11C);
+            }
+        }
+        break;
+    case 1:
+        if (!(BA9->unk60 & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
+            camResumePath();
+            BA9->unk154 = 2;
+            actorSetStateTwo(BA9->unk11C);
+        }
+        break;
+    case 2:
+        if (BA9->unk11C->unk154 == 5) {
+            D_8002D930 = 0;
+            BA9->unk154 = 3;
+            hud->unk0 = 0x78;
+        }
+        switch (D_8076A0A8) {
+        case 0xBF:
+            D_8002D930 -= 1;
+            if (D_8002D930 <= 0) {
+                D_8002D930 = 0;
+                if (D_8002D92C > 0) {
+                    s32 shift = 0;
+                    if (D_8002D92C >= 2) {
+                        shift = 1;
+                    }
+                    while (D_8002D92C > 0) {
+                        D_8002D92C -= 1;
+                        hud->unkA += D_8002DEF0[D_8002D92C] << shift;
+                    }
+                }
+            }
+            break;
+        case 0xB8:
+            if (D_8002D928 != 0) {
+                hud->unkA += D_8002D928;
+                if (D_8002D928 >= 0x33) {
+                    hud->unkC = 0x3C;
+                }
+                D_8002D928 = 0;
+            }
+            break;
+        }
+        break;
+    case 3:
+        BA9->unk11C->unk154 = 1;
+        hud->unk0 -= 1;
+        if (hud->unk0 == 0) {
+            func_805FF378(0x50, 0);
+            BA9->unk154 = 4;
+        }
+        break;
+    }
+    D_80744518 = hud->unkA;
+    renderCallbacksRegister(func_8002D010, D_807FBB40, 3);
+}
+
+extern s8 D_8002D910[];
+extern s8 D_8002D91C[];
+
+void func_8002D6F8(s16 arg0) {
+    s32 i;
+    s32 j;
+
+    D_8002D928 = 5;
+    for (i = 0; i < 4; i++) {
+        if (arg0 == D_8002D91C[i]) {
+            D_8002D928 += 0xF;
+        }
+    }
+    i = 0;
+    while (i < 10 && arg0 != D_8002D910[i]) {
+        i++;
+    }
+    j = i - 1;
+    if (j < 0) {
+        j = 10;
+    }
+    if (j == D_8002D920) {
+        D_8002D924 += 1;
+        if (D_8002D924 >= 10) {
+            D_8002D924 = 0;
+            D_8002D928 += 0x32;
+        }
+    } else {
+        D_8002D924 = 0;
+    }
+    D_8002D920 = i;
+}
+
 
 void bonusRegisterHit(s16 arg0) {
     s8 var_v0;

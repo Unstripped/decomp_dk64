@@ -43,7 +43,24 @@ u8 func_80025480(u8 **arg0, u8 arg1) {
     return D_8002D8B0[idx][arg0[idx][0x15F]];
 }
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/func_800254B0.s")
+void func_807149B8(s32);
+s32 func_8071498C(void (*)(void));
+void func_80714950(s32);
+void func_80714CC0(s32, f32, f32, f32, f32);
+s32 randomNonNegative();
+extern s32 D_8074E880[];
+void D_80717404(void);
+
+void func_800254B0(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+    s16 i;
+
+    for (i = 0; i < arg3; i++) {
+        func_807149B8(1);
+        func_8071498C(D_80717404);
+        func_80714950(1);
+        func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, (f32)arg0, (f32)arg1, (f32)arg2);
+    }
+}
 
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 extern void *D_807FBB4C;
@@ -74,7 +91,88 @@ void bonusInitActors(u8 **arg0, u8 arg1) {
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/func_8002570C.s")
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/func_800261B8.s")
+struct BonusEActor;
+typedef struct BonusEObj {
+    struct BonusEActor *unk0;
+    s16 unk4;
+} BonusEObj;
+
+typedef struct BonusEActor {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0xE8 - 0x64];
+    s16 unkE8;
+    u8 padEA[6];
+    s16 unkF0;
+    u8 padF2[0x154 - 0xF2];
+    u8 unk154;
+    u8 unk155;
+    u8 pad156[9];
+    s8 unk15F;
+    f64 unk160;
+    s16 unk168;
+    u8 pad16A[0xA];
+    BonusEObj *unk174;
+} BonusEActor;
+
+#define BA ((BonusEActor *)D_807FBB40)
+
+f32 asinApprox(f32);
+f32 sinApprox(f32);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+void actorUpdateModelMatrix(void *, s32);
+
+void func_800261B8(void) {
+    BonusEObj *obj;
+    s16 t;
+
+    obj = BA->unk174;
+    if (!(BA->unk60 & 0x10)) {
+        BA->unkE8 = ((randomNonNegative() >> 15) % 6 * 0x3C000) / 360;
+    }
+    switch (BA->unk154) {
+    case 1:
+        obj->unk4 = -0x18;
+        BA->unk154 += 1;
+        break;
+    case 2:
+        if (obj->unk4 < 0) {
+            BA->unkE8 += obj->unk4;
+            obj->unk4 += 2;
+        } else {
+            BA->unk154 += 1;
+            obj->unk4 = BA->unkF0;
+        }
+        break;
+    case 4:
+        t = 0x2AB - (BA->unkE8 % 0x2AB);
+        if (t < obj->unk4) {
+            BA->unk154 += 1;
+            if (obj->unk0->unk154 < 8) {
+                obj->unk0->unk154 = 5;
+                obj->unk0->unk155 = 0;
+            }
+            BA->unk160 = asinApprox((obj->unk4 - t) * 0.015625);
+            BA->unk168 = (BA->unkE8 + t) & 0xFFF;
+            BA->unk15F = BA->unk168 / 0x2AB;
+            sfxPlayFromActorWithAltitudeCheck(BA, 0x17A, 0xFF, 0x7F, 1);
+        }
+    case 3:
+        BA->unkE8 += obj->unk4;
+        BA->unkE8 &= 0xFFF;
+        break;
+    case 5:
+        if (BA->unk160 < 6.2831854820251465) {
+            BA->unkE8 = sinApprox(BA->unk160) * 90.0 + BA->unk168;
+            BA->unk160 = BA->unk160 + 0.3;
+        } else {
+            BA->unkE8 = BA->unk168;
+            BA->unk154 = 0;
+        }
+        break;
+    }
+    actorUpdateModelMatrix(BA, 0);
+}
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
