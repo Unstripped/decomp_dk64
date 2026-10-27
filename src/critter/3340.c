@@ -434,7 +434,7 @@ f32 func_80612794(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
 void func_8065D254(Actor_3340 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_80665564(Actor_3340 *, s32);
+void func_80665564(Actor_3340 *, f32);
 u8 func_8072881C(u8, u32 *);
 
 void func_80028120(void) {
@@ -515,6 +515,10 @@ void func_80028120(void) {
             d->unk14 = (func_80612790((s16)angleTmp) * k) + d->unk20;
             d->unk18 = d->unk24;
             d->unk1C = (func_80612794((s16)angleTmp) * k) + d->unk28;
+            if (!k) {
+            }
+            if (!k) {
+            }
         }
         d->unk0 = t;
         t = (t - 0.5) * 2.5;
@@ -546,6 +550,8 @@ void func_80028120(void) {
             dist = sqrtf((dx * dx) + (dz * dz));
             if (dist > 1.0) {
                 k = 3.0 / dist;
+                if (!k) {
+                }
                 J1b2A->unk7C = J1b2A->unk7C + (dx * k);
                 J1b2A->unk84 = J1b2A->unk84 + (dz * k);
             }

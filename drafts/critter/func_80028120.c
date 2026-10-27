@@ -1,4 +1,4 @@
-// func_80028120 (src/critter/3340.c): stage 5-6 (score 745, size/frame 0x68/slots/jtbl match; only f-reg numbering). Root cause: case-1 'k' (rand*65.0) is split at calls and every piece has adjsave 0.0 (not coloured); target colours the whole range in $f2 (save once in sin jal delay, reload after sin and cos). Toy experiments (.scratch/C0c2/toy.py style, uopt_trace -l 5): f32 k live across two calls with 1 use after each call never colours; 3 refs with 2 in the LAST block (after the 2nd call) colours the whole range ('s2(a)*k + k + k'); extra use in the first block or in def block colours only a piece; one use per block never; a loop colours. Tried (no effect on k): v=k copies, void/if(0) uses, k*=65.0 two-step defs, operand swaps, separate k2 for case 2, v/w as real interpolation temps, register. Permuter 'best' (score 500) = d->unk8 = d->unk8 which emits an extra swc1 8(v1): invalid. Need a source shape giving k a hidden 3rd ref in the block after the cos call.
+// func_80028120 (src/critter/3340.c): stage 6: 13 diff lines left (was 157): case-1 k now coloured f2 whole-range via TWO empty 'if (!k) {}' after the cos call; func_80665564 2nd param is f32 (li a1,0). Left: case 2 only: target dist (cvt.d.s) in f12 and k=(f32)(3.0/dist) in f2; ours dist f2, k f0 (cvt expression candidates 107/127 outrank the vars; dummy uses of dist/k, var renames, f32 dist, function-scope dist, k=0 init all give identical code).
 typedef struct J1b2Data {
     f32 unk0;
     f32 unk4;
@@ -47,7 +47,7 @@ f32 func_80612794(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
 void func_8065D254(Actor_3340 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_80665564(Actor_3340 *, s32);
+void func_80665564(Actor_3340 *, f32);
 u8 func_8072881C(u8, u32 *);
 
 void func_80028120(void) {
@@ -128,6 +128,10 @@ void func_80028120(void) {
             d->unk14 = (func_80612790((s16)angleTmp) * k) + d->unk20;
             d->unk18 = d->unk24;
             d->unk1C = (func_80612794((s16)angleTmp) * k) + d->unk28;
+            if (!k) {
+            }
+            if (!k) {
+            }
         }
         d->unk0 = t;
         t = (t - 0.5) * 2.5;
@@ -159,6 +163,8 @@ void func_80028120(void) {
             dist = sqrtf((dx * dx) + (dz * dz));
             if (dist > 1.0) {
                 k = 3.0 / dist;
+                if (!k) {
+                }
                 J1b2A->unk7C = J1b2A->unk7C + (dx * k);
                 J1b2A->unk84 = J1b2A->unk84 + (dz * k);
             }
