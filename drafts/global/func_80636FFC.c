@@ -1,4 +1,4 @@
-// func_80636FFC (src/global/36880.c): Stage 4, parked NON_MATCHING. Same callee-saved set (s0,s1) + frame 0x138; ~14 non-stack insn diffs left. (1) NEEDS prototype 's32 func_80636D38(void *, s32, s32)' (now void in 36880.c): with s32 the slot ptr gets v1 like target (void gives v0/v1 swap in the flags block); (2) guRotateF x3 blocks: as1 hoists 'addiu a0,sp,&spB8' (and 'lui at' for the z-axis block) above c.eq.d, bc1tl vs target's bc1t+lui delay on 3rd; target keeps them after 'mfc1 a1'; (3) flags local fl allocated v0 instead of a0 (target has 'lbu a0,0x8c(v1); ... move v0,a0'); (4) spill-slot layout: target spills at 0x3c,0x40,0x58,0x70-0x7c (13 gap words), mine 0x38,0x3c,0x50,0x60-0x6c - 4 fewer temp slots (each gSP macro _g = 1 slot); pad3[3]+dummy locals only fake top homes. Tried: permuter 600s -j2 (no gain), 5 separate model vars (worse), slot/fl scope variants, array type variants, s32 returns on callees.
+// func_80636FFC (src/global/36880.c): Stage 4 (NMBig): same s0,s1 + frame 0x138; 37 diff lines in mini-TU compare. Needs file proto 's32 func_80636D38();' (K&R; verified func_80632860 still matches) -> slot ptr in v1. Layout: dummy block locals { s32 pad4; } after seg10 macro / { s32 pad5; } after DL9 macro / { s32 pad6; } before final PipeSync reproduce spill homes 0x70-0x7C,0x58 (no pad3 hack). Remaining: (1) selptr/t8 spill slots 0x38/0x3C vs target 0x3C/0x40 (target has 2 extra late CSE-temp homes at frame bottom, dummy locals cannot reach there); (2) guRotateF x3 blocks: as1 hoists 'addiu a0,sp,184' (and li a2/a3,lui at in 3rd) above c.eq.d, bc1tl vs target bc1t+lui delay; (3) flags: target 'lbu a0,0x8c(v1); move v0,a0' (live-range split a0/v0), mine v0 only. Tried: line joins of if/rotate/cat, local angle var, casts, flag var forms (u8/s32/cond/mix), permuter 900s stack-diffs and 600s plain.
 typedef struct {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u8 unk60;
@@ -78,7 +78,6 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
     s32 pad2;
     f32 sp88;
     f32 sp84;
-    s32 pad3[3];
 
     if (0) {
         func_8063E6B4((void *)&arg5);
@@ -146,6 +145,7 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
         sel = 0;
     }
     gSPSegment(arg1++, 10, osVirtualToPhysical((void *)arg0->unkA0[sel]));
+    { s32 pad4; }
     gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
     if (arg5 != 0 && arg0->unkC2 == 0) {
         model = D_807F6000[sp90].unk7C;
@@ -217,9 +217,11 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
         arg1 = renderSetSegment6AndFog(arg1, sp92, 0);
         gDPPipeSync(arg1++);
         gSPDisplayList(arg1++, osVirtualToPhysical((void *)arg0->unkA0[sel]));
+        { s32 pad5; }
         gDPPipeSync(arg1++);
         gSPDisplayList(arg1++, osVirtualToPhysical((void *)arg0->unkA8[sel]));
     }
+    { s32 pad6; }
     gDPPipeSync(arg1++);
     gSPPopMatrix(arg1++, G_MTX_MODELVIEW);
     return arg1;
