@@ -48,6 +48,9 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
   fix the printed clash in `src`, then `tools/merge_gate.sh - - src/<seg>/<f>.c` (merge with
   no copies: re-prunes, re-checks, gates). To restart a failed merge, restore the pre-merge
   state you verified (your own `cp`, or HEAD only when `git diff` shows no uncommitted work).
+- A multi-file gate stops at the first failing file: the later files' copies were never
+  merged. After fixing, re-gate those files WITH the copy and its base (`- -` merges nothing:
+  jetpac 3060.c's two matches were silently dropped that way and found only via `left`).
 - Declaration clashes (cfe "redeclaration", "prototype and non-prototype"):
   - keep the declaration that already matches in `src` (or the definition), delete the
     other, cast at the newer call sites; never change a prototype a matched caller relies on.

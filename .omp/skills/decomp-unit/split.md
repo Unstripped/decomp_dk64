@@ -9,9 +9,10 @@ then the worktree's own `tools/`), and `git worktree remove --force` it afterwar
 
 ## Pick
 
-- Order (ROADMAP): overlays are all C units; next come global subsystems, i.e. the candidate
-  files named at the end of ROADMAP section 9's bullets, or more matching rounds on
-  ROADMAP's listed near-misses.
+- Order (ROADMAP): overlays and global are all C units (global's remaining asm files are
+  hand asm, data or RSP microcode); a unit is now matching rounds on one or two overlays'
+  `GLOBAL_ASM` functions (`python3 tools/unit_check.py left src/<ovl>/*.c`, critter + jetpac
+  ≈160 functions was one unit) or on ROADMAP's listed global near-misses.
 - A global subsystem is a set of `asm/global/<file>.s` files. Find them from what the
   already-named functions call (`grep -o 'func_80[67]…'` in their C) and from the globals a
   file references most (`grep -oE '%hi\(D_[0-9A-F]+\)' asm/global/<f>.s | sort | uniq -c`).
