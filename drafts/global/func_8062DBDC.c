@@ -1,15 +1,4 @@
-// func_8062DBDC (src/global/2F550.c): Stage 3. m2c-literal temps: same total size but frame 0xD0 vs 0xB0 and stack offsets/regalloc differ (target homes x0@0x8C,y0@0x80,z0@0x70, 16 slots, fs0-fs3 used). Plain-expression form gives frame 0xB8, D3 added last unless written (X)+D3.
-typedef struct R2F550cPlane {
-    /* 0x00 */ u8 pad0[0x18];
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 pad19[7];
-    /* 0x20 */ f64 unk20;
-    /* 0x28 */ f64 unk28;
-    /* 0x30 */ f64 unk30;
-    /* 0x38 */ f64 unk38;
-} R2F550cPlane;
-
-extern f32 D_807F5E50[];
+// func_8062DBDC (src/global/2F550.c): Stage 3 (NM2F3). Draft now compiles against the file (typedef/extern already present; needs prototypes for func_8062E040/E1F8 above). Frame 0xD0 vs 0xB0 (target saves f20-f26 = 4 fp regs, s0-s6; mine 3 fp regs) and 283 vs 281 insns. Inlining subsets of the 11 m2c temps (2048 combos) and a DOT macro form never got below 363 diff lines / frame 0xB8; loads of D_807F5E50[0..3] are CSE'd into regs in target (D1->fs0, D2->fs3), x0/y0/z0 homes at 0x8C/0x80/0x70.
 f32 func_8062E040(s16, s16, s16, s16, s16, s16, f32, f32, f32);
 s32 func_8062E1F8(s32, s16, s16, s16, s16, s16, s16, void *);
 

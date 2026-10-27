@@ -1,20 +1,7 @@
-// func_8062A3F0 (src/global/2DE90.c): stage 3: same size (226 insns), structure matches (3 row loops, IV pointers in loop 2 via half var + bound expr D_80747B28/2), but frame 0x130 vs 0x128 (half spilled to 0x128; target has 0x20-byte hole between arrays and row at 0x120) and s-reg allocation differs (target: s0=D_80747B30 s1=src s2=dst s3=lut s4=W-n/2 s5=n/2 s6=&D_80747B28 s7=&r s8=&g ra=n).
-extern s32 D_80747B28;
-extern u8 *D_80747B2C;
-extern s32 D_80747B38;
-extern u16 *D_807F5D80;
-extern s32 D_80747B30;
-extern s32 D_80747B34;
-extern s32 D_80747B3C;
-void heapFree(void *);
-
+// func_8062A3F0 (src/global/2DE90.c): stage 4: size 225 insns, frame 0x128, row 0x120, arrays 0x64/98/cc match (idx var reused as half base for IV; arrays declared r,g,b; chain r[i]=g[i]=b[i]=0 in zero loop). Remaining: regalloc only (src/dst s1/s2 swapped, loop temps: target addr temps v0/v1/a0, pix a1, vr/vg/vb a2/a3/t0)
 void func_8062A3F0(void) {
-    s32 row;
-    s32 half;
-    u8 r[0x34];
-    u8 g[0x34];
-    u8 b[0x34];
     u16 *src;
+    s32 row;
     u16 *dst;
     u8 *lut;
     s32 sumR;
@@ -23,6 +10,9 @@ void func_8062A3F0(void) {
     s32 i;
     s32 idx;
     u32 pix;
+    u8 r[0x34];
+    u8 g[0x34];
+    u8 b[0x34];
     u8 vr;
     u8 vg;
     u8 vb;
@@ -38,25 +28,23 @@ void func_8062A3F0(void) {
     } else {
         for (row = 0; row < D_80747B34; row++) {
             sumR = 0;
-            sumG = 0;
             sumB = 0;
+            sumG = 0;
             for (i = 0; i < D_80747B28; i++) {
-                r[i] = 0;
-                g[i] = 0;
-                b[i] = 0;
+                r[i] = g[i] = b[i] = 0;
             }
-            half = D_80747B28 / 2;
+            idx = D_80747B28 / 2;
             for (i = 0; i < D_80747B28 / 2; i++) {
                 pix = *src;
                 vr = (pix >> 11) & 0x1F;
-                r[half + i] = vr;
+                r[idx + i] = vr;
                 sumR += vr;
                 vg = (pix >> 6) & 0x1F;
                 vb = (pix >> 1) & 0x1F;
                 src++;
-                g[half + i] = vg;
+                g[idx + i] = vg;
                 sumG += vg;
-                b[half + i] = vb;
+                b[idx + i] = vb;
                 sumB += vb;
             }
             idx = 0;
@@ -66,18 +54,17 @@ void func_8062A3F0(void) {
                     idx = 0;
                 }
                 vr = (pix >> 11) & 0x1F;
-                sumR = sumR - r[idx] + vr;
+                sumR -= r[idx];
+                sumR += vr;
                 vg = (pix >> 6) & 0x1F;
-                sumG = sumG - g[idx];
-                {
-                    u8 ob = b[idx];
-                    vb = (pix >> 1) & 0x1F;
-                    r[idx] = vr;
-                    g[idx] = vg;
-                    b[idx] = vb;
-                    sumG += vg;
-                    sumB = sumB - ob + vb;
-                }
+                sumG -= g[idx];
+                sumG += vg;
+                vb = (pix >> 1) & 0x1F;
+                sumB -= b[idx];
+                sumB += vb;
+                r[idx] = vr;
+                g[idx] = vg;
+                b[idx] = vb;
                 idx++;
                 *dst = (lut[sumR] << 11) | 1 | (lut[sumB] << 1) | (lut[sumG] << 6);
                 dst++;
@@ -86,17 +73,12 @@ void func_8062A3F0(void) {
                 if (idx >= D_80747B28) {
                     idx = 0;
                 }
-                {
-                    u8 orr = r[idx];
-                    u8 og = g[idx];
-                    u8 ob = b[idx];
-                    sumR -= orr;
-                    r[idx] = 0;
-                    g[idx] = 0;
-                    b[idx] = 0;
-                    sumG -= og;
-                    sumB -= ob;
-                }
+                sumR -= r[idx];
+                sumG -= g[idx];
+                sumB -= b[idx];
+                r[idx] = 0;
+                g[idx] = 0;
+                b[idx] = 0;
                 idx++;
                 *dst = (lut[sumR] << 11) | 1 | (lut[sumB] << 1) | (lut[sumG] << 6);
                 dst++;

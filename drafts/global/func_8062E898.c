@@ -1,4 +1,4 @@
-// func_8062E898 (src/global/2F550.c): stage 2-3: behaviourally equivalent C (point/plane side test: EBB8 result -> *arg1; cross product of vertex edges, normalised*20, side test vs plane). Frame 0x78 vs 0x80 and instruction stream close structurally (f32 ea/eb/c/n/p arrays + nx,ny,nz,d locals give the memory-resident vec temps) but target spills only d at entry and nx/ny/nz later (sp28-34), keeps x,y,z (a2,a3,0x90) in arg homes and uses no fs regs; mine uses f20/f22 and promotes. Target also has extra duplicate stores to sp18-24 (unknown source idiom). Needs more work on loop of temps/array vs struct locals.
+// func_8062E898 (src/global/2F550.c): Stage 2-3 (NM2F3). Draft now compiles against the file: definition must be `u8 func_8062E898(void *arg0v,...)` (file prototype returns u8, takes void *); local `#define arg0 ((R2F550fPlane *)arg0v)` used for the plane. Frame 0x78 vs target 0x80, 201 vs 200 insns; target memory layout (0x18-0x24 duplicate stores, nx/ny/nz at 0x34/0x30/0x2C, p 0x40, n 0x50, c 0x5C, ea 0x68, eb 0x74) suggests struct/array vec locals copied into arg-like temps; not reproduced.
 typedef struct R2F550fPlane {
     /* 0x00 */ u8 pad0[0x4C];
     /* 0x4C */ f32 unk4C;
@@ -12,7 +12,9 @@ typedef struct R2F550fPlane {
 
 s32 func_8062EBB8(R2F550fPlane *, f32, f32, f32);
 
-s32 func_8062E898(R2F550fPlane *arg0, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
+
+#define arg0 ((R2F550fPlane *)arg0v)
+u8 func_8062E898(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 nx;
     f32 ny;
     f32 nz;
@@ -26,7 +28,7 @@ s32 func_8062E898(R2F550fPlane *arg0, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f64 s1;
     f64 s2;
 
-    *arg1 = func_8062EBB8(arg0, arg2, arg3, arg4);
+    *arg1 = func_8062EBB8((R2F550fPlane *)arg0v, arg2, arg3, arg4);
     d = arg0->unk58;
     nz = arg0->unk54;
     ny = arg0->unk50;
@@ -60,3 +62,4 @@ s32 func_8062E898(R2F550fPlane *arg0, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     }
     return 1;
 }
+#undef arg0

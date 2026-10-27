@@ -1,4 +1,4 @@
-// func_8062C29C (src/global/2F550.c): stage 5: frame 0xE0, callee-saved set, instruction stream and every non-temp register match (needs 'Gfx *dl; s32 pad2[1]; s32 pad[24]' dummies for frame/spill slots 0x4C-0x74; arg1-3 read via *(f32 *)&argN since the caller's prototype is s32; '!D_807F5FEC' not '== 0'). Only diff: IDO temp-register choice from the gDPSetTileSize(dl++,...) statement onward (target loads t9,t7 for 0x1D4/0x1D0, mine t3,t4; second word target loads 0x1D4 first (WAR on reused t9) mine 0x1D0 first), cascading t-reg renames through the rest; .rodata reloc D_80758170 vs .rodata+0x10 is reloc-only. Tried operand/statement permutations of w0/w1, tile var, EndDL forms (dl vs dl++ changes top-of-function regs), S4 arg forms, decl order, permuter (PERM_RANDOMIZE on tile/EndDL/call, 2x240s, best 1290 vs 1735)
+// func_8062C29C (src/global/2F550.c): Stage 5 (NM2F3). Unchanged structure (frame 0xE0, saved set, stream). New: widening the gDPSetTileSize args with a u64 mask no-op (`(X0 & 0xFFFFFFFFFFFFFFFFu)` for uls, `(X0 + 0x7C) & 0xFFFFFFFFFFFFFFFFu` for lrs) changes the w1 load order to target (468 then 464) and cuts the diff 395->239 lines; first-word t-reg choice (target t9,t7; mine t3,t4) still cascades. Joining macro statements onto one line has NO effect here (150 random join masks, identical output). permuter 2x600s: 1735->1300->995, no zero.
 typedef struct L8062C29CPlayer {
     u8 pad0[4];
     void *unk4;
@@ -70,8 +70,8 @@ Gfx *func_8062C29C(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
     gfx = func_80722294(gfx, L8062C29CP.unk4, D_807FC929);
     gSPSegment(gfx++, 5, osVirtualToPhysical(dl));
-    gDPSetTileSize(dl++, 0, L8062C29CP.unk1D0[D_807444FC][0], L8062C29CP.unk1D0[D_807444FC][1],
-                   L8062C29CP.unk1D0[D_807444FC][0] + 0x7C, L8062C29CP.unk1D0[D_807444FC][1] + 0x7C);
+    gDPSetTileSize(dl++, 0, (L8062C29CP.unk1D0[D_807444FC][0] & 0xFFFFFFFFFFFFFFFFu), L8062C29CP.unk1D0[D_807444FC][1],
+                   (L8062C29CP.unk1D0[D_807444FC][0] + 0x7C) & 0xFFFFFFFFFFFFFFFFu, L8062C29CP.unk1D0[D_807444FC][1] + 0x7C);
     gSPEndDisplayList(dl++);
     func_8062C99C(L8062C29CP.unk250[D_807444FC], L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
     gSPPerspNormalize(gfx++, L8062C29CP.unk188);

@@ -1,4 +1,4 @@
-// func_8062EBB8 (src/global/2F550.c): stage 3-4: frame OK (s32 pad[14] gives 0x88), prologue/dot/sqrtf/abs/branch/loop-pointer match. Diff = fp regalloc only: target keeps ny,nz,0.01,-0.01,1.0,dot in fs0-fs5 and never promotes x,y,z (reloaded from arg homes 0x8C/0x90/0x94 inside loop, not hoisted), mine promotes x,y into f28/f30 and leaves nx..nz in temps (z-term then evaluated first). Tried: struct-by-value Vec3 (target passes 3 scalar f32), volatile struct (stops hoist but changes alloc), address-taken, named f64 nx/ny/nz, absd local. permuter 600s best 903/2464 not matching. Loop end bound is D_807F5E50 reloc vs mine D_807F5E20+0x30.
+// func_8062EBB8 (src/global/2F550.c): Stage 4 (NM2F3). 124 insns, frame 0x88 (pad[14]) and loop shape match. Key finds: params must be `volatile f32 arg1..3` (reloaded from arg homes each use, not hoisted), and the loop body needs named f32 dx,dy,dz locals (`dx = D[i*3]-arg1; ...; d = nx*dx + ny*dy + nz*dz`) -- that alone took the diff 144->56 lines and promotes ny,nz,0.01,-0.01,1.0,dot into f20-f30 like the target. Remaining: loop-body scheduling (target interleaves sub/cvt/mul, mine loads x,y first, mul operand order dx*nx vs nx*dx), t8/t9 numbering of the D_807F5E20 address temp, prologue lwc1 order, and loop end bound reloc D_807F5E50 vs D_807F5E20+0x30. Tried dx/dy/dz f32/f64 combos, reuse of dist/t/absd/len as temps, 6 statement orders, mul operand/assoc forms, dead-if alias hoist blockers, permuter 500s (810->655).
 typedef struct R2F550fPlane {
     /* 0x00 */ u8 pad0[0x4C];
     /* 0x4C */ f32 unk4C;
@@ -12,7 +12,7 @@ typedef struct R2F550fPlane {
 
 extern f32 D_807F5E20[];
 
-s32 func_8062EBB8(R2F550fPlane *arg0, f32 arg1, f32 arg2, f32 arg3) {
+s32 func_8062EBB8(R2F550fPlane *arg0, volatile f32 arg1, volatile f32 arg2, volatile f32 arg3) {
     s32 pad[14];
     s32 i;
     f64 dot;
@@ -24,6 +24,9 @@ s32 func_8062EBB8(R2F550fPlane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     f64 nx;
     f64 ny;
     f64 nz;
+    f32 dx;
+    f32 dy;
+    f32 dz;
 
     i = 0;
     dot = arg0->unk4C * arg1 + arg0->unk50 * arg2 + arg0->unk54 * arg3 + arg0->unk58;
@@ -40,7 +43,10 @@ s32 func_8062EBB8(R2F550fPlane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     ny = arg0->unk50;
     nz = arg0->unk54;
     for (; i < 4; i++) {
-        d = nx * (D_807F5E20[i * 3] - arg1) + ny * (D_807F5E20[i * 3 + 1] - arg2) + nz * (D_807F5E20[i * 3 + 2] - arg3);
+        dx = D_807F5E20[i * 3] - arg1;
+        dy = D_807F5E20[i * 3 + 1] - arg2;
+        dz = D_807F5E20[i * 3 + 2] - arg3;
+        d = nx * dx + ny * dy + nz * dz;
         if (d > 0.01 || d < -0.01) {
             t = dot / d;
             if (t <= 0.0 && 0.0 - t <= 1.0) {
