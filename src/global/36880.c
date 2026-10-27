@@ -1882,7 +1882,6 @@ void func_806357F8(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *ar
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806358E8.s")
 
-#ifdef NON_MATCHING
 typedef struct R36880dActorBox {
     /* 0x00 */ u8 pad0[0x5C];
     /* 0x5C */ u16 unk5C;
@@ -1903,33 +1902,35 @@ extern u16 gActiveActorCount;
 s32 func_80635EF0(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 arg5, u16 arg6) {
     s32 i;
     R36880dActorBox *b;
-    R36880dActorRef *p;
     R36880dActorBox *a;
+    s16 rx;
+    s16 ry;
+    s16 rz;
 
-    i = 0;
-    if (gActiveActorCount > 0) {
-        p = gActiveActors;
-        do {
-            a = p->actor;
-            i++;
-            b = a;
-            if (b->unk5C & arg6) {
-                if (arg0 - arg3 <= b->unk7C && arg1 - arg4 <= b->unk80 && arg2 - arg5 <= b->unk84 &&
-                    a->unk7C <= arg3 + arg0 && a->unk80 <= arg4 + arg1 && a->unk84 <= arg5 + arg2) {
-                    return 1;
-                }
+    rx = arg3;
+    ry = arg4;
+    rz = arg5;
+    for (i = 0; i < gActiveActorCount; i++) {
+        a = gActiveActors[i].actor;
+        b = a;
+        if (b->unk5C & arg6) {
+            if (arg0 - arg3 <= b->unk7C && arg1 - arg4 <= b->unk80 && arg2 - arg5 <= b->unk84 &&
+                a->unk7C <= arg3 + arg0 && a->unk80 <= arg4 + arg1 && a->unk84 <= arg5 + arg2) {
+                return 1;
             }
-            p++;
-        } while (i < gActiveActorCount);
+        }
     }
     return 0;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80635EF0.s")
-#endif
+void func_8062D094(void *, u8);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636014.s")
+void func_80636014(s32 arg0, u8 arg1, u8 arg2) {
+    if (arg1 == 1) {
+        arg0 = hashTableLookup(arg0);
+    }
+    func_8062D094(D_807F6000[arg0].unk20, arg2);
+}
 
 typedef struct R36880dChain {
     /* 0x00 */ u8 pad0[0x3C];
@@ -2344,8 +2345,32 @@ u8 func_80636A8C(s32 arg0) {
     return result;
 }
 
+#ifdef NON_MATCHING
+typedef struct R36880eSegOwner {
+    /* 0x00 */ u8 pad0[0x20];
+    /* 0x20 */ R36880eSeg *unk20;
+} R36880eSegOwner;
+
+void renderReplaceSegment6Commands();
+
+void func_80636AE8(void *arg0) {
+    u32 head;
+    R36880eSeg *seg;
+    u32 mid;
+    u32 count;
+
+    seg = ((R36880eSegOwner *)arg0)->unk20;
+    mid = seg->unkA8;
+    head = seg->unkA0;
+    head = (mid - head) >> 3;
+    count = (seg->unkB0 - mid) >> 3;
+    renderReplaceSegment6Commands(seg->unkA0, seg->unkA0 + head * 8, seg, seg->unkB0 - mid);
+    renderReplaceSegment6Commands(seg->unkA8, seg->unkA8 + count * 8, seg, count);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636AE8.s")
+#endif
 
 void func_80636B50(R36880eCmd *arg0, R36880eCmd *arg1, u8 arg2) {
     u32 w;
@@ -2378,7 +2403,44 @@ void func_80636B50(R36880eCmd *arg0, R36880eCmd *arg1, u8 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636D38.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636EFC.s")
+
+s32 func_80636EFC(R36880eCmd *arg0, R36880eCmd *arg1, R36880eNode *arg2, u8 arg3) {
+    u32 w;
+    u32 tag;
+    s32 result;
+    s32 found;
+    R36880eNode *node;
+
+    result = 0;
+    if (arg0 != arg1) {
+        do {
+            w = arg0->unk0;
+            found = 0;
+            tag = w >> 24;
+            if (0xFD == tag) {
+                node = arg2;
+                if (node != NULL) {
+                    do {
+                        if (arg0->unk4 == node->unk5C[0]) {
+                            found = 1;
+                        } else {
+                            node = node->unkD4;
+                        }
+                    } while (found == 0 && node != NULL);
+                }
+                if (found == 0) {
+                    arg0->unk4 = (s32)func_8066B0F8(0x19, arg0->unk4, (u8)(arg3 == 0), 0);
+                    if (arg0->unk4 & 7) {
+                        arg0->unk4 &= ~0xF;
+                        result = 1;
+                    }
+                }
+            }
+            arg0++;
+        } while (arg0 != arg1);
+    }
+    return result;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636FFC.s")
 

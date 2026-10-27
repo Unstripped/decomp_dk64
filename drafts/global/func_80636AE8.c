@@ -1,4 +1,4 @@
-// func_80636AE8 (src/global/36880.c): stage 6: matches except regs (A8 temp in v0 vs target v1, B0 t8 vs t7, 2nd-call a0 pattern); 4-arg K&R call to renderReplaceSegment6Commands kept, locals head,seg,mid,count in this order give the 0x28 frame and slots.
+// func_80636AE8 (src/global/36880.c): stage 6 (NM36A): all insns/regs identical except scratch temps: target B0=t7, head srl=t8 (count srl t9); mine B0=t8, head srl=t7. 'head = seg->unkA0; head = (mid - head) >> 3;' raises head priority (fixes mid=v1/sub=v0). Statement order [count,head] gives B0=t7,count srl=t8,head srl=t9. Needs B0 load emitted before head srl but count srl last: count multi-def (count=B0-mid; count>>=3) gives that order but count gets s0; len temp var gets sunk/spilled (frame +8). Permuter 900s no improvement.
 typedef struct R36880eLink {
     /* 0x00 */ void *unk0;
     /* 0x04 */ void *unk4;
@@ -45,7 +45,8 @@ void func_80636AE8(void *arg0) {
 
     seg = ((R36880eSegOwner *)arg0)->unk20;
     mid = seg->unkA8;
-    head = (mid - seg->unkA0) >> 3;
+    head = seg->unkA0;
+    head = (mid - head) >> 3;
     count = (seg->unkB0 - mid) >> 3;
     renderReplaceSegment6Commands(seg->unkA0, seg->unkA0 + head * 8, seg, seg->unkB0 - mid);
     renderReplaceSegment6Commands(seg->unkA8, seg->unkA8 + count * 8, seg, count);
