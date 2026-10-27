@@ -1,4 +1,4 @@
-// func_8061F53C (src/global/201B0.c): stage 5: same size/frame/slots/s-regs; 4 diff chunks left (i*4 copy move s2,t9; move t0,a0 path ptr; tail)
+// func_8061F53C (src/global/201B0.c): stage 5 (parked NON_MATCHING in .scratch/CamCL/201B0_final.c): same size 1102 insns/frame 0x118/stack slots/all s-regs; remaining diff = i*4 CSE temp coalesced via 'move s2,t9' + lh a1 not in jal delay slot; extra 'move t0,a0' (path var copy; dropping the var instead hoists lui/addiu of renderBonusTargetMarker above bne). Needs top-block: none; prototypes agree with file.
 typedef struct CamLEnt {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
