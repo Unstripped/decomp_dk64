@@ -529,7 +529,6 @@ void func_80026A3C(JetpacActor *arg0) {
 
 extern JetpacState D_8002F050;
 
-#ifdef NON_MATCHING
 extern f32 D_8002F054;
 extern u8 D_8002F060[];
 extern s32 D_8002F064;
@@ -561,7 +560,8 @@ void func_80026AB0(void) {
         if (draw != 0) {
             color = D_8002F060;
             if (D_8002F080 == 0) {
-                func_80025700(&D_8002C3A8[idx], (s32)(f32)((s32)x & 0xFFFE), (s32)y, (s32)color, D_8002F068);
+                x = (s16)(s32)x & 0xFFFE;
+                func_80025700(&D_8002C3A8[idx], (s32)x, (s32)y, (s32)color, D_8002F068);
             } else {
                 func_80025700(&D_8002C330, (s32)x, (s32)y, (s32)color, D_8002F068);
                 if (D_8002F068 == 0) {
@@ -583,10 +583,6 @@ void func_80026AB0(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1A60/func_80026AB0.s")
-#endif
 
 extern JetpacActor D_8002F09C[];
 void func_80025FC4(JetpacActor *);
