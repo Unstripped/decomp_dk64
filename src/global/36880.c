@@ -2546,16 +2546,190 @@ void func_80639CD0(R36880eNode *arg0, s32 *arg1, s32 *arg2, u8 *arg3, s16 *arg4)
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B8D8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063BBB0.s")
+typedef struct R36880gSlot {
+    /* 0x00 */ u8 pad0[0x24];
+    /* 0x24 */ u8 *unk24;
+    /* 0x28 */ u8 pad28[0x50];
+    /* 0x78 */ u8 **unk78;
+    /* 0x7C */ u8 *unk7C;
+    /* 0x80 */ u8 pad80[8];
+    /* 0x88 */ s16 unk88;
+    /* 0x8A */ s16 unk8A;
+    /* 0x8C */ u8 pad8C[4];
+} R36880gSlot; /* 0x90 */
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063BEC0.s")
+u32 modelSlotDataSize(s16);
+void func_80634D14(s32, s16, s16 *, s16 *);
+void func_80634EDC(s32, s16, u8 *);
+void func_8062B8E4(f32 *);
+void effectNodeCopyValues(f32 *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063BF34.s")
+#define R36880G_SLOT(i) ((R36880gSlot *)((u8 *)D_807F6000 + (i) * 0x90))
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063C1EC.s")
+void func_8063BBB0(u8 **arg0, s32 *arg1) {
+    s32 count = 0;
+    s32 i;
+    s32 pad;
+    u8 *buf = NULL;
+    u8 *rec;
+    u8 *cur;
+    s32 size = 0;
+    u8 *p;
+    s32 j;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063C248.s")
+    for (i = 0; i < D_80747D70; i++) {
+        if (R36880G_SLOT(i)->unk7C != NULL) {
+            if ((R36880G_SLOT(i)->unk24[0x3A] != 0 || (R36880G_SLOT(i)->unk7C[0x9B] & 1)) && !(R36880G_SLOT(i)->unk7C[0x9B] & 2)) {
+                count++;
+                if (R36880G_SLOT(i)->unk78 != NULL) {
+                    size += modelSlotDataSize(i);
+                }
+            }
+        }
+    }
+    if (count != 0) {
+        buf = func_80610FE8(count * 0x254 + size);
+        cur = buf;
+        for (i = 0; i < D_80747D70; i++) {
+            if (R36880G_SLOT(i)->unk7C != NULL) {
+                if ((R36880G_SLOT(i)->unk24[0x3A] != 0 || (R36880G_SLOT(i)->unk7C[0x9B] & 1)) && !(R36880G_SLOT(i)->unk7C[0x9B] & 2)) {
+                    rec = cur;
+                    p = cur;
+                    *(s16 *)p = R36880G_SLOT(i)->unk8A;
+                    memcpy(p + 0xCC, R36880G_SLOT(i)->unk7C, 0x9C);
+                    if (R36880G_SLOT(i)->unk78 != NULL) {
+                        memcpy(p + 4, (u8 *)R36880G_SLOT(i)->unk78 + 8, 0xC8);
+                        cur[0x250] = modelSlotDataSize(i) >> 6;
+                        memcpy(p + 0x254, *R36880G_SLOT(i)->unk78, modelSlotDataSize(i));
+                    } else {
+                        cur[0x250] = 0;
+                    }
+                    for (j = 1; j != 5; j++) {
+                        func_80634D14(R36880G_SLOT(i)->unk88, j, (s16 *)(p + 0x232 + j * 6), (s16 *)(p + 0x234 + j * 6));
+                        func_80634EDC(R36880G_SLOT(i)->unk88, j, p + 0x236 + j * 6);
+                    }
+                    func_8062B8E4((f32 *)(p + 0x168));
+                    effectNodeCopyValues((f32 *)(p + 0x1B8));
+                    cur += rec[0x250] * 0x40;
+                    cur += 0x254;
+                }
+            }
+        }
+    }
+    *arg1 = count;
+    *arg0 = buf;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063C2A8.s")
+void func_8063BEC0(u8 *arg0, s32 arg1, s16 arg2, s16 arg3) {
+    s32 found = 0;
+    s32 i = 0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063C328.s")
+    if (arg1 > 0) {
+        do {
+            if (*(s16 *)arg0 == arg2) {
+                found = 1;
+            } else {
+                i++;
+                arg0 += 0x254 + arg0[0x250] * 0x40;
+            }
+        } while (found == 0 && i < arg1);
+    }
+    if (found != 0) {
+        arg0[0x117] = arg3;
+        arg0[0x120] = 1;
+    }
+}
+
+typedef struct R36880gSnap {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ u8 pad4[0xC];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ u8 pad14[0x80];
+    /* 0x94 */ u32 unk94;
+    /* 0x98 */ u8 pad98[4];
+} R36880gSnap; /* 0x9C */
+
+void func_8062BA0C(f32 *);
+void effectNodeSetValues(f32 *);
+
+void func_8063BF34(u8 *arg0, s32 arg1) {
+    s32 k;
+    s32 off;
+    s32 j;
+    s16 id;
+    s16 idx;
+    u8 tmp[0x14];
+    R36880gSnap snap;
+    s32 pad[2];
+
+    for (k = 0; k < arg1; k++) {
+        id = D_807F6240[*(s16 *)arg0];
+        idx = hashTableLookup(id);
+        memcpy(&snap, R36880G_SLOT(idx)->unk7C, 0x9C);
+        memcpy(R36880G_SLOT(idx)->unk7C, arg0 + 0xCC, 0x9C);
+        *(u32 *)R36880G_SLOT(idx)->unk7C = snap.unk0;
+        *(s16 *)(R36880G_SLOT(idx)->unk7C + 0x10) = snap.unk10;
+        *(s16 *)(R36880G_SLOT(idx)->unk7C + 0x12) = snap.unk12;
+        *(u32 *)(R36880G_SLOT(idx)->unk7C + 0x94) = snap.unk94;
+        R36880G_SLOT(idx)->unk7C[0x48] = R36880G_SLOT(idx)->unk7C[0x4B];
+        R36880G_SLOT(idx)->unk7C[0x49] = R36880G_SLOT(idx)->unk7C[0x4C];
+        R36880G_SLOT(idx)->unk7C[0x4A] = R36880G_SLOT(idx)->unk7C[0x4D];
+        R36880G_SLOT(idx)->unk7C[0x9A] = 0;
+        *(s32 *)(R36880G_SLOT(idx)->unk7C + 0x38) = -1;
+        if (R36880G_SLOT(idx)->unk78 != NULL) {
+            for (off = 0; off != 0xC8; off += 0x14) {
+                memcpy(tmp, (u8 *)R36880G_SLOT(idx)->unk78 + off + 8, 0x14);
+                memcpy((u8 *)R36880G_SLOT(idx)->unk78 + off + 8, arg0 + 4 + off, 0x14);
+                *(u32 *)((u8 *)R36880G_SLOT(idx)->unk78 + off + 8) = *(u32 *)tmp;
+            }
+            modelSlotCopyData(arg0 + 0x254, idx);
+        }
+        for (j = 1; j != 5; j++) {
+            func_80634CC8(id, j, *(s16 *)(arg0 + 0x232 + j * 6), *(s16 *)(arg0 + 0x234 + j * 6));
+            func_80634EA4(id, j, arg0[0x236 + j * 6]);
+        }
+        func_8062BA0C((f32 *)(arg0 + 0x168));
+        effectNodeSetValues((f32 *)(arg0 + 0x1B8));
+        arg0 += arg0[0x250] * 0x40;
+        arg0 += 0x254;
+    }
+}
+
+void func_8063C1EC(s32 arg0, u8 arg1) {
+    ((u8 *)D_807F6000[hashTableLookup(D_807F6240[arg0])].unk20)[0x4E] |= arg1;
+}
+
+void func_8063C248(s32 arg0, u8 arg1) {
+    ((u8 *)D_807F6000[hashTableLookup(D_807F6240[arg0])].unk20)[0x4E] &= ~arg1;
+}
+
+typedef struct R36880gSub {
+    /* 0x00 */ u8 pad0[0x60];
+    /* 0x60 */ u8 unk60;
+    /* 0x61 */ u8 pad61[3];
+    /* 0x64 */ s16 unk64;
+} R36880gSub;
+
+s32 func_8063C2A8(s16 arg0) {
+    s16 idx = hashTableLookup(arg0);
+    R36880gSub *sub = D_807F6000[idx].unk7C;
+
+    if (sub != 0) {
+        if (sub->unk60 == 1 && sub->unk64 == 0) {
+            return 0;
+        }
+        return 1;
+    }
+    return 1;
+}
+
+s16 func_8063C328(s16 arg0) {
+    s16 idx = hashTableLookup(arg0);
+
+    if (idx == -1) {
+        return -1;
+    }
+    return D_807F6000[idx].unk84;
+}
+
