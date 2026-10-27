@@ -1,5 +1,4 @@
-// func_80026AB0 (src/jetpac/1A60.c): stage 5-6: frame/stack/callee-saved/insn count identical; only  temp numbering differs after the D_8002F080 load (target sll t5/lui t9 ... vs t0/t7) and float regs. Needed trick: 2nd D_8002F064 read as *(s32*)&D_8002F060[4] (stops uopt CSE of the double load; unprototyped D_8002F064 twice gets CSE'd). dummy 'pad' local fixes stack slots; color=D_8002F060 local; permuter only found noise (short new_var)
-extern JetpacState D_8002F050;
+// func_80026AB0 (src/jetpac/1A60.c): stage 6 park (C unchanged): only $t numbering after the D_8002F080 load: target F068 t9 / x-chain mfc1 t3,andi t4 / idx*24 chain t5,t6; ours F068 t7 / t3,t4 / t0,t1 (branch1 offset by 2, final F094 t5 vs t7). Tried: cached s32* for F068/F080, sprite ptr local, base-table ptr, s16/u16/s8 temp for (s32)x (s16 shifts mfc1 to t5 but wrong), flip local, join statements on one line (all 14 pairs), decl/stmt order, !F080, permuter 2x (only whitespace/dead-assign)
 extern f32 D_8002F054;
 extern u8 D_8002F060[];
 extern s32 D_8002F064;

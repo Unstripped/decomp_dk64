@@ -634,7 +634,6 @@ void jetpacPlayerStateUpdate(void) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     u8 pad0[0x420];
     f32 x;
@@ -678,23 +677,20 @@ void func_80026DC8(void) {
     g->tint[3] = 1;
     g->unk20 = 0;
     g->unk1C = 0;
-    g->unk24 = 0x10;
-    g->unk28 = 0x18;
+    g->unk24 = 0x10; g->unk28 = 0x18;
     g->unk30 = 1;
     g->x = 126.0f;
     g->y = 160.0f;
     func_80025BB8((JetpacActor *)&D_8002F050, 0);
     D_8002F084 = 3;
     D_8002F088 = 4;
-    D_8002F09C[0] = tmpl;
-    D_8002F09C[1] = tmpl;
-    D_8002F09C[2] = tmpl;
-    D_8002F09C[3] = tmpl;
+    {
+        s32 i;
+        for (i = 0; i < 4; i++) {
+            D_8002F09C[i] = tmpl;
+        }
+    }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1A60/func_80026DC8.s")
-#endif
 
 extern s32 D_8002F07C;
 s32 func_80026FE0(void) {
