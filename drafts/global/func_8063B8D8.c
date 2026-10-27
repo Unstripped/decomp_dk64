@@ -1,4 +1,4 @@
-// func_8063B8D8 (src/global/36880.c): stage 4-5: only diff cascade from loop1: uopt CSEs &D_807F66F0 into s5 (move s1,s5) while target recomputes lui/addiu s1 per loop and keeps p in s1 (tried single/separate p, indexed loop2, for-header init, switch for type compare gives beq a0,a1 order).
+// func_8063B8D8 (src/global/36880.c): stage 5 (parked NON_MATCHING in src copy): 1 hunk / 2 insns left: target 'sll s7,t6,4; addiu s7,s7,8' (size var in place) vs mine 'sll t6,t6,4; addiu s7,t6,8'. Fixed by: if (!D_807F66F0) {} before *arg1 store (kills &D_807F66F0 CSE into s5), p++ as separate statement in loop1 (if (*p) {} ... p++), (u8 *)D_807F6000[hashTableLookup(..)].unk7C + 0x14 index form in loop2, and joining 'size=..; p=..; do{..}while; size+=call' onto ONE source line (scheduling of addiu s1). Tried: size split/u32/order variants, 3*16 forms, permuter 540s+240s (best 10 = same-line joins).
 typedef struct R36880fOut {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -56,15 +56,7 @@ void func_8063B8D8(u8 **arg0, s32 *arg1) {
     if (D_807F6010 != NULL) {
         heapFree(D_807F6010);
     }
-    size = D_80747D70 * 0x30 + 8;
-    p = D_807F66F0;
-    do {
-        if (*p++) {
-            size += 0x24;
-            count++;
-        }
-    } while (p < &D_807F6902);
-    size += actorListGetSerializedSize();
+    size = D_80747D70 * 0x30 + 8; p = D_807F66F0; do { if (*p) { size += 0x24; count++; } p++; } while (p < &D_807F6902); size += actorListGetSerializedSize();
     D_807F6010 = func_80610FE8(size);
     *(s32 *)D_807F6010 = D_80747D70;
     out = (R36880fOut *)(D_807F6010 + 4);
@@ -96,12 +88,14 @@ void func_8063B8D8(u8 **arg0, s32 *arg1) {
     for (i = 0, p = D_807F66F0; i != 0x212; i++, p++) {
         if (*p != 0) {
             *(s32 *)dst = i;
-            memcpy(dst + 4, ((R36880fSlot *)((u8 *)D_807F6000 + hashTableLookup(D_807F6240[i]) * 0x90))->unk7C + 0x14, 0x20);
+            memcpy(dst + 4, (u8 *)D_807F6000[hashTableLookup(D_807F6240[i])].unk7C + 0x14, 0x20);
             dst += 0x24;
         }
     }
     actorListSerialize(dst);
     *arg0 = D_807F6010;
+    if (!D_807F66F0) {
+    }
     *arg1 = size;
 }
 

@@ -1,6 +1,4 @@
-// func_8063A968 (src/global/36880.c): stage 5: same frame (448) and callee-saved set; all instructions match except (a) 3 stack spill slots sit 4 bytes high in target (a1 0x74/_g 0x94,0x90 vs 0x70/0x90,0x8C; one fewer declared home above, one more spill word below), which also shifts t-reg numbering from the loop pre-header on, (b) beql operand order sp1BC/unk0 swapped. Needs sp1BC[1]/sp1A8[1] arrays (keeps them in memory so $fp=0xE7000000 const is promoted), sp1A4 scalar. Permuter (-j2, ~40min) best 519, never 0.
-#define R36880I_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-
+// func_8063A968 (src/global/36880.c): stage 5 (NM36C): real gbi macros (gDPPipeSync/SetCycleType/gSPClearGeometryMode/SetGeometryMode/gSPTexture/gDPSetRenderMode(G_RM_AA_ZB_XLU_DECAL)/gDPSetCombineMode(G_CC_MODULATERGBA_PRIM)/gDPSetPrimColor/gSPMatrix(MODELVIEW|MUL|PUSH)/gSPVertex/gSP2Triangles/gSPPopMatrix) + v=(Vtx*)(sp1A8[0]*16+(0,(u8*)vtxs)) cut diff 282->7 rows. Remaining: beql operand order (sp1BC vs unk0) and 3 spill slots 4 bytes low (a1 0x70, _g 0x8C/0x90 vs 0x74/0x94/0x90 target): target = one fewer home above + one extra word below the a1 temp (frame 0x1C0 both).
 typedef struct R36880iNode {
     /* 0x00 */ u32 unk0;
     /* 0x04 */ f32 unk4;
@@ -46,13 +44,13 @@ Gfx *func_8063A968(Gfx *arg0, R36880iNode *arg1) {
     flag = 1;
 
     if (arg1 != NULL) {
-        R36880I_GFX(arg0++, 0xE7000000, 0);
-        R36880I_GFX(arg0++, 0xE3000A01, 0);
-        R36880I_GFX(arg0++, 0xD9000000, 0);
-        R36880I_GFX(arg0++, 0xD9FFFFFF, 0x200005);
-        R36880I_GFX(arg0++, 0xD7000002, 0xFFFFFFFF);
-        R36880I_GFX(arg0++, 0xE200001C, 0x504DD8);
-        R36880I_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
+        gDPPipeSync(arg0++);
+        gDPSetCycleType(arg0++, G_CYC_1CYCLE);
+        gSPClearGeometryMode(arg0++, -1);
+        gSPSetGeometryMode(arg0++, G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH);
+        gSPTexture(arg0++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
+        gDPSetRenderMode(arg0++, G_RM_AA_ZB_XLU_DECAL, G_RM_AA_ZB_XLU_DECAL2);
+        gDPSetCombineMode(arg0++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
         n = 0;
         p = arg1;
         if (p != NULL) {
@@ -67,18 +65,18 @@ Gfx *func_8063A968(Gfx *arg0, R36880iNode *arg1) {
         heapFreeDeferred(mtxs);
     }
     if (arg1 != NULL) {
-        v = (Vtx *)((u8 *)vtxs + sp1A8[0] * 16);
+        v = (Vtx *)(sp1A8[0] * 16 + (0, (u8 *)vtxs));
         do {
-            R36880I_GFX(arg0++, 0xE7000000, 0);
-            R36880I_GFX(arg0++, 0xFA000000, arg1->unk2F);
+            gDPPipeSync(arg0++);
+            gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, arg1->unk2F);
             if (arg1->unk30 != 0 && flag == 0) {
-                R36880I_GFX(arg0++, 0xD9FFFFFF, 1);
-                R36880I_GFX(arg0++, 0xE200001C, 0x504DD8);
+                gSPSetGeometryMode(arg0++, G_ZBUFFER);
+                gDPSetRenderMode(arg0++, G_RM_AA_ZB_XLU_DECAL, G_RM_AA_ZB_XLU_DECAL2);
                 flag = 1;
             }
             if (arg1->unk30 == 0 && flag != 0) {
-                R36880I_GFX(arg0++, 0xD9FFFFFE, 0);
-                R36880I_GFX(arg0++, 0xE200001C, 0x5041C8);
+                gSPClearGeometryMode(arg0++, G_ZBUFFER);
+                gDPSetRenderMode(arg0++, G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2);
                 flag = 0;
             }
             if (arg1->unk0 != sp1BC[0]) {
@@ -131,16 +129,16 @@ Gfx *func_8063A968(Gfx *arg0, R36880iNode *arg1) {
             guTranslateF(sp124, arg1->unk14, arg1->unk18, arg1->unk1C);
             guMtxCatF(sp164, sp124, sp164);
             guMtxF2L(sp164, &mtxs[sp1A4]);
-            R36880I_GFX(arg0++, 0xDA380000, osVirtualToPhysical(&mtxs[sp1A4]));
+            gSPMatrix(arg0++, osVirtualToPhysical(&mtxs[sp1A4]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
             sp1A4++;
-            R36880I_GFX(arg0++, 0x01004008, osVirtualToPhysical(&vtxs[sp1A8[0]]));
-            R36880I_GFX(arg0++, 0x06000204, 0x406);
-            R36880I_GFX(arg0++, 0xD8380002, 0x40);
+            gSPVertex(arg0++, osVirtualToPhysical(&vtxs[sp1A8[0]]), 4, 0);
+            gSP2Triangles(arg0++, 0, 1, 2, 0, 0, 2, 3, 0);
+            gSPPopMatrix(arg0++, G_MTX_MODELVIEW);
             sp1A8[0] += 4;
             v += 4;
             arg1 = arg1->unk34;
         } while (arg1 != NULL);
     }
-    R36880I_GFX(arg0++, 0xE7000000, 0);
+    gDPPipeSync(arg0++);
     return arg0;
 }
