@@ -226,8 +226,6 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 #endif
 
 
-#ifdef NON_MATCHING
-// Non-matching: temporary register allocation in inner loop (t2/t9/t0/t5 vs t3/t5/t7/t4)
 void func_80025904(Gfx **arg0) {
     JetpacCell *cell;
     JetpacCellItem *item;
@@ -250,7 +248,7 @@ void func_80025904(Gfx **arg0) {
                 do {
                     func_8070E8F0(&g, item->unkC);
                     func_8070F2C8(0x400, 0x400, item->unkB, 0);
-                    func_8070F2FC(&g, (s16)(item->x + 0x20) * 4, (s16)(item->y + 0x18) * 4);
+                    func_8070F2FC(&g, (item->x + 0x20) << 2, (item->y + 0x18) << 2);
                     item_idx++;
                     item++;
                 } while (item_idx < cell->count);
@@ -261,7 +259,3 @@ void func_80025904(Gfx **arg0) {
     }
     *arg0 = g;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025904.s")
-#endif
