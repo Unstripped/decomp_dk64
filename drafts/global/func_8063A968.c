@@ -1,0 +1,146 @@
+// func_8063A968 (src/global/36880.c): from .scratch/R36880g3/func_8063A968_best.c
+#define R36880I_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+
+typedef struct R36880iNode {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ u8 unk8;
+    /* 0x09 */ u8 unk9;
+    /* 0x0A */ u8 unkA;
+    /* 0x0B */ u8 unkB;
+    /* 0x0C */ u8 padC[4];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ f32 unk1C;
+    /* 0x20 */ s16 unk20;
+    /* 0x22 */ s16 unk22;
+    /* 0x24 */ u8 pad24[2];
+    /* 0x26 */ s16 unk26;
+    /* 0x28 */ u8 pad28[7];
+    /* 0x2F */ u8 unk2F;
+    /* 0x30 */ u8 unk30;
+    /* 0x31 */ u8 pad31[3];
+    /* 0x34 */ struct R36880iNode *unk34;
+} R36880iNode;
+
+u32 osVirtualToPhysical(void *);
+
+Gfx *func_8063A968(Gfx *arg0, R36880iNode *arg1) {
+    s32 sp1BC[1];
+    Vtx *vtxs;
+    Mtx *mtxs;
+    s32 n;
+    R36880iNode *p;
+    s32 sp1A8[1];
+    s32 sp1A4;
+    f32 sp164[4][4];
+    f32 sp124[4][4];
+    Vtx *v;
+    s32 flag;
+
+    sp1BC[0] = 0;
+    sp1A8[0] = 0;
+    sp1A4 = 0;
+    flag = 1;
+
+    if (arg1 != NULL) {
+        R36880I_GFX(arg0++, 0xE7000000, 0);
+        R36880I_GFX(arg0++, 0xE3000A01, 0);
+        R36880I_GFX(arg0++, 0xD9000000, 0);
+        R36880I_GFX(arg0++, 0xD9FFFFFF, 0x200005);
+        R36880I_GFX(arg0++, 0xD7000002, 0xFFFFFFFF);
+        R36880I_GFX(arg0++, 0xE200001C, 0x504DD8);
+        R36880I_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
+        n = 0;
+        p = arg1;
+        if (p != NULL) {
+            do {
+                p = p->unk34;
+                n++;
+            } while (p != NULL);
+        }
+        vtxs = func_80610FE8(n << 6);
+        heapFreeDeferred(vtxs);
+        mtxs = func_80610FE8(n << 6);
+        heapFreeDeferred(mtxs);
+    }
+    if (arg1 != NULL) {
+        v = (Vtx *)((u8 *)vtxs + sp1A8[0] * 16);
+        do {
+            R36880I_GFX(arg0++, 0xE7000000, 0);
+            R36880I_GFX(arg0++, 0xFA000000, arg1->unk2F);
+            if (arg1->unk30 != 0 && flag == 0) {
+                R36880I_GFX(arg0++, 0xD9FFFFFF, 1);
+                R36880I_GFX(arg0++, 0xE200001C, 0x504DD8);
+                flag = 1;
+            }
+            if (arg1->unk30 == 0 && flag != 0) {
+                R36880I_GFX(arg0++, 0xD9FFFFFE, 0);
+                R36880I_GFX(arg0++, 0xE200001C, 0x5041C8);
+                flag = 0;
+            }
+            if (arg1->unk0 != sp1BC[0]) {
+                switch (arg1->unkB) {
+                case 0:
+                    gDPLoadTextureBlock_4b(arg0++, arg1->unk0 + 0x80000000, arg1->unkA, arg1->unk8, arg1->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    break;
+                case 1:
+                    gDPLoadTextureBlock(arg0++, arg1->unk0 + 0x80000000, arg1->unkA, G_IM_SIZ_8b, arg1->unk8, arg1->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    break;
+                case 2:
+                    gDPLoadTextureBlock(arg0++, arg1->unk0 + 0x80000000, arg1->unkA, G_IM_SIZ_16b, arg1->unk8, arg1->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    break;
+                }
+                sp1BC[0] = arg1->unk0;
+            }
+            v[0].v.tc[0] = 0;
+            v[0].v.tc[1] = 0;
+            v[1].v.tc[0] = arg1->unk8 << 5;
+            v[1].v.tc[1] = 0;
+            v[2].v.tc[0] = arg1->unk8 << 5;
+            v[2].v.tc[1] = arg1->unk9 << 5;
+            v[3].v.tc[0] = 0;
+            v[3].v.tc[1] = arg1->unk9 << 5;
+            v[0].v.ob[1] = 0;
+            v[1].v.ob[1] = 0;
+            v[2].v.ob[1] = 0;
+            v[3].v.ob[1] = 0;
+            v[0].v.ob[0] = -arg1->unk10;
+            v[0].v.ob[2] = -arg1->unk12;
+            v[1].v.ob[0] = arg1->unk10;
+            v[1].v.ob[2] = -arg1->unk12;
+            v[2].v.ob[0] = arg1->unk10;
+            v[2].v.ob[2] = arg1->unk12;
+            v[3].v.ob[0] = -arg1->unk10;
+            v[3].v.ob[2] = arg1->unk12;
+            guScaleF(sp164, arg1->unk4, 1.0f, arg1->unk4);
+            guRotateF(sp124, (f32)arg1->unk26, 0.0f, 1.0f, 0.0f);
+            guMtxCatF(sp164, sp124, sp164);
+            if (arg1->unk22 < 0x3E8) {
+                guRotateF(sp124, -((f64)arg1->unk20 / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
+                guMtxCatF(sp164, sp124, sp164);
+            }
+            guRotateF(sp124, 90.0 - (f64)arg1->unk22 / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
+            guMtxCatF(sp164, sp124, sp164);
+            if (arg1->unk22 < 0x3E8) {
+                guRotateF(sp124, (f64)arg1->unk20 / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+                guMtxCatF(sp164, sp124, sp164);
+            }
+            guTranslateF(sp124, arg1->unk14, arg1->unk18, arg1->unk1C);
+            guMtxCatF(sp164, sp124, sp164);
+            guMtxF2L(sp164, &mtxs[sp1A4]);
+            R36880I_GFX(arg0++, 0xDA380000, osVirtualToPhysical(&mtxs[sp1A4]));
+            sp1A4++;
+            R36880I_GFX(arg0++, 0x01004008, osVirtualToPhysical(&vtxs[sp1A8[0]]));
+            R36880I_GFX(arg0++, 0x06000204, 0x406);
+            R36880I_GFX(arg0++, 0xD8380002, 0x40);
+            sp1A8[0] += 4;
+            v += 4;
+            arg1 = arg1->unk34;
+        } while (arg1 != NULL);
+    }
+    R36880I_GFX(arg0++, 0xE7000000, 0);
+    return arg0;
+}

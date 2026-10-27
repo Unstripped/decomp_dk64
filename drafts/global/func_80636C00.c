@@ -1,4 +1,4 @@
-// func_80636C00 (src/global/36880.c): stage 5-6: frame/slots match with pad1,seg,pad2,tail locals; ~25 reg-name diffs (t0/t1/t3 for D_80747D74 ptr/0x90, 2nd-call a0 temp) and tail computed before head vs target head first; variant with head/mid vars is in notes (cC00_A..E).
+// func_80636C00 (src/global/36880.c): func_80636C00: stage 5. 3-arg calls (no callee change). if(unk3C!=0) flag=0 else flag=1 fixes branch shape; (u8*)D_807F6000 + idx*0x90 (both uses) fixes t2/t3. Remaining ~13 rows: head/tail temp regs (target diffs v0/t0, B0 t5, head t6, tail t8; ours t0/t8, t6, t5, t7) and 2nd call a0 (target lw a0,0xA8(a3) direct, ours v0 + move a0,v0).
 typedef struct R36880eCmd {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -51,7 +51,7 @@ typedef struct R36880eObjHdr {
 } R36880eObjHdr;
 
 extern s16 D_80747D74;
-void func_80636B50(R36880eCmd *, R36880eCmd *, u8, void *);
+void func_80636B50(R36880eCmd *, R36880eCmd *, u8);
 
 void func_80636C00(void) {
     u32 mid;
@@ -67,22 +67,23 @@ void func_80636C00(void) {
         if (D_80747D74 >= D_80747D70) {
             D_80747D74 = 0;
         }
-        slot = &D_807F6000[D_80747D74];
+        slot = (ModelSlot *)((u8 *)D_807F6000 + D_80747D74 * 0x90);
         obj = (R36880eObjHdr *)slot->unk24;
         if (obj->unk0 & 0x10) {
             if ((slot->unk8C & 0x20) && D_8076A064 != obj->unk8) {
                 slot->unk8C &= ~0x20;
-                flag = 1;
                 obj->unk3C -= 1;
                 if (obj->unk3C != 0) {
                     flag = 0;
+                } else {
+                    flag = 1;
                 }
-                seg = D_807F6000[D_80747D74].unk20;
+                seg = ((ModelSlot *)((u8 *)D_807F6000 + D_80747D74 * 0x90))->unk20;
                 mid = seg->unkA8;
                 head = (mid - seg->unkA0) >> 3;
                 tail = (seg->unkB0 - mid) >> 3;
-                func_80636B50((R36880eCmd *)seg->unkA0, (R36880eCmd *)(seg->unkA0 + head * 8), flag, seg);
-                func_80636B50((R36880eCmd *)seg->unkA8, (R36880eCmd *)(seg->unkA8 + tail * 8), flag, seg);
+                func_80636B50((R36880eCmd *)seg->unkA0, (R36880eCmd *)(seg->unkA0 + head * 8), flag);
+                func_80636B50((R36880eCmd *)seg->unkA8, (R36880eCmd *)(seg->unkA8 + tail * 8), flag);
             }
         }
     }

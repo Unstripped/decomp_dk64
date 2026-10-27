@@ -1,4 +1,4 @@
-// func_8063A38C (src/global/36880.c): stage 5: text identical to target except 2 insns: found=1 / second CSE: 'move v0,s6' vs target 'li v0,1' (second u8 fixes li s4,1; found u8/s32/literal forms did not). Stack homes reproduced via local decl order (result,second,x,y,z,d2,found,scale,base,tgt,d,d1,link,idx,r,sp9C,sp98,sp94,r2); switch(type) case 2 before case 1; rodata 360.0 literal reloc only.
+// func_8063A38C (src/global/36880.c): func_8063A38C: TEXT-IDENTICAL, reloc only (stage 6). Fix: 'u32 found' (s32/u8/s16 gave move v0,s6 / extra sll-sra). Only fdiff diff is the function-owned 360.0 literal relocating as .rodata+0x2a8 vs splat D_807584A8 (.rodata section itself matches). Paste into src replacing GLOBAL_ASM; add forward decl 'R36880fNode *func_8063A848(R36880fNode *, R36880fNode *);' above it (R36880fNode already typedef'd in 36880.c).
 typedef struct R36880fLink {
     /* 0x00 */ u8 pad0[0x4C];
     /* 0x4C */ s32 unk4C;
@@ -70,7 +70,7 @@ R36880fNode *func_8063A38C(R36880fList *arg0, R36880fList *arg1, f32 arg2, f32 a
     f32 y;
     f32 z;
     f32 d2;
-    s32 found;
+    u32 found;
     f32 scale;
     f32 base;
     R36880fNode *tgt;

@@ -1,4 +1,4 @@
-// func_80639F1C (src/global/36880.c): stage 5-6: only diff: target `lw v0,0x54(a0)` variable reload + non-CSE duplicated addiu t6/t7 in tail with delay-slot copy and v0 as temp; mine CSEs (addiu a1,a1,1; bnel) and does `move a3,a1` for arg1; switch needs default: and compares flipped (unk50 == unk4C) to match.
+// func_80639F1C (src/global/36880.c): from .scratch/NM36B/func_80639F1C_best.c
 typedef struct R36880eDLObj {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ s32 unk4;
