@@ -155,9 +155,9 @@ void func_800254B8(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 ya;
     s32 h;
+    s32 xd;
     J1aSprite *dst;
     s32 w;
-    s32 x;
     s32 dy;
     s32 yEnd;
     s32 dx;
@@ -165,11 +165,10 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 
     w = ((J1aSprite *)arg0)->unkA - 1;
     h = ((J1aSprite *)arg0)->unkC - 1;
-    x = arg1;
 
     if (D_80045BD0 < 0x100) {
         if (arg1 < 0) {
-            x = arg1 + 0x100;
+            arg1 += 0x100;
         }
         dy = 0;
         yEnd = arg2;
@@ -179,9 +178,13 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
                 yEnd &= 0xFFF8;
                 yEnd -= arg2;
                 dx = 0;
-                xEnd = x;
+                xEnd = arg1;
                 if (yEnd >= h) {
+                    if (!h) {
+                    }
                     yEnd = h;
+                    if (!h) {
+                    }
                 }
                 if (w > 0) {
                     do {
@@ -192,7 +195,7 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
                         *dst = *(J1aSprite *)arg0;
                         xEnd += 8;
                         xEnd &= 0xFFF8;
-                        xEnd -= x;
+                        xEnd -= arg1;
                         if (xEnd >= w) {
                             xEnd = w;
                         }
@@ -205,13 +208,21 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
                         dst->unkA = xEnd - dx + 1;
                         dst->unkC = yEnd - dy + 1;
                         ya = arg2 + dy;
-                        func_800254B8((JetpacSprite *)dst, (x + dx >= 0x100) ? x + dx - 0x100 : x + dx, ya, arg3, arg4);
+                        xd = arg1 + dx;
+                        if (xd >= 0x100) {
+                            xd -= 0x100;
+                        }
+                        func_800254B8((JetpacSprite *)dst, xd, ya, arg3, arg4);
                         dx = xEnd;
-                        xEnd = xEnd + x;
-                        if (!yEnd) {
+                        xEnd = xEnd + arg1;
+                        if (!w) {
+                        }
+                        if (!w) {
                         }
                     } while (dx < w);
                     if (!ya) {
+                    }
+                    if (!yEnd) {
                     }
                 }
                 dy = yEnd;
