@@ -52,9 +52,67 @@ void func_80028840(void) {
     D_8002A1CC = 1;
 }
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/4840/func_800288A8.s")
+s16 func_800288A8(TextData *arg0, char *arg1, s16 arg2) {
+    s16 sp94[18];
+    s16 sp70[18];
+    char sp4C[36];
+    u8 var_s1;
+    s16 v1;
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/4840/func_80028A9C.s")
+    _strcpy(sp4C, arg1);
+    arg1 = _strtok(sp4C, " ");
+    v1 = (s32)(func_806FBD5C(6, (s32)arg1) * 0.5 * 4.0);
+    sp70[0] = arg2;
+    var_s1 = 1;
+    sp94[0] = arg2 + v1;
+    arg2 = arg2 + v1 * 2 + 0x14;
+    while ((arg1 = _strtok(NULL, " ")) != NULL) {
+        v1 = (s32)(func_806FBD5C(6, (s32)arg1) * 0.5 * 4.0);
+        sp70[var_s1] = arg2;
+        sp94[var_s1++] = arg2 + v1;
+        arg2 = arg2 + v1 * 2 + 0x14;
+    }
+    arg0->unk2 = var_s1;
+    arg0->unk8 = (s16 *)func_80610FE8(var_s1 * 2);
+    arg0->unk4 = (s16 *)func_80610FE8(var_s1 * 2);
+    for (v1 = 0; v1 < var_s1; v1++) {
+        arg0->unk4[v1] = sp70[v1];
+        arg0->unk8[v1] = sp94[v1];
+    }
+    return sp94[0];
+}
+
+f32 func_80612794(s16);
+Gfx *func_806FC530(Gfx *, s32, s16, s16, s32, s32);
+extern u8 D_807444FC;
+
+Gfx *func_80028A9C(Gfx *glistp, u8 *arg1, char *arg2, u8 arg3) {
+    f32 sp98[4][4];
+    f32 sp58[4][4];
+    u8 sp57;
+    f32 sp50;
+    s16 sp4E;
+
+    sp57 = 100;
+    guMtxIdentF(sp98);
+    if ((arg1 + arg3)[0x810] != (0, 0)) {
+        sp50 = (f32)(u32)(arg1 + arg3)[0x810] / 12.0f;
+        (arg1 + arg3)[0x810]--;
+        sp4E = (*(s16 **)(arg1 + 8))[arg3] - (*(s16 **)(arg1 + 4))[arg3];
+        guTranslateF(sp98, -sp4E, -26.0f, 0.0f);
+        guScaleF(sp58, func_80612794((s16)(sp50 * 2048.0f)) * 0.5 + 1.0, func_80612794((s16)(sp50 * 2048.0f)) * 0.8 + 1.0, 1.0f);
+        guMtxCatF(sp98, sp58, sp98);
+        guTranslateF(sp58, sp4E, 26.0f, 0.0f);
+        guMtxCatF(sp98, sp58, sp98);
+        sp57 = (u32)(func_80612794((s16)(sp50 * 2048.0f)) * 127.0f + 128.0f);
+    }
+    guTranslateF(sp58, (*(s16 **)(arg1 + 4))[arg3], *(s16 *)arg1, 0.0f);
+    guMtxCatF(sp98, sp58, sp98);
+    guMtxF2L(sp98, (Mtx *)(arg1 + 0x90 + arg3 * 0x80 + D_807444FC * 0x40));
+    gSPMatrix(glistp++, arg1 + 0x90 + arg3 * 0x80 + D_807444FC * 0x40, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, sp57);
+    return func_806FC530(glistp, 6, 0, 0, (s32)arg2, 0);
+}
 
 Gfx *func_80028DE8(Gfx *glistp, Actor_4840 *actor) {
     u8 *s2 = actor->unk174;
