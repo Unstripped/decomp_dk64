@@ -175,7 +175,9 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
         yEnd = arg2;
         if (h > 0) {
             do {
-                yEnd = ((yEnd + 8) & 0xFFF8) - arg2;
+                yEnd += 8;
+                yEnd &= 0xFFF8;
+                yEnd -= arg2;
                 dx = 0;
                 xEnd = x;
                 if (yEnd >= h) {
@@ -188,7 +190,9 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
                         }
                         dst = &D_80042BD0[D_807444FC][D_80045BD0++];
                         *dst = *(J1aSprite *)arg0;
-                        xEnd = ((xEnd + 8) & 0xFFF8) - x;
+                        xEnd += 8;
+                        xEnd &= 0xFFF8;
+                        xEnd -= x;
                         if (xEnd >= w) {
                             xEnd = w;
                         }
