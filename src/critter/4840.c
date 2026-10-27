@@ -52,87 +52,33 @@ void func_80028840(void) {
     D_8002A1CC = 1;
 }
 
-/* Non-matching draft: frame size 0xE8 vs 0xB8 due to loop unrolling */
-#if 0
-s16 func_800288A8(TextData *arg0, char *arg1, s16 arg2) {
-    s16 sp94[18];
-    s16 sp70[18];
-    char sp4C[36];
-    char *space;
-    f64 half_width;
-    s16 var_s0;
-    s32 var_s1;
-    s32 step;
-    char *token;
-    s32 v1;
-
-    _strcpy(sp4C, arg1);
-    half_width = func_806FBD5C(6, (s32)_strtok(sp4C, " ")) * 0.5;
-    sp70[0] = arg2;
-    space = " ";
-    var_s1 = 1;
-    step = (s32)(half_width * 4.0);
-    sp94[0] = arg2 + step;
-    var_s0 = (s16)(arg2 + step * 2 + 0x14);
-    token = _strtok(NULL, space);
-    while (token != NULL) {
-        half_width = func_806FBD5C(6, (s32)token) * 0.5;
-        sp70[var_s1] = var_s0;
-        step = (s32)(half_width * 4.0);
-        sp94[var_s1] = var_s0 + step;
-        var_s0 = (s16)(var_s0 + step * 2 + 0x14);
-        var_s1 = (var_s1 + 1) & 0xFF;
-        token = _strtok(NULL, space);
-    }
-    arg0->unk2 = var_s1;
-    arg0->unk8 = (s16 *)func_80610FE8(var_s1 * 2);
-    arg0->unk4 = (s16 *)func_80610FE8(var_s1 * 2);
-    if (var_s1 > 0) {
-        for (v1 = 0; v1 < var_s1; v1++) {
-            arg0->unk4[v1] = sp70[v1];
-            arg0->unk8[v1] = sp94[v1];
-        }
-    }
-    return sp94[0];
-}
-#endif
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/4840/func_800288A8.s")
 
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/4840/func_80028A9C.s")
 
-/* Non-matching draft: frame size 0x70 vs 0x60 (16 bytes extra locals stack) */
-#if 0
 Gfx *func_80028DE8(Gfx *glistp, Actor_4840 *actor) {
-    char sp38[40];
-    char *space;
     u8 *s2 = actor->unk174;
     u8 var_s0;
     char *token;
+    char sp38[28];
 
     gSPDisplayList(glistp++, &D_1000118);
     gDPSetCombineMode(glistp++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
     _strcpy(sp38, (char *)s2 + 0x820);
-    space = " ";
-    glistp = func_80028A9C(glistp, s2, _strtok(sp38, " "), 0);
-    var_s0 = 1;
-    token = _strtok(NULL, space);
-    while (token != NULL) {
+    var_s0 = 0;
+    glistp = func_80028A9C(glistp, s2, _strtok(sp38, " "), var_s0++);
+    while ((token = _strtok(NULL, " ")) != NULL) {
         glistp = func_80028A9C(glistp, s2, token, var_s0++);
-        token = _strtok(NULL, space);
     }
     return glistp;
 }
-#endif
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/4840/func_80028DE8.s")
 
-/* Non-matching draft: frame size 0x38 vs 0x30 (8 bytes extra locals) */
-#if 0
-void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s32 arg4, s16 arg5) {
+#ifdef NON_MATCHING
+void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s16 arg4, u16 arg5) {
+    u8 *s0;
     s16 sp2A;
     s32 sp24;
-    u8 *s0;
-    s16 v1;
 
     sp24 = arg3 << 5;
     sp2A = (D_80744490 - func_806FBD5C(arg0, D_8002A1C0 + sp24)) * 2;
@@ -147,19 +93,21 @@ void func_80028EE8(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s32 arg4, s16 arg5) {
         D_8002A1C4 = D_807FBB44;
         D_807FBB44->unkEC = 0;
     }
-    D_8002A1C4->unk7C = (f32)func_800288A8(s0, D_8002A1C0 + sp24, sp2A);
+    D_8002A1C4->unk7C = (f32)func_800288A8((TextData *)s0, (char *)(D_8002A1C0 + sp24), sp2A);
     D_8002A1C4->unkEE = 0;
     D_8002A1C4->unk168 = arg5 + 0xE;
     _strcpy((char *)s0 + 0x820, (char *)(D_8002A1C0 + sp24));
-    v1 = 1;
+    arg4 = 1;
     do {
-        s0[0x810 + v1] = 0;
-        v1++;
-    } while (v1 < 0x10);
+        s0[0x810 + arg4] = 0;
+        arg4++;
+    } while (arg4 < 0x10);
     s0[0x810] = 0xC;
 }
-#endif
+#else
+
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/4840/func_80028EE8.s")
+#endif
 
 void func_8002904C(void) {
     Actor_4840 *actor;
