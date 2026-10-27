@@ -1,4 +1,5 @@
-// func_8061F53C (src/global/201B0.c): stage 5 (parked NON_MATCHING in .scratch/CamCL/201B0_final.c): same size 1102 insns/frame 0x118/stack slots/all s-regs; remaining diff = i*4 CSE temp coalesced via 'move s2,t9' + lh a1 not in jal delay slot; extra 'move t0,a0' (path var copy; dropping the var instead hoists lui/addiu of renderBonusTargetMarker above bne). Needs top-block: none; prototypes agree with file.
+// func_8061F53C (src/global/201B0.c): stage 5->near 6: 1083 insns, same frame 0x118, 8 hunks left, all in case 8/9 angle compare: after jal mathAngleDistance the target orders sll a1,s5(ang2 arg) before sll s1,v0(dist0 s16 conv) (site1 e[477-484]) and sra t4,a0(ang1) before sra t8,s1 (site2 e[533]); scheduler order only, statement order/ang2 position/dist0 type/cmp swap made no difference. Fixed: i*4 via CamLPair CAML_GROUP[i].unk0/unk2/[i+1].unk2 (s2=i*4, i in v0, lh a1 in delay); u16 rad (+padR for frame) instead of s32 & 0xFFFF; no path local (CAML_PATH->unkC8); local CamLTgtSub *sub instead of e=tgt->unk174; distSq terms x before z; factor = sqrtf(..); factor = (q/factor > 1.0) ? 1.0 : q/factor; linkId != st->unkFD; switch(mode){case 1:case 2:..;case 0:..} for beq a3,s5 order.
+// func_8061F53C: stage 5
 typedef struct CamLEnt {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
@@ -104,7 +105,8 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     s16 ret;
     u8 type0;
     u8 spread;
-    s32 rad;
+    u16 rad;
+    s16 padR;
     s16 weight;
     s16 i;
     f32 distSq;
@@ -136,13 +138,13 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     f32 outX;
     f32 outY;
     f32 outZ;
-    CamLPath *path;
+    CamLTgtSub *sub;
 
     st = (CamLSt *)arg0->unk174;
     tgt = st->unk0;
-    e = (CamLEnt *)tgt->unk174;
+    sub = tgt->unk174;
     x = tgt->unk7C;
-    y = tgt->unk80 + ((CamLTgtSub *)e)->unk10C;
+    y = tgt->unk80 + sub->unk10C;
     z = tgt->unk84;
     weight = 0;
     bestIdx = 0;
@@ -161,18 +163,17 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     if (D_807F5CDA > 0) {
         i = 0;
         do {
-            if (func_806259FC(cell, D_807476C0[i * 2]) != 0) {
-                k = D_807476C0[i * 2 + 1];
-                if (k < D_807476C0[i * 2 + 3]) {
+            if (func_806259FC(cell, CAML_GROUP[i].unk0) != 0) {
+                k = CAML_GROUP[i].unk2;
+                if (k < CAML_GROUP[i + 1].unk2) {
                     do {
                         e = &CAML_PATH->unkC4[D_80747704[k * 2]];
                         spread = e->unk1A;
                         pos[0] = e->unk10;
                         pos[1] = e->unk12;
                         pos[2] = e->unk14;
-                        rad = (e->unk19 * 4) & 0xFFFF;
+                        rad = e->unk19 * 4;
                         mode = e->unk1B;
-                        path = CAML_PATH;
                         type0 = e->unk16;
                         if (e->unk16 == 5) {
                             linkId = e->unk0;
@@ -181,18 +182,20 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                         type = e->unk16;
                         if (k == st->unkC4 && type == 8) {
                             if (e->unk18 >= 0xF) {
-                                rad = (rad * (e->unk18 - 0xD)) & 0xFFFF;
+                                rad = rad * (e->unk18 - 0xD);
                             }
                         }
-                        if (mode != 0) {
-                            if (mode == 1 || mode == 2) {
-                                distSq = (z - pos[2]) * (z - pos[2]) + (x - pos[0]) * (x - pos[0]);
-                            }
-                        } else {
-                            distSq = (x - pos[0]) * (x - pos[0]) + (y - pos[1]) * (y - pos[1]) + (z - pos[2]) * (z - pos[2]);
+                        switch (mode) {
+                            case 1:
+                            case 2:
+                                distSq = (x - pos[0]) * (x - pos[0]) + (z - pos[2]) * (z - pos[2]);
+                                break;
+                            case 0:
+                                distSq = (x - pos[0]) * (x - pos[0]) + (y - pos[1]) * (y - pos[1]) + (z - pos[2]) * (z - pos[2]);
+                                break;
                         }
-                        if (tgt->unk12C == path->unkC8[D_80747704[k * 2]] || type == 8 ||
-                            path->unkC8[D_80747704[k * 2]] == -1) {
+                        if (tgt->unk12C == CAML_PATH->unkC8[D_80747704[k * 2]] || type == 8 ||
+                            CAML_PATH->unkC8[D_80747704[k * 2]] == -1) {
                             if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->unk18 && !((s16)(s32)y < pos[1]) &&
                                  pos[1] + spread * 2 >= (s16)(s32)y) ||
                                 (mode != 2 && distSq < (f32)(rad * rad) && weight < e->unk18)) {
@@ -261,7 +264,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                             }
                         }
                         k++;
-                    } while (k < D_807476C0[i * 2 + 3]);
+                    } while (k < CAML_GROUP[i + 1].unk2);
                 }
             }
             i++;
@@ -352,15 +355,15 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
             case 3:
                 st->unkC8 = best->unk8;
                 st->unkCA = best->unkA;
-                factor = best->unk6 / sqrtf((z - best->unk4) * (z - best->unk4) + ((x - best->unk0) * (x - best->unk0) + (y - best->unk2) * (y - best->unk2)));
-                factor = factor > 1.0 ? 1.0 : factor;
+                factor = sqrtf((z - best->unk4) * (z - best->unk4) + ((x - best->unk0) * (x - best->unk0) + (y - best->unk2) * (y - best->unk2)));
+                factor = (best->unk6 / factor > 1.0) ? 1.0 : best->unk6 / factor;
                 *arg1 = (best->unk0 - x) * factor + x;
                 *arg2 = (best->unk2 - st->unk6C) * factor + st->unk6C;
                 *arg3 = (best->unk4 - z) * factor + z;
                 break;
         }
         if (!(st->unkAC & 0x8000) && ret != 0 && (bestIdx != st->unkC4 || st->unkF3 != 2) &&
-            (linkId == 0xFF || (linkId != 0xFF && (st->unkFD != linkId || st->unkF3 != 2) && !(D_807FBB60 & 0x2000)))) {
+            (linkId == 0xFF || (linkId != 0xFF && (linkId != st->unkFD || st->unkF3 != 2) && !(D_807FBB60 & 0x2000)))) {
             if (D_807463B8 == 3) {
                 D_807FBB60 |= 0x2000;
             } else if (!(st->unkAC & 0x100)) {
