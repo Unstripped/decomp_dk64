@@ -310,15 +310,440 @@ void func_800274A0(f32 arg0, f32 arg1, f32 arg2) {
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_800277F8.s")
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80027F14.s")
+typedef struct {
+    s16 unk0;
+    char pad2[0x20];
+    u8 unk22;
+    u8 unk23;
+    u8 unk24;
+    u8 unk25;
+} BonusB_Sub7F14;
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_800284C0.s")
+typedef struct {
+    Actor_BB44 *unk0[6];
+    char pad18[2];
+    u8 unk1A;
+    u8 unk1B;
+    u8 unk1C;
+    char pad1D[3];
+    f32 unk20;
+} BonusB_Sub178;
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80028648.s")
+typedef struct BonusB_Actor7F14 {
+    char pad0[0x60];
+    s32 unk60;
+    char pad64[0x84];
+    s16 unkE8;
+    char padEA[0x11C - 0xEA];
+    struct BonusB_Actor7F14 *unk11C;
+    char pad120[0x154 - 0x120];
+    u8 unk154;
+    u8 unk155;
+    char pad156[9];
+    u8 unk15F;
+    char pad160[0x14];
+    BonusB_Sub7F14 *unk174;
+    BonusB_Sub178 *unk178;
+} BonusB_Actor7F14;
+
+typedef struct {
+    char pad0[0x2E];
+    s8 unk2E;
+    s8 unk2F;
+    u8 unk30;
+    u8 unk31;
+} BonusB_Ctrl;
+
+#define BB_B ((BonusB_Actor7F14 *)D_807FBB40)
+
+extern s32 D_8076A0A8;
+extern void *D_807FD580;
+extern BonusB_Ctrl D_807FD610;
+extern u8 D_807444EC;
+s32 playerStateQueueCallback(s32, s32, s32);
+void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+u16 camStartPath(s32, s32, s32);
+void func_80028648(BonusB_Sub178 *);
+s32 func_80027548(f32, f32, f32);
+void func_800265C0(u8, u8);
+void func_800264E0(u8, u8);
+void actorSetStateTwo(void *);
+void sfxAllocateChannel(s32, f32);
+void func_806A2A10(s32, s32, u8);
+void func_8070D8C0(void *, s32, s32);
+void func_80026CF0(void);
+void renderCallbacksRegister(void *, void *, s32);
+
+void func_80027F14(void) {
+    BonusB_Sub7F14 *t0 = BB_B->unk174;
+    BonusB_Sub178 *s38 = BB_B->unk178;
+    Point3f *p;
+    f32 y;
+    f32 z;
+
+    if (!(BB_B->unk60 & 0x10)) {
+        t0->unk23 = 5;
+        t0->unk0 = -2;
+        playerStateQueueCallback(0x48, 0, 0);
+        camSetTarget(*(void **)((u8 *)D_807FD580 + 0x104), D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camStartPath(0, 0, 1);
+        BB_B->unkE8 = 0x9A;
+        switch (D_8076A0A8) {
+        case 0x12:
+            s38->unk20 = 0.5f;
+            s38->unk1A = 0x2D;
+            s38->unk1B = 0x1E;
+            s38->unk1C = 0x46;
+            break;
+        case 0x76:
+            s38->unk20 = 0.8f;
+            s38->unk1A = 0x2D;
+            s38->unk1B = 0x14;
+            s38->unk1C = 0x46;
+            break;
+        case 0x77:
+            s38->unk20 = 1.0f;
+            s38->unk1A = 0x3C;
+            s38->unk1B = 0x14;
+            s38->unk1C = 0x46;
+            break;
+        case 0x78:
+            s38->unk20 = 1.5f;
+            s38->unk1A = 0x3C;
+            s38->unk1B = 0x14;
+            s38->unk1C = 0x46;
+            break;
+        }
+        func_80028648(s38);
+    }
+    if (BB_B->unk154 == 0) {
+        BB_B->unk15F = 1;
+    } else {
+        BB_B->unk15F = 0;
+    }
+    if (t0->unk0 > 0) {
+        t0->unk22 = 0;
+        if (BB_B->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
+            if (D_807FD610.unk2F > 0) {
+                if (D_807FD610.unk2E < -0x28) {
+                    t0->unk22 = 1;
+                } else if (D_807FD610.unk2E >= 0x29) {
+                    t0->unk22 = 3;
+                } else {
+                    t0->unk22 = 2;
+                }
+            } else if (D_807FD610.unk2E < -0x28) {
+                t0->unk22 = 4;
+            } else if (D_807FD610.unk2E >= 0x29) {
+                t0->unk22 = 5;
+            } else {
+                t0->unk22 = 6;
+            }
+        }
+        p = *D_807F5FD4 + t0->unk22;
+        y = p->y;
+        z = p->z;
+        if (t0->unk22 != 0) {
+            y += 27.0f;
+            z -= 8.0f;
+        }
+        switch (func_80027548(p->x, y, z)) {
+        case 1:
+            if (t0->unk22) {
+                BonusB_Actor7F14 *e = (BonusB_Actor7F14 *)s38->unk0[t0->unk22 - 1];
+                if (((u8 *)e->unk174)[0x1C] == 0) {
+                    ((u8 *)e->unk174)[0x1C] = 6;
+                }
+            }
+            break;
+        case 2:
+            t0->unk25 = 0xFF;
+            func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            break;
+        }
+        switch (BB_B->unk154) {
+        case 0:
+            if (BB_B->unk11C->unk154 == 5) {
+                BB_B->unk154 = 0xFF;
+            }
+            if (BB_B->unk11C->unk154 == 4 && BB_B->unk11C->unk155 != 0xFF) {
+                BB_B->unk154 = 0xFE;
+            }
+            break;
+        case 2:
+            func_800265C0(0, 1);
+            camStartPath(0, 1, 0x11);
+            BB_B->unk154 = 1;
+            BB_B->unk155 = 0;
+            break;
+        case 0xFE:
+            t0->unk24 = 0xFF;
+            BB_B->unk154 = 0;
+            break;
+        case 0xFF:
+            func_800264E0(0, 0);
+            camStartPath(0, 1, 0x11);
+            BB_B->unk154 = 1;
+            BB_B->unk155 = 1;
+            break;
+        }
+    } else {
+        switch (t0->unk0) {
+        case -2:
+            if (D_807444EC != 1) {
+                t0->unk0++;
+                func_806A2A10(0xDC, 0x2A, s38->unk1A);
+                func_8070D8C0(D_807FBB40, 0, 2);
+            }
+            break;
+        case -1:
+            if (!(BB_B->unk60 & 0x2000000)) {
+                t0->unk0 = 1;
+                actorSetStateTwo(BB_B->unk11C);
+                func_8002733C(t0);
+                sfxAllocateChannel(8, 1.0f);
+            }
+            break;
+        }
+    }
+    if (t0->unk0 >= -1) {
+        renderCallbacksRegister(func_80026CF0, D_807FBB40, 3);
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
+
+typedef struct {
+    Struct_71B4 *unk0;
+    char pad4[4];
+    u8 unk8;
+} BonusB_Sub84C0;
+
+typedef struct {
+    char pad0[0x60];
+    s32 unk60;
+    char pad64[0xE0];
+    u8 unk144;
+    char pad145[0xF];
+    u8 unk154;
+    u8 unk155;
+    char pad156[0x1E];
+    BonusB_Sub84C0 *unk174;
+} BonusB_Actor84C0;
+
+#define BB_A ((BonusB_Actor84C0 *)D_807FBB40)
+
+void func_800284C0(void) {
+    BonusB_Sub84C0 *sub = BB_A->unk174;
+    Struct_71B4 *p = sub->unk0;
+    s32 step;
+
+    if (!(BB_A->unk60 & 0x10)) {
+        BB_A->unk144 = 0x24;
+    }
+    func_8072881C(0, (u8 *)sub + 4, sub, p);
+    switch (BB_A->unk154) {
+    case 0:
+        if (D_807FBB85 != 0) {
+            if (p->unk22 - ((sub->unk8 != 0) ? 2 : 1) < 0) {
+                p->unk22 = 0;
+            } else {
+                if (sub->unk8 != 0) {
+                    step = 2;
+                } else {
+                    step = 1;
+                }
+                p->unk22 -= step;
+            }
+            func_806FDAB8(p->unk25, 0x40490FDB, sub, p);
+            actorScriptStart(D_807FBB40, (sub->unk8 != 0) ? 0x212 : 0x210);
+            BB_A->unk154 = 1;
+            BB_A->unk155 = 0;
+        } else if (BB_A->unk155 != 0) {
+            func_80027308((u8 *)sub, (s32 *)p);
+        }
+        break;
+    case 1:
+        if (BB_A->unk155 != 0) {
+            func_80027308((u8 *)sub, (s32 *)p);
+        }
+        break;
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
+
+typedef struct {
+    void *unk0;
+    void *unk4;
+    char pad8[9];
+    u8 unk11;
+} BonusB_Sub8648;
+
+typedef struct {
+    void *unk0;
+    char pad4[2];
+    u8 unk6;
+    char pad7;
+    s16 unk8;
+} BonusB_Sub8648b;
+
+void func_80028648(BonusB_Sub178 *arg0) {
+    s32 i;
+    BonusB_Sub8648 *s2;
+    BonusB_Actor84C0 *s5;
+    Point3f *s3;
+
+    for (i = 1; i != 7; i++) {
+        if (actorSpawn(0x12C, 0x15) != 0) {
+            s2 = (BonusB_Sub8648 *)D_807FBB44->unk174;
+            s2->unk0 = D_807FBB40;
+            s2->unk11 = (((randomNonNegative() >> 0xF) % 0x7FFF) % (arg0->unk1C - arg0->unk1B + 1)) + arg0->unk1B;
+            s3 = *D_807F5FD4 + i;
+            actorScriptStart(D_807FBB44, 0x1F5);
+            D_807FBB44->unk7C = s3->x;
+            D_807FBB44->unk80 = s3->y;
+            D_807FBB44->unk84 = s3->z;
+            D_807FBB44->unk60 |= 0x1000;
+            D_807FBB44->unkE6 = 0x800;
+            arg0->unk0[i - 1] = D_807FBB44;
+            s5 = (BonusB_Actor84C0 *)D_807FBB44;
+            if (actorSpawn(0x12D, 0x16) != 0) {
+                BonusB_Sub8648b *v0 = (BonusB_Sub8648b *)D_807FBB44->unk174;
+                v0->unk0 = s5;
+                v0->unk6 = i - 1;
+                s2->unk4 = D_807FBB44;
+                v0->unk8 = -1;
+            }
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002881C.s")
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80028E3C.s")
+typedef struct {
+    char pad0[0xC];
+    f32 unkC;
+    s8 unk10;
+} BonusB_Par8E3C;
+
+typedef struct {
+    char pad0[0x174];
+    BonusB_Par8E3C *unk174;
+} BonusB_Parent8E3C;
+
+typedef struct {
+    BonusB_Parent8E3C *unk0;
+    u8 unk4;
+    u8 unk5;
+    u8 unk6;
+    char pad7[5];
+    f32 unkC;
+} BonusB_Sub8E3C;
+
+typedef struct {
+    char pad0[0x60];
+    s32 unk60;
+    char pad64[6];
+    u16 unk6A;
+    u16 unk6C;
+    char pad6E[0xE];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    char pad88[0x30];
+    f32 unkB8;
+    char padBC[4];
+    f32 unkC0;
+    f32 unkC4;
+    char padC8[0x1C];
+    s16 unkE4;
+    s16 unkE6;
+    s16 unkE8;
+    char padEA[4];
+    s16 unkEE;
+    char padF0[0x84];
+    BonusB_Sub8E3C *unk174;
+} BonusB_Actor8E3C;
+
+#define BB_C ((BonusB_Actor8E3C *)D_807FBB40)
+
+extern s16 D_8002D8C0[];
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
+void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+void func_8067ACB4(void *);
+void actorApplyVelocity(void *);
+void func_80665564(void *, f32);
+
+void func_80028E3C(void) {
+    BonusB_Sub8E3C *t0 = BB_C->unk174;
+    BonusB_Par8E3C *p40 = t0->unk0->unk174;
+    f32 temp;
+    f32 c;
+    f64 v;
+    s16 idx;
+    s32 a0;
+
+    if (!(BB_C->unk60 & 0x10)) {
+        BB_C->unkE6 = (randomNonNegative() >> 0xF) % 4096;
+        BB_C->unkC4 = -10.0f;
+        BB_C->unk6A &= 0xFFFE;
+        func_80613C48(D_807FBB40, 0x688, 0.0f, 0.0f);
+        func_80614D00(D_807FBB40, 1.0, 0.0f);
+    }
+    if (p40->unk10 == -1 && t0->unk4 == 0) {
+        if (p40->unkC < 220.0f) {
+            if (t0->unk5 == 0) {
+                a0 = 0x7F;
+                t0->unk5 = 1;
+                idx = t0->unk6 % 3;
+                if (t0->unk6 / 3 != 0) {
+                    idx = 2 - idx;
+                    a0 = 0x64;
+                }
+                idx = D_8002D8C0[idx];
+                func_806086CC(BB_C->unk7C, BB_C->unk80, BB_C->unk84, idx, 0xFF, a0, 0, 0, 0.0f, 0);
+            }
+            if (p40->unkC < 40.0f) {
+                t0->unk4 = 1;
+                func_806086CC(BB_C->unk7C, BB_C->unk80, BB_C->unk84, 0x1ED, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x76, 0xFF, 0x7F, 0x1E);
+                BB_C->unkEE = BB_C->unkE6;
+                BB_C->unkB8 = 10.0f;
+                actorScriptStart(t0->unk0, 0x1F7);
+            }
+        }
+    }
+    if (t0->unk4 == 0) {
+        actorGetNodePos(t0->unk0, 1, &BB_C->unk7C, &BB_C->unk80, &BB_C->unk84);
+    } else {
+        if ((BB_C->unk6A & 1) && !(BB_C->unk6C & 1)) {
+            BB_C->unkC0 = t0->unkC * -0.8f;
+            v = -t0->unkC * 1.5;
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xFF, (u8)((255.0 < v) ? 255.0 : v), 0x7F, 0xA);
+        }
+        BB_C->unkC0 = BB_C->unkC0 + BB_C->unkC4;
+        t0->unkC = BB_C->unkC0;
+        func_8067ACB4(D_807FBB40);
+        actorApplyVelocity(D_807FBB40);
+        func_80665564(D_807FBB40, 0);
+    }
+    BB_C->unkE6 = (f32)BB_C->unkE6 + p40->unkC;
+    if (BB_C->unkE6 >= 0x1000) {
+        BB_C->unkE6 -= 0x1000;
+    }
+    temp = 30000.0f / p40->unkC;
+    BB_C->unkE4 = func_80612794(BB_C->unkE6) * -temp;
+    BB_C->unkE8 = func_80612790(BB_C->unkE6) * temp;
+    temp = temp * 0.006666667f;
+    if (temp < 1.0f) {
+        temp = 1.0f;
+    } else {
+        c = (temp > 2.5f) ? 2.5f : temp;
+        temp = c;
+    }
+    func_80614D00(D_807FBB40, temp, 0.0f);
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80029364.s")
 
