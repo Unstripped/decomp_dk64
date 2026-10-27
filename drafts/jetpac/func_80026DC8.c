@@ -1,4 +1,4 @@
-// func_80026DC8 (src/jetpac/1460.c): stage 5-6: frame 0x70 and insn count identical; diff = register rotation only (target G=EC30 base in v1, 0xFF in a2, post-call &tmpl in v0; mine v0/v1/a2) plus swc/sw store order (li t3/t4 hoist for unk24/unk28: target stores 0x448 before 0x444). Local 'g' pointer declared before tmpl gives the stack slot 0x1c. uopt trace: candidate &tmpl (sp+0x18) forbidden v0/v1/a0/a1 in mine; tried pad/volatile/decl-init/perm, no fix
+// func_80026DC8 (src/jetpac/1A60.c): stage 5-6: frame 0x70 and insn count identical; diff = register rotation only (target G=EC30 base in v1, 0xFF in a2, post-call &tmpl in v0; mine v0/v1/a2) plus swc/sw store order (li t3/t4 hoist for unk24/unk28: target stores 0x448 before 0x444). Local 'g' pointer declared before tmpl gives the stack slot 0x1c. uopt trace: candidate &tmpl (sp+0x18) forbidden v0/v1/a0/a1 in mine; tried pad/volatile/decl-init/perm, no fix
 extern JetpacState D_8002F050;
 extern JetpacActor D_8002F09C[];
 typedef struct {

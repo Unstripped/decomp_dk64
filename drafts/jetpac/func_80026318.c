@@ -1,4 +1,4 @@
-// func_80026318 (src/jetpac/1460.c): Stage 6 (parked NON_MATCHING in J0a2/1460.c): same size (457 insns), frame 0x58, same regs; ~42 opcode diffs: target keeps arg0->unk30 in v0 reloaded at every path end (lw v0,0x30(s0) in delay slots) where C reloads once at the join; mtc1 zero hoist placement. Ledge fields must be read as (u8*)&D_8002EC30+idx*0x34+0x370/0x378 and D_8002EF84[idx*13] (extra &D_8002EC30 uses stop lda promotion so the prologue matches). Locals declared sp54,mx,my,vx,vy,a2,a1,px,sp34,sp30,idx give the frame slots.
+// func_80026318 (src/jetpac/1A60.c): Stage 6 (parked NON_MATCHING in J0a2/1460.c): same size (457 insns), frame 0x58, same regs; ~42 opcode diffs: target keeps arg0->unk30 in v0 reloaded at every path end (lw v0,0x30(s0) in delay slots) where C reloads once at the join; mtc1 zero hoist placement. Ledge fields must be read as (u8*)&D_8002EC30+idx*0x34+0x370/0x378 and D_8002EF84[idx*13] (extra &D_8002EC30 uses stop lda promotion so the prologue matches). Locals declared sp54,mx,my,vx,vy,a2,a1,px,sp34,sp30,idx give the frame slots.
 typedef struct {
     f32 x;
     f32 y;

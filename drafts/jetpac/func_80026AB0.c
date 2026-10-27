@@ -1,4 +1,4 @@
-// func_80026AB0 (src/jetpac/1460.c): stage 5-6: frame/stack/callee-saved/insn count identical; only  temp numbering differs after the D_8002F080 load (target sll t5/lui t9 ... vs t0/t7) and float regs. Needed trick: 2nd D_8002F064 read as *(s32*)&D_8002F060[4] (stops uopt CSE of the double load; unprototyped D_8002F064 twice gets CSE'd). dummy 'pad' local fixes stack slots; color=D_8002F060 local; permuter only found noise (short new_var)
+// func_80026AB0 (src/jetpac/1A60.c): stage 5-6: frame/stack/callee-saved/insn count identical; only  temp numbering differs after the D_8002F080 load (target sll t5/lui t9 ... vs t0/t7) and float regs. Needed trick: 2nd D_8002F064 read as *(s32*)&D_8002F060[4] (stops uopt CSE of the double load; unprototyped D_8002F064 twice gets CSE'd). dummy 'pad' local fixes stack slots; color=D_8002F060 local; permuter only found noise (short new_var)
 extern JetpacState D_8002F050;
 extern f32 D_8002F054;
 extern u8 D_8002F060[];
