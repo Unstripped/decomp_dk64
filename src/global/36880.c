@@ -1322,24 +1322,21 @@ typedef struct R36880bObj {
     /* 0xB8 */ R36880bNode *unkB8;
 } R36880bObj;
 
-#ifdef NON_MATCHING
 void func_8063495C(u8 *arg0, ModelSlot *arg1) {
     R36880bNode *node;
-    u8 *tbl;
     s16 *p;
     s32 n;
     s32 idx;
-    u8 found;
+    s32 found;
     s32 key;
 
     node = ((R36880bObj *)arg1->unk20)->unk50;
     if (node != NULL) {
         do {
             key = node->unk5C;
+            n = *(s32 *)(arg0 + *(s32 *)(arg0 + 0x70));
+            p = (s16 *)(arg0 + *(s32 *)(arg0 + 0x70) + 4);
             found = 0;
-            tbl = arg0 + *(s32 *)(arg0 + 0x70);
-            n = *(s32 *)tbl;
-            p = (s16 *)(tbl + 4);
             idx = 0;
             if (n != 0) {
                 do {
@@ -1361,10 +1358,6 @@ void func_8063495C(u8 *arg0, ModelSlot *arg1) {
         } while (node != NULL);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063495C.s")
-#endif
 
 
 void *memcpy(void *, const void *, unsigned int);
@@ -2397,7 +2390,60 @@ void func_80636B50(R36880eCmd *arg0, R36880eCmd *arg1, u8 arg2) {
 }
 
 
+#ifdef NON_MATCHING
+typedef struct R36880eObjHdr {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ u8 pad4[4];
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ u8 padC[0x10];
+    /* 0x1C */ u8 unk1C;
+    /* 0x1D */ u8 pad1D[0x1F];
+    /* 0x3C */ s16 unk3C;
+} R36880eObjHdr;
+
+extern s16 D_80747D74;
+
+void func_80636C00(void) {
+    u32 mid;
+    R36880eSeg *seg;
+    u32 head;
+    u32 tail;
+    u8 flag;
+    R36880eObjHdr *obj;
+    ModelSlot *slot;
+    u32 start;
+
+    if (D_80747D70 != 0) {
+        D_80747D74 += 1;
+        if (D_80747D74 >= D_80747D70) {
+            D_80747D74 = 0;
+        }
+        slot = (ModelSlot *)((u8 *)D_807F6000 + D_80747D74 * 0x90);
+        obj = (R36880eObjHdr *)slot->unk24;
+        if (obj->unk0 & 0x10) {
+            if ((slot->unk8C & 0x20) && D_8076A064 != obj->unk8) {
+                slot->unk8C &= ~0x20;
+                obj->unk3C -= 1;
+                if (obj->unk3C != 0) {
+                    flag = 0;
+                } else {
+                    flag = 1;
+                }
+                seg = ((ModelSlot *)((u8 *)D_807F6000 + D_80747D74 * 0x90))->unk20;
+                mid = seg->unkA8;
+                start = seg->unkA0;
+                head = (mid - start) >> 3;
+                tail = (seg->unkB0 - mid) >> 3;
+                func_80636B50((R36880eCmd *)seg->unkA0, (R36880eCmd *)(seg->unkA0 + head * 8), flag);
+                func_80636B50((R36880eCmd *)seg->unkA8, (0, (R36880eCmd *)(seg->unkA8 + tail * 8)), flag);
+            }
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636C00.s")
+#endif
 
 
 
@@ -2973,6 +3019,8 @@ void func_80639C04(R36880eOwner *arg0, s32 arg1, s32 *arg2, s32 *arg3, u8 *arg4,
 }
 
 
+s32 func_80639F1C(R36880eNode *, s32 *, s32 *);
+
 void func_80639CD0(R36880eNode *arg0, s32 *arg1, s32 *arg2, u8 *arg3, s16 *arg4) {
     s32 var_v1;
     s32 sp30;
@@ -3035,7 +3083,38 @@ void func_80639CD0(R36880eNode *arg0, s32 *arg1, s32 *arg2, u8 *arg3, s16 *arg4)
     *arg2 = arg0->unk40;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80639F1C.s")
+s32 func_80639F1C(R36880eNode *arg0, s32 *arg1, s32 *arg2) {
+    s32 result;
+
+    result = 0;
+    switch (arg0->unk48) {
+        case 1:
+            arg0->unk50 += 1;
+            if (arg0->unk50 == arg0->unk4C) {
+                arg0->unk50 = 0;
+                arg0->unk54 += 1;
+                if (arg0->unk54 == arg0->unk58) {
+                    arg0->unk54 = 0;
+                }
+                result = 1;
+            }
+            break;
+        case 0:
+            if (arg0->unk49 != 0) {
+                result = 1;
+            }
+            break;
+        default:
+            break;
+    }
+    *arg1 = arg0->unk54;
+    if (arg0->unk54 + 1 == arg0->unk58) {
+        *arg2 = 0;
+    } else {
+        *arg2 = arg0->unk54 + 1U;
+    }
+    return result;
+}
 
 typedef struct R36880fNode {
     /* 0x00 */ u32 key;

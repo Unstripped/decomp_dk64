@@ -1,4 +1,4 @@
-// func_80636C00 (src/global/36880.c): func_80636C00: stage 5. 3-arg calls (no callee change). if(unk3C!=0) flag=0 else flag=1 fixes branch shape; (u8*)D_807F6000 + idx*0x90 (both uses) fixes t2/t3. Remaining ~13 rows: head/tail temp regs (target diffs v0/t0, B0 t5, head t6, tail t8; ours t0/t8, t6, t5, t7) and 2nd call a0 (target lw a0,0xA8(a3) direct, ours v0 + move a0,v0).
+// func_80636C00 (src/global/36880.c): func_80636C00: stage 5, parked under NON_MATCHING in copy. Frame/callee-saved/branch shape/all loads+call args match (3-arg calls to existing 3-param func_80636B50, no callee change). Found: if(unk3C!=0) flag=0; else flag=1 (branch shape); (u8*)D_807F6000 + D_80747D74*0x90 for both slot uses (t2/t3 + base-first addu); (0, expr) on 2nd call a1 (a0 direct); extra u32 start local declared LAST (B0 load t5). Remaining 9 rows, pure temp-reg naming in head/tail block: target diff1 v0, head t6, diff2 t0, tail t8, head*8 t7, tail reload t0, sll t9; ours t7,t9,t6,t8,t4,t5,t6. Tried: statement-order perms, head/tail inline, ixa pointer-index forms, obj inline, 160 random decl orders, (0,x) at 7 sites (128 combos), 3x600s permuter (floor 50-60).
 typedef struct R36880eCmd {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -61,6 +61,7 @@ void func_80636C00(void) {
     u8 flag;
     R36880eObjHdr *obj;
     ModelSlot *slot;
+    u32 start;
 
     if (D_80747D70 != 0) {
         D_80747D74 += 1;
@@ -80,10 +81,11 @@ void func_80636C00(void) {
                 }
                 seg = ((ModelSlot *)((u8 *)D_807F6000 + D_80747D74 * 0x90))->unk20;
                 mid = seg->unkA8;
-                head = (mid - seg->unkA0) >> 3;
+                start = seg->unkA0;
+                head = (mid - start) >> 3;
                 tail = (seg->unkB0 - mid) >> 3;
                 func_80636B50((R36880eCmd *)seg->unkA0, (R36880eCmd *)(seg->unkA0 + head * 8), flag);
-                func_80636B50((R36880eCmd *)seg->unkA8, (R36880eCmd *)(seg->unkA8 + tail * 8), flag);
+                func_80636B50((R36880eCmd *)seg->unkA8, (0, (R36880eCmd *)(seg->unkA8 + tail * 8)), flag);
             }
         }
     }

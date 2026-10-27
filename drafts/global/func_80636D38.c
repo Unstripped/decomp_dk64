@@ -1,4 +1,4 @@
-// func_80636D38 (src/global/36880.c): stage 3-4: K&R definition (u8 arg1/arg2; existing decl void func_80636D38(void *, s32, s32) must become void func_80636D38();). Frame 0x58 vs 0x48: mine uses s0-s2 and promotes arg2 (a3) while target keeps arg2/sp2C/sp30/sp24/sp20/sp2B all in memory and only s0(seg)/s1(obj).
+// func_80636D38 (src/global/36880.c): stage 4 (NM36A2): frame 0x48 and callee-saved s0/s1 now match. K&R definition (u8 arg1/arg2), prototype must become void func_80636D38(); dead if(0){f(&sp2C,&sp2B,&sp24,&sp20,&sp30,&var_v1,&arg2,&sp3C)} keeps those in memory (kills s-reg promotion of sp2C/arg2 and sp3C copy-prop). Remaining: obj loaded into s1 directly (target: lw v0,0x24(a0), use v0 for obj->unk8 store then or s1,v0,zero), flags var in v1 (target a3), arg1 promoted? (target andi t6,a1; or a1,t6), later blocks ~178 diff lines. Needs prototype 's32 func_80636EFC(R36880eCmd*,R36880eCmd*,R36880eNode*,u8)' above and func_80635468((u8*),(R36880dAsset*)) casts.
 typedef struct R36880eCmd {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -98,20 +98,31 @@ typedef struct R36880eObj60 {
     /* 0x5B */ u8 unk5B;
 } R36880eObj60;
 
-s32 func_80636EFC(R36880eCmd *, R36880eCmd *, R36880eNode *, u8);
-void func_80635468();
+typedef struct R36880dAsset {
+    u8 pad[0x10];
+} R36880dAsset;
+void func_80635468(u8 *, R36880dAsset *);
 void func_80635548(s32, u8 *);
-
 s32 func_80636EFC(R36880eCmd *, R36880eCmd *, R36880eNode *, u8);
-void func_80635468();
 
+typedef struct R36880fObjHdr {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ u8 pad4[4];
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ u8 padC[0x10];
+    /* 0x1C */ u8 unk1C;
+    /* 0x1D */ u8 pad1D[0x1F];
+    /* 0x3C */ s16 unk3C;
+} R36880fObjHdr;
+
+#define SEG ((R36880eSeg *)arg0->unk20)
 void func_80636D38(arg0, arg1, arg2)
 ModelSlot *arg0;
 u8 arg1;
 u8 arg2;
 {
     R36880eSeg *seg;
-    R36880eObjHdr *obj;
+    R36880fObjHdr *obj;
     void *sp3C;
     u8 flags;
     u32 sp30;
@@ -121,8 +132,14 @@ u8 arg2;
     s32 sp20;
     u8 var_v1;
 
+    if (0) {
+        func_80635548((s32)&sp2C, (u8 *)&sp2B);
+        func_80635548((s32)&sp24, (u8 *)&sp20);
+        func_80635548((s32)&sp30, (u8 *)&var_v1);
+        func_80635548((s32)&arg2, (u8 *)&sp3C);
+    }
     seg = arg0->unk20;
-    obj = (R36880eObjHdr *)arg0->unk24;
+    obj = (R36880fObjHdr *)arg0->unk24;
     sp3C = seg;
     obj->unk8 = D_8076A064;
     flags = arg0->unk8C;
@@ -146,7 +163,7 @@ u8 arg2;
             }
         } else {
             if (((R36880eObj60 *)sp3C)->unk50 != 0 || arg1 != 0) {
-                func_80635468(obj, sp3C);
+                func_80635468((u8 *)obj, (R36880dAsset *)sp3C);
                 return;
             }
             func_80635548((s32)obj, sp3C);
