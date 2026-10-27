@@ -1216,7 +1216,46 @@ void func_80633D30(f32 *arg0, f32 *arg1) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80633DC0.s")
+typedef struct {
+    /* 0x00 */ u8 padL80633DC0[0xC];
+    /* 0x0C */ f32 minX;
+    /* 0x10 */ f32 minY;
+    /* 0x14 */ f32 minZ;
+    /* 0x18 */ f32 maxX;
+    /* 0x1C */ f32 maxY;
+    /* 0x20 */ f32 maxZ;
+} L80633DC0Box;
+
+#define L80633DC0_OUT ((L80633DC0Box *)arg2)
+#define L80633DC0_ACC(x, y, z) \
+    guMtxXFMF(arg0, (f32)((s16 *)arg1)[x], (f32)((s16 *)arg1)[y], (f32)((s16 *)arg1)[z], &sp3C, &sp38, &sp34); \
+    if (L80633DC0_OUT->minX < sp3C) { L80633DC0_OUT->minX = L80633DC0_OUT->minX; } else { L80633DC0_OUT->minX = sp3C; } \
+    if (L80633DC0_OUT->minY < sp38) { L80633DC0_OUT->minY = L80633DC0_OUT->minY; } else { L80633DC0_OUT->minY = sp38; } \
+    if (L80633DC0_OUT->minZ < sp34) { L80633DC0_OUT->minZ = L80633DC0_OUT->minZ; } else { L80633DC0_OUT->minZ = sp34; } \
+    if (sp3C < L80633DC0_OUT->maxX) { L80633DC0_OUT->maxX = L80633DC0_OUT->maxX; } else { L80633DC0_OUT->maxX = sp3C; } \
+    if (sp38 < L80633DC0_OUT->maxY) { L80633DC0_OUT->maxY = L80633DC0_OUT->maxY; } else { L80633DC0_OUT->maxY = sp38; } \
+    if (sp34 < L80633DC0_OUT->maxZ) { L80633DC0_OUT->maxZ = L80633DC0_OUT->maxZ; } else { L80633DC0_OUT->maxZ = sp34; }
+
+void func_80633DC0(f32 (*arg0)[4], void *arg1, void *arg2) {
+    f32 sp3C;
+    f32 sp38;
+    f32 sp34;
+
+    guMtxXFMF(arg0, (f32)((s16 *)arg1)[0], (f32)((s16 *)arg1)[1], (f32)((s16 *)arg1)[2], &sp3C, &sp38, &sp34);
+    L80633DC0_OUT->minX = sp3C;
+    L80633DC0_OUT->minY = sp38;
+    L80633DC0_OUT->minZ = sp34;
+    L80633DC0_OUT->maxX = sp3C;
+    L80633DC0_OUT->maxY = sp38;
+    L80633DC0_OUT->maxZ = sp34;
+    L80633DC0_ACC(3, 1, 2)
+    L80633DC0_ACC(0, 1, 5)
+    L80633DC0_ACC(3, 1, 5)
+    L80633DC0_ACC(0, 4, 2)
+    L80633DC0_ACC(3, 4, 2)
+    L80633DC0_ACC(0, 4, 5)
+    L80633DC0_ACC(3, 4, 5)
+}
 
 s32 func_80634768(void *arg0, void *arg1, f32 (*arg2)[4]) {
     s16 *in = arg0;
