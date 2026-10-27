@@ -284,7 +284,52 @@ void func_800248A0(s32 arg0) {
     func_80025904(arg0);
 }
 
+#ifdef NON_MATCHING
+void jetpacPlayerStateUpdate(void);
+void jetpacItemsUpdate(void);
+void func_80026AB0(void);
+
+typedef struct {
+    u8 pad0[0x44];
+    void (*unk44)(void *);
+    u8 pad48[4];
+} J0aItem;
+
+void func_800248E8(s32 arg0) {
+    JetpacPlayer *sp1C = &D_8002EC30.players[D_8002EC30.active_player];
+
+    if (sp1C->score >= 1000000) {
+        sp1C->score -= 1000000;
+    }
+    func_80024408(arg0);
+    jetpacPlayerStateUpdate();
+    func_80026CEC();
+    sp1C->unk18C(&sp1C->unk148);
+    ((J0aItem *)&sp1C->pad14[sp1C->unk10 * 0x4C])->unk44(&sp1C->pad14[sp1C->unk10 * 0x4C]);
+    func_8002ABDC();
+    jetpacInitRdp(arg0);
+    func_80028E88();
+    func_80026AB0();
+    func_8002AD8C();
+    jetpacItemsUpdate();
+    func_800285DC();
+    func_80026CA4();
+    func_80025904(arg0);
+    if (func_80026FE0() != 0) {
+        J0aG->unk44C++;
+    }
+    {
+        J0aGlobalView *g = J0aG;
+        if (g->unk8 & 0x1000) {
+            g->unk78C = 3;
+            g->unkC = 1;
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_800248E8.s")
+#endif
 
 void func_80024A4C(void) {
     func_8060C648(0x11, 0, 0, 0, D_8002EC48);

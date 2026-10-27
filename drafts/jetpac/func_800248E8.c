@@ -1,4 +1,4 @@
-// func_800248E8 (src/jetpac/0.c): Stage 3: code identical in shape but IDO promotes lda D_8002EC30 to s0 (frame 0x28, extra sw/lw s0; p in v1 stored once) while target keeps no callee-saved regs (frame 0x20; base re-materialised per block in a1/v0, p saved before each of first two calls). Removing one base use (the unkC store) drops s0 so adjsave is borderline (uopt_trace -l5: 1482 adjsave 1.0). Tried: local p assign split, += , if(f()), extra pad local, field order, permuter 120s.
+// func_800248E8 (src/jetpac/0.c): Stage 6 (parked NON_MATCHING in J0a2/0.c): frame/size/no-s0 now match; only diff: p in v1/score in v0 (target p=v0,score=v1) and target re-stores p (sw v0,0x1C(sp)) in the delay slot of jetpacPlayerStateUpdate. Key fixes: final-block accesses through a block-local JetpacGlobalView *g = J0aG (fewer &D_8002EC30 uses stops s0 promotion). Permuter hint: a dead 'if (!sp1C->unk10 && !sp1C->unk10){}' after func_80024408 reproduces the double store (score 612->320) but adds insns.
 typedef struct {
     u8 pad0[8];
     s32 unk8;
@@ -50,8 +50,11 @@ void func_800248E8(s32 arg0) {
     if (func_80026FE0() != 0) {
         J0aG->unk44C++;
     }
-    if (J0aG->unk8 & 0x1000) {
-        J0aG->unk78C = 3;
-        J0aG->unkC = 1;
+    {
+        J0aGlobalView *g = J0aG;
+        if (g->unk8 & 0x1000) {
+            g->unk78C = 3;
+            g->unkC = 1;
+        }
     }
 }
