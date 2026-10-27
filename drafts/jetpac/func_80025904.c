@@ -1,4 +1,4 @@
-// func_80025904 (src/jetpac/1460.c): Stage 6: text identical except temp regs of the (s16)(x+0x20)*4 / (y+0x18)*4 args (target t3,t5,t7,t4 then count reload t6; ours t2,t9,t0,t5 then t3) and tail t9/t0 vs t4/t2. Tried decl-order permutations (40), px/py locals, dead statements, permuter 200s: no change.
+// func_80025904 (src/jetpac/1460.c): stage 6: text identical except temp regs of the (s16)(x+0x20)*4 / (y+0x18)*4 args (target t3,t5,t7,t4, count reload t6; ours t2,t9,t0,t5,t3) and tail t9/t0 vs t4/t2. Prim-color block temps match only with gDPSetPrimColor (a hand-written WRITE_GFX shifts them), so temp naming follows IL. Tried (all identical output): arg forms, loop forms, stmt order, line layout, dead first statements, extra locals, prototype type changes, dummy if(!x){} uses, permuter 240s.
 void func_80025904(Gfx **arg0) {
     JetpacCell *cell;
     JetpacCellItem *item;
