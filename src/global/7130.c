@@ -1099,7 +1099,7 @@ extern f32 D_80770688[];
 extern u8 D_807FC928;
 
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void func_806335B0(s16, s32, s32, f32 *, f32 *, f32 *);
+void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 s32 hashTableLookup(s32);
 s16 func_80609140(s16, s32, f32, f32, u8, u8);
@@ -1224,7 +1224,7 @@ void func_806057F8(void) {
                                     slot = hashTableLookup(D_807705F8[D_807707A0[i][j]]);
                                     sfxUpdateDistanceVolumeAndPan(D_807F6000[slot].unk0, D_807F6000[slot].unk4 + 320.0f, D_807F6000[slot].unk8, 0xFF, D_80770788[D_807707A0[i][j]], factor);
                                 } else if (D_80770CF8[i] > 0) {
-                                    func_806335B0(D_807705F8[D_807707A0[i][j]], 1, D_80770CF8[i], &posX, &posY, &posZ);
+                                    modelSlotGetNodePos(D_807705F8[D_807707A0[i][j]], 1, D_80770CF8[i], &posX, &posY, &posZ);
                                     sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[D_807707A0[i][j]], factor);
                                 } else if (D_80770CF8[i] < 0) {
                                     D_80770DE8 = 32767.0f;

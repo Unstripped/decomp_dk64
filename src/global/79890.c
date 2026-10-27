@@ -16,7 +16,7 @@ typedef struct Beh7982_80675180_4 {
 } Beh7982_80675180_4;
 
 extern u8 D_807444FC;
-void func_8062FF10(float [4][4], float [4][4]);
+void matrix4Invert(float [4][4], float [4][4]);
 
 void func_80675180(Beh7982_80675180_0 *arg0, f32 arg1, f32 arg2, f32 arg3, Beh7982_80675180_4 *arg4, f32 *arg5, f32 *arg6, f32 *arg7) {
     float sp70[4][4];
@@ -31,7 +31,7 @@ void func_80675180(Beh7982_80675180_0 *arg0, f32 arg1, f32 arg2, f32 arg3, Beh79
     } else {
         guMtxL2F(sp70, (Mtx *)(((temp_v0 >> 6) << 6) + (u8 *)mtx));
     }
-    func_8062FF10(sp30, sp70);
+    matrix4Invert(sp30, sp70);
     guMtxXFMF(sp30, arg1, arg2, arg3, arg5, arg6, arg7);
 }
 

@@ -1,5 +1,5 @@
 // func_8062B220 (src/global/2F550.c): stage 6: same size (110) and frame (0x20); only register allocation differs (target int vars v0=z0,v1=z1,a1=y2,a2=y0,a3=z2,t0=y1,t1=x0,t2=x1,t3=x2 and fp fv0=y2,fv1=y0,fa0=y1,fa1=z2,ft4=z0,ft5=z1,fs0=x2,fs1=x0,fs2=x1; ours permutes them). Start from the m2c-shaped body; permuter (score 4995 -> 270) found the s16 *v pointer and new_var2 copy.
-typedef struct R2F550aPoly {
+typedef struct PlanePoly {
     /* 0x00 */ s16 v[12];
     /* 0x18 */ u8 type;
     /* 0x19 */ u8 pad19[7];
@@ -7,9 +7,9 @@ typedef struct R2F550aPoly {
     /* 0x28 */ f64 b;
     /* 0x30 */ f64 c;
     /* 0x38 */ f64 d;
-} R2F550aPoly; /* 0x40 */
+} PlanePoly; /* 0x40 */
 
-void func_8062B220(R2F550aPoly *arg0) {
+void func_8062B220(PlanePoly *arg0) {
     s16 temp_v1;
     s16 temp_v0;
     f64 temp_fa0;

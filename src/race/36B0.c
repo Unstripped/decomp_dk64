@@ -156,7 +156,7 @@ void func_8067E278(s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 void func_80026354(void *, void *, s32);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 void func_80029054(void) {
     u8 *temp_v0;
@@ -194,5 +194,5 @@ void func_80029054(void) {
         *(u8 *)((u8 *)D_807FBB40 + 0x154) = 0x40;
         temp_s1[0x34]++;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

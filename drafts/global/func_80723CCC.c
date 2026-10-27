@@ -1,6 +1,6 @@
 // func_80723CCC (src/global/127B00.c): stage 1: m2c starter regenerated in third pass; next work is type/prototype recovery and block ordering
-f32 func_80627A00(f64, f32, void *, u8, f32, f32);  /* extern */
-? func_80627B58(?);                                 /* extern */
+f32 splineEvalCubic(f64, f32, void *, u8, f32, f32);  /* extern */
+? splineSetBasisTension(?);                                 /* extern */
 extern ? D_807FDB90;
 
 void func_80723CCC(s32 arg0, s32 arg1, f32 arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
@@ -23,7 +23,7 @@ void func_80723CCC(s32 arg0, s32 arg1, f32 arg2, f32 *arg3, f32 *arg4, f32 *arg5
     s8 temp_v1_2;
     void *temp_a0;
 
-    func_80627B58(0x3F000000);
+    splineSetBasisTension(0x3F000000);
     var_a1 = arg1;
     temp_a0 = *(&D_807FDB90 + (arg0 * 4));
     temp_v0 = temp_a0->unk4;
@@ -55,9 +55,9 @@ void func_80723CCC(s32 arg0, s32 arg1, f32 arg2, f32 *arg3, f32 *arg4, f32 *arg5
     temp_fa0 = (f64) arg2;
     sp20 = temp_fa0;
     sp30 = temp_a0;
-    *arg3 = func_80627A00(temp_fa0, (f32) (temp_v0_5 + ((u8) sp34 * 0xA))->unk2, temp_a0, (u8) var_a1, (f32) (temp_v0_5 + ((u8) sp36 * 0xA))->unk2, (f32) (temp_v0_5 + ((u8) sp37 * 0xA))->unk2);
+    *arg3 = splineEvalCubic(temp_fa0, (f32) (temp_v0_5 + ((u8) sp34 * 0xA))->unk2, temp_a0, (u8) var_a1, (f32) (temp_v0_5 + ((u8) sp36 * 0xA))->unk2, (f32) (temp_v0_5 + ((u8) sp37 * 0xA))->unk2);
     temp_v0_6 = temp_a0->unk0;
-    *arg4 = func_80627A00(temp_fa0, (f32) (temp_v0_6 + ((u8) sp34 * 0xA))->unk4, temp_a0, (bitwise u8) (f32) (temp_v0_6 + ((u8) sp36 * 0xA))->unk4, (f32) (temp_v0_6 + ((u8) sp37 * 0xA))->unk4);
+    *arg4 = splineEvalCubic(temp_fa0, (f32) (temp_v0_6 + ((u8) sp34 * 0xA))->unk4, temp_a0, (bitwise u8) (f32) (temp_v0_6 + ((u8) sp36 * 0xA))->unk4, (f32) (temp_v0_6 + ((u8) sp37 * 0xA))->unk4);
     temp_v0_7 = temp_a0->unk0;
-    *arg5 = func_80627A00(temp_fa0, (f32) (temp_v0_7 + ((u8) sp34 * 0xA))->unk6, temp_a0, (bitwise u8) (f32) (temp_v0_7 + ((u8) sp36 * 0xA))->unk6, (f32) (temp_v0_7 + ((u8) sp37 * 0xA))->unk6);
+    *arg5 = splineEvalCubic(temp_fa0, (f32) (temp_v0_7 + ((u8) sp34 * 0xA))->unk6, temp_a0, (bitwise u8) (f32) (temp_v0_7 + ((u8) sp36 * 0xA))->unk6, (f32) (temp_v0_7 + ((u8) sp37 * 0xA))->unk6);
 }

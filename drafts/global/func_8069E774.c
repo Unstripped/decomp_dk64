@@ -51,7 +51,7 @@ void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorGetOrSetNodeScale(void *, s32, f32);
 void actorOrNodeFlags(void *, s32, s32);
 void actorDespawn(Actor *);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 void lightSetFlags(s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
@@ -205,5 +205,5 @@ void func_8069E774(void) {
             actorOrNodeFlags(sp78, func_8069E724(sp78->unk58), 3);
         }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

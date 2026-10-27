@@ -16,7 +16,7 @@ void func_80608528(void *, s32, s32, s32, s32);
 void func_807149B8(s32);
 void func_807149FC(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 u8 func_8067BF84(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     u8 sp47;
@@ -95,6 +95,6 @@ u8 func_8067BF84(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
         func_806651FC(D_807FBB40);
         func_80665564(D_807FBB40, 0.0f);
     }
-    func_806319C4(temp_s0, 0);
+    actorUpdateModelMatrix(temp_s0, 0);
     return sp47;
 }

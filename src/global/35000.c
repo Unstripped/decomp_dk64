@@ -1,14 +1,14 @@
 #include "common.h"
 
-typedef struct R35000aNode R35000aNode;
-struct R35000aNode {
+typedef struct RenderEntry RenderEntry;
+struct RenderEntry {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
     /* 0x10 */ f32 unk10;
-    /* 0x14 */ R35000aNode *unk14;
-    /* 0x18 */ R35000aNode *unk18;
+    /* 0x14 */ RenderEntry *unk14;
+    /* 0x18 */ RenderEntry *unk18;
     /* 0x1C */ s16 unk1C;
     /* 0x1E */ s16 unk1E;
     /* 0x20 */ s16 unk20;
@@ -18,12 +18,12 @@ struct R35000aNode {
     /* 0x25 */ u8 pad25[3];
 };
 
-extern R35000aNode *D_807F5FF0;
-extern R35000aNode *D_807F5FF4;
-extern R35000aNode *D_807F5FF8;
-extern R35000aNode *D_807F5FFC;
+extern RenderEntry *D_807F5FF0;
+extern RenderEntry *D_807F5FF4;
+extern RenderEntry *D_807F5FF8;
+extern RenderEntry *D_807F5FFC;
 
-void func_80630300(void) {
+void renderEntryListsReset(void) {
     D_807F5FF0 = 0;
     D_807F5FF4 = 0;
     D_807F5FF8 = 0;
@@ -51,20 +51,20 @@ s32 func_80630324(u8 arg0, u8 *arg1) {
     }
 }
 
-void func_806306D0(R35000aNode *);
+void renderEntryListFree(RenderEntry *);
 
 void func_8063039C(void) {
-    func_806306D0(D_807F5FF4);
+    renderEntryListFree(D_807F5FF4);
     D_807F5FF4 = 0;
 }
 
 void *func_80610FE8(s32);
 
-R35000aNode *func_806303C4(R35000aNode *arg0, u8 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, s16 arg6, s16 arg7, u8 arg8, s16 arg9, u8 arg10) {
+RenderEntry *renderEntryAddOrUpdate(RenderEntry *arg0, u8 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, s16 arg6, s16 arg7, u8 arg8, s16 arg9, u8 arg10) {
     s32 found;
-    R35000aNode *prev;
-    R35000aNode *node;
-    R35000aNode *head;
+    RenderEntry *prev;
+    RenderEntry *node;
+    RenderEntry *head;
 
     found = 0;
     prev = NULL;
@@ -139,10 +139,10 @@ R35000aNode *func_806303C4(R35000aNode *arg0, u8 arg1, s32 arg2, f32 arg3, f32 a
 
 void heapFree(void *);
 
-R35000aNode *func_80630588(R35000aNode *arg0, s32 arg1, u8 arg2, u8 *arg3) {
+RenderEntry *renderEntryRemove(RenderEntry *arg0, s32 arg1, u8 arg2, u8 *arg3) {
     u8 found;
-    R35000aNode *prev;
-    R35000aNode *head;
+    RenderEntry *prev;
+    RenderEntry *head;
 
     found = 0;
     prev = NULL;
@@ -196,8 +196,8 @@ R35000aNode *func_80630588(R35000aNode *arg0, s32 arg1, u8 arg2, u8 *arg3) {
     return head;
 }
 
-void func_806306D0(R35000aNode *arg0) {
-    R35000aNode *cur;
+void renderEntryListFree(RenderEntry *arg0) {
+    RenderEntry *cur;
 
     if (arg0 != NULL) {
         do {
@@ -208,8 +208,8 @@ void func_806306D0(R35000aNode *arg0) {
     }
 }
 
-R35000aNode *func_8063070C(R35000aNode *arg0) {
-    R35000aNode *head;
+RenderEntry *renderEntryListPurgeUntouched(RenderEntry *arg0) {
+    RenderEntry *head;
 
     head = arg0;
     if (arg0 != NULL) {
@@ -231,7 +231,7 @@ R35000aNode *func_8063070C(R35000aNode *arg0) {
     return head;
 }
 
-void func_806307AC(R35000aNode *arg0) {
+void renderEntryListClearTouched(RenderEntry *arg0) {
     if (arg0 != NULL) {
         do {
             arg0->unk23 = 0;
@@ -240,7 +240,7 @@ void func_806307AC(R35000aNode *arg0) {
     }
 }
 
-void func_806307CC(R35000aNode *arg0, s32 arg1, u8 arg2, u8 arg3, s8 *arg4) {
+void func_806307CC(RenderEntry *arg0, s32 arg1, u8 arg2, u8 arg3, s8 *arg4) {
     s8 found;
 
     found = 0;
@@ -276,15 +276,15 @@ void func_806307CC(R35000aNode *arg0, s32 arg1, u8 arg2, u8 arg3, s8 *arg4) {
 }
 
 #ifdef NON_MATCHING
-R35000aNode *func_80630890(R35000aNode *arg0, f32 arg1, f32 arg2, f32 arg3, R35000aNode **arg4) {
-    R35000aNode *node;
+RenderEntry *func_80630890(RenderEntry *arg0, f32 arg1, f32 arg2, f32 arg3, RenderEntry **arg4) {
+    RenderEntry *node;
     f32 dx;
     f32 dy;
     f32 dz;
-    R35000aNode *head;
-    R35000aNode *cur;
-    R35000aNode *ins;
-    R35000aNode *base;
+    RenderEntry *head;
+    RenderEntry *cur;
+    RenderEntry *ins;
+    RenderEntry *base;
     s32 inserted;
     f32 dist;
     f32 cmpB;
@@ -372,33 +372,33 @@ R35000aNode *func_80630890(R35000aNode *arg0, f32 arg1, f32 arg2, f32 arg3, R350
 #pragma GLOBAL_ASM("asm/global/nonmatchings/35000/func_80630890.s")
 #endif
 
-typedef struct R35000aGfx {
+typedef struct GfxWords {
     u32 w0;
     u32 w1;
-} R35000aGfx;
+} GfxWords;
 
-typedef struct R35000aModel {
+typedef struct EntryModel {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u32 unk60;
-} R35000aModel;
+} EntryModel;
 
 extern s32 D_8076A048;
 extern u8 D_807F6009;
 extern s32 D_807FBB60;
 extern u8 D_2000180[];
 
-void *func_80630DCC(s32, void *, R35000aGfx *, u8);
+void *func_80630DCC(s32, void *, GfxWords *, u8);
 void *func_80636FFC(void *, void *, f32, f32, f32, s32, s32, s32);
-void *func_80637B6C(void *, void *, f32, f32, f32, s32, s32, s32);
+void *renderModelQuadGfx(void *, void *, f32, f32, f32, s32, s32, s32);
 void *func_80715E94(void *, void *, s16);
 
-#define R35000A_WRITE_GFX(pkt, _w0, _w1) { R35000aGfx *_g = (R35000aGfx *)(pkt); _g->w0 = (_w0); _g->w1 = (u32)(_w1); }
+#define WRITE_GFX_WORDS(pkt, _w0, _w1) { GfxWords *_g = (GfxWords *)(pkt); _g->w0 = (_w0); _g->w1 = (u32)(_w1); }
 
-R35000aGfx *func_80630B70(R35000aGfx *arg0, R35000aNode *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, s16 arg6, u8 arg7) {
+GfxWords *renderEntryListBuildDisplayList(GfxWords *arg0, RenderEntry *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, s16 arg6, u8 arg7) {
     s32 ok;
     u8 type;
-    R35000aModel *model;
-    R35000aGfx *tmp;
+    EntryModel *model;
+    GfxWords *tmp;
 
     ok = 1;
     arg0->w0 = 0xE7000000;
@@ -407,7 +407,7 @@ R35000aGfx *func_80630B70(R35000aGfx *arg0, R35000aNode *arg1, f32 arg2, f32 arg
     if (arg1 != NULL) {
         do {
             type = arg1->unk24;
-            model = (R35000aModel *)arg1->unk0;
+            model = (EntryModel *)arg1->unk0;
             if ((arg5 & 0x20) == 0 && type != 0 && type != 5) {
                 ok = 0;
             }
@@ -431,7 +431,7 @@ R35000aGfx *func_80630B70(R35000aGfx *arg0, R35000aNode *arg1, f32 arg2, f32 arg
                     D_807F6009 = 1;
                     break;
                 case 2:
-                    arg0 = func_80637B6C(model, arg0, arg2, arg3, arg4, 1, arg6, arg7);
+                    arg0 = renderModelQuadGfx(model, arg0, arg2, arg3, arg4, 1, arg6, arg7);
                     break;
                 case 5:
                     arg0 = func_80715E94(model, arg0, arg6);
@@ -443,24 +443,24 @@ R35000aGfx *func_80630B70(R35000aGfx *arg0, R35000aNode *arg1, f32 arg2, f32 arg
             arg1 = arg1->unk14;
         } while (arg1 != NULL);
     }
-    R35000A_WRITE_GFX(arg0++, 0xE7000000, 0);
+    WRITE_GFX_WORDS(arg0++, 0xE7000000, 0);
     return arg0;
 }
 
 #ifdef NON_MATCHING
-typedef struct L80630DCCSub4 {
+typedef struct ModelInfo {
     /* 0x00 */ u8 pad0[0x38];
     /* 0x38 */ f32 unk38;
-} L80630DCCSub4;
+} ModelInfo;
 
-typedef struct L80630DCCCtl {
+typedef struct ActorCtl {
     /* 0x000 */ u8 pad0[0x1A4];
     /* 0x1A4 */ u8 unk1A4;
-} L80630DCCCtl;
+} ActorCtl;
 
-typedef struct L80630DCCActor {
+typedef struct RenderActor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ L80630DCCSub4 *unk4;
+    /* 0x004 */ ModelInfo *unk4;
     /* 0x008 */ u8 pad8[0x50];
     /* 0x058 */ s32 unk58;
     /* 0x05C */ u16 unk5C;
@@ -493,19 +493,19 @@ typedef struct L80630DCCActor {
     /* 0x16C */ u8 unk16C;
     /* 0x16D */ u8 unk16D;
     /* 0x16E */ u8 pad16E[6];
-    /* 0x174 */ L80630DCCCtl *unk174;
-} L80630DCCActor;
+    /* 0x174 */ ActorCtl *unk174;
+} RenderActor;
 
-typedef struct L80630DCCPlayer {
+typedef struct PlayerView {
     /* 0x000 */ u8 pad0[0x21C];
     /* 0x21C */ f32 unk21C;
     /* 0x220 */ f32 unk220;
     /* 0x224 */ f32 unk224;
     /* 0x228 */ u8 pad228[0x2F0 - 0x228];
-} L80630DCCPlayer;
+} PlayerView;
 
 extern u8 D_807444FC;
-extern L80630DCCPlayer *D_807FC924;
+extern PlayerView *D_807FC924;
 extern u8 D_807FC928;
 extern u8 D_807FC929;
 
@@ -519,11 +519,11 @@ void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
 void *renderSetSegment6AndFog(void *, s16, u8);
 
-#define L80630DCC_ACT ((L80630DCCActor *)arg1)
-#define L80630DCC_PLY ((L80630DCCPlayer *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0))
+#define RENDER_ACT ((RenderActor *)arg1)
+#define CUR_PLAYER_VIEW ((PlayerView *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0))
 
-void *func_80630DCC(s32 arg0, void *arg1, R35000aGfx *arg2, u8 arg3) {
-    L80630DCCCtl *ctl;
+void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
+    ActorCtl *ctl;
     s32 flag;
     f32 dx;
     f32 dy;
@@ -537,44 +537,44 @@ void *func_80630DCC(s32 arg0, void *arg1, R35000aGfx *arg2, u8 arg3) {
     f64 d;
 
     spB8 = 1.0f;
-    if (!(L80630DCC_ACT->unk60 & 4)) {
+    if (!(RENDER_ACT->unk60 & 4)) {
         flag = 0;
-        if (D_807FC928 >= 2 && (L80630DCC_ACT->unk5C & 1) && (ctl = L80630DCC_ACT->unk174, D_807FC929 != ctl->unk1A4)) {
+        if (D_807FC928 >= 2 && (RENDER_ACT->unk5C & 1) && (ctl = RENDER_ACT->unk174, D_807FC929 != ctl->unk1A4)) {
             flag = 1;
         }
         if (flag == 0) {
             return arg2;
         }
     }
-    if (L80630DCC_ACT->unk58 != 0x1F && L80630DCC_ACT->unk58 != 0x27 && L80630DCC_ACT->unk58 != 0xAE && !(L80630DCC_ACT->unk60 & 0x400)) {
-        dx = L80630DCC_PLY->unk21C - L80630DCC_ACT->unk7C;
-        dy = L80630DCC_PLY->unk220 - L80630DCC_ACT->unk80;
-        dz = L80630DCC_PLY->unk224 - L80630DCC_ACT->unk84;
+    if (RENDER_ACT->unk58 != 0x1F && RENDER_ACT->unk58 != 0x27 && RENDER_ACT->unk58 != 0xAE && !(RENDER_ACT->unk60 & 0x400)) {
+        dx = CUR_PLAYER_VIEW->unk21C - RENDER_ACT->unk7C;
+        dy = CUR_PLAYER_VIEW->unk220 - RENDER_ACT->unk80;
+        dz = CUR_PLAYER_VIEW->unk224 - RENDER_ACT->unk84;
         dx = dx * dx;
         dy = dy * dy;
         dz = dz * dz;
-        if (sqrtf(dx + dy + dz) > renderScaleDistanceByFov(L80630DCC_ACT->unk12A)) {
+        if (sqrtf(dx + dy + dz) > renderScaleDistanceByFov(RENDER_ACT->unk12A)) {
             return arg2;
         }
-        if (func_80658E8C(L80630DCC_ACT->unk7C, L80630DCC_ACT->unk80, L80630DCC_ACT->unk84, L80630DCC_ACT->unk130, L80630DCC_ACT->unk131)) {
+        if (func_80658E8C(RENDER_ACT->unk7C, RENDER_ACT->unk80, RENDER_ACT->unk84, RENDER_ACT->unk130, RENDER_ACT->unk131)) {
             return arg2;
         }
     }
-    L80630DCC_ACT->unk60 |= 0x100;
-    if (!(L80630DCC_ACT->unk60 & 0x200)) {
+    RENDER_ACT->unk60 |= 0x100;
+    if (!(RENDER_ACT->unk60 & 0x200)) {
         func_80614A64(arg1);
     }
-    R35000A_WRITE_GFX(arg2++, 0xE7000000, 0);
-    R35000A_WRITE_GFX(arg2++, 0xD9FFFFFF, 0x200001);
-    R35000A_WRITE_GFX(arg2++, 0xD9FEF9FF, 0);
-    if (L80630DCC_ACT->unk58 == 0x135) {
-        R35000A_WRITE_GFX(arg2++, 0xD9FFFFFE, 0);
+    WRITE_GFX_WORDS(arg2++, 0xE7000000, 0);
+    WRITE_GFX_WORDS(arg2++, 0xD9FFFFFF, 0x200001);
+    WRITE_GFX_WORDS(arg2++, 0xD9FEF9FF, 0);
+    if (RENDER_ACT->unk58 == 0x135) {
+        WRITE_GFX_WORDS(arg2++, 0xD9FFFFFE, 0);
     }
-    R35000A_WRITE_GFX(arg2++, 0xDB06003C, osVirtualToPhysical(L80630DCC_ACT->unk148[D_807444FC]));
-    if (L80630DCC_ACT->unk60 & 0x1000) {
+    WRITE_GFX_WORDS(arg2++, 0xDB06003C, osVirtualToPhysical(RENDER_ACT->unk148[D_807444FC]));
+    if (RENDER_ACT->unk60 & 0x1000) {
         arg2 = func_80722294(arg2, arg1, D_807FC929);
-        R35000A_WRITE_GFX(arg2++, 0xD9FFFFFF, 0x20000);
-        R35000A_WRITE_GFX(arg2++, 0xFA0000FF, 0xFFFFFFFF);
+        WRITE_GFX_WORDS(arg2++, 0xD9FFFFFF, 0x20000);
+        WRITE_GFX_WORDS(arg2++, 0xFA0000FF, 0xFFFFFFFF);
     } else {
         u8 node;
         s32 padE[1];
@@ -582,51 +582,51 @@ void *func_80630DCC(s32 arg0, void *arg1, R35000aGfx *arg2, u8 arg3) {
         f32 sp84;
         f32 sp80;
         s32 padF[1];
-        R35000A_WRITE_GFX(arg2++, 0xD9FDFFFF, 0);
-        if (L80630DCC_ACT->unk60 & 0x800000) {
-            spCB = L80630DCC_ACT->unk16A;
-            spCA = L80630DCC_ACT->unk16B;
-            spC9 = L80630DCC_ACT->unk16C;
+        WRITE_GFX_WORDS(arg2++, 0xD9FDFFFF, 0);
+        if (RENDER_ACT->unk60 & 0x800000) {
+            spCB = RENDER_ACT->unk16A;
+            spCA = RENDER_ACT->unk16B;
+            spC9 = RENDER_ACT->unk16C;
         } else {
-            node = L80630DCC_ACT->unkCD;
+            node = RENDER_ACT->unkCD;
             if (node) {
                 actorGetNodePos(arg1, node, &sp88, &sp84, &sp80);
             } else {
-                sp88 = L80630DCC_ACT->unk7C;
-                sp84 = L80630DCC_ACT->unk80;
-                sp80 = L80630DCC_ACT->unk84;
+                sp88 = RENDER_ACT->unk7C;
+                sp84 = RENDER_ACT->unk80;
+                sp80 = RENDER_ACT->unk84;
             }
-            func_8065C334(sp88, sp84, sp80, L80630DCC_ACT->unkCE, &spCB, &spCA, &spC9, L80630DCC_ACT->unk12C);
-            if (!(L80630DCC_ACT->unk64 & 1)) {
-                dx = L80630DCC_ACT->unk16D / 15.0f;
+            func_8065C334(sp88, sp84, sp80, RENDER_ACT->unkCE, &spCB, &spCA, &spC9, RENDER_ACT->unk12C);
+            if (!(RENDER_ACT->unk64 & 1)) {
+                dx = RENDER_ACT->unk16D / 15.0f;
                 spCB = spCB * dx;
                 spCA = spCA * dx;
                 spC9 = spC9 * dx;
             }
         }
-        R35000A_WRITE_GFX(arg2++, 0xFA0000FF, (spCB << 24) | (spCA << 16) | (spC9 << 8) | 0xFF);
+        WRITE_GFX_WORDS(arg2++, 0xFA0000FF, (spCB << 24) | (spCA << 16) | (spC9 << 8) | 0xFF);
     }
-    if (L80630DCC_ACT->unk60 & 0x8000) {
-        renderCalcPlayerDistanceAlpha(L80630DCC_ACT->unk7C, L80630DCC_ACT->unk80, L80630DCC_ACT->unk84, L80630DCC_ACT->unk12A, -1, &L80630DCC_ACT->unk128);
+    if (RENDER_ACT->unk60 & 0x8000) {
+        renderCalcPlayerDistanceAlpha(RENDER_ACT->unk7C, RENDER_ACT->unk80, RENDER_ACT->unk84, RENDER_ACT->unk12A, -1, &RENDER_ACT->unk128);
     }
-    if (L80630DCC_ACT->unk5C != 0x80 && L80630DCC_ACT->unk5C != 0x40 && L80630DCC_ACT->unk5C != 8) {
-        if ((L80630DCC_ACT->unk80 - 5.0f < L80630DCC_PLY->unk220 && L80630DCC_PLY->unk220 < L80630DCC_ACT->unk80 + 2.0 * L80630DCC_ACT->unk15E) || (L80630DCC_ACT->unk6A & 0x2000)) {
-            size = L80630DCC_ACT->unk84 - L80630DCC_PLY->unk224;
-            dz = L80630DCC_ACT->unk7C - L80630DCC_PLY->unk21C;
-            dy = L80630DCC_ACT->unk4->unk38;
+    if (RENDER_ACT->unk5C != 0x80 && RENDER_ACT->unk5C != 0x40 && RENDER_ACT->unk5C != 8) {
+        if ((RENDER_ACT->unk80 - 5.0f < CUR_PLAYER_VIEW->unk220 && CUR_PLAYER_VIEW->unk220 < RENDER_ACT->unk80 + 2.0 * RENDER_ACT->unk15E) || (RENDER_ACT->unk6A & 0x2000)) {
+            size = RENDER_ACT->unk84 - CUR_PLAYER_VIEW->unk224;
+            dz = RENDER_ACT->unk7C - CUR_PLAYER_VIEW->unk21C;
+            dy = RENDER_ACT->unk4->unk38;
             if (dy < 0.01) {
                 dy = 0.01f;
             }
             spB8 = ((((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) > 0.3 ? ((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) - 0.3 : 0.0) < 1.0) ? (((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) > 0.3 ? ((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) - 0.3 : 0.0) : 1.0;
         }
     }
-    dx = L80630DCC_ACT->unk128 * spB8;
+    dx = RENDER_ACT->unk128 * spB8;
     if (dx != 0.0f) {
         arg2 = func_80614B34(renderSetSegment6AndFog(arg2, dx, 1), arg1);
     }
-    R35000A_WRITE_GFX(arg2++, 0xE7000000, 0);
-    R35000A_WRITE_GFX(arg2++, 0xE3001001, 0);
-    R35000A_WRITE_GFX(arg2++, 0xE7000000, 0);
+    WRITE_GFX_WORDS(arg2++, 0xE7000000, 0);
+    WRITE_GFX_WORDS(arg2++, 0xE3001001, 0);
+    WRITE_GFX_WORDS(arg2++, 0xE7000000, 0);
     return arg2;
 }
 #else
@@ -634,16 +634,16 @@ void *func_80630DCC(s32 arg0, void *arg1, R35000aGfx *arg2, u8 arg3) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/35000/func_80630DCC.s")
 #endif
 
-typedef struct R35000aVec {
+typedef struct ModelScale {
     /* 0x00 */ u8 pad0[0x34];
     /* 0x34 */ f32 unk34;
     /* 0x38 */ f32 unk38;
     /* 0x3C */ f32 unk3C;
-} R35000aVec;
+} ModelScale;
 
-typedef struct R35000aActor {
+typedef struct MatrixActor {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ R35000aVec *unk4;
+    /* 0x04 */ ModelScale *unk4;
     /* 0x08 */ u8 pad8[4];
     /* 0x0C */ f32 unkC[4][4];
     /* 0x4C */ u8 pad4C[0x14];
@@ -659,12 +659,12 @@ typedef struct R35000aActor {
     /* 0xE4 */ s16 unkE4;
     /* 0xE6 */ s16 unkE6;
     /* 0xE8 */ s16 unkE8;
-} R35000aActor;
+} MatrixActor;
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-void func_8063162C(R35000aActor *arg0, f32 *arg1) {
+void actorBuildModelMatrix(MatrixActor *arg0, f32 *arg1) {
     f32 sinA;
     f32 cosA;
     f32 sinB;
@@ -719,7 +719,7 @@ void func_8063162C(R35000aActor *arg0, f32 *arg1) {
 
 
 
-void func_806317D4(R35000aActor *arg0, f32 *arg1, f32 arg2, f32 arg3, f32 arg4) {
+void actorBuildModelMatrixFromAngles(MatrixActor *arg0, f32 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 sinA;
     f32 cosA;
     f32 sinB;
@@ -762,10 +762,10 @@ void func_806317D4(R35000aActor *arg0, f32 *arg1, f32 arg2, f32 arg3, f32 arg4) 
     *arg1 = 1.0f;
 }
 
-void func_8063162C(R35000aActor *, f32 *);
-void func_806317D4(R35000aActor *, f32 *, f32, f32, f32);
+void actorBuildModelMatrix(MatrixActor *, f32 *);
+void actorBuildModelMatrixFromAngles(MatrixActor *, f32 *, f32, f32, f32);
 
-void func_806319C4(R35000aActor *arg0, u8 arg1) {
+void actorUpdateModelMatrix(MatrixActor *arg0, u8 arg1) {
     f32 sp78[4][4];
     f32 sp38[4][4];
     s16 angle;
@@ -787,17 +787,17 @@ void func_806319C4(R35000aActor *arg0, u8 arg1) {
         x = (x + arg0->unkE4) & 0xFFF;
         sp30 = arg0->unkE6;
         if (arg1 != 0) {
-            func_806317D4(arg0, (f32 *)sp78, x, sp32, sp30);
+            actorBuildModelMatrixFromAngles(arg0, (f32 *)sp78, x, sp32, sp30);
             guMtxCatF(arg0->unkC, sp78, arg0->unkC);
             return;
         }
-        func_806317D4(arg0, (f32 *)arg0->unkC, x, sp32, sp30);
+        actorBuildModelMatrixFromAngles(arg0, (f32 *)arg0->unkC, x, sp32, sp30);
         return;
     }
     if (arg1 != 0) {
-        func_8063162C(arg0, (f32 *)sp78);
+        actorBuildModelMatrix(arg0, (f32 *)sp78);
         guMtxCatF(arg0->unkC, sp78, arg0->unkC);
         return;
     }
-    func_8063162C(arg0, (f32 *)arg0->unkC);
+    actorBuildModelMatrix(arg0, (f32 *)arg0->unkC);
 }

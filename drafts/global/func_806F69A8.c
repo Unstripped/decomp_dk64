@@ -1,7 +1,7 @@
 // func_806F69A8 (src/global/F9450.c): Stage 1: full semantic C trial compiles. Corrected the preliminary rectangle-chain next offset to 0x10 and update-node fields through 0x1C; trial remains off (0x150 versus target 0x170 frame, local placement/register pressure, and table stride codegen).
-? func_8062FF10(f32 (*)[4], f32 (*)[4]);            /* extern */
-? func_806355DC(s16, ?);                            /* extern */
-? func_806357F8(s16, f32 *, f32 *, f32 *, ? *, ? *, ? *, ? *, ? *, s32); /* extern */
+? matrix4Invert(f32 (*)[4], f32 (*)[4]);            /* extern */
+? modelSlotFreeByIndex(s16, ?);                            /* extern */
+? modelSlotGetTransformVectors(s16, f32 *, f32 *, f32 *, ? *, ? *, ? *, ? *, ? *, s32); /* extern */
 ? func_806358E8(s16, f32, f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32, s32); /* extern */
 ? func_806398E4(s16, ?, ?);                         /* extern */
 s16 func_8063D990(s16);                             /* extern */
@@ -78,7 +78,7 @@ void func_806F69A8(s32 arg0) {
         temp_a1 = D_807FC924 + (temp_s4 * 0x2F0) + (D_807444FC << 6) + 8;
         sp90 = temp_a1;
         guMtxL2F((f32 (*)[4]) &sp118[0], temp_a1);
-        func_8062FF10((f32 (*)[4]) &spD8[0], (f32 (*)[4]) &sp118[0]);
+        matrix4Invert((f32 (*)[4]) &spD8[0], (f32 (*)[4]) &sp118[0]);
         var_s0_2 = D_807FD730;
         var_s2 = NULL;
         if (var_s0_2 != NULL) {
@@ -92,7 +92,7 @@ void func_806F69A8(s32 arg0) {
                     temp_v0_2 = func_806F4E74(var_s0_2->unk2);
                     temp_s1 = (&D_80753EF0 + (temp_v0_2 * 0x14))->unk2;
                     if (var_s0_2->unk10 == 0) {
-                        func_806357F8(var_s0_2->unk0, &spBC, &spB8, &spB4, &spB0, &spAC, &spA8, &spA4, &spA0, 1);
+                        modelSlotGetTransformVectors(var_s0_2->unk0, &spBC, &spB8, &spB4, &spB0, &spAC, &spA8, &spA4, &spA0, 1);
                         guMtxXFML(sp90, spBC, spB8, spB4, var_s0_2 + 4, var_s0_2 + 8, var_s0_2 + 0xC);
                         var_s0_2->unk10 = 1U;
                         func_806398E4(var_s0_2->unk0, 1, 0);
@@ -129,7 +129,7 @@ void func_806F69A8(s32 arg0) {
                     var_s0_2->unk14 = (f32) (var_s0_2->unk14 + temp_v0_5->unk4);
                     if ((temp_v0_5->unk8 < var_s0_2->unk14) || (temp_v0_5->unk2 == -2)) {
                         func_806F54E0(temp_s4 & 0xFF, var_s0_2->unk2, var_s0_2->unk1A);
-                        func_806355DC(var_s0_2->unk0, 1);
+                        modelSlotFreeByIndex(var_s0_2->unk0, 1);
                         if (var_s2 != NULL) {
                             var_s2->unk1C = (void *) var_s0_2->unk1C;
                         } else {

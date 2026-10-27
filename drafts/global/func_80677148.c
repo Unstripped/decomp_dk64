@@ -34,7 +34,7 @@ u8 func_80677148(Actor *arg0, Actor *arg1) {
     }
     temp_s6->unk58 = (s32)((u8 *)D_807FB5D8 - (u8 *)temp_s0->unkA4) / 88;
     func_8067760C((Beh7BB_Struct_760C *)temp_s0, sp11C, D_807FB5D8->unk4E);
-    func_8062FF10(spDC, sp11C);
+    matrix4Invert(spDC, sp11C);
     if (((Beh7BB_ActorFull *)arg1)->unk64 & 0x10) {
         var_fv1 = arg0->unk7C;
         var_fa0 = arg0->unk80;

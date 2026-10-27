@@ -160,9 +160,9 @@ void func_8061CC40(void *, s32, s32);
 void func_806224CC(s32, void *);
 void func_806225C0(s32);
 void func_80626110(s32, s32, s32);
-s32 func_80629148(void);
-void func_80629174(void);
-void func_806319C4(void *, s32);
+s32 currentActorTestClearFlag(void);
+void currentActorClearFlag(void);
+void actorUpdateModelMatrix(void *, s32);
 void func_8063DA40(s16, s32);
 f32 func_806614D0(f32);
 void func_8066164C(void);
@@ -237,7 +237,7 @@ void func_8002A92C(void) {
     if (!(ACTOR->unk60 & 0x10)) {
         func_80626110(D_807F5D10, 0, 0);
         func_806FB370(5, 0, 1);
-        func_80629174();
+        currentActorClearFlag();
         func_806D0430(1.2f);
         func_806978FC();
         ACTOR->unkCC = 2U;
@@ -392,7 +392,7 @@ block_178:
         sp7E = 0;
         ACTOR->unk132 = 4;
         func_8002A8B8((s32)((u8 *)D_807FDCA0 + 0x24));
-        if ((ACTOR->unk155 == 0) && (func_80629148() != 0)) {
+        if ((ACTOR->unk155 == 0) && (currentActorTestClearFlag() != 0)) {
             ACTOR->unk155 = (u8) (ACTOR->unk155 + 1);
             temp_v0_2 = D_807FDCA0->unk14;
             func_80028478(0xEC, temp_v0_2->unkA0, (s16) (temp_v0_2->unkA2 + 0x14), temp_v0_2->unkA4, 0x5DC, 4);
@@ -420,14 +420,14 @@ block_71:
             }
             break;
         case 1:                                     /* switch 2 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_80614EBC(D_807FBB40, 0x2C4);
                 func_80614D00(D_807FBB40, 0x3F000000, 0);
                 ACTOR->unk155 = 2U;
             }
             break;
         case 3:                                     /* switch 2 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 D_807FDC90->unkC = 0x1F4;
                 func_80614EBC(D_807FBB40, 0x2C5);
                 ACTOR->unk155 = 4U;
@@ -445,7 +445,7 @@ block_71:
             ACTOR->unk80 = (f32) ((f64) var_fv0 + ((f64) ((var_fv1 + 200.0f) - var_fv0) * 0.12));
             break;
         case 6:                                     /* switch 2 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 ACTOR->unk154 = (u8) *(temp_s1->unk15 + sp84);
                 temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
                 ACTOR->unk155 = 0U;
@@ -461,7 +461,7 @@ block_71:
             ACTOR->unk155 = 1U;
             break;
         case 2:                                     /* switch 3 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_8063DA40(0, 1);
                 ACTOR->unk154 = (u8) *(temp_s1->unk15 + sp84);
                 temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
@@ -597,7 +597,7 @@ block_71:
         goto block_178;
     case 0x11:                                      /* switch 1 */
         actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x293, 0.0f);
-        if (func_80629148() != 0) {
+        if (currentActorTestClearFlag() != 0) {
             ACTOR->unk154 = (u8) *(temp_s1->unk15 + sp84);
             temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
             ACTOR->unk155 = 0U;
@@ -649,14 +649,14 @@ block_71:
                 ACTOR->unk155 = 3U;
                 func_806086CC(ACTOR->unk7C, ACTOR->unk80, ACTOR->unk84, 0xC, 0xFF, 0x50, 0, 0, 0, 0);
             }
-            if ((D_8076A0A8 == 0xC5) && (temp_s1->unk14 == 3) && (func_80629148() != 0)) {
+            if ((D_8076A0A8 == 0xC5) && (temp_s1->unk14 == 3) && (currentActorTestClearFlag() != 0)) {
                 temp_v0_2 = D_807FDCA0->unk14;
                 func_80028478(0x4A, temp_v0_2->unkA0, (s16) (temp_v0_2->unkA2 + 0x14), temp_v0_2->unkA4, 0x5DC, 4);
             }
             break;
         case 3:                                     /* switch 10 */
             sp7F = 0;
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 if ((D_8076A0A8 == 0xC5) && (temp_s1->unk14 == 3)) {
                     ACTOR->unk154 = 0x37U;
                     ACTOR->unk155 = 1U;
@@ -733,5 +733,5 @@ block_71:
     if (func_8061CB50() != 0) {
         ACTOR->unk144 = 1;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

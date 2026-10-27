@@ -45,7 +45,7 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 s32 func_806119A0(void);
 s32 randomNonNegative(void);
 void actorScriptStart(Actor *, s32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void triggerZoneCheckEntry(Actor *);
 s32 func_80665AAC(Actor *);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
@@ -334,7 +334,7 @@ void actorScaleGrowthUpdate(void) {
         }
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void effectSpawnMultiTierRing(f32 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
@@ -572,7 +572,7 @@ void effectActorGrowthTick(void) {
         D_807FBB40->unk4->unk34 = (f32)(D_807FBB40->unk4->unk34 * 1.1);
         D_807FBB40->unk4->unk3C = (f32)(D_807FBB40->unk4->unk3C * 1.1);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_806871DC.s")

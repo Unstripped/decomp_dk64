@@ -65,10 +65,10 @@ extern u16 D_807ECD60;
 Gfx *func_806BCF98(Gfx *, Actor *);
 void behaviourFrameBegin(void);
 void func_806BD0CC(void);
-void func_80629174(void);
+void currentActorClearFlag(void);
 s32 flagGet(s32, s32);
 void func_8061CC40();
-s32 func_80629148(void);
+s32 currentActorTestClearFlag(void);
 void renderCallbacksRegister(void *, void *, s32);
 void func_8061CB08(void);
 void func_806CFF9C(void *);
@@ -86,7 +86,7 @@ f32 func_806119FC(void);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void func_80614644(void *, void *, f32);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 void func_806BC1E0(void) {
     f32 old;
@@ -123,7 +123,7 @@ void func_806BC1E0(void) {
         st->unk28 = LGB->unk80;
         st->unk2C = LGB->unk84;
         st->unk30 = LGB->unk4->unk38;
-        func_80629174();
+        currentActorClearFlag();
     }
     switch (st->unk38) {
     case 0:
@@ -136,7 +136,7 @@ void func_806BC1E0(void) {
         }
         break;
     case 1:
-        if (func_80629148() != 0) {
+        if (currentActorTestClearFlag() != 0) {
             st->unk38 = 2;
         }
         break;
@@ -164,7 +164,7 @@ void func_806BC1E0(void) {
             st->unk39 = 3;
             break;
         case 3:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 D_80750650 = 1;
                 st->unk38 = 3;
                 st->unk4 = 0.025f;
@@ -316,7 +316,7 @@ void func_806BC1E0(void) {
         }
         break;
     case 8:
-        if (func_80629148() != 0) {
+        if (currentActorTestClearFlag() != 0) {
             func_806BD0CC();
             if (flagGet(0x10F, 0) == 0) {
                 func_8063DA40(0x10, 0xA);
@@ -339,7 +339,7 @@ void func_806BC1E0(void) {
         }
         break;
     case 9:
-        if (func_80629148() != 0) {
+        if (currentActorTestClearFlag() != 0) {
             sfxStopChannel(0x57, 1);
             sfxAllocateChannel(0x67, 1.0f);
             func_806BD0CC();
@@ -405,7 +405,7 @@ void func_806BC1E0(void) {
         }
     }
     LGB->unk4->unk38 = LGB->unk4->unk38 + (sp70 - LGB->unk4->unk38) * 0.25f;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #else
 

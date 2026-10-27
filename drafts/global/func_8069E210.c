@@ -15,7 +15,7 @@ void func_80613C48(Actor *, s16, f32, f32);
 void func_80613CA8(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
 s32 actorListFindIdByActor(Actor *);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 void func_8069E210(void) {
     Actor *actor;

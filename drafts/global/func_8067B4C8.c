@@ -160,5 +160,5 @@ void func_8067B4C8(void) {
         }
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

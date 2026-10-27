@@ -67,7 +67,7 @@ typedef struct R1C2CB_ActorC0 {
 #define R1C2CBC0 ((R1C2CB_ActorC0 *)D_807FBB40)
 
 void actorScriptStart(void *, s32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void func_8061C600(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_8072881C(s32, void *);
 
@@ -107,7 +107,7 @@ void func_806BDEC8(void) {
         }
     }
     func_8072881C(0, D_807FDC90->unk28);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct R1C2CB_S90 {
@@ -248,7 +248,7 @@ void func_806BE09C(void) {
         break;
     }
     func_8072881C(0, D_807FDC90->unk28);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern u8 D_807506C0[];
@@ -385,7 +385,7 @@ void func_8061CB08(void);
 s32 func_8061CC40(void *, s32, s32);
 void func_8061F510(s32, s32);
 void func_8062217C(void *, s32);
-s32 func_80629148();
+s32 currentActorTestClearFlag();
 void func_8063DA40(s32, s32);
 void func_80641874(s32, s32);
 void actorDrawAnimatedEffect(void);
@@ -442,7 +442,7 @@ void func_806BE8BC(void) {
             if (LgBA->unk128 < 0xFF) {
                 LgBA->unk128 += 5;
             }
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_8063DA40(0x1F, 3);
                 actorClearMovementFlags(D_807FBB4C);
                 func_80726EE0(1);
@@ -464,7 +464,7 @@ void func_806BE8BC(void) {
             sel = LgBA->unk155;
             switch (sel) {
                 case 0:
-                    if (func_80629148() != 0) {
+                    if (currentActorTestClearFlag() != 0) {
                         func_8061CAD8();
                         func_8061CAD8();
                         LgBA->unk155++;
@@ -523,7 +523,7 @@ void func_806BE8BC(void) {
                     LgBA->unk80 = LgBA->unkA4;
                     break;
                 case 1:
-                    if (func_80629148() != 0) {
+                    if (currentActorTestClearFlag() != 0) {
                         if (sp37 != 0) {
                             func_8063DA40(0x57, 0xA);
                             LgBS->unk1A |= 0x8000;
@@ -610,7 +610,7 @@ void func_806BE8BC(void) {
         func_80724E48(0);
     }
     func_8072A450();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct LgBF218Sub124 {

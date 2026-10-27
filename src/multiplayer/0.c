@@ -321,7 +321,7 @@ s32 func_800253C8(void) {
 
 #pragma GLOBAL_ASM("asm/multiplayer/nonmatchings/0/func_80025404.s")
 
-void func_8063254C(s32, s32 *, s32 *, s32 *, s32 *, s16 *, s16 *);
+void modelSlotFindByType(s32, s32 *, s32 *, s32 *, s32 *, s16 *, s16 *);
 
 s32 func_80025608(s32 arg0) {
     s32 sp3C;
@@ -334,7 +334,7 @@ s32 func_80025608(s32 arg0) {
     sp3C = 0;
     sp2E = 0;
     sp2C = 0;
-    func_8063254C(arg0, &sp3C, &sp38, &sp34, &sp30, &sp2E, &sp2C);
+    modelSlotFindByType(arg0, &sp3C, &sp38, &sp34, &sp30, &sp2E, &sp2C);
 }
 
 typedef struct Struct_80025654_Pos_MpHigh {

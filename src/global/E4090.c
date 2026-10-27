@@ -2461,7 +2461,7 @@ void func_806E52D0(void) {
     }
 }
 
-s32 func_8063C328();
+s32 modelSlotGetType();
 
 u8 func_806E5488(G26Mob *arg0) {
     f32 dx;
@@ -2483,13 +2483,13 @@ u8 func_806E5488(G26Mob *arg0) {
             return 1;
         }
     }
-    if ((arg0->unk110 == 1) && (func_8063C328(arg0->unk10C) == 0x88)) {
+    if ((arg0->unk110 == 1) && (modelSlotGetType(arg0->unk10C) == 0x88)) {
         return 1;
     }
-    if ((arg0->unk110 == 1) && (func_8063C328(arg0->unk10C) == 0x219)) {
+    if ((arg0->unk110 == 1) && (modelSlotGetType(arg0->unk10C) == 0x219)) {
         return 1;
     }
-    if ((arg0->unk110 == 1) && (func_8063C328(arg0->unk10C) == 0x132)) {
+    if ((arg0->unk110 == 1) && (modelSlotGetType(arg0->unk10C) == 0x132)) {
         return 1;
     }
     return 0;
@@ -2500,7 +2500,7 @@ int func_806E560C(G26Mob *arg0) {
 
     ret = 0;
     if (arg0->unk110 == 1) {
-        switch (func_8063C328(arg0->unk10C, arg0)) {
+        switch (modelSlotGetType(arg0->unk10C, arg0)) {
             case 0xA8:
                 if (arg0->unk58 == 2) {
                     ret = 1;
@@ -2863,13 +2863,13 @@ extern s32 D_807FBB60;
 extern f32 D_807FD888;
 s32 func_8061CB50(void);
 s32 func_8071432C(void);
-s32 func_8062919C(void);
-s32 func_806291A8(void);
+s32 screenWipeGetState(void);
+s32 screenWipeGetCooldown(void);
 
 void func_806E6234(void) {
     if ((G25_PAD(D_807FD63C, u16) & 0x1000) && (func_8061CB50() == 0) && (D_807FD888 == 0.0f) &&
         ((func_8071432C() != 0) || (func_8071441C() != 0) || (func_807142D8() != 0)) &&
-        (func_8062919C() == 0) && (func_806291A8() == 0)) {
+        (screenWipeGetState() == 0) && (screenWipeGetCooldown() == 0)) {
         D_807FC8B9 = D_807FC929;
         D_807FBB60 |= 1;
     }

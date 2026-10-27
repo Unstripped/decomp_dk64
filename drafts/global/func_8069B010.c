@@ -35,7 +35,7 @@ void func_8071EEE0(void);
 void func_8066EB40(Actor *, f32);
 void func_8067ACB4(Actor *);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void func_80613C48(Actor *, s16, f32, f32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);

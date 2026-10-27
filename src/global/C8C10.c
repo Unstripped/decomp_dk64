@@ -302,7 +302,7 @@ void func_806C498C(void) {
 }
 
 void behaviourFrameBegin(void);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 void func_806C49D0(void) {
     behaviourFrameBegin();
@@ -327,7 +327,7 @@ void func_806C49D0(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern u8 D_8074E77C;
@@ -404,7 +404,7 @@ u8 func_806C4AC4(u16 arg0, u16 arg1) {
             renderCallbacksRegister(actorDrawAnimatedEffect, D_807FBB40, 3);
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     return ret;
 }
 
@@ -482,7 +482,7 @@ typedef struct LgC4F5CS90 {
 
 void behaviourSetAnimIds(s32, s32, s32);
 void func_806BFBF4(void);
-s32 func_80629148(void);
+s32 currentActorTestClearFlag(void);
 void func_8063DA40(s32, s32);
 void actorScriptStart(Actor *, s32);
 void func_8070E8DC(s32);
@@ -516,7 +516,7 @@ void func_806C4F5C(void) {
         case 15:
         case 30:
             func_806BFBF4();
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_8063DA40(0x2D, 0x14);
                 LgA->unk12A = 0x3E8;
                 D_807FDC98->unk46 |= 0x24;
@@ -720,7 +720,7 @@ void func_806C55E0(void) {
                     }
                     break;
                 case 1:
-                    if (func_80629148() != 0) {
+                    if (currentActorTestClearFlag() != 0) {
                         actorScriptStart(D_807FBB40, 0x354);
                         LA->unk155++;
                     }
@@ -983,7 +983,7 @@ void func_806C5C20(void) {
     func_80626F8C(D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f, D_807FBB40->unk84, &sp54, &sp50, 0, 1.0f, 0);
     D_807FD804 = sp54;
     D_807FD806 = sp50;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
@@ -1027,7 +1027,7 @@ void func_806C5FEC(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
@@ -1083,5 +1083,5 @@ void func_806C61C8(void) {
     } else if (R1A->unkEC >= 0x10) {
         R1A->unkEC--;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

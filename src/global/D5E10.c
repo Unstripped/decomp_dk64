@@ -91,7 +91,7 @@ typedef struct G08Actor {
 extern u32 D_807FBB60;
 extern G08Slot D_807FD63A[];
 s32 func_806DF6D4();
-void func_806319C4();
+void actorUpdateModelMatrix();
 void func_806CFF9C();
 s32 playerStateQueueCallback();
 void func_806CC8B8();
@@ -111,7 +111,7 @@ void func_806D1110(void) {
     } else {
         G08_A40->unk144 = 1;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D11FC(void) {
@@ -123,7 +123,7 @@ void func_806D11FC(void) {
 void func_806D1238(void) {
     func_806DF6D4(0x66);
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D1270(void) {
@@ -134,7 +134,7 @@ void func_806D1278(void) {
     if (!(D_807FD580->unk1F0 & 0x10000)) {
         func_806CFF9C(D_807FBB40);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 f32 mathApproachF32(f32, f32, f32);
@@ -161,7 +161,7 @@ void func_806D12CC(void) {
             break;
     }
     func_806D11FC();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void mathAngleStepToward();
@@ -188,7 +188,7 @@ void func_806D1420(void) {
         G08_A40->unk155 = 0;
         G08_P->unk1C = 2.0f;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_80753AFC[];
@@ -275,7 +275,7 @@ void func_806D1568(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806CD424(s16, f32, f32);
@@ -316,7 +316,7 @@ void func_806D19A8(void) {
             break;
     }
     func_806D11FC();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806CC920();
@@ -359,14 +359,14 @@ void func_806D1B60(void) {
             break;
     }
     func_806D11FC();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D1D3C(void) {
     G08_P->unk4 = 0.0f;
     func_806DF6D4(0x65);
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D1D84(void) {
@@ -374,20 +374,20 @@ void func_806D1D84(void) {
     G08_P->unk30 = 20.0f;
     playerStateQueueCallback(0x3C, 0, D_807FC929);
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_805FF8F8();
-s32 func_80629148();
+s32 currentActorTestClearFlag();
 
 void func_806D1DEC(void) {
     G08_P->unk4 = 0.0f;
     G08_P->unk30 = 20.0f;
     func_806CC8B8();
-    if ((func_80629148() != 0) || (G08_A40->unk155 == 1) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
+    if ((currentActorTestClearFlag() != 0) || (G08_A40->unk155 == 1) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
         func_805FF8F8();
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_805FF898();
@@ -401,7 +401,7 @@ void func_806D1E90(void) {
         func_805FF898(D_807FBB40);
         G08_A40->unk155++;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void hudSpawnTextScreen(s32);
@@ -422,11 +422,11 @@ void func_806D1F28(void) {
         G08_A40->unkC0 = G08_A40->unkC0 * 0.25;
         func_806CC8B8();
     }
-    if ((func_80629148() != 0) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
+    if ((currentActorTestClearFlag() != 0) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
         hudSpawnTextScreen(0);
         G08_A40->unk155++;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct NmD5E10aTbl {
@@ -457,7 +457,7 @@ void func_806D205C(void) {
         G08_A40->unkC0 = G08_A40->unkC0 * 0.25;
         func_806CC8F0();
     }
-    if ((func_80629148() != 0) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
+    if ((currentActorTestClearFlag() != 0) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
         if (func_807143E8() == 0) {
             r = func_80600340(&sp1C, 3, sp2C);
             t = r;
@@ -466,7 +466,7 @@ void func_806D205C(void) {
         func_805FF898();
         G08_A40->unk155++;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
@@ -475,7 +475,7 @@ void func_806D21E4(void) {
     if (!(D_807FBB60 & 0x4000) && !(D_807FBB60 & 0x8000)) {
         func_806CFF9C(D_807FBB40);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G09Actor {
@@ -583,7 +583,7 @@ void func_806D239C(void) {
         case 0x4D:
         case 0x81:
         case 0x82:
-            if ((G09_P->unk1F0 & 8) && (func_80629148() != 0)) {
+            if ((G09_P->unk1F0 & 8) && (currentActorTestClearFlag() != 0)) {
                 G09_P->unk88->unk154 = 0xA;
                 G09_A->unk155++;
             }
@@ -703,7 +703,7 @@ void func_806D27A4(void) {
         if (G09_A->unk4->unk64 != 0x3B0) {
             actorScriptStart(D_807FBB40, 0x3B0);
         }
-        if ((func_80629148() != 0) || (G09_A->unk155 != 0)) {
+        if ((currentActorTestClearFlag() != 0) || (G09_A->unk155 != 0)) {
             func_805FF8F8();
         }
     }
@@ -737,7 +737,7 @@ void func_806D28E4(void) {
 
 
 void func_806D2904(void) {
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     if (G09_A->unk155++ >= 0xC9) {
         func_806CFF9C(D_807FBB40);
     }
@@ -805,7 +805,7 @@ void func_806D2AA0(s16 arg0) {
         *(void **)((G09Actor *)D_807FBB44)->unk174 = D_807FD580;
         G09_P->unk1F0 |= 0x8000;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D2B90(void) {
@@ -871,7 +871,7 @@ void sfxStopSlotSound();
 void func_806D2BD0(void) {
     func_806D2954(0xC);
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     if ((func_8061CB50() != 0) && (G10_A->unk6E != -1)) {
         sfxStopSlotSound(D_807FBB40, 0);
     }
@@ -883,7 +883,7 @@ void func_806D2BD0(void) {
 void func_806D2C54(void) {
     func_806D2A14(0x10);
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     if (D_807463B8 == 3) {
         func_806C9F74(D_807FBB40);
     }
@@ -927,7 +927,7 @@ void func_806D2CAC(void) {
     if (func_806D850C() != 0) {
         func_806EAB44(D_807FBB40, 1);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D2D38(void) {
@@ -937,7 +937,7 @@ void func_806D2D38(void) {
     if (func_806D850C() != 0) {
         func_806EAB44(D_807FBB40, 1);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern u32 D_8076A064;
@@ -962,7 +962,7 @@ void func_806D2DC4(void) {
         }
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_807536E4[];
@@ -1050,7 +1050,7 @@ void func_806D2E9C(void) {
             func_806F91B4(5, D_807FC929, -1);
         }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D3224(void) {
@@ -1064,7 +1064,7 @@ void func_806D3224(void) {
         }
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D32C0(void) {
@@ -1074,7 +1074,7 @@ void func_806D32C0(void) {
         func_806DF6D4(0x1E);
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_807531E0[];
@@ -1107,7 +1107,7 @@ void func_806D332C(void) {
     }
     G10_P->unkC = G10_P->unkE;
     G10_P->unkE = G10_P->unkA;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D34B4(void) {
@@ -1120,7 +1120,7 @@ void func_806D34B4(void) {
         }
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D3530(void) {
@@ -1165,7 +1165,7 @@ void func_806D36CC(void) {
             break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D374C(void) {
@@ -1180,7 +1180,7 @@ void func_806D374C(void) {
             break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D37CC(void) {
@@ -1201,7 +1201,7 @@ void func_806D37CC(void) {
         G10_A->unkB8 = 0.0f;
         func_806CC8B8();
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_80685210(f32, s32, s32);
@@ -1237,7 +1237,7 @@ void func_806D38AC(s32 arg0) {
         sfxStopSlotSound(D_807FBB40, 0);
         func_806224CC(G10_P->unk104, D_807FBB40);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_8061C464(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -1335,7 +1335,7 @@ void func_806D3B48(void) {
         G11Actor *e = G11_P->unk88->unk174;
         e->unk45 = 1;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D3530();
@@ -1365,7 +1365,7 @@ void func_806D3BC8(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
@@ -1376,7 +1376,7 @@ void func_806D3CD4(void) {
     if (G11_A->unkB8 == 0.0f && G11_A->unkE0 == 0.0f) {
         func_806CFF9C(D_807FBB40);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D3D5C(void) {
@@ -1386,7 +1386,7 @@ void func_806D3D5C(void) {
     if (G11_A->unkB8 == 0.0f && G11_A->unkE0 == 0.0f) {
         func_806CFF9C(D_807FBB40);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_8075327C[];
@@ -1423,7 +1423,7 @@ void func_806D3DE4(void) {
             func_806CC8B8();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D3FA0(void) {
@@ -1477,14 +1477,14 @@ void func_806D4010(void) {
             func_806CC8B8();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D423C(void) {
     G11_A->unkC0 = G11_P->unk54;
     func_806DF6D4(5);
     func_806CC8F0();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_80753234[];
@@ -1549,7 +1549,7 @@ void func_806D428C(void) {
             func_806CC8B8();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 u8 func_806CE4E4(Actor *, f32, f32, s32);
@@ -1590,7 +1590,7 @@ void func_806D45A4(void) {
             func_806CC8B8();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
@@ -1626,7 +1626,7 @@ void func_806D4758(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D491C(void) {
@@ -1658,7 +1658,7 @@ void func_806D491C(void) {
             func_806CC8B8();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G12Player {
@@ -1729,7 +1729,7 @@ void func_806D4A70(void) {
         }
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
@@ -1771,7 +1771,7 @@ void func_806D4C7C(void) {
         func_806CC8B8();
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_80753674[];
@@ -1830,7 +1830,7 @@ void func_806D4DE4(void) {
         func_806CC8B8();
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_80685708();
@@ -1882,7 +1882,7 @@ void func_806D5008(void) {
         func_806CC8B8();
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D5218(void) {
@@ -1896,7 +1896,7 @@ void func_806D5218(void) {
         mathAngleStepToward(&G08_A40->unkEE, G08_A40->unkE6, (s16)(G08_P->unk48 * 1.25));
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_80750FC0;
@@ -1971,14 +1971,14 @@ void func_806D5300(void) {
         break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D57F0(void) {
     func_806DF6D4(1);
     G08_P->unk4 = 0.0f;
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
@@ -2012,7 +2012,7 @@ void func_806D5834(void) {
         break;
     }
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G13Player {
@@ -2075,7 +2075,7 @@ void func_806D59E4(void) {
             break;
     }
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D5B44(void) {
@@ -2098,7 +2098,7 @@ void func_806D5B44(void) {
             break;
     }
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_807531FC[];
@@ -2211,7 +2211,7 @@ void func_806D5CCC(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern s16 D_80753558[];
@@ -2283,7 +2283,7 @@ void func_806D61B8(void) {
             func_806CC948();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern s16 D_80753548[];
@@ -2358,7 +2358,7 @@ void func_806D6558(void) {
             func_806CC948();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G14Anim {
@@ -2533,14 +2533,14 @@ void func_806D6B00(void) {
         func_806CC948();
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D6F0C(void) {
     mathAngleStepToward(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
     func_806DF6D4(8);
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D6F64(void) {
@@ -2563,7 +2563,7 @@ void func_806D6F64(void) {
         break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D7098(void) {
@@ -2580,7 +2580,7 @@ void func_806D7098(void) {
         func_806CFF9C(D_807FBB40);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D7170(void) {
@@ -2599,7 +2599,7 @@ void func_806D7170(void) {
         effectSpawnRandomBoneDebris(1, 8);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D7238(void) {
@@ -2612,7 +2612,7 @@ void func_806D7238(void) {
     if (G14_P->unk21E == 0) {
         func_80712830(D_807FBB40, D_807FC929);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D72D4(void) {
@@ -2653,7 +2653,7 @@ void func_806D72D4(void) {
         func_806CFF9C(D_807FBB40);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D7510(void) {
@@ -2685,7 +2685,7 @@ void func_806D7510(void) {
     G14_P->unk4 = 0.0f;
     G14_P->unk30 = 2.0f;
     func_806CC8F0();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D7704(void) {
@@ -2713,7 +2713,7 @@ void func_806D7704(void) {
         break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void actorSetUniformScale(Actor *, f32);
@@ -2744,13 +2744,13 @@ void func_806D7878(void) {
         G14_A->unk155++;
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D79E4(void) {
     playerStateQueueCallback(0x3C, 0, D_807FC929);
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G15PlayerB {
@@ -2843,7 +2843,7 @@ void func_806D7A28(void) {
             G15_PB->unk1F0 &= ~0x1000;
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D7DF8(void) {
@@ -2858,7 +2858,7 @@ void func_806D7DF8(void) {
             break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D7E88(void) {
@@ -2882,7 +2882,7 @@ void func_806D7E88(void) {
             break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D7F48(void) {
@@ -2902,7 +2902,7 @@ void func_806D7F48(void) {
         }
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D7FE8(void) {
@@ -2917,13 +2917,13 @@ void func_806D7FE8(void) {
             break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D8070(void) {
     func_806DF6D4(1);
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_80753454[];
@@ -2972,7 +2972,7 @@ void func_806D80A8(void) {
             func_806CC8B8();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_80753770[];
@@ -3020,7 +3020,7 @@ void func_806D8308(void) {
             func_806CC8B8();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G15Actor {
@@ -3170,7 +3170,7 @@ void func_806D87FC(void) {
     }
     func_806D850C();
     G15_B->unk60 &= ~1;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D8A64(void) {
@@ -3192,7 +3192,7 @@ void func_806D8A64(void) {
             a = G08_A40;
             break;
     }
-    func_806319C4(a, 0);
+    actorUpdateModelMatrix(a, 0);
 }
 
 typedef struct G16Player {
@@ -3372,7 +3372,7 @@ void func_806D8B08(void) {
     }
     func_806D0EBC(D_807FBB40);
 end:
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D8FCC(void) {
@@ -3409,7 +3409,7 @@ void func_806D8FCC(void) {
             func_806CFE7C();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D9134(void) {
@@ -3417,7 +3417,7 @@ void func_806D9134(void) {
     G08_A40->unkB8 = 0.0f;
     G08_A40->unkC0 = 0.0f;
     func_806CC970();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D9184(void) {
@@ -3462,7 +3462,7 @@ void func_806D91A4(void) {
     }
     func_806DF6D4(1);
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 f32 func_80611BB4(f32, f32);
@@ -3559,7 +3559,7 @@ void func_806D9320(void) {
             break;
     }
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D97A4(void) {
@@ -3569,7 +3569,7 @@ void func_806D97A4(void) {
     }
     func_806CD424(G16_P->unk70, G16_P->unk6C, G16_P->unk38);
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D9820(void) {
@@ -3593,7 +3593,7 @@ void func_806D9820(void) {
             func_806CC8B8();
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D9924(Actor *arg0) {
@@ -3646,7 +3646,7 @@ void func_806D9940(void) {
             G16_A->unk155 = G16_A->unk155 + 1;
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G17Sub4 {
@@ -3791,7 +3791,7 @@ void func_806D9AD4(void) {
         G17_A->unk155++;
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D9D58(void) {
@@ -3833,7 +3833,7 @@ void func_806D9D58(void) {
         }
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806D9FD0(void) {
@@ -3896,7 +3896,7 @@ void func_806D9FD0(void) {
         func_806CC8B8();
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DA320(void) {
@@ -3912,7 +3912,7 @@ void func_806DA320(void) {
         func_806CFF9C(D_807FBB40);
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DA3E4(void) {
@@ -3923,7 +3923,7 @@ void func_806DA3E4(void) {
     G17_A->unk84 = (G17_P->unk234 - G17_A->unk84) * 0.2 + G17_A->unk84;
     mathAngleStepToward(&G17_A->unkE6, (s16)mathAngleBetweenPoints2D(G17_P->unk220, G17_P->unk228, G17_A->unk7C, G17_A->unk84), 0x32);
     func_806CC970();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DA4D8(void) {
@@ -3934,7 +3934,7 @@ void func_806DA4D8(void) {
         G17_P->unk1B0 = NULL;
         func_806CFF9C(D_807FBB40);
         func_806CC8B8();
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
         return;
     }
     switch (G17_A->unk155) {
@@ -3983,7 +3983,7 @@ void func_806DA4D8(void) {
         break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DA7EC(void) {
@@ -3994,7 +3994,7 @@ void func_806DA7EC(void) {
     mathAngleStepToward(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
     G17_P->unk4 = 0.0f;
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DA89C(void) {
@@ -4005,7 +4005,7 @@ void func_806DA89C(void) {
     mathAngleStepToward(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
     G17_P->unk4 = 0.0f;
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DA94C(void) {
@@ -4020,7 +4020,7 @@ void func_806DA94C(void) {
         func_806D3608();
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DAA14(void) {
@@ -4035,7 +4035,7 @@ void func_806DAA14(void) {
         func_806D3608();
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G18Player {
@@ -4134,7 +4134,7 @@ void func_806DAADC(void) {
             break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_80753364[];
@@ -4168,7 +4168,7 @@ void func_806DABE4(void) {
             break;
     }
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_807533D4[];
@@ -4201,7 +4201,7 @@ void func_806DADA0(void) {
             break;
     }
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DAF5C(void) {
@@ -4232,13 +4232,13 @@ void func_806DAF5C(void) {
             break;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DB08C(void) {
     func_806DF6D4(0x12);
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern s16 D_8075326C[];
@@ -4278,7 +4278,7 @@ void func_806DB0C4(void) {
     func_806CDD24(D_807FBB40, G18_P->unk94, G18_P->unk94, 0);
     mathAngleStepToward(&G18_A->unkE6, (s16)(s32)G18_P->unk98, (s16)(D_8075326C[D_807FD584] / 2));
     G18_A->unkEE = G18_A->unkE6;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -4287,7 +4287,7 @@ void matrixCacheRestoreLimit(void);
 void actorClearMovementFlags(void *);
 void func_806C8220(s32, void *, s32);
 void func_8061EB04(Actor *, u8);
-void func_806291B4(s32);
+void screenWipeStart(s32);
 
 void func_806DB3AC(void) {
     G18_A->unkB8 = 0.0f;
@@ -4314,7 +4314,7 @@ void func_806DB3AC(void) {
             G18_A->unk84 = G18_P->unk20C;
             func_806C8220(0, G18_A->unk178, G18_A->unk58);
             func_8061EB04(D_807FBB40, G18_P->unk1A4);
-            func_806291B4(6);
+            screenWipeStart(6);
             G18_P->unk23C = 0x14;
             func_806086CC(G18_A->unk7C, G18_A->unk80, G18_A->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             G18_A->unk155++;
@@ -4340,7 +4340,7 @@ void func_806DB3AC(void) {
             break;
     }
     func_806CC970();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_8067B238(void *, void *, f32);
@@ -4400,7 +4400,7 @@ void func_806DB670(void) {
             func_806C8220(0, G18_A->unk178, G18_A->unk58);
             func_8061EB04(D_807FBB40, G18_P->unk1A4);
             G18_P->unk23C = 0x14;
-            func_806291B4(2);
+            screenWipeStart(2);
             G18_A->unk155++;
             break;
         case 8:
@@ -4447,7 +4447,7 @@ void func_806DB670(void) {
             break;
     }
     func_806CC970();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct LBPlayer {
@@ -4564,7 +4564,7 @@ void func_806DBB04(void) {
     func_806CC970();
     actorGetNodePos(D_807FBB40, 0xC, &sp6C, &sp68, &sp64);
     lightAdd(sp6C, sp68, sp64, 0.0f, 0.0f, 0.0f, 80.0f, 0, 0xFF, 0xFF, 0);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G19Actor {
@@ -4700,7 +4700,7 @@ void func_806DC170(void) {
         i += 4;
     } while (i != 0xC);
     func_806CC970();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806DC3A4(f32 arg0) {
@@ -4984,7 +4984,7 @@ void func_806DCA7C(void) {
         G19_P->unk30 = 10.0f;
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern ActorEntry gActiveActors[];
@@ -5237,7 +5237,7 @@ void func_806DD874(void) {
         func_806CC8B8();
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 s32 func_806CFC90(Actor *, f32 *, s32, f32);
@@ -5453,7 +5453,7 @@ void func_806DDAB0(void) {
     actorApplyVelocity(D_807FBB40);
     func_80665548();
     func_80665564(D_807FBB40, 0);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct LD5Anim {
@@ -5524,12 +5524,12 @@ void func_806DE264(void) {
     }
     if (f > 20.0) {
         func_806CFF1C(D_807FBB40);
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
         return;
     }
     LD5B_P->unkF4 = LD5B_P->unkF0;
     LD5B_A->unk60 |= 0x08000000;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     func_80678DD8(D_807FBB40);
     switch (LD5B_A->unk155) {
     case 0:
@@ -5644,7 +5644,7 @@ void func_806DE264(void) {
         }
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     func_80614A64(D_807FBB40);
 }
 
@@ -5657,7 +5657,7 @@ void func_806DE930(void) {
         G19_P->unk30 = D_80753250[D_807FD584] * 5.0;
     }
     func_806CC8B8();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern s32 D_80750FDC;
@@ -5695,7 +5695,7 @@ void func_806DEAA4(void) {
         G19_P->unk1F0 |= 4;
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G20Actor {
@@ -5713,7 +5713,7 @@ void func_806DECD4(void) {
         G20_A->unk155++;
         func_806CFF9C(D_807FBB40);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G20Sub4 {
@@ -5768,7 +5768,7 @@ s32 func_806F8EB4();
 void func_8061CC40(void *, s32, s32);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
-void func_80629174();
+void currentActorClearFlag();
 void effectSpawnKongRing();
 void func_80709464(u8);
 void slotQueueUpdate(s32, s32, s32);
@@ -5825,16 +5825,16 @@ void func_806DED44(void) {
         G20_E40->unk155 = 2;
         break;
     case 2:
-        if (func_80629148()) {
-            func_80629174();
+        if (currentActorTestClearFlag()) {
+            currentActorClearFlag();
             effectSpawnKongRing();
             sfxAllocateChannel(0x3B, 1.0f);
             G20_E40->unk155 = 3;
         }
     case 3:
-        if (func_80629148()) {
+        if (currentActorTestClearFlag()) {
             owner = G20_E40->unk174;
-            func_80629174();
+            currentActorClearFlag();
             func_806CFF9C(D_807FBB40);
             func_80709464(owner->unk1A4);
             p = &D_80750FE0;
@@ -5845,7 +5845,7 @@ void func_806DED44(void) {
         }
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G20Block {
@@ -5891,7 +5891,7 @@ void func_806DF050(void) {
         G20_C->unk60 &= ~4;
     }
     func_806CC948();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G20Target {
@@ -5929,7 +5929,7 @@ void func_806DF1A0(void) {
     G20_B->unk80 += (t->unk230 - G20_B->unk80) * 0.125f;
     G20_B->unk84 += (t->unk234 - G20_B->unk84) * 0.125f;
     G20_B->unkE4 += 0xFF;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct G20ActorD {
@@ -5966,5 +5966,5 @@ void func_806DF280(void) {
     G20_D->unk84 += t->unk228;
     G20_D->unkE4 += 0xFF;
     G20_D->unkE4 &= 0xFFF;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

@@ -96,18 +96,18 @@ void *func_80610FE8(s32);
 void func_80611730(void);
 void func_8061EA78(void);
 void func_80626264(s32);
-void func_80629190(void);
-s32 func_80629300(s32);
+void screenWipeReset(void);
+s32 screenWipeDraw(s32);
 f32 func_8062A850(void);
-Gfx *func_8062A844(s32);
-s32 func_8062BF24(Gfx *, Struct_8076A048 *, u32);
+Gfx *gfxPassThrough(s32);
+s32 playerViewsRender(Gfx *, Struct_8076A048 *, u32);
 s32 func_8062CA0C(s32, s32, s32, s32);
-void func_8062F050(s32);
-void func_80630300(void);
-void func_80631B80(void);
-void func_80631C3C(void);
-void func_80631FAC(s32, s32);
-void func_8063643C(void);
+void mapHeaderLoad(s32);
+void renderEntryListsReset(void);
+void modelSkipListClear(void);
+void modelTypeCountsInit(void);
+void modelSlotsAllocate(s32, s32);
+void displayListFreeQueueReset(void);
 void func_8063DB0C(void);
 void mapChunkAllocLists(s32);
 void mapLoadNodeAsset(s32);
@@ -498,7 +498,7 @@ void func_805FBE04(void) {
     D_8076A0B2 = 0;
     D_807FD888 = 31.0f;
     D_8076A0B1 |= 4;
-    func_80631B80();
+    modelSkipListClear();
     func_806C9AE0();
     func_80731030();
     func_805FF118();
@@ -684,11 +684,11 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     gSPClearGeometryMode(glist++, -1);
     gSPSetGeometryMode(glist++, 0x200404);
 
-    glist = (Gfx *)func_80701CA0(func_8062BF24(glist, arg0, 0xFFFD));
+    glist = (Gfx *)func_80701CA0(playerViewsRender(glist, arg0, 0xFFFD));
     if (D_807FC928 == 1) {
         glist = (Gfx *)func_807007B8((s32)glist);
     }
-    glist = func_8062A844(func_80629300(renderCallbacksExecute((s32)glist, 1)));
+    glist = gfxPassThrough(screenWipeDraw(renderCallbacksExecute((s32)glist, 1)));
 
     if ((D_8076A0A8 == 0x4C) || (D_8076A0A8 == 0x50) || ((func_80714464() != 0) && (D_8076A0A8 != 0xD0))) {
         D_8076A0B1 &= ~0x10;
@@ -936,17 +936,17 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         mapSearchTableReset();
         pathFreeAsset(D_8076A0A8);
         sp2C = func_8066B0F8(1, D_8076A0A8, 1, 1);
-        func_80630300();
+        renderEntryListsReset();
         mapChunkAllocLists(sp2C);
-        func_8062F050(sp2C);
+        mapHeaderLoad(sp2C);
         func_806C95D0(D_8076A0A8);
         billboardCacheInit();
         mapLoadNodeAsset(D_8076A0A8);
         func_80688940();
-        func_80631C3C();
-        func_8063643C();
+        modelTypeCountsInit();
+        displayListFreeQueueReset();
         sp24 = func_8066B0F8(9, D_8076A0A8, 1, 1);
-        func_80631FAC(D_8076A0A8, 1);
+        modelSlotsAllocate(D_8076A0A8, 1);
         func_806886E0(sp24, 0, 0);
         actorInitTargetEntries();
         lightInitGlobals();
@@ -1013,7 +1013,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         sfxAllocateChannel(0x2B, 1.0f);
     }
     func_80701C90();
-    func_80629190();
+    screenWipeReset();
     particleFindPathIndices(D_8076A0AA);
     frameTimingReset(D_8076A0A8);
     D_80746830 = 0;

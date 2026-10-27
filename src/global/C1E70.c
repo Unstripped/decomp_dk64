@@ -89,9 +89,9 @@ extern s32 D_807F5D10;
 s32 func_806BDD2C(void);
 void func_8067B238(void *, void *, f32);
 s32 actorScriptStart(void *, s32);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 s32 func_8061CC40(void *, s32, s32);
-s32 func_80629148();
+s32 currentActorTestClearFlag();
 s32 func_8061CB50(void);
 void func_8061F0B0(s32, s32, s32);
 s32 sfxAllocateChannel(s32, f32);
@@ -166,7 +166,7 @@ void func_806BD3E4(void) {
             func_8061CC40(D_807FBB4C, 2, 1);
             break;
         case 2:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 sfxAllocateChannel(0x7D, 1.0f);
                 actorScriptStart(D_807FBB40, 0x2F1);
                 D_807FBB40->unk154 = 3;
@@ -204,7 +204,7 @@ void func_806BD3E4(void) {
         }
     }
     D_8076A0A6 = 0;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #else
 
@@ -215,7 +215,7 @@ extern f32 D_807FC8D4;
 
 s32 func_806BDD2C(void);
 s32 actorScriptStart(void *, s32);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 s32 func_8061CC40(void *, s32, s32);
 s32 func_8061CB50(void);
 s32 sfxAllocateChannel(s32, f32);
@@ -358,7 +358,7 @@ void func_806BD7B0(void) {
             break;
     }
     D_807FBB40->unk15E = 0x28;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 s32 func_806BDD2C(void) {

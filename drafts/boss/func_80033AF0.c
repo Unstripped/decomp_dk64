@@ -21,9 +21,9 @@ f32 func_80612794(s16);                             /* extern */
 s32 func_8061CB50();                                /* extern */
 ? func_8061CC40(void *, ?, ?, void **);             /* extern */
 ? func_80626110(s32, s16, s16);                     /* extern */
-s32 func_80629148();                                /* extern */
-? func_80629174();                                  /* extern */
-? func_806319C4(void *, ?);                         /* extern */
+s32 currentActorTestClearFlag();                                /* extern */
+? currentActorClearFlag();                                  /* extern */
+? actorUpdateModelMatrix(void *, ?);                         /* extern */
 ? func_8063DA40(u8, ?);                             /* extern */
 ? func_80659610(?, u8 *, void **);                  /* extern */
 ? func_8065A708(f32, f32, f32, f32, f32, u32, u32, s32, s32, s32, s32); /* extern */
@@ -278,7 +278,7 @@ void func_80033AF0(void) {
         func_80659610(0x1388);
         temp_v0_6 = D_807FDCA0->unk14;
         func_8065A708((f32) temp_v0_6->unk32, (f32) (temp_v0_6->unk34 - 0x28A), (f32) temp_v0_6->unk36, 0.0f, 0.0f, 0U, 0x43700000U, 0, temp_s0, temp_s0, temp_s0);
-        if (func_80629148() != 0) {
+        if (currentActorTestClearFlag() != 0) {
             func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x19C, 0x64, 0x7F, 0, 0, 0.0f, 0);
             D_807FBB40->unk154 = 0x20U;
             D_807FBB40->unk155 = 0U;
@@ -304,7 +304,7 @@ block_200:
             }
             break;
         case 1:                                     /* switch 2 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
             }
             goto block_200;
@@ -354,7 +354,7 @@ block_200:
             D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
             /* fallthrough */
         case 8:                                     /* switch 2 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
                 func_80608528(D_807FBB40, 0x128, 0xFF, 0x19, 0);
             }
@@ -372,7 +372,7 @@ block_200:
             goto block_200;
         case 11:                                    /* switch 2 */
             var_s0->unk6A = (u16) (var_s0->unk6A & 0xFFFE);
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_80614EBC(D_807FBB40, 0x22C);
                 D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
             }
@@ -597,7 +597,7 @@ block_131:
             goto block_200;
         case 5:                                     /* switch 6 */
             func_806845B8(7, 0x20, 1, &D_807FBB4C);
-            if ((func_80629148() != 0) || (func_8061CB50() == 0)) {
+            if ((currentActorTestClearFlag() != 0) || (func_8061CB50() == 0)) {
                 D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
             }
             goto block_200;
@@ -611,7 +611,7 @@ block_131:
             var_s0 = D_807FBB40;
             break;
         case 8:                                     /* switch 6 */
-            func_80629174();
+            currentActorClearFlag();
             temp_s1->unk15 = 0U;
             temp_t8_2 = temp_s1->unk14 + 1;
             temp_s1->unk14 = temp_t8_2;
@@ -687,7 +687,7 @@ block_131:
             var_s0 = D_807FBB40;
             break;
         case 1:                                     /* switch 9 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
             }
             goto block_200;
@@ -695,13 +695,13 @@ block_131:
             func_80033A80(5);
             goto block_200;
         case 3:                                     /* switch 9 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_8063DA40(sp88->unk0, 0x1E);
                 D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
             }
             goto block_200;
         case 4:                                     /* switch 9 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_80685B44(&D_80720BE8, 0, 0x40C00000, 6, 0x50, 0x64, (s32) D_807FBB40->unk7C, (s32) (D_807FBB4C->unk80 + 100.0f), (s32) D_807FBB40->unk84);
                 func_80685B44(&D_80720BE8, 0x14, 0x40C00000, 8, 0x96, 0x46, (s32) D_807FBB40->unk7C, (s32) (D_807FBB4C->unk80 + 100.0f), (s32) D_807FBB40->unk84);
                 D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
@@ -745,5 +745,5 @@ block_131:
 block_205:
         var_s0 = D_807FBB40;
     }
-    func_806319C4(var_s0, 0);
+    actorUpdateModelMatrix(var_s0, 0);
 }

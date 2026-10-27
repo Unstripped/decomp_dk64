@@ -76,7 +76,7 @@ extern s16 D_80750380;
 extern ActorGlobalState D_807FBB70;
 
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 void *func_80610FE8(s32);
 s32 func_80611A44(void);
 f32 func_80612D1C(f32);
@@ -245,5 +245,5 @@ void func_80698120(s32 arg0) {
         D_807FBB40->unk80 = func_80612D1C(data->unk20) * 5.0 + data->unk1C;
         data->unk20 += data->unk24;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

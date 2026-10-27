@@ -2,10 +2,10 @@
 ? assetFreeBuffer(s32, ?, ?);                       /* extern */
 ? assetSetImmediateFree();                          /* extern */
 void *func_80610FE8(s32, s16 *, s16 *);             /* extern */
-u16 func_80631D8C(u8);                              /* extern */
-s32 func_80631EB8(u16);                             /* extern */
-? func_80631F58(s32, s32 **, ? *);                  /* extern */
-s32 func_8063254C(s16, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *); /* extern */
+u16 modelTypeCountBeforeMap(u8);                              /* extern */
+s32 modelTypeIsCounted(u16);                             /* extern */
+? modelAssetGetSubtables(s32, s32 **, ? *);                  /* extern */
+s32 modelSlotFindByType(s16, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *); /* extern */
 s32 func_8066B0F8(?, s32, ?, ?);                    /* extern */
 ? func_806F833C(?, u8);                             /* extern */
 ? heapClearBlock(void *);                           /* extern */
@@ -87,11 +87,11 @@ void func_806F4778(void) {
     } else {
         D_80754240 = NULL;
     }
-    sp6A = func_80631D8C(D_8076A0A8.unk3);
+    sp6A = modelTypeCountBeforeMap(D_8076A0A8.unk3);
     temp_v0_2 = func_8066B0F8(9, D_8076A0A8.unk0, 1, 1);
     sp7C = temp_v0_2;
     if (temp_v0_2 != 0) {
-        func_80631F58(temp_v0_2, &sp78, &sp74);
+        modelAssetGetSubtables(temp_v0_2, &sp78, &sp74);
         sp6C = sp78 + 4;
         sp70 = *sp78;
     }
@@ -120,7 +120,7 @@ void func_806F4778(void) {
     do {
         temp_s6 = var_s7->unk0;
         spC4 = 0;
-        if (func_8063254C(temp_s6, &spC4, &spBC, &spB8, &spB4, &spB2, &sp66) != 0) {
+        if (modelSlotFindByType(temp_s6, &spC4, &spBC, &spB8, &spB4, &spB2, &sp66) != 0) {
             do {
                 temp_v0_3 = func_80610FE8(0x1C);
                 temp_v0_3->unk8 = (s16) (s32) spBC;
@@ -134,7 +134,7 @@ void func_806F4778(void) {
                 temp_v0_3->unk13 = 0;
                 temp_v0_3->unk4 = (s16) var_s7->unkC;
                 temp_v0_3->unk14 = (s8) sp88;
-                if (func_80631EB8((u16) var_s7->unk0) != 0) {
+                if (modelTypeIsCounted((u16) var_s7->unk0) != 0) {
                     var_s2 = 0;
                     var_s1 = 0;
                     var_s4 = 0;
@@ -147,7 +147,7 @@ loop_14:
                             var_s1 += 1;
                             var_s0 += 0x30;
                         }
-                        if ((var_s2 == 0) && (func_80631EB8(var_s0->unk-8) != 0)) {
+                        if ((var_s2 == 0) && (modelTypeIsCounted(var_s0->unk-8) != 0)) {
                             var_s4 = (var_s4 + 1) & 0xFFFF;
                         }
                         if ((var_s2 == 0) && (var_s1 < sp70)) {
@@ -170,7 +170,7 @@ block_25:
                     spAC = temp_v0_3;
                 }
                 var_s5 = temp_v0_3;
-            } while (func_8063254C(temp_s6, &spC4, &spBC, &spB8, &spB4, &spB2, &sp66) != 0);
+            } while (modelSlotFindByType(temp_s6, &spC4, &spBC, &spB8, &spB4, &spB2, &sp66) != 0);
         }
         var_s7 += 0x14;
         temp_t8 = sp88 + 1;

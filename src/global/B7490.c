@@ -50,7 +50,7 @@ void actorScriptStart(void *, s32);
 s32 func_8072E0A8(s32, s32);
 void behaviourFrameBegin(void);
 void func_8067ACB4(Actor *);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 void effectSpawnSparks(s32, s32);
 s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
 void func_8072A920(s16, s32, f32, f32, f32, s32, f32, f32, s32);
@@ -192,7 +192,7 @@ void func_806B2790(void) {
             func_8072C918(0x6400, 0x2DE, 0x2DE);
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void actorEmptyStub(void) {
@@ -323,7 +323,7 @@ void func_806B2D64(void) {
             break;
     }
     func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806B3420(void) {
@@ -386,7 +386,7 @@ void func_806B3420(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #ifdef NON_MATCHING
@@ -489,7 +489,7 @@ void func_806B3680(void) {
     if (D_807FBB40->unk154 == 2 || st == 3) {
         func_8072D13C(D_807FBB40->unk154, 1);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #else
 
@@ -729,7 +729,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
             func_8072D13C(D_807FBB40->unk154, 1);
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     if (!D_807FBB40->unk154) {
     }
 }
@@ -911,13 +911,13 @@ void func_806B4DCC(void) {
     }
     func_806B49B0(D_807FBB40->unk154, 0x247, 0x246);
     func_8072881C(0, D_807FDC90->unk28);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806B50F4(void) {
     behaviourFrameBegin();
     func_806B49B0(D_807FBB40->unk154, 0x23D, 0x23E);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806B513C(void) {
@@ -987,7 +987,7 @@ void func_806B52DC(void) {
         break;
     }
     func_8072881C(0, D_807FDC90->unk28);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct {
@@ -1105,5 +1105,5 @@ void func_806B54BC(void) {
             func_8072B7CC(0x32F);
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

@@ -21,7 +21,7 @@ typedef struct R3Q_D_807F6000 {
 extern R3Q_D_807F6000 *D_807F6000;
 
 void func_8066C610(s16, s8, float [4][4]);
-void func_8062FF10(float [4][4], float [4][4]);
+void matrix4Invert(float [4][4], float [4][4]);
 
 typedef struct R3Q_Actor_99C4 {
     u8 pad[0x100];
@@ -43,6 +43,6 @@ void func_806699C4(R3Q_Actor_99C4 *arg0, s16 arg1, s8 arg2, s8 arg3, f32 arg4, f
     arg0->unk10E = arg3;
     arg0->unk10F = arg2;
     func_8066C610(arg1, arg2, spB0);
-    func_8062FF10(sp30, spB0);
+    matrix4Invert(sp30, spB0);
     guMtxXFMF(sp30, arg4, arg5, arg6, &arg0->unk100, &arg0->unk104, &arg0->unk108);
 }

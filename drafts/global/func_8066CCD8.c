@@ -26,7 +26,7 @@ extern s32 D_80747D70;
 extern s16 D_80748E40;
 extern s32 D_8076A064;
 extern M70A_Struct_CCD8 *D_807F6000;
-void func_806348B4(M70A_SubStruct_48 *);
+void modelSlotTriBufferRelease(M70A_SubStruct_48 *);
 
 void func_8066CCD8(void) {
     M70A_Struct_CCD8 *entry;
@@ -46,7 +46,7 @@ void func_8066CCD8(void) {
         }
         a0 = &entry->unk48;
         if ((((M70A_SubStruct_48 *)a0)->unk24 & 1) && ((u32)(D_8076A064 - ((M70A_SubStruct_48 *)a0)->unk8) >= 0x1F)) {
-            func_806348B4(a0);
+            modelSlotTriBufferRelease(a0);
         }
     }
 }

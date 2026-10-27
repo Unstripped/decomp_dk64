@@ -98,7 +98,7 @@ extern s16 D_80750AC4;
 extern s32 D_8076A0A8;
 
 void slotQueueUpdate(s32, s32, s32);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 void func_800253C0(void *, s16, u8);
 void func_8061C6A8(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_8061CB50(void);
@@ -235,7 +235,7 @@ void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
             D_807FBB40->unk154++;
             goto case_1;
         }
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
         break;
 
     case 1:

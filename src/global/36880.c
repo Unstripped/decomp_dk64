@@ -35,19 +35,19 @@ void assetFreeBuffer(void *, s32, s32);
 
 extern u8 D_807F6148;
 
-void func_80631B80(void) {
+void modelSkipListClear(void) {
     D_807F6148 = 0;
 }
 
 extern s16 D_807F6140[];
 
-void func_80631B8C(s16 arg0) {
+void modelSkipListAdd(s16 arg0) {
     if (D_807F6148 != 4) {
         D_807F6140[D_807F6148++] = arg0;
     }
 }
 
-s32 func_80631BCC(s16 arg0) {
+s32 modelSkipListContains(s16 arg0) {
     s32 i;
 
     for (i = 0; i < D_807F6148; i++) {
@@ -60,19 +60,19 @@ s32 func_80631BCC(s16 arg0) {
 
 extern s16 D_807F6150[];
 
-s16 func_80631C20(u8 arg0) {
+s16 modelTypeCountGet(u8 arg0) {
     return D_807F6150[arg0];
 }
 
 u8 func_805FF030(u8, u8);
 void *func_8066B0F8(s32, s32, s32, s32);
-void func_80631F58(u8 *, u8 **, u8 **);
-s32 func_80631EB8(u16);
+void modelAssetGetSubtables(u8 *, u8 **, u8 **);
+s32 modelTypeIsCounted(u16);
 void assetSetImmediateFree(void);
 
 extern u8 D_80747D78;
 
-void func_80631C3C(void) {
+void modelTypeCountsInit(void) {
     s32 x;
     s32 i;
     void *asset;
@@ -92,11 +92,11 @@ void func_80631C3C(void) {
             asset = func_8066B0F8(9, i, 1, 1);
             if (asset != NULL) {
                 slot = func_805FF030(i, 1);
-                func_80631F58(asset, &entries, &sp54);
+                modelAssetGetSubtables(asset, &entries, &sp54);
                 count = *(s32 *)entries;
                 entry = entries + 4;
                 for (j = 0; j < count; j++) {
-                    if (func_80631EB8(*(u16 *)(entry + 0x28))) {
+                    if (modelTypeIsCounted(*(u16 *)(entry + 0x28))) {
                         D_807F6150[slot]++;
                     }
                     entry += 0x30;
@@ -108,7 +108,7 @@ void func_80631C3C(void) {
     }
 }
 
-u16 func_80631D8C(u8 arg0) {
+u16 modelTypeCountBeforeMap(u8 arg0) {
     u16 total;
     u8 slot;
     s32 i;
@@ -126,11 +126,11 @@ u16 func_80631D8C(u8 arg0) {
         if (slot == func_805FF030(i, 1)) {
             asset = func_8066B0F8(9, i, 1, 1);
             if (asset != NULL) {
-                func_80631F58(asset, &entries, &sp58);
+                modelAssetGetSubtables(asset, &entries, &sp58);
                 count = *(s32 *)entries;
                 entry = entries + 4;
                 for (j = 0; j < count; j++) {
-                    if (func_80631EB8(*(u16 *)(entry + 0x28))) {
+                    if (modelTypeIsCounted(*(u16 *)(entry + 0x28))) {
                         total++;
                     }
                     entry += 0x30;
@@ -143,7 +143,7 @@ u16 func_80631D8C(u8 arg0) {
     return total;
 }
 
-s32 func_80631EB8(u16 arg0) {
+s32 modelTypeIsCounted(u16 arg0) {
     switch (arg0) {
         case 0xA:
         case 0xD:
@@ -166,7 +166,7 @@ s32 func_80631EB8(u16 arg0) {
     }
 }
 
-void func_80631F58(u8 *arg0, u8 **arg1, u8 **arg2) {
+void modelAssetGetSubtables(u8 *arg0, u8 **arg1, u8 **arg2) {
     s32 n;
     u8 *r;
 
@@ -188,7 +188,7 @@ void func_80631F58(u8 *arg0, u8 **arg1, u8 **arg2) {
 extern s16 D_807F614A;
 void heapClearBlock(void *);
 
-s16 func_80631FAC(s32 arg0, u8 arg1) {
+s16 modelSlotsAllocate(s32 arg0, u8 arg1) {
     switch (arg0) {
         case 48:
             D_807F614A = 0x212;
@@ -232,7 +232,7 @@ typedef struct {
     /* 0x2C */ u8 pad2C[2];
     /* 0x2E */ u8 unk2E;
     /* 0x2F */ u8 unk2F;
-} R36880aEntry; /* 0x30 */
+} ModelAssetEntry; /* 0x30 */
 
 typedef struct {
     /* 0x00 */ f32 unk0;
@@ -250,7 +250,7 @@ typedef struct {
     /* 0x8A */ s16 unk8A;
     /* 0x8C */ u8 unk8C;
     /* 0x8D */ u8 pad8D[3];
-} R36880aSlot; /* 0x90 */
+} ModelSlotInitView; /* 0x90 */
 
 extern s32 D_80747D70;
 extern s16 D_807F6240[];
@@ -259,23 +259,23 @@ void hashTableInit(void);
 void func_8063D930(void);
 void func_8065051C(void);
 u8 func_8060E3B0(u16, u8);
-s32 func_80631BCC(s16);
+s32 modelSkipListContains(s16);
 s32 func_807315D4(s16, s16);
 s32 func_8063253C(s16, s32);
-s16 func_80632860(s32, s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, s32 *);
-void func_80632E74(s16, s16, u8 *);
-void func_8062D3E4(s32);
-void func_806306D0(s32);
+s16 modelSlotInit(s32, s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, s32 *);
+void modelFlagsApplyState(s16, s16, u8 *);
+void mapDistributeEntries(s32);
+void renderEntryListFree(s32);
 void func_8062D1A8(void);
 void func_8063DC58(void *);
 void func_8063DFEC(s32, u8 *);
-void func_80631B80(void);
+void modelSkipListClear(void);
 
-void func_80632084(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
+void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
     s32 sp94;
     s32 sp90;
     u8 *sp8C;
-    R36880aEntry *entry;
+    ModelAssetEntry *entry;
     s32 i;
     s32 n;
     u8 *rec;
@@ -292,9 +292,9 @@ void func_80632084(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
     D_80747D70 = 0;
     if (arg0 == NULL) {
         sp90 = 0;
-        entry = (R36880aEntry *)sp8C;
+        entry = (ModelAssetEntry *)sp8C;
     } else {
-        entry = (R36880aEntry *)(arg0 + 4);
+        entry = (ModelAssetEntry *)(arg0 + 4);
         sp90 = *(s32 *)arg0;
     }
     D_807F6004 = 0;
@@ -306,26 +306,26 @@ void func_80632084(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
             do {
                 found = 0;
                 used = 0;
-                if (arg2 && func_80631EB8(entry->unk28)) {
+                if (arg2 && modelTypeIsCounted(entry->unk28)) {
                     found = func_8060E3B0(arg3 + counter, arg4);
                     used = 1;
                 }
-                if (found == 0 && func_80631BCC(entry->unk28) == 0 &&
+                if (found == 0 && modelSkipListContains(entry->unk28) == 0 &&
                     func_807315D4(*(s16 *)((u8 *)&D_8076A0A8 + 2), entry->unk2A) == 0 &&
                     func_8063253C(entry->unk28, arg1) != 0) {
-                    ((R36880aSlot *)D_807F6000)[outCount].unk0 = entry->unk0;
-                    ((R36880aSlot *)D_807F6000)[outCount].unk4 = entry->unk4;
-                    ((R36880aSlot *)D_807F6000)[outCount].unk8 = entry->unk8;
-                    ((R36880aSlot *)D_807F6000)[outCount].unkC = entry->unkC;
-                    ((R36880aSlot *)D_807F6000)[outCount].unk10 = entry->unk18;
-                    ((R36880aSlot *)D_807F6000)[outCount].unk14 = entry->unk1C;
-                    ((R36880aSlot *)D_807F6000)[outCount].unk18 = entry->unk20;
-                    ((R36880aSlot *)D_807F6000)[outCount].unk1C = entry->unk24;
-                    ((R36880aSlot *)D_807F6000)[outCount].unk8A = entry->unk2A;
-                    result = func_80632860(outCount, entry->unk28, entry->unk0, entry->unk4, entry->unk8,
+                    ((ModelSlotInitView *)D_807F6000)[outCount].unk0 = entry->unk0;
+                    ((ModelSlotInitView *)D_807F6000)[outCount].unk4 = entry->unk4;
+                    ((ModelSlotInitView *)D_807F6000)[outCount].unk8 = entry->unk8;
+                    ((ModelSlotInitView *)D_807F6000)[outCount].unkC = entry->unkC;
+                    ((ModelSlotInitView *)D_807F6000)[outCount].unk10 = entry->unk18;
+                    ((ModelSlotInitView *)D_807F6000)[outCount].unk14 = entry->unk1C;
+                    ((ModelSlotInitView *)D_807F6000)[outCount].unk18 = entry->unk20;
+                    ((ModelSlotInitView *)D_807F6000)[outCount].unk1C = entry->unk24;
+                    ((ModelSlotInitView *)D_807F6000)[outCount].unk8A = entry->unk2A;
+                    result = modelSlotInit(outCount, entry->unk28, entry->unk0, entry->unk4, entry->unk8,
                                            entry->unk18, entry->unk1C, entry->unk20, entry->unkC, entry->unk24,
                                            entry->unk2F, entry->unk2E, &sp94);
-                    func_80632E74(*(s16 *)((u8 *)&D_8076A0A8 + 2), ((R36880aSlot *)D_807F6000)[outCount].unk8A,
+                    modelFlagsApplyState(*(s16 *)((u8 *)&D_8076A0A8 + 2), ((ModelSlotInitView *)D_807F6000)[outCount].unk8A,
                                   (u8 *)(outCount * 0x90 + (s32)D_807F6000 + 0x8C));
                     D_807F6240[entry->unk2A] = result;
                     D_80747D70++;
@@ -338,8 +338,8 @@ void func_80632084(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
                 entry++;
             } while (i < sp90);
         }
-        func_8062D3E4(sp94);
-        func_806306D0(sp94);
+        mapDistributeEntries(sp94);
+        renderEntryListFree(sp94);
         func_8062D1A8();
         func_8063DC58(func_8066B0F8(0xA, D_8076A0A8, 1, 0));
         n = *(s32 *)entry;
@@ -348,29 +348,29 @@ void func_80632084(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
             func_8063DFEC(*(s32 *)rec, rec + 4);
             rec += 0x24;
         }
-        func_80631B80();
+        modelSkipListClear();
     }
 }
 
-typedef struct R36880aFlagObj {
+typedef struct ModelFlagTarget {
     /* 0x00 */ u8 pad0[0x4A];
     /* 0x4A */ s16 unk4A;
     /* 0x4C */ u8 pad4C[2];
     /* 0x4E */ u8 unk4E;
-} R36880aFlagObj;
+} ModelFlagTarget;
 
-typedef struct R36880aFlagNode {
-    /* 0x00 */ R36880aFlagObj *unk0;
+typedef struct ModelFlagNode {
+    /* 0x00 */ ModelFlagTarget *unk0;
     /* 0x04 */ u8 pad4[0x10];
-    /* 0x14 */ struct R36880aFlagNode *unk14;
+    /* 0x14 */ struct ModelFlagNode *unk14;
     /* 0x18 */ u8 pad18[0xC];
     /* 0x24 */ u8 unk24;
-} R36880aFlagNode;
+} ModelFlagNode;
 
 s32 flagGet(s32, s32);
 
-void func_806323C0(R36880aFlagNode *arg0) {
-    R36880aFlagObj *obj;
+void modelNodeListSyncFlags(ModelFlagNode *arg0) {
+    ModelFlagTarget *obj;
     s16 flag;
 
     if (arg0 != NULL) {
@@ -419,7 +419,7 @@ s32 func_8063253C(s16 arg0, s32 arg1) {
     return 1;
 }
 
-s32 func_8063254C(s32 arg0, s32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *arg5, s16 *arg6) {
+s32 modelSlotFindByType(s32 arg0, s32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *arg5, s16 *arg6) {
     s32 i;
     u8 found;
 
@@ -429,13 +429,13 @@ s32 func_8063254C(s32 arg0, s32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *arg
     } while (0);
     if (i < D_80747D70) {
         do {
-            if (((R36880aSlot *)D_807F6000)[i].unk84 == arg0) {
+            if (((ModelSlotInitView *)D_807F6000)[i].unk84 == arg0) {
                 found = 1;
-                *arg5 = ((R36880aSlot *)D_807F6000)[i].unk88;
-                *arg6 = ((R36880aSlot *)D_807F6000)[i].unk8A;
-                *arg2 = ((R36880aSlot *)D_807F6000)[i].unk0;
-                *arg3 = ((R36880aSlot *)D_807F6000)[i].unk4;
-                *arg4 = ((R36880aSlot *)D_807F6000)[i].unk8;
+                *arg5 = ((ModelSlotInitView *)D_807F6000)[i].unk88;
+                *arg6 = ((ModelSlotInitView *)D_807F6000)[i].unk8A;
+                *arg2 = ((ModelSlotInitView *)D_807F6000)[i].unk0;
+                *arg3 = ((ModelSlotInitView *)D_807F6000)[i].unk4;
+                *arg4 = ((ModelSlotInitView *)D_807F6000)[i].unk8;
             }
             i++;
         } while (found == 0 && i < D_80747D70);
@@ -449,7 +449,7 @@ void faultSetMessage(s32, s32, s32, s32);
 f32 func_80636A44(s32);
 s16 func_8063D9D0(s16, u8);
 
-s16 func_80632630(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5) {
+s16 modelSlotAppend(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5) {
     s32 sp5C;
     s16 sp5A;
     f32 temp;
@@ -462,24 +462,24 @@ s16 func_80632630(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5) {
         return -1;
     }
     temp = func_80636A44(arg0);
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unk0 = arg1;
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unk4 = arg2;
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unk8 = arg3;
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unkC = temp;
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unk10 = 0.0f;
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unk14 = 0.0f;
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unk18 = 0.0f;
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unk1C = arg2 - arg4;
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unk8C = 0;
-    sp5A = func_80632860(D_80747D70, arg0, arg1, arg2, arg3, 0.0f, 0.0f, 0.0f, temp, arg2 - arg4, 1, 0, &sp5C);
-    func_8062D3E4(sp5C);
-    func_806306D0(sp5C);
-    ((R36880aSlot *)D_807F6000)[D_80747D70].unk8A = func_8063D9D0(sp5A, arg5);
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk0 = arg1;
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk4 = arg2;
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk8 = arg3;
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unkC = temp;
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk10 = 0.0f;
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk14 = 0.0f;
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk18 = 0.0f;
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk1C = arg2 - arg4;
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk8C = 0;
+    sp5A = modelSlotInit(D_80747D70, arg0, arg1, arg2, arg3, 0.0f, 0.0f, 0.0f, temp, arg2 - arg4, 1, 0, &sp5C);
+    mapDistributeEntries(sp5C);
+    renderEntryListFree(sp5C);
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk8A = func_8063D9D0(sp5A, arg5);
     D_80747D70++;
     return sp5A;
 }
 
-typedef struct R36880bSub24 {
+typedef struct ModelAssetInfo {
     /* 0x00 */ u32 unk0;
     /* 0x04 */ u8 pad4[0x18];
     /* 0x1C */ u8 unk1C;
@@ -499,12 +499,12 @@ typedef struct R36880bSub24 {
     /* 0x37 */ u8 unk37;
     /* 0x38 */ u8 unk38;
     /* 0x39 */ u8 unk39;
-} R36880bSub24;
+} ModelAssetInfo;
 
-typedef struct R36880bSlot {
+typedef struct ModelSlotDetail {
     /* 0x00 */ u8 pad0[0x20];
     /* 0x20 */ void *unk20;
-    /* 0x24 */ R36880bSub24 *unk24;
+    /* 0x24 */ ModelAssetInfo *unk24;
     /* 0x28 */ u8 unk28[0x14];
     /* 0x3C */ u8 unk3C;
     /* 0x3D */ u8 unk3D;
@@ -519,9 +519,9 @@ typedef struct R36880bSlot {
     /* 0x86 */ s16 unk86;
     /* 0x88 */ s16 unk88;
     /* 0x8A */ u8 pad8A[6];
-} R36880bSlot;
+} ModelSlotDetail;
 
-typedef struct R36880bObj1 {
+typedef struct ModelType1Obj {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -539,9 +539,9 @@ typedef struct R36880bObj1 {
     /* 0xC3 */ u8 unkC3;
     /* 0xC4 */ u8 unkC4;
     /* 0xC5 */ u8 unkC5;
-} R36880bObj1;
+} ModelType1Obj;
 
-typedef struct R36880bObj2 {
+typedef struct ModelType2ObjView {
     /* 0x00 */ u8 pad0[0x4C];
     /* 0x4C */ s16 unk4C;
     /* 0x4E */ u8 unk4E;
@@ -551,9 +551,9 @@ typedef struct R36880bObj2 {
     /* 0x5A */ u8 unk5A;
     /* 0x5B */ u8 unk5B;
     /* 0x5C */ u8 unk5C;
-} R36880bObj2;
+} ModelType2ObjView;
 
-typedef struct R36880bNode38 {
+typedef struct ModelSlotSubNode {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ u8 unk8;
@@ -573,97 +573,97 @@ typedef struct R36880bNode38 {
     /* 0x30 */ u8 unk30;
     /* 0x31 */ u8 pad31[3];
     /* 0x34 */ s32 unk34;
-} R36880bNode38;
+} ModelSlotSubNode;
 
 extern s32 D_807FBB64;
 extern s32 D_807FBB68;
 
-void func_806368F0();
-void func_80636AE8(void *);
+void modelSlotInitFromAsset();
+void modelSlotReplaceSegment6Commands(void *);
 void func_80636D38(void *, s32, s32);
-struct R36880bParent;
-void func_8063524C(struct R36880bParent *, f32, f32, f32, f32, f32, f32, f32, f32);
-void func_8063495C(u8 *, ModelSlot *);
-void func_806349FC(u8 *, ModelSlot *, s32);
+struct ModelQuadOwner;
+void modelQuadBuildOutput(struct ModelQuadOwner *, f32, f32, f32, f32, f32, f32, f32, f32);
+void modelSlotLinkTexAnimTextures(u8 *, ModelSlot *);
+void modelSlotInitTexAnimNodes(u8 *, ModelSlot *, s32);
 void func_8064F450(void *, void *);
 void func_8066C2D0(s32, void *, f32, f32, f32, f32, f32, f32, f32);
-struct R36880bModelData;
-void func_80633A1C(s32, struct R36880bModelData *, f32, f32, f32, f32, f32, f32, f32);
-struct R36880bBuf;
-void func_806348B4(struct R36880bBuf *);
+struct ModelAssetData;
+void modelSlotBuildTriangleBuffer(s32, struct ModelAssetData *, f32, f32, f32, f32, f32, f32, f32);
+struct ModelTriBuffer;
+void modelSlotTriBufferRelease(struct ModelTriBuffer *);
 void dynamicBufferFree(void *);
 void hashTableInsert(s32, s32);
-s32 func_806303C4(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
-void func_80632E10(s16, u8 *);
-void func_80632F20(s32, u8 *);
-s32 func_80632F74(f32, f32, f32);
-void func_80632FCC(s16, u8);
-struct R36880bPathTable;
-void func_806330C4(s16, struct R36880bPathTable *, f32);
-struct R36880bVertTable;
-void func_806333F8(s32, struct R36880bVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
-void func_8063373C(s32, struct R36880bVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
-void func_806338F4(s32);
+s32 renderEntryAddOrUpdate(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
+void modelFlagsApplyMapPairs(s16, u8 *);
+void modelApplyMapOverrideValue(s32, u8 *);
+s32 groundSurfaceTypeAt(f32, f32, f32);
+void modelSlotUpdateGroundCoords(s16, u8);
+struct ModelPathTable;
+void modelSlotBuildProxPaths(s16, struct ModelPathTable *, f32);
+struct ModelVertTable;
+void modelSlotBuildVertPosList(s32, struct ModelVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
+void modelSlotBuildNodePosList(s32, struct ModelVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
+void modelSlotClearTail(s32);
 
-#define R36880B_SLOT ((R36880bSlot *)((u8 *)D_807F6000 + arg0 * 0x90))
-#define R36880B_SLOTP ((R36880bSlot *)&D_807F6000[arg0])
+#define MODEL_SLOT_BY_INDEX ((ModelSlotDetail *)((u8 *)D_807F6000 + arg0 * 0x90))
+#define MODEL_SLOT_PTR ((ModelSlotDetail *)&D_807F6000[arg0])
 
-s16 func_80632860(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, u8 arg10, u8 arg11, s32 *arg12) {
+s16 modelSlotInit(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, u8 arg10, u8 arg11, s32 *arg12) {
     s32 padA[1];
     s32 sp68;
     s32 padB[1];
-    R36880bObj1 *obj1;
-    R36880bObj2 *obj2;
-    R36880bSub24 *s0;
+    ModelType1Obj *obj1;
+    ModelType2ObjView *obj2;
+    ModelAssetInfo *s0;
     s32 type;
-    R36880bNode38 *node;
+    ModelSlotSubNode *node;
     void **sp4C;
 
     sp68 = *arg12;
-    func_806368F0(R36880B_SLOTP);
-    R36880B_SLOT->unk88 = D_807F6004;
-    hashTableInsert(R36880B_SLOT->unk88, arg0);
-    s0 = R36880B_SLOT->unk24;
+    modelSlotInitFromAsset(MODEL_SLOT_PTR);
+    MODEL_SLOT_BY_INDEX->unk88 = D_807F6004;
+    hashTableInsert(MODEL_SLOT_BY_INDEX->unk88, arg0);
+    s0 = MODEL_SLOT_BY_INDEX->unk24;
     type = s0->unk1C;
     if (D_807FBB68 & 0x100) {
         s0->unk0 &= ~0x10;
     }
-    func_80632F20(arg1, (u8 *)s0);
+    modelApplyMapOverrideValue(arg1, (u8 *)s0);
     if (D_807FBB64 & 0x100) {
         s0->unk1E = 0x7D0;
     } else if (D_807FBB64 & 0x400000) {
         s0->unk1E = 0x1F4;
     }
-    func_8064F450(R36880B_SLOTP->unk78, s0);
-    R36880B_SLOT->unk3C = 0;
-    R36880B_SLOT->unk3D = 0;
+    func_8064F450(MODEL_SLOT_PTR->unk78, s0);
+    MODEL_SLOT_BY_INDEX->unk3C = 0;
+    MODEL_SLOT_BY_INDEX->unk3D = 0;
     func_8066C2D0(arg0, s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-    dynamicBufferFree(R36880B_SLOTP->unk28);
-    func_806338F4(arg0);
-    R36880B_SLOT->unk6C = 0;
-    func_80633A1C(arg0, s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-    func_806348B4(R36880B_SLOTP->unk48);
-    func_806333F8(arg0, (struct R36880bVertTable *)s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 0);
-    func_8063373C(arg0, (struct R36880bVertTable *)s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 0);
-    func_806330C4(R36880B_SLOT->unk88, (struct R36880bPathTable *)s0, arg8);
+    dynamicBufferFree(MODEL_SLOT_PTR->unk28);
+    modelSlotClearTail(arg0);
+    MODEL_SLOT_BY_INDEX->unk6C = 0;
+    modelSlotBuildTriangleBuffer(arg0, s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    modelSlotTriBufferRelease(MODEL_SLOT_PTR->unk48);
+    modelSlotBuildVertPosList(arg0, (struct ModelVertTable *)s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 0);
+    modelSlotBuildNodePosList(arg0, (struct ModelVertTable *)s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 0);
+    modelSlotBuildProxPaths(MODEL_SLOT_BY_INDEX->unk88, (struct ModelPathTable *)s0, arg8);
     if (type == 1) {
-        func_80636AE8(R36880B_SLOTP);
+        modelSlotReplaceSegment6Commands(MODEL_SLOT_PTR);
     }
     if (type != 1) {
         if (type == 2) {
-            func_8063524C(R36880B_SLOTP, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-            func_806349FC(s0, R36880B_SLOTP, type);
-            obj2 = R36880B_SLOT->unk20;
+            modelQuadBuildOutput(MODEL_SLOT_PTR, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+            modelSlotInitTexAnimNodes(s0, MODEL_SLOT_PTR, type);
+            obj2 = MODEL_SLOT_BY_INDEX->unk20;
             sp4C = &obj2->unk54;
             obj2->unk4C = D_807F6004;
             obj2->unk4E = arg10;
             obj2->unk5B = arg11;
             obj2->unk58 = s0->unk1E;
             obj2->unk5A = s0->unk1D;
-            obj2->unk5C = func_80632F74(arg2, arg3, arg4);
+            obj2->unk5C = groundSurfaceTypeAt(arg2, arg3, arg4);
         }
     } else {
-        obj1 = R36880B_SLOT->unk20;
+        obj1 = MODEL_SLOT_BY_INDEX->unk20;
         obj1->unk0 = arg2;
         obj1->unk4 = arg3;
         obj1->unk8 = arg4;
@@ -676,19 +676,19 @@ s16 func_80632860(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f3
         obj1->unkC0 = s0->unk1E;
         obj1->unkC2 = s0->unk1D;
         obj1->unkC3 = arg11;
-        obj1->unkC4 = func_80632F74(arg2, arg3, arg4);
+        obj1->unkC4 = groundSurfaceTypeAt(arg2, arg3, arg4);
         obj1->unkC5 = 0;
-        func_80632E10(arg1, &obj1->unkC5);
-        func_806349FC(s0, R36880B_SLOTP, type);
+        modelFlagsApplyMapPairs(arg1, &obj1->unkC5);
+        modelSlotInitTexAnimNodes(s0, MODEL_SLOT_PTR, type);
         sp4C = &obj1->unkBC;
     }
-    func_80636D38(R36880B_SLOTP, 0, 0);
+    func_80636D38(MODEL_SLOT_PTR, 0, 0);
     if (type == 2) {
-        func_8063495C(s0, R36880B_SLOTP);
+        modelSlotLinkTexAnimTextures(s0, MODEL_SLOT_PTR);
     }
-    R36880B_SLOT->unk84 = arg1;
-    R36880B_SLOT->unk86 = type;
-    R36880B_SLOT->unk7C = NULL;
+    MODEL_SLOT_BY_INDEX->unk84 = arg1;
+    MODEL_SLOT_BY_INDEX->unk86 = type;
+    MODEL_SLOT_BY_INDEX->unk7C = NULL;
     if (s0->unk28 != -1) {
         node = func_80610FE8(0x38);
         *sp4C = node;
@@ -707,22 +707,22 @@ s16 func_80632860(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f3
         node->unk2E = s0->unk38;
         node->unk30 = s0->unk39;
         node->unk0 = (s32)func_8066B0F8(0x19, s0->unk28, 1, 0);
-        func_80632FCC(arg0, 0);
+        modelSlotUpdateGroundCoords(arg0, 0);
     }
-    *arg12 = func_806303C4(sp68, type, R36880B_SLOT->unk20, arg2, arg3, arg4, s0->unk1E, D_807F6004, 0, 0, 0);
+    *arg12 = renderEntryAddOrUpdate(sp68, type, MODEL_SLOT_BY_INDEX->unk20, arg2, arg3, arg4, s0->unk1E, D_807F6004, 0, 0, 0);
     D_807F6004 += 1;
     return D_807F6004 - 1;
 }
 
 
-typedef struct R36880bMapPair {
+typedef struct ModelMapIdPair {
     /* 0x0 */ u16 map;
     /* 0x2 */ u16 id;
-} R36880bMapPair;
+} ModelMapIdPair;
 
-extern R36880bMapPair D_80747D50[];
+extern ModelMapIdPair D_80747D50[];
 
-void func_80632E10(s16 arg0, u8 *arg1) {
+void modelFlagsApplyMapPairs(s16 arg0, u8 *arg1) {
     s32 i;
     s32 n;
     i = 0;
@@ -737,7 +737,7 @@ void func_80632E10(s16 arg0, u8 *arg1) {
 
 s32 func_80731654(s16, s16);
 
-void func_80632E74(s16 arg0, s16 arg1, u8 *arg2) {
+void modelFlagsApplyState(s16 arg0, s16 arg1, u8 *arg2) {
     switch (func_80731654(arg0, arg1)) {
         case 2:
             *arg2 |= 8;
@@ -757,15 +757,15 @@ void func_80632E74(s16 arg0, s16 arg1, u8 *arg2) {
     }
 }
 
-typedef struct R36880bMapTriple {
+typedef struct ModelMapIdValueTriple {
     /* 0x0 */ u16 map;
     /* 0x2 */ u16 id;
     /* 0x4 */ u16 val;
-} R36880bMapTriple;
+} ModelMapIdValueTriple;
 
-extern R36880bMapTriple D_80747D30[];
+extern ModelMapIdValueTriple D_80747D30[];
 
-void func_80632F20(s32 arg0, u8 *arg1) {
+void modelApplyMapOverrideValue(s32 arg0, u8 *arg1) {
     s32 i;
     s32 n;
 
@@ -781,7 +781,7 @@ void func_80632F20(s32 arg0, u8 *arg1) {
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 u8 func_80667174(void);
 
-s32 func_80632F74(f32 x, f32 y, f32 z) {
+s32 groundSurfaceTypeAt(f32 x, f32 y, f32 z) {
     f32 sp1C;
 
     sp1C = y + 10.0f;
@@ -791,25 +791,25 @@ s32 func_80632F74(f32 x, f32 y, f32 z) {
     return 0xF;
 }
 
-typedef struct R36880bCoordDst {
+typedef struct ModelGroundCoordDst {
     /* 0x00 */ u8 pad0[0x20];
     /* 0x20 */ s16 unk20;
     /* 0x22 */ s16 unk22;
-} R36880bCoordDst;
+} ModelGroundCoordDst;
 
-typedef struct R36880bSlotObj {
+typedef struct ModelSlotObjCoordHolder {
     /* 0x00 */ u8 pad0[0x54];
-    /* 0x54 */ R36880bCoordDst *unk54;
+    /* 0x54 */ ModelGroundCoordDst *unk54;
     /* 0x58 */ u8 pad58[0x64];
-    /* 0xBC */ R36880bCoordDst *unkBC;
-} R36880bSlotObj;
+    /* 0xBC */ ModelGroundCoordDst *unkBC;
+} ModelSlotObjCoordHolder;
 
 void collisionGetCoords(s16 *, s16 *);
 
-void func_80632FCC(s16 arg0, u8 arg1) {
+void modelSlotUpdateGroundCoords(s16 arg0, u8 arg1) {
     s32 padA[4];
     u8 *tbl;
-    R36880bCoordDst *dst;
+    ModelGroundCoordDst *dst;
     s32 idx;
     f32 sp28;
     s16 sp26;
@@ -824,10 +824,10 @@ void func_80632FCC(s16 arg0, u8 arg1) {
         collisionGetCoords(&sp26, &sp24);
         switch ((tbl = ((ModelSlot *)((u8 *)D_807F6000 + idx))->unk24)[0x1C]) {
             case 1:
-                dst = ((R36880bSlotObj *)((ModelSlot *)((u8 *)D_807F6000 + idx))->unk20)->unkBC;
+                dst = ((ModelSlotObjCoordHolder *)((ModelSlot *)((u8 *)D_807F6000 + idx))->unk20)->unkBC;
                 break;
             case 2:
-                dst = ((R36880bSlotObj *)((ModelSlot *)((u8 *)D_807F6000 + idx))->unk20)->unk54;
+                dst = ((ModelSlotObjCoordHolder *)((ModelSlot *)((u8 *)D_807F6000 + idx))->unk20)->unk54;
                 break;
         }
         if (((ModelSlot *)((u8 *)D_807F6000 + idx))->unk20) {
@@ -839,7 +839,7 @@ void func_80632FCC(s16 arg0, u8 arg1) {
     }
 }
 
-typedef struct R36880bPathSeg {
+typedef struct ModelPathSeg {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ s16 unk8;
@@ -850,9 +850,9 @@ typedef struct R36880bPathSeg {
     /* 0x11 */ u8 unk11;
     /* 0x12 */ u8 unk12;
     /* 0x13 */ u8 pad13;
-} R36880bPathSeg;
+} ModelPathSeg;
 
-typedef struct R36880bPathEntry {
+typedef struct ModelPathEntry {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -862,21 +862,21 @@ typedef struct R36880bPathEntry {
     /* 0x15 */ u8 unk15;
     /* 0x16 */ u8 segCount;
     /* 0x17 */ u8 pad17;
-    /* 0x18 */ R36880bPathSeg segs[8];
-} R36880bPathEntry;
+    /* 0x18 */ ModelPathSeg segs[8];
+} ModelPathEntry;
 
-typedef struct R36880bPathTable {
+typedef struct ModelPathTable {
     /* 0x00 */ u8 pad0[0x5C];
     /* 0x5C */ s32 unk5C;
-} R36880bPathTable;
+} ModelPathTable;
 
-void func_806335B0(s32, u8, s32, f32 *, f32 *, f32 *);
+void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
 void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32, f32, u8);
 void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s16, s16);
 
-void func_806330C4(s16 arg0, R36880bPathTable *arg1, f32 arg2) {
+void modelSlotBuildProxPaths(s16 arg0, ModelPathTable *arg1, f32 arg2) {
     s32 j;
-    R36880bPathEntry *tbl;
+    ModelPathEntry *tbl;
     s32 i;
     s32 count;
     f32 spC4;
@@ -888,18 +888,18 @@ void func_806330C4(s16 arg0, R36880bPathTable *arg1, f32 arg2) {
     f32 len;
 
     count = *(s32 *)(arg1->unk5C + (s32)arg1);
-    tbl = (R36880bPathEntry *)((u8 *)(arg1->unk5C + (s32)arg1) + 4);
+    tbl = (ModelPathEntry *)((u8 *)(arg1->unk5C + (s32)arg1) + 4);
     for (i = 1; i <= count; i++) {
         len = 0.0f;
         for (j = 0; j < tbl[i - 1].segCount; j++) {
-            func_806335B0(arg0, 1, tbl[i - 1].segs[j].unk10, &spC0, &spB8, &spB0);
-            func_806335B0(arg0, 1, tbl[i - 1].segs[j].unk11, &spC4, &spBC, &spB4);
+            modelSlotGetNodePos(arg0, 1, tbl[i - 1].segs[j].unk10, &spC0, &spB8, &spB0);
+            modelSlotGetNodePos(arg0, 1, tbl[i - 1].segs[j].unk11, &spC4, &spBC, &spB4);
             len += sqrtf((spB0 - spB4) * (spB0 - spB4) + ((spC0 - spC4) * (spC0 - spC4) + (spB8 - spBC) * (spB8 - spBC)));
         }
         proxPathAdd((Actor *)arg0, 1, i, 1, tbl[i - 1].segCount, 0.0f, len, tbl[i - 1].unk0 * arg2, tbl[i - 1].unkC * arg2, tbl[i - 1].unk10 * arg2, tbl[i - 1].unk10 * arg2, tbl[i - 1].unk14, tbl[i - 1].unk4, tbl[i - 1].unk8, tbl[i - 1].unk15);
         for (j = 0; j < tbl[i - 1].segCount; j++) {
-            func_806335B0(arg0, 1, tbl[i - 1].segs[j].unk10, &spC0, &spB8, &spB0);
-            func_806335B0(arg0, 1, tbl[i - 1].segs[j].unk11, &spC4, &spBC, &spB4);
+            modelSlotGetNodePos(arg0, 1, tbl[i - 1].segs[j].unk10, &spC0, &spB8, &spB0);
+            modelSlotGetNodePos(arg0, 1, tbl[i - 1].segs[j].unk11, &spC4, &spBC, &spB4);
             proxPathSetSegment((Actor *)arg0, i, j, tbl[i - 1].segs[j].unk10, tbl[i - 1].segs[j].unk11, sqrtf((spB0 - spB4) * (spB0 - spB4) + ((spC0 - spC4) * (spC0 - spC4) + (spB8 - spBC) * (spB8 - spBC))), tbl[i - 1].segs[j].unk0 * arg2, tbl[i - 1].segs[j].unk4 * arg2, tbl[i - 1].segs[j].unk12, tbl[i - 1].segs[j].unk8, tbl[i - 1].segs[j].unkC, tbl[i - 1].segs[j].unkA, tbl[i - 1].segs[j].unkE);
         }
     }
@@ -908,44 +908,44 @@ void func_806330C4(s16 arg0, R36880bPathTable *arg1, f32 arg2) {
 
 void func_8066C610(s16, s8, f32 (*)[4]);
 
-typedef struct R36880bPosNode {
+typedef struct ModelPosNode {
     /* 0x0 */ f32 x;
     /* 0x4 */ f32 y;
     /* 0x8 */ f32 z;
-    /* 0xC */ struct R36880bPosNode *next;
-} R36880bPosNode;
+    /* 0xC */ struct ModelPosNode *next;
+} ModelPosNode;
 
-typedef struct R36880bVertTable {
+typedef struct ModelVertTable {
     /* 0x00 */ u8 pad0[0x54];
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
-} R36880bVertTable;
+} ModelVertTable;
 
-typedef struct R36880bVert {
+typedef struct ModelVert {
     /* 0x0 */ s16 x;
     /* 0x2 */ s16 y;
     /* 0x4 */ s16 z;
     /* 0x6 */ s8 unk6;
-} R36880bVert;
+} ModelVert;
 
-void func_806333F8(s32 arg0, R36880bVertTable *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, u8 arg9) {
-    R36880bPosNode *node;
-    R36880bPosNode **tail;
+void modelSlotBuildVertPosList(s32 arg0, ModelVertTable *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, u8 arg9) {
+    ModelPosNode *node;
+    ModelPosNode **tail;
     f32 *pz;
     f32 sp6C[4][4];
     f32 *py;
-    R36880bVert *vert;
+    ModelVert *vert;
     s32 *tbl;
     s32 count;
 
     node = NULL;
-    tail = (R36880bPosNode **)((u8 *)&D_807F6000[arg0] + 0x70);
+    tail = (ModelPosNode **)((u8 *)&D_807F6000[arg0] + 0x70);
     if (arg9 == 0) {
         *tail = NULL;
     }
     tbl = (s32 *)(arg1->unk54 + (s32)arg1);
     count = *tbl;
-    vert = (R36880bVert *)((u8 *)tbl + 4);
+    vert = (ModelVert *)((u8 *)tbl + 4);
     if (count != 0) {
         do {
             switch (arg9) {
@@ -979,13 +979,13 @@ void func_806333F8(s32 arg0, R36880bVertTable *arg1, f32 arg2, f32 arg3, f32 arg
     }
 }
 
-typedef struct R36880bListNode {
+typedef struct ModelLinkedNode {
     /* 0x0 */ u8 pad0[0xC];
-    /* 0xC */ struct R36880bListNode *next;
-} R36880bListNode;
+    /* 0xC */ struct ModelLinkedNode *next;
+} ModelLinkedNode;
 
-void func_80633570(R36880bListNode *arg0) {
-    R36880bListNode *next;
+void modelPosNodeListFree(ModelLinkedNode *arg0) {
+    ModelLinkedNode *next;
 
     while (arg0 != NULL) {
         next = arg0->next;
@@ -994,8 +994,8 @@ void func_80633570(R36880bListNode *arg0) {
     }
 }
 
-void func_806335B0(s32 arg0, u8 arg1, s32 arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
-    R36880bPosNode *node;
+void modelSlotGetNodePos(s32 arg0, u8 arg1, s32 arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
+    ModelPosNode *node;
     s32 n;
 
     if (arg1 == 1) {
@@ -1016,7 +1016,7 @@ void func_806335B0(s32 arg0, u8 arg1, s32 arg2, f32 *arg3, f32 *arg4, f32 *arg5)
     }
 }
 
-Mtx *func_8063367C(s32 arg0, u8 arg1, s32 arg2) {
+Mtx *modelSlotGetNodeMatrix(s32 arg0, u8 arg1, s32 arg2) {
     s32 idx;
     f32 sp24[4][4];
     Mtx *sp20;
@@ -1038,25 +1038,25 @@ Mtx *func_8063367C(s32 arg0, u8 arg1, s32 arg2) {
     return sp20;
 }
 
-void func_8063373C(s32 arg0, R36880bVertTable *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, u8 arg9) {
-    R36880bPosNode *node;
-    R36880bPosNode **tail;
+void modelSlotBuildNodePosList(s32 arg0, ModelVertTable *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, u8 arg9) {
+    ModelPosNode *node;
+    ModelPosNode **tail;
     f32 *pz;
     f32 spAC[4][4];
     f32 sp6C[4][4];
     f32 *py;
-    R36880bVert *vert;
+    ModelVert *vert;
     s32 *tbl;
     s32 count;
 
     node = NULL;
-    tail = (R36880bPosNode **)((u8 *)&D_807F6000[arg0] + 0x74);
+    tail = (ModelPosNode **)((u8 *)&D_807F6000[arg0] + 0x74);
     if (arg9 == 0) {
         *tail = NULL;
     }
     tbl = (s32 *)(arg1->unk58 + (s32)arg1);
     count = *tbl;
-    vert = (R36880bVert *)((u8 *)tbl + 4);
+    vert = (ModelVert *)((u8 *)tbl + 4);
     if (count != 0) {
         do {
             switch (arg9) {
@@ -1090,8 +1090,8 @@ void func_8063373C(s32 arg0, R36880bVertTable *arg1, f32 arg2, f32 arg3, f32 arg
     }
 }
 
-void func_806338B4(R36880bListNode *arg0) {
-    R36880bListNode *next;
+void modelLinkedNodeListFree(ModelLinkedNode *arg0) {
+    ModelLinkedNode *next;
 
     while (arg0 != NULL) {
         next = arg0->next;
@@ -1100,14 +1100,14 @@ void func_806338B4(R36880bListNode *arg0) {
     }
 }
 
-typedef struct R36880bSlotTail {
+typedef struct ModelSlotTailState {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 unk25[2];
-} R36880bSlotTail;
+} ModelSlotTailState;
 
-void func_806338F4(s32 arg0) {
-    R36880bSlotTail *p = (R36880bSlotTail *)((u8 *)&D_807F6000[arg0] + 0x48);
+void modelSlotClearTail(s32 arg0) {
+    ModelSlotTailState *p = (ModelSlotTailState *)((u8 *)&D_807F6000[arg0] + 0x48);
     u8 i;
 
     for (i = 0; i < 2; i++) {
@@ -1116,7 +1116,7 @@ void func_806338F4(s32 arg0) {
     p->unk24 = 0;
 }
 
-void func_8063393C(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
+void modelSlotUpdateTailKey(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
     s32 i = 0;
     u8 found = 0;
     u8 key;
@@ -1137,35 +1137,35 @@ void func_8063393C(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
     p[i] = arg3 ? 0xFF : arg2;
 }
 
-typedef struct R36880bBuf {
+typedef struct ModelTriBuffer {
     /* 0x00 */ u8 *unk0;
     /* 0x04 */ u8 *unk4;
     /* 0x08 */ s32 unk8;
     /* 0x0C */ f32 unkC[6];
     /* 0x24 */ u8 unk24;
-} R36880bBuf;
+} ModelTriBuffer;
 
-typedef struct R36880bModelData {
+typedef struct ModelAssetData {
     /* 0x00 */ u32 unk0;
     /* 0x04 */ u8 pad4[0x4C];
     /* 0x50 */ s32 unk50;
     /* 0x54 */ u8 pad54[0xC];
     /* 0x60 */ s32 unk60;
-} R36880bModelData;
+} ModelAssetData;
 
-void func_80633D30(f32 *, f32 *);
-void func_80633DC0(f32 (*)[4], void *, void *);
-s32 func_80634768(void *, void *, f32 (*)[4]);
+void bboxExpandFromTriangle(f32 *, f32 *);
+void boundsTransformToAabb(f32 (*)[4], void *, void *);
+s32 modelTriangleTransform(void *, void *, f32 (*)[4]);
 void func_8066C7F4(void *, void *, f32 (*)[4]);
 
-void func_80633A1C(s32 arg0, R36880bModelData *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
+void modelSlotBuildTriangleBuffer(s32 arg0, ModelAssetData *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
     s32 count;
     u8 *anim;
     f32 sp138[4][4];
     f32 spF8[4][4];
     f32 spB8[4][4];
     f32 sp78[4][4];
-    R36880bBuf *buf;
+    ModelTriBuffer *buf;
     u8 *entry;
     u8 *out;
     s32 i;
@@ -1179,9 +1179,9 @@ void func_80633A1C(s32 arg0, R36880bModelData *arg1, f32 arg2, f32 arg3, f32 arg
 
     off = arg0 * 0x90;
     anim = ((ModelSlot *)((u8 *)D_807F6000 + off))->unk78;
-    buf = (R36880bBuf *)((0, off) + (s32)D_807F6000);
+    buf = (ModelTriBuffer *)((0, off) + (s32)D_807F6000);
     lastBone = -1;
-    buf = (R36880bBuf *)((u8 *)buf + 0x48);
+    buf = (ModelTriBuffer *)((u8 *)buf + 0x48);
     if (anim != NULL) {
         sp64 = ((void **)anim)[D_807444FC];
     } else {
@@ -1216,11 +1216,11 @@ void func_80633A1C(s32 arg0, R36880bModelData *arg1, f32 arg2, f32 arg3, f32 arg
     guMtxCatF(sp138, spF8, sp138);
     guTranslateF(spF8, arg2, arg3, arg4);
     guMtxCatF(sp138, spF8, sp138);
-    func_80633DC0(sp138, (u8 *)(arg1->unk50 + (s32)arg1) + 4, buf);
+    boundsTransformToAabb(sp138, (u8 *)(arg1->unk50 + (s32)arg1) + 4, buf);
     for (i = 0; i < count; i++) {
         bone = entry[0x13];
         if ((bone ^ 0) == -1) {
-            if (func_80634768(entry, out, sp138) != 0) {
+            if (modelTriangleTransform(entry, out, sp138) != 0) {
                 out += 0x28;
             }
         } else {
@@ -1229,8 +1229,8 @@ void func_80633A1C(s32 arg0, R36880bModelData *arg1, f32 arg2, f32 arg3, f32 arg
                 guMtxCatF(spB8, sp138, sp78);
                 lastBone = entry[0x13];
             }
-            if (func_80634768(entry, out, sp78) != 0) {
-                func_80633D30((f32 *)out, buf->unkC);
+            if (modelTriangleTransform(entry, out, sp78) != 0) {
+                bboxExpandFromTriangle((f32 *)out, buf->unkC);
                 out += 0x28;
             }
         }
@@ -1242,7 +1242,7 @@ void func_80633A1C(s32 arg0, R36880bModelData *arg1, f32 arg2, f32 arg3, f32 arg
 }
 
 
-void func_80633D30(f32 *arg0, f32 *arg1) {
+void bboxExpandFromTriangle(f32 *arg0, f32 *arg1) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
@@ -1270,40 +1270,40 @@ typedef struct {
     /* 0x18 */ f32 maxX;
     /* 0x1C */ f32 maxY;
     /* 0x20 */ f32 maxZ;
-} L80633DC0Box;
+} BoundingBox;
 
-#define L80633DC0_OUT ((L80633DC0Box *)arg2)
-#define L80633DC0_ACC(x, y, z) \
+#define MODEL_BOUNDS_OUT ((BoundingBox *)arg2)
+#define MODEL_BOUNDS_ACCUMULATE(x, y, z) \
     guMtxXFMF(arg0, (f32)((s16 *)arg1)[x], (f32)((s16 *)arg1)[y], (f32)((s16 *)arg1)[z], &sp3C, &sp38, &sp34); \
-    if (L80633DC0_OUT->minX < sp3C) { L80633DC0_OUT->minX = L80633DC0_OUT->minX; } else { L80633DC0_OUT->minX = sp3C; } \
-    if (L80633DC0_OUT->minY < sp38) { L80633DC0_OUT->minY = L80633DC0_OUT->minY; } else { L80633DC0_OUT->minY = sp38; } \
-    if (L80633DC0_OUT->minZ < sp34) { L80633DC0_OUT->minZ = L80633DC0_OUT->minZ; } else { L80633DC0_OUT->minZ = sp34; } \
-    if (sp3C < L80633DC0_OUT->maxX) { L80633DC0_OUT->maxX = L80633DC0_OUT->maxX; } else { L80633DC0_OUT->maxX = sp3C; } \
-    if (sp38 < L80633DC0_OUT->maxY) { L80633DC0_OUT->maxY = L80633DC0_OUT->maxY; } else { L80633DC0_OUT->maxY = sp38; } \
-    if (sp34 < L80633DC0_OUT->maxZ) { L80633DC0_OUT->maxZ = L80633DC0_OUT->maxZ; } else { L80633DC0_OUT->maxZ = sp34; }
+    if (MODEL_BOUNDS_OUT->minX < sp3C) { MODEL_BOUNDS_OUT->minX = MODEL_BOUNDS_OUT->minX; } else { MODEL_BOUNDS_OUT->minX = sp3C; } \
+    if (MODEL_BOUNDS_OUT->minY < sp38) { MODEL_BOUNDS_OUT->minY = MODEL_BOUNDS_OUT->minY; } else { MODEL_BOUNDS_OUT->minY = sp38; } \
+    if (MODEL_BOUNDS_OUT->minZ < sp34) { MODEL_BOUNDS_OUT->minZ = MODEL_BOUNDS_OUT->minZ; } else { MODEL_BOUNDS_OUT->minZ = sp34; } \
+    if (sp3C < MODEL_BOUNDS_OUT->maxX) { MODEL_BOUNDS_OUT->maxX = MODEL_BOUNDS_OUT->maxX; } else { MODEL_BOUNDS_OUT->maxX = sp3C; } \
+    if (sp38 < MODEL_BOUNDS_OUT->maxY) { MODEL_BOUNDS_OUT->maxY = MODEL_BOUNDS_OUT->maxY; } else { MODEL_BOUNDS_OUT->maxY = sp38; } \
+    if (sp34 < MODEL_BOUNDS_OUT->maxZ) { MODEL_BOUNDS_OUT->maxZ = MODEL_BOUNDS_OUT->maxZ; } else { MODEL_BOUNDS_OUT->maxZ = sp34; }
 
-void func_80633DC0(f32 (*arg0)[4], void *arg1, void *arg2) {
+void boundsTransformToAabb(f32 (*arg0)[4], void *arg1, void *arg2) {
     f32 sp3C;
     f32 sp38;
     f32 sp34;
 
     guMtxXFMF(arg0, (f32)((s16 *)arg1)[0], (f32)((s16 *)arg1)[1], (f32)((s16 *)arg1)[2], &sp3C, &sp38, &sp34);
-    L80633DC0_OUT->minX = sp3C;
-    L80633DC0_OUT->minY = sp38;
-    L80633DC0_OUT->minZ = sp34;
-    L80633DC0_OUT->maxX = sp3C;
-    L80633DC0_OUT->maxY = sp38;
-    L80633DC0_OUT->maxZ = sp34;
-    L80633DC0_ACC(3, 1, 2)
-    L80633DC0_ACC(0, 1, 5)
-    L80633DC0_ACC(3, 1, 5)
-    L80633DC0_ACC(0, 4, 2)
-    L80633DC0_ACC(3, 4, 2)
-    L80633DC0_ACC(0, 4, 5)
-    L80633DC0_ACC(3, 4, 5)
+    MODEL_BOUNDS_OUT->minX = sp3C;
+    MODEL_BOUNDS_OUT->minY = sp38;
+    MODEL_BOUNDS_OUT->minZ = sp34;
+    MODEL_BOUNDS_OUT->maxX = sp3C;
+    MODEL_BOUNDS_OUT->maxY = sp38;
+    MODEL_BOUNDS_OUT->maxZ = sp34;
+    MODEL_BOUNDS_ACCUMULATE(3, 1, 2)
+    MODEL_BOUNDS_ACCUMULATE(0, 1, 5)
+    MODEL_BOUNDS_ACCUMULATE(3, 1, 5)
+    MODEL_BOUNDS_ACCUMULATE(0, 4, 2)
+    MODEL_BOUNDS_ACCUMULATE(3, 4, 2)
+    MODEL_BOUNDS_ACCUMULATE(0, 4, 5)
+    MODEL_BOUNDS_ACCUMULATE(3, 4, 5)
 }
 
-s32 func_80634768(void *arg0, void *arg1, f32 (*arg2)[4]) {
+s32 modelTriangleTransform(void *arg0, void *arg1, f32 (*arg2)[4]) {
     s16 *in = arg0;
     f32 *out = arg1;
 
@@ -1318,7 +1318,7 @@ s32 func_80634768(void *arg0, void *arg1, f32 (*arg2)[4]) {
 }
 
 
-void func_806348B4(R36880bBuf *arg0) {
+void modelSlotTriBufferRelease(ModelTriBuffer *arg0) {
     if (arg0->unk0 != NULL && (arg0->unk24 & 1)) {
         heapFree(arg0->unk0);
     }
@@ -1326,11 +1326,11 @@ void func_806348B4(R36880bBuf *arg0) {
 }
 
 
-void func_80634908(s32 arg0, void *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
-    func_80633A1C(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+void modelSlotBuildTriangleBufferThunk(s32 arg0, void *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
+    modelSlotBuildTriangleBuffer(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 }
 
-typedef struct R36880bNode {
+typedef struct TexAnimNode {
     /* 0x00 */ u32 *unk0[12];
     /* 0x30 */ s32 unk30;
     /* 0x34 */ s16 unk34;
@@ -1352,31 +1352,31 @@ typedef struct R36880bNode {
     /* 0x60 */ s32 unk60[28];
     /* 0xD0 */ u8 unkD0;
     /* 0xD1 */ u8 padD1[3];
-    /* 0xD4 */ struct R36880bNode *unkD4;
-} R36880bNode;
+    /* 0xD4 */ struct TexAnimNode *unkD4;
+} TexAnimNode;
 
-typedef struct R36880bObj {
+typedef struct ModelSlotObj {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ void *unk24[11];
-    /* 0x50 */ R36880bNode *unk50;
+    /* 0x50 */ TexAnimNode *unk50;
     /* 0x54 */ u8 pad54[0x4C];
     /* 0xA0 */ u32 *unkA0;
     /* 0xA4 */ u32 *unkA4;
     /* 0xA8 */ u32 *unkA8;
     /* 0xAC */ u32 *unkAC;
     /* 0xB0 */ u8 padB0[8];
-    /* 0xB8 */ R36880bNode *unkB8;
-} R36880bObj;
+    /* 0xB8 */ TexAnimNode *unkB8;
+} ModelSlotObj;
 
-void func_8063495C(u8 *arg0, ModelSlot *arg1) {
-    R36880bNode *node;
+void modelSlotLinkTexAnimTextures(u8 *arg0, ModelSlot *arg1) {
+    TexAnimNode *node;
     s16 *p;
     s32 n;
     s32 idx;
     s32 found;
     s32 key;
 
-    node = ((R36880bObj *)arg1->unk20)->unk50;
+    node = ((ModelSlotObj *)arg1->unk20)->unk50;
     if (node != NULL) {
         do {
             key = node->unk5C;
@@ -1396,7 +1396,7 @@ void func_8063495C(u8 *arg0, ModelSlot *arg1) {
                 } while (n != 0 && found == 0);
             }
             if (found != 0) {
-                node->unk44 = ((R36880bObj *)arg1->unk20)->unk24[idx];
+                node->unk44 = ((ModelSlotObj *)arg1->unk20)->unk24[idx];
             } else {
                 node->unk44 = NULL;
             }
@@ -1407,17 +1407,17 @@ void func_8063495C(u8 *arg0, ModelSlot *arg1) {
 
 
 void *memcpy(void *, const void *, unsigned int);
-s32 func_80635214(u32 *);
-void func_80635114(u32 *, s32, s32, s32, u32 **, u32 **, u32 **);
+s32 dlLengthToEndDL(u32 *);
+void dlFindTextureCommands(u32 *, s32, s32, s32, u32 **, u32 **, u32 **);
 
-void func_806349FC(u8 *arg0, ModelSlot *arg1, s32 arg2) {
+void modelSlotInitTexAnimNodes(u8 *arg0, ModelSlot *arg1, s32 arg2) {
     s32 count;
     s32 *entry;
     s32 i;
-    R36880bNode *node;
+    TexAnimNode *node;
     s32 j;
-    R36880bNode **tail;
-    R36880bObj *obj;
+    TexAnimNode **tail;
+    ModelSlotObj *obj;
     s32 len1;
     s32 len2;
     s32 *tbl;
@@ -1427,19 +1427,19 @@ void func_806349FC(u8 *arg0, ModelSlot *arg1, s32 arg2) {
     entry = tbl + 1;
     switch (arg2) {
         case 1:
-            tail = &((R36880bObj *)arg1->unk20)->unkB8;
+            tail = &((ModelSlotObj *)arg1->unk20)->unkB8;
             if (count != 0) {
                 obj = arg1->unk20;
-                len1 = func_80635214(obj->unkA0);
+                len1 = dlLengthToEndDL(obj->unkA0);
                 obj->unkA4 = func_80610FE8(len1);
                 memcpy(obj->unkA4, obj->unkA0, len1);
-                len2 = func_80635214(obj->unkA8);
+                len2 = dlLengthToEndDL(obj->unkA8);
                 obj->unkAC = func_80610FE8(len2);
                 memcpy(obj->unkAC, obj->unkA8, len2);
             }
             break;
         case 2:
-            tail = &((R36880bObj *)arg1->unk20)->unk50;
+            tail = &((ModelSlotObj *)arg1->unk20)->unk50;
             break;
     }
     for (i = 0; i < count; i++) {
@@ -1467,10 +1467,10 @@ void func_806349FC(u8 *arg0, ModelSlot *arg1, s32 arg2) {
         node->unk3A = 0;
         node->unk30 = -1;
         if (arg2 == 1) {
-            func_80635114(obj->unkA0, len1, entry[0], entry[1], &node->unk0[0], &node->unk0[1], &node->unk0[2]);
-            func_80635114(obj->unkA4, len1, entry[0], entry[1], &node->unk0[3], &node->unk0[4], &node->unk0[5]);
-            func_80635114(obj->unkA8, len2, entry[0], entry[1], &node->unk0[6], &node->unk0[7], &node->unk0[8]);
-            func_80635114(obj->unkAC, len2, entry[0], entry[1], &node->unk0[9], &node->unk0[10], &node->unk0[11]);
+            dlFindTextureCommands(obj->unkA0, len1, entry[0], entry[1], &node->unk0[0], &node->unk0[1], &node->unk0[2]);
+            dlFindTextureCommands(obj->unkA4, len1, entry[0], entry[1], &node->unk0[3], &node->unk0[4], &node->unk0[5]);
+            dlFindTextureCommands(obj->unkA8, len2, entry[0], entry[1], &node->unk0[6], &node->unk0[7], &node->unk0[8]);
+            dlFindTextureCommands(obj->unkAC, len2, entry[0], entry[1], &node->unk0[9], &node->unk0[10], &node->unk0[11]);
         }
         *tail = node;
         tail = &node->unkD4;
@@ -1480,39 +1480,39 @@ void func_806349FC(u8 *arg0, ModelSlot *arg1, s32 arg2) {
 }
 
 
-void func_80634D64(s32, s16, s16, s16, s16 *, s16 *, u8);
-void func_80634F14(s32, s16, u8, u8 *, u8);
-void func_80635018(s32, s16, s32, s32);
+void modelSlotAccessNodeScrollSpeed(s32, s16, s16, s16, s16 *, s16 *, u8);
+void modelSlotAccessNodeAnimMode(s32, s16, u8, u8 *, u8);
+void modelSlotSetNodeFrame(s32, s16, s32, s32);
 
-void func_80634CC8(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    func_80634D64(arg0, arg1, arg2, arg3, &arg2, &arg3, 0);
+void modelSlotSetNodeScrollSpeed(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
+    modelSlotAccessNodeScrollSpeed(arg0, arg1, arg2, arg3, &arg2, &arg3, 0);
 }
 
-void func_80634D14(s32 arg0, s16 arg1, s16 *arg2, s16 *arg3) {
+void modelSlotGetNodeScrollSpeed(s32 arg0, s16 arg1, s16 *arg2, s16 *arg3) {
     s16 sp2E;
     s16 sp2C;
 
-    func_80634D64(arg0, arg1, sp2E, sp2C, arg2, arg3, 1);
+    modelSlotAccessNodeScrollSpeed(arg0, arg1, sp2E, sp2C, arg2, arg3, 1);
 }
 
-void func_80634E10(R36880bNode *, s16, s16, s16, s16 *, s16 *, u8);
+void modelNodeAccessScrollSpeed(TexAnimNode *, s16, s16, s16, s16 *, s16 *, u8);
 
-void func_80634D64(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4, s16 *arg5, u8 arg6) {
+void modelSlotAccessNodeScrollSpeed(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4, s16 *arg5, u8 arg6) {
     ModelSlot *slot;
-    R36880bObj *obj;
+    ModelSlotObj *obj;
 
     slot = hashTableLookup(arg0) + ((0, D_807F6000));
     obj = slot->unk20;
     if (slot->unk86 != 1) {
         if (slot->unk86 == 2) {
-            func_80634E10(obj->unk50, arg1, arg2, arg3, arg4, arg5, arg6);
+            modelNodeAccessScrollSpeed(obj->unk50, arg1, arg2, arg3, arg4, arg5, arg6);
         }
     } else {
-        func_80634E10(obj->unkB8, arg1, arg2, arg3, arg4, arg5, arg6);
+        modelNodeAccessScrollSpeed(obj->unkB8, arg1, arg2, arg3, arg4, arg5, arg6);
     }
 }
 
-void func_80634E10(R36880bNode *arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4, s16 *arg5, u8 arg6) {
+void modelNodeAccessScrollSpeed(TexAnimNode *arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4, s16 *arg5, u8 arg6) {
     arg1--;
     while (arg0 != NULL && arg1 != 0) {
         arg0 = arg0->unkD4;
@@ -1529,34 +1529,34 @@ void func_80634E10(R36880bNode *arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4, s
     }
 }
 
-void func_80634EA4(s32 arg0, s16 arg1, u8 arg2) {
-    func_80634F14(arg0, arg1, arg2, &arg2, 0);
+void modelSlotSetNodeAnimMode(s32 arg0, s16 arg1, u8 arg2) {
+    modelSlotAccessNodeAnimMode(arg0, arg1, arg2, &arg2, 0);
 }
 
-void func_80634EDC(s32 arg0, s16 arg1, u8 *arg2) {
+void modelSlotGetNodeAnimMode(s32 arg0, s16 arg1, u8 *arg2) {
     u8 sp27;
 
-    func_80634F14(arg0, arg1, sp27, arg2, 1);
+    modelSlotAccessNodeAnimMode(arg0, arg1, sp27, arg2, 1);
 }
 
-void func_80634FA0(R36880bNode *, s16, u8, u8 *, u8);
+void modelNodeAccessAnimMode(TexAnimNode *, s16, u8, u8 *, u8);
 
-void func_80634F14(s32 arg0, s16 arg1, u8 arg2, u8 *arg3, u8 arg4) {
+void modelSlotAccessNodeAnimMode(s32 arg0, s16 arg1, u8 arg2, u8 *arg3, u8 arg4) {
     ModelSlot *slot;
-    R36880bObj *obj;
+    ModelSlotObj *obj;
 
     slot = hashTableLookup(arg0) + ((0, D_807F6000));
     obj = slot->unk20;
     if (slot->unk86 != 1) {
         if (slot->unk86 == 2) {
-            func_80634FA0(obj->unk50, arg1, arg2, arg3, arg4);
+            modelNodeAccessAnimMode(obj->unk50, arg1, arg2, arg3, arg4);
         }
     } else {
-        func_80634FA0(obj->unkB8, arg1, arg2, arg3, arg4);
+        modelNodeAccessAnimMode(obj->unkB8, arg1, arg2, arg3, arg4);
     }
 }
 
-void func_80634FA0(R36880bNode *arg0, s16 arg1, u8 arg2, u8 *arg3, u8 arg4) {
+void modelNodeAccessAnimMode(TexAnimNode *arg0, s16 arg1, u8 arg2, u8 *arg3, u8 arg4) {
     arg1--;
     while (arg0 != NULL && arg1 != 0) {
         arg0 = arg0->unkD4;
@@ -1571,24 +1571,24 @@ void func_80634FA0(R36880bNode *arg0, s16 arg1, u8 arg2, u8 *arg3, u8 arg4) {
     }
 }
 
-void func_80635098(R36880bNode *, s16, s32, s32);
+void modelNodeSetFrame(TexAnimNode *, s16, s32, s32);
 
-void func_80635018(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
+void modelSlotSetNodeFrame(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
     ModelSlot *slot;
-    R36880bObj *obj;
+    ModelSlotObj *obj;
 
     slot = hashTableLookup(arg0) + ((0, D_807F6000));
     obj = slot->unk20;
     if (slot->unk86 != 1) {
         if (slot->unk86 == 2) {
-            func_80635098(obj->unk50, arg1, arg2, arg3);
+            modelNodeSetFrame(obj->unk50, arg1, arg2, arg3);
         }
     } else {
-        func_80635098(obj->unkB8, arg1, arg2, arg3);
+        modelNodeSetFrame(obj->unkB8, arg1, arg2, arg3);
     }
 }
 
-void func_80635098(R36880bNode *arg0, s16 arg1, s32 arg2, s32 arg3) {
+void modelNodeSetFrame(TexAnimNode *arg0, s16 arg1, s32 arg2, s32 arg3) {
     arg1--;
     while (arg0 != NULL && arg1 != 0) {
         arg0 = arg0->unkD4;
@@ -1603,7 +1603,7 @@ void func_80635098(R36880bNode *arg0, s16 arg1, s32 arg2, s32 arg3) {
     }
 }
 
-void func_80635114(u32 *arg0, s32 arg1, s32 arg2, s32 arg3, u32 **arg4, u32 **arg5, u32 **arg6) {
+void dlFindTextureCommands(u32 *arg0, s32 arg1, s32 arg2, s32 arg3, u32 **arg4, u32 **arg5, u32 **arg6) {
     s32 found;
     u32 cmd;
 
@@ -1651,7 +1651,7 @@ void func_80635114(u32 *arg0, s32 arg1, s32 arg2, s32 arg3, u32 **arg4, u32 **ar
 }
 
 
-s32 func_80635214(u32 *arg0) {
+s32 dlLengthToEndDL(u32 *arg0) {
     s32 len;
     s32 found;
     u32 cmd;
@@ -1670,7 +1670,7 @@ s32 func_80635214(u32 *arg0) {
 }
 
 
-typedef struct R36880bVtx {
+typedef struct ModelQuadVertex {
     /* 0x00 */ s16 x;
     /* 0x02 */ s16 y;
     /* 0x04 */ s16 z;
@@ -1678,40 +1678,40 @@ typedef struct R36880bVtx {
     /* 0x08 */ s16 s;
     /* 0x0A */ s16 t;
     /* 0x0C */ u8 pad[4];
-} R36880bVtx;
+} ModelQuadVertex;
 
-typedef struct R36880bQuad {
+typedef struct ModelQuadData {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ s16 x[4];
     /* 0x0C */ s16 y[4];
     /* 0x14 */ s16 z[4];
     /* 0x1C */ s16 uv[4][2];
     /* 0x2C */ u8 rgba[4];
-} R36880bQuad;
+} ModelQuadData;
 
-typedef struct R36880bOut {
+typedef struct ModelQuadOutput {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
     /* 0x10 */ f32 unk10;
     /* 0x14 */ u8 pad14[8];
-    /* 0x1C */ R36880bVtx *unk1C;
+    /* 0x1C */ ModelQuadVertex *unk1C;
     /* 0x20 */ u8 unk20;
     /* 0x21 */ u8 pad21[0x23];
     /* 0x44 */ u8 rgba[4];
     /* 0x48 */ s16 unk48;
-} R36880bOut;
+} ModelQuadOutput;
 
-typedef struct R36880bParent {
+typedef struct ModelQuadOwner {
     /* 0x00 */ u8 pad0[0x20];
-    /* 0x20 */ R36880bOut *unk20;
+    /* 0x20 */ ModelQuadOutput *unk20;
     /* 0x24 */ u8 *unk24;
-} R36880bParent;
+} ModelQuadOwner;
 
-void func_8063524C(R36880bParent *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
-    R36880bOut *out;
-    R36880bQuad *q;
+void modelQuadBuildOutput(ModelQuadOwner *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
+    ModelQuadOutput *out;
+    ModelQuadData *q;
     u8 *data;
     s32 i;
     s32 j;
@@ -1719,7 +1719,7 @@ void func_8063524C(R36880bParent *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
 
     data = arg0->unk24;
     out = arg0->unk20;
-    q = (R36880bQuad *)(*(s32 *)(data + 0x70) + (s32)data + 4);
+    q = (ModelQuadData *)(*(s32 *)(data + 0x70) + (s32)data + 4);
     out->unk0 = arg1;
     out->unk4 = arg2;
     out->unk8 = arg3;
@@ -1748,7 +1748,7 @@ void func_8063524C(R36880bParent *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
 
 
 
-typedef struct R36880dAsset {
+typedef struct ModelSlotAsset {
     /* 0x00 */ u8 pad0[0x14];
     /* 0x14 */ void *unk14;
     /* 0x18 */ void *unk18;
@@ -1757,12 +1757,12 @@ typedef struct R36880dAsset {
     /* 0x21 */ u8 pad21[3];
     /* 0x24 */ void *unk24[4];
     /* 0x34 */ void *unk34[4];
-} R36880dAsset;
+} ModelSlotAsset;
 
-void func_80635468(u8 *arg0, R36880dAsset *arg1) {
+void modelSlotLoadAssetTextures(u8 *arg0, ModelSlotAsset *arg1) {
     u8 type;
     s32 i;
-    R36880dAsset *p;
+    ModelSlotAsset *p;
     s16 *src;
 
     src = (s16 *)(arg0 + *(s32 *)(arg0 + 0x70) + 4);
@@ -1782,13 +1782,13 @@ void func_80635468(u8 *arg0, R36880dAsset *arg1) {
                 *(s32 *)((u8 *)p + 0x34) = 0;
             }
             i++;
-            p = (R36880dAsset *)((u8 *)p + 4);
+            p = (ModelSlotAsset *)((u8 *)p + 4);
             src = (s16 *)((u8 *)src + 0x30);
         } while (i < arg1->unk20);
     }
 }
 
-void func_80635548(s32 arg0, u8 *arg1) {
+void modelSlotClearAssetTextures(s32 arg0, u8 *arg1) {
     s32 *p;
     s32 i;
 
@@ -1801,45 +1801,45 @@ void func_80635548(s32 arg0, u8 *arg1) {
     }
 }
 
-void func_806355DC();
+void modelSlotFreeByIndex();
 void hashTableClear(void);
 
-void func_80635588(void) {
+void modelSlotsFreeAll(void) {
     s32 i;
     s32 n;
 
     n = D_80747D70;
     for (i = 0; i < n; i++) {
-        func_806355DC(0, 0);
+        modelSlotFreeByIndex(0, 0);
     }
     hashTableClear();
 }
 
-typedef struct R36880dSlotF {
+typedef struct ModelSlotFreeView {
     /* 0x00 */ u8 pad0[0x20];
     /* 0x20 */ s32 unk20;
     /* 0x24 */ u8 pad24[0x4C];
-    /* 0x70 */ R36880bListNode *unk70;
-    /* 0x74 */ R36880bListNode *unk74;
+    /* 0x70 */ ModelLinkedNode *unk70;
+    /* 0x74 */ ModelLinkedNode *unk74;
     /* 0x78 */ u8 **unk78;
     /* 0x7C */ u8 *unk7C;
     /* 0x80 */ u8 pad80[8];
     /* 0x88 */ s16 unk88;
     /* 0x8A */ s16 unk8A;
     /* 0x8C */ u8 pad8C[4];
-} R36880dSlotF;
+} ModelSlotFreeView;
 
 void actorClearEntrySlot(s16);
 void hashTableRemove(s32);
 void proxPathRemoveActor(s16);
 void func_80605380(s16);
-void func_8062D2AC(s32, s16 *, u8);
-void func_80630588(s32, s32, s32, u8 *);
+void mapPurgeNodeList(s32, s16 *, u8);
+void renderEntryRemove(s32, s32, s32, u8 *);
 void func_8063DE68(void *);
 void modelSlotFree(u8 **);
-void func_80636074(ModelSlot *);
+void modelSlotFreeTexAnimNodes(ModelSlot *);
 
-void func_806355DC(arg0, arg1)
+void modelSlotFreeByIndex(arg0, arg1)
 s32 arg0;
 u8 arg1;
 {
@@ -1850,38 +1850,38 @@ u8 arg1;
     if (arg1 == 1) {
         arg0 = hashTableLookup(arg0);
     }
-    func_8062D2AC(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk20, &sp34, 0);
-    func_80630588(0, ((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk20, 2, &sp33);
+    mapPurgeNodeList(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk20, &sp34, 0);
+    renderEntryRemove(0, ((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk20, 2, &sp33);
     dynamicBufferFree((u8 *)&D_807F6000[arg0] + 0x28);
-    func_806348B4((u8 *)&D_807F6000[arg0] + 0x48);
-    func_80633570(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk70);
-    func_806338B4(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk74);
-    modelSlotFree(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk78);
-    func_80636074(&D_807F6000[arg0]);
-    if (((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C != NULL) {
-        func_8063DE68(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C);
+    modelSlotTriBufferRelease((u8 *)&D_807F6000[arg0] + 0x48);
+    modelPosNodeListFree(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk70);
+    modelLinkedNodeListFree(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk74);
+    modelSlotFree(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk78);
+    modelSlotFreeTexAnimNodes(&D_807F6000[arg0]);
+    if (((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C != NULL) {
+        func_8063DE68(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C);
     }
-    D_807F6240[((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk8A] = -1;
-    actorClearEntrySlot(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk88);
-    sp36 = ((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk88;
+    D_807F6240[((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk8A] = -1;
+    actorClearEntrySlot(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk88);
+    sp36 = ((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk88;
     hashTableRemove(sp36);
     proxPathRemoveActor(sp36);
-    if (((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C != NULL) {
-        if (*(s16 *)(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x10) != -1) {
-            func_80605380(*(s16 *)(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x10));
+    if (((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C != NULL) {
+        if (*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x10) != -1) {
+            func_80605380(*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x10));
         }
-        if (*(s16 *)(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x12) != -1) {
-            func_80605380(*(s16 *)(((R36880dSlotF *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x12));
+        if (*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x12) != -1) {
+            func_80605380(*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x12));
         }
     }
     if (arg0 + 1 != D_80747D70) {
-        hashTableInsert(((R36880dSlotF *)((u8 *)D_807F6000 + D_80747D70 * 0x90 - 0x90))->unk88, arg0);
+        hashTableInsert(((ModelSlotFreeView *)((u8 *)D_807F6000 + D_80747D70 * 0x90 - 0x90))->unk88, arg0);
     }
     memcpy(&D_807F6000[arg0], &D_807F6000[D_80747D70] - 1, 0x90);
     D_80747D70 -= 1;
 }
 
-typedef struct R36880dVec {
+typedef struct ModelSlotVectors {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -1890,47 +1890,47 @@ typedef struct R36880dVec {
     /* 0x14 */ f32 unk14;
     /* 0x18 */ f32 unk18;
     /* 0x1C */ f32 unk1C;
-} R36880dVec;
+} ModelSlotVectors;
 
-#define R36880D_VEC(i) ((R36880dVec *)((u8 *)D_807F6000 + (i) * 0x90))
+#define MODEL_SLOT_VEC(i) ((ModelSlotVectors *)((u8 *)D_807F6000 + (i) * 0x90))
 
-void func_806357F8(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6, f32 *arg7, f32 *arg8, u8 arg9) {
+void modelSlotGetTransformVectors(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6, f32 *arg7, f32 *arg8, u8 arg9) {
     if (arg9 == 1) {
         arg0 = hashTableLookup(arg0);
     }
-    *arg1 = R36880D_VEC(arg0)->unk0;
-    *arg2 = R36880D_VEC(arg0)->unk4;
-    *arg3 = R36880D_VEC(arg0)->unk8;
-    *arg4 = R36880D_VEC(arg0)->unk10;
-    *arg5 = R36880D_VEC(arg0)->unk14;
-    *arg6 = R36880D_VEC(arg0)->unk18;
-    *arg7 = R36880D_VEC(arg0)->unkC;
-    *arg8 = R36880D_VEC(arg0)->unk1C;
+    *arg1 = MODEL_SLOT_VEC(arg0)->unk0;
+    *arg2 = MODEL_SLOT_VEC(arg0)->unk4;
+    *arg3 = MODEL_SLOT_VEC(arg0)->unk8;
+    *arg4 = MODEL_SLOT_VEC(arg0)->unk10;
+    *arg5 = MODEL_SLOT_VEC(arg0)->unk14;
+    *arg6 = MODEL_SLOT_VEC(arg0)->unk18;
+    *arg7 = MODEL_SLOT_VEC(arg0)->unkC;
+    *arg8 = MODEL_SLOT_VEC(arg0)->unk1C;
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806358E8.s")
 
-typedef struct R36880dActorBox {
+typedef struct ActorBoundsView {
     /* 0x00 */ u8 pad0[0x5C];
     /* 0x5C */ u16 unk5C;
     /* 0x5E */ u8 pad5E[0x1E];
     /* 0x7C */ f32 unk7C;
     /* 0x80 */ f32 unk80;
     /* 0x84 */ f32 unk84;
-} R36880dActorBox;
+} ActorBoundsView;
 
-typedef struct R36880dActorRef {
-    /* 0x0 */ R36880dActorBox *actor;
+typedef struct ActorBoundsRef {
+    /* 0x0 */ ActorBoundsView *actor;
     /* 0x4 */ s32 unk4;
-} R36880dActorRef;
+} ActorBoundsRef;
 
-extern R36880dActorRef gActiveActors[];
+extern ActorBoundsRef gActiveActors[];
 extern u16 gActiveActorCount;
 
-s32 func_80635EF0(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 arg5, u16 arg6) {
+s32 activeActorBoxOverlapTest(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 arg5, u16 arg6) {
     s32 i;
-    R36880dActorBox *b;
-    R36880dActorBox *a;
+    ActorBoundsView *b;
+    ActorBoundsView *a;
     s16 rx;
     s16 ry;
     s16 rz;
@@ -1960,39 +1960,39 @@ void func_80636014(s32 arg0, u8 arg1, u8 arg2) {
     func_8062D094(D_807F6000[arg0].unk20, arg2);
 }
 
-typedef struct R36880dChain {
+typedef struct ModelNodeChain {
     /* 0x00 */ u8 pad0[0x3C];
     /* 0x3C */ void *unk3C;
     /* 0x40 */ void *unk40;
     /* 0x44 */ u8 pad44[0x90];
-    /* 0xD4 */ struct R36880dChain *unkD4;
-} R36880dChain;
+    /* 0xD4 */ struct ModelNodeChain *unkD4;
+} ModelNodeChain;
 
-typedef struct R36880dOwner {
+typedef struct ModelChainOwner {
     /* 0x00 */ u8 pad0[0x50];
-    /* 0x50 */ R36880dChain *unk50;
+    /* 0x50 */ ModelNodeChain *unk50;
     /* 0x54 */ s32 *unk54;
     /* 0x58 */ u8 pad58[0x60];
-    /* 0xB8 */ R36880dChain *unkB8;
+    /* 0xB8 */ ModelNodeChain *unkB8;
     /* 0xBC */ s32 *unkBC;
-} R36880dOwner;
+} ModelChainOwner;
 
-void func_806365D0(ModelSlot *, void *, R36880dOwner *);
-void func_80636380(void *, R36880dAsset *);
+void func_806365D0(ModelSlot *, void *, ModelChainOwner *);
+void modelSlotFreeAssetEntry(void *, ModelSlotAsset *);
 
-void func_80636074(ModelSlot *arg0) {
-    R36880dChain *node;
-    R36880dOwner *ownerA;
+void modelSlotFreeTexAnimNodes(ModelSlot *arg0) {
+    ModelNodeChain *node;
+    ModelChainOwner *ownerA;
     s32 *sp24;
-    R36880dOwner *ownerB;
-    R36880dChain *cur;
+    ModelChainOwner *ownerB;
+    ModelNodeChain *cur;
 
     switch (arg0->unk86) {
         case 2:
             ownerA = arg0->unk20;
             node = ownerA->unk50;
             sp24 = ownerA->unk54;
-            func_80636380(arg0->unk24, (R36880dAsset *)ownerA);
+            modelSlotFreeAssetEntry(arg0->unk24, (ModelSlotAsset *)ownerA);
             break;
         case 1:
             ownerB = arg0->unk20;
@@ -2020,24 +2020,24 @@ void func_80636074(ModelSlot *arg0) {
     }
 }
 
-typedef struct R36880b2Chain {
+typedef struct ModelNodeBufferChain {
     /* 0x00 */ u8 pad0[0x3C];
     /* 0x3C */ void *unk3C;
     /* 0x40 */ void *unk40;
     /* 0x44 */ u8 pad44[0x8C];
     /* 0xD0 */ u8 unkD0;
-    /* 0xD4 */ struct R36880b2Chain *unkD4;
-} R36880b2Chain;
+    /* 0xD4 */ struct ModelNodeBufferChain *unkD4;
+} ModelNodeBufferChain;
 
-typedef struct R36880b2Owner {
+typedef struct ModelNodeBufferOwner {
     /* 0x00 */ u8 pad0[0x50];
-    /* 0x50 */ R36880b2Chain *unk50;
+    /* 0x50 */ ModelNodeBufferChain *unk50;
     /* 0x54 */ u8 pad54[0x64];
-    /* 0xB8 */ R36880b2Chain *unkB8;
-} R36880b2Owner;
+    /* 0xB8 */ ModelNodeBufferChain *unkB8;
+} ModelNodeBufferOwner;
 
-void func_80636164(R36880b2Owner *arg0, u8 arg1) {
-    R36880b2Chain *node;
+void modelSlotFreeTexAnimBuffers(ModelNodeBufferOwner *arg0, u8 arg1) {
+    ModelNodeBufferChain *node;
 
     if (arg1 != 1) {
         if (arg1 == 2) {
@@ -2063,7 +2063,7 @@ walk:
     }
 }
 
-void func_80636210(u8 *arg0, u8 arg1) {
+void modelSlotFreeAssetTextures(u8 *arg0, u8 arg1) {
     s32 *p;
     u8 *base;
     s32 *cur;
@@ -2098,7 +2098,7 @@ void func_80636210(u8 *arg0, u8 arg1) {
     }
 }
 
-void func_806362C4(s32 arg0, u8 arg1) {
+void modelSlotFreeNestedBuffer(s32 arg0, u8 arg1) {
     s32 *sp1C;
     s32 **sp18;
     ModelSlot *slot;
@@ -2128,7 +2128,7 @@ void func_806362C4(s32 arg0, u8 arg1) {
 
 void heapFreeDeferred(void *);
 
-void func_80636380(void *arg0, R36880dAsset *arg1) {
+void modelSlotFreeAssetEntry(void *arg0, ModelSlotAsset *arg1) {
     s32 i;
     void **p;
 
@@ -2153,25 +2153,25 @@ void func_80636380(void *arg0, R36880dAsset *arg1) {
     heapFreeDeferred(arg1->unk18);
 }
 
-typedef struct R36880b2Rec {
+typedef struct DisplayListFreeRecord {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
-    /* 0x18 */ struct R36880b2Rec *unk18;
-} R36880b2Rec;
+    /* 0x18 */ struct DisplayListFreeRecord *unk18;
+} DisplayListFreeRecord;
 
-extern R36880b2Rec *D_807F6160;
+extern DisplayListFreeRecord *D_807F6160;
 
-void func_8063643C(void) {
+void displayListFreeQueueReset(void) {
     D_807F6160 = 0;
 }
 
-void func_80636448(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    R36880b2Rec *rec;
-    R36880b2Rec *old;
+void displayListFreeQueueAdd(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    DisplayListFreeRecord *rec;
+    DisplayListFreeRecord *old;
 
     rec = func_80610FE8(0x1C);
     old = D_807F6160;
@@ -2185,17 +2185,17 @@ void func_80636448(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     rec->unk10 = arg4;
 }
 
-typedef struct R36880dCount {
+typedef struct DisplayListFreeCounter {
     /* 0x00 */ u8 pad0[0x3C];
     /* 0x3C */ s16 unk3C;
-} R36880dCount;
+} DisplayListFreeCounter;
 
-void func_80636784();
+void dlFreeUnusedTextures();
 
-void func_806364C4(void) {
-    R36880b2Rec *cur;
-    R36880b2Rec *prev;
-    R36880b2Rec *next;
+void displayListFreeQueueProcess(void) {
+    DisplayListFreeRecord *cur;
+    DisplayListFreeRecord *prev;
+    DisplayListFreeRecord *next;
 
     cur = D_807F6160;
     prev = NULL;
@@ -2203,9 +2203,9 @@ void func_806364C4(void) {
         do {
             next = cur->unk18;
             if (D_8076A064 == cur->unk14) {
-                ((R36880dCount *)cur->unk10)->unk3C -= 1;
-                func_80636784(cur->unk0, cur->unk4, 0, 0, ((R36880dCount *)cur->unk10)->unk3C == 0);
-                func_80636784(cur->unk8, cur->unkC, 0, 1, ((R36880dCount *)cur->unk10)->unk3C == 0);
+                ((DisplayListFreeCounter *)cur->unk10)->unk3C -= 1;
+                dlFreeUnusedTextures(cur->unk0, cur->unk4, 0, 0, ((DisplayListFreeCounter *)cur->unk10)->unk3C == 0);
+                dlFreeUnusedTextures(cur->unk8, cur->unkC, 0, 1, ((DisplayListFreeCounter *)cur->unk10)->unk3C == 0);
                 assetFreeBuffer((void *)cur->unk10, 0xAB1, 7);
                 if (prev == NULL) {
                     D_807F6160 = cur->unk18;
@@ -2221,12 +2221,12 @@ void func_806364C4(void) {
     }
 }
 
-typedef struct R36880eCmd {
+typedef struct DisplayListCmd {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
-} R36880eCmd;
+} DisplayListCmd;
 
-typedef struct R36880eLink {
+typedef struct DisplayListTextureNode {
     /* 0x00 */ void *unk0;
     /* 0x04 */ void *unk4;
     /* 0x08 */ u8 pad8[4];
@@ -2239,10 +2239,10 @@ typedef struct R36880eLink {
     /* 0x24 */ void *unk24;
     /* 0x28 */ void *unk28;
     /* 0x2C */ u8 pad2C[0xA8];
-    /* 0xD4 */ struct R36880eLink *unkD4;
-} R36880eLink;
+    /* 0xD4 */ struct DisplayListTextureNode *unkD4;
+} DisplayListTextureNode;
 
-typedef struct R36880eSeg {
+typedef struct ModelSegmentData {
     /* 0x00 */ u8 pad0[0xA0];
     /* 0xA0 */ u32 unkA0;
     /* 0xA4 */ u32 unkA4;
@@ -2251,28 +2251,28 @@ typedef struct R36880eSeg {
     /* 0xB0 */ u32 unkB0;
     /* 0xB4 */ s16 unkB4;
     /* 0xB6 */ s16 unkB6;
-    /* 0xB8 */ R36880eLink *unkB8;
+    /* 0xB8 */ DisplayListTextureNode *unkB8;
     /* 0xBC */ s32 unkBC;
     /* 0xC0 */ u8 padC0[3];
     /* 0xC3 */ u8 unkC3;
-} R36880eSeg;
+} ModelSegmentData;
 
-typedef struct R36880eDLObj {
+typedef struct ModelDisplayListObj {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ s32 unk4;
     /* 0x08 */ u8 pad8[0x28];
     /* 0x30 */ s32 unk30;
-} R36880eDLObj;
+} ModelDisplayListObj;
 
-typedef struct R36880ePtrSet {
-    /* 0x0 */ R36880eDLObj *unk0;
-    /* 0x4 */ R36880eDLObj *unk4;
+typedef struct ModelDisplayListPtrSet {
+    /* 0x0 */ ModelDisplayListObj *unk0;
+    /* 0x4 */ ModelDisplayListObj *unk4;
     /* 0x8 */ s32 *unk8;
-} R36880ePtrSet;
+} ModelDisplayListPtrSet;
 
-typedef struct R36880eNode {
-    /* 0x00 */ R36880ePtrSet unk0[2];
-    /* 0x18 */ R36880ePtrSet unk18[2];
+typedef struct ModelSegmentNode {
+    /* 0x00 */ ModelDisplayListPtrSet unk0[2];
+    /* 0x18 */ ModelDisplayListPtrSet unk18[2];
     /* 0x30 */ s32 unk30;
     /* 0x34 */ s16 unk34;
     /* 0x36 */ s16 unk36;
@@ -2292,31 +2292,31 @@ typedef struct R36880eNode {
     /* 0x5C */ s32 unk5C[29];
     /* 0xD0 */ u8 unkD0;
     /* 0xD1 */ u8 padD1[3];
-    /* 0xD4 */ struct R36880eNode *unkD4;
-} R36880eNode;
+    /* 0xD4 */ struct ModelSegmentNode *unkD4;
+} ModelSegmentNode;
 
-typedef struct R36880eOwner {
+typedef struct ModelSegmentOwner {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ s32 unk24[8];
     /* 0x44 */ u8 pad44[0xC];
-    /* 0x50 */ R36880eNode *unk50;
-} R36880eOwner;
+    /* 0x50 */ ModelSegmentNode *unk50;
+} ModelSegmentOwner;
 
-void func_80639CD0(R36880eNode *, s32 *, s32 *, u8 *, s16 *);
+void texAnimNodeUpdateBuffers(ModelSegmentNode *, s32 *, s32 *, u8 *, s16 *);
 void collisionBstLookupByHash(s32, s32 *, s32 *);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806365D0.s")
 
-void func_80636784(arg0, arg1, arg2, arg3, arg4)
-R36880eCmd *arg0;
-R36880eCmd *arg1;
-R36880eLink *arg2;
+void dlFreeUnusedTextures(arg0, arg1, arg2, arg3, arg4)
+DisplayListCmd *arg0;
+DisplayListCmd *arg1;
+DisplayListTextureNode *arg2;
 u8 arg3;
 u8 arg4;
 {
     u32 w;
     u32 found;
-    R36880eLink *node;
+    DisplayListTextureNode *node;
     s32 sp40;
     s32 sp3C;
 
@@ -2381,16 +2381,16 @@ u8 arg4;
     }
 }
 
-typedef struct R36880eAssetHdr {
+typedef struct ModelAssetHeader {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ u8 unk1C;
     /* 0x1D */ u8 pad1D[0x23];
     /* 0x40 */ s32 unk40;
     /* 0x44 */ s32 unk44;
     /* 0x48 */ s32 unk48;
-} R36880eAssetHdr;
+} ModelAssetHeader;
 
-typedef struct R36880eObj60 {
+typedef struct ModelType2Obj {
     /* 0x00 */ u8 pad0[0x14];
     /* 0x14 */ void *unk14;
     /* 0x18 */ void *unk18;
@@ -2403,24 +2403,24 @@ typedef struct R36880eObj60 {
     /* 0x54 */ s32 unk54;
     /* 0x58 */ u8 pad58[3];
     /* 0x5B */ u8 unk5B;
-} R36880eObj60;
+} ModelType2Obj;
 
 extern u8 D_80750AB4;
 u8 func_80636A8C(s32);
 
-void func_806368F0(ModelSlot *arg0, s32 arg1) {
-    R36880eAssetHdr *hdr;
-    R36880eSeg *seg;
+void modelSlotInitFromAsset(ModelSlot *arg0, s32 arg1) {
+    ModelAssetHeader *hdr;
+    ModelSegmentData *seg;
     s32 pad;
     void *sp28;
-    R36880eObj60 *obj;
+    ModelType2Obj *obj;
 
     if (func_80636A8C(arg1) != 0) {
         arg0->unk24 = func_8066B0F8(4, arg1, 1, 1);
     } else {
         arg0->unk24 = func_8066B0F8(4, arg1, 1, 0);
     }
-    hdr = (R36880eAssetHdr *)arg0->unk24;
+    hdr = (ModelAssetHeader *)arg0->unk24;
     arg0->unk8C = 0;
     arg0->unk86 = hdr->unk1C;
     arg0->unk84 = arg1;
@@ -2478,22 +2478,22 @@ u8 func_80636A8C(s32 arg0) {
     return result;
 }
 
-typedef struct R36880eSegOwner {
+typedef struct ModelSlotSegOwner {
     /* 0x00 */ u8 pad0[0x20];
-    /* 0x20 */ R36880eSeg *unk20;
-} R36880eSegOwner;
+    /* 0x20 */ ModelSegmentData *unk20;
+} ModelSlotSegOwner;
 
 void renderReplaceSegment6Commands();
 
-void func_80636AE8(void *arg0) {
+void modelSlotReplaceSegment6Commands(void *arg0) {
     u32 head;
-    R36880eSeg *seg;
+    ModelSegmentData *seg;
     u32 mid;
     u32 count;
     u32 len;
     u32 start;
 
-    seg = ((R36880eSegOwner *)arg0)->unk20;
+    seg = ((ModelSlotSegOwner *)arg0)->unk20;
     mid = seg->unkA8;
     head = seg->unkA0;
     start = head;
@@ -2505,7 +2505,7 @@ void func_80636AE8(void *arg0) {
     renderReplaceSegment6Commands(seg->unkA8, seg->unkA8 + count * 8, seg, len);
 }
 
-void func_80636B50(R36880eCmd *arg0, R36880eCmd *arg1, u8 arg2) {
+void dlFreeSegmentCommandTextures(DisplayListCmd *arg0, DisplayListCmd *arg1, u8 arg2) {
     u32 w;
     u32 tag;
     s32 sp34;
@@ -2530,7 +2530,7 @@ void func_80636B50(R36880eCmd *arg0, R36880eCmd *arg1, u8 arg2) {
 }
 
 
-typedef struct R36880eObjHdr {
+typedef struct ModelSlotObjHeader {
     /* 0x00 */ u32 unk0;
     /* 0x04 */ u8 pad4[4];
     /* 0x08 */ s32 unk8;
@@ -2538,17 +2538,17 @@ typedef struct R36880eObjHdr {
     /* 0x1C */ u8 unk1C;
     /* 0x1D */ u8 pad1D[0x1F];
     /* 0x3C */ s16 unk3C;
-} R36880eObjHdr;
+} ModelSlotObjHeader;
 
 extern s16 D_80747D74;
 
-void func_80636C00(void) {
+void modelSlotsStepSegmentCommands(void) {
     u32 mid;
-    R36880eSeg *seg;
+    ModelSegmentData *seg;
     u32 head;
     u32 count;
     u8 flag;
-    R36880eObjHdr *obj;
+    ModelSlotObjHeader *obj;
     ModelSlot *slot;
     u32 start;
     u32 len;
@@ -2559,7 +2559,7 @@ void func_80636C00(void) {
             D_80747D74 = 0;
         }
         slot = (ModelSlot *)((u8 *)D_807F6000 + D_80747D74 * 0x90);
-        obj = (R36880eObjHdr *)slot->unk24;
+        obj = (ModelSlotObjHeader *)slot->unk24;
         if (obj->unk0 & 0x10) {
             if ((slot->unk8C & 0x20) && D_8076A064 != obj->unk8) {
                 slot->unk8C &= ~0x20;
@@ -2576,10 +2576,10 @@ void func_80636C00(void) {
                 len = seg->unkB0 - mid;
                 head = (mid - head) >> 3;
                 count = len >> 3;
-                func_80636B50((R36880eCmd *)start, (R36880eCmd *)((0, start) + head * 8), flag);
+                dlFreeSegmentCommandTextures((DisplayListCmd *)start, (DisplayListCmd *)((0, start) + head * 8), flag);
                 len = count;
                 count = 0;
-                func_80636B50((R36880eCmd *)seg->unkA8, (0, (R36880eCmd *)(seg->unkA8 + len * 8)), flag);
+                dlFreeSegmentCommandTextures((DisplayListCmd *)seg->unkA8, (0, (DisplayListCmd *)(seg->unkA8 + len * 8)), flag);
             }
         }
     }
@@ -2590,12 +2590,12 @@ void func_80636C00(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636D38.s")
 
 
-s32 func_80636EFC(R36880eCmd *arg0, R36880eCmd *arg1, R36880eNode *arg2, u8 arg3) {
+s32 dlResolveNodeTextures(DisplayListCmd *arg0, DisplayListCmd *arg1, ModelSegmentNode *arg2, u8 arg3) {
     u32 w;
     u32 tag;
     s32 result;
     s32 found;
-    R36880eNode *node;
+    ModelSegmentNode *node;
 
     result = 0;
     if (arg0 != arg1) {
@@ -2630,7 +2630,7 @@ s32 func_80636EFC(R36880eCmd *arg0, R36880eCmd *arg1, R36880eNode *arg2, u8 arg3
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636FFC.s")
 
-typedef struct L80637B6CObj {
+typedef struct RenderQuadModelObj {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -2658,9 +2658,9 @@ typedef struct L80637B6CObj {
     /* 0x5A */ u8 unk5A;
     /* 0x5B */ u8 unk5B;
     /* 0x5C */ u8 unk5C;
-} L80637B6CObj;
+} RenderQuadModelObj;
 
-#define L80637B6C_GFX(a, b) { Gfx *_g = (Gfx *)(arg1++); _g->words.w0 = (a); _g->words.w1 = (b); }
+#define WRITE_GFX_PAIR(a, b) { Gfx *_g = (Gfx *)(arg1++); _g->words.w0 = (a); _g->words.w1 = (b); }
 
 extern u8 D_807F6009;
 extern s32 D_807F600C;
@@ -2673,11 +2673,11 @@ void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 void func_80658C10(void *, s16, s16, s16);
 u8 mapSearchTableGetValue(void *);
 void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
-void func_806392BC(s16, u8 *, s16 *);
-void func_80639C04(R36880eOwner *, s32, s32 *, s32 *, u8 *, s16 *);
-void func_80639FC0(f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *, u8);
+void modelKongVisibilityCheck(s16, u8 *, s16 *);
+void texAnimFindNodeFrame(ModelSegmentOwner *, s32, s32 *, s32 *, u8 *, s16 *);
+void modelCalcFacingAngles(f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *, u8);
 
-Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6) {
+Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6) {
     f32 sp238[4][4];
     f32 sp1F8[4][4];
     f32 sp1F4;
@@ -2709,7 +2709,7 @@ Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
     s32 pad[1];
 
     if (0) {
-        func_806392BC(0, &arg5, 0);
+        modelKongVisibilityCheck(0, &arg5, 0);
     }
     sp1B4 = 0;
     sp1AF = 0;
@@ -2749,9 +2749,9 @@ Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
     }
     D_807F5FD8 += 1;
     if (arg0->unk24 == 0) {
-        func_80635468(D_807F6000[(s16)hashTableLookup(arg0->unk4C)].unk24, (R36880dAsset *)arg0);
+        modelSlotLoadAssetTextures(D_807F6000[(s16)hashTableLookup(arg0->unk4C)].unk24, (ModelSlotAsset *)arg0);
     }
-    func_80639FC0(arg0->unk0, arg0->unk4, arg0->unk8, arg2, arg3, arg4, &sp1F4, &sp1F0, &sp1EC, arg0->unk4E & 4);
+    modelCalcFacingAngles(arg0->unk0, arg0->unk4, arg0->unk8, arg2, arg3, arg4, &sp1F4, &sp1F0, &sp1EC, arg0->unk4E & 4);
     guTranslateF(sp238, 0.0f, -arg0->unk48, 0.0f);
     if (sp1F4 != 0.0) {
         guRotateF(sp1F8, sp1F4, 1.0f, 0.0f, 0.0f);
@@ -2776,9 +2776,9 @@ Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
         break;
     }
     guMtxF2L(sp238, mtx);
-    L80637B6C_GFX(0xE7000000, 0);
-    L80637B6C_GFX(0xD9000000, 0);
-    L80637B6C_GFX(0xDA380000, osVirtualToPhysical(mtx));
+    WRITE_GFX_PAIR(0xE7000000, 0);
+    WRITE_GFX_PAIR(0xD9000000, 0);
+    WRITE_GFX_PAIR(0xDA380000, osVirtualToPhysical(mtx));
     if (sp1D0 < (f32)((limit * 3) / 4)) {
         sp1AE = 1;
         sp1B0 = 0xFF;
@@ -2790,7 +2790,7 @@ Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
         }
         sp1B0 = 0xFF - sp1B0;
     }
-    func_806392BC(arg0->unk4A, &sp1AE, &sp1B0);
+    modelKongVisibilityCheck(arg0->unk4A, &sp1AE, &sp1B0);
     if (arg5 != 0 && arg0->unk5A == 0) {
         func_8065C334(arg0->unk0, arg0->unk4, arg0->unk8, 0, &sp1AD, &sp1AC, &sp1AB, arg6);
         scale = (f32)(u32)arg0->unk5C / 15.0f;
@@ -2801,8 +2801,8 @@ Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
         sp1AD = sp1AC = sp1AB = 0xFF;
     }
     for (i = 0; i < arg0->unk20; i++) {
-        func_80639C04((R36880eOwner *)arg0, i, &sp1E8, &sp1E4, &sp1E3, &sp1E0);
-        L80637B6C_GFX(0xE7000000, 0);
+        texAnimFindNodeFrame((ModelSegmentOwner *)arg0, i, &sp1E8, &sp1E4, &sp1E3, &sp1E0);
+        WRITE_GFX_PAIR(0xE7000000, 0);
         if (arg0->unk4E & 2) {
             if (sp1AE != 0) {
                 gSPSetOtherMode(arg1++, G_SETOTHERMODE_L, 3, 29, 0x0C193078);
@@ -2816,15 +2816,15 @@ Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
         }
         gSPSetOtherMode(arg1++, G_SETOTHERMODE_H, 20, 2, 0x100000);
         if ((arg0->unk4E & 1) || (arg0->unk4E & 2)) {
-            L80637B6C_GFX(0xD9FFFFFF, 0x210005);
+            WRITE_GFX_PAIR(0xD9FFFFFF, 0x210005);
         } else {
-            L80637B6C_GFX(0xD9FFFFFF, 0x210004);
+            WRITE_GFX_PAIR(0xD9FFFFFF, 0x210004);
         }
         gDPSetPrimColor(arg1++, 0, sp1E0, sp1AD, sp1AC, sp1AB, sp1B0);
         switch (sp1E3) {
         case 0:
-            L80637B6C_GFX(0xFC1197FF, 0xFFFFFE38);
-            L80637B6C_GFX(0xD7000002, 0xFFFFFFFF);
+            WRITE_GFX_PAIR(0xFC1197FF, 0xFFFFFE38);
+            WRITE_GFX_PAIR(0xD7000002, 0xFFFFFFFF);
             if (D_807F6009 != 2 || sp1E8 != D_807F600C) {
                 switch (arg0->unk46) {
                 case 0:
@@ -2860,8 +2860,8 @@ Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
             D_807F600C = sp1E8;
             break;
         case 1:
-            L80637B6C_GFX(0xFC272C03, 0x1F1C93F8);
-            L80637B6C_GFX(0xD7000002, 0xFFFFFFFF);
+            WRITE_GFX_PAIR(0xFC272C03, 0x1F1C93F8);
+            WRITE_GFX_PAIR(0xD7000002, 0xFFFFFFFF);
             gSPSetOtherMode(arg1++, G_SETOTHERMODE_H, 16, 1, 0);
             gDPSetTextureImage(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, sp1E8);
             gDPSetTile(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
@@ -2879,13 +2879,13 @@ Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
             D_807F600C = 0;
             break;
         }
-        L80637B6C_GFX(0x01004008, osVirtualToPhysical(arg0->unk1C + sp1B4));
-        L80637B6C_GFX(0x06000204, 0x406);
+        WRITE_GFX_PAIR(0x01004008, osVirtualToPhysical(arg0->unk1C + sp1B4));
+        WRITE_GFX_PAIR(0x06000204, 0x406);
         sp1B4 += 4;
         D_807F6009 = 2;
     }
-    L80637B6C_GFX(0xD8380002, 0x40);
-    L80637B6C_GFX(0xE7000000, 0);
+    WRITE_GFX_PAIR(0xD8380002, 0x40);
+    WRITE_GFX_PAIR(0xE7000000, 0);
     gSPSetOtherMode(arg1++, G_SETOTHERMODE_H, 20, 2, 0);
     gSPSetOtherMode(arg1++, G_SETOTHERMODE_H, 16, 1, 0x10000);
     if (sp1AF != 0) {
@@ -2895,119 +2895,119 @@ Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
     return arg1;
 }
 
-typedef struct R36880hCtl {
+typedef struct PlayerCtlRef {
     /* 0x000 */ u8 pad0[0x174];
-    /* 0x174 */ struct R36880hCtl2 *unk174;
-} R36880hCtl;
+    /* 0x174 */ struct PlayerControllerState *unk174;
+} PlayerCtlRef;
 
-typedef struct R36880hCtl2 {
+typedef struct PlayerControllerState {
     /* 0x000 */ u8 pad0[0x1F4];
     /* 0x1F4 */ s32 unk1F4;
-} R36880hCtl2;
+} PlayerControllerState;
 
-typedef struct R36880hObj {
+typedef struct PlayerActorRef {
     /* 0x00 */ u8 pad0[0x58];
     /* 0x58 */ s32 unk58;
-} R36880hObj;
+} PlayerActorRef;
 
-typedef struct R36880hPlayer {
+typedef struct PlayerSlotEntry {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ R36880hObj *unk4;
+    /* 0x004 */ PlayerActorRef *unk4;
     /* 0x008 */ u8 pad8[0x2E8];
-} R36880hPlayer; /* 0x2F0 */
+} PlayerSlotEntry; /* 0x2F0 */
 
 extern u8 D_8074E77C[];
-typedef struct R36880hKong {
+typedef struct PlayerKongRecord {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 pad1[0x5D];
-} R36880hKong; /* 0x5E */
+} PlayerKongRecord; /* 0x5E */
 
-typedef struct R36880hPl {
-    /* 0x000 */ R36880hKong kong[8];
+typedef struct PlayerKongArray {
+    /* 0x000 */ PlayerKongRecord kong[8];
     /* 0x2F0 */ u8 pad2F0[0x16];
-} R36880hPl; /* 0x306 */
+} PlayerKongArray; /* 0x306 */
 
-extern R36880hPl D_807FC952[];
+extern PlayerKongArray D_807FC952[];
 
-#define R36880H_CUR ((R36880hPlayer *)D_807FC924)[D_807FC929].unk4
+#define PLAYER_CURRENT_OBJ ((PlayerSlotEntry *)D_807FC924)[D_807FC929].unk4
 
-void func_806392BC(s16 arg0, u8 *arg1, s16 *arg2) {
+void modelKongVisibilityCheck(s16 arg0, u8 *arg1, s16 *arg2) {
     s32 hit = 0;
-    R36880hCtl2 *ctl;
+    PlayerControllerState *ctl;
 
     switch (arg0) {
     case 0x24:
-        if (R36880H_CUR->unk58 != 3) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 3) {
             hit = 1;
         }
         break;
     case 0x1D:
-        if (R36880H_CUR->unk58 != 2) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 2) {
             hit = 1;
         }
         break;
     case 0x1C:
-        if (R36880H_CUR->unk58 != 5) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 5) {
             hit = 1;
         }
         break;
     case 0x23:
-        if (R36880H_CUR->unk58 != 4) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 4) {
             hit = 1;
         }
         break;
     case 0x27:
-        if (R36880H_CUR->unk58 != 6) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 6) {
             hit = 1;
         }
         break;
     case 0xD:
-        if (R36880H_CUR->unk58 != 2) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 2) {
             hit = 1;
         }
         break;
     case 0xA:
-        if (R36880H_CUR->unk58 != 3) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 3) {
             hit = 1;
         }
         break;
     case 0x16:
-        if (R36880H_CUR->unk58 != 5) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 5) {
             hit = 1;
         }
         break;
     case 0x1E:
-        if (R36880H_CUR->unk58 != 4) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 4) {
             hit = 1;
         }
         break;
     case 0x1F:
-        if (R36880H_CUR->unk58 != 6) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 6) {
             hit = 1;
         }
         break;
     case 0x2B:
-        if (R36880H_CUR->unk58 != 2) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 2) {
             hit = 1;
         }
         break;
     case 0x208:
-        if (R36880H_CUR->unk58 != 3) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 3) {
             hit = 1;
         }
         break;
     case 0x207:
-        if (R36880H_CUR->unk58 != 5) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 5) {
             hit = 1;
         }
         break;
     case 0x205:
-        if (R36880H_CUR->unk58 != 4) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 4) {
             hit = 1;
         }
         break;
     case 0x206:
-        if (R36880H_CUR->unk58 != 6) {
+        if (PLAYER_CURRENT_OBJ->unk58 != 6) {
             hit = 1;
         }
         break;
@@ -3022,13 +3022,13 @@ void func_806392BC(s16 arg0, u8 *arg1, s16 *arg2) {
         }
         break;
     case 0x98:
-        ctl = ((R36880hCtl *)R36880H_CUR)->unk174;
+        ctl = ((PlayerCtlRef *)PLAYER_CURRENT_OBJ)->unk174;
         if (!(ctl->unk1F4 & 1)) {
             hit = 1;
         }
         break;
     case 0x8E:
-        ctl = ((R36880hCtl *)R36880H_CUR)->unk174;
+        ctl = ((PlayerCtlRef *)PLAYER_CURRENT_OBJ)->unk174;
         if (!(ctl->unk1F4 & 2)) {
             hit = 1;
         }
@@ -3042,13 +3042,13 @@ void func_806392BC(s16 arg0, u8 *arg1, s16 *arg2) {
     }
 }
 
-typedef struct R36880eFlags {
+typedef struct ModelSubObjectFlags {
     /* 0x00 */ u8 pad0[0x4E];
     /* 0x4E */ u8 unk4E;
-} R36880eFlags;
+} ModelSubObjectFlags;
 
 void func_806398E4(s32 arg0, u8 arg1, u8 arg2) {
-    R36880eFlags *obj;
+    ModelSubObjectFlags *obj;
 
     if (arg1 == 1) {
         arg0 = hashTableLookup(arg0);
@@ -3062,19 +3062,19 @@ void func_806398E4(s32 arg0, u8 arg1, u8 arg2) {
     obj->unk4E &= ~2;
 }
 
-void func_80639968(R36880eSeg *arg0) {
+void texAnimUpdateNodes(ModelSegmentData *arg0) {
     s32 pad;
     s32 sp60;
     s32 sp5C;
     u8 sp5B;
     s16 sp58;
-    R36880eNode *node;
+    ModelSegmentNode *node;
     s32 *dst;
 
-    node = (R36880eNode *)arg0->unkB8;
+    node = (ModelSegmentNode *)arg0->unkB8;
     if (node != NULL) {
         do {
-            func_80639CD0(node, &sp60, &sp5C, &sp5B, &sp58);
+            texAnimNodeUpdateBuffers(node, &sp60, &sp5C, &sp5B, &sp58);
             if (node->unk0[D_807444FC].unk0 != NULL) {
                 node->unk0[D_807444FC].unk0->unk4 = sp60;
                 if (sp5B == 0) {
@@ -3127,8 +3127,8 @@ void func_80639968(R36880eSeg *arg0) {
 
 void func_8066B0DC(void);
 
-void func_80639C04(R36880eOwner *arg0, s32 arg1, s32 *arg2, s32 *arg3, u8 *arg4, s16 *arg5) {
-    R36880eNode *node;
+void texAnimFindNodeFrame(ModelSegmentOwner *arg0, s32 arg1, s32 *arg2, s32 *arg3, u8 *arg4, s16 *arg5) {
+    ModelSegmentNode *node;
     s32 key;
     s32 found;
 
@@ -3146,7 +3146,7 @@ void func_80639C04(R36880eOwner *arg0, s32 arg1, s32 *arg2, s32 *arg3, u8 *arg4,
             } while (node != NULL && found == 0);
         }
         if (found != 0) {
-            func_80639CD0(node, arg2, arg3, arg4, arg5);
+            texAnimNodeUpdateBuffers(node, arg2, arg3, arg4, arg5);
             node->unk30 = D_8076A064;
             return;
         }
@@ -3159,9 +3159,9 @@ void func_80639C04(R36880eOwner *arg0, s32 arg1, s32 *arg2, s32 *arg3, u8 *arg4,
 }
 
 
-s32 func_80639F1C(R36880eNode *, s32 *, s32 *);
+s32 texAnimNodeAdvance(ModelSegmentNode *, s32 *, s32 *);
 
-void func_80639CD0(R36880eNode *arg0, s32 *arg1, s32 *arg2, u8 *arg3, s16 *arg4) {
+void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *arg3, s16 *arg4) {
     s32 var_v1;
     s32 sp30;
     s32 sp2C;
@@ -3171,7 +3171,7 @@ void func_80639CD0(R36880eNode *arg0, s32 *arg1, s32 *arg2, u8 *arg3, s16 *arg4)
     if (D_8076A064 == arg0->unk30) {
         var_v1 = 0;
     } else {
-        var_v1 = (u8)func_80639F1C(arg0, &sp30, &sp2C);
+        var_v1 = (u8)texAnimNodeAdvance(arg0, &sp30, &sp2C);
     }
     if (var_v1 != 0 || arg0->unk3C == 0) {
         temp_a3 = arg0->unk3C;
@@ -3223,7 +3223,7 @@ void func_80639CD0(R36880eNode *arg0, s32 *arg1, s32 *arg2, u8 *arg3, s16 *arg4)
     *arg2 = arg0->unk40;
 }
 
-s32 func_80639F1C(R36880eNode *arg0, s32 *arg1, s32 *arg2) {
+s32 texAnimNodeAdvance(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2) {
     s32 result;
 
     result = 0;
@@ -3256,7 +3256,7 @@ s32 func_80639F1C(R36880eNode *arg0, s32 *arg1, s32 *arg2) {
     return result;
 }
 
-typedef struct R36880fNode {
+typedef struct SpriteDisplayNode {
     /* 0x00 */ u32 key;
     /* 0x04 */ u8 pad4[8];
     /* 0x0C */ s16 unkC;
@@ -3275,14 +3275,14 @@ typedef struct R36880fNode {
     /* 0x2E */ u8 unk2E;
     /* 0x2F */ u8 unk2F;
     /* 0x30 */ u8 pad30[4];
-    /* 0x34 */ struct R36880fNode *next;
-} R36880fNode;
+    /* 0x34 */ struct SpriteDisplayNode *next;
+} SpriteDisplayNode;
 
 s32 func_80611E60(s32);
 f32 distance3D(f32, f32, f32, f32, f32, f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 
-void func_80639FC0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 *arg6, f32 *arg7, f32 *arg8, u8 arg9) {
+void modelCalcFacingAngles(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 *arg6, f32 *arg7, f32 *arg8, u8 arg9) {
     f32 len;
     s16 angle;
     f32 dx;
@@ -3337,7 +3337,7 @@ void func_80639FC0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f
     }
 }
 
-typedef struct R36880fLink {
+typedef struct ModelAnimTrackLink {
     /* 0x00 */ u8 pad0[0x4C];
     /* 0x4C */ s32 unk4C;
     /* 0x50 */ s32 unk50;
@@ -3345,11 +3345,11 @@ typedef struct R36880fLink {
     /* 0x58 */ s32 unk58;
     /* 0x5C */ s32 unk5C;
     /* 0x60 */ u8 pad60[0x74];
-    /* 0xD4 */ struct R36880fLink *unkD4;
-} R36880fLink;
+    /* 0xD4 */ struct ModelAnimTrackLink *unkD4;
+} ModelAnimTrackLink;
 
 
-typedef struct R36880fSrcA {
+typedef struct ModelSpriteSource {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -3361,26 +3361,26 @@ typedef struct R36880fSrcA {
     /* 0x20 */ u8 pad20[0x2E];
     /* 0x4E */ u8 unk4E;
     /* 0x4F */ u8 pad4F;
-    /* 0x50 */ R36880fLink *unk50;
-    /* 0x54 */ R36880fNode *unk54;
+    /* 0x50 */ ModelAnimTrackLink *unk50;
+    /* 0x54 */ SpriteDisplayNode *unk54;
     /* 0x58 */ u8 pad58[0x60];
-    /* 0xB8 */ R36880fLink *unkB8;
-    /* 0xBC */ R36880fNode *unkBC;
-} R36880fSrcA;
+    /* 0xB8 */ ModelAnimTrackLink *unkB8;
+    /* 0xBC */ SpriteDisplayNode *unkBC;
+} ModelSpriteSource;
 
-typedef struct R36880fList {
-    /* 0x00 */ R36880fSrcA *data;
+typedef struct ModelSpriteSourceList {
+    /* 0x00 */ ModelSpriteSource *data;
     /* 0x04 */ u8 pad4[0x10];
-    /* 0x14 */ struct R36880fList *next;
+    /* 0x14 */ struct ModelSpriteSourceList *next;
     /* 0x18 */ u8 pad18[0xC];
     /* 0x24 */ u8 unk24;
-} R36880fList;
+} ModelSpriteSourceList;
 
-R36880fNode *func_8063A848(R36880fNode *, R36880fNode *);
+SpriteDisplayNode *spriteListInsertByDepth(SpriteDisplayNode *, SpriteDisplayNode *);
 
 
-R36880fNode *func_8063A38C(R36880fList *arg0, R36880fList *arg1, f32 arg2, f32 arg3, f32 arg4) {
-    R36880fNode *result;
+SpriteDisplayNode *spriteListBuildDisplayChain(ModelSpriteSourceList *arg0, ModelSpriteSourceList *arg1, f32 arg2, f32 arg3, f32 arg4) {
+    SpriteDisplayNode *result;
     u8 second;
     f32 x;
     f32 y;
@@ -3389,10 +3389,10 @@ R36880fNode *func_8063A38C(R36880fList *arg0, R36880fList *arg1, f32 arg2, f32 a
     u32 found;
     f32 scale;
     f32 base;
-    R36880fNode *tgt;
-    R36880fSrcA *d;
-    R36880fSrcA *d1;
-    R36880fLink *link;
+    SpriteDisplayNode *tgt;
+    ModelSpriteSource *d;
+    ModelSpriteSource *d1;
+    ModelAnimTrackLink *link;
     s16 idx;
     s16 r;
     f32 sp9C;
@@ -3419,7 +3419,7 @@ R36880fNode *func_8063A38C(R36880fList *arg0, R36880fList *arg1, f32 arg2, f32 a
                     z = d->unk8;
                     tgt = d->unk54;
                     link = d->unk50;
-                    func_80639FC0(x, y, z, arg2, arg3, arg4, &sp9C, &sp98, &sp94, 0);
+                    modelCalcFacingAngles(x, y, z, arg2, arg3, arg4, &sp9C, &sp98, &sp94, 0);
                     scale = d->unkC;
                 }
                 break;
@@ -3471,7 +3471,7 @@ R36880fNode *func_8063A38C(R36880fList *arg0, R36880fList *arg1, f32 arg2, f32 a
                     tgt->next = NULL;
                     tgt->unk10 = (s16)(s32)((f32)tgt->unkC * scale);
                     tgt->unk12 = (s16)(s32)((f32)tgt->unkE * scale);
-                    result = func_8063A848(result, tgt);
+                    result = spriteListInsertByDepth(result, tgt);
                 }
             }
             arg0 = arg0->next;
@@ -3484,9 +3484,9 @@ R36880fNode *func_8063A38C(R36880fList *arg0, R36880fList *arg1, f32 arg2, f32 a
     return result;
 }
 
-R36880fNode *func_8063A848(R36880fNode *head, R36880fNode *node) {
-    R36880fNode *prev;
-    R36880fNode *ret;
+SpriteDisplayNode *spriteListInsertByDepth(SpriteDisplayNode *head, SpriteDisplayNode *node) {
+    SpriteDisplayNode *prev;
+    SpriteDisplayNode *ret;
     s32 inserted;
 
     prev = NULL;
@@ -3540,7 +3540,7 @@ void func_8063A8C4(s16 arg0, u8 arg1, f32 arg2) {
     }
 }
 
-typedef struct R36880iNode {
+typedef struct SpriteGfxNode {
     /* 0x00 */ u32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ u8 unk8;
@@ -3561,17 +3561,17 @@ typedef struct R36880iNode {
     /* 0x2F */ u8 unk2F;
     /* 0x30 */ u8 unk30;
     /* 0x31 */ u8 pad31[3];
-    /* 0x34 */ struct R36880iNode *unk34;
-} R36880iNode;
+    /* 0x34 */ struct SpriteGfxNode *unk34;
+} SpriteGfxNode;
 
 u32 osVirtualToPhysical(void *);
 
-Gfx *func_8063A968(Gfx *arg0, R36880iNode *arg1) {
+Gfx *spriteListRender(Gfx *arg0, SpriteGfxNode *arg1) {
     s32 lastTex;
     Vtx *vtxs;
     Mtx *mtxs;
     s32 n;
-    R36880iNode *p;
+    SpriteGfxNode *p;
     s32 vtxIdx;
     s32 mtxIdx;
     f32 accum[4][4];
@@ -3686,27 +3686,27 @@ extern s16 D_807F6028;
 extern s16 D_807F60A8;
 extern u8 D_807F6938;
 
-void func_8063B4A4(void) {
+void modelPendingCountsReset(void) {
     D_807F6028 = 0;
     D_807F60A8 = 0;
     D_807F6938 = 0;
 }
 
-typedef struct R36880fEntry {
+typedef struct ModelPendingQueueEntry {
     /* 0x0 */ s16 id;
     /* 0x2 */ s16 key;
     /* 0x4 */ u8 done;
     /* 0x5 */ u8 pad5;
-} R36880fEntry;
+} ModelPendingQueueEntry;
 
-extern R36880fEntry D_807F6030[];
+extern ModelPendingQueueEntry D_807F6030[];
 extern s16 D_807F60B0[];
 void func_8063E078(s32);
 void func_8063E0D4(s32, s16);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B4C0.s")
 
-void func_8063B758(void) {
+void modelPendingEntriesProcess(void) {
     u8 found;
     s32 i;
     s32 slot;
@@ -3741,7 +3741,7 @@ void func_8063B758(void) {
 }
 
 #ifdef NON_MATCHING
-typedef struct R36880fOut {
+typedef struct ModelSlotSerializedOut {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -3756,9 +3756,9 @@ typedef struct R36880fOut {
     /* 0x2C */ s16 unk2C;
     /* 0x2E */ u8 unk2E;
     /* 0x2F */ u8 unk2F;
-} R36880fOut; /* 0x30 */
+} ModelSlotSerializedOut; /* 0x30 */
 
-typedef struct R36880fSlot {
+typedef struct ModelSlotSerializeView {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -3776,7 +3776,7 @@ typedef struct R36880fSlot {
     /* 0x88 */ s16 pad88;
     /* 0x8A */ s16 unk8A;
     /* 0x8C */ u8 pad8C[4];
-} R36880fSlot; /* 0x90 */
+} ModelSlotSerializeView; /* 0x90 */
 
 extern u8 *D_807F6010;
 extern u8 D_807F66F0[];
@@ -3784,14 +3784,14 @@ extern u8 D_807F6902;
 s32 actorListGetSerializedSize(void);
 void actorListSerialize(void *);
 
-#define R36880F_SLOT ((R36880fSlot *)((u8 *)D_807F6000 + i * 0x90))
+#define MODEL_SLOT_SERIALIZE_ENTRY ((ModelSlotSerializeView *)((u8 *)D_807F6000 + i * 0x90))
 
 void func_8063B8D8(u8 **arg0, s32 *arg1) {
     s32 count;
     s32 size;
     u8 *p;
     s32 i;
-    R36880fOut *out;
+    ModelSlotSerializedOut *out;
     u8 *dst;
 
     count = 0;
@@ -3801,27 +3801,27 @@ void func_8063B8D8(u8 **arg0, s32 *arg1) {
     size = D_80747D70 * 0x30 + 8; p = D_807F66F0; do { if (*p) { size += 0x24; count++; } p++; } while (p < &D_807F6902); size += actorListGetSerializedSize();
     D_807F6010 = func_80610FE8(size);
     *(s32 *)D_807F6010 = D_80747D70;
-    out = (R36880fOut *)(D_807F6010 + 4);
+    out = (ModelSlotSerializedOut *)(D_807F6010 + 4);
     for (i = 0; i < D_80747D70; i++, out++) {
-        out->unk0 = R36880F_SLOT->unk0;
-        out->unk4 = R36880F_SLOT->unk4;
-        out->unk8 = R36880F_SLOT->unk8;
-        out->unkC = R36880F_SLOT->unkC;
-        out->unk18 = R36880F_SLOT->unk10;
-        out->unk1C = R36880F_SLOT->unk14;
-        out->unk20 = R36880F_SLOT->unk18;
-        out->unk28 = R36880F_SLOT->unk84;
-        out->unk2C = R36880F_SLOT->unk86;
-        out->unk24 = R36880F_SLOT->unk1C;
-        out->unk2A = R36880F_SLOT->unk8A;
+        out->unk0 = MODEL_SLOT_SERIALIZE_ENTRY->unk0;
+        out->unk4 = MODEL_SLOT_SERIALIZE_ENTRY->unk4;
+        out->unk8 = MODEL_SLOT_SERIALIZE_ENTRY->unk8;
+        out->unkC = MODEL_SLOT_SERIALIZE_ENTRY->unkC;
+        out->unk18 = MODEL_SLOT_SERIALIZE_ENTRY->unk10;
+        out->unk1C = MODEL_SLOT_SERIALIZE_ENTRY->unk14;
+        out->unk20 = MODEL_SLOT_SERIALIZE_ENTRY->unk18;
+        out->unk28 = MODEL_SLOT_SERIALIZE_ENTRY->unk84;
+        out->unk2C = MODEL_SLOT_SERIALIZE_ENTRY->unk86;
+        out->unk24 = MODEL_SLOT_SERIALIZE_ENTRY->unk1C;
+        out->unk2A = MODEL_SLOT_SERIALIZE_ENTRY->unk8A;
         switch (out->unk2C) {
         case 2:
-            out->unk2F = R36880F_SLOT->unk20[0x4E];
-            out->unk2E = R36880F_SLOT->unk20[0x5B];
+            out->unk2F = MODEL_SLOT_SERIALIZE_ENTRY->unk20[0x4E];
+            out->unk2E = MODEL_SLOT_SERIALIZE_ENTRY->unk20[0x5B];
             break;
         case 1:
             out->unk2F = 0;
-            out->unk2E = R36880F_SLOT->unk20[0xC3];
+            out->unk2E = MODEL_SLOT_SERIALIZE_ENTRY->unk20[0xC3];
             break;
         }
     }
@@ -3841,13 +3841,13 @@ void func_8063B8D8(u8 **arg0, s32 *arg1) {
     *arg1 = size;
 }
 
-#undef R36880F_SLOT
+#undef MODEL_SLOT_SERIALIZE_ENTRY
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B8D8.s")
 #endif
 
-typedef struct R36880gSlot {
+typedef struct ModelSlotPackView {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ u8 *unk24;
     /* 0x28 */ u8 pad28[0x50];
@@ -3857,17 +3857,17 @@ typedef struct R36880gSlot {
     /* 0x88 */ s16 unk88;
     /* 0x8A */ s16 unk8A;
     /* 0x8C */ u8 pad8C[4];
-} R36880gSlot; /* 0x90 */
+} ModelSlotPackView; /* 0x90 */
 
 u32 modelSlotDataSize(s16);
-void func_80634D14(s32, s16, s16 *, s16 *);
-void func_80634EDC(s32, s16, u8 *);
-void func_8062B8E4(f32 *);
+void modelSlotGetNodeScrollSpeed(s32, s16, s16 *, s16 *);
+void modelSlotGetNodeAnimMode(s32, s16, u8 *);
+void mapOffsetSlotsGetTargets(f32 *);
 void effectNodeCopyValues(f32 *);
 
-#define R36880G_SLOT(i) ((R36880gSlot *)((u8 *)D_807F6000 + (i) * 0x90))
+#define MODEL_SLOT_PACKED_ENTRY(i) ((ModelSlotPackView *)((u8 *)D_807F6000 + (i) * 0x90))
 
-void func_8063BBB0(u8 **arg0, s32 *arg1) {
+void modelSlotsPackRecords(u8 **arg0, s32 *arg1) {
     s32 count = 0;
     s32 i;
     s32 pad;
@@ -3879,10 +3879,10 @@ void func_8063BBB0(u8 **arg0, s32 *arg1) {
     s32 j;
 
     for (i = 0; i < D_80747D70; i++) {
-        if (R36880G_SLOT(i)->unk7C != NULL) {
-            if ((R36880G_SLOT(i)->unk24[0x3A] != 0 || (R36880G_SLOT(i)->unk7C[0x9B] & 1)) && !(R36880G_SLOT(i)->unk7C[0x9B] & 2)) {
+        if (MODEL_SLOT_PACKED_ENTRY(i)->unk7C != NULL) {
+            if ((MODEL_SLOT_PACKED_ENTRY(i)->unk24[0x3A] != 0 || (MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 1)) && !(MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 2)) {
                 count++;
-                if (R36880G_SLOT(i)->unk78 != NULL) {
+                if (MODEL_SLOT_PACKED_ENTRY(i)->unk78 != NULL) {
                     size += modelSlotDataSize(i);
                 }
             }
@@ -3892,24 +3892,24 @@ void func_8063BBB0(u8 **arg0, s32 *arg1) {
         buf = func_80610FE8(count * 0x254 + size);
         cur = buf;
         for (i = 0; i < D_80747D70; i++) {
-            if (R36880G_SLOT(i)->unk7C != NULL) {
-                if ((R36880G_SLOT(i)->unk24[0x3A] != 0 || (R36880G_SLOT(i)->unk7C[0x9B] & 1)) && !(R36880G_SLOT(i)->unk7C[0x9B] & 2)) {
+            if (MODEL_SLOT_PACKED_ENTRY(i)->unk7C != NULL) {
+                if ((MODEL_SLOT_PACKED_ENTRY(i)->unk24[0x3A] != 0 || (MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 1)) && !(MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 2)) {
                     rec = cur;
                     p = cur;
-                    *(s16 *)p = R36880G_SLOT(i)->unk8A;
-                    memcpy(p + 0xCC, R36880G_SLOT(i)->unk7C, 0x9C);
-                    if (R36880G_SLOT(i)->unk78 != NULL) {
-                        memcpy(p + 4, (u8 *)R36880G_SLOT(i)->unk78 + 8, 0xC8);
+                    *(s16 *)p = MODEL_SLOT_PACKED_ENTRY(i)->unk8A;
+                    memcpy(p + 0xCC, MODEL_SLOT_PACKED_ENTRY(i)->unk7C, 0x9C);
+                    if (MODEL_SLOT_PACKED_ENTRY(i)->unk78 != NULL) {
+                        memcpy(p + 4, (u8 *)MODEL_SLOT_PACKED_ENTRY(i)->unk78 + 8, 0xC8);
                         cur[0x250] = modelSlotDataSize(i) >> 6;
-                        memcpy(p + 0x254, *R36880G_SLOT(i)->unk78, modelSlotDataSize(i));
+                        memcpy(p + 0x254, *MODEL_SLOT_PACKED_ENTRY(i)->unk78, modelSlotDataSize(i));
                     } else {
                         cur[0x250] = 0;
                     }
                     for (j = 1; j != 5; j++) {
-                        func_80634D14(R36880G_SLOT(i)->unk88, j, (s16 *)(p + 0x232 + j * 6), (s16 *)(p + 0x234 + j * 6));
-                        func_80634EDC(R36880G_SLOT(i)->unk88, j, p + 0x236 + j * 6);
+                        modelSlotGetNodeScrollSpeed(MODEL_SLOT_PACKED_ENTRY(i)->unk88, j, (s16 *)(p + 0x232 + j * 6), (s16 *)(p + 0x234 + j * 6));
+                        modelSlotGetNodeAnimMode(MODEL_SLOT_PACKED_ENTRY(i)->unk88, j, p + 0x236 + j * 6);
                     }
-                    func_8062B8E4((f32 *)(p + 0x168));
+                    mapOffsetSlotsGetTargets((f32 *)(p + 0x168));
                     effectNodeCopyValues((f32 *)(p + 0x1B8));
                     cur += rec[0x250] * 0x40;
                     cur += 0x254;
@@ -3921,7 +3921,7 @@ void func_8063BBB0(u8 **arg0, s32 *arg1) {
     *arg0 = buf;
 }
 
-void func_8063BEC0(u8 *arg0, s32 arg1, s16 arg2, s16 arg3) {
+void modelRecordFindAndSet(u8 *arg0, s32 arg1, s16 arg2, s16 arg3) {
     s32 found = 0;
     s32 i = 0;
 
@@ -3941,7 +3941,7 @@ void func_8063BEC0(u8 *arg0, s32 arg1, s16 arg2, s16 arg3) {
     }
 }
 
-typedef struct R36880gSnap {
+typedef struct ModelSlotStateSnapshot {
     /* 0x00 */ u32 unk0;
     /* 0x04 */ u8 pad4[0xC];
     /* 0x10 */ s16 unk10;
@@ -3949,72 +3949,72 @@ typedef struct R36880gSnap {
     /* 0x14 */ u8 pad14[0x80];
     /* 0x94 */ u32 unk94;
     /* 0x98 */ u8 pad98[4];
-} R36880gSnap; /* 0x9C */
+} ModelSlotStateSnapshot; /* 0x9C */
 
-void func_8062BA0C(f32 *);
+void mapOffsetSlotsSetValues(f32 *);
 void effectNodeSetValues(f32 *);
 
-void func_8063BF34(u8 *arg0, s32 arg1) {
+void modelSlotsApplyRecords(u8 *arg0, s32 arg1) {
     s32 k;
     s32 off;
     s32 j;
     s16 id;
     s16 idx;
     u8 tmp[0x14];
-    R36880gSnap snap;
+    ModelSlotStateSnapshot snap;
     s32 pad[2];
 
     for (k = 0; k < arg1; k++) {
         id = D_807F6240[*(s16 *)arg0];
         idx = hashTableLookup(id);
-        memcpy(&snap, R36880G_SLOT(idx)->unk7C, 0x9C);
-        memcpy(R36880G_SLOT(idx)->unk7C, arg0 + 0xCC, 0x9C);
-        *(u32 *)R36880G_SLOT(idx)->unk7C = snap.unk0;
-        *(s16 *)(R36880G_SLOT(idx)->unk7C + 0x10) = snap.unk10;
-        *(s16 *)(R36880G_SLOT(idx)->unk7C + 0x12) = snap.unk12;
-        *(u32 *)(R36880G_SLOT(idx)->unk7C + 0x94) = snap.unk94;
-        R36880G_SLOT(idx)->unk7C[0x48] = R36880G_SLOT(idx)->unk7C[0x4B];
-        R36880G_SLOT(idx)->unk7C[0x49] = R36880G_SLOT(idx)->unk7C[0x4C];
-        R36880G_SLOT(idx)->unk7C[0x4A] = R36880G_SLOT(idx)->unk7C[0x4D];
-        R36880G_SLOT(idx)->unk7C[0x9A] = 0;
-        *(s32 *)(R36880G_SLOT(idx)->unk7C + 0x38) = -1;
-        if (R36880G_SLOT(idx)->unk78 != NULL) {
+        memcpy(&snap, MODEL_SLOT_PACKED_ENTRY(idx)->unk7C, 0x9C);
+        memcpy(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C, arg0 + 0xCC, 0x9C);
+        *(u32 *)MODEL_SLOT_PACKED_ENTRY(idx)->unk7C = snap.unk0;
+        *(s16 *)(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C + 0x10) = snap.unk10;
+        *(s16 *)(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C + 0x12) = snap.unk12;
+        *(u32 *)(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C + 0x94) = snap.unk94;
+        MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x48] = MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x4B];
+        MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x49] = MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x4C];
+        MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x4A] = MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x4D];
+        MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x9A] = 0;
+        *(s32 *)(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C + 0x38) = -1;
+        if (MODEL_SLOT_PACKED_ENTRY(idx)->unk78 != NULL) {
             for (off = 0; off != 0xC8; off += 0x14) {
-                memcpy(tmp, (u8 *)R36880G_SLOT(idx)->unk78 + off + 8, 0x14);
-                memcpy((u8 *)R36880G_SLOT(idx)->unk78 + off + 8, arg0 + 4 + off, 0x14);
-                *(u32 *)((u8 *)R36880G_SLOT(idx)->unk78 + off + 8) = *(u32 *)tmp;
+                memcpy(tmp, (u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->unk78 + off + 8, 0x14);
+                memcpy((u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->unk78 + off + 8, arg0 + 4 + off, 0x14);
+                *(u32 *)((u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->unk78 + off + 8) = *(u32 *)tmp;
             }
             modelSlotCopyData(arg0 + 0x254, idx);
         }
         for (j = 1; j != 5; j++) {
-            func_80634CC8(id, j, *(s16 *)(arg0 + 0x232 + j * 6), *(s16 *)(arg0 + 0x234 + j * 6));
-            func_80634EA4(id, j, arg0[0x236 + j * 6]);
+            modelSlotSetNodeScrollSpeed(id, j, *(s16 *)(arg0 + 0x232 + j * 6), *(s16 *)(arg0 + 0x234 + j * 6));
+            modelSlotSetNodeAnimMode(id, j, arg0[0x236 + j * 6]);
         }
-        func_8062BA0C((f32 *)(arg0 + 0x168));
+        mapOffsetSlotsSetValues((f32 *)(arg0 + 0x168));
         effectNodeSetValues((f32 *)(arg0 + 0x1B8));
         arg0 += arg0[0x250] * 0x40;
         arg0 += 0x254;
     }
 }
 
-void func_8063C1EC(s32 arg0, u8 arg1) {
+void modelSlotOrFlags(s32 arg0, u8 arg1) {
     ((u8 *)D_807F6000[hashTableLookup(D_807F6240[arg0])].unk20)[0x4E] |= arg1;
 }
 
-void func_8063C248(s32 arg0, u8 arg1) {
+void modelSlotClearFlags(s32 arg0, u8 arg1) {
     ((u8 *)D_807F6000[hashTableLookup(D_807F6240[arg0])].unk20)[0x4E] &= ~arg1;
 }
 
-typedef struct R36880gSub {
+typedef struct ModelSlotStateSub {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u8 unk60;
     /* 0x61 */ u8 pad61[3];
     /* 0x64 */ s16 unk64;
-} R36880gSub;
+} ModelSlotStateSub;
 
 s32 func_8063C2A8(s16 arg0) {
     s16 idx = hashTableLookup(arg0);
-    R36880gSub *sub = D_807F6000[idx].unk7C;
+    ModelSlotStateSub *sub = D_807F6000[idx].unk7C;
 
     if (sub != 0) {
         if (sub->unk60 == 1 && sub->unk64 == 0) {
@@ -4025,7 +4025,7 @@ s32 func_8063C2A8(s16 arg0) {
     return 1;
 }
 
-s16 func_8063C328(s16 arg0) {
+s16 modelSlotGetType(s16 arg0) {
     s16 idx = hashTableLookup(arg0);
 
     if (idx == -1) {

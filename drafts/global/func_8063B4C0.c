@@ -24,7 +24,7 @@ void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
     u8 *tbl;
     u8 *newv;
     u8 i;
-    R36880fEntry *e;
+    ModelPendingQueueEntry *e;
     int nv;
     u8 *p;
     u8 flag;

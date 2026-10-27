@@ -19,7 +19,7 @@ typedef struct M6Sub4 {
     u16 unk64;
 } M6Sub4;
 
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void func_80724CA4(s32, s32);
 void func_8067B238(Actor *, void *, f32);
 void actorUpdatePulseIntensity(s32);
@@ -60,5 +60,5 @@ void func_806A18A8(void) {
         }
     }
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0xA, 0xA, 1, 0x12C, 0xC8, 0, 1.0f);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

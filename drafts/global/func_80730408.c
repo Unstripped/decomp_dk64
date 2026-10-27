@@ -94,7 +94,7 @@ typedef struct H1ActorB {
 extern H1SlotEntry *D_807F6000;
 s32 hashTableLookup();
 
-void func_80627B58(f32);
+void splineSetBasisTension(f32);
 void func_80611A70(f32, f32, f32 *, f32 *);
 f32 func_80611BB4(f32, f32);
 void proxPathInterpolatePosition(u8, f32, H1ProxNode *, f32 *, f32 *, f32 *);
@@ -126,7 +126,7 @@ void func_80730408(H1ActorB *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3
     Mtx mB;
     Mtx mC;
 
-    func_80627B58(0.5f);
+    splineSetBasisTension(0.5f);
     a = arg4 - 0.1;
     idx = (s8)arg3;
     if (a < 0.0) {

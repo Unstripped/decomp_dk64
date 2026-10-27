@@ -31,7 +31,7 @@ extern void func_80717D4C(void);
 
 s32 randomNonNegative(void);
 void behaviourFrameBegin(void);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void func_8071496C(s16);
 void func_8071498C(void *);
 void func_807149B8(s32);
@@ -42,7 +42,7 @@ void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void func_80613C48(Actor *, s32, f32, f32);
 u8 func_805FF0C8(void);
-void func_8063C1EC(s32, s32);
+void modelSlotOrFlags(s32, s32);
 void func_806B8C78(void);
 
 void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 arg3) {
@@ -70,7 +70,7 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 void actorSetTargetSlotByte(s32, u8);
 void lightSetColor(f32, f32, f32, s16);
-void func_8063C248(s32, s32);
+void modelSlotClearFlags(s32, s32);
 
 void func_806B8C78(void) {
     f64 t;
@@ -111,14 +111,14 @@ void func_806B8C78(void) {
                 D_807FBB40->unk154 = 0x40;
             }
             if (D_807FDC90->unk2C < 0x28) {
-                func_8063C1EC(4, 0x10);
-                func_8063C1EC(6, 0x10);
-                func_8063C248(5, 0x10);
-                func_8063C248(7, 0x10);
+                modelSlotOrFlags(4, 0x10);
+                modelSlotOrFlags(6, 0x10);
+                modelSlotClearFlags(5, 0x10);
+                modelSlotClearFlags(7, 0x10);
                 if ((D_807FDC90->unk2C < 0x15 && (randomNonNegative() >> 15) % 1000 < 0x12C) || D_807FBB40->unk154 == 0x40) {
                     if (D_807FBB40->unk154 == 0x40) {
-                        func_8063C1EC(5, 0x10);
-                        func_8063C1EC(7, 0x10);
+                        modelSlotOrFlags(5, 0x10);
+                        modelSlotOrFlags(7, 0x10);
                         func_80609140(0x1D0, 0x58EF, 63.0f, 1.0f, 0, 0);
                         sfxAllocateChannel(0x3A, 1.0f);
                         func_806B8BDC(0xBD, 0xAA, 0x2FB);
@@ -159,8 +159,8 @@ void func_806B904C(void) {
             BD820A->unk131 = 0x3C;
             func_80613C48(D_807FBB40, 0x482, 0.0f, 0.0f);
         }
-        func_8063C1EC(5, 0x10);
-        func_8063C1EC(7, 0x10);
+        modelSlotOrFlags(5, 0x10);
+        modelSlotOrFlags(7, 0x10);
     }
     for (i = 0; i < D_807FBB70.unk254; i++) {
         if (D_807FBB70.unk258[i] == 3) {
@@ -169,5 +169,5 @@ void func_806B904C(void) {
         }
     }
     func_806B8C78();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

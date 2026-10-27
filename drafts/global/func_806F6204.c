@@ -19,7 +19,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
             temp_v0 = func_80626BC8(var_s0->unk8, F9F2_TABLE[var_s0->unk14].unk10 + var_s0->unkA, var_s0->unkC, (s32)arg2->unk0, (s32)*(f32 *)arg2->pad4, (s32)arg2->unk8);
             if ((var_s0->unkE == 0) && ((f32)temp_v0 < ((f32)F9F2_TABLE[var_s0->unk14].unk12 + arg2->unkC)) && ((temp_v0_2 = var_s0->unk4, (temp_v0_2 == 0)) || (temp_v0_2 == temp_s5->unk58)) && (func_8063C2A8(var_s0->unk0) != 0) && (func_806F6644(var_s0->unk0, temp_s3 & 0xFF, var_s0->unk2) != 0)) {
                 var_s0->unkE = 1;
-                func_806362C4(var_s0->unk0, 1);
+                modelSlotFreeNestedBuffer(var_s0->unk0, 1);
                 if (var_s0->unk6 != -1) {
                     func_8060E430((u16)var_s0->unk6, 1, func_805FF030(D_8076A0AB, 1) & 0xFF);
                 }
@@ -68,7 +68,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
                 }
                 if ((s32)var_v0_2 >= 2) {
                     playerStateHandleSoundEffects(var_s0->unk2, temp_s3 & 0xFF);
-                    func_806355DC(var_s0->unk0, 1);
+                    modelSlotFreeByIndex(var_s0->unk0, 1);
                 }
                 if (D_807FBB64 & 0x10000) {
                     temp_s1_2 = var_s0->unk2;

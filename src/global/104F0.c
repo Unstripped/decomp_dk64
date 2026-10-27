@@ -4,7 +4,7 @@
 extern s16 D_807ECEA0[];
 extern u8 D_807467C8;
 
-extern s32 func_80631C20(s32);
+extern s32 modelTypeCountGet(s32);
 
 void func_8060B7F0(void) {
     s32 temp_v0;
@@ -13,7 +13,7 @@ void func_8060B7F0(void) {
     D_807ECEA0[0] = 0;
     var_s0 = 0;
     do {
-        temp_v0 = func_80631C20(var_s0 & 0xFF);
+        temp_v0 = modelTypeCountGet(var_s0 & 0xFF);
         var_s0 += 1;
         D_807ECEA0[0] += temp_v0;
     } while (var_s0 != 8);

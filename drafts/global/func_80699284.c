@@ -52,7 +52,7 @@ s32 playerStateQueueCallback(s32, s32, s32, void *);
 void assetFreeBuffer(s32, s32, s32);
 void heapFreeDeferred(Mtx *);
 void actorDespawn(Actor *);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void func_80699128(Gfx *, Actor *);
 void func_806FF628(void);
 
@@ -144,7 +144,7 @@ void func_80699284(void) {
         actorDespawn(D_807FBB40);
     } else {
         guTranslateF((f32 (*)[4])((u8 *)D_807FBB40 + 0xC), 0.0f, -70.0f, 0.0f);
-        func_806319C4(D_807FBB40, 1);
+        actorUpdateModelMatrix(D_807FBB40, 1);
         renderCallbacksRegister(&func_80699128, D_807FBB40, 3);
     }
 }

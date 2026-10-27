@@ -5,8 +5,8 @@ s32 func_805FCA64();                                /* extern */
 ? func_80609140(?, ?, ?, ?, s32, s32);              /* extern */
 ? func_8061EB04(void *, ?);                         /* extern */
 ? func_80627888(s32);                               /* extern */
-s32 func_8062919C();                                /* extern */
-? func_806291B4(?);                                 /* extern */
+s32 screenWipeGetState();                                /* extern */
+? screenWipeStart(?);                                 /* extern */
 ? func_80659670(f32, f32, ?, s32, s16);             /* extern */
 ? func_806782C0(s32);                               /* extern */
 ? func_80682AB4();                                  /* extern */
@@ -84,7 +84,7 @@ void func_806836D0(void *arg0) {
                 func_80602CE0(0x65, *(&D_8074E848 + (arg0->unk6 * 4)), 2);
                 return;
             }
-            if ((((temp_t3 != 0) && (temp_s0 != 0)) || (D_807FD610.unk2C & 0xE000)) && (func_8062919C() == 0)) {
+            if ((((temp_t3 != 0) && (temp_s0 != 0)) || (D_807FD610.unk2C & 0xE000)) && (screenWipeGetState() == 0)) {
                 if (temp_s0 != 0) {
                     temp_v1 = arg0->unk0;
                     sp30 = temp_v1->unk174;
@@ -122,7 +122,7 @@ void func_806836D0(void *arg0) {
                     sp34->unkE6 = (s16) arg0->unk38;
                     func_80627888(sp30->unk104);
                     func_8061EB04(sp34, 0);
-                    func_806291B4(3);
+                    screenWipeStart(3);
                     func_80709464(0);
                     D_807FC924->unk2E2 = (u16) (D_807FC924->unk2E2 | 0x11);
                     return;

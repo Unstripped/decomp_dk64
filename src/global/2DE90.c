@@ -2,17 +2,17 @@
 
 extern s8 D_807F5D84;
 
-void func_80629190(void) {
+void screenWipeReset(void) {
     D_807F5D84 = 0;
 }
 
-u8 func_8062919C(void) {
+u8 screenWipeGetState(void) {
     return (u8)D_807F5D84;
 }
 
 extern u8 D_80747B20;
 
-u8 func_806291A8(void) {
+u8 screenWipeGetCooldown(void) {
     return D_80747B20;
 }
 
@@ -27,10 +27,10 @@ extern f32 D_807F5D8C;
 extern f32 D_807F5D94;
 extern u16 *D_807F5D80;
 void *func_80610FE8(s32);
-void func_8062A348(void);
+void blurBuildDivTable(void);
 void func_8070A848(void *, s32);
 
-void func_806291B4(arg0)
+void screenWipeStart(arg0)
 u8 arg0;
 {
     s32 sel = arg0;
@@ -64,14 +64,14 @@ u8 arg0;
                 D_807F5D94 = 0.0f;
                 break;
             case 7:
-                func_8062A348();
+                blurBuildDivTable();
                 break;
         }
         D_807F5D85 = sel;
     }
 }
 
-#define M2C2_GFX(a, b) { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = (a); _g->words.w1 = (b); }
+#define WIPE_GFX(a, b) { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = (a); _g->words.w1 = (b); }
 
 extern u8 D_1000118;
 extern u8 D_2000140;
@@ -87,13 +87,13 @@ extern s32 D_807FBB60;
 Gfx *func_805FD030(Gfx *);
 void heapFreeDeferred(void *);
 void func_8062A3F0(void);
-void func_8062A130(s32, s32, s32);
-void func_8062A228(s32, s32, s32);
-void func_8062A24C(s32, s32, s32);
+void screenWipeAlphaRadialSweep(s32, s32, s32);
+void screenWipeAlphaFromCorner(s32, s32, s32);
+void screenWipeAlphaFromCentre(s32, s32, s32);
 void func_807023E8(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
 void func_807024E0(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32, void *);
 
-Gfx *func_80629300(Gfx *arg0) {
+Gfx *screenWipeDraw(Gfx *arg0) {
     s32 sp54;
 
     sp54 = (s32)((f32)D_80744478 * 0.5f);
@@ -110,28 +110,28 @@ Gfx *func_80629300(Gfx *arg0) {
             heapFreeDeferred(D_807F5D80);
         }
     } else if (D_807F5D84 > 0) {
-        M2C2_GFX(0xDE000000, (u32)&D_1000118);
+        WIPE_GFX(0xDE000000, (u32)&D_1000118);
         arg0 = func_805FD030(arg0);
-        M2C2_GFX(0xDA380007, (u32)&D_2000140);
-        M2C2_GFX(0xDA380003, (u32)&D_807F5D98);
-        M2C2_GFX(0xE7000000, 0);
-        M2C2_GFX(0xE3001201, 0);
-        M2C2_GFX(0xE3001801, 0xC0);
-        M2C2_GFX(((s32)(D_80744498 * 4.0f) & 0xFFF) << 12 | 0xED000000 | ((s32)(D_8074449C * 4.0f) & 0xFFF), ((s32)(D_807444A0 * 4.0f) & 0xFFF) << 12 | ((s32)(D_807444A4 * 4.0f) & 0xFFF));
-        M2C2_GFX(0xE200001C, 0x504240);
+        WIPE_GFX(0xDA380007, (u32)&D_2000140);
+        WIPE_GFX(0xDA380003, (u32)&D_807F5D98);
+        WIPE_GFX(0xE7000000, 0);
+        WIPE_GFX(0xE3001201, 0);
+        WIPE_GFX(0xE3001801, 0xC0);
+        WIPE_GFX(((s32)(D_80744498 * 4.0f) & 0xFFF) << 12 | 0xED000000 | ((s32)(D_8074449C * 4.0f) & 0xFFF), ((s32)(D_807444A0 * 4.0f) & 0xFFF) << 12 | ((s32)(D_807444A4 * 4.0f) & 0xFFF));
+        WIPE_GFX(0xE200001C, 0x504240);
         switch (D_807F5D85) {
             case 7:
                 func_8062A3F0();
-                M2C2_GFX(0xFC119623, 0xFF2FFFFF);
-                M2C2_GFX(0xFA000000, -1);
+                WIPE_GFX(0xFC119623, 0xFF2FFFFF);
+                WIPE_GFX(0xFA000000, -1);
                 func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
                 if (D_807FBB60 & 0x40) {
                     D_807F5D84 = -2;
                 }
                 break;
             case 1:
-                M2C2_GFX(0xFC119623, 0xFF2FFFFF);
-                M2C2_GFX(0xFA000000, (D_807F5D86 & 0xFF) | ~0xFF);
+                WIPE_GFX(0xFC119623, 0xFF2FFFFF);
+                WIPE_GFX(0xFA000000, (D_807F5D86 & 0xFF) | ~0xFF);
                 func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
                 D_807F5D86 -= sp54 * 5;
                 if (D_807F5D86 < 0) {
@@ -139,11 +139,11 @@ Gfx *func_80629300(Gfx *arg0) {
                 }
                 break;
             case 2:
-                M2C2_GFX(0xFC119623, 0xFF2FFFFF);
-                M2C2_GFX(0xFA000000, -1);
+                WIPE_GFX(0xFC119623, 0xFF2FFFFF);
+                WIPE_GFX(0xFA000000, -1);
                 func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, (f32)D_807F5D86, 0.0f, 319.0f, 239.0f, (f32)D_807F5D86, 0.0f);
-                M2C2_GFX(0xE7000000, 0);
-                M2C2_GFX(0xFC121824, 0xFF33FFFF);
+                WIPE_GFX(0xE7000000, 0);
+                WIPE_GFX(0xFC121824, 0xFF33FFFF);
                 if (D_807F5D86 >= 0x11) {
                     func_807024E0(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x10, 0x50, (f32)(D_807F5D86 - 0x10), 0.0f, (f32)D_807F5D86, 239.0f, (f32)(D_807F5D86 - 0x10), 0.0f, 1, 0x10, 1, NULL);
                 }
@@ -153,10 +153,10 @@ Gfx *func_80629300(Gfx *arg0) {
                 }
                 break;
             case 0:
-                M2C2_GFX(0xFC119623, 0xFF2FFFFF);
-                M2C2_GFX(0xFA000000, -1);
+                WIPE_GFX(0xFC119623, 0xFF2FFFFF);
+                WIPE_GFX(0xFA000000, -1);
                 func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, D_807F5D86, 239.0f, 0.0f, 0.0f);
-                M2C2_GFX(0xFC121824, 0xFF33FFFF);
+                WIPE_GFX(0xFC121824, 0xFF33FFFF);
                 if (D_807F5D86 < 0x131) {
                     func_807024E0(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x10, 0x20, (f32)D_807F5D86, 0.0f, (f32)(D_807F5D86 + 0x10), 239.0f, (f32)D_807F5D86, 0.0f, 1, 0x10, 2, NULL);
                 }
@@ -166,11 +166,11 @@ Gfx *func_80629300(Gfx *arg0) {
                 }
                 break;
             case 3:
-                M2C2_GFX(0xFC119623, 0xFF2FFFFF);
-                M2C2_GFX(0xFA000000, -1);
+                WIPE_GFX(0xFC119623, 0xFF2FFFFF);
+                WIPE_GFX(0xFA000000, -1);
                 func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, (f32)D_807F5D86, 0.0f, 319.0f, 239.0f, (f32)D_807F5D86, 0.0f);
                 func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, D_807F5D88, 239.0f, 0.0f, 0.0f);
-                M2C2_GFX(0xFC121824, 0xFF33FFFF);
+                WIPE_GFX(0xFC121824, 0xFF33FFFF);
                 if (D_807F5D86 >= 0x11) {
                     func_807024E0(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x10, 0x50, (f32)(D_807F5D86 - 0x10), 0.0f, (f32)D_807F5D86, 239.0f, (f32)(D_807F5D86 - 0x10), 0.0f, 1, 0x10, 1, NULL);
                 }
@@ -184,35 +184,35 @@ Gfx *func_80629300(Gfx *arg0) {
                 }
                 break;
             case 4:
-                M2C2_GFX(0xFC121824, 0xFF33FFFF);
+                WIPE_GFX(0xFC121824, 0xFF33FFFF);
                 D_807F5D8C = D_807F5D8C + 5.0 * sp54;
                 D_807F5D90 = D_807F5D8C + 40.0f;
-                func_807024E0(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, func_8062A24C);
+                func_807024E0(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaFromCentre);
                 if (D_807F5D8C > 170.0f) {
                     D_807F5D84 = -2;
                 }
                 break;
             case 5:
-                M2C2_GFX(0xFC121824, 0xFF33FFFF);
+                WIPE_GFX(0xFC121824, 0xFF33FFFF);
                 D_807F5D8C = D_807F5D8C + 12.0 * sp54;
                 D_807F5D90 = D_807F5D8C + 40.0f;
-                func_807024E0(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, func_8062A228);
+                func_807024E0(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaFromCorner);
                 if (D_807F5D8C > 350.0f) {
                     D_807F5D84 = -2;
                 }
                 break;
             case 6:
-                M2C2_GFX(0xFC121824, 0xFF33FFFF);
+                WIPE_GFX(0xFC121824, 0xFF33FFFF);
                 D_807F5D94 = D_807F5D94 + 15.0 * sp54;
-                func_807024E0(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, func_8062A130);
+                func_807024E0(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaRadialSweep);
                 if (D_807F5D94 > 350.0f) {
                     D_807F5D84 = -2;
                 }
                 break;
         }
-        M2C2_GFX(0xE7000000, 0);
-        M2C2_GFX(0xE3001801, 0);
-        M2C2_GFX(0xE3001201, 0x2000);
+        WIPE_GFX(0xE7000000, 0);
+        WIPE_GFX(0xE3001801, 0);
+        WIPE_GFX(0xE3001201, 0x2000);
     }
     return arg0;
 }
@@ -220,7 +220,7 @@ Gfx *func_80629300(Gfx *arg0) {
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 void func_80704130(s32, s32, s32, s32, s32, s32);
 
-void func_8062A130(s32 arg0, s32 arg1, s32 arg2) {
+void screenWipeAlphaRadialSweep(s32 arg0, s32 arg1, s32 arg2) {
     f32 ang;
     s16 alpha;
 
@@ -245,17 +245,17 @@ void func_8062A130(s32 arg0, s32 arg1, s32 arg2) {
 
 f32 sqrtf(f32);
 
-void func_8062A274(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void screenWipeAlphaByDistance(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 
-void func_8062A228(s32 arg0, s32 arg1, s32 arg2) {
-    func_8062A274(arg0, arg1, arg2, 0, 0);
+void screenWipeAlphaFromCorner(s32 arg0, s32 arg1, s32 arg2) {
+    screenWipeAlphaByDistance(arg0, arg1, arg2, 0, 0);
 }
 
-void func_8062A24C(s32 arg0, s32 arg1, s32 arg2) {
-    func_8062A274(arg0, arg1, arg2, 0xA0, 0x78);
+void screenWipeAlphaFromCentre(s32 arg0, s32 arg1, s32 arg2) {
+    screenWipeAlphaByDistance(arg0, arg1, arg2, 0xA0, 0x78);
 }
 
-void func_8062A274(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void screenWipeAlphaByDistance(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 dx;
     s32 dy;
     f32 dist;
@@ -278,7 +278,7 @@ extern s32 D_80747B28;
 extern u8 *D_80747B2C;
 extern s32 D_80747B38;
 
-void func_8062A348(void) {
+void blurBuildDivTable(void) {
     s32 i;
 
     D_80747B2C = func_80610FE8((D_80747B28 << 5) + 1);
@@ -394,7 +394,7 @@ extern u8 D_80747B40;
 extern u8 *D_807F5DD8;
 void *_memset(u8 *, s32, u32);
 
-void func_8062A774(void) {
+void screenBufferAllocate(void) {
     if (D_80747B40 == 0) {
         D_807F5DD8 = func_80610FE8(0x25800);
         _memset(D_807F5DD8, 0, 0x25800);
@@ -402,7 +402,7 @@ void func_8062A774(void) {
     }
 }
 
-void func_8062A7D0(void) {
+void screenBufferFree(void) {
     if (D_80747B40 != 0) {
         heapFreeDeferred(D_807F5DD8);
         D_80747B40 = 0;
@@ -421,6 +421,6 @@ void func_8062A808(s32 arg0, s32 arg1) {
     D_80747B48 = arg1;
 }
 
-s32 func_8062A844(s32 arg0) {
+s32 gfxPassThrough(s32 arg0) {
     return arg0;
 }

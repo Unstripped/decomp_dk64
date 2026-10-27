@@ -195,7 +195,7 @@ typedef struct F9A_CleanupNode {
 
 extern u8 D_807FD738;
 void func_806F54E0(s32, s16, u8);
-void func_806355DC(s16, s32);
+void modelSlotFreeByIndex(s16, s32);
 
 void func_806F5378(void) {
     F9A_LinkedNode *var_s0;
@@ -206,7 +206,7 @@ void func_806F5378(void) {
     while (var_s0 != NULL) {
         var_s1 = var_s0->next;
         func_806F54E0(0, var_s0->unk2, var_s0->unk1A);
-        func_806355DC(var_s0->unk0, 1);
+        modelSlotFreeByIndex(var_s0->unk0, 1);
         heapFree(var_s0);
         var_s0 = var_s1;
     }

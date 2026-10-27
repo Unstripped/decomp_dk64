@@ -3,7 +3,7 @@
 extern u32 D_80755320;
 void *func_80610FE8(s32);
 void heapFreeDeferred(void *);
-void func_8062C99C(void *, s32, s32, s32, s32);
+void viewportSetFromRect(void *, s32, s32, s32, s32);
 Gfx *func_806FF144(void *);
 Gfx *func_807132DC();
 Gfx *func_8071338C(Gfx *);
@@ -18,7 +18,7 @@ Gfx *func_807138CC(Gfx *arg0) {
 
     sp3C = func_80610FE8(0x10);
     heapFreeDeferred(sp3C);
-    func_8062C99C(sp3C, 0xA, 0xA, 0x135, 0xE5);
+    viewportSetFromRect(sp3C, 0xA, 0xA, 0x135, 0xE5);
     arg0 = func_8071338C(func_807135B4(func_807132DC(arg0)));
     if (++D_80755320 < 0xD3U) {
         temp_fv0 = (f32) (0xD2 - D_80755320) * 0.03333333507f;

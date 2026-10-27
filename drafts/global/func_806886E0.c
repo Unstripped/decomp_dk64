@@ -15,12 +15,12 @@ typedef struct {
 extern Struct8076A160 D_8076A160[];
 
 s32 func_80600080(s32);
-u16 func_80631D8C(u8);
-void func_80631F58(s32, s32 *, s32 **);
-void func_80632084(s32, s32, u8, u16, s32);
+u16 modelTypeCountBeforeMap(u8);
+void modelAssetGetSubtables(s32, s32 *, s32 **);
+void modelSlotsLoadMap(s32, s32, u8, u16, s32);
 void func_8063DBD8(u8);
 void func_80688FC0(s32 *);
-void func_8063BF34(void *, void *);
+void modelSlotsApplyRecords(void *, void *);
 void func_80659670(f32, f32, f32, s32);
 s32 func_805FF030(u8, s32);
 void func_80688A6C(void);
@@ -45,7 +45,7 @@ u8 arg2;
         switch (arg1) {
         case 0:
             D_807F6010 = arg0;
-            sp4E = func_80631D8C(D_8076A0AB);
+            sp4E = modelTypeCountBeforeMap(D_8076A0AB);
             flag = 1;
             break;
         case 1:
@@ -56,18 +56,18 @@ u8 arg2;
         D_807F6010 = arg0;
         arg0 = D_8076A160[sp54].unk18;
     }
-    func_80631F58(arg0, &sp5C, &sp58);
+    modelAssetGetSubtables(arg0, &sp5C, &sp58);
     if (arg2 != 0) {
         arg0 = 0;
     } else {
         arg0 = func_806C7B34();
     }
-    func_80632084(sp5C, arg0, (u8)flag, sp4E, func_805FF030(D_8076A0AB, 1));
+    modelSlotsLoadMap(sp5C, arg0, (u8)flag, sp4E, func_805FF030(D_8076A0AB, 1));
     func_8063DBD8(D_8076A0AA);
     func_80688FC0(sp58);
     if (sp54 != -1) {
         if (D_8076A160[sp54].unk20 != NULL) {
-            func_8063BF34(D_8076A160[sp54].unk20, D_8076A160[sp54].unk1C);
+            modelSlotsApplyRecords(D_8076A160[sp54].unk20, D_8076A160[sp54].unk1C);
         }
         arg0 = (s32)&D_8076A160[sp54];
         flag = 0;

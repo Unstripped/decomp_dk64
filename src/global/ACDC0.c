@@ -135,7 +135,7 @@ void func_80724994(s32, s32, s32, s32, s32);
 void func_805FF378(s32, s32);
 void func_805FF544(void);
 void func_805FF898(void);
-void func_806291B4(s32);
+void screenWipeStart(s32);
 void func_80714638(void);
 void renderCallbacksRegister(void *, void *, s32);
 
@@ -301,7 +301,7 @@ void func_806A8158(void) {
         func_806ABE3C(D_807FC7F8);
         func_806AA304(hud, 0);
         D_807FBB60 &= 0xFFFEFFCF;
-        func_806291B4(7);
+        screenWipeStart(7);
     }
     if (hud->unk0 == 0.0f && D_807FC8B8 == 0) {
         x = hud->unk15;
@@ -1643,7 +1643,7 @@ void hudTwoOptionMenuUpdate(void) {
             i++;
         } while (i != 4);
         D_807FBB60 &= ~0x10030;
-        func_806291B4(7);
+        screenWipeStart(7);
         D_807FC80E = 0;
         D_807FBB40->unk155[0] = 0;
     }

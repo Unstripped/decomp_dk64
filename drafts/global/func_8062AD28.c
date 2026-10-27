@@ -1,5 +1,5 @@
 // func_8062AD28 (src/global/2F550.c): stage 5: same size (291/291) and frame (0x90) as target; remaining diff is loop-2 pointer register assignment (target s1=zs ptr is the LFTR/compare pointer and s2=xs,s3=ys,s4=&ys; ours picks ys as compare pointer, s1=ys,s2=zs,s3=xs) and operand order of the third product (target c*z loads c first; ours loads z first). Loop 1 must keep the dead second def of i (poly++ then poly[-1] form) to avoid unrolling; locals i,xs,ys,zs then poly,pad0 reproduce zs=0x50.
-typedef struct R2F550aPoly {
+typedef struct PlanePoly {
     /* 0x00 */ s16 v[12];
     /* 0x18 */ u8 type;
     /* 0x19 */ u8 pad19[7];
@@ -7,17 +7,17 @@ typedef struct R2F550aPoly {
     /* 0x28 */ f64 b;
     /* 0x30 */ f64 c;
     /* 0x38 */ f64 d;
-} R2F550aPoly; /* 0x40 */
+} PlanePoly; /* 0x40 */
 
-void func_8062B194(R2F550aPoly *);
-void func_8062B220(R2F550aPoly *);
+void polyFlipWinding(PlanePoly *);
+void func_8062B220(PlanePoly *);
 
-void func_8062AD28(f32 arg0, f32 arg1, f32 arg2, R2F550aPoly *arg3, f32 *arg4) {
+void func_8062AD28(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
     s32 i;
     f32 xs[5];
     f32 ys[5];
     f32 zs[5];
-    R2F550aPoly *poly;
+    PlanePoly *poly;
     s32 pad0;
 
     poly = arg3;
@@ -84,7 +84,7 @@ void func_8062AD28(f32 arg0, f32 arg1, f32 arg2, R2F550aPoly *arg3, f32 *arg4) {
     for (i = 0; i < 5; i++) {
         func_8062B220(poly);
         if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < 0.0) {
-            func_8062B194(poly);
+            polyFlipWinding(poly);
             func_8062B220(poly);
         }
         poly++;

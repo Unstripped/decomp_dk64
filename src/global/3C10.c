@@ -118,7 +118,7 @@ void func_805FFFC8(void);
 s32 func_80600080();
 s16 func_80600174(f32 *, f32 *, f32 *);
 s32 func_80600340(s32 arg0, u8 arg1, s32 *arg2);
-void func_80631F58(s32, s32 *, s32 *);
+void modelAssetGetSubtables(s32, s32 *, s32 *);
 void func_806003EC(s16 arg0);
 s32 func_8060042C(s16 arg0);
 u8 func_80600454(s16 arg0, u8 *arg1);
@@ -132,7 +132,7 @@ void func_80611614(void *);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_8061CC40(void *, s32, s32);
-void func_8063BEC0(void *, void *, s16, s16);
+void modelRecordFindAndSet(void *, void *, s16, s16);
 s32 func_80689C20(s32, s32, u8, f32, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 u8 func_806C8DE0(s32);
@@ -453,7 +453,7 @@ s32 func_805FFE50(s32 arg0, s16 arg1, s16 arg2) {
     }
 
     slot = &D_8076A160[i];
-    func_8063BEC0(slot->unk20, slot->unk1C, arg1, arg2);
+    modelRecordFindAndSet(slot->unk20, slot->unk1C, arg1, arg2);
     return 1;
 }
 
@@ -551,7 +551,7 @@ s32 func_80600340(s32 arg0, u8 arg1, s32 *arg2) {
     if (idx == -1) {
         return -1;
     }
-    func_80631F58(((Struct8076A160 *)&D_8076A160)[idx].unk18, &sp3C, &sp38);
+    modelAssetGetSubtables(((Struct8076A160 *)&D_8076A160)[idx].unk18, &sp3C, &sp38);
     *arg2 = ((Struct8076A160 *)&D_8076A160)[idx].unk12;
     return func_80689C20(sp38, arg0, arg1, sp34, sp30, sp2C);
 }

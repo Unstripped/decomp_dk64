@@ -50,7 +50,7 @@ extern ActorGlobalState D_807FBB70;
 void func_80613C48(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
 Mtx *func_80610FE8(s32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 s32 func_8069A750(void);
 void func_8069A614(f32, u8);
 f32 func_80612D1C(f32);
@@ -272,5 +272,5 @@ void func_80699958(u8 arg0, u8 arg1) {
     }
     ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[0].unk8 = 0.0f;
     ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[arg0 - 1].unk8 = 0.0f;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

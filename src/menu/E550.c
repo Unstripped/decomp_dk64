@@ -27,10 +27,10 @@ extern u8 D_80033FB2;
 
 void behaviourFrameBegin(void);
 void func_8068A858(u8 *, u8 *, u8 *);
-s32 func_80629148(void);
-void func_80629174(void);
+s32 currentActorTestClearFlag(void);
+void currentActorClearFlag(void);
 void actorScriptStart(MenuBB40_E550 *, s32);
-void func_806319C4(MenuBB40_E550 *, s32);
+void actorUpdateModelMatrix(MenuBB40_E550 *, s32);
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/E550/func_80032550.s")
 

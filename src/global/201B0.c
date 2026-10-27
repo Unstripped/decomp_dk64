@@ -179,7 +179,7 @@ void func_806227F0(CamState *, f32 *, f32 *, f32 *);
 void func_806228BC(CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 f32 func_80622ABC(f32, f32, f32);
 void func_80626CAC(CamState *, f32 *, f32 *, f32, f32, f32);
-f32 func_80627A00(f64, f32, f32, f32, f32);
+f32 splineEvalCubic(f64, f32, f32, f32, f32);
 s32 func_8062773C(CamActor *);
 s16 mathAngleLerp(s16, s16, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -575,17 +575,17 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                     e1 = &((CamSplineKeyE *) p->u.spline.unk4)[idx[1]];
                     e2 = &((CamSplineKeyE *) p->u.spline.unk4)[idx[2]];
                     e3 = &((CamSplineKeyE *) p->u.spline.unk4)[idx[3]];
-                    posX = func_80627A00(arg7->unk160, e0->unk0, e1->unk0, e2->unk0, e3->unk0);
-                    posY = func_80627A00(arg7->unk160, e0->unk2, e1->unk2, e2->unk2, e3->unk2);
-                    posZ = func_80627A00(arg7->unk160, e0->unk4, e1->unk4, e2->unk4, e3->unk4);
-                    lookX = func_80627A00(arg7->unk160, e0->unk6, e1->unk6, e2->unk6, e3->unk6);
-                    lookY = func_80627A00(arg7->unk160, e0->unk8, e1->unk8, e2->unk8, e3->unk8);
-                    lookZ = func_80627A00(arg7->unk160, e0->unkA, e1->unkA, e2->unkA, e3->unkA);
+                    posX = splineEvalCubic(arg7->unk160, e0->unk0, e1->unk0, e2->unk0, e3->unk0);
+                    posY = splineEvalCubic(arg7->unk160, e0->unk2, e1->unk2, e2->unk2, e3->unk2);
+                    posZ = splineEvalCubic(arg7->unk160, e0->unk4, e1->unk4, e2->unk4, e3->unk4);
+                    lookX = splineEvalCubic(arg7->unk160, e0->unk6, e1->unk6, e2->unk6, e3->unk6);
+                    lookY = splineEvalCubic(arg7->unk160, e0->unk8, e1->unk8, e2->unk8, e3->unk8);
+                    lookZ = splineEvalCubic(arg7->unk160, e0->unkA, e1->unkA, e2->unkA, e3->unkA);
                     D_807FC924[cam->unkFB].unk27C =
-                        func_80627A00(arg7->unk160, e0->unkC, e1->unkC, e2->unkC, e3->unkC);
+                        splineEvalCubic(arg7->unk160, e0->unkC, e1->unkC, e2->unkC, e3->unkC);
                     if (D_807476E4 == 0) {
                         arg0->unkE4 =
-                            func_80627A00(arg7->unk160, e0->unkD, e1->unkD, e2->unkD, e3->unkD) / 127.0 * 2048.0;
+                            splineEvalCubic(arg7->unk160, e0->unkD, e1->unkD, e2->unkD, e3->unkD) / 127.0 * 2048.0;
                     }
                     break;
                 case 5:
@@ -593,14 +593,14 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
                     k1 = &((CamSplineKey8 *) p->u.spline.unk4)[idx[1]];
                     k2 = &((CamSplineKey8 *) p->u.spline.unk4)[idx[2]];
                     k3 = &((CamSplineKey8 *) p->u.spline.unk4)[idx[3]];
-                    posX = func_80627A00(arg7->unk160, k0->unk0, k1->unk0, k2->unk0, k3->unk0);
-                    posY = func_80627A00(arg7->unk160, k0->unk2, k1->unk2, k2->unk2, k3->unk2);
-                    posZ = func_80627A00(arg7->unk160, k0->unk4, k1->unk4, k2->unk4, k3->unk4);
+                    posX = splineEvalCubic(arg7->unk160, k0->unk0, k1->unk0, k2->unk0, k3->unk0);
+                    posY = splineEvalCubic(arg7->unk160, k0->unk2, k1->unk2, k2->unk2, k3->unk2);
+                    posZ = splineEvalCubic(arg7->unk160, k0->unk4, k1->unk4, k2->unk4, k3->unk4);
                     D_807FC924[cam->unkFB].unk27C =
-                        func_80627A00(arg7->unk160, k0->unk6, k1->unk6, k2->unk6, k3->unk6);
+                        splineEvalCubic(arg7->unk160, k0->unk6, k1->unk6, k2->unk6, k3->unk6);
                     if (D_807476E4 == 0) {
                         arg0->unkE4 =
-                            func_80627A00(arg7->unk160, k0->unk7, k1->unk7, k2->unk7, k3->unk7) / 127.0 * 2048.0;
+                            splineEvalCubic(arg7->unk160, k0->unk7, k1->unk7, k2->unk7, k3->unk7) / 127.0 * 2048.0;
                     }
                 calc_look:
                     if (!D_807F5CFA) {

@@ -7,7 +7,7 @@ typedef struct R3D3B_Container {
 s32 func_8066B0F8(s32, s32, s32, s32);
 void func_8066B424(void);
 void func_8066B434(s32, s32, s32);
-void func_80631F58(void *, void *, void *);
+void modelAssetGetSubtables(void *, void *, void *);
 s32 func_80688C84(u16);
 extern u8 D_807500B0;
 extern s16 D_807FC408[];
@@ -30,7 +30,7 @@ void func_80688940(void) {
             D_807FC408[i] = total;
             temp_v0 = func_8066B0F8(9, i, 1, 1);
             if (temp_v0 != 0) {
-                func_80631F58((void *)temp_v0, &sp60, &container);
+                modelAssetGetSubtables((void *)temp_v0, &sp60, &container);
                 count = container->count;
                 for (j = 0, item = container->items; j < count; j++, item++) {
                     total = (total + func_80688C84(item->unk32 + 0x10)) & 0xFFFF;

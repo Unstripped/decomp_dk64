@@ -1,13 +1,13 @@
 // func_80630890 (src/global/35000.c): func_80630890 (src/global/35000.c): stage 5, parked NON_MATCHING: frame/regs/f-regs/v0-v1 all match (separate cmpB local for inner compare; ins loaded after dz ternary; node reused as cur->unk14 temp in inner swap block raises node priority so node=v0, ins=v1). Remaining diff: last block (inserted==0) temps t6,t7,t8 vs expected t7,t8,t9 (one hidden temp consumed after the inner swap block); rodata symbol reloc names only.
-typedef struct R35000aNode R35000aNode;
-struct R35000aNode {
+typedef struct RenderEntry RenderEntry;
+struct RenderEntry {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
     /* 0x10 */ f32 unk10;
-    /* 0x14 */ R35000aNode *unk14;
-    /* 0x18 */ R35000aNode *unk18;
+    /* 0x14 */ RenderEntry *unk14;
+    /* 0x18 */ RenderEntry *unk18;
     /* 0x1C */ s16 unk1C;
     /* 0x1E */ s16 unk1E;
     /* 0x20 */ s16 unk20;
@@ -17,12 +17,12 @@ struct R35000aNode {
     /* 0x25 */ u8 pad25[3];
 };
 
-extern R35000aNode *D_807F5FF0;
-extern R35000aNode *D_807F5FF4;
-extern R35000aNode *D_807F5FF8;
-extern R35000aNode *D_807F5FFC;
+extern RenderEntry *D_807F5FF0;
+extern RenderEntry *D_807F5FF4;
+extern RenderEntry *D_807F5FF8;
+extern RenderEntry *D_807F5FFC;
 
-void func_80630300(void) {
+void renderEntryListsReset(void) {
     D_807F5FF0 = 0;
     D_807F5FF4 = 0;
     D_807F5FF8 = 0;
@@ -50,20 +50,20 @@ s32 func_80630324(u8 arg0, u8 *arg1) {
     }
 }
 
-void func_806306D0(R35000aNode *);
+void renderEntryListFree(RenderEntry *);
 
 void func_8063039C(void) {
-    func_806306D0(D_807F5FF4);
+    renderEntryListFree(D_807F5FF4);
     D_807F5FF4 = 0;
 }
 
 void *func_80610FE8(s32);
 
-R35000aNode *func_806303C4(R35000aNode *arg0, u8 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, s16 arg6, s16 arg7, u8 arg8, s16 arg9, u8 arg10) {
+RenderEntry *renderEntryAddOrUpdate(RenderEntry *arg0, u8 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, s16 arg6, s16 arg7, u8 arg8, s16 arg9, u8 arg10) {
     s32 found;
-    R35000aNode *prev;
-    R35000aNode *node;
-    R35000aNode *head;
+    RenderEntry *prev;
+    RenderEntry *node;
+    RenderEntry *head;
 
     found = 0;
     prev = NULL;
@@ -138,10 +138,10 @@ R35000aNode *func_806303C4(R35000aNode *arg0, u8 arg1, s32 arg2, f32 arg3, f32 a
 
 void heapFree(void *);
 
-R35000aNode *func_80630588(R35000aNode *arg0, s32 arg1, u8 arg2, u8 *arg3) {
+RenderEntry *renderEntryRemove(RenderEntry *arg0, s32 arg1, u8 arg2, u8 *arg3) {
     u8 found;
-    R35000aNode *prev;
-    R35000aNode *head;
+    RenderEntry *prev;
+    RenderEntry *head;
 
     found = 0;
     prev = NULL;
@@ -195,8 +195,8 @@ R35000aNode *func_80630588(R35000aNode *arg0, s32 arg1, u8 arg2, u8 *arg3) {
     return head;
 }
 
-void func_806306D0(R35000aNode *arg0) {
-    R35000aNode *cur;
+void renderEntryListFree(RenderEntry *arg0) {
+    RenderEntry *cur;
 
     if (arg0 != NULL) {
         do {
@@ -207,8 +207,8 @@ void func_806306D0(R35000aNode *arg0) {
     }
 }
 
-R35000aNode *func_8063070C(R35000aNode *arg0) {
-    R35000aNode *head;
+RenderEntry *renderEntryListPurgeUntouched(RenderEntry *arg0) {
+    RenderEntry *head;
 
     head = arg0;
     if (arg0 != NULL) {
@@ -230,7 +230,7 @@ R35000aNode *func_8063070C(R35000aNode *arg0) {
     return head;
 }
 
-void func_806307AC(R35000aNode *arg0) {
+void renderEntryListClearTouched(RenderEntry *arg0) {
     if (arg0 != NULL) {
         do {
             arg0->unk23 = 0;
@@ -239,7 +239,7 @@ void func_806307AC(R35000aNode *arg0) {
     }
 }
 
-void func_806307CC(R35000aNode *arg0, s32 arg1, u8 arg2, u8 arg3, s8 *arg4) {
+void func_806307CC(RenderEntry *arg0, s32 arg1, u8 arg2, u8 arg3, s8 *arg4) {
     s8 found;
 
     found = 0;
@@ -275,15 +275,15 @@ void func_806307CC(R35000aNode *arg0, s32 arg1, u8 arg2, u8 arg3, s8 *arg4) {
 }
 
 #ifdef NON_MATCHING
-R35000aNode *func_80630890(R35000aNode *arg0, f32 arg1, f32 arg2, f32 arg3, R35000aNode **arg4) {
-    R35000aNode *node;
+RenderEntry *func_80630890(RenderEntry *arg0, f32 arg1, f32 arg2, f32 arg3, RenderEntry **arg4) {
+    RenderEntry *node;
     f32 dx;
     f32 dy;
     f32 dz;
-    R35000aNode *head;
-    R35000aNode *cur;
-    R35000aNode *ins;
-    R35000aNode *base;
+    RenderEntry *head;
+    RenderEntry *cur;
+    RenderEntry *ins;
+    RenderEntry *base;
     s32 inserted;
     f32 dist;
     f32 cmpB;

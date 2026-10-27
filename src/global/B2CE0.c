@@ -95,7 +95,7 @@ extern B2CE0Actor *D_807FBB40;
 extern B2CE0Actor *D_807FBB44;
 
 s32 randomNonNegative(void);
-void func_806319C4(B2CE0Actor *, s32);
+void actorUpdateModelMatrix(B2CE0Actor *, s32);
 
 void matrixMakeRotationX(f32 (*)[4], f32);
 void func_80666280(s32);
@@ -162,14 +162,14 @@ void func_806ADFE0(void) {
     func_80665564(D_807FBB40, 0);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 10, 10, 1, 200, 0x80, 0, 1.0f);
     if (D_807FBB40->unk15F != 0) {
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
     } else {
         guTranslateF(sp88, 0, -30.0f, 0);
         matrixMakeRotationX(sp48, 180.0f);
         guMtxCatF(sp88, sp48, sp88);
         guTranslateF(sp48, 0, 30.0f, 0.0f);
         guMtxCatF(sp88, sp48, D_807FBB40->unkC);
-        func_806319C4(D_807FBB40, 1);
+        actorUpdateModelMatrix(D_807FBB40, 1);
     }
     if ((D_807FBB40->unk6A & 1) && !(D_807FBB40->unk6C & 1)) {
         func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x56, 0xB4, 0x96, 1, 0x4B, 0.3f, 0);
@@ -409,7 +409,7 @@ void func_806AE588(void) {
         func_8072C918(0x6400, 0x1FB, 0x1FC);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806AEE08(void) {
@@ -567,7 +567,7 @@ void func_806AEE84(void) {
             func_8072C918(0x6400, 0x2AB, 0x2AC);
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806AF688(void) {
@@ -639,7 +639,7 @@ void func_806AF688(void) {
         case 0x40:
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_807149B8(s32);
@@ -809,7 +809,7 @@ void func_806AFB58(void) {
         func_8072C918(0x6400, 0x2D7, 0x2D8);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806B02EC(void) {
@@ -818,7 +818,7 @@ void func_806B02EC(void) {
         behaviourSetAnimIds(0, 0x31E, 0x31F);
     }
     func_806AD260(0x320, 0, 0);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806B0354(void) {
@@ -891,7 +891,7 @@ void func_806B0354(void) {
             break;
     }
     func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 s32 func_806B0770(void) {
@@ -1098,5 +1098,5 @@ void func_806B0848(void) {
             func_8072C918(0x6400, 0x35F, 0x360);
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

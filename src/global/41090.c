@@ -8,9 +8,9 @@ typedef struct {
     void (*unk4)();
     void (*unk8)();
     u8 unkC;
-} R41090aEntry;
+} MapSurfaceEffect;
 
-extern R41090aEntry D_80747D80[8];
+extern MapSurfaceEffect D_80747D80[8];
 extern f32 D_807F6170;
 extern f32 D_807F6174;
 extern f32 D_807F6178;
@@ -19,7 +19,7 @@ extern void *D_807F617C;
 void *func_8066B0F8(s32, s32, s32, s32);
 u8 fogGetEnabled(void);
 
-void func_8063C390(void) {
+void mapSurfaceEffectsReset(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
@@ -27,18 +27,18 @@ void func_8063C390(void) {
     }
 }
 
-void func_8063C3C0(s16 arg0) {
+void mapSurfaceEffectInit(s16 arg0) {
     if (D_80747D80[arg0].unkC == 0) {
         D_80747D80[arg0].unk0();
         D_80747D80[arg0].unkC = 1;
     }
 }
 
-void func_8063C418(s32 arg0, s16 arg1) {
+void mapSurfaceEffectDraw(s32 arg0, s16 arg1) {
     D_80747D80[arg1].unk4(arg0);
 }
 
-void func_8063C450(void) {
+void mapSurfaceEffectsUpdate(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
@@ -269,9 +269,9 @@ void func_8063D1D8(void) {
 typedef struct {
     s16 unk0;
     void *unk4;
-} R41090bEntry;
+} AssetRef;
 
-extern R41090bEntry D_80747E0C[11];
+extern AssetRef D_80747E0C[11];
 extern u8 D_807F6194;
 
 void func_8063D288(void) {

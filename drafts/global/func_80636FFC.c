@@ -1,4 +1,4 @@
-// func_80636FFC (src/global/36880.c): Stage 4 (NMBig): same s0,s1 + frame 0x138; 37 diff lines in mini-TU compare. Needs file proto 's32 func_80636D38();' (K&R; verified func_80632860 still matches) -> slot ptr in v1. Layout: dummy block locals { s32 pad4; } after seg10 macro / { s32 pad5; } after DL9 macro / { s32 pad6; } before final PipeSync reproduce spill homes 0x70-0x7C,0x58 (no pad3 hack). Remaining: (1) selptr/t8 spill slots 0x38/0x3C vs target 0x3C/0x40 (target has 2 extra late CSE-temp homes at frame bottom, dummy locals cannot reach there); (2) guRotateF x3 blocks: as1 hoists 'addiu a0,sp,184' (and li a2/a3,lui at in 3rd) above c.eq.d, bc1tl vs target bc1t+lui delay; (3) flags: target 'lbu a0,0x8c(v1); move v0,a0' (live-range split a0/v0), mine v0 only. Tried: line joins of if/rotate/cat, local angle var, casts, flag var forms (u8/s32/cond/mix), permuter 900s stack-diffs and 600s plain.
+// func_80636FFC (src/global/36880.c): Stage 4 (NMBig): same s0,s1 + frame 0x138; 37 diff lines in mini-TU compare. Needs file proto 's32 func_80636D38();' (K&R; verified modelSlotInit still matches) -> slot ptr in v1. Layout: dummy block locals { s32 pad4; } after seg10 macro / { s32 pad5; } after DL9 macro / { s32 pad6; } before final PipeSync reproduce spill homes 0x70-0x7C,0x58 (no pad3 hack). Remaining: (1) selptr/t8 spill slots 0x38/0x3C vs target 0x3C/0x40 (target has 2 extra late CSE-temp homes at frame bottom, dummy locals cannot reach there); (2) guRotateF x3 blocks: as1 hoists 'addiu a0,sp,184' (and li a2/a3,lui at in 3rd) above c.eq.d, bc1tl vs target bc1t+lui delay; (3) flags: target 'lbu a0,0x8c(v1); move v0,a0' (live-range split a0/v0), mine v0 only. Tried: line joins of if/rotate/cat, local angle var, casts, flag var forms (u8/s32/cond/mix), permuter 900s stack-diffs and 600s plain.
 typedef struct {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u8 unk60;
@@ -48,7 +48,7 @@ typedef struct {
     /* 0xC5 */ u8 unkC5;
 } L80636FFCObj;
 
-void func_80639968(R36880eSeg *);
+void texAnimUpdateNodes(ModelSegmentData *);
 void func_8063E6B4(void *);
 void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 void func_8065EB10(u8, s16, f32, f32, f32, s32, f32, s32);
@@ -140,7 +140,7 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
     gSPMatrix(arg1++, osVirtualToPhysical(&arg0->unk20[D_807444FC]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     if (arg0->unkB8 != 0) {
         sel = D_807444FC;
-        func_80639968((R36880eSeg *)arg0);
+        texAnimUpdateNodes((ModelSegmentData *)arg0);
     } else {
         sel = 0;
     }

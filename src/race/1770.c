@@ -211,7 +211,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80026354(void *, void *, s32);
 void func_8002D338(void *, void *);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 void func_800274C0(void) {
     u8 *sp4C;
@@ -249,5 +249,5 @@ void func_800274C0(void) {
     if (var_v1 != 0) {
         func_8002D338(D_807FBB40, s1);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

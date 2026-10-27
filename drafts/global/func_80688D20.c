@@ -6,7 +6,7 @@ typedef struct R3D3A_EntryC0 {
 
 extern R3D3A_EntryC0 D_8076A178[];
 s32 func_80600080(s32);
-void func_80631F58(void *, void *, void *);
+void modelAssetGetSubtables(void *, void *, void *);
 
 void func_80688D20(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
     s32 pad[2];
@@ -20,7 +20,7 @@ void func_80688D20(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
     found = 0;
     temp_v0 = func_80600080(arg0);
     if (temp_v0 != -1) {
-        func_80631F58(D_8076A178[temp_v0].ptr, &sp34, &sp30);
+        modelAssetGetSubtables(D_8076A178[temp_v0].ptr, &sp34, &sp30);
         count = *(s32 *)sp30;
         item = (ActorListRecord *)((s32 *)sp30 + 1);
         sp30 = item;

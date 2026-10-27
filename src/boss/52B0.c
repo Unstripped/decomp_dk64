@@ -142,8 +142,8 @@ f32 func_80612794(s16);
 void actorScriptStart(void *, s32);
 s32 func_8061CB50(void);
 void func_8061CC40(void *, s32, s32);
-s32 func_80629148(void);
-void func_806319C4(void *, s32);
+s32 currentActorTestClearFlag(void);
+void actorUpdateModelMatrix(void *, s32);
 void func_8063DA40();
 void lightSetColor(f32, f32, f32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -218,41 +218,41 @@ void func_80029468(void) {
     case 0x1E:
         switch (ACTOR->unk155) {
         case 0:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B1);
                 actorScriptStart(D_807FD580->unk88, 0x3B7);
                 ACTOR->unk155++;
             }
             break;
         case 1:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B2);
                 actorScriptStart(D_807FD580->unk88, 0x3B8);
                 ACTOR->unk155++;
             }
             break;
         case 2:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B3);
                 actorScriptStart(D_807FD580->unk88, 0x3B9);
                 ACTOR->unk155++;
             }
             break;
         case 3:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(ACTOR, 0x217);
                 ACTOR->unk155++;
             }
             break;
         case 4:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B4);
                 actorScriptStart(D_807FD580->unk88, 0x3BA);
                 ACTOR->unk155++;
             }
             break;
         case 5:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_80613C48(D_807FBB4C, 0x1C7, 0.0f, 0.0f);
                 ACTOR->unk154 = sp44[sp4C->unk15++];
                 ACTOR->unk155 = 0;
@@ -286,7 +286,7 @@ void func_80029468(void) {
                 ACTOR->unk155++;
                 break;
             case 1:
-                if (func_80629148() != 0) {
+                if (currentActorTestClearFlag() != 0) {
                     actorScriptStart(ACTOR, 0x21A);
                     ACTOR->unk155++;
                 }
@@ -419,7 +419,7 @@ block_28:
         }
         break;
     case 0x37:
-        if (func_80629148() != 0) {
+        if (currentActorTestClearFlag() != 0) {
             bossSpawnParticleRing(0xA8, (s16)ACTOR->unk7C, (s16)ACTOR->unk80, (s16)ACTOR->unk84, 0x5DC, 1);
             ACTOR->unk154 = 0x40;
         }
@@ -451,7 +451,7 @@ block_28:
         ACTOR->unk80 = ACTOR->unkAC;
         ACTOR->unkC0 = ACTOR->unkC4;
     }
-    func_806319C4(ACTOR, 0);
+    actorUpdateModelMatrix(ACTOR, 0);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/52B0/D_80036160.s")

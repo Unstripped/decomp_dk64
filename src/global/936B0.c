@@ -2,7 +2,7 @@
 
 #include "actor.h"
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 typedef struct ProjectileActorSub174 {
     s16 unk0;
@@ -48,7 +48,7 @@ void actorSnapToBone(Actor **arg0) {
         (*arg0)->unk80 = sp2C;
     }
     (*arg0)->unkE6 = temp_v1->unk88->unkE6;
-    func_806319C4(*arg0, 0);
+    actorUpdateModelMatrix(*arg0, 0);
 }
 
 void actorSyncTransformFromParent(ProjectileActorSync **arg0) {
@@ -83,7 +83,7 @@ void actorSyncTransformFromParent(ProjectileActorSync **arg0) {
             temp_a2 = *arg0;
         }
     }
-    func_806319C4((Actor *)temp_a2, 0);
+    actorUpdateModelMatrix((Actor *)temp_a2, 0);
 }
 
 typedef struct TargetVec3f {
@@ -363,11 +363,11 @@ void actorUpdatePlayerInteraction(void) {
             }
         }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void actorClearSubState(void) {
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern u8 D_80750270;
@@ -1291,7 +1291,7 @@ void projectileMatrixRotationUpdate(void) {
     guRotateF((void *)((u8 *)D_807FBB40 + 0xC), temp_s2->unkC, 0.0f, 0.0f, 1.0f);
     guRotateF(sp44, temp_s2->unk8, 1.0f, 0.0f, 0.0f);
     guMtxCatF((void *)((u8 *)D_807FBB40 + 0xC), sp44, (void *)((u8 *)D_807FBB40 + 0xC));
-    func_806319C4(D_807FBB40, 1);
+    actorUpdateModelMatrix(D_807FBB40, 1);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80695724.s")
@@ -1302,7 +1302,7 @@ void actorApplyTransformAndRender(void) {
     sp1C = D_807FBB40->unk174;
     func_80695724(0.0f, 1);
     matrixMakeRotationX((u8 *)D_807FBB40 + 0xC, sp1C->unk8);
-    func_806319C4(D_807FBB40, 1);
+    actorUpdateModelMatrix(D_807FBB40, 1);
 }
 
 extern u8 D_8071FBC8;

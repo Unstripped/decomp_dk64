@@ -1,5 +1,5 @@
 // func_8066F84C (src/global/70FD0.c): collision plane response with guMtxXFMF 3-vertex loop, angle wrapping, and calls to func_8066FD6C and func_8066FC0C
-void func_8062FF10(f32 [4][4], void *);
+void matrix4Invert(f32 [4][4], void *);
 void func_8066C610(s16, s8, void *);
 void func_8066FC0C(M70D_Actor *, void *, void *);
 s32 func_8066FD6C(M70D_Actor *);
@@ -49,7 +49,7 @@ void func_8066F84C(s16 arg0, M70D_Actor *arg1, s32 arg2) {
         *((s8 *)temp_s7 + 0x5A) = *((s8 *)D_807FB5D8 + 0x4E);
         *(s16 *)((u8 *)temp_s7 + 0x58) = (s16) ((s32) ((u8 *)D_807FB5D8 - (u8 *)arg2) / 88);
         func_8066C610(arg0, *((s8 *)D_807FB5D8 + 0x4E), sp138);
-        func_8062FF10(spB8, sp138);
+        matrix4Invert(spB8, sp138);
         temp_t6 = arg0 * 0x90;
         sp74 = temp_t6;
         temp_v1 = *(void **)((u8 *)D_807F6000 + temp_t6 + 0x7C);

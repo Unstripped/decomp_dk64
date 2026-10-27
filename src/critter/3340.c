@@ -26,15 +26,15 @@ void actorScriptStart(Actor_3340 *, s32);
 s32 flagCountRange(s32, s32, s32);
 void flagSet(s32, s32, s32);
 void func_8061CC40(Actor_3340 *, s32, s32);
-void func_80629174(void);
-s32 func_80629148(Actor_3340 *);
+void currentActorClearFlag(void);
+s32 currentActorTestClearFlag(Actor_3340 *);
 void effectSpawnBurst(s32);
 void func_80614E78(Actor_3340 *, s32);
 void sfxPlayFromActorWithAltitudeCheck(Actor_3340 *, s32, s32, s32, s32);
 void sfxStopSlotSound(Actor_3340 *, s32);
 void slotQueueUpdate(s32, s32, s32);
 void func_806F91B4(s32, u8, s32);
-void func_806319C4(Actor_3340 *, s32);
+void actorUpdateModelMatrix(Actor_3340 *, s32);
 
 void animSetLoopLimit(void *, s32, s32);
 void animSetSpeed(void *, s32, f32);
@@ -98,7 +98,7 @@ void func_80027DC0(void) {
         if (var_t5 != 0) {
             flagSet(0x179, 1, 0);
             func_8061CC40(D_807FBB4C, 0, 1);
-            func_80629174();
+            currentActorClearFlag();
             (*s0)->unk154 = 2;
         }
         break;
@@ -122,7 +122,7 @@ void func_80027DC0(void) {
                 sp34->unk155 = 0;
                 sfxStopSlotSound(D_807FBB4C, 1);
             }
-        } else if (func_80629148(actor) != 0) {
+        } else if (currentActorTestClearFlag(actor) != 0) {
             (*s0)->unk155 = 1;
             sfxPlayActorSound(D_807FBB4C, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
             slotQueueUpdate(6, 0, 0);
@@ -136,14 +136,14 @@ void func_80027DC0(void) {
         }
         if (var_t6 != 0) {
             func_8061CC40(*s0, 0, 1);
-            func_80629174();
+            currentActorClearFlag();
             (*s0)->unk154 = 4;
         }
         break;
     case 4:
         break;
     }
-    func_806319C4(*s0, 0);
+    actorUpdateModelMatrix(*s0, 0);
 }
 #endif
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/3340/func_80027DC0.s")

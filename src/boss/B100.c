@@ -62,7 +62,7 @@ void func_8067B238(void *, void *, f32);
 void actorScriptStart(void *, s32);
 void func_80724DB0(s32, s32, void *);
 void func_8072DA60(void);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 f32 func_80612794(s16);
 
@@ -144,7 +144,7 @@ void func_80030888(void) {
     }
     var_v0 = (D_807FBB40->unk15F == 1) ? sp18->unk14 : 0;
     func_8002FDF8(sp1C, (u8)var_v0);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/B100/D_800368C0.s")

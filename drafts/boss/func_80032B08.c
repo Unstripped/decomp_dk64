@@ -69,7 +69,7 @@ void func_80614644(void *, void *, f32);
 void func_806782C0(void *);
 void func_806907F0(f32, f32, f32);
 void func_80690A28(s32, s32, f32, f32, f32, f32, f32, void *);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 extern s16 D_80035B00[];
 extern s16 D_80035B08[];
 extern s16 D_80035B10[];
@@ -181,6 +181,6 @@ void func_80032B08(void) {
             ACTOR->unk60 |= 4;
         }
     }
-    func_806319C4(ACTOR, 0);
+    actorUpdateModelMatrix(ACTOR, 0);
 }
 #undef ACTOR

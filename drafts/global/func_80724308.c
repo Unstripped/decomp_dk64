@@ -1,5 +1,5 @@
 // func_80724308 (src/global/127B00.c): stage 1: m2c starter regenerated in second pass; not yet integrated after priority small-function matches
-f32 func_80627A00(f64, f32, u8, void *, f32, f32, f32); /* extern */
+f32 splineEvalCubic(f64, f32, u8, void *, f32, f32, f32); /* extern */
 extern ? D_807FDB90;
 
 void func_80724308(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4, f32 arg5) {
@@ -58,12 +58,12 @@ void func_80724308(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4, f32 arg5) {
     temp_fa0 = (f64) arg5;
     sp20 = temp_fa0;
     sp40 = temp_a2;
-    sp3C = func_80627A00(temp_fa0, (f32) (temp_v0_5 + ((u8) sp44 * 0xA))->unk2, (u8) var_a1, temp_a2, (f32) (temp_v0_5 + ((var_a1 & 0xFF) * 0xA))->unk2, (f32) (temp_v0_5 + ((u8) sp46 * 0xA))->unk2, (f32) (temp_v0_5 + ((u8) sp47 * 0xA))->unk2);
+    sp3C = splineEvalCubic(temp_fa0, (f32) (temp_v0_5 + ((u8) sp44 * 0xA))->unk2, (u8) var_a1, temp_a2, (f32) (temp_v0_5 + ((var_a1 & 0xFF) * 0xA))->unk2, (f32) (temp_v0_5 + ((u8) sp46 * 0xA))->unk2, (f32) (temp_v0_5 + ((u8) sp47 * 0xA))->unk2);
     temp_v0_6 = temp_a2->unk0;
-    sp38 = func_80627A00(temp_fa0, (f32) *(temp_v0_6 + ((u8) sp44 * 0xA)), (u8) temp_a2, (bitwise void *) (f32) *(temp_v0_6 + (sp45 * 0xA)), (f32) *(temp_v0_6 + ((u8) sp46 * 0xA)), (f32) *(temp_v0_6 + ((u8) sp47 * 0xA)));
+    sp38 = splineEvalCubic(temp_fa0, (f32) *(temp_v0_6 + ((u8) sp44 * 0xA)), (u8) temp_a2, (bitwise void *) (f32) *(temp_v0_6 + (sp45 * 0xA)), (f32) *(temp_v0_6 + ((u8) sp46 * 0xA)), (f32) *(temp_v0_6 + ((u8) sp47 * 0xA)));
     temp_v0_7 = temp_a2->unk0;
     temp_fv1 = arg1 - sp3C;
     temp_fa1 = arg2 - sp38;
-    temp_ft4 = arg3 - func_80627A00(temp_fa0, (f32) (temp_v0_7 + ((u8) sp44 * 0xA))->unk6, (u8) temp_a2, (bitwise void *) (f32) (temp_v0_7 + (sp45 * 0xA))->unk6, (f32) (temp_v0_7 + ((u8) sp46 * 0xA))->unk6, (f32) (temp_v0_7 + ((u8) sp47 * 0xA))->unk6);
+    temp_ft4 = arg3 - splineEvalCubic(temp_fa0, (f32) (temp_v0_7 + ((u8) sp44 * 0xA))->unk6, (u8) temp_a2, (bitwise void *) (f32) (temp_v0_7 + (sp45 * 0xA))->unk6, (f32) (temp_v0_7 + ((u8) sp46 * 0xA))->unk6, (f32) (temp_v0_7 + ((u8) sp47 * 0xA))->unk6);
     sqrtf((temp_fv1 * temp_fv1) + (temp_fa1 * temp_fa1) + (temp_ft4 * temp_ft4));
 }

@@ -48,7 +48,7 @@ void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void actorSetTargetSpeed(Actor *, s32);
 void func_8072A920(s32, s32, f32, f32, f32, s32, f32, f32, s32);
 s32 func_8072881C(s32, void *);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
@@ -159,7 +159,7 @@ void func_806C6884(s16 arg0, s16 arg1, u16 arg2) {
     func_8072A920(0x23, arg0, D_807FDC94->unk7C, D_807FDC94->unk80 + arg0 * 3.0, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, arg2 | 0x2000);
     D_807FBB40->unk80 += 0.5 * func_80612794(D_8076A064 * 40);
     actorUpdateNearestSpotlight();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
@@ -290,5 +290,5 @@ void func_806C6BC8(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

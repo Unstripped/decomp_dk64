@@ -237,5 +237,5 @@ void func_8067FB6C(void) {
         D_807FBB40->unk60 |= 0x400;
     }
     guRotateF((float (*)[4])&D_807FBB40->unk08[4], sub->unkC, 1.0f, 0, 0.0f);
-    func_806319C4(D_807FBB40, 1);
+    actorUpdateModelMatrix(D_807FBB40, 1);
 }

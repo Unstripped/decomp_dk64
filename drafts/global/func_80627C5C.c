@@ -23,7 +23,7 @@ u8 arg2;
         _strncpy(sp44, s, idx = _strcspn(s, ":") + 1);
         sp44[idx] = 0;
         textSpawnMarkerChecked(0xA, 0x14, 0x18, sp44, 0, (s16)arg1, 0x32, 0x32);
-        func_80627C10(arg2);
+        actorSetTintFromPalette(arg2);
         s += strlen(sp44);
     }
     if ((s16)func_806FBD5C(6, s) >= 0x12D) {
@@ -37,11 +37,11 @@ u8 arg2;
         sp98[idx] = 0;
         _strncpy(sp58, s + idx + 1, 0xFF);
         textSpawnMarkerChecked(0, 0, 0xCD, sp98, 0, arg1, 0x32, 0x32);
-        func_80627C10(arg2);
+        actorSetTintFromPalette(arg2);
         textSpawnMarkerChecked(0, 0, 0xD7, sp58, 0, arg1, 0x32, 0x32);
-        func_80627C10(arg2);
+        actorSetTintFromPalette(arg2);
         return;
     }
     textSpawnMarkerChecked(0, 0, 0xCD, s, 0, arg1, 0x32, 0x32);
-    func_80627C10(arg2);
+    actorSetTintFromPalette(arg2);
 }

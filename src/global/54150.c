@@ -109,7 +109,7 @@ typedef struct ModelSlotBuf {
     u32 unk4;
 } ModelSlotBuf;
 
-void func_806357F8();
+void modelSlotGetTransformVectors();
 void func_806358E8(s16, s32, s32, s32, f32, f32, f32, f32, f32, s32, s32, s32, s32, s32);
 
 void modelSlotCopyData(arg0, arg1)
@@ -133,7 +133,7 @@ u8 *arg0;
     n = *(s32 *)(obj + *(s32 *)(obj + 0x68));
     memcpy(dst[0], arg0, n);
     memcpy(dst[1], arg0, n);
-    func_806357F8(arg1, &x, &y, &z, &a, &b, &c, &d, &e, 0);
+    modelSlotGetTransformVectors(arg1, &x, &y, &z, &a, &b, &c, &d, &e, 0);
     func_806358E8(arg1, x, y, z, a, b, c, d, e, 0, 0, 0, 0, 1);
 }
 

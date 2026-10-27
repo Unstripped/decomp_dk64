@@ -18,7 +18,7 @@ typedef struct R4A_Sub678 {
 } R4A_Sub678;
 
 extern s32 func_8062DBDC(s16, s16, s16, s16, s32, s16, f32, f32, f32, f32, void *);
-extern void func_8062FF10(void *, f32 (*)[4]);
+extern void matrix4Invert(void *, f32 (*)[4]);
 extern void func_8065F964(EffectNode *, f32, f32, f32, s32, void *, void *);
 extern void func_80660520(Vtx *, EffectNode *);
 extern void func_80660830(Vtx *, EffectNode *);
@@ -54,7 +54,7 @@ void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
                     if (var_s5 == 0) {
                         var_s5 = 1;
                         guMtxL2F(spD8, (Mtx *)(D_807FC924 + (arg3 * 0x2F0) + (D_807444FC << 6) + 8));
-                        func_8062FF10(sp98, spD8);
+                        matrix4Invert(sp98, spD8);
                     }
                     func_8065F964(node, arg0, arg1, arg2, arg3, sp98, sp120);
                 }

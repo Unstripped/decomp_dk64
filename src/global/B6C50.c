@@ -51,8 +51,8 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void actorScriptStart(B6C50Actor *, s32);
 void func_8061CC40(B6C50Actor *, s32, s32);
-s32 func_80629148(void);
-void func_806319C4(B6C50Actor *, s32);
+s32 currentActorTestClearFlag(void);
+void actorUpdateModelMatrix(B6C50Actor *, s32);
 void func_80665564(B6C50Actor *, f32);
 void func_8067B238(B6C50Actor *, B6C50Actor *, f32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
@@ -110,7 +110,7 @@ void func_806B1F50(void) {
         case 0x27:
             break;
         case 0:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_806A2A10(0xDC, 0x2A, 0x1E);
                 actorSetStateTwo(D_807FBB40->unk11C);
                 D_807FBB40->unk154 = 7;
@@ -158,7 +158,7 @@ void func_806B1F50(void) {
             }
             break;
     }
-    func_806319C4((B6C50Actor *)*(s32 *)&D_807FBB40, 0);
+    actorUpdateModelMatrix((B6C50Actor *)*(s32 *)&D_807FBB40, 0);
 }
 
 extern B6C50Actor *D_807FBB4C;
@@ -213,5 +213,5 @@ void func_806B24B8(void) {
     } else {
         func_8072B7CC(0x1F8);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

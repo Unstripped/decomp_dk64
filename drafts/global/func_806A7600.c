@@ -30,7 +30,7 @@ void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8066EB40(Actor *, f32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 typedef struct AA960ConfigInt {
     s32 unk0;

@@ -178,5 +178,5 @@ block_58:
         }
         goto block_58;
     }
-    func_806319C4(var_s0, 0);
+    actorUpdateModelMatrix(var_s0, 0);
 }

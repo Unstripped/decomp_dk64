@@ -18,7 +18,7 @@ typedef struct {
 } F9N2QueueSlot;
 
 extern void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
-extern s16 func_80632630(s32, f32, f32, f32, f32, s32);
+extern s16 modelSlotAppend(s32, f32, f32, f32, f32, s32);
 extern s16 func_80686E40(f32, f32, f32, s32);
 extern void func_806F50C8(s16, s16, s16, s32, s32, s32);
 extern s32 func_8071432C(void);
@@ -51,7 +51,7 @@ void func_806F603C(void) {
                         if (var_s0->unk0 != 0) {
                             actorSpawnNodeEntryScaled(var_s0->unk4Word.halves.unk6, (f32) var_s0->unk8, (f32) var_s0->unkA, (f32) var_s0->unkC, 0, 0x19, -1, 0);
                         } else {
-                            func_806F50C8(func_80632630(var_s0->unk4Word.unk4, (f32) var_s0->unk8, (f32) var_s0->unkA, (f32) var_s0->unkC, 0.0f, 0), var_s0->unk4Word.halves.unk6, 0, 1, 0, 0);
+                            func_806F50C8(modelSlotAppend(var_s0->unk4Word.unk4, (f32) var_s0->unk8, (f32) var_s0->unkA, (f32) var_s0->unkC, 0.0f, 0), var_s0->unk4Word.halves.unk6, 0, 1, 0, 0);
                         }
                     }
                 }

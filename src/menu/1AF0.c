@@ -123,7 +123,7 @@ void menuDispatchSubmenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 extern void *D_807FBB4C;
 void func_806F397C(void *, void *, s32, s32);
 void func_8061CC40(s32, s32, s32);
-void func_80629174(void);
+void currentActorClearFlag(void);
 void func_80025FB4(void *, void *, s32);
 void playerStateQueueCallback(s32, void *, s32);
 
@@ -145,7 +145,7 @@ s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
         playerStateQueueCallback(0x1B, D_807FBB40, 0);
         func_8061CC40(0, 0xB, 1);
     }
-    func_80629174();
+    currentActorClearFlag();
     D_807FBB40->unk60 |= 0x10000000;
     return flag;
 }
@@ -155,7 +155,7 @@ s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 void menuTransitionToSubmenu(Struct_80025D14 *arg0, void *arg1) {
     arg0->unkA = 1;
     func_8061CC40(0, 0xF, 1);
-    func_80629174();
+    currentActorClearFlag();
     func_80025FB4(arg0, arg1, 0);
     arg0->unkD = 0;
     arg0->unkE = 0;
@@ -205,7 +205,7 @@ void controllerLatchPad(void);
 extern s32 D_8076A0A8;
 void behaviourFrameBegin(void);
 void func_806BFBF4(void);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 void menuCheckControllerAntiPiracy(void) {
     Struct_80025D14 *temp;
@@ -243,7 +243,7 @@ void menuCheckControllerAntiPiracy(void) {
         behaviourFrameBegin();
         func_806BFBF4();
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 void func_80027738(void) {
     behaviourFrameBegin();
@@ -260,7 +260,7 @@ void func_80027738(void) {
         behaviourFrameBegin();
         func_806BFBF4();
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 

@@ -73,7 +73,7 @@ void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void playerStateQueueCallback(s32, void *, s32);
 void func_8066EB40(void *, f32);
 void func_8066E5F8(void *, s32, s32);
-s32 func_80629148(void);
+s32 currentActorTestClearFlag(void);
 void func_805FF158(s32);
 void func_805FF378(s32, s32);
 void func_80027BA8(u8 *, s32, f32);
@@ -204,7 +204,7 @@ void func_8002EA7C(void) {
                 ACTOR40->unk155++;
                 break;
             case 1:
-                if (func_80629148() != 0) {
+                if (currentActorTestClearFlag() != 0) {
                     func_805FF158(0);
                     func_805FF378(0xCE, 0);
                     ACTOR40->unk155++;
@@ -223,7 +223,7 @@ void func_8002EA7C(void) {
     if (func_8072881C(0, (u8 *)D_807FDC90 + 0x28) != 0) {
         func_8072881C(0x81, (u8 *)D_807FDC90 + 0x28);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #undef ACTOR40

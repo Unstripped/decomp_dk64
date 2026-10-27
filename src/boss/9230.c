@@ -74,8 +74,8 @@ void actorScriptStart(Boss2F_9230_Actor *, s32);
 s32 func_8061CB50(void);
 void func_8061CC40(Boss2F_9230_Actor *, s32, s32);
 void func_80626110(s32, s32, s32);
-s32 func_80629148();
-void func_806319C4(Boss2F_9230_Actor *, s32);
+s32 currentActorTestClearFlag();
+void actorUpdateModelMatrix(Boss2F_9230_Actor *, s32);
 void func_80641874();
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 s32 func_8072881C(s32, void *);
@@ -272,7 +272,7 @@ void func_8002D230(void) {
             D_807FBB40->unk155++;
             break;
         case 1:
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_805FF158(0);
                 func_805FF378(0xCC, 0);
                 D_807FBB40->unk155++;
@@ -288,7 +288,7 @@ void func_8002D230(void) {
     if (func_8072881C(0, (u8 *)D_807FDC90 + 0x28) != 0) {
         func_8072881C(0x81, (u8 *)D_807FDC90 + 0x28);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/9230/D_80036660.s")

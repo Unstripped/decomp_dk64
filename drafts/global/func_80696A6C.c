@@ -161,5 +161,5 @@ void func_80696A6C(void) {
         func_80714950((s32)D_807FBB40);
         func_80714C08(&D_80720120, 1.0f, D_807FBB40, 1, 0);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

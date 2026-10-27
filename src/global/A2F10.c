@@ -63,7 +63,7 @@ void func_80613C48(Actor *, s16, f32, f32);
 void func_80613CA8(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
 s32 actorListFindIdByActor(Actor *);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 void func_8069E210(void) {
     Actor *actor;
@@ -110,7 +110,7 @@ void func_8069E210(void) {
         actor->unk60 &= ~4;
         actor = *p;
     }
-    func_806319C4(actor, 0);
+    actorUpdateModelMatrix(actor, 0);
 }
 #else
 
@@ -252,7 +252,7 @@ void func_80613C48(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
 void func_8067B238(void *, void *, f32);
 void playerStateQueueCallback(s32, void *, s32);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 extern u8 D_807444EC;
 extern s32 D_807FBB68;
 
@@ -382,7 +382,7 @@ promote:
             playerStateQueueCallback(0x2E, CUR_ACTOR, 0);
         }
     }
-    func_806319C4(CUR_ACTOR, 0);
+    actorUpdateModelMatrix(CUR_ACTOR, 0);
 }
 
 #undef SPAWNED_ACTOR
@@ -632,7 +632,7 @@ typedef struct SiblingActor {
 } SiblingActor;
 
 s32 randomNonNegative(void);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 void func_80665564(Actor *, f32);
 void func_8067ACB4(Actor *);
 void actorApplyVelocity(Actor *);
@@ -662,7 +662,7 @@ void actorUpdateSpinAndVelocity(void) {
     if (ATTACHED_ACTOR->unkFC != 0 || ((ATTACHED_ACTOR->unk6A & 1) && !(ATTACHED_ACTOR->unk6C & 1))) {
         actorDespawn(D_807FBB40);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806A02F0(void) {
@@ -737,12 +737,12 @@ void actorFallAndBurstUpdate(void) {
         }
         actorDespawn(D_807FBB40);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
 void func_806A05D4(void) {
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void actorShadowFollowUpdate(void) {
@@ -780,7 +780,7 @@ void actorShadowFollowUpdate(void) {
     if (ATTACHED_ACTOR->unk128 == 0 || ATTACHED_ACTOR->unk11C->unk154 != 0x7C) {
         actorDespawn(D_807FBB40);
     } else {
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }
 
@@ -1049,7 +1049,7 @@ void func_806A112C(void) {
         actorSetNodeValuesForFrame((MatrixArray *) sub);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #else
 

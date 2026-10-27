@@ -2,7 +2,7 @@
 
 extern f32 D_807F5D30[16];
 
-f32 func_80627A00(f64 t, f32 p0, f32 p1, f32 p2, f32 p3) {
+f32 splineEvalCubic(f64 t, f32 p0, f32 p1, f32 p2, f32 p3) {
     f32 *m = D_807F5D30;
     f32 a, b, d, c, t2;
 
@@ -14,7 +14,7 @@ f32 func_80627A00(f64 t, f32 p0, f32 p1, f32 p2, f32 p3) {
     return (f32)(t2 * t) * a + t2 * b + t * c + d;
 }
 
-void func_80627B58(f32 t) {
+void splineSetBasisTension(f32 t) {
     D_807F5D30[0] = -t;
     D_807F5D30[1] = 2.0 * t;
     D_807F5D30[2] = -t;

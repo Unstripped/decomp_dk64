@@ -448,7 +448,7 @@ void func_80665F24(R1A_Arg0 *arg0) {
 }
 
 
-void func_806303C4(s32, s32, Actor *, f32, f32, f32, s32, s32, s32, s32, s32);
+void renderEntryAddOrUpdate(s32, s32, Actor *, f32, f32, f32, s32, s32, s32, s32, s32);
 void actorSub140SetVectors(Actor *, f32, f32, f32, f32);
 extern s32 D_8076A064;
 
@@ -462,7 +462,7 @@ void func_80665FB4(Actor *arg0) {
     y = arg0->unk80;
     z = arg0->unk84;
     if (arg0->unk4 != NULL) {
-        func_806303C4(0, 0, arg0, x, y, z, arg0->unk12A, 0, 1, -1, 1);
+        renderEntryAddOrUpdate(0, 0, arg0, x, y, z, arg0->unk12A, 0, 1, -1, 1);
     }
     if (arg0->unk140 != NULL) {
         if (arg0->unk4 != NULL) {

@@ -98,5 +98,5 @@ void func_806B3680(void) {
     if (D_807FBB40->unk154 == 2 || st == 3) {
         func_8072D13C(D_807FBB40->unk154, 1);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

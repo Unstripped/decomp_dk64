@@ -107,7 +107,7 @@ typedef struct {
 void func_8002B180(Struct_sp58 *, Struct_8002B180_Arg1 *);
 void func_8002A7F8(Struct_sp58 *);
 void func_800283D4(f32);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 extern void *D_8002FC70;
 extern void *D_8002FCA0;
 extern s16 D_80750AC8;
@@ -210,8 +210,8 @@ void func_800282D8(void);
 
 void func_8002D72C(void *);
 void func_8002D754(void *);
-s32 func_80629148(void);
-void func_80629174(void);
+s32 currentActorTestClearFlag(void);
+void currentActorClearFlag(void);
 void func_8061CB08(void);
 
 void func_8002BBD0(void *, s32);
@@ -307,14 +307,14 @@ s32 func_8002B6C8(void *arg0, void *arg1) {
 
 s32 flagGet(s32, s32);
 void func_8061CC40(void *, s32, s32);
-void func_80629174(void);
+void currentActorClearFlag(void);
 void func_805FF544(void);
 
 void func_8002B6F4(u8 *arg0, s32 arg1) {
     if (arg0[0x35] == 0) {
         if (flagGet(0x145, 0) == 0) {
             func_8061CC40(D_807FBB40, 1, 1);
-            func_80629174();
+            currentActorClearFlag();
         } else {
             func_805FF544();
         }

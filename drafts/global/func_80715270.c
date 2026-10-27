@@ -1,8 +1,8 @@
 // func_80715270 (src/global/119370.c): Stage 1: m2c reconstruction retained for the large display-list/effect update; target inspection confirms 0x80 frame and s0-s7 state traversal. It needs concrete runtime view/prototype recovery before a meaningful compiler attempt.
 ? actorGetNodePos(void *, u8, void *, void *, void *); /* extern */
 ? assetFreeBuffer(s32, ?, ?);                       /* extern */
-? func_806303C4(?, ?, void *, ?32, f32, ?32, s32, s32, s32, s32, s32); /* extern */
-? func_806335B0(s16, ?, u8, void *, void *, void *); /* extern */
+? renderEntryAddOrUpdate(?, ?, void *, ?32, f32, ?32, s32, s32, s32, s32, s32); /* extern */
+? modelSlotGetNodePos(s16, ?, u8, void *, void *, void *); /* extern */
 s8 func_806531B8(?32, f32, ?, ?, ?32, ?);           /* extern */
 ? effectFreeAndUnlink(void *);                       /* extern */
 ? func_80715A3C(s32, u8, s32, s32, s32, void *);    /* extern */
@@ -62,7 +62,7 @@ void func_80715270(s32 arg0) {
                 var_s2->unk38C = (u16) (var_s2->unk38C & 0xFFEF);
                 switch (temp_v0_2) {                /* irregular */
                 case 1:
-                    func_806335B0(var_s2->unk33C, 1, var_s2->unk33E, var_s2 + 0x340, var_s2 + 0x344, var_s2 + 0x348);
+                    modelSlotGetNodePos(var_s2->unk33C, 1, var_s2->unk33E, var_s2 + 0x340, var_s2 + 0x344, var_s2 + 0x348);
                     break;
                 case 2:
                     temp_a0 = var_s2->unk338;
@@ -150,9 +150,9 @@ void func_80715270(s32 arg0) {
                                 var_s2->unk38A = func_806531B8(var_s2->unk340, var_s2->unk344, 0, 5, var_s2->unk348, 0);
                             }
                         }
-                        func_806303C4(0, 5, var_s2, var_s2->unk340, var_s2->unk344, var_s2->unk348, (s32) var_s2->unk34C, 0, 1, -1, var_s0_4);
+                        renderEntryAddOrUpdate(0, 5, var_s2, var_s2->unk340, var_s2->unk344, var_s2->unk348, (s32) var_s2->unk34C, 0, 1, -1, var_s0_4);
                     } else {
-                        func_806303C4(0, 5, var_s2, var_s2->unk340, var_s2->unk344, var_s2->unk348, 0, 0, 1, -1, 3);
+                        renderEntryAddOrUpdate(0, 5, var_s2, var_s2->unk340, var_s2->unk344, var_s2->unk348, 0, 0, 1, -1, 3);
                     }
                     temp_v0_8 = var_s2->unk330;
                     func_80715A3C(temp_v0_8->unk20, temp_v0_8->unk15, temp_v0_8->unk1C, var_s2->unk380, (s32) var_s2->unk34E, var_s2 + 0x370);

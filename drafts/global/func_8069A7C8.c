@@ -42,7 +42,7 @@ typedef struct {
 } M1ProximityGlobal;
 
 f32 func_80612D1C(f32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 void func_8069A7C8(void) {
     M1ProximityGlobal *globals;
@@ -117,5 +117,5 @@ void func_8069A7C8(void) {
     }
     ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk8 = 0.0 - (func_80612D1C((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
     state->unk4 = D_807FBB70.unk39;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

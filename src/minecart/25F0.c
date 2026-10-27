@@ -91,7 +91,7 @@ s32 func_80724A20(void);
 s16 func_806CC190(s16, s16, s32);
 f32 func_80612794(s16);
 f32 func_80612790(s16);
-void func_806319C4(struct Struct_BB40 *, s32);
+void actorUpdateModelMatrix(struct Struct_BB40 *, s32);
 
 void func_800265F0(void) {
     u8 sp47;
@@ -162,7 +162,7 @@ void func_800265F0(void) {
         ((Struct_BB40_McBig2 *)D_807FBB40)->unk80 = (func_80612794(D_8076A064 * 0x32) * 10.0f) + (((ActorD580_McBig *)D_807FD580)->unk88->unkA4 + 30.0f);
         break;
     }
-    func_806319C4((struct Struct_BB40 *)D_807FBB40, 0);
+    actorUpdateModelMatrix((struct Struct_BB40 *)D_807FBB40, 0);
 }
 
 typedef struct TargetStruct {
@@ -331,7 +331,7 @@ void func_800253C0(CartSub *, s32, s32);
 void actorGetNodePos(Struct_BB40 *, s32, f32 *, f32 *, f32 *);
 void func_8072177C(Struct_BB40 *, s16, s16, s16, s32, s32, s32, s32, s32);
 void func_80027EE8(CartSub *);
-void func_806319C4(Struct_BB40 *, s32);
+void actorUpdateModelMatrix(Struct_BB40 *, s32);
 AllocSub *func_80610FE8(s32);
 f32 sqrtf(f32);
 u32 func_806119A0(void);
@@ -468,7 +468,7 @@ void func_800280BC(void) {
         } else {
             func_80724E48(1);
             func_80027CF4();
-            func_806319C4(D_807FBB40, 0);
+            actorUpdateModelMatrix(D_807FBB40, 0);
             return;
         }
     case 1:
@@ -485,10 +485,10 @@ case_1:
         return;
     case 2:
         D_807FBB40->unk154 = 0x40;
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
         return;
     default:
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
         return;
     }
 }
@@ -536,7 +536,7 @@ void func_8002835C(void) {
             D_807FBB40->unk154++;
             goto case_1;
         } else {
-            func_806319C4(D_807FBB40, 0);
+            actorUpdateModelMatrix(D_807FBB40, 0);
             return;
         }
     case 1:
@@ -559,10 +559,10 @@ case_1:
         return;
     case 2:
         D_807FBB40->unk154 = 0x40;
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
         return;
     default:
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
         return;
     }
 }

@@ -80,7 +80,7 @@ s32 func_80659470(s32);
 void func_806696A0();
 s32 func_80669BE8(struct R1C_BoundingBox *, f32, f32);
 s32 func_806D0964(s32, u8);
-void func_80634908(s16, s32 *, f32, f32, f32, f32, f32, f32, f32);
+void modelSlotBuildTriangleBufferThunk(s16, s32 *, f32, f32, f32, f32, f32, f32, f32);
 s32 func_80669CB4(struct R1C_TriangleF *, f32, f32);
 s32 func_80669E04(struct R1C_TriangleF *, f32, f32);
 s32 func_80669650(u8, u8 *);
@@ -166,7 +166,7 @@ u8 func_80668E9C(R5L_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 *a
     }
 
     if (!(sp90->flags & 1)) {
-        func_80634908(sp9A, MESH_ENTRIES[sp9A].unk24,
+        modelSlotBuildTriangleBufferThunk(sp9A, MESH_ENTRIES[sp9A].unk24,
             MESH_ENTRIES[sp9A].unk0, MESH_ENTRIES[sp9A].unk4, MESH_ENTRIES[sp9A].unk8,
             MESH_ENTRIES[sp9A].unk10, MESH_ENTRIES[sp9A].unk14, MESH_ENTRIES[sp9A].unk18,
             MESH_ENTRIES[sp9A].unkC);

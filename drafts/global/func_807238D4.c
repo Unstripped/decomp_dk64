@@ -1,6 +1,6 @@
 // func_807238D4 (src/global/127B00.c): stage 1: m2c starter regenerated in second pass; not yet integrated after priority small-function matches
-f32 func_80627A00(f64, f32, void *, void **, f32, f32); /* extern */
-? func_80627B58(?);                                 /* extern */
+f32 splineEvalCubic(f64, f32, void *, void **, f32, f32); /* extern */
+? splineSetBasisTension(?);                                 /* extern */
 extern ? D_807FDBF8;
 
 void func_807238D4(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
@@ -30,7 +30,7 @@ void func_807238D4(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
         temp_v0 = (arg0 * 4) + &D_807FDBF8;
         if (*temp_v0 != NULL) {
             sp20 = temp_v0;
-            func_80627B58(0x3F000000);
+            splineSetBasisTension(0x3F000000);
             temp_a0 = *temp_v0;
             var_a1 = temp_a0 + 4;
             if (temp_a0->unk16 == 0) {
@@ -83,11 +83,11 @@ block_20:
             temp_v0_8 = *var_a1;
             sp20 = var_a1;
             sp28 = temp_a0;
-            *arg1 = func_80627A00((f64) temp_a0->unkC, (f32) (temp_v0_8 + ((u8) sp2C * 0xA))->unk2, temp_a0, var_a1, (f32) (temp_v0_8 + ((u8) sp2E * 0xA))->unk2, (f32) (temp_v0_8 + ((u8) sp2F * 0xA))->unk2);
+            *arg1 = splineEvalCubic((f64) temp_a0->unkC, (f32) (temp_v0_8 + ((u8) sp2C * 0xA))->unk2, temp_a0, var_a1, (f32) (temp_v0_8 + ((u8) sp2E * 0xA))->unk2, (f32) (temp_v0_8 + ((u8) sp2F * 0xA))->unk2);
             temp_v0_9 = *var_a1;
-            *arg2 = func_80627A00((f64) temp_a0->unkC, (f32) (temp_v0_9 + ((u8) sp2C * 0xA))->unk4, temp_a0, var_a1, (f32) (temp_v0_9 + ((u8) sp2E * 0xA))->unk4, (f32) (temp_v0_9 + ((u8) sp2F * 0xA))->unk4);
+            *arg2 = splineEvalCubic((f64) temp_a0->unkC, (f32) (temp_v0_9 + ((u8) sp2C * 0xA))->unk4, temp_a0, var_a1, (f32) (temp_v0_9 + ((u8) sp2E * 0xA))->unk4, (f32) (temp_v0_9 + ((u8) sp2F * 0xA))->unk4);
             temp_v0_10 = *var_a1;
-            *arg3 = func_80627A00((f64) temp_a0->unkC, (f32) (temp_v0_10 + ((u8) sp2C * 0xA))->unk6, temp_a0, var_a1, (f32) (temp_v0_10 + ((u8) sp2E * 0xA))->unk6, (f32) (temp_v0_10 + ((u8) sp2F * 0xA))->unk6);
+            *arg3 = splineEvalCubic((f64) temp_a0->unkC, (f32) (temp_v0_10 + ((u8) sp2C * 0xA))->unk6, temp_a0, var_a1, (f32) (temp_v0_10 + ((u8) sp2E * 0xA))->unk6, (f32) (temp_v0_10 + ((u8) sp2F * 0xA))->unk6);
         }
     }
 }

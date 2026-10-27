@@ -146,7 +146,7 @@ void func_806A8158(void) {
         func_806ABE3C(D_807FC7F8);
         func_806AA304(hud, 0);
         D_807FBB60 &= 0xFFFEFFCF;
-        func_806291B4(7);
+        screenWipeStart(7);
     }
     if (hud->unk0 == 0.0f && D_807FC8B8 == 0) {
         x = hud->unk15;

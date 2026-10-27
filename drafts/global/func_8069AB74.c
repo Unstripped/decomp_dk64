@@ -2,7 +2,7 @@
 // Compiling this against the real 9DD70.c needs these adaptations (each one
 // requires a local prototype ABOVE the function or the file's later declarations
 // are not visible to it in cfe -> implicit int decl / redeclaration errors):
-//   void func_806319C4(Actor *, s32);            /* duplicate of line 88, still needed */
+//   void actorUpdateModelMatrix(Actor *, s32);            /* duplicate of line 88, still needed */
 //   func_80613C48(D_807FBB40, 0x402, 0.0f, 1.0f);   /* file prototype is (Actor*,s16,f32,f32) */
 //   func_80614D00(D_807FBB40, *(f32 *)&((M1BossNode *)D_807FBB40->unk124)->unk0, 1.0f)
 //       /* float args travel in GPRs; *(f32*)&int gives the exact `lw a1` w/o cvt */
@@ -83,5 +83,5 @@ void func_8069AB74(void) {
     } else {
         sp54->unk0 = sp54->unk0 - 1;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

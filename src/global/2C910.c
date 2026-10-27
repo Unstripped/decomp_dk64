@@ -7,9 +7,9 @@ typedef struct {
     u8 r;
     u8 g;
     u8 b;
-} M2CColour;
+} Rgb8;
 
-const M2CColour D_80757F70[8] = {
+const Rgb8 D_80757F70[8] = {
     { 0xFF, 0xFF, 0xFF },
     { 0xC8, 0x00, 0x32 },
     { 0xDC, 0xC8, 0x00 },
@@ -20,7 +20,7 @@ const M2CColour D_80757F70[8] = {
     { 0x00, 0x00, 0x00 },
 };
 
-void func_80627C10(u8 arg0) {
+void actorSetTintFromPalette(u8 arg0) {
     D_807FBB44->unk16A = D_80757F70[arg0].r;
     D_807FBB44->unk16B = D_80757F70[arg0].g;
     D_807FBB44->unk16C = D_80757F70[arg0].b;
@@ -51,7 +51,7 @@ u8 arg2;
         _strncpy(sp44, s, idx = _strcspn(s, ":") + 1);
         sp44[idx] = 0;
         textSpawnMarkerChecked(0xA, 0x14, 0x18, sp44, 0, (s16)arg1, 0x32, 0x32);
-        func_80627C10(arg2);
+        actorSetTintFromPalette(arg2);
         s += strlen(sp44);
     }
     if ((s16)func_806FBD5C(6, s) >= 0x12D) {
@@ -65,13 +65,13 @@ u8 arg2;
         sp98[idx] = 0;
         _strncpy(sp58, s + idx + 1, 0xFF);
         textSpawnMarkerChecked(0, 0, 0xCD, sp98, 0, arg1, 0x32, 0x32);
-        func_80627C10(arg2);
+        actorSetTintFromPalette(arg2);
         textSpawnMarkerChecked(0, 0, 0xD7, sp58, 0, arg1, 0x32, 0x32);
-        func_80627C10(arg2);
+        actorSetTintFromPalette(arg2);
         return;
     }
     textSpawnMarkerChecked(0, 0, 0xCD, s, 0, arg1, 0x32, 0x32);
-    func_80627C10(arg2);
+    actorSetTintFromPalette(arg2);
 }
 #else
 
@@ -81,7 +81,7 @@ u8 arg2;
 extern Actor *D_807FBB4C;
 Actor *spawnNodeActivate(s16, s32);
 
-Actor *func_80627EA8(s16 arg0) {
+Actor *actorFromSpawnNodeOrDefault(s16 arg0) {
     Actor *v;
 
     if (arg0 != 0) {
@@ -97,7 +97,7 @@ Actor *func_80627EA8(s16 arg0) {
 
 extern Actor *D_807FBB40;
 
-s32 func_80629148(void) {
+s32 currentActorTestClearFlag(void) {
     s32 r = 0;
 
     if (D_807FBB40->unk6A & 0x100) {
@@ -107,6 +107,6 @@ s32 func_80629148(void) {
     return r;
 }
 
-void func_80629174(void) {
+void currentActorClearFlag(void) {
     D_807FBB40->unk6A &= 0xFEFF;
 }

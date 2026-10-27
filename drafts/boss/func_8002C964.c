@@ -12,8 +12,8 @@ f32 func_80612794(s16);                             /* extern */
 s32 func_8061CB50();                                /* extern */
 ? func_8061CC40(void *, ?, ?);                      /* extern */
 ? func_80626110(s32, ?, ?);                         /* extern */
-s32 func_80629148(void *, ?);                       /* extern */
-? func_806319C4(void *, ?);                         /* extern */
+s32 currentActorTestClearFlag(void *, ?);                       /* extern */
+? actorUpdateModelMatrix(void *, ?);                         /* extern */
 s16 func_80665DE0(?32, ?32, void *, s32, s32);      /* extern */
 ? func_8067E278(?, ?);                              /* extern */
 ? func_806AD260(?, ?, ?);                           /* extern */
@@ -110,13 +110,13 @@ void func_8002C964(void) {
                 var_v1 = D_807FDC90->unk2C;
             }
             D_807FBB40->unkE6 = (s16) (D_807FBB40->unkE6 + var_v1);
-            if (func_80629148(D_807FBB40, 8) != 0) {
+            if (currentActorTestClearFlag(D_807FBB40, 8) != 0) {
                 D_807FBB40->unk155 = 3U;
                 D_807FBB40->unk60 = (s32) (D_807FBB40->unk60 & ~4);
             }
             break;
         case 3:                                     /* switch 2 */
-            if (func_80629148(temp_a0, 8) != 0) {
+            if (currentActorTestClearFlag(temp_a0, 8) != 0) {
                 D_807FBB40->unk15E = 0xA;
                 D_807FDC90->unk28 = (s32) (D_807FDC90->unk28 | 0x8000);
                 D_807FBB40->unk132 = 1;
@@ -132,7 +132,7 @@ void func_8002C964(void) {
         temp_v1_2 = temp_a0->unk155;
         switch (temp_v1_2) {                        /* switch 3; irregular */
         case 0:                                     /* switch 3 */
-            if (func_80629148(temp_a0) != 0) {
+            if (currentActorTestClearFlag(temp_a0) != 0) {
                 D_807FDC90->unk28 = (s32) (D_807FDC90->unk28 | 0x8000);
                 D_807FBB40->unk155 = 1U;
             }
@@ -147,7 +147,7 @@ void func_8002C964(void) {
             }
             break;
         case 3:                                     /* switch 3 */
-            if (func_80629148(temp_a0) != 0) {
+            if (currentActorTestClearFlag(temp_a0) != 0) {
                 D_807FBB40->unk154 = 0x27;
                 D_807FBB40->unk155 = 0U;
                 func_80626110(D_807F5D10, 0, 0);
@@ -226,5 +226,5 @@ void func_8002C964(void) {
     if (D_807FDC90->unk28 & 0x8000) {
         func_8002C7CC();
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

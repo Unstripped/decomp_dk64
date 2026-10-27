@@ -100,6 +100,6 @@ void func_806A1FD8(void) {
         }
     }
     D_807FBB40->unk80 -= sub->unk4;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     D_807FBB40->unk80 = sub->unk8;
 }

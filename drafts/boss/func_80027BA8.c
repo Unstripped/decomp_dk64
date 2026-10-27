@@ -4,8 +4,8 @@
 ? func_80614EBC(void *, s32, u8, void *);           /* extern */
 ? func_8061CC40(void *, u8, ?, void *);             /* extern */
 ? func_8061D4E4(s32, u8, void *);                   /* extern */
-s32 func_80629148(u8, void *);                      /* extern */
-? func_80629174(u8, void *);                        /* extern */
+s32 currentActorTestClearFlag(u8, void *);                      /* extern */
+? currentActorClearFlag(u8, void *);                        /* extern */
 ? func_8070D8C0(void *, u8, u8, void *);            /* extern */
 ? actorMoveWithinZone(?, f32, f32, u16, f32);             /* extern */
 ? actorSetTargetSpeed(void *, u8, u8, void *);            /* extern */
@@ -54,12 +54,12 @@ u8 func_80027BA8(s32 arg0, u16 arg1, f32 arg2) {
         if (temp_a3->unk155 != 0) {
             sp2F = 0;
             var_t1 = sp2F;
-            if (func_80629148(temp_a2, temp_a3) != 0) {
+            if (currentActorTestClearFlag(temp_a2, temp_a3) != 0) {
                 var_t1 = 1;
             }
         } else {
             sp2F = 0;
-            func_80629174(temp_a2, temp_a3);
+            currentActorClearFlag(temp_a2, temp_a3);
             var_t1 = 0;
             D_807FBB40->unk155 = 1U;
         }

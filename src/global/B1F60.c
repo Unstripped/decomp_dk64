@@ -62,7 +62,7 @@ void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void sfxSpawnTableNodes(Actor *);
 s32 randomNonNegative(void);
 void actorScriptStart(Actor *, s32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void func_80724CA4(s32, s32);
 void func_80724E48(u8);
 void behaviourFrameBegin(void);
@@ -190,7 +190,7 @@ void func_806AD54C(void) {
     }
     func_806AD260(0x1FA, 0, 0);
     func_80724E48((D_807FBB40->unk154 == 0x23) ? 0 : 2);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806AD7AC(void) {
@@ -201,7 +201,7 @@ void func_806AD7AC(void) {
     }
     func_806AD260(0x1FA, 0, 0);
     func_80724E48((D_807FBB40->unk154 == 0x23) ? 0 : 2);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void actorFollowLinkedNodeFadeUpdate(void) {
@@ -233,7 +233,7 @@ void actorFollowLinkedNodeFadeUpdate(void) {
             break;
     }
     D_807FBB40->unkE6 = D_807FC924->unk2C8 & 0xFFF;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void actorSpawnLinkedFollower(void) {
@@ -313,7 +313,7 @@ void func_806AD9F4(void) {
             break;
     }
     func_8072881C(0, D_807FDC90->unk28);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806ADDD8(void) {
@@ -361,5 +361,5 @@ void func_806ADDD8(void) {
             func_8072B7CC(0x31A);
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

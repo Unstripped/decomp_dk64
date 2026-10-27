@@ -98,12 +98,12 @@ void func_8072CFE8(s16 *, s16 *, s16 *, void *);
 void func_806A1008(u8 *);
 s16 func_806CC10C(s16, s16);
 s16 func_806CC190(s16, s16, f32);
-s32 func_80629148(void);
+s32 currentActorTestClearFlag(void);
 void func_80027BA8(u8 *, s32, void *);
 void func_8065D244(s32);
 void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_8072881C(s32, void *);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 void func_80030EC4(void) {
     Boss2E_C920_Sub178 *sp178;
@@ -319,7 +319,7 @@ void func_80030EC4(void) {
         break;
     case 0x37:
         if (actor->unk155 == 0) {
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 D_807FBB4C->unk60 |= 4;
                 func_8061CC40(D_807FBB40, 0x1A, 1);
                 actor->unk155++;
@@ -341,5 +341,5 @@ void func_80030EC4(void) {
     if (func_8072881C(0, (u8 *)D_807FDC90 + 0x28) != 0) {
         func_8072881C(0x81, (u8 *)D_807FDC90 + 0x28);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

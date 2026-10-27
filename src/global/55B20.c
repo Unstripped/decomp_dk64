@@ -483,7 +483,7 @@ typedef struct MapActorEntry {
     /* 0x024 */ u8 unk24;
 } MapActorEntry;
 
-s32 func_806303C4(s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
+s32 renderEntryAddOrUpdate(s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
 s32 func_80630324(s32, s32);
 s16 func_806531B8(f32, f32, f32, s32);
 
@@ -506,7 +506,7 @@ void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
         sp40 = (s32 *)((u8 *)D_807F6C18 + *level * 0x1C8 + 0x1C);
         break;
     }
-    *sp40 = func_806303C4(*sp40, arg0->unk24, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk1C, arg0->unk1E, arg0->unk22, *level, 0);
+    *sp40 = renderEntryAddOrUpdate(*sp40, arg0->unk24, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk1C, arg0->unk1E, arg0->unk22, *level, 0);
 }
 
 #ifdef NON_MATCHING
@@ -529,7 +529,7 @@ void func_806524A0(s32 arg0, u8 arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806524A0.s")
 #endif
 
-s32 func_80630588(s32, s32, s32, u8 *);
+s32 renderEntryRemove(s32, s32, s32, u8 *);
 
 u8 mapChunkPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
     u8 flag;
@@ -537,12 +537,12 @@ u8 mapChunkPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
 
     flag = 0;
     for (i = 0; i < D_807F6C28 && (!flag || arg2); i++) {
-        D_807F6C18[i].unk14 = func_80630588(D_807F6C18[i].unk14, arg0, 0, &flag);
+        D_807F6C18[i].unk14 = renderEntryRemove(D_807F6C18[i].unk14, arg0, 0, &flag);
         if (flag) {
             *arg1 = i;
         }
         if (!flag || arg2) {
-            D_807F6C18[i].unk1C = func_80630588(D_807F6C18[i].unk1C, arg0, 0, &flag);
+            D_807F6C18[i].unk1C = renderEntryRemove(D_807F6C18[i].unk1C, arg0, 0, &flag);
             if (flag) {
                 *arg1 = i;
             }
@@ -557,11 +557,11 @@ struct MapCell;
 struct MapBox;
 extern u8 D_807F7140;
 
-void func_806307AC(s32);
-s32 func_8063070C(s32);
+void renderEntryListClearTouched(s32);
+s32 renderEntryListPurgeUntouched(s32);
 s32 func_80630890(s32, f32, f32, f32, void *);
-void func_806323C0(s32);
-s32 func_8063A38C(s32, s32, f32, f32, f32);
+void modelNodeListSyncFlags(s32);
+s32 spriteListBuildDisplayChain(s32, s32, f32, f32, f32);
 void func_8063B4C0(void *, s32);
 s32 mapNodeBoxContainsPoint(void *, f32, f32);
 s32 func_80653804(void *, f32, f32);
@@ -576,8 +576,8 @@ void mapChunkClearNodeFlags(u8 arg0) {
     if (D_807F6C28 > 0) {
         do {
             if ((D_807F6C18[i].unk0 == 1) || arg0) {
-                func_806307AC(D_807F6C18[i].unk14);
-                func_806307AC(D_807F6C18[i].unk1C);
+                renderEntryListClearTouched(D_807F6C18[i].unk14);
+                renderEntryListClearTouched(D_807F6C18[i].unk1C);
             }
             i += 1;
         } while (i < D_807F6C28);
@@ -591,8 +591,8 @@ void mapChunkFreeNodeLists(u8 arg0) {
     if (D_807F6C28 > 0) {
         do {
             if ((D_807F6C18[i].unk0 == 1) || arg0) {
-                D_807F6C18[i].unk14 = func_8063070C(D_807F6C18[i].unk14);
-                D_807F6C18[i].unk1C = func_8063070C(D_807F6C18[i].unk1C);
+                D_807F6C18[i].unk14 = renderEntryListPurgeUntouched(D_807F6C18[i].unk14);
+                D_807F6C18[i].unk1C = renderEntryListPurgeUntouched(D_807F6C18[i].unk1C);
             }
             i += 1;
         } while (i < D_807F6C28);
@@ -623,8 +623,8 @@ void mapChunkResolveNodeAssets(void) {
     i = 0;
     if (D_807F6C28 > 0) {
         do {
-            func_806323C0(D_807F6C18[i].unk14);
-            func_806323C0(D_807F6C18[i].unk1C);
+            modelNodeListSyncFlags(D_807F6C18[i].unk14);
+            modelNodeListSyncFlags(D_807F6C18[i].unk1C);
             i += 1;
         } while (i < D_807F6C28);
     }
@@ -646,7 +646,7 @@ void func_80652A08(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
                 if (((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk6 != 0) {
                     ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk24 = 0;
                 } else {
-                    ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk24 = func_8063A38C(((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk14, ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk1C, arg0, arg1, arg2);
+                    ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk24 = spriteListBuildDisplayChain(((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk14, ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk1C, arg0, arg1, arg2);
                 }
                 var_v1 = D_807F6C28;
             }
@@ -1270,7 +1270,7 @@ void mapChunkSetIndexOverride(s8 arg0) {
 }
 
 void func_8062AD28(f32, f32, f32, void *, void *);
-void func_8062AC68(Mtx *);
+void frustumCornersTransformByInverse(Mtx *);
 void func_8062A944(f32, f32, f32);
 void mapUpdateFogDistance(f32 *, s16);
 void mapChunkClearBounds();
@@ -1297,7 +1297,7 @@ void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
     mapUpdateFogDistance(&D_807FC924[D_807FC929].unk288, D_807FC924[D_807FC929].unk290);
     D_807F7138 = (s16)(s32)D_807FC924[D_807FC929].unk288;
     func_8062A944(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
-    func_8062AC68((Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
+    frustumCornersTransformByInverse((Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
     func_8062AD28(arg0, arg1, arg2, &D_807F5E68, &D_807F5E20);
     mapChunkClearBounds();
     mapChunkActivate(D_807FC924[D_807FC929].unk290);
@@ -1402,7 +1402,7 @@ void mapChunkRenderNodes(f32 arg0, f32 arg1, f32 arg2) {
 extern f32 D_807F5FAC;
 extern s32 D_807482F4;
 extern u8 D_807F7148[];
-void func_8062FF10(f32 (*)[4], f32 (*)[4]);
+void matrix4Invert(f32 (*)[4], f32 (*)[4]);
 void func_806545D4(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
 
 void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
@@ -1415,7 +1415,7 @@ void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
 
     func_8062A944(D_807F5FB4, D_807F5FB0, D_807F5FAC);
     guMtxL2F(spF8, (Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
-    func_8062FF10(spB8, spF8);
+    matrix4Invert(spB8, spF8);
     off = 0;
     i = 0;
     while (i < D_807F6C28) {
@@ -1718,8 +1718,8 @@ typedef struct {
 } MapChunkDraw;
 
 
-void func_80636164(s32, u8);
-void func_80636210(s32, u8);
+void modelSlotFreeTexAnimBuffers(s32, u8);
+void modelSlotFreeAssetTextures(s32, u8);
 s32 func_8065E81C(s32, s32);
 void heapFree(void *);
 
@@ -1755,8 +1755,8 @@ void mapChunkReleaseAndAdvance(void) {
         node = eff->unk14;
         if (node) {
             do {
-                func_80636164(node->unk0, node->unk24);
-                func_80636210(node->unk0, node->unk24);
+                modelSlotFreeTexAnimBuffers(node->unk0, node->unk24);
+                modelSlotFreeAssetTextures(node->unk0, node->unk24);
                 node = node->unk14;
             } while (node);
             eff = &((MapChunkDraw *)D_807F6C18)[D_807F70AA];
@@ -1764,8 +1764,8 @@ void mapChunkReleaseAndAdvance(void) {
         node = eff->unk1C;
         if (node) {
             do {
-                func_80636164(node->unk0, node->unk24);
-                func_80636210(node->unk0, node->unk24);
+                modelSlotFreeTexAnimBuffers(node->unk0, node->unk24);
+                modelSlotFreeAssetTextures(node->unk0, node->unk24);
                 node = node->unk14;
             } while (node);
         }
@@ -1853,13 +1853,13 @@ extern s32 D_807F5FFC;
 extern Gfx D_2000180;
 
 u32 osVirtualToPhysical(void *);
-Gfx *func_8062CEA8(Gfx *, void *, s32);
-Gfx *func_8062EDA8(Gfx *, u8);
-void func_8062EE48(u8);
+Gfx *mapViewDrawPass(Gfx *, void *, s32);
+Gfx *mapChunkEmitSegmentCommands(Gfx *, u8);
+void mapChunkAnimateTextures(u8);
 s32 func_80656B98();
-Gfx *func_8063A968(Gfx *, s32);
+Gfx *spriteListRender(Gfx *, s32);
 Gfx *func_8065D994(Gfx *, s16);
-Gfx *func_80630B70(Gfx *, s32, s32, s32, f32, s32, s16, s32);
+Gfx *renderEntryListBuildDisplayList(Gfx *, s32, s32, s32, f32, s32, s16, s32);
 Gfx *func_80027034(Gfx *);
 Gfx *effectWaterRenderSurfaces();
 Gfx *fogRender(Gfx *);
@@ -1879,7 +1879,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
         gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
         gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-        gfx = func_8062CEA8(gfx, arg1, 1);
+        gfx = mapViewDrawPass(gfx, arg1, 1);
         if (((MapChunkArg *)arg1)->unk8 != -1) {
             gDPPipeSync(gfx++);
             gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapChunkArg *)arg1)->unk8));
@@ -1901,7 +1901,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
         idx = D_807F6C58[i];
         if (MAP_CHUNK_TILE_AT(idx).unk0 == 1) {
             if (MAP_CHUNK_TILE_AT(idx).unk2 != 0) {
-                func_8062EE48(idx);
+                mapChunkAnimateTextures(idx);
                 MAP_CHUNK_TILE_AT(idx).unk2 = 0;
             }
             gDPPipeSync(gfx++);
@@ -1909,7 +1909,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
             mapSetClipBounds(MAP_CHUNK_TILE_AT(idx).tile.h.unk6A, MAP_CHUNK_TILE_AT(idx).tile.h.unk6E, MAP_CHUNK_TILE_AT(idx).tile.h.unk72, MAP_CHUNK_TILE_AT(idx).tile.h.unk76);
             gfx = fogRender(gfx);
             if (arg5 & 0x10) {
-                gfx = func_8062EDA8(gfx, idx);
+                gfx = mapChunkEmitSegmentCommands(gfx, idx);
                 if (MAP_CHUNK_TILE_AT(idx).unk2C != -1) {
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
@@ -1930,19 +1930,19 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
             if (!(D_807FBB64 & 0x01000000)) {
                 gfx = func_8065D994(gfx, idx);
             }
-            gfx = func_8063A968(gfx, MAP_CHUNK_TILE_AT(idx).unk24);
+            gfx = spriteListRender(gfx, MAP_CHUNK_TILE_AT(idx).unk24);
             D_807F6009 = 0xFF;
             if (flag != 0) {
                 dl = MAP_CHUNK_TILE_AT(idx).unk18;
             } else {
                 dl = MAP_CHUNK_TILE_AT(idx).unk14;
             }
-            gfx = func_80630B70(gfx, dl, arg2, arg3, arg4, arg5, idx, flag);
+            gfx = renderEntryListBuildDisplayList(gfx, dl, arg2, arg3, arg4, arg5, idx, flag);
             if (arg5 & 0x10) {
                 gSPClearGeometryMode(gfx++, 0xFFFFFFFF);
                 gSPSetGeometryMode(gfx++, 0x200004);
                 gfx = fogRender(gfx);
-                gfx = func_8062EDA8(gfx, idx);
+                gfx = mapChunkEmitSegmentCommands(gfx, idx);
                 if (MAP_CHUNK_TILE_AT(idx).unk30 != -1) {
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
@@ -1966,7 +1966,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
         gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
         gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-        gfx = func_8062CEA8(gfx, arg1, 2);
+        gfx = mapViewDrawPass(gfx, arg1, 2);
         if (D_807FBB64 & 0x1000) {
             gDPPipeSync(gfx++);
             gfx = func_80027034(gfx);
@@ -1989,7 +1989,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
             } else {
                 dl = MAP_CHUNK_TILE_AT(idx).unk1C;
             }
-            gfx = func_80630B70(gfx, dl, arg2, arg3, arg4, arg5, idx, flag);
+            gfx = renderEntryListBuildDisplayList(gfx, dl, arg2, arg3, arg4, arg5, idx, flag);
             if (D_807FBB64 & 0x01000000) {
                 gfx = func_8065D994(gfx, idx);
             }
@@ -1999,7 +1999,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
         gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
         gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-        gfx = func_8062CEA8(gfx, arg1, 3);
+        gfx = mapViewDrawPass(gfx, arg1, 3);
         gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gDPPipeSync(gfx++);
     }
@@ -2007,7 +2007,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276);
     mapSetClipBounds(D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276);
     D_807F600C = 0;
-    gfx = func_80630B70(gfx, D_807F5FFC, arg2, arg3, arg4, arg5, -1, 0);
+    gfx = renderEntryListBuildDisplayList(gfx, D_807F5FFC, arg2, arg3, arg4, arg5, -1, 0);
     func_8065D994(gfx, -1);
 }
 

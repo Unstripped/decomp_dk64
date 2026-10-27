@@ -487,9 +487,9 @@ s32 func_8061CB50();
 void func_8061CC40(void *, s32, s32);
 void func_8061F0B0();
 void func_80626110();
-s32 func_80629148();
-void func_80629174();
-void func_806319C4();
+s32 currentActorTestClearFlag();
+void currentActorClearFlag();
+void actorUpdateModelMatrix();
 void screenShakeStart(f32, f32, f32, f32, f32, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void func_8067E2E4(void *, s32, f32);
@@ -569,7 +569,7 @@ void func_800254D0(void) {
         func_8067E2E4(D_807FBB40, 0xC, 2.0f);
         D_807FBB40->unk138 = 0;
         D_807FBB40->unk144 = 1;
-        func_80629174();
+        currentActorClearFlag();
         actorScriptStart(D_807FBB40, 0x262);
         func_8061CC40(D_807FBB40, 9, 1);
         D_807FBB40->unk154 = 0x37U;
@@ -597,7 +597,7 @@ void func_800254D0(void) {
         D_807FBB40->unk155 = 0U;
         break;
     case 0x1E:                                      /* switch 1 */
-        if (func_80629148() != 0) {
+        if (currentActorTestClearFlag() != 0) {
             D_807FBB40->unk154 = 0x40U;
             bossSpawnParticleRing(0x1A, D_807FDCA0->unk14->unk28, D_807FDCA0->unk14->unk2A, D_807FDCA0->unk14->unk2C, 0x800, 6);
         }
@@ -611,7 +611,7 @@ void func_800254D0(void) {
             if (!(D_8076A064 & 3)) {
                 func_8067E2E4(D_807FBB40, (((s32) ((s32) (randomNonNegative() >> 0xF) % 32767) % 10) + 0xD) & 0xFF, 1.0f);
             }
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_80024000();
                 actorScriptStart(D_807FBB40, 0x263);
                 D_807FDC90->unk2C = 0x14;
@@ -626,7 +626,7 @@ void func_800254D0(void) {
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
                 func_80024300();
-            } else if (func_80629148() != 0) {
+            } else if (currentActorTestClearFlag() != 0) {
                 if (D_807FBB40->unk70 == -1) {
                     sfxPlayActorSound(D_807FBB40, 0x131, 0x3C, 1, 1, 0xFF, 1.0f, 0);
                 }
@@ -671,7 +671,7 @@ void func_800254D0(void) {
         case 0x2E:                                  /* switch 1 */
             switch (D_807FBB40->unk155) {                      /* switch 3 */
             case 0:                                 /* switch 3 */
-                if ((D_807444EC != 1) || (func_80629148() != 0)) {
+                if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
                     animSetLoopLimit(D_807FBB40, 1, 1);
                     sp78->unk0 = 0U;
                     D_807FBB40->unk155 = 1U;
@@ -683,7 +683,7 @@ void func_800254D0(void) {
                     func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x174, 0xC8, 0x7F, 1, 0x1E, 0.3f, 0);
                     sp78->unk0 = 1U;
                 }
-                if ((D_807444EC != 1) || (func_80629148() != 0)) {
+                if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
                     D_807FBB40->unk155 = 2U;
                 }
                 break;
@@ -698,7 +698,7 @@ void func_800254D0(void) {
                 }
                 break;
             case 4:                                 /* switch 3 */
-                if ((D_807444EC != 1) || (func_80629148() != 0)) {
+                if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
                     D_807FBB40->unk154 = (u8) *(temp_s1->unk15 + sp74);
                     temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
                     D_807FBB40->unk155 = 0U;
@@ -709,7 +709,7 @@ void func_800254D0(void) {
     case 0x28:                                      /* switch 1 */
         switch (D_807FBB40->unk155) {                          /* switch 4; irregular */
         case 0:                                     /* switch 4 */
-            func_80629174();
+            currentActorClearFlag();
             func_80613C48(D_807FBB40, 0x3AF, 0.0f, 4.0f);
             D_807FBB40->unk155 = 1U;
             /* fallthrough */
@@ -717,7 +717,7 @@ void func_800254D0(void) {
             if (!(D_8076A064 & 7)) {
                 effectSpawnJointBeam(0xD, 0x16, 0x17, 0x1C);
             }
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 func_8067E2E4(D_807FBB40, 6, 1.0f);
                 func_8067E2E4(D_807FBB40, 7, 1.0f);
                 actorScriptStart(D_807FBB40, 0x26C);
@@ -789,7 +789,7 @@ void func_800254D0(void) {
                 sp6E = 1;
                 D_807FBB40->unkC0 = 100.0f;
             }
-            if ((D_807444EC != 1) || (func_80629148() != 0)) {
+            if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
                 if (D_807FBB40->unk154 == 0x2F) {
                     D_807FBB40->unk154 = (u8) *(temp_s1->unk15 + sp74);
                     temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
@@ -1028,7 +1028,7 @@ void func_800254D0(void) {
     case 0x4D:                                      /* switch 1 */
         switch (D_807FBB40->unk155) {                        /* switch 12; irregular */
         case 0:                                     /* switch 12 */
-            func_80629174();
+            currentActorClearFlag();
             actorMoveWithinZone(0x4D, 0.0f, 0.0f, 0x12, 0.0f);
             break;
         case 1:                                     /* switch 12 */
@@ -1036,7 +1036,7 @@ void func_800254D0(void) {
             effectSpawnJointBeam(0xD, 0x16, 0x17, 0x1C);
             break;
         case 2:                                     /* switch 12 */
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB40, 0x263);
                 D_807FBB40->unk155 = 3U;
             }
@@ -1045,7 +1045,7 @@ void func_800254D0(void) {
             break;
         case 3:                                     /* switch 12 */
             effectSpawnBoneWhite(D_807FBB40, (s16) (((s32) ((s32) (randomNonNegative() >> 0xF) % 32767) % 20) + 9), 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 D_807FBB40->unk138 = -1;
                 D_807FBB40->unk154 = (u8) *(temp_s1->unk15 + sp74);
                 temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
@@ -1150,7 +1150,7 @@ void func_800254D0(void) {
         }
     }
     func_8072A450();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #undef D_807FBB40

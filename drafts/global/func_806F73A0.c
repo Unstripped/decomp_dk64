@@ -1,8 +1,8 @@
 // func_806F73A0 (src/global/F9450.c): stage 3: m2c behavior and switch recovered; typed private probe corrected D_807FD740 base stride to 0x10 but retained a 0x60 frame versus target 0x98 and colored found in s1 rather than v1; retained m2c draft needs type recovery
 ? actorDespawn(void *);                             /* extern */
 s32 func_80626BC8(s32, s32, s32, s32, s32, s32);    /* extern */
-s16 func_80632630(s16, f32, f32, f32, f32, s32);    /* extern */
-? func_80632E74(s16, s16, s32);                     /* extern */
+s16 modelSlotAppend(s16, f32, f32, f32, f32, s32);    /* extern */
+? modelFlagsApplyState(s16, s16, s32);                     /* extern */
 s16 func_8063D990(s16);                             /* extern */
 ? func_806CFF9C(void *);                            /* extern */
 ? func_806F0D68(void *);                            /* extern */
@@ -132,11 +132,11 @@ loop_13:
                                         if ((temp_a0 != 0x2F) && (temp_a0 != 0x48) && (temp_a0 != 0x56)) {
                                             var_s5 = 0;
                                         }
-                                        temp_v0_3 = func_80632630(var_s3->unk0, temp_s2->unk7C, func_806F7378(temp_a0) + temp_s2->unk80, temp_s2->unk84, 0.0f, 0);
+                                        temp_v0_3 = modelSlotAppend(var_s3->unk0, temp_s2->unk7C, func_806F7378(temp_a0) + temp_s2->unk80, temp_s2->unk84, 0.0f, 0);
                                         temp_s0 = func_8063D990(temp_v0_3);
                                         func_80731410(D_8076A0AA, temp_s0, temp_s4->unkA, func_8073198C(temp_s4->unkA) & 0xFF);
                                         temp_s0_2 = func_8063D990(temp_v0_3);
-                                        func_80632E74(D_8076A0AA, temp_s0_2, (hashTableLookup(temp_v0_3) * 0x90) + D_807F6000 + 0x8C);
+                                        modelFlagsApplyState(D_8076A0AA, temp_s0_2, (hashTableLookup(temp_v0_3) * 0x90) + D_807F6000 + 0x8C);
                                         func_806F50C8(temp_v0_3, var_s3->unk0, 0, 1, 0, var_s5);
                                         temp_s2->unk11C = 0;
                                     }

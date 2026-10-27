@@ -1,4 +1,4 @@
-// func_8069B3FC (src/global/9DD70.c): stage 1: m2c structure only; real prototypes filled in (actorGetNodePos(Actor*,s32,f32*,f32*,f32*), func_80614EBC(Actor*,s32), func_806319C4(Actor*,s32), func_80714950(s32), func_8071498C(void(*)(void)), func_807149B8(s32), func_80714C08(void*,f32,Actor*,s32,s32), sfxAllocateChannel(s32,f32), sfxStopChannel(s32,s32,Actor**)); void* temps. Body still needs hand-writing from the asm.
+// func_8069B3FC (src/global/9DD70.c): stage 1: m2c structure only; real prototypes filled in (actorGetNodePos(Actor*,s32,f32*,f32*,f32*), func_80614EBC(Actor*,s32), actorUpdateModelMatrix(Actor*,s32), func_80714950(s32), func_8071498C(void(*)(void)), func_807149B8(s32), func_80714C08(void*,f32,Actor*,s32,s32), sfxAllocateChannel(s32,f32), sfxStopChannel(s32,s32,Actor**)); void* temps. Body still needs hand-writing from the asm.
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern void *D_8071FC58;
@@ -7,7 +7,7 @@ extern void *D_8071FCC0;
 void func_80717D4C(void);
 
 void func_80614EBC(Actor *, s32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 s32 func_80611A44(void);
 void actorDespawn(Actor *);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
@@ -127,5 +127,5 @@ block_29:
         break;
     }
     var_s0->unkE6 = (s16) (var_s0->unkE6 + *sp7C);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

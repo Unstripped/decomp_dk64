@@ -331,7 +331,7 @@ u8 proxPathGetActorPosition(Actor *arg0, u8 arg1, f32 *arg2, f32 *arg3, f32 *arg
 
 void func_8061F2B8(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void func_806335B0(void *, s32, s32, f32 *, f32 *, f32 *);
+void modelSlotGetNodePos(void *, s32, s32, f32 *, f32 *, f32 *);
 extern s16 D_807FD584;
 extern s16 D_80753B74[];
 s32 mathAngleDistance(s16, s16);
@@ -377,8 +377,8 @@ s32 proxPathFindNearestSegment(Actor *arg0, ProxPath *arg1, f32 *arg2, u8 *arg3)
                 break;
             case 1:
             case 2:
-                func_806335B0(arg1->unk0, 1, idA, &ax, &ay, &az);
-                func_806335B0(arg1->unk0, 1, idB, &bx, &by, &bz);
+                modelSlotGetNodePos(arg1->unk0, 1, idA, &ax, &ay, &az);
+                modelSlotGetNodePos(arg1->unk0, 1, idB, &bx, &by, &bz);
                 break;
             }
             func_8061F2B8(arg0->unk7C, arg0->unk80, arg0->unk84, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
@@ -448,8 +448,8 @@ f32 proxPathAttachToSegment(Actor *arg0, H1ActorState *arg1, ProxPath *arg2, u8 
         break;
     case 1:
     case 2:
-        func_806335B0(arg2->unk0, 1, idA, &ax, &ay, &az);
-        func_806335B0(arg2->unk0, 1, idB, &bx, &by, &bz);
+        modelSlotGetNodePos(arg2->unk0, 1, idA, &ax, &ay, &az);
+        modelSlotGetNodePos(arg2->unk0, 1, idB, &bx, &by, &bz);
         break;
     }
     actorGetNodePos(arg0, 1, &px, &py, &pz);
@@ -691,7 +691,7 @@ void func_807300BC(H1ActorB **arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_80730408.s")
 
-f32 func_80627A00(f64, f32, f32, f32, f32);
+f32 splineEvalCubic(f64, f32, f32, f32, f32);
 
 void proxPathInterpolatePosition(u8 arg0, f32 arg1, ProxPath *arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
     u8 ids[4];
@@ -704,10 +704,10 @@ void proxPathInterpolatePosition(u8 arg0, f32 arg1, ProxPath *arg2, f32 *arg3, f
     switch (arg2->unk4) {
     case 1:
     case 2:
-        func_806335B0(arg2->unk0, 1, ids[0], &p[0][0], &p[0][1], &p[0][2]);
-        func_806335B0(arg2->unk0, 1, ids[1], &p[1][0], &p[1][1], &p[1][2]);
-        func_806335B0(arg2->unk0, 1, ids[2], &p[2][0], &p[2][1], &p[2][2]);
-        func_806335B0(arg2->unk0, 1, ids[3], &p[3][0], &p[3][1], &p[3][2]);
+        modelSlotGetNodePos(arg2->unk0, 1, ids[0], &p[0][0], &p[0][1], &p[0][2]);
+        modelSlotGetNodePos(arg2->unk0, 1, ids[1], &p[1][0], &p[1][1], &p[1][2]);
+        modelSlotGetNodePos(arg2->unk0, 1, ids[2], &p[2][0], &p[2][1], &p[2][2]);
+        modelSlotGetNodePos(arg2->unk0, 1, ids[3], &p[3][0], &p[3][1], &p[3][2]);
         break;
     case 0:
         actorGetNodePos(arg2->unk0, ids[0], &p[0][0], &p[0][1], &p[0][2]);
@@ -716,13 +716,13 @@ void proxPathInterpolatePosition(u8 arg0, f32 arg1, ProxPath *arg2, f32 *arg3, f
         actorGetNodePos(arg2->unk0, ids[2], &p[0][0], &p[0][1], &p[0][2]);
         break;
     }
-    *arg3 = func_80627A00(arg1, p[0][0], p[1][0], p[2][0], p[3][0]);
-    *arg4 = func_80627A00(arg1, p[0][1], p[1][1], p[2][1], p[3][1]);
-    *arg5 = func_80627A00(arg1, p[0][2], p[1][2], p[2][2], p[3][2]);
+    *arg3 = splineEvalCubic(arg1, p[0][0], p[1][0], p[2][0], p[3][0]);
+    *arg4 = splineEvalCubic(arg1, p[0][1], p[1][1], p[2][1], p[3][1]);
+    *arg5 = splineEvalCubic(arg1, p[0][2], p[1][2], p[2][2], p[3][2]);
 }
 
 s32 actorStepSubNodeList(void *, s32);
-void *func_8063367C(Actor *, s32, s32);
+void *modelSlotGetNodeMatrix(Actor *, s32, s32);
 void heapFreeDeferred(void *);
 
 void proxPathGetSegmentMatrices(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, void **arg4, void **arg5) {
@@ -735,10 +735,10 @@ void proxPathGetSegmentMatrices(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, void **a
         break;
     case 1:
     case 2:
-        tmp = func_8063367C(arg0, 1, arg2);
+        tmp = modelSlotGetNodeMatrix(arg0, 1, arg2);
         *arg4 = tmp;
         heapFreeDeferred(tmp);
-        tmp = func_8063367C(arg0, 1, arg3);
+        tmp = modelSlotGetNodeMatrix(arg0, 1, arg3);
         *arg5 = tmp;
         heapFreeDeferred(tmp);
         break;

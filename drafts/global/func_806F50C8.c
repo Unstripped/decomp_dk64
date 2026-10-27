@@ -3,7 +3,7 @@ extern F9F1_Node **D_80754244;
 extern F9F1_Node *D_807FD72C;
 extern s16 D_807FD720;
 extern s16 D_80753EFC[];
-void func_806357F8();
+void modelSlotGetTransformVectors();
 void *func_80610FE8(s32);
 s32 gridCoordsToIndex(f32, f32);
 s32 func_806F4E74(s16);
@@ -25,7 +25,7 @@ void func_806F50C8(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
     F9F1_Node *temp_v0_2;
     F9F1_Node *var_v0;
 
-    func_806357F8(arg0, &sp60, &sp5C, &sp58, &sp54, &sp50, &sp4C, &sp48, &sp44, 1);
+    modelSlotGetTransformVectors(arg0, &sp60, &sp5C, &sp58, &sp54, &sp50, &sp4C, &sp48, &sp44, 1);
     if ((arg5 != 0) || ((temp_v0 = gridCoordsToIndex(sp60, sp58), sp40 = temp_v0, (D_807FD720 >= temp_v0)) && (temp_v0 >= 0))) {
         temp_v0_2 = func_80610FE8(0x1C);
         temp_v0_2->unk8 = (s16)sp60;

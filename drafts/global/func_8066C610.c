@@ -14,7 +14,7 @@ typedef struct M70A_Struct_C610 {
 extern u8 D_807444FC;
 extern M70A_Struct_C610 *D_807F6000;
 
-void func_806357F8();
+void modelSlotGetTransformVectors();
 void func_8066C7F4();
 
 void func_8066C610(s16 arg0, s8 arg1, f32 (*arg2)[4]) {
@@ -39,7 +39,7 @@ void func_8066C610(s16 arg0, s8 arg1, f32 (*arg2)[4]) {
         sp48 = 0;
     }
     sp44 = (u8 *)entry->unk24 + entry->unk24->unk60;
-    func_806357F8(arg0, &spEC, &spE8, &spE4, &spE0, &spDC, &spD8, &spD4, &spD0, 0);
+    modelSlotGetTransformVectors(arg0, &spEC, &spE8, &spE4, &spE0, &spDC, &spD8, &spD4, &spD0, 0);
     guScaleF(sp8C, spD4, spD4, spD4);
     guRotateF(sp4C, spE0, 1.0f, 0, 0);
     guMtxCatF(sp8C, sp4C, sp8C);

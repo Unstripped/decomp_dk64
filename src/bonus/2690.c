@@ -209,7 +209,7 @@ extern Point3f **D_807F5FD4;
 extern u8 D_807FBB85;
 void func_8072881C(s32, void *, void *, void *);
 void func_806FDAB8(u8, s32, void *, void *);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 extern u8 D_1000118[];
 extern u8 D_2000180[];

@@ -114,10 +114,10 @@ typedef struct {
 } MenuBB40_60;
 extern MenuBB40_60 *D_807FBB40;
 extern s16 D_80750AC8;
-s32 func_80629148(void);
+s32 currentActorTestClearFlag(void);
 void func_8070D8C0(void *, s32, u8);
 void func_8061CB08(void);
-void func_80629174();
+void currentActorClearFlag();
 
 void menuPlaySoundFromTable(MenuStruct_80024000 *);
 void menuUpdateFallingActor(MenuStruct_80024000 *);
@@ -127,9 +127,9 @@ void menuMainStateStep(MenuStruct_80024000 *arg0, s32 arg1) {
 
     switch (arg0->unk1) {
     case 0:
-        if (func_80629148() != 0) {
+        if (currentActorTestClearFlag() != 0) {
             if (arg1 != 0) {
-                func_80629174();
+                currentActorClearFlag();
                 func_8070D8C0(D_807FBB40, 0xB, 0);
                 if ((var_v0 = arg0->unk1A) == 1) {
                     var_v0 = 1;
@@ -159,8 +159,8 @@ void menuMainStateStep(MenuStruct_80024000 *arg0, s32 arg1) {
         }
         break;
     case 2:
-        if (func_80629148() != 0) {
-            func_80629174();
+        if (currentActorTestClearFlag() != 0) {
+            currentActorClearFlag();
             if (arg0->unk1A != 0) {
                 func_8061CC40(0, 5, 1);
                 arg0->unk1++;
@@ -178,16 +178,16 @@ void menuMainStateStep(MenuStruct_80024000 *arg0, s32 arg1) {
     case 8:
         if (arg0->unk6 != 0) {
             if (arg0->unk6 == 1) {
-                if (func_80629148() != 0) {
-                    func_80629174();
+                if (currentActorTestClearFlag() != 0) {
+                    currentActorClearFlag();
                     arg0->unk6 = 2;
                 }
             } else {
                 menuUpdateFallingActor(arg0);
             }
         }
-        if (func_80629148() != 0) {
-            func_80629174();
+        if (currentActorTestClearFlag() != 0) {
+            currentActorClearFlag();
             menuPlaySoundFromTable(arg0);
         }
         break;
@@ -200,7 +200,7 @@ u8 arg1;
 {
     switch (arg0->unk1) {
     case 0:
-        if (func_80629148() != 0) {
+        if (currentActorTestClearFlag() != 0) {
             func_8070D8C0(D_807FBB40, 0xB, arg1);
             arg0->unk1++;
         }
@@ -212,8 +212,8 @@ u8 arg1;
         }
         break;
     case 2:
-        if (func_80629148() != 0) {
-            func_80629174();
+        if (currentActorTestClearFlag() != 0) {
+            currentActorClearFlag();
             arg0->unk0 = 4;
             arg0->unk1 = 0;
         }
@@ -243,8 +243,8 @@ s16 func_80712548(MenuStruct_80024000 *);
 void menuProcessOptionInput(MenuStruct_80024000 *arg0) {
     switch (arg0->unk1) {
     case 0:
-        if (func_80629148() != 0) {
-            func_80629174(arg0);
+        if (currentActorTestClearFlag() != 0) {
+            currentActorClearFlag(arg0);
             arg0->unk1++;
             D_80750AC8 = func_80712548(arg0);
             func_8070D8C0(D_807FBB40, 0xB, 8);
@@ -271,7 +271,7 @@ u8 flagGridSumRows(s32, s32, s32, u8);
 void func_80024788(MenuStruct_80024000 *);
 void behaviourFrameBegin(void);
 void func_806BFBF4(void);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 void menuDispatchAction(void) {
     s32 pad;
@@ -315,7 +315,7 @@ void menuDispatchAction(void) {
             temp_s0->unk0 = 5;
             temp_s0->unk1 = 0;
         }
-        func_80629174();
+        currentActorClearFlag();
         menuSpawnPositionalActor(temp_s0);
         var_v1 = D_80032F50;
         D_80032F50 = 0;
@@ -348,7 +348,7 @@ void menuDispatchAction(void) {
     }
     behaviourFrameBegin();
     func_806BFBF4();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/0/func_80024EF0.s")
 

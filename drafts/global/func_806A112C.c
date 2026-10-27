@@ -7,7 +7,7 @@ void actorSetUniformScale(Actor *, f32);
 void func_806A0F78(void *, u8, u8);
 void func_806A10BC(M5_A2F10Mat *);
 s32 func_80611A44(void);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 s32 actorSpawn(s32, s32);
 extern u8 D_807503D4[];
 extern u8 D_807503E0[];
@@ -82,5 +82,5 @@ void func_806A112C(void) {
         func_806A10BC((M5_A2F10Mat *) sub);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

@@ -82,7 +82,7 @@ void func_80714A08(f32, f32);
 void func_8071498C(void (*)(void));
 void func_8071B8EC(void);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 s32 func_806B5A90(s32 arg0, s32 arg1) {
     u8 ret;
@@ -266,7 +266,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
         func_8072B7CC(0x24E);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     return ret;
 }
 

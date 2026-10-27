@@ -11,7 +11,7 @@ extern f32 D_807F947C;
 extern u32 D_807F9480;
 extern s8 D_807F94B2;
 
-void func_8062FF10(float [4][4], float [4][4]);
+void matrix4Invert(float [4][4], float [4][4]);
 
 typedef struct {
     u8 pad0[0x48];
@@ -44,6 +44,6 @@ void func_8066A64C(s32 arg0, Actor *arg1, R5Q_StructA64C *arg2, f32 arg3, f32 ar
     } else {
         guMtxL2F(sp78, (Mtx *)(((arg2->unk48 >> 6) << 6) + (u8 *)mtx));
     }
-    func_8062FF10(sp38, sp78);
+    matrix4Invert(sp38, sp78);
     guMtxXFMF(sp38, arg3, arg4, arg5, &D_807F9474, &D_807F9478, &D_807F947C);
 }

@@ -4,7 +4,7 @@
 s32 func_80611A44();                                /* extern */
 f32 func_80612790(s16);                             /* extern */
 ? func_8061F0B0(s32, ?, ?);                         /* extern */
-? func_806319C4(void *, ?);                         /* extern */
+? actorUpdateModelMatrix(void *, ?);                         /* extern */
 ? func_8065D254(void *, ?, ?, ?, s32, s32, s32, s32, s32, s32, f32); /* extern */
 ? func_806651FC(void *);                            /* extern */
 ? func_80665564(void *, f32);                       /* extern */
@@ -114,5 +114,5 @@ void func_80696574(void) {
         temp_ft2 = (s32) (temp_s0->unk4->unk38 * 300.0f);
         func_8065D254(temp_s0, 0x3C8, 0x40, 0x40, (s32) (s16) temp_ft2, (s32) (s16) temp_ft2, 1, 0x96, 0x96, 0, 1.0f);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

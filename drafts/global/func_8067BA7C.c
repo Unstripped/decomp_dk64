@@ -62,6 +62,6 @@ void func_8067BA7C(s32 arg0) {
         break;
     }
     if (arg0 == 0x13) {
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }

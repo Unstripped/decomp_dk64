@@ -4,8 +4,8 @@ typedef struct {
     s32 unk58;
 } F9N2At58;
 
-extern s16 func_80632630(s32, f32, f32, f32, f32, s32);
-extern void func_806357F8();
+extern s16 modelSlotAppend(s32, f32, f32, f32, f32, s32);
+extern void modelSlotGetTransformVectors();
 extern void func_806F50C8(s16, s16, s16, s32, s32, s32);
 extern void func_806F54E0(s32, s16, u8);
 
@@ -28,7 +28,7 @@ void func_806F5A48(u8 arg0, s16 arg1, F9N2At58 *arg2, u16 arg3) {
 
     temp_s3 = arg3 & 0xFFFF;
     if (D_807FC928 == 1) {
-        func_806357F8(arg1, &sp90, &sp8C, &sp88, &sp84, &sp80, &sp7C, &sp78, &sp74, 1);
+        modelSlotGetTransformVectors(arg1, &sp90, &sp8C, &sp88, &sp84, &sp80, &sp7C, &sp78, &sp74, 1);
     }
     temp_t4 = arg2->unk58;
     var_s2 = 0x91;
@@ -44,7 +44,7 @@ void func_806F5A48(u8 arg0, s16 arg1, F9N2At58 *arg2, u16 arg3) {
     var_s1 = 0;
     do {
         if (D_807FC928 == 1) {
-            temp_a0 = func_80632630(var_s2, sp90, sp8C, sp88, 0.0f, 0);
+            temp_a0 = modelSlotAppend(var_s2, sp90, sp8C, sp88, 0.0f, 0);
             var_v0 = temp_s3 == 0x11;
             func_806F50C8(temp_a0, var_s2, var_s0, var_v0, 0, 1);
         } else {

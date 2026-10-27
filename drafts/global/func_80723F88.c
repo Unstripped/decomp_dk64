@@ -1,5 +1,5 @@
 // func_80723F88 (src/global/127B00.c): stage 1: m2c starter regenerated in third pass; next work is type/prototype recovery and block ordering
-? func_80627B58(?);                                 /* extern */
+? splineSetBasisTension(?);                                 /* extern */
 f32 func_80724308(s32, ?, s32, s32, s32, f32);      /* extern */
 extern ? D_807FDB90;
 
@@ -18,7 +18,7 @@ void func_80723F88(s32 arg0, ? arg1, s32 arg2, s32 arg3, s32 *arg4, f32 *arg5) {
 
     var_fs3 = 999999.0f;
     var_fs2 = 0.0f;
-    func_80627B58(0x3F000000);
+    splineSetBasisTension(0x3F000000);
     temp_s1 = (arg0 * 4) + &D_807FDB90;
     var_s0 = 0;
     if ((*temp_s1)->unk4 > 0) {

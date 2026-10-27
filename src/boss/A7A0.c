@@ -38,7 +38,7 @@ extern BossC_A7A0_BB70 D_807FBB70;
 extern BossC_A7A0_Actor *D_807FBB40;
 extern BossC_A7A0_Actor *D_807FBB4C;
 void actorDespawn(BossC_A7A0_Actor *);
-void func_806319C4(BossC_A7A0_Actor *, s32);
+void actorUpdateModelMatrix(BossC_A7A0_Actor *, s32);
 
 typedef struct {
     BossC_A7A0_Actor *actor;
@@ -98,7 +98,7 @@ void bossPhaseTick(void) {
             actorDespawn(D_807FBB40);
         }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 

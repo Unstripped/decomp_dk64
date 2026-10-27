@@ -86,7 +86,7 @@ s32 playerStateQueueCallback(s32, s32, s32, void *);
 void assetFreeBuffer(s32, s32, s32);
 void heapFreeDeferred(Mtx *);
 void actorDespawn(Actor *);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void renderSetupSegmentsAndFog(Gfx *, Actor *);
 void func_806FF628(void);
 
@@ -178,7 +178,7 @@ void func_80699284(void) {
         actorDespawn(D_807FBB40);
     } else {
         guTranslateF((f32 (*)[4])((u8 *)D_807FBB40 + 0xC), 0.0f, -70.0f, 0.0f);
-        func_806319C4(D_807FBB40, 1);
+        actorUpdateModelMatrix(D_807FBB40, 1);
         renderCallbacksRegister(&renderSetupSegmentsAndFog, D_807FBB40, 3);
     }
 }
@@ -261,7 +261,7 @@ extern ActorGlobalState D_807FBB70;
 void func_80613C48(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
 Mtx *func_80610FE8(s32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 s32 func_8069A750(void);
 void actorAddNodeForceSlot(f32, u8);
 f32 sinApprox(f32);
@@ -483,7 +483,7 @@ void func_80699958(u8 arg0, u8 arg1) {
     }
     ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[0].unk8 = 0.0f;
     ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[arg0 - 1].unk8 = 0.0f;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #else
 
@@ -591,7 +591,7 @@ typedef struct {
 } ProximitySource;
 
 f32 sinApprox(f32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 void func_8069A7C8(void) {
     ProximitySource *globals;
@@ -666,7 +666,7 @@ void func_8069A7C8(void) {
     }
     ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk8 = 0.0 - (sinApprox((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
     state->unk4 = D_807FBB70.unk39;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #else
 
@@ -898,7 +898,7 @@ void *renderAppendScaledMatrix(void *arg0, ActorPositionView *arg1, s16 arg2, f3
 #define WRITE_GFX_U32(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern Gfx D_1000118;
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
 
 Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
@@ -1059,7 +1059,7 @@ void textUpdateThreeDigitCounter(void) {
             func_8063DA40(12, ten);
         }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void textUpdateTwoDigitCounter(void) {
@@ -1073,11 +1073,11 @@ void textUpdateTwoDigitCounter(void) {
         model[1] = textBuildDigitNode(0x14, (void *)model[1], 1, D_807FBB40->unk155[0] % 10, 0x10);
         actor = D_807FBB40;
     }
-    func_806319C4(actor, 0);
+    actorUpdateModelMatrix(actor, 0);
 }
 
 void func_8069E018(void) {
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void actorScriptStart(Actor *, s32);
@@ -1085,7 +1085,7 @@ void actorPlaySoundAndFinish(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x299);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #ifdef NON_MATCHING
@@ -1128,7 +1128,7 @@ void func_8069E088(void) {
     D_807FBB40->unk4->unk34 = 0.0f;
     D_807FBB40->unk4->unk38 = 0.0f;
     D_807FBB40->unk4->unk3C = 0.0f;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #else
 

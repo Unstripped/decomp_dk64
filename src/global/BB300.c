@@ -126,7 +126,7 @@ typedef struct BB300View90 {
 
 void effectSpawnRing();
 void actorDespawn(Actor *);
-void func_806319C4(void *, s32);
+void actorUpdateModelMatrix(void *, s32);
 s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
 void func_8072B7CC();
 
@@ -159,7 +159,7 @@ void func_806B6958(void) {
     } else {
         func_8072B7CC(0x237);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806B6C88(s16 arg0, s16 arg1) {
@@ -380,7 +380,7 @@ void func_806B6DB0(s32 arg0) {
         func_8072C918(arg0, 0x232, 0x233);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806B75F4(void) {

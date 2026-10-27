@@ -4,7 +4,7 @@
 ? func_806086CC(f32, f32, f32, ?, s32, s32, s32, s32, f32, s32); /* extern */
 f32 func_80612790(s16);                             /* extern */
 f32 func_80612794(s16);                             /* extern */
-? func_806319C4(void *, ?);                         /* extern */
+? actorUpdateModelMatrix(void *, ?);                         /* extern */
 ? func_8065D254(void *, ?, ?, ?, s32, s32, s32, s32, s32, s32, f32); /* extern */
 ? func_80665564(void *, ?);                         /* extern */
 ? func_8067ACB4(f64, f32, void *);                  /* extern */
@@ -96,5 +96,5 @@ void func_806A2328(f64 arg0, f32 arg1) {
     }
     billboardSetFlags(1);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x12C, 0xB4, 0, 1.0f);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

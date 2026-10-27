@@ -98,7 +98,7 @@ void func_8072B7CC();
 void behaviourFrameBegin(void);
 void func_8072C918(s32, s32, s32);
 void func_8072D13C(u32, s32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxSpawnTableNodes(void *);
@@ -293,13 +293,13 @@ void func_806B91E0(void) {
         func_8072C918(0x57E4, 0x322, 0x323);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
 void func_806B9CB0(void) {
     behaviourFrameBegin();
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_80714950(s32);
@@ -723,7 +723,7 @@ u8 arg2;
         }
         guTranslateF(sp64, (f32)(-sgn * arg0), 0.0f, 0.0f);
         guMtxCatF(spA4, sp64, BDEE0A->unkC);
-        func_806319C4(D_807FBB40, 1);
+        actorUpdateModelMatrix(D_807FBB40, 1);
     }
 }
 
@@ -793,7 +793,7 @@ void func_806BB400(void) {
             break;
     }
     D_807FDCA0->unk20 = 0;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct BDEE0Sub174 {
@@ -1033,7 +1033,7 @@ void func_806BB874(void) {
         break;
     }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806AD260();
@@ -1042,7 +1042,7 @@ void func_806BC080(void) {
     func_806BB32C();
     if (D_807FDC9C->unkA == 0 || func_806BA240(0, 0x446) == 0) {
         func_806AD260(0x2ED, 1, 0);
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }
 
@@ -1050,7 +1050,7 @@ void func_806BC0E4(void) {
     func_806BB32C();
     if (D_807FDC9C->unkA == 0 || func_806BA240(0x32, 0x44E) == 0) {
         func_806AD260(0x2EC, 1, 0);
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }
 
@@ -1058,7 +1058,7 @@ void func_806BC148(void) {
     func_806BB32C();
     if (D_807FDC9C->unkA == 0 || func_806BA240(0x14, 0x44A) == 0) {
         func_806AD260(0x2EE, 1, 0);
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }
 

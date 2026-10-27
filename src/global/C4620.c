@@ -164,12 +164,12 @@ void func_806BFA8C(u16 arg0) {
 }
 
 void func_8061421C();
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void func_80614A64(Actor *);
 
 void func_806BFBB4(void) {
     func_8061421C(D_807FBB40);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
     func_80614A64(D_807FBB40);
 }
 
@@ -700,7 +700,7 @@ void actorSetTargetSpeed(Actor *, s32);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
 s32 func_8072D13C(u8, s32);
 s32 func_80724A20(void);
-s32 func_80629148(void);
+s32 currentActorTestClearFlag(void);
 s32 actorSpawn(s32, s32);
 void func_80613C48(Actor *, s16, f32, f32);
 void func_8067B238(void *, void *, f32);
@@ -719,7 +719,7 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
         case 5:
             actorMoveWithinZone(0, 0.0f, 0.0f, 2, 0.0f);
         case 0:
-            if (func_80629148()) {
+            if (currentActorTestClearFlag()) {
                 R1V->unk154 = 0x12;
                 R1V->unk155 = 0;
             }
@@ -770,7 +770,7 @@ void func_806C1300(void) {
             actorDespawn(D_807FBB40);
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_8067ACB4(Actor *);
@@ -856,7 +856,7 @@ void func_806C1640(void) {
     if (R1V->unk60 & 0x10000000) {
         func_806BFBF4();
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern u32 D_8076A064;
@@ -931,7 +931,7 @@ void func_806C1734(void) {
             func_806C151C(3, 3, 0);
         }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_80724CA4(s32, s32);
@@ -962,7 +962,7 @@ void func_806C19F4(void) {
         func_80724E48(0);
         func_806C151C(6, 1, 6);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern u8 D_8071FB34;
@@ -1006,7 +1006,7 @@ void func_806C1B50(void) {
         func_806C151C(4, 1, 8);
     }
 done:
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_80613194();
@@ -1038,7 +1038,7 @@ void func_806C1CCC(void) {
         func_80724E48(0);
         func_806C151C(5, 1, 0xF);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern u8 D_8071FF58[];
@@ -1127,7 +1127,7 @@ void func_806C1E44(void) {
             func_80724A20();
             func_806C151C(0xA, 1, 7);
             func_806C13AC(4, 0x4F1, 0x4F7, 0x4F7, 0x4F7);
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 D_807FBB40->unk154 = 0x12;
                 D_807FBB40->unk155[0] = 0;
             }
@@ -1147,7 +1147,7 @@ void func_806C1E44(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern f32 D_807502F4;
@@ -1157,7 +1157,7 @@ extern s32 D_807FBDC8[];
 extern u8 D_8071FC40;
 void func_80718BF4(void);
 void func_8072A920(s16, s32, f32, f32, f32, s32, f32, f32, s32);
-void func_806335B0(s16, s32, s32, f32 *, f32 *, f32 *);
+void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
 s16 func_806CC190(s16, s16, f32);
 void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
 void func_8072E1A4(s32, void *);
@@ -1229,7 +1229,7 @@ void func_806C226C(void) {
                 }
             }
             func_8072D13C(2, 0);
-            if (func_80629148() != 0) {
+            if (currentActorTestClearFlag() != 0) {
                 D_807FBB40->unk154 = 0x40;
             }
             break;
@@ -1271,12 +1271,12 @@ void func_806C226C(void) {
                     }
                     break;
             }
-            func_806335B0(D_807F62B4, 1, 1, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
+            modelSlotGetNodePos(D_807F62B4, 1, 1, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
             func_8072E1A4(0xA, D_807FDC94);
             break;
     }
     func_8072881C(0, D_807FDC90->unk28);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
@@ -1747,7 +1747,7 @@ void func_806C2DF4(void) {
             sfxStopSlotSound(D_807FBB40, 0);
         }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 extern s16 D_80750AC8;
@@ -1843,5 +1843,5 @@ void func_806C3A8C(void) {
             }
             break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

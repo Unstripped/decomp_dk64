@@ -42,8 +42,8 @@ void func_8061D968(s32, u8);
 void func_8061DAAC(s16, s16, u16);
 void func_8061F0B0(s32, u8, s32);
 void func_80627C5C();
-void func_806291B4();
-void func_806319C4(void *, s32);
+void screenWipeStart();
+void actorUpdateModelMatrix(void *, s32);
 void func_8063DA40(s16, s16);
 void func_80641874(s16, s16);
 void func_8067A69C(s32, void *, s32, s32, s32, s32);
@@ -124,7 +124,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             func_806F0C18(D_807FBB4C);
             return;
         case 0x33:
-            p = M3_OFF(func_80627EA8(a), void *, 0x17C);
+            p = M3_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);
             M3_OFF(p, u8, 0x30) = 0xFE;
             M3_OFF(p, u8, 0x33) = sv[3];
             M3_OFF(p, u8, 0x22) = sv[1];
@@ -132,7 +132,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             M3_OFF(p, u8, 0x31) = 1;
             return;
         case 0x34:
-            M3_OFF(M3_OFF(func_80627EA8(a), void *, 0x17C), u8, 0x30) = 0xFF;
+            M3_OFF(M3_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C), u8, 0x30) = 0xFF;
             return;
         case 0x0:
             M3_OFF(sp9C, s16, 0x70) = M3_OFF(D_807FBB4C, s16, 0xE6);
@@ -180,7 +180,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             func_8061CF80(a);
             return;
         case 0x2E:
-            M3_OFF(func_80627EA8(a), u8, 0x15E) = sv[3];
+            M3_OFF(actorFromSpawnNodeOrDefault(a), u8, 0x15E) = sv[3];
             return;
         case 0x25:
             func_806F397C(D_807FBB4C, 0, a, 0);
@@ -235,7 +235,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             func_807289E8(a, (s16)sv[3], (s16)sv[1], (s16)sv[0]);
             return;
         case 0x11:
-            func_806291B4(a & 0xFF);
+            screenWipeStart(a & 0xFF);
             return;
         case 0xC:
             func_8067AB20(D_807F5D10, sp94, 0x01000000, 1, spA0, 0);
@@ -340,7 +340,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
                 M3_OFF(sp98, s16, 0xE6) = t;
             }
             M3_OFF(sp98, f32, 0x9C) = M3_OFF(sp98, f32, 0x80);
-            func_806319C4(sp98, 0);
+            actorUpdateModelMatrix(sp98, 0);
             func_80614A64(sp98);
             return;
         case 0x14:
@@ -399,13 +399,13 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             M3_OFF(p, u8, 0xD) |= a;
             return;
         case 0x3B:
-            M3_OFF(func_80627EA8(a), s16, 0x146) = sv[3];
+            M3_OFF(actorFromSpawnNodeOrDefault(a), s16, 0x146) = sv[3];
             return;
         case 0x1C:
-            M3_OFF(func_80627EA8(a), s16, 0xE6) = M3_OFF(D_807FC924, s16, 0x2C8) & 0xFFF;
+            M3_OFF(actorFromSpawnNodeOrDefault(a), s16, 0xE6) = M3_OFF(D_807FC924, s16, 0x2C8) & 0xFFF;
             return;
         case 0x30:
-            p = func_80627EA8(a);
+            p = actorFromSpawnNodeOrDefault(a);
             if (sv[3] >= 0) {
                 M3_OFF(p, u8, 0x16A) = sv[3];
                 M3_OFF(p, s32, 0x60) |= 0x800000;
@@ -416,7 +416,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             M3_OFF(p, s32, 0x60) &= 0xFF7FFFFF;
             return;
         case 0x2C:
-            sp98 = func_80627EA8(a);
+            sp98 = actorFromSpawnNodeOrDefault(a);
             zoneEntryGetPosition((u8)sv[3], (u8)sv[1], &sp84, &sp80, &sp7C);
             M3_OFF(sp98, s16, 0xE6) = mathAngleBetweenPoints2D(sp84, sp7C, M3_OFF(sp98, s32, 0x7C), M3_OFF(sp98, s32, 0x84));
             return;
@@ -440,7 +440,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             func_8070E8DC(1);
             /* fallthrough */
         case 0x39:
-            func_8070D8C0(func_80627EA8(a), sv[3], (u8)sv[1]);
+            func_8070D8C0(actorFromSpawnNodeOrDefault(a), sv[3], (u8)sv[1]);
             return;
         case 0x1E:
             actorSpawn(0x108, 0x1D);

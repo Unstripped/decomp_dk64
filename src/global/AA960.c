@@ -489,7 +489,7 @@ void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8066EB40(Actor *, f32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 #ifdef NON_MATCHING
 
@@ -614,7 +614,7 @@ void func_806A6DB4(u8 arg0) {
         break;
     }
     D_807FBB40->unkE6 += 0x72;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #else
@@ -961,7 +961,7 @@ void effectActorShrinkTick(void) {
         temp_v0->unk8 = temp_v1->unk0;
         temp_v0->unkC = temp_v1->unk0;
         temp_v0->unk10 = 0xFF;
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }
 
@@ -970,5 +970,5 @@ void func_806A8070(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk60 |= 0x40000000;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

@@ -265,7 +265,7 @@ void effectResetState(void) {
     D_807FDB3A = 0x258;
 }
 
-void func_806335B0();
+void modelSlotGetNodePos();
 void func_80714D08(s32, f32, f32, f32, f32, void *, s32, s32, s32);
 
 void func_80714B84(s32 arg0, f32 arg1, s32 arg2, s32 arg3, u8 arg4) {
@@ -273,7 +273,7 @@ void func_80714B84(s32 arg0, f32 arg1, s32 arg2, s32 arg3, u8 arg4) {
     f32 sp38;
     f32 sp34;
 
-    func_806335B0(arg2, 1, arg3, &sp3C, &sp38, &sp34);
+    modelSlotGetNodePos(arg2, 1, arg3, &sp3C, &sp38, &sp34);
     func_80714D08(arg0, arg1, sp3C, sp38, sp34, NULL, arg2, arg3, (s32) arg4);
 }
 
@@ -333,7 +333,7 @@ void effectFreeAll(void) {
     }
 }
 
-void func_80630588(s32, s32, s32, void *);
+void renderEntryRemove(s32, s32, s32, void *);
 void func_8062D26C(void *);
 void heapFreeDeferred(void *);
 
@@ -347,12 +347,12 @@ void effectFreeAndUnlink(EffectNode *effect) {
 
     if (effect->mode == 0) {
         if (effect->flags & 4) {
-            func_80630588(0, (s32)effect, 4, &sp3F - 8);
+            renderEntryRemove(0, (s32)effect, 4, &sp3F - 8);
         } else {
             func_8062D26C(effect);
         }
     } else {
-        func_80630588(0, (s32)effect, 3, &sp3F - 8);
+        renderEntryRemove(0, (s32)effect, 3, &sp3F - 8);
     }
     temp_a0 = (s32)effect->allocation;
     if (temp_a0 != 0) {

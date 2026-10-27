@@ -86,5 +86,5 @@ void func_8068412C(void) {
         sub->unk28 &= 0xFFF;
         actor = D_807FBB40;
     }
-    func_806319C4(actor, 0);
+    actorUpdateModelMatrix(actor, 0);
 }

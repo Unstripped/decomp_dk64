@@ -176,7 +176,7 @@ void func_8003575C(void) {
         break;
     }
     func_8061EF4C(D_807F5D10, 5, 0x14, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/D_80036C10.s")

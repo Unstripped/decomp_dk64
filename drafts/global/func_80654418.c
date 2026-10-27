@@ -2,7 +2,7 @@
 extern f32 D_807F5FAC;
 extern s32 D_807482F4;
 extern u8 D_807F7148[];
-void func_8062FF10(f32 (*)[4], f32 (*)[4]);
+void matrix4Invert(f32 (*)[4], f32 (*)[4]);
 void func_806545D4(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
 
 void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
@@ -15,7 +15,7 @@ void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
 
     func_8062A944(D_807F5FB4, D_807F5FB0, D_807F5FAC);
     guMtxL2F(spF8, (Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
-    func_8062FF10(spB8, spF8);
+    matrix4Invert(spB8, spF8);
     off = 0;
     i = 0;
     while (i < D_807F6C28) {

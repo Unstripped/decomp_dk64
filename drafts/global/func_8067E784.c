@@ -461,5 +461,5 @@ void func_8067E784(void) {
     }
 
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, (s32)(D_807FBB40->unk4->unk34 * 100.0f), (s32)(D_807FBB40->unk4->unk3C * 100.0f), 1, 0x64, (u32)(D_807FBB40->unk128 * 0.5), 0, 1.0f);
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }

@@ -170,18 +170,18 @@ void func_8060B49C(Actor *, s16);
 void func_8060DEC8(void);
 void func_8061EF4C(s32, u8, u16, f32, f32, f32, f32, f32);
 void func_8061F510(u8, u8);
-void func_8062B630(s16, u8);
-void func_8062B86C(s16, f32, f32);
-void func_8062B8A4(s16, f32, f32);
+void mapOffsetSlotSetEnabled(s16, u8);
+void mapOffsetSlotSetTarget(s16, f32, f32);
+void mapOffsetSlotAddTarget(s16, f32, f32);
 void func_8062D1A8(void);
-void func_80631B8C(s16);
-s16 func_80632630(s16, f32, f32, f32, f32, s32);
-void func_806335B0(s16, s32, s32, f32 *, f32 *, f32 *);
-void func_8063393C(s16, s32, u8, u8);
-void func_806348B4(void *);
-void func_80634CC8(s16, s16, s16, s16);
-void func_80634EA4(s16, s16, u8);
-void func_80635018(s16, s16, s16, s16);
+void modelSkipListAdd(s16);
+s16 modelSlotAppend(s16, f32, f32, f32, f32, s32);
+void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
+void modelSlotUpdateTailKey(s16, s32, u8, u8);
+void modelSlotTriBufferRelease(void *);
+void modelSlotSetNodeScrollSpeed(s16, s16, s16, s16);
+void modelSlotSetNodeAnimMode(s16, s16, u8);
+void modelSlotSetNodeFrame(s16, s16, s16, s16);
 void func_80636014(s16, s32, u8);
 void func_8063A8C4(s16, s32, f32);
 void func_8063DB3C(s16, s16, s16);
@@ -316,7 +316,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         dynamicBufferFree(&D_807F6000[hashTableLookup(csId)].unk28);
         break;
     case 0x8F:
-        func_806348B4(&D_807F6000[hashTableLookup(csId)].unk48);
+        modelSlotTriBufferRelease(&D_807F6000[hashTableLookup(csId)].unk48);
         break;
     case 0x85:
         func_8062D1A8();
@@ -354,7 +354,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         D_80748094 = cmd->a;
         break;
     case 0x7B:
-        func_806335B0(csId, 1, cmd->b, &x, &y, &z);
+        modelSlotGetNodePos(csId, 1, cmd->b, &x, &y, &z);
         volumeTriggerSetPosition(cmd->a, x, y, z);
         break;
     case 0x7A:
@@ -372,7 +372,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         volumeTriggerSetEnabled(cmd->a, CMDB(cmd)->b);
         break;
     case 0x78:
-        func_806335B0(csId, 1, cmd->a, &px, &py, &pz);
+        modelSlotGetNodePos(csId, 1, cmd->a, &px, &py, &pz);
         cam = D_807FC924->unk4->unk174;
         cam->unk22C = px;
         cam->unk230 = py;
@@ -394,7 +394,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         func_8063A8C4(csId, 1, cmd->a / 100.0);
         break;
     case 0x6C:
-        func_80631B8C(cmd->a);
+        modelSkipListAdd(cmd->a);
         break;
     case 0x6B:
         flagSet(cmd->a, CMDB(cmd)->b, 0);
@@ -478,7 +478,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x50:
         if (D_807F6240[cmd->a] != -1) {
-            func_806335B0(D_807F6240[cmd->a], 1, cmd->b, &D_807F690C, &D_807F6910, &D_807F6914);
+            modelSlotGetNodePos(D_807F6240[cmd->a], 1, cmd->b, &D_807F690C, &D_807F6910, &D_807F6914);
         }
         break;
     case 0x4E:
@@ -503,7 +503,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk71 = cmd->a;
         break;
     case 0x4A:
-        func_8063393C(csId, 1, CMDB(cmd)->a, CMDB(cmd)->b);
+        modelSlotUpdateTailKey(csId, 1, CMDB(cmd)->a, CMDB(cmd)->b);
         break;
     case 0x45:
         cs->unk60 = cmd->a;
@@ -538,13 +538,13 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         func_80641C98(cmd->a, cmd->b, csId);
         break;
     case 0x33:
-        func_8062B86C(cmd->a, cmd->b, cmd->c / 100.0f);
+        mapOffsetSlotSetTarget(cmd->a, cmd->b, cmd->c / 100.0f);
         break;
     case 0x55:
-        func_8062B630(cmd->a, CMDB(cmd)->b);
+        mapOffsetSlotSetEnabled(cmd->a, CMDB(cmd)->b);
         break;
     case 0x34:
-        func_8062B8A4(cmd->a, cmd->b, cmd->c / 100.0f);
+        mapOffsetSlotAddTarget(cmd->a, cmd->b, cmd->c / 100.0f);
         break;
     case 0x6A:
         effectNodeAddTargetAndStep(cmd->a, cmd->b, cmd->c / 100.0f);
@@ -712,7 +712,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 0x7F;
         if (D_80748094 > 0) {
             pitch = c;
-            func_806335B0(csId, 1, D_80748094, &sx, &sy, &sz);
+            modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
             func_806086CC(sx, sy, sz, cmd->a, vol, pan, i, pitch, 0.3f, 0);
         } else {
             func_80609140(cmd->a, 0x7FFF, 0x427C0000, (u32)pan / 127.0, 0, 0);
@@ -805,7 +805,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         playerStateQueueCallback(cmd->a, 0, 0);
         break;
     case 0x2C:
-        func_806335B0(csId, 1, cmd->a, &cx, &cy, &cz);
+        modelSlotGetNodePos(csId, 1, cmd->a, &cx, &cy, &cz);
         func_8067A9F0(0, D_807FC924->unk4, cx, cy, cz);
         break;
     case 0x2B:
@@ -813,7 +813,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x1B:
         if (D_807F6240[cmd->a] != -1) {
-            func_806335B0(D_807F6240[cmd->a], 1, cmd->b, &D_807F621C, &D_807F6220, &D_807F6224);
+            modelSlotGetNodePos(D_807F6240[cmd->a], 1, cmd->b, &D_807F621C, &D_807F6220, &D_807F6224);
         }
         break;
     case 0x1C:
@@ -857,13 +857,13 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         func_807238D4(cs->unk38, &D_807F621C, &D_807F6220, &D_807F6224);
         break;
     case 0x27:
-        func_80634EA4(csId, cmd->a, CMDB(cmd)->b);
+        modelSlotSetNodeAnimMode(csId, cmd->a, CMDB(cmd)->b);
         break;
     case 0x28:
-        func_80635018(csId, cmd->a, cmd->b, cmd->c);
+        modelSlotSetNodeFrame(csId, cmd->a, cmd->b, cmd->c);
         break;
     case 0x42:
-        func_80634CC8(csId, cmd->a, cmd->b, cmd->c);
+        modelSlotSetNodeScrollSpeed(csId, cmd->a, cmd->b, cmd->c);
         break;
     case 0x29:
         func_8061EF4C(((CsCamState *)D_807FC924->unk4->unk174)->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
@@ -910,7 +910,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         func_8067ABC0(0, D_807FC924->unk4, CMDB(cmd)->a, cmd->b, cmd->c, D_807F621C, D_807F6220, D_807F6224);
         break;
     case 0x4D:
-        idx = func_80632630(cmd->a, D_807F690C, D_807F6910, D_807F6914, D_807F6910 - D_807F6218, 0);
+        idx = modelSlotAppend(cmd->a, D_807F690C, D_807F6910, D_807F6914, D_807F6910 - D_807F6218, 0);
         if (cmd->b == 0) {
             func_80641B00(idx, csId, cmd->c);
         }

@@ -69,7 +69,7 @@ void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 randomNonNegative(void);
 void actorScriptStart();
 void func_8061CC40(void *, s32, s32);
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 void func_80665564(Actor *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void actorDespawn(Actor *);
@@ -199,7 +199,7 @@ void func_8067BE30(void) {
         if (D_807FBB70.unk38 != 0) {
             t0[4] = 1;
         }
-        func_806319C4(D_807FBB40, 0);
+        actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }
 
@@ -336,7 +336,7 @@ void func_8067C2B8(void) {
         }
         R2H_ACTOR->unk80 = R2H_ACTOR->unkA4;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_8067C67C(void) {
@@ -772,7 +772,7 @@ void tagBarrelUpdateSelectedKong(void) {
     D_807FBB40->unk16D = D_807FBB40->unk15F;
     D_807FBB40->unkE6 += 0x32;
     D_807FBB40->unkE6 &= 0xFFF;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 typedef struct R2G_ActorExtra {
@@ -845,7 +845,7 @@ void func_80683158(void) {
             func_8072881C(0x81, extra8);
         }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_806832F4.s")

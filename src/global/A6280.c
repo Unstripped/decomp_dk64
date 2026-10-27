@@ -3,7 +3,7 @@
 
 extern Actor *D_807FBB40;
 
-void func_806319C4(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 typedef struct ActorView {
     u8 pad0[0x130];
@@ -103,7 +103,7 @@ void actorSeekTargetUpdate(void) {
             D_807FBB40->unk132 = 1;
         }
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 
@@ -113,7 +113,7 @@ void actorSeekTargetUpdate(void) {
 
 void actorFinishInRange(void) {
     D_807FBB40->unk60 |= 0x400;
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 s32 func_8061CB50(void);
@@ -125,7 +125,7 @@ void actorPlaySoundVariantAndFinish(void) {
     } else {
         func_80613C48(D_807FBB40, 0x63F, 0, 8.0f);
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 static void stub_806A1FD0(void) {
@@ -154,5 +154,5 @@ void actorPlaceModelAtCamera(void) {
     guMtxCatF(mtx1, mtx2, mtx1);
     guMtxXFMF(mtx1, 0.0f, 0.0f, -11.0f, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
     guTranslateF((f32 (*)[4])((u8 *)D_807FBB40 + 0xC), 0.0f, -20.0f, 0.0f);
-    func_806319C4(D_807FBB40, 1);
+    actorUpdateModelMatrix(D_807FBB40, 1);
 }

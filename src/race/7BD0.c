@@ -505,7 +505,7 @@ void func_8002DB90() {
 }
 
 void func_80665564(RaceUnknownActor *, f32);
-void func_806319C4(RaceUnknownActor *, s32);
+void actorUpdateModelMatrix(RaceUnknownActor *, s32);
 
 void func_8002DC24(void) {
     RaceUnknown174 *temp_a0 = D_807FBB40->unk174;
@@ -528,7 +528,7 @@ void func_8002DC24(void) {
         func_8002DA68(temp_a0);
         break;
     }
-    func_806319C4(D_807FBB40, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002DCF0.s")
