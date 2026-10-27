@@ -1423,7 +1423,6 @@ void func_8061DB64(CamActor *arg0) {
     cam->unkAC &= ~0x100000;
 }
 
-#ifdef NON_MATCHING
 typedef struct CamELX {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ s32 unk60;
@@ -1552,11 +1551,10 @@ void func_8061DBD4(struct CamECam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
     u16 t0;
     CamELX *X = st->unk0;
     f32 len;
-    f64 d;
+    u64 now;
     f32 sp84;
     f32 sp80;
     f32 fs;
-    u64 now;
 
     D_807F5CD0 = X->unkAC - X->unkA4;
     st->unk9E = func_806CC190(st->unk9E, X->unkE6, 4.0f);
@@ -1656,8 +1654,8 @@ void func_8061DBD4(struct CamECam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
         } else {
             if (D_807476E4 != 0) {
                 D_807476E4--;
-                fs = (f32)D_807476E4 / (f32)D_807476E8;
-                CAMEL->unkE4 = D_807476E0 + (D_807476DC - D_807476E0) * fs;
+                len = (f32)D_807476E4 / (f32)D_807476E8;
+                CAMEL->unkE4 = D_807476E0 + (D_807476DC - D_807476E0) * len;
             }
             D_807476F0++;
             do {
@@ -1787,8 +1785,7 @@ void func_8061DBD4(struct CamECam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
                         func_80622B24((CamActor *)arg0, arg1, arg2, arg3, &st->unk78, &st->unk7C, &st->unk80,
                                       (CamActor *)D_807F5CE8);
                         if (CAMEL_PATH_NODE.unk1 != 7 && CAMEL_PATH_NODE.unk1 != 0xF && CAMEL_PATH_NODE.unk1 != 0x11) {
-                            d = (0.0f != ((CamELX *)D_807F5CE8)->unkB4) ? 0.3 : 0.1;
-                            func_80625994((struct CamE2Player *)arg0, d, arg4, arg5, arg6);
+                            func_80625994((struct CamE2Player *)arg0, (0.0f != ((CamELX *)D_807F5CE8)->unkB4) ? 0.3 : 0.1, arg4, arg5, arg6);
                         }
                         if ((D_807FBB60 & 0x2000) || CAMEL_PATH_NODE.unk1 == 7 || CAMEL_PATH_NODE.unk1 == 0xF ||
                             CAMEL_PATH_NODE.unk1 == 0x11) {
@@ -1826,10 +1823,6 @@ void func_8061DBD4(struct CamECam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
     st->unkD0 = X->unk80;
     st->unkD4 = X->unk84;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061DBD4.s")
-#endif
 
 typedef struct CamEPlayerEntry {
     /* 0x0 */ u8 unk0;
