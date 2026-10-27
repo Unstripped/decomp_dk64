@@ -581,13 +581,16 @@ extern s32 D_807FBB68;
 void func_806368F0(void *);
 void func_80636AE8(void *);
 void func_80636D38(void *, s32, s32);
-void func_8063524C(void *, f32, f32, f32, f32, f32, f32, f32, f32);
-void func_8063495C(void *, void *);
-void func_806349FC(void *, void *, s32);
+struct R36880bParent;
+void func_8063524C(struct R36880bParent *, f32, f32, f32, f32, f32, f32, f32, f32);
+void func_8063495C(u8 *, ModelSlot *);
+void func_806349FC(u8 *, ModelSlot *, s32);
 void func_8064F450(void *, void *);
 void func_8066C2D0(s32, void *, f32, f32, f32, f32, f32, f32, f32);
-void func_80633A1C(s32, void *, f32, f32, f32, f32, f32, f32, f32);
-void func_806348B4(void *);
+struct R36880bModelData;
+void func_80633A1C(s32, struct R36880bModelData *, f32, f32, f32, f32, f32, f32, f32);
+struct R36880bBuf;
+void func_806348B4(struct R36880bBuf *);
 void dynamicBufferFree(void *);
 void hashTableInsert(s32, s32);
 s32 func_806303C4(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
@@ -1088,47 +1091,595 @@ void func_8063393C(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
     p[i] = arg3 ? 0xFF : arg2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80633A1C.s")
+typedef struct R36880bBuf {
+    /* 0x00 */ u8 *unk0;
+    /* 0x04 */ u8 *unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ f32 unkC[6];
+    /* 0x24 */ u8 unk24;
+} R36880bBuf;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80633D30.s")
+typedef struct R36880bModelData {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ u8 pad4[0x4C];
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ u8 pad54[0xC];
+    /* 0x60 */ s32 unk60;
+} R36880bModelData;
+
+void func_80633D30(f32 *, f32 *);
+void func_80633DC0(f32 (*)[4], void *, void *);
+s32 func_80634768(void *, void *, f32 (*)[4]);
+void func_8066C7F4(void *, void *, f32 (*)[4]);
+
+void func_80633A1C(s32 arg0, R36880bModelData *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
+    s32 count;
+    u8 *anim;
+    f32 sp138[4][4];
+    f32 spF8[4][4];
+    f32 spB8[4][4];
+    f32 sp78[4][4];
+    R36880bBuf *buf;
+    u8 *entry;
+    u8 *out;
+    s32 i;
+    void *sp64;
+    u8 *sp60;
+    s8 bone;
+    s8 lastBone;
+    s32 off;
+    s32 pad2;
+    s32 pad3;
+
+    off = arg0 * 0x90;
+    anim = ((ModelSlot *)((u8 *)D_807F6000 + off))->unk78;
+    buf = (R36880bBuf *)((0, off) + (s32)D_807F6000);
+    lastBone = -1;
+    buf = (R36880bBuf *)((u8 *)buf + 0x48);
+    if (anim != NULL) {
+        sp64 = ((void **)anim)[D_807444FC];
+    } else {
+        sp64 = NULL;
+    }
+    sp60 = (u8 *)(arg1->unk60 + (s32)arg1);
+    if (arg1->unk0 & 4) {
+        buf->unk24 |= 2;
+    } else {
+        buf->unk24 &= ~2;
+    }
+    count = *(s32 *)(arg1->unk50 + (s32)arg1);
+    if (count == 0) {
+        buf->unk0 = NULL;
+        buf->unk4 = NULL;
+        buf->unk24 |= 1;
+        buf->unk8 = D_8076A064;
+        return;
+    }
+    if (!(buf->unk24 & 1)) {
+        buf->unk0 = func_80610FE8(count * 0x28);
+    }
+    buf->unk24 |= 4;
+    entry = (u8 *)(arg1->unk50 + (s32)arg1) + 0x10;
+    out = buf->unk0;
+    guScaleF(sp138, arg8, arg8, arg8);
+    guRotateF(spF8, arg5, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(sp138, spF8, sp138);
+    guRotateF(spF8, arg6, 0.0f, 1.0f, 0.0f);
+    guMtxCatF(sp138, spF8, sp138);
+    guRotateF(spF8, arg7, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(sp138, spF8, sp138);
+    guTranslateF(spF8, arg2, arg3, arg4);
+    guMtxCatF(sp138, spF8, sp138);
+    func_80633DC0(sp138, (u8 *)(arg1->unk50 + (s32)arg1) + 4, buf);
+    for (i = 0; i < count; i++) {
+        bone = entry[0x13];
+        if ((bone ^ 0) == -1) {
+            if (func_80634768(entry, out, sp138) != 0) {
+                out += 0x28;
+            }
+        } else {
+            if (lastBone != bone) {
+                func_8066C7F4(sp60 + (bone << 5), sp64, spB8);
+                guMtxCatF(spB8, sp138, sp78);
+                lastBone = entry[0x13];
+            }
+            if (func_80634768(entry, out, sp78) != 0) {
+                func_80633D30((f32 *)out, buf->unkC);
+                out += 0x28;
+            }
+        }
+        entry += 0x18;
+    }
+    buf->unk4 = out;
+    buf->unk24 |= 1;
+    buf->unk8 = D_8076A064;
+}
+
+
+void func_80633D30(f32 *arg0, f32 *arg1) {
+    s32 i;
+
+    for (i = 0; i < 3; i++) {
+        if (arg0[i] < arg1[0]) {
+            arg1[0] = arg0[i];
+        }
+        if (arg0[i + 6] < arg1[2]) {
+            arg1[2] = arg0[i + 6];
+        }
+        if (arg1[3] < arg0[i]) {
+            arg1[3] = arg0[i];
+        }
+        if (arg1[5] < arg0[i + 6]) {
+            arg1[5] = arg0[i + 6];
+        }
+    }
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80633DC0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634768.s")
+s32 func_80634768(void *arg0, void *arg1, f32 (*arg2)[4]) {
+    s16 *in = arg0;
+    f32 *out = arg1;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806348B4.s")
+    guMtxXFMF(arg2, in[0], in[1], in[2], &out[0], &out[3], &out[6]);
+    guMtxXFMF(arg2, in[3], in[4], in[5], &out[1], &out[4], &out[7]);
+    guMtxXFMF(arg2, in[6], in[7], in[8], &out[2], &out[5], &out[8]);
+    ((u8 *)arg1)[0x24] = ((u8 *)arg0)[0x12];
+    ((u8 *)arg1)[0x25] = ((u8 *)arg0)[0x14];
+    ((s8 *)arg1)[0x26] = ((s8 *)arg0)[0x13];
+    ((u8 *)arg1)[0x27] = ((u8 *)arg0)[0x15];
+    return 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634908.s")
+
+void func_806348B4(R36880bBuf *arg0) {
+    if (arg0->unk0 != NULL && (arg0->unk24 & 1)) {
+        heapFree(arg0->unk0);
+    }
+    arg0->unk24 &= ~1;
+}
+
+
+void func_80634908(s32 arg0, void *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
+    func_80633A1C(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+}
+
+typedef struct R36880bNode {
+    /* 0x00 */ u32 *unk0[12];
+    /* 0x30 */ s32 unk30;
+    /* 0x34 */ s16 unk34;
+    /* 0x36 */ s16 unk36;
+    /* 0x38 */ s16 unk38;
+    /* 0x3A */ s16 unk3A;
+    /* 0x3C */ s32 unk3C;
+    /* 0x40 */ s32 unk40;
+    /* 0x44 */ void *unk44;
+    /* 0x48 */ u8 unk48;
+    /* 0x49 */ u8 unk49;
+    /* 0x4A */ u8 unk4A;
+    /* 0x4B */ u8 pad4B;
+    /* 0x4C */ s32 unk4C;
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s32 unk5C;
+    /* 0x60 */ s32 unk60[28];
+    /* 0xD0 */ u8 unkD0;
+    /* 0xD1 */ u8 padD1[3];
+    /* 0xD4 */ struct R36880bNode *unkD4;
+} R36880bNode;
+
+typedef struct R36880bObj {
+    /* 0x00 */ u8 pad0[0x24];
+    /* 0x24 */ void *unk24[11];
+    /* 0x50 */ R36880bNode *unk50;
+    /* 0x54 */ u8 pad54[0x4C];
+    /* 0xA0 */ u32 *unkA0;
+    /* 0xA4 */ u32 *unkA4;
+    /* 0xA8 */ u32 *unkA8;
+    /* 0xAC */ u32 *unkAC;
+    /* 0xB0 */ u8 padB0[8];
+    /* 0xB8 */ R36880bNode *unkB8;
+} R36880bObj;
+
+#ifdef NON_MATCHING
+void func_8063495C(u8 *arg0, ModelSlot *arg1) {
+    R36880bNode *node;
+    u8 *tbl;
+    s16 *p;
+    s32 n;
+    s32 idx;
+    s32 found;
+    s32 key;
+
+    node = ((R36880bObj *)arg1->unk20)->unk50;
+    if (node != NULL) {
+        do {
+            key = node->unk5C;
+            found = 0;
+            tbl = arg0 + *(s32 *)(arg0 + 0x70);
+            n = *(s32 *)tbl;
+            p = (s16 *)(tbl + 4);
+            idx = 0;
+            if (n != 0) {
+                do {
+                    if (key == *p) {
+                        found = 1;
+                    } else {
+                        n--;
+                        p = (s16 *)((u8 *)p + 0x30);
+                        idx++;
+                    }
+                } while (n != 0 && found == 0);
+            }
+            if (found != 0) {
+                node->unk44 = ((R36880bObj *)arg1->unk20)->unk24[idx];
+            } else {
+                node->unk44 = NULL;
+            }
+            node = node->unkD4;
+        } while (node != NULL);
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063495C.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806349FC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634CC8.s")
+void *memcpy(void *, const void *, unsigned int);
+s32 func_80635214(u32 *);
+void func_80635114(u32 *, s32, s32, s32, u32 **, u32 **, u32 **);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634D14.s")
+void func_806349FC(u8 *arg0, ModelSlot *arg1, s32 arg2) {
+    s32 count;
+    s32 *entry;
+    s32 i;
+    R36880bNode *node;
+    s32 j;
+    R36880bNode **tail;
+    R36880bObj *obj;
+    s32 len1;
+    s32 len2;
+    s32 *tbl;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634D64.s")
+    tbl = (s32 *)(arg0 + *(s32 *)(arg0 + 0x6C));
+    count = *tbl;
+    entry = tbl + 1;
+    switch (arg2) {
+        case 1:
+            tail = &((R36880bObj *)arg1->unk20)->unkB8;
+            if (count != 0) {
+                obj = arg1->unk20;
+                len1 = func_80635214(obj->unkA0);
+                obj->unkA4 = func_80610FE8(len1);
+                memcpy(obj->unkA4, obj->unkA0, len1);
+                len2 = func_80635214(obj->unkA8);
+                obj->unkAC = func_80610FE8(len2);
+                memcpy(obj->unkAC, obj->unkA8, len2);
+            }
+            break;
+        case 2:
+            tail = &((R36880bObj *)arg1->unk20)->unk50;
+            break;
+    }
+    for (i = 0; i < count; i++) {
+        node = func_80610FE8(0xD8);
+        node->unk48 = 1;
+        node->unk49 = 0;
+        node->unk4A = entry[1];
+        node->unk4C = entry[2];
+        node->unk50 = 0;
+        node->unk54 = 0;
+        node->unk58 = entry[3];
+        node->unk5C = entry[0];
+        for (j = 0; j < node->unk58 - 1; j++) {
+            node->unk60[j] = entry[4 + j];
+        }
+        node->unkD0 = entry[0x20];
+        if (D_807FBB64 & 0x2000000) {
+            node->unkD0 = 0;
+        }
+        node->unk3C = 0;
+        node->unk40 = 0;
+        node->unk34 = 0;
+        node->unk36 = 0;
+        node->unk38 = 0;
+        node->unk3A = 0;
+        node->unk30 = -1;
+        if (arg2 == 1) {
+            func_80635114(obj->unkA0, len1, entry[0], entry[1], &node->unk0[0], &node->unk0[1], &node->unk0[2]);
+            func_80635114(obj->unkA4, len1, entry[0], entry[1], &node->unk0[3], &node->unk0[4], &node->unk0[5]);
+            func_80635114(obj->unkA8, len2, entry[0], entry[1], &node->unk0[6], &node->unk0[7], &node->unk0[8]);
+            func_80635114(obj->unkAC, len2, entry[0], entry[1], &node->unk0[9], &node->unk0[10], &node->unk0[11]);
+        }
+        *tail = node;
+        tail = &node->unkD4;
+        entry += 0x21;
+    }
+    *tail = NULL;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634E10.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634EA4.s")
+void func_80634D64(s32, s16, s16, s16, s16 *, s16 *, u8);
+void func_80634F14(s32, s16, u8, u8 *, u8);
+void func_80635018(s32, s16, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634EDC.s")
+void func_80634CC8(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
+    func_80634D64(arg0, arg1, arg2, arg3, &arg2, &arg3, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634F14.s")
+void func_80634D14(s32 arg0, s16 arg1, s16 *arg2, s16 *arg3) {
+    s16 sp2E;
+    s16 sp2C;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80634FA0.s")
+    func_80634D64(arg0, arg1, sp2E, sp2C, arg2, arg3, 1);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80635018.s")
+void func_80634E10(R36880bNode *, s16, s16, s16, s16 *, s16 *, u8);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80635098.s")
+void func_80634D64(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4, s16 *arg5, u8 arg6) {
+    ModelSlot *slot;
+    R36880bObj *obj;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80635114.s")
+    slot = hashTableLookup(arg0) + ((0, D_807F6000));
+    obj = slot->unk20;
+    if (slot->unk86 != 1) {
+        if (slot->unk86 == 2) {
+            func_80634E10(obj->unk50, arg1, arg2, arg3, arg4, arg5, arg6);
+        }
+    } else {
+        func_80634E10(obj->unkB8, arg1, arg2, arg3, arg4, arg5, arg6);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80635214.s")
+void func_80634E10(R36880bNode *arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4, s16 *arg5, u8 arg6) {
+    arg1--;
+    while (arg0 != NULL && arg1 != 0) {
+        arg0 = arg0->unkD4;
+        arg1--;
+    }
+    if (arg0 != NULL) {
+        if (arg6 != 0) {
+            *arg4 = arg0->unk38;
+            *arg5 = arg0->unk3A;
+        } else {
+            arg0->unk38 = arg2;
+            arg0->unk3A = arg3;
+        }
+    }
+}
+
+void func_80634EA4(s32 arg0, s16 arg1, u8 arg2) {
+    func_80634F14(arg0, arg1, arg2, &arg2, 0);
+}
+
+void func_80634EDC(s32 arg0, s16 arg1, u8 *arg2) {
+    u8 sp27;
+
+    func_80634F14(arg0, arg1, sp27, arg2, 1);
+}
+
+void func_80634FA0(R36880bNode *, s16, u8, u8 *, u8);
+
+void func_80634F14(s32 arg0, s16 arg1, u8 arg2, u8 *arg3, u8 arg4) {
+    ModelSlot *slot;
+    R36880bObj *obj;
+
+    slot = hashTableLookup(arg0) + ((0, D_807F6000));
+    obj = slot->unk20;
+    if (slot->unk86 != 1) {
+        if (slot->unk86 == 2) {
+            func_80634FA0(obj->unk50, arg1, arg2, arg3, arg4);
+        }
+    } else {
+        func_80634FA0(obj->unkB8, arg1, arg2, arg3, arg4);
+    }
+}
+
+void func_80634FA0(R36880bNode *arg0, s16 arg1, u8 arg2, u8 *arg3, u8 arg4) {
+    arg1--;
+    while (arg0 != NULL && arg1 != 0) {
+        arg0 = arg0->unkD4;
+        arg1--;
+    }
+    if (arg0 != NULL) {
+        if (arg4 != 0) {
+            *arg3 = arg0->unk48;
+        } else {
+            arg0->unk48 = arg2;
+        }
+    }
+}
+
+void func_80635098(R36880bNode *, s16, s32, s32);
+
+void func_80635018(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
+    ModelSlot *slot;
+    R36880bObj *obj;
+
+    slot = hashTableLookup(arg0) + ((0, D_807F6000));
+    obj = slot->unk20;
+    if (slot->unk86 != 1) {
+        if (slot->unk86 == 2) {
+            func_80635098(obj->unk50, arg1, arg2, arg3);
+        }
+    } else {
+        func_80635098(obj->unkB8, arg1, arg2, arg3);
+    }
+}
+
+void func_80635098(R36880bNode *arg0, s16 arg1, s32 arg2, s32 arg3) {
+    arg1--;
+    while (arg0 != NULL && arg1 != 0) {
+        arg0 = arg0->unkD4;
+        arg1--;
+    }
+    if (arg0 != NULL) {
+        if (arg2 != arg0->unk54 || arg3 != arg0->unk50) {
+            arg0->unk49 = 1;
+        }
+        arg0->unk54 = arg2;
+        arg0->unk50 = arg3;
+    }
+}
+
+void func_80635114(u32 *arg0, s32 arg1, s32 arg2, s32 arg3, u32 **arg4, u32 **arg5, u32 **arg6) {
+    s32 found;
+    u32 cmd;
+
+    *arg4 = NULL;
+    *arg5 = NULL;
+    *arg6 = NULL;
+    found = 0;
+    if (arg1 != 0) {
+        do {
+            cmd = *arg0;
+            arg1 -= 8;
+            if ((cmd >> 24) == ((0, 0xFD)) && arg2 == arg0[1]) {
+                *arg4 = arg0;
+                found = 1;
+            }
+            arg0 += 2;
+        } while (found == 0 && arg1 != 0);
+    }
+    if (arg3 != 0) {
+        found = 0;
+        if (arg1 != 0) {
+            do {
+                cmd = *arg0;
+                arg1 -= 8;
+                if ((cmd >> 24) == ((0, 0xFD)) && arg2 == arg0[1]) {
+                    *arg5 = arg0;
+                    found = 1;
+                }
+                arg0 += 2;
+            } while (found == 0 && arg1 != 0);
+        }
+        if (arg1 != 0) {
+            found = 0;
+            do {
+                cmd = *arg0;
+                arg1 -= 8;
+                if ((cmd >> 24) == ((0, 0xFA))) {
+                    *arg6 = arg0;
+                    found = 1;
+                }
+                arg0 += 2;
+            } while (found == 0 && arg1 != 0);
+        }
+    }
+}
+
+
+s32 func_80635214(u32 *arg0) {
+    s32 len;
+    s32 found;
+    u32 cmd;
+
+    len = 0;
+    found = 0;
+    do {
+        cmd = *arg0;
+        len += 8;
+        if ((cmd >> 24) == ((0, 0xDF))) {
+            found = 1;
+        }
+        arg0 += 2;
+    } while (found == 0);
+    return len;
+}
+
+
+#ifdef NON_MATCHING
+typedef struct R36880bVtx {
+    /* 0x00 */ s16 x;
+    /* 0x02 */ s16 y;
+    /* 0x04 */ s16 z;
+    /* 0x06 */ s16 pad6;
+    /* 0x08 */ s16 s;
+    /* 0x0A */ s16 t;
+    /* 0x0C */ u8 pad[4];
+} R36880bVtx;
+
+typedef struct R36880bQuad {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ s16 x[4];
+    /* 0x0C */ s16 y[4];
+    /* 0x14 */ s16 z[4];
+    /* 0x1C */ s16 uv[4][2];
+    /* 0x2C */ u8 rgba[4];
+} R36880bQuad;
+
+typedef struct R36880bOut {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ u8 pad14[8];
+    /* 0x1C */ R36880bVtx *unk1C;
+    /* 0x20 */ u8 unk20;
+    /* 0x21 */ u8 pad21[0x23];
+    /* 0x44 */ u8 rgba[4];
+    /* 0x48 */ s16 unk48;
+} R36880bOut;
+
+typedef struct R36880bParent {
+    /* 0x00 */ u8 pad0[0x20];
+    /* 0x20 */ R36880bOut *unk20;
+    /* 0x24 */ u8 *unk24;
+} R36880bParent;
+
+void func_8063524C(R36880bParent *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
+    R36880bOut *out;
+    R36880bQuad *q;
+    u8 *data;
+    s32 i;
+    s32 j;
+    s16 sum;
+
+    data = arg0->unk24;
+    out = arg0->unk20;
+    out->unk0 = arg1;
+    out->unk4 = arg2;
+    q = (R36880bQuad *)(*(s32 *)(data + 0x70) + (s32)data + 4);
+    out->unk8 = arg3;
+    out->unkC = arg7;
+    out->unk10 = arg8;
+    out->unk20 = *(s32 *)(*(s32 *)(data + 0x70) + (s32)data);
+    sum = 0;
+    out->unk1C = func_80610FE8(out->unk20 << 6);
+    for (i = 0; i < out->unk20; i++) {
+        out->rgba[0] = q->rgba[0];
+        out->rgba[1] = q->rgba[1];
+        out->rgba[2] = q->rgba[2];
+        out->rgba[3] = q->rgba[3];
+        for (j = 0; j != 4; j += 2) {
+            out->unk1C[i * 4 + j].x = q->x[j];
+            out->unk1C[i * 4 + j].y = q->y[j];
+            out->unk1C[i * 4 + j].z = q->z[j];
+            out->unk1C[i * 4 + j].s = q->uv[j][0];
+            out->unk1C[i * 4 + j].t = q->uv[j][1];
+            sum += q->y[j];
+            out->unk1C[i * 4 + j + 1].x = q->x[j + 1];
+            out->unk1C[i * 4 + j + 1].y = q->y[j + 1];
+            out->unk1C[i * 4 + j + 1].z = q->z[j + 1];
+            out->unk1C[i * 4 + j + 1].s = q->uv[j + 1][0];
+            out->unk1C[i * 4 + j + 1].t = q->uv[j + 1][1];
+            sum += q->y[j + 1];
+        }
+        q++;
+    }
+    out->unk48 = sum / (out->unk20 * 4);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063524C.s")
+#endif
+
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80635468.s")
 
