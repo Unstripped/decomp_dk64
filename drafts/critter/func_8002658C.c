@@ -1,4 +1,4 @@
-// func_8002658C (src/critter/0.c): stage 5: frame 0x78 + all stack slots match; remaining: tx/tz reloaded from home (lwc1 0x74/0x6c(sp)) in target but kept in f10/f4 in ours; arg0->0x28 reloaded after store (lwc1 0x28(s0)) in target but forwarded; float regs numbering after that. Tricks: u8-narrow flag as s32 with (u8) casts at uses, rate=0.02f before flag, extra locals ty,dxz,ret,ang + use_y declared last
+// func_8002658C (src/critter/0.c): stage 5 (score 1245): frame 0x78 and all stack slots match; remaining: tx/tz (0x74/0x6c(sp)) reloaded from home in target but kept in f-reg in ours; arg0->0x28 reloaded after store in target; float reg numbering. Tricks: s32 use_y with (u8) casts at uses, rate=0.02f assigned before use_y, extra locals ty,dxz,ret,ang, use_y declared last; spd*f()+x operand form. def uses u8* arg0 (parked build casts from void*).
 extern f32 sqrtf(f32);
 f32 func_80611BB4(f32, f32);
 f32 func_80612790(s16);
