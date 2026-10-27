@@ -963,7 +963,15 @@ s32 func_8062DAF4(R2F550bObj *arg0, f32 arg1, f32 arg2, f32 arg3) {
     return func_8062DBDC(box->unkA0, box->unkA2, box->unkA4, box->unkA6, box->unkA8, box->unkAA, arg1, arg2, arg3, D_807F5FA8, D_807F5E68);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062DB70.s")
+extern f32 D_807F5E50[];
+
+void func_8062DB70(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
+    D_807F5E50[0] = arg3 - arg0;
+    D_807F5E50[1] = arg4 - arg1;
+    D_807F5E50[2] = arg5 - arg2;
+    D_807F5E50[3] = -(((D_807F5E50[0] * arg0) + (D_807F5E50[1] * arg1)) + (D_807F5E50[2] * arg2));
+}
+
 
 typedef struct R2F550cPlane {
     /* 0x00 */ u8 pad0[0x18];
@@ -977,7 +985,48 @@ typedef struct R2F550cPlane {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062DBDC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E040.s")
+f32 func_8062E040(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
+    f32 new_var;
+    f32 sp30;
+    f32 var_fs0;
+    f32 sp58;
+    f32 temp_fs1;
+    f32 sp38;
+    f32 sp3C;
+    f32 temp_fs2;
+
+    var_fs0 = (f32)arg0;
+    sp3C = (var_fs0 - arg6) * (var_fs0 - arg6);
+    sp38 = (((f32)arg1 - arg7) * ((f32)arg1 - arg7));
+    temp_fs1 = (((f32)arg2 - arg8) * ((f32)arg2 - arg8));
+    new_var = (((f32)arg4 - arg7) * ((f32)arg4 - arg7));
+    temp_fs2 = (((f32)arg5 - arg8) * ((f32)arg5 - arg8));
+    var_fs0 = (sp3C + sp38) + temp_fs1;
+    sp30 = (sp58 = (sp3C + sp38) + temp_fs2);
+    if (sp30 < var_fs0) {
+        var_fs0 = sp30;
+    }
+    if ((sp3C + new_var) + temp_fs1 < var_fs0) {
+        var_fs0 = (sp3C + new_var) + temp_fs1;
+    }
+    if ((sp3C + new_var) + temp_fs2 < var_fs0) {
+        var_fs0 = (sp3C + new_var) + temp_fs2;
+    }
+    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + sp38) + temp_fs1 < var_fs0) {
+        var_fs0 = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + sp38) + temp_fs1;
+    }
+    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + sp38) + temp_fs2 < var_fs0) {
+        var_fs0 = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + sp38) + temp_fs2;
+    }
+    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + new_var) + temp_fs1 < var_fs0) {
+        var_fs0 = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + new_var) + temp_fs1;
+    }
+    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + new_var) + temp_fs2 < var_fs0) {
+        var_fs0 = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + new_var) + temp_fs2;
+    }
+    return sqrtf(var_fs0);
+}
+
 
 void func_8062E3B4(s16 *, s16 *, s32, s32 *, u8, f64, u8);
 

@@ -1,4 +1,4 @@
-// func_8062D620 (src/global/2F550.c): Stage 4. Instruction stream + frame 0x68 identical; only diff: s16 sp56 at 0x5E vs target 0x56 (sp58 0x58 ok). Dead if(0){mapChunkUpdateEntryNode((R2F550cEntry*)&arg6);} aliases arg6 to kill CSE spill of cvt(arg6).
+// func_8062D620 (src/global/2F550.c): Stage 4 (NM2F). Stream+frame 0x68 identical; only s16 sp56 at 0x5E vs target 0x56 (sp58 0x58 ok). Layout study: locals are byte-packed top-down in declaration order inside a 16-byte area (0x58..0x68); 3 words -> frame 0x60, 5 words -> 0x70 (any extra/unused local grows the frame), so nothing can sit below 0x58; target puts the halfword at 0x56 below sp58, impossible with this frame. Tried all decl permutations, s32 sp54+(u8*)&sp54+2, s32 sp54[2], u8/s8/s16 arrays, block-scoped sp56, s16/u8 pads, register keyword, dead-alias pads, permuter 400s (22k iters, no gain).
 typedef struct R2F550cEntry {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;

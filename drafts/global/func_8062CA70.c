@@ -1,32 +1,4 @@
-// func_8062CA70 (src/global/2F550.c): stage 5 (frame 0x88, saved set s0-s3,f20-f24 match; needs unused local 'Gfx *sp84' to reach frame 0x88): remaining diff = fp-reg assignment (target x=f20,y=f22,z=f24; mine x=f24 since x savings 1.53 < y,z 1.64) and target hoists consts 3/1/2 into t0-t2 for type tests (mine li at), spill slot 0x54 vs 0x50. R2F550bMapView typedef must sit above it (CEA8 uses it). Tried kind switch vs if-chain, type switch vs if, permuter 240s (3245 vs 3664).
-typedef struct R2F550bObj {
-    struct R2F550bObj *unk0;
-    struct R2F550bObj *unk4;
-    u8 pad8[0xC];
-    struct R2F550bObj *unk14;
-    u8 pad18[6];
-    s16 unk1E;
-    u8 pad20[4];
-    u8 unk24;
-    u8 pad25[0x93];
-    u8 unkB8;
-} R2F550bObj;
-
-typedef struct R2F550bTree {
-    u8 unk0;
-    u8 unk1;
-    u8 pad2[2];
-    R2F550bObj *unk4;
-    s32 unk8;
-    struct R2F550bTree *unkC;
-    struct R2F550bTree *unk10;
-} R2F550bTree;
-
-void func_8062BB2C(R2F550bObj *, R2F550bTree *, u8);
-
-extern u8 D_807F6009;
-Gfx *func_80630B70(Gfx *, s32, f32, f32, f32, s32, s32, s32);
-
+// func_8062CA70 (src/global/2F550.c): Stage 5 (NM2F). Draft now compiles against the current file: D_807F5DE8 s32 (cast at use), func_8062EDA8 via forward struct R2F550a2Cmd prototype; later R2F550bMapView typedef must be moved above (or dropped) when this goes in. Remaining diff unchanged: fp regs (target x=f20,y=f22,z=f24; mine x=f24) and target hoists consts 3/1/2 into t0-t2 (live range split with re-li after calls; in mine those candidates are 'not colored (-ve save)' in uopt trace), spill 0x54 vs 0x50. Tried combined null/3 check, if-chain vs switch for arg2->unk1, permuter 600s (3664->3025, only cosmetic mutations).
 typedef struct R2F550bMapView {
     u8 pad0[0x1C];
     void *unk1C[21];
@@ -49,14 +21,15 @@ typedef struct R2F550bLeaf {
 } R2F550bLeaf;
 
 extern s32 D_807F5E64;
-extern void *D_807F5DE8;
+extern s32 D_807F5DE8;
 extern void *D_807F5DEC;
 extern s32 D_807F5FFC;
 
 Gfx *func_8062CEA8(Gfx *, R2F550bMapView *, u8);
 Gfx *mapChunksRender(Gfx *, R2F550bObj *, f32, f32, f32, s32);
 Gfx *fogRender(Gfx *);
-Gfx *func_8062EDA8(Gfx *, u8);
+struct R2F550a2Cmd;
+struct R2F550a2Cmd *func_8062EDA8(struct R2F550a2Cmd *, u8);
 Gfx *func_8063A968(Gfx *, s32);
 Gfx *func_8065D994(Gfx *, s16);
 
@@ -78,11 +51,11 @@ Gfx *func_8062CA70(Gfx *gfx, R2F550bObj *arg1, R2F550bTree *arg2, f32 arg3, f32 
             case 1:
                 D_807F5E64 += R2F550bLEAF(arg1)->unk6E;
                 if (arg6 & 0x10) {
-                    gSPSegment(gfx++, 6, osVirtualToPhysical(D_807F5DE8));
+                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = func_8062CEA8(gfx, (R2F550bMapView *)arg1, 1);
                     gfx = fogRender(gfx);
-                    gfx = func_8062EDA8(gfx, 0xFF);
+                    gfx = (Gfx *)func_8062EDA8((struct R2F550a2Cmd *)gfx, 0xFF);
                     if (R2F550bLEAF(arg1)->unk8 != -1) {
                         gSPDisplayList(gfx++, osVirtualToPhysical((void *)R2F550bLEAF(arg1)->unk8));
                     }
@@ -105,7 +78,7 @@ Gfx *func_8062CA70(Gfx *gfx, R2F550bObj *arg1, R2F550bTree *arg2, f32 arg3, f32 
                 D_807F6009 = 0xFF;
                 gfx = func_80630B70(gfx, (s32)arg2->unk4, arg3, arg4, arg5, arg6, -1, 0);
                 if (arg6 & 0x10) {
-                    gSPSegment(gfx++, 6, osVirtualToPhysical(D_807F5DE8));
+                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = func_8062CEA8(gfx, (R2F550bMapView *)arg1, 3);
                     gDPPipeSync(gfx++);
