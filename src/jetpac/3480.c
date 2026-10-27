@@ -534,7 +534,6 @@ void func_80028634(void) {
     }
 }
 
-#ifdef NON_MATCHING
 extern s32 D_80770DF8[];
 void func_80024E70(s32);
 void func_80024F24(s32, f32);
@@ -552,20 +551,18 @@ void func_800286D0(void) {
 
     item = (JetpacItem *)((u8 *)&D_8002EC30 + D_8002EC30.unk344 * 0x194 + 0x30);
 
-    y = item->unkC;
-    t = (y - -8.0f) / 144.0f;
-    t = (t < 0.0f) ? 0.0f : ((t > 1.0f) ? 1.0f : t);
-
-    if (*(s32 *)((u8 *)&D_8002EC30 + 0x78C) == 1) {
+    y = item->unkC; t = (y - -8.0f) / 144.0f; t = (t < 0.0f) ? 0.0f : ((t > 1.0f) ? 1.0f : t); if (*(s32 *)((u8 *)&D_8002EC30 + 0x78C) == 1) {
         if (D_80770DF8[1] == 0) {
             func_80024E70(1);
         }
-        func_80024F24(1, 1.0f - t * 0.059466f);
+        t = t * 0.059466f;
+        t = 1.0f - t;
+        func_80024F24(1, t);
         y = item->unkC;
         if (y >= 136.0f) {
-            for (i = 0; i < 3; i++) {
-                item[i].unk8 = 168.0f;
-                item[i].unkC = (f32)(i * 16) + 136.0f;
+            for (i = 0; i < 3; i++, item++) {
+                item->unk8 = 168.0f;
+                item->unkC = (f32)(i * 16) + 136.0f;
             }
             func_80024F64(1);
             func_80024F9C(2);
@@ -577,7 +574,9 @@ void func_800286D0(void) {
             func_80024E70(0);
         }
         t = 1.0f - t;
-        func_80024F24(0, t * 0.059466f + 1.0f);
+        t = t * 0.059466f;
+        t = t + 1.0f;
+        func_80024F24(0, t);
         y = item->unkC;
         if (y < -8.0f) {
             func_80024F64(0);
@@ -589,14 +588,13 @@ void func_800286D0(void) {
 
     t = y + spd;
     for (i = 0; i < 3; i++) {
-        item[i].unkC = t;
+        item->unkC = t;
         t += 16.0f;
+        if (!t) {
+        }
+        item++;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/func_800286D0.s")
-#endif
 
 
 void func_80028950(void) {
