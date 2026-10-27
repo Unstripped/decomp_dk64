@@ -1,4 +1,4 @@
-// func_80024000 (src/race/0.c): stage 5 (parked NON_MATCHING in RaceC copy): same frame 0x58, size 6000; diff = uopt hoists &D_807FDC90 into t0 (target: lui v1/lw v1 each time, D_807FDCA0 in a3, table ptr reload in t0) so regs shift; also 'int a1' (s32 worse), a1/a0 assigned inside the sqrtf condition, sp54 split in two statements (all matter)
+// func_80024000 (src/race/0.c): stage 5 (FE5): same frame 0x58/size; remaining diff only E2 'a0 = &D_807FDCA0->unk14[(*pp)->unk25]' (before final tail): ours cg evaluates the index (DC90->unk25 chain) first, target base-first (lw DCA0,lw unk14,lw DC90,lbu,mul), so t8/t9/t1.. temps rotate (t8,t2,t9,t3,t1 vs t1,t8,t2,t9,t3) for the rest of the fn (54 raw diff lines, 5 after normalising t1-t9). Tricks found: no a1 local (direct D_807FDC90->unk25 reads; invisible u8->int ucvt candidate in a2 fixes DCA0=a3/sp30=t0); 'fs0 = ..;fs1 = ..' stmt order (f20/f22); row=(RaceC_Row*)((u8*)sp30+sp37*12); unk25++; 'pp=&D_807FDC90' + E2 via (*pp) stops uopt hoisting &D_807FDC90 (3-use lda piece adjsave 0.2) but turns E2 index-first; 'q=(f32)(..); unkB8=fv0-q; fv0=q; fv0=q;' makes the cvt.s.d result a uopt candidate so the tail zero lands in f12 like the target. Neighbouring-symbol read ((RaceC_DC90**)&D_807FDC94)[-1] also kills the hoist but same index-first order + reloc mismatch. Need: a hoist-killer that keeps base-first cg order
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -76,10 +76,13 @@ void func_80024000(void) {
     RaceC_Entry *a0;
     f32 fv0;
     u8 sp37;
+    RaceC_Row *sp30;
+    f32 q;
+    RaceC_DC90 **pp;
     int a1;
     s16 v1;
-    RaceC_Row *sp30;
 
+    pp = &D_807FDC90;
     sp37 = D_807FDC90->unk24;
     if (D_8076A0A8 == 0x52) {
         sp30 = D_8002FB10;
@@ -89,12 +92,12 @@ void func_80024000(void) {
     sp44 = RC_A->unkB8;
     sp40 = func_80612794((s16)(s32)(RC_A->unkE0 * 11.4)) * 20.0f;
     a0 = &D_807FDCA0->unk14[D_807FDC90->unk25];
-    fs1 = RC_A->unk84 - a0->unk4;
     fs0 = RC_A->unk7C - a0->unk0;
-    if (sqrtf(fs1 * fs1 + fs0 * fs0) < (a0 = &D_807FDCA0->unk14[a1 = D_807FDC90->unk25])->unk7) {
-        if ((a0->unk2 < RC_A->unk80 ? RC_A->unk80 - a0->unk2 : -(RC_A->unk80 - a0->unk2)) < 80.0f && a1 < D_807FDCA0->unk10 - 1) {
-            RaceC_Row *row = &sp30[sp37];
-            if (a1 == row->unk0) {
+    fs1 = RC_A->unk84 - a0->unk4;
+    if (sqrtf(fs1 * fs1 + fs0 * fs0) < (a0 = &D_807FDCA0->unk14[D_807FDC90->unk25])->unk7) {
+        if ((a0->unk2 < RC_A->unk80 ? RC_A->unk80 - a0->unk2 : -(RC_A->unk80 - a0->unk2)) < 80.0f && D_807FDC90->unk25 < D_807FDCA0->unk10 - 1) {
+            RaceC_Row *row = (RaceC_Row *)((u8 *)sp30 + sp37 * 12);
+            if (row->unk0 == D_807FDC90->unk25) {
                 RC_A->unkC4 = row->unk4;
                 if (row->unk8 == 1) {
                     actorScriptStart(D_807FBB40, 0x286);
@@ -102,10 +105,9 @@ void func_80024000(void) {
                     RC_A->unk154 += 1;
                 }
                 D_807FDC90->unk24 += 1;
-                a1 = D_807FDC90->unk25;
             }
-            D_807FDC90->unk25 = a1 + 1;
-            a0 = &D_807FDCA0->unk14[D_807FDC90->unk25];
+            D_807FDC90->unk25++;
+            a0 = &D_807FDCA0->unk14[(*pp)->unk25];
         }
     }
     sp54 = (f64)(a0->unk8 - RC_A->unkB8 / 10.0f) * 0.8;
@@ -145,7 +147,10 @@ void func_80024000(void) {
     RC_A->unkEE = (f64)fv0 * 4096.0 / 6.2831854820251465;
     if (RC_A->unk6A & 1) {
         fv0 = RC_A->unkB8;
-        RC_A->unkB8 = fv0 - (f32)((f64)(fv0 * fv0) / 15000.0);
+        q = (f32)((f64)(fv0 * fv0) / 15000.0);
+        RC_A->unkB8 = fv0 - q;
+        fv0 = q;
+        fv0 = q;
         if (RC_A->unkB8 < 0.0f) {
             RC_A->unkB8 = 0.0f;
         }

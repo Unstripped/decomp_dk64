@@ -280,7 +280,6 @@ s32 func_8002A080(s32 arg0, s32 arg1) {
     return D_8002FC5C[func_8002E8EC(arg0, arg1, 10)];
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     u8 pad0[0x25];
     u8 unk25;
@@ -337,7 +336,7 @@ void func_8002A0AC(void) {
     RaceC_State *sp3C;
     RaceC_Actor *tmp;
     s32 sp34;
-    s32 idx;
+    u8 idx;
     s32 sp2C;
     s32 v;
     f32 fv1;
@@ -362,9 +361,9 @@ void func_8002A0AC(void) {
         s0->unk4 = 1.0f;
         D_807FDC90->unk25 = D_807FDC9C->unk11 - 5;
         idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
-        RC_A->unk7C = D_807FDCA0->unk14[idx * 5];
-        RC_A->unk80 = D_807FDCA0->unk14[idx * 5 + 1];
-        RC_A->unk84 = D_807FDCA0->unk14[idx * 5 + 2];
+        RC_A->unk7C = ((s16 (*)[5])D_807FDCA0->unk14)[idx][0];
+        RC_A->unk80 = ((s16 (*)[5])D_807FDCA0->unk14)[idx][1];
+        RC_A->unk84 = ((s16 (*)[5])D_807FDCA0->unk14)[idx][2];
         D_80750AC8 = 0xA;
     }
     if (sp4C->unkA != 0) {
@@ -411,7 +410,8 @@ void func_8002A0AC(void) {
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
-                sp2C = func_8002A080((s32)s0, sp4C->unk4);
+                sp2C = sp4C->unk4;
+                sp2C = func_8002A080((s32)s0, sp2C);
                 currentActorClearFlag();
                 if (sp2C == 0) {
                     func_8063DA40(0x3B, 0xA);
@@ -457,7 +457,3 @@ void func_8002A0AC(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
     func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/52B0/func_8002A0AC.s")
-#endif
