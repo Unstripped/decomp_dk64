@@ -244,7 +244,7 @@ s16 func_80626CAC(CamState *, f32 *, f32 *, f32, f32, f32);
 f32 splineEvalCubic(f64, f32, f32, f32, f32);
 s32 func_8062773C(CamActor *);
 s16 mathAngleLerp(s16, s16, f32);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 void renderBonusTargetMarker();
 void renderCallbacksRegister(void *, void *, s32);
@@ -4908,7 +4908,6 @@ s32 func_80626BC8(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
                  (s64)(arg2 - arg5) * (arg2 - arg5));
 }
 
-#ifdef NON_MATCHING
 s16 func_80626CAC(CamState *arg0, f32 *arg1, f32 *arg2, f32 arg3, f32 arg4, f32 arg5) {
     s16 ang;
     s16 mid;
@@ -4953,7 +4952,7 @@ s16 func_80626CAC(CamState *arg0, f32 *arg1, f32 *arg2, f32 arg3, f32 arg4, f32 
         ang = mathAngleLerp(mid, ang, arg5 / 40.0);
         D_807476A4 = arg5 / 40.0 * 0.25 + 0.05;
         if (!clamped) {
-            arg5 = (arg5 > 1.0) ? 1.0 : arg5;
+            arg5 = (arg5 > 1.0) ? arg5 : 1.0;
         }
         arg0->unkAC |= 0x80;
     }
@@ -4961,10 +4960,6 @@ s16 func_80626CAC(CamState *arg0, f32 *arg1, f32 *arg2, f32 arg3, f32 arg4, f32 
     *arg2 = func_80612790(ang) * arg5 + arg4;
     return ang;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_80626CAC.s")
-#endif
 
 typedef struct CamAVp {
     /* 0x000 */ u8 pad0[8];
