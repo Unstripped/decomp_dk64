@@ -30,7 +30,34 @@ typedef struct {
 void mathPickCloserTargetPoint3D(f32, f32, f32, Point3f *, Point3f *, Point3f *, Point3f *, f32 *, f32 *, f32 *);
 f32 func_80027710(s32, s32, void *);
 
+#define RB_SQ(v) ((v) * (v))
+#ifdef NON_MATCHING
+f32 func_80027710(s32 arg0, s32 arg1, void *arg2) {
+    s32 idx1;
+    s32 idx2;
+    Point3f *base;
+    Point3f *cur;
+    Point3f *p1;
+    Point3f *p2;
+    Point3f out;
+    f32 d2;
+    f32 e2;
+
+    idx1 = raceGetNextWaypointIndex(arg0, ((Waypoint *)arg2)->unk2);
+    idx2 = raceGetNextWaypointIndex(arg0, idx1);
+    base = (Point3f *)D_807F5FD4[((Waypoint *)arg2)->unk0];
+    p1 = &base[idx1];
+    p2 = &base[idx2];
+    cur = &base[((Waypoint *)arg2)->unk2];
+    mathPickCloserTargetPoint3D(*(f32 *)(arg1 + 0x7C), *(f32 *)(arg1 + 0x80), *(f32 *)(arg1 + 0x84), cur, p1, p1, p2, &out.x, &out.y, &out.z);
+    d2 = RB_SQ(cur->x - p1->x) + RB_SQ(cur->y - p1->y) + RB_SQ(cur->z - p1->z);
+    e2 = RB_SQ(cur->z - out.z) + (RB_SQ(cur->y - out.y) + RB_SQ(cur->x - out.x));
+    return sqrtf(e2 / d2);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80027710.s")
+#endif
 
 f32 raceGetPathDistance(s32 arg0, u16 arg1, u16 arg2) {
     s32 index;
@@ -51,7 +78,52 @@ f32 raceGetPathDistance(s32 arg0, u16 arg1, u16 arg2) {
     return sqrtf((dx * dx) + (dy * dy) + (dz * dz));
 }
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80027920.s")
+f32 func_80027920(s32 arg0, s32 arg1, s32 arg2, Waypoint *arg3) {
+    s32 count;
+    s32 dir;
+    f32 fracA;
+    f32 fracB;
+    f32 distA;
+    f32 distB;
+    f32 total;
+    s32 cur;
+    s32 sign;
+
+    count = (D_807F5FD4[arg3->unk0 + 1] - D_807F5FD4[arg3->unk0]) / 12;
+    dir = func_800276B0(count, (u8 *)arg1, (u8 *)arg3);
+    fracA = func_80027710(count, arg0, (void *)arg1);
+    fracB = func_80027710(count, arg2, arg3);
+    distA = raceGetPathDistance(count, arg3->unk0, ((Waypoint *)arg1)->unk2);
+    distB = raceGetPathDistance(count, arg3->unk0, arg3->unk2);
+    if (dir == 0) {
+        total = fracB * distB - fracA * distA;
+    } else {
+        if (dir > 0) {
+            total = fracB * distB + (1.0f - fracA) * distA;
+            cur = raceGetNextWaypointIndex(count, ((Waypoint *)arg1)->unk2);
+            do {
+            } while (0);
+            arg2 = arg3->unk2;
+        } else {
+            total = fracA * distA + (1.0f - fracB) * distB;
+            cur = raceGetNextWaypointIndex(count, arg3->unk2);
+            arg2 = ((Waypoint *)arg1)->unk2;
+        }
+        if (cur != arg2) {
+            do {
+                total += raceGetPathDistance(count, arg3->unk0, cur);
+                cur = raceGetNextWaypointIndex(count, cur);
+            } while (cur != arg2);
+        }
+        if (dir >= 0) {
+            sign = 1;
+        } else {
+            sign = -1;
+        }
+        total = sign * total;
+    }
+    return total;
+}
 
 s32 func_806119A0(void);
 
@@ -89,7 +161,24 @@ void func_80027B30(u8 *arg0) {
 
 extern s32 *D_807F5FD4;
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80027BD0.s")
+f32 func_80027BD0(u8 *arg0, u8 *arg1, u8 *arg2) {
+    f32 result;
+    s8 temp_v0;
+    s8 new_var;
+    s32 count;
+    f32 num;
+    f32 den;
+
+    temp_v0 = arg1[0x37];
+    result = 0.0f;
+    if (temp_v0 > 0) {
+        count = (D_807F5FD4[arg0[0] + 1] - D_807F5FD4[arg0[0]]) / 12;
+        num = *(u16 *)(arg1 + 0x3A) + ((new_var = temp_v0) - 1) * count;
+        den = arg2[0x24] * count;
+        result = num / den;
+    }
+    return result;
+}
 
 extern void *D_80720120;
 typedef struct {
@@ -115,9 +204,130 @@ void func_80027C60(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80027CE8.s")
+extern f32 D_8002FBD0[];
+extern u8 D_8002FC00[];
+f32 func_8002E1C8(void *, f32, void *, void *);
+void func_8002DE78(void *, s32, void *, void *);
+void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
+void sfxStopSlotSound(void *, s32);
+s32 spawnNodeHasActor(s32);
+void *spawnNodeActivate(s32, s32);
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_800280E8.s")
+void func_80027CE8(void) {
+    u8 *sp54;
+    u8 *temp_s2;
+    u8 *sp4C;
+    u8 *sp48;
+    s32 pad44;
+    u8 *sp40;
+    f32 sp3C;
+    f32 sp38;
+    u8 flag;
+    s32 temp_v0;
+    s32 var_s0;
+    s32 var_s1;
+    u8 *temp_v0_3;
+    u8 *temp_v0_2;
+    u8 *temp_v0_4;
+    u8 *temp_a3_2;
+    f32 temp_fv0_2;
+
+    sp54 = *(u8 **)((u8 *)D_807FBB40 + 0x178);
+    temp_s2 = *(u8 **)((u8 *)D_807FBB40 + 0x17C);
+    sp4C = *(u8 **)(temp_s2 + 0x30);
+    sp48 = *(u8 **)(sp4C + 0x178);
+    sp40 = *(u8 **)((u8 *)D_807FBB40 + 0x184);
+    sp3C = func_80027920((s32)D_807FBB40, (s32)temp_s2, (s32)sp4C, (Waypoint *)sp48);
+    sp38 = func_8002E1C8(sp40, sp3C, D_8002FBD0, D_8002FC00);
+    flag = (temp_s2[1] == temp_s2[0]) && (temp_s2[4] == 0);
+    if ((sp40[0xF] != 0) && (temp_v0_2 = *(u8 **)(sp54 + 0x30), (func_80027BD0(temp_s2, sp54, *(u8 **)(temp_v0_2 + 0x174)) > 0.8))) {
+        func_8002DE78(sp40, 0, D_8002FBD0, D_8002FC00);
+    }
+    switch (sp40[0xF]) {
+    case 5:
+        func_80027C60();
+    case 0:
+    case 1:
+        if (flag) {
+            temp_v0 = func_806119A0();
+            if ((D_8002FBD0[2] < sp3C) && (sp3C < D_8002FBD0[4]) && (sp48[0] != temp_s2[0]) && ((u8)((u32)(temp_v0 & 0xFF) < 0x14U))) {
+                func_80027AF8(temp_s2, sp48[0] - temp_s2[0]);
+            } else if ((D_8002FBD0[6] < sp3C) && (sp3C < D_8002FBD0[8]) && (sp48[0] == temp_s2[0]) && ((u8)((u32)(temp_v0 & 0xFF) < 0x14U))) {
+                func_80027B30(temp_s2);
+            }
+            flag = (temp_s2[1] == temp_s2[0]) && (temp_s2[4] == 0);
+            if (flag && ((var_s0 = 2, (sp3C < D_8002FBD0[2])) || (D_8002FBD0[4] < sp3C))) {
+                var_s1 = 0;
+                do {
+                    if (spawnNodeHasActor(var_s0 & 0xFF) != 0) {
+                        temp_v0_3 = spawnNodeActivate((s16)var_s0, 0);
+                        temp_a3_2 = *(u8 **)(temp_v0_3 + 0x178);
+                        if (temp_s2[0] == temp_a3_2[0]) {
+                            temp_fv0_2 = func_80027920((s32)D_807FBB40, (s32)temp_s2, (s32)temp_v0_3, (Waypoint *)temp_a3_2);
+                            if ((temp_fv0_2 > 20.0f) && (temp_fv0_2 < 300.0f)) {
+                                var_s1 = 1;
+                                func_80027B30(temp_s2);
+                            }
+                        }
+                    }
+                    var_s0 += 1;
+                } while ((var_s0 < 7) && (var_s1 == 0));
+            }
+        }
+        break;
+    }
+    *(f32 *)(sp54 + 4) = sp38;
+    if ((sp3C < 0.0f) && (*(f32 *)(sp40 + 0x14) > 0.0f)) {
+        if (*(s16 *)((u8 *)D_807FBB40 + 0x70) == -1) {
+            sfxPlayActorSound(D_807FBB40, 0x130, 0, 1, 1, 0xFF, 1.0f, 0);
+        }
+        *(s16 *)((u8 *)D_807FBB40 + 0x72) = 0x14;
+    }
+    if (*(s16 *)((u8 *)D_807FBB40 + 0x72) > 0) {
+        *(s16 *)((u8 *)D_807FBB40 + 0x72) = *(s16 *)((u8 *)D_807FBB40 + 0x72) - 1;
+    } else if (*(s16 *)((u8 *)D_807FBB40 + 0x70) != -1) {
+        sfxStopSlotSound(D_807FBB40, 1);
+    }
+    if (sp3C < -7000.0f) {
+        temp_v0_4 = *(u8 **)(sp4C + 0x174);
+        temp_v0_4[0x45] = 1;
+    }
+    *(f32 *)(sp40 + 0x14) = sp3C;
+}
+
+void func_8060E7EC(s32, s32, s32, u8 *);
+void func_80609140(s32, s32, f32, f32, s32, s32);
+
+void func_800280E8(void *arg0) {
+    u8 *v1;
+    s32 pad[2];
+    u8 *sp28;
+    f32 y;
+    u8 *flag;
+
+    v1 = *(u8 **)((u8 *)arg0 + 0x30);
+    flag = *(u8 **)((u8 *)D_807FBB40 + 0x180);
+    sp28 = *(u8 **)((u8 *)D_807FBB40 + 0x184);
+    if (*(f32 *)((u8 *)D_807FBB40 + 0xB8) > *(f32 *)(v1 + 0xB8)) {
+        y = *(f32 *)((u8 *)D_807FBB40 + 0xB8) - *(f32 *)(v1 + 0xB8);
+    } else {
+        y = -(*(f32 *)((u8 *)D_807FBB40 + 0xB8) - *(f32 *)(v1 + 0xB8));
+    }
+    if (*flag == 0) {
+        y = y * 1.5;
+        y = (y > 10.0) ? 10.0 : y;
+        *flag = 3;
+        func_8060E7EC(0, (u32)(255.0f * y * 0.1f) & 0xFF, *flag, flag);
+        func_80609140(0x18A, 0x7FFF, 64.0f, 1.0f, 0xA, 0);
+        if (*(f32 *)(sp28 + 0x14) < 0.0f) {
+            *(f32 *)(v1 + 0xB8) = *(f32 *)(v1 + 0xB8) - y;
+            *(f32 *)((u8 *)D_807FBB40 + 0xB8) = *(f32 *)((u8 *)D_807FBB40 + 0xB8) + y;
+        } else {
+            *(f32 *)(v1 + 0xB8) = *(f32 *)(v1 + 0xB8) + y;
+            *(f32 *)((u8 *)D_807FBB40 + 0xB8) = *(f32 *)((u8 *)D_807FBB40 + 0xB8) - y;
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_800282D8.s")
 
@@ -136,9 +346,133 @@ void func_800283D4(f32 arg0) {
 
 #pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80028440.s")
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80028AD0.s")
+#ifdef NON_MATCHING
+typedef struct {
+    char pad0[4];
+    void *unk4;
+    char pad8[0x2F0 - 8];
+} RaceBStructPlayer;
+extern RaceBStructPlayer *D_807FC924;
+s32 raceGetPrevWaypointIndex(s32, s32);
+void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
+void func_80026354(void *, void *, s32);
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80028E20.s")
+void func_80028AD0(void) {
+    s32 pad54[3];
+    u8 *sp50;
+    u8 *sp4C;
+    u8 *sp48;
+    s32 pad44;
+    u8 *sp40;
+    s32 pad3C;
+    int sp38;
+    f32 sp34;
+    f32 sp30;
+    f32 temp_fv0;
+    f32 var_fv0;
+    f32 var_fv1;
+    f32 temp_fv0_3;
+    int temp_v0;
+    u8 temp_v0_2;
+    u8 temp_v0_3;
+    u8 *temp_s0;
+    u8 *temp_s1;
+    u8 *temp_a1;
+
+    temp_s0 = *(u8 **)((u8 *)D_807FBB40 + 0x178);
+    temp_s1 = *(u8 **)((u8 *)D_807FBB40 + 0x174);
+    sp50 = *(u8 **)(temp_s0 + 0x30);
+    sp4C = *(u8 **)(sp50 + 0x174);
+    sp48 = *(u8 **)(sp50 + 0x178);
+    temp_a1 = (u8 *)D_807FC924[sp4C[0x28]].unk4;
+    sp40 = *(u8 **)(temp_a1 + 0x174);
+    sp38 = (D_807F5FD4[temp_s0[0] + 1] - D_807F5FD4[temp_s0[0]]) / 12;
+    sp30 = 1.0f;
+    if (!(*(s32 *)((u8 *)D_807FBB40 + 0x60) & 0x10)) {
+        temp_v0 = raceGetPrevWaypointIndex(sp38, *(u16 *)(sp48 + 2));
+        *(u16 *)(temp_s0 + 2) = temp_v0;
+        *(u16 *)(temp_s0 + 2) = raceGetPrevWaypointIndex(sp38, (u16)temp_v0);
+        temp_s0[0] = temp_s0[1] = 1;
+        func_80026354(temp_s0, temp_s1, 0);
+    }
+    temp_v0_2 = sp4C[0x34];
+    if (temp_v0_2 != temp_s1[0x34]) {
+        temp_s1[0x34] = temp_v0_2;
+        temp_s1[0x35] = 0;
+    }
+    temp_fv0 = func_80027920((s32)D_807FBB40, (s32)temp_s0, (s32)sp50, (Waypoint *)sp48);
+    sp34 = temp_fv0;
+    temp_v0_3 = sp48[1];
+    if (temp_v0_3 != temp_s0[1]) {
+        temp_s0[1] = temp_v0_3;
+        *(f32 *)(temp_s0 + 8) = 0.0f;
+    }
+    if ((temp_s1[0x34] >= 2) && (temp_s1[0x34] < 4)) {
+        if ((u32)sp48[0x10] > 24.0) {
+            sp30 = -2.5f;
+        } else if (*(f32 *)(sp48 + 0x14) > 0.5f) {
+            sp30 = 2.5f;
+        }
+        temp_s0[0x39] = sp48[0x39];
+        temp_s0[0x10] = sp48[0x10];
+        *(f32 *)(temp_s1 + 4) = *(f32 *)(sp4C + 4) + ((temp_fv0 - (90.0f * sp30)) * 0.006f);
+        if (temp_fv0 < 30.0f) {
+            if (*(f32 *)(sp50 + 0xB8) < *(f32 *)((u8 *)D_807FBB40 + 0xB8)) {
+                *(f32 *)((u8 *)D_807FBB40 + 0xB8) = *(f32 *)(sp50 + 0xB8);
+            }
+        }
+        func_80026354(temp_s0, temp_s1, 0);
+    }
+    if ((temp_s1[0x34] < 4) && (temp_s1[0x34] > 0)) {
+        temp_fv0_3 = sp34 / 90.0f;
+        if (temp_fv0_3 < 0.0f) {
+            var_fv0 = 0.0f;
+        } else {
+            if (temp_fv0_3 > 1.0f) {
+                var_fv1 = 1.0f;
+            } else {
+                var_fv1 = temp_fv0_3;
+            }
+            var_fv0 = var_fv1;
+        }
+        camSetFixedView(*(void **)(sp40 + 0x104), *(f32 *)((u8 *)D_807FBB40 + 0x7C), *(f32 *)((u8 *)D_807FBB40 + 0x80) + ((20.0f * var_fv0) + 20.0f), *(f32 *)((u8 *)D_807FBB40 + 0x84), *(f32 *)(sp50 + 0x7C), *(f32 *)(sp50 + 0x80) + 20.0f, *(f32 *)(sp50 + 0x84), 1);
+    }
+}
+#else
+
+#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80028AD0.s")
+#endif
+
+void func_80028E20(void *arg0) {
+    Point3f *p;
+    s32 count;
+    s32 i;
+    s32 j;
+    f32 best;
+    f32 px;
+    f32 py;
+    f32 pz;
+    f32 d;
+
+    count = (D_807F5FD4[1] - D_807F5FD4[0]) / 12;
+    p = (Point3f *)D_807F5FD4[0];
+    best = 10000000.0f;
+    px = *(f32 *)((u8 *)D_807FBB40 + 0x7C);
+    py = *(f32 *)((u8 *)D_807FBB40 + 0x80);
+    pz = *(f32 *)((u8 *)D_807FBB40 + 0x84);
+    for (i = 0; i != 3; i++) {
+        for (j = 0; j < count; j++) {
+            d = RB_SQ(px - p->x) + RB_SQ(py - p->y) + RB_SQ(pz - p->z);
+            if (d < best) {
+                *(u16 *)((u8 *)arg0 + 2) = j;
+                *(u8 *)arg0 = i;
+                *((u8 *)arg0 + 1) = i;
+                best = d;
+            }
+            p++;
+        }
+    }
+}
 
 typedef struct {
     u8 pad0[0x15];
@@ -151,7 +485,6 @@ extern u8 *D_807FDC9C;
 void behaviourFrameBegin(void);
 void func_80028E20(void *);
 void actorClearNodeFlag(void *, s32);
-void *spawnNodeActivate(s32, s32);
 void func_8067E278(s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);

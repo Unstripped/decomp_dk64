@@ -43,7 +43,6 @@ swapped externs in a comparison look identical in the text.
   `tools/dk` call pausing on `dk: waiting for ... lock` while the gate runs is normal: wait.
 - Never `pkill`/`kill` by pattern (`pkill -f "permute.py run"` killed every sibling's
   permuter): stop only a PID you started.
-- Starter C: `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`.
 - Put every scratch/probe file (also `cc -S` output) under `.scratch/<YourName>/`, never the repo root.
 - PRIVATE COPY mode: create your copy ONCE from the exact base commit in your task
   (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`), never re-copy
@@ -138,10 +137,11 @@ swapped externs in a comparison look identical in the text.
   unmatched. If not genuinely equivalent, keep the draft in `drafts/` instead.
 
 # Method
-Your budget is finite: near-misses first, then never-attempted functions from smallest to
-largest. After a serious effort on one function, move on and come back if budget remains.
-Every assigned function must be written as compilable C and fdiff'd at least once before
-you report: "stage 1, m2c starter saved" without a compile counts as unattempted.
+Your budget is finite: near-misses first, then never-attempted functions smallest to largest;
+after a serious effort on one, move on and come back if budget remains. Before writing C,
+read the matched C that `tools/dk python3 tools/similar.py -s <segment> <FUNC>` lists, then
+take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. Every assigned
+function must be compiled and fdiff'd once before you report (uncompiled = unattempted).
 When the permuter (or anything else) reaches score 0, put the readable C into your copy in
 place of the function's `GLOBAL_ASM` line and confirm with fdiff: a match left only in a
 draft is not merged.
