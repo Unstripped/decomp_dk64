@@ -49,15 +49,13 @@ void func_805FF628(s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *func_800296DC(Gfx *, Struct_807FBB40 *);
 
-/* Non-matching draft: stack layout and register allocation differences */
-#if 0
+#ifdef NON_MATCHING
 void func_80029118(void) {
+    s32 pad88[2];
     Struct_807FBB40_174 *temp_s0;
     s32 *var_s0;
     void (*temp_v1)(void *, s32);
     s32 temp_t3;
-    s32 pad84;
-    s32 pad80;
     s32 sp74;
     s32 sp70;
     s32 sp58[6];
@@ -66,12 +64,8 @@ void func_80029118(void) {
     s32 pad40[4];
     s32 sp3C;
     s32 sp38;
-    s32 pad34;
-    Struct_807FBB40 *volatile sp30;
-
-    sp30 = D_807FBB40;
-    temp_s0 = sp30->unk174;
-    if (!(sp30->unk60 & 0x10)) {
+    temp_s0 = D_807FBB40->unk174;
+    if (!(D_807FBB40->unk60 & 0x10)) {
         D_80029FA8 = 0;
         camStartPath(0, 0, 1);
         D_80029FA4 = D_807FCC44;
@@ -96,10 +90,9 @@ void func_80029118(void) {
             break;
         }
         D_807FBB40->unk154 = 0;
-        sp30 = D_807FBB40;
     }
 
-    switch (sp30->unk154) {
+    switch (D_807FBB40->unk154) {
     case 0x0:
         if ((D_807444EC == 1) && (camIsPathPaused() != 0)) {
             switch (D_8076A0A8) {
@@ -118,17 +111,15 @@ void func_80029118(void) {
             }
             func_8070D8C0(D_807FBB40, 0x19, *(u8 *)((char *)&sp74 + 3));
             D_807FBB40->unk154 = 1;
-            func_806A2A10(0xDC, 0x2A, temp_s0->unk5);
+            func_806A2A10(0xDC, 0x2A, ((u8 *)temp_s0)[5]);
         }
-        sp30 = D_807FBB40;
         break;
     case 0x1:
-        if (!(sp30->unk60 & 0x02000000)) {
+        if (!(D_807FBB40->unk60 & 0x02000000)) {
             camResumePath();
             D_807FBB40->unk154 = 2;
             actorSetStateTwo(D_807FBB40->unk11C);
             sfxAllocateChannel(8, 1.0f);
-            sp30 = D_807FBB40;
         }
         break;
     case 0x2:
@@ -150,21 +141,18 @@ void func_80029118(void) {
         }
         ((void (*)(void *, s32, s32))critterBitwiseNot(~(s32)osRecvMesg))(&D_807655F0, 0, 1);
         ((void (*)(void *, s32))critterBitwiseNot(~(s32)osInvalDCache))(var_s0, 0x10);
-        temp_t3 = var_s0[0] + var_s0[1];
-        var_s0[0] = temp_t3;
-        if (temp_t3 != 0x0A78F00E) {
+        var_s0[0] += var_s0[1];
+        if (var_s0[0] != 0x0A78F00E) {
             flagSet((D_8076A0A8 == 0xB6) ? 0x184 : 0x183, 0, 0);
         }
-        sp30 = D_807FBB40;
         break;
     case 0x3:
-        sp30->unk11C->unk154 = 1;
+        D_807FBB40->unk11C->unk154 = 1;
         temp_s0->unk2 = func_806FDB8C(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
         func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
         temp_s0->unk0 = 0x78;
         D_807FBB40->unk154 = 0xFE;
         D_80029FA8 = 1;
-        sp30 = D_807FBB40;
         break;
     case 0xFE:
         if (temp_s0->unk0 > 0) {
@@ -196,20 +184,22 @@ void func_80029118(void) {
                 func_805FF628(sp3C, 0);
             }
         }
-        sp30 = D_807FBB40;
         break;
     case 0xFF:
         D_80029FA8 = 0;
+        if (sp70 && sp70) {
+        }
         temp_s0->unk2 = func_806FDB8C(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
         temp_s0->unk0 = 0x78;
         D_807FBB40->unk154 = 0xFE;
-        sp30 = D_807FBB40;
         break;
     }
-    renderCallbacksRegister(&func_800296DC, sp30, 3);
+    renderCallbacksRegister(&func_800296DC, D_807FBB40, 3);
 }
-#endif
+#else
+
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/5110/func_80029118.s")
+#endif
 
 extern u8 D_1000118[];
 extern u8 D_2000180[];
