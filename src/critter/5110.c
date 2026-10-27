@@ -181,7 +181,8 @@ void func_80029118(void) {
                     }
                     flagSet(sp70, 1, 0);
                 }
-                D_807FCC44 = D_80029FA4;
+                tmp = D_80029FA4;
+                D_807FCC44 = tmp;
                 func_806F8A8C(4, 0, D_80029FA4);
                 func_805FF800(&sp3C, &sp38);
                 func_805FF628(sp3C, 0);
