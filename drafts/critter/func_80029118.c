@@ -1,9 +1,10 @@
-// func_80029118 (src/critter/5110.c): stage 6, parked NON_MATCHING in 5110.c: frame 0x90 + regs match; only diff: D_807FCC44 read+zero-store get hoisted address (lui/addiu v0) vs target separate lui v1/lui at; t-reg cascade after. Needs 's32 pad88[2]', array-free PRE temp (no sp30 local), 'if (sp70 && sp70) {}' in case 0xFF to colour sp70, var_s0[0] += var_s0[1]
+// func_80029118 (src/critter/5110.c): stage 6 improved (fdiff score 890 -> 40; only remaining diff: the two global-address temps lui/lhu are v0 in ours, v1 in target at D_807FCC44 read (0x48) and D_80029FA4 read (case 0xFE)). Fix found: read D_807FCC44 through an alias symbol (extern u8 D_807FCC40[]; tmp = *(u16 *)&D_807FCC40[4]) into a u16 local so the address is no longer shared with the zero store (separate lui at); reloc-only difference (D_807FCC40+4 vs D_807FCC44). Frame needs 's32 pad88; u16 tmp;' instead of pad88[2]. Tried for v1: dropping/adding sp70 uses, alias read at 0x508, decl order: no effect.
 typedef struct Struct_807FBB40_174 {
     s16 unk0;
     u8 unk2;
     u8 pad3;
     s16 unk4;
+    u8 unk5;
 } Struct_807FBB40_174;
 
 typedef struct Struct_807FBB40 {
@@ -17,6 +18,8 @@ typedef struct Struct_807FBB40 {
     Struct_807FBB40_174 *unk174;
 } Struct_807FBB40;
 
+s32 critterBitwiseNot(s32 arg0);
+
 extern s8 D_80029FA0;
 extern u16 D_80029FA4;
 extern s8 D_80029FA8;
@@ -26,6 +29,7 @@ extern s32 D_8076A0A8;
 extern u8 D_807ECE00[];
 extern Struct_807FBB40 *D_807FBB40;
 extern u16 D_807FCC44;
+extern u8 D_807FCC40[];
 
 void camStartPath(s32, s32, s32);
 void func_806F8A8C(s32, s32, s32);
@@ -44,7 +48,8 @@ void renderCallbacksRegister(void *, void *, s32);
 Gfx *func_800296DC(Gfx *, Struct_807FBB40 *);
 
 void func_80029118(void) {
-    s32 pad88[2];
+    s32 pad88;
+    u16 tmp;
     Struct_807FBB40_174 *temp_s0;
     s32 *var_s0;
     void (*temp_v1)(void *, s32);
@@ -61,7 +66,8 @@ void func_80029118(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_80029FA8 = 0;
         camStartPath(0, 0, 1);
-        D_80029FA4 = D_807FCC44;
+        tmp = *(u16 *)&D_807FCC40[4];
+        D_80029FA4 = tmp;
         D_807FCC44 = 0;
         func_806F8A8C(4, 0, 0);
         switch (D_8076A0A8) {

@@ -32,6 +32,7 @@ extern s32 D_8076A0A8;
 extern u8 D_807ECE00[];
 extern Struct_807FBB40 *D_807FBB40;
 extern u16 D_807FCC44;
+extern u8 D_807FCC40[];
 
 void camStartPath(s32, s32, s32);
 void func_806F8A8C(s32, s32, s32);
@@ -51,7 +52,8 @@ Gfx *func_800296DC(Gfx *, Struct_807FBB40 *);
 
 #ifdef NON_MATCHING
 void func_80029118(void) {
-    s32 pad88[2];
+    s32 pad88;
+    u16 tmp;
     Struct_807FBB40_174 *temp_s0;
     s32 *var_s0;
     void (*temp_v1)(void *, s32);
@@ -68,7 +70,8 @@ void func_80029118(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_80029FA8 = 0;
         camStartPath(0, 0, 1);
-        D_80029FA4 = D_807FCC44;
+        tmp = *(u16 *)&D_807FCC40[4];
+        D_80029FA4 = tmp;
         D_807FCC44 = 0;
         func_806F8A8C(4, 0, 0);
         switch (D_8076A0A8) {
