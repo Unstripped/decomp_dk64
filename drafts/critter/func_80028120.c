@@ -1,4 +1,4 @@
-// func_80028120 (src/critter/3340.c): stage 5-6: size/frame(0x68)/stack slots/jump table/rodata identical; only float scratch numbering differs (78 diff lines): target keeps case-1 'radius' (rand*65.0, also case-2 k=3/dist, one shared f32) coloured f2 (fv1, swc1 in jal delay), mine uncoloured (uopt adjsave<0, scratch f8/f10). Matched via: angleTmp s32 local (lh 0x4A(sp) idiom), (s16)angleTmp for sin/cos args, v/t shared (t=(t-0.5)*2.5 clamp), unused f32 v + k + near + angleTmp decl order for slots, case 0xB: break for 12-entry jtbl, store order unk4,unk0,unk14,unk1C. Tried: radius/k merge, register, block-scope, decl order, permuter (noise)
+// func_80028120 (src/critter/3340.c): stage 5-6 (score 745, size/frame 0x68/slots/jtbl match; only f-reg numbering). Root cause: case-1 'k' (rand*65.0) is split at calls and every piece has adjsave 0.0 (not coloured); target colours the whole range in $f2 (save once in sin jal delay, reload after sin and cos). Toy experiments (.scratch/C0c2/toy.py style, uopt_trace -l 5): f32 k live across two calls with 1 use after each call never colours; 3 refs with 2 in the LAST block (after the 2nd call) colours the whole range ('s2(a)*k + k + k'); extra use in the first block or in def block colours only a piece; one use per block never; a loop colours. Tried (no effect on k): v=k copies, void/if(0) uses, k*=65.0 two-step defs, operand swaps, separate k2 for case 2, v/w as real interpolation temps, register. Permuter 'best' (score 500) = d->unk8 = d->unk8 which emits an extra swc1 8(v1): invalid. Need a source shape giving k a hidden 3rd ref in the block after the cos call.
 typedef struct J1b2Data {
     f32 unk0;
     f32 unk4;
@@ -41,10 +41,7 @@ typedef struct J1b2Actor {
 
 #define J1b2A ((J1b2Actor *)D_807FBB40)
 
-extern u16 D_807ECD48;
 extern u8 D_807FBD70;
-s32 camIsCutsceneActive(void);
-f32 func_806119FC(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -52,7 +49,6 @@ s32 func_806CC10C(s16, s16);
 void func_8065D254(Actor_3340 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_80665564(Actor_3340 *, s32);
 u8 func_8072881C(u8, u32 *);
-f32 sqrtf(f32);
 
 void func_80028120(void) {
     f32 dx;
