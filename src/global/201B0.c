@@ -336,7 +336,7 @@ void func_8061B660(CamState *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 arg4, f3
     *arg2 += arg5 * func_80612794((u32)D_8076A064 * arg7);
 }
 
-void collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
+u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
 u8 collisionGetFloorHeight(f32 *);
 
 typedef struct CamAFloor {
@@ -394,7 +394,161 @@ void func_8061B84C(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061B9B0.s")
+typedef struct CamB9Act {
+    /* 0x00 */ u8 pad0[0xC0];
+    /* 0xC0 */ f32 unkC0;
+    /* 0xC4 */ u8 padC4[0x22];
+    /* 0xE6 */ s16 unkE6;
+    /* 0xE8 */ u8 padE8[0x6C];
+    /* 0x154 */ u8 unk154;
+} CamB9Act;
+
+typedef struct CamB9St {
+    /* 0x00 */ CamB9Act *unk0;
+    /* 0x04 */ u8 pad4[4];
+    /* 0x08 */ u16 unk8;
+    /* 0x0A */ u16 unkA;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 pad10[8];
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ u8 pad1C[0x74];
+    /* 0x90 */ f32 unk90;
+    /* 0x94 */ u8 pad94[0xC];
+    /* 0xA0 */ f32 unkA0;
+    /* 0xA4 */ u8 padA4[8];
+    /* 0xAC */ s32 unkAC;
+    /* 0xB0 */ u8 padB0[2];
+    /* 0xB2 */ s16 unkB2;
+    /* 0xB4 */ u8 padB4[0x41];
+    /* 0xF5 */ u8 unkF5;
+    /* 0xF6 */ u8 padF6[4];
+    /* 0xFA */ u8 unkFA;
+} CamB9St;
+
+#define CAMB9_MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define CAMB9_MAX(a, b) (((a) < (b)) ? (b) : (a))
+
+void func_80620628(CamActor *, f32, s16, u8);
+
+u8 func_8061B9B0(void *arg0, void *arg1, f32 arg2, f32 *arg3, f32 arg4, s32 arg5) {
+    CamB9Act *X = ((CamB9St *)arg1)->unk0;
+    f32 sp78;
+    f32 sp74;
+    u8 ret;
+    f32 bonus;
+    u8 flags;
+    u8 cnt;
+    s16 i;
+    s16 pad;
+    s16 sp64;
+    f32 lim;
+    s32 pad2;
+    s32 pad3;
+    f64 new_var;
+
+    ret = 0;
+    if (1) {
+    }
+    sp74 = -32768.0f;
+    sp78 = 32767.0f;
+    ((CamB9St *)arg1)->unkFA = 0;
+    cnt = 0;
+    if (collisionCheckActorFloor((Actor *)arg0, arg2, sp78, arg4, &sp78)) {
+        func_8061B84C();
+        if (D_807F9510 == 1 || *arg3 < D_807F94C0[0].unk0) {
+            flags = D_807F94C0[0].unk6;
+            sp78 = D_807F94C0[0].unk0;
+            sp64 = D_807F94C0[0].unk4;
+            cnt = 1;
+        } else {
+            for (i = 0; i < D_807F9510; i++) {
+                flags = D_807F94C0[i].unk6;
+                if (flags & 2) {
+                    if (*arg3 < D_807F94C0[i].unk0 || (sp74 != ((CamB9St *)arg1)->unkC && ((CamB9St *)arg1)->unkC < *arg3)) {
+                        sp74 = D_807F94C0[i].unk0;
+                        break;
+                    }
+                }
+                if (!(flags & 4) && (flags & 1) && D_807F94C0[i].unk4 >= 0x1F5) {
+                    sp78 = D_807F94C0[i].unk0;
+                    cnt++;
+                    sp64 = D_807F94C0[i].unk4;
+                }
+            }
+        }
+        bonus = 15.0f;
+        if (D_8076A0A8 == 0x30 && (u32)D_8076A064 > 0x3C) {
+            new_var = CAMB9_MIN(1.0, ((u32)D_8076A064 - 0x3C) * 0.01);
+            bonus += 10.0 * new_var;
+        }
+        if ((D_807FBB64 & 8) && !(flags & 8)) {
+            lim = CAMB9_MAX((func_80612794(sp64 + 0x800) + 1.0f) * 100.0f, bonus);
+        } else {
+            lim = bonus;
+        }
+        if (((CamB9St *)arg1)->unk18 < lim) {
+            ((CamB9St *)arg1)->unk18 = lim;
+        } else {
+            ((CamB9St *)arg1)->unk18 = ((CamB9St *)arg1)->unk18 + (lim - ((CamB9St *)arg1)->unk18) * 0.05;
+        }
+        if (*arg3 < sp78 + ((CamB9St *)arg1)->unk18) {
+            ret = 1;
+            if (sp78 - *arg3 < 35.0 || (D_807F9510 == 1 && sp64 >= 0x1F5 && sp78 - *arg3 < 80.0)) {
+                *arg3 = sp78 + ((CamB9St *)arg1)->unk18;
+                ((CamB9St *)arg1)->unkAC |= 0x800;
+                ret = 2;
+            } else if (!(((CamB9St *)arg1)->unkAC & 0x82000) && !*((u8 *)&arg5 + 3) && !(D_807FBB64 & 1) &&
+                       ((X->unkC0 < -300.0f && X->unk154 != 0x59) || X->unk154 == 0x15 || X->unk154 == 0x16)) {
+                func_80620628((CamActor *)arg0, -2.0f, ((CamB9St *)arg1)->unkB2 + 0x800, 0);
+            } else if ((D_807FBB64 & 1) || D_807F9510 < 2 || (((CamB9St *)arg1)->unkAC & 0x80000)) {
+                ret = 0;
+            }
+        } else {
+            ((CamB9St *)arg1)->unkAC &= ~0x800;
+        }
+    } else {
+        if (!(D_807FBB68 & 0x80)) {
+            sp78 = 32767.0f;
+        }
+    }
+    ((CamB9St *)arg1)->unkFA = collisionGetFloorHeight(&((CamB9St *)arg1)->unk90);
+    if (*((u8 *)&arg5 + 3)) {
+        ((CamB9St *)arg1)->unkA = ((CamB9St *)arg1)->unk8;
+        if (sp74 != -32768.0f && sp78 < sp74) {
+            ((CamB9St *)arg1)->unk8 = sp74 - sp78;
+        } else {
+            ((CamB9St *)arg1)->unk8 = 0;
+        }
+        if (!(D_807FBB68 & 0x20) && ((CamB9St *)arg1)->unkF5 == 0) {
+            u8 v1;
+
+            if (X->unk154 == 0x63) {
+                v1 = 0x14;
+            } else {
+                v1 = 10;
+            }
+            if (((CamB9St *)arg1)->unk8 != 0) {
+                if (sp78 + ((CamB9St *)arg1)->unk8 - v1 < *arg3) {
+                    *arg3 = sp78 + ((CamB9St *)arg1)->unk8 - v1;
+                }
+            }
+        }
+        if (X->unk154 == 0x44 || X->unk154 == 0x57 || X->unk154 == 0x59) {
+            ((CamB9St *)arg1)->unkC = -32768.0f;
+        } else {
+            ((CamB9St *)arg1)->unkC = sp74;
+        }
+    }
+    if (*((u8 *)&arg5 + 3)) {
+        if (!(((CamB9St *)arg1)->unkAC & 0x82000)) {
+            if (sp78 == 32767.0f || (D_807F9510 == 1 && cnt == 0)) {
+                ((CamB9St *)arg1)->unkA0 -= 10.0f;
+                ((CamB9St *)arg1)->unkB2 = X->unkE6;
+            }
+        }
+    }
+    return ret;
+}
 
 typedef struct CamAA8 {
     /* 0x00 */ u8 pad0[0xA8];
@@ -1258,7 +1412,6 @@ typedef struct CamEState {
     /* 0xFB */ u8 unkFB;
 } CamEState;
 
-void func_80620628(CamActor *, f32, s16, u8);
 
 void func_8061DB64(CamActor *arg0) {
     CamEState *cam = (CamEState *)arg0->unk174;
@@ -2243,7 +2396,7 @@ void func_80621E9C(CamState *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
         idx = actor->unk15E;
     }
     if (D_807476B0 >= 0.0f) {
-        y = CAM_MIN(1.0, (f < D_807476B0 ? D_807476B0 - f : 0.0f) * 2);
+        y = CAMB9_MIN(1.0, (f < D_807476B0 ? D_807476B0 - f : 0.0f) * 2);
     } else if (D_807476B0 < -0.1) {
         y = 0.0 - CAM_MAX(CAM_MIN((D_807476B0 - f) + 0.3, 0.0) * 2, -1.0);
     }
@@ -3396,6 +3549,7 @@ void func_80625320(CamE2Player *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4
         func_80625994(arg0, D_807476A4, arg4, arg5, arg6);
     }
 }
+
 
 
 void func_806256D0(CamE2Player *arg0, f32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {

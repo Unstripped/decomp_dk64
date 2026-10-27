@@ -1,4 +1,4 @@
-// func_8061F53C (src/global/201B0.c): stage 4-5: same size/frame/slots; 30 diff chunks (regalloc s6/s7 weight/ret swap, scheduling at start, callbacks guard delay slot)
+// func_8061F53C (src/global/201B0.c): stage 5: same size 50512/frame/slots; ~25 diff chunks: weight/ret s6/s7 swap, start-of-func scheduling, path ptr v1 vs a1 w/ owners temp; semantic review done (outX/outY/outZ order fixed)
 typedef struct CamLEnt {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
@@ -107,10 +107,10 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     s16 weight;
     s16 i;
     f32 distSq;
-    CamLSt *st = (CamLSt *)arg0->unk174;
-    CamLTgt *tgt = st->unk0;
-    f32 x = tgt->unk7C;
-    f32 z = tgt->unk84;
+    CamLSt *st;
+    CamLTgt *tgt;
+    f32 x;
+    f32 z;
     f32 y;
     s16 cell;
     s16 k;
@@ -132,14 +132,19 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     s16 dist0;
     s32 ang2;
     f32 factor;
-    f32 outZ;
-    f32 outY;
     f32 outX;
+    f32 outY;
+    f32 outZ;
+    s8 *owners;
 
+    st = (CamLSt *)arg0->unk174;
+    linkId = 0xFF;
     weight = 0;
+    tgt = st->unk0;
+    x = tgt->unk7C;
+    z = tgt->unk84;
     bestIdx = 0;
     handled = 0;
-    linkId = 0xFF;
     y = tgt->unk80 + tgt->unk174->unk10C;
     if (st->unkAC & 0x2000) {
         hadFlag = 1;
@@ -170,6 +175,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                             linkId = e->unk0;
                             e = &CAML_PATH->unkC4[e->unk0];
                         }
+                        owners = CAML_PATH->unkC8;
                         type = e->unk16;
                         if (k == st->unkC4 && type == 8) {
                             if (e->unk18 >= 0xF) {
@@ -183,8 +189,8 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                         } else {
                             distSq = (z - pos[2]) * (z - pos[2]) + ((x - pos[0]) * (x - pos[0]) + (y - pos[1]) * (y - pos[1]));
                         }
-                        if (tgt->unk12C == CAML_PATH->unkC8[D_80747704[k * 2]] || type == 8 ||
-                            CAML_PATH->unkC8[D_80747704[k * 2]] == -1) {
+                        if (tgt->unk12C == owners[D_80747704[k * 2]] || type == 8 ||
+                            owners[D_80747704[k * 2]] == -1) {
                             if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->unk18 && !((s16)(s32)y < pos[1]) &&
                                  pos[1] + spread * 2 >= (s16)(s32)y) ||
                                 (mode != 2 && distSq < (f32)(rad * rad) && weight < e->unk18)) {
@@ -310,7 +316,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                     st->unkF1 = 0xB;
                 }
                 ret = 0;
-                st->unkAC |= ((u8 *)best)[2] | 0x2000;
+                st->unkAC = st->unkAC | (((u8 *)best)[2] | 0x2000);
                 if (((u8 *)best)[0] != 0) {
                     st->unkA4 = ((u8 *)best)[0];
                     st->unkB8 = ((u8 *)best)[1];
