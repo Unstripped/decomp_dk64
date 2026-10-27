@@ -154,7 +154,35 @@ void func_8002BBD0(RaceUnknownActor *arg0, s32 arg1) {
     arg0->unk154 = 0;
 }
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002BC2C.s")
+u16 *func_8002E960(u8);
+void func_8002F36C(void *, void *);
+s32 cameraFindViewportEntry(u8);
+#define RaceE3 ((RaceStruct3 *)arg3)
+
+void func_8002BC2C(RaceUnknownActor *arg0, s32 arg1, RaceUnknownActor *arg2, RaceUnknown174 *arg3) {
+    RaceUnknown174 *temp_t0;
+    RacePair *temp_v1;
+    RacePair *temp_v0;
+    u16 *temp_a1;
+
+    temp_t0 = arg0->unk174;
+    temp_v1 = temp_t0->unk20;
+    temp_v0 = (RacePair *)((s32)temp_v1 + (arg1 * 8));
+    temp_v0->unk0 = arg2;
+    temp_v0->unk4 = RaceE3;
+    RaceE3->unk45 = 0;
+    RaceE3->unk3A = 0;
+    RaceE3->unk37 = 1;
+    if (RaceE3->unk27 == 0) {
+        temp_a1 = func_8002E960(temp_t0->unk26);
+        if (temp_a1 != NULL) {
+            RaceE3->unk3C = *temp_a1 - 1;
+            func_8002F36C(arg3, temp_a1);
+        }
+        RaceE3->unk48 = cameraFindViewportEntry(RaceE3->unk28);
+    }
+}
+#undef RaceE3
 
 void func_8002BCB0(RaceUnknownActor *arg0, s32 arg1, s32 *arg2, s32 *arg3) {
     RaceUnknown174 *temp_v0;
@@ -168,7 +196,49 @@ void func_8002BCB0(RaceUnknownActor *arg0, s32 arg1, s32 *arg2, s32 *arg3) {
     *arg3 = (s32)temp_t0->unk4;
 }
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002BCD4.s")
+typedef struct RaceEBounds {
+    f32 *start;
+    char pad4[8];
+    f32 *end;
+} RaceEBounds;
+extern RaceEBounds *D_807F5FD4;
+
+void func_8002BCD4(RaceUnknownActor *arg0) {
+    RaceUnknown174 *temp_v0;
+    f32 *p;
+    f32 minX;
+    f32 minZ;
+    f32 maxX;
+    f32 maxZ;
+    f32 x;
+    f32 z;
+
+    minX = 9999.0f;
+    minZ = 9999.0f;
+    maxX = -1.0f;
+    maxZ = -1.0f;
+    temp_v0 = arg0->unk174;
+    for (p = D_807F5FD4->start; p < D_807F5FD4->end; p += 3) {
+        x = p[0];
+        if (x < minX) {
+            minX = x;
+        }
+        z = p[2];
+        if (z < minZ) {
+            minZ = z;
+        }
+        if (maxX < x) {
+            maxX = x;
+        }
+        if (maxZ < z) {
+            maxZ = z;
+        }
+    }
+    temp_v0->unkC = ((maxX - minX) * 0.5f + minX) - 10.0f;
+    temp_v0->unk10 = ((maxZ - minZ) * 0.5f + minZ) - 20.0f;
+    temp_v0->unk4 = 116.48f / (maxX - minX);
+    temp_v0->unk8 = 121.6f / (maxZ - minZ);
+}
 
 Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
@@ -200,7 +270,45 @@ void *func_8070E750(s32, s32, s32);
 s32 func_806FBD5C(s32, void *);
 Gfx *func_806FC530(Gfx *, s32, s32, s32, void *, s32);
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002BEE8.s")
+Gfx *func_8002BEE8(Gfx *arg0, RaceUnknownActor *arg1) {
+    u8 sp3F;
+    s32 sp38;
+    s32 temp_v0;
+    RaceUnknown174 *temp_v1;
+    s32 var_a2;
+    void *var_s1;
+    f32 temp_fv0;
+
+    sp3F = 0xFF;
+    sp38 = D_80744490 / 2;
+    temp_v1 = arg1->unk174;
+    if (arg1->unk154 == 2 || arg1->unk154 == 1) {
+        if (temp_v1->unk1C < 0x78) {
+            if (temp_v1->unk1C < 0x5A) {
+                var_a2 = (0x78 - temp_v1->unk1C) / 30;
+                if (var_a2 >= 3) {
+                    var_a2 = 3;
+                }
+                var_s1 = func_80610FE8(4);
+                heapFreeDeferred(var_s1);
+                _sprintf(var_s1, "%d", var_a2);
+            } else {
+                temp_fv0 = (f32)(0x78 - temp_v1->unk1C) * 0.033333335f;
+                sp3F = (u8)(u32)((f32)sp3F * temp_fv0);
+                var_s1 = func_8070E750(0x26, 9, 1);
+            }
+            WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
+            WRITE_GFX(arg0++, 0xE7000000, 0);
+            WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
+            WRITE_GFX(arg0++, 0xFA000000, sp3F & 0xFF);
+            WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
+            sp38 -= func_806FBD5C(1, var_s1) >> 1;
+            arg0 = func_806FC530(arg0, 1, (s16)(sp38 * 4), 0x3C, var_s1, 1);
+        }
+    }
+    return arg0;
+}
+
 Gfx *func_8002C14C(Gfx *arg0, RaceUnknown174 *arg1) {
     Struct806C7C94 *temp_v0;
     s32 temp_ft4;
@@ -237,7 +345,63 @@ Gfx *func_8002C14C(Gfx *arg0, RaceUnknown174 *arg1) {
     return arg0;
 }
 
+#ifdef NON_MATCHING
+u32 func_806FD894(s32);
+
+Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
+    f32 temp_fs0;
+    f32 temp_fs1;
+    f32 temp_fs2;
+    f32 temp_fv0;
+    Struct806C7C94 *temp_s0;
+    f32 sp70;
+    f32 temp_t1;
+    f32 temp_t2;
+    s16 temp_s3;
+    s32 var_s0;
+    s32 var_s1;
+    void *temp_v0_2;
+
+    temp_s0 = arg1->unk48;
+    temp_fv0 = (f32)func_806FD894(1) * 0.5f;
+    sp70 = temp_fv0;
+    temp_fs0 = (f32)(temp_s0->unk4 + 8);
+    temp_fs2 = (f32)(temp_s0->unkA - 0x10);
+    temp_fs2 -= 2 * temp_fv0;
+    temp_v0_2 = func_8070E750(0x26, 0xA, 1);
+    WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFFF);
+    arg0 = func_806FC530(arg0, 1, (s16)(s32)(2.0f * (temp_fs0 * 4.0f)), (s16)(s32)(2.0f * (temp_fs2 * 4.0f)), temp_v0_2, 4);
+    WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
+    WRITE_GFX(arg0++, 0xDA380005, (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50));
+    temp_t1 = 0.5f;
+    temp_fs0 = temp_fs0 + ((f32)func_806FBD5C(1, temp_v0_2) * temp_t1);
+    WRITE_GFX(arg0++, 0xFA000000, 0xFFFF00FF);
+    temp_fs0 = (f32)((f64)temp_fs0 + 8.0);
+    temp_fs1 = temp_fs0 + temp_fs0;
+    temp_fs2 = (f32)((f64)temp_fs2 + (0.4 * (f64)sp70));
+    temp_s3 = (s16)(s32)((temp_fs2 + temp_fs2) * 4.0f);
+    var_s0 = 0;
+    do {
+        arg0 = func_8068C5A8(arg0, 0x4B, 3, 1, 0x40, 0x40, (s32)(((f32)var_s0 + temp_fs1) * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
+        var_s0 += 0x18;
+    } while (var_s0 < 0x78);
+    WRITE_GFX(arg0++, 0xFA000000, 0xFF0000FF);
+    var_s1 = 0;
+    if ((5 - *((u8 *)arg1 + 0x44)) > 0) {
+        var_s0 = 0;
+        do {
+            arg0 = func_8068C5A8(arg0, 0x45, 3, 1, 0x40, 0x40, (s32)(((f32)var_s0 + temp_fs1) * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
+            var_s1 += 1;
+            var_s0 += 0x18;
+        } while (var_s1 < (5 - *((u8 *)arg1 + 0x44)));
+    }
+    WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
+    return arg0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002C2E8.s")
+#endif
 
 
 Gfx *func_8002C63C(Gfx *arg0, RaceUnknown174 *arg1) {
