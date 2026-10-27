@@ -421,7 +421,7 @@ s32 func_8063253C(s16 arg0, s32 arg1) {
 
 s32 func_8063254C(s32 arg0, s32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *arg5, s16 *arg6) {
     s32 i;
-    s32 found;
+    u8 found;
 
     found = 0;
     i = *arg1;
@@ -1329,7 +1329,7 @@ void func_8063495C(u8 *arg0, ModelSlot *arg1) {
     s16 *p;
     s32 n;
     s32 idx;
-    s32 found;
+    u8 found;
     s32 key;
 
     node = ((R36880bObj *)arg1->unk20)->unk50;
@@ -2712,21 +2712,204 @@ void func_80639CD0(R36880eNode *arg0, s32 *arg1, s32 *arg2, u8 *arg3, s16 *arg4)
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80639F1C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80639FC0.s")
+typedef struct R36880fNode {
+    /* 0x00 */ u32 key;
+    /* 0x04 */ u8 pad4[8];
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ f32 unk1C;
+    /* 0x20 */ u8 pad20[4];
+    /* 0x24 */ s16 unk24;
+    /* 0x26 */ s16 unk26;
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ s16 unk2A;
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ u8 unk2E;
+    /* 0x2F */ u8 unk2F;
+    /* 0x30 */ u8 pad30[4];
+    /* 0x34 */ struct R36880fNode *next;
+} R36880fNode;
+
+s32 func_80611E60(s32);
+f32 distance3D(f32, f32, f32, f32, f32, f32);
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+
+void func_80639FC0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 *arg6, f32 *arg7, f32 *arg8, u8 arg9) {
+    f32 len;
+    s16 angle;
+    f32 dx;
+    f32 dz;
+    s32 pad1;
+    s32 pad2;
+    s32 pad3;
+    s16 angle2;
+    s32 t;
+
+    if (arg9 == 0) {
+        dx = arg3 - arg0;
+        dz = arg5 - arg2;
+        len = sqrtf(dx * dx + dz * dz);
+        if ((f64)len < 1.0) {
+            len = 1.0f;
+        }
+        if (arg0 <= arg3 && arg2 <= arg5) {
+            angle = (s16)(func_80611E60((s32)(((f64)dx * 65535.9) / (f64)len)) >> 4);
+        }
+        if (arg0 <= arg3 && arg5 < arg2) {
+            angle = (s16)((func_80611E60((s32)(((f64)(arg2 - arg5) * 65535.9) / (f64)len)) >> 4) + 0x400);
+        }
+        if (arg3 < arg0 && arg5 < arg2) {
+            angle = (s16)((func_80611E60((s32)(((f64)(arg0 - arg3) * 65535.9) / (f64)len)) >> 4) + 0x800);
+        }
+        if (arg3 < arg0 && arg2 <= arg5) {
+            angle = (s16)((func_80611E60((s32)(((f64)dz * 65535.9) / (f64)len)) >> 4) + 0xC00);
+        }
+        *arg8 = 0.0f;
+        *arg6 = 0.0f;
+        *arg7 = (f32)(((f64)angle / 4095.0) * 360.0);
+    } else {
+        len = distance3D(arg3, arg4, arg5, arg0, arg1, arg2);
+        if ((f64)len < 0.1) {
+            len = 1.0f;
+        }
+        dz = (arg4 - arg1) / len;
+        if (dz > 0.0f) {
+            dx = dz;
+        } else {
+            dx = -dz;
+        }
+        t = func_80611E60((s32)(f32)(s32)((f64)dx * 65536.0)) >> 4;
+        angle2 = t;
+        if (dz >= 0.0f) {
+            angle2 = 0xFFF - angle2;
+        }
+        *arg6 = (f32)(((f64)angle2 / 4095.0) * 360.0);
+        *arg7 = mathAngleBetweenPointsRad(arg3, arg5, arg0, arg2) * 57.295776f;
+        *arg8 = 0.0f;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063A38C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063A848.s")
+R36880fNode *func_8063A848(R36880fNode *head, R36880fNode *node) {
+    R36880fNode *prev;
+    R36880fNode *ret;
+    s32 inserted;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063A8C4.s")
+    prev = NULL;
+    ret = head;
+    inserted = 0;
+    if (head != NULL) {
+        do {
+            if (head->key >= node->key) {
+                inserted = 1;
+                node->next = head;
+                if (prev != NULL) {
+                    prev->next = node;
+                } else {
+                    ret = node;
+                }
+            }
+            prev = head;
+            if (inserted == 0) {
+                head = head->next;
+            }
+        } while (head != NULL && inserted == 0);
+    }
+    if (inserted == 0) {
+        if (prev == NULL) {
+            ret = node;
+        } else {
+            prev->next = node;
+        }
+    }
+    return ret;
+}
+
+void func_8063A8C4(s16 arg0, u8 arg1, f32 arg2) {
+    u8 *obj;
+    f32 *p;
+
+    if (arg1 == 1) {
+        arg0 = hashTableLookup(arg0);
+    }
+    obj = D_807F6000[arg0].unk20;
+    switch (D_807F6000[arg0].unk86) {
+    case 2:
+        p = *(f32 **)(obj + 0x54);
+        break;
+    case 1:
+        p = *(f32 **)(obj + 0xBC);
+        break;
+    }
+    if (p != NULL) {
+        p[1] = arg2;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063A968.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B4A4.s")
+extern s16 D_807F6028;
+extern s16 D_807F60A8;
+extern u8 D_807F6938;
+
+void func_8063B4A4(void) {
+    D_807F6028 = 0;
+    D_807F60A8 = 0;
+    D_807F6938 = 0;
+}
+
+typedef struct R36880fEntry {
+    /* 0x0 */ s16 id;
+    /* 0x2 */ s16 key;
+    /* 0x4 */ u8 done;
+    /* 0x5 */ u8 pad5;
+} R36880fEntry;
+
+extern R36880fEntry D_807F6030[];
+extern s16 D_807F60B0[];
+void func_8063E078(s32);
+void func_8063E0D4(s32, s16);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B4C0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B758.s")
+void func_8063B758(void) {
+    u8 found;
+    s32 i;
+    s32 slot;
+    s32 obj;
+    u8 any;
+    s32 j;
+
+    do {
+        any = 0;
+        for (i = 0; i < D_807F6028; i++) {
+            if (D_807F6030[i].done == 0) {
+                found = 0;
+                for (j = 0; found == 0 && j < D_807F60A8; j++) {
+                    if (D_807F60B0[j] == D_807F6030[i].key) {
+                        found = 1;
+                        any = 1;
+                        D_807F6030[i].done = 1;
+                        slot = hashTableLookup(D_807F6030[i].id);
+                        obj = (s32)D_807F6000[slot].unk7C;
+                        if (D_807F60A8 == 0x46) {
+                            return;
+                        }
+                        D_807F60B0[D_807F60A8] = *(s16 *)((u8 *)D_807F6000 + slot * 0x90 + 0x8A);
+                        D_807F60A8++;
+                        func_8063E078(obj);
+                        func_8063E0D4(obj, D_807F6030[i].id);
+                    }
+                }
+            }
+        }
+    } while (any == 1);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B8D8.s")
 
