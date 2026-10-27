@@ -85,7 +85,34 @@ void jetpacInitGrid(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_800254B8.s")
+void func_800254B8(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    JetpacCell *cell;
+    s32 i;
+    JetpacCellItem *item;
+
+    item = NULL;
+    if (arg1 >= 0 && arg2 >= 0 && arg1 < 0x101 && arg2 < 0xC1) {
+        cell = &D_8002F3D0[0][0] + (arg1 / 8 + ((arg2 / 8) << 5));
+        if (cell->count < 6) {
+            item = &cell->items[cell->count++];
+        }
+        if (item != NULL) {
+            item->x = arg1;
+            item->y = arg2;
+            *(s32 *)&item->pad8[0] = arg4;
+            item->unkC = (s32)arg0;
+            if (cell->color[3] == 0 || (cell->color[3] < 0xFF && jetpacRandFloat() > 0.97)) {
+                if (1) { }
+                if (1) { }
+                if (1) { }
+                cell->color[0] = ((u8 *)arg3)[0];
+                cell->color[1] = ((u8 *)arg3)[1];
+                cell->color[i = 2] = ((u8 *)arg3)[i];
+                cell->color[3] = ((u8 *)arg3)[3];
+            }
+        }
+    }
+}
 
 extern s32 D_80045BD0;
 
@@ -111,8 +138,8 @@ void jetpacInitRdp(Gfx **arg0) {
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025700.s")
 
-#if 0
-// Non-matching draft: temporary register allocation in inner loop (t2/t9/t0/t5 vs t3/t5/t7/t4)
+#ifdef NON_MATCHING
+// Non-matching: temporary register allocation in inner loop (t2/t9/t0/t5 vs t3/t5/t7/t4)
 void func_80025904(Gfx **arg0) {
     JetpacCell *cell;
     JetpacCellItem *item;
@@ -146,124 +173,7 @@ void func_80025904(Gfx **arg0) {
     }
     *arg0 = g;
 }
-#endif
+#else
+
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025904.s")
-
-typedef struct {
-    s32 x;
-    s32 y;
-    s32 timer;
-    u8 color[4];
-} JetpacExplosion;
-
-void func_80025A60(JetpacExplosion *arg0) {
-    volatile s32 frame;
-    s32 timer;
-
-    timer = arg0->timer;
-    frame = (s32)(((f32)timer / 14.0f) * 6.0f);
-    if ((timer % 7) == 0) {
-        if (jetpacRandFloat() < 0.5) {
-            arg0->color[1] = 0;
-        } else {
-            arg0->color[1] = 0xFF;
-        }
-        if (jetpacRandFloat() < 0.5) {
-            arg0->color[2] = 0;
-        } else {
-            arg0->color[2] = 0xFF;
-        }
-    }
-    func_80025700(&D_8002B9C0[frame], arg0->x, arg0->y, (s32)&arg0->color[0], 0);
-    arg0->timer++;
-}
-
-s32 func_80025B70(JetpacActor *arg0) {
-    return (s32)(((s32)arg0->x + arg0->unk1C) / 2) % 4;
-}
-
-void func_80025BB8(JetpacActor *arg0, s32 arg1) {
-    if (arg1 == 0 && arg0->unk30 != 0) {
-        arg0->x = (f32)((s32)arg0->x & 0xFFFE);
-    } else if (arg1 != 0 && arg0->unk30 == 0) {
-        jetpacSnapActorToGrid(arg0);
-    }
-    arg0->unk1C = 0;
-    arg0->unk24 = 0x10;
-    arg0->unk30 = arg1;
-}
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025C40.s")
-
-void jetpacResetActorState(JetpacActor *arg0) {
-    arg0->unk14 = 4;
-    arg0->unk2C = 0;
-}
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025CB0.s")
-
-void func_80025F48(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
-    func_80025700(&D_8002C4D0[arg0], *arg1, arg3, arg4, arg5);
-    *arg1 += arg2;
-    if (*arg1 < 0) {
-        *arg1 += 0x100;
-    }
-}
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025FC4.s")
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_800260DC.s")
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026318.s")
-
-void func_80026A3C(JetpacActor *arg0) {
-    JetpacPlayerData *p = &D_8002EC30.sessions[D_8002EC30.currentSession].data;
-
-    if (arg0->unk2C < 14) {
-        arg0->unk2C++;
-    } else {
-        p->lives--;
-        func_80025368(p);
-    }
-}
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026AB0.s")
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026CA4.s")
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026CEC.s")
-
-extern s32 D_8002F064;
-void func_80024E70(s32);
-void func_80026318(JetpacActor *);
-s32 func_80026FE0(void);
-
-extern JetpacState D_8002F050;
-void jetpacPlayerStateUpdate(void) {
-    if (!func_80026FE0()) {
-        s32 state = D_8002F064;
-
-        if (state == 1) {
-            func_80024E70(3);
-            state = 3;
-        }
-        D_8002F064 = state;
-        if (state == 3) {
-            func_80026318((JetpacActor *)&D_8002F050);
-        }
-        state = D_8002F064;
-        if (state == 4) {
-            func_80026A3C((JetpacActor *)&D_8002F050);
-        }
-    }
-}
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026DC8.s")
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80026FE0.s")
-
-void jetpacSnapActorToGrid(JetpacActor *arg0) {
-    if (arg0->unk44 >= 0xE) {
-        arg0->unk44 = 0;
-        arg0->unk3C = (s32)arg0->x & 0xFFF8;
-        arg0->unk40 = (s32)(arg0->y + 7.0f);
-    }
-}
+#endif

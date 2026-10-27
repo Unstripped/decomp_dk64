@@ -14,6 +14,9 @@
 # every --stage PATH (files the build depended on outside them: include/ headers, symbol
 # files), never other staged changes; any failure exits non-zero before committing, so no
 # pipe can turn a failed gate into a commit.
+# The whole gate (merges' objdiffs, the build, NON_MATCHING compiles) runs under one exclusive
+# tools/dk lease, so no other agent's fdiff/objdiff/make interleaves with it.
+[ -n "$DK64_LEASE" ] || exec tools/dk --hold "$0" "$@"
 msg=; extra=
 if [ "$1" = "--commit" ]; then
   msg=$2; shift 2; [ -n "$msg" ] || { echo "--commit needs a message" >&2; exit 64; }

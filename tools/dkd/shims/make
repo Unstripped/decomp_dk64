@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+"""make shim: first in the dkd job PATH; takes the lock `make` needs, then runs /usr/bin/make.
+
+Behaviour (nothing is printed on success paths; the only output the shim ever adds is the
+one-line `dk: waiting for ...` notice when the lock is not granted within 2 s):
+  * classify_make(argv, cwd) == "none", or DKD_SOCK unset / socket missing (not in a dkd
+    container): exec the real make directly.
+  * DKD_JOB set (running inside a dkd job): UPGRADE the job over the internal UNIX socket,
+    then run the real make as a child. Without DKD_JOB (interactive `docker exec`): take a
+    STANDALONE lock instead. In both cases the connection stays open until make AND its recipe
+    children are gone: it is inherited by the child (os.set_inheritable), and the server
+    treats the lock as in use while it is open. SIGINT/SIGTERM/SIGHUP are forwarded to make.
+  * DKD_SHIMS carries the ids of the enclosing shim-makes so a recursive `$(MAKE)` is never
+    made to wait for its own ancestors.
+A dkd refusal or failure exits 125 with a `make: dkd: ...` message on stderr, never running make
+unlocked.
+"""
+import os
+import select
+import signal
+import socket
+import subprocess
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import proto  # noqa: E402
+from classify import classify_make  # noqa: E402
+
+REAL_MAKE = "/usr/bin/make"
+WAIT_NOTICE_DELAY = 2.0
+
+
+def fail(message):
+    """Exit 125. Messages the server already phrased as `dk: ...` are printed verbatim."""
+    print(message if message.startswith("dk: ") else "make: dkd: %s" % message, file=sys.stderr)
+    sys.exit(proto.DKD_ERROR)
+
+
+def clean(text):
+    return "".join(c if c.isprintable() else " " for c in str(text))
+
+
+def wire_need(need):
+    return "exclusive" if need == "exclusive" else {"keyed": sorted(need[1])}
+
+
+def request(sock_path, ftype, payload):
+    """Send one request on a fresh connection and wait for GRANTED; returns the open,
+    inheritable socket. Prints the single waiting notice if the grant takes > 2 s."""
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        sock.connect(sock_path)
+        sock.sendall(proto.encode(ftype, payload))
+        sent = time.monotonic()
+        waiting = None
+        printed = False
+        while True:
+            timeout = None
+            if waiting is not None and not printed:
+                timeout = max(0.0, WAIT_NOTICE_DELAY - (time.monotonic() - sent))
+            if select.select([sock], [], [], timeout)[0]:
+                frame = proto.recv_frame(sock)
+                if frame is None:
+                    fail("server closed the connection before granting the lock")
+                rtype, body = frame
+                if rtype == proto.GRANTED:
+                    sock.set_inheritable(True)
+                    return sock
+                if rtype == proto.ERROR:
+                    fail(body.get("message", "request refused"))
+                if rtype == proto.WAITING:
+                    waiting = body
+            if waiting is not None and not printed \
+                    and time.monotonic() - sent >= WAIT_NOTICE_DELAY:
+                held = "; ".join(clean(h) for h in waiting.get("held_by") or [])
+                print("dk: waiting for %s lock%s" % (
+                    clean(waiting.get("mode", "?")), " (held by: %s)" % held if held else ""),
+                    file=sys.stderr)
+                printed = True
+    except (OSError, proto.ProtocolError) as e:
+        fail("cannot reach the dkd server: %s" % e)
+
+
+def run_child(args, env, sock):
+    """Run the real make as a child, forwarding termination signals, holding `sock` open."""
+    def die_with_parent():
+        import ctypes
+        ctypes.CDLL(None).prctl(1, int(signal.SIGTERM))     # PR_SET_PDEATHSIG
+
+    child = subprocess.Popen(args, executable=REAL_MAKE, env=env, close_fds=False,
+                             preexec_fn=die_with_parent)
+    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+        signal.signal(sig, lambda signum, _frame: child.send_signal(signum))
+    rc = child.wait()     # EINTR from forwarded signals is retried by Python (PEP 475)
+    sock.close()
+    return 128 - rc if rc < 0 else rc
+
+
+def main():
+    argv = sys.argv[1:]
+    sock_path = os.environ.get("DKD_SOCK")
+    try:
+        need = classify_make(argv, os.getcwd())
+    except OSError:     # cwd vanished: make itself will report it
+        need = "none"
+    if need == "none" or not sock_path or not os.path.exists(sock_path):
+        os.execv(REAL_MAKE, ["make"] + argv)
+
+    shim_id = os.urandom(4).hex()
+    ancestors = [a for a in os.environ.get("DKD_SHIMS", "").split(":") if a]
+    env = dict(os.environ)
+    env["DKD_SHIMS"] = ":".join(ancestors + [shim_id])
+
+    job = os.environ.get("DKD_JOB")
+    if job:
+        sock = request(sock_path, proto.UPGRADE,
+                       {"job": job, "need": wire_need(need), "shim": shim_id,
+                        "ancestors": ancestors})
+    else:
+        desc = ("make " + " ".join(argv))[:200]
+        sock = request(sock_path, proto.STANDALONE, {"need": wire_need(need), "desc": desc})
+    sys.exit(run_child(["make"] + argv, env, sock))
+
+
+if __name__ == "__main__":
+    main()

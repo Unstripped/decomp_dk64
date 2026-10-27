@@ -67,8 +67,10 @@ Hidden TUs found only after round 1 cost a re-split while agents run; settle the
   between named `bss` pieces, as 7130/201B0), define every object in address order in the
   stub (objects > 4 bytes 8-aligned), interior labels the asm still uses go to
   `undefined_syms.us.txt` (`/* */` comments only). Mid-run (201B0): put the definition block
-  in `.scratch/<file>_defs.c`, re-split + `restore_split_asm.sh`, `make expected`, and tell
-  every running agent which extern lines to delete and where to insert that block.
+  in `.scratch/<file>_defs.c`, re-split + `restore_split_asm.sh` as one
+  `tools/dk --hold sh -c 'tools/dk make split && tools/restore_split_asm.sh <base> <yaml>'`,
+  `make expected`, and tell every running agent which extern lines to delete and where to
+  insert that block.
 
 ## Hidden empty functions
 
