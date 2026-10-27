@@ -348,7 +348,80 @@ void func_8002AE9C(void) {
     actorUpdateModelMatrix(var_s1, 0);
 }
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/6650/func_8002B180.s")
+typedef struct {
+    char pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    char pad88[0xB8 - 0x88];
+    f32 unkB8;
+    char padBC[0xE6 - 0xBC];
+    s16 unkE6;
+} Race2B180View;
+#define BBV ((Race2B180View *)D_807FBB40)
+void func_8002B180(Struct_sp58 *arg0, Struct_8002B180_Arg1 *arg1) {
+    f32 var_ft5;
+    f32 var_fv1;
+    f32 temp_ft4;
+    f32 sp58;
+    f32 sp54[1];
+    f32 dx;
+    f32 dz;
+    f32 temp_fv0;
+    f32 sp_angle;
+    Struct_sp5C *sp40;
+    s32 sp3C;
+    f32 sp38;
+    Struct_FDCA0_Sub *var_v1;
+    u8 idx;
+    Struct_arg0 *pad;
+
+    pad = arg0->unk30;
+    sp40 = pad->unk174;
+    sp3C = func_8002E960(sp40->unk26);
+    sp38 = func_8002F784(sp3C, arg0, arg1->unk4);
+    idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
+    var_v1 = &D_807FDCA0->unk14[idx];
+    dx = (f32)var_v1->unk0 - BBV->unk7C;
+    dz = (f32)var_v1->unk4 - BBV->unk84;
+    sp58 = sqrtf((dx * dx) + (dz * dz));
+    var_v1 = &D_807FDCA0->unk14[idx];
+    if (sp58 < (f32)var_v1->unk7) {
+        if (BBV->unk7C) {
+        }
+        D_807FDC90->unk25++;
+        D_807FDC90->unk25 = D_807FDC90->unk25 % D_807FDC9C->unk11;
+    }
+    var_v1 = &D_807FDCA0->unk14[idx];
+    sp_angle = mathAngleDiscrete((f32)var_v1->unk0, (f32)var_v1->unk4, D_807FBB40->unk7C, D_807FBB40->unk84, sp58);
+    temp_ft4 = func_806CC10C((s16)sp_angle, BBV->unkE6);
+
+    sp_angle = sp58;
+    var_ft5 = temp_ft4;
+    var_fv1 = (u32)D_807FDCA0->unk14[idx].unk7;
+    sp54[0] = var_fv1 * 1.2f;
+    if (var_fv1) {
+    }
+    if (sp_angle < sp54[0]) {
+        sp_angle = sp_angle - var_fv1;
+        dz = sp54[0] - var_fv1;
+        temp_fv0 = (var_ft5 = temp_ft4 * (1.0 + ((1.0f - (sp_angle / dz)) * 1.5 * (2.0f * arg0->unk4))));
+    }
+    arg0->unkC += ((var_ft5 * 0.0033333334f) - arg0->unkC) * 0.5f;
+    if (arg0->unk34 >= 2 && arg0->unk34 < 5) {
+        if (arg1->unkF != 0 && raceGetProgressPercent(sp3C, arg0, sp40) > 0.75) {
+            func_8002DE78(arg1, 0, &D_8002FC70, &D_8002FCA0);
+        }
+        temp_fv0 = func_8002E1C8(arg1, sp38, &D_8002FC70, &D_8002FCA0);
+        if (BBV->unkB8 < 650.0f) {
+            BBV->unkB8 = BBV->unkB8;
+        } else {
+            BBV->unkB8 = 650.0f;
+        }
+        arg0->unk4 = temp_fv0;
+    }
+}
+
 
 void func_8002B518(Struct_sp58 *arg0) {
     switch (arg0->unk35) {
