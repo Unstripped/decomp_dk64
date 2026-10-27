@@ -2382,7 +2382,270 @@ void func_80636B50(R36880eCmd *arg0, R36880eCmd *arg1, u8 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636FFC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80637B6C.s")
+typedef struct L80637B6CObj {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 pad10[4];
+    /* 0x14 */ Mtx *unk14;
+    /* 0x18 */ Mtx *unk18;
+    /* 0x1C */ Vtx *unk1C;
+    /* 0x20 */ u8 unk20;
+    /* 0x21 */ u8 pad21[3];
+    /* 0x24 */ s32 unk24;
+    /* 0x28 */ u8 pad28[0xC];
+    /* 0x34 */ s32 unk34[4];
+    /* 0x44 */ u8 unk44;
+    /* 0x45 */ u8 unk45;
+    /* 0x46 */ u8 unk46;
+    /* 0x47 */ u8 unk47;
+    /* 0x48 */ s16 unk48;
+    /* 0x4A */ s16 unk4A;
+    /* 0x4C */ s16 unk4C;
+    /* 0x4E */ u8 unk4E;
+    /* 0x4F */ u8 pad4F;
+    /* 0x50 */ u8 pad50[8];
+    /* 0x58 */ s16 unk58;
+    /* 0x5A */ u8 unk5A;
+    /* 0x5B */ u8 unk5B;
+    /* 0x5C */ u8 unk5C;
+} L80637B6CObj;
+
+#define L80637B6C_GFX(a, b) { Gfx *_g = (Gfx *)(arg1++); _g->words.w0 = (a); _g->words.w1 = (b); }
+
+extern u8 D_807F6009;
+extern s32 D_807F600C;
+extern s32 D_807F5FD8;
+
+f32 renderScaleDistanceByFov(f32);
+void func_8065EB10(u8, s16, f32, f32, f32, s32, f32, s32);
+s32 func_80658E8C(f32, f32, f32, s32, s32);
+void func_80626F8C(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+void func_80658C10(void *, s16, s16, s16);
+u8 mapSearchTableGetValue(void *);
+void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
+void func_806392BC(s16, u8 *, s16 *);
+void func_80639C04(R36880eOwner *, s32, s32 *, s32 *, u8 *, s16 *);
+void func_80639FC0(f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *, u8);
+
+Gfx *func_80637B6C(L80637B6CObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6) {
+    f32 sp238[4][4];
+    f32 sp1F8[4][4];
+    f32 sp1F4;
+    f32 sp1F0;
+    f32 sp1EC;
+    s32 sp1E8;
+    s32 sp1E4;
+    u8 sp1E3;
+    s16 sp1E0;
+    f32 dx;
+    f32 sp1D8;
+    f32 sp1D4;
+    f32 sp1D0;
+    f32 dy;
+    f32 dz;
+    s32 pad0;
+    f32 scale;
+    s16 limit;
+    s32 i;
+    s32 sp1B4;
+    s16 pad16;
+    s16 sp1B0;
+    u8 sp1AF;
+    u8 sp1AE;
+    u8 sp1AD;
+    u8 sp1AC;
+    u8 sp1AB;
+    Mtx *mtx;
+    s32 pad[1];
+
+    if (0) {
+        func_806392BC(0, &arg5, 0);
+    }
+    sp1B4 = 0;
+    sp1AF = 0;
+    if (arg5 != 0) {
+        dx = arg2 - arg0->unk0;
+        dy = arg3 - arg0->unk4;
+        dz = arg4 - arg0->unk8;
+        dx *= dx;
+        dy *= dy;
+        dz *= dz;
+        sp1D0 = sqrtf(dx + dy + dz);
+        limit = renderScaleDistanceByFov((f32)arg0->unk58);
+        if ((f32)limit < sp1D0) {
+            return arg1;
+        }
+    }
+    if (arg0->unk5B != 0) {
+        func_8065EB10(arg0->unk5B, arg0->unk4C, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unk58, sp1D0 / (f32)limit, arg6);
+    }
+    if (arg5 != 0) {
+        if (func_80658E8C(arg0->unk0, arg0->unk4, arg0->unk8, 0, 0) != 0) {
+            return arg1;
+        }
+    } else {
+        limit = -0x8000;
+        sp1D0 = 1.0f;
+    }
+    if (arg0->unk4E & 0x10) {
+        return arg1;
+    }
+    if (arg0->unk4E & 8) {
+        func_80626F8C(arg0->unk0, arg0->unk4, arg0->unk8, &sp1D8, &sp1D4, 0, 1.0f, D_807FC929);
+        func_80658C10(arg0, sp1D8, sp1D4, sp1D0);
+        if (mapSearchTableGetValue(arg0) != 0) {
+            return arg1;
+        }
+    }
+    D_807F5FD8 += 1;
+    if (arg0->unk24 == 0) {
+        func_80635468(D_807F6000[(s16)hashTableLookup(arg0->unk4C)].unk24, (R36880dAsset *)arg0);
+    }
+    func_80639FC0(arg0->unk0, arg0->unk4, arg0->unk8, arg2, arg3, arg4, &sp1F4, &sp1F0, &sp1EC, arg0->unk4E & 4);
+    guTranslateF(sp238, 0.0f, -arg0->unk48, 0.0f);
+    if (sp1F4 != 0.0) {
+        guRotateF(sp1F8, sp1F4, 1.0f, 0.0f, 0.0f);
+        guMtxCatF(sp238, sp1F8, sp238);
+    }
+    if (sp1F0 != 0.0) {
+        guRotateF(sp1F8, sp1F0, 0.0f, 1.0f, 0.0f);
+        guMtxCatF(sp238, sp1F8, sp238);
+    }
+    if (arg0->unkC != 1.0) {
+        guScaleF(sp1F8, arg0->unkC, arg0->unkC, arg0->unkC);
+        guMtxCatF(sp238, sp1F8, sp238);
+    }
+    guTranslateF(sp1F8, arg0->unk0, arg0->unk4 + arg0->unk48 * arg0->unkC, arg0->unk8);
+    guMtxCatF(sp238, sp1F8, sp238);
+    switch (D_807444FC) {
+    case 0:
+        mtx = arg0->unk14 + D_807FC929;
+        break;
+    case 1:
+        mtx = arg0->unk18 + D_807FC929;
+        break;
+    }
+    guMtxF2L(sp238, mtx);
+    L80637B6C_GFX(0xE7000000, 0);
+    L80637B6C_GFX(0xD9000000, 0);
+    L80637B6C_GFX(0xDA380000, osVirtualToPhysical(mtx));
+    if (sp1D0 < (f32)((limit * 3) / 4)) {
+        sp1AE = 1;
+        sp1B0 = 0xFF;
+    } else {
+        sp1AE = 0;
+        sp1B0 = ((sp1D0 - (f32)((limit * 3) / 4)) / ((f32)limit - (f32)((limit * 3) / 4))) * 255.0f;
+        if (sp1B0 >= 0x100) {
+            sp1B0 = 0xFF;
+        }
+        sp1B0 = 0xFF - sp1B0;
+    }
+    func_806392BC(arg0->unk4A, &sp1AE, &sp1B0);
+    if (arg5 != 0 && arg0->unk5A == 0) {
+        func_8065C334(arg0->unk0, arg0->unk4, arg0->unk8, 0, &sp1AD, &sp1AC, &sp1AB, arg6);
+        scale = (f32)(u32)arg0->unk5C / 15.0f;
+        sp1AD = (f32)(u32)sp1AD * scale;
+        sp1AC = (f32)(u32)sp1AC * scale;
+        sp1AB = (f32)(u32)sp1AB * scale;
+    } else {
+        sp1AD = sp1AC = sp1AB = 0xFF;
+    }
+    for (i = 0; i < arg0->unk20; i++) {
+        func_80639C04((R36880eOwner *)arg0, i, &sp1E8, &sp1E4, &sp1E3, &sp1E0);
+        L80637B6C_GFX(0xE7000000, 0);
+        if (arg0->unk4E & 2) {
+            if (sp1AE != 0) {
+                gSPSetOtherMode(arg1++, G_SETOTHERMODE_L, 3, 29, 0x0C193078);
+            } else {
+                gSPSetOtherMode(arg1++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
+            }
+        } else if (arg0->unk4E & 1) {
+            gSPSetOtherMode(arg1++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
+        } else {
+            gSPSetOtherMode(arg1++, G_SETOTHERMODE_L, 3, 29, 0x0C184240);
+        }
+        gSPSetOtherMode(arg1++, G_SETOTHERMODE_H, 20, 2, 0x100000);
+        if ((arg0->unk4E & 1) || (arg0->unk4E & 2)) {
+            L80637B6C_GFX(0xD9FFFFFF, 0x210005);
+        } else {
+            L80637B6C_GFX(0xD9FFFFFF, 0x210004);
+        }
+        gDPSetPrimColor(arg1++, 0, sp1E0, sp1AD, sp1AC, sp1AB, sp1B0);
+        switch (sp1E3) {
+        case 0:
+            L80637B6C_GFX(0xFC1197FF, 0xFFFFFE38);
+            L80637B6C_GFX(0xD7000002, 0xFFFFFFFF);
+            if (D_807F6009 != 2 || sp1E8 != D_807F600C) {
+                switch (arg0->unk46) {
+                case 0:
+                    gDPLoadTextureBlock_4b(arg1++, sp1E8 + 0x80000000, arg0->unk47, arg0->unk44, arg0->unk45, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    if (arg0->unk47 == 2) {
+                        gDPSetTextureImage(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, arg0->unk34[i]);
+                        gDPTileSync(arg1++); gDPSetTile(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 0x100, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+                        gDPLoadSync(arg1++);
+                        gDPLoadTLUTCmd(arg1++, G_TX_LOADTILE, 15); gDPPipeSync(arg1++);
+                        gDPSetTextureLUT(arg1++, G_TT_RGBA16);
+                        sp1AF = 1;
+                    }
+                    break;
+                case 1:
+                    gDPLoadTextureBlock(arg1++, sp1E8 + 0x80000000, arg0->unk47, G_IM_SIZ_8b, arg0->unk44, arg0->unk45, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    if (arg0->unk47 == 2) {
+                        gDPSetTextureImage(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, arg0->unk34[i]);
+                        gDPTileSync(arg1++); gDPSetTile(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 0x100, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+                        gDPLoadSync(arg1++);
+                        gDPLoadTLUTCmd(arg1++, G_TX_LOADTILE, 255); gDPPipeSync(arg1++);
+                        gDPSetTextureLUT(arg1++, G_TT_RGBA16);
+                        sp1AF = 1;
+                    }
+                    break;
+                case 2:
+                    gDPLoadTextureBlock(arg1++, sp1E8 + 0x80000000, arg0->unk47, G_IM_SIZ_16b, arg0->unk44, arg0->unk45, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    break;
+                case 3:
+                    gDPLoadTextureBlock(arg1++, sp1E8 + 0x80000000, arg0->unk47, G_IM_SIZ_32b, arg0->unk44, arg0->unk45, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    break;
+                }
+            }
+            D_807F600C = sp1E8;
+            break;
+        case 1:
+            L80637B6C_GFX(0xFC272C03, 0x1F1C93F8);
+            L80637B6C_GFX(0xD7000002, 0xFFFFFFFF);
+            gSPSetOtherMode(arg1++, G_SETOTHERMODE_H, 16, 1, 0);
+            gDPSetTextureImage(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, sp1E8);
+            gDPSetTile(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+            gDPLoadSync(arg1++);
+            gDPLoadBlock(arg1++, G_TX_LOADTILE, 0, 0, ((arg0->unk44 * arg0->unk45 * 2) >> 1) - 1, CALC_DXT(arg0->unk44, 2));
+            gDPSetTextureImage(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, sp1E4);
+            gDPTileSync(arg1++);
+            gDPSetTile(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0x100, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
+            gDPLoadSync(arg1++);
+            gDPLoadBlock(arg1++, G_TX_LOADTILE, 0, 0, ((arg0->unk44 * arg0->unk45 * 2) >> 1) - 1, CALC_DXT(arg0->unk44, 2));
+            gDPSetTile(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, arg0->unk44 / 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0);
+            gDPSetTileSize(arg1++, G_TX_RENDERTILE, 2, 2, ((arg0->unk44 - 1) << 2) + 2, ((arg0->unk45 - 1) << 2) + 2);
+            gDPSetTile(arg1++, G_IM_FMT_RGBA, G_IM_SIZ_16b, arg0->unk44 / 4, 0x100, 1, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0);
+            gDPSetTileSize(arg1++, 1, 2, 2, ((arg0->unk44 - 1) << 2) + 2, ((arg0->unk45 - 1) << 2) + 2);
+            D_807F600C = 0;
+            break;
+        }
+        L80637B6C_GFX(0x01004008, osVirtualToPhysical(arg0->unk1C + sp1B4));
+        L80637B6C_GFX(0x06000204, 0x406);
+        sp1B4 += 4;
+        D_807F6009 = 2;
+    }
+    L80637B6C_GFX(0xD8380002, 0x40);
+    L80637B6C_GFX(0xE7000000, 0);
+    gSPSetOtherMode(arg1++, G_SETOTHERMODE_H, 20, 2, 0);
+    gSPSetOtherMode(arg1++, G_SETOTHERMODE_H, 16, 1, 0x10000);
+    if (sp1AF != 0) {
+        gSPSetOtherMode(arg1++, G_SETOTHERMODE_H, 14, 2, 0);
+    }
+    gSPSetOtherMode(arg1++, G_SETOTHERMODE_L, 2, 1, 0);
+    return arg1;
+}
 
 typedef struct R36880hCtl {
     /* 0x000 */ u8 pad0[0x174];
