@@ -61,27 +61,16 @@ f32 jetpacRandFloat(void) {
     return (f32)((randomNonNegative() >> 15) % 60000) / 60000.0f;
 }
 
-#if 0
-// Differs only in boolean branching registers (sltu $t0 vs beqz)
-s32 func_80027250(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+volatile int func_80027250(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     f32 sp44, sp40, sp3C, sp38, sp34, sp30, sp2C, sp28;
     func_80027108(arg0, arg2, &sp44, &sp40, &sp3C, &sp38);
     func_80027108(arg4, arg6, &sp34, &sp30, &sp2C, &sp28);
-    if (jetpacCheckAabbOverlap(sp44, arg1, sp40, arg3, sp34, arg5, sp30, arg7)) {
-        return 1;
-    }
-    return jetpacCheckAabbOverlap(sp3C, arg1, sp38, arg3, sp2C, arg5, sp28, arg7) != 0;
+    return jetpacCheckAabbOverlap(sp44, arg1, sp40, arg3, sp34, arg5, sp30, arg7) || jetpacCheckAabbOverlap(sp3C, arg1, sp38, arg3, sp2C, arg5, sp28, arg7);
 }
-#endif
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3060/func_80027250.s")
 
-#if 0
-// 4 instructions off: evaluating directly into $v0 rather than $v1
-s32 func_80027330(f32 arg0) {
+volatile int func_80027330(f32 arg0) {
     return (165.0f <= arg0) && (arg0 <= 171.0f);
 }
-#endif
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3060/func_80027330.s")
 
 typedef struct {
     f32 x;
