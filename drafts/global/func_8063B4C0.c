@@ -1,4 +1,4 @@
-// func_8063B4C0 (src/global/36880.c): stage 3: frame -0x38 vs target -0x58: target allocs $ra to 'allow' and spills idx(sh v0,0x46)/tbl-CSE(sw 0x34)/obj(0x54); mine gives ra to idx. loop matches with u8 i, i++ before use, switch order 2,0,4,3/6,5. Decl-order shuffles (40) no help.
+// func_8063B4C0 (src/global/36880.c): stage 4 (NM36A2): frame 0x58 and callee-saved (ra,s0,f20,f22) now match. Dead if(0){f(&idx);f(&tbl);} keeps idx/tbl in memory (idx 0x46, tbl spill 0x34); 'u8 *tbl = D_807F6000' declared after pad1..pad5 (pads between allow/idx and after idx reserve homes 0x4C..0x38). Remaining ~227 diff lines: allow should live in ra (target sb ra,0x53(sp) around hashTableLookup, mine t5), idx*0x90 compiles via multu with 144 constant hoisted (target sll/addu/sll each time), loop temps (i in a3/v0 vs t0, px/py/pz order, swapped lwc1 order), case-5 uses pointer e (target multu v1,t4 then sh to base).
 typedef struct R36880fSrc {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ f32 unk4;
@@ -10,19 +10,7 @@ typedef struct R36880fSrc {
     /* 0x24 */ u8 unk24;
 } R36880fSrc;
 
-typedef struct R36880fEntry {
-    /* 0x0 */ s16 id;
-    /* 0x2 */ s16 key;
-    /* 0x4 */ u8 done;
-    /* 0x5 */ u8 pad5;
-} R36880fEntry;
-
-extern u8 D_80750AB4;
 extern u8 D_807F7140;
-extern R36880fEntry D_807F6030[];
-extern s16 D_807F60B0[];
-void func_8063E078(s32);
-void func_8063E0D4(s32, s16);
 
 void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
     u8 *obj;
@@ -33,6 +21,7 @@ void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
     s32 pad3;
     s32 pad4;
     s32 pad5;
+    u8 *tbl;
     u8 i;
     R36880fEntry *e;
     u8 *p;
@@ -42,10 +31,15 @@ void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
     f32 *pz;
     f32 best;
 
+    if (0) {
+        func_8063E078((s32)&idx);
+        func_8063E078((s32)&tbl);
+    }
     if (arg0->unk24 == 1) {
         allow = 1;
         idx = hashTableLookup(arg0->unk1E);
-        obj = ((ModelSlot *)((u8 *)D_807F6000 + idx * 0x90))->unk7C;
+        tbl = (u8 *)D_807F6000;
+        obj = ((ModelSlot *)(tbl + idx * 0x90))->unk7C;
         if (obj != NULL) {
             switch (obj[0x54]) {
             case 2:
@@ -98,7 +92,7 @@ void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
             if (allow != 0) {
                 D_807F7140++;
                 if (D_807F60A8 != 0x46) {
-                    D_807F60B0[D_807F60A8] = *(s16 *)((u8 *)D_807F6000 + idx * 0x90 + 0x8A);
+                    D_807F60B0[D_807F60A8] = *(s16 *)(tbl + idx * 0x90 + 0x8A);
                     D_807F60A8++;
                     func_8063E078((s32)obj);
                     func_8063E0D4((s32)obj, arg0->unk1E);

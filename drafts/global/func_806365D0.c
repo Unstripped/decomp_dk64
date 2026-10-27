@@ -1,4 +1,4 @@
-// func_806365D0 (src/global/36880.c): stage 3: frame 0x58 vs 0x40; target keeps A8/A0/B8 in s1/s2/s3 and head/tail in v1/t0 with stack spill only around calls (sb 0x33 flag); mine spills more and loses s3. C is behaviourally the m2c structure.
+// func_806365D0 (src/global/36880.c): stage 3+ (NM36A2): frame 0x40 and local homes now match (4 locals in order s3(R36880eLink*), head, tail, flag(u8): homes 0x3C/0x38/0x34/0x30 as target; arg2 typed R36880dOwner* per file prototype with SEG macro cast; func_80636784 is the file's (s32 x5) proto). Remaining: callee-saved set (target s0-s3: s1=A8,s2=A0,s3=B8 temps, s0=arg2; mine only s0) and head/tail should be colored v1/t0 with split spills around calls (mine stores them straight to homes). Using s3 var in all call args colors it (s1) but A8/A0 temps stay in v0/v1. Variant with explicit s1/s2/s3 vars gives s0-s2 but frame 0x48 (6 homes).
 typedef struct R36880eCmd {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -35,53 +35,50 @@ typedef struct R36880eSeg {
     /* 0xC3 */ u8 unkC3;
 } R36880eSeg;
 
-void func_80636784(R36880eCmd *, R36880eCmd *, R36880eLink *, u8, u8);
+void func_80636784(s32, s32, s32, s32, s32);
 void heapFreeDeferred(void *);
 void func_80636448(s32, s32, s32, s32, s32);
 
-typedef struct R36880eObjB {
+typedef struct R36880dOwner R36880dOwner;
+typedef struct R36880dCount {
     /* 0x00 */ u8 pad0[0x3C];
     /* 0x3C */ s16 unk3C;
-} R36880eObjB;
+} R36880dCount;
 
-void func_806365D0(ModelSlot *arg0, R36880eObjB *arg1, R36880eSeg *arg2) {
-    u32 sp38;
-    u32 sp34;
-    u8 sp33;
+#define SEG ((R36880eSeg *)arg2)
+void func_806365D0(ModelSlot *arg0, void *arg1, R36880dOwner *arg2) {
+    R36880eLink *s3;
     u32 head;
     u32 tail;
-    u32 s1;
-    u32 s2;
-    R36880eLink *s3;
+    u8 flag;
 
-    s1 = arg2->unkA8;
-    s2 = arg2->unkA0;
-    s3 = arg2->unkB8;
-    head = (s1 - s2) >> 3;
-    tail = (arg2->unkB0 - s1) >> 3;
+    s3 = SEG->unkB8;
+    head = (SEG->unkA8 - SEG->unkA0) >> 3;
+    tail = (SEG->unkB0 - SEG->unkA8) >> 3;
     if (s3 == NULL && (arg0->unk8C & 0x20)) {
-        sp33 = 0;
+        flag = 0;
     } else {
-        sp33 = 1;
+        flag = 1;
     }
     if (arg0->unk8C & 0x20) {
-        if (sp33 != 0) {
-            arg1->unk3C -= 1;
-            func_80636784((R36880eCmd *)arg2->unkA0, (R36880eCmd *)(arg2->unkA0 + head * 8), arg2->unkB8, 0, 0);
-            func_80636784((R36880eCmd *)arg2->unkA8, (R36880eCmd *)(arg2->unkA8 + tail * 8), arg2->unkB8, 1, 0);
+        if (flag != 0) {
+            ((R36880dCount *)arg1)->unk3C -= 1;
+            func_80636784(SEG->unkA0, SEG->unkA0 + head * 8, (s32)SEG->unkB8, 0, 0);
+            func_80636784(SEG->unkA8, SEG->unkA8 + tail * 8, (s32)SEG->unkB8, 1, 0);
         } else {
-            func_80636448(s2, s2 + head * 8, s1, s1 + tail * 8, (s32)arg1);
+            func_80636448(SEG->unkA0, SEG->unkA0 + head * 8, SEG->unkA8, SEG->unkA8 + tail * 8, (s32)arg1);
         }
-        s3 = arg2->unkB8;
+        s3 = SEG->unkB8;
     }
     if (s3 != NULL) {
-        func_80636784((R36880eCmd *)arg2->unkA4, (R36880eCmd *)(arg2->unkA4 + head * 8), s3, 0, 0);
-        func_80636784((R36880eCmd *)arg2->unkAC, (R36880eCmd *)(arg2->unkAC + tail * 8), arg2->unkB8, 1, 0);
-        heapFreeDeferred((void *)arg2->unkA4);
-        heapFreeDeferred((void *)arg2->unkAC);
+        func_80636784(SEG->unkA4, SEG->unkA4 + head * 8, (s32)s3, 0, 0);
+        func_80636784(SEG->unkAC, SEG->unkAC + tail * 8, (s32)SEG->unkB8, 1, 0);
+        heapFreeDeferred((void *)SEG->unkA4);
+        heapFreeDeferred((void *)SEG->unkAC);
     }
-    if (sp33 != 0) {
+    if (flag != 0) {
         assetFreeBuffer(arg1, 0xAF7, 7);
     }
     heapFreeDeferred(arg2);
 }
+#undef SEG

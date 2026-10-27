@@ -1,4 +1,4 @@
-// func_80636D38 (src/global/36880.c): stage 4 (NM36A2): frame 0x48 and callee-saved s0/s1 now match. K&R definition (u8 arg1/arg2), prototype must become void func_80636D38(); dead if(0){f(&sp2C,&sp2B,&sp24,&sp20,&sp30,&var_v1,&arg2,&sp3C)} keeps those in memory (kills s-reg promotion of sp2C/arg2 and sp3C copy-prop). Remaining: obj loaded into s1 directly (target: lw v0,0x24(a0), use v0 for obj->unk8 store then or s1,v0,zero), flags var in v1 (target a3), arg1 promoted? (target andi t6,a1; or a1,t6), later blocks ~178 diff lines. Needs prototype 's32 func_80636EFC(R36880eCmd*,R36880eCmd*,R36880eNode*,u8)' above and func_80635468((u8*),(R36880dAsset*)) casts.
+// func_80636D38 (src/global/36880.c): stage 4 (NM36A2): frame 0x48, callee-saved ra/s0/s1 match (159 diff lines). K&R def (u8 arg1/arg2): prototype must become void func_80636D38(); needs s32 func_80636EFC(R36880eCmd*,R36880eCmd*,R36880eNode*,u8) proto above, casts (u8*)obj,(R36880dAsset*)seg for func_80635468. Dead if(0){f(&sp24,&sp20,&sp3C)} stops sp2C/sp3C promotion (single &sp20 also gives stage 4; subsets swept) but kills CSE of A0/A8 loads (target loads A8/A0/B0 once, mine reloads). Remaining: arg2 promoted to a3 (target lbu 0x53(sp) each use; &arg2 alias fixes it, 163 lines), obj temp v0->s1 copy (target uses v0 for obj->unk8 store then or s1,v0), flags var v1 vs a3, reload of A0/A8.
 typedef struct R36880eCmd {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -133,10 +133,9 @@ u8 arg2;
     u8 var_v1;
 
     if (0) {
-        func_80635548((s32)&sp2C, (u8 *)&sp2B);
-        func_80635548((s32)&sp24, (u8 *)&sp20);
-        func_80635548((s32)&sp30, (u8 *)&var_v1);
-        func_80635548((s32)&arg2, (u8 *)&sp3C);
+        func_80635548((s32)&sp24, 0);
+        func_80635548((s32)&sp20, 0);
+        func_80635548((s32)&sp3C, 0);
     }
     seg = arg0->unk20;
     obj = (R36880fObjHdr *)arg0->unk24;
