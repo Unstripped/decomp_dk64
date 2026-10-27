@@ -1,4 +1,4 @@
-// func_8062A3F0 (src/global/2DE90.c): stage 4: size 225 insns, frame 0x128, row 0x120, arrays 0x64/98/cc match (idx var reused as half base for IV; arrays declared r,g,b; chain r[i]=g[i]=b[i]=0 in zero loop). Remaining: regalloc only (src/dst s1/s2 swapped, loop temps: target addr temps v0/v1/a0, pix a1, vr/vg/vb a2/a3/t0)
+// func_8062A3F0 (src/global/2DE90.c): stage 4: frame/size/layout match; remaining regalloc of loop temps
 void func_8062A3F0(void) {
     u16 *src;
     s32 row;
@@ -17,8 +17,8 @@ void func_8062A3F0(void) {
     u8 vg;
     u8 vb;
 
+    src = D_807F5D80;
     dst = D_807F5D80;
-    src = dst;
     lut = D_80747B2C;
     if ((D_80747B2C == 0) || (D_80747B3C < D_80747B38)) {
         if (D_80747B2C != 0) {
@@ -66,7 +66,7 @@ void func_8062A3F0(void) {
                 g[idx] = vg;
                 b[idx] = vb;
                 idx++;
-                *dst = (lut[sumR] << 11) | 1 | (lut[sumB] << 1) | (lut[sumG] << 6);
+                *dst = (lut[sumR] << 11) | 1 | (lut[sumB] << 1) | ((u32)lut[sumG] << 6);
                 dst++;
             }
             for (i = D_80747B30 - D_80747B28 / 2; i < D_80747B30; i++) {
@@ -80,7 +80,7 @@ void func_8062A3F0(void) {
                 g[idx] = 0;
                 b[idx] = 0;
                 idx++;
-                *dst = (lut[sumR] << 11) | 1 | (lut[sumB] << 1) | (lut[sumG] << 6);
+                *dst = (lut[sumR] << 11) | 1 | (lut[sumB] << 1) | ((u32)lut[sumG] << 6);
                 dst++;
             }
         }

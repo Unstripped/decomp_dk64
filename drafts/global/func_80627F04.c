@@ -1,4 +1,4 @@
-// func_80627F04 (src/global/2C910.c): stage 3-4: 1178 vs 1170 insns, 1140/1170 lines match structurally (register-normalised, stack offsets ignored); callee-saved {s0} and frame 0xA8 match. Remaining: (1) 0x27: uopt CSEs+spills (s16)a (sw 64(sp); lw s0,64(sp)) where target recomputes sll/sra per call; (2) sp98 (cases 0x16/0x28) not cached in s0 after reload (mine reloads / uses a3); (3) stack layout: spill temps sv[5]=sp38..sp48 and sp72 sit 0x28 higher than target (target has the 11-word temp region above them); (4) prologue: target keeps arg1>>16 in a1 and s0=sra via move; (5) case 0x0 / 0x33 store scheduling. Needed shapes: s32 a=(s16)(arg1>>16) in s0 (s16 a loses s0), chained spA0[i]=sv[k]=(s16)x, sv as s32[5], K&R none; sfx/func protos with s32 first param where target uses move a0,s0 (effectNodeSetTargetPosition, func_80712524, func_80713EB0, sfxAllocateChannel, sfxStopChannel(s32,s32)); default pitch 1.0 not 0.0 in n_alSndpPlay and sfxAllocateChannel.
+// func_80627F04 (src/global/2C910.c): Stage 4 (NMBig): s0 + frame 0xA8 match; 1173 vs 1170 insns; 17 structural hunks (register-normalised) vs 33 before. Fixed this round: (a) case 0x16 uses sp98 directly (no separate p; p+sp98 split was wrong: gives s0 reload of sp98), (b) case 0x33 store order 0x30,0x33,0x22,0x32,0x31 (as1 scheduling), (c) case 0x0 stores order 0x70,0x74,0x6C (FP temp ring f8/f10 then f4/f6). Remaining: (1) prologue: target srl a1,t8,16; sll s0,a1,16; sra t7,s0,16; move s0,t7; sh t7 (a = temp copy, store from temp), mine srl s0,a3 / sra s0 direct; (2) 0x27 mapChunkEffectSetFlag x4: mine CSEs+spills (s16)a (sw 64(sp); lw s0,64(sp)), target recomputes sll/sra per call; (3) loop case sp72=2: target 'li v1,2; sh v1,0x72(sp)' before jal spawnNodeActivate, mine li v1,2 hoisted in delay slot of previous beqz; (4) case 0x13 else-branch: mine 'move s0,a0; sw s0,152(sp)' (sp98 piece gets s0) vs target 'sw a0,152(sp)'; also 2 spots with extra move a1,s0 / lh a0,110(sp) (end cases); (5) stack layout: sv[5] homes at 0x60-0x70 in mine vs target 0x38-0x4B (target has 9-11 word gap above them, mine below): declaration-order permutations of a/sv/others, pad arrays (frame grows), scalar sv vars (83 hunks), pure-expression macros (1317 insns), dead &arg aliasing all worse.
 #define M3_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
 
 extern u8 D_807457E4[];
@@ -128,16 +128,16 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             M3_OFF(p, u8, 0x30) = 0xFE;
             M3_OFF(p, u8, 0x33) = sv[3];
             M3_OFF(p, u8, 0x22) = sv[1];
-            M3_OFF(p, u8, 0x31) = 1;
             M3_OFF(p, u8, 0x32) = sv[0];
+            M3_OFF(p, u8, 0x31) = 1;
             return;
         case 0x34:
             M3_OFF(M3_OFF(func_80627EA8(a), void *, 0x17C), u8, 0x30) = 0xFF;
             return;
         case 0x0:
             M3_OFF(sp9C, s16, 0x70) = M3_OFF(D_807FBB4C, s16, 0xE6);
-            M3_OFF(sp9C, f32, 0x6C) = a;
             M3_OFF(sp9C, f32, 0x74) = sv[3];
+            M3_OFF(sp9C, f32, 0x6C) = a;
             playerStateQueueCallback(0x17, 0, 0);
             return;
         case 0x1:
@@ -264,14 +264,12 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             func_80729AA4(a & 0xFF);
             return;
         case 0x16:
-            p = spawnNodeActivate(a, 0);
-            if (p != NULL) {
+            sp98 = spawnNodeActivate(a, 0);
+            if (sp98 != NULL) {
                 if (D_807FBB68 & 2) {
-                    sp98 = p;
-                    func_8067B238(D_807FBB4C, p, M3_OFF(M3_OFF(p, void *, 4), s32, 0x38));
+                    func_8067B238(D_807FBB4C, sp98, M3_OFF(M3_OFF(sp98, void *, 4), s32, 0x38));
                 } else {
-                    sp98 = p;
-                    func_8067B238(D_807FBB4C, p, 0x3E19999A);
+                    func_8067B238(D_807FBB4C, sp98, 0x3E19999A);
                     M3_OFF(D_807FC924, u8, 0x2C0) = 1;
                 }
                 func_806CFF9C(D_807FBB4C);
