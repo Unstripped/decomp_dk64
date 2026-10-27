@@ -1,4 +1,4 @@
-// func_8062AD28 (src/global/2F550.c): stage 5: same size (291/291) and frame (0x90) as target; remaining diff is loop-2 pointer register assignment (target s1=zs ptr is the LFTR/compare pointer and s2=xs,s3=ys,s4=&ys; ours picks ys as compare pointer, s1=ys,s2=zs,s3=xs) and operand order of the third product (target c*z loads c first; ours loads z first). Loop 1 must keep the dead second def of i (poly++ then poly[-1] form) to avoid unrolling; locals i,xs,ys,zs then poly,pad0 reproduce zs=0x50.
+// func_8062AD28 (src/global/2F550.c): func_8062AD28 (src/global/2F550.c): stage 5, 3 diff lines left of 283 (score ~15). Reaches it with: loop 2 as 'for (i = 0; i < 5; poly++, i++)' (poly++ in the header puts addiu s0 between s1 and s2 like target) and compare '< (0, 0.0)' (the comma no-op shifts value numbers: with it the LFTR/compare pointer becomes zs=s1,xs=s2,ys=s3 exactly like target; without it ys is chosen). Only diff: loop-2 sum 'add.d $f0,$f6,$f10; c.lt.d $f0,$f20' in target vs $f8 in ours (temp ring phase). Findings: IDO canonicalises commutative operand order by value number, source order of a*x+b*y+c*z (and d placement) does not change it; 128 operand-order/shape variants tried; permuter 300s from this base found nothing.
 typedef struct PlanePoly {
     /* 0x00 */ s16 v[12];
     /* 0x18 */ u8 type;
@@ -81,12 +81,11 @@ void func_8062AD28(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
     ys[4] = arg1;
     xs[4] = arg0;
     poly = arg3;
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < 5; poly++, i++) {
         func_8062B220(poly);
-        if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < 0.0) {
+        if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {
             polyFlipWinding(poly);
             func_8062B220(poly);
         }
-        poly++;
     }
 }

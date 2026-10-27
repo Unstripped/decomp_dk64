@@ -1,4 +1,4 @@
-// func_8062A850 (src/global/2F550.c): stage 5: same size/frame as target; only diff is D_80747CD0 addressing (target: lui at before the load and a second lui at before the store in jr delay slot; ours CSEs the address into v0/addiu and sinks stores into bc1fl delay slots). 42 diff lines; 2-iteration permuter run (best score 805 of 1401 start) gave nothing readable.
+// func_8062A850 (src/global/2F550.c): func_8062A850 (src/global/2F550.c): stage 5, 12 diff lines. Target loads/stores D_80747CD0 with separate 'lui at' (no la); ours hoists 'lui v0/addiu v0' because uopt CSEs the lda of the load+store pair across blocks (not fixable by volatile, raw-address cast, (0,x) idioms, array decl, defining the var in the TU, storing in each branch). If the store goes through a different symbol the lui is separate (text then 7 diff lines) but the join block order stays [store; mov.s f0] vs target [mov.s f0; store in jr delay slot]. Permuter 400s found nothing readable (best deletes the store).
 extern u8 D_807444F0;
 extern u8 D_807444EC;
 extern s8 D_807444C0;
