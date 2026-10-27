@@ -1,4 +1,4 @@
-// func_8063A968 (src/global/36880.c): from .scratch/R36880g3/func_8063A968_best.c
+// func_8063A968 (src/global/36880.c): stage 5: same frame (448) and callee-saved set; all instructions match except (a) 3 stack spill slots sit 4 bytes high in target (a1 0x74/_g 0x94,0x90 vs 0x70/0x90,0x8C; one fewer declared home above, one more spill word below), which also shifts t-reg numbering from the loop pre-header on, (b) beql operand order sp1BC/unk0 swapped. Needs sp1BC[1]/sp1A8[1] arrays (keeps them in memory so $fp=0xE7000000 const is promoted), sp1A4 scalar. Permuter (-j2, ~40min) best 519, never 0.
 #define R36880I_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 typedef struct R36880iNode {
