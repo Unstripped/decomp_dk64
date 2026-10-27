@@ -865,25 +865,222 @@ u8 func_8062D2F0(R2F550bObj *arg0, R2F550bTree *arg1, s32 arg2, s16 *arg3, u8 ar
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062D3E4.s")
+typedef struct R2F550cEntry {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 pad10[4];
+    /* 0x14 */ struct R2F550cEntry *unk14;
+    /* 0x18 */ u8 pad18[4];
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ s16 unk20;
+    /* 0x22 */ u8 unk22;
+    /* 0x23 */ u8 pad23;
+    /* 0x24 */ u8 unk24;
+} R2F550cEntry;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062D414.s")
+void func_8062D414(R2F550bObj *, R2F550bTree *, R2F550cEntry *);
+
+void func_8062D3E4(R2F550bObj *arg0) {
+    func_8062D414(D_807F5DE4, D_807F5E60, (R2F550cEntry *)arg0);
+}
+
+s32 func_806303C4(s32, u8, s32, f32, f32, f32, s32, s32, s32, s32, s32);
+u8 func_8062E898(void *, u8 *, f32, f32, f32);
+void func_806306D0(s32);
+void mapChunkUpdateEntryNode(R2F550cEntry *);
+
+void func_8062D414(R2F550bObj *arg0, R2F550bTree *arg1, R2F550cEntry *arg2) {
+    s32 pad;
+    s32 listA;
+    s32 listB;
+    s32 sp58;
+
+    listA = 0;
+    listB = 0;
+    if (arg0 == NULL) {
+        return;
+    }
+    switch (arg0->unkB8) {
+        case 2:
+            if (arg2 != NULL) {
+                do {
+                    mapChunkUpdateEntryNode(arg2);
+                    arg2 = arg2->unk14;
+                } while (arg2 != NULL);
+            }
+            break;
+        case 1:
+            if (arg2 != NULL) {
+                do {
+                    arg1->unk4 = (R2F550bObj *)func_806303C4((s32)arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                    arg2 = arg2->unk14;
+                } while (arg2 != NULL);
+            }
+            break;
+        case 0:
+            if (arg2 != NULL) {
+                do {
+                    if (func_8062E898(arg0, (u8 *)&sp58 + 2, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
+                        listB = func_806303C4(listB, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                    } else {
+                        listA = func_806303C4(listA, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                    }
+                    arg2 = arg2->unk14;
+                } while (arg2 != NULL);
+            }
+            func_8062D414(arg0->unk0, arg1->unkC, (R2F550cEntry *)listA);
+            func_8062D414(arg0->unk4, arg1->unk10, (R2F550cEntry *)listB);
+            func_806306D0(listA);
+            func_806306D0(listB);
+            break;
+    }
+}
+
+typedef struct R2F550cBox {
+    /* 0x00 */ u8 pad0[0xA0];
+    /* 0xA0 */ s16 unkA0;
+    /* 0xA2 */ s16 unkA2;
+    /* 0xA4 */ s16 unkA4;
+    /* 0xA6 */ s16 unkA6;
+    /* 0xA8 */ s16 unkA8;
+    /* 0xAA */ s16 unkAA;
+} R2F550cBox;
+
+extern f32 D_807F5FA8;
+extern u8 D_807F5E68[];
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062D620.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062DAF4.s")
+s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
+
+s32 func_8062DAF4(R2F550bObj *arg0, f32 arg1, f32 arg2, f32 arg3) {
+    R2F550cBox *box;
+
+    box = (R2F550cBox *)arg0;
+    return func_8062DBDC(box->unkA0, box->unkA2, box->unkA4, box->unkA6, box->unkA8, box->unkAA, arg1, arg2, arg3, D_807F5FA8, D_807F5E68);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062DB70.s")
+
+typedef struct R2F550cPlane {
+    /* 0x00 */ u8 pad0[0x18];
+    /* 0x18 */ u8 unk18;
+    /* 0x19 */ u8 pad19[7];
+    /* 0x20 */ f64 unk20;
+    /* 0x28 */ f64 unk28;
+    /* 0x30 */ f64 unk30;
+    /* 0x38 */ f64 unk38;
+} R2F550cPlane;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062DBDC.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E040.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E1F8.s")
+void func_8062E3B4(s16 *, s16 *, s32, s32 *, u8, f64, u8);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E3B4.s")
+s32 func_8062E1F8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, void *arg7) {
+    s16 sp88[0x24];
+    s16 sp40[0x24];
+    s32 sp3C;
+    char pad;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E548.s")
+    func_8062E3B4((s16 *)((u8 *)arg7 + (arg0 << 6)), sp88, ((R2F550cPlane *)((u8 *)arg7 + (arg0 << 6)))->unk18, &sp3C, 0, arg1, 0);
+    if (sp3C == 0) {
+        return 0;
+        do {
+        } while (0);
+    }
+    func_8062E3B4(sp88, sp40, sp3C, &sp3C, 0, arg4, 1);
+    if (sp3C == 0) {
+        return 0;
+    }
+    func_8062E3B4(sp40, sp88, sp3C, &sp3C, 1, arg2, 0);
+    if (sp3C == 0) {
+        return 0;
+    }
+    func_8062E3B4(sp88, sp40, sp3C, &sp3C, 1, arg5, 1);
+    if (sp3C == 0) {
+        return 0;
+    }
+    func_8062E3B4(sp40, sp88, sp3C, &sp3C, 2, arg3, 0);
+    if (sp3C == 0) {
+        return 0;
+    }
+    func_8062E3B4(sp88, sp40, sp3C, &sp3C, 2, arg6, 1);
+    if (sp3C != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+s32 func_8062E548(s16 *, u8, f64, u8);
+void func_8062E608(void *, s32 *, void *);
+void func_8062E67C(s16 *, s16 *, u8, f64, s16 *);
+
+void func_8062E3B4(s16 *arg0, s16 *arg1, s32 arg2, s32 *arg3, u8 arg4, f64 arg5, u8 arg6) {
+    s32 i;
+    s16 *prev;
+    s16 sp60[3];
+    s16 *cur;
+    s16 *last;
+
+    *arg3 = 0;
+    prev = (s16 *)(arg2 * 6 + (s32)arg0 - 6);
+    i = 0;
+    if (arg2 > 0) {
+        cur = arg0;
+        do {
+            last = cur;
+            if (func_8062E548(cur, arg4, arg5, arg6) != 0) {
+                if (func_8062E548(prev, arg4, arg5, arg6) != 0) {
+                    func_8062E608(cur, arg3, arg1);
+                } else {
+                    func_8062E67C(prev, cur, arg4, arg5, sp60);
+                    func_8062E608(sp60, arg3, arg1);
+                    func_8062E608(cur, arg3, arg1);
+                }
+            } else if (func_8062E548(prev, arg4, arg5, arg6) != 0) {
+                func_8062E67C(prev, cur, arg4, arg5, sp60);
+                func_8062E608(sp60, arg3, arg1);
+            }
+            i++;
+            cur += 3;
+            prev = last;
+        } while (i != arg2);
+    }
+}
+
+s32 func_8062E548(s16 *arg0, u8 arg1, f64 arg2, u8 arg3) {
+    f64 coord;
+
+    switch (arg1) {
+        case 0:
+            coord = arg0[0];
+            break;
+        case 1:
+            coord = arg0[1];
+            break;
+        case 2:
+            coord = arg0[2];
+            break;
+    }
+    switch (arg3) {
+        case 0:
+            if (arg2 <= coord) {
+                return 1;
+            }
+            break;
+        case 1:
+            if (coord <= arg2) {
+                return 1;
+            }
+            break;
+    }
+    return 0;
+}
 
 void faultSetMessage(s32, s32, s32, s32);
 
