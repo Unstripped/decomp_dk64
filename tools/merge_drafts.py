@@ -109,8 +109,10 @@ def lost_functions(base_text, draft_text):
         n = re.escape(name)
         if re.search(rf"^[A-Za-z_][\w \t\*]*\b{n}\([^;]*$", draft_text, re.M):
             continue
-        # K&R definition: `T name(a, b) T1 a; T2 b; {`
-        if re.search(rf"^[A-Za-z_][\w \t\*]*\b{n}\([\w, \t]*\)[^(){{}}]*\{{", draft_text, re.M):
+        # K&R definition: `T name(a, b) T1 a; T2 *b; {` (identifier list, then declarations)
+        if re.search(rf"^[A-Za-z_][\w \t\*]*\b{n}\(\s*\w+(?:\s*,\s*\w+)*\s*\)\s*"
+                     rf"(?:[A-Za-z_][\w \t\*]*?\w+(?:\s*\[[^\]]*\])?(?:\s*,\s*\**\s*\w+)*\s*;\s*)+\{{",
+                     draft_text, re.M):
             continue
         if re.search(rf"^(?!extern\b)[A-Za-z_][\w \t\*]*\b{n}\s*(\[[^\]]*\]\s*)*(=|;)",
                      draft_text, re.M):
