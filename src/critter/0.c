@@ -334,7 +334,48 @@ void func_80024F28(void *arg0) {
     critterUpdateAudio(arg0);
 }
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_8002516C.s")
+extern s32 D_80029BA8;
+extern u8 D_807444FC;
+void func_80025A3C(u8 *);
+extern Vtx D_80029940[];
+extern Vtx D_80029980[];
+void matrixMakeRotationY(f32 (*)[4], f32);
+
+Gfx *func_8002516C(Gfx *gdl, u8 *arg1) {
+    f32 spD0[4][4];
+    f32 sp90[4][4];
+
+    if (D_80029BA8 != *(s32 *)(arg1 + 0x1E8)) {
+        D_80029BA8 = *(s32 *)(arg1 + 0x1E8);
+        gDPLoadTextureBlock(gdl++, D_80029BA8, G_IM_FMT_RGBA, G_IM_SIZ_16b, 48, 32, 0,
+                            G_TX_CLAMP, G_TX_CLAMP, 6, 5, G_TX_NOLOD, G_TX_NOLOD);
+    }
+    func_80025A3C(arg1);
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x60), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    matrixMakeRotationY(spD0, *(f32 *)(arg1 + 0x4C));
+    guMtxF2L(spD0, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x160));
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x160), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPClearGeometryMode(gdl++, G_CULL_BOTH);
+    guTranslateF(sp90, 0.0f, 0.0f, -27.0f);
+    matrixMakeRotationY(spD0, *(f32 *)(arg1 + 0x48));
+    guMtxCatF(spD0, sp90, spD0);
+    guMtxF2L(spD0, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0xE0));
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0xE0), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPVertex(gdl++, D_80029940, 4, 0);
+    gSP2Triangles(gdl++, 0, 1, 2, 0, 2, 3, 0, 0);
+    gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
+    gSPSetGeometryMode(gdl++, G_CULL_BACK);
+    gSPVertex(gdl++, D_80029980, 9, 0);
+    gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 3, 4, 0);
+    gSP2Triangles(gdl++, 5, 1, 6, 0, 4, 3, 5, 0);
+    gSP2Triangles(gdl++, 0, 4, 6, 0, 0, 6, 1, 0);
+    gSP2Triangles(gdl++, 4, 5, 6, 0, 5, 2, 1, 0);
+    gSP2Triangles(gdl++, 0, 7, 3, 0, 3, 7, 5, 0);
+    gSP2Triangles(gdl++, 2, 5, 8, 0, 2, 8, 0, 0);
+    gSP2Triangles(gdl++, 0, 8, 7, 0, 7, 8, 5, 0);
+    gDPPipeSync(gdl++);
+    return gdl;
+}
 
 s32 func_806119A0(void);
 
@@ -347,7 +388,27 @@ void func_80025500(u8 *arg0) {
     critterUpdateAudio(arg0);
 }
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_800255C4.s")
+extern Gfx D_80029A10;
+
+Gfx *func_800255C4(Gfx *gdl, u8 *arg1) {
+    if (D_80029BA8 != *(s32 *)(arg1 + 0x1E8)) {
+        D_80029BA8 = *(s32 *)(arg1 + 0x1E8);
+        gDPLoadTextureBlock(gdl++, D_80029BA8, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 0,
+                            G_TX_CLAMP, G_TX_CLAMP, 5, 4, G_TX_NOLOD, G_TX_NOLOD);
+    }
+    func_80025A3C(arg1);
+    gSPMatrix(gdl++, (Mtx *)((s32)arg1 + (D_807444FC << 6) + 0x60), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPVertex(gdl++, &D_80029A10, 11, 0);
+    gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 3, 1, 0);
+    gSP2Triangles(gdl++, 0, 2, 4, 0, 0, 5, 6, 0);
+    gSP2Triangles(gdl++, 0, 4, 5, 0, 0, 6, 3, 0);
+    gSP2Triangles(gdl++, 7, 2, 1, 0, 1, 8, 7, 0);
+    gSP2Triangles(gdl++, 3, 6, 9, 0, 5, 10, 9, 0);
+    gSP2Triangles(gdl++, 6, 5, 9, 0, 10, 8, 9, 0);
+    gSP2Triangles(gdl++, 1, 3, 9, 0, 8, 1, 9, 0);
+    gDPPipeSync(gdl++);
+    return gdl;
+}
 
 extern Gfx D_1000118;
 extern u8 D_807FC929;
@@ -369,7 +430,6 @@ Gfx *func_800257D4(Gfx *gdl) {
 
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_800258B0.s")
 
-extern u8 D_807444FC;
 void func_800258B0(f32 (*)[4], s32, s32, s32, f32, f32, f32, f32);
 
 void func_80025A3C(u8 *arg0) {
@@ -383,39 +443,125 @@ void func_80025A3C(u8 *arg0) {
     guMtxF2L(sp30, (Mtx *)((s32)arg0 + (D_807444FC << 6) + 0x60));
 }
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80025AD0.s")
+extern Gfx D_80029B18;
+extern Gfx D_80029B30;
+extern Gfx D_80029B78;
+extern Gfx D_80029B88;
+extern s32 D_807F6C28;
+Gfx *func_800247F4(Gfx *, u8 *);
+Gfx *func_80024C88(Gfx *, u8 *);
+Gfx *func_8002516C(Gfx *, u8 *);
+void func_8065C334(f32, f32, s32, s32, u8 *, u8 *, u8 *, s32);
 
-#if 0
-// Draft: arg0/arg1 register move order and loop branch likely difference
-s32 func_800257D4(s32);
-s32 func_80025AD0(s32, void *);
-extern s32 D_80029BA8;
-s32 func_80025D1C(s32 arg0, u8 *arg1) {
-    s32 var_s0;
-    u8 *var_s1;
-    s32 var_s2 = arg0;
+Gfx *func_80025AD0(Gfx *gdl, u8 *arg1) {
+    s32 col;
+    s32 i;
+    u8 *obj;
+    u8 r;
+    u8 g;
+    u8 b;
+    Gfx *(*cb)(Gfx *, u8 *);
+
+    obj = *(u8 **)(arg1 + 8);
+    switch (arg1[0]) {
+    case 0:
+    case 1:
+        gSPDisplayList(gdl++, &D_80029B30);
+        cb = func_800247F4;
+        break;
+    case 3:
+        gSPDisplayList(gdl++, &D_80029B18);
+        cb = func_80024C88;
+        break;
+    case 2:
+        gSPDisplayList(gdl++, &D_80029B78);
+        cb = func_8002516C;
+        break;
+    case 4:
+        gSPDisplayList(gdl++, &D_80029B88);
+        cb = func_800255C4;
+        break;
+    }
+    i = 0;
+    if ((s32)arg1[2] > 0) {
+        do {
+            if (D_807F6C28 != 0) {
+                func_8065C334(*(f32 *)(obj + 8), *(f32 *)(obj + 0xC), *(s32 *)(obj + 0x10), 0, &r, &g, &b,
+                              *(s16 *)(*(u8 **)(obj + 0x58) + 0x28));
+            } else {
+                r = 0xFF;
+                g = 0xFF;
+                b = 0xFF;
+            }
+            gDPPipeSync(gdl++);
+            {
+                Gfx *_g = gdl++;
+
+                _g->words.w0 = 0xFA000000;
+                col = _SHIFTL(r, 24, 8) | _SHIFTL(g, 16, 8) | _SHIFTL(b, 8, 8);
+                _g->words.w1 = _SHIFTL(*(u8 *)(*(u8 **)(obj + 0x58) + 0x26), 0, 8) | (0, col);
+            }
+            if (obj[0x1E1] & 1) {
+                gdl = cb(gdl, obj);
+            }
+            i++;
+            obj += 0x1F0;
+        } while (i < (s32)arg1[2]);
+    }
+    gDPPipeSync(gdl++);
+    return gdl;
+}
+
+s32 func_80025D1C(s32 gdl, u8 *arg1) {
+    u8 *ptr;
+    s32 i;
+
     if (arg1 == NULL) {
-        return arg0;
+        return gdl;
     }
     D_80029BA8 = 0;
-    var_s1 = *(u8 **)(arg1 + 4);
-    if (var_s1 != NULL) {
-        var_s2 = func_800257D4(var_s2);
+    ptr = *(u8 **)(arg1 + 4);
+    if (ptr != NULL) {
+        gdl = (s32)func_800257D4((Gfx *)gdl);
     }
-    var_s0 = 0;
-    if ((s32)arg1[0] > 0) {
-        do {
-            var_s0++;
-            var_s2 = func_80025AD0(var_s2, var_s1);
-            var_s1 += 0xC;
-        } while (var_s0 < (s32)arg1[0]);
+    for (i = 0; i < (s32)arg1[0]; i++) {
+        gdl = (s32)func_80025AD0((Gfx *)gdl, ptr);
+        ptr += 0xC;
     }
-    return var_s2;
+    return gdl;
 }
-#endif
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80025D1C.s")
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_80025DB8.s")
+
+void func_80025DB8(void *arg0, void *arg1, u8 arg2, s16 arg3, u8 arg4) {
+    f32 sp2C;
+    f32 sp28;
+    f32 base;
+    f32 *px;
+    f32 *py;
+    f32 *pz;
+    f32 v;
+
+    base = (f32)*(s16 *)((u8 *)arg0 + 0xC);
+    if (arg2 == 0) {
+        sp2C = (f32)*(s32 *)((u8 *)arg0 + 0x14);
+        base += (f32)*(s16 *)((u8 *)arg0 + 0x10);
+    } else {
+        sp2C = (f32)*(s16 *)((u8 *)arg0 + 8) * ((f32)(func_806119A0() & 0xFFFU) * 0.000244140625f);
+    }
+    v = (f32)((f64)((f32)(func_806119A0() & 0xFFFU) * 0.000244140625f * base) - 0.5 * (f64)base);
+    if (arg4 != 0) {
+        px = (f32 *)((u8 *)arg1 + 0x18);
+        py = (f32 *)((u8 *)arg1 + 0x1C);
+        pz = (f32 *)((u8 *)arg1 + 0x20);
+    } else {
+        px = (f32 *)((u8 *)arg1 + 8);
+        py = (f32 *)((u8 *)arg1 + 0xC);
+        pz = (f32 *)((u8 *)arg1 + 0x10);
+    }
+    *py = v;
+    *px = func_80612794(arg3) * sp2C;
+    *pz = func_80612790(arg3) * sp2C;
+}
 
 void func_80025DB8(void *, void *, u8, s16, u8);
 
@@ -430,7 +576,77 @@ void func_80025F8C(s16 *arg0, u8 *arg1, u8 arg2) {
     *(f32 *)(arg1 + 0x10) += (f32)arg0[2];
 }
 
+extern u8 *D_807FBB48;
+extern void *D_80029BA4;
+
+#ifdef NON_MATCHING
+extern void *D_80029BA4;
+
+#define CR58 (*(u8 **)((u8 *)arg0 + 0x58))
+void func_8002601C(void *arg0) {
+    u8 *m;
+    f32 lim;
+    f32 fv0;
+    f32 dx;
+    f32 dz;
+    f32 dist;
+    f32 ddy;
+    f32 dd;
+    s16 half;
+    s16 py;
+    s16 pl;
+    s32 f;
+    s32 g;
+
+    fv0 = 0.0f;
+    lim = (f32)(*(s32 *)(CR58 + 0x18) + 0x1DE84);
+    if (D_807444FC != CR58[0x24]) {
+        dx = (f32)*(s16 *)(CR58 + 0) - *(f32 *)(D_807FBB48 + 0x7C);
+        dz = (f32)*(s16 *)(CR58 + 4) - *(f32 *)(D_807FBB48 + 0x84);
+        half = (*(s16 *)(CR58 + 0x10) + *(s16 *)(CR58 + 0xC)) >> 1;
+        py = *(s16 *)(CR58 + 2);
+        pl = *(s16 *)((u8 *)D_80029BA4 + 2);
+        dd = dx * dx;
+        dd += dz * dz;
+        fv0 = 0.0f;
+        f = pl < py + half;
+        if (f) {
+            f = py - half < pl;
+        }
+        g = (u8)f != 0;
+        if (g) {
+            g = 0;
+            if (dd < (f32)*(s32 *)(CR58 + 0x18)) {
+                g = 1;
+            }
+        }
+        CR58[0x25] = g;
+        CR58[0x24] = D_807444FC;
+        m = D_807FC924 + D_807FC929 * 0x2F0;
+        dz = (f32)*(s16 *)(CR58 + 4) - *(f32 *)(m + 0x218);
+        dx = (f32)*(s16 *)(CR58 + 0) - *(f32 *)(m + 0x210);
+        ddy = (f32)*(s16 *)(CR58 + 2) - *(f32 *)(m + 0x214);
+        dist = dz * dz + (dx * dx + ddy * ddy);
+        *(f32 *)(CR58 + 0x20) = dist;
+        if (dist < lim) {
+            fv0 = (lim - dist) * 0.000051020408f;
+            if (fv0 > 1.0f) {
+                fv0 = 1.0f;
+            }
+        }
+        CR58[0x26] = (u32)(255.0f * fv0);
+    }
+    if (*(f32 *)(CR58 + 0x20) < lim) {
+        ((u8 *)arg0)[0x1E1] |= 1;
+    } else {
+        ((u8 *)arg0)[0x1E1] &= ~1;
+    }
+}
+#undef CR58
+#else
+
 #pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_8002601C.s")
+#endif
 
 void *func_80026298(arg0, arg1)
 void *arg0;
@@ -453,7 +669,6 @@ end:
     *(void **)(arg0 + 0x54) = func_80026298(arg1, temp_t8);
 }
 
-extern void *D_80029BA4;
 
 void func_80026338(u8 *arg0, u8 *arg1) {
     s32 lim;
@@ -484,7 +699,6 @@ void func_80026338(u8 *arg0, u8 *arg1) {
     }
 }
 
-extern u8 *D_807FBB48;
 
 void critterCalcDistToPlayer(u8 *arg0) {
     f32 dx;
@@ -759,7 +973,6 @@ void func_80026C9C(u8 *arg0) {
 }
 
 extern void *D_80029BA0;
-extern s32 D_807F6C28;
 void *memcpy(void *, const void *, unsigned int);
 void *func_80610FE8(s32);
 void heapClearBlock(void *);
@@ -812,8 +1025,6 @@ void func_80026E0C(u8 *arg0) {
 
 extern void *D_80029BA0;
 void func_80026E0C();
-void *func_80610FE8(s32);
-void heapClearBlock(void *);
 void func_80026FD0(void *arg0) {
     D_80029BA8 = 0;
     D_80029BA0 = func_80610FE8(8);
