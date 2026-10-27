@@ -2345,7 +2345,152 @@ void func_80636B50(R36880eCmd *arg0, R36880eCmd *arg1, u8 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80637B6C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806392BC.s")
+typedef struct R36880hCtl {
+    /* 0x000 */ u8 pad0[0x174];
+    /* 0x174 */ struct R36880hCtl2 *unk174;
+} R36880hCtl;
+
+typedef struct R36880hCtl2 {
+    /* 0x000 */ u8 pad0[0x1F4];
+    /* 0x1F4 */ s32 unk1F4;
+} R36880hCtl2;
+
+typedef struct R36880hObj {
+    /* 0x00 */ u8 pad0[0x58];
+    /* 0x58 */ s32 unk58;
+} R36880hObj;
+
+typedef struct R36880hPlayer {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ R36880hObj *unk4;
+    /* 0x008 */ u8 pad8[0x2E8];
+} R36880hPlayer; /* 0x2F0 */
+
+extern u8 D_8074E77C[];
+typedef struct R36880hKong {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 pad1[0x5D];
+} R36880hKong; /* 0x5E */
+
+typedef struct R36880hPl {
+    /* 0x000 */ R36880hKong kong[8];
+    /* 0x2F0 */ u8 pad2F0[0x16];
+} R36880hPl; /* 0x306 */
+
+extern R36880hPl D_807FC952[];
+
+#define R36880H_CUR ((R36880hPlayer *)D_807FC924)[D_807FC929].unk4
+
+void func_806392BC(s16 arg0, u8 *arg1, s16 *arg2) {
+    s32 hit = 0;
+    R36880hCtl2 *ctl;
+
+    switch (arg0) {
+    case 0x24:
+        if (R36880H_CUR->unk58 != 3) {
+            hit = 1;
+        }
+        break;
+    case 0x1D:
+        if (R36880H_CUR->unk58 != 2) {
+            hit = 1;
+        }
+        break;
+    case 0x1C:
+        if (R36880H_CUR->unk58 != 5) {
+            hit = 1;
+        }
+        break;
+    case 0x23:
+        if (R36880H_CUR->unk58 != 4) {
+            hit = 1;
+        }
+        break;
+    case 0x27:
+        if (R36880H_CUR->unk58 != 6) {
+            hit = 1;
+        }
+        break;
+    case 0xD:
+        if (R36880H_CUR->unk58 != 2) {
+            hit = 1;
+        }
+        break;
+    case 0xA:
+        if (R36880H_CUR->unk58 != 3) {
+            hit = 1;
+        }
+        break;
+    case 0x16:
+        if (R36880H_CUR->unk58 != 5) {
+            hit = 1;
+        }
+        break;
+    case 0x1E:
+        if (R36880H_CUR->unk58 != 4) {
+            hit = 1;
+        }
+        break;
+    case 0x1F:
+        if (R36880H_CUR->unk58 != 6) {
+            hit = 1;
+        }
+        break;
+    case 0x2B:
+        if (R36880H_CUR->unk58 != 2) {
+            hit = 1;
+        }
+        break;
+    case 0x208:
+        if (R36880H_CUR->unk58 != 3) {
+            hit = 1;
+        }
+        break;
+    case 0x207:
+        if (R36880H_CUR->unk58 != 5) {
+            hit = 1;
+        }
+        break;
+    case 0x205:
+        if (R36880H_CUR->unk58 != 4) {
+            hit = 1;
+        }
+        break;
+    case 0x206:
+        if (R36880H_CUR->unk58 != 6) {
+            hit = 1;
+        }
+        break;
+    case 0x11:
+        if ((D_807FC952[D_807FC929].kong[D_8074E77C[D_807FC929]].unk0 & 3) != 3) {
+            hit = 1;
+        }
+        break;
+    case 0x8F:
+        if (!(D_807FC952[D_807FC929].kong[D_8074E77C[D_807FC929]].unk0 & 1)) {
+            hit = 1;
+        }
+        break;
+    case 0x98:
+        ctl = ((R36880hCtl *)R36880H_CUR)->unk174;
+        if (!(ctl->unk1F4 & 1)) {
+            hit = 1;
+        }
+        break;
+    case 0x8E:
+        ctl = ((R36880hCtl *)R36880H_CUR)->unk174;
+        if (!(ctl->unk1F4 & 2)) {
+            hit = 1;
+        }
+        break;
+    }
+    if (hit != 0) {
+        *arg1 = 0;
+        if (*arg2 > 0x64) {
+            *arg2 = 0x64;
+        }
+    }
+}
 
 typedef struct R36880eFlags {
     /* 0x00 */ u8 pad0[0x4E];
