@@ -329,7 +329,33 @@ void func_800280E8(void *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_800282D8.s")
+void func_806086CC(f32, f32, s32, s32, s32, u8, s32, s32, f32, s32);
+
+void func_800282D8(void) {
+    u8 *temp_v0;
+    u8 *temp_v1;
+    u8 *temp_t0;
+
+    temp_v0 = *(u8 **)((u8 *)D_807FBB40 + 0x178);
+    temp_v1 = *(u8 **)(temp_v0 + 0x30);
+    temp_t0 = *(u8 **)(temp_v1 + 0x174);
+    switch (*(u16 *)(temp_t0 + 0x1C)) {
+    case 0x5A:
+        sfxPlayActorSound(D_807FBB40, 0x107, 0, 1, 0, 0xFF, 1.0f, 0);
+    case 0x1D:
+    case 0x25:
+    case 0x2C:
+    case 0x30:
+    case 0x38:
+    case 0x3F:
+    case 0x43:
+    case 0x47:
+    case 0x4E:
+    case 0x54:
+        func_806086CC(*(f32 *)((u8 *)D_807FBB40 + 0x7C), *(f32 *)((u8 *)D_807FBB40 + 0x80), *(s32 *)((u8 *)D_807FBB40 + 0x84), 0x187, 0xFF, (s32)(((f64)(*(u16 *)(temp_t0 + 0x1C) - 0x1D) * 0.5) + 157.0), 0, 0, 0.3f, 0);
+        break;
+    }
+}
 
 extern s16 D_80770628[];
 extern f32 D_80770B68[];

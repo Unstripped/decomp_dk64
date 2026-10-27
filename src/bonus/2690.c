@@ -1161,7 +1161,6 @@ void func_80028E3C(void) {
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80029364.s")
 
-#ifdef NON_MATCHING
 typedef struct {
     char pad0[3];
     u8 unk3;
@@ -1189,10 +1188,15 @@ typedef struct {
 
 Gfx *func_80029B9C(Gfx *gdl, Actor_BB44 *arg1) {
     Actor_BB44 *actor;
-    BonusC_9B9C_B *p0 = arg1->unk178;
-    BonusC_9B9C_A *p1 = arg1->unk178;
-    BonusC_9B9C_C *p2 = (void *)arg1->unk174;
+    BonusC_9B9C_B *p0;
+    BonusC_9B9C_A *p1;
+    BonusC_9B9C_C *p2;
 
+    p2 = (void *)arg1->unk174;
+    p0 = arg1->unk178;
+    if (p2) {
+    }
+    p1 = arg1->unk178;
     actor = arg1;
 
     if (actor->unk58 != 0x7E && actor->unk154 == 0 && ((u8 *)actor->unk174)[0x26] != 0) {
@@ -1229,10 +1233,6 @@ Gfx *func_80029B9C(Gfx *gdl, Actor_BB44 *arg1) {
     }
     return gdl;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80029B9C.s")
-#endif
 
 typedef struct {
     void *unk0;
