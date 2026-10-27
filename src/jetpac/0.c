@@ -64,17 +64,96 @@ void func_80028B54(JetpacPlayer *);
 void func_80028634(void);
 extern s32 D_8002F064;
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024000.s")
+void controllerStartRead(void);
+void controllerUpdate(void);
+void func_80610044(Gfx *, s32, s32, s32, s32, s32);
+Gfx *func_80704484(Gfx *, s32);
+void func_805FE71C(Gfx *, u8, s32 *, s32);
+void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
+Gfx *func_805FE4D4(Gfx *);
+Gfx *func_80610FE8(s32);
+void heapFreeDeferred(void *);
+void func_80025168(Gfx **);
+void func_8002419C(u8 *, Gfx **);
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_8002419C.s")
+extern u8 D_807444FC;
+extern u8 D_807444EC;
+extern Gfx *D_8076A050[];
+extern s32 D_8076A088;
+extern s32 D_8076A08C;
+extern s32 D_8076A064;
+extern u8 *D_8076A048;
+extern u8 D_80767CE8;
+extern u8 D_8076A0B1;
+extern f32 D_807FD888;
+extern void *D_8076A080;
+extern Gfx D_1000090;
+extern Gfx D_1000040;
+extern Gfx D_2000080;
 
-#if 0
-// Register scheduling order in prologue (lui a0 vs a2)
+void func_80024000(void) {
+    Gfx *sp2C;
+    u8 *sp28;
+
+    controllerStartRead();
+    func_80610044(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
+    D_807444FC ^= 1;
+    D_8076A064++;
+    D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
+    controllerUpdate();
+    if ((D_8076A0B1 & 1) && D_807FD888 == 31.0f) {
+        sp2C = D_8076A050[D_807444FC];
+    } else {
+        func_8002419C(D_8076A048, &sp2C);
+    }
+    sp2C = func_80704484(sp2C, 0);
+    if (D_807444EC != 4) {
+        sp28 = D_8076A048 + 0xDB0;
+        func_805FE71C(sp2C, D_807444FC, &D_8076A088, 0);
+        func_805FE7B4((Gfx *)sp28, D_8076A048, &D_8076A08C, 1);
+    } else {
+        func_805FE71C(sp2C, D_807444FC, &D_8076A088, 1);
+    }
+}
+
+#define J0a_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+void func_8002419C(u8 *arg0, Gfx **arg1) {
+    Gfx *sp6C;
+    Gfx *sp68;
+    Gfx *glist;
+
+    glist = D_8076A050[D_807444FC];
+    gSPSegment(glist++, 0, 0);
+    gSPSegment(glist++, 2, osVirtualToPhysical(arg0));
+    gSPSegment(glist++, 1, osVirtualToPhysical(D_8076A080));
+    gSPDisplayList(glist++, &D_1000090);
+    gSPDisplayList(glist++, &D_1000040);
+    guOrtho((Mtx *)(arg0 + 0x80), 0.0f, 320.0f, 0.0f, 240.0f, 1.0f, 10.0f, 1.0f);
+    gDPPipeSync(glist++);
+    glist = func_805FE4D4(glist);
+    J0a_WRITE_GFX(glist++, 0xE3001801, 0);
+    J0a_WRITE_GFX(glist++, 0xE3001A01, 0);
+    gDPSetFillColor(glist++, 0x00010001);
+    gDPFillRectangle(glist++, 0, 0, 319, 239);
+    J0a_WRITE_GFX(glist++, 0xDA380007, &D_2000080);
+    sp68 = func_80610FE8(0x5DC0);
+    heapFreeDeferred(sp68);
+    sp6C = sp68;
+    func_80025168(&sp6C);
+    gSPEndDisplayList(sp6C++);
+    gSPDisplayList(glist++, sp68);
+    *arg1 = glist;
+}
+
+
+
+extern JetpacPlayer D_8002EC4C[];
+
 void func_80024390(void) {
     s32 i;
     for (i = 0; i < 2; i++) {
-        D_8002EC30.players[i].entity.stage = -1;
-        D_8002EC30.players[i].entity.score = 0;
+        D_8002EC30.players[i].stage = -1;
+        D_8002EC30.players[i].score = 0;
         if (i < D_8002EC30.num_players) {
             if (D_8002EC30.unk798 != 0) {
                 D_8002EC4C[i].lives = 3;
@@ -87,10 +166,50 @@ void func_80024390(void) {
     }
     D_8002EC30.active_player = 0;
 }
-#endif
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024390.s")
+
+extern s32 D_8002BA6C;
+s32 func_80026FE0(void);
+void func_8002AE00(s32);
+void func_8002AE94(s32, s32, s32, s32);
+void func_8002AEFC(s32, char *, s32, s32, s32);
+s32 _sprintf(char *, char *, ...);
+
+#ifdef NON_MATCHING
+extern s32 D_8002EF74;
+extern s32 D_8002EC50;
+extern s32 D_8002EDE4;
+
+void func_80024408(s32 arg0) {
+    char buf[0x50];
+    s32 mask;
+    s32 i;
+    s32 pad;
+
+    mask = func_80026FE0() & D_8002BA6C;
+    func_8002AE00(arg0);
+    func_8002AE94(0xFF, 0xFF, 0xFF, 0xFF);
+    func_8002AEFC(arg0, "1UP", 0x38, 0x18, mask != 0 && D_8002EF74 == 0);
+    for (i = 0; i < 2; i++) {
+        if (D_8002EC4C[i].lives > 0) {
+            _sprintf(buf, "%d!", D_8002EC4C[i].lives);
+            func_8002AEFC(arg0, buf, i * 0x70 + 0x60, 0x18, 0);
+        }
+    }
+    func_8002AEFC(arg0, "2UP", 0xF8, 0x18, mask != 0 && D_8002EF74 == 1);
+    func_8002AE94(0, 0xFF, 0xFF, 0xFF);
+    func_8002AEFC(arg0, "HI", 0x98, 0x18, 0);
+    func_8002AE94(0xFF, 0xFF, 0, 0xFF);
+    _sprintf(buf, "%06d", D_8002EC50);
+    func_8002AEFC(arg0, buf, 0x28, 0x20, 0);
+    _sprintf(buf, "%06d", D_8002EC48);
+    func_8002AEFC(arg0, buf, 0x88, 0x20, 0);
+    _sprintf(buf, "%06d", D_8002EDE4);
+    func_8002AEFC(arg0, buf, 0xE8, 0x20, 0);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024408.s")
+#endif
 
 void func_8002463C(void) {
     jetpacInitLedges();
@@ -98,7 +217,57 @@ void func_8002463C(void) {
     func_800250A0();
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_8002466C.s")
+typedef struct {
+    u8 pad0[8];
+    s32 unk8;
+    u8 unkC;
+    u8 padD[0x348 - 0xD];
+    s32 unk348;
+    s32 unk34C;
+    u8 pad350[0x44C - 0x350];
+    s32 unk44C;
+    u8 pad450[0x78C - 0x450];
+    s32 unk78C;
+    u8 pad790[0x798 - 0x790];
+    u8 unk798;
+    u8 unk799;
+} J0aGlobalView;
+#define J0aG ((J0aGlobalView *)&D_8002EC30)
+
+void func_8002466C(s32 arg0) {
+    s32 flags;
+    char buf[0x24];
+
+    func_80024408(arg0);
+    func_8002AE94(0xFF, 0xFF, 0xFF, 0xFF);
+    func_8002AEFC(arg0, "JETPAC GAME SELECTION", 0x50, 0x38, 0);
+    func_8002AEFC(arg0, "1@@@1@PLAYER@GAME", 0x50, 0x50, D_8002BA6C != 0 && J0aG->unk348 == 1);
+    func_8002AEFC(arg0, "2@@@2@PLAYER@GAME", 0x50, 0x60, D_8002BA6C != 0 && J0aG->unk348 == 2);
+    func_8002AEFC(arg0, "3@@@KEYBOARD", 0x50, 0x70, D_8002BA6C != 0 && J0aG->unk34C == 0);
+    func_8002AEFC(arg0, "4@@@KEMPSTON@JOYSTICK", 0x50, 0x80, D_8002BA6C != 0 && J0aG->unk34C != 0);
+    func_8002AEFC(arg0, "5   START GAME", 0x50, 0xB8, 0);
+    _sprintf(buf, "%c1983 A.C.G. ALL RIGHTS RESERVED", 0x7F);
+    func_8002AEFC(arg0, buf, 0x20, 0xD8, 0);
+    if (J0aG->unk798 != 0) {
+        if (!(J0aG->unk8 & 0x1000) && J0aG->unk799 < 0x78) {
+            J0aG->unk799++;
+            return;
+        }
+        J0aG->unk799 = 0;
+        func_8002463C();
+        return;
+    }
+    flags = J0aG->unk8;
+    if (flags & 0x4000) {
+        J0aG->unk348 ^= 3;
+    }
+    if (flags & 0x8000) {
+        J0aG->unk34C ^= 1;
+    }
+    if (flags & 0x1000) {
+        func_8002463C();
+    }
+}
 
 void func_800248A0(s32 arg0) {
     func_80024408(arg0);
