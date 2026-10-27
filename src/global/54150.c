@@ -265,17 +265,6 @@ void func_8064FA7C(u32 *arg0, u32 *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_806500E0.s")
 
 
-typedef struct MtxCopyRequestGroup {
-    s32 unk0;
-    u8 pad04[0xC];
-    s32 unk10;
-    u8 pad14[0xC];
-    s32 unk20;
-    u8 pad24[0xC];
-    s32 unk30;
-    u8 pad34[0xC];
-} MtxCopyRequestGroup;
-
 typedef struct MtxCopyRequest {
     s32 unk0;
     s32 unk4;
@@ -308,25 +297,13 @@ extern MtxCopyRequest D_807F6960[];
 void faultSetMessage(s32, s32, s32, s32);
 void func_8064FA7C();
 
-#ifdef NON_MATCHING
 void func_8065051C(void) {
-    MtxCopyRequestGroup *group = (MtxCopyRequestGroup *)D_807F6960;
+    s32 i;
 
-    for (;;) {
-        group->unk10 = 0;
-        group->unk20 = 0;
-        group->unk30 = 0;
-        group->unk0 = 0;
-        group++;
-        if (group == (MtxCopyRequestGroup *)&D_807F6BE0) {
-            break;
-        }
+    for (i = 0; i < 0x28; i++) {
+        D_807F6960[i].unk0 = 0;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_8065051C.s")
-#endif
 
 #ifdef NON_MATCHING
 void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
