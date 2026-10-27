@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import bisect
 import json
 import re
 import shutil
@@ -77,6 +78,50 @@ def parse_map_text_sections(map_path: Path):
     return sections
 
 
+def read_elf_sections(data: bytes) -> tuple[str, list[dict]]:
+    """Return (struct endian prefix, section header dicts) of a 32-bit ELF image."""
+    if len(data) < 52 or data[:4] != b"\x7fELF":
+        raise ValueError("not a valid ELF file")
+
+    ei_class = data[4]
+    ei_data = data[5]
+    endian = ">" if ei_data == 2 else "<"
+
+    if ei_class != 1:
+        raise ValueError("only 32-bit ELF supported")
+
+    e_shoff, = struct.unpack_from(endian + "I", data, 32)
+    e_shentsize, e_shnum, e_shstrndx = struct.unpack_from(endian + "HHH", data, 46)
+
+    sections = []
+    for i in range(e_shnum):
+        off = e_shoff + i * e_shentsize
+        (
+            sh_name,
+            sh_type,
+            sh_flags,
+            sh_addr,
+            sh_offset,
+            sh_size,
+            sh_link,
+            sh_info,
+            sh_addralign,
+            sh_entsize,
+        ) = struct.unpack_from(endian + "IIIIIIIIII", data, off)
+        sections.append({
+            "name_off": sh_name,
+            "type": sh_type,
+            "flags": sh_flags,
+            "addr": sh_addr,
+            "offset": sh_offset,
+            "size": sh_size,
+            "link": sh_link,
+            "info": sh_info,
+            "entsize": sh_entsize,
+        })
+    return endian, sections
+
+
 def read_elf_symbols(elf_path: Path):
     """Read symbols from a 32-bit big-endian ELF file with readelf fallback."""
     if not elf_path.is_file():
@@ -86,45 +131,7 @@ def read_elf_symbols(elf_path: Path):
         with open(elf_path, "rb") as f:
             data = f.read()
 
-        if len(data) < 52 or data[:4] != b"\x7fELF":
-            raise ValueError(f"Not a valid ELF file: {elf_path}")
-
-        ei_class = data[4]
-        ei_data = data[5]
-        endian = ">" if ei_data == 2 else "<"
-
-        if ei_class != 1:
-            raise ValueError(f"Only 32-bit ELF supported: {elf_path}")
-
-        e_shoff, = struct.unpack_from(endian + "I", data, 32)
-        e_shentsize, e_shnum, e_shstrndx = struct.unpack_from(endian + "HHH", data, 46)
-
-        sections = []
-        for i in range(e_shnum):
-            off = e_shoff + i * e_shentsize
-            (
-                sh_name,
-                sh_type,
-                sh_flags,
-                sh_addr,
-                sh_offset,
-                sh_size,
-                sh_link,
-                sh_info,
-                sh_addralign,
-                sh_entsize,
-            ) = struct.unpack_from(endian + "IIIIIIIIII", data, off)
-            sections.append({
-                "name_off": sh_name,
-                "type": sh_type,
-                "flags": sh_flags,
-                "addr": sh_addr,
-                "offset": sh_offset,
-                "size": sh_size,
-                "link": sh_link,
-                "info": sh_info,
-                "entsize": sh_entsize,
-            })
+        endian, sections = read_elf_sections(data)
 
         symbols = []
         for s in sections:
@@ -180,48 +187,51 @@ def read_elf_symbols(elf_path: Path):
         return symbols
 
 
-def compute_segment_progress(name: str, elf_path: Path, map_path: Path, repo_root: Path):
-    """Compute matched and total function bytes and counts for a segment."""
-    obj_secs = parse_map_text_sections(map_path)
-    symbols = read_elf_symbols(elf_path)
-
+def iter_segment_functions(elf_path: Path, map_path: Path, repo_root: Path):
+    """Yield every function of a linked segment: the ELF symbol dict plus obj, c_file, matched."""
+    obj_secs = sorted(parse_map_text_sections(map_path))
+    starts = [a for a, _, _ in obj_secs]
     c_unmatched_cache = {}
 
-    matched_bytes = 0
-    matched_funcs = 0
-    total_bytes = 0
-    total_funcs = 0
-
-    for s in symbols:
+    for s in read_elf_symbols(elf_path):
         # STT_FUNC = 2, size > 0, shndx < 0xFF00 (not ABS / COMMON / UNDEF)
         if s["type"] != 2 or s["size"] == 0 or s["shndx"] >= 0xFF00:
             continue
 
         val = s["value"]
-        # Find which object file section contains this function
-        containing_obj = None
-        for sec_addr, sec_size, obj in obj_secs:
-            if sec_addr <= val < sec_addr + sec_size:
-                containing_obj = obj
-                break
-
-        if not containing_obj:
+        # Object file whose .text section contains this function
+        i = bisect.bisect_right(starts, val) - 1
+        if i < 0:
+            continue
+        sec_addr, sec_size, obj = obj_secs[i]
+        if val >= sec_addr + sec_size:
             continue
 
-        total_funcs += 1
-        total_bytes += s["size"]
-
-        # Check if compiled from C
-        if containing_obj.startswith("build/src/"):
-            rel_c_path = Path(containing_obj).relative_to("build/src").with_suffix(".c")
-            c_file = repo_root / "src" / rel_c_path
+        # Matched = compiled from C and not still a GLOBAL_ASM/INCLUDE_ASM include
+        c_file = None
+        matched = False
+        if obj.startswith("build/src/"):
+            c_file = repo_root / "src" / Path(obj).relative_to("build/src").with_suffix(".c")
             if c_file not in c_unmatched_cache:
                 c_unmatched_cache[c_file] = get_unmatched_in_c(c_file)
-            unmatched_funcs = c_unmatched_cache[c_file]
+            matched = s["name"] not in c_unmatched_cache[c_file]
 
-            if s["name"] not in unmatched_funcs:
-                matched_funcs += 1
-                matched_bytes += s["size"]
+        yield {**s, "obj": obj, "c_file": c_file, "matched": matched}
+
+
+def compute_segment_progress(name: str, elf_path: Path, map_path: Path, repo_root: Path):
+    """Compute matched and total function bytes and counts for a segment."""
+    matched_bytes = 0
+    matched_funcs = 0
+    total_bytes = 0
+    total_funcs = 0
+
+    for f in iter_segment_functions(elf_path, map_path, repo_root):
+        total_funcs += 1
+        total_bytes += f["size"]
+        if f["matched"]:
+            matched_funcs += 1
+            matched_bytes += f["size"]
 
     pct = (matched_bytes / total_bytes * 100.0) if total_bytes > 0 else 0.0
     return {
