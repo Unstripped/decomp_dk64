@@ -208,7 +208,7 @@ segments:
       - [0x145950, c, 145950] # -g; rodata 0x165270-0x165280
       - [0x145D70, c, 145D70] # -g; rodata 0x165280-0x165290
       - [0x146010, asm] # RSP microcode text (mtc0/RSP jal targets), not C; was the tail of splat's 145D70
-      - [0x146C40, asm]
+      - [0x146C40, asm] # RSP microcode text (two overlays, each with a handwritten mfc0/mtc0 DMA helper), not C
       - [0x149160, data, 0]
       - [0x1492E0, data, 3C10]
       - [0x149FA0, data, 5650]
