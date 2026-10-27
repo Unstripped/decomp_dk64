@@ -1,4 +1,4 @@
-// func_800254B8 (src/jetpac/1460.c): from .scratch/J1a/func_800254B8_best.c
+// func_800254B8 (src/jetpac/1460.c): Stage 6, text-identical (code + reloc targets match); only .rodata differs: expected has 8 zero bytes after the 0.97 double (hidden TU boundary / rodata pad, AB28..AB2F), C puts them at end of rodata. Needs: s32 i local with 'cell->color[i = 2] = ((u8*)arg3)[i]' (frame 0x30) + three 'if (1) { }' before the color copy (reg alloc item=v0/cell=a0/n=v1). Found by permuter.
 void func_800254B8(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     JetpacCell *cell;
     s32 i;

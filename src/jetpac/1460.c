@@ -111,8 +111,8 @@ void jetpacInitRdp(Gfx **arg0) {
 
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025700.s")
 
-#if 0
-// Non-matching draft: temporary register allocation in inner loop (t2/t9/t0/t5 vs t3/t5/t7/t4)
+#ifdef NON_MATCHING
+// Non-matching: temporary register allocation in inner loop (t2/t9/t0/t5 vs t3/t5/t7/t4)
 void func_80025904(Gfx **arg0) {
     JetpacCell *cell;
     JetpacCellItem *item;
@@ -146,8 +146,10 @@ void func_80025904(Gfx **arg0) {
     }
     *arg0 = g;
 }
-#endif
+#else
+
 #pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025904.s")
+#endif
 
 typedef struct {
     s32 x;
@@ -193,13 +195,95 @@ void func_80025BB8(JetpacActor *arg0, s32 arg1) {
     arg0->unk30 = arg1;
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025C40.s")
+JetpacActor *func_80025C40(JetpacState *arg0) {
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        if (arg0->actors[i].unk14 == 0) {
+            return &arg0->actors[i];
+        }
+    }
+    return NULL;
+}
 
 void jetpacResetActorState(JetpacActor *arg0) {
     arg0->unk14 = 4;
     arg0->unk2C = 0;
 }
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025CB0.s")
+s32 func_800283EC(f32 arg0, f32 arg1, f32 arg2, f32 arg3);
+s32 func_8002A974(f32 arg0, f32 arg1, f32 arg2, f32 arg3);
+s32 jetpacCheckLedgeCollision(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4);
+
+void func_80025CB0(JetpacActor *arg0) {
+    s32 pad1;
+    f32 x1;
+    f32 y1;
+    f32 x2;
+    f32 y2;
+    s32 n;
+    s32 step;
+    s32 a;
+
+    if (arg0->unk14 == 3 && (u32)arg0->unk40 < (u32)arg0->unk2C) {
+        jetpacResetActorState(arg0);
+    }
+    if (arg0->unk14 == 4 && arg0->unk24 == arg0->unk1C) {
+        arg0->unk14 = 0;
+        arg0->unk2C = 0;
+    }
+    if (arg0->unk14 != 0) {
+        if (arg0->unk14 == 3) {
+            n = arg0->unk2C;
+            if (arg0->unk18 != 0) {
+                x1 = (f32)arg0->unk1C;
+                step = n < 4 ? n : 4;
+                x2 = (f32)(step * 8) + x1;
+            } else {
+                x2 = (f32)arg0->unk24;
+                step = n < 4 ? n : 4;
+                x1 = x2 - (f32)(step * 8);
+            }
+            y1 = (f32)arg0->unk20;
+            y2 = (f32)arg0->unk28;
+            if (func_8002A974(x1, y1, x2, y2) != 0) {
+                jetpacResetActorState(arg0);
+                return;
+            }
+            if (jetpacCheckLedgeCollision(x1, y1, x2, y2, 0) >= 0) {
+                jetpacResetActorState(arg0);
+                return;
+            }
+            if (func_800283EC(x1, y1, x2, y2) != 0) {
+                jetpacResetActorState(arg0);
+                return;
+            }
+            if (arg0->unk18 != 0) {
+                arg0->unk1C = arg0->unk1C - 8;
+                if (arg0->unk2C >= 0xD) {
+                    arg0->unk24 = arg0->unk24 - 8;
+                }
+            } else {
+                arg0->unk24 = arg0->unk24 + 8;
+                if (arg0->unk2C >= 0xD) {
+                    arg0->unk1C = arg0->unk1C + 8;
+                }
+            }
+            arg0->unk2C = arg0->unk2C + 1;
+            return;
+        }
+        if (arg0->unk14 == 4) {
+            a = arg0->unk24 - arg0->unk1C;
+            if (arg0->unk2C + a / 8 >= 0xD) {
+                if (arg0->unk18 != 0) {
+                    arg0->unk24 = arg0->unk24 - 8;
+                } else {
+                    arg0->unk1C = arg0->unk1C + 8;
+                }
+            }
+            arg0->unk2C = arg0->unk2C + 1;
+        }
+    }
+}
 
 void func_80025F48(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     func_80025700(&D_8002C4D0[arg0], *arg1, arg3, arg4, arg5);
@@ -209,7 +293,48 @@ void func_80025F48(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) 
     }
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025FC4.s")
+void func_80025FC4(JetpacActor *arg0) {
+    s32 pos;
+    s32 dir;
+    s32 frame;
+    s32 sub;
+    s32 count;
+    s32 i;
+    s32 y;
+    s32 flip;
+
+    dir = 0;
+    sub = arg0->unk14;
+    flip = arg0->unk18;
+    frame = 0;
+    if (sub >= 2) {
+        y = arg0->y;
+        count = (arg0->unk24 - arg0->unk1C) / 8;
+        dir = -8;
+        if (sub == 4) {
+            frame = arg0->unk2C;
+        }
+        if (flip != 0) {
+            dir = 8;
+            pos = arg0->unk1C;
+        } else {
+            pos = arg0->unk24 - 8;
+        }
+        for (i = 0; i < count; i++) {
+            s32 spr;
+
+            if (frame < 4) {
+                spr = 0;
+            } else if (frame < 9) {
+                spr = 1;
+            } else {
+                spr = 2;
+            }
+            func_80025F48(spr, &pos, dir, y, (s32)arg0->unk10, flip);
+            frame++;
+        }
+    }
+}
 
 typedef struct J1bActor {
     f32 x;
@@ -233,8 +358,6 @@ typedef struct J1bActor {
     s32 unk4C;
 } J1bActor;
 
-J1bActor *func_80025C40(J1bActor *arg0);
-void func_80025CB0(J1bActor *arg0);
 void func_80024E70(s32 arg0);
 
 void func_800260DC(J1bActor *arg0) {
@@ -245,7 +368,7 @@ void func_800260DC(J1bActor *arg0) {
     f32 vy;
     f32 absVy;
 
-    p = func_80025C40(arg0);
+    p = (J1bActor *)func_80025C40((JetpacState *)arg0);
     if (p == NULL) {
         vy = arg0->vy;
         if (vy > 0.0f) {
@@ -284,7 +407,7 @@ void func_800260DC(J1bActor *arg0) {
         p->unk14 = 3;
         p->unk2C = 0;
         p->unk40 = (s32)(jetpacRandFloat() * 8.0f) + 13;
-        p->unk48 = func_80025CB0;
+        p->unk48 = (void (*)(J1bActor *))func_80025CB0;
         p->unk4C = 0;
         func_80024E70(6);
     }
