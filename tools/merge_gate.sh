@@ -14,6 +14,7 @@
 # every --stage PATH (files the build depended on outside them: include/ headers, symbol
 # files), never other staged changes; any failure exits non-zero before committing, so no
 # pipe can turn a failed gate into a commit.
+# Any tracked *.sha1 differing from HEAD fails the gate (checked before the merges and after the build).
 # The whole gate (merges' objdiffs, the build, NON_MATCHING compiles) runs under one exclusive
 # tools/dk lease, so no other agent's fdiff/objdiff/make interleaves with it.
 [ -n "$DK64_LEASE" ] || exec tools/dk --hold "$0" "$@"
@@ -24,6 +25,11 @@ if [ "$1" = "--commit" ]; then
 fi
 [ $# -ge 3 ] || { echo "usage: $0 [--commit MSG [--stage PATH]...] <copy-dir>|- <base-commit>|- <src/seg/file.c>..." >&2; exit 64; }
 dir=$1; base=$2; shift 2
+sha1_guard() {
+  changed=$(git diff --name-only HEAD -- '*.sha1') || { echo "GATE_FAIL: git diff failed"; exit 1; }
+  [ -z "$changed" ] || { echo "GATE_FAIL: expected hashes differ from HEAD:" $changed; exit 1; }
+}
+sha1_guard
 mkdir -p .scratch
 for src in "$@"; do
   name=$(basename "$src")
@@ -50,6 +56,7 @@ if ! tail -3 .scratch/gate.log | grep -q 'build/dk64.us.z64: OK'; then
   echo GATE_FAIL
   exit 1
 fi
+sha1_guard
 for src in "$@"; do
   nmlog=.scratch/nonmatching_$(basename "$src").log
   if ! tools/fdiff.sh --non-matching "$src" "$src" > "$nmlog" 2>&1; then
