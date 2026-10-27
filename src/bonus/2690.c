@@ -208,7 +208,7 @@ extern Point3f **D_807F5FD4;
 
 extern u8 D_807FBB85;
 void func_8072881C(s32, void *, void *, void *);
-void func_806FDAB8(u8, s32, void *, void *);
+void func_806FDAB8(u8, f32);
 void actorUpdateModelMatrix(void *, s32);
 
 extern u8 D_1000118[];
@@ -555,7 +555,198 @@ u8 func_80027548(f32 arg0, f32 arg1, f32 arg2) {
     return sp40[0];
 }
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_800277F8.s")
+typedef struct {
+    s16 unk0;
+    char pad2[0x20];
+    u8 unk22;
+    u8 unk23;
+    u8 unk24;
+    u8 unk25;
+} BonusB2_Sub174;
+
+typedef struct {
+    void *unk0[6];
+    char pad18[8];
+    s16 unk20;
+    s16 unk22;
+    char pad24;
+    u8 unk25;
+    char pad26;
+    u8 unk27;
+    u8 unk28;
+    u8 unk29;
+    char pad2A[2];
+    f32 unk2C;
+} BonusB2_Sub178;
+
+typedef struct BonusB2_Actor {
+    char pad0[0x60];
+    s32 unk60;
+    char pad64[0x84];
+    s16 unkE8;
+    char padEA[0x11C - 0xEA];
+    struct BonusB2_Actor *unk11C;
+    char pad120[0x154 - 0x120];
+    u8 unk154;
+    u8 unk155;
+    char pad156[0x1E];
+    BonusB2_Sub174 *unk174;
+    BonusB2_Sub178 *unk178;
+} BonusB2_Actor;
+
+typedef struct {
+    char pad0[0x2E];
+    s8 unk2E;
+    s8 unk2F;
+    u8 unk30;
+    u8 unk31;
+} BonusB_Ctrl;
+
+#define BB2 ((BonusB2_Actor *)D_807FBB40)
+
+extern s32 D_8076A0A8;
+extern void *D_807FD580;
+extern BonusB_Ctrl D_807FD610;
+extern u8 D_807444EC;
+s32 playerStateQueueCallback(s32, s32, s32);
+void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+u16 camStartPath(s32, s32, s32);
+void func_800265C0(u8, u8);
+void func_800264E0(u8, u8);
+void actorSetStateTwo(void *);
+void sfxAllocateChannel(s32, f32);
+void func_806A2A10(s32, s32, u8);
+void func_8070D8C0(void *, s32, s32);
+
+void renderCallbacksRegister(void *, void *, s32);
+
+void func_800277F8(void) {
+    BonusB2_Sub174 *t3c = BB2->unk174;
+    BonusB2_Sub178 *t0 = BB2->unk178;
+    Point3f *p;
+    f32 ang;
+    f32 ang2;
+    u8 c;
+    s32 r;
+    u8 idx;
+
+    if (!(BB2->unk60 & 0x10)) {
+        c = func_806FDB8C(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        t0->unk25 = c;
+        func_806FDAB8(c, 0.0f);
+        t3c->unk23 = 5;
+        t3c->unk0 = -2;
+        t3c->unk22 = 0;
+        playerStateQueueCallback(0x48, 0, 0);
+        camSetTarget(*(void **)((u8 *)D_807FD580 + 0x104), D_807FBB40, 4, 0x800, -7, 0, 0x16, 0x2C, 4, 0, 0.05f);
+        camStartPath(0, 0, 1);
+        BB2->unkE8 = 0x310;
+        switch (D_8076A0A8) {
+        case 0xA:
+            t0->unk27 = 0x55;
+            t0->unk28 = 0x46;
+            t0->unk2C = 0.85f;
+            t0->unk20 = 0x12;
+            t0->unk22 = t0->unk20;
+            t0->unk29 = 0x3C;
+            break;
+        case 0x73:
+            t0->unk27 = 0x5A;
+            t0->unk28 = 0x46;
+            t0->unk2C = 1.0f;
+            t0->unk20 = 0x16;
+            t0->unk22 = t0->unk20;
+            t0->unk29 = 0x3C;
+            break;
+        case 0x74:
+            t0->unk27 = 0x57;
+            t0->unk28 = 0x50;
+            t0->unk2C = 1.2f;
+            t0->unk20 = 0x19;
+            t0->unk22 = t0->unk20;
+            t0->unk29 = 0x3C;
+            break;
+        case 0x75:
+            t0->unk27 = 0x5C;
+            t0->unk28 = 0x50;
+            t0->unk2C = 1.3f;
+            t0->unk20 = 0x1C;
+            t0->unk22 = t0->unk20;
+            t0->unk29 = 0x3C;
+            break;
+        }
+    }
+    if (t3c->unk0 > 0) {
+        t3c->unk22 = 0;
+        if (BB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
+            ang = func_80611BB4((f32)D_807FD610.unk2F, (f32)D_807FD610.unk2E) / 6.2831855f * 8.0 + 5.5;
+            ang2 = ang;
+            if (9.0f < ang) {
+                ang2 = ang - 8.0f;
+            }
+            t3c->unk22 = (u32)ang2;
+        }
+        p = *D_807F5FD4 + t3c->unk22;
+        if (func_80027548(p->x, p->y, p->z) == 2) {
+            t3c->unk25 = 0xFF;
+            func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        }
+        switch (BB2->unk154) {
+        case 0:
+            if (BB2->unk11C->unk154 == 5) {
+                BB2->unk154 = 0xFF;
+            }
+            if (t0->unk22 == 0) {
+                func_800264E0(0, 0);
+                camStartPath(0, 1, 0x11);
+                BB2->unk154 = 1;
+            } else if (t0->unk27 < (randomNonNegative() >> 0xF) % 100) {
+                r = (randomNonNegative() >> 0xF) % 0xFF;
+                idx = r % 8;
+                if (t0->unk0[idx] == 0) {
+                    p = *D_807F5FD4 + idx + 1;
+                    func_800271B4(p->x, p->y, p->z, idx, (Struct_71B4 *)t0);
+                }
+            }
+            if (BB2->unk11C->unk154 == 4 && BB2->unk11C->unk155 != 0xFF) {
+                BB2->unk154 = 0xFE;
+            }
+            break;
+        case 0xFE:
+            t3c->unk24 = 0xFF;
+            func_80609140(0x142, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            BB2->unk154 = 0;
+            break;
+        case 0xFF:
+            func_800265C0(0, 5);
+            camStartPath(0, 1, 0x11);
+            BB2->unk154 = 1;
+            break;
+        }
+    } else {
+        switch (t3c->unk0) {
+        case -2:
+            if (D_807444EC != 1) {
+                t3c->unk0++;
+                func_806A2A10(0xDC, 0x2A, t0->unk29);
+                func_8070D8C0(D_807FBB40, 0, 1);
+            }
+            break;
+        case -1:
+            if (!(BB2->unk60 & 0x2000000)) {
+                t3c->unk0 = 1;
+                actorSetStateTwo(BB2->unk11C);
+                func_8002733C(t3c);
+                sfxAllocateChannel(8, 1.0f);
+            }
+            break;
+        }
+    }
+    if (t3c->unk0 >= -1) {
+        renderCallbacksRegister(func_80026940, D_807FBB40, 3);
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
 
 typedef struct {
     s16 unk0;
@@ -593,31 +784,9 @@ typedef struct BonusB_Actor7F14 {
     BonusB_Sub178 *unk178;
 } BonusB_Actor7F14;
 
-typedef struct {
-    char pad0[0x2E];
-    s8 unk2E;
-    s8 unk2F;
-    u8 unk30;
-    u8 unk31;
-} BonusB_Ctrl;
-
 #define BB_B ((BonusB_Actor7F14 *)D_807FBB40)
 
-extern s32 D_8076A0A8;
-extern void *D_807FD580;
-extern BonusB_Ctrl D_807FD610;
-extern u8 D_807444EC;
-s32 playerStateQueueCallback(s32, s32, s32);
-void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-u16 camStartPath(s32, s32, s32);
 void func_80028648(BonusB_Sub178 *);
-void func_800265C0(u8, u8);
-void func_800264E0(u8, u8);
-void actorSetStateTwo(void *);
-void sfxAllocateChannel(s32, f32);
-void func_806A2A10(s32, s32, u8);
-void func_8070D8C0(void *, s32, s32);
-void renderCallbacksRegister(void *, void *, s32);
 
 void func_80027F14(void) {
     BonusB_Sub7F14 *t0 = BB_B->unk174;
@@ -799,7 +968,7 @@ void func_800284C0(void) {
                 }
                 p->unk22 -= step;
             }
-            func_806FDAB8(p->unk25, 0x40490FDB, sub, p);
+            func_806FDAB8(p->unk25, 3.1415927f);
             actorScriptStart(D_807FBB40, (sub->unk8 != 0) ? 0x212 : 0x210);
             BB_A->unk154 = 1;
             BB_A->unk155 = 0;
