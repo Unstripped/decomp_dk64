@@ -118,7 +118,7 @@ extern f32 D_807F5E20[];
 extern f32 D_807F5E24[];
 extern f32 D_807F5E28[];
 
-void func_8062FF10(f32 (*)[4], f32 (*)[4]);
+s32 func_8062FF10(f32 (*)[4], f32 (*)[4]);
 
 void func_8062AC68(Mtx *arg0) {
     f32 sp98[4][4];
@@ -1511,10 +1511,272 @@ void func_8062F538(f32 (*arg0)[3], s32 arg1, s32 arg2, s32 arg3) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F640.s")
+void func_8062F538(f32 (*)[3], s32, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F998.s")
+s32 func_8062F640(f32 (*arg0)[3], f32 (*arg1)[3], s32 arg2) {
+    s32 r0;
+    s32 r1;
+    s32 p;
+    s32 q;
+    s32 j;
+    f32 t;
+    f32 u;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062FBC8.s")
+    if (arg2 == 0) {
+        r0 = 1;
+        r1 = 2;
+    } else if (arg2 == 1) {
+        r0 = 0;
+        r1 = 2;
+    } else {
+        r0 = 0;
+        r1 = 1;
+    }
+    t = arg0[r0][1];
+    if (t < 0.0f) {
+        t = -t;
+    }
+    u = arg0[r1][1];
+    if (u < 0.0f) {
+        u = -u;
+    }
+    if (u < t) {
+        p = r0;
+    } else {
+        p = r1;
+    }
+    if (p == r0) {
+        q = r1;
+    } else {
+        q = r0;
+    }
+    if (arg0[p][1] < 1e-8 && arg0[p][1] > -1e-8) {
+        return 0;
+    }
+    t = 1.0 / arg0[p][1];
+    arg0[p][1] = 1.0f;
+    arg0[p][2] *= t;
+    arg1[p][p] = t;
+    arg1[p][arg2] *= t;
+    for (j = 0; j < 3; j++) {
+        if (j != p) {
+            t = arg0[j][1];
+            arg0[j][1] = 0.0f;
+            t = -t;
+            arg0[j][2] += t * arg0[p][2];
+            arg1[j][p] = arg1[p][p] * t;
+            arg1[j][arg2] += t * arg1[p][arg2];
+        }
+    }
+    if (arg0[q][2] < 1e-8 && arg0[q][2] > -1e-8) {
+        return 0;
+    }
+    t = 1.0 / arg0[q][2];
+    arg0[q][2] = 1.0f;
+    arg1[q][q] = t;
+    arg1[q][arg2] *= t;
+    arg1[q][p] *= t;
+    for (j = 0; j < 3; j++) {
+        if (j != q) {
+            t = arg0[j][2];
+            arg0[j][2] = 0.0f;
+            t = -t;
+            arg1[j][arg2] += t * arg1[q][arg2];
+            arg1[j][p] += t * arg1[q][p];
+            arg1[j][q] += t * arg1[q][q];
+        }
+    }
+    func_8062F538(arg1, arg2, p, q);
+    return 1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062FF10.s")
+
+s32 func_8062F998(f32 (*arg0)[3], f32 (*arg1)[3]) {
+    s32 p;
+    s32 j;
+    f32 t;
+    f32 u;
+    f32 v;
+
+    arg1[2][2] = 1.0f;
+    arg1[2][1] = 0.0f;
+    arg1[2][0] = 0.0f;
+    arg1[1][2] = 0.0f;
+    arg1[1][1] = 1.0f;
+    arg1[1][0] = 0.0f;
+    arg1[0][2] = 0.0f;
+    arg1[0][1] = 0.0f;
+    arg1[0][0] = 1.0f;
+    t = arg0[0][0];
+    if (t < 0.0f) {
+        t = -t;
+    }
+    u = arg0[1][0];
+    if (u < 0.0f) {
+        u = -u;
+    }
+    v = arg0[2][0];
+    if (v < 0.0f) {
+        v = -v;
+    }
+    if (u < t) {
+        if (v < t) {
+            p = 0;
+        } else {
+            p = 2;
+        }
+    } else {
+        if (v < u) {
+            p = 1;
+        } else {
+            p = 2;
+        }
+    }
+    if (arg0[p][0] < 1e-8 && arg0[p][0] > -1e-8) {
+        return 0;
+    }
+    v = 1.0 / arg0[p][0];
+    arg0[p][0] = 1.0f;
+    arg0[p][1] *= v;
+    arg0[p][2] *= v;
+    arg1[p][p] = v;
+    for (j = 0; j < 3; j++) {
+        if (j != p) {
+            v = arg0[j][0];
+            arg0[j][0] = 0.0f;
+            v = -v;
+            arg0[j][1] += v * arg0[p][1];
+            arg0[j][2] += v * arg0[p][2];
+            arg1[j][p] = arg1[p][p] * v;
+        }
+    }
+    if (func_8062F640(arg0, arg1, p) == 0) {
+        return 0;
+    }
+    return 1;
+}
+
+
+s32 func_8062FBC8(f32 (*arg0)[4], f32 *arg1, f32 *arg2, s32 *arg3) {
+    f32 max;
+    f32 abs;
+    s32 i;
+    s32 j;
+    f32 tmp;
+
+    *arg3 = -1;
+    abs = arg0[3][3] > 0.0f ? arg0[3][3] : -arg0[3][3];
+    if (abs < 1e-8) {
+        max = 0.0f;
+        for (i = 0; i < 4; i++) {
+            if (max < arg0[i][3]) {
+                *arg3 = i;
+                max = arg0[i][3];
+            } else if (arg0[i][3] < -max) {
+                *arg3 = i;
+                max = -arg0[i][3];
+            }
+        }
+        if (*arg3 < 0) {
+            return 0;
+        }
+        for (j = 0; j < 4; j++) {
+            tmp = arg0[3][j];
+            arg0[3][j] = arg0[*arg3][j];
+            arg0[*arg3][j] = tmp;
+        }
+    }
+    arg1[0] = -arg0[0][3];
+    arg1[1] = -arg0[1][3];
+    arg1[2] = -arg0[2][3];
+    *arg2 = 1.0 / arg0[3][3];
+    arg0[0][3] = 0.0f;
+    arg0[1][3] = 0.0f;
+    arg0[2][3] = 0.0f;
+    arg0[3][3] = 1.0f;
+    arg0[3][0] *= *arg2;
+    arg0[3][1] *= *arg2;
+    arg0[3][2] *= *arg2;
+    for (i = 0; i < 3; i++) {
+        arg0[0][i] += arg1[0] * arg0[3][i];
+        arg0[1][i] += arg1[1] * arg0[3][i];
+        arg0[2][i] += arg1[2] * arg0[3][i];
+    }
+    return 1;
+}
+
+
+s32 func_8062FF10(f32 (*arg0)[4], f32 (*arg1)[4]) {
+    f32 m[4][4];
+    f32 n[4][3];
+    f32 inv[3][3];
+    f32 scale;
+    s32 i;
+    s32 k;
+    f32 w[3];
+    f32 tmp;
+    f32 v[3];
+    s32 idx;
+    s32 flag;
+
+    for (i = 0; i < 4; i++) {
+        for (k = 0; k < 4; k++) {
+            m[i][k] = arg1[i][k];
+            arg0[i][k] = 0.0f;
+        }
+    }
+    arg0[0][0] = 1.0f;
+    arg0[1][1] = 1.0f;
+    arg0[2][2] = 1.0f;
+    arg0[3][3] = 1.0f;
+    flag = m[0][3] == 0.0; if (flag) { flag = m[1][3] == 0.0;
+        if (flag) {
+            flag = m[2][3] == 0.0;
+            if (flag) {
+                flag = m[3][3] == 1.0;
+            }
+        }
+    }
+    if (!flag) {
+        if (!func_8062FBC8(m, w, &scale, &idx)) {
+            return 0;
+        }
+    }
+    v[0] = m[3][0];
+    v[1] = m[3][1];
+    v[2] = m[3][2];
+    for (i = 0; i < 3; i++) {
+        for (k = 0; k < 3; k++) {
+            n[i][k] = m[i][k];
+        }
+    }
+    if (!func_8062F998(n, inv)) {
+        return 0;
+    }
+    for (i = 0; i < 3; i++) {
+        for (k = 0; k < 3; k++) {
+            arg0[i][k] = inv[i][k];
+        }
+    }
+    for (i = 0; i < 3; i++) {
+        for (k = 0; k < 3; k++) {
+            arg0[3][i] -= v[k] * inv[k][i];
+        }
+    }
+    if (!flag) {
+        for (i = 0; i < 4; i++) {
+            arg0[i][3] += w[0] * arg0[i][0] + w[1] * arg0[i][1] + w[2] * arg0[i][2];
+            arg0[i][3] *= scale;
+        }
+        if (idx >= 0) {
+            for (i = 0; i < 4; i++) {
+                tmp = arg0[i][3];
+                arg0[i][3] = arg0[i][idx];
+                arg0[i][idx] = tmp;
+            }
+        }
+    }
+    return 1;
+}
+
+
