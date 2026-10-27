@@ -1360,7 +1360,177 @@ void func_8002A010(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002A398.s")
+typedef struct {
+    s16 unk0;
+    char pad2;
+    u8 unk3;
+    s16 unk4;
+    u8 unk6;
+    char pad7;
+    s16 unk8;
+    s16 unkA;
+} LargeB1_Sub178;
+
+extern s8 D_8002D904;
+Gfx *func_80029B9C(Gfx *, Actor_BB44 *);
+
+void func_8002A398(void) {
+    BonusB2_Sub174 *t3c = BB2->unk174;
+    LargeB1_Sub178 *t0 = (LargeB1_Sub178 *)BB2->unk178;
+    Point3f *p;
+    f32 y;
+    f32 z;
+    s32 n;
+    s32 i;
+
+    if (!(BB2->unk60 & 0x10)) {
+        t3c->unk23 = 5;
+        t3c->unk0 = -2;
+        D_8002D904 = 0;
+        switch (D_8076A0A8) {
+        case 0x90:
+            t0->unkA = 6;
+            D_8002D900 = 0x15;
+            break;
+        case 0x91:
+            t0->unkA = 8;
+            D_8002D900 = 0x12;
+            break;
+        case 0x92:
+            t0->unkA = 0xA;
+            D_8002D900 = 0xF;
+            break;
+        case 0x93:
+            t0->unkA = 0xC;
+            D_8002D900 = 0xC;
+            break;
+        }
+        t0->unk4 = 0x3C;
+        t0->unk6 = 0;
+        t0->unk8 = t0->unkA;
+        t0->unk3 = func_806FDB8C(1, func_8070E750(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
+        func_806FDAB8(t0->unk3, 0.0f);
+        t0->unk0 = 0x1E;
+        playerStateQueueCallback(0x48, 0, 0);
+        camSetTarget(*(void **)((u8 *)D_807FD580 + 0x104), D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camStartPath(0, 0, 1);
+        BB2->unkE8 = 0x9A;
+        for (i = 1; i != 7; i++) {
+            if (actorSpawn(0x148, 0x21) != 0) {
+                BonusC_9E54_S *u = (BonusC_9E54_S *)D_807FBB44->unk174;
+
+                u->unk0 = D_807FBB40;
+                u->unk4 = i;
+                p = *D_807F5FD4 + i;
+                D_807FBB44->unk7C = p->x;
+                D_807FBB44->unk80 = p->y;
+                D_807FBB44->unk84 = p->z + 45.0;
+                D_807FBB44->unk154 = 0;
+                D_807FBB44->unkE6 = 0x800;
+                D_807FBB44->unk4->unk34 = 0.45f;
+                D_807FBB44->unk4->unk38 = 0.45f;
+                D_807FBB44->unk4->unk3C = 0.45f;
+            }
+        }
+    }
+    if (t3c->unk0 > 0) {
+        if (t0->unk0 > 0) {
+            t0->unk0--;
+        } else {
+            if (actorSpawn(0x149, 0x3D) != 0) {
+                BonusC_9E54_S *u = (BonusC_9E54_S *)D_807FBB44->unk174;
+
+                n = D_8002D904;
+                u->unk0 = D_807FBB40;
+                p = (Point3f *)((u8 *)*D_807F5FD4 + (n + n + n) * 12) + 1;
+                D_807FBB44->unk7C = p->x + 50.0;
+                D_807FBB44->unk80 = p->y + 12.0;
+                D_807FBB44->unk84 = p->z - 5.0;
+                D_807FBB44->unkE6 = -0x400;
+                D_807FBB44->unk4->unk34 = 0.08f;
+                if (u) {}
+                D_807FBB44->unk4->unk38 = 0.08f;
+                D_807FBB44->unk4->unk3C = 0.08f;
+            }
+            n = D_8002D904;
+            t0->unk0 = 0x5A;
+            ((s8 *)&D_8002D900)[4] = (1 - n) & 0xFFFF;
+        }
+        t3c->unk22 = 0;
+        if (BB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
+            if (D_807FD610.unk2F > 0) {
+                if (D_807FD610.unk2E < -0x28) {
+                    t3c->unk22 = 1;
+                } else if (D_807FD610.unk2E >= 0x29) {
+                    t3c->unk22 = 3;
+                } else {
+                    t3c->unk22 = 2;
+                }
+            } else if (D_807FD610.unk2E < -0x28) {
+                t3c->unk22 = 4;
+            } else if (D_807FD610.unk2E >= 0x29) {
+                t3c->unk22 = 5;
+            } else {
+                t3c->unk22 = 6;
+            }
+        }
+        p = *D_807F5FD4 + t3c->unk22;
+        y = p->y;
+        z = p->z;
+        if (t3c->unk22 != 0) {
+            y += 27.0f;
+            z -= 8.0f;
+        }
+        switch (func_80027548(p->x, y, z)) {
+        case 1:
+            break;
+        case 2:
+            t3c->unk25 = 0xFF;
+            func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            break;
+        }
+        switch (BB2->unk154) {
+        case 0:
+            if (t0->unk8 == 0) {
+                BB2->unk154 = 2;
+            }
+            if (BB2->unk11C->unk154 == 5) {
+                BB2->unk154 = 1;
+            }
+            break;
+        case 1:
+            func_800265C0(0, 1);
+            camStartPath(0, 1, 0x11);
+            BB2->unk154 = 3;
+            break;
+        case 2:
+            func_800264E0(0, 0);
+            camStartPath(0, 1, 0x11);
+            BB2->unk154 = 3;
+            break;
+        }
+    } else {
+        switch (t3c->unk0) {
+        case -2:
+            if (D_807444EC != 1) {
+                t3c->unk0++;
+                func_806A2A10(0xDC, 0x2A, *((u8 *)t0 + 5));
+                func_8070D8C0(D_807FBB40, 0, 0xB);
+            }
+            break;
+        case -1:
+            if (!(BB2->unk60 & 0x2000000)) {
+                t3c->unk0 = 1;
+                actorSetStateTwo(BB2->unk11C);
+                func_8002733C(t3c);
+                sfxAllocateChannel(8, 1.0f);
+            }
+            break;
+        }
+    }
+    renderCallbacksRegister(func_80029B9C, D_807FBB40, 3);
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
 
 typedef struct {
     char pad[4];
