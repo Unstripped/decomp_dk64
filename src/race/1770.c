@@ -48,17 +48,17 @@ void func_800257A4(u8 *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4) {
     }
 }
 
-#ifdef NON_MATCHING
 extern s32 D_807F5FD0;
 void *memcpy(void *, const void *, unsigned int);
 void *func_80610FE8(s32);
 
 void func_8002597C(void) {
-    RaceAPoint3f *buf, *src, *lo;
-    s32 i;
+    RaceAPoint3f *buf;
+    u8 *src;
     RaceAPoint3f **tbl;
+    u32 lo; /* byte length first, then the upper table pointer (one slot reused) */
+    s32 i;
     s32 count;
-    u32 sz;
 
     count = (D_807F5FD4[1] - D_807F5FD4[0]) / 12 / 2;
     buf = func_80610FE8(count * 0x24);
@@ -66,27 +66,23 @@ void func_8002597C(void) {
     for (i = 0; i < 4; i++) {
         tbl[i] = (RaceAPoint3f *)((u8 *)buf + i * count * 12);
     }
-    src = (RaceAPoint3f *)D_807F5FD4[0];
-    sz = count * 12;
+    src = (u8 *)D_807F5FD4[0];
+    lo = count * 12;
     buf = tbl[0];
-    memcpy(buf, src, sz);
+    memcpy(buf, src, lo);
     buf = tbl[2];
-    memcpy(buf, (u8 *)src + sz, sz);
+    memcpy(buf, lo + src, lo);
     buf = tbl[1];
-    lo = tbl[0];
-    src = tbl[2];
+    src = (u8 *)tbl[0];
+    lo = (u32)tbl[2];
     for (i = 0; i < count; i++) {
-        buf[i].x = (lo[i].x + src[i].x) * 0.5;
-        buf[i].y = (lo[i].y + src[i].y) * 0.5;
-        buf[i].z = (lo[i].z + src[i].z) * 0.5;
+        buf[i].x = (((RaceAPoint3f *)lo)[i].x + ((RaceAPoint3f *)src)[i].x) * 0.5;
+        buf[i].y = (((RaceAPoint3f *)lo)[i].y + ((RaceAPoint3f *)src)[i].y) * 0.5;
+        buf[i].z = (((RaceAPoint3f *)lo)[i].z + ((RaceAPoint3f *)src)[i].z) * 0.5;
     }
     D_807F5FD0 = 3;
     D_807F5FD4 = (s32 *)tbl;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/1770/func_8002597C.s")
-#endif
 
 extern s16 D_80750AC4;
 extern void *D_807FBB44;
@@ -229,23 +225,9 @@ void func_80026098(f32 *, f32 *);
 void func_800261E0(u8 *);
 s32 raceGetNextWaypointIndex(s32, s32);
 void raceAdvanceCheckpoint(u16 *, s8 *, s32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
-f32 func_80611BB4(f32, f32);
-s16 func_806CC190(s16, s16, f32);
-void func_80714950(void *);
-void func_8071498C(void *);
 s32 func_806119A0(void);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
-s32 mathPickCloserTargetPoint3D(f32, f32, f32, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, f32 *, f32 *, f32 *);
-extern s32 *D_807F5FD4;
-extern void *D_807FBB40;
-extern u8 D_8071A674;
-extern u8 D_8072006C;
-extern s32 D_8002FBB0[4];
-extern u8 D_8002FBC0;
 
 typedef struct {
     u8 unk0;
@@ -446,7 +428,6 @@ void func_80026CA8(void) {
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
-s32 func_806119A0(void);
 
 void func_80026D2C(f32 arg0) {
     s32 pad;
@@ -480,7 +461,6 @@ extern void *D_807FBB4C;
 s32 raceGetPrevWaypointIndex(s32, s32);
 void func_80026354(u8 *, u8 *, u8);
 void actorUpdateModelMatrix(void *, s32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 func_807142D8(void);
 s32 flagGet(s32, s32);
 void playerStateQueueCallback(s32, void *, u8);
@@ -624,7 +604,6 @@ extern u8 D_80720340[];
 extern u8 D_8071FFA0[];
 
 void func_807149B8(s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
 void func_8002D338(void *, void *);
 
 void func_800274C0(void) {
