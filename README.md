@@ -13,9 +13,9 @@ This repository contains no game data. You need your own copy of the ROM to buil
 Percentages are matched C function bytes out of all function bytes in each code segment. Assets (textures, models, text) are not counted; see [ROADMAP.md](ROADMAP.md).
 
 <!-- progress:start -->
-**Overall: 48.00%** of code bytes matched (834,180 / 1,738,000 bytes, 3,277 / 4,496 functions)
+**Overall: 49.68%** of code bytes matched (863,468 / 1,737,988 bytes, 3,343 / 4,496 functions)
 
-`███████████████████░░░░░░░░░░░░░░░░░░░░░`
+`████████████████████░░░░░░░░░░░░░░░░░░░░`
 
 | Segment | Contents | Progress | Bytes | Functions |
 |---|---|---|--:|--:|
@@ -25,12 +25,12 @@ Percentages are matched C function bytes out of all function bytes in each code 
 | `minecart` | `ovl03`, minecart rides | `████████░░░░░░░░░░░░` 39.5% | 7,640 / 19,344 | 18 / 25 |
 | `bonus` | `ovl04`, bonus barrels | `██░░░░░░░░░░░░░░░░░░` 9.1% | 3,544 / 38,980 | 16 / 47 |
 | `race` | `ovl05`, races | `████░░░░░░░░░░░░░░░░` 21.2% | 10,172 / 47,872 | 59 / 113 |
-| `critter` | `ovl06`, critter minigames | `███░░░░░░░░░░░░░░░░░` 15.0% | 3,380 / 22,500 | 25 / 55 |
+| `critter` | `ovl06`, critter minigames | `█████████████████░░░` 82.5% | 18,560 / 22,496 | 52 / 55 |
 | `boss` | `ovl07`, boss fights | `████████░░░░░░░░░░░░` 41.5% | 29,784 / 71,796 | 59 / 79 |
 | `arcade` | `ovl08`, Donkey Kong arcade | `█████░░░░░░░░░░░░░░░` 27.1% | 15,712 / 57,888 | 62 / 98 |
-| `jetpac` | `ovl09`, Jetpac | `███████░░░░░░░░░░░░░` 36.2% | 10,416 / 28,804 | 63 / 108 |
+| `jetpac` | `ovl09`, Jetpac | `█████████████████░░░` 85.2% | 24,524 / 28,796 | 102 / 108 |
 | `menu` | `ovl10`, main menu / file select | `████░░░░░░░░░░░░░░░░` 19.7% | 12,052 / 61,244 | 57 / 113 |
-| **Total** |  | `██████████░░░░░░░░░░` 48.0% | 834,180 / 1,738,000 | 3,277 / 4,496 |
+| **Total** |  | `██████████░░░░░░░░░░` 49.7% | 863,468 / 1,737,988 | 3,343 / 4,496 |
 <!-- progress:end -->
 
 Refresh after a matching build with `tools/dk python3 tools/progress.py --readme`.
