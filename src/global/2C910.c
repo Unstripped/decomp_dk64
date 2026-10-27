@@ -26,7 +26,57 @@ void func_80627C10(u8 arg0) {
     D_807FBB44->unk16C = D_80757F70[arg0].b;
 }
 
+#ifdef NON_MATCHING
+u8 *_strchr(u8 *, s32);
+u32 _strcspn(u8 *, char *);
+u8 *_strncpy(u8 *, u8 *, u32);
+s32 func_806FBD5C();
+u8 *func_8070E750(s32, s32, s32);
+void textSpawnMarkerChecked(s32, s32, s32, u8 *, s32, s32, s32, s32);
+u32 strlen(u8 *);
+
+void func_80627C5C(arg0, arg1, arg2)
+u8 arg0;
+u16 arg1;
+u8 arg2;
+{
+    u8 sp98[0x40];
+    u8 sp58[0x40];
+    u8 sp44[0x14];
+    s16 idx;
+    u8 *s;
+
+    s = func_8070E750(1, arg0, 1);
+    if (_strchr(s, 0x3A) != 0) {
+        _strncpy(sp44, s, idx = _strcspn(s, ":") + 1);
+        sp44[idx] = 0;
+        textSpawnMarkerChecked(0xA, 0x14, 0x18, sp44, 0, (s16)arg1, 0x32, 0x32);
+        func_80627C10(arg2);
+        s += strlen(sp44);
+    }
+    if ((s16)func_806FBD5C(6, s) >= 0x12D) {
+        idx = (s32)strlen(s) / 2;
+        if (s[idx] != 0x20) {
+            do {
+                idx--;
+            } while (s[idx] != 0x20);
+        }
+        _strncpy(sp98, s, idx);
+        sp98[idx] = 0;
+        _strncpy(sp58, s + idx + 1, 0xFF);
+        textSpawnMarkerChecked(0, 0, 0xCD, sp98, 0, arg1, 0x32, 0x32);
+        func_80627C10(arg2);
+        textSpawnMarkerChecked(0, 0, 0xD7, sp58, 0, arg1, 0x32, 0x32);
+        func_80627C10(arg2);
+        return;
+    }
+    textSpawnMarkerChecked(0, 0, 0xCD, s, 0, arg1, 0x32, 0x32);
+    func_80627C10(arg2);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2C910/func_80627C5C.s")
+#endif
 
 extern Actor *D_807FBB4C;
 Actor *spawnNodeActivate(s16, s32);

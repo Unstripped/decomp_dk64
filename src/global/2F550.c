@@ -769,7 +769,107 @@ void func_8062CA0C(Gfx *arg0, f32 arg1, f32 arg2, f32 arg3) {
     func_80630B70(arg0, D_807F5FF8, arg1, arg2, arg3, 0x30030, -1, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062CA70.s")
+struct R2F550bMapView;
+
+typedef struct R2F550bLeaf {
+    u8 pad0[8];
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    s32 unk14;
+    s32 unk18;
+    u8 pad1C[0x52];
+    s16 unk6E;
+} R2F550bLeaf;
+
+extern s32 D_807F5E64;
+extern s32 D_807F5DE8;
+extern void *D_807F5DEC;
+extern s32 D_807F5FFC;
+
+Gfx *func_8062CEA8(Gfx *, struct R2F550bMapView *, u8);
+Gfx *mapChunksRender(Gfx *, R2F550bObj *, f32, f32, f32, s32);
+Gfx *fogRender(Gfx *);
+struct R2F550a2Cmd;
+struct R2F550a2Cmd *func_8062EDA8();
+Gfx *func_8063A968(Gfx *, s32);
+Gfx *func_8065D994(Gfx *, s16);
+
+#define R2F550bLEAF(o) ((R2F550bLeaf *)(o))
+
+Gfx *func_8062CA70(Gfx *gfx, R2F550bObj *arg1, R2F550bTree *arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
+    Gfx *sp84;
+
+    if (arg1 == NULL) {
+        return gfx;
+    }
+    if (arg2->unk1 == 3) {
+        return gfx;
+    }
+    switch (arg1->unkB8) {
+        case 2:
+            gfx = mapChunksRender(gfx, arg1, arg3, arg4, arg5, arg6);
+            break;
+        case 1:
+            D_807F5E64 += R2F550bLEAF(arg1)->unk6E;
+            if (arg6 & 0x10) {
+                gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+                gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+                gfx = func_8062CEA8(gfx, (struct R2F550bMapView *)arg1, 1);
+                gfx = fogRender(gfx);
+                gfx = (Gfx *)func_8062EDA8((struct R2F550a2Cmd *)gfx, 0xFF);
+                if (R2F550bLEAF(arg1)->unk8 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)R2F550bLEAF(arg1)->unk8));
+                }
+                if (R2F550bLEAF(arg1)->unkC != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)R2F550bLEAF(arg1)->unkC));
+                }
+                if (R2F550bLEAF(arg1)->unk14 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)R2F550bLEAF(arg1)->unk14));
+                }
+                if (R2F550bLEAF(arg1)->unk10 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)R2F550bLEAF(arg1)->unk10));
+                }
+                if (R2F550bLEAF(arg1)->unk18 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)R2F550bLEAF(arg1)->unk18));
+                }
+                gfx = func_8062CEA8(gfx, (struct R2F550bMapView *)arg1, 2);
+            }
+            gfx = func_8063A968(gfx, arg2->unk8);
+            gfx = func_8065D994(gfx, -1);
+            D_807F6009 = 0xFF;
+            gfx = func_80630B70(gfx, (s32)arg2->unk4, arg3, arg4, arg5, arg6, -1, 0);
+            if (arg6 & 0x10) {
+                gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+                gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+                gfx = func_8062CEA8(gfx, (struct R2F550bMapView *)arg1, 3);
+                gDPPipeSync(gfx++);
+            }
+            gfx = func_80630B70(gfx, D_807F5FFC, arg3, arg4, arg5, arg6, -1, 0);
+            break;
+        case 0:
+            switch (arg2->unk1) {
+                case 1:
+                case 2:
+                    if (arg2->unk0 != 0) {
+                        return func_8062CA70(gfx, arg1->unk4, arg2->unk10, arg3, arg4, arg5, arg6);
+                    } else {
+                        return func_8062CA70(gfx, arg1->unk0, arg2->unkC, arg3, arg4, arg5, arg6);
+                    }
+                case 0:
+                    if (arg2->unk0 != 0) {
+                        gfx = func_8062CA70(gfx, arg1->unk0, arg2->unkC, arg3, arg4, arg5, arg6);
+                        return func_8062CA70(gfx, arg1->unk4, arg2->unk10, arg3, arg4, arg5, arg6);
+                    } else {
+                        gfx = func_8062CA70(gfx, arg1->unk4, arg2->unk10, arg3, arg4, arg5, arg6);
+                        return func_8062CA70(gfx, arg1->unk0, arg2->unkC, arg3, arg4, arg5, arg6);
+                    }
+                default:
+                    break;
+            }
+    }
+    return gfx;
+}
 
 typedef struct R2F550bMapView {
     u8 pad0[0x1C];
@@ -1002,7 +1102,105 @@ typedef struct R2F550cBox {
 extern f32 D_807F5FA8;
 extern u8 D_807F5E68[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062D620.s")
+s32 func_8062DAF4(R2F550bObj *, f32, f32, f32);
+void mapChunkFrameUpdate(f32, f32, f32);
+void mapChunkClearNodeFlags(u8);
+void mapChunkFreeNodeLists(u8);
+void mapChunkRebuildNodeLists(f32, f32, f32, u8);
+void func_80652A08(f32, f32, f32, u8);
+s32 func_80630890(s32, f32, f32, f32, void *);
+void func_806307AC(s32);
+s32 func_8063070C(s32);
+s32 func_8063A38C(s32, s32, f32, f32, f32);
+
+void func_8062D620(R2F550bObj *arg0, R2F550bTree *arg1, R2F550cEntry *arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6, u8 arg7, u8 arg8) {
+    s32 listA;
+    s32 listB;
+    s32 kind;
+    s32 sp58;
+    s16 sp56;
+
+    if (0) {
+        mapChunkUpdateEntryNode((R2F550cEntry *)&arg6);
+    }
+    listA = 0;
+    listB = 0;
+    if (arg0 == NULL) {
+        return;
+    }
+    if (arg6 == 0 && func_8062DAF4(arg0, arg3, arg4, arg5) == 0) {
+        arg1->unk1 = 3;
+        return;
+    }
+    kind = arg0->unkB8;
+    if (kind != 0) {
+        if (kind != 1) {
+            if (kind == 2) {
+                arg1->unk1 = 0;
+                mapChunkFrameUpdate(arg3, arg4, arg5);
+                if (arg7 == 0) {
+                    mapChunkClearNodeFlags(arg8);
+                    if (arg2 != NULL) {
+                        do {
+                            mapChunkUpdateEntryNode(arg2);
+                            arg2 = arg2->unk14;
+                        } while (arg2 != NULL);
+                    }
+                    mapChunkFreeNodeLists(arg8);
+                    mapChunkRebuildNodeLists(arg3, arg4, arg5, arg8);
+                    func_80652A08(arg3, arg4, arg5, arg8);
+                    D_807F5FFC = func_80630890(D_807F5FFC, arg3, arg4, arg5, &sp58);
+                }
+            }
+        } else {
+            arg1->unk1 = 0;
+            if (arg7 == 0) {
+                func_806307AC((s32)arg1->unk4);
+                if (arg2 != NULL) {
+                    do {
+                        arg1->unk4 = (R2F550bObj *)func_806303C4((s32)arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                        arg2 = arg2->unk14;
+                    } while (arg2 != NULL);
+                }
+                arg1->unk4 = (R2F550bObj *)func_8063070C((s32)arg1->unk4);
+                arg1->unk4 = (R2F550bObj *)func_80630890((s32)arg1->unk4, arg3, arg4, arg5, &sp58);
+                arg1->unk8 = func_8063A38C((s32)arg1->unk4, 0, arg3, arg4, arg5);
+                D_807F5FFC = func_80630890(D_807F5FFC, arg3, arg4, arg5, &sp58);
+            }
+        }
+    } else {
+        if (arg2 != NULL) {
+            do {
+                if (func_8062E898(arg0, (u8 *)&sp56, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
+                    listB = func_806303C4(listB, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                } else {
+                    listA = func_806303C4(listA, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                }
+                arg2 = arg2->unk14;
+            } while (arg2 != NULL);
+        }
+        arg1->unk0 = func_8062E898(arg0, &arg1->unk1, arg3, arg4, arg5);
+        if (arg6 != 0) {
+            func_8062D620(arg0->unk0, arg1->unkC, (R2F550cEntry *)listA, arg3, arg4, arg5, arg6, arg7, arg8);
+            func_8062D620(arg0->unk4, arg1->unk10, (R2F550cEntry *)listB, arg3, arg4, arg5, arg6, arg7, arg8);
+        } else {
+            if (arg1->unk1 != 0) {
+                if (arg1->unk1 == 1 || arg1->unk1 == 2) {
+                    if (arg1->unk0 != 0) {
+                        func_8062D620(arg0->unk4, arg1->unk10, (R2F550cEntry *)listB, arg3, arg4, arg5, arg6, arg7, arg8);
+                    } else {
+                        func_8062D620(arg0->unk0, arg1->unkC, (R2F550cEntry *)listA, arg3, arg4, arg5, arg6, arg7, arg8);
+                    }
+                }
+            } else {
+                func_8062D620(arg0->unk0, arg1->unkC, (R2F550cEntry *)listA, arg3, arg4, arg5, arg6, arg7, arg8);
+                func_8062D620(arg0->unk4, arg1->unk10, (R2F550cEntry *)listB, arg3, arg4, arg5, arg6, arg7, arg8);
+            }
+        }
+        func_806306D0(listA);
+        func_806306D0(listB);
+    }
+}
 
 s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 
@@ -1379,8 +1577,6 @@ extern s32 D_807F5FD0;
 extern s32 *D_807F5FD4;
 extern s32 D_807F5FC8;
 extern s32 D_807F5FCC;
-extern s32 D_807F5DE8;
-extern void *D_807F5DEC;
 
 f32 cosApprox(f32);
 void fogSetParams(u8);
