@@ -1,4 +1,4 @@
-// func_8061D898 (src/global/201B0.c): stage 6, regalloc only: text identical except idx=D_807F5CF0*2 CSE temp lands in a2 (target t9) so chain temps shift t9->t0; off=t8 ok; needs D_807F5D0C defined in TU (cam_defs). Tried locals off/idx, casts, <<1, K&R/varargs proto, permuter 400s (best 50).
+// func_8061D898 (src/global/201B0.c): stage 6, regalloc only: text identical except idx=D_807F5CF0*2 gets uopt reg a2 (target: ugen temp t9 computed BEFORE the unkD0 chain load; chain temps then start t0 instead of t9). Target = idx NOT a uopt candidate. Tried: s32/u32/s16 locals, path/i/j locals, <<1 / +self / *2 mixes (two sll), idx[ptr] forms, (*(u16*)&F0), K&R/varargs/4-arg proto, 800s permuter (best 35, semantic junk). func_80624978 matched this round with wrap = dist >= 0x801 ? 0x1000 - dist : dist.
 void func_806F3DB0(u16, void *);
 
 typedef struct CamDPathList {

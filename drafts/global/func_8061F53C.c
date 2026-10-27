@@ -1,4 +1,4 @@
-// func_8061F53C (src/global/201B0.c): stage 5: same size 50512/frame/slots; ~25 diff chunks: weight/ret s6/s7 swap, start-of-func scheduling, path ptr v1 vs a1 w/ owners temp; semantic review done (outX/outY/outZ order fixed)
+// func_8061F53C (src/global/201B0.c): stage 5: same size/frame/slots/s-regs; 9 diff chunks (i*4 copy move s2, owners load pos, start scheduling, tail)
 typedef struct CamLEnt {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
@@ -101,7 +101,8 @@ s32 func_806259FC(s16, s16);
 
 s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
     CamLEnt *e;
-    u8 ret;
+    s16 ret;
+    u8 type0;
     u8 spread;
     s32 rad;
     s16 weight;
@@ -138,14 +139,14 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     s8 *owners;
 
     st = (CamLSt *)arg0->unk174;
-    linkId = 0xFF;
-    weight = 0;
     tgt = st->unk0;
     x = tgt->unk7C;
+    y = tgt->unk80 + tgt->unk174->unk10C;
     z = tgt->unk84;
+    weight = 0;
     bestIdx = 0;
     handled = 0;
-    y = tgt->unk80 + tgt->unk174->unk10C;
+    linkId = 0xFF;
     if (st->unkAC & 0x2000) {
         hadFlag = 1;
     } else {
@@ -164,18 +165,18 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                 if (k < D_807476C0[i * 2 + 3]) {
                     do {
                         e = &CAML_PATH->unkC4[D_80747704[k * 2]];
+                        spread = e->unk1A;
                         pos[0] = e->unk10;
                         pos[1] = e->unk12;
                         pos[2] = e->unk14;
                         rad = (e->unk19 * 4) & 0xFFFF;
-                        spread = e->unk1A;
                         mode = e->unk1B;
-                        ret = e->unk16;
-                        if (ret == 5) {
+                        owners = CAML_PATH->unkC8;
+                        type0 = e->unk16;
+                        if (e->unk16 == 5) {
                             linkId = e->unk0;
                             e = &CAML_PATH->unkC4[e->unk0];
                         }
-                        owners = CAML_PATH->unkC8;
                         type = e->unk16;
                         if (k == st->unkC4 && type == 8) {
                             if (e->unk18 >= 0xF) {
@@ -187,7 +188,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                                 distSq = (z - pos[2]) * (z - pos[2]) + (x - pos[0]) * (x - pos[0]);
                             }
                         } else {
-                            distSq = (z - pos[2]) * (z - pos[2]) + ((x - pos[0]) * (x - pos[0]) + (y - pos[1]) * (y - pos[1]));
+                            distSq = (x - pos[0]) * (x - pos[0]) + (y - pos[1]) * (y - pos[1]) + (z - pos[2]) * (z - pos[2]);
                         }
                         if (tgt->unk12C == owners[D_80747704[k * 2]] || type == 8 ||
                             owners[D_80747704[k * 2]] == -1) {
@@ -253,7 +254,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                                         bestIdx = k;
                                         weight = (s16)e->unk18;
                                         st->unkEC = e->unk17;
-                                        bestType0 = ret;
+                                        bestType0 = type0;
                                         break;
                                 }
                             }

@@ -3172,7 +3172,6 @@ void func_80622B24(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct CamC9Tgt {
     /* 0x000 */ u8 pad0[0x58];
     /* 0x058 */ s32 unk58;
@@ -3199,11 +3198,7 @@ void func_80624978(arg0, arg1, arg2) CamC9St *arg0; s16 arg1; s16 arg2; {
 
     diff = arg2 - arg0->unkB2;
     dist = diff > 0 ? diff : -diff;
-    if (dist >= 0x801) {
-        wrap = 0x1000 - dist;
-    } else {
-        wrap = dist;
-    }
+    wrap = dist >= 0x801 ? 0x1000 - dist : dist;
     limit = arg1 / 3000.0f * wrap + 5.7f;
     if ((((arg0->unkAC & 4) || arg0->unk0->unk58 == 8) && !(569.0f <= dist && dist <= 3527.0f)) ||
         (D_807FBB64 & 0x8000) || arg0->unk0->unk154 == 0x82) {
@@ -3247,10 +3242,6 @@ void func_80624978(arg0, arg1, arg2) CamC9St *arg0; s16 arg1; s16 arg2; {
     }
     arg0->unkB2 &= 0xFFF;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_80624978.s")
-#endif
 
 typedef struct CamB2XState {
     /* 0x000 */ u8 pad0[0x1F0];
