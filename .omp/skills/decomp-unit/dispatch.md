@@ -73,6 +73,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 - Jump-table functions: split both objdumps at every branch to the epilogue and diff case
   by case with registers normalised (ugen numbering cascades from the first divergence; raw
   counts overstate the diff ~5×).
+- 201B0: all 6 held-back large functions (440–1102 insns) went one per re-prompted finished
+  agent from fresh HEAD copies; 4 matched in one pass, 2 parked, then fresh-eyes passes
+  matched 2 of 5 parks. Give the callers' fixed prototype in the task text.
 
 ## Checking reports
 
@@ -81,6 +84,8 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 - Check the stage of everything parked: agents park stage-2/3 C despite the brief. Only
   stage 4+ (same blocks, saved registers and frame) stays parked; turn the rest back into
   the bare pragma with the draft kept.
+  A stage-6 park is not proof of equivalence (201B0: a parked clamp was a min, the asm a
+  max); a fresh-eyes pass on a sibling's park checks branch sense first.
 - An agent whose last message answers a late async notice ("earlier report stands") hides
   its report: read `history://<id>` and take the last `## 1.` section.
 - Save every report as it arrives: append `read agent://<id>` to `.scratch/all-reports.md`

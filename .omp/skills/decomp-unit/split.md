@@ -1,7 +1,11 @@
 # Pick and split a unit (SKILL.md §1–2)
 
 Commands below run on the host unless prefixed `tools/dk`. `tools/unit_check.py` and
-`tools/rodata_owners.py` work on the current all-asm split.
+`tools/rodata_owners.py` work on the current all-asm split. For a file that is already a C
+baseline (every global file now is), run them in a throwaway worktree with that file set
+back to `asm` (`git worktree add -f .scratch/wt HEAD; ln -sfn ../../bin .scratch/wt/bin`, edit
+its yaml, `tools/dk sh -c 'cd .scratch/wt && python3 -m splat split dk64.global.us.yaml'`,
+then the worktree's own `tools/`), and `git worktree remove --force` it afterwards.
 
 ## Pick
 
@@ -56,6 +60,15 @@ Hidden TUs found only after round 1 cost a re-split while agents run; settle the
   function in that range matches.
 - Unreferenced strings ending exactly where a file's first rodata label starts belong to
   that file's TU.
+- Own `.data`/`.bss`: a `u64` store with ONE `lui` for both halves (`lui at; sw; sw 4(at)`)
+  means the symbol is defined in that TU. List every data/bss label's users across
+  `asm/<seg>` and `src/<seg>`; a 16-aligned run used only by the file is its own: carve it
+  before round 1 (`[0xOFF, .data, <file>]` between `data` pieces, `{type: .bss, vram, name}`
+  between named `bss` pieces, as 7130/201B0), define every object in address order in the
+  stub (objects > 4 bytes 8-aligned), interior labels the asm still uses go to
+  `undefined_syms.us.txt` (`/* */` comments only). Mid-run (201B0): put the definition block
+  in `.scratch/<file>_defs.c`, re-split + `restore_split_asm.sh`, `make expected`, and tell
+  every running agent which extern lines to delete and where to insert that block.
 
 ## Hidden empty functions
 
