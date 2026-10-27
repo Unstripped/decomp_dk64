@@ -885,7 +885,15 @@ u8 func_8062D2F0(R2F550bObj *arg0, R2F550bTree *arg1, s32 arg2, s16 *arg3, u8 ar
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E548.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E608.s")
+void faultSetMessage(s32, s32, s32, s32);
+
+void func_8062E608(void *arg0, s32 *arg1, void *arg2) {
+    memcpy((u8 *)arg2 + *arg1 * 6, arg0, 6);
+    *arg1 += 1;
+    if (*arg1 >= 0xD) {
+        faultSetMessage(1, 0, 0, 0);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E67C.s")
 
@@ -893,21 +901,126 @@ u8 func_8062D2F0(R2F550bObj *arg0, R2F550bTree *arg1, s32 arg2, s16 *arg3, u8 ar
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062EBB8.s")
 
+
+typedef struct R2F550a2Chunk {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 unk1;
+    /* 0x02 */ u8 pad2[6];
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ u8 padC[0x70];
+} R2F550a2Chunk; /* 0x7C */
+
+extern u8 D_807F5FC1;
+extern R2F550a2Chunk *D_807F5FC4;
+
+#ifdef NON_MATCHING
+typedef struct R2F550a2Cmd {
+    u32 unk0;
+    u32 unk4;
+} R2F550a2Cmd;
+
+R2F550a2Cmd *func_8062EDA8(R2F550a2Cmd *arg0, u8 arg1) {
+    R2F550a2Cmd *p;
+    R2F550a2Cmd *q;
+    R2F550a2Chunk *c;
+    s32 i;
+
+    p = arg0;
+    for (i = 0; i < D_807F5FC1; i++) {
+        c = &D_807F5FC4[i];
+        if (arg1 == c->unk1) {
+            q = p;
+            q->unk0 = ((c->unk0 * 4) & 0xFFFF) | 0xDB060000;
+            p++;
+            q->unk4 = D_807F5FC4[i].unk8;
+        }
+    }
+    return p;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062EDA8.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062EE48.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062EFA0.s")
+
+s32 mapChunkIsVisible(u8);
+void assetFreeBuffer(s32, s32, s32);
+
+void func_8062EFA0(void) {
+    s32 i;
+
+    for (i = 0; i < D_807F5FC1; i++) {
+        if (mapChunkIsVisible(D_807F5FC4[i].unk1) == 0) {
+            if (D_807F5FC4[i].unk8 != 0) {
+                assetFreeBuffer(D_807F5FC4[i].unk8, 0x7FB, 5);
+                D_807F5FC4[i].unk8 = 0;
+            }
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F050.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F318.s")
+void func_8062F318(void) {
+    D_807F5FED = 1;
+}
+
+#ifdef NON_MATCHING
+extern s32 D_807F5FD0;
+extern s32 *D_807F5FD4;
+
+void func_8062F328(s32 arg0) {
+    s32 i;
+
+    if (D_807F5FD0 != 0) {
+        i = 0;
+        if (D_807F5FD0 >= 0) {
+            do {
+                D_807F5FD4[i] += arg0;
+                i++;
+            } while (D_807F5FD0 >= i);
+        }
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F328.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F388.s")
+extern s32 D_807F5FC8;
+extern s32 D_807F5FCC;
+
+s32 func_8062F388(s32 *arg0) {
+    *arg0 = D_807F5FCC;
+    return D_807F5FC8;
+}
+
+#ifdef NON_MATCHING
+s32 func_8066B0F8(s32, s32, s32, s32);
+
+void func_8062F3A0(R2F550a2Cmd *arg0, R2F550a2Cmd *arg1) {
+    R2F550a2Cmd *p;
+    u32 t;
+
+    p = arg0;
+    if (p != arg1) {
+        do {
+            if ((p->unk0 >> 24) == 0xFD) {
+                t = p->unk4;
+                if (((t << 4) >> 28) == 0) {
+                    p->unk4 = func_8066B0F8(0x19, t, 1, 0);
+                }
+            }
+            p++;
+        } while (p != arg1);
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F3A0.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F420.s")
 
