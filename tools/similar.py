@@ -10,6 +10,7 @@ dropped. Compares against every matched C function of every segment in the curre
 """
 
 import argparse
+import math
 import re
 import struct
 import sys
@@ -98,14 +99,15 @@ def closest(target: Func, candidates: list[Func], n: int, min_score: float) -> l
         longer = max(la, lb)
         floor = best[-1][0] if len(best) == n else min_score
         # The length difference alone bounds the score: skip without computing the distance
-        if min(la, lb) / longer < floor:
+        if min(la, lb) / longer < floor - 1e-9:
             continue
-        cut = int((1 - floor) * longer)
+        # ceil: (1 - 0.8) * 5 is 0.999..., and int() would drop a valid 0.80 match
+        cut = math.ceil((1 - floor) * longer)
         d = Levenshtein.distance(target.seq, c.seq, score_cutoff=cut)
         if d > cut:
             continue
         score = 1 - d / longer
-        if score < min_score:
+        if score < min_score - 1e-9:
             continue
         best.append((score, c))
         best.sort(key=lambda t: (-t[0], abs(len(t[1].seq) - la), SEG_ORDER[t[1].seg], t[1].addr))
