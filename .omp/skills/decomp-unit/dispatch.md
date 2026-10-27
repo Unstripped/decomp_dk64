@@ -24,10 +24,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 
 ## List sizes
 
-- Round 1: ~600–1,300 instructions per agent, ≤20 functions, contiguous by address.
-  If agents report after a few minutes with most of a long list unattempted (the
-  `FCCD0` unit: 12–20-function lists matched 1–4 each), switch to 3–6-function lists
-  rather than re-prompting the long ones: "unattempted" means too long, not too hard.
+- Round 1: ~500–1,000 instructions per agent, ≤10 functions, contiguous by address. Agents
+  stop at a request budget (~150–200 tool calls): 14–20-function lists came back with 7–9
+  untouched (2C700 unit), so a long list is split, never re-prompted as is.
 - Functions over ~400 instructions: held back from round 1, one agent each (2–3 per agent
   once single ones finish quickly), smallest first, dispatched as soon as slots free.
 - Later passes: ≤6 functions, near-misses first. A stage-6 near-miss of 1–8 instructions is
@@ -35,9 +34,11 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   the context.
 - Each `tasks[]` item lists its functions with the last diff note and stage; agents start
   from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
-- The agent's budget is its context window, not wall-clock time: the brief gates on outcome
-  (every function matched, or back on its `GLOBAL_ASM` line with a staged draft and no
-  untried idea). No `date`/minute gates: they only make finished agents idle.
+- The agent's budget is its context window and request cap, not wall-clock time: the brief
+  gates on outcome (every function matched, or back on its `GLOBAL_ASM` line with a staged
+  draft and no untried idea). No `date`/minute gates: they only make finished agents idle.
+- Re-prompting a finished agent with its file's next chunk, large function or near-misses
+  (new copy from HEAD) was the best-yielding refill (2C700 unit: 4 large functions this way).
 
 ## Rolling dispatch
 

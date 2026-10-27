@@ -43,7 +43,7 @@ swapped externs in a comparison look identical in the text.
 - Never `pkill`/`kill` by pattern (`pkill -f "permute.py run"` killed every sibling's
   permuter): stop only a PID you started.
 - Starter C: `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`.
-- Put every scratch/probe file under `.scratch/<YourName>/`, never in the repo root.
+- Put every scratch/probe file (also `cc -S` output) under `.scratch/<YourName>/`, never the repo root.
 - PRIVATE COPY mode: create your copy ONCE from the exact base commit in your task
   (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`), never re-copy
   mid-run, edit only the copy, check with
@@ -100,9 +100,9 @@ swapped externs in a comparison look identical in the text.
   prototype the orchestrator must change instead). If your function calls or is called by
   a function matched in another agent's range, its declaration must agree with that
   definition (cfe rejects a K&R `void f();` next to a prototyped `void f(s32, f32)`
-  definition): read the callee/caller first. Prefix new
-  type names with your agent name. When you revert a function
-  to GLOBAL_ASM, delete the declarations you added for it. Don't reorder or reformat.
+  definition): read the callee/caller first. Prefix new type names with your agent name.
+  When you revert a function to GLOBAL_ASM, delete the declarations you added for it.
+  Don't reorder or reformat; never search-and-replace across the file (it rewrote a parked function).
   Never move an existing block (typedefs/externs) even if your function sits above it:
   declare a forward `struct Tag *` or a new agent-prefixed view right above your function
   (one moved block turned a merge into a hand-resolved 3-way conflict).

@@ -60,7 +60,10 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
     needed extra argument via an unprototyped declaration (`void f();`);
   - K&R caller vs prototyped callee in one TU: revert one side to its `GLOBAL_ASM` line, save
     its draft with the clash in the note, give both to one next-round agent;
-  - move a declaration above its first user when a pasted function needs it earlier.
+  - move a declaration above its first user when a pasted function needs it earlier;
+  - an early prototype (another agent's range) disagreeing with a later definition (the
+    most common clash: 7 in the 2C700 unit): give the prototype the definition's types;
+    a typedef'd struct param needs a forward `struct Tag;` line before the prototype.
   Name every unified type in later tasks' `context` (and `local://findings.md`).
 - Per-agent types on a fresh unseeded file (`ActAActor`, `BehBActor`): one unify agent per file
   right after round 1 (PRIVATE COPY, merged like a round), building one struct per object in
@@ -95,11 +98,13 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 
 ## "Reloc-only" and paste candidates
 
-Treat every "text-identical, reloc only" report or parked claim as a paste candidate: paste
-the draft into `src`, run `tools/objdiff.sh src/<seg>/<f>.c FUNC`, then let the ROM gate
+Treat every "text-identical, reloc only" report or parked claim as a paste candidate:
+`python3 tools/drafts.py paste <seg> FUNC` (replaces its pragma or park with the draft), then
+`tools/merge_gate.sh - - src/<seg>/<f>.c` (prunes duplicated declarations) lets the ROM gate
 decide. Usual harmless causes: raw address constants vs `D_` symbols, own late_rodata as
-`.rodata+off`, jump-table relocations, `D_x+4` vs splat's `D_x4` label, a `%hi/%lo` pair for a
-plain constant (`.text content mismatch` in fdiff although the ROM matches). On a failed
+`.rodata+off`, jump-table relocations, `D_x+4` vs splat's `D_x4` label, a loop bound as
+`D_x+0x80` vs splat's next label, a `%hi/%lo` pair for a plain constant (`.text content
+mismatch` in fdiff although the ROM matches). On a failed
 gate it was not reloc-only: `tools/dk make build/global.text.bin`, `cmp -l` against the last
 good copy, objdump the function (found: a store two slots early, swapped delay-slot
 constants, a view struct 4 bytes short, a spill slot 4 bytes off, an `extern f64` that must

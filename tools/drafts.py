@@ -13,6 +13,7 @@ the per-session work area; anything worth continuing in a later session goes her
     python3 tools/drafts.py list [SEG]                        # drafts with their notes
     python3 tools/drafts.py collect                           # import newer .scratch/*/<FUNC>_best.c
     python3 tools/drafts.py prune                             # delete drafts of matched functions
+    python3 tools/drafts.py paste SEG FUNC                    # put a draft into its src file
 
 SEG is the asm directory name: boot, global, or an overlay (boss, jetpac, ...).
 `collect` takes the segment of a `.scratch/<Agent>/<FUNC>_best.c` from the private copy of
@@ -20,6 +21,10 @@ the source file in the same directory (the one whose GLOBAL_ASM line names
 `asm/<seg>/nonmatchings/.../<FUNC>.s`); a name that is unmatched in only one segment needs no
 copy. Drafts whose segment can't be determined are reported and skipped, never guessed.
 `prune` runs after every merge: a function that left GLOBAL_ASM is matched.
+`paste` replaces FUNC's `GLOBAL_ASM` line (or the whole `#ifdef NON_MATCHING` park around it)
+in its src file with the draft minus its header, for "text-identical, reloc only" reports;
+then `tools/merge_gate.sh - - <src file>` prunes duplicated declarations and lets the ROM
+hash decide.
 """
 import argparse
 import glob
@@ -109,6 +114,9 @@ def main() -> None:
     sub.add_parser("list").add_argument("seg", nargs="?")
     sub.add_parser("collect")
     sub.add_parser("prune")
+    pa = sub.add_parser("paste")
+    pa.add_argument("seg")
+    pa.add_argument("func")
     args = ap.parse_args()
 
     if args.cmd == "save":
@@ -152,6 +160,21 @@ def main() -> None:
         for d in glob.glob(os.path.join(DRAFTS, "*")):
             if os.path.isdir(d) and not os.listdir(d):
                 os.rmdir(d)
+    elif args.cmd == "paste":
+        key = (args.seg, args.func)
+        src, path = unmatched().get(key), stored().get(key)
+        if not src or not path:
+            sys.exit(f"{args.seg} {args.func}: {'no draft' if src else 'not GLOBAL_ASM in src/'}")
+        body = open(path).read().split("\n", 1)[1].strip("\n") + "\n"
+        text = open(src).read()
+        line = next(m for m in PRAGMA.finditer(text) if (m.group(1) or "boot", m.group(2)) == key)
+        start, end = line.start(), text.index("\n", line.end()) + 1
+        park = text.rfind("#ifdef NON_MATCHING\n", 0, start)
+        if park != -1 and "#endif" not in text[park:start] and text.startswith("#endif\n", end):
+            start, end = park, end + len("#endif\n")
+        with open(src, "w") as f:
+            f.write(text[:start] + body + text[end:])
+        print(f"pasted {os.path.relpath(path, ROOT)} into {os.path.relpath(src, ROOT)}")
 
 
 if __name__ == "__main__":
