@@ -39,16 +39,22 @@ typedef struct {
 } JetpacPlayer;
 
 typedef struct {
-    u8 pad0[0x18];
+    u32 unk0;
+    u32 unk4;
+    u32 unk8;
+    s8 unkC;
+    u8 padD[0x18 - 0xD];
     s32 high_score;
     JetpacPlayer players[2];
     s32 active_player;
     s32 num_players;
-    u8 pad34C[0x78C - 0x34C];
+    s32 unk34C;
+    u8 pad350[0x78C - 0x350];
     s32 unk78C;
     s32 unk790;
     s32 unk794;
     u8 unk798;
+    u8 unk799;
 } JetpacGlobal;
 
 extern JetpacGlobal D_8002EC30;
@@ -73,7 +79,7 @@ void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
 Gfx *func_805FE4D4(Gfx *);
 Gfx *func_80610FE8(s32);
 void heapFreeDeferred(void *);
-void func_80025168(Gfx **);
+void func_80025168();
 void func_8002419C(u8 *, Gfx **);
 
 extern u8 D_807444FC;
@@ -285,7 +291,50 @@ void func_80024A4C(void) {
     func_8060DEA8();
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024A8C.s")
+s32 flagGet(s32, s32);
+void func_805FF378(s32, s32);
+s32 func_8060C6B8(s32, s32, s32, s32);
+void func_8060C8AC(s32);
+void func_80025368(JetpacPlayer *);
+
+
+void func_80024A8C(s32 arg0) {
+    func_80024408(arg0);
+    func_8002AE94(0xFF, 0xFF, 0xFF, 0xFF);
+    func_8002AEFC(arg0, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && D_8002EC30.unkC == 1);
+    func_8002AEFC(arg0, "DELETE@HISCORE", 0x68, 0x80, D_8002BA6C != 0 && D_8002EC30.unkC == 2);
+    func_8002AEFC(arg0, "EXIT@@JETPAC", 0x70, 0x90, D_8002BA6C != 0 && D_8002EC30.unkC == 0);
+    if (D_8002EC30.unk8 & 0xE000) {
+        switch (D_8002EC30.unkC) {
+        default:
+        case 0:
+            func_805FF378(D_8002EC30.unk798 != 0 ? 5 : 0x50, 0);
+            break;
+        case 1:
+            D_8002EC30.unk78C = 2;
+            break;
+        case 2:
+            if (D_8002EC30.high_score != 0) {
+                func_8060C8AC(1);
+                D_8002EC30.high_score = func_8060C6B8(0x11, 0, 0, 0);
+                func_80024A4C();
+            }
+            break;
+        }
+    }
+    if (D_8002EC30.unk8 & 0x400) {
+        D_8002EC30.unkC++;
+    }
+    if (D_8002EC30.unk8 & 0x800) {
+        D_8002EC30.unkC--;
+    }
+    if (D_8002EC30.unkC >= 3) {
+        D_8002EC30.unkC = 0;
+    }
+    if (D_8002EC30.unkC < 0) {
+        D_8002EC30.unkC = 2;
+    }
+}
 
 void func_80024C90(s32 arg0) {
     JetpacPlayer *sp1C = &D_8002EC30.players[D_8002EC30.active_player];
@@ -304,26 +353,38 @@ void func_80024C90(s32 arg0) {
     func_80025904(arg0);
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024D48.s")
+void func_80024D48(s32 arg0) {
+    s32 sp4C;
+    char sp2C[0x20];
 
-#if 0
-// Instruction scheduling swap between lui/addiu s1 and addu s0
+    sp4C = 7;
+    func_80024408(arg0);
+    if (D_8002EC30.unk798 != 0 && flagGet(0x62, 2) != 0) {
+        _sprintf(sp2C, "RAREWARE COIN COLLECTED");
+        sp4C = 5;
+    } else {
+        _sprintf(sp2C, "GAME OVER PLAYER %d", D_8002EC30.active_player + 1);
+    }
+    func_8002AE94(0xFF, 0xFF, 0xFF, 0xFF);
+    func_8002AEFC(arg0, sp2C, sp4C * 8 + 0x20, 0x88, 0);
+    if ((u32)D_8002EC30.unk790 >= 0x79U) {
+        if (D_8002EC30.unk798 != 0) {
+            if (D_8002EC30.unk799 == 0) {
+                D_8002EC30.unk799 = 1;
+                func_805FF378(5, 0);
+            }
+        } else {
+            func_80025368(&D_8002EC30.players[D_8002EC30.active_player]);
+        }
+    }
+}
+
 void func_80024E70(s32 arg0) {
     s32 *var_s0;
 
-    if (arg0 < 7) {
-        var_s0 = &D_80770DF8[arg0];
-        do {
-            if (*var_s0 != 0) {
-                n_alSndpStop(*var_s0);
-            }
-            var_s0++;
-        } while (var_s0 != D_80770E14);
-    }
+    if (arg0 < 7) { var_s0 = &D_80770DF8[arg0]; do { if (*var_s0 != 0) { n_alSndpStop(*var_s0); } var_s0++; } while (var_s0 != D_80770E14); }
     n_alSndpPlay(D_8076D1F8, *(s16 *)((u8 *)D_8002BA52 + arg0 * 4), 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[arg0]);
 }
-#endif
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024E70.s")
 
 void func_80024F24(s32 arg0, s32 arg1) {
     if (D_80770DF8[arg0] != 0) {
@@ -391,27 +452,105 @@ void func_800250A0(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80025168.s")
+#ifdef NON_MATCHING
+typedef struct {
+    u16 unk0;
+    s8 unk2;
+    s8 unk3;
+} J0bPad;
 
-#if 0
-// 1 instruction difference: pointer offset addiu a0, 0x1C vs direct offset 0x1C(a0)
-void func_80025368(JetpacEntity *arg0) {
-    s32 other_player_idx = D_8002EC30.active_player ^ 1;
-    JetpacEntity *other_entity;
+extern u8 D_8002BA70;
+extern J0bPad *D_807ECDE8;
+void func_8002466C(s32);
+void func_800248E8(s32);
+
+void func_80025168(s32 arg0) {
+    u8 flag;
+    s32 zero;
+    volatile s32 *p;
+
+    zero = 0;
+    if (D_8002BA70 != 0) {
+        D_8002EC30.unk78C = 0;
+        D_8002EC30.unk790 = 0;
+        D_8002EC30.unk794 = 3;
+        D_8002EC30.num_players = 1;
+        D_8002EC30.unk34C = 0;
+        D_8002BA70 = zero;
+        D_8002EC30.high_score = func_8060C6B8(0x11, zero, zero, zero);
+        flag = flagGet(0x61, 2);
+        D_8002EC30.unk798 = flag;
+        if (flag != zero) {
+            D_8002EC30.unk799 = 0;
+        }
+    }
+    p = &D_8002BA6C;
+    *p = D_8002EC30.unk790;
+    *p = D_8002EC30.unk790 % 60;
+    *p = D_8002EC30.unk790 % 60 / 30;
+    D_8002EC30.unk4 = D_8002EC30.unk0;
+    D_8002EC30.unk0 = D_807ECDE8->unk0;
+    if (D_807ECDE8->unk2 >= 0x1F) {
+        D_8002EC30.unk0 |= 0x100;
+    }
+    if (D_807ECDE8->unk2 < -0x1E) {
+        D_8002EC30.unk0 |= 0x200;
+    }
+    if (D_807ECDE8->unk3 >= 0x1F) {
+        D_8002EC30.unk0 |= 0x800;
+    }
+    if (D_807ECDE8->unk3 < -0x1E) {
+        D_8002EC30.unk0 |= 0x400;
+    }
+    D_8002EC30.unk8 = (D_8002EC30.unk0 ^ D_8002EC30.unk4) & D_8002EC30.unk0;
+    if ((u32)D_8002EC30.unk794 < 3) {
+        D_8002EC30.unk794++;
+        return;
+    }
+    switch (D_8002EC30.unk78C) {
+    case 0:
+        func_8002466C(arg0);
+        break;
+    case 1:
+        func_800248A0(arg0);
+        break;
+    case 2:
+        func_800248E8(arg0);
+        break;
+    case 3:
+        func_80024A8C(arg0);
+        break;
+    case 4:
+        func_80024C90(arg0);
+        break;
+    case 5:
+        func_80024D48(arg0);
+        break;
+    }
+    D_8002EC30.unk790 = D_8002EC30.unk790 + 1;
+}
+
+#else
+
+#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80025168.s")
+#endif
+
+void func_80025368(JetpacPlayer *arg0) {
+    s32 other_idx = D_8002EC30.active_player ^ 1;
+    JetpacPlayer *other = &D_8002EC30.players[other_idx];
 
     if (arg0->lives < 0 && D_8002EC30.unk78C != 5) {
-        if (D_8002EC30.players[0].high_score < arg0->score) {
-            D_8002EC30.players[0].high_score = arg0->score;
+        if (D_8002EC30.high_score < arg0->score) {
+            D_8002EC30.high_score = arg0->score;
             func_80024A4C();
         }
         func_80024F9C(5);
         return;
     }
 
-    other_entity = (JetpacEntity *)((u8 *)&D_8002EC30.players[other_player_idx] + 0x1C);
-    if (other_entity->lives >= 0) {
-        D_8002EC30.active_player = other_player_idx;
-        if (other_entity->stage < 0) {
+    if (other->lives >= 0) {
+        D_8002EC30.active_player = other_idx;
+        if (other->stage < 0) {
             func_800250A0();
             return;
         }
@@ -424,5 +563,4 @@ void func_80025368(JetpacEntity *arg0) {
     }
     func_80024F9C(0);
 }
-#endif
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80025368.s")
+

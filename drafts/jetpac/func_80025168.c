@@ -1,4 +1,4 @@
-// func_80025168 (src/jetpac/0.c): stage 5: frame 0x20 + s0 match, volatile s32 *p stores keep the 3 writes to D_8002BA6C; only regalloc differs: IDO CSEs &D_8002BA70 into v0 (target keeps separate lui t6/lbu and lui at/sb), pushing the rest to v1/a2/t0 instead of a1/v0/t1. Tried volatile u8 / array / volatile-cast for D_8002BA70, local decl order, permuter 170s (best 535 of 790).
+// func_80025168 (src/jetpac/0.c): stage 5-6: frame 0x20 + s0 match; first 44 insns now match (a local 'zero' used for the 0 stores/args stops IDO CSEing &D_8002BA70 into v0; volatile s32 *p keeps the 3 stores to D_8002BA6C). Remaining diff is regalloc only: target value=a1, mfhi=t1, p=v0, pad ptr=v1/lb a0; mine value=v1, mfhi=v0, p=a2, pad ptr=a0/lb a1. Permuter hint: '(x) & 0xFFFFFFFFFFFFFFFF' on the first D_8002BA6C store gets 62 diff lines (vs 114) but is a hack, not used.
 typedef struct {
     u16 unk0;
     s8 unk2;
@@ -12,19 +12,21 @@ void func_800248E8(s32);
 
 void func_80025168(s32 arg0) {
     u8 flag;
+    s32 zero;
     volatile s32 *p;
 
+    zero = 0;
     if (D_8002BA70 != 0) {
         D_8002EC30.unk78C = 0;
         D_8002EC30.unk790 = 0;
         D_8002EC30.unk794 = 3;
         D_8002EC30.num_players = 1;
         D_8002EC30.unk34C = 0;
-        D_8002BA70 = 0;
-        D_8002EC30.high_score = func_8060C6B8(0x11, 0, 0, 0);
+        D_8002BA70 = zero;
+        D_8002EC30.high_score = func_8060C6B8(0x11, zero, zero, zero);
         flag = flagGet(0x61, 2);
         D_8002EC30.unk798 = flag;
-        if (flag != 0) {
+        if (flag != zero) {
             D_8002EC30.unk799 = 0;
         }
     }
