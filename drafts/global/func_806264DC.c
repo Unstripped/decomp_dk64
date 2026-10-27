@@ -1,4 +1,5 @@
-// func_806264DC (src/global/201B0.c): CamF2: stage 5, same callee-saved set + frame 0xB8 + instruction stream; only regalloc/scheduling diffs: temps v1/a1, part-2 cursor s1 vs s0 (target s0, copy s0, li s1,28), part-3 lw/multu order, part-4 pt/u (target addu t9 store addr + separate addu s2,v1,v0;addiu s2,4; mine s2 direct), jtbl reloc naming. Needs volatile u8 arg2 (K&R) to keep arg2 unpromoted (lbu 0xC3(sp)); unsigned multiplies (cnt*0x12U) give shift expansion; hdr read as *hdr++ twice in part 3.
+// func_806264DC (src/global/201B0.c): stage 5: K&R def with void*/CamPathData*/volatile u8 params + CF2_A0/CF2_A1 define casts (compiles against file prototype, warning 642 only). Frame 0xB8 + saved set match, 442 vs 444 insns. Remaining: (1) E=(s16)cnt temp is a1 not v1 (all loops) - E (bit 109) is coloured after arg1 piece 267 (v1) because uopt processes candidates in first-appearance order; (2) part 2 target keeps cnt in s0 across the first call for cnt*28 (move s0,a0 in beqz delay), mine reloads lw a1,68(sp); cursor s1 / li 28 s0 swapped vs target s0/s1; (3) part 3/4 arg1 reload pieces a1/a3 vs mine v1; removing E from part 2 (first call arg read via arg1->unkC0) makes E=v1 and parts 1,3,4 match exactly.
+// func_806264DC: stage 5
 typedef struct CamF2Seg {
     /* 0x00 */ s16 a[3];
     /* 0x06 */ s16 b[3];
@@ -47,9 +48,11 @@ typedef struct CamF2Path {
 void *func_80610FE8(s32);
 void heapClearBlock(void *);
 void func_80626478(s16 *, s16 *);
-u8 *func_8062649C(u8 *, void *, u16);
 
-void func_806264DC(arg0, arg1, arg2) s16 *arg0; CamF2Path *arg1; volatile u8 arg2; {
+#define CF2_A0 ((s16 *)arg0)
+#define CF2_A1 ((CamF2Path *)arg1)
+
+void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 arg2; {
     s16 i;
     s16 j;
     s16 cnt;
@@ -74,10 +77,10 @@ void func_806264DC(arg0, arg1, arg2) s16 *arg0; CamF2Path *arg1; volatile u8 arg
     s32 padg3;
     s32 skip;
 
-    hdr = arg0;
+    hdr = CF2_A0;
     data = arg0 != NULL ? (u8 *)arg0 + 0x30 : NULL;
     for (i = 0; i < 0x18; i++) {
-        h = &arg1->heads[i];
+        h = &CF2_A1->heads[i];
         cnt = h->unk0 = hdr != NULL ? *hdr++ : 0;
         if (arg2 != 0) {
             h->unk4 = func_80610FE8(cnt * 0x12U);
@@ -92,47 +95,47 @@ void func_806264DC(arg0, arg1, arg2) s16 *arg0; CamF2Path *arg1; volatile u8 arg
         }
     }
     hdr = (s16 *)data;
-    cnt = arg1->unkC0 = hdr != NULL ? *hdr++ : 0;
+    cnt = CF2_A1->unkC0 = hdr != NULL ? *hdr++ : 0;
     if (arg2 != 0) {
-        arg1->unkC8 = func_80610FE8(cnt);
-        arg1->unkC4 = func_80610FE8(cnt * 0x1CU);
+        CF2_A1->unkC8 = func_80610FE8(cnt);
+        CF2_A1->unkC4 = func_80610FE8(cnt * 0x1CU);
         s = hdr;
         for (i = 0; i < cnt; i++) {
-            arg1->unkC8[i] = func_806531B8(s[8], s[9], s[10], 0);
+            CF2_A1->unkC8[i] = func_806531B8(s[8], s[9], s[10], 0);
             s += 0xE;
-            arg1->unkC4[i] = *(CamF2Bnd *)(s - 0xE);
+            CF2_A1->unkC4[i] = *(CamF2Bnd *)(s - 0xE);
         }
         hdr = s;
     }
     i = 0;
-    cnt = arg1->unkCC = hdr != NULL ? *hdr++ : 0;
-    arg1->unkD0 = func_80610FE8(cnt * 0xCU);
+    cnt = CF2_A1->unkCC = hdr != NULL ? *hdr++ : 0;
+    CF2_A1->unkD0 = func_80610FE8(cnt * 0xCU);
     for (i = 0; i < cnt; i++) {
         m = *hdr++;
         k = m;
 
-        arg1->unkD0[i].unk0 = m;
-        arg1->unkD0[i].unk4 = func_80610FE8(m * 2);
-        arg1->unkD0[i].unk8 = func_80610FE8(m * 2);
+        CF2_A1->unkD0[i].unk0 = m;
+        CF2_A1->unkD0[i].unk4 = func_80610FE8(m * 2);
+        CF2_A1->unkD0[i].unk8 = func_80610FE8(m * 2);
         for (j = 0; j < k; j++) {
-            arg1->unkD0[i].unk4[j] = *hdr++;
-            arg1->unkD0[i].unk8[j] = *hdr++;
+            CF2_A1->unkD0[i].unk4[j] = *hdr++;
+            CF2_A1->unkD0[i].unk8[j] = *hdr++;
         }
     }
     i = 0;
-    cnt = arg1->unkD4 = hdr != NULL ? *hdr++ : 0;
-    arg1->unkD8 = func_80610FE8(0x6400);
-    heapClearBlock(arg1->unkD8);
+    cnt = CF2_A1->unkD4 = hdr != NULL ? *hdr++ : 0;
+    CF2_A1->unkD8 = func_80610FE8(0x6400);
+    heapClearBlock(CF2_A1->unkD8);
     rd = (u8 *)hdr;
     if (cnt != 0) {
         do {
             skip = 0;
-            pt = &arg1->unkD8[i];
+            pt = &CF2_A1->unkD8[i];
             pt->unk1 = rd[1];
-            arg1->unkD8[i].unk0 = rd[0];
+            CF2_A1->unkD8[i].unk0 = rd[0];
             pt = (CamPathPoint *)&pt->u.spline;
             u = (CamPathSpline *)pt;
-            switch (arg1->unkD8[i].unk1) {
+            switch (CF2_A1->unkD8[i].unk1) {
                 case 13:
                     rd = func_8062649C(rd, u, 0xC);
                     break;

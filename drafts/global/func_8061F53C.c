@@ -1,4 +1,4 @@
-// func_8061F53C (src/global/201B0.c): stage 5: same size/frame/slots/s-regs; 9 diff chunks (i*4 copy move s2, owners load pos, start scheduling, tail)
+// func_8061F53C (src/global/201B0.c): stage 5: same size/frame/slots/s-regs; 4 diff chunks left (i*4 copy move s2,t9; move t0,a0 path ptr; tail)
 typedef struct CamLEnt {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
@@ -136,12 +136,13 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     f32 outX;
     f32 outY;
     f32 outZ;
-    s8 *owners;
+    CamLPath *path;
 
     st = (CamLSt *)arg0->unk174;
     tgt = st->unk0;
+    e = (CamLEnt *)tgt->unk174;
     x = tgt->unk7C;
-    y = tgt->unk80 + tgt->unk174->unk10C;
+    y = tgt->unk80 + ((CamLTgtSub *)e)->unk10C;
     z = tgt->unk84;
     weight = 0;
     bestIdx = 0;
@@ -171,7 +172,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                         pos[2] = e->unk14;
                         rad = (e->unk19 * 4) & 0xFFFF;
                         mode = e->unk1B;
-                        owners = CAML_PATH->unkC8;
+                        path = CAML_PATH;
                         type0 = e->unk16;
                         if (e->unk16 == 5) {
                             linkId = e->unk0;
@@ -190,8 +191,8 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                         } else {
                             distSq = (x - pos[0]) * (x - pos[0]) + (y - pos[1]) * (y - pos[1]) + (z - pos[2]) * (z - pos[2]);
                         }
-                        if (tgt->unk12C == owners[D_80747704[k * 2]] || type == 8 ||
-                            owners[D_80747704[k * 2]] == -1) {
+                        if (tgt->unk12C == path->unkC8[D_80747704[k * 2]] || type == 8 ||
+                            path->unkC8[D_80747704[k * 2]] == -1) {
                             if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->unk18 && !((s16)(s32)y < pos[1]) &&
                                  pos[1] + spread * 2 >= (s16)(s32)y) ||
                                 (mode != 2 && distSq < (f32)(rad * rad) && weight < e->unk18)) {
@@ -374,8 +375,8 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
             st->unkC6 = -1;
         }
         st->unkFD = linkId;
-        st->unkED = type;
         st->unkC4 = bestIdx;
+        st->unkED = type;
         return ret;
     }
     if (st->unkAC & 0x40000) {
