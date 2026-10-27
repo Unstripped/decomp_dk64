@@ -512,7 +512,57 @@ void func_8062BAE4(void) {
     func_80641A78();
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062BB2C.s")
+void func_8063B4C0(R2F550bObj *, u8);
+void func_80652B04(void);
+
+void func_8062BB2C(R2F550bObj *arg0, R2F550bTree *arg1, u8 arg2) {
+    R2F550bObj *next;
+
+    if (arg0 == NULL) {
+        return;
+    }
+    if (arg1->unk1 == 3) {
+        func_8062BB2C(arg0->unk0, arg1->unkC, 0);
+        func_8062BB2C(arg0->unk4, arg1->unk10, 0);
+        return;
+    }
+    switch (arg0->unkB8) {
+        case 2:
+            func_80652B04();
+            break;
+        case 1:
+            arg0 = arg1->unk4;
+            while (arg0 != NULL) {
+                next = arg0->unk14;
+                func_8063B4C0(arg0, arg2);
+                arg0 = next;
+            }
+            break;
+        case 0:
+            switch (arg1->unk1) {
+                case 1:
+                case 2:
+                    if (arg1->unk0 != 0) {
+                        func_8062BB2C(arg0->unk4, arg1->unk10, arg2);
+                        func_8062BB2C(arg0->unk0, arg1->unkC, 0);
+                    } else {
+                        func_8062BB2C(arg0->unk0, arg1->unkC, arg2);
+                        func_8062BB2C(arg0->unk4, arg1->unk10, 0);
+                    }
+                    break;
+                case 0:
+                    if (arg1->unk0 != 0) {
+                        func_8062BB2C(arg0->unk0, arg1->unkC, arg2);
+                        func_8062BB2C(arg0->unk4, arg1->unk10, arg2);
+                    } else {
+                        func_8062BB2C(arg0->unk4, arg1->unk10, arg2);
+                        func_8062BB2C(arg0->unk0, arg1->unkC, arg2);
+                    }
+                    break;
+            }
+            break;
+    }
+}
 
 extern R2F550bObj *D_807F5FF4;
 
@@ -1182,34 +1232,31 @@ typedef struct R2F550a2Chunk {
 extern u8 D_807F5FC1;
 extern R2F550a2Chunk *D_807F5FC4;
 
-#ifdef NON_MATCHING
 typedef struct R2F550a2Cmd {
     u32 unk0;
     u32 unk4;
 } R2F550a2Cmd;
 
-R2F550a2Cmd *func_8062EDA8(R2F550a2Cmd *arg0, u8 arg1) {
-    R2F550a2Cmd *p;
+R2F550a2Cmd *func_8062EDA8(arg0, arg1)
+R2F550a2Cmd *arg0;
+u8 arg1;
+{
     R2F550a2Cmd *q;
     R2F550a2Chunk *c;
     s32 i;
+    s32 sel;
 
-    p = arg0;
     for (i = 0; i < D_807F5FC1; i++) {
-        c = &D_807F5FC4[i];
-        if (arg1 == c->unk1) {
-            q = p;
+        sel = arg1;
+        c = (R2F550a2Chunk *)((u8 *)D_807F5FC4 + i * 0x7C);
+        if (sel == c->unk1) {
+            q = arg0++;
             q->unk0 = ((c->unk0 * 4) & 0xFFFF) | 0xDB060000;
-            p++;
             q->unk4 = D_807F5FC4[i].unk8;
         }
     }
-    return p;
+    return arg0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062EDA8.s")
-#endif
 
 typedef struct R2F550fChunk {
     /* 0x00 */ u8 unk0;
@@ -1425,25 +1472,22 @@ void func_8062F318(void) {
     D_807F5FED = 1;
 }
 
-#ifdef NON_MATCHING
 
 void func_8062F328(s32 arg0) {
     s32 i;
+    s32 t;
 
     if (D_807F5FD0 != 0) {
         i = 0;
         if (D_807F5FD0 >= 0) {
             do {
-                D_807F5FD4[i] += arg0;
+                t = D_807F5FD4[i];
+                D_807F5FD4[i] = t + arg0;
                 i++;
             } while (D_807F5FD0 >= i);
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F328.s")
-#endif
 
 
 s32 func_8062F388(s32 *arg0) {
@@ -1451,29 +1495,19 @@ s32 func_8062F388(s32 *arg0) {
     return D_807F5FC8;
 }
 
-#ifdef NON_MATCHING
-
 void func_8062F3A0(R2F550a2Cmd *arg0, R2F550a2Cmd *arg1) {
-    R2F550a2Cmd *p;
-    u32 t;
+    u32 w;
 
-    p = arg0;
-    if (p != arg1) {
-        do {
-            if ((p->unk0 >> 24) == 0xFD) {
-                t = p->unk4;
-                if (((t << 4) >> 28) == 0) {
-                    p->unk4 = func_8066B0F8(0x19, t, 1, 0);
-                }
+    for (; arg0 != arg1; arg0++) {
+        w = arg0->unk0;
+        if ((w >> 24) == (0, 0xFD)) {
+            if (((arg0->unk4 << 4) >> 28) == 0) {
+                arg0->unk4 = func_8066B0F8(0x19, arg0->unk4, 1, 0);
             }
-            p++;
-        } while (p != arg1);
+            ;
+        }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062F3A0.s")
-#endif
 
 typedef struct R2F550fNode {
     /* 0x00 */ s32 unk0;
