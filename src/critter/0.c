@@ -523,15 +523,13 @@ s32 func_80026530(u8 *arg0, void *arg1) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 extern f32 sqrtf(f32);
 f32 func_80611BB4(f32, f32);
 f32 func_80612800(s16);
 s16 func_806CC190(s16, s16, s32);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 
-void func_8002658C(void *C0cArg0, void *arg1, s32 arg2, void *arg3) {
-    u8 *arg0 = C0cArg0;
+void func_8002658C(u8 *arg0, void *arg1, s32 arg2, void *arg3) {
     f32 tx;
     f32 ty;
     f32 tz;
@@ -556,9 +554,9 @@ void func_8002658C(void *C0cArg0, void *arg1, s32 arg2, void *arg3) {
         ((void (*)(u8 *, void *))arg2)(arg0, arg1);
     }
     off = *(s16 **)(arg0 + 0x54);
-    tx = *(f32 *)(arg0 + 0x18) + (f32)off[0];
-    ty = *(f32 *)(arg0 + 0x1C) + (f32)off[1];
-    tz = *(f32 *)(arg0 + 0x20) + (f32)off[2];
+    tx = (f32)off[0] + *(f32 *)(arg0 + 0x18);
+    ty = (f32)off[1] + *(f32 *)(arg0 + 0x1C);
+    tz = (f32)off[2] + *(f32 *)(arg0 + 0x20);
     dx = tx - *(f32 *)(arg0 + 8);
     dy = ty - *(f32 *)(arg0 + 0xC);
     dz = tz - *(f32 *)(arg0 + 0x10);
@@ -566,7 +564,7 @@ void func_8002658C(void *C0cArg0, void *arg1, s32 arg2, void *arg3) {
         dxz = dx * dx + dz * dz;
         d2 = dxz;
         if ((u8)use_y) {
-            d2 = dxz + dy * dy;
+            d2 += dy * dy;
         }
         tgt = *(f32 *)(arg0 + 0x34);
         if (d2 < 2500.0f) {
@@ -580,8 +578,9 @@ void func_8002658C(void *C0cArg0, void *arg1, s32 arg2, void *arg3) {
             }
         }
         old = *(f32 *)(arg0 + 0x28);
-        *(f32 *)(arg0 + 0x28) = old + (tgt - old) * rate;
-        *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x28) - old;
+        spd = (tgt - old) * rate;
+        *(f32 *)(arg0 + 0x28) = old + spd;
+        *(f32 *)(arg0 + 0x30) = *(volatile f32 *)(arg0 + 0x28) - old;
     }
     dist = sqrtf(dx * dx + dz * dz);
     if ((u8)use_y) {
@@ -597,12 +596,8 @@ void func_8002658C(void *C0cArg0, void *arg1, s32 arg2, void *arg3) {
         *(f32 *)(arg0 + 0xC) = spd * func_80612800(*(s16 *)(arg0 + 2)) + *(f32 *)(arg0 + 0xC);
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_8002658C.s")
-#endif
-
-void func_8002658C(void *, void *, s32, void *);
+void func_8002658C();
 
 void func_80026874(u8 *arg0, u8 *arg1) {
     u8 flags;
