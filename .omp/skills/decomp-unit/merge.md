@@ -40,6 +40,11 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 - An agent that made `void f(void);` unprototyped (`void f();`, allowed by the brief) must
   leave every C caller in the file matching: the ROM gate checks it.
 - `drafts/` is the only place in-progress C survives a session; collect before every gate.
+  `git diff drafts/` after collect: restore only a note that an OLDER `.scratch/*_best.c`
+  replaced; a draft an agent saved with `drafts.py save` is newer, keep it.
+- An agent asking for a shared prototype change (`s32` → `u8` param so a constant is not
+  shared, `s16` → `s32` so a register arg is not re-extended): apply it in `src` yourself,
+  `tools/objdiff.sh` the file, gate, then message every running agent on that file.
 
 ## When a merge fails
 

@@ -18,7 +18,11 @@ edit ok-fine. The matching agents' reports, with proposed names: `local://all-re
   `n_alSynSetParam10`): leave those `func_`.
 - Rename the old `func_` name in EVERY `src/` C file that uses it; for an overlay segment
   only in `src/<seg>/` (overlay addresses collide: a whole-`src/` replace renamed six other
-  overlays' functions). Never add `#pragma weak` aliases.
+  overlays' functions). Never add `#pragma weak` aliases. Also grep every renamed global
+  address as `D_<ADDR>` in all of `src/` (menu's anti-piracy code used `&D_8063FA48`, which
+  stopped resolving once the address got a name).
+- Naming a parked/`GLOBAL_ASM` function: point its pragma at the new `.s` name and
+  `git mv` its draft (`drafts/<seg>/<newname>.c`), else the re-split drops the old `.s`.
 - Rename agent-prefixed types (`Act8CA_Node` → `AnimNode`) in the unit's files.
 - Token renames only: never reformat, re-indent, join lines or delete code.
 - A function prototyped by a header (`PR/libaudio.h`): renaming it drops that prototype at

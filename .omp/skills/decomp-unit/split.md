@@ -118,6 +118,9 @@ struct (behaviour files: `extern Actor *D_807FBB40; extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70; extern u8 D_807FBD70;`). Unseeded, every round-1 copy
 declares them with its own type and each merge after the first clashes. Commit the seeded
 stubs, then snapshot. Skip seeding only when each file gets exactly one agent.
+Two files sharing a command/state struct or a dispatch table: move the struct into
+`include/<subsystem>.h` before round 1 and list the table's entries with their signature in
+the brief (cutscene unit: 118 handlers, no signature clashes across 22 agents).
 
 ## Gate
 
