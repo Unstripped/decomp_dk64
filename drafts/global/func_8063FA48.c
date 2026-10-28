@@ -1,258 +1,4 @@
-// func_8063FA48 (src/global/42630.c): CsFA48b stage 5-6: deadsweep 245->36 (text 36). Fixes: 0xE/0x7D 'b=cmd->b;b&=0xFF;' before if and 'b&=2' inside; 0xF named i=cmd->b&0x7F; 0x7E !vol; case 0x3 no h local (cs->unk44[c]=cs->unk14[b]); case 0x29 'cam = D_807FC924->unk4->unk174; cam->unk104' (v0 candidate). Left: found a3 vs a2, spill slot 56/60, 0x7E ucvt(pan) steals s0 (vol should), 0x68 a3/v0.
-// Cutscene script command: 16-bit opcode followed by three s16 parameters.
-typedef struct CsCmd {
-    /* 0x0 */ u16 op;
-    /* 0x2 */ s16 a;
-    /* 0x4 */ s16 b;
-    /* 0x6 */ s16 c;
-} CsCmd;
-
-// Byte view of the same command (low bytes of a, b, c).
-typedef struct CsCmdBytes {
-    /* 0x0 */ u16 op;
-    /* 0x2 */ u8 aHi;
-    /* 0x3 */ u8 a;
-    /* 0x4 */ u8 bHi;
-    /* 0x5 */ u8 b;
-    /* 0x6 */ u8 cHi;
-    /* 0x7 */ u8 c;
-} CsCmdBytes;
-
-#define CMDB(cmd) ((CsCmdBytes *)(cmd))
-
-// Per-cutscene playback state.
-typedef struct CsState {
-    /* 0x00 */ u8 pad0[8];
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ s16 unk10[2];
-    /* 0x14 */ f32 unk14[9];
-    /* 0x38 */ s32 unk38;
-    /* 0x3C */ u8 pad3C[8];
-    /* 0x44 */ s16 unk44[3];
-    /* 0x4A */ u8 pad4A;
-    /* 0x4B */ u8 unk4B[4];
-    /* 0x4F */ s8 unk4F;
-    /* 0x50 */ s8 unk50;
-    /* 0x51 */ u8 pad51[0xF];
-    /* 0x60 */ s8 unk60;
-    /* 0x61 */ u8 pad61;
-    /* 0x62 */ s16 unk62;
-    /* 0x64 */ u8 pad64[2];
-    /* 0x66 */ s8 unk66;
-    /* 0x67 */ s8 unk67;
-    /* 0x68 */ s16 unk68;
-    /* 0x6A */ s16 unk6A;
-    /* 0x6C */ s16 unk6C;
-    /* 0x6E */ s8 unk6E;
-    /* 0x6F */ s8 unk6F;
-    /* 0x70 */ s8 unk70;
-    /* 0x71 */ s8 unk71;
-    /* 0x72 */ u8 pad72[6];
-    /* 0x78 */ f32 unk78;
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ s16 unk80;
-    /* 0x82 */ s16 unk82;
-    /* 0x84 */ s16 unk84;
-    /* 0x86 */ s16 unk86;
-    /* 0x88 */ s16 unk88;
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ u8 pad8C[8];
-    /* 0x94 */ Actor *unk94;
-    /* 0x98 */ u8 pad98[3];
-    /* 0x9B */ u8 unk9B;
-} CsState;
-
-typedef struct CsPlayer {
-    /* 0x0 */ u8 pad0[4];
-    /* 0x4 */ Actor *unk4;
-} CsPlayer;
-
-// Object hanging off the player actor's unk174.
-typedef struct CsCamState {
-    /* 0x000 */ u8 pad0[0x104];
-    /* 0x104 */ s32 unk104;
-    /* 0x108 */ u8 pad108[0x1F0 - 0x108];
-    /* 0x1F0 */ s32 unk1F0;
-    /* 0x1F4 */ s32 unk1F4;
-    /* 0x1F8 */ u8 pad1F8[0x22C - 0x1F8];
-    /* 0x22C */ f32 unk22C;
-    /* 0x230 */ f32 unk230;
-    /* 0x234 */ f32 unk234;
-} CsCamState;
-
-typedef struct CsModelSlot {
-    /* 0x00 */ u8 pad0[0x28];
-    /* 0x28 */ u8 unk28[0x20];
-    /* 0x48 */ u8 unk48[0x34];
-    /* 0x7C */ u8 *unk7C;
-    /* 0x80 */ u8 pad80[0xA];
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ u8 pad8C[4];
-} CsModelSlot; /* 0x90 */
-
-typedef struct CsModelSlot2 {
-    /* 0x00 */ u8 pad0[0x3C];
-    /* 0x3C */ s8 unk3C;
-    /* 0x3D */ u8 pad3D[0x90 - 0x3D];
-} CsModelSlot2;
-
-typedef struct CsSpawnReq {
-    /* 0x0 */ Actor *unk0;
-    /* 0x4 */ Actor *unk4;
-    /* 0x8 */ u8 unk8;
-} CsSpawnReq;
-
-typedef void (*CsCmdFunc)(CsState *, s16, s16, s16);
-
-extern CsCmdFunc D_80747E70[];
-extern u8 D_80744824;
-extern s8 D_80748094;
-extern s16 D_8074809C[];
-extern s16 D_807480AC[];
-extern s16 D_807480BC[];
-extern s32 D_8076A0A8;
-extern CsModelSlot *D_807F6000;
-extern CsSpawnReq D_807F61F0;
-extern Actor *D_807F61F4;
-extern f32 D_807F61FC;
-extern f32 D_807F6204;
-extern f32 D_807F6218;
-extern f32 D_807F621C;
-extern f32 D_807F6220;
-extern f32 D_807F6224;
-extern s16 D_807F6240[];
-extern s8 D_807F6902;
-extern s8 D_807F6903;
-extern s16 D_807F6904;
-extern s16 D_807F6906;
-extern s16 D_807F6908;
-extern f32 D_807F690C;
-extern f32 D_807F6910;
-extern f32 D_807F6914;
-extern s16 D_807F6918[16];
-extern u8 D_807F6938;
-extern s16 D_807F693A;
-extern s16 D_807F693C;
-extern u8 D_807F693E;
-extern s8 D_807F693F;
-extern Actor *D_807FBB44;
-extern Actor *D_807FBB48;
-extern u32 D_807FBB60;
-extern u32 D_807FBB68;
-extern CsPlayer *D_807FC924;
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
-
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
-void actorDespawn(Actor *);
-s32 actorListGetOrSetState(s16, u8, u8);
-void actorSetStateTwo(Actor *);
-void actorSetTargetSlotByte(s32, u8);
-s32 actorSpawn(s32, s32);
-void dynamicBufferFree(void *);
-void effectNodeAddTargetAndStep(s32, f32, f32);
-void effectNodeSetSubVal(s32, u8);
-void effectNodeSetTargetAndStep(s32, f32, f32);
-s32 func_805FEF74(s32);
-u8 func_805FF030(u8, u8);
-void func_805FF158(u8);
-void func_805FF378(s32, s32);
-void func_805FF628(s16, s16);
-void func_805FF898(void);
-void func_805FF9AC(s16, s16, s16, s16);
-s32 func_805FFE50(s16, s16, s16);
-void func_80600044(s32);
-void func_80605380(s16);
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
-s16 func_80609140(s16, s32, s32, f32, s32, s32);
-void func_8060B49C(Actor *, s16);
-void func_8060DEC8(void);
-void func_8061EF4C(s32, u8, u16, f32, f32, f32, f32, f32);
-void func_8061F510(u8, u8);
-void mapOffsetSlotSetEnabled(s16, u8);
-void mapOffsetSlotSetTarget(s16, f32, f32);
-void mapOffsetSlotAddTarget(s16, f32, f32);
-void func_8062D1A8(void);
-void modelSkipListAdd(s16);
-s16 modelSlotAppend(s16, f32, f32, f32, f32, s32);
-void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
-void modelSlotUpdateTailKey(s16, s32, u8, u8);
-void modelSlotTriBufferRelease(void *);
-void modelSlotSetNodeScrollSpeed(s16, s16, s16, s16);
-void modelSlotSetNodeAnimMode(s16, s16, u8);
-void modelSlotSetNodeFrame(s16, s16, s16, s16);
-void func_80636014(s16, s32, u8);
-void func_8063A8C4(s16, s32, f32);
-void func_8063DB3C(s16, s16, s16);
-void func_806417BC(s16, s16);
-void func_80641874(s16, s16);
-s32 func_806418E8(s16, s16, s16);
-void func_8064199C(void *, s16, s16);
-void func_80641B00(s16, s16, s16);
-void func_80641BCC(s16, s16, s16);
-void func_80641C98(s16, s16, s16);
-void func_80641DA0(void *, s16, s16, s16);
-void func_80642480(s16, s16);
-void func_80642748(s16, s16, void *, s16, s32);
-void func_80642844(s16, s16, void *, s16, s32);
-void func_80650794(s16, s16, u8, f32);
-s16 func_80650A70(s16, s16);
-void func_8067A9F0(s32, Actor *, f32, f32, f32);
-void func_8067ABC0(s32, Actor *, u8, s16, s32, f32, f32, f32);
-s32 func_8068ABE0(s16);
-void func_8068B830(s16, s16, s16);
-void func_8068B8FC(void);
-void func_806A2A10(s32, s32, u8, void *);
-void func_806C92C4(s16);
-void func_806CF398(Actor *);
-void playerStateQueueCallback(s16, s32, s32);
-void playerStateSetCallbackParameters(s32, s16, s16, s16);
-void func_806F4F50(s16, f32, f32, f32);
-void func_806FB370(u8, u8, u8);
-void func_8070B308(s32);
-s32 func_807146A4(s16);
-void func_807149B8(s32);
-void func_80714B84(s32, f32, s16, s16, s32);
-s32 func_80723020(s32, s16, u8, f32, f32, f32, s32);
-void func_80723284(s32, u8);
-void func_807232EC(s32, u8);
-void func_80723320(s32, s16);
-void func_8072334C(s32, u8);
-void func_80723380(s32, u8);
-void func_80723428(s32);
-void func_80723484(s32);
-void func_807238D4(s32, f32 *, f32 *, f32 *);
-void func_80724994(s32, s16, s16, s32, s32);
-void zoneEntrySetDisabled(u8, u8, u8);
-void volumeTriggerSetEnabled(s16, u8);
-void volumeTriggerSetPosition(s16, s16, s16, s16);
-void proxPathSetEnabled(s16, u8, u8);
-void func_8072EE0C(s16, u8, u8);
-s32 flagGet(s16, s32, s32);
-void flagSet(s16, u8, s32);
-s32 hashTableLookup();
-void lightGetColor(f32 *, f32 *, f32 *, s16);
-void lightSetColor(f32, f32, f32, s16);
-void mapByteArraySet(s16, u8);
-void mapObjectSetByte(s16, u8, u8);
-void modelAnimEntryClearTime(s16, s16);
-void modelAnimEntryResetFrame(s16, s16, s16);
-void modelAnimEntrySetTime(s16, s16, s16, f32);
-void modelAnimEntrySetUnk10(s16, s16, s16);
-void modelAnimEntrySetUnk12(s16, s16, s16);
-void modelAnimEntrySetUnkC();
-void modelAnimEntrySetUnkF(s16, s16, s16);
-void modelAnimEntryStart(s16, s16, s16);
-void modelAnimEntryStop(s16, s16);
-void seqRouteChannelVolume(s32, f32);
-void sfxAllocateChannel(s32, f32);
-void sfxPlayFromTargetSlot(s16, s16, u8, u8, s32, s32, f32);
-void sfxSetChannelTempo(s32, f32);
-void sfxSetVolumeAndPan(u8, f32, f32);
-u8 sfxSlotAllocateSource(s16, s16, s32, s32, u8, f32, s8);
-void sfxStopChannel(s32, s32);
-
+// func_8063FA48 (src/global/42630.c): CsFA48c stage 5-6: deadsweep full 22 (text 22, shape 12). Fixed: spill split sp+56/60 and found a3 via case-0x7E-local 'u8 pan7' + dead 'if (found) {}' before 'found = 0;' and after 'if (D_80748094 > 0) {'. Left: 0x7E ucvt(pan) web wins s0 over vol (higher adjsave), 0x68 &D_807F61F0 a3 vs v0, 0xE/0x7D andi a3,v1,0xff vs move a3,v1. Tried: &x==0 forms, 208 one-line joins, func_806086CC narrow-arg prototypes (256 combos), deadsweep 34528 variants, permuter.
 void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // unused: address-taken csId, keeps found at sp+0xC3
     u8 found;
@@ -288,7 +34,9 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 cx;
     f32 cy;
     f32 cz;
+    u8 pan7;
 
+if (found) {}
     found = 0; 
     switch (cmd->op) {
     case 0x95:
@@ -710,24 +458,25 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         sfxPlayFromTargetSlot(csId, cmd->a, vol, pan, i, c, 0.3f);
         break;
     case 0x7E:
-        pan = (cmd->b / 128) & 0xFF;
+        pan7 = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0xFF;
         c &= 0x7F;
-        if (pan == 0) {
-            pan = 0x7F;
+        if (pan7 == 0) {
+            pan7 = 0x7F;
         }
         if (!vol) {
             vol = 0xFF;
         }
         i = cmd->b & 0x7F;
         if (D_80748094 > 0) {
+            if (found) {}
             pitch = c;
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
-            func_806086CC(sx, sy, sz, cmd->a, vol, pan, i, pitch, 0.3f, 0);
+            func_806086CC(sx, sy, sz, cmd->a, vol, pan7, i, pitch, 0.3f, 0);
         } else {
-            func_80609140(cmd->a, 0x7FFF, 0x427C0000, (u32)pan / 127.0, 0, 0);
+            func_80609140(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
         }
         break;
     case 0x10:
