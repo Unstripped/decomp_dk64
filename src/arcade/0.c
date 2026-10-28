@@ -3385,4 +3385,178 @@ void arcadeSetStageTextColor(s8 arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800319D4.s")
+extern s32 D_8004A83C;
+extern u8 D_8003DA90[];
+typedef struct ArcL8_Slot {
+    u8 pad[0x18];
+} ArcL8_Slot;
+extern ArcL8_Slot D_8004BBF0[];
+#define ArcL8_P6D0 (*(void **)&D_8004C6D0)
+
+void func_800319D4(Gfx **arg0) {
+    s32 i;
+    Gfx *g;
+    char buf[0x50];
+    char *p;
+    u8 n;
+
+    g = *arg0;
+    p = (char *)g++;
+    ((Gfx *)p)->words.w0 = 0xED000000; ((Gfx *)p)->words.w1 = 0x5003C0;
+    p = buf;
+    D_8004C6D4 = 0x400;
+    D_8004C719 = 8;
+    ArcL8_P6D0 = D_8003DA90;
+    D_8004C71A = 8;
+    func_80005A90(&D_8004BBF0[D_807444FC], ArcL8_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    func_8070E8F0((s32 *)&g, &D_8004BBF0[D_807444FC]);
+    func_8070F2C8(0x400, D_8004C6D6, 0, 0);
+    if (D_8004A83C == 0) {
+    }
+    for (i = 0; i < D_8004C71C; i++) {
+        func_8070F2FC((s32 *)&g, i * 0x20 + 0x360, 0x4C);
+    }
+    arcadeSetTextColor(0xFF, 0, 0, 0xFF);
+    if ((D_8004C6D8 & 0x10) || D_8004C724 == 0) {
+        arcadeSetTextPosition(0x48, 0x13);
+        _sprintf((s32)p, "1UP");
+        arcadeDrawString(&g, (s32)p);
+    }
+    arcadeSetTextPosition(0x78, 0x13);
+    _sprintf((s32)p, "HIGH SCORE");
+    arcadeDrawString(&g, (s32)p);
+    arcadeSetTextColor(0, 0, 0xFF, 0xFF);
+    arcadeSetTextPosition(0xD8, 0x1B);
+    _sprintf((s32)p, "L=%02d", D_8004A76C);
+    arcadeDrawString(&g, (s32)p);
+    arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+    arcadeSetTextPosition(0x38, 0x1B);
+    _sprintf((s32)p, "%06d    %06d", D_8004A748, D_8004A760);
+    arcadeDrawString(&g, (s32)p);
+    if (D_8004C724 == 5 || D_8004C724 == 4) {
+        if (D_8004A764 != 0) {
+            if (D_8004C722 == 2) {
+                arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
+            } else if (D_8004C722 == 4) {
+                arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+            } else {
+                arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
+            }
+            arcadeSetTextPosition(0x78, 0xA3);
+            _sprintf((s32)p, "GAME OVER");
+            arcadeDrawString(&g, (s32)p);
+        }
+        if (D_8004C724 == 4) {
+            if (D_8004A768 == 0 || D_8004C722 == 4) {
+                arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+            } else if (D_8004C722 == 2) {
+                arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
+            } else {
+                arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
+            }
+            arcadeSetStageTextColor(0);
+            arcadeSetTextPosition(0x88, 0x8B);
+            _sprintf((s32)p, "RETURN");
+            arcadeDrawString(&g, (s32)p);
+            arcadeSetStageTextColor(1);
+            arcadeSetTextPosition(0x68, 0x9B);
+            _sprintf((s32)p, "DELETE HISCORE");
+            arcadeDrawString(&g, (s32)p);
+            arcadeSetStageTextColor(2);
+            arcadeSetTextPosition(0x68, 0xAB);
+            _sprintf((s32)p, "EXIT DK ARCADE");
+            arcadeDrawString(&g, (s32)p);
+        }
+        if (D_8004C722 == 2) {
+            if (D_8004C71E < 0xA) {
+                arcadeSetTextColor(0, 0, 0xFF, 0xFF);
+            } else {
+                arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
+            }
+        } else if (D_8004C722 == 4) {
+            if (D_8004C71E < 0xA) {
+                arcadeSetTextColor(0xF0, 0x30, 0, 0xFF);
+            } else {
+                arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+            }
+        } else {
+            if (D_8004C71E < 0xA) {
+                arcadeSetTextColor(0xFF, 0, 0, 0xFF);
+            } else {
+                arcadeSetTextColor(0x60, 0xE0, 0xFF, 0xFF);
+            }
+        }
+        arcadeSetTextPosition(0xE0, 0x30);
+        if (D_8004C71E > 0) {
+            i = D_8004C71E;
+        } else {
+            i = 0;
+        }
+        _sprintf((s32)p, "%02d00", i);
+        arcadeDrawString(&g, (s32)p);
+    }
+    if (D_8004C724 == 2) {
+        n = (D_8004C723 & 3) + 1;
+        arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+        arcadeSetTextPosition(0x48, 0xD7);
+        _sprintf((s32)p, "HOW HIGH CAN YOU GET ?");
+        arcadeDrawString(&g, (s32)p);
+        arcadeSetTextPosition(0x58, 0xC9);
+        _sprintf((s32)p, "@%% m");
+        arcadeDrawString(&g, (s32)p);
+        if (n >= 2) {
+            arcadeSetTextPosition(0x58, 0xAD);
+            _sprintf((s32)p, "%%) m");
+            arcadeDrawString(&g, (s32)p);
+        }
+        if (n >= 3) {
+            arcadeSetTextPosition(0x58, 0x91);
+            _sprintf((s32)p, "&%% m");
+            arcadeDrawString(&g, (s32)p);
+        }
+        if (n >= 4) {
+            arcadeSetTextPosition(0x50, 0x75);
+            _sprintf((s32)p, "!)) m");
+            arcadeDrawString(&g, (s32)p);
+        }
+    }
+    if (D_8004C724 == 3) {
+        func_8003159C(&g);
+    }
+    if (D_8004C724 == 0) {
+        if (!(D_8004C6DC & 0x200)) {
+            arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
+            arcadeSetTextPosition(0x70, 0x33);
+            _sprintf((s32)p, "INSERT COIN");
+            arcadeDrawString(&g, (s32)p);
+            arcadeSetTextPosition(0x68, 0x43);
+            _sprintf((s32)p, "PLAYER    COIN");
+            arcadeDrawString(&g, (s32)p);
+            arcadeSetTextPosition(0x78, 0x53);
+            _sprintf((s32)p, "1        1");
+            arcadeDrawString(&g, (s32)p);
+            arcadeSetTextPosition(0x38, 0x7B);
+            _sprintf((s32)p, "RANK  SCORE  NAME");
+            arcadeDrawString(&g, (s32)p);
+            func_8003159C(&g);
+            arcadeSetTextColor(0xFF, 0, 0, 0xFF);
+            arcadeSetTextPosition(0x78, 0x63);
+            _sprintf((s32)p, "2        2");
+            arcadeDrawString(&g, (s32)p);
+        } else {
+            if (D_8004C6DC & 0x182) {
+                arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
+            } else {
+                arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
+            }
+            arcadeSetTextPosition(0x68, 0xD7);
+            _sprintf((s32)p, "c NINTENDO 1981");
+            arcadeDrawString(&g, (s32)p);
+        }
+    }
+    if (&D_8004BBF0[0] != 0) {
+    }
+    *arg0 = g;
+    D_8004A83C++;
+}
+
