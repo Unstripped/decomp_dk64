@@ -78,9 +78,110 @@ void menuResetCameraAndFlags(void *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80027FAC.s")
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_800286C8.s")
+extern s32 *D_80033F28;
+s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80028834.s")
+#ifdef NON_MATCHING
+void *func_80610FE8(s32);
+void heapFreeDeferred(void *);
+s32 func_806FC530(s32, s16, s16, s16, void *, s32);
+
+s32 func_800286C8(void *arg0, Gfx *arg1) {
+    s32 padD4;
+    s32 spD0;
+    s32 padCC;
+    s32 padC8;
+    f32 spC4;
+    f32 spC0;
+    s32 padBC;
+    f32 sp7C[4][4];
+    f32 sp3C[4][4];
+    Mtx *sp38;
+    void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
+
+    D_807FBB60 |= 0x10;
+    gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
+    spD0 = func_800317E8(temp_a0, 160.0f, 20.0f, &spC4, &spC0, 5, 1, 0.3f);
+    sp38 = func_80610FE8(0x40);
+    heapFreeDeferred(sp38);
+    guScaleF(sp7C, 0.7f, 0.7f, 1.0f);
+    guTranslateF(sp3C, spC4 * 4.0, spC0 * 4.0, 0.0f);
+    guMtxCatF(sp7C, sp3C, sp7C);
+    guMtxF2L(sp7C, sp38);
+    arg1->words.w0 = 0xDA380003;
+    arg1->words.w1 = (u32)sp38;
+    return func_806FC530((s32)(arg1 + 1), 1, 0, 0, (void *)D_80033F28[spD0], 0x80);
+}
+#else
+
+#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_800286C8.s")
+#endif
+
+extern s8 D_800337F4;
+extern s8 D_800337F8;
+extern u8 D_8076A0D1[];
+extern s8 D_80033F38;
+extern s8 D_80033F54;
+extern s8 D_80033F55;
+extern s8 D_80033F56;
+extern s16 D_80033F52;
+extern s16 D_800336A4[];
+extern f32 D_80033F58;
+extern f32 D_80033F5C;
+extern u8 D_8072052C;
+extern u8 D_80720C34;
+extern u8 D_80720CF0;
+extern u8 D_80721094;
+extern u8 D_807210EC;
+extern u8 D_80721170;
+extern u8 D_807211D0;
+extern u8 D_80721444;
+void func_80030894(void *, void *, s32, s32, f32, s32, s32);
+s32 func_8060C6B8(s32, s32, u8, s32);
+s32 flagGet(s32, s32);
+
+void func_80028834(void *arg0, s32 arg1) {
+    s8 *temp_s0 = *(s8 **)((u8 *)arg0 + 0x174);
+
+    D_800337F8 = 0;
+    D_800337F4 = 0;
+    *(u8 *)((u8 *)D_807FBB4C + 0x154) = 0x85;
+    *(u8 *)((u8 *)D_807FBB4C + 0x155) = 0;
+    D_80745844 = func_8060C6B8(0x1E, 0, 0, 0);
+    menuSetAudioMode();
+    temp_s0[0x17] = *(s8 *)D_8076A0D1;
+    func_80030894(temp_s0, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
+    func_80030894(temp_s0, (void *)(s32)&D_80721444, 0, 0, 1.2f, 2, 0x12);
+    func_80030894(temp_s0, (void *)(s32)&D_80721444, 1, 0, 1.2f, 2, 0x12);
+    func_80030894(temp_s0, (void *)(s32)&D_80721444, 2, 0, 1.2f, 2, 0x12);
+    func_80030894(temp_s0, (void *)(s32)&D_80721444, 3, 0, 1.2f, 2, 0x12);
+    func_80030894(temp_s0, (void *)(s32)&D_80721444, 4, 0, 1.2f, 2, 0x12);
+    func_80030894(temp_s0, &D_8072052C, 0, 0, 0.6f, 2, 6);
+    func_80030894(temp_s0, &D_807211D0, 1, 0, 0.8f, 2, 6);
+    if (flagGet(0, 1) == 0) {
+        D_80033F38 = 0;
+    }
+    func_80030894(temp_s0, &D_80721094, 2, 0, 0.8f, 2, 7);
+    if (flagGet(0x1C, 1) == 0) {
+        D_80033F38 = 0;
+    }
+    func_80030894(temp_s0, &D_807210EC, 3, 0, 0.6f, 2, 6);
+    func_80030894(temp_s0, &D_80721170, 4, 0, 0.6f, 2, 6);
+    func_80030894(temp_s0, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
+    D_807FBB4C->unk7C = 700.0f;
+    D_807FBB4C->unk80 = 100.0f;
+    D_807FBB4C->unk84 = 70.0f;
+    D_80033F54 = 0;
+    while (D_800336A4[D_80033F54] != -1) {
+        D_80033F54++;
+    }
+    D_80033F52 = 0x1E;
+    D_80033F55 = 0;
+    D_80033F56 = 0;
+    D_80033F5C = 0.0f;
+    D_80033F58 = 1.0f;
+    D_807FBB60 &= 0xFFFEFFFF;
+}
 
 void func_80028C18(void) {
 }
@@ -134,9 +235,60 @@ void menuHandleSelectionInput(void *arg0, s32 arg1) {
     menuUpdateItemTransition(arg0, temp_s0, 1);
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80028D3C.s")
+int _sprintf(char *, const char *, ...);
+Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
+s32 menuCheckSaveFile();
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80028EA8.s")
+s32 func_80028D3C(void *arg0, Gfx *arg1) {
+    void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
+    s32 idx;
+    f32 spFC;
+    f32 spF8;
+    char sp2C[204];
+
+    D_807FBB60 &= ~0x10;
+    gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
+    idx = func_800317E8(temp_a0, 160.0f, 15.0f, &spFC, &spF8, 4, 1, 0.3f);
+    if (idx == 2) {
+        _sprintf(sp2C, "%s", (char *)D_80033F28[5]);
+    } else {
+        if (idx == 3) {
+            idx = 2;
+        }
+        if (menuCheckSaveFile(idx) != 0) {
+            _sprintf(sp2C, "%s", (char *)D_80033F28[6]);
+        } else {
+            _sprintf(sp2C, "%s %d", (char *)D_80033F28[7], idx + 1);
+        }
+    }
+    return (s32)hudDrawScaledText(arg1, (s16)(spFC * 4.0f), (s16)(spF8 * 4.0f), 0.6f, sp2C);
+}
+
+extern s8 D_8076A0D2;
+extern u8 D_80720D14;
+extern u8 D_807204BC;
+
+void func_80028EA8(void *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s0 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+
+    temp_s0->unk17 = D_8076A0D2;
+    func_80030894(temp_s0, &D_80720C34, 0xA0, 0x78, 0.75f, 2, 4);
+    if (menuCheckSaveFile(0) != 0) {
+        D_80033F38 = 0;
+    }
+    func_80030894(temp_s0, (void *)(s32)&D_8072052C, 0, 0, 1.0f, 2, 2);
+    if (menuCheckSaveFile(1) != 0) {
+        D_80033F38 = 0;
+    }
+    func_80030894(temp_s0, (void *)(s32)&D_8072052C, 1, 0, 1.0f, 2, 2);
+    if (menuCheckSaveFile(2) != 0) {
+        D_80033F38 = 0;
+    }
+    func_80030894(temp_s0, (void *)(s32)&D_8072052C, 3, 0, 1.0f, 2, 2);
+    func_80030894(temp_s0, &D_807204BC, 2, 0, 1.0f, 2, 2);
+    func_80030894(temp_s0, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
+    func_80030894(temp_s0, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
+}
 
 
 extern u8 D_80033818;
@@ -205,12 +357,9 @@ s32 func_800297A8(s32 arg0) {
     return arg0 + 0x1EFF0;
 }
 
-extern u8 D_8072052C;
 extern u8 D_80720CF0;
 extern u8 D_80720D14;
-extern u8 D_807204BC;
 extern u8 D_80720C34;
-extern u8 D_807211D0;
 extern void *D_80750518[];
 extern s16 D_807505B2;
 extern u32 D_80750AB0;
@@ -225,7 +374,6 @@ extern s8 D_80033F51;
 extern u32 D_80671880;
 void func_80030894(void *, void *, s32, s32, f32, s32, s32);
 void func_8060DC3C(s32, s32);
-s32 flagGet(s32, s32);
 s32 menuCalculateGamePercentage(void);
 
 #ifdef NON_MATCHING
@@ -281,7 +429,6 @@ void func_800297B8(void *arg0, s32 arg1) {
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_800297B8.s")
 #endif
 
-s32 menuCheckSaveFile();
 
 void menuHandleFileSelectInput(void *arg0, s32 arg1) {
     Menu3A_Struct174 *temp_s0 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
@@ -310,8 +457,6 @@ void menuHandleFileSelectInput(void *arg0, s32 arg1) {
 }
 
 extern s32 *D_80033F28;
-int _sprintf(char *, const char *, ...);
-Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
 
 #ifdef NON_MATCHING
@@ -352,7 +497,6 @@ Gfx *func_80029BB4(void *arg0, Gfx *arg1) {
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80029BB4.s")
 #endif
 
-extern s8 D_80033F38;
 
 void func_80029D30(void *arg0, s32 arg1) {
     Menu3A_Struct174 *temp_s0 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
@@ -450,11 +594,7 @@ Gfx *func_8002A088(void *arg0, Gfx *arg1) {
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002A088.s")
 #endif
 
-void func_80030894(void *, void *, s32, s32, f32, s32, s32);
 extern s8 D_80033FAC;
-extern u8 D_80720CF0;
-extern u8 D_80720D14;
-extern u8 D_80720C34;
 
 void func_8002A36C(void *arg0, s32 arg1) {
     Menu3A_Struct174 *temp_s0 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
@@ -978,8 +1118,6 @@ extern s32 *D_80033F28;
 extern s8 D_8074583C;
 extern s8 D_80745840;
 extern s8 D_80745844;
-s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
-s32 func_806FC530(s32, s16, s16, s16, void *, s32);
 s32 func_8002F980(s32, void *, void *, s32, u32 *, s16, f32 *, f32, s16);
 
 s32 menuFormatOptionValues(void *arg0, s32 arg1) {
@@ -1070,7 +1208,6 @@ typedef struct Menu3R3_StructF28 {
 
 extern s16 D_80033674;
 extern s8 D_800338FC;
-extern s32 *D_80033F28;
 extern s8 D_807444C0;
 extern s8 D_8074452C;
 extern u8 D_80744530;
@@ -1152,7 +1289,6 @@ typedef struct Menu3B_Struct_6 {
 
 extern Menu3B_Struct_6 D_80744548[];
 extern Menu3B_Struct_6 D_80744568[];
-s32 func_8060C6B8(s32, s32, u8, s32);
 s32 func_8060C648(s32, s32, u8, s32, s32);
 void func_8060DEA8(void);
 
@@ -1520,7 +1656,6 @@ extern struct Menu3B_Struct_BB40 *D_807FBB40;
 extern MenuM9_Actor *D_807FBB44;
 extern u8 D_80744514;
 extern u8 D_8076A0D0[];
-extern u8 D_8076A0D1[];
 extern s8 D_80033738;
 extern f32 D_8003369C;
 extern f32 D_80033F3C;
@@ -1641,7 +1776,6 @@ void menuInitGfxState(Gfx *glistp, s32 arg1) {
     func_80030340(arg1, 1, glistp, 0);
 }
 
-extern s8 D_800337F8;
 extern f32 D_80033F40;
 extern void *D_807ECDEC;
 void func_80027FAC();
