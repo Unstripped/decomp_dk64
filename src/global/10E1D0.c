@@ -231,7 +231,58 @@ s32 func_80709ACC(EaSortView *arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_80709ACC.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_80709BC4.s")
+typedef struct L11Cell {
+    s32 v0, v1, v2, st0, st1, st2, texture;
+} L11Cell;
+typedef struct L11Tex {
+    s32 offset, width, height;
+} L11Tex;
+typedef struct L11Info {
+    s32 vertex_count, unk4;
+    f32 *vertices;
+    L11Cell *cells;
+    u8 *screen_vertices[2];
+    s32 *column_counts, *column_ends, *column_starts;
+} L11Info;
+extern L11Tex D_80754F80[];
+extern u16 D_80754FC8[];
+s16 func_8070C200(f32);
+
+void func_80709BC4(Gfx **arg0, L11Info *arg1, u8 *arg2) {
+    Gfx *glist = *arg0;
+    s32 j, k, row, texture, prev, base, count;
+
+    for (j = 0; j < arg1->vertex_count; j++) {
+        ((s16 *)(arg1->screen_vertices[D_807444FC] + j * 0x10))[0] = func_8070C200(arg1->vertices[j * 3]);
+        ((s16 *)(arg1->screen_vertices[D_807444FC] + j * 0x10))[1] = func_8070C200(arg1->vertices[j * 3 + 1]);
+        ((s16 *)(arg1->screen_vertices[D_807444FC] + j * 0x10))[2] = func_8070C200(arg1->vertices[j * 3 + 2]);
+    }
+    k = 0;
+    for (row = 0; arg1->column_counts[row] != 0; row++) {
+        prev = -0x63;
+        base = arg1->column_starts[row];
+        count = arg1->column_ends[row] - base + 1;
+        gSPVertex(glist++, osVirtualToPhysical(arg1->screen_vertices[D_807444FC] + base * 0x10), count, 0);
+        for (j = 0; j < arg1->column_counts[row]; j++) {
+            texture = arg1->cells[k].texture;
+            if (texture != prev) {
+                prev = texture;
+                if (texture < 0) {
+                    texture = -1 - texture;
+                    gDPLoadTextureBlock(glist++, D_80754FC8 + D_80754F80[texture].offset, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80754F80[texture].width, D_80754F80[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                } else {
+                    gDPLoadTextureTile(glist++, arg2 + D_807FD9B4[texture].offset * 2, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, 0, 0, 0, D_807FD9B4[texture].width, D_807FD9B4[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                }
+            }
+            gSPModifyVertex(glist++, arg1->cells[k].v0 - base, G_MWO_POINT_ST, arg1->cells[k].st0);
+            gSPModifyVertex(glist++, arg1->cells[k].v1 - base, G_MWO_POINT_ST, arg1->cells[k].st1);
+            gSPModifyVertex(glist++, arg1->cells[k].v2 - base, G_MWO_POINT_ST, arg1->cells[k].st2);
+            gSP1Triangle(glist++, arg1->cells[k].v0 - base, arg1->cells[k].v1 - base, arg1->cells[k].v2 - base, 0);
+            k++;
+        }
+    }
+    *arg0 = glist;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_8070A220.s")
 
