@@ -284,7 +284,122 @@ void func_80709BC4(Gfx **arg0, L11Info *arg1, u8 *arg2) {
     *arg0 = glist;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_8070A220.s")
+typedef f32 LcMatrix[4][4];
+
+typedef struct LcVec3 {
+    f32 x;
+    f32 y;
+    f32 z;
+} LcVec3;
+
+typedef struct LcModel {
+    s32 unk0;
+    s32 unk4;
+    LcVec3 *vertices;
+} LcModel;
+
+typedef struct LcAnimEntry {
+    s32 kind;
+    s32 group;
+    s32 start;
+    s32 end;
+    f32 scale;
+    u32 source;
+    u32 destination;
+} LcAnimEntry;
+
+typedef struct LcAnim {
+    s32 *counts;
+    u16 **indices;
+    LcAnimEntry *entries;
+} LcAnim;
+
+void mtxMulAffineF(f32 *, f32 *, f32 *);
+void mtxRotateZDegF(f32 *, f32);
+void func_8070D07C(f32 *, f32 *, f32, f32, f32, f32, f32, f32);
+
+#define LC_MODEL ((LcModel *)arg0)
+#define LC_ANIM ((LcAnim *)arg1)
+
+void func_8070A220(void *arg0, s32 arg1, s32 frame) {
+    u32 sidx;
+    u32 didx;
+    LcMatrix m1B8;
+    LcMatrix m178;
+    LcMatrix m138;
+    LcMatrix mF8;
+    LcMatrix mB8;
+    s16 idx;
+    s32 i;
+    s32 count;
+    u16 *indices;
+    s32 end;
+    LcVec3 *src;
+    LcVec3 *dst;
+    f32 angle;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 x;
+    f32 y;
+    f32 z;
+    u32 j;
+    s32 kindv;
+    if (i && i) {}
+
+    idx = 0;
+    while (LC_ANIM->entries[idx].kind != 0) {
+        end = frame;
+        if (frame < LC_ANIM->entries[idx].start) {
+            goto next;
+        }
+        kindv = LC_ANIM->entries[idx].kind;
+        if (i && i) {}
+        if (LC_ANIM->entries[idx].end < frame) {
+            end = LC_ANIM->entries[idx].end;
+        }
+        switch (kindv) {
+        case 1:
+                sidx = LC_ANIM->entries[idx].source;
+                didx = LC_ANIM->entries[idx].destination;
+                src = &LC_MODEL->vertices[sidx];
+                dst = &LC_MODEL->vertices[didx];
+                dx = dst->x - src->x;
+                if (1) {
+                    dy = dst->y - src->y;
+                    dz = dst->z - src->z;
+                    angle = (f32)(LC_ANIM->entries[idx].start - end) * LC_ANIM->entries[idx].scale;
+                }
+                func_8070D07C(&m1B8[0][0], &m138[0][0],
+                    -dx, -dy, -dz,
+                    -src->x, -src->y, -src->z);
+                mtxRotateZDegF(&m178[0][0], angle);
+                mtxMulAffineF(&m178[0][0], &m1B8[0][0], &mB8[0][0]);
+                mtxMulAffineF(&m138[0][0], &mB8[0][0], &mF8[0][0]);
+                count = LC_ANIM->counts[LC_ANIM->entries[idx].group];
+                indices = LC_ANIM->indices[LC_ANIM->entries[idx].group];
+                for (i = 0; i < count; i++) {
+                    j = indices[i];
+                    x = LC_MODEL->vertices[j].x;
+                    y = LC_MODEL->vertices[j].y;
+                    z = LC_MODEL->vertices[j].z;
+                    LC_MODEL->vertices[j].x = x * mF8[0][0] + y * mF8[1][0] + z * mF8[2][0] + mF8[3][0];
+                    LC_MODEL->vertices[j].y = x * mF8[0][1] + y * mF8[1][1] + z * mF8[2][1] + mF8[3][1];
+                    LC_MODEL->vertices[j].z = x * mF8[0][2] + y * mF8[1][2] + z * mF8[2][2] + mF8[3][2];
+                }
+            break;
+        case 2:
+            sidx = LC_ANIM->entries[idx].source;
+            didx = LC_ANIM->entries[idx].destination;
+            LC_MODEL->vertices[sidx].x = LC_MODEL->vertices[didx].x;
+            LC_MODEL->vertices[sidx].y = LC_MODEL->vertices[didx].y;
+            LC_MODEL->vertices[sidx].z = LC_MODEL->vertices[didx].z;
+            break;
+        }
+next:
+        idx++;
+    }
+}
 
 void func_8070A848(s32 *arg0, s32 *arg1) {
     s32 i;
@@ -563,7 +678,7 @@ extern Gfx D_1000020[];
 extern Mtx D_2000000;
 extern Mtx D_2000200;
 
-void func_8070A220(EbBufferSet *, s32, s32);
+void func_8070A220(void *, s32, s32);
 void n_alSndpPostEvent();
 void n_alSndpStop(s32);
 
