@@ -276,7 +276,155 @@ void func_80024524(u8 arg0, s16 arg1) {
 }
 
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/0/func_80024568.s")
+typedef struct BsA7d_Obj {
+    u8 pad0;
+    u8 cnt[5];
+    u8 state[5];
+    u8 pad0B;
+    s16 ang[5];
+    u8 pad16[2];
+    f32 f1[5];
+    f32 f2[5];
+} BsA7d_Obj;
+
+void func_8068A764(void *, u8);
+void func_8068A784(void *, u8);
+void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
+void sfxStopSlotSound();
+void actorScriptStart(void *, s32);
+
+typedef struct BsA7d_Act {
+    u8 pad0[0x154];
+    u8 unk154;
+} BsA7d_Act;
+
+#define A154 (((BsA7d_Act *)D_807FBB40)->unk154)
+#define BB ((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)
+#define OBJ ((BsA7d_Obj *)arg0)
+
+u8 func_80024568(u8 *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
+    u8 ret;
+    BossA_Struct_8002413C_1 *p1;
+    BossA_Struct_8002413C_1 *p2;
+    BossA_Struct_807FBB40 *sp3C;
+
+    sp3C = D_807FBB40;
+    ret = 0;
+    p1 = &sp3C->sub->arr1[arg1];
+    p2 = &sp3C->sub->arr2[arg1];
+    switch (OBJ->state[arg1]) {
+    case 5:
+        OBJ->f1[arg1] = 30.0f;
+        OBJ->ang[arg1] = arg1 * 0x800 + 0x400;
+        OBJ->f2[arg1] = 100.0f;
+        OBJ->state[arg1] = 6;
+    case 6:
+        p1->x += OBJ->f1[arg1] * func_80612794(OBJ->ang[arg1]);
+        p1->z += OBJ->f1[arg1] * func_80612790(OBJ->ang[arg1]);
+        p1->y += OBJ->f2[arg1];
+        OBJ->f2[arg1] -= 10.0f;
+        if (OBJ->f2[arg1] < -200.0f) {
+            OBJ->f2[arg1] = -200.0f;
+        }
+        if (p1->y < -300.0f) {
+            p1->y = -300.0f;
+            if (-50.0f < OBJ->f2[arg1]) {
+                func_8067E2E4(D_807FBB40, (u8)(arg1 + 1), 1.5f);
+                func_8068A784(D_807FBB40, arg1);
+                OBJ->state[arg1] = 0;
+                ret = 1;
+                break;
+            }
+            if (!arg1) {
+                func_806086CC(BB->unk7C, BB->unk80, BB->unk84, 0x36, (u32)(120.0f - OBJ->f2[arg1] > 255.0f ? 255.0f : 120.0f - OBJ->f2[arg1]), 0x7F, 0x28, 0, 0.3f, 0);
+            }
+            OBJ->f2[arg1] *= -0.5;
+        }
+        break;
+    case 1:
+        switch (arg1) {
+        case 0:
+            sfxPlayActorSound(D_807FBB40, 0x127, 0, 1, 1, 0xFF, 1.0f, 0);
+            break;
+        case 2:
+            sfxPlayActorSound(D_807FBB40, 0x127, 0, 1, 1, 0xFF, 1.1f, 0);
+            break;
+        case 4:
+            sfxPlayActorSound(D_807FBB40, 0x127, 0, 1, 1, 0xFF, 1.3f, 0);
+            break;
+        }
+        func_8068A764(D_807FBB40, arg1);
+        OBJ->state[arg1] = 2;
+        OBJ->cnt[arg1] = 0;
+    case 2:
+        if ((f32)++OBJ->cnt[arg1] < arg2) {
+            f32 t = (f32)OBJ->cnt[arg1] / arg2;
+            p1->x = D_800358E0[0][arg1].x + (-D_800358E0[0][arg1].x) * t;
+            p1->y = D_800358E0[0][arg1].y + (-D_800358E0[0][arg1].y) * t;
+            p1->z = D_800358E0[0][arg1].z + (-D_800358E0[0][arg1].z) * t;
+        } else if (arg2 == (f32)OBJ->cnt[arg1]) {
+            switch (arg1) {
+            case 0:
+            case 2:
+            case 4:
+                sfxStopSlotSound(D_807FBB40, 1);
+                break;
+            }
+        } else if (arg3 == (f32)OBJ->cnt[arg1]) {
+            switch (A154) {
+            case 0x27:
+                actorScriptStart(D_807FBB40, 0x264);
+                break;
+            case 0x2E:
+                actorScriptStart(D_807FBB40, 0x265);
+                break;
+            default:
+                actorScriptStart(D_807FBB40, 0x266);
+                break;
+            }
+        } else if (arg3 + 1.0f == (f32)OBJ->cnt[arg1]) {
+            p2->x = 1.0f;
+            p2->y = 1.0f;
+            p2->z = 1.0f;
+        } else if (arg4 < (f32)OBJ->cnt[arg1]) {
+            ret = 1;
+            OBJ->state[arg1] = 0;
+        }
+        break;
+    case 3:
+        switch (arg1) {
+        case 0:
+            sfxPlayActorSound(D_807FBB40, 0x127, 0, 1, 1, 0xFF, 1.0f, 0);
+            break;
+        case 2:
+            sfxPlayActorSound(D_807FBB40, 0x127, 0, 1, 1, 0xFF, 1.1f, 0);
+            break;
+        }
+        OBJ->state[arg1] = 4;
+        OBJ->cnt[arg1] = arg4;
+    case 4:
+        if (arg2 < (f32)--OBJ->cnt[arg1]) {
+            p2->x = p2->x + (D_800358E0[0][arg1].rotX - p2->x) * 0.08;
+            p2->y = p2->y + (D_800358E0[0][arg1].rotY - p2->y) * 0.08;
+            p2->z = p2->z + (D_800358E0[0][arg1].rotZ - p2->z) * 0.09;
+        } else if (OBJ->cnt[arg1] > 0) {
+            f32 t = (f32)OBJ->cnt[arg1] / arg2;
+            p1->x = D_800358E0[0][arg1].x + (-D_800358E0[0][arg1].x) * t;
+            p1->y = D_800358E0[0][arg1].y + (-D_800358E0[0][arg1].y) * t;
+            p1->z = D_800358E0[0][arg1].z + (-D_800358E0[0][arg1].z) * t;
+        } else {
+            func_8068A784(D_807FBB40, arg1);
+            OBJ->state[arg1] = 0;
+            if (arg1 == 0 || arg1 == 2) {
+                sfxStopSlotSound(D_807FBB40, 1);
+            }
+            ret = 1;
+        }
+        break;
+    }
+    return ret;
+}
+
 
 typedef struct BossA_Struct_80024EAC_DC90 {
     u8 pad0[8];
@@ -294,7 +442,6 @@ extern BossA_Struct_80024EAC_DC90 *D_807FDC90;
 extern BossA_Struct_80024EAC_DC94 *D_807FDC94;
 
 void func_80614D00(void *, f32, f32);
-void actorScriptStart(void *, s32);
 s32 func_806CC10C(s16, s16);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 
@@ -576,8 +723,6 @@ void func_80027770();
 void func_80027840();
 void func_80027BA8(u8 *, s32, f32);
 void bossSpawnParticleRing();
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-void sfxStopSlotSound();
 s32 randomNonNegative();
 void func_80613C48(void *, s16, f32, f32);
 void func_80613CA8(s32, s16, f32, f32);
