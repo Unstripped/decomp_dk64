@@ -1,9 +1,5 @@
-// func_8064A258 (src/global/478F0.c): CsB9 stage 4 (parked NON_MATCHING in my copy): frame 0xD8 + all stack offsets match except rem (0x90 vs target 0x60, compiler temp ordering); init li/reg scheduling, s1/s2 swap for i, loop-end ok/sixth branch order, and needs u8 prototypes: modelSlotGetNodePos(s32,u8,...) and sfxSlotAllocateSource(s16,s32,s32,u8,...) (andi a1/a3,s4,0xff). Multi-line unrolled init loop matches.
-extern u64 D_807445B0;
+// func_8064A258 (src/global/478F0.c): CsNM3 stage 4 (interim): diff 10 lines vs target (rem slot 0x60 fixed via named u64 elapsed + t->left store/compare; ok |= sixth; || allDone; for(i=0,e=t..) loop). Remaining: init li t0,2 before sb 60(v0); slot!=-1 block beq+sll delay vs beql+lw; tail lw hi/lw lo/lbu allDone order.
 extern u64 osGetTime(void);
-void heapFreeDeferred(void *);
-void renderCallbacksRegister(void *, void *, s32);
-void func_8068DBA4(void);
 typedef struct CsB9FxEnt {
     /* 0x0 */ u8 state;
     /* 0x1 */ u8 pad1;
@@ -44,9 +40,9 @@ typedef struct CsB9FxView {
 } CsB9FxView;
 extern f32 D_80770BC0[];
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
-void modelAnimEntrySetUnkC();
+void modelAnimEntrySetUnkC(s16, s16, s16);
 void modelAnimEntrySetTime(s16, s16, s16, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 
 void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 u1; /* unused: reserves frame slots */
@@ -66,7 +62,8 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 timerRan;
     s32 g1;
     s32 g2;
-    s64 rem;
+    u64 elapsed;
+    s32 g3;
 
     allDone = 1;
     timerRan = 0;
@@ -96,9 +93,7 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     t = *(CsB9Fx **)cs;
     t->last += D_807445B0;
-    e = (CsB9FxRow *)t;
-    i = 0;
-    do {
+    for (i = 0, e = (CsB9FxRow *)t; i != 9; i++, e = (CsB9FxRow *)((u8 *)e + 6)) {
         if (e->active != 0) {
             count++;
             modelAnimEntryGetState(csId, i + 1, &st, &frac, &spC7);
@@ -116,12 +111,11 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         ok = e->state == 0;
         sixth = i == 6 && e->state == 2;
-        i++;
-        if (e->active != 0 || !(u8)(ok | sixth)) {
+        ok |= sixth;
+        if (e->active != 0 || ok == 0) {
             allDone = 0;
         }
-        e = (CsB9FxRow *)((u8 *)e + 6);
-    } while (i != 9);
+    }
     if (timerRan != 0) {
         t->last = osGetTime();
     }
@@ -144,9 +138,9 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     if (t->cool != 0) {
         t->cool--;
     }
-    rem = t->duration - (osGetTime() - t->last) * 64 / 3000 / 1000000;
-    t->left = rem;
-    if (rem == 0 || allDone != 0) {
+    elapsed = (osGetTime() - t->last) * 64;
+    t->left = t->duration - elapsed / 3000 / 1000000;
+    if (t->left == 0 || allDone) {
         heapFreeDeferred(*(CsB9Fx **)cs);
         if (allDone != 0) {
             cs->unk4B[0] = 0x28;

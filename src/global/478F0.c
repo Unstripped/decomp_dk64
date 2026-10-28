@@ -1907,21 +1907,329 @@ void func_806491F4(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806493C4.s")
+void func_8071F660(void);
+extern u8 D_80721298[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064954C.s")
+void func_806493C4(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 i;
+    u8 idx;
+
+    for (i = 0; i < b; i++) {
+        idx = (randomNonNegative() >> 15) % 32767 % (c + 1);
+        func_807149B8(1);
+        func_807149A8(0x7D0);
+        func_8071498C(func_8071F660);
+        func_807149FC(8);
+        func_80714CC0(D_80721298, 1.0f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
+    }
+}
+extern u16 D_807446C0[];
+extern u16 D_807FC930[];
+
+void func_8064954C(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 i;
+    s32 v;
+    s32 n;
+    s32 t;
+
+    n = func_805FF030(D_8076A0AB, 0);
+    if (n >= 8) {
+        n = 7;
+    }
+    v = D_807446C0[n] - D_807FC930[n];
+    if (v < 0) {
+        v = 0;
+    }
+    t = v;
+    for (i = 1; i != 4; i++) {
+        modelSlotSetNodeFrame(csId, i, (10 - i + t % 10) % 10, 0);
+        t /= 10;
+    }
+}
+
+#ifdef NON_MATCHING
+void func_8071F8E4(void);
+
+typedef struct CsB8Cam {
+    /* 0x000 */ u8 pad0[0x220];
+    /* 0x220 */ f32 unk220;
+    /* 0x224 */ f32 unk224;
+    /* 0x228 */ f32 unk228;
+    /* 0x22C */ f32 unk22C;
+    /* 0x230 */ f32 unk230;
+    /* 0x234 */ f32 unk234;
+} CsB8Cam;
+
+typedef struct CsB8Obj {
+    /* 0x000 */ u8 pad0[0x384];
+    /* 0x384 */ void *unk384;
+} CsB8Obj;
+
+typedef struct CsB8Part {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ f32 unk1C;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ f32 unk24;
+} CsB8Part;
+
+void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
+    CsB8Cam *p;
+    CsB8Obj *obj;
+    CsB8Part *q;
+    s32 flag;
+    s16 ang;
+    s32 i;
+    f32 t;
+    volatile f32 sinA;
+    volatile f32 ex;
+    volatile f32 ez;
+    f32 negCos;
+    volatile f32 xs;
+    volatile f32 px;
+    volatile f32 zo;
+    volatile f32 py;
+    volatile f32 xo;
+    volatile f32 pz;
+    void (*cb)(void);
+
+    ang = D_807F622C * 4096.0f / 360.0f;
+    if (c == 2) {
+        func_807149B8(0);
+        func_80714CC0(D_80720A7C, 0.5f, func_806119FC() * 35.0 + D_807F621C - 15.0, func_806119FC() * 35.0 + D_807F6220, func_806119FC() * 35.0 + D_807F6224 - 15.0);
+        return;
+    }
+    p = (CsB8Cam *)D_807FC924->unk4->unk174;
+    p->unk22C = D_807F621C;
+    p->unk230 = D_807F6220 + 15.0;
+    p->unk234 = D_807F6224;
+    p->unk220 = func_80612794(ang);
+    p->unk224 = ang;
+    p->unk228 = func_80612790(ang);
+    if (c == 0) {
+        flag = 1;
+        func_80609140(0xF2, 0x5DC0, 63.0f, 1.0f, 0, 0);
+    } else {
+        flag = 0;
+        func_80609140(0x2EB, 0x7D00, 63.0f, 0.6f, 0, 0);
+    }
+    sinA = p->unk220;
+    negCos = -p->unk228;
+    pz = D_807F6224;
+    px = D_807F621C;
+    py = D_807F6220 + 15.0;
+    ex = p->unk220 * 50.0 + px;
+    ang = 0;
+    cb = func_8071F8E4;
+    ez = p->unk228 * 50.0 + pz;
+    for (i = 0; i != 4; i++) {
+        t = func_80612790(ang) * 100.0;
+        xs = t * negCos + ex;
+        xo = t * sinA + ez;
+        zo = func_80612794(ang) * 100.0 + py;
+        ang += 0x400;
+        func_807149FC(-1);
+        func_807149B8(0);
+        func_8071498C(cb);
+        obj = (CsB8Obj *)func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
+        q = func_80610FE8(0x28);
+        obj->unk384 = q;
+        q->unk4 = 0.0f;
+        q->unk0 = (randomNonNegative() >> 15) % 5 + 10;
+        q->unk8 = xs;
+        q->unkC = zo;
+        q->unk10 = xo;
+        q->unk14 = px - xs;
+        q->unk18 = py - zo;
+        q->unk20 = 0.0f;
+        q->unk1C = pz - xo;
+        if (flag != 0) {
+            q->unk24 = 0.09090909f;
+        } else {
+            q->unk24 = 0.033333335f;
+        }
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806496B0.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80649BF0.s")
+s32 func_806418E8(s16, s16, s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80649D74.s")
+extern s16 D_80748180[][2];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80649E00.s")
+typedef struct CsB8BF0State {
+    /* 0x0 */ s32 cnt;
+    /* 0x4 */ s32 prev;
+} CsB8BF0State;
+
+void func_80649BF0(CsState *cs, s16 csId, s16 b, s16 c) {
+    CsB8BF0State *st;
+    u8 found;
+    s32 eq;
+    s32 ok;
+    s32 i;
+    s32 prev;
+    s32 d;
+
+    d = *((u8 *)cs + 0x48);
+    if (*(CsB8BF0State **)cs == NULL) {
+        st = func_80610FE8(8);
+        *(CsB8BF0State **)cs = st;
+        st->cnt = 0;
+        st->prev = -1;
+    }
+    st = *(CsB8BF0State **)cs;
+    prev = st->prev;
+    if (prev == -1) {
+        st->prev = *((u8 *)cs + 0x48);
+    } else {
+        ok = 0;
+        if (st->prev & 1) {
+            if (*((u8 *)cs + 0x48) + 1 == (*st).prev) {
+                ok = 1;
+            }
+        } else {
+            eq = *((u8 *)cs + 0x48) == (*st).prev + 1;
+            if (eq) {
+                ok = 1;
+            }
+        }
+        if (ok) {
+            if (++st->cnt == 8) {
+                *((u8 *)cs + 0x4B) = 100;
+            }
+        } else {
+            i = (found = 0);
+            while (!found) {
+                if (D_80748180[i][0] == (*st).prev) {
+                    found = 1;
+                } else {
+                    i++;
+                }
+            }
+            func_806418E8(D_80748180[i][1], 0x28, 0);
+            i = 0;
+            found = 0;
+            while (!found) {
+                if (D_80748180[i][0] == *((u8 *)cs + 0x48)) {
+                    found = 1;
+                } else {
+                    i++;
+                }
+            }
+            func_806418E8(D_80748180[i][1], 0x28, 0);
+        }
+        st->prev = -1;
+    }
+}
+
+typedef struct CsB8Slot {
+    /* 0x00 */ u8 pad0[0x7C];
+    /* 0x7C */ void *unk7C;
+    /* 0x80 */ u8 pad80[0xA];
+    /* 0x8A */ s16 unk8A;
+    /* 0x8C */ u8 pad8C[4];
+} CsB8Slot; /* 0x90 */
+
+extern s16 D_807481C0[][2];
+
+void func_80649D74(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 key;
+    s32 found;
+    s16 (*p)[2];
+
+    key = ((CsB8Slot *)D_807F6000)[hashTableLookup(csId)].unk8A;
+    found = 0;
+    p = D_807481C0;
+    do {
+        if (key == (*p)[0]) {
+            found = 1;
+        } else {
+            p++;
+        }
+    } while (found == 0);
+    func_806418E8(0x3D, (*p)[1], 1);
+}
+
+void func_80649E00(CsState *cs, s16 csId, s16 b, s16 c) {
+    cs->unk14[0] = *((u8 *)cs + 0x49);
+}
+
+#ifdef NON_MATCHING
+extern s16 D_807F6240[];
+extern s16 D_807481F4[];
+extern s16 D_807481F6[];
+extern u8 D_80748212[];
+void func_8064199C(void *, s16, s16);
+
+typedef struct CsB8E34State {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s32 unk4;
+} CsB8E34State;
+
+void func_80649E34(CsState *cs, s16 csId, s16 b, s16 c)
+{
+  CsB8E34State *st;
+  s32 found;
+  s16 new_var2;
+  long new_var;
+  s16 *p;
+  s32 d;
+  if ((*((CsB8E34State **) cs)) == 0)
+  {
+    st = func_80610FE8(8);
+    *((CsB8E34State **) cs) = st;
+    st->unk0 = 0;
+    st->unk4 = 0;
+  }
+  st = *((CsB8E34State **) cs);
+  found = 0;
+  if ((*(((u8 *) cs) + 0x49)) != (*st).unk4)
+  {
+    p = D_807481F4;
+    do
+    {
+      if ((*p) == (*(((u8 *) cs) + 0x49)))
+      {
+        found = 1;
+      }
+      else
+      {
+        p++;
+      }
+    }
+    while (found == 0);
+    new_var2 = p[1];
+    if (((u32) p) < (new_var = (u32) D_80748212))
+    {
+      if (1)
+      {
+        func_806418E8(new_var2, 0xA, 0);
+        func_8064199C(((CsB8Slot *) D_807F6000)[hashTableLookup(D_807F6240[p[1]])].unk7C, 0, 0);
+      }
+    }
+    if (((u32) p) >= ((u32) D_807481F6))
+    {
+      func_806418E8(p[-1], 0x14, 0);
+    }
+    st->unk4 = *(((u8 *) cs) + 0x49);
+  }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80649E34.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80649F64.s")
+void func_80649F64(CsState *cs, s16 csId, s16 b, s16 c) {
+    func_806418E8(0x5F, ((CsB8Slot *)D_807F6000)[hashTableLookup(csId)].unk8A, 1);
+}
 
 typedef struct CsB9Timer {
     /* 0x00 */ u64 last;
@@ -1971,7 +2279,6 @@ typedef struct CsB9Slot {
     /* 0x8C */ u8 pad8C[4];
 } CsB9Slot; /* 0x90 */
 extern u8 D_80748214[];
-s32 func_806418E8(s16, s16, s16);
 void func_806BD094(s16, s8);
 
 void func_8064A194(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -3340,8 +3647,6 @@ void func_8064D418(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern u16 D_807FC930[];
-extern u16 D_807446C0[];
 
 void func_8064D880(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 t;

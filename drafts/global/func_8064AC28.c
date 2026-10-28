@@ -1,11 +1,9 @@
-// func_8064AC28 (src/global/478F0.c): CsB10 stage 4: frame 0xa8 + callee-saved set OK, whole body shape matches. Needs modelSlotGetNodePos 2nd param u8 (target 'andi a1,s5,0xff'; s32 gives li a1,1). Remaining diffs: init-loop p copy regs (target a0=p prefix/v1=p loop base, loop-2 pointer in s0; mine a0 only + temp v0), ldc1 f20 before move s0/s1, lui at hoist before li s3,-1. Needs: chain 'p = *(T**)cs = func_80610FE8(0x50)', one-line for loop for state=3, i++ after the allDone if, locals order p,e,j,anim,animT,animFlag,i,pl,best,allDone,n,x,y,z,d,bestD. deadsweep: no improvement.
-void heapFreeDeferred(void *);
+// func_8064AC28 (src/global/478F0.c): CsNM3 stage 4 (interim): 19 insn diff, regs only: p/e pointer webs at the init join (target v1/a0 pair: then `move a0,v1`, else `move v1,a0`, second init loop base v1 -> s0 directly, no PRE'd `addiu a0,p,6`). Found: for(i=0,e=p;..) main loop, bestD/best/i assigned INSIDE `if (csId == pl->unk10C)` block (order bestD,best,i) fixes li s3,-1/lwc1 order.
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 void modelAnimEntrySetTime(s16, s16, s16, f32);
 void modelAnimEntrySetUnkC(s16, s16, s16);
 void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void func_8063DA40(s16, s16);
-s32 flagGet(s32, s32);
 extern u8 D_8074E77C;
 typedef struct CsB10Part {
     /* 0x0 */ u8 state;
@@ -64,16 +62,14 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         p->part[0].timer = 10;
         p->part[0].active = 1;
-        for (i = 1; i < 9; i++) {
-            p->part[i].active = 1;
-            p->part[i].timer = 10;
+        for (i = 1, e = (CsB10W *)((u8 *)p + 6); i < 9; i++, e = (CsB10W *)((u8 *)e + 6)) {
+            e->active = 1;
+            e->timer = 10;
         }
         p->unk4F = 0;
     }
     p = *(CsB10Set **)cs;
-    e = (CsB10W *)p;
-    i = 0;
-    do {
+    for (i = 0, e = (CsB10W *)p; i < 9; i++, e = (CsB10W *)((u8 *)e + 6)) {
         if (e->active != 0) {
             j = i + 1;
             n++;
@@ -92,19 +88,17 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         if (e->active != 0 || e->state != 3) {
             allDone = 0;
         }
-        i++;
-        e = (CsB10W *)((u8 *)e + 6);
-    } while (i < 9);
+    }
     if (flagGet(0x146, 0) != 0) {
         p->unk4F = 0x14;
     }
     if (p->unk4F == 0) {
         pl = D_807FC924->unk4;
         if (pl->unk154 == 0x1C && pl->unk155[0] < 7 && D_8074E77C == 0 && pl->unk110 == 1) {
-            best = -1;
-            bestD = 100000.0f;
-            i = 0;
             if (csId == pl->unk10C) {
+                bestD = 100000.0f;
+                best = -1;
+                i = 0;
                 do {
                     modelSlotGetNodePos(csId, 1, i + 1, &x, &y, &z);
                     x = D_807FBB4C->unk7C - x;
