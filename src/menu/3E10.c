@@ -181,7 +181,81 @@ s32 func_800297A8(s32 arg0) {
     return arg0 + 0x1EFF0;
 }
 
+extern u8 D_8072052C;
+extern u8 D_80720CF0;
+extern u8 D_80720D14;
+extern u8 D_807204BC;
+extern u8 D_80720C34;
+extern u8 D_807211D0;
+extern void *D_80750518[];
+extern s16 D_807505B2;
+extern u32 D_80750AB0;
+extern u8 D_807FC950[][0x5E];
+extern s8 D_80033804;
+extern s8 D_80033805;
+extern s32 D_8003380C;
+extern s32 D_80033810;
+extern u32 D_80033814;
+extern f32 D_80033F4C;
+extern s8 D_80033F51;
+extern u32 D_80671880;
+void func_80030894(void *, void *, s32, s32, f32, s32, s32);
+void func_8060DC3C(s32, s32);
+s32 flagGet(s32, s32);
+s32 menuCalculateGamePercentage(void);
+
+#ifdef NON_MATCHING
+void func_800297B8(void *arg0, s32 arg1) {
+    Menu3A_Struct174 *temp_s6 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
+    u8 *row = D_807FC950[0];
+    s8 *p;
+    s16 *q;
+    s8 *p2;
+    void *a1;
+    u32 sp64;
+    s32 i;
+    s32 k;
+    s32 j;
+
+    func_80030894(temp_s6, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
+    func_80030894(temp_s6, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
+    func_80030894(temp_s6, &D_8072052C, 0x76, 0x91, 0.6f, 2, 9);
+    D_80033F4C = 1600.0f;
+    func_8060DC3C((u8)D_80033F48, 0);
+    D_80033804 = 1;
+    for (i = 0; i < 4; i++) {
+        (&D_80033805)[i] = flagGet((&D_807505B2)[i - 1], 0);
+    }
+    p2 = &D_80033804;
+    for (i = 0; i != 5; i++) {
+        if (*p2 != 0) {
+            a1 = D_80750518[i];
+        } else {
+            a1 = &D_807211D0;
+        }
+        func_80030894(temp_s6, a1, i, i, 0.8f, 2, 0xF);
+        p2++;
+    }
+    osPiReadIo(func_800297A8(0xAFFE1464), &sp64);
+    if (sp64 != func_800297A8(0x0107183B)) {
+        D_80671880 = 0x03E00008;
+    }
+    D_8003380C = 0;
+    for (k = 0; k != 5; k++) {
+        for (j = 0; j != 8; j++) {
+            D_8003380C += *(u16 *)(row + 0x42 + j * 2);
+        }
+        row += 0x5E;
+    }
+    D_80033814 = D_80750AB0 / 60;
+    D_80033810 = (s32)D_80033814 / 60;
+    D_80033814 = D_80033814 - D_80033810 * 60;
+    D_80033F51 = menuCalculateGamePercentage();
+}
+#else
+
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_800297B8.s")
+#endif
 
 s32 menuCheckSaveFile();
 
@@ -211,9 +285,74 @@ void menuHandleFileSelectInput(void *arg0, s32 arg1) {
     menuUpdateItemTransition(arg0, temp_s0, 1);
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80029BB4.s")
+extern s32 *D_80033F28;
+int _sprintf(char *, const char *, ...);
+Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
+s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80029D30.s")
+#ifdef NON_MATCHING
+Gfx *func_80029BB4(void *arg0, Gfx *arg1) {
+    void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
+    s32 sp120;
+    f32 sp118;
+    f32 sp114;
+    f32 sp110;
+    f32 sp10C;
+    f32 sp108;
+    f32 sp104;
+    s16 spFE;
+    char sp34[200];
+    s32 y;
+
+    arg1->words.w1 = -1;
+    arg1->words.w0 = 0xFA000000;
+    sp120 = func_800317E8(temp_a0, 160.0f, 25.0f, &sp110, &sp10C, 3, 1, 0.45f);
+    arg1 += 1;
+    spFE = (s16)(sp110 * 4.0f);
+    y = (s32)(sp10C * 4.0f);
+    if (menuCheckSaveFile(sp120) != 0) {
+        _sprintf(sp34, "%s", (char *)D_80033F28[6]);
+    } else {
+        _sprintf(sp34, "%s %d", (char *)D_80033F28[7], sp120 + 1);
+    }
+    return hudDrawScaledText(
+        hudDrawScaledText(arg1, spFE, (s16)y, 0.6f, sp34),
+        (s16)(sp110 * 4.0f),
+        (s16)((s16)y - 0x3C),
+        0.6f,
+        (char *)D_80033F28[8]
+    );
+}
+#else
+
+#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80029BB4.s")
+#endif
+
+extern s8 D_80033F38;
+
+void func_80029D30(void *arg0, s32 arg1) {
+    Menu3A_Struct174 *temp_s0 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
+    void *sp34;
+
+    temp_s0->unk17 = 0;
+    func_80030894(temp_s0, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
+    func_80030894(temp_s0, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
+    if (menuCheckSaveFile(0) != 0) {
+        D_80033F38 = 0;
+    }
+    sp34 = (void *)(s32)&D_8072052C;
+    func_80030894(temp_s0, sp34, 0, 0, 1.0f, 2, 3);
+    if (menuCheckSaveFile(1) != 0) {
+        D_80033F38 = 0;
+    }
+    func_80030894(temp_s0, sp34, 1, 0, 1.0f, 2, 3);
+    if (menuCheckSaveFile(2) != 0) {
+        D_80033F38 = 0;
+    }
+    func_80030894(temp_s0, sp34, 2, 0, 1.0f, 2, 3);
+    func_80030894(temp_s0, &D_807204BC, 0xA0, 0x78, 1.0f, 2, 4);
+    func_80030894(temp_s0, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
+}
 
 extern u8 D_8071FBC8;
 extern u8 D_8071FE08;
@@ -250,13 +389,47 @@ void menuMysteryHandleInput(void *arg0, s32 arg1) {
     menuUpdateItemTransition(arg0, temp_s0, 1);
 }
 
+
+#ifdef NON_MATCHING
+Gfx *func_8002A088(void *arg0, Gfx *arg1) {
+    void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
+    s32 sp124;
+    s32 sp120;
+    s32 sp11C;
+    f32 sp118;
+    f32 sp114;
+    s32 sp110;
+    s32 sp10C;
+    s16 sp106;
+    char sp3C[200];
+    s16 y;
+
+    arg1->words.w1 = -1;
+    arg1->words.w0 = 0xFA000000;
+    func_800317E8(temp_a0, 160.0f, 25.0f, &sp118, &sp114, 5, 0, 0.45f);
+    arg1 += 1;
+    sp106 = (s16)(sp118 * 4.0f);
+    y = (s16)(sp114 * 4.0f);
+    if (menuCheckSaveFile(D_80033F48) != 0) {
+        _sprintf(sp3C, "%s", (char *)D_80033F28[6]);
+    } else {
+        _sprintf(sp3C, "%s %d", (char *)D_80033F28[7], D_80033F48 + 1);
+    }
+    arg1 = hudDrawScaledText(hudDrawScaledText(arg1, sp106, y, 0.6f, sp3C), (s16)(sp118 * 4.0f), (s16)(y - 0x3C), 0.6f, (char *)D_80033F28[8]);
+    func_800317E8(temp_a0, 160.0f, 80.0f, &sp118, &sp114, 5, 0, 2.0f);
+    arg1 = hudDrawScaledText(arg1, (s16)(sp118 * 4.0f), (s16)(sp114 * 4.0f), 0.6f, (char *)D_80033F28[9]);
+    func_800317E8(temp_a0, 80.0f, 120.0f, &sp118, &sp114, 5, 0, 2.0f);
+    return hudDrawScaledText(hudDrawScaledText(arg1, (s16)(sp118 * 4.0f), (s16)(sp114 * 4.0f), 0.6f, (char *)D_80033F28[10]), (s16)(0x500 - (s32)(sp118 * 4.0f)), (s16)(sp114 * 4.0f), 0.6f, (char *)D_80033F28[11]);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002A088.s")
+#endif
 
 void func_80030894(void *, void *, s32, s32, f32, s32, s32);
 extern s8 D_80033FAC;
 extern u8 D_80720CF0;
 extern u8 D_80720D14;
-extern u8 D_807204BC;
 extern u8 D_80720C34;
 
 void func_8002A36C(void *arg0, s32 arg1) {
@@ -317,7 +490,62 @@ s32 arg1;
     menuUpdateItemTransition(arg0, temp_s0, 1);
 }
 
+s32 func_806FC530(s32, s16, s16, s16, void *, s32);
+Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+f32 func_80612790(s16);
+f32 func_80612794(s16);
+
+#ifdef NON_MATCHING
+void func_8002A638(void *arg0, Gfx *arg1) {
+    Menu3A_Struct174 *temp_s2 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
+    s32 idx;
+    s32 i;
+    s32 id;
+    s16 ang;
+    s32 pad0;
+    f32 sp174;
+    f32 sp170;
+    char sp98[0xD8];
+    s32 pad1;
+    s32 pad2;
+
+    D_807FBB60 &= ~0x10;
+    arg1->words.w0 = 0xFA000000;
+    arg1->words.w1 = -1;
+    idx = func_800317E8(temp_s2, 160.0f, 20.0f, &sp174, &sp170, 2, 1, 0.7f);
+    arg1 += 1;
+    arg1 = (Gfx *)func_806FC530((s32)arg1, 1, (s16)(sp174 * 4.0f), (s16)(sp170 * 4.0f), (void *)D_80033F28[idx + 12], 0x81);
+    if (idx == 0) {
+        _sprintf(sp98, "%s %d", (char *)D_80033F28[14], D_80744538 + 1);
+        func_800317E8(temp_s2, 160.0f, 207.0f, &sp174, &sp170, 2, 0, 0.7f);
+        arg1 = hudDrawScaledText(arg1, (s16)(sp174 * 4.0f), (s16)(sp170 * 4.0f), 0.6f, sp98);
+    }
+    arg1->words.w0 = 0xFA000000;
+    arg1->words.w1 = -1;
+    arg1++;
+    i = 0;
+    do {
+        ang = (i - (temp_s2->unk17 << 11)) - (s32)((f64)temp_s2->unk4 * 2048.0);
+        sp174 = 160.0 - (f64)func_80612794(ang) * 50.0;
+        sp170 = 120.0 - (f64)func_80612790(ang) * 50.0;
+        func_800317E8(temp_s2, sp174, sp170, &sp174, &sp170, 2, 0, 1.5f);
+        sp174 = (f32)((f64)sp174 + 12.0) * 4.0f;
+        sp170 = (f32)((f64)sp170 + 28.0) * 4.0f;
+        if (i == 0) {
+            id = D_80744538 + 0xB2;
+        } else {
+            id = 0xB1;
+        }
+        i += 0x800;
+        arg1 = func_8068C5A8(
+            func_8068C5A8(arg1, (u16)id, 0, 2, 0x20, 0x40, (s32)((f64)sp174 - 96.0), (s32)sp170, 3.0f, -3.0f, 0, 0.0f),
+            (u16)(id + 4), 0, 2, 0x20, 0x40, (s32)sp174, (s32)sp170, 3.0f, -3.0f, 0, 0.0f);
+    } while (i != 0x1000);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002A638.s")
+#endif
 
 extern s8 D_8076A100[];
 extern s8 D_8076A0E4[];
@@ -357,11 +585,56 @@ void menuReleasePlayerControllerSlot(s32 arg0) {
     *temp_v1 = -0x80;
 }
 
+
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002AB80.s")
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002ACD4.s")
+s32 func_8002ACD4(s32 arg0) {
+    s8 temp_v0 = D_8076A0E4[arg0];
+    s8 *row;
+    s32 idx;
+    s32 flag;
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002AD50.s")
+    idx = D_8076A100[arg0];
+    flag = 0;
+    row = D_8076A0E8[temp_v0];
+    row[idx] = -1;
+    do {
+        idx += 1;
+        if (idx >= 4) {
+            idx = 0;
+        }
+        if (row[idx] == -1) {
+            flag = 1;
+            D_8076A100[arg0] = idx;
+            row[idx] = arg0;
+        }
+    } while (flag == 0);
+    return idx;
+}
+
+s32 func_8002AD50(s32 arg0) {
+    s8 temp_v0 = D_8076A0E4[arg0];
+    s8 *row;
+    s32 idx;
+    s32 flag;
+
+    idx = D_8076A100[arg0];
+    flag = 0;
+    row = D_8076A0E8[temp_v0];
+    row[idx] = -1;
+    do {
+        idx -= 1;
+        if (idx < 0) {
+            idx = 3;
+        }
+        if (row[idx] == -1) {
+            flag = 1;
+            D_8076A100[arg0] = idx;
+            row[idx] = arg0;
+        }
+    } while (flag == 0);
+    return idx;
+}
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002ADC8.s")
 
@@ -399,7 +672,6 @@ extern s8 D_80745844;
 s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
 s32 func_806FC530(s32, s16, s16, s16, void *, s32);
 s32 func_8002F980(s32, void *, void *, s8, u32 *, s16, f32 *, f32, s16);
-int _sprintf(char *, const char *, ...);
 
 s32 menuFormatOptionValues(void *arg0, s32 arg1) {
     void *sp64;
@@ -461,10 +733,7 @@ typedef struct Menu3B_Actor {
     Menu3B_Sub174 *unk174;
 } Menu3B_Actor;
 
-extern u8 D_80720C34;
-extern u8 D_80720D14;
 extern u8 D_80720D38;
-void func_80030894(void *, void *, s32, s32, f32, s32, s32);
 
 void func_8002D7EC(Menu3B_Actor *arg0, s8 arg1) {
 
@@ -496,9 +765,7 @@ extern s32 *D_80033F28;
 extern s8 D_807444C0;
 extern s8 D_8074452C;
 extern u8 D_80744530;
-s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
 s32 func_8002F980(s32, void *, void *, s8, u32 *, s16, f32 *, f32, s16);
-s32 func_806FC530(s32, s16, s16, s16, void *, s32);
 
 s32 func_8002DBDC(Menu3B_Actor *arg0, s32 arg1) {
     void *sp6C = arg0->unk174;
@@ -632,7 +899,6 @@ void menuSaveHighScores(void) {
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002F284.s")
 
 extern s8 D_80033F60;
-extern u8 D_80720CF0;
 
 void func_8002F6C8(Menu3B_Actor *arg0, s8 arg1) {
     Menu3B_Sub174 *sp2C = arg0->unk174;
@@ -909,7 +1175,6 @@ typedef struct Menu3R3_StructC828 {
 
 extern Menu3R3_StructC828 D_807FC828;
 void func_806ABE3C(void);
-s32 flagGet(s32, s32);
 
 s32 menuCalculateGamePercentage(void) {
     f32 pct;
@@ -937,7 +1202,6 @@ s32 menuCalculateGamePercentage(void) {
     return pct;
 }
 
-extern s32 *D_80033F28;
 void *func_80610FE8(s32);
 s32 func_8070E750(s32, s32, s32);
 
