@@ -3666,14 +3666,73 @@ void func_8064E5C0(CsState *cs, s16 csId, s16 b, s16 c) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064F028.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064F1C4.s")
+extern s8 D_807F6950;
+void sfxStopChannel(s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064F210.s")
+u8 func_8064F1C4(CsState *cs, s16 csId, s16 b, s16 c) {
+    if (D_807F6950) {
+        sfxStopChannel(0xAB, 0);
+    }
+    return D_807F6950;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064F2F0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064F308.s")
+u8 func_8064F210(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 s;
+    f32 d;
+    f32 co;
+    f32 r;
+    s16 angle;
+
+    angle = D_807F622C * 4096.0f / 360.0f;
+    s = func_80612794(angle);
+    co = func_80612790(angle);
+    d = D_807F621C * s + D_807F6224 * co;
+    d = -d;
+    r = (D_807FBB4C->unk7C * s + co * D_807FBB4C->unk84) + d;
+
+    return r > 6.0;
+}
+
+u8 func_8064F2F0(CsState *cs, s16 csId, s16 b, s16 c) {
+    return 1;
+}
+
+extern s8 D_807FC8D0;
+void flagSet(s32, s32, s32);
+
+void func_8064F308(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 flag;
+
+    if (D_807FC8D0 == 5) {
+        flag = 0x1C1;
+    } else {
+        flag = 0x1C2;
+    }
+    flagSet(flag, 1, 0);
+}
+
+#ifdef NON_MATCHING
+extern u8 D_807FC929;
+extern u8 D_807FC950[];
+extern u8 D_8074E77C;
+
+u8 func_8064F358(CsState *cs, s16 csId, s16 b, s16 c) {
+    u8 *p = D_807FC950 + D_807FC929 * 0x306;
+    s32 idx = func_805FF030(D_8076A0AB, 0);
+    u8 *q = p;
+
+    q += (&D_8074E77C)[D_807FC929] * 0x5E;
+    return *(u16 *)(q + idx * 2 + 0xA) > 0;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064F358.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064F404.s")
+s32 flagCountRange(s32, s32, s32);
+
+u8 func_8064F404(CsState *cs, s16 csId, s16 b, s16 c) {
+    return flagCountRange(0x261, 0xA, 0) >= 4;
+}
+
