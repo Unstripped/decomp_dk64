@@ -1,94 +1,97 @@
-// func_806FA7BC (src/global/FCCD0.c): stage 3: semantic position-transition draft; local packing and signed widths differ
-? func_806F8CB0(s32);                               /* extern */
-? func_806F8D58(?, ?);                              /* extern */
-s32 func_806FA504(s32, void *, s32, s32);           /* extern */
-s32 func_806FA7A4(s32, u16, u16);                   /* extern */
-extern s32 D_80754280;
+// func_806FA7BC (src/global/FCCD0.c): stage 5: frame 0x58 + s0-s4 match, 14 diff lines left: scheduling of the a0/s0/s1 copies around the func_806FA7A4(arg0,*p,unk4) call (target: lhu a2; move a0,s4; beqz v1; lhu a1 delay; move s0,a1; jal; move s1,a2 delay), step/abs temps use a1/a3 instead of a3/a0/v0, join reload uses v1/t4 vs t4/a1. Needs 3-arg call (extern s32 func_806FA7A4() block redeclaration), FCC_SLOT inline address expr, flag compare spelled *p == ((u16*)slot)[2]. parked under NON_MATCHING
+typedef struct FcCNode {
+    s32 unk0;
+    u8 pad4[8];
+    s32 unkC;
+    s16 unk10;
+    u8 pad12[6];
+    struct FcCNode *unk18;
+} FcCNode;
+
+typedef struct FcCSlot {
+    u16 *unk0;
+    u16 unk4;
+    u8 unk6;
+    u8 unk7;
+    u8 pad8[0x18];
+    s32 unk20;
+    u8 pad24[4];
+    FcCNode *unk28;
+} FcCSlot;
+
+extern void *D_80754280;
+s32 func_806FA504(s32, void *, s32, s32);
+void func_806F8CB0(s32);
+int slotQueueCancel();
+
+#define FCC_SLOT ((FcCSlot *)((u8 *)D_80754280 + (arg0 * 0x30)))
 
 s32 func_806FA7BC(s32 arg0, s32 arg1) {
-    u8 sp4F;
-    s32 sp30;
-    s32 temp_t6;
-    s32 temp_v0;
-    s32 temp_v1_3;
-    s32 var_a0;
-    s32 var_a0_2;
-    s32 var_a3;
-    s32 var_s1;
-    s32 var_s3;
-    s32 var_v0_2;
-    u16 *temp_v1;
-    u16 *temp_v1_2;
-    u16 var_a1;
-    u16 var_a2;
-    u8 temp_v1_4;
-    void *temp_v0_2;
-    void *var_s0;
-    void *var_v0;
+    extern s32 func_806FA7A4();
+    s32 s1;
+    FcCNode *node;
+    u8 flag;
+    u16 *p;
+    s32 x;
+    s32 step;
+    s32 absd;
+    s32 sign;
+    s32 tmp;
 
-    temp_t6 = arg0 * 0x30;
-    sp30 = temp_t6;
-    var_v0 = D_80754280 + temp_t6;
-    temp_v1 = var_v0->unk0;
-    var_s3 = arg1;
-    var_s0 = var_v0->unk28;
-    var_s1 = 0;
-    if (temp_v1 != NULL) {
-        sp4F = *temp_v1 == var_v0->unk4;
+    node = FCC_SLOT->unk28;
+    s1 = 0;
+    p = FCC_SLOT->unk0;
+    if (p != NULL) {
+        flag = *p == ((u16 *)FCC_SLOT)[2];
     } else {
-        sp4F = 1;
+        flag = 1;
     }
-    if (var_s0 != NULL) {
+    if (node != NULL) {
         do {
-            var_s3 = func_806FA504(arg0, var_s0, var_s1, var_s3);
-            if (var_s0->unk0 == 1) {
-                var_s1 += 1;
+            arg1 = func_806FA504(arg0, node, s1, arg1);
+            if (node->unk0 == 1) {
+                s1 += 1;
             }
-            var_s0 = var_s0->unk18;
-        } while (var_s0 != NULL);
-        var_v0 = D_80754280 + sp30;
+            node = node->unk18;
+        } while (node != NULL);
     }
-    if (sp4F == 0) {
-        temp_v1_2 = var_v0->unk0;
-        var_a2 = var_v0->unk4;
-        var_a1 = *temp_v1_2;
-        if (temp_v1_2 != NULL) {
-            temp_v0 = func_806FA7A4(arg0, var_a1, var_a2);
-            temp_v1_3 = var_a1 - var_a2;
-            var_a3 = temp_v0;
-            if (temp_v1_3 > 0) {
-                var_a0 = temp_v1_3;
+    if (flag == 0) {
+        if (FCC_SLOT->unk0 != NULL) {
+            x = *FCC_SLOT->unk0;
+            s1 = FCC_SLOT->unk4;
+            step = func_806FA7A4(arg0, *FCC_SLOT->unk0, FCC_SLOT->unk4);
+            if ((x - s1) > 0) {
+                absd = (x - s1);
             } else {
-                var_a0 = -temp_v1_3;
+                absd = -(x - s1);
             }
-            var_a0_2 = -1;
-            if (var_a0 < temp_v0) {
-                var_v0_2 = -temp_v1_3;
-                if (temp_v1_3 > 0) {
-                    var_v0_2 = temp_v1_3;
+            sign = -1;
+            if (absd < step) {
+                if ((x - s1) > 0) {
+                    tmp = (x - s1);
+                } else {
+                    tmp = -(x - s1);
                 }
-                var_a3 = var_v0_2;
+                step = tmp;
             }
-            if (temp_v1_3 >= 0) {
-                var_a0_2 = 1;
+            if ((x - s1) >= 0) {
+                sign = 1;
             }
-            temp_v0_2 = D_80754280 + sp30;
-            temp_v0_2->unk4 = (u16) (temp_v0_2->unk4 + (var_a0_2 * var_a3));
-            var_v0 = D_80754280 + sp30;
-            var_a2 = var_v0->unk4;
-            var_a1 = *var_v0->unk0;
+            FCC_SLOT->unk4 += sign * step;
         }
-        sp4F = var_a1 == var_a2;
+        flag = *FCC_SLOT->unk0 == ((u16 *)FCC_SLOT)[2];
     }
-    temp_v1_4 = var_v0->unk7;
-    if ((temp_v1_4 == 0) && (sp4F != 0)) {
-        var_v0->unk20 = 3;
+    if ((FCC_SLOT->unk7 == 0) && (flag != 0)) {
+        FCC_SLOT->unk20 = 3;
         func_806F8CB0(arg0);
-        if (sp30 == 0x180) {
-            func_806F8D58(9, 5);
+        if ((arg0 * 0x30) == 0x180) {
+            slotQueueCancel(9, 5);
         }
-    } else if ((temp_v1_4 != 0) && (var_v0->unk6 == 0)) {
-        var_v0->unk7 = (u8) (temp_v1_4 - 1);
+        return arg1;
+    } else if ((FCC_SLOT->unk7 != 0) && (FCC_SLOT->unk6 == 0)) {
+        FCC_SLOT->unk7 = FCC_SLOT->unk7 - 1;
     }
-    return var_s3;
+    return arg1;
 }
+
+#undef FCC_SLOT

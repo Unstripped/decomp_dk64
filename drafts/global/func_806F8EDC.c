@@ -1,4 +1,4 @@
-// func_806F8EDC (src/global/FCCD0.c): Stage 3 selector reconstruction: active-character indexed threshold selection and switch cases recovered; register allocation remains unmatched.
+// func_806F8EDC (src/global/FCCD0.c): stage 5: exact size and flow; only regalloc: var_a0 gets v1 (target a0), arg1 reload gets a2 (target a1). Needs func_806F8EB4 to return s32 (cast used in park). deadsweep/permuter no help
 extern s32 func_806F6EDC();
 extern s32 flagGet(s32, s32);
 extern u8 D_807FC953[];
@@ -35,7 +35,7 @@ s32 func_806F8EDC(s32 arg0, s32 arg1) {
         if (D_807FC928 >= 2) {
             var_a0 = 0xBB8;
         } else if (func_806F6EDC() != 0) {
-            var_a0 = ((func_806F8EB4() * 0x96) + 0xBB8) & 0xFFFF;
+            var_a0 = ((((s32 (*)(void))func_806F8EB4)() * 0x96) + 0xBB8) & 0xFFFF;
         } else {
             var_a0 = 0;
         }
@@ -63,7 +63,7 @@ s32 func_806F8EDC(s32 arg0, s32 arg1) {
         break;
     case 6:
         if (flagGet(0x179, 0) != 0) {
-            var_a0 = (func_806F8EB4() + 0xA) & 0xFFFF;
+            var_a0 = (((s32 (*)(void))func_806F8EB4)() + 0xA) & 0xFFFF;
         } else {
             var_a0 = 0;
         }
