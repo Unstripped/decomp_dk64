@@ -17,7 +17,44 @@ extern s16 D_80744494;
 extern u8 D_807444F8;
 extern u8 D_807444FC;
 
+#ifdef NON_MATCHING
+typedef struct {
+    s8 unk0;
+    u8 unk1;
+    u8 unk2;
+    u8 unk3;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+} R1F109660aRect;
+
+extern R1F109660aRect D_80750840[];
+extern u8 D_80750AB8;
+extern u8 D_80750ABC;
+extern u8 D_8074450C;
+
+Gfx *func_80704960(Gfx *dl) {
+    s32 i;
+
+    gDPPipeSync(dl++);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0);
+    gDPSetCycleType(dl++, G_CYC_FILL);
+    gDPSetFillColor(dl++, 0x10001);
+    for (i = 0; D_80750840[i].unk0 != -1; i++) {
+        if (((D_80750840[i].unk0 == 2) && ((s32)D_807FC928 >= 2) && (D_80750840[i].unk2 & D_80750ABC)) || ((D_807FC928 == D_80750840[i].unk0) && (D_80750AB8 == D_80750840[i].unk1) && (D_80750840[i].unk2 & D_80750ABC))) {
+            Gfx *_g = (Gfx *)(dl++);
+            _g->words.w0 = 0xF6000000 | (((((D_80750840[i].unk8 + 1) * D_8074450C) - 1) & 0x3FF) << 14) | (((((D_80750840[i].unkA + 1) * D_8074450C) - 1) & 0x3FF) << 2);
+            _g->words.w1 = ((((D_80750840[i].unk4 * D_8074450C) & 0x3FF)) << 14) | ((((D_80750840[i].unk6 * D_8074450C) & 0x3FF)) << 2);
+        }
+    }
+    gDPPipeSync(dl++);
+    return dl;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_80704960.s")
+#endif
 
 
 extern f32 D_807FD968;
@@ -90,11 +127,144 @@ void func_80705C00(s16 arg0, s16 arg1, u8 arg2) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_80705F5C.s")
+extern f32 D_80754CE8;
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *func_806FEDB0(Gfx *, u8);
+extern u8 D_2000100[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_807063B8.s")
+Gfx *func_80705F5C(Gfx *dl, s16 arg1, s16 arg2, u8 mode) {
+    s16 sp76;
+    Gfx *g;
+    f32 sp6C, sp68;
+    u8 alpha;
+    f32 sp60, sp5C, sp58;
+    s16 b;
+    s16 c;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_807065F8.s")
+    alpha = 0xFF;
+    if (mode == 1) {
+        lightGetColor(&sp60, &sp5C, &sp58, *(s16 *)D_807FBB4C->unk12C);
+        sp60 = (f32)(1.0 < ((1.0 - (f64)sp5C) / 0.7) ? 1.0 : ((1.0 - (f64)sp5C) / 0.7));
+        alpha = (u32)((f64)sp60 * 255.0);
+    } else if (mode == 2) {
+        sp60 = (f32)((f64)D_80754CE8 - 0.5);
+        if (sp60 < 0.0) {
+            sp60 = 0.0f;
+        }
+        sp60 = (f32)((f64)sp60 * 512.0);
+        if (sp60 > 255.0) {
+            sp60 = 255.0f;
+        }
+        alpha = (u32)sp60;
+    }
+    gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
+    sp76 = (s16)(s32)((f64)func_80612794(arg1) * 32767.0);
+    c = (s16)(s32)((f64)func_80612790(arg1) * 32767.0);
+    b = (s16)(s32)((f64)arg2 - (8.0 * (f64)((R1F109660aPlayerView *)D_807FC924)->unk2CA));
+    camProjectToScreen((f32)sp76, (f32)b, (f32)c, &sp6C, &sp68, 0, 4.0f, 0);
+    if ((sp6C > -320.0f) && (sp6C < 1600.0f) && (sp68 > -240.0f) && (sp68 < 1200.0f)) {
+        g = func_806FEDB0(dl, 0);
+        gSPSetOtherMode(g++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
+        g->words.w0 = 0xDA380007; g->words.w1 = (u32)&D_2000100; dl = func_8068C5A8(g + 1, 0x35, 3, 1, 0x40, 0x40, (s32)sp6C, (s32)sp68, 4.0f, 4.0f, 0, 0.0f);
+    }
+    return dl;
+}
+
+typedef struct {
+    f32 v[3][2];
+} BaSpan;
+
+void func_807063B8(BaSpan *arg0, u8 *arg1, u8 arg2, f32 arg3) {
+    BaSpan temp[4];
+    s32 i;
+    u8 o;
+    f32 f;
+    f32 g;
+
+    o = 0;
+    for (i = 0; i < *arg1; i++) {
+        temp[i] = arg0[i];
+    }
+    for (i = 0; i < *arg1; i++) {
+        if ((temp[i].v[0][arg2] < 0.0f) || (arg3 < temp[i].v[1][arg2])) {
+            f = (temp[i].v[0][arg2] < 0.0f) ? temp[i].v[0][arg2] + arg3 : temp[i].v[0][arg2];
+            arg0[o].v[0][arg2] = f;
+            arg0[o].v[0][arg2 ^ 1] = temp[i].v[0][arg2 ^ 1];
+            arg0[o].v[1][arg2] = arg3;
+            arg0[o].v[1][arg2 ^ 1] = temp[i].v[1][arg2 ^ 1];
+            arg0[o].v[2][arg2] = temp[i].v[2][arg2];
+            arg0[o].v[2][arg2 ^ 1] = temp[i].v[2][arg2 ^ 1];
+            g = arg0[o].v[2][arg2] + (arg3 - f);
+            o++;
+            f = (temp[i].v[0][arg2] < 0.0f) ? temp[i].v[1][arg2] : temp[i].v[1][arg2] - arg3;
+            arg0[o].v[0][arg2] = 0.0f;
+            arg0[o].v[0][arg2 ^ 1] = temp[i].v[0][arg2 ^ 1];
+            arg0[o].v[1][arg2] = f;
+            arg0[o].v[1][arg2 ^ 1] = temp[i].v[1][arg2 ^ 1];
+            arg0[o].v[2][arg2] = g;
+            arg0[o].v[2][arg2 ^ 1] = temp[i].v[2][arg2 ^ 1];
+            o++;
+        } else {
+            arg0[o] = temp[i];
+            o++;
+        }
+    }
+    *arg1 = o;
+}
+
+typedef struct {
+    s16 pos;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 pad;
+} BaKey;
+
+extern BaKey D_80754F58[];
+
+void func_807065F8(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
+    u8 idx;
+    BaKey *p;
+    f32 t;
+
+    switch (D_8076A0A8) {
+        case 0xE:
+            idx = 0;
+            if (arg0 < D_80754F58[1].pos) {
+                do {
+                    idx++;
+                } while (arg0 < D_80754F58[idx + 1].pos);
+            }
+            p = &D_80754F58[idx];
+            t = (f32)(arg0 - D_80754F58[idx + 1].pos) / (f32)(p->pos - D_80754F58[idx + 1].pos);
+            *arg1 = D_80754F58[idx + 1].r + (f32)(p->r - D_80754F58[idx + 1].r) * t;
+            *arg2 = D_80754F58[idx + 1].g + (f32)(p->g - D_80754F58[idx + 1].g) * t;
+            *arg3 = D_80754F58[idx + 1].b + (f32)(p->b - D_80754F58[idx + 1].b) * t;
+            return;
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x4A:
+        case 0x4B:
+        case 0x7C:
+        case 0x7D:
+        case 0x7E:
+        case 0x7F:
+        case 0x80:
+            *arg1 = 0x3F;
+            *arg2 = 0x3F;
+            *arg3 = 0x3F;
+            return;
+        default:
+            *arg1 = 0xFF;
+            *arg2 = 0xFF;
+            *arg3 = 0xFF;
+            return;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_807069A4.s")
 
@@ -106,7 +276,6 @@ void func_80705C00(s16 arg0, s16 arg1, u8 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_8070835C.s")
 
-extern f32 D_80754CE8;
 
 void func_80708574(f32 arg0) {
     f64 var_fv0;

@@ -1,4 +1,4 @@
-// func_80704960 (src/global/109660.c): stage 3 candidate; correct display-list behavior, pointer/register scheduling differs
+// func_80704960 (src/global/109660.c): stage 6: only regalloc left (4 text hunks: gDP packet temps start at a1/a2 instead of a2/a3 -> a1,a2,a3,t0 vs a2,a3,t0,t1); index loop 'for (i=0; D[i].unk0 != -1; i++)' + stmt order F6|lrx|lry, ulx|uly reproduces everything else; tried dead stmts, line joining, pointer loops, permuter 18 min
 typedef struct {
     s8 unk0;
     u8 unk1;
@@ -10,43 +10,25 @@ typedef struct {
     s16 unkA;
 } R1F109660aRect;
 
-extern s8 D_80750840;
+extern R1F109660aRect D_80750840[];
 extern u8 D_80750AB8;
 extern u8 D_80750ABC;
 extern u8 D_8074450C;
 
-Gfx *func_80704960(Gfx *arg0) {
-    R1F109660aRect *var_a1;
-    s8 var_a2;
-    Gfx *temp_a2;
+Gfx *func_80704960(Gfx *dl) {
+    s32 i;
 
-    arg0->words.w0 = 0xE7000000;
-    arg0->words.w1 = 0;
-    arg0++;
-    arg0->words.w0 = 0xE200001C;
-    arg0->words.w1 = 0;
-    arg0++;
-    arg0->words.w1 = 0x300000;
-    arg0->words.w0 = 0xE3000A01;
-    arg0++;
-    arg0->words.w0 = 0xF7000000;
-    arg0->words.w1 = 0x10001;
-    arg0++;
-    if (D_80750840 != -1) {
-        var_a1 = (R1F109660aRect *)&D_80750840;
-        var_a2 = D_80750840;
-        do {
-            if (((var_a2 == 2) && ((s32)D_807FC928 >= 2) && (var_a1->unk2 & D_80750ABC)) || ((D_807FC928 == var_a2) && (D_80750AB8 == var_a1->unk1) && (var_a1->unk2 & D_80750ABC))) {
-                temp_a2 = arg0;
-                arg0++;
-                temp_a2->words.w0 = (((((var_a1->unkA + 1) * D_8074450C) - 1) & 0x3FF) * 4) | 0xF6000000 | (((((var_a1->unk8 + 1) * D_8074450C) - 1) & 0x3FF) << 14);
-                temp_a2->words.w1 = (((var_a1->unk6 * D_8074450C) & 0x3FF) * 4) | (((var_a1->unk4 * D_8074450C) & 0x3FF) << 14);
-            }
-            var_a2 = ((R1F109660aRect *)((u8 *)var_a1 + 0xC))->unk0;
-            var_a1 = (R1F109660aRect *)((u8 *)var_a1 + 0xC);
-        } while (var_a2 != -1);
+    gDPPipeSync(dl++);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0);
+    gDPSetCycleType(dl++, G_CYC_FILL);
+    gDPSetFillColor(dl++, 0x10001);
+    for (i = 0; D_80750840[i].unk0 != -1; i++) {
+        if (((D_80750840[i].unk0 == 2) && ((s32)D_807FC928 >= 2) && (D_80750840[i].unk2 & D_80750ABC)) || ((D_807FC928 == D_80750840[i].unk0) && (D_80750AB8 == D_80750840[i].unk1) && (D_80750840[i].unk2 & D_80750ABC))) {
+            Gfx *_g = (Gfx *)(dl++);
+            _g->words.w0 = 0xF6000000 | (((((D_80750840[i].unk8 + 1) * D_8074450C) - 1) & 0x3FF) << 14) | (((((D_80750840[i].unkA + 1) * D_8074450C) - 1) & 0x3FF) << 2);
+            _g->words.w1 = ((((D_80750840[i].unk4 * D_8074450C) & 0x3FF)) << 14) | ((((D_80750840[i].unk6 * D_8074450C) & 0x3FF)) << 2);
+        }
     }
-    arg0->words.w0 = 0xE7000000;
-    arg0->words.w1 = 0;
-    return arg0 + 1;
+    gDPPipeSync(dl++);
+    return dl;
 }
