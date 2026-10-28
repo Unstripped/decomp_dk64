@@ -1,4 +1,4 @@
-// func_8063FA48 (src/global/42630.c): WIP CsFA48 (stage 5-6): masked diff 87->35. Fixed: address-taken csId (void *dm=&csId in padC4 slot), 'i = 0; for (; ...)' actor loops, (x/128)&0xFF pan/vol, i=cmd->b&1 local, map before exit + dead 'if (map && map) {}' in 0x8D, 0x9 compare operand order, 0x2D/0x25 fix. Left: sfx cases 0xE/0x7D/0xF/0x7E (c/b copies kept in a2/a3), spill slot 56 vs 60, D_807FBB68 &= ~ operand order.
+// func_8063FA48 (src/global/42630.c): CsFA48 stage 5-6: 1836->~2030/2200 insns equal; masked diff 104->20. Keys: double mask 'c &= 0xFF; c &= 0x7F' (and b &= 0xFF; b &= 2) keeps the copy-propagated mask copy (move a2,v0/andi in place); volatile u8 pitch gives sb/lbu home at 85; void *dm=&csId; i=0 before actor for loops; (x/128)&0xFF pan/vol; sfx protos s32. Left: 0x7E (vol should take s0, pan spilled at 60) and spill slot 56 vs 60 (loop cursor, 0xE/0x7D t1).
 // Cutscene script command: 16-bit opcode followed by three s16 parameters.
 typedef struct CsCmd {
     /* 0x0 */ u16 op;
@@ -247,10 +247,10 @@ void modelAnimEntryStart(s16, s16, s16);
 void modelAnimEntryStop(s16, s16);
 void seqRouteChannelVolume(s32, f32);
 void sfxAllocateChannel(s32, f32);
-void sfxPlayFromTargetSlot(s16, s16, u8, u8, u8, u8, f32);
+void sfxPlayFromTargetSlot(s16, s16, u8, u8, s32, s32, f32);
 void sfxSetChannelTempo(s32, f32);
 void sfxSetVolumeAndPan(u8, f32, f32);
-u8 sfxSlotAllocateSource(s16, s16, u8, u8, u8, f32, s8);
+u8 sfxSlotAllocateSource(s16, s16, s32, s32, u8, f32, s8);
 void sfxStopChannel(s32, s32);
 
 void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
@@ -284,7 +284,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 sz;
     u8 pan;
     u8 vol;
-    u8 pitch;
+    volatile u8 pitch;
     f32 cx;
     f32 cy;
     f32 cz;
@@ -658,6 +658,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         pan = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
+        c &= 0xFF;
         c &= 0x7F;
         if (pan == 0) {
             pan = 0x7F;
@@ -667,6 +668,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         i = cmd->b & 1;
         b = cmd->b;
+        b &= 0xFF;
         b &= 2;
         if (cs->unk10[i] < 0) {
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
@@ -676,6 +678,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         pan = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
+        c &= 0xFF;
         c &= 0x7F;
         if (pan == 0) {
             pan = 0x7F;
@@ -685,6 +688,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         i = cmd->b & 1;
         b = cmd->b;
+        b &= 0xFF;
         b &= 2;
         if (cs->unk10[i] < 0) {
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
@@ -694,6 +698,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         pan = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
+        c &= 0xFF;
         c &= 0x7F;
         if (pan == 0) {
             pan = 0x7F;
@@ -707,6 +712,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         pan = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
+        c &= 0xFF;
         c &= 0x7F;
         if (pan == 0) {
             pan = 0x7F;

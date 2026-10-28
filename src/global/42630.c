@@ -1351,7 +1351,7 @@ void sfxStopChannel(s32, s32);
 
 #ifdef NON_MATCHING
 void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
-    s32 padC4; // unused: keeps found at sp+0xC3
+    void *dm = &csId; // unused: address-taken csId, keeps found at sp+0xC3
     u8 found;
     s32 i;
     s32 slot;
@@ -1381,12 +1381,12 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 sz;
     u8 pan;
     u8 vol;
-    u8 pitch;
+    volatile u8 pitch;
     f32 cx;
     f32 cy;
     f32 cz;
 
-    found = 0;
+    found = 0; 
     switch (cmd->op) {
     case 0x95:
         D_807F693C = 0x80;
@@ -1458,7 +1458,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         effectNodeSetSubVal(cmd->a, CMDB(cmd)->b);
         break;
     case 0x76:
-        for (i = 0; i < gActiveActorCount; i++) {
+        i = 0;
+        for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
             if (!(actor->unk60 & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
                 actorAppendCallback(actor, 0, 8, 0, 0, 0);
@@ -1682,12 +1683,14 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         func_806CF398(D_807FBB48);
         slot = func_805FF030(D_8076A0A8, 0);
         if (func_805FEF74(D_8076A0A8) != 0) {
-            exit = D_807480AC[slot];
             map = D_8074809C[slot];
+            exit = D_807480AC[slot];
+            if (map && map) {}
             if (flagGet(D_807480BC[slot], 0, exit) == 0) {
-                exit = 0;
                 if (map == 0x57) {
                     exit = 0x15;
+                } else {
+                    exit = 0;
                 }
             }
             if (func_8068ABE0(map) == 0) {
@@ -1749,9 +1752,10 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         modelAnimEntrySetTime(csId, cmd->a, cmd->b, cmd->c / 100.0);
         break;
     case 0xE:
-        pan = cmd->b / 128;
-        vol = cmd->c / 128;
+        pan = (cmd->b / 128) & 0xFF;
+        vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
+        c &= 0xFF;
         c &= 0x7F;
         if (pan == 0) {
             pan = 0x7F;
@@ -1759,16 +1763,19 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (vol == 0) {
             vol = 0xFF;
         }
+        i = cmd->b & 1;
         b = cmd->b;
+        b &= 0xFF;
         b &= 2;
-        if (cs->unk10[cmd->b & 1] < 0) {
-            cs->unk10[cmd->b & 1] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
+        if (cs->unk10[i] < 0) {
+            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
         }
         break;
     case 0x7D:
-        pan = cmd->b / 128;
-        vol = cmd->c / 128;
+        pan = (cmd->b / 128) & 0xFF;
+        vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
+        c &= 0xFF;
         c &= 0x7F;
         if (pan == 0) {
             pan = 0x7F;
@@ -1776,16 +1783,19 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (vol == 0) {
             vol = 0xFF;
         }
+        i = cmd->b & 1;
         b = cmd->b;
+        b &= 0xFF;
         b &= 2;
-        if (cs->unk10[cmd->b & 1] < 0) {
-            cs->unk10[cmd->b & 1] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
+        if (cs->unk10[i] < 0) {
+            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
         }
         break;
     case 0xF:
-        pan = cmd->b / 128;
-        vol = cmd->c / 128;
+        pan = (cmd->b / 128) & 0xFF;
+        vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
+        c &= 0xFF;
         c &= 0x7F;
         if (pan == 0) {
             pan = 0x7F;
@@ -1796,9 +1806,10 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         sfxPlayFromTargetSlot(csId, cmd->a, vol, pan, cmd->b & 0x7F, c, 0.3f);
         break;
     case 0x7E:
-        pan = cmd->b / 128;
-        vol = cmd->c / 128;
+        pan = (cmd->b / 128) & 0xFF;
+        vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
+        c &= 0xFF;
         c &= 0x7F;
         if (pan == 0) {
             pan = 0x7F;
@@ -1842,7 +1853,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk8A = (f32)cmd->b;
         break;
     case 0x9:
-        if (D_807F621C != D_807F61FC || D_807F6224 != D_807F6204) {
+        if (D_807F61FC != D_807F621C || D_807F6204 != D_807F6224) {
             func_80642480(cmd->a, csId);
         }
         break;
@@ -1868,7 +1879,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (cmd->a == 0) {
             cs->unk44[cmd->c] = cmd->b;
         } else {
-            cs->unk44[cmd->c] = cs->unk14[cmd->b];
+            h = cs->unk14[cmd->b];
+            cs->unk44[cmd->c] = h;
         }
         break;
     case 0x65:
@@ -1878,10 +1890,13 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk4B[cmd->b] = cmd->a;
         break;
     case 0x5:
-        func_806418E8(cmd->a, cmd->b, cmd->c);
+        if (func_806418E8(cmd->a, cmd->b, cmd->c) == 0) {
+            return;
+        }
         break;
     case 0x2D:
-        for (i = 0; i < gActiveActorCount; i++) {
+        i = 0;
+        for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
             if (!(actor->unk60 & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
                 if (cmd->a != 0) {
