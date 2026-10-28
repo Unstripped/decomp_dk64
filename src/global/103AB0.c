@@ -225,7 +225,6 @@ void func_806FFF5C(void) {
     func_8066B0F8(0x19, 0x138B, 1, 1);
 }
 
-#ifdef NON_MATCHING
 extern void *D_80744470[];
 s32 func_80610FE8(s32);
 
@@ -247,18 +246,14 @@ s32 func_806FFF88(void) {
     do {
         var_s0 = 0;
         do {
-            var_s1 = (s32)func_806FFEAC((s16 *)var_s1, (var_s0 << 6) + var_s2);
+            var_s1 = (s32)func_806FFEAC((s16 *)var_s1, ((var_s0 << 2) << 4) + var_s2);
             var_s0++;
         } while (var_s0 < 5);
+        var_s2 += (D_80744490 << 3) << 4;
         var_s3++;
-        var_s2 += D_80744490 << 7;
     } while (var_s3 < 2);
     return sp34;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FFF88.s")
-#endif
 
 u16 func_80700088(f32 arg0, u16 arg1) {
     u8 lsb;
@@ -417,7 +412,6 @@ Gfx *func_807007B8(Gfx *arg0) {
     return arg0;
 }
 
-#ifdef NON_MATCHING
 extern s16 *D_8076A0A0;
 
 s16 func_807009F4(s16 arg0) {
@@ -428,8 +422,9 @@ s16 func_807009F4(s16 arg0) {
     s32 t;
 
     lo = 0;
+    mid = -1;
     hi = 0x1FE;
-    if (arg0 == -1) {
+    if (arg0 == mid) {
         return 0;
     }
     do {
@@ -447,13 +442,7 @@ s16 func_807009F4(s16 arg0) {
     ret = t < 0 ? 0 : t;
     return ret;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807009F4.s")
-#endif
-
-// func_80700AE4 (src/global/103AB0.c): stage 6; 600-second permuter best score 66 uses tile-copy pointer and result temporary but expands frame to 0x60 instead of target 0x58
-#ifdef NON_MATCHING
 typedef struct {
     s32 unk0;
     u32 unk4;
@@ -486,6 +475,7 @@ extern s32 D_8076A060;
 s32 func_80700AE4(s16 arg0, s16 arg1) {
     R2F103AB0dTileCopy tileCopy;
     u16 tile;
+    u16 new_var;
     s32 *tileInfo;
     u16 *map;
     s32 result;
@@ -497,14 +487,11 @@ s32 func_80700AE4(s16 arg0, s16 arg1) {
     if ((arg0 < R2F103AB0dPlayer->unk270) || (R2F103AB0dPlayer->unk274 < arg0) || (arg1 < R2F103AB0dPlayer->unk272) || (R2F103AB0dPlayer->unk276 < arg1)) return 0xFFFF;
     map = (u16 *)((u8 *)map + (((D_80744490 * arg1) + arg0) * 2));
     tile = *map;
-    tileInfo = (s32 *)tileCopyPtr + (((tile >> 0xD) & 7) * 2);
-    result = (((tile >> 2) & 0x7FF) << tileInfo[0]) + tileInfo[1];
+    tileInfo = (s32 *)tileCopyPtr + (((tile >> 0xD) & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 7) * 2);
+    new_var = tile >> 2;
+    result = ((new_var & 0x7FF) << tileInfo[0]) + tileInfo[1];
     return ((u32)result >> 3) & 0xFFFF;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80700AE4.s")
-#endif
 
 typedef struct {
     u8 pad0[0x270];
@@ -520,7 +507,6 @@ typedef struct {
 
 #define ADVP ((AdViewport *)D_807FC924)
 
-#ifdef NON_MATCHING
 extern s32 D_807FBB60;
 extern s16 D_807FD800;
 extern s16 D_807FD802;
@@ -616,9 +602,8 @@ void func_80700BF4(void) {
             st = ((AdActor174 *)((AdView2F0 *)D_807FC924)[i].unk4)->unk174;
             p = &D_807FD610[i];
             x = st->unk10E;
-            y = st->unk110;
+            y = st->unk110 - 0x14;
             x += p->unk2E;
-            y -= 0x14;
             w = (u32)(base + p->unk30 / 1.5);
             st->unk114 = func_807009F4(func_80700AE4(x, y));
             st->unk116 = func_807009F4(func_80700AE4(x, st->unk112));
@@ -627,10 +612,6 @@ void func_80700BF4(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80700BF4.s")
-#endif
 
 typedef struct {
     u8 unk0[0x21C];
