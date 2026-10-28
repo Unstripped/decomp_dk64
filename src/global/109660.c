@@ -266,14 +266,110 @@ void func_807065F8(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_807069A4.s")
+typedef struct {
+    u8 unk0[0xE4];
+    s16 unkE4;
+} BbCamC;
+
+typedef struct {
+    u8 unk0[0x104];
+    BbCamC *unk104;
+} BbCamB;
+
+typedef struct {
+    u8 unk0[0x80];
+    f32 unk80;
+    u8 unk84[0xF0];
+    BbCamB *unk174;
+} BbCamA;
+
+typedef struct {
+    u8 unk0[4];
+    BbCamA *unk4;
+} BbPlayerCam;
+
+extern Mtx D_807FD8A8[];
+extern f32 D_80754CE4;
+s32 func_8066B0F8(s32, s32, s32, s32);
+void func_807063B8(BaSpan *, u8 *, u8, f32);
+void func_807065F8(s16, u8 *, u8 *, u8 *);
+void func_80702464(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
+
+Gfx *func_807069A4(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 arg4, f32 arg5) {
+    f32 lo;
+    f32 hi;
+    s32 i;
+    f32 rect[30];
+    u8 count;
+    BbCamA *cam;
+    BbCamB *cam2;
+    f32 inv;
+    f32 mtxA[4][4];
+    f32 mtxB[4][4];
+    u8 r;
+    u8 g;
+    u8 b;
+    f32 scale;
+
+    scale = 5.6f / D_80754CE4;
+    cam = ((BbPlayerCam *)D_807FC924)->unk4;
+    cam2 = cam->unk174;
+    guScaleF(mtxA, scale, scale, scale);
+    guTranslateF(mtxB, -2560.0f, -1920.0f, 0.0f);
+    guMtxCatF(mtxA, mtxB, mtxA);
+    inv = (f32)((0x1000 - cam2->unk104->unkE4) & 0xFFF);
+    inv = inv * 0.087890625f;
+    guRotateF(mtxB, inv, 0, 0, 1);
+    guMtxCatF(mtxA, mtxB, mtxA);
+    guTranslateF(mtxB, 2560.0f, 1920.0f, 0.0f);
+    guMtxCatF(mtxA, mtxB, mtxA);
+    guMtxF2L(mtxA, &D_807FD8A8[D_807444FC]);
+    arg1 = 6.2831855f - arg1;
+    arg2 = (arg4 / arg5) * (6.2831855f - arg2);
+    if (D_807FD8A0 == 0) {
+        D_807FD8A0 = func_8066B0F8(0xE, arg3, 0, 0);
+    }
+    gSPMatrix(arg0++, &D_807FD8A8[D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(arg0++, &D_807FD928, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gDPPipeSync(arg0++);
+    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, 3, 29, 0x404240);
+    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xFC11FE23; _g->words.w1 = 0xFFFFF7FB; }
+    gSPSetOtherMode(arg0++, G_SETOTHERMODE_H, 20, 2, 0);
+    func_807065F8((s16)(s32)cam->unk80, &r, &g, &b);
+    gDPSetPrimColor(arg0++, 0, 0, r, g, b, 0xFF);
+    gSPClearGeometryMode(arg0++, 0xFFFFFF);
+    gSPSetGeometryMode(arg0++, 0x200004);
+    lo = arg1 * 0.15915494f * D_80754CE4;
+    hi = arg2 * 0.15915494f * D_80754CE4;
+    inv = 1.0f / scale;
+    while (lo > 1.0f) {
+        lo -= 1.0f;
+    }
+    while (hi > 1.0f) {
+        hi -= 1.0f;
+    }
+    lo = lo * arg4;
+    hi = hi * arg5;
+    rect[0] = lo - 460.0f * inv * 0.5f;
+    rect[2] = 460.0f * inv * 0.5f + lo;
+    count = 1;
+    rect[1] = hi - 380.0f * inv * 0.5f;
+    rect[2] = 460.0f * inv * 0.5f + lo;
+    rect[3] = 380.0f * inv * 0.5f + hi;
+    rect[5] = rect[4] = -70.0f * inv;
+    func_807063B8((BaSpan *)rect, &count, 0, arg4);
+    func_807063B8((BaSpan *)rect, &count, 1, arg5);
+    for (i = 0; i < count; i++) {
+        func_80702464(&arg0, D_807FD8A0, 0, (u32)arg4, (u32)arg5, 0x20, 0x20, rect[i * 6], rect[i * 6 + 1], rect[i * 6 + 2], rect[i * 6 + 3], rect[i * 6 + 4], rect[i * 6 + 5], 0x10, 0x10);
+    }
+    return arg0;
+}
 
 #ifdef NON_MATCHING
 extern s16 D_80754CE0;
 extern s16 D_80754CEC[];
 extern s16 D_80754F70;
 extern s16 D_80754F74;
-s32 func_8066B0F8(s32, s32, s32, s32);
 
 Gfx *func_80706F90(Gfx *dl) {
     s32 tv;
@@ -352,11 +448,91 @@ Gfx *func_80706F90(Gfx *dl) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_80706F90.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_8070770C.s")
+typedef struct {
+    u8 unk0[0x270];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+} BbRendererPlayer;
+
+extern s16 D_80744498;
+extern s16 D_8074449C;
+extern s16 D_807444A0;
+extern s16 D_807444A4;
+
+Gfx *func_8070770C(Gfx *glist) {
+    gDPPipeSync(glist++);
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0);
+    gDPSetFillColor(glist++, 0x00010001);
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
+    gDPSetScissor(glist++, G_SC_NON_INTERLACE, D_80744498, D_8074449C, D_807444A0, D_807444A4);
+    gDPFillRectangle(glist++, D_80744498, D_8074449C, D_807444A0 - 1, D_807444A4 - 1);
+    gDPPipeSync(glist++);
+    {
+        Gfx *_g = (Gfx *)(glist++);
+        _g->words.w0 = ((s32)((f32)((BbRendererPlayer *)D_807FC924)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((BbRendererPlayer *)D_807FC924)->unk270 * 4.0f) & 0xFFF) << 12);
+        _g->words.w1 = ((s32)((f32)((BbRendererPlayer *)D_807FC924)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((BbRendererPlayer *)D_807FC924)->unk274 * 4.0f) & 0xFFF) << 12);
+    }
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0);
+    return glist;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_80707980.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_8070835C.s")
+typedef struct {
+    u8 unk0[0x270];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+    u8 unk278[0x5C];
+    void *unk2D4;
+    void *unk2D8;
+    u8 unk2DC[0x14];
+} BbPlayerView;
+
+Gfx *func_80706F90(Gfx *);
+Gfx *func_80707980(Gfx *, void *, void *, void *, s32);
+extern s32 D_807FBB60;
+extern s32 D_807552EC;
+
+Gfx *func_8070835C(Gfx *glist, s16 player) {
+    s32 draw_black;
+
+    if ((D_807FC928 >= 2) || !(D_807FBB60 & 0x10)) {
+        if (D_8076A0A8 == 0x50) {
+            glist = func_80706F90(glist);
+        } else {
+            draw_black = !(D_807FBB60 & 2);
+            if (D_807FC928 >= 2) {
+                s32 tmp;
+                if (D_807444FC == 0) {}
+                if (D_8076A0A8 == 0xBE) {
+                    tmp = 0;
+                } else {
+                    tmp = 1;
+                }
+                tmp |= (D_807552EC >= 2);
+                draw_black |= tmp;
+            }
+            if (draw_black == 0) {
+                return glist;
+            }
+            gDPPipeSync(glist++);
+            gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0);
+            gDPSetFillColor(glist++, 0x00010001);
+            gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
+            { Gfx *_g = (Gfx *)(glist++); _g->words.w0 = 0xF6000000 | ((((BbPlayerView *)D_807FC924 + player)->unk276 - 1) & 0x3FF) * 4 | ((((BbPlayerView *)D_807FC924 + player)->unk274 - 1) & 0x3FF) << 14; _g->words.w1 = ((((BbPlayerView *)D_807FC924 + player)->unk272 & 0x3FF) * 4) | ((((BbPlayerView *)D_807FC924 + player)->unk270 & 0x3FF) << 14); }
+            gDPPipeSync(glist++);
+            gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0);
+        }
+    } else {
+        glist = func_80707980(glist, ((BbPlayerView *)D_807FC924 + player)->unk2D4, ((BbPlayerView *)D_807FC924 + player)->unk2D8,
+            (u8 *)((BbPlayerView *)D_807FC924 + player) + (D_807444FC << 6) + 0x108, player);
+    }
+    return glist;
+}
 
 
 void func_80708574(f32 arg0) {
