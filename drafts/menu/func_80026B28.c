@@ -1,4 +1,4 @@
-// func_80026B28 (src/menu/1AF0.c): NON_MATCHING parked, stage 5-6. Temp reg numbering one step off from func entry (t7/t8 vs t8/t9, case-1 lui t1 vs t0); target keeps a dup 'b; li a3,9' else-branch of the (unk10+1==D_807FCC4C) test which IDO folds away in my source; a3/v1 locals priority swap if both branches set sp28=9.
+// func_80026B28 (src/menu/1AF0.c): stage 6: code identical to target (size ok) except sp2C/sp28 colors swapped (target sp2C=v1, sp28=a3; mine sp28=v1, sp2C=a3) and the case-0 tail arg0 reload v0/v1; cause: uopt adjsave sp28 2.33 > sp2C 2.2 with the 3 separate 'sp28 = 9' sites that the target's 'b; li a3,9' else needs (pre-assigned sp28=9 variant lowers sp28 to 2.0 and matches colors but uopt drops the dup => 2 insns short). Fixed so far: sp24=-1 first (t8/t9 RMW), *(u8*)&D_807FCC4C (left-first operand eval). Tried all 100 pre/true/else statement placements, register kw, u8/u16 types.
 typedef struct {
     char pad0[4];
     Struct_BB40_58 *unk4;
@@ -21,8 +21,8 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     switch (arg0->unkE) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
-            D_807FBB60 |= 0x10030;
             sp24 = -1;
+            D_807FBB60 |= 0x10030;
             M1B_C924->unk4->unk60 &= 0xBFFFFFFF;
             sp28 = 0;
             sp2C = -1;
@@ -45,9 +45,9 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
                     sp28 = 9;
                 } else {
                     sp2C = 0x13;
-                    sp28 = 9;
-                    if (*((u8 *)arg0 + 0x10) + 1 == D_807FCC4C) {
+                    if (*((u8 *)arg0 + 0x10) + 1 == *(u8 *)&D_807FCC4C) {
                         sp2C = 0x14;
+                        sp28 = 9;
                     } else {
                         sp28 = 9;
                     }

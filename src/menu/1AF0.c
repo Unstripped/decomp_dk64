@@ -176,7 +176,6 @@ void func_80025E04(Struct_80025D14 *arg0, s32 arg1) {
 extern u16 D_80750AC8;
 extern u8 D_807FCC4C;
 
-#ifdef NON_MATCHING
 typedef struct {
     char pad0[4];
     s16 unk4;
@@ -234,7 +233,7 @@ void func_80025FB4(void *arg0, void *arg1, s32 arg2) {
             switch (tbl[i].unk0) {
             case 2:
             case 4:
-                if (!((1 << (tbl[i].unk2 + 0x1F)) & M1A[tbl[i].unk0])) {
+                if (!(M1A[tbl[i].unk0] & (1 << (tbl[i].unk2 + 0x1F)))) {
                     found = 1;
                 }
                 break;
@@ -261,10 +260,6 @@ void func_80025FB4(void *arg0, void *arg1, s32 arg2) {
     }
     M1S->unk10 = D_807FCC4C;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80025FB4.s")
-#endif
 
 s32 func_806F8AD4(s32, s32);
 
@@ -513,7 +508,6 @@ typedef struct {
 extern s32 D_807FBB60;
 s32 func_806F8EDC(s32, s32);
 
-#ifdef NON_MATCHING
 void renderCallbacksRegister(void *, void *, s32);
 void slotQueueCancel(s32, s32);
 s32 actorSpawn(s32, s32);
@@ -600,10 +594,6 @@ void *arg1;
         break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80026874.s")
-#endif
 
 #ifdef NON_MATCHING
 extern u16 D_80033A50[][4];
@@ -620,8 +610,8 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     switch (arg0->unkE) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
-            D_807FBB60 |= 0x10030;
             sp24 = -1;
+            D_807FBB60 |= 0x10030;
             M1B_C924->unk4->unk60 &= 0xBFFFFFFF;
             sp28 = 0;
             sp2C = -1;
@@ -644,9 +634,9 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
                     sp28 = 9;
                 } else {
                     sp2C = 0x13;
-                    sp28 = 9;
-                    if (*((u8 *)arg0 + 0x10) + 1 == D_807FCC4C) {
+                    if (*((u8 *)arg0 + 0x10) + 1 == *(u8 *)&D_807FCC4C) {
                         sp2C = 0x14;
+                        sp28 = 9;
                     } else {
                         sp28 = 9;
                     }
@@ -799,8 +789,6 @@ typedef struct {
 } MenuM3_Actor;
 #define M3A ((MenuM3_Actor *)D_807FBB40)
 extern s32 D_8076A0A8;
-extern u8 D_8076A0AB;
-s32 func_805FF030(s32, s32);
 void behaviourFrameBegin(void);
 void func_806BFBF4(void);
 void actorUpdateModelMatrix(void *, s32);
