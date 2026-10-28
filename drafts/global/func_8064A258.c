@@ -1,4 +1,4 @@
-// func_8064A258 (src/global/478F0.c): CsNM3 stage 4 (interim): diff 10 lines vs target (rem slot 0x60 fixed via named u64 elapsed + t->left store/compare; ok |= sixth; || allDone; for(i=0,e=t..) loop). Remaining: init li t0,2 before sb 60(v0); slot!=-1 block beq+sll delay vs beql+lw; tail lw hi/lw lo/lbu allDone order.
+// func_8064A258 (src/global/478F0.c): CsNM3 stage 4 (4-line diff): only tail left: target reloads rem lo(0x64) then hi(0x60) then lbu allDone in the bnez delay slot; mine lw hi, lbu, lw lo, nop. Found: named u64 elapsed + `t->left = ...; if (t->left == 0 || allDone)` puts the spill slot at 0x60 (named s64 rem sat at 0x88-0x90); `ok |= sixth; if (e->active != 0 || ok == 0)`; for (i = 0, e = t; i < 9; i++, e += 6); trailing dead `if (allDone && allDone) {}` fixes the slot!=-1 beql/sll hoist (deadsweep with --extra allDone); pad4E store first then ascending ent[] stores fixes li t0,2. Tried: cmp forms/casts, named rem, assign-in-cond, 6 compare orders, random store perms, dead stmts.
 extern u64 osGetTime(void);
 typedef struct CsB9FxEnt {
     /* 0x0 */ u8 state;
@@ -71,14 +71,14 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     if (*(CsB9Fx **)cs == NULL) {
         t = func_80610FE8(0x50);
         *(CsB9Fx **)cs = t;
-        t->ent[2].state = 3;
-        t->ent[6].state = 3;
         t->pad4E = 0;
         t->ent[0].state = 0;
         t->ent[1].state = 1;
+        t->ent[2].state = 3;
         t->ent[3].state = 1;
         t->ent[4].state = 2;
         t->ent[5].state = 1;
+        t->ent[6].state = 3;
         t->ent[7].state = 0;
         t->ent[8].state = 1;
         for (i = 0; i != 9; i++) {
@@ -150,4 +150,6 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
         *(CsB9Fx **)cs = NULL;
     }
     renderCallbacksRegister(func_8068DBA4, t, 5);
+    if (allDone && allDone) {
+    }
 }

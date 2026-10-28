@@ -1,4 +1,4 @@
-// func_80643440 (src/global/478F0.c): Stage 5 (text shape/regs-except-FP-temps match, 2 FP temp numbering): only $f4-$f18 temp numbering differs (13 insn lines); form A '(sn*.5+.5)*(p1-p0)+p0' matches block1 numbering but IDO emits add.d operands swapped; form B 'p0+(...)' gets add order but wrong pool start; mixed forms BBA best; permuter 110->100, deadsweep no gain. Parked NON_MATCHING in 478F0 copy.
+// func_80643440 (src/global/478F0.c): Stage 5 (13 lines, FP temp numbering only; code/ints/s-regs match). Per-block forms: A '(sn*.5+.5)*(p1-p0)+p0' = target numbering (cvt sn f4..) but add.d operands swapped (cvt p0,mpy vs target mpy,cvt p0); B/Q/'w=m; p0+w*d' = right add order but ring starts f10 (alloc order d-chain then m-chain). 12 form families x3 blocks (named f32/f64 temps, y0/y1, d*m, +=, dead cvt) full cross product of A,B,D,F,H,Q: nothing < 13. Permuter 600s -j2 (best 100 vs base 125, no zero), deadsweep sweep (D_807F5FD4 forms): no gain. Parked form = BBA (blocks 1,2 'p0 + ...', block 3 '(...)+p0').
 typedef struct CsB0Point3f {
     f32 x, y, z;
 } CsB0Point3f;

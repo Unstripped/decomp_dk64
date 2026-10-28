@@ -349,19 +349,17 @@ void func_80643C0C(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 n;
     f64 t;
     f32 f;
-
-    p = ((CsB1LightView *)cs)->unk0;
-    if (p == NULL) {
-        q = func_80610FE8(8);
-        p = q;
-        ((CsB1LightView *)cs)->unk0 = q;
+    if (((CsB1LightView *)cs)->unk0 == NULL) {
+        ((CsB1LightView *)cs)->unk0 = func_80610FE8(8);
     }
+    q = ((CsB1LightView *)cs)->unk0;
     if (b == 1) {
-        *p = 0;
+        *((CsB1LightView *)cs)->unk0 = 0;
     }
-    n = *p;
-    *p = n + 1;
+    n = *q;
     t = (f32)(70 - n) / 70.0f;
+    *q = n + 1;
+    n = 0;
     if (t > 0.5) {
         f = 1.0 - 2.0 * (t - 0.5);
     } else {
@@ -419,23 +417,18 @@ void modelSlotSetNodeFrame(s32, s16, s32, s32);
 void sfxPlayFromTargetSlot(s16, s32, s32, s32, s32, s32, f32);
 s16 sfxSlotAllocateSource(s16, s32, s32, u8, s32, f32, s32);
 
-#ifdef NON_MATCHING
 void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
-    CsB1SfxState *p;
     CsB1SfxState *q;
     CsB1SfxState *t;
-    s32 frame;
 
-    p = ((CsB1SfxView *)cs)->unk0;
-    if (p == NULL) {
+    if (((CsB1SfxView *)cs)->unk0 == NULL) {
         t = func_80610FE8(0xC);
         ((CsB1SfxView *)cs)->unk0 = t;
         t->unk0 = 0;
         t->unk4 = 0;
-        p = ((CsB1SfxView *)cs)->unk0;
     }
-    q = p;
-    switch (p->unk0) {
+    q = ((CsB1SfxView *)cs)->unk0;
+    switch (q->unk0) {
         case 0:
             q->unk4++;
             if (q->unk4 == 4) {
@@ -445,7 +438,6 @@ void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
                     ((CsB1SfxView *)cs)->unk10 = sfxSlotAllocateSource(csId, 0x12C, 0x3C, 1, 0x64, 1.0f, 0);
                 }
             }
-            frame = q->unk4;
             break;
         case 1:
             q->unk4++;
@@ -462,7 +454,6 @@ void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
                     sfxPlayFromTargetSlot(csId, 0x74, 0xFF, 0x7F, 0, 0x50, 0.3f);
                 }
             }
-            frame = q->unk4;
             break;
         case 2:
             q->unk4 = 7;
@@ -472,7 +463,6 @@ void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
                 q->unk0++;
                 sfxPlayFromTargetSlot(csId, 0x74, 0xFF, 0x7F, 0, 0x50, 0.3f);
             }
-            frame = q->unk4;
             break;
         case 3:
             q->unk4 = 8;
@@ -482,22 +472,15 @@ void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
                 q->unk0++;
                 sfxPlayFromTargetSlot(csId, 0x75, 0xFF, 0x7F, 0, 0x50, 0.3f);
             }
-            frame = q->unk4;
             break;
         case 4:
-            frame = 9;
-            q->unk4 = frame;
+            q->unk4 = 9;
             break;
         default:
-            frame = q->unk4;
             break;
     }
-    modelSlotSetNodeFrame(csId, 1, frame, 0);
+    modelSlotSetNodeFrame(csId, 1, q->unk4, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064409C.s")
-#endif
 
 extern s16 D_807480D0;
 extern s16 D_807480D4;
@@ -4243,21 +4226,24 @@ void func_8064F308(CsState *cs, s16 csId, s16 b, s16 c) {
     flagSet(flag, 1, 0);
 }
 
-#ifdef NON_MATCHING
 extern u8 D_807FC929;
 
+typedef struct {
+    u8 pad0[0xA];
+    u16 v[0x2A];
+} CsNM2Entry;
+
+typedef struct {
+    CsNM2Entry e[8];
+    u8 pad[0x16];
+} CsNM2Slot;
+
 u8 func_8064F358(CsState *cs, s16 csId, s16 b, s16 c) {
-    u8 *p = (u8 *)D_807FC950 + D_807FC929 * 0x306;
+    CsNM2Slot *p = (CsNM2Slot *)D_807FC950 + D_807FC929;
     s32 idx = func_805FF030(D_8076A0AB, 0);
-    u8 *q = p;
 
-    q += (&D_8074E77C)[D_807FC929] * 0x5E;
-    return *(u16 *)(q + idx * 2 + 0xA) > 0;
+    return p->e[(&D_8074E77C)[D_807FC929]].v[idx] > 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064F358.s")
-#endif
 
 s32 flagCountRange(s32, s32, s32);
 
