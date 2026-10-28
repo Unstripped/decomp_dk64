@@ -586,7 +586,33 @@ void menuReleasePlayerControllerSlot(s32 arg0) {
 }
 
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002AB80.s")
+extern s8 D_8076A0D6;
+
+void func_8002AB80(void *arg0, s32 arg1) {
+    Menu3A_Struct174 *temp_s0 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
+    s32 i;
+    s32 j;
+
+    temp_s0->unk17 = D_8076A0D6;
+    func_80030894(temp_s0, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
+    func_80030894(temp_s0, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
+    func_80030894(temp_s0, &D_80720C34, 0xA0, 0x78, 0.75f, 2, 4);
+    for (i = 0; i < 6; i++) {
+        j = 0;
+        do {
+            D_8076A0E8[i][j] = -1;
+            j++;
+        } while (j < 4);
+    }
+    for (i = 0; i < 4; i++) {
+        if (i == 0) {
+            menuAssignPlayerControllerSlot(i, i);
+        } else {
+            D_8076A0E4[i] = -0x80;
+            menuReleasePlayerControllerSlot(i);
+        }
+    }
+}
 
 s32 func_8002ACD4(s32 arg0) {
     s8 temp_v0 = D_8076A0E4[arg0];
