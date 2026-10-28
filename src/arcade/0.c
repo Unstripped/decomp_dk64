@@ -1301,7 +1301,90 @@ void func_8002843C(void);
 void func_800289F0(void);
 void func_800290F0(void);
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800289F0.s")
+extern ArcadeEntity D_8004A478;
+extern ArcadeEntity D_8004A598;
+extern ArcadeEntity D_8004A3D8;
+typedef struct ArcA4_Bar {
+    f32 x;
+    f32 y;
+    f32 vy;
+} ArcA4_Bar;
+#ifndef NON_MATCHING
+extern ArcA4_Bar D_8004BC88[];
+#endif
+void func_800289F0(void) {
+    s32 i;
+    ArcadeEntity *p;
+    f32 t;
+
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4D8;
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4B8;
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A518;
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A598;
+    if (D_8004A76C == 2 && D_8004A740 != 0) {
+        D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4F8;
+    }
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A438;
+    D_8004C71F = arcadeFindFreeEntity();
+    D_8004BCD0[D_8004C71F] = D_8004A398;
+    D_8004BCD0[D_8004C71F].unk0 = 56.0f;
+    D_8004BCD0[D_8004C71F].unk4 = 231.0f;
+    D_8004C170 = D_8004A478;
+    i = D_8004C71F & 0;
+    i = i + 0x24;
+    p = &D_8004BCD0[i]; *p = D_8004A478;
+    p->unk0 = 144.0f;
+    i--;
+    p = &D_8004BCD0[i]; *p = D_8004A478;
+    p->unk1B = 1;
+    p->unk4 = 238.0f;
+    i--;
+    p = &D_8004BCD0[i]; *p = D_8004A478;
+    p->unk1B = 1;
+    p->unk0 = 144.0f;
+    p->unk4 = 238.0f;
+    i--;
+    p = &D_8004BCD0[i]; *p = D_8004A618;
+    p->unk14 = D_80038FE8;
+    p->unk0 = 260.0f;
+    p->unk4 = 103.0f;
+    i--;
+    p = &D_8004BCD0[i]; *p = D_8004A618;
+    p->unk14 = D_800391F0;
+    p->unk0 = 60.0f;
+    p->unk4 = 135.0f;
+    i = arcadeFindFreeEntity();
+    p = &D_8004BCD0[i]; *p = D_8004A3D8;
+    p->unk1A = 1;
+    p->unk8 = 0.5f;
+    p->unk0 = 114.0f;
+    p->unk4 = 135.0f;
+    i = arcadeFindFreeEntity();
+    p = &D_8004BCD0[i]; *p = D_8004A3D8;
+    p->unk1A = 1;
+    p->unk8 = 0.5f;
+    p->unk0 = 260.0f;
+    p->unk4 = 103.0f;
+    D_8004BC88[0].x = 40.0f;
+    D_8004BC88[1].x = 40.0f;
+    D_8004BC88[2].x = 40.0f;
+    D_8004BC88[3].x = 104.0f;
+    D_8004BC88[4].x = 104.0f;
+    D_8004BC88[5].x = 104.0f;
+    D_8004BC88[0].y = 95.0f;
+    D_8004BC88[3].y = 95.0f;
+    D_8004BC88[1].y = 143.0f;
+    D_8004BC88[4].y = 143.0f;
+    D_8004BC88[2].y = 191.0f;
+    D_8004BC88[5].y = 191.0f;
+    t = (arcadeMinFloat((f32)(u32)D_8004A76C, 4.0f) - 2.0) / 16 + 0.5;
+    D_8004BC88[3].vy = t;
+    D_8004BC88[0].vy = -t;
+    D_8004BC88[1].vy = -t;
+    D_8004BC88[2].vy = -t;
+    D_8004BC88[4].vy = t;
+    D_8004BC88[5].vy = t;
+}
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800290F0.s")
 
@@ -1466,15 +1549,6 @@ s32 arcadeCheckStage2Collision(s32 arg0, s32 arg1) {
     return ret;
 }
 
-typedef struct ArcA4_Bar {
-    f32 x;
-    f32 y;
-    f32 vy;
-} ArcA4_Bar;
-
-#ifndef NON_MATCHING
-extern ArcA4_Bar D_8004BC88[];
-#endif
 extern ArcA4_Bar D_8004BCAC[];
 
 s32 func_80029EFC(s32 arg0, s32 arg1) {
@@ -2138,7 +2212,6 @@ extern u8 D_8003E868[];
 extern s32 D_8076D1F8;
 /* ArcR4 declarations */
 extern ArcadeEntity D_8004A5F8;
-extern ArcadeEntity D_8004A3D8;
 extern s32 D_8004A318[][2];
 extern u8 D_8004BCE9[];
 
