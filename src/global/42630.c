@@ -1766,8 +1766,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 1;
         b = cmd->b;
         b &= 0xFF;
-        b &= 2;
         if (cs->unk10[i] < 0) {
+            b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
         }
         break;
@@ -1786,8 +1786,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 1;
         b = cmd->b;
         b &= 0xFF;
-        b &= 2;
         if (cs->unk10[i] < 0) {
+            b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
         }
         break;
@@ -1803,7 +1803,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (vol == 0) {
             vol = 0xFF;
         }
-        sfxPlayFromTargetSlot(csId, cmd->a, vol, pan, cmd->b & 0x7F, c, 0.3f);
+        i = cmd->b & 0x7F;
+        sfxPlayFromTargetSlot(csId, cmd->a, vol, pan, i, c, 0.3f);
         break;
     case 0x7E:
         pan = (cmd->b / 128) & 0xFF;
@@ -1814,7 +1815,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (pan == 0) {
             pan = 0x7F;
         }
-        if (vol == 0) {
+        if (!vol) {
             vol = 0xFF;
         }
         i = cmd->b & 0x7F;
@@ -1879,8 +1880,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (cmd->a == 0) {
             cs->unk44[cmd->c] = cmd->b;
         } else {
-            h = cs->unk14[cmd->b];
-            cs->unk44[cmd->c] = h;
+            cs->unk44[cmd->c] = cs->unk14[cmd->b];
         }
         break;
     case 0x65:
@@ -1978,7 +1978,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSlotSetNodeScrollSpeed(csId, cmd->a, cmd->b, cmd->c);
         break;
     case 0x29:
-        camStartShakeFromPoint(((CsCamState *)D_807FC924->unk4->unk174)->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
+        cam = D_807FC924->unk4->unk174;
+        camStartShakeFromPoint(cam->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
         break;
     case 0x44:
         D_807F6906 = cmd->a;

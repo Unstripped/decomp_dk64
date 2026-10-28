@@ -1,4 +1,4 @@
-// func_8063FA48 (src/global/42630.c): CsFA48 stage 5-6: 1836->~2030/2200 insns equal; masked diff 104->20. Keys: double mask 'c &= 0xFF; c &= 0x7F' (and b &= 0xFF; b &= 2) keeps the copy-propagated mask copy (move a2,v0/andi in place); volatile u8 pitch gives sb/lbu home at 85; void *dm=&csId; i=0 before actor for loops; (x/128)&0xFF pan/vol; sfx protos s32. Left: 0x7E (vol should take s0, pan spilled at 60) and spill slot 56 vs 60 (loop cursor, 0xE/0x7D t1).
+// func_8063FA48 (src/global/42630.c): CsFA48b stage 5-6: deadsweep 245->36 (text 36). Fixes: 0xE/0x7D 'b=cmd->b;b&=0xFF;' before if and 'b&=2' inside; 0xF named i=cmd->b&0x7F; 0x7E !vol; case 0x3 no h local (cs->unk44[c]=cs->unk14[b]); case 0x29 'cam = D_807FC924->unk4->unk174; cam->unk104' (v0 candidate). Left: found a3 vs a2, spill slot 56/60, 0x7E ucvt(pan) steals s0 (vol should), 0x68 a3/v0.
 // Cutscene script command: 16-bit opcode followed by three s16 parameters.
 typedef struct CsCmd {
     /* 0x0 */ u16 op;
@@ -669,8 +669,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 1;
         b = cmd->b;
         b &= 0xFF;
-        b &= 2;
         if (cs->unk10[i] < 0) {
+            b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
         }
         break;
@@ -689,8 +689,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 1;
         b = cmd->b;
         b &= 0xFF;
-        b &= 2;
         if (cs->unk10[i] < 0) {
+            b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
         }
         break;
@@ -706,7 +706,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (vol == 0) {
             vol = 0xFF;
         }
-        sfxPlayFromTargetSlot(csId, cmd->a, vol, pan, cmd->b & 0x7F, c, 0.3f);
+        i = cmd->b & 0x7F;
+        sfxPlayFromTargetSlot(csId, cmd->a, vol, pan, i, c, 0.3f);
         break;
     case 0x7E:
         pan = (cmd->b / 128) & 0xFF;
@@ -717,7 +718,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (pan == 0) {
             pan = 0x7F;
         }
-        if (vol == 0) {
+        if (!vol) {
             vol = 0xFF;
         }
         i = cmd->b & 0x7F;
@@ -782,8 +783,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (cmd->a == 0) {
             cs->unk44[cmd->c] = cmd->b;
         } else {
-            h = cs->unk14[cmd->b];
-            cs->unk44[cmd->c] = h;
+            cs->unk44[cmd->c] = cs->unk14[cmd->b];
         }
         break;
     case 0x65:
@@ -881,7 +881,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSlotSetNodeScrollSpeed(csId, cmd->a, cmd->b, cmd->c);
         break;
     case 0x29:
-        camStartShakeFromPoint(((CsCamState *)D_807FC924->unk4->unk174)->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
+        cam = D_807FC924->unk4->unk174;
+        camStartShakeFromPoint(cam->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
         break;
     case 0x44:
         D_807F6906 = cmd->a;
