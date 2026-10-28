@@ -58,11 +58,39 @@ void func_8002FC98();
 void actorSpawn(s32, s32);
 void func_8067B238(void *, void *, f32);
 void actorScriptStart(void *, s32);
-void func_80724DB0(s32, s32, void *);
+void func_80724DB0();
 void func_8072DA60(void);
 void actorUpdateModelMatrix(void *, s32);
 
 f32 func_80612794(s16);
+
+typedef struct {
+    u8 pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0xE6 - 0x88];
+    s16 unkE6;
+    u8 padE8[0x154 - 0xE8];
+    u8 unk154;
+    u8 unk155;
+} BsA7e_Cam;
+
+typedef struct {
+    u8 pad0[0x2C];
+    s16 unk2C;
+} BsA7e_DC90;
+
+typedef struct {
+    u8 pad0[0x14];
+    s16 *unk14;
+} BsA7e_DCA0;
+
+extern BsA7e_Cam *D_807FBB4C;
+extern BsA7e_DC90 *D_807FDC90;
+extern BsA7e_DCA0 *D_807FDCA0;
+s32 flagGet(s16, u8);
+void func_80027BA8(u8 *, s32, f32);
 
 #ifdef NON_MATCHING
 typedef struct BsB2F_Sub178 {
@@ -132,18 +160,14 @@ typedef struct BsB2F_DC9C {
 } BsB2F_DC9C;
 
 extern u8 *D_80035A90[];
-extern void *D_807FBB4C;
 extern BsB2F_C924 *D_807FC924;
-extern void *D_807FDC90;
 extern BsB2F_DC9C *D_807FDC9C;
-extern BsB2F_DCA0 *D_807FDCA0;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);
 void func_8070B308(s32);
 void camSetSecondTarget(void *, s32, s32);
 void func_80724CA4(s32, s32);
-s32 flagGet(s32, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
 void func_80028878(u8 *);
 void camStartPath(void *, s32, u8);
@@ -163,7 +187,6 @@ void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void func_80614D00(void *, f32, f32);
 s32 currentActorTestClearFlag(void);
-s32 func_80027BA8(u8 *, s32, f32);
 void func_8072A450(void);
 s32 func_8072881C(s32, void *);
 
@@ -272,7 +295,7 @@ void func_8002F100(void) {
             BsFA->unk155++;
             break;
         case 2:
-            BsFA->unkE6 = func_806CC190(BsFA->unkE6, mathAngleBetweenPoints2D((f32)D_807FDCA0->unk14->unk0, (f32)D_807FDCA0->unk14->unk4, BsFA->unk7C, BsFA->unk84), 10.0f);
+            BsFA->unkE6 = func_806CC190(BsFA->unkE6, mathAngleBetweenPoints2D((f32)((BsB2F_DCA0 *)D_807FDCA0)->unk14->unk0, (f32)((BsB2F_DCA0 *)D_807FDCA0)->unk14->unk4, BsFA->unk7C, BsFA->unk84), 10.0f);
             break;
         case 3:
             t = BsFS->unk2C;
@@ -474,7 +497,225 @@ s32 arg2;
     arg0[arg1] = D_807FBB44;
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/B100/func_8002FF74.s")
+typedef struct {
+    u8 pad0[0x8];
+    s16 unk8;
+    u8 padA[0x12 - 0xA];
+    u16 unk12;
+    u8 unk14;
+    u8 unk15;
+    u8 pad16[2];
+    u8 unk18;
+    u8 unk19;
+} BsA7e_State;
+
+typedef struct BsA7e_Actor {
+    u8 pad0[0x60];
+    s32 unk60;
+    u8 pad64[0x138 - 0x64];
+    s32 unk138;
+    u8 pad13C[0x154 - 0x13C];
+    u8 unk154;
+    u8 unk155;
+    u8 pad156[0x15F - 0x156];
+    u8 unk15F;
+    u8 pad160[0x178 - 0x160];
+    BsA7e_State *unk178;
+    struct BsA7e_Actor **unk17C;
+} BsA7e_Actor;
+
+typedef struct {
+    u8 pad0[0x38];
+    f32 unk38;
+} BsA7e_D580;
+
+#define BsA7e_A ((BsA7e_Actor *)D_807FBB40)
+
+extern BsA7e_D580 *D_807FD580;
+extern u8 *D_80035AA4[];
+
+void flagSet(s16, s32, s32);
+void func_8070B308(s32);
+void func_806FB370(s32, s32, s32);
+void func_80614E78(void *, s32);
+void func_805FF158(s32);
+void func_805FF378(s32, s32);
+void func_80724A20(void);
+void behaviourFrameBegin(void);
+void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
+
+void func_8002FDF8(s32, u8);
+
+void func_8002FF74(void) {
+    BsA7e_State *st;
+    BsA7e_Actor **list;
+    u8 *tbl;
+    f32 sp60;
+
+    st = BsA7e_A->unk178;
+    list = BsA7e_A->unk17C;
+    behaviourFrameBegin();
+    if (!(BsA7e_A->unk60 & 0x10)) {
+        func_8070B308(0);
+        func_806FB370(2, 0, 1);
+        D_807FBB4C->unk154 = 0x5F;
+        D_807FBB4C->unk155 = 0;
+        func_80614E78(D_807FBB4C, 0x4B);
+        BsA7e_A->unk154 = 0;
+        BsA7e_A->unk155 = 0;
+        func_80724DB0(2, 1);
+        func_8002FEC0(list, 0, 0x6D);
+        func_8002FEC0(list, 1, 0x6E);
+        func_8002FEC0(list, 2, 0x6F);
+        st->unk12 = 0;
+        if (flagGet(0x51, 2)) {
+            func_8002FC48(D_807FBB40, 4);
+            BsA7e_A->unk15F = 2;
+            list[0]->unk15F = 1;
+            st->unk12 = 1;
+        }
+        if (flagGet(0x52, 2)) {
+            func_8002FC48(list[0], 4);
+            list[0]->unk15F = 2;
+            list[1]->unk15F = 1;
+            st->unk12 = 2;
+        }
+        if (flagGet(0x53, 2)) {
+            func_8002FC48(list[1], 4);
+            list[1]->unk15F = 2;
+            list[2]->unk15F = 1;
+            st->unk12 = 3;
+        }
+        st->unk14 = 0;
+        func_8002FC98(D_807FBB40, 0xF, 0x40E, 0);
+    }
+    tbl = D_80035AA4[st->unk14];
+    if (BsA7e_A->unk154) {
+        s16 *p = D_807FDCA0->unk14;
+        camClosestPointOnSegment(D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, p[0], p[1], p[2], p[5], p[6], p[7], &D_807FBB4C->unk7C, &sp60, &D_807FBB4C->unk84);
+        D_807FBB4C->unkE6 = 0xFD2;
+        D_807FD580->unk38 = 150.0f;
+    }
+    func_8002FDF8((s32)BsA7e_A, st->unk14);
+    func_8002FC98(D_807FBB40, (1 << st->unk12) & 0xFF, 1, 0);
+    switch (BsA7e_A->unk154) {
+    case 0x1F:
+        switch (BsA7e_A->unk155) {
+        case 0:
+            D_807FDC90->unk2C = tbl[st->unk15++];
+            BsA7e_A->unk155++;
+        case 1:
+            if (D_807FDC90->unk2C) {
+                D_807FDC90->unk2C--;
+            } else {
+                BsA7e_A->unk154 = tbl[st->unk15++];
+                BsA7e_A->unk155 = 0;
+            }
+            break;
+        }
+        break;
+    case 0x37:
+        if (BsA7e_A->unk155 == 0) {
+            D_807FBB4C->unk154 = 0x5F;
+            D_807FBB4C->unk155 = 0;
+            func_80614E78(D_807FBB4C, 0x4A);
+            func_805FF158(1);
+            func_8070B308(1);
+            func_805FF378(0xCE, 0);
+            flagSet(st->unk12 + 0x51, 1, 2);
+            BsA7e_A->unk155++;
+        }
+        break;
+    case 0:
+        func_80724A20();
+        break;
+    case 1:
+        func_8002FC98(BsA7e_A, 0xF, 0x410, 0);
+        BsA7e_A->unk154 = tbl[st->unk15++];
+        BsA7e_A->unk155 = 0;
+        break;
+    case 0x27:
+        switch (BsA7e_A->unk155) {
+        case 0:
+            BsA7e_A->unk155++;
+            func_8002FC98(BsA7e_A, 0xF, -1, 0);
+            st->unk18 = tbl[st->unk15++];
+            st->unk19 = tbl[st->unk15++] + st->unk12 * 10;
+            st->unk8 = tbl[st->unk15++];
+            if (st->unk18 == 0xFF) {
+                st->unk18 = 8 >> (s32)((D_807FBB4C->unk7C - 117.0f) / 50.0f);
+            }
+            func_8002FC98(BsA7e_A, st->unk18, 0x413, 0);
+            D_807FDC90->unk2C = 0x14;
+            break;
+        case 1:
+            if (D_807FDC90->unk2C) {
+                D_807FDC90->unk2C--;
+            } else {
+                BsA7e_A->unk155++;
+            }
+            break;
+        case 2:
+            BsA7e_A->unk155++;
+            func_8002FC98(BsA7e_A, st->unk18, 0x414, (st->unk19 + st->unk12 * 15) & 0xFF);
+            D_807FDC90->unk2C = st->unk8;
+        case 3:
+            if (D_807FDC90->unk2C) {
+                D_807FDC90->unk2C--;
+            } else {
+                BsA7e_A->unk154 = tbl[st->unk15++];
+                BsA7e_A->unk155 = 0;
+            }
+            break;
+        }
+        break;
+    case 0x28:
+        func_8002FC98(BsA7e_A, (1 << st->unk12) & 0xFF, 2, 0);
+        if (st->unk14 == st->unk12 && BsA7e_A->unk138 == 0) {
+            BsA7e_A->unk154 = 0x37;
+            BsA7e_A->unk155 = 0;
+            break;
+        }
+        switch (BsA7e_A->unk155) {
+        case 0:
+            D_807FDC90->unk2C = tbl[st->unk15++];
+            func_8002FC98(BsA7e_A, (1 << st->unk12) & 0xFF, 0x411, 0);
+            BsA7e_A->unk155++;
+            break;
+        case 1:
+        case 2:
+            if (D_807FDC90->unk2C) {
+                D_807FDC90->unk2C--;
+            } else {
+                if (BsA7e_A->unk155 == 1 && BsA7e_A->unk138) {
+                    func_8002FC98(BsA7e_A, (1 << st->unk12) & 0xFF, 0x412, 0);
+                }
+                D_807FDC90->unk2C = 10;
+                BsA7e_A->unk155++;
+            }
+            break;
+        case 3:
+            if (BsA7e_A->unk138 == 0) {
+                st->unk14++;
+                st->unk15 = 0;
+                tbl = D_80035AA4[st->unk14];
+            }
+            BsA7e_A->unk154 = tbl[st->unk15++];
+            BsA7e_A->unk155 = 0;
+            break;
+        }
+        break;
+    case 0x29:
+        if (BsA7e_A->unk155 == 0) {
+        }
+        break;
+    default:
+        func_80027BA8(tbl, 0, 0);
+        break;
+    }
+    actorUpdateModelMatrix(BsA7e_A, 0);
+}
+
 void func_80030888(void) {
     BossE_B100_Sub11C *sp1C;
     BossE_B100_Sub178 *sp18;
