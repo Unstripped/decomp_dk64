@@ -1,4 +1,4 @@
-// func_800297B8 (src/menu/3E10.c): stage 4 (frame 0x80, s0-s6+f20 match; parked NON_MATCHING in copy): tail div/mod via x-(x/60)*60 matches; loop1 ptr/index form and loop2 s0/s1 + D_80033804 address hoist differ
+// func_800297B8 (src/menu/3E10.c): stage 4+ (frame 0x80, s0-s6+f20, 241 insns = expected). Remaining text diff: loop 1 q/end colours swapped (target q=s2,p=s0,end=s1; mine q=s1,end=s2) and 'beq v0,t6' vs target 'beq t6,v0' (sp64 vs call result operand order); everything else matches. Recipe: loop1 do-while pointer form 'k = flagGet(q[-1],0); q++; *p++ = k;' (uses the later-reused k as temp so the sb lands in the bnez delay slot), 'for (p2 = &D_80033804, i = 0; i != 5; i++)' header with both inits (moves addiu p2 after lwc1 f20 and fixes s0/s1), '*(u32 *)(s32)&D_80671880 = 0x03E00008;' (gives lui 3e0 / lui+addiu t8 / sw 0(t8)), dead 'if (i) {}' after loop 2... and dead 'if (D_80033804 && D_80033804) {}' before the tail div (both needed: removing either costs 10-16 lines). Swept: all dead-stmt forms x all globals/locals at every boundary (greedy depth 5), loop-1 stmt perms x cond forms, e-local x decl positions, init orders, decl perms, q/p types.
 extern u8 D_80720CF0;
 extern u8 D_80720D14;
 extern u8 D_8072052C;
@@ -32,6 +32,7 @@ void func_8060DC3C(s32, s32);
 s32 flagGet(s32, s32);
 s32 menuCalculateGamePercentage(void);
 int osPiReadIo(u32, u32 *);
+extern s8 D_80033809;
 
 void func_800297B8(void *arg0, s32 arg1) {
     Menu3A_Struct174 *temp_s6 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
@@ -51,11 +52,14 @@ void func_800297B8(void *arg0, s32 arg1) {
     D_80033F4C = 1600.0f;
     func_8060DC3C((u8)D_80033F48, 0);
     D_80033804 = 1;
-    for (i = 0; i < 4; i++) {
-        (&D_80033805)[i] = flagGet((&D_807505B2)[i - 1], 0);
-    }
-    p2 = &D_80033804;
-    for (i = 0; i != 5; i++) {
+    q = &D_807505B2;
+    p = &D_80033805;
+    do {
+        k = flagGet(q[-1], 0);
+        q++;
+        *p++ = k;
+    } while (p < &D_80033809);
+    for (p2 = &D_80033804, i = 0; i != 5; i++) {
         if (*p2 != 0) {
             a1 = D_80750518[i];
         } else {
@@ -65,8 +69,8 @@ void func_800297B8(void *arg0, s32 arg1) {
         p2++;
     }
     osPiReadIo(func_800297A8(0xAFFE1464), &sp64);
-    if (sp64 != func_800297A8(0x0107183B)) {
-        D_80671880 = 0x03E00008;
+    if (func_800297A8(0x0107183B) != sp64) {
+        *(u32 *)(s32)&D_80671880 = 0x03E00008;
     }
     D_8003380C = 0;
     for (k = 0; k != 5; k++) {
@@ -75,6 +79,8 @@ void func_800297B8(void *arg0, s32 arg1) {
         }
         row += 0x5E;
     }
+    if (i) {}
+    if (D_80033804 && D_80033804) {}
     D_80033814 = D_80750AB0 / 60;
     D_80033810 = (s32)D_80033814 / 60;
     D_80033814 = D_80033814 - D_80033810 * 60;

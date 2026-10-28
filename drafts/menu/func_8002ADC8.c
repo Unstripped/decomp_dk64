@@ -1,4 +1,4 @@
-// func_8002ADC8 (src/menu/3E10.c): stage 3: front/loops/branches structure matches (714 insns = expected), frame 0x90 vs 0x88 and s2 missing. Target keeps &D_80033FAD in s2 (head+tail pieces, lb 0(s2), no store-load forwarding); mine gets s0 for tail only / t-reg head. 0x2C9 calls need 1.0 (not 1.0f) arg4 to give lui a3 vs mfc1 fs1. sp84 stack, sp64 0x64. dummy locals u1-u3 for frame.
+// func_8002ADC8 (src/menu/3E10.c): stage 3 (frame 0x88 OK, 712 insns vs 714, no s2). Dummy u1-u3 locals dropped (frame is 0x88 without them, since s2's save slot is absorbed); 's32 t' in the 0x80 clamp removes the sll/sra (target has none). Remaining structural diffs: (1) &D_80033FAD never gets a saved reg: target recomputes lui/addiu s2 at 0x30e8 (head), 0x322c (else-chain top) and 0x37f8 (tail, hoisted BEFORE both calls) = one lda web live across calls; mine gives t7/t8/s0 per region. Direct-global form + dead 'if (D_80033FAD ...) {}' (greedy depth 4: positions in head/0x40 block/tail) does produce s2 but leaves 6-8 extra insns (720) or struct diffs;  everywhere, array decl, u8/s32 type, register, cnt first, 'cnt' re-assigned per region: no s2. (2) j-loop: target hoists li 1/sllv + addu above the bnez (no branch-likely, 'or a3,a3,t5'); mine bnezl+addiu and 'or a3,t4,a3'; tried bit local, mask u8/u32/s32, |=, order of the 3 stores (no change). (3) unkC/unkE v1/a2 colour swap at entry. (4) m=(arg1^D_80033858)&arg1 'and' lands in the delay slot (target computes before cur test). Swept: exhaustive dead-stmt greedy (4 forms x D_80033FAD/E, 80750AC0, 80744520, fields unkC/unkE), mask-type x form x call-arg matrix. NOTE: IDO treats an expression as a uopt candidate (e.g. xor v1) only when it is a separate statement/var (see func_8002C634 recipe).
 typedef struct MenuL3_S174 {
     f32 unk0;
     f32 unk4;
@@ -56,9 +56,6 @@ void func_8002ADC8(void *arg0, s32 arg1) {
     s32 idx;
     s32 lim;
     s32 mask;
-    s32 u1;
-    s32 u2;
-    s32 u3;
     s8 *cnt = (s8 *)(s32)&D_80033FAD;
     s16 cur;
 
@@ -121,7 +118,7 @@ void func_8002ADC8(void *arg0, s32 arg1) {
                     func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                 }
             } else if (arg1 & 0x80) {
-                s16 t = sp84->unkE + 0xF0;
+                s32 t = sp84->unkE + 0xF0;
                 sp84->unkE = t;
                 if (t > 0) {
                     sp84->unkE = 0;

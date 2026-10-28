@@ -585,6 +585,7 @@ void func_8060DC3C(s32, s32);
 s32 menuCalculateGamePercentage(void);
 
 #ifdef NON_MATCHING
+extern s8 D_80033809;
 void func_800297B8(void *arg0, s32 arg1) {
     Menu3A_Struct174 *temp_s6 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
     u8 *row = D_807FC950[0];
@@ -603,11 +604,14 @@ void func_800297B8(void *arg0, s32 arg1) {
     D_80033F4C = 1600.0f;
     func_8060DC3C((u8)D_80033F48, 0);
     D_80033804 = 1;
-    for (i = 0; i < 4; i++) {
-        (&D_80033805)[i] = flagGet((&D_807505B2)[i - 1], 0);
-    }
-    p2 = &D_80033804;
-    for (i = 0; i != 5; i++) {
+    q = &D_807505B2;
+    p = &D_80033805;
+    do {
+        k = flagGet(q[-1], 0);
+        q++;
+        *p++ = k;
+    } while (p < &D_80033809);
+    for (p2 = &D_80033804, i = 0; i != 5; i++) {
         if (*p2 != 0) {
             a1 = D_80750518[i];
         } else {
@@ -617,8 +621,8 @@ void func_800297B8(void *arg0, s32 arg1) {
         p2++;
     }
     osPiReadIo(func_800297A8(0xAFFE1464), &sp64);
-    if (sp64 != func_800297A8(0x0107183B)) {
-        D_80671880 = 0x03E00008;
+    if (func_800297A8(0x0107183B) != sp64) {
+        *(u32 *)(s32)&D_80671880 = 0x03E00008;
     }
     D_8003380C = 0;
     for (k = 0; k != 5; k++) {
@@ -627,6 +631,8 @@ void func_800297B8(void *arg0, s32 arg1) {
         }
         row += 0x5E;
     }
+    if (i) {}
+    if (D_80033804 && D_80033804) {}
     D_80033814 = D_80750AB0 / 60;
     D_80033810 = (s32)D_80033814 / 60;
     D_80033814 = D_80033814 - D_80033810 * 60;
@@ -1255,7 +1261,60 @@ void func_8002C584(void *arg0, s32 arg1) {
     D_807FBB60 |= 0x10000;
 }
 
+#ifdef NON_MATCHING
+extern u8 D_80033878;
+extern u8 D_80033F20[];
+extern s16 D_80744524[];
+extern s8 D_8076A105;
+
+s32 func_8002C634(arg0, arg1)
+void *arg0;
+Gfx *arg1;
+{
+    void *temp_s0;
+    s32 step;
+    s32 i;
+    s16 x;
+    f32 sp13C;
+    f32 sp138;
+    f32 sp134;
+    u8 *q;
+    s16 y;
+    s16 sp12C;
+    char sp64[200];
+    s32 sel;
+
+    temp_s0 = *(void **)((u8 *)arg0 + 0x174);
+    gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
+    func_800317E8(temp_s0, 160.0f, 45.0f, &sp13C, &sp138, 2, 0, 1.8f);
+    func_800317E8(temp_s0, 160.0f, 185.0f, &sp13C, &sp134, 2, 0, 1.8f);
+    y = (s32)(sp138 * 4.0);
+    sp12C = (s32)(sp134 * 4.0);
+    step = 0x11D / D_80033878;
+    x = step * 2 + 0x46;
+    step *= 4;
+    q = D_80033F20;
+    i = 0;
+    if (D_80033878 > 0) {
+        do {
+            _sprintf(sp64, "P %d", *q + 1);
+            arg1 = hudDrawScaledText(arg1, x, y, 0.6f, sp64);
+            sel = i == D_8076A105;
+            arg1 = hudDrawScaledText(arg1, x, (s16)(y + 0x30), 0.6f, (char *)D_80033F28[0x1D + sel]);
+            _sprintf(sp64, "%d", D_80744524[*q]);
+            arg1 = hudDrawScaledText(arg1, x, sp12C, 0.6f, sp64);
+            i += 1;
+            q += 1;
+            x += step;
+        } while (i < D_80033878);
+        if (i) {}
+    }
+    return (s32)hudDrawScaledText(arg1, 0x280, (s16)(sp12C - 0x50), 0.6f, (char *)D_80033F28[0x1F]);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002C634.s")
+#endif
 
 #ifdef NON_MATCHING
 extern u8 D_80033878;

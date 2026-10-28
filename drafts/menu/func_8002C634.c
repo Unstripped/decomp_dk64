@@ -1,4 +1,4 @@
-// func_8002C634 (src/menu/3E10.c): stage 4 (frame 0x150, s0-s8+f20 saved set, 218 insns, stack layout 0x13C/138/134/sh 0x12C/buf 0x64 all match). Remaining: xor v1 (flag temp in v1) vs t9 + t-ring shift (~45 normalised diff lines), and q++/move s4,v0 order at loop end. Recipe: decl order temp_s0,step,i,x,sp13C,sp138,sp134,q,y,sp12C,sp64 (x lone s16, y+sp12C pair gives sh at +0), step*=4 after x, gDPSetPrimColor(arg1++,0,0,255,255,255,255) for the lui/li/sw order, y/sp12C computed before step, i+=1;q+=1;x+=step after last hud call, dead if (i) {} after the do-while to swap i/q colours. Swept: dead-stmt sweep (4 forms x all globals/locals), 5000 random + exhaustive layout-valid decl permutations, tail permutations, preheader order permutations.
+// func_8002C634 (src/menu/3E10.c): stage 4+, 2-line diff left: at loop end target has 'slt at,s1,t7; addiu s2,s2,1; move s4,v0; bnez' (q++ before the arg1 move), mine has move s4,v0 before addiu s2 (only remaining text diff; rodata reloc names aside). Recipe: K&R def; decl order temp_s0,step,i,x,sp13C,sp138,sp134,q,y,sp12C,sp64[200],sel (x lone s16 / y+sp12C consecutive s16 pair puts sh at 0x12C; floats at 0x13C..0x134; buf 0x64; sel declared LAST); gDPSetPrimColor(arg1++,0,0,255,255,255,255) gives lui/li/sw order; y,sp12C computed before step=0x11D/n; x=step*2+0x46; step*=4; q; i=0; hud(arg1,..y..) then SEPARATE stmt sel = i == D_8076A105 (makes the xor result a uopt candidate = xor v1) then hud with D_80033F28[0x1D+sel]; loop end hud, i+=1,q+=1,x+=step; dead 'if (i) {}' after the do-while swaps i/q s1/s2 colours. Swept: 5000 random decl permutations, exhaustive layout-valid orders, preheader perms, tail perms x hud placement, loop forms (for/while/do), tmp-var arg1 forms, dead-stmt sweep of 4 forms x all locals/globals/arrays at every statement boundary.
 extern u8 D_80033878;
 extern u8 D_80033F20[];
 extern s16 D_80744524[];
@@ -19,6 +19,7 @@ Gfx *arg1;
     s16 y;
     s16 sp12C;
     char sp64[200];
+    s32 sel;
 
     temp_s0 = *(void **)((u8 *)arg0 + 0x174);
     gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
@@ -34,7 +35,9 @@ Gfx *arg1;
     if (D_80033878 > 0) {
         do {
             _sprintf(sp64, "P %d", *q + 1);
-            arg1 = hudDrawScaledText(hudDrawScaledText(arg1, x, y, 0.6f, sp64), x, (s16)(y + 0x30), 0.6f, (char *)D_80033F28[0x1D + (i == D_8076A105)]);
+            arg1 = hudDrawScaledText(arg1, x, y, 0.6f, sp64);
+            sel = i == D_8076A105;
+            arg1 = hudDrawScaledText(arg1, x, (s16)(y + 0x30), 0.6f, (char *)D_80033F28[0x1D + sel]);
             _sprintf(sp64, "%d", D_80744524[*q]);
             arg1 = hudDrawScaledText(arg1, x, sp12C, 0.6f, sp64);
             i += 1;
