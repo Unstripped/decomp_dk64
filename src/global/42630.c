@@ -11,7 +11,7 @@ extern s16 D_807F6240[];
 extern s8 D_807F6902;
 
 #ifdef NON_MATCHING
-extern u8 D_807F66F0[];
+u8 D_807F66F0[0x212]; // TU-local definition: as1 then shares one `lui at` between sb 0/1 (matches text); the bss blob must be split out of the asm first
 
 void func_8063D930(void) {
     s32 i = 0;
@@ -1582,8 +1582,6 @@ void func_8064199C(void *obj, s16 b, s16 c) {
     }
 }
 
-// Parked NON_MATCHING (stage 5): regalloc only, same frame/branches (a=v0/cam=a1/bc=v0 vs t7/v0/a1).
-#ifdef NON_MATCHING
 typedef struct CsA2Player {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ Actor *unk4;
@@ -1596,21 +1594,14 @@ typedef struct CsA2Cam {
 } CsA2Cam;
 
 s32 func_806419F8(void) {
-    Actor *a = D_807FBB4C;
-    CsA2Player *p = (CsA2Player *)D_807FC924;
-    s32 t = a->unk154;
-    void *cam = p->unk4->unk174;
+    CsA2Cam *cam = D_807FC924->unk4->unk174;
 
-    if ((t == 0x42 && (((CsA2Cam *)cam)->unkBC == 0x62 || ((CsA2Cam *)cam)->unkBC == 0x88 || ((CsA2Cam *)cam)->unkBC == 0x17)) || t == 0x52 || t == 0x67 ||
-        p->unk29C == 0x1C || p->unk29C == 0x53) {
+    if ((D_807FBB4C->unk154 == 0x42 && (cam->unkBC == 0x62 || cam->unkBC == 0x88 || cam->unkBC == 0x17)) || D_807FBB4C->unk154 == 0x52 ||
+        D_807FBB4C->unk154 == 0x67 || ((CsA2Player *)D_807FC924)->unk29C == 0x1C || ((CsA2Player *)D_807FC924)->unk29C == 0x53) {
         return 0;
     }
     return 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_806419F8.s")
-#endif
 
 void modelSlotFreeByIndex(s16, s32);
 

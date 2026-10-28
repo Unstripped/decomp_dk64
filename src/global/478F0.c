@@ -2790,27 +2790,22 @@ void func_8064B370(CsState *cs, s16 csId, s16 b, s16 c) {
     D_807F6238 = p->v[9];
 }
 
-#ifdef NON_MATCHING
 void func_8064B3F8(CsState *cs, s16 csId, s16 b, s16 c) {
     CsB10Saved *p = *(CsB10Saved **)cs;
-    CsB0Slot *slot;
+    s32 idx;
     f32 sx;
     f32 sy;
     f32 sz;
 
-    slot = &D_807F6000[hashTableLookup(csId)];
-    sx = slot->x;
-    sy = slot->y;
-    sz = slot->z;
+    idx = hashTableLookup(csId);
+    sx = D_807F6000[idx].x;
+    sy = D_807F6000[idx].y;
+    sz = D_807F6000[idx].z;
 
     cs->unk14[c] = (p->v[0] - sx) / b;
     cs->unk14[c + 1] = (p->v[1] - sy) / b;
     cs->unk14[c + 2] = (p->v[2] - sz) / b;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B3F8.s")
-#endif
 
 extern s16 D_807F6240[];
 void func_8064B4AC(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -2942,44 +2937,29 @@ void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-#ifdef NON_MATCHING
 void actorListSetPosById(s16, f32, f32, f32);
 
 void func_8064B9E0(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 x, y, z;
     switch (b) {
         case 0:
-            z = 0x16A;
-            y = 6;
-            x = 0x3A4;
+            x = 0x3A4; y = 6; z = 0x16A;
             break;
         case 1:
-            z = 0x20A;
-            y = 0x7A;
-            x = 0x439;
+            x = 0x439; y = 0x7A; z = 0x20A;
             break;
         case 2:
-            z = 0x237;
-            y = 0x7A;
-            x = 0x35D;
+            x = 0x35D; y = 0x7A; z = 0x237;
             break;
         case 3:
-            z = 0x120;
-            y = 0x11;
-            x = 0x502;
+            x = 0x502; y = 0x11; z = 0x120;
             break;
         case 4:
-            z = 0x172;
-            y = 0x12;
-            x = 0x28A;
+            x = 0x28A; y = 0x12; z = 0x172;
             break;
     }
     actorListSetPosById(5, (f32)x, (f32)y, (f32)z);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B9E0.s")
-#endif
 
 s32 func_8064BAF4(CsState *cs, s16 csId, s16 b, s16 c) {
     return (u8)(cs->unk14[b] < cs->unk14[c]);
