@@ -1305,7 +1305,41 @@ s32 func_806FACE8(s32 arg0) {
     return result;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FAFE4.s")
+typedef struct FcDNode {
+    s32 flags;
+    struct FcDNode *next;
+} FcDNode;
+
+typedef struct FcDSlot {
+    u8 pad0[6];
+    u8 unk6;
+    u8 pad7[0x19];
+    s32 unk20;
+    u8 pad24[8];
+    u8 unk2C;
+    u8 unk2D;
+    u8 pad2E[2];
+} FcDSlot;
+
+void func_806FAFE4(void) {
+    s32 i;
+    FcDNode **link;
+    FcDNode *alloc;
+
+    link = (FcDNode **)&D_80754284;
+    while (*link != NULL) {
+        link = &(*link)->next;
+    }
+    alloc = func_80610FE8(8);
+    *link = alloc;
+    heapClearBlock(alloc);
+    for (i = 0; i < 15; i++) {
+        if ((((FcDSlot *)D_80754280)[i].unk20 == 1 || ((FcDSlot *)D_80754280)[i].unk20 == 2) && ((FcDSlot *)D_80754280)[i].unk6 != 0) {
+            (*link)->flags |= 1 << i;
+        }
+    }
+}
+
 
 void slotQueueClearAllFlags(void)
 {
@@ -1328,10 +1362,46 @@ void slotQueueReset(void) {
     slotQueueReleaseAll();
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FB2B8.s")
+void func_806FB2B8(void) {
+    FcDNode **link;
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FB370.s")
+    link = (FcDNode **)&D_80754284;
+    if (*link != NULL) {
+        while ((*link)->next != NULL) {
+            link = &(*link)->next;
+        }
+        for (i = 0; i != 15; i++) {
+            if ((*link)->flags & (1 << i)) {
+                slotQueueUpdate(i, 1, 0);
+            }
+        }
+        heapFree(*link);
+        *link = NULL;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FB3D0.s")
+void func_806FB370(u8 arg0, u8 arg1, u8 arg2) {
+    if (((FcDSlot *)D_80754280)[arg1 * 15 + arg0].unk2D == 0) {
+        ((FcDSlot *)D_80754280)[arg1 * 15 + arg0].unk2C = arg2;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FB418.s")
+u8 func_806FB3D0(u8 arg0, u8 arg1) {
+    return ((FcDSlot *)D_80754280)[arg1 * 15 + arg0].unk2C;
+}
+
+s32 func_806FB418(void) {
+    s32 sum;
+    s32 i;
+    s32 j;
+
+    sum = 0;
+    for (j = 0; j < 5; j++) {
+        for (i = 0; i < 8; i++) {
+            sum += ((u16 *)D_807FC950[j])[0x21 + i];
+        }
+    }
+    return sum;
+}
+

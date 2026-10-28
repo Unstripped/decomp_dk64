@@ -1,161 +1,116 @@
-// func_806FCC88 (src/global/100180.c): Compiled stage-1 display reconstruction; frame and display-list setup remain far from target.
-void *func_80610FE8(s32);                           /* extern */
-? func_806FB914(u8, u8 *);                          /* extern */
-void *func_806FBEF0(void *, u8, s16);               /* extern */
-void *func_8070068C(void *);                        /* extern */
-? heapFreeDeferred(void *);                         /* extern */
-extern ? D_2000000;
-extern ? D_2000200;
-extern ? D_807549FC;
-extern ? D_80754A18;
-extern ? D_80754A35;
-extern ? D_80754A36;
+// func_806FCC88 (src/global/100180.c): func_806FCC88 (src/global/100180.c): Stage 5: frame 0xC8 and stack layout match; remaining diff is t-reg ring (chr in v1 vs t6, tail lw t4 vs t5) after the glyph-table lookup.
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    u8 padC[0xC];
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    u8 pad24[0xC];
+    f32 unk30;
+    u8 pad34[4];
+} HbTextElem;
 
-void *func_806FCC88(void *arg0, void *arg1) {
-    s32 spC4;
-    u8 spC3;
-    u8 spC2;
-    s32 spBC;
-    void *spB4;
-    void *spB0;
-    Mtx *temp_s3;
-    s16 temp_a0_2;
-    s16 temp_a1_2;
-    s16 temp_a2_2;
-    s16 temp_a3;
-    s16 temp_s5;
-    s16 temp_t0;
-    s16 temp_t1;
-    s16 temp_t2;
-    s16 temp_t6;
-    s16 temp_v0_6;
-    s32 temp_a0;
-    s32 temp_t4;
-    s32 var_fp;
-    u8 temp_a1;
-    u8 temp_s2;
-    u8 temp_s4;
-    u8 temp_t4_2;
-    u8 temp_t8;
-    void *temp_a2;
-    void *temp_s1;
-    void *temp_s1_2;
-    void *temp_s1_3;
-    void *temp_s1_4;
-    void *temp_s1_5;
-    void *temp_s1_6;
-    void *temp_v0;
-    void *temp_v0_2;
-    void *temp_v0_3;
-    void *temp_v0_4;
-    void *temp_v0_5;
-    void *var_s0;
-    void *var_s1;
+typedef struct {
+    u8 pad0[4];
+    u8 *unk4;
+    HbTextElem *unk8;
+    u8 unkC;
+    u8 unkD;
+} HbTextObj;
 
-    spBC = 0;
-    temp_v0 = func_80610FE8(arg1->unkD << 6);
-    var_s0 = temp_v0;
-    heapFreeDeferred(temp_v0);
-    temp_v0_2 = func_80610FE8(arg1->unkD << 6);
-    spB0 = temp_v0_2;
-    heapFreeDeferred(temp_v0_2);
-    spB4 = var_s0;
-    arg0->unk4 = 0x2000;
-    arg0->unk0 = 0xE3001201;
-    temp_v0_3 = func_8070068C(arg0 + 8);
-    spC4 = 1;
-    var_s1 = temp_v0_3;
-    if ((*(&D_80754A35 + (arg1->unkC * 6)) + 1) >= 2) {
+extern u8 *D_807549FC[];
+extern u8 D_80754A35[];
+extern u8 D_80754A36[];
+extern u8 D_2000000[];
+extern u8 D_2000200[];
+void heapFreeDeferred(void *);
+Gfx *func_8070068C(Gfx *);
+Gfx *func_806FBEF0(Gfx *, u8, s16);
+s32 func_806FB914(s16, u8 *);
+
+Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
+    s32 line;
+    u8 chr;
+    u8 started;
+    s32 idx;
+    Vtx *vp;
+    Vtx *spB4;
+    Mtx *mp;
+    s32 i;
+    s32 gw;
+    s32 gx;
+    s32 gh;
+
+    idx = 0;
+    vp = func_80610FE8(arg1->unkD << 6);
+    heapFreeDeferred(vp);
+    mp = func_80610FE8(arg1->unkD << 6);
+    heapFreeDeferred(mp);
+    spB4 = vp;
+    gDPSetTextureFilter(dl++, G_TF_BILERP);
+    dl = func_8070068C(dl);
+    line = 1;
+    if (D_80754A35[arg1->unkC * 6] + 1 >= 2) {
         do {
-            spC2 = 0;
-            var_fp = 1;
-            temp_t4_2 = *arg1->unk4;
-            spC3 = temp_t4_2;
-            if (temp_t4_2 & 0xFF) {
+            started = 0;
+            i = 1;
+            chr = arg1->unk4[0];
+            if (chr) {
                 do {
-                    if (spC3 != 0x20) {
-                        func_806FB914(arg1->unkC, &spC3);
-                        temp_a1 = arg1->unkC;
-                        temp_a0 = temp_a1 * 4;
-                        temp_a2 = *(&D_807549FC + temp_a0) + spC4;
-                        if (((s32) spC3 >= (s32) temp_a2->unk-1) && ((s32) spC3 < (s32) temp_a2->unk0)) {
-                            temp_v0_4 = *(&D_80754A18 + temp_a0) + (spC3 * 4);
-                            temp_s4 = temp_v0_4->unk2;
-                            temp_s5 = temp_v0_4->unk0;
-                            temp_s2 = *(&D_80754A36 + (temp_a1 * 6));
-                            if (spC2 == 0) {
-                                spC2 = 1;
-                                var_s1 = func_806FBEF0(var_s1, temp_a1, unkspC6);
+                    if (chr != 0x20) {
+                        func_806FB914(arg1->unkC, &chr);
+                        if (chr >= (D_807549FC[arg1->unkC] + line)[-1] && chr < (D_807549FC[arg1->unkC] + line)[0]) {
+                            gw = ((u8 *)((u8 **)D_80754A18)[arg1->unkC])[chr * 4 + 2];
+                            gx = *(s16 *)((u8 *)((u8 **)D_80754A18)[arg1->unkC] + chr * 4);
+                            gh = D_80754A36[arg1->unkC * 6];
+                            if (started == 0) {
+                                started = 1;
+                                dl = func_806FBEF0(dl, arg1->unkC, line);
                             }
-                            temp_v0_5 = arg1->unk8 + (spBC * 0x38);
-                            temp_s3 = (spBC << 6) + spB0;
-                            guPosition(temp_s3, 0.0f, 0.0f, temp_v0_5->unk20 * 57.295776f, temp_v0_5->unk30, temp_v0_5->unk0, temp_v0_5->unk4, 0.0f);
-                            temp_s1_2 = var_s1 + 8;
-                            var_s1->unk0 = 0xDA380000;
-                            var_s1->unk4 = temp_s3;
-                            var_s1->unk8 = 0xE7000000;
-                            temp_s1_2->unk4 = 0;
-                            temp_a0_2 = temp_s4 * 2;
-                            temp_a2_2 = temp_s2 * 2;
-                            temp_t1 = temp_s2 << 6;
-                            temp_a3 = temp_a2_2 - 1;
-                            temp_a1_2 = -temp_a0_2;
-                            temp_t0 = temp_s5 << 6;
-                            temp_v0_6 = temp_a0_2 - 1;
-                            temp_t6 = (temp_s5 + temp_s4) << 6;
-                            temp_t2 = -temp_a2_2;
-                            temp_s1_3 = temp_s1_2 + 8;
-                            var_s0->unk0 = temp_a1_2;
-                            var_s0->unk2 = temp_a3;
-                            var_s0->unk4 = -5;
-                            var_s0->unk8 = temp_t0;
-                            var_s0->unkA = temp_t1;
-                            var_s0->unk10 = temp_v0_6;
-                            var_s0->unk12 = temp_a3;
-                            var_s0->unk14 = -5;
-                            var_s0->unk18 = temp_t6;
-                            var_s0->unk1A = temp_t1;
-                            var_s0->unk22 = temp_t2;
-                            var_s0->unk20 = temp_v0_6;
-                            var_s0->unk24 = -5;
-                            var_s0->unk28 = temp_t6;
-                            var_s0->unk2A = 0;
-                            var_s0->unk32 = temp_t2;
-                            var_s0->unk30 = temp_a1_2;
-                            var_s0->unk34 = -5;
-                            var_s0->unk38 = temp_t0;
-                            var_s0->unk3A = 0;
-                            temp_s1_2->unk8 = 0x01004008;
-                            var_s0 += 0x40;
-                            temp_s1_4 = temp_s1_3 + 8;
-                            temp_s1_3->unk4 = osVirtualToPhysical(spB4);
-                            temp_s1_5 = temp_s1_4 + 8;
-                            temp_s1_4->unk4 = 0x406;
-                            temp_s1_3->unk8 = 0x07000204;
-                            temp_s1_5->unk4 = 0x40;
-                            temp_s1_4->unk8 = 0xD8380002;
-                            var_s1 = temp_s1_5 + 8;
-                            spB4 = var_s0;
+                            guPosition(mp + idx, 0.0f, 0.0f, arg1->unk8[idx].unk20 * 57.295776f, arg1->unk8[idx].unk30,
+                                       arg1->unk8[idx].unk0, arg1->unk8[idx].unk4, 0.0f);
+                            gSPMatrix(dl++, mp + idx, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+                            gDPPipeSync(dl++);
+                            ((s16 *)vp)[0] = -(gw * 2);
+                            ((s16 *)vp)[1] = gh * 2 - 1;
+                            ((s16 *)vp)[2] = -5;
+                            ((s16 *)vp)[4] = gx << 6;
+                            ((s16 *)vp)[5] = gh << 6;
+                            ((s16 *)vp)[8] = gw * 2 - 1;
+                            ((s16 *)vp)[9] = gh * 2 - 1;
+                            ((s16 *)vp)[10] = -5;
+                            ((s16 *)vp)[12] = (gx + gw) << 6;
+                            ((s16 *)vp)[13] = gh << 6;
+                            ((s16 *)vp)[17] = -(gh * 2);
+                            ((s16 *)vp)[16] = gw * 2 - 1;
+                            ((s16 *)vp)[18] = -5;
+                            ((s16 *)vp)[20] = (gx + gw) << 6;
+                            ((s16 *)vp)[21] = 0;
+                            ((s16 *)vp)[25] = -(gh * 2);
+                            ((s16 *)vp)[24] = -(gw * 2);
+                            ((s16 *)vp)[26] = -5;
+                            ((s16 *)vp)[28] = gx << 6;
+                            ((s16 *)vp)[29] = 0;
+                            vp += 4;
+                            gSPVertex(dl++, osVirtualToPhysical(spB4), 4, 0);
+                            gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
+                            gSPPopMatrix(dl++, G_MTX_MODELVIEW);
+                            spB4 = vp;
                         }
-                        spBC += 1;
+                        idx++;
                     }
-                    temp_t8 = *(var_fp + arg1->unk4);
-                    var_fp += 1;
-                    spC3 = temp_t8;
-                } while (temp_t8 & 0xFF);
-                spBC = 0;
+                    chr = arg1->unk4[i];
+                    i++;
+                } while (chr);
+                idx = 0;
             }
-            temp_t4 = spC4 + 1;
-            spC4 = temp_t4;
-        } while (temp_t4 < (*(&D_80754A35 + (arg1->unkC * 6)) + 1));
+            line++;
+        } while (line < D_80754A35[arg1->unkC * 6] + 1);
     }
-    temp_s1_6 = var_s1 + 8;
-    var_s1->unk0 = 0xDA380007;
-    var_s1->unk4 = &D_2000000;
-    temp_s1 = temp_s1_6 + 8;
-    var_s1->unk8 = 0xDA380005;
-    temp_s1_6->unk4 = &D_2000200;
-    temp_s1_6->unk8 = 0xE7000000;
-    temp_s1->unk4 = 0;
-    return temp_s1 + 8;
+    gSPMatrix(dl++, D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gDPPipeSync(dl++);
+    return dl;
 }
