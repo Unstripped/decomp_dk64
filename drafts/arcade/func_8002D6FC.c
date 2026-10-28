@@ -1,4 +1,4 @@
-// func_8002D6FC (src/arcade/0.c): stage 3 (651/665 insns): logic complete (case 2/3/5/6, sprite pick, tail). Remaining: uopt gives the entity pointer s0 (frame has sw s0) while target keeps it in v1 spilled to 0x1C(sp) around every call (13 calls); pointer local p variant (d6fc_2) also s0. tail needs unk1A=K; unk8=(f32)((f64)(u32)E.unk1A-0.5) forward trick (applied)
+// func_8002D6FC (src/arcade/0.c): stage 3: 650/664 insns. Applied: a0 += ((P.unk1A&2)*3)/2 (addu a0,a0,t7), unk0 += unk8 (case 2 else), unk0 + unk8*8.0f operand order in collision arg. Remaining: E (D_8004BCD0[arg0]) gets s0 instead of v1 spilled 0x1C. Threshold study: with 13 jal (12 crossing E) uopt picks s0; deleting ANY one call from case 2 flips E to v1 (adjsave 5.0, 9 sw/10 lw v1 spills vs target 9/11), so the target's E range must cost less than mine by about one call; named-local order/remove sp28 had no effect. With a call removed the head (sprite pick, case 3/5/6) matches except lbu a0,26(v1) temp taking t4.
 extern u8 D_80035EF0[];
 extern u8 D_80036138[];
 extern u8 D_80036380[];
@@ -48,13 +48,13 @@ void func_8002D6FC(s32 arg0) {
             sp20 = arcadeRand();
             if ((f32)sp20 < arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) * 60.0f + 256.0f) {
                 a0 = D_8004BCD0[arg0].unk0 < D_8004BCD0[D_8004C71F].unk0;
-                a0 = a0 + (((D_8004BCD0[D_8004C71F].unk1A & 2) * 3) / 2);
+                a0 += ((D_8004BCD0[D_8004C71F].unk1A & 2) * 3) / 2;
                 D_8004BCD0[arg0].unk1A = (arcadeRand() + a0 * 0xFB8) - 0x1F70 >= 0x4001;
             }
-            if ((f32)arcadeCheckPlayerCollision((s32)(D_8004BCD0[arg0].unk8 * 8.0f + D_8004BCD0[arg0].unk0), (s32)D_8004BCD0[arg0].unk4) - D_8004BCD0[arg0].unk4 > 5.0f) {
+            if ((f32)arcadeCheckPlayerCollision((s32)(D_8004BCD0[arg0].unk0 + D_8004BCD0[arg0].unk8 * 8.0f), (s32)D_8004BCD0[arg0].unk4) - D_8004BCD0[arg0].unk4 > 5.0f) {
                 D_8004BCD0[arg0].unk1A = D_8004BCD0[arg0].unk1A == 0;
             } else {
-                D_8004BCD0[arg0].unk0 = D_8004BCD0[arg0].unk0 + D_8004BCD0[arg0].unk8;
+                D_8004BCD0[arg0].unk0 += D_8004BCD0[arg0].unk8;
             }
             D_8004BCD0[arg0].unk8 = (f32)((((f64)arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) / 15.0) + 1.0) * ((f64)(u32)D_8004BCD0[arg0].unk1A - 0.5));
             a0 = (s32)(arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) * (D_8004BCD0[arg0].unk4 - D_8004BCD0[D_8004C71F].unk4) * 3.0f);
