@@ -55,7 +55,7 @@ typedef struct CsB0Slot {
 } CsB0Slot; /* 0x90 */
 extern CsB0Slot *D_807F6000;
 s32 hashTableLookup();
-void modelSlotGetNodePos(s32, s32, s32, f32 *, f32 *, f32 *);
+void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
 
 void func_80642C78(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -417,7 +417,7 @@ typedef struct {
 void func_80605380(s16);
 void modelSlotSetNodeFrame(s32, s16, s32, s32);
 void sfxPlayFromTargetSlot(s16, s32, s32, s32, s32, s32, f32);
-s16 sfxSlotAllocateSource(s16, s32, s32, s32, s32, f32, s32);
+s16 sfxSlotAllocateSource(s16, s32, s32, u8, s32, f32, s32);
 
 #ifdef NON_MATCHING
 void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
