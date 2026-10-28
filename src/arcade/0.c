@@ -1184,8 +1184,7 @@ void func_800275E8(Gfx **arg0) {
     for (i = 0; i < n; i++) {
         func_800274E0(&sp90, pt[i].x, pt[i].y, pt[i].z);
     }
-    bar = D_8004BC88;
-    do {
+    for (bar = D_8004BC88;;) {
         if (D_8004C71D == 0 && D_8004C724 == 5) {
             bar->y = bar->y + bar->vy;
             if (bar->y < 99.0f) {
@@ -1199,7 +1198,8 @@ void func_800275E8(Gfx **arg0) {
             func_8070F2FC((s32 *)&sp90, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
         }
         bar++;
-    } while (bar != (ArcA1_Bar *)D_8004BCD0);
+        if (bar == (ArcA1_Bar *)D_8004BCD0) break;
+    }
     func_800263EC(&sp90);
     *arg0 = sp90;
 }
@@ -3139,7 +3139,6 @@ void func_8002EC04(s32 arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 extern u8 D_8003E9F0[];
 extern u8 D_80043498[];
 extern u8 D_800463F0[];
@@ -3198,6 +3197,7 @@ void func_8002EEB8(s32 arg0) {
                 D_8004BCD0[idx].unk8 = (((f64)D_8004BCD0[D_8004C71F].unk0 - 92.0) / 200.0 + ((f64)arcadeRand() - 16384.0) / 30000.0) * arcadeMinFloat(3.0f, (f32)D_8004A76C);
                 if ((f32)arcadeRand() < arcadeMinFloat((f32)(u32)D_8004A76C, 3.0f) * 2000.0f + 4096.0f) {
                     D_8004BCD0[idx].unk1C = 6;
+                    if (D_80040540 == 0) {}
                     return;
                 }
             } else if (D_8004BCD0[arg0].unk1C == 0x14) {
@@ -3224,6 +3224,7 @@ void func_8002EEB8(s32 arg0) {
                 D_8004BCD0[arg0].unk14 = D_80043498;
                 D_8004BCD0[arg0].unk1A = 0;
                 D_8004BCD0[idx].unk19 = 1;
+                if (D_80040540 == 0) {}
                 return;
             }
             break;
@@ -3234,6 +3235,7 @@ void func_8002EEB8(s32 arg0) {
                 D_8004BCD0[arg0].unk19 = 0xC;
                 D_8004BCD0[arg0].unk14 = D_800424D0;
                 D_8004BCD0[arg0].unk1A = 0;
+                if (D_80040540 == 0) {}
                 return;
             }
             break;
@@ -3297,10 +3299,6 @@ void func_8002EEB8(s32 arg0) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_8002EEB8.s")
-#endif
 
 extern u8 D_800473B8[];
 extern u8 D_80048380[];

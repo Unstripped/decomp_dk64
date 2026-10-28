@@ -1,4 +1,4 @@
-// func_800275E8 (src/arcade/0.c): stage 5: 14 diff lines, all regalloc. frame 160, sp90 at 144 OK (decl order i,j,n,sp90,pt,bar). Matches via: sp90=*arg0 first; ArcA1_P6D0 read back as a1 arg; block1 loops 'for (j=5;j<0x14;j++) (f64)(j*8)'; bar loop 'for (j=0;j<2;j++) (f32)(j*8)'; pt loop 'n=21; pt=D_8004A7C8; for(i=0;i<n;i++) f(pt[i]..)' gives sltu + addiu s,s0,84 like target. Remaining: bound web gets s2 (target s1) because local n takes s1, and addiu order s1,s4,s6,s7 vs s4,s6,s7,s1 for later bar setup. Without n the bound constant-folds to lui+addiu D_8004A7C8+84. In matched form need ArcA4_Bar typedef+extern D_8004BC88 above this func (drop later ArcA4 dup).
+// func_800275E8 (src/arcade/0.c): stage 5: 5 diff lines, only the pt-loop bound web (target s1, ours s2) + .rodata reloc. Matched this round: bar loop as 'for (bar = D_8004BC88;;) {...; bar++; if (bar == (ArcA1_Bar *)(s32)&D_8004BCD0) break;}' fixed the s1,s4,s6,s7 addiu order. Bound: uopt colours dead const var n (web 40, s1) BEFORE the pt+84 compare web (60, s2) because adjsave tie (5.5) is broken by bit order; target has no n web. Swept (harness): all declaration orders of 6 locals (720), n types, n assignment position (45), loop forms for/while/do/for(;;) with n or pointer end (~100), dead-statement insertion over all 40 points x 11 globals+locals x 4 forms, pointer-end forms (fold to lui+addiu D_8004A7C8+84 two registers). None moves the bound to s1.
 #define ArcA1_P6D0 (*(void **)&D_8004C6D0)
 typedef struct ArcA1_Pt {
     u8 x;
@@ -48,8 +48,7 @@ void func_800275E8(Gfx **arg0) {
     for (i = 0; i < n; i++) {
         func_800274E0(&sp90, pt[i].x, pt[i].y, pt[i].z);
     }
-    bar = D_8004BC88;
-    do {
+    for (bar = D_8004BC88;;) {
         if (D_8004C71D == 0 && D_8004C724 == 5) {
             bar->y = bar->y + bar->vy;
             if (bar->y < 99.0f) {
@@ -63,7 +62,8 @@ void func_800275E8(Gfx **arg0) {
             func_8070F2FC((s32 *)&sp90, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
         }
         bar++;
-    } while (bar != (ArcA1_Bar *)D_8004BCD0);
+        if (bar == (ArcA1_Bar *)D_8004BCD0) break;
+    }
     func_800263EC(&sp90);
     *arg0 = sp90;
 }
