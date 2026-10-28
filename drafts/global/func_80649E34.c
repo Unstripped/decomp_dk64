@@ -1,13 +1,4 @@
-// func_80649E34 (src/global/478F0.c): stage 5: 2-line swap (lh a0,2(v1) in beqz delay slot vs target li a1,0xa there then lh a0). Hoisting 'd = 0xA' (var) before the compare puts li a1 in the delay slot (matches) but then sw v1,28(sp) lands before jal with move a2 in jal delay (target: lh, move a2, jal, sw v1): 2-line swap again. Target IR order must be li a1, lh a0, move a2, sw v1. Tried: prototype variants of func_806418E8 (void/s32/u8/unprototyped), index form (i, &A[i]), local temps, if(1) removal (breaks), decl-order permutations (720, base and hoisted), deadsweep sweep incl forms, permuter 600s+420s (no improvement).
-typedef struct CsB8Slot {
-    /* 0x00 */ u8 pad0[0x7C];
-    /* 0x7C */ void *unk7C;
-    /* 0x80 */ u8 pad80[0xA];
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ u8 pad8C[4];
-} CsB8Slot; /* 0x90 */
-s32 func_806418E8(s16, s16, s16);
-void *func_80610FE8(s32);
+// func_80649E34 (src/global/478F0.c): CsNM7 stage 5: 2-line delay-slot swap only (full=2): target 'beqz at; li a1,0xa; lh a0,2(v1); move a2,zero; jal; sw v1,28(sp)' vs mine 'beqz; lh a0,2(v1); li a1,0xa; ...'. The 2nd call (bnez at; li a1,0x14; lh a0,-2(v1)) already matches, so as1 prefers li over lh as filler there. Tried (all no change): p[1]/*(p+1)/(p+1)[0]/s16-cast forms of arg0 x s16/long/u8/U casts of 0xA and 0 (~600 combos), (void)/d=/if() call wrappers, named d=0xA at 5 positions, hoisted vs inline new_var2 (inline gives sw before jal + move in jal slot = worse), joining 2-4 adjacent statements on one source line (all masks of lines 2183-2196), multi-line call splits, deadsweep sweep incl array forms, permuter 600s x2 (best output only moved new_var2 = p[1] before the compare, same 2 lines). NOT same-line-barrier fixable. as1 text-path (cc -c x.s) does not reproduce the real filler so ugen-order permutation tests are invalid.
 extern s16 D_807F6240[];
 extern s16 D_807481F4[];
 extern s16 D_807481F6[];

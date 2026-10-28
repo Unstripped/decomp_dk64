@@ -625,11 +625,10 @@ void func_80644A18(f32 *arg0, s16 arg1, s16 arg2, f32 arg3) {
     u8 idx[4];
     f32 px;
     f32 py;
-    f32 pz;
+    f32 tm;
     s32 d0;
     s32 d1;
     s32 d2;
-
     *arg0 -= arg3;
     if (*arg0 < 0.0f) {
         *arg0 = arg2;
@@ -640,9 +639,9 @@ void func_80644A18(f32 *arg0, s16 arg1, s16 arg2, f32 arg3) {
     idx[1] = i;
     idx[2] = i + 1 >= arg2 ? arg2 - 1 : i + 1;
     idx[3] = i + 2 >= arg2 ? arg2 - 1 : i + 2;
-    px = splineEvalCubic(frac, D_807F5FD4[arg1][idx[0]].x, D_807F5FD4[arg1][idx[1]].x, D_807F5FD4[arg1][idx[2]].x, D_807F5FD4[arg1][idx[3]].x);
-    py = splineEvalCubic(frac, D_807F5FD4[arg1][idx[0]].y, D_807F5FD4[arg1][idx[1]].y, D_807F5FD4[arg1][idx[2]].y, D_807F5FD4[arg1][idx[3]].y);
-    lightAdd(px, py, splineEvalCubic(frac, D_807F5FD4[arg1][idx[0]].z, D_807F5FD4[arg1][idx[1]].z, D_807F5FD4[arg1][idx[2]].z, D_807F5FD4[arg1][idx[3]].z), 0.0f, 0.0f, 0.0f, 250.0f, 0, 0xFF, 0xFF, 0xFF);
+    px = splineEvalCubic(frac, D_807F5FD4[arg1][idx[0]].x, (tm = D_807F5FD4[arg1][idx[1]].x), D_807F5FD4[arg1][idx[2]].x, D_807F5FD4[arg1][idx[3]].x);
+    py = splineEvalCubic(frac, D_807F5FD4[arg1][idx[0]].y, (tm = D_807F5FD4[arg1][idx[1]].y), D_807F5FD4[arg1][idx[2]].y, D_807F5FD4[arg1][idx[3]].y);
+    lightAdd(px, py, splineEvalCubic(frac, D_807F5FD4[arg1][idx[0]].z, (tm = D_807F5FD4[arg1][idx[1]].z), D_807F5FD4[arg1][idx[2]].z, D_807F5FD4[arg1][idx[3]].z), 0.0f, 0.0f, 0.0f, 250.0f, 0, 0xFF, 0xFF, 0xFF);
 }
 #else
 
@@ -1924,7 +1923,6 @@ void func_8064954C(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_8071F8E4(void);
 
 typedef struct CsB8Cam {
@@ -1963,18 +1961,24 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 ang;
     s32 i;
     f32 t;
-    volatile f32 sinA;
-    volatile f32 ex;
-    volatile f32 ez;
+    f32 sinA;
+    f32 ex;
+    f32 ez;
     f32 negCos;
-    volatile f32 xs;
-    volatile f32 px;
-    volatile f32 zo;
-    volatile f32 py;
-    volatile f32 xo;
-    volatile f32 pz;
+    f32 xs;
+    f32 px;
+    f32 zo;
+    f32 py;
+    f32 xo;
+    f32 pz;
     void (*cb)(void);
 
+    if (&xs == 0) {}
+    if (&px == 0) {}
+    if (&zo == 0) {}
+    if (&py == 0) {}
+    if (&xo == 0) {}
+    if (&pz == 0) {}
     ang = D_807F622C * 4096.0f / 360.0f;
     if (c == 2) {
         func_807149B8(0);
@@ -1995,11 +1999,9 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
         flag = 0;
         func_80609140(0x2EB, 0x7D00, 63.0f, 0.6f, 0, 0);
     }
-    sinA = p->unk220;
     negCos = -p->unk228;
-    pz = D_807F6224;
-    px = D_807F621C;
-    py = D_807F6220 + 15.0;
+    sinA = p->unk220;
+    px = D_807F621C; py = D_807F6220 + 15.0; pz = D_807F6224;
     ex = p->unk220 * 50.0 + px;
     ang = 0;
     cb = func_8071F8E4;
@@ -2014,17 +2016,16 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
         func_807149B8(0);
         func_8071498C(cb);
         obj = (CsB8Obj *)func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
-        q = func_80610FE8(0x28);
-        obj->unk384 = q;
-        q->unk4 = 0.0f;
+        q = obj->unk384 = func_80610FE8(0x28);
         q->unk0 = (randomNonNegative() >> 15) % 5 + 10;
+        q->unk4 = 0.0f;
         q->unk8 = xs;
         q->unkC = zo;
         q->unk10 = xo;
         q->unk14 = px - xs;
         q->unk18 = py - zo;
-        q->unk20 = 0.0f;
         q->unk1C = pz - xo;
+        q->unk20 = 0.0f;
         if (flag != 0) {
             q->unk24 = 0.09090909f;
         } else {
@@ -2032,10 +2033,6 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806496B0.s")
-#endif
 
 s32 func_806418E8(s16, s16, s16);
 
