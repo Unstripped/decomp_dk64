@@ -1387,7 +1387,6 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 cz;
     u8 pan7;
 
-if (found) {}
     found = 0; 
     switch (cmd->op) {
     case 0x95:
