@@ -265,17 +265,256 @@ void func_8064384C(CsState *cs, s16 csId, s16 b, s16 c) {
     func_8067DF44(slot->x, slot->y, slot->z, slot->w, 0, 1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806438B8.s")
+extern u8 D_8071FE08[];
+extern u8 D_8071FE64[];
+extern u8 D_8071FE88[];
+extern u8 D_8071FEAC[];
+void func_807149FC(s32);
+void func_8071910C();
+void func_8071A8B0();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80643B24.s")
+void func_806438B8(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 i;
+    s32 r;
+    s32 q;
+    f32 x;
+    f32 y;
+    f32 z;
+
+    if (b == 1) {
+        modelSlotGetNodePos(csId, 1, c, &x, &y, &z);
+    } else {
+        x = D_807F621C;
+        y = D_807F6220;
+        z = D_807F6224;
+    }
+    func_807149B8(0);
+    func_807149FC(1);
+    func_80714950(0x100C8);
+    func_8071498C(func_8071A8B0);
+    func_80714CC0(D_8071FE08, 1.5f, x, y, z);
+    for (i = 0; i != 7; i++) {
+        r = (s32)((u32)func_806119A0() / 10000) % 3;
+        func_807149B8(1);
+        func_807149FC(10);
+        func_8071498C(func_8071910C);
+        func_80714998(2);
+        func_80714950(7);
+        switch (r) {
+            case 0:
+                func_80714CC0(D_8071FE64, 0.5f, x, y, z);
+                break;
+            case 1:
+                func_80714CC0(D_8071FE88, 0.5f, x, y, z);
+                break;
+            case 2:
+                func_80714CC0(D_8071FEAC, 0.5f, x, y, z);
+                break;
+        }
+    }
+}
+
+
+void func_80643B24(CsState *cs, s16 csId, s16 b, s16 c) {
+    if ((D_8076A064 % 5) == 0) {
+        func_80714950(-0x78);
+        func_8071498C(func_80717D4C);
+        func_807149B8(1);
+        func_80714998(3);
+        func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
+        func_80714B84(D_8071FFA0, 1.0f, csId, 1, 0);
+        func_80714950(-0x78);
+        func_8071498C(func_80717D4C);
+        func_807149B8(1);
+        func_80714998(3);
+        func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
+        func_80714B84(D_8071FFA0, 1.0f, csId, 2, 0);
+    }
+}
+
+
+typedef struct {
+    s32 *unk0;
+    u8 pad4[0x45];
+    u8 unk49;
+} CsB1LightView;
+
+extern u8 D_807201D4[];
+void func_80717CE8();
+
+#ifdef NON_MATCHING
+void func_80643C0C(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 *p;
+    s32 *q;
+    s32 n;
+    f64 t;
+    f32 f;
+
+    p = ((CsB1LightView *)cs)->unk0;
+    if (p == NULL) {
+        q = func_80610FE8(8);
+        p = q;
+        ((CsB1LightView *)cs)->unk0 = q;
+    }
+    if (b == 1) {
+        *p = 0;
+    }
+    n = *p;
+    *p = n + 1;
+    t = (f32)(70 - n) / 70.0f;
+    if (t > 0.5) {
+        f = 1.0 - 2.0 * (t - 0.5);
+    } else {
+        f = 2.0 * t;
+    }
+    lightAdd(D_807F621C, D_807F6220, D_807F6224, 0.0f, 0.0f, 0.0f, 200.0f * f, 0, 0xFF,
+             (u32)((-80.0f * f) + 255.0f), (u32)((-205.0f * f) + 255.0f));
+    if (t > 0.6 && (D_8076A064 % 6) == 0) {
+        func_807149FC(2);
+        func_807149B8(1);
+        func_80714950(-0x190);
+        func_807149C8(0xFF, 0xFF, 0xFF, 1);
+        func_8071498C(func_80717CE8);
+        func_80714CC0(D_807201D4, 1.2f, D_807F621C, D_807F6220 + 30.0, D_807F6224);
+    }
+    if (t < 0.1) {
+        ((CsB1LightView *)cs)->unk49 = 1;
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80643C0C.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80643F38.s")
+extern void *D_8074E880[];
+void func_8071496C(s16);
+void func_8071EA24();
+
+void func_80643F38(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 i;
+
+    for (i = 0; i < 30; i++) {
+        func_807149B8(1);
+        func_807149FC(1);
+        func_8071498C(func_8071EA24);
+        func_8071496C(i / 7);
+        func_80714CC0(D_8074E880[i % 3], 1.4f, D_807F621C, D_807F6220, D_807F6224);
+    }
+}
+
+typedef struct {
+    u32 unk0;
+    s32 unk4;
+    s32 unk8;
+} CsB1SfxState;
+
+typedef struct {
+    CsB1SfxState *unk0;
+    u8 pad4[0xC];
+    s16 unk10;
+} CsB1SfxView;
+
+void func_80605380(s16);
+void modelSlotSetNodeFrame(s32, s16, s32, s32);
+void sfxPlayFromTargetSlot(s16, s32, s32, s32, s32, s32, f32);
+s16 sfxSlotAllocateSource(s16, s32, s32, s32, s32, f32, s32);
+
+#ifdef NON_MATCHING
+void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
+    CsB1SfxState *p;
+    CsB1SfxState *q;
+    CsB1SfxState *t;
+    s32 frame;
+
+    p = ((CsB1SfxView *)cs)->unk0;
+    if (p == NULL) {
+        t = func_80610FE8(0xC);
+        ((CsB1SfxView *)cs)->unk0 = t;
+        t->unk0 = 0;
+        t->unk4 = 0;
+        p = ((CsB1SfxView *)cs)->unk0;
+    }
+    q = p;
+    switch (p->unk0) {
+        case 0:
+            q->unk4++;
+            if (q->unk4 == 4) {
+                q->unk8 = 0;
+                q->unk0++;
+                if (((CsB1SfxView *)cs)->unk10 < 0) {
+                    ((CsB1SfxView *)cs)->unk10 = sfxSlotAllocateSource(csId, 0x12C, 0x3C, 1, 0x64, 1.0f, 0);
+                }
+            }
+            frame = q->unk4;
+            break;
+        case 1:
+            q->unk4++;
+            if (q->unk4 == 7) {
+                q->unk4 = 4;
+                q->unk8++;
+                if (q->unk8 == 0x1E) {
+                    q->unk8 = 0;
+                    q->unk0++;
+                    if (((CsB1SfxView *)cs)->unk10 >= 0) {
+                        func_80605380(((CsB1SfxView *)cs)->unk10);
+                        ((CsB1SfxView *)cs)->unk10 = -1;
+                    }
+                    sfxPlayFromTargetSlot(csId, 0x74, 0xFF, 0x7F, 0, 0x50, 0.3f);
+                }
+            }
+            frame = q->unk4;
+            break;
+        case 2:
+            q->unk4 = 7;
+            q->unk8++;
+            if (q->unk8 == 0x28) {
+                q->unk8 = 0;
+                q->unk0++;
+                sfxPlayFromTargetSlot(csId, 0x74, 0xFF, 0x7F, 0, 0x50, 0.3f);
+            }
+            frame = q->unk4;
+            break;
+        case 3:
+            q->unk4 = 8;
+            q->unk8++;
+            if (q->unk8 == 0x28) {
+                q->unk8 = 0;
+                q->unk0++;
+                sfxPlayFromTargetSlot(csId, 0x75, 0xFF, 0x7F, 0, 0x50, 0.3f);
+            }
+            frame = q->unk4;
+            break;
+        case 4:
+            frame = 9;
+            q->unk4 = frame;
+            break;
+        default:
+            frame = q->unk4;
+            break;
+    }
+    modelSlotSetNodeFrame(csId, 1, frame, 0);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064409C.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064431C.s")
+extern s16 D_807480D0;
+extern s16 D_807480D4;
+extern s16 D_807480D8;
+
+void func_8064431C(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 x1;
+    f32 x0;
+    f32 y1;
+    f32 y0;
+    f32 z1;
+    f32 z0;
+
+    modelSlotGetNodePos(csId, 1, 1, &x0, &y0, &z0);
+    modelSlotGetNodePos(csId, 1, 2, &x1, &y1, &z1);
+    lightAdd(x0, y0, z0, x1, y1, z1, 0.0f, 1, D_807480D0, D_807480D4, D_807480D8);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806443E4.s")
 
@@ -294,7 +533,6 @@ void func_8064384C(CsState *cs, s16 csId, s16 b, s16 c) {
 extern f32 D_807480E8;
 extern u8 D_807480EF;
 extern u8 D_80720CD8[];
-void func_807149FC(s32);
 void func_80718188(void);
 
 void func_806450C0(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -478,7 +716,6 @@ void func_80645A64(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void sfxPlayFromTargetSlot(s16, s32, s32, s32, s32, s32, f32);
 
 void func_80645B9C(CsState *cs, s16 csId, s16 b, s16 c) {
     if ((0x243 - cs->unk44[0]) % 60 == 0) {
