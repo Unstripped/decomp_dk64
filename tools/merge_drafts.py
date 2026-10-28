@@ -8,8 +8,10 @@
     python3 tools/merge_drafts.py merge [--base REV] src/menu/3E10.c [.scratch/A/3E10.c ...]
         3-way merge every copy against the base into the CURRENT src file (git merge-file),
         so edits made to src after the snapshot survive; drop file-scope declarations that
-        are exact duplicates of an earlier line or whose name is used nowhere else in the
-        file (left behind by reverted drafts), then check the object with tools/objdiff.sh.
+        are exact duplicates of an earlier line (or an identical typedef block) or whose name
+        is used nowhere else in the file (left behind by reverted drafts), restore a local
+        declaration a draft deleted but its function still uses (parked NON_MATCHING bodies
+        are not compiled by the check), then check the object with tools/objdiff.sh.
         Compile errors are printed with the text of both clashing declarations. With no
         copies it only prunes and checks (use after resolving conflicts by hand).
         --base REV uses `git show REV:<src>` as the base instead of the snapshot: for drafts
@@ -93,7 +95,115 @@ def prune(lines, base_lines):
             print(f"  dropped unused:    {key}")
         elif not cond:
             seen.add(key)
+    drop_typedefs(lines, base_lines, drop)
     return [l for i, l in enumerate(lines) if i not in drop]
+
+
+def typedef_blocks(lines):
+    """(start, end, name, conditional, normalised text) for file-scope `typedef ...;`
+    declarations, one line or a multi-line `typedef struct X {` ... `} X;` block."""
+    depth = 0
+    cond = 0
+    out = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith("#if"):
+            cond += 1
+        elif line.startswith("#endif"):
+            cond -= 1
+        if depth == 0 and line.startswith("typedef"):
+            j, d = i, 0
+            while j < len(lines):
+                d += lines[j].count("{") - lines[j].count("}")
+                if d <= 0 and lines[j].rstrip().endswith(";"):
+                    break
+                j += 1
+            else:
+                break
+            text = " ".join("".join(lines[i:j + 1]).split())
+            m = re.search(r"(\w+)\s*(?:\[[^\]]*\]\s*)*;$", text)
+            out.append((i, j, m.group(1) if m else text, cond > 0, text))
+            i = j + 1
+            continue
+        depth += line.count("{") - line.count("}")
+        i += 1
+    return out
+
+
+def drop_typedefs(lines, base_lines, drop):
+    """Drop a typedef (block) added since the base that is textually identical (whitespace
+    normalised) to an earlier unconditional one: cfe rejects the redeclaration. A same-name
+    typedef with a different body is left for the compiler to report."""
+    in_base = Counter(t[4] for t in typedef_blocks(base_lines))
+    seen = set()
+    for start, end, name, cond, text in typedef_blocks(lines):
+        if in_base[text] > 0:
+            in_base[text] -= 1
+        elif text in seen:
+            drop.update(range(start, end + 1))
+            if end + 1 < len(lines) and not lines[end + 1].strip() and (start == 0 or not lines[start - 1].strip()):
+                drop.add(end + 1)
+            print(f"  dropped duplicate typedef: {name}")
+            continue
+        if not cond:
+            seen.add(text)
+
+
+LOCAL_DECL = re.compile(
+    r"^[ \t]+(?!(?:return|goto|else|case|do|default|break|continue)\b)"
+    r"(?:(?:const|volatile|static|register|unsigned|signed|struct|union|enum)\s+)*"
+    r"[A-Za-z_]\w*[\s\*]+(\w+)(?:\[[^\]]*\])*\s*(?:=[^;]*)?;\s*$")
+
+
+def function_body(lines, header):
+    """(start, end) line range of the unique function whose header line is `header`."""
+    hits = [i for i, l in enumerate(lines) if l.strip() == header]
+    if len(hits) != 1:
+        return None
+    for j in range(hits[0] + 1, len(lines)):
+        if lines[j].startswith("}"):
+            return hits[0], j
+    return None
+
+
+def restore_locals(lines, base_lines):
+    """A draft that deleted a local declaration still used in its function (a parked
+    #ifdef NON_MATCHING body is not compiled by the normal check) gets the line put back
+    right after the line that preceded it in the base. Deletions of unused locals stand."""
+    for i, line in enumerate(base_lines):
+        m = LOCAL_DECL.match(line)
+        if not m:
+            continue
+        name = m.group(1)
+        k = i - 1
+        while k >= 0 and (base_lines[k].startswith((" ", "\t", "#")) or not base_lines[k].strip()):
+            k -= 1
+        header = base_lines[k].strip() if k >= 0 else ""
+        if not header.endswith("{") or "(" not in header:
+            continue
+        span = function_body(lines, header)
+        if span is None:
+            continue
+        start, end = span
+        body = lines[start + 1:end]
+        if any(l.strip() == line.strip() for l in body):
+            continue
+        use = rf"\b{re.escape(name)}\b"
+        if re.search(use, header) or any(LOCAL_DECL.match(l) and LOCAL_DECL.match(l).group(1) == name for l in body):
+            continue  # a parameter, or declared again elsewhere in the body
+        if not any(re.search(use, l) for l in body):
+            continue
+        at = start + 1
+        prev = base_lines[i - 1].strip() if i - 1 > k else None
+        if prev is not None:
+            for n in range(start + 1, end):
+                if lines[n].strip() == prev:
+                    at = n + 1
+                    break
+        lines.insert(at, line)
+        print(f"  restored deleted local declaration: {line.strip()}  (in {header})")
+    return lines
 
 
 def lost_functions(base_text, draft_text):
@@ -161,7 +271,8 @@ def merge(src, drafts, rev=None):
     with open(out) as f:
         lines = f.readlines()
     with open(base) as f:
-        lines = prune(lines, f.readlines())
+        base_lines = f.readlines()
+    lines = restore_locals(prune(lines, base_lines), base_lines)
     with open(src, "w") as f:
         f.writelines(lines)
     print(f"merged {len(drafts)} draft(s) into {src}")
