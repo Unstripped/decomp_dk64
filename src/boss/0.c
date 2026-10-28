@@ -1,6 +1,5 @@
 #include "common.h"
 
-#ifdef NON_MATCHING
 typedef struct BsA_Struct_6Bytes {
     u8 bytes[6];
 } BsA_Struct_6Bytes;
@@ -36,7 +35,7 @@ void func_80024000(void) {
     }
 
     for (i = 0; i < 12; i++) {
-        func_8071498C(&D_8071E864);
+        func_8071498C((void *)(s32)&D_8071E864);
         func_80714950(i);
         func_807149B8(1);
         func_807149C8(0x8C, 0x8C, 0x8C, 0xFF);
@@ -44,10 +43,6 @@ void func_80024000(void) {
         func_80714CC0(&D_8071FFA0, 2.5f, ((BsA_Struct_80024000_BB40 *)D_807FBB40)->unk7C, ((BsA_Struct_80024000_BB40 *)D_807FBB40)->unk80 + 40.0f, ((BsA_Struct_80024000_BB40 *)D_807FBB40)->unk84);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/0/func_80024000.s")
-#endif
 
 typedef struct BossA_Struct_80024524_Entry {
     u8 pad0;
@@ -413,7 +408,6 @@ void func_80025364(void) {
     actorSetNodeFlag(D_807FBB40, 5);
 }
 
-#ifdef NON_MATCHING
 typedef struct BsA_Struct_807FBB40_53AC {
     u8 pad0[0xC0];
     f32 unkC0;
@@ -422,10 +416,7 @@ typedef struct BsA_Struct_807FBB40_53AC {
 extern u8 D_8071AF30;
 extern u8 D_80720120;
 
-void func_807149B8(s32);
-void func_8071498C(void *);
 void func_807149A8(s32);
-void func_80714950();
 void func_80714C08(void *, f32, void *, s32, s32);
 
 void func_800253AC(void) {
@@ -434,12 +425,12 @@ void func_800253AC(void) {
     f64 dval;
 
     dval = (0.0 < (f64)((BsA_Struct_807FBB40_53AC *)D_807FBB40)->unkC0) ? (f64)((BsA_Struct_807FBB40_53AC *)D_807FBB40)->unkC0 : 0.0;
+    val = (f32)((f32)((dval / 150.0) * 0.12) + 0.3) * 4.0f;
     p = (s32)&D_8071AF30;
     func_807149B8(1);
     func_8071498C((void *)p);
     func_807149A8(1000);
     func_80714950(D_807FBB40);
-    val = (f32)((f32)((dval / 150.0) * 0.12) + 0.3) * 4.0f;
     func_80714C08(&D_80720120, val, D_807FBB40, 3, 0);
     func_807149B8(1);
     func_8071498C((void *)p);
@@ -447,10 +438,6 @@ void func_800253AC(void) {
     func_80714950(D_807FBB40);
     func_80714C08(&D_80720120, val, D_807FBB40, 4, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/0/func_800253AC.s")
-#endif
 
 typedef struct Boss3B_178 {
     u8 pad0[0x12];
@@ -603,7 +590,6 @@ void currentActorClearFlag();
 void actorUpdateModelMatrix();
 void screenShakeStart(f32, f32, f32, f32, f32, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void func_8067E2E4(void *, s32, f32);
 void effectSpawnBoneDebris();
 void effectSpawnBoneWhite(void *, s16, f32, f32, f32, f32, s32);
 void effectSpawnJointBeam();
@@ -1269,8 +1255,6 @@ void func_800254D0(void) {
 #undef D_807FDC94
 
 s32 randomNonNegative(void);
-void func_80714998(s32);
-void func_807149C8(s32, s32, s32, s32);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void func_80027770(void) {
