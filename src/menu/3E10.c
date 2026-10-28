@@ -677,31 +677,40 @@ s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
 Gfx *func_80029BB4(void *arg0, Gfx *arg1) {
     void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
     s32 sp120;
-    f32 sp118;
+    Gfx *g;
+    int ty;
     f32 sp114;
     f32 sp110;
     f32 sp10C;
     f32 sp108;
     f32 sp104;
+    f32 sp100;
     s16 spFE;
+    s16 y;
     char sp34[200];
-    s32 y;
 
-    arg1->words.w1 = -1;
-    arg1->words.w0 = 0xFA000000;
+    g = arg1++; g->words.w0 = 0xFA000000; g->words.w1 = -1;
     sp120 = func_800317E8(temp_a0, 160.0f, 25.0f, &sp110, &sp10C, 3, 1, 0.45f);
-    arg1 += 1;
     spFE = (s16)(sp110 * 4.0f);
-    y = (s32)(sp10C * 4.0f);
+    y = (s16)(sp10C * 4.0f);
     if (menuCheckSaveFile(sp120) != 0) {
         _sprintf(sp34, "%s", (char *)D_80033F28[6]);
     } else {
         _sprintf(sp34, "%s %d", (char *)D_80033F28[7], sp120 + 1);
     }
+    ty = (s16)(y - 0x3C);
+    if (y == 0x7FFF) {
+    }
+    if (y == 0x7FFF) {
+    }
+    if (y == 0x7FFF) {
+    }
+    if (arg0) {
+    }
     return hudDrawScaledText(
-        hudDrawScaledText(arg1, spFE, (s16)y, 0.6f, sp34),
+        hudDrawScaledText(arg1, spFE, y, 0.6f, sp34),
         (s16)(sp110 * 4.0f),
-        (s16)((s16)y - 0x3C),
+        (u16)ty,
         0.6f,
         (char *)D_80033F28[8]
     );
@@ -775,21 +784,21 @@ void menuMysteryHandleInput(void *arg0, s32 arg1) {
 #ifdef NON_MATCHING
 Gfx *func_8002A088(void *arg0, Gfx *arg1) {
     void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
-    s32 sp124;
-    s32 sp120;
-    s32 sp11C;
+    int ty;
+    f32 sp11C;
+    Gfx *g;
+    f32 sp120;
     f32 sp118;
     f32 sp114;
-    s32 sp110;
-    s32 sp10C;
+    f32 sp110;
+    f32 sp10C;
+    f32 sp108;
     s16 sp106;
-    char sp3C[200];
     s16 y;
+    char sp3C[200];
 
-    arg1->words.w1 = -1;
-    arg1->words.w0 = 0xFA000000;
+    g = arg1++; g->words.w0 = 0xFA000000; g->words.w1 = -1;
     func_800317E8(temp_a0, 160.0f, 25.0f, &sp118, &sp114, 5, 0, 0.45f);
-    arg1 += 1;
     sp106 = (s16)(sp118 * 4.0f);
     y = (s16)(sp114 * 4.0f);
     if (menuCheckSaveFile(D_80033F48) != 0) {
@@ -797,7 +806,14 @@ Gfx *func_8002A088(void *arg0, Gfx *arg1) {
     } else {
         _sprintf(sp3C, "%s %d", (char *)D_80033F28[7], D_80033F48 + 1);
     }
-    arg1 = hudDrawScaledText(hudDrawScaledText(arg1, sp106, y, 0.6f, sp3C), (s16)(sp118 * 4.0f), (s16)(y - 0x3C), 0.6f, (char *)D_80033F28[8]);
+    ty = (s16)(y - 0x3C);
+    if (y == 0x7FFF) {
+    }
+    if (y == 0x7FFF) {
+    }
+    if (y == 0x7FFF) {
+    }
+    arg1 = hudDrawScaledText(hudDrawScaledText(arg1, sp106, y, 0.6f, sp3C), (s16)(sp118 * 4.0f), (u16)ty, 0.6f, (char *)D_80033F28[8]);
     func_800317E8(temp_a0, 160.0f, 80.0f, &sp118, &sp114, 5, 0, 2.0f);
     arg1 = hudDrawScaledText(arg1, (s16)(sp118 * 4.0f), (s16)(sp114 * 4.0f), 0.6f, (char *)D_80033F28[9]);
     func_800317E8(temp_a0, 80.0f, 120.0f, &sp118, &sp114, 5, 0, 2.0f);

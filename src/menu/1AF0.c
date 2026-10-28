@@ -441,7 +441,7 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 }
 
 void func_800262A8(Struct_80025D14 *, void *, s32);
-s32 camResumePath(void);
+void camResumePath(void);
 
 void menuDispatchSubmenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     switch (arg0->unkE) {
@@ -595,7 +595,6 @@ void *arg1;
     }
 }
 
-#ifdef NON_MATCHING
 extern u16 D_80033A50[][4];
 extern u16 D_80033A78[];
 extern u16 D_800334E4[];
@@ -615,6 +614,8 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             M1B_C924->unk4->unk60 &= 0xBFFFFFFF;
             sp28 = 0;
             sp2C = -1;
+            if (sp2C) {
+            }
             currentActorClearFlag();
             switch (arg0->unkB) {
             case 0:
@@ -673,10 +674,6 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
         break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80026B28.s")
-#endif
 
 void func_805FF898(void);
 void func_806CFF9C(void *);
