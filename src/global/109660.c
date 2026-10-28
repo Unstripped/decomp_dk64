@@ -67,7 +67,137 @@ void func_80704AFC(f32 arg0, f32 arg1, f32 arg2) {
     D_807FD970 = arg2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_80704B20.s")
+typedef struct {
+    u8 unk0[0x90];
+    f32 unk90;
+    u8 unk94[0xFA - 0x94];
+    u8 unkFA;
+} L10bLightView;
+
+typedef struct {
+    u8 unk0[0x174];
+    L10bLightView *unk174;
+} L10bLightState;
+
+typedef struct {
+    u8 unk0[0x220];
+    f32 unk220;
+    u8 unk224[0x270 - 0x224];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+    u8 unk278[0x2CA - 0x278];
+    s16 unk2CA;
+    s16 unk2CC;
+} L10bPlayerView;
+
+extern L10bLightState *gCamActor;
+extern u8 D_80754EF8[];
+extern void *D_80754ED8[];
+extern Mtx D_2000080;
+extern Gfx D_2000180;
+f32 cosApprox(f32);
+void matrixMakeRotationZ(f32 (*)[4], f32);
+void lightGetColor(f32 *, f32 *, f32 *, s16);
+
+#define L10bBLUE(off, mul) \
+    ((u32)((mul) * ((f32)D_80754EF8[arg4 * 12 + (off)] + ((f32)(D_80754EF8[arg5 * 12 + (off)] - D_80754EF8[arg4 * 12 + (off)]) * alpha))))
+#define L10bCOLOR(off, mul) \
+    ((u32)((mul) * ((f32)D_80754EF8[arg4 * 12 + (off)] + (alpha * (f32)(D_80754EF8[arg5 * 12 + (off)] - D_80754EF8[arg4 * 12 + (off)])))))
+#define L10bPLAYER ((L10bPlayerView *)D_807FC924)
+
+Gfx *func_80704B20(Gfx *gdl, void *arg1, f32 angle, void *mtx, u8 arg4, u8 arg5, u8 arg6, s8 arg7, f32 alpha) {
+    f32 y;
+    u32 color0;
+    u32 color1;
+    u32 color2;
+    u32 color3;
+    f32 red;
+    f32 green;
+    f32 blue;
+    void **table;
+    f32 mtxA[4][4];
+    f32 mtxB[4][4];
+    s32 offset;
+    L10bLightView *light;
+
+    y = -(256.0f - (cosApprox(angle) * 300.0f)) - 80.0f;
+    light = gCamActor->unk174;
+    if ((u32)arg4 == 5) {
+        y = (f32)((f64)y + (0.08 * (f64)L10bPLAYER->unk2CA - 75.0));
+    }
+
+    switch (arg6) {
+    case 0:
+        blue = 1.0f;
+        green = 1.0f;
+        red = 1.0f;
+        break;
+    case 1:
+        if (D_807FD968 >= 0.0f) {
+            red = D_807FD968;
+            green = D_807FD96C;
+            blue = D_807FD970;
+        } else {
+            if (arg7 == -1) {
+                arg7 = *((s8 *)D_807FBB4C + 0x12D);
+            }
+            lightGetColor(&red, &green, &blue, arg7);
+        }
+        break;
+    }
+    if ((light->unkFA != 0) && (L10bPLAYER->unk220 < (light->unk90 + 3.0f))) {
+        red = (f32)((f64)red * 0.1);
+        green = (f32)((f64)green * 0.1);
+        blue = (f32)((f64)blue * 0.3);
+    }
+
+    color0 = ((L10bCOLOR(0, red) & 0xFF) << 24) | ((L10bCOLOR(1, green) & 0xFF) << 16) | (L10bBLUE(2, blue) & 0xFF) << 8 | 0xFF;
+    color1 = ((L10bCOLOR(3, red) & 0xFF) << 24) | ((L10bCOLOR(4, green) & 0xFF) << 16) | (L10bBLUE(5, blue) & 0xFF) << 8 | 0xFF;
+    color2 = ((L10bCOLOR(6, red) & 0xFF) << 24) | ((L10bCOLOR(7, green) & 0xFF) << 16) | (L10bBLUE(8, blue) & 0xFF) << 8 | 0xFF;
+    color3 = ((L10bCOLOR(9, red) & 0xFF) << 24) | ((L10bCOLOR(10, green) & 0xFF) << 16) | (L10bBLUE(11, blue) & 0xFF) << 8 | 0xFF;
+
+    gDPPipeSync(gdl++);
+    gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x552048);
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0xFCFFFFFF; _g->words.w1 = 0xFFFE793C; }
+    gDPSetCycleType(gdl++, G_CYC_1CYCLE);
+    gSPClearGeometryMode(gdl++, 0xFFFFFF);
+    gSPSetGeometryMode(gdl++, 0x200004);
+    gSPMatrix(gdl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gdl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0xDC080008; _g->words.w1 = osVirtualToPhysical((u8 *)L10bPLAYER + (D_807444FC << 4) + 0x250); }
+    {
+        Gfx *_g = (Gfx *)(gdl++);
+        _g->words.w0 = ((s32)((f32)L10bPLAYER->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)L10bPLAYER->unk270 * 4.0f) & 0xFFF) << 12);
+        _g->words.w1 = ((s32)((f32)L10bPLAYER->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)L10bPLAYER->unk274 * 4.0f) & 0xFFF) << 12);
+    }
+
+    offset = *(s16 *)((u8 *)D_80754ED8[arg4] + 0x22);
+    table = &D_80754ED8[arg4];
+    guTranslateF(mtxA, 0.0f, (f32)-offset, 0.0f);
+    matrixMakeRotationZ(mtxB, (f32)((s32)(((0x1000 - L10bPLAYER->unk2CC) & 0xFFF) * 0x168) / 0x1000));
+    guMtxCatF(mtxA, mtxB, mtxA);
+    guTranslateF(mtxB, 160.0f, (f32)offset + y, 0.0f);
+    guMtxCatF(mtxA, mtxB, mtxA);
+    guMtxF2L(mtxA, mtx);
+
+    gSPMatrix(gdl++, mtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x01008010; _g->words.w1 = osVirtualToPhysical(*table); }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x02100000; _g->words.w1 = color0; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x02100002; _g->words.w1 = color0; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x02100004; _g->words.w1 = color1; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x02100006; _g->words.w1 = color1; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x02100008; _g->words.w1 = color2; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x0210000A; _g->words.w1 = color2; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x0210000C; _g->words.w1 = color3; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x0210000E; _g->words.w1 = color3; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x06000206; _g->words.w1 = 0x604; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x06040608; _g->words.w1 = 0x4080A; }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0x060A080C; _g->words.w1 = 0xA0C0E; }
+    gDPPipeSync(gdl++);
+    return gdl;
+}
 
 typedef struct {
     u8 unk0[0xC];
@@ -101,7 +231,6 @@ typedef struct {
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_8070033C(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
-void lightGetColor(f32 *, f32 *, f32 *, s16);
 
 void func_80705C00(s16 arg0, s16 arg1, u8 arg2) {
     f32 sp4C;
@@ -478,7 +607,6 @@ Gfx *func_8070770C(Gfx *glist) {
     return glist;
 }
 
-Gfx *func_80704B20(Gfx *, void *, void *, void *, s32, s32, s32, s32, f32);
 s32 camIsCutsceneActive(void);
 void func_8068B830(s16, s16, s16);
 void func_8068B8A4(f32);
@@ -548,18 +676,18 @@ Gfx *func_80707980(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4) {
             break;
         default:
             func_80705C00(0x3E8, 0x4E20, 0);
-            dl = func_80704B20(dl, arg1, arg2, arg3, 0, 0, 0, -1, 0.0f);
+            dl = func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 0, 0, 0, -1, 0.0f);
             break;
         }
         break;
     case 0x1E:
         if (((L10S16 != 7) && (L10S16 != 6) && (L10S16 != 8) && (L10S16 != 0)) || (D_807FD800 != 0)) {
-            dl = func_80704B20(dl, arg1, arg2, arg3, 0, 0, ((*(s16 *)D_807FBB4C->unk12C == 9) || (*(s16 *)D_807FBB4C->unk12C == 0xB) || (*(s16 *)D_807FBB4C->unk12C == 3)) ? 1 : 0, 9, 0.0f);
+            dl = func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 0, 0, ((*(s16 *)D_807FBB4C->unk12C == 9) || (*(s16 *)D_807FBB4C->unk12C == 0xB) || (*(s16 *)D_807FBB4C->unk12C == 3)) ? 1 : 0, 9, 0.0f);
         }
         break;
     case 0x27:
         func_80705C00(0xBB8, 0x2328, 0);
-        dl = func_80704B20(dl, arg1, arg2, arg3, 0, 0, 0, -1, 0.0f);
+        dl = func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 0, 0, 0, -1, 0.0f);
         break;
     case 0x4:
         dl = func_8070770C(dl);
@@ -578,27 +706,27 @@ Gfx *func_80707980(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4) {
         case 11:
         case 14:
             func_80705C00(0, 0x7530, 1);
-            dl = func_80704B20(dl, arg1, arg2, arg3, 4, 4, 1, -1, 0.0f);
+            dl = func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 4, 4, 1, -1, 0.0f);
             break;
         default:
             func_80705C00(0, 0x7530, 0);
-            dl = func_80704B20(dl, arg1, arg2, arg3, 4, 4, 0, -1, 0.0f);
+            dl = func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 4, 4, 0, -1, 0.0f);
             break;
         }
         break;
     case 0x8:
-        dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 3, 3, 1, -1, 0.0f), 0, 0x7D00, 0);
+        dl = func_80705F5C(func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 3, 3, 1, -1, 0.0f), 0, 0x7D00, 0);
         break;
     case 0x30:
         if ((L10S16 >= 0xC) && (L10S16 < 0x12)) {
             dl = func_8070770C(dl);
         } else {
             func_80705C00(0, 0x5DC0, 1);
-            dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 2, 2, 1, -1, 0.0f), 0, 0x5DC0, 1);
+            dl = func_80705F5C(func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 2, 2, 1, -1, 0.0f), 0, 0x5DC0, 1);
         }
         break;
     case 0x37:
-        dl = func_80704B20(dl, arg1, arg2, arg3, 1, 1, 1, -1, 0.0f);
+        dl = func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 1, 1, 1, -1, 0.0f);
         break;
     case 0x22:
         if (camIsCutsceneActive() != 0) {
@@ -618,22 +746,22 @@ Gfx *func_80707980(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4) {
             func_8068B8A4(1.0f);
         }
         func_80705C00(0xBB8, 0x4E20, 0);
-        dl = func_80704B20(dl, arg1, arg2, arg3, 5, 6, 1, -1, 0.0f);
+        dl = func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 5, 6, 1, -1, 0.0f);
         break;
     case 0x99:
     case 0xAC:
         func_80705C00(0xBB8, 0x4E20, 0);
-        dl = func_80704B20(dl, arg1, arg2, arg3, 5, 5, 1, -1, 0.0f);
+        dl = func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 5, 5, 1, -1, 0.0f);
         break;
     case 0x6F:
-        dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 6, 6, 1, -1, 0.0f), 0xC8, 0x4268, 0);
+        dl = func_80705F5C(func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 6, 6, 1, -1, 0.0f), 0xC8, 0x4268, 0);
         break;
     case 0x57:
-        dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 6, 6, 1, -1, 0.0f), 0x3E8, 0x2EE0, 0);
+        dl = func_80705F5C(func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 6, 6, 1, -1, 0.0f), 0x3E8, 0x2EE0, 0);
         break;
     case 0xD5:
         func_80705C00(0x8FC, 0x1388, 0);
-        dl = func_80704B20(dl, arg1, arg2, arg3, 7, 7, 0, -1, 0.0f);
+        dl = func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 7, 7, 0, -1, 0.0f);
         break;
     case 0xD0:
         gDPSetFillColor(dl++, 0xFFFFFFFF);
@@ -643,7 +771,7 @@ Gfx *func_80707980(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4) {
         goto fill;
     case 0x50:
         func_80705C00(0x8FC, 0x1388, 1);
-        dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 7, 6, 0, -1, D_80754CE8), 0xC8, 0x2EE0, 2);
+        dl = func_80705F5C(func_80704B20(dl, arg1, *(f32 *)&arg2, arg3, 7, 6, 0, -1, D_80754CE8), 0xC8, 0x2EE0, 2);
         break;
     default:
         gDPSetFillColor(dl++, 0x10001);
