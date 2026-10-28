@@ -41,13 +41,82 @@ void func_806FF32C(s32 arg0, Actor *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF628.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF75C.s")
+Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FFB2C.s")
+s32 func_806F8AD4(s32, u8);
+s32 func_80690F30(u16, s32 *, Actor *, s32, s32, s32, s32 *, s32 *, s32 *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FFC04.s")
+Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
+    u8 sp77;
+    s32 sp70;
+    s32 sp6C;
+    s32 sp68;
+    s32 sp64;
+    s32 sp60;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FFEAC.s")
+    sp6C = 2;
+    sp77 = ((R1F103AB0aState *)arg1->unk174)->unk1A4;
+    if (D_807FC928 >= 2) {
+        sp6C = 3;
+    }
+    dl = (Gfx *)func_806FEDB0((s32)dl, sp77);
+    gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
+    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x100, 0x40, 3.0f, 2.0f, 0, 0.0f);
+    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x40, 0x40, 2.0f, 3.0f, 0x5A, 0.0f);
+    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x100, 0xB0, 2.0f, 3.0f, 0x10E, 0.0f);
+    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x40, 0xB0, 3.0f, 2.0f, 0xB4, 0.0f);
+    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x60, 3.0f, 3.0f, 0, 0.0f);
+    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x60, 3.0f, 3.0f, 0x5A, 0.0f);
+    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x90, 3.0f, 3.0f, 0xB4, 0.0f);
+    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x90, 3.0f, 3.0f, 0x10E, 0.0f);
+    if (func_806F8AD4(3, sp77) && func_80690F30((u16)sp6C, &sp70, arg1, 1, 0, 0, &sp68, &sp64, &sp60)) {
+        gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
+    } else {
+        gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
+    }
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    return func_8068C5A8(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
+}
+
+void func_806FFB2C(s32 arg0, Actor *arg1) {
+    f32 sp3C;
+    Gfx *dl;
+
+    sp3C = arg1->unk155[0] * 1.4;
+    dl = (Gfx *)func_806FEDB0(arg0, ((R1F103AB0aState *)arg1->unk174)->unk1A4);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
+    func_8068C5A8(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, sp3C);
+}
+
+u16 func_806FFC04(u16 arg0) {
+    u16 sum;
+    u8 a;
+    f32 f;
+    u8 lsb;
+
+    sum = (u8)((arg0 & 0xF800) >> 11) + (u8)((arg0 & 0x7C0) >> 6) + (u8)((arg0 & 0x3E) >> 1);
+    lsb = arg0 & 1;
+    if (sum >= 0x30) {
+        a = (sum - 0x30) / 45.0 * 18.0;
+    } else {
+        a = 0;
+    }
+    f = sum / 93.0;
+    return ((u8)(28.0f * f + 3.0f) << 11) + ((u8)(19.0f * f + 3.0f) << 6) + (a << 1) + lsb;
+}
+
+s16 *func_806FFEAC(s16 *arg0, s32 arg1) {
+    s16 i;
+    s16 j;
+
+    for (i = 0; i < 0x40; i++) {
+        for (j = 0; j < 0x20; j++) {
+            *arg0++ = func_806FFC04(((u16 *)arg1)[j + i * D_80744490]);
+        }
+    }
+    return arg0;
+}
 
 void func_8066B0F8();
 
@@ -55,9 +124,47 @@ void func_806FFF5C(void) {
     func_8066B0F8(0x19, 0x138B, 1, 1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FFF88.s")
+#ifdef NON_MATCHING
+extern void *D_80744470[];
+s32 func_80610FE8(s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80700088.s")
+s32 func_806FFF88(void) {
+    s32 sp34;
+    s16 var_s0;
+    s16 var_s3;
+    s32 var_s1;
+    s32 var_s2;
+
+    if (D_807FBB40->unk58 == 0xD9) {
+        func_806FFF5C();
+        return;
+    }
+    sp34 = func_80610FE8(0xA000);
+    var_s1 = sp34;
+    var_s2 = (s32)D_80744470[D_807444FC] + (D_80744490 * 7 << 4) + 0xA0;
+    var_s3 = 0;
+    do {
+        var_s0 = 0;
+        do {
+            var_s1 = (s32)func_806FFEAC((s16 *)var_s1, (var_s0 << 6) + var_s2);
+            var_s0++;
+        } while (var_s0 < 5);
+        var_s3++;
+        var_s2 += D_80744490 << 7;
+    } while (var_s3 < 2);
+    return sp34;
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FFF88.s")
+#endif
+
+u16 func_80700088(f32 arg0, u16 arg1) {
+    u8 lsb;
+
+    lsb = arg1 & 1;
+    return ((u8)((((arg1 & 0xF800) >> 11) - 0x1F) * arg0 + 31.0f) << 11) + ((u8)((((arg1 & 0x7C0) >> 6) - 0x1F) * arg0 + 31.0f) << 6) + ((u8)((((arg1 & 0x3E) >> 1) - 0x1F) * arg0 + 31.0f) << 1) + lsb;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807002AC.s")
 
