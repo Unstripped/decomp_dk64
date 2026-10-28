@@ -937,25 +937,239 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80641874.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_806418E8.s")
+s32 func_806418E8(s16 a, s16 b, s16 c) {
+    s16 t = D_807F6240[a];
+    s16 slot;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8064199C.s")
+    if (t != -1) {
+        slot = hashTableLookup(t);
+        if (slot != -1 && D_807F6000[slot].unk7C != NULL) {
+            D_807F6000[slot].unk7C[c + 0x48] = b;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+typedef struct CsA2Obj54 {
+    /* 0x00 */ u8 pad0[0x54];
+    /* 0x54 */ u8 unk54;
+    /* 0x55 */ u8 pad55[3];
+    /* 0x58 */ s32 unk58;
+} CsA2Obj54;
+
+void func_8064199C(void *obj, s16 b, s16 c) {
+    CsA2Obj54 *o = obj;
+
+    o->unk54 = b;
+    switch (b & 0xFF) {
+    case 3:
+    case 4:
+    case 6:
+        o->unk58 = c * c;
+        break;
+    case 5:
+        o->unk58 = c;
+        break;
+    }
+}
+
+// Parked NON_MATCHING (stage 5): regalloc only, same frame/branches (a=v0/cam=a1/bc=v0 vs t7/v0/a1).
+#ifdef NON_MATCHING
+typedef struct CsA2Player {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ Actor *unk4;
+    /* 0x008 */ u8 pad8[0x29C - 8];
+    /* 0x29C */ s16 unk29C;
+} CsA2Player;
+typedef struct CsA2Cam {
+    /* 0x00 */ u8 pad0[0xBC];
+    /* 0xBC */ s16 unkBC;
+} CsA2Cam;
+
+s32 func_806419F8(void) {
+    Actor *a = D_807FBB4C;
+    CsA2Player *p = (CsA2Player *)D_807FC924;
+    s32 t = a->unk154;
+    void *cam = p->unk4->unk174;
+
+    if ((t == 0x42 && (((CsA2Cam *)cam)->unkBC == 0x62 || ((CsA2Cam *)cam)->unkBC == 0x88 || ((CsA2Cam *)cam)->unkBC == 0x17)) || t == 0x52 || t == 0x67 ||
+        p->unk29C == 0x1C || p->unk29C == 0x53) {
+        return 0;
+    }
+    return 1;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_806419F8.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80641A78.s")
+void modelSlotFreeByIndex(s16, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80641B00.s")
+void func_80641A78(void) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80641BCC.s")
+    for (i = 0; i < D_807F6938; i++) {
+        modelSlotFreeByIndex(D_807F6240[D_807F6918[i]], 1);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80641C98.s")
+typedef struct CsA2Aux {
+    /* 0x00 */ u8 pad0[0x48];
+    /* 0x48 */ u8 unk48;
+    /* 0x49 */ u8 pad49[0x57];
+    /* 0xA0 */ s32 unkA0;
+} CsA2Aux;
+void *func_80610FE8(s32);
+void func_8063DED0(void *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80641DA0.s")
+void func_80641B00(s16 a, s16 b, s16 c) {
+    a = hashTableLookup(a);
+    b = hashTableLookup(b);
+    D_807F6000[a].unk7C = func_80610FE8(0xA4);
+    func_8063DED0(D_807F6000[a].unk7C);
+    ((CsA2Aux *)D_807F6000[a].unk7C)->unk48 = c;
+    ((CsA2Aux *)D_807F6000[a].unk7C)->unkA0 = ((CsA2Aux *)D_807F6000[b].unk7C)->unkA0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80641F70.s")
+void func_80641BCC(s16 a, s16 b, s16 csId) {
+    s32 i;
+    Actor *actor;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8064216C.s")
+    for (i = 0; i < gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
+        if (!(actor->unk60 & 0x2000) && actor->unk58 == a && csId == actor->unk10C) {
+            if (b != 0) {
+                actor->unk68 |= 4;
+            } else {
+                actor->unk68 &= ~4;
+            }
+        }
+    }
+}
+
+void func_80641C98(s16 a, s16 b, s16 csId) {
+    s32 x;
+    s32 i;
+    Actor *actor;
+
+    switch (b) {
+    case 0:
+        x = 1;
+        break;
+    case 1:
+        x = 2;
+        break;
+    case 2:
+        x = 0x3C;
+        break;
+    }
+    for (i = 0; i < gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
+        if (!(actor->unk60 & 0x2000) && actor->unk58 == a && csId == actor->unk10C) {
+            actorAppendCallback(actor, 0, 0x800, x, 0, 0);
+        }
+    }
+}
+
+extern f32 D_807F622C;
+s32 func_80678014(s32);
+u16 camStartPath(void *, s16, s32);
+Actor *spawnNodeActivate(s16, u16);
+
+void func_80641DA0(void *cs, s16 camIdx, s16 mode, s16 c) {
+    s32 flag;
+
+    if (((CsState *)cs)->unk94 == NULL && func_80678014(0x14) != 0) {
+        ((CsState *)cs)->unk94 = D_807FBB44;
+        D_807FBB44->unk144 = 1;
+        D_807FBB44->unk7C = D_807F621C;
+        D_807FBB44->unk80 = D_807F6220;
+        D_807FBB44->unk84 = D_807F6224;
+        D_807FBB44->unkE6 = D_807F622C * 4096.0f / 360.0f;
+        if (*(u8 *)&D_807F693F != 0) {
+            D_807FBB44->unk15E = c;
+        }
+        if (*(u8 *)&D_807F693F != 0) {
+            flag = 4;
+        } else {
+            flag = 0;
+        }
+        switch (mode) {
+        case 0:
+            camStartPath(((CsState *)cs)->unk94, camIdx, (flag | 1 | D_807F693C) & 0xFF);
+            return;
+        case 1:
+            camStartPath(NULL, camIdx, (flag | 1 | D_807F693C) & 0xFF);
+            return;
+        case 2:
+            camStartPath(spawnNodeActivate(c, 0x400), camIdx, (flag | 1 | D_807F693C) & 0xFF);
+            break;
+        }
+    }
+}
+
+void func_80641F68(void) {
+}
+
+extern u8 D_80750AB4;
+f32 sqrtf(f32);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+
+typedef struct CsA2Ply {
+    /* 0x000 */ u8 unk0;
+    /* 0x001 */ u8 pad1[3];
+    /* 0x004 */ Actor *unk4;
+    /* 0x008 */ u8 pad8[0x270 - 8];
+    /* 0x270 */ s16 unk270;
+    /* 0x272 */ s16 unk272;
+    /* 0x274 */ s16 unk274;
+    /* 0x276 */ s16 unk276;
+    /* 0x278 */ u8 pad278[0x2F0 - 0x278];
+} CsA2Ply;
+#define CSA2_PLY ((CsA2Ply *)D_807FC924)
+
+u8 func_80641F70(s16 radius) {
+    f32 sx;
+    f32 sy;
+    u8 i;
+    Actor *a;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    u8 ret = 0;
+
+    for (i = 0; i < D_80750AB4; i++) {
+        if (CSA2_PLY[i].unk0 != 0) {
+            a = CSA2_PLY[i].unk4;
+            dx = D_807F621C - a->unk7C;
+            dy = D_807F6220 - a->unk80;
+            dz = D_807F6224 - a->unk84;
+            dx *= dx;
+            dy *= dy;
+            dz *= dz;
+            if (sqrtf(dx + dy + dz) < radius) {
+                camProjectToScreen(D_807F621C, D_807F6220, D_807F6224, &sx, &sy, 0, 1.0f, i);
+                if ((s16)sx >= CSA2_PLY[i].unk270 + 0x14 && (s16)sy >= CSA2_PLY[i].unk272 + 0x14 &&
+                    CSA2_PLY[i].unk274 - 0x14 >= (s16)sx && CSA2_PLY[i].unk276 - 0x14 >= (s16)sy) {
+                    ret = 1;
+                }
+            }
+        }
+    }
+    return ret;
+}
+
+s32 func_8064216C(s16 radius, f32 x, f32 y, f32 z) {
+    f32 dx = D_807F621C - x;
+    f32 dy = D_807F6220 - y;
+    f32 dz = D_807F6224 - z;
+
+    dx *= dx;
+    dy *= dy;
+    dz *= dz;
+    return (u8)(sqrtf(dx + dy + dz) < radius);
+}
 
 typedef struct CsA3Player {
     /* 0x000 */ u8 unk0;
@@ -968,7 +1182,6 @@ typedef struct CsA3Player {
     /* 0x21C */ u8 pad21C[0x2F0 - 0x21C];
 } CsA3Player; // size = 0x2F0
 
-extern u8 D_80750AB4;
 s32 func_8064216C(s16, f32, f32, f32);
 
 s32 func_80642204(s16 arg0) {
@@ -1001,7 +1214,6 @@ s32 func_806422D8(s16 arg0) {
 }
 
 u8 spawnNodeHasActor(u8);
-Actor *spawnNodeActivate(s16, u16);
 
 s32 func_806423A8(s16 arg0, s16 arg1, s16 arg2) {
     s16 i;
@@ -1118,7 +1330,6 @@ s32 func_806425FC(s16 arg0, s16 arg1) {
 }
 
 extern f32 D_807F6228;
-extern f32 D_807F622C;
 extern f32 D_807F6230;
 
 void func_80642748(s16 arg0, s16 arg1, void *cs, s16 arg3, u8 arg4) {
