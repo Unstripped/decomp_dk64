@@ -17,7 +17,6 @@ extern s16 D_80744494;
 extern u8 D_807444F8;
 extern u8 D_807444FC;
 
-#ifdef NON_MATCHING
 typedef struct {
     s8 unk0;
     u8 unk1;
@@ -37,11 +36,12 @@ extern u8 D_8074450C;
 Gfx *func_80704960(Gfx *dl) {
     s32 i;
 
+    i = 0;
     gDPPipeSync(dl++);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0);
     gDPSetCycleType(dl++, G_CYC_FILL);
     gDPSetFillColor(dl++, 0x10001);
-    for (i = 0; D_80750840[i].unk0 != -1; i++) {
+    for (; D_80750840[i].unk0 != -1; i++) {
         if (((D_80750840[i].unk0 == 2) && ((s32)D_807FC928 >= 2) && (D_80750840[i].unk2 & D_80750ABC)) || ((D_807FC928 == D_80750840[i].unk0) && (D_80750AB8 == D_80750840[i].unk1) && (D_80750840[i].unk2 & D_80750ABC))) {
             Gfx *_g = (Gfx *)(dl++);
             _g->words.w0 = 0xF6000000 | (((((D_80750840[i].unk8 + 1) * D_8074450C) - 1) & 0x3FF) << 14) | (((((D_80750840[i].unkA + 1) * D_8074450C) - 1) & 0x3FF) << 2);
@@ -51,10 +51,6 @@ Gfx *func_80704960(Gfx *dl) {
     gDPPipeSync(dl++);
     return dl;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_80704960.s")
-#endif
 
 
 extern f32 D_807FD968;
@@ -494,19 +490,16 @@ Gfx *func_807069A4(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 arg4, f32 arg5) 
     return arg0;
 }
 
-#ifdef NON_MATCHING
 extern s16 D_80754CE0;
 extern s16 D_80754CEC[];
 extern s16 D_80754F70;
 extern s16 D_80754F74;
 
 Gfx *func_80706F90(Gfx *dl) {
-    s32 tv;
-    s32 n;
     s32 x;
     s32 i;
     s32 j;
-    s16 ps;
+    s32 n;
     s32 y;
     s32 y2;
     u16 k;
@@ -541,8 +534,8 @@ Gfx *func_80706F90(Gfx *dl) {
         y = (j << 2) - scroll;
         do {
             gDPPipeSync(dl++);
-            tv = (&D_807FD978)[k];
-            gDPLoadTextureBlock(dl++, (u32)tv + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 64, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, G_TX_NOLOD, G_TX_NOLOD);
+            { s32 tv = (&D_807FD978)[k];
+            gDPLoadTextureBlock(dl++, (u32)tv + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 64, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, G_TX_NOLOD, G_TX_NOLOD); }
             x = (i << 2) - D_80754F70;
             for (n = 0; n != 4; n++) {
                 y2 = y;
@@ -558,11 +551,12 @@ Gfx *func_80706F90(Gfx *dl) {
         } while (i != 0x80);
         j -= 0x40;
     } while (j >= 0);
-    ps = D_80754F70 + 4;
+    /* the stores go through other base symbols: with D_80754F70 spelled directly IDO hoists its address into v1 */
+    i = (s16)(D_80754F70 + 4);
     D_80754F74 += 4;
-    D_80754F70 = ps;
-    if (ps >= 0x200) {
-        D_80754F70 = 0;
+    *(s16 *)((u8 *)D_80754F58 + 0x18) = i;
+    if (i >= 0x200) {
+        *(s16 *)(D_80754EF8 + 0x78) = 0;
     }
     if (D_80754F74 >= 0x200) {
         D_80754F74 = 0;
@@ -572,10 +566,6 @@ Gfx *func_80706F90(Gfx *dl) {
     gDPSetTextureFilter(dl++, G_TF_BILERP);
     return dl;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_80706F90.s")
-#endif
 
 typedef struct {
     u8 unk0[0x270];
