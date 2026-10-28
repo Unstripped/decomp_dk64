@@ -118,13 +118,215 @@ void func_806F8278(u8 arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8278.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F833C.s")
+typedef struct L2bSlot {
+    u16 *unk0;
+    u16 unk4;
+    u8 unk6;
+    u8 unk7;
+    s32 unk8;
+    s32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    u8 pad1C[4];
+    s32 unk20;
+    s32 unk24;
+    s32 unk28;
+    u8 unk2C;
+    u8 unk2D;
+    u8 pad2E[2];
+} L2bSlot;
+
+extern s16 D_80744544;
+extern u16 D_80750AC4;
+extern u16 D_80750AC8;
+extern void *D_80754284;
+void *func_80610FE8(s32);
+void heapClearBlock(void *);
+s32 func_806C8DE0(s32);
+s32 func_806F8EDC();
+void func_806FB370(u8, u8, u8);
+s32 func_807142D8();
+#ifndef NON_MATCHING
+void func_806F8278(u8);
+#endif
+extern s32 func_805FF030();
+
+/* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
+ * screen position (func_806F8004). Formatting is load-bearing: the unk8/unkC stores share one line and the dead
+ * `if (player && player)` fixes the register choice for the u8 argument. */
+void func_806F833C(s32 arg0) {
+    u32 j;
+    s32 i;
+    s16 sp96;
+    u8 *fp;
+    u8 sp8F;
+    L2bSlot *base;
+    u8 *sp84;
+    s32 off;
+    s8 flag;
+    u8 player;
+
+    sp96 = D_80744544;
+    sp8F = func_805FF030(D_8076A0AB, 1);
+    if (D_807FC928 >= 2) {
+        sp96 = 0;
+    }
+    if (arg0 != 0) {
+        D_80754280 = func_80610FE8(D_807FC928 * 0x2D0);
+        heapClearBlock(D_80754280);
+        D_80754284 = 0;
+    }
+    if (D_807FC928 > 0) {
+        fp = (u8 *)D_807FC950;
+        i = 0;
+        do {
+            sp84 = (u8 *)(func_806C8DE0(i) * 0x5E);
+            sp84 = (u8 *)((s32)fp + (s32)sp84);
+            player = i;
+            if (player && player) {
+            }
+            base = (L2bSlot *)slotQueueGetAddress(player);
+            j = 0;
+            off = 0;
+            do {
+                flag = 0;
+                if (arg0 != 0) {
+                    (base + j)->unk20 = 0;
+                    (base + j)->unk7 = 0;
+                    (base + j)->unk24 = 0;
+                    (base + j)->unk6 = 0;
+                    (base + j)->unk28 = 0;
+                    (base + j)->unk2C = 0;
+                }
+                if (func_807142D8() != 0) {
+                    (base + j)->unk2C = 1;
+                }
+                switch (j) {
+                case 0:
+                    (base + j)->unk0 = &((u16 *)(sp84 + 0xA))[sp8F];
+                    (base + j)->unk8 = 0x1E; (base + j)->unkC = 0x26;
+                    func_806F8004(15.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 13:
+                    (base + j)->unk0 = NULL;
+                    (base + j)->unk8 = 0x122; (base + j)->unkC = 0x26;
+                    func_806F8004(-5.5f, -26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 8:
+                    (base + j)->unk0 = &((u16 *)(sp84 + 0x42))[sp8F];
+                    (base + j)->unk8 = 0x1E; (base + j)->unkC = 0x48;
+                    func_806F8004(1.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 12:
+                    (base + j)->unk0 = NULL;
+                    (base + j)->unk8 = 0xC2; (base + j)->unkC = 0xD0;
+                    func_806F8004(-26.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 10:
+                    (base + j)->unk0 = NULL;
+                    (base + j)->unk8 = 0x52; (base + j)->unkC = 0xD0;
+                    func_806F8004(-26.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 9:
+                    (base + j)->unk0 = NULL;
+                    (base + j)->unk8 = 0x7A; (base + j)->unkC = 0xD0;
+                    break;
+                case 5:
+                    if (sp96 & 0x20) {
+                        *(s16 *)(fp+0x2F6) = func_806F8EDC(5, i);
+                        flag = 1;
+                    }
+                    (base + j)->unk0 = (u16 *)(fp + 0x2F6);
+                    (base + j)->unk8 = 0x122; (base + j)->unkC = 0x8C;
+                    func_806F8004(-5.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 2:
+                    (base + j)->unk0 = (u16 *)(fp + 0x2F0);
+                    (base + j)->unk8 = 0x122; (base + j)->unkC = 0x48;
+                    func_806F8004(8.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 3:
+                    if (sp96 & 0x4) {
+                        *(s16 *)(fp+0x2F2) = func_806F8EDC(3, i);
+                        flag = 1;
+                    }
+                    (base + j)->unk0 = (u16 *)(fp + 0x2F2);
+                    (base + j)->unk8 = 0x122; (base + j)->unkC = 0x48;
+                    func_806F8004(8.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 4:
+                    if (sp96 & 0x8) {
+                        *(s16 *)(fp+0x2F4) = func_806F8EDC(4, i);
+                        flag = 1;
+                    }
+                    (base + j)->unk0 = (u16 *)(fp + 0x2F4);
+                    (base + j)->unk8 = 0x122; (base + j)->unkC = 0x6A;
+                    func_806F8004(1.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 6:
+                    if (sp96 & 0x10) {
+                        *(s16 *)(fp+0x2F8) = func_806F8EDC(6, i);
+                        flag = 1;
+                    }
+                    (base + j)->unk0 = (u16 *)(fp + 0x2F8);
+                    (base + j)->unk8 = 0x122; (base + j)->unkC = 0xD0;
+                    func_806F8004(-19.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 11:
+                    (base + j)->unk0 = &D_80750AC4;
+                    (base + j)->unk8 = 0x122; (base + j)->unkC = 0x26;
+                    func_806F8004(16.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 1:
+                    if (sp96 & 0x2) {
+                        *(s16 *)(sp84+6) = func_806F8EDC(1, i);
+                        flag = 1;
+                    }
+                    (base + j)->unk0 = (u16 *)(sp84 + 6);
+                    (base + j)->unk8 = 0x122; (base + j)->unkC = 0x26;
+                    func_806F8004(16.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 7:
+                    if (sp96 & 0x40) {
+                        *(s16 *)(sp84+8) = func_806F8EDC(7, i);
+                        flag = 1;
+                    }
+                    (base + j)->unk0 = (u16 *)(sp84 + 8);
+                    (base + j)->unk8 = 0x122; (base + j)->unkC = 0xAE;
+                    func_806F8004(-12.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                case 14:
+                    (base + j)->unk0 = &D_80750AC8;
+                    (base + j)->unk8 = 0x1E; (base + j)->unkC = 0x26;
+                    func_806F8004(15.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    break;
+                }
+                (base + j)->unk2D = flag;
+                if (flag & 0xFF) {
+                    (base + j)->unk2C = 1;
+                }
+                off += 0x30;
+                if ((base + j)->unk0 != NULL) {
+                    (base + j)->unk4 = *(base + j)->unk0;
+                }
+                j++;
+            } while (j != 0xF);
+            func_806F8278(player);
+            i++;
+            fp += 0x306;
+        } while (i < D_807FC928);
+    }
+    if (D_8076A0A8 == 0x11 || D_8076A0A8 == 0x52) {
+        func_806FB370(5, 0, 1);
+    }
+}
+
 
 void func_806F8A8C(u8 arg0, u8 arg1, s32 arg2) {
     *(s16 *)((u8 *)slotQueueGetAddress(arg1 & 0xFF) + (arg0 * 0x30) + 4) = arg2;
 }
 
-s32 func_806C8DE0(s32);
 s32 flagGridSumRows(s32, s32, s32, s32);
 
 extern s32 func_805FF030();
@@ -224,7 +426,6 @@ u8 arg1;
     }
 }
 
-extern void *D_80754284;
 
 int slotQueueCancel(arg0)
 s32 arg0;
@@ -462,8 +663,6 @@ typedef struct R1FCCD0bAllocRecord {
     void *unk14;
 } R1FCCD0bAllocRecord;
 
-void *func_80610FE8(s32);
-void heapClearBlock(void *);
 
 void func_806F9608(R1FCCD0bAllocRecord **arg0) {
     R1FCCD0bAllocRecord *temp;
