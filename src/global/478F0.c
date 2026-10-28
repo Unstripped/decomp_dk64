@@ -1,10 +1,15 @@
 #include "common.h"
 #include "actor.h"
+#include "cutscene.h"
 
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
+extern f32 D_807F621C;
+extern f32 D_807F6220;
+extern f32 D_807F6224;
+extern CsPlayer *D_807FC924;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80642BF0.s")
 
