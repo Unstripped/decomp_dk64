@@ -1,149 +1,183 @@
-// func_80033AF0 (src/boss/F0D0.c): from .scratch/Boss3F/func_80033AF0_best.c
-? func_80027BA8(s32, ?, ?, void **);                /* extern */
-? func_80028478(?, s16, s16, s16, s32, s32);        /* extern */
-u8 func_800330D0(void *, void *);                   /* extern */
-? func_8003340C(void *);                            /* extern */
-? func_800334A4(void *, f32);                       /* extern */
-? func_800336C0();                                  /* extern */
-? func_80033784(void *, ?, ?, void **);             /* extern */
-? func_8003392C(void *);                            /* extern */
-s32 func_800339D8(void *, s32);                     /* extern */
-? func_80033A80(s8);                                /* extern */
-? func_80604CBC(void *, ?, ?, ?, s32, s32, f32, s32); /* extern */
-? func_80605314(void *, ?);                         /* extern */
-? func_80608528(void *, ?, ?, ?, s32);              /* extern */
-? func_806086CC(f32, f32, f32, ?, s32, s32, s32, s32, f32, s32); /* extern */
-s32 func_80611A44();                                /* extern */
-f32 func_80612794(s16);                             /* extern */
-? func_80614D00(void *, s32, ?);                    /* extern */
-? func_80614D90(void *);                            /* extern */
-? func_80614EBC(void *, ?, ?, void **);             /* extern */
-s32 func_8061CB50();                                /* extern */
-? func_8061CC40(void *, ?, ?, void **);             /* extern */
-? func_80626110(s32, s16, s16);                     /* extern */
-s32 currentActorTestClearFlag();                                /* extern */
-? currentActorClearFlag();                                  /* extern */
-? actorUpdateModelMatrix(void *, ?);                         /* extern */
-? func_8063DA40(u8, ?);                             /* extern */
-? func_80659610(?, u8 *, void **);                  /* extern */
-? func_8065A708(f32, f32, f32, f32, f32, u32, u32, s32, s32, s32, s32); /* extern */
-? func_806653C0(void *, ?, s32);                    /* extern */
-? func_80665564(void *, ?);                         /* extern */
-? func_80671C0C(void *, ?, f32 *, f32 *, f32 *);    /* extern */
-? func_8067ACB4(void *);                            /* extern */
-? func_806845B8(?, ?, ?, void **);                  /* extern */
-? func_80684A00(?, ?, ?, void **);                  /* extern */
-? func_80684BB0(?, s16, ?);                         /* extern */
-? func_80685B44(? *, ?, ?, ?, s32, s32, s32, s32, s32); /* extern */
-? func_80687474(void *, ?);                         /* extern */
-? func_8068780C(?, ?, ?, ?);                        /* extern */
-? func_80690814(void *, ?);                         /* extern */
-? func_80690A28(?, ?, ?, s32, f32, f32, f32, void *); /* extern */
-? func_80697184();                                  /* extern */
-? func_80714950(void *);                            /* extern */
-? func_8071498C(? *);                               /* extern */
-? func_807149B8(?);                                 /* extern */
-? func_80714C08(? *, ?, void *, ?, s32);            /* extern */
-? func_80714CC0(? *, ?, f32, f32, f32);             /* extern */
-? actorSetUniformScale(void *, f32);                       /* extern */
-s32 func_80724A20();                                /* extern */
-? behaviourFrameBegin();                                  /* extern */
-? actorApplyGravity();                                  /* extern */
-? func_8072A450();                                  /* extern */
-? func_8072E1A4(?, void *, ?, void **);             /* extern */
-? volumeTriggerSetEnabled(s16, ?);                            /* extern */
-s32 flagGet(?, ?);                            /* extern */
-extern ? D_80035B84;
-extern ? D_80035B98;
-extern ? D_80035BD8;
-extern ? D_80035BEC;
-extern ? D_80036C40;
-extern ? D_80036DD0;
-extern ? D_8071EDEC;
-extern ? D_8071FC58;
-extern ? D_80720054;
-extern ? D_80720BE8;
-extern s16 D_807502DC;
-extern f32 D_807502F0;
-extern s32 D_8076A064;
-extern s32 D_807F5D10;
-extern void *D_807FBB40;
-extern void *D_807FBB4C;
+// func_80033AF0 (src/boss/F0D0.c): stage 5: 36 SNORM/TNORM diff lines of 1819 insns (count, frame 144, s0-s2 identical). Remaining: 0x20 c5 wants addiu v1,v0,-1; andi t4,v1 (v1 alloc) and 0x23 c0 lbu value in temp not v1 -> t-ring shifts by 1 after c5.
+typedef struct BossF_Model {
+    struct BossF_ModelSub *unk0;
+    u8 padF4[0x38 - 4];
+    f32 unk38;
+    u8 pad3C[0x64 - 0x3C];
+    u16 unk64;
+} BossF_Model;
+
+struct BossF_ModelSub {
+    u8 pad0[4];
+    f32 unk4;
+};
+
+typedef struct BossF_State {
+    u8 pad0[8];
+    s16 unk8;
+    u8 padA[0x14 - 0xA];
+    u8 unk14;
+    u8 unk15;
+    u8 unk16;
+    u8 unk17;
+    u8 unk18;
+    u8 unk19;
+} BossF_State;
+
+typedef struct BossF_Sub {
+    u8 unk0;
+    u8 unk1;
+    u8 unk2;
+    u8 unk3;
+    u8 unk4;
+    u8 unk5;
+    u8 unk6;
+} BossF_Sub;
+
+typedef struct BossF_Actor {
+    u8 pad0[4];
+    BossF_Model *unk4;
+    u8 pad8[0x60 - 0x8];
+    s32 unk60;
+    u8 pad64[0x6A - 0x64];
+    u16 unk6A;
+    u8 pad6C[2];
+    s16 unk6E;
+    u8 pad70[0x7C - 0x70];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0xC0 - 0x88];
+    f32 unkC0;
+    f32 unkC4;
+    f32 unkC8;
+    u8 unkCC;
+    u8 padCD[0x110 - 0xCD];
+    u8 unk110;
+    u8 pad111[0x128 - 0x111];
+    s16 unk128;
+    u8 pad12A[0x144 - 0x12A];
+    u8 unk144;
+    u8 pad145;
+    s16 unk146;
+    u8 pad148[0x154 - 0x148];
+    u8 unk154;
+    u8 unk155;
+    u8 pad156[0x178 - 0x156];
+    BossF_State *unk178;
+    BossF_Sub *unk17C;
+} BossF_Actor;
+
+typedef struct BossF_Extra {
+    u8 pad0[0x1A];
+    u16 unk1A;
+    u8 pad1C[0x2C - 0x1C];
+    s16 unk2C;
+    u8 pad2E[2];
+    f32 unk30;
+} BossF_Extra;
+
+typedef struct BossF_Pt {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+} BossF_Pt;
+
+typedef struct BossF_Pts {
+    u8 pad0[0x14];
+    BossF_Pt *unk14;
+} BossF_Pts;
+
+#define BF ((BossF_Actor *)D_807FBB40)
+#define BP ((BossF_Actor *)D_807FBB4C)
+#define BX ((BossF_Extra *)D_807FDC90)
+#define BPTS ((BossF_Pts *)D_807FDCA0)
+
+extern u8 *D_80035B84[];
+extern u8 D_80035B98[];
+extern u8 D_80035BD8[];
+extern u8 D_80035BEC[];
+extern u8 D_80036DD0[];
+extern f32 D_80036C40[];
+extern void *D_807FDC90;
 extern u8 D_807FBB85;
 extern u8 D_807FBDC4;
-extern void *D_807FDC90;
-extern void *D_807FDCA0;
+extern s32 D_8076A064;
+extern s16 D_807502DC;
+extern f32 D_807502F0;
+extern u8 D_8071EDEC[];
+extern u8 D_8071FC58[];
+extern u8 D_80720054[];
+extern u8 D_80720BE8[];
+
+void lightSetRadius(s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+s32 flagGet(s32, s32);
+s32 camStartPath(void *, s32, s32);
+void behaviourFrameBegin(void);
+void func_8067ACB4(void *);
+void actorSetUniformScale(void *, f32);
+void actorUpdateModelMatrix(void *, s32);
+void actorApplyGravity(void);
+void func_8072A450(void);
+void func_80614D00(void *, f32, f32);
+void func_80665564(void *, f32);
+void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s32 currentActorTestClearFlag(void);
+void currentActorClearFlag(void);
+void volumeTriggerSetEnabled(s32, s32);
+s32 func_80724A20(void);
+u8 func_800330D0(BossE_F0D0_Sub14 *, u8 *);
+void func_8003340C(u8 *);
+void func_800336C0(void);
+void bossInterpolateWaypoints(u8 *, f32);
+void bossSpawnObjectAtWaypoint(u8 *);
+void func_8072E1A4(s32, void *);
+void actorApplyVelocityCustom(void *, f32, f32);
+s32 func_800339D8(BossE_F0D0_Sub14 *, u8 *);
+void func_80033A80(s8);
+void effectSpawnBoneDebris(s32, s32);
+void effectSpawnBoneDebrisScaled(s32, s16, s32);
+void effectSpawnJointBeam(s32, s32, s32, s32);
+void effectSpawnRandomBoneDebris(s32, s32);
+void actorSpawnAttachment(void *, f32);
+void actorAppendActiveCallback8(void);
+s32 camIsCutsceneActive(void);
+void camSetSecondTarget(void *, s32, s32);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
+void projectileGetTargetCoords(void *, s32);
+void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
+void func_80685B44(void *, s32, f32, s32, s32, s32, s32, s32, s32);
+void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
+void func_80714C08(void *, f32, void *, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
+void sfxStopSlotSound(void *, u8);
+void func_80027BA8(u8 *, s32, f32);
 
 void func_80033AF0(void) {
-    void *sp88;
-    s32 sp84;
-    u8 sp83;
-    u8 sp7F;
-    u8 sp7D;
-    u8 sp7C;
-    u8 sp7B;
-    f32 sp74;
-    f32 sp70;
+    BossF_State *st;
+    BossF_Sub *sub;
+    u8 *tbl;
+    struct { u8 pad0[3]; u8 col[3]; u8 pad1; u8 f7F; u8 pad2[3]; u8 f83; } L;
+    f32 sx;
+    f32 sy;
+    u8 idx;
+    u8 v;
+    s16 i;
     f32 sp68;
     f32 sp64;
     f32 sp60;
-    u8 *sp50;
-    f32 temp_fv0;
-    f32 var_ft4;
-    f32 var_fv0;
-    f32 var_fv0_2;
-    f32 var_fv1;
-    s16 temp_v0_15;
-    s16 temp_v0_19;
-    s16 var_s0_2;
-    s16 var_s0_3;
-    s16 var_s0_4;
-    s32 temp_s0;
-    s32 temp_t5;
-    s32 temp_v0_13;
-    s32 var_v0_2;
-    u8 *temp_a1;
-    u8 temp_t0;
-    u8 temp_t1;
-    u8 temp_t1_2;
-    u8 temp_t4;
-    u8 temp_t5_2;
-    u8 temp_t5_3;
-    u8 temp_t8;
-    u8 temp_t8_2;
-    u8 temp_t8_3;
-    u8 temp_t8_4;
-    u8 temp_v0;
-    u8 temp_v0_10;
-    u8 temp_v0_11;
-    u8 temp_v0_12;
-    u8 temp_v0_14;
-    u8 temp_v0_16;
-    u8 temp_v0_17;
-    u8 temp_v0_18;
-    u8 temp_v0_4;
-    u8 temp_v0_7;
-    u8 temp_v0_9;
-    u8 temp_v1;
-    u8 temp_v1_2;
-    u8 var_v0;
-    u8 var_v0_3;
-    u8 var_v1;
-    void **temp_v1_3;
-    void *temp_s0_2;
-    void *temp_s1;
-    void *temp_v0_2;
-    void *temp_v0_3;
-    void *temp_v0_5;
-    void *temp_v0_6;
-    void *temp_v0_8;
-    void *temp_v1_4;
-    void *var_s0;
 
-    temp_s1 = D_807FBB40->unk178;
-    sp88 = D_807FBB40->unk17C;
-    sp84 = *(&D_80035B84 + (temp_s1->unk14 * 4));
-    if (D_807FBB4C->unk80 < (D_807FBB40->unk80 - 10.0f)) {
+#define sp83 L.f83
+#define sp7F L.f7F
+#define col L.col
+    st = BF->unk178;
+    sub = BF->unk17C;
+    tbl = D_80035B84[st->unk14];
+    if (BP->unk80 < BF->unk80 - 10.0f) {
         sp83 = 1;
     } else {
         sp83 = 0;
@@ -151,599 +185,503 @@ void func_80033AF0(void) {
     sp7F = 0;
     behaviourFrameBegin();
     func_8067ACB4(D_807FBB40);
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unkCC = 1;
-        D_807FBB40->unk144 = 0x24;
+    if (!(BF->unk60 & 0x10)) {
+        BF->unkCC = 1;
+        BF->unk144 = 0x24;
         if (flagGet(0x6A, 2) != 0) {
-            func_80614EBC(D_807FBB40, 0x226);
-            func_8061CC40(D_807FBB40, 0x14, 1);
-            sp88->unk0 = 9U;
-            sp88->unk2 = 5U;
-            D_807FBB40->unk154 = 0x20U;
-            D_807FBB40->unk155 = 0U;
-            D_807FBB40->unk155 = 0xBU;
-            D_807FBB40->unk110 = 0U;
+            actorScriptStart(D_807FBB40, 0x226);
+            camStartPath(D_807FBB40, 0x14, 1);
+            sub->unk0 = 9;
+            sub->unk2 = 5;
+            BF->unk154 = 0x20;
+            BF->unk155 = 0;
+            BF->unk155 = 0xB;
+            BF->unk110 = 0;
         } else {
-            D_807FBB40->unk146 = 0;
-            D_807FDC90->unk30 = (f32) D_807FBB40->unk4->unk38;
-            actorSetUniformScale(D_807FBB40, (f32) ((f64) D_807FDC90->unk30 * 0.333));
-            D_807FBB40->unk154 = 0x1EU;
-            D_807FBB40->unk155 = 0U;
-            D_807FBB40->unk80 = (f32) (D_807FBB40->unk80 + 650.0f);
-            D_807FBB40->unk60 = (s32) (D_807FBB40->unk60 & 0xFFFF7FFF);
-            sp88->unk0 = 0xFU;
+            BF->unk146 = 0;
+            BX->unk30 = BF->unk4->unk38;
+            actorSetUniformScale(D_807FBB40, BX->unk30 * 0.333);
+            BF->unk154 = 0x1E;
+            BF->unk155 = 0;
+            BF->unk80 += 650.0f;
+            BF->unk60 &= 0xFFFF7FFF;
+            sub->unk0 = 0xF;
         }
-        D_807FBB40->unk6A = (u16) (D_807FBB40->unk6A & 0xFFFE);
-        D_807FBB40->unkC4 = (f32) D_807502F0;
-        D_807FBB40->unkC8 = (f32) D_807502DC;
+        BF->unk6A &= 0xFFFE;
+        BF->unkC4 = D_807502F0;
+        BF->unkC8 = D_807502DC;
     }
-    if ((s32) temp_s1->unk14 < 2) {
-        temp_v0 = sp88->unk4;
-        if (temp_v0 != 0) {
-            temp_t5 = (temp_v0 - 0x10) & 0xFF;
-            temp_v1 = *(&D_80035BEC + temp_t5);
-            sp7D = sp88->unk5 - 0x10;
-            if (temp_v1 != 0) {
-                sp7C = 0x46;
+    if (st->unk14 < 2) {
+        if (sub->unk4 != 0) {
+            idx = sub->unk4 - 0x10;
+            col[2] = sub->unk5 - 0x10;
+            if (D_80035BEC[idx] != 0) {
+                col[1] = 0x46;
             } else {
-                sp7C = 0xFF;
+                col[1] = 0xFF;
             }
-            if (temp_v1 != 0) {
-                sp7B = 0xA0;
+            if (D_80035BEC[idx] != 0) {
+                col[0] = 0xA0;
             } else {
-                sp7B = 0xFF;
+                col[0] = 0xFF;
             }
-            var_v0 = sp88->unk3;
-            if (var_v0 != temp_t5) {
-                func_80659610(0x1388);
-                temp_v0_2 = D_807FDCA0->unk14 + (temp_t5 * 0xA);
-                func_8065A708((f32) temp_v0_2->unk0, (f32) (temp_v0_2->unk2 - 0x32), (f32) temp_v0_2->unk4, 0.0f, 0.0f, 0U, 0x43700000U, 0, (s32) sp7C, (s32) sp7B, 0xFF);
-                var_v0 = sp88->unk3;
+            if (idx != sub->unk3) {
+                lightSetRadius(0x1388);
+                lightAdd(BPTS->unk14[idx].unk0, BPTS->unk14[idx].unk2 - 0x32, BPTS->unk14[idx].unk4, 0.0f, 0.0f, 0.0f, 240.0f, 0, col[1], col[0], 0xFF);
             }
-            if (var_v0 != sp7D) {
-                func_80659610(0x1388);
-                temp_v0_3 = D_807FDCA0->unk14 + (sp7D * 0xA);
-                func_8065A708((f32) temp_v0_3->unk0, (f32) (temp_v0_3->unk2 - 0x32), (f32) temp_v0_3->unk4, 0.0f, 0.0f, 0U, 0x43700000U, 0, (s32) sp7C, (s32) sp7B, 0xFF);
+            if (sub->unk3 != col[2]) {
+                lightSetRadius(0x1388);
+                lightAdd(BPTS->unk14[col[2]].unk0, BPTS->unk14[col[2]].unk2 - 0x32, BPTS->unk14[col[2]].unk4, 0.0f, 0.0f, 0.0f, 240.0f, 0, col[1], col[0], 0xFF);
             }
         }
     }
-    var_s0 = D_807FBB40;
-    var_v1 = var_s0->unk154;
-    if (((var_v1 == 0x27) && (temp_s1->unk14 == 4)) || ((D_807FBB85 != 0) && (var_v1 != 0x37))) {
-        if (D_807FBB4C->unk154 == 0x36) {
-            var_s0->unk154 = 0x2BU;
-            D_807FBB40->unk155 = 0U;
-            var_s0 = D_807FBB40;
+    if ((BF->unk154 == 0x27 && st->unk14 == 4) || (D_807FBB85 != 0 && BF->unk154 != 0x37)) {
+        if (BP->unk154 == 0x36) {
+            BF->unk154 = 0x2B;
+            BF->unk155 = 0;
         } else {
-            func_80614EBC(var_s0, 0x226);
-            D_807FBB40->unk154 = 0x37U;
-            D_807FBB40->unk155 = 0U;
-            var_s0 = D_807FBB40;
+            actorScriptStart(D_807FBB40, 0x226);
+            BF->unk154 = 0x37;
+            BF->unk155 = 0;
         }
-        var_v1 = var_s0->unk154;
     }
-    if ((var_v1 == 0x23) && (var_s0->unk155 == 1) && (sp83 == 0) && (sp88->unk6 != 0)) {
-        var_s0->unk154 = 0x2BU;
-        D_807FBB40->unk155 = 0U;
-        var_s0 = D_807FBB40;
-        var_v1 = var_s0->unk154;
+    if (BF->unk154 == 0x23 && BF->unk155 == 1 && sp83 == 0 && sub->unk6 != 0) {
+        BF->unk154 = 0x2B;
+        BF->unk155 = 0;
     }
-    switch ((s32) var_v1) {                         /* switch 1; irregular */
-    case 0x1E:                                      /* switch 1 */
-        var_s0_2 = 0;
-        do {
-            temp_a1 = &D_80036DD0 + var_s0_2;
-            if (*(&D_80035B98 + ((D_807FDC90->unk2C & 0x1F) * 2)) & (1 << var_s0_2)) {
-                *(&D_80036DD0 + var_s0_2) = 0xFA;
+    switch (BF->unk154) {
+    case 0x1E:
+        for (i = 0; i < 0x10; i++) {
+            if (*(u16 *)(D_80035B98 + ((BX->unk2C & 0x1F) << 1)) & (1 << i)) {
+                D_80036DD0[i] = 0xFA;
             }
-            if (*temp_a1 != 0) {
-                temp_v0_4 = *(&D_80035BEC + var_s0_2);
-                if (temp_v0_4 != 0) {
-                    var_ft4 = (f32) 0.27;
-                } else {
-                    var_ft4 = (f32) GLUE_F64(0x3FF00000U, 0U);
-                }
-                if (temp_v0_4 != 0) {
-                    var_fv1 = (f32) 0.62;
-                } else {
-                    var_fv1 = (f32) GLUE_F64(0x3FF00000U, 0U);
-                }
-                sp50 = temp_a1;
-                sp70 = var_fv1;
-                sp74 = var_ft4;
-                func_80659610(0x1388, temp_a1, &D_807FDC90);
-                temp_v0_5 = D_807FDCA0->unk14 + (var_s0_2 * 0xA);
-                temp_v1_2 = *temp_a1;
-                var_fv0 = (f32) temp_v1_2;
-                if ((s32) temp_v1_2 < 0) {
-                    var_fv0 += 4294967296.0f;
-                }
-                func_8065A708((f32) temp_v0_5->unk0, (f32) (temp_v0_5->unk2 - 0x28A), (bitwise f32) temp_a1, (f32) temp_v0_5->unk4, 0.0f, (u32) (var_fv0 * var_ft4), (u32) (var_fv0 * var_fv1), (s32) temp_v1_2);
-                *sp50 -= 0x19;
+            if (D_80036DD0[i] != 0) {
+                sx = D_80035BEC[i] != 0 ? 0.27 : 1.0;
+                sy = D_80035BEC[i] != 0 ? 0.62 : 1.0;
+                lightSetRadius(0x1388);
+                lightAdd(BPTS->unk14[i].unk0, BPTS->unk14[i].unk2 - 0x28A, BPTS->unk14[i].unk4, 0, 0.0f, 0.0f, 240.0f, 0, (u32)((f32)(u32)D_80036DD0[i] * sx), (u32)((f32)(u32)D_80036DD0[i] * sy), D_80036DD0[i]);
+                D_80036DD0[i] -= 0x19;
             }
-            var_s0_2 += 1;
-        } while (var_s0_2 < 0x10);
+        }
         if (!(D_8076A064 & 7)) {
-            D_807FDC90->unk2C = (s16) (D_807FDC90->unk2C + 1);
+            BX->unk2C++;
         }
-        var_s0 = D_807FBB40;
         if (D_807FBDC4 != 0) {
-            var_s0->unk154 = 0x1FU;
-            D_807FBB40->unk155 = 0U;
-            var_s0 = D_807FBB40;
+            BF->unk154 = 0x1F;
+            BF->unk155 = 0;
         }
         break;
-    case 0x1F:                                      /* switch 1 */
-        temp_s0 = (u32) ((func_80612794((s16) (D_8076A064 * 0x7D)) * 100.0f) + 155.0f) & 0xFF;
-        func_80659610(0x1388);
-        temp_v0_6 = D_807FDCA0->unk14;
-        func_8065A708((f32) temp_v0_6->unk32, (f32) (temp_v0_6->unk34 - 0x28A), (f32) temp_v0_6->unk36, 0.0f, 0.0f, 0U, 0x43700000U, 0, temp_s0, temp_s0, temp_s0);
+    case 0x1F:
+        i = (u8)(u32)(func_80612794((s16)(D_8076A064 * 0x7D)) * 100.0f + 155.0f);
+        lightSetRadius(0x1388);
+        lightAdd(BPTS->unk14[5].unk0, BPTS->unk14[5].unk2 - 0x28A, BPTS->unk14[5].unk4, 0.0f, 0.0f, 0.0f, 240.0f, 0, i, i, i);
         if (currentActorTestClearFlag() != 0) {
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x19C, 0x64, 0x7F, 0, 0, 0.0f, 0);
-            D_807FBB40->unk154 = 0x20U;
-            D_807FBB40->unk155 = 0U;
+            func_806086CC(BF->unk7C, BF->unk80, BF->unk84, 0x19C, 0x64, 0x7F, 0, 0, 0.0f, 0);
+            BF->unk154 = 0x20;
+            BF->unk155 = 0;
         }
-block_200:
-        var_s0 = D_807FBB40;
         break;
-    case 0x20:                                      /* switch 1 */
+    case 0x20:
         func_8072A450();
-        var_s0 = D_807FBB40;
-        temp_t0 = var_s0->unk155;
-        switch (temp_t0) {                          /* switch 2 */
-        case 0:                                     /* switch 2 */
-            func_80684A00(4, 1);
+        switch (BF->unk155) {
+        case 0:
+            effectSpawnBoneDebris(4, 1);
             sp7F = 1;
             actorApplyGravity();
-            func_806653C0(D_807FBB40, 0, D_807FBB40->unkC0);
-            func_80665564(D_807FBB40, 0);
-            var_s0 = D_807FBB40;
-            if (var_s0->unk110 == 1) {
-                var_s0->unk155 = (u8) (var_s0->unk155 + 1);
-                goto block_200;
+            actorApplyVelocityCustom(D_807FBB40, 0.0f, BF->unkC0);
+            func_80665564(D_807FBB40, 0.0f);
+            if (BF->unk110 == 1) {
+                BF->unk155++;
             }
             break;
-        case 1:                                     /* switch 2 */
+        case 1:
             if (currentActorTestClearFlag() != 0) {
-                D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
+                BF->unk155++;
             }
-            goto block_200;
-        case 2:                                     /* switch 2 */
-            func_80614EBC(var_s0, 0x225);
+            break;
+        case 2:
+            actorScriptStart(D_807FBB40, 0x225);
             func_80614D90(D_807FBB40);
-            temp_s1->unk18 = 2U;
-            sp88->unk2 = 0xFFU;
-            sp88->unk1 = (u8) *(&D_80035BD8 + (2 & 0xFF));
-            D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            D_807FBB40->unk6A = (u16) (D_807FBB40->unk6A | 1);
-            /* fallthrough */
-        case 3:                                     /* switch 2 */
-            func_80614D00(var_s0, 0x3F800000, 0);
-            D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            /* fallthrough */
-        case 4:                                     /* switch 2 */
-            func_8067ACB4(var_s0);
-            func_80665564(D_807FBB40, 0);
-            func_800334A4(sp88, 0.025f);
-            if ((*D_807FBB40->unk4)->unk4 >= 40.0f) {
-                D_807FBB40->unk6A = (u16) (D_807FBB40->unk6A | 1);
+            st->unk18 = 2;
+            sub->unk1 = D_80035BD8[st->unk18];
+            sub->unk2 = 0xFF;
+            BF->unk155++;
+            BF->unk6A |= 1;
+        case 3:
+            func_80614D00(D_807FBB40, 1.0f, 0.0f);
+            BF->unk155++;
+        case 4:
+            func_8067ACB4(D_807FBB40);
+            func_80665564(D_807FBB40, 0.0f);
+            bossInterpolateWaypoints((u8 *)sub, 0.025f);
+            if (BF->unk4->unk0->unk4 >= 40.0f) {
+                BF->unk6A |= 1;
             } else {
-                D_807FBB40->unk6A = 0U;
-                func_80684A00(4, 1);
+                BF->unk6A = 0;
+                effectSpawnBoneDebris(4, 1);
                 sp7F = 1;
             }
-            goto block_200;
-        case 5:                                     /* switch 2 */
-            sp88->unk0 = (u8) sp88->unk1;
-            temp_v0_7 = temp_s1->unk18;
-            if (temp_v0_7 != 0) {
-                temp_t4 = (temp_v0_7 - 1) & 0xFF;
-                temp_s1->unk18 = temp_t4;
-                sp88->unk1 = (u8) *(&D_80035BD8 + temp_t4);
-                D_807FBB40->unk155 = 3U;
+            break;
+        case 5:
+            sub->unk0 = sub->unk1;
+            v = st->unk18;
+            if (v != 0) {
+                st->unk18 = v - 1;
+                sub->unk1 = D_80035BD8[st->unk18];
+                BF->unk155 = 3;
             } else {
-                func_80614EBC(D_807FBB40, 0x224);
-                D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
+                actorScriptStart(D_807FBB40, 0x224);
+                BF->unk155++;
             }
-            goto block_200;
-        case 6:                                     /* switch 2 */
+            break;
+        case 6:
             func_8072E1A4(0xA, D_807FBB4C);
-            goto block_200;
-        case 7:                                     /* switch 2 */
-            func_80614EBC(var_s0, 0x222);
-            D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            /* fallthrough */
-        case 8:                                     /* switch 2 */
+            break;
+        case 7:
+            actorScriptStart(D_807FBB40, 0x222);
+            BF->unk155++;
+        case 8:
             if (currentActorTestClearFlag() != 0) {
-                D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-                func_80608528(D_807FBB40, 0x128, 0xFF, 0x19, 0);
+                BF->unk155++;
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x128, 0xFF, 0x19, 0);
             }
-            goto block_200;
-        case 9:                                     /* switch 2 */
-            temp_fv0 = var_s0->unk4->unk38;
-            if (temp_fv0 < D_807FDC90->unk30) {
-                actorSetUniformScale(var_s0, (f32) ((f64) temp_fv0 * 1.01));
+            break;
+        case 9:
+            if (BF->unk4->unk38 < BX->unk30) {
+                actorSetUniformScale(D_807FBB40, BF->unk4->unk38 * 1.01);
                 func_800336C0();
                 sp7F = 1;
             } else {
-                func_80614EBC(var_s0, 0x227);
-                D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
+                actorScriptStart(D_807FBB40, 0x227);
+                BF->unk155++;
             }
-            goto block_200;
-        case 11:                                    /* switch 2 */
-            var_s0->unk6A = (u16) (var_s0->unk6A & 0xFFFE);
+            break;
+        case 11:
+            BF->unk6A &= 0xFFFE;
             if (currentActorTestClearFlag() != 0) {
-                func_80614EBC(D_807FBB40, 0x22C);
-                D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
+                actorScriptStart(D_807FBB40, 0x22C);
+                BF->unk155++;
             }
-            goto block_200;
-        case 13:                                    /* switch 2 */
-            temp_v0_8 = D_807FDCA0->unk14;
-            func_80626110(D_807F5D10, temp_v0_8->unkAA, temp_v0_8->unkAE);
-            temp_s1->unk14 = 0U;
-            temp_s1->unk15 = 0U;
-            D_807FBB40->unk154 = (u8) *((0 & 0xFF) + sp84);
-            temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
-            D_807FBB40->unk155 = 0U;
-            sp88->unk2 = 5U;
-            var_s0 = D_807FBB40;
+            break;
+        case 13:
+            camSetSecondTarget(gCamActor, BPTS->unk14[17].unk0, BPTS->unk14[17].unk4);
+            st->unk14 = 0;
+            st->unk15 = 0;
+            BF->unk154 = tbl[st->unk15];
+            st->unk15++;
+            BF->unk155 = 0;
+            sub->unk2 = 5;
             break;
         }
         break;
-    case 0x0:                                       /* switch 1 */
-        temp_v0_9 = var_s0->unk155;
-        switch (temp_v0_9) {                        /* switch 3; irregular */
-        case 0:                                     /* switch 3 */
-        case 1:                                     /* switch 3 */
-        case 2:                                     /* switch 3 */
-            func_80033784(sp88, 0, 1, &D_807FBB4C);
-            func_80614EBC(D_807FBB40, 0x226);
-            D_807FBB40->unk155 = 3U;
-            var_s0 = D_807FBB40;
+    case 0:
+        switch (BF->unk155) {
+        case 0:
+        case 1:
+        case 2:
+            func_80033784(sub, 0);
+            actorScriptStart(D_807FBB40, 0x226);
+            BF->unk155 = 3;
             break;
-        case 3:                                     /* switch 3 */
-            if (D_807FBB4C->unk154 != 0x33) {
-                temp_t1 = temp_s1->unk16;
-                temp_s1->unk15 = temp_t1;
-                D_807FBB40->unk154 = (u8) *((temp_t1 & 0xFF) + sp84);
-                temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
-                D_807FBB40->unk155 = 0U;
-                var_s0 = D_807FBB40;
+        case 3:
+            if (BP->unk154 != 0x33) {
+                st->unk15 = st->unk16;
+                BF->unk154 = tbl[st->unk15];
+                st->unk15++;
+                BF->unk155 = 0;
             }
             break;
         }
         break;
-    case 0x23:                                      /* switch 1 */
+    case 0x23:
         func_8072A450();
-        var_s0 = D_807FBB40;
-        temp_v0_10 = var_s0->unk155;
-        switch (temp_v0_10) {                       /* switch 4; irregular */
-        case 0:                                     /* switch 4 */
-            temp_v0_11 = temp_s1->unk15;
-            temp_t5_2 = *(temp_v0_11 + sp84);
-            temp_s1->unk15 = (u8) (temp_v0_11 + 1);
-            temp_s1->unk18 = temp_t5_2;
-            temp_s1->unk19 = temp_t5_2;
-            func_8003340C(sp88);
-            sp88->unk1 = func_800330D0(temp_s1, sp88);
-            D_807FBB40->unk155 = 1U;
-            D_807FBB40->unk6A = (u16) (D_807FBB40->unk6A | 1);
-            /* fallthrough */
-        case 1:                                     /* switch 4 */
-            var_s0->unk155 = 2U;
-            func_80614D00(D_807FBB40, *(&D_80036C40 + (temp_s1->unk14 * 4)), 0);
-            sp88->unk6 = sp83;
-            /* fallthrough */
-        case 2:                                     /* switch 4 */
-            func_8067ACB4(var_s0);
-            func_80665564(D_807FBB40, 0);
-            if (D_807FBB40->unk4->unk64 == 0x223) {
-                var_fv0_2 = 0.02173913f;
+        switch (BF->unk155) {
+        case 0:
+            st->unk19 = st->unk18 = tbl[st->unk15++];
+            func_8003340C((u8 *)sub);
+            sub->unk1 = func_800330D0((BossE_F0D0_Sub14 *)st, (u8 *)sub);
+            BF->unk155 = 1;
+            BF->unk6A |= 1;
+        case 1:
+            BF->unk155 = 2;
+            func_80614D00(D_807FBB40, D_80036C40[st->unk14], 0.0f);
+            sub->unk6 = sp83;
+        case 2:
+            func_8067ACB4(D_807FBB40);
+            func_80665564(D_807FBB40, 0.0f);
+            bossInterpolateWaypoints((u8 *)sub, BF->unk4->unk64 == 0x223 ? 0.02173913f : 0.041666664f);
+            if (BF->unk4->unk64 == 0x223) {
+                v = 0x35;
             } else {
-                var_fv0_2 = 0.041666664f;
+                v = 0x17;
             }
-            func_800334A4(sp88, var_fv0_2);
-            var_v0_2 = 0x17;
-            temp_v1_3 = D_807FBB40->unk4;
-            if (temp_v1_3->unk64 == 0x223) {
-                var_v0_2 = 0x35;
-            }
-            if ((f32) var_v0_2 <= temp_v1_3->unk0->unk4) {
-                D_807FBB40->unk6A = (u16) (D_807FBB40->unk6A | 1);
+            if ((f32)(s32)v <= BF->unk4->unk0->unk4) {
+                BF->unk6A |= 1;
             } else {
-                D_807FBB40->unk6A = 0U;
-                func_80684A00(4, 1);
+                BF->unk6A = 0;
+                effectSpawnBoneDebris(4, 1);
                 sp7F = 1;
             }
-            goto block_200;
-        case 3:                                     /* switch 4 */
-            sp88->unk2 = (u8) sp88->unk0;
-            sp88->unk0 = (u8) sp88->unk1;
+            break;
+        case 3:
+            sub->unk2 = sub->unk0;
+            sub->unk0 = sub->unk1;
             if (sp83 != 0) {
-                temp_s1->unk18 = (u8) temp_s1->unk19;
+                st->unk18 = st->unk19;
             }
-            if (temp_s1->unk18 != 0) {
-                sp88->unk1 = func_800330D0(temp_s1, sp88);
-                temp_s1->unk18 = (u8) (temp_s1->unk18 - 1);
-                func_8003340C(sp88);
-                D_807FBB40->unk155 = 1U;
+            if (st->unk18 != 0) {
+                sub->unk1 = func_800330D0((BossE_F0D0_Sub14 *)st, (u8 *)sub);
+                st->unk18--;
+                func_8003340C((u8 *)sub);
+                BF->unk155 = 1;
             } else {
-                D_807FBB40->unk154 = (u8) *(temp_s1->unk15 + sp84);
-                temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
-                D_807FBB40->unk155 = 0U;
+                BF->unk154 = tbl[st->unk15];
+                st->unk15++;
+                BF->unk155 = 0;
             }
-            goto block_200;
+            break;
         }
         break;
-    case 0x25:                                      /* switch 1 */
-    case 0x28:                                      /* switch 1 */
-        func_8072E1A4(0xA, D_807FBB4C, 1, &D_807FBB4C);
-        if (func_800339D8(temp_s1, sp84) != 0) {
-            func_80033784(sp88, 0);
+    case 0x25:
+    case 0x28:
+        func_8072E1A4(0xA, D_807FBB4C);
+        if (func_800339D8((BossE_F0D0_Sub14 *)st, tbl) != 0) {
+            func_80033784(sub, 0);
         } else if (func_80724A20() == 0) {
-            temp_s0_2 = D_807FBB40;
-            temp_t8 = temp_s0_2->unk155;
-            switch (temp_t8) {                      /* switch 5 */
-            case 0:                                 /* switch 5 */
-                func_80033784(sp88, 0xA);
-                temp_v0_12 = temp_s1->unk15;
-                temp_t5_3 = temp_v0_12 + 1;
-                temp_v0_13 = temp_t5_3 & 0xFF;
-                temp_s1->unk18 = (u8) (*(temp_v0_12 + sp84) - 1);
-                temp_s1->unk15 = temp_t5_3;
-                temp_s1->unk15 = (u8) (temp_v0_13 + 1);
-                temp_s1->unk19 = (u8) *(temp_v0_13 + sp84);
-                func_80614EBC(D_807FBB40, 0x229);
-                D_807FBB40->unk155 = 1U;
+            switch (BF->unk155) {
+            case 0:
+                func_80033784(sub, 0xA);
+                st->unk18 = tbl[st->unk15++] - 1;
+                st->unk19 = tbl[st->unk15++];
+                actorScriptStart(D_807FBB40, 0x229);
+                BF->unk155 = 1;
                 break;
-            case 2:                                 /* switch 5 */
-                if (temp_s0_2->unk154 == 0x25) {
-                    func_80614EBC(temp_s0_2, 0x228);
+            case 2:
+                if (BF->unk154 == 0x25) {
+                    actorScriptStart(D_807FBB40, 0x228);
                     goto block_131;
                 }
-                if (!(D_807FDC90->unk1A & 0x8000)) {
-                    if (D_807FBB4C->unk110 == 1) {
-                        func_8061CC40(temp_s0_2, 0xF, 1);
-                        D_807FDC90->unk1A = (u16) (D_807FDC90->unk1A | 0x8000);
+                if (!(BX->unk1A & 0x8000)) {
+                    if (BP->unk110 == 1) {
+                        camStartPath(D_807FBB40, 0xF, 1);
+                        BX->unk1A |= 0x8000;
                         goto block_130;
                     }
                 } else {
 block_130:
-                    func_80614EBC(temp_s0_2, 0x22F);
+                    actorScriptStart(D_807FBB40, 0x22F);
 block_131:
-                    D_807FBB40->unk155 = 3U;
+                    BF->unk155 = 3;
                 }
                 break;
-            case 3:                                 /* switch 5 */
-                if (temp_s0_2->unk154 == 0x25) {
-                    func_80684A00(3, 1);
+            case 3:
+                if (BF->unk154 == 0x25) {
+                    effectSpawnBoneDebris(3, 1);
                     sp7F = 1;
                 } else {
-                    func_80671C0C(temp_s0_2, 1, &sp68, &sp64, &sp60);
-                    sp68 += (f32) (((s32) (func_80611A44() >> 0xF) % 100) - 0x32);
-                    sp64 += (f32) (((s32) (func_80611A44() >> 0xF) % 100) + 0x32);
-                    sp60 += (f32) (((s32) (func_80611A44() >> 0xF) % 100) - 0x32);
+                    actorGetNodePos(D_807FBB40, 1, &sp68, &sp64, &sp60);
+                    sp68 += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
+                    sp64 += (f32)((randomNonNegative() >> 15) % 100 + 0x32);
+                    sp60 += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
                     func_807149B8(1);
-                    func_8071498C(&D_8071EDEC);
-                    func_80714950(D_807FBB40);
-                    func_80714CC0(&D_8071FC58, 0x3FC00000, sp68, sp64, sp60);
-                    func_80714C08(&D_80720054, 0x40400000, D_807FBB40, 1, 2);
+                    func_8071498C(D_8071EDEC);
+                    func_80714950((s32)D_807FBB40);
+                    func_80714CC0(D_8071FC58, 1.5f, sp68, sp64, sp60);
+                    func_80714C08(D_80720054, 3.0f, D_807FBB40, 1, 2);
                 }
                 break;
-            case 4:                                 /* switch 5 */
-                if (temp_s0_2->unk154 == 0x25) {
-                    func_80690814(temp_s0_2, 3);
-                    func_80690A28(0x3B, 1, 0x3F99999A, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 5.0f, D_807FBB4C->unk84, 900.0f, D_807FBB40);
+            case 4:
+                if (BF->unk154 == 0x25) {
+                    projectileGetTargetCoords(D_807FBB40, 3);
+                    projectileAimAndSpawn(0x3B, 1, 1.2f, BP->unk7C, BP->unk80 + 5.0f, BP->unk84, 900.0f, D_807FBB40);
                 } else {
-                    sp88->unk1 = func_800330D0(temp_s1, sp88);
-                    func_8003392C(sp88);
+                    sub->unk1 = func_800330D0((BossE_F0D0_Sub14 *)st, (u8 *)sub);
+                    bossSpawnObjectAtWaypoint((u8 *)sub);
                 }
-                D_807FBB40->unk155 = 5U;
+                BF->unk155 = 5;
                 break;
-            case 6:                                 /* switch 5 */
-                temp_v0_14 = temp_s1->unk18;
-                if (temp_v0_14 != 0) {
-                    temp_s1->unk18 = (u8) (temp_v0_14 - 1);
-                    D_807FDC90->unk2C = (s16) temp_s1->unk19;
-                    D_807FBB40->unk155 = 7U;
+            case 6:
+                v = st->unk18;
+                if (v != 0) {
+                    st->unk18 = v - 1;
+                    BX->unk2C = st->unk19;
+                    BF->unk155 = 7;
                 } else {
-                    func_80614EBC(temp_s0_2, 0x22D);
-                    D_807FBB40->unk155 = 8U;
+                    actorScriptStart(D_807FBB40, 0x22D);
+                    BF->unk155 = 8;
                 }
                 break;
-            case 7:                                 /* switch 5 */
-                temp_v0_15 = D_807FDC90->unk2C;
-                if (temp_v0_15 != 0) {
-                    if (D_807FBB4C->unk154 == 0x33) {
-                        D_807FDC90->unk2C = (s16) temp_s1->unk19;
+            case 7:
+                if (BX->unk2C != 0) {
+                    if (BP->unk154 == 0x33) {
+                        BX->unk2C = st->unk19;
                     } else {
-                        D_807FDC90->unk2C = (s16) (temp_v0_15 - 1);
+                        BX->unk2C = BX->unk2C - 1;
                     }
                 } else {
-                    temp_s0_2->unk155 = 2;
+                    BF->unk155 = 2;
                 }
                 break;
-            case 9:                                 /* switch 5 */
-                func_80033784(sp88, 0);
-                func_80614EBC(D_807FBB40, 0x22C);
-                D_807FBB40->unk155 = 0xAU;
+            case 9:
+                func_80033784(sub, 0);
+                actorScriptStart(D_807FBB40, 0x22C);
+                BF->unk155 = 0xA;
                 break;
-            case 11:                                /* switch 5 */
-                temp_s0_2->unk154 = (u8) *(temp_s1->unk15 + sp84);
-                temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
-                D_807FBB40->unk155 = 0U;
+            case 11:
+                BF->unk154 = tbl[st->unk15];
+                st->unk15++;
+                BF->unk155 = 0;
                 break;
             }
         }
-        goto block_200;
-    case 0x27:                                      /* switch 1 */
-        temp_v0_16 = var_s0->unk155;
-        switch (temp_v0_16) {                       /* switch 6 */
-        case 0:                                     /* switch 6 */
-        case 1:                                     /* switch 6 */
-        case 2:                                     /* switch 6 */
-            func_80697184();
-            func_80033784(sp88, 0);
-            func_80614EBC(D_807FBB40, 0x22E);
-            func_8061CC40(D_807FBB40, 2, 1);
-            func_80687474(D_807FBB40, 0x3F99999A);
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x305, 0xFF, 0x7F, 0, 0, 0.0f, 0);
-            D_807FBB40->unk155 = 3U;
-            var_s0 = D_807FBB40;
+        break;
+    case 0x27:
+        switch (BF->unk155) {
+        case 0:
+        case 1:
+        case 2:
+            actorAppendActiveCallback8();
+            func_80033784(sub, 0);
+            actorScriptStart(D_807FBB40, 0x22E);
+            camStartPath(D_807FBB40, 2, 1);
+            actorSpawnAttachment(D_807FBB40, 1.2f);
+            func_806086CC(BF->unk7C, BF->unk80, BF->unk84, 0x305, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+            BF->unk155 = 3;
             break;
-        case 4:                                     /* switch 6 */
-            func_8068780C(7, 0xB, 0x11, 0x20);
-            func_8068780C(0xC, 0x10, 0x11, 0x20);
-            goto block_200;
-        case 5:                                     /* switch 6 */
-            func_806845B8(7, 0x20, 1, &D_807FBB4C);
-            if ((currentActorTestClearFlag() != 0) || (func_8061CB50() == 0)) {
-                D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
+        case 4:
+            effectSpawnJointBeam(7, 0xB, 0x11, 0x20);
+            effectSpawnJointBeam(0xC, 0x10, 0x11, 0x20);
+            break;
+        case 5:
+            effectSpawnRandomBoneDebris(7, 0x20);
+            if (currentActorTestClearFlag() != 0 || camIsCutsceneActive() == 0) {
+                BF->unk155++;
             }
-            goto block_200;
-        case 6:                                     /* switch 6 */
-            if ((s32) temp_s1->unk14 < 3) {
-                func_80614EBC(var_s0, 0x22C, 1, &D_807FBB4C);
+            break;
+        case 6:
+            if (st->unk14 < 3) {
+                actorScriptStart(D_807FBB40, 0x22C);
             } else {
-                var_s0->unk155 = (u8) (temp_v0_16 + 1);
+                BF->unk155 = BF->unk155 + 1;
             }
-            D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            var_s0 = D_807FBB40;
+            BF->unk155++;
             break;
-        case 8:                                     /* switch 6 */
+        case 8:
             currentActorClearFlag();
-            temp_s1->unk15 = 0U;
-            temp_t8_2 = temp_s1->unk14 + 1;
-            temp_s1->unk14 = temp_t8_2;
-            D_807FBB40->unk154 = (u8) *((0 & 0xFF) + *(&D_80035B84 + ((temp_t8_2 & 0xFF) * 4)));
-            temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
-            D_807FBB40->unk155 = 0U;
-            var_s0 = D_807FBB40;
+            st->unk15 = 0;
+            st->unk14++;
+            tbl = D_80035B84[st->unk14];
+            BF->unk154 = tbl[st->unk15];
+            st->unk15++;
+            BF->unk155 = 0;
             break;
         }
         break;
-    case 0x29:                                      /* switch 1 */
-        temp_t8_3 = var_s0->unk155;
-        switch (temp_t8_3) {                        /* switch 7 */
-        case 0:                                     /* switch 7 */
-            var_s0->unk60 = (s32) (var_s0->unk60 & 0xFFFF7FFF);
-            func_80614EBC(D_807FBB40, 0x231, 1, &D_807FBB4C);
-            temp_v0_17 = temp_s1->unk15;
-            temp_s1->unk15 = (u8) (temp_v0_17 + 1);
-            temp_s1->unk8 = (s16) *(temp_v0_17 + sp84);
-            D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            var_s0 = D_807FBB40;
+    case 0x29:
+        switch (BF->unk155) {
+        case 0:
+            BF->unk60 &= 0xFFFF7FFF;
+            actorScriptStart(D_807FBB40, 0x231);
+            st->unk8 = (s8)tbl[st->unk15++];
+            BF->unk155++;
             break;
-        case 2:                                     /* switch 7 */
-            func_80684A00(2, 1, 1, &D_807FBB4C);
-            func_80684A00(3, 1);
+        case 2:
+            effectSpawnBoneDebris(2, 1);
+            effectSpawnBoneDebris(3, 1);
             sp7F = 1;
-            goto block_200;
-        case 3:                                     /* switch 7 */
-            func_80684BB0(2, (s16) (((s32) ((s32) (func_80611A44() >> 0xF) % 32767) % 6) + 5), 0x28);
-            func_80684BB0(3, (s16) (((s32) ((s32) (func_80611A44() >> 0xF) % 32767) % 6) + 5), 0x28);
+            break;
+        case 3:
+            effectSpawnBoneDebrisScaled(2, (randomNonNegative() >> 15) % 0x7FFF % 6 + 5, 0x28);
+            effectSpawnBoneDebrisScaled(3, (randomNonNegative() >> 15) % 0x7FFF % 6 + 5, 0x28);
             sp7F = 1;
-            goto block_200;
-        case 4:                                     /* switch 7 */
-            func_80033A80(temp_s1->unk9);
-            goto block_200;
-        case 5:                                     /* switch 7 */
-            var_s0->unk154 = (u8) *(temp_s1->unk15 + sp84);
-            temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
-            D_807FBB40->unk155 = 0U;
-            var_s0 = D_807FBB40;
+            break;
+        case 4:
+            func_80033A80(((s8 *)st)[9]);
+            break;
+        case 5:
+            BF->unk154 = tbl[st->unk15];
+            st->unk15++;
+            BF->unk155 = 0;
             break;
         }
         break;
-    case 0x2B:                                      /* switch 1 */
-        temp_v0_18 = var_s0->unk155;
-        switch (temp_v0_18) {                       /* switch 8; irregular */
-        case 0:                                     /* switch 8 */
-            func_80614EBC(var_s0, 0x222, 1, &D_807FBB4C);
-            D_807FDC90->unk2C = 0x5A;
-            D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            var_s0 = D_807FBB40;
+    case 0x2B:
+        switch (BF->unk155) {
+        case 0:
+            actorScriptStart(D_807FBB40, 0x222);
+            BX->unk2C = 0x5A;
+            BF->unk155++;
             break;
-        case 1:                                     /* switch 8 */
-            temp_v0_19 = D_807FDC90->unk2C;
-            if (temp_v0_19 != 0) {
-                D_807FDC90->unk2C = (s16) (temp_v0_19 - 1);
+        case 1:
+            if (BX->unk2C != 0) {
+                BX->unk2C = BX->unk2C - 1;
             } else {
-                temp_t1_2 = temp_s1->unk16;
-                temp_s1->unk15 = temp_t1_2;
-                D_807FBB40->unk154 = (u8) *((temp_t1_2 & 0xFF) + sp84);
-                temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
-                D_807FBB40->unk155 = 0U;
+                st->unk15 = st->unk16;
+                BF->unk154 = tbl[st->unk15];
+                st->unk15++;
+                BF->unk155 = 0;
             }
-            goto block_200;
-        }
-        break;
-    case 0x37:                                      /* switch 1 */
-        temp_t8_4 = var_s0->unk155;
-        switch (temp_t8_4) {                        /* switch 9 */
-        case 0:                                     /* switch 9 */
-            func_8061CC40(var_s0, 6, 0x81, &D_807FBB4C);
-            D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            var_s0 = D_807FBB40;
             break;
-        case 1:                                     /* switch 9 */
-            if (currentActorTestClearFlag() != 0) {
-                D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            }
-            goto block_200;
-        case 2:                                     /* switch 9 */
-            func_80033A80(5);
-            goto block_200;
-        case 3:                                     /* switch 9 */
-            if (currentActorTestClearFlag() != 0) {
-                func_8063DA40(sp88->unk0, 0x1E);
-                D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            }
-            goto block_200;
-        case 4:                                     /* switch 9 */
-            if (currentActorTestClearFlag() != 0) {
-                func_80685B44(&D_80720BE8, 0, 0x40C00000, 6, 0x50, 0x64, (s32) D_807FBB40->unk7C, (s32) (D_807FBB4C->unk80 + 100.0f), (s32) D_807FBB40->unk84);
-                func_80685B44(&D_80720BE8, 0x14, 0x40C00000, 8, 0x96, 0x46, (s32) D_807FBB40->unk7C, (s32) (D_807FBB4C->unk80 + 100.0f), (s32) D_807FBB40->unk84);
-                D_807FBB40->unk155 = (u8) (D_807FBB40->unk155 + 1);
-            }
-            goto block_200;
-        case 5:                                     /* switch 9 */
-            if (func_8061CB50() == 0) {
-                func_80033784(sp88, 0);
-                var_s0_3 = 0;
-                var_v0_3 = sp88->unk0;
-                do {
-                    if (var_s0_3 != var_v0_3) {
-                        func_8063DA40((u8) var_s0_3, 0x28);
-                        var_v0_3 = sp88->unk0;
-                    }
-                    var_s0_3 += 1;
-                } while (var_s0_3 < 0x10);
-                temp_v1_4 = D_807FDCA0->unk14 + (var_v0_3 * 0xA);
-                func_80028478(0x8A, temp_v1_4->unk0, temp_v1_4->unk2, temp_v1_4->unk4, 0x5DC, 1);
-                var_s0_4 = 0;
-                D_807FBB40->unk154 = 0x40U;
-                do {
-                    volumeTriggerSetEnabled(var_s0_4, 0);
-                    var_s0_4 += 1;
-                } while (var_s0_4 < 7);
-            }
-            goto block_200;
         }
         break;
-    default:                                        /* switch 1 */
-        func_80027BA8(sp84, 0, 0, &D_807FBB4C);
-        goto block_200;
+    case 0x37:
+        switch (BF->unk155) {
+        case 0:
+            camStartPath(D_807FBB40, 6, 0x81);
+            BF->unk155++;
+            break;
+        case 1:
+            if (currentActorTestClearFlag() != 0) {
+                BF->unk155++;
+            }
+            break;
+        case 2:
+            func_80033A80(5);
+            break;
+        case 3:
+            if (currentActorTestClearFlag() != 0) {
+                func_8063DA40(sub->unk0, 0x1E);
+                BF->unk155++;
+            }
+            break;
+        case 4:
+            if (currentActorTestClearFlag() != 0) {
+                func_80685B44(D_80720BE8, 0, 6.0f, 6, 0x50, 0x64, (s32)BF->unk7C, (s32)(BP->unk80 + 100.0f), (s32)BF->unk84);
+                func_80685B44(D_80720BE8, 0x14, 6.0f, 8, 0x96, 0x46, (s32)BF->unk7C, (s32)(BP->unk80 + 100.0f), (s32)BF->unk84);
+                BF->unk155++;
+            }
+            break;
+        case 5:
+            if (camIsCutsceneActive() == 0) {
+                func_80033784(sub, 0);
+                i = 0;
+                do {
+                    if (i != sub->unk0) {
+                        func_8063DA40(i, 0x28);
+                    }
+                    i++;
+                } while (i < 0x10);
+                bossSpawnParticleRing(0x8A, BPTS->unk14[sub->unk0].unk0, BPTS->unk14[sub->unk0].unk2, BPTS->unk14[sub->unk0].unk4, 0x5DC, 1);
+                BF->unk154 = 0x40;
+                i = 0;
+                do {
+                    volumeTriggerSetEnabled(i, 0);
+                    i++;
+                } while (i < 7);
+            }
+            break;
+        }
+        break;
+    default:
+        func_80027BA8(tbl, 0, 0.0f);
+        break;
     }
     if (sp7F != 0) {
-        if (var_s0->unk6E == -1) {
-            func_80604CBC(var_s0, 0x135, 0x4B, 1, 0, 0xB4, 1.0f, 0);
-            goto block_205;
+        if (BF->unk6E == -1) {
+            sfxPlayActorSound(D_807FBB40, 0x135, 0x4B, 1, 0, 0xB4, 1.0f, 0);
         }
     } else {
-        func_80605314(var_s0, 0);
-block_205:
-        var_s0 = D_807FBB40;
+        sfxStopSlotSound(D_807FBB40, 0);
     }
-    actorUpdateModelMatrix(var_s0, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
