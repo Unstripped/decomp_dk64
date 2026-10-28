@@ -3033,17 +3033,331 @@ void func_8064CB3C(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064CC80.s")
+void func_8064CC80(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 anim;
+    f32 animT;
+    u8 animFlag;
+    s32 *p;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064CD3C.s")
+    if (*(s32 **)cs == NULL) {
+        *(s32 **)cs = func_80610FE8(4);
+        **(s32 **)cs = 0x64;
+    }
+    p = *(s32 **)cs;
+    modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
+    if (anim != *p) {
+        *p = anim;
+        sfxPlayFromTargetSlot(csId, 0x129, 0xFF, 0x7F, 3, 0x50, 0.3f);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064D0C4.s")
+typedef struct {
+    f32 x, y, z;
+} CsB14Pt;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064D1E8.s")
+typedef struct {
+    CsB14Pt pts[30];
+    s32 anim[2];
+} CsB14Trail;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064D418.s")
+extern f32 D_807F61FC;
+extern f32 D_807F6200;
+extern f32 D_807F6204;
+extern s16 D_807482B0;
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+u8 collisionGetFloorHeight(f32 *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064D880.s")
+void func_8064CD3C(CsState *cs, s16 csId, s16 b, s16 c) {
+    u32 pad0;
+    u32 pad1;
+    u32 pad2;
+    CsB14Trail *tr;
+    s16 idx;
+    s16 prev;
+    s32 i;
+    s32 snd;
+    f32 groundY;
+    f32 floorY;
+    s16 pad3;
+    s16 anim;
+    f32 animT;
+    u8 animFlag;
+    CsB14Pt *pts;
+
+    if (*(CsB14Trail **)cs == NULL) {
+        tr = func_80610FE8(0x170);
+        *(CsB14Trail **)cs = tr;
+        for (i = 0; i < 30; i++) { tr->pts[i].x = D_807F61FC; tr->pts[i].y = D_807F6200; tr->pts[i].z = D_807F6204; }
+    }
+    tr = *(CsB14Trail **)cs;
+    pts = tr->pts;
+    groundY = D_807F6220;
+    if (collisionCheckGroundAtPoint(D_807F621C, D_807F6224, &groundY)) {
+        if (collisionGetFloorHeight(&floorY)) {
+            D_807F6220 = floorY;
+        }
+    } else {
+        prev = D_807482B0 - 1;
+        if (prev < 0) {
+            prev = 29;
+        }
+        D_807F6220 = pts[prev].y;
+    }
+    tr->pts[D_807482B0].x = D_807F621C;
+    tr->pts[D_807482B0].y = D_807F6220;
+    tr->pts[D_807482B0].z = D_807F6224;
+    idx = D_807482B0 + 1;
+    if (idx == 30) {
+        idx = 0;
+    }
+    D_807F622C = mathAngleBetweenPointsRad(pts[idx].x, pts[idx].z, D_807F621C, D_807F6224) * 57.29577637f + 270.0;
+    if (D_807F622C > 360.0) {
+        D_807F622C -= 360.0;
+    }
+    D_807482B0 = idx;
+    snd = 0x15;
+    for (i = 0; i < 2; i++) {
+        modelAnimEntryGetState(csId, i + 1, &anim, &animT, &animFlag);
+        if (anim != tr->anim[i]) {
+            tr->anim[i] = anim;
+            if (anim == 0) {
+                sfxPlayFromTargetSlot(csId, (s16)snd, 0xFF, 0x7F, 3, 0x46, 0.3f);
+            }
+        }
+        snd = 0x14;
+    }
+}
+
+u8 modelAnimEntryIsActive(s16, s16);
+void modelAnimEntryStop(s16, s16);
+
+void func_8064D0C4(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 ceil;
+    f32 floor;
+    u8 active;
+    u8 state;
+
+    state = 2;
+    ceil = D_807F6220 + 20.0f;
+    if (collisionCheckGroundAtPoint(D_807F621C, D_807F6224, &ceil) != 0 && collisionGetFloorHeight(&floor) != 0) {
+        if (floor < ceil) {
+            state = 0;
+            D_807F6220 = ceil;
+        } else {
+            state = 1;
+            D_807F6220 = floor;
+        }
+    }
+    if (b != 0) {
+        active = modelAnimEntryIsActive(csId, 1);
+        if (state == 1 && active == 0) {
+            modelAnimEntryStart(csId, 1, -1);
+            modelAnimEntryStart(csId, 2, -1);
+            return;
+        }
+        if (state == 0 && active != 0) {
+            modelAnimEntryStop(csId, 1);
+            modelAnimEntryStop(csId, 2);
+        }
+    }
+}
+
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+} CsB14State;
+
+void effectNodeSetTargetAndStep(s32, f32, f32);
+
+void func_8064D1E8(CsState *cs, s16 csId, s16 b, s16 c) {
+    CsB14State *p;
+    CsB14State *t;
+    s32 ang;
+    s32 d;
+    s32 e;
+
+    if (*(CsB14State **)cs == NULL) {
+        t = func_80610FE8(0xC);
+        *(CsB14State **)cs = t;
+        t->unk0 = 0;
+        t->unk4 = 0;
+        t->unk8 = 0xDAC;
+    }
+    p = *(CsB14State **)cs;
+    effectNodeSetTargetAndStep(0, func_80612794(p->unk8) * 60.0 + 40.0, 20.0f);
+    if (p->unk0 == 0) {
+        ang = p->unk8;
+        if (ang >= 0x2BC && ang < 0x2C6) {
+            func_80609140(0x359, 0x7FFF, 63.0f, 0.6f, 0, 0);
+            ang = p->unk8;
+        }
+        if ((ang >= 0x2EE && ang < 0x2F8) || (ang >= 0x960 && ang < 0x96A)) {
+            if (cs->unk10[0] >= 0) {
+                func_80605380(cs->unk10[0]);
+                cs->unk10[0] = -1;
+                ang = p->unk8;
+            }
+        }
+        if ((ang >= 0x410 && ang < 0x41A) || (ang >= 0xE74 && ang < 0xE7E)) {
+            cs->unk10[0] = sfxSlotAllocateSource(csId, 0x138, 1, 1, 0x78, 1.0f, -1);
+            ang = p->unk8;
+        }
+        e = ang - 0x400 > 0 ? ang - 0x400 : 0x400 - ang;
+        if (e < 10 || (d = ang - 0xC00 > 0 ? ang - 0xC00 : 0xC00 - ang, d < 10)) {
+            if (p->unk4 == 0) {
+                p->unk0 = 0x12C;
+            }
+        }
+        if (p->unk4 != 0) {
+            p->unk4--;
+        }
+        p->unk8 = (p->unk8 + 10) & 0xFFF;
+    } else {
+        p->unk0--;
+        if (p->unk0 == 0) {
+            p->unk4 = 10;
+        }
+    }
+}
+
+void modelAnimEntrySetTime(s16, s16, s16, f32);
+void modelAnimEntrySetUnkC(s16, s16, s16);
+s16 func_80650A70(s16, s16);
+extern s32 D_807482B4;
+extern s32 D_807482B8;
+extern s32 D_807482BC;
+extern s32 D_807482C0;
+extern s32 D_807482C4;
+extern s32 D_807482C8;
+extern f32 D_807482CC;
+extern s32 D_807482D0;
+extern f32 D_807482D8;
+
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    s32 unk14;
+} CsB14Beat;
+
+typedef struct {
+    u8 pad0[0x48];
+    u8 unk48;
+    u8 pad49[2];
+    u8 unk4B;
+} CsB14View;
+
+void func_8064D418(CsState *cs, s16 csId, s16 b, s16 c) {
+    CsB14Beat *p;
+    s16 frame;
+    s16 anim;
+    CsB14Beat *t;
+    f32 animT;
+    f32 target;
+    u8 animFlag;
+    f32 d;
+
+    if (*(CsB14Beat **)cs == NULL) {
+        t = func_80610FE8(0x18);
+        *(CsB14Beat **)cs = t;
+        t->unk0 = 0;
+        t->unk4 = 0;
+        t->unk8 = 0;
+        t->unkC = D_807482C4;
+        t->unk10 = 0;
+        t->unk14 = 0x14;
+    }
+    p = *(CsB14Beat **)cs;
+    frame = func_80650A70(csId, 1);
+    switch (p->unk0) {
+        case 0:
+            if (p->unk4 == 0) {
+                p->unk4 = D_807482B8;
+                frame = frame + D_807482D0;
+                modelAnimEntrySetUnkC(csId, 1, frame);
+                if (frame >= D_807482B4) {
+                    p->unk0 = 1;
+                    p->unk4 = D_807482BC;
+                }
+            } else {
+                p->unk4--;
+            }
+            break;
+        case 1:
+            p->unk4--;
+            if (p->unk4 == 0) {
+                p->unk0 = 2;
+            }
+            break;
+        case 2:
+            if (D_807482C0 < frame) {
+                frame = frame - 1;
+                modelAnimEntrySetUnkC(csId, 1, frame);
+            } else {
+                modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
+                if (p->unk8 != 0) {
+                    target = 0.5f;
+                } else {
+                    target = D_807482D8;
+                }
+                d = target < animT ? animT - target : -(animT - target);
+                if (d < D_807482CC) {
+                    modelAnimEntrySetUnkC(csId, 1, 0);
+                    modelAnimEntrySetTime(csId, 1, anim, target);
+                    p->unk0 = 3;
+                    p->unk4 = p->unkC;
+                    p->unk8 ^= 1;
+                    modelAnimEntryStart(csId, 2, 1);
+                }
+            }
+            break;
+        case 3:
+            p->unk4--;
+            if (((CsB14View *)cs)->unk48 == 2) {
+                p->unk4 = 0;
+                ((CsB14View *)cs)->unk4B = 1;
+                p->unkC = p->unkC - D_807482C8;
+            }
+            if (p->unk4 == 0) {
+                p->unk0 = 0;
+                p->unk4 = 0;
+                modelAnimEntryStart(csId, 2, 1);
+            }
+            break;
+    }
+    modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
+    if (p->unk10 != (anim & 2)) {
+        sfxPlayFromTargetSlot(csId, 0x1DF, 0xFF, (u8)(frame * 0.25 + 5.0), 0, 0x50, 0.3f);
+        p->unk10 = anim & 2;
+    }
+    p->unk14--;
+    if (p->unk14 <= 0) {
+        func_80609140((s16)(0x34E + ((randomNonNegative() >> 15) % 100 >= 0x33)), 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+        p->unk14 = (randomNonNegative() >> 15) % 30 + 0x3C;
+    }
+}
+
+extern u16 D_807FC930[];
+extern u16 D_807446C0[];
+
+void func_8064D880(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 t;
+    s32 idx;
+
+    idx = func_805FF030(D_8076A0AB, 0);
+    t = (f32)(u32)D_807FC930[idx] / (f32)(u32)D_807446C0[idx];
+    if (t > 1.0) {
+        t = 1.0f;
+    }
+    if (b == 0) {
+        t = 1.0f - t;
+    }
+    modelAnimEntrySetTime(csId, 1, 0, t);
+    modelAnimEntrySetUnkC(csId, 1, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064D978.s")
 

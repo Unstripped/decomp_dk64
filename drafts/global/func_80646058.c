@@ -1,4 +1,4 @@
-// func_80646058 (src/global/478F0.c): stage 4 (frame 0x88, s0 only, 455/456 insns). Remaining diff ~17 insn lines: start lives in a1 until loop in target (ours t2 + early sw 0x84(sp)); li a0,1 / li t8,1 order in hit block; spill slot of func_8071E3EC cb 0x3c vs 0x44; ok=1 scheduling + missing `b` before join (target b L; li v1,1). Uses dead stmts if(D_80720BC4){} / if(D_807480F4&&D_807480F4){}, hit/&hit trick (u8 hit coloured to a reg otherwise).
+// func_80646058 (src/global/478F0.c): stage 4 (frame 0x88, s0 only, 455/456 insns, 17 diff lines): start lives in a1 until the loop in target (ours t2 + early sw 0x84(sp), reload for compare); li a0,1/li t8,1 order in hit block; spill slot of func_8071E3EC addr 0x3c vs 0x44 (spill = lowest declared bottom-8); ok=1 scheduling + missing b before join (target b L; li v1,1). Uses dead stmts if(D_80720BC4){} and if(D_807480F4&&D_807480F4){}, and u8 *hp=&hit (u8 hit otherwise coloured to s-reg, p->s1). Permuter (900s) found nothing.
 typedef struct CsB46State {
     /* 0x00 */ s32 idx;
     /* 0x04 */ s32 timer;
@@ -54,7 +54,7 @@ void sfxStopChannel(s32, s32);
 void sfxAllocateChannel(s32, f32);
 void camStartPath(s32, s32, s32);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
-CsB46Act *spawnNodeActivate(s16, u16);
+Actor *spawnNodeActivate(s16, u16);
 
 #define CsB46A ((CsB46Act *)D_807FBB4C)
 
@@ -185,7 +185,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         ok = 1;
         if (CsB46A->unk12C == 0xD) {
             ok = 0;
-            a = spawnNodeActivate(0x1F, 0);
+            a = (CsB46Act *)spawnNodeActivate(0x1F, 0);
             if (a != NULL && a->unk154 == 0x27 && a->unk4->unk64 == 0x362 && a->unk155 == 2) {
                 p->timer = 0x65;
                 ok = 1;
