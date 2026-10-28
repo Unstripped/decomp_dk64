@@ -1,37 +1,33 @@
-// func_807009F4 (src/global/103AB0.c): Stage 5 binary-search reconstruction; pointer global is s16*, remaining allocation/scheduling mismatch.
+// func_807009F4 (src/global/103AB0.c): func_807009F4 (src/global/103AB0.c): Stage 5: matches except a1/v1 swap (target hi=a1, mid=v1, ret/temp v0/v1; mine hi=v1, mid=a1) and tail uses bgezl. D_8076A0A0 is s16*; ret must be s32 (return truncates); deadsweep no gain.
 extern s16 *D_8076A0A0;
 
 s16 func_807009F4(s16 arg0) {
-    s16 temp_v0;
-    s16 var_a1;
-    s16 var_v0;
-    s16 var_v1;
-    s32 temp_t8;
-    s16 *temp_a2;
+    s16 lo;
+    s16 hi;
+    s16 mid;
+    s32 ret;
+    s32 t;
 
-    var_v0 = 0;
-    var_a1 = 0x1FE;
+    lo = 0;
+    hi = 0x1FE;
     if (arg0 == -1) {
         return 0;
     }
-loop_3:
-    temp_t8 = (s32) (var_v0 + var_a1) / 2;
-    if (arg0 < D_8076A0A0[(s16) temp_t8]) {
-        var_a1 = (s16) temp_t8 - 1;
-    } else {
-        var_v0 = (s16) temp_t8 + 1;
-    }
-    temp_a2 = &D_8076A0A0[(s16) temp_t8];
-    if ((arg0 >= temp_a2[0]) && (arg0 < temp_a2[1])) {
-        return (s16) ((s16) temp_t8 + 8);
-    }
-    if (var_a1 < var_v0) {
-        temp_v0 = arg0 - 0x7C1B;
-        var_v1 = temp_v0;
-        if (temp_v0 < 0) {
-            var_v1 = 0;
+    do {
+        mid = (lo + hi) / 2;
+        if (arg0 < D_8076A0A0[mid]) {
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
         }
-        return var_v1;
+        if (arg0 >= D_8076A0A0[mid] && arg0 < D_8076A0A0[mid + 1]) {
+            return mid + 8;
+        }
+    } while (hi >= lo);
+    t = arg0 - 0x7C1B;
+    ret = t;
+    if (t < 0) {
+        ret = 0;
     }
-    goto loop_3;
+    return ret;
 }

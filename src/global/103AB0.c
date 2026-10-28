@@ -17,34 +17,135 @@ extern s16 D_80744494;
 extern u8 D_807444F8;
 extern u8 D_807444FC;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FEDB0.s")
+extern Gfx D_1000118;
+extern Mtx D_2000080;
+
+typedef struct {
+    u8 unk0[0x250];
+    u8 unk250[2][0x10];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+    u8 unk278[0x78];
+} AaView;
+
+#define AA_VIEW(i) ((AaView *)((u8 *)D_807FC924 + (i) * 0x2F0))
+
+Gfx *func_806FEDB0(Gfx *arg0, u8 arg1) {
+    gDPPipeSync(arg0++);
+    gSPViewport(arg0++, osVirtualToPhysical(((AaView *)D_807FC924)[arg1].unk250[D_807444FC]));
+    {
+        Gfx *_g = (Gfx *)(arg0++);
+        _g->words.w0 = ((s32)((f32)AA_VIEW(arg1)->unk272 * 4.0f) & 0xFFF) | 0xED000000 |
+                       (((s32)((f32)AA_VIEW(arg1)->unk270 * 4.0f) & 0xFFF) << 12);
+        _g->words.w1 = ((s32)((f32)AA_VIEW(arg1)->unk276 * 4.0f) & 0xFFF) |
+                       (((s32)((f32)AA_VIEW(arg1)->unk274 * 4.0f) & 0xFFF) << 12);
+    }
+    gSPDisplayList(arg0++, &D_1000118);
+    gDPSetCombineMode(arg0++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
+    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    return arg0;
+}
 
 typedef struct {
     u8 unk0[0x1A4];
     u8 unk1A4;
 } R1F103AB0aState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FEF7C.s")
+Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF01C.s")
+Gfx *func_806FEF7C(Gfx *arg0, Actor *arg1) {
+    arg0 = func_806FEDB0(arg0, ((R1F103AB0aState *)arg1->unk174)->unk1A4);
+    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
+    return func_8068C5A8(arg0, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, 0.001f);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF144.s")
+extern u8 *D_807FD568;
+s32 func_806F8AD4(s32, u8);
+s32 func_80690F30(s32, void *, Actor *, s32, s32, s32, void *, void *, void *);
 
-s32 func_806FEDB0(s32, u8);
-void func_806FF144(s32);
+Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
+    u8 player;
+    s32 sp58;
+    s32 sp54;
+    s32 sp50;
+    s32 sp4C;
+    Gfx *dl;
+
+    player = ((R1F103AB0aState *)arg1->unk174)->unk1A4;
+    dl = func_806FEDB0(arg0, player);
+    if ((D_807FD568[2] & 2) && func_806F8AD4(3, player) &&
+        func_80690F30(2, &sp58, arg1, 1, 0, 0, &sp54, &sp50, &sp4C)) {
+        gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
+    } else {
+        gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
+    }
+    return func_8068C5A8(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
+}
+
+Gfx *func_806FF144(Gfx *arg0) {
+    gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
+    gDPSetCombineMode(arg0++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
+    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    arg0 = func_8068C5A8(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, 0x3E, 2.0f, 2.0f, 0, 0.0f);
+    arg0 = func_8068C5A8(arg0, 0x3A, 3, 1, 0x40, 0x40, D_80744490 - 0x3E, 0x3E, 2.0f, 2.0f, 0x5A, 0.0f);
+    arg0 = func_8068C5A8(arg0, 0x3A, 3, 1, 0x40, 0x40, D_80744490 - 0x3E, D_80744494 - 0x3E, 2.0f, 2.0f, 0xB4, 0.0f);
+    return func_8068C5A8(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, D_80744494 - 0x3E, 2.0f, 2.0f, 0x10E, 0.0f);
+}
 
 void func_806FF32C(s32 arg0, Actor *arg1) {
     func_806FF144(func_806FEDB0(arg0, ((R1F103AB0aState *)arg1->unk174)->unk1A4));
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF358.s")
+typedef struct {
+    u8 unk0[0x1EC];
+    u8 unk1EC;
+    u8 unk1ED[3];
+    s32 unk1F0;
+} AaFF358State;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_806FF628.s")
+Gfx *func_806FF358(Gfx *arg0, Actor *arg1) {
+    AaFF358State *state;
 
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+    state = (AaFF358State *)((Actor **)D_807FC924)[1]->unk174;
+    gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0xFF, 0xFF, 0xC8);
+    arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0x50, 0.5f, 0.5f, 0, 0.0f);
+    arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0x50, 0.5f, 0.5f, 0x5A, 0.0f);
+    arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0xA0, 0.5f, 0.5f, 0xB4, 0.0f);
+    arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0xA0, 0.5f, 0.5f, 0x10E, 0.0f);
+    arg0 = func_8068C5A8(arg0, 0x3B, 3, 1, 0x30, 0x30, 0xA0, 0x78, 1.0f, 1.0f, 0, 0.0f);
+    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
+    if (!(state->unk1F0 & 0x8000)) {
+        if (state->unk1EC == 2) {
+            gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0, 0, 0xFF);
+            arg0 = func_8068C5A8(arg0, 0x43, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
+        } else if (state->unk1EC == 1) {
+            gDPSetPrimColor(arg0++, 0, 0, 0, 0xFF, 0, 0xFF);
+            arg0 = func_8068C5A8(arg0, 0x2F, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
+        }
+    }
+    return arg0;
+}
 
-s32 func_806F8AD4(s32, u8);
-s32 func_80690F30(u16, s32 *, Actor *, s32, s32, s32, s32 *, s32 *, s32 *);
+Gfx *func_806FF628(Gfx *arg0, Actor *arg1) {
+    AaFF358State *state;
+
+    state = (AaFF358State *)((Actor **)D_807FC924)[1]->unk174;
+    arg0 = func_806FEDB0(arg0, ((R1F103AB0aState *)state)->unk1A4);
+    if (state->unk1EC == 2) {
+        gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0, 0, 0x64);
+        arg0 = func_8068C5A8(arg0, 0x45, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
+    } else if (state->unk1EC == 1) {
+        gDPSetPrimColor(arg0++, 0, 0, 0, 0xFF, 0, 0x64);
+        arg0 = func_8068C5A8(arg0, 0x44, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
+    }
+    return arg0;
+}
+
 
 Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
     u8 sp77;
