@@ -747,7 +747,7 @@ void func_80029D30(void *arg0, s32 arg1) {
 extern u8 D_8071FBC8;
 extern u8 D_8071FE08;
 void func_8071495C(void);
-void func_80714CC0(void *, s32, s32, s32, f32);
+void *func_80714CC0(void *, f32, f32, f32, f32);
 void func_8060C830(s32, s32);
 extern s8 D_80033FAC;
 
@@ -758,9 +758,9 @@ void menuMysteryHandleInput(void *arg0, s32 arg1) {
         if (arg1 & 1) {
             if ((arg1 & 8) && (D_80033FAC != 0)) {
                 func_8071495C();
-                func_80714CC0(&D_8071FBC8, 0x4124CCCD, 0x43700000, 0x42F00000, -10.0f);
+                func_80714CC0(&D_8071FBC8, 10.3f, 240.0f, 120.0f, -10.0f);
                 func_8071495C();
-                func_80714CC0(&D_8071FE08, 0x4124CCCD, 0x43700000, 0x42F00000, -10.0f);
+                func_80714CC0(&D_8071FE08, 10.3f, 240.0f, 120.0f, -10.0f);
                 func_80609140(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 func_8060C830((u8)D_80033F48, 1);
                 temp_s0->unk16 = 0;
@@ -2919,15 +2919,200 @@ s32 func_80030340(void *arg0, s32 arg1, s32 arg2, s32 arg3) {
     return arg2;
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80030894.s")
+typedef struct Menu10_Burst {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+} Menu10_Burst;
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80030A90.s")
+typedef struct Menu10_Fx {
+    char pad0[0x340];
+    f32 unk340;
+    f32 unk344;
+    char pad348[0x360 - 0x348];
+    f32 unk360;
+    char pad364[0x36A - 0x364];
+    u8 unk36A;
+    u8 unk36B;
+    u8 unk36C;
+    char pad36D[0x384 - 0x36D];
+    Menu10_Burst *unk384;
+} Menu10_Fx;
+
+void func_80714950(void *);
+void func_8071498C(void *);
+void func_80714998(u8);
+void func_807149FC(s32);
+void func_80714A28(s32);
+void func_80030C14();
+f32 sqrtf(f32);
+
+void func_80030894(void *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5, s32 arg6) {
+    Menu10_Fx *sp3C;
+    Menu10_Burst *sp38;
+    f32 sp34;
+    f32 sp30;
+    f32 dist;
+    f32 scale;
+
+    func_80714998(arg5);
+    func_8071495C();
+    func_807149FC(-1);
+    func_80714950(arg0);
+    func_8071498C(func_80030C14);
+    func_80714A28(1);
+    sp3C = func_80714CC0(arg1, arg4, (f32)arg2, (f32)arg3, -10.0f);
+    sp38 = func_80610FE8(0x28);
+    sp3C->unk384 = sp38;
+    sp38->unk0 = (f32)arg6;
+    sp38->unk4 = (f32)*((s8 *)arg0 + 0x15);
+    sp38->unk8 = sp3C->unk340;
+    sp38->unkC = sp3C->unk344;
+    switch (arg6) {
+    case 14:
+        sp3C->unk360 = -sp3C->unk360;
+    case 0:
+    case 1:
+    case 11:
+    case 12:
+    case 13:
+    case 16:
+    case 17:
+    case 19:
+        sp34 = 640.0f - sp38->unk8;
+        sp30 = 480.0f - sp38->unkC;
+        dist = sqrtf((sp34 * sp34) + (sp30 * sp30));
+        scale = 1040.0f - dist;
+        sp38->unk10 = -(sp34 / dist) * scale;
+        sp38->unk14 = -(sp30 / dist) * scale;
+        sp38->unk18 = sp3C->unk360;
+        break;
+    case 2:
+    case 3:
+    case 10:
+        sp38->unk8 = (f32)arg2;
+        sp38->unk10 = arg4;
+        sp38->unk14 = 0.0f;
+        break;
+    case 15:
+        sp38->unk8 = (f32)arg2;
+        break;
+    default:
+        sp38->unk10 = arg4;
+        sp38->unk14 = 0.0f;
+        break;
+    }
+    if (D_80033F38 == 0) {
+        sp3C->unk36A = 0x80;
+        sp3C->unk36B = 0x80;
+        sp3C->unk36C = 0x80;
+    }
+    D_80033F38 = 1;
+}
+
+typedef struct Menu10_Spin {
+    f32 vx;
+    f32 vy;
+    f32 ang;
+    f32 dir;
+} Menu10_Spin;
+
+typedef struct Menu10_Spinner {
+    char pad0[0x128];
+    char mtx[0x218];
+    f32 unk340;
+    f32 unk344;
+    char pad348[0x384 - 0x348];
+    Menu10_Spin *unk384;
+} Menu10_Spinner;
+
+extern u8 D_807444FC;
+f32 func_806119FC();
+
+void func_80030A90(Menu10_Spinner *arg0, s32 arg1) {
+    Menu10_Spin *p;
+    s16 sp72;
+    f32 sp30[4][4];
+    if (arg0->unk384 == NULL) {
+        p = arg0->unk384 = func_80610FE8(0x10);
+        sp72 = func_806119A0() * 0x10;
+        p->vx = func_80612794(sp72) * 60.0f;
+        p->vy = func_80612790(sp72) * 60.0f;
+        p->ang = func_806119FC() * 3.141f;
+        arg0->unk340 = arg0->unk340 + p->vx * 3.0f;
+        arg0->unk344 = arg0->unk344 + p->vy * 3.0f;
+        if (p->vx > 0) {
+            p->dir = 0.3f;
+        } else {
+            p->dir = -0.3f;
+        }
+    }
+    p = arg0->unk384;
+    arg0->unk340 = arg0->unk340 + p->vx;
+    arg0->unk344 = arg0->unk344 + p->vy;
+    p->ang = p->ang + p->dir;
+    guRotateF(sp30, p->ang, 0.0f, 0.0f, 1.0f);
+    guMtxF2L(sp30, (void *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+}
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80030C14.s")
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8003155C.s")
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_800317E8.s")
+typedef struct Menu10_Sel {
+    f32 unk0;
+    f32 unk4;
+    char pad8[4];
+    s16 unkC;
+    char padE[9];
+    s8 unk17;
+} Menu10_Sel;
+
+s32 func_800317E8(void *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 *arg4, s32 arg5, s8 arg6, f32 arg7) {
+    f32 dist;
+    f32 f;
+    f32 t;
+    s32 idx;
+
+    arg1 = arg1 - 160.0f;
+    t = 0.0f;
+    arg2 = arg2 - 120.0f;
+    dist = sqrtf((arg1 * arg1) + (arg2 * arg2));
+    if (dist < 20.0f) {
+        dist = 20.0f;
+    }
+    f = ((Menu10_Sel *)arg0)->unk4;
+    idx = ((Menu10_Sel *)arg0)->unk17;
+    if (t != f) {
+        if (f > 0.5f) {
+            idx += 1;
+        }
+        if (idx >= arg5) {
+            idx -= arg5;
+        }
+    }
+    t = ((Menu10_Sel *)arg0)->unk0 * 0.5f;
+    if (arg6 == 1) {
+        t += f;
+    }
+    t = (2.0f * t) - 1.0f;
+    if (t < 0.0f) {
+        t = -t;
+    }
+    t = 1.0f - t;
+    if (t < 0.0f) {
+        t = 0.0f;
+    }
+    t = ((100.0f / dist) * t * arg7) + 1.0f;
+    *arg3 = (arg1 * t) + 160.0f;
+    *arg4 = (arg2 * t) + 120.0f;
+    *arg4 = *arg4 + (f32)((Menu10_Sel *)arg0)->unkC;
+    return idx;
+}
 
 f32 menuEvaluateSpline(f32 *arg0, f32 arg1, f32 *arg2) {
     f32 sp[4];
