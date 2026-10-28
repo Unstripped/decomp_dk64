@@ -208,8 +208,9 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         sp4F = 1;
                         D_80033F52 = var_a0[1];
                     } else if (*var_a0 < -5) {
+                        var_a1 = -6 - *var_a0;
                         if (D_800337F4 == 0) {
-                            actorScriptStart(D_807FBB4C, D_80033724[(s16)(-6 - *var_a0)]);
+                            actorScriptStart(D_807FBB4C, D_80033724[(s16)var_a1]);
                             var_a0 = &D_800336A4[D_80033F54];
                         }
                         D_80033F54 += 2;
@@ -223,6 +224,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         var_a0_2 = (s32)(func_806119FC(0) * 10.0f);
                         D_80033F52 = (func_806119A0() & 0x7F) + 0x12C;
                         D_80033F54 = 0;
+                        if (D_80033F54 && D_80033F54) {}
                         if (var_a0_2 >= 0xB) {
                             var_a0_2 = 0;
                         }
@@ -236,6 +238,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                                 }
                                 var_v0 = 1 << var_a0_2;
                                 if (var_a0_2 == temp_t2) {
+                                    if (D_800336A4) {}
                                     D_800336A0 = 0;
                                 }
                             } while (D_800336A0 & var_v0);
@@ -245,6 +248,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                             do {
                                 if (D_800336A4[D_80033F54] != -1) {
                                     do {
+                                        if (var_a1 && var_a1) {}
                                         D_80033F54 += 1;
                                     } while (D_800336A4[D_80033F54] != -1);
                                 }
@@ -254,6 +258,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         }
                     }
                 } else {
+                    if (sp4F == 0) {}
                     D_80033F54 += 2;
                     sp4F = -1;
                     D_80033F52 = var_a0[1];
@@ -1332,7 +1337,6 @@ Gfx *arg1;
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002C634.s")
 #endif
 
-#ifdef NON_MATCHING
 extern u8 D_80033878;
 extern u8 D_80033F20[];
 extern s16 D_80744524[];
@@ -1344,48 +1348,41 @@ void func_8002C91C(void *arg0, s32 arg1) {
     Menu3A_Struct174 *sp4C = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
     s32 i;
     s8 t;
+    s32 n;
     Menu6_Sub174 *sub;
 
     for (i = 0; i < 4; i++) {
         t = D_8076A0E4[i];
         if (!(t & 0x80)) {
-            D_8003387C[D_80033878] = t & 0x7F;
-            D_80033F20[D_80033878] = i;
-            D_80033F24[i] = D_80033878;
-            if (D_8076A105 == D_80033878) {
+            n = D_80033878;
+            D_8003387C[n] = t & 0x7F;
+            D_80033F20[n] = i;
+            D_80033F24[i] = n;
+            if ((n ^ 0) == D_8076A105) {
                 D_80744524[i] += 1;
             }
-            D_80033878 += 1;
+            D_80033878 = n + 1;
         }
     }
     menuUpdateCameraPositions();
     sp4C->unk17 = 0;
-    i = 0;
-    if (D_80033878 > 0) {
-        do {
-            actorSpawn(0x151, D_8003386C[D_8003387C[i]]);
-            {
-                s16 *q = Menu6_A->unk17C;
-                *q = D_8003386C[D_8003387C[i]];
-            }
-            Menu6_A->unk154 = D_80033F20[i] | 0x80;
-            Menu6_A->unk155 = D_8003387C[i];
-            sub = Menu6_A->unk174;
-            sub->unk0 = arg0;
-            sub->unk8 = (i == D_8076A105) + 1;
-            i += 1;
-        } while (i < D_80033878);
+    for (i = 0; i < D_80033878;) {
+        actorSpawn(0x151, D_8003386C[D_8003387C[i]]);
+        {
+            s16 *q = Menu6_A->unk17C;
+            *q = D_8003386C[D_8003387C[i]];
+        }
+        Menu6_A->unk154 = D_80033F20[i] | 0x80;
+        Menu6_A->unk155 = D_8003387C[i];
+        sub = Menu6_A->unk174;
+        sub->unk0 = arg0;
+        sub->unk8 = (i == D_8076A105) + 1;
+        i += 1;
     }
     func_80030894(sp4C, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002C91C.s")
-#endif
 
 #ifdef NON_MATCHING
-extern u8 D_80033878;
-extern u8 D_80033F24[];
 struct Menu3B_Struct_BB40;
 extern struct Menu3B_Struct_BB40 *D_807FBB40;
 typedef struct Menu6B_Vec {
@@ -1432,17 +1429,18 @@ void func_806F0C18(void *);
 void func_8068A4C8(void *, s32, s32);
 
 void func_8002CB18(void) {
-    Menu6B_Sub174 *temp_s1;
-    s16 *sp38;
     s32 temp_s1_2;
-    f32 *sp5C;
-    f32 sp54;
     Menu6B_Pair *row;
+    f32 *sp5C;
+    s32 sel;
+    f32 sp54;
+    f32 sp50;
     s8 sp4F;
     s16 idx;
-    f32 sp50;
     s32 a2;
-    s32 sel;
+    s16 *sp38;
+    Menu6B_Sub174 *temp_s1;
+    s8 m8;
 
     temp_s1 = Menu6B_A->unk174;
     sp5C = temp_s1->unk0->unk174;
@@ -1452,7 +1450,8 @@ void func_8002CB18(void) {
         Menu6B_A->unk4->unk34 = 2.0f * Menu6B_A->unk4->unk34;
         Menu6B_A->unk4->unk38 = 2.0f * Menu6B_A->unk4->unk38;
         Menu6B_A->unk4->unk3C = 2.0f * Menu6B_A->unk4->unk3C;
-        actorScriptStart(Menu6B_A, D_800338B4[(s16)(temp_s1->unk8 * 6) + (Menu6B_A->unk155 & 0xF)]);
+        m8 = temp_s1->unk8;
+        actorScriptStart(Menu6B_A, D_800338B4[(s16)(m8 * 6) + (Menu6B_A->unk155 & 0xF)]);
         func_806F0C18(Menu6B_A);
         Menu6B_A->unk60 |= 0x1000;
         temp_s1->unk4 = D_8076A100[Menu6B_A->unk154 & 0xF];
@@ -1460,11 +1459,13 @@ void func_8002CB18(void) {
     }
     sel = Menu6B_A->unk154;
     if (!(Menu6B_A->unk154 & 0x80)) {
-        a2 = D_8076A100[Menu6B_A->unk154];
         if (temp_s1->unk4 != a2) {
             func_8068A4C8(Menu6B_A, Menu6B_A->unk155 + 2, a2);
             temp_s1->unk4 = D_8076A100[Menu6B_A->unk154];
+        if (Menu6B_A->unk155 == 0) {}
+        a2 = D_8076A100[Menu6B_A->unk154];
         }
+        if (temp_s1->unk8 != 0) {}
         idx = D_8076A0E4[Menu6B_A->unk154] & 0x7F;
         if (idx != Menu6B_A->unk155) {
             sp38 = &D_8003386C[idx];
@@ -1478,22 +1479,26 @@ void func_8002CB18(void) {
         row = &D_80033894[Menu6B_A->unk154];
         func_800317E8(sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);
         Menu6B_A->unk7C = D_807FBB4C->unk7C + (sp54 - 160.0f);
+        if (temp_s1->unk4 != 0) {}
         Menu6B_A->unk80 = (D_807FBB4C->unk80 - (sp50 - 120.0f)) - 20.0f;
+        if (temp_s1->unk8 == 0) {}
         Menu6B_A->unk84 = D_807FBB4C->unk84 - 300.0f;
+        if (sp5C && sp5C) {}
         if (D_8076A0E4[Menu6B_A->unk154] & 0x80) {
             Menu6B_A->unk60 &= ~4;
         } else {
             Menu6B_A->unk60 |= 4;
         }
     } else {
-        temp_s1_2 = 0x140 / D_80033878;
         idx = D_80033F24[sel & 0xF];
+        temp_s1_2 = 0x140 / D_80033878;
         func_800317E8(sp5C, 160.0f, 150.0f, &sp54, &sp50, 2, 0, 1.8f);
         sp54 = (idx * temp_s1_2 + (temp_s1_2 >> 1)) - 0xA0;
         sp54 = sp54 * 0.78;
         Menu6B_A->unk7C = D_807FBB4C->unk7C + sp54;
         Menu6B_A->unk80 = (D_807FBB4C->unk80 - (sp50 - 120.0f)) + 16.0f;
         Menu6B_A->unk84 = D_807FBB4C->unk84 - 300.0f;
+        if (D_80033894) {}
     }
     if (*sp5C > 1.0f) {
         sp4F = 1;
@@ -3339,7 +3344,9 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 sp68 = 50.0f;
                 break;
             }
-            t = (s16)(idx * (s32)sp64 - p->unk17 * (s32)sp64 - (s32)(p->unk4 * sp64));
+            idx = idx * (s32)sp64 - p->unk17 * (s32)sp64 - (s32)(p->unk4 * sp64);
+            if (D_80033FAD && D_80033FAD) {}
+            t = (s16)idx;
             arg0->unk340 = 160.0f - func_80612794(t) * sp68;
             arg0->unk344 = 120.0f - func_80612790(t) * sp68;
             if (func_800317E8(p, arg0->unk340, arg0->unk344, &arg0->unk340, &arg0->unk344, sp4C, 0, 1.0f) == (s32)c->unk8) {
@@ -3355,11 +3362,14 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
             break;
         }
         case 15: {
+            if (D_80033F98) {}
             idx = (s32)c->unk8;
             arg0->unk340 = D_80033F68[idx];
             arg0->unk344 = D_80033F80[idx];
             arg0->unk360 = D_80033F98[idx];
+            if (D_80033F68) {}
             arg0->unk364 = D_80033F98[idx];
+            if (D_800337DC) {}
             D_80033F68[idx] = -200.0f;
             D_80033F80[idx] = -200.0f;
             if (*(&D_80033804 + idx) == 0) {

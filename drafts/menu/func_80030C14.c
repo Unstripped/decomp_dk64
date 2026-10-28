@@ -1,4 +1,4 @@
-// func_80030C14 (src/menu/3E10.c): stage 6 (parked NON_MATCHING in MenuL5 copy): text/frame/stack/rodata structure identical; only reg numbering differs: idx colored a2 not a1 (case 2/3/10 hoisted (s32)c->unk8 and case 15), (s32)sp64 CSE v1 vs v0, ring shifts after. 55 insn lines of 640. permuter 900s -j2 no gain. Tricks: u8 *arg1, f=p->unk0 first, t=(expr)&0xFFF no s16 cast, (f64)x<640, +=960 int, f*=0.5;f+=p->unk4, (u8*)D_800337DC+(idx<<2)
+// func_80030C14 (src/menu/3E10.c): stage 6 (parked NON_MATCHING): text/frame/stack/rodata identical, only reg numbering: harness diff 55 -> 33 lines. Remaining: case 2/3/10 '(s32)sp64' CSE temp v1 (target v0) with 'multu v1,a1' operand order (target 'multu a1,v0', result 'mflo a1' accumulates into idx's a1), then t-reg ring shift; case 15 hoisted lui base regs a3/t0 (target t8/t7 ring temps). Found by NM4 exhaustive dead-stmt sweep (3 rounds beam 2/3, ~10k variants/round) + hill-climb 500 iters: 'if (D_80033F68) {}' (bare array name) before 'arg0->unk364 = D_80033F98[idx]' fixes idx a2->a1 (case 15 address-temp order), 'if (D_80033FAD && D_80033FAD) {}' after the idx accumulate, 'if (D_80033F98) {}', 'if (D_800337DC) {}' in case 15; 'idx = idx*(s32)sp64 - unk17*(s32)sp64 - (s32)(unk4*sp64); t = (s16)idx;' (accumulate into idx, then t) brought (s32)sp64 to v0 alone (but idx to v1) and the dead stmts restore idx=a1. Single-insert sweep exhausted at 33; uopt -l 5 shows cand 264 ((s32)sp64) 'forbidden [1]' (v0) in mine, not in target: live-range difference, not found.
 typedef struct MenuL5_Rgba {
     u8 r;
     u8 g;
@@ -227,7 +227,9 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 sp68 = 50.0f;
                 break;
             }
-            t = (s16)(idx * (s32)sp64 - p->unk17 * (s32)sp64 - (s32)(p->unk4 * sp64));
+            idx = idx * (s32)sp64 - p->unk17 * (s32)sp64 - (s32)(p->unk4 * sp64);
+            if (D_80033FAD && D_80033FAD) {}
+            t = (s16)idx;
             arg0->unk340 = 160.0f - func_80612794(t) * sp68;
             arg0->unk344 = 120.0f - func_80612790(t) * sp68;
             if (func_800317E8(p, arg0->unk340, arg0->unk344, &arg0->unk340, &arg0->unk344, sp4C, 0, 1.0f) == (s32)c->unk8) {
@@ -243,11 +245,14 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
             break;
         }
         case 15: {
+            if (D_80033F98) {}
             idx = (s32)c->unk8;
             arg0->unk340 = D_80033F68[idx];
             arg0->unk344 = D_80033F80[idx];
             arg0->unk360 = D_80033F98[idx];
+            if (D_80033F68) {}
             arg0->unk364 = D_80033F98[idx];
+            if (D_800337DC) {}
             D_80033F68[idx] = -200.0f;
             D_80033F80[idx] = -200.0f;
             if (*(&D_80033804 + idx) == 0) {

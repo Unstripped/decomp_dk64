@@ -1,4 +1,4 @@
-// func_80027FAC (src/menu/3E10.c): stage 5-6: frame 0x60 and no callee-saved regs match; structure/branches match. Remaining: uopt colouring only (chain value *var_a0 spilled to 44(sp) instead of a1: +12 insns; tbl base/&D_80033F54/idx in a3/v1/v0 vs t0/a3/v1; early temp ring t5/t6 swapped; -1 const t0 vs lda t1). Tried: temp_a1 named s16/s32/u16, same var as var_a1 (goes to s0), decl shuffles, init/stmt order perms, permuter 600s (no gain). Needed tricks: nested != chain, var_ft4 = 1 (int) splits 1.0f web, var_a1/var_a0_2 single vars spilled around calls
+// func_80027FAC (src/menu/3E10.c): stage 5-6 (parked NON_MATCHING): frame 0x60, no callee-saved, structure/branches match; harness diff 225 -> 129 lines. Now the chain value *var_a0 is in a1 (was spilled to 44(sp)) and the early loads match: 'lb v1,0(a3); lui t0; sll; addu a0,t0,t6; lh a1,0(a0)'. Key fix: compute 'var_a1 = -6 - *var_a0;' BEFORE 'if (D_800337F4 == 0)' in the '< -5' arm (target hoists the sub/sll/sra above the bnez; with the use inside the call block uopt 'forbade' every temp reg for the chain value). Remaining: var_a0 pointer still spilled to 72(sp) (target keeps it in a0; both cand 86/88 'not colored (-ve save)'), so the equality arms get separate tails in the target (lh/sb/sb/b each) and shared in mine; var_a1/var_a0_2/temp_t2 home slots 70/68 vs 64/60; t-reg ring t5/t8 after. Tried: NM4 exhaustive dead sweep (4 rounds beam 2, ~12.6k variants/round) found if (D_80033F54 && D_80033F54) {}, if (D_800336A4) {}, if (var_a1 && var_a1) {}, if (sp4F == 0) {} dead stmts; idx=D_80033F54 local cache variant (worse: 329), tail duplication into if/else (worse), pad locals.
 typedef struct {
     s32 unk0;
     s32 unk4;
@@ -130,8 +130,9 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         sp4F = 1;
                         D_80033F52 = var_a0[1];
                     } else if (*var_a0 < -5) {
+                        var_a1 = -6 - *var_a0;
                         if (D_800337F4 == 0) {
-                            actorScriptStart(D_807FBB4C, D_80033724[(s16)(-6 - *var_a0)]);
+                            actorScriptStart(D_807FBB4C, D_80033724[(s16)var_a1]);
                             var_a0 = &D_800336A4[D_80033F54];
                         }
                         D_80033F54 += 2;
@@ -145,6 +146,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         var_a0_2 = (s32)(func_806119FC(0) * 10.0f);
                         D_80033F52 = (func_806119A0() & 0x7F) + 0x12C;
                         D_80033F54 = 0;
+                        if (D_80033F54 && D_80033F54) {}
                         if (var_a0_2 >= 0xB) {
                             var_a0_2 = 0;
                         }
@@ -158,6 +160,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                                 }
                                 var_v0 = 1 << var_a0_2;
                                 if (var_a0_2 == temp_t2) {
+                                    if (D_800336A4) {}
                                     D_800336A0 = 0;
                                 }
                             } while (D_800336A0 & var_v0);
@@ -167,6 +170,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                             do {
                                 if (D_800336A4[D_80033F54] != -1) {
                                     do {
+                                        if (var_a1 && var_a1) {}
                                         D_80033F54 += 1;
                                     } while (D_800336A4[D_80033F54] != -1);
                                 }
@@ -176,6 +180,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         }
                     }
                 } else {
+                    if (sp4F == 0) {}
                     D_80033F54 += 2;
                     sp4F = -1;
                     D_80033F52 = var_a0[1];
