@@ -1,4 +1,4 @@
-// func_806FA7BC (src/global/FCCD0.c): stage 5: frame 0x58 + s0-s4 match, 14 diff lines left: scheduling of the a0/s0/s1 copies around the func_806FA7A4(arg0,*p,unk4) call (target: lhu a2; move a0,s4; beqz v1; lhu a1 delay; move s0,a1; jal; move s1,a2 delay), step/abs temps use a1/a3 instead of a3/a0/v0, join reload uses v1/t4 vs t4/a1. Needs 3-arg call (extern s32 func_806FA7A4() block redeclaration), FCC_SLOT inline address expr, flag compare spelled *p == ((u16*)slot)[2]. parked under NON_MATCHING
+// func_806FA7BC (src/global/FCCD0.c): stage 5 (7 diff lines vs 14): same frame/regs; hoist 'sign = *unk0' before the NULL check + sign/-1 as if/else + dead 'if (step == 0) {}' (deadsweep) fixed step/abs/join regs. Left: target hoists move a0,s4 before beqz with lhu a1 in beqz delay then move s0,a1; jal; move s1,a2 delay (ours: lhu a1/move s1,a2 before beqz, move a0,s4 in jal delay) and sign/x coalesce in s0 (target sign=a0). Tried arg-list assignments, stmt permutations, local decl order, permuter 900s x2
 typedef struct FcCNode {
     s32 unk0;
     u8 pad4[8];
@@ -37,6 +37,7 @@ s32 func_806FA7BC(s32 arg0, s32 arg1) {
     s32 absd;
     s32 sign;
     s32 tmp;
+    if (step == 0) {}
 
     node = FCC_SLOT->unk28;
     s1 = 0;
@@ -56,8 +57,9 @@ s32 func_806FA7BC(s32 arg0, s32 arg1) {
         } while (node != NULL);
     }
     if (flag == 0) {
+        sign = *FCC_SLOT->unk0;
         if (FCC_SLOT->unk0 != NULL) {
-            x = *FCC_SLOT->unk0;
+            x = sign;
             s1 = FCC_SLOT->unk4;
             step = func_806FA7A4(arg0, *FCC_SLOT->unk0, FCC_SLOT->unk4);
             if ((x - s1) > 0) {
@@ -65,7 +67,6 @@ s32 func_806FA7BC(s32 arg0, s32 arg1) {
             } else {
                 absd = -(x - s1);
             }
-            sign = -1;
             if (absd < step) {
                 if ((x - s1) > 0) {
                     tmp = (x - s1);
@@ -76,6 +77,8 @@ s32 func_806FA7BC(s32 arg0, s32 arg1) {
             }
             if ((x - s1) >= 0) {
                 sign = 1;
+            } else {
+                sign = -1;
             }
             FCC_SLOT->unk4 += sign * step;
         }
