@@ -26,7 +26,8 @@ FUNC against expected/ and greedily inserts dead statements. Run in the containe
             --extra SYM) and keeps the lowest full + shape-w * shape (default 0.25). Stops when a round does not
             improve, at text == 0 (the floor: code identical; leftover reloc lines are printed) or after --rounds
             (default 8). --forms replaces the forms (`@` = each symbol; without `@` once per position). Bodies go
-            to --out (default .scratch/deadsweep/out/FUNC): roundN.c per improvement, best.c = last.
+            to --out (must not exist; default .scratch/deadsweep/out/<seg>_FUNC_<uuid>, unique per run):
+            roundN.c per improvement, best.c = last.
   -j N      parallel compiles (default 2). Scratch files: .scratch/deadsweep/<uuid>/ (removed on exit);
             identical object code is scored once. Results are search hints: review before porting.
 """
@@ -307,8 +308,13 @@ def cmd_score(a):
 
 def cmd_sweep(a):
     s = Scorer(a.copy, a.src, a.func, a.body, a.shape_w)
-    out = Path(a.out or ROOT / ".scratch" / "deadsweep" / "out" / a.func)
-    out.mkdir(parents=True, exist_ok=True)
+    seg = Path(a.src).parts[1] if len(Path(a.src).parts) > 2 else "src"
+    out = Path(a.out) if a.out else ROOT / ".scratch" / "deadsweep" / "out" / f"{seg}_{a.func}_{uuid.uuid4().hex[:8]}"
+    try:
+        out.mkdir(parents=True)
+    except FileExistsError:
+        print(f"error: --out {out} already exists; pass a new directory")
+        return 2
     body, cur = s.body0, s.evaluate(s.body0)
     if "err" in cur:
         print(f"error: start body does not compile: {cur['err']}")
