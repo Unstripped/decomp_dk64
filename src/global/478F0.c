@@ -3646,27 +3646,274 @@ void func_8064E5C0(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064E65C.s")
+typedef struct CsB16View {
+    /* 0x00 */ u8 pad0[0x98];
+    /* 0x98 */ s16 unk98;
+} CsB16View;
+s32 actorSpawn(s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064EA48.s")
+void func_8064E65C(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 *q;
+    f32 x;
+    f32 y;
+    f32 z;
+    f64 g;
+    f64 bl;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064EAB4.s")
+    if (b != 11) {
+        modelSlotGetNodePos(csId, 1, 1, &x, &y, &z);
+    }
+    ((CsB16View *)cs)->unk98 = y - D_807F6220;
+    if (*(s32 **)cs == NULL) {
+        *(s32 **)cs = func_80610FE8(4);
+        **(s32 **)cs = 0;
+    }
+    q = *(s32 **)cs;
+    switch (b) {
+        case 10:
+        case 11:
+            func_806086CC(x, y, z, 0x305, 0x64, 0x7F, 0, 0, 0.0f, 0);
+            actorSpawn(0xB3, 0x5D);
+            D_807FBB44->unk4->unk34 = D_807FBB44->unk4->unk34 * 3.2;
+            D_807FBB44->unk4->unk38 = D_807FBB44->unk4->unk38 * 3.2;
+            D_807FBB44->unk4->unk3C = D_807FBB44->unk4->unk3C * 3.2;
+            D_807FBB44->unk60 |= 0x400;
+            actorScriptStart(D_807FBB44, 0x335);
+            if (b == 11) {
+                D_807FBB44->unk7C = D_807F621C;
+                D_807FBB44->unk80 = D_807F6220;
+                D_807FBB44->unk84 = D_807F6224;
+                break;
+            }
+            D_807FBB44->unk7C = x;
+            D_807FBB44->unk80 = y;
+            D_807FBB44->unk84 = z;
+        case 1:
+        case 3:
+        case 4:
+            if (*q >= 2) {
+                *q -= 2;
+            } else {
+                *q = 0;
+                break;
+            }
+        case 0:
+            if (b == 0) {
+                *q = 0xFF;
+            }
+            lightSetRadius(0x1388);
+            g = c != 0 ? (f64)*q * 0.27 : (f64)*q;
+            bl = c != 0 ? (f64)*q * 0.63 : (f64)*q;
+            lightAdd(x, y - 50.0f, z, 0.0f, 0.0f, 0.0f, 240.0f, 0, (u32)g, (u32)bl, *q);
+            break;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064EB3C.s")
+void flagSet(s32, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064EB9C.s")
+void func_8064EA48(CsState *cs, s16 csId, s16 b, s16 c) {
+    if (func_806F8AD4(1, 0) >= 2) {
+        slotQueueUpdate(1, 0, 0);
+        func_806F91B4(1, 0, -2);
+        flagSet(0x83, 1, 0);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064EC04.s")
+void func_8064EAB4(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 sum;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064EC60.s")
+    sum = flagGet(0xE6, 0);
+    sum += flagGet(0xE8, 0);
+    sum += flagGet(0xE9, 0);
+    sum += flagGet(0xE7, 0);
+    sum += flagGet(0xEA, 0);
+    ((u8 *)cs)[0x4B] = sum;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064ED68.s")
+s32 func_8064EB3C(CsState *cs, s16 csId, s16 b, s16 c) {
+    if (flagGet(0x82, 0) == 0) {
+        return 1;
+    }
+    if (flagGet(0x83, 0) != 0) {
+        return 1;
+    }
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064EE08.s")
+extern u8 D_8074E77C;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064F028.s")
+u8 func_8064EB9C(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 idx;
+    u8 v;
 
+    idx = func_805FF030(D_8076A0AB, 0);
+    if (idx >= 8) {
+        idx = 0;
+    }
+    v = D_807446F0[idx];
+    return D_8074E77C == v;
+}
+
+s32 func_80600530(void);
+s32 func_806FB418(void);
+extern s16 D_807446D0[];
+
+s32 func_8064EC04(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 idx;
+
+    idx = func_80600530();
+    return (u8)((s16)func_806FB418() >= D_807446D0[idx]);
+}
+
+extern u8 D_807FC950[][0x5E];
+
+u8 func_8064EC60(CsState *cs, s16 csId, s16 b, s16 c) {
+    u32 padA, padB;
+    s32 idx;
+    u8 res = 0;
+    s32 cur;
+    u8 *row;
+    s32 lim;
+
+    switch (b) {
+        default:
+            idx = 0;
+            break;
+        case 3:
+            idx = 1;
+            break;
+        case 4:
+            idx = 2;
+            break;
+        case 5:
+            idx = 3;
+            break;
+        case 6:
+            idx = 4;
+            break;
+    }
+    cur = func_80600530();
+    row = D_807FC950[idx];
+    lim = row[5] & 0x7F;
+    if (lim == cur) {
+        res = 1;
+        if (c == 0 && (row[5] & 0x80)) {
+            res = 0;
+        }
+    } else if (cur < lim) {
+        res = 1;
+    }
+    if (res == 1 && c == 2) {
+        row[5] = (row[5] & 0x7F);
+    }
+    return res;
+}
+
+s32 func_8064ED68(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 res = 0;
+    u8 i;
+
+    for (i = 2; i < 7; i++) {
+        if (func_8064EC60(cs, csId, i, 1) == 0) {
+            res = 1;
+        }
+    }
+    return res;
+}
+
+typedef struct CsB16EffState {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ f32 unk4;
+} CsB16EffState;
+typedef struct CsB16Eff {
+    /* 0x000 */ u8 pad0[0x344];
+    /* 0x344 */ f32 unk344;
+    /* 0x348 */ u8 pad348[0x18];
+    /* 0x360 */ f32 unk360;
+    /* 0x364 */ f32 unk364;
+    /* 0x368 */ u8 pad368[0x1C];
+    /* 0x384 */ CsB16EffState *unk384;
+} CsB16Eff;
+s32 camIsPathPaused(void);
+s32 camIsCutsceneActive(void);
 extern s8 D_807F6950;
+extern s8 D_807F6951;
+
+void func_8064EE08(CsB16Eff *e, u8 *flag) {
+    CsB16EffState *s;
+
+    if (e->unk384 == NULL) {
+        s = func_80610FE8(8);
+        e->unk384 = s;
+        s->unk0 = 0;
+        s->unk2 = 0;
+        s->unk4 = e->unk344;
+    }
+    s = e->unk384;
+    switch (s->unk0) {
+        case 0:
+            e->unk360 = e->unk360 + 0.015;
+            if (e->unk360 > 0.5) {
+                e->unk360 = 0.5f;
+                s->unk0 = 1;
+            }
+            break;
+        case 1:
+            if (camIsPathPaused() != 0) {
+                s->unk0 = 2;
+            }
+            if (camIsCutsceneActive() == 0) {
+                s->unk0 = 2;
+            }
+            break;
+        case 2:
+            if (camIsPathPaused() == 0 || camIsCutsceneActive() == 0) {
+                s->unk0 = 3;
+                func_80609140(0x2E8, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            }
+            break;
+        case 3:
+            e->unk360 = e->unk360 - 0.015;
+            if (e->unk360 < 0.0) {
+                D_807F6950 = 1;
+                e->unk360 = 0.0f;
+                *flag = 1;
+            }
+            break;
+    }
+    if (s->unk0 != 3) {
+        e->unk344 = func_80612794((D_8076A064 * 0x3C) & 0xFFF) * 2.75f + s->unk4;
+    }
+    e->unk364 = e->unk360;
+}
+
+void camStartPath(void *, s32, s32);
+void sfxAllocateChannel(s32, f32);
+extern u8 D_80721530[];
+
+void func_8064F028(CsState *cs, s16 csId, s16 b, s16 c) {
+    func_807149C8(0xFF, 0xFF, 0xFF, 0x80);
+    func_8071498C(func_8064EE08);
+    func_807149FC(-1);
+    func_807149B8(1);
+    func_80714998(2);
+    func_80714CC0(D_80721530, 0.0f, D_807F621C, D_807F6220 + 17.5, D_807F6224);
+    actorSpawn(0x9C, 0x53);
+    D_807FBB44->unk7C = D_807F621C;
+    D_807FBB44->unk80 = D_807F6220;
+    D_807FBB44->unk84 = D_807F6224;
+    D_807FBB44->unkE6 = D_807F622C * 4096.0f / 360.0f;
+    if (D_8076A0A8 == 0xB2 || (D_8076A0A8 == 0xAD && b == 4)) {
+        D_807FBB44->unkE6 += 0x800;
+    }
+    camStartPath(D_807FBB44, 0x22, 5);
+    sfxAllocateChannel(0xAB, 1.0f);
+    func_80609140(0x2EA, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    D_807F6951 = b;
+    D_807F6950 = 0;
+}
+
 void sfxStopChannel(s32, s32);
 
 u8 func_8064F1C4(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -3699,7 +3946,6 @@ u8 func_8064F2F0(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern s8 D_807FC8D0;
-void flagSet(s32, s32, s32);
 
 void func_8064F308(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 flag;
@@ -3714,11 +3960,9 @@ void func_8064F308(CsState *cs, s16 csId, s16 b, s16 c) {
 
 #ifdef NON_MATCHING
 extern u8 D_807FC929;
-extern u8 D_807FC950[];
-extern u8 D_8074E77C;
 
 u8 func_8064F358(CsState *cs, s16 csId, s16 b, s16 c) {
-    u8 *p = D_807FC950 + D_807FC929 * 0x306;
+    u8 *p = (u8 *)D_807FC950 + D_807FC929 * 0x306;
     s32 idx = func_805FF030(D_8076A0AB, 0);
     u8 *q = p;
 
