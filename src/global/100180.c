@@ -353,6 +353,11 @@ s16 func_806FBEAC(u8 *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FC530.s")
 
+extern Mtx D_2000000;
+extern Mtx D_2000080;
+extern Gfx D_2000180;
+Gfx *func_806FBEF0(Gfx *, u8, s32);
+
 #ifdef NON_MATCHING
 typedef struct {
     f32 unk0;
@@ -376,11 +381,9 @@ typedef struct {
 } HbTextObj;
 
 extern u8 D_80754A36[];
-extern u8 D_2000000[];
 extern u8 D_2000200[];
 void heapFreeDeferred(void *);
 Gfx *func_8070068C(Gfx *);
-Gfx *func_806FBEF0(Gfx *, u8, s16);
 
 Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
     s32 line;
@@ -461,7 +464,7 @@ Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
             line++;
         } while (line < D_80754A35[arg1->unkC * 6] + 1);
     }
-    gSPMatrix(dl++, D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gDPPipeSync(dl++);
     return dl;
@@ -472,7 +475,6 @@ Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
 #endif
 
 #ifdef NON_MATCHING
-extern u8 D_2000180[];
 
 Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
     s32 line;
@@ -496,9 +498,9 @@ Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
     heapFreeDeferred(mp);
     spB4 = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
-    gSPMatrix(dl++, D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-    gSPMatrix(dl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     line = 1;
     if (D_80754A35[arg1->unkC * 6] + 1 >= 2) {
         do {
@@ -566,9 +568,83 @@ Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FD094.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FD490.s")
+typedef struct {
+    u8 unk0;
+    u8 unk1;
+    u8 unk2;
+    u8 unk3;
+    u8 unk4;
+    u8 unk5;
+} HcFontInfo;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FD7A8.s")
+#define HcFONTS ((HcFontInfo *)D_80754A34)
+
+typedef struct {
+    s16 unk0;
+    u8 unk2;
+    u8 unk3;
+} HcGlyph;
+
+#define HcGLYPH(f, c) (((HcGlyph *)D_80754A18[f])[c])
+
+Gfx *func_806FD490(Gfx *dl, u8 font, s16 x, s16 y, u8 *str) {
+    u8 ch;
+    s32 flag;
+
+    flag = 0;
+    if (font & 0x80) {
+        flag = 1;
+        font = font ^ 0x80;
+    }
+    gDPPipeSync(dl++);
+    gDPSetTextureFilter(dl++, G_TF_POINT);
+    gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gDPSetTexturePersp(dl++, G_TP_NONE);
+    dl = func_806FBEF0(dl, font, 1);
+    ch = *str++;
+    while (ch) {
+        if (ch != 0x20) {
+            func_806FB914(font, &ch);
+            gSPTextureRectangle(dl++, x << 2, y << 2, (x + HcGLYPH(font, ch).unk2) << 2, (HcFONTS[font].unk2 + y) << 2, 0, HcGLYPH(font, ch).unk0 << 5, 0, 0x400, 0x400);
+            if (flag != 0) {
+                x += HcFONTS[font].unk5;
+            } else {
+                x += HcGLYPH(font, ch).unk2 + HcFONTS[font].unk4;
+            }
+        } else if (flag != 0) {
+            x += HcFONTS[font].unk5;
+        } else {
+            x += HcFONTS[font].unk3;
+        }
+        ch = *str++;
+    }
+    gDPPipeSync(dl++);
+    gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gDPSetTexturePersp(dl++, G_TP_PERSP);
+    return dl;
+}
+
+s16 func_806FD7A8(s16 arg0, u8 arg1) {
+    s32 idx;
+    s16 var_v1;
+    HcFontInfo *var_a0;
+
+    idx = arg0;
+    if (idx & 0x80) {
+        var_a0 = &HcFONTS[(s16)(idx ^ 0x80)];
+        var_v1 = var_a0->unk5;
+    } else if (arg1 == 0x20) {
+        var_a0 = &HcFONTS[idx];
+        var_v1 = var_a0->unk3;
+    } else {
+        func_806FB914(idx, &arg1);
+        var_v1 = ((u8 *)D_80754A18[idx])[arg1 * 4 + 2];
+        var_a0 = &HcFONTS[idx];
+    }
+    var_v1 += var_a0->unk4;
+    return var_v1;
+}
 
 extern u8 D_80754A36[];
 

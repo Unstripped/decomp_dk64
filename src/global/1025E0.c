@@ -123,9 +123,71 @@ loop_2:
     heapFree(var_a1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1025E0/func_806FDB8C.s")
-
 void _strcpy(s32, s32);
+extern u8 D_8074450C;
+s32 randomNonNegative();
+s32 strlen(char *);
+void *func_80610FE8(s32);
+void heapClearBlock(void *);
+s16 func_806FBEAC(char *);
+
+s16 func_806FDB8C(s16 arg0, char *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
+    R1F1025E0Node *node;
+    R1F1025E0Node *tail;
+    R1F1025E0Entry *entries;
+    void *name;
+    u8 count;
+    s16 i;
+
+    func_806FBD5C(arg0, (s32)arg1);
+    node = func_80610FE8(0x20);
+    heapClearBlock(node);
+    if (D_80754AD0 == NULL) {
+        D_80754AD0 = node;
+        node->next = NULL;
+        D_80754AD4 = 0;
+    } else {
+        tail = D_80754AD0;
+        while (tail->next != NULL) {
+            tail = tail->next;
+        }
+        tail->next = node;
+        node->next = NULL;
+    }
+    node->unk1C = (s16)(D_80754AD4 & 0xFFFF);
+    D_80754AD4++;
+    if (D_80754AD4 && D_80754AD4) {
+    }
+    name = func_80610FE8(strlen(arg1) + 1);
+    node->unk4 = name;
+    _strcpy((s32)name, (s32)arg1);
+    count = func_806FBEAC(arg1);
+    node->unkD = count;
+    entries = func_80610FE8(count * sizeof(R1F1025E0Entry));
+    node->unk8 = entries;
+    heapClearBlock(entries);
+    node->unkC = arg0;
+    i = 0;
+    if (node->unkD > 0) {
+        do {
+            if (arg2 == 3) {
+                node->unk8[i].unk0 = (randomNonNegative() >> 15) % 1440 - 0x50;
+                node->unk8[i].unk4 = (randomNonNegative() >> 15) % 1120 - 0x50;
+                node->unk8[i].unk20 = (randomNonNegative() >> 15) % 6283 / 1000.0;
+                node->unk14 = 0.1f;
+            } else {
+                node->unk8[i].unk0 = arg3 * 4.0f;
+                node->unk8[i].unk4 = arg4 * 4.0f;
+                node->unk8[i].unk8 = arg5 * 4.0f;
+                node->unk8[i].unk30 = (D_8074450C == 2) ? 1.0 : 0.1;
+                node->unk14 = 0.2f;
+            }
+            i++;
+        } while (i < node->unkD);
+    }
+    return node->unk1C;
+}
+
 void func_806FDF1C(s16 arg0, s32 arg1) {
     _strcpy((s32)gfxResourceFindById(arg0)->unk4, arg1);
 }
