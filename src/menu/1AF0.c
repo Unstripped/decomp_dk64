@@ -18,7 +18,17 @@ typedef struct {
 extern u8 D_807FC950[][0x5E];
 extern u8 D_8074E77C;
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80025AF0.s")
+s32 func_80025AF0(Struct_80025D14 *arg0, s32 arg1) {
+    s32 found = 0;
+    do { s32 i = 0; do {
+            if (i != D_8074E77C) {
+                found |= D_807FC950[i][arg0->unkB] & (1 << (arg1 + 0x1F));
+            }
+            i++;
+        } while (found == 0 && i != 5);
+        return found;
+    } while (0);
+}
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/D_80033A50.s")
 
@@ -61,10 +71,160 @@ void menuUpdateAllBitgridSlots(Struct_80025D14 *arg0, u8 arg1) {
     } while (i < 5);
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80025E04.s")
+typedef struct {
+    char pad0[0x2E2];
+    u16 unk2E2;
+} MenuM1_C924;
+extern MenuM1_C924 *D_807FC924;
+extern u8 D_800334DC[];
+u8 func_806F6E58(u8);
+void func_806F91B4(s16, s32, s16);
+void func_80709464(s32);
+void func_8060DEC8(void);
 
+void func_80025E04(Struct_80025D14 *arg0, s32 arg1) {
+    s16 sp1E = -1;
+    u8 sp1D = func_806F6E58(D_8074E77C);
+
+    switch (arg0->unkB) {
+    case 2:
+    case 4:
+        if (arg0->unk11 >= 2) {
+            menuUpdateAllBitgridSlots(arg0, 1);
+        } else {
+            menuSetBitgridBit(arg0, D_8074E77C);
+        }
+        break;
+    case 1:
+    case 3:
+        menuUpdateAllBitgridSlots(arg0, 0);
+        break;
+    default:
+        menuSetBitgridValue(arg0, D_8074E77C);
+        break;
+    }
+    if (arg0->unkB == 4) {
+        u8 v = D_800334DC[arg0->unk11];
+        if (D_807FC950[8][0xC] < v) {
+            D_807FC950[8][0xC] = v;
+            func_80709464(0);
+            D_807FC924->unk2E2 |= 0x11;
+        }
+    }
+    switch (arg0->unkB) {
+    case 2:
+    case 3:
+        sp1E = 2;
+        break;
+    case 4:
+        sp1E = 7;
+        break;
+    case 0:
+        if (sp1D == 0 && func_806F6E58(D_8074E77C) != 0) {
+            sp1E = 5;
+        }
+        break;
+    }
+    func_806F91B4(1, 0, -arg0->unk4);
+    if (sp1E >= 0) {
+        func_806F91B4(sp1E, 0, 0x270F);
+    }
+    func_8060DEC8();
+}
+
+
+extern u16 D_80750AC8;
+extern u8 D_807FCC4C;
+
+#ifdef NON_MATCHING
+typedef struct {
+    char pad0[4];
+    s16 unk4;
+    char pad6[5];
+    s8 unkB;
+    u8 unkC;
+    char padD[3];
+    u8 unk10;
+    s8 unk11;
+} MenuM1_State;
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+} MenuM1_Entry;
+extern MenuM1_Entry D_80033260[][7];
+extern MenuM1_Entry D_80033334[][7];
+extern MenuM1_Entry D_80033408[][7];
+extern u8 D_8076A0AB;
+s32 func_805FF030(s32, s32);
+
+#define M1S ((MenuM1_State *)arg0)
+#define M1A ((u8 *)arg1)
+void func_80025FB4(void *arg0, void *arg1, s32 arg2) {
+    MenuM1_Entry *tbl;
+    MenuM1_Entry *e;
+    s32 found = 0;
+    s32 count = 6;
+    s32 i;
+
+    if (flagGet(0x1CB, 0) == 0) {
+        do {
+            count--;
+            if (count < 0) {
+                break;
+            }
+        } while (flagGet(count + 0x1C5, 0) == 0);
+    }
+    count++;
+    M1S->unkC = func_805FF030(D_8076A0AB, 0);
+    switch (D_807FBB40->unk58) {
+    case 0xBD:
+        tbl = D_80033260[0];
+        break;
+    case 0xBF:
+        tbl = D_80033334[0];
+        break;
+    case 0xBE:
+        tbl = D_80033408[0];
+        break;
+    }
+    tbl += D_8074E77C * 7;
+    for (i = 0; i < count && found == 0; i++) {
+        if (tbl[i].unk0 >= 0) {
+            switch (tbl[i].unk0) {
+            case 2:
+            case 4:
+                if (!((1 << (tbl[i].unk2 + 0x1F)) & M1A[tbl[i].unk0])) {
+                    found = 1;
+                }
+                break;
+            default:
+                if (M1A[tbl[i].unk0] < tbl[i].unk2) {
+                    found = 1;
+                }
+                break;
+            }
+            if (found != 0) {
+                M1S->unkB = tbl[i].unk0;
+                D_80750AC8 = (M1S->unk4 = tbl[i].unk4);
+                M1S->unk11 = tbl[i].unk2;
+            }
+        }
+    }
+    if (found == 0) {
+        M1S->unk4 = 0;
+        M1S->unkB = -1;
+        D_80750AC8 = M1S->unk4;
+        if (count >= 7) {
+            M1S->unkB = -2;
+        }
+    }
+    M1S->unk10 = D_807FCC4C;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80025FB4.s")
+#endif
 
 s32 func_806F8AD4(s32, s32);
 
@@ -91,7 +251,16 @@ s32 menuGetOptionAvailability(Struct_80025D14 *arg0, s32 arg1) {
     return ret;
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80026250.s")
+s32 func_80026250(Struct_80025D14 *arg0) {
+    s32 ret = D_807FBB40->unk58 == 0xBD;
+
+    if (ret != 0) {
+        ret = arg0->unkA == 0;
+        if (ret != 0) {
+            return arg0->unkB < 0;
+        }
+    }
+}
 
 void menuResetSubmenuState(s8 *arg0, s32 *arg1) {
     *arg1 = 0;
@@ -99,7 +268,142 @@ void menuResetSubmenuState(s8 *arg0, s32 *arg1) {
     arg0[0xB] = -1;
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_800262A8.s")
+extern u16 D_800334EC[];
+extern u16 D_80033500[];
+extern u16 D_80033514[];
+extern u16 D_80033528[];
+extern u8 D_800334DD[];
+void currentActorClearFlag(void);
+s32 currentActorTestClearFlag();
+s32 flagSet(s16, s32, s32);
+s32 flagCountRange(s16, s32, s32);
+void func_8070D8C0(void *, u16, u8);
+void func_806F833C(s32);
+void slotQueueUpdate(s32, s32, s32);
+typedef struct {
+    u8 hi;
+    u8 lo;
+} MenuM1_Pair;
+#define M1_ARG1 ((u8 *)arg1)
+#define M1_UNK12(p) (*((u8 *)(p) + 0x12))
+
+void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+    MenuM1_Pair *sp44;
+    u16 sp42;
+    s32 sp3C;
+    u16 a;
+    u16 b;
+    u16 c;
+    u16 d;
+    s32 avail;
+    u16 v;
+    u16 sp2C;
+    s32 cnt;
+    s16 f;
+
+    if (currentActorTestClearFlag() != 0) {
+        sp44 = NULL;
+        sp3C = menuGetOptionAvailability(arg0, arg2);
+        currentActorClearFlag();
+        M1_UNK12(arg0) = 0;
+        arg0->unkE++;
+        switch (D_807FBB40->unk58) {
+        case 0xBF:
+            a = 3;
+            b = 7;
+            c = 0xC;
+            d = 0xE;
+            if (arg0->unkB >= 0) {
+                avail = func_80025AF0(arg0, 1);
+                if (M1_ARG1[arg0->unkB] & 1) {
+                    b = 9;
+                    if (D_807FCC4C < D_800334DD[M1_ARG1[arg0->unkB]]) {
+                        a = 6;
+                        c = 0xD;
+                        d = 0xF;
+                        M1_UNK12(arg0) = 1;
+                    } else {
+                        a = 5;
+                        b = 8;
+                    }
+                } else if (avail == 0) {
+                    a = 4;
+                }
+            }
+            D_80033500[2] = a;
+            D_80033500[3] = b;
+            D_80033500[6] = c;
+            D_80033500[7] = d;
+            sp44 = (MenuM1_Pair *)D_80033500;
+            sp42 = 9;
+            break;
+        case 0xBD:
+            v = 0;
+            arg2 = 0;
+            sp2C = D_80750AC8;
+            sp3C = menuGetOptionAvailability(arg0, arg2);
+            if (sp3C == 0 || sp3C == 1) {
+                sp3C = 0;
+                sp2C = 0xF;
+            }
+            sp42 = 8;
+            sp44 = (MenuM1_Pair *)D_800334EC;
+            if (arg0->unkA == 0) {
+                if (flagGet(0x61, 2) != 0) {
+                    flagSet(0x61, 0, 2);
+                    menuResetSubmenuState((s8 *)arg0, &sp3C);
+                    if (flagGet(0x17B, 0) != 0) {
+                        v = 0x20;
+                    } else if (flagGet(0x62, 2) != 0) {
+                        flagSet(0x62, 0, 2);
+                        v = 0x22;
+                    } else {
+                        v = 0x21;
+                    }
+                } else {
+                    cnt = flagCountRange(0x225, 0x28, 0);
+                    if (cnt >= 0xF) {
+                        menuResetSubmenuState((s8 *)arg0, &sp3C);
+                        if (flagGet(0x17B, 0) != 0) {
+                            v = 0x20;
+                        } else {
+                            v = 2;
+                            sp2C = cnt;
+                        }
+                    }
+                }
+            }
+            D_80750AC8 = sp2C;
+            D_800334EC[0] = v;
+            break;
+        case 0xBE:
+            sp44 = (MenuM1_Pair *)D_80033514;
+            if (arg0->unkB == 3) {
+                sp44 = (MenuM1_Pair *)D_80033528;
+            } else {
+                a = 3;
+                f = 4;
+                if (arg0->unkB >= 0 && (M1_ARG1[arg0->unkB] & 1)) {
+                    a = 5;
+                    f = 6;
+                }
+                D_80033514[2] = a;
+                D_80033514[3] = f;
+            }
+            sp42 = 7;
+            break;
+        }
+        if (arg2 != 0) {
+            func_8070D8C0(D_807FBB40, sp42, sp44[8].lo);
+        }
+        func_8070D8C0(D_807FBB40, sp42, sp44[sp3C].lo);
+        if (sp3C == 2 || sp3C == 3 || sp3C == 6 || sp3C == 7) {
+            func_806F833C(0);
+            slotQueueUpdate(1, 1, 0);
+            slotQueueUpdate(0xE, 1, 0);
+        }
+    }
+}
 
 void func_800262A8(Struct_80025D14 *, void *, s32);
 void camResumePath(void);
@@ -123,7 +427,6 @@ void menuDispatchSubmenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 extern void *D_807FBB4C;
 void func_806F397C(void *, void *, s32, s32);
 void camStartPath(s32, s32, s32);
-void currentActorClearFlag(void);
 void func_80025FB4(void *, void *, s32);
 void playerStateQueueCallback(s32, void *, s32);
 
