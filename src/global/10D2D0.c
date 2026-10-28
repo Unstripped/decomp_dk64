@@ -17,7 +17,27 @@ extern s16 D_80744494;
 extern u8 D_807444F8;
 extern u8 D_807444FC;
 
+typedef struct DaF10D2D0_Player {
+    u8 pad0[0x2E0];
+    u16 unk2E0;
+    u8 unk2E2;
+    u8 unk2E3;
+    u8 unk2E4;
+    u8 unk2E5;
+} DaF10D2D0_Player;
+
+#define DaF10D2D0_FLAGS(p) (*(u16 *)&(p)->unk2E2)
+
+typedef struct DaF10D2D0_Hud {
+    u8 pad0[0x2FB];
+    s8 unk2FB;
+    u8 unk2FC;
+} DaF10D2D0_Hud;
+
+Gfx *func_807085D0();
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/10D2D0/func_807085D0.s")
+
 
 typedef struct R1F10D2D0_InitData {
     f32 unk0;
@@ -48,9 +68,159 @@ void func_80708BB8(R1F10D2D0_InitData *arg0) {
 
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10D2D0/func_80708C24.s")
+typedef struct NmF10D2D0_PlayerState {
+    u8 unk0;
+    u8 pad1[0x2E1];
+    u16 unk2E2;
+    u8 unk2E4;
+    u8 unk2E5;
+    u8 unk2E6;
+    u8 pad2E7[9];
+    s8 unk2F0[0xB];
+    s8 unk2FB;
+    u8 unk2FC;
+    s8 unk2FD;
+} NmF10D2D0_PlayerState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10D2D0/func_80708DA4.s")
+extern s32 D_807FBB60;
+void func_80026B0C(s32);
+void func_80609140(s32, s32, f32, f32, s32, s32);
+s32 func_805FCA64(void);
+s32 func_8071432C(void);
+s32 func_8071441C(void);
+s32 func_8070943C(void);
+
+void func_80708C24(s32 arg0, NmF10D2D0_PlayerState *arg1, NmF10D2D0_PlayerState *arg2, s32 arg3) {
+    u8 state;
+    s32 limit;
+
+    state = arg1->unk2E2;
+    if (state & 0x10) {
+        arg1->unk2E2 ^= 0x10;
+        if (arg2->unk2FD > 0) {
+            limit = func_8070943C();
+            arg3 = arg2->unk2FB + arg2->unk2FD;
+            limit = arg2->unk2FC * limit;
+            if (arg3 < limit) {
+                arg2->unk2FB = arg3;
+            } else {
+                arg2->unk2FB = limit;
+            }
+        } else if (arg2->unk2FD < 0) {
+            if ((func_8071432C() != 0) || (func_8071441C() != 0)) {
+                arg2->unk2FB += arg2->unk2FD;
+            }
+            if (arg2->unk2FB <= 0) {
+                arg2->unk2FB = 0;
+                arg1->unk2E6 = 0xC;
+                if ((s32)D_807FC928 >= 2) {
+                    func_80026B0C(arg0);
+                }
+            } else {
+                func_80609140(0x24B, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            }
+        }
+        arg2->unk2FD = 0;
+    }
+    if ((!(D_807FBB60 & 2) && (func_805FCA64() != 0)) || (state & 0x80)) {
+        arg1->unk2E5--;
+        if (!arg1->unk2E5) {
+            arg1->unk2E5 = 0x11;
+            arg1->unk2E4 = 3;
+        }
+    }
+}
+
+s32 func_806C8DE0(s32);
+f32 sinApprox(f32);
+
+s32 func_80708DA4(arg0, arg1, arg2)
+s32 arg0;
+s16 arg1;
+DaF10D2D0_Player *arg2;
+{
+    s32 idx;
+    f32 angle;
+    u8 *hud;
+    u8 *elem;
+    u8 mode;
+    u8 bits;
+    s32 single;
+
+    hud = (u8 *)(arg1 * 0x306 + (s32)D_807FC950);
+    idx = func_806C8DE0(arg1);
+    elem = (u8 *)((s32)hud + idx * 0x5E);
+    mode = arg2->unk2E4;
+    bits = arg2->unk2E3;
+    single = D_807FC928 == 1;
+    if (single == 0) {
+        mode = 0;
+    }
+    if (single == 0) {
+        func_80708C24(arg1, (NmF10D2D0_PlayerState *)arg2, (NmF10D2D0_PlayerState *)hud, (s32)elem);
+        DaF10D2D0_FLAGS(arg2) &= 0xFFEA;
+        bits = arg2->unk2E3;
+    }
+    if (bits & 0x10) {
+        switch (mode) {
+        case 2:
+            arg2->unk2E5 = 50;
+            break;
+        case 3:
+            arg2->unk2E5 = 18.0 - arg2->unk2E5;
+            arg2->unk2E4 = 1;
+            break;
+        }
+    }
+    if (bits & 1) {
+        DaF10D2D0_FLAGS(arg2) ^= 1;
+        switch (mode) {
+        case 0:
+            arg2->unk2E5 = 18;
+            arg2->unk2E4 = 1;
+            break;
+        case 1:
+            break;
+        case 3:
+            arg2->unk2E5 = 18.0 - arg2->unk2E5;
+            arg2->unk2E4 = 1;
+            break;
+        }
+    } else if (bits & 4) {
+        arg2->unk2E5 = 1;
+        DaF10D2D0_FLAGS(arg2) ^= 4;
+        arg2->unk2E4 = 2;
+        DaF10D2D0_FLAGS(arg2) &= 8;
+    } else {
+        switch (mode) {
+        case 1:
+            angle = arg2->unk2E5 / 18.0 * 1.5707963705062866 + 1.5707963705062866;
+            arg2->unk2E0 = sinApprox(angle) * 65535.0;
+            if (arg2->unk2E5-- == 0) {
+                arg2->unk2E4 = 2;
+                arg2->unk2E5 = 50;
+            }
+            break;
+        case 2:
+            func_80708C24(arg1, (NmF10D2D0_PlayerState *)arg2, (NmF10D2D0_PlayerState *)hud, (s32)elem);
+            break;
+        case 3:
+            angle = 1.5707963705062866 - arg2->unk2E5 / 18.0 * 1.5707963705062866 + 1.5707963705062866;
+            arg2->unk2E0 = sinApprox(angle) * 65535.0;
+            if (arg2->unk2E5-- == 0) {
+                arg2->unk2E4 = 0;
+            }
+            break;
+        }
+    }
+    if (func_805FCA64() != 0 || (bits & 0x80)) {
+        if (arg2->unk2E4 != 0 || DaF10D2D0_FLAGS(arg2) != 0) {
+            arg0 = (s32)func_807085D0((Gfx *)arg0, (DaF10D2D0_Hud *)hud, elem, arg2);
+        }
+    }
+    return arg0;
+}
+
 
 typedef struct NmF10D2D0b_PlayerState {
     u8 unk0;
@@ -60,7 +230,7 @@ typedef struct NmF10D2D0b_PlayerState {
 } NmF10D2D0b_PlayerState;
 
 extern s8 D_80744504;
-s32 func_80708DA4(s32, s16, s32, s32);
+s32 func_80708DA4();
 
 s32 func_80709344(s32 arg0) {
     s16 var_s0;
@@ -79,8 +249,7 @@ s32 func_80709344(s32 arg0) {
                 if (!(temp_v1 & 0x20) && (((((NmF10D2D0b_PlayerState *)temp_v0)->unk2E4 != 0 || temp_v1 != 0) &&
                                            D_80744504 == 0) ||
                                           temp_v1 & 0x10)) {
-                    arg0 = func_80708DA4(arg0, var_s0, (temp_lo ^ 0) + (s32)D_807FC924,
-                                          (s32)D_807FC924);
+                    arg0 = func_80708DA4(arg0, (s16)(var_s0 + 0), (temp_lo ^ 0) + (s32)D_807FC924, (s32)D_807FC924);
                 }
             }
             var_s0 += 1;
