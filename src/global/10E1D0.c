@@ -338,7 +338,7 @@ void func_805FF378(s32, s32);
 void func_80610044(Gfx *, s32, s32, u8, s32, s32);
 void func_8070AC74();
 void func_8070AF24(void);
-s32 func_8070B7EC(Gfx **, s32, s32);
+u8 func_8070B7EC(Gfx **, s32, s32);
 void heapFreeDeferred(void *);
 void assetFreeBuffer(s32, s32, s32);
 void camRestartPath(void);
@@ -552,4 +552,127 @@ void func_8070B324(f32 arg0, s32 arg1, s32 *arg2) {
     osSetThreadPri(0, sp34);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_8070B7EC.s")
+typedef struct L11bChannels {
+    s32 a[4];
+} L11bChannels;
+
+extern L11bChannels D_807550A8;
+extern s32 D_807FD9A0;
+extern s32 D_807FD9C0;
+extern Gfx D_1000020[];
+extern Mtx D_2000000;
+extern Mtx D_2000200;
+
+void func_8070A220(EbBufferSet *, s32, s32);
+void n_alSndpPostEvent();
+void n_alSndpStop(s32);
+
+#define L11B_RAW(pkt, a, b)              \
+    {                                    \
+        Gfx *_g = (Gfx *)(pkt);          \
+        _g->words.w0 = (a);              \
+        _g->words.w1 = (b);              \
+    }
+#define L11B_MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define L11B_MIN(a, b) (((a) < (b)) ? (a) : (b))
+
+u8 func_8070B7EC(Gfx **arg0, s32 arg1, s32 arg2) {
+    Gfx *glist;
+    Gfx *start;
+    Gfx *out;
+    Mtx *matrix;
+    f64 value;
+    s8 delta;
+    s32 i;
+    s32 volume;
+    L11bChannels channels;
+
+    out = *arg0;
+    if (D_807444F8 == 1) {
+        delta = 3;
+    } else {
+        delta = -4;
+    }
+    channels = D_807550A8;
+    glist = func_80610FE8(0x4800);
+    heapFreeDeferred(glist);
+    start = glist;
+    if (D_807FD9C8 != 0) {
+        if (D_807444F8 == 1) {
+            value = (f64)D_80755068 - 20.0;
+            D_807FD9C4 = (f32)((0.9 / ((value * 0.001 * value) + 1.0)) + 0.6);
+            if (D_80755068 < 60) {
+                volume = 0x7FFF;
+            } else {
+                volume = 0x7FFF - (((D_80755068 - 60) * 0x7FFF) / 60);
+            }
+        } else {
+            D_807FD9C4 = (f32)(((1.5 / (((((f32)(120 - D_80755068) - 40.0f)) * 0.001 * (((f32)(120 - D_80755068) - 40.0f))) + 1.0)) + (0.0002 * ((f32)(120 - D_80755068) - 30.0f) * ((f32)(120 - D_80755068) - 30.0f))) - 0.2);
+            if ((f32)(120 - D_80755068) < 110.0f) {
+                volume = 0x7FFF;
+            } else {
+                volume = (s32)(32767.0f - (((f32)(120 - D_80755068) - 110.0f) * 32767.0f / 10.0f));
+            }
+        }
+        n_alSndpPostEvent(D_807FD9C8, 0x10, *(s32 *)&D_807FD9C4, volume);
+        n_alSndpPostEvent(D_807FD9C8, 8, volume);
+    }
+    {
+        f32 progress = (f64)D_80755068 / 120.0;
+        func_8070B324(1.0f - progress, D_807444F8 == 1, channels.a);
+    }
+    gDPSetCycleType(glist++, G_CYC_1CYCLE);
+    gSPClearGeometryMode(glist++, 0xFFFFFF);
+    gSPSetGeometryMode(glist++, G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH);
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x553078);
+    L11B_RAW(glist++, 0xFCFFFFFF, 0xFFFCF279);
+    gSPTexture(glist++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
+    gDPSetTexturePersp(glist++, G_TP_PERSP);
+    gSPDisplayList(glist++, D_1000020);
+    gDPPipeSync(glist++);
+    for (i = 0; i < D_807FD9A8->unk0; i++) {
+        ((f32 *)D_807FD9A8->unk8)[i * 3] = ((f32 *)D_807FD9A4)[i * 3];
+        ((f32 *)D_807FD9A8->unk8)[i * 3 + 1] = ((f32 *)D_807FD9A4)[i * 3 + 1];
+        ((f32 *)D_807FD9A8->unk8)[i * 3 + 2] = ((f32 *)D_807FD9A4)[i * 3 + 2];
+    }
+    func_8070A220(D_807FD9A8, D_807FD9AC, D_80755068);
+    if (delta < 0) {
+        D_807FD9A0 = ((D_80755068 * 0xF0) - 0x960) / 80;
+    } else {
+        D_807FD9A0 = ((D_80755068 * 0xF0) - 0x4B0) / 80;
+    }
+    if (D_80755068 >= 5 && D_80755068 < 0x56) {
+        func_8070B05C((u16 *)arg2);
+    }
+    if (D_80755068 >= 0x6D && (f64)D_80755068 <= 120.0) {
+        D_8075506C = 0xDC - D_80755068 * 2;
+    }
+    gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(glist++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPPerspNormalize(glist++, D_8076A09C);
+    matrix = func_80610FE8(0x40);
+    heapFreeDeferred(matrix);
+    guTranslate(matrix, 0.0f, (f32)D_8075506C, 0.0f);
+    gSPMatrix(glist++, matrix, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gDPSetColorDither(glist++, G_CD_DISABLE);
+    gDPSetAlphaDither(glist++, G_AD_DISABLE);
+    func_80709BC4(&glist, (L11Info *)D_807FD9A8, (u8 *)arg2);
+    D_80755068 += delta;
+    D_807FD9C0 = func_8066B0F8(0xE, 0x6A - L11B_MIN(L11B_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
+    assetFreeBuffer(D_807FD9C0, 0x381, 0x4A);
+    gDPPipeSync(glist++);
+    gDPSetCycleType(glist++, G_CYC_1CYCLE);
+    gDPSetTexturePersp(glist++, G_TP_NONE);
+    L11B_RAW(glist++, 0xFCFFFFFF, 0xFFFCF279);
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x5041C8);
+    gDPPipeSync(glist++);
+    gDPLoadTextureBlock(glist++, D_807FD9C0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 32, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+    gSPTextureRectangle(glist++, 0x260, L11B_MAX((s16)(D_807FD9A0 << 2), 0), 0x2A0, L11B_MAX((s16)((D_807FD9A0 + 0x1F) << 2), 0), 0, 0, -((D_807FD9A0 << 2 < 0) ? L11B_MIN(((s16)(D_807FD9A0 << 2) << 10) >> 7, 0) : 0), 0x400, 0x400);
+    gSPEndDisplayList(glist++);
+    gSPDisplayList(out++, start);
+    *arg0 = out;
+    if (D_80755068 < 0 || (f64)D_80755068 > 120.0) {
+        n_alSndpStop(D_807FD9C8);
+    }
+    return D_80755068 < 0 || (f64)D_80755068 > 120.0;
+}
