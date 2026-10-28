@@ -319,7 +319,98 @@ s32 func_800253C8(void) {
     return (((randomNonNegative() >> 15) % 0x7FFF) % 211) + 0x5A;
 }
 
-#pragma GLOBAL_ASM("asm/multiplayer/nonmatchings/0/func_80025404.s")
+extern u8 D_8074E77C;
+extern u8 D_8071F3C0;
+extern u8 D_807207BC;
+void effectFreeAndUnlink(s32);
+void func_807149B8(s32);
+void func_807149FC(s32);
+void func_80714998(s32);
+void func_807149C8(s32, s32, s32, s32);
+void func_8071498C(void *);
+s32 func_80714C08(void *, f32, void *, s32, s32);
+
+typedef struct MpA_Effect_Actor {
+    char pad[0x174];
+    char pad2[0xEC];
+    s32 unk260;
+} MpA_Effect_Actor;
+
+typedef struct MpA_Effect_Player {
+    s32 unk0;
+    void *unk4;
+    char pad[0x2E8];
+} MpA_Effect_Player;
+
+typedef struct MpA_Effect_Score {
+    char pad[0x2FA];
+    s8 unk2FA;
+    s8 unk2FB;
+    s8 unk2FC;
+    s8 unk2FD;
+    char pad2[8];
+} MpA_Effect_Score;
+
+typedef struct MpA_Effect_Target {
+    char pad[0x174];
+    MpA_Effect_Actor *unk174;
+} MpA_Effect_Target;
+
+s32 func_80025404(void) {
+    s32 i;
+    s32 ret = -1;
+    s32 temp_s3;
+    MpA_Effect_Score *sc;
+    MpA_Effect_Actor *ac;
+    s32 var_s6;
+    void *p;
+
+    i = 0;
+    if ((s32) D_807FC928 > 0) {
+        do {
+            ac = ((MpA_Effect_Target *)((MpA_Effect_Player *)D_807FC924)[i].unk4)->unk174;
+            sc = &((MpA_Effect_Score *)D_807FC950)[i];
+            if (func_806F8AD4(1, i) != 0) {
+                temp_s3 = sc->unk2FD + sc->unk2FB;
+                if (ac->unk260 == 0) {
+                    p = (void *)(s32)&D_8071F3C0;
+                    switch (*(&D_8074E77C + i)) {
+                    case 0:
+                    case 3:
+                        var_s6 = 0xF;
+                        break;
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                        var_s6 = 0xD;
+                        break;
+                    }
+                    func_807149B8(1);
+                    func_807149FC(-1);
+                    func_80714998(2);
+                    func_807149C8(0xFF, 0xFF, 0xFF, 0x7F);
+                    func_8071498C(p);
+                    ac->unk260 = func_80714C08(&D_807207BC, 0.5f, ((MpA_Effect_Player *)D_807FC924)[i].unk4, var_s6, 2);
+                    sc->unk2FA = temp_s3;
+                }
+                if (sc->unk2FA < temp_s3) {
+                    sc->unk2FA = temp_s3;
+                }
+                ret = i;
+            } else {
+                if (ac->unk260 != 0) {
+                    effectFreeAndUnlink(ac->unk260);
+                    ac->unk260 = 0;
+                    sc = &((MpA_Effect_Score *)D_807FC950)[i];
+                    sc->unk2FA = 0;
+                }
+            }
+            i++;
+        } while (i < (s32) D_807FC928);
+    }
+    return ret;
+}
 
 void modelSlotFindByType(s32, s32 *, s32 *, s32 *, s32 *, s16 *, s16 *);
 
@@ -541,7 +632,103 @@ void func_80025B48(Struct_80025B48_Struct_MpNearHi *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/multiplayer/nonmatchings/0/func_80025CE8.s")
+typedef struct MpA_CE8_State {
+    char pad0[0xD4];
+    s16 unkD4;
+    char pad1[0x1F0 - 0xD4 - 2];
+    s32 unk1F0;
+    char pad2[0x200 - 0x1F4];
+    s16 unk200;
+    char pad3[0x264 - 0x202];
+    s32 unk264;
+} MpA_CE8_State;
+
+typedef struct MpA_CE8_Actor {
+    char pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    char pad1[0x154 - 0x88];
+    u8 unk154;
+    char pad2[0x174 - 0x155];
+    MpA_CE8_State *unk174;
+} MpA_CE8_Actor;
+
+typedef struct MpA_CE8_Player {
+    char pad[4];
+    MpA_CE8_Actor *unk4;
+    char pad2[0x2F0 - 8];
+} MpA_CE8_Player;
+
+void func_806D0468(void *, s32);
+void func_806F54E0(u8, s16, u8);
+void func_806C9974(u8, s32);
+void actorSpawnEffectChild(f32, f32, f32, f32, f32, void *, u8);
+void playerStateQueueCallback(s32, s32, u8);
+
+void func_80025CE8(s32 arg0) {
+    MpA_CE8_Actor *act;
+    MpA_CE8_State *st;
+    MpA_CE8_Actor *oact;
+    MpA_CE8_State *ost;
+    s32 i;
+
+    act = ((MpA_CE8_Player *)D_807FC924)[arg0].unk4;
+    st = act->unk174;
+    switch (st->unk264) {
+    case 0:
+        func_806D0468(act, 2);
+        func_806F54E0(arg0, 0x8E, 0);
+        break;
+    case 1:
+        i = 0;
+        if ((s32) D_807FC928 > 0) {
+            do {
+                oact = ((MpA_CE8_Player *)D_807FC924)[i].unk4;
+                ost = oact->unk174;
+                if (i != arg0 && ost->unkD4 == 0 && oact->unk154 != 0x84) {
+                    playerStateQueueCallback(0x27, (s32) act, i);
+                    ost->unk200 = 0x96;
+                }
+                i++;
+            } while (i < (s32) D_807FC928);
+        }
+        break;
+    case 2:
+        st->unk1F0 |= 0x20;
+        st->unk1F0 &= ~0x08000000;
+        func_806F54E0(arg0, 0x8E, 0);
+        break;
+    case 3:
+        actorSpawnEffectChild(act->unk7C, act->unk80, act->unk84, 0.1f, 0.1f, act, 1);
+        break;
+    case 4:
+        switch ((u32) (randomNonNegative() >> 15) % 5U) {
+        case 0:
+            func_806D0468(act, 0);
+            func_806F54E0(arg0, 0x8E, 0);
+            break;
+        case 1:
+            st->unk200 = 0x96;
+            st->unk1F0 |= 0x80;
+            break;
+        case 2:
+            st->unk1F0 |= 0x08000000;
+            st->unk1F0 &= ~0x20;
+            st->unk200 = 0x96;
+            break;
+        case 3:
+            func_806C9974(arg0, 0x40);
+            break;
+        case 4:
+            actorSpawnEffectChild(act->unk7C, act->unk80, act->unk84, 0.1f, 0.1f, act, 1);
+            break;
+        }
+        break;
+    }
+    st->unk264 = -1;
+}
+
 
 void func_8063DA40(s16, s32);
 
@@ -562,7 +749,6 @@ void func_80025F84(void) {
     }
 }
 
-void effectFreeAndUnlink(s32);
 
 typedef struct Struct_80025FFC_MpHigh {
     char pad[0x50];
@@ -597,8 +783,6 @@ void func_806F833C(s32);
 void *func_80610FE8(s32);
 s32 func_8066B0F8(s32, s32, s32, s32);
 void func_8071495C(void);
-void func_807149FC(s32);
-void func_80714998(s32);
 void func_80714944(s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
 extern s32 D_8076D1F8;
@@ -1047,7 +1231,6 @@ s32 mpFindFurthestSpawn(s32 arg0) {
 void func_806C9434(s32);
 s32 mpFindFurthestSpawn(s32);
 void func_806CFF9C(void *);
-void playerStateQueueCallback(s32, s32, u8);
 extern u8 D_807FCC4B[];
 
 typedef struct Struct_80026D40_Target_MpHigh {
