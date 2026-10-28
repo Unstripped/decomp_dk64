@@ -342,12 +342,10 @@ typedef struct {
 extern u8 D_807201D4[];
 void func_80717CE8();
 
-#ifdef NON_MATCHING
 void func_80643C0C(CsState *cs, s16 csId, s16 b, s16 c) {
-    s32 *p;
     s32 *q;
     s32 n;
-    f64 t;
+    f32 t;
     f32 f;
     if (((CsB1LightView *)cs)->unk0 == NULL) {
         ((CsB1LightView *)cs)->unk0 = func_80610FE8(8);
@@ -379,10 +377,6 @@ void func_80643C0C(CsState *cs, s16 csId, s16 b, s16 c) {
         ((CsB1LightView *)cs)->unk49 = 1;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80643C0C.s")
-#endif
 
 extern void *D_8074E880[];
 void func_8071496C(s16);
@@ -2289,7 +2283,6 @@ void func_8064A194(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-#ifdef NON_MATCHING
 extern u64 osGetTime(void);
 typedef struct CsB9FxEnt {
     /* 0x0 */ u8 state;
@@ -2353,7 +2346,8 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 timerRan;
     s32 g1;
     s32 g2;
-    s64 rem;
+    u64 elapsed;
+    s32 g3;
 
     allDone = 1;
     timerRan = 0;
@@ -2361,14 +2355,14 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     if (*(CsB9Fx **)cs == NULL) {
         t = func_80610FE8(0x50);
         *(CsB9Fx **)cs = t;
-        t->ent[2].state = 3;
-        t->ent[6].state = 3;
         t->pad4E = 0;
         t->ent[0].state = 0;
         t->ent[1].state = 1;
+        t->ent[2].state = 3;
         t->ent[3].state = 1;
         t->ent[4].state = 2;
         t->ent[5].state = 1;
+        t->ent[6].state = 3;
         t->ent[7].state = 0;
         t->ent[8].state = 1;
         for (i = 0; i != 9; i++) {
@@ -2383,9 +2377,7 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     t = *(CsB9Fx **)cs;
     t->last += D_807445B0;
-    e = (CsB9FxRow *)t;
-    i = 0;
-    do {
+    for (i = 0, e = (CsB9FxRow *)t; i != 9; i++, e = (CsB9FxRow *)((u8 *)e + 6)) {
         if (e->active != 0) {
             count++;
             modelAnimEntryGetState(csId, i + 1, &st, &frac, &spC7);
@@ -2403,12 +2395,11 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         ok = e->state == 0;
         sixth = i == 6 && e->state == 2;
-        i++;
-        if (e->active != 0 || !(u8)(ok | sixth)) {
+        ok |= sixth;
+        if (e->active != 0 || ok == 0) {
             allDone = 0;
         }
-        e = (CsB9FxRow *)((u8 *)e + 6);
-    } while (i != 9);
+    }
     if (timerRan != 0) {
         t->last = osGetTime();
     }
@@ -2431,9 +2422,9 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     if (t->cool != 0) {
         t->cool--;
     }
-    rem = t->duration - (osGetTime() - t->last) * 64 / 3000 / 1000000;
-    t->left = rem;
-    if (rem == 0 || allDone != 0) {
+    elapsed = (osGetTime() - t->last) * 64;
+    t->left = t->duration - elapsed / 3000 / 1000000;
+    if ((u64)t->left <= 0 || allDone) {
         heapFreeDeferred(*(CsB9Fx **)cs);
         if (allDone != 0) {
             cs->unk4B[0] = 0x28;
@@ -2444,10 +2435,6 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     renderCallbacksRegister(func_8068DBA4, t, 5);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064A258.s")
-#endif
 
 #ifdef NON_MATCHING
 typedef struct CsB9Pair {
@@ -2623,16 +2610,14 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         p->part[0].timer = 10;
         p->part[0].active = 1;
-        for (i = 1; i < 9; i++) {
-            p->part[i].active = 1;
-            p->part[i].timer = 10;
+        for (i = 1, e = (CsB10W *)((u8 *)p + 6); i < 9; i++, e = (CsB10W *)((u8 *)e + 6)) {
+            e->active = 1;
+            e->timer = 10;
         }
         p->unk4F = 0;
     }
     p = *(CsB10Set **)cs;
-    e = (CsB10W *)p;
-    i = 0;
-    do {
+    for (i = 0, e = (CsB10W *)p; i < 9; i++, e = (CsB10W *)((u8 *)e + 6)) {
         if (e->active != 0) {
             j = i + 1;
             n++;
@@ -2651,19 +2636,17 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         if (e->active != 0 || e->state != 3) {
             allDone = 0;
         }
-        i++;
-        e = (CsB10W *)((u8 *)e + 6);
-    } while (i < 9);
+    }
     if (flagGet(0x146, 0) != 0) {
         p->unk4F = 0x14;
     }
     if (p->unk4F == 0) {
         pl = D_807FC924->unk4;
         if (pl->unk154 == 0x1C && pl->unk155[0] < 7 && D_8074E77C == 0 && pl->unk110 == 1) {
-            best = -1;
-            bestD = 100000.0f;
-            i = 0;
             if (csId == pl->unk10C) {
+                bestD = 100000.0f;
+                best = -1;
+                i = 0;
                 do {
                     modelSlotGetNodePos(csId, 1, i + 1, &x, &y, &z);
                     x = D_807FBB4C->unk7C - x;

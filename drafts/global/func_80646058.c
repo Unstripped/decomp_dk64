@@ -1,4 +1,4 @@
-// func_80646058 (src/global/478F0.c): stage 4 (frame 0x88, s0 only, 455/456 insns, 17 diff lines): start lives in a1 until the loop in target (ours t2 + early sw 0x84(sp), reload for compare); li a0,1/li t8,1 order in hit block; spill slot of func_8071E3EC addr 0x3c vs 0x44 (spill = lowest declared bottom-8); ok=1 scheduling + missing b before join (target b L; li v1,1). Uses dead stmts if(D_80720BC4){} and if(D_807480F4&&D_807480F4){}, and u8 *hp=&hit (u8 hit otherwise coloured to s-reg, p->s1). Permuter (900s) found nothing.
+// func_80646058 (src/global/478F0.c): CsNM4 stage 4: 13 diff lines (was 17). KEY: 'if (unk12C == 0xD) { ok = 0; ...; if(cond){timer=0x65; ok=1;} } else { ok = 1; }' (ok=1 in an outer else, no initial ok=1) reproduces the missing 'b L; li v1,1' and the ok scheduling. Remaining: start lives in a1 until the loop in target (mine t2 + early sw 0x84(sp), reload lw t3 for compare; target beql a1,a0 and sw a1,0x84 at loop entry); li a0,1 / li t8,1 order in hit block; func_8071E3EC address spill slot 0x44 vs 0x3c. Uses u8 *hp=&hit plus dead stmts. Tried: start/idx form variants, volatile hit, hp placement, sweep (12.6k variants) no gain.
 typedef struct CsB46State {
     /* 0x00 */ s32 idx;
     /* 0x04 */ s32 timer;
@@ -52,7 +52,7 @@ s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
 void sfxStopChannel(s32, s32);
 void sfxAllocateChannel(s32, f32);
-void camStartPath(s32, s32, s32);
+void camStartPath(void *, s32, s32);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
 Actor *spawnNodeActivate(s16, u16);
 
@@ -182,7 +182,6 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         if (p->flag18 == 0 && flagGet(0x12C, 0)) {
             p->flag18 = 1;
         }
-        ok = 1;
         if (CsB46A->unk12C == 0xD) {
             ok = 0;
             a = (CsB46Act *)spawnNodeActivate(0x1F, 0);
@@ -190,6 +189,8 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
                 p->timer = 0x65;
                 ok = 1;
             }
+        } else {
+            ok = 1;
         }
         if (ok == 0 && p->flag1C == 0) {
             return;
