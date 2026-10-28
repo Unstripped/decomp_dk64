@@ -1,4 +1,4 @@
-// func_8002B89C (src/arcade/0.c): stage 4-: v16 64 norm diff lines; insn 1232 vs 1230: only D_8004BC80/BC84 lda CSE (lui+addiu) in case-5 arm2 and tail differs
+// func_8002B89C (src/arcade/0.c): stage 4: frame 0x48 + no callee-saved match; 1232 vs 1230 insns, ~64 norm diff lines, ALL from uopt coloring the lda of D_8004BC80/BC84 (lui+addiu+lw 0(reg)) in the case-5 else-if arm 2 and the post-switch tail where target keeps plain lui/lw + lui at/sw. Tried: struct/array decl (merges BC80/BC84 lda), volatile, statement order, += forms, goto arms, nested ifs, local temp for BC84, pointer local E (worse). Keys that matched: break inside each case-2 arm (replicates i spill store per arm), (B|C)|A operand order of case-5 cond, E.unkC+E.unk4 operand order, E.unk4=(f32)coll before unk10-=1.0 in case 4, D_8004BC84 via local (reuse pad slot).
 extern s32 D_8004BC80;
 extern s32 D_8004BC84;
 extern s32 D_8004C6FC;
@@ -18,7 +18,7 @@ void func_8002B89C(s32 arg0) {
     s32 coll;
     s32 i;
     s32 n;
-    s32 pad;
+    s32 phase;
 
     if (E.unk19 == 8 || D_8004C71D == 0) {
         if (E.unk19 == 2) {
@@ -225,12 +225,12 @@ void func_8002B89C(s32 arg0) {
         }
         if (D_8004BC80 >= 0x24) {
             D_8004BC80 = 0;
-            pad = D_8004BC84 + 1;
-            if (pad == 7) {
-                pad = 0;
+            phase = D_8004BC84 + 1;
+            if (phase == 7) {
+                phase = 0;
             }
-            D_8004BC84 = pad;
-            if (pad & 1) {
+            D_8004BC84 = phase;
+            if (phase & 1) {
                 sp44 = 1.0f;
             } else {
                 sp44 = 0.7071120143f;
