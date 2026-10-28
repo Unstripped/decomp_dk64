@@ -640,7 +640,160 @@ void func_80701C90(void) {
     D_807FD890 = 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80701CA0.s")
+extern Mtx D_2000000;
+extern Mtx D_2000200;
+Gfx *func_805FCFD8(Gfx *);
+s32 flagGet(s32, s32);
+
+typedef struct {
+    u8 unk0;
+    u8 pad1[3];
+    Actor *unk4;
+    u8 unk8[0x218];
+    f32 unk220;
+    u8 pad224[0x28];
+    f32 unk24C;
+    u8 pad250[0x20];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+    u8 pad278[0x18];
+    s16 unk290;
+    u8 pad292[0x56];
+    u8 unk2E8;
+    u8 pad2E9[7];
+} L6Blk;
+
+typedef struct {
+    u8 pad0[0x104];
+    Actor *unk104;
+    u8 pad108[0xE0];
+    f32 unk1E8;
+} L6A;
+
+typedef struct {
+    u8 pad0[0x90];
+    f32 unk90;
+    u8 pad94[0x66];
+    u8 unkFA;
+} L6B;
+
+#define L6P(i) (&((L6Blk *)D_807FC924)[i])
+#define L6GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
+
+Gfx *func_80701CA0(Gfx *dl) {
+    extern s16 D_80744498;
+    extern s16 D_8074449C;
+    extern s16 D_807444A0;
+    extern s16 D_807444A4;
+    L6A *a;
+    L6B *b;
+    Vtx *vtx;
+    u8 *pf;
+    f32 v;
+    u8 drew;
+    u32 fp;
+    u8 i;
+    u8 force;
+
+    drew = 0;
+    fp = 100;
+    force = 0;
+    /* dead address-taken: keeps the flag memory-resident (no promoted ucvt web) */
+    pf = &force;
+    switch (D_8076A0A8) {
+    case 0x2D:
+        force = 1;
+        break;
+    case 0x2B:
+    case 0x2E:
+    case 0x2F:
+    case 0xB3:
+        return dl;
+    case 0x1E:
+        if ((L6P(0)->unk290 == 9 || L6P(0)->unk290 == 0xA) && flagGet(0x9C, 0) != 0) {
+            return dl;
+        }
+    default:
+        break;
+    }
+    for (i = 0; i < D_807FC928; i++) {
+        if (L6P(i)->unk0 != 0) {
+            a = (L6A *)L6P(i)->unk4->unk174;
+            /* dead check: makes a->unk104 a shared load candidate (temp register order) */
+            if (a->unk104 == 0) {}
+            b = (L6B *)a->unk104->unk174;
+            if (force != 0 || (L6P(i)->unk2E8 != 0 && L6P(i)->unk220 < L6P(i)->unk24C + 3.0f)) {
+                vtx = (Vtx *)func_80610FE8(0x40);
+                heapFreeDeferred(vtx);
+                vtx[0].v.ob[0] = L6P(i)->unk270;
+                vtx[0].v.ob[1] = L6P(i)->unk272;
+                vtx[0].v.ob[2] = -10;
+                vtx[1].v.ob[0] = L6P(i)->unk274;
+                vtx[1].v.ob[1] = L6P(i)->unk272;
+                vtx[1].v.ob[2] = -10;
+                vtx[2].v.ob[0] = L6P(i)->unk274;
+                vtx[2].v.ob[1] = L6P(i)->unk276;
+                vtx[2].v.ob[2] = -10;
+                vtx[3].v.ob[0] = L6P(i)->unk270;
+                vtx[3].v.ob[1] = L6P(i)->unk276;
+                vtx[3].v.ob[2] = -10;
+                gDPPipeSync(dl++);
+                dl = func_805FCFD8(dl);
+                L6GFX(dl++, (((s32)((f32)D_80744498 * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)D_8074449C * 4.0f) & 0xFFF),
+                      (((s32)((f32)D_807444A0 * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)D_807444A4 * 4.0f) & 0xFFF));
+                gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+                L6GFX(dl++, 0xFCFFFFFF, 0xFFFDF6FB);
+                v = L6P(i)->unk24C - L6P(i)->unk220;
+                switch (D_8076A0A8) {
+                case 0x1E:
+                    v = (f32)((f64)v * 0.07);
+                    break;
+                case 0x2C:
+                    fp = 0x32;
+                    v = (f32)((f64)v * 0.07);
+                    break;
+                case 0x6F:
+                    fp = 0x32;
+                default:
+                    v = (f32)((f64)v * 0.4);
+                    break;
+                }
+                if (v > 80.0f) {
+                    v = 80.0f;
+                    /* dead use of D_2000180: shifts uopt priorities (s5/s6 pairing) */
+                    if (D_2000180 == 0) {}
+                }
+                if (*(u8 *)&D_807FD890 != 0) {
+                    a->unk1E8 = v;
+                } else {
+                    a->unk1E8 = (f32)((f64)a->unk1E8 + (f64)(v - a->unk1E8) * 0.05);
+                    v = (f32)((u32)a->unk1E8 & 0xFF);
+                }
+                gDPSetPrimColor(dl++, 0, 0, 0, 0, 0x3C, (u32)((f32)fp + v));
+                L6GFX(dl++, 0xE3000A01, 0);
+                gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+                gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+                gSPVertex(dl++, osVirtualToPhysical(vtx), 4, 0);
+                gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
+                drew = 1;
+                gDPPipeSync(dl++);
+            }
+            L6P(i)->unk2E8 = b->unkFA;
+            L6P(i)->unk24C = b->unk90;
+        }
+    }
+    if (drew != 0) {
+        gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+        gSPMatrix(dl++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+        gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+        D_807FD890 = 0;
+    } else {
+        D_807FD890 = 1;
+    }
+    return dl;
+}
 
 void func_807024E0(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
