@@ -88,7 +88,33 @@ u8 arg0;
     animSetFrameAndSubframe(D_807FBB40, arg0, D_807FDC90->unk28 & 0xF, 0.0f);
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/8520/func_8002C7CC.s")
+void func_8002C7CC(void) {
+    u16 var_t1 = 0;
+    u8 var_t0;
+    u8 val;
+    var_t0 = D_807FDC90->unk28 & 0x80;
+    val = D_807FDC90->unk28 & 0xF;
+    if (var_t0) {
+        val += 1;
+        if (val >= 2) {
+            var_t0 = 0;
+            goto done;
+        }
+        var_t1 = 0x8000;
+        goto done;
+    } else {
+        val -= 1;
+        if (val <= 0) {
+            var_t0 = 0x80;
+            goto done;
+        }
+    }
+    var_t1 = 0x8000;
+done:
+    animSetFrameAndSubframe(D_807FBB40, 0, (s16)val, 0.0f);
+    animSetFrameAndSubframe(D_807FBB40, 1, (s16)val, 0.0f);
+    D_807FDC90->unk28 = var_t1 | val | var_t0;
+}
 
 typedef struct BossA_Struct_807FDC94 {
     u8 pad0[0x7C];
