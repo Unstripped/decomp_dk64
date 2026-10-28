@@ -755,7 +755,6 @@ Gfx **arg0;
     *arg0 = sp4C;
 }
 
-#ifdef NON_MATCHING
 #define ArcA1_D6D0 (*(void **)&D_8004C6D0)
 void func_80025C08(arg0, arg1, arg2, arg3)
 s32 *arg0;
@@ -780,7 +779,7 @@ s32 arg3;
     func_8070E8F0(&sp60, D_8004BB30 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     for (i = 0; i < arg3 / 4; i++) {
-        func_8070F2FC(&sp60, arg1 * 4, (s32)((f64)(arg2 + 8 + i * 4) * 4.0));
+        func_8070F2FC(&sp60, arg1 * 4, (s32)((f64)(i * 4 + arg2 + 8) * 4.0));
     }
     D_8004C71A = arg3 % 4;
     if (D_8004C71A != 0) {
@@ -800,10 +799,6 @@ s32 arg3;
     }
     *arg0 = sp60;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80025C08.s")
-#endif
 
 void func_80026050(arg0)
 Gfx **arg0;
@@ -2211,7 +2206,6 @@ s32 arcadeAbs(s32 arg0) {
     return -arg0;
 }
 
-#ifdef NON_MATCHING
 extern u8 D_8003B180[];
 extern u8 D_8003B3C8[];
 extern u8 D_8003B610[];
@@ -2247,6 +2241,7 @@ void func_8002B390(s32 arg0) {
     D_8004BCD0[arg0].unk1B = 0;
     val = (s32)D_8004BCD0[arg0].unk10;
     if (D_8004BCD0[arg0].unk19 == 2) {
+        if (D_8004A764 && D_8004A764) {}
         if (D_8004C710 != 0) {
             if (D_8004C710 & 8) {
                 switch (val & 3) {
@@ -2346,7 +2341,7 @@ void func_8002B390(s32 arg0) {
                 D_8004BCD0[arg0].unk14 = D_8003D600;
             }
             t = (s32)D_8004BCD0[arg0].unk10 & 3;
-            if (t == 2) {
+            if ((t ^ 0) == 2) {
                 ptr->unk1A ^= 1;
                 t = (s32)D_8004BCD0[arg0].unk10 & 3;
             }
@@ -2358,10 +2353,6 @@ void func_8002B390(s32 arg0) {
         D_8004BCD0[arg0].unk14 = D_8003D170;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_8002B390.s")
-#endif
 
 #ifdef NON_MATCHING
 extern s32 D_8004BC80;
@@ -2774,7 +2765,72 @@ void func_8002E158(s32 arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_8002E3D4.s")
+extern u8 D_80032228[];
+extern u8 D_80032470[];
+extern u8 D_800326B8[];
+extern u8 D_80032900[];
+
+void func_8002E3D4(s32 arg0) {
+    s32 n;
+
+    if (D_8004C71D == 0) {
+        if (--D_8004BCD0[arg0].unk1C >= 0x15) {
+            D_8004BCD0[arg0].unk1C = arcadeRand() & 0xF;
+            D_8004BCD0[arg0].unk1D = !D_8004BCD0[arg0].unk1D;
+        }
+        switch (D_8004BCD0[arg0].unk19) {
+        case 2:
+            switch (D_8004BCD0[arg0].unk1D) {
+            case 0:
+                D_8004BCD0[arg0].unk14 = D_80032228;
+                break;
+            case 1:
+                D_8004BCD0[arg0].unk14 = D_80032470;
+                break;
+            }
+            n = arcadeMinFloat((u32)D_8004A76C, 5.0f);
+            if (D_8004C722 == 4) {
+                if ((f32)(0x64 - n * 0x14) == D_8004BCD0[arg0].unk10++) {
+                    if (arcadeCountEntitiesByType(2) < n) {
+                        D_8004BCD0[arg0].unk19 = 3;
+                        D_8004BCD0[arg0].unk10 = 0.0f;
+                    }
+                }
+            }
+            break;
+        case 3:
+            if (D_8004BCD0[arg0].unk10++ > 40.0f) {
+                D_8004BCD0[arg0].unk19 = 2;
+                D_8004BCD0[arg0].unk10 = 0.0f;
+                n = func_80024828();
+                D_8004BCD0[n] = D_8004A3D8;
+                D_8004BCD0[n].unk19 = 3;
+                D_8004BCD0[n].unkC = -1.0f;
+                if (D_8004C722 == 1) {
+                    D_8004BCD0[n].unk8 = 0.4f;
+                } else {
+                    if (D_8004BCD0[D_8004C71F].unk0 < 160.0f) {
+                        D_8004BCD0[n].unk8 = -0.5f;
+                    } else {
+                        D_8004BCD0[n].unk8 = 0.5f;
+                    }
+                    D_8004BCD0[n].unk1A = 0;
+                    D_8004BCD0[n].unk0 = 160.0f;
+                    D_8004BCD0[n].unk4 = 135.0f;
+                }
+            }
+            switch (D_8004BCD0[arg0].unk1D) {
+            case 0:
+                D_8004BCD0[arg0].unk14 = D_800326B8;
+                return;
+            case 1:
+                D_8004BCD0[arg0].unk14 = D_80032900;
+                break;
+            }
+            break;
+        }
+    }
+}
 
 void func_8002E6E0(s32 arg0) {
     ArcadeEntity *entry = &D_8004BCD0[arg0];
@@ -3117,7 +3173,6 @@ void func_8002EEB8(s32 arg0) {
 extern u8 D_800473B8[];
 extern u8 D_80048380[];
 extern u8 D_80049348[];
-extern u8 D_8003B180[];
 extern s32 D_8004A75C;
 extern ArcadeEntity D_8004A6F8;
 
@@ -3707,7 +3762,6 @@ void func_800311E0(void) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_800313B8(void) {
     u8 idx;
     u8 r;
@@ -3722,26 +3776,23 @@ void func_800313B8(void) {
         if (r >= 4) {
             r = 1;
         }
-        D_8004BCD0[idx].unk0 = D_8004A318[r][0];
-        D_8004BCD0[idx].unk4 = D_8004A318[r][1];
+        D_8004BCD0[idx].unk0 = ((s32 *)D_8004A318)[r * 2];
+        D_8004BCD0[idx].unk4 = ((s32 *)D_8004A318)[r * 2 + 1];
         if (160.0f < D_8004BCD0[D_8004C71F].unk0) {
-            D_8004BCD0[idx].unk0 = 320.0f - D_8004BCD0[idx].unk0;
             D_8004BCD0[idx].unk1A = 1 - D_8004BCD0[idx].unk1A;
             D_8004BCD0[idx].unk8 = -D_8004BCD0[idx].unk8;
+            D_8004BCD0[idx].unk0 = 320.0f - D_8004BCD0[idx].unk0;
         }
     }
     if (D_8004C718 == 0) {
         arcadeStopSound(0);
+        if (D_8004BCD0) {}
         D_8004C718 = 1;
         D_8004C708 = 1;
         D_8004C71D = 2;
         D_8004BCE9[arcadeFindEntityByType(0x17) << 5] = 8;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800313B8.s")
-#endif
 
 s32 _sprintf(s32, const char *, ...);
 extern u8 D_8004A82C[5][3];
