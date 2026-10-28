@@ -1,4 +1,4 @@
-// func_8063FA48 (src/global/42630.c): stage 5-6, 1836/1847 insns, frame 0xC8 + s0/s1 + block order match; parked NON_MATCHING in src/global/42630.c. Left: sfx cases 0xE/0x7D/0xF/0x7E (original copies cmd->c into a 2nd reg then masks in place; pan/vol u8, pitch u8 at sp+0x55, pan spill to temp 0x3C), 0x8D (map must take s1 before exit: exit uncolored with pieces in a2 at sp+0x70), loops 0x76/0x2D (cursor v0, count v1, i t0: a declared 'ActorEntry *e' pointer loop gives those regs but costs 8 frame bytes; csId not hoisted in 0x2D), ugen scratch cascade. Fixed so far: found test 'if (found == 0) return;', D_807F61F4 as its own symbol in 0x68, s32 h = (s16)(...) with K&R modelAnimEntrySetUnkC in 0x4C, 0x66 store order unk0 then unk8.
+// func_8063FA48 (src/global/42630.c): WIP CsFA48 (stage 5-6): masked diff 87->35. Fixed: address-taken csId (void *dm=&csId in padC4 slot), 'i = 0; for (; ...)' actor loops, (x/128)&0xFF pan/vol, i=cmd->b&1 local, map before exit + dead 'if (map && map) {}' in 0x8D, 0x9 compare operand order, 0x2D/0x25 fix. Left: sfx cases 0xE/0x7D/0xF/0x7E (c/b copies kept in a2/a3), spill slot 56 vs 60, D_807FBB68 &= ~ operand order.
 // Cutscene script command: 16-bit opcode followed by three s16 parameters.
 typedef struct CsCmd {
     /* 0x0 */ u16 op;
@@ -247,14 +247,14 @@ void modelAnimEntryStart(s16, s16, s16);
 void modelAnimEntryStop(s16, s16);
 void seqRouteChannelVolume(s32, f32);
 void sfxAllocateChannel(s32, f32);
-void sfxPlayFromTargetSlot(s16, s16, u8, u8, s32, s32, f32);
+void sfxPlayFromTargetSlot(s16, s16, u8, u8, u8, u8, f32);
 void sfxSetChannelTempo(s32, f32);
 void sfxSetVolumeAndPan(u8, f32, f32);
-u8 sfxSlotAllocateSource(s16, s16, s32, s32, u8, f32, s8);
+u8 sfxSlotAllocateSource(s16, s16, u8, u8, u8, f32, s8);
 void sfxStopChannel(s32, s32);
 
 void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
-    s32 padC4;
+    void *dm = &csId; // unused: address-taken csId, keeps found at sp+0xC3
     u8 found;
     s32 i;
     s32 slot;
@@ -277,7 +277,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
     s32 c;
     s32 exit;
     s16 flag;
-    s32 pad68;
+    s32 pad68; // unused: keep sx..sz at sp+0x60..0x58
     s32 pad64;
     f32 sx;
     f32 sy;
@@ -289,7 +289,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 cy;
     f32 cz;
 
-    found = 0;
+    found = 0; 
     switch (cmd->op) {
     case 0x95:
         D_807F693C = 0x80;
@@ -301,7 +301,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807FBB4C->unkB8 = cmd->a;
         break;
     case 0x93:
-        func_8061F510(CMDB(cmd)->a, CMDB(cmd)->b);
+        camSetZoneWeight(CMDB(cmd)->a, CMDB(cmd)->b);
         break;
     case 0x94:
         func_80724994(2, cmd->a, 0, 0, 0);
@@ -361,7 +361,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         effectNodeSetSubVal(cmd->a, CMDB(cmd)->b);
         break;
     case 0x76:
-        for (i = 0; i < gActiveActorCount; i++) {
+        i = 0;
+        for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
             if (!(actor->unk60 & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
                 actorAppendCallback(actor, 0, 8, 0, 0, 0);
@@ -585,12 +586,14 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         func_806CF398(D_807FBB48);
         slot = func_805FF030(D_8076A0A8, 0);
         if (func_805FEF74(D_8076A0A8) != 0) {
-            exit = D_807480AC[slot];
             map = D_8074809C[slot];
+            exit = D_807480AC[slot];
+            if (map && map) {}
             if (flagGet(D_807480BC[slot], 0, exit) == 0) {
-                exit = 0;
                 if (map == 0x57) {
                     exit = 0x15;
+                } else {
+                    exit = 0;
                 }
             }
             if (func_8068ABE0(map) == 0) {
@@ -652,8 +655,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         modelAnimEntrySetTime(csId, cmd->a, cmd->b, cmd->c / 100.0);
         break;
     case 0xE:
-        pan = cmd->b / 128;
-        vol = cmd->c / 128;
+        pan = (cmd->b / 128) & 0xFF;
+        vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0x7F;
         if (pan == 0) {
@@ -662,15 +665,16 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (vol == 0) {
             vol = 0xFF;
         }
+        i = cmd->b & 1;
         b = cmd->b;
         b &= 2;
-        if (cs->unk10[cmd->b & 1] < 0) {
-            cs->unk10[cmd->b & 1] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
+        if (cs->unk10[i] < 0) {
+            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
         }
         break;
     case 0x7D:
-        pan = cmd->b / 128;
-        vol = cmd->c / 128;
+        pan = (cmd->b / 128) & 0xFF;
+        vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0x7F;
         if (pan == 0) {
@@ -679,15 +683,16 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (vol == 0) {
             vol = 0xFF;
         }
+        i = cmd->b & 1;
         b = cmd->b;
         b &= 2;
-        if (cs->unk10[cmd->b & 1] < 0) {
-            cs->unk10[cmd->b & 1] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
+        if (cs->unk10[i] < 0) {
+            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
         }
         break;
     case 0xF:
-        pan = cmd->b / 128;
-        vol = cmd->c / 128;
+        pan = (cmd->b / 128) & 0xFF;
+        vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0x7F;
         if (pan == 0) {
@@ -699,8 +704,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         sfxPlayFromTargetSlot(csId, cmd->a, vol, pan, cmd->b & 0x7F, c, 0.3f);
         break;
     case 0x7E:
-        pan = cmd->b / 128;
-        vol = cmd->c / 128;
+        pan = (cmd->b / 128) & 0xFF;
+        vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0x7F;
         if (pan == 0) {
@@ -745,7 +750,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk8A = (f32)cmd->b;
         break;
     case 0x9:
-        if (D_807F621C != D_807F61FC || D_807F6224 != D_807F6204) {
+        if (D_807F61FC != D_807F621C || D_807F6204 != D_807F6224) {
             func_80642480(cmd->a, csId);
         }
         break;
@@ -771,7 +776,8 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         if (cmd->a == 0) {
             cs->unk44[cmd->c] = cmd->b;
         } else {
-            cs->unk44[cmd->c] = cs->unk14[cmd->b];
+            h = cs->unk14[cmd->b];
+            cs->unk44[cmd->c] = h;
         }
         break;
     case 0x65:
@@ -781,10 +787,13 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk4B[cmd->b] = cmd->a;
         break;
     case 0x5:
-        func_806418E8(cmd->a, cmd->b, cmd->c);
+        if (func_806418E8(cmd->a, cmd->b, cmd->c) == 0) {
+            return;
+        }
         break;
     case 0x2D:
-        for (i = 0; i < gActiveActorCount; i++) {
+        i = 0;
+        for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
             if (!(actor->unk60 & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
                 if (cmd->a != 0) {
@@ -866,7 +875,7 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSlotSetNodeScrollSpeed(csId, cmd->a, cmd->b, cmd->c);
         break;
     case 0x29:
-        func_8061EF4C(((CsCamState *)D_807FC924->unk4->unk174)->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
+        camStartShakeFromPoint(((CsCamState *)D_807FC924->unk4->unk174)->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
         break;
     case 0x44:
         D_807F6906 = cmd->a;
