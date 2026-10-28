@@ -952,7 +952,86 @@ void func_80026680(Gfx **arg0) {
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80026680.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800268AC.s")
+#define ArcL1_P6D0 (*(void **)&D_8004C6D0)
+extern u8 D_80034568[];
+void func_800268AC(Gfx **arg0) {
+    s32 i;
+    Gfx *sp68;
+
+    D_8004C719 = 8;
+    D_8004C71A = 0xA;
+    D_8004C6D4 = 0x492;
+    ArcL1_P6D0 = D_80034568;
+    func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcL1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    sp68 = *arg0;
+    func_8070E8F0((s32 *)&sp68, D_8004BB00 + D_807444FC * 0x18);
+    func_8070F2C8(0x400, ((s16 *)&D_8004C6D4)[1], 0, 0);
+    for (i = 0; i < 6; i++) {
+        func_8070F2FC((s32 *)&sp68, i * 0x20 + 0x220, 0xE0);
+    }
+    if (D_8004C708 >= 6) {
+        for (i = 0; i < 0xE; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x380);
+        }
+        for (i = 0xE; i < 0x1C; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0xF7 - ((i - 0xC) / 2)) * 0.875) + 8.0) * 4.0));
+        }
+    } else {
+        for (i = 0; i < 0x1C; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x368);
+        }
+    }
+    if (D_8004C708 >= 5) {
+        for (i = 0; i < 0x1A; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)((i / 2) + 0xCF) * 0.875) + 8.0) * 4.0));
+        }
+    } else {
+        for (i = 0; i < 0x1A; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x2F4);
+        }
+    }
+    if (D_8004C708 >= 4) {
+        for (i = 2; i < 0x1C; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0xBB - (i / 2)) * 0.875) + 8.0) * 4.0));
+        }
+    } else {
+        for (i = 2; i < 0x1C; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x281);
+        }
+    }
+    if (D_8004C708 >= 3) {
+        for (i = 0; i < 0x1A; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)((i / 2) + 0x8D) * 0.875) + 8.0) * 4.0));
+        }
+    } else {
+        for (i = 0; i < 0x1A; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x20D);
+        }
+    }
+    if (D_8004C708 >= 2) {
+        for (i = 2; i < 0x1C; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0x79 - (i / 2)) * 0.875) + 8.0) * 4.0));
+        }
+    } else {
+        for (i = 2; i < 0x1C; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x19A);
+        }
+    }
+    if (D_8004C708 > 0) {
+        for (i = 0; i < 0x12; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x142);
+        }
+        for (i = 0x12; i < 0x1A; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(((i - 0x10) / 2) + 0x53) * 0.875) + 8.0) * 4.0));
+        }
+    } else {
+        for (i = 0; i < 0x1A; i++) {
+            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x142);
+        }
+    }
+    func_80026050(&sp68);
+    *arg0 = sp68;
+}
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80026EF4.s")
 
@@ -989,7 +1068,6 @@ typedef struct ArcA1_Bar {
     f32 vy;
 } ArcA1_Bar;
 extern u8 D_80032F40[];
-extern u8 D_80034568[];
 extern ArcA1_Pt D_8004A7C8[];
 extern u8 D_8004BC50[];
 extern ArcA1_Bar D_8004BC88[];
