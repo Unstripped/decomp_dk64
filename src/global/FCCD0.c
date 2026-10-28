@@ -91,7 +91,6 @@ typedef struct R2FCCD0cSlot {
 
 
 
-#ifdef NON_MATCHING
 typedef struct FcASlot30 {
     u8 pad0[4];
     s16 unk4;
@@ -103,20 +102,17 @@ void func_806F8278(u8 arg0) {
     u16 (*p)[0x2F];
     s32 i;
     s32 j;
-
+    s8 n;
     sum = 0;
-    p = (u16 (*)[0x2F])((u8 *)D_807FC950 + arg0 * 0x306);
-    for (i = 0; i < 14; i++) {
+    p = (u16 (*)[0x2F])((u8 *)D_807FC950 + (u32)arg0 * 0x306);
+    n = 14;
+    for (i = 0; i < n; i++) {
         for (j = 0; j < 5; j++) {
             sum += p[j][i + 0x21];
         }
     }
     ((FcASlot30 *)D_80754280)[arg0 * 15 + 9].unk4 = sum;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8278.s")
-#endif
 
 typedef struct L2bSlot {
     u16 *unk0;
@@ -470,11 +466,10 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
 
 extern s32 flagCountRange(s32, s32, s32);
 
-void func_806F8EB4(void) {
-    flagCountRange(0x24D, 0x14, 0);
+s32 func_806F8EB4(void) {
+    return flagCountRange(0x24D, 0x14, 0);
 }
 
-#ifdef NON_MATCHING
 extern s32 func_806F6EDC();
 extern s32 flagGet(s32, s32);
 extern u8 D_807FC953[];
@@ -486,12 +481,13 @@ s32 func_806F8EDC(s32 arg0, s32 arg1) {
     s32 var_a0;
     s32 var_v1;
     u8 temp_a0;
-    u8 var_v0;
+    s32 var_v0;
 
     temp_v0 = func_806C8DE0(arg1);
     var_a0 = 0x64;
     switch (arg0) {
     case 1:
+        if (arg1 == 0) {}
         var_a0 = 0x3E7;
         break;
     case 2:
@@ -511,7 +507,7 @@ s32 func_806F8EDC(s32 arg0, s32 arg1) {
         if (D_807FC928 >= 2) {
             var_a0 = 0xBB8;
         } else if (func_806F6EDC() != 0) {
-            var_a0 = ((((s32 (*)(void))func_806F8EB4)() * 0x96) + 0xBB8) & 0xFFFF;
+            var_a0 = ((func_806F8EB4() * 0x96) + 0xBB8) & 0xFFFF;
         } else {
             var_a0 = 0;
         }
@@ -526,10 +522,9 @@ s32 func_806F8EDC(s32 arg0, s32 arg1) {
                 var_v0 = temp_a0;
                 if (temp_a0 != 0) {
                     do {
-                        temp_t5 = (s32)var_v0 >> 1;
                         var_v1 += 1;
-                        var_v0 = temp_t5;
-                    } while (temp_t5 != 0);
+                        var_v0 >>= 1;
+                    } while (var_v0 != 0);
                 }
                 var_a0 = (var_v1 * 5) & 0xFFFF;
             } else {
@@ -539,7 +534,7 @@ s32 func_806F8EDC(s32 arg0, s32 arg1) {
         break;
     case 6:
         if (flagGet(0x179, 0) != 0) {
-            var_a0 = (((s32 (*)(void))func_806F8EB4)() + 0xA) & 0xFFFF;
+            var_a0 = (func_806F8EB4() + 0xA) & 0xFFFF;
         } else {
             var_a0 = 0;
         }
@@ -550,10 +545,6 @@ s32 func_806F8EDC(s32 arg0, s32 arg1) {
     }
     return var_a0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F8EDC.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F91B4.s")
 
@@ -603,7 +594,6 @@ void func_806F94AC(void *arg0_, s32 arg1) {
     arg0->unk364 = arg0->unk364 * var_fv1;
 }
 
-#ifdef NON_MATCHING
 typedef struct FcAAllocNode {
     s32 type;
     u8 pad4[0x10];
@@ -619,18 +609,19 @@ void func_806F9518(s32 arg0) {
     FcAAllocNode *temp_s0;
     FcAAllocNode **temp_s2;
     s32 idx;
+    s32 *rec;
     void *base;
-
     idx = arg0 * 0x30;
     base = D_80754280;
+    var_s1 = (FcAAllocNode **)&((R2FCCD0cSlot *)(arg0 * 0x30 + (s32)D_80754280))->unk28;
     ((R2FCCD0cSlot *)base)[arg0].unk20 = 0;
-    var_s1 = (FcAAllocNode **)&((R2FCCD0cSlot *)(idx + (s32)base))->unk28;
     if (*var_s1 != NULL) {
         do {
             temp_s0 = *var_s1;
             temp_s2 = &temp_s0->next;
             if (temp_s0->type == 1) {
-                effectFreeAndUnlink(*(s32 *)((u8 *)temp_s0->unk14 + 8));
+                rec = temp_s0->unk14;
+                effectFreeAndUnlink(rec[2]);
                 temp_s0 = *var_s1;
             }
             heapFree(temp_s0->unk14);
@@ -640,10 +631,6 @@ void func_806F9518(s32 arg0) {
         } while (*temp_s2 != NULL);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9518.s")
-#endif
 
 void func_806F9518(s32);
 
