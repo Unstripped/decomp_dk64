@@ -173,8 +173,8 @@ void func_80641BCC(s16, s16, s16);
 void func_80641C98(s16, s16, s16);
 void func_80641DA0(void *, s16, s16, s16);
 void func_80642480(s16, s16);
-void func_80642748(s16, s16, void *, s16, s32);
-void func_80642844(s16, s16, void *, s16, s32);
+void func_80642748(s16, s16, void *, s16, u8);
+void func_80642844(s16, s16, void *, s16, u8);
 void func_80650794(s16, s16, u8, f32);
 s16 func_80650A70(s16, s16);
 void func_8067A9F0(s32, Actor *, f32, f32, f32);
@@ -957,20 +957,266 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8064216C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80642204.s")
+typedef struct CsA3Player {
+    /* 0x000 */ u8 unk0;
+    /* 0x001 */ u8 pad1[3];
+    /* 0x004 */ Actor *unk4;
+    /* 0x008 */ u8 pad8[0x208];
+    /* 0x210 */ f32 unk210;
+    /* 0x214 */ f32 unk214;
+    /* 0x218 */ f32 unk218;
+    /* 0x21C */ u8 pad21C[0x2F0 - 0x21C];
+} CsA3Player; // size = 0x2F0
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_806422D8.s")
+extern u8 D_80750AB4;
+s32 func_8064216C(s16, f32, f32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_806423A8.s")
+s32 func_80642204(s16 arg0) {
+    u8 i;
+    CsA3Player *p;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80642480.s")
+    for (i = 0; i < D_80750AB4; i++) {
+        p = (CsA3Player *)D_807FC924 + i;
+        if (p->unk0 != 0) {
+            Actor *a = p->unk4;
+            if (func_8064216C(arg0, a->unk7C, a->unk80, a->unk84)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80642500.s")
+s32 func_806422D8(s16 arg0) {
+    u8 i;
+    CsA3Player *p;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_806425FC.s")
+    for (i = 0; i < D_80750AB4; i++) {
+        p = (CsA3Player *)D_807FC924 + i;
+        if (p->unk0 != 0 && func_8064216C(arg0, p->unk210, p->unk214, p->unk218)) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80642748.s")
+u8 spawnNodeHasActor(u8);
+Actor *spawnNodeActivate(s16, u16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80642844.s")
+s32 func_806423A8(s16 arg0, s16 arg1, s16 arg2) {
+    s16 i;
+    Actor *a;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80642940.s")
+    for (i = arg1; i <= arg2; i++) {
+        if (spawnNodeHasActor(i)) {
+            a = spawnNodeActivate(i, 0);
+            if (a != NULL) {
+                if (func_8064216C(arg0, a->unk7C, a->unk80, a->unk84)) {
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+extern f32 D_807F6238;
+s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
+
+void func_80642480(s16 arg0, s16 arg1) {
+    s32 pad;
+    f32 y;
+
+    switch (arg0) {
+    case 0:
+        y = D_807F6220;
+        if (collisionCheckGroundAtPoint(D_807F621C, D_807F6224, &y)) {
+            D_807F6220 = y + D_807F6238;
+        }
+        break;
+    case 1:
+        break;
+    }
+}
+
+s32 func_80642500(f32 *arg0, s16 arg1, s16 arg2) {
+    u8 idx;
+    u8 mode;
+    s32 ret;
+    f32 v;
+    f32 th;
+
+    ret = 0;
+    mode = arg1 & 0xFF;
+    idx = (arg1 >> 8) & 0xFF;
+    v = arg0[idx];
+    switch (mode) {
+    case 0:
+        th = arg2 / 10.0f;
+        if (((th < v) ? (v - th) : (th - v)) < 0.05) {
+            ret = 1;
+        }
+        break;
+    case 1:
+        if (arg2 / 10.0f < v) {
+            ret = 1;
+        }
+        break;
+    case 2:
+        if (v < arg2 / 10.0f) {
+            ret = 1;
+        }
+        break;
+    }
+    return ret;
+}
+
+extern f32 D_807F6208;
+extern f32 D_807F620C;
+extern f32 D_807F6210;
+
+s32 func_806425FC(s16 arg0, s16 arg1) {
+    f32 v;
+    f32 th;
+    s32 ret;
+    u8 mode;
+
+    ret = 0;
+    switch ((u8)((arg0 >> 8) % 255)) {
+    case 0:
+        if (D_807F6208 && D_807F6208) {
+        }
+        v = D_807F6208;
+        break;
+    case 1:
+        v = D_807F620C;
+        break;
+    case 2:
+        v = D_807F6210;
+        break;
+    }
+    mode = arg0 & 0xFF;
+    switch (mode) {
+    case 0:
+        th = arg1 / 10.0f;
+        if (((th < v) ? (v - th) : (th - v)) != 0.1) {
+            ret = 1;
+        }
+        break;
+    case 1:
+        if (arg1 / 10.0f < v) {
+            ret = 1;
+        }
+        break;
+    case 2:
+        if (v < arg1 / 10.0f) {
+            ret = 1;
+        }
+        break;
+    }
+    return ret;
+}
+
+extern f32 D_807F6228;
+extern f32 D_807F622C;
+extern f32 D_807F6230;
+
+void func_80642748(s16 arg0, s16 arg1, void *cs, s16 arg3, u8 arg4) {
+    f32 v;
+    u8 lo;
+    u8 hi;
+
+    lo = arg0 & 0xFF;
+    hi = (arg0 >> 8) & 0xFF;
+    v = arg1 / 10.0f;
+    if (lo == 1) {
+        v = ((CsState *)cs)->unk14[arg1];
+    }
+    switch (hi) {
+    case 0:
+        if (arg4 == 1) {
+            D_807F6228 += v;
+        } else {
+            D_807F6228 = v;
+        }
+        break;
+    case 1:
+        if (arg4 == 1) {
+            D_807F622C += v;
+        } else {
+            D_807F622C = v;
+        }
+        break;
+    case 2:
+        if (arg4 == 1) {
+            D_807F6230 += v;
+        } else {
+            D_807F6230 = v;
+        }
+        break;
+    }
+}
+
+void func_80642844(s16 arg0, s16 arg1, void *cs, s16 arg3, u8 arg4) {
+    f32 v;
+    u8 lo;
+    u8 hi;
+
+    lo = arg0 & 0xFF;
+    hi = (arg0 >> 8) & 0xFF;
+    v = arg1 / 10.0f;
+    if (lo == 1) {
+        v = ((CsState *)cs)->unk14[arg1];
+    }
+    switch (hi) {
+    case 0:
+        if (arg4 == 1) {
+            D_807F621C += v;
+        } else {
+            D_807F621C = v;
+        }
+        break;
+    case 1:
+        if (arg4 == 1) {
+            D_807F6220 += v;
+        } else {
+            D_807F6220 = v;
+        }
+        break;
+    case 2:
+        if (arg4 == 1) {
+            D_807F6224 += v;
+        } else {
+            D_807F6224 = v;
+        }
+        break;
+    }
+}
+
+u32 func_806119A0(void);
+void func_807149FC(s32);
+void func_80714950(s32);
+void func_8071498C(void *);
+void func_80714CC0(void *, f32, f32, f32, f32);
+void func_80717D4C(void);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+extern u8 D_8071FC58[];
+
+void func_80642940(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 i;
+    f32 x;
+    f32 y;
+    f32 z;
+
+    for (i = 0; i != 1U; i++) {
+        x = (func_806119A0() / 10000 % 200) / 10.0 - 10.0;
+        y = (func_806119A0() / 10000 % 200) / 10.0 - 7.0;
+        z = (func_806119A0() / 10000 % 200) / 10.0 - 10.0;
+        func_807149B8(1);
+        func_807149FC(2);
+        func_80714950(0x64);
+        func_8071498C(func_80717D4C);
+        func_80714CC0(D_8071FC58, 0.5f, D_807F621C + x, D_807F6220 + y, D_807F6224 + z);
+    }
+    lightAdd(D_807F621C, D_807F6220, D_807F6224, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xA6, 0x30, 0xFF);
+}
