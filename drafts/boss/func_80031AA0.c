@@ -1,11 +1,14 @@
-// func_80031AA0 (src/boss/C920.c): stage 4: compiles, parked NON_MATCHING in src. 1050 insns expected vs ~1062; frame 128 and slots i@0x70, flags 0x67-0x6B, sp5C@0x5C, j@0x52 match only with 3 unused s32 before 'i' and 2 before 'j' (original has 5 more 4-byte named locals; temps land 0x40/0x44 not 0x44/0x48). Remaining diffs: scheduling in spawn loop (0.1f lwc1 + D_807FBB44 addr hoisted after the call in expected; unk174 ptr as named local st), 1.0f/62.0f f32 args to func_80609140 get CSE'd into $f2 (expected plain lui a3; int-literal args fix that but conflicts with the f32 prototype at C920.c:195), actorSpawn is 2-arg (a2/a3 are leftover regs), lightAdd(x,400.0f,z,x,300.0f,z,200.0f,0,c,c,c). Switch2 case 1 uses nested switch(unk12){2,3,default} for the cmp chain.
+// func_80031AA0 (src/boss/C920.c): stage 4 (BsA7f): frame 128 + s0/s1/ra same, no pad locals (dx,dz,k,lx,lz are real named locals; all named slots match target), insn count 1054 vs 1051 (was ~1062 vs 1050), 21 asm-diff hunks left (struct score 47). Fixes vs prior park: sfx/light consts are 63.0f NOT 62.0f (lui 0x427c); func_80609140 and sfxAllocateChannel declared unprototyped with int-bit args (0x427C0000,0x3F800000) so 1.0f is not promoted into an FP reg (float literal args get mfc1'd from $f2 because compare/store share the 1.0f web; mini-repro: any f32-arg const shared with a float compare in the same fn promotes); dx/dz named f32 locals CSE the two >700 distance tests; i/sp5C two-var abs (sp5C=(x&0x1F)-0x10; i=sp5C; if(sp5C<0) i=-sp5C); k=s->unk14 hoisted before the clamp; j=func_806119A0() then stores then D_80035B70=(j&3)+4; switch(s->unk13) with explicit case 9: break (table 10 entries); D_80035B38 u8 compared == -1 (lbu, li at,-1); unk0 store before unk14 in init. Remaining: temp spill slots 0x40/0x44 vs 0x44/0x48 (target has one extra never-accessed temp slot at 0x40), spawn loop: target hoists 0.1f lwc1 above beqz (+ only 2 0.1f rodata entries, first unused; plain 3 stores give 3 entries, chain a=b=c=0.1f gives 1 entry + reload), zero-const f2/f8 reuse in unk4 clamp, D_80035B68 ++ store-forward (target reuses incremented reg, we reload via shared addr), scheduling of sb stores in case 6, reloc-only D_80035B48 symbol for the D_80035B44[4] loop pointer. See func_80031AA0 NON_MATCHING in C920.c.
 #include "common.h"
 
 struct BossD_Actor;
 extern struct BossD_Actor *D_807FBB40;
 extern struct BossD_Actor *D_807FBB4C;
+extern void *D_807FDC90;
 f32 func_80612794(s16);
 s32 camIsCutsceneActive(void);
+void camStartPath(void *, s32, s32);
+void actorUpdateModelMatrix(void *, s32);
 
 typedef struct BsA2_Sub4 {
     u8 pad0[0x34];
@@ -97,33 +100,31 @@ extern f32 D_80036DC4;
 s32 actorSpawn(s32, s32);
 void *actorListFindActorById(s16);
 void actorDespawn(void *);
-s32 camStartPath(void *, s32, s32);
 void func_805FF378(s32, s32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void func_8068A764(void *, u8);
 void func_806C8E58(s16);
 void func_806F09F0(void *, u16);
 void func_8067AAB8(void *, void *, s32, f32, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void func_80609140();
 void camPausePath(void);
 void camResumePath(void);
 void func_80724994(s32, s32, s32, s32, s32);
 s32 func_806119A0(void);
 f32 func_806119FC(void);
-void sfxAllocateChannel(s32, f32);
+void sfxAllocateChannel();
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void lightSetColor(f32, f32, f32, s32);
 void func_8068B80C(void);
-void actorUpdateModelMatrix(void *, s32);
 
 #define BsA2_A ((BsA2_Actor *)D_807FBB40)
 #define BsA2_P ((BsA2_Actor *)D_807FBB4C)
 
 void func_80031AA0(void) {
-    s32 padA0;
-    s32 padA1;
-    s32 padA2;
+    f32 dx;
+    f32 dz;
+    s32 k;
     s32 i;
     BsA2_State *s;
     s8 sp6B;
@@ -133,8 +134,8 @@ void func_80031AA0(void) {
     s8 sp67;
     BsA2_SpawnState *st;
     s32 sp5C;
-    s32 padY0;
-    s32 padY1;
+    f32 lx;
+    f32 lz;
     s16 j;
 
     s = BsA2_A->unk174;
@@ -147,8 +148,8 @@ void func_80031AA0(void) {
         D_80035B3C = 0.0f;
         s->unkC = 0x1E;
         s->unkE = 1;
-        s->unk14 = 0;
         s->unk0 = BsA2_A->unk80;
+        s->unk14 = 0;
         D_80035B6C = 0;
         s->unk12 = 0;
         D_80035B70 = 5;
@@ -181,7 +182,7 @@ void func_80031AA0(void) {
         BsA2_P->unk7C = BsA2_A->unk7C;
         BsA2_P->unk80 = BsA2_A->unk80;
         BsA2_P->unk84 = BsA2_A->unk84;
-        if (D_80035B38 == 0xFF) {
+        if (D_80035B38 == -1) {
             D_80035B38 = BsA2_P->unk144;
         }
         BsA2_P->unk60 &= ~4;
@@ -205,8 +206,9 @@ void func_80031AA0(void) {
         break;
     case 1:
         BsA2_P->unk60 |= 4;
-        if (BsA2_P->unk7C - BsA2_A->unk7C > 700.0 || BsA2_P->unk7C - BsA2_A->unk7C < -700.0 ||
-            BsA2_P->unk84 - BsA2_A->unk84 > 700.0 || BsA2_P->unk84 - BsA2_A->unk84 < -700.0) {
+        dx = BsA2_P->unk7C - BsA2_A->unk7C;
+        dz = BsA2_P->unk84 - BsA2_A->unk84;
+        if (dx > 700.0 || dx < -700.0 || dz > 700.0 || dz < -700.0) {
             if (D_80036DC0 < 5) {
                 BsA2_A->unk154 = 0;
                 camStartPath(0, 2, 1);
@@ -249,7 +251,7 @@ void func_80031AA0(void) {
     }
     s->unk17 = 0;
     sp6B = s->unk13;
-    switch (sp6B) {
+    switch (s->unk13) {
     case 0:
         i = 5;
         if (s->unk12 == 2) {
@@ -264,11 +266,11 @@ void func_80031AA0(void) {
             s->unk15++;
             if (s->unk15 < j) {
                 s->unk13 = 1;
-                func_80609140(0x37D, 0x7D00, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 if (s->unk12 == 2) {
-                    func_80609140(0x381, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    func_80609140(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 } else {
-                    func_80609140(0x37F, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    func_80609140(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
             } else {
                 s->unk13 = 2;
@@ -300,21 +302,21 @@ void func_80031AA0(void) {
             if (i < s->unk10) {
                 s->unk13 = 0;
                 s->unk15++;
-                func_80609140(0x17D, 0x3E80, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
             }
             if (sp6A != 0) {
-                func_80609140(0x97, 0x7D00, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x97, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 s->unk16++;
                 s->unk15 = 0;
                 s->unk13 = 2;
                 if (s->unk16 == 3) {
-                    func_80609140(0x385, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    func_80609140(0x385, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                     s->unk16 = 0;
                     camPausePath();
                     s->unk13 = 4;
                 } else {
-                    func_80609140(0x38E, 0x7D00, 62.0f, 1.0f, 0, 0);
-                    func_80609140(0x383, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    func_80609140(0x38E, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    func_80609140(0x383, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
             }
         }
@@ -325,8 +327,8 @@ void func_80031AA0(void) {
             s->unk15++;
             if (s->unk15 < 3) {
                 s->unk13 = 3;
-                func_80609140(0x37D, 0x7D00, 62.0f, 1.0f, 0, 0);
-                func_80609140(0x380, 0x7D00, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                func_80609140(0x380, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
             } else {
                 s->unk13 = 0;
                 s->unk15 = 0;
@@ -340,7 +342,7 @@ void func_80031AA0(void) {
         s->unk8 = 0.1f;
         if (s->unk10 >= 0x1F) {
             s->unk13 = 2;
-            func_80609140(0x17D, 0x3E80, 62.0f, 1.0f, 0, 0);
+            func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
         }
         if (sp69 != 0) {
             s->unk17 = 1;
@@ -381,7 +383,7 @@ void func_80031AA0(void) {
         if (sp69 == -1) {
             sp67 = 1;
             if (D_80035B70 < s->unk10) {
-                func_80609140(0x17D, 0x3E80, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
                 s->unk10 = 0;
                 j = D_80035B70 + 1;
                 if (j >= 0x10) {
@@ -389,11 +391,12 @@ void func_80031AA0(void) {
                 }
                 D_80035B70 = j;
                 if (j >= 0x1A) {
+                    j = func_806119A0();
                     s->unk13 = 1;
                     s->unk15++;
-                    D_80035B70 = (func_806119A0() & 3) + 4;
-                    func_80609140(0x37F, 0x7D00, 62.0f, 1.0f, 0, 0);
-                    func_80609140(0x381, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    D_80035B70 = (j & 3) + 4;
+                    func_80609140(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    func_80609140(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
                 sp68 = 1;
             }
@@ -416,10 +419,12 @@ void func_80031AA0(void) {
     case 8:
         s->unk8 = -0.1f;
         if (D_807FBDC4 != 0) {
-            sfxAllocateChannel(0x35, 1.0f);
+            sfxAllocateChannel(0x35, 0x3F800000);
             bossSpawnParticleRing(0x13D, BsA2_A->unk7C, BsA2_A->unk80 + 200.0f, BsA2_A->unk84 + 40.0f, 0x800, 1);
             s->unk13 = 9;
         }
+        break;
+    case 9:
         break;
     }
     if (s->unk12 == 3 && s->unk13 == 0) {
@@ -444,27 +449,27 @@ void func_80031AA0(void) {
     }
     D_80035B68++;
     if (sp67 != 0) {
-        i = (D_80035B68 & 0x1F) - 0x10;
-        if (i < 0) {
-            i = -i;
+        k = s->unk14;
+        sp5C = (D_80035B68 & 0x1F) - 0x10;
+        i = sp5C;
+        if (sp5C < 0) {
+            i = -sp5C;
         }
         if (i >= 0x10) {
             i = 0xF;
         }
         sp5C = (i * 0x10) & 0xFF;
-        lightAdd((f32)((f64)D_80035B00[s->unk14] * 0.33 + (f64)BsA2_A->unk7C), 400.0f,
-                 (f32)((f64)D_80035B08[s->unk14] * 0.33 + (f64)BsA2_A->unk84),
-                 (f32)((f64)D_80035B00[s->unk14] * 0.33 + (f64)BsA2_A->unk7C), 300.0f,
-                 (f32)((f64)D_80035B08[s->unk14] * 0.33 + (f64)BsA2_A->unk84), 200.0f, 0, sp5C, sp5C, sp5C);
+        lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)BsA2_A->unk7C);
+        lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)BsA2_A->unk84);
+        lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
         if (s->unk12 == 1) {
-            j = s->unk14 + 2;
-            if (j >= 4) {
-                j -= 4;
+            k = s->unk14 + 2;
+            if (k >= 4) {
+                k -= 4;
             }
-            lightAdd((f32)((f64)D_80035B00[j] * 0.33 + (f64)BsA2_A->unk7C), 400.0f,
-                     (f32)((f64)D_80035B08[j] * 0.33 + (f64)BsA2_A->unk84),
-                     (f32)((f64)D_80035B00[j] * 0.33 + (f64)BsA2_A->unk7C), 300.0f,
-                     (f32)((f64)D_80035B08[j] * 0.33 + (f64)BsA2_A->unk84), 200.0f, 0, sp5C, sp5C, sp5C);
+            lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)BsA2_A->unk7C);
+            lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)BsA2_A->unk84);
+            lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
         }
     }
     s->unkC--;

@@ -567,13 +567,13 @@ void func_8068A764(void *, u8);
 void func_806C8E58(s16);
 void func_806F09F0(void *, u16);
 void func_8067AAB8(void *, void *, s32, f32, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void func_80609140();
 void camPausePath(void);
 void camResumePath(void);
 void func_80724994(s32, s32, s32, s32, s32);
 s32 func_806119A0(void);
 f32 func_806119FC(void);
-void sfxAllocateChannel(s32, f32);
+void sfxAllocateChannel();
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void lightSetColor(f32, f32, f32, s32);
@@ -583,9 +583,9 @@ void func_8068B80C(void);
 #define BsA2_P ((BsA2_Actor *)D_807FBB4C)
 
 void func_80031AA0(void) {
-    s32 padA0;
-    s32 padA1;
-    s32 padA2;
+    f32 dx;
+    f32 dz;
+    s32 k;
     s32 i;
     BsA2_State *s;
     s8 sp6B;
@@ -595,8 +595,8 @@ void func_80031AA0(void) {
     s8 sp67;
     BsA2_SpawnState *st;
     s32 sp5C;
-    s32 padY0;
-    s32 padY1;
+    f32 lx;
+    f32 lz;
     s16 j;
 
     s = BsA2_A->unk174;
@@ -609,8 +609,8 @@ void func_80031AA0(void) {
         D_80035B3C = 0.0f;
         s->unkC = 0x1E;
         s->unkE = 1;
-        s->unk14 = 0;
         s->unk0 = BsA2_A->unk80;
+        s->unk14 = 0;
         D_80035B6C = 0;
         s->unk12 = 0;
         D_80035B70 = 5;
@@ -643,7 +643,7 @@ void func_80031AA0(void) {
         BsA2_P->unk7C = BsA2_A->unk7C;
         BsA2_P->unk80 = BsA2_A->unk80;
         BsA2_P->unk84 = BsA2_A->unk84;
-        if (D_80035B38 == 0xFF) {
+        if (D_80035B38 == -1) {
             D_80035B38 = BsA2_P->unk144;
         }
         BsA2_P->unk60 &= ~4;
@@ -667,8 +667,9 @@ void func_80031AA0(void) {
         break;
     case 1:
         BsA2_P->unk60 |= 4;
-        if (BsA2_P->unk7C - BsA2_A->unk7C > 700.0 || BsA2_P->unk7C - BsA2_A->unk7C < -700.0 ||
-            BsA2_P->unk84 - BsA2_A->unk84 > 700.0 || BsA2_P->unk84 - BsA2_A->unk84 < -700.0) {
+        dx = BsA2_P->unk7C - BsA2_A->unk7C;
+        dz = BsA2_P->unk84 - BsA2_A->unk84;
+        if (dx > 700.0 || dx < -700.0 || dz > 700.0 || dz < -700.0) {
             if (D_80036DC0 < 5) {
                 BsA2_A->unk154 = 0;
                 camStartPath(0, 2, 1);
@@ -711,7 +712,7 @@ void func_80031AA0(void) {
     }
     s->unk17 = 0;
     sp6B = s->unk13;
-    switch (sp6B) {
+    switch (s->unk13) {
     case 0:
         i = 5;
         if (s->unk12 == 2) {
@@ -726,11 +727,11 @@ void func_80031AA0(void) {
             s->unk15++;
             if (s->unk15 < j) {
                 s->unk13 = 1;
-                func_80609140(0x37D, 0x7D00, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 if (s->unk12 == 2) {
-                    func_80609140(0x381, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    func_80609140(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 } else {
-                    func_80609140(0x37F, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    func_80609140(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
             } else {
                 s->unk13 = 2;
@@ -762,21 +763,21 @@ void func_80031AA0(void) {
             if (i < s->unk10) {
                 s->unk13 = 0;
                 s->unk15++;
-                func_80609140(0x17D, 0x3E80, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
             }
             if (sp6A != 0) {
-                func_80609140(0x97, 0x7D00, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x97, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 s->unk16++;
                 s->unk15 = 0;
                 s->unk13 = 2;
                 if (s->unk16 == 3) {
-                    func_80609140(0x385, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    func_80609140(0x385, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                     s->unk16 = 0;
                     camPausePath();
                     s->unk13 = 4;
                 } else {
-                    func_80609140(0x38E, 0x7D00, 62.0f, 1.0f, 0, 0);
-                    func_80609140(0x383, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    func_80609140(0x38E, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    func_80609140(0x383, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
             }
         }
@@ -787,8 +788,8 @@ void func_80031AA0(void) {
             s->unk15++;
             if (s->unk15 < 3) {
                 s->unk13 = 3;
-                func_80609140(0x37D, 0x7D00, 62.0f, 1.0f, 0, 0);
-                func_80609140(0x380, 0x7D00, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                func_80609140(0x380, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
             } else {
                 s->unk13 = 0;
                 s->unk15 = 0;
@@ -802,7 +803,7 @@ void func_80031AA0(void) {
         s->unk8 = 0.1f;
         if (s->unk10 >= 0x1F) {
             s->unk13 = 2;
-            func_80609140(0x17D, 0x3E80, 62.0f, 1.0f, 0, 0);
+            func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
         }
         if (sp69 != 0) {
             s->unk17 = 1;
@@ -843,7 +844,7 @@ void func_80031AA0(void) {
         if (sp69 == -1) {
             sp67 = 1;
             if (D_80035B70 < s->unk10) {
-                func_80609140(0x17D, 0x3E80, 62.0f, 1.0f, 0, 0);
+                func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
                 s->unk10 = 0;
                 j = D_80035B70 + 1;
                 if (j >= 0x10) {
@@ -851,11 +852,12 @@ void func_80031AA0(void) {
                 }
                 D_80035B70 = j;
                 if (j >= 0x1A) {
+                    j = func_806119A0();
                     s->unk13 = 1;
                     s->unk15++;
-                    D_80035B70 = (func_806119A0() & 3) + 4;
-                    func_80609140(0x37F, 0x7D00, 62.0f, 1.0f, 0, 0);
-                    func_80609140(0x381, 0x7D00, 62.0f, 1.0f, 0, 0);
+                    D_80035B70 = (j & 3) + 4;
+                    func_80609140(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    func_80609140(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
                 sp68 = 1;
             }
@@ -878,10 +880,12 @@ void func_80031AA0(void) {
     case 8:
         s->unk8 = -0.1f;
         if (D_807FBDC4 != 0) {
-            sfxAllocateChannel(0x35, 1.0f);
+            sfxAllocateChannel(0x35, 0x3F800000);
             bossSpawnParticleRing(0x13D, BsA2_A->unk7C, BsA2_A->unk80 + 200.0f, BsA2_A->unk84 + 40.0f, 0x800, 1);
             s->unk13 = 9;
         }
+        break;
+    case 9:
         break;
     }
     if (s->unk12 == 3 && s->unk13 == 0) {
@@ -906,27 +910,27 @@ void func_80031AA0(void) {
     }
     D_80035B68++;
     if (sp67 != 0) {
-        i = (D_80035B68 & 0x1F) - 0x10;
-        if (i < 0) {
-            i = -i;
+        k = s->unk14;
+        sp5C = (D_80035B68 & 0x1F) - 0x10;
+        i = sp5C;
+        if (sp5C < 0) {
+            i = -sp5C;
         }
         if (i >= 0x10) {
             i = 0xF;
         }
         sp5C = (i * 0x10) & 0xFF;
-        lightAdd((f32)((f64)D_80035B00[s->unk14] * 0.33 + (f64)BsA2_A->unk7C), 400.0f,
-                 (f32)((f64)D_80035B08[s->unk14] * 0.33 + (f64)BsA2_A->unk84),
-                 (f32)((f64)D_80035B00[s->unk14] * 0.33 + (f64)BsA2_A->unk7C), 300.0f,
-                 (f32)((f64)D_80035B08[s->unk14] * 0.33 + (f64)BsA2_A->unk84), 200.0f, 0, sp5C, sp5C, sp5C);
+        lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)BsA2_A->unk7C);
+        lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)BsA2_A->unk84);
+        lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
         if (s->unk12 == 1) {
-            j = s->unk14 + 2;
-            if (j >= 4) {
-                j -= 4;
+            k = s->unk14 + 2;
+            if (k >= 4) {
+                k -= 4;
             }
-            lightAdd((f32)((f64)D_80035B00[j] * 0.33 + (f64)BsA2_A->unk7C), 400.0f,
-                     (f32)((f64)D_80035B08[j] * 0.33 + (f64)BsA2_A->unk84),
-                     (f32)((f64)D_80035B00[j] * 0.33 + (f64)BsA2_A->unk7C), 300.0f,
-                     (f32)((f64)D_80035B08[j] * 0.33 + (f64)BsA2_A->unk84), 200.0f, 0, sp5C, sp5C, sp5C);
+            lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)BsA2_A->unk7C);
+            lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)BsA2_A->unk84);
+            lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
         }
     }
     s->unkC--;
@@ -1009,7 +1013,7 @@ typedef struct BsB_Actor {
 } BsB_Actor;
 
 void func_80613C48(void *, s16, f32, f32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void func_80609140();
 void func_80614644(void *, void *, f32);
 void actorDespawn(void *);
 void projectileSetTargetCoords(f32, f32, f32);
