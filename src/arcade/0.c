@@ -321,6 +321,7 @@ void arcadeDispatchState(Gfx **arg0) {
     *arg0 = sp1C;
     D_8004A78C[1]++;
 }
+
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80024A50.s")
 
 extern ArcadeEntity D_8004A698;
@@ -389,9 +390,87 @@ void arcadeAttractLoop(Gfx **arg0) {
     }
     *arg0 = sp1C;
 }
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80024D90.s")
+extern ArcadeEntity D_8004A538;
+extern u8 D_800424D0[];
+void func_80024D90(void) {
+    ArcadeEntity *e;
+    s32 idx;
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80024E84.s")
+    D_8004C724 = 0;
+    D_8004A740 = flagGet(0x63, 2);
+    D_8004C722 = 0;
+    D_8004C6DC = 0x200;
+    D_8004C71D = 1;
+    for (e = D_8004BCD0;;) {
+        e->unk18 = 0;
+        e++;
+        if (e >= &D_8004C6D0) {
+            break;
+        }
+    }
+    idx = arcadeFindFreeEntity();
+    D_8004BCD0[idx] = D_8004A538;
+    D_8004BCD0[idx].unk14 = D_800424D0;
+    D_8004BCD0[idx].unk0 = 138.0f;
+    D_8004BCD0[idx].unk4 = 180.0f;
+}
+
+extern ArcadeEntity D_8004A4B8;
+extern ArcadeEntity D_8004A4D8;
+extern ArcadeEntity D_8004A4F8;
+extern u8 D_8004C723;
+extern u16 D_807ECD48;
+void func_80024E84(Gfx **arg0) {
+    Gfx *sp24;
+    s32 i;
+    s32 idx;
+
+    sp24 = *arg0;
+    D_8004C6DC++;
+    func_800259D0(&sp24);
+    if (D_8004C6DC & 0x200) {
+        arcadeRenderEntities(&sp24);
+    }
+    if ((D_8004A740 != 0 && D_8004C6DC == 0x5FE) || (D_807ECD48 & 0x9000)) {
+        D_8004A748 = 0;
+        D_8004C723 = 0;
+        D_8004C71B = 2;
+        if (D_8004A740 != 0) {
+            D_8004C71B = 0;
+            if (flagGet(0x84, 0) != 0) {
+                D_8004C723 = 8;
+            } else if (flagGet(0x82, 0) != 0) {
+                D_8004C723 = 4;
+            }
+        }
+        if (D_8004C723 / 4 + 1 >= 10) {
+            D_8004A76C = 9;
+        } else {
+            D_8004A76C = D_8004C723 / 4 + 1;
+        }
+        D_8004C71C = D_8004C71B + 1;
+        D_8004C722 = 1;
+        D_8004C724 = 1;
+        D_8004C6DC = 0;
+        D_8004C71D = 1;
+        D_8004C721 = 0;
+        for (i = 0; i < 0x50; i++) {
+            D_8004BCD0[i].unk18 = 0;
+        }
+        idx = arcadeFindFreeEntity();
+        D_8004BCD0[idx] = D_8004A4D8;
+        idx = arcadeFindFreeEntity();
+        D_8004BCD0[idx] = D_8004A4B8;
+        idx = arcadeFindFreeEntity();
+        D_8004BCD0[idx] = D_8004A538;
+        if (D_8004A76C == 2 && D_8004A740 != 0) {
+            idx = arcadeFindFreeEntity();
+            D_8004BCD0[idx] = D_8004A4F8;
+        }
+        D_8004C708 = 0;
+    }
+    *arg0 = sp24;
+}
 
 void func_800257D8(void);
 void arcadeStageIntroLoop(Gfx **arg0) {
@@ -429,7 +508,6 @@ void arcadeStopSound(s32 arg0) {
 
 extern u8 D_8004BCE9[];
 extern s32 D_8076D1F8;
-extern u16 D_807ECD48;
 void n_alSndpPlay(s32, s32, s32, s32, f32, s32, s32);
 void func_8002549C(void);
 void func_800311E0(void);
@@ -506,7 +584,38 @@ void arcadeClearEntitiesByType1C(void) {
 
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800255F4.s")
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800257D8.s")
+extern ArcadeEntity D_8004A5D8;
+extern f32 D_8004BCD4;
+extern s32 D_8004C6D4;
+void func_800257D8(void) {
+    ArcadeEntity *e;
+    s32 i;
+    s32 idx;
+    s32 rank;
+
+    for (e = (ArcadeEntity *)((u8 *)&D_8004BCD4 - 4);;) {
+        e->unk18 = 0;
+        e++;
+        if ((u8 *)e >= (u8 *)&D_8004C6D4 - 4) {
+            break;
+        }
+    }
+    for (i = 0; i < (D_8004C723 & 3) + 1; i++) {
+        idx = arcadeFindFreeEntity();
+        D_8004BCD0[idx] = D_8004A5D8;
+        D_8004BCD0[idx].unk4 -= i * 0x20;
+    }
+    D_8004C6DC = 0;
+    rank = D_8004C723 / 4 + 1;
+    if (rank >= 10) {
+        D_8004A76C = 9;
+    } else {
+        D_8004A76C = rank;
+    }
+    n_alSndpPlay(D_8076D1F8, 0x47, 0x7FFF, 0x3F, 1.0f, 0, 0);
+    D_8004C724 = 2;
+    D_8004C71D = 1;
+}
 
 void arcadeDemoLoop(Gfx **arg0) {
     Gfx *sp1C = *arg0;
@@ -540,7 +649,6 @@ typedef struct ArcR2_Struct48 {
     s32 words[12];
 } ArcR2_Struct48;
 extern ArcR2_Struct48 D_8004A798;
-extern s32 D_8004C6D4;
 extern u8 D_8004C719;
 extern u8 D_8004C71A;
 extern u8 D_807444FC;
@@ -601,7 +709,55 @@ Gfx **arg0;
     *arg0 = sp4C;
 }
 
+#ifdef NON_MATCHING
+#define ArcA1_D6D0 (*(void **)&D_8004C6D0)
+void func_80025C08(arg0, arg1, arg2, arg3)
+s32 *arg0;
+s32 arg1;
+s32 arg2;
+s32 arg3;
+{
+    s32 i;
+    s32 sp60;
+
+    D_8004C719 = 8;
+    D_8004C71A = 4;
+    D_8004C6D4 = 0x400;
+    if (D_8004C722 == 2) ArcA1_D6D0 = D_80032B90;
+    else if (D_8004C722 == 4) ArcA1_D6D0 = D_80032BD8;
+    else ArcA1_D6D0 = D_80032B48;
+    func_80005A90(D_8004BB30 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    func_80005A90(D_8004BB60 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 1, 0, 2, 0, 0);
+    func_80005A90(D_8004BB90 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 2, 0, 2, 0, 0);
+    func_80005A90(D_8004BBC0 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 3, 0, 2, 0, 0);
+    sp60 = *arg0;
+    func_8070E8F0(&sp60, D_8004BB30 + D_807444FC * 0x18);
+    func_8070F2C8(0x400, D_8004C6D6, 0, 0);
+    for (i = 0; i < arg3 / 4; i++) {
+        func_8070F2FC(&sp60, arg1 * 4, (s32)((f64)(arg2 + 8 + i * 4) * 4.0));
+    }
+    D_8004C71A = arg3 % 4;
+    if (D_8004C71A != 0) {
+        switch (D_8004C71A) {
+        case 1:
+            func_8070E8F0(&sp60, D_8004BB60 + D_807444FC * 0x18);
+            break;
+        case 2:
+            func_8070E8F0(&sp60, D_8004BB90 + D_807444FC * 0x18);
+            break;
+        case 3:
+            func_8070E8F0(&sp60, D_8004BBC0 + D_807444FC * 0x18);
+            break;
+        }
+        func_8070F2C8(0x400, D_8004C6D6, 0, 0);
+        func_8070F2FC(&sp60, arg1 * 4, (s32)((f64)(i * 4 + arg2 + 8) * 4.0));
+    }
+    *arg0 = sp60;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80025C08.s")
+#endif
 
 void func_80026050(arg0)
 Gfx **arg0;
@@ -790,7 +946,6 @@ extern u8 D_8004A378[];
 extern u8 D_8004AC00[];
 extern u8 D_807444FC;
 
-extern f32 D_8004BCD4;
 extern f32 D_8004BCF4;
 
 extern u8 D_80034610[];
@@ -807,7 +962,6 @@ extern u8 D_80035AE0[];
 extern u8 D_80035CE8[];
 
 
-extern u8 D_8004C723;
 extern u8 D_8004A788[];
 extern s32 D_8004C710;
 extern u8 D_8004C718;
