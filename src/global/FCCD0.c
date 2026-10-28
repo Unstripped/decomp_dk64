@@ -572,7 +572,75 @@ void effectSpawnSprite(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     func_806F94AC(temp_s0->unk8, arg1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9848.s")
+extern u8 D_8074E77C;
+
+typedef struct FcBSlot9848 {
+    u8 pad0[8];
+    s32 unk8;
+    s32 unkC;
+} FcBSlot9848;
+
+void func_806F9848(s32 arg0) {
+    s32 sp3C;
+    s32 sp30;
+    u8 *sp44;
+    s32 var_s1;
+    s32 var_a1;
+    u8 *var_s0;
+
+    var_a1 = 1;
+    var_s1 = -1;
+    sp30 = arg0 * 0x30;
+    var_s0 = (u8 *)((s32)D_80754280 + (0, sp30)) + 0x28;
+    if (((f64)D_80744490 * 0.5) < (f64)((FcBSlot9848 *)((u8 *)D_80754280 + sp30))->unk8) {
+        var_a1 = -1;
+    }
+    sp3C = var_a1;
+    func_806F9608((R1FCCD0bAllocRecord **)var_s0);
+    sp44 = *(u8 **)(*(u8 **)var_s0 + 0x14);
+    effectSetDirection(*(R1FCCD0bEffect **)var_s0, arg0);
+    effectSpawnSprite(*(void **)var_s0, arg0, (f32)((FcBSlot9848 *)((u8 *)D_80754280 + sp30))->unk8, (f32)((FcBSlot9848 *)((u8 *)D_80754280 + sp30))->unkC, 0);
+    *sp44 = 0xFF;
+    *(s16 *)(*(u8 **)var_s0 + 0x10) = 0;
+    switch (D_8076A0A8) {
+    case 0x2A:
+        if (arg0 == 0xD) {
+            var_s1 = 0x10;
+        }
+        break;
+    case 1:
+        if (arg0 == 0xE) {
+            var_s1 = 0x11;
+        }
+    case 5:
+        if ((var_s1 == -1) && (arg0 == 0xE)) {
+            var_s1 = 0x13;
+        }
+    case 0x19:
+        if ((var_s1 == -1) && (arg0 == 0xE)) {
+            var_s1 = 0x12;
+        } else if (arg0 == 1) {
+            var_s1 = D_8074E77C + 0x14;
+        }
+        break;
+    }
+    if (var_s1 >= 0) {
+        var_s0 = *(u8 **)var_s0 + 0x18;
+        func_806F9608((R1FCCD0bAllocRecord **)var_s0);
+        sp44 = *(u8 **)(*(u8 **)var_s0 + 0x14);
+        effectSetDirection(*(R1FCCD0bEffect **)var_s0, arg0);
+        effectSpawnSprite(*(void **)var_s0, var_s1, (f32)((FcBSlot9848 *)((u8 *)D_80754280 + sp30))->unk8, (f32)(((FcBSlot9848 *)((u8 *)D_80754280 + sp30))->unkC + 0x20), 0);
+        *sp44 = 0xFF;
+        *(s16 *)(*(u8 **)var_s0 + 0x10) = 0;
+    }
+    var_s0 = *(u8 **)var_s0 + 0x18;
+    func_806F966C((R1FCCD0bAllocRecord **)var_s0);
+    effectSetDirection(*(R1FCCD0bEffect **)var_s0, arg0);
+    *(s16 *)(*(u8 **)var_s0 + 0x10) = 0;
+    sp44 = *(u8 **)(*(u8 **)var_s0 + 0x14);
+    *(s32 *)(*(u8 **)(*(u8 **)var_s0 + 0x14)) = ((FcBSlot9848 *)((u8 *)D_80754280 + sp30))->unk8 + sp3C * 0x14;
+    *(s32 *)(sp44 + 4) = ((FcBSlot9848 *)((u8 *)D_80754280 + sp30))->unkC - 0xA;
+}
 
 typedef struct NmFCCD0ActorView {
     u8 pad0[0x340];
@@ -611,23 +679,198 @@ void effectSpriteUpdatePosition(NmFCCD0ActorView *arg0, s8 *arg1) {
     *temp_a2 = -200.0f;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9B64.s")
+typedef struct FcBPayload9B64 {
+    s32 unk0;
+    s32 unk4;
+} FcBPayload9B64;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9CD0.s")
+extern void *D_80750518[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806F9D8C.s")
+void func_806F9B64(s32 arg0) {
+    s32 unused;
+    R1FCCD0bAllocRecord **temp_s4;
+    FcBPayload9B64 *temp_v0;
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/func_806FA1A4.s")
+    temp_s4 = (R1FCCD0bAllocRecord **)((u8 *)D_80754280 + (0, arg0 * 0x30) + 0x28);
+    func_806F966C(temp_s4);
+    effectSetDirection((R1FCCD0bEffect *)*temp_s4, 0);
+    *(s16 *)((u8 *)*temp_s4 + 0x10) = 0;
+    temp_v0 = (FcBPayload9B64 *)(*temp_s4)->unk14;
+    temp_v0->unk0 = *(s32 *)((u8 *)D_80754280 + arg0 * 0x30 + 8) + 0x14;
+    temp_v0->unk4 = *(s32 *)((u8 *)D_80754280 + arg0 * 0x30 + 0xC) - 0x14;
+    for (i = 0; i < 5; i++) {
+        func_8071495C();
+        func_807149FC(-1);
+        func_8071498C((void (*)(void))effectSpriteUpdatePosition);
+        func_80714950((void *)i);
+        ((f32 *)&D_807FD7A0)[i] = -100.0f;
+        func_80714CC0((s32)D_80750518[i], 1.0f, -200.0f, 0.0f, -10.0f);
+    }
+}
 
-s32 func_806F9D8C();
-s32 func_806FA1A4();
+void func_806F9CD0(s32 arg0) {
+    R1FCCD0bAllocRecord **temp_s0;
+    void *sp30;
+
+    temp_s0 = (R1FCCD0bAllocRecord **)((u8 *)D_80754280 + (0, arg0 * 0x30) + 0x28);
+    func_806F9608(temp_s0);
+    sp30 = *(void **)((u8 *)*temp_s0 + 0x14);
+    effectSetDirection((R1FCCD0bEffect *)*temp_s0, arg0);
+    effectSpawnSprite(*temp_s0, arg0, (f32)*(s32 *)((u8 *)D_80754280 + arg0 * 0x30 + 8), (f32)*(s32 *)((u8 *)D_80754280 + arg0 * 0x30 + 0xC), 0);
+    func_806F8DC4(sp30, 0, arg0);
+    *(s16 *)((u8 *)*temp_s0 + 0x10) = 0;
+}
+
+typedef struct FcBDraw9D8C {
+    u8 pad0[4];
+    f32 unk4;
+    f32 unk8;
+    u8 padC[4];
+    s16 unk10;
+    u8 pad12[2];
+    s32 *unk14;
+} FcBDraw9D8C;
+
+typedef struct FcBSlot9D8C {
+    u8 pad0[4];
+    u16 unk4;
+    u8 pad6[2];
+    s32 unk8;
+    u8 padC[0x20];
+    u8 unk2C;
+} FcBSlot9D8C;
+
+typedef struct FcBView9D8C {
+    u8 pad0[4];
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+} FcBView9D8C;
+
+extern Gfx D_1000118;
+extern Mtx D_2000080;
+extern u8 D_807FD7E4;
+extern f32 func_80612794(s16);
+extern f32 floatCeil(f32);
+extern s32 _sprintf(char *, const char *, ...);
+extern s32 func_806FBD5C(s16, char *);
+extern Gfx *func_806FC530(Gfx *, s16, s16, s16, char *, u8);
+extern FcBView9D8C *cameraFindViewportEntry(s32);
+
+#define FCB_SLOT9D8C ((FcBSlot9D8C *)((u8 *)D_80754280 + arg0 * 0x30))
+Gfx *func_806F9D8C(s32 arg0, FcBDraw9D8C *arg1, Gfx *arg2) {
+    s32 *matrix;
+    char text[8];
+    u8 alpha;
+    FcBView9D8C *viewport;
+    f32 scale;
+    s32 width;
+
+    matrix = arg1->unk14;
+    scale = func_80612794(arg1->unk10);
+    alpha = (u8)(u32)((f64)scale * 255.0);
+    width = 0;
+    gSPMatrix(arg2++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    guTranslate((Mtx *)((u8 *)matrix + (D_807444FC << 6) + 8), arg1->unk4 * (1.0f - scale), arg1->unk8 * (1.0f - scale), 0.0f);
+    switch (FCB_SLOT9D8C->unk2C) {
+    case 1:
+        _sprintf(text, "o");
+        break;
+    case 2:
+        if (FCB_SLOT9D8C->unk2C == 0) {
+        }
+        _sprintf(text, "NA");
+        break;
+    default:
+        _sprintf(text, "%d", (arg0 * 0x30 == 0xF0) ? (s32)floatCeil((f32)(u32)FCB_SLOT9D8C->unk4 * 0.006666667f) : FCB_SLOT9D8C->unk4);
+        break;
+    }
+    gSPMatrix(arg2++, (u8 *)matrix + (D_807444FC << 6) + 8, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gDPPipeSync(arg2++);
+    gDPSetPrimColor(arg2++, 0, 0, 0, 0, 0, alpha);
+    D_807FD7E4 = alpha;
+    gSPDisplayList(arg2++, &D_1000118);
+    gDPSetCombineLERP(arg2++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+    viewport = cameraFindViewportEntry(0);
+    gDPSetScissor(arg2++, G_SC_NON_INTERLACE, viewport->unk4, viewport->unk6, viewport->unk8, viewport->unkA);
+    if ((f64)D_80744490 * 0.5 < (f64)FCB_SLOT9D8C->unk8) {
+        width = func_806FBD5C(0x81, text);
+    }
+    arg2 = func_806FC530(arg2, 0x81, (s16)((matrix[0] - width) * 4), (s16)(matrix[1] * 4), text, 0);
+    gSPPopMatrix(arg2++, G_MTX_MODELVIEW);
+    gDPPipeSync(arg2++);
+    return arg2;
+}
+
+extern s16 D_807505AE[];
+extern u8 D_807FC992[];
+extern Gfx D_2000180;
+extern s32 flagGet(s32, s32);
+
+Gfx *func_806FA1A4(s32 arg0, FcBDraw9D8C *arg1, Gfx *arg2) {
+    s32 active;
+    s32 savedU16;
+    s32 savedY;
+    f32 x;
+    f32 y;
+    f32 scale;
+    s8 valid;
+    s32 player;
+    s32 i;
+    s32 *cursor;
+    s32 off;
+    f64 u;
+
+    cursor = arg1->unk14;
+    player = func_805FF030(D_8076A0AB, 1);
+    active = func_806C8DE0(0);
+    off = arg0 * 0x30;
+    savedU16 = *(u16 *)((u8 *)D_80754280 + off + 4);
+    savedY = cursor[1];
+    x = (f32)((f64)cursor[0] * 4.0);
+    y = (f32)((f64)cursor[1] * 4.0);
+    u = 1.0 - (f64)func_80612794(arg1->unk10);
+    x = (f32)((f64)x - (4.0 * (6.0 - (u * (f64)arg1->unk4))));
+    y = (f32)((f64)y + 92.0);
+    for (i = 0; i != 5; i++) {
+        valid = 1;
+        if (i > 0) {
+            valid = flagGet(D_807505AE[i], 0);
+        }
+        if (valid != 0) {
+            if (i == active) {
+                *(u16 *)((u8 *)D_80754280 + off + 4) = savedU16;
+                scale = 2.0f;
+            } else {
+                *(u16 *)((u8 *)D_80754280 + off + 4) = ((u16 *)&D_807FC992[i * 0x5E])[player];
+                scale = 1.5f;
+            }
+            arg2 = func_806F9D8C(arg0, arg1, arg2);
+            if (i != active) {
+                gDPSetPrimColor(arg2++, 0, 0, 0, 0, 0, D_807FD7E4 >> 1);
+            }
+            ((f32 *)&D_807FD7A0)[i] = (f32)((f64)x - (10.0 * (f64)scale));
+            ((f32 *)&D_807FD7B8)[i] = (f32)((f64)y - (30.0 * (f64)scale));
+            ((f32 *)&D_807FD7D0)[i] = (f32)((f64)scale * 1.15);
+            y = (f32)((f64)y + 136.0);
+            cursor[1] += 0x22;
+        }
+    }
+    *(u16 *)((u8 *)D_80754280 + off + 4) = savedU16;
+    cursor[1] = savedY;
+    gSPMatrix(arg2++, &D_2000180, G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_LOAD);
+    return arg2;
+}
+
 
 s32 func_806FA504(s32 arg0, void *arg1, s32 arg2, s32 arg3) {
     if (*(s32 *)arg1 == 0) {
         if (arg0 != 8) {
-            arg3 = func_806F9D8C(arg0, arg1, arg3);
+            arg3 = (s32)func_806F9D8C(arg0, arg1, (Gfx *)arg3);
         } else {
-            arg3 = func_806FA1A4(arg0, arg1, arg3);
+            arg3 = (s32)func_806FA1A4(arg0, arg1, (Gfx *)arg3);
         }
     } else if ((arg0 == 8) || (arg0 == 0xA) || (arg0 == 0xC)) {
         func_806F8DC4(*(s8 **)((u8 *)arg1 + 0x14), arg2, arg0);
@@ -655,9 +898,6 @@ typedef struct FcCSlot {
     FcCNode *unk28;
 } FcCSlot;
 
-s32 func_806F9848();
-s32 func_806F9B64();
-s32 func_806F9CD0();
 
 s32 func_806FA5A4(s32 arg0, s32 arg1) {
     s32 s1;
@@ -856,7 +1096,6 @@ s32 func_806FA9C0(s32 arg0, s32 arg1) {
     return arg1;
 }
 
-extern Mtx D_2000180;
 s32 func_806FA7BC(s32, s32);
 
 Gfx *func_806FAB20(Gfx *arg0) {
