@@ -1957,25 +1957,130 @@ void func_806491F4(CsState *cs, s16 csId, s16 b, s16 c) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B4AC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B514.s")
+void func_806FAC64(u8);
+void slotQueueCancel(s32, s32);
+void slotQueueUpdate(s32, u8, s32);
+void func_8064B514(CsState *cs, s16 csId, s16 b, s16 c) {
+    func_806FAC64(b);
+    if (c != 0) {
+        slotQueueCancel(0xD, 0);
+    } else {
+        slotQueueUpdate(0xD, 1, 0);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B574.s")
+void func_80726EE0(u8);
+void func_8064B574(CsState *cs, s16 csId, s16 b, s16 c) {
+    func_80726EE0(3);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B5A4.s")
+extern f32 D_80748280[];
+extern f32 D_8074828C[];
+extern f32 D_807482A4;
+extern s32 D_807F6C28;
+void lightGetColor(f32 *, f32 *, f32 *, s16);
+void func_8064B5A4(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 r, g, bl;
+    s32 i;
+    if (c != 0) {
+        for (i = 0; i < D_807F6C28; i++) {
+            lightSetColor(D_80748280[0], D_80748280[1], D_80748280[2], (s16)i);
+        }
+    } else {
+        lightGetColor(&r, &g, &bl, 0);
+        if (b != 0) {
+            r += D_807482A4;
+            g += D_807482A4;
+            if (D_8074828C[0] < r) {
+                r = D_8074828C[0];
+            }
+            if (D_8074828C[1] < g) {
+                g = D_8074828C[1];
+            }
+            bl += D_807482A4;
+            if (D_8074828C[2] < bl) {
+                bl = D_8074828C[2];
+            }
+        } else {
+            r -= D_807482A4;
+            g -= D_807482A4;
+            if (r < D_80748280[0]) {
+                r = D_80748280[0];
+            }
+            if (g < D_80748280[1]) {
+                g = D_80748280[1];
+            }
+            bl -= D_807482A4;
+            if (bl < D_80748280[2]) {
+                bl = D_80748280[2];
+            }
+        }
+        for (i = 0; i < D_807F6C28; i++) {
+            lightSetColor(r, g, bl, (s16)i);
+        }
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B798.s")
+void func_8064B798(CsState *cs, s16 csId, s16 b, s16 c) {
+    u8 *p = D_807FC924->unk4->unk174;
+    p[0x1FC] = b;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B7C0.s")
+void func_8064B7C0(CsState *cs, s16 csId, s16 b, s16 c) {
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B7D4.s")
+void func_8064B7D4(CsState *cs, s16 csId, s16 b, s16 c) {
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B7E8.s")
+void effectNodeSetUnk4A(s32, u8);
+void effectNodeSetUnk4B(s32, u8);
+u8 effectNodeGetUnk4B(s32);
+void func_8064B7E8(CsState *cs, s16 csId, s16 b, s16 c) {
+    effectNodeSetUnk4A(5, 1);
+    effectNodeSetUnk4A(6, 1);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B828.s")
+void func_8064B828(CsState *cs, s16 csId, s16 b, s16 c) {
+    effectNodeSetUnk4B(5, 0xFF);
+    effectNodeSetUnk4B(6, 0xFF);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B868.s")
+void func_8064B868(CsState *cs, s16 csId, s16 b, s16 c) {
+    u8 v = effectNodeGetUnk4B(5);
+    effectNodeSetUnk4B(5, v < 0xFC ? v + 3 : 0xFF);
+    effectNodeSetUnk4B(6, v < 0xFC ? v + 3 : 0xFF);
+    effectNodeSetUnk4A(5, 0);
+    effectNodeSetUnk4A(6, 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B900.s")
+extern Actor *D_807FBB44;
+Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
+Actor *spawnNodeActivate(s16, u16);
+void actorScriptStart(void *, s32);
+void func_80614D00(void *, f32, f32);
+void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
+    Actor *a;
+    switch (b) {
+        case 2:
+            spawnNodeSpawnById(8, 0, 0, 0, 0, 0, 0);
+            D_807FBB44->unk60 &= ~4;
+            break;
+        case 1:
+            a = spawnNodeActivate(8, 0);
+            if (a != NULL) {
+                a->unk60 |= 4;
+                actorScriptStart(a, 0x35C);
+                func_80614D00(a, 0.9f, 0.0f);
+            }
+            break;
+        case 0:
+            a = spawnNodeActivate(8, 0);
+            if (a != NULL) {
+                a->unk154 = 0x3C;
+            }
+            break;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B9E0.s")
 
