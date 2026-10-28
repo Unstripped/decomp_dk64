@@ -1,4 +1,4 @@
-// func_80033AF0 (src/boss/F0D0.c): stage 5: 36 SNORM/TNORM diff lines of 1819 insns (count, frame 144, s0-s2 identical). Remaining: 0x20 c5 wants addiu v1,v0,-1; andi t4,v1 (v1 alloc) and 0x23 c0 lbu value in temp not v1 -> t-ring shifts by 1 after c5.
+// func_80033AF0 (src/boss/F0D0.c): stage 5: exact diff = 4 lines (+rodata offsets): 0x20 c5 raw v-1 lands in v0, target v1 (load v0, raw v1, andi t4). Spot 2 fixed via 'unk18 = tbl[..]; unk19 = unk18;', spot 1 via 'D_80035BD8[st->unk18 = --v]'; t-ring now matches
 typedef struct BossF_Model {
     struct BossF_ModelSub *unk0;
     u8 padF4[0x38 - 4];
@@ -147,8 +147,6 @@ void actorAppendActiveCallback8(void);
 s32 camIsCutsceneActive(void);
 void camSetSecondTarget(void *, s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void projectileGetTargetCoords(void *, s32);
-void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 void func_80685B44(void *, s32, f32, s32, s32, s32, s32, s32, s32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void func_80714C08(void *, f32, void *, s32, s32);
@@ -326,8 +324,7 @@ void func_80033AF0(void) {
             sub->unk0 = sub->unk1;
             v = st->unk18;
             if (v != 0) {
-                st->unk18 = v - 1;
-                sub->unk1 = D_80035BD8[st->unk18];
+                sub->unk1 = D_80035BD8[st->unk18 = --v];
                 BF->unk155 = 3;
             } else {
                 actorScriptStart(D_807FBB40, 0x224);
@@ -397,7 +394,8 @@ void func_80033AF0(void) {
         func_8072A450();
         switch (BF->unk155) {
         case 0:
-            st->unk19 = st->unk18 = tbl[st->unk15++];
+            st->unk18 = tbl[st->unk15++];
+            st->unk19 = st->unk18;
             func_8003340C((u8 *)sub);
             sub->unk1 = func_800330D0((BossE_F0D0_Sub14 *)st, (u8 *)sub);
             BF->unk155 = 1;
@@ -685,3 +683,12 @@ block_131:
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
+#undef sub
+#undef tbl
+#undef sp83
+#undef sp7F
+#undef col
+#undef BF
+#undef BP
+#undef BX
+#undef BPTS

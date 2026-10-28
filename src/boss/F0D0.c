@@ -586,8 +586,7 @@ void func_80033AF0(void) {
             sub->unk0 = sub->unk1;
             v = st->unk18;
             if (v != 0) {
-                st->unk18 = v - 1;
-                sub->unk1 = D_80035BD8[st->unk18];
+                sub->unk1 = D_80035BD8[st->unk18 = --v];
                 BF->unk155 = 3;
             } else {
                 actorScriptStart(D_807FBB40, 0x224);
@@ -657,7 +656,8 @@ void func_80033AF0(void) {
         func_8072A450();
         switch (BF->unk155) {
         case 0:
-            st->unk19 = st->unk18 = tbl[st->unk15++];
+            st->unk18 = tbl[st->unk15++];
+            st->unk19 = st->unk18;
             func_8003340C((u8 *)sub);
             sub->unk1 = func_800330D0((BossE_F0D0_Sub14 *)st, (u8 *)sub);
             BF->unk155 = 1;
