@@ -111,8 +111,8 @@ typedef struct {
     u8 unk15F;
     char pad160[0x20];
     MenuStruct_80024000 *unk180;
-} MenuBB40_60;
-extern MenuBB40_60 *D_807FBB40;
+} MenuRenderActor;
+extern MenuRenderActor *D_807FBB40;
 extern s16 D_80750AC8;
 s32 currentActorTestClearFlag(void);
 void func_8070D8C0(void *, s32, u8);
@@ -234,7 +234,7 @@ Gfx *hudDrawScaledText(Gfx *, s32, s16, f32, char *);
 Gfx *func_806FC530(Gfx *, s32, s32, s32, char *, s32);
 char *func_8070E750(s32, s32, s32);
 
-Gfx *func_800244EC(Gfx *arg0, MenuBB40_60 *arg1) {
+Gfx *menuDrawOptionsOverlay(Gfx *arg0, MenuRenderActor *arg1) {
     s32 y;
     MenuStruct_80024000 *temp_s7 = arg1->unk180;
     char sp70[0x28];
@@ -274,17 +274,17 @@ typedef struct {
     char pad0[0x2C];
     u16 unk2C;
     char pad2E[6];
-} MenuM0_Pad;
+} MenuControllerPad;
 
 typedef struct {
     char pad0[3];
     s8 unk3;
-} MenuM0_Axis;
+} MenuStickAxis;
 
 #define MenuM0_X18(p) (((s8 *)(p))[0x18])
 
-extern MenuM0_Pad D_807FD610[];
-extern MenuM0_Axis *D_807ECDEC;
+extern MenuControllerPad D_807FD610[];
+extern MenuStickAxis *D_807ECDEC;
 extern u8 D_807FC929;
 extern u8 D_807FC950[][0x5E];
 extern u8 D_8074E77C;
@@ -304,7 +304,7 @@ void func_80712774(u8);
 s32 func_80609140(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
-void func_80024788(MenuStruct_80024000 *arg0) {
+void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
     s32 i;
     s32 sp40;
     u8 *sp3C;
@@ -364,7 +364,7 @@ void func_80024788(MenuStruct_80024000 *arg0) {
                 }
                 D_807FBB40->unk15F = a3 + inc;
             }
-            renderCallbacksRegister(func_800244EC, D_807FBB40, 3);
+            renderCallbacksRegister(menuDrawOptionsOverlay, D_807FBB40, 3);
             if (D_807FD610[D_807FC929].unk2C & 0x4000) {
                 menuResetAudioState();
                 arg0->unk1 = 2;
@@ -400,7 +400,7 @@ void func_80024788(MenuStruct_80024000 *arg0) {
             D_80032F50 = 1;
             arg0->unk1 = 0x37;
         }
-        renderCallbacksRegister(func_800244EC, D_807FBB40, 3);
+        renderCallbacksRegister(menuDrawOptionsOverlay, D_807FBB40, 3);
         break;
     }
     MenuM0_X18(arg0) = D_807ECDEC->unk3;
@@ -432,7 +432,7 @@ extern s16 D_8076AEF2;
 void func_806F397C(void *, s32, s32, s32);
 u8 flagCountRange(s32, s32, s32);
 u8 flagGridSumRows(s32, s32, s32, u8);
-void func_80024788(MenuStruct_80024000 *);
+void menuUpdateOptionsState(MenuStruct_80024000 *);
 void behaviourFrameBegin(void);
 void func_806BFBF4(void);
 void actorUpdateModelMatrix(void *, s32);
@@ -504,7 +504,7 @@ void menuDispatchAction(void) {
         menuTransitionStep(temp_s0, var_a3);
         break;
     case 4:
-        func_80024788(temp_s0);
+        menuUpdateOptionsState(temp_s0);
         break;
     case 5:
         menuProcessOptionInput(temp_s0);
@@ -525,7 +525,7 @@ typedef struct {
     u8 unkD;
     u8 unkE;
     u8 unkF;
-} MenuM0_Vtx;
+} MenuProgressGridVtx;
 
 extern s32 D_800330D0;
 extern void *D_800330D4;
@@ -533,13 +533,13 @@ extern u8 D_800330E0[];
 extern s16 D_80033220[];
 extern u8 D_80033228[];
 extern u8 D_80033258;
-extern MenuM0_Vtx *D_80033F10;
+extern MenuProgressGridVtx *D_80033F10;
 
 void *func_80610FE8(s32);
-Gfx *func_800252AC(Gfx *, MenuBB40_60 *);
+Gfx *menuDrawProgressGrid(Gfx *, MenuRenderActor *);
 void *memcpy(void *, const void *, s32);
 
-void func_80024EF0(void) {
+void menuUpdateProgressGrid(void) {
     s16 *var_s0;
     s32 flag;
     s32 n;
@@ -615,7 +615,7 @@ void func_80024EF0(void) {
     }
     D_800330D8 = 0;
     if (*var_s0 >= -0x3E7) {
-        renderCallbacksRegister(func_800252AC, D_807FBB40, 3);
+        renderCallbacksRegister(menuDrawProgressGrid, D_807FBB40, 3);
     }
 }
 
@@ -623,7 +623,7 @@ extern u8 D_807444FC;
 extern s32 D_8076A064;
 s32 texCacheFindOrLoad(s32);
 
-Gfx *func_800252AC(Gfx *g, MenuBB40_60 *arg1) {
+Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *arg1) {
     s32 pad;
     s32 tex;
     s32 i;
@@ -631,7 +631,7 @@ Gfx *func_800252AC(Gfx *g, MenuBB40_60 *arg1) {
     s32 x;
     s32 y;
     s16 *var_p = *(s16 **)((u8 *)arg1 + 0x174);
-    MenuM0_Vtx *v;
+    MenuProgressGridVtx *v;
     s32 k;
     f32 mf[4][4];
     s8 sp12B;

@@ -18,7 +18,7 @@ typedef struct {
 extern u8 D_807FC950[][0x5E];
 extern u8 D_8074E77C;
 
-s32 func_80025AF0(Struct_80025D14 *arg0, s32 arg1) {
+s32 menuCheckBitgridOtherSlots(Struct_80025D14 *arg0, s32 arg1) {
     s32 found = 0;
     do { s32 i = 0; do {
             if (i != D_8074E77C) {
@@ -39,14 +39,14 @@ typedef struct {
     u8 unk15F;
     char pad160[0x178 - 0x160];
     Struct_80025D14 *unk178;
-} MenuM1_Wnd;
+} MenuShopPromptActor;
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 Gfx *func_806FC530();
 char *func_8070E750(s32, s32, s32);
 s32 _sprintf(char *, const char *, ...);
 
-Gfx *func_80025B64(Gfx *dl, MenuM1_Wnd *arg1) {
+Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *arg1) {
     Struct_80025D14 *st = arg1->unk178;
     char buf[0x28];
 
@@ -122,7 +122,7 @@ void func_806F91B4(s32, s32, s16);
 void func_80709464(s32);
 void func_8060DEC8(void);
 
-void func_80025E04(Struct_80025D14 *arg0, s32 arg1) {
+void menuApplyPurchase(Struct_80025D14 *arg0, s32 arg1) {
     s16 sp1E = -1;
     u8 sp1D = func_806F6E58(D_8074E77C);
 
@@ -349,7 +349,7 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             c = 0xC;
             d = 0xE;
             if (arg0->unkB >= 0) {
-                avail = func_80025AF0(arg0, 1);
+                avail = menuCheckBitgridOtherSlots(arg0, 1);
                 if (M1_ARG1[arg0->unkB] & 1) {
                     b = 9;
                     if (D_807FCC4C < D_800334DD[M1_ARG1[arg0->unkB]]) {
@@ -535,7 +535,7 @@ void *arg1;
         if (func_80026250(arg0) == 0) {
             slotQueueCancel(1, 0);
             slotQueueCancel(0xE, 0);
-            func_80025E04(arg0, (s32)arg1);
+            menuApplyPurchase(arg0, (s32)arg1);
             switch (arg0->unkB) {
             case 0:
             case 1:
@@ -628,7 +628,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
                 break;
             case 4:
                 if (arg0->unk11 == 1) {
-                    if (func_80025AF0(arg0, 1) == 0) {
+                    if (menuCheckBitgridOtherSlots(arg0, 1) == 0) {
                         sp24 = 0x15;
                     }
                     sp2C = 0x12;
@@ -783,8 +783,8 @@ typedef struct {
     char pad0[0x154];
     u8 unk154;
     u8 unk155;
-} MenuM3_Actor;
-#define M3A ((MenuM3_Actor *)D_807FBB40)
+} MenuScriptActor;
+#define M3A ((MenuScriptActor *)D_807FBB40)
 extern s32 D_8076A0A8;
 void behaviourFrameBegin(void);
 void func_806BFBF4(void);
@@ -849,7 +849,7 @@ void func_800270E0(void) {
                         st->unkB = 1;
                         st->unk4 = 0;
                         st->unk11 = 1;
-                        func_80025E04(st, (s32)p);
+                        menuApplyPurchase(st, (s32)p);
                         flagSet(0x180, 1, 0);
                     }
                     func_806F397C(D_807FBB4C, D_807FBB40, 0, 0x1B);
@@ -1026,11 +1026,11 @@ typedef struct {
     Mtx unk10[2];
     s32 unk90;
     Struct_BB40_58 *unk94;
-} MenuM3_Fp;
+} MenuWidgetState;
 typedef struct {
     s32 a[2];
-} MenuM3_Pair;
-extern MenuM3_Pair D_8003365C[];
+} MenuTextIdPair;
+extern MenuTextIdPair D_8003365C[];
 extern s32 D_80033544[5][4][2];
 extern s32 D_800335E4[4][2];
 extern s32 D_80033604[];
@@ -1044,13 +1044,13 @@ s32 func_806FD894(s32);
 void actorDespawn(void *);
 void renderCallbacksRegister(void *, void *, s32);
 
-void func_80027988(void) {
-    MenuM3_Fp *fp = *(MenuM3_Fp **)((u8 *)D_807FBB40 + 0x174);
+void menuUpdateTransformedWidgets(void) {
+    MenuWidgetState *fp = *(MenuWidgetState **)((u8 *)D_807FBB40 + 0x174);
     s32 done = 0;
     Struct_80025D14 *st = NULL;
     f32 mA[4][4];
     f32 mB[4][4];
-    MenuM3_Pair sp34;
+    MenuTextIdPair sp34;
     s32 i;
     s32 cnt;
     s32 d;
@@ -1145,8 +1145,8 @@ void func_80027988(void) {
     }
 }
 
-void func_80027988(void);
+void menuUpdateTransformedWidgets(void);
 
 void func_80027DEC(void) {
-    func_80027988();
+    menuUpdateTransformedWidgets();
 }

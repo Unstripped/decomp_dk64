@@ -18,9 +18,9 @@ typedef struct {
     u8 unk16A;
     u8 unk16B;
     u8 unk16C;
-} MenuBB40_E550;
+} MenuLightFadeActor;
 
-extern MenuBB40_E550 *D_807FBB40;
+extern MenuLightFadeActor *D_807FBB40;
 extern u8 D_80033FB0;
 extern u8 D_80033FB1;
 extern u8 D_80033FB2;
@@ -29,8 +29,8 @@ void behaviourFrameBegin(void);
 void func_8068A858(u8 *, u8 *, u8 *);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
-void actorScriptStart(MenuBB40_E550 *, s32);
-void actorUpdateModelMatrix(MenuBB40_E550 *, s32);
+void actorScriptStart(MenuLightFadeActor *, s32);
+void actorUpdateModelMatrix(MenuLightFadeActor *, s32);
 
 void func_80032550(void) {
     behaviourFrameBegin();
@@ -63,7 +63,7 @@ void func_807145F8(void);
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *func_8003292C(Gfx *, void *);
 
-void func_8003264C(void) {
+void menuUpdateLightFadeActor(void) {
     s32 d;
     s32 cur;
 

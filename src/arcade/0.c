@@ -32,11 +32,11 @@ extern u8 D_8004A740;
 extern u8 D_8004A76C;
 extern s32 D_8004A308[];
 
-void func_80024D90(void);
+void arcadeInitTitleScreen(void);
 void arcadeDispatchEntities(void);
-void func_800259D0(Gfx **);
+void arcadeDrawBackground(Gfx **);
 void arcadeRenderEntities(Gfx **);
-void func_8002AFA4(Gfx **, s32);
+void arcadeRenderEntity(Gfx **, s32);
 void arcadeInitStage(void);
 #define ArcR1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 Gfx *func_806FD490(Gfx *, s32, s16, s16, s32);
@@ -55,7 +55,7 @@ void func_805FE71C(Gfx *, u8, s32 *, s32);
 void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
 Gfx *func_805FE4D4(Gfx *);
 void arcadeDispatchState(Gfx **);
-void func_8002419C(u8 *, Gfx **);
+void arcadeBuildDisplayList(u8 *, Gfx **);
 
 extern u8 D_807444FC;
 extern Gfx *D_8076A050[];
@@ -71,7 +71,7 @@ extern void *D_8076A080;
 extern Gfx D_1000090;
 extern Gfx D_1000040;
 
-void func_80024000(void) {
+void arcadeRunFrame(void) {
     Gfx *sp2C;
     u8 *sp28;
 
@@ -84,7 +84,7 @@ void func_80024000(void) {
     if ((D_8076A0B1 & 1) && D_807FD888 == 31.0f) {
         sp2C = D_8076A050[D_807444FC];
     } else {
-        func_8002419C(D_8076A048, &sp2C);
+        arcadeBuildDisplayList(D_8076A048, &sp2C);
     }
     sp2C = func_80704484(sp2C, 0);
     if (D_807444EC != 3) {
@@ -96,7 +96,7 @@ void func_80024000(void) {
     }
 }
 
-void func_8002419C(u8 *arg0, Gfx **arg1) {
+void arcadeBuildDisplayList(u8 *arg0, Gfx **arg1) {
     Gfx *glist = D_8076A050[D_807444FC];
 
     gSPSegment(glist++, 0, 0);
@@ -275,13 +275,13 @@ s32 arcadeCountEntitiesByType(s32 arg0) {
     }
     return count;
 }
-void func_80024E84(Gfx **);
+void arcadeTitleLoop(Gfx **);
 void arcadeStageIntroLoop(Gfx **);
 void arcadeGameplayLoop(Gfx **);
-void func_800255F4(Gfx **);
+void arcadePauseMenuLoop(Gfx **);
 void arcadeAttractLoop(Gfx **);
 void arcadeDemoLoop(Gfx **);
-void func_800319D4(Gfx **);
+void arcadeDrawHud(Gfx **);
 extern s32 D_8004A78C[];
 extern s32 D_8004A790;
 extern s32 D_8004C6D8;
@@ -292,12 +292,12 @@ void arcadeDispatchState(Gfx **arg0) {
     if (D_8004A78C[0] != 0) {
         D_8004A78C[0] = 0;
         D_8004C722 = 1;
-        func_80024D90();
+        arcadeInitTitleScreen();
         arcadeLoadHighScores();
     }
     switch (D_8004C724) {
     case 0:
-        func_80024E84(&sp1C);
+        arcadeTitleLoop(&sp1C);
         break;
     case 1:
         arcadeStageIntroLoop(&sp1C);
@@ -306,7 +306,7 @@ void arcadeDispatchState(Gfx **arg0) {
         arcadeGameplayLoop(&sp1C);
         break;
     case 4:
-        func_800255F4(&sp1C);
+        arcadePauseMenuLoop(&sp1C);
         break;
     case 3:
         arcadeAttractLoop(&sp1C);
@@ -315,7 +315,7 @@ void arcadeDispatchState(Gfx **arg0) {
         arcadeDemoLoop(&sp1C);
         break;
     }
-    func_800319D4(&sp1C);
+    arcadeDrawHud(&sp1C);
     D_8004C6D8++;
     sp1C--;
     *arg0 = sp1C;
@@ -378,21 +378,21 @@ void arcadeExit(void) {
 void arcadeAttractLoop(Gfx **arg0) {
     Gfx *sp1C = *arg0;
     D_8004C6DC++;
-    func_800259D0(&sp1C);
+    arcadeDrawBackground(&sp1C);
     arcadeDispatchEntities();
     arcadeRenderEntities(&sp1C);
     if (D_8004C6DC >= 0x7BD) {
         if (D_8004A740 != 0) {
             arcadeExit();
         } else {
-            func_80024D90();
+            arcadeInitTitleScreen();
         }
     }
     *arg0 = sp1C;
 }
 extern ArcadeEntity D_8004A538;
 extern u8 D_800424D0[];
-void func_80024D90(void) {
+void arcadeInitTitleScreen(void) {
     ArcadeEntity *e;
     s32 idx;
 
@@ -420,14 +420,14 @@ extern ArcadeEntity D_8004A4D8;
 extern ArcadeEntity D_8004A4F8;
 extern u8 D_8004C723;
 extern u16 D_807ECD48;
-void func_80024E84(Gfx **arg0) {
+void arcadeTitleLoop(Gfx **arg0) {
     Gfx *sp24;
     s32 i;
     s32 idx;
 
     sp24 = *arg0;
     D_8004C6DC++;
-    func_800259D0(&sp24);
+    arcadeDrawBackground(&sp24);
     if (D_8004C6DC & 0x200) {
         arcadeRenderEntities(&sp24);
     }
@@ -472,14 +472,14 @@ void func_80024E84(Gfx **arg0) {
     *arg0 = sp24;
 }
 
-void func_800257D8(void);
+void arcadeFinishStageIntro(void);
 void arcadeStageIntroLoop(Gfx **arg0) {
     Gfx *sp1C = *arg0;
     arcadeDispatchEntities();
-    func_800259D0(&sp1C);
+    arcadeDrawBackground(&sp1C);
     arcadeRenderEntities(&sp1C);
     if (D_8004C6DC++ >= 0x2F9) {
-        func_800257D8();
+        arcadeFinishStageIntro();
     }
     *arg0 = sp1C;
 }
@@ -509,13 +509,13 @@ void arcadeStopSound(s32 arg0) {
 extern u8 D_8004BCE9[];
 extern s32 D_8076D1F8;
 s32 n_alSndpPlay(s32, s32, s32, s32, f32, s32, s32);
-void func_8002549C(void);
-void func_800311E0(void);
-void func_800313B8(void);
+void arcadeOpenPauseMenu(void);
+void arcadeSpawnStage4Enemies(void);
+void arcadeSpawnStage2Enemies(void);
 void arcadeGameplayLoop(Gfx **arg0) {
     Gfx *sp34 = *arg0;
 
-    func_800259D0(&sp34);
+    arcadeDrawBackground(&sp34);
     if ((D_8004C71E < 0xA) && ((D_8004C714 == 0x4D) || (D_8004C714 == 0x4E) || (D_8004C714 == 0x4F) || (D_8004C714 == -1))) {
         arcadeStopSound(0x48);
     }
@@ -534,13 +534,13 @@ void arcadeGameplayLoop(Gfx **arg0) {
     arcadeRenderEntities(&sp34);
     if (D_8004C71D == 0) {
         if (D_8004C722 == 2) {
-            func_800313B8();
+            arcadeSpawnStage2Enemies();
         }
         if (D_8004C722 == 4) {
-            func_800311E0();
+            arcadeSpawnStage4Enemies();
         }
         if (D_807ECD48 & 0x1000) {
-            func_8002549C();
+            arcadeOpenPauseMenu();
             D_8004C724 = 4;
         }
     }
@@ -553,7 +553,7 @@ extern s32 D_8004C70C;
 extern u8 D_8004A744;
 s32 arcadeFindFreeEntityReverse(void);
 
-void func_8002549C(void) {
+void arcadeOpenPauseMenu(void) {
     s32 s4;
     s32 s0;
     f32 fs0;
@@ -583,11 +583,11 @@ void arcadeClearEntitiesByType1C(void) {
 }
 
 void func_8060C8AC(s32);
-void func_800255F4(Gfx **arg0) {
+void arcadePauseMenuLoop(Gfx **arg0) {
     Gfx *sp2C;
 
     sp2C = *arg0;
-    func_800259D0(&sp2C);
+    arcadeDrawBackground(&sp2C);
     arcadeRenderEntities(&sp2C);
     if ((D_807ECD48 & 0x800) || ((s8)D_807ECDE8[3] >= 0x1F && D_8004C70C < 0x1F)) {
         D_8004A768--;
@@ -634,7 +634,7 @@ void func_800255F4(Gfx **arg0) {
 extern ArcadeEntity D_8004A5D8;
 extern f32 D_8004BCD4;
 extern s32 D_8004C6D4;
-void func_800257D8(void) {
+void arcadeFinishStageIntro(void) {
     ArcadeEntity *e;
     s32 i;
     s32 idx;
@@ -666,7 +666,7 @@ void func_800257D8(void) {
 
 void arcadeDemoLoop(Gfx **arg0) {
     Gfx *sp1C = *arg0;
-    func_800259D0(&sp1C);
+    arcadeDrawBackground(&sp1C);
     arcadeRenderEntities(&sp1C);
     if (D_8004C6DC++ >= 0xA1) {
         arcadeInitStage();
@@ -684,18 +684,18 @@ extern u8 D_8004BB60[];
 extern u8 D_8004BB90[];
 extern u8 D_8004BBC0[];
 #define ArcR2_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-void func_80026680();
-void func_800268AC();
-void func_80026EF4();
+void arcadeDrawTitleText();
+void arcadeDrawStage1Background();
+void arcadeDrawStage2Background();
 void func_800275E8();
-void func_80027A38();
+void arcadeDrawStage4Background();
 typedef struct ArcR2_Entity {
     void *ptr;
 } ArcR2_Entity;
-typedef struct ArcR2_Struct48 {
+typedef struct ArcadeTitleBitmap {
     s32 words[12];
-} ArcR2_Struct48;
-extern ArcR2_Struct48 D_8004A798;
+} ArcadeTitleBitmap;
+extern ArcadeTitleBitmap D_8004A798;
 extern u8 D_8004C719;
 extern u8 D_8004C71A;
 extern u8 D_807444FC;
@@ -705,11 +705,11 @@ extern u8 D_80032DF8[];
 void func_80005A90(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
 void func_8070E8F0(s32 *, void *);
 void func_8070F2C8(s32, s16, s32, u8);
-void func_80025C08();
+void arcadeDrawLadder();
 void func_8070F2FC(s32 *, s16, s16);
 void arcadeStopSound(s32);
 extern s32 D_8076D1F8;
-void func_800259D0(arg0)
+void arcadeDrawBackground(arg0)
 Gfx **arg0;
 {
     Gfx *sp4C;
@@ -730,7 +730,7 @@ Gfx **arg0;
     switch (D_8004C724) {
     case 0:
         if (D_8004C6DC & 0x200) {
-            func_80026680(&sp4C);
+            arcadeDrawTitleText(&sp4C);
         }
         break;
     case 1:
@@ -738,16 +738,16 @@ Gfx **arg0;
     case 5:
         switch (D_8004C722) {
         case 1:
-            func_800268AC(&sp4C);
+            arcadeDrawStage1Background(&sp4C);
             break;
         case 2:
-            func_80026EF4(&sp4C);
+            arcadeDrawStage2Background(&sp4C);
             break;
         case 3:
             func_800275E8(&sp4C);
             break;
         default:
-            func_80027A38(&sp4C);
+            arcadeDrawStage4Background(&sp4C);
             break;
         }
         break;
@@ -756,7 +756,7 @@ Gfx **arg0;
 }
 
 #define ArcA1_D6D0 (*(void **)&D_8004C6D0)
-void func_80025C08(arg0, arg1, arg2, arg3)
+void arcadeDrawLadder(arg0, arg1, arg2, arg3)
 s32 *arg0;
 s32 arg1;
 s32 arg2;
@@ -800,16 +800,16 @@ s32 arg3;
     *arg0 = sp60;
 }
 
-void func_80026050(arg0)
+void arcadeDrawStage1Ladders(arg0)
 Gfx **arg0;
 {
     Gfx *sp2C;
     s32 sp28;
 
     sp2C = *arg0;
-    func_80025C08(&sp2C, 0x70, 0x1C, 0x2E);
-    func_80025C08(&sp2C, 0x80, 0x1C, 0x2E);
-    func_80025C08(&sp2C, 0xB0, 0x38, 0x12);
+    arcadeDrawLadder(&sp2C, 0x70, 0x1C, 0x2E);
+    arcadeDrawLadder(&sp2C, 0x80, 0x1C, 0x2E);
+    arcadeDrawLadder(&sp2C, 0xB0, 0x38, 0x12);
     if (D_8004C724 == 1) {
         if (D_8004C6DC < 0x190) {
             sp28 = 0x82 - (((s32) (D_8004C6DC - 0x3C) / 20) * 8);
@@ -819,106 +819,106 @@ Gfx **arg0;
             if (sp28 < 0x22) {
                 sp28 = 0x22;
             }
-            func_80025C08(&sp2C, 0xA0, 0x51, sp28);
-            func_80025C08(&sp2C, 0xB0, 0x51, sp28);
+            arcadeDrawLadder(&sp2C, 0xA0, 0x51, sp28);
+            arcadeDrawLadder(&sp2C, 0xB0, 0x51, sp28);
         }
     } else {
-        func_80025C08(&sp2C, 0x88, 0x50, 4);
-        func_80025C08(&sp2C, 0x88, 0x5B, 0xC);
-        func_80025C08(&sp2C, 0xE8, 0x53, 0xE);
-        func_80025C08(&sp2C, 0x50, 0x70, 0xE);
-        func_80025C08(&sp2C, 0x78, 0x6E, 0x12);
-        func_80025C08(&sp2C, 0xD8, 0x69, 8);
-        func_80025C08(&sp2C, 0xD8, 0x7D, 8);
-        func_80025C08(&sp2C, 0x70, 0x87, 5);
-        func_80025C08(&sp2C, 0x70, 0x99, 8);
-        func_80025C08(&sp2C, 0xA8, 0x89, 0x16);
-        func_80025C08(&sp2C, 0xE8, 0x8D, 0xE);
-        func_80025C08(&sp2C, 0x50, 0xAA, 0xE);
-        func_80025C08(&sp2C, 0x90, 0xA6, 0x15);
-        func_80025C08(&sp2C, 0x80, 0xC1, 4);
-        func_80025C08(&sp2C, 0x80, 0xD1, 8);
-        func_80025C08(&sp2C, 0xE8, 0xC7, 0xE);
+        arcadeDrawLadder(&sp2C, 0x88, 0x50, 4);
+        arcadeDrawLadder(&sp2C, 0x88, 0x5B, 0xC);
+        arcadeDrawLadder(&sp2C, 0xE8, 0x53, 0xE);
+        arcadeDrawLadder(&sp2C, 0x50, 0x70, 0xE);
+        arcadeDrawLadder(&sp2C, 0x78, 0x6E, 0x12);
+        arcadeDrawLadder(&sp2C, 0xD8, 0x69, 8);
+        arcadeDrawLadder(&sp2C, 0xD8, 0x7D, 8);
+        arcadeDrawLadder(&sp2C, 0x70, 0x87, 5);
+        arcadeDrawLadder(&sp2C, 0x70, 0x99, 8);
+        arcadeDrawLadder(&sp2C, 0xA8, 0x89, 0x16);
+        arcadeDrawLadder(&sp2C, 0xE8, 0x8D, 0xE);
+        arcadeDrawLadder(&sp2C, 0x50, 0xAA, 0xE);
+        arcadeDrawLadder(&sp2C, 0x90, 0xA6, 0x15);
+        arcadeDrawLadder(&sp2C, 0x80, 0xC1, 4);
+        arcadeDrawLadder(&sp2C, 0x80, 0xD1, 8);
+        arcadeDrawLadder(&sp2C, 0xE8, 0xC7, 0xE);
     }
     *arg0 = sp2C;
 }
 
-void func_8002628C(arg0)
+void arcadeDrawStage2Ladders(arg0)
 Gfx **arg0;
 {
     Gfx *sp24;
 
     sp24 = *arg0;
-    func_80025C08(&sp24, 0x38, 0xBD, 0x1C);
-    func_80025C08(&sp24, 0x100, 0xBD, 0x1C);
-    func_80025C08(&sp24, 0x40, 0x9B, 0x1C);
-    func_80025C08(&sp24, 0xF8, 0x9B, 0x1C);
-    func_80025C08(&sp24, 0x48, 0x7A, 0x1A);
-    func_80025C08(&sp24, 0xF0, 0x7A, 0x1A);
-    func_80025C08(&sp24, 0x50, 0x58, 0x1C);
-    func_80025C08(&sp24, 0xE8, 0x58, 0x1C);
+    arcadeDrawLadder(&sp24, 0x38, 0xBD, 0x1C);
+    arcadeDrawLadder(&sp24, 0x100, 0xBD, 0x1C);
+    arcadeDrawLadder(&sp24, 0x40, 0x9B, 0x1C);
+    arcadeDrawLadder(&sp24, 0xF8, 0x9B, 0x1C);
+    arcadeDrawLadder(&sp24, 0x48, 0x7A, 0x1A);
+    arcadeDrawLadder(&sp24, 0xF0, 0x7A, 0x1A);
+    arcadeDrawLadder(&sp24, 0x50, 0x58, 0x1C);
+    arcadeDrawLadder(&sp24, 0xE8, 0x58, 0x1C);
     if (D_8004C708 == 0) {
-        func_80025C08(&sp24, 0x98, 0xBD, 0x1C);
-        func_80025C08(&sp24, 0x78, 0x9B, 0x1C);
-        func_80025C08(&sp24, 0xC0, 0x9B, 0x1C);
-        func_80025C08(&sp24, 0x98, 0x7A, 0x1A);
-        func_80025C08(&sp24, 0x70, 0x58, 0x1C);
-        func_80025C08(&sp24, 0xC8, 0x58, 0x1C);
+        arcadeDrawLadder(&sp24, 0x98, 0xBD, 0x1C);
+        arcadeDrawLadder(&sp24, 0x78, 0x9B, 0x1C);
+        arcadeDrawLadder(&sp24, 0xC0, 0x9B, 0x1C);
+        arcadeDrawLadder(&sp24, 0x98, 0x7A, 0x1A);
+        arcadeDrawLadder(&sp24, 0x70, 0x58, 0x1C);
+        arcadeDrawLadder(&sp24, 0xC8, 0x58, 0x1C);
     }
     *arg0 = sp24;
 }
 
-void func_800263EC(arg0)
+void arcadeDrawStage3Ladders(arg0)
 Gfx **arg0;
 {
     Gfx *sp24;
 
     sp24 = *arg0;
-    func_80025C08(&sp24, 0x70, 0x1C, 0x31);
-    func_80025C08(&sp24, 0x80, 0x1C, 0x31);
-    func_80025C08(&sp24, 0xB0, 0x38, 0x15);
-    func_80025C08(&sp24, 0xD0, 0x54, 0x15);
-    func_80025C08(&sp24, 0x100, 0x62, 0x1C);
-    func_80025C08(&sp24, 0xB8, 0x77, 0x15);
-    func_80025C08(&sp24, 0x40, 0x7E, 0x2A);
-    func_80025C08(&sp24, 0x70, 0x7E, 0x38);
-    func_80025C08(&sp24, 0x80, 0x7E, 0x38);
-    func_80025C08(&sp24, 0xE8, 0x85, 0x15);
-    func_80025C08(&sp24, 0x100, 0xA8, 0xE);
-    func_80025C08(&sp24, 0x38, 0xAF, 0x1C);
+    arcadeDrawLadder(&sp24, 0x70, 0x1C, 0x31);
+    arcadeDrawLadder(&sp24, 0x80, 0x1C, 0x31);
+    arcadeDrawLadder(&sp24, 0xB0, 0x38, 0x15);
+    arcadeDrawLadder(&sp24, 0xD0, 0x54, 0x15);
+    arcadeDrawLadder(&sp24, 0x100, 0x62, 0x1C);
+    arcadeDrawLadder(&sp24, 0xB8, 0x77, 0x15);
+    arcadeDrawLadder(&sp24, 0x40, 0x7E, 0x2A);
+    arcadeDrawLadder(&sp24, 0x70, 0x7E, 0x38);
+    arcadeDrawLadder(&sp24, 0x80, 0x7E, 0x38);
+    arcadeDrawLadder(&sp24, 0xE8, 0x85, 0x15);
+    arcadeDrawLadder(&sp24, 0x100, 0xA8, 0xE);
+    arcadeDrawLadder(&sp24, 0x38, 0xAF, 0x1C);
     *arg0 = sp24;
 }
 
-void func_80026518(arg0)
+void arcadeDrawStage4Ladders(arg0)
 Gfx **arg0;
 {
     Gfx *sp24;
 
     sp24 = *arg0;
-    func_80025C08(&sp24, 0x70, 0x1C, 0x31);
-    func_80025C08(&sp24, 0x80, 0x1C, 0x31);
-    func_80025C08(&sp24, 0xB0, 0x38, 0x15);
-    func_80025C08(&sp24, 0x48, 0xBD, 0x1C);
-    func_80025C08(&sp24, 0x80, 0xBD, 0x1C);
-    func_80025C08(&sp24, 0xB8, 0xBD, 0x1C);
-    func_80025C08(&sp24, 0xF0, 0xBD, 0x1C);
-    func_80025C08(&sp24, 0x70, 0x9A, 0x1C);
-    func_80025C08(&sp24, 0xC0, 0x9A, 0x1C);
-    func_80025C08(&sp24, 0x48, 0x77, 0x1C);
-    func_80025C08(&sp24, 0x80, 0x77, 0x1C);
-    func_80025C08(&sp24, 0xB8, 0x77, 0x1C);
-    func_80025C08(&sp24, 0xF0, 0x77, 0x1C);
-    func_80025C08(&sp24, 0x40, 0x62, 0xE);
-    func_80025C08(&sp24, 0xF8, 0x62, 0xE);
+    arcadeDrawLadder(&sp24, 0x70, 0x1C, 0x31);
+    arcadeDrawLadder(&sp24, 0x80, 0x1C, 0x31);
+    arcadeDrawLadder(&sp24, 0xB0, 0x38, 0x15);
+    arcadeDrawLadder(&sp24, 0x48, 0xBD, 0x1C);
+    arcadeDrawLadder(&sp24, 0x80, 0xBD, 0x1C);
+    arcadeDrawLadder(&sp24, 0xB8, 0xBD, 0x1C);
+    arcadeDrawLadder(&sp24, 0xF0, 0xBD, 0x1C);
+    arcadeDrawLadder(&sp24, 0x70, 0x9A, 0x1C);
+    arcadeDrawLadder(&sp24, 0xC0, 0x9A, 0x1C);
+    arcadeDrawLadder(&sp24, 0x48, 0x77, 0x1C);
+    arcadeDrawLadder(&sp24, 0x80, 0x77, 0x1C);
+    arcadeDrawLadder(&sp24, 0xB8, 0x77, 0x1C);
+    arcadeDrawLadder(&sp24, 0xF0, 0x77, 0x1C);
+    arcadeDrawLadder(&sp24, 0x40, 0x62, 0xE);
+    arcadeDrawLadder(&sp24, 0xF8, 0x62, 0xE);
     *arg0 = sp24;
 }
 
 #define ArcA1_P6D0 (*(void **)&D_8004C6D0)
-void func_80026680(Gfx **arg0) {
+void arcadeDrawTitleText(Gfx **arg0) {
     s32 row;
     s32 j;
     Gfx *sp94;
-    ArcR2_Struct48 sp64;
+    ArcadeTitleBitmap sp64;
     s32 i;
 
     sp64 = D_8004A798;
@@ -944,7 +944,7 @@ void func_80026680(Gfx **arg0) {
 
 #define ArcL1_P6D0 (*(void **)&D_8004C6D0)
 extern u8 D_80034568[];
-void func_800268AC(Gfx **arg0) {
+void arcadeDrawStage1Background(Gfx **arg0) {
     s32 i;
     Gfx *sp68;
 
@@ -1019,14 +1019,14 @@ void func_800268AC(Gfx **arg0) {
             func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x142);
         }
     }
-    func_80026050(&sp68);
+    arcadeDrawStage1Ladders(&sp68);
     *arg0 = sp68;
 }
 
 #define ArcA1_P6D0 (*(void **)&D_8004C6D0)
 extern u8 D_80032F18[];
 extern u8 D_8004BC50[];
-void func_80026EF4(Gfx **arg0) {
+void arcadeDrawStage2Background(Gfx **arg0) {
     s32 i;
     Gfx *sp60;
 
@@ -1110,11 +1110,11 @@ void func_80026EF4(Gfx **arg0) {
             func_8070F2FC((s32 *)&sp60, i * 0x20 + 0x1A0, 0xD8);
         }
     }
-    func_8002628C(&sp60);
+    arcadeDrawStage2Ladders(&sp60);
     *arg0 = sp60;
 }
 
-void func_800274E0(arg0, arg1, arg2, arg3)
+void arcadeDrawGirderSpan(arg0, arg1, arg2, arg3)
 Gfx **arg0;
 u8 arg1;
 u8 arg2;
@@ -1136,11 +1136,11 @@ s16 arg3;
 
 #ifdef NON_MATCHING
 #define ArcA1_P6D0 (*(void **)&D_8004C6D0)
-typedef struct ArcA1_Pt {
+typedef struct ArcadeGirderSpan {
     u8 x;
     u8 y;
     s16 z;
-} ArcA1_Pt;
+} ArcadeGirderSpan;
 typedef struct ArcA1_Bar {
     f32 x;
     f32 y;
@@ -1148,14 +1148,14 @@ typedef struct ArcA1_Bar {
 } ArcA1_Bar;
 extern ArcA1_Bar D_8004BC88[];
 extern u8 D_80032F40[];
-extern ArcA1_Pt D_8004A7C8[];
+extern ArcadeGirderSpan D_8004A7C8[];
 extern u8 D_8004BC50[];
 void func_800275E8(Gfx **arg0) {
     s32 i;
     s32 j;
     s32 n;
     Gfx *sp90;
-    ArcA1_Pt *pt;
+    ArcadeGirderSpan *pt;
     ArcA1_Bar *bar;
 
     sp90 = *arg0;
@@ -1182,7 +1182,7 @@ void func_800275E8(Gfx **arg0) {
     n = 21;
     pt = D_8004A7C8;
     for (i = 0; i < n; i++) {
-        func_800274E0(&sp90, pt[i].x, pt[i].y, pt[i].z);
+        arcadeDrawGirderSpan(&sp90, pt[i].x, pt[i].y, pt[i].z);
     }
     for (bar = D_8004BC88;;) {
         if (D_8004C71D == 0 && D_8004C724 == 5) {
@@ -1200,7 +1200,7 @@ void func_800275E8(Gfx **arg0) {
         bar++;
         if (bar == (ArcA1_Bar *)D_8004BCD0) break;
     }
-    func_800263EC(&sp90);
+    arcadeDrawStage3Ladders(&sp90);
     *arg0 = sp90;
 }
 #else
@@ -1213,7 +1213,7 @@ extern u8 D_80032CA8[];
 extern u8 D_80032D50[];
 extern u8 D_800342B8[];
 extern u8 D_8004BC20[];
-void func_80027A38(Gfx **arg0) {
+void arcadeDrawStage4Background(Gfx **arg0) {
     s32 step;
     s32 one;
     Gfx *sp6C;
@@ -1279,7 +1279,7 @@ void func_80027A38(Gfx **arg0) {
         }
         x += step;
     } while (x != 0x2C0);
-    func_80026518(&sp6C);
+    arcadeDrawStage4Ladders(&sp6C);
     *arg0 = sp6C;
 }
 
@@ -1300,7 +1300,7 @@ extern ArcadeEntity D_8004A558;
 extern ArcadeEntity D_8004A638;
 extern ArcadeEntity D_8004A718;
 extern ArcadeEntity D_8004C170;
-void func_80027F0C(void) {
+void arcadeSpawnStage1Entities(void) {
     float new_var;
     s32 i;
 
@@ -1335,10 +1335,10 @@ void func_80027F0C(void) {
     D_8004C708 = 7;
 }
 
-typedef struct ArcA3_Tbl16 {
+typedef struct ArcadePosTable {
     u8 b[16];
-} ArcA3_Tbl16;
-extern ArcA3_Tbl16 D_8004A81C;
+} ArcadePosTable;
+extern ArcadePosTable D_8004A81C;
 extern ArcadeEntity D_8004A578;
 extern ArcadeEntity D_8004A618;
 extern ArcadeEntity D_8004A658;
@@ -1349,11 +1349,11 @@ extern ArcadeEntity D_8004C0F0;
 extern u8 D_800335D8[];
 extern u8 D_80038FE8[];
 extern u8 D_800391F0[];
-void func_8002843C(void) {
+void arcadeSpawnStage2Entities(void) {
     s32 bit;
     s32 idx;
     s32 i;
-    ArcA3_Tbl16 tbl;
+    ArcadePosTable tbl;
 
     tbl = D_8004A81C;
     bit = 1;
@@ -1405,7 +1405,7 @@ extern s32 D_8004C6F8;
 
 s32 arcadeCheckStage1Collision(s32, s32);
 s32 arcadeCheckStage2Collision(s32, s32);
-s32 func_80029EFC(s32, s32);
+s32 arcadeCheckStage3Collision(s32, s32);
 s32 arcadeCheckStage4Collision(s32, s32);
 
 
@@ -1446,23 +1446,23 @@ extern s32 D_8004C710;
 extern u8 D_8004C718;
 extern u8 D_8004A764;
 
-void func_80027F0C(void);
-void func_8002843C(void);
-void func_800289F0(void);
-void func_800290F0(void);
+void arcadeSpawnStage1Entities(void);
+void arcadeSpawnStage2Entities(void);
+void arcadeSpawnStage3Entities(void);
+void arcadeSpawnStage4Entities(void);
 
 extern ArcadeEntity D_8004A478;
 extern ArcadeEntity D_8004A598;
 extern ArcadeEntity D_8004A3D8;
-typedef struct ArcA4_Bar {
+typedef struct ArcadeLift {
     f32 x;
     f32 y;
     f32 vy;
-} ArcA4_Bar;
+} ArcadeLift;
 #ifndef NON_MATCHING
-extern ArcA4_Bar D_8004BC88[];
+extern ArcadeLift D_8004BC88[];
 #endif
-void func_800289F0(void) {
+void arcadeSpawnStage3Entities(void) {
     s32 i;
     ArcadeEntity *p;
     f32 t;
@@ -1549,7 +1549,7 @@ extern ArcadeEntity D_8004C030;
 extern ArcadeEntity D_8004C010;
 extern ArcadeEntity D_8004BFF0;
 extern u8 D_80033C48[];
-void func_800290F0(void) {
+void arcadeSpawnStage4Entities(void) {
     s32 idx;
 
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A678;
@@ -1630,16 +1630,16 @@ void arcadeInitStage(void) {
     }
     switch (D_8004C722) {
     case 1:
-        func_80027F0C();
+        arcadeSpawnStage1Entities();
         break;
     case 2:
-        func_8002843C();
+        arcadeSpawnStage2Entities();
         break;
     case 3:
-        func_800289F0();
+        arcadeSpawnStage3Entities();
         break;
     default:
-        func_800290F0();
+        arcadeSpawnStage4Entities();
         break;
     }
     arcadeSetStageMusic();
@@ -1780,12 +1780,12 @@ s32 arcadeCheckStage2Collision(s32 arg0, s32 arg1) {
     return ret;
 }
 
-extern ArcA4_Bar D_8004BCAC[];
+extern ArcadeLift D_8004BCAC[];
 
-s32 func_80029EFC(s32 arg0, s32 arg1) {
+s32 arcadeCheckStage3Collision(s32 arg0, s32 arg1) {
     s32 ret;
-    ArcA4_Bar *bar;
-    ArcA4_Bar *end;
+    ArcadeLift *bar;
+    ArcadeLift *end;
 
     if (arg1 < 0x5D) {
         D_8004C6F0 = 0x88;
@@ -1859,8 +1859,8 @@ s32 func_80029EFC(s32 arg0, s32 arg1) {
         }
     }
     if (arg0 >= 0x4D && arg0 < 0x64) {
-        end = (ArcA4_Bar *)(s32)&D_8004BCAC;
-        for (bar = (ArcA4_Bar *)D_8004BC88; ; ) {
+        end = (ArcadeLift *)(s32)&D_8004BCAC;
+        for (bar = (ArcadeLift *)D_8004BC88; ; ) {
             f32 y = bar->y;
             bar++;
             if (y < (f32)(arg1 + 4) && (f32)(arg1 - 0x10) < y) {
@@ -1872,7 +1872,7 @@ s32 func_80029EFC(s32 arg0, s32 arg1) {
         }
     }
     if (arg0 >= 0x8D && arg0 < 0xA4) {
-        end = (ArcA4_Bar *)D_8004BCD0;
+        end = (ArcadeLift *)D_8004BCD0;
         for (bar = D_8004BCAC; ; ) {
             f32 y = bar->y;
             bar++;
@@ -1931,7 +1931,7 @@ s32 arcadeCheckPlayerCollision(s32 arg0, s32 arg1) {
     } else if (D_8004C722 == 2) {
         return arcadeCheckStage2Collision(arg0, arg1);
     } else if (D_8004C722 == 3) {
-        return func_80029EFC(arg0, arg1);
+        return arcadeCheckStage3Collision(arg0, arg1);
     } else {
         return arcadeCheckStage4Collision(arg0, arg1);
     }
@@ -2152,7 +2152,7 @@ s32 arcadeCheckStageLadders(s32 arg0, s32 arg1) {
     }
 }
 
-void func_8002AFA4(Gfx **arg0, s32 arg1) {
+void arcadeRenderEntity(Gfx **arg0, s32 arg1) {
     s32 sp4C;
     s32 off;
 
@@ -2192,7 +2192,7 @@ void arcadeRenderEntities(Gfx **arg0) {
     for (i = 0; i < 80; i++) {
         if (D_8004BCD0[i].unk18 != 0 && D_8004BCD0[i].unk14 != 0) {
             if (D_8004BCD0[i].unk18 >= 8 || D_8004C71D < 2) {
-                func_8002AFA4(&sp38, i);
+                arcadeRenderEntity(&sp38, i);
             }
         }
     }
@@ -2226,7 +2226,7 @@ extern u8 D_8003D600[];
 extern u8 D_8003D848[];
 extern s32 D_8004A75C;
 
-void func_8002B390(s32 arg0) {
+void arcadeUpdatePlayerAnimation(s32 arg0) {
     s32 val;
     ArcadeEntity *ptr = &D_8004BCD0[arg0];
     s32 b;
@@ -2312,7 +2312,7 @@ void func_8002B390(s32 arg0) {
                         arcadeExit();
                         return;
                     }
-                    func_80024D90();
+                    arcadeInitTitleScreen();
                     return;
                 }
                 if (D_8004A764 == 0) {
@@ -2329,7 +2329,7 @@ void func_8002B390(s32 arg0) {
                 }
             } else {
                 D_8004C71B--;
-                func_800257D8();
+                arcadeFinishStageIntro();
             }
         } else if (D_8004BCD0[arg0].unk10 > 20.0f) {
             D_8004BCD0[arg0].unk14 = D_8003D848;
@@ -2364,11 +2364,11 @@ extern ArcadeEntity D_8004A5F8;
 extern u8 D_800383B8[];
 extern u8 D_800385C0[];
 extern u8 D_8003B180[];
-void func_8002B390(s32);
+void arcadeUpdatePlayerAnimation(s32);
 void n_alSndpPostEvent(s32, s32, s32);
 #define E D_8004BCD0[arg0]
 #define P D_8004BCD0[D_8004C71F]
-void func_8002B89C(s32 arg0) {
+void arcadeUpdatePlayerEntity(s32 arg0) {
     f32 sp44;
     s32 coll;
     s32 i;
@@ -2622,7 +2622,7 @@ void func_8002B89C(s32 arg0) {
             return;
         }
         if (E.unk19 != 0) {
-            func_8002B390(arg0);
+            arcadeUpdatePlayerAnimation(arg0);
         }
     }
 }
@@ -3412,7 +3412,7 @@ void func_8002EEB8(s32 arg0) {
                 }
                 if (D_8004BCD0[arg0].unk10 > 280.0f) {
                     D_8004C723 += 1;
-                    func_800257D8();
+                    arcadeFinishStageIntro();
                     return;
                 }
                 if (D_8004BCD0[arg0].unk10 == 200.0f && D_8004C71E > 0) {
@@ -3472,7 +3472,7 @@ void func_8002F82C(s32 arg0) {
                     arcadeExit();
                 }
             } else {
-                func_800257D8();
+                arcadeFinishStageIntro();
             }
         } else {
             if (D_8004BCD0[arg0].unk10 > 480.0f) {
@@ -3809,7 +3809,7 @@ void func_80030C70(u8 arg0) {
 
 extern u8 *D_80746800;
 
-void func_80030CEC(u8 arg0) {
+void arcadeUpdateNameEntryCursor(u8 arg0) {
     if (D_8004BCD0[arg0].unk19 != 4) {
         if ((*(u16 *)D_807ECDE8 & 0x200) || (s8)D_807ECDE8[2] < -0x14) {
             switch (--D_8004C720) {
@@ -3873,7 +3873,7 @@ void func_8002CD64(s32);
 void func_8002D6FC(s32);
 void func_8002E158(s32);
 void func_8002E3D4(s32);
-void func_8002B89C(s32);
+void arcadeUpdatePlayerEntity(s32);
 void func_8002E794(s32);
 void func_8002E8A0(s32);
 void func_8002E9DC(s32);
@@ -3892,7 +3892,7 @@ void func_80030880(u8);
 void func_80030A04(u8);
 void func_80030B08(u8);
 void func_80030C70(u8);
-void func_80030CEC(u8);
+void arcadeUpdateNameEntryCursor(u8);
 void func_80030FB0(u8);
 
 void arcadeDispatchEntities(void) {
@@ -3913,7 +3913,7 @@ void arcadeDispatchEntities(void) {
             func_8002E3D4(i);
             break;
         case 13:
-            func_8002B89C(i);
+            arcadeUpdatePlayerEntity(i);
             break;
         case 26:
             func_8002E794(i);
@@ -3964,7 +3964,7 @@ void arcadeDispatchEntities(void) {
             func_80030A04(i);
             break;
         case 9:
-            func_80030CEC(i);
+            arcadeUpdateNameEntryCursor(i);
             break;
         case 4:
             func_80030B08(i);
@@ -3981,7 +3981,7 @@ void arcadeDispatchEntities(void) {
 
 extern ArcadeEntity D_8004A6D8;
 
-void func_800311E0(void) {
+void arcadeSpawnStage4Enemies(void) {
     u8 i;
 
     i = 0;
@@ -4020,7 +4020,7 @@ void func_800311E0(void) {
     }
 }
 
-void func_800313B8(void) {
+void arcadeSpawnStage2Enemies(void) {
     u8 idx;
     u8 r;
 
@@ -4056,7 +4056,7 @@ s32 _sprintf(s32, const char *, ...);
 extern u8 D_8004A82C[5][3];
 extern u8 D_8004BCEC;
 
-void func_8003159C(Gfx **arg0) {
+void arcadeDrawNameRegistration(Gfx **arg0) {
     s32 i;
     Gfx *g;
     char buf[0x50];
@@ -4133,13 +4133,13 @@ void arcadeSetStageTextColor(s8 arg0) {
 
 extern s32 D_8004A83C;
 extern u8 D_8003DA90[];
-typedef struct ArcL8_Slot {
+typedef struct ArcadeGfxSlot {
     u8 pad[0x18];
-} ArcL8_Slot;
-extern ArcL8_Slot D_8004BBF0[];
+} ArcadeGfxSlot;
+extern ArcadeGfxSlot D_8004BBF0[];
 #define ArcL8_P6D0 (*(void **)&D_8004C6D0)
 
-void func_800319D4(Gfx **arg0) {
+void arcadeDrawHud(Gfx **arg0) {
     s32 i;
     Gfx *g;
     char buf[0x50];
@@ -4267,7 +4267,7 @@ void func_800319D4(Gfx **arg0) {
         }
     }
     if (D_8004C724 == 3) {
-        func_8003159C(&g);
+        arcadeDrawNameRegistration(&g);
     }
     if (D_8004C724 == 0) {
         if (!(D_8004C6DC & 0x200)) {
@@ -4284,7 +4284,7 @@ void func_800319D4(Gfx **arg0) {
             arcadeSetTextPosition(0x38, 0x7B);
             _sprintf((s32)p, "RANK  SCORE  NAME");
             arcadeDrawString(&g, (s32)p);
-            func_8003159C(&g);
+            arcadeDrawNameRegistration(&g);
             arcadeSetTextColor(0xFF, 0, 0, 0xFF);
             arcadeSetTextPosition(0x78, 0x63);
             _sprintf((s32)p, "2        2");

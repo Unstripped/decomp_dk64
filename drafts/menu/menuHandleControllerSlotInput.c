@@ -1,4 +1,4 @@
-// func_8002ADC8 (src/menu/3E10.c): stage 3 (frame 0x88 OK, 712 insns vs 714, no s2). Dummy u1-u3 locals dropped (frame is 0x88 without them, since s2's save slot is absorbed); 's32 t' in the 0x80 clamp removes the sll/sra (target has none). Remaining structural diffs: (1) &D_80033FAD never gets a saved reg: target recomputes lui/addiu s2 at 0x30e8 (head), 0x322c (else-chain top) and 0x37f8 (tail, hoisted BEFORE both calls) = one lda web live across calls; mine gives t7/t8/s0 per region. Direct-global form + dead 'if (D_80033FAD ...) {}' (greedy depth 4: positions in head/0x40 block/tail) does produce s2 but leaves 6-8 extra insns (720) or struct diffs;  everywhere, array decl, u8/s32 type, register, cnt first, 'cnt' re-assigned per region: no s2. (2) j-loop: target hoists li 1/sllv + addu above the bnez (no branch-likely, 'or a3,a3,t5'); mine bnezl+addiu and 'or a3,t4,a3'; tried bit local, mask u8/u32/s32, |=, order of the 3 stores (no change). (3) unkC/unkE v1/a2 colour swap at entry. (4) m=(arg1^D_80033858)&arg1 'and' lands in the delay slot (target computes before cur test). Swept: exhaustive dead-stmt greedy (4 forms x D_80033FAD/E, 80750AC0, 80744520, fields unkC/unkE), mask-type x form x call-arg matrix. NOTE: IDO treats an expression as a uopt candidate (e.g. xor v1) only when it is a separate statement/var (see func_8002C634 recipe).
+// menuHandleControllerSlotInput (src/menu/3E10.c): stage 3 (frame 0x88 OK, 712 insns vs 714, no s2). Dummy u1-u3 locals dropped (frame is 0x88 without them, since s2's save slot is absorbed); 's32 t' in the 0x80 clamp removes the sll/sra (target has none). Remaining structural diffs: (1) &D_80033FAD never gets a saved reg: target recomputes lui/addiu s2 at 0x30e8 (head), 0x322c (else-chain top) and 0x37f8 (tail, hoisted BEFORE both calls) = one lda web live across calls; mine gives t7/t8/s0 per region. Direct-global form + dead 'if (D_80033FAD ...) {}' (greedy depth 4: positions in head/0x40 block/tail) does produce s2 but leaves 6-8 extra insns (720) or struct diffs;  everywhere, array decl, u8/s32 type, register, cnt first, 'cnt' re-assigned per region: no s2. (2) j-loop: target hoists li 1/sllv + addu above the bnez (no branch-likely, 'or a3,a3,t5'); mine bnezl+addiu and 'or a3,t4,a3'; tried bit local, mask u8/u32/s32, |=, order of the 3 stores (no change). (3) unkC/unkE v1/a2 colour swap at entry. (4) m=(arg1^D_80033858)&arg1 'and' lands in the delay slot (target computes before cur test). Swept: exhaustive dead-stmt greedy (4 forms x D_80033FAD/E, 80750AC0, 80744520, fields unkC/unkE), mask-type x form x call-arg matrix. NOTE: IDO treats an expression as a uopt candidate (e.g. xor v1) only when it is a separate statement/var (see func_8002C634 recipe).
 typedef struct MenuL3_S174 {
     f32 unk0;
     f32 unk4;
@@ -43,7 +43,7 @@ extern u8 D_807ECD09;
 extern MenuL3_Pad D_807ECD10[];
 void func_8071458C();
 
-void func_8002ADC8(void *arg0, s32 arg1) {
+void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
     MenuL3_S174 *sp84 = *(MenuL3_S174 **)((u8 *)arg0 + 0x174);
     s32 step;
     s32 rest;
@@ -181,11 +181,11 @@ void func_8002ADC8(void *arg0, s32 arg1) {
                             }
                             if (edge & 0x10) {
                                 func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                                func_8002ACD4(i);
+                                menuNextFreeControllerSlot(i);
                             }
                             if (edge & 0x20) {
                                 func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                                func_8002AD50(i);
+                                menuPrevFreeControllerSlot(i);
                             }
                             if (i != 0 && (((u16 *)&D_807ECD48)[i] & 0x1000)) {
                                 func_80609140(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);

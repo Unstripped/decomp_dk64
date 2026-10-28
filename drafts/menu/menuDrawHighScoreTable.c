@@ -1,4 +1,4 @@
-// func_8002F284 (src/menu/3E10.c): stage 5: text identical except last 5 insns of loop tail (target addiu s3;slti at,t2,5;sll t1,s3;move s2,t2;bnez;sra s3,t1 in delay; mine sll t1 before slti, move s2 in delay; same regs, frame exact). NM1 harness (reduced TU, ~0.1s/compile) swept ~4000 variants, all stay at 5 lines: loop forms (do/while ++i / i++ before or after var_s3 / for / while / break-based / comma-in-condition / flag temps / i-1 compares), i type s16/s32/u8/u16, 600 random declaration orders, extra temps (s32/s16/u8 n, t, f) at many decl positions, void-return toggles on f317/_sprintf, do{}while(0) wraps, dead if(G&&G){}, e as inline expr vs named pointer, shift-pair temps. Permuter 240s: no improvement. Parked NON_MATCHING.
+// menuDrawHighScoreTable (src/menu/3E10.c): stage 5: text identical except last 5 insns of loop tail (target addiu s3;slti at,t2,5;sll t1,s3;move s2,t2;bnez;sra s3,t1 in delay; mine sll t1 before slti, move s2 in delay; same regs, frame exact). NM1 harness (reduced TU, ~0.1s/compile) swept ~4000 variants, all stay at 5 lines: loop forms (do/while ++i / i++ before or after var_s3 / for / while / break-based / comma-in-condition / flag temps / i-1 compares), i type s16/s32/u8/u16, 600 random declaration orders, extra temps (s32/s16/u8 n, t, f) at many decl positions, void-return toggles on f317/_sprintf, do{}while(0) wraps, dead if(G&&G){}, e as inline expr vs named pointer, shift-pair temps. Permuter 240s: no improvement. Parked NON_MATCHING.
 extern s8 D_80033F60;
 extern s8 D_800339A8;
 extern s8 D_80033F61;
@@ -7,7 +7,7 @@ extern char *D_800339AC[];
 extern u32 D_8076A064;
 s32 hudDrawScaledText(s32, s16, s16, f32, void *);
 
-s32 func_8002F284(void *arg0, s32 arg1) {
+s32 menuDrawHighScoreTable(void *arg0, s32 arg1) {
     void *temp_s0;
     f32 sp140;
     f32 sp13C;

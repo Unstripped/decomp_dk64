@@ -46,7 +46,7 @@ void func_800275E8(Gfx **arg0) {
     n = 21;
     pt = D_8004A7C8;
     for (i = 0; i < n; i++) {
-        func_800274E0(&sp90, pt[i].x, pt[i].y, pt[i].z);
+        arcadeDrawGirderSpan(&sp90, pt[i].x, pt[i].y, pt[i].z);
     }
     for (bar = D_8004BC88;;) {
         if (D_8004C71D == 0 && D_8004C724 == 5) {
@@ -64,6 +64,6 @@ void func_800275E8(Gfx **arg0) {
         bar++;
         if (bar == (ArcA1_Bar *)D_8004BCD0) break;
     }
-    func_800263EC(&sp90);
+    arcadeDrawStage3Ladders(&sp90);
     *arg0 = sp90;
 }

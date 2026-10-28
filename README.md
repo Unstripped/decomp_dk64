@@ -13,9 +13,9 @@ This repository contains no game data. You need your own copy of the ROM to buil
 Percentages are matched C function bytes out of all function bytes in each code segment. Assets (textures, models, text) are not counted; see [ROADMAP.md](ROADMAP.md).
 
 <!-- progress:start -->
-**Overall: 55.21%** of code bytes matched (959,504 / 1,737,932 bytes, 3,445 / 4,496 functions)
+**Overall: 59.18%** of code bytes matched (1,028,504 / 1,737,916 bytes, 3,520 / 4,496 functions)
 
-`██████████████████████░░░░░░░░░░░░░░░░░░`
+`████████████████████████░░░░░░░░░░░░░░░░`
 
 | Segment | Contents | Progress | Bytes | Functions |
 |---|---|---|--:|--:|
@@ -27,10 +27,10 @@ Percentages are matched C function bytes out of all function bytes in each code 
 | `race` | `ovl05`, races | `███████████████░░░░░` 76.4% | 36,536 / 47,848 | 107 / 113 |
 | `critter` | `ovl06`, critter minigames | `█████████████████░░░` 82.5% | 18,560 / 22,496 | 52 / 55 |
 | `boss` | `ovl07`, boss fights | `███████████████░░░░░` 77.1% | 55,316 / 71,784 | 74 / 79 |
-| `arcade` | `ovl08`, Donkey Kong arcade | `█████░░░░░░░░░░░░░░░` 27.1% | 15,712 / 57,888 | 62 / 98 |
+| `arcade` | `ovl08`, Donkey Kong arcade | `██████████████████░░` 89.0% | 51,488 / 57,880 | 94 / 98 |
 | `jetpac` | `ovl09`, Jetpac | `█████████████████░░░` 85.2% | 24,524 / 28,796 | 102 / 108 |
-| `menu` | `ovl10`, main menu / file select | `████░░░░░░░░░░░░░░░░` 19.7% | 12,052 / 61,244 | 57 / 113 |
-| **Total** |  | `███████████░░░░░░░░░` 55.2% | 959,504 / 1,737,932 | 3,445 / 4,496 |
+| `menu` | `ovl10`, main menu / file select | `███████████████░░░░░` 73.9% | 45,276 / 61,236 | 100 / 113 |
+| **Total** |  | `████████████░░░░░░░░` 59.2% | 1,028,504 / 1,737,916 | 3,520 / 4,496 |
 <!-- progress:end -->
 
 Refresh after a matching build with `tools/dk python3 tools/progress.py --readme`.
