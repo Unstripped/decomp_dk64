@@ -1,4 +1,4 @@
-// func_80030C14 (src/menu/3E10.c): stage 6: structure+frame+text identical to target; remaining only scratch/uopt reg numbering (idx a2 vs a1 in case 2/3/10 & 15, v1 vs v0 for (s32)sp64 CSE, ring shifts after). 55 mismatching insn lines of 640. Tricks: u8 *arg1 (end const 1 web), f=p->unk0 first, t=(expr)&0xFFF without s16 cast, (f64)x<640 int literal, += 960 int, in-place f*=0.5 f+=p->unk4, RGBA-less ptr form for D_800337DC (idx<<2)
+// func_80030C14 (src/menu/3E10.c): stage 6 (parked NON_MATCHING in MenuL5 copy): text/frame/stack/rodata structure identical; only reg numbering differs: idx colored a2 not a1 (case 2/3/10 hoisted (s32)c->unk8 and case 15), (s32)sp64 CSE v1 vs v0, ring shifts after. 55 insn lines of 640. permuter 900s -j2 no gain. Tricks: u8 *arg1, f=p->unk0 first, t=(expr)&0xFFF no s16 cast, (f64)x<640, +=960 int, f*=0.5;f+=p->unk4, (u8*)D_800337DC+(idx<<2)
 typedef struct MenuL5_Rgba {
     u8 r;
     u8 g;
@@ -45,7 +45,6 @@ typedef struct MenuL5_Actor {
     s16 unk392;
 } MenuL5_Actor;
 
-extern u32 D_8076A064;
 extern MenuL5_Rgba D_800337DC[];
 s32 func_8003155C(void *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
 
