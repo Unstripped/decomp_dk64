@@ -114,11 +114,11 @@ typedef struct {
     u8 unk17E;
 } R1F100180_Entry;
 
-s8 func_806FB914(s16, u8 *);
+s32 func_806FB914(s16, u8 *);
 void *func_806FBB9C(s16);
 extern R1F100180_Entry *D_80754A18[];
 extern void *D_807FD7F0;
-extern u8 D_80754A35;
+extern u8 D_80754A35[];
 extern u8 *D_807549FC[];
 
 void func_806FB714(s32 arg0, u8 arg1, u8 *arg2) {
@@ -132,7 +132,7 @@ void func_806FB714(s32 arg0, u8 arg1, u8 *arg2) {
     while (sp63) {
         if (sp63 != 32) {
             sp3 = func_806FB914(0, &sp63);
-            for (i = 1; i < D_80754A35 + 1; i++) {
+            for (i = 1; i < D_80754A35[0] + 1; i++) {
                 if (sp63 >= D_807549FC[0][i - 1] && sp63 < D_807549FC[0][i]) {
                     func_806FBB9C(i - 1);
                     arg0 = func_806FB490(((FcDGlyph *)D_80754A18[0])[sp63].unk2, arg0, ((s32 *)D_807FD7F0)[i - 1], ((FcDGlyph *)D_80754A18[0])[sp63].unk0, sp3, (s8 *)&sp61, arg1);
@@ -174,7 +174,7 @@ extern FcDStr30 D_80754AA0;
 extern FcDStr3A D_8075DC20;
 u8 *_strchr(u8 *, s32);
 
-s8 func_806FB914(s16 arg0, u8 *arg1) {
+s32 func_806FB914(s16 arg0, u8 *arg1) {
     s8 spDF;
     FcDStr39 spA4;
     FcDStr30 sp74;
@@ -271,9 +271,64 @@ void *func_806FBB9C(s16 arg0) {
     return *(void **)((u8 *) D_807FD7F0 + var_v1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FBC34.s")
+extern u8 D_80754A34[];
+void assetFreeBuffer(void *, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FBD5C.s")
+void func_806FBC34(void) {
+    s16 i;
+    s16 j;
+    s16 n;
+    u8 *e;
+
+    n = 0;
+    for (i = 0; i < 8; i++) {
+        j = 0;
+        e = D_80754A34 + i * 6;
+        if (e[1] > 0) {
+            do {
+                if (D_807FD7F4[n++]) {
+                    D_807FD7F4[n - 1]--;
+                    if (*(u8 *)((s32)D_807FD7F4 + n - 1) == 0) {
+                        assetFreeBuffer(((void **)D_807FD7F0)[n - 1], 0x156, 0x23);
+                    }
+                }
+                j++;
+            } while (j < e[1]);
+        }
+    }
+}
+
+s32 strlen(u8 *);
+extern u8 D_80754A39[];
+
+s32 func_806FBD5C(arg0, arg1)
+s16 arg0;
+u8 *arg1;
+{
+    s32 len;
+    u8 sp4B;
+    s32 step;
+
+    len = 0;
+    if (arg0 & 0x80) {
+        arg0 ^= 0x80;
+        return strlen(arg1) * D_80754A39[arg0 * 6];
+    }
+    sp4B = *arg1++;
+    while (sp4B) {
+        if (sp4B == 0x20) {
+            len += D_80754A34[arg0 * 6 + 3];
+            step = D_80754A34[arg0 * 6 + 4];
+        } else {
+            func_806FB914(arg0, &sp4B);
+            step = D_80754A34[arg0 * 6 + 4];
+            len += ((u8 **)D_80754A18)[arg0][sp4B * 4 + 2];
+        }
+        len += step;
+        sp4B = *arg1++;
+    }
+    return len;
+}
 
 s16 func_806FBEAC(u8 *arg0) {
     s16 var_v1;
@@ -298,9 +353,218 @@ s16 func_806FBEAC(u8 *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FC530.s")
 
+#ifdef NON_MATCHING
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    u8 padC[0xC];
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    u8 pad24[0xC];
+    f32 unk30;
+    u8 pad34[4];
+} HbTextElem;
+
+typedef struct {
+    u8 pad0[4];
+    u8 *unk4;
+    HbTextElem *unk8;
+    u8 unkC;
+    u8 unkD;
+} HbTextObj;
+
+extern u8 D_80754A36[];
+extern u8 D_2000000[];
+extern u8 D_2000200[];
+void heapFreeDeferred(void *);
+Gfx *func_8070068C(Gfx *);
+Gfx *func_806FBEF0(Gfx *, u8, s16);
+
+Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
+    s32 line;
+    u8 chr;
+    u8 started;
+    s32 idx;
+    Vtx *vp;
+    Vtx *spB4;
+    Mtx *mp;
+    s32 i;
+    s32 gw;
+    s32 gx;
+    s32 gh;
+
+    idx = 0;
+    vp = (Vtx *)func_80610FE8(arg1->unkD << 6);
+    heapFreeDeferred(vp);
+    mp = (Mtx *)func_80610FE8(arg1->unkD << 6);
+    heapFreeDeferred(mp);
+    spB4 = vp;
+    gDPSetTextureFilter(dl++, G_TF_BILERP);
+    dl = func_8070068C(dl);
+    line = 1;
+    if (D_80754A35[arg1->unkC * 6] + 1 >= 2) {
+        do {
+            started = 0;
+            i = 1;
+            chr = arg1->unk4[0];
+            if (chr) {
+                do {
+                    if (chr != 0x20) {
+                        func_806FB914(arg1->unkC, &chr);
+                        if (chr >= (D_807549FC[arg1->unkC] + line)[-1] && chr < (D_807549FC[arg1->unkC] + line)[0]) {
+                            gw = ((u8 *)((u8 **)D_80754A18)[arg1->unkC])[chr * 4 + 2];
+                            gx = *(s16 *)((u8 *)((u8 **)D_80754A18)[arg1->unkC] + chr * 4);
+                            gh = D_80754A36[arg1->unkC * 6];
+                            if (started == 0) {
+                                started = 1;
+                                dl = func_806FBEF0(dl, arg1->unkC, line);
+                            }
+                            guPosition(mp + idx, 0.0f, 0.0f, arg1->unk8[idx].unk20 * 57.295776f, arg1->unk8[idx].unk30,
+                                       arg1->unk8[idx].unk0, arg1->unk8[idx].unk4, 0.0f);
+                            gSPMatrix(dl++, mp + idx, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+                            gDPPipeSync(dl++);
+                            ((s16 *)vp)[0] = -(gw * 2);
+                            ((s16 *)vp)[1] = gh * 2 - 1;
+                            ((s16 *)vp)[2] = -5;
+                            ((s16 *)vp)[4] = gx << 6;
+                            ((s16 *)vp)[5] = gh << 6;
+                            ((s16 *)vp)[8] = gw * 2 - 1;
+                            ((s16 *)vp)[9] = gh * 2 - 1;
+                            ((s16 *)vp)[10] = -5;
+                            ((s16 *)vp)[12] = (gx + gw) << 6;
+                            ((s16 *)vp)[13] = gh << 6;
+                            ((s16 *)vp)[17] = -(gh * 2);
+                            ((s16 *)vp)[16] = gw * 2 - 1;
+                            ((s16 *)vp)[18] = -5;
+                            ((s16 *)vp)[20] = (gx + gw) << 6;
+                            ((s16 *)vp)[21] = 0;
+                            ((s16 *)vp)[25] = -(gh * 2);
+                            ((s16 *)vp)[24] = -(gw * 2);
+                            ((s16 *)vp)[26] = -5;
+                            ((s16 *)vp)[28] = gx << 6;
+                            ((s16 *)vp)[29] = 0;
+                            vp += 4;
+                            gSPVertex(dl++, osVirtualToPhysical(spB4), 4, 0);
+                            gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
+                            gSPPopMatrix(dl++, G_MTX_MODELVIEW);
+                            spB4 = vp;
+                        }
+                        idx++;
+                    }
+                    chr = arg1->unk4[i];
+                    i++;
+                } while (chr);
+                idx = 0;
+            }
+            line++;
+        } while (line < D_80754A35[arg1->unkC * 6] + 1);
+    }
+    gSPMatrix(dl++, D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gDPPipeSync(dl++);
+    return dl;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FCC88.s")
+#endif
+
+#ifdef NON_MATCHING
+extern u8 D_2000180[];
+
+Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
+    s32 line;
+    u8 chr;
+    u8 started;
+    s32 idx;
+    Vtx *vp;
+    Vtx *spB4;
+    Mtx *mp;
+    s32 i;
+    s32 gw;
+    s32 gx;
+    s32 gh;
+    f32 fa;
+    f32 fb;
+
+    idx = 0;
+    vp = (Vtx *)func_80610FE8(arg1->unkD << 6);
+    heapFreeDeferred(vp);
+    mp = (Mtx *)func_80610FE8(arg1->unkD << 6);
+    heapFreeDeferred(mp);
+    spB4 = vp;
+    gDPSetTextureFilter(dl++, G_TF_BILERP);
+    gSPMatrix(dl++, D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPMatrix(dl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    line = 1;
+    if (D_80754A35[arg1->unkC * 6] + 1 >= 2) {
+        do {
+            started = 0;
+            i = 1;
+            chr = arg1->unk4[0];
+            if (chr) {
+                do {
+                    if (chr != 0x20) {
+                        func_806FB914(arg1->unkC, &chr);
+                        if (chr >= (D_807549FC[arg1->unkC] + line)[-1] && chr < (D_807549FC[arg1->unkC] + line)[0]) {
+                            gw = ((u8 *)((u8 **)D_80754A18)[arg1->unkC])[chr * 4 + 2];
+                            gx = *(s16 *)((u8 *)((u8 **)D_80754A18)[arg1->unkC] + chr * 4);
+                            gh = D_80754A36[arg1->unkC * 6];
+                            if (started == 0) {
+                                started = 1;
+                                dl = func_806FBEF0(dl, arg1->unkC, line);
+                            }
+                            guPosition(mp + idx, arg1->unk8[idx].unk18 * 57.295776f,
+                                       arg1->unk8[idx].unk1C * 57.295776f, arg1->unk8[idx].unk20 * 57.295776f,
+                                       arg1->unk8[idx].unk30, arg1->unk8[idx].unk0, arg1->unk8[idx].unk4,
+                                       arg1->unk8[idx].unk8);
+                            gSPMatrix(dl++, mp + idx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                            gDPPipeSync(dl++);
+                            ((s16 *)vp)[0] = -(gw * 2);
+                            ((s16 *)vp)[1] = gh * 2 - 1;
+                            ((s16 *)vp)[2] = 0;
+                            ((s16 *)vp)[4] = gx << 6;
+                            ((s16 *)vp)[5] = gh << 6;
+                            ((s16 *)vp)[8] = gw * 2 - 1;
+                            ((s16 *)vp)[9] = gh * 2 - 1;
+                            ((s16 *)vp)[10] = 0;
+                            ((s16 *)vp)[12] = (gx + gw) << 6;
+                            ((s16 *)vp)[13] = gh << 6;
+                            ((s16 *)vp)[17] = -(gh * 2);
+                            ((s16 *)vp)[16] = gw * 2 - 1;
+                            ((s16 *)vp)[18] = 0;
+                            ((s16 *)vp)[20] = (gx + gw) << 6;
+                            ((s16 *)vp)[21] = 0;
+                            ((s16 *)vp)[25] = -(gh * 2);
+                            ((s16 *)vp)[24] = -(gw * 2);
+                            ((s16 *)vp)[26] = 0;
+                            ((s16 *)vp)[28] = gx << 6;
+                            ((s16 *)vp)[29] = 0;
+                            vp += 4;
+                            gSPVertex(dl++, osVirtualToPhysical(spB4), 4, 0);
+                            gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
+                            spB4 = vp;
+                        }
+                        idx++;
+                    }
+                    chr = arg1->unk4[i];
+                    i++;
+                } while (chr);
+                idx = 0;
+            }
+            line++;
+        } while (line < D_80754A35[arg1->unkC * 6] + 1);
+    }
+    gDPPipeSync(dl++);
+    return dl;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FD094.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FD490.s")
 

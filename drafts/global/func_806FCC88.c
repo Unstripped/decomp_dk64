@@ -1,4 +1,4 @@
-// func_806FCC88 (src/global/100180.c): func_806FCC88 (src/global/100180.c): Stage 5: frame 0xC8 and stack layout match; remaining diff is t-reg ring (chr in v1 vs t6, tail lw t4 vs t5) after the glyph-table lookup.
+// func_806FCC88 (src/global/100180.c): func_806FCC88 (src/global/100180.c): Stage 5 (parked NON_MATCHING): frame 0xC8, s0-s7/fp/fs0-fs1 and stack layout (line C4, chr/started C3/C2, idx BC, vp B8, spB4 B4, mp B0) match; diff is regalloc only: post-call chr is uopt v1 here vs ugen t6 in target (ring shifts t4/t5 after); deadsweep (chr/idx/started extras) got 65 text lines, permuter -j2 900s no gain
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -25,6 +25,7 @@ extern u8 D_80754A35[];
 extern u8 D_80754A36[];
 extern u8 D_2000000[];
 extern u8 D_2000200[];
+s32 func_806FB914(s16, u8 *);
 void heapFreeDeferred(void *);
 Gfx *func_8070068C(Gfx *);
 Gfx *func_806FBEF0(Gfx *, u8, s16);
@@ -44,9 +45,9 @@ Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
     s32 gh;
 
     idx = 0;
-    vp = func_80610FE8(arg1->unkD << 6);
+    vp = (Vtx *)func_80610FE8(arg1->unkD << 6);
     heapFreeDeferred(vp);
-    mp = func_80610FE8(arg1->unkD << 6);
+    mp = (Mtx *)func_80610FE8(arg1->unkD << 6);
     heapFreeDeferred(mp);
     spB4 = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
