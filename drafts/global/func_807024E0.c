@@ -1,25 +1,8 @@
-// func_807024E0 (src/global/103AB0.c): Stage 5 (L7): C compiles; frame 0x1D8 and all 4 tile-load cases + 4 corner blocks + loop shape match; remaining diff = row-prologue hoist order, stack-slot order of hoisted temps and a0/a1 + s4/s5 alloc. Needs: func_807024E0 proto (Gfx**,s32,s32,u32,s32,u32,u32,f32 x6,u8,u8,u8,void(*)()), struct R1F103AB0cTransformView tagged, func_80704444 declared/defined s32 (not void) for caller match; 14 dummy pad locals reproduce named-local frame
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 unk6[2];
-    s16 unk8;
-    s16 unkA;
-    s8 unkC;
-    s8 unkD;
-    s8 unkE;
-    u8 unkF;
-} L7Vtx;
-
-struct R1F103AB0cTransformView;
-void func_80704130(struct R1F103AB0cTransformView *, u8, u8, u8, u8, u8);
-s32 func_80704444(s16 *, s16, s16, s16, s16, u8);
-
+// func_807024E0 (src/global/103AB0.c): Stage 5 (L7): parked-quality C, compiles; frame 0x1D8, s0-s7/fp/fs0-fs2 and tile-load/vertex/callback/loop code identical to target (~21 hunks left). Open: row-prologue hoist order, spill-slot order of x+tw/B0/AC/A8/90/8C temps, add.s xf+tw operand order, a0/a1 (scale/v) + s4/s5 (xs/xe) alloc. Place AFTER func_80704444 (uses R1F103AB0cTransformView); forward proto of func_807024E0 must be (Gfx**,s32,s32,u32,s32,u32,u32,f32 x6,u8,u8,u8,void(*)()); pad locals reproduce named-local frame; named top-block order scale,ustep,vstep,xs,xe,ye,th,tw,u0 reproduces temp-slot order
 void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5, u32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14, u8 arg15, void (*arg16)()) {
     Gfx *dl;
     s32 y;
-    L7Vtx *vtx;
+    R1F103AB0cTransformView *vtx;
     s32 u;
     s32 v;
     s32 x;
@@ -40,13 +23,17 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     s32 pad1;
     u32 ye;
     u8 flag;
+    s32 ylo;
+    u32 yhi;
+    u8 siz;
+    u32 xmax;
     f32 fsc;
     u32 vstep;
-    s32 padE;
+    u32 ymax;
     s32 padF;
-    s32 padG;
-    s32 padH;
-    s32 padI;
+    s32 u0;
+    u32 th;
+    u32 tw;
 
     ustep = arg13 * arg5;
     vstep = arg13 * arg6;
@@ -57,37 +44,45 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     flag = 1;
     xe = (u32)(arg9 * 32.0f);
     ye = (u32)(arg10 * 32.0f);
+    th = arg6 << 5;
+    tw = arg5 << 5;
+    u0 = (s32)(fsc * arg11);
     if (arg3 > 0x200) {
         gSPTexture(dl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
         flag = 0;
     } else {
         gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
     }
-    vtx = (L7Vtx *)func_80610FE8(((((xe - xs) / (arg5 << 5)) + 1) * (((ye - ys) / (arg6 << 5)) + 1)) << 6);
+    vtx = (R1F103AB0cTransformView *)func_80610FE8(((((xe - xs) / tw) + 1) * (((ye - ys) / th) + 1)) << 6);
     heapFreeDeferred(vtx);
     gDPPipeSync(dl++);
     v = (s32)(fsc * arg12);
-    for (y = ys; y < ye; y += arg6 << 5, v += vstep) {
-        u = (s32)(fsc * arg11);
-        for (x = xs; x < xe; x += arg5 << 5) {
+    for (y = ys; y < ye; y += th, v += vstep) {
+        u = u0;
+        ylo = (y >> 5) - 1;
+        yhi = (y >> 5) + arg6;
+        siz = arg14;
+        xmax = (xe >> 5) - 1;
+        ymax = (ye >> 5) - 1;
+        for (x = xs; x < xe; x += tw) {
             uls = (x >> 5) - 1 > 0 ? (x >> 5) - 1 : 0;
-            lrs = (x >> 5) + arg5 < (xe >> 5) - 1 ? (x >> 5) + arg5 : (xe >> 5) - 1;
-            ult = (y >> 5) - 1 > 0 ? (y >> 5) - 1 : 0;
-            lrt = (y >> 5) + arg6 < (ye >> 5) - 1 ? (y >> 5) + arg6 : (ye >> 5) - 1;
-            if (arg14 == 8) {
+            lrs = (x >> 5) + arg5 < xmax ? (x >> 5) + arg5 : xmax;
+            ult = ylo > 0 ? ylo : 0;
+            lrt = yhi < ymax ? yhi : ymax;
+            if (siz == 8) {
                 gDPLoadTextureTile(dl++, arg1, arg2, G_IM_SIZ_8b, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-            } else if (arg14 == 0x10) {
+            } else if (siz == 0x10) {
                 gDPLoadTextureTile(dl++, arg1, arg2, G_IM_SIZ_16b, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-            } else if (arg14 == 0x20) {
+            } else if (siz == 0x20) {
                 gDPLoadTextureTile(dl++, arg1, arg2, G_IM_SIZ_32b, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-            } else if (arg14 == 4) {
+            } else if (siz == 4) {
                 gDPLoadTextureTile_4b(dl++, arg1, arg2, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             }
             if (arg15 != 0) {
                 if (x == xs && arg15 == 1) {
-                    func_80704130((struct R1F103AB0cTransformView *)vtx, 0xFF, 0xFF, 0xFF, 0, 0);
+                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
-                    func_80704130((struct R1F103AB0cTransformView *)vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
             if (arg16 != NULL) {
@@ -96,10 +91,10 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
             xf = (f32)x - 16.0;
             func_80704444((s16 *)vtx++, u, v, xf, (s16)(f32)((f32)y - 16.0), flag);
             if (arg15 != 0) {
-                if (x + (arg5 << 5) >= xe && arg15 == 2) {
-                    func_80704130((struct R1F103AB0cTransformView *)vtx, 0xFF, 0xFF, 0xFF, 0, 0);
+                if (x + tw >= xe && arg15 == 2) {
+                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
-                    func_80704130((struct R1F103AB0cTransformView *)vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
             vb = (s16)(v + vstep);
@@ -108,30 +103,30 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
                 arg16((s16)(u + ustep), v, vtx);
             }
             ua = (s16)(u + ustep);
-            xa = xf + (f32)(arg5 << 5);
+            xa = xf + (f32)tw;
             func_80704444((s16 *)vtx++, ua, v, xa, (s16)(f32)((f32)y - 16.0), flag);
             if (arg15 != 0) {
-                if (x + (arg5 << 5) >= xe && arg15 == 2) {
-                    func_80704130((struct R1F103AB0cTransformView *)vtx, 0xFF, 0xFF, 0xFF, 0, 0);
+                if (x + tw >= xe && arg15 == 2) {
+                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
-                    func_80704130((struct R1F103AB0cTransformView *)vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
             if (arg16 != NULL) {
                 arg16(ua, vb, vtx);
             }
-            func_80704444((s16 *)vtx++, ua, vc, xa, (s16)((f32)(f32)((f32)y - 16.0) + (f32)(arg6 << 5)), flag);
+            func_80704444((s16 *)vtx++, ua, vc, xa, (s16)((f32)(f32)((f32)y - 16.0) + (f32)th), flag);
             if (arg15 != 0) {
                 if (x == xs && arg15 == 1) {
-                    func_80704130((struct R1F103AB0cTransformView *)vtx, 0xFF, 0xFF, 0xFF, 0, 0);
+                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
-                    func_80704130((struct R1F103AB0cTransformView *)vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
             if (arg16 != NULL) {
                 arg16(u, vb, vtx);
             }
-            func_80704444((s16 *)vtx++, u, vc, xf, (s16)((f32)(f32)((f32)y - 16.0) + (f32)(arg6 << 5)), flag);
+            func_80704444((s16 *)vtx++, u, vc, xf, (s16)((f32)(f32)((f32)y - 16.0) + (f32)th), flag);
             gSPVertex(dl++, osVirtualToPhysical(vtx - 4), 4, 0);
             gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(dl++);
