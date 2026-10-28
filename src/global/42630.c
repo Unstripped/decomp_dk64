@@ -7,25 +7,244 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
 
+extern s16 D_807F6240[];
+extern s8 D_807F6902;
+
+#ifdef NON_MATCHING
+extern u8 D_807F66F0[];
+
+void func_8063D930(void) {
+    s32 i = 0;
+    s32 j;
+
+    do {
+        D_807F6240[i] = -1;
+        i++;
+    } while (&D_807F6240[i] < (s16 *)D_807F66F0);
+    for (j = 0; j < 0x212; j++) { D_807F66F0[j] = 0; }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063D930.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063D990.s")
+struct CsModelSlot;
+extern struct CsModelSlot *D_807F6000;
+s32 hashTableLookup();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063D9D0.s")
+typedef struct CsA0Node {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 pad1;
+    /* 0x02 */ u8 unk2[0x28];
+    /* 0x2A */ u8 unk2A;
+    /* 0x2B */ u8 pad2B;
+    /* 0x2C */ u8 unk2C[0x20];
+    /* 0x4C */ struct CsA0Node *unk4C;
+} CsA0Node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DA40.s")
+typedef struct CsA0Obj {
+    /* 0x00 */ u8 unk0[0x9C];
+    /* 0x9C */ s16 unk9C;
+    /* 0x9E */ u8 pad9E[2];
+    /* 0xA0 */ CsA0Node *unkA0;
+} CsA0Obj;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DA78.s")
+typedef struct CsA0Slot {
+    /* 0x00 */ u8 pad0[0x7C];
+    /* 0x7C */ CsA0Obj *unk7C;
+    /* 0x80 */ u8 pad80[0xA];
+    /* 0x8A */ s16 unk8A;
+    /* 0x8C */ u8 pad8C[4];
+} CsA0Slot; /* 0x90 */
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DB0C.s")
+s16 func_8063D990(s16 arg0) {
+    return ((CsA0Slot *)D_807F6000)[hashTableLookup(arg0)].unk8A;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DB3C.s")
+s16 func_8063D9D0(s16 arg0, u8 arg1) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DBD8.s")
+    if (arg1 == 0) {
+        i = 0x226;
+    } else {
+        i = 0;
+    }
+    while (D_807F6240[i] != -1) {
+        i++;
+    }
+    D_807F6240[i] = arg0;
+    return i;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DC58.s")
+void func_8063DA78(s16, s16, s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DE68.s")
+void func_8063DA40(s16 arg0, s16 arg1) {
+    func_8063DA78(arg0, arg1, 0);
+}
+
+void func_8063DA78(s16 arg0, s16 arg1, s16 arg2) {
+    s16 slot;
+
+    slot = hashTableLookup(D_807F6240[arg0]);
+    if (slot != -1) {
+        ((CsA0Slot *)D_807F6000)[slot].unk7C->unk0[arg2 + 0x48] = arg1;
+        ((CsA0Slot *)D_807F6000)[slot].unk7C->unk0[0x54] = 1;
+    }
+}
+
+typedef struct CsA0Timer {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ u8 unk6;
+    /* 0x7 */ u8 pad7;
+} CsA0Timer;
+
+extern CsA0Timer D_807F61B0[8];
+extern struct CsSpawnReq D_807F61F0;
+
+void func_8063DB0C(void) {
+    s32 i;
+
+    for (i = 0; i < 8; i++) {
+        D_807F61B0[i].unk6 = 0;
+    }
+}
+
+void func_8063DB3C(s16 arg0, s16 arg1, s16 arg2) {
+    s16 i = 0;
+    s32 found = 0;
+
+    while (!found && i < 8) {
+        if (D_807F61B0[i].unk6 == 0) {
+            found = 1;
+        } else {
+            i++;
+        }
+    }
+    if (found) {
+        D_807F61B0[i].unk6 = 1;
+        D_807F61B0[i].unk0 = arg0;
+        D_807F61B0[i].unk2 = arg1;
+        D_807F61B0[i].unk4 = arg2;
+    }
+}
+
+void func_8063DBD8(s16 arg0) {
+    s32 i;
+
+    for (i = 0; i < 8; i++) {
+        if (D_807F61B0[i].unk6 != 0 && arg0 == D_807F61B0[i].unk0) {
+            func_8063DA40(D_807F61B0[i].unk2, D_807F61B0[i].unk4);
+            D_807F61B0[i].unk6 = 0;
+        }
+    }
+}
+
+extern s8 D_807F6903;
+extern s16 D_807F693C;
+extern u8 D_807F693E;
+extern s8 D_807F693F;
+void *func_80610FE8(s32);
+void func_8063DED0(void *);
+void *memcpy(void *, const void *, unsigned int);
+
+typedef struct CsA0Spawn {
+    /* 0x0 */ void *unk0;
+    /* 0x4 */ void *unk4;
+    /* 0x8 */ u8 unk8;
+} CsA0Spawn;
+
+void func_8063DC58(s16 *arg0) {
+    s16 n;
+    s16 *p;
+    s32 slot;
+    s16 id;
+    s16 m;
+    s16 c1;
+    s16 c2;
+    s32 len1;
+    s32 len2;
+    CsA0Node **tail;
+    CsA0Node *node;
+
+    n = *arg0;
+    p = arg0 + 1;
+    if (n != 0) {
+        do {
+            id = *p;
+            p++;
+            slot = hashTableLookup(D_807F6240[id]);
+            if (slot != -1) {
+                ((CsA0Slot *)D_807F6000)[slot].unk7C = func_80610FE8(0xA4);
+                func_8063DED0(((CsA0Slot *)D_807F6000)[slot].unk7C);
+                ((CsA0Slot *)D_807F6000)[slot].unk7C->unkA0 = NULL;
+                m = p[0];
+                tail = &((CsA0Slot *)D_807F6000)[slot].unk7C->unkA0;
+                ((CsA0Slot *)D_807F6000)[slot].unk7C->unk9C = p[1];
+                p += 2;
+                while (m != 0) {
+                    node = func_80610FE8(0x50);
+                    *tail = node;
+                    node->unk4C = NULL;
+                    c1 = *p;
+                    p++;
+                    len1 = c1 * 4;
+                    tail = &node->unk4C;
+                    node->unk0 = c1;
+                    memcpy(node->unk2, p, len1 * 2);
+                    p += len1;
+                    c2 = *p;
+                    p++;
+                    len2 = c2 * 4;
+                    node->unk2A = c2;
+                    memcpy(node->unk2C, p, len2 * 2);
+                    p += len2;
+                    m--;
+                }
+            } else {
+                m = p[0];
+                p += 2;
+                while (m != 0) {
+                    c1 = *p;
+                    p++;
+                    p += c1 * 4;
+                    c2 = *p;
+                    p++;
+                    p += c2 * 4;
+                    m--;
+                }
+            }
+            n--;
+        } while (n != 0);
+    }
+    D_807F693F = 0;
+    D_807F693E = 0;
+    D_807F6902 = 0;
+    D_807F6903 = 0;
+    D_807F693C = 0;
+    ((CsA0Spawn *)&D_807F61F0)->unk0 = NULL;
+    ((CsA0Spawn *)&D_807F61F0)->unk4 = NULL;
+    ((CsA0Spawn *)&D_807F61F0)->unk8 = 0;
+}
+
+void heapFree(void *);
+
+void func_8063DE68(CsA0Obj *arg0) {
+    CsA0Node *node;
+    CsA0Node *next;
+
+    if (*(void **)arg0 != NULL) {
+        heapFree(*(void **)arg0);
+    }
+    node = arg0->unkA0;
+    while (node != NULL) {
+        next = node->unk4C;
+        heapFree(node);
+        node = next;
+    }
+    heapFree(arg0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DED0.s")
 
@@ -100,9 +319,6 @@ extern f32 D_807F6218;
 extern f32 D_807F621C;
 extern f32 D_807F6220;
 extern f32 D_807F6224;
-extern s16 D_807F6240[];
-extern s8 D_807F6902;
-extern s8 D_807F6903;
 extern s16 D_807F6904;
 extern s16 D_807F6906;
 extern s16 D_807F6908;
@@ -112,9 +328,6 @@ extern f32 D_807F6914;
 extern s16 D_807F6918[16];
 extern u8 D_807F6938;
 extern s16 D_807F693A;
-extern s16 D_807F693C;
-extern u8 D_807F693E;
-extern s8 D_807F693F;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
 extern u32 D_807FBB60;
@@ -210,7 +423,6 @@ void proxPathSetEnabled(s16, u8, u8);
 void func_8072EE0C(s16, u8, u8);
 s32 flagGet(s16, s32, s32);
 void flagSet(s16, u8, s32);
-s32 hashTableLookup();
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
 void mapByteArraySet(s16, u8);
@@ -1020,8 +1232,6 @@ typedef struct CsA2Aux {
     /* 0x49 */ u8 pad49[0x57];
     /* 0xA0 */ s32 unkA0;
 } CsA2Aux;
-void *func_80610FE8(s32);
-void func_8063DED0(void *);
 
 void func_80641B00(s16 a, s16 b, s16 c) {
     a = hashTableLookup(a);
