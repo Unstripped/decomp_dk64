@@ -13,7 +13,10 @@
   `.scratch/<Name>/` copy. Merge the passing ones (`--base <its commit>`; check the stage of
   anything parked); move the others to `.scratch/<Name>.old/` and relaunch fresh copies from
   HEAD telling the agent to harvest its per-function C from the `.old` copy. Mid-edit copies
-  rarely pass as they are.
+  rarely pass as they are; a relaunched agent told "your copy exists, fdiff each function
+  first" can also continue in it (bonus/race unit: 6 relaunches matched 30 functions).
+- **Orchestrator session disposed**: subagents die with it. Keep the unclaimed dispatch
+  queue in `.scratch/queue.md` (lists, large functions) so a new session resumes from disk.
 - Check `git status` for unrelated work (a parallel session in the same tree): stage only the
   unit's files, never `git add -A`.
 
@@ -46,8 +49,9 @@ then tell running agents not to re-copy from `src`.
   running locked jobs finish. A stuck holder shows in `--status`: never kill other agents'
   jobs, ask the user.
 - The persistent shell keeps `set -e` between calls: use it only inside `sh -c`.
-- Probe/test files belong in `.scratch/`. Older tracked probes in the repo root (`test_*.c`,
-  `t.s`, `tl.c`): ask the user before removing them.
+- Probe/test files belong in `.scratch/`. Agents still write probes to the repo root (`s.s`,
+  `cur.s`) and once overwrote the tracked `t.s`: `git status` after each gate, restore
+  tracked probes from HEAD, move untracked strays into `.scratch/`.
 - fdiff does not resolve symbols: a misspelled extern passes fdiff and breaks the link; the
   gate catches it.
 
@@ -59,6 +63,8 @@ then tell running agents not to re-copy from `src`.
   `--src src/...`, base.c is the asm (score 0 at once, nothing searched).
 - `drafts.py collect` can replace a noted draft with a note-less `_best.c`: `git diff drafts/`
   after it.
+- `drafts.py prune` prunes every segment (it deleted another session's global drafts):
+  scope pruning with `unit_check.py drafts --prune src/<seg>/*.c`.
 - ok-fine writes with large bodies, from Python eval:
   `r = await tool.write({'path': 'xd://mcp__ok_fine_read_concept', 'content': json.dumps(...)})`;
   the payload is `r['details']['xdev']['inner']['structuredContent']` (`r['text']` is elided).

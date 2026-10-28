@@ -67,6 +67,10 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   one named untried trick from it. Parks that had 2 zero-yield passes still matched when a
   new finding (ring/chain-length counting, between-call dummies) arrived: re-dispatch on
   new evidence, not on "try again".
+- Fresh-eyes agents that build a scripted variant harness (reduced TU: file head + one
+  function, ~0.5 s/compile, score = normalised objdump diff lines) and sweep statement
+  order × association × named/inline × declaration order matched 12 of 21 bonus/race park
+  attempts that permuter and hand passes had stalled on; ask for the harness in every park task.
 - Only a TU re-split of a file waits for every agent on that file.
 
 ## Large functions

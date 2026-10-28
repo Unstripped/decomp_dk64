@@ -16,8 +16,9 @@ edit ok-fine. The matching agents' reports, with proposed names: `local://all-re
   `name = 0xADDR; // type:func` in `symbol_addrs.<seg>.us.txt`. Reject names that encode
   addresses, offsets or parameter numbers (`actorEnqueueTableD5D0`, `setCSPPlayerField84`,
   `n_alSynSetParam10`): leave those `func_`.
-- Rename the old `func_` name in EVERY `src/` C file that uses it (overlays included). Never
-  add `#pragma weak` aliases.
+- Rename the old `func_` name in EVERY `src/` C file that uses it; for an overlay segment
+  only in `src/<seg>/` (overlay addresses collide: a whole-`src/` replace renamed six other
+  overlays' functions). Never add `#pragma weak` aliases.
 - Rename agent-prefixed types (`Act8CA_Node` → `AnimNode`) in the unit's files.
 - Token renames only: never reformat, re-indent, join lines or delete code.
 - A function prototyped by a header (`PR/libaudio.h`): renaming it drops that prototype at
