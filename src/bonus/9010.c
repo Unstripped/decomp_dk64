@@ -27,7 +27,7 @@ typedef struct BonusEHud {
     u8 unkD;
 } BonusEHud;
 
-Gfx *func_8002D010(Gfx *gdl, void *arg1) {
+Gfx *bonusRenderScoreHud(Gfx *gdl, void *arg1) {
     BonusEHud *hud = *(BonusEHud **)((u8 *)arg1 + 0x174);
     s16 i;
     s16 y;
@@ -106,7 +106,7 @@ s32 func_806FDB8C(s32, char *, s32, f32, f32, f32);
 void func_8070D8C0(void *, s32, u8);
 void renderCallbacksRegister(void *, void *, s32);
 
-void func_8002D2F0(void) {
+void bonusScoreHudUpdate(void) {
     BonusEHud *hud = BA9->unk174;
     s32 sp28;
 
@@ -197,13 +197,13 @@ void func_8002D2F0(void) {
         break;
     }
     D_80744518 = hud->unkA;
-    renderCallbacksRegister(func_8002D010, D_807FBB40, 3);
+    renderCallbacksRegister(bonusRenderScoreHud, D_807FBB40, 3);
 }
 
 extern s8 D_8002D910[];
 extern s8 D_8002D91C[];
 
-void func_8002D6F8(s16 arg0) {
+void bonusQueueScore(s16 arg0) {
     s32 i;
     s32 j;
 

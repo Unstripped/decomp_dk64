@@ -13,7 +13,7 @@ This repository contains no game data. You need your own copy of the ROM to buil
 Percentages are matched C function bytes out of all function bytes in each code segment. Assets (textures, models, text) are not counted; see [ROADMAP.md](ROADMAP.md).
 
 <!-- progress:start -->
-**Overall: 52.21%** of code bytes matched (907,312 / 1,737,968 bytes, 3,410 / 4,496 functions)
+**Overall: 52.88%** of code bytes matched (919,004 / 1,737,956 bytes, 3,420 / 4,496 functions)
 
 `█████████████████████░░░░░░░░░░░░░░░░░░░`
 
@@ -23,14 +23,14 @@ Percentages are matched C function bytes out of all function bytes in each code 
 | `global` | main game code | `██████████░░░░░░░░░░` 52.3% | 692,072 / 1,323,644 | 2,702 / 3,598 |
 | `multiplayer` | `ovl02`, multiplayer modes | `███████████░░░░░░░░░` 54.7% | 6,636 / 12,132 | 26 / 31 |
 | `minecart` | `ovl03`, minecart rides | `████████░░░░░░░░░░░░` 39.5% | 7,640 / 19,344 | 18 / 25 |
-| `bonus` | `ovl04`, bonus barrels | `████████████████░░░░` 77.7% | 30,280 / 38,972 | 43 / 47 |
-| `race` | `ovl05`, races | `███████████░░░░░░░░░` 56.9% | 27,232 / 47,860 | 98 / 113 |
+| `bonus` | `ovl04`, bonus barrels | `█████████████████░░░` 83.8% | 32,668 / 38,972 | 44 / 47 |
+| `race` | `ovl05`, races | `███████████████░░░░░` 76.4% | 36,536 / 47,848 | 107 / 113 |
 | `critter` | `ovl06`, critter minigames | `█████████████████░░░` 82.5% | 18,560 / 22,496 | 52 / 55 |
 | `boss` | `ovl07`, boss fights | `████████░░░░░░░░░░░░` 41.5% | 29,784 / 71,796 | 59 / 79 |
 | `arcade` | `ovl08`, Donkey Kong arcade | `█████░░░░░░░░░░░░░░░` 27.1% | 15,712 / 57,888 | 62 / 98 |
 | `jetpac` | `ovl09`, Jetpac | `█████████████████░░░` 85.2% | 24,524 / 28,796 | 102 / 108 |
 | `menu` | `ovl10`, main menu / file select | `████░░░░░░░░░░░░░░░░` 19.7% | 12,052 / 61,244 | 57 / 113 |
-| **Total** |  | `██████████░░░░░░░░░░` 52.2% | 907,312 / 1,737,968 | 3,410 / 4,496 |
+| **Total** |  | `███████████░░░░░░░░░` 52.9% | 919,004 / 1,737,956 | 3,420 / 4,496 |
 <!-- progress:end -->
 
 Refresh after a matching build with `tools/dk python3 tools/progress.py --readme`.

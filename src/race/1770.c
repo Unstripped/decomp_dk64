@@ -275,7 +275,7 @@ typedef struct {
 #define LR3PT(i) (&(i)[points])
 #define LR3NXT LR3PT(next)
 
-void func_80026354(u8 *arg0, u8 *arg1, u8 arg2) {
+void racePathFollowStep(u8 *arg0, u8 *arg1, u8 arg2) {
     s32 count;
     s32 next;
     s32 next2;
@@ -388,7 +388,7 @@ void func_80026354(u8 *arg0, u8 *arg1, u8 arg2) {
 typedef struct {
     s32 pad[15];
 } Struct3C;
-s32 func_8002D360(void *);
+s32 raceFindNearestParticipant(void *);
 
 void func_80026B20(u8 *arg0) {
     void *sp34;
@@ -402,7 +402,7 @@ void func_80026B20(u8 *arg0) {
         sp34 = *(void **)((u8 *)D_807FBB44 + 0x178);
         sp2C = *(u8 **)((u8 *)D_807FBB44 + 0x17C);
         *(void **)(sp2C + 0xC) = D_807FBB40;
-        *(s32 *)(sp2C + 8) = func_8002D360(D_807FBB40);
+        *(s32 *)(sp2C + 8) = raceFindNearestParticipant(D_807FBB40);
         *(void **)(arg0 + 0x2C) = D_807FBB44;
         *(f32 *)((u8 *)D_807FBB44 + 0x7C) = *(f32 *)((u8 *)D_807FBB40 + 0x7C);
         *(f32 *)((u8 *)D_807FBB44 + 0x80) = *(f32 *)((u8 *)D_807FBB40 + 0x80);
@@ -459,7 +459,7 @@ void func_80026EE4(void *arg0, u8 *arg1) {
 extern u8 D_807FBD70;
 extern void *D_807FBB4C;
 s32 raceGetPrevWaypointIndex(s32, s32);
-void func_80026354(u8 *, u8 *, u8);
+void racePathFollowStep(u8 *, u8 *, u8);
 void actorUpdateModelMatrix(void *, s32);
 s32 func_807142D8(void);
 s32 flagGet(s32, s32);
@@ -497,7 +497,7 @@ void func_80026F04(void) {
         s1[0x2A] = 3;
         *(u8 *)((u8 *)D_807FBB40 + 0x144) = 0x3C;
         *(u16 *)(sp78 + 2) = raceGetPrevWaypointIndex(len, 0);
-        func_80026354(sp78, s1, 1);
+        racePathFollowStep(sp78, s1, 1);
         if (func_807142D8() != 0 || flagGet(0x12, 2) != 0) {
             playerStateQueueCallback(0x4B, D_807FBB40, s1[0x28]);
         } else {
@@ -550,7 +550,7 @@ void func_80026F04(void) {
                 *(f32 *)(sp78 + 0x24) = 0.0f;
             }
         }
-        func_80026354(sp78, s1, 1);
+        racePathFollowStep(sp78, s1, 1);
         *(f32 *)((u8 *)D_807FBB40 + 0x80) += 20.0f * func_80612794((s32)(sv * 0.5f));
         func_80026D2C(*(f32 *)((u8 *)D_807FBB40 + 0xB8));
     } else if (s1[0x34] == 5) {
@@ -629,7 +629,7 @@ void func_800274C0(void) {
         func_806086CC(*(f32 *)((u8 *)D_807FBB40 + 0x7C), *(f32 *)((u8 *)D_807FBB40 + 0x80), *(f32 *)((u8 *)D_807FBB40 + 0x84), 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);
         var_v1 = 1;
     }
-    func_80026354(sp48, sp4C, 0);
+    racePathFollowStep(sp48, sp4C, 0);
     *(f32 *)((u8 *)D_807FBB40 + 0x80) += 5.0f;
     if (*s1 != 0) {
         func_807149B8(1);

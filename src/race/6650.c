@@ -161,7 +161,7 @@ extern Struct_DC98 *D_807FDC98;
 extern Struct_DC9C *D_807FDC9C;
 extern Struct_FDCA0 *D_807FDCA0;
 
-s32 func_8002E960(u8);
+s32 raceGetRoute(u8);
 f32 func_8002F784(s32, Struct_sp58 *, void *);
 s32 mathAngleDiscrete(f32, f32, s32, s32, f32);
 s32 func_806CC10C(s16, s16);
@@ -378,7 +378,7 @@ void func_8002B180(Struct_sp58 *arg0, Struct_8002B180_Arg1 *arg1) {
 
     pad = arg0->unk30;
     sp40 = pad->unk174;
-    sp3C = func_8002E960(sp40->unk26);
+    sp3C = raceGetRoute(sp40->unk26);
     sp38 = func_8002F784(sp3C, arg0, arg1->unk4);
     idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
     var_v1 = &D_807FDCA0->unk14[idx];

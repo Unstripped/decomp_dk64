@@ -6,7 +6,7 @@ extern Mtx D_2000180;
 Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
 
-Gfx *func_800252A0(Gfx *gdl, void *arg1) {
+Gfx *bonusRenderReelHud(Gfx *gdl, void *arg1) {
     void *temp_t0 = *(void **)((u8 *)arg1 + 0x174);
 
     gDPPipeSync(gdl++);
@@ -25,7 +25,7 @@ s32 actorSpawn(s32, s32);
 extern void *D_807FBB40;
 extern void *D_807FBB44;
 
-void *func_800253E4(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
+void *bonusSpawnReel(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
     if (actorSpawn(0xDB, arg0) != 0) {
         void **ptr = *(void ***)((u8 *)D_807FBB44 + 0x174);
         *(f32 *)((u8 *)D_807FBB44 + 0x7C) = (f32)arg1;
@@ -38,7 +38,7 @@ void *func_800253E4(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
 
 extern u8 *D_8002D8B0[];
 
-u8 func_80025480(u8 **arg0, u8 arg1) {
+u8 bonusGetReelSymbol(u8 **arg0, u8 arg1) {
     s32 idx = arg1;
     return D_8002D8B0[idx][arg0[idx][0x15F]];
 }
@@ -51,7 +51,7 @@ s32 randomNonNegative();
 extern s32 D_8074E880[];
 void D_80717404(void);
 
-void func_800254B0(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+void bonusSpawnEffectBurst(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
     s16 i;
 
     for (i = 0; i < arg3; i++) {
@@ -65,7 +65,7 @@ void func_800254B0(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 extern void *D_807FBB4C;
 
-void func_8002563C(s32 arg0) {
+void bonusReelNextRound(s32 arg0) {
     void *temp_v0 = *(void **)((u8 *)D_807FBB4C + 0x174);
     camSetTarget(*(void **)((u8 *)temp_v0 + 0x104), D_807FBB4C, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
     *(u8 *)((u8 *)D_807FBB40 + 0x154) = 3;
@@ -152,15 +152,15 @@ void effectFreeAndUnlink(s32);
 void renderCallbacksRegister(void *, void *, s32);
 f32 func_80612794(s16);
 s16 func_80609140(s32, s32, f32, f32, s32, s32);
-void func_800264E0(u8, u8);
-void func_800265C0(u8, u8);
+void bonusEndWin(u8, u8);
+void bonusEndLose(u8, u8);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 s32 func_8070E750(s32, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void actorUpdateModelMatrix(void *, s32);
 
-void func_8002570C(void) {
+void bonusReelGameUpdate(void) {
     u8 *sp4C;
     LB3Obj *obj;
     u8 i;
@@ -176,10 +176,10 @@ void func_8002570C(void) {
         func_806FDAB8(obj->unk19, 0.0f);
         obj->unk16 = 3;
         obj->unk14 = 3;
-        obj->act[0] = func_800253E4(0x90, -0x15, 1, 0x12);
-        obj->act[1] = func_800253E4(0x91, -7, 1, 0x12);
-        obj->act[2] = func_800253E4(0x92, 7, 1, 0x12);
-        obj->act[3] = func_800253E4(0x93, 0x15, 1, 0x12);
+        obj->act[0] = bonusSpawnReel(0x90, -0x15, 1, 0x12);
+        obj->act[1] = bonusSpawnReel(0x91, -7, 1, 0x12);
+        obj->act[2] = bonusSpawnReel(0x92, 7, 1, 0x12);
+        obj->act[3] = bonusSpawnReel(0x93, 0x15, 1, 0x12);
         playerStateQueueCallback(0x49, 0, 0);
         camSetTargetScaled(*(void **)(sp4C + 0x104), D_807FBB4C, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
         camStartPath(0, 1, 1);
@@ -278,7 +278,7 @@ void func_8002570C(void) {
             break;
         }
         if (LA->unk155 != 0) {
-            func_800254B0(obj->act[LA->unk168]->unk7C, obj->act[LA->unk168]->unk80, obj->act[LA->unk168]->unk84 + 20.0f, 0xF);
+            bonusSpawnEffectBurst(obj->act[LA->unk168]->unk7C, obj->act[LA->unk168]->unk80, obj->act[LA->unk168]->unk84 + 20.0f, 0xF);
             obj->act[LA->unk168]->unk154 += 1;
             LA->unk168 += 1;
             LA->unk154 = 6;
@@ -291,27 +291,27 @@ void func_8002570C(void) {
         }
     case 1:
         if (LA->unk11C->unk154 != 5) {
-            if (func_80025480((u8 **)obj, 0) == 0 && func_80025480((u8 **)obj, 0) == func_80025480((u8 **)obj, 1) && func_80025480((u8 **)obj, 1) == func_80025480((u8 **)obj, 2) && func_80025480((u8 **)obj, 2) == func_80025480((u8 **)obj, 3)) {
+            if (bonusGetReelSymbol((u8 **)obj, 0) == 0 && bonusGetReelSymbol((u8 **)obj, 0) == bonusGetReelSymbol((u8 **)obj, 1) && bonusGetReelSymbol((u8 **)obj, 1) == bonusGetReelSymbol((u8 **)obj, 2) && bonusGetReelSymbol((u8 **)obj, 2) == bonusGetReelSymbol((u8 **)obj, 3)) {
                 func_806FDAB8(obj->unk19, 3.1415927f);
                 obj->unk16 -= 1;
                 if (obj->unk16 == 0) {
                     *(u8 *)((u8 *)D_807FBB4C + 0x155) = 1;
-                    func_800264E0(0, 0);
+                    bonusEndWin(0, 0);
                     LA->unk154 = 8;
                     obj->unk10 = 0;
                     obj->unk1A = 0;
                     camStartPath(0, 0, 0x11);
                 } else {
                     textSpawnMarkerChecked(0, 0, 0xB4, func_8070E750(0x1A, 0xB, 1), 0, 0x28, 8, 8);
-                    func_8002563C((s32)obj);
+                    bonusReelNextRound((s32)obj);
                 }
             } else {
                 textSpawnMarkerChecked(0, 0, 0xB4, func_8070E750(0x1A, 0xC, 1), 0, 0x28, 8, 8);
-                func_8002563C((s32)obj);
+                bonusReelNextRound((s32)obj);
             }
         } else {
             *(u8 *)((u8 *)D_807FBB4C + 0x155) = 2;
-            func_800265C0(0, 1);
+            bonusEndLose(0, 1);
             LA->unk154 = 9;
             obj->unk10 = 0;
             obj->unk1A = 0;
@@ -323,7 +323,7 @@ void func_8002570C(void) {
         do {
             if ((obj->unk10 - i * 8 + 0x18) % 32) {
             } else {
-                func_800254B0(obj->act[i]->unk7C, obj->act[i]->unk80, obj->act[i]->unk84 + 20.0f, 0xF);
+                bonusSpawnEffectBurst(obj->act[i]->unk7C, obj->act[i]->unk80, obj->act[i]->unk84 + 20.0f, 0xF);
             }
         } while (++i < 4);
     case 9:
@@ -331,7 +331,7 @@ void func_8002570C(void) {
         break;
     }
     if (LA->unk154 > 0 && LA->unk154 < 8) {
-        renderCallbacksRegister(func_800252A0, D_807FBB40, 3);
+        renderCallbacksRegister(bonusRenderReelHud, D_807FBB40, 3);
     }
     if (LA->unk154 >= 8) {
         if (obj->unk20 != 0) {
@@ -371,7 +371,7 @@ typedef struct BonusEActor {
 f32 asinApprox(f32);
 f32 sinApprox(f32);
 
-void func_800261B8(void) {
+void bonusReelUpdate(void) {
     BonusEObj *obj;
     s16 t;
 
@@ -424,7 +424,7 @@ void func_800261B8(void) {
 }
 void camStartPathNearWall(void *, s32, s32, s32);
 
-void func_800264E0(u8 arg0, u8 arg1) {
+void bonusEndWin(u8 arg0, u8 arg1) {
     func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
     textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
     *(u8 *)((u8 *)*(void **)((u8 *)D_807FBB40 + 0x11C) + 0x154) = 0;
@@ -436,7 +436,7 @@ void func_800264E0(u8 arg0, u8 arg1) {
     }
 }
 
-void func_800265C0(u8 arg0, u8 arg1) {
+void bonusEndLose(u8 arg0, u8 arg1) {
     *(u8 *)((u8 *)*(void **)((u8 *)D_807FBB40 + 0x11C) + 0x154) = 0;
     textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
     sfxAllocateChannel(0x57, 1.0f);

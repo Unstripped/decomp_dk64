@@ -7,7 +7,7 @@ Gfx *func_8070068C(Gfx *);
 extern Gfx D_1000118;
 extern Gfx D_2000180;
 
-Gfx *func_80024000(Gfx *gdl, void *arg1) {
+Gfx *bonusRenderCounterHud(Gfx *gdl, void *arg1) {
     void *temp_s0;
     Gfx *temp_v0;
 
@@ -116,8 +116,8 @@ void heapFreeDeferred(s32);
 s32 _sprintf(char *, const char *, ...);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_806F8AD4(s32, s32);
-void func_800264E0(u8, u8);
-void func_800265C0(u8, u8);
+void bonusEndWin(u8, u8);
+void bonusEndLose(u8, u8);
 void func_80726EE0(s32);
 void func_80724A20(void);
 void func_80641874(s32, s32);
@@ -130,7 +130,7 @@ u16 camStartPath(s32, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
-void func_80024158(void) {
+void bonusControllerUpdate(void) {
     s16 i;
     LB3bState *s;
     u8 sp6F;
@@ -273,13 +273,13 @@ tail:
                                     func_8063DA40(2, 0xA);
                                 }
                             } else {
-                                func_800265C0(1, 1);
+                                bonusEndLose(1, 1);
                             }
                         }
                         break;
                     }
                     if (a2v != 0) {
-                        func_800264E0(1, 0xE);
+                        bonusEndWin(1, 0xE);
                         func_80726EE0(0);
                     }
                 }
@@ -295,7 +295,7 @@ tail:
         case 13:
         case 14:
             if (s->unk4 == 0) {
-                func_800264E0(1, 0xE);
+                bonusEndWin(1, 0xE);
             }
         case 0:
             if ((((sp6E - D_80744508) < 0) ? 0 : (sp6E - D_80744508)) != s->unk4) {
@@ -318,7 +318,7 @@ tail:
             }
         case 6:
             if (s->unk4 == 0) {
-                func_800264E0(1, 0xE);
+                bonusEndWin(1, 0xE);
             }
         case 2:
             if ((((sp6E - func_806F8AD4(0xB, 0)) < 0) ? 0 : (sp6E - func_806F8AD4(0xB, 0))) != s->unk4) {
@@ -327,7 +327,7 @@ tail:
             }
 render:
             if (s->unk0 >= 2) {
-                renderCallbacksRegister(func_80024000, D_807FBB40, 3);
+                renderCallbacksRegister(bonusRenderCounterHud, D_807FBB40, 3);
             }
             break;
         case 9:
@@ -390,34 +390,34 @@ render:
     switch (LB->unk154) {
     case 0:
         if ((sp6F == 1 || sp6F == 0 || sp6F == 2 || sp6F == 0x10) && LP->unk80 < 0.0f) {
-            func_800265C0(1, 1);
+            bonusEndLose(1, 1);
             return;
         }
         if (sp6F == 4 && LP->unk80 < -20.0f) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x362, 0xFF, 0x7F, 0);
-            func_800265C0(0, 1);
+            bonusEndLose(0, 1);
             camStartPath((s32)D_807FBB40, 1, 1);
             return;
         }
         if (LP->unk154 == 0x73) {
             if (sp6F == 1) {
-                func_800265C0(1, 0x13);
+                bonusEndLose(1, 0x13);
                 return;
             }
-            func_800265C0(1, 1);
+            bonusEndLose(1, 1);
             return;
         }
         if (sp6F == 3 && LP->unk154 == 0x31) {
-            func_800265C0(1, 0x14);
+            bonusEndLose(1, 0x14);
             return;
         }
         pv = &sp6F;
         if (LB->unk11C->unk154 == 5) {
             if (*pv == 3) {
-                func_800264E0(1, 0x15);
+                bonusEndWin(1, 0x15);
                 return;
             }
-            func_800265C0(1, 0x16);
+            bonusEndLose(1, 0x16);
             return;
         }
         break;
@@ -429,7 +429,7 @@ render:
         func_806FDAB8(s->unk9, 3.1415927f);
         s->unk4 -= 1;
         if (s->unk4 == 0) {
-            func_800264E0(1, 0xE);
+            bonusEndWin(1, 0xE);
             return;
         }
         LB->unk154 = 0;
@@ -439,10 +439,10 @@ render:
         LB->unk154 = 0;
         break;
     case 0x37:
-        func_800265C0(1, 1);
+        bonusEndLose(1, 1);
         return;
     case 0x12:
-        func_800264E0(1, 0xE);
+        bonusEndWin(1, 0xE);
         break;
     }
 }

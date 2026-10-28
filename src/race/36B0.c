@@ -155,7 +155,7 @@ void func_80027B30(u8 *arg0) {
 
 extern s32 *D_807F5FD4;
 
-f32 func_80027BD0(u8 *arg0, u8 *arg1, u8 *arg2) {
+f32 raceGetCompletionFraction(u8 *arg0, u8 *arg1, u8 *arg2) {
     f32 result;
     s8 temp_v0;
     s8 new_var;
@@ -234,7 +234,7 @@ void func_80027CE8(void) {
     sp3C = func_80027920((s32)D_807FBB40, (s32)temp_s2, (s32)sp4C, (Waypoint *)sp48);
     sp38 = func_8002E1C8(sp40, sp3C, D_8002FBD0, D_8002FC00);
     flag = (temp_s2[1] == temp_s2[0]) && (temp_s2[4] == 0);
-    if ((sp40[0xF] != 0) && (temp_v0_2 = *(u8 **)(sp54 + 0x30), (func_80027BD0(temp_s2, sp54, *(u8 **)(temp_v0_2 + 0x174)) > 0.8))) {
+    if ((sp40[0xF] != 0) && (temp_v0_2 = *(u8 **)(sp54 + 0x30), (raceGetCompletionFraction(temp_s2, sp54, *(u8 **)(temp_v0_2 + 0x174)) > 0.8))) {
         func_8002DE78(sp40, 0, D_8002FBD0, D_8002FC00);
     }
     switch (sp40[0xF]) {
@@ -371,7 +371,7 @@ s32 raceGetPrevWaypointIndex(s32, s32);
 void behaviourFrameBegin(void);
 void actorClearNodeFlag(void *, s32);
 void actorUpdateModelMatrix(void *, s32);
-void func_80026354(void *, void *, s32);
+void racePathFollowStep(void *, void *, s32);
 void func_8002D72C(void *);
 void func_8002D754(void *);
 s32 func_8002E8EC(void *, void *, s32);
@@ -461,7 +461,7 @@ void func_80028440(void) {
         func_800282D8();
     }
     if (temp_s1[0x34] < 5) {
-        func_80026354(temp_s0, temp_s1, 1);
+        racePathFollowStep(temp_s0, temp_s1, 1);
         *(f32 *)((u8 *)D_807FBB40 + 0x80) += 50.0f * func_80612794((s16)(s32)(*(f32 *)(temp_s0 + 0x20) * 0.5f));
     } else {
         *(f32 *)((u8 *)D_807FBB40 + 0xB8) = 0.0f;
@@ -579,7 +579,7 @@ typedef struct {
 } RaceBStructPlayer;
 extern RaceBStructPlayer *D_807FC924;
 void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
-void func_80026354(void *, void *, s32);
+void racePathFollowStep(void *, void *, s32);
 
 void func_80028AD0(void) {
     s32 pad54[3];
@@ -616,7 +616,7 @@ void func_80028AD0(void) {
         *(u16 *)(temp_s0 + 2) = temp_v0;
         *(u16 *)(temp_s0 + 2) = raceGetPrevWaypointIndex(sp38, (u16)temp_v0);
         temp_s0[0] = temp_s0[1] = 1;
-        func_80026354(temp_s0, temp_s1, 0);
+        racePathFollowStep(temp_s0, temp_s1, 0);
     }
     temp_v0_2 = sp4C[0x34];
     if (temp_v0_2 != temp_s1[0x34]) {
@@ -644,7 +644,7 @@ void func_80028AD0(void) {
                 *(f32 *)((u8 *)D_807FBB40 + 0xB8) = *(f32 *)(sp50 + 0xB8);
             }
         }
-        func_80026354(temp_s0, temp_s1, 0);
+        racePathFollowStep(temp_s0, temp_s1, 0);
     }
     if ((temp_s1[0x34] < 4) && (temp_s1[0x34] > 0)) {
         temp_fv0_3 = sp34 / 90.0f;
@@ -666,7 +666,7 @@ void func_80028AD0(void) {
 #pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80028AD0.s")
 #endif
 
-void func_80028E20(void *arg0) {
+void raceFindNearestWaypoint(void *arg0) {
     Point3f *p;
     s32 count;
     s32 i;
@@ -705,7 +705,7 @@ typedef struct {
 } StructBB70_Race;
 extern StructBB70_Race D_807FBB70;
 extern u8 *D_807FDC9C;
-void func_80028E20(void *);
+void raceFindNearestWaypoint(void *);
 void func_8067E278(s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
@@ -723,7 +723,7 @@ void func_80029054(void) {
     sp50 = *(u8 **)((u8 *)D_807FBB40 + 0x17C);
     behaviourFrameBegin();
     if (!(*(s32 *)((u8 *)D_807FBB40 + 0x60) & 0x10)) {
-        func_80028E20(sp50);
+        raceFindNearestWaypoint(sp50);
         *(u8 *)((u8 *)D_807FBB40 + 0x144) = 0x3C;
         *(f32 *)(temp_s1 + 4) = 0.5f;
         actorClearNodeFlag(D_807FBB40, 1);
@@ -740,7 +740,7 @@ void func_80029054(void) {
     func_8072177C(D_807FBB40, (s16)(s32)sp3C, (s16)(s32)sp40, (s16)(s32)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     actorGetNodePos(D_807FBB40, 0xB, &sp3C, &sp40, &sp44);
     func_8072177C(D_807FBB40, (s16)(s32)sp3C, (s16)(s32)sp40, (s16)(s32)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-    func_80026354(sp50, temp_s1, 1);
+    racePathFollowStep(sp50, temp_s1, 1);
     if ((temp_s1[0x34] == 0) && (sp48[0x34] == 5)) {
         *(u8 *)(D_807FDC9C + 0x14) = 0;
         *(u8 *)((u8 *)D_807FBB40 + 0x154) = 0x40;

@@ -154,7 +154,7 @@ void func_8002BBD0(RaceUnknownActor *arg0, s32 arg1) {
     arg0->unk154 = 0;
 }
 
-u16 *func_8002E960(u8);
+u16 *raceGetRoute(u8);
 void func_8002F36C(void *, void *);
 s32 cameraFindViewportEntry(u8);
 #define RaceE3 ((RaceStruct3 *)arg3)
@@ -174,7 +174,7 @@ void func_8002BC2C(RaceUnknownActor *arg0, s32 arg1, RaceUnknownActor *arg2, Rac
     RaceE3->unk3A = 0;
     RaceE3->unk37 = 1;
     if (RaceE3->unk27 == 0) {
-        temp_a1 = func_8002E960(temp_t0->unk26);
+        temp_a1 = raceGetRoute(temp_t0->unk26);
         if (temp_a1 != NULL) {
             RaceE3->unk3C = *temp_a1 - 1;
             func_8002F36C(arg3, temp_a1);
@@ -762,7 +762,7 @@ void func_8002D338(void *arg0, RaceUnknownC *arg1) {
     actorDespawn(arg0, arg1);
 }
 
-RaceUnknownActor *func_8002D360(RaceUnknownActor *arg0) {
+RaceUnknownActor *raceFindNearestParticipant(RaceUnknownActor *arg0) {
     RaceUnknownActor *owner;
     f32 best;
     f32 d;
@@ -794,7 +794,7 @@ RaceUnknownActor *func_8002D360(RaceUnknownActor *arg0) {
 
 void sfxAllocateChannel(s32, f32);
 
-void func_8002D40C(void) {
+void racePlayResultSfx(void) {
     RaceUnknown174 *temp_v0;
     RacePair *list;
     RaceStruct3 *s;
@@ -849,9 +849,9 @@ void func_8002D4A0(void) {
     }
     sfxAllocateChannel(soundId, vol);
 }
-void func_8002D40C(void);
+void racePlayResultSfx(void);
 
-void func_8002D524(void) {
+void raceUpdateStandings(void) {
     RaceUnknown174 *t;
     RacePair *base;
     RacePair *p;
@@ -901,7 +901,7 @@ void func_8002D524(void) {
     }
     if (cnt >= t->unk1E - 1) {
         func_8002D224(3);
-        func_8002D40C();
+        racePlayResultSfx();
         t->unk1C = 0;
     }
 }
@@ -937,9 +937,9 @@ typedef struct RaceFActorView {
     s16 unk128;
 } RaceFActorView;
 void func_80609140(s16, s32, f32, f32, s32, s32);
-void func_8002F950(RaceUnknown174 *);
+void raceUpdateWaypointActivation(RaceUnknown174 *);
 
-void func_8002D524(void);
+void raceUpdateStandings(void);
 
 void func_8002D778(void) {
     void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
@@ -983,7 +983,7 @@ void func_8002D778(void) {
         if (t->unk1C < 0x78) {
             t->unk1C = (u32)t->unk1C + 1;
         }
-        func_8002D524();
+        raceUpdateStandings();
         break;
     case 3:
         if (D_8076A0A8 == 0xE || D_8076A0A8 == 0x52) {
@@ -1031,7 +1031,7 @@ void func_8002D778(void) {
         }
         break;
     }
-    func_8002F950(t);
+    raceUpdateWaypointActivation(t);
     if (func_807142D8() == 0) {
         if (D_807FBB40->unk154 > 0 && D_807FBB40->unk154 < 5) {
             renderCallbacksRegister((void *)func_8002CBEC, D_807FBB40, 3);

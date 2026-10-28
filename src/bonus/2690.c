@@ -63,7 +63,7 @@ s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 s16 func_806CC190(s16, s16, s32);
 f32 func_80611BB4(f32, f32);
 void func_8060E7EC(s32, s32, s32);
-void func_8002733C(void *);
+void bonusResetAmmo(void *);
 extern u16 D_807FD63C;
 typedef struct {
     void *unk0;
@@ -213,7 +213,7 @@ void actorUpdateModelMatrix(void *, s32);
 
 extern u8 D_1000118[];
 extern u8 D_2000180[];
-Gfx *func_80026690();
+Gfx *bonusRenderCrosshair();
 Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s32, void *);
 extern u8 D_20000C0[];
@@ -263,7 +263,7 @@ s32 actorSpawn(s32, s32);
 void actorScriptStart();
 void func_80614D00(void *, f32, f32);
 
-Gfx *func_80026690(Gfx *gdl, Actor_74A0 *arg1) {
+Gfx *bonusRenderCrosshair(Gfx *gdl, Actor_74A0 *arg1) {
     Struct_7548 *temp_v0 = arg1->unk174;
     s16 sp6A = temp_v0->unk1E;
     s16 sp68 = temp_v0->unk20;
@@ -297,7 +297,7 @@ typedef struct {
     BonusA_6940_178 *unk178;
 } BonusA_Actor6940;
 
-Gfx *func_80026940(Gfx *gdl, BonusA_Actor6940 *arg1) {
+Gfx *bonusRenderTargetGameHud(Gfx *gdl, BonusA_Actor6940 *arg1) {
     Struct_6940_174 *temp_s1 = arg1->unk174;
     BonusA_6940_178 *temp_t0 = arg1->unk178;
     s32 pad1[4];
@@ -309,7 +309,7 @@ Gfx *func_80026940(Gfx *gdl, BonusA_Actor6940 *arg1) {
 
     if (arg1->unk154 == 0) {
         if (temp_s1->unk26 != 0) {
-            gdl = func_80026690(gdl, (Actor_74A0 *)arg1);
+            gdl = bonusRenderCrosshair(gdl, (Actor_74A0 *)arg1);
         }
     }
     gSPDisplayList(gdl++, D_1000118);
@@ -380,7 +380,7 @@ typedef struct {
 s32 func_806FDB8C(s32, s32, s32, f32, f32, f32);
 void func_806FDAEC(s16);
 
-Gfx *func_80026CF0(Gfx *gdl, BonusA_ActorCF0 *arg1) {
+Gfx *bonusRenderPopupGameHud(Gfx *gdl, BonusA_ActorCF0 *arg1) {
     Struct_6940_174 *temp_s2 = arg1->unk174;
     BonusA_CF0_List *temp_list = arg1->unk178;
     s32 var_s5 = 0;
@@ -394,7 +394,7 @@ Gfx *func_80026CF0(Gfx *gdl, BonusA_ActorCF0 *arg1) {
 
     if (arg1->unk154 == 0) {
         if (temp_s2->unk26 != 0) {
-            gdl = func_80026690(gdl, (Actor_74A0 *)arg1);
+            gdl = bonusRenderCrosshair(gdl, (Actor_74A0 *)arg1);
         }
     }
     if (temp_s2->unk25 != 0) {
@@ -448,7 +448,7 @@ Gfx *func_80026CF0(Gfx *gdl, BonusA_ActorCF0 *arg1) {
     return gdl;
 }
 
-void func_800271B4(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) {
+void bonusSpawnTarget(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) {
     u8 var_a3;
     Struct_174 *temp_v1;
 
@@ -472,12 +472,12 @@ void func_800271B4(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) {
     }
 }
 
-void func_80027308(u8 *arg0, s32 *arg1) {
+void bonusDespawnTarget(u8 *arg0, s32 *arg1) {
     arg1[arg0[9]] = 0;
     actorDespawn(D_807FBB40);
 }
 
-void func_8002733C(void *arg0) {
+void bonusResetAmmo(void *arg0) {
     s16 i;
     s16 y;
     u8 *temp_s1;
@@ -504,13 +504,13 @@ void func_8002733C(void *arg0) {
     func_80609140(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);
 }
 
-void func_800274A0(f32 arg0, f32 arg1, f32 arg2) {
+void bonusFireProjectile(f32 arg0, f32 arg1, f32 arg2) {
     func_80609140(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
     projectileSetTargetCoords(D_807FBB40->unk7C, D_807FBB40->unk80 - 10.0f, D_807FBB40->unk84);
     projectileAimAndSpawn(0x23, 1, 0.6f, arg0, arg1, arg2, 385.0f, D_807FBB40);
 }
 
-u8 func_80027548(f32 arg0, f32 arg1, f32 arg2) {
+u8 bonusAimAndFire(f32 arg0, f32 arg1, f32 arg2) {
     Struct_7548 *temp_s0 = D_807FBB40->unk174;
     f32 sp50;
     f32 sp4C;
@@ -531,7 +531,7 @@ u8 func_80027548(f32 arg0, f32 arg1, f32 arg2) {
             sp40[0] = 1;
             if (temp_s0->unk22 != 0) {
                 if (temp_s0->unk23 != 0 && temp_s0->unk18[0] == 0) {
-                    func_800274A0(arg0, arg1, arg2);
+                    bonusFireProjectile(arg0, arg1, arg2);
                     temp_s0->unk23--;
                     effectFreeAndUnlink(temp_s0->unk4[temp_s0->unk23]);
                     func_8060E7EC(0, 0xFF, 3);
@@ -547,7 +547,7 @@ u8 func_80027548(f32 arg0, f32 arg1, f32 arg2) {
                 }
             } else if (temp_s0->unk23 < 5) {
                 temp_s0->unk23 = 5;
-                func_8002733C(temp_s0);
+                bonusResetAmmo(temp_s0);
                 D_807FBB40->unk155 = 0;
             }
         }
@@ -611,8 +611,8 @@ extern u8 D_807444EC;
 s32 playerStateQueueCallback(s32, s32, s32);
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 u16 camStartPath(s32, s32, s32);
-void func_800265C0(u8, u8);
-void func_800264E0(u8, u8);
+void bonusEndLose(u8, u8);
+void bonusEndWin(u8, u8);
 void actorSetStateTwo(void *);
 void sfxAllocateChannel(s32, f32);
 void func_806A2A10(s32, s32, u8);
@@ -620,7 +620,7 @@ void func_8070D8C0(void *, s32, s32);
 
 void renderCallbacksRegister(void *, void *, s32);
 
-void func_800277F8(void) {
+void bonusTargetGameUpdate(void) {
     BonusB2_Sub174 *t3c = BB2->unk174;
     BonusB2_Sub178 *t0 = BB2->unk178;
     Point3f *p;
@@ -687,7 +687,7 @@ void func_800277F8(void) {
             t3c->unk22 = (u32)ang2;
         }
         p = *D_807F5FD4 + t3c->unk22;
-        if (func_80027548(p->x, p->y, p->z) == 2) {
+        if (bonusAimAndFire(p->x, p->y, p->z) == 2) {
             t3c->unk25 = 0xFF;
             func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
@@ -697,7 +697,7 @@ void func_800277F8(void) {
                 BB2->unk154 = 0xFF;
             }
             if (t0->unk22 == 0) {
-                func_800264E0(0, 0);
+                bonusEndWin(0, 0);
                 camStartPath(0, 1, 0x11);
                 BB2->unk154 = 1;
             } else if (t0->unk27 < (randomNonNegative() >> 0xF) % 100) {
@@ -705,7 +705,7 @@ void func_800277F8(void) {
                 idx = r % 8;
                 if (t0->unk0[idx] == 0) {
                     p = *D_807F5FD4 + idx + 1;
-                    func_800271B4(p->x, p->y, p->z, idx, (Struct_71B4 *)t0);
+                    bonusSpawnTarget(p->x, p->y, p->z, idx, (Struct_71B4 *)t0);
                 }
             }
             if (BB2->unk11C->unk154 == 4 && BB2->unk11C->unk155 != 0xFF) {
@@ -718,7 +718,7 @@ void func_800277F8(void) {
             BB2->unk154 = 0;
             break;
         case 0xFF:
-            func_800265C0(0, 5);
+            bonusEndLose(0, 5);
             camStartPath(0, 1, 0x11);
             BB2->unk154 = 1;
             break;
@@ -736,14 +736,14 @@ void func_800277F8(void) {
             if (!(BB2->unk60 & 0x2000000)) {
                 t3c->unk0 = 1;
                 actorSetStateTwo(BB2->unk11C);
-                func_8002733C(t3c);
+                bonusResetAmmo(t3c);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;
         }
     }
     if (t3c->unk0 >= -1) {
-        renderCallbacksRegister(func_80026940, D_807FBB40, 3);
+        renderCallbacksRegister(bonusRenderTargetGameHud, D_807FBB40, 3);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -786,9 +786,9 @@ typedef struct BonusB_Actor7F14 {
 
 #define BB_B ((BonusB_Actor7F14 *)D_807FBB40)
 
-void func_80028648(BonusB_Sub178 *);
+void bonusPopupSpawnActors(BonusB_Sub178 *);
 
-void func_80027F14(void) {
+void bonusPopupGameUpdate(void) {
     BonusB_Sub7F14 *t0 = BB_B->unk174;
     BonusB_Sub178 *s38 = BB_B->unk178;
     Point3f *p;
@@ -828,7 +828,7 @@ void func_80027F14(void) {
             s38->unk1C = 0x46;
             break;
         }
-        func_80028648(s38);
+        bonusPopupSpawnActors(s38);
     }
     if (BB_B->unk154 == 0) {
         BB_B->unk15F = 1;
@@ -861,7 +861,7 @@ void func_80027F14(void) {
             y += 27.0f;
             z -= 8.0f;
         }
-        switch (func_80027548(p->x, y, z)) {
+        switch (bonusAimAndFire(p->x, y, z)) {
         case 1:
             if (t0->unk22) {
                 BonusB_Actor7F14 *e = (BonusB_Actor7F14 *)s38->unk0[t0->unk22 - 1];
@@ -885,7 +885,7 @@ void func_80027F14(void) {
             }
             break;
         case 2:
-            func_800265C0(0, 1);
+            bonusEndLose(0, 1);
             camStartPath(0, 1, 0x11);
             BB_B->unk154 = 1;
             BB_B->unk155 = 0;
@@ -895,7 +895,7 @@ void func_80027F14(void) {
             BB_B->unk154 = 0;
             break;
         case 0xFF:
-            func_800264E0(0, 0);
+            bonusEndWin(0, 0);
             camStartPath(0, 1, 0x11);
             BB_B->unk154 = 1;
             BB_B->unk155 = 1;
@@ -914,14 +914,14 @@ void func_80027F14(void) {
             if (!(BB_B->unk60 & 0x2000000)) {
                 t0->unk0 = 1;
                 actorSetStateTwo(BB_B->unk11C);
-                func_8002733C(t0);
+                bonusResetAmmo(t0);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;
         }
     }
     if (t0->unk0 >= -1) {
-        renderCallbacksRegister(func_80026CF0, D_807FBB40, 3);
+        renderCallbacksRegister(bonusRenderPopupGameHud, D_807FBB40, 3);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -946,7 +946,7 @@ typedef struct {
 
 #define BB_A ((BonusB_Actor84C0 *)D_807FBB40)
 
-void func_800284C0(void) {
+void bonusTargetUpdate(void) {
     BonusB_Sub84C0 *sub = BB_A->unk174;
     Struct_71B4 *p = sub->unk0;
     s32 step;
@@ -973,12 +973,12 @@ void func_800284C0(void) {
             BB_A->unk154 = 1;
             BB_A->unk155 = 0;
         } else if (BB_A->unk155 != 0) {
-            func_80027308((u8 *)sub, (s32 *)p);
+            bonusDespawnTarget((u8 *)sub, (s32 *)p);
         }
         break;
     case 1:
         if (BB_A->unk155 != 0) {
-            func_80027308((u8 *)sub, (s32 *)p);
+            bonusDespawnTarget((u8 *)sub, (s32 *)p);
         }
         break;
     }
@@ -1000,7 +1000,7 @@ typedef struct {
     s16 unk8;
 } BonusB_Sub8648b;
 
-void func_80028648(BonusB_Sub178 *arg0) {
+void bonusPopupSpawnActors(BonusB_Sub178 *arg0) {
     s32 i;
     BonusB_Sub8648 *s2;
     BonusB_Actor84C0 *s5;
@@ -1200,7 +1200,7 @@ Gfx *func_80029B9C(Gfx *gdl, Actor_BB44 *arg1) {
     actor = arg1;
 
     if (actor->unk58 != 0x7E && actor->unk154 == 0 && ((u8 *)actor->unk174)[0x26] != 0) {
-        gdl = func_80026690(gdl, (void *)arg1);
+        gdl = bonusRenderCrosshair(gdl, (void *)arg1);
     }
     gSPDisplayList(gdl++, &D_1000118);
     gDPPipeSync(gdl++);
@@ -1481,7 +1481,7 @@ void func_8002A398(void) {
             y += 27.0f;
             z -= 8.0f;
         }
-        switch (func_80027548(p->x, y, z)) {
+        switch (bonusAimAndFire(p->x, y, z)) {
         case 1:
             break;
         case 2:
@@ -1499,12 +1499,12 @@ void func_8002A398(void) {
             }
             break;
         case 1:
-            func_800265C0(0, 1);
+            bonusEndLose(0, 1);
             camStartPath(0, 1, 0x11);
             BB2->unk154 = 3;
             break;
         case 2:
-            func_800264E0(0, 0);
+            bonusEndWin(0, 0);
             camStartPath(0, 1, 0x11);
             BB2->unk154 = 3;
             break;
@@ -1522,7 +1522,7 @@ void func_8002A398(void) {
             if (!(BB2->unk60 & 0x2000000)) {
                 t3c->unk0 = 1;
                 actorSetStateTwo(BB2->unk11C);
-                func_8002733C(t3c);
+                bonusResetAmmo(t3c);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;
@@ -2065,9 +2065,9 @@ void func_8002BF98(void) {
         case 5:
         case 6:
             if (LB4A->unk154 == 6) {
-                func_800265C0(0, 1);
+                bonusEndLose(0, 1);
             } else {
-                func_800264E0(0, 0);
+                bonusEndWin(0, 0);
             }
             camStartPath(0, 1, 0x11);
             LB4A->unk154 = 7;
