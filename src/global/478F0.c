@@ -10,18 +10,29 @@ extern f32 D_807F621C;
 extern f32 D_807F6220;
 extern f32 D_807F6224;
 extern CsPlayer *D_807FC924;
-
 extern u8 D_8071FF18[];
 extern u8 D_8071FFA0[];
 s32 func_806119A0(void);
 void func_80714950(s32);
 void func_8071498C(void *);
 void func_80717D4C(void);
-void func_80714998(s32);
-void func_807149B8(s32);
+void func_80714998(u8);
+void func_807149B8(u8);
 void func_807149C8(s32, s32, s32, s32);
-void func_80714B84(void *, f32, s16, s32, s32);
+void func_80714B84(void *, f32, s32, s32, s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
+void *func_80610FE8(s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
+f32 func_80612790(s16);
+f32 func_80612794(s16);
+extern u32 D_8076A064;
+typedef struct CsB0Point3f {
+    f32 x, y, z;
+} CsB0Point3f;
+extern CsB0Point3f **D_807F5FD4;
+void lightSetRadius(s32);
+
 
 void func_80642BF0(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80714B84(D_8071FF18, 0.3f, csId, 1, 0);
@@ -67,8 +78,6 @@ void func_80642C78(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void *func_80610FE8(s32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void func_80642E34(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x;
@@ -103,9 +112,6 @@ typedef struct CsB0Bounce {
     /* 0xC */ f32 padC;
 } CsB0Bounce;
 extern f32 D_807F6234;
-u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
 
 void func_80642FC4(CsState *cs, s16 csId, s16 b, s16 c) {
     CsB0Bounce *p;
@@ -137,7 +143,6 @@ void func_80642FC4(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern u32 D_8076A064;
 
 void func_80643274(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
@@ -152,11 +157,6 @@ void func_80643274(CsState *cs, s16 csId, s16 b, s16 c) {
         func_80714B84(D_8071FFA0, 1.5f, csId, idx, 0);
     }
 }
-
-typedef struct CsB0Point3f {
-    f32 x, y, z;
-} CsB0Point3f;
-extern CsB0Point3f **D_807F5FD4;
 
 void func_80643354(s32 a, s32 b, u32 c) {
     s32 idx;
@@ -175,7 +175,6 @@ void func_80643354(s32 a, s32 b, u32 c) {
 }
 
 #ifdef NON_MATCHING
-void lightSetRadius(s32);
 
 void func_80643440(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 *ang;
@@ -292,21 +291,219 @@ void func_8064384C(CsState *cs, s16 csId, s16 b, s16 c) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80644EC8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806450C0.s")
+extern f32 D_807480E8;
+extern u8 D_807480EF;
+extern u8 D_80720CD8[];
+void func_807149FC(s32);
+void func_80718188(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80645238.s")
+void func_806450C0(CsState *cs, s16 csId, s16 b, s16 c) {
+    u32 idx;
+    f32 y;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80645614.s")
+    if ((func_806119A0() / 10000U) % 10U == 0) {
+        idx = (func_806119A0() / 10000U) % (u32)c;
+        y = D_807F5FD4[b][idx].y;
+        if (collisionCheckGroundAtPoint(D_807F5FD4[b][idx].x, D_807F5FD4[b][idx].z, &y)) {
+            func_80714950(y + 2.0);
+            func_8071498C((void *)func_80718188);
+            func_807149FC(-1);
+            func_807149B8(1);
+            func_807149C8(0xFF, 0xFF, 0xFF, D_807480EF);
+            func_80714CC0(D_80720CD8, D_807480E8, D_807F5FD4[b][idx].x, D_807F5FD4[b][idx].y,
+                          D_807F5FD4[b][idx].z);
+        }
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80645700.s")
+extern u8 D_80720E44[];
+extern u8 D_80720E5C[];
+extern u8 D_80720E74[];
+extern u8 D_80720E8C[];
+void func_8071910C(void);
+void func_8071A8B0(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806458C8.s")
+void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
+    u32 r1;
+    u32 r2;
+    u32 r3;
+    u8 *p;
+    s32 i;
+    s32 sel;
+    f32 x;
+    f32 z;
+    f32 scale;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80645A64.s")
+    for (i = 0; i < 20; i++) {
+        sel = (s32)(func_806119A0() / 10000U) % 4;
+        func_807149B8(1);
+        func_807149FC(0x3C);
+        func_8071498C((void *)func_8071910C);
+        func_80714998(2);
+        func_80714950(2);
+        switch (sel) {
+            case 0:
+                p = D_80720E44;
+                break;
+            case 1:
+                p = D_80720E5C;
+                break;
+            case 2:
+                p = D_80720E74;
+                break;
+            case 3:
+                p = D_80720E8C;
+                break;
+        }
+        func_80714CC0(p, 0.5f, D_807F621C, D_807F6220, D_807F6224);
+    }
+    for (i = 0; i != 6; i++) {
+        x = (f32)((func_806119A0() / 1000U) % 150U) - 75.0;
+        z = (f32)((func_806119A0() / 1000U) % 150U) - 75.0;
+        scale = (f32)((func_806119A0() / 1000U) % 50U - 25.0) / 50.0;
+        if (i == 0) {
+            func_80714950(0x100FA);
+            func_8071498C((void *)func_8071A8B0);
+        } else {
+            func_80714950(-0xAA);
+            func_8071498C((void *)func_80717D4C);
+        }
+        func_807149B8(1);
+        func_80714998(3);
+        func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
+        func_80714CC0(D_8071FFA0, scale + 3.5, D_807F621C + x, D_807F6220 + 30.0, D_807F6224 + z);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80645B9C.s")
+extern u8 D_80720A7C[];
+extern u8 func_8071AADC[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80645C04.s")
+void func_80645614(CsState *cs, s16 csId, s16 b, s16 c) {
+    u32 sp24;
+
+    if ((func_806119A0() / 10000U) % (u32)b == 0) {
+        sp24 = (func_806119A0() / 10000U) % (u32)c;
+        func_80714998(2);
+        func_80714950(0x10064);
+        func_8071498C(func_8071AADC);
+        func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
+        func_807149B8(1);
+        func_80714B84(D_80720A7C, 0.5f, csId, sp24 + 1, 0);
+    }
+}
+
+typedef struct CsB3Pair {
+    f32 a;
+    f32 b;
+} CsB3Pair;
+
+void func_807149A8(s32);
+void func_805FF9AC(s32, s32, s32, s32);
+extern u8 D_80720BC4[];
+void func_8071E3EC(void);
+
+void func_80645700(CsState *cs, s16 csId, s16 b, s16 c) {
+    u32 idx;
+    CsB3Pair *p;
+    CsB3Pair *q;
+    f32 f;
+
+    if (*(CsB3Pair **)cs == NULL && c != 0) {
+        q = func_80610FE8(8);
+        *(CsB3Pair **)cs = q;
+        q->a = 0.0f;
+        q->b = 0.0f;
+    }
+    p = *(CsB3Pair **)cs;
+
+    idx = (func_806119A0() / 10000U) % (u32)b;
+    func_807149B8(1);
+    func_80714998(3);
+    func_80714950(3);
+    func_8071498C((void *)func_8071E3EC);
+    func_807149A8(0x7D0);
+    func_80714CC0(D_80720BC4, 2.5f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
+    if (c != 0) {
+        if (D_807FBB4C->unk154 == 0x42) {
+            p->a = *(f32 *)&D_807FBB4C->unk80;
+        }
+        f = *(f32 *)&D_807FBB4C->unk80;
+        if ((p->a - f > 200.0 || f < 10.0f) && p->b == 0.0) {
+            func_805FF9AC(0x48, 0x1C, 0, 0);
+            p->b = 1.0f;
+        }
+    }
+}
+
+s32 randomNonNegative(void);
+
+extern f32 D_807F622C;
+
+void func_806458C8(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 angle;
+    s16 dist;
+    s32 r1;
+    s32 r2;
+    f32 s;
+    f32 d;
+
+    if (D_8076A064 % (u32)b == 0) {
+        r1 = randomNonNegative() >> 15;
+        angle = r1 % 2048 + (D_807F622C * 4096.0f / 360.0f - 1024.0f);
+        r2 = randomNonNegative() >> 15;
+        dist = r2 % 32767 % 6 + 15;
+        func_80714950(-0x32 - (randomNonNegative() >> 15) % 80);
+        func_8071498C((void *)func_80717D4C);
+        func_807149B8(1);
+        func_80714998(2);
+        s = func_80612794(angle);
+        d = dist;
+        func_80714CC0(D_8071FFA0, 1.0f, s * d + D_807F621C, D_807F6220 + 50.0f, func_80612790(angle) * d + D_807F6224);
+    }
+}
+
+void func_80645A64(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 i;
+
+    i = 0;
+    if (b > 0) {
+        do {
+            func_80714950(-0x96 - ((randomNonNegative() >> 15) % 80));
+            func_8071498C((void *)func_80717D4C);
+            func_807149B8(1);
+            func_80714998(2);
+            func_80714B84(D_8071FFA0, 1.0f, csId, i + 1, 0);
+            i++;
+        } while (i < b);
+    }
+}
+
+void sfxPlayFromTargetSlot(s16, s32, s32, s32, s32, s32, f32);
+
+void func_80645B9C(CsState *cs, s16 csId, s16 b, s16 c) {
+    if ((0x243 - cs->unk44[0]) % 60 == 0) {
+        sfxPlayFromTargetSlot(csId, 0x38, 0xFF, 0x7F, 0, 0x3C, 0.0f);
+    }
+}
+
+void lightSetTargetId(s32);
+void lightSetFlags(s32);
+
+void func_80645C04(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 x;
+    f32 y;
+    f32 z;
+
+    modelSlotGetNodePos(csId, 1, 1, &x, &y, &z);
+    lightSetRadius(0x9C4);
+    lightSetTargetId(9);
+    lightSetFlags(2);
+    lightAdd(x, y, z, 0.0f, 0.0f, 0.0f, 600.0f, 0, 0xFF, 0xFF, 0xFF);
+    lightSetRadius(0x9C4);
+    lightSetTargetId(0xA);
+    lightSetFlags(2);
+    lightAdd(x, y, z, 0.0f, 0.0f, 0.0f, 600.0f, 0, 0xFF, 0xFF, 0xFF);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80645D14.s")
 
