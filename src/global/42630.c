@@ -1385,7 +1385,9 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 cx;
     f32 cy;
     f32 cz;
+    u8 pan7;
 
+if (found) {}
     found = 0; 
     switch (cmd->op) {
     case 0x95:
@@ -1807,24 +1809,25 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
         sfxPlayFromTargetSlot(csId, cmd->a, vol, pan, i, c, 0.3f);
         break;
     case 0x7E:
-        pan = (cmd->b / 128) & 0xFF;
+        pan7 = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0xFF;
         c &= 0x7F;
-        if (pan == 0) {
-            pan = 0x7F;
+        if (pan7 == 0) {
+            pan7 = 0x7F;
         }
         if (!vol) {
             vol = 0xFF;
         }
         i = cmd->b & 0x7F;
         if (D_80748094 > 0) {
+            if (found) {}
             pitch = c;
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
-            func_806086CC(sx, sy, sz, cmd->a, vol, pan, i, pitch, 0.3f, 0);
+            func_806086CC(sx, sy, sz, cmd->a, vol, pan7, i, pitch, 0.3f, 0);
         } else {
-            func_80609140(cmd->a, 0x7FFF, 0x427C0000, (u32)pan / 127.0, 0, 0);
+            func_80609140(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
         }
         break;
     case 0x10:
