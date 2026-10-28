@@ -1455,15 +1455,285 @@ void func_80647CF4(CsState *cs, s16 csId, s16 b, s16 c) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806485A0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806487C4.s")
+extern u8 D_807212B0[];
+extern u8 D_807212C8[];
+extern u8 D_80720340[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80648C50.s")
+void func_806487C4(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 i;
+    s16 hi;
+    f32 dz;
+    s32 n;
+    f32 dx;
+    f32 r;
+    f32 dy;
+    f32 base;
+    u8 *tbl;
+    f32 spread;
+    f32 scale;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80648C84.s")
+    hi = b >> 8;
+    switch (hi) {
+        case 0:
+            scale = 1;
+            break;
+        case 1:
+            scale = 4.0f;
+            break;
+    }
+    base = b & 0xFF;
+    spread = base;
+    tbl = D_807212B0;
+    n = 0x14;
+    switch (c) {
+        case 1:
+            break;
+        case 2:
+            scale *= 1.75;
+            break;
+        case 3:
+            scale *= 1.75;
+            break;
+        case 4:
+            n = 0x28;
+            scale *= 4.0;
+            spread *= 1.5;
+            break;
+        default:
+            tbl = D_807212C8;
+            scale *= 1.75;
+            break;
+    }
+    for (i = 0; i < n; i++) {
+        dx = 2.0f * func_806119FC() - 1.0f;
+        dy = 2.0f * func_806119FC() - 1.0f;
+        dz = 2.0f * func_806119FC() - 1.0f;
+        dx *= spread;
+        dy *= spread;
+        dz *= spread;
+        dy += base;
+        func_807149B8(1);
+        func_807149FC(0x3C);
+        func_8071498C(func_8071910C);
+        func_80714998(2);
+        func_80714950(2);
+        func_80714CC0(tbl, (func_806119FC() * 0.5 + 0.2) * scale, D_807F621C + dx, D_807F6220 + dy, D_807F6224 + dz);
+        if (i < 6) {
+            dx = 2.0f * func_806119FC() - 1.0f;
+            dy = 2.0f * func_806119FC() - 1.0f;
+            dz = 2.0f * func_806119FC() - 1.0f;
+            dx *= spread;
+            dy *= spread;
+            dz *= spread;
+            dy += base;
+            r = (u32)func_806119A0() / 1000 % 50 - 25.0;
+            r = r / 50.0;
+            if (i == 0) {
+                func_80714950(0x100FA);
+                func_8071498C(func_8071A8B0);
+            } else {
+                func_80714950(-0xAA);
+                func_8071498C(func_80717D4C);
+            }
+            func_80714998(3);
+            func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
+            func_80714CC0(D_8071FFA0, (r + 3.5) * scale, D_807F621C + dx, D_807F6220 + dy, D_807F6224 + dz);
+        }
+    }
+    func_807149B8(1);
+    func_80714CC0(D_80720340, scale * 2.5, D_807F621C, b + D_807F6220, D_807F6224);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064911C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806491F4.s")
+typedef struct CsB7Player {
+    /* 0x000 */ u8 pad0[0x290];
+    /* 0x290 */ s16 unk290;
+} CsB7Player;
+
+s32 func_80648C50(void) {
+    s16 state = ((CsB7Player *)D_807FC924)->unk290;
+
+    if (state == 4 || state == 0xC) {
+        return 1;
+    }
+    return 0;
+}
+
+
+typedef struct CsB7Fade {
+    /* 0x0 */ u8 unk0;
+    /* 0x2 */ u16 unk2;
+    /* 0x4 */ f32 unk4;
+} CsB7Fade;
+
+typedef struct CsB7FadeView {
+    /* 0x00 */ CsB7Fade *unk0;
+    /* 0x04 */ u8 pad4[0xC];
+    /* 0x10 */ s16 unk10;
+} CsB7FadeView;
+
+typedef struct CsB7Cam {
+    /* 0x00 */ u8 pad0[0xBC];
+    /* 0xBC */ s16 unkBC;
+} CsB7Cam;
+
+extern CsB7Cam *D_807FD580;
+extern s32 D_8076A0A8;
+extern s16 D_807F7366;
+extern f32 D_807F6940;
+void sfxSetChannelPriority(u8, u8);
+void func_8068D264(void);
+void renderCallbacksRegister(void *, void *, s32);
+
+void func_80648C84(CsState *cs, s16 csId, s16 b, s16 c) {
+    CsB7Fade *q;
+    u8 flag;
+
+    if (((CsB7FadeView *)cs)->unk0 == NULL) {
+        q = func_80610FE8(8);
+        ((CsB7FadeView *)cs)->unk0 = q;
+        q->unk0 = 0;
+        q->unk2 = 0;
+        q->unk4 = 0.0f;
+    }
+    q = ((CsB7FadeView *)cs)->unk0;
+    if (D_8076A0A8 == 0x26) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+    switch (q->unk0) {
+        case 0:
+            if (q->unk2 == 0) {
+                if (func_80648C50() != 0 || flag == 0) {
+                    q->unk0 = 1;
+                    q->unk2 = 0x190;
+                    q->unk4 = 0.0f;
+                    if (flag != 0) {
+                        ((CsB7FadeView *)cs)->unk10 = sfxSlotAllocateSource(csId, 0x11F, 0, 1, 0, 1.0f, 0);
+                    }
+                }
+            } else {
+                q->unk2--;
+            }
+            break;
+        case 1:
+            q->unk4 += 0.01;
+            if (q->unk4 > 1.0) {
+                q->unk4 = 1.0f;
+                if (--q->unk2 == 0 || (func_80648C50() == 0 && flag != 0)) {
+                    q->unk0 = 2;
+                }
+            }
+            if (flag != 0) {
+                sfxSetChannelPriority(*((u8 *)cs + 0x11), q->unk4 * 200.0f);
+            }
+            break;
+        case 2:
+            q->unk4 -= 0.01;
+            if (q->unk4 < 0.0) {
+                q->unk0 = 0;
+                q->unk2 = 0x190;
+                q->unk4 = 0.0f;
+                if (flag != 0) {
+                    func_80605380(((CsB7FadeView *)cs)->unk10);
+                    ((CsB7FadeView *)cs)->unk10 = -1;
+                }
+            } else if (flag != 0) {
+                sfxSetChannelPriority(*((u8 *)cs + 0x11), q->unk4 * 200.0f);
+            }
+            break;
+    }
+    if ((D_807FBB4C->unk154 == 0x42 && D_807FD580->unkBC == 0x62) || D_807FBB4C->unk154 == 0x67) {
+        q->unk0 = 0;
+        q->unk2 = 0x190;
+        q->unk4 = 0.0f;
+        if (flag != 0) {
+            if (((CsB7FadeView *)cs)->unk10 != -1) {
+                func_80605380(((CsB7FadeView *)cs)->unk10);
+                ((CsB7FadeView *)cs)->unk10 = -1;
+            }
+        }
+    }
+    D_807F7366 = q->unk4 * -25.0f + 995.0f;
+    D_807F6940 = q->unk4;
+    if (q->unk4 != 0.0f) {
+        renderCallbacksRegister(func_8068D264, &q->unk4, 5);
+    }
+}
+
+
+void func_8064911C(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 i;
+
+    for (i = 1; i != 8; i++) {
+        func_80714950(-0x78);
+        func_8071498C(func_80717D4C);
+        func_807149B8(1);
+        func_80714998(3);
+        func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
+        func_80714B84(D_8071FFA0, 3.5f, csId, i, 0);
+    }
+}
+
+
+extern u8 D_8076A0AB;
+extern u8 D_807446F0[];
+extern s16 D_80744710[];
+extern s8 D_80748170[];
+extern s8 D_80748178;
+extern s16 D_807505AE[];
+s32 flagGet(s32, s32);
+u8 func_805FF030(u8, u8);
+u8 func_805FF0C8(void);
+
+void func_806491F4(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 idx;
+    s32 base;
+    s8 v;
+    s8 add;
+    s32 base2;
+
+    if (b == 0) {
+        idx = func_805FF030(D_8076A0AB, 0);
+        if (idx >= 8) {
+            idx = 0;
+        }
+        base = D_807446F0[idx];
+        if (D_807505AE[base]) {}
+        if (flagGet(D_80744710[idx], 0)) {
+            modelSlotSetNodeFrame(csId, 1, 0xB, 0);
+            modelSlotSetNodeFrame(csId, 2, 0xB, 0);
+        } else if (func_805FF0C8()) {
+            modelSlotSetNodeFrame(csId, 1, D_80748170[base], 0);
+            modelSlotSetNodeFrame(csId, 2, D_80748170[base], 0);
+        } else {
+            modelSlotSetNodeFrame(csId, 1, 0xA, 0);
+            modelSlotSetNodeFrame(csId, 2, 0xA, 0);
+        }
+    } else {
+        v = D_80748178 + 1;
+        if (D_8076A0AB && D_8076A0AB) {}
+        if (v >= 0x15) {
+            v = 0;
+        }
+        idx = v >> 2;
+        base2 = D_80748170[idx];
+        if (D_807446F0[base]) {}
+        D_80748178 = v;
+        if (idx > 0 && flagGet(D_807505AE[idx], 0) == 0) {
+            add = 5;
+        } else {
+            add = 0;
+        }
+        idx = base2;
+        idx += add;
+        modelSlotSetNodeFrame(csId, 1, idx, 0);
+        if (D_80748178 == 0) {}
+        modelSlotSetNodeFrame(csId, 2, idx, 0);
+    }
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806493C4.s")
 
