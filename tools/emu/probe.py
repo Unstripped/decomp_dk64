@@ -237,11 +237,13 @@ def probe_one(func: str, args: argparse.Namespace) -> dict:
         dead = range(sp - STACK_WINDOW, sp)
         call_all = diff_offsets(entry, ram("baseline", "ret.bin"))
         call_changes = {o for o in call_all if o not in dead}
-        ctrl_call = diff_offsets(entry, ram("control", "ret.bin")) if results["control"].get("returned") else set()
+        # Same bytes at return and same return registers in the control replay.
+        deterministic = (ram("baseline", "ret.bin") == ram("control", "ret.bin")
+                         and base["return"] == results["control"]["return"])
         report["call_effect"] = {
             "bytes": len(call_changes),
             "dead_stack_bytes": len(call_all) - len(call_changes),
-            "deterministic": call_all == ctrl_call,
+            "deterministic": deterministic,
             "ranges": describe(to_ranges(call_changes), entry, ram("baseline", "ret.bin"), syms, ovl, args.limit),
         }
     after_base = ram("baseline", "after.bin")
