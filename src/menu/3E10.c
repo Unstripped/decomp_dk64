@@ -877,7 +877,7 @@ s32 arg1;
 }
 
 s32 func_806FC530(s32, s16, s16, s16, void *, s32);
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *func_8068C5A8(Gfx *, u16, s32, s32, s32, s32, s16, s32, f32, f32, s32, f32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
@@ -1050,7 +1050,132 @@ s32 func_8002AD50(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002ADC8.s")
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002B708.s")
+typedef struct MenuL4_S174 {
+    f32 unk0;
+    f32 unk4;
+    char pad8[4];
+    s16 unkC;
+    char padE[9];
+    s8 unk17;
+} MenuL4_S174;
+extern f32 D_80033F44;
+extern s8 D_80033FAD;
+extern s8 D_80033850[];
+extern s8 D_80744520;
+extern s8 D_80744534;
+extern s8 D_8076A0E5;
+extern s8 D_8076A0E6;
+extern s8 D_8076A0E7;
+s32 menuSetElementCoordinates(s32, s32, f32, f32, f32);
+
+s32 func_8002B708(void *arg0, Gfx *arg1) {
+    MenuL4_S174 *sp164 = *(MenuL4_S174 **)((u8 *)arg0 + 0x174);
+    s32 padA0;
+    s32 idx;
+    s32 id;
+    f32 sp154;
+    f32 sp150;
+    f64 sp40;
+    s32 padB0;
+    s32 padB1;
+    s32 padB2;
+    s16 pad13A;
+    s16 sp138;
+    char sp70[0xC8];
+    f32 v;
+
+    if (sp164->unkC > -239.0) {
+        if (D_8076A0E5 & 0x80) {
+            func_800317E8(sp164, 210.0f, 120.0f, &sp154, &sp150, 2, 0, 1.8f);
+            arg1 = (Gfx *)menuSetElementCoordinates((s32)arg1, 0x81, sp154 + 8.0, sp150 + 32.0f, 3.0f);
+        }
+        if (D_8076A0E6 & 0x80) {
+            func_800317E8(sp164, 160.0f, 170.0f, &sp154, &sp150, 2, 0, 1.8f);
+            arg1 = (Gfx *)menuSetElementCoordinates((s32)arg1, 0x82, sp154 + 8.0, sp150 + 32.0f, 3.0f);
+        }
+        if (D_8076A0E7 & 0x80) {
+            func_800317E8(sp164, 110.0f, 120.0f, &sp154, &sp150, 2, 0, 1.8f);
+            arg1 = (Gfx *)menuSetElementCoordinates((s32)arg1, 0x83, sp154 + 8.0, sp150 + 32.0f, 3.0f);
+        }
+        gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
+        func_800317E8(sp164, 160.0f, 25.0f, &sp154, &sp150, 2, 0, 0.6f);
+        arg1 = (Gfx *)func_806FC530((s32)arg1, 1, (s16)(sp154 * 4.0f), (s16)(sp150 * 4.0f), (void *)D_80033F28[D_8076A104 + 12], 0x81);
+    }
+    if (sp164->unkC < -1.0f && sp164->unkC > -479.0f) {
+        gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
+        func_800317E8(sp164, 160.0f, 30.0f, &sp154, &sp150, 2, 0, 1.5f);
+        sp150 = sp150 + 240.0f;
+        arg1 = (Gfx *)func_806FC530((s32)arg1, 1, 0x280, (s16)(sp150 * 4.0f), (void *)D_80033F28[15], 0x81);
+        idx = sp164->unk17;
+        if (sp164->unk4 != 0.0f) {
+            if (sp164->unk4 > 0.5f) {
+                idx++;
+            }
+            if (idx >= 4) {
+                idx = 0;
+            }
+        }
+        v = sp164->unk4 - 0.5f;
+        if (v < 0.0f) {
+            v = -v;
+        }
+        v = 0.5f - v;
+        v = v * 700.0f;
+        if (D_80033F44 < 0.0f) {
+            v = -v;
+        }
+        sp40 = v;
+        func_800317E8(sp164, (f32)(sp40 + 160.0), 80.0f, &sp154, &sp150, 2, 0, 2.0f);
+        sp150 = sp150 + 240.0f;
+        arg1 = (Gfx *)func_806FC530((s32)arg1, 1, (s16)(sp154 * 4.0f), (s16)(sp150 * 4.0f), (void *)D_80033F28[idx + 16], 0x81);
+        func_800317E8(sp164, (f32)(160.0 - sp40), 160.0f, &sp154, &sp150, 2, 0, 1.5f);
+        sp150 = sp150 + 240.0f;
+        sp138 = (s16)(sp150 * 4.0f);
+        switch (D_80033850[idx]) {
+        case 0:
+            if (D_80744520 >= 2) {
+                _sprintf(sp70, "%d %s", D_80744520, (char *)D_80033F28[23]);
+            } else {
+                _sprintf(sp70, "%d %s", D_80744520, (char *)D_80033F28[22]);
+            }
+            break;
+        case 1:
+            if (D_80744520 >= 2) {
+                _sprintf(sp70, "%d %s", D_80744520, (char *)D_80033F28[25]);
+            } else {
+                _sprintf(sp70, "%d %s", D_80744520, (char *)D_80033F28[24]);
+            }
+            break;
+        case 2:
+            if (D_80744520 >= 2) {
+                _sprintf(sp70, "%d %s", D_80744520, (char *)D_80033F28[27]);
+            } else {
+                _sprintf(sp70, "%d %s", D_80744520, (char *)D_80033F28[26]);
+            }
+            break;
+        case 3:
+            _sprintf(sp70, "%d", D_80744520);
+            break;
+        }
+        arg1 = (Gfx *)func_806FC530((s32)arg1, 1, (s16)(sp154 * 4.0f), sp138, sp70, 0x81);
+    }
+    if (sp164->unkC < -241.0f) {
+        gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
+        func_800317E8(sp164, 160.0f, 40.0f, &sp154, &sp150, 2, 0, 1.5f);
+        sp150 = sp150 + 480.0f;
+        arg1 = (Gfx *)func_806FC530((s32)arg1, 1, 0x280, (s16)(sp150 * 4.0f), (void *)D_80033F28[28], 0x81);
+        func_800317E8(sp164, 160.0f, 180.0f, &sp154, &sp150, 2, 0, 1.5f);
+        sp150 = (sp150 + 480.0f) * 4.0f;
+        sp154 = (sp154 + 16.0f) * 4.0f;
+        id = D_80033FAD * 6 + D_80744534 * 2 + 0x98;
+        gDPPipeSync(arg1++);
+        gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
+        arg1 = func_8068C5A8(arg1, id, 0, 2, 0x20, 0x40, (s32)(sp154 - 128.0), (s32)sp150, 4.0f, -4.0f, 0, 0.0f);
+        gDPPipeSync(arg1++);
+        arg1 = func_8068C5A8(arg1, ++id, 0, 2, 0x20, 0x40, (s32)sp154, (s32)sp150, 4.0f, -4.0f, 0, 0.0f);
+    }
+    return (s32)arg1;
+}
 
 struct MenuM9_Actor;
 extern struct MenuM9_Actor *D_807FBB44;
@@ -1070,7 +1195,6 @@ typedef struct Menu6_Sub174 {
 } Menu6_Sub174;
 #define Menu6_A ((Menu6_Actor *)D_807FBB44)
 extern s16 D_8003386C[];
-extern s8 D_80033FAD;
 extern s8 D_80033FAE;
 extern s8 D_80033FAF;
 extern s8 D_8074451C;
@@ -2382,7 +2506,6 @@ void menuUpdateItemTransition(void *arg0, void *arg1_raw, s32 arg2) {
 
 extern s8 D_800337F0;
 
-extern f32 D_80033F44;
 
 void menuHandleScrollInput(Menu3B_Sub174 *arg0, s32 arg1, s32 arg2) {
     if (arg2 & 4) {
