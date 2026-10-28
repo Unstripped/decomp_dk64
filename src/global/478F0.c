@@ -516,19 +516,227 @@ void func_8064431C(CsState *cs, s16 csId, s16 b, s16 c) {
     lightAdd(x0, y0, z0, x1, y1, z1, 0.0f, 1, D_807480D0, D_807480D4, D_807480D8);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806443E4.s")
+typedef struct CsB2Cam {
+    /* 0x000 */ u8 pad0[0x1F0];
+    /* 0x1F0 */ s32 unk1F0;
+} CsB2Cam;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_806449C0.s")
+typedef struct CsB2Player {
+    /* 0x000 */ u8 pad0[0x210];
+    /* 0x210 */ f32 unk210;
+    /* 0x214 */ f32 unk214;
+    /* 0x218 */ f32 unk218;
+    /* 0x21C */ u8 pad21C[0x290 - 0x21C];
+    /* 0x290 */ s16 unk290;
+} CsB2Player;
+
+typedef struct CsB2Flicker {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ f32 unk4;
+    /* 0x8 */ f32 unk8;
+    /* 0xC */ f32 unkC;
+} CsB2Flicker;
+
+extern u8 D_807444EC;
+extern f32 D_807480DC;
+extern u8 D_8077058C;
+extern u8 D_80770DC9;
+extern f32 D_80770DCC;
+extern f32 D_80770DD0;
+extern f32 D_80770DD4;
+
+s32 randomNonNegative(void);
+void func_80608DA8(s32, u8, s32, s32, s32);
+void func_80609140(s32, s32, f32, f32, s32, s32);
+void func_80711410(f32, s32, f32, s32, f32);
+void lightSetColor(f32, f32, f32, s32);
+
+void func_806443E4(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
+    CsB2Flicker *f;
+    f32 dist;
+    f32 fade;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 ex;
+    f32 ey;
+    f32 ez;
+    CsB2Flicker *n;
+    CsB2Cam *cam;
+
+    cam = D_807FBB4C->unk174;
+    if (!(cam->unk1F0 & 0x20000000)) {
+        if (*(CsB2Flicker **)arg0 == NULL) {
+            n = func_80610FE8(0x10);
+            *(CsB2Flicker **)arg0 = n;
+            n->unk0 = 0;
+            n->unk4 = 0.0f;
+            n->unk8 = 0.0f;
+            n->unkC = 0.0f;
+        }
+        f = *(CsB2Flicker **)arg0;
+        dz = ((CsB2Player *)D_807FC924)->unk218 - D_807F6224;
+        dx = ((CsB2Player *)D_807FC924)->unk210 - D_807F621C;
+        dy = ((CsB2Player *)D_807FC924)->unk214 - D_807F6220;
+        dist = sqrtf(dz * dz + (dx * dx + dy * dy));
+        if (((CsB2Player *)D_807FC924)->unk290 == 0xE && D_807444EC != 1) {
+            fade = 1.0f;
+        } else if (((CsB2Player *)D_807FC924)->unk290 == 7) {
+            fade = 0.0f;
+        } else {
+            ex = D_807F621C - 1714.0f;
+            ey = D_807F6220 - 226.0f;
+            ez = D_807F6224 - 3410.0f;
+            dist -= sqrtf(ex * ex + ey * ey + ez * ez);
+            if (dist < 0.0) {
+                dist = 0.0f;
+            }
+            if (dist > 600.0f) {
+                fade = 0.0f;
+            } else {
+                fade = 1.0 - dist / 600.0f;
+            }
+        }
+        if (((CsB2Player *)D_807FC924)->unk290 == 0xE || (((CsB2Player *)D_807FC924)->unk290 == 0xB && dist < D_807480DC)) {
+            func_80711410(2.9f, -0x1E, fade, 0xE, fade < 0.05 ? 0.05 : fade);
+        } else {
+            D_8077058C = 0;
+        }
+        if ((randomNonNegative() >> 15) % 50 == 15) {
+            f->unk0 = 0x28;
+        }
+        if (f->unk0 != 0) {
+            f->unk0--;
+            if ((randomNonNegative() >> 15) % 10 == 5) {
+                if (dist < 2200.0f) {
+                    if (D_80770DC9 != 0) {
+                        if (D_80770DD4 < 600.0f) {
+                            func_80609140(0x9C, (s32)(((fade * 32767.0f * 60.0f / 255.0f) * (600.0 - D_80770DD4)) / 1000.0), D_80770DCC, 0.8f, 0x1E, (u32)D_80770DD0);
+                        }
+                    } else {
+                        func_80608DA8(0x9C, (u32)(fade * 60.0f), 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
+                    }
+                }
+                f->unk4 = 1.0f;
+                f->unk8 = 1.0f;
+                f->unkC = 1.0f;
+            }
+        }
+        f->unk4 = (0.4 - f->unk4) * 0.2 + f->unk4;
+        f->unk8 = (0.3 - f->unk8) * 0.2 + f->unk8;
+        f->unkC = (0.3 - f->unkC) * 0.2 + f->unkC;
+        lightSetColor(f->unk4, f->unk8, f->unkC, 0xE);
+    }
+}
+
+extern u8 D_8071FBC8[];
+
+void func_806449C0(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
+    func_80714998(2);
+    func_807149B8(1);
+    func_80714B84(D_8071FBC8, 1.5f, arg1, arg2, 1);
+}
+
+void func_80644A18(f32 *, s16, s16, f32);
+
+#ifdef NON_MATCHING
+f32 splineEvalCubic(f64, f32, f32, f32, f32);
+
+void func_80644A18(f32 *arg0, s16 arg1, s16 arg2, f32 arg3) {
+    f32 frac;
+    s32 i;
+    u8 idx[4];
+    f32 px;
+    f32 py;
+    f32 pz;
+    s32 d0;
+    s32 d1;
+    s32 d2;
+
+    *arg0 -= arg3;
+    if (*arg0 < 0.0f) {
+        *arg0 = arg2;
+    }
+    i = *arg0;
+    frac = *arg0 - i;
+    idx[0] = i - 1 < 0 ? 0 : i - 1;
+    idx[1] = i;
+    idx[2] = i + 1 >= arg2 ? arg2 - 1 : i + 1;
+    idx[3] = i + 2 >= arg2 ? arg2 - 1 : i + 2;
+    px = splineEvalCubic(frac, D_807F5FD4[arg1][idx[0]].x, D_807F5FD4[arg1][idx[1]].x, D_807F5FD4[arg1][idx[2]].x, D_807F5FD4[arg1][idx[3]].x);
+    py = splineEvalCubic(frac, D_807F5FD4[arg1][idx[0]].y, D_807F5FD4[arg1][idx[1]].y, D_807F5FD4[arg1][idx[2]].y, D_807F5FD4[arg1][idx[3]].y);
+    lightAdd(px, py, splineEvalCubic(frac, D_807F5FD4[arg1][idx[0]].z, D_807F5FD4[arg1][idx[1]].z, D_807F5FD4[arg1][idx[2]].z, D_807F5FD4[arg1][idx[3]].z), 0.0f, 0.0f, 0.0f, 250.0f, 0, 0xFF, 0xFF, 0xFF);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80644A18.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80644CC0.s")
+void func_80644CC0(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
+    f32 *p;
+    f32 *n;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80644D50.s")
+    if (*(f32 **)arg0 == NULL) {
+        n = func_80610FE8(8);
+        *(f32 **)arg0 = n;
+        n[0] = 0.0f;
+        n[1] = 0.0f;
+    }
+    p = *(f32 **)arg0;
+    func_80644A18(p, 2, 0x16, 1.0f);
+    func_80644A18(p + 1, 4, 0x18, 0.8f);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80644E2C.s")
+void lightSetFovAngles(f32, f32);
+extern f32 D_807480E0;
+extern f32 D_807480E4;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80644EC8.s")
+void func_80644D50(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
+    f32 x2;
+    f32 x1;
+    f32 y2;
+    f32 y1;
+    f32 z2;
+    f32 z1;
+
+    modelSlotGetNodePos(arg1, 1, 1, &x1, &y1, &z1);
+    modelSlotGetNodePos(arg1, 1, 2, &x2, &y2, &z2);
+    lightSetFovAngles(D_807480E0, D_807480E4);
+    lightAdd(x1, y1, z1, x2, y2, z2, 0.0f, 1, D_807480D0, D_807480D4, D_807480D8);
+}
+
+void func_80717760(void);
+
+void func_80644E2C(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
+    func_807149FC(-1);
+    func_8071498C(func_80717760);
+    func_80714950(0x50);
+    func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.5f, D_807F621C, D_807F6220, D_807F6224);
+}
+
+void func_8071AADC(void);
+extern u8 D_80720A7C[];
+
+void func_80644EC8(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
+    s32 sel;
+
+    if ((u32)func_806119A0() / 10000 % arg2 == 0) {
+        sel = (u32)func_806119A0() / 10000 % arg3;
+        func_80714998(2);
+        func_80714950(0x10064);
+        func_8071498C(func_8071AADC);
+        func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
+        func_80714CC0(D_80720A7C, 1.2f, D_807F5FD4[0][sel].x, D_807F5FD4[0][sel].y, D_807F5FD4[0][sel].z);
+    }
+    if ((u32)func_806119A0() / 10000 % arg2 == 0) {
+        sel = (u32)func_806119A0() / 10000 % arg3;
+        func_80714998(2);
+        func_80714950(0x10064);
+        func_8071498C(func_8071AADC);
+        func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
+        func_80714CC0(D_80720A7C, 1.2f, D_807F5FD4[1][sel].x, D_807F5FD4[1][sel].y, D_807F5FD4[1][sel].z);
+    }
+}
 
 extern f32 D_807480E8;
 extern u8 D_807480EF;
@@ -613,8 +821,6 @@ void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern u8 D_80720A7C[];
-void func_8071AADC(void);
 
 void func_80645614(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 sp24;
@@ -673,7 +879,6 @@ void func_80645700(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-s32 randomNonNegative(void);
 
 extern f32 D_807F622C;
 
@@ -1232,7 +1437,6 @@ void func_80647B74(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern u8 D_8071FBC8[];
 
 void func_80647CF4(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80714998(2);
