@@ -68,7 +68,24 @@ void func_80027950(BossB_Struct_80027950 *arg0, u8 *arg1) {
     arg0->unk15 += 2;
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/3840/func_80027A30.s")
+typedef struct BsA_Point {
+    s16 x;
+    s16 y;
+    s16 z;
+    s16 pad6[2];
+} BsA_Point;
+
+typedef struct BsA_PointList {
+    char pad0[0x14];
+    BsA_Point *points;
+} BsA_PointList;
+
+typedef struct BsA_ActorPos {
+    char pad0[0x7C];
+    f32 x;
+    f32 y;
+    f32 z;
+} BsA_ActorPos;
 
 typedef struct {
     char pad0[0x11C];
@@ -76,6 +93,29 @@ typedef struct {
 } BossB_Struct_807FBB40;
 
 extern BossB_Struct_807FBB40 *D_807FBB40;
+extern BsA_PointList *D_807FDCA0;
+
+void func_80027A30(void *arg0, u8 *arg1) {
+    s16 i;
+    s32 max_dist = 0;
+
+    for (i = arg1[((BossB_Struct_80027950 *)arg0)->unk15]; i <= arg1[((BossB_Struct_80027950 *)arg0)->unk15 + 1]; i++) {
+        u8 idx = D_807FDC98->unk20[i * 2];
+        BsA_ActorPos *actor = (BsA_ActorPos *)D_807FBB40;
+        BsA_Point *pt = &D_807FDCA0->points[idx];
+        f32 dz = actor->z - (f32)pt->z;
+        f32 dx = actor->x - (f32)pt->x;
+        f32 dy = actor->y - (f32)pt->y;
+        s32 dist = (s32)sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
+
+        if (dist > max_dist) {
+            max_dist = dist;
+            D_807FDC90->unk25 = i;
+        }
+    }
+    ((BossB_Struct_80027950 *)arg0)->unk15 += 2;
+}
+
 
 typedef struct BsA7c_178 {
     char pad0[4];
