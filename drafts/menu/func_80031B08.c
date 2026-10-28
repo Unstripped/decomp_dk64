@@ -1,4 +1,4 @@
-// func_80031B08 (src/menu/3E10.c): stage 4: same switch/jump table; frame 0x40 vs 0x38: uopt puts &D_807FBB40 in s1 across calls, target keeps it in t1 and rematerialises lui/addiu after each call; also 'li t5,0x400'-style schedule diffs; 74 diff lines of ~335; tail via var_s0 vs D_807FBB40 sweep (10 sites, 2^5 masks) and permuter 270s gave no match
+// func_80031B08 (src/menu/3E10.c): stage 3 (MenuNM2): frame 0x38 FIXED by dropping the separate loop local i and using var_s0 itself as the do-while counter ('var_s0 = (Menu10_Actor *)0; ... var_s0 = (Menu10_Actor *)((s32)var_s0 + 1); while ((s32)var_s0 != 5)'; every declared local costs a frame slot, i + var_v0 + temp_v1 + var_s0 gave 0x40). Tail sites: var_s0 only for unk155<6 and unk80 store, Menu10_A (global re-read) for the other 5 (matches target t1/s0 split) -> op sequence matches target except &D_807FBB40: ours caches it in s1 (extra save, frame still 0x38) whereas target keeps it in t1 and re-emits lui/addiu t1 after each call before the join. With all tail sites var_s0 (no s1) it is 94 diff lines, -20 insns. Tried: dead if(&D_807FBB40 ==/!= 0) / do{}while(&..) at 4 positions, local Menu10_Actor **gp = &D_807FBB40 (worse), 2^7 tail-site masks, 24 decl orders. Permuter useless (baseline 4353).
 typedef struct Menu10_Sub174 {
     f32 unk0;
     f32 unk4;
@@ -34,7 +34,6 @@ void func_80031B08(void) {
     Menu10_Actor *var_s0;
     Menu10_Sub174 *temp_v1;
     s32 var_v0;
-    s32 i;
 
     D_8003369C += 4.5f;
     var_s0 = (Menu10_Actor *)D_807FBB40;
@@ -101,13 +100,13 @@ void func_80031B08(void) {
             func_80714CC0(&D_8071FE08, 8.3f, 160.0f, 120.0f, -10.0f);
             func_80609140(0x23, 0x7FFF, 63.0f, 1.0f, 0, 0);
             func_80609140(0x17, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            i = 0;
+            var_s0 = (Menu10_Actor *)0;
             do {
                 func_8071498C(func_80030A90);
                 func_8071495C();
                 func_80714CC0(&D_8071FE64, 1.8f, 160.0f, 120.0f, -10.0f);
-                i += 1;
-            } while (i != 5);
+                var_s0 = (Menu10_Actor *)((s32)var_s0 + 1);
+            } while ((s32)var_s0 != 5);
             var_v0 = temp_v1->unk23C;
         }
         if (var_v0 >= 0xC) {
@@ -128,12 +127,12 @@ void func_80031B08(void) {
     }
     D_80033738 = 0x14;
     var_s0->unk80 = -D_8003369C;
-    D_807FC924->unk210 = var_s0->unk7C;
-    D_807FC924->unk214 = (f32)(((f64)D_80033678[D_80033F50] * 50.0) + (f64)(var_s0->unk80 + 13.1f + D_8003369C) - 0.1);
-    D_807FC924->unk218 = var_s0->unk84 - 50.0f;
-    D_807FC924->unk228 = var_s0->unk7C;
+    D_807FC924->unk210 = Menu10_A->unk7C;
+    D_807FC924->unk214 = (f32)(((f64)D_80033678[D_80033F50] * 50.0) + (f64)(Menu10_A->unk80 + 13.1f + D_8003369C) - 0.1);
+    D_807FC924->unk218 = Menu10_A->unk84 - 50.0f;
+    D_807FC924->unk228 = Menu10_A->unk7C;
     D_807FC924->unk22C = D_807FC924->unk214;
     D_807FC924->unk230 = 10020.0f;
     D_80754CE0 = (s32)(D_80033678[D_80033F50] * 400.0f);
-    actorUpdateModelMatrix(var_s0, 0);
+    actorUpdateModelMatrix(Menu10_A, 0);
 }
