@@ -1923,7 +1923,44 @@ void func_806491F4(CsState *cs, s16 csId, s16 b, s16 c) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80649F64.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80649FC0.s")
+typedef struct CsB9Timer {
+    /* 0x00 */ u64 last;
+    /* 0x08 */ s64 duration;
+    /* 0x10 */ s64 left;
+    /* 0x18 */ s64 fired;
+} CsB9Timer; /* 0x20 */
+extern u64 D_807445B0;
+extern u64 osGetTime(void);
+void heapFreeDeferred(void *);
+void func_8068DBA4(void);
+
+void func_80649FC0(CsState *cs, s16 csId, s16 b, s16 c) {
+    CsB9Timer *t;
+    u64 elapsed;
+
+    if (*(CsB9Timer **)cs == NULL) {
+        *(CsB9Timer **)cs = func_80610FE8(0x20);
+        t = *(CsB9Timer **)cs;
+        t->last = osGetTime();
+        t->duration = b;
+        t->left = 0;
+        t->fired = 0;
+    }
+    t = *(CsB9Timer **)cs;
+    t->last += D_807445B0;
+    elapsed = (osGetTime() - t->last) * 64;
+    t->left = t->duration - elapsed / 3000 / 1000000;
+    if (t->fired == 0 && (u64)t->left < (u64)(s64)c) {
+        t->fired = 1;
+        cs->unk4B[0] = 0x14;
+    }
+    if (t->left == 0) {
+        heapFreeDeferred(*(CsB9Timer **)cs);
+        cs->unk4B[0] = 0x1E;
+        *(CsB9Timer **)cs = NULL;
+    }
+    renderCallbacksRegister(func_8068DBA4, t, 5);
+}
 
 void func_8064A180(CsState *cs, s16 csId, s16 b, s16 c) {
 }
@@ -1963,10 +2000,7 @@ void func_8064A194(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 #ifdef NON_MATCHING
-extern u64 D_807445B0;
 extern u64 osGetTime(void);
-void heapFreeDeferred(void *);
-void func_8068DBA4(void);
 typedef struct CsB9FxEnt {
     /* 0x0 */ u8 state;
     /* 0x1 */ u8 pad1;
@@ -2236,7 +2270,6 @@ s32 func_8064AB1C(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 #ifdef NON_MATCHING
-void heapFreeDeferred(void *);
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 void modelAnimEntrySetTime(s16, s16, s16, f32);
 void modelAnimEntrySetUnkC(s16, s16, s16);
