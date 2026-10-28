@@ -1,4 +1,4 @@
-// func_8002CD64 (src/arcade/0.c): stage 3+: frame 0x40 OK, 596/615 insns, stack slots match target, ixa a1 OK, arg0 a2 OK, case-2 head/unk1C masks match. Fixes found: tail dir code unfolded (E.unk1A=K; unk8=(f32)(1-E.unk1A*2)); /2 int divisor (div.s); no named r/sp30 locals (IDO evaluates right operand first: X > (f32)arcadeRand() runs MinFloat first; MinFloat*(rand-16384) runs rand first); unk10 update before unk8 in case 2; unk1C = unk1C & 0xF then re-read the field (andi 0xFF forward trick). Remaining: 1.0f candidate (3 uses: case-2 add+store, n_alSndpPlay arg) not colored (adjsave -0.2) so no f2 per-arm PRE insert (target 10 insns); unk1C temp reg (a1 vs v0) and branch-likely delay fill in case-2 cond
+// func_8002CD64 (src/arcade/0.c): stage 4, 723 vs 710 lines (was 700), diff score 517 -> 292 with ArcNM1c greedy dead-statement sweeps (harness h.py/rand.py/greedy.sh). Changes: unk19 compare of player via D_8004BCE9[D_8004C71F << 5] != 5 (matches the 2 BCE9 relocs of target), dead 'if (D_8004BCD0[D_8004C71F].unk0 < 1.0f) {}' x3 (case-2 cond block, else arm, case 7) and dead 'if (D_8004BCD0[arg0].unk1C == 0) {}'. These make uopt colour 1.0f in f2 (inserted at the first arm ends) and the player pointer a1 at 8 of the target's 9 arm ends. Remaining: still 1 player-pointer PRE site (BCD0 hi 9 vs 10, C71F 8 vs 9) and 1.0f f2 PRE at the other arm ends; case-2 inner loads. void->s32 toggles of arcadeKillPlayer/arcadeUpdateEntitySprite no effect.
 extern s32 D_8004C6FC;
 extern s32 D_8004C704;
 void func_8002CD64(s32 arg0) {
@@ -19,7 +19,8 @@ void func_8002CD64(s32 arg0) {
             D_8004BCD0[arg0].unk8 = (f32)(1 - D_8004BCD0[arg0].unk1A * 2);
             if (D_8004BCD0[arg0].unk4 < (f32)D_8004C6E8 &&
                 (D_8004C6F8 + 1 < D_8004C6FC ||
-                 (D_8004C6FC == D_8004C6F8 + 1 && (D_8004C704 >= 0x12 || D_8004BCD0[D_8004C71F].unk19 != 5)))) {
+                 (D_8004C6FC == D_8004C6F8 + 1 && (D_8004C704 >= 0x12 || D_8004BCE9[D_8004C71F << 5] != 5)))) {
+                     if (D_8004BCD0[D_8004C71F].unk0 < 1.0f) {}
                 if (!(D_8004BCD0[arg0].unk1C & 0x80)) {
                     D_8004BCD0[arg0].unk1C = D_8004BCD0[arg0].unk1C & 0xF;
                     if (D_8004BCD0[arg0].unk1C > 0) {
@@ -35,8 +36,10 @@ void func_8002CD64(s32 arg0) {
                     }
                 }
             } else {
+                if (D_8004BCD0[arg0].unk1C == 0) {}
                 if (!(D_8004BCD0[arg0].unk1C & 0x47)) {
                     v = 4096.0f + arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) * 1512.0f > (f32)arcadeRand();
+                    if (D_8004BCD0[D_8004C71F].unk0 < 1.0f) {}
                     D_8004BCD0[arg0].unk1C = v | 0x40;
                 }
             L_tail2:
@@ -95,6 +98,7 @@ void func_8002CD64(s32 arg0) {
         }
         if (D_8004BCD0[D_8004C71F].unk1C >= D_8004C6F8 || D_8004BCD0[arg0].unk1D != 0) {
             if (270.0f < D_8004BCD0[arg0].unk0) {
+                if (D_8004BCD0[D_8004C71F].unk0 < 1.0f) {}
                 D_8004BCD0[arg0].unk1A = 1;
                 D_8004BCD0[arg0].unk8 = (f32)(1 - D_8004BCD0[arg0].unk1A * 2);
             } else if (D_8004BCD0[arg0].unk0 < 50.0f) {
