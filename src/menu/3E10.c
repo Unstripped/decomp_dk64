@@ -3497,7 +3497,103 @@ typedef struct Menu10_Actor {
 
 void actorUpdateModelMatrix(void *, s32);
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80031B08.s")
+extern f32 D_80033678[];
+extern s16 D_80754CE0;
+extern u8 D_8071FE64;
+
+void func_80031B08(void) {
+    Menu10_Sub174 *temp_v1;
+    s32 i;
+
+    temp_v1 = Menu10_A->unk174;
+    D_8003369C += 4.5f;
+    if (D_8003369C > 0.0f) {
+        D_8003369C = 0.0f;
+    }
+    switch (Menu10_A->unk155) {
+    case 0:
+        Menu10_A->unkE6 = 0x800;
+        Menu10_A->unk155 = 1;
+        actorScriptStart(D_807FBB40, 0x346);
+        func_8061B650(gCamActor);
+        D_8003369C = -35.0f;
+        break;
+    case 1:
+        if (D_8003369C == 0.0f) {
+            actorScriptStart(D_807FBB40, 0x347);
+            Menu10_A->unk155 = 2;
+            temp_v1->unk23C = 0;
+        }
+        break;
+    case 2:
+        temp_v1->unk23C += 1;
+        if (temp_v1->unk23C == 3) {
+            func_80609140(0x3C, 0x61A8, 63.0f, 1.0f, 0, 0);
+            D_80033F50 = 3;
+        }
+        break;
+    case 3:
+        if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 0x8000) {
+            if (D_800337F0 == 1) {
+                actorScriptStart(D_807FBB40, 0x348);
+                Menu10_A->unk155 = 4;
+                D_800337F4 = 0x3C;
+            } else if (D_800337F0 == -1) {
+                func_80609140(0x98, 0x61A8, 63.0f, 1.0f, 0, 0);
+            }
+        }
+        break;
+    case 5:
+        D_80033F40 = 0.1f;
+        D_80033F3C = D_80033F40;
+        D_800337F4 = 0;
+        temp_v1->unk23C = 0;
+        Menu10_A->unk155 = 6;
+        break;
+    case 6:
+    case 7:
+    case 8:
+        temp_v1->unk23C += 1;
+        if (temp_v1->unk23C >= 0x3E9) {
+            temp_v1->unk23C = 0x3E8;
+        }
+        if (temp_v1->unk23C == 8) {
+            func_8071495C();
+            func_80714CC0(&D_8071FE08, 8.3f, 160.0f, 120.0f, -10.0f);
+            func_80609140(0x23, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            func_80609140(0x17, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            for (i = 0; i != 5; i++) {
+                func_8071498C(func_80030A90);
+                func_8071495C();
+                func_80714CC0(&D_8071FE64, 1.8f, 160.0f, 120.0f, -10.0f);
+            }
+        }
+        if (temp_v1->unk23C >= 0xC) {
+            D_807FBB60 &= 0xFFFEFFFF;
+        }
+        break;
+    }
+    if (D_80033698 != 0) {
+        D_80033698 -= 1;
+    }
+    if (Menu10_A->unk155 < 6) {
+        if ((f64)D_8003369C > -30.0) {
+            D_807FBB60 |= 0x10000;
+        } else {
+            D_80033698 = 3;
+        }
+    }
+    D_80033738 = 0x14;
+    Menu10_A->unk80 = -D_8003369C;
+    D_807FC924->unk210 = Menu10_A->unk7C;
+    D_807FC924->unk214 = (f32)(((f64)D_80033678[D_80033F50] * 50.0) + (f64)(Menu10_A->unk80 + 13.1f + D_8003369C) - 0.1);
+    D_807FC924->unk218 = Menu10_A->unk84 - 50.0f;
+    D_807FC924->unk228 = Menu10_A->unk7C;
+    D_807FC924->unk22C = D_807FC924->unk214;
+    D_807FC924->unk230 = 10020.0f;
+    D_80754CE0 = (s32)(D_80033678[D_80033F50] * 400.0f);
+    actorUpdateModelMatrix(Menu10_A, 0);
+}
 
 typedef struct Menu10_Node {
     char pad0[0x34];
