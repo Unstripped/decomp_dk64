@@ -1,4 +1,4 @@
-// func_80644A18 (src/global/478F0.c): from .scratch/CsB2/func_80644A18_best.c
+// func_80644A18 (src/global/478F0.c): stage 5-6: frame 0x70 OK (needs 4 dummy locals pz,d0-d2 after py), text size equal. Diff: frac (sp+0x6c) is spilled in orig (swc1 in bgez delay slot, lwc1 reload before cvt.d.s; f4/f6/f8/f10 temps) but colored f2 here; 3rd splineEvalCubic arg is lwc1 f2+mfc1 a3 in orig vs lw a3 here. Tried t f64 local, volatile, f32* indexing, deadsweep, permuter 240s (best 3379 vs 3590)
 f32 splineEvalCubic(f64, f32, f32, f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 

@@ -55,7 +55,7 @@ typedef struct CsB0Slot {
 } CsB0Slot; /* 0x90 */
 extern CsB0Slot *D_807F6000;
 s32 hashTableLookup();
-void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
+void modelSlotGetNodePos(s32, s32, s32, f32 *, f32 *, f32 *);
 
 void func_80642C78(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -614,7 +614,7 @@ void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern u8 D_80720A7C[];
-extern u8 func_8071AADC[];
+void func_8071AADC(void);
 
 void func_80645614(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 sp24;
@@ -742,17 +742,288 @@ void func_80645C04(CsState *cs, s16 csId, s16 b, s16 c) {
     lightAdd(x, y, z, 0.0f, 0.0f, 0.0f, 600.0f, 0, 0xFF, 0xFF, 0xFF);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80645D14.s")
+typedef struct CsB4Obj3 {
+    /* 0x00 */ u8 pad0[0x90];
+    /* 0x90 */ f32 unk90;
+    /* 0x94 */ u8 pad94[0x66];
+    /* 0xFA */ u8 unkFA;
+} CsB4Obj3;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80645F40.s")
+typedef struct CsB4Obj2 {
+    /* 0x000 */ u8 pad0[0x174];
+    /* 0x174 */ CsB4Obj3 *unk174;
+} CsB4Obj2;
+
+typedef struct CsB4Obj1 {
+    /* 0x000 */ u8 pad0[0x104];
+    /* 0x104 */ CsB4Obj2 *unk104;
+} CsB4Obj1;
+
+typedef struct CsB4Player {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ Actor *unk4;
+    /* 0x008 */ u8 pad8[0x20C];
+    /* 0x214 */ f32 unk214;
+} CsB4Player;
+
+void mapChunkEffectSetFlag(s16, s16, u8, u8);
+
+void func_80645D14(s32 **slot, s16 csId, s16 b, s16 c) {
+    s32 *p;
+    CsB4Obj1 *a;
+    CsB4Obj2 *b2;
+    CsB4Obj3 *o;
+    u8 near = 0;
+
+    if (*slot == NULL) {
+        *slot = func_80610FE8(4);
+        **slot = 1;
+    }
+    p = *slot;
+    a = ((CsB4Player *)D_807FC924)->unk4->unk174;
+    b2 = a->unk104;
+    o = b2->unk174;
+    if (o->unkFA != 0 && ((CsB4Player *)D_807FC924)->unk214 < o->unk90 + 3.0f) {
+        near = 1;
+    }
+    if (*p != 0 && near == 0) {
+        if (b == 9) {
+            mapChunkEffectSetFlag(9, 4, 1, 0);
+            mapChunkEffectSetFlag(9, 5, 1, 0);
+            mapChunkEffectSetFlag(9, 6, 1, 0);
+        } else {
+            mapChunkEffectSetFlag(0xF, 0xF, 1, 0);
+            mapChunkEffectSetFlag(0xE, 0x11, 1, 0);
+            mapChunkEffectSetFlag(0xD, 0x13, 1, 0);
+            mapChunkEffectSetFlag(0xC, 0x15, 1, 0);
+        }
+        *p = 0;
+    }
+    if (*p == 0 && near != 0) {
+        if (b == 9) {
+            mapChunkEffectSetFlag(9, 4, 1, 1);
+            mapChunkEffectSetFlag(9, 5, 1, 1);
+            mapChunkEffectSetFlag(9, 6, 1, 1);
+        } else {
+            mapChunkEffectSetFlag(0xF, 0xF, 1, 1);
+            mapChunkEffectSetFlag(0xE, 0x11, 1, 1);
+            mapChunkEffectSetFlag(0xD, 0x13, 1, 1);
+            mapChunkEffectSetFlag(0xC, 0x15, 1, 1);
+        }
+        *p = 1;
+    }
+}
+
+extern u8 D_80720B00;
+void func_8071EB70(void);
+
+void func_80645F40(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 x = 0.0f;
+    s32 i;
+
+    if (!(D_8076A064 & 0xF)) {
+        for (i = 1; i != 0xB; i++) {
+            func_807149B8(1);
+            func_80714998(2);
+            func_8071498C(func_8071EB70);
+            func_80714950(0x2BC);
+            func_807149A8(0x2BC);
+            func_80714B84(&D_80720B00, x + 1.1, csId, i, 1);
+            x += 0.05;
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80646058.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80646770.s")
+typedef struct CsB4Player210 {
+    /* 0x000 */ u8 pad0[0x210];
+    /* 0x210 */ f32 x;
+    /* 0x214 */ f32 y;
+    /* 0x218 */ f32 z;
+} CsB4Player210;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80646978.s")
+extern f32 D_807480F0;
+f32 sqrtf(f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80646DC4.s")
+void func_80646770(s32 **slot, s16 csId, s16 b, s16 c) {
+    s32 *p;
+    s32 cnt;
+    s32 start;
+    s32 hit;
+    CsB0Point3f *v;
+    s32 *q;
+    CsB4Player210 *pl;
+    f32 dx;
+    f32 nv;
+    f32 dy;
+    f32 dz;
+
+    hit = 0;
+    if (*slot == NULL) {
+        *slot = func_80610FE8(4);
+        **slot = 0;
+    }
+    p = *slot;
+    start = *p;
+    cnt = D_807F5FD4[1] - D_807F5FD4[0];
+    q = *slot;
+    *q = start + 1;
+    if (cnt == *q) {
+        *p = 0;
+        do {
+        } while (0);
+    }
+    if (start != *p) {
+        do {
+            pl = (CsB4Player210 *)D_807FC924;
+            v = *p + D_807F5FD4[0];
+            nv = pl->z - v->z;
+            dx = pl->x - v->x;
+            dz = nv;
+            dy = pl->y - v->y;
+            if (sqrtf(dz * dz + (dx * dx + dy * dy)) < D_807480F0) {
+                hit = 1;
+                func_807149B8(1);
+                func_80714998(3);
+                func_80714950(0);
+                func_8071498C(func_8071E3EC);
+                func_807149A8(0x320);
+                v = *p + D_807F5FD4[0];
+                func_80714CC0(D_80720BC4, 2.5f, v->x, v->y, v->z);
+            } else {
+                *p += 1;
+                if (cnt == *p) {
+                    *p = 0;
+                }
+            }
+        } while (hit == 0 && start != *p);
+    }
+}
+
+extern f32 D_8074811C;
+extern f32 D_80748120;
+extern f32 D_80748124;
+extern f32 D_80748128;
+extern s32 D_8074812C;
+extern s32 D_80748130;
+extern f32 D_80748140;
+extern f32 D_80748144;
+extern s32 D_80748148;
+extern f32 D_8074814C;
+extern s32 D_80748150;
+extern u8 D_80748154[];
+extern u8 D_80720BE8[];
+void func_8071BB14(void);
+void func_8071E864(void);
+void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
+
+void func_80646978(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 i;
+    f32 fx;
+    f32 fy;
+    f32 fz;
+    s32 e;
+    f32 vec[3];
+    f64 d0;
+    f64 d1;
+
+    i = 0;
+    if (D_80748148 > 0) {
+        do {
+            d0 = (u32)func_806119A0() / 1000 % 100;
+            fx = d0 - 50.0;
+            d1 = (u32)func_806119A0() / 1000 % 100;
+            fy = d1 - 50.0;
+            d0 = (u32)func_806119A0() / 1000 % 100;
+            fz = d0 - 50.0;
+            func_8071496C(i);
+            func_807149B8(1);
+            if (i == 0) {
+                func_80714950(D_80748150 + 0x10000);
+                func_8071498C(func_8071AADC);
+                func_80714998(D_80748154[3]);
+            } else {
+                func_8071498C(func_8071BB14);
+            }
+            func_80714CC0(D_80720BE8, D_80748140, D_807F621C + fx, D_807F6220 + fy, D_807F6224 + fz);
+            i++;
+        } while (i < D_80748148);
+        i = 0;
+    }
+    do {
+        func_8071498C(func_8071E864);
+        func_80714950(i);
+        func_807149B8(1);
+        func_807149C8(0x8C, 0x8C, 0x8C, 0xFF);
+        func_80714998(3);
+        func_80714CC0(D_8071FFA0, D_80748144, D_807F621C, D_807F6220 + D_8074814C, D_807F6224);
+        i++;
+    } while (i < 0xC);
+    for (i = 0; i != 0x1130; i += 0x190) {
+        vec[0] = (f32)((s32)(randomNonNegative() >> 0xF) % D_8074812C) + D_80748120;
+        vec[1] = i;
+        vec[2] = (f32)((s32)(randomNonNegative() >> 0xF) % D_80748130) + D_80748124;
+        actorListSpawnNodeEntry(0x5A, D_807F621C, D_807F6220 + D_8074811C, D_807F6224, 0, D_80748128, 0, vec);
+    }
+}
+
+f32 func_806119FC(void);
+
+void func_80646DC4(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 pad0;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 scale;
+    s32 i;
+    s32 n;
+    s32 off;
+    s32 pad1;
+    s32 pad2;
+    s32 pad3;
+    s32 pad4;
+    f32 vec[3];
+    s32 pad5;
+
+    if (b != 0) {
+        for (i = 1; i != 7; i++) {
+            modelSlotGetNodePos(csId, 1, i, &x, &y, &z);
+            func_8071496C(i);
+            func_807149B8(1);
+            func_8071498C(func_8071BB14);
+            func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
+            func_80714CC0(D_80720BE8, 1.5f, x, y, z);
+        }
+        return;
+    }
+    scale = 0.3f;
+    n = 7;
+    if (c != 0) {
+        scale = 0.2f;
+        n = 10;
+    }
+    i = 1;
+    if (n >= 2) {
+        off = 0x2A8;
+        do {
+            vec[0] = (f32)(randomNonNegative() % 300 + 300);
+            vec[1] = off;
+            vec[2] = (f32)(randomNonNegative() % 500 + 150);
+            if (c == 0) {
+                modelSlotGetNodePos(csId, 1, i, &x, &y, &z);
+                y = (f32)((f64)y + 10.0);
+            } else {
+                x = (f32)((f64)func_806119FC() * 30.0 + (f64)D_807F621C - 15.0);
+                y = (f32)((f64)func_806119FC() * 40.0 + (f64)D_807F6220);
+                z = (f32)((f64)func_806119FC() * 30.0 + (f64)D_807F6224 - 15.0);
+            }
+            actorListSpawnNodeEntry(0x5A, x, y, z, 0, scale, 0, vec);
+            i++;
+            off += 0x2A8;
+        } while (i != n);
+    }
+}
 
 void func_80647108(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80714950(-0x78);
