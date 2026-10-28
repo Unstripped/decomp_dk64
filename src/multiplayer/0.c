@@ -585,9 +585,255 @@ void func_80025FFC(Struct_80025FFC_MpHigh *arg0) {
     arg0->unk70 = 0;
 }
 
-#pragma GLOBAL_ASM("asm/multiplayer/nonmatchings/0/func_80026094.s")
-
+void func_80025CE8(s32);
+void func_806F91B4(s32, u8, s32);
+s32 cameraFindViewportEntry(u8);
+void func_806C9AE0(void);
+s32 n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
+void n_alSndpPostEvent(void *, s32, s16);
+void func_80609140(s16, s32, f32, f32, s32, s32);
+void func_806F5FA0(s32, s32, s32);
+void func_806F833C(s32);
+void *func_80610FE8(s32);
+s32 func_8066B0F8(s32, s32, s32, s32);
+void func_8071495C(void);
+void func_807149FC(s32);
+void func_80714998(s32);
+void func_80714944(s32);
+s32 func_80714CC0(void *, f32, f32, f32, f32);
+extern s32 D_8076D1F8;
+extern u32 D_80767CC0;
+extern u64 D_807445B0;
 extern u8 D_80026F70;
+
+typedef struct MpBigViewport {
+    char pad0[4];
+    s16 unk4;
+    char pad6[2];
+    s16 unk8;
+    s16 unkA;
+} MpBigViewport;
+
+typedef struct MpBigTableEntry {
+    void *unk0;
+    f32 unk4;
+    s32 unk8;
+} MpBigTableEntry;
+extern MpBigTableEntry D_80027024[];
+
+typedef struct MpBigState {
+    u64 unk0;
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    char pad14[0xC];
+    MpBigViewport *unk20[4];
+    Mtx *unk30;
+    u32 unk34;
+    u8 unk38;
+    char pad39[3];
+    void *unk3C;
+    s16 unk40;
+    s16 unk42;
+    void *unk44;
+    void *unk48;
+    char pad4C[4];
+    s32 unk50[8];
+    u8 unk70;
+} MpBigState;
+
+typedef struct MpBigGlobals {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+} MpBigGlobals;
+
+typedef struct MpBigActor {
+    char pad0[0x60];
+    s32 unk60;
+    s32 unk64;
+    char pad68[0x174 - 0x68];
+    MpBigState *unk174;
+} MpBigActor;
+
+#define MpBigG ((MpBigGlobals *)&D_807552E4)
+#define MpBigA ((MpBigActor *)D_807FBB40)
+
+void func_80026094(void) {
+    MpBigState *s7;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 flag;
+    MpBigViewport *vp;
+    f32 x;
+    f32 y;
+    s32 snd;
+    s32 va;
+    s32 vb;
+    s32 vc;
+
+    s7 = MpBigA->unk174;
+    if (!(MpBigA->unk60 & 0x10)) {
+        flag = 0;
+        func_806C9AE0();
+        for (i = 0; i < D_807FC928; i++) {
+            s7->unk20[i] = (MpBigViewport *)cameraFindViewportEntry(i);
+        }
+        MpBigG->unk8 = 1;
+        s7->unk0 = osGetTime();
+        s7->unk34 = D_80767CC0;
+        s7->unk38 = 0;
+        s7->unk42 = 0;
+        s7->unk40 = 0;
+        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &s7->unk3C);
+        D_80026F70 = 0;
+        switch (MpBigG->unk4) {
+        case 3:
+        case 5:
+            flag = 1;
+        case 2:
+            if (flag != 0) {
+                s16 *q = *(s16 **)((u8 *)mpFindCurrentMapEntry() + 8);
+                func_806F5FE8(0x1D2, q[0], q[1], q[2], 10);
+            }
+            break;
+        case 4:
+            for (i = 0; i < D_807FC928; i++) {
+                func_806F91B4(7, i, *(s16 *)((u8 *)&D_807552E4 + 0xE));
+            }
+            func_806F833C(0);
+            break;
+        }
+        if (MpBigG->unk0 == 0 && D_8076A0A8 == 0x6B) {
+            func_806F5FA0(0x24E, 0xD4, 0x205);
+            func_806F5FA0(0x24E, 0xD4, 0x285);
+            func_806F5FA0(0x212, 0xD4, 0x24E);
+            func_806F5FA0(0x28E, 0xD4, 0x247);
+        }
+        s7->unk30 = func_80610FE8(0x40);
+        guScale(s7->unk30, 0.5f, 0.5f, 1.0f);
+        s7->unkC = MpBigG->unkC;
+        s7->unkC = s7->unkC * 60;
+        MpBigA->unk64 |= 2;
+        s7->unk44 = (void *)func_8066B0F8(0xE, 0xB9, 0, 0);
+        s7->unk48 = (void *)func_8066B0F8(0xE, 0xBA, 0, 0);
+        s7->unk10 = 0;
+    }
+    s7->unk0 += D_807445B0;
+    switch (MpBigG->unk8) {
+    case 1:
+        switch (MpBigG->unk4) {
+        case 3:
+        case 5:
+            func_80025654((void *)s7);
+            break;
+        case 2:
+            func_80025794();
+            break;
+        case 0:
+            mpUpdateMatchTimer();
+            break;
+        case 1:
+            func_8002449C();
+            break;
+        case 4:
+            func_8002452C();
+            break;
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+    if (MpBigG->unk0 == 0) {
+        for (i = 0; i < D_807FC928; i++) {
+            func_80025CE8(i);
+        }
+        if (D_807FC928 == 2) {
+            func_80025B48((void *)s7);
+        }
+    } else if ((D_807FBB60 & 2) || ((s16)(s32)((f32)s7->unk10 * 0.033333335f) & 1)) {
+        func_80025FFC((void *)s7);
+    } else if (s7->unk70 == 0) {
+        for (j = 0; j != 2; j++) {
+            for (k = 0; k < D_807FC928; k++) {
+                if (*(u8 *)((u8 *)D_807FC924 + k * 0x2F0) == 0) {
+                    continue;
+                }
+                vp = s7->unk20[k];
+                func_8071495C();
+                func_807149FC(-1);
+                func_80714998(0);
+                func_80714944(D_80027024[j].unk8);
+                if (j == 0) {
+                    x = (f32)(vp->unk4 + 0xB);
+                } else {
+                    x = (f32)(vp->unk8 - 0xB);
+                }
+                y = (f32)(vp->unkA - 0xB);
+                s7->unk50[j * D_807FC928 + k] = func_80714CC0(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
+            }
+        }
+        s7->unk70 = 1;
+    }
+    s7->unk10 += 1;
+    s7->unk10 = s7->unk10 % 180;
+    va = s7->unk40 - 100;
+    if (va < 0x1F40) {
+        s7->unk40 = 0x1F40;
+    } else {
+        s7->unk40 = va;
+    }
+    vb = s7->unk42 + 0x3E8;
+    if (s7->unk40 < vb) {
+        s7->unk42 = s7->unk40;
+    } else {
+        s7->unk42 = vb;
+    }
+    n_alSndpPostEvent(s7->unk3C, 8, s7->unk42);
+    if (D_80026F70 & 0x80) {
+        s7->unk40 = 0x7FFF;
+        D_80026F70 &= ~0x80;
+    }
+    if (D_80026F70 & 7) {
+        if (D_80767CC0 - s7->unk34 >= 6) {
+            s7->unk34 = D_80767CC0;
+            s7->unk38 = 0;
+            snd = 0x1E8;
+            if (D_80026F70 & 4) {
+                snd = 0x1EA;
+            } else if (D_80026F70 & 3) {
+                if ((D_80026F70 & 2) * 300 + 500 < (randomNonNegative() >> 15) % 1000) {
+                    if (((randomNonNegative() >> 15) % 1000) & 1) {
+                        snd = 0x1E7;
+                    } else {
+                        snd = 0x1EA;
+                    }
+                }
+            }
+            func_80609140(snd, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
+        }
+        vc = s7->unk40 + 0x4650;
+        if (vc >= 0x8000) {
+            s7->unk40 = 0x7FFF;
+        } else {
+            s7->unk40 = vc;
+        }
+        D_80026F70 &= ~7;
+    }
+    if (s7->unk38 * 35 + 0x384 < D_80767CC0 - s7->unk34) {
+        func_80609140(0x1E9, s7->unk38 * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
+        s7->unk38++;
+        if (s7->unk38 == 5) {
+            s7->unk38 = 0;
+            s7->unk34 = D_80767CC0;
+        }
+    }
+    renderCallbacksRegister(func_80025264, D_807FBB40, 7);
+}
+
 
 void mpSetFlags(u8 arg0) {
     D_80026F70 |= arg0;
