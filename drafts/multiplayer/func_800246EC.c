@@ -1,4 +1,28 @@
-// func_800246EC (src/multiplayer/0.c): stage 5 (frame 0xB0, 12 saves match; harness 124 diff lines of 203, skeleton (opcode-only) diff 35). Best form: s32 alpha=0xFF default + s16 t named local, alpha=t&0xFF; if(t>=0x100) alpha=0xFF; tmp (s32 lb) / sc clamp split; rem=sc-half*2; tmp loaded before the D_80750AB8 arms (puts the i*0x306 chain before the branch like target). Remaining: arg1 in s8/&spAE s7 (target s7/fp: adjsave arg1 3.0 < &spAE 3.33, extra arg1 reads did not help), lb v0,2FB(a0) issued before the arms in mine (target after join, only the address chain before), alpha uses a0/v0 where target uses v1/a0 and has a 'b' after slti/bnez/andi, header scheduling (addiu s2 / mtc1 a2,f22 order). Tried without gain: p/off derived IVs, g44/g48 early reads, s16 casts, if/else clamp forms, u8 alpha. Permuter 25 min: nothing.
+// func_800246EC (src/multiplayer/0.c): stage 4 (parked NON_MATCHING in src; frame 0xB0 now matches). Changes vs old draft: dropped named s16 t (read plr->unk4->unk128 inline) -> frame 184 -> 176 (locals p/off/t/plr: removing any one fixes it, they saturate); alpha clamp 'alpha=Z&0xFF; if (Z>=0x100) alpha=0xFF; else alpha=Z&0xFF;' reproduces target 'slti/bnez/andi/b/li 255' exactly with v1/a0 regs. Remaining: glistp s3/nxt s2 swapped vs target (uopt: with the else block glistp adjsave 11.5 < nxt 12.5, target glistp > nxt) and arg1 s8/&spAE s7 swap (3.0 vs 3.33); header sched (mtc1 a2,f22 earlier, addiu s2 order); i*0x306 chain computed before D_80750AB8 branch but lb after join (target) vs ours chain+lb after/before; 'slt at,s3,a3' vs placement. Tried: named ptr/sc cast for chain, pa pointer for &spAE (+8 frame), no-p/no-off (loses off IV), decl perms (no effect), nxt top hoist.
+#include "common.h"
+
+typedef struct Struct_800246EC_Sub_MpLow {
+    char pad[0x6];
+    s16 unk6;
+    s16 unk8;
+} Struct_800246EC_Sub_MpLow;
+
+typedef struct Struct_800246EC_Arg1_MpLow {
+    char pad[0x20];
+    Struct_800246EC_Sub_MpLow *unk20[4];
+    char pad2[0x14];
+    void *unk44;
+    void *unk48;
+} Struct_800246EC_Arg1_MpLow;
+
+extern u8 D_80750AB8;
+extern u8 D_1000118[];
+extern u8 D_20000C0[];
+extern u8 D_807FC950[];
+extern u8 D_807FC928;
+extern u8 *D_807FC924;
+Gfx *mpDrawGlyph(Gfx *glistp, s16 *arg1, s16 arg2, void *arg3, s32 arg4);
+
 typedef struct MpA_246_Act {
     char pad[0x128];
     s16 unk128;
@@ -30,7 +54,6 @@ Gfx *func_800246EC(Gfx *glistp, void *arg1v, f32 arg2) {
     s32 half;
     s16 y;
     s32 alpha;
-    s16 t;
     Struct_800246EC_Sub_MpLow *sub;
     MpA_246_Plr *plr;
     Struct_800246EC_Arg1_MpLow *p;
@@ -51,10 +74,11 @@ Gfx *func_800246EC(Gfx *glistp, void *arg1v, f32 arg2) {
             alpha = 0xFF;
             plr = (MpA_246_Plr *)(D_807FC924 + off);
             if (plr->unk2EA != 0) {
-                t = plr->unk4->unk128;
-                alpha = t & 0xFF;
-                if (t >= 0x100) {
+                alpha = plr->unk4->unk128 & 0xFF;
+                if (plr->unk4->unk128 >= 0x100) {
                     alpha = 0xFF;
+                } else {
+                    alpha = plr->unk4->unk128 & 0xFF;
                 }
             }
             if (plr->unk0 == 0 || alpha == 0) {
