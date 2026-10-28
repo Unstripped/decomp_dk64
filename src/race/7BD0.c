@@ -345,7 +345,6 @@ Gfx *func_8002C14C(Gfx *arg0, RaceUnknown174 *arg1) {
     return arg0;
 }
 
-#ifdef NON_MATCHING
 u32 func_806FD894(s32);
 
 Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
@@ -361,6 +360,7 @@ Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
     s32 var_s0;
     s32 var_s1;
     void *temp_v0_2;
+    Gfx *next;
 
     temp_s0 = arg1->unk48;
     temp_fv0 = (f32)func_806FD894(1) * 0.5f;
@@ -374,34 +374,33 @@ Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
     WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
     WRITE_GFX(arg0++, 0xDA380005, (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50));
     temp_t1 = 0.5f;
-    temp_fs0 = temp_fs0 + ((f32)func_806FBD5C(1, temp_v0_2) * temp_t1);
-    WRITE_GFX(arg0++, 0xFA000000, 0xFFFF00FF);
+    temp_fs0 += temp_t1 * (f32)func_806FBD5C(1, temp_v0_2);
     temp_fs0 = (f32)((f64)temp_fs0 + 8.0);
     temp_fs1 = temp_fs0 + temp_fs0;
     temp_fs2 = (f32)((f64)temp_fs2 + (0.4 * (f64)sp70));
+    WRITE_GFX(arg0++, 0xFA000000, 0xFFFF00FF);
     temp_s3 = (s16)(s32)((temp_fs2 + temp_fs2) * 4.0f);
-    var_s0 = 0;
-    do {
-        arg0 = func_8068C5A8(arg0, 0x4B, 3, 1, 0x40, 0x40, (s32)(((f32)var_s0 + temp_fs1) * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
-        var_s0 += 0x18;
-    } while (var_s0 < 0x78);
+    for (var_s0 = 0; var_s0 < 0x78; var_s0 += 0x18) {
+        temp_t2 = temp_fs1;
+        temp_t2 += (f32)var_s0;
+        arg0 = func_8068C5A8(arg0, 0x4B, 3, 1, 0x40, 0x40, (s32)(temp_t2 * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
+    }
     WRITE_GFX(arg0++, 0xFA000000, 0xFF0000FF);
     var_s1 = 0;
     if ((5 - *((u8 *)arg1 + 0x44)) > 0) {
         var_s0 = 0;
         do {
-            arg0 = func_8068C5A8(arg0, 0x45, 3, 1, 0x40, 0x40, (s32)(((f32)var_s0 + temp_fs1) * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
+            temp_t2 = temp_fs1;
+            temp_t2 += (f32)var_s0;
+            next = func_8068C5A8(arg0, 0x45, 3, 1, 0x40, 0x40, (s32)(temp_t2 * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
             var_s1 += 1;
             var_s0 += 0x18;
+            arg0 = next;
         } while (var_s1 < (5 - *((u8 *)arg1 + 0x44)));
     }
     WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
     return arg0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002C2E8.s")
-#endif
 
 
 Gfx *func_8002C63C(Gfx *arg0, RaceUnknown174 *arg1) {
@@ -925,7 +924,6 @@ void func_8002D754(RaceUnknownActor *arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct RaceFActorView {
     char pad0[4];
     RaceSub4 *unk4;
@@ -952,7 +950,6 @@ void func_8002D778(void) {
     f32 scale;
     RaceFActorView *pa;
     s32 k;
-    u16 cnt;
     RacePair *list;
     RacePair *list0;
 
@@ -993,9 +990,8 @@ void func_8002D778(void) {
             func_8002D224(4);
             t->unk1C = 0x32;
         } else {
-            cnt = (u64)(t->unk1C + 1);
-            t->unk1C = cnt;
-            if (cnt >= 0x78) {
+            t->unk1C = t->unk1C + 1;
+            if (t->unk1C >= 0x78) {
                 if (t->unk25 == 1) {
                     func_8002D224(4);
                     t->unk1C = 0x32;
@@ -1012,25 +1008,24 @@ void func_8002D778(void) {
             list0 = t->unk20;
             i = 0;
             list = list0;
-            if (t->unk1E > 0) {
-                do {
-                    s = list[i].unk4;
-                    if (s->unk27 == 0) {
-                        pa = (RaceFActorView *)D_807FC924[s->unk28].unk4;
-                        scale = 1.0f;
-                        pa->unk128 = 0xFF;
-                        pa->unk60 |= 0x8000;
-                        if (D_8076A0A8 == 0xB9) {
-                            scale = 0.3f;
-                        }
-                        for (k = 0; k < 3; k++) {
-                            (&pa->unk4->unk34)[k] = scale * 0.15;
-                        }
-                        pa->unkE8 = 0;
-                        pa->unkE4 = 0;
+            for (i = 0; i < t->unk1E; i++) {
+                s = list[i].unk4;
+                if (s->unk27 == 0) {
+                    pa = (RaceFActorView *)D_807FC924[s->unk28].unk4;
+                    scale = 1.0f;
+                    pa->unk128 = 0xFF;
+                    pa->unk60 |= 0x8000;
+                    if (D_8076A0A8 == 0xB9) {
+                        scale = 0.3f;
                     }
-                    i++;
-                } while (i < t->unk1E);
+                    for (k = 0; k < 3; k++) {
+                        (&pa->unk4->unk34)[k] = scale * 0.15;
+                    }
+                    pa->unkE8 = 0;
+                    pa->unkE4 = 0;
+                }
+            }
+            if (!t->unk1C && !t->unk1C && !t->unk1C) {
             }
             func_8002D224(5);
         }
@@ -1043,10 +1038,6 @@ void func_8002D778(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002D778.s")
-#endif
 
 f32 func_80612794(s16);
 
