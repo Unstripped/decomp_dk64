@@ -504,12 +504,11 @@ void func_80024E78(MinecartStruct_E78 *arg0, MinecartElem **arg1, u8 arg2, u8 ar
     }
 }
 
-#ifdef NON_MATCHING
 extern s32 D_80028C20;
 void actorScriptStart(void *, s32);
 void actorSetStateTwo(void *);
 void func_806A2A10(s32, s32, u8);
-void func_80726EE0(s32, s32);
+void func_80726EE0(s32);
 void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
 
 void func_80024FD0(void) {
@@ -554,7 +553,7 @@ void func_80024FD0(void) {
             func_800240DC(1, 0x14);
             D_807FBB40->unk154 = 5;
         } else if (D_807FBB40->unk11C != NULL && D_807FBB40->unk11C->unk154 == 5) {
-            func_80726EE0(0, 0x14);
+            func_80726EE0(0);
             func_80024000(1, 0xE);
             D_807FBB40->unk154 = 5;
             break;
@@ -581,10 +580,7 @@ void func_80024FD0(void) {
         break;
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/minecart/nonmatchings/0/func_80024FD0.s")
-#endif
 typedef struct {
     char pad0[0x20];
     f32 unk20;
