@@ -505,13 +505,278 @@ void menuTransitionToSubmenu(Struct_80025D14 *arg0, void *arg1) {
     playerStateQueueCallback(0x1B, D_807FBB40, 0);
 }
 
+typedef struct {
+    char pad0[4];
+    Struct_BB40_58 *unk4;
+} MenuM1b_C924;
+#define M1B_C924 ((MenuM1b_C924 *)D_807FC924)
+extern s32 D_807FBB60;
+s32 func_806F8EDC(s32, s32);
+
+#ifdef NON_MATCHING
+void renderCallbacksRegister(void *, void *, s32);
+void slotQueueCancel(s32, s32);
+s32 actorSpawn(s32, s32);
+void func_80614E78(void *, s32);
+
+void func_80026874(arg0, arg1)
+Struct_80025D14 *arg0;
+void *arg1;
+{
+    s32 sp24;
+    s32 sp20;
+
+    switch (arg0->unkE) {
+    case 0:
+        if (currentActorTestClearFlag() != 0) {
+            currentActorClearFlag();
+            arg0->unkE++;
+        }
+        break;
+    case 1:
+    case 5:
+        renderCallbacksRegister(func_80025B64, D_807FBB40, 3);
+        break;
+    case 10:
+        if (func_80026250(arg0) == 0) {
+            slotQueueCancel(1, 0);
+            slotQueueCancel(0xE, 0);
+            func_80025E04(arg0, (s32)arg1);
+            switch (arg0->unkB) {
+            case 0:
+            case 1:
+                playerStateQueueCallback(0x52, 0, 0);
+                D_807FBB60 &= 0xFFFEFFCF;
+                M1B_C924->unk4->unk60 |= 0x40000000;
+                break;
+            case 4:
+                actorSpawn(0x144, 0);
+                playerStateQueueCallback(0x53, 0, 0);
+                break;
+            case 2:
+            case 3:
+                actorSpawn(0x144, 0);
+                func_80614E78(M1B_C924->unk4, 0x85);
+                break;
+            }
+            camStartPath((s32)M1B_C924->unk4, 2, 1);
+            arg0->unkD = 2;
+            arg0->unkE = 0;
+        } else {
+            camStartPath(0, 0xA, 1);
+            flagSet(0x61, 1, 2);
+            arg0->unkE++;
+        }
+        break;
+    case 15:
+        sp24 = -1;
+        switch (D_807FBB40->unk58) {
+        case 0xBD:
+            sp24 = 8;
+            if (func_80026250(arg0) != 0) {
+                arg0->unkA = 1;
+                menuTransitionToSubmenu(arg0, arg1);
+                return;
+            }
+            sp20 = 0xA;
+            goto done;
+        case 0xBF:
+            sp24 = 9;
+            sp20 = 0x11;
+            goto done;
+        case 0xBE:
+            sp24 = 7;
+            sp20 = 0x10;
+        default:
+        done:
+            slotQueueCancel(1, 0);
+            slotQueueCancel(0xE, 0);
+            camStartPath((s32)M1B_C924->unk4, 3, 1);
+            arg0->unkD = 3;
+            arg0->unkE = 0;
+            func_8070D8C0(D_807FBB40, sp24, sp20);
+            break;
+        }
+        break;
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80026874.s")
+#endif
+
+#ifdef NON_MATCHING
+extern u16 D_80033A50[][4];
+extern u16 D_80033A78[];
+extern u16 D_800334E4[];
+
+#define M1B_ARG1 ((u8 *)arg1)
+
+void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+    s32 sp2C;
+    s32 sp28;
+    s32 sp24;
+
+    switch (arg0->unkE) {
+    case 0:
+        if (currentActorTestClearFlag() != 0) {
+            D_807FBB60 |= 0x10030;
+            sp24 = -1;
+            M1B_C924->unk4->unk60 &= 0xBFFFFFFF;
+            sp28 = 0;
+            sp2C = -1;
+            currentActorClearFlag();
+            switch (arg0->unkB) {
+            case 0:
+                sp2C = D_80033A50[D_8074E77C][M1B_ARG1[arg0->unkB]];
+            case 1:
+                if (sp2C == -1) {
+                    sp2C = D_80033A78[M1B_ARG1[arg0->unkB]];
+                }
+                sp28 = 8;
+                break;
+            case 4:
+                if (arg0->unk11 == 1) {
+                    if (func_80025AF0(arg0, 1) == 0) {
+                        sp24 = 0x15;
+                    }
+                    sp2C = 0x12;
+                    sp28 = 9;
+                } else {
+                    sp2C = 0x13;
+                    sp28 = 9;
+                    if (*((u8 *)arg0 + 0x10) + 1 == D_807FCC4C) {
+                        sp2C = 0x14;
+                    } else {
+                        sp28 = 9;
+                    }
+                }
+                break;
+            case 2:
+                sp2C = D_800334E4[arg0->unk11];
+            case 3:
+                if (sp2C == -1) {
+                    D_80750AC8 = func_806F8EDC(2, 0);
+                    sp2C = 0x15;
+                }
+                sp28 = 7;
+                break;
+            }
+            func_8070D8C0(D_807FBB40, sp28, sp2C);
+            if (sp24 >= 0) {
+                func_8070D8C0(D_807FBB40, sp28, sp24);
+            }
+            arg0->unkE++;
+        }
+        break;
+    case 1:
+        if (!(D_807FBB40->unk60 & 0x02000000)) {
+            flagSet(arg2, 1, 0);
+            camResumePath();
+            arg0->unkE++;
+        }
+        break;
+    case 2:
+        if (currentActorTestClearFlag() != 0) {
+            menuTransitionToSubmenu(arg0, arg1);
+        }
+        break;
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80026B28.s")
+#endif
+
+#ifdef NON_MATCHING
+void func_805FF898(void);
+void func_806CFF9C(void *);
+
+void func_80026DAC(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+    s32 x;
+    s32 sp30;
+    s32 sp2C;
+    s32 sp28;
+    s32 sp24;
+    s32 v;
+    s32 sp1C;
+
+    switch (arg0->unkE) {
+    case 0:
+        if (!(D_807FBB40->unk60 & 0x02000000)) {
+            camResumePath();
+            arg0->unkE++;
+            flagSet(arg2, 1, 0);
+        }
+        break;
+    case 2:
+        if (!(D_807FBB40->unk60 & 0x02000000)) {
+            x = -1;
+            camResumePath();
+            arg0->unkE = 4;
+            switch (D_807FBB40->unk58) {
+            case 0xBE:
+                x = 2;
+            case 0xBF:
+                if (x < 0) {
+                    x = 7;
+                }
+                slotQueueUpdate(x, 0, 0);
+                break;
+            }
+        }
+        break;
+    case 1:
+        if (currentActorTestClearFlag() != 0) {
+            sp30 = 1;
+            sp24 = -1;
+            v = -1;
+            currentActorClearFlag();
+            func_806CFF9C(D_807FBB4C);
+            switch (D_807FBB40->unk58) {
+            case 0xBE:
+                sp2C = 7;
+                sp28 = 0x11;
+                sp24 = 2;
+                v = 2;
+            case 0xBF:
+                if (sp24 < 0) {
+                    sp2C = 9;
+                    sp28 = 0x10;
+                    sp24 = 7;
+                    v = 4;
+                }
+                if (v >= 0 && (((u8 *)arg1)[v] & 1)) {
+                    sp1C = func_806F8AD4((u8)sp24, 0);
+                    if (sp1C < func_806F8EDC(sp24, 0)) {
+                        func_8070D8C0(D_807FBB40, sp2C, sp28);
+                        func_806F91B4(sp24, 0, 0x3E7);
+                        arg0->unkE = 0;
+                        sp30 = 5;
+                    }
+                }
+                break;
+            }
+            arg0->unkE += 2;
+            camStartPath(0, (s16)sp30, 1);
+        }
+        break;
+    case 4:
+        if (currentActorTestClearFlag() != 0) {
+            currentActorClearFlag();
+    case 3:
+            func_805FF898();
+            arg0->unkE = 0xA;
+        }
+        break;
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/func_80026DAC.s")
+#endif
 
-void func_80026874(Struct_80025D14 *, void *, s32);
+void func_80026874();
 void func_80026B28(Struct_80025D14 *, void *, s32);
 void func_80026DAC(Struct_80025D14 *, void *, s32);
 
