@@ -1,4 +1,4 @@
-// func_8064AC28 (src/global/478F0.c): CsB10 stage 4: frame 0xa8 + saved regs OK; needs modelSlotGetNodePos 2nd param u8 (andi a1,s5,0xff). Remaining: init loops p reg a1 vs target a0/v1 pair, ldc1 f20 order, lui at float hoist. Locals order p,e,j,anim,animT,animFlag,i,pl,best,allDone,n,x,y,z,d,bestD; chain 'p = *(T**)cs = func_80610FE8(0x50)' fixes frame; one-line for loop for state=3.
+// func_8064AC28 (src/global/478F0.c): CsB10 stage 4: frame 0xa8 + callee-saved set OK, whole body shape matches. Needs modelSlotGetNodePos 2nd param u8 (target 'andi a1,s5,0xff'; s32 gives li a1,1). Remaining diffs: init-loop p copy regs (target a0=p prefix/v1=p loop base, loop-2 pointer in s0; mine a0 only + temp v0), ldc1 f20 before move s0/s1, lui at hoist before li s3,-1. Needs: chain 'p = *(T**)cs = func_80610FE8(0x50)', one-line for loop for state=3, i++ after the allDone if, locals order p,e,j,anim,animT,animFlag,i,pl,best,allDone,n,x,y,z,d,bestD. deadsweep: no improvement.
 void heapFreeDeferred(void *);
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 void modelAnimEntrySetTime(s16, s16, s16, f32);
@@ -62,7 +62,9 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
             p->part[6].state = 3;
             p->part[8].state = 1;
         }
-        for (i = 0; i < 9; i++) {
+        p->part[0].timer = 10;
+        p->part[0].active = 1;
+        for (i = 1; i < 9; i++) {
             p->part[i].active = 1;
             p->part[i].timer = 10;
         }
@@ -100,9 +102,9 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         pl = D_807FC924->unk4;
         if (pl->unk154 == 0x1C && pl->unk155[0] < 7 && D_8074E77C == 0 && pl->unk110 == 1) {
             best = -1;
+            bestD = 100000.0f;
             i = 0;
             if (csId == pl->unk10C) {
-                bestD = 100000.0f;
                 do {
                     modelSlotGetNodePos(csId, 1, i + 1, &x, &y, &z);
                     x = D_807FBB4C->unk7C - x;

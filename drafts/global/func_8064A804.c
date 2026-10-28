@@ -41,6 +41,10 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
     row = 0;
     do {
         col = 0;
+        if (1) {}
+        if (1) {}
+        if (1) {}
+        if (1) {}
         if (found == 0) {
             do {
                 if (D_8074822C[row][col] == ((CsB9PzView *)cs)->unk49) {
