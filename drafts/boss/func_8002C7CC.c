@@ -1,4 +1,4 @@
-// func_8002C7CC (src/boss/8520.c): stage 3: frame 48 vs 40 and var_t0/t1/v1 land in t1/t2/t0 instead of t0/t1/v1; expected keeps 'or t0,v0,zero' copy then andi t7,t0,0x80 (var_t0 own live range) -- copy propagation removes it in all tried forms (u8 var_t0 = val, a=val, (u8)val casts, val+=1 forms). Structure/branches already match.
+// func_8002C7CC (src/boss/8520.c): stage 3: branch layout, regs (t0/t1/v1/v0), copy 'or t0,v0,zero' and slots all match (var_t0 = val & 0x80 then val &= 0xF, 'if (var_v1 >= 2) {var_t0=0; goto done;} var_t1=0x8000; goto done;' else-branch 'val -= 1'); remaining: frame 48 vs 40 + $t ring (t9/t4/t2/t3 vs t3/t6/t4/t5). Expected has only 3 named locals (var_t1 u16,var_t0 u8,var_v1 s32: homes 38,37 + spill 32/28); the 4th named local 'val' costs +8 frame, and every attempt to make val an expression temp (inline D->unk28&0xF, block scope, register, K&R param) loses the hoisted 'andi t8,v0,0xf; move v0,t8' before the branch.
 #include "common.h"
 
 typedef struct {
@@ -14,23 +14,22 @@ extern void *D_807FBB40;
 void func_806883F4(void *, s32, s16, f32);
 
 void func_8002C7CC(void) {
-    u16 var_t1 = 0;
-    u8 var_t0;
     s32 var_v1;
     s32 val;
+    u16 var_t1 = 0;
+    u8 var_t0;
 
     val = D_807FDC90->unk28;
-    var_t0 = val;
+    var_t0 = val & 0x80;
     val &= 0xF;
-    var_t0 &= 0x80;
-    if (var_t0 != 0) {
+    if (var_t0) {
         val += 1;
         var_v1 = val & 0xFF;
-        if (var_v1 < 2) {
-            var_t1 = 0x8000;
+        if (var_v1 >= 2) {
+            var_t0 = 0;
             goto done;
         }
-        var_t0 = 0;
+        var_t1 = 0x8000;
         goto done;
     } else {
         val -= 1;
