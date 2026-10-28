@@ -70,14 +70,16 @@ class Symbols:
         self.repo_root = Path(repo_root).resolve()
         # segment -> sorted list of (name, start_addr, size)
         self._segments: Dict[str, List[Tuple[str, int, int]]] = {}
+        # segment -> sorted list of (name, addr, size) for data/rodata/bss symbols
+        self._data: Dict[str, List[Tuple[str, int, int]]] = {}
         # global name -> (start_addr, segment)
         self._name_index: Dict[str, Tuple[int, str]] = {}
         self._load_all()
 
     def _parse_elf(
         self, elf_path: Path, seg: str
-    ) -> Tuple[List[Tuple[str, int, int]], int, int]:
-        """Parse ELF32 big-endian symtab and return functions and text bounds."""
+    ) -> Tuple[List[Tuple[str, int, int]], List[Tuple[str, int, int]]]:
+        """Parse ELF32 big-endian symtab: (functions, data symbols), both sorted by address."""
         with open(elf_path, "rb") as f:
             data = f.read()
 
@@ -97,6 +99,7 @@ class Symbols:
 
         symtab_info = None
         exec_shndx = set()
+        data_shndx = set()
 
         for i in range(e_shnum):
             off = e_shoff + i * e_shentsize
@@ -117,9 +120,11 @@ class Symbols:
                 symtab_info = (sh_offset, sh_size, sh_link, sh_entsize or 16)
             if sh_flags & 0x4:  # SHF_EXECINSTR
                 exec_shndx.add(i)
+            elif sh_flags & 0x2:  # SHF_ALLOC: data, rodata, bss
+                data_shndx.add(i)
 
         if not symtab_info:
-            return [], 0, 0
+            return [], []
 
         strtab_off = e_shoff + symtab_info[2] * e_shentsize
         (str_offset,) = struct.unpack_from(endian + "I", data, strtab_off + 16)
@@ -130,6 +135,7 @@ class Symbols:
         count = sym_size // entsize
 
         raw_funcs: List[Tuple[str, int, int]] = []
+        data_syms: List[Tuple[str, int, int]] = []
         text_end: Optional[int] = None
         text_start: Optional[int] = None
 
@@ -144,6 +150,13 @@ class Symbols:
                 st_shndx,
             ) = struct.unpack_from(endian + "IIIBBH", data, off)
             st_type = st_info & 0xF
+
+            # Overlays (and some boot/global files) keep data in their executable section.
+            if (st_shndx in data_shndx or st_shndx in exec_shndx) and st_type in (0, 1):  # NOTYPE, OBJECT
+                name_end = strtab.find(b"\0", st_name)
+                name = strtab[st_name:name_end].decode("ascii", "replace")
+                if name and not name.startswith((".", "$")) and not name.endswith(("_START", "_END", "_SIZE")):
+                    data_syms.append((name, st_val, st_sz))
 
             # Only inspect symbols defined in this ELF's executable section(s)
             if st_shndx in exec_shndx:
@@ -168,6 +181,7 @@ class Symbols:
                     raw_funcs.append((name, st_val, st_sz))
 
         raw_funcs.sort(key=lambda x: x[1])
+        data_syms.sort(key=lambda x: x[1])
 
         # Derive function extents: runs up to next function start or text end
         final_funcs: List[Tuple[str, int, int]] = []
@@ -181,7 +195,7 @@ class Symbols:
             final_size = sz if sz > 0 else extent
             final_funcs.append((name, val, final_size))
 
-        return final_funcs, text_start or 0, text_end or 0
+        return final_funcs, data_syms
 
     def _load_all(self) -> None:
         """Load symbols for all segments."""
@@ -195,8 +209,9 @@ class Symbols:
             elf_path = build_dir / elf_name
             if not elf_path.is_file():
                 continue
-            funcs, _, _ = self._parse_elf(elf_path, seg)
+            funcs, data_syms = self._parse_elf(elf_path, seg)
             self._segments[seg] = funcs
+            self._data[seg] = data_syms
             for name, addr, sz in funcs:
                 if name not in self._name_index:
                     self._name_index[name] = (addr, seg)
@@ -244,6 +259,32 @@ class Symbols:
             if start <= addr < start + size:
                 return (name, start, size, segment)
         return None
+
+    def data_at(
+        self, addr: Union[int, str], segment: Optional[str] = None, max_offset: int = 0x400
+    ) -> Optional[Tuple[str, int, int, str]]:
+        """Data/rodata/bss symbol at or before addr: (name, start, offset, segment).
+
+        A symbol with a size must contain addr; an unsized one (most splat D_ names)
+        covers at most max_offset bytes and never past the next symbol. Overlay
+        addresses need `segment`, as in function_at.
+        """
+        if isinstance(addr, str):
+            addr = int(addr, 0)
+        if segment is None:
+            if OVERLAY_VRAM_START <= addr < GLOBAL_VRAM_START:
+                return None
+            segment = "boot" if addr < OVERLAY_VRAM_START else "global"
+        syms = self._data.get(segment, [])
+        idx = bisect.bisect_right([s[1] for s in syms], addr) - 1
+        if idx < 0:
+            return None
+        name, start, size = syms[idx]
+        off = addr - start
+        limit = size if size > 0 else max_offset
+        if off >= limit:
+            return None
+        return (name, start, off, segment)
 
     def lookup(
         self, name: str, segment: Optional[str] = None

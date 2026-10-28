@@ -248,9 +248,20 @@ This intercepts the function on live execution, recording:
 - Stack pointer `$sp` and local frame contents.
 - Automatic dereferencing of RDRAM pointer arguments (inspecting struct payloads).
 - Return values in `$v0`, `$v1`, and `$f0`.
-- Memory mutations at watched addresses (`--watch 0x8076A0A8:4`).
+- Memory at a watched address before and after the call (`--watch 0x8076A0A8:4`); this is a before/after snapshot, not a watchpoint.
 
 The resulting report is saved to `emu/study/<FUNC>/report.md` along with a screenshot, providing verifiable behavioral evidence for renaming functions in the decompilation.
+
+### 3. Function Probing (`probe.py`)
+
+To see what a function does to the game, agents checkpoint one of its real calls and replay experiments from it:
+
+```sh
+python3 tools/emu/probe.py func_8072177C --state beaver_bother --callees
+python3 tools/emu/probe.py --list candidates.txt --state beaver_bother --frames 60
+```
+
+The checkpoint is an ares save state taken while GDB holds the CPU at the function's entry, so every experiment starts from the same instant: unchanged (twice, to measure noise), returning immediately (`skip`), or with overridden scalar arguments (`--arg a1=0`). The report in `emu/probe/<seg>_<FUNC>/` lists the RAM the call writes (with data symbols), its return values and callees, and how RAM, the screen and the game's health differ after N frames when the call is skipped or altered.
 
 ---
 

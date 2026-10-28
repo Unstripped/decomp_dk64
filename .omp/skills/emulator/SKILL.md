@@ -161,7 +161,7 @@ python3 tools/emu/study.py <FUNC_OR_ADDR> [--state STATE] [--hits HITS] [--segme
 - `--state STATE`: Library state label to load. If omitted, `study.py` automatically selects a state from `emu/coverage/index.json` where the function was hit.
 - `--hits HITS`: Maximum invocation stops to trace (default: 3).
 - `--segment SEG`: Explicit segment (`boot`, `global`, or overlay name) when an address is ambiguous.
-- `--watch ADDR[:LEN]`: Memory address and length to watch for mutations (e.g. `0x8076A0A8:4`).
+- `--watch ADDR[:LEN]`: Memory read at entry and again at return, reported as changed or not. Not a watchpoint: it cannot find which function writes an address, only whether this call (with its callees) changed it.
 - `--name NAME`: Session name (default: `main`).
 
 ### Output Dossier (`emu/study/<FUNC>/`)
@@ -178,7 +178,26 @@ python3 tools/emu/study.py <FUNC_OR_ADDR> [--state STATE] [--hits HITS] [--segme
 
 ---
 
-## 5. Map Warping & Sweeps (`warp.py`)
+## 5. Function Probe Workflow (`probe.py`)
+
+Find out what a function does to the game without playing: stop at a natural call, checkpoint it, replay experiments from that exact instant and diff RAM and screen.
+
+```sh
+python3 tools/emu/probe.py FUNC... [--list FILE] [--state LABEL] [--segment SEG] [--hit K] [--wait S] [--return-timeout S] \
+    [--frames N] [--ret V] [--arg aN=VAL ...] [--no-skip] [--callees] [--summary PATH] [--name NAME]
+```
+
+- **Checkpoint**: GDB stops at the K-th entry of FUNC after the state loads (real caller, arguments, frame, every register); `probe.py` presses the ares save hotkey into session slot 9 while GDB holds the CPU. Every experiment loads slot 9 while halted and verifies `$pc`/`$sp`/`$ra` before running.
+- **Experiments**: `baseline` (unchanged), `control` (baseline again: run-to-run noise), `skip` (return at entry with `$v0 = --ret`), `args` (overwrite `$a0`–`$a3`). Each runs to FUNC's return (matched by `$sp`, so recursion is safe) and then `--frames` frames (`controllerUpdate` entries).
+- **Report** (`emu/probe/<seg>_<FUNC>/report.md`, `data.json`): the call's own RAM writes (entry → return, data symbols resolved, dead stack frames below the caller's `$sp` counted but not listed), return values, `--callees` (functions first entered during the call), and for `skip`/`args` the RAM and pixel differences against baseline minus control noise, plus fault (`__osFaultedThread`) or stall status. Two or more functions also write `emu/probe/summary.{md,json}`.
+- **Only ABI-valid interventions**: nothing builds a synthetic call frame. `skip` is valid because no prologue has run yet; `--arg` is for scalars (pointers in the checkpoint are the live ones).
+- Cost: ~60 s per function (checkpoint + 3 experiments, 30 frames); `--callees` adds ~20 s of breakpoint arming to the baseline. Event-driven functions may not be called soon after a state loads: raise `--wait` (default 60 s) or use a state taken just before the event.
+- A call that does not return within `--return-timeout` (default 30 s wall) is reported as that function's error row, with whatever `--callees` saw in `data.json`; the batch continues. `--segment` applies to every function of a batch.
+- **Reading a skip/args effect**: `skip` with `$v0 = 0` faults callers that dereference the result (`__osFaultedThread` set, 0 frames run): that says the caller needs the return value, not what the function does. Changed pixels can be random-number divergence (e.g. the bonus timer's sparkle trail after skipping one `func_806AD260` call): look where `<experiment>/diff.png` is red before crediting the function with them.
+
+---
+
+## 6. Map Warping & Sweeps (`warp.py`)
 
 Warp the running game to any map ID by calling `func_805FF378(map, exit)` at the main loop safe point (`controllerUpdate`).
 
@@ -202,7 +221,7 @@ python3 tools/emu/warp.py sweep --name NAME --state LABEL --from A --to B --out 
 
 ---
 
-## 6. Symbolizer CLI (`symbols.py`)
+## 7. Symbolizer CLI (`symbols.py`)
 
 Resolve addresses to function names and query overlay boundaries from symbol files:
 
@@ -223,7 +242,7 @@ python3 tools/emu/symbols.py stats
 
 ---
 
-## 7. Raw GDB & Low-Level Debugging
+## 8. Raw GDB & Low-Level Debugging
 
 For manual inspection or custom scripting:
 
@@ -240,7 +259,7 @@ python3 tools/emu/emu.py gdb --name <name>
 
 ---
 
-## 8. Critical Gotchas
+## 9. Critical Gotchas
 
 1. **Always `break *0xADDR`**: Setting a breakpoint by function name (`break funcname`) causes GDB to inspect MIPS instructions and skip the prologue. This corrupts argument inspection because `$a0`–`$a3` may already be overwritten. Always break on the exact entry address using `break *0x<hex>`.
 2. **Never warp by writing globals directly**: `func_805FF378` (`src/global/3C10.c`) gates the transition (`D_807444EC == 6 || func_80712798() == 0`), lets `func_80712F10` rewrite or cancel the target, records the old map and runs the transition setup calls. Writing `D_807444E4`/`D_807444E8`/`D_8076A0B2` skips all of that. Always warp through `warp.py`, which calls the function at the `controllerUpdate` safe point.
@@ -248,10 +267,12 @@ python3 tools/emu/emu.py gdb --name <name>
 4. **ELF load order in GDB**: Always load `file build/dk64.us.elf` *before* `target remote 127.0.0.1:9123`. If GDB connects before loading a 32-bit ELF, it defaults to 64-bit MIPS registers, sign-extending addresses to `0xffffffff80xxxxxx` and failing breakpoint insertions.
 5. **Clean up containers**: Always run `python3 tools/emu/emu.py stop --name <name>` when finished. Unstopped containers hold network ports and system RAM.
 6. **Naming evidence**: Names follow the AGENTS.md conventions: behaviour confirmed from the matched C. A `study.py` report (caller, arguments, return value, screenshot) is supporting evidence that makes a name stronger; record what it showed in the commit message. Never name a function from a screenshot or a guess alone.
+7. **Determinism needs a halted checkpoint**: loading a state and *then* attaching GDB is not reproducible: the game runs on between the F7 load and the attach, so "the K-th call" lands on a different frame (two reloads at the same hit differed in ~220–380 KB of RAM). ares does honour the save (F5) and load (F7) hotkeys while GDB holds the CPU; a state saved halted at an entry and reloaded halted gives a byte-identical 8 MB RDRAM and the same `$pc`/`$sp`/`$ra`, and replays from it differ by 0 bytes after 30 frames. `probe.py` relies on this.
+8. **Reading all of RDRAM** (`read_memory(0x80000000, 0x800000)`) takes ~2 s over the GDB stub.
 
 ---
 
-## 9. Feeding Study Results into Decompilation
+## 10. Feeding Study Results into Decompilation
 
 When a function is studied via `study.py <FUNC>`:
 1. Review `emu/study/<FUNC>/report.md` for argument structures, pointer dereferences, and caller return addresses.
@@ -266,6 +287,6 @@ When a function is studied via `study.py <FUNC>`:
 
 ---
 
-## 10. Improve This Skill
+## 11. Improve This Skill
 
 Update this skill file (`.omp/skills/emulator/SKILL.md`) whenever an emulator workflow or GDB procedure is improved, or when new breakpoint or overlay gotchas are discovered.
