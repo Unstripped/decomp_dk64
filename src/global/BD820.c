@@ -62,8 +62,7 @@ void func_806B8BDC(s16 x, s16 y, s16 z) {
     func_80714CC0(D_8071FFA0, 2.0f, x, y, z);
 }
 
-extern s16 D_807F6248;
-extern s16 D_807F624C;
+extern s16 gCsModelIds[];
 
 void actorScriptStart(Actor *, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
@@ -124,16 +123,16 @@ void func_806B8C78(void) {
                         func_806B8BDC(0xBD, 0xAA, 0x2FB);
                         func_806B8BDC(0x19A, 0xA6, 0x2F8);
                     }
-                    actorSetTargetSlotByte(D_807F6248, 0);
-                    actorSetTargetSlotByte(D_807F624C, 0);
+                    actorSetTargetSlotByte(gCsModelIds[4], 0);
+                    actorSetTargetSlotByte(gCsModelIds[6], 0);
                     lightSetColor(0.15f, 0.15f, 0.15f, 0);
                 } else if (D_807FDC90->unk2C >= 0x15) {
-                    actorSetTargetSlotByte(D_807F6248, 9);
-                    actorSetTargetSlotByte(D_807F624C, 9);
+                    actorSetTargetSlotByte(gCsModelIds[4], 9);
+                    actorSetTargetSlotByte(gCsModelIds[6], 9);
                     lightSetColor(0.2f, 0.2f, 0.2f, 0);
                 } else {
-                    actorSetTargetSlotByte(D_807F6248, 8);
-                    actorSetTargetSlotByte(D_807F624C, 8);
+                    actorSetTargetSlotByte(gCsModelIds[4], 8);
+                    actorSetTargetSlotByte(gCsModelIds[6], 8);
                     lightSetColor(0.3f, 0.3f, 0.3f, 0);
                 }
             }

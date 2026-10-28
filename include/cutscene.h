@@ -73,7 +73,7 @@ typedef struct CsPlayer {
     /* 0x4 */ Actor *unk4;
 } CsPlayer;
 
-// Cutscene command handler (table D_80747E70, indexed by the command's a field).
+// Cutscene command handler (table gCsCmdTable, indexed by the command's a field).
 typedef void (*CsCmdFunc)(CsState *, s16, s16, s16);
 
 #endif

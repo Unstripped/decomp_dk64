@@ -186,7 +186,7 @@ void func_800336C0(void) {
     func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) sp24, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
 }
 
-void func_8063DA40(s16, u8);
+void csModelStateSetFirstByte(s16, u8);
 extern u8 D_80035BDC[];
 extern u8 D_80035BE4[];
 
@@ -218,10 +218,10 @@ u8 arg1;
     }
 
     if (arg0[4] != 0) {
-        func_8063DA40((s16)arg0[4], arg1);
+        csModelStateSetFirstByte((s16)arg0[4], arg1);
     }
     if (arg0[5] != 0) {
-        func_8063DA40((s16)arg0[5], arg1);
+        csModelStateSetFirstByte((s16)arg0[5], arg1);
     }
     if (arg1 == 0) {
         arg0[4] = 0;
@@ -900,7 +900,7 @@ block_131:
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
-                func_8063DA40(sub->unk0, 0x1E);
+                csModelStateSetFirstByte(sub->unk0, 0x1E);
                 BF->unk155++;
             }
             break;
@@ -917,7 +917,7 @@ block_131:
                 i = 0;
                 do {
                     if (i != sub->unk0) {
-                        func_8063DA40(i, 0x28);
+                        csModelStateSetFirstByte(i, 0x28);
                     }
                     i++;
                 } while (i < 0x10);

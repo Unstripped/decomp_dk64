@@ -56,7 +56,7 @@ void camEndPath(void *);
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_806CFF9C(void *);
 void camReturnToFollow(void *, void *);
-void func_8063DA40(s32, s16);
+void csModelStateSetFirstByte(s32, s16);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -91,11 +91,11 @@ void func_80030AE0(BossD_Sub178 *arg0) {
     }
     camReturnToFollow(gCamActor, D_807FBB4C);
     D_807FD580->unk1D8 = 0.01f;
-    func_8063DA40(0xB, (arg0->unk14 <= 0) ? 0 : 4);
-    func_8063DA40(0xC, (arg0->unk14 < 2) ? 0 : 4);
-    func_8063DA40(0xD, (arg0->unk14 < 3) ? 0 : 4);
-    func_8063DA40(0xE, (arg0->unk14 < 4) ? 0 : 4);
-    func_8063DA40(0xA, 0xA);
+    csModelStateSetFirstByte(0xB, (arg0->unk14 <= 0) ? 0 : 4);
+    csModelStateSetFirstByte(0xC, (arg0->unk14 < 2) ? 0 : 4);
+    csModelStateSetFirstByte(0xD, (arg0->unk14 < 3) ? 0 : 4);
+    csModelStateSetFirstByte(0xE, (arg0->unk14 < 4) ? 0 : 4);
+    csModelStateSetFirstByte(0xA, 0xA);
 }
 
 void func_80030C30(f32 arg0) {

@@ -80,8 +80,8 @@ void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
 void actorSetStateTwo(void *);
 void actorDespawn(void *);
-void func_8063DA40(s16, s32);
-void func_8063DA78(s16, s32, s32);
+void csModelStateSetFirstByte(s16, s32);
+void csModelStateSetByte(s16, s32, s32);
 f32 func_806119FC(void);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80613C48(void *, s32, f32, f32);
@@ -319,7 +319,7 @@ void func_806BC1E0(void) {
         if (currentActorTestClearFlag() != 0) {
             func_806BD0CC();
             if (flagGet(0x10F, 0) == 0) {
-                func_8063DA40(0x10, 0xA);
+                csModelStateSetFirstByte(0x10, 0xA);
             }
             st->unk38 = 0xA;
             sfxStopChannel(0x56, 1);
@@ -362,7 +362,7 @@ void func_806BC1E0(void) {
         st->unk0 = old + st->unk4;
         if (D_80750650 == 0) {
             if (old < 0.63f && st->unk0 >= 0.63f) {
-                func_8063DA78(st->unk36 + st->unk37 * 4, 1, 1);
+                csModelStateSetByte(st->unk36 + st->unk37 * 4, 1, 1);
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x361, 0xFF, 0x7F, 0xA);
             }
         } else {
@@ -437,7 +437,7 @@ void func_806BD094(s16 idx, s8 val) {
 }
 
 void flagSet(s32, s32, s32);
-void func_8063DA40(s16, s32);
+void csModelStateSetFirstByte(s16, s32);
 
 void func_806BD0CC(void) {
     s32 i;
@@ -445,7 +445,7 @@ void func_806BD0CC(void) {
     flagSet(0x30, 0, 2);
     for (i = 0; i < 0x10; i++) {
         D_807FC8C0[i] = -1;
-        func_8063DA40(i, 0);
+        csModelStateSetFirstByte(i, 0);
     }
     D_807FC8C0[5] = 0;
     D_807FC8C0[6] = 1;

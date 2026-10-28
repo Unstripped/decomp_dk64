@@ -1151,7 +1151,7 @@ void func_806C1E44(void) {
 }
 
 extern f32 D_807502F4;
-extern s16 D_807F62B4;
+extern s16 gCsModelIds[];
 extern u8 D_8074E77C;
 extern s32 D_807FBDC8[];
 extern u8 D_8071FC40;
@@ -1271,7 +1271,7 @@ void func_806C226C(void) {
                     }
                     break;
             }
-            modelSlotGetNodePos(D_807F62B4, 1, 1, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
+            modelSlotGetNodePos(gCsModelIds[58], 1, 1, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
             func_8072E1A4(0xA, D_807FDC94);
             break;
     }
@@ -1751,7 +1751,7 @@ void func_806C2DF4(void) {
 }
 
 extern s16 D_80750AC8;
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 
 void func_806C3A8C(void) {
     s32 dist;
@@ -1834,7 +1834,7 @@ void func_806C3A8C(void) {
                         break;
                     case 1:
                         if (!(D_807FBB40->unk60 & 0x2000000)) {
-                            func_8063DA40(0xE, 0xA);
+                            csModelStateSetFirstByte(0xE, 0xA);
                             D_807FBB40->unk154 = 0x20;
                             D_807FBB40->unk155[0] = 0;
                         }

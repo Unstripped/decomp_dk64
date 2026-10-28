@@ -245,7 +245,7 @@ typedef struct B2CE0ActorView134 {
 
 extern s32 D_8076A0A8;
 void actorClearNodeFlag(B2CE0Actor *, s32);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 
 void func_806AE588(void) {
     s32 sel;
@@ -377,7 +377,7 @@ void func_806AE588(void) {
             break;
         case 1:
             if ((D_8076A0A8 == 0xA5) && (D_807FBB40->unk15F != 0)) {
-                func_8063DA40(0, 0xA);
+                csModelStateSetFirstByte(0, 0xA);
             }
             sfxSpawnTableNodes(D_807FBB40);
             D_807FBB40->unk155++;

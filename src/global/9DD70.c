@@ -1019,7 +1019,7 @@ extern u8 D_8076A0AB;
 extern u16 D_807FC930[];
 extern u16 D_807446C0[];
 u8 func_805FF030(u8, u8);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 s32 textBuildDigitNode(u8, void *, u8, u8, u8);
 
 void textUpdateThreeDigitCounter(void) {
@@ -1050,13 +1050,13 @@ void textUpdateThreeDigitCounter(void) {
             D_807FBB40->unk60 &= ~0x8000;
             D_807FBB40->unk128 = 0;
             D_807FBB40->unk144 = 1;
-            func_8063DA40(8, 2);
+            csModelStateSetFirstByte(8, 2);
             ten = 10;
-            func_8063DA40(9, ten);
-            func_8063DA40(ten, ten);
-            func_8063DA40(11, ten);
-            func_8063DA40(13, ten);
-            func_8063DA40(12, ten);
+            csModelStateSetFirstByte(9, ten);
+            csModelStateSetFirstByte(ten, ten);
+            csModelStateSetFirstByte(11, ten);
+            csModelStateSetFirstByte(13, ten);
+            csModelStateSetFirstByte(12, ten);
         }
     }
     actorUpdateModelMatrix(D_807FBB40, 0);

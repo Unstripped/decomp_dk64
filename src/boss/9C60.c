@@ -158,7 +158,7 @@ void camStartPath(BossC_9C60_Actor *, s32, s32);
 void camStartShake(s32, s32, s32);
 void camSetSecondTarget(s32, s32, s32);
 s32 currentActorTestClearFlag(void);
-void func_8063DA40(s16, s32);
+void csModelStateSetFirstByte(s16, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void projectileGetTargetCoords(BossC_9C60_Actor *, s32);
 void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, BossC_9C60_Actor *);
@@ -218,8 +218,8 @@ void func_8002DE04(void) {
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else {
-                func_8063DA40((sp3C->unk14 * 2) + 8, 0xA);
-                func_8063DA40((sp3C->unk14 * 2) + 9, 0xA);
+                csModelStateSetFirstByte((sp3C->unk14 * 2) + 8, 0xA);
+                csModelStateSetFirstByte((sp3C->unk14 * 2) + 9, 0xA);
                 D_807FBB40->unk154 = sp38[sp3C->unk15++];
                 D_807FBB40->unk155 = 0;
             }

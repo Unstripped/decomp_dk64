@@ -253,10 +253,10 @@ typedef struct {
 } ModelSlotInitView; /* 0x90 */
 
 extern s32 D_80747D70;
-extern s16 D_807F6240[];
+extern s16 gCsModelIds[];
 extern s32 D_807F6004;
 void hashTableInit(void);
-void func_8063D930(void);
+void csModelIdTableReset(void);
 void func_8065051C(void);
 u8 func_8060E3B0(u16, u8);
 s32 modelSkipListContains(s16);
@@ -267,8 +267,8 @@ void modelFlagsApplyState(s16, s16, u8 *);
 void mapDistributeEntries(s32);
 void renderEntryListFree(s32);
 void func_8062D1A8(void);
-void func_8063DC58(void *);
-void func_8063DFEC(s32, u8 *);
+void csScriptLoad(void *);
+void csModelStateSetVars(s32, u8 *);
 void modelSkipListClear(void);
 
 void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
@@ -299,7 +299,7 @@ void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
     }
     D_807F6004 = 0;
     hashTableInit();
-    func_8063D930();
+    csModelIdTableReset();
     func_8065051C();
     if (arg0 != NULL) {
         if (sp90 > 0) {
@@ -327,7 +327,7 @@ void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
                                            entry->unk2F, entry->unk2E, &sp94);
                     modelFlagsApplyState(*(s16 *)((u8 *)&D_8076A0A8 + 2), ((ModelSlotInitView *)D_807F6000)[outCount].unk8A,
                                   (u8 *)(outCount * 0x90 + (s32)D_807F6000 + 0x8C));
-                    D_807F6240[entry->unk2A] = result;
+                    gCsModelIds[entry->unk2A] = result;
                     D_80747D70++;
                     outCount++;
                 }
@@ -341,11 +341,11 @@ void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
         mapDistributeEntries(sp94);
         renderEntryListFree(sp94);
         func_8062D1A8();
-        func_8063DC58(func_8066B0F8(0xA, D_8076A0A8, 1, 0));
+        csScriptLoad(func_8066B0F8(0xA, D_8076A0A8, 1, 0));
         n = *(s32 *)entry;
         rec = (u8 *)entry + 4;
         while (n--) {
-            func_8063DFEC(*(s32 *)rec, rec + 4);
+            csModelStateSetVars(*(s32 *)rec, rec + 4);
             rec += 0x24;
         }
         modelSkipListClear();
@@ -447,7 +447,7 @@ s32 modelSlotFindByType(s32 arg0, s32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, s1
 extern u8 D_807F6008;
 void faultSetMessage(s32, s32, s32, s32);
 f32 func_80636A44(s32);
-s16 func_8063D9D0(s16, u8);
+s16 csModelIdTableAlloc(s16, u8);
 
 s16 modelSlotAppend(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5) {
     s32 sp5C;
@@ -474,7 +474,7 @@ s16 modelSlotAppend(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5) {
     sp5A = modelSlotInit(D_80747D70, arg0, arg1, arg2, arg3, 0.0f, 0.0f, 0.0f, temp, arg2 - arg4, 1, 0, &sp5C);
     mapDistributeEntries(sp5C);
     renderEntryListFree(sp5C);
-    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk8A = func_8063D9D0(sp5A, arg5);
+    ((ModelSlotInitView *)D_807F6000)[D_80747D70].unk8A = csModelIdTableAlloc(sp5A, arg5);
     D_80747D70++;
     return sp5A;
 }
@@ -1835,7 +1835,7 @@ void proxPathRemoveActor(s16);
 void func_80605380(s16);
 void mapPurgeNodeList(s32, s16 *, u8);
 void renderEntryRemove(s32, s32, s32, u8 *);
-void func_8063DE68(void *);
+void csStateFree(void *);
 void modelSlotFree(u8 **);
 void modelSlotFreeTexAnimNodes(ModelSlot *);
 
@@ -1859,9 +1859,9 @@ u8 arg1;
     modelSlotFree(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk78);
     modelSlotFreeTexAnimNodes(&D_807F6000[arg0]);
     if (((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C != NULL) {
-        func_8063DE68(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C);
+        csStateFree(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C);
     }
-    D_807F6240[((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk8A] = -1;
+    gCsModelIds[((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk8A] = -1;
     actorClearEntrySlot(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk88);
     sp36 = ((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk88;
     hashTableRemove(sp36);
@@ -3684,12 +3684,12 @@ Gfx *spriteListRender(Gfx *arg0, SpriteGfxNode *arg1) {
 
 extern s16 D_807F6028;
 extern s16 D_807F60A8;
-extern u8 D_807F6938;
+extern u8 gCsTrackedModelCount;
 
 void modelPendingCountsReset(void) {
     D_807F6028 = 0;
     D_807F60A8 = 0;
-    D_807F6938 = 0;
+    gCsTrackedModelCount = 0;
 }
 
 typedef struct ModelPendingQueueEntry {
@@ -3701,8 +3701,8 @@ typedef struct ModelPendingQueueEntry {
 
 extern ModelPendingQueueEntry D_807F6030[];
 extern s16 D_807F60B0[];
-void func_8063E078(s32);
-void func_8063E0D4(s32, s16);
+void csStateTickTimers(s32);
+void csStateUpdate(s32, s16);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B4C0.s")
 
@@ -3731,8 +3731,8 @@ void modelPendingEntriesProcess(void) {
                         }
                         D_807F60B0[D_807F60A8] = *(s16 *)((u8 *)D_807F6000 + slot * 0x90 + 0x8A);
                         D_807F60A8++;
-                        func_8063E078(obj);
-                        func_8063E0D4(obj, D_807F6030[i].id);
+                        csStateTickTimers(obj);
+                        csStateUpdate(obj, D_807F6030[i].id);
                     }
                 }
             }
@@ -3779,7 +3779,7 @@ typedef struct ModelSlotSerializeView {
 } ModelSlotSerializeView; /* 0x90 */
 
 extern u8 *D_807F6010;
-extern u8 D_807F66F0[];
+extern u8 gCsVarsDirty[];
 extern u8 D_807F6902;
 s32 actorListGetSerializedSize(void);
 void actorListSerialize(void *);
@@ -3798,7 +3798,7 @@ void func_8063B8D8(u8 **arg0, s32 *arg1) {
     if (D_807F6010 != NULL) {
         heapFree(D_807F6010);
     }
-    size = D_80747D70 * 0x30 + 8; p = D_807F66F0; do { if (*p) { size += 0x24; count++; } p++; } while (p < &D_807F6902); size += actorListGetSerializedSize();
+    size = D_80747D70 * 0x30 + 8; p = gCsVarsDirty; do { if (*p) { size += 0x24; count++; } p++; } while (p < &D_807F6902); size += actorListGetSerializedSize();
     D_807F6010 = func_80610FE8(size);
     *(s32 *)D_807F6010 = D_80747D70;
     out = (ModelSlotSerializedOut *)(D_807F6010 + 4);
@@ -3827,16 +3827,16 @@ void func_8063B8D8(u8 **arg0, s32 *arg1) {
     }
     *(s32 *)out = count;
     dst = (u8 *)out + 4;
-    for (i = 0, p = D_807F66F0; i != 0x212; i++, p++) {
+    for (i = 0, p = gCsVarsDirty; i != 0x212; i++, p++) {
         if (*p != 0) {
             *(s32 *)dst = i;
-            memcpy(dst + 4, (u8 *)D_807F6000[hashTableLookup(D_807F6240[i])].unk7C + 0x14, 0x20);
+            memcpy(dst + 4, (u8 *)D_807F6000[hashTableLookup(gCsModelIds[i])].unk7C + 0x14, 0x20);
             dst += 0x24;
         }
     }
     actorListSerialize(dst);
     *arg0 = D_807F6010;
-    if (!D_807F66F0) {
+    if (!gCsVarsDirty) {
     }
     *arg1 = size;
 }
@@ -3965,7 +3965,7 @@ void modelSlotsApplyRecords(u8 *arg0, s32 arg1) {
     s32 pad[2];
 
     for (k = 0; k < arg1; k++) {
-        id = D_807F6240[*(s16 *)arg0];
+        id = gCsModelIds[*(s16 *)arg0];
         idx = hashTableLookup(id);
         memcpy(&snap, MODEL_SLOT_PACKED_ENTRY(idx)->unk7C, 0x9C);
         memcpy(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C, arg0 + 0xCC, 0x9C);
@@ -3998,11 +3998,11 @@ void modelSlotsApplyRecords(u8 *arg0, s32 arg1) {
 }
 
 void modelSlotOrFlags(s32 arg0, u8 arg1) {
-    ((u8 *)D_807F6000[hashTableLookup(D_807F6240[arg0])].unk20)[0x4E] |= arg1;
+    ((u8 *)D_807F6000[hashTableLookup(gCsModelIds[arg0])].unk20)[0x4E] |= arg1;
 }
 
 void modelSlotClearFlags(s32 arg0, u8 arg1) {
-    ((u8 *)D_807F6000[hashTableLookup(D_807F6240[arg0])].unk20)[0x4E] &= ~arg1;
+    ((u8 *)D_807F6000[hashTableLookup(gCsModelIds[arg0])].unk20)[0x4E] &= ~arg1;
 }
 
 typedef struct ModelSlotStateSub {

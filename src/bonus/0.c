@@ -101,8 +101,8 @@ s32 currentActorTestClearFlag(void);
 void func_806FB370(s32, s32, s32);
 void func_806A2A10(s32, s32, u8);
 s32 randomNonNegative(void);
-void func_8063DA78(s16, s32, s32);
-void func_8063DA40(s32, s32);
+void csModelStateSetByte(s16, s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void func_806C8E58(s32);
 void func_80614E78(void *, s32);
 void func_806D03BC(void);
@@ -164,7 +164,7 @@ void bonusControllerUpdate(void) {
         func_806A2A10(0xDC, 0x2A, LC->unkB);
         switch (sp6F) {
         case 14:
-            func_8063DA78((randomNonNegative() >> 15) % 32767 % 4, 1, 1);
+            csModelStateSetByte((randomNonNegative() >> 15) % 32767 % 4, 1, 1);
         case 0:
         case 4:
         case 13:
@@ -270,7 +270,7 @@ tail:
                             if (v3 == 0x27) {
                                 LB->unk15F += 1;
                                 if (LB->unk15F >= 3) {
-                                    func_8063DA40(2, 0xA);
+                                    csModelStateSetFirstByte(2, 0xA);
                                 }
                             } else {
                                 bonusEndLose(1, 1);

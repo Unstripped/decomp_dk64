@@ -386,7 +386,7 @@ s32 camStartPath(void *, s32, s32);
 void camSetZoneWeight(s32, s32);
 void camSetZoomLevel(void *, s32);
 s32 currentActorTestClearFlag();
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void func_80641874(s32, s32);
 void actorDrawAnimatedEffect(void);
 void func_8070D8C0(void *, s32, s32);
@@ -443,7 +443,7 @@ void func_806BE8BC(void) {
                 LgBA->unk128 += 5;
             }
             if (currentActorTestClearFlag() != 0) {
-                func_8063DA40(0x1F, 3);
+                csModelStateSetFirstByte(0x1F, 3);
                 actorClearMovementFlags(D_807FBB4C);
                 func_80726EE0(1);
                 D_807FDC98->unk46 |= 4;
@@ -525,7 +525,7 @@ void func_806BE8BC(void) {
                 case 1:
                     if (currentActorTestClearFlag() != 0) {
                         if (sp37 != 0) {
-                            func_8063DA40(0x57, 0xA);
+                            csModelStateSetFirstByte(0x57, 0xA);
                             LgBS->unk1A |= 0x8000;
                         } else {
                             ang = LgBA->unkE6 - 0x12C;
@@ -558,7 +558,7 @@ void func_806BE8BC(void) {
                         if (LgBA->unk4->unk64 != 0x308) {
                             hudSpawnTextScreen(2);
                         }
-                        func_8063DA40(0x1F, 1);
+                        csModelStateSetFirstByte(0x1F, 1);
                         LgBA->unk154 = 0x3C;
                     }
                 }
@@ -681,7 +681,7 @@ void actorClearMovementFlags(void *);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
 void camResumePath(void);
 s32 camStartPath(void *, s32, s32);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void func_8067B238(void *, void *, f32);
 void func_8068A2FC(void *);
 void func_8070D8C0(void *, s32, s32);
@@ -816,7 +816,7 @@ void func_806BF218(void) {
                             break;
                         case 1:
                             if (!(LA->unk60 & 0x02000000)) {
-                                func_8063DA40(0x3E, 0xA);
+                                csModelStateSetFirstByte(0x3E, 0xA);
                                 LA->unk154 = 4;
                                 LA->unk155 = 0;
                             }

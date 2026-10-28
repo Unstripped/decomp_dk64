@@ -241,7 +241,7 @@ extern R1C0C1Blob8 D_807506B8;
 extern u8 D_80720A7C;
 
 void sfxStopChannel(s32, s32);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void camResumePath(void);
 void func_80712524(s32, s32);
 void func_80714950(s32);
@@ -309,7 +309,7 @@ void func_806BD7B0(void) {
                         st->unk4->unk154 = 3;
                         st->unk4->unk155[0] = 0;
                         camStartPath(0, 1, 1);
-                        func_8063DA40(sp30.b[st->unk2], 2);
+                        csModelStateSetFirstByte(sp30.b[st->unk2], 2);
                     }
                 }
                 if (D_807FBB40->unk128 < 0x80) {

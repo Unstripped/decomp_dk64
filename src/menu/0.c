@@ -33,14 +33,14 @@ extern s32 D_80032F48[][6];
 extern MenuStruct_30A2 D_800330A2[];
 
 s32 func_805FF030(s32, s32);
-void func_8063DA40(s16, s32);
+void csModelStateSetFirstByte(s16, s32);
 void camStartPath(s32, s32, s32);
 
 void menuPlaySoundFromTable(MenuStruct_80024000 *arg0) {
     s32 temp_v1 = D_80032F48[func_805FF030(D_8076A0AB, 0)][arg0->unk1];
 
     if (temp_v1 == 0) {
-        func_8063DA40(D_800330A2[arg0->unk1A].unk0, 9);
+        csModelStateSetFirstByte(D_800330A2[arg0->unk1A].unk0, 9);
         arg0->unk0 = 4;
         arg0->unk1 = 0;
         return;

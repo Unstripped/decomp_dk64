@@ -116,7 +116,7 @@ extern Actor_BB40 *D_807FBB40;
 void playerStateQueueCallback();
 s32 sfxStopSlotSound(Actor_BB40 *, u8);
 void func_8070D8C0(Actor_BB40 *, s32, s32);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void flagSet(s32, s32, s32);
 void hudSpawnTextScreen(s32);
 void func_80026CA8(void);
@@ -526,7 +526,7 @@ void func_8002B76C(Struct_sp58 *arg0, void *arg1) {
                 var = func_8002B6C8(arg0, arg1);
                 currentActorClearFlag();
                 if (var == 0) {
-                    func_8063DA40(1, 0xA);
+                    csModelStateSetFirstByte(1, 0xA);
                     flagSet(0x145, 1, 0);
                 } else {
                     hudSpawnTextScreen(1);

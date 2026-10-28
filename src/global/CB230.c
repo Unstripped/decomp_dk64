@@ -184,7 +184,7 @@ void camRequestPathLength(void);
 s32 camStartPath(Actor *, s32, s32);
 void effectSpawnSparks(s32, s32);
 s32 randomNonNegative(void);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void actorDespawn(Actor *);
 void func_8072D13C(s32, s32);
 void func_8072DC7C(s32);
@@ -273,7 +273,7 @@ void func_806C6BC8(void) {
                         if (R1V->unk11C->unk154 == 5 || D_807FBB4C->unk58 != 3) {
                             actorScriptStart(D_807FBB40, 0x2BA);
                             func_80614D00(D_807FBB40, 0.0f, 0.0f);
-                            func_8063DA40(0x33, 0);
+                            csModelStateSetFirstByte(0x33, 0);
                             actorDespawn((Actor *)R1V->unk11C);
                             R1V->unk155 = 1;
                         }

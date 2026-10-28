@@ -414,10 +414,10 @@ void func_806C4E8C(void) {
     func_806FB370(5, 0, 0);
 }
 
-void func_8063DA40();
+void csModelStateSetFirstByte();
 
 void func_806C4EB4(void) {
-    func_8063DA40(0x2C, 0xB);
+    csModelStateSetFirstByte(0x2C, 0xB);
     func_806C4E8C();
 }
 
@@ -483,7 +483,7 @@ typedef struct LgC4F5CS90 {
 void behaviourSetAnimIds(s32, s32, s32);
 void func_806BFBF4(void);
 s32 currentActorTestClearFlag(void);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void actorScriptStart(Actor *, s32);
 void func_8070E8DC(s32);
 s32 camIsCutsceneActive(void);
@@ -517,7 +517,7 @@ void func_806C4F5C(void) {
         case 30:
             func_806BFBF4();
             if (currentActorTestClearFlag() != 0) {
-                func_8063DA40(0x2D, 0x14);
+                csModelStateSetFirstByte(0x2D, 0x14);
                 LgA->unk12A = 0x3E8;
                 D_807FDC98->unk46 |= 0x24;
                 func_8070D8C0(D_807FBB40, 0xF, 0);
@@ -563,7 +563,7 @@ void func_806C4F5C(void) {
                     break;
                 case 3:
                     if (camIsCutsceneActive() == 0) {
-                        func_8063DA40(0x2C, 0x1E);
+                        csModelStateSetFirstByte(0x2C, 0x1E);
                         *sp28 = 0x78;
                         LgS->unk2C = 0xA;
                         LgA->unk154 = 2;
@@ -586,7 +586,7 @@ void func_806C4F5C(void) {
                     LgA->unk154 = 0x2A;
                     LgA->unk155 = 0;
                 } else if (LgA->unkF0 == 1) {
-                    func_8063DA40(0xEB, 0xA);
+                    csModelStateSetFirstByte(0xEB, 0xA);
                     LgA->unkF0++;
                 }
                 LgA->unk80 += 3.0f;

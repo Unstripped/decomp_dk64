@@ -321,7 +321,7 @@ void camSetSecondTarget(s32, s32, s32);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
 void actorUpdateModelMatrix(void *, s32);
-void func_8063DA40(s16, s32);
+void csModelStateSetFirstByte(s16, s32);
 f32 effectNodeGetValue(s32);
 void screenShakeStop(void);
 void actorApplyVelocityCustom(void *, f32, f32);
@@ -450,7 +450,7 @@ void func_8002A92C(void) {
     } else if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (actorTableContains(D_807FBB70.unk1FC) != 0) && (D_807FBB70.unk1FC->unk5C == 1)) {
         func_806D0468(D_807FBB4C, 2);
         func_8002A41C(1);
-        func_8063DA40(0, 0xA);
+        csModelStateSetFirstByte(0, 0xA);
         camSetFollowMode(gCamActor);
         camStartPath(D_807FBB40, 8, 1);
         D_807FBB40->unk154 = 0x37;
@@ -580,7 +580,7 @@ void func_8002A92C(void) {
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
-                func_8063DA40(0, 1);
+                csModelStateSetFirstByte(0, 1);
                 D_807FBB40->unk154 = sp84[state->unk15++];
                 D_807FBB40->unk155 = 0;
             }

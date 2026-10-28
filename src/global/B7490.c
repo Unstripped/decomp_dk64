@@ -95,7 +95,7 @@ void func_806B49B0(u8, s16, s16);
 void actorSpawnNodeEntryAtActor(s32, s32);
 void actorAttachChildCallbacks(void);
 void sfxAllocateChannel(s32, f32);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void actorPlaceAttachedChildren(s32);
 void func_8072D9D4(void);
 void camStartPath(void *, s32, s32);
@@ -876,7 +876,7 @@ void func_806B4DCC(void) {
         actorScriptStart(D_807FBB40, 0x248);
         actorAttachChildCallbacks();
         sfxAllocateChannel(0x14, 1.0f);
-        func_8063DA40(0x7F, 0xA);
+        csModelStateSetFirstByte(0x7F, 0xA);
     }
     temp_v0_2 = D_807FBB40->unk154;
     if ((temp_v0_2 != 0x37) && (temp_v0_2 != 0x40)) {
@@ -1096,7 +1096,7 @@ void func_806B54BC(void) {
                 if (D_8076A0A8 == 0xA7) {
                     D_80744508 = D_80744508 + 1;
                     if ((D_80744508 == 5) && (flagGet(0x15F, 0) == 0)) {
-                        func_8063DA40(4, 0xA);
+                        csModelStateSetFirstByte(4, 0xA);
                     }
                 }
             }

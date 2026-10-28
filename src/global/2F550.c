@@ -463,13 +463,13 @@ extern MapVisNode *D_807F5E60;
 
 void modelPendingCountsReset(void);
 void modelPendingEntriesProcess(void);
-void func_80641A78(void);
+void csFreeTrackedModels(void);
 
 void func_8062BAE4(void) {
     modelPendingCountsReset();
     func_8062BB2C(D_807F5DE4, D_807F5E60, 1);
     modelPendingEntriesProcess();
-    func_80641A78();
+    csFreeTrackedModels();
 }
 
 void func_8063B4C0(MapBspNode *, u8);

@@ -382,7 +382,7 @@ void flagSet(s32, s32, s32);
 void camStartPath(void *, s16, s32);
 void camResumePath(void);
 void func_805FF544(void);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 s32 func_806F8AD4(s32, s32);
 void hudSpawnTextScreen(s32);
 s32 playerStateQueueCallback(s32, s32, s32);
@@ -551,7 +551,7 @@ void func_80028440(void) {
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                func_8063DA40(0x62, 0xA);
+                csModelStateSetFirstByte(0x62, 0xA);
                 temp_s1[0x35] = temp_s1[0x35] + 1;
             }
             break;

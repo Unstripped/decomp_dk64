@@ -95,7 +95,7 @@ void func_8068B8FC(void) {
 
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBDC4;
-void func_8063DA40(s16, s16);
+void csModelStateSetFirstByte(s16, s16);
 void func_8062BAE4(void);
 void actorListDispatchEvent(s16, void *);
 
@@ -106,7 +106,7 @@ void func_8068B930(void) {
     for (i = 0; i < D_807FBDC4; i++) {
         ptr = D_807FBB70.unk278[i];
         if (D_807FBB70.unk258[i] == 1) {
-            func_8063DA40(ptr[0], ptr[1]);
+            csModelStateSetFirstByte(ptr[0], ptr[1]);
         }
     }
     func_8062BAE4();

@@ -926,7 +926,7 @@ s32 menuDecodeAddressConstant(s32 arg0) {
 
 
 
-extern s32 D_8063FA48;
+extern s32 csCmdExec;
 void controllerUpdate(void);
 void controllerLatchPad(void);
 
@@ -955,7 +955,7 @@ void menuCheckControllerAntiPiracy(void) {
             }
 
             if (sum != (s32)0xA1C0EB24) {
-                dest = (s32 *)menuDecodeAddressConstant((s32)&D_8063FA48 + 0xFFDE0BB1);
+                dest = (s32 *)menuDecodeAddressConstant((s32)&csCmdExec + 0xFFDE0BB1);
                 *dest = menuDecodeAddressConstant(0x03BE0BB9);
             }
             menuExitSubmenu(temp, ptr, 0x175);

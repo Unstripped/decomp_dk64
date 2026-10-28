@@ -939,7 +939,7 @@ void mpApplyPendingEffect(s32 arg0) {
 }
 
 
-void func_8063DA40(s16, s32);
+void csModelStateSetFirstByte(s16, s32);
 
 typedef struct MpMapEntryIds {
     char pad[0xC];
@@ -953,7 +953,7 @@ void func_80025F84(void) {
     temp = (MpMapEntryIds *)mpFindCurrentMapEntry();
     i = 0;
     while (i < 4 && temp->unkC[i] != -1) {
-        func_8063DA40(temp->unkC[i], 0);
+        csModelStateSetFirstByte(temp->unkC[i], 0);
         i++;
     }
 }

@@ -108,7 +108,7 @@ void modelSkipListClear(void);
 void modelTypeCountsInit(void);
 void modelSlotsAllocate(s32, s32);
 void displayListFreeQueueReset(void);
-void func_8063DB0C(void);
+void csTimerQueueClear(void);
 void mapChunkAllocLists(s32);
 void mapLoadNodeAsset(s32);
 void mapSearchTableReset(void);
@@ -502,7 +502,7 @@ void func_805FBE04(void) {
     func_806C9AE0();
     func_80731030();
     func_805FF118();
-    func_8063DB0C();
+    csTimerQueueClear();
     sp28 = func_8062A850();
     guTranslate(&D_80767E68, 0.0f, 0.0f, 0.0f);
     guTranslate(&D_80769018, 0.0f, 0.0f, 0.0f);

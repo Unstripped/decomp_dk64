@@ -144,7 +144,7 @@ s32 camIsCutsceneActive(void);
 void camStartPath(void *, s32, s32);
 s32 currentActorTestClearFlag(void);
 void actorUpdateModelMatrix(void *, s32);
-void func_8063DA40();
+void csModelStateSetFirstByte();
 void lightSetColor(f32, f32, f32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void effectSpawnJointBeam(s32, s32, s32, s32);
@@ -261,12 +261,12 @@ void func_80029468(void) {
         }
         break;
     case 0x2C:
-        func_8063DA40(sp44[sp4C->unk15++], 0xA);
+        csModelStateSetFirstByte(sp44[sp4C->unk15++], 0xA);
         ACTOR->unk154 = sp44[sp4C->unk15++];
         ACTOR->unk155 = 0;
         break;
     case 0x2B:
-        func_8063DA40(sp44[sp4C->unk15++], 0);
+        csModelStateSetFirstByte(sp44[sp4C->unk15++], 0);
         ACTOR->unk154 = sp44[sp4C->unk15++];
         ACTOR->unk155 = 0;
         break;
@@ -301,11 +301,11 @@ void func_80029468(void) {
                 }
                 break;
             case 4:
-                func_8063DA40(0, 0);
-                func_8063DA40(6, 0);
-                func_8063DA40(7, 0);
-                func_8063DA40(9, 0);
-                func_8063DA40(0xB, 0);
+                csModelStateSetFirstByte(0, 0);
+                csModelStateSetFirstByte(6, 0);
+                csModelStateSetFirstByte(7, 0);
+                csModelStateSetFirstByte(9, 0);
+                csModelStateSetFirstByte(0xB, 0);
                 sp4C->unk15 = 0;
                 sp4C->unk14++;
                 sp44 = D_80035A00[sp4C->unk14];

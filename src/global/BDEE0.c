@@ -879,7 +879,7 @@ void camSetTargetFocusActor(s32, void *);
 void camReturnToFollow(s32, void *);
 void func_80726EE0(s32);
 void func_806D0468(void *, s32);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void func_80686F90(s32, s16, s16);
 void sfxStopChannel();
 
@@ -1015,7 +1015,7 @@ void func_806BB874(void) {
             }
             D_807FBB40->unk154++;
             sfxStopChannel(0x68, 0);
-            func_8063DA40(0x7C, 0xA);
+            csModelStateSetFirstByte(0x7C, 0xA);
             D_807FBB4C->unk12A = 0x1F4;
             D_807FBB4C->unk60 &= ~0x400;
             D_807FBB40->unk144 = 0x24;

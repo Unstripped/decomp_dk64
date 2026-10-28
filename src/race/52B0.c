@@ -320,7 +320,7 @@ f32 func_8002978C(void);
 void func_8002DE78(void *, s32, void *, void *);
 void func_8002E644(void *);
 void func_805FF544(void);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s32, s32);
 void func_8070D8C0(void *, s32, s32);
 void func_8072881C(s32, void *);
 void hudSpawnTextScreen(s32);
@@ -414,7 +414,7 @@ void func_8002A0AC(void) {
                 sp2C = func_8002A080((s32)s0, sp2C);
                 currentActorClearFlag();
                 if (sp2C == 0) {
-                    func_8063DA40(0x3B, 0xA);
+                    csModelStateSetFirstByte(0x3B, 0xA);
                     flagSet(0xA5, 1, 0);
                 } else {
                     hudSpawnTextScreen(1);
