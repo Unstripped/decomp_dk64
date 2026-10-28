@@ -24,7 +24,7 @@ typedef struct Menu3A_Struct7E60 {
     s8 unk16;
 } Menu3A_Struct7E60;
 
-void func_80030340();
+s32 func_80030340();
 void camEndPath(s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 extern s8 D_80033734;
@@ -51,7 +51,7 @@ void func_80027E60(void *arg0, s32 arg1) {
     }
 }
 
-s32 func_80027F34(u8 arg0, s32 arg1) {
+s32 func_80027F34(void *arg0, s32 arg1) {
     return arg1;
 }
 
@@ -66,7 +66,7 @@ extern Menu3A_Actor *D_807FBB4C;
 extern s8 D_80033734;
 extern s32 D_807FBB60;
 
-void menuResetCameraAndFlags(void *arg0, u8 arg1) {
+void menuResetCameraAndFlags(void *arg0, s32 arg1) {
     f32 *temp_v0 = *(f32 **)((u8 *)arg0 + 0x174);
     D_807FBB4C->unk7C = 109.0f;
     D_807FBB4C->unk80 = 6.0f;
@@ -520,7 +520,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 
 #ifdef NON_MATCHING
-void func_8002A638(void *arg0, Gfx *arg1) {
+Gfx *func_8002A638(void *arg0, Gfx *arg1) {
     Menu3A_Struct174 *temp_s2 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
     s32 idx;
     s32 i;
@@ -721,7 +721,7 @@ extern s8 D_80745840;
 extern s8 D_80745844;
 s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
 s32 func_806FC530(s32, s16, s16, s16, void *, s32);
-s32 func_8002F980(s32, void *, void *, s8, u32 *, s16, f32 *, f32, s16);
+s32 func_8002F980(s32, void *, void *, s32, u32 *, s16, f32 *, f32, s16);
 
 s32 menuFormatOptionValues(void *arg0, s32 arg1) {
     void *sp64;
@@ -785,7 +785,7 @@ typedef struct Menu3B_Actor {
 
 extern u8 D_80720D38;
 
-void func_8002D7EC(Menu3B_Actor *arg0, s8 arg1) {
+void func_8002D7EC(Menu3B_Actor *arg0, s32 arg1) {
 
     Menu3B_Sub174 *temp_a0 = arg0->unk174;
     temp_a0->unk17 = 0;
@@ -815,7 +815,6 @@ extern s32 *D_80033F28;
 extern s8 D_807444C0;
 extern s8 D_8074452C;
 extern u8 D_80744530;
-s32 func_8002F980(s32, void *, void *, s8, u32 *, s16, f32 *, f32, s16);
 
 s32 func_8002DBDC(Menu3B_Actor *arg0, s32 arg1) {
     void *sp6C = arg0->unk174;
@@ -870,7 +869,7 @@ s32 func_8002DBDC(Menu3B_Actor *arg0, s32 arg1) {
     return arg1;
 }
 
-void func_8002DEE8(Menu3B_Actor *arg0, s8 arg1) {
+void func_8002DEE8(Menu3B_Actor *arg0, s32 arg1) {
     Menu3B_Sub174 *temp_a0 = arg0->unk174;
     temp_a0->unk17 = 0;
     func_80030894(temp_a0, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
@@ -946,11 +945,74 @@ void menuSaveHighScores(void) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/D_80033BE8.s")
 
+#ifdef NON_MATCHING
+extern s8 D_80033F60;
+extern s8 D_800339A8;
+extern s8 D_80033F61;
+extern s16 D_80744518;
+extern char *D_800339AC[];
+extern u32 D_8076A064;
+
+s32 func_8002F284(void *arg0, s32 arg1) {
+    void *temp_s0;
+    f32 sp140;
+    f32 sp13C;
+    s32 ft4;
+    Menu3B_Struct_6 *e;
+    Menu3B_Struct_6 *sp130;
+    char sp68[0xC8];
+    s16 var_s3;
+    s16 i;
+
+    temp_s0 = *(void **)((u8 *)arg0 + 0x174);
+    D_807FBB60 &= ~0x10;
+    func_800317E8(temp_s0, 160.0f, 20.0f, &sp140, &sp13C, 2, 0, 1.0f);
+    arg1 = func_806FC530(arg1, 1, 0x280, (s16)(sp13C * 4.0), ((void **)D_80033F28)[D_800339A8 + 0x5F], 0x81);
+    func_800317E8(temp_s0, 160.0f, 205.0f, &sp140, &sp13C, 2, 0, 1.0f);
+    i = 0;
+    var_s3 = (s16)(sp13C * 4.0);
+    if (D_80033F60 >= 0) {
+        _sprintf(sp68, "%s", ((void **)D_80033F28)[0x63]);
+        i = 1;
+    } else if (D_80033F60 == -2) {
+        _sprintf(sp68, "%s %d.", ((void **)D_80033F28)[0x64], D_80744518);
+        i = 1;
+    }
+    if (i != 0) {
+        arg1 = (s32)hudDrawScaledText((Gfx *)arg1, 0x280, var_s3, 0.6f, sp68);
+    }
+    i = 0;
+    func_800317E8(temp_s0, 20.0f, 120.0f, &sp140, &sp13C, 2, 0, 2.0f);
+    var_s3 = 0xC8;
+    ft4 = (s16)(s32)(sp140 * 4.0f);
+    if (D_800339A8 == 0) {
+        sp130 = D_80744548;
+    } else {
+        sp130 = D_80744568;
+    }
+    do {
+        _sprintf(sp68, "%d.", i + 1);
+        e = (Menu3B_Struct_6 *)((u8 *)sp130 + i * 6);
+        arg1 = func_806FC530(arg1, 1, (s16)(ft4 + 0x50), var_s3, sp68, 1);
+        _sprintf(sp68, "%c %c %c", e->unk2, e->unk3, e->unk4);
+        arg1 = func_806FC530(arg1, 0x81, (s16)(ft4 + 0x118), var_s3, sp68, 1);
+        _sprintf(sp68, "%d", e->unk0);
+        arg1 = func_806FC530(arg1, 0x81, (s16)(0x3E8 - ft4), var_s3, sp68, 1);
+        if (i == D_80033F60 && (D_8076A064 & 0x1F) < 0x14) {
+            arg1 = func_806FC530(arg1, 0x81, (s16)(ft4 + 0x118), var_s3 + 0x34, D_800339AC[D_80033F61], 1);
+        }
+        var_s3 += 0x6C;
+    } while (++i < 5);
+    return arg1;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002F284.s")
+#endif
 
 extern s8 D_80033F60;
 
-void func_8002F6C8(Menu3B_Actor *arg0, s8 arg1) {
+void func_8002F6C8(Menu3B_Actor *arg0, s32 arg1) {
     Menu3B_Sub174 *sp2C = arg0->unk174;
 
     if (D_80033F60 == -1) {
@@ -1020,7 +1082,44 @@ void menuUpdateCameraPositions(void) {
     D_807FC924->unk230 = D_807FBB4C->unk84 - 100.0f;
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002F980.s")
+extern char D_800339C4[];
+extern f32 D_80033F44;
+
+s32 func_8002F980(s32 arg0, void *arg1, void *arg2, s32 arg3, u32 *arg4, s16 arg5, f32 *arg6, f32 arg7, s16 arg8) {
+    s32 idx = ((Menu3B_Sub174 *)arg1)->unk17;
+    f32 v;
+    f32 sp3C;
+    f32 sp38;
+    s16 y;
+
+    if (((Menu3B_Sub174 *)arg1)->unk4 != 0.0f) {
+        if (((Menu3B_Sub174 *)arg1)->unk4 > 0.5f) {
+            idx++;
+        }
+        if (idx >= arg3) {
+            idx = 0;
+        }
+    }
+    v = ((Menu3B_Sub174 *)arg1)->unk4 - 0.5f;
+    if (v < 0.0f) {
+        v = -v;
+    }
+    v = 0.5f - v;
+    v = v * 800.0f;
+    if (D_80033F44 < 0.0f) {
+        v = -v;
+    }
+    func_800317E8(arg1, (f32)(v + 160.0), arg7, &sp3C, &sp38, 2, 0, 2.0f);
+    y = (s16)(sp38 * 4.0f);
+    if (arg8 & (1 << idx)) {
+        arg0 = func_806FC530(arg0, arg5, (s16)(sp3C * 4.0f), y, *(void **)((u8 *)arg2 + idx * 4), 0x81);
+    } else {
+        arg0 = func_806FC530(arg0, arg5, (s16)(sp3C * 4.0f), y, D_800339C4, 0x81);
+    }
+    *arg6 = v;
+    *arg4 = idx;
+    return arg0;
+}
 
 extern f32 D_80033F68[];
 extern f32 D_80033F80[];
@@ -1098,7 +1197,6 @@ void menuHandleScrollInput(Menu3B_Sub174 *arg0, s32 arg1, s32 arg2) {
     }
 }
 
-extern f32 D_80033F44;
 
 void menuUpdateScrollAnimation(Menu3B_Sub174 *arg0, s32 arg1) {
     if (D_80033F44 > 0.0f) {
@@ -1137,7 +1235,221 @@ void menuInitGfxState(Gfx *glistp, s32 arg1) {
     func_80030340(arg1, 1, glistp, 0);
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80030340.s")
+extern s8 D_800337F8;
+extern f32 D_80033F3C;
+extern f32 D_80033F40;
+extern u8 D_8076A0D0[];
+extern void *D_807ECDEC;
+void func_80027FAC();
+s32 func_800286C8();
+void func_80028834();
+s32 func_80028D3C();
+void func_80028EA8();
+s32 func_800291CC();
+void func_800297B8();
+Gfx *func_80029BB4();
+void func_80029D30();
+Gfx *func_8002A088();
+Gfx *func_8002A638();
+void func_8002AB80();
+void func_8002ADC8();
+s32 func_8002B708();
+void func_8002C0C8();
+s32 func_8002C634();
+void func_8002C91C();
+void func_8002CFA4();
+void func_8002D8AC();
+void func_8002DFA8();
+s32 func_8002E420();
+void func_8002E8B8();
+void func_8002EF68();
+void lightSetColor(f32, f32, f32, s32);
+
+s32 func_80030340(void *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    void *temp_t0 = *(void **)((u8 *)arg0 + 0x174);
+    s32 sp18 = 0;
+
+    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 0x8000) {
+        sp18 = 1;
+    }
+    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 0x4000) {
+        sp18 |= 2;
+    }
+    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 8) {
+        sp18 |= 0x40;
+    }
+    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 4) {
+        sp18 |= 0x80;
+    }
+    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 0x2000) {
+        sp18 |= 0x100;
+    }
+    if (*((s8 *)D_807ECDEC + 2) < -0x28) {
+        sp18 |= 4;
+    } else if (*((s8 *)D_807ECDEC + 2) >= 0x29) {
+        sp18 |= 8;
+    }
+    if (*((s8 *)D_807ECDEC + 3) < -0x28) {
+        sp18 |= 0x20;
+    } else if (*((s8 *)D_807ECDEC + 3) >= 0x29) {
+        sp18 |= 0x10;
+    }
+    switch (arg1) {
+    case 0:
+        D_80033F38 = 1;
+        D_80033F44 = 0.0f;
+        D_80033F40 = 0.0f;
+        D_80033F3C = 0.0f;
+        D_807FBB60 &= 0xFFFEFFFF;
+        *(s16 *)((u8 *)temp_t0 + 0xC) = 0;
+        *(s16 *)((u8 *)temp_t0 + 0xE) = 0;
+        D_800337F8 = 1;
+        break;
+    case 1:
+        break;
+    case 2:
+        D_8076A0D0[*(s8 *)((u8 *)temp_t0 + 0x12)] = *(s8 *)((u8 *)temp_t0 + 0x17);
+        lightSetColor(1.0f, 1.0f, 1.0f, 0);
+        break;
+    }
+    switch (*(u8 *)((u8 *)temp_t0 + 0x12)) {
+    case 0:
+        if (arg1 == 1) {
+            return func_80027F34(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            func_80027E60(arg0, sp18);
+        } else {
+            menuResetCameraAndFlags(arg0, arg3);
+        }
+        break;
+    case 1:
+        if (arg1 == 1) {
+            return func_800286C8(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            func_80027FAC(arg0, sp18);
+        } else {
+            func_80028834(arg0, arg3);
+        }
+        break;
+    case 2:
+        if (arg1 == 1) {
+            return func_80028D3C(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            menuHandleSelectionInput(arg0, sp18);
+        } else {
+            func_80028EA8(arg0, arg3);
+        }
+        break;
+    case 3:
+        if (arg1 == 1) {
+            return func_800291CC(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            menuHandleConfirmationInput(arg0, sp18);
+        } else {
+            func_800297B8(arg0, arg3);
+        }
+        break;
+    case 4:
+        if (arg1 == 1) {
+            return (s32)func_80029BB4(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            menuHandleFileSelectInput(arg0, sp18);
+        } else {
+            func_80029D30(arg0, arg3);
+        }
+        break;
+    case 5:
+        if (arg1 == 1) {
+            return (s32)func_8002A088(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            menuMysteryHandleInput(arg0, sp18);
+        } else {
+            func_8002A36C(arg0, arg3);
+        }
+        break;
+    case 6:
+        if (arg1 == 1) {
+            return (s32)func_8002A638(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            menuBossReplayHandleInput(arg0, sp18);
+        } else {
+            func_8002AB80(arg0, arg3);
+        }
+        break;
+    case 7:
+        if (arg1 == 1) {
+            return func_8002B708(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            func_8002ADC8(arg0, sp18);
+        } else {
+            func_8002C0C8(arg0, arg3);
+        }
+        break;
+    case 11:
+        if (arg1 == 1) {
+            return func_8002C634(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            func_8002C584(arg0, sp18);
+        } else {
+            func_8002C91C(arg0, arg3);
+        }
+        break;
+    case 8:
+        if (arg1 == 1) {
+            return menuFormatOptionValues(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            func_8002CFA4(arg0, sp18);
+        } else {
+            func_8002D7EC(arg0, arg3);
+        }
+        break;
+    case 9:
+        if (arg1 == 1) {
+            return func_8002DBDC(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            func_8002D8AC(arg0, sp18);
+        } else {
+            func_8002DEE8(arg0, arg3);
+        }
+        break;
+    case 10:
+        if (arg1 == 1) {
+            return func_8002E420(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            func_8002DFA8(arg0, sp18);
+        } else {
+            func_8002E8B8(arg0, arg3);
+        }
+        break;
+    case 12:
+        if (arg1 == 1) {
+            return func_8002F284(arg0, arg2);
+        }
+        if (arg1 == 2) {
+            func_8002EF68(arg0, sp18);
+        } else {
+            func_8002F6C8(arg0, arg3);
+        }
+        break;
+    }
+    if (D_80033F50 > 0) {
+        D_80033F50--;
+    }
+    D_80033670 = sp18;
+    return arg2;
+}
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80030894.s")
 
