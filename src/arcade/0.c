@@ -1386,7 +1386,88 @@ void func_800289F0(void) {
     D_8004BC88[5].vy = t;
 }
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800290F0.s")
+extern ArcadeEntity D_8004A678;
+extern ArcadeEntity D_8004A5B8;
+extern ArcadeEntity D_8004A3F8;
+extern ArcadeEntity D_8004A498;
+extern ArcadeEntity D_8004C0D0;
+extern ArcadeEntity D_8004C0B0;
+extern ArcadeEntity D_8004C090;
+extern ArcadeEntity D_8004C070;
+extern ArcadeEntity D_8004C050;
+extern ArcadeEntity D_8004C030;
+extern ArcadeEntity D_8004C010;
+extern ArcadeEntity D_8004BFF0;
+extern u8 D_80033C48[];
+void func_800290F0(void) {
+    s32 idx;
+
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A678;
+    idx = arcadeFindFreeEntity();
+    D_8004BCD0[idx] = D_8004A678;
+    D_8004BCD0[idx].unk0 = 244.0f;
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4D8;
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4B8;
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A518;
+    D_8004BCD0[arcadeFindFreeEntity()] = D_8004A5B8;
+    if (D_8004A76C == 2 && D_8004A740 != 0) {
+        D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4F8;
+    }
+    idx = arcadeFindFreeEntity();
+    D_8004BCD0[idx] = D_8004A438;
+    D_8004BCD0[idx].unk14 = D_80033C48;
+    D_8004C71F = arcadeFindFreeEntity();
+    D_8004BCD0[D_8004C71F] = D_8004A398;
+    D_8004C170 = D_8004A458;
+    D_8004BCD0[0x25].unk0 = 152.0f;
+    D_8004BCD0[0x25].unk4 = 127.0f;
+    D_8004C150 = D_8004A3F8;
+    D_8004BCD0[0x24].unk0 = 152.0f;
+    D_8004BCD0[0x24].unk4 = 113.0f;
+    D_8004C130 = D_8004A618;
+    D_8004BCD0[0x23].unk14 = D_80038FE8;
+    D_8004BCD0[0x23].unk0 = 172.0f;
+    D_8004C110 = D_8004A618;
+    D_8004BCD0[0x22].unk4 = 167.0f;
+    D_8004BCD0[0x22].unk0 = 116.0f;
+    D_8004C0F0 = D_8004A618;
+    D_8004BCD0[0x21].unk14 = D_800391F0;
+    D_8004BCD0[0x21].unk4 = 167.0f;
+    D_8004BCD0[0x21].unk0 = 252.0f;
+    D_8004C0D0 = D_8004A638;
+    D_8004BCD0[0x20].unk0 = 68.0f;
+    D_8004BCD0[0x20].unk4 = 148.0f;
+    D_8004C0B0 = D_8004A638;
+    D_8004BCD0[0x1F].unk0 = 156.0f;
+    D_8004BCD0[0x1F].unk4 = 188.0f;
+    D_8004C090 = D_8004A498;
+    D_8004C070 = D_8004A498;
+    D_8004BCD0[0x1D].unk1A = 1;
+    D_8004BCD0[0x1D].unk1B = 1;
+    D_8004BCD0[0x1D].unk1C = 0;
+    D_8004BCD0[0x1D].unk0 = 256.0f;
+    D_8004BCD0[0x1D].unk4 = 84.0f;
+    D_8004C050 = D_8004A498;
+    D_8004BCD0[0x1C].unk1A = 1;
+    D_8004BCD0[0x1C].unk1B = 1;
+    D_8004BCD0[0x1C].unk1C = 1;
+    D_8004BCD0[0x1C].unk4 = 124.0f;
+    D_8004BCD0[0x1C].unk0 = 139.0f;
+    D_8004C030 = D_8004A498;
+    D_8004BCD0[0x1B].unk4 = 124.0f;
+    D_8004BCD0[0x1B].unk1C = 2;
+    D_8004BCD0[0x1B].unk0 = 165.0f;
+    D_8004C010 = D_8004A498;
+    D_8004BCD0[0x1A].unk4 = 204.0f;
+    D_8004BCD0[0x1A].unk1C = 3;
+    D_8004BCD0[0x1A].unk0 = 48.0f;
+    D_8004BFF0 = D_8004A498;
+    D_8004BCD0[0x19].unk1A = 1;
+    D_8004BCD0[0x19].unk1B = 1;
+    D_8004BCD0[0x19].unk0 = 256.0f;
+    D_8004BCD0[0x19].unk4 = 204.0f;
+    D_8004BCD0[0x19].unk1C = 3;
+}
 
 void arcadeInitStage(void) {
     s32 i;
