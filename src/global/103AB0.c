@@ -267,17 +267,244 @@ u16 func_80700088(f32 arg0, u16 arg1) {
     return ((u8)((((arg1 & 0xF800) >> 11) - 0x1F) * arg0 + 31.0f) << 11) + ((u8)((((arg1 & 0x7C0) >> 6) - 0x1F) * arg0 + 31.0f) << 6) + ((u8)((((arg1 & 0x3E) >> 1) - 0x1F) * arg0 + 31.0f) << 1) + lsb;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807002AC.s")
+s32 func_80610FE8(s32);
+void heapFreeDeferred(void *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_8070033C.s")
+void func_807002AC(u16 *arg0, s16 **arg1, f32 arg2) {
+    s16 *var_s0;
+    s16 var_s1;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_8070068C.s")
+    *arg1 = (s16 *)func_80610FE8(0xA000);
+    heapFreeDeferred(*arg1);
+    var_s0 = *arg1;
+    for (var_s1 = 0; var_s1 < 0x5000; var_s1++) {
+        *var_s0++ = func_80700088(arg2, *arg0++);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807007B8.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    u8 unkC;
+    u8 unkD;
+    u8 unkE;
+    u8 unkF;
+} Ab2TrailPoint;
+
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+} Ab2Vec3;
+
+typedef struct {
+    u8 unk0[0x210];
+    f32 unk210;
+    f32 unk214;
+    f32 unk218;
+    f32 unk21C;
+    f32 unk220;
+    f32 unk224;
+} Ab2P8070033C;
+
+extern u8 D_80754BC0;
+extern Ab2TrailPoint D_807FD808[2];
+extern f32 D_807FD840[2][3][3];
+extern f32 D_807FD848[2][3][3];
+void vec3fNormalize(f32 *, Ab2Vec3);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+
+#define Ab2PL ((Ab2P8070033C *)D_807FC924)
+#define Ab2DIST ((Ab2PL->unk224 - arg2) * (Ab2PL->unk224 - arg2)) + (((Ab2PL->unk21C - arg0) * (Ab2PL->unk21C - arg0)) + ((Ab2PL->unk220 - arg1) * (Ab2PL->unk220 - arg1)))
+
+void func_8070033C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, u8 arg8, u8 arg9) {
+    f32 sp84;
+    f32 sp80;
+    u8 var_v1;
+    Ab2Vec3 sp70;
+    Ab2Vec3 sp64;
+    Ab2Vec3 sp58;
+    f32 temp_fv1;
+    f32 pad0;
+    f32 pad1;
+
+    if (D_80754BC0 < 2) {
+        var_v1 = 1;
+        if (arg6 != 0.0f) {
+            sp70.x = arg3 - arg0;
+            sp70.y = arg4 - arg1;
+            sp70.z = arg5 - arg2;
+            vec3fNormalize(&sp58.x, sp70);
+            sp70.x = Ab2PL->unk210 - arg0;
+            sp70.y = Ab2PL->unk214 - arg1;
+            sp70.z = Ab2PL->unk218 - arg2;
+            vec3fNormalize(&sp64.x, sp70);
+            temp_fv1 = (sp64.x * sp58.x) + (sp64.y * sp58.y) + (sp64.z * sp58.z);
+            if ((f64)temp_fv1 < 0.0) {
+                temp_fv1 = 0.0f;
+            }
+            if (temp_fv1 < arg6) {
+                var_v1 = 0;
+            }
+        }
+        if (var_v1 != 0) {
+            D_807FD848[D_807444FC][D_80754BC0][0] = sqrtf(Ab2DIST) > 995.0f ? 995.0f : sqrtf(Ab2DIST);
+            camProjectToScreen(arg0, arg1, arg2, &sp84, &sp80, 0, 4.0f, 0);
+            D_807FD840[D_807444FC][D_80754BC0][0] = (f32)((f64)sp84 * 0.25);
+            D_807FD840[D_807444FC][D_80754BC0][1] = (f32)((f64)sp80 * 0.25);
+            D_807FD808[D_80754BC0].unk0 = arg0;
+            D_807FD808[D_80754BC0].unk4 = arg1;
+            D_807FD808[D_80754BC0].unk8 = arg2;
+            D_807FD808[D_80754BC0].unkC = arg7;
+            D_807FD808[D_80754BC0].unkD = arg8;
+            D_807FD808[D_80754BC0].unkE = arg9;
+            D_80754BC0 += 1;
+        }
+    }
+}
+
+extern u8 D_2000100[];
+u32 osVirtualToPhysical(void *);
+
+typedef struct {
+    u8 unk0[0x270];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+} Ab2P8070068C;
+
+#define Ab2GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+
+Gfx *func_8070068C(Gfx *arg0) {
+    Ab2GFX(arg0++, 0xDA380007, &D_2000100);
+    Ab2GFX(arg0++, 0xDC080008, osVirtualToPhysical((u8 *)D_807FC924 + (D_807444FC * 0x10) + 0x250));
+    Ab2GFX(arg0++, ((s32)((f32)((Ab2P8070068C *)D_807FC924)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((Ab2P8070068C *)D_807FC924)->unk270 * 4.0f) & 0xFFF) << 12), ((s32)((f32)((Ab2P8070068C *)D_807FC924)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((Ab2P8070068C *)D_807FC924)->unk274 * 4.0f) & 0xFFF) << 12));
+    return arg0;
+}
+
+extern u8 D_807FD838[2][3];
+extern u8 D_2000180;
+Gfx *func_80701098(Gfx *, Ab2TrailPoint, u8);
+
+Gfx *func_807007B8(Gfx *arg0) {
+    s16 i;
+
+    if (D_80754BC0 != 0) {
+        Ab2GFX(arg0++, 0xE7000000, 0);
+        arg0 = func_8070068C(arg0);
+        Ab2GFX(arg0++, 0xDA380003, (u32)&D_2000180);
+        Ab2GFX(arg0++, 0xE7000000, 0);
+        Ab2GFX(arg0++, 0xD9000000, 0);
+        Ab2GFX(arg0++, 0xD9FFFFFF, 0x200004);
+        Ab2GFX(arg0++, 0xE3000A01, 0);
+        Ab2GFX(arg0++, 0xE3000C00, 0x80000);
+        Ab2GFX(arg0++, 0xE3001201, 0x2000);
+        Ab2GFX(arg0++, 0xD7000002, 0x80008000);
+        Ab2GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
+        Ab2GFX(arg0++, 0xE200001C, 0x504340);
+        Ab2GFX(arg0++, 0xE3001801, 0xC0);
+        Ab2GFX(arg0++, 0xE3001A01, 0x30);
+        for (i = 0; i < D_80754BC0; i++) {
+            if (D_807FD838[D_807444FC ^ 1][i] != 0) {
+                arg0 = func_80701098(arg0, D_807FD808[i], D_807FD838[D_807444FC ^ 1][i]--);
+            }
+        }
+        Ab2GFX(arg0++, 0xE3001801, 0);
+        Ab2GFX(arg0++, 0xE3001A01, 0);
+    }
+    return arg0;
+}
+
+#ifdef NON_MATCHING
+extern s16 *D_8076A0A0;
+
+s16 func_807009F4(s16 arg0) {
+    s16 lo;
+    s16 hi;
+    s16 mid;
+    s32 ret;
+    s32 t;
+
+    lo = 0;
+    hi = 0x1FE;
+    if (arg0 == -1) {
+        return 0;
+    }
+    do {
+        mid = (lo + hi) / 2;
+        if (arg0 < D_8076A0A0[mid]) {
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+        if (arg0 >= D_8076A0A0[mid] && arg0 < D_8076A0A0[mid + 1]) {
+            return mid + 8;
+        }
+    } while (hi >= lo);
+    t = arg0 - 0x7C1B;
+    ret = t < 0 ? 0 : t;
+    return ret;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807009F4.s")
+#endif
+
+// func_80700AE4 (src/global/103AB0.c): stage 6; 600-second permuter best score 66 uses tile-copy pointer and result temporary but expands frame to 0x60 instead of target 0x58
+#ifdef NON_MATCHING
+typedef struct {
+    s32 unk0;
+    u32 unk4;
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    s32 unk28;
+    s32 unk2C;
+    s32 unk30;
+    s32 unk34;
+    s32 unk38;
+    s32 unk3C;
+} R2F103AB0dTileCopy;
+typedef struct {
+    u8 unk0[0x270];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+} R2F103AB0dPlayerView;
+extern R2F103AB0dTileCopy D_80754BC4;
+extern s32 D_8076A060;
+#define R2F103AB0dPlayer ((R2F103AB0dPlayerView *)D_807FC924)
+
+s32 func_80700AE4(s16 arg0, s16 arg1) {
+    R2F103AB0dTileCopy tileCopy;
+    u16 tile;
+    s32 *tileInfo;
+    u16 *map;
+    s32 result;
+    R2F103AB0dTileCopy *tileCopyPtr;
+
+    tileCopy = D_80754BC4;
+    tileCopyPtr = &tileCopy;
+    map = (u16 *)D_8076A060;
+    if ((arg0 < R2F103AB0dPlayer->unk270) || (R2F103AB0dPlayer->unk274 < arg0) || (arg1 < R2F103AB0dPlayer->unk272) || (R2F103AB0dPlayer->unk276 < arg1)) return 0xFFFF;
+    map = (u16 *)((u8 *)map + (((D_80744490 * arg1) + arg0) * 2));
+    tile = *map;
+    tileInfo = (s32 *)tileCopyPtr + (((tile >> 0xD) & 7) * 2);
+    result = (((tile >> 2) & 0x7FF) << tileInfo[0]) + tileInfo[1];
+    return ((u32)result >> 3) & 0xFFFF;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80700AE4.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80700BF4.s")
 

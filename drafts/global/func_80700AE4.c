@@ -1,4 +1,4 @@
-// func_80700AE4 (src/global/103AB0.c): func_80700AE4 (src/global/103AB0.c): Stage 6: frame 0x58 OK (needs result s32 + tileCopyPtr locals), structure/loads identical; only $t numbering of tail temps differs (sra/andi/sll/lw/sllv temps t9,t4,.. vs t5,t4,t6..).
+// func_80700AE4 (src/global/103AB0.c): func_80700AE4 (src/global/103AB0.c): Stage 6: frame 0x58, loads, branches identical (needs s32 result + tileCopyPtr locals, map = map + off, (x<<info[0]) + info[1]); only $t numbering of the tail temps (sra/andi/sll/lw/sllv) differs; 240s permuter + deadsweep no gain. Parked under NON_MATCHING.
 typedef struct {
     s32 unk0;
     u32 unk4;
