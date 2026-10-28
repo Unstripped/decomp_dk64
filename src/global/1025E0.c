@@ -208,4 +208,207 @@ void func_806FDF54(f32 *arg0, f32 *arg1) {
     *arg0 = (f32)((f64)((f32)func_806CC190((s16)(s32)(((f64)*arg0 * 2048.0) / 3.1415927410125732), (s16)(s32)(((f64)*arg1 * 2048.0) / 3.1415927410125732), 5.0f) * 3.1415927410125732f) * 0.00048828125);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1025E0/func_806FE078.s")
+typedef struct L4Node {
+    struct L4Node *next;
+    u8 *unk4;
+    R1F1025E0Entry *unk8;
+    u8 unkC;
+    u8 unkD;
+    u8 padE[2];
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    s16 unk1C;
+} L4Node;
+
+extern u8 D_80754A37[];
+extern s32 func_805FCA64();
+extern s16 func_806FD7A8(s16, s32);
+extern Gfx *func_806FCC88(Gfx *, L4Node *);
+extern Gfx *func_806FD094(Gfx *, L4Node *);
+f32 sinApprox(f32);
+f32 cosApprox(f32);
+
+Gfx *func_806FE078(Gfx *arg0, s16 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
+    L4Node *node;
+    f32 var_fs2;
+    f32 var_fs3;
+    f32 var_fs4;
+    f32 sp7C;
+    s16 var_s3;
+    s16 var_s5;
+    s32 var_s6;
+    f32 sp70;
+    s32 var_s7;
+    s32 var_a1;
+
+    var_s5 = 0;
+    var_fs3 = arg3;
+    node = (L4Node *)gfxResourceFindById(arg1);
+    var_s3 = 0;
+    var_fs4 = ((f32)D_80744490 - ((f32)func_806FBD5C(node->unkC, (s32)node->unk4) * arg6)) / 2 + -3;
+    sp7C = (f32)(D_80744490 >> 3);
+    var_fs2 = node->unk10;
+    sp70 = 6.2831855f / (f32)node->unkD;
+    var_s6 = 1;
+    var_s7 = 1;
+    var_s5 = 1;
+    var_a1 = node->unk4[0];
+    while (var_a1 != 0) {
+        if (var_a1 != 0x20) {
+            u32 glyph;
+            u8 temp_a1;
+            u8 temp_s1;
+            s32 temp_a2;
+            u8 temp_a0;
+
+            glyph = func_806FD7A8(node->unkC, var_a1) * arg6;
+            temp_a1 = glyph;
+            temp_s1 = glyph;
+            temp_a2 = temp_a1 / 2;
+            temp_a0 = temp_a2;
+            switch (arg2) {
+                case 8:
+                    node->unk8[var_s3].unkC = ((f32)temp_a0 + var_fs3) * 4.0f;
+                    node->unk8[var_s3].unk10 = arg4 * 4.0f;
+                    var_fs3 += (f32)temp_s1;
+                    node->unk8[var_s3].unk34 = (f32)((f64)sinApprox(node->unk18) * 0.5 + arg6);
+                    if (node->unk18 > 0.0f) {
+                        node->unk18 = (f32)((f64)node->unk18 - 0.1);
+                    } else {
+                        node->unk18 = 0.0f;
+                    }
+                    break;
+                case 6:
+                    var_s6 = 0;
+                    var_s7 = 0;
+                    node->unk8[var_s3].unk0 = (var_fs3 + 20.0f) * 4.0f;
+                    node->unk8[var_s3].unk4 = arg4 * 4.0f;
+                    var_fs3 += 28.0f;
+                    node->unk8[var_s3].unk20 = (f32)((f64)sinApprox(node->unk18) * 0.35);
+                    node->unk8[var_s3].unk30 = 1.5f;
+                    break;
+                case 5:
+                    var_s6 = 0;
+                    var_s7 = 0;
+                    node->unk8[var_s3].unk0 = ((f32)temp_a0 + var_fs4) * 4.0f;
+                    node->unk8[var_s3].unk4 = arg4 * 4.0f;
+                    var_fs4 += (f32)temp_s1;
+                    node->unk8[var_s3].unk20 = 0.0f;
+                    node->unk8[var_s3].unk30 = (f32)((f64)sinApprox(var_fs2) * 0.05 + 1.0);
+                    var_fs2 += sp70;
+                    node->unk10 = (f32)((f64)node->unk10 + 0.1);
+                    break;
+                case 4:
+                    node->unk8[var_s3].unkC = ((f32)(u8)temp_a2 + var_fs4) * 4.0f;
+                    node->unk8[var_s3].unk10 = arg4 * 4.0f;
+                    var_fs4 += (f32)temp_a1;
+                    node->unk8[var_s3].unk34 = 1.0f;
+                    break;
+                case 3:
+                    node->unk8[var_s3].unkC = ((f32)temp_a0 + var_fs4) * 4.0f;
+                    node->unk8[var_s3].unk10 = arg4 * 4.0f;
+                    var_fs4 += (f32)temp_s1;
+                    node->unk8[var_s3].unk2C = 0.0f;
+                    node->unk8[var_s3].unk34 = (f32)((f64)sinApprox(var_fs2) * 0.3 + 1.2);
+                    var_fs2 += sp70;
+                    node->unk10 = (f32)((f64)node->unk10 + 0.04);
+                    break;
+                case 1:
+                    var_fs2 -= (f32)temp_a0 * 0.013f;
+                    node->unk8[var_s3].unkC = (sinApprox(var_fs2) * sp7C + var_fs3) * 4.0f;
+                    node->unk8[var_s3].unk10 = (cosApprox(var_fs2) * sp7C + arg4) * 4.0f;
+                    node->unk8[var_s3].unk2C = 3.1415927f - var_fs2;
+                    var_fs2 -= (f32)temp_s1 * 0.013f;
+                    break;
+                case 2:
+                    node->unk8[var_s3].unkC = ((f32)temp_a0 + var_fs4) * 4.0f;
+                    node->unk8[var_s3].unk10 = (f32)(((f64)sinApprox(var_fs2 * 2) * 5.0 + arg4) * 4.0);
+                    var_fs4 += (f32)temp_s1;
+                    var_fs2 += sp70;
+                    node->unk8[var_s3].unk20 = (f32)((f64)sinApprox(var_fs2 * 2) * 0.5);
+                    node->unk10 = (f32)((f64)node->unk10 - 0.01);
+                    node->unk8[var_s3].unk34 = arg6;
+                    break;
+                case 9:
+                    node->unk8[var_s3].unkC = var_fs3 - (f32)(temp_a0 * 4);
+                    node->unk8[var_s3].unk10 = arg4;
+                    node->unk8[var_s3].unk14 = arg5;
+                    var_fs3 -= (f32)(temp_s1 * 4);
+                    var_fs2 += sp70;
+                    node->unk8[var_s3].unk34 = (f32)((f64)sinApprox(var_fs2) * (0.2 * arg6) + arg6);
+                    node->unk8[var_s3].unk2C = 3.1415927f;
+                    node->unk10 = (f32)((f64)node->unk10 - 0.08);
+                    break;
+                case 10:
+                    node->unk8[var_s3].unkC = var_fs3;
+                    node->unk8[var_s3].unk10 = arg4;
+                    node->unk8[var_s3].unk14 = (f32)temp_s1 + arg5;
+                    arg5 += (f32)(temp_s1 * 4);
+                    var_fs2 += sp70;
+                    node->unk8[var_s3].unk34 = (f32)((f64)sinApprox(var_fs2) * (0.2 * arg6) + arg6);
+                    node->unk8[var_s3].unk24 = 1.5707964f;
+                    node->unk8[var_s3].unk28 = -1.5707964f;
+                    node->unk8[var_s3].unk2C = 0.0f;
+                    node->unk10 = (f32)((f64)node->unk10 - 0.08);
+                    break;
+            }
+            if (var_s6 != 0) {
+                node->unk8[var_s3].unk0 = node->unk8[var_s3].unk0 + (node->unk8[var_s3].unkC - node->unk8[var_s3].unk0) * node->unk14;
+                node->unk8[var_s3].unk4 = node->unk8[var_s3].unk4 + (node->unk8[var_s3].unk10 - node->unk8[var_s3].unk4) * node->unk14;
+                node->unk8[var_s3].unk8 = node->unk8[var_s3].unk8 + (node->unk8[var_s3].unk14 - node->unk8[var_s3].unk8) * node->unk14;
+                func_806FDF54(&node->unk8[var_s3].unk18, &node->unk8[var_s3].unk24);
+                func_806FDF54(&node->unk8[var_s3].unk1C, &node->unk8[var_s3].unk28);
+                func_806FDF54(&node->unk8[var_s3].unk20, &node->unk8[var_s3].unk2C);
+            }
+            if (var_s7 != 0) {
+                node->unk8[var_s3].unk30 = node->unk8[var_s3].unk30 + (node->unk8[var_s3].unk34 - node->unk8[var_s3].unk30) * node->unk14;
+            }
+            var_s3 += 1;
+        } else {
+            switch (arg2) {
+                case 1:
+                    var_fs2 -= (f32)D_80754A37[node->unkC * 6] * 0.013f;
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 8:
+                    var_fs4 += (f32)D_80754A37[node->unkC * 6];
+                    break;
+                case 6:
+                    var_fs3 += 32.0f;
+                    break;
+                case 10:
+                    arg5 += (f32)D_80754A37[node->unkC * 6];
+                    break;
+                default:
+                    var_fs3 += (f32)D_80754A37[node->unkC * 6];
+                    break;
+            }
+            var_fs2 = (f32)((f64)var_fs2 - (f64)D_80754A37[node->unkC * 6] * 0.019);
+        }
+        if (var_fs2 < 0.0f) { var_fs2 += 6.2831855f; } var_a1 = *(u8 *)(var_s5 + node->unk4); var_s5 += 1;
+    }
+    gDPPipeSync(arg0++);
+    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x00504240);
+    switch (arg2) {
+        case 9:
+        case 10:
+            return func_806FD094(arg0, node);
+        case 0xFF:
+            node->unk10 = (f32)((f64)node->unk10 + 0.04);
+            return func_806FD094(arg0, node);
+        case 8:
+            if (func_805FCA64() == 0) {
+                return arg0;
+            }
+            break;
+        case 1:
+            node->unk10 = (f32)((f64)node->unk10 + 0.02);
+            break;
+    }
+    node->unk10 = (f32)((f64)node->unk10 + 0.04);
+    return func_806FCC88(arg0, node);
+}
