@@ -135,7 +135,7 @@ extern Boss3F_52B0_D580 *D_807FD580;
 extern Boss3F_52B0_DC90 *D_807FDC90;
 extern Boss3F_52B0_DC94 *D_807FDC94;
 extern Boss3F_52B0_DC98 *D_807FDC98;
-void func_80027BA8(u8 *, s32, f32);
+void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -444,7 +444,7 @@ block_28:
         actorMoveWithinZone(0x23, 0.0f, 0.0f, 0x202, 0.0f);
         break;
     default:
-        func_80027BA8(sp44, 0, 0.0f);
+        bossScriptStep(sp44, 0, 0.0f);
         break;
     }
     if (ACTOR->unk80 < ACTOR->unkAC) {

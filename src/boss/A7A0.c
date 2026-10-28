@@ -132,26 +132,26 @@ void func_8002EA14(void) {
     actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC + (sp1C->unk14 * 10) + 15);
 }
 
-typedef struct BsA7_178 {
+typedef struct BossScriptState {
     void *unk0;
     char pad4[0x10];
     u8 unk14;
     u8 unk15;
-} BsA7_178;
+} BossScriptState;
 
-typedef struct BsA7_Sub4 {
+typedef struct BossModelInfo {
     char pad0[0x64];
     u16 unk64;
-} BsA7_Sub4;
+} BossModelInfo;
 
-typedef struct BsA7_Sub140 {
+typedef struct BossActorSub140 {
     char pad0[0xC];
     s32 unkC;
-} BsA7_Sub140;
+} BossActorSub140;
 
-typedef struct BsA7_Actor {
+typedef struct BossActor {
     char pad0[4];
-    BsA7_Sub4 *unk4;
+    BossModelInfo *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x60];
@@ -159,45 +159,45 @@ typedef struct BsA7_Actor {
     char padC8[4];
     u8 unkCC;
     char padCD[0x73];
-    BsA7_Sub140 *unk140;
+    BossActorSub140 *unk140;
     char pad144[2];
     s16 unk146;
     char pad148[0xC];
     u8 unk154;
     u8 unk155;
     char pad156[0x22];
-    BsA7_178 *unk178;
-} BsA7_Actor;
+    BossScriptState *unk178;
+} BossActor;
 
-typedef struct BsA7_BB70 {
+typedef struct BossStageInfo {
     char pad[0x1B];
     u8 unk1B;
     char pad1C[0x200 - 0x1C];
     u8 unk200;
-} BsA7_BB70;
+} BossStageInfo;
 
-typedef struct BsA7_DC90 {
+typedef struct BossWorkState {
     char pad[0x1A];
     u16 unk1A;
-} BsA7_DC90;
+} BossWorkState;
 
-typedef struct BsA7_DC94 {
+typedef struct BossActorPos {
     char pad[0x7C];
     f32 unk7C;
     char pad80[4];
     f32 unk84;
-} BsA7_DC94;
+} BossActorPos;
 
-typedef struct BsA7_DC9C {
+typedef struct BossConfig {
     char pad[0xD];
     u8 unkD;
-} BsA7_DC9C;
+} BossConfig;
 
 extern u8 *D_80035A80[];
-extern BsA7_DC90 *D_807FDC90;
-extern BsA7_DC94 *D_807FDC94;
+extern BossWorkState *D_807FDC90;
+extern BossActorPos *D_807FDC94;
 void behaviourFrameBegin(void);
-void func_80028878(u8 *);
+void bossRoundFrame(u8 *);
 void func_80724CA4(s32, s32);
 void bossAttachActor(void);
 s32 camStartPath(void *, s32, s32);
@@ -209,24 +209,24 @@ void actorOrNodeFlags(void *, s32, s32);
 s32 currentActorTestClearFlag(void);
 void func_805FF158(s32);
 void func_805FF378(s32, s32);
-void func_80027BA8(u8 *, s32, f32);
+void bossScriptStep(u8 *, s32, f32);
 void func_80614D00(void *, f32, f32);
 void func_8072A450(void);
 s32 func_8072881C(s32, void *);
 
-#define ACTOR40 ((BsA7_Actor *)D_807FBB40)
-#define ACTOR4C ((BsA7_Actor *)D_807FBB4C)
-#define BB70 (*(BsA7_BB70 *)&D_807FBB70)
-#define DC9C ((BsA7_DC9C *)D_807FDC9C)
+#define ACTOR40 ((BossActor *)D_807FBB40)
+#define ACTOR4C ((BossActor *)D_807FBB4C)
+#define BB70 (*(BossStageInfo *)&D_807FBB70)
+#define DC9C ((BossConfig *)D_807FDC9C)
 
 void func_8002EA7C(void) {
-    BsA7_178 *sp178;
+    BossScriptState *sp178;
     u8 *sp28;
 
-    sp178 = (BsA7_178 *)D_807FBB40->unk178;
+    sp178 = (BossScriptState *)D_807FBB40->unk178;
     sp28 = D_80035A80[sp178->unk14];
     behaviourFrameBegin();
-    func_80028878(sp28);
+    bossRoundFrame(sp28);
     if (!(ACTOR40->unk60 & 0x10)) {
         ACTOR40->unk146 = 1;
         ACTOR40->unk154 = 0x1E;
@@ -349,7 +349,7 @@ void func_8002EA7C(void) {
             }
             break;
         default:
-            func_80027BA8(sp28, 0x10, 0.0f);
+            bossScriptStep(sp28, 0x10, 0.0f);
             break;
         }
     } else if (ACTOR40->unk4->unk64 == 0x406) {

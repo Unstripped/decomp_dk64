@@ -58,7 +58,7 @@ extern void *gCamActor;
 extern void *D_8071720C;
 extern void *D_8074E880[];
 #ifdef NON_MATCHING
-u8 func_800330D0(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
+u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     s32 min_dist;
     s32 dists[16];
     u8 i;
@@ -122,7 +122,7 @@ u8 func_800330D0(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_800330D0.s")
+#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/bossPickWaypointStep.s")
 #endif
 
 void func_8003340C(u8 *arg0) {
@@ -190,7 +190,7 @@ void func_8063DA40(s16, u8);
 extern u8 D_80035BDC[];
 extern u8 D_80035BE4[];
 
-void func_80033784(arg0, arg1)
+void bossSetRandomObjectPair(arg0, arg1)
 u8 *arg0;
 u8 arg1;
 {
@@ -391,7 +391,7 @@ s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
 void volumeTriggerSetEnabled(s32, s32);
 s32 func_80724A20(void);
-u8 func_800330D0(BossE_F0D0_Sub14 *, u8 *);
+u8 bossPickWaypointStep(BossE_F0D0_Sub14 *, u8 *);
 void func_8003340C(u8 *);
 void func_800336C0(void);
 void bossInterpolateWaypoints(u8 *, f32);
@@ -415,7 +415,7 @@ void func_80714C08(void *, f32, void *, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(void *, u8);
-void func_80027BA8(u8 *, s32, f32);
+void bossScriptStep(u8 *, s32, f32);
 
 void func_80033AF0(void) {
     BossF_State *st;
@@ -638,7 +638,7 @@ void func_80033AF0(void) {
         case 0:
         case 1:
         case 2:
-            func_80033784(sub, 0);
+            bossSetRandomObjectPair(sub, 0);
             actorScriptStart(D_807FBB40, 0x226);
             BF->unk155 = 3;
             break;
@@ -659,7 +659,7 @@ void func_80033AF0(void) {
             st->unk18 = tbl[st->unk15++];
             st->unk19 = st->unk18;
             func_8003340C((u8 *)sub);
-            sub->unk1 = func_800330D0((BossE_F0D0_Sub14 *)st, (u8 *)sub);
+            sub->unk1 = bossPickWaypointStep((BossE_F0D0_Sub14 *)st, (u8 *)sub);
             BF->unk155 = 1;
             BF->unk6A |= 1;
         case 1:
@@ -690,7 +690,7 @@ void func_80033AF0(void) {
                 st->unk18 = st->unk19;
             }
             if (st->unk18 != 0) {
-                sub->unk1 = func_800330D0((BossE_F0D0_Sub14 *)st, (u8 *)sub);
+                sub->unk1 = bossPickWaypointStep((BossE_F0D0_Sub14 *)st, (u8 *)sub);
                 st->unk18--;
                 func_8003340C((u8 *)sub);
                 BF->unk155 = 1;
@@ -706,11 +706,11 @@ void func_80033AF0(void) {
     case 0x28:
         func_8072E1A4(0xA, D_807FBB4C);
         if (func_800339D8((BossE_F0D0_Sub14 *)st, tbl) != 0) {
-            func_80033784(sub, 0);
+            bossSetRandomObjectPair(sub, 0);
         } else if (func_80724A20() == 0) {
             switch (BF->unk155) {
             case 0:
-                func_80033784(sub, 0xA);
+                bossSetRandomObjectPair(sub, 0xA);
                 st->unk18 = tbl[st->unk15++] - 1;
                 st->unk19 = tbl[st->unk15++];
                 actorScriptStart(D_807FBB40, 0x229);
@@ -755,7 +755,7 @@ block_131:
                     projectileGetTargetCoords(D_807FBB40, 3);
                     projectileAimAndSpawn(0x3B, 1, 1.2f, BP->unk7C, BP->unk80 + 5.0f, BP->unk84, 900.0f, D_807FBB40);
                 } else {
-                    sub->unk1 = func_800330D0((BossE_F0D0_Sub14 *)st, (u8 *)sub);
+                    sub->unk1 = bossPickWaypointStep((BossE_F0D0_Sub14 *)st, (u8 *)sub);
                     bossSpawnObjectAtWaypoint((u8 *)sub);
                 }
                 BF->unk155 = 5;
@@ -783,7 +783,7 @@ block_131:
                 }
                 break;
             case 9:
-                func_80033784(sub, 0);
+                bossSetRandomObjectPair(sub, 0);
                 actorScriptStart(D_807FBB40, 0x22C);
                 BF->unk155 = 0xA;
                 break;
@@ -801,7 +801,7 @@ block_131:
         case 1:
         case 2:
             actorAppendActiveCallback8();
-            func_80033784(sub, 0);
+            bossSetRandomObjectPair(sub, 0);
             actorScriptStart(D_807FBB40, 0x22E);
             camStartPath(D_807FBB40, 2, 1);
             actorSpawnAttachment(D_807FBB40, 1.2f);
@@ -913,7 +913,7 @@ block_131:
             break;
         case 5:
             if (camIsCutsceneActive() == 0) {
-                func_80033784(sub, 0);
+                bossSetRandomObjectPair(sub, 0);
                 i = 0;
                 do {
                     if (i != sub->unk0) {
@@ -933,7 +933,7 @@ block_131:
         }
         break;
     default:
-        func_80027BA8(tbl, 0, 0.0f);
+        bossScriptStep(tbl, 0, 0.0f);
         break;
     }
     if (sp7F != 0) {

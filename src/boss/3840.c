@@ -68,24 +68,24 @@ void func_80027950(BossB_Struct_80027950 *arg0, u8 *arg1) {
     arg0->unk15 += 2;
 }
 
-typedef struct BsA_Point {
+typedef struct BossWaypoint {
     s16 x;
     s16 y;
     s16 z;
     s16 pad6[2];
-} BsA_Point;
+} BossWaypoint;
 
-typedef struct BsA_PointList {
+typedef struct BossWaypointList {
     char pad0[0x14];
-    BsA_Point *points;
-} BsA_PointList;
+    BossWaypoint *points;
+} BossWaypointList;
 
-typedef struct BsA_ActorPos {
+typedef struct BossActorPos {
     char pad0[0x7C];
     f32 x;
     f32 y;
     f32 z;
-} BsA_ActorPos;
+} BossActorPos;
 
 typedef struct {
     char pad0[0x11C];
@@ -93,16 +93,16 @@ typedef struct {
 } BossB_Struct_807FBB40;
 
 extern BossB_Struct_807FBB40 *D_807FBB40;
-extern BsA_PointList *D_807FDCA0;
+extern BossWaypointList *D_807FDCA0;
 
-void func_80027A30(void *arg0, u8 *arg1) {
+void bossPickFarthestWaypoint(void *arg0, u8 *arg1) {
     s16 i;
     s32 max_dist = 0;
 
     for (i = arg1[((BossB_Struct_80027950 *)arg0)->unk15]; i <= arg1[((BossB_Struct_80027950 *)arg0)->unk15 + 1]; i++) {
         u8 idx = D_807FDC98->unk20[i * 2];
-        BsA_ActorPos *actor = (BsA_ActorPos *)D_807FBB40;
-        BsA_Point *pt = &D_807FDCA0->points[idx];
+        BossActorPos *actor = (BossActorPos *)D_807FBB40;
+        BossWaypoint *pt = &D_807FDCA0->points[idx];
         f32 dz = actor->z - (f32)pt->z;
         f32 dx = actor->x - (f32)pt->x;
         f32 dy = actor->y - (f32)pt->y;
@@ -117,7 +117,7 @@ void func_80027A30(void *arg0, u8 *arg1) {
 }
 
 
-typedef struct BsA7c_178 {
+typedef struct BossScriptState {
     char pad0[4];
     s16 unk4;
     char pad6[2];
@@ -128,9 +128,9 @@ typedef struct BsA7c_178 {
     u8 unk16;
     u8 pad17;
     u8 unk18[8];
-} BsA7c_178;
+} BossScriptState;
 
-typedef struct BsA7c_Actor {
+typedef struct BossActor {
     char pad0[0x58];
     s32 unk58;
     char pad5C[4];
@@ -142,25 +142,25 @@ typedef struct BsA7c_Actor {
     f32 unk80;
     f32 unk84;
     char pad88[0x94];
-    struct BsA7c_Actor *unk11C;
+    struct BossActor *unk11C;
     char pad120[8];
     s16 unk128;
     char pad12A[0x2A];
     u8 unk154;
     u8 unk155;
     char pad156[0x22];
-    BsA7c_178 *unk178;
+    BossScriptState *unk178;
     u8 *unk17C;
-} BsA7c_Actor;
+} BossActor;
 
-typedef struct BsA7c_Cam {
+typedef struct BossPlayerData {
     char pad0[0x104];
     s32 unk104;
     char pad108[0xE8];
     s32 unk1F0;
-} BsA7c_Cam;
+} BossPlayerData;
 
-typedef struct BsA7c_Pos {
+typedef struct BossPlayerActor {
     char pad0[0x7C];
     f32 unk7C;
     f32 unk80;
@@ -168,12 +168,12 @@ typedef struct BsA7c_Pos {
     char pad88[0xCC];
     u8 unk154;
     char pad155[0x1F];
-    BsA7c_Cam *unk174;
-} BsA7c_Pos;
+    BossPlayerData *unk174;
+} BossPlayerActor;
 
-typedef struct BsA7c_DC90 {
+typedef struct BossWorkState {
     char pad0[4];
-    BsA7c_Pos *unk4;
+    BossPlayerActor *unk4;
     char pad8[2];
     s16 unkA;
     char padC[2];
@@ -184,15 +184,15 @@ typedef struct BsA7c_DC90 {
     u8 unk25;
     char pad26[6];
     s16 unk2C;
-} BsA7c_DC90;
+} BossWorkState;
 
-typedef struct BsA7c_DC9C {
+typedef struct BossConfig {
     char pad0[0xC];
     u8 unkC;
     u8 unkD;
-} BsA7c_DC9C;
+} BossConfig;
 
-extern BsA7c_Pos *D_807FBB4C;
+extern BossPlayerActor *D_807FBB4C;
 extern u8 D_807444EC;
 extern u8 D_8076A0B1;
 extern s8 D_8076A0B3;
@@ -205,15 +205,15 @@ void func_8070D8C0(void *, s32, s32);
 s32 func_8072D13C(s32, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorScriptStart(void *, s32);
-void func_80027A30(void *, u8 *);
+void bossPickFarthestWaypoint(void *, u8 *);
 
-#define BA40 ((BsA7c_Actor *)D_807FBB40)
-#define DC90 ((BsA7c_DC90 *)D_807FDC90)
-#define DC9C ((BsA7c_DC9C *)D_807FDC9C)
+#define BA40 ((BossActor *)D_807FBB40)
+#define DC90 ((BossWorkState *)D_807FDC90)
+#define DC9C ((BossConfig *)D_807FDC9C)
 
-u8 func_80027BA8(u8 *arg0, u16 arg1, f32 arg2) {
-    BsA7c_Cam *sp34;
-    BsA7c_178 *s0;
+u8 bossScriptStep(u8 *arg0, u16 arg1, f32 arg2) {
+    BossPlayerData *sp34;
+    BossScriptState *s0;
     u8 var_t1;
     u8 sp2E;
     u8 tmp;
@@ -368,7 +368,7 @@ block_16:
         BA40->unk155 = 0;
         goto block_16;
     case 0x4C:
-        func_80027A30(s0, arg0);
+        bossPickFarthestWaypoint(s0, arg0);
         var_t1 = 0;
         BA40->unk154 = 0x42;
         BA40->unk155 = 0;
@@ -550,7 +550,7 @@ void bossResetAudioChannels(void) {
     flagSet(0x54, 0, 2);
 }
 
-typedef struct BsA7c_Snd {
+typedef struct BossSoundState {
     s32 unk0;
     s32 unk4;
     s32 unk8;
@@ -558,9 +558,9 @@ typedef struct BsA7c_Snd {
     u8 unkD;
     s16 unkE;
     s16 unk10;
-} BsA7c_Snd;
+} BossSoundState;
 
-extern BsA7c_Pos *D_807FBB48;
+extern BossPlayerActor *D_807FBB48;
 extern s16 D_800359A0[];
 extern s16 D_800359AC[];
 extern s16 D_800359B8[];
@@ -586,15 +586,15 @@ void renderCallbacksRegister(void *, void *, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 
 
-void func_80028878(u8 *arg0) {
-    BsA7c_178 *sp44;
+void bossRoundFrame(u8 *arg0) {
+    BossScriptState *sp44;
     u8 sp43;
     s16 sp30;
-    BsA7c_Snd *s0;
+    BossSoundState *s0;
 
     sp44 = BA40->unk178;
     sp43 = D_8076A0A8 - 0xCB;
-    s0 = (BsA7c_Snd *)BA40->unk17C;
+    s0 = (BossSoundState *)BA40->unk17C;
     if (D_807FBB4C->unk80 < 30.0f) {
         D_807FBB4C->unk7C = 780.0f;
         D_807FBB4C->unk80 = 50.0f;

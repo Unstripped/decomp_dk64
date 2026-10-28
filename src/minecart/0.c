@@ -99,7 +99,7 @@ extern s32 D_8076A0A8;
 
 void slotQueueUpdate(s32, s32, s32);
 void actorUpdateModelMatrix(void *, s32);
-void func_800253C0(void *, s16, u8);
+void minecartFollowTrack(void *, s16, u8);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 camIsCutsceneActive(void);
 void func_8068ECF4(s32, s32);
@@ -164,7 +164,7 @@ void func_80714950(void *);
 void func_8071498C(void *);
 s32 func_80714C08(void *, s32, void *, s32, s32);
 
-void func_800241A0(s16 *arg0, u8 arg1, u8 arg2) {
+void minecartSpawnWheelEffect(s16 *arg0, u8 arg1, u8 arg2) {
     if ((u32)(u8)func_806119A0() >= (u32)arg2) {
         if (*arg0 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8A, 0x96, 0x7F, 0x32);
@@ -175,7 +175,7 @@ void func_800241A0(s16 *arg0, u8 arg1, u8 arg2) {
     }
 }
 
-void func_80024254(MinecartStruct_174 *arg0) {
+void minecartStepSpeedToTarget(MinecartStruct_174 *arg0) {
     u32 temp_v0 = arg0->unk3E;
     f32 temp_fa0;
     f32 var_fv0 = temp_v0;
@@ -201,7 +201,7 @@ void func_80024254(MinecartStruct_174 *arg0) {
     }
 }
 
-void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
+void minecartPlayerCartUpdate(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
     s32 pad94;
     Struct_807FC924_4_174 *sp90;
     MinecartStruct_174 *s1;
@@ -240,7 +240,7 @@ void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
 
     case 1:
     case_1:
-        func_800253C0(s1, arg2, arg3);
+        minecartFollowTrack(s1, arg2, arg3);
         camSetTargetScaled(sp90->unk104, D_807FBB40, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
         D_807FBB40->unk154++;
         break;
@@ -268,8 +268,8 @@ void func_8002430C(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
             }
         }
         func_8068ECF4(6, 0xFF);
-        func_80024254(s1);
-        func_800253C0(s1, arg2, arg3);
+        minecartStepSpeedToTarget(s1);
+        minecartFollowTrack(s1, arg2, arg3);
         actorGetNodePos(D_807FBB40, 5, &sp58[0], &sp58[1], &sp58[2]);
         func_8072177C(D_807FBB40, (s16)(s32)sp58[0], (s16)(s32)sp58[1], (s16)(s32)sp58[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
         func_8072177C(s1->unk4, (s16)(s32)sp58[0], (s16)(s32)sp58[1], (s16)(s32)sp58[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
@@ -289,7 +289,7 @@ typedef struct Struct_807FD580 {
 extern Struct_807FD580 *D_807FD580;
 
 
-void func_80024768(void) {
+void minecartUpdateHeadlight(void) {
     f32 sp44[3];
     f32 sp38[3];
 
@@ -315,8 +315,8 @@ void func_80024890(void) {
         temp_v1->unk24 = 0.1f;
         temp_v1->unk28 = 5.0f;
     }
-    func_8002430C(1, (s32)((D_8076A0A8 == 6) ? &D_80028C34 : &D_80028C3C), 0x7FFF, 0x23);
-    func_80024768();
+    minecartPlayerCartUpdate(1, (s32)((D_8076A0A8 == 6) ? &D_80028C34 : &D_80028C3C), 0x7FFF, 0x23);
+    minecartUpdateHeadlight();
 }
 
 extern s16 D_807502D0;
@@ -359,22 +359,22 @@ void func_80024914(void) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8B, 0xFF, 0x7F, 0x1E);
         }
     }
-    func_8002430C(3, (s32)&D_80028C40, temp_s0->unk2, 0x19);
+    minecartPlayerCartUpdate(3, (s32)&D_80028C40, temp_s0->unk2, 0x19);
     if (D_807FBB4C->unk12C != 0x12 && D_807FBB4C->unk12C != 0xB) {
-        func_80024768();
+        minecartUpdateHeadlight();
     }
     if (D_807FBB40->unk154 != 0) {
         actorGetNodePos(D_807FBB40, 9, &temp_s0->unk4->unk7C, &temp_s0->unk4->unk80, &temp_s0->unk4->unk84);
     }
 }
 
-typedef struct McA_V12 {
+typedef struct MinecartTrackPoint {
     f32 x;
     f32 y;
     f32 z;
-} McA_V12;
+} MinecartTrackPoint;
 
-typedef struct McA_Cart174 {
+typedef struct MinecartTrackCart {
     s16 unk0;
     s16 unk2;
     Struct_807FC924_4 *unk4;
@@ -390,31 +390,31 @@ typedef struct McA_Cart174 {
     u8 *unk34;
     char pad38[0x3E - 0x38];
     u8 unk3E;
-} McA_Cart174;
+} MinecartTrackCart;
 
-typedef struct McA_BB4C {
+typedef struct MinecartPlayerActorFlags {
     char pad0[0x6A];
     u16 unk6A;
-} McA_BB4C;
+} MinecartPlayerActorFlags;
 
 extern s32 D_807F5FD0;
-extern McA_V12 **D_807F5FD4;
+extern MinecartTrackPoint **D_807F5FD4;
 extern s32 D_80028C48;
 extern s32 D_80028C50;
 void actorSetUniformScale(void *, f32);
 
-void func_80024B00(void) {
+void minecartReverseTrackBehaviour(void) {
     s32 padA;
     f32 temp_fv0;
     s16 sp4E;
     s16 i;
     s16 j;
     s16 n;
-    McA_V12 tmp;
-    McA_Cart174 *s0;
+    MinecartTrackPoint tmp;
+    MinecartTrackCart *s0;
 
     temp_fv0 = (f32)((f64)D_807FBB40->unk4->unk38 * 0.16666666675);
-    s0 = (McA_Cart174 *)D_807FBB40->unk174;
+    s0 = (MinecartTrackCart *)D_807FBB40->unk174;
     sp4E = s0->unk0;
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorSetUniformScale(D_807FBB4C, 0.12f);
@@ -431,12 +431,12 @@ void func_80024B00(void) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8B, 0xFF, 0x7F, 0x1E);
         }
     }
-    if (((McA_BB4C *)D_807FBB4C)->unk6A & 0x100) {
-        ((McA_BB4C *)D_807FBB4C)->unk6A &= ~0x100;
+    if (((MinecartPlayerActorFlags *)D_807FBB4C)->unk6A & 0x100) {
+        ((MinecartPlayerActorFlags *)D_807FBB4C)->unk6A &= ~0x100;
         D_807FBB40->unk168 = 2;
     }
-    func_8002430C(1, (s32)&D_80028C48, 0x7FFF, 0x23);
-    func_80024768();
+    minecartPlayerCartUpdate(1, (s32)&D_80028C48, 0x7FFF, 0x23);
+    minecartUpdateHeadlight();
     if (*s0->unk34 >= 7 && camIsCutsceneActive() != 0 && D_807FBB40->unk154 != 5) {
         D_807FBB40->unkB8 = 300.0f;
     }
@@ -480,7 +480,7 @@ typedef struct MinecartStruct_E78 {
 void heapFree(void *);
 void *func_80610FE8(s32);
 
-void func_80024E78(MinecartStruct_E78 *arg0, MinecartElem **arg1, u8 arg2, u8 arg3) {
+void minecartApplyJunction(MinecartStruct_E78 *arg0, MinecartElem **arg1, u8 arg2, u8 arg3) {
     u8 i = 0;
     s32 found = 0;
     u8 temp_s5 = *arg0->unk34;
@@ -511,13 +511,13 @@ void func_806A2A10(s32, s32, u8);
 void func_80726EE0(s32);
 void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
 
-void func_80024FD0(void) {
-    McA_Cart174 *sp44;
+void minecartPlayerCartJunctionBehaviour(void) {
+    MinecartTrackCart *sp44;
     Struct_807FC924_4_174 *sp40;
     f32 diff;
     f32 sp28;
 
-    sp44 = (McA_Cart174 *)D_807FBB40->unk174;
+    sp44 = (MinecartTrackCart *)D_807FBB40->unk174;
     sp40 = D_807FBB4C->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         sp44->unk30 = func_80610FE8(3);
@@ -540,7 +540,7 @@ void func_80024FD0(void) {
         sp44->unk3E = 3;
     }
     if (D_807FBB40->unk154 < 5) {
-        func_8002430C(0x16, (s32)sp44->unk30, 0, 0x19);
+        minecartPlayerCartUpdate(0x16, (s32)sp44->unk30, 0, 0x19);
     }
     if (camIsCutsceneActive() == 0) {
         camSetFixedView(sp40->unk104, 322.0f, 900.0f, 268.0f, 325.0f, -9000.0f, 500.0f, 0);
@@ -558,7 +558,7 @@ void func_80024FD0(void) {
             D_807FBB40->unk154 = 5;
             break;
         }
-        func_80024E78((MinecartStruct_E78 *)sp44, (MinecartElem **)&D_80028C20, 0x10, 0x13);
+        minecartApplyJunction((MinecartStruct_E78 *)sp44, (MinecartElem **)&D_80028C20, 0x10, 0x13);
         actorGetNodePos(D_807FBB40, 9, &sp44->unk4->unk7C, &sp44->unk4->unk80, &sp44->unk4->unk84);
         return;
     case 4:
@@ -588,7 +588,7 @@ typedef struct {
     f32 unk28;
 } MinecartStruct_20;
 
-void func_8002538C(MinecartStruct_20 *arg0) {
+void minecartRampTiltRate(MinecartStruct_20 *arg0) {
     f32 temp = arg0->unk28;
     arg0->unk20 += arg0->unk24;
     if (temp < arg0->unk20) {
@@ -596,12 +596,12 @@ void func_8002538C(MinecartStruct_20 *arg0) {
     }
 }
 
-typedef struct McB_Cart {
+typedef struct MinecartFollowCart {
     s16 unk0;
     char pad2[2];
     void *unk4;
     char pad8[4];
-    McA_V12 *unkC;
+    MinecartTrackPoint *unkC;
     s16 unk10;
     char pad12[2];
     f32 unk14;
@@ -618,14 +618,14 @@ typedef struct McB_Cart {
     u8 unk3F;
     u8 unk40;
     u8 unk41;
-} McB_Cart;
+} MinecartFollowCart;
 
 extern s32 D_807457E4[];
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern s32 D_8076A064;
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 mathPickCloserTargetPoint3D(f32, f32, f32, McA_V12 *, McA_V12 *, McA_V12 *, McA_V12 *, f32 *, f32 *, f32 *);
+s32 mathPickCloserTargetPoint3D(f32, f32, f32, MinecartTrackPoint *, MinecartTrackPoint *, MinecartTrackPoint *, MinecartTrackPoint *, f32 *, f32 *, f32 *);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 s16 func_806CC190(s16, s16, f32);
 f32 func_80611BB4(f32, f32);
@@ -634,13 +634,13 @@ f32 func_80612794(s16);
 void func_8067ACB4(void *);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 void func_80665564(void *, f32);
-#define MC ((McB_Cart *)arg0)
-void func_800253C0(void *arg0, s16 arg1, u8 arg2) {
+#define MC ((MinecartFollowCart *)arg0)
+void minecartFollowTrack(void *arg0, s16 arg1, u8 arg2) {
     u8 i;
     u8 cnt;
     s8 sp12D;
-    McA_V12 *sp128;
-    McA_V12 *sp124;
+    MinecartTrackPoint *sp128;
+    MinecartTrackPoint *sp124;
     f32 sp118[3];
     f32 sp10C[3];
     f32 sp100[3];
@@ -662,8 +662,8 @@ void func_800253C0(void *arg0, s16 arg1, u8 arg2) {
     u8 sp82;
     s16 v1;
     f32 sp7C, sp78, sp74;
-    McA_V12 *q;
-    McA_V12 *p;
+    MinecartTrackPoint *q;
+    MinecartTrackPoint *p;
 
     sp124 = MC->unkC;
     sp84 = D_807FBB40->unkE6;
@@ -807,7 +807,7 @@ void func_800253C0(void *arg0, s16 arg1, u8 arg2) {
     MC->unk18 = (f64)MC->unk18 + (f64)(lim - MC->unk18) * 0.2;
     if (v1 >= 0x1F && v1 < 0x5A) {
         if (MC->unk14 < lim) {
-            func_8002538C(arg0);
+            minecartRampTiltRate(arg0);
             MC->unk14 = MC->unk14 + MC->unk20;
             if (lim < MC->unk14) {
                 MC->unk14 = lim;
@@ -815,7 +815,7 @@ void func_800253C0(void *arg0, s16 arg1, u8 arg2) {
         }
     } else if (v1 < -0x1E && v1 >= -0x59) {
         if (-lim < MC->unk14) {
-            func_8002538C(arg0);
+            minecartRampTiltRate(arg0);
             MC->unk14 = MC->unk14 - MC->unk20;
             if (MC->unk14 < -lim) {
                 MC->unk14 = -lim;
@@ -824,12 +824,12 @@ void func_800253C0(void *arg0, s16 arg1, u8 arg2) {
     }
     if (MC->unk14 > 1.0f) {
         sp83 = 0x20;
-        func_800241A0(arg0, 1, 0xE6);
+        minecartSpawnWheelEffect(arg0, 1, 0xE6);
     } else if (MC->unk14 < -1.0f) {
         sp83 = -0x20;
-        func_800241A0(arg0, 0, 0xE6);
+        minecartSpawnWheelEffect(arg0, 0, 0xE6);
     } else {
-        func_800241A0(arg0, D_8076A064 & 1, 0xFA);
+        minecartSpawnWheelEffect(arg0, D_8076A064 & 1, 0xFA);
         actorUpdateModelMatrix(D_807FBB40, 0);
     }
     if (sp83 != 0) {

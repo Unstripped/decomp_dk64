@@ -1,11 +1,11 @@
-// func_800330D0 (src/boss/F0D0.c): stage 6: text identical except operand order of ONE beq (beq t7,t2 expected vs beq t2,t7: arg1[2]==val compare in guard); parked NON_MATCHING in BsB copy; early return unk14>=3, 'if (val==arg1[2]||val==start_val){...}', dists idx &0xF, start_val--/++, u8 center[4]={5,6,9,10}, for loop, x-first sum
+// bossPickWaypointStep (src/boss/F0D0.c): stage 6: text identical except operand order of ONE beq (beq t7,t2 expected vs beq t2,t7: arg1[2]==val compare in guard); parked NON_MATCHING in BsB copy; early return unk14>=3, 'if (val==arg1[2]||val==start_val){...}', dists idx &0xF, start_val--/++, u8 center[4]={5,6,9,10}, for loop, x-first sum
 typedef struct {
     u8 pad0[0x14];
     u8 unk14;
 } BossE_F0D0_Sub14;
 // (also needs the file's BossE_F0D0_Actor / FDCA0 structs, D_807FBB40/4C/DCA0 externs and randomNonNegative)
 
-u8 func_800330D0(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
+u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     s32 min_dist;
     s32 dists[16];
     u8 i;

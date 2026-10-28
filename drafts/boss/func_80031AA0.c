@@ -10,20 +10,20 @@ s32 camIsCutsceneActive(void);
 void camStartPath(void *, s32, s32);
 void actorUpdateModelMatrix(void *, s32);
 
-typedef struct BsA2_Sub4 {
+typedef struct BossModelInfo {
     u8 pad0[0x34];
     f32 unk34;
     f32 unk38;
     f32 unk3C;
-} BsA2_Sub4;
+} BossModelInfo;
 
-typedef struct BsA2_SpawnState {
+typedef struct BossSpawnState {
     void *unk0;
     s8 unk4;
     s8 unk5;
-} BsA2_SpawnState;
+} BossSpawnState;
 
-typedef struct BsA2_State {
+typedef struct BossSpawnerState {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -36,11 +36,11 @@ typedef struct BsA2_State {
     s8 unk15;
     s8 unk16;
     s8 unk17;
-} BsA2_State;
+} BossSpawnerState;
 
-typedef struct BsA2_Actor {
+typedef struct BossSpawnerActor {
     u8 pad0[4];
-    BsA2_Sub4 *unk4;
+    BossModelInfo *unk4;
     u8 pad8[0x60 - 8];
     s32 unk60;
     u8 pad64[0x7C - 0x64];
@@ -62,21 +62,21 @@ typedef struct BsA2_Actor {
     u8 unk154;
     u8 unk155;
     u8 pad156[0x174 - 0x156];
-    BsA2_State *unk174;
-} BsA2_Actor;
+    BossSpawnerState *unk174;
+} BossSpawnerActor;
 
-typedef struct BsA2_Spawn {
+typedef struct BossSpawnedActor {
     u8 pad0[4];
-    BsA2_Sub4 *unk4;
+    BossModelInfo *unk4;
     u8 pad8[0x60 - 8];
     s32 unk60;
     u8 pad64[0x80 - 0x64];
     f32 unk80;
     u8 pad84[0x174 - 0x84];
-    BsA2_SpawnState *unk174;
-} BsA2_Spawn;
+    BossSpawnState *unk174;
+} BossSpawnedActor;
 
-extern BsA2_Spawn *D_807FBB44;
+extern BossSpawnedActor *D_807FBB44;
 extern u8 D_807FBDC4;
 extern s16 D_80035B00[];
 extern s16 D_80035B08[];
@@ -118,37 +118,37 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void lightSetColor(f32, f32, f32, s32);
 void func_8068B80C(void);
 
-#define BsA2_A ((BsA2_Actor *)D_807FBB40)
-#define BsA2_P ((BsA2_Actor *)D_807FBB4C)
+#define SPAWNER_ACTOR ((BossSpawnerActor *)D_807FBB40)
+#define SPAWNER_PLAYER ((BossSpawnerActor *)D_807FBB4C)
 
 void func_80031AA0(void) {
     f32 dx;
     f32 dz;
     s32 k;
     s32 i;
-    BsA2_State *s;
+    BossSpawnerState *s;
     s8 sp6B;
     s8 sp6A;
     s8 sp69;
     s8 sp68;
     s8 sp67;
-    BsA2_SpawnState *st;
+    BossSpawnState *st;
     s32 sp5C;
     f32 lx;
     f32 lz;
     s16 j;
 
-    s = BsA2_A->unk174;
+    s = SPAWNER_ACTOR->unk174;
     sp67 = 0;
     sp68 = 0;
     sp6A = 0;
-    if (!(BsA2_A->unk60 & 0x10)) {
+    if (!(SPAWNER_ACTOR->unk60 & 0x10)) {
         D_80035B28 = 0xF;
         D_80035B34 = 0;
         D_80035B3C = 0.0f;
         s->unkC = 0x1E;
         s->unkE = 1;
-        s->unk0 = BsA2_A->unk80;
+        s->unk0 = SPAWNER_ACTOR->unk80;
         s->unk14 = 0;
         D_80035B6C = 0;
         s->unk12 = 0;
@@ -156,10 +156,10 @@ void func_80031AA0(void) {
         for (i = 0; i != 8; i++) {
             if (actorSpawn(0xA6, D_80035B60[i >> 1]) != 0) {
                 st = D_807FBB44->unk174;
-                st->unk0 = BsA2_A;
+                st->unk0 = SPAWNER_ACTOR;
                 st->unk4 = i >> 1;
                 st->unk5 = i & 1;
-                D_807FBB44->unk80 = BsA2_A->unk80 + 50.0f;
+                D_807FBB44->unk80 = SPAWNER_ACTOR->unk80 + 50.0f;
                 D_807FBB44->unk4->unk34 = 0.1f;
                 D_807FBB44->unk4->unk38 = 0.1f;
                 D_807FBB44->unk4->unk3C = 0.1f;
@@ -169,27 +169,27 @@ void func_80031AA0(void) {
         D_80036DC4 = 160000.0f;
         D_80036DC0 = 0;
         if (D_807FBB4C != NULL) {
-            BsA2_P->unk154 = 0x77;
-            BsA2_P->unk155 = 0;
+            SPAWNER_PLAYER->unk154 = 0x77;
+            SPAWNER_PLAYER->unk155 = 0;
         }
-        BsA2_A->unk12A = 0x7D0;
-        collisionCheckActorFloor(BsA2_A, BsA2_A->unk7C, BsA2_A->unk80, BsA2_A->unk84, &BsA2_A->unkA4);
-        BsA2_A->unk154 = 2;
+        SPAWNER_ACTOR->unk12A = 0x7D0;
+        collisionCheckActorFloor(SPAWNER_ACTOR, SPAWNER_ACTOR->unk7C, SPAWNER_ACTOR->unk80, SPAWNER_ACTOR->unk84, &SPAWNER_ACTOR->unkA4);
+        SPAWNER_ACTOR->unk154 = 2;
         camStartPath(0, 3, 1);
     }
-    switch (BsA2_A->unk154) {
+    switch (SPAWNER_ACTOR->unk154) {
     case 0:
-        BsA2_P->unk7C = BsA2_A->unk7C;
-        BsA2_P->unk80 = BsA2_A->unk80;
-        BsA2_P->unk84 = BsA2_A->unk84;
+        SPAWNER_PLAYER->unk7C = SPAWNER_ACTOR->unk7C;
+        SPAWNER_PLAYER->unk80 = SPAWNER_ACTOR->unk80;
+        SPAWNER_PLAYER->unk84 = SPAWNER_ACTOR->unk84;
         if (D_80035B38 == -1) {
-            D_80035B38 = BsA2_P->unk144;
+            D_80035B38 = SPAWNER_PLAYER->unk144;
         }
-        BsA2_P->unk60 &= ~4;
-        BsA2_P->unk144 = 1;
+        SPAWNER_PLAYER->unk60 &= ~4;
+        SPAWNER_PLAYER->unk144 = 1;
         if (D_807FBDC4 != 0) {
             sp5C = D_80035B44[D_80036DC0];
-            BsA2_A->unk146 = 0;
+            SPAWNER_ACTOR->unk146 = 0;
             for (i = 4; D_80036DC0 < i; i--) {
                 func_8068A764(D_807FBB40, D_80035B58[D_80035B44[i]]);
             }
@@ -197,31 +197,31 @@ void func_80031AA0(void) {
             sp5C = D_80035B4C[sp5C];
             func_806C8E58(sp5C);
             func_806F09F0(D_807FBB4C, sp5C);
-            BsA2_P->unk154 = 0xC;
-            BsA2_P->unk155 = 0;
+            SPAWNER_PLAYER->unk154 = 0xC;
+            SPAWNER_PLAYER->unk155 = 0;
             func_8067AAB8(D_807FBB40, D_807FBB4C, 0, 180.0f, 0x46);
-            BsA2_A->unk154 = 1;
-            BsA2_P->unk144 = D_80035B38;
+            SPAWNER_ACTOR->unk154 = 1;
+            SPAWNER_PLAYER->unk144 = D_80035B38;
         }
         break;
     case 1:
-        BsA2_P->unk60 |= 4;
-        dx = BsA2_P->unk7C - BsA2_A->unk7C;
-        dz = BsA2_P->unk84 - BsA2_A->unk84;
+        SPAWNER_PLAYER->unk60 |= 4;
+        dx = SPAWNER_PLAYER->unk7C - SPAWNER_ACTOR->unk7C;
+        dz = SPAWNER_PLAYER->unk84 - SPAWNER_ACTOR->unk84;
         if (dx > 700.0 || dx < -700.0 || dz > 700.0 || dz < -700.0) {
             if (D_80036DC0 < 5) {
-                BsA2_A->unk154 = 0;
+                SPAWNER_ACTOR->unk154 = 0;
                 camStartPath(0, 2, 1);
             } else {
                 func_805FF378(0x2A, 2);
-                BsA2_A->unk154 = 3;
+                SPAWNER_ACTOR->unk154 = 3;
             }
         }
         break;
     case 2:
         s->unkE--;
         if (s->unkE < 0) {
-            BsA2_A->unk154 = 0;
+            SPAWNER_ACTOR->unk154 = 0;
             func_806C8E58(4);
             func_806F09F0(D_807FBB4C, 4);
             s->unk13 = 1;
@@ -230,10 +230,10 @@ void func_80031AA0(void) {
     case 3:
         break;
     }
-    BsA2_A->unkE6 += 0x32;
-    BsA2_A->unkE6 &= 0xFFF;
-    BsA2_A->unk80 = func_80612794(BsA2_A->unkE6) * 5.0 + s->unk0;
-    if (BsA2_P->unk154 == 0x45 && BsA2_P->unk155 >= 2 && D_80036DC4 < 10000.0) {
+    SPAWNER_ACTOR->unkE6 += 0x32;
+    SPAWNER_ACTOR->unkE6 &= 0xFFF;
+    SPAWNER_ACTOR->unk80 = func_80612794(SPAWNER_ACTOR->unkE6) * 5.0 + s->unk0;
+    if (SPAWNER_PLAYER->unk154 == 0x45 && SPAWNER_PLAYER->unk155 >= 2 && D_80036DC4 < 10000.0) {
         sp6A = 1;
     }
     sp69 = 0;
@@ -410,8 +410,8 @@ void func_80031AA0(void) {
             for (j = 0; j < 4; j++) {
                 actorDespawn(actorListFindActorById(j));
             }
-            BsA2_A->unk60 &= ~0x8000;
-            BsA2_A->unk128 = 0;
+            SPAWNER_ACTOR->unk60 &= ~0x8000;
+            SPAWNER_ACTOR->unk128 = 0;
             camStartPath(0, 4, 1);
             s->unk13 = 8;
         }
@@ -420,7 +420,7 @@ void func_80031AA0(void) {
         s->unk8 = -0.1f;
         if (D_807FBDC4 != 0) {
             sfxAllocateChannel(0x35, 0x3F800000);
-            bossSpawnParticleRing(0x13D, BsA2_A->unk7C, BsA2_A->unk80 + 200.0f, BsA2_A->unk84 + 40.0f, 0x800, 1);
+            bossSpawnParticleRing(0x13D, SPAWNER_ACTOR->unk7C, SPAWNER_ACTOR->unk80 + 200.0f, SPAWNER_ACTOR->unk84 + 40.0f, 0x800, 1);
             s->unk13 = 9;
         }
         break;
@@ -459,16 +459,16 @@ void func_80031AA0(void) {
             i = 0xF;
         }
         sp5C = (i * 0x10) & 0xFF;
-        lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)BsA2_A->unk7C);
-        lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)BsA2_A->unk84);
+        lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)SPAWNER_ACTOR->unk7C);
+        lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)SPAWNER_ACTOR->unk84);
         lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
         if (s->unk12 == 1) {
             k = s->unk14 + 2;
             if (k >= 4) {
                 k -= 4;
             }
-            lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)BsA2_A->unk7C);
-            lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)BsA2_A->unk84);
+            lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)SPAWNER_ACTOR->unk7C);
+            lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)SPAWNER_ACTOR->unk84);
             lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
         }
     }

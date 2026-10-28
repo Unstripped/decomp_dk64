@@ -1,1 +1,18 @@
 // Overlay minecart (ovl03, segment table entry 3)
+minecartSpawnWheelEffect = 0x800241A0; // type:func
+minecartStepSpeedToTarget = 0x80024254; // type:func
+minecartPlayerCartUpdate = 0x8002430C; // type:func
+minecartUpdateHeadlight = 0x80024768; // type:func
+minecartReverseTrackBehaviour = 0x80024B00; // type:func
+minecartApplyJunction = 0x80024E78; // type:func
+minecartPlayerCartJunctionBehaviour = 0x80024FD0; // type:func
+minecartRampTiltRate = 0x8002538C; // type:func
+minecartFollowTrack = 0x800253C0; // type:func
+minecartFollowerBehaviour = 0x800265F0; // type:func
+minecartSetTargetAheadOfPlayer = 0x80026B6C; // type:func
+minecartSpawnRandomParticle = 0x80026C54; // type:func
+minecartFollowerChildBehaviour = 0x80026DA8; // type:func
+minecartStartScriptNearPlayer = 0x80027CF4; // type:func
+minecartChooseBranchSide = 0x80027DA0; // type:func
+minecartAdjustTargetSpeed = 0x80027E04; // type:func
+minecartPlayPassBySfx = 0x80027EE8; // type:func

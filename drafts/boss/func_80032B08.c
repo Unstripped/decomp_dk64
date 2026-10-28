@@ -1,16 +1,16 @@
 // func_80032B08 (src/boss/C920.c): stage 5 (same frame -56, same s0/s1 set, same 370 insns, opcode seq differs ~24 ops only in the unk17==1 block): D_80035B74 accesses stay unhoisted only when spelled via other lvalues (load/0x28/0 as D_80035B74, temp store D_80035B70[2], 0xA store D_80035B6C[4] = addend-only reloc diff); plain D_80035B74 everywhere hoists lui/addiu to v1 (108 op diff). Remaining: tables lui order z(B20) first/x second, y add in jal delay slot, lui v1 position. Tried z/x/y order perms, inline call args, decl orders. Names: actorDespawn, projectileSetTargetCoords, projectileAimAndSpawn.
-typedef struct BsB_Sub4_0 {
+typedef struct BossAnimState {
     char pad0[4];
     f32 unk4;
     char pad8[8];
     s16 unk10;
-} BsB_Sub4_0;
+} BossAnimState;
 
-typedef struct BsB_Sub4 {
-    BsB_Sub4_0 *unk0;
-} BsB_Sub4;
+typedef struct BossModelRef {
+    BossAnimState *unk0;
+} BossModelRef;
 
-typedef struct BsB_Sub174_0_174 {
+typedef struct BossParentState {
     char pad0[4];
     f32 unk4;
     char pad8[0xA];
@@ -19,9 +19,9 @@ typedef struct BsB_Sub174_0_174 {
     s8 unk14;
     char pad15[2];
     s8 unk17;
-} BsB_Sub174_0_174;
+} BossParentState;
 
-typedef struct BsB_Sub174_0 {
+typedef struct BossParentActor {
     char pad0[0x7C];
     f32 unk7C;
     char pad80[4];
@@ -29,18 +29,18 @@ typedef struct BsB_Sub174_0 {
     char pad88[0xCC];
     u8 unk154;
     char pad155[0x1F];
-    BsB_Sub174_0_174 *unk174;
-} BsB_Sub174_0;
+    BossParentState *unk174;
+} BossParentActor;
 
-typedef struct BsB_Sub174 {
-    BsB_Sub174_0 *unk0;
+typedef struct BossFollowerLink {
+    BossParentActor *unk0;
     s8 unk4;
     s8 unk5;
-} BsB_Sub174;
+} BossFollowerLink;
 
-typedef struct BsB_Actor {
+typedef struct BossFollowerActor {
     char pad0[4];
-    BsB_Sub4 *unk4;
+    BossModelRef *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -60,8 +60,8 @@ typedef struct BsB_Actor {
     u8 unk16B;
     u8 unk16C;
     char pad16D[7];
-    BsB_Sub174 *unk174;
-} BsB_Actor;
+    BossFollowerLink *unk174;
+} BossFollowerActor;
 
 void func_80613C48(void *, s16, f32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
@@ -84,12 +84,12 @@ extern s16 D_80035B6C[];
 extern s16 D_80035B68[];
 extern f32 D_80036DC4;
 
-#define ACTOR ((BsB_Actor *)D_807FBB40)
+#define ACTOR ((BossFollowerActor *)D_807FBB40)
 
 void func_80032B08(void) {
-    BsB_Sub174 *sub174 = ACTOR->unk174;
-    BsB_Sub174_0_174 *sp30 = sub174->unk0->unk174;
-    BsB_Sub4_0 *sub4_0 = ACTOR->unk4->unk0;
+    BossFollowerLink *sub174 = ACTOR->unk174;
+    BossParentState *sp30 = sub174->unk0->unk174;
+    BossAnimState *sub4_0 = ACTOR->unk4->unk0;
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;

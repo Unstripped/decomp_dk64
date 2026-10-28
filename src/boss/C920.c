@@ -122,14 +122,14 @@ void func_80030E58(void) {
     func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
 }
 
-typedef struct BsB2_Sub178 {
+typedef struct BossScriptState {
     u8 pad0[0x14];
     u8 unk14;
     u8 unk15;
     u8 unk16;
-} BsB2_Sub178;
+} BossScriptState;
 
-typedef struct BsB2_Actor {
+typedef struct BossActor {
     u8 pad0[0x60];
     s32 unk60;
     u8 pad64[0x7C - 0x64];
@@ -161,10 +161,10 @@ typedef struct BsB2_Actor {
     u8 pad156[0x160 - 0x156];
     f64 unk160;
     u8 pad168[0x178 - 0x168];
-    BsB2_Sub178 *unk178;
-} BsB2_Actor;
+    BossScriptState *unk178;
+} BossActor;
 
-typedef struct BsB2_DC90 {
+typedef struct BossWorkState {
     u8 pad0[0xA];
     s16 unkA;
     s16 unkC;
@@ -173,41 +173,41 @@ typedef struct BsB2_DC90 {
     u16 unk1A;
     u8 pad1C[0x25 - 0x1C];
     u8 unk25;
-} BsB2_DC90;
+} BossWorkState;
 
-typedef struct BsB2_D580 {
+typedef struct BossPlayerData {
     u8 pad0[0xD4];
     s16 unkD4;
     u8 padD6[0x1F0 - 0xD6];
     s32 unk1F0;
-} BsB2_D580;
+} BossPlayerData;
 
-typedef struct BsB2_C924 {
+typedef struct BossGlobalC924 {
     u8 pad0[0x2C0];
     u8 unk2C0;
-} BsB2_C924;
+} BossGlobalC924;
 
-typedef struct BsB2_DC98 {
+typedef struct BossLayoutData {
     u8 pad0[0x20];
     u8 (*unk20)[2];
-} BsB2_DC98;
+} BossLayoutData;
 
-typedef struct BsB2_DC9C {
+typedef struct BossConfig {
     u8 pad0[0xC];
     u8 unkC;
-} BsB2_DC9C;
+} BossConfig;
 
 extern u8 *D_80035AC0[];
 extern u8 D_80035ACF[];
 extern f32 D_80035AD4[];
 extern f32 D_80035AE4[];
 extern u8 D_807FBD70;
-extern BsB2_C924 *D_807FC924;
-extern BsB2_DC98 *D_807FDC98;
-extern BsB2_DC9C *D_807FDC9C;
+extern BossGlobalC924 *D_807FC924;
+extern BossLayoutData *D_807FDC98;
+extern BossConfig *D_807FDC9C;
 
 void behaviourFrameBegin(void);
-void func_80028878(u8 *);
+void bossRoundFrame(u8 *);
 void camSetSecondTarget(void *, s32, s32);
 void func_80724CA4(s32, s32);
 void func_806D0430(f32);
@@ -225,82 +225,82 @@ void actorSetGroupState(u8, s32);
 s16 func_806CC10C(s16, s16);
 s16 func_806CC190(s16, s16, f32);
 s32 currentActorTestClearFlag(void);
-s32 func_80027BA8(u8 *, s32, f32);
+s32 bossScriptStep(u8 *, s32, f32);
 void billboardSetFlags(s32);
 void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_8072881C(s32, void *);
 void actorUpdateModelMatrix(void *, s32);
 
-#define BsBA ((BsB2_Actor *)D_807FBB40)
-#define BsBP ((BsB2_Actor *)D_807FBB4C)
-#define BsBS ((BsB2_DC90 *)D_807FDC90)
-#define BsBD ((BsB2_D580 *)D_807FD580)
+#define BOSS_ACTOR ((BossActor *)D_807FBB40)
+#define PLAYER_ACTOR ((BossActor *)D_807FBB4C)
+#define WORK_STATE ((BossWorkState *)D_807FDC90)
+#define PLAYER_DATA ((BossPlayerData *)D_807FD580)
 
 void func_80030EC4(void) {
-    BsB2_Sub178 *sp178;
+    BossScriptState *sp178;
     u8 *sp28;
     s16 sp50[3];
 
-    sp178 = BsBA->unk178;
+    sp178 = BOSS_ACTOR->unk178;
     sp28 = D_80035AC0[sp178->unk14];
     behaviourFrameBegin();
-    func_80028878(sp28);
-    if (!(BsBA->unk60 & 0x10)) {
+    bossRoundFrame(sp28);
+    if (!(BOSS_ACTOR->unk60 & 0x10)) {
         camSetSecondTarget(gCamActor, 0, 0);
-        BsBA->unk146 = 5;
-        BsBA->unk154 = 0x1E;
-        BsBA->unk155 = 0;
-        BsBA->unkCC = 0;
+        BOSS_ACTOR->unk146 = 5;
+        BOSS_ACTOR->unk154 = 0x1E;
+        BOSS_ACTOR->unk155 = 0;
+        BOSS_ACTOR->unkCC = 0;
         func_80724CA4(2, 1);
-        BsBA->unk110 = 0;
-        BsBA->unk60 &= ~0x8000;
+        BOSS_ACTOR->unk110 = 0;
+        BOSS_ACTOR->unk60 &= ~0x8000;
         func_806D0430(0.45f);
         func_800290D4(0);
         flagSet(0x5F, 0, 2);
     }
-    if (BsBS->unk1A & 1) {
-        BsBA->unk128 -= (sp178->unk14 > 0) ? 10 : 5;
-        if (BsBA->unk128 < 0) {
-            BsBA->unk128 = 0;
-            BsBS->unk1A &= ~1;
+    if (WORK_STATE->unk1A & 1) {
+        BOSS_ACTOR->unk128 -= (sp178->unk14 > 0) ? 10 : 5;
+        if (BOSS_ACTOR->unk128 < 0) {
+            BOSS_ACTOR->unk128 = 0;
+            WORK_STATE->unk1A &= ~1;
         }
-    } else if (BsBA->unk154 != 0x29 && (BsBD->unk1F0 & 0x40) && BsBA->unk128 < 0xFF) {
-        if (!(BsBS->unk1A & 0x8000)) {
-            camStartPath(BsBA, 2, 1);
-            BsBS->unk1A |= 0x8000;
+    } else if (BOSS_ACTOR->unk154 != 0x29 && (PLAYER_DATA->unk1F0 & 0x40) && BOSS_ACTOR->unk128 < 0xFF) {
+        if (!(WORK_STATE->unk1A & 0x8000)) {
+            camStartPath(BOSS_ACTOR, 2, 1);
+            WORK_STATE->unk1A |= 0x8000;
         } else {
             func_80641874(2, 0);
         }
-        BsBA->unk128 += 5;
-        if (BsBA->unk128 >= 0x100) {
-            BsBA->unk128 = 0xFF;
+        BOSS_ACTOR->unk128 += 5;
+        if (BOSS_ACTOR->unk128 >= 0x100) {
+            BOSS_ACTOR->unk128 = 0xFF;
         }
     }
-    if (D_807FC924->unk2C0 != 1 && (BsBA->unk154 == 0x42 || BsBA->unk154 == 0x27)) {
-        BsBA->unk144 = 1;
-        actorSetTargetSpeed(BsBA, 0);
-        BsBA->unk154 = 0x29;
-        BsBA->unk155 = 0;
-        BsBA->unk155 = 1;
+    if (D_807FC924->unk2C0 != 1 && (BOSS_ACTOR->unk154 == 0x42 || BOSS_ACTOR->unk154 == 0x27)) {
+        BOSS_ACTOR->unk144 = 1;
+        actorSetTargetSpeed(BOSS_ACTOR, 0);
+        BOSS_ACTOR->unk154 = 0x29;
+        BOSS_ACTOR->unk155 = 0;
+        BOSS_ACTOR->unk155 = 1;
     }
-    switch (BsBA->unk154) {
+    switch (BOSS_ACTOR->unk154) {
     case 0x29:
-        switch (BsBA->unk155) {
+        switch (BOSS_ACTOR->unk155) {
         case 0:
-            actorMoveWithinZone(0, (f32)BsBS->unkA, (f32)BsBS->unkE, 0x309, 0.0f);
+            actorMoveWithinZone(0, (f32)WORK_STATE->unkA, (f32)WORK_STATE->unkE, 0x309, 0.0f);
             break;
         case 1:
             if (sp178->unk14 >= 2) {
                 func_80030E58();
             }
-            BsBA->unk132 = 4;
+            BOSS_ACTOR->unk132 = 4;
             func_80030920((s32)sp178);
-            func_80614D00(BsBA, D_80035AE4[sp178->unk14], 0.0f);
-            BsBA->unk155++;
+            func_80614D00(BOSS_ACTOR, D_80035AE4[sp178->unk14], 0.0f);
+            BOSS_ACTOR->unk155++;
             break;
         case 3:
-            BsBA->unk160 = 0.0;
-            BsBA->unk155++;
+            BOSS_ACTOR->unk160 = 0.0;
+            BOSS_ACTOR->unk155++;
             /* fallthrough */
         case 4:
             func_80030C30(D_80035AD4[sp178->unk14]);
@@ -309,23 +309,23 @@ void func_80030EC4(void) {
             }
             break;
         case 5:
-            BsBA->unk155++;
+            BOSS_ACTOR->unk155++;
             break;
         case 6:
-            if (D_807FBD70 == 5 && BsBP->unk154 == 0x24 && BsBA->unk160 > 0.79) {
+            if (D_807FBD70 == 5 && PLAYER_ACTOR->unk154 == 0x24 && BOSS_ACTOR->unk160 > 0.79) {
                 if (sp178->unk14 == 3) {
-                    BsBA->unk154 = 0x37;
-                    BsBA->unk155 = 0;
-                    actorScriptStart(BsBP, 0);
-                    actorScriptStart(BsBA, 0);
-                    camStartPath(BsBA, 0x16, 1);
+                    BOSS_ACTOR->unk154 = 0x37;
+                    BOSS_ACTOR->unk155 = 0;
+                    actorScriptStart(PLAYER_ACTOR, 0);
+                    actorScriptStart(BOSS_ACTOR, 0);
+                    camStartPath(BOSS_ACTOR, 0x16, 1);
                     flagSet(0x1B0, 1, 0);
                 } else {
-                    BsBA->unk128 = 0xFF;
-                    BsBA->unk132 = 1;
-                    BsBA->unk155 = 8;
-                    camStartPath(BsBA, 0x17, 1);
-                    actorScriptStart(BsBA, 0);
+                    BOSS_ACTOR->unk128 = 0xFF;
+                    BOSS_ACTOR->unk132 = 1;
+                    BOSS_ACTOR->unk155 = 8;
+                    camStartPath(BOSS_ACTOR, 0x17, 1);
+                    actorScriptStart(BOSS_ACTOR, 0);
                 }
                 func_80641874(2, 0xFF);
             }
@@ -335,17 +335,17 @@ void func_80030EC4(void) {
             }
             break;
         case 7:
-            BsBA->unk128 = 0xFF;
-            BsBD->unkD4 = 0x12C;
-            camStartPath(BsBA, 0x18, 1);
+            BOSS_ACTOR->unk128 = 0xFF;
+            PLAYER_DATA->unkD4 = 0x12C;
+            camStartPath(BOSS_ACTOR, 0x18, 1);
             func_80641874(2, 0xFF);
-            func_80614D00(BsBA, 1.0f, 0.0f);
-            actorScriptStart(BsBA, 0);
-            BsBA->unk155 = 0xA;
+            func_80614D00(BOSS_ACTOR, 1.0f, 0.0f);
+            actorScriptStart(BOSS_ACTOR, 0);
+            BOSS_ACTOR->unk155 = 0xA;
             break;
         case 8:
             if (camIsCutsceneActive() == 0) {
-                BsBA->unk155++;
+                BOSS_ACTOR->unk155++;
             }
             break;
         case 9:
@@ -357,22 +357,22 @@ void func_80030EC4(void) {
         case 11:
         case 12:
             if (camIsCutsceneActive() == 0) {
-                func_806D0468(BsBP, 1);
-                actorSetTargetSpeed(BsBA, D_807FDC9C->unkC);
-                if (BsBA->unk132 != 1) {
+                func_806D0468(PLAYER_ACTOR, 1);
+                actorSetTargetSpeed(BOSS_ACTOR, D_807FDC9C->unkC);
+                if (BOSS_ACTOR->unk132 != 1) {
                     if (func_806C9974(0, -1) != 0) {
-                        func_80614E78(BsBP, 0x27);
-                        BsBP->unk154 = 0x36;
-                        BsBP->unk155 = 0;
+                        func_80614E78(PLAYER_ACTOR, 0x27);
+                        PLAYER_ACTOR->unk154 = 0x36;
+                        PLAYER_ACTOR->unk155 = 0;
                     }
-                    BsBA->unk132 = 1;
+                    BOSS_ACTOR->unk132 = 1;
                     sp178->unk15 = sp178->unk16;
                 }
                 func_80030AE0((BossD_Sub178 *)sp178);
-                BsBA->unk154 = sp28[sp178->unk15];
+                BOSS_ACTOR->unk154 = sp28[sp178->unk15];
                 sp178->unk15++;
-                BsBA->unk155 = 0;
-                actorScriptStart(BsBA, 0x3E4);
+                BOSS_ACTOR->unk155 = 0;
+                actorScriptStart(BOSS_ACTOR, 0x3E4);
                 func_80030E58();
             }
             break;
@@ -380,111 +380,111 @@ void func_80030EC4(void) {
         break;
     case 0x28:
         func_80030E58();
-        BsBA->unk154 = sp28[sp178->unk15];
+        BOSS_ACTOR->unk154 = sp28[sp178->unk15];
         sp178->unk15++;
-        BsBA->unk155 = 0;
+        BOSS_ACTOR->unk155 = 0;
         break;
     case 0x27:
-        switch (BsBA->unk155) {
+        switch (BOSS_ACTOR->unk155) {
         case 0:
             func_8072CFE8(&sp50[2], &sp50[1], &sp50[0]);
-            actorSetGroupState(D_80035ACF[D_807FDC98->unk20[BsBS->unk25 & 0x7F][0]], 1);
-            BsBA->unkEC = mathAngleBetweenPoints2D((f32)sp50[2], (f32)sp50[0], BsBA->unk7C, BsBA->unk84);
-            if (func_806CC10C(BsBA->unkE6, BsBA->unkEC) < 0) {
-                actorScriptStart(BsBA, 0x401);
+            actorSetGroupState(D_80035ACF[D_807FDC98->unk20[WORK_STATE->unk25 & 0x7F][0]], 1);
+            BOSS_ACTOR->unkEC = mathAngleBetweenPoints2D((f32)sp50[2], (f32)sp50[0], BOSS_ACTOR->unk7C, BOSS_ACTOR->unk84);
+            if (func_806CC10C(BOSS_ACTOR->unkE6, BOSS_ACTOR->unkEC) < 0) {
+                actorScriptStart(BOSS_ACTOR, 0x401);
             } else {
-                actorScriptStart(BsBA, 0x402);
+                actorScriptStart(BOSS_ACTOR, 0x402);
             }
-            actorSetTargetSpeed(BsBA, 0);
-            BsBA->unk155++;
+            actorSetTargetSpeed(BOSS_ACTOR, 0);
+            BOSS_ACTOR->unk155++;
             break;
         case 1:
-            BsBA->unkE6 = func_806CC190(BsBA->unkE6, (s16)(BsBA->unkEC + 0x800), 10.0f);
-            actorMoveWithinZone(0, (f32)BsBS->unkA, (f32)BsBS->unkE, 0x309, 0.0f);
+            BOSS_ACTOR->unkE6 = func_806CC190(BOSS_ACTOR->unkE6, (s16)(BOSS_ACTOR->unkEC + 0x800), 10.0f);
+            actorMoveWithinZone(0, (f32)WORK_STATE->unkA, (f32)WORK_STATE->unkE, 0x309, 0.0f);
             break;
         case 2:
-            BsBA->unkEE = BsBA->unkE6;
-            BsBA->unkB8 = -150.0f;
-            BsBA->unk155++;
+            BOSS_ACTOR->unkEE = BOSS_ACTOR->unkE6;
+            BOSS_ACTOR->unkB8 = -150.0f;
+            BOSS_ACTOR->unk155++;
             /* fallthrough */
         case 3:
-            actorMoveWithinZone(0, (f32)BsBS->unkA, (f32)BsBS->unkE, 0x309, 0.0f);
+            actorMoveWithinZone(0, (f32)WORK_STATE->unkA, (f32)WORK_STATE->unkE, 0x309, 0.0f);
             break;
         case 4:
-            BsBA->unkB8 = BsBA->unkB8 * -1.0f;
-            BsBA->unkE6 += 0x800;
-            BsBA->unkEE = BsBA->unkE6;
-            actorSetTargetSpeed(BsBA, D_807FDC9C->unkC);
-            BsBA->unk154 = sp28[sp178->unk15];
+            BOSS_ACTOR->unkB8 = BOSS_ACTOR->unkB8 * -1.0f;
+            BOSS_ACTOR->unkE6 += 0x800;
+            BOSS_ACTOR->unkEE = BOSS_ACTOR->unkE6;
+            actorSetTargetSpeed(BOSS_ACTOR, D_807FDC9C->unkC);
+            BOSS_ACTOR->unk154 = sp28[sp178->unk15];
             sp178->unk15++;
-            BsBA->unk155 = 0;
+            BOSS_ACTOR->unk155 = 0;
             break;
         }
         break;
     case 0x1E:
         sp178->unk14 = 0;
         sp178->unk15 = 0;
-        BsBA->unk154 = sp28[sp178->unk15];
+        BOSS_ACTOR->unk154 = sp28[sp178->unk15];
         sp178->unk15++;
-        BsBA->unk155 = 0;
-        BsBA->unkB8 = (f32)(u32)D_807FDC9C->unkC;
+        BOSS_ACTOR->unk155 = 0;
+        BOSS_ACTOR->unkB8 = (f32)(u32)D_807FDC9C->unkC;
         break;
     case 0:
-        switch (BsBA->unk155) {
+        switch (BOSS_ACTOR->unk155) {
         case 0:
-            actorScriptStart(BsBA, 0x3EA);
-            BsBA->unk155++;
+            actorScriptStart(BOSS_ACTOR, 0x3EA);
+            BOSS_ACTOR->unk155++;
             break;
         case 2:
-            BsBA->unk154 = sp28[sp178->unk15];
+            BOSS_ACTOR->unk154 = sp28[sp178->unk15];
             sp178->unk15++;
-            BsBA->unk155 = 0;
+            BOSS_ACTOR->unk155 = 0;
             break;
         }
         break;
     case 0x37:
-        switch (BsBA->unk155) {
+        switch (BOSS_ACTOR->unk155) {
         case 0:
-            BsBA->unk155++;
+            BOSS_ACTOR->unk155++;
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
-                BsBP->unk60 &= ~4;
-                camStartPath(BsBA, 0x1A, 1);
-                BsBA->unk155++;
+                PLAYER_ACTOR->unk60 &= ~4;
+                camStartPath(BOSS_ACTOR, 0x1A, 1);
+                BOSS_ACTOR->unk155++;
             }
             break;
         }
         break;
     default:
-        func_80027BA8(sp28, 0x19, 0.0f);
+        bossScriptStep(sp28, 0x19, 0.0f);
         break;
     }
-    if (BsBA->unk60 & 4) {
+    if (BOSS_ACTOR->unk60 & 4) {
         billboardSetFlags(1);
-        func_8065D254(BsBA, 0x3C8, 0x40, 0x40, 0x3C, 0x3C, 1, 0x12C, 0xB4, 0, 1.0f);
+        func_8065D254(BOSS_ACTOR, 0x3C8, 0x40, 0x40, 0x3C, 0x3C, 1, 0x12C, 0xB4, 0, 1.0f);
     }
     if (func_8072881C(0, (u8 *)D_807FDC90 + 0x28) != 0) {
         func_8072881C(0x81, (u8 *)D_807FDC90 + 0x28);
     }
-    actorUpdateModelMatrix(BsBA, 0);
+    actorUpdateModelMatrix(BOSS_ACTOR, 0);
 }
 
 #ifdef NON_MATCHING
-typedef struct BsA2_Sub4 {
+typedef struct BossModelInfo {
     u8 pad0[0x34];
     f32 unk34;
     f32 unk38;
     f32 unk3C;
-} BsA2_Sub4;
+} BossModelInfo;
 
-typedef struct BsA2_SpawnState {
+typedef struct BossSpawnState {
     void *unk0;
     s8 unk4;
     s8 unk5;
-} BsA2_SpawnState;
+} BossSpawnState;
 
-typedef struct BsA2_State {
+typedef struct BossSpawnerState {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -497,11 +497,11 @@ typedef struct BsA2_State {
     s8 unk15;
     s8 unk16;
     s8 unk17;
-} BsA2_State;
+} BossSpawnerState;
 
-typedef struct BsA2_Actor {
+typedef struct BossSpawnerActor {
     u8 pad0[4];
-    BsA2_Sub4 *unk4;
+    BossModelInfo *unk4;
     u8 pad8[0x60 - 8];
     s32 unk60;
     u8 pad64[0x7C - 0x64];
@@ -523,21 +523,21 @@ typedef struct BsA2_Actor {
     u8 unk154;
     u8 unk155;
     u8 pad156[0x174 - 0x156];
-    BsA2_State *unk174;
-} BsA2_Actor;
+    BossSpawnerState *unk174;
+} BossSpawnerActor;
 
-typedef struct BsA2_Spawn {
+typedef struct BossSpawnedActor {
     u8 pad0[4];
-    BsA2_Sub4 *unk4;
+    BossModelInfo *unk4;
     u8 pad8[0x60 - 8];
     s32 unk60;
     u8 pad64[0x80 - 0x64];
     f32 unk80;
     u8 pad84[0x174 - 0x84];
-    BsA2_SpawnState *unk174;
-} BsA2_Spawn;
+    BossSpawnState *unk174;
+} BossSpawnedActor;
 
-extern BsA2_Spawn *D_807FBB44;
+extern BossSpawnedActor *D_807FBB44;
 extern u8 D_807FBDC4;
 extern s16 D_80035B00[];
 extern s16 D_80035B08[];
@@ -579,37 +579,37 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void lightSetColor(f32, f32, f32, s32);
 void func_8068B80C(void);
 
-#define BsA2_A ((BsA2_Actor *)D_807FBB40)
-#define BsA2_P ((BsA2_Actor *)D_807FBB4C)
+#define SPAWNER_ACTOR ((BossSpawnerActor *)D_807FBB40)
+#define SPAWNER_PLAYER ((BossSpawnerActor *)D_807FBB4C)
 
 void func_80031AA0(void) {
     f32 dx;
     f32 dz;
     s32 k;
     s32 i;
-    BsA2_State *s;
+    BossSpawnerState *s;
     s8 sp6B;
     s8 sp6A;
     s8 sp69;
     s8 sp68;
     s8 sp67;
-    BsA2_SpawnState *st;
+    BossSpawnState *st;
     s32 sp5C;
     f32 lx;
     f32 lz;
     s16 j;
 
-    s = BsA2_A->unk174;
+    s = SPAWNER_ACTOR->unk174;
     sp67 = 0;
     sp68 = 0;
     sp6A = 0;
-    if (!(BsA2_A->unk60 & 0x10)) {
+    if (!(SPAWNER_ACTOR->unk60 & 0x10)) {
         D_80035B28 = 0xF;
         D_80035B34 = 0;
         D_80035B3C = 0.0f;
         s->unkC = 0x1E;
         s->unkE = 1;
-        s->unk0 = BsA2_A->unk80;
+        s->unk0 = SPAWNER_ACTOR->unk80;
         s->unk14 = 0;
         D_80035B6C = 0;
         s->unk12 = 0;
@@ -617,10 +617,10 @@ void func_80031AA0(void) {
         for (i = 0; i != 8; i++) {
             if (actorSpawn(0xA6, D_80035B60[i >> 1]) != 0) {
                 st = D_807FBB44->unk174;
-                st->unk0 = BsA2_A;
+                st->unk0 = SPAWNER_ACTOR;
                 st->unk4 = i >> 1;
                 st->unk5 = i & 1;
-                D_807FBB44->unk80 = BsA2_A->unk80 + 50.0f;
+                D_807FBB44->unk80 = SPAWNER_ACTOR->unk80 + 50.0f;
                 D_807FBB44->unk4->unk34 = 0.1f;
                 D_807FBB44->unk4->unk38 = 0.1f;
                 D_807FBB44->unk4->unk3C = 0.1f;
@@ -630,27 +630,27 @@ void func_80031AA0(void) {
         D_80036DC4 = 160000.0f;
         D_80036DC0 = 0;
         if (D_807FBB4C != NULL) {
-            BsA2_P->unk154 = 0x77;
-            BsA2_P->unk155 = 0;
+            SPAWNER_PLAYER->unk154 = 0x77;
+            SPAWNER_PLAYER->unk155 = 0;
         }
-        BsA2_A->unk12A = 0x7D0;
-        collisionCheckActorFloor(BsA2_A, BsA2_A->unk7C, BsA2_A->unk80, BsA2_A->unk84, &BsA2_A->unkA4);
-        BsA2_A->unk154 = 2;
+        SPAWNER_ACTOR->unk12A = 0x7D0;
+        collisionCheckActorFloor(SPAWNER_ACTOR, SPAWNER_ACTOR->unk7C, SPAWNER_ACTOR->unk80, SPAWNER_ACTOR->unk84, &SPAWNER_ACTOR->unkA4);
+        SPAWNER_ACTOR->unk154 = 2;
         camStartPath(0, 3, 1);
     }
-    switch (BsA2_A->unk154) {
+    switch (SPAWNER_ACTOR->unk154) {
     case 0:
-        BsA2_P->unk7C = BsA2_A->unk7C;
-        BsA2_P->unk80 = BsA2_A->unk80;
-        BsA2_P->unk84 = BsA2_A->unk84;
+        SPAWNER_PLAYER->unk7C = SPAWNER_ACTOR->unk7C;
+        SPAWNER_PLAYER->unk80 = SPAWNER_ACTOR->unk80;
+        SPAWNER_PLAYER->unk84 = SPAWNER_ACTOR->unk84;
         if (D_80035B38 == -1) {
-            D_80035B38 = BsA2_P->unk144;
+            D_80035B38 = SPAWNER_PLAYER->unk144;
         }
-        BsA2_P->unk60 &= ~4;
-        BsA2_P->unk144 = 1;
+        SPAWNER_PLAYER->unk60 &= ~4;
+        SPAWNER_PLAYER->unk144 = 1;
         if (D_807FBDC4 != 0) {
             sp5C = D_80035B44[D_80036DC0];
-            BsA2_A->unk146 = 0;
+            SPAWNER_ACTOR->unk146 = 0;
             for (i = 4; D_80036DC0 < i; i--) {
                 func_8068A764(D_807FBB40, D_80035B58[D_80035B44[i]]);
             }
@@ -658,31 +658,31 @@ void func_80031AA0(void) {
             sp5C = D_80035B4C[sp5C];
             func_806C8E58(sp5C);
             func_806F09F0(D_807FBB4C, sp5C);
-            BsA2_P->unk154 = 0xC;
-            BsA2_P->unk155 = 0;
+            SPAWNER_PLAYER->unk154 = 0xC;
+            SPAWNER_PLAYER->unk155 = 0;
             func_8067AAB8(D_807FBB40, D_807FBB4C, 0, 180.0f, 0x46);
-            BsA2_A->unk154 = 1;
-            BsA2_P->unk144 = D_80035B38;
+            SPAWNER_ACTOR->unk154 = 1;
+            SPAWNER_PLAYER->unk144 = D_80035B38;
         }
         break;
     case 1:
-        BsA2_P->unk60 |= 4;
-        dx = BsA2_P->unk7C - BsA2_A->unk7C;
-        dz = BsA2_P->unk84 - BsA2_A->unk84;
+        SPAWNER_PLAYER->unk60 |= 4;
+        dx = SPAWNER_PLAYER->unk7C - SPAWNER_ACTOR->unk7C;
+        dz = SPAWNER_PLAYER->unk84 - SPAWNER_ACTOR->unk84;
         if (dx > 700.0 || dx < -700.0 || dz > 700.0 || dz < -700.0) {
             if (D_80036DC0 < 5) {
-                BsA2_A->unk154 = 0;
+                SPAWNER_ACTOR->unk154 = 0;
                 camStartPath(0, 2, 1);
             } else {
                 func_805FF378(0x2A, 2);
-                BsA2_A->unk154 = 3;
+                SPAWNER_ACTOR->unk154 = 3;
             }
         }
         break;
     case 2:
         s->unkE--;
         if (s->unkE < 0) {
-            BsA2_A->unk154 = 0;
+            SPAWNER_ACTOR->unk154 = 0;
             func_806C8E58(4);
             func_806F09F0(D_807FBB4C, 4);
             s->unk13 = 1;
@@ -691,10 +691,10 @@ void func_80031AA0(void) {
     case 3:
         break;
     }
-    BsA2_A->unkE6 += 0x32;
-    BsA2_A->unkE6 &= 0xFFF;
-    BsA2_A->unk80 = func_80612794(BsA2_A->unkE6) * 5.0 + s->unk0;
-    if (BsA2_P->unk154 == 0x45 && BsA2_P->unk155 >= 2 && D_80036DC4 < 10000.0) {
+    SPAWNER_ACTOR->unkE6 += 0x32;
+    SPAWNER_ACTOR->unkE6 &= 0xFFF;
+    SPAWNER_ACTOR->unk80 = func_80612794(SPAWNER_ACTOR->unkE6) * 5.0 + s->unk0;
+    if (SPAWNER_PLAYER->unk154 == 0x45 && SPAWNER_PLAYER->unk155 >= 2 && D_80036DC4 < 10000.0) {
         sp6A = 1;
     }
     sp69 = 0;
@@ -871,8 +871,8 @@ void func_80031AA0(void) {
             for (j = 0; j < 4; j++) {
                 actorDespawn(actorListFindActorById(j));
             }
-            BsA2_A->unk60 &= ~0x8000;
-            BsA2_A->unk128 = 0;
+            SPAWNER_ACTOR->unk60 &= ~0x8000;
+            SPAWNER_ACTOR->unk128 = 0;
             camStartPath(0, 4, 1);
             s->unk13 = 8;
         }
@@ -881,7 +881,7 @@ void func_80031AA0(void) {
         s->unk8 = -0.1f;
         if (D_807FBDC4 != 0) {
             sfxAllocateChannel(0x35, 0x3F800000);
-            bossSpawnParticleRing(0x13D, BsA2_A->unk7C, BsA2_A->unk80 + 200.0f, BsA2_A->unk84 + 40.0f, 0x800, 1);
+            bossSpawnParticleRing(0x13D, SPAWNER_ACTOR->unk7C, SPAWNER_ACTOR->unk80 + 200.0f, SPAWNER_ACTOR->unk84 + 40.0f, 0x800, 1);
             s->unk13 = 9;
         }
         break;
@@ -920,16 +920,16 @@ void func_80031AA0(void) {
             i = 0xF;
         }
         sp5C = (i * 0x10) & 0xFF;
-        lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)BsA2_A->unk7C);
-        lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)BsA2_A->unk84);
+        lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)SPAWNER_ACTOR->unk7C);
+        lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)SPAWNER_ACTOR->unk84);
         lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
         if (s->unk12 == 1) {
             k = s->unk14 + 2;
             if (k >= 4) {
                 k -= 4;
             }
-            lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)BsA2_A->unk7C);
-            lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)BsA2_A->unk84);
+            lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)SPAWNER_ACTOR->unk7C);
+            lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)SPAWNER_ACTOR->unk84);
             lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
         }
     }
@@ -948,18 +948,18 @@ void func_80031AA0(void) {
 #endif
 
 #ifdef NON_MATCHING
-typedef struct BsB_Sub4_0 {
+typedef struct BossAnimState {
     char pad0[4];
     f32 unk4;
     char pad8[8];
     s16 unk10;
-} BsB_Sub4_0;
+} BossAnimState;
 
-typedef struct BsB_Sub4 {
-    BsB_Sub4_0 *unk0;
-} BsB_Sub4;
+typedef struct BossModelRef {
+    BossAnimState *unk0;
+} BossModelRef;
 
-typedef struct BsB_Sub174_0_174 {
+typedef struct BossParentState {
     char pad0[4];
     f32 unk4;
     char pad8[0xA];
@@ -968,9 +968,9 @@ typedef struct BsB_Sub174_0_174 {
     s8 unk14;
     char pad15[2];
     s8 unk17;
-} BsB_Sub174_0_174;
+} BossParentState;
 
-typedef struct BsB_Sub174_0 {
+typedef struct BossParentActor {
     char pad0[0x7C];
     f32 unk7C;
     char pad80[4];
@@ -978,18 +978,18 @@ typedef struct BsB_Sub174_0 {
     char pad88[0xCC];
     u8 unk154;
     char pad155[0x1F];
-    BsB_Sub174_0_174 *unk174;
-} BsB_Sub174_0;
+    BossParentState *unk174;
+} BossParentActor;
 
-typedef struct BsB_Sub174 {
-    BsB_Sub174_0 *unk0;
+typedef struct BossFollowerLink {
+    BossParentActor *unk0;
     s8 unk4;
     s8 unk5;
-} BsB_Sub174;
+} BossFollowerLink;
 
-typedef struct BsB_Actor {
+typedef struct BossFollowerActor {
     char pad0[4];
-    BsB_Sub4 *unk4;
+    BossModelRef *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -1009,8 +1009,8 @@ typedef struct BsB_Actor {
     u8 unk16B;
     u8 unk16C;
     char pad16D[7];
-    BsB_Sub174 *unk174;
-} BsB_Actor;
+    BossFollowerLink *unk174;
+} BossFollowerActor;
 
 void func_80613C48(void *, s16, f32, f32);
 void func_80609140();
@@ -1029,12 +1029,12 @@ extern f32 D_80035B3C;
 extern s16 D_80035B74;
 extern f32 D_80036DC4;
 
-#define ACTOR ((BsB_Actor *)D_807FBB40)
+#define ACTOR ((BossFollowerActor *)D_807FBB40)
 
 void func_80032B08(void) {
-    BsB_Sub174 *sub174 = ACTOR->unk174;
-    BsB_Sub174_0_174 *sp30 = sub174->unk0->unk174;
-    BsB_Sub4_0 *sub4_0 = ACTOR->unk4->unk0;
+    BossFollowerLink *sub174 = ACTOR->unk174;
+    BossParentState *sp30 = sub174->unk0->unk174;
+    BossAnimState *sub4_0 = ACTOR->unk4->unk0;
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;

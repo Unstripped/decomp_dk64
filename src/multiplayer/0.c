@@ -1,15 +1,15 @@
 #include "common.h"
 
-typedef struct Struct_80024000_2_MpLow {
+typedef struct MpTimerState {
     u64 unk0;
     s32 unk8;
     s32 unkC;
-} Struct_80024000_2_MpLow;
+} MpTimerState;
 
-typedef struct Struct_80024000_1_MpLow {
+typedef struct MpTimerActor {
     char pad[0x174];
-    Struct_80024000_2_MpLow *unk174;
-} Struct_80024000_1_MpLow;
+    MpTimerState *unk174;
+} MpTimerActor;
 
 extern u8 D_80750AB8;
 extern s16 D_80744490;
@@ -29,38 +29,38 @@ extern s32 D_807FBB60;
 extern s8 D_8076A105;
 void func_80714638(void);
 s32 randomNonNegative(void);
-typedef struct Struct_80026FA4_MpLow {
+typedef struct MpMapEntry {
     s32 unk0;
     char pad[0x1C];
-} Struct_80026FA4_MpLow;
-extern Struct_80026FA4_MpLow D_80026FA4[];
+} MpMapEntry;
+extern MpMapEntry D_80026FA4[];
 extern s32 D_8076A0A8;
 extern u64 __ll_mul(u64, u64);
 extern u64 __ull_div(u64, u64);
-extern Struct_80024000_1_MpLow *D_807FBB40;
+extern MpTimerActor *D_807FBB40;
 void renderCallbacksRegister(void *, void *, s32);
-typedef struct Struct_807552E4_MpLow {
+typedef struct MpSettingsLimit {
     char pad[0xC];
     s32 unkC;
-} Struct_807552E4_MpLow;
-extern Struct_807552E4_MpLow D_807552E4;
+} MpSettingsLimit;
+extern MpSettingsLimit D_807552E4;
 extern u8 *D_807FC924;
-typedef struct Struct_800246EC_Sub_MpLow {
+typedef struct MpScoreViewport {
     char pad[0x6];
     s16 unk6;
     s16 unk8;
-} Struct_800246EC_Sub_MpLow;
+} MpScoreViewport;
 
-typedef struct Struct_800246EC_Arg1_MpLow {
+typedef struct MpScoreHudState {
     char pad[0x20];
-    Struct_800246EC_Sub_MpLow *unk20[4];
+    MpScoreViewport *unk20[4];
     char pad2[0x14];
     void *unk44;
     void *unk48;
-} Struct_800246EC_Arg1_MpLow;
+} MpScoreHudState;
 
-Gfx *func_80024000(Gfx *glistp, Struct_80024000_1_MpLow *arg1) {
-    Struct_80024000_2_MpLow *sp44;
+Gfx *mpDrawTimer(Gfx *glistp, MpTimerActor *arg1) {
+    MpTimerState *sp44;
     f32 var_fv1;
     f32 var_fa0;
 
@@ -86,7 +86,7 @@ Gfx *func_80024000(Gfx *glistp, Struct_80024000_1_MpLow *arg1) {
     return func_8068E7B4(glistp, var_fv1, var_fa0, sp44->unk8);
 }
 
-s32 func_800241F4(void *arg0, s32 arg1) {
+s32 mpCalcKillScore(void *arg0, s32 arg1) {
     s32 var_v1;
 
     var_v1 = -*(u16 *)((u8 *)arg0 + (arg1 << 1) + 0x2FE);
@@ -120,7 +120,7 @@ s32 mpGetPlayerScore(s32 arg0) {
         break;
     case 0:
     case 1:
-        var_v1 = func_800241F4(&D_807FC950[arg0 * 0x306], arg0);
+        var_v1 = mpCalcKillScore(&D_807FC950[arg0 * 0x306], arg0);
         break;
     }
     return var_v1;
@@ -154,7 +154,7 @@ void mpDetermineWinner(s32 arg0) {
 }
 
 void mpUpdateMatchTimer(void) {
-    Struct_80024000_2_MpLow *temp_s0;
+    MpTimerState *temp_s0;
     u64 x;
 
     temp_s0 = D_807FBB40->unk174;
@@ -167,10 +167,10 @@ void mpUpdateMatchTimer(void) {
         temp_s0->unk8 = 0;
         mpDetermineWinner((s32)temp_s0);
     }
-    renderCallbacksRegister(func_80024000, D_807FBB40, 7);
+    renderCallbacksRegister(mpDrawTimer, D_807FBB40, 7);
 }
 
-void func_8002449C(void) {
+void mpCheckScoreLimit(void) {
     s32 temp_v0;
     s32 var_s0;
 
@@ -187,7 +187,7 @@ void func_8002449C(void) {
     }
 }
 
-void func_8002452C(void) {
+void mpCheckLastPlayerStanding(void) {
     s32 var_s0;
     s32 var_s1;
 
@@ -214,28 +214,28 @@ Gfx *mpDrawGlyph(Gfx *glistp, s16 *arg1, s16 arg2, void *arg3, s32 arg4) {
 }
 
 #ifdef NON_MATCHING
-typedef struct MpA_246_Act {
+typedef struct MpScoreActor {
     char pad[0x128];
     s16 unk128;
-} MpA_246_Act;
+} MpScoreActor;
 
-typedef struct MpA_246_Plr {
+typedef struct MpScorePlayer {
     u8 unk0;
     char pad1[3];
-    MpA_246_Act *unk4;
+    MpScoreActor *unk4;
     char pad2[0x2EA - 8];
     u8 unk2EA;
     char pad3[0x2F0 - 0x2EB];
-} MpA_246_Plr;
+} MpScorePlayer;
 
-typedef struct MpA_246_Sc {
+typedef struct MpScoreRecord {
     char pad[0x2FB];
     s8 unk2FB;
     char pad2[0x306 - 0x2FC];
-} MpA_246_Sc;
+} MpScoreRecord;
 
 Gfx *func_800246EC(Gfx *glistp, void *arg1v, f32 arg2) {
-#define arg1 ((Struct_800246EC_Arg1_MpLow *)arg1v)
+#define arg1 ((MpScoreHudState *)arg1v)
     s16 spAE;
     s32 i;
     s32 nxt;
@@ -245,9 +245,9 @@ Gfx *func_800246EC(Gfx *glistp, void *arg1v, f32 arg2) {
     s32 half;
     s16 y;
     s32 alpha;
-    Struct_800246EC_Sub_MpLow *sub;
-    MpA_246_Plr *plr;
-    Struct_800246EC_Arg1_MpLow *p;
+    MpScoreViewport *sub;
+    MpScorePlayer *plr;
+    MpScoreHudState *p;
 
     gDPPipeSync(glistp++);
     gSPDisplayList(glistp++, &D_1000118);
@@ -263,7 +263,7 @@ Gfx *func_800246EC(Gfx *glistp, void *arg1v, f32 arg2) {
         do {
             sub = p->unk20[0];
             alpha = 0xFF;
-            plr = (MpA_246_Plr *)(D_807FC924 + off);
+            plr = (MpScorePlayer *)(D_807FC924 + off);
             if (plr->unk2EA != 0) {
                 alpha = plr->unk4->unk128 & 0xFF;
                 if (plr->unk4->unk128 >= 0x100) {
@@ -276,7 +276,7 @@ Gfx *func_800246EC(Gfx *glistp, void *arg1v, f32 arg2) {
                 nxt = i + 1;
             } else {
                 gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
-                tmp = ((MpA_246_Sc *)D_807FC950)[i].unk2FB;
+                tmp = ((MpScoreRecord *)D_807FC950)[i].unk2FB;
                 if (D_80750AB8 == 0) {
                     nxt = i + 1;
                     spAE = sub->unk8 - 0x30;
@@ -317,34 +317,34 @@ s32 func_806FBD5C(s32, char *);
 Gfx *func_806FC530(Gfx *, s32, s16, s16, char *, s32);
 Gfx *func_800246EC(Gfx *, void *, f32);
 
-typedef struct Struct_800249D8_Sub_MpDraw {
+typedef struct MpDrawViewport {
     char pad[0x6];
     s16 unk6;
-} Struct_800249D8_Sub_MpDraw;
+} MpDrawViewport;
 
-typedef struct Struct_800249D8_Unk174_MpDraw {
+typedef struct MpDrawState {
     char pad[0x20];
-    Struct_800249D8_Sub_MpDraw *unk20[4];
+    MpDrawViewport *unk20[4];
     Mtx *unk30;
-} Struct_800249D8_Unk174_MpDraw;
+} MpDrawState;
 
-typedef struct Struct_800249D8_Arg1_MpDraw {
+typedef struct MpDrawActor {
     char pad[0x174];
-    Struct_800249D8_Unk174_MpDraw *unk174;
-} Struct_800249D8_Arg1_MpDraw;
+    MpDrawState *unk174;
+} MpDrawActor;
 
-Gfx *mpDrawPlayerScores(Gfx *glistp, Struct_800249D8_Arg1_MpDraw *arg1) {
+Gfx *mpDrawPlayerScores(Gfx *glistp, MpDrawActor *arg1) {
     char sp98[32];
     f32 temp_fs0;
     f32 temp_fs2;
     s32 var_s2;
-    Struct_800249D8_Unk174_MpDraw *temp_s0;
+    MpDrawState *temp_s0;
     void *temp;
 
     temp_s0 = arg1->unk174;
     temp = temp_s0->unk20[0];
     temp_fs2 = (f32) D_80744490 / (f32) (D_807FC928 + 1);
-    temp_fs0 = (f32) (((Struct_800249D8_Sub_MpDraw *)temp)->unk6 + 8);
+    temp_fs0 = (f32) (((MpDrawViewport *)temp)->unk6 + 8);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
     glistp = func_800246EC(glistp, temp_s0, temp_fs2);
     if (D_807552E8 != 3) {
@@ -370,39 +370,39 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Struct_800249D8_Arg1_MpDraw *arg1) {
 }
 
 #ifdef NON_MATCHING
-typedef struct MpA_CA4_Rect {
+typedef struct MpBadLuckRect {
     char pad[4];
     s16 unk4;
     s16 unk6;
     s16 unk8;
     s16 unkA;
-} MpA_CA4_Rect;
+} MpBadLuckRect;
 
-typedef struct MpA_CA4_Data {
+typedef struct MpBadLuckState {
     char pad[0x20];
-    MpA_CA4_Rect *unk20[4];
+    MpBadLuckRect *unk20[4];
     Mtx *unk30;
     char pad2[0x70 - 0x34];
     u8 unk70;
-} MpA_CA4_Data;
+} MpBadLuckState;
 
-typedef struct MpA_CA4_Act {
+typedef struct MpBadLuckActorState {
     char pad[0x129];
     u8 unk129;
     char pad2[0x154 - 0x12A];
     u8 unk154;
-} MpA_CA4_Act;
+} MpBadLuckActorState;
 
-typedef struct MpA_CA4_Plr {
+typedef struct MpBadLuckPlayer {
     char pad[4];
-    MpA_CA4_Act *unk4;
+    MpBadLuckActorState *unk4;
     char pad2[0x2F0 - 8];
-} MpA_CA4_Plr;
+} MpBadLuckPlayer;
 
 u32 func_806FD894(s32);
 
 Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
-    MpA_CA4_Data *sp104;
+    MpBadLuckState *sp104;
     u32 col;
     f32 fx;
     f32 fy;
@@ -415,9 +415,9 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
     f32 spC0;
     s32 pre;
     s32 idx;
-    MpA_CA4_Rect *rect;
+    MpBadLuckRect *rect;
 
-    sp104 = (MpA_CA4_Data *)((Struct_800249D8_Arg1_MpDraw *)arg1)->unk174;
+    sp104 = (MpBadLuckState *)((MpDrawActor *)arg1)->unk174;
     spF0 = (f32) func_806FD894(1);
     spC0 = (f32) func_806FD894(1);
     var_s0 = func_800246EC(arg0, sp104, 0.0f);
@@ -429,10 +429,10 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
     for (var_s7 = 0; var_s7 < (s32) D_807FC928; var_s7++) {
             var_s1 = 0xFF;
             rect = sp104->unk20[var_s7];
-            if (((MpA_CA4_Plr *)D_807FC924)[var_s7].unk4->unk154 == 0x84) {
+            if (((MpBadLuckPlayer *)D_807FC924)[var_s7].unk4->unk154 == 0x84) {
                 fx = (f32) ((f64) rect->unk4 + ((f64) (rect->unk8 - rect->unk4) * 0.5));
                 fy = (f32) ((f64) rect->unk6 + ((f64) (rect->unkA - rect->unk6) * 0.5));
-                var_s1 = ((MpA_CA4_Plr *)D_807FC924)[var_s7].unk4->unk129;
+                var_s1 = ((MpBadLuckPlayer *)D_807FC924)[var_s7].unk4->unk129;
                 gDPSetPrimColor(var_s0++, 0, 0, 255, 255, 255, (u8) (0xFF - var_s1));
                 _sprintf(spCC, "BAD LUCK");
                 fx = (f32) ((f64) fx - ((f64) func_806FBD5C(1, spCC) * 0.25));
@@ -483,38 +483,38 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
 #pragma GLOBAL_ASM("asm/multiplayer/nonmatchings/0/func_80024CA4.s")
 #endif
 
-typedef struct Struct_807552E4_MpFix {
+typedef struct MpSettingsHud {
     s32 unk0;
     s32 unk4;
     s32 unk8;
     s32 unkC;
-} Struct_807552E4_MpFix;
+} MpSettingsHud;
 
-#define SP_MpFix ((Struct_807552E4_MpFix *)&D_807552E4)
+#define MP_SETTINGS_HUD ((MpSettingsHud *)&D_807552E4)
 
 Gfx *func_80024CA4(Gfx *, void *);
 
-Gfx *func_80025264(Gfx *glistp, void *arg1) {
-    s32 t0 = SP_MpFix->unk8 >= 2;
+Gfx *mpDrawHud(Gfx *glistp, void *arg1) {
+    s32 t0 = MP_SETTINGS_HUD->unk8 >= 2;
     s32 cond = D_807FBB60 & 3;
 
     gDPPipeSync(glistp++);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
     if (!cond) {
-        if (SP_MpFix->unk0 == 0) {
-            if ((SP_MpFix->unk8 == 1) || t0) {
+        if (MP_SETTINGS_HUD->unk0 == 0) {
+            if ((MP_SETTINGS_HUD->unk8 == 1) || t0) {
                 glistp = mpDrawPlayerScores(glistp, arg1);
             }
-        } else if ((SP_MpFix->unk8 == 1) || t0) {
+        } else if ((MP_SETTINGS_HUD->unk8 == 1) || t0) {
             glistp = func_80024CA4(glistp, arg1);
         }
     }
     return glistp;
 }
 
-Struct_80026FA4_MpLow *mpFindCurrentMapEntry(void) {
+MpMapEntry *mpFindCurrentMapEntry(void) {
     s32 i;
-    Struct_80026FA4_MpLow *ret = NULL;
+    MpMapEntry *ret = NULL;
 
     for (i = 0; (i < 4U) && (ret == NULL); i++) {
         if (D_8076A0A8 == D_80026FA4[i].unk0) {
@@ -524,7 +524,7 @@ Struct_80026FA4_MpLow *mpFindCurrentMapEntry(void) {
     return ret;
 }
 
-s32 func_800253C8(void) {
+s32 mpRandomSpawnDelay(void) {
     return (((randomNonNegative() >> 15) % 0x7FFF) % 211) + 0x5A;
 }
 
@@ -539,46 +539,46 @@ void func_807149C8(s32, s32, s32, s32);
 void func_8071498C(void *);
 s32 func_80714C08(void *, f32, void *, s32, s32);
 
-typedef struct MpA_Effect_Actor {
+typedef struct MpEffectState {
     char pad[0x174];
     char pad2[0xEC];
     s32 unk260;
-} MpA_Effect_Actor;
+} MpEffectState;
 
-typedef struct MpA_Effect_Player {
+typedef struct MpEffectPlayer {
     s32 unk0;
     void *unk4;
     char pad[0x2E8];
-} MpA_Effect_Player;
+} MpEffectPlayer;
 
-typedef struct MpA_Effect_Score {
+typedef struct MpEffectScore {
     char pad[0x2FA];
     s8 unk2FA;
     s8 unk2FB;
     s8 unk2FC;
     s8 unk2FD;
     char pad2[8];
-} MpA_Effect_Score;
+} MpEffectScore;
 
-typedef struct MpA_Effect_Target {
+typedef struct MpEffectActor {
     char pad[0x174];
-    MpA_Effect_Actor *unk174;
-} MpA_Effect_Target;
+    MpEffectState *unk174;
+} MpEffectActor;
 
-s32 func_80025404(void) {
+s32 mpUpdateScoreEffects(void) {
     s32 i;
     s32 ret = -1;
     s32 temp_s3;
-    MpA_Effect_Score *sc;
-    MpA_Effect_Actor *ac;
+    MpEffectScore *sc;
+    MpEffectState *ac;
     s32 var_s6;
     void *p;
 
     i = 0;
     if ((s32) D_807FC928 > 0) {
         do {
-            ac = ((MpA_Effect_Target *)((MpA_Effect_Player *)D_807FC924)[i].unk4)->unk174;
-            sc = &((MpA_Effect_Score *)D_807FC950)[i];
+            ac = ((MpEffectActor *)((MpEffectPlayer *)D_807FC924)[i].unk4)->unk174;
+            sc = &((MpEffectScore *)D_807FC950)[i];
             if (func_806F8AD4(1, i) != 0) {
                 temp_s3 = sc->unk2FD + sc->unk2FB;
                 if (ac->unk260 == 0) {
@@ -600,7 +600,7 @@ s32 func_80025404(void) {
                     func_80714998(2);
                     func_807149C8(0xFF, 0xFF, 0xFF, 0x7F);
                     func_8071498C(p);
-                    ac->unk260 = func_80714C08(&D_807207BC, 0.5f, ((MpA_Effect_Player *)D_807FC924)[i].unk4, var_s6, 2);
+                    ac->unk260 = func_80714C08(&D_807207BC, 0.5f, ((MpEffectPlayer *)D_807FC924)[i].unk4, var_s6, 2);
                     sc->unk2FA = temp_s3;
                 }
                 if (sc->unk2FA < temp_s3) {
@@ -611,7 +611,7 @@ s32 func_80025404(void) {
                 if (ac->unk260 != 0) {
                     effectFreeAndUnlink(ac->unk260);
                     ac->unk260 = 0;
-                    sc = &((MpA_Effect_Score *)D_807FC950)[i];
+                    sc = &((MpEffectScore *)D_807FC950)[i];
                     sc->unk2FA = 0;
                 }
             }
@@ -623,7 +623,7 @@ s32 func_80025404(void) {
 
 void modelSlotFindByType(s32, s32 *, s32 *, s32 *, s32 *, s16 *, s16 *);
 
-s32 func_80025608(s32 arg0) {
+s32 mpFindModelSlotByType(s32 arg0) {
     s32 sp3C;
     s32 sp38;
     s32 sp34;
@@ -637,20 +637,20 @@ s32 func_80025608(s32 arg0) {
     modelSlotFindByType(arg0, &sp3C, &sp38, &sp34, &sp30, &sp2E, &sp2C);
 }
 
-typedef struct Struct_80025654_Pos_MpHigh {
+typedef struct MpSpawnPos {
     s16 unk0;
     s16 unk2;
     s16 unk4;
-} Struct_80025654_Pos_MpHigh;
+} MpSpawnPos;
 
-typedef struct Struct_80025654_Actor_MpHigh {
+typedef struct MpSpawnCooldownState {
     char pad[0x4C];
     u8 unk4C;
-} Struct_80025654_Actor_MpHigh;
+} MpSpawnCooldownState;
 
 s32 func_8071432C(void);
 void mpUpdateMatchTimer(void);
-s32 func_80025404(void);
+s32 mpUpdateScoreEffects(void);
 void *actorFindByType();
 s32 func_806F5EB4(s32, s32, s16, s16, s16);
 void func_806F5FE8(s32, s16, s16, s16, s32);
@@ -660,21 +660,21 @@ extern s32 D_807FBB60;
 extern s32 D_807552E8;
 extern s32 D_807552F0;
 
-void func_80025654(Struct_80025654_Actor_MpHigh *arg0) {
+void func_80025654(MpSpawnCooldownState *arg0) {
     s32 temp;
-    Struct_80025654_Pos_MpHigh * volatile sp20;
+    MpSpawnPos * volatile sp20;
 
-    sp20 = *(Struct_80025654_Pos_MpHigh **)((u8 *)mpFindCurrentMapEntry() + 8);
+    sp20 = *(MpSpawnPos **)((u8 *)mpFindCurrentMapEntry() + 8);
     if (func_8071432C() != 0 && !(D_807FBB60 & 2)) {
         if (D_807552E8 == 3) {
             mpUpdateMatchTimer();
         }
-        if ((temp = func_80025404()) == -1) {
+        if ((temp = mpUpdateScoreEffects()) == -1) {
             if (arg0->unk4C == 0 &&
                 actorFindByType(0x7A) == 0 &&
-                func_80025608(0x1D2) == 0) {
+                mpFindModelSlotByType(0x1D2) == 0) {
                 {
-                    Struct_80025654_Pos_MpHigh *pos = sp20;
+                    MpSpawnPos *pos = sp20;
                     if (func_806F5EB4(0x1D2, 0, pos->unk0, pos->unk2, pos->unk4) == 0) {
                         pos = sp20;
                         func_806F5FE8(0x1D2, pos->unk0, pos->unk2, pos->unk4, 10);
@@ -690,31 +690,31 @@ void func_80025654(Struct_80025654_Actor_MpHigh *arg0) {
     }
 }
 
-typedef struct Item_80025794_MpBigHi {
+typedef struct MpSpawnPoint {
     s16 unk0;
     s16 unk2;
     s16 unk4;
     s16 unk6;
     s16 unk8;
-} Item_80025794_MpBigHi;
+} MpSpawnPoint;
 
-typedef struct Parent_80025794_MpBigHi {
+typedef struct MpSpawnPointTable {
     char pad0[4];
     s32 count;
-    Item_80025794_MpBigHi *items;
-} Parent_80025794_MpBigHi;
+    MpSpawnPoint *items;
+} MpSpawnPointTable;
 
 f32 func_806119FC(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_806F5F2C(s32, s32, s16, s16, s32);
 
-void func_80025794(void) {
-    Parent_80025794_MpBigHi *sp84;
+void mpUpdateItemSpawns(void) {
+    MpSpawnPointTable *sp84;
     s32 sp80;
     s32 sp7C;
-    Item_80025794_MpBigHi *items;
-    Item_80025794_MpBigHi *item;
+    MpSpawnPoint *items;
+    MpSpawnPoint *item;
     s32 j;
     s32 k;
     s32 num_outer;
@@ -728,7 +728,7 @@ void func_80025794(void) {
     f32 fs4;
     s16 s2_val;
 
-    sp84 = (Parent_80025794_MpBigHi *) mpFindCurrentMapEntry();
+    sp84 = (MpSpawnPointTable *) mpFindCurrentMapEntry();
     items = sp84->items;
     mpUpdateMatchTimer();
     if (func_8071432C() != 0 && !(D_807FBB60 & 2)) {
@@ -749,7 +749,7 @@ void func_80025794(void) {
                         do {
                             k = 0;
                             num_inner = ((s32) (randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
-                            temp_s4 = (s16) func_800253C8();
+                            temp_s4 = (s16) mpRandomSpawnDelay();
                             fs1 = (f32) ((((f64) func_806119FC() * 0.8) + 0.2) * (f64) item->unk6);
                             angle = (s32) (randomNonNegative() >> 15) % 4096;
                             fs3 = (f32) item->unk0;
@@ -780,7 +780,7 @@ void func_80025794(void) {
                             j++;
                         } while (j != num_outer);
                     }
-                    item->unk8 = func_800253C8();
+                    item->unk8 = mpRandomSpawnDelay();
                 }
                 item++;
                 sp7C++;
@@ -792,19 +792,19 @@ void func_80025794(void) {
 void *spawnNodeActivate(s16, s32);
 void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 
-typedef struct Struct_80025B48_Actor_MpNearHi {
+typedef struct MpRandomSpawnActor {
     char pad[0x154];
     u8 unk154;
     u8 unk155;
-} Struct_80025B48_Actor_MpNearHi;
+} MpRandomSpawnActor;
 
-typedef struct Struct_80025B48_Struct_MpNearHi {
+typedef struct MpRandomSpawnState {
     char pad[0x18];
-    Struct_80025B48_Actor_MpNearHi *unk18;
+    MpRandomSpawnActor *unk18;
     s16 unk1C;
-} Struct_80025B48_Struct_MpNearHi;
+} MpRandomSpawnState;
 
-void func_80025B48(Struct_80025B48_Struct_MpNearHi *arg0) {
+void mpUpdateRandomSpawner(MpRandomSpawnState *arg0) {
     s32 var_a2;
 
     var_a2 = 0;
@@ -841,7 +841,7 @@ void func_80025B48(Struct_80025B48_Struct_MpNearHi *arg0) {
     }
 }
 
-typedef struct MpA_CE8_State {
+typedef struct MpPendingEffectState {
     char pad0[0xD4];
     s16 unkD4;
     char pad1[0x1F0 - 0xD4 - 2];
@@ -850,9 +850,9 @@ typedef struct MpA_CE8_State {
     s16 unk200;
     char pad3[0x264 - 0x202];
     s32 unk264;
-} MpA_CE8_State;
+} MpPendingEffectState;
 
-typedef struct MpA_CE8_Actor {
+typedef struct MpPendingEffectActor {
     char pad0[0x7C];
     f32 unk7C;
     f32 unk80;
@@ -860,14 +860,14 @@ typedef struct MpA_CE8_Actor {
     char pad1[0x154 - 0x88];
     u8 unk154;
     char pad2[0x174 - 0x155];
-    MpA_CE8_State *unk174;
-} MpA_CE8_Actor;
+    MpPendingEffectState *unk174;
+} MpPendingEffectActor;
 
-typedef struct MpA_CE8_Player {
+typedef struct MpPendingEffectPlayer {
     char pad[4];
-    MpA_CE8_Actor *unk4;
+    MpPendingEffectActor *unk4;
     char pad2[0x2F0 - 8];
-} MpA_CE8_Player;
+} MpPendingEffectPlayer;
 
 void func_806D0468(void *, s32);
 void func_806F54E0(u8, s16, u8);
@@ -875,14 +875,14 @@ void func_806C9974(u8, s32);
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, void *, u8);
 void playerStateQueueCallback(s32, s32, u8);
 
-void func_80025CE8(s32 arg0) {
-    MpA_CE8_Actor *act;
-    MpA_CE8_State *st;
-    MpA_CE8_Actor *oact;
-    MpA_CE8_State *ost;
+void mpApplyPendingEffect(s32 arg0) {
+    MpPendingEffectActor *act;
+    MpPendingEffectState *st;
+    MpPendingEffectActor *oact;
+    MpPendingEffectState *ost;
     s32 i;
 
-    act = ((MpA_CE8_Player *)D_807FC924)[arg0].unk4;
+    act = ((MpPendingEffectPlayer *)D_807FC924)[arg0].unk4;
     st = act->unk174;
     switch (st->unk264) {
     case 0:
@@ -893,7 +893,7 @@ void func_80025CE8(s32 arg0) {
         i = 0;
         if ((s32) D_807FC928 > 0) {
             do {
-                oact = ((MpA_CE8_Player *)D_807FC924)[i].unk4;
+                oact = ((MpPendingEffectPlayer *)D_807FC924)[i].unk4;
                 ost = oact->unk174;
                 if (i != arg0 && ost->unkD4 == 0 && oact->unk154 != 0x84) {
                     playerStateQueueCallback(0x27, (s32) act, i);
@@ -941,16 +941,16 @@ void func_80025CE8(s32 arg0) {
 
 void func_8063DA40(s16, s32);
 
-typedef struct Struct_80025F84_MpHigh {
+typedef struct MpMapEntryIds {
     char pad[0xC];
     s32 unkC[4];
-} Struct_80025F84_MpHigh;
+} MpMapEntryIds;
 
 void func_80025F84(void) {
-    Struct_80025F84_MpHigh *temp;
+    MpMapEntryIds *temp;
     s32 i;
 
-    temp = (Struct_80025F84_MpHigh *)mpFindCurrentMapEntry();
+    temp = (MpMapEntryIds *)mpFindCurrentMapEntry();
     i = 0;
     while (i < 4 && temp->unkC[i] != -1) {
         func_8063DA40(temp->unkC[i], 0);
@@ -959,14 +959,14 @@ void func_80025F84(void) {
 }
 
 
-typedef struct Struct_80025FFC_MpHigh {
+typedef struct MpHudIconState {
     char pad[0x50];
     s32 unk50[1];
     char pad2[0x70 - 0x54];
     u8 unk70;
-} Struct_80025FFC_MpHigh;
+} MpHudIconState;
 
-void func_80025FFC(Struct_80025FFC_MpHigh *arg0) {
+void mpFreeHudIcons(MpHudIconState *arg0) {
     s32 i;
 
     if (arg0->unk70 != 0) {
@@ -980,7 +980,7 @@ void func_80025FFC(Struct_80025FFC_MpHigh *arg0) {
     arg0->unk70 = 0;
 }
 
-void func_80025CE8(s32);
+void mpApplyPendingEffect(s32);
 void func_806F91B4(s32, u8, s32);
 s32 cameraFindViewportEntry(u8);
 void func_806C9AE0(void);
@@ -999,28 +999,28 @@ extern u32 D_80767CC0;
 extern u64 D_807445B0;
 extern u8 D_80026F70;
 
-typedef struct MpBigViewport {
+typedef struct MpViewport {
     char pad0[4];
     s16 unk4;
     char pad6[2];
     s16 unk8;
     s16 unkA;
-} MpBigViewport;
+} MpViewport;
 
-typedef struct MpBigTableEntry {
+typedef struct MpHudIconTableEntry {
     void *unk0;
     f32 unk4;
     s32 unk8;
-} MpBigTableEntry;
-extern MpBigTableEntry D_80027024[];
+} MpHudIconTableEntry;
+extern MpHudIconTableEntry D_80027024[];
 
-typedef struct MpBigState {
+typedef struct MpControllerState {
     u64 unk0;
     s32 unk8;
     s32 unkC;
     s32 unk10;
     char pad14[0xC];
-    MpBigViewport *unk20[4];
+    MpViewport *unk20[4];
     Mtx *unk30;
     u32 unk34;
     u8 unk38;
@@ -1033,33 +1033,33 @@ typedef struct MpBigState {
     char pad4C[4];
     s32 unk50[8];
     u8 unk70;
-} MpBigState;
+} MpControllerState;
 
-typedef struct MpBigGlobals {
+typedef struct MpSettings {
     s32 unk0;
     s32 unk4;
     s32 unk8;
     s32 unkC;
-} MpBigGlobals;
+} MpSettings;
 
-typedef struct MpBigActor {
+typedef struct MpControllerActor {
     char pad0[0x60];
     s32 unk60;
     s32 unk64;
     char pad68[0x174 - 0x68];
-    MpBigState *unk174;
-} MpBigActor;
+    MpControllerState *unk174;
+} MpControllerActor;
 
-#define MpBigG ((MpBigGlobals *)&D_807552E4)
-#define MpBigA ((MpBigActor *)D_807FBB40)
+#define MP_SETTINGS ((MpSettings *)&D_807552E4)
+#define MP_CONTROLLER_ACTOR ((MpControllerActor *)D_807FBB40)
 
-void func_80026094(void) {
-    MpBigState *s7;
+void mpUpdate(void) {
+    MpControllerState *s7;
     s32 i;
     s32 j;
     s32 k;
     s32 flag;
-    MpBigViewport *vp;
+    MpViewport *vp;
     f32 x;
     f32 y;
     s32 snd;
@@ -1067,14 +1067,14 @@ void func_80026094(void) {
     s32 vb;
     s32 vc;
 
-    s7 = MpBigA->unk174;
-    if (!(MpBigA->unk60 & 0x10)) {
+    s7 = MP_CONTROLLER_ACTOR->unk174;
+    if (!(MP_CONTROLLER_ACTOR->unk60 & 0x10)) {
         flag = 0;
         func_806C9AE0();
         for (i = 0; i < D_807FC928; i++) {
-            s7->unk20[i] = (MpBigViewport *)cameraFindViewportEntry(i);
+            s7->unk20[i] = (MpViewport *)cameraFindViewportEntry(i);
         }
-        MpBigG->unk8 = 1;
+        MP_SETTINGS->unk8 = 1;
         s7->unk0 = osGetTime();
         s7->unk34 = D_80767CC0;
         s7->unk38 = 0;
@@ -1082,7 +1082,7 @@ void func_80026094(void) {
         s7->unk40 = 0;
         n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &s7->unk3C);
         D_80026F70 = 0;
-        switch (MpBigG->unk4) {
+        switch (MP_SETTINGS->unk4) {
         case 3:
         case 5:
             flag = 1;
@@ -1099,7 +1099,7 @@ void func_80026094(void) {
             func_806F833C(0);
             break;
         }
-        if (MpBigG->unk0 == 0 && D_8076A0A8 == 0x6B) {
+        if (MP_SETTINGS->unk0 == 0 && D_8076A0A8 == 0x6B) {
             func_806F5FA0(0x24E, 0xD4, 0x205);
             func_806F5FA0(0x24E, 0xD4, 0x285);
             func_806F5FA0(0x212, 0xD4, 0x24E);
@@ -1107,32 +1107,32 @@ void func_80026094(void) {
         }
         s7->unk30 = func_80610FE8(0x40);
         guScale(s7->unk30, 0.5f, 0.5f, 1.0f);
-        s7->unkC = MpBigG->unkC;
+        s7->unkC = MP_SETTINGS->unkC;
         s7->unkC = s7->unkC * 60;
-        MpBigA->unk64 |= 2;
+        MP_CONTROLLER_ACTOR->unk64 |= 2;
         s7->unk44 = (void *)func_8066B0F8(0xE, 0xB9, 0, 0);
         s7->unk48 = (void *)func_8066B0F8(0xE, 0xBA, 0, 0);
         s7->unk10 = 0;
     }
     s7->unk0 += D_807445B0;
-    switch (MpBigG->unk8) {
+    switch (MP_SETTINGS->unk8) {
     case 1:
-        switch (MpBigG->unk4) {
+        switch (MP_SETTINGS->unk4) {
         case 3:
         case 5:
             func_80025654((void *)s7);
             break;
         case 2:
-            func_80025794();
+            mpUpdateItemSpawns();
             break;
         case 0:
             mpUpdateMatchTimer();
             break;
         case 1:
-            func_8002449C();
+            mpCheckScoreLimit();
             break;
         case 4:
-            func_8002452C();
+            mpCheckLastPlayerStanding();
             break;
         }
         break;
@@ -1140,15 +1140,15 @@ void func_80026094(void) {
     case 3:
         break;
     }
-    if (MpBigG->unk0 == 0) {
+    if (MP_SETTINGS->unk0 == 0) {
         for (i = 0; i < D_807FC928; i++) {
-            func_80025CE8(i);
+            mpApplyPendingEffect(i);
         }
         if (D_807FC928 == 2) {
-            func_80025B48((void *)s7);
+            mpUpdateRandomSpawner((void *)s7);
         }
     } else if ((D_807FBB60 & 2) || ((s16)(s32)((f32)s7->unk10 * 0.033333335f) & 1)) {
-        func_80025FFC((void *)s7);
+        mpFreeHudIcons((void *)s7);
     } else if (s7->unk70 == 0) {
         for (j = 0; j != 2; j++) {
             for (k = 0; k < D_807FC928; k++) {
@@ -1224,7 +1224,7 @@ void func_80026094(void) {
             s7->unk34 = D_80767CC0;
         }
     }
-    renderCallbacksRegister(func_80025264, D_807FBB40, 7);
+    renderCallbacksRegister(mpDrawHud, D_807FBB40, 7);
 }
 
 
@@ -1237,12 +1237,12 @@ extern s32 func_80714608(s32);
 extern void func_806F91B4(s32, u8, s32);
 extern u8 *D_807FD580;
 
-typedef struct Struct_800268DC_0_MpHigh {
+typedef struct MpResetActor {
     char pad[0x60];
     s32 unk60;
-} Struct_800268DC_0_MpHigh;
+} MpResetActor;
 
-typedef struct Struct_800268DC_1_MpHigh {
+typedef struct MpResetState {
     char pad[0xD4];
     s16 unkD4;
     char pad2[0x1A4 - 0xD4 - 2];
@@ -1250,17 +1250,17 @@ typedef struct Struct_800268DC_1_MpHigh {
     char pad3[0x246 - 0x1A4 - 1];
     s8 unk246;
     s8 unk247;
-} Struct_800268DC_1_MpHigh;
+} MpResetState;
 
-typedef struct Struct_800268DC_2_MpHigh {
+typedef struct MpResetPlayer {
     char pad[0x2F0];
     s16 unk2F0;
     s16 unk2F2;
     s16 unk2F4;
     s16 unk2F6;
-} Struct_800268DC_2_MpHigh;
+} MpResetPlayer;
 
-void func_800268DC(Struct_800268DC_0_MpHigh *arg0, Struct_800268DC_1_MpHigh *arg1, Struct_800268DC_2_MpHigh *arg2) {
+void func_800268DC(MpResetActor *arg0, MpResetState *arg1, MpResetPlayer *arg2) {
     arg2->unk2F6 = 0;
     arg2->unk2F0 = 0;
     arg2->unk2F4 = 0;
@@ -1278,62 +1278,62 @@ void func_800268DC(Struct_800268DC_0_MpHigh *arg0, Struct_800268DC_1_MpHigh *arg
     }
 }
 
-void func_8002698C(Struct_800268DC_1_MpHigh *arg0) {
+void func_8002698C(MpResetState *arg0) {
     if (D_807552E8 == 2) {
         func_806F91B4(1, arg0->unk1A4, -3);
     }
 }
 
-void func_800269C8(u8, s8);
-typedef struct Struct_800269C8_174_MpNearHi {
+void mpDropItemsOnHit(u8, s8);
+typedef struct MpHitCooldownState {
     char pad[0x4C];
     u8 unk4C;
-} Struct_800269C8_174_MpNearHi;
+} MpHitCooldownState;
 
-typedef struct Struct_800269C8_ADB4_MpNearHi {
+typedef struct MpHitControllerActor {
     char pad[0x174];
-    Struct_800269C8_174_MpNearHi *unk174;
-} Struct_800269C8_ADB4_MpNearHi;
+    MpHitCooldownState *unk174;
+} MpHitControllerActor;
 
-typedef struct Struct_800269C8_Target_MpNearHi {
+typedef struct MpHitTarget {
     char pad[0x7C];
     s32 unk7C;
     s32 unk80;
     s32 unk84;
     char pad2[0xE6 - 0x88];
     s16 unkE6;
-} Struct_800269C8_Target_MpNearHi;
+} MpHitTarget;
 
-typedef struct Struct_800269C8_Player_MpNearHi {
+typedef struct MpHitPlayer {
     char pad[0x4];
-    Struct_800269C8_Target_MpNearHi *unk4;
+    MpHitTarget *unk4;
     char pad2[0x2F0 - 8];
-} Struct_800269C8_Player_MpNearHi;
+} MpHitPlayer;
 
-typedef struct Struct_800269C8_Array950_MpNearHi {
+typedef struct MpHitScore {
     char pad[0x2FA];
     s8 unk2FA;
     s8 unk2FB;
     char pad2;
     s8 unk2FD;
     char pad3[0x306 - 0x2FE];
-} Struct_800269C8_Array950_MpNearHi;
+} MpHitScore;
 
-void func_800269C8(u8 arg0, s8 arg1) {
+void mpDropItemsOnHit(u8 arg0, s8 arg1) {
     s32 pad0;
     s32 pad1;
     s32 sp34;
     s32 sp30;
-    Struct_800269C8_Target_MpNearHi *s0;
-    Struct_800269C8_Array950_MpNearHi *s1;
+    MpHitTarget *s0;
+    MpHitScore *s1;
 
-    s0 = ((Struct_800269C8_Player_MpNearHi *)D_807FC924)[arg0].unk4;
-    s1 = &((Struct_800269C8_Array950_MpNearHi *)D_807FC950)[arg0];
+    s0 = ((MpHitPlayer *)D_807FC924)[arg0].unk4;
+    s1 = &((MpHitScore *)D_807FC950)[arg0];
     sp34 = s1->unk2FB + s1->unk2FD + arg1;
     sp30 = s1->unk2FA - sp34;
     if (func_806F8AD4(1, arg0) != 0 && (sp34 <= 0 || sp30 >= 2)) {
-        sp34 = (s32)((Struct_800269C8_ADB4_MpNearHi *)actorFindByType(0x13E))->unk174;
-        ((Struct_800269C8_174_MpNearHi *)sp34)->unk4C = 1;
+        sp34 = (s32)((MpHitControllerActor *)actorFindByType(0x13E))->unk174;
+        ((MpHitCooldownState *)sp34)->unk4C = 1;
         func_806F91B4(1, arg0, -10);
         if (D_807552E8 == 5) {
             func_80025F84();
@@ -1343,20 +1343,20 @@ void func_800269C8(u8 arg0, s8 arg1) {
     }
 }
 
-typedef struct Struct_80026B0C_Target_MpHigh {
+typedef struct MpDeathTarget {
     char pad[0x144];
     u8 unk144;
-} Struct_80026B0C_Target_MpHigh;
+} MpDeathTarget;
 
-typedef struct Struct_80026B0C_Player_MpHigh {
+typedef struct MpDeathPlayer {
     char pad[0x4];
-    Struct_80026B0C_Target_MpHigh *unk4;
+    MpDeathTarget *unk4;
     char pad2[0x2F0 - 8];
-} Struct_80026B0C_Player_MpHigh;
+} MpDeathPlayer;
 
-void func_80026B0C(s32 arg0) {
-    Struct_80026B0C_Target_MpHigh *target;
-    target = ((Struct_80026B0C_Player_MpHigh *)D_807FC924)[arg0].unk4;
+void mpApplyDeathPenalty(s32 arg0) {
+    MpDeathTarget *target;
+    target = ((MpDeathPlayer *)D_807FC924)[arg0].unk4;
     target->unk144 = 12;
     switch (D_807552E8) {
     case 2:
@@ -1366,7 +1366,7 @@ void func_80026B0C(s32 arg0) {
         func_806F91B4(7, arg0, -0x40);
         /* fallthrough */
     case 3:
-        func_800269C8(arg0, 0);
+        mpDropItemsOnHit(arg0, 0);
         break;
     case 4:
         func_806F91B4(7, arg0, -1);
@@ -1374,29 +1374,29 @@ void func_80026B0C(s32 arg0) {
     }
 }
 
-typedef struct Coord_MpBigHi {
+typedef struct MpSpawnCoord {
     s16 x;
     s16 y;
     s16 z;
-} Coord_MpBigHi;
+} MpSpawnCoord;
 
-typedef struct Target_MpBigHi {
+typedef struct MpSpawnTarget {
     char pad0[0x7C];
     f32 x;
     f32 y;
     f32 z;
     char pad88[0x154 - 0x88];
     u8 unk154;
-} Target_MpBigHi;
+} MpSpawnTarget;
 
-typedef struct Player_MpBigHi {
+typedef struct MpSpawnPlayer {
     u8 unk0;
     char pad1[3];
-    Target_MpBigHi *target;
+    MpSpawnTarget *target;
     char pad2[0x2F0 - 8];
-} Player_MpBigHi;
+} MpSpawnPlayer;
 
-Coord_MpBigHi *func_806C96C4(s32);
+MpSpawnCoord *func_806C96C4(s32);
 
 s32 mpFindFurthestSpawn(s32 arg0) {
     s32 i;
@@ -1404,8 +1404,8 @@ s32 mpFindFurthestSpawn(s32 arg0) {
     s32 best_i;
     f32 max_dist;
     f32 min_dist;
-    Coord_MpBigHi *coord;
-    Target_MpBigHi *target;
+    MpSpawnCoord *coord;
+    MpSpawnTarget *target;
     f32 dx;
     f32 dy;
     f32 dz;
@@ -1418,8 +1418,8 @@ s32 mpFindFurthestSpawn(s32 arg0) {
         min_dist = 9999999.0f;
         coord = func_806C96C4(i);
         for (j = 0; j < (s32) D_807FC928; j++) {
-            target = ((Player_MpBigHi *) D_807FC924)[j].target;
-            if (((Player_MpBigHi *) D_807FC924)[j].unk0 != 0 && target->unk154 != 0x84) {
+            target = ((MpSpawnPlayer *) D_807FC924)[j].target;
+            if (((MpSpawnPlayer *) D_807FC924)[j].unk0 != 0 && target->unk154 != 0x84) {
                 dx = coord->x - target->x;
                 dy = coord->y - target->y;
                 dz = coord->z - target->z;
@@ -1442,21 +1442,21 @@ s32 mpFindFurthestSpawn(s32);
 void func_806CFF9C(void *);
 extern u8 D_807FCC4B[];
 
-typedef struct Struct_80026D40_Target_MpHigh {
+typedef struct MpRespawnTarget {
     char pad[0x144];
     u8 unk144;
     char pad2[0x155 - 0x145];
     u8 unk155;
-} Struct_80026D40_Target_MpHigh;
+} MpRespawnTarget;
 
-typedef struct Struct_80026D40_Player_MpHigh {
+typedef struct MpRespawnPlayerFlags {
     char pad[0x2E2];
     u16 unk2E2;
     char pad2[0x2F0 - 0x2E4];
-} Struct_80026D40_Player_MpHigh;
+} MpRespawnPlayerFlags;
 
-void func_80026D40(Struct_80026D40_Target_MpHigh *arg0, s32 arg1) {
-    Struct_80026D40_Player_MpHigh *temp_v0;
+void mpRespawnPlayer(MpRespawnTarget *arg0, s32 arg1) {
+    MpRespawnPlayerFlags *temp_v0;
 
     if (D_807552E8 == 4 && mpGetPlayerScore(arg1) == 0) {
         *(u8 *)((u8 *)D_807FCC4B + arg1 * 0x306) = 0;
@@ -1466,63 +1466,63 @@ void func_80026D40(Struct_80026D40_Target_MpHigh *arg0, s32 arg1) {
         return;
     }
     func_806C9434(mpFindFurthestSpawn(arg1));
-    temp_v0 = (Struct_80026D40_Player_MpHigh *)((u8 *)D_807FC924 + (arg1 * 0x2F0));
+    temp_v0 = (MpRespawnPlayerFlags *)((u8 *)D_807FC924 + (arg1 * 0x2F0));
     temp_v0->unk2E2 |= 1;
     func_806CFF9C(arg0);
 }
 
-typedef struct Struct_80026E20_174_MpNearHi {
+typedef struct MpKillAttackerState {
     char pad[0x1A4];
     u8 unk1A4;
-} Struct_80026E20_174_MpNearHi;
+} MpKillAttackerState;
 
-typedef struct Struct_80026E20_FD8_MpNearHi {
+typedef struct MpKillAttackerActor {
     char pad[0x5C];
     u16 unk5C;
     char pad2[0x174 - 0x5E];
-    Struct_80026E20_174_MpNearHi *unk174;
-} Struct_80026E20_FD8_MpNearHi;
+    MpKillAttackerState *unk174;
+} MpKillAttackerActor;
 
-typedef struct Struct_80026E20_Player_MpNearHi {
+typedef struct MpKillPlayer {
     char pad[0x2A0];
     void *unk2A0;
     char pad2[0x2F0 - 0x2A4];
-} Struct_80026E20_Player_MpNearHi;
+} MpKillPlayer;
 
-typedef struct Struct_80026E20_Array950_MpNearHi {
+typedef struct MpKillScore {
     char pad[0x2FB];
     s8 unk2FB;
     char pad2;
     s8 unk2FD;
     u16 unk2FE[1];
     char pad3[0x306 - 0x300];
-} Struct_80026E20_Array950_MpNearHi;
+} MpKillScore;
 
 void *func_806C9FD8(void *, s8, u8);
 
-void func_80026E20(u8 arg0, s8 arg1) {
+void mpCreditKill(u8 arg0, s8 arg1) {
     void *sp18;
     s32 pad0;
     s32 pad1;
-    Struct_80026E20_Array950_MpNearHi *temp_v1;
-    Struct_80026E20_Player_MpNearHi *temp_player;
-    Struct_80026E20_FD8_MpNearHi *temp_v0;
-    Struct_80026E20_174_MpNearHi *temp_a0;
+    MpKillScore *temp_v1;
+    MpKillPlayer *temp_player;
+    MpKillAttackerActor *temp_v0;
+    MpKillAttackerState *temp_a0;
 
-    temp_v1 = &((Struct_80026E20_Array950_MpNearHi *)D_807FC950)[arg0];
-    temp_player = (Struct_80026E20_Player_MpNearHi *)(D_807FC924 + (arg0 * 0x2F0));
+    temp_v1 = &((MpKillScore *)D_807FC950)[arg0];
+    temp_player = (MpKillPlayer *)(D_807FC924 + (arg0 * 0x2F0));
     if (temp_v1->unk2FB + temp_v1->unk2FD > 0) {
         if (temp_player->unk2A0 != NULL) {
             temp_v0 = func_806C9FD8(temp_player->unk2A0, arg1, arg0);
             if (temp_v0 != NULL && temp_v0->unk5C == 1) {
                 temp_a0 = temp_v0->unk174;
                 if (temp_v1->unk2FB + temp_v1->unk2FD + arg1 <= 0) {
-                    ((Struct_80026E20_Array950_MpNearHi *)D_807FC950)[temp_a0->unk1A4].unk2FE[arg0]++;
+                    ((MpKillScore *)D_807FC950)[temp_a0->unk1A4].unk2FE[arg0]++;
                 }
             }
         }
     }
     if (D_807552E8 == 3 || D_807552E8 == 5) {
-        func_800269C8(arg0, arg1);
+        mpDropItemsOnHit(arg0, arg1);
     }
 }

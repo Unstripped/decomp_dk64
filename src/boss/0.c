@@ -1,19 +1,19 @@
 #include "common.h"
 
-typedef struct BsA_Struct_6Bytes {
+typedef struct BossByteTable6 {
     u8 bytes[6];
-} BsA_Struct_6Bytes;
+} BossByteTable6;
 
-typedef struct BsA_Struct_80024000_BB40 {
+typedef struct BossActorPos {
     u8 pad0[0x7C];
     f32 unk7C;
     f32 unk80;
     f32 unk84;
-} BsA_Struct_80024000_BB40;
+} BossActorPos;
 
 struct BossA_Struct_807FBB40;
 extern struct BossA_Struct_807FBB40 *D_807FBB40;
-extern BsA_Struct_6Bytes D_8003598C;
+extern BossByteTable6 D_8003598C;
 extern u8 D_8071E864;
 extern u8 D_8071FFA0;
 
@@ -26,7 +26,7 @@ void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 
 void func_80024000(void) {
-    BsA_Struct_6Bytes sp48;
+    BossByteTable6 sp48;
     s16 i;
 
     for (i = 0; i < 6; i++) {
@@ -40,7 +40,7 @@ void func_80024000(void) {
         func_807149B8(1);
         func_807149C8(0x8C, 0x8C, 0x8C, 0xFF);
         func_80714998(3);
-        func_80714CC0(&D_8071FFA0, 2.5f, ((BsA_Struct_80024000_BB40 *)D_807FBB40)->unk7C, ((BsA_Struct_80024000_BB40 *)D_807FBB40)->unk80 + 40.0f, ((BsA_Struct_80024000_BB40 *)D_807FBB40)->unk84);
+        func_80714CC0(&D_8071FFA0, 2.5f, ((BossActorPos *)D_807FBB40)->unk7C, ((BossActorPos *)D_807FBB40)->unk80 + 40.0f, ((BossActorPos *)D_807FBB40)->unk84);
     }
 }
 
@@ -276,7 +276,7 @@ void func_80024524(u8 arg0, s16 arg1) {
 }
 
 
-typedef struct BsA7d_Obj {
+typedef struct BossPieceAnim {
     u8 pad0;
     u8 cnt[5];
     u8 state[5];
@@ -285,7 +285,7 @@ typedef struct BsA7d_Obj {
     u8 pad16[2];
     f32 f1[5];
     f32 f2[5];
-} BsA7d_Obj;
+} BossPieceAnim;
 
 void func_8068A764(void *, u8);
 void func_8068A784(void *, u8);
@@ -293,16 +293,16 @@ void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound();
 void actorScriptStart(void *, s32);
 
-typedef struct BsA7d_Act {
+typedef struct BossActorState {
     u8 pad0[0x154];
     u8 unk154;
-} BsA7d_Act;
+} BossActorState;
 
-#define A154 (((BsA7d_Act *)D_807FBB40)->unk154)
+#define A154 (((BossActorState *)D_807FBB40)->unk154)
 #define BB ((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)
-#define OBJ ((BsA7d_Obj *)arg0)
+#define OBJ ((BossPieceAnim *)arg0)
 
-u8 func_80024568(u8 *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
+u8 bossPieceStep(u8 *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
     u8 ret;
     BossA_Struct_8002413C_1 *p1;
     BossA_Struct_8002413C_1 *p2;
@@ -473,7 +473,7 @@ typedef struct Boss2A_Struct_807FBB40_4FA8 {
     u8 unk155;
 } Boss2A_Struct_807FBB40_4FA8;
 
-u8 func_80024568(u8 *, u8, f32, f32, f32);
+u8 bossPieceStep(u8 *, u8, f32, f32, f32);
 void animSetLoopLimit(void *, s32, s32);
 
 void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
@@ -497,9 +497,9 @@ void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
             do {
                 if (((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk154 == 0x27 ||
                     ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk154 == 0x2E) {
-                    res = func_80024568(arg1, arg3[i++], 50.0f, 70.0f, 90.0f);
+                    res = bossPieceStep(arg1, arg3[i++], 50.0f, 70.0f, 90.0f);
                 } else {
-                    res = func_80024568(arg1, arg3[i++], 10.0f, 15.0f, 50.0f);
+                    res = bossPieceStep(arg1, arg3[i++], 10.0f, 15.0f, 50.0f);
                 }
             } while ((cur = arg3[i]) != 0xFF);
         }
@@ -511,7 +511,7 @@ void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     }
 }
 
-void func_800251A0(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+void bossPieceListStep(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     u8 i;
     u8 res;
 
@@ -529,7 +529,7 @@ void func_800251A0(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     case 3:
         if (*arg3 != 0xFF) {
             do {
-                res = func_80024568(arg1, arg3[i++], 10.0f, 20.0f, 30.0f);
+                res = bossPieceStep(arg1, arg3[i++], 10.0f, 20.0f, 30.0f);
             } while (arg3[i] != 0xFF);
         }
         if (res != 0) {
@@ -555,10 +555,10 @@ void func_80025364(void) {
     actorSetNodeFlag(D_807FBB40, 5);
 }
 
-typedef struct BsA_Struct_807FBB40_53AC {
+typedef struct BossActorUnkC0 {
     u8 pad0[0xC0];
     f32 unkC0;
-} BsA_Struct_807FBB40_53AC;
+} BossActorUnkC0;
 
 extern u8 D_8071AF30;
 extern u8 D_80720120;
@@ -571,7 +571,7 @@ void func_800253AC(void) {
     s32 p;
     f64 dval;
 
-    dval = (0.0 < (f64)((BsA_Struct_807FBB40_53AC *)D_807FBB40)->unkC0) ? (f64)((BsA_Struct_807FBB40_53AC *)D_807FBB40)->unkC0 : 0.0;
+    dval = (0.0 < (f64)((BossActorUnkC0 *)D_807FBB40)->unkC0) ? (f64)((BossActorUnkC0 *)D_807FBB40)->unkC0 : 0.0;
     val = (f32)((f32)((dval / 150.0) * 0.12) + 0.3) * 4.0f;
     p = (s32)&D_8071AF30;
     func_807149B8(1);
@@ -717,11 +717,11 @@ extern s16 D_80770710[];
 extern s32 gCamActor;
 
 void func_80024000();
-void func_800251A0();
+void bossPieceListStep();
 void func_800253AC();
 void func_80027770();
 void func_80027840();
-void func_80027BA8(u8 *, s32, f32);
+void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing();
 s32 randomNonNegative();
 void func_80613C48(void *, s16, f32, f32);
@@ -971,8 +971,8 @@ void func_800254D0(void) {
             }
             break;
         case 2:                                     /* switch 4 */
-            func_80024568(sp78, 0, 50.0f, 70.0f, 90.0f);
-            if (func_80024568(sp78, 1, 50.0f, 70.0f, 90.0f) != 0) {
+            bossPieceStep(sp78, 0, 50.0f, 70.0f, 90.0f);
+            if (bossPieceStep(sp78, 1, 50.0f, 70.0f, 90.0f) != 0) {
                 D_807FBB40->unk154 = (u8) *(temp_s1->unk15 + sp74);
                 temp_s1->unk15 = (u8) (temp_s1->unk15 + 1);
                 D_807FBB40->unk155 = 0U;
@@ -1086,7 +1086,7 @@ void func_800254D0(void) {
             break;
         case 2:                                     /* switch 6 */
         case 3:                                     /* switch 6 */
-            func_800251A0(temp_s1, sp78, sp74, (D_807FBB40->unk154 == 0x2B) ? &D_80035980 : &D_80035984);
+            bossPieceListStep(temp_s1, sp78, sp74, (D_807FBB40->unk154 == 0x2B) ? &D_80035980 : &D_80035984);
             break;
         case 4:                                     /* switch 6 */
             D_807FBB40->unk154 = (u8) *(temp_s1->unk15 + sp74);
@@ -1376,7 +1376,7 @@ void func_800254D0(void) {
         }
         /* fallthrough */
     default:                                        /* switch 1 */
-        func_80027BA8(sp74, 0x10, 0.0f);
+        bossScriptStep(sp74, 0x10, 0.0f);
         break;
     }
     if (sp6E != 0) {

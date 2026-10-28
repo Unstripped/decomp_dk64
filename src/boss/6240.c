@@ -303,7 +303,7 @@ extern BossC_6240_DC9C *D_807FDC9C;
 extern BossC_6240_DCA0 *D_807FDCA0;
 
 void func_80027840(void *);
-void func_80027BA8(u8 *, s32, f32);
+void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -809,7 +809,7 @@ void func_8002A92C(void) {
         }
         /* fallthrough */
     default:
-        func_80027BA8(sp84, 0x291, 0);
+        bossScriptStep(sp84, 0x291, 0);
         break;
     }
     if (sp7E != 0) {

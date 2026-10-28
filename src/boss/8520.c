@@ -88,7 +88,7 @@ u8 arg0;
     animSetFrameAndSubframe(D_807FBB40, arg0, D_807FDC90->unk28 & 0xF, 0.0f);
 }
 
-void func_8002C7CC(void) {
+void bossAnimFrameBounceStep(void) {
     u16 var_t1 = 0;
     u8 var_t0;
     u8 val;
@@ -145,21 +145,21 @@ void func_8002C8B4(void) {
     );
 }
 
-typedef struct BsA7b_178 {
+typedef struct BossSwayState {
     s16 unk0;
     s16 unk2;
     s16 unk4;
-} BsA7b_178;
+} BossSwayState;
 
-typedef struct BsA7b_Sub4 {
+typedef struct BossModelInfo {
     char pad0[0x34];
     f32 unk34;
     f32 unk38;
-} BsA7b_Sub4;
+} BossModelInfo;
 
-typedef struct BsA7b_Actor {
+typedef struct BossActor {
     char pad0[4];
-    BsA7b_Sub4 *unk4;
+    BossModelInfo *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -187,39 +187,39 @@ typedef struct BsA7b_Actor {
     char pad156[8];
     u8 unk15E;
     char pad15F[0x19];
-    BsA7b_178 *unk178;
-} BsA7b_Actor;
+    BossSwayState *unk178;
+} BossActor;
 
-typedef struct BsA7b_DC90 {
+typedef struct BossWorkState {
     char pad0[0x28];
     s32 unk28;
     s16 unk2C;
-} BsA7b_DC90;
+} BossWorkState;
 
-typedef struct BsA7b_DC98 {
+typedef struct BossLayoutData {
     char pad0[0x30];
     f32 unk30;
     char pad34[0x12];
     u16 unk46;
-} BsA7b_DC98;
+} BossLayoutData;
 
-typedef struct BsA7b_DC9C {
+typedef struct BossConfig {
     char pad0[4];
     s16 unk4;
     s16 unk6;
     s16 unk8;
     char padA[3];
     u8 unkD;
-} BsA7b_DC9C;
+} BossConfig;
 
-typedef struct BsA7b_DC94 {
+typedef struct BossActorPos {
     char pad0[0x7C];
     f32 unk7C;
     char pad80[4];
     f32 unk84;
-} BsA7b_DC94;
+} BossActorPos;
 
-extern BsA7b_DC98 *D_807FDC98;
+extern BossLayoutData *D_807FDC98;
 extern u8 D_807FBD70;
 extern u8 D_807FBB85;
 extern s32 D_807FBD6C;
@@ -244,16 +244,16 @@ s32 camIsCutsceneActive(void);
 void func_8072D9D4(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void func_806AD260(s32, s32, s32);
-void func_8002C7CC(void);
+void bossAnimFrameBounceStep(void);
 void actorUpdateModelMatrix(void *, s32);
 
-#define A40 ((BsA7b_Actor *)D_807FBB40)
-#define DC90 ((BsA7b_DC90 *)D_807FDC90)
-#define DC94 ((BsA7b_DC94 *)D_807FDC94)
-#define DC9C ((BsA7b_DC9C *)D_807FDC9C)
+#define A40 ((BossActor *)D_807FBB40)
+#define DC90 ((BossWorkState *)D_807FDC90)
+#define DC94 ((BossActorPos *)D_807FDC94)
+#define DC9C ((BossConfig *)D_807FDC9C)
 
 void func_8002C964(void) {
-    BsA7b_178 *sp3C;
+    BossSwayState *sp3C;
 
     sp3C = A40->unk178;
     behaviourFrameBegin();
@@ -415,7 +415,7 @@ void func_8002C964(void) {
         A40->unk80 = DC9C->unk6 - sqrtf(0x1C390 - sp3C->unk0 * sp3C->unk0);
     }
     if (DC90->unk28 & 0x8000) {
-        func_8002C7CC();
+        bossAnimFrameBounceStep();
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }

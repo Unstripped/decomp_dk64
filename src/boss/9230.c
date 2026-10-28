@@ -63,8 +63,8 @@ extern Boss2F_9230_D580 *D_807FD580;
 extern Boss2F_9230_DC90 *D_807FDC90;
 extern Boss2F_9230_DC9C *D_807FDC9C;
 
-void func_80027BA8(u8 *, s32, f32);
-void func_80028878(u8 *);
+void bossScriptStep(u8 *, s32, f32);
+void bossRoundFrame(u8 *);
 void func_80641874(s32, s32);
 void func_805FF378(s32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -94,7 +94,7 @@ void func_8002D230(void) {
     sp44 = D_807FBB40->unk178;
     sp3C = D_80035A50[sp44->unk14];
     behaviourFrameBegin();
-    func_80028878(sp3C);
+    bossRoundFrame(sp3C);
     if (!(D_807FBB40->unk60 & 0x10)) {
         camSetSecondTarget(gCamActor, 0, 0);
         D_807FBB40->unk146 = 5;
@@ -281,7 +281,7 @@ void func_8002D230(void) {
         }
         break;
     default:
-        func_80027BA8(sp3C, 0x10, 0.0f);
+        bossScriptStep(sp3C, 0x10, 0.0f);
         break;
     }
     func_8072A450();

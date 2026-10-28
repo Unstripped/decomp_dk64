@@ -1,14 +1,14 @@
 #include "common.h"
 
-typedef struct Struct_BB40_Sub1_McBig {
+typedef struct MinecartModelData {
     u8 pad0[0x34];
     f32 unk34;
     f32 unk38;
-} Struct_BB40_Sub1_McBig;
+} MinecartModelData;
 
-typedef struct Struct_BB40_McBig2 {
+typedef struct MinecartFollowerActor {
     u8 pad0[4];
-    Struct_BB40_Sub1_McBig *unk4;
+    MinecartModelData *unk4;
     u8 pad8[0x60 - 8];
     s32 unk60;
     u8 pad64[0x7C - 0x64];
@@ -25,48 +25,48 @@ typedef struct Struct_BB40_McBig2 {
     u8 unk155;
     u8 pad156[0x15F - 0x156];
     u8 unk15F;
-} Struct_BB40_McBig2;
+} MinecartFollowerActor;
 
-typedef struct StructBB44_McBig {
+typedef struct MinecartChildActor {
     u8 pad0[4];
-    Struct_BB40_Sub1_McBig *unk4;
+    MinecartModelData *unk4;
     u8 pad8[0xEC - 8];
     s16 unkEC;
     u8 padEE[0x11C - 0xEE];
     void *unk11C;
     u8 pad120[0x168 - 0x120];
     s16 unk168;
-} StructBB44_McBig;
+} MinecartChildActor;
 
-typedef struct ActorSub_McBig {
+typedef struct MinecartRiddenCartFollower {
     u8 pad0[0xA4];
     f32 unkA4;
     u8 padA8[0x154 - 0xA8];
     u8 unk154;
-} ActorSub_McBig;
+} MinecartRiddenCartFollower;
 
-typedef struct ActorD580_McBig {
+typedef struct MinecartPlayerStateFollower {
     u8 pad0[0x88];
-    ActorSub_McBig *unk88;
+    MinecartRiddenCartFollower *unk88;
     u8 pad8C[0x104 - 0x8C];
     void *unk104;
     u8 pad108[0x1F0 - 0x108];
     s32 unk1F0;
-} ActorD580_McBig;
+} MinecartPlayerStateFollower;
 
-typedef struct Struct_DC9C_McBig {
+typedef struct MinecartParamsFollower {
     u8 pad0[0xA];
     u8 unkA;
-} Struct_DC9C_McBig;
+} MinecartParamsFollower;
 
-typedef struct StructBB4C_McBig2 {
+typedef struct MinecartPlayerActorFollower {
     u8 pad0[0x7C];
     f32 unk7C;
     u8 pad80[0x84 - 0x80];
     f32 unk84;
     u8 pad88[0xE6 - 0x88];
     s16 unkE6;
-} StructBB4C_McBig2;
+} MinecartPlayerActorFollower;
 
 struct Struct_BB40;
 struct StructBB4C;
@@ -74,7 +74,7 @@ struct ActorD580;
 struct Struct_DC9C;
 
 extern struct Struct_BB40 *D_807FBB40;
-extern StructBB44_McBig *D_807FBB44;
+extern MinecartChildActor *D_807FBB44;
 extern struct StructBB4C *D_807FBB4C;
 extern struct ActorD580 *D_807FD580;
 extern struct Struct_DC9C *D_807FDC9C;
@@ -93,73 +93,73 @@ f32 func_80612794(s16);
 f32 func_80612790(s16);
 void actorUpdateModelMatrix(struct Struct_BB40 *, s32);
 
-void func_800265F0(void) {
+void minecartFollowerBehaviour(void) {
     u8 sp47;
 
     sp47 = 0x96;
     behaviourFrameBegin();
-    if (!(((Struct_BB40_McBig2 *)D_807FBB40)->unk60 & 0x10)) {
+    if (!(((MinecartFollowerActor *)D_807FBB40)->unk60 & 0x10)) {
         actorScriptStart((struct Struct_BB40 *)D_807FBB40, 0x310);
         actorSpawn(0x11C, 0x4C);
-        func_8067B238(D_807FBB44, D_807FBB40, (f32)(1.5 * (f64)((Struct_BB40_McBig2 *)D_807FBB40)->unk4->unk38));
+        func_8067B238(D_807FBB44, D_807FBB40, (f32)(1.5 * (f64)((MinecartFollowerActor *)D_807FBB40)->unk4->unk38));
         D_807FBB44->unk11C = D_807FBB40;
         D_807FBB44->unk168 = -1;
         D_807FBB44->unk4->unk34 *= -1.0f;
         D_807FBB44->unkEC = 0x2BC;
         func_806131D4(D_807FBB44, func_80613448(D_807FBB44));
         actorSpawn(0x11C, 0x4C);
-        func_8067B238(D_807FBB44, D_807FBB40, (f32)(1.5 * (f64)((Struct_BB40_McBig2 *)D_807FBB40)->unk4->unk38));
+        func_8067B238(D_807FBB44, D_807FBB40, (f32)(1.5 * (f64)((MinecartFollowerActor *)D_807FBB40)->unk4->unk38));
         D_807FBB44->unk11C = D_807FBB40;
         D_807FBB44->unk168 = 1;
         D_807FBB44->unkEC = 0x2BC;
-        func_806086CC(((Struct_BB40_McBig2 *)D_807FBB40)->unk7C, ((Struct_BB40_McBig2 *)D_807FBB40)->unk80, ((Struct_BB40_McBig2 *)D_807FBB40)->unk84, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unk154 = 1;
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unkE8 = 0x12C;
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unk60 &= ~0x8000;
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unk128 = 0x96;
+        func_806086CC(((MinecartFollowerActor *)D_807FBB40)->unk7C, ((MinecartFollowerActor *)D_807FBB40)->unk80, ((MinecartFollowerActor *)D_807FBB40)->unk84, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+        ((MinecartFollowerActor *)D_807FBB40)->unk154 = 1;
+        ((MinecartFollowerActor *)D_807FBB40)->unkE8 = 0x12C;
+        ((MinecartFollowerActor *)D_807FBB40)->unk60 &= ~0x8000;
+        ((MinecartFollowerActor *)D_807FBB40)->unk128 = 0x96;
     }
     if (func_80724A20()) {
-        if (((ActorD580_McBig *)D_807FD580)->unk88->unk154 == 5) {
-            if (((Struct_BB40_McBig2 *)D_807FBB40)->unk154 == 6) {
-                ((Struct_BB40_McBig2 *)D_807FBB40)->unk154 = 5;
-            } else if (((Struct_BB40_McBig2 *)D_807FBB40)->unk154 == 5) {
-                ((Struct_BB40_McBig2 *)D_807FBB40)->unk154 = 6;
+        if (((MinecartPlayerStateFollower *)D_807FD580)->unk88->unk154 == 5) {
+            if (((MinecartFollowerActor *)D_807FBB40)->unk154 == 6) {
+                ((MinecartFollowerActor *)D_807FBB40)->unk154 = 5;
+            } else if (((MinecartFollowerActor *)D_807FBB40)->unk154 == 5) {
+                ((MinecartFollowerActor *)D_807FBB40)->unk154 = 6;
             }
         }
     }
-    switch (((Struct_BB40_McBig2 *)D_807FBB40)->unk154) {
+    switch (((MinecartFollowerActor *)D_807FBB40)->unk154) {
     case 0:
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unk80 += 5.0f;
-        if (((Struct_BB40_McBig2 *)D_807FBB40)->unk155++ >= 0x10) {
-            ((Struct_BB40_McBig2 *)D_807FBB40)->unk154 = 0x3B;
+        ((MinecartFollowerActor *)D_807FBB40)->unk80 += 5.0f;
+        if (((MinecartFollowerActor *)D_807FBB40)->unk155++ >= 0x10) {
+            ((MinecartFollowerActor *)D_807FBB40)->unk154 = 0x3B;
         }
         break;
     case 6:
         sp47 = 0xFA;
-        if ((D_8076A064 % ((Struct_DC9C_McBig *)D_807FDC9C)->unkA) == 0) {
-            func_806086CC(((Struct_BB40_McBig2 *)D_807FBB40)->unk7C, ((Struct_BB40_McBig2 *)D_807FBB40)->unk80, ((Struct_BB40_McBig2 *)D_807FBB40)->unk84, 0x182, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+        if ((D_8076A064 % ((MinecartParamsFollower *)D_807FDC9C)->unkA) == 0) {
+            func_806086CC(((MinecartFollowerActor *)D_807FBB40)->unk7C, ((MinecartFollowerActor *)D_807FBB40)->unk80, ((MinecartFollowerActor *)D_807FBB40)->unk84, 0x182, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             actorSpawn(0x11F, 0x50);
             D_807FBB44->unk11C = D_807FBB40;
             func_8067B238(D_807FBB44, D_807FBB40, 0.06f);
-            ((Struct_BB40_McBig2 *)D_807FBB40)->unk15F++;
+            ((MinecartFollowerActor *)D_807FBB40)->unk15F++;
         }
         /* fallthrough */
     case 2:
     case 3:
     case 4:
     case 5:
-        if (((Struct_BB40_McBig2 *)D_807FBB40)->unk155 == 0xFF) {
+        if (((MinecartFollowerActor *)D_807FBB40)->unk155 == 0xFF) {
             actorScriptStart((struct Struct_BB40 *)D_807FBB40, 0x311);
-            ((Struct_BB40_McBig2 *)D_807FBB40)->unk154 = 1;
+            ((MinecartFollowerActor *)D_807FBB40)->unk154 = 1;
         }
         /* fallthrough */
     case 1:
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unkE6 = func_806CC190(((Struct_BB40_McBig2 *)D_807FBB40)->unkE6, (((StructBB4C_McBig2 *)D_807FBB4C)->unkE6 + 0x800) & 0xFFF, 0x41000000);
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unk7C = (f32)(((f64)((func_80612794(((StructBB4C_McBig2 *)D_807FBB4C)->unkE6) * (f32)sp47 + ((StructBB4C_McBig2 *)D_807FBB4C)->unk7C) - ((Struct_BB40_McBig2 *)D_807FBB40)->unk7C) * 0.3) + ((Struct_BB40_McBig2 *)D_807FBB40)->unk7C);
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unk84 = (f32)(((f64)((func_80612790(((StructBB4C_McBig2 *)D_807FBB4C)->unkE6) * (f32)sp47 + ((StructBB4C_McBig2 *)D_807FBB4C)->unk84) - ((Struct_BB40_McBig2 *)D_807FBB40)->unk84) * 0.3) + ((Struct_BB40_McBig2 *)D_807FBB40)->unk84);
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unk7C += 4.0f * func_80612794(D_8076A064 * 0x35);
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unk84 += 4.0f * func_80612790(D_8076A064 * 0x3E);
-        ((Struct_BB40_McBig2 *)D_807FBB40)->unk80 = (func_80612794(D_8076A064 * 0x32) * 10.0f) + (((ActorD580_McBig *)D_807FD580)->unk88->unkA4 + 30.0f);
+        ((MinecartFollowerActor *)D_807FBB40)->unkE6 = func_806CC190(((MinecartFollowerActor *)D_807FBB40)->unkE6, (((MinecartPlayerActorFollower *)D_807FBB4C)->unkE6 + 0x800) & 0xFFF, 0x41000000);
+        ((MinecartFollowerActor *)D_807FBB40)->unk7C = (f32)(((f64)((func_80612794(((MinecartPlayerActorFollower *)D_807FBB4C)->unkE6) * (f32)sp47 + ((MinecartPlayerActorFollower *)D_807FBB4C)->unk7C) - ((MinecartFollowerActor *)D_807FBB40)->unk7C) * 0.3) + ((MinecartFollowerActor *)D_807FBB40)->unk7C);
+        ((MinecartFollowerActor *)D_807FBB40)->unk84 = (f32)(((f64)((func_80612790(((MinecartPlayerActorFollower *)D_807FBB4C)->unkE6) * (f32)sp47 + ((MinecartPlayerActorFollower *)D_807FBB4C)->unk84) - ((MinecartFollowerActor *)D_807FBB40)->unk84) * 0.3) + ((MinecartFollowerActor *)D_807FBB40)->unk84);
+        ((MinecartFollowerActor *)D_807FBB40)->unk7C += 4.0f * func_80612794(D_8076A064 * 0x35);
+        ((MinecartFollowerActor *)D_807FBB40)->unk84 += 4.0f * func_80612790(D_8076A064 * 0x3E);
+        ((MinecartFollowerActor *)D_807FBB40)->unk80 = (func_80612794(D_8076A064 * 0x32) * 10.0f) + (((MinecartPlayerStateFollower *)D_807FD580)->unk88->unkA4 + 30.0f);
         break;
     }
     actorUpdateModelMatrix((struct Struct_BB40 *)D_807FBB40, 0);
@@ -305,8 +305,8 @@ extern s32 D_80028BD0;
 void actorGetOrSetNodeScale(Struct_BB40 *, s32, f32);
 void func_807149FC(s32);
 void func_80714C08(void *, s32, Struct_BB40 *, s32, s32);
-void func_80027DA0(CartSub *);
-void func_80024E78(CartSub *, void *, s32, s32);
+void minecartChooseBranchSide(CartSub *);
+void minecartApplyJunction(CartSub *, void *, s32, s32);
 
 f32 func_80612794(s16);
 f32 func_80612790(s16);
@@ -324,24 +324,24 @@ void func_8067E278(s32, s32);
 void func_80724E48(s32);
 s32 func_8072DE10(s32);
 void actorScriptStart(Struct_BB40 *, s32);
-void func_80027CF4(void);
+void minecartStartScriptNearPlayer(void);
 void func_8068ECF4(s32, s32);
 void actorApproachTargetSpeed(s32);
-void func_800253C0(CartSub *, s32, s32);
+void minecartFollowTrack(CartSub *, s32, s32);
 void actorGetNodePos(Struct_BB40 *, s32, f32 *, f32 *, f32 *);
 void func_8072177C(Struct_BB40 *, s16, s16, s16, s32, s32, s32, s32, s32);
-void func_80027EE8(CartSub *);
+void minecartPlayPassBySfx(CartSub *);
 void actorUpdateModelMatrix(Struct_BB40 *, s32);
 AllocSub *func_80610FE8(s32);
 f32 sqrtf(f32);
 u32 func_806119A0(void);
-s32 func_80026B6C(TargetStruct *arg0, f32 arg1) {
+s32 minecartSetTargetAheadOfPlayer(TargetStruct *arg0, f32 arg1) {
     arg0->unkA = (s16) (s32) ((func_80612794(D_807FBB4C->unkE6) * (D_807FD580->unk88->unkB8 * arg1)) + D_807FBB4C->unk7C);
     arg0->unkC = (s16) (s32) D_807FD580->unk88->unkA4;
     arg0->unkE = (s16) (s32) ((func_80612790(D_807FBB4C->unkE6) * (D_807FD580->unk88->unkB8 * arg1)) + D_807FBB4C->unk84);
 }
 
-void func_80026C54(void) {
+void minecartSpawnRandomParticle(void) {
     s32 unused;
     s32 sp28;
     s32 sp24;
@@ -363,16 +363,16 @@ void func_80026C54(void) {
     );
 }
 
-typedef struct McA2_Tgt {
+typedef struct MinecartTargetStateChild {
     u8 pad0[0xA];
     s16 unkA;
     u8 padC[0xE - 0xC];
     s16 unkE;
     u8 pad10[0x2C - 0x10];
     s16 unk2C;
-} McA2_Tgt;
+} MinecartTargetStateChild;
 
-typedef struct McA2_Cart {
+typedef struct MinecartFollowerChild {
     u8 pad0[4];
     f32 **unk4;
     u8 pad8[0x60 - 8];
@@ -387,7 +387,7 @@ typedef struct McA2_Cart {
     u8 padE8[0xEC - 0xE8];
     s16 unkEC;
     u8 padEE[0x11C - 0xEE];
-    struct McA2_Cart *unk11C;
+    struct MinecartFollowerChild *unk11C;
     u8 pad120[0x128 - 0x120];
     s16 unk128;
     u8 pad12A[0x132 - 0x12A];
@@ -403,41 +403,41 @@ typedef struct McA2_Cart {
     u8 pad16B;
     u8 unk16C;
     u8 pad16D[7];
-    McA2_Tgt *unk174;
-} McA2_Cart;
+    MinecartTargetStateChild *unk174;
+} MinecartFollowerChild;
 
-typedef struct McA2_BB4C {
+typedef struct MinecartPlayerActorChild {
     u8 pad0[4];
     struct { u8 pad0[0x64]; u16 unk64; } *unk4;
     u8 pad8[0xE6 - 8];
     s16 unkE6;
-} McA2_BB4C;
+} MinecartPlayerActorChild;
 
-typedef struct McA2_D580 {
+typedef struct MinecartPlayerStateChild {
     u8 pad0[0x88];
     struct { u8 pad0[0xA4]; f32 unkA4; u8 padA8[0x174 - 0xA8]; s16 *unk174; } *unk88;
     u8 pad8C[0x104 - 0x8C];
     void *unk104;
     u8 pad108[0x1F0 - 0x108];
     s32 unk1F0;
-} McA2_D580;
+} MinecartPlayerStateChild;
 
-typedef struct McA2_DC9C {
+typedef struct MinecartParamsChild {
     u8 pad0[0xB];
     u8 unkB;
-} McA2_DC9C;
+} MinecartParamsChild;
 
 void camSetTarget(void *, void *, s32, s16, s32, s32, s32, s32, s32, s32, f32);
 void actorDespawn(void *);
 void func_80613C48(void *, s32, f32, f32);
 
-#define CB ((McA2_Cart *)D_807FBB40)
-#define CD ((McA2_D580 *)D_807FD580)
-#define C4C ((McA2_BB4C *)D_807FBB4C)
+#define CB ((MinecartFollowerChild *)D_807FBB40)
+#define CD ((MinecartPlayerStateChild *)D_807FD580)
+#define C4C ((MinecartPlayerActorChild *)D_807FBB4C)
 
-void func_80026DA8(void) {
+void minecartFollowerChildBehaviour(void) {
     s32 padA;
-    McA2_Tgt *sp68;
+    MinecartTargetStateChild *sp68;
     s16 sp66;
     s32 padB;
     s32 padC;
@@ -445,7 +445,7 @@ void func_80026DA8(void) {
     f32 sp54;
     f32 sp50;
     f32 sp4C;
-    McA2_Cart *s2;
+    MinecartFollowerChild *s2;
     s16 *p;
     f64 d;
     f32 var;
@@ -473,14 +473,14 @@ void func_80026DA8(void) {
     case 3:
         if ((CB->unk168 == 1 && s2->unk154 == 2) || (CB->unk168 == -1 && s2->unk154 == 3)) {
             p = CD->unk88->unk174;
-            func_80026C54();
+            minecartSpawnRandomParticle();
             switch (s2->unk155) {
             case 0:
                 if (*p == 0) {
                     CB->unk155 = 0;
                     actorScriptStart(D_807FBB40, 0x312);
                     s2->unk155 = 1;
-                    func_80026B6C((TargetStruct *)sp68, 2.2f);
+                    minecartSetTargetAheadOfPlayer((TargetStruct *)sp68, 2.2f);
                 }
                 break;
             case 1:
@@ -505,7 +505,7 @@ void func_80026DA8(void) {
     case 4:
     case 5:
         if ((CB->unk168 == 1 && s2->unk154 == 4) || (CB->unk168 == -1 && s2->unk154 == 5)) {
-            func_80026C54();
+            minecartSpawnRandomParticle();
             switch (s2->unk155) {
             case 0:
                 sp68->unk2C = 0x46;
@@ -513,7 +513,7 @@ void func_80026DA8(void) {
                 CB->unk132 = 1;
                 func_806086CC(CB->unk7C, CB->unk80, CB->unk84, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
             case 1:
-                func_80026B6C((TargetStruct *)sp68, 0.3f);
+                minecartSetTargetAheadOfPlayer((TargetStruct *)sp68, 0.3f);
                 v = sp68->unk2C;
                 sp68->unk2C = v - 1;
                 if (v != 0) {
@@ -541,7 +541,7 @@ void func_80026DA8(void) {
         break;
     case 6:
         if (s2->unk155 == 0) {
-            sp68->unk2C = ((McA2_DC9C *)D_807FDC9C)->unkB;
+            sp68->unk2C = ((MinecartParamsChild *)D_807FDC9C)->unkB;
             s2->unk155 = 1;
         }
         if (CB->unk168 == 1) {
@@ -583,41 +583,41 @@ void func_80026DA8(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-typedef struct McA_V3 {
+typedef struct MinecartTrackPoint {
     f32 x;
     f32 y;
     f32 z;
-} McA_V3;
+} MinecartTrackPoint;
 
-typedef struct McA_Comp {
+typedef struct MinecartTrackCursor {
     u8 pad0[0x10];
     s16 unk10;
     u8 pad12[0x34 - 0x12];
     u8 *unk34;
-} McA_Comp;
+} MinecartTrackCursor;
 
-typedef struct McA_PlayerActor {
+typedef struct MinecartRiddenCartTracker {
     u8 pad0[0x174];
-    McA_Comp *unk174;
-} McA_PlayerActor;
+    MinecartTrackCursor *unk174;
+} MinecartRiddenCartTracker;
 
-typedef struct McA_D580 {
+typedef struct MinecartPlayerStateTracker {
     u8 pad0[0x88];
-    McA_PlayerActor *unk88;
+    MinecartRiddenCartTracker *unk88;
     u8 pad8C[0x104 - 0x8C];
     void *unk104;
     u8 pad108[0x1F0 - 0x108];
     s32 unk1F0;
-} McA_D580;
+} MinecartPlayerStateTracker;
 
-typedef struct McA_Plyr {
+typedef struct MinecartPlayerPosition {
     u8 pad0[0x210];
     f32 unk210;
     f32 unk214;
     f32 unk218;
-} McA_Plyr;
+} MinecartPlayerPosition;
 
-typedef struct McA_Cart {
+typedef struct MinecartTrackerActor {
     u8 pad0[0x60];
     s32 unk60;
     u8 pad64[0x7C - 0x64];
@@ -637,7 +637,7 @@ typedef struct McA_Cart {
     s16 unkEE;
     s16 unkF0;
     u8 padF2[0x11C - 0xF2];
-    struct McA_Cart *unk11C;
+    struct MinecartTrackerActor *unk11C;
     u8 pad120[0x144 - 0x120];
     u8 unk144;
     u8 pad145[0x15F - 0x145];
@@ -647,11 +647,11 @@ typedef struct McA_Cart {
     u8 unk16A;
     u8 unk16B;
     u8 unk16C;
-} McA_Cart;
+} MinecartTrackerActor;
 
-extern McA_V3 **D_807F5FD4;
+extern MinecartTrackPoint **D_807F5FD4;
 extern u8 D_807FBB85;
-extern McA_Plyr *D_807FC924;
+extern MinecartPlayerPosition *D_807FC924;
 extern s32 D_80720120;
 void func_80613C48(void *, s32, f32, f32);
 void animSetSpeed(void *, s32, f32);
@@ -664,13 +664,13 @@ void actorDespawn(void *);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-#define MC ((McA_Cart *)D_807FBB40)
-#define MD580 ((McA_D580 *)D_807FD580)
+#define MC ((MinecartTrackerActor *)D_807FBB40)
+#define MD580 ((MinecartPlayerStateTracker *)D_807FD580)
 
 void func_80027778(void) {
     f32 d;
     f32 dist;
-    McA_Comp *sp64;
+    MinecartTrackCursor *sp64;
     s32 a;
     s16 sp5E;
     s16 sp5C;
@@ -772,7 +772,7 @@ void func_80027778(void) {
 #undef MC
 #undef MD580
 
-void func_80027CF4(void) {
+void minecartStartScriptNearPlayer(void) {
     f32 dx, dy, dz;
 
     if (D_807FBB40->unk155 != 0) {
@@ -787,7 +787,7 @@ void func_80027CF4(void) {
     }
 }
 
-void func_80027DA0(CartSub *arg0) {
+void minecartChooseBranchSide(CartSub *arg0) {
     Component *c = D_807FDC94->unk174;
     Component *d = c->unk88->unk174;
     u8 b;
@@ -797,7 +797,7 @@ void func_80027DA0(CartSub *arg0) {
     ((Component *)arg0)->unk42 = 0;
 }
 
-void func_80027E04(void) {
+void minecartAdjustTargetSpeed(void) {
     s32 temp_a0;
     s32 temp_v1_2;
     u16 temp_v1;
@@ -829,7 +829,7 @@ void func_80027E04(void) {
     D_807FDC90->unk26 = (s16) (s32) comp->unk88->unkB8;
 }
 
-void func_80027EE8(CartSub *arg0) {
+void minecartPlayPassBySfx(CartSub *arg0) {
     f32 d;
     f32 dist = D_807FBB40->unk7C - D_807FDC94->unk7C;
     dist = dist * dist;
@@ -880,21 +880,21 @@ void func_800280BC(void) {
             goto case_1;
         } else {
             func_80724E48(1);
-            func_80027CF4();
+            minecartStartScriptNearPlayer();
             actorUpdateModelMatrix(D_807FBB40, 0);
             return;
         }
     case 1:
 case_1:
         func_80724E48(1);
-        func_80027CF4();
-        func_80027E04();
+        minecartStartScriptNearPlayer();
+        minecartAdjustTargetSpeed();
         func_8068ECF4(6, 0xFF);
         actorApproachTargetSpeed(0x200);
-        func_800253C0(cart, 0x7FFF, 0x23);
+        minecartFollowTrack(cart, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp44, &sp48, &sp4C);
         func_8072177C(D_807FBB40, (s16) (s32) sp44, (s16) (s32) sp48, (s16) (s32) sp4C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-        func_80027EE8(cart);
+        minecartPlayPassBySfx(cart);
         return;
     case 2:
         D_807FBB40->unk154 = 0x40;
@@ -955,20 +955,20 @@ void func_8002835C(void) {
     case 1:
 case_1:
         if ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82)) {
-            func_80027DA0(sp74);
-            func_80024E78(sp74, &D_80028BD0, 0, 3);
+            minecartChooseBranchSide(sp74);
+            minecartApplyJunction(sp74, &D_80028BD0, 0, 3);
             actorGetNodePos(D_807FBB40, 1, &sp58, &sp5C, &sp60);
             actorGetNodePos(D_807FBB40, 2, &sp64, &sp68, &sp6C);
         }
         actorApproachTargetSpeed(0x200);
-        func_800253C0(sp74, 0x7FFF, 0x23);
+        minecartFollowTrack(sp74, 0x7FFF, 0x23);
         if ((D_807FBB40->unk154 == 2) && ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82))) {
             D_807FBB40->unk154 = 1;
             sp74->unk34 = (AllocSub *) ((u8 *) sp74->unk34 - 1);
         }
         actorGetNodePos(D_807FBB40, 5, &sp58, &sp5C, &sp60);
         func_8072177C(D_807FBB40, (s16) (s32) sp58, (s16) (s32) sp5C, (s16) (s32) sp60, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-        func_80027EE8(sp74);
+        minecartPlayPassBySfx(sp74);
         return;
     case 2:
         D_807FBB40->unk154 = 0x40;
@@ -980,7 +980,7 @@ case_1:
     }
 }
 
-typedef struct McA_Actor {
+typedef struct MinecartTrackCartActor {
     u8 pad0[0x60];
     s32 unk60;
     u8 pad64[0x7C - 0x64];
@@ -997,7 +997,7 @@ typedef struct McA_Actor {
     u8 unk154;
     u8 pad155[0x178 - 0x155];
     CartSub *unk178;
-} McA_Actor;
+} MinecartTrackCartActor;
 
 extern s32 D_80028C34;
 extern s32 D_80028C40;
@@ -1019,11 +1019,11 @@ void func_800286EC(void) {
     f32 dx;
     f32 dz;
 
-    sp84 = ((McA_Actor *)D_807FBB40)->unk178;
+    sp84 = ((MinecartTrackCartActor *)D_807FBB40)->unk178;
     behaviourFrameBegin();
     sp70 = D_807FDC94->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((McA_Actor *)D_807FBB40)->unk144 = 0x3C;
+        ((MinecartTrackCartActor *)D_807FBB40)->unk144 = 0x3C;
         D_807FDC90->unk35 = 2;
         func_807149B8(1);
         func_807149FC(-1);
@@ -1065,7 +1065,7 @@ void func_800286EC(void) {
         }
 case_1:
     case 1:
-        if (mathAngleDistance(mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, D_807FBB40->unk7C, D_807FBB40->unk84), ((McA_Actor *)D_807FBB40)->unkE6) >= 0x201 &&
+        if (mathAngleDistance(mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, D_807FBB40->unk7C, D_807FBB40->unk84), ((MinecartTrackCartActor *)D_807FBB40)->unkE6) >= 0x201 &&
             (dx = D_807FBB40->unk7C - D_807FBB4C->unk7C, dz = D_807FBB40->unk84 - D_807FBB4C->unk84, dx * dx + dz * dz < 22500.0f)) {
             D_807FDC90->unk26 = 0;
         } else {
@@ -1089,10 +1089,10 @@ case_1:
         }
         actorApproachTargetSpeed(0x200);
         func_8068ECF4(6, 0xFF);
-        func_800253C0(sp84, 0x7FFF, 0x23);
+        minecartFollowTrack(sp84, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp74, &sp78, &sp7C);
         func_8072177C(D_807FBB40, (s16)(s32)sp74, (s16)(s32)sp78, (s16)(s32)sp7C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-        if (((McA_Actor *)D_807FBB4C)->unk154 == 0x70 || sp84->unk10 == 0x90) {
+        if (((MinecartTrackCartActor *)D_807FBB4C)->unk154 == 0x70 || sp84->unk10 == 0x90) {
             D_807FBB40->unk154++;
         }
         return;

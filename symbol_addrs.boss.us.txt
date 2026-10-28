@@ -1,17 +1,26 @@
 // Overlay boss (ovl07, segment table entry 7)
+bossPieceStep = 0x80024568; // type:func
+bossPieceListStep = 0x800251A0; // type:func
 bossLerpCoords = 0x800278F4; // type:func
+bossPickFarthestWaypoint = 0x80027A30; // type:func
+bossScriptStep = 0x80027BA8; // type:func
 bossSpawnParticleRing = 0x80028478; // type:func
 bossDrawRoundText = 0x800286B8; // type:func
 bossResetAudioChannels = 0x80028820; // type:func
+bossRoundFrame = 0x80028878; // type:func
 bossUpdateStageState = 0x80029140; // type:func
 bossPlayStageMusic = 0x8002920C; // type:func
 bossSpawnSparkles = 0x8002A5CC; // type:func
 bossClampPosition = 0x8002A8B8; // type:func
+bossAnimFrameBounceStep = 0x8002C7CC; // type:func
 bossAttachActor = 0x8002DC60; // type:func
 bossUpdateAttachment = 0x8002DCE0; // type:func
 bossDespawnEntities = 0x8002DD7C; // type:func
 bossResetMinions = 0x8002E7A0; // type:func
 bossPhaseTick = 0x8002E82C; // type:func
+bossActorGroupCommand = 0x8002FC98; // type:func
+bossPickWaypointStep = 0x800330D0; // type:func
 bossInterpolateWaypoints = 0x800334A4; // type:func
+bossSetRandomObjectPair = 0x80033784; // type:func
 bossSpawnObjectAtWaypoint = 0x8003392C; // type:func
 D_80036B80 = 0x80036B80; // type:f32 force_migration:True function_owner:func_80031AA0
