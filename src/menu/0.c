@@ -293,7 +293,7 @@ extern u8 D_80032F50;
 extern s16 D_800330D8;
 
 s32 listContainsS16(s32, s16 *);
-s32 flagGridIndex(s32, s32, u8);
+s32 flagGridIndex();
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
 void func_806F8278(s32);
@@ -619,7 +619,91 @@ void func_80024EF0(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/0/func_800252AC.s")
+extern u8 D_807444FC;
+extern s32 D_8076A064;
+s32 texCacheFindOrLoad(s32);
+
+Gfx *func_800252AC(Gfx *g, MenuBB40_60 *arg1) {
+    s32 pad;
+    s32 tex;
+    s32 i;
+    s32 j;
+    s32 x;
+    s32 y;
+    s16 *var_p = *(s16 **)((u8 *)arg1 + 0x174);
+    MenuM0_Vtx *v;
+    s32 k;
+    f32 mf[4][4];
+    s8 sp12B;
+
+    gDPPipeSync(g++);
+    gSPDisplayList(g++, D_1000118);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x03024000);
+    gDPSetPrimColor(g++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetCombine(g++, 0x121803, 0xFF0FFFFF);
+    gSPMatrix(g++, D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    guTranslateF(mf, 8.0f, (f32) *var_p, 0.0f);
+    guMtxF2L(mf, (Mtx *)((D_807444FC << 6) + D_800330D0));
+    gSPMatrix(g++, (D_807444FC << 6) + D_800330D0, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 12, 2, 0);
+    tex = texCacheFindOrLoad(0xA3);
+    v = D_80033F10;
+    i = 0;
+    sp12B = 1;
+    for (y = 0; y < 150; y += 30, i++) {
+        j = 0;
+        for (x = 0; x < 240; x += 30) {
+            gDPPipeSync(g++);
+            if (flagGet((s16)flagGridIndex(0x1FD, j, i), 0) != 0) {
+                gDPSetPrimColor(g++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+            } else {
+                sp12B = 0;
+                gDPSetPrimColor(g++, 0, 0, 0, 0, 0, 0);
+            }
+            gDPLoadTextureTile_4b(g++, tex, G_IM_FMT_I, 240, 150, x, y, x + 30, y + 30, 0,
+                                  G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            gSPVertex(g++, osVirtualToPhysical(v), 8, 0);
+            gSP2Triangles(g++, 0, 1, 2, 0, 1, 3, 2, 0);
+            gSP2Triangles(g++, 2, 3, 4, 0, 3, 5, 4, 0);
+            gSP2Triangles(g++, 4, 5, 6, 0, 5, 7, 6, 0);
+            v += 8;
+            j++;
+        }
+    }
+    gDPPipeSync(g++);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0);
+    gDPSetCombine(g++, 0x119623, 0xFF2FFFFF);
+    gDPSetPrimColor(g++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 12, 2, 0x2000);
+    tex = texCacheFindOrLoad(0xA2);
+    gDPLoadTextureBlock(g++, tex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP | G_TX_NOMIRROR,
+                        G_TX_WRAP | G_TX_NOMIRROR, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
+    gSPVertex(g++, osVirtualToPhysical(D_800330D4), 20, 0);
+    gSP2Triangles(g++, 0, 1, 2, 0, 0, 2, 3, 0);
+    gSP2Triangles(g++, 4, 5, 6, 0, 4, 6, 7, 0);
+    gSP2Triangles(g++, 8, 9, 10, 0, 8, 10, 11, 0);
+    gSP2Triangles(g++, 12, 13, 14, 0, 12, 14, 15, 0);
+    gDPPipeSync(g++);
+    if (sp12B != 0 && (D_8076A064 & 0x1F) < 0x14U) {
+        tex = texCacheFindOrLoad(0x44);
+        gDPSetPrimColor(g++, 0, 0, 0, 0xFF, 0, 0xFF);
+        gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x504240);
+        gDPLoadTextureBlock(g++, tex, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP | G_TX_NOMIRROR,
+                            G_TX_WRAP | G_TX_NOMIRROR, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
+        gSP2Triangles(g++, 16, 17, 18, 0, 16, 18, 19, 0);
+        if (*(s8 *)&D_80033258 == 0) {
+            for (k = 0; k < 0x140; k++) {
+                D_80033F10[k].unkC = 0;
+                D_80033F10[k].unkD = 0xFF;
+                D_80033F10[k].unkE = 0xFF;
+            }
+            D_80033258 = 1;
+        }
+    }
+    gSPMatrix(g++, D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    return g;
+}
 
 void func_80025AE0(void) {
 }
