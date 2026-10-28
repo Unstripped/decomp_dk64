@@ -368,7 +368,96 @@ void func_80024914(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/minecart/nonmatchings/0/func_80024B00.s")
+typedef struct McA_V12 {
+    f32 x;
+    f32 y;
+    f32 z;
+} McA_V12;
+
+typedef struct McA_Cart174 {
+    s16 unk0;
+    s16 unk2;
+    Struct_807FC924_4 *unk4;
+    u8 unk8;
+    u8 pad9[3];
+    s32 unkC;
+    s16 unk10;
+    char pad12[0x24 - 0x12];
+    f32 unk24;
+    f32 unk28;
+    char pad2C[0x30 - 0x2C];
+    u8 *unk30;
+    u8 *unk34;
+    char pad38[0x3E - 0x38];
+    u8 unk3E;
+} McA_Cart174;
+
+typedef struct McA_BB4C {
+    char pad0[0x6A];
+    u16 unk6A;
+} McA_BB4C;
+
+extern s32 D_807F5FD0;
+extern McA_V12 **D_807F5FD4;
+extern s32 D_80028C48;
+extern s32 D_80028C50;
+void actorSetUniformScale(void *, f32);
+
+void func_80024B00(void) {
+    s32 padA;
+    f32 temp_fv0;
+    s16 sp4E;
+    s16 i;
+    s16 j;
+    s16 n;
+    McA_V12 tmp;
+    McA_Cart174 *s0;
+
+    temp_fv0 = (f32)((f64)D_807FBB40->unk4->unk38 * 0.16666666675);
+    s0 = (McA_Cart174 *)D_807FBB40->unk174;
+    sp4E = s0->unk0;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        actorSetUniformScale(D_807FBB4C, 0.12f);
+        D_807FBB40->unkC4 = D_807502F8;
+        D_807FBB40->unkC8 = D_807502D0;
+        s0->unk24 = 0.1f;
+        s0->unk28 = 5.0f;
+    }
+    s0->unk0 = (s16)((f32)s0->unk0 + D_807FBB40->unkC0 * temp_fv0);
+    actorApplyGravity();
+    if (s0->unk0 < 0) {
+        s0->unk0 = 0;
+        if (sp4E != 0) {
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8B, 0xFF, 0x7F, 0x1E);
+        }
+    }
+    if (((McA_BB4C *)D_807FBB4C)->unk6A & 0x100) {
+        ((McA_BB4C *)D_807FBB4C)->unk6A &= ~0x100;
+        D_807FBB40->unk168 = 2;
+    }
+    func_8002430C(1, (s32)&D_80028C48, 0x7FFF, 0x23);
+    func_80024768();
+    if (*s0->unk34 >= 7 && camIsCutsceneActive() != 0 && D_807FBB40->unk154 != 5) {
+        D_807FBB40->unkB8 = 300.0f;
+    }
+    if (D_807FBB40->unk154 == 4) {
+        for (i = 0; i < D_807F5FD0; i++) {
+            n = D_807F5FD4[i + 1] - D_807F5FD4[i];
+            for (j = 0; j < n / 2; j++) {
+                tmp = D_807F5FD4[i][j];
+                D_807F5FD4[i][j] = D_807F5FD4[i][n - j - 1];
+                D_807F5FD4[i][n - j - 1] = tmp;
+            }
+        }
+        s0->unk34 = (u8 *)&D_80028C50;
+        s0->unk10 = 2;
+        D_807FBB40->unk154 = 5;
+        s0->unkC = 0;
+    }
+    if (D_807FBB40->unk154 != 0) {
+        actorGetNodePos(D_807FBB40, 9, &s0->unk4->unk7C, &s0->unk4->unk80, &s0->unk4->unk84);
+    }
+}
 
 typedef struct MinecartElem {
     u8 unk0;
@@ -415,7 +504,87 @@ void func_80024E78(MinecartStruct_E78 *arg0, MinecartElem **arg1, u8 arg2, u8 ar
     }
 }
 
+#ifdef NON_MATCHING
+extern s32 D_80028C20;
+void actorScriptStart(void *, s32);
+void actorSetStateTwo(void *);
+void func_806A2A10(s32, s32, u8);
+void func_80726EE0(s32, s32);
+void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
+
+void func_80024FD0(void) {
+    McA_Cart174 *sp44;
+    Struct_807FC924_4_174 *sp40;
+    f32 diff;
+    f32 sp28;
+
+    sp44 = (McA_Cart174 *)D_807FBB40->unk174;
+    sp40 = D_807FBB4C->unk174;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        sp44->unk30 = func_80610FE8(3);
+        sp44->unk30[0] = 0x10;
+        sp44->unk30[1] = 0xFF;
+        sp44->unk24 = 3.0f;
+        sp44->unk28 = 12.0f;
+        D_807FBB40->unk168 = 3;
+        sp40->unk1F0 |= 8;
+        camStartPath(D_807FBB40, 0, 1, sp44);
+        actorScriptStart(D_807FBB40, 0);
+    }
+    if (D_807FBB40->unk154 != 5 && D_807FBB40->unk154 != 6) {
+        diff = (D_807FC924->unk214 - D_807FBB40->unk80) - 100.0f;
+        sp28 = (f32)(((f64)diff / 650.0 * 0.15) + .15);
+        actorSetUniformScale(D_807FBB40, sp28);
+        actorSetUniformScale(D_807FBB4C, sp28);
+    }
+    if (sp40->unk1F0 & 8) {
+        sp44->unk3E = 3;
+    }
+    if (D_807FBB40->unk154 < 5) {
+        func_8002430C(0x16, (s32)sp44->unk30, 0, 0x19);
+    }
+    if (camIsCutsceneActive() == 0) {
+        camSetFixedView(sp40->unk104, 322.0f, 900.0f, 268.0f, 325.0f, -9000.0f, 500.0f, 0);
+    }
+    switch (D_807FBB40->unk154) {
+    case 1:
+    case 2:
+    case 3:
+        if (D_807FBB40->unk4->unk64 == 0x292) {
+            func_800240DC(1, 0x14);
+            D_807FBB40->unk154 = 5;
+        } else if (D_807FBB40->unk11C != NULL && D_807FBB40->unk11C->unk154 == 5) {
+            func_80726EE0(0, 0x14);
+            func_80024000(1, 0xE);
+            D_807FBB40->unk154 = 5;
+            break;
+        }
+        func_80024E78((MinecartStruct_E78 *)sp44, (MinecartElem **)&D_80028C20, 0x10, 0x13);
+        actorGetNodePos(D_807FBB40, 9, &sp44->unk4->unk7C, &sp44->unk4->unk80, &sp44->unk4->unk84);
+        return;
+    case 4:
+        D_807FBB40->unk154 = 3;
+        sp44->unk34--;
+        break;
+    case 5:
+        actorSetUniformScale(D_807FBB40, 0.15f);
+        actorSetUniformScale(D_807FBB4C, 0.225f);
+        D_807FBB40->unkE4 = 0;
+        D_807FBB40->unk154++;
+        break;
+    case 10:
+        sfxAllocateChannel(0x5A, 1.0f);
+        func_806A2A10(0x78, 0x78, (D_8076A0A8 == 0x4D) ? 0x1E : (D_8076A0A8 == 0x81) ? 0x2D : 0x3C);
+        actorSetStateTwo(D_807FBB40->unk11C);
+        sp40->unk1F0 &= ~8;
+        D_807FBB40->unk154 = 3;
+        break;
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/minecart/nonmatchings/0/func_80024FD0.s")
+#endif
 typedef struct {
     char pad0[0x20];
     f32 unk20;
