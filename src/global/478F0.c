@@ -2304,25 +2304,155 @@ void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
+#ifdef NON_MATCHING
+void actorListSetPosById(s16, f32, f32, f32);
+
+void func_8064B9E0(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 x, y, z;
+    switch (b) {
+        case 0:
+            z = 0x16A;
+            y = 6;
+            x = 0x3A4;
+            break;
+        case 1:
+            z = 0x20A;
+            y = 0x7A;
+            x = 0x439;
+            break;
+        case 2:
+            z = 0x237;
+            y = 0x7A;
+            x = 0x35D;
+            break;
+        case 3:
+            z = 0x120;
+            y = 0x11;
+            x = 0x502;
+            break;
+        case 4:
+            z = 0x172;
+            y = 0x12;
+            x = 0x28A;
+            break;
+    }
+    actorListSetPosById(5, (f32)x, (f32)y, (f32)z);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064B9E0.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BAF4.s")
+s32 func_8064BAF4(CsState *cs, s16 csId, s16 b, s16 c) {
+    return (u8)(cs->unk14[b] < cs->unk14[c]);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BB4C.s")
+void func_8064BB4C(CsState *cs, s16 csId, s16 b, s16 c) {
+    func_805FF0C8();
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BB78.s")
+void func_8064BB78(CsState *cs, s16 csId, s16 b, s16 c) {
+    s32 idx = func_805FF030(D_8076A0AB, 0);
+    if (idx >= 8) {
+        idx = 0;
+    }
+    flagGet(D_80744710[idx], 0);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BBD8.s")
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleDistance(s16, s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BCB0.s")
+s32 func_8064BBD8(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 ang = mathAngleBetweenPoints2D((s16)D_807F621C, (s16)D_807F6224, (s16)D_807FBB4C->unk7C, (s16)D_807FBB4C->unk84);
+    return (u8)(mathAngleDistance(ang, D_807FBB4C->unkE6) < 0x384);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BD2C.s")
+typedef struct CsB12Player {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 pad1[3];
+    /* 0x04 */ Actor *unk4;
+    /* 0x08 */ u8 pad8[0x2E8];
+} CsB12Player; /* 0x2F0 */
+extern u8 D_807FC928;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BE58.s")
+s32 func_8064BCB0(s32 a, s32 b) {
+    s32 i = 0;
+    CsB12Player *p;
+    Actor *q;
+    if (D_807FC928 > 0) {
+        p = (CsB12Player *)D_807FC924;
+        do {
+            if (p->unk0 != 0) {
+                q = p->unk4;
+                if (q->unk110 == 1 && q->unk10C == a && q->unk10E[0] == b) {
+                    return i;
+                }
+            }
+            i++;
+            p++;
+        } while (i < D_807FC928);
+    }
+    return -1;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BE80.s")
+void modelSlotGetTransformVectors();
+void func_8067ABC0(s32, void *, s32, s16, s32, f32, f32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BF58.s")
+s32 func_8064BD2C(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 x, y, z;
+    f32 u50, u4C, u48, u44, u40;
+    s32 id;
+    s32 idx;
+    u32 pad0;
+    u32 pad1;
+
+    idx = func_8064BCB0(csId, c);
+    if (idx < 0) {
+        return 0;
+    }
+    id = D_807F6240[b];
+    if (func_8064BCB0(id, c) != -1) {
+        return 0;
+    }
+    modelSlotGetTransformVectors(id, &x, &y, &z, &u50, &u4C, &u48, &u44, &u40, 1);
+    func_8067ABC0(0, ((CsB12Player *)D_807FC924 + idx)->unk4, 9, (s16)(s32)(u4C * 11.377778f), 0, x, y, z);
+    return 0;
+}
+
+extern s32 D_807552E8;
+
+s32 func_8064BE58(CsState *cs, s16 csId, s16 b, s16 c) {
+    return (D_807552E8 == 5) & 0xFF;
+}
+
+extern s32 D_807552F0;
+s32 func_806F8AD4(s32, u8);
+void func_806F91B4(s32, u8, s16);
+
+s32 func_8064BE80(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 q;
+    s32 idx = func_8064BCB0(csId, b);
+    if (idx < 0) {
+        return 0;
+    }
+    if (func_806F8AD4(1, (u8)idx)) {
+        func_806F91B4(7, (u8)idx, 1);
+        q = (f32)func_806F8AD4(7, (u8)idx) / (f32)D_807552F0;
+        q = (f32)0.5 * q + 0.5f;
+        func_80609140(0x2A1, 0x7FFF, 63.0f, q, 5, 0);
+        return 1;
+    }
+    return 0;
+}
+
+s32 func_8064BF58(CsState *cs, s16 csId, s16 b, s16 c) {
+    f64 dz = ((CsB2Player *)D_807FC924)->unk218 - 1274.0;
+    f64 dx = ((CsB2Player *)D_807FC924)->unk210 - 3081.0;
+    if (dz * dz + dx * dx < 10000.0) {
+        return 1;
+    }
+    return 0;
+}
 
 void func_8064BFD0(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 absv;
