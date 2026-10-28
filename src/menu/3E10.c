@@ -306,13 +306,12 @@ void func_80027FAC(void *arg0, s32 arg1) {
 extern s32 *D_80033F28;
 s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
 
-#ifdef NON_MATCHING
 void *func_80610FE8(s32);
 void heapFreeDeferred(void *);
 s32 func_806FC530(s32, s16, s16, s16, void *, s32);
 
 s32 func_800286C8(void *arg0, Gfx *arg1) {
-    s32 padD4;
+    Gfx *g;
     s32 spD0;
     s32 padCC;
     s32 padC8;
@@ -333,14 +332,9 @@ s32 func_800286C8(void *arg0, Gfx *arg1) {
     guTranslateF(sp3C, spC4 * 4.0, spC0 * 4.0, 0.0f);
     guMtxCatF(sp7C, sp3C, sp7C);
     guMtxF2L(sp7C, sp38);
-    arg1->words.w0 = 0xDA380003;
-    arg1->words.w1 = (u32)sp38;
-    return func_806FC530((s32)(arg1 + 1), 1, 0, 0, (void *)D_80033F28[spD0], 0x80);
+    g = arg1++; g->words.w0 = 0xDA380003; g->words.w1 = (u32)sp38;
+    return func_806FC530((s32)arg1, 1, 0, 0, (void *)D_80033F28[spD0], 0x80);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_800286C8.s")
-#endif
 
 extern s8 D_800337F4;
 extern s8 D_800337F8;
@@ -521,14 +515,10 @@ extern u16 D_8003381C[];
 extern s8 D_807563B4;
 extern u16 D_807ECD48;
 
-#ifdef NON_MATCHING
 void func_8002907C(void) {
-    u8 temp_t8;
-
-    if (D_8003381C[D_80033818] == D_807ECD48) {
-        temp_t8 = D_80033818 + 1;
-        D_80033818 = temp_t8;
-        if ((u32)(temp_t8 & 0xFF) >= 7U) {
+    if (D_8003381C[D_80033818] == *(u16 *)&D_807ECD48) {
+        D_80033818 = D_80033818 + 1;
+        if ((u32)D_80033818 >= 7U) {
             D_807563B4 = 1;
             func_80609140(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
             D_80033818 = 0;
@@ -537,10 +527,6 @@ void func_8002907C(void) {
         D_80033818 = 0;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002907C.s")
-#endif
 
 typedef struct Menu3A_Struct174 {
     f32 unk0;
