@@ -70,7 +70,332 @@ void func_80027950(BossB_Struct_80027950 *arg0, u8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/3840/func_80027A30.s")
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/3840/func_80027BA8.s")
+typedef struct {
+    char pad0[0x11C];
+    s32 unk11C;
+} BossB_Struct_807FBB40;
+
+extern BossB_Struct_807FBB40 *D_807FBB40;
+
+typedef struct BsA7c_178 {
+    char pad0[4];
+    s16 unk4;
+    char pad6[2];
+    s16 unk8[5];
+    u16 unk12;
+    u8 unk14;
+    u8 unk15;
+    u8 unk16;
+    u8 pad17;
+    u8 unk18[8];
+} BsA7c_178;
+
+typedef struct BsA7c_Actor {
+    char pad0[0x58];
+    s32 unk58;
+    char pad5C[4];
+    s32 unk60;
+    char pad64[6];
+    u16 unk6A;
+    char pad6C[0x10];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    char pad88[0x94];
+    struct BsA7c_Actor *unk11C;
+    char pad120[8];
+    s16 unk128;
+    char pad12A[0x2A];
+    u8 unk154;
+    u8 unk155;
+    char pad156[0x22];
+    BsA7c_178 *unk178;
+    u8 *unk17C;
+} BsA7c_Actor;
+
+typedef struct BsA7c_Cam {
+    char pad0[0x104];
+    s32 unk104;
+    char pad108[0xE8];
+    s32 unk1F0;
+} BsA7c_Cam;
+
+typedef struct BsA7c_Pos {
+    char pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    char pad88[0xCC];
+    u8 unk154;
+    char pad155[0x1F];
+    BsA7c_Cam *unk174;
+} BsA7c_Pos;
+
+typedef struct BsA7c_DC90 {
+    char pad0[4];
+    BsA7c_Pos *unk4;
+    char pad8[2];
+    s16 unkA;
+    char padC[2];
+    s16 unkE;
+    char pad10[0xA];
+    u16 unk1A;
+    char pad1C[9];
+    u8 unk25;
+    char pad26[6];
+    s16 unk2C;
+} BsA7c_DC90;
+
+typedef struct BsA7c_DC9C {
+    char pad0[0xC];
+    u8 unkC;
+    u8 unkD;
+} BsA7c_DC9C;
+
+extern BsA7c_Pos *D_807FBB4C;
+extern u8 D_807444EC;
+extern u8 D_8076A0B1;
+extern s8 D_8076A0B3;
+
+void camEndPath(s32);
+void currentActorClearFlag();
+s32 currentActorTestClearFlag(void);
+void actorSetTargetSpeed(void *, s32);
+void func_8070D8C0(void *, s32, s32);
+s32 func_8072D13C(s32, s32);
+void actorMoveWithinZone(s32, f32, f32, s32, f32);
+void actorScriptStart(void *, s32);
+void func_80027A30(void *, u8 *);
+
+#define BA40 ((BsA7c_Actor *)D_807FBB40)
+#define DC90 ((BsA7c_DC90 *)D_807FDC90)
+#define DC9C ((BsA7c_DC9C *)D_807FDC9C)
+
+u8 func_80027BA8(u8 *arg0, u16 arg1, f32 arg2) {
+    BsA7c_Cam *sp34;
+    BsA7c_178 *s0;
+    u8 var_t1;
+    u8 sp2E;
+    u8 tmp;
+
+    sp34 = D_807FBB4C->unk174;
+    s0 = BA40->unk178;
+    sp2E = 0;
+    var_t1 = 1;
+    switch (BA40->unk154) {
+    case 0x54:
+        var_t1 = 0;
+        if (BA40->unk155 != 0) {
+            if (currentActorTestClearFlag() != 0) {
+                var_t1 = 1;
+            }
+        } else {
+            currentActorClearFlag();
+            BA40->unk155 = 1;
+        }
+        break;
+    case 0x5F:
+        camStartPath(D_807FBB40, arg0[s0->unk15++], 1);
+        break;
+    case 0x5E:
+        if (D_807444EC == 1) {
+            camEndPath(sp34->unk104);
+        }
+        D_8076A0B3 = 0;
+        BA40->unk60 &= ~4;
+        D_8076A0B1 |= 0x10;
+        s0->unk4 = arg0[s0->unk15++] * 30;
+        break;
+    case 0x5D:
+        actorSetTargetSpeed(D_807FBB40, arg0[s0->unk15++]);
+        break;
+    case 0x5C:
+        {
+            u8 *p = BA40->unk17C;
+            *p = arg0[s0->unk15];
+            s0->unk15++;
+        }
+        break;
+    case 0x5A:
+        func_8070D8C0(D_807FBB40, arg0[s0->unk15], arg0[s0->unk15 + 1]);
+        s0->unk15 += 2;
+        break;
+    case 0x42:
+block_16:
+        actorMoveWithinZone(0x42, DC90->unkA, DC90->unkE, arg1, arg2);
+        if (func_8072D13C(BA40->unk154, 0) == 0) {
+            var_t1 = 0;
+        }
+        break;
+    case 0x69:
+        DC90->unk1A |= 0x20;
+        break;
+    case 0x58:
+        BA40->unk60 |= 4;
+        break;
+    case 0x59:
+        BA40->unk60 &= ~4;
+        break;
+    case 0x51:
+        actorScriptStart(D_807FBB40, (arg0[s0->unk15] << 8) + arg0[s0->unk15 + 1]);
+        s0->unk15 += 2;
+        break;
+    case 0x55:
+        var_t1 = 0;
+        if (BA40->unk155 == 0) {
+            tmp = s0->unk15;
+            s0->unk8[0] = (arg0[tmp] << 8) + arg0[tmp + 1];
+            s0->unk15 = tmp + 2;
+            BA40->unk155 = 1;
+        } else {
+            s0->unk8[0] -= 1;
+            if (s0->unk8[0] == 0) {
+                var_t1 = 1;
+            }
+        }
+        break;
+    case 0x23:
+        var_t1 = 0;
+        if (BA40->unk155 == 0) {
+            tmp = s0->unk15;
+            s0->unk8[0] = arg0[tmp];
+            s0->unk15 = tmp + 1;
+            BA40->unk155 = 1;
+            actorSetTargetSpeed(D_807FBB40, DC9C->unkD);
+        } else {
+            actorMoveWithinZone(0x23, DC90->unk4->unk7C, DC90->unk4->unk84, arg1, arg2);
+            s0->unk8[0] -= 1;
+            if ((s0->unk8[0] == 0) || (sp34->unk1F0 & 0x80000)) {
+                sp34->unk1F0 &= ~0x80000;
+                var_t1 = 1;
+                actorSetTargetSpeed(D_807FBB40, DC9C->unkC);
+            }
+        }
+        break;
+    case 0x52:
+        if (!(BA40->unk6A & 1)) {
+            var_t1 = 0;
+        }
+        break;
+    case 0x53:
+        if (BA40->unk155 == 0) {
+            var_t1 = 0;
+        }
+        break;
+    case 0x4F:
+        s0->unk16 = s0->unk15;
+        break;
+    case 0x50:
+        s0->unk15 = s0->unk16;
+        break;
+    case 0x66:
+        if (DC90->unk1A & 8) {
+            s0->unk15 = s0->unk16;
+        }
+        break;
+    case 0x63:
+        tmp = s0->unk15;
+        if (s0->unk8[arg0[tmp]] != 0) {
+            s0->unk8[arg0[tmp]] -= 1;
+            var_t1 = 0;
+        } else {
+            s0->unk15 = tmp + 1;
+        }
+        break;
+    case 0x62:
+        s0->unk8[arg0[s0->unk15]] = arg0[s0->unk15 + 1];
+        s0->unk15 += 2;
+        sp2E = 1;
+        break;
+    case 0x64:
+        s0->unk18[arg0[s0->unk15]] = arg0[s0->unk15 + 1];
+        s0->unk15 += 2;
+        sp2E = 1;
+        break;
+    case 0x68:
+        DC90->unk1A &= 0xFFEF;
+        sp2E = 1;
+        break;
+    case 0x65:
+        DC90->unk2C = arg0[s0->unk15];
+        s0->unk15++;
+        sp2E = 1;
+        break;
+    case 0x67:
+        func_80027950((BossB_Struct_80027950 *)s0, arg0);
+        var_t1 = 0;
+        BA40->unk154 = 0x42;
+        BA40->unk155 = 0;
+        goto block_16;
+    case 0x4C:
+        func_80027A30(s0, arg0);
+        var_t1 = 0;
+        BA40->unk154 = 0x42;
+        BA40->unk155 = 0;
+        goto block_16;
+    case 0x4B:
+        DC90->unk25++;
+        if (arg0[s0->unk15 + 1] < DC90->unk25) {
+            DC90->unk25 = arg0[s0->unk15];
+        }
+        s0->unk15 += 2;
+        var_t1 = 0;
+        BA40->unk154 = 0x42;
+        BA40->unk155 = 0;
+        goto block_16;
+    case 0x41:
+        DC90->unk25 = arg0[s0->unk15];
+        s0->unk15++;
+        var_t1 = 0;
+        BA40->unk154 = 0x42;
+        BA40->unk155 = 0;
+        goto block_16;
+    case 0x49:
+    case 0x4A:
+        var_t1 = 0;
+        switch (BA40->unk155) {
+        case 0:
+            BA40->unk128 -= 0xA;
+            if (BA40->unk128 < 0) {
+                BA40->unk128 = 0;
+                BA40->unk155++;
+            }
+            break;
+        case 1:
+            if (BA40->unk154 == 0x49) {
+                DC90->unk25 = arg0[s0->unk15];
+                s0->unk15++;
+            } else {
+                func_80027950((BossB_Struct_80027950 *)s0, arg0);
+            }
+            func_8072D13C(0x49, 0);
+            BA40->unk7C = DC90->unkA;
+            BA40->unk84 = DC90->unkE;
+            BA40->unk155++;
+            break;
+        case 2:
+            BA40->unk128 += 0xA;
+            if (BA40->unk128 >= 0x100) {
+                BA40->unk128 = 0xFF;
+                var_t1 = 1;
+            }
+            break;
+        }
+        break;
+    case 0x6D:
+        break;
+    default:
+        var_t1 = 0;
+        break;
+    }
+    if (var_t1 != 0) {
+        BA40->unk154 = arg0[s0->unk15];
+        s0->unk15++;
+        BA40->unk155 = 0;
+    }
+    return sp2E;
+}
+
 
 void func_805FF8F8(void);
 
@@ -127,13 +452,6 @@ u8 arg5;
     actorSpawnNodeEntryScaled(0x48, (f32)arg1, (f32)arg2, (f32)arg3, (s32)arg4, (s32)arg5, sp4C, 0);
 }
 
-typedef struct {
-    char pad0[0x11C];
-    s32 unk11C;
-} BossB_Struct_807FBB40;
-
-extern BossB_Struct_807FBB40 *D_807FBB40;
-
 void func_806A2A10(s32, s32, s32);
 void actorSetStateTwo(s32);
 
@@ -183,7 +501,7 @@ void bossDrawRoundText(Gfx *arg0, s32 arg1) {
 
 static void func_80028818(void) {}
 
-void flagSet(s32, s32, s32);
+void flagSet(s16, s32, s32);
 
 void bossResetAudioChannels(void) {
     flagSet(0x51, 0, 2);
@@ -192,7 +510,221 @@ void bossResetAudioChannels(void) {
     flagSet(0x54, 0, 2);
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/3840/func_80028878.s")
+typedef struct BsA7c_Snd {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    u8 unkC;
+    u8 unkD;
+    s16 unkE;
+    s16 unk10;
+} BsA7c_Snd;
+
+extern BsA7c_Pos *D_807FBB48;
+extern s16 D_800359A0[];
+extern s16 D_800359AC[];
+extern s16 D_800359B8[];
+extern s16 D_800359C4[];
+extern u8 D_8071FE08[];
+extern s32 D_8076D1F8;
+extern u32 D_80767CC0;
+extern s32 D_8076A0A8;
+
+void func_806FB370(s32, s32, s32);
+void func_80709464(u8);
+void sfxStopChannel(s32, s32);
+void func_80712524(s32, s32);
+void n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
+void n_alSndpPostEvent(s32, s32, s16);
+void func_80724A20(void);
+void actorSetStateOne(void *);
+void actorSetStateThree(void *);
+s32 func_8071441C(void);
+f32 sfxGetChannelVolume(s32);
+s32 func_805FCA64(void);
+void renderCallbacksRegister(void *, void *, s32);
+void func_80609140(s32, s32, f32, f32, s32, s32);
+
+
+void func_80028878(u8 *arg0) {
+    BsA7c_178 *sp44;
+    u8 sp43;
+    s16 sp30;
+    BsA7c_Snd *s0;
+
+    sp44 = BA40->unk178;
+    sp43 = D_8076A0A8 - 0xCB;
+    s0 = (BsA7c_Snd *)BA40->unk17C;
+    if (D_807FBB4C->unk80 < 30.0f) {
+        D_807FBB4C->unk7C = 780.0f;
+        D_807FBB4C->unk80 = 50.0f;
+        D_807FBB4C->unk84 = 750.0f;
+        func_80714CC0((s32)D_8071FE08, 1.0f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84);
+    }
+    if (!(BA40->unk60 & 0x10)) {
+        func_806FB370(5, 0, 1);
+        func_806FB370(2, 0, 1);
+        BA40->unk60 &= 0xFFFDFFFF;
+        if ((sp44->unk14 == 0) || (BA40->unk58 != 0x126)) {
+            if (flagGet(0x5A, 2) == 0) {
+                func_80709464(0);
+            }
+            D_80750AD4++;
+            if (D_80750AD4 >= 0xD) {
+                sfxStopChannel(0x2B, 0);
+                func_80709464(0);
+                flagSet(0x55, 0, 2);
+                func_80712524(0xD7, 0);
+                D_80750AD4 = 0;
+                BA40->unk154 = 0x6A;
+                BA40->unk155 = 0;
+            }
+        }
+        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, (u8 *)s0 + 4);
+        n_alSndpPlay(D_8076D1F8, 0x119, 0, 0x40, 1.0f, 0x80, (u8 *)s0 + 8);
+    }
+    func_80724A20();
+    switch (BA40->unk154) {
+    case 0x37:
+        if (BA40->unk155 == 0) {
+            actorSetStateOne(BA40->unk11C);
+        }
+        break;
+    case 0x6A:
+        if (BA40->unk155 == 0) {
+            actorScriptStart(D_807FBB40, 0);
+            BA40->unk155++;
+        }
+        break;
+    case 0x6C:
+        sp44->unk12 |= 1;
+        func_80028680();
+        if ((sp44->unk14 != 0) && (BA40->unk58 == 0x126)) {
+            actorSetStateThree(BA40->unk11C);
+        }
+        BA40->unk154 = arg0[sp44->unk15];
+        sp44->unk15++;
+        BA40->unk155 = 0;
+        break;
+    default:
+        if ((BA40->unk11C != NULL) && (BA40->unk11C->unk154 == 5)) {
+            bossResetAudioChannels();
+            BA40->unk154 = 0x6A;
+            BA40->unk155 = 0;
+            camStartPath(D_807FBB40, D_800359C4[sp43], 1);
+            flagSet(0x5A, 1, 2);
+        }
+        break;
+    }
+    if (!(BA40->unk60 & 0x10)) {
+        if (func_8071441C() != 0) {
+            flagSet(0x55, 0, 2);
+        }
+        if ((flagGet(0x5D, 2) == 0) || (flagGet(0x5C, 2) != 0)) {
+            bossResetAudioChannels();
+            D_80750AD4 = 1;
+            if (flagGet(0x5D, 2) == 0) {
+                camStartPath(D_807FBB40, 0x19, 1);
+                flagSet(0x5D, 1, 2);
+            } else {
+                camStartPath(D_807FBB40, D_800359A0[0], 1);
+            }
+            flagSet(0x5C, 0, 2);
+            flagSet(0x55, 1, 2);
+        } else {
+            sp30 = sp43 + 0x55;
+            if (flagGet(sp30, 2) == 0) {
+                camStartPath(D_807FBB40, D_800359A0[sp43], 1);
+                flagSet(sp30, 1, 2);
+            } else if (flagGet(0x5A, 2) != 0) {
+                if (flagGet(0x5B, 2) != 0) {
+                    camStartPath(D_807FBB40, D_800359AC[sp43], 1);
+                    flagSet(0x5A, 0, 2);
+                } else {
+                    sfxStopChannel(0x2B, 0);
+                    BA40->unk154 = 0x6A;
+                    BA40->unk155 = 0;
+                    flagSet(0x5B, 1, 2);
+                    func_80712524(0xD7, 1);
+                    D_80750AD4 -= 1;
+                }
+            } else {
+                camStartPath(D_807FBB40, D_800359B8[sp43], 1);
+            }
+        }
+    }
+    if ((D_807FBB48->unk154 == 0x67) || (sfxGetChannelVolume(0xF) > 0.1)) {
+        s0->unkE = 0x1D4C;
+        if (s0->unk10 - 0x3E8 < 0x1D4C) {
+            s0->unk10 = 0x1D4C;
+        } else {
+            s0->unk10 = s0->unk10 - 0x3E8;
+        }
+    } else {
+        if (s0->unkE - 0x64 < 0x1F40) {
+            s0->unkE = 0x1F40;
+        } else {
+            s0->unkE = s0->unkE - 0x64;
+        }
+        if (s0->unkE < s0->unk10 + 0x3E8) {
+            s0->unk10 = s0->unkE;
+        } else {
+            s0->unk10 = s0->unk10 + 0x3E8;
+        }
+    }
+    n_alSndpPostEvent(s0->unk4, 8, s0->unk10);
+    n_alSndpPostEvent(s0->unk8, 8, s0->unk10);
+    if (s0->unkD & 0x17) {
+        s32 snd = 0x1E8;
+        if ((D_80767CC0 - s0->unk0) >= 6U) {
+            s0->unk0 = D_80767CC0;
+            s0->unkC = 0;
+            if (s0->unkD & 0x10) {
+                snd = 0x42B;
+            } else if (s0->unkD & 4) {
+                snd = 0x1EA;
+            } else if (s0->unkD & 2) {
+                snd = 0x1E7;
+            }
+            func_80609140(snd, 0x58EF, 64.0f, 1.0f, 0x14, 0x80);
+        }
+        if (s0->unkE + 0x4650 >= 0x8000) {
+            s0->unkE = 0x7FFF;
+        } else {
+            s0->unkE = s0->unkE + 0x4650;
+        }
+        s0->unkD &= 0xFFE0;
+    }
+    if (s0->unkD & 8) {
+        if ((D_80767CC0 - s0->unk0) >= 6U) {
+            if (s0->unkC == 0) {
+                s0->unk0 = D_80767CC0;
+            }
+            s0->unkC++;
+            switch (s0->unkC) {
+            case 0x3E:
+                s0->unkC = 0;
+                s0->unkD &= 0xFFF7;
+            case 1:
+            case 0x10:
+            case 0x1D:
+            case 0x29:
+            case 0x34:
+                func_80609140(0x1E9, 0x58EF, 64.0f, 1.0f, 0, 0x80);
+                break;
+            }
+        }
+        if (s0->unkE + 0x4650 >= 0x8000) {
+            s0->unkE = 0x7FFF;
+        } else {
+            s0->unkE = s0->unkE + 0x4650;
+        }
+    }
+    if ((sp44->unk12 & 1) && (func_805FCA64() != 0)) {
+        renderCallbacksRegister(bossDrawRoundText, D_807FBB40, 3);
+    }
+}
+
 
 void actorSetNodeFlag(void *, s32);
 void actorClearNodeFlag(void *, s32);
@@ -218,7 +750,6 @@ typedef struct {
 } BossB_Struct_800359D0;
 
 extern BossB_Struct_800359D0 D_800359D0[];
-extern s32 D_8076A0A8;
 
 s32 flagGet(s16, s32);
 
