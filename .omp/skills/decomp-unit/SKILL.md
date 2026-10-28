@@ -89,6 +89,8 @@ a parked `NON_MATCHING` function is stage 4+ and counts as unmatched.
    split and the restore as one lease (no other `tools/dk` call runs between them):
    `tools/dk --hold sh -c 'tools/dk make split && tools/restore_split_asm.sh <oldest running base> dk64.global.us.yaml'`.
    A failing gate after the namer: troubleshooting.md "Namer broke the build".
+   Named parked/`GLOBAL_ASM` functions: splat writes a `.s` only for pragma paths it finds, so
+   point those pragmas at the new names, split again, and `git mv` their drafts to the new names.
 3. ROADMAP: one bullet per segment (files, data/rodata offsets, N of T matched per file,
    named groups, near-misses incl. parked ones, unattempted large functions; check every
    cited name exists in the symbol file). `tools/dk python3 tools/progress.py --readme`.

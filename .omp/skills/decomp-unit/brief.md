@@ -27,11 +27,9 @@ or merge temporaries, s32 vs narrow temps, scope temps per switch case; commutat
 operand order; sequential vs chained assignment; exact prototypes (void vs s32 return,
 f32 vs unprototyped, a callback symbol declared as a function rather than `&D_...`);
 nested call argument vs sequential assignment; ternary vs if/else; `do {} while` vs
-`while`. Loop-invariant hoisting order follows first use in the loop. A `$v0`/`$v1`/`$a0`
-swap between a pointer temp and a value temp: give the callees on that path a non-void
-(`s32`) return type even if the result is unused (fixed three functions in one unit). A
-`lbu a0; move v1,a0` copy with swapped registers: compare `adjsave` of the CSE temp and the
-variable in `uopt_trace.sh -l 5` and give the variable more uses/reloads in later blocks.
+`while`. Loop-invariant hoisting order follows first use in the loop. A `$v0`/`$v1` swap:
+toggle void→`s32` returns of ALL callees (one in another switch case fixed it). A `lbu a0;
+move v1,a0` copy with swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`.
 Before reporting a match, diff `objdump -dr` relocations of your function against expected:
 swapped externs in a comparison look identical in the text.
 
@@ -118,7 +116,9 @@ swapped externs in a comparison look identical in the text.
   permuter search-hint rule, NON_MATCHING parking) with these exceptions: no ROM build (your
   gates are `fdiff.sh` OK/TEXT OK and `--non-matching`), `uopt_trace.sh` before guessing at
   any register question, permuter always with `-j 2` and a `--seconds` limit (shared CPU).
-  Report the stage reached (1–6) for every unmatched function.
+  At stage 4+ run `tools/dk python3 tools/deadsweep.py sweep <copy> <src> FUNC` first (greedy
+  dead-statement insertion; read its docstring). Report the stage reached (1–6) for every
+  unmatched function.
 - Park only stage 4+ (same callee-saved set AND frame size, remaining diff only regalloc/
   scheduling/stack layout) in your copy as below; stage 2–3 stays on its GLOBAL_ASM line:
 

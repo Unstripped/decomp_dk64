@@ -38,7 +38,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   gates on outcome (every function matched, or back on its `GLOBAL_ASM` line with a staged
   draft and no untried idea). No `date`/minute gates: they only make finished agents idle.
 - Re-prompting a finished agent with its file's next chunk, large function or near-misses
-  (new copy from HEAD) was the best-yielding refill (2C700 unit: 4 large functions this way).
+  (new copy from HEAD) was the best-yielding refill (2C700 unit: 4 large functions this way),
+  but only while it is under ~120 requests: a re-prompt shares the original request cap
+  (arcade/menu unit: an agent at ~140 finished 1 of a 6-function list). Above that, spawn fresh.
 
 ## Rolling dispatch
 
@@ -67,10 +69,12 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   one named untried trick from it. Parks that had 2 zero-yield passes still matched when a
   new finding (ring/chain-length counting, between-call dummies) arrived: re-dispatch on
   new evidence, not on "try again".
-- Fresh-eyes agents that build a scripted variant harness (reduced TU: file head + one
-  function, ~0.5 s/compile, score = normalised objdump diff lines) and sweep statement
-  order × association × named/inline × declaration order matched 12 of 21 bonus/race park
-  attempts that permuter and hand passes had stalled on; ask for the harness in every park task.
+- Park passes: `tools/deadsweep.py` (reduced-TU scorer + greedy dead-statement sweep over
+  every statement boundary × global; `score`/`sweep`, see AGENTS.md) matched 11 of ~30
+  arcade/menu parks that typed-C and permuter passes had stalled on (one insertion per round;
+  scheduling hunks in different switch arms need separate rounds). Put it first in every park
+  task, then hand sweeps it does not cover: statement/store order, declaration order (frame
+  slots), void→s32 toggles over ALL callees, named vs inline temps.
 - Only a TU re-split of a file waits for every agent on that file.
 
 ## Large functions
