@@ -1,4 +1,4 @@
-// func_8064A804 (src/global/478F0.c): from .scratch/CsB9/func_8064A804_best.c
+// func_8064A804 (src/global/478F0.c): CsB9 stage 4 (parked NON_MATCHING): frame 0x48 + stack slots OK except pr 0x28 vs 0x2C and missing col spill (sw v1,0x38 / lw v1,0x38 around loop exit); row/col/p regs shifted (target row=t0,col=v1,p=t1 vs mine t1,t0,t2); beqzl row-- delay slot vs sw. '!found' form removed extra move v0,a2; one-line for(row..)p[row]=0 reproduces unrolled init.
 typedef struct CsB9Pair {
     /* 0x0 */ s16 a;
     /* 0x2 */ s16 b;
@@ -16,8 +16,6 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 found;
     s32 row;
     s32 col;
-    s32 mask;
-    u8 *cell;
     u8 nv;
     s16 idx;
     CsB9Pair *pr;
@@ -38,23 +36,21 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
         if (1) {}
         if (1) {}
         if (1) {}
-        if (found == 0) {
+        if (!found) {
             do {
                 if (D_8074822C[row][col] == ((CsB9PzView *)cs)->unk49) {
                     found = 1;
                 }
                 col++;
-            } while (col < 2 && found == 0);
+            } while (col < 2 && !found);
         }
         row++;
-    } while (row < 6 && found == 0);
+    } while (row < 6 && !found);
     row--;
-    cell = p + row;
     col--;
-    mask = 1 << col;
-    if (!(*cell & mask)) {
-        nv = *cell | mask;
-        *cell = nv;
+    if (!(p[row] & (1 << col))) {
+        nv = p[row] | (1 << col);
+        p[row] = nv;
         if (nv == 3) {
             pr = &D_80748244[(s16)(row * 2 + col)];
             modelSlotSetNodeFrame(csId, pr->a, 0, 0);
@@ -73,7 +69,7 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
             p[7] = row;
         } else {
             p[p[7]] = 0;
-            *cell = 0;
+            p[row] = 0;
             modelSlotSetNodeFrame(csId, D_80748244[p[8]].a, 1, 0);
             modelSlotSetNodeFrame(csId, D_80748244[p[8]].b, 1, 0);
             func_80609140(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
