@@ -1,16 +1,16 @@
-// func_80032B08 (src/boss/C920.c): from .scratch/Boss3E/func_80032B08_best.c
-typedef struct Boss2E_Sub4_0 {
+// func_80032B08 (src/boss/C920.c): stage 5 (same frame -56, same s0/s1 set, same 370 insns, opcode seq differs ~24 ops only in the unk17==1 block): D_80035B74 accesses stay unhoisted only when spelled via other lvalues (load/0x28/0 as D_80035B74, temp store D_80035B70[2], 0xA store D_80035B6C[4] = addend-only reloc diff); plain D_80035B74 everywhere hoists lui/addiu to v1 (108 op diff). Remaining: tables lui order z(B20) first/x second, y add in jal delay slot, lui v1 position. Tried z/x/y order perms, inline call args, decl orders. Names: actorDespawn, projectileSetTargetCoords, projectileAimAndSpawn.
+typedef struct BsB_Sub4_0 {
     char pad0[4];
     f32 unk4;
     char pad8[8];
     s16 unk10;
-} Boss2E_Sub4_0;
+} BsB_Sub4_0;
 
-typedef struct Boss2E_Sub4 {
-    Boss2E_Sub4_0 *unk0;
-} Boss2E_Sub4;
+typedef struct BsB_Sub4 {
+    BsB_Sub4_0 *unk0;
+} BsB_Sub4;
 
-typedef struct Boss2E_Sub174_0_174 {
+typedef struct BsB_Sub174_0_174 {
     char pad0[4];
     f32 unk4;
     char pad8[0xA];
@@ -19,9 +19,9 @@ typedef struct Boss2E_Sub174_0_174 {
     s8 unk14;
     char pad15[2];
     s8 unk17;
-} Boss2E_Sub174_0_174;
+} BsB_Sub174_0_174;
 
-typedef struct Boss2E_Sub174_0 {
+typedef struct BsB_Sub174_0 {
     char pad0[0x7C];
     f32 unk7C;
     char pad80[4];
@@ -29,18 +29,18 @@ typedef struct Boss2E_Sub174_0 {
     char pad88[0xCC];
     u8 unk154;
     char pad155[0x1F];
-    Boss2E_Sub174_0_174 *unk174;
-} Boss2E_Sub174_0;
+    BsB_Sub174_0_174 *unk174;
+} BsB_Sub174_0;
 
-typedef struct Boss2E_Sub174 {
-    Boss2E_Sub174_0 *unk0;
+typedef struct BsB_Sub174 {
+    BsB_Sub174_0 *unk0;
     s8 unk4;
     s8 unk5;
-} Boss2E_Sub174;
+} BsB_Sub174;
 
-typedef struct Boss2E_Actor {
+typedef struct BsB_Actor {
     char pad0[4];
-    Boss2E_Sub4 *unk4;
+    BsB_Sub4 *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -60,15 +60,15 @@ typedef struct Boss2E_Actor {
     u8 unk16B;
     u8 unk16C;
     char pad16D[7];
-    Boss2E_Sub174 *unk174;
-} Boss2E_Actor;
+    BsB_Sub174 *unk174;
+} BsB_Actor;
 
 void func_80613C48(void *, s16, f32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_80614644(void *, void *, f32);
-void func_806782C0(void *);
-void func_806907F0(f32, f32, f32);
-void func_80690A28(s32, s32, f32, f32, f32, f32, f32, void *);
+void actorDespawn(void *);
+void projectileSetTargetCoords(f32, f32, f32);
+void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 void actorUpdateModelMatrix(void *, s32);
 extern s16 D_80035B00[];
 extern s16 D_80035B08[];
@@ -79,14 +79,17 @@ extern s8 D_80035B28;
 extern s16 D_80035B2C;
 extern f32 D_80035B3C;
 extern s16 D_80035B74;
+extern s16 D_80035B70[];
+extern s16 D_80035B6C[];
+extern s16 D_80035B68[];
 extern f32 D_80036DC4;
 
-#define ACTOR ((Boss2E_Actor *)D_807FBB40)
+#define ACTOR ((BsB_Actor *)D_807FBB40)
 
 void func_80032B08(void) {
-    Boss2E_Sub174 *sub174 = ACTOR->unk174;
-    Boss2E_Sub174_0_174 *sp30 = sub174->unk0->unk174;
-    Boss2E_Sub4_0 *sub4_0 = ACTOR->unk4->unk0;
+    BsB_Sub174 *sub174 = ACTOR->unk174;
+    BsB_Sub174_0_174 *sp30 = sub174->unk0->unk174;
+    BsB_Sub4_0 *sub4_0 = ACTOR->unk4->unk0;
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;
@@ -132,7 +135,7 @@ void func_80032B08(void) {
             }
             if ((f64)ACTOR->unk80 < 0.0) {
                 func_80609140(0x384, 0x7D00, 63.0f, 1.0f, 0, 0);
-                func_806782C0(ACTOR);
+                actorDespawn(ACTOR);
             }
         }
     }
@@ -145,14 +148,14 @@ void func_80032B08(void) {
                     D_80035B74 = 0x28;
                 }
                 temp_v1 = D_80035B74 - 1;
-                D_80035B74 = temp_v1;
+                D_80035B70[2] = temp_v1;
                 if (temp_v1 < 0) {
                     f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
                     f32 y = ACTOR->unk80 + 270.0f;
                     f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
-                    D_80035B74 = 0xA;
-                    func_806907F0(x, y, z);
-                    func_80690A28(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
+                    D_80035B6C[4] = 0xA;
+                    projectileSetTargetCoords(x, y, z);
+                    projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
                 }
             } else {
                 D_80035B74 = 0;

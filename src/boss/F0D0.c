@@ -1,7 +1,5 @@
 #include "common.h"
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_800330D0.s")
-
 typedef struct {
     u8 pad0[0x38];
     f32 unk38;
@@ -59,6 +57,74 @@ void camStartShakeFromPoint(void *, s32, s32, f32, f32, f32, f32, f32);
 extern void *gCamActor;
 extern void *D_8071720C;
 extern void *D_8074E880[];
+#ifdef NON_MATCHING
+u8 func_800330D0(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
+    s32 min_dist;
+    s32 dists[16];
+    u8 i;
+    s8 diff_row;
+    s8 diff_col;
+    u8 val;
+    u8 start_val;
+
+    val = arg1[0];
+    min_dist = 0x98967F;
+    start_val = val;
+    for (i = 0; i < 16; i++) {
+        dists[i] = (s32)(((f32)D_807FDCA0->unk14[i].unk0 - D_807FBB4C->unk7C) * ((f32)D_807FDCA0->unk14[i].unk0 - D_807FBB4C->unk7C) + ((f32)D_807FDCA0->unk14[i].unk4 - D_807FBB4C->unk84) * ((f32)D_807FDCA0->unk14[i].unk4 - D_807FBB4C->unk84));
+        if (dists[i] < min_dist) {
+            min_dist = dists[i];
+            arg1[3] = i;
+        }
+    }
+
+    if (D_807FBB4C->unk80 < D_807FBB40->unk80 - 10.0f) {
+        u8 center[4] = {5, 6, 9, 10};
+        return center[(randomNonNegative() >> 15) % 4];
+    }
+
+    diff_row = (s8)((s32)arg1[0] / 4 - (s32)arg1[3] / 4);
+    diff_col = (s8)((s32)arg1[0] % 4 - (s32)arg1[3] % 4);
+
+    if (diff_row > 0) {
+        val -= 4;
+    } else if (diff_row < 0) {
+        val += 4;
+    } else if (diff_col > 0) {
+        val -= 1;
+    } else if (diff_col < 0) {
+        val += 1;
+    }
+
+    if (arg0->unk14 >= 3) {
+        return val;
+    }
+    if (val == arg1[2] || val == start_val) {
+        if (diff_row != 0 || val == start_val) {
+            if (dists[(start_val - 1) & 0xF] < dists[(start_val + 1) & 0xF] && (start_val & 3) != 0) {
+                start_val--;
+            } else if (dists[(start_val + 1) & 0xF] < dists[(start_val - 1) & 0xF] && (start_val & 3) != 3) {
+                start_val++;
+            }
+        }
+
+        if ((diff_row == 0 && diff_col != 0) || val == start_val) {
+            if (dists[(start_val - 4) & 0xF] < dists[(start_val + 4) & 0xF] && start_val >= 4) {
+                return start_val - 4;
+            } else if (dists[(start_val + 4) & 0xF] < dists[(start_val - 4) & 0xF] && start_val < 12) {
+                start_val += 4;
+            }
+        }
+
+        return start_val;
+    }
+    return val;
+}
+#else
+
+#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_800330D0.s")
+#endif
+
 void func_8003340C(u8 *arg0) {
     s32 temp_v0;
 
@@ -120,7 +186,48 @@ void func_800336C0(void) {
     func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) sp24, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_80033784.s")
+void func_8063DA40(s16, u8);
+extern u8 D_80035BDC[];
+extern u8 D_80035BE4[];
+
+void func_80033784(arg0, arg1)
+u8 *arg0;
+u8 arg1;
+{
+    u8 idx;
+    u8 val;
+    if (arg1) {
+        do {
+            idx = (randomNonNegative() >> 15) % 8;
+        } while (arg0[0] + 0x10 == (val = D_80035BDC[idx]) ||
+                  arg0[3] + 0x10 == D_80035BDC[idx] ||
+                  arg0[3] + 0x0F == D_80035BDC[idx] ||
+                  arg0[3] + 0x11 == D_80035BDC[idx] ||
+                  arg0[3] + 0x0C == D_80035BDC[idx] ||
+                  arg0[3] + 0x14 == D_80035BDC[idx]);
+        arg0[4] = val;
+        do {
+            idx = (randomNonNegative() >> 15) % 8;
+        } while (arg0[0] + 0x10 == (val = D_80035BE4[idx]) ||
+                  arg0[3] + 0x10 == D_80035BE4[idx] ||
+                  arg0[3] + 0x0F == D_80035BE4[idx] ||
+                  arg0[3] + 0x11 == D_80035BE4[idx] ||
+                  arg0[3] + 0x0C == D_80035BE4[idx] ||
+                  arg0[3] + 0x14 == D_80035BE4[idx]);
+        arg0[5] = val;
+    }
+
+    if (arg0[4] != 0) {
+        func_8063DA40((s16)arg0[4], arg1);
+    }
+    if (arg0[5] != 0) {
+        func_8063DA40((s16)arg0[5], arg1);
+    }
+    if (arg1 == 0) {
+        arg0[4] = 0;
+        arg0[5] = 0;
+    }
+}
 
 void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
