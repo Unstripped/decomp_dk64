@@ -2324,25 +2324,253 @@ void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BF58.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064BFD0.s")
+void func_8064BFD0(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 absv;
+    f32 ratio;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064C134.s")
+    if (cs->unk14[b] > 0.0f) {
+        absv = cs->unk14[b];
+    } else {
+        absv = -cs->unk14[b];
+    }
+    ratio = (f64)absv / cs->unk14[c + 1];
+    if (cs->unk14[b] > 0.0) {
+        if (cs->unk14[c] < ratio) {
+            cs->unk14[c] = cs->unk14[c] + 0.1;
+        }
+    } else if (-ratio < cs->unk14[c]) {
+        cs->unk14[c] = cs->unk14[c] - 0.1;
+    }
+    D_807F6228 += cs->unk14[c];
+    if (D_807F6228 > 8.0) {
+        D_807F6228 = 8.0f;
+    }
+    if (D_807F6228 < -8.0) {
+        D_807F6228 = -8.0f;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064C250.s")
+void func_8064C134(CsState *cs, s16 csId, s16 b, s16 c) {
+    if (D_807F6228 > 1.2 || D_807F6228 < -1.2) {
+        if (D_807F6228 > 0.0) {
+            if (cs->unk14[b] > -1.0) {
+                cs->unk14[b] = cs->unk14[b] - 0.1;
+            }
+        } else if (cs->unk14[b] < 1.0) {
+            cs->unk14[b] = cs->unk14[b] + 0.1;
+        }
+        D_807F6228 += cs->unk14[b];
+    } else {
+        D_807F6228 = 0.0f;
+        cs->unk14[b] = 0.0f;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064C3E8.s")
+void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064C544.s")
+void func_8064C250(CsState *cs, s16 csId, s16 b, s16 c) {
+    actorSpawnNodeEntryScaled(0x2F, D_807F621C, D_807F6220 + 15.0f, D_807F6224, 0, 1, -1, 0);
+    actorSpawnNodeEntryScaled(0x2F, D_807F621C, D_807F6220 + 15.0f, D_807F6224, 0x400, 1, -1, 0);
+    actorSpawnNodeEntryScaled(0x2F, D_807F621C, D_807F6220 + 15.0f, D_807F6224, 0x800, 1, -1, 0);
+    actorSpawnNodeEntryScaled(0x2F, D_807F621C, D_807F6220 + 15.0f, D_807F6224, 0xC00, 1, -1, 0);
+    func_807149B8(1);
+    func_80714CC0(D_8071FFA0, 2.5f, D_807F621C, D_807F6220 + 30.0f, D_807F6224);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064C644.s")
+void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
+typedef struct CsB13Cam {
+    /* 0x000 */ u8 pad0[0x104];
+    /* 0x104 */ s32 unk104;
+} CsB13Cam;
+typedef struct CsB13Shake {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s32 unk4;
+} CsB13Shake;
+void camStartShakeFromPoint(s32, s32, s32, f32, f32, f32, f32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064C708.s")
+void func_8064C3E8(CsState *cs, s16 csId, s16 b, s16 c) {
+    u32 pad[4];
+    s16 pad16;
+    s16 anim;
+    f32 animT;
+    u8 animFlag;
+    CsB13Shake *p;
+    CsB13Cam *cam;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064C814.s")
+    cam = D_807FC924->unk4->unk174;
+    if (*(CsB13Shake **)cs == NULL) {
+        p = func_80610FE8(8);
+        *(CsB13Shake **)cs = p;
+        p->unk0 = 0;
+        p->unk4 = 0;
+    }
+    p = *(CsB13Shake **)cs;
+    modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
+    if (anim == 0) {
+        p->unk4 = 10;
+    }
+    if (anim == 2 && animT >= 0.8) {
+        if (p->unk4 != 0) {
+            camStartShakeFromPoint(cam->unk104, 4, 0xB, D_807F621C, D_807F6220, D_807F6224, 200.0f, 600.0f);
+            p->unk4--;
+        }
+    } else {
+        p->unk0 = 0;
+    }
+    if (anim == 2) {
+        cs->unk6E = 1;
+    } else {
+        cs->unk6E = 0;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064C9F8.s")
+extern s16 D_80770628[];
+extern f32 D_80770B68[];
+extern f32 D_80770BC0[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064CB3C.s")
+void func_8064C544(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 anim;
+    f32 animT;
+    u8 animFlag;
+    u8 slot;
+
+    if (cs->unk10[0] >= 0) {
+        modelAnimEntryGetState(csId, b, &anim, &animT, &animFlag);
+        slot = D_80770628[cs->unk10[0]];
+        D_80770B68[slot] = func_80612794((s16)(((f32)anim + animT) * 2048.0 - 1024.0)) * 0.3 + 1.3;
+        D_80770BC0[slot] = 1.0f;
+    }
+}
+
+void func_8064C644(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 anim;
+    f32 animT;
+    u8 animFlag;
+    u8 slot;
+
+    if (cs->unk10[0] >= 0) {
+        modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
+        slot = D_80770628[cs->unk10[0]];
+        D_80770B68[slot] = func_80612794((s16)((anim << 11) / 27)) + 0.3;
+        D_80770BC0[slot] = 2.0f;
+    }
+}
+
+
+void func_8064C708(CsState *cs, s16 csId, s16 b, s16 c) {
+    s16 anim;
+    f32 animT;
+    u8 animFlag;
+    s32 *p;
+
+    if (*(s32 **)cs == NULL) {
+        *(s32 **)cs = func_80610FE8(4);
+        **(s32 **)cs = 0;
+    }
+    p = *(s32 **)cs;
+    modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
+    if (*p == 0xB) {
+        if (anim == 3) {
+            *p = 3;
+            sfxPlayFromTargetSlot(csId, 0x257, 0x78, 0x7F, 0xA, 0x50, 0.3f);
+        }
+    } else if (anim == 0xB) {
+        *p = 0xB;
+        sfxPlayFromTargetSlot(csId, 0x258, 0x78, 0x7F, 0xA, 0x50, 0.3f);
+    }
+}
+
+void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+
+void func_8064C814(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 anim;
+    f32 animT;
+    u8 animFlag;
+    CsB13Shake *p;
+
+    if (*(CsB13Shake **)cs == NULL) {
+        p = func_80610FE8(8);
+        *(CsB13Shake **)cs = p;
+        p->unk0 = 0;
+        p->unk4 = 0;
+    }
+    p = *(CsB13Shake **)cs;
+    modelAnimEntryGetState(csId, 2, &anim, &animT, &animFlag);
+    anim = (f32)anim + animT;
+    if (anim == 0x28 || anim == 0x32) {
+        if (anim != p->unk0) {
+            p->unk0 = anim;
+            modelSlotGetNodePos(csId, 1, 3, &x, &y, &z);
+            func_806086CC(x, y, z, 0x32, 0xFF, 0x7F, 0xA, 0x50, 0.3f, 0);
+        }
+    }
+    modelAnimEntryGetState(csId, 3, &anim, &animT, &animFlag);
+    if (anim == 0x14 || anim == 0x18) {
+        if (anim != p->unk4) {
+            p->unk4 = anim;
+            modelSlotGetNodePos(csId, 1, 2, &x, &y, &z);
+            func_806086CC(x, y, z, 0x332, 0xFF, 0x7F, 0, 0x50, 0.3f, 0);
+        }
+    }
+}
+
+void func_8064C9F8(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 anim;
+    f32 animT;
+    u8 animFlag;
+    s32 *p;
+
+    if (*(s32 **)cs == NULL) {
+        *(s32 **)cs = func_80610FE8(4);
+        **(s32 **)cs = 0;
+    }
+    p = *(s32 **)cs;
+    modelAnimEntryGetState(csId, 2, &anim, &animT, &animFlag);
+    anim = (f32)anim + animT;
+    if (anim == 0x22 || anim == 0x2E) {
+        if (anim != *p) {
+            *p = anim;
+            modelSlotGetNodePos(csId, 1, 2, &x, &y, &z);
+            func_806086CC(x, y, z, 0x257 + (anim == 0xA), 0xFF, 0x7F, 0xA, 0x50, 0.3f, 0);
+        }
+    }
+}
+
+void func_8064CB3C(CsState *cs, s16 csId, s16 b, s16 c) {
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 anim;
+    f32 animT;
+    u8 animFlag;
+    s32 *p;
+
+    if (*(s32 **)cs == NULL) {
+        *(s32 **)cs = func_80610FE8(4);
+        **(s32 **)cs = 0;
+    }
+    p = *(s32 **)cs;
+    modelAnimEntryGetState(csId, 2, &anim, &animT, &animFlag);
+    anim = (f32)anim + animT;
+    if (anim != *p) {
+        switch (anim) {
+            case 0:
+            case 0xC:
+            case 0x18:
+            case 0x24:
+                *p = anim;
+                modelSlotGetNodePos(csId, 1, 2, &x, &y, &z);
+                func_806086CC(x, y, z, 0x3A, 0x50, 0x7F, 0, 0x50, 0.3f, 0);
+                break;
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064CC80.s")
 

@@ -13,7 +13,6 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 
 void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *p;
-    u8 *r;
     u8 found;
     s32 row;
     s32 col;
@@ -27,13 +26,7 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
     if (*(u8 **)cs == NULL) {
         *(u8 **)cs = func_80610FE8(0xA);
         p = *(u8 **)cs;
-        r = p + 2;
-        p[1] = 0;
-        p[0] = 0;
-        r[3] = 0;
-        r[2] = 0;
-        r[1] = 0;
-        r[0] = 0;
+        for (row = 0; row < 6; row++) p[row] = 0;
         p[6] = 1;
         p[9] = 0;
     }
