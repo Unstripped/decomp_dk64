@@ -1,7 +1,6 @@
-// func_8003292C (src/menu/E550.c): stage 3 (frame 232 now matches): added named yy=y+0x29, yyo=yo+0x29 (set at outer-loop top, before x=0) and off=D_8074450C*0xC8 (CSE'd across the first hudDrawScaledText call; target spills it at 212(sp)). Spill slots now 72/76/80 vs target 72/80/96 and strings 196..208 vs target 192..204 (4 bytes). Remaining: loop var colouring x=t0,y=v1,xo=t1,yo=a0 vs target x=v1,y=a0,xo=t4,yo=t0; alpha v0 vs a2; uopt temp slot sizes (target 8-byte temps at 72/80). Declaration order of locals does NOT change layout/colouring (60 shuffles all 481). Dropping yo/xo as expressions hoists base offsets into the outer loop (frame 224).
+// func_8003292C (src/menu/E550.c): stage 4 (parked NON_MATCHING in E550 copy; frame 232 = target, same saved set s0-s8): text 161 diff lines (stack refs 12; clean C, no dead stmts). Remaining: loop var colouring x=t0,y=v1,... vs target x=v1,y=a0,xo=t4,yo=t0 (target reloads y+0x29/yo+0x29 temps from 80/72(sp) as the next y/yo); alpha&0xFF temp spilled at 84 vs target 96 (target temps 72/80/96); target spills off (uncoloured M-var, home 212, sw/lw around first hudDrawScaledText) while ours keeps it in a saved reg. Found: no 'alpha &= 0xFF' (macro mask CSE), types x:u16, yy/yyo:s16, tex:u32 (346->161 lines), named yy=y+0x29/yyo=yo+0x29 at outer-loop top, off as local. Greedy dead-statement sweeps reached 142 (dead ifs on xo,off,D_80744490/94) but are junk; 1440 decl-order permutations + placeholder-slot sweeps + loop-form rewrites no better; permuter inconclusive.
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
-extern u8 D_800339D0;
 extern s16 D_80744490;
 extern s16 D_80744494;
 extern u8 D_8074450C;
@@ -13,19 +12,19 @@ Gfx *func_806FC530(Gfx *, s32, s16, s16, char *, s32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 
 Gfx *func_8003292C(Gfx *dl, void *arg1) {
-    s32 x;
+    s32 off;
+    u16 x;
     s32 y;
     s32 xo;
     s32 yo;
-    s32 tex;
+    u32 tex;
     char *spCC;
     char *spC8;
     char *spC4;
     s32 spC0;
     s32 alpha;
-    s32 yy;
-    s32 yyo;
-    s32 off;
+    s16 yy;
+    s16 yyo;
 
     spCC = func_8070E750(0xD, 0, 1);
     spC8 = func_8070E750(0xD, 1, 1);
@@ -40,7 +39,6 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     if (alpha > 0xFF) {
         alpha = 0xFF;
     }
-    alpha &= 0xFF;
     gDPSetPrimColor(dl++, 0, 0, alpha, alpha, alpha, 0xFF);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0);
