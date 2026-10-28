@@ -146,7 +146,8 @@ extern s16 D_807F693C;
 extern u8 D_807F693E;
 extern s8 D_807F693F;
 void *func_80610FE8(s32);
-void func_8063DED0(void *);
+struct CsA1State;
+void func_8063DED0(struct CsA1State *);
 void *memcpy(void *, const void *, unsigned int);
 
 typedef struct CsA0Spawn {
@@ -246,19 +247,377 @@ void func_8063DE68(CsA0Obj *arg0) {
     heapFree(arg0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DED0.s")
+// Cutscene condition/command list node (one script step).
+typedef struct CsA1Node {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 pad1;
+    /* 0x02 */ CsCmd unk2[5];
+    /* 0x2A */ u8 unk2A;
+    /* 0x2B */ u8 pad2B;
+    /* 0x2C */ CsCmd unk2C[4];
+    /* 0x4C */ struct CsA1Node *unk4C;
+} CsA1Node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063DFEC.s")
+// Whole-state view of CsState (include/cutscene.h only knows part of it).
+typedef struct CsA1State {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ u32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ f32 unk14[8];
+    /* 0x34 */ f32 unk34;
+    /* 0x38 */ s32 unk38;
+    /* 0x3C */ f32 unk3C;
+    /* 0x40 */ s16 unk40[2];
+    /* 0x44 */ s16 unk44[2];
+    /* 0x48 */ u8 unk48[3];
+    /* 0x4B */ u8 unk4B[3];
+    /* 0x4E */ u8 unk4E;
+    /* 0x4F */ u8 unk4F;
+    /* 0x50 */ u8 unk50;
+    /* 0x51 */ u8 unk51;
+    /* 0x52 */ u8 unk52;
+    /* 0x53 */ u8 unk53;
+    /* 0x54 */ u8 unk54;
+    /* 0x55 */ u8 pad55[7];
+    /* 0x5C */ u8 unk5C;
+    /* 0x5D */ u8 pad5D[3];
+    /* 0x60 */ u8 unk60;
+    /* 0x61 */ u8 pad61;
+    /* 0x62 */ s16 unk62;
+    /* 0x64 */ s16 unk64;
+    /* 0x66 */ u8 unk66;
+    /* 0x67 */ u8 unk67;
+    /* 0x68 */ u8 pad68[6];
+    /* 0x6E */ u8 unk6E;
+    /* 0x6F */ u8 unk6F;
+    /* 0x70 */ u8 unk70;
+    /* 0x71 */ u8 unk71;
+    /* 0x72 */ u8 pad72[2];
+    /* 0x74 */ f32 unk74;
+    /* 0x78 */ f32 unk78;
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ s16 unk80;
+    /* 0x82 */ s16 unk82;
+    /* 0x84 */ s16 unk84;
+    /* 0x86 */ s16 unk86;
+    /* 0x88 */ s16 unk88;
+    /* 0x8A */ s16 unk8A;
+    /* 0x8C */ f32 unk8C;
+    /* 0x90 */ f32 unk90;
+    /* 0x94 */ Actor *unk94;
+    /* 0x98 */ s16 unk98;
+    /* 0x9A */ u8 unk9A;
+    /* 0x9B */ u8 unk9B;
+    /* 0x9C */ u8 pad9C[4];
+    /* 0xA0 */ CsA1Node *unkA0;
+} CsA1State;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063E078.s")
+void func_8063DED0(CsA1State *cs) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063E0D4.s")
+    for (i = 0; i < 8; i++) {
+        cs->unk14[i] = 1.0f;
+    }
+    cs->unk10 = -1;
+    cs->unk12 = -1;
+    cs->unk38 = -1;
+    cs->unk0 = 0;
+    cs->unk40[0] = 0;
+    cs->unk40[1] = 0;
+    cs->unk44[0] = 0;
+    cs->unk44[1] = 0;
+    cs->unk48[0] = 0;
+    cs->unk48[1] = 0;
+    cs->unk48[2] = 0;
+    cs->unk4B[0] = 0;
+    cs->unk4B[1] = 0;
+    cs->unk4B[2] = 0;
+    cs->unk4E = 0;
+    cs->unk4F = 0;
+    cs->unk50 = 0;
+    cs->unk51 = 0;
+    cs->unk52 = 0;
+    cs->unk53 = 0;
+    cs->unk80 = 0;
+    cs->unk82 = 0;
+    cs->unk84 = 0x7FFF;
+    cs->unk86 = 0x7FFF;
+    cs->unk88 = 0;
+    cs->unk8A = 0xFFF;
+    cs->unk94 = NULL;
+    cs->unk54 = 0;
+    cs->unk5C = 0;
+    cs->unk67 = 0;
+    cs->unk6E = 1;
+    cs->unk6F = 0;
+    cs->unk62 = 0;
+    cs->unk64 = 0;
+    cs->unk60 = 0;
+    cs->unk66 = 0xFF;
+    cs->unk70 = 1;
+    cs->unk71 = 1;
+    cs->unk9A = 0;
+    cs->unk9B = 0;
+    cs->unk98 = 0;
+    cs->unk4 = 0xFFFFFFFF;
+    cs->unk8 = 0.0f;
+    cs->unkC = 0.0f;
+    cs->unk34 = 0.0f;
+    cs->unk3C = 0.0f;
+    cs->unk74 = 0.0f;
+    cs->unk78 = 0.0f;
+    cs->unk7C = 0.0f;
+    cs->unk8C = 0.0f;
+    cs->unk90 = 0.0f;
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063E5B4.s")
+typedef struct CsA1ModelSlot {
+    /* 0x00 */ u8 pad0[0x7C];
+    /* 0x7C */ u8 *unk7C;
+    /* 0x80 */ u8 pad80[0x10];
+} CsA1ModelSlot; /* 0x90 */
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063E6B4.s")
+struct CsModelSlot;
+extern u8 D_807F66F0[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063E72C.s")
+void func_8063DFEC(s32 arg0, u8 *arg1) {
+    s16 slot;
+
+    slot = hashTableLookup(D_807F6240[arg0]);
+    if (slot != -1) {
+        memcpy(((CsA1ModelSlot *)D_807F6000)[slot].unk7C + 0x14, arg1, 0x20);
+        D_807F66F0[arg0] = 1;
+    }
+}
+
+void func_8063E078(CsA1State *cs) {
+    u8 i;
+
+    for (i = 0; i < 2; i++) {
+        if (cs->unk44[i] != 0) {
+            cs->unk44[i]--;
+        }
+    }
+    for (i = 0; i < 3; i++) {
+        cs->unk4B[i] = cs->unk48[i];
+    }
+    cs->unk4E = 0;
+}
+
+extern f32 D_807F61FC;
+extern f32 D_807F6200;
+extern f32 D_807F6204;
+extern f32 D_807F6208;
+extern f32 D_807F620C;
+extern f32 D_807F6210;
+extern f32 D_807F6214;
+extern f32 D_807F6218;
+extern f32 D_807F621C;
+extern f32 D_807F6220;
+extern f32 D_807F6224;
+extern f32 D_807F6228;
+extern f32 D_807F622C;
+extern f32 D_807F6230;
+extern f32 D_807F6234;
+extern f32 D_807F6238;
+extern s16 D_807F6904;
+extern s16 D_807F6906;
+extern s16 D_807F6908;
+extern f32 D_807F690C;
+extern f32 D_807F6910;
+extern f32 D_807F6914;
+void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, u8);
+void func_8063E5B4(CsA1State *);
+void func_8063E72C(CsA1State *);
+s32 func_8063EA14(CsCmd *, CsState *, s16);
+void func_8063FA48(CsCmd *, CsState *, s16);
+s32 modelSlotStepAnimations(s16);
+void modelSlotUpdateGroundCoords(s16, u8);
+void func_806358E8(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
+
+void func_8063E0D4(CsA1State *cs, s16 csId) {
+    CsA1Node *node;
+    s32 i;
+    s32 j;
+    s32 ok;
+    s32 stepped;
+    u8 moved;
+    u8 rotated;
+    u8 scaleXZ;
+    u8 scaleY;
+
+    node = cs->unkA0;
+    if (node != NULL) {
+        modelSlotGetTransformVectors(csId, &D_807F61FC, &D_807F6200, &D_807F6204, &D_807F6208, &D_807F620C,
+                                     &D_807F6210, &D_807F6214, &D_807F6218, 1);
+        modelSlotGetTransformVectors(csId, &D_807F621C, &D_807F6220, &D_807F6224, &D_807F6228, &D_807F622C,
+                                     &D_807F6230, &D_807F6234, &D_807F6238, 1);
+        func_8063E72C(cs);
+        D_807F6904 = 0;
+        D_807F6908 = 0x7FFF;
+        D_807F6906 = D_807F6908;
+        D_807F690C = D_807F61FC;
+        D_807F6910 = D_807F6200;
+        D_807F6914 = D_807F6204;
+        while (node != NULL) {
+            i = 0;
+            ok = 1;
+            while (i < node->unk0 && ok) {
+                ok = func_8063EA14(&node->unk2[i], (CsState *)cs, csId) & 0xFF;
+                i++;
+            }
+            if (ok) {
+                for (j = 0; j < node->unk2A; j++) {
+                    func_8063FA48(&node->unk2C[j], (CsState *)cs, csId);
+                }
+            }
+            node = node->unk4C;
+        }
+        stepped = modelSlotStepAnimations(csId);
+        if (D_807F61FC != D_807F621C || D_807F6200 != D_807F6220 || D_807F6204 != D_807F6224 ||
+            D_807F6208 != D_807F6228 || D_807F620C != D_807F622C || D_807F6210 != D_807F6230 ||
+            D_807F6214 != D_807F6234 || stepped != 0) {
+            moved = D_807F61FC != D_807F621C || D_807F6200 != D_807F6220 || D_807F6204 != D_807F6224;
+            rotated = D_807F6208 != D_807F6228 || D_807F620C != D_807F622C || D_807F6210 != D_807F6230;
+            scaleXZ = D_807F6214 != D_807F6234;
+            scaleY = D_807F6218 != D_807F6238;
+            func_806358E8(csId, D_807F621C, D_807F6220, D_807F6224, D_807F6228, D_807F622C, D_807F6230, D_807F6234,
+                          D_807F6238, moved, rotated, scaleXZ, scaleY, 1);
+            cs->unk4E = 1;
+        }
+        if (D_807F6904 != 0) {
+            modelSlotUpdateGroundCoords(csId, 1);
+        }
+        func_8063E5B4(cs);
+    }
+}
+
+extern u32 D_807FBB60;
+void actorDespawn(Actor *);
+
+void func_8063E5B4(CsA1State *cs) {
+    Actor *actor;
+    u32 flags;
+
+    cs->unk34 = D_807F622C - D_807F620C;
+    cs->unk48[0] = cs->unk4B[0];
+    cs->unk48[1] = cs->unk4B[1];
+    cs->unk48[2] = cs->unk4B[2];
+    cs->unk53 = cs->unk52;
+    actor = cs->unk94;
+    cs->unk51 = 0;
+    cs->unk52 = 0;
+    cs->unk5C = 0;
+    cs->unk9A |= 1;
+    if (actor != NULL) {
+        cs->unk94->unk7C = D_807F621C;
+        actor->unk80 = D_807F6220;
+        actor->unk84 = D_807F6224;
+        actor->unkE6 = D_807F622C * 4096.0f / 360.0f;
+        flags = D_807FBB60;
+        if (flags & 0x1000) {
+            D_807FBB60 = flags & ~0x1000;
+            actorDespawn(cs->unk94);
+            cs->unk94 = NULL;
+        }
+    }
+    D_807F693F = 0;
+}
+
+extern u32 D_8076A064;
+
+void func_8063E6B4(CsA1State *cs) {
+    s16 a;
+    s16 b;
+
+    if (D_8076A064 != cs->unk4) {
+        b = cs->unk64;
+        a = cs->unk62;
+        cs->unk4 = D_8076A064;
+        if (b < a) {
+            cs->unk64 = b + cs->unk66;
+            if (a < cs->unk64) {
+                cs->unk64 = a;
+            }
+        } else {
+            cs->unk64 = b - cs->unk66;
+            if (cs->unk64 < a) {
+                cs->unk64 = a;
+            }
+        }
+    }
+}
+
+void func_8063E72C(CsA1State *cs) {
+    switch (cs->unk50) {
+        case 0:
+            break;
+        case 1:
+            if (cs->unk52 != 0) {
+                cs->unk74 += cs->unk7C;
+                if (cs->unk78 < cs->unk74) {
+                    cs->unk74 = cs->unk78;
+                }
+            } else {
+                cs->unk74 -= cs->unk7C;
+                if (cs->unk74 < 0.0) {
+                    cs->unk74 = 0.0f;
+                }
+            }
+            if (cs->unk74 > 0.01) {
+                D_807F621C += cs->unk8C * cs->unk74;
+                D_807F6224 += cs->unk90 * cs->unk74;
+                if (D_807F621C < cs->unk80) {
+                    D_807F621C = cs->unk80;
+                }
+                if (D_807F6224 < cs->unk82) {
+                    D_807F6224 = cs->unk82;
+                }
+                if (cs->unk84 < D_807F621C) {
+                    D_807F621C = cs->unk84;
+                }
+                if (cs->unk86 < D_807F6224) {
+                    D_807F6224 = cs->unk86;
+                }
+            }
+            break;
+        case 2:
+            if (cs->unk52 != 0) {
+                switch (cs->unk52) {
+                    case 1:
+                        cs->unk74 += cs->unk7C;
+                        break;
+                    case 2:
+                        cs->unk74 -= cs->unk7C;
+                        break;
+                }
+                if (cs->unk78 < cs->unk74) {
+                    cs->unk74 = cs->unk78;
+                }
+                if (cs->unk74 < -cs->unk78) {
+                    cs->unk74 = -cs->unk78;
+                }
+                D_807F622C += cs->unk74;
+            } else {
+                if (cs->unk74 > 0.0) {
+                    cs->unk74 -= cs->unk7C;
+                    if (cs->unk74 < 0.0) {
+                        cs->unk74 = 0.0f;
+                    }
+                } else {
+                    cs->unk74 += cs->unk7C;
+                    if (cs->unk74 > 0.0) {
+                        cs->unk74 = 0.0f;
+                    }
+                }
+                D_807F622C += cs->unk74;
+            }
+            break;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063EA14.s")
 
@@ -313,31 +672,17 @@ extern s32 D_8076A0A8;
 extern CsModelSlot *D_807F6000;
 extern CsSpawnReq D_807F61F0;
 extern Actor *D_807F61F4;
-extern f32 D_807F61FC;
-extern f32 D_807F6204;
-extern f32 D_807F6218;
-extern f32 D_807F621C;
-extern f32 D_807F6220;
-extern f32 D_807F6224;
-extern s16 D_807F6904;
-extern s16 D_807F6906;
-extern s16 D_807F6908;
-extern f32 D_807F690C;
-extern f32 D_807F6910;
-extern f32 D_807F6914;
 extern s16 D_807F6918[16];
 extern u8 D_807F6938;
 extern s16 D_807F693A;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
-extern u32 D_807FBB60;
 extern u32 D_807FBB68;
 extern CsPlayer *D_807FC924;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
-void actorDespawn(Actor *);
 s32 actorListGetOrSetState(s16, u8, u8);
 void actorSetStateTwo(Actor *);
 void actorSetTargetSlotByte(s32, u8);
@@ -1143,11 +1488,62 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_8063FA48.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80641724.s")
+typedef struct CsA1Cam {
+    /* 0x000 */ u8 pad0[0x245];
+    /* 0x245 */ u8 unk245;
+} CsA1Cam;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_806417BC.s")
+void func_80641724(s16 arg0) {
+    CsA1Cam *cam;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/func_80641874.s")
+    cam = D_807FC924->unk4->unk174;
+    switch (arg0) {
+        case 0x33:
+        case 0xBC:
+        case 0x125:
+        case 0x126:
+        case 0x127:
+        case 0x128:
+        case 0x129:
+        case 0x229:
+        case 0x22A:
+        case 0x22B:
+            cam->unk245 = 0x3C;
+            break;
+    }
+}
+
+void func_8067AB20(void *, void *, s32, s32, s16 *, s32);
+
+void func_806417BC(s16 arg0, s16 arg1) {
+    s32 i;
+    Actor *actor;
+    s16 sp44[2];
+
+    sp44[0] = 0;
+    sp44[1] = arg1;
+    for (i = 0; i < gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
+        if ((u32)actor->unk58 == arg0) {
+            func_8067AB20(0, actor, 0x01000000, 1, sp44, 0);
+        }
+    }
+}
+
+void heapFreeDeferred(void *);
+void actorFindActiveByType(s32, void *);
+
+void func_80641874(s16 arg0, s16 arg1) {
+    s16 *sp24;
+    void *sp20;
+
+    sp24 = func_80610FE8(4);
+    heapFreeDeferred(sp24);
+    sp24[1] = arg0;
+    sp24[0] = arg1;
+    actorFindActiveByType(0xE, &sp20);
+    func_8067AB20(0, sp20, 0x01000000, 1, sp24, 0);
+}
 
 s32 func_806418E8(s16 a, s16 b, s16 c) {
     s16 t = D_807F6240[a];
@@ -1282,7 +1678,6 @@ void func_80641C98(s16 a, s16 b, s16 csId) {
     }
 }
 
-extern f32 D_807F622C;
 s32 func_80678014(s32);
 u16 camStartPath(void *, s16, s32);
 Actor *spawnNodeActivate(s16, u16);
@@ -1442,7 +1837,6 @@ s32 func_806423A8(s16 arg0, s16 arg1, s16 arg2) {
     return 0;
 }
 
-extern f32 D_807F6238;
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 
 void func_80642480(s16 arg0, s16 arg1) {
@@ -1493,9 +1887,6 @@ s32 func_80642500(f32 *arg0, s16 arg1, s16 arg2) {
     return ret;
 }
 
-extern f32 D_807F6208;
-extern f32 D_807F620C;
-extern f32 D_807F6210;
 
 s32 func_806425FC(s16 arg0, s16 arg1) {
     f32 v;
@@ -1539,8 +1930,6 @@ s32 func_806425FC(s16 arg0, s16 arg1) {
     return ret;
 }
 
-extern f32 D_807F6228;
-extern f32 D_807F6230;
 
 void func_80642748(s16 arg0, s16 arg1, void *cs, s16 arg3, u8 arg4) {
     f32 v;
