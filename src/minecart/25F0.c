@@ -335,7 +335,7 @@ void actorUpdateModelMatrix(Struct_BB40 *, s32);
 AllocSub *func_80610FE8(s32);
 f32 sqrtf(f32);
 u32 func_806119A0(void);
-void func_80026B6C(TargetStruct *arg0, f32 arg1) {
+s32 func_80026B6C(TargetStruct *arg0, f32 arg1) {
     arg0->unkA = (s16) (s32) ((func_80612794(D_807FBB4C->unkE6) * (D_807FD580->unk88->unkB8 * arg1)) + D_807FBB4C->unk7C);
     arg0->unkC = (s16) (s32) D_807FD580->unk88->unkA4;
     arg0->unkE = (s16) (s32) ((func_80612790(D_807FBB4C->unkE6) * (D_807FD580->unk88->unkB8 * arg1)) + D_807FBB4C->unk84);
@@ -363,7 +363,6 @@ void func_80026C54(void) {
     );
 }
 
-#ifdef NON_MATCHING
 typedef struct McA2_Tgt {
     u8 pad0[0xA];
     s16 unkA;
@@ -470,8 +469,6 @@ void func_80026DA8(void) {
     CB->unk84 = (f32)(((f64)(((func_80612790((s16)(s2->unkE6 + sp66)) * 47.0f) + s2->unk84) - CB->unk84) * 0.3) + (f64)CB->unk84);
     CB->unk80 = (f32)((f64)CB->unk80 + ((f64)((s2->unk80 - 10.0f) - CB->unk80) * 0.3));
     switch (s2->unk154) {
-    case 1:
-        break;
     case 2:
     case 3:
         if ((CB->unk168 == 1 && s2->unk154 == 2) || (CB->unk168 == -1 && s2->unk154 == 3)) {
@@ -552,8 +549,9 @@ void func_80026DA8(void) {
         } else {
             CB->unkE4 = func_806CC190(CB->unkE4, 0x400, 0x41800000);
         }
-        if (sp68->unk2C != 0) {
-            sp68->unk2C--;
+        v = sp68->unk2C;
+        if (v != 0) {
+            sp68->unk2C = v - 1;
         } else {
             s2->unk155 = 0xFF;
         }
@@ -566,6 +564,8 @@ void func_80026DA8(void) {
         break;
     case 0x3B:
         actorDespawn(D_807FBB40);
+        break;
+    case 1:
         break;
     }
     if (s2->unk154 == 6) {
@@ -582,10 +582,6 @@ void func_80026DA8(void) {
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/minecart/nonmatchings/25F0/func_80026DA8.s")
-#endif
 
 typedef struct McA_V3 {
     f32 x;
