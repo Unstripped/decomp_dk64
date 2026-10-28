@@ -32,8 +32,102 @@ void currentActorClearFlag(void);
 void actorScriptStart(MenuBB40_E550 *, s32);
 void actorUpdateModelMatrix(MenuBB40_E550 *, s32);
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/E550/func_80032550.s")
+void func_80032550(void) {
+    behaviourFrameBegin();
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unk154 = 0;
+        D_807FBB40->unk155 = 0;
+        D_807FBB40->unkCD = 1;
+        D_807FBB40->unk60 &= ~4;
+    }
+    if (D_807FBB40->unk60 & 4) {
+        func_8068A858(&D_80033FB0, &D_80033FB1, &D_80033FB2);
+    }
+    if (D_807FBB40->unk154 == 0 && D_807FBB40->unk155 == 0) {
+        do {
+            if (currentActorTestClearFlag() != 0) {
+                currentActorClearFlag();
+                actorScriptStart(D_807FBB40, 0x2A7);
+                D_807FBB40->unk155++;
+            }
+        } while (0);
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/E550/func_8003264C.s")
+extern u8 D_800339D0;
+extern s32 D_807FBB60;
+void lightSetFovAngles(f32, f32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void func_807145F8(void);
+void renderCallbacksRegister(void *, void *, s32);
+Gfx *func_8003292C(Gfx *, void *);
+
+void func_8003264C(void) {
+    s32 d;
+    s32 cur;
+
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unk15F = 0;
+        currentActorClearFlag();
+        D_807FBB40->unk154 = 0;
+    }
+    behaviourFrameBegin();
+    switch (D_807FBB40->unk154) {
+    case 0:
+        if (currentActorTestClearFlag() != 0) {
+            currentActorClearFlag();
+            actorScriptStart(D_807FBB40, 0x2D6);
+            D_807FBB40->unk154++;
+            D_807FBB40->unk155 = 0;
+            D_807FBB60 &= 0xFFFFFFCF;
+        }
+        break;
+    case 1:
+        lightSetFovAngles(20.0f, 40.0f);
+        cur = D_807FBB40->unk15F;
+        if (D_807FBB40->unk15F != 0xFF) {
+            d = (0xFF - cur < 3) ? 0xFF - cur : 3;
+            D_807FBB40->unk15F = cur + d;
+        }
+        lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80 + 20.0f, D_807FBB40->unk84, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f, 1, D_807FBB40->unk15F, D_807FBB40->unk15F, D_807FBB40->unk15F);
+        if (currentActorTestClearFlag() != 0) {
+            currentActorClearFlag();
+            D_807FBB40->unk60 |= 0x800000;
+            D_807FBB40->unk154 = 2;
+        }
+        break;
+    case 2:
+        D_807FBB40->unk16A -= 8;
+        D_807FBB40->unk16B -= 8;
+        D_807FBB40->unk16C -= 8;
+        if (D_807FBB40->unk16A < 9) {
+            D_807FBB40->unk16A = 0;
+            D_807FBB40->unk16B = 0;
+            D_807FBB40->unk16C = 0;
+            D_807FBB40->unk154 = 3;
+            D_800339D0 = 0;
+        }
+        break;
+    case 3:
+        if (D_800339D0 < 0xFF) {
+            D_800339D0++;
+        }
+        if (currentActorTestClearFlag() != 0) {
+            currentActorClearFlag();
+            D_807FBB40->unk154 = 4;
+        }
+        break;
+    case 4:
+        func_807145F8();
+        D_807FBB40->unk154++;
+        break;
+    }
+    if (D_807FBB40->unk154 >= 3) {
+        renderCallbacksRegister(func_8003292C, D_807FBB40, 3);
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
+
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/E550/func_8003292C.s")
