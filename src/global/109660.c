@@ -478,7 +478,191 @@ Gfx *func_8070770C(Gfx *glist) {
     return glist;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/109660/func_80707980.s")
+Gfx *func_80704B20(Gfx *, void *, void *, void *, s32, s32, s32, s32, f32);
+s32 camIsCutsceneActive(void);
+void func_8068B830(s16, s16, s16);
+void func_8068B8A4(f32);
+void func_8068B8FC(void);
+extern f32 D_807FD88C;
+extern u8 D_8076AEE0;
+extern s16 D_807FD800;
+
+typedef struct {
+    u8 pad0[0x210];
+    f32 unk210;
+    u8 pad214[4];
+    f32 unk218;
+    u8 pad21C[0x270 - 0x21C];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+    u8 pad278[0x290 - 0x278];
+    u16 unk290;
+} L10View;
+
+#define L10S16 (*(s16 *)&((L10View *)D_807FC924)->unk290)
+
+Gfx *func_80707980(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4) {
+    f32 x;
+    f32 r;
+    f32 z;
+    gDPPipeSync(dl++);
+    if ((D_807FD88C != 0.0f) && (D_8076AEE0 == 3)) {
+        dl = func_8070770C(dl);
+    }
+    switch (D_8076A0A8) {
+    case 0x53:
+    case 0x9A:
+    case 0xC5:
+    case 0xC6:
+        return dl;
+    case 0xE:
+        dl = func_807069A4(dl, *(f32 *)&arg1, *(f32 *)&arg2, 0x2D, 320.0f, 240.0f);
+        break;
+    case 0x3:
+    case 0xB:
+    case 0x41:
+    case 0x42:
+    case 0x43:
+    case 0x44:
+    case 0x45:
+    case 0x4A:
+    case 0x4B:
+    case 0x7C:
+    case 0x7D:
+    case 0x7E:
+    case 0x7F:
+    case 0x80:
+        dl = func_807069A4(dl, *(f32 *)&arg1, *(f32 *)&arg2, 0x2E, 320.0f, 240.0f);
+        break;
+    case 0x26:
+        switch (((L10View *)D_807FC924)->unk290) {
+        case 0:
+        case 1:
+        case 3:
+        case 6:
+        case 8:
+        case 10:
+            dl = func_8070770C(dl);
+            break;
+        default:
+            func_80705C00(0x3E8, 0x4E20, 0);
+            dl = func_80704B20(dl, arg1, arg2, arg3, 0, 0, 0, -1, 0.0f);
+            break;
+        }
+        break;
+    case 0x1E:
+        if (((L10S16 != 7) && (L10S16 != 6) && (L10S16 != 8) && (L10S16 != 0)) || (D_807FD800 != 0)) {
+            dl = func_80704B20(dl, arg1, arg2, arg3, 0, 0, ((*(s16 *)D_807FBB4C->unk12C == 9) || (*(s16 *)D_807FBB4C->unk12C == 0xB) || (*(s16 *)D_807FBB4C->unk12C == 3)) ? 1 : 0, 9, 0.0f);
+        }
+        break;
+    case 0x27:
+        func_80705C00(0xBB8, 0x2328, 0);
+        dl = func_80704B20(dl, arg1, arg2, arg3, 0, 0, 0, -1, 0.0f);
+        break;
+    case 0x4:
+        dl = func_8070770C(dl);
+        break;
+    case 0xB0:
+        dl = func_8070770C(dl);
+        break;
+    case 0x7:
+        switch ((s16)((L10View *)D_807FC924)->unk290) {
+        case 8:
+        case 9:
+        case 12:
+        case 16:
+            dl = func_8070770C(dl);
+            break;
+        case 11:
+        case 14:
+            func_80705C00(0, 0x7530, 1);
+            dl = func_80704B20(dl, arg1, arg2, arg3, 4, 4, 1, -1, 0.0f);
+            break;
+        default:
+            func_80705C00(0, 0x7530, 0);
+            dl = func_80704B20(dl, arg1, arg2, arg3, 4, 4, 0, -1, 0.0f);
+            break;
+        }
+        break;
+    case 0x8:
+        dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 3, 3, 1, -1, 0.0f), 0, 0x7D00, 0);
+        break;
+    case 0x30:
+        if ((L10S16 >= 0xC) && (L10S16 < 0x12)) {
+            dl = func_8070770C(dl);
+        } else {
+            func_80705C00(0, 0x5DC0, 1);
+            dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 2, 2, 1, -1, 0.0f), 0, 0x5DC0, 1);
+        }
+        break;
+    case 0x37:
+        dl = func_80704B20(dl, arg1, arg2, arg3, 1, 1, 1, -1, 0.0f);
+        break;
+    case 0x22:
+        if (camIsCutsceneActive() != 0) {
+            x = ((L10View *)D_807FC924)->unk210;
+            z = ((L10View *)D_807FC924)->unk218;
+        } else {
+            x = D_807FBB4C->unk7C;
+            z = D_807FBB4C->unk84;
+        }
+        x = sqrtf(((x - 3000.0f) * (x - 3000.0f)) + ((z - 5000.0f) * (z - 5000.0f)));
+        if (x < 2500.0f) {
+            r = (f32)((f64)((2500.0f - x) / 1000.0f) > 1.0 ? 1.0 : (f64)((2500.0f - x) / 1000.0f));
+            func_8068B830((s16)(s32)(2.0f + r), (s16)(s32)(r * 400.0f), (s16)(s32)(r * 30.0f));
+            func_8068B8A4((f32)(((f64)r * -0.6) + 1.0));
+        } else {
+            func_8068B8FC();
+            func_8068B8A4(1.0f);
+        }
+        func_80705C00(0xBB8, 0x4E20, 0);
+        dl = func_80704B20(dl, arg1, arg2, arg3, 5, 6, 1, -1, 0.0f);
+        break;
+    case 0x99:
+    case 0xAC:
+        func_80705C00(0xBB8, 0x4E20, 0);
+        dl = func_80704B20(dl, arg1, arg2, arg3, 5, 5, 1, -1, 0.0f);
+        break;
+    case 0x6F:
+        dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 6, 6, 1, -1, 0.0f), 0xC8, 0x4268, 0);
+        break;
+    case 0x57:
+        dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 6, 6, 1, -1, 0.0f), 0x3E8, 0x2EE0, 0);
+        break;
+    case 0xD5:
+        func_80705C00(0x8FC, 0x1388, 0);
+        dl = func_80704B20(dl, arg1, arg2, arg3, 7, 7, 0, -1, 0.0f);
+        break;
+    case 0xD0:
+        gDPSetFillColor(dl++, 0xFFFFFFFF);
+        goto fill;
+    case 0x36:
+        gDPSetFillColor(dl++, 0xFFC1FFC1);
+        goto fill;
+    case 0x50:
+        func_80705C00(0x8FC, 0x1388, 1);
+        dl = func_80705F5C(func_80704B20(dl, arg1, arg2, arg3, 7, 6, 0, -1, D_80754CE8), 0xC8, 0x2EE0, 2);
+        break;
+    default:
+        gDPSetFillColor(dl++, 0x10001);
+    fill:
+        gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0);
+        gDPSetCycleType(dl++, G_CYC_FILL);
+        {
+            Gfx *_g = (Gfx *)(dl++); _g->words.w0 = (((((L10View *)((u8 *)D_807FC924 + (s16)arg4 * 0x2F0))->unk276 - 1) & 0x3FF) << 2) | 0xF6000000 | (((((L10View *)((u8 *)D_807FC924 + (s16)arg4 * 0x2F0))->unk274 - 1) & 0x3FF) << 14);
+            _g->words.w1 = (((((L10View *)((u8 *)D_807FC924 + (s16)arg4 * 0x2F0))->unk272) & 0x3FF) << 2) | (((((L10View *)((u8 *)D_807FC924 + (s16)arg4 * 0x2F0))->unk270) & 0x3FF) << 14);
+        }
+        gDPPipeSync(dl++);
+        gDPSetCycleType(dl++, G_CYC_1CYCLE);
+        break;
+    }
+    D_80754CE8 = 0.0f;
+    gDPPipeSync(dl++);
+    return dl;
+}
+
 
 typedef struct {
     u8 unk0[0x270];
