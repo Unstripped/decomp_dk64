@@ -1,90 +1,124 @@
-// func_80700BF4 (src/global/103AB0.c): Compiled target-selection draft; structure strides and floating register allocation remain unmatched.
-s16 func_807009F4(s16);                             /* extern */
-s16 func_80700AE4(s16, s16, s16);                   /* extern */
-extern u8 D_807444FC;
+// func_80700BF4 (src/global/103AB0.c): stage 6 near-miss (parked NON_MATCHING): identical insns/frame/callee-saved; only saved-reg numbering differs: target y=s3,w-copy=s2 vs ours y=s2,w-copy=s3. Needs p=&D_807FD610[i] ptr var (early li 40/cvt.d.w), int base=0x28 outside loop, r/flag/bad locals for xor order; tried decl order, register kw, dead ifs, permuter.
+typedef struct {
+    u8 pad0[0x270];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+    s16 unk278;
+    s16 unk27A;
+    u8 pad27C[4];
+    f32 unk280;
+} AdViewport;
+
+#define ADVP ((AdViewport *)D_807FC924)
+
 extern u8 D_80754BC0;
 extern s32 D_807FBB60;
-extern void *D_807FC924;
-extern u8 D_807FC928;
-extern ? D_807FD610;
 extern s16 D_807FD800;
 extern s16 D_807FD802;
 extern s16 D_807FD804;
 extern s16 D_807FD806;
-extern ? D_807FD838;
-extern ? D_807FD840;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+} AdPoint;
+
+extern u8 D_807FD838[2][3];
+extern AdPoint D_807FD840[2][3];
+
+typedef struct {
+    u8 pad0[0x2E];
+    s8 unk2E;
+    u8 pad2F;
+    u8 unk30;
+    u8 pad31[3];
+} AdD610;
+
+extern AdD610 D_807FD610[];
+
+typedef struct {
+    u8 pad0[0x10E];
+    s16 unk10E;
+    s16 unk110;
+    s16 unk112;
+    s16 unk114;
+    s16 unk116;
+    s16 unk118;
+    s16 unk11A;
+} AdPlayerState;
+
+typedef struct {
+    u8 unk0;
+    u8 pad1[3];
+    Actor *unk4;
+    u8 pad8[0x2F0 - 8];
+} AdView2F0;
+
+typedef struct {
+    u8 pad0[0x174];
+    AdPlayerState *unk174;
+} AdActor174;
+
+s32 func_80700AE4(s16, s16);
+s32 func_807009F4(s16);
 
 void func_80700BF4(void) {
-    f32 temp_fv0;
-    f32 temp_fv1;
-    f64 var_ft5;
-    s16 temp_s1;
-    s16 temp_s3;
-    s16 var_a2;
-    s32 temp_t4;
-    s32 temp_t8;
-    s32 var_s4;
-    u8 temp_t2;
-    u8 temp_t9;
-    u8 var_v1;
-    void *temp_a0;
-    void *temp_s0;
-    void *temp_v0;
-    void *temp_v1;
-    void *var_a1;
+    u8 i;
+    AdPlayerState *st;
+    s16 x;
+    s16 y;
+    u16 w;
+    s32 base;
+    AdD610 *p;
+    s32 r;
+    s32 flag;
+    s32 bad = 0x7FFF;
 
-    var_v1 = D_80754BC0;
-    if (var_v1 != 0) {
-        var_a1 = (D_807444FC * 0x24) + &D_807FD840;
+    if (D_80754BC0 != 0) {
         do {
-            temp_t9 = var_v1 - 1;
-            D_80754BC0 = temp_t9;
-            var_v1 = temp_t9 & 0xFF;
-            temp_a0 = var_a1 + (var_v1 * 0xC);
-            temp_fv1 = temp_a0->unk0;
-            if (((f32) D_807FC924->unk270 < temp_fv1) && (temp_fv1 < (f32) D_807FC924->unk274)) {
-                temp_fv0 = temp_a0->unk4;
-                if (((f32) D_807FC924->unk272 < temp_fv0) && (temp_fv0 < (f32) D_807FC924->unk276) && !(D_807FBB60 & 2)) {
-                    var_v1 = D_80754BC0;
-                    var_a1 = &D_807FD840 + (D_807444FC * 0x24);
-                    if ((var_a1 + (var_v1 * 0xC))->unk8 < (f32) func_807009F4(func_80700AE4((s16) (s32) temp_fv1, (s16) (s32) temp_fv0))) {
-                        *(&D_807FD838 + (D_807444FC * 3) + var_v1) = 5;
-                    }
+            D_80754BC0--;
+            if ((f32)ADVP->unk270 < D_807FD840[D_807444FC][D_80754BC0].unk0 &&
+                D_807FD840[D_807444FC][D_80754BC0].unk0 < (f32)ADVP->unk274 &&
+                (f32)ADVP->unk272 < D_807FD840[D_807444FC][D_80754BC0].unk4 &&
+                D_807FD840[D_807444FC][D_80754BC0].unk4 < (f32)ADVP->unk276 &&
+                !(D_807FBB60 & 2)) {
+                if (D_807FD840[D_807444FC][D_80754BC0].unk8 <
+                    (f32)func_807009F4(func_80700AE4((s16)D_807FD840[D_807444FC][D_80754BC0].unk0,
+                                                     (s16)D_807FD840[D_807444FC][D_80754BC0].unk4))) {
+                    D_807FD838[D_807444FC][D_80754BC0] = 5;
                 }
             }
-        } while (var_v1 != 0);
+        } while (D_80754BC0 != 0);
     }
-    var_a2 = func_80700AE4(0xA0, 0xDC) == 0x7FFF;
-    if (var_a2 == 0) {
-        var_a2 = func_80700AE4(0xC, 0x78, var_a2) == 0x7FFF;
-        if (var_a2 == 0) {
-            var_a2 = func_80700AE4(0x134, 0x78, var_a2) == 0x7FFF;
+    r = func_80700AE4(0xA0, 0xDC);
+    flag = bad == r;
+    if (flag == 0) {
+        r = func_80700AE4(0xC, 0x78);
+        flag = bad == r;
+        if (flag == 0) {
+            r = func_80700AE4(0x134, 0x78);
+            flag = bad == r;
         }
     }
-    D_807FD800 = var_a2;
-    D_807FD802 = func_807009F4(func_80700AE4(D_807FD804, D_807FD806, var_a2));
-    var_s4 = 0;
-    if ((s32) D_807FC928 > 0) {
-        do {
-            temp_v1 = D_807FC924 + (var_s4 * 0x2F0);
-            if (temp_v1->unk0 != 0) {
-                temp_s0 = temp_v1->unk4->unk174;
-                temp_v0 = &D_807FD610 + (var_s4 * 0x34);
-                temp_t2 = temp_v0->unk30;
-                temp_s3 = temp_s0->unk110 - 0x14;
-                temp_s1 = temp_s0->unk10E + temp_v0->unk2E;
-                var_ft5 = (f64) temp_t2;
-                if ((s32) temp_t2 < 0) {
-                    var_ft5 += 4294967296.0;
-                }
-                temp_t4 = (u32) ((f64) 0x28 + (var_ft5 / 1.5)) & 0xFFFF;
-                temp_s0->unk114 = func_807009F4(func_80700AE4(temp_s1, temp_s3));
-                temp_s0->unk116 = func_807009F4(func_80700AE4(temp_s1, temp_s0->unk112));
-                temp_s0->unk118 = func_807009F4(func_80700AE4((s16) (temp_s1 - temp_t4), temp_s3));
-                temp_s0->unk11A = func_807009F4(func_80700AE4((s16) (temp_s1 + temp_t4), temp_s3));
-            }
-            temp_t8 = (var_s4 + 1) & 0xFF;
-            var_s4 = temp_t8;
-        } while (temp_t8 < (s32) D_807FC928);
+    D_807FD800 = flag;
+    D_807FD802 = func_807009F4(func_80700AE4(D_807FD804, D_807FD806));
+    base = 0x28;
+    for (i = 0; i < D_807FC928; i++) {
+        if (((AdView2F0 *)D_807FC924)[i].unk0 != 0) {
+            st = ((AdActor174 *)((AdView2F0 *)D_807FC924)[i].unk4)->unk174;
+            p = &D_807FD610[i];
+            x = st->unk10E;
+            y = st->unk110;
+            x += p->unk2E;
+            y -= 0x14;
+            w = (u32)(base + p->unk30 / 1.5);
+            st->unk114 = func_807009F4(func_80700AE4(x, y));
+            st->unk116 = func_807009F4(func_80700AE4(x, st->unk112));
+            st->unk118 = func_807009F4(func_80700AE4(x - w, y));
+            st->unk11A = func_807009F4(func_80700AE4(x + w, y));
+        }
     }
 }

@@ -506,7 +506,131 @@ s32 func_80700AE4(s16 arg0, s16 arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80700AE4.s")
 #endif
 
+typedef struct {
+    u8 pad0[0x270];
+    s16 unk270;
+    s16 unk272;
+    s16 unk274;
+    s16 unk276;
+    s16 unk278;
+    s16 unk27A;
+    u8 pad27C[4];
+    f32 unk280;
+} AdViewport;
+
+#define ADVP ((AdViewport *)D_807FC924)
+
+#ifdef NON_MATCHING
+extern s32 D_807FBB60;
+extern s16 D_807FD800;
+extern s16 D_807FD802;
+extern s16 D_807FD804;
+extern s16 D_807FD806;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+} AdPoint;
+
+#define AD_840 ((AdPoint (*)[3])D_807FD840)
+
+typedef struct {
+    u8 pad0[0x2E];
+    s8 unk2E;
+    u8 pad2F;
+    u8 unk30;
+    u8 pad31[3];
+} AdD610;
+
+extern AdD610 D_807FD610[];
+
+typedef struct {
+    u8 pad0[0x10E];
+    s16 unk10E;
+    s16 unk110;
+    s16 unk112;
+    s16 unk114;
+    s16 unk116;
+    s16 unk118;
+    s16 unk11A;
+} AdPlayerState;
+
+typedef struct {
+    u8 unk0;
+    u8 pad1[3];
+    Actor *unk4;
+    u8 pad8[0x2F0 - 8];
+} AdView2F0;
+
+typedef struct {
+    u8 pad0[0x174];
+    AdPlayerState *unk174;
+} AdActor174;
+
+s32 func_80700AE4(s16, s16);
+
+void func_80700BF4(void) {
+    u8 i;
+    AdPlayerState *st;
+    s16 x;
+    s16 y;
+    u16 w;
+    s32 base;
+    AdD610 *p;
+    s32 r;
+    s32 flag;
+    s32 bad = 0x7FFF;
+
+    if (D_80754BC0 != 0) {
+        do {
+            D_80754BC0--;
+            if ((f32)ADVP->unk270 < AD_840[D_807444FC][D_80754BC0].unk0 &&
+                AD_840[D_807444FC][D_80754BC0].unk0 < (f32)ADVP->unk274 &&
+                (f32)ADVP->unk272 < AD_840[D_807444FC][D_80754BC0].unk4 &&
+                AD_840[D_807444FC][D_80754BC0].unk4 < (f32)ADVP->unk276 &&
+                !(D_807FBB60 & 2)) {
+                if (AD_840[D_807444FC][D_80754BC0].unk8 <
+                    (f32)func_807009F4(func_80700AE4((s16)AD_840[D_807444FC][D_80754BC0].unk0,
+                                                     (s16)AD_840[D_807444FC][D_80754BC0].unk4))) {
+                    D_807FD838[D_807444FC][D_80754BC0] = 5;
+                }
+            }
+        } while (D_80754BC0 != 0);
+    }
+    r = func_80700AE4(0xA0, 0xDC);
+    flag = bad == r;
+    if (flag == 0) {
+        r = func_80700AE4(0xC, 0x78);
+        flag = bad == r;
+        if (flag == 0) {
+            r = func_80700AE4(0x134, 0x78);
+            flag = bad == r;
+        }
+    }
+    D_807FD800 = flag;
+    D_807FD802 = func_807009F4(func_80700AE4(D_807FD804, D_807FD806));
+    base = 0x28;
+    for (i = 0; i < D_807FC928; i++) {
+        if (((AdView2F0 *)D_807FC924)[i].unk0 != 0) {
+            st = ((AdActor174 *)((AdView2F0 *)D_807FC924)[i].unk4)->unk174;
+            p = &D_807FD610[i];
+            x = st->unk10E;
+            y = st->unk110;
+            x += p->unk2E;
+            y -= 0x14;
+            w = (u32)(base + p->unk30 / 1.5);
+            st->unk114 = func_807009F4(func_80700AE4(x, y));
+            st->unk116 = func_807009F4(func_80700AE4(x, st->unk112));
+            st->unk118 = func_807009F4(func_80700AE4(x - w, y));
+            st->unk11A = func_807009F4(func_80700AE4(x + w, y));
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80700BF4.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80701098.s")
 
@@ -530,11 +654,83 @@ void func_80702464(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807024E0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80703374.s")
+extern s16 D_80744498;
+extern s16 D_8074449C;
+extern s16 D_807444A0;
+extern s16 D_807444A4;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807035C4.s")
+#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80703850.s")
+Gfx *func_80703374(Gfx *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
+    if (arg4 != 0) {
+        WRITE_GFX(arg0++, 0xD9000000, 0);
+        WRITE_GFX(arg0++, 0xD9FFFFFF, 0x200004);
+        WRITE_GFX(arg0++, 0xD7000000, 0xFFFFFFFF);
+        WRITE_GFX(arg0++, 0xE7000000, 0);
+        WRITE_GFX(arg0++, 0xE200001C, 0x504340);
+        gDPSetPrimColor(arg0++, 0, 0, arg1, arg2, arg3, arg4);
+        WRITE_GFX(arg0++, 0xE3000A01, 0);
+        WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFDF6FB);
+        WRITE_GFX(arg0++, (((s32)((f32)D_80744498 * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)D_8074449C * 4.0f) & 0xFFF),
+                  (((s32)((f32)D_807444A0 * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)D_807444A4 * 4.0f) & 0xFFF));
+        WRITE_GFX(arg0++, ((D_807444A0 & 0x3FF) << 0xE) | 0xF6000000 | ((D_807444A4 & 0x3FF) * 4),
+                  ((D_80744498 & 0x3FF) << 0xE) | ((D_8074449C & 0x3FF) * 4));
+    }
+    WRITE_GFX(arg0++, 0xE7000000, 0);
+    return arg0;
+}
+
+s32 randomNonNegative(void);
+
+Gfx *func_807035C4(Gfx *arg0, s32 arg1) {
+    s16 i;
+    s16 y;
+    s32 r;
+    s16 y2;
+
+    gDPPipeSync(arg0++);
+    WRITE_GFX(arg0++, 0xE200001C, 0x504340);
+    WRITE_GFX(arg0++, 0xD7000000, 0xFFFFFFFF);
+    gDPSetPrimColor(arg0++, 0, 0, 0xC8, 0xC8, 0xC8, 0x80);
+    WRITE_GFX(arg0++, 0xE3000A01, 0);
+    WRITE_GFX(arg0++, 0xFC71FEE3, 0xFFFFF7FB);
+    WRITE_GFX(arg0++, 0xED028028, 0x4D4394);
+    gDPFillRectangle(arg0++, 10, ADVP->unk272, 0x135, ADVP->unk276);
+    gDPPipeSync(arg0++);
+    gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
+    gDPSetCombineMode(arg0++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+    for (i = 0; i < 10; i++) {
+        r = randomNonNegative() >> 15;
+        y = ADVP->unk272 + r % (ADVP->unk276 - ADVP->unk272);
+        r = randomNonNegative() >> 15;
+        y2 = r % 10 + 2;
+        gDPFillRectangle(arg0++, 10, y, 0x135, y + y2);
+    }
+    gDPPipeSync(arg0++);
+    return arg0;
+}
+
+extern s16 D_807444AC;
+extern s16 D_807444B0;
+s32 func_805FCA64();
+
+void func_80703850(u8 arg0) {
+    f32 scale;
+
+    scale = (f32)((f64)(f32)(u32)arg0 / 255.0);
+    if (func_805FCA64() != 0) {
+        ADVP->unk272 = (s32)((f32)D_8074449C + ((f32)((D_80744494 >> 1) - D_8074449C - 1) * scale));
+        ADVP->unk276 = (s32)((f32)D_807444A4 + ((f32)((D_80744494 >> 1) - D_807444A4) * scale));
+    } else {
+        ADVP->unk272 = (s32)((f32)D_807444AC + ((f32)((D_80744494 >> 1) - D_807444AC - 1) * scale));
+        ADVP->unk276 = (s32)((f32)D_807444B0 + ((f32)((D_80744494 >> 1) - D_807444B0) * scale));
+    }
+    ADVP->unk270 = (s32)((f32)D_80744498 + ((f32)((D_80744490 >> 1) - D_80744498 - 1) * scale));
+    ADVP->unk274 = (s32)((f32)D_807444A0 + ((f32)((D_80744490 >> 1) - D_807444A0) * scale));
+    ADVP->unk27A = ADVP->unk276 - ADVP->unk272;
+    ADVP->unk278 = ADVP->unk274 - ADVP->unk270;
+    ADVP->unk280 = (f32)ADVP->unk278 / (f32)ADVP->unk27A;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_80703AB0.s")
 
