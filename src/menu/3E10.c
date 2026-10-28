@@ -26,7 +26,7 @@ typedef struct Menu3A_Struct7E60 {
 
 s32 func_80030340();
 void camEndPath(s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+s32 func_80609140(s32, s32, f32, f32, s32, s32);
 extern s8 D_80033734;
 extern s32 gCamActor;
 
@@ -1333,12 +1333,111 @@ void func_8002CB18(void) {
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002CB18.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002CFA4.s")
+extern s8 D_8074583C;
+extern s8 D_80745840;
+void n_alSndpSetGroupVol(u8, u16);
+void seqUpdateVolume(s32);
+s32 func_8060C648(s32, s32, u8, s32, s32);
+void func_8060DEA8(void);
+
+void func_8002CFA4(void *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s0 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+    s8 flag = 0;
+
+    func_8002907C();
+    if (temp_s0->unk0 == 0.0f) {
+        if (temp_s0->unk4 == 0.0f) {
+            switch (temp_s0->unk17) {
+            case 0:
+                if (!(D_80033670 & 0x10) && (arg1 & 0x10)) {
+                    D_80745844++;
+                    if (D_80745844 >= 3) {
+                        D_80745844 = 0;
+                    }
+                    flag = 1;
+                } else if (!(D_80033670 & 0x20) && (arg1 & 0x20)) {
+                    D_80745844--;
+                    if (D_80745844 < 0) {
+                        D_80745844 = 2;
+                    }
+                    flag = 1;
+                }
+                if (flag != 0) {
+                    menuSetAudioMode();
+                }
+                break;
+            case 1:
+                if (arg1 & 0x10) {
+                    D_8074583C++;
+                    func_80609140(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    if (D_8074583C > 0x28) {
+                        D_8074583C = 0x28;
+                    }
+                } else if (arg1 & 0x20) {
+                    D_8074583C--;
+                    func_80609140(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    if (D_8074583C < 0) {
+                        D_8074583C = 0;
+                    }
+                }
+                n_alSndpSetGroupVol(0, D_8074583C * 25000 / 40);
+                n_alSndpSetGroupVol(1, D_8074583C * 25000 / 40);
+                n_alSndpSetGroupVol(2, D_8074583C * 25000 / 40);
+                n_alSndpSetGroupVol(3, D_8074583C * 25000 / 40);
+                break;
+            case 2:
+                if (arg1 & 0x10) {
+                    D_80745840++;
+                    if (D_80745840 > 0x28) {
+                        D_80745840 = 0x28;
+                    }
+                } else if (arg1 & 0x20) {
+                    D_80745840--;
+                    if (D_80745840 < 0) {
+                        D_80745840 = 0;
+                    }
+                }
+                seqUpdateVolume(0);
+                seqUpdateVolume(2);
+                break;
+            case 3:
+                if (arg1 & 0x100) {
+                    D_80745844 = 0;
+                    D_8074583C = 0x28;
+                    D_80745840 = 0x28;
+                    n_alSndpSetGroupVol(0, D_8074583C * 25000 / 40);
+                    n_alSndpSetGroupVol(1, D_8074583C * 25000 / 40);
+                    n_alSndpSetGroupVol(2, D_8074583C * 25000 / 40);
+                    n_alSndpSetGroupVol(3, D_8074583C * 25000 / 40);
+                    seqUpdateVolume(0);
+                    seqUpdateVolume(2);
+                    flag = 1;
+                    menuSetAudioMode();
+                }
+                break;
+            }
+            if (arg1 & 2) {
+                if (func_8060C6B8(0x1E, 0, 0, 0) != D_80745844) {
+                    func_8060C648(0x1E, 0, 0, 0, D_80745844);
+                    func_8060DEA8();
+                }
+                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                temp_s0->unk16 = 0;
+                temp_s0->unk13 = 1;
+            } else {
+                menuHandleScrollInput(temp_s0, 4, arg1);
+            }
+        }
+        menuUpdateScrollAnimation(temp_s0, 4);
+    }
+    menuUpdateItemTransition(arg0, temp_s0, 1);
+    if (flag != 0) {
+        func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    }
+}
 
 extern s16 D_80033674;
 extern s32 *D_80033F28;
-extern s8 D_8074583C;
-extern s8 D_80745840;
 extern s8 D_80745844;
 s32 func_8002F980(s32, void *, void *, s32, u32 *, s16, f32 *, f32, s16);
 
@@ -1413,7 +1512,100 @@ void func_8002D7EC(Menu3B_Actor *arg0, s32 arg1) {
     func_80030894(temp_a0, &D_80720D38, 0xA0, 0xC8, 1.0f, 2, 0xC);
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002D8AC.s")
+typedef struct Menu3M7_Sub174 {
+    f32 unk0;
+    f32 unk4;
+    char pad8[0xB];
+    s8 unk13;
+    char pad14[2];
+    s8 unk16;
+    u8 unk17;
+} Menu3M7_Sub174;
+
+extern s8 D_800338FC;
+extern s8 D_807444C0;
+extern s8 D_8074452C;
+extern u8 D_80744530;
+extern u8 D_807550C8;
+extern u16 D_807ECD66;
+void heapFreeDeferred(void *);
+void func_8060C8AC(s32);
+void menuLoadTextTable(void);
+
+void func_8002D8AC(void *arg0, s32 arg1) {
+    Menu3M7_Sub174 *temp_s1 = *(Menu3M7_Sub174 **)((u8 *)arg0 + 0x174);
+    s8 flag = 0;
+    s32 i;
+
+    if (temp_s1->unk0 == 0.0f) {
+        if (temp_s1->unk4 == 0.0f) {
+            switch (temp_s1->unk17) {
+            case 0:
+                if ((arg1 & 0x30) && !(D_80033670 & 0x30)) {
+                    D_807444C0 = 1 - D_807444C0;
+                    flag = 1;
+                }
+                break;
+            case 1:
+                if ((arg1 & 0x30) && !(D_80033670 & 0x30)) {
+                    D_8074452C = 1 - D_8074452C;
+                    flag = 1;
+                }
+                break;
+            case 2:
+                if (arg1 & 0x100) {
+                    func_8060C8AC(0xFF);
+                    func_80609140(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                }
+                break;
+            case 3:
+                if ((arg1 & 0x30) && !(D_80033670 & 0x30)) {
+                    D_80744530 = 1 - D_80744530;
+                    flag = 1;
+                }
+                break;
+            case 4:
+                if ((arg1 & 0x10) && !(D_80033670 & 0x10)) {
+                    D_807550C8 += 1;
+                    flag = 1;
+                }
+                if ((arg1 & 0x20) && !(D_80033670 & 0x20)) {
+                    D_807550C8 -= 1;
+                    flag = 1;
+                }
+                D_807550C8 &= 3;
+                if (flag != 0) {
+                    for (i = 0; i != 0x194; i += 4) {
+                        heapFreeDeferred((void *)*(s32 *)((u8 *)D_80033F28 + i));
+                    }
+                    heapFreeDeferred(D_80033F28);
+                    menuLoadTextTable();
+                }
+                break;
+            }
+            if (arg1 & 2) {
+                if (D_80033F28 && D_80033F28) {
+                }
+                func_8060C648(0x1F, 0, 0, 0, D_807550C8);
+                func_8060C648(0x20, 0, 0, 0, D_80744530);
+                func_8060DEA8();
+                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                temp_s1->unk16 = 0;
+                temp_s1->unk13 = 1;
+            } else {
+                menuHandleScrollInput(temp_s1, D_800338FC, arg1);
+            }
+        }
+        menuUpdateScrollAnimation(temp_s1, D_800338FC);
+    }
+    menuUpdateItemTransition(arg0, temp_s1, 1);
+    if (D_807ECD66 & 0xC) {
+        D_80744544 ^= 0x100;
+    }
+    if (flag != 0) {
+        func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    }
+}
 
 typedef struct Menu3R3_StructF28 {
     char padA4[0xA4];
@@ -1429,10 +1621,6 @@ typedef struct Menu3R3_StructF28 {
 } Menu3R3_StructF28;
 
 extern s16 D_80033674;
-extern s8 D_800338FC;
-extern s8 D_807444C0;
-extern s8 D_8074452C;
-extern u8 D_80744530;
 
 s32 func_8002DBDC(Menu3B_Actor *arg0, s32 arg1) {
     void *sp6C = arg0->unk174;
@@ -1495,7 +1683,130 @@ void func_8002DEE8(Menu3B_Actor *arg0, s32 arg1) {
     func_80030894(temp_a0, &D_80720D38, 0xA0, 0xC8, 1.0f, 2, 0xC);
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002DFA8.s")
+typedef struct Menu3M7_Row8 {
+    s16 a;
+    s16 b;
+    s8 c;
+    s8 d;
+    s8 e;
+    s8 f;
+} Menu3M7_Row8;
+
+extern s8 D_800339A8;
+extern u8 D_80744514;
+extern s16 D_80033900[][2];
+extern Menu3M7_Row8 D_80033938[];
+extern s16 D_80033978[][2];
+extern s8 D_80033988[];
+extern s16 D_80033998[];
+extern s8 D_8074453C[];
+extern s8 D_8074453F;
+extern s8 D_80744540;
+void func_80712634(s32, s32);
+void func_807127F4(s32);
+void func_807126B0(s16, s32, s16, s8, s32, s32, s32);
+
+void func_8002DFA8(void *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s1 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+    s8 flag = 0;
+    s8 cnt;
+    s8 sel;
+    s8 idx;
+    s8 *p;
+
+    if (temp_s1->unk0 == 0.0f) {
+        if (temp_s1->unk4 == 0.0f) {
+            idx = temp_s1->unk17;
+            cnt = D_80033988[idx];
+            if (cnt > 0) {
+                if ((arg1 & 0x10) && !(D_80033670 & 0x10) && cnt != 1) {
+                    flag = 1;
+                    do {
+                        D_8074453C[idx] += 1;
+                        if (D_8074453C[idx] >= cnt) {
+                            D_8074453C[idx] = 0;
+                        }
+                    } while (!(D_80033998[idx] & (1 << D_8074453C[idx])));
+                }
+                if ((arg1 & 0x20) && !(D_80033670 & 0x20) && cnt != 1) {
+                    do {
+                        D_8074453C[idx] -= 1;
+                        if (D_8074453C[idx] < 0) {
+                            D_8074453C[idx] = cnt - 1;
+                        }
+                    } while (!(D_80033998[idx] & (1 << D_8074453C[idx])));
+                    flag = 1;
+                }
+                sel = D_8074453C[idx];
+                if (arg1 & 1) {
+                    switch (idx) {
+                    case 0:
+                        if (sel != 0xD) {
+                            func_80712634(D_80033900[sel][0], D_80033900[sel][1]);
+                        } else {
+                            func_807127F4(1);
+                        }
+                        D_80744514 = 3;
+                        break;
+                    case 1:
+                        switch (D_80033978[sel][0]) {
+                        case 0xBF:
+                            func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                            temp_s1->unk16 = 0;
+                            temp_s1->unk13 = 0xC;
+                            D_800339A8 = 0;
+                            break;
+                        case 0xB8:
+                            func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                            temp_s1->unk16 = 0;
+                            temp_s1->unk13 = 0xC;
+                            D_800339A8 = 1;
+                            break;
+                        default:
+                            func_807126B0(D_80033978[sel][0], 0, D_80033978[sel][1], 3, 3, 1, 3);
+                            D_80744514 = 5;
+                            break;
+                        }
+                        break;
+                    case 2:
+                        func_807126B0(D_80033938[sel].a, 0, D_80033938[sel].b, D_80033938[sel].c, D_80033938[sel].d, D_80033938[sel].e, D_80033938[sel].f);
+                        D_80744514 = 4;
+                        break;
+                    }
+                }
+                if (arg1 & 0x100) {
+                    if (&D_8074453F == &D_8074453C[idx]) {
+                        D_80744544 ^= 1;
+                        flag = 1;
+                    } else if (&D_80744540 == &D_8074453C[idx]) {
+                        flag = 1;
+                        D_80744544 ^= 1 << (sel + 1);
+                        if (sel == 6) {
+                            if (D_80744544 & (1 << (sel + 1))) {
+                                D_80744544 |= 0xFEFE;
+                            } else {
+                                D_80744544 &= 1;
+                            }
+                        }
+                    }
+                }
+            }
+            if (arg1 & 2) {
+                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                temp_s1->unk16 = 0;
+                temp_s1->unk13 = 1;
+                D_80033698 = 3;
+            } else {
+                menuHandleScrollInput(temp_s1, 5, arg1);
+            }
+        }
+        menuUpdateScrollAnimation(temp_s1, 5);
+    }
+    menuUpdateItemTransition(arg0, temp_s1, 1);
+    if (flag != 0) {
+        func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002E420.s")
 
@@ -1511,8 +1822,6 @@ typedef struct Menu3B_Struct_6 {
 
 extern Menu3B_Struct_6 D_80744548[];
 extern Menu3B_Struct_6 D_80744568[];
-s32 func_8060C648(s32, s32, u8, s32, s32);
-void func_8060DEA8(void);
 
 
 void menuLoadHighScores(void) {
@@ -1638,7 +1947,6 @@ void func_8002F6C8(Menu3B_Actor *arg0, s32 arg1) {
     }
 }
 
-extern s8 D_800339A8;
 extern s8 D_80033F61;
 extern s16 D_80744518;
 
@@ -1876,7 +2184,6 @@ typedef struct MenuM9_Sub174 {
 struct Menu3B_Struct_BB40;
 extern struct Menu3B_Struct_BB40 *D_807FBB40;
 extern MenuM9_Actor *D_807FBB44;
-extern u8 D_80744514;
 extern u8 D_8076A0D0[];
 extern s8 D_80033738;
 extern f32 D_8003369C;
@@ -1886,7 +2193,6 @@ extern s8 D_80033F30;
 void actorScriptStart(void *, s32);
 void func_8061B650(s32);
 void func_8060CB9C(void);
-void menuLoadTextTable(void);
 void menuInsertHighScore(void);
 void renderCallbacksRegister(void *, void *, s32);
 void *func_80610FE8(s32);
