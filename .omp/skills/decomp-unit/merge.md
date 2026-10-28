@@ -5,7 +5,7 @@ Read before the first merge of a unit and again whenever a merge fails.
 ## Merge + gate
 
 ```sh
-python3 tools/drafts.py collect && git diff drafts/      # restore any note collect replaced
+python3 tools/drafts.py collect && git diff drafts/      # restore any draft collect replaced (also other overlays' same-named func_80024000)
 tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>]... .scratch/<A> <its base commit> src/<seg>/<f>.c ...
 ```
 
@@ -93,6 +93,9 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 - Declarations inside a parked block vanish from the matching build: matched code below
   then gets K&R promotion (f32 args passed as doubles). Keep one declaration outside the
   blocks and cast at parked call sites; the gate's `--non-matching` compile catches clashes.
+  A function matched after a park that declares the same globals with other types fails only
+  that compile: hoist the matched code's declarations above the park, delete the park's
+  copies, cast inside it; hand this to the agent already working that park (B100 unit).
 - A parked definition with a prototype rejects parked callers passing extra args: write it
   K&R-style (`void f(a, b) T *a; s32 b; {`) so the file's `void f();` accepts both.
 - A stray prototype of X inside another function's parked block makes `permute.py` /

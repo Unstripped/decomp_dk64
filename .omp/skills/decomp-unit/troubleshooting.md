@@ -18,7 +18,9 @@
 - **Orchestrator session disposed**: subagents die with it. Keep the unclaimed dispatch
   queue in `.scratch/queue.md` (lists, large functions) so a new session resumes from disk.
 - Check `git status` for unrelated work (a parallel session in the same tree): stage only the
-  unit's files, never `git add -A`.
+  unit's files, never `git add -A`. A gate failing while `git status` shows a modified `src`
+  file outside the merge is that session mid-edit: `git checkout` nothing of it; re-run
+  `tools/merge_gate.sh - - <your file>` once `tools/dk make` passes again (boss 6240.c).
 
 ## Namer broke the build
 
@@ -65,9 +67,8 @@ then tell running agents not to re-copy from `src`.
   after it.
 - `drafts.py prune` prunes every segment (it deleted another session's global drafts):
   scope pruning with `unit_check.py drafts --prune src/<seg>/*.c`.
-- ok-fine writes with large bodies, from Python eval:
-  `r = await tool.write({'path': 'xd://mcp__ok_fine_read_concept', 'content': json.dumps(...)})`;
-  the payload is `r['details']['xdev']['inner']['structuredContent']` (`r['text']` is elided).
+- ok-fine reads from Python eval: `r = await tool.mcp__ok_fine_read_concept({...})`; the
+  payload is `r['details']['structuredContent']` (`r['text']` is elided past ~90 KB).
   `write_concept` takes `frontmatter` (object) and `body`: copy both from the read, drop
   `verified`/`generated`, append sources and body, pass `expectedRevision`. `cp` into `xd://`
   fails; `cp` into `local://` works.

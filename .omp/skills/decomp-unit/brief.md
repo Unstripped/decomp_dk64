@@ -48,14 +48,14 @@ swapped externs in a comparison look identical in the text.
   (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`), never re-copy
   mid-run, edit only the copy, check with
   `tools/fdiff.sh .scratch/<YourName>/<file>.c src/<seg>/<file>.c [FUNC]`.
-- Never delete the `#pragma GLOBAL_ASM` line of a function you did not match (a copy that
-  lost one broke the link; `merge_drafts.py` now refuses it).
 - Keep a blank line before every `#pragma GLOBAL_ASM` line, including the last one in
   the file. A parked function's `#ifdef NON_MATCHING` block must wrap only that function
   and the declarations nothing else uses; declarations matched code needs stay outside it
   (inside the block they vanish from the matching build: an f32 callee then gets
-  double-promoted args). Parked C calling a function now defined in the file with another
-  prototype casts at the call site; check with `tools/fdiff.sh --non-matching`.
+  double-promoted args), and never redeclare in it a global or callee the file declares
+  elsewhere (another type breaks the NON_MATCHING compile). Parked C calling a function now
+  defined in the file with another prototype casts at the call site; check with
+  `tools/fdiff.sh --non-matching`.
 - Before reporting, grep every extern/symbol you added in `asm/`: fdiff does not catch a
   misspelled symbol, only the link does.
 - If the text is identical but fdiff prints `FAILED: Relocations mismatch` only because the
