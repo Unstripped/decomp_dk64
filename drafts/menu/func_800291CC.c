@@ -1,4 +1,4 @@
-// func_800291CC (src/menu/3E10.c): stage 3 (frame 280 vs 240, FP hoist/regalloc differ): loop constants order now matches (sc=3.0f var, n85=85 int var for unfolded 85*4, four var); remaining: target loads lwc1 f12/f14 spCC/spD0 before beqz in menuSetElementCoordinates call (mine lw a2/a3), target locals above spD0 = 7 words and below spA4 = 7 words+8, x(f32)*4 'four' lands in f28 vs target f26
+// func_800291CC (src/menu/3E10.c): stage 3: frame 280 vs 240 (target locals region 136..239: 7 words above spD0/spCC@208/204, 2 words, buf@164, 7 words below; mine has ~11 extra words below buf). Target decoded: structure of draft is right (loop consts f20=66,f30=55,f26=85,f28=1.5,f24=.85 match). Open: target loads spD0/spCC with lwc1 f12/f14 + mfc1 a2/a3 (both arms) where mine emits lw a2/a3: NOT a callee-prototype issue (plain f32 params give lw in harness). In func_8002A638 the same lwc1+mfc1 vanished once 'sp174 = (f32)(...); sp174 = sp174 * 4.0f;' was split into two statements; try splitting the float temps here. Use new narrow func_8068C5A8 prototype (u16 id, s16 arg6).
 extern s8 D_80033804;
 extern s32 D_8003380C;
 extern s32 D_80033810;
@@ -13,7 +13,7 @@ int _sprintf(char *, const char *, ...);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 s32 func_806FC530(s32, s16, s16, s16, void *, s32);
 s32 menuSetElementCoordinates(s32, s32, f32, f32, f32);
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *func_8068C5A8(Gfx *, u16, s32, s32, s32, s32, s16, s32, f32, f32, s32, f32);
 f32 func_80612794(s16);
 
 s32 func_800291CC(void *arg0, Gfx *arg1) {
