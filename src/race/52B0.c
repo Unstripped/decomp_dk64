@@ -163,7 +163,7 @@ f32 func_8002D2C0(void *);
 void func_8068F72C(void *, s32, s32, s32);
 s32 func_807142D8(void);
 void renderCallbacksRegister(void *, void *, s32);
-void sfxStopSlotSound(void *, s32);
+void sfxStopSlotSound(void *, u8);
 void actorInterpolateAngles(u8, void *, s32);
 void actorUpdateModelMatrix(void *, s32);
 
@@ -171,7 +171,7 @@ void func_800294A8(void) {
     s32 v34;
     s32 sp68;
     RaceC_State *s4;
-    s32 s1;
+    RaceC_State *s1;
     RaceC_State *s0;
     s32 i;
     RaceC_Actor *tmp;
@@ -180,7 +180,7 @@ void func_800294A8(void) {
 
     s4 = RC_A->unk174;
     sp68 = RC_A->unk178;
-    s1 = (s32)D_807FC924[s4->unk28].unk4->unk174;
+    s1 = D_807FC924[s4->unk28].unk4->unk174;
     sp52 = RC_A->unk6A & 1;
     if (!(RC_A->unk60 & 0x10)) {
         actorInitAnimations(RC_A, D_807FC924[s4->unk28].unk4);
@@ -200,7 +200,7 @@ void func_800294A8(void) {
                 s4->unk35 += 1;
             }
             if (s0->unk1C == 0x3C) {
-                camSetTargetScaled(((RaceC_State *)s1)->unk104, D_807FBB40, 4, 0x800, 0x32, 0, 0x28, 0x1E, 0x14, 0, 0.4f);
+                camSetTargetScaled(s1->unk104, D_807FBB40, 4, 0x800, 0x32, 0, 0x28, 0x1E, 0x14, 0, 0.4f);
             }
         }
         if (s4->unk34 == 2) {
@@ -224,9 +224,9 @@ void func_800294A8(void) {
         RC_A->unkB8 = 0.0f;
         slotQueueCancel(0xB, 0);
         s4->unk35 += 1;
-        for (i = 0, s1 = 0; i != 2; i++, s1 += 2) {
-            if (*(s16 *)((u8 *)RC_A + s1 + 0x6E) != -1) {
-                sfxStopSlotSound(D_807FBB40, i & 0xFF);
+        for (i = 0; i < 2; i++) {
+            if (RC_A->unk6E[i] != -1) {
+                sfxStopSlotSound(D_807FBB40, i);
             }
         }
     }
