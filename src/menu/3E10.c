@@ -357,7 +357,7 @@ Gfx *func_800286C8(MenuScreenActor *arg0, Gfx *arg1) {
 
 extern s8 D_800337F4;
 extern s8 D_800337F8;
-extern u8 D_8076A0D1[];
+extern s8 D_8076A0D1[];
 extern s8 D_80033F38;
 extern s8 D_80033F54;
 extern s8 D_80033F55;
@@ -387,7 +387,7 @@ void func_80028834(MenuScreenActor *arg0, s32 arg1) {
     D_807FBB4C->unk155 = 0;
     D_80745844 = func_8060C6B8(0x1E, 0, 0, 0);
     menuSetAudioMode();
-    temp_s0->unk17 = *(s8 *)D_8076A0D1;
+    temp_s0->unk17 = D_8076A0D1[0];
     func_80030894(temp_s0, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
     func_80030894(temp_s0, (void *)(s32)&D_80721444, 0, 0, 1.2f, 2, 0x12);
     func_80030894(temp_s0, (void *)(s32)&D_80721444, 1, 0, 1.2f, 2, 0x12);
