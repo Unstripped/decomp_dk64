@@ -1,4 +1,4 @@
-// func_8066E2C0 (src/global/70FD0.c): stage 4 (frame 0x98 + callee-saved set equal; parked NON_MATCHING in 70FD0.c, 76 diff lines): remaining diff is the two copy-loop bodies - target keeps dst=a1(+4)/k=v1(+3)/src=v0 and does NOT fold (k+1)*4 into the lw offset (separate addiu/sll/addu), mine swaps a1/v1 and folds lw 4(v0); also sw v0,76(sp) after the jal delay slot and sh/sb/sw store order; tried decl-order permutations of src/k/j/dst/t0 (all 120), s16/u8/u32 k, array-index form, tmp var; needs actorSub140Alloc to return ActorSub140 * (cast used)
+// func_8066E2C0 (src/global/70FD0.c): stage 4 (frame 0x98 + callee-saved set equal, text 24 diff lines, only copy-loop register roles: target k=v1,dst walker=a1,j=a0,src=v0; ours k=a1,dst=v1; uopt priority src,dst(255)>j(155)>k(115), target needs k>dst). Matched all else: copy loops with f32 *t0 indexed ((s32*)... t0[k], t0[k+1]) reproduce target's unfolded sll/addu; actorSub140Alloc cast needed. Tried: all 120 decl orders, all 120 statement orders, deadsweep-style if(var){} at every position x8 vars (no change), shared function-level k/j, all-index forms (IV becomes byte offset, worse), permuter 800s (best 165 baseline 180, no match).
 typedef struct Col7C_Ent58 {
     /* 0x00 */ f32 x[9];
     /* 0x24 */ f32 out[9];
@@ -113,7 +113,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if ((s32)s2 > 0) {
             do {
                 s32 k = 0;
-                u8 *t0 = arg9;
+                f32 *t0 = (f32 *)arg9;
                 s32 j = 0;
                 f32 *src = (f32 *)arg9;
                 f32 *dst = (f32 *)a3;
@@ -125,8 +125,8 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
                     dst[2] = src[-2];
                     dst[5] = src[-1];
                 } while (j != 3);
-                *(s16 *)(a3 + 0x28) = *(s32 *)(t0 + (k * 4));
-                *(s32 *)(a3 + 0x24) = *(s32 *)(t0 + ((k + 1) * 4));
+                *(s16 *)(a3 + 0x28) = *(s32 *)(t0 + k);
+                *(s32 *)(a3 + 0x24) = *(s32 *)(t0 + (k + 1));
                 *(u8 *)(a3 + 0x2A) = one;
                 arg9 += 0x2C;
                 a3 += 0x2C;
@@ -146,7 +146,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
             a3 = (u8 *)sp54;
             do {
                 s32 k = 0;
-                u8 *t0 = arg9;
+                f32 *t0 = (f32 *)arg9;
                 s32 j = 0;
                 f32 *src = (f32 *)arg9;
                 f32 *dst = (f32 *)a3;
@@ -158,10 +158,10 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
                     dst[2] = src[-2];
                     dst[5] = src[-1];
                 } while (j != 3);
-                *(s16 *)(a3 + 0x54) = *(s32 *)(t0 + (k * 4));
-                *(s32 *)(a3 + 0x48) = *(s32 *)(t0 + ((k + 1) * 4));
-                *(s32 *)(a3 + 0x4C) = *(s32 *)(t0 + ((k + 2) * 4));
-                *(s32 *)(a3 + 0x50) = *(s32 *)(t0 + ((k + 3) * 4));
+                *(s16 *)(a3 + 0x54) = *(s32 *)(t0 + k);
+                *(s32 *)(a3 + 0x48) = *(s32 *)(t0 + (k + 1));
+                *(s32 *)(a3 + 0x4C) = *(s32 *)(t0 + (k + 2));
+                *(s32 *)(a3 + 0x50) = *(s32 *)(t0 + (k + 3));
                 *(u8 *)(a3 + 0x56) = one;
                 arg9 += 0x34;
                 a3 += 0x58;

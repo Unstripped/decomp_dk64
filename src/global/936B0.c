@@ -1095,7 +1095,6 @@ volatile u8 arg3; // FAKE: volatile reproduces the per-path re-lbu of the stack-
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690C60.s")
 #endif
 
-#ifdef NON_MATCHING
 typedef struct L690F30_Slot {
     f32 unk0;
     f32 unk4;
@@ -1251,8 +1250,7 @@ f32 *arg8;
     }
     if (arg5 != 0) {
         if (D_80747D70 > 0) {
-            j = 0;
-            do {
+            j = 0; do { // FAKE: init and do on one line (one as1 line) steers the loop-limit candidate priority
                 switch (((L690F30_Slot *)((u8 *)D_807F6000 + j))->unk84) {
                     case 0x125:
                     case 0x126:
@@ -1288,18 +1286,15 @@ f32 *arg8;
                             *arg8 = pz;
                         }
                         break;
+                    default:
+                        break;
                 }
                 j += 0x90;
-            } while (j < (D_80747D70 * 8 + D_80747D70) * 16); // FAKE: x * 9 * 16 spelled as shifts; plain * 0x90 hoists 144 into a register and emits multu
+            } while (j < D_80747D70 * 0x90);
         }
     }
     return ret;
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690F30.s")
-#endif
 
 void func_807149C8(s32, s32, s32, s32);
 extern s32 D_8071FFA0;

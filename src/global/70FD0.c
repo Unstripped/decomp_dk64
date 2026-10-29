@@ -1098,7 +1098,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if ((s32)s2 > 0) {
             do {
                 s32 k = 0;
-                u8 *t0 = arg9;
+                f32 *t0 = (f32 *)arg9;
                 s32 j = 0;
                 f32 *src = (f32 *)arg9;
                 f32 *dst = (f32 *)a3;
@@ -1110,8 +1110,8 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
                     dst[2] = src[-2];
                     dst[5] = src[-1];
                 } while (j != 3);
-                *(s16 *)(a3 + 0x28) = *(s32 *)(t0 + (k * 4));
-                *(s32 *)(a3 + 0x24) = *(s32 *)(t0 + ((k + 1) * 4));
+                *(s16 *)(a3 + 0x28) = *(s32 *)(t0 + k);
+                *(s32 *)(a3 + 0x24) = *(s32 *)(t0 + (k + 1));
                 *(u8 *)(a3 + 0x2A) = one;
                 arg9 += 0x2C;
                 a3 += 0x2C;
@@ -1131,7 +1131,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
             a3 = (u8 *)sp54;
             do {
                 s32 k = 0;
-                u8 *t0 = arg9;
+                f32 *t0 = (f32 *)arg9;
                 s32 j = 0;
                 f32 *src = (f32 *)arg9;
                 f32 *dst = (f32 *)a3;
@@ -1143,10 +1143,10 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
                     dst[2] = src[-2];
                     dst[5] = src[-1];
                 } while (j != 3);
-                *(s16 *)(a3 + 0x54) = *(s32 *)(t0 + (k * 4));
-                *(s32 *)(a3 + 0x48) = *(s32 *)(t0 + ((k + 1) * 4));
-                *(s32 *)(a3 + 0x4C) = *(s32 *)(t0 + ((k + 2) * 4));
-                *(s32 *)(a3 + 0x50) = *(s32 *)(t0 + ((k + 3) * 4));
+                *(s16 *)(a3 + 0x54) = *(s32 *)(t0 + k);
+                *(s32 *)(a3 + 0x48) = *(s32 *)(t0 + (k + 1));
+                *(s32 *)(a3 + 0x4C) = *(s32 *)(t0 + (k + 2));
+                *(s32 *)(a3 + 0x50) = *(s32 *)(t0 + (k + 3));
                 *(u8 *)(a3 + 0x56) = one;
                 arg9 += 0x34;
                 a3 += 0x58;
@@ -1462,9 +1462,8 @@ void actorUpdateModelMatrices(Actor *arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_8066EC6C(ActorSub140 *arg0) {
-    s32 padTop[1];
+    s32 neg1; // FAKE: one -1 variable shares the compares and the s8 store in one register
     s32 i;
     Col7C_Ent2C *ent;
     Mtx *mtx;
@@ -1482,25 +1481,27 @@ void func_8066EC6C(ActorSub140 *arg0) {
     f32 sp68[3];
     s32 padE[5];
 
-    ent = arg0->unkA0;
-    if (ent != NULL) {
+    neg1 = -1;
+    if (arg0->unkA0 != NULL) {
         if (D_8076A064 == arg0->unk88) {
             var_v1 = D_807444FC;
         } else {
             var_v1 = (D_807444FC ^ 1);
         }
         mtx = ((Mtx **)&arg0->unk74)[var_v1];
-        i = 0;
+        ent = arg0->unkA0;
         box = (CollisionBox *)arg0->unkA4;
+        i = 0;
         if (arg0->unk9C > 0) {
             do {
+                if (arg0 == 0) {} // FAKE
                 var_s0 = (f32 *)ent;
                 var_s2 = sp68;
                 var_s3 = sp74;
                 var_s1 = sp80;
                 do {
                     unk24 = *(s32 *)((u8 *)ent + 0x24);
-                    if ((unk24 ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
+                    if ((unk24 ^ 0) == neg1) { // FAKE: ^ 0 steers bne operand order
                         memcpy(spCC, (void *)arg0->unk70, 0x40);
                         guMtxXFMF(spCC, var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
                     } else {
@@ -1510,13 +1511,13 @@ void func_8066EC6C(ActorSub140 *arg0) {
                     var_s0++;
                     var_s2++;
                     var_s3++;
-                } while (var_s1 != sp80 + 3);
+                } while (var_s1 != (f32 *)&box); // FAKE: sentinel = addiu fp,sp,0x8C (the frame slot after sp80), steers a lone hoisted constant
                 if (collisionBuildBoxFromMatrix(sp68, box) != 0) {
                     if (*(u8 *)((u8 *)ent + 0x2A) == 0) {
                         box->unk4B = 0;
                     }
-                    if (*(s32 *)((u8 *)ent + 0x24) == -1) {
-                        box->unk4E = -1;
+                    if (*(u32 *)((u8 *)ent + 0x24) == neg1) {
+                        box->unk4E = neg1;
                     } else {
                         box->unk4E = (s8)(*(u32 *)((u8 *)ent + 0x24) >> 6);
                     }
@@ -1529,10 +1530,6 @@ void func_8066EC6C(ActorSub140 *arg0) {
         arg0->unkA8 = (s32)box;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066EC6C.s")
-#endif
 
 s32 collisionBuildBoxFromMatrix(f32 *arg0, CollisionBox *arg1) {
     u8 sp34[4];
