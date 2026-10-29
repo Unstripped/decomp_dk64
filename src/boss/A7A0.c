@@ -179,6 +179,8 @@ typedef struct BossStageInfo {
 typedef struct BossWorkState {
     char pad[0x1A];
     u16 unk1A;
+    char pad1C[0x28 - 0x1C];
+    u8 unk28[4];
 } BossWorkState;
 
 typedef struct BossActorPos {
@@ -323,10 +325,8 @@ void func_8002EA7C(void) {
                 func_8002EA14();
                 sp178->unk15 = 0;
                 sp178->unk14++;
-                {
-                    u8 *tbl = D_80035A80[sp178->unk14];
-                    ACTOR40->unk154 = tbl[sp178->unk15++];
-                }
+                sp28 = D_80035A80[sp178->unk14];
+                ACTOR40->unk154 = sp28[sp178->unk15++];
                 ACTOR40->unk155 = 0;
                 break;
             }
@@ -356,8 +356,8 @@ void func_8002EA7C(void) {
         func_80614D00(ACTOR40, 0.0f, 0.0f);
     }
     func_8072A450();
-    if (func_8072881C(0, (u8 *)D_807FDC90 + 0x28) != 0) {
-        func_8072881C(0x81, (u8 *)D_807FDC90 + 0x28);
+    if (func_8072881C(0, D_807FDC90->unk28) != 0) {
+        func_8072881C(0x81, D_807FDC90->unk28);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
