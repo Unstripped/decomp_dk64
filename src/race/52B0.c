@@ -433,9 +433,6 @@ void func_8002A0AC(void) {
         }
     }
     switch (RC_A->unk4->unk64) {
-    default:
-        v = RC_A->unk4->unk0->unk10;
-        goto tail;
     case 0x29E:
     case 0x2A2:
         fv1 = RC_A->unkB8 * 0.0025f;
@@ -443,13 +440,12 @@ void func_8002A0AC(void) {
         func_80614D00(D_807FBB40, fv1, 10.0f);
         break;
     case 0x2A0:
-        v = RC_A->unk4->unk0->unk10;
-        if (v == 0x4A7) {
+        if (RC_A->unk4->unk0->unk10 == 0x4A7) {
             func_80029F88(D_807FBB40, s0, RC_A->unkB8 - ((RaceC_Actor *)sp4C->unk0)->unkB8, (sp48 - D_8002FC30) * 40.0f, 23.0f);
             break;
         }
-    tail:
-        if (v != 0x49B) {
+    default:
+        if (RC_A->unk4->unk0->unk10 != 0x49B) {
             func_80614D00(D_807FBB40, 1.0f, 10.0f);
         }
         break;
