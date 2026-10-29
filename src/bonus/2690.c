@@ -73,6 +73,8 @@ typedef struct {
     u8 unk9;
     char padA[7];
     u8 unk11;
+    char pad12[0xA];
+    u8 unk1C;
 } Struct_174;
 
 
@@ -102,13 +104,16 @@ typedef struct Struct_71B4 {
     char pad18[3];
     u8 unk1B;
     u8 unk1C;
-    char pad1D[5];
+    char pad1D[3];
+    s16 unk20;
     s16 unk22;
     char pad24;
     u8 unk25;
-    char pad26[2];
+    char pad26;
+    u8 unk27;
     u8 unk28;
-    char pad29[3];
+    u8 unk29;
+    char pad2A[2];
     f32 unk2C;
 } Struct_71B4;
 typedef struct {
@@ -565,21 +570,6 @@ typedef struct {
     u8 unk25;
 } BonusB2_Sub174;
 
-typedef struct {
-    void *unk0[6];
-    char pad18[8];
-    s16 unk20;
-    s16 unk22;
-    char pad24;
-    u8 unk25;
-    char pad26;
-    u8 unk27;
-    u8 unk28;
-    u8 unk29;
-    char pad2A[2];
-    f32 unk2C;
-} BonusB2_Sub178;
-
 typedef struct BonusB2_Actor {
     char pad0[0x60];
     s32 unk60;
@@ -592,7 +582,7 @@ typedef struct BonusB2_Actor {
     u8 unk155;
     char pad156[0x1E];
     BonusB2_Sub174 *unk174;
-    BonusB2_Sub178 *unk178;
+    Struct_71B4 *unk178;
 } BonusB2_Actor;
 
 typedef struct {
@@ -607,6 +597,14 @@ typedef struct {
 
 extern s32 D_8076A0A8;
 extern void *D_807FD580;
+
+typedef struct {
+    char pad0[0x104];
+    void *unk104;
+} BonusB_Cam;
+
+#define BCAM ((BonusB_Cam *)D_807FD580)
+
 extern BonusB_Ctrl D_807FD610;
 extern u8 D_807444EC;
 s32 playerStateQueueCallback(s32, s32, s32);
@@ -623,7 +621,7 @@ void renderCallbacksRegister(void *, void *, s32);
 
 void bonusTargetGameUpdate(void) {
     BonusB2_Sub174 *t3c = BB2->unk174;
-    BonusB2_Sub178 *t0 = BB2->unk178;
+    Struct_71B4 *t0 = BB2->unk178;
     Point3f *p;
     f32 ang;
     f32 ang2;
@@ -639,7 +637,7 @@ void bonusTargetGameUpdate(void) {
         t3c->unk0 = -2;
         t3c->unk22 = 0;
         playerStateQueueCallback(0x48, 0, 0);
-        camSetTarget(*(void **)((u8 *)D_807FD580 + 0x104), D_807FBB40, 4, 0x800, -7, 0, 0x16, 0x2C, 4, 0, 0.05f);
+        camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, -7, 0, 0x16, 0x2C, 4, 0, 0.05f);
         camStartPath(0, 0, 1);
         BB2->unkE8 = 0x310;
         switch (D_8076A0A8) {
@@ -706,7 +704,7 @@ void bonusTargetGameUpdate(void) {
                 idx = r % 8;
                 if (t0->unk0[idx] == 0) {
                     p = *D_807F5FD4 + idx + 1;
-                    bonusSpawnTarget(p->x, p->y, p->z, idx, (Struct_71B4 *)t0);
+                    bonusSpawnTarget(p->x, p->y, p->z, idx, t0);
                 }
             }
             if (BB2->unk11C->unk154 == 4 && BB2->unk11C->unk155 != 0xFF) {
@@ -800,7 +798,7 @@ void bonusPopupGameUpdate(void) {
         t0->unk23 = 5;
         t0->unk0 = -2;
         playerStateQueueCallback(0x48, 0, 0);
-        camSetTarget(*(void **)((u8 *)D_807FD580 + 0x104), D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         BB_B->unkE8 = 0x9A;
         switch (D_8076A0A8) {
@@ -865,9 +863,9 @@ void bonusPopupGameUpdate(void) {
         switch (bonusAimAndFire(p->x, y, z)) {
         case 1:
             if (t0->unk22) {
-                BonusB_Actor7F14 *e = (BonusB_Actor7F14 *)s38->unk0[t0->unk22 - 1];
-                if (((u8 *)e->unk174)[0x1C] == 0) {
-                    ((u8 *)e->unk174)[0x1C] = 6;
+                Actor_BB44 *e = s38->unk0[t0->unk22 - 1];
+                if (e->unk174->unk1C == 0) {
+                    e->unk174->unk1C = 6;
                 }
             }
             break;
