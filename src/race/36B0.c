@@ -82,6 +82,7 @@ f32 func_80027920(s32 arg0, s32 arg1, s32 arg2, Waypoint *arg3) {
     f32 total;
     s32 cur;
     s32 sign;
+    s32 end;
 
     count = (D_807F5FD4[arg3->unk0 + 1] - D_807F5FD4[arg3->unk0]) / 12;
     dir = func_800276B0(count, (u8 *)arg1, (u8 *)arg3);
@@ -95,19 +96,15 @@ f32 func_80027920(s32 arg0, s32 arg1, s32 arg2, Waypoint *arg3) {
         if (dir > 0) {
             total = fracB * distB + (1.0f - fracA) * distA;
             cur = raceGetNextWaypointIndex(count, ((Waypoint *)arg1)->unk2);
-            do {
-            } while (0);
-            arg2 = arg3->unk2;
+            end = arg3->unk2;
         } else {
             total = fracA * distA + (1.0f - fracB) * distB;
             cur = raceGetNextWaypointIndex(count, arg3->unk2);
-            arg2 = ((Waypoint *)arg1)->unk2;
+            end = ((Waypoint *)arg1)->unk2;
         }
-        if (cur != arg2) {
-            do {
-                total += raceGetPathDistance(count, arg3->unk0, cur);
-                cur = raceGetNextWaypointIndex(count, cur);
-            } while (cur != arg2);
+        while (cur != end) {
+            total += raceGetPathDistance(count, arg3->unk0, cur);
+            cur = raceGetNextWaypointIndex(count, cur);
         }
         if (dir >= 0) {
             sign = 1;
