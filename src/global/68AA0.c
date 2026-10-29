@@ -85,5 +85,45 @@ u8 func_80663FCC(s16 arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/68AA0/func_80664044.s")
+#ifdef NON_MATCHING
+typedef struct ColSmall_Sched {
+    u8 pad0[0x290];
+    s16 unk290;
+} ColSmall_Sched;
 
+extern ColSmall_Sched *D_807FC924;
+
+f32 sfxUpdateDistanceVolumeAndPan(f32, f32, f32, u8, u8, f32);
+
+void func_80664044(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
+    ActorTargetEntry *entry;
+    s32 i;
+    s32 j;
+    s32 found;
+
+    for (i = 0; i < D_807F9424; i++) {
+        entry = &D_807F9420[i];
+        if (entry->unk6 == arg0) {
+            if (D_807F9420 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            j = 0;
+            found = 0;
+            do {
+                if (D_807F9420[i].u.unk7_arr[j] == D_807FC924->unk290) {
+                    found = 1;
+                }
+                j++;
+                if (j >= 5 || found) {
+                    break;
+                }
+            } while (D_807F9420[i].u.unk7_arr[j] != -1);
+
+            if (found) {
+                sfxUpdateDistanceVolumeAndPan(entry->unk0, entry->unk2, entry->unk4, arg1, arg2, arg3);
+            }
+        }
+    }
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/68AA0/func_80664044.s")
+#endif

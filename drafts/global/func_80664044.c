@@ -1,8 +1,8 @@
-// func_80664044 (src/global/68AA0.c): Near-miss, 78/87 insns matched; regalloc $s4/$s6 swap between &D_807F9420 and arg1/arg2. Inner loop matches 100% with do-while direct unk7_arr indexing
+// func_80664044 (src/global/68AA0.c): Stage 5/6: frame 0x48 + callee-saved set s0-s6 match; remaining 13 text diffs: P=D_807F9420 value lives in v0 (expected a3), entry add operand order (s2,P vs P,s2), compare order bne a2,v0 vs bne v0,a2, j=0/found=0 placement vs bne. deadsweep `if (D_807F9420 == 0) {}` took 30 -> 13 (fixes s4/s5/s6 arg/&D regalloc swap). Tried: j=0 hoisted before if, entry = D+i, while(1)/for forms, s8/u8 j/found, decl order, operand order, 12 more deadsweep forms; permuter 4 min no gain.
 #include "common.h"
 #include "actor.h"
 
-typedef struct R2Small_68AA0_Target {
+typedef struct ActorTargetEntry {
     s16 unk0;
     s16 unk2;
     s16 unk4;
@@ -14,22 +14,22 @@ typedef struct R2Small_68AA0_Target {
         } s;
         s8 unk7_arr[5];
     } u;
-} R2Small_68AA0_Target;
+} ActorTargetEntry;
 
-extern R2Small_68AA0_Target *D_807F9420;
+extern ActorTargetEntry *D_807F9420;
 extern s16 D_807F9424;
 
-typedef struct R3Small_SchedPlayer {
+typedef struct ColSmall_Sched {
     u8 pad0[0x290];
     s16 unk290;
-} R3Small_SchedPlayer;
+} ColSmall_Sched;
 
-extern R3Small_SchedPlayer *D_807FC924;
+extern ColSmall_Sched *D_807FC924;
 
-void func_80603340(f32, f32, f32, u8, u8, f32);
+f32 sfxUpdateDistanceVolumeAndPan(f32, f32, f32, u8, u8, f32);
 
 void func_80664044(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
-    R2Small_68AA0_Target *entry;
+    ActorTargetEntry *entry;
     s32 i;
     s32 j;
     s32 found;
@@ -37,6 +37,7 @@ void func_80664044(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
     for (i = 0; i < D_807F9424; i++) {
         entry = &D_807F9420[i];
         if (entry->unk6 == arg0) {
+            if (D_807F9420 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             j = 0;
             found = 0;
             do {
@@ -50,7 +51,7 @@ void func_80664044(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
             } while (D_807F9420[i].u.unk7_arr[j] != -1);
 
             if (found) {
-                func_80603340(entry->unk0, entry->unk2, entry->unk4, arg1, arg2, arg3);
+                sfxUpdateDistanceVolumeAndPan(entry->unk0, entry->unk2, entry->unk4, arg1, arg2, arg3);
             }
         }
     }
