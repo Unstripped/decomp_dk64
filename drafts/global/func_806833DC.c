@@ -52,6 +52,8 @@ void slotQueueClearAllFlags(void);
 
 void func_806833DC(struct KaB3_TagBarrelData *arg0_in) {
 #define arg0 ((KaN3_TagBarrelData *)arg0_in)
+    s32 pad3C;
+    s32 pad38;
     Actor *sp34;
     KaN3_KongSub *sp30;
     s32 sp28;

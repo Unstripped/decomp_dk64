@@ -39,10 +39,10 @@ void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
     temp_a3 = arg2 & 0xFF;
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
-        var_a2 = 1;
         if (((KaN2_Entry2F0 *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
             return;
         }
+        var_a2 = 1;
         sp3C = 0x2E;
         if (temp_a3 != 0) {
             sp3C = 0x30;

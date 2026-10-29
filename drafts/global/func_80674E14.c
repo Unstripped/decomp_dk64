@@ -1,24 +1,28 @@
-// func_80674E14 (src/global/79890.c): from .scratch/Beh7984A/func_80674E14_best.c
-typedef struct Beh7984A_Node {
+// func_80674E14 (src/global/79890.c): func_80674E14 (src/global/79890.c): stage 5: matches control flow and frame 0xA8, remaining diff regalloc and Node unk24/26/27 bitfield tests
+typedef struct KaN5_NodeE14 {
     u8 pad0[0x10];
     s32 unk10;
     s32 unk14;
     s32 unk18;
     s32 unk1C;
-    u8 pad20[8];
-    struct Beh7984A_Node *next;
-} Beh7984A_Node;
+    u8 pad20[4];
+    u16 unk24;
+    u8 unk26;
+    u8 unk27;
+    struct KaN5_NodeE14 *next;
+} KaN5_NodeE14;
 
-typedef struct Beh7984A_Sub140 {
+typedef struct KaN5_Sub140E14 {
     s32 unk0;
     s32 unk4;
     s32 unk8;
+    s32 sub_unk8;
     s32 unkC;
     u8 pad10[0x7C];
-    Beh7984A_Node *unk8C;
-} Beh7984A_Sub140;
+    KaN5_NodeE14 *unk8C;
+} KaN5_Sub140E14;
 
-typedef struct Beh7984A_Actor {
+typedef struct KaN5_ActorE14 {
     u8 pad0[0x54];
     s32 unk54;
     u8 pad58[4];
@@ -32,16 +36,16 @@ typedef struct Beh7984A_Actor {
     u8 pad88[0x8C];
     void *unk114;
     u8 pad118[0x28];
-    Beh7984A_Sub140 *unk140;
+    KaN5_Sub140E14 *unk140;
     u8 unk144;
-} Beh7984A_Actor;
+} KaN5_ActorE14;
 
-typedef struct Beh7984A_ActorEntry {
-    Beh7984A_Actor *actor;
-} Beh7984A_ActorEntry;
+typedef struct KaN5_ActorEntryE14 {
+    KaN5_ActorE14 *actor;
+} KaN5_ActorEntryE14;
 
 extern u16 gActiveActorCount;
-extern Beh7984A_ActorEntry gActiveActors[];
+extern KaN5_ActorEntryE14 gActiveActors[];
 extern void *D_807FB620;
 extern void *D_807FB624;
 extern s32 D_807FB628;
@@ -50,23 +54,23 @@ s32 func_80679010(void *, void *);
 s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
 void actorUpdateCollisionSpheres(void *, s32);
 f32 func_80675234(s32, s32, s32, s32, s32, s32, s32);
-void func_80675180(void *, f32, f32, f32, void *, f32 *, f32 *, f32 *);
-void func_806752D4(s32, f32, f32, f32, f32, s32, s32);
-void func_80675380(s32, void *);
+void func_80675180();
+void func_806752D4();
+void func_80675380();
 
-void func_80674E14(Beh7984A_Actor *arg0) {
+void func_80674E14(KaN5_ActorE14 *arg0) {
     s32 i;
-    Beh7984A_Actor *actor;
-    Beh7984A_Sub140 *actor_sub140;
+    KaN5_ActorE14 *actor;
+    KaN5_Sub140E14 *actor_sub140;
     s32 sub_unk0;
     s32 sub_unk4;
     s32 sub_unk8;
     s32 sub_unkC;
-    Beh7984A_Node *node1;
-    Beh7984A_Node *node2;
+    KaN5_NodeE14 *node1;
+    KaN5_NodeE14 *node2;
     s32 var_s4;
     s32 var_s2;
-    Beh7984A_Sub140 *sub140;
+    KaN5_Sub140E14 *sub140;
     f32 dist;
     f32 sp70;
     f32 sp6C;
@@ -74,7 +78,7 @@ void func_80674E14(Beh7984A_Actor *arg0) {
     s32 s0;
     u16 mask1;
     u16 mask2;
-    Beh7984A_ActorEntry *entry;
+    KaN5_ActorEntryE14 *entry;
 
     sub140 = arg0->unk140;
     sub_unk0 = sub140->unk0;
@@ -85,6 +89,7 @@ void func_80674E14(Beh7984A_Actor *arg0) {
     if (gActiveActorCount > 0) {
         entry = gActiveActors;
         do {
+            if (D_807FB620) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_807FB620 = NULL;
             D_807FB624 = NULL;
             D_807FB628 = 0;

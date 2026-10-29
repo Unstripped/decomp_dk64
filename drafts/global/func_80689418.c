@@ -1,4 +1,4 @@
-// func_80689418 (src/global/8D3E0.c): Stage 4: frame 0x88 vs 0x80, multu strength reduction differences in entry lookup
+// func_80689418 (src/global/8D3E0.c): stage 5 (near-miss): frame 0x80 matches (correct local var types/scopes), deadsweep full=72 text=72 shape=35
 typedef struct KaE_R3D3B_Entry30 {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
@@ -36,68 +36,73 @@ typedef struct KaE_ActorListNode {
     /* 0x5A */ s16 unk5A;
     /* 0x5C */ s32 (*unk5C)(struct KaE_ActorListNode *);
     /* 0x60 */ s32 (*unk60)(struct KaE_ActorListNode *);
-    /* 0x64 */ struct KaE_ActorListNode *prev;
+    /* 0x64 */ char unk64[4];
     /* 0x68 */ struct KaE_ActorListNode *next;
 } KaE_ActorListNode;
 
 typedef struct KaE_R2ASpawnInfo {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
+    s16 unk0;
+    s16 unk2;
+    f32 unk4;
+    f32 unk8;
     f32 unkC;
     f32 unk10;
     f32 unk14;
-    s16 unk18;
+    f32 unk18;
     s16 unk1A;
-    s32 unk1C;
+    s16 unk1C;
+    s32 unk20;
 } KaE_R2ASpawnInfo;
-
-extern Actor *D_807FBB44;
-extern ActorListNode *D_807FC400;
 
 void actorDeregisterActive(Actor *);
 void actorRegisterActive(Actor *);
 s32 actorSpawnFromInfo(KaE_R2ASpawnInfo *);
-s32 func_80612E90(Actor *, s16, s32);
+s32 func_80612E90();
 void func_80613794(Actor *, s32);
 void func_8068A1B8(void);
+extern Actor *D_807FBB44;
 
 void func_80689418(void) {
     KaE_R2ASpawnInfo spawnInfo;
+    Actor *actor;
     KaE_ActorListNode *node;
+    KaE_R3D3B_Entry30 *entry;
+    s32 found;
+    s32 i;
+    s16 target;
 
     node = (KaE_ActorListNode *)D_807FC400;
     if (node != NULL) {
         do {
             if (node->unk48 != 0) {
                 if (node->unk60(node) != 0) {
-                    Actor *actor = node->unk44;
+                    actor = node->unk44;
                     if (!(actor->unk60 & 0x200000)) {
                         actorDeregisterActive(actor);
                         node->unk48 = 0;
                         node->unk10 = actor->unk7C;
                         node->unk14 = actor->unk80;
                         node->unk18 = actor->unk84;
-                        node->unk4A = (s16)(s32)actor->unk12C;
+                        node->unk4A = *(s16 *)&actor->unk12C[0];
                         func_80613794(node->unk44, 0);
                         func_80613794(node->unk44, 1);
                         func_80613794(node->unk44, 2);
                     }
                 }
             } else if (node->unk5C(node) != 0) {
-                Actor *actor = node->unk44;
-                s32 found = 0;
-                s32 i = 0;
+                actor = node->unk44;
+                found = 0;
+                i = 0;
                 if (actor == NULL) {
-                    s16 target = node->unk00 + 0x10;
-                    KaE_R3D3B_Entry30 *entry = D_8074E8B0;
+                    target = node->unk00 + 0x10;
+                    entry = &D_8074E8B0[i];
                     do {
                         if (target == entry->unk0) {
                             found = 1;
                         } else {
-                            i++;
                             entry++;
                         }
+                        i++;
                     } while (!found && i < 0x80);
 
                     spawnInfo.unk0 = target;
@@ -122,8 +127,9 @@ void func_80689418(void) {
                 } else if (node->unk48 == 0) {
                     if (node->unk58 != 0) {
                         *(s32 *)node->unk44 = func_80612E90(actor, node->unk58, 0);
+                        actor = node->unk44;
                     }
-                    actorRegisterActive(node->unk44);
+                    actorRegisterActive(actor);
                     node->unk48 = 1;
                 }
             }

@@ -1,20 +1,20 @@
-// func_80674B90 (src/global/79890.c): from .scratch/Beh7984A/func_80674B90_best.c
-typedef struct Beh7984A_Node {
+// func_80674B90 (src/global/79890.c): func_80674B90 (src/global/79890.c): stage 5: matches control flow and frame 0xC8, remaining diff regalloc (anglePitch vs posY in s7/spill) and local stack offsets (142/143 vs 189/190)
+typedef struct KaN5_Node {
     u8 pad0[0x10];
     s32 unk10;
     s32 unk14;
     s32 unk18;
     s32 unk1C;
     u8 pad20[8];
-    struct Beh7984A_Node *next;
-} Beh7984A_Node;
+    struct KaN5_Node *next;
+} KaN5_Node;
 
-typedef struct Beh7984A_Sub140 {
+typedef struct KaN5_Sub140 {
     u8 pad0[0x8C];
-    Beh7984A_Node *unk8C;
-} Beh7984A_Sub140;
+    KaN5_Node *unk8C;
+} KaN5_Sub140;
 
-typedef struct Beh7984A_Elem {
+typedef struct KaN5_Elem {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -22,18 +22,18 @@ typedef struct Beh7984A_Elem {
     s32 unk10;
     s32 unk14;
     s32 unk18;
-} Beh7984A_Elem;
+} KaN5_Elem;
 
-typedef struct Beh7984A_Callback {
+typedef struct KaN5_Callback {
     s32 type;
     u8 pad4[4];
     void *actor;
     s32 count;
-    Beh7984A_Elem *elems;
-    struct Beh7984A_Callback *next;
-} Beh7984A_Callback;
+    KaN5_Elem *elems;
+    struct KaN5_Callback *next;
+} KaN5_Callback;
 
-typedef struct Beh7984A_Actor {
+typedef struct KaN5_Actor {
     u8 pad0[0x64];
     u32 unk64;
     u8 pad68[0x14];
@@ -47,27 +47,27 @@ typedef struct Beh7984A_Actor {
     u8 unkFC;
     u8 unkFD;
     u8 padFE[0x3E];
-    Beh7984A_Callback *unk13C;
-    Beh7984A_Sub140 *unk140;
-} Beh7984A_Actor;
+    KaN5_Callback *unk13C;
+    KaN5_Sub140 *unk140;
+} KaN5_Actor;
 
 extern u8 D_807FB606;
 s32 actorTableContains(void *);
 void actorUpdateCollisionSpheres(void *, s32);
 s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
-void func_80675478(void *, void *, f32 *, f32 *);
-void func_806755A8(s32, s32, s32, s32, s32, s32);
+void func_80675478();
+void func_806755A8();
 
-u8 func_80674B90(Beh7984A_Actor *arg0, Beh7984A_Actor *arg1, f32 *arg2, f32 *arg3) {
-    Beh7984A_Callback *cb;
-    Beh7984A_Sub140 *sub140;
+u8 func_80674B90(KaN5_Actor *arg0, KaN5_Actor *arg1, f32 *arg2, f32 *arg3) {
+    KaN5_Callback *cb;
+    KaN5_Sub140 *sub140;
     u8 pad;
     u8 foundCb;
     u8 matched;
     s32 pad2[2];
     s16 *anglePitch;
-    Beh7984A_Elem *elem;
-    Beh7984A_Node *node;
+    KaN5_Elem *elem;
+    KaN5_Node *node;
     s32 i;
     s32 j;
     f32 posX_f;
@@ -95,8 +95,10 @@ u8 func_80674B90(Beh7984A_Actor *arg0, Beh7984A_Actor *arg1, f32 *arg2, f32 *arg
     if (cb != NULL) {
         do {
             if (cb->type == 0x8000 && cb->actor == arg1) {
+                if (D_807FB606 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 elem = cb->elems;
                 foundCb = 1;
+                if (D_807FB606 && D_807FB606) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (cb->count > 0) {
                     anglePitch = &arg1->unkF6;
                     angleYaw = &arg1->unkF4;
