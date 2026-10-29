@@ -488,7 +488,7 @@ Gfx *func_80028D3C(MenuScreenActor *arg0, Gfx *arg1) {
             _sprintf(sp2C, "%s %d", D_80033F28[7], idx + 1);
         }
     }
-    return hudDrawScaledText(arg1, (s16)(spFC * 4.0f), (s16)(spF8 * 4.0f), 0.6f, sp2C);
+    return hudDrawScaledText(arg1, spFC * 4.0f, spF8 * 4.0f, 0.6f, sp2C);
 }
 
 extern s8 D_8076A0D2;
@@ -968,11 +968,11 @@ Gfx *menuDrawSubmenuRing(MenuScreenActor *arg0, Gfx *arg1) {
     D_807FBB60 &= ~0x10;
     gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
     idx = func_800317E8(temp_s2, 160.0f, 20.0f, &sp174, &sp170, 2, 1, 0.7f);
-    arg1 = textDrawStringVtx(arg1, 1, (s16)(sp174 * 4.0f), (s16)(sp170 * 4.0f), D_80033F28[idx + 12], 0x81);
+    arg1 = textDrawStringVtx(arg1, 1, sp174 * 4.0f, sp170 * 4.0f, D_80033F28[idx + 12], 0x81);
     if (idx == 0) {
         _sprintf(sp98, "%s %d", D_80033F28[14], D_80744538 + 1);
         func_800317E8(temp_s2, 160.0f, 207.0f, &sp174, &sp170, 2, 0, 0.7f);
-        arg1 = hudDrawScaledText(arg1, (s16)(sp174 * 4.0f), (s16)(sp170 * 4.0f), 0.6f, sp98);
+        arg1 = hudDrawScaledText(arg1, sp174 * 4.0f, sp170 * 4.0f, 0.6f, sp98);
     }
     gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
     for (i = 0; i != 0x1000; i += 0x800) {
@@ -1160,13 +1160,13 @@ Gfx *func_8002B708(MenuScreenActor *arg0, Gfx *arg1) {
         }
         gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
         func_800317E8(sp164, 160.0f, 25.0f, &sp154, &sp150, 2, 0, 0.6f);
-        arg1 = textDrawStringVtx(arg1, 1, (s16)(sp154 * 4.0f), (s16)(sp150 * 4.0f), D_80033F28[D_8076A104 + 12], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp154 * 4.0f, sp150 * 4.0f, D_80033F28[D_8076A104 + 12], 0x81);
     }
     if (sp164->unkC < -1.0f && sp164->unkC > -479.0f) {
         gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
         func_800317E8(sp164, 160.0f, 30.0f, &sp154, &sp150, 2, 0, 1.5f);
         sp150 = sp150 + 240.0f;
-        arg1 = textDrawStringVtx(arg1, 1, 0x280, (s16)(sp150 * 4.0f), D_80033F28[15], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, 0x280, sp150 * 4.0f, D_80033F28[15], 0x81);
         idx = sp164->unk17;
         if (sp164->unk4 != 0.0f) {
             if (sp164->unk4 > 0.5f) {
@@ -1188,7 +1188,7 @@ Gfx *func_8002B708(MenuScreenActor *arg0, Gfx *arg1) {
         sp40 = v;
         func_800317E8(sp164, sp40 + 160.0, 80.0f, &sp154, &sp150, 2, 0, 2.0f);
         sp150 = sp150 + 240.0f;
-        arg1 = textDrawStringVtx(arg1, 1, (s16)(sp154 * 4.0f), (s16)(sp150 * 4.0f), D_80033F28[idx + 16], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp154 * 4.0f, sp150 * 4.0f, D_80033F28[idx + 16], 0x81);
         func_800317E8(sp164, 160.0 - sp40, 160.0f, &sp154, &sp150, 2, 0, 1.5f);
         sp150 = sp150 + 240.0f;
         sp138 = (s16)(sp150 * 4.0f);
@@ -1218,13 +1218,13 @@ Gfx *func_8002B708(MenuScreenActor *arg0, Gfx *arg1) {
             _sprintf(sp70, "%d", D_80744520);
             break;
         }
-        arg1 = textDrawStringVtx(arg1, 1, (s16)(sp154 * 4.0f), sp138, sp70, 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp154 * 4.0f, sp138, sp70, 0x81);
     }
     if (sp164->unkC < -241.0f) {
         gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
         func_800317E8(sp164, 160.0f, 40.0f, &sp154, &sp150, 2, 0, 1.5f);
         sp150 = sp150 + 480.0f;
-        arg1 = textDrawStringVtx(arg1, 1, 0x280, (s16)(sp150 * 4.0f), D_80033F28[28], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, 0x280, sp150 * 4.0f, D_80033F28[28], 0x81);
         func_800317E8(sp164, 160.0f, 180.0f, &sp154, &sp150, 2, 0, 1.5f);
         sp150 = (sp150 + 480.0f) * 4.0f;
         sp154 = (sp154 + 16.0f) * 4.0f;
@@ -1685,7 +1685,7 @@ Gfx *menuFormatOptionValues(MenuScreenActor *arg0, Gfx *arg1) {
     D_807FBB60 &= ~0x10;
     func_800317E8(sp64, 160.0f, 20.0f, &sp58, &sp54, 2, 0, 1.5f);
     arg1 = menuDrawScrollSelector(
-        textDrawStringVtx(arg1, 1, 0x280, (s16)(sp54 * 4.0f), D_80033F28[0x20], 0x81),
+        textDrawStringVtx(arg1, 1, 0x280, sp54 * 4.0f, D_80033F28[0x20], 0x81),
         sp64,
         D_80033F28 + 0x21,
         4,
@@ -1702,13 +1702,13 @@ Gfx *menuFormatOptionValues(MenuScreenActor *arg0, Gfx *arg1) {
 
     switch (sp60) {
     case 0:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp58, sp4C, D_80033F28[D_80745844 + 0x25], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp58, sp4C, D_80033F28[D_80745844 + 0x25], 0x81);
         break;
     case 1:
     case 2:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp58, sp4C, D_80033F28[0x28], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp58, sp4C, D_80033F28[0x28], 0x81);
         _sprintf(sp40, "%d", ((sp60 == 1 ? D_8074583C : D_80745840) + 1) >> 1);
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp58, sp4C + 0x78, sp40, 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp58, sp4C + 0x78, sp40, 0x81);
         break;
     case 3:
         D_80033674 = 0;
@@ -1851,7 +1851,7 @@ Gfx *func_8002DBDC(MenuScreenActor *arg0, Gfx *arg1) {
     D_807FBB60 &= ~0x10;
     func_800317E8(sp6C, 160.0f, 20.0f, &sp64, &sp60, D_800338FC, 0, 1.5f);
     arg1 = menuDrawScrollSelector(
-        textDrawStringVtx(arg1, 1, 0x280, (s16)(sp60 * 4.0f), D_80033F28[0x29], 0x81),
+        textDrawStringVtx(arg1, 1, 0x280, sp60 * 4.0f, D_80033F28[0x29], 0x81),
         sp6C,
         D_80033F28 + 0x2A,
         D_800338FC,
@@ -1868,19 +1868,19 @@ Gfx *func_8002DBDC(MenuScreenActor *arg0, Gfx *arg1) {
 
     switch (sp68) {
     case 0:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, D_80033F28[D_807444C0 + 0x2F], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp64, y + 0x40, D_80033F28[D_807444C0 + 0x2F], 0x81);
         break;
     case 1:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, D_80033F28[D_8074452C + 0x31], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp64, y + 0x40, D_80033F28[D_8074452C + 0x31], 0x81);
         break;
     case 2:
         D_80033674 = 0;
         break;
     case 3:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, D_80033F28[D_80744530 + 0x34], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp64, y + 0x40, D_80033F28[D_80744530 + 0x34], 0x81);
         break;
     case 4:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, D_80033F28[0x33], 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp64, y + 0x40, D_80033F28[0x33], 0x81);
         break;
     }
 
@@ -2059,26 +2059,26 @@ Gfx *func_8002E420(MenuScreenActor *arg0, Gfx *arg1) {
     if (D_80033988[sp118] > 0) {
         switch (sp118) {
         case 0:
-            arg1 = textDrawStringVtx(arg1, 1, (s16)sp114, y + 0x40, D_80033F28[D_8074453C[0] + 0x3C], 0x81);
+            arg1 = textDrawStringVtx(arg1, 1, sp114, y + 0x40, D_80033F28[D_8074453C[0] + 0x3C], 0x81);
             break;
         case 1:
-            arg1 = textDrawStringVtx(arg1, 1, (s16)sp114, y + 0x40, D_80033F28[D_8074453D + 0x52], 0x81);
+            arg1 = textDrawStringVtx(arg1, 1, sp114, y + 0x40, D_80033F28[D_8074453D + 0x52], 0x81);
             break;
         case 2:
-            arg1 = textDrawStringVtx(arg1, 1, (s16)sp114, y + 0x40, D_80033F28[D_8074453E + 0x4A], 0x81);
+            arg1 = textDrawStringVtx(arg1, 1, sp114, y + 0x40, D_80033F28[D_8074453E + 0x4A], 0x81);
             break;
         case 3:
             _sprintf(sp40, "%s:%s", D_80033F28[0x5E], D_80033F28[(D_80744544 & 1) + 0x31]);
-            arg1 = textDrawStringVtx(arg1, 1, (s16)sp114, y + 0x40, sp40, 0x81);
+            arg1 = textDrawStringVtx(arg1, 1, sp114, y + 0x40, sp40, 0x81);
             break;
         case 4:
             sel = D_80744540;
             _sprintf(sp40, "%s:%s", D_80033F28[sel + 0x56], D_80033F28[(((1 << (sel + 1)) & D_80744544) != 0) + 0x31]);
-            arg1 = textDrawStringVtx(arg1, 1, (s16)sp114, y + 0x40, sp40, 0x81);
+            arg1 = textDrawStringVtx(arg1, 1, sp114, y + 0x40, sp40, 0x81);
             break;
         }
     } else {
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp114, y + 0x40, "???", 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, sp114, y + 0x40, "???", 0x81);
     }
     return arg1;
 }
@@ -2523,9 +2523,9 @@ Gfx *menuDrawScrollSelector(Gfx *arg0, Menu3B_Sub174 *arg1, char **arg2, s32 arg
     func_800317E8(arg1, v + 160.0, arg7, &sp3C, &sp38, 2, 0, 2.0f);
     y = (s16)(sp38 * 4.0f);
     if (arg8 & (1 << idx)) {
-        arg0 = textDrawStringVtx(arg0, arg5, (s16)(sp3C * 4.0f), y, arg2[idx], 0x81);
+        arg0 = textDrawStringVtx(arg0, arg5, sp3C * 4.0f, y, arg2[idx], 0x81);
     } else {
-        arg0 = textDrawStringVtx(arg0, arg5, (s16)(sp3C * 4.0f), y, D_800339C4, 0x81);
+        arg0 = textDrawStringVtx(arg0, arg5, sp3C * 4.0f, y, D_800339C4, 0x81);
     }
     *arg6 = v;
     *arg4 = idx;
