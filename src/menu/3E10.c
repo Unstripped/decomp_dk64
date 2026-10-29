@@ -5,15 +5,20 @@ typedef struct MenuScreenActor {
     void *unk174;
 } MenuScreenActor;
 
-typedef struct Menu3R1_Struct174 {
+typedef struct MenuScreenState {
     f32 unk0;
     f32 unk4;
-    char pad[0xB];
+    char pad8[4];
+    s16 unkC;
+    s16 unkE;
+    s16 unk10;
+    s8 unk12;
     s8 unk13;
-    char pad2[2];
+    char pad14;
+    s8 unk15;
     s8 unk16;
     s8 unk17;
-} Menu3R1_Struct174;
+} MenuScreenState;
 
 extern s8 D_80745844;
 void configureCSPOutputMode(s32);
@@ -31,14 +36,6 @@ void menuSetAudioMode(void) {
     configureCSPOutputMode(val);
 }
 
-typedef struct Menu3A_Struct7E60 {
-    f32 unk0;
-    char pad[0xE];
-    s8 unk12;
-    char pad2[3];
-    s8 unk16;
-} Menu3A_Struct7E60;
-
 Gfx *menuUpdateStateDispatch();
 void camEndPath(s32);
 s32 func_80609140(s32, s32, f32, f32, s32, s32);
@@ -46,7 +43,7 @@ extern s8 D_80033734;
 extern s32 gCamActor;
 
 void func_80027E60(MenuScreenActor *arg0, s32 arg1) {
-    Menu3A_Struct7E60 *temp_v0 = arg0->unk174;
+    MenuScreenState *temp_v0 = arg0->unk174;
     s32 var_v1 = 0;
 
     if (D_80033734 != 0) {
@@ -157,7 +154,7 @@ void func_8067AB20(s32, s32, s32, s32, void *, s32);
 void gfxSetBackgroundBlend(f32);
 void lightSetColor(f32, f32, f32, s32);
 void menuHandleScrollInput();
-void menuUpdateItemTransition(void *, void *, s32);
+void menuUpdateItemTransition(void *, MenuScreenState *, s32);
 void menuUpdateScrollAnimation();
 void spawnNodesSetActorStateByFlag(s32, s32);
 
@@ -343,7 +340,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
 #endif
 
 extern char **D_80033F28;
-s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
+s32 func_800317E8(MenuScreenState *, f32, f32, f32 *, f32 *, s32, s8, f32);
 
 void *func_80610FE8(s32);
 void heapFreeDeferred(void *);
@@ -394,12 +391,12 @@ extern u8 D_807210EC;
 extern u8 D_80721170;
 extern u8 D_807211D0;
 extern u8 D_80721444;
-void func_80030894(void *, void *, s32, s32, f32, s32, s32);
+void func_80030894(MenuScreenState *, void *, s32, s32, f32, s32, s32);
 s32 func_8060C6B8(s32, s32, u8, s32);
 s32 flagGet(s16, u8);
 
 void func_80028834(MenuScreenActor *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
+    MenuScreenState *temp_s0 = arg0->unk174;
 
     D_800337F8 = 0;
     D_800337F4 = 0;
@@ -446,11 +443,11 @@ void func_80028C18(void) {
 
 void menuHandleScrollInput();
 void menuUpdateScrollAnimation();
-void menuUpdateItemTransition(void *, void *, s32);
+void menuUpdateItemTransition(void *, MenuScreenState *, s32);
 extern s8 D_80033F48;
 
 void menuHandleSelectionInput(MenuScreenActor *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
+    MenuScreenState *temp_s0 = arg0->unk174;
 
     if (temp_s0->unk0 == 0.0f) {
         if (temp_s0->unk4 == 0.0f) {
@@ -516,7 +513,7 @@ extern u8 D_80720D14;
 extern u8 D_807204BC;
 
 void func_80028EA8(MenuScreenActor *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
+    MenuScreenState *temp_s0 = arg0->unk174;
 
     temp_s0->unk17 = D_8076A0D2;
     func_80030894(temp_s0, &D_80720C34, 0xA0, 0x78, 0.75f, 2, 4);
@@ -555,17 +552,6 @@ void menuCheckCheatCodeSequence(void) {
         D_80033818 = 0;
     }
 }
-
-typedef struct MenuScreenState {
-    f32 unk0;
-    f32 unk4;
-    char pad[0xB];
-    s8 unk13;
-    char pad14;
-    s8 unk15;
-    s8 unk16;
-    s8 unk17;
-} MenuScreenState;
 
 void menuUpdateCameraPositions(void);
 void controllerSetActiveMask(s32);
@@ -686,7 +672,6 @@ extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 extern u32 D_80671880;
-void func_80030894(void *, void *, s32, s32, f32, s32, s32);
 void func_8060DC3C(s32, s32);
 s32 menuCalculateGamePercentage(void);
 
@@ -774,7 +759,6 @@ void menuHandleFileSelectInput(MenuScreenActor *arg0, s32 arg1) {
     menuUpdateItemTransition(arg0, temp_s0, 1);
 }
 
-s32 func_800317E8(void *, f32, f32, f32 *, f32 *, s32, s8, f32);
 
 #ifdef NON_MATCHING
 Gfx *menuDrawFileSlotLabel(void *arg0, Gfx *arg1) {
@@ -848,7 +832,7 @@ void func_8060C830(u8, s32);
 extern s8 D_80033FAC;
 
 void menuMysteryHandleInput(MenuScreenActor *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
+    MenuScreenState *temp_s0 = arg0->unk174;
 
     if (temp_s0->unk0 == 0.0f && temp_s0->unk4 == 0.0f) {
         if (arg1 & 1) {
@@ -932,7 +916,7 @@ extern s8 D_80744538;
 extern s8 D_8076A104;
 
 void menuBossReplayHandleInput(MenuScreenActor *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
+    MenuScreenState *temp_s0 = arg0->unk174;
 
     if (temp_s0->unk0 == 0.0f) {
         if (temp_s0->unk4 == 0.0f) {
@@ -1131,14 +1115,6 @@ s32 menuPrevFreeControllerSlot(s32 arg0) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuHandleControllerSlotInput.s")
 
-typedef struct MenuL4_S174 {
-    f32 unk0;
-    f32 unk4;
-    char pad8[4];
-    s16 unkC;
-    char padE[9];
-    s8 unk17;
-} MenuL4_S174;
 extern f32 D_80033F44;
 extern s8 D_80033FAD;
 extern s8 D_80033850[];
@@ -1150,7 +1126,7 @@ extern s8 D_8076A0E7;
 Gfx *menuSetElementCoordinates(Gfx *, s32, f32, f32, f32);
 
 Gfx *func_8002B708(MenuScreenActor *arg0, Gfx *arg1) {
-    MenuL4_S174 *sp164 = arg0->unk174;
+    MenuScreenState *sp164 = arg0->unk174;
     s32 padA0;
     s32 idx;
     s32 id;
@@ -1576,7 +1552,7 @@ s32 func_8060C648(s32, s32, u8, s32, s32);
 void func_8060DEA8(void);
 
 void menuHandleSoundOptionsInput(MenuScreenActor *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
+    MenuScreenState *temp_s0 = arg0->unk174;
     s8 flag = 0;
 
     menuCheckCheatCodeSequence();
@@ -1673,8 +1649,7 @@ void menuHandleSoundOptionsInput(MenuScreenActor *arg0, s32 arg1) {
 
 extern s16 D_80033674;
 extern s8 D_80745844;
-struct Menu3B_Sub174;
-Gfx *menuDrawScrollSelector(Gfx *, struct Menu3B_Sub174 *, char **, s32, u32 *, s16, f32 *, f32, s16);
+Gfx *menuDrawScrollSelector(Gfx *, MenuScreenState *, char **, s32, u32 *, s16, f32 *, f32, s16);
 
 Gfx *menuFormatOptionValues(MenuScreenActor *arg0, Gfx *arg1) {
     void *sp64;
@@ -1724,33 +1699,16 @@ Gfx *menuFormatOptionValues(MenuScreenActor *arg0, Gfx *arg1) {
     return arg1;
 }
 
-typedef struct Menu3B_Sub174 {
-    char pad[4];
-    f32 unk4;
-    char pad8[0xF];
-    s8 unk17;
-} Menu3B_Sub174;
-
 extern u8 D_80720D38;
 
 void func_8002D7EC(MenuScreenActor *arg0, s32 arg1) {
 
-    Menu3B_Sub174 *temp_a0 = arg0->unk174;
+    MenuScreenState *temp_a0 = arg0->unk174;
     temp_a0->unk17 = 0;
     func_80030894(temp_a0, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     func_80030894(temp_a0, &D_80720C34, 0xA0, 0x7D, 0.75f, 2, 4);
     func_80030894(temp_a0, &D_80720D38, 0xA0, 0xC8, 1.0f, 2, 0xC);
 }
-
-typedef struct Menu3M7_Sub174 {
-    f32 unk0;
-    f32 unk4;
-    char pad8[0xB];
-    s8 unk13;
-    char pad14[2];
-    s8 unk16;
-    u8 unk17;
-} Menu3M7_Sub174;
 
 extern s8 D_800338FC;
 extern s8 D_807444C0;
@@ -1763,7 +1721,7 @@ void func_8060C8AC(s32);
 void menuLoadTextTable(void);
 
 void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
-    Menu3M7_Sub174 *temp_s1 = arg0->unk174;
+    MenuScreenState *temp_s1 = arg0->unk174;
     s8 flag = 0;
     s32 i;
 
@@ -1894,7 +1852,7 @@ Gfx *func_8002DBDC(MenuScreenActor *arg0, Gfx *arg1) {
 }
 
 void func_8002DEE8(MenuScreenActor *arg0, s32 arg1) {
-    Menu3B_Sub174 *temp_a0 = arg0->unk174;
+    MenuScreenState *temp_a0 = arg0->unk174;
     temp_a0->unk17 = 0;
     func_80030894(temp_a0, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     func_80030894(temp_a0, &D_80720C34, 0xA0, 0x7D, 0.75f, 2, 4);
@@ -1925,7 +1883,7 @@ void func_807127F4(s32);
 void func_807126B0(s16, s32, s16, s8, s32, s32, s32);
 
 void func_8002DFA8(MenuScreenActor *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s1 = arg0->unk174;
+    MenuScreenState *temp_s1 = arg0->unk174;
     s8 flag = 0;
     s8 cnt;
     s8 sel;
@@ -2093,7 +2051,7 @@ extern s8 D_8076A0DA;
 
 
 void func_8002E8B8(MenuScreenActor *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = (Menu3R1_Struct174 *)arg0->unk174;
+    MenuScreenState *temp_s0 = arg0->unk174;
     s32 j;
     s32 i;
     s8 n;
@@ -2260,7 +2218,7 @@ extern u32 D_8076A064;
 extern MenuM8_PosPair D_800339B8[];
 
 void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
-    Menu3R1_Struct174 *sp2C = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+    MenuScreenState *sp2C = *(MenuScreenState **)((u8 *)arg0 + 0x174);
     MenuHighScoreEntry *table;
     s8 v1;
     s32 v0;
@@ -2425,7 +2383,7 @@ s32 menuDrawHighScoreTable(void *arg0, s32 arg1) {
 extern s8 D_80033F60;
 
 void func_8002F6C8(MenuScreenActor *arg0, s32 arg1) {
-    Menu3B_Sub174 *sp2C = arg0->unk174;
+    MenuScreenState *sp2C = arg0->unk174;
 
     if (D_80033F60 == -1) {
         func_80030894(sp2C, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
@@ -2502,7 +2460,7 @@ void menuUpdateCameraPositions(void) {
 extern char D_800339C4[];
 extern f32 D_80033F44;
 
-Gfx *menuDrawScrollSelector(Gfx *arg0, Menu3B_Sub174 *arg1, char **arg2, s32 arg3, u32 *arg4, s16 arg5, f32 *arg6, f32 arg7, s16 arg8) {
+Gfx *menuDrawScrollSelector(Gfx *arg0, MenuScreenState *arg1, char **arg2, s32 arg3, u32 *arg4, s16 arg5, f32 *arg6, f32 arg7, s16 arg8) {
     s32 idx = arg1->unk17;
     f32 v;
     f32 sp3C;
@@ -2552,19 +2510,9 @@ Gfx *menuSetElementCoordinates(Gfx *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4
     return arg0;
 }
 
-typedef struct Menu3R3_StructFC1C {
-    f32 unk0;
-    char pad4[0xE];
-    s8 unk12;
-    s8 unk13;
-    char pad14[2];
-    s8 unk16;
-} Menu3R3_StructFC1C;
-
 extern s8 D_80033F50;
 
-void menuUpdateItemTransition(void *arg0, void *arg1_raw, s32 arg2) {
-    Menu3R3_StructFC1C *arg1 = (Menu3R3_StructFC1C *)arg1_raw;
+void menuUpdateItemTransition(void *arg0, MenuScreenState *arg1, s32 arg2) {
     if (!arg1->unk16) {
         arg1->unk0 += 0.13f;
         if (arg1->unk0 > 1.3f) {
@@ -2591,7 +2539,7 @@ void menuUpdateItemTransition(void *arg0, void *arg1_raw, s32 arg2) {
 extern s8 D_800337F0;
 
 
-void menuHandleScrollInput(Menu3B_Sub174 *arg0, s32 arg1, s32 arg2) {
+void menuHandleScrollInput(MenuScreenState *arg0, s32 arg1, s32 arg2) {
     if (arg2 & 4) {
         func_80609140(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         D_80033F44 = -0.1f;
@@ -2609,7 +2557,7 @@ void menuHandleScrollInput(Menu3B_Sub174 *arg0, s32 arg1, s32 arg2) {
 }
 
 
-void menuUpdateScrollAnimation(Menu3B_Sub174 *arg0, s32 arg1) {
+void menuUpdateScrollAnimation(MenuScreenState *arg0, s32 arg1) {
     if (D_80033F44 > 0.0f) {
         arg0->unk4 += D_80033F44;
         if (arg0->unk4 >= 1.0f) {
@@ -2637,19 +2585,6 @@ typedef struct Menu10_Sub174 {
     u16 unk23C;
 } Menu10_Sub174;
 
-typedef struct MenuM9_Sub174 {
-    f32 unk0;
-    f32 unk4;
-    char pad8[4];
-    s16 unkC;
-    s16 unkE;
-    s16 unk10;
-    s8 unk12;
-    char pad13[3];
-    s8 unk16;
-    s8 unk17;
-} MenuM9_Sub174;
-
 extern u8 D_8076A0D0[];
 extern s8 D_80033738;
 extern f32 D_8003369C;
@@ -2665,7 +2600,7 @@ void *func_80610FE8(s32);
 void menuInitGfxState(Gfx *, s32);
 
 void menuInit(void) {
-    MenuM9_Sub174 *sub = D_807FBB40->unk174;
+    MenuScreenState *sub = D_807FBB40->unk174;
     Menu10_Sub174 *sp20 = D_807FBB4C->unk174;
     s32 i;
 
@@ -2775,16 +2710,6 @@ typedef struct MenuStickAxis {
     s8 unk3;
 } MenuStickAxis;
 
-typedef struct MenuDispatch174 {
-    char pad0[0xC];
-    s16 unkC;
-    s16 unkE;
-    char pad10[2];
-    s8 unk12;
-    char pad13[4];
-    s8 unk17;
-} MenuDispatch174;
-
 extern MenuStickAxis *D_807ECDEC;
 void func_80027FAC();
 Gfx *func_800286C8();
@@ -2812,7 +2737,7 @@ void menuHandleHighScoreNameEntryInput();
 void lightSetColor(f32, f32, f32, s32);
 
 Gfx *menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, Gfx *arg2, s32 arg3) {
-    MenuDispatch174 *temp_t0 = arg0->unk174;
+    MenuScreenState *temp_t0 = arg0->unk174;
     s32 sp18 = 0;
 
     if (*D_807FC924->unk298 & 0x8000) {
@@ -3029,7 +2954,7 @@ void func_80714A28(s32);
 void func_80030C14();
 f32 sqrtf(f32);
 
-void func_80030894(void *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5, s32 arg6) {
+void func_80030894(MenuScreenState *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5, s32 arg6) {
     Menu10_Fx *sp3C;
     Menu10_Burst *sp38;
     f32 sp34;
@@ -3047,7 +2972,7 @@ void func_80030894(void *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
     sp38 = func_80610FE8(0x28);
     sp3C->unk384 = sp38;
     sp38->unk0 = arg6;
-    sp38->unk4 = ((MenuScreenState *)arg0)->unk15;
+    sp38->unk4 = arg0->unk15;
     sp38->unk8 = sp3C->unk340;
     sp38->unkC = sp3C->unk344;
     switch (arg6) {
@@ -3470,16 +3395,7 @@ s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *ar
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8003155C.s")
 #endif
 
-typedef struct Menu10_Sel {
-    f32 unk0;
-    f32 unk4;
-    char pad8[4];
-    s16 unkC;
-    char padE[9];
-    s8 unk17;
-} Menu10_Sel;
-
-s32 func_800317E8(void *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 *arg4, s32 arg5, s8 arg6, f32 arg7) {
+s32 func_800317E8(MenuScreenState *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 *arg4, s32 arg5, s8 arg6, f32 arg7) {
     f32 dist;
     f32 f;
     f32 t;
@@ -3492,8 +3408,8 @@ s32 func_800317E8(void *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 *arg4, s32 arg5
     if (dist < 20.0f) {
         dist = 20.0f;
     }
-    f = ((Menu10_Sel *)arg0)->unk4;
-    idx = ((Menu10_Sel *)arg0)->unk17;
+    f = arg0->unk4;
+    idx = arg0->unk17;
     if (t != f) {
         if (f > 0.5f) {
             idx += 1;
@@ -3502,7 +3418,7 @@ s32 func_800317E8(void *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 *arg4, s32 arg5
             idx -= arg5;
         }
     }
-    t = ((Menu10_Sel *)arg0)->unk0 * 0.5f;
+    t = arg0->unk0 * 0.5f;
     if (arg6 == 1) {
         t += f;
     }
@@ -3517,7 +3433,7 @@ s32 func_800317E8(void *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 *arg4, s32 arg5
     t = ((100.0f / dist) * t * arg7) + 1.0f;
     *arg3 = (arg1 * t) + 160.0f;
     *arg4 = (arg2 * t) + 120.0f;
-    *arg4 = *arg4 + ((Menu10_Sel *)arg0)->unkC;
+    *arg4 = *arg4 + arg0->unkC;
     return idx;
 }
 
