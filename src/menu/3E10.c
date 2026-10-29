@@ -2560,16 +2560,12 @@ extern f32 D_80033F80[];
 extern f32 D_80033F98[];
 
 s32 menuSetElementCoordinates(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4) {
-    f32 four = 4.0f;
-    f64 d1 = 32.0;
-    f64 d2 = 100.0;
-
     arg1 &= 0x7F;
-    arg2 = arg2 * four;
-    arg3 = arg3 * four;
-    *(f32 *)((u8 *)D_80033F68 + arg1 * 4) = (f64)arg2 - d1;
-    *(f32 *)((u8 *)D_80033F80 + arg1 * 4) = (f64)arg3 - d2;
-    *(f32 *)((u8 *)D_80033F98 + arg1 * 4) = (f64)arg4 * 1.333;
+    arg2 *= 4.0f;
+    arg3 *= 4.0f;
+    D_80033F68[arg1] = arg2 - 32.0;
+    D_80033F80[arg1] = arg3 - 100.0;
+    D_80033F98[arg1] = arg4 * 1.333;
     return arg0;
 }
 
