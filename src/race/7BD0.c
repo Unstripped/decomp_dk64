@@ -1140,10 +1140,8 @@ typedef struct RaceVec3f {
 } RaceVec3f;
 
 f32 func_8002DDA0(f32 arg0, RaceCurvePoint *arg1) {
-    s32 pad3C;
-    f32 sp38;
-    f32 ret;
     u8 i;
+    f32 ret;
     s32 found;
 
     found = 0;
@@ -1151,9 +1149,7 @@ f32 func_8002DDA0(f32 arg0, RaceCurvePoint *arg1) {
     if (arg0 < arg1[0].x) {
         ret = arg1[0].y;
         found = 1;
-        sp38 = ret;
     }
-    ret = sp38;
     if (found == 0) {
         do {
             f32 x = arg1[i].x;
