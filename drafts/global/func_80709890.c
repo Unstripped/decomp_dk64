@@ -1,4 +1,4 @@
-// func_80709890 (src/global/10E1D0.c): stage 6 (NM6 base unchanged, 15 diff lines, regs only; NM9 diagnosis): in uopt -l 5 the loop walker p (cand M -20, merged loops 1+3) has intrinsic forbidden [v0,v1] because its def block holds the call-return v0 (R) and the loaded-value temp (M -28, adj 22) takes v1 first; target has p=v0, loaded=v1, unk8/unkC/unk18 = a0/a1/a3. A dead 'if (arg0 && arg0) {}' after the 3rd call (new bb) frees v0 (loaded temp then takes v0 and p v1: swapped) and a dead 'if (p) {}' before the loop-3 walker raises p priority -> p=v0, loaded=v1 (matches) but score 20 (unk18 stays in a reg, 28 const to a1). Searched: deadsweep (-extra all), random dead-stmt SA 1400s from base and from that variant, loop forms, p/r separate vars, reordering the 3rd call store, moving k&&k: none below 15. Untested: one walker variable shared by all three loops (priority sum) with p+=7 stride form.
+// func_80709890 (src/global/10E1D0.c): stage 6 (the 15-line figure was WITH a dead `if (k && k) {}` read before k is assigned; removed as an uninitialised read, re-measure; NM6 base unchanged, 15 diff lines, regs only; NM9 diagnosis): in uopt -l 5 the loop walker p (cand M -20, merged loops 1+3) has intrinsic forbidden [v0,v1] because its def block holds the call-return v0 (R) and the loaded-value temp (M -28, adj 22) takes v1 first; target has p=v0, loaded=v1, unk8/unkC/unk18 = a0/a1/a3. A dead 'if (arg0 && arg0) {}' after the 3rd call (new bb) frees v0 (loaded temp then takes v0 and p v1: swapped) and a dead 'if (p) {}' before the loop-3 walker raises p priority -> p=v0, loaded=v1 (matches) but score 20 (unk18 stays in a reg, 28 const to a1). Searched: deadsweep (-extra all), random dead-stmt SA 1400s from base and from that variant, loop forms, p/r separate vars, reordering the 3rd call store, moving k&&k: none below 15. Untested: one walker variable shared by all three loops (priority sum) with p+=7 stride form.
 typedef struct EaEntry {
     u32 unk0;
     u8 pad[0x18];
@@ -39,7 +39,6 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
         return 0;
     }
     gFbTileTable = func_80610FE8(0x708);
-    if (k && k) {}
     arg0->unk10 = func_80610FE8(arg0->unk0 * 0x10);
     arg0->unk14 = func_80610FE8(arg0->unk0 * 0x10);
     arg0->unk8 = (u8 *)arg0 + 0x2C;

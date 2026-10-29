@@ -150,7 +150,6 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
         return 0;
     }
     gFbTileTable = func_80610FE8(0x708);
-    if (k && k) {}
     arg0->unk10 = func_80610FE8(arg0->unk0 * 0x10);
     arg0->unk14 = func_80610FE8(arg0->unk0 * 0x10);
     arg0->unk8 = (u8 *)arg0 + 0x2C;

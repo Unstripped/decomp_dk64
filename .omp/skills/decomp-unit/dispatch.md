@@ -104,7 +104,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   stage 4+ (same blocks, saved registers and frame) stays parked; turn the rest back into
   the bare pragma with the draft kept.
   A stage-6 park is not proof of equivalence (201B0: a parked clamp was a min, the asm a
-  max); a fresh-eyes pass on a sibling's park checks branch sense first.
+  max); a fresh-eyes pass on a sibling's park checks branch sense first. Reject dead tests
+  on a local before its first assignment (`if (step == 0) {}`, `if (k && k) {}`): an
+  uninitialised read is not equivalent C; grep every park's dead `if` locals before merging.
 - An agent whose last message answers a late async notice ("earlier report stands") hides
   its report: read `history://<id>` and take the last `## 1.` section.
 - Save every report as it arrives: append `read agent://<id>` to `.scratch/all-reports.md`
