@@ -78,12 +78,27 @@ Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *arg1) {
 }
 
 
+struct Struct_BB40_58;
+
 typedef struct {
+    char *unk0[2];
+    u8 unk8;
+    char pad9[7];
+    Mtx unk10[2];
+    s32 unk90;
+    struct Struct_BB40_58 *unk94;
+} MenuWidgetState;
+
+typedef struct Struct_BB40_58 {
     char pad0[0x58];
     s32 unk58;
     char pad5C[4];
     s32 unk60;
-    char pad64[0x178 - 0x64];
+    char pad64[0x154 - 0x64];
+    u8 unk154;
+    u8 unk155;
+    char pad156[0x174 - 0x156];
+    MenuWidgetState *unk174;
     Struct_80025D14 *unk178;
 } Struct_BB40_58;
 extern Struct_BB40_58 *D_807FBB40;
@@ -113,7 +128,9 @@ void menuUpdateAllBitgridSlots(Struct_80025D14 *arg0, u8 arg1) {
 }
 
 typedef struct {
-    char pad0[0x2E2];
+    char pad0[4];
+    Struct_BB40_58 *unk4;
+    char pad8[0x2E2 - 8];
     u16 unk2E2;
 } MenuM1_C924;
 extern MenuM1_C924 *D_807FC924;
@@ -123,7 +140,7 @@ void slotQueueAddValue(s32, s32, s16);
 void healthRefill(s32);
 void func_8060DEC8(void);
 
-void menuApplyPurchase(Struct_80025D14 *arg0, s32 arg1) {
+void menuApplyPurchase(Struct_80025D14 *arg0, u8 *arg1) {
     s16 sp1E = -1;
     u8 sp1D = func_806F6E58(D_8074E77C);
 
@@ -178,16 +195,6 @@ extern u16 D_80750AC8;
 extern u8 D_807FCC4C;
 
 typedef struct {
-    char pad0[4];
-    s16 unk4;
-    char pad6[5];
-    s8 unkB;
-    u8 unkC;
-    char padD[3];
-    u8 unk10;
-    s8 unk11;
-} MenuM1_State;
-typedef struct {
     s16 unk0;
     s16 unk2;
     s16 unk4;
@@ -198,9 +205,7 @@ extern MenuM1_Entry D_80033408[][7];
 extern u8 D_8076A0AB;
 s32 func_805FF030(s32, s32);
 
-#define M1S ((MenuM1_State *)arg0)
-#define M1A ((u8 *)arg1)
-void func_80025FB4(void *arg0, void *arg1, s32 arg2) {
+void func_80025FB4(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
     MenuM1_Entry *tbl;
     MenuM1_Entry *e;
     s32 found = 0;
@@ -216,7 +221,7 @@ void func_80025FB4(void *arg0, void *arg1, s32 arg2) {
         } while (flagGet(count + 0x1C5, 0) == 0);
     }
     count++;
-    M1S->unkC = func_805FF030(D_8076A0AB, 0);
+    arg0->unkC = func_805FF030(D_8076A0AB, 0);
     switch (D_807FBB40->unk58) {
     case 0xBD:
         tbl = D_80033260[0];
@@ -234,32 +239,32 @@ void func_80025FB4(void *arg0, void *arg1, s32 arg2) {
             switch (tbl[i].unk0) {
             case 2:
             case 4:
-                if (!(M1A[tbl[i].unk0] & (1 << (tbl[i].unk2 + 0x1F)))) {
+                if (!(arg1[tbl[i].unk0] & (1 << (tbl[i].unk2 + 0x1F)))) {
                     found = 1;
                 }
                 break;
             default:
-                if (M1A[tbl[i].unk0] < tbl[i].unk2) {
+                if (arg1[tbl[i].unk0] < tbl[i].unk2) {
                     found = 1;
                 }
                 break;
             }
             if (found != 0) {
-                M1S->unkB = tbl[i].unk0;
-                D_80750AC8 = (M1S->unk4 = tbl[i].unk4);
-                M1S->unk11 = tbl[i].unk2;
+                arg0->unkB = tbl[i].unk0;
+                D_80750AC8 = (arg0->unk4 = tbl[i].unk4);
+                arg0->unk11 = tbl[i].unk2;
             }
         }
     }
     if (found == 0) {
-        M1S->unk4 = 0;
-        M1S->unkB = -1;
-        D_80750AC8 = M1S->unk4;
+        arg0->unk4 = 0;
+        arg0->unkB = -1;
+        D_80750AC8 = arg0->unk4;
         if (count >= 7) {
-            M1S->unkB = -2;
+            arg0->unkB = -2;
         }
     }
-    M1S->unk10 = D_807FCC4C;
+    arg0->unk10 = D_807FCC4C;
 }
 
 s32 slotQueueGetValue(s32, s32);
@@ -320,8 +325,6 @@ typedef struct {
     u8 hi;
     u8 lo;
 } MenuM1_Pair;
-#define M1_ARG1 ((u8 *)arg1)
-#define M1_UNK12(p) (*((u8 *)(p) + 0x12))
 
 void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     MenuM1_Pair *sp44;
@@ -341,7 +344,7 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
         sp44 = NULL;
         sp3C = menuGetOptionAvailability(arg0, arg2);
         currentActorClearFlag();
-        M1_UNK12(arg0) = 0;
+        arg0->unk12 = 0;
         arg0->unkE++;
         switch (D_807FBB40->unk58) {
         case 0xBF:
@@ -351,13 +354,13 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             d = 0xE;
             if (arg0->unkB >= 0) {
                 avail = menuCheckBitgridOtherSlots(arg0, 1);
-                if (M1_ARG1[arg0->unkB] & 1) {
+                if (((u8 *)arg1)[arg0->unkB] & 1) {
                     b = 9;
-                    if (D_807FCC4C < D_800334DD[M1_ARG1[arg0->unkB]]) {
+                    if (D_807FCC4C < D_800334DD[((u8 *)arg1)[arg0->unkB]]) {
                         a = 6;
                         c = 0xD;
                         d = 0xF;
-                        M1_UNK12(arg0) = 1;
+                        arg0->unk12 = 1;
                     } else {
                         a = 5;
                         b = 8;
@@ -419,7 +422,7 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             } else {
                 a = 3;
                 f = 4;
-                if (arg0->unkB >= 0 && (M1_ARG1[arg0->unkB] & 1)) {
+                if (arg0->unkB >= 0 && (((u8 *)arg1)[arg0->unkB] & 1)) {
                     a = 5;
                     f = 6;
                 }
@@ -444,7 +447,7 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 void func_800262A8(Struct_80025D14 *, void *, s32);
 void camResumePath(void);
 
-void menuDispatchSubmenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+void menuDispatchSubmenuAction(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
     switch (arg0->unkE) {
     case 0:
         func_800262A8(arg0, arg1, arg2);
@@ -462,11 +465,11 @@ void menuDispatchSubmenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 
 extern void *D_807FBB4C;
 void func_806F397C(void *, void *, s32, s32);
-void camStartPath(s32, s32, s32);
-void func_80025FB4(void *, void *, s32);
+void camStartPath(void *, s32, s32);
+void func_80025FB4(Struct_80025D14 *, u8 *, s32);
 s32 playerStateQueueCallback(s32, void *, s32);
 
-s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+s32 menuExitSubmenu(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
     s32 flag = flagGet((s16)arg2, 0) == 0;
 
     func_80025FB4(arg0, arg1, flag);
@@ -491,7 +494,7 @@ s32 menuExitSubmenu(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 
 
 
-void menuTransitionToSubmenu(Struct_80025D14 *arg0, void *arg1) {
+void menuTransitionToSubmenu(Struct_80025D14 *arg0, u8 *arg1) {
     arg0->unkA = 1;
     camStartPath(0, 0xF, 1);
     currentActorClearFlag();
@@ -501,11 +504,6 @@ void menuTransitionToSubmenu(Struct_80025D14 *arg0, void *arg1) {
     playerStateQueueCallback(0x1B, D_807FBB40, 0);
 }
 
-typedef struct {
-    char pad0[4];
-    Struct_BB40_58 *unk4;
-} MenuM1b_C924;
-#define M1B_C924 ((MenuM1b_C924 *)D_807FC924)
 extern s32 D_807FBB60;
 s32 slotQueueGetMaxValue(s32, s32);
 
@@ -514,7 +512,7 @@ void slotQueueCancel(s32, s32);
 s32 actorSpawn(s32, s32);
 void func_80614E78(void *, s32);
 
-void func_80026874(Struct_80025D14 *arg0, void *arg1) {
+void func_80026874(Struct_80025D14 *arg0, u8 *arg1) {
     s32 sp24;
     s32 sp20;
 
@@ -533,13 +531,13 @@ void func_80026874(Struct_80025D14 *arg0, void *arg1) {
         if (func_80026250(arg0) == 0) {
             slotQueueCancel(1, 0);
             slotQueueCancel(0xE, 0);
-            menuApplyPurchase(arg0, (s32)arg1);
+            menuApplyPurchase(arg0, arg1);
             switch (arg0->unkB) {
             case 0:
             case 1:
                 playerStateQueueCallback(0x52, 0, 0);
                 D_807FBB60 &= ~0x10030;
-                M1B_C924->unk4->unk60 |= 0x40000000;
+                D_807FC924->unk4->unk60 |= 0x40000000;
                 break;
             case 4:
                 actorSpawn(0x144, 0);
@@ -548,10 +546,10 @@ void func_80026874(Struct_80025D14 *arg0, void *arg1) {
             case 2:
             case 3:
                 actorSpawn(0x144, 0);
-                func_80614E78(M1B_C924->unk4, 0x85);
+                func_80614E78(D_807FC924->unk4, 0x85);
                 break;
             }
-            camStartPath((s32)M1B_C924->unk4, 2, 1);
+            camStartPath(D_807FC924->unk4, 2, 1);
             arg0->unkD = 2;
             arg0->unkE = 0;
         } else {
@@ -583,7 +581,7 @@ void func_80026874(Struct_80025D14 *arg0, void *arg1) {
         }
         slotQueueCancel(1, 0);
         slotQueueCancel(0xE, 0);
-        camStartPath((s32)M1B_C924->unk4, 3, 1);
+        camStartPath(D_807FC924->unk4, 3, 1);
         arg0->unkD = 3;
         arg0->unkE = 0;
         func_8070D8C0(D_807FBB40, sp24, sp20);
@@ -595,8 +593,6 @@ extern u16 D_80033A50[][4];
 extern u16 D_80033A78[];
 extern u16 D_800334E4[];
 
-#define M1B_ARG1 ((u8 *)arg1)
-
 void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     s32 sp2C;
     s32 sp28;
@@ -607,7 +603,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
         if (currentActorTestClearFlag() != 0) {
             sp24 = -1;
             D_807FBB60 |= 0x10030;
-            M1B_C924->unk4->unk60 &= ~0x40000000;
+            D_807FC924->unk4->unk60 &= ~0x40000000;
             sp28 = 0;
             sp2C = -1;
             if (sp2C) {
@@ -615,10 +611,10 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             currentActorClearFlag();
             switch (arg0->unkB) {
             case 0:
-                sp2C = D_80033A50[D_8074E77C][M1B_ARG1[arg0->unkB]];
+                sp2C = D_80033A50[D_8074E77C][((u8 *)arg1)[arg0->unkB]];
             case 1:
                 if (sp2C == -1) {
-                    sp2C = D_80033A78[M1B_ARG1[arg0->unkB]];
+                    sp2C = D_80033A78[((u8 *)arg1)[arg0->unkB]];
                 }
                 sp28 = 8;
                 break;
@@ -674,7 +670,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 void func_805FF898(void);
 void func_806CFF9C(void *);
 
-void func_80026DAC(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+void func_80026DAC(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
     s32 x;
     s32 sp30;
     s32 sp2C;
@@ -727,7 +723,7 @@ void func_80026DAC(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
                     sp24 = 7;
                     v = 4;
                 }
-                if (v >= 0 && (((u8 *)arg1)[v] & 1)) {
+                if (v >= 0 && (arg1[v] & 1)) {
                     if (slotQueueGetValue((u8)sp24, 0) < slotQueueGetMaxValue(sp24, 0)) {
                         func_8070D8C0(D_807FBB40, sp2C, sp28);
                         slotQueueAddValue(sp24, 0, 0x3E7);
@@ -753,9 +749,9 @@ void func_80026DAC(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 }
 
 void func_80026B28(Struct_80025D14 *, void *, s32);
-void func_80026DAC(Struct_80025D14 *, void *, s32);
+void func_80026DAC(Struct_80025D14 *, u8 *, s32);
 
-void menuDispatchCurrentMenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
+void menuDispatchCurrentMenuAction(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
     s32 flag = flagGet((s16)arg2, 0) == 0;
 
     switch (arg0->unkD) {
@@ -774,12 +770,6 @@ void menuDispatchCurrentMenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) 
     }
 }
 
-typedef struct {
-    char pad0[0x154];
-    u8 unk154;
-    u8 unk155;
-} MenuScriptActor;
-#define M3A ((MenuScriptActor *)D_807FBB40)
 extern s32 D_8076A0A8;
 void behaviourFrameBegin(void);
 void func_806BFBF4(void);
@@ -802,12 +792,12 @@ void func_800270E0(void) {
         p = D_807FC950[D_8074E77C];
         if (!(D_807FBB40->unk60 & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
-                M3A->unk155 = 0;
+                D_807FBB40->unk155 = 0;
             } else {
-                M3A->unk155 = 0xFF;
+                D_807FBB40->unk155 = 0xFF;
             }
         }
-        if (M3A->unk155 != 0xFF) {
+        if (D_807FBB40->unk155 != 0xFF) {
             flag = 0x17F;
             if (func_805FF030(D_8076A0AB, 0) != 7) {
                 flag = 0x177;
@@ -826,7 +816,7 @@ void func_800270E0(void) {
                 if (flagGet(0x17F, 0) == 0) {
                     actorScriptStart(D_807FBB40, 0x26E);
                     camStartPath(0, 5, 1);
-                    M3A->unk154 = 0;
+                    D_807FBB40->unk154 = 0;
                     flagSet(0x64, 1, 2);
                 } else {
                     n = 0;
@@ -837,14 +827,14 @@ void func_800270E0(void) {
                     } while (i != 4);
                     if (n != 4) {
                         sp2C = 0;
-                        M3A->unk154 = 3;
+                        D_807FBB40->unk154 = 3;
                     } else {
                         sp2C = 6;
-                        M3A->unk154 = 4;
+                        D_807FBB40->unk154 = 4;
                         st->unkB = 1;
                         st->unk4 = 0;
                         st->unk11 = 1;
-                        menuApplyPurchase(st, (s32)p);
+                        menuApplyPurchase(st, p);
                         flagSet(0x180, 1, 0);
                     }
                     func_806F397C(D_807FBB4C, D_807FBB40, 0, 0x1B);
@@ -853,11 +843,11 @@ void func_800270E0(void) {
                     actorScriptStart(D_807FBB40, 0x26E);
                 }
             }
-            switch (M3A->unk154) {
+            switch (D_807FBB40->unk154) {
             case 0:
                 if (currentActorTestClearFlag() != 0) {
                     func_8070D8C0(D_807FBB40, 8, 0x1C);
-                    M3A->unk154 = 1;
+                    D_807FBB40->unk154 = 1;
                 }
                 break;
             case 1:
@@ -866,35 +856,35 @@ void func_800270E0(void) {
                     currentActorClearFlag();
                     camStartPath(0, 1, 1);
                     func_805FF898();
-                    M3A->unk154 = 2;
+                    D_807FBB40->unk154 = 2;
                 }
                 break;
             case 3:
                 if (currentActorTestClearFlag() != 0) {
                     func_8070D8C0(D_807FBB40, 8, 0x1D);
-                    M3A->unk154 = 1;
+                    D_807FBB40->unk154 = 1;
                 }
                 break;
             case 4:
                 if (currentActorTestClearFlag() != 0) {
                     func_8070D8C0(D_807FBB40, 8, 0x1E);
-                    M3A->unk154 = 5;
+                    D_807FBB40->unk154 = 5;
                 }
                 break;
             case 5:
                 if (!(D_807FBB40->unk60 & 0x02000000)) {
                     camResumePath();
-                    M3A->unk154 = 6;
+                    D_807FBB40->unk154 = 6;
                 }
                 break;
             case 6:
                 if (currentActorTestClearFlag() != 0) {
                     playerStateQueueCallback(0x52, 0, 0);
                     D_807FBB60 &= 0xFFFEFFCF;
-                    M1B_C924->unk4->unk60 |= 0x40000000;
-                    M3A->unk154 = 7;
+                    D_807FC924->unk4->unk60 |= 0x40000000;
+                    D_807FBB40->unk154 = 7;
                     currentActorClearFlag();
-                    camStartPath((s32)M1B_C924->unk4, 2, 1);
+                    camStartPath(D_807FC924->unk4, 2, 1);
                 }
                 break;
             case 7:
@@ -902,7 +892,7 @@ void func_800270E0(void) {
                     D_807FBB60 |= 0x10030;
                     D_80750AC8 = 0xF;
                     func_8070D8C0(D_807FBB40, 8, 0x1F);
-                    M3A->unk154 = 1;
+                    D_807FBB40->unk154 = 1;
                 }
                 break;
             }
@@ -986,15 +976,8 @@ extern Mtx D_2000180;
 typedef struct { s16 unk0; s16 unk2; } Struct_8003353C;
 extern Struct_8003353C D_8003353C[];
 
-typedef struct {
-    s32 unk0[2];
-    u8 unk8;
-    char pad9[7];
-    Mtx unk10[2];
-} Struct_174;
-
-Gfx *menuDrawTransformedWidgets(Gfx *dl, void *arg1) {
-    Struct_174 *fp = *(Struct_174 **)((u8 *)arg1 + 0x174);
+Gfx *menuDrawTransformedWidgets(Gfx *dl, Struct_BB40_58 *arg1) {
+    MenuWidgetState *fp = arg1->unk174;
     s32 i;
 
     gSPDisplayList(dl++, D_1000118);
@@ -1015,14 +998,6 @@ Gfx *menuDrawTransformedWidgets(Gfx *dl, void *arg1) {
 
 
 typedef struct {
-    s32 unk0[2];
-    u8 unk8;
-    char pad9[7];
-    Mtx unk10[2];
-    s32 unk90;
-    Struct_BB40_58 *unk94;
-} MenuWidgetState;
-typedef struct {
     s32 a[2];
 } MenuTextIdPair;
 extern MenuTextIdPair D_8003365C[];
@@ -1040,7 +1015,7 @@ void actorDespawn(void *);
 void renderCallbacksRegister(void *, void *, s32);
 
 void menuUpdateTransformedWidgets(void) {
-    MenuWidgetState *fp = *(MenuWidgetState **)((u8 *)D_807FBB40 + 0x174);
+    MenuWidgetState *fp = D_807FBB40->unk174;
     s32 done = 0;
     Struct_80025D14 *st = NULL;
     f32 mA[4][4];
@@ -1089,7 +1064,7 @@ void menuUpdateTransformedWidgets(void) {
                 fp->unk90 = 0x82;
                 if (st->unk11 == 1) {
                     sp34.a[0] = D_80033634[D_8074E77C];
-                } else if (M1_UNK12(st) == 0) {
+                } else if (st->unk12 == 0) {
                     sp34.a[0] = D_80033648[st->unk11];
                 } else {
                     sp34.a[0] = 0x32;
@@ -1097,7 +1072,7 @@ void menuUpdateTransformedWidgets(void) {
             }
             for (i = 0; i < 2; i++) {
                 if (sp34.a[i] >= 0) {
-                    fp->unk0[i] = (s32)func_8070E750(0x27, sp34.a[i], 0);
+                    fp->unk0[i] = func_8070E750(0x27, sp34.a[i], 0);
                 } else {
                     fp->unk0[i] = 0;
                 }
@@ -1111,13 +1086,13 @@ void menuUpdateTransformedWidgets(void) {
         }
         switch (fp->unk90) {
         case 0x78:
-            M3A->unk154 = 1;
+            D_807FBB40->unk154 = 1;
             break;
         case 0x1E:
-            M3A->unk154 = 2;
+            D_807FBB40->unk154 = 2;
             break;
         }
-        switch (M3A->unk154) {
+        switch (D_807FBB40->unk154) {
         case 1:
             d = (0xFF - fp->unk8 > 0x10) ? 0x10 : 0xFF - fp->unk8;
             fp->unk8 += d;
@@ -1128,7 +1103,7 @@ void menuUpdateTransformedWidgets(void) {
             break;
         }
         if (done == 0) {
-            if (M3A->unk154 != 0) {
+            if (D_807FBB40->unk154 != 0) {
                 renderCallbacksRegister(menuDrawTransformedWidgets, D_807FBB40, 3);
             }
             if (D_807FBB40->unk58 == 0x140) {
