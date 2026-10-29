@@ -1528,19 +1528,19 @@ typedef struct {
 } BonusC_AD10_B;
 
 typedef struct {
-    BonusC_AD10_B *unk0;
+    Actor_BB44 *unk0;
     s8 unk4;
 } BonusC_AD10_S;
 
 void func_8002AD10(void) {
-    Actor_74A0 *a;
+    s32 pad;
     BonusC_AD10_S *sp28;
     Actor_BB44 *v;
     BonusC_AD10_B *sp20;
-    f32 *p;
+    Point3f *p;
 
     sp28 = (BonusC_AD10_S *)D_807FBB40->unk174;
-    v = (Actor_BB44 *)sp28->unk0;
+    v = sp28->unk0;
     sp20 = (BonusC_AD10_B *)v->unk178;
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x2B5, sp20);
@@ -1548,8 +1548,8 @@ void func_8002AD10(void) {
     if (sp28->unk4 == 0 || sp28->unk4 >= 5) {
         D_807FBB40->unk7C = D_807FBB40->unk7C - 1.5;
     }
-    p = (f32 *)*D_807F5FD4 + 9;
-    if (D_807FBB40->unk7C < *p - 50.0) {
+    p = *D_807F5FD4 + 3;
+    if (D_807FBB40->unk7C < p->x - 50.0) {
         if (sp20->unkA > 0) {
             sp20->unkA -= 1;
         }
@@ -1694,8 +1694,7 @@ void func_8002B920(void) {
                 if (temp_s2->unk2A != 0) {
                     temp_s2->unk2A--;
                 }
-                var_v0 = 0;
-                for (; var_v0 < 1; var_v0++) {
+                for (var_v0 = 0; var_v0 < 1; var_v0++) {
                     if (temp_s2->unk2D[var_v0] == 0) {
                         temp_s2->unk2D[var_v0] = 0x1E;
                         var_v0 = 1;
@@ -1704,7 +1703,7 @@ void func_8002B920(void) {
                 BDX->unk154 = 1;
                 sfxPlayFromActorDirect(D_807FBB40, 0x16, 0xFF, 1.0f, 0x14, 0);
                 BDX->unk128 = 0xFF;
-                BDX->unk60 &= 0xFFFF7FFF;
+                BDX->unk60 &= ~0x8000;
             } else if (dx * dx + dz * dz < 900.0f) {
                 temp_s1->unkC = 0x3C;
                 temp_s1->unkE = 1;
@@ -2081,7 +2080,7 @@ void func_8002C8EC(void) {
         }
         if (D_807FBB85 == 1) {
             BDX->unk128 = 0xFF;
-            BDX->unk60 &= 0xFFFF7FFF;
+            BDX->unk60 &= ~0x8000;
             actorScriptStart(D_807FBB40, 0x332);
             BDX->unk154 = 1;
             func_80609140(0x16, 0x7FFF, 63.0f, 1.0f, 0, 0);
