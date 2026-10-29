@@ -1,8 +1,23 @@
-// func_8066E2C0 (src/global/70FD0.c): Closest diff 25 insns: frame 0x98, all loops and logic matched, inner register allocation diffs in Part 3 and Part 4
-#include "common.h"
-#include "actor.h"
+// func_8066E2C0 (src/global/70FD0.c): stage 4 (frame 0x98 + callee-saved set equal; parked NON_MATCHING in 70FD0.c, 76 diff lines): remaining diff is the two copy-loop bodies - target keeps dst=a1(+4)/k=v1(+3)/src=v0 and does NOT fold (k+1)*4 into the lw offset (separate addiu/sll/addu), mine swaps a1/v1 and folds lw 4(v0); also sw v0,76(sp) after the jal delay slot and sh/sb/sw store order; tried decl-order permutations of src/k/j/dst/t0 (all 120), s16/u8/u32 k, array-index form, tmp var; needs actorSub140Alloc to return ActorSub140 * (cast used)
+typedef struct Col7C_Ent58 {
+    /* 0x00 */ f32 x[9];
+    /* 0x24 */ f32 out[9];
+    /* 0x48 */ s32 unk48;
+    /* 0x4C */ s32 unk4C;
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s16 unk54;
+    /* 0x56 */ u8 unk56;
+    /* 0x57 */ u8 pad57;
+} Col7C_Ent58; // size = 0x58
 
-typedef struct M70N_ModelNode {
+typedef struct Col7C_Ent2C {
+    /* 0x00 */ u8 pad0[0x28];
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ u8 unk2A;
+    /* 0x2B */ u8 pad2B;
+} Col7C_Ent2C; // size = 0x2C
+
+typedef struct Col7C_Node2C {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -12,38 +27,19 @@ typedef struct M70N_ModelNode {
     /* 0x24 */ s16 unk24;
     /* 0x26 */ u8 unk26;
     /* 0x27 */ u8 unk27;
-    /* 0x28 */ struct M70N_ModelNode *next;
-} M70N_ModelNode;
+    /* 0x28 */ struct Col7C_Node2C *next;
+} Col7C_Node2C;
 
-typedef struct M70N_ModelSubNode {
+typedef struct Col7C_Node20 {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ u8 padC[0xC];
     /* 0x18 */ s32 unk18;
-    /* 0x1C */ struct M70N_ModelSubNode *next;
-} M70N_ModelSubNode;
+    /* 0x1C */ struct Col7C_Node20 *next;
+} Col7C_Node20;
 
-typedef struct M70N_Sub140Item2C {
-    /* 0x00 */ f32 v[3][3];
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ u8 unk2A;
-    /* 0x2B */ u8 pad2B;
-} M70N_Sub140Item2C;
-
-typedef struct M70N_Sub140Item58 {
-    /* 0x00 */ f32 v[3][3];
-    /* 0x24 */ u8 pad24[0x48 - 0x24];
-    /* 0x48 */ s32 unk48;
-    /* 0x4C */ s32 unk4C;
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ s16 unk54;
-    /* 0x56 */ u8 unk56;
-    /* 0x57 */ u8 pad57;
-} M70N_Sub140Item58;
-
-ActorSub140 *func_8066E72C(f32, f32, f32, f32, f32, f32, s32, s32, s32);
+typedef ActorSub140 *(*Col7C_AllocFn)(f32, f32, f32, f32, f32, f32, s32, s32, s32);
 
 ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8, u8 *arg9) {
     register ActorSub140 *sub140;
@@ -51,16 +47,15 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
     register s32 s3;
     register s32 i;
     register s32 one;
-    s32 pad[11];
+    s32 pad[10];
+    void *tmp;
     void *sp54;
     s32 pad50;
-    void *sp4C;
-    s32 pad48;
     u8 *a3;
-    M70N_ModelNode *node;
-    M70N_ModelSubNode *subnode;
+    Col7C_Node2C *node;
+    Col7C_Node20 *subnode;
 
-    sub140 = func_8066E72C(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    sub140 = ((Col7C_AllocFn)actorSub140Alloc)(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
     if (arg9 != NULL) {
         s3 = *(s32 *)arg9;
         arg9 += 4;
@@ -69,7 +64,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if (s3 > 0) {
             one = 1;
             do {
-                node = (M70N_ModelNode *)func_80610FE8(sizeof(M70N_ModelNode));
+                node = (Col7C_Node2C *)func_80610FE8(sizeof(Col7C_Node2C));
                 node->next = NULL;
                 node->unk0 = *(f32 *)arg9;
                 node->unk4 = *((f32 *)arg9 + 1);
@@ -93,7 +88,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if (s3 > 0) {
             s2 = &sub140->unk90;
             do {
-                subnode = (M70N_ModelSubNode *)func_80610FE8(sizeof(M70N_ModelSubNode));
+                subnode = (Col7C_Node20 *)func_80610FE8(sizeof(Col7C_Node20));
                 subnode->next = NULL;
                 subnode->unk0 = *(f32 *)arg9;
                 subnode->unk4 = *((f32 *)arg9 + 1);
@@ -111,19 +106,17 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         arg9 += 4;
         sub140->unk9C = (s32)s2;
         if (s2 != NULL) {
-            sub140->unkA0 = func_80610FE8((s32)s2 * sizeof(M70N_Sub140Item2C));
-            sub140->unkA4 = (s32)func_80610FE8((s32)s2 * sizeof(M70N_Sub140Item58));
+            sub140->unkA0 = (a3 = func_80610FE8((s32)s2 * sizeof(Col7C_Ent2C)));
+            sub140->unkA4 = (s32)func_80610FE8((s32)s2 * sizeof(Col7C_Ent58));
             sub140->unkA8 = sub140->unkA4;
-            sp4C = sub140->unkA0;
         }
         if ((s32)s2 > 0) {
-            a3 = (u8 *)sp4C;
             do {
-                f32 *src = (f32 *)arg9;
                 s32 k = 0;
-                s32 j = 0;
-                f32 *dst = (f32 *)a3;
                 u8 *t0 = arg9;
+                s32 j = 0;
+                f32 *src = (f32 *)arg9;
+                f32 *dst = (f32 *)a3;
                 do {
                     *dst++ = src[0];
                     j++;
@@ -145,17 +138,18 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         arg9 += 4;
         sub140->unk94 = (s32)s2;
         if (s2 != NULL) {
-            sub140->unk98 = func_80610FE8((s32)s2 * sizeof(M70N_Sub140Item58));
-            sp54 = sub140->unk98;
+            tmp = func_80610FE8((s32)s2 * sizeof(Col7C_Ent58));
+            sub140->unk98 = tmp;
+            sp54 = tmp;
         }
         if ((s32)s2 > 0) {
             a3 = (u8 *)sp54;
             do {
-                f32 *src = (f32 *)arg9;
                 s32 k = 0;
-                s32 j = 0;
-                f32 *dst = (f32 *)a3;
                 u8 *t0 = arg9;
+                s32 j = 0;
+                f32 *src = (f32 *)arg9;
+                f32 *dst = (f32 *)a3;
                 do {
                     *dst++ = src[0];
                     j++;

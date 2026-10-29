@@ -568,7 +568,182 @@ void actorSub140Free(ActorSub140 *arg0) {
     }
 }
 
+typedef struct Col7C_Ent58 {
+    /* 0x00 */ f32 x[9];
+    /* 0x24 */ f32 out[9];
+    /* 0x48 */ s32 unk48;
+    /* 0x4C */ s32 unk4C;
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ s16 unk54;
+    /* 0x56 */ u8 unk56;
+    /* 0x57 */ u8 pad57;
+} Col7C_Ent58; // size = 0x58
+
+typedef struct Col7C_Ent2C {
+    /* 0x00 */ u8 pad0[0x28];
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ u8 unk2A;
+    /* 0x2B */ u8 pad2B;
+} Col7C_Ent2C; // size = 0x2C
+
+#ifdef NON_MATCHING
+typedef struct Col7C_Node2C {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 pad10[0x20 - 0x10];
+    /* 0x20 */ s32 unk20;
+    /* 0x24 */ s16 unk24;
+    /* 0x26 */ u8 unk26;
+    /* 0x27 */ u8 unk27;
+    /* 0x28 */ struct Col7C_Node2C *next;
+} Col7C_Node2C;
+
+typedef struct Col7C_Node20 {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ u8 padC[0xC];
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ struct Col7C_Node20 *next;
+} Col7C_Node20;
+
+typedef ActorSub140 *(*Col7C_AllocFn)(f32, f32, f32, f32, f32, f32, s32, s32, s32);
+
+ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8, u8 *arg9) {
+    register ActorSub140 *sub140;
+    register void *s2;
+    register s32 s3;
+    register s32 i;
+    register s32 one;
+    s32 pad[10];
+    void *tmp;
+    void *sp54;
+    s32 pad50;
+    u8 *a3;
+    Col7C_Node2C *node;
+    Col7C_Node20 *subnode;
+
+    sub140 = ((Col7C_AllocFn)actorSub140Alloc)(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    if (arg9 != NULL) {
+        s3 = *(s32 *)arg9;
+        arg9 += 4;
+        s2 = &sub140->unk8C;
+        i = 0;
+        if (s3 > 0) {
+            one = 1;
+            do {
+                node = (Col7C_Node2C *)func_80610FE8(sizeof(Col7C_Node2C));
+                node->next = NULL;
+                node->unk0 = *(f32 *)arg9;
+                node->unk4 = *((f32 *)arg9 + 1);
+                node->unk8 = *((f32 *)arg9 + 2);
+                node->unkC = *((f32 *)arg9 + 3);
+                node->unk20 = *((s32 *)arg9 + 4);
+                node->unk26 = one;
+                node->unk24 = 0;
+                node->unk27 = 0;
+                arg9 += 0x14;
+                *(void **)s2 = node;
+                s2 = &node->next;
+                i++;
+            } while (i != s3);
+            i = 0;
+        }
+
+        s3 = *(s32 *)arg9;
+        one = 1;
+        arg9 += 4;
+        if (s3 > 0) {
+            s2 = &sub140->unk90;
+            do {
+                subnode = (Col7C_Node20 *)func_80610FE8(sizeof(Col7C_Node20));
+                subnode->next = NULL;
+                subnode->unk0 = *(f32 *)arg9;
+                subnode->unk4 = *((f32 *)arg9 + 1);
+                subnode->unk8 = *((f32 *)arg9 + 2);
+                subnode->unk18 = *((s32 *)arg9 + 3);
+                arg9 += 0x10;
+                *(void **)s2 = subnode;
+                s2 = &subnode->next;
+                i++;
+            } while (i != s3);
+            i = 0;
+        }
+
+        s2 = (void *)*(s32 *)arg9;
+        arg9 += 4;
+        sub140->unk9C = (s32)s2;
+        if (s2 != NULL) {
+            sub140->unkA0 = (a3 = func_80610FE8((s32)s2 * sizeof(Col7C_Ent2C)));
+            sub140->unkA4 = (s32)func_80610FE8((s32)s2 * sizeof(Col7C_Ent58));
+            sub140->unkA8 = sub140->unkA4;
+        }
+        if ((s32)s2 > 0) {
+            do {
+                s32 k = 0;
+                u8 *t0 = arg9;
+                s32 j = 0;
+                f32 *src = (f32 *)arg9;
+                f32 *dst = (f32 *)a3;
+                do {
+                    *dst++ = src[0];
+                    j++;
+                    k += 3;
+                    src += 3;
+                    dst[2] = src[-2];
+                    dst[5] = src[-1];
+                } while (j != 3);
+                *(s16 *)(a3 + 0x28) = *(s32 *)(t0 + (k * 4));
+                *(s32 *)(a3 + 0x24) = *(s32 *)(t0 + ((k + 1) * 4));
+                *(u8 *)(a3 + 0x2A) = one;
+                arg9 += 0x2C;
+                a3 += 0x2C;
+            } while (++i != (s32)s2);
+            i = 0;
+        }
+
+        s2 = (void *)*(s32 *)arg9;
+        arg9 += 4;
+        sub140->unk94 = (s32)s2;
+        if (s2 != NULL) {
+            tmp = func_80610FE8((s32)s2 * sizeof(Col7C_Ent58));
+            sub140->unk98 = tmp;
+            sp54 = tmp;
+        }
+        if ((s32)s2 > 0) {
+            a3 = (u8 *)sp54;
+            do {
+                s32 k = 0;
+                u8 *t0 = arg9;
+                s32 j = 0;
+                f32 *src = (f32 *)arg9;
+                f32 *dst = (f32 *)a3;
+                do {
+                    *dst++ = src[0];
+                    j++;
+                    k += 3;
+                    src += 3;
+                    dst[2] = src[-2];
+                    dst[5] = src[-1];
+                } while (j != 3);
+                *(s16 *)(a3 + 0x54) = *(s32 *)(t0 + (k * 4));
+                *(s32 *)(a3 + 0x48) = *(s32 *)(t0 + ((k + 1) * 4));
+                *(s32 *)(a3 + 0x4C) = *(s32 *)(t0 + ((k + 2) * 4));
+                *(s32 *)(a3 + 0x50) = *(s32 *)(t0 + ((k + 3) * 4));
+                *(u8 *)(a3 + 0x56) = one;
+                arg9 += 0x34;
+                a3 += 0x58;
+            } while (++i != (s32)s2);
+        }
+    }
+    return sub140;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E2C0.s")
+#endif
 
 void actorSetNodeValue(Actor *arg0, s32 arg1, u16 arg2) {
     ModelNode *temp_v0;
@@ -597,9 +772,37 @@ void actorClearNodeFlags(Actor *arg0, s32 arg1, u8 arg2) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E664.s")
+void func_8066E664(Actor *arg0, s32 arg1, u8 arg2) {
+    ActorSub140 *sub;
+    Col7C_Ent2C *ent;
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E6C8.s")
+    sub = arg0->unk140;
+    if (arg0->unk140 != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
+        ent = sub->unkA0;
+        for (i = 0; i < sub->unk9C; i++) {
+            if (arg1 == ent[i].unk28) {
+                ent[i].unk2A = arg2;
+            }
+        }
+    }
+}
+
+void func_8066E6C8(Actor *arg0, s32 arg1, u8 arg2) {
+    ActorSub140 *sub;
+    Col7C_Ent58 *ent;
+    s32 i;
+
+    sub = arg0->unk140;
+    if (arg0->unk140 != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
+        ent = sub->unk98;
+        for (i = 0; i < sub->unk94; i++) {
+            if (arg1 == ent[i].unk54) {
+                ent[i].unk56 = arg2;
+            }
+        }
+    }
+}
 
 void actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     ActorSub140 *temp_v0;
@@ -844,7 +1047,77 @@ void actorUpdateModelMatrices(Actor *arg0) {
     }
 }
 
+#ifdef NON_MATCHING
+void func_8066EC6C(ActorSub140 *arg0) {
+    s32 padTop[1];
+    s32 i;
+    Col7C_Ent2C *ent;
+    Mtx *mtx;
+    u8 var_v1;
+    float spCC[4][4];
+    f32 *var_s0;
+    f32 *var_s1;
+    f32 *var_s2;
+    f32 *var_s3;
+    u32 unk24;
+    s32 padB[10];
+    CollisionBox *box;
+    f32 sp80[3];
+    f32 sp74[3];
+    f32 sp68[3];
+    s32 padE[5];
+
+    ent = arg0->unkA0;
+    if (ent != NULL) {
+        if (D_8076A064 == arg0->unk88) {
+            var_v1 = D_807444FC;
+        } else {
+            var_v1 = (D_807444FC ^ 1);
+        }
+        mtx = ((Mtx **)&arg0->unk74)[var_v1];
+        i = 0;
+        box = (CollisionBox *)arg0->unkA4;
+        if (arg0->unk9C > 0) {
+            do {
+                var_s0 = (f32 *)ent;
+                var_s2 = sp68;
+                var_s3 = sp74;
+                var_s1 = sp80;
+                do {
+                    unk24 = *(s32 *)((u8 *)ent + 0x24);
+                    if ((unk24 ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
+                        memcpy(spCC, (void *)arg0->unk70, 0x40);
+                        guMtxXFMF(spCC, var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
+                    } else {
+                        guMtxXFML((Mtx *)(((unk24 >> 6) << 6) + (u8 *)mtx), var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
+                    }
+                    var_s1++;
+                    var_s0++;
+                    var_s2++;
+                    var_s3++;
+                } while (var_s1 != sp80 + 3);
+                if (collisionBuildBoxFromMatrix(sp68, box) != 0) {
+                    if (*(u8 *)((u8 *)ent + 0x2A) == 0) {
+                        box->unk4B = 0;
+                    }
+                    if (*(s32 *)((u8 *)ent + 0x24) == -1) {
+                        box->unk4E = -1;
+                    } else {
+                        box->unk4E = (s8)(*(u32 *)((u8 *)ent + 0x24) >> 6);
+                    }
+                    box = (CollisionBox *)((u8 *)box + 0x58);
+                }
+                ent = (Col7C_Ent2C *)((u8 *)ent + 0x2C);
+                i++;
+            } while (i < arg0->unk9C);
+        }
+        arg0->unkA8 = (s32)box;
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066EC6C.s")
+#endif
 
 s32 collisionBuildBoxFromMatrix(f32 *arg0, CollisionBox *arg1) {
     u8 sp34[4];
@@ -887,7 +1160,61 @@ s32 collisionBuildBoxFromMatrix(f32 *arg0, CollisionBox *arg1) {
     return 1;
 }
 
+#ifdef NON_MATCHING
+void func_8066F06C(ActorSub140 *arg0) {
+    Col7C_Ent58 *first;
+    s32 i;
+    u8 var_v1;
+    Col7C_Ent58 *curr;
+    Mtx *mtx;
+    float sp6C[4][4];
+    s32 j;
+    f32 *var_s1;
+    f32 *var_s2;
+    f32 *var_s3;
+    f32 *var_s0;
+    u32 unk48;
+    s32 pad1;
+
+    first = arg0->unk98;
+    if (first != NULL) {
+        if (D_8076A064 == arg0->unk88) {
+            var_v1 = D_807444FC;
+        } else {
+            var_v1 = (D_807444FC ^ 1);
+        }
+        mtx = ((Mtx **)&arg0->unk74)[var_v1];
+        curr = first;
+        i = 0;
+        if (arg0->unk94 > 0) {
+            do {
+                var_s0 = (f32 *)curr;
+                var_s1 = (f32 *)((u8 *)curr + 0x24);
+                var_s2 = (f32 *)((u8 *)curr + 0x30);
+                var_s3 = (f32 *)((u8 *)curr + 0x3C);
+                for (j = 0; j != 0xC; j += 4) {
+                    unk48 = *(s32 *)((u8 *)var_s0 + 0x48);
+                    if ((unk48 ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
+                        memcpy(sp6C, (void *)arg0->unk70, 0x40);
+                        guMtxXFMF(sp6C, var_s0[0], var_s0[3], var_s0[6], var_s1, var_s2, var_s3);
+                    } else {
+                        guMtxXFML((Mtx *)((((unk48 >> 6) << 6)) + (u8 *)mtx), var_s0[0], var_s0[3], var_s0[6], var_s1, var_s2, var_s3);
+                    }
+                    var_s0++;
+                    var_s1++;
+                    var_s2++;
+                    var_s3++;
+                }
+                i++;
+                curr = (Col7C_Ent58 *)((u8 *)curr + 0x58);
+            } while (i < arg0->unk94);
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066F06C.s")
+#endif
 
 u8 actorSetTargetAngleAndCheck(s32 arg0, s16 arg1) {
     s16 sp1E;
@@ -1036,7 +1363,111 @@ void actorQueueCollisionCallbacks(CollisionActor *arg0) {
     }
 }
 
+#ifdef NON_MATCHING
+typedef struct Col7C_Node {
+    /* 0x00 */ u8 pad0[0x10];
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ u8 pad20[6];
+    /* 0x26 */ u8 unk26;
+    /* 0x27 */ u8 unk27;
+    /* 0x28 */ struct Col7C_Node *next;
+} Col7C_Node;
+
+struct ActorTargetWork;
+void actorUpdateSubActorOffsets(struct ActorTargetWork *, u8);
+void func_80671880();
+void func_8066F84C();
+s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
+s32 func_80673708(s32, s32, s32, s32, s32, s32, s16 *, s16 *);
+s32 func_806D0964(s32, u8);
+extern u8 D_807FB548;
+extern u8 D_807FB5FD;
+extern u8 D_807FB5FF;
+extern u8 D_807FB600;
+extern u8 D_807FB601;
+extern u8 D_807FB61C;
+
+#define SLOT0 ((Col7A_Slot *)((0, i * sizeof(Col7A_Slot)) + (s32)D_807F6000)) // FAKE: comma operand steers addu operand order
+#define SLOT ((Col7A_Slot *)((u8 *)D_807F6000 + i * sizeof(Col7A_Slot)))
+u8 func_8066F4AC(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
+    u8 sp77;
+    Col7C_Node *node;
+    DynamicBuffer *buf;
+    u8 *hit;
+    s32 i;
+    ActorSub140 *sub;
+    u8 sp5F;
+    u8 ret;
+    u8 flag;
+
+    sp77 = 0;
+    sub = (ActorSub140 *)arg0->unk140;
+    sub->unk6C = 0;
+    D_807FB548 = 0;
+    for (i = 0; i < D_80747D70; i++) {
+        buf = &SLOT0->unk28;
+        if (buf->unk15 & 2) {
+            if (func_80674ADC(sub->unk0, sub->unk4, sub->unk8, sub->unkC, ((s32 *)buf)[0], ((s32 *)buf)[1], ((s32 *)buf)[2], ((s32 *)buf)[3]) != 0) {
+                if (!(buf->unk15 & 1)) {
+                    collisionTransformNode(i, (s32)(*SLOT).unk24, ((f32 *)&(*SLOT))[0], ((f32 *)&(*SLOT))[1], ((f32 *)&(*SLOT))[2], ((f32 *)&(*SLOT))[4], ((f32 *)&(*SLOT))[5], ((f32 *)&(*SLOT))[6], ((f32 *)&(*SLOT))[3]);
+                } else {
+                    buf->unk10 = D_8076A064;
+                }
+                if (!(arg0->unk5C & 1) || func_806D0964(*(s32 *)(*SLOT).unk24, arg0->unk174->unk1A4) == 0) {
+                    func_80671880(arg0, 0);
+                    flag = 1;
+                    node = (Col7C_Node *)sub->unk8C;
+                    D_807FB5FD = 0;
+                    sp5F = D_807FB602;
+                    hit = (u8 *)(*SLOT).unk7C;
+                    if (hit != NULL) {
+                        if (hit[0x6F] != 0) {
+                            D_807FB5FD = 1;
+                            D_807FB600 = 0;
+                        }
+                        flag = ((u8 *)(*SLOT).unk7C)[0x70];
+                    }
+                    if ((D_807FB5FD == 0 || (arg0->unk144 & 0x10)) && flag != 0) {
+                        D_807FB5FF = 0;
+                        ret = 0;
+                        while (node != NULL && D_807FB5FF == 0) {
+                            if (node->unk26 != 0 && node->unk1C != 0 && !(node->unk27 & 6)) {
+                                ret |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, ((s32 *)buf)[6], ((s32 *)buf)[7], arg1, arg2);
+                            }
+                            node = node->next;
+                        }
+                        sp77 |= ret;
+                        if (D_807FB601 != 0) {
+                            if ((*SLOT).unk7C != NULL) {
+                                ((u8 *)(*SLOT).unk7C)[0x5C] = D_807FB601;
+                                *(s16 *)(&((u8 *)(*SLOT).unk7C)[0x5E]) = arg0->unk58;
+                            }
+                        }
+                        if (D_807FB5FF != 0) {
+                            func_8066F84C(i, arg0, ((s32 *)buf)[6]);
+                        }
+                        if ((*SLOT).unk7C != NULL && ((u8 *)(*SLOT).unk7C)[0x6E] == 0) {
+                            D_807FB602 = sp5F;
+                        }
+                        if (ret != 0 && D_807FB5FD == 0 && D_807FB61C != 0) {
+                            actorUpdateSubActorOffsets((struct ActorTargetWork *)arg0, 0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return sp77;
+}
+#undef SLOT0
+#undef SLOT
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066F4AC.s")
+#endif
 
 typedef struct Col7DHitInfo {
     u8 pad0[0x9B];
