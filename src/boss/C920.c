@@ -113,9 +113,9 @@ void func_80030C30(f32 arg0) {
 void func_80030D50(void) {
     s32 pad[1];
     f32 sp20;
-    sp20 = func_80612794((s16) (s32) (D_807FBB40->unk160 * 10240.0));
+    sp20 = func_80612794((s16)(D_807FBB40->unk160 * 10240.0));
     D_807FBB40->unk7C += (80.0f * func_80612794(D_807FBB40->unkE6 + 0x400)) * sp20;
-    sp20 = func_80612794((s16) (s32) (D_807FBB40->unk160 * 10240.0));
+    sp20 = func_80612794((s16)(D_807FBB40->unk160 * 10240.0));
     D_807FBB40->unk84 += (80.0f * func_80612790(D_807FBB40->unkE6 + 0x400)) * sp20;
 }
 
