@@ -2,19 +2,22 @@
 
 ## Lost or interrupted agents
 
-- **Subagent usage limit** (`usage_limit_reached`): every running agent fails at its next
-  wake and every new `task` within ~2 s. Salvage as after a crash (below), probe with a
+- **Subagent usage limit** (`usage_limit_reached`, or OpenRouter `402 ... requires more
+  credits`): every running agent fails at its next wake, every queued or new `task` within
+  ~1 s. Salvage as after a crash (below), probe with a
   one-line task before relaunching, and meanwhile finish naming / ROADMAP / ok-fine inline
   (mechanically obvious names, e.g. matrix builders read straight off the C, need no agent).
   ROADMAP must say the rounds stopped early (not by the stop rule) and which files still
   have unattempted functions. When quota returns, regenerate `local://brief.md` from the
   template and resume rolling dispatch from HEAD; finish with a second status refresh.
-- **Aborted dispatch** (interrupt or crash): `tools/fdiff.sh` every surviving
-  `.scratch/<Name>/` copy. Merge the passing ones (`--base <its commit>`; check the stage of
-  anything parked); move the others to `.scratch/<Name>.old/` and relaunch fresh copies from
-  HEAD telling the agent to harvest its per-function C from the `.old` copy. Mid-edit copies
-  rarely pass as they are; a relaunched agent told "your copy exists, fdiff each function
-  first" can also continue in it (bonus/race unit: 6 relaunches matched 30 functions).
+- **Aborted dispatch** (interrupt, crash, usage limit): whole-file `fdiff` of a mid-edit copy
+  says nothing (other functions broken or uncompilable); score each assigned function with
+  `tools/dk python3 tools/deadsweep.py score .scratch/<A>/<f>.c src/<seg>/<f>.c FUNC`. For
+  `full=0` ones, revert the copy's other assigned functions to their pragmas in a new
+  `.scratch/<A>Salv/` copy and gate it (`--base <its commit>`); save the rest as drafts when
+  their copy score beats the stored draft's (`score --body drafts/...`), score in the note
+  (effect unit: 3 matches out of 4 dead copies). Or relaunch fresh copies from HEAD telling
+  the agent to harvest its C from the `.old` copy (bonus/race unit: 30 functions matched).
 - **Orchestrator session disposed**: subagents die with it. Keep the unclaimed dispatch
   queue in `.scratch/queue.md` (lists, large functions) so a new session resumes from disk.
 - Check `git status` for unrelated work (a parallel session in the same tree): stage only the
@@ -28,6 +31,9 @@ Find the object that changed: `git stash`, `tools/dk make`, copy `build/global.m
 `git stash pop`, rebuild, and compare section sizes between the two maps. Usual causes: a
 lost header prototype (missing `andi` at callers), a deleted function
 (`unit_check.py vanished`), or a partial re-split (run the whole `tools/dk make split`).
+An `undefined reference to D_<addr>` in an overlay link after naming: some C file takes the
+function's address as data (`extern u8 D_8071A038[]`); grep `D_<addr>` for every new name
+and point it at the function (`void name(); p = (s32)name;`).
 
 ## Missing asm while agents run
 

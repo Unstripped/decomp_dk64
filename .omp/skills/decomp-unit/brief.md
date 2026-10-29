@@ -43,9 +43,9 @@ swapped externs in a comparison look identical in the text.
   permuter): stop only a PID you started.
 - Put every scratch/probe file (also `cc -S` output) under `.scratch/<YourName>/`, never the repo root.
 - PRIVATE COPY mode: create your copy ONCE from the exact base commit in your task
-  (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`), never re-copy
-  mid-run, edit only the copy, check with
-  `tools/fdiff.sh .scratch/<YourName>/<file>.c src/<seg>/<file>.c [FUNC]`.
+  (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`); never re-copy it or
+  `cp` it over `src`; after any multi-line replace, `diff` it against the base (block replaces
+  ate other functions). Check: `tools/fdiff.sh .scratch/<YourName>/<file>.c src/<seg>/<file>.c [FUNC]`.
 - Keep a blank line before every `#pragma GLOBAL_ASM` line, including the last one in
   the file. A parked function's `#ifdef NON_MATCHING` block must wrap only that function
   and the declarations nothing else uses; declarations matched code needs stay outside it
