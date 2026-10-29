@@ -363,7 +363,7 @@ u32 D_807445A8[2] = { 0 };
 u64 D_807445B0 = 0;
 u64 D_807445B8 = 0;
 u64 D_807445C0 = 0;
-u8 D_807445C8 = 0;
+s8 D_807445C8 = 0;
 s32 D_807445CC[5] = { 0, 0x4B0, 0, 0, 0 };
 
 // .bss 0x80761050-0x8076A160
@@ -650,7 +650,71 @@ void func_805FC2B0(void) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/0/func_805FC668.s")
+#include "actor.h"
+
+extern Actor *D_807FBB44;
+s32 func_80714360(void);
+s32 func_8071432C(void);
+s32 func_8071441C(void);
+s32 func_807143E8(void);
+Actor *actorFindByType(u16);
+void actorDespawn(void *);
+s32 actorSpawn(s32, s32);
+void sfxStopChannel(s32, s32);
+void slotQueuePopActiveMask(void);
+void slotQueueReset(void);
+
+s32 func_805FC668(void) {
+    Actor *actor;
+
+    if ((D_8076A0A8 == 0x50) || (func_80714360() == 0 && func_8071432C() == 0 && func_8071441C() == 0 && func_807143E8() == 0)) {
+        D_807FBB60 &= ~1;
+    }
+    if (D_807FBB60 & 2) {
+        if ((D_807FBB60 & 0x40) && (func_8071432C() != 0 || func_8071441C() != 0)) {
+            sfxStopChannel(0x22, 0);
+            D_807FBB60 &= 0xFFEBFFBD;
+            actor = actorFindByType((D_807FC928 < 2 && func_8071441C() == 0) ? 0x5F : 0x157);
+            if (actor != NULL) {
+                actorDespawn(actor);
+            }
+            D_807445B0 = osGetTime() - D_807445C0;
+            slotQueuePopActiveMask();
+        }
+    } else {
+        D_807445B8 += D_807445B0;
+        D_807445B0 = 0;
+        D_807445C0 = 0;
+        if (D_807445C8 > 0) {
+            if (!(D_807FBB60 & 1)) {
+                D_807445C8 = 0;
+            } else {
+                D_807445C8 -= 1;
+                if (D_807445C8 <= 0) {
+                    if ((func_8071432C() != 0 || func_8071441C() != 0) && !(D_807FBB60 & 0x40000)) {
+                        sfxAllocateChannel(0x22, 1.0f);
+                        sfxAllocateChannel(0x29, 1.0f);
+                        if (D_807FC928 < 2 && func_8071441C() == 0) {
+                            actorSpawn(0x5F, 0);
+                            D_807FBB60 |= 0x100000;
+                        } else {
+                            actorSpawn(0x157, 0);
+                        }
+                        D_807FBB44->unk64 |= 2;
+                    }
+                    D_807445C0 = osGetTime();
+                    D_807FBB60 ^= 1;
+                    D_807FBB60 |= 2;
+                }
+            }
+        }
+        if ((D_807FBB60 & 1) && D_807445C8 <= 0) {
+            slotQueueReset();
+            D_807445C8 = 2;
+        }
+    }
+    return D_807FBB60 & 2;
+}
 
 s32 func_805FC98C(void) {
     u64 t;
