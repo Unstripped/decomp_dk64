@@ -77,7 +77,8 @@ u32 D_807F04DC;
 TaskNode *D_807F04E0;
 u32 D_807F04E4;
 u64 D_807F04E8;
-u64 D_807F04F0;
+u32 D_807F04F0;
+u32 D_807F04F4;
 u64 D_807F04F8;
 u32 D_807F0500;
 u32 D_807F0504;
@@ -326,7 +327,14 @@ void func_8060F1D0(SchedStruct *arg0, TaskNode *arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/func_8060F208.s")
+void func_8060F208(SchedStruct *arg0) {
+    if (arg0->curRSPTask != NULL) {
+        schedYield(arg0);
+    } else {
+        D_807F04D0 = 0;
+        schedStartTask(arg0, 0);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedHandleRetrace.s")
 
@@ -414,9 +422,47 @@ void schedAppendTask(SchedStruct *sc, TaskNode *task) {
     task->state = state;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedStartTask.s")
+void schedStartTask(SchedStruct *arg0, s32 arg1) {
+    TaskNode *task;
+    TaskNode *head;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedYield.s")
+    if (arg1 == 0) {
+        head = arg0->audioListHead;
+        task = head;
+        if (head == NULL) {
+            return;
+        }
+        arg0->audioListHead = task->next;
+        if (arg0->audioListHead == NULL) {
+            arg0->audioListTail = (TaskNode *)&arg0->audioListHead;
+        }
+        D_807F0508 = osGetTime();
+    } else {
+        task = arg0->gfxListHead;
+        if (D_80746828 != 0) {
+            arg0->unk290 = osGetTime();
+            D_807F04F0 = __ull_div(osGetTime() - D_807F04F8, 0x1E91);
+            D_80746828 = 0;
+        }
+    }
+    task->state = 1;
+    osSpTaskLoad(&task->task);
+    osSpTaskStartGo(&task->task);
+    arg0->curRSPTask = task;
+    if (task->flags & 0x40) {
+        arg0->curRDPTask = task;
+    }
+}
+
+void schedYield(SchedStruct *arg0) {
+    TaskNode *task = arg0->curRSPTask;
+
+    if (task->task.t.type == 1) {
+        task->state = 3;
+        D_807F04C0 = osGetTime();
+        osSpTaskYield();
+    }
+}
 
 void func_8060FAA4(OSMesgQueue *arg0, OSMesg arg1, s32 arg2) {
     osGetTime();
