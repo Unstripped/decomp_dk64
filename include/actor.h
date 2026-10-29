@@ -237,6 +237,8 @@ typedef struct Struct807FDC9C {
     /* 0x0C */ u8 unkC;
     /* 0x0D */ u8 padD[3];
     /* 0x10 */ u8 unk10;
+    /* 0x11 */ u8 pad11[3];
+    /* 0x14 */ u8 unk14;
 } Struct807FDC9C;
 
 // D_807FD580: typedef only; other files still declare D_807FD580 with their own types.

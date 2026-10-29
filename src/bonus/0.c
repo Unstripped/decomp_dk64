@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 
 s32 func_805FCA64(void);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
@@ -16,28 +17,8 @@ typedef struct LB3bState {
     u8 unk9;
 } LB3bState;
 
-typedef struct LB3bActor {
-    u8 pad0[0x60];
-    u32 unk60;
-    u8 pad64[0x7C - 0x64];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xB8 - 0x88];
-    f32 unkB8;
-    u8 padBC[0x11C - 0xBC];
-    struct LB3bActor *unk11C;
-    u8 pad120[0x154 - 0x120];
-    u8 unk154;
-    u8 unk155;
-    u8 pad156[9];
-    u8 unk15F;
-    u8 pad160[0x178 - 0x160];
-    void *unk178;
-} LB3bActor;
-
-Gfx *bonusRenderCounterHud(Gfx *gdl, void *arg1) {
-    LB3bState *s = ((LB3bActor *)arg1)->unk178;
+Gfx *bonusRenderCounterHud(Gfx *gdl, Actor *arg1) {
+    LB3bState *s = *(LB3bState **)((u8 *)arg1 + 0x178);
 
     if (func_805FCA64()) {
         gSPDisplayList(gdl++, &D_1000118);
@@ -71,25 +52,15 @@ typedef struct LB3bSnd {
     u16 unk18;
 } LB3bSnd;
 
-typedef struct LB3bC9C {
-    u8 pad0[0xA];
-    u8 unkA;
-    u8 unkB;
-    u8 pad0C[8];
-    u8 unk14;
-} LB3bC9C;
-
 typedef struct LB3bTbl {
     u8 pad0[0x258];
     s32 unk258[8];
     u8 *unk278[8];
 } LB3bTbl;
 
-extern void *D_807FBB40;
-extern void *D_807FBB48;
-extern void *D_807FBB4C;
-extern void *D_807FDC98;
-extern void *D_807FDC9C;
+extern Actor *D_807FBB40;
+extern Actor *D_807FBB48;
+extern Actor *D_807FBB4C;
 extern s32 D_8076A0A8;
 extern s16 D_8076AEF2;
 extern u16 D_80744508;
@@ -97,11 +68,6 @@ extern s16 D_80750AC4;
 extern u8 D_807FBDC4;
 extern LB3bTbl D_807FBB70;
 extern u8 D_8002D863[];
-
-#define LB ((LB3bActor *)D_807FBB40)
-#define LP ((LB3bActor *)D_807FBB4C)
-#define LQ ((LB3bActor *)D_807FBB48)
-#define LC ((LB3bC9C *)D_807FDC9C)
 
 void behaviourFrameBegin(void);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
@@ -157,20 +123,20 @@ void bonusControllerUpdate(void) {
     s32 t;
     u8 *pv;
 
-    s = LB->unk178;
+    s = *(LB3bState **)((u8 *)D_807FBB40 + 0x178);
     behaviourFrameBegin();
-    sp6F = LC->unk14;
-    sp6E = LC->unkA;
-    func_8072177C(D_807FBB4C, LP->unk7C, LP->unk80 + 30.0f, LP->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-    if (!(LB->unk60 & 0x10)) {
+    sp6F = D_807FDC9C->unk14;
+    sp6E = D_807FDC9C->unkA;
+    func_8072177C(D_807FBB4C, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 30.0f, D_807FBB4C->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    if (!(D_807FBB40->unk60 & 0x10)) {
         sp67 = 0;
         currentActorClearFlag();
-        *(u16 *)((u8 *)D_807FDC98 + 0x46) |= 0x80;
+        D_807FDC98->unk46 |= 0x80;
         slotQueueSetDisplayMode(2, 0, 1);
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(4, 0, 2);
-        LB->unk154 = 0;
-        func_806A2A10(0xDC, 0x2A, LC->unkB);
+        D_807FBB40->unk154 = 0;
+        func_806A2A10(0xDC, 0x2A, D_807FDC9C->unkB);
         switch (sp6F) {
         case 14:
             csModelStateSetByte((randomNonNegative() >> 15) % 32767 % 4, 1, 1);
@@ -183,10 +149,10 @@ tail:
             break;
         case 15:
             func_806C8E58(8);
-            LQ->unk154 = 0xC;
-            LQ->unk155 = 0;
+            D_807FBB48->unk154 = 0xC;
+            D_807FBB48->unk155[0] = 0;
             func_80614E78(D_807FBB48, 9);
-            LQ->unkB8 = 0.0f;
+            D_807FBB48->unkB8 = 0.0f;
             func_806D03BC();
             goto tail;
         case 1:
@@ -210,7 +176,7 @@ tail:
             sp67 = 1;
             break;
         case 9:
-            ((LB3bActor *)spawnNodeActivate((randomNonNegative() >> 15) % 32767 % 8 + 0x11, 0))->unk15F = 1;
+            ((Actor *)spawnNodeActivate((randomNonNegative() >> 15) % 32767 % 8 + 0x11, 0))->unk15F = 1;
             break;
         }
         if (sp67 != 0) {
@@ -220,7 +186,7 @@ tail:
             s->unk2 = sp6E;
         }
     }
-    if (LB->unk154 == 0) {
+    if (D_807FBB40->unk154 == 0) {
         i = 0;
         if (D_807FBDC4 > 0) {
             do {
@@ -277,8 +243,8 @@ tail:
                         a2v = 0;
                         if (v3 != 0x12) {
                             if (v3 == 0x27) {
-                                LB->unk15F += 1;
-                                if (LB->unk15F >= 3) {
+                                D_807FBB40->unk15F += 1;
+                                if (D_807FBB40->unk15F >= 3) {
                                     csModelStateSetFirstByte(2, 0xA);
                                 }
                             } else {
@@ -295,7 +261,7 @@ tail:
             } while (++i < D_807FBDC4);
         }
     }
-    if (LB->unk154 == 0) {
+    if (D_807FBB40->unk154 == 0) {
         switch (sp6F) {
         case 15:
             func_80724A20();
@@ -318,8 +284,8 @@ tail:
             goto render;
         case 5:
             if (D_8076A0A8 == 0x85 && s->unk4 == 1) {
-                if (LB->unk155 == 0) {
-                    LB->unk155 += 1;
+                if (D_807FBB40->unk155[0] == 0) {
+                    D_807FBB40->unk155[0] += 1;
                     func_80641874(0, 0);
                     func_80641874(1, 0);
                     func_80641874(2, 0);
@@ -359,9 +325,9 @@ render:
         }
         break;
     case 1:
-        if (!(LB->unk60 & 0x02000000)) {
+        if (!(D_807FBB40->unk60 & 0x02000000)) {
             camResumePath(D_807FBB40);
-            actorSetStateTwo(LB->unk11C);
+            actorSetStateTwo((void *)D_807FBB40->unk11C);
             switch (D_8076A0A8) {
             case 3:
             case 0x23:
@@ -394,19 +360,19 @@ render:
         }
         break;
     }
-    switch (LB->unk154) {
+    switch (D_807FBB40->unk154) {
     case 0:
-        if ((sp6F == 1 || sp6F == 0 || sp6F == 2 || sp6F == 0x10) && LP->unk80 < 0.0f) {
+        if ((sp6F == 1 || sp6F == 0 || sp6F == 2 || sp6F == 0x10) && D_807FBB4C->unk80 < 0.0f) {
             bonusEndLose(1, 1);
             return;
         }
-        if (sp6F == 4 && LP->unk80 < -20.0f) {
+        if (sp6F == 4 && D_807FBB4C->unk80 < -20.0f) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x362, 0xFF, 0x7F, 0);
             bonusEndLose(0, 1);
             camStartPath(D_807FBB40, 1, 1);
             return;
         }
-        if (LP->unk154 == 0x73) {
+        if (D_807FBB4C->unk154 == 0x73) {
             if (sp6F == 1) {
                 bonusEndLose(1, 0x13);
                 return;
@@ -414,12 +380,12 @@ render:
             bonusEndLose(1, 1);
             return;
         }
-        if (sp6F == 3 && LP->unk154 == 0x31) {
+        if (sp6F == 3 && D_807FBB4C->unk154 == 0x31) {
             bonusEndLose(1, 0x14);
             return;
         }
         pv = &sp6F;
-        if (LB->unk11C->unk154 == 5) {
+        if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
             if (*pv == 3) {
                 bonusEndWin(1, 0x15);
                 return;
@@ -429,8 +395,8 @@ render:
         }
         break;
     case 1:
-        LB->unk11C->unk154 = 0;
-        LB->unk154 += 1;
+        ((Actor *)D_807FBB40->unk11C)->unk154 = 0;
+        D_807FBB40->unk154 += 1;
         break;
     case 0x27:
         func_806FDAB8(s->unk9, 3.1415927f);
@@ -439,11 +405,11 @@ render:
             bonusEndWin(1, 0xE);
             return;
         }
-        LB->unk154 = 0;
+        D_807FBB40->unk154 = 0;
         break;
     case 0x28:
         s->unk2 = 1;
-        LB->unk154 = 0;
+        D_807FBB40->unk154 = 0;
         break;
     case 0x37:
         bonusEndLose(1, 1);
@@ -509,44 +475,44 @@ typedef struct LB3bInput {
 void func_80024E38(void) {
     LB3bSnd *snd;
 
-    snd = LB->unk178;
+    snd = *(LB3bSnd **)((u8 *)D_807FBB40 + 0x178);
     behaviourFrameBegin();
-    if (!(LB->unk60 & 0x10)) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
         snd->unk0 = 0x12C;
         snd->unkA = 0;
         snd->unk8 = 0;
         n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &snd->unk4);
-        func_806A2A10(0xDC, 0x2A, LC->unkB);
+        func_806A2A10(0xDC, 0x2A, D_807FDC9C->unkB);
         spawnNodeActivateAndSetState(1, 0x40, 0x10);
         spawnNodeActivateAndSetState(2, 0x40, 0x10);
         spawnNodeActivateAndSetState(3, 0x40, 0x10);
         spawnNodeActivateAndSetState(4, 0x40, 0x10);
-        LB->unk154 = 0;
-        LB->unk155 = 0;
+        D_807FBB40->unk154 = 0;
+        D_807FBB40->unk155[0] = 0;
         camRequestPathLength();
         snd->unk18 = camStartPath(0, 0, 1);
     }
-    switch (LB->unk154) {
+    switch (D_807FBB40->unk154) {
     case 0:
         if (snd->unk18 != 0) {
             snd->unk18--;
         } else {
-            actorSetStateTwo(LB->unk11C);
-            LB->unk154 = 1;
+            actorSetStateTwo((void *)D_807FBB40->unk11C);
+            D_807FBB40->unk154 = 1;
         }
         break;
     case 1:
-        if (LB->unk11C->unk154 == 5) {
+        if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
             textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, 0x15, 1), 0, 0x28, 8, 8);
             func_80726EE0(0);
             sfxAllocateChannel(0x28, 1.0f);
             actorSpawnNodeEntryScaled(0x56, 588.0f, 240.0f, 582.0f, 0, 0, bonusGetSoundForMap(), 0);
-            LB->unk154 = 2;
+            D_807FBB40->unk154 = 2;
         }
-        if (LP->unk154 == 0x39) {
+        if (D_807FBB4C->unk154 == 0x39) {
             func_805FF898();
             func_806C9974(0, 0x40);
-            LB->unk154 = 2;
+            D_807FBB40->unk154 = 2;
         }
         break;
     }
