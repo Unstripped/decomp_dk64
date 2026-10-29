@@ -1227,9 +1227,86 @@ void func_8071D260(TimedEffectActorView *arg0, s8 *arg1) {
     }
 }
 
+void playerStateQueueCallback();
+
+typedef struct {
+    u8 pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0x24];
+    f32 unkAC;
+    u8 padB0[0x8];
+    f32 unkB8;
+    u8 padBC[0x2A];
+    s16 unkE6;
+} Fx11BGSource;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+} Fx11BGOrbitState;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+} Fx11BGVelocityState;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+} Fx11BGFallState;
+
+u8 func_8071D94C(Fx11BGSource *, TimedEffectActorView *, s8 *);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D28C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D5BC.s")
+typedef struct {
+    u8 pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0xD6];
+    u8 unk15E;
+} Fx11BGPlayerView;
+
+void func_8071D5BC(TimedEffectActorView *arg0, s8 *arg1) {
+    f32 sp80[4][4];
+    f32 sp40[4][4];
+    Fx11BGPlayerView *player;
+    s32 radius;
+
+    radius = (s32) (arg0->unk360 * 20.0f);
+    player = (Fx11BGPlayerView *) D_807FBB4C;
+    if ((player->unk80 <= arg0->unk344) && (arg0->unk344 < player->unk80 + (f32) player->unk15E)) {
+        if ((((player->unk7C - arg0->unk340) * (player->unk7C - arg0->unk340)) + ((player->unk84 - arg0->unk348) * (player->unk84 - arg0->unk348))) < (f32) (radius * radius)) {
+            playerStateQueueCallback(0x2E, 0, 0);
+        }
+    }
+    guScaleF(sp80, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp40, 90.0f, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(sp80, sp40, sp80);
+    guTranslateF(sp40, arg0->unk340, arg0->unk344, arg0->unk348);
+    guMtxCatF(sp80, sp40, sp80);
+    if ((s32) arg0->unk36D >= 9) {
+        arg0->unk36D -= 9;
+    } else {
+        *arg1 = 1;
+    }
+    arg0->unk360 = (f32) ((f64) arg0->unk360 * 1.08);
+    arg0->unk364 = arg0->unk360;
+    guMtxF2L(sp80, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    ((u8 *) arg0)[0x32C] = 3;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D784.s")
 
