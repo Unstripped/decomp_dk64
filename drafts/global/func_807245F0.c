@@ -1,97 +1,99 @@
-// func_807245F0 (src/global/1292F0.c): Stage 3: behavioral state view compiled; frame is 0xA0 versus target 0x78, and state-pointer layout/register allocation remains.
-void *func_80610FE8(?);                             /* extern */
-s32 pathExists(s32);                                 /* extern */
-? func_80723CCC(s16, s32, f32, f32 *, f32 *, f32 *, f32 *); /* extern */
-? func_80723F88(s16, s32, s32, s32, void *, void *); /* extern */
-? func_80724154(s16, s32, s32, s32, void *, void *); /* extern */
-s32 pathEntryCount(s16);                             /* extern */
-f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);  /* extern */
+// func_807245F0 (src/global/1292F0.c): stage 5-6: frame 0x78, saved regs, all stack offsets, branch layout and scheduling identical; only t-register numbering differs from li 4096 (unkE store) to the end (target t7/t5/t6/t0/t3/t4/t8 vs t5/t1/t4/t8/t9/t0/t5), ring 2 behind; unk118 alloc head matches via else-arm reload; s16 cast blocks 0x1000+0x800 folding
+typedef struct Fx127BPathState {
+    u8 pad0[4];
+    s32 unk4;
+    f32 unk8;
+    u8 unkC;
+    u8 padD;
+    s16 unkE;
+    s16 unk10;
+    s16 unk12;
+} Fx127BPathState;
 
-void func_807245F0(void *arg0, u8 arg1) {
-    s32 sp6C;
-    f32 sp68;
-    f32 sp64;
-    f32 sp60;
-    f32 sp5C;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
+typedef struct Fx127BPathOwner {
+    u8 pad0[0x7C];
+    s32 unk7C;
+    s32 unk80;
+    s32 unk84;
+    u8 pad88[0x28];
+    s8 unkB0;
+    u8 padB1[0x67];
+    Fx127BPathState *unk118;
+} Fx127BPathOwner;
+
+s32 pathExists(u8);
+void func_80723F88(s32, s32, s32, s32, s32 *, f32 *);
+void func_80724154(s32, s32, s32, s32, s32 *, f32 *);
+void func_80723CCC(s32, s32, f32, f32 *, f32 *, f32 *);
+f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
+s16 pathEntryCount(s32);
+
+void func_807245F0(Fx127BPathOwner *arg0, u8 arg1) {
+    s32 fresh;
+    Fx127BPathState *s;
+    s32 idx;
+    f32 frac;
+    f32 x0;
+    f32 y0;
+    f32 z0;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 ang;
+    s32 cnt;
     u8 sp47;
-    s32 sp40;
-    f32 temp_fv0;
-    f32 var_fv0;
-    f64 temp_ft2;
-    f64 temp_fv1;
-    s16 temp_a0;
-    s32 temp_a0_2;
-    s32 temp_a1;
-    s32 temp_v1_2;
-    s32 var_a1;
-    s32 var_v1;
-    s8 temp_v1;
-    void *temp_v0;
-    void *temp_v0_2;
-    void *var_s0;
 
     sp47 = 0;
-    temp_v0 = arg0->unk118;
-    var_v1 = 0;
-    var_s0 = temp_v0;
-    if (temp_v0 == NULL) {
-        temp_v0_2 = func_80610FE8(0x14);
-        temp_v1 = arg0->unkB0;
-        arg0->unk118 = temp_v0_2;
-        var_s0 = temp_v0_2;
-        if ((temp_v1 != -1) && (pathExists(temp_v1 & 0xFF) != 0)) {
-            var_s0->unk12 = (s16) arg0->unkB0;
+    fresh = 0;
+    if (arg0->unk118 == NULL) {
+        arg0->unk118 = func_80610FE8(0x14);
+        s = arg0->unk118;
+        if (arg0->unkB0 != -1 && pathExists(arg0->unkB0) != 0) {
+            s->unk12 = arg0->unkB0;
         } else {
-            var_s0->unk12 = -1;
+            s->unk12 = -1;
         }
-        var_s0->unkC = 0;
-        var_v1 = 1;
+        s->unkC = 0;
+        fresh = 1;
+    } else {
+        s = arg0->unk118;
     }
-    sp40 = (s32) arg1;
-    if ((arg1 != 0) || (var_s0->unkC == 0)) {
-        temp_a0 = var_s0->unk12;
-        if (temp_a0 == -1) {
-            var_s0->unkC = 1U;
-            var_s0->unk10 = 0;
-            var_s0->unkE = 0;
+    if (arg1 != 0 || s->unkC == 0) {
+        if (s->unk12 == -1) {
+            s->unkC = 1;
+            s->unk10 = 0;
+            s->unkE = 0;
             return;
         }
-        if (var_v1 != 0) {
-            func_80723F88(temp_a0, arg0->unk7C, arg0->unk80, arg0->unk84, var_s0 + 4, var_s0 + 8);
+        if (fresh != 0) {
+            func_80723F88(s->unk12, arg0->unk7C, arg0->unk80, arg0->unk84, &s->unk4, &s->unk8);
         } else {
-            func_80724154(temp_a0, arg0->unk7C, arg0->unk80, arg0->unk84, var_s0 + 4, var_s0 + 8);
+            func_80724154(s->unk12, arg0->unk7C, arg0->unk80, arg0->unk84, &s->unk4, &s->unk8);
         }
-        temp_fv0 = var_s0->unk8;
-        temp_a1 = var_s0->unk4;
-        sp68 = temp_fv0;
-        sp6C = temp_a1;
-        func_80723CCC(var_s0->unk12, temp_a1, temp_fv0, &sp64, &sp60, &sp5C);
-        var_a1 = sp6C;
-        var_fv0 = (f32) ((f64) sp68 + 0.4);
-        temp_fv1 = (f64) var_fv0;
-        if (temp_fv1 >= 1.0) {
-            var_a1 += 1;
-            var_fv0 = (f32) (temp_fv1 - 1.0);
+        frac = s->unk8;
+        idx = s->unk4;
+        func_80723CCC(s->unk12, idx, frac, &x0, &y0, &z0);
+        frac = frac + 0.4;
+        if (frac >= 1.0) {
+            idx += 1;
+            frac = frac - 1.0;
         }
-        func_80723CCC(0, (s32) var_s0->unk12, (bitwise f32) var_a1, (bitwise f32 *) var_fv0, &sp58, &sp54, &sp50);
-        temp_ft2 = (f64) mathAngleBetweenPointsDeg((s32) sp64, (s32) sp5C, (s32) sp58, (s32) sp50) * 2048.0;
-        var_s0->unk10 = 0x23;
-        var_s0->unkE = (s16) (((0x1000 - (s32) (temp_ft2 / 3.1415927410125732)) + 0x800) & 0xFFF);
-        temp_v1_2 = var_s0->unk4;
-        temp_a0_2 = pathEntryCount(var_s0->unk12) - 1;
-        if (temp_v1_2 >= temp_a0_2) {
-            if (temp_a0_2 == temp_v1_2) {
+        func_80723CCC(s->unk12, idx, frac, &x1, &y1, &z1);
+        ang = mathAngleBetweenPointsDeg((s32)x0, (s32)z0, (s32)x1, (s32)z1);
+        s->unkE = ((s16)(0x1000 - (s32)(ang * 2048.0 / 3.141592741012573)) + 0x800) & 0xFFF;
+        s->unk10 = 0x23;
+        cnt = pathEntryCount(s->unk12) - 1;
+        if (s->unk4 >= cnt) {
+            if (cnt == s->unk4) {
                 sp47 = 1;
+                s->unk10 = 0;
             } else {
                 sp47 = 1;
+                s->unk10 = 0;
             }
-            var_s0->unk10 = 0;
         }
-        if ((sp47 != 0) && (sp40 == 0)) {
-            var_s0->unkC = 1U;
+        if (sp47 != 0 && arg1 == 0) {
+            s->unkC = 1;
         }
     }
 }

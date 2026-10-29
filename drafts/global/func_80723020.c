@@ -1,92 +1,68 @@
-// func_80723020 (src/global/127B00.c): stage 2: compiled typed PathEntry/PathPlayback/PathPoint candidate; it reproduces point copy as LWL/LWR/SWL/SWR plus halfword, but allocation/control-flow register pressure leaves frame 0x48 rather than target 0x70 and target saved-register topology unmatched
-void *func_80610FE8(s32);                           /* extern */
-? memcpy(void *, ? *, ?);                           /* extern */
-extern ? D_807FDB90;
-extern ? D_807FDBF8;
+// func_80723020 (src/global/127B00.c): Fx127A2 stage 4: frame 0x70 ok (sp54 declared after 'found'); remaining diff reg alloc (flag web splits s0/s1; j/dst/src swapped s0/s1/s2) + lw t4 vs sw order after alloc; has deadsweep FAKE stmts; needs PathPoint (10-byte s16 struct) decl from 127B00.c copy
+void *memcpy(void *, const void *, unsigned int);
 
-s32 func_80723020(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6) {
-    u8 sp5C;
-    s16 sp5A;
-    s16 sp58;
-    s16 sp56;
-    ? sp54;
-    s32 sp50;
-    s32 **temp_s7;
-    s32 *temp_s4;
-    s32 *var_s3;
-    s32 temp_s0;
-    s32 var_s0;
-    s32 var_s1;
-    s32 var_s2;
-    s32 var_s6;
-    s32 var_v0;
-    s32 var_v1;
-    void **temp_s3;
-    void *temp_s5;
-    void *temp_v0;
+s32 func_80723020(s32 arg0, s32 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6) {
+    PathEntry *path;
+    PathPlayback **slot;
+    s32 i;
+    s32 found;
+    PathPoint sp54;
+    s32 extra;
+    s32 j;
+    s32 dstOff;
+    s32 srcOff;
 
-    temp_s7 = (arg1 * 4) + &D_807FDB90;
-    temp_s4 = *temp_s7;
-    temp_s0 = arg2 & 0xFF;
-    var_s6 = 0;
-    var_v0 = 0;
-    if (temp_s4 == NULL) {
+    i = 0;
+    found = 0;
+    extra = 0;
+    if (D_807FDB90[arg1] == NULL) {
         return -1;
     }
-    var_s3 = (0 * 4) + &D_807FDBF8;
-loop_3:
-    if (*var_s3 == 0) {
-        var_v0 = 1;
-    } else {
-        var_s6 += 1;
-        var_s3 += 4;
+    while (i < 0x20 && !found) {
+        if (D_807FDBF8[i] == NULL) {
+            found = 1;
+        } else {
+            if (arg2 && arg2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            i++;
+        }
     }
-    if ((var_s6 < 0x20) && (var_v0 == 0)) {
-        goto loop_3;
-    }
-    if (var_v0 == 0) {
+    if (!found) {
         return -1;
     }
-    if ((temp_s4->unk4 == 1) && (temp_s0 == 0)) {
+    if (D_807FDB90[arg1]->unk4 == 1 && arg2 == 0) {
         return -1;
     }
-    temp_s3 = (var_s6 * 4) + &D_807FDBF8;
-    sp50 = 0;
-    temp_v0 = func_80610FE8(0x2C);
-    *temp_s3 = temp_v0;
-    temp_s5 = temp_v0 + 4;
-    temp_v0->unk8 = (s16) (*temp_s7)->unk4;
-    var_v1 = 0;
-    temp_v0->unk4 = func_80610FE8((temp_v0->unk8 * 0xA) + 0xA);
-    if (temp_s0 != 0) {
-        temp_s5->unk4 = (s16) (temp_s5->unk4 + 1);
-        sp5C = arg6;
-        sp56 = (s16) (s32) arg3;
-        sp58 = (s16) (s32) arg4;
-        sp5A = (s16) (s32) arg5;
-        memcpy(temp_v0->unk4, &sp54, 0xA);
-        var_v1 = 1;
+    slot = &D_807FDBF8[i];
+    *slot = func_80610FE8(0x2C);
+    path = (PathEntry *)&(*slot)->unk4;
+    path->unk4 = D_807FDB90[arg1]->unk4;
+    path->unk0 = func_80610FE8(path->unk4 * 10 + 10);
+    if (arg2 != 0) {
+        path->unk4++;
+        ((u8 *)&sp54)[8] = arg6;
+        sp54.unk2 = arg3;
+        sp54.unk4 = arg4;
+        sp54.unk6 = arg5;
+        memcpy(path->unk0, &sp54, 10);
+        extra = 1;
+        if (arg2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
-    var_s1 = var_v1 * 0xA;
-    var_s0 = 0;
-    var_s2 = 0;
-    if ((*temp_s7)->unk4 > 0) {
-        do {
-            memcpy(temp_v0->unk4 + var_s1, (*temp_s7)->unk0 + var_s2, 0xA);
-            var_s0 += 1;
-            var_s2 += 0xA;
-            var_s1 += 0xA;
-        } while (var_s0 < (*temp_s7)->unk4);
+    dstOff = extra * 10;
+    srcOff = 0;
+    for (j = 0; j < D_807FDB90[arg1]->unk4; j++) {
+        memcpy(path->unk0 + dstOff, D_807FDB90[arg1]->unk0 + srcOff, 10);
+        srcOff += 10;
+        dstOff += 10;
     }
-    (*temp_s3)->unk0 = arg0;
-    (*temp_s3)->unkC = 0.0f;
-    (*temp_s3)->unk1C = 0;
-    (*temp_s3)->unk10 = 0;
-    (*temp_s3)->unk16 = 0;
-    (*temp_s3)->unk15 = 0;
-    (*temp_s3)->unk14 = 0;
-    (*temp_s3)->unk18 = 1;
-    (*temp_s3)->unk21 = 0;
-    (*temp_s3)->unk20 = 1;
-    return var_s6;
+    (*slot)->unk0 = arg0;
+    (*slot)->unkC = 0.0f;
+    *(s32 *)((u8 *)*slot + 0x1C) = 0;
+    *(s32 *)((u8 *)*slot + 0x10) = 0;
+    (*slot)->unk16 = 0;
+    (*slot)->unk15 = 0;
+    (*slot)->unk14 = 0;
+    (*slot)->unk18 = 1;
+    (*slot)->unk21 = 0;
+    (*slot)->unk20 = 1;
+    return i;
 }
