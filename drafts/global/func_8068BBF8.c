@@ -1,27 +1,23 @@
-// func_8068BBF8 (src/global/8F4B0.c): 300/312 insns matched (prologue, clamp macro, late_rodata floats, switch structure and tail 1830-18cc 100% matched); .rodata identical except 2 jtbl target offsets (no alignment issue); only minor register differences in early return check and switch index
-#include "common.h"
-#include "actor.h"
-
+// func_8068BBF8 (src/global/8F4B0.c): Stage 5, score 1480 (300/312 insns matched; frame 0x58, clamp macro, late_rodata floats, switch structure and tail 100% matched; minor regalloc in early return and switch index)
 typedef struct {
     char pad[0xE4];
     s16 unkE4;
     s16 unkE6;
     char padE8[0x4];
     s16 unkEC;
-} R2F4A_ActorE4;
+} KaF_ActorE4;
 
 void func_80609140(s32, s32, f32, f32, s32, s32);
 f32 func_80612794(s16);
-void func_8061DBD4(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-s16 func_80665DE0(f32, f32, f32, f32);
-f32 func_80665E48(f32, f32, f32, f32);
+void camUpdate(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 void func_806C9D20(u8);
 extern u8 D_807444EC;
 extern s32 D_8076A0A8;
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern s16 D_807FC624;
-extern void *D_807FC924;
 
 void func_8068BBF8(void) {
     void *sp54;
@@ -52,13 +48,13 @@ void func_8068BBF8(void) {
     sp40 = 0.08f;
     sp3C = 8.0f;
     sp34 = (void *)((*(u8 *)((u8 *)sp54 + 0xFB) * 0x2F0) + (u8 *)D_807FC924);
-    *(s16 *)((u8 *)sp34 + 0x2CC) = ((R2F4A_ActorE4 *)D_807FBB40)->unkEC;
-    ((R2F4A_ActorE4 *)D_807FBB40)->unkEC = ((R2F4A_ActorE4 *)D_807FBB40)->unkE4;
+    *(s16 *)((u8 *)sp34 + 0x2CC) = ((KaF_ActorE4 *)D_807FBB40)->unkEC;
+    ((KaF_ActorE4 *)D_807FBB40)->unkEC = ((KaF_ActorE4 *)D_807FBB40)->unkE4;
     *(s16 *)((u8 *)sp34 + 0x2CA) = (s16)(s32)*(f32 *)((u8 *)sp34 + 0x214);
-    sp48 = func_80665E48(*(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x230), *(f32 *)((u8 *)sp34 + 0x228));
+    sp48 = mathAngleBetweenPointsRad(*(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x230), *(f32 *)((u8 *)sp34 + 0x228));
     temp_fv1 = *(f32 *)((u8 *)sp34 + 0x230) - *(f32 *)((u8 *)sp34 + 0x218);
     temp_fa1 = *(f32 *)((u8 *)sp34 + 0x228) - *(f32 *)((u8 *)sp34 + 0x210);
-    temp_fa0 = func_80665E48(0.0f, *(f32 *)((u8 *)sp34 + 0x214), sqrtf((temp_fv1 * temp_fv1) + (temp_fa1 * temp_fa1)), *(f32 *)((u8 *)sp34 + 0x22C)) + 3.1415927f;
+    temp_fa0 = mathAngleBetweenPointsRad(0.0f, *(f32 *)((u8 *)sp34 + 0x214), sqrtf((temp_fv1 * temp_fv1) + (temp_fa1 * temp_fa1)), *(f32 *)((u8 *)sp34 + 0x22C)) + 3.1415927f;
     var_fv1 = temp_fa0;
     if (temp_fa0 > 6.2831855f) {
         var_fv1 = temp_fa0 - 6.2831855f;
@@ -69,15 +65,15 @@ void func_8068BBF8(void) {
     *(f32 *)((u8 *)sp34 + 0x2D4) = 6.2831855f - sp48;
     *(f32 *)((u8 *)sp34 + 0x2D8) = 6.2831855f - var_fv1;
     func_806C9D20(*(u8 *)((u8 *)sp54 + 0xFB));
-    sp52 = func_80665DE0(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
-    func_8061DBD4(D_807FBB40, (u8 *)sp34 + 0x210, (u8 *)sp34 + 0x214, (u8 *)sp34 + 0x218, (u8 *)sp34 + 0x228, (u8 *)sp34 + 0x22C, (u8 *)sp34 + 0x230, (u8 *)sp34 + 0x240, (u8 *)sp34 + 0x244, (u8 *)sp34 + 0x248);
-    temp_v0 = func_80665DE0(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
-    if (D_807FBB4C != *(Actor **)sp54) {
+    sp52 = mathAngleBetweenPoints2D(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
+    camUpdate(D_807FBB40, (u8 *)sp34 + 0x210, (u8 *)sp34 + 0x214, (u8 *)sp34 + 0x218, (u8 *)sp34 + 0x228, (u8 *)sp34 + 0x22C, (u8 *)sp34 + 0x230, (u8 *)sp34 + 0x240, (u8 *)sp34 + 0x244, (u8 *)sp34 + 0x248);
+    temp_v0 = mathAngleBetweenPoints2D(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
+    temp_a0_2 = *(Actor **)sp54;
+    if (D_807FBB4C != temp_a0_2) {
         return;
     }
-    temp_a0_2 = *(Actor **)sp54;
     if ((D_8076A0A8 == 0x1F) || (D_8076A0A8 == 0x33)) {
-        ((R2F4A_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
+        ((KaF_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
         if (D_8076A0A8 == 0x1F) {
             if (D_807FC624 < 0x1E) {
                 func_80609140(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
@@ -116,15 +112,17 @@ calc_angle:
                 temp_v1_3 = sp52 - temp_v0;
                 if (temp_v1_3 >= 0x801) {
                     sp4E = temp_v1_3 - 0x1000;
+                } else if (temp_v1_3 < -0x800) {
+                    sp4E = temp_v1_3 + 0x1000;
                 } else {
-                    sp4E = (temp_v1_3 < -0x800) ? temp_v1_3 + 0x1000 : temp_v1_3;
+                    sp4E = temp_v1_3;
                 }
                 break;
             }
             temp_v0_2 = -sp3A;
             var_v1 = (temp_v0_2 < sp4E) ? sp4E : temp_v0_2;
             var_v1 = (var_v1 < sp3A) ? ((temp_v0_2 < sp4E) ? sp4E : temp_v0_2) : sp3A;
-            temp_fv0 = (f32)((R2F4A_ActorE4 *)D_807FBB40)->unkE4;
-            ((R2F4A_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)var_v1 * sp3C) - temp_fv0) * sp40) + temp_fv0);
+            temp_fv0 = (f32)((KaF_ActorE4 *)D_807FBB40)->unkE4;
+            ((KaF_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)var_v1 * sp3C) - temp_fv0) * sp40) + temp_fv0);
     }
 }
