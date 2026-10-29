@@ -421,11 +421,8 @@ f32 func_8002F784(u16 *arg0, u8 *arg1, u8 *arg2) {
             do {
                 idx = cur % arg0[0];
                 val = (*(u16 **)((u8 *)arg0 + 4))[idx];
-                if (!cur && !cur) {
-                }
                 node = raceGetWaypoint(val);
-                if (first != 0) {
-                } else {
+                if (!first) {
                     acc += func_8002F304(node, prevX, prevZ);
                 }
                 first = 0;
