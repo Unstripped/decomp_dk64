@@ -1,4 +1,4 @@
-// func_80717404 (src/global/11BC10.c): stage 4-5: structure+dataflow complete; remaining diff is register allocation only
+// func_80717404 (src/global/11BC10.c): stage 5: score 550 (was 1070); fixed float += operand order in both branches
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -25,8 +25,8 @@ void func_80717404(Fx11BAEffectActor *arg0, void *arg1) {
 
     if (arg0->unk384 == NULL) {
         arg0->unk384 = func_80610FE8(0xC);
-        motion = arg0->unk384;
         var_s2 = (s16 *) &arg0->unk35C;
+        motion = arg0->unk384;
         if (*var_s2 != 0) {
             motion->unk0 = (f32) (((randomNonNegative() >> 15) % 200) + *var_s2 - 100);
         } else {
@@ -39,16 +39,16 @@ void func_80717404(Fx11BAEffectActor *arg0, void *arg1) {
     motion = arg0->unk384;
     var_s2 = (s16 *) &arg0->unk35C;
     if (arg0->unk36F != 0) {
-        arg0->unk340 = (f32) ((f64) arg0->unk340 + 4.0 * ((f64) func_80612794((s16) motion->unk0) * (0.01 * (f64) var_s2[1])));
-        arg0->unk344 = (f32) ((f64) arg0->unk344 + 4.0 * ((f64) func_80612790((s16) motion->unk0) * (0.01 * (f64) var_s2[1])));
+        arg0->unk340 += 4.0 * ((0.01 * (f64) var_s2[1]) * (f64) func_80612794((s16) motion->unk0));
+        arg0->unk344 += 4.0 * ((0.01 * (f64) var_s2[1]) * (f64) func_80612790((s16) motion->unk0));
     } else {
-        arg0->unk340 = (f32) ((f64) arg0->unk340 + (f64) func_80612794((s16) motion->unk0) * (0.04 * (f64) var_s2[1]));
-        arg0->unk348 = (f32) ((f64) arg0->unk348 + (f64) func_80612790((s16) motion->unk0) * (0.04 * (f64) var_s2[1]));
+        arg0->unk340 += (0.04 * (f64) var_s2[1]) * (f64) func_80612794((s16) motion->unk0);
+        arg0->unk348 += (0.04 * (f64) var_s2[1]) * (f64) func_80612790((s16) motion->unk0);
         if (*var_s2 == 0) {
-            arg0->unk344 = arg0->unk344 + motion->unk8;
+            arg0->unk344 += motion->unk8;
             motion->unk8 = (f32) ((f64) motion->unk8 - 0.5);
         } else {
-            arg0->unk344 = (f32) ((f64) arg0->unk344 + (f64) motion->unk8 * 0.2);
+            arg0->unk344 += (f64) motion->unk8 * 0.2;
         }
     }
     var_s2[1] = (s16) (var_s2[1] + motion->unk4);
