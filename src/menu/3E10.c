@@ -2231,40 +2231,34 @@ extern MenuHighScoreEntry D_80744568[];
 
 
 void menuLoadHighScores(void) {
-    MenuHighScoreEntry *v1;
-    MenuHighScoreEntry *v2;
     s32 i;
 
-    for (i = 0, v1 = D_80744548, v2 = D_80744568; i < 5; i++, v1++, v2++) {
-        u8 temp_s0 = i;
-        v1->unk0 = func_8060C6B8(0x19, 0, temp_s0, 0);
-        v1->unk2 = func_8060C6B8(0x16, 0, temp_s0, 0);
-        v1->unk3 = func_8060C6B8(0x17, 0, temp_s0, 0);
-        v1->unk4 = func_8060C6B8(0x18, 0, temp_s0, 0);
-        v1->unk5 = 0;
-        v2->unk0 = func_8060C6B8(0x1D, 0, temp_s0, 0);
-        v2->unk2 = func_8060C6B8(0x1A, 0, temp_s0, 0);
-        v2->unk3 = func_8060C6B8(0x1B, 0, temp_s0, 0);
-        v2->unk4 = func_8060C6B8(0x1C, 0, temp_s0, 0);
-        v2->unk5 = 0;
+    for (i = 0; i < 5; i++) {
+        D_80744548[i].unk0 = func_8060C6B8(0x19, 0, i, 0);
+        D_80744548[i].unk2 = func_8060C6B8(0x16, 0, i, 0);
+        D_80744548[i].unk3 = func_8060C6B8(0x17, 0, i, 0);
+        D_80744548[i].unk4 = func_8060C6B8(0x18, 0, i, 0);
+        D_80744548[i].unk5 = 0;
+        D_80744568[i].unk0 = func_8060C6B8(0x1D, 0, i, 0);
+        D_80744568[i].unk2 = func_8060C6B8(0x1A, 0, i, 0);
+        D_80744568[i].unk3 = func_8060C6B8(0x1B, 0, i, 0);
+        D_80744568[i].unk4 = func_8060C6B8(0x1C, 0, i, 0);
+        D_80744568[i].unk5 = 0;
     }
 }
 
 void menuSaveHighScores(void) {
-    MenuHighScoreEntry *v1;
-    MenuHighScoreEntry *v2;
     s32 i;
 
-    for (i = 0, v1 = D_80744548, v2 = D_80744568; i < 5; i++, v1++, v2++) {
-        u8 temp_s0 = i;
-        func_8060C648(0x19, 0, temp_s0, 0, v1->unk0);
-        func_8060C648(0x16, 0, temp_s0, 0, v1->unk2);
-        func_8060C648(0x17, 0, temp_s0, 0, v1->unk3);
-        func_8060C648(0x18, 0, temp_s0, 0, v1->unk4);
-        func_8060C648(0x1D, 0, temp_s0, 0, v2->unk0);
-        func_8060C648(0x1A, 0, temp_s0, 0, v2->unk2);
-        func_8060C648(0x1B, 0, temp_s0, 0, v2->unk3);
-        func_8060C648(0x1C, 0, temp_s0, 0, v2->unk4);
+    for (i = 0; i < 5; i++) {
+        func_8060C648(0x19, 0, i, 0, D_80744548[i].unk0);
+        func_8060C648(0x16, 0, i, 0, D_80744548[i].unk2);
+        func_8060C648(0x17, 0, i, 0, D_80744548[i].unk3);
+        func_8060C648(0x18, 0, i, 0, D_80744548[i].unk4);
+        func_8060C648(0x1D, 0, i, 0, D_80744568[i].unk0);
+        func_8060C648(0x1A, 0, i, 0, D_80744568[i].unk2);
+        func_8060C648(0x1B, 0, i, 0, D_80744568[i].unk3);
+        func_8060C648(0x1C, 0, i, 0, D_80744568[i].unk4);
     }
     func_8060DEA8();
 }
