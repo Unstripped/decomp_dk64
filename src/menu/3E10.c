@@ -542,7 +542,8 @@ typedef struct MenuScreenState {
     f32 unk4;
     char pad[0xB];
     s8 unk13;
-    char pad2[2];
+    char pad14;
+    s8 unk15;
     s8 unk16;
     s8 unk17;
 } MenuScreenState;
@@ -3060,11 +3061,11 @@ void func_80030894(void *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
     func_80714950(arg0);
     func_8071498C(func_80030C14);
     func_80714A28(1);
-    sp3C = func_80714CC0(arg1, arg4, (f32)arg2, (f32)arg3, -10.0f);
+    sp3C = func_80714CC0(arg1, arg4, arg2, arg3, -10.0f);
     sp38 = func_80610FE8(0x28);
     sp3C->unk384 = sp38;
-    sp38->unk0 = (f32)arg6;
-    sp38->unk4 = (f32)*((s8 *)arg0 + 0x15);
+    sp38->unk0 = arg6;
+    sp38->unk4 = ((MenuScreenState *)arg0)->unk15;
     sp38->unk8 = sp3C->unk340;
     sp38->unkC = sp3C->unk344;
     switch (arg6) {
@@ -3089,12 +3090,12 @@ void func_80030894(void *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
     case 2:
     case 3:
     case 10:
-        sp38->unk8 = (f32)arg2;
+        sp38->unk8 = arg2;
         sp38->unk10 = arg4;
         sp38->unk14 = 0.0f;
         break;
     case 15:
-        sp38->unk8 = (f32)arg2;
+        sp38->unk8 = arg2;
         break;
     default:
         sp38->unk10 = arg4;
