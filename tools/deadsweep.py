@@ -30,6 +30,8 @@ FUNC against expected/ and greedily inserts dead statements. Run in the containe
             roundN.c per improvement, best.c = last.
   -j N      parallel compiles (default 2). Scratch files: .scratch/deadsweep/<uuid>/ (removed on exit);
             identical object code is scored once. Results are search hints: review before porting.
+            Every inserted statement carries a trailing `// FAKE: deadsweep ...` comment; keep it when porting
+            (fake matches stay greppable: `grep -rn "// FAKE" src`).
 """
 import argparse, atexit, difflib, hashlib, os, re, shlex, shutil, subprocess, sys, uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -290,9 +292,11 @@ def make_variants(lines, syms, forms, default):
             out += [(p, name, f) for f in (["if (@) {}"] if arr and default else templ)]
     return out
 
+FAKE_TAG = "  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)"
+
 def insert(lines, p, name, form):
     ind = re.match(r"\s*", lines[p]).group(0) + ("    " if code_of(lines[p]).endswith(("{", ":")) else "")
-    return "\n".join(lines[:p + 1] + [ind + form.replace("@", name)] + lines[p + 1:])
+    return "\n".join(lines[:p + 1] + [ind + form.replace("@", name) + FAKE_TAG] + lines[p + 1:])
 
 def cmd_score(a):
     s = Scorer(a.copy, a.src, a.func, a.body, 0.25)

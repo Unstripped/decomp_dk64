@@ -119,6 +119,10 @@ swapped externs in a comparison look identical in the text.
   At stage 4+ run `tools/dk python3 tools/deadsweep.py sweep <copy> <src> FUNC` first (greedy
   dead-statement insertion; read its docstring). Report the stage reached (1–6) for every
   unmatched function.
+- Any construct you keep only to steer codegen (deadsweep statements, `volatile`, `x ^ 0`,
+  `do {} while (0)`) ends in a trailing `// FAKE: <what it steers>` comment (AGENTS.md
+  Conventions); keep deadsweep's own tag. Shared globals use the type most of `src/` gives
+  them (`extern Actor *D_807FBB40;`), never `void *` plus a local view.
 - Park only stage 4+ (same callee-saved set AND frame size, remaining diff only regalloc/
   scheduling/stack layout) in your copy as below; stage 2–3 stays on its GLOBAL_ASM line:
 
