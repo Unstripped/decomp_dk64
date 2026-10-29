@@ -978,21 +978,21 @@ Gfx *menuDrawSubmenuRing(MenuScreenActor *arg0, Gfx *arg1) {
     gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
     for (i = 0; i != 0x1000; i += 0x800) {
         ang = i - (temp_s2->unk17 << 11);
-        ang -= (s32)((f64)temp_s2->unk4 * 2048.0);
-        sp174 = 160.0 - (f64)func_80612794((s16)ang) * 50.0;
-        sp170 = 120.0 - (f64)func_80612790((s16)ang) * 50.0;
+        ang -= (s32)(temp_s2->unk4 * 2048.0);
+        sp174 = 160.0 - func_80612794((s16)ang) * 50.0;
+        sp170 = 120.0 - func_80612790((s16)ang) * 50.0;
         func_800317E8(temp_s2, sp174, sp170, &sp174, &sp170, 2, 0, 1.5f);
-        sp174 = (f32)((f64)sp174 + 12.0);
-        sp174 = sp174 * 4.0f;
-        sp170 = (f32)((f64)sp170 + 28.0);
-        sp170 = sp170 * 4.0f;
+        sp174 += 12.0;
+        sp174 *= 4.0f;
+        sp170 += 28.0;
+        sp170 *= 4.0f;
         if (i == 0) {
             id = D_80744538 + 0xB2;
         } else {
             id = 0xB1;
         }
         arg1 = func_8068C5A8(
-            func_8068C5A8(arg1, id, 0, 2, 0x20, 0x40, (s32)((f64)sp174 - 96.0), (s32)sp170, 3.0f, -3.0f, 0, 0.0f),
+            func_8068C5A8(arg1, id, 0, 2, 0x20, 0x40, (s32)(sp174 - 96.0), (s32)sp170, 3.0f, -3.0f, 0, 0.0f),
             id + 4, 0, 2, 0x20, 0x40, (s32)sp174, (s32)sp170, 3.0f, -3.0f, 0, 0.0f);
     }
 }
