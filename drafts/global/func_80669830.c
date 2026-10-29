@@ -1,28 +1,23 @@
-// func_80669830 (src/global/6AD90.c): regalloc only: alternating f4/f18 in cross terms; all stack offsets and frame 0x60 exact
-#include "common.h"
-#include "actor.h"
-
-typedef struct R5Q_TriangleF {
+// func_80669830 (src/global/6AD90.c): STAGE 3 (blocked by func_80666AF8 signature, same as func_806689F0): arg0 passthrough impossible with AF8 prototyped as u8 arg0; remaining diff: +4 bytes (sw a0 / andi) and f4/f18 alternation in the cross terms.
+typedef struct Col6A2PlaneTriF {
     f32 x[3];
     f32 y[3];
     f32 z[3];
     u8 unk24;
-} R5Q_TriangleF;
+} Col6A2PlaneTriF;
 
-typedef struct R5Q_Cross3D {
+typedef struct Col6A2Cross3D {
     f32 cross[3];
     f32 v0[3];
     f32 v1[3];
-} R5Q_Cross3D;
-
-void func_80666AF8(s32, f32, f32, f32, u8, u8, s32);
+} Col6A2Cross3D;
 
 void func_80669830(arg0, arg1, arg2)
 s32 arg0;
-R5Q_TriangleF *arg1;
+Col6A2PlaneTriF *arg1;
 u8 arg2;
 {
-    R5Q_Cross3D sp;
+    Col6A2Cross3D sp;
 
     sp.v1[0] = arg1->x[2] - arg1->x[0];
     sp.v1[1] = arg1->y[2] - arg1->y[0];

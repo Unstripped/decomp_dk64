@@ -500,9 +500,164 @@ u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     return var_v1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806672B8.s")
+#ifdef NON_MATCHING
+typedef struct Col6A2SubNode {
+    /* 0x00 */ u8 pad0[0x46];
+    /* 0x46 */ s16 unk46;
+    /* 0x48 */ s16 unk48;
+    /* 0x4A */ s16 unk4A;
+    /* 0x4C */ s16 unk4C;
+    /* 0x4E */ u8 pad4E[0x60 - 0x4E];
+    /* 0x60 */ u8 unk60;
+} Col6A2SubNode;
+typedef struct Col6A2Node {
+    /* 0x00 */ Col6A2SubNode *unk0;
+    /* 0x04 */ u8 pad4[0x2C - 0x04];
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ u8 pad2E[0x4A - 0x2E];
+    /* 0x4A */ u8 unk4A;
+    /* 0x4B */ u8 pad4B[0x50 - 0x4B];
+    /* 0x50 */ struct Col6A2Node *next;
+} Col6A2Node;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066785C.s")
+extern Col6A2Node *D_807F93C0;
+u8 effectGetTableFlag(Col6A2Node *);
+f32 func_806608FC(Col6A2Node *, s32, s32, u8);
+s32 func_80668C30(s16 *, f32, f32);
+f32 func_8066785C(s16 *, f32, f32);
+s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
+
+s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
+    f32 temp_fs1;
+    u8 temp_s0;
+    f32 pad[2]; // pad: reproduces frame 0xF8 (unused)
+    f32 x[4];
+    f32 y[4];
+    f32 z[4];
+    s16 spA0[12]; // 12 not 9: slot size so arrays start at 0xB8
+    s8 sp9F; // FAKE: s8 (not u8) keeps sp9F in memory like the original (final lbu then only differs: lb)
+    f32 var_fs5;
+    Col6A2Node *var_s3;
+    f32 var_fs0;
+    f32 sp8C;
+    s32 cell_x;
+    s32 cell_z;
+
+    sp9F = 0;
+    var_fs5 = 999999.0f;
+    var_s3 = D_807F93C0;
+    sp8C = (f32)((f64)*arg2 + 4.0);
+    if (var_s3 != NULL) {
+        do {
+            if (var_s3->unk0->unk46 <= arg0 && var_s3->unk0->unk48 <= arg1 && arg0 <= var_s3->unk0->unk4A && arg1 <= var_s3->unk0->unk4C) {
+                var_fs0 = arg0 * 6.0f;
+                temp_fs1 = arg1 * 6.0f;
+                temp_s0 = effectGetTableFlag(var_s3);
+                cell_x = (arg0 - var_s3->unk0->unk46) / (f32)var_s3->unk2C;
+                cell_z = (arg1 - var_s3->unk0->unk48) / (f32)var_s3->unk2C;
+
+                x[0] = var_s3->unk2C * cell_x + var_s3->unk0->unk46;
+                z[0] = var_s3->unk2C * cell_z + var_s3->unk0->unk48;
+                y[0] = func_806608FC(var_s3, x[0], z[0], temp_s0);
+
+                x[1] = (cell_x + 1) * var_s3->unk2C + var_s3->unk0->unk46;
+                z[1] = z[0];
+                y[1] = func_806608FC(var_s3, x[1], z[1], temp_s0);
+                x[2] = x[0];
+                z[2] = (cell_z + 1) * var_s3->unk2C + var_s3->unk0->unk48;
+                y[2] = func_806608FC(var_s3, x[2], z[2], temp_s0);
+
+                x[3] = x[1];
+                z[3] = z[2];
+                y[3] = func_806608FC(var_s3, x[3], z[3], temp_s0);
+
+                spA0[0] = x[0] * 6.0f;
+                spA0[3] = y[0] * 6.0f;
+                spA0[6] = z[0] * 6.0f;
+
+                spA0[1] = x[1] * 6.0f;
+                spA0[4] = y[1] * 6.0f;
+                spA0[7] = z[1] * 6.0f;
+
+                spA0[2] = x[3] * 6.0f;
+                spA0[5] = y[3] * 6.0f;
+                spA0[8] = z[3] * 6.0f;
+
+                if (func_80668C30(spA0, var_fs0, temp_fs1) != 0) {
+                    var_fs0 = func_8066785C(spA0, var_fs0, temp_fs1) / 6.0f;
+                } else {
+                    spA0[1] = x[2] * 6.0f;
+                    spA0[4] = y[2] * 6.0f;
+                    spA0[7] = z[2] * 6.0f;
+                    var_fs0 = func_8066785C(spA0, var_fs0, temp_fs1) / 6.0f;
+                }
+
+                switch (var_s3->unk0->unk60) {
+                case 0:
+                case 2:
+                case 3:
+                    sp9F = 1;
+                    if (var_s3->unk0->unk60 == 2 || var_s3->unk0->unk60 == 3) {
+                        if ((var_fs0 < *arg2 ? *arg2 - var_fs0 : -(*arg2 - var_fs0)) < 6.0f) {
+                            switch (var_s3->unk0->unk60) {
+                            case 2:
+                                D_807F94AF = 2;
+                                break;
+                            case 3:
+                                D_807F94AF = 1;
+                                break;
+                            }
+                        }
+                    }
+                    if (mathCheckCloserFloatThreshold(var_fs5, var_fs0, sp8C, 0) != 0) {
+                        var_fs5 = var_fs0;
+                    }
+                    break;
+                case 1:
+                    if (arg3 != 0) {
+                        if (((Actor *)arg3)->unk80 < var_fs0) {
+                            ((Actor *)arg3)->unk6A |= 4;
+                            *(s8 *)&((Actor *)arg3)->unkB0[0] = -1; // FAKE: s8 view makes the store constant -1 (u8 field folds to 0xFF)
+                            if (var_s3->unk4A & 1) {
+                                D_807F94B0 = 1;
+                            }
+                        }
+                        ((Actor *)arg3)->unkAC = var_fs0;
+                        ((Actor *)arg3)->unk6A |= 2;
+                    }
+                    D_807F9484 = 1;
+                    D_807F9488 = var_fs0;
+                    break;
+                }
+            }
+            var_s3 = var_s3->next;
+        } while (var_s3 != NULL);
+    }
+    if (sp9F != 0) {
+        *arg2 = var_fs5;
+    }
+    return (u8)sp9F;
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806672B8.s")
+#endif
+
+f32 func_8066785C(s16 *arg0, f32 arg1, f32 arg2) {
+    f64 dx01 = arg0[0] - arg0[1];
+    f64 dy01 = arg0[3] - arg0[4];
+    f64 dz01 = arg0[6] - arg0[7];
+    f64 dx02 = arg0[0] - arg0[2];
+    f64 dy02 = arg0[3] - arg0[5];
+    f64 dz02 = arg0[6] - arg0[8];
+    f64 nx = (dy01 * dz02) - (dz01 * dy02);
+    f64 ny = (dz01 * dx02) - (dx01 * dz02);
+    f64 nz = (dx01 * dy02) - (dy01 * dx02);
+    f64 d = -((nx * arg0[1]) + (ny * arg0[4]) + (nz * arg0[7]));
+    f64 val = ((nx * arg1) + (ny * -1000.0) + (nz * arg2) + d) / (ny * 2000.0);
+    val = 0.0 - val;
+    return (2000.0 * val) - 1000.0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806679BC.s")
 
@@ -717,7 +872,62 @@ s32 collisionCheckTriangleXZBoundsS16(CollisionMeshTriS *arg0, s32 arg1, s32 arg
     return 1;
 }
 
+#ifdef NON_MATCHING
+s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
+    f64 padTop[4]; // pad: reproduces frame 0xC8 / slot layout (unused)
+    f64 var_fa0, var_fa1, var_ft4, var_ft5;
+    f64 padMid[1]; // pad: reproduces slot layout (unused)
+    f64 var_fv0, var_fv1, var_fs0;
+    f64 mid_x, mid_z;
+    f64 d_arg1, d_arg2;
+    f64 t0_d, t1_d;
+    s32 i;
+    s32 mismatch = 0;
+
+    d_arg1 = arg1;
+    d_arg2 = arg2;
+    mid_x = ((f64)arg0[0] + (f64)(arg0[2] + arg0[1]) * 0.5) * 0.5;
+    mid_z = ((f64)arg0[6] + (f64)(arg0[8] + arg0[7]) * 0.5) * 0.5;
+    t0_d = arg0[0];
+    t1_d = arg0[6];
+
+    for (i = 0; i < 3; i++) {
+        switch (i) {
+        case 0:
+            var_ft4 = t0_d;
+            var_ft5 = t1_d;
+            var_fa0 = (f64)(arg0[1] - arg0[0]);
+            var_fa1 = (f64)(arg0[7] - arg0[6]);
+            break;
+        case 1:
+            var_ft4 = t0_d;
+            var_ft5 = t1_d;
+            var_fa0 = (f64)(arg0[2] - arg0[0]);
+            var_fa1 = (f64)(arg0[8] - arg0[6]);
+            break;
+        case 2:
+            var_ft4 = (f64)arg0[1];
+            var_ft5 = (f64)arg0[7];
+            var_fa0 = (f64)(arg0[2] - arg0[1]);
+            var_fa1 = (f64)(arg0[8] - arg0[7]);
+            break;
+        }
+
+        var_fv0 = (d_arg1 - var_ft4) * var_fa1;
+        var_fv1 = (d_arg2 - var_ft5) * var_fa0;
+        var_fs0 = ((mid_x - var_ft4) * var_fa1) - ((mid_z - var_ft5) * var_fa0);
+
+        if ((var_fv1 <= var_fv0 ? 1 : -1) != (var_fs0 >= 0.0 ? 1 : -1)) {
+            mismatch = 1;
+        }
+    }
+
+    return (mismatch == 0) & 0xFF;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80668C30.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80668E9C.s")
 
@@ -868,7 +1078,26 @@ s32 collisionCheckTriangleWindingF32(CollisionTriF *arg0) {
     return 0;
 }
 
+#ifdef NON_MATCHING
+void matrix4Invert(float [4][4], float [4][4]);
+
+void func_806699C4(CollisionActorWork *arg0, s16 arg1, s8 arg2, s8 arg3, f32 arg4, f32 arg5, f32 arg6) {
+    f32 pad2[10];
+    float spB0[4][4];
+    float pad[4][4];
+    float sp30[4][4];
+
+    arg0->unk10C = (arg1 + D_807F6000)->unk88;
+    arg0->unk10E = (((((((((arg3 & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF); // FAKE: nine nested &0xFF shift uopt temp numbering
+    arg0->unk10F = arg2;
+    func_8066C610(arg1, arg2, spB0);
+    matrix4Invert(sp30, spB0);
+    guMtxXFMF(sp30, arg4, arg5, arg6, &arg0->unk100, &arg0->unk104, &arg0->unk108);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806699C4.s")
+#endif
 
 void actorUpdateSubnodeRotationAndMtx(CollisionActorWork *arg0) {
     f32 pad[10];

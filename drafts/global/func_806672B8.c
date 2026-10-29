@@ -1,5 +1,5 @@
-// func_806672B8 (src/global/6AD90.c): 362/363 insns, frame 0xF8 matches, all saved regs and callers match, ternary matches, 4-byte stack shift on spA0 (0xA4 vs 0xA0)
-typedef struct R4L_SubNode {
+// func_806672B8 (src/global/6AD90.c): STAGE 6: 1 insn off (final return reads sp9F with lb instead of lbu); frame 0xF8 and all offsets/regs exact. sp9F must be s8 (u8 gets enregistered -> lbu v1/move v0,v1 instead of 2 loads); with (u8) cast on test or return one lbu appears but the other lb remains, both casts CSE the load (82 rows). Needs pad[2]+spA0[12]+decl order (temp_fs1,temp_s0 first), u8 temp_s0, effectGetTableFlag u8 return, func_806608FC 4th param u8, s8 view for unkB0=-1, unk6A before unkB0 store.
+typedef struct Col6A2SubNode {
     /* 0x00 */ u8 pad0[0x46];
     /* 0x46 */ s16 unk46;
     /* 0x48 */ s16 unk48;
@@ -7,37 +7,37 @@ typedef struct R4L_SubNode {
     /* 0x4C */ s16 unk4C;
     /* 0x4E */ u8 pad4E[0x60 - 0x4E];
     /* 0x60 */ u8 unk60;
-} R4L_SubNode;
-typedef struct R4L_Node {
-    /* 0x00 */ R4L_SubNode *unk0;
+} Col6A2SubNode;
+typedef struct Col6A2Node {
+    /* 0x00 */ Col6A2SubNode *unk0;
     /* 0x04 */ u8 pad4[0x2C - 0x04];
     /* 0x2C */ s16 unk2C;
     /* 0x2E */ u8 pad2E[0x4A - 0x2E];
     /* 0x4A */ u8 unk4A;
     /* 0x4B */ u8 pad4B[0x50 - 0x4B];
-    /* 0x50 */ struct R4L_Node *next;
-} R4L_Node;
+    /* 0x50 */ struct Col6A2Node *next;
+} Col6A2Node;
 
-extern R4L_Node *D_807F93C0;
-s32 func_8065F5F0(R4L_Node *);
-f32 func_806608FC(R4L_Node *, s32, s32, s32);
+extern Col6A2Node *D_807F93C0;
+u8 effectGetTableFlag(Col6A2Node *);
+f32 func_806608FC(Col6A2Node *, s32, s32, u8);
 s32 func_80668C30(s16 *, f32, f32);
 f32 func_8066785C(s16 *, f32, f32);
-s32 func_80666FC8(f32, f32, f32, s32);
+s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
 
-u8 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
-    f32 pad[4];
+s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
+    f32 temp_fs1;
+    u8 temp_s0;
+    f32 pad[2]; // pad: reproduces frame 0xF8 (unused)
     f32 x[4];
     f32 y[4];
     f32 z[4];
-    s16 spA0[10];
-    u8 sp9F;
+    s16 spA0[12]; // 12 not 9: slot size so arrays start at 0xB8
+    s8 sp9F; // FAKE: s8 (not u8) keeps sp9F in memory like the original (final lbu then only differs: lb)
     f32 var_fs5;
-    R4L_Node *var_s3;
+    Col6A2Node *var_s3;
     f32 var_fs0;
     f32 sp8C;
-    f32 temp_fs1;
-    s32 temp_s0;
     s32 cell_x;
     s32 cell_z;
 
@@ -50,7 +50,7 @@ u8 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
             if (var_s3->unk0->unk46 <= arg0 && var_s3->unk0->unk48 <= arg1 && arg0 <= var_s3->unk0->unk4A && arg1 <= var_s3->unk0->unk4C) {
                 var_fs0 = arg0 * 6.0f;
                 temp_fs1 = arg1 * 6.0f;
-                temp_s0 = func_8065F5F0(var_s3) & 0xFF;
+                temp_s0 = effectGetTableFlag(var_s3);
                 cell_x = (arg0 - var_s3->unk0->unk46) / (f32)var_s3->unk2C;
                 cell_z = (arg1 - var_s3->unk0->unk48) / (f32)var_s3->unk2C;
 
@@ -107,21 +107,21 @@ u8 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                             }
                         }
                     }
-                    if (func_80666FC8(var_fs5, var_fs0, sp8C, 0) != 0) {
+                    if (mathCheckCloserFloatThreshold(var_fs5, var_fs0, sp8C, 0) != 0) {
                         var_fs5 = var_fs0;
                     }
                     break;
                 case 1:
-                    if (arg3 != NULL) {
-                        if (arg3->unk80 < var_fs0) {
-                            arg3->unkB0[0] = -1;
-                            arg3->unk6A |= 4;
+                    if (arg3 != 0) {
+                        if (((Actor *)arg3)->unk80 < var_fs0) {
+                            ((Actor *)arg3)->unk6A |= 4;
+                            *(s8 *)&((Actor *)arg3)->unkB0[0] = -1; // FAKE: s8 view makes the store constant -1 (u8 field folds to 0xFF)
                             if (var_s3->unk4A & 1) {
                                 D_807F94B0 = 1;
                             }
                         }
-                        arg3->unkAC = var_fs0;
-                        arg3->unk6A |= 2;
+                        ((Actor *)arg3)->unkAC = var_fs0;
+                        ((Actor *)arg3)->unk6A |= 2;
                     }
                     D_807F9484 = 1;
                     D_807F9488 = var_fs0;
@@ -134,5 +134,5 @@ u8 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     if (sp9F != 0) {
         *arg2 = var_fs5;
     }
-    return sp9F;
+    return (u8)sp9F;
 }

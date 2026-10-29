@@ -1,29 +1,24 @@
-// func_806689F0 (src/global/6AD90.c): regalloc only: alternating f8/f10 in mtc1/cvt; frame 0x60 and stack offsets exact
-#include "common.h"
-#include "actor.h"
-
-typedef struct R5Q_TriangleS {
+// func_806689F0 (src/global/6AD90.c): STAGE 3 (blocked by func_80666AF8 signature): passes arg0 straight to func_80666AF8 (a0 untouched in expected, no sw a0). AF8 is now prototyped (u8 arg0,...,u8 arg6) so any s32/u8 arg0 gets narrowed (sw a0,0x60 + lbu a0 / andi+move) => +4 bytes. Needs AF8's first param to be word-sized while AF8 itself still emits sw a0,0x18(sp) (s32 arg0 drops that store; u16 keeps it but callers would andi). K&R def with s32 arg0 and the body below otherwise matches the frame 0x60 and offsets.
+typedef struct Col6A2PlaneTriS {
     s16 x[3];
     s16 y[3];
     s16 z[3];
     s16 unk12;
     u8 unk14;
-} R5Q_TriangleS;
+} Col6A2PlaneTriS;
 
-typedef struct R5Q_Cross3D {
+typedef struct Col6A2Cross3D {
     f32 cross[3];
     f32 v0[3];
     f32 v1[3];
-} R5Q_Cross3D;
-
-void func_80666AF8(s32, f32, f32, f32, u8, u8, s32);
+} Col6A2Cross3D;
 
 void func_806689F0(arg0, arg1, arg2)
 s32 arg0;
-R5Q_TriangleS *arg1;
+Col6A2PlaneTriS *arg1;
 u8 arg2;
 {
-    R5Q_Cross3D sp;
+    Col6A2Cross3D sp;
 
     sp.v1[0] = arg1->x[2] - arg1->x[0];
     sp.v1[1] = arg1->y[2] - arg1->y[0];
