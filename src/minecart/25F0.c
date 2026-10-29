@@ -27,8 +27,7 @@ typedef struct Actor_25F0 {
     f32 unk7C;
     f32 unk80;
     f32 unk84;
-    struct Actor_25F0 *unk88;
-    u8 pad8C[0xA4 - 0x8C];
+    u8 pad88[0xA4 - 0x88];
     f32 unkA4;
     u8 padA8[0xB8 - 0xA8];
     f32 unkB8;
@@ -44,9 +43,7 @@ typedef struct Actor_25F0 {
     s16 unkEC;
     s16 unkEE;
     s16 unkF0;
-    u8 padF2[0x104 - 0xF2];
-    void *unk104;
-    u8 pad108[0x11C - 0x108];
+    u8 padF2[0x11C - 0xF2];
     struct Actor_25F0 *unk11C;
     u8 pad120[0x128 - 0x120];
     s16 unk128;
@@ -67,9 +64,16 @@ typedef struct Actor_25F0 {
     u8 pad16D[0x174 - 0x16D];
     void *unk174;
     struct MinecartCart *unk178;
-    u8 pad17C[0x1F0 - 0x17C];
-    s32 unk1F0;
 } Actor_25F0;
+
+typedef struct PlayerState_25F0 {
+    u8 pad0[0x88];
+    Actor_25F0 *unk88;
+    u8 pad8C[0x104 - 0x8C];
+    void *unk104;
+    u8 pad108[0x1F0 - 0x108];
+    s32 unk1F0;
+} PlayerState_25F0;
 
 typedef struct MinecartCart {
     u8 pad0[0x10];
@@ -83,8 +87,6 @@ typedef struct MinecartCart {
     s16 unk3C;
     u8 pad3E[0x42 - 0x3E];
     u8 unk42;
-    u8 pad43[0x88 - 0x43];
-    Actor_25F0 *unk88;
 } MinecartCart;
 
 typedef struct MinecartTargetState {
@@ -144,7 +146,7 @@ typedef struct MinecartPlayerPosition {
 extern Actor_25F0 *D_807FBB40;
 extern Actor_25F0 *D_807FBB44;
 extern Actor_25F0 *D_807FBB4C;
-extern Actor_25F0 *D_807FD580;
+extern PlayerState_25F0 *D_807FD580;
 extern Actor_25F0 *D_807FDC94;
 extern Struct_DC90 *D_807FDC90;
 extern Struct_DC9C *D_807FDC9C;
@@ -155,8 +157,8 @@ extern u8 D_807FBB85;
 extern u32 D_8076A064;
 extern s32 D_8076A0A8;
 extern s32 D_80717D4C;
-extern s32 D_8074E880[];
-extern s32 D_80720120;
+extern void *D_8074E880[];
+extern u8 D_80720120[];
 extern s32 D_8072030C;
 extern s32 gCamActor;
 extern u8 D_80028BD0[];
@@ -185,9 +187,9 @@ void func_80714950(s32);
 void func_8071498C(s32 *);
 void func_807149B8(s32);
 void func_80714A28(s32);
-void func_80714CC0(s32, f32, f32, f32, f32);
+void func_80714CC0(void *, f32, f32, f32, f32);
 void func_80724CA4(s32, s32);
-void sfxPlayFromActorWithAltitudeCheck(Actor_25F0 *, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor_25F0 *, s16, u8, s16, u8);
 void camStartShake(s32, s32, s32);
 void func_8067E278(s32, s32);
 void func_80724E48(s32);
@@ -279,8 +281,8 @@ void minecartFollowerBehaviour(void) {
         /* fallthrough */
     case 1:
         D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, (D_807FBB4C->unkE6 + 0x800) & 0xFFF, 8.0f);
-        D_807FBB40->unk7C = (f32)(((f64)((func_80612794(D_807FBB4C->unkE6) * (f32)sp47 + D_807FBB4C->unk7C) - D_807FBB40->unk7C) * 0.3) + D_807FBB40->unk7C);
-        D_807FBB40->unk84 = (f32)(((f64)((func_80612790(D_807FBB4C->unkE6) * (f32)sp47 + D_807FBB4C->unk84) - D_807FBB40->unk84) * 0.3) + D_807FBB40->unk84);
+        D_807FBB40->unk7C = (func_80612794(D_807FBB4C->unkE6) * sp47 + D_807FBB4C->unk7C - D_807FBB40->unk7C) * 0.3 + D_807FBB40->unk7C;
+        D_807FBB40->unk84 = (func_80612790(D_807FBB4C->unkE6) * sp47 + D_807FBB4C->unk84 - D_807FBB40->unk84) * 0.3 + D_807FBB40->unk84;
         D_807FBB40->unk7C += 4.0f * func_80612794(D_8076A064 * 0x35);
         D_807FBB40->unk84 += 4.0f * func_80612790(D_8076A064 * 0x3E);
         D_807FBB40->unk80 = (func_80612794(D_8076A064 * 0x32) * 10.0f) + (D_807FD580->unk88->unkA4 + 30.0f);
@@ -290,30 +292,22 @@ void minecartFollowerBehaviour(void) {
 }
 
 s32 minecartSetTargetAheadOfPlayer(MinecartTargetState *arg0, f32 arg1) {
-    arg0->unkA = (s16) (s32) ((func_80612794(D_807FBB4C->unkE6) * (D_807FD580->unk88->unkB8 * arg1)) + D_807FBB4C->unk7C);
-    arg0->unkC = (s16) (s32) D_807FD580->unk88->unkA4;
-    arg0->unkE = (s16) (s32) ((func_80612790(D_807FBB4C->unkE6) * (D_807FD580->unk88->unkB8 * arg1)) + D_807FBB4C->unk84);
+    arg0->unkA = ((func_80612794(D_807FBB4C->unkE6) * (D_807FD580->unk88->unkB8 * arg1)) + D_807FBB4C->unk7C);
+    arg0->unkC = D_807FD580->unk88->unkA4;
+    arg0->unkE = ((func_80612790(D_807FBB4C->unkE6) * (D_807FD580->unk88->unkB8 * arg1)) + D_807FBB4C->unk84);
 }
 
 void minecartSpawnRandomParticle(void) {
-    s32 unused;
-    s32 sp28;
-    s32 sp24;
-    f32 f10;
-
     func_80714950(((randomNonNegative() >> 15) % 100) + 300);
     func_8071498C(&D_80717D4C);
     func_807149B8(1);
     func_80714A28(4);
-    sp24 = randomNonNegative();
-    sp28 = randomNonNegative();
-    f10 = 10.0f;
     func_80714CC0(
-        D_8074E880[((sp24 >> 15) % 1000) % 3],
+        D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
         0.5f,
-        (f32)((sp28 >> 15) % 20) + (D_807FBB40->unk7C - f10),
+        ((randomNonNegative() >> 15) % 20) + (D_807FBB40->unk7C - 10.0f),
         D_807FBB40->unk80,
-        (f32)((randomNonNegative() >> 15) % 20) + (D_807FBB40->unk84 - f10)
+        ((randomNonNegative() >> 15) % 20) + (D_807FBB40->unk84 - 10.0f)
     );
 }
 
@@ -347,9 +341,9 @@ void minecartFollowerChildBehaviour(void) {
         D_807FBB40->unk128 = 0x96;
     }
     D_807FBB40->unkE6 = s2->unkE6;
-    D_807FBB40->unk7C = (f32)(((f64)(((func_80612794((s16)(s2->unkE6 + sp66)) * 47.0f) + s2->unk7C) - D_807FBB40->unk7C) * 0.3) + (f64)D_807FBB40->unk7C);
-    D_807FBB40->unk84 = (f32)(((f64)(((func_80612790((s16)(s2->unkE6 + sp66)) * 47.0f) + s2->unk84) - D_807FBB40->unk84) * 0.3) + (f64)D_807FBB40->unk84);
-    D_807FBB40->unk80 = (f32)((f64)D_807FBB40->unk80 + ((f64)((s2->unk80 - 10.0f) - D_807FBB40->unk80) * 0.3));
+    D_807FBB40->unk7C = (func_80612794(s2->unkE6 + sp66) * 47.0f + s2->unk7C - D_807FBB40->unk7C) * 0.3 + D_807FBB40->unk7C;
+    D_807FBB40->unk84 = (func_80612790(s2->unkE6 + sp66) * 47.0f + s2->unk84 - D_807FBB40->unk84) * 0.3 + D_807FBB40->unk84;
+    D_807FBB40->unk80 = D_807FBB40->unk80 + (s2->unk80 - 10.0f - D_807FBB40->unk80) * 0.3;
     switch (s2->unk154) {
     case 2:
     case 3:
@@ -366,12 +360,12 @@ void minecartFollowerChildBehaviour(void) {
                 }
                 break;
             case 1:
-                d = (f64)D_807FBB40->unk4->unk0[1] / 17.0;
+                d = D_807FBB40->unk4->unk0[1] / 17.0;
                 var = (d > 1.0) ? 1.0 : d;
-                x = (f32)(((f64)func_80612790((s16)(s32)(var * 2048.0f + 2048.0f)) * 0.5) + 0.5);
-                D_807FBB40->unk7C = ((f32)sp68->unkA - D_807FBB40->unk7C) * x + D_807FBB40->unk7C;
+                x = func_80612790(var * 2048.0f + 2048.0f) * 0.5 + 0.5;
+                D_807FBB40->unk7C = (sp68->unkA - D_807FBB40->unk7C) * x + D_807FBB40->unk7C;
                 D_807FBB40->unk80 = (D_807FBB40->unk80 + 10.0f) + ((D_807FD580->unk88->unkA4 - (D_807FBB40->unk80 + 10.0f)) * x);
-                D_807FBB40->unk84 = ((f32)sp68->unkE - D_807FBB40->unk84) * x + D_807FBB40->unk84;
+                D_807FBB40->unk84 = (sp68->unkE - D_807FBB40->unk84) * x + D_807FBB40->unk84;
                 if (D_807FBB4C->unk4->unk64 == 0x294 || (D_807FBB40->unk4->unk0[1] > 16.0f && D_807FBB40->unk4->unk0[1] < 18.0f)) {
                     D_807FBB40->unk132 = 1;
                 } else {
@@ -399,13 +393,13 @@ void minecartFollowerChildBehaviour(void) {
                 v = sp68->unk2C;
                 sp68->unk2C = v - 1;
                 if (v != 0) {
-                    sp58 = (f32)(((f64)func_80612790((s16)(s32)(((f64)sp68->unk2C / 70.0) * 2048.0 + 2048.0)) * 0.5) + 0.5);
-                    sp54 = func_80612794((s16)(s32)(2048.0f * sp58));
-                    sp50 = func_80612794((s16)(s32)(sp58 * 1536.0f + 1024.0f)) * (f32)(D_807FBB40->unk168 * -110);
-                    sp4C = (f32)(((f64)func_80612790((s16)(s32)(sp58 * 4096.0f)) * 0.5 + 0.5) * 50.0 + -30.0);
-                    D_807FBB40->unk7C = ((func_80612794((s16)(D_807FBB4C->unkE6 - 0x400)) * sp50 + (f32)sp68->unkA) - D_807FBB40->unk7C) * sp54 + D_807FBB40->unk7C;
+                    sp58 = func_80612790(sp68->unk2C / 70.0 * 2048.0 + 2048.0) * 0.5 + 0.5;
+                    sp54 = func_80612794(2048.0f * sp58);
+                    sp50 = func_80612794(sp58 * 1536.0f + 1024.0f) * (D_807FBB40->unk168 * -110);
+                    sp4C = (func_80612790(sp58 * 4096.0f) * 0.5 + 0.5) * 50.0 + -30.0;
+                    D_807FBB40->unk7C = ((func_80612794(D_807FBB4C->unkE6 - 0x400) * sp50 + sp68->unkA) - D_807FBB40->unk7C) * sp54 + D_807FBB40->unk7C;
                     D_807FBB40->unk80 = D_807FBB40->unk80 + (((D_807FD580->unk88->unkA4 + sp4C) - D_807FBB40->unk80) * sp54);
-                    D_807FBB40->unk84 = ((func_80612790((s16)(D_807FBB4C->unkE6 - 0x400)) * sp50 + (f32)sp68->unkE) - D_807FBB40->unk84) * sp54 + D_807FBB40->unk84;
+                    D_807FBB40->unk84 = ((func_80612790(D_807FBB4C->unkE6 - 0x400) * sp50 + sp68->unkE) - D_807FBB40->unk84) * sp54 + D_807FBB40->unk84;
                     if (sp68->unk2C < 0x10) {
                         D_807FBB40->unk132 = 0;
                     }
@@ -474,8 +468,8 @@ void func_80027778(void) {
     s16 sp5C;
 
     sp64 = D_807FD580->unk88->unk174;
-    sp5E = (s16)(s32)D_807F5FD4[D_807FBB40->unk15F][D_807FBB40->unk168].x;
-    sp5C = (s16)(s32)D_807F5FD4[D_807FBB40->unk15F][D_807FBB40->unk168].z;
+    sp5E = D_807F5FD4[D_807FBB40->unk15F][D_807FBB40->unk168].x;
+    sp5C = D_807F5FD4[D_807FBB40->unk15F][D_807FBB40->unk168].z;
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80613C48(D_807FBB40, 0x5FF, 0.0f, 0.0f);
         animSetSpeed(D_807FBB40, 0, 1.0f);
@@ -521,14 +515,14 @@ void func_80027778(void) {
     }
     if (D_8076A064 % 3 == 0) {
         func_807149B8(1);
-        func_80714CC0((s32)&D_80720120, 1.0f, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f, D_807FBB40->unk84);
+        func_80714CC0(D_80720120, 1.0f, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f, D_807FBB40->unk84);
     }
-    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D((f32)sp5E, (f32)sp5C, D_807FBB40->unk7C, D_807FBB40->unk84), 6.0f);
+    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D(sp5E, sp5C, D_807FBB40->unk7C, D_807FBB40->unk84), 6.0f);
     D_807FBB40->unkEE = D_807FBB40->unkE6;
     actorApplyGravity();
     actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 2.0 * func_80612794(D_8076A064 * 0x64) + 10.0);
-    if (((f32)sp5E - D_807FBB40->unk7C) * ((f32)sp5E - D_807FBB40->unk7C) + ((f32)sp5C - D_807FBB40->unk84) * ((f32)sp5C - D_807FBB40->unk84) < 1600.0f) {
+    if ((sp5E - D_807FBB40->unk7C) * (sp5E - D_807FBB40->unk7C) + (sp5C - D_807FBB40->unk84) * (sp5C - D_807FBB40->unk84) < 1600.0f) {
         D_807FBB40->unk168++;
     }
     if (D_807FBB85 != 0 || (D_807FBB40->unkF0--, D_807FBB40->unkF0 == 0)) {
@@ -583,7 +577,7 @@ void minecartStartScriptNearPlayer(void) {
 }
 
 void minecartChooseBranchSide(MinecartCart *arg0) {
-    MinecartCart *c = D_807FDC94->unk174;
+    PlayerState_25F0 *c = D_807FDC94->unk174;
     MinecartCart *d = c->unk88->unk174;
     u8 b;
     b = *d->unk34 - 0x10;
@@ -597,10 +591,10 @@ void minecartAdjustTargetSpeed(void) {
     s32 temp_v1_2;
     u16 temp_v1;
     u8 temp_v1_3;
-    MinecartCart *comp = D_807FDC94->unk174;
+    PlayerState_25F0 *comp = D_807FDC94->unk174;
 
     temp_v1 = D_807FBB40->unk4->unk1C->unk4;
-    if (((s32) temp_v1 >= 0x47D1) && ((s32) temp_v1 < 0xB830)) {
+    if ((temp_v1 >= 0x47D1) && (temp_v1 < 0xB830)) {
         Struct_DC90 *dc90 = D_807FDC90;
         temp_v1_2 = dc90->unk26 - 5;
         if (temp_v1_2 < 9) {
@@ -610,18 +604,18 @@ void minecartAdjustTargetSpeed(void) {
         dc90->unk26 = temp_v1_2;
         return;
     }
-    if (((s32) temp_v1 < 0x3830) || ((s32) temp_v1 >= 0xC7D1)) {
+    if ((temp_v1 < 0x3830) || (temp_v1 >= 0xC7D1)) {
         Struct_DC90 *dc90 = D_807FDC90;
         temp_v1_3 = D_807FDC9C->unkD;
         temp_a0 = dc90->unk26 + 5;
-        if ((s32) temp_v1_3 < temp_a0) {
-            dc90->unk26 = (s16) temp_v1_3;
+        if (temp_v1_3 < temp_a0) {
+            dc90->unk26 = temp_v1_3;
             return;
         }
         dc90->unk26 = temp_a0;
         return;
     }
-    D_807FDC90->unk26 = (s16) (s32) comp->unk88->unkB8;
+    D_807FDC90->unk26 = comp->unk88->unkB8;
 }
 
 void minecartPlayPassBySfx(MinecartCart *arg0) {
@@ -634,11 +628,11 @@ void minecartPlayPassBySfx(MinecartCart *arg0) {
     dist = sqrtf(dist + d * d);
     if (dist < 200.0f) {
         if (++arg0->unk3A >= 9) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1F, 0xFF, (s16) (s32) (127.0f - (dist - (f32) arg0->unk3C)), 0);
-            arg0->unk3A = (u8) (u32) (((f64) func_806119A0() / 4294967295.0) * 3.0);
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1F, 0xFF, (127.0f - (dist - arg0->unk3C)), 0);
+            arg0->unk3A = func_806119A0() / 4294967295.0 * 3.0;
         }
     }
-    arg0->unk3C = (s16) (s32) dist;
+    arg0->unk3C = dist;
 }
 
 void func_800280BC(void) {
@@ -686,7 +680,7 @@ void func_800280BC(void) {
         actorApproachTargetSpeed(0x200);
         minecartFollowTrack(cart, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp44, &sp48, &sp4C);
-        func_8072177C(D_807FBB40, (s16) (s32) sp44, (s16) (s32) sp48, (s16) (s32) sp4C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        func_8072177C(D_807FBB40, sp44, sp48, sp4C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         minecartPlayPassBySfx(cart);
         return;
     case 2:
@@ -758,7 +752,7 @@ void func_8002835C(void) {
             sp74->unk34--;
         }
         actorGetNodePos(D_807FBB40, 5, &sp58, &sp5C, &sp60);
-        func_8072177C(D_807FBB40, (s16) (s32) sp58, (s16) (s32) sp5C, (s16) (s32) sp60, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        func_8072177C(D_807FBB40, sp58, sp5C, sp60, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         minecartPlayPassBySfx(sp74);
         return;
     case 2:
@@ -777,7 +771,7 @@ void func_800286EC(void) {
     f32 sp7C;
     f32 sp78;
     f32 sp74;
-    MinecartCart *sp70;
+    PlayerState_25F0 *sp70;
     f64 t1;
     f64 t2;
     f64 t4;
@@ -798,7 +792,7 @@ void func_800286EC(void) {
     if (D_807FBB70.unk200 == 4) {
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF6, 0xFF, 0x7F, 0x1E);
         camStartShake(gCamActor, 0xA, 0x14);
-        t1 = (f64)D_807FBB40->unkB8 * 1.2;
+        t1 = D_807FBB40->unkB8 * 1.2;
         if (t1 > 0.0) {
             t4 = t1;
         } else {
@@ -835,7 +829,7 @@ case_1:
             (dx = D_807FBB40->unk7C - D_807FBB4C->unk7C, dz = D_807FBB40->unk84 - D_807FBB4C->unk84, dx * dx + dz * dz < 22500.0f)) {
             D_807FDC90->unk26 = 0;
         } else {
-            t2 = (f64)sp70->unk88->unkB8 * 1.4;
+            t2 = sp70->unk88->unkB8 * 1.4;
             if (t2 > 45.0) {
                 t4 = t2;
             } else {
@@ -847,17 +841,17 @@ case_1:
                 } else {
                     t5 = 45.0;
                 }
-                D_807FDC90->unk26 = (s16)(s32)t5;
+                D_807FDC90->unk26 = t5;
             } else {
                 t5 = 90.0;
-                D_807FDC90->unk26 = (s16)(s32)t5;
+                D_807FDC90->unk26 = t5;
             }
         }
         actorApproachTargetSpeed(0x200);
         func_8068ECF4(6, 0xFF);
         minecartFollowTrack(sp84, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp74, &sp78, &sp7C);
-        func_8072177C(D_807FBB40, (s16)(s32)sp74, (s16)(s32)sp78, (s16)(s32)sp7C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        func_8072177C(D_807FBB40, sp74, sp78, sp7C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         if (D_807FBB4C->unk154 == 0x70 || sp84->unk10 == 0x90) {
             D_807FBB40->unk154++;
         }
