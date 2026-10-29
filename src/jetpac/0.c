@@ -22,7 +22,6 @@ void func_800285DC(void);
 void jetpacDrawLasers(void);
 extern s32 D_8076D1F8;
 extern s16 D_8002BA52[];
-extern s32 D_80770E14[];
 void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 typedef struct {
     s32 stage;
@@ -49,7 +48,9 @@ typedef struct {
     s32 active_player;
     s32 num_players;
     s32 unk34C;
-    u8 pad350[0x78C - 0x350];
+    u8 pad350[0x44C - 0x350];
+    s32 unk44C;
+    u8 pad450[0x78C - 0x450];
     s32 unk78C;
     s32 unk790;
     s32 unk794;
@@ -223,22 +224,6 @@ void jetpacStartGame(void) {
     jetpacStartStage();
 }
 
-typedef struct {
-    u8 pad0[8];
-    s32 unk8;
-    u8 unkC;
-    u8 padD[0x348 - 0xD];
-    s32 unk348;
-    s32 unk34C;
-    u8 pad350[0x44C - 0x350];
-    s32 unk44C;
-    u8 pad450[0x78C - 0x450];
-    s32 unk78C;
-    u8 pad790[0x798 - 0x790];
-    u8 unk798;
-    u8 unk799;
-} J0aGlobalView;
-#define J0aG ((J0aGlobalView *)&jetpacGame)
 
 void jetpacStateSelection(s32 arg0) {
     s32 flags;
@@ -247,28 +232,28 @@ void jetpacStateSelection(s32 arg0) {
     func_80024408(arg0);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(arg0, "JETPAC GAME SELECTION", 0x50, 0x38, 0);
-    jetpacDrawString(arg0, "1@@@1@PLAYER@GAME", 0x50, 0x50, D_8002BA6C != 0 && J0aG->unk348 == 1);
-    jetpacDrawString(arg0, "2@@@2@PLAYER@GAME", 0x50, 0x60, D_8002BA6C != 0 && J0aG->unk348 == 2);
-    jetpacDrawString(arg0, "3@@@KEYBOARD", 0x50, 0x70, D_8002BA6C != 0 && J0aG->unk34C == 0);
-    jetpacDrawString(arg0, "4@@@KEMPSTON@JOYSTICK", 0x50, 0x80, D_8002BA6C != 0 && J0aG->unk34C != 0);
+    jetpacDrawString(arg0, "1@@@1@PLAYER@GAME", 0x50, 0x50, D_8002BA6C != 0 && jetpacGame.num_players == 1);
+    jetpacDrawString(arg0, "2@@@2@PLAYER@GAME", 0x50, 0x60, D_8002BA6C != 0 && jetpacGame.num_players == 2);
+    jetpacDrawString(arg0, "3@@@KEYBOARD", 0x50, 0x70, D_8002BA6C != 0 && jetpacGame.unk34C == 0);
+    jetpacDrawString(arg0, "4@@@KEMPSTON@JOYSTICK", 0x50, 0x80, D_8002BA6C != 0 && jetpacGame.unk34C != 0);
     jetpacDrawString(arg0, "5   START GAME", 0x50, 0xB8, 0);
     _sprintf(buf, "%c1983 A.C.G. ALL RIGHTS RESERVED", 0x7F);
     jetpacDrawString(arg0, buf, 0x20, 0xD8, 0);
-    if (J0aG->unk798 != 0) {
-        if (!(J0aG->unk8 & 0x1000) && J0aG->unk799 < 0x78) {
-            J0aG->unk799++;
+    if (jetpacGame.unk798 != 0) {
+        if (!(jetpacGame.unk8 & 0x1000) && jetpacGame.unk799 < 0x78) {
+            jetpacGame.unk799++;
             return;
         }
-        J0aG->unk799 = 0;
+        jetpacGame.unk799 = 0;
         jetpacStartGame();
         return;
     }
-    flags = J0aG->unk8;
+    flags = jetpacGame.unk8;
     if (flags & 0x4000) {
-        J0aG->unk348 ^= 3;
+        jetpacGame.num_players ^= 3;
     }
     if (flags & 0x8000) {
-        J0aG->unk34C ^= 1;
+        jetpacGame.unk34C ^= 1;
     }
     if (flags & 0x1000) {
         jetpacStartGame();
@@ -320,11 +305,11 @@ void jetpacStateGameplay(s32 arg0) {
     jetpacDrawLasers();
     jetpacGridDraw(arg0);
     if (jetpacIsSpawnDelay() != 0) {
-        J0aG->unk44C++;
+        jetpacGame.unk44C++;
     }
-    if (J0aG->unk8 & 0x1000) {
-        J0aG->unk78C = 3;
-        J0aG->unkC = 1;
+    if (jetpacGame.unk8 & 0x1000) {
+        jetpacGame.unk78C = 3;
+        jetpacGame.unkC = 1;
     }
 }
 
@@ -422,9 +407,13 @@ void jetpacStateGameOver(s32 arg0) {
 }
 
 void jetpacPlaySound(s32 arg0) {
-    s32 *var_s0;
+    s32 i;
 
-    if (arg0 < 7) { var_s0 = &D_80770DF8[arg0]; do { if (*var_s0 != 0) { n_alSndpStop(*var_s0); } var_s0++; } while (var_s0 != D_80770E14); }
+    for (i = arg0; i < 7; i++) {
+        if (D_80770DF8[i] != 0) {
+            n_alSndpStop(D_80770DF8[i]);
+        }
+    }
     n_alSndpPlay(D_8076D1F8, *(s16 *)((u8 *)D_8002BA52 + arg0 * 4), 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[arg0]);
 }
 
