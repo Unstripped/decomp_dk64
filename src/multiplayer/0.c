@@ -632,20 +632,20 @@ s32 mpUpdateScoreEffects(void) {
     return ret;
 }
 
-void modelSlotFindByType(s32, s32 *, s32 *, s32 *, s32 *, s16 *, s16 *);
+s32 modelSlotFindByType(s32, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *);
 
 s32 mpFindModelSlotByType(s32 arg0) {
     s32 sp3C;
-    s32 sp38;
-    s32 sp34;
-    s32 sp30;
+    f32 sp38;
+    f32 sp34;
+    f32 sp30;
     s16 sp2E;
     s16 sp2C;
 
     sp3C = 0;
     sp2E = 0;
     sp2C = 0;
-    modelSlotFindByType(arg0, &sp3C, &sp38, &sp34, &sp30, &sp2E, &sp2C);
+    return modelSlotFindByType(arg0, &sp3C, &sp38, &sp34, &sp30, &sp2E, &sp2C);
 }
 
 typedef struct MpSpawnCooldownState {
