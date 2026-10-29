@@ -4017,46 +4017,44 @@ void arcadeDrawNameRegistration(Gfx **arg0) {
     s32 i;
     Gfx *g;
     char buf[0x50];
-    char *p;
 
     g = *arg0;
-    p = buf;
     if (D_8004C724 == 3) {
         arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
         arcadeSetTextPosition(0x78, 0x3B);
-        _sprintf(p, "NAME %.3s", D_8004A774);
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "NAME %.3s", D_8004A774);
+        arcadeDrawString(&g, buf);
         arcadeSetTextPosition(0xA0, 0x41);
-        _sprintf(p, "---");
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "---");
+        arcadeDrawString(&g, buf);
         if (D_8004C6DC < 0x708) {
             arcadeSetTextPosition(0x60, 0x7B);
-            _sprintf(p, "REGI TIME <%02d>", 0x1E - D_8004C6DC / 0x3C);
+            _sprintf(buf, "REGI TIME <%02d>", 0x1E - D_8004C6DC / 0x3C);
         } else {
             arcadeSetTextPosition(0x40, 0x7B);
-            _sprintf(p, "YOUR NAME WAS");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "YOUR NAME WAS");
+            arcadeDrawString(&g, buf);
             arcadeSetTextPosition(0xB0, 0x7B);
-            _sprintf(p, "REGISTERED.");
+            _sprintf(buf, "REGISTERED.");
         }
-        arcadeDrawString(&g, p);
+        arcadeDrawString(&g, buf);
         arcadeSetTextColor(0xFF, 0, 0, 0xFF);
         arcadeSetTextPosition(0x58, 0x2B);
-        _sprintf(p, "NAME REGISTRATION");
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "NAME REGISTRATION");
+        arcadeDrawString(&g, buf);
         arcadeSetTextColor(0, 0xFF, 0, 0xFF);
         arcadeSetTextPosition(0x58, 0x4B);
-        _sprintf(p, "A B C D E F G H I J");
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "A B C D E F G H I J");
+        arcadeDrawString(&g, buf);
         arcadeSetTextPosition(0x58, 0x5B);
-        _sprintf(p, "K L M N O P Q R S T");
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "K L M N O P Q R S T");
+        arcadeDrawString(&g, buf);
         arcadeSetTextPosition(0x58, 0x6B);
-        _sprintf(p, "U V W X Y Z . -");
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "U V W X Y Z . -");
+        arcadeDrawString(&g, buf);
         arcadeSetTextPosition(0xD4, 0x6B);
-        _sprintf(p, "ba");
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "ba");
+        arcadeDrawString(&g, buf);
     }
     arcadeSetTextColor(0xFF, 0, 0, 0xFF);
     for (i = 0; i < 5; i++) {
@@ -4065,16 +4063,16 @@ void arcadeDrawNameRegistration(Gfx **arg0) {
         }
         arcadeSetTextPosition(0x38, 0x8B + i * 0x10);
         if (i == D_8004BCD0[0].unk1C && (D_8004C6DC & 0x20) && D_8004C724 == 3) {
-            _sprintf(p, "%.3s", D_8004A82C[i]);
+            _sprintf(buf, "%.3s", D_8004A82C[i]);
         } else {
-            _sprintf(p, "%.3s  %06d  %.3s", D_8004A82C[i], D_8004A74C[i], D_8004A778[i]);
+            _sprintf(buf, "%.3s  %06d  %.3s", D_8004A82C[i], D_8004A74C[i], D_8004A778[i]);
         }
-        arcadeDrawString(&g, p);
+        arcadeDrawString(&g, buf);
     }
     arcadeSetTextColor(0, 0xFF, 0, 0xFF);
     arcadeSetTextPosition(0xB8, 0xDB);
-    _sprintf(p, "CREDIT 00");
-    arcadeDrawString(&g, p);
+    _sprintf(buf, "CREDIT 00");
+    arcadeDrawString(&g, buf);
     *arg0 = g;
 }
 
