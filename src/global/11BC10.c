@@ -1536,9 +1536,49 @@ typedef struct {
     f32 unkC;
 } Fx11BGFallState;
 
-u8 func_8071D94C(Fx11BGSource *, TimedEffectActorView *, s8 *);
+void func_8071D94C(Fx11BGSource *, TimedEffectActorView *, s8 *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D28C.s")
+void func_80714A28(s16);
+
+void func_8071D28C(TimedEffectActorView *arg0, s8 *arg1) {
+    Fx11BGOrbitState *var_v1;
+    Fx11BGOrbitState *temp_v0;
+    Fx11BGSource *source;
+
+    source = arg0->unk338;
+    if (arg0->unk384 == NULL) {
+        temp_v0 = func_80610FE8(0x20);
+        arg0->unk384 = temp_v0;
+        temp_v0->unk0 = sqrtf(((source->unk7C - arg0->unk340) * (source->unk7C - arg0->unk340)) + ((source->unk84 - arg0->unk348) * (source->unk84 - arg0->unk348)));
+        temp_v0->unk4 = (func_806119FC() * 20.0f) + 10.0f;
+        temp_v0->unk8 = func_806119FC() * 4095.0f;
+        temp_v0->unkC = (func_806119FC() * 90.0f) + 10.0f;
+        temp_v0->unk10 = (f32) source->unkE6;
+        temp_v0->unk14 = func_806119FC() * 30.0f;
+        temp_v0->unk18 = 0.0f;
+        temp_v0->unk1C = (f32) (((randomNonNegative() >> 0xF) % 0xFF) % 2) * 2 - 1.0f;
+    }
+    var_v1 = arg0->unk384;
+    var_v1->unk0 = (f32) (((f64) (var_v1->unk4 - var_v1->unk0) * 0.15) + (f64) var_v1->unk0);
+    var_v1->unk14 = (f32) (((f64) (120.0f - var_v1->unk14) * 0.01) + (f64) var_v1->unk14);
+    var_v1->unk10 = var_v1->unk10 + (var_v1->unk1C * var_v1->unk14);
+    var_v1->unk8 = var_v1->unk8 + var_v1->unkC;
+    arg0->unk340 = (func_80612794((s16) var_v1->unk10) * var_v1->unk0) + source->unk7C;
+    arg0->unk348 = (func_80612790((s16) var_v1->unk10) * var_v1->unk0) + source->unk84;
+    arg0->unk344 += 0.6 * func_80612794((s16) var_v1->unk8);
+    var_v1->unk18 = var_v1->unk18 + 1.0f;
+    if (45.0f < var_v1->unk18) {
+        *arg1 = 1;
+    }
+    if ((D_8076A064 % arg0->unk35C) == 0) {
+        func_807149B8(1);
+        func_807149FC(-1);
+        func_80714950(0x2A);
+        func_8071498C(&func_8071D260);
+        func_80714A28(0x20);
+        func_80714CC0(*(s32 *) arg0->unk330, arg0->unk360, arg0->unk340, arg0->unk344, arg0->unk348);
+    }
+}
 
 typedef struct {
     u8 pad0[0x7C];
@@ -1578,11 +1618,113 @@ void func_8071D5BC(TimedEffectActorView *arg0, s8 *arg1) {
     ((u8 *) arg0)[0x32C] = 3;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D784.s")
+extern f32 D_80755674;
+extern f32 D_80755678;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D94C.s")
+void func_8071D784(TimedEffectActorView *arg0, s8 *arg1) {
+    f32 sp90[4][4];
+    f32 sp50[4][4];
+    s32 pad;
+    f32 sp48;
+    f32 sp44;
+    f32 sp40;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071DB74.s")
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(0xC);
+        guRotateF(sp90, -(f32) ((func_806119A0() % 36000U) / 1000U), 1.0f, 0.0f, 0.0f);
+        guRotateF(sp50, (f32) ((arg0->unk35C * 360) / 4096), 0.0f, 1.0f, 0.0f);
+        guMtxCatF(sp90, sp50, sp90);
+        guMtxXFMF(sp90, 0.0f, 0.0f, D_80755678, &sp48, &sp44, &sp40);
+        ((Fx11BGVelocityState *) arg0->unk384)->unk0 = sp48;
+        ((Fx11BGVelocityState *) arg0->unk384)->unk4 = sp44;
+        ((Fx11BGVelocityState *) arg0->unk384)->unk8 = sp40;
+    }
+    arg0->unk340 = arg0->unk340 + ((Fx11BGVelocityState *) arg0->unk384)->unk0;
+    arg0->unk344 = arg0->unk344 + ((Fx11BGVelocityState *) arg0->unk384)->unk4;
+    ((Fx11BGVelocityState *) arg0->unk384)->unk4 = ((Fx11BGVelocityState *) arg0->unk384)->unk4 + D_80755674;
+    arg0->unk348 = arg0->unk348 + ((Fx11BGVelocityState *) arg0->unk384)->unk8;
+    if (arg0->unk344 <= ((Fx11BGPlayerView *) D_807FBB4C)->unk80) {
+        *arg1 = 1;
+    }
+}
+
+void func_8071D94C(Fx11BGSource *arg0, TimedEffectActorView *arg1, s8 *arg2) {
+    s16 sp38;
+    s16 sp34;
+    f32 sp30;
+    f32 sp2C;
+    f32 sp28;
+    Fx11BGFallState *sp24;
+    Fx11BGFallState *temp_v0;
+    f32 var_fv0;
+    u32 r;
+
+    temp_v0 = func_80610FE8(0x10);
+    arg1->unk384 = temp_v0;
+    sp24 = temp_v0;
+    var_fv0 = func_806119FC();
+    arg1->unk340 = arg1->unk340 + ((var_fv0 - 0.5f) * 2.0f);
+    var_fv0 = func_806119FC();
+    arg1->unk344 = arg1->unk344 + ((var_fv0 - 0.5f) * 2.0f);
+    var_fv0 = func_806119FC();
+    arg1->unk348 = arg1->unk348 + ((var_fv0 - 0.5f) * 2.0f);
+    if (arg0 != NULL) {
+        r = func_806119A0();
+        sp34 = ((arg0->unkE6 + (s16) (r & 0x1FF)) + 0x700) & 0xFFF; // FAKE: (s16) cast shifts the ugen temp ring
+        sp2C = arg0->unkB8 * 0.016666668f;
+        if (!(sp2C < 1.0f)) {
+            sp2C = 1.0f;
+        }
+        if (sp2C < 0.3) {
+            *arg2 = 1;
+        }
+        sp28 = sp2C * 1.5f * 1.8f;
+        arg1->unk338 = arg0;
+    } else {
+        sp2C = 0.8f;
+        sp34 = (s16) (func_806119A0() % 4095U);
+        sp28 = (func_806119FC() + 1.0f) * 3.0f;
+    }
+    arg1->unk360 *= 0.5 * (1 + func_806119FC());
+    arg1->unk36D = 0x82;
+    arg1->unk364 = arg1->unk360;
+    sp30 = func_806119FC() * sp2C;
+    sp24->unk0 = func_80612794(sp34) * sp30;
+    sp24->unk4 = func_80612790(sp34) * sp30;
+    sp24->unk8 = sp28;
+    collisionGetFloorHeight(&sp24->unkC);
+}
+
+void func_8071DB74(TimedEffectActorView *arg0, s8 *arg1) {
+    Fx11BGFallState *var_v1;
+    Fx11BGSource *floor;
+    s32 state;
+
+    if (arg0->unk384 == NULL) {
+        func_8071D94C(0, arg0, arg1);
+    }
+    var_v1 = arg0->unk384;
+    var_v1->unk8 = var_v1->unk8 + -0.5f;
+    arg0->unk340 = arg0->unk340 + var_v1->unk0;
+    arg0->unk344 = arg0->unk344 + var_v1->unk8;
+    arg0->unk348 = arg0->unk348 + var_v1->unk4;
+    state = *(u8 *) arg1;
+    if (state == 0) {
+        floor = arg0->unk338;
+        if (floor != NULL) {
+            if (arg0->unk344 <= floor->unkAC) {
+                state = *(u8 *) arg1 = 1;
+            }
+        } else {
+            if (arg0->unk344 <= var_v1->unkC) {
+                state = *(u8 *) arg1 = 1;
+            }
+        }
+        if (state != 0) {
+            func_80718124(arg0->unk360 * 5.0f, arg0->unk340, arg0->unk344, arg0->unk348);
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071DC90.s")
 
