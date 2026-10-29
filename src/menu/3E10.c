@@ -5,6 +5,16 @@ typedef struct MenuScreenActor {
     void *unk174;
 } MenuScreenActor;
 
+typedef struct Menu3R1_Struct174 {
+    f32 unk0;
+    f32 unk4;
+    char pad[0xB];
+    s8 unk13;
+    char pad2[2];
+    s8 unk16;
+    s8 unk17;
+} Menu3R1_Struct174;
+
 extern s8 D_80745844;
 void configureCSPOutputMode(s32);
 
@@ -65,6 +75,9 @@ typedef struct MenuPositionedActor {
     f32 unk7C;
     f32 unk80;
     f32 unk84;
+    char pad88[0x154 - 0x88];
+    u8 unk154;
+    u8 unk155;
 } MenuPositionedActor;
 
 extern MenuPositionedActor *D_807FBB4C;
@@ -366,15 +379,15 @@ s32 func_8060C6B8(s32, s32, u8, s32);
 s32 flagGet(s32, s32);
 
 void func_80028834(MenuScreenActor *arg0, s32 arg1) {
-    s8 *temp_s0 = arg0->unk174;
+    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
 
     D_800337F8 = 0;
     D_800337F4 = 0;
-    *(u8 *)((u8 *)D_807FBB4C + 0x154) = 0x85;
-    *(u8 *)((u8 *)D_807FBB4C + 0x155) = 0;
+    D_807FBB4C->unk154 = 0x85;
+    D_807FBB4C->unk155 = 0;
     D_80745844 = func_8060C6B8(0x1E, 0, 0, 0);
     menuSetAudioMode();
-    temp_s0[0x17] = *(s8 *)D_8076A0D1;
+    temp_s0->unk17 = *(s8 *)D_8076A0D1;
     func_80030894(temp_s0, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
     func_80030894(temp_s0, (void *)(s32)&D_80721444, 0, 0, 1.2f, 2, 0x12);
     func_80030894(temp_s0, (void *)(s32)&D_80721444, 1, 0, 1.2f, 2, 0x12);
@@ -410,16 +423,6 @@ void func_80028834(MenuScreenActor *arg0, s32 arg1) {
 
 void func_80028C18(void) {
 }
-
-typedef struct Menu3R1_Struct174 {
-    f32 unk0;
-    f32 unk4;
-    char pad[0xB];
-    s8 unk13;
-    char pad2[2];
-    s8 unk16;
-    s8 unk17;
-} Menu3R1_Struct174;
 
 void menuHandleScrollInput();
 void menuUpdateScrollAnimation();
@@ -1688,9 +1691,9 @@ s32 menuFormatOptionValues(MenuScreenActor *arg0, s32 arg1) {
     D_807FBB60 &= ~0x10;
     func_800317E8(sp64, 160.0f, 20.0f, &sp58, &sp54, 2, 0, 1.5f);
     arg1 = menuDrawScrollSelector(
-        textDrawStringVtx(arg1, 1, 0x280, (s16)(sp54 * 4.0f), *(void **)((u8 *)D_80033F28 + 0x80), 0x81),
+        textDrawStringVtx(arg1, 1, 0x280, (s16)(sp54 * 4.0f), (void *)D_80033F28[0x20], 0x81),
         sp64,
-        (void *)((u8 *)D_80033F28 + 0x84),
+        D_80033F28 + 0x21,
         4,
         &sp60,
         1,
@@ -1705,11 +1708,11 @@ s32 menuFormatOptionValues(MenuScreenActor *arg0, s32 arg1) {
 
     switch (sp60) {
     case 0:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp58, sp4C, *(void **)((u8 *)D_80033F28 + D_80745844 * 4 + 0x94), 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, (s16)sp58, sp4C, (void *)D_80033F28[D_80745844 + 0x25], 0x81);
         break;
     case 1:
     case 2:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp58, sp4C, *(void **)((u8 *)D_80033F28 + 0xA0), 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, (s16)sp58, sp4C, (void *)D_80033F28[0x28], 0x81);
         _sprintf(sp40, "%d", ((sp60 == 1 ? D_8074583C : D_80745840) + 1) >> 1);
         arg1 = textDrawStringVtx(arg1, 1, (s16)sp58, sp4C + 0x78, sp40, 0x81);
         break;
@@ -2494,6 +2497,12 @@ typedef struct Menu3B_Struct_C924 {
     f32 unk228;
     f32 unk22C;
     f32 unk230;
+    char pad234[0x270 - 0x234];
+    s16 unk270;
+    char pad272[2];
+    s16 unk274;
+    char pad276[0x298 - 0x276];
+    u16 *unk298;
 } Menu3B_Struct_C924;
 
 extern Menu3B_Struct_C924 *D_807FC924;
@@ -2804,7 +2813,23 @@ void menuInitGfxState(Gfx *glistp, s32 arg1) {
 }
 
 extern f32 D_80033F40;
-extern void *D_807ECDEC;
+typedef struct MenuStickAxis {
+    char pad0[2];
+    s8 unk2;
+    s8 unk3;
+} MenuStickAxis;
+
+typedef struct MenuDispatch174 {
+    char pad0[0xC];
+    s16 unkC;
+    s16 unkE;
+    char pad10[2];
+    u8 unk12;
+    char pad13[4];
+    s8 unk17;
+} MenuDispatch174;
+
+extern MenuStickAxis *D_807ECDEC;
 void func_80027FAC();
 s32 func_800286C8();
 void func_80028834();
@@ -2831,32 +2856,32 @@ void menuHandleHighScoreNameEntryInput();
 void lightSetColor(f32, f32, f32, s32);
 
 s32 menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, s32 arg2, s32 arg3) {
-    void *temp_t0 = arg0->unk174;
+    MenuDispatch174 *temp_t0 = arg0->unk174;
     s32 sp18 = 0;
 
-    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 0x8000) {
+    if (*D_807FC924->unk298 & 0x8000) {
         sp18 = 1;
     }
-    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 0x4000) {
+    if (*D_807FC924->unk298 & 0x4000) {
         sp18 |= 2;
     }
-    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 8) {
+    if (*D_807FC924->unk298 & 8) {
         sp18 |= 0x40;
     }
-    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 4) {
+    if (*D_807FC924->unk298 & 4) {
         sp18 |= 0x80;
     }
-    if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 0x2000) {
+    if (*D_807FC924->unk298 & 0x2000) {
         sp18 |= 0x100;
     }
-    if (*((s8 *)D_807ECDEC + 2) < -0x28) {
+    if (D_807ECDEC->unk2 < -0x28) {
         sp18 |= 4;
-    } else if (*((s8 *)D_807ECDEC + 2) >= 0x29) {
+    } else if (D_807ECDEC->unk2 >= 0x29) {
         sp18 |= 8;
     }
-    if (*((s8 *)D_807ECDEC + 3) < -0x28) {
+    if (D_807ECDEC->unk3 < -0x28) {
         sp18 |= 0x20;
-    } else if (*((s8 *)D_807ECDEC + 3) >= 0x29) {
+    } else if (D_807ECDEC->unk3 >= 0x29) {
         sp18 |= 0x10;
     }
     switch (arg1) {
@@ -2866,18 +2891,18 @@ s32 menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, s32 arg2, s32 arg3)
         D_80033F40 = 0.0f;
         D_80033F3C = 0.0f;
         D_807FBB60 &= 0xFFFEFFFF;
-        *(s16 *)((u8 *)temp_t0 + 0xC) = 0;
-        *(s16 *)((u8 *)temp_t0 + 0xE) = 0;
+        temp_t0->unkC = 0;
+        temp_t0->unkE = 0;
         D_800337F8 = 1;
         break;
     case 1:
         break;
     case 2:
-        D_8076A0D0[*(s8 *)((u8 *)temp_t0 + 0x12)] = *(s8 *)((u8 *)temp_t0 + 0x17);
+        D_8076A0D0[(s8)temp_t0->unk12] = temp_t0->unk17;
         lightSetColor(1.0f, 1.0f, 1.0f, 0);
         break;
     }
-    switch (*(u8 *)((u8 *)temp_t0 + 0x12)) {
+    switch (temp_t0->unk12) {
     case 0:
         if (arg1 == 1) {
             return func_80027F34(arg0, arg2);
@@ -3243,8 +3268,8 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 arg0->unk36B = sp4A;
                 arg0->unk36C = sp4A;
                 arg0->unk36D = sp48;
-                arg0->unk38E = *(s16 *)((u8 *)D_807FC924 + 0x270);
-                arg0->unk392 = *(s16 *)((u8 *)D_807FC924 + 0x274);
+                arg0->unk38E = D_807FC924->unk270;
+                arg0->unk392 = D_807FC924->unk274;
                 if (arg0->unk344 < 360.0) {
                     if ((f64)arg0->unk340 < 640) {
                         arg0->unk392 = 0x78;
@@ -3277,7 +3302,7 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
             arg0->unk344 = c->unkC + (f32)off;
             if (type == 8) {
                 D_80033FAC = 0;
-                t = *((s8 *)D_807ECDEC + 2);
+                t = D_807ECDEC->unk2;
                 if (t >= 0xB) {
                     arg0->unk340 += (f32)t;
                     if (arg0->unk340 > 960.0f) {
@@ -3655,7 +3680,7 @@ void func_80031B08(void) {
         }
         break;
     case 3:
-        if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 0x8000) {
+        if (*D_807FC924->unk298 & 0x8000) {
             if (D_800337F0 == 1) {
                 actorScriptStart(D_807FBB40, 0x348);
                 Menu10_A->unk155 = 4;
@@ -3748,7 +3773,7 @@ void func_80032024(void) {
     s32 pad2;
 
     pos = Menu10_A->unk174;
-    if (*(u8 *)((u8 *)D_807FBB4C + 0x155) < 6) {
+    if (D_807FBB4C->unk155 < 6) {
         if (D_80033738 == 0x14) {
             actorDespawn(D_807FBB40);
             D_80033738 += 1;
