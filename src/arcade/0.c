@@ -949,7 +949,7 @@ void arcadeDrawStage1Background(Gfx **arg0) {
             func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x380);
         }
         for (i = 0xE; i < 0x1C; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0xF7 - ((i - 0xC) / 2)) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(0xF7 - ((i - 0xC) / 2)) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1C; i++) {
@@ -958,7 +958,7 @@ void arcadeDrawStage1Background(Gfx **arg0) {
     }
     if (D_8004C708 >= 5) {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)((i / 2) + 0xCF) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)((i / 2) + 0xCF) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
@@ -967,7 +967,7 @@ void arcadeDrawStage1Background(Gfx **arg0) {
     }
     if (D_8004C708 >= 4) {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0xBB - (i / 2)) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(0xBB - (i / 2)) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 2; i < 0x1C; i++) {
@@ -976,7 +976,7 @@ void arcadeDrawStage1Background(Gfx **arg0) {
     }
     if (D_8004C708 >= 3) {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)((i / 2) + 0x8D) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)((i / 2) + 0x8D) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
@@ -985,7 +985,7 @@ void arcadeDrawStage1Background(Gfx **arg0) {
     }
     if (D_8004C708 >= 2) {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0x79 - (i / 2)) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(0x79 - (i / 2)) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 2; i < 0x1C; i++) {
@@ -997,7 +997,7 @@ void arcadeDrawStage1Background(Gfx **arg0) {
             func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x142);
         }
         for (i = 0x12; i < 0x1A; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(((i - 0x10) / 2) + 0x53) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(((i - 0x10) / 2) + 0x53) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
