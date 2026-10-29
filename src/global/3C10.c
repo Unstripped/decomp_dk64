@@ -546,7 +546,19 @@ loop:
     return -1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/3C10/func_80600174.s")
+s16 func_80600174(f32 *arg0, f32 *arg1, f32 *arg2) {
+    s32 i;
+
+    for (i = 0; i < 18; i++) {
+        if (D_8076A160[i].unk0 != 0 && (D_8076A160[i].unk2 & 1)) {
+            *arg0 = D_8076A160[i].unk4;
+            *arg1 = D_8076A160[i].unk8;
+            *arg2 = D_8076A160[i].unkC;
+            return i;
+        }
+    }
+    return -1;
+}
 
 s32 func_80600340(s32 arg0, u8 arg1, s32 *arg2) {
     s32 sp3C;
