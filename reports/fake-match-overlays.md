@@ -1,6 +1,6 @@
 # Fake-match pass: overlays
 
-Scope: `src/{arcade,bonus,boss,critter,jetpac,menu,minecart,multiplayer,race}/*.c` (40 files, ~35k lines). Branch `fake-match/overlays`, 109 commits on top of `development`. Every commit was made by `tools/merge_gate.sh --commit` after a full-ROM `GATE_OK`. No files outside the scope changed.
+Scope: `src/{arcade,bonus,boss,critter,jetpac,menu,minecart,multiplayer,race}/*.c` (40 files, ~35k lines). Branch `fake-match/overlays`, 136 commits on top of `development` (code commits plus the report). Every commit was made by `tools/merge_gate.sh --commit` after a full-ROM `GATE_OK`. No files outside the scope changed.
 
 ## Summary
 
@@ -12,16 +12,19 @@ Scope: `src/{arcade,bonus,boss,critter,jetpac,menu,minecart,multiplayer,race}/*.
 |menu|47|21|21|5|5|
 |jetpac / critter / minecart|79|38|33|8|9|
 |race / multiplayer|55|28|22|5|3|
-|**total**|**317**|**157**|**116**|**44**|**57**|
+|menu 3E10.c, second sweep|34|19|4|11|11|
+|parked bodies, review only|34|0|34|0|0|
+|**total**|**385**|**176**|**154**|**55**|**68**|
 
 Counts are rows in the per-overlay candidate tables below. One row can cover several sites: a whole file's byte offsets, or every pad local in a function. Rows marked "partly fixed" count as fixed. Fixers did not tag outcomes the same way: boss, for example, marked most items in its Needs-human table as "suspicious-left-alone" in its candidate table. The last column therefore counts rows in each overlay's Needs-human table, each a construct that natural C failed to reproduce after the attempts listed there. The regex pre-scan (`if`-empty blocks, `;;`, self-assign, `register`, `volatile`, `goto`, comma operators, byte offsets, pad locals) found 71 empty-`if` hits, 4 `if (0/1) {}`, 2 `do {} while (0)`, 5 `;;`, 1 self-assign, 2 `register`, 13 `volatile`, 25 `goto`, 312 byte-offset casts and 402 function-local pad declarations. Each fixer then reviewed its files function by function.
 
 ### Caveats
 
 - **Arcade commit `9208726` is batched.** It bundles about a dozen arcade fixes (listed under it in the arcade Fixed table) and was gated as a whole: the ROM matched. Every later arcade commit covers one function.
+- **Parked bodies are reviewed but not fixed.** All 33 `#ifdef NON_MATCHING` functions in scope were reviewed read-only; some first-pass fixers had skipped them. The matching build never compiles parked code, so no edit there can be verified, and every finding is recorded as left alone. Two possible uninitialized reads of `a2` need a human: boss/C920.c `func_80032B08` and menu/3E10.c `func_8002CB18`. See *Parked bodies*.
 - **Edits to parked code are not checksum-verified.** In arcade, the empty-guard removals in `func_8002CD64` and `func_8002D6FC` (commits `ede301d`, `81fae8f`) are inside `#ifdef NON_MATCHING` blocks. The matching build never compiles those blocks, so the gate only syntax-checks them. The same applies to the struct-access conversions in jetpac's parked functions and to race `func_80028AD0`. Other fixers deliberately left parked blocks alone.
 - **Bonus globals are still untyped.** `D_807FBB40`, `D_807FBB44`, `D_807FBB4C` and `D_807FD580` are declared `void *` in `include/`, which is outside this scope. bonus and some race files now reach them through file-local struct views and cast macros (`LA`, `LB`, `BCAM`, `LR3*`) instead of byte offsets. The proper fix is typed declarations in `include/`, recorded under Needs human.
-- **Menu was not finished.** The fixer hit its request budget, so the 3E10.c pad-local pass and the `textDrawStringVtx` / `menuSetElementCoordinates` cleanup were not attempted. Those pads are recorded as suspicious, left alone.
+- **Menu 3E10.c needed a second sweep.** The first menu fixer ran out of request budget. A second fixer reviewed every non-parked function in 3E10.c and made 23 more gated commits; see *Menu 3E10.c, second sweep*.
 - **No new hacks were introduced.** I scanned every added line of the branch diff for `volatile`, `register`, empty `if`, `;;`, `^ 0` and `while (0)`. All 7 `volatile` hits are existing hacks re-typed after a struct fix (jetpac/1A60 `unk30` ×4, critter/0.c `speed`, multiplayer/0.c `sp20` type rename); no new instance appears. Two existing `volatile`s are gone: `volatile s32 pad4C` (bonus/0.c) and `Actor_3340 *volatile sp34` (critter/3340.c).
 
 ## Fixed
@@ -744,6 +747,162 @@ No `goto`, `register` or `volatile` locals remain anywhere in `src/bonus` except
 | multiplayer/0.c | mpUpdateItemSpawns | – | `sp80` unused local | low | suspicious-left-alone |
 | multiplayer/0.c | func_80024CA4 | 442/462 | `if (var_s1 == 0) {}`, `if (col) {}` | high | not compiled (`NON_MATCHING`), cannot verify |
 
+## Menu 3E10.c, second sweep
+
+Every non-parked function in 3E10.c reviewed; each fix committed with `GATE_OK`.
+
+### Candidates
+| file | function | line (at review) | construct | confidence | outcome |
+|---|---|---|---|---|---|
+| 3E10.c | menuSetElementCoordinates | 2562 | `four`/`d1`/`d2` temps, byte-offset stores | high | fixed |
+| 3E10.c | func_800286C8 | 332–356 | `padCC`/`padC8`/`padBC`, raw `g->words` write, `(s32)arg1` cast | low / medium | cast fixed (prototype); pads and raw write needs human |
+| 3E10.c | textDrawStringVtx, menuSetElementCoordinates, draw functions, menuUpdateStateDispatch | 330, 954, 1134, 2854 and callers | `s32` prototypes, `(Gfx *)(s32)` casts | medium | fixed, now `Gfx *` throughout |
+| 3E10.c | func_80028834 | 390 | `*(s8 *)D_8076A0D1` | medium | fixed (`s8 D_8076A0D1[]`) |
+| 3E10.c | func_80028834, func_80028EA8, menuInitFileSelect | 392–396, 507–515, 810 | `(void *)(s32)&sym` casts, `sp34` alias | medium | needs human |
+| 3E10.c | menuCheckCheatCodeSequence | 528–530 | `D_80033818 = D_80033818 + 1`, `(u32)…>= 7U` cast, `*(u16 *)&D_807ECD48` | medium | first two fixed; `*(u16 *)&` kept (removing it changes load CSE) |
+| 3E10.c | menuUpdateItemTransition | 2585 | `f32 zero = 0.0f` temp, `void *arg1_raw` cast | medium | fixed |
+| 3E10.c | menuAssignPlayerControllerSlot, menuReleasePlayerControllerSlot | 1005–1037 | `D_8076A0E4` element pointer aliases | medium | `D_8076A0E4` aliases fixed; `D_8076A100` alias kept |
+| 3E10.c | menuInitControllerSlots | 1053 | `j = 0; do {} while` loop | low | left (the `for` form fails) |
+| 3E10.c | func_8002B708 | 1138–1148, 1155–1231 | pads, `f64 sp40`, `(Gfx *)`/`(s32)` casts, `(f32)(…)` casts | high / medium / low | casts fixed; pads and `sp40` slot needs human |
+| 3E10.c | menuDrawSubmenuRing | 961, 980–997 | `padx`, `(f64)`/`(f32)` round-trips | low / medium | casts fixed; `padx` needs human |
+| 3E10.c | func_8002C0C8 | 1272–1330 | `flag`+`i` double induction, block-local `q`, `Menu6_A` cast view, unused `s8 *p` | medium | `Menu6_A` cast view and unused `p` fixed; `flag`/`i` and `q` kept |
+| 3E10.c | func_8002C91C | 1417, 1430 | `(n ^ 0) ==`, trailing `i += 1`, block-local `q` | high | `for` loop fixed; `^ 0` and `q` needs human |
+| 3E10.c | func_8002D8AC | 1809, 1817 | byte-offset free loop, `if (D_80033F28 && D_80033F28) {}` | high | both fixed |
+| 3E10.c | func_8002DBDC | 1861–1865, 1889–1901 | `pad0`–`pad5`, `MenuTextTable` casts | low / medium | casts fixed; pads needs human |
+| 3E10.c | func_8002DFA8 | 2008, 2011 | `&D_8074453F == &D_8074453C[idx]`, unused `s8 *p` | medium | compare fixed; `p` is a frame fill (needs human) |
+| 3E10.c | func_8002E8B8 | 2095–2218 | `D_80033989`–`D_8003398C` separate externs, `p` alias, `(s16)j` casts | medium | fixed |
+| 3E10.c | menuFormatOptionValues | 1680–1686 | `s16 pad`, unused `f32 sp5C` | low | needs human |
+| 3E10.c | menuDrawScrollSelector | 2522 | `void *` params, `(Menu3B_Sub174 *)` casts, raw offset, `(f32)(…)` | medium | fixed |
+| 3E10.c | func_80030894 | 3090 | `*((s8 *)arg0 + 0x15)`, `(f32)` casts | medium | fixed |
+| 3E10.c | func_80030A90 | 3177 | `(u8 *)arg0 + (D_807444FC << 6) + 0x128` | medium | fixed (`Mtx mtx[8]`) |
+| 3E10.c | func_800317E8 | 3527 | `t = 0.0f` reused later, `(Menu10_Sel *)` casts | medium | casts fixed; `t` needs human |
+| 3E10.c | menuEvaluateSpline | 3565 | `m2`/`p3`/`m3` constant locals | medium | fixed |
+| 3E10.c | func_80031B08 | 3698, 3707, 3737 | `(f64)`/`(f32)` casts | medium | fixed |
+| 3E10.c | func_80032024 | 3767 | `pad0`–`pad2`, `cx`/`cy`/`cz` temps | low / medium | needs human |
+| 3E10.c | menuInit | 2707–2745 | `*(s16 *)(sp20 + 0x23C)` raw offset, comma `for` header | medium | offset fixed; comma `for` needs human |
+| 3E10.c | menuHandleSelectionInput | 434 | unused `temp_v0` | low | fixed |
+| 3E10.c | menuCalculateGamePercentage | 3836–3860 | `(f64)pct + …` round-trip casts | medium | fixed |
+| 3E10.c | menuLoadTextTable | 3864 | single-use `val` temp | medium | fixed (`char **D_80033F28`) |
+| 3E10.c | menuUpdateStateDispatch | 2897 | `(s8)temp_t0->unk12` cast | medium | fixed (`s8 unk12`) |
+| 3E10.c | menuCheckSaveFile | 3817 | K&R definition | low | left (K&R call sites are real; ANSI changes the callers) |
+| 3E10.c | menuCalculateGamePercentage | 3854 | duplicated `flagGet(0x12D, 0) && flagGet(0x12D, 0)` | medium | left (the ROM has two `jal flagGet`) |
+| 3E10.c | func_80028D3C and other text callers | various | `(void *)`/`(char *)` casts | medium | fixed (`char **D_80033F28`) |
+| 3E10.c | func_8002C0C8, menuUpdateStateDispatch, func_8002B708 and others | various | per-function struct views of `D_807FBB40`/`44`/`4C` and the screen-state struct | medium | unified into `MenuActor` and `MenuScreenState` |
+
+Four of the entries above bundle several candidates, so the fixes read as follows:
+- **Casts on `Gfx *` / text calls:** about 40 casts are gone across the file (`(s32)`/`(Gfx *)` on text-draw and element-coordinate calls, `(s16)` on text-draw arguments, `(f64)`/`(f32)` round-trips).
+- **`D_80033F28` and `flagGet`:** `D_80033F28` is now `char **`, which removes the `(void *)`/`(char *)` casts. `flagGet` now takes `s16, u8`, which removes the `(s16)` casts.
+- **`MenuActor`:** this replaces `MenuPositionedActor`, `Menu6_Actor`, `MenuM9_Actor`, `Menu10_Actor`, `Menu3B_Struct_BB40`, `Menu10_Link` and `Menu10_Node`, plus the `Menu6_A`/`MenuM9_A`/`Menu10_A` macros.
+- **`MenuScreenState`:** this replaces nine per-function views (`Menu3R1_Struct174`, `Menu3A_Struct7E60`, `Menu3M7_Sub174`, `Menu3B_Sub174`, `MenuL4_S174`, `Menu3R3_StructFC1C`, `MenuM9_Sub174`, `MenuDispatch174`, `Menu10_Sel`).
+
+### Fixed
+| function | construct removed | natural form | commit |
+|---|---|---|---|
+| menuSetElementCoordinates | `four`/`d1`/`d2`, byte-offset stores | `arg2 *= 4.0f; D_80033F68[arg1] = arg2 - 32.0;` | 22c6135 |
+| textDrawStringVtx / menuSetElementCoordinates / dispatch and draw functions | `s32` prototypes, `(s32)`/`(Gfx *)` casts | `Gfx *` throughout | a1e2d46 |
+| func_80028834 | `*(s8 *)D_8076A0D1` | `s8 D_8076A0D1[]`, `D_8076A0D1[0]` | 1c71aa4 |
+| func_8002C91C | trailing `i += 1` | `for (…; i++)` | 6440b7a |
+| func_8002D8AC | byte-offset free loop | `D_80033F28[i]` | 82a9564 |
+| func_8002DBDC | `MenuTextTable` struct view | `D_80033F28[…]` indexes | 6b05a81 |
+| func_8002DFA8 | element-address compares | `idx == 3` / `idx == 4` | 7cb1e9e |
+| func_8002E8B8, func_8002C0C8 | `D_80033989`–`D_8003398C` externs, `p` alias, `(s16)` casts | `D_80033988[n]`, `flagGet(s16, u8)` | 247d4e4 |
+| menuAssign…/menuRelease…ControllerSlot | `D_8076A0E4` element aliases | `D_8076A0E4[arg0]` | 10916e1 |
+| func_8002B708 | `(f32)` casts on `sp40` args | `sp40 + 160.0` | b82b69c |
+| menuDrawSubmenuRing | `(f64)`/`(f32)` round-trips | `sp174 += 12.0; sp174 *= 4.0f;` | 42a8264 |
+| D_80033F28 users, menuLoadTextTable | `(void *)`/`(char *)` casts, `val` temp | `char **D_80033F28` | 08ed0be |
+| menuDrawScrollSelector | `void *` params, casts, raw offset | typed params, `arg2[idx]` | d1f7f55 |
+| menuUpdateItemTransition, menuCheckCheatCodeSequence | `zero` temp, increment form, `(u32)` cast | `0.0f`, `D_80033818++`, `>= 7U` | 65535a5 |
+| func_80030894 | `*((s8 *)arg0 + 0x15)`, `(f32)` casts | `MenuScreenState.unk15` | 2263878 |
+| func_80030A90 | byte-offset matrix pointer | `&arg0->mtx[D_807444FC]` | cb5b32c |
+| menuEvaluateSpline | `m2`/`p3`/`m3` locals | inline `-2.0f`/`3.0f`/`-3.0f` | 42e11a0 |
+| menuCalculateGamePercentage | `(f64)pct + …` | `pct += (f32)x * 0.4` | ee31028 |
+| menuInit | `*(s16 *)(sp20 + 0x23C)` | `sp20->unk23C` | f020d4b |
+| menuUpdateStateDispatch, func_8002C0C8 | `(s8)` cast, unused `p` | `s8 unk12` | a412326 |
+| menuHandleSelectionInput | unused `temp_v0` | removed | a9019fc |
+| text-draw call sites | `(s16)` argument casts | implicit conversion | d3cca98 |
+| func_8068C5A8 args, func_80031B08, func_8060C830 | `(f64)`/`(f32)`/`(s32)`/`(u8)` casts | implicit conversion, `u8` param | aac647e |
+| actor globals | `MenuPositionedActor`, `Menu6`/`M9`/`10` actor views, macros and casts | `MenuActor` | ed9587d |
+| menu screen state views | nine per-function struct views | `MenuScreenState` | 4f4e755 |
+| func_8002D8AC | `if (D_80033F28 && D_80033F28) {}` | removed (the free-loop fix made it unnecessary) | dc07f0a |
+
+### Needs human
+| function | construct | what I tried |
+|---|---|---|
+| func_800286C8 | `Gfx *g` + raw `g->words` write, `padCC`/`padC8`/`padBC` | Pads removed: frame 0xD0 vs 0xD8. `gSPMatrix` plus all 8 pad subsets (no `g`): 63–93 diffs. `gSPMatrix` plus an unused `g`: frame 0xE0. |
+| func_80028834, func_80028EA8 | `(void *)(s32)&D_80721444` / `&D_8072052C` | Plain `&sym` and array extern: frame 0x30 vs 0x38. The `(s32)` cast changes where IDO keeps the address. Retried after the type changes, still failing. |
+| menuInitFileSelect | `void *sp34 = (void *)(s32)&D_8072052C` | Using `&D_8072052C` directly hoists it into a saved register: frame 0x30 vs 0x40. |
+| func_8002C91C | `(n ^ 0) == D_8076A105` | `n == …`, `D_8076A105 == n` and `u8 n` all emit `bne v0,t3` instead of `bne t3,v0`. |
+| func_8002C0C8 | `flag` + `i` double induction variable | `flagGet(i + 0x1C, 1)` as `do`/`while` and as `for` both fail. |
+| func_8002C0C8, func_8002C91C | block-local `s16 *q = D_807FBB44->unk17C` | `*D_807FBB44->unk17C = …` reloads the pointer after the RHS and fails. |
+| func_8002DFA8 | unused `s8 *p` | Removing it shrinks the frame by 8. |
+| menuDrawSubmenuRing | `padx` | Removing it shifts the locals by 4. |
+| func_8002B708 | `padA0`/`padB0-2`/`pad13A`, `f64 sp40` | All pads removed: frame 0x160 vs 0x168. Dropping `sp40` also changes the frame. |
+| menuFormatOptionValues | `s16 pad`, unused `f32 sp5C` | Each removed alone and together: frame 0x60 vs 0x68. |
+| func_8002DBDC | `pad0`–`pad5` | Removing them gives frame 0x58 vs 0x70 (24 bytes). |
+| func_80032024 | `pad0`–`pad2`, `cx`/`cy`/`cz` | Inlining `cx`/`cy`/`cz`, with or without their declarations, and removing the pads all change the frame. |
+| func_800317E8 | `t = 0.0f` reused as scratch, `if (t != f)` | `f != 0.0f` and `0.0f != f` both emit `c.eq.s $f2,$f16` instead of `$f16,$f2`. |
+| menuInit | `for (D_8076A0D0[0] = 0, i = 0; i < 12; i += 4)` with 4 stores | `i < 13` over `D_8076A0D0[i]` reorders the stores in the unrolled body. A separate store plus `D_8076A0D1[i]` over 12 iterations gives 80 diffs. |
+| menuCheckCheatCodeSequence | `*(u16 *)&D_807ECD48` | Removing the cast changes the load CSE and fails. |
+| menuInitControllerSlots | do-while `j` loop | `for (j = 0; j < 4; j++)` fails. |
+| menuUpdateStateDispatch | `(Gfx *)` casts on `menuDrawFileSummary`, `func_8002C634`, `menuDrawHighScoreTable` | These functions are parked and return `s32`. Declaring them `Gfx *` is a cfe redeclaration error under `-DNON_MATCHING`. The casts disappear when they are matched. |
+
+### Suspicious names noticed (not changed)
+- `spXX` / `sp5C` / `sp120`-style locals throughout (func_800286C8, menuDrawSubmenuRing, func_8002B708, menuFormatOptionValues, func_8002DBDC, func_8002E420). They are named by stack offset and some are plain locals; menuFormatOptionValues `sp5C` is unused.
+- `Menu3R1_Struct174`, `Menu3B_Sub174` and similar were merged into `MenuScreenState`, but `func_8002C634`/`func_8002CB18` parked code still declares its own `MenuScreenState`-shaped local structs (`Menu6B_*`, `MenuL1b_S174`, `MenuModelScale`).
+- `func_80027F34` returns its second argument unchanged. It is the "draw state 0" no-op for the dispatcher, probably a real stub.
+- `menuCalculateGamePercentage`'s `flagGet(0x12D, 0) != 0 && flagGet(0x12D, 0) != 0` double call is in the compiled ROM.
+
+## Parked bodies (review only, no edits)
+
+### Candidates
+
+| File | Function | Line | Construct | Confidence | Outcome | Notes / Behavioural Risk |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `src/arcade/0.c` | `func_800275E8` | 1133 | Single-use type cast macro `ArcA1_P6D0` pointer alias; unbounded pointer loop `for (bar = D_8004BC88;;)` with break | Medium | parked: unverifiable, left alone | Behaves identically. |
+| `src/arcade/0.c` | `func_8002CD64` | 2673 | Goto to middle of switch branch (`goto L_tail2;`); bitwise AND `&` used as logical AND in `if ((... > 242.0f) & (... < 74.0f))` | Medium | parked: unverifiable, left alone | Non-cleanup goto; bitwise `&` on comparison expressions evaluates both sides (safe here). |
+| `src/arcade/0.c` | `func_8002D6FC` | 2839 | none found | - | parked: unverifiable, left alone | Natural control flow and state machine structure. |
+| `src/boss/B100.c` | `func_8002F100` | 185 | Local pad array `s32 pad[1];`; raw pointer offset `(u8 *)D_807FDC90 + 0x28` | Low | parked: unverifiable, left alone | Behaves identically. |
+| `src/boss/C920.c` | `func_80031AA0` | 586 | Multiple manual loop increments and duplicated lighting calls; double-to-float precision coercions | Low | parked: unverifiable, left alone | Natural logic structure. |
+| `src/boss/C920.c` | `func_80032B08` | 988 | Variable `a2` read before assignment in `if (temp_s1->unk4 != a2) { ... a2 = ... }` | High | parked: unverifiable, left alone | **Behaviour Risk**: `a2` is uninitialized on the first check in `func_80032B08`! |
+| `src/boss/F0D0.c` | `bossPickWaypointStep` | 68 | none found | - | parked: unverifiable, left alone | Clean arithmetic pathing function. |
+| `src/boss/F0D0.c` | `func_80033AF0` | 400 | Macro-wrapped struct pad/offset hack: `struct { u8 pad0[3]; u8 col[3]; u8 pad1; u8 f7F; u8 pad2[3]; u8 f83; } L; #define sp83 L.f83 ...`; duplicated assignment `BF->unk155 = 0; BF->unk155 = 0xB;`; `goto block_130; goto block_131;` | High | parked: unverifiable, left alone | **Behaviour Risk**: `BF->unk155 = 0; BF->unk155 = 0xB;` immediately overwrites 0 with 0xB. The struct `L` with macros is a clear stack-layout forcing hack. |
+| `src/critter/0.c` | `func_8002601C` | 708 | Redundant boolean cascades: `f = (u8)f != 0; if (f) { f = 0; if (...) f = 1; }` | Medium | parked: unverifiable, left alone | Equivalent boolean simplification, but awkward IDO steering pattern. |
+| `src/critter/3340.c` | `func_80028120` | 390 | Empty if statements `if (!k) {} if (!k) {}` (in two places); comma operator in function call argument: `(func_806CC10C(...), J1b2A->unkE6)` | High | parked: unverifiable, left alone | Classic deadsweep empty guards and comma operator steering IDO registers. |
+| `src/critter/5110.c` | `func_80029118` | 58 | Stack pointer alignment loop: `do { var_s0 = (s32 *)((char *)var_s0 + 4); } while ((s32)var_s0 & 7);`; obfuscated function pointers with `critterBitwiseNot(~(s32)osPiStartDma)` | High | parked: unverifiable, left alone | Obfuscated dynamic symbol lookups / stack alignment hacks for DMA buffer. |
+| `src/jetpac/0.c` | `func_80024408` | 195 | Function local `s32 pad;` | Low | parked: unverifiable, left alone | Stack frame padding. |
+| `src/jetpac/0.c` | `func_80025168` | 496 | Volatile local pointer `volatile s32 *p;`; empty `if (0) {}`; repeated assignments through volatile `*p = (s64)...; *p = ... % 60; *p = ... / 30;` | High | parked: unverifiable, left alone | Volatile pointer forces sequential stores to stack/global to guide regalloc. |
+| `src/jetpac/1460.c` | `func_80025700` | 148 | Multiple empty statements: `if (!h) {} if (!h) {}`, `if (!w) {} if (!w) {}`, `if (!ya) {}`, `if (!yEnd) {}` | High | parked: unverifiable, left alone | Deadsweep/IDO control flow steering empty branches. |
+| `src/jetpac/3480.c` | `func_80027728` | 163 | Single-use temp aliases `new_var = &jetpacPlayer; new_var2 = &D_8002F054; new_var3 = &D_8002F06C;`; redundant subexpression `(jetpacPlayer - (f32)2 * D_8002F058 + (f32)new_var4)` | Medium | parked: unverifiable, left alone | Classic single-use pointer alias temps to control register assignment. |
+| `src/jetpac/3480.c` | `func_80027EC0` | 321 | Single-use temp aliases `new_var = &jetpacPlayer; new_var2 = &D_8002F054;` | Medium | parked: unverifiable, left alone | Unnecessary alias temps before conditional block. |
+| `src/jetpac/3480.c` | `func_80028E88` | 694 | Joined declarations/statements on one line `u8 *base = ...; JetpacLedge *ledge = ...; do {`; redundant cast `(u8 *)(s32)D_8002EF90` | Medium | parked: unverifiable, left alone | IDO line-scheduling lock; loop advances pointers simultaneously in condition `while ((color += 0x34) != D_8002F060)`. |
+| `src/menu/3E10.c` | `func_80027FAC` | 109 | Nested if checking `if (*var_a0 != -5) { if (*var_a0 != -4) { if (*var_a0 != -3) ... } }` instead of switch | Low | parked: unverifiable, left alone | Deep nested conditionals steering branch structure. |
+| `src/menu/3E10.c` | `menuDrawFileSummary` | 580 | Single-use float constant temp `four = 4.0f;`; temp variable reuse `sc` used for scale then for coordinate `sc = y;` then `sc = -x;` | Medium | parked: unverifiable, left alone | Float temp and variable reuse. |
+| `src/menu/3E10.c` | `menuInitFileSummary` | 682 | Pointer cast hack modifying instruction memory: `*(u32 *)(s32)&D_80671880 = 0x03E00008;` (jr $ra) based on IO read check | High | parked: unverifiable, left alone | Anti-piracy / CIC verification check patching memory. |
+| `src/menu/3E10.c` | `menuDrawFileSlotLabel` | 768 | Explicit Gfx packet packing via word assignment: `g = arg1++; g->words.w0 = 0xFA000000; g->words.w1 = -1;` | Low | parked: unverifiable, left alone | Inline manual GBI command expansion instead of macro. |
+| `src/menu/3E10.c` | `func_8002A088` | 868 | Explicit Gfx packet packing via word assignment: `g = arg1++; g->words.w0 = 0xFA000000; g->words.w1 = -1;` | Low | parked: unverifiable, left alone | Inline manual GBI command expansion instead of macro. |
+| `src/menu/3E10.c` | `func_8002C634` | 1354 | K&R function parameter style `func_8002C634(arg0, arg1) void *arg0; Gfx *arg1;`; redundant `step *= 4;` followed by `step * 2` logic | Medium | parked: unverifiable, left alone | K&R style and manual strength reduction. |
+| `src/menu/3E10.c` | `func_8002CB18` | 1458 | Scale multiplications `2.0f * unk34`; uninitialized variable usage: `a2` is evaluated in `if (temp_s1->unk4 != a2)` before being written | High | parked: unverifiable, left alone | **Behaviour Risk**: `a2` is used uninitialized on the first condition check. |
+| `src/menu/3E10.c` | `menuHandleHighScoreNameEntryInput` | 2275 | Repeated character code conversion switches; convoluted condition tracking via `D_800339C0` | Low | parked: unverifiable, left alone | Complex input handler, no overt fake match hack. |
+| `src/menu/3E10.c` | `menuDrawHighScoreTable` | 2390 | Type cast `(MenuHighScoreEntry *)((u8 *)sp130 + i * 6)` with stride 6; variable reuse `var_s3` | Low | parked: unverifiable, left alone | Natural table rendering logic. |
+| `src/menu/3E10.c` | `func_80030C14` | 3200 | Multiple single-letter variables (`f`, `t`, `r`, `p`, `c`); duplicated switch cases with fallthroughs | Low | parked: unverifiable, left alone | Large UI state interpolation function. |
+| `src/menu/3E10.c` | `func_8003155C` | 3468 | Volatile local variable `volatile s32 ret;` | High | parked: unverifiable, left alone | Volatile local forcing stack spill / return register delay. |
+| `src/menu/E550.c` | `func_8003292C` | 148 | Manual texture tile loading loop replacing higher-level macros; double casts | Low | parked: unverifiable, left alone | Standard manual 4b tile blitting. |
+| `src/multiplayer/0.c` | `func_800246EC` | 338 | Redundant ternary/clamp check: `alpha = plr->unk4->unk128 & 0xFF; if (...) alpha = 0xFF; else alpha = plr->unk4->unk128 & 0xFF;` | Medium | parked: unverifiable, left alone | Redundant re-assignment to steer branch/instruction scheduling. |
+| `src/multiplayer/0.c` | `func_80024CA4` | 452 | Manual GBI display list word construction: `((Gfx *) idx)->words.w1 = col; ((Gfx *) idx)->words.w0 = 0xFA000000;`; empty if blocks: `if (var_s1 == 0) {} else { ... if (col) {} }` | High | parked: unverifiable, left alone | Empty `if` guards to guide IDO branch scheduling; manual GBI emission. |
+| `src/race/0.c` | `func_80024000` | 28 | Double assignment: `fv0 = q; fv0 = q;`; ternary-in-ternary distance difference expression: `a0->unk2 < RC_A->unk80 ? RC_A->unk80 - a0->unk2 : -(RC_A->unk80 - a0->unk2)`; pointer to pointer indirection `pp = &D_807FDC90; ... (*pp)->unk25` | High | parked: unverifiable, left alone | Clear dead assignment hack (`fv0 = q; fv0 = q;`) and redundant pointer indirection. |
+| `src/race/36B0.c` | `func_80028AD0` | 652 | Consecutive duplicate call: `temp_s0->unk2 = temp_v0; temp_s0->unk2 = raceGetPrevWaypointIndex(sp38, (u16)temp_v0);` | Medium | parked: unverifiable, left alone | Overwrite of `temp_s0->unk2` immediately following first assignment. |
+| `src/race/7BD0.c` | `func_8002C76C` | 438 | Unused `ret` variable assignment: `ret = textGetFontHeight(1); sp5C = (s32)((f32)sp5C - (0.5f * (f32)ret));`; duplicate terms: `(f32)(sp60 * 4) + (f32)(sp60 * 4)` instead of multiplication | Medium | parked: unverifiable, left alone | Preserves register allocation for height calculations. |
+
+---
+
+### Suspicious Names Noticed (Not Changed)
+
+- `new_var`, `new_var2`, `new_var3`, `new_var4`: in `src/jetpac/3480.c` (`func_80027728` & `func_80027EC0`) — canonical permuter-generated temporary variable names.
+- `pad`, `pad0`, `pad4`, `pad54`, `pad88`, `padC`, `padCC`, `padC8`, `padBC`, etc.: artificial padding structs/locals across `src/jetpac/0.c`, `src/critter/5110.c`, `src/boss/B100.c`, `src/boss/C920.c`, `src/menu/3E10.c`, `src/race/0.c`, and `src/race/36B0.c`.
+- `ArcA1_P6D0`, `ArcA3_P6D0`: macro names in `src/arcade/0.c` aliasing raw pointer memory addresses.
+- `sp83`, `sp7F`, `col`: local macros aliased to an anonymous struct `L` in `src/boss/F0D0.c:func_80033AF0` to force stack slot offsets.
+- `critterBitwiseNot`: function in `src/critter/5110.c` used solely to obfuscate OS function pointers (`osPiStartDma`, `osRecvMesg`, etc.) from static analysis / anti-piracy detectors.
+
 ## Final build
 
 Clean rebuild at `HEAD` (`tools/dk make clean; tools/dk make`):
@@ -775,6 +934,33 @@ build/dk64.us.z64: OK
 ## Commits
 
 ```
+dc07f0a menu/3E10.c func_8002D8AC: remove empty if (D_80033F28 && D_80033F28) guard
+4f4e755 menu/3E10.c: one MenuScreenState struct for all menu screen state views; typed func_800317E8/func_80030894/menuUpdateItemTransition params
+ed9587d menu/3E10.c: one MenuActor struct for D_807FBB40/44/4C instead of per-function actor views and casts
+aac647e menu/3E10.c: drop redundant (f64)/(f32)/(s32)/(u8) casts (func_8068C5A8 args, func_80031B08 float math, func_8060C830 u8 param)
+d3cca98 menu/3E10.c: drop redundant (s16) casts on text draw call arguments
+a9019fc menu/3E10.c menuHandleSelectionInput: drop unused temp_v0
+a412326 menu/3E10.c menuUpdateStateDispatch/func_8002C0C8: s8 unk12 instead of (s8) cast, drop unused local
+f020d4b menu/3E10.c menuInit: Menu10_Sub174 unk23C instead of byte-offset store
+ee31028 menu/3E10.c menuCalculateGamePercentage: += without (f64) round-trip casts
+42e11a0 menu/3E10.c menuEvaluateSpline: inline float constants instead of m2/p3/m3 locals
+cb5b32c menu/3E10.c func_80030A90: Mtx array field instead of byte-offset matrix pointer
+2263878 menu/3E10.c func_80030894: MenuScreenState unk15 field instead of byte offset, drop (f32) casts
+65535a5 menu/3E10.c menuUpdateItemTransition/menuCheckCheatCodeSequence: drop zero temp, increment and (u32) cast
+d1f7f55 menu/3E10.c menuDrawScrollSelector: typed Menu3B_Sub174/char ** params, drop casts and raw offset
+08ed0be menu/3E10.c: D_80033F28 as char ** text table; drop (void *)/(char *) casts and val temp in menuLoadTextTable
+42a8264 menu/3E10.c menuDrawSubmenuRing: drop (f64)/(f32) round-trip casts
+b82b69c menu/3E10.c func_8002B708: drop (f32) casts on sp40 arithmetic args
+10916e1 menu/3E10.c menuAssignPlayerControllerSlot/menuReleasePlayerControllerSlot: drop D_8076A0E4 element pointer aliases
+247d4e4 menu/3E10.c func_8002E8B8/func_8002C0C8: D_80033988 elements instead of aliases, flagGet(s16, u8) prototype instead of (s16) casts
+7cb1e9e menu/3E10.c func_8002DFA8: compare idx instead of element addresses
+6b05a81 menu/3E10.c func_8002DBDC: index D_80033F28 instead of MenuTextTable struct view
+82a9564 menu/3E10.c func_8002D8AC: index D_80033F28 instead of byte-offset cast in free loop
+6440b7a menu/3E10.c func_8002C91C: for loop instead of trailing i += 1
+1c71aa4 menu/3E10.c func_80028834: D_8076A0D1 as s8 array instead of *(s8 *) cast
+a1e2d46 menu/3E10.c: Gfx * prototypes for textDrawStringVtx/menuSetElementCoordinates/menuUpdateStateDispatch and draw functions; drop (s32)/(Gfx *) casts
+22c6135 menu/3E10.c menuSetElementCoordinates: drop four/d1/d2 temps and byte-offset stores
+68d15b1 reports: fake-match pass over overlays
 048c66b minecart/25F0.c: += for unk80 blend
 6d05586 minecart/25F0.c: natural if/else, MIN, post-init local, rename temps
 d93b889 minecart/25F0.c: MIN/MAX instead of duplicated clamp ifs, drop comma expressions and dx/dy/dz temps, drop unused f64 temps
