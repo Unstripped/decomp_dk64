@@ -221,7 +221,7 @@ Gfx *func_8068DC54(Gfx *, s32, s32, void *, s32, void *);
 extern u8 D_20000C0[];
 extern u32 D_8076A064;
 extern u8 D_807FC929;
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *func_8068C5A8(Gfx *, u16, s32, s32, s32, s32, s16, s16, f32, f32, s32, f32);
 extern s16 D_8002D8CA;
 extern s16 D_8002D8D4[];
 extern s16 D_8002D8E0[];
@@ -276,10 +276,10 @@ Gfx *bonusRenderCrosshair(Gfx *gdl, Actor_74A0 *arg1) {
     gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gSPDisplayList(gdl++, D_1000118);
     gSPMatrix(gdl++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-    gdl = func_8068C5A8(gdl, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp6A - 0x34), (s16)(sp68 - 0x34), 3.2f, 3.2f, 0xE1, 0.0f);
-    gdl = func_8068C5A8(gdl, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp6A + 0x34), (s16)(sp68 - 0x34), 3.2f, 3.2f, 0x13B, 0.0f);
-    gdl = func_8068C5A8(gdl, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp6A + 0x34), (s16)(sp68 + 0x34), 3.2f, 3.2f, 0x2D, 0.0f);
-    gdl = func_8068C5A8(gdl, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp6A - 0x34), (s16)(sp68 + 0x34), 3.2f, 3.2f, 0x87, 0.0f);
+    gdl = func_8068C5A8(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
+    gdl = func_8068C5A8(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
+    gdl = func_8068C5A8(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
+    gdl = func_8068C5A8(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
     return gdl;
 }
 
@@ -656,11 +656,11 @@ void bonusTargetGameUpdate(void) {
     if (t3c->unk0 > 0) {
         t3c->unk22 = 0;
         if (BB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
-            ang = func_80611BB4((f32)D_807FD610.unk2F, (f32)D_807FD610.unk2E) / 6.2831855f * 8.0 + 5.5;
+            ang = func_80611BB4(D_807FD610.unk2F, D_807FD610.unk2E) / 6.2831855f * 8.0 + 5.5;
             if (9.0f < ang) {
                 ang -= 8.0f;
             }
-            t3c->unk22 = (u32)ang;
+            t3c->unk22 = ang;
         }
         p = *D_807F5FD4 + t3c->unk22;
         if (bonusAimAndFire(p->x, p->y, p->z) == 2) {
@@ -903,11 +903,7 @@ void bonusTargetUpdate(void) {
             if (p->unk22 - ((sub->unk8 != 0) ? 2 : 1) < 0) {
                 p->unk22 = 0;
             } else {
-                if (sub->unk8 != 0) {
-                    step = 2;
-                } else {
-                    step = 1;
-                }
+                step = (sub->unk8 != 0) ? 2 : 1;
                 p->unk22 -= step;
             }
             func_806FDAB8(p->unk25, 3.1415927f);
@@ -2129,10 +2125,10 @@ Gfx *func_8002CC08(Gfx *arg0, Actor_BB44 *arg1) {
     gSPMatrix(arg0++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     temp_v0 = arg1->unk154;
     if (temp_v0 == 0 || temp_v0 == 1) {
-        arg0 = func_8068C5A8(arg0, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0xE1, 0.0f);
-        arg0 = func_8068C5A8(arg0, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0x13B, 0.0f);
-        arg0 = func_8068C5A8(arg0, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x2D, 0.0f);
-        arg0 = func_8068C5A8(arg0, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x87, 0.0f);
+        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0xE1, 0.0f);
+        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0x13B, 0.0f);
+        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x2D, 0.0f);
+        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x87, 0.0f);
     }
     gSPMatrix(arg0++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     switch (arg1->unk154) {
