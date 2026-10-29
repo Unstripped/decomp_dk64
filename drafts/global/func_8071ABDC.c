@@ -4,7 +4,7 @@ typedef struct {
     f32 unk4;
     f32 unk8;
     f32 unkC;
-} Fx11BE2_AbdcMotion;
+} NM5_AbdcMotion;
 
 typedef struct {
     u8 pad0[0x340];
@@ -18,8 +18,8 @@ typedef struct {
     u8 pad360[0xD];
     u8 unk36D;
     u8 pad36E[0x16];
-    Fx11BE2_AbdcMotion *unk384;
-} Fx11BE2_ActorABDC;
+    NM5_AbdcMotion *unk384;
+} NM5_ActorABDC;
 
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 f32 sinApprox(f32);
@@ -27,7 +27,7 @@ f32 cosApprox(f32);
 u32 func_806119A0(void);
 void *func_80610FE8(s32);
 
-void func_8071ABDC(Fx11BE2_ActorABDC *arg0, s8 *arg1) {
+void func_8071ABDC(NM5_ActorABDC *arg0, s8 *arg1) {
     f32 sp80[4][4];
     f32 sp40[4][4];
     f32 pad3C;
