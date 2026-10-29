@@ -478,7 +478,6 @@ void animSetLoopLimit(void *, s32, s32);
 
 void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     u8 i;
-    u8 cur;
     u8 res;
 
     i = 0;
@@ -488,7 +487,7 @@ void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
         if (*arg3 != 0xFF) {
             do {
                 func_8002450C(arg1, arg3[i++], 1);
-            } while ((cur = arg3[i]) != 0xFF);
+            } while (arg3[i] != 0xFF);
         }
         ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 3;
         break;
@@ -501,7 +500,7 @@ void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
                 } else {
                     res = bossPieceStep(arg1, arg3[i++], 10.0f, 15.0f, 50.0f);
                 }
-            } while ((cur = arg3[i]) != 0xFF);
+            } while (arg3[i] != 0xFF);
         }
         if (res != 0) {
             ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 4;
@@ -660,7 +659,8 @@ typedef struct Boss3B_DC90 {
     s16 unkA;
     u8 padC[2];
     s16 unkE;
-    u8 pad10[0x2C - 0x10];
+    u8 pad10[0x28 - 0x10];
+    u8 unk28[4];
     s16 unk2C;
     s16 unk2E;
 } Boss3B_DC90;
@@ -765,7 +765,7 @@ void func_800254D0(void) {
     u8 sp6F;
     u8 sp6E;
     s32 pad_bot[1];
-    register Boss3B_178 *temp_s1;
+    Boss3B_178 *temp_s1;
 
 
     temp_s1 = D_807FBB40->unk178;
@@ -806,7 +806,7 @@ void func_800254D0(void) {
             }
         }
     }
-    func_8072881C(0, (u8 *) D_807FDC90 + 0x28);
+    func_8072881C(0, D_807FDC90->unk28);
     if ((D_807FBB70[0x200] == 9) || (D_807FBB70[0x15] != 0)) {
         func_8067E2E4(D_807FBB40, 0xC, 2.0f);
         D_807FBB40->unk138 = 0;
