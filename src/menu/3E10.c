@@ -1187,10 +1187,10 @@ Gfx *func_8002B708(MenuScreenActor *arg0, Gfx *arg1) {
             v = -v;
         }
         sp40 = v;
-        func_800317E8(sp164, (f32)(sp40 + 160.0), 80.0f, &sp154, &sp150, 2, 0, 2.0f);
+        func_800317E8(sp164, sp40 + 160.0, 80.0f, &sp154, &sp150, 2, 0, 2.0f);
         sp150 = sp150 + 240.0f;
         arg1 = textDrawStringVtx(arg1, 1, (s16)(sp154 * 4.0f), (s16)(sp150 * 4.0f), (void *)D_80033F28[idx + 16], 0x81);
-        func_800317E8(sp164, (f32)(160.0 - sp40), 160.0f, &sp154, &sp150, 2, 0, 1.5f);
+        func_800317E8(sp164, 160.0 - sp40, 160.0f, &sp154, &sp150, 2, 0, 1.5f);
         sp150 = sp150 + 240.0f;
         sp138 = (s16)(sp150 * 4.0f);
         switch (D_80033850[idx]) {
