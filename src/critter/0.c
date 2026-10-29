@@ -25,14 +25,14 @@ void func_8002409C(u8 *arg0) {
 
     ptr = *(u8 **)(arg0 + 8);
     i = 0;
-    if ((s32)arg0[2] > 0) {
+    if (arg0[2] > 0) {
         do {
             *(f32 *)(ptr + 0x24) = 7.0f;
             *(u16 *)(ptr + 0x1E4) = 0x82;
             ptr[0x1E1] |= 2;
             i++;
             ptr += 0x1F0;
-        } while (i < (s32)arg0[2]);
+        } while (i < arg0[2]);
     }
 }
 
@@ -50,14 +50,14 @@ void func_800240EC(u8 *arg0) {
         var_a1 = 0x81;
     }
     i = 0;
-    if ((s32)arg0[2] > 0) {
+    if (arg0[2] > 0) {
         do {
             *(f32 *)(ptr + 0x24) = 5.0f;
             *(u16 *)(ptr + 0x1E4) = var_v1;
             *(u16 *)(ptr + 0x1E6) = var_a1;
             i++;
             ptr += 0x1F0;
-        } while (i < (s32)arg0[2]);
+        } while (i < arg0[2]);
     }
 }
 
@@ -74,9 +74,9 @@ void func_80024154(u8 *arg0) {
     tbl = D_80029F6C;
     idx = 0;
     i = 0;
-    if ((s32)arg0[2] > 0) {
+    if (arg0[2] > 0) {
         do {
-            if ((idx == 0 && (f64)(u32)arg0[2] * 0.4 < (f64)i) || (idx == 1 && (f64)(u32)arg0[2] * 0.7 < (f64)i)) {
+            if ((idx == 0 && (f64)arg0[2] * 0.4 < (f64)i) || (idx == 1 && (f64)arg0[2] * 0.7 < (f64)i)) {
                 idx++;
             }
             *(f32 *)(ptr + 0x24) = 10.0f;
@@ -84,7 +84,7 @@ void func_80024154(u8 *arg0) {
             *(s32 *)(ptr + 0x1E8) = 0;
             i++;
             ptr += 0x1F0;
-        } while (i < (s32)arg0[2]);
+        } while (i < arg0[2]);
     }
 }
 typedef struct { s16 v[4]; } C0aTbl2;
@@ -99,21 +99,17 @@ void func_8002427C(u8 *arg0) {
     ptr = *(u8 **)(arg0 + 8);
     tbl = D_80029F74;
     idx = 0;
-    for (i = 0; i < (s32)arg0[2]; i++, ptr += 0x1F0) {
-        {
-            if ((idx == 0 && (f64)(u32)arg0[2] * 0.3 < (f64)i) || (idx == 1 && (f64)(u32)arg0[2] * 0.5 < (f64)i) || (idx == 2 && (f64)(u32)arg0[2] * 0.7 < (f64)i)) {
-                idx++;
-            }
-            *(f32 *)(ptr + 0x24) = 20.0f;
-            *(s16 *)(ptr + 0x1E4) = tbl.v[idx];
-            *(s32 *)(ptr + 0x1E8) = 0;
-            ptr[0x1E1] |= 4;
-            critterSetTargetSpeed(ptr, arg0, (f32)((f64)*(f32 *)(ptr + 0x38) * 0.5));
+    for (i = 0; i < arg0[2]; i++, ptr += 0x1F0) {
+        if ((idx == 0 && (f64)arg0[2] * 0.3 < (f64)i) || (idx == 1 && (f64)arg0[2] * 0.5 < (f64)i) || (idx == 2 && (f64)arg0[2] * 0.7 < (f64)i)) {
+            idx++;
         }
+        *(f32 *)(ptr + 0x24) = 20.0f;
+        *(s16 *)(ptr + 0x1E4) = tbl.v[idx];
+        *(s32 *)(ptr + 0x1E8) = 0;
+        ptr[0x1E1] |= 4;
+        critterSetTargetSpeed(ptr, arg0, (f32)((f64)*(f32 *)(ptr + 0x38) * 0.5));
     }
 }
-
-s32 func_8066B0F8(s32, s32, s32, s32);
 
 void critterPlayAudio(u8 *arg0) {
     s32 i;
@@ -177,7 +173,7 @@ void func_800245B8(void *arg0) {
                           (s16)((func_806119A0() & 3) + 0x1A9),
                           0xFF, 0x7F, 0x1E, 0x5A, 0.7f, 0);
         }
-        *(s16 *)((u8 *)arg0 + 0x42) = (s16)(s32)((f32)*(s16 *)((u8 *)arg0 + 0x42) + 1200.0f * sp3C);
+        *(s16 *)((u8 *)arg0 + 0x42) = (s16)((f32)*(s16 *)((u8 *)arg0 + 0x42) + 1200.0f * sp3C);
         *(s16 *)((u8 *)arg0 + 0x42) &= 0xFFF;
         if (*(s16 *)((u8 *)arg0 + 0x44) > 0x800) {
             if (*(s16 *)((u8 *)arg0 + 0x42) < 0x800) {
@@ -242,7 +238,7 @@ void func_80024B78(u8 *arg0) {
 
     if (arg0[0x1E1] & 1) {
         temp_fv1 = (f32)((f64)*(f32 *)(arg0 + 0x28) * (1.0 / 1.1));
-        *(s16 *)(arg0 + 0x42) = (s16)(s32)((f64)*(s16 *)(arg0 + 0x42) + (90.0 * (0.5 + (f64)(10.0f * temp_fv1))));
+        *(s16 *)(arg0 + 0x42) = (s16)((f64)*(s16 *)(arg0 + 0x42) + (90.0 * (0.5 + (f64)(10.0f * temp_fv1))));
         *(s16 *)(arg0 + 0x42) &= 0xFFF;
         temp_fv0 = func_80612794(*(s16 *)(arg0 + 0x42));
         *(f32 *)(arg0 + 0x48) = (((-15.0f * temp_fv1) + 45.0f) * temp_fv0) + (temp_fv1 * 30.0f);
@@ -292,7 +288,6 @@ extern u8 D_8071FC40;
 
 void func_80024F28(void *arg0) {
     s16 sp4E;
-    u8 pad;
     f32 temp;
     f32 sp44;
     f32 sp40;
@@ -324,7 +319,7 @@ void func_80024F28(void *arg0) {
         if (absv >= 0x5B) {
             func_806086CC(*(f32 *)((u8 *)arg0 + 8), *(f32 *)((u8 *)arg0 + 0xC), *(s32 *)((u8 *)arg0 + 0x10), 0x16F, 0x46, 0xDC, 0x1E, 0x5A, 0.7f, 0);
         }
-        *(s16 *)((u8 *)arg0 + 0x42) = (s16)(s32)((200.0 * (1.5 + (f64)(150.0f * *(f32 *)((u8 *)arg0 + 0x30)))) + (f64)*(s16 *)((u8 *)arg0 + 0x42));
+        *(s16 *)((u8 *)arg0 + 0x42) = (s16)((200.0 * (1.5 + (f64)(150.0f * *(f32 *)((u8 *)arg0 + 0x30)))) + (f64)*(s16 *)((u8 *)arg0 + 0x42));
         *(s16 *)((u8 *)arg0 + 0x42) &= 0xFFF;
         temp2 = func_80612794(*(s16 *)((u8 *)arg0 + 0x42)) * (10.0f + 200.0f * sp40);
         sp44 = temp2 * 1.0f + temp2 * ((f32)sp3E * 0.00024414062f);
@@ -517,7 +512,7 @@ Gfx *critterRenderGroup(Gfx *gdl, u8 *arg1) {
         break;
     }
     i = 0;
-    if ((s32)arg1[2] > 0) {
+    if (arg1[2] > 0) {
         do {
             if (D_807F6C28 != 0) {
                 func_8065C334(*(f32 *)(obj + 8), *(f32 *)(obj + 0xC), *(s32 *)(obj + 0x10), 0, &r, &g, &b,
@@ -540,7 +535,7 @@ Gfx *critterRenderGroup(Gfx *gdl, u8 *arg1) {
             }
             i++;
             obj += 0x1F0;
-        } while (i < (s32)arg1[2]);
+        } while (i < arg1[2]);
     }
     gDPPipeSync(gdl++);
     return gdl;
@@ -687,11 +682,9 @@ void critterPickNewZone(u8 *arg0, u8 *arg1) {
     s32 temp_t8;
 
     temp_t8 = (func_806119A0() % (u32)(arg1[1] - 1)) & 0xFF;
-    if (temp_t8 < arg0[0x50]) {
-        goto end;
+    if (temp_t8 >= arg0[0x50]) {
+        temp_t8 = (temp_t8 + 1) & 0xFF;
     }
-    temp_t8 = (temp_t8 + 1) & 0xFF;
-end:
     arg0[0x50] = temp_t8;
     *(void **)(arg0 + 0x54) = critterGetZone(arg1, temp_t8);
 }
@@ -752,7 +745,7 @@ void critterFollowLeader(u8 *arg0, u8 *arg1) {
         *(s16 *)(arg0 + 2) = 0;
         return;
     }
-    if ((u32)(func_806119A0() % 255U) < 50) {
+    if (func_806119A0() % 255U < 50) {
         critterSetRandomOffset(*(void **)(arg0 + 0x54), arg0, 1, 1);
     }
 }
@@ -825,7 +818,7 @@ void critterSteerToTarget(u8 *arg0, void *arg1, s32 arg2, void *arg3) {
     }
     dist = sqrtf(dx * dx + dz * dz);
     if ((u8)use_y) {
-        *(s16 *)(arg0 + 2) = func_806CC190(*(s16 *)(arg0 + 2), (s16)(s32)(((f64)func_80611BB4(dy, dist) * 2048.0) / 3.1415927410125732), *(s32 *)(arg0 + 0x24));
+        *(s16 *)(arg0 + 2) = func_806CC190(*(s16 *)(arg0 + 2), (s16)(((f64)func_80611BB4(dy, dist) * 2048.0) / 3.1415927410125732), *(s32 *)(arg0 + 0x24));
     }
     ang = mathAngleDiscrete(tx, tz, *(f32 *)(arg0 + 8), *(f32 *)(arg0 + 0x10), dist);
     *(s16 *)(arg0 + 4) = *(s16 *)(arg0 + 0);
@@ -909,7 +902,7 @@ s32 func_80026A5C(u8 *arg0, u8 *arg1) {
         } else {
             arg0[0x1E0] = 2;
         }
-        critterSetRandomOffset(*(void **)(arg0 + 0x54), arg0, (u8)(arg0[0x1E0] == 2), 1);
+        critterSetRandomOffset(*(void **)(arg0 + 0x54), arg0, arg0[0x1E0] == 2, 1);
     } else {
         *(s16 *)(arg0 + 2) = 0;
         *(f32 *)(arg0 + 0x34) = 0;
@@ -933,7 +926,6 @@ void critterDispatchAll(u8 *arg0) {
     s32 var_s1;
     u8 *var_s0;
     var_s0 = *(u8 **)(arg0 + 8);
-    var_s3 = NULL;
     switch (arg0[0]) {
     case 0:
     case 1:
@@ -953,7 +945,7 @@ void critterDispatchAll(u8 *arg0) {
         break;
     }
     cb = func_80026A5C;
-    for (var_s1 = 0; var_s1 < (s32)arg0[2]; var_s1++, var_s0 += 0x1F0) {
+    for (var_s1 = 0; var_s1 < arg0[2]; var_s1++, var_s0 += 0x1F0) {
         func_8002601C(var_s0);
         if (var_s0[0x1E0] == 0) {
             critterUpdateIdle(var_s0, arg0);
@@ -983,16 +975,16 @@ void critterUpdateGroups(u8 *arg0) {
 
     if (arg0 != NULL) {
         p = *(u8 **)(arg0 + 4);
-        *(s16 *)critterPlayerZone = (s16)(s32) * (f32 *)(D_807FBB48 + 0x7C);
+        *(s16 *)critterPlayerZone = (s16)*(f32 *)(D_807FBB48 + 0x7C);
         tbl = D_80029BAC + sel * 0x78;
-        *(s16 *)((u8 *)critterPlayerZone + 4) = (s16)(s32) * (f32 *)(D_807FBB48 + 0x84);
+        *(s16 *)((u8 *)critterPlayerZone + 4) = (s16)*(f32 *)(D_807FBB48 + 0x84);
         for (i = 0; i < (s32)arg0[0]; i++, p += 0xC) {
             idx = *p;
             if (idx > 0) {
                 idx = idx - 1;
             }
             e = tbl + idx * 0x18;
-            *(s16 *)((u8 *)critterPlayerZone + 2) = (s16)(s32)((f32) * (s16 *)(e + 0x14) + *(f32 *)(D_807FBB48 + 0x80));
+            *(s16 *)((u8 *)critterPlayerZone + 2) = (s16)((f32)*(s16 *)(e + 0x14) + *(f32 *)(D_807FBB48 + 0x80));
             *(C0cBlk5 *)((u8 *)critterPlayerZone + 8) = *(C0cBlk5 *)e;
             critterDispatchAll(p);
         }
@@ -1136,7 +1128,7 @@ void critterInitGroup(u8 *arg0) {
         flag = 1;
     }
     i = 0;
-    if ((s32)arg0[2] > 0) {
+    if (arg0[2] > 0) {
         do {
             critterPlaceInZone(*(s16 **)(arg0 + 4), ent, 1);
             if (func_807142D8() == 0) {
@@ -1154,7 +1146,7 @@ void critterInitGroup(u8 *arg0) {
                 flag = 2;
             }
             i++;
-        } while (i < (s32)arg0[2]);
+        } while (i < arg0[2]);
     }
     cb(arg0);
 }
