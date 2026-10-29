@@ -13,31 +13,60 @@ typedef struct {
     JetpacSprite *sprites[2];
     f32 unk8;
     f32 unkC;
-    u8 pad10[0x1C - 0x10];
+    f32 unk10;
+    f32 unk14;
+    u8 color[4];
     s32 unk1C;
-    u8 pad20[4];
+    s32 unk20;
     s32 unk24;
     s32 unk28;
     s32 unk2C;
     s32 unk30;
-    u8 pad34[4];
+    s32 unk34;
     s32 unk38;
-    u8 pad3C[4];
+    s32 unk3C;
     s32 unk40;
-    u8 pad44[4];
+    s32 unk44;
     void (*unk48)(void *, s32);
 } JetpacItem;
 
 typedef struct {
-    u8 pad0[0xC];
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
     s32 unkC;
-    u8 pad10[0x14 - 0x10];
+    s32 unk10;
     JetpacItem items[4];
-    u8 pad144[4];
-    u8 unk148;
-    u8 pad149[0x190 - 0x149];
-    void (*unk190)(void *, s32);
-} JetpacInner;
+    s32 unk144;
+    JetpacItem bonus;
+} JetpacPlayer;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    u8 color[4];
+    u8 pad14[8];
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    s32 unk28;
+    u8 pad2C[4];
+    s32 unk30;
+} JetpacLedge;
+
+typedef struct {
+    u8 pad0[0x1C];
+    JetpacPlayer players[2];
+    s32 active_player;
+    u8 pad348[0x350 - 0x348];
+    JetpacLedge ledges[4];
+    u8 pad420[0x78C - 0x420];
+    s32 unk78C;
+} JetpacGlobal;
+
+extern JetpacGlobal jetpacGame;
 
 f32 jetpacRandFloat(void);
 s32 jetpacCheckAabbOverlapWrapped(f32, f32, f32, f32, f32, f32, f32, f32);
@@ -78,9 +107,9 @@ s32 jetpacItemOverlapsBox(JetpacItem *arg0, f32 arg1, f32 arg2, f32 arg3, f32 ar
 extern JetpacSprite D_8002D1A0[];
 extern JetpacSprite D_8002D230[];
 extern JetpacItem D_8002DC9C;
-void jetpacSetRocketSpriteFrames(s32 *arg0);
+void jetpacSetRocketSpriteFrames(JetpacPlayer *arg0);
 
-void jetpacInitRocketParts(JetpacInner *arg0) {
+void jetpacInitRocketParts(JetpacPlayer *arg0) {
     s32 j;
     JetpacItem sp38 = D_8002DC9C;
     s32 i;
@@ -92,7 +121,7 @@ void jetpacInitRocketParts(JetpacInner *arg0) {
         }
     }
 
-    jetpacSetRocketSpriteFrames((s32 *)arg0);
+    jetpacSetRocketSpriteFrames(arg0);
     arg0->unkC = 0;
     arg0->items[2].unk8 = 168.0f;
     arg0->items[2].unkC = 168.0f;
@@ -104,46 +133,8 @@ void jetpacInitRocketParts(JetpacInner *arg0) {
 
 
 
-typedef struct {
-    u8 pad0[0x344];
-    s32 unk344;
-} JetpacGlobal;
-
-extern JetpacGlobal jetpacGame;
 
 #ifdef NON_MATCHING
-typedef struct {
-    u8 pad0[8];
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    u8 unk18;
-    u8 unk19;
-    u8 unk1A;
-    u8 pad1B;
-    s32 unk1C;
-    u8 pad20[4];
-    s32 unk24;
-    s32 unk28;
-    s32 unk2C;
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-    s32 unk3C;
-    s32 unk40;
-} J3Item;
-
-typedef struct {
-    u8 pad0[4];
-    s32 unk4;
-    u8 pad8[4];
-    s32 unkC;
-    s32 unk10;
-    u8 pad14[0x144 - 0x14];
-    s32 unk144;
-} J3Inner;
-
 s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
 s32 jetpacIsOverRocket(f32);
 extern s32 D_8002F064;
@@ -157,13 +148,13 @@ extern s32 D_8002F074;
 extern s32 D_8002F078;
 void flagSet(s32, s32, s32);
 void jetpacPlaySound(s32);
-void jetpacSpawnBonusItem(void *);
+void jetpacSpawnBonusItem(JetpacPlayer *);
 void jetpacSpawnFuelPod();
 #endif
 
 #ifdef NON_MATCHING
-void func_80027728(J3Item *arg0) {
-    J3Inner *inner = (J3Inner *)((u8 *)&jetpacGame + jetpacGame.unk344 * 0x194 + 0x1C);
+void func_80027728(JetpacItem *arg0) {
+    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     f32 *new_var;
     f32 *new_var2;
     s32 *new_var3;
@@ -191,7 +182,7 @@ void func_80027728(J3Item *arg0) {
             s32 hit = jetpacCheckLedgeCollision((f32)arg0->unk24 + x + arg0->unk10, (f32)arg0->unk28 + arg0->unkC + arg0->unk14,
                                                 (f32)arg0->unk2C + x + arg0->unk10, (f32)arg0->unk30 + arg0->unkC + arg0->unk14, 0);
             if (hit >= 0) {
-                arg0->unkC = *(f32 *)((u8 *)&jetpacGame + hit * 0x34 + 0x354) - 16.0f;
+                arg0->unkC = jetpacGame.ledges[hit].unk4 - 16.0f;
                 arg0->unk14 = 0.0f;
             } else {
                 arg0->unkC = arg0->unkC + arg0->unk14;
@@ -260,36 +251,35 @@ typedef struct {
     u8 a;
 } J3Color;
 
-extern s32 D_8002DCE8;
+extern J3Color D_8002DCE8;
 extern s32 D_8002F3C0;
 f32 jetpacRoundFloat(f32);
 
 void jetpacDrawItem(JetpacItem *arg0, s32 arg1) {
     s32 x;
     s32 y;
-    JetpacInner *inner;
+    JetpacPlayer *inner;
     J3Color sp58;
     s32 i;
-    JetpacSprite **p;
 
-    *(s32 *)&sp58 = D_8002DCE8;
-    inner = (JetpacInner *)((u8 *)&jetpacGame + jetpacGame.unk344 * 0x194 + 0x1C);
+    sp58 = D_8002DCE8;
+    inner = &jetpacGame.players[jetpacGame.active_player];
     if (D_8002F3C0) {
     }
     if (arg0->unk1C >= 2) {
         x = (s32)arg0->unk8;
         y = (s32)jetpacRoundFloat(arg0->unkC);
         if (arg1 < 3) {
-            for (i = 0, p = arg0->sprites; i != 2; i++, p++, y += 8) {
+            for (i = 0; i < 2; i++, y += 8) {
                 if ((inner->unkC < 8 && inner->unkC + arg1 * 2 + i >= 8) || (inner->unkC == 8 && (D_8002F3C0 & 0x10))) {
                     sp58.g = 0;
                 }
-                if (*p != NULL) {
-                    func_80025700(*p, x, y, &sp58, *(s32 *)((u8 *)arg0 + 0x20));
+                if (arg0->sprites[i] != NULL) {
+                    func_80025700(arg0->sprites[i], x, y, &sp58, arg0->unk20);
                 }
             }
         } else {
-            func_80025700(arg0->sprites[0], x, y, (u8 *)arg0 + 0x18, *(s32 *)((u8 *)arg0 + 0x20));
+            func_80025700(arg0->sprites[0], x, y, arg0->color, arg0->unk20);
         }
     }
 }
@@ -300,28 +290,28 @@ extern u8 D_8002F3C8;
 extern JetpacSprite D_8002D968[];
 extern JetpacItem D_8002DCEC;
 
-void jetpacSpawnBonusItem(void *arg0) {
+void jetpacSpawnBonusItem(JetpacPlayer *arg0) {
     JetpacItem sp24 = D_8002DCEC;
     JetpacItem *item;
     s32 count = 5;
 
-    if (D_8002F3C8 != 0 && *(s32 *)((u8 *)arg0 + 4) >= 5000 && flagGet(0x17B, 0) == 0 && flagGet(0x62, 2) == 0) {
+    if (D_8002F3C8 != 0 && arg0->unk4 >= 5000 && flagGet(0x17B, 0) == 0 && flagGet(0x62, 2) == 0) {
         count = 6;
         sp24.unk40 = count;
     } else {
         sp24.unk40 = (s32)(jetpacRandFloat() * count) + 1;
     }
 
-    item = (JetpacItem *)((u8 *)arg0 + 0x148);
+    item = &arg0->bonus;
     sp24.sprites[0] = &D_8002D968[sp24.unk40];
     *item = sp24;
     item->unk8 = (f32)jetpacRandItemX();
-    *(s32 *)((u8 *)arg0 + 0x144) = jetpacRandSpawnX();
+    arg0->unk144 = jetpacRandSpawnX();
 }
 
 #ifdef NON_MATCHING
-void func_80027EC0(J3Item *arg0) {
-    J3Inner *inner = (J3Inner *)((u8 *)&jetpacGame + jetpacGame.unk344 * 0x194 + 0x1C);
+void func_80027EC0(JetpacItem *arg0) {
+    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     s32 v;
     s32 idx;
     f32 *new_var;
@@ -345,13 +335,13 @@ void func_80027EC0(J3Item *arg0) {
             s32 hit = jetpacCheckLedgeCollision((f32)arg0->unk24 + x + arg0->unk10, (f32)arg0->unk28 + arg0->unkC + arg0->unk14,
                                                 (f32)arg0->unk2C + x + arg0->unk10, (f32)arg0->unk30 + arg0->unkC + arg0->unk14, 0);
             if (hit >= 0) {
-                arg0->unkC = *(f32 *)((u8 *)&jetpacGame + hit * 0x34 + 0x354) - 16.0f;
+                arg0->unkC = jetpacGame.ledges[hit].unk4 - 16.0f;
                 arg0->unk14 = 0.0f;
             } else {
                 arg0->unkC = arg0->unkC + arg0->unk14;
             }
         }
-        if (*(s32 *)((u8 *)&jetpacGame + 0x78C) == 2 && D_8002F064 == 3) {
+        if (jetpacGame.unk78C == 2 && D_8002F064 == 3) {
             if (jetpacCheckAabbOverlapWrapped(arg0->unk8 + (f32)arg0->unk24, arg0->unkC + (f32)arg0->unk28, arg0->unk8 + (f32)arg0->unk2C, arg0->unkC + (f32)arg0->unk30,
                               (*new_var) + (f32)D_8002F06C, (*new_var2) + (f32)D_8002F070, (*new_var) + (f32)D_8002F074,
                               (*new_var2) + (f32)D_8002F078)) {
@@ -376,13 +366,13 @@ void func_80027EC0(J3Item *arg0) {
         }
         v = v % 24;
         if (v < 12) {
-            arg0->unk1A = 0xFF;
-            arg0->unk18 = 0;
-            arg0->unk19 = 0;
+            arg0->color[2] = 0xFF;
+            arg0->color[0] = 0;
+            arg0->color[1] = 0;
         } else if (v < 24) {
-            arg0->unk18 = 0xFF;
-            arg0->unk19 = 0xFF;
-            arg0->unk1A = 0;
+            arg0->color[0] = 0xFF;
+            arg0->color[1] = 0xFF;
+            arg0->color[2] = 0;
         }
         break;
     case 1:
@@ -395,31 +385,31 @@ void func_80027EC0(J3Item *arg0) {
         if (v < 0x1C) {
             idx = v / 4 + 1;
             if (idx & 1) {
-                arg0->unk1A = 0xFF;
+                arg0->color[2] = 0xFF;
             } else {
-                arg0->unk1A = 0;
+                arg0->color[2] = 0;
             }
             if (idx & 2) {
-                arg0->unk18 = 0xFF;
+                arg0->color[0] = 0xFF;
             } else {
-                arg0->unk18 = 0;
+                arg0->color[0] = 0;
             }
             if (idx & 4) {
-                arg0->unk19 = 0xFF;
+                arg0->color[1] = 0xFF;
             } else {
-                arg0->unk19 = 0;
+                arg0->color[1] = 0;
             }
         }
         break;
     case 2:
-        arg0->unk18 = 0xFF;
-        arg0->unk19 = 0xFF;
-        arg0->unk1A = 0;
+        arg0->color[0] = 0xFF;
+        arg0->color[1] = 0xFF;
+        arg0->color[2] = 0;
         break;
     case 5:
-        arg0->unk19 = 0xFF;
-        arg0->unk18 = 0;
-        arg0->unk1A = 0;
+        arg0->color[1] = 0xFF;
+        arg0->color[0] = 0;
+        arg0->color[2] = 0;
         break;
     case 3:
     case 4:
@@ -430,13 +420,13 @@ void func_80027EC0(J3Item *arg0) {
             arg0->unk34 = inner->unk144;
         }
         if (v < 12) {
-            arg0->unk18 = 0;
-            arg0->unk19 = 0;
-            arg0->unk1A = 0;
+            arg0->color[0] = 0;
+            arg0->color[1] = 0;
+            arg0->color[2] = 0;
         } else if (v < 24) {
-            arg0->unk18 = 0;
-            arg0->unk19 = 0xFF;
-            arg0->unk1A = 0xFF;
+            arg0->color[0] = 0;
+            arg0->color[1] = 0xFF;
+            arg0->color[2] = 0xFF;
         }
         break;
     }
@@ -448,34 +438,26 @@ void func_80027EC0(J3Item *arg0) {
 
 
 
-typedef struct {
-    u8 pad0[0x10];
-    s32 unk10;
-    u8 pad14[0xF8 - 0x14];
-    JetpacItem item;
-} UnkStruct_80028340;
-
 extern JetpacItem D_8002DD38;
 
-void jetpacSpawnFuelPod(UnkStruct_80028340 *arg0) {
+void jetpacSpawnFuelPod(JetpacPlayer *arg0) {
     JetpacItem sp1C = D_8002DD38;
     sp1C.unk8 = (f32)jetpacRandItemX();
-    arg0->item = sp1C;
+    arg0->items[3] = sp1C;
     arg0->unk10 = 3;
 }
 
 
 s32 jetpacBoxOverlapsItems(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
-    JetpacInner *inner = (JetpacInner *)((u8 *)&jetpacGame + jetpacGame.unk344 * 0x194);
-    s32 unk28 = *(s32 *)((u8 *)inner + 0x28);
+    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
+    s32 unkC = inner->unkC;
     s32 i;
     JetpacItem *item;
 
-    inner = (JetpacInner *)((u8 *)inner + 0x1C);
-    if (unk28 < 2) {
+    if (unkC < 2) {
         item = inner->items;
         i = 0;
-        if (2 - unk28 > 0) {
+        if (2 - unkC > 0) {
             do {
                 if (jetpacItemOverlapsBox(item, arg0, arg1, arg2, arg3, 1)) {
                     return 1;
@@ -486,18 +468,18 @@ s32 jetpacBoxOverlapsItems(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
         }
     }
 
-    if (jetpacItemOverlapsBox((JetpacItem *)((u8 *)inner + 0xF8), arg0, arg1, arg2, arg3, 0)) {
+    if (jetpacItemOverlapsBox(&inner->items[3], arg0, arg1, arg2, arg3, 0)) {
         return 1;
     }
-    if (jetpacItemOverlapsBox((JetpacItem *)((u8 *)inner + 0x148), arg0, arg1, arg2, arg3, 0)) {
+    if (jetpacItemOverlapsBox(&inner->bonus, arg0, arg1, arg2, arg3, 0)) {
         return 1;
     }
 
     return 0;
 }
 void jetpacItemsUpdate(void) {
-    u8 *player = (u8 *)&jetpacGame + jetpacGame.unk344 * 0x194;
-    JetpacItem *item = (JetpacItem *)(player + 0x30);
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.active_player];
+    JetpacItem *item = player->items;
     s32 i = 0;
     s32 count = 4;
 
@@ -510,12 +492,12 @@ void jetpacItemsUpdate(void) {
     } while (i != count);
 }
 void func_800285DC(void) {
-    JetpacInner *inner = (JetpacInner *)((u8 *)&jetpacGame + jetpacGame.unk344 * 0x194 + 0x1C);
-    inner->unk190(&inner->unk148, 5);
+    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
+    inner->bonus.unk48(&inner->bonus, 5);
 }
 
 void jetpacPlaceRocketOnPad(void) {
-    JetpacInner *inner = (JetpacInner *)((u8 *)&jetpacGame + jetpacGame.unk344 * 0x194 + 0x1C);
+    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     JetpacItem *item = inner->items;
     s32 i;
 
@@ -539,11 +521,11 @@ void jetpacUpdateRocketFlight(void) {
     f32 spd;
     f32 y;
     f32 t;
-    s32 pad;
 
-    item = (JetpacItem *)((u8 *)&jetpacGame + jetpacGame.unk344 * 0x194 + 0x30);
+    item = jetpacGame.players[jetpacGame.active_player].items;
 
-    y = item->unkC; t = (y - -8.0f) / 144.0f; t = (t < 0.0f) ? 0.0f : ((t > 1.0f) ? 1.0f : t); if (*(s32 *)((u8 *)&jetpacGame + 0x78C) == 1) {
+    y = item->unkC; t = (y - -8.0f) / 144.0f; t = (t < 0.0f) ? 0.0f : ((t > 1.0f) ? 1.0f : t);
+    if (jetpacGame.unk78C == 1) {
         if (D_80770DF8[1] == 0) {
             jetpacPlaySound(1);
         }
@@ -561,7 +543,7 @@ void jetpacUpdateRocketFlight(void) {
             return;
         }
         spd = 0.4f;
-    } else if (*(s32 *)((u8 *)&jetpacGame + 0x78C) == 4) {
+    } else if (jetpacGame.unk78C == 4) {
         if (D_80770DF8[0] == 0) {
             jetpacPlaySound(0);
         }
@@ -590,7 +572,7 @@ void jetpacUpdateRocketFlight(void) {
 
 
 void jetpacPlaceRocketAboveScreen(void) {
-    JetpacInner *inner = (JetpacInner *)((u8 *)&jetpacGame + jetpacGame.unk344 * 0x194 + 0x1C);
+    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     JetpacItem *item = inner->items;
     s32 i;
 
@@ -612,7 +594,7 @@ void func_800289EC(void) {
     J3Word sp44;
     s32 i;
 
-    item = (JetpacItem *)((u8 *)&jetpacGame + jetpacGame.unk344 * 0x194 + 0x30);
+    item = jetpacGame.players[jetpacGame.active_player].items;
     sp44 = *(J3Word *)&D_8002DD88;
     if (116.0f > item->unkC) {
         s32 mod = ((s32)item->unkC / 3) % 2;
@@ -631,29 +613,14 @@ void func_800289EC(void) {
 
 extern void *D_8002D190[];
 
-void jetpacSetRocketSpriteFrames(s32 *arg0) {
-    s32 x = *arg0 / 4;
+void jetpacSetRocketSpriteFrames(JetpacPlayer *arg0) {
+    s32 x = arg0->unk0 / 4;
     s32 i;
 
     for (i = 0; i < 6; i++) {
         D_8002D1A0[i].frame = D_8002D190[x % 4];
     }
 }
-
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    u8 color[4];
-    u8 pad14[8];
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
-    u8 pad2C[4];
-    s32 unk30;
-} JetpacLedge;
 
 void jetpacInitLedge(JetpacLedge *arg0, s32 arg1, s32 arg2, s32 arg3, u8 arg4, u8 arg5, u8 arg6) {
     arg0->unk30 = arg3;
@@ -696,13 +663,8 @@ s32 jetpacCheckLedgeCollision(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) 
     return -1;
 }
 
-typedef struct {
-    u8 pad0[0x350];
-    JetpacLedge ledges[4];
-} J3Global;
-
 s32 jetpacCheckLedgeEdge(s32 arg0, s32 arg1, s32 arg2) {
-    JetpacLedge *l = ((J3Global *)&jetpacGame)->ledges + arg0;
+    JetpacLedge *l = jetpacGame.ledges + arg0;
 
     if (arg1 < l->unk1C) {
         if (arg2 < l->unk1C) {
