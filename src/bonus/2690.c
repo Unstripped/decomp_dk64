@@ -60,7 +60,7 @@ void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-s16 func_806CC190(s16, s16, s32);
+s16 func_806CC190(s16, s16, f32);
 f32 func_80611BB4(f32, f32);
 void func_8060E7EC(s32, s32, s32);
 void bonusResetAmmo(void *);
@@ -241,7 +241,7 @@ extern f32 D_8002D90C;
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-void sfxPlayFromActorDirect(void *, s32, s32, s32, s32, s32);
+void sfxPlayFromActorDirect(void *, s32, s32, f32, s32, s32);
 void sfxStopSlotSound();
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
@@ -524,9 +524,9 @@ u8 bonusAimAndFire(f32 arg0, f32 arg1, f32 arg2) {
     camProjectToScreen(arg0, arg1, arg2, &sp50, &sp4C, 0, 4.0f, 0);
     temp_s0->unk1E = sp50;
     temp_s0->unk20 = sp4C;
-    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D(arg0, arg2, D_807FBB40->unk7C, D_807FBB40->unk84), 0x41200000);
+    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D(arg0, arg2, D_807FBB40->unk7C, D_807FBB40->unk84), 10.0f);
     temp_fv0 = sqrtf((D_807FBB40->unk7C - arg0) * (D_807FBB40->unk7C - arg0) + (D_807FBB40->unk84 - arg2) * (D_807FBB40->unk84 - arg2));
-    D_807FBB40->unkE8 = func_806CC190(D_807FBB40->unkE8, (s32)(((f64)func_80611BB4(D_807FBB40->unk80 - arg1, temp_fv0) * 2048.0) / 3.1415927410125732 + 150.0), 0x40A00000);
+    D_807FBB40->unkE8 = func_806CC190(D_807FBB40->unkE8, (s32)(func_80611BB4(D_807FBB40->unk80 - arg1, temp_fv0) * 2048.0 / 3.1415927f + 150.0), 5.0f);
     if ((D_807FD63C & 0xE000) != 0) {
         if (D_807FBB40->unk154 == 0) {
             sp40[0] = 1;
@@ -1698,7 +1698,7 @@ void func_8002B920(void) {
         if (temp_s2->unk2C == 0) {
             if (temp_s1->unkC > 0) {
                 if (temp_s1->unkC == 0x28) {
-                    sfxPlayFromActorDirect(D_807FBB40, 0x801, 0xFF, 0x40400000, 2, 0);
+                    sfxPlayFromActorDirect(D_807FBB40, 0x801, 0xFF, 3.0f, 2, 0);
                 }
                 temp_s1->unkC--;
                 sp40 = 5.0f;
@@ -1725,7 +1725,7 @@ void func_8002B920(void) {
             }
         } else {
             if (temp_s2->unk2C == 0x28) {
-                sfxPlayFromActorDirect(D_807FBB40, 0x801, 0xFF, 0x40400000, 2, 0);
+                sfxPlayFromActorDirect(D_807FBB40, 0x801, 0xFF, 3.0f, 2, 0);
             }
             BDX->unk80 = func_80612794(temp_s2->unk18) * 5.0 + (sp48->unk80 - 30.0);
         }
@@ -1759,7 +1759,7 @@ void func_8002B920(void) {
                     }
                 }
                 BDX->unk154 = 1;
-                sfxPlayFromActorDirect(D_807FBB40, 0x16, 0xFF, 0x3F800000, 0x14, 0);
+                sfxPlayFromActorDirect(D_807FBB40, 0x16, 0xFF, 1.0f, 0x14, 0);
                 BDX->unk128 = 0xFF;
                 BDX->unk60 &= 0xFFFF7FFF;
             } else if (dx * dx + dz * dz < 900.0f) {
