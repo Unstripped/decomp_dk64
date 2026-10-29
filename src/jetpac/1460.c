@@ -32,7 +32,7 @@ typedef struct {
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
 f32 jetpacRandFloat(void);
-void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 void func_8070E8F0(Gfx **arg0, s32 arg1);
 void func_8070F2C8(s32 arg0, s32 arg1, u8 arg2, s32 arg3);
 void func_8070F2FC(Gfx **arg0, s16 arg1, s16 arg2);
@@ -56,8 +56,7 @@ typedef struct {
 typedef struct {
     s32 x;
     s32 y;
-    u8 pad8[3];
-    u8 unkB;
+    s32 unk8;
     s32 unkC;
 } JetpacCellItem;
 
@@ -83,7 +82,7 @@ void jetpacInitGrid(void) {
     }
 }
 
-void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
     JetpacCell *cell;
     s32 i;
     JetpacCellItem *item;
@@ -98,10 +97,10 @@ void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 a
         if (item != NULL) {
             item->x = arg1;
             item->y = arg2;
-            *(s32 *)&item->pad8[0] = arg4;
+            item->unk8 = arg4;
             item->unkC = (s32)arg0;
             if (cell->color[3] == 0 || (cell->color[3] < 0xFF && jetpacRandFloat() > 0.97)) {
-                src = (u8 *)arg3;
+                src = arg3;
                 for (i = 0; i < 4; i++) {
                     cell->color[i] = src[i];
                 }
@@ -146,9 +145,9 @@ typedef struct {
 
 extern J1aSprite D_80042BD0[][256];
 extern u8 D_807444FC;
-void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 
-void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
     s32 ya;
     s32 h;
     s32 xd;
@@ -254,7 +253,7 @@ void jetpacGridDraw(Gfx **arg0) {
                 item_idx = 0;
                 do {
                     func_8070E8F0(&g, item->unkC);
-                    func_8070F2C8(0x400, 0x400, item->unkB, 0);
+                    func_8070F2C8(0x400, 0x400, item->unk8, 0);
                     func_8070F2FC(&g, (item->x + 0x20) << 2, (item->y + 0x18) << 2);
                     item_idx++;
                     item++;
