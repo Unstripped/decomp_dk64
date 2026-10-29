@@ -147,7 +147,8 @@ typedef struct Actor {
     /* 0x068 */ u16 unk68;
     /* 0x06A */ u16 unk6A;
     /* 0x06C */ u16 unk6C;
-    /* 0x06E */ u8 unk6E[0xE];
+    /* 0x06E */ s16 unk6E;
+    /* 0x070 */ u8 unk70[0xC];
     /* 0x07C */ f32 unk7C;
     /* 0x080 */ f32 unk80;
     /* 0x084 */ f32 unk84;
@@ -165,7 +166,10 @@ typedef struct Actor {
     /* 0x0BC */ f32 unkBC;
     /* 0x0C0 */ u8 unkC0[0x26];
     /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ u8 unkE8[0xC];
+    /* 0x0E8 */ s16 unkE8;
+    /* 0x0EA */ u8 unkEA[6];
+    /* 0x0F0 */ s16 unkF0;
+    /* 0x0F2 */ u8 unkF2[2];
     /* 0x0F4 */ s16 unkF4;
     /* 0x0F6 */ s16 unkF6;
     /* 0x0F8 */ u8 unkF8[4];
@@ -197,7 +201,7 @@ typedef struct Actor {
     /* 0x15C */ s16 unk15C;
     /* 0x15E */ u8 unk15E;
     /* 0x15F */ u8 unk15F;
-    /* 0x160 */ u8 unk160[8];
+    /* 0x160 */ f64 unk160;
     /* 0x168 */ s16 unk168;
     /* 0x16A */ u8 unk16A;
     /* 0x16B */ u8 unk16B;
