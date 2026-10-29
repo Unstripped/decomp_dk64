@@ -526,8 +526,8 @@ extern u16 D_807ECD48;
 
 void menuCheckCheatCodeSequence(void) {
     if (D_8003381C[D_80033818] == *(u16 *)&D_807ECD48) {
-        D_80033818 = D_80033818 + 1;
-        if ((u32)D_80033818 >= 7U) {
+        D_80033818++;
+        if (D_80033818 >= 7U) {
             D_807563B4 = 1;
             func_80609140(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
             D_80033818 = 0;
@@ -2560,7 +2560,6 @@ extern s8 D_80033F50;
 
 void menuUpdateItemTransition(void *arg0, void *arg1_raw, s32 arg2) {
     Menu3R3_StructFC1C *arg1 = (Menu3R3_StructFC1C *)arg1_raw;
-    f32 zero = 0.0f;
     if (!arg1->unk16) {
         arg1->unk0 += 0.13f;
         if (arg1->unk0 > 1.3f) {
@@ -2571,10 +2570,10 @@ void menuUpdateItemTransition(void *arg0, void *arg1_raw, s32 arg2) {
             func_80609140(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         }
     } else {
-        if (arg1->unk0 > zero) {
+        if (arg1->unk0 > 0.0f) {
             arg1->unk0 -= 0.2f;
-            if (arg1->unk0 < zero) {
-                arg1->unk0 = zero;
+            if (arg1->unk0 < 0.0f) {
+                arg1->unk0 = 0.0f;
                 if (arg2 != 0) {
                     func_80609140(0x3C, 0x61A8, 63.0f, 1.0f, 0, 0);
                     D_80033F50 = 3;
