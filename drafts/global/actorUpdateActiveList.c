@@ -1,10 +1,10 @@
-// func_8067889C (src/global/7CA80.c): stage 5: 82 insns, frame 0x40, s0-s8/ra match, natural C (removed deadsweep), regalloc only (v0/v1 swap between i and gActiveActorCount)
+// actorUpdateActiveList (src/global/7CA80.c): stage 5: 82 insns, frame 0x40, s0-s8/ra match, natural C (removed deadsweep), regalloc only (v0/v1 swap between i and gActiveActorCount)
 extern void (*D_8074C0A0[])(void);
 void func_80678BBC(Actor *);
 void func_80678CC8(Actor *);
 extern u16 D_807FBB3C;
 
-void func_8067889C(u8 arg0) {
+void actorUpdateActiveList(u8 arg0) {
     u16 i;
 
     D_807FBB3C = 0;

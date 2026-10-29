@@ -1,4 +1,4 @@
-// func_806886E0 (src/global/8D3E0.c): Stage 5: 99% matched, 1-insn delay slot scheduling diff (sll vs move s1, zero)
+// actorMapModelsSetup (src/global/8D3E0.c): Stage 5: 99% matched, 1-insn delay slot scheduling diff (sll vs move s1, zero)
 extern s16 D_8076A0AA;
 extern u8 D_8076A0AB;
 extern s32 D_807F6010;
@@ -10,8 +10,8 @@ typedef struct {
     void *unk1C;
     void *unk20;
     u8 pad24[0xC0 - 0x24];
-} KaE_Struct8076A160;
-extern KaE_Struct8076A160 D_8076A160[];
+} ModelAssetEntry160;
+extern ModelAssetEntry160 D_8076A160[];
 
 s32 func_80600080(s32);
 u16 modelTypeCountBeforeMap(u8);
@@ -25,7 +25,7 @@ s32 func_805FF030(u8, s32);
 void func_80688A6C(void);
 s32 func_806C7B34(void);
 
-void func_806886E0(s32 arg0, u8 arg1, u8 arg2) {
+void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
     s32 sp5C;
     s32 *sp58;
     s32 sp54;

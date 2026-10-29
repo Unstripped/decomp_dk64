@@ -9,7 +9,7 @@ typedef struct KaS2_ActorSub140 {
     u8 pad5C[0xC];
     s32 unk68;
     u8 pad6C[0x20];
-    KaN6_Node *unk8C;
+    CollisionNode *unk8C;
     u8 pad90[0x14];
     s32 unkA4;
     s32 unkA8;
@@ -163,9 +163,9 @@ void func_806776A0(Actor *arg0, Actor *arg1, f32 *arg2, void *arg3, s8 arg4, s32
         }
         func_8067A69C(arg0, arg1, sp68, sp64, 1, 1);
     }
-    for (var_s0 = (s32)temp_s6->unk8C; var_s0 != 0; var_s0 = (s32)((KaN6_Node *)var_s0)->next) {
-        if (((KaN6_Node *)var_s0)->unk26 != 0) {
-            arg1->unkFC |= func_80673708(((KaN6_Node *)var_s0)->unk10, ((KaN6_Node *)var_s0)->unk14, ((KaN6_Node *)var_s0)->unk18, ((KaN6_Node *)var_s0)->unk1C, temp_s5->unkA4, temp_s5->unkA8, (s32)((u8 *)arg1 + 0xF4), (s32)((u8 *)arg1 + 0xF6));
+    for (var_s0 = (s32)temp_s6->unk8C; var_s0 != 0; var_s0 = (s32)((CollisionNode *)var_s0)->next) {
+        if (((CollisionNode *)var_s0)->unk26 != 0) {
+            arg1->unkFC |= func_80673708(((CollisionNode *)var_s0)->unk10, ((CollisionNode *)var_s0)->unk14, ((CollisionNode *)var_s0)->unk18, ((CollisionNode *)var_s0)->unk1C, temp_s5->unkA4, temp_s5->unkA8, (s32)((u8 *)arg1 + 0xF4), (s32)((u8 *)arg1 + 0xF6));
         }
     }
     *(u8 *)((u8 *)arg1 + 0xFD) = D_807FB547;

@@ -42,7 +42,7 @@ extern s32 D_8076A064;
 extern s32 D_807FBB60;
 f32 func_80612794(s16);
 s32 func_80714464();
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *healthHudDraw(Gfx *arg0, HealthStats *arg1, void *arg2, HealthHudState *arg3) {
     s16 i;
@@ -84,11 +84,11 @@ Gfx *healthHudDraw(Gfx *arg0, HealthStats *arg1, void *arg2, HealthHudState *arg
             wv = (f32)(((f64)func_80612794(phase) * 0.5 + 0.5) * 30.0);
             gDPPipeSync(arg0++);
             gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, (u32)((sp94[4] > 80.0f) ? (f32)80 : sp94[4]));
-            arg0 = func_8068C5A8(arg0, 0x5D, 0, (0, 2), 0x30, 0x2A, y = (s32)(((f32)((i * 0x8C) + 0x280) + fs0b) - sp94[3]), x = (s32)(sp94[0] + wv), sp94[21], fs1 = -fs2, 0, 0.0f);
+            arg0 = renderRotatedSprite(arg0, 0x5D, 0, (0, 2), 0x30, 0x2A, y = (s32)(((f32)((i * 0x8C) + 0x280) + fs0b) - sp94[3]), x = (s32)(sp94[0] + wv), sp94[21], fs1 = -fs2, 0, 0.0f);
             gDPPipeSync(arg0++);
             gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, (u32)((sp94[4] > 255.0f) ? 255.0f : sp94[4]));
             if (pips > 0) {
-                arg0 = func_8068C5A8(arg0, ((pips - 1 < 3 ? pips - 1 : 3) + 0x5A) & 0xFFFF, 0, 2, 0x30, 0x2A, y, x, sp94[21], fs1, 0, 0.0f);
+                arg0 = renderRotatedSprite(arg0, ((pips - 1 < 3 ? pips - 1 : 3) + 0x5A) & 0xFFFF, 0, 2, 0x30, 0x2A, y, x, sp94[21], fs1, 0, 0.0f);
             }
             if (pips - 4 < 0) {
                 pips = 0;

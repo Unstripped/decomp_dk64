@@ -71,7 +71,7 @@ extern ActorGlobalState D_807FBB70;
 
 s32 actorTableContains(void *);
 void func_80675D70(s32);
-s32 func_80675E3C(KaN5_Entry *, s16, s16);
+s32 actorCollisionFindTableEntry(KaN5_Entry *, s16, s16);
 s32 func_80676220(s16);
 void actorApplyDamage(void *, void *);
 void func_80675AFC(void *, void *);
@@ -96,7 +96,7 @@ void func_80675810(KaN5_Actor810 *arg0, KaN5_Arg1 *arg1) {
                 func_80675D70((s32)temp_s2);
             }
         } else {
-            res = func_80675E3C(entries, temp_s2->unk5A, temp_s2->unk5C);
+            res = actorCollisionFindTableEntry(entries, temp_s2->unk5A, temp_s2->unk5C);
             if ((temp_s2->unk60 & 0x80000) || (arg0->unk60 & 0x80000)) {
                 if (arg0 == temp_s2->unk11C || temp_s2 == arg0->unk11C) {
                     return;

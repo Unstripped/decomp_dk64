@@ -1,4 +1,4 @@
-// func_80687FC8 (src/global/8CA50.c): stage 5: exact 197 insns, 4 insns diff at switch case 1 beql/addiu duplication, fixed temp_v0_5 reassociation
+// animNodeAdvanceTime (src/global/8CA50.c): stage 5: exact 197 insns, 4 insns diff at switch case 1 beql/addiu duplication, fixed temp_v0_5 reassociation
 typedef struct AnimNode {
     /* 0x00 */ void **unk0;
     /* 0x04 */ void **unk4;
@@ -20,7 +20,7 @@ typedef struct AnimNode {
     /* 0x24 */ struct AnimNode *next;
 } AnimNode;
 
-void func_80687FC8(AnimNode *arg0) {
+void animNodeAdvanceTime(AnimNode *arg0) {
     s16 temp_a1;
     s32 temp_ft3;
 

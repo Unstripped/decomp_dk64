@@ -1,4 +1,4 @@
-// func_806A92B4 (src/global/ACDC0.c): stage 4 (frame 0x1a0, callee-saved set), unified decls; reg-blind insn match ~85% (890 vs 874 insns; text 16 insns short). Findings (apply with: tab = (ACDC0CountEntry *)((u8 *)D_807FC7F8 + 0x158) [same address, reloc-only diff] AND func_8068C5A8 4th param u8 in the top block): hoisted const 2 lands in s8 like the target, 'li a3,2' per call, no li s7,200 (shifts), const 0x140 stays unfolded via the y0 narrow var, stack slots hud/i/tab/ret/sp138 match (0x15c/0x158/0x144/0x140/0x138). Why: uopt keys hoisted constants by (symbol,offset): entry tab=&D_807FC950 and case 2 D_807FC950[j] shared one lda candidate that out-prioritised const 2 for s8; the original's entry constant is a different (sym,off). Still open: list should be on the stack (mine in s0), x/y vars should be s0/s1 (mine off=s2,y=s0), dl packets via _g temps (v0/v1) - adding any Gfx* temp (macro gDPSetPrimColor) spills dl to the stack (-ve save), fb should spill at 0xa8 not 0x108, loop-1 x/y expression scheduling. Permuter 600s on the earlier base: no useful result.
+// func_806A92B4 (src/global/ACDC0.c): stage 4 (frame 0x1a0, callee-saved set), unified decls; reg-blind insn match ~85% (890 vs 874 insns; text 16 insns short). Findings (apply with: tab = (ACDC0CountEntry *)((u8 *)D_807FC7F8 + 0x158) [same address, reloc-only diff] AND renderRotatedSprite 4th param u8 in the top block): hoisted const 2 lands in s8 like the target, 'li a3,2' per call, no li s7,200 (shifts), const 0x140 stays unfolded via the y0 narrow var, stack slots hud/i/tab/ret/sp138 match (0x15c/0x158/0x144/0x140/0x138). Why: uopt keys hoisted constants by (symbol,offset): entry tab=&D_807FC950 and case 2 D_807FC950[j] shared one lda candidate that out-prioritised const 2 for s8; the original's entry constant is a different (sym,off). Still open: list should be on the stack (mine in s0), x/y vars should be s0/s1 (mine off=s2,y=s0), dl packets via _g temps (v0/v1) - adding any Gfx* temp (macro gDPSetPrimColor) spills dl to the stack (-ve save), fb should spill at 0xa8 not 0x108, loop-1 x/y expression scheduling. Permuter 600s on the earlier base: no useful result.
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -115,7 +115,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                     dl++;
                     y = (s32)((f32)(j * 0x69 + 0x280) + fd - fb);
                     fh = -fc;
-                    dl = func_8068C5A8(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)(s32)fe, fa, fh, 0, 0.0f);
+                    dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)(s32)fe, fa, fh, 0, 0.0f);
                     gDPPipeSync(dl++);
                     dl->words.w1 = 0xFFFFFFFF;
                     dl->words.w0 = 0xFA000000;
@@ -127,7 +127,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                         } else {
                             t0 = 3;
                         }
-                        dl = func_8068C5A8(dl, (u16)(t0 + 0x5A), 0, 2, 0x30, 0x2A, y, (s32)((f32)y0 + fe), fa, fh, 0, 0.0f);
+                        dl = renderRotatedSprite(dl, (u16)(t0 + 0x5A), 0, 2, 0x30, 0x2A, y, (s32)((f32)y0 + fe), fa, fh, 0, 0.0f);
                     }
                     if (s2 - 4 < 0) {
                         s2 = 0;

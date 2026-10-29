@@ -344,7 +344,7 @@ if (found) {}
                     exit = 0;
                 }
             }
-            if (func_8068ABE0(map) == 0) {
+            if (cutsceneTriggerCheck(map) == 0) {
                 func_805FF378(map, exit);
             }
         } else {

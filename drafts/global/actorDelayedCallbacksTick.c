@@ -1,7 +1,7 @@
-// func_80679334 (src/global/7CA80.c): stage 3: 87 insns, frame 0x30 vs 0x28 (extra s4 reg for %hi(D_807FBF18)); deadsweep round 2 full=63 text=53
+// actorDelayedCallbacksTick (src/global/7CA80.c): stage 3: 87 insns, frame 0x30 vs 0x28 (extra s4 reg for %hi(D_807FBF18)); deadsweep round 2 full=63 text=53
 s32 actorTableContains(Actor *);
 
-void func_80679334(void) {
+void actorDelayedCallbacksTick(void) {
     ActorQueueEntry *entry;
     s32 i;
     Actor *actor;

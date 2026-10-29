@@ -240,7 +240,7 @@ void func_8002BCD4(RaceUnknownActor *arg0) {
     temp_v0->unk8 = 121.6f / (maxZ - minZ);
 }
 
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *func_8002BDDC(Gfx *arg0, RaceUnknownActor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 arg6) {
     RaceUnknown174 *temp_v0;
@@ -251,7 +251,7 @@ Gfx *func_8002BDDC(Gfx *arg0, RaceUnknownActor *arg1, f32 arg2, f32 arg3, u8 arg
     arg2 *= temp_v0->unk4;
     arg3 *= temp_v0->unk8;
     gDPSetPrimColor(arg0++, 0, 0, arg4, arg5, arg6, 0xC8);
-    return func_8068C5A8(arg0, 0x4A, 3, 1, 0x10, 0x10,
+    return renderRotatedSprite(arg0, 0x4A, 3, 1, 0x10, 0x10,
         (s32)(((0.5f * arg2) + 50.0f) * 4.0f),
         (s32)(((0.5f * arg3) + 60.0f) * 4.0f),
         1.0f, 1.0f, 0, 0.0f);
@@ -331,7 +331,7 @@ Gfx *func_8002C14C(Gfx *arg0, RaceUnknown174 *arg1) {
         do {
             Gfx *next;
             f_s1 = var_s1;
-            next = func_8068C5A8(arg0, 0x4A, 3, 1, 0x10, 0x10,
+            next = renderRotatedSprite(arg0, 0x4A, 3, 1, 0x10, 0x10,
                 (s32)((temp_fs1 + f_s1) * 4.0f),
                 temp_s4, 4.0f, 4.0f, 0, 0.0f);
             var_s0++;
@@ -383,7 +383,7 @@ Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
     for (var_s0 = 0; var_s0 < 0x78; var_s0 += 0x18) {
         temp_t2 = temp_fs1;
         temp_t2 += (f32)var_s0;
-        arg0 = func_8068C5A8(arg0, 0x4B, 3, 1, 0x40, 0x40, (s32)(temp_t2 * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
+        arg0 = renderRotatedSprite(arg0, 0x4B, 3, 1, 0x40, 0x40, (s32)(temp_t2 * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
     }
     WRITE_GFX(arg0++, 0xFA000000, 0xFF0000FF);
     var_s1 = 0;
@@ -392,7 +392,7 @@ Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
         do {
             temp_t2 = temp_fs1;
             temp_t2 += (f32)var_s0;
-            next = func_8068C5A8(arg0, 0x45, 3, 1, 0x40, 0x40, (s32)(temp_t2 * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
+            next = renderRotatedSprite(arg0, 0x45, 3, 1, 0x40, 0x40, (s32)(temp_t2 * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
             var_s1 += 1;
             var_s0 += 0x18;
             arg0 = next;
@@ -593,10 +593,10 @@ Gfx *func_8002CBEC(Gfx *arg0, RaceUnknownActor *arg1) {
         WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
         WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
         WRITE_GFX(arg0++, 0xD7000002, 0x80008000);
-        arg0 = func_8068C5A8(arg0, temp_s5->unk14, 3, 1, 0x40, 0x40, 0x88, 0x130, 2.0, 2.0, 0, 0.0f);
-        arg0 = func_8068C5A8(arg0, temp_s5->unk16, 3, 1, 0x40, 0x40, 0x108, 0x130, 2, 2, 0, 0.0f);
-        arg0 = func_8068C5A8(arg0, temp_s5->unk18, 3, 1, 0x40, 0x40, 0x88, 0xB0, 2.0f, 2.0f, 0, 0.0f);
-        arg0 = func_8068C5A8(arg0, temp_s5->unk1A, 3, 1, 0x40, 0x40, 0x108, 0xB0, 2.0f, 2.0f, 0, 0.0f);
+        arg0 = renderRotatedSprite(arg0, temp_s5->unk14, 3, 1, 0x40, 0x40, 0x88, 0x130, 2.0, 2.0, 0, 0.0f);
+        arg0 = renderRotatedSprite(arg0, temp_s5->unk16, 3, 1, 0x40, 0x40, 0x108, 0x130, 2, 2, 0, 0.0f);
+        arg0 = renderRotatedSprite(arg0, temp_s5->unk18, 3, 1, 0x40, 0x40, 0x88, 0xB0, 2.0f, 2.0f, 0, 0.0f);
+        arg0 = renderRotatedSprite(arg0, temp_s5->unk1A, 3, 1, 0x40, 0x40, 0x108, 0xB0, 2.0f, 2.0f, 0, 0.0f);
         for (i = 0; i < temp_s5->unk1E; i++) {
             temp_t0 = temp_s6[i].unk0;
             if (temp_t0 == NULL) {

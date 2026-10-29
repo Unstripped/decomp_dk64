@@ -1,11 +1,11 @@
-// func_8068C5A8 (src/global/90D80.c): stage 3 (one extra insn): frame 0x1A8 matches, callee-saved matches ($s0, $ra), 816 vs 815 insns, prologue exact 34-insn match, diff only regalloc/scheduling in branches
+// renderRotatedSprite (src/global/90D80.c): stage 3 (one extra insn): frame 0x1A8 matches, callee-saved matches ($s0, $ra), 816 vs 815 insns, prologue exact 34-insn match, diff only regalloc/scheduling in branches
 extern u16 D_807FC79E;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 void func_80702464(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);
 void vtxSetPosTex(Vtx *, s16, s16, s16, s16, s32);
 
-Gfx *func_8068C5A8(Gfx *glist, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, f32 arg8, f32 arg9, s32 arg10, f32 arg11) {
+Gfx *renderRotatedSprite(Gfx *glist, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, f32 arg8, f32 arg9, s32 arg10, f32 arg11) {
     volatile s32 tex;
     s32 var_v0;
     Vtx *var_s0;

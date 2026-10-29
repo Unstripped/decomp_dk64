@@ -336,7 +336,7 @@ void func_8072A450(void);
 void func_8072DC7C(s32);
 void func_8072E320(f32);
 s32 mathAngleLerp(s16, s16, f32);
-void func_8068A858(void *, void *, void *);
+void lightUpdateFromActorLighting(void *, void *, void *);
 void heapFree(void *);
 s32 randomNonNegative(void);
 void func_80714950(s32);
@@ -388,7 +388,7 @@ void func_806BFBF4(void) {
         return;
     }
     if (D_8076A0A8 == 0x4C) {
-        func_8068A858(&LgBV->unk16A, &LgBV->unk16B, &LgBV->unk16C);
+        lightUpdateFromActorLighting(&LgBV->unk16A, &LgBV->unk16B, &LgBV->unk16C);
     }
     for (i = 0; i < D_807FBDC4; i++) {
         if (D_807FBB70.unk258[i] != 3) {
@@ -1456,10 +1456,10 @@ void func_80728950(s32);
 void currentActorAnimSetFrame(s32, s32);
 void actorGetNodePosOrPosition(Actor *, s32 *, s32 *, s32 *);
 void func_806871DC(s32);
-void func_80686F90(s32, s16, s16);
+void effectSpawnChildAtNode(s32, s16, s16);
 void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnActorScale(Actor *);
-void func_80685F60(Actor *);
+void effectActorCheckGroundScaleSpawn(Actor *);
 void sfxStopSlotSound(Actor *, s32);
 void actorSetGroupState(u8, u8);
 void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
@@ -1696,14 +1696,14 @@ void func_806C2DF4(void) {
         case 0x549:
             if (LgV->unk4->unk0->unk4 > 65.0f && LgV->unk4->unk0->unk4 < 101.0f) {
                 rnd = randomNonNegative();
-                func_80686F90(2, (rnd >> 15) % 2048 + LgV->unkE6 - 0x400, (randomNonNegative() >> 15) % 2048);
+                effectSpawnChildAtNode(2, (rnd >> 15) % 2048 + LgV->unkE6 - 0x400, (randomNonNegative() >> 15) % 2048);
             }
             break;
         case 0x498:
             if (LgV->unk4->unk0->unk4 < 2.0f) {
                 effectSpawnActorScale(D_807FBB40);
             }
-            func_80685F60(D_807FBB40);
+            effectActorCheckGroundScaleSpawn(D_807FBB40);
             break;
         case 0x43E:
             actorSpawnOctagonRingsByTimer();

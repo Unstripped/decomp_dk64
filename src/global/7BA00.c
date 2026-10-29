@@ -12,7 +12,7 @@ extern Actor *D_807FBB4C;
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 func_806EB400(Actor*);
 
-void func_80676D00(Actor* arg0, Actor* arg1, s32 arg2, s32 arg3) {
+void actorTriggerPlayerKnockbackSound(Actor* arg0, Actor* arg1, s32 arg2, s32 arg3) {
     u8 kong;
     u8* beh;
 

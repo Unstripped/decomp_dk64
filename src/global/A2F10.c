@@ -33,7 +33,7 @@ void func_8067A70C(Actor *, Actor *, s32, f32, f32, s32, s32);
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32,
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32,
                    f32);
 extern u32 D_80744478;
 extern u8 D_80750AD4;
@@ -401,7 +401,7 @@ void renderScaledSprite(Gfx *arg0, Actor *arg1) {
     WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
     WRITE_GFX(arg0++, 0xE7000000, 0);
     WRITE_GFX(arg0++, 0xFA000000, (arg1->unkE6 & 0xFF) | 0xFFFFFF00);
-    func_8068C5A8(arg0, (u16)(arg1->unk15F + 0x61), 0, 2, 0x28, 0x33,
+    renderRotatedSprite(arg0, (u16)(arg1->unk15F + 0x61), 0, 2, 0x28, 0x33,
                   (s32)arg1->unk7C, (s32)arg1->unk80, scale, scale, 0, 0.0f);
 }
 

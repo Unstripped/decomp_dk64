@@ -5,7 +5,7 @@ extern Gfx D_1000118;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
-Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
+Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s16, void *);
 
 typedef struct LB3Obj {
     Actor *act[4];
@@ -49,7 +49,7 @@ Gfx *bonusRenderReelHud(Gfx *gdl, Actor *arg1) {
     gSPDisplayList(gdl++, &D_1000118);
     gSPMatrix(gdl++, &D_2000080, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    return func_8068DC54(
+    return hudDrawRollingCounter(
         textDrawAnimated(gdl, temp_t0->unk19, 8, 30.0f, 36.0f, 0.0f, 1.5f),
         0x26, 0x32, &temp_t0->unk14, temp_t0->unk16, &temp_t0->unk18);
 }

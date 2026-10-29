@@ -26,7 +26,7 @@ extern u8 D_80033FB1;
 extern u8 D_80033FB2;
 
 void behaviourFrameBegin(void);
-void func_8068A858(u8 *, u8 *, u8 *);
+void lightUpdateFromActorLighting(u8 *, u8 *, u8 *);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
 void actorScriptStart(MenuLightFadeActor *, s32);
@@ -41,7 +41,7 @@ void func_80032550(void) {
         D_807FBB40->unk60 &= ~4;
     }
     if (D_807FBB40->unk60 & 4) {
-        func_8068A858(&D_80033FB0, &D_80033FB1, &D_80033FB2);
+        lightUpdateFromActorLighting(&D_80033FB0, &D_80033FB1, &D_80033FB2);
     }
     if (D_807FBB40->unk154 == 0 && D_807FBB40->unk155 == 0) {
         do {

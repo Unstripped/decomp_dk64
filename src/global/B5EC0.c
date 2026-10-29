@@ -5,7 +5,7 @@ extern Actor *D_807FBB40;
 extern s32 D_8071FFA0;
 
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void func_80685B44(void *, s32, f32, s32, s32, s32, s32, s32, s32);
+void effectSpawnScatterRandom(void *, s32, f32, s32, s32, s32, s32, s32, s32);
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, Actor *, u8);
 
 typedef struct B5EC0Sub4 {
@@ -71,7 +71,7 @@ void actorSpawnGroundEffectAtNode(u8 arg0) {
     f32 z;
 
     actorGetNodePos(D_807FBB40, arg0, &x, &y, &z);
-    func_80685B44(&D_8071FFA0, 0, 1.0f, 3, 5, 0x28, x, D_807FBB40->unkA4, z);
+    effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 3, 5, 0x28, x, D_807FBB40->unkA4, z);
     actorSpawnEffectChild(x, D_807FBB40->unkA4, z, 0.05f, 0.04f, D_807FBB40, 0);
 }
 

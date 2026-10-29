@@ -63,7 +63,7 @@ ActorSub140 *actorSub140CreateFromModel(Actor *);
 void collisionClearFlags(Actor *);
 void actorUpdateSubnodeRotationAndMtx(Actor *);
 void actorUpdateMovementFlags(Actor *);
-void func_80675EE0(Actor *);
+void actorCollisionCheckBoundingBoxes(Actor *);
 void actorInitDamage(Actor *);
 void func_80677EC8(s32);
 s32 func_80678014(s32);
@@ -96,7 +96,7 @@ void func_806791EC(Actor *, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorQueueDelayedCallback(s32, s32, s32, u8, s32, void *, s32);
 ActorCallbackNode *actorAllocCallbackNode(s32, s32, u8, s32, void *);
-void func_806794EC(Actor *);
+void actorDispatchCallbacks(Actor *);
 void func_8067A170(s32, u8);
 void func_8067A69C(s32, Actor *, f32, f32, u8, u8);
 void func_8067A70C(s32, Actor *, f32, f32, f32, u8, u8);
@@ -113,7 +113,7 @@ u16 func_8067ACC0(u16);
 void actorTableClear(void);
 s32 actorTableContains();
 s32 actorTableBinarySearch();
-void func_8067B100(Actor *);
+void playerSetActiveGlobals(Actor *);
 void func_8067B2B0(s32);
 void func_8067B2B8(s32);
 s32 func_8067B2C0(s32);
@@ -259,7 +259,7 @@ void heapClearBlock(void *);
 void actorTableInsert(Actor *);
 void actorInitHealth(Actor *);
 
-typedef struct KaN2_ActorAlloc {
+typedef struct ActorAllocBlock {
     u8 pad0[0x54];
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -317,14 +317,14 @@ typedef struct KaN2_ActorAlloc {
     /* 0x16D */ u8 unk16D;
     u8 pad16E[6];
     /* 0x174 */ void *unk174;
-} KaN2_ActorAlloc;
+} ActorAllocBlock;
 
 s32 func_80678050(arg0)
 u16 arg0;
 {
     u16 **typesPtr;
     s32 headerSize;
-    KaN2_ActorAlloc *actor;
+    ActorAllocBlock *actor;
     s32 totalDataSize;
     u16 *types;
     void **ptrArray;
@@ -343,7 +343,7 @@ u16 arg0;
     }
     headerSize = (headerSize + 7) & 0xFFF8;
     totalDataSize += headerSize;
-    actor = (KaN2_ActorAlloc *)func_80610FE8(totalDataSize & 0xFFFF);
+    actor = (ActorAllocBlock *)func_80610FE8(totalDataSize & 0xFFFF);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = *typesPtr;
@@ -587,12 +587,12 @@ static void func_8067880C(void) {}
 static void func_80678814(void) {}
 static void func_8067881C(void) {}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80678824.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorGlobalCallbacksReset.s")
 
 extern void (*D_8074C0A0[])(void);
 void func_80678CC8(Actor *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_8067889C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorUpdateActiveList.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_806789E4.s")
 
@@ -610,7 +610,7 @@ void func_80678B04(void) {
 void func_80678BBC(Actor *arg0) {
     collisionClearFlags(arg0);
     if (arg0->unk5C & 1) {
-        func_8067B100(arg0);
+        playerSetActiveGlobals(arg0);
     }
     arg0->unk88 = arg0->unk7C;
     arg0->unk8C = arg0->unk80;
@@ -622,11 +622,11 @@ void func_80678BBC(Actor *arg0) {
     }
     func_80678F64(arg0);
     if (arg0 == D_807FBB48) {
-        func_80675EE0(arg0);
+        actorCollisionCheckBoundingBoxes(arg0);
     } else {
         actorInitDamage(arg0);
     }
-    func_806794EC(arg0);
+    actorDispatchCallbacks(arg0);
     if (arg0 == D_807FBB48) {
         playerStateDispatchQueuedCallback();
     }
@@ -648,7 +648,7 @@ typedef struct R3B_Actor {
 void actorUpdatePositionAndSub140(Actor *);
 void func_80678E6C(Actor *);
 void actorUpdateModelMatrices(Actor *);
-void func_806790F4();
+void actorGlobalCallbacksDispatchAndFree();
 void func_8067A1DC(Actor *);
 void actorUpdateEffects(Actor *);
 void animListUpdate(Actor *);
@@ -670,7 +670,7 @@ void func_80678CC8(Actor *actor) {
     }
     func_80678E14(actor);
     actorUpdateModelMatrices(actor);
-    func_806790F4(0);
+    actorGlobalCallbacksDispatchAndFree(0);
     func_8067A1DC(actor);
     actorFreeCallbackList(actor);
     actorUpdateEffects(actor);
@@ -785,7 +785,7 @@ void actorRegisterGlobalCallback(ActorCallbackNode *arg0) {
     }
 }
 
-void func_806790F4(arg0)
+void actorGlobalCallbacksDispatchAndFree(arg0)
 u8 arg0;
 {
     do { ActorCallbackNode **ptr = D_807FBFE0; do { if (((*ptr) != 0) && ((*ptr)->unk4 == arg0)) { ((void (*)(void *)) (*ptr)->callback)(&(*ptr)->unk8); heapFree(*ptr); *ptr = 0; } ptr++; } while (ptr != ((ActorCallbackNode **) (&D_807FBFF0))); } while (0); // FAKE: one-line statement line coordinates steer mirrored-pair scheduling
@@ -850,7 +850,7 @@ void actorQueueDelayedCallback(s32 arg0, s32 arg1, s32 arg2, u8 arg3, s32 arg4, 
     D_807FBFD8++;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80679334.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorDelayedCallbacksTick.s")
 
 ActorCallbackNode *actorAllocCallbackNode(s32 arg0, s32 arg1, u8 arg2, s32 arg3, void *arg4) {
     ActorCallbackNode *node = func_80610FE8(sizeof(ActorCallbackNode));
@@ -864,26 +864,26 @@ ActorCallbackNode *actorAllocCallbackNode(s32 arg0, s32 arg1, u8 arg2, s32 arg3,
     return node;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_806794EC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorDispatchCallbacks.s")
 
 struct R2CEntry2F0;
 extern struct R2CEntry2F0 *D_807FC924;
 
-typedef struct KaN2_Entry2F0 {
+typedef struct DamageReactionPlayerEntry {
     u8 pad0[0x2C0];
     u8 unk2C0;
     u8 pad2C1[0x2F0 - 0x2C1];
-} KaN2_Entry2F0;
+} DamageReactionPlayerEntry;
 
-typedef struct KaN2_StructD580 {
+typedef struct DamageReactionContext {
     u8 pad0[0x1A4];
     u8 unk1A4;
     u8 pad1A5[0x1F0 - 0x1A5];
     u32 unk1F0;
     u8 pad1F4[0x200 - 0x1F4];
     u16 unk200;
-} KaN2_StructD580;
-extern KaN2_StructD580 *D_807FD580;
+} DamageReactionContext;
+extern DamageReactionContext *D_807FD580;
 
 #ifdef NON_MATCHING
 extern u8 D_807FBB85;
@@ -896,7 +896,7 @@ void func_807149B8(s32);
 void func_8071498C(void *);
 void func_80714C08(void *, s32, Actor *, s32, s32);
 void effectPulseSpinUpdate(void);
-void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
+void playerHandleDamageReaction(Actor *arg0, Actor *arg1, s32 arg2) {
     s32 sp3C;
     s32 var_a2;
     void *sp24;
@@ -907,7 +907,7 @@ void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
         var_a2 = 1;
-        if (((KaN2_Entry2F0 *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
+        if (((DamageReactionPlayerEntry *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
             return;
         }
         sp3C = 0x2E;
@@ -968,11 +968,11 @@ void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80679DC4.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/playerHandleDamageReaction.s")
 #endif
 
 #ifdef NON_MATCHING
-ActorCallbackNode *func_8067A09C(ActorCallbackNode *head) {
+ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
     ActorCallbackNode *new_head = head;
     ActorCallbackNode *curr;
     ActorCallbackNode *scan;
@@ -1022,7 +1022,7 @@ ActorCallbackNode *func_8067A09C(ActorCallbackNode *head) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_8067A09C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorCallbackListSort.s")
 #endif
 
 void func_8067A170(s32 arg0, u8 arg1) {
@@ -1335,12 +1335,12 @@ void actorTableSort(void) {
     } while (!done);
 }
 
-typedef struct KaN2_Actor174 {
+typedef struct PlayerContextSub174 {
     u8 pad0[0x1A4];
     u8 unk1A4;
-} KaN2_Actor174;
+} PlayerContextSub174;
 
-typedef struct KaN2_Player {
+typedef struct PlayerContextEntry {
     u8 pad0[4];
     Actor *actor;
     u8 pad8[0x294 - 0x8];
@@ -1349,38 +1349,38 @@ typedef struct KaN2_Player {
     u8 pad29C[0x2C1 - 0x29C];
     u8 unk2C1;
     u8 pad2C2[0x2F0 - 0x2C2];
-} KaN2_Player;
+} PlayerContextEntry;
 
-typedef struct KaN2_Sub950 {
+typedef struct PlayerContextKongData {
     u8 pad[0x5E];
-} KaN2_Sub950;
+} PlayerContextKongData;
 
-typedef struct KaN2_Array950 {
-    KaN2_Sub950 sub[8];
+typedef struct PlayerContextArray950 {
+    PlayerContextKongData sub[8];
     u8 pad[0x306 - 8 * 0x5E];
-} KaN2_Array950;
+} PlayerContextArray950;
 
-typedef struct KaN2_5C414 {
+typedef struct PlayerContext5C414 {
     s32 unk0;
     u8 pad4[12];
-} KaN2_5C414;
+} PlayerContext5C414;
 
 extern u8 D_8074E77C[];
-extern KaN2_Array950 D_807FC950[];
+extern PlayerContextArray950 D_807FC950[];
 extern void *D_807FD568;
 extern s32 D_807ECDEC;
 extern u16 D_807ECDF0;
-extern KaN2_5C414 D_8075C414[];
+extern PlayerContext5C414 D_8075C414[];
 extern s16 D_807FD584;
 
-void func_8067B100(Actor *arg0) {
+void playerSetActiveGlobals(Actor *arg0) {
     u8 temp_v0;
-    KaN2_Player *player;
+    PlayerContextEntry *player;
 
     D_807FD580 = arg0->unk174;
-    D_807FC929 = ((KaN2_Actor174 *)D_807FD580)->unk1A4;
+    D_807FC929 = ((PlayerContextSub174 *)D_807FD580)->unk1A4;
     temp_v0 = D_8074E77C[D_807FC929];
-    player = (KaN2_Player *)D_807FC924 + D_807FC929;
+    player = (PlayerContextEntry *)D_807FC924 + D_807FC929;
     D_807FBB48 = player->actor;
     D_807FD568 = &D_807FC950[D_807FC929].sub[temp_v0];
     D_807ECDEC = player->unk294;

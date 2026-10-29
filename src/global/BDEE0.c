@@ -880,7 +880,7 @@ void camReturnToFollow(s32, void *);
 void func_80726EE0(s32);
 void func_806D0468(void *, s32);
 void csModelStateSetFirstByte(s32, s32);
-void func_80686F90(s32, s16, s16);
+void effectSpawnChildAtNode(s32, s16, s16);
 void sfxStopChannel();
 
 void func_806BB874(void) {
@@ -923,7 +923,7 @@ void func_806BB874(void) {
             }
             break;
         case 2:
-            func_80686F90(0, (randomNonNegative() >> 15) % 2048 + D_807FBB40->unkE6 - 0x400, (randomNonNegative() >> 15) % 1024);
+            effectSpawnChildAtNode(0, (randomNonNegative() >> 15) % 2048 + D_807FBB40->unkE6 - 0x400, (randomNonNegative() >> 15) % 1024);
             break;
         case 3:
             D_807FBB68 |= 1;

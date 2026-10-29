@@ -1,5 +1,5 @@
 // func_80682AB4 (src/global/80150.c): Stage 4: frame 0x78 and saves match; diff is regalloc of loop invariants among fs0-fs5 (0.6 pushed out by 0.0f)
-typedef struct KaN4_Struct80682AB4 {
+typedef struct TagBarrelOrbitKong {
     u8 pad0[4];
     u16 unk4;
     s8 unk6;
@@ -7,13 +7,13 @@ typedef struct KaN4_Struct80682AB4 {
     Actor *unk8[5];
     Actor *unk1C;
     s8 unk20;
-} KaN4_Struct80682AB4;
+} TagBarrelOrbitKong;
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
 void func_80682AB4(void *arg0) {
-    KaN4_Struct80682AB4 *arg = (KaN4_Struct80682AB4 *)arg0;
+    TagBarrelOrbitKong *arg = (TagBarrelOrbitKong *)arg0;
     f32 sp70 = D_807FBB40->unk7C;
     f32 sp6C = D_807FBB40->unk80 - 10.0f;
     f32 sp68 = D_807FBB40->unk84;

@@ -1,5 +1,5 @@
 // func_80689418 (src/global/8D3E0.c): stage 5 (near-miss): frame 0x80 matches (correct local var types/scopes), deadsweep full=72 text=72 shape=35
-typedef struct KaE_R3D3B_Entry30 {
+typedef struct ActorListSpawnEntry {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ char unk4[4];
@@ -8,10 +8,10 @@ typedef struct KaE_R3D3B_Entry30 {
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ char unk14[0x1C];
-} KaE_R3D3B_Entry30;
-extern KaE_R3D3B_Entry30 D_8074E8B0[];
+} ActorListSpawnEntry;
+extern ActorListSpawnEntry D_8074E8B0[];
 
-typedef struct KaE_ActorListNode {
+typedef struct ActorListNodeInternal {
     /* 0x00 */ s16 unk00;
     /* 0x02 */ s16 unk02;
     /* 0x04 */ f32 unk04;
@@ -34,13 +34,13 @@ typedef struct KaE_ActorListNode {
     /* 0x54 */ f32 unk54;
     /* 0x58 */ s16 unk58;
     /* 0x5A */ s16 unk5A;
-    /* 0x5C */ s32 (*unk5C)(struct KaE_ActorListNode *);
-    /* 0x60 */ s32 (*unk60)(struct KaE_ActorListNode *);
+    /* 0x5C */ s32 (*unk5C)(struct ActorListNodeInternal *);
+    /* 0x60 */ s32 (*unk60)(struct ActorListNodeInternal *);
     /* 0x64 */ char unk64[4];
-    /* 0x68 */ struct KaE_ActorListNode *next;
-} KaE_ActorListNode;
+    /* 0x68 */ struct ActorListNodeInternal *next;
+} ActorListNodeInternal;
 
-typedef struct KaE_R2ASpawnInfo {
+typedef struct ActorListSpawnInfo {
     s16 unk0;
     s16 unk2;
     f32 unk4;
@@ -52,26 +52,26 @@ typedef struct KaE_R2ASpawnInfo {
     s16 unk1A;
     s16 unk1C;
     s32 unk20;
-} KaE_R2ASpawnInfo;
+} ActorListSpawnInfo;
 
 void actorDeregisterActive(Actor *);
 void actorRegisterActive(Actor *);
-s32 actorSpawnFromInfo(KaE_R2ASpawnInfo *);
+s32 actorSpawnFromInfo(ActorListSpawnInfo *);
 s32 func_80612E90();
 void func_80613794(Actor *, s32);
 void func_8068A1B8(void);
 extern Actor *D_807FBB44;
 
 void func_80689418(void) {
-    KaE_R2ASpawnInfo spawnInfo;
+    ActorListSpawnInfo spawnInfo;
     Actor *actor;
-    KaE_ActorListNode *node;
-    KaE_R3D3B_Entry30 *entry;
+    ActorListNodeInternal *node;
+    ActorListSpawnEntry *entry;
     s32 found;
     s32 i;
     s16 target;
 
-    node = (KaE_ActorListNode *)D_807FC400;
+    node = (ActorListNodeInternal *)D_807FC400;
     if (node != NULL) {
         do {
             if (node->unk48 != 0) {

@@ -19,7 +19,7 @@ void actorGetNodePos();
 u8 actorIsFacingTarget();
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleDistance(s16, s16);
-s32 func_8067680C();
+s32 actorCheckPlayerProximityVertical();
 s32 actorListContainsId();
 u8 func_80714608();
 void func_80676260(s32 arg0, s32 arg1, s32 arg2) {
@@ -153,21 +153,21 @@ s32 func_806767E0(s32 arg0, s32 arg1, s32 arg2) {
     return actorListContainsId(arg2, 2);
 }
 
-typedef struct KaC2_Beh7AF4_Sub0 {
+typedef struct ActorProximitySub0 {
     u8 pad[0x1C];
     s16 unk1C;
-} KaC2_Beh7AF4_Sub0;
+} ActorProximitySub0;
 
-typedef struct KaC2_Beh7AF4_Actor {
-    KaC2_Beh7AF4_Sub0* unk0;
+typedef struct ActorProximityActor {
+    ActorProximitySub0* unk0;
     ActorSub4* unk4;
     u8 pad[0x80 - 8];
     f32 unk80;
-} KaC2_Beh7AF4_Actor;
+} ActorProximityActor;
 
 extern u8 D_807FBBA9;
 
-s32 func_8067680C(arg0, arg1, arg2)
+s32 actorCheckPlayerProximityVertical(arg0, arg1, arg2)
 Actor* arg0;
 Actor* arg1;
 s32 arg2;
@@ -189,8 +189,8 @@ s32 arg2;
         return 0;
     }
 
-    x = ((KaC2_Beh7AF4_Actor*)arg0)->unk4->unk38 * (f32)((KaC2_Beh7AF4_Actor*)arg0)->unk0->unk1C;
-    y = ((KaC2_Beh7AF4_Actor*)arg0)->unk80 + x;
+    x = ((ActorProximityActor*)arg0)->unk4->unk38 * (f32)((ActorProximityActor*)arg0)->unk0->unk1C;
+    y = ((ActorProximityActor*)arg0)->unk80 + x;
     if (arg1->unk80 < y) {
         diff = y - arg1->unk80;
     } else {
@@ -260,7 +260,7 @@ u8 func_80676A70(s32 arg0, Actor* arg1, s32 arg2) {
 
     var_a0 = func_806769A8(arg0, arg1, arg2) != 0;
     if (var_a0) {
-        var_a0 = func_8067680C(arg0, arg1, arg2) != 0;
+        var_a0 = actorCheckPlayerProximityVertical(arg0, arg1, arg2) != 0;
     }
     return var_a0;
 }

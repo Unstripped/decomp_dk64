@@ -345,7 +345,7 @@ void func_8067E784(void) {
             func_8067AAB8((s32)D_807FBB40, var_t0->unk4, angle, -40.0f, 0);
         }
         func_806C8D20(var_t0->unk4);
-        func_8067DCC0();
+        tagBarrelDespawnEffects();
         D_807FBB40->unk154 = 4;
         if (D_807FBB40->unk58 == 0x39) {
             func_80609140(0x231, 0x58EF, 63.0f, 1.0f, 0, 0);

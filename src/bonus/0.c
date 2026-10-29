@@ -2,7 +2,7 @@
 #include "actor.h"
 
 s32 func_805FCA64(void);
-Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
+Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s16, void *);
 Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 Gfx *func_8070068C(Gfx *);
 extern Gfx D_1000118;
@@ -26,7 +26,7 @@ Gfx *bonusRenderCounterHud(Gfx *gdl, Actor *arg1) {
         gDPSetCombineMode(gdl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
         gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        gdl = func_8068DC54(
+        gdl = hudDrawRollingCounter(
             textDrawAnimated(gdl, s->unk9, 8, 30.0f, 36.0f, 0.0f, 1.5f),
             0x26, 0x32, &s->unk2, s->unk4, &s->unk8);
     }

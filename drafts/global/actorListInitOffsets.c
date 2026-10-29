@@ -1,4 +1,4 @@
-// func_80688940 (src/global/8D3E0.c): Stage 5: frame 0x70, 1-insn diff at 2f8 (addiu v0,t8,4; move s1,v0 vs addiu s1,t8,4)
+// actorListInitOffsets (src/global/8D3E0.c): Stage 5: frame 0x70, 1-insn diff at 2f8 (addiu v0,t8,4; move s1,v0 vs addiu s1,t8,4)
 extern u8 D_807500B0;
 extern s16 D_807FC408[];
 
@@ -6,15 +6,15 @@ void *assetLoad(s32, s32, s32, s32);
 void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
 
-typedef struct KaE_R3D3B_Container {
+typedef struct ActorListContainer {
     s32 count;
     ActorListRecord items[1];
-} KaE_R3D3B_Container;
+} ActorListContainer;
 
-void func_80688940(void) {
+void actorListInitOffsets(void) {
     char pad[12];
     void *sp60;
-    KaE_R3D3B_Container *container;
+    ActorListContainer *container;
     s32 j;
     ActorListRecord *item;
     s32 count;

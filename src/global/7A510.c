@@ -91,12 +91,12 @@ void actorApplyDamage(Beh798_Actor *arg0, Beh798_Actor *arg1) {
     }
 }
 
-typedef struct KaC1_Entry {
+typedef struct CollisionTableEntry {
     s16 unk0;
     s32 unk4;
-} KaC1_Entry;
+} CollisionTableEntry;
 
-s32 func_80675E3C(KaC1_Entry *arg0, s16 arg1, s16 arg2) {
+s32 actorCollisionFindTableEntry(CollisionTableEntry *arg0, s16 arg1, s16 arg2) {
     s32 s1;
     s32 s2;
     s32 match;
@@ -114,25 +114,25 @@ s32 func_80675E3C(KaC1_Entry *arg0, s16 arg1, s16 arg2) {
     return s2;
 }
 
-typedef struct KaC1_ActorSub4_Sub0 {
+typedef struct CollisionActorSub4_Sub0 {
     u8 pad0[4];
     f32 unk4;
     u8 pad8[8];
     s16 unk10;
-} KaC1_ActorSub4_Sub0;
+} CollisionActorSub4_Sub0;
 
-typedef struct KaC1_ActorSub4 {
-    KaC1_ActorSub4_Sub0 *unk0;
-} KaC1_ActorSub4;
+typedef struct CollisionActorSub4 {
+    CollisionActorSub4_Sub0 *unk0;
+} CollisionActorSub4;
 
-typedef struct KaC1_ActorSub174 {
+typedef struct CollisionActorSub174 {
     u8 pad0[0x11E];
     s16 unk11E;
-} KaC1_ActorSub174;
+} CollisionActorSub174;
 
-typedef struct KaC1_ActorEE0 {
+typedef struct CollisionBoundingActor {
     u8 pad0[4];
-    KaC1_ActorSub4 *unk4;
+    CollisionActorSub4 *unk4;
     u8 pad8[0x5C];
     s32 unk64;
     u8 pad68[0xCA];
@@ -140,10 +140,10 @@ typedef struct KaC1_ActorEE0 {
     s16 unk134;
     s16 unk136;
     u8 pad138[0x3C];
-    KaC1_ActorSub174 *unk174;
-} KaC1_ActorEE0;
+    CollisionActorSub174 *unk174;
+} CollisionBoundingActor;
 
-typedef struct KaC1_80748FE8 {
+typedef struct CollisionThresholdEntry {
     s16 unk0;
     s16 unk2;
     s16 unk4;
@@ -152,19 +152,19 @@ typedef struct KaC1_80748FE8 {
     u8 unk9;
     u8 unkA;
     u8 unkB;
-} KaC1_80748FE8;
+} CollisionThresholdEntry;
 
-extern KaC1_80748FE8 D_80748FE8[];
-void func_8067605C(Actor *, u8);
+extern CollisionThresholdEntry D_80748FE8[];
+void actorCollisionUpdateNodeFlags(Actor *, u8);
 
-void func_80675EE0(KaC1_ActorEE0 *arg0) {
+void actorCollisionCheckBoundingBoxes(CollisionBoundingActor *arg0) {
     s16 targetType;
     s16 targetVal;
     s32 a2;
     s32 a3;
     s32 a1;
-    KaC1_80748FE8 *entry;
-    KaC1_ActorSub174 *sub174;
+    CollisionThresholdEntry *entry;
+    CollisionActorSub174 *sub174;
     u8 pad;
     u8 valid;
 
@@ -199,7 +199,7 @@ void func_80675EE0(KaC1_ActorEE0 *arg0) {
                 } else {
                     arg0->unk64 &= ~0x80;
                 }
-                func_8067605C((Actor *)arg0, entry->unk9);
+                actorCollisionUpdateNodeFlags((Actor *)arg0, entry->unk9);
                 if (valid) {
                     sub174->unk11E = a2;
                 } else {
@@ -223,22 +223,22 @@ void func_80675EE0(KaC1_ActorEE0 *arg0) {
     arg0->unk136 = 0;
 }
 
-typedef struct KaC1_80748F58 {
+typedef struct CollisionNodeFlagEntry {
     u16 unk0;
     u8 unk2;
     u8 pad3;
     u16 unk4;
-} KaC1_80748F58;
+} CollisionNodeFlagEntry;
 
 extern s8 D_80748E50[][9];
-extern KaC1_80748F58 D_80748F58[];
+extern CollisionNodeFlagEntry D_80748F58[];
 
 void func_8067618C(Actor *, s8 *);
 void actorClearAllNodeFlags(Actor *);
 void actorSetNodeFlag(Actor *, s32);
 void actorSetNodeValue(Actor *, s32, u16);
 
-void func_8067605C(Actor *arg0, u8 arg1) {
+void actorCollisionUpdateNodeFlags(Actor *arg0, u8 arg1) {
     s32 match;
     s16 i;
     s8 *ptr;

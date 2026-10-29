@@ -73,7 +73,7 @@ void func_8066E6C8(Actor *, s32, s32);
 void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
 s32 func_80688C84(u16);
 s16 actorListAllocId(void);
-ActorListNode *func_80689250(s16, f32, f32, f32, s16, f32, void *, u8, s32, s16);
+ActorListNode *actorListSpawnNodeInternal(s16, f32, f32, f32, s16, f32, void *, u8, s32, s16);
 void actorListRemoveNodeInternal();
 f32 playerGetMinSquaredDist3D(f32, f32, f32);
 s32 mapIsBossArena(void);
@@ -92,8 +92,8 @@ typedef struct {
     void *unk1C;
     void *unk20;
     u8 pad24[0xC0 - 0x24];
-} KaE_Struct8076A160;
-extern KaE_Struct8076A160 D_8076A160[];
+} ModelAssetEntry160;
+extern ModelAssetEntry160 D_8076A160[];
 
 s32 func_80600080(s32);
 u16 modelTypeCountBeforeMap(u8);
@@ -108,7 +108,7 @@ void func_80688A6C(void);
 s32 func_806C7B34(void);
 
 #ifdef NON_MATCHING
-void func_806886E0(s32 arg0, u8 arg1, u8 arg2) {
+void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
     s32 sp5C;
     s32 *sp58;
     s32 sp54;
@@ -163,7 +163,7 @@ void func_806886E0(s32 arg0, u8 arg1, u8 arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_806886E0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/actorMapModelsSetup.s")
 #endif
 extern u8 D_807500B0;
 extern s16 D_807FC408[];
@@ -172,16 +172,16 @@ void *assetLoad(s32, s32, s32, s32);
 void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
 
-typedef struct KaE_R3D3B_Container {
+typedef struct ActorListContainer {
     s32 count;
     ActorListRecord items[1];
-} KaE_R3D3B_Container;
+} ActorListContainer;
 
 #ifdef NON_MATCHING
-void func_80688940(void) {
+void actorListInitOffsets(void) {
     char pad[12];
     void *sp60;
-    KaE_R3D3B_Container *container;
+    ActorListContainer *container;
     s32 j;
     ActorListRecord *item;
     s32 count;
@@ -210,7 +210,7 @@ void func_80688940(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688940.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/actorListInitOffsets.s")
 #endif
 
 void *func_80610FE8(s32);
@@ -257,10 +257,10 @@ void actorSetCustomInt(Actor *actor, s16 arg1, s32 arg2) {
 typedef struct {
     void *ptr;
     u8 pad4[0xC0 - 4];
-} KaE_Struct8076A178;
-extern KaE_Struct8076A178 D_8076A178[];
+} ModelAssetEntry178;
+extern ModelAssetEntry178 D_8076A178[];
 
-void func_80688D20(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
+void actorListSetCustomFloat(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
     s32 pad[2];
     void *sp34;
     void *sp30;
@@ -375,7 +375,7 @@ void actorListSpawnFromRecords(s32 *arg0) {
         count = *arg0++;
         item = (ActorListRecord *)arg0;
         for (i = 0, var_s2 = (char *)item + 0x10; i < count; i++, item++, var_s2 = (char *)var_s2 + 0x38) {
-            func_80689250(item->unk32, item->unk00, item->unk04, item->unk08, item->unk30, item->unk0C, var_s2, 0, 0, item->unk34);
+            actorListSpawnNodeInternal(item->unk32, item->unk00, item->unk04, item->unk08, item->unk30, item->unk0C, var_s2, 0, 0, item->unk34);
         }
         func_8068A1B8();
     }
@@ -385,21 +385,21 @@ void func_80689064(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5) {
     ActorListSub20 sp38;
 
     sp38 = D_807500B4;
-    func_80689250(arg0, arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 0, 0, actorListAllocId());
+    actorListSpawnNodeInternal(arg0, arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 0, 0, actorListAllocId());
 }
 
 void func_80689114(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6) {
     ActorListSub20 sp38;
 
     sp38 = D_807500D4;
-    func_80689250((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 1, arg6, actorListAllocId());
+    actorListSpawnNodeInternal((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 1, arg6, actorListAllocId());
 }
 
 void actorListSpawnNodeEntry(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6, s32 arg7) {
-    func_80689250((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, (void *)arg7, 1, arg6, actorListAllocId());
+    actorListSpawnNodeInternal((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, (void *)arg7, 1, arg6, actorListAllocId());
 }
 
-typedef struct KaE_R3D3B_Entry30 {
+typedef struct ActorListSpawnEntry {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ char unk4[4];
@@ -408,13 +408,13 @@ typedef struct KaE_R3D3B_Entry30 {
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ char unk14[0x1C];
-} KaE_R3D3B_Entry30;
-extern KaE_R3D3B_Entry30 D_8074E8B0[];
+} ActorListSpawnEntry;
+extern ActorListSpawnEntry D_8074E8B0[];
 
 #ifdef NON_MATCHING
-ActorListNode *func_80689250(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, void *arg6, u8 arg7, s32 arg8, s16 arg9) {
+ActorListNode *actorListSpawnNodeInternal(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, void *arg6, u8 arg7, s32 arg8, s16 arg9) {
     ActorListNode *node;
-    KaE_R3D3B_Entry30 *entry;
+    ActorListSpawnEntry *entry;
     s32 found;
     s32 i;
 
@@ -465,10 +465,10 @@ ActorListNode *func_80689250(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689250.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/actorListSpawnNodeInternal.s")
 #endif
 
-typedef struct KaE_ActorListNode {
+typedef struct ActorListNodeInternal {
     /* 0x00 */ s16 unk00;
     /* 0x02 */ s16 unk02;
     /* 0x04 */ f32 unk04;
@@ -491,13 +491,13 @@ typedef struct KaE_ActorListNode {
     /* 0x54 */ f32 unk54;
     /* 0x58 */ s16 unk58;
     /* 0x5A */ s16 unk5A;
-    /* 0x5C */ s32 (*unk5C)(struct KaE_ActorListNode *);
-    /* 0x60 */ s32 (*unk60)(struct KaE_ActorListNode *);
-    /* 0x64 */ struct KaE_ActorListNode *prev;
-    /* 0x68 */ struct KaE_ActorListNode *next;
-} KaE_ActorListNode;
+    /* 0x5C */ s32 (*unk5C)(struct ActorListNodeInternal *);
+    /* 0x60 */ s32 (*unk60)(struct ActorListNodeInternal *);
+    /* 0x64 */ struct ActorListNodeInternal *prev;
+    /* 0x68 */ struct ActorListNodeInternal *next;
+} ActorListNodeInternal;
 
-typedef struct KaE_R2ASpawnInfo {
+typedef struct ActorListSpawnInfo {
     s32 unk0;
     s32 unk4;
     s32 unk8;
@@ -507,7 +507,7 @@ typedef struct KaE_R2ASpawnInfo {
     s16 unk18;
     s16 unk1A;
     s32 unk1C;
-} KaE_R2ASpawnInfo;
+} ActorListSpawnInfo;
 
 
 
@@ -724,7 +724,7 @@ s32 func_80689BAC(s16 arg0) {
 }
 
 #ifdef NON_MATCHING
-s32 func_80689C20(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
+s32 actorListFindClosestTargetIndex(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
     s32 total = *arg0;
     u8 count = arg2;
     s32 bestIndex = -1;
@@ -786,7 +786,7 @@ s32 func_80689C20(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689C20.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/actorListFindClosestTargetIndex.s")
 #endif
 
 typedef struct ActorListPlayerEntry {

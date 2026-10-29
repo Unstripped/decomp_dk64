@@ -3071,7 +3071,7 @@ extern void *D_807FD580;
 void collisionQueryActorFloor(Actor *, u8 *, f32 *, u8 *, void *, s32);
 void collisionSetQueryMode(s32);
 f32 func_80612790(s16);
-void func_80685B44(void *, s32, f32, s32, s32, s32, s32, s32, s32);
+void effectSpawnScatterRandom(void *, s32, f32, s32, s32, s32, s32, s32, s32);
 
 void projectileFallBounceUpdate(void) {
     u32 *temp_v0;
@@ -3109,7 +3109,7 @@ void projectileFallBounceUpdate(void) {
         if (sub->unk88 != NULL && (sub->unk88->unk58 == 0x1D || sub->unk88->unk58 == 0x50)) {
             camStartShake(sub->unk104, 0xA, 0x14);
             playerStateQueueCallback(0x34, D_807FBB40, 0);
-            func_80685B44(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84);
+            effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84);
             actorDespawn(D_807FBB40);
         }
     } else {
@@ -3131,7 +3131,7 @@ void projectileFallBounceUpdate(void) {
                     D_807FBB40->unkC0 = (f32)((f64)(D_807FBB40->unkA0 - D_807FBB40->unk80) * 1.5);
                     camStartShake(((CameraShakeTargetView *)D_807FD580)->unk104, 0xA, 0x14);
                     sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1C1, 0xFF, 0x7F, 0x1E);
-                    func_80685B44(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84);
+                    effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84);
                     flag = D_807FBB40->unk6A & 1;
                 }
             }

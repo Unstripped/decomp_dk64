@@ -34,7 +34,7 @@ void animStopAtFrame(s32 arg0, s32 arg1, s32 arg2) {
     animSetFrameAndSubframe(arg0, arg1, arg2, 0.0f);
 }
 
-s32 func_8068A3A0(s32 arg0, s32 *arg1) {
+s32 actorConfigLookup(s32 arg0, s32 *arg1) {
     ActorConfig8F050 *cfg;
     s32 found;
     u32 i;
@@ -72,30 +72,30 @@ void func_8068A404(Actor4C *arg0, s32 arg1, s32 arg2) {
     }
 }
 
-s32 func_8068A3A0(s32, s32 *);
+s32 actorConfigLookup(s32, s32 *);
 
 void func_8068A4C8(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp1C;
 
-    if (func_8068A3A0(arg1, &sp1C)) {
+    if (actorConfigLookup(arg1, &sp1C)) {
         func_8068A404((Actor4C *)arg0, sp1C, arg2);
     }
 }
 
 #ifdef NON_MATCHING
-typedef struct KaF_PlayerC924 {
+typedef struct ProximityPlayerPos {
     u8 pad[0x210];
     f32 unk210;
     f32 unk214;
     f32 unk218;
-} KaF_PlayerC924;
+} ProximityPlayerPos;
 
-typedef struct KaF_Sub174 {
+typedef struct ProximitySub174 {
     u8 pad[0x1A4];
     u8 unk1A4;
-} KaF_Sub174;
+} ProximitySub174;
 
-typedef struct KaF_ActorAll {
+typedef struct ProximityActor {
     u8 pad0[0x4C];
     s32 unk4C;
     u8 pad50[0x8];
@@ -107,30 +107,30 @@ typedef struct KaF_ActorAll {
     f32 unk80;
     f32 unk84;
     u8 pad88[0xEC];
-    KaF_Sub174 *unk174;
-} KaF_ActorAll;
+    ProximitySub174 *unk174;
+} ProximityActor;
 
-typedef struct KaF_ActorEntry {
-    KaF_ActorAll *actor;
+typedef struct ProximityActorEntry {
+    ProximityActor *actor;
     u32 unk4;
-} KaF_ActorEntry;
+} ProximityActorEntry;
 
 extern u16 gActiveActorCount;
-extern KaF_ActorEntry gActiveActors[];
-extern KaF_PlayerC924 *D_807FC924;
+extern ProximityActorEntry gActiveActors[];
+extern ProximityPlayerPos *D_807FC924;
 extern u8 D_807FC928;
 extern s32 D_807552F4[];
 
 void func_80613794(void *, u32);
 f32 renderScaleDistanceByFov(f32);
 
-void func_8068A508(void) {
+void actorProximityUpdate(void) {
     s32 pad;
     s32 sp80;
     s32 pad2[3];
     s32 var_s1;
-    KaF_ActorEntry *entry_ptr;
-    KaF_ActorAll *actor;
+    ProximityActorEntry *entry_ptr;
+    ProximityActor *actor;
     ActorConfig8F050 *entry;
     f32 dist_sq;
     f32 r;
@@ -145,7 +145,7 @@ void func_8068A508(void) {
                 dist_sq = ((actor->unk84 - D_807FC924->unk218) * (actor->unk84 - D_807FC924->unk218)) +
                           (((actor->unk7C - D_807FC924->unk210) * (actor->unk7C - D_807FC924->unk210)) +
                            ((actor->unk80 - D_807FC924->unk214) * (actor->unk80 - D_807FC924->unk214)));
-                if (func_8068A3A0(actor->unk58, &sp80) != 0) {
+                if (actorConfigLookup(actor->unk58, &sp80) != 0) {
                     r = renderScaleDistanceByFov(((ActorConfig8F050 *)((u8 *)D_80750100 + sp80 * 20))->unk4);
                     entry = (ActorConfig8F050 *)((u8 *)D_80750100 + sp80 * 20);
                     switch (entry->unk8) {
@@ -186,7 +186,7 @@ void func_8068A508(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8F050/func_8068A508.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/8F050/actorProximityUpdate.s")
 #endif
 
 void func_8068A764(Actor146 *arg0, u8 arg1) {

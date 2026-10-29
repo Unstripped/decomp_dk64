@@ -33,28 +33,28 @@ typedef struct {
     /* 0x08 */ s16 unk8;
     /* 0x0A */ s16 unkA;
     /* 0x0C */ s16 unkC;
-} KaN6_Entry0E;
+} LightPosEntry;
 
 extern s32 D_8076A064;
 extern Actor *D_807FBB40;
 extern u8 D_807FC621;
 extern u8 D_807FC622;
 extern u8 D_807501C0[][3];
-extern KaN6_Entry0E D_80750194[];
+extern LightPosEntry D_80750194[];
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void lightSetFovAngles(f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
-void func_8068A858(u8 *arg0, u8 *arg1, u8 *arg2) {
+void lightUpdateFromActorLighting(u8 *arg0, u8 *arg1, u8 *arg2) {
     f32 pad;
     f32 sp40;
     f32 sp3C;
     f32 sp38;
     u8 temp_v1;
     u8 idx;
-    KaN6_Entry0E *entry;
+    LightPosEntry *entry;
 
     if (D_807FBB40->unk60 & 4) {
         switch (D_807FC622) {
@@ -103,7 +103,7 @@ set_color:
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8F4B0/func_8068A858.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/8F4B0/lightUpdateFromActorLighting.s")
 #endif
 
 s32 flagGet(s16, s32);
@@ -114,7 +114,7 @@ extern s8 D_8074452C;
 extern u16 D_80744734[];
 extern s32 D_8076A0A8;
 
-s32 func_8068ABE0(s16 arg0) {
+s32 cutsceneTriggerCheck(s16 arg0) {
     s16 sp36;
     s32 found;
     s32 i;
@@ -202,32 +202,32 @@ typedef struct {
     /* 0x1E */ s16 unk1E;
     /* 0x20 */ u8 unk20;
     /* 0x21 */ u8 unk21;
-} KaL4_Actor174;
+} CutsceneActorState;
 typedef struct {
     char pad[0x100];
     u32 unk100;
     char pad104[0x1F0 - 0x104];
     u32 unk1F0;
-} KaL4_FD580;
+} CutscenePlayerContext;
 typedef struct {
     char pad[0x1F0];
     u32 unk1F0;
-} KaL4_Actor174_Player;
+} CutscenePlayerFlags;
 typedef struct {
     char pad[0x4];
     Actor *unk4;
-} KaL4_FC924;
+} CutscenePlayerEntry;
 typedef struct {
     char pad[0xC4];
     f32 unkC4;
-} KaL4_Actor_BB48;
+} PlayerActorC4;
 struct ActorPlayerPos;
 
 void lightGetColor(void *, void *, void *, s32);
 void lightSetOverrideColor(f32, f32, f32);
 void func_8070B308(s32);
 void func_805FF158(s32);
-s32 func_8068ABE0(s16);
+s32 cutsceneTriggerCheck(s16);
 void func_806F3BEC(void *, s16, s16, s32);
 void func_805FF4D8(s16, s16);
 void func_805FF9AC(s16, s16, s16, s32);
@@ -265,7 +265,7 @@ extern s16 D_807FDCBC;
 extern s16 D_807FDCB8;
 extern s32 D_807FBB60;
 extern void *D_807FBB4C;
-extern KaL4_FD580 *D_807FD580;
+extern CutscenePlayerContext *D_807FD580;
 extern struct ActorPlayerPos *D_807FC924;
 extern u16 D_80744700[];
 extern u8 D_8076A0AB;
@@ -278,8 +278,8 @@ extern u16 D_8076A0A6;
 extern u8 D_80750190;
 extern u8 D_807FC620;
 
-void func_8068AD7C(void) {
-    KaL4_Actor174 *temp_s1;
+void actorCutsceneDispatchEvents(void) {
+    CutsceneActorState *temp_s1;
     s32 i;
     f32 pad;
     s16 *temp_s0;
@@ -288,7 +288,7 @@ void func_8068AD7C(void) {
     s16 temp_a0;
     s16 temp_v0_2;
 
-    temp_s1 = (KaL4_Actor174 *)D_807FBB40->unk174;
+    temp_s1 = (CutsceneActorState *)D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         temp_s1->unk0 = 0;
         temp_s1->unk1A = -1;
@@ -337,7 +337,7 @@ void func_8068AD7C(void) {
                 }
                 temp_a0 = temp_s0[0];
                 if (temp_a0 == 0x11) {
-                    if (func_8068ABE0(temp_a0) == 0) {
+                    if (cutsceneTriggerCheck(temp_a0) == 0) {
                         func_805FF378(temp_s0[0], temp_s0[1]);
                     }
                 } else {
@@ -393,7 +393,7 @@ void func_8068AD7C(void) {
             func_805FF660(((u8 *)temp_s0)[1]);
             break;
         case 0xA:
-            ((KaL4_Actor174_Player *)((KaL4_FC924 *)D_807FC924)->unk4->unk174)->unk1F0 |= 0x40000800;
+            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)D_807FC924)->unk4->unk174)->unk1F0 |= 0x40000800;
             break;
         case 0xB:
             func_805FF378(D_80744700[func_805FF030(D_8076A0AB, 0)], D_8076A0AC);
@@ -419,7 +419,7 @@ void func_8068AD7C(void) {
             sfxStopChannel(temp_s0[0], 0);
             break;
         case 0x11:
-            ((KaL4_Actor_BB48 *)D_807FBB48)->unkC4 = (f64)temp_s0[0] / 10.0;
+            ((PlayerActorC4 *)D_807FBB48)->unkC4 = (f64)temp_s0[0] / 10.0;
             break;
         case 0x12:
             D_807FBB48->unk6A |= 0x200;
@@ -443,7 +443,7 @@ void func_8068AD7C(void) {
             D_8076A0A6 = D_807ECD48;
             break;
         case 0x1A:
-            ((KaL4_Actor174_Player *)((KaL4_FC924 *)D_807FC924)->unk4->unk174)->unk1F0 |= 0x80000000;
+            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)D_807FC924)->unk4->unk174)->unk1F0 |= 0x80000000;
             break;
         case 0x1B:
             mapChunkSetFlagBit3(temp_s0[1]);
@@ -686,7 +686,7 @@ typedef struct {
     s16 unkE6;
     char padE8[0x4];
     s16 unkEC;
-} KaN6_ActorE4;
+} AimActorAngles;
 
 void func_80609140(s32, s32, f32, f32, s32, s32);
 f32 func_80612794(s16);
@@ -697,7 +697,7 @@ void func_806C9D20(u8);
 extern u8 D_807444EC;
 extern s16 D_807FC624;
 
-void func_8068BBF8(void) {
+void playerCameraUpdateFromTarget(void) {
     void *sp54;
     s16 sp52;
     s16 pad50[1];
@@ -726,8 +726,8 @@ void func_8068BBF8(void) {
     sp40 = 0.08f;
     sp3C = 8.0f;
     sp34 = (void *)((*(u8 *)((u8 *)sp54 + 0xFB) * 0x2F0) + (u8 *)D_807FC924);
-    *(s16 *)((u8 *)sp34 + 0x2CC) = ((KaN6_ActorE4 *)D_807FBB40)->unkEC;
-    ((KaN6_ActorE4 *)D_807FBB40)->unkEC = ((KaN6_ActorE4 *)D_807FBB40)->unkE4;
+    *(s16 *)((u8 *)sp34 + 0x2CC) = ((AimActorAngles *)D_807FBB40)->unkEC;
+    ((AimActorAngles *)D_807FBB40)->unkEC = ((AimActorAngles *)D_807FBB40)->unkE4;
     *(s16 *)((u8 *)sp34 + 0x2CA) = (s16)(s32)*(f32 *)((u8 *)sp34 + 0x214);
     sp48 = mathAngleBetweenPointsRad(*(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x230), *(f32 *)((u8 *)sp34 + 0x228));
     temp_fv1 = *(f32 *)((u8 *)sp34 + 0x230) - *(f32 *)((u8 *)sp34 + 0x218);
@@ -752,7 +752,7 @@ void func_8068BBF8(void) {
     }
     if ((D_8076A0A8 == 0x1F) || (D_8076A0A8 == 0x33)) {
         if (D_807FC624 && D_807FC624) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        ((KaN6_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
+        ((AimActorAngles *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
         if (D_8076A0A8 == 0x1F) {
             if (D_807FC624 < 0x1E) {
                 func_80609140(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
@@ -803,11 +803,11 @@ calc_angle:
             temp_v0_2 = -sp3A;
             var_v1 = (temp_v0_2 < sp4E) ? sp4E : temp_v0_2;
             var_v1 = (var_v1 < sp3A) ? ((temp_v0_2 < sp4E) ? sp4E : temp_v0_2) : sp3A;
-            temp_fv0 = (f32)((KaN6_ActorE4 *)D_807FBB40)->unkE4;
-            ((KaN6_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)var_v1 * sp3C) - temp_fv0) * sp40) + temp_fv0);
+            temp_fv0 = (f32)((AimActorAngles *)D_807FBB40)->unkE4;
+            ((AimActorAngles *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)var_v1 * sp3C) - temp_fv0) * sp40) + temp_fv0);
     }
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8F4B0/func_8068BBF8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/8F4B0/playerCameraUpdateFromTarget.s")
 #endif

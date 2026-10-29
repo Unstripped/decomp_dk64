@@ -147,7 +147,7 @@ void actorAppendActiveCallback8(void);
 s32 camIsCutsceneActive(void);
 void camSetSecondTarget(void *, s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void func_80685B44(void *, s32, f32, s32, s32, s32, s32, s32, s32);
+void effectSpawnScatterRandom(void *, s32, f32, s32, s32, s32, s32, s32, s32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void func_80714C08(void *, f32, void *, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
@@ -644,8 +644,8 @@ block_131:
             break;
         case 4:
             if (currentActorTestClearFlag() != 0) {
-                func_80685B44(D_80720BE8, 0, 6.0f, 6, 0x50, 0x64, (s32)BF->unk7C, (s32)(BP->unk80 + 100.0f), (s32)BF->unk84);
-                func_80685B44(D_80720BE8, 0x14, 6.0f, 8, 0x96, 0x46, (s32)BF->unk7C, (s32)(BP->unk80 + 100.0f), (s32)BF->unk84);
+                effectSpawnScatterRandom(D_80720BE8, 0, 6.0f, 6, 0x50, 0x64, (s32)BF->unk7C, (s32)(BP->unk80 + 100.0f), (s32)BF->unk84);
+                effectSpawnScatterRandom(D_80720BE8, 0x14, 6.0f, 8, 0x96, 0x46, (s32)BF->unk7C, (s32)(BP->unk80 + 100.0f), (s32)BF->unk84);
                 BF->unk155++;
             }
             break;

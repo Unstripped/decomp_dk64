@@ -24,7 +24,7 @@ typedef struct BC3B0CursorActor {
 extern u8 D_1000118[];
 extern u8 D_2000080[];
 
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *actorCursorDrawSprite(Gfx *dl, Actor *actor) {
     BC3B0CursorSub174 *sub = ((BC3B0CursorActor *)actor)->unk174;
@@ -42,7 +42,7 @@ Gfx *actorCursorDrawSprite(Gfx *dl, Actor *actor) {
     BC3B0_WRITE_GFX(dl++, 0xE200001C, 0x504240);
     BC3B0_WRITE_GFX(dl++, 0xDE000000, D_1000118);
     BC3B0_WRITE_GFX(dl++, 0xDA380007, D_2000080);
-    return func_8068C5A8(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], 0.5f, 0.5f, 0x2D, 0.0f);
+    return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
 f32 func_80612794(s16);
@@ -59,14 +59,14 @@ Gfx *actorCursorDrawBurst(Gfx *dl, Actor *actor) {
     t = sub->unk2C / 20.0f;
     gDPPipeSync(dl++);
     gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, 255);
-    dl = func_8068C5A8(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], t * 7.5 + 0.5, t * 7.5 + 0.5, (s32)(90.0f * t + 45.0f), 0.0f);
+    dl = renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], t * 7.5 + 0.5, t * 7.5 + 0.5, (s32)(90.0f * t + 45.0f), 0.0f);
     angle = (s16)(s32)(2048.0f * t);
     i = 0;
     do {
         x = (0.0f - pos[0]) * t + pos[0];
         y = (240.0f - pos[1]) * t + pos[1];
         gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, (u32)(-255.0f * t + 255.0f));
-        dl = func_8068C5A8(func_8068C5A8(dl, 0x42, 3, 1, 0x40, 0x40, (s32)x, 0x78, 0.5f, 4.0f, 0, 0.0f), 0x42, 3, 1, 0x40, 0x40, 0xA0, (s32)y, 0.5f, 5.0f, 0x5A, 0.0f);
+        dl = renderRotatedSprite(renderRotatedSprite(dl, 0x42, 3, 1, 0x40, 0x40, (s32)x, 0x78, 0.5f, 4.0f, 0, 0.0f), 0x42, 3, 1, 0x40, 0x40, 0xA0, (s32)y, 0.5f, 5.0f, 0x5A, 0.0f);
         t += 0.1 * func_80612794(angle);
         i++;
         t = (t > 1.0) ? 1.0 : t;

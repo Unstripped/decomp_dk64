@@ -2,7 +2,7 @@
 extern s32 (*D_8074C0A0[])(void);
 extern u16 D_807FBB3C;
 void func_80678CC8(Actor *);
-void func_806790F4();
+void actorGlobalCallbacksDispatchAndFree();
 void func_80678BBC(Actor *);
 void func_80678B04(void);
 
@@ -28,6 +28,6 @@ void func_806789E4(void) {
         }
         i = D_807FBB3C;
     }
-    func_806790F4(1);
+    actorGlobalCallbacksDispatchAndFree(1);
     func_80678B04();
 }

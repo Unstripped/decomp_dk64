@@ -8,7 +8,7 @@ void heapClearBlock(void *);
 void actorTableInsert(Actor *);
 void actorInitHealth(Actor *);
 
-typedef struct KaN2_ActorAlloc {
+typedef struct ActorAllocBlock {
     u8 pad0[0x54];
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -66,14 +66,14 @@ typedef struct KaN2_ActorAlloc {
     /* 0x16D */ u8 unk16D;
     u8 pad16E[6];
     /* 0x174 */ void *unk174;
-} KaN2_ActorAlloc;
+} ActorAllocBlock;
 
 s32 func_80678050(arg0)
 u16 arg0;
 {
     u16 **typesPtr;
     s32 headerSize;
-    KaN2_ActorAlloc *actor;
+    ActorAllocBlock *actor;
     s32 totalDataSize;
     u16 *types;
     void **ptrArray;
@@ -92,7 +92,7 @@ u16 arg0;
     }
     headerSize = (headerSize + 7) & 0xFFF8;
     totalDataSize += headerSize;
-    actor = (KaN2_ActorAlloc *)func_80610FE8(totalDataSize & 0xFFFF);
+    actor = (ActorAllocBlock *)func_80610FE8(totalDataSize & 0xFFFF);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = *typesPtr;

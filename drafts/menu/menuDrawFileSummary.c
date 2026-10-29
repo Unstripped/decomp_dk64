@@ -7,7 +7,7 @@ extern f32 D_80033F4C;
 extern s8 D_80033F51;
 extern u32 D_8076A064;
 s32 menuSetElementCoordinates(s32, s32, f32, f32, f32);
-Gfx *func_8068C5A8(Gfx *, u16, s32, s32, s32, s32, s16, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, s32, s32, s16, s32, f32, f32, s32, f32);
 f32 func_80612794(s16);
 
 s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
@@ -55,15 +55,15 @@ s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
     x = 0.5f * four;
     spCC = (sc * 0.25f + 32.0f * fv1) * four;
     spD0 = 85 * four;
-    arg1 = func_8068C5A8(arg1, 0xA1, 3, 0, 0x40, 0x40, (s32)spD0, (s32)spCC, x, -(fv1 * four), 0, 0.0f);
+    arg1 = renderRotatedSprite(arg1, 0xA1, 3, 0, 0x40, 0x40, (s32)spD0, (s32)spCC, x, -(fv1 * four), 0, 0.0f);
     gDPPipeSync(arg1++);
     spCC = sc;
     x = x * 0.75f;
     sc = -x;
     spD0 = 340.0f;
-    arg1 = func_8068C5A8(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc * 0.5f, D_8076A064 % 360U, 0.0f);
+    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc * 0.5f, D_8076A064 % 360U, 0.0f);
     gDPPipeSync(arg1++);
-    arg1 = func_8068C5A8(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc, (D_8076A064 * 0xC) % 360U, 0.0f);
+    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc, (D_8076A064 * 0xC) % 360U, 0.0f);
     gDPPipeSync(arg1++);
     gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
     func_800317E8(temp_s4, 160.0f, 15.0f, &spD0, &spCC, 5, 1, 0.3f);

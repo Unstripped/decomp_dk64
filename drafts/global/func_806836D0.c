@@ -1,19 +1,19 @@
 // func_806836D0 (src/global/80150.c): Stage 4: frame 0x50 matches; var_s0 reused; diff is s2 saved reg vs s1/s0 reuse
-typedef struct KaN4_Pad {
+typedef struct TagBarrelInputPad {
     u8 pad0[0x2C];
     u16 unk2C;
     s8 unk2E;
     s8 unk2F;
     s8 unk30;
-} KaN4_Pad;
-extern KaN4_Pad D_807FD610;
+} TagBarrelInputPad;
+extern TagBarrelInputPad D_807FD610;
 
-typedef struct KaN4_PlayerData {
+typedef struct TagBarrelPlayerData {
     u8 pad0[0x2E2];
     u16 unk2E2;
-} KaN4_PlayerData;
+} TagBarrelPlayerData;
 
-typedef struct KaN4_TagBarrelData {
+typedef struct TagBarrelDataN4 {
     Actor *unk0;
     u16 unk4;
     s8 unk6;
@@ -32,21 +32,21 @@ typedef struct KaN4_TagBarrelData {
     s16 unk38;
     u8 pad3A[2];
     u32 unk3C;
-} KaN4_TagBarrelData;
+} TagBarrelDataN4;
 
-typedef struct KaN4_KongSub {
+typedef struct TagBarrelKongSubState {
     u8 pad0[0x8C];
     u8 unk8C;
     u8 pad8D[0x104 - 0x8D];
     Actor *unk104;
     u8 pad108[0x1F0 - 0x108];
     u32 unk1F0;
-} KaN4_KongSub;
+} TagBarrelKongSubState;
 
-typedef struct KaN4_ActorKong {
+typedef struct TagBarrelOrbitActor {
     u8 pad0[0x12C];
     s32 unk12C;
-} KaN4_ActorKong;
+} TagBarrelOrbitActor;
 
 extern s32 D_8074E848[];
 extern s32 D_807FBB60;
@@ -62,14 +62,14 @@ void func_806C8E58(s16);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void lightSetColor(f32, f32, f32, s32);
 void sfxSetChannelParam(s32, s32, s32);
-struct KaB3_TagBarrelData;
+struct TagBarrelData;
 
-void func_806836D0(struct KaB3_TagBarrelData *arg0_in) {
-    KaN4_TagBarrelData *arg0 = (KaN4_TagBarrelData *)arg0_in;
+void func_806836D0(struct TagBarrelData *arg0_in) {
+    TagBarrelDataN4 *arg0 = (TagBarrelDataN4 *)arg0_in;
     s32 pad[4];
     volatile u16 sp4A;
     Actor *sp34;
-    KaN4_KongSub *sp30;
+    TagBarrelKongSubState *sp30;
     s32 sp28;
     s32 var_s0;
     s32 temp_t3;
@@ -117,7 +117,7 @@ void func_806836D0(struct KaB3_TagBarrelData *arg0_in) {
                 if (var_s0) {
                     sp34 = arg0->unk0;
                     sp30 = sp34->unk174;
-                    sp28 = ((KaN4_ActorKong *)sp34)->unk12C;
+                    sp28 = ((TagBarrelOrbitActor *)sp34)->unk12C;
                     if (sp28 == -1) {
                         sp28 = 0;
                     }
@@ -147,7 +147,7 @@ void func_806836D0(struct KaB3_TagBarrelData *arg0_in) {
                     camResetPlayer(sp34, 0);
                     screenWipeStart(3);
                     healthRefill(0);
-                    ((KaN4_PlayerData *)D_807FC924)->unk2E2 |= 0x11;
+                    ((TagBarrelPlayerData *)D_807FC924)->unk2E2 |= 0x11;
                     return;
                 }
                 func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);

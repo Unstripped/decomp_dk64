@@ -133,7 +133,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void camStartPath(void *, s32, s32);
 void modelRecordFindAndSet(void *, void *, s16, s16);
-s32 func_80689C20(s32, s32, u8, f32, f32, f32);
+s32 actorListFindClosestTargetIndex(s32, s32, u8, f32, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 u8 func_806C8DE0(s32);
 void func_806F5378(void);
@@ -553,7 +553,7 @@ s32 func_80600340(s32 arg0, u8 arg1, s32 *arg2) {
     }
     modelAssetGetSubtables(((Struct8076A160 *)&D_8076A160)[idx].unk18, &sp3C, &sp38);
     *arg2 = ((Struct8076A160 *)&D_8076A160)[idx].unk12;
-    return func_80689C20(sp38, arg0, arg1, sp34, sp30, sp2C);
+    return actorListFindClosestTargetIndex(sp38, arg0, arg1, sp34, sp30, sp2C);
 }
 
 void func_806003EC(s16 arg0) {

@@ -1298,7 +1298,7 @@ void csSetPos(s16, s16, void *, s16, u8);
 void func_80650794(s16, s16, u8, f32);
 void func_8067A9F0(s32, Actor *, f32, f32, f32);
 void func_8067ABC0(s32, Actor *, u8, s16, s32, f32, f32, f32);
-s32 func_8068ABE0(s16);
+s32 cutsceneTriggerCheck(s16);
 void func_8068B830(s16, s16, s16);
 void func_8068B8FC(void);
 void func_806A2A10(s32, s32, u8, void *);
@@ -1694,7 +1694,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
                     exit = 0;
                 }
             }
-            if (func_8068ABE0(map) == 0) {
+            if (cutsceneTriggerCheck(map) == 0) {
                 func_805FF378(map, exit);
             }
         } else {

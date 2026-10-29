@@ -140,7 +140,7 @@ void func_806809F0(void) {
     }
     action = D_807FBB40->unk154;
     if (action != 0x14 && action != 0x15) {
-        func_8068086C();
+        tagBarrelCheckPlayerCollision();
     }
     if (D_8076A0A8 == 0xAA) {
         action = D_807FBB40->unk154;
@@ -265,7 +265,7 @@ void func_806809F0(void) {
         actorSetCustomInt(D_807FBB40, 7, 0);
         if (sub->unkC != 0) {
             D_807FBB40->unk154 = 0xC;
-            if (func_80680908() == 2) {
+            if (tagBarrelGetKongType() == 2) {
                 camStartPath(D_807FBB4C, 0x26, 5);
             }
         } else {
@@ -281,12 +281,12 @@ void func_806809F0(void) {
             sp90.z = ((f64)(u32)((func_806119A0() / 1000) % 50) - 25.0) / 5.0;
         }
         if (sub->unkD == 0) {
-            func_8067DCC0();
+            tagBarrelDespawnEffects();
             sp8A = -1;
             if (sub->unkA != 0) {
                 sp8A = func_8073195C(sub->unkA);
             }
-            val = func_80680908();
+            val = tagBarrelGetKongType();
             switch (D_8076A0A8) {
             case 0xBA:
                 flagSet(0x32, 1, 2);

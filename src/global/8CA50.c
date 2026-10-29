@@ -37,7 +37,7 @@ extern u8 D_807FC928;
 void *func_80610FE8(s32);
 void *assetLoad(s32, s32, u8, s32);
 void animListFree(AnimNode **);
-void func_80687FC8(AnimNode *);
+void animNodeAdvanceTime(AnimNode *);
 AnimNode *animGetNodeByIndex(AnimActor *, u32);
 void assetFreeBuffer(void *, s32, s32);
 void heapFree(void *);
@@ -129,12 +129,12 @@ void animListUpdate(AnimActor *actor) {
 
     for (node = actor->unk158; node != NULL; node = node->next) {
         if (node->unk22 == 0) {
-            func_80687FC8(node);
+            animNodeAdvanceTime(node);
         }
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8CA50/func_80687FC8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/8CA50/animNodeAdvanceTime.s")
 
 s32 animGetNodeItem(void *arg0, s32 arg1, s16 arg2) {
     AnimNode *node = animGetNodeByIndex(arg0, arg1);

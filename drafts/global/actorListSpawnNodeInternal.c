@@ -1,5 +1,5 @@
-// func_80689250 (src/global/8D3E0.c): Stage 4: frame 0x30, 4 insns diff on entry slot 0x1c vs 0x18
-typedef struct KaE_R3D3B_Entry30 {
+// actorListSpawnNodeInternal (src/global/8D3E0.c): Stage 4: frame 0x30, 4 insns diff on entry slot 0x1c vs 0x18
+typedef struct ActorListSpawnEntry {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ char unk4[4];
@@ -8,12 +8,12 @@ typedef struct KaE_R3D3B_Entry30 {
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ char unk14[0x1C];
-} KaE_R3D3B_Entry30;
-extern KaE_R3D3B_Entry30 D_8074E8B0[];
+} ActorListSpawnEntry;
+extern ActorListSpawnEntry D_8074E8B0[];
 
-ActorListNode *func_80689250(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, void *arg6, u8 arg7, s32 arg8, s16 arg9) {
+ActorListNode *actorListSpawnNodeInternal(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, void *arg6, u8 arg7, s32 arg8, s16 arg9) {
     ActorListNode *node;
-    KaE_R3D3B_Entry30 *entry;
+    ActorListSpawnEntry *entry;
     s32 found;
     s32 i;
 

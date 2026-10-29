@@ -58,7 +58,7 @@ extern u8 D_80720630;
 
 void func_8072D99C();
 void sfxSpawnTableNodes(void *);
-void func_8067DCC0(void);
+void tagBarrelDespawnEffects(void);
 void func_80685210(f32, s16, s16);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
@@ -118,7 +118,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
                 break;
             case 0xB6:
                 sfxSpawnTableNodes(D_807FBB40);
-                func_8067DCC0();
+                tagBarrelDespawnEffects();
                 func_8072D99C();
                 break;
             }
@@ -283,7 +283,7 @@ extern s32 D_8076A0A8;
 
 void actorClearNodeFlag(Actor *, s32);
 void actorScriptStart(void *, s32);
-void func_8068A858(void *, void *, void *);
+void lightUpdateFromActorLighting(void *, void *, void *);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void func_806B640C(void) {
@@ -304,7 +304,7 @@ void func_806B640C(void) {
                 actorScriptStart(D_807FBB40, 0x24F);
             }
         }
-        func_8068A858(&D_807FBB40->unk16A, &D_807FBB40->unk16B, &D_807FBB40->unk16C);
+        lightUpdateFromActorLighting(&D_807FBB40->unk16A, &D_807FBB40->unk16B, &D_807FBB40->unk16C);
     }
     sel = D_807FBB40->unk154;
     if (sel != 0x37 && sel != 0x38) {

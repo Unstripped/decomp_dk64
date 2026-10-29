@@ -1,5 +1,5 @@
-// func_80689C20 (src/global/8D3E0.c): Stage 4: frame 0x18 matches, 4 insns diff on item/target regalloc
-s32 func_80689C20(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
+// actorListFindClosestTargetIndex (src/global/8D3E0.c): Stage 4: frame 0x18 matches, 4 insns diff on item/target regalloc
+s32 actorListFindClosestTargetIndex(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
     s32 total = *arg0;
     u8 count = arg2;
     s32 bestIndex = -1;

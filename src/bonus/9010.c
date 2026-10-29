@@ -10,7 +10,7 @@ extern s32 D_8076A0A8;
 extern Actor *D_807FBB40;
 s32 _sprintf(char *, const char *, ...);
 Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
-Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
+Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s16, void *);
 s32 textGetStringWidth(s32, char *);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 
@@ -41,7 +41,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *arg1) {
     gDPSetRenderMode(gdl++, G_RM_OPA_SURF, G_RM_TEX_EDGE2);
     gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gdl = textDrawAnimated(gdl, hud->unk3, 8, 30.0f, 36.0f, 0.0f, 1.0f);
-    gdl = func_8068DC54(gdl, 0x26, 0x2D, &hud->unk8, hud->unkA, &hud->unk6);
+    gdl = hudDrawRollingCounter(gdl, 0x26, 0x2D, &hud->unk8, hud->unkA, &hud->unk6);
     if (hud->unk6 > 0) {
         hud->unk6 -= 2;
     }

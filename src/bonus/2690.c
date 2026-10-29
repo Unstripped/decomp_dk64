@@ -180,11 +180,11 @@ void actorUpdateModelMatrix(void *, s32);
 extern u8 D_1000118[];
 extern u8 D_2000180[];
 Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
-Gfx *func_8068DC54(Gfx *, s32, s32, void *, s32, void *);
+Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s32, void *);
 extern u8 D_20000C0[];
 extern u32 D_8076A064;
 extern u8 D_807FC929;
-Gfx *func_8068C5A8(Gfx *, u16, s32, s32, s32, s32, s16, s16, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, s32, s32, s16, s16, f32, f32, s32, f32);
 extern s16 D_8002D8CA;
 extern s16 D_8002D8D4[];
 extern s16 D_8002D8E0[];
@@ -239,10 +239,10 @@ Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *arg1) {
     gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gSPDisplayList(gdl++, D_1000118);
     gSPMatrix(gdl++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-    gdl = func_8068C5A8(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
-    gdl = func_8068C5A8(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
-    gdl = func_8068C5A8(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
-    gdl = func_8068C5A8(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
+    gdl = renderRotatedSprite(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
+    gdl = renderRotatedSprite(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
+    gdl = renderRotatedSprite(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
+    gdl = renderRotatedSprite(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
     return gdl;
 }
 
@@ -276,7 +276,7 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *arg1) {
     gDPSetRenderMode(gdl++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
     gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     if (arg1->unk154 != 1) {
-        gdl = func_8068DC54(textDrawAnimated(gdl, temp_t0->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &temp_t0->unk20, temp_t0->unk22, &temp_t0->unk24);
+        gdl = hudDrawRollingCounter(textDrawAnimated(gdl, temp_t0->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &temp_t0->unk20, temp_t0->unk22, &temp_t0->unk24);
     }
     if (temp_s1->unk25 != 0) {
         sp48 = D_80744490 >> 1;
@@ -1046,12 +1046,12 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *arg1) {
     switch (actor->unk58) {
     case 0x7D:
         if (actor->unk154 != 3) {
-            gdl = func_8068DC54(textDrawAnimated(gdl, p0->unk11, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p0->unk14, p0->unk16, p0->unk12);
+            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, p0->unk11, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p0->unk14, p0->unk16, p0->unk12);
         }
         break;
     case 0x7C:
         if (actor->unk154 != 3) {
-            gdl = func_8068DC54(textDrawAnimated(gdl, p1->unk3, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p1->unk8, p1->unkA, p1->unk6);
+            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, p1->unk3, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p1->unk8, p1->unkA, p1->unk6);
         }
         break;
     case 0x7E:
@@ -1061,7 +1061,7 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *arg1) {
         case 0:
         case 1:
         case 2:
-            gdl = func_8068DC54(textDrawAnimated(gdl, p2->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p2->unk28, p2->unk2A, p2->unk26);
+            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, p2->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p2->unk28, p2->unk2A, p2->unk26);
             break;
         }
         break;
@@ -1951,10 +1951,10 @@ Gfx *func_8002CC08(Gfx *arg0, Actor *arg1) {
     gSPMatrix(arg0++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     temp_v0 = arg1->unk154;
     if (temp_v0 == 0 || temp_v0 == 1) {
-        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
-        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
-        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
-        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
+        arg0 = renderRotatedSprite(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
+        arg0 = renderRotatedSprite(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
+        arg0 = renderRotatedSprite(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
+        arg0 = renderRotatedSprite(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
     }
     gSPMatrix(arg0++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     switch (arg1->unk154) {
@@ -1964,7 +1964,7 @@ Gfx *func_8002CC08(Gfx *arg0, Actor *arg1) {
         break;
     case 0:
     case 1:
-        arg0 = func_8068DC54(textDrawAnimated(arg0, sp84->unk23, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &sp84->unk26, sp84->unk28, &sp84->unk24);
+        arg0 = hudDrawRollingCounter(textDrawAnimated(arg0, sp84->unk23, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &sp84->unk26, sp84->unk28, &sp84->unk24);
         break;
     }
     return arg0;

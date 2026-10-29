@@ -411,7 +411,7 @@ void func_8067C71C(void) {
                 D_80029FA0--;
             default:
             block_despawn:
-                func_8067DCC0();
+                tagBarrelDespawnEffects();
                 func_806782C0(D_807FBB40);
                 break;
             }

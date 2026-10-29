@@ -436,7 +436,7 @@ typedef struct NmD5E10aTbl {
 extern NmD5E10aTbl D_80750FB0;
 s32 func_807143E8();
 s32 func_80600340();
-void func_80688D20(s16, s16, s32, f32);
+void actorListSetCustomFloat(s16, s16, s32, f32);
 
 void func_806D205C(void) {
     s16 sp2C[2];
@@ -461,7 +461,7 @@ void func_806D205C(void) {
         if (func_807143E8() == 0) {
             r = func_80600340(&sp1C, 3, sp2C);
             t = r;
-            func_80688D20(sp2C[1], t, 7, 2.0f);
+            actorListSetCustomFloat(sp2C[1], t, 7, 2.0f);
         }
         func_805FF898();
         G08_A40->unk155++;
@@ -1833,7 +1833,7 @@ void func_806D4DE4(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_80685708();
+void effectSpawnMultiTierRingWithActor();
 void camStartShake(s32, s32, s32);
 
 void func_806D5008(void) {
@@ -1861,7 +1861,7 @@ void func_806D5008(void) {
         func_806DF6D4(0x2E);
         if (!(G08_A40->unk6A & 4)) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x96, 0xFF, 0x7F, 0x19);
-            func_80685708(D_807FBB40, ((u8 *)D_807FD568)[1]);
+            effectSpawnMultiTierRingWithActor(D_807FBB40, ((u8 *)D_807FD568)[1]);
             camStartShake(G10_P->unk104, 0x14, (u16)(((u8 *)D_807FD568)[1] * 5));
         }
         func_80614D00(D_807FBB40, 1.0f, 0.0f);

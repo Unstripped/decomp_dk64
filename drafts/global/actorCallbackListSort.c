@@ -1,5 +1,5 @@
-// func_8067A09C (src/global/7CA80.c): stage 5: 53 insns, frame 0, score 5, regalloc only (t2/t3/t4 vs t1/t2/t3 in if (!inserted))
-ActorCallbackNode *func_8067A09C(ActorCallbackNode *head) {
+// actorCallbackListSort (src/global/7CA80.c): stage 5: 53 insns, frame 0, score 5, regalloc only (t2/t3/t4 vs t1/t2/t3 in if (!inserted))
+ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
     ActorCallbackNode *new_head = head;
     ActorCallbackNode *curr;
     ActorCallbackNode *scan;

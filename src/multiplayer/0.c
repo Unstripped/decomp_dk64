@@ -132,8 +132,8 @@ extern u8 D_1000118[];
 extern u8 D_20000C0[];
 
 Gfx *func_805FD030(Gfx *);
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
-Gfx *func_8068E7B4(Gfx *, f32, f32, s32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);
 extern s32 D_807552E8;
 extern MpScore D_807FC950[];
 s32 slotQueueGetValue(s32, u8);
@@ -187,11 +187,11 @@ Gfx *mpDrawTimer(Gfx *glistp, MpControllerActor *arg1) {
     if (D_80750AB8 == 1) {
         gDPSetCombineMode(glistp++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor(glistp++, 0, 0, 0, 120, 255, 80);
-        glistp = func_8068C5A8(glistp, 0x60, 4, 0, 0x40, 0x40, (s32) (var_fv1 * 4.0f), (s32) (var_fa0 * 4.0f), 3.7f, 2.0f, 0xB4, 0.0f);
+        glistp = renderRotatedSprite(glistp, 0x60, 4, 0, 0x40, 0x40, (s32) (var_fv1 * 4.0f), (s32) (var_fa0 * 4.0f), 3.7f, 2.0f, 0xB4, 0.0f);
     }
     gDPSetCombineMode(glistp++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 255);
-    return func_8068E7B4(glistp, var_fv1, var_fa0, sp44->unk8);
+    return renderTimerMinutesSecondsHUD(glistp, var_fv1, var_fa0, sp44->unk8);
 }
 
 s32 mpCalcKillScore(MpScore *arg0, s32 arg1) {

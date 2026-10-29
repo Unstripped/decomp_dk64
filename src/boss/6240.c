@@ -326,7 +326,7 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void actorGetOrSetNodeScale(void *, s32, f32);
 s32 actorTableContains(void *);
-void func_80686F90(s32, s16, s16);
+void effectSpawnChildAtNode(s32, s16, s16);
 void func_806871DC(s32);
 void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
@@ -612,7 +612,7 @@ void func_8002A92C(void) {
             D_807FDC90->unk2C = 0;
             break;
         case 2:
-            func_80686F90(2, (s16) ((((s32) (randomNonNegative() >> 0xF) % 2048) + D_807FBB40->unkE6) - 0x400), (s16) ((s32) (randomNonNegative() >> 0xF) % 2048));
+            effectSpawnChildAtNode(2, (s16) ((((s32) (randomNonNegative() >> 0xF) % 2048) + D_807FBB40->unkE6) - 0x400), (s16) ((s32) (randomNonNegative() >> 0xF) % 2048));
             /* fallthrough */
         case 3:
             bossSpawnSparkles();

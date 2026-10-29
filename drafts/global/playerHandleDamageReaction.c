@@ -1,22 +1,22 @@
-// func_80679DC4 (src/global/7CA80.c): stage 5: 182 insns, frame 0x40, score 44 with dead statement, regalloc only (a2 vs a3, temp registers)
+// playerHandleDamageReaction (src/global/7CA80.c): stage 5: 182 insns, frame 0x40, score 44 with dead statement, regalloc only (a2 vs a3, temp registers)
 struct R2CEntry2F0;
 extern struct R2CEntry2F0 *D_807FC924;
 
-typedef struct KaN2_Entry2F0 {
+typedef struct DamageReactionPlayerEntry {
     u8 pad0[0x2C0];
     u8 unk2C0;
     u8 pad2C1[0x2F0 - 0x2C1];
-} KaN2_Entry2F0;
+} DamageReactionPlayerEntry;
 
-typedef struct KaN2_StructD580 {
+typedef struct DamageReactionContext {
     u8 pad0[0x1A4];
     u8 unk1A4;
     u8 pad1A5[0x1F0 - 0x1A5];
     u32 unk1F0;
     u8 pad1F4[0x200 - 0x1F4];
     u16 unk200;
-} KaN2_StructD580;
-extern KaN2_StructD580 *D_807FD580;
+} DamageReactionContext;
+extern DamageReactionContext *D_807FD580;
 
 extern u8 D_807FBB85;
 extern s32 D_80720E2C;
@@ -29,7 +29,7 @@ void func_8071498C(void *);
 void func_80714C08(void *, s32, Actor *, s32, s32);
 void effectPulseSpinUpdate(void);
 
-void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
+void playerHandleDamageReaction(Actor *arg0, Actor *arg1, s32 arg2) {
     s32 sp3C;
     s32 var_a2;
     void *sp24;
@@ -39,7 +39,7 @@ void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
     temp_a3 = arg2 & 0xFF;
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
-        if (((KaN2_Entry2F0 *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
+        if (((DamageReactionPlayerEntry *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
             return;
         }
         var_a2 = 1;

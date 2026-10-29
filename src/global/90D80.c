@@ -145,13 +145,13 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
     return glist;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/90D80/func_8068C5A8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/90D80/renderRotatedSprite.s")
 
-typedef struct KaG_Player {
+typedef struct PlayerRect {
     u8 pad[0x270];
     s16 rect[4];
-} KaG_Player;
-extern KaG_Player *D_807FC924;
+} PlayerRect;
+extern PlayerRect *D_807FC924;
 extern u32 D_80744478;
 extern f32 D_8075022C, D_80750228;
 extern u32 D_80750230;
@@ -159,7 +159,7 @@ extern s32 D_8076A0A8;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 
-Gfx *func_8068D264(Gfx *glist, f32 *arg1) {
+Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *arg1) {
     s32 sp84;
     f32 sp80;
     f32 sp7C;
@@ -220,7 +220,7 @@ Gfx *func_8068D264(Gfx *glist, f32 *arg1) {
 extern Gfx D_1000118;
 extern u32 D_8076A064;
 
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *renderBonusTargetMarker(Gfx *arg0, s32 arg1) {
     WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
@@ -228,20 +228,20 @@ Gfx *renderBonusTargetMarker(Gfx *arg0, s32 arg1) {
     WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
     WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
     WRITE_GFX(arg0++, 0xDA380007, (u32)&D_2000080);
-    return func_8068C5A8(arg0, (u16)((((D_8076A064 >> 1) & 0xF) + 0x8F)), 0, 2, 0x20, 0x20, 0x118, 0xD2, 1.0f, 1.0f, 0, 0.0f);
+    return renderRotatedSprite(arg0, (u16)((((D_8076A064 >> 1) & 0xF) + 0x8F)), 0, 2, 0x20, 0x20, 0x118, 0xD2, 1.0f, 1.0f, 0, 0.0f);
 }
 
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 int _sprintf();
 
-typedef struct KaG_Countdown {
+typedef struct CsCountdown {
     u64 last;
     s64 duration;
     s64 left;
     s64 fired;
-} KaG_Countdown;
+} CsCountdown;
 
-Gfx *func_8068D9DC(Gfx *arg0, KaG_Countdown *arg1) {
+Gfx *renderHitCounterHUD(Gfx *arg0, CsCountdown *arg1) {
     char sp3C[12];
     char sp38[4];
 
@@ -264,7 +264,7 @@ Gfx *func_8068DAF4(Gfx *arg0, u8 *arg1) {
     return textDrawStringVtx(arg0, 3, 0x104, 0x50, sp38, 1);
 }
 
-Gfx *func_8068DBA4(Gfx *arg0, KaG_Countdown *arg1) {
+Gfx *renderCountdownTimerHUD(Gfx *arg0, CsCountdown *arg1) {
     char sp34[12];
 
     WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
@@ -277,7 +277,7 @@ Gfx *func_8068DBA4(Gfx *arg0, KaG_Countdown *arg1) {
 Gfx *func_805FD030(Gfx *);
 f32 sinApprox(f32);
 
-Gfx *func_8068DC54(Gfx *arg0, s16 arg1, s16 arg2, s16 *arg3, s16 arg4, u8 *arg5) {
+Gfx *hudDrawRollingCounter(Gfx *arg0, s16 arg1, s16 arg2, s16 *arg3, s16 arg4, u8 *arg5) {
     f32 sp74;
     u8 sp70[2];
     u8 sp6C[2];
@@ -401,15 +401,15 @@ Gfx *actorDrawAnimatedEffect(Gfx *arg0, ActorEffect *arg1) {
         ActorEffect174 *unk174 = arg1->unk174;
         if (yaw < 0x200 || yaw >= 0xE01 || (yaw >= 0x601 && yaw < 0xA00)) {
             if (*unk174->unk34 != 0x10 && *unk174->unk34 != 0x13) {
-                arg0 = func_8068C5A8(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x78, 0x1E0, 4.0f, 4.0f, 0, 0.0f);
-                arg0 = func_8068C5A8(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x488, 0x1E0, 4.0f, 4.0f, 0xB4, 0.0f);
+                arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x78, 0x1E0, 4.0f, 4.0f, 0, 0.0f);
+                arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x488, 0x1E0, 4.0f, 4.0f, 0xB4, 0.0f);
             }
         } else {
-            arg0 = func_8068C5A8(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x280, 0x78, 4.0f, 4.0f, 0x5A, 0.0f);
-            arg0 = func_8068C5A8(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x280, 0x348, 4.0f, 4.0f, 0x10E, 0.0f);
+            arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x280, 0x78, 4.0f, 4.0f, 0x5A, 0.0f);
+            arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x280, 0x348, 4.0f, 4.0f, 0x10E, 0.0f);
         }
     } else {
-        arg0 = func_8068C5A8(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0xB4, 0xC8, 8.0f, 8.0f, unkEC, 0.0f);
+        arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0xB4, 0xC8, 8.0f, 8.0f, unkEC, 0.0f);
     }
 
     return arg0;
@@ -418,7 +418,7 @@ Gfx *actorDrawAnimatedEffect(Gfx *arg0, ActorEffect *arg1) {
 s32 textGetStringWidth(s32, char *);
 u32 textGetFontHeight(s32);
 
-Gfx *func_8068E7B4(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3) {
+Gfx *renderTimerMinutesSecondsHUD(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3) {
     f32 sp54;
     f32 sp50;
     f32 sp4C;

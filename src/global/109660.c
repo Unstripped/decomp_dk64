@@ -254,7 +254,7 @@ void lensFlareAddFromAngle(s16 arg0, s16 arg1, u8 arg2) {
 
 extern f32 gBackgroundBlend;
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 Gfx *playerViewGfxSetup(Gfx *, u8);
 extern u8 D_2000100[];
 
@@ -291,7 +291,7 @@ Gfx *gfxDrawSkySprite(Gfx *dl, s16 arg1, s16 arg2, u8 mode) {
     if ((sp6C > -320.0f) && (sp6C < 1600.0f) && (sp68 > -240.0f) && (sp68 < 1200.0f)) {
         g = playerViewGfxSetup(dl, 0);
         gSPSetOtherMode(g++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
-        g->words.w0 = 0xDA380007; g->words.w1 = (u32)&D_2000100; dl = func_8068C5A8(g + 1, 0x35, 3, 1, 0x40, 0x40, (s32)sp6C, (s32)sp68, 4.0f, 4.0f, 0, 0.0f);
+        g->words.w0 = 0xDA380007; g->words.w1 = (u32)&D_2000100; dl = renderRotatedSprite(g + 1, 0x35, 3, 1, 0x40, 0x40, (s32)sp6C, (s32)sp68, 4.0f, 4.0f, 0, 0.0f);
     }
     return dl;
 }

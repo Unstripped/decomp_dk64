@@ -1690,7 +1690,7 @@ void actorSetCameraBoundaryMode(s32);
 void func_80674E14(CollisionActor *);
 s32 actorCheckTargetAngleBounds();
 u8 actorCollideModelSlots(CollisionActor *, s16 *, s16 *);
-s8 func_80676ED0(CollisionActor *, s16 *, s16 *);
+s8 actorCheckCollisionsAgainstActiveActors(CollisionActor *, s16 *, s16 *);
 void actorQueueCollisionCallbacks(CollisionActor *);
 void actorQueueDelayedCallback();
 
@@ -1723,7 +1723,7 @@ u8 actorCheckTargetAngle(CollisionActor *arg0, s16 *arg1, s16 *arg2, s8 *arg3) {
     if (arg0->unk144 & 8) {
         sp23 = actorCheckTargetAngleBounds(arg0, arg1, arg2);
         sp22 = actorCollideModelSlots(arg0, arg1, arg2);
-        *arg3 = func_80676ED0(arg0, arg1, arg2);
+        *arg3 = actorCheckCollisionsAgainstActiveActors(arg0, arg1, arg2);
     } else {
         *arg3 = 0;
     }

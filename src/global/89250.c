@@ -53,8 +53,8 @@ void func_8067B238(Actor *, Actor *, f32);
 void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnBone(Actor *, s16, f32, f32, f32, f32, s32);
-void func_80685F60(Actor *);
-void func_80686390(Actor *, f32, f32, f32, f32);
+void effectActorCheckGroundScaleSpawn(Actor *);
+void effectSpawnDebrisParticles(Actor *, f32, f32, f32, f32);
 void animSetSpeed(Actor *, s32, f32);
 void animSetLoopLimit(Actor *, s32, s32);
 s32 animIsPlaying(Actor *, s32);
@@ -369,15 +369,15 @@ void effectSpawnMultiTierRing(f32 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
     }
 }
 
-typedef struct KaN7_Struct16 {
+typedef struct MultiTierRingParams {
     s32 a[4];
-} KaN7_Struct16;
+} MultiTierRingParams;
 
-extern KaN7_Struct16 D_8074E898;
+extern MultiTierRingParams D_8074E898;
 
-void func_80685708(Actor *arg0, u8 arg1) {
+void effectSpawnMultiTierRingWithActor(Actor *arg0, u8 arg1) {
     s32 pad0[1];
-    KaN7_Struct16 sp34;
+    MultiTierRingParams sp34;
     f32 temp_scale;
     void *sub;
     s32 pad1[1];
@@ -435,7 +435,7 @@ void effectSpawnScatter(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
 }
 void func_807180F4(void);
 
-void func_80685B44(void *arg0, u8 arg1, f32 arg2, u8 arg3, u8 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8) {
+void effectSpawnScatterRandom(void *arg0, u8 arg1, f32 arg2, u8 arg3, u8 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8) {
     s16 var_s1;
     s8 dx;
     s8 dz;
@@ -461,10 +461,10 @@ void func_80685B44(void *arg0, u8 arg1, f32 arg2, u8 arg3, u8 arg4, s16 arg5, s1
 void actorUpdateEffects(Actor *arg0) {
     if (!(arg0->unk64 & 4)) {
         if ((arg0->unk60 & 0x10) && ((arg0->unk6A ^ arg0->unk6C) & 4)) {
-            func_80686390(arg0, 0.0f, arg0->unk7C, arg0->unkAC, arg0->unk84);
+            effectSpawnDebrisParticles(arg0, 0.0f, arg0->unk7C, arg0->unkAC, arg0->unk84);
         }
         if (arg0->unk6A & 4) {
-            func_80685F60(arg0);
+            effectActorCheckGroundScaleSpawn(arg0);
         }
     }
     if ((arg0->unk68 & 0x40) && func_80665AAC(arg0) && !(arg0->unk6A & 0x800) && (arg0->unkA4 <= arg0->unk80)) {
@@ -489,23 +489,23 @@ void effectSpawnActorScale(Actor *arg0) {
     ((Actor338 *)func_80714CC0(&D_8071FED0, (f64) sp28 * 0.6, arg0->unk7C, arg0->unkAC, arg0->unk84))->unk338 = arg0;
 }
 
-typedef struct KaD_Player_Data {
+typedef struct EffectPlayerData {
     u8 pad0[0x2C0];
     u8 unk2C0;
     u8 pad2C1[0x2F0 - 0x2C1];
-} KaD_Player_Data;
+} EffectPlayerData;
 
-typedef struct KaD_ActorUnk118 {
+typedef struct ActorFloorContact {
     u8 pad0[0x10];
     s16 unk10;
-} KaD_ActorUnk118;
+} ActorFloorContact;
 
-extern KaD_Player_Data *D_807FC924;
+extern EffectPlayerData *D_807FC924;
 extern u8 D_807FC929;
 extern s16 D_80753A08[];
 extern s16 D_80753A18[];
 
-void func_80685F60(Actor *arg0) {
+void effectActorCheckGroundScaleSpawn(Actor *arg0) {
     register f32 var_fv0;
     u8 var_v1;
     var_v1 = 0;
@@ -522,7 +522,7 @@ void func_80685F60(Actor *arg0) {
         if ((arg0->unkAC - var_fv0) <= arg0->unk80) {
             if (!(D_8076A064 & 3)) {
                 var_v1 = (f64)arg0->unkB8 != 0.0;
-                if (*(KaD_ActorUnk118 **)arg0->unk118 != NULL && (*(KaD_ActorUnk118 **)arg0->unk118)->unk10 != 0) {
+                if (*(ActorFloorContact **)arg0->unk118 != NULL && (*(ActorFloorContact **)arg0->unk118)->unk10 != 0) {
                     var_v1 = 1;
                 }
             }
@@ -582,7 +582,7 @@ void particleInitDefaultState(void) {
 
 extern s32 D_8071FBF4;
 
-void func_80686390(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
+void effectSpawnDebrisParticles(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 f;
     f32 scale;
 
@@ -689,7 +689,7 @@ void func_80686E40(f32 arg0, f32 arg1, f32 arg2, void *arg3) {
     }
 }
 
-void func_80686F90(u8 arg0, s16 arg1, s16 arg2) {
+void effectSpawnChildAtNode(u8 arg0, s16 arg1, s16 arg2) {
     u8 temp;
 
     actorSpawn(0x109, 0xC0);

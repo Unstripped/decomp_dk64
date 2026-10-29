@@ -54,13 +54,13 @@ typedef struct {
     u8 unk1A4;
 } ActorPlayerState;
 
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *func_806FEF7C(Gfx *arg0, Actor *arg1) {
     arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->unk174)->unk1A4);
     gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
-    return func_8068C5A8(arg0, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, 0.001f);
+    return renderRotatedSprite(arg0, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, 0.001f);
 }
 
 extern u8 *D_807FD568;
@@ -83,7 +83,7 @@ Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
     } else {
         gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
     }
-    return func_8068C5A8(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
+    return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
 Gfx *func_806FF144(Gfx *arg0) {
@@ -91,10 +91,10 @@ Gfx *func_806FF144(Gfx *arg0) {
     gDPSetCombineMode(arg0++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
     gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    arg0 = func_8068C5A8(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, 0x3E, 2.0f, 2.0f, 0, 0.0f);
-    arg0 = func_8068C5A8(arg0, 0x3A, 3, 1, 0x40, 0x40, D_80744490 - 0x3E, 0x3E, 2.0f, 2.0f, 0x5A, 0.0f);
-    arg0 = func_8068C5A8(arg0, 0x3A, 3, 1, 0x40, 0x40, D_80744490 - 0x3E, D_80744494 - 0x3E, 2.0f, 2.0f, 0xB4, 0.0f);
-    return func_8068C5A8(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, D_80744494 - 0x3E, 2.0f, 2.0f, 0x10E, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, 0x3E, 2.0f, 2.0f, 0, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, D_80744490 - 0x3E, 0x3E, 2.0f, 2.0f, 0x5A, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, D_80744490 - 0x3E, D_80744494 - 0x3E, 2.0f, 2.0f, 0xB4, 0.0f);
+    return renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, D_80744494 - 0x3E, 2.0f, 2.0f, 0x10E, 0.0f);
 }
 
 void func_806FF32C(s32 arg0, Actor *arg1) {
@@ -113,19 +113,19 @@ Gfx *func_806FF358(Gfx *arg0, Actor *arg1) {
 
     state = (ActorHudState *)((Actor **)D_807FC924)[1]->unk174;
     gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0xFF, 0xFF, 0xC8);
-    arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0x50, 0.5f, 0.5f, 0, 0.0f);
-    arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0x50, 0.5f, 0.5f, 0x5A, 0.0f);
-    arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0xA0, 0.5f, 0.5f, 0xB4, 0.0f);
-    arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0xA0, 0.5f, 0.5f, 0x10E, 0.0f);
-    arg0 = func_8068C5A8(arg0, 0x3B, 3, 1, 0x30, 0x30, 0xA0, 0x78, 1.0f, 1.0f, 0, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0x50, 0.5f, 0.5f, 0, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0x50, 0.5f, 0.5f, 0x5A, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0xA0, 0.5f, 0.5f, 0xB4, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0xA0, 0.5f, 0.5f, 0x10E, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x3B, 3, 1, 0x30, 0x30, 0xA0, 0x78, 1.0f, 1.0f, 0, 0.0f);
     gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     if (!(state->unk1F0 & 0x8000)) {
         if (state->unk1EC == 2) {
             gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0, 0, 0xFF);
-            arg0 = func_8068C5A8(arg0, 0x43, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
+            arg0 = renderRotatedSprite(arg0, 0x43, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
         } else if (state->unk1EC == 1) {
             gDPSetPrimColor(arg0++, 0, 0, 0, 0xFF, 0, 0xFF);
-            arg0 = func_8068C5A8(arg0, 0x2F, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
+            arg0 = renderRotatedSprite(arg0, 0x2F, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
         }
     }
     return arg0;
@@ -138,10 +138,10 @@ Gfx *func_806FF628(Gfx *arg0, Actor *arg1) {
     arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)state)->unk1A4);
     if (state->unk1EC == 2) {
         gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0, 0, 0x64);
-        arg0 = func_8068C5A8(arg0, 0x45, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
+        arg0 = renderRotatedSprite(arg0, 0x45, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
     } else if (state->unk1EC == 1) {
         gDPSetPrimColor(arg0++, 0, 0, 0, 0xFF, 0, 0x64);
-        arg0 = func_8068C5A8(arg0, 0x44, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
+        arg0 = renderRotatedSprite(arg0, 0x44, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
     }
     return arg0;
 }
@@ -162,21 +162,21 @@ Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
     }
     dl = (Gfx *)playerViewGfxSetup((s32)dl, sp77);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
-    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x100, 0x40, 3.0f, 2.0f, 0, 0.0f);
-    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x40, 0x40, 2.0f, 3.0f, 0x5A, 0.0f);
-    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x100, 0xB0, 2.0f, 3.0f, 0x10E, 0.0f);
-    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x40, 0xB0, 3.0f, 2.0f, 0xB4, 0.0f);
-    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x60, 3.0f, 3.0f, 0, 0.0f);
-    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x60, 3.0f, 3.0f, 0x5A, 0.0f);
-    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x90, 3.0f, 3.0f, 0xB4, 0.0f);
-    dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x90, 3.0f, 3.0f, 0x10E, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x100, 0x40, 3.0f, 2.0f, 0, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x40, 0x40, 2.0f, 3.0f, 0x5A, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x100, 0xB0, 2.0f, 3.0f, 0x10E, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x40, 0xB0, 3.0f, 2.0f, 0xB4, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x60, 3.0f, 3.0f, 0, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x60, 3.0f, 3.0f, 0x5A, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x90, 3.0f, 3.0f, 0xB4, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x90, 3.0f, 3.0f, 0x10E, 0.0f);
     if (slotQueueGetValue(3, sp77) && projectileFindHomingTarget((u16)sp6C, &sp70, arg1, 1, 0, 0, &sp68, &sp64, &sp60)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {
         gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
     }
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
-    return func_8068C5A8(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
+    return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
 void func_806FFB2C(s32 arg0, Actor *arg1) {
@@ -187,7 +187,7 @@ void func_806FFB2C(s32 arg0, Actor *arg1) {
     dl = (Gfx *)playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->unk174)->unk1A4);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
-    func_8068C5A8(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, sp3C);
+    renderRotatedSprite(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, sp3C);
 }
 
 u16 color5551ToSepia(u16 arg0) {
@@ -700,7 +700,7 @@ s16 i;
         }
         gDPPipeSync(dl++);
         gDPSetPrimColor(dl++, 0, 0, (u32)(((f64)pt.unkC / 255.0) * D_80754AF0[i].unk8 * fs2), (u32)(((f64)pt.unkD / 255.0) * D_80754AF0[i].unk9 * fs2), (u32)(((f64)pt.unkE / 255.0) * D_80754AF0[i].unkA * fs2), (u32)((f32)D_80754AF0[i].unkB * fs3 * spF0));
-        dl = func_8068C5A8(dl, (D_80754AF0[i].unkC + 0x4D) & 0xFFFF, 3, 1, 0x40, 0x40, (s32)sp108, (s32)spF4, D_80754AF0[i].unk0 * 4.0f * spF0, D_80754AF0[i].unk0 * 4.0f * spF0, 0, 0.0f);
+        dl = renderRotatedSprite(dl, (D_80754AF0[i].unkC + 0x4D) & 0xFFFF, 3, 1, 0x40, 0x40, (s32)sp108, (s32)spF4, D_80754AF0[i].unk0 * 4.0f * spF0, D_80754AF0[i].unk0 * 4.0f * spF0, 0, 0.0f);
     }
     dl->words.w0 = 0xE7000000; dl->words.w1 = 0;
     dl++;

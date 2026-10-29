@@ -1652,7 +1652,7 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 void actorScriptStart(void *, s32);
 void camStartShake(s32, s32, s32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
-void func_80686390(void *, f32, f32, f32, f32);
+void effectSpawnDebrisParticles(void *, f32, f32, f32, f32);
 void func_8068B80C(s16);
 void func_8071495C(void);
 void func_80714950(s32);
@@ -1856,7 +1856,7 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             }
             return;
         case 13:
-            func_80686390(NULL, arg2 * 0.01, (f32)x, (f32)y, (f32)z);
+            effectSpawnDebrisParticles(NULL, arg2 * 0.01, (f32)x, (f32)y, (f32)z);
             return;
         case 14:
             for (i = 0; i < arg2; i++) {

@@ -103,7 +103,7 @@ void func_8067FB6C(void) {
     }
     switch (D_807FBB40->unk154) {
     case 0:
-        func_8067FAC8();
+        tagBarrelDespawnOnKongDeselect();
         break;
     case 1:
         D_807FBB40->unk60 |= 0x8000;
@@ -205,7 +205,7 @@ void func_8067FB6C(void) {
         }
         break;
     case 2:
-        func_8067FAC8();
+        tagBarrelDespawnOnKongDeselect();
         D_807FBB40->unk155[0]--;
         if (D_807FBB40->unk155[0] == 0) {
             D_807FBB40->unk80 = sub->unk8;

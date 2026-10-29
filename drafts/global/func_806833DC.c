@@ -1,5 +1,5 @@
 // func_806833DC (src/global/80150.c): Stage 5: 0x40 frame matches, s0/ra callee-saved match, diff only spill slot offset of sp28 (0x28 vs 0x2c); resolved sp34/sp30 slots via arg0 macro and direct unk0 call args
-typedef struct KaN3_TagBarrelData {
+typedef struct TagBarrelDataN3 {
     /* 0x00 */ Actor *unk0;
     /* 0x04 */ u16 unk4;
     /* 0x06 */ s8 unk6;
@@ -18,23 +18,23 @@ typedef struct KaN3_TagBarrelData {
     /* 0x38 */ s16 unk38;
     /* 0x3A */ u8 pad3A[2];
     /* 0x3C */ u32 unk3C;
-} KaN3_TagBarrelData;
+} TagBarrelDataN3;
 
-typedef struct KaN3_KongSub {
+typedef struct TagBarrelKongSub {
     u8 pad0[0x104];
     Actor *unk104;
     u8 pad108[0x1F0 - 0x108];
     s32 unk1F0;
-} KaN3_KongSub;
+} TagBarrelKongSub;
 
-typedef struct KaN3_ActorKong {
+typedef struct TagBarrelActorKong {
     u8 pad0[0x5A];
     s16 unk5A;
     u8 pad5C[0x12C - 0x5C];
     s16 unk12C;
-} KaN3_ActorKong;
+} TagBarrelActorKong;
 
-struct KaB3_TagBarrelData;
+struct TagBarrelData;
 extern s32 D_8074E848[];
 extern s32 D_807FBB60;
 
@@ -50,12 +50,12 @@ void func_8060DEC8(void);
 void func_8061B650(Actor *);
 void slotQueueClearAllFlags(void);
 
-void func_806833DC(struct KaB3_TagBarrelData *arg0_in) {
-#define arg0 ((KaN3_TagBarrelData *)arg0_in)
+void func_806833DC(struct TagBarrelData *arg0_in) {
+#define arg0 ((TagBarrelDataN3 *)arg0_in)
     s32 pad3C;
     s32 pad38;
     Actor *sp34;
-    KaN3_KongSub *sp30;
+    TagBarrelKongSub *sp30;
     s32 sp28;
 
     switch (D_807FBB40->unk155[0]) {
@@ -70,7 +70,7 @@ void func_806833DC(struct KaB3_TagBarrelData *arg0_in) {
         if (D_807FBB70.unk200 == 4) {
             arg0->unk0 = (Actor *)D_807FBB70.unk1FC;
             arg0->unk0->unk144 = 1;
-            ((KaN3_KongSub *)arg0->unk0->unk174)->unk1F0 |= 0x20000000;
+            ((TagBarrelKongSub *)arg0->unk0->unk174)->unk1F0 |= 0x20000000;
             D_807FBB40->unk155[0] = 1;
             arg0->unk4 = 2;
             arg0->unk3C = 0;
@@ -81,7 +81,7 @@ void func_806833DC(struct KaB3_TagBarrelData *arg0_in) {
             arg0->unk4--;
         } else {
             sp34 = arg0->unk0;
-            sp28 = ((KaN3_ActorKong *)sp34)->unk12C;
+            sp28 = ((TagBarrelActorKong *)sp34)->unk12C;
             sp30 = sp34->unk174;
             if (sp28 == -1) {
                 sp28 = 0;
@@ -92,7 +92,7 @@ void func_806833DC(struct KaB3_TagBarrelData *arg0_in) {
             lightSetColor(1.0f, 1.0f, 1.0f, (s16)sp28);
             D_807FBB40->unkE6 = arg0->unk22;
             D_807FBB40->unk144 = 1;
-            sp28 = ((KaN3_ActorKong *)sp34)->unk5A;
+            sp28 = ((TagBarrelActorKong *)sp34)->unk5A;
             D_807FBB60 &= 0xFFFCFFCF;
             arg0->unk6 = 0;
             if (sp28 != ((R2FKongAction *)D_8074E814)[arg0->unk6].unk2) {

@@ -161,7 +161,7 @@ void func_8072A450(void);
 void func_8072DC7C(s32);
 void func_8072E320(f32);
 s32 mathAngleLerp(s16, s16, f32);
-void func_8068A858(void *, void *, void *);
+void lightUpdateFromActorLighting(void *, void *, void *);
 void heapFree(void *);
 s32 func_80611A44(void);
 void func_80714950(s32);
@@ -213,7 +213,7 @@ void func_806BFBF4(void) {
         return;
     }
     if (D_8076A0A8 == 0x4C) {
-        func_8068A858(&LgBV->unk16A, &LgBV->unk16B, &LgBV->unk16C);
+        lightUpdateFromActorLighting(&LgBV->unk16A, &LgBV->unk16B, &LgBV->unk16C);
     }
     for (i = 0; i < D_807FBDC4; i++) {
         if (D_807FBB70.unk258[i] != 3) {

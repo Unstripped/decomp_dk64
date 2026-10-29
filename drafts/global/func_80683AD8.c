@@ -6,7 +6,7 @@ extern s16 D_80744490;
 extern s16 D_80744494;
 extern u32 D_8076A064;
 
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, s32);
 s32 textGetFontHeight(s32);
 
@@ -35,9 +35,9 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
     f32 var_fv1_2;
     s32 temp_ft3;
     s32 temp_v0;
-    KaB3_TagBarrelData *temp_s1;
+    TagBarrelData *temp_s1;
 
-    temp_s1 = (KaB3_TagBarrelData *)arg1->unk174;
+    temp_s1 = (TagBarrelData *)arg1->unk174;
     temp_fa0 = (f32) ((f64) (D_80744494 - 0x1E) * 4.0);
     if (arg1->unk154 != 1) {
         return arg0;
@@ -57,8 +57,8 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
     temp_ft3 = (s32) temp_fa0;
     sp44 = (s16) temp_ft3;
     spF0 = temp_fa0;
-    arg0 = func_8068C5A8(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, 0xA0, (s16)temp_ft3, 5.0f, 5.0f, 0, 0.0f);
-    arg0 = func_8068C5A8(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, (s32)((f64)(D_80744490 - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f);
+    arg0 = renderRotatedSprite(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, 0xA0, (s16)temp_ft3, 5.0f, 5.0f, 0, 0.0f);
+    arg0 = renderRotatedSprite(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, (s32)((f64)(D_80744490 - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f);
     spF8 = (f32)(u32)temp_s1->unk4 * 0.05f;
     sp6C = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk6);
     spF0 -= (f32) textGetFontHeight(1) * 1.2f;

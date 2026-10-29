@@ -108,7 +108,7 @@ void *func_80610FE8(s32);
 s32 _sprintf(char *, const char *, ...);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s32, void *, s32);
 s32 textGetStringWidth();
-Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 Gfx *gfxFillScreenColor(Gfx *, s32, s32, s32, s32);
 Gfx *hudSetupTextState(Gfx *);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, void *);
@@ -664,7 +664,7 @@ Gfx *func_806AA09C(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale) {
     dl->words.w0 = 0xE7000000;
     dl->words.w1 = 0;
     dl++;
-    return func_8068C5A8(dl, 0x9F, 0, 2, 0x20, 0x20, (s32)((f32)x + (f32)(w - 0x10) * scale), (s32)((f32)y + 45.0f * scale), scale * 3.125, scale * 3.125, 0, 0.0f);
+    return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, (s32)((f32)x + (f32)(w - 0x10) * scale), (s32)((f32)y + 45.0f * scale), scale * 3.125, scale * 3.125, 0, 0.0f);
 }
 
 #ifdef NON_MATCHING

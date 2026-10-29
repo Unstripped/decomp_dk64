@@ -1961,7 +1961,7 @@ extern s32 D_8076A0A8;
 extern s16 D_807F7366;
 extern f32 D_807F6940;
 void sfxSetChannelPriority(u8, u8);
-void func_8068D264(void);
+void renderScrollingBackdropQuad(void);
 void renderCallbacksRegister(void *, void *, s32);
 
 void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -2037,7 +2037,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
     D_807F7366 = q->unk4 * -25.0f + 995.0f;
     D_807F6940 = q->unk4;
     if (q->unk4 != 0.0f) {
-        renderCallbacksRegister(func_8068D264, &q->unk4, 5);
+        renderCallbacksRegister(renderScrollingBackdropQuad, &q->unk4, 5);
     }
 }
 
@@ -2445,7 +2445,7 @@ typedef struct CsCountdown {
 extern u64 D_807445B0;
 extern u64 osGetTime(void);
 void heapFreeDeferred(void *);
-void func_8068DBA4(void);
+void renderCountdownTimerHUD(void);
 
 void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     CsCountdown *t;
@@ -2472,7 +2472,7 @@ void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
         cs->unk4B[0] = 0x1E;
         *(CsCountdown **)cs = NULL;
     }
-    renderCallbacksRegister(func_8068DBA4, t, 5);
+    renderCallbacksRegister(renderCountdownTimerHUD, t, 5);
 }
 
 void csCmdNop(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -2661,7 +2661,7 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         *(CsFx **)cs = NULL;
     }
-    renderCallbacksRegister(func_8068DBA4, t, 5);
+    renderCallbacksRegister(renderCountdownTimerHUD, t, 5);
 }
 
 typedef struct CsNodePair {
