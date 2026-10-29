@@ -240,7 +240,6 @@ void bossSpawnSparkles(void) {
     f32 sp64;
     s32 pad[1];
     s16 i;
-    s32 r1;
 
     actorGetNodePos(D_807FBB40, 1, &sp6C, &sp68, &sp64);
     sp6C += (f32)(((randomNonNegative() >> 15) % 80) - 40);
@@ -255,8 +254,7 @@ void bossSpawnSparkles(void) {
         func_80714998(2);
         func_8071498C(func_8071720C);
         func_807149B8(1);
-        r1 = randomNonNegative();
-        func_80714C08(D_8074E880[((r1 >> 15) % 1000) % 3], 1.5f, D_807FBB40, ((randomNonNegative() >> 15) % 32767 % 22) + 2, 0);
+        func_80714C08(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.5f, D_807FBB40, ((randomNonNegative() >> 15) % 32767 % 22) + 2, 0);
     }
 }
 
@@ -393,8 +391,8 @@ void func_8002A92C(void) {
     }
     D_807FD580->unkD4 = (D_807FD580->unkD4 < 50) ? D_807FD580->unkD4 : 50;
     D_807FBB40->unk16A = (u8) (u32) (((f64) func_80612794((s16) (D_8076A064 * 0x64)) * 50.0) + 200.0);
-    D_807FBB40->unk16B = (u8) D_807FBB40->unk16A;
-    D_807FBB40->unk16C = (u8) D_807FBB40->unk16A;
+    D_807FBB40->unk16B = D_807FBB40->unk16A;
+    D_807FBB40->unk16C = D_807FBB40->unk16A;
     if (D_807FBB40->unk154 == 0x55) {
         D_807FBB40->unk132 = 2;
     } else {
@@ -503,7 +501,6 @@ void func_8002A92C(void) {
                     D_807FD580->unk1D8 = 0.04f;
                 }
                 D_807FDC90->unk2C--;
-                break;
             } else {
                 D_807FBB40->unk60 &= 0xDFFFFFFF;
                 actorGetOrSetNodeScale(D_807FBB40, 1, 64.0f);
@@ -512,7 +509,6 @@ void func_8002A92C(void) {
                 D_807FBB40->unk154 = sp84[state->unk15++];
                 D_807FBB40->unk155 = 0;
             }
-            break;
         }
         break;
     case 0x37:
@@ -677,7 +673,8 @@ void func_8002A92C(void) {
             D_807FBB40->unk155 = 1;
             /* fallthrough */
         case 1:
-            if (D_807FDC90->unk2C != 0) { D_807FDC90->unk2C--;
+            if (D_807FDC90->unk2C != 0) {
+                D_807FDC90->unk2C--;
             } else {
                 D_807FBB40->unk154 = sp84[state->unk15++];
                 D_807FBB40->unk155 = 0;
