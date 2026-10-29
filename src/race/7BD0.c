@@ -680,11 +680,11 @@ void func_8002D0FC(void) {
     sp1C->unk24 = 1;
 }
 
+extern RaceUnknownActor *D_807FBB40;
 extern s32 D_8002FCD4[];
 s32 gfxResourceCreate(s32, void *, s32, f32, f32, f32);
 
 void func_8002D148(RacePair *arg0, u8 arg1) {
-    extern RaceUnknownActor *D_807FBB40;
     RaceUnknown174 *t;
     s32 slot;
 
@@ -704,27 +704,20 @@ void func_8002D148(RacePair *arg0, u8 arg1) {
     }
 }
 
-extern RaceUnknownActor *D_807FBB40;
 void func_8002D148(RacePair *, u8);
 
 void func_8002D224(u8 arg0) {
     s32 i;
     RaceUnknown174 *temp_s2;
     RacePair *temp_s3;
-    u8 temp_s4;
 
     temp_s2 = D_807FBB40->unk174;
-    temp_s4 = arg0;
-    i = 0;
     temp_s3 = temp_s2->unk20;
-    D_807FBB40->unk154 = temp_s4;
-    if (temp_s2->unk1E > 0) {
-        do {
-            if (temp_s3[i].unk0 != 0) {
-                func_8002D148(&temp_s3[i], temp_s4);
-            }
-            i++;
-        } while (i < temp_s2->unk1E);
+    D_807FBB40->unk154 = arg0;
+    for (i = 0; i < temp_s2->unk1E; i++) {
+        if (temp_s3[i].unk0 != 0) {
+            func_8002D148(&temp_s3[i], arg0);
+        }
     }
 }
 
@@ -861,7 +854,6 @@ void raceUpdateStandings(void) {
             if (p->unk4->unk45 != 0 && q->unk4->unk45 == 0) {
                 swap = 1;
             } else {
-                q = &base[j];
                 if (p->unk4->unk37 < q->unk4->unk37) {
                     swap = 1;
                 } else if (p->unk4->unk37 == q->unk4->unk37) {
