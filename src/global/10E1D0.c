@@ -150,8 +150,8 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
         return 0;
     }
     D_807FD9B4 = func_80610FE8(0x708);
+    if (k && k) {}
     arg0->unk10 = func_80610FE8(arg0->unk0 * 0x10);
-    if (D_807FD9B4 && D_807FD9B4) {}
     arg0->unk14 = func_80610FE8(arg0->unk0 * 0x10);
     arg0->unk8 = (u8 *)arg0 + 0x2C;
     arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
@@ -177,11 +177,9 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
         k = 1;
         p = b->unk0;
         while (*p++ != -1) {
-            if (D_807FD9B4 && D_807FD9B4) {}
             k++;
         }
         b->unk4 = (s32 *)((u8 *)b->unk0 + k * 4);
-        if (q && q) {}
         count = 0;
         sum = 0;
         if (b->unk0[0] != -1) {
@@ -207,29 +205,35 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_80709890.s")
 #endif
 
-#ifdef NON_MATCHING
 typedef struct EaSortView { s32 unk0, unk4, unk8; u8 *unkC; s32 unk10, unk14; s32 *unk18, *unk1C, *unk20; } EaSortView;
 typedef struct EaSortEntry { s32 unk0, unk4, unk8; u8 padC[0x10]; } EaSortEntry;
 s32 func_80709ACC(EaSortView *arg0) {
-    EaSortEntry *e; s32 min, max, i, out = 0, off = 0;
-    while (*(s32 *)((u8 *)arg0->unk18 + out)) {
+    EaSortEntry *e;
+    s32 new_var;
+    s32 min;
+    s32 off;
+    s32 max;
+    s32 i;
+    s32 k;
+    k = 0;
+    min = 0;
+    off = 0;
+    while (arg0->unk18[k]) {
         e = (EaSortEntry *)(arg0->unkC + off);
+        new_var = e->unk8;
         min = max = e->unk0;
-        for (i = 0; i < *(s32 *)((u8 *)arg0->unk18 + out); i++, off += 0x1C, e++) {
+        for (i = 0; i < arg0->unk18[k]; i++, off += 0x1C, e++) {
             if (e->unk0 > max) max = e->unk0; else if (e->unk0 < min) min = e->unk0;
             if (e->unk4 > max) max = e->unk4; else if (e->unk4 < min) min = e->unk4;
-            if (e->unk8 > max) max = e->unk8; else if (e->unk8 < min) min = e->unk8;
+            new_var = e->unk8;
+            if (new_var > max) max = new_var; else if (new_var < min) min = new_var;
         }
-        *(s32 *)((u8 *)arg0->unk20 + out) = min;
-        *(s32 *)((u8 *)arg0->unk1C + out) = max;
-        out += 4;
+        arg0->unk20[k] = min;
+        arg0->unk1C[k] = max;
+        k++;
     }
     return 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_80709ACC.s")
-#endif
 
 typedef struct L11Cell {
     s32 v0, v1, v2, st0, st1, st2, texture;

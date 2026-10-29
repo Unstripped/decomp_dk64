@@ -1,6 +1,4 @@
-// func_80709890 (src/global/10E1D0.c): stage 6 (parked NON_MATCHING in 10E1D0 copy): shape-identical (dead 'if (G && G) {}' x3 + 'if (q && q) {}' from deadsweep), frame OK; only regalloc: unk8/unkC/unk18/p temps a3/t0/a1/a0 vs a0/a1/a3/v0, 0x1C const t2 vs t1, b t1 vs t2. u32 pointers needed for sltu; loop2 via EaEntry* q++
-typedef struct EaGridCell EaGridCell;
-extern EaGridCell *D_807FD9B4; /* defined in func_807095E4 block: struct EaGridCell { s32 offset, width, height; } */
+// func_80709890 (src/global/10E1D0.c): Stage 6 (NM6): shape-identical, 15 text-diff lines, regalloc only: unk8/unkC/unk18/p in a3/t0/a1/a0 vs target a0/a1/a3/v0 (and q/p loop 2 a1/a0 vs v0). deadsweep(+beam, field dead stmts), decl order, init order, p=expr;b->unk0=p forms, permuter 900s: no gain.
 typedef struct EaEntry {
     u32 unk0;
     u8 pad[0x18];
@@ -41,8 +39,8 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
         return 0;
     }
     D_807FD9B4 = func_80610FE8(0x708);
+    if (k && k) {}
     arg0->unk10 = func_80610FE8(arg0->unk0 * 0x10);
-    if (D_807FD9B4 && D_807FD9B4) {}
     arg0->unk14 = func_80610FE8(arg0->unk0 * 0x10);
     arg0->unk8 = (u8 *)arg0 + 0x2C;
     arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
@@ -68,11 +66,9 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
         k = 1;
         p = b->unk0;
         while (*p++ != -1) {
-            if (D_807FD9B4 && D_807FD9B4) {}
             k++;
         }
         b->unk4 = (s32 *)((u8 *)b->unk0 + k * 4);
-        if (q && q) {}
         count = 0;
         sum = 0;
         if (b->unk0[0] != -1) {
