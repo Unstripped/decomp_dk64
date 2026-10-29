@@ -1,6 +1,7 @@
-// func_8071A1E4 (src/global/11BC10.c): from .scratch/Fx11BD/func_8071A1E4_best.c
+// func_8071A1E4 (src/global/11BC10.c): stage 6: frame 0xD8, all stack offsets and the instruction sequence match (s8 stores land in the malloc delay slot); remaining diff is t-register allocation only (unk35C CSE temp v0 vs t5 and cascading renames); parked under NON_MATCHING, callee-saved set s0 and frame match
+#ifdef NON_MATCHING
 void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
-    void *Fx11BDr;
+    s32 Fx11BDt5;
     s32 Fx11BDa;
     s32 Fx11BDb;
     f32 sp8C[4][4];
@@ -19,10 +20,10 @@ void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
         sp46 = (u32)(func_806119A0() / 10000U) % 180U;
         guRotateF(sp8C, (f32)sp48, 0.0f, 1.0f, 0.0f);
         sp4B = arg0->unk35C >> 0x10;
-        sp4A = arg0->unk35C >> 8;
-        sp49 = arg0->unk35C;
-        Fx11BDr = func_80610FE8(0xC);
-        arg0->unk384 = Fx11BDr;
+        Fx11BDt5 = arg0->unk35C;
+        sp4A = Fx11BDt5 >> 8;
+        sp49 = Fx11BDt5;
+        arg0->unk384 = func_80610FE8(0xC);
         guAlignF(sp4C, (f32)sp46, (f32)sp4B, (f32)sp4A, (f32)sp49);
         guMtxCatF(sp8C, sp4C, sp8C);
         guMtxXFMF(sp8C, 0.0f, 0.0f, -2.0f, &sp40, &sp3C, &sp38);
