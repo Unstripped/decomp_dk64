@@ -1099,12 +1099,7 @@ void arcadeDrawStage2Background(Gfx **arg0) {
     *arg0 = sp60;
 }
 
-void arcadeDrawGirderSpan(arg0, arg1, arg2, arg3)
-Gfx **arg0;
-u8 arg1;
-u8 arg2;
-s16 arg3;
-{
+void arcadeDrawGirderSpan(Gfx **arg0, u8 arg1, u8 arg2, s16 arg3) {
     u8 i;
     Gfx *sp40;
 
