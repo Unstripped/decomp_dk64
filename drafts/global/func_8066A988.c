@@ -1,4 +1,4 @@
-// func_8066A988 (src/global/6AD90.c): func_8066A988 (src/global/6AD90.c): twin of func_80669E04 at CollisionBoxTriangle +0x24 (arg0->tri.x/z); same stage 4 NON_MATCHING park, same prologue diff (see func_80669E04 draft note).
+// func_8066A988 (src/global/6AD90.c): func_8066A988 (src/global/6AD90.c): twin of func_80669E04 at CollisionBoxTriangle +0x24 (arg0->tri.x/z); stage 4, parked NON_MATCHING, unchanged C, same prologue diff (target: x1/x2/z2 regs pre-loop, z1/x0/z0 stack vars with store+reload, one shared 0.5 const pair in f0/f1). See func_80669E04 draft note for everything NM4 tried (none transferable).
 #include "common.h"
 
 typedef struct CollisionTriF {

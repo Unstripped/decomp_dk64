@@ -233,12 +233,14 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     f32 sp58;
     f32 sp54;
     f32 sp50;
+    u8 new2;
+    u8 val2;
     u8 sp4D;
+    s32 sp34;
+    u8 new_var;
     f32 sp40;
     s32 sp3C;
     s32 sp38;
-    s32 sp34;
-    u8 val2;
 
     D_807F946E = 0;
     if (D_807F94B4 == 1) {
@@ -250,8 +252,8 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     }
     if (arg0 != NULL) {
         ((Col6AF83Actor *)arg0)->unk110 = 0;
-        ((Col6AF83Actor *)arg0)->unk10C = -1;
         ((Col6AF83Actor *)arg0)->unk6A &= 0xFBF1;
+        ((Col6AF83Actor *)arg0)->unk10C = -1;
         D_807F94B6 = 0;
         D_807F9464 = 0;
         D_807F946C = 0;
@@ -281,7 +283,7 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         sp54 = 99999.0f;
         sp5E = func_8062BCC8(arg0, arg1, arg3, arg2, (s32)&sp54);
         sp50 = 99999.0f;
-        val2 = func_8066A08C(arg0, arg1, arg3, arg2, &sp50) & 0xFF;
+        val2 = func_8066A08C(arg0, arg1, arg3, arg2, &sp50);
     } else {
         sp5E = 0;
     }
@@ -330,14 +332,11 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
             } else {
                 sp4D = 3;
             }
+        } else if (mathCheckCloserFloatThreshold(sp54, sp50, sp40, 0) != 0) {
+            sp4D = 3;
         } else {
-            if (mathCheckCloserFloatThreshold(sp54, sp50, sp40, 0) != 0) {
-                sp4D = 3;
-            } else {
-                sp4D = 2;
-            }
+            sp4D = 2;
         }
-        break;
     }
     switch (sp4D) {
     default:
@@ -345,7 +344,8 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         break;
     case 1:
         if (arg0 != NULL) {
-            sp5F = D_807F949E;  // FAKE: reusing a u8 local as the temp keeps arg0 in s0
+            sp5E = D_807F949E;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
+            sp5F = sp5E;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
             ((Col6AF83Actor *)arg0)->unkD1 = sp5F;
             ((Col6AF83Actor *)arg0)->unkDA = D_807F9498;
             ((Col6AF83Actor *)arg0)->unkD8 = D_807F9490;
@@ -357,13 +357,13 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         D_807F94A4 = D_807F9498;
         D_807F94A2 = D_807F9490;
         D_807F948C = sp58;
-        val2 = D_807F94AB;  // FAKE: reusing a u8 local as the temp keeps arg0 in s0
+        val2 = D_807F94AB;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
         D_807F94AA = val2;
         D_807F951D = 1;
         break;
     case 2:
         if (arg0 != NULL) {
-            sp5E = D_807F949F;  // FAKE: reusing a u8 local as the temp keeps arg0 in s0
+            sp5E = D_807F949F;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
             ((Col6AF83Actor *)arg0)->unkD1 = sp5E;
             ((Col6AF83Actor *)arg0)->unkDA = D_807F949A;
             ((Col6AF83Actor *)arg0)->unkD8 = D_807F9492;
@@ -375,13 +375,13 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         D_807F94A4 = D_807F949A;
         D_807F94A2 = D_807F9492;
         D_807F948C = sp54;
-        val2 = D_807F94AC;  // FAKE: reusing a u8 local as the temp keeps arg0 in s0
+        val2 = D_807F94AC;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
         D_807F94AA = val2;
         D_807F951D = 2;
         break;
     case 3:
         if (arg0 != NULL) {
-            sp5E = D_807F94A0;  // FAKE: reusing a u8 local as the temp keeps arg0 in s0
+            sp5E = D_807F94A0;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
             ((Col6AF83Actor *)arg0)->unkD1 = sp5E;
             ((Col6AF83Actor *)arg0)->unkDA = D_807F949C;
             ((Col6AF83Actor *)arg0)->unkD8 = D_807F9494;
@@ -394,8 +394,7 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         D_807F94A4 = D_807F949C;
         D_807F94A2 = D_807F9494;
         D_807F948C = sp50;
-        sp5E = *(u8 *)&D_807F94AD;  // FAKE: reusing a u8 local as the temp keeps arg0 in s0
-        D_807F94AA = sp5E;
+        D_807F94AA = *(u8 *)&D_807F94AD;
         D_807F951D = 3;
         break;
     }
@@ -406,7 +405,6 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     D_807F94B4 = 0;
     return (sp34 | sp3C | sp38) & 0xFF;
 }
-
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666428.s")
