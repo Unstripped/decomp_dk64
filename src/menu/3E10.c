@@ -224,7 +224,6 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         var_a0_2 = (s32)(func_806119FC(0) * 10.0f);
                         D_80033F52 = (func_806119A0() & 0x7F) + 0x12C;
                         D_80033F54 = 0;
-                        if (D_80033F54 && D_80033F54) {}
                         if (var_a0_2 >= 0xB) {
                             var_a0_2 = 0;
                         }
@@ -238,7 +237,6 @@ void func_80027FAC(void *arg0, s32 arg1) {
                                 }
                                 var_v0 = 1 << var_a0_2;
                                 if (var_a0_2 == temp_t2) {
-                                    if (D_800336A4) {}
                                     D_800336A0 = 0;
                                 }
                             } while (D_800336A0 & var_v0);
@@ -248,7 +246,6 @@ void func_80027FAC(void *arg0, s32 arg1) {
                             do {
                                 if (D_800336A4[D_80033F54] != -1) {
                                     do {
-                                        if (var_a1 && var_a1) {}
                                         D_80033F54 += 1;
                                     } while (D_800336A4[D_80033F54] != -1);
                                 }
@@ -258,7 +255,6 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         }
                     }
                 } else {
-                    if (sp4F == 0) {}
                     D_80033F54 += 2;
                     sp4F = -1;
                     D_80033F52 = var_a0[1];
@@ -713,8 +709,6 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
         }
         row += 0x5E;
     }
-    if (i) {}
-    if (D_80033804 && D_80033804) {}
     D_80033814 = D_80750AB0 / 60;
     D_80033810 = (s32)D_80033814 / 60;
     D_80033814 = D_80033814 - D_80033810 * 60;
@@ -781,14 +775,6 @@ Gfx *menuDrawFileSlotLabel(void *arg0, Gfx *arg1) {
         _sprintf(sp34, "%s %d", (char *)D_80033F28[7], sp120 + 1);
     }
     ty = (s16)(y - 0x3C);
-    if (y == 0x7FFF) {
-    }
-    if (y == 0x7FFF) {
-    }
-    if (y == 0x7FFF) {
-    }
-    if (arg0) {
-    }
     return hudDrawScaledText(
         hudDrawScaledText(arg1, spFE, y, 0.6f, sp34),
         (s16)(sp110 * 4.0f),
@@ -889,12 +875,6 @@ Gfx *func_8002A088(void *arg0, Gfx *arg1) {
         _sprintf(sp3C, "%s %d", (char *)D_80033F28[7], D_80033F48 + 1);
     }
     ty = (s16)(y - 0x3C);
-    if (y == 0x7FFF) {
-    }
-    if (y == 0x7FFF) {
-    }
-    if (y == 0x7FFF) {
-    }
     arg1 = hudDrawScaledText(hudDrawScaledText(arg1, sp106, y, 0.6f, sp3C), (s16)(sp118 * 4.0f), (u16)ty, 0.6f, (char *)D_80033F28[8]);
     func_800317E8(temp_a0, 160.0f, 80.0f, &sp118, &sp114, 5, 0, 2.0f);
     arg1 = hudDrawScaledText(arg1, (s16)(sp118 * 4.0f), (s16)(sp114 * 4.0f), 0.6f, (char *)D_80033F28[9]);
@@ -1405,7 +1385,6 @@ Gfx *arg1;
             q += 1;
             x += step;
         } while (i < D_80033878);
-        if (i) {}
     }
     return (s32)hudDrawScaledText(arg1, 0x280, (s16)(sp12C - 0x50), 0.6f, (char *)D_80033F28[0x1F]);
 }
@@ -1539,10 +1518,8 @@ void func_8002CB18(void) {
         if (temp_s1->unk4 != a2) {
             func_8068A4C8(Menu6B_A, Menu6B_A->unk155 + 2, a2);
             temp_s1->unk4 = D_8076A100[Menu6B_A->unk154];
-        if (Menu6B_A->unk155 == 0) {}
         a2 = D_8076A100[Menu6B_A->unk154];
         }
-        if (temp_s1->unk8 != 0) {}
         idx = D_8076A0E4[Menu6B_A->unk154] & 0x7F;
         if (idx != Menu6B_A->unk155) {
             sp38 = &D_8003386C[idx];
@@ -1556,11 +1533,8 @@ void func_8002CB18(void) {
         row = &D_80033894[Menu6B_A->unk154];
         func_800317E8(sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);
         Menu6B_A->unk7C = D_807FBB4C->unk7C + (sp54 - 160.0f);
-        if (temp_s1->unk4 != 0) {}
         Menu6B_A->unk80 = (D_807FBB4C->unk80 - (sp50 - 120.0f)) - 20.0f;
-        if (temp_s1->unk8 == 0) {}
         Menu6B_A->unk84 = D_807FBB4C->unk84 - 300.0f;
-        if (sp5C && sp5C) {}
         if (D_8076A0E4[Menu6B_A->unk154] & 0x80) {
             Menu6B_A->unk60 &= ~4;
         } else {
@@ -1575,7 +1549,6 @@ void func_8002CB18(void) {
         Menu6B_A->unk7C = D_807FBB4C->unk7C + sp54;
         Menu6B_A->unk80 = (D_807FBB4C->unk80 - (sp50 - 120.0f)) + 16.0f;
         Menu6B_A->unk84 = D_807FBB4C->unk84 - 300.0f;
-        if (D_80033894) {}
     }
     if (*sp5C > 1.0f) {
         sp4F = 1;
@@ -3422,7 +3395,6 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 break;
             }
             idx = idx * (s32)sp64 - p->unk17 * (s32)sp64 - (s32)(p->unk4 * sp64);
-            if (D_80033FAD && D_80033FAD) {}
             t = (s16)idx;
             arg0->unk340 = 160.0f - func_80612794(t) * sp68;
             arg0->unk344 = 120.0f - func_80612790(t) * sp68;
@@ -3439,14 +3411,11 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
             break;
         }
         case 15: {
-            if (D_80033F98) {}
             idx = (s32)c->unk8;
             arg0->unk340 = D_80033F68[idx];
             arg0->unk344 = D_80033F80[idx];
             arg0->unk360 = D_80033F98[idx];
-            if (D_80033F68) {}
             arg0->unk364 = D_80033F98[idx];
-            if (D_800337DC) {}
             D_80033F68[idx] = -200.0f;
             D_80033F80[idx] = -200.0f;
             if (*(&D_80033804 + idx) == 0) {
