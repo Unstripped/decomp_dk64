@@ -1,6 +1,55 @@
-// func_80717404 (src/global/11BC10.c): stage 3 behavioral draft compiled; target frame is 0x38 with s2 but draft is 0x30 with s1, although motion initialization and vertical/horizontal paths are recovered
-typedef struct { f32 angle; f32 speed; f32 y_speed; } M3Motion12;
-typedef struct { u8 pad0[0x340]; f32 x; f32 y; f32 z; u8 pad34C[0x10]; s16 height; s16 speed; u8 pad360[0xF]; u8 is_vertical; u8 pad370[0x14]; M3Motion12 *motion; } M3Actor17404;
-void func_80717404(M3Actor17404 *arg0, void *arg1) {
- M3Motion12 *state; f64 scale; state=arg0->motion; if(state==NULL){state=func_80610FE8(0xC);arg0->motion=state;if(arg0->height!=0){state->angle=(f32)((func_80611A44()>>15)%200+arg0->height-100);}else{state->angle=(f32)((func_80611A44()>>15)%4095);}scale=arg0->is_vertical!=0?4.0:1.0;state->speed=(f32)((func_80611A44()>>15)%10+5)*scale;state->y_speed=(f32)(arg0->speed+(func_80611A44()>>15)%6);state=arg0->motion;}if(arg0->is_vertical!=0){arg0->x=(f32)((f64)arg0->x+(4.0*(0.01*(f64)arg0->speed*(f64)func_80612794((s16)state->angle))));arg0->y=(f32)((f64)arg0->y+(4.0*(0.01*(f64)arg0->speed*(f64)func_80612790((s16)state->angle))));}else{arg0->x=(f32)((f64)arg0->x+(0.04*(f64)arg0->speed*(f64)func_80612794((s16)state->angle)));arg0->z=(f32)((f64)arg0->z+(0.04*(f64)arg0->speed*(f64)func_80612790((s16)state->angle)));if(arg0->height==0){arg0->y+=state->y_speed;state->y_speed-=0.5;}else{arg0->y=(f32)((f64)arg0->y+((f64)state->y_speed*0.2));}}arg0->speed=arg0->speed+state->speed;
+// func_80717404 (src/global/11BC10.c): stage 4-5: structure+dataflow complete; remaining diff is register allocation only
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+} Fx11BAMotion12;
+
+typedef struct {
+    u8 pad0[0x340];
+    f32 unk340;
+    f32 unk344;
+    f32 unk348;
+    u8 pad34C[0x10];
+    s32 unk35C;
+    u8 pad360[0xF];
+    u8 unk36F;
+    u8 pad370[0x14];
+    Fx11BAMotion12 *unk384;
+} Fx11BAEffectActor;
+
+void func_80717404(Fx11BAEffectActor *arg0, void *arg1) {
+    Fx11BAMotion12 *motion;
+    s16 *var_s2;
+    f64 scale;
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(0xC);
+        motion = arg0->unk384;
+        var_s2 = (s16 *) &arg0->unk35C;
+        if (*var_s2 != 0) {
+            motion->unk0 = (f32) (((randomNonNegative() >> 15) % 200) + *var_s2 - 100);
+        } else {
+            motion->unk0 = (f32) ((randomNonNegative() >> 15) % 0xFFF);
+        }
+        scale = (arg0->unk36F != 0) ? 4.0 : 1.0;
+        motion->unk4 = (f32) ((((randomNonNegative() >> 15) % 10) + 5) * scale);
+        motion->unk8 = (f32) (var_s2[1] + ((randomNonNegative() >> 15) % 6));
+    }
+    motion = arg0->unk384;
+    var_s2 = (s16 *) &arg0->unk35C;
+    if (arg0->unk36F != 0) {
+        arg0->unk340 = (f32) ((f64) arg0->unk340 + 4.0 * ((f64) func_80612794((s16) motion->unk0) * (0.01 * (f64) var_s2[1])));
+        arg0->unk344 = (f32) ((f64) arg0->unk344 + 4.0 * ((f64) func_80612790((s16) motion->unk0) * (0.01 * (f64) var_s2[1])));
+    } else {
+        arg0->unk340 = (f32) ((f64) arg0->unk340 + (f64) func_80612794((s16) motion->unk0) * (0.04 * (f64) var_s2[1]));
+        arg0->unk348 = (f32) ((f64) arg0->unk348 + (f64) func_80612790((s16) motion->unk0) * (0.04 * (f64) var_s2[1]));
+        if (*var_s2 == 0) {
+            arg0->unk344 = arg0->unk344 + motion->unk8;
+            motion->unk8 = (f32) ((f64) motion->unk8 - 0.5);
+        } else {
+            arg0->unk344 = (f32) ((f64) arg0->unk344 + (f64) motion->unk8 * 0.2);
+        }
+    }
+    var_s2[1] = (s16) (var_s2[1] + motion->unk4);
 }
