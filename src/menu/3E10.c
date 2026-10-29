@@ -1772,8 +1772,7 @@ void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
                 break;
             }
             if (arg1 & 2) {
-                if (D_80033F28 && D_80033F28) {
-                }
+
                 func_8060C648(0x1F, 0, 0, 0, D_807550C8);
                 func_8060C648(0x20, 0, 0, 0, D_80744530);
                 func_8060DEA8();
