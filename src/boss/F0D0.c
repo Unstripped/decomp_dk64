@@ -158,7 +158,7 @@ void bossInterpolateWaypoints(u8 *arg0, f32 arg1) {
 
     val = (f64)(D_807FBB40->unk4->unk0->unk4 * arg1);
 
-    temp_f = (f32)(1.0 + (f64)func_80612794((s16)(s32)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
+    temp_f = (f32)(1.0 + (f64)func_80612794((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
 
     D_807FBB40->unk7C = (f32)D_807FDCA0->unk14[arg0[1]].unk0 + (f32)(D_807FDCA0->unk14[arg0[0]].unk0 - D_807FDCA0->unk14[arg0[1]].unk0) * temp_f;
     D_807FBB40->unk84 = (f32)D_807FDCA0->unk14[arg0[1]].unk4 + (f32)(D_807FDCA0->unk14[arg0[0]].unk4 - D_807FDCA0->unk14[arg0[1]].unk4) * temp_f;
