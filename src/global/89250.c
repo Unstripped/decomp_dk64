@@ -369,7 +369,29 @@ void effectSpawnMultiTierRing(f32 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80685708.s")
+typedef struct KaN7_Struct16 {
+    s32 a[4];
+} KaN7_Struct16;
+
+extern KaN7_Struct16 D_8074E898;
+
+void func_80685708(Actor *arg0, u8 arg1) {
+    s32 pad0[1];
+    KaN7_Struct16 sp34;
+    f32 temp_scale;
+    void *sub;
+    s32 pad1[1];
+
+    temp_scale = (f32)((f64)arg0->unk4->unk38 / 0.15);
+    sp34 = D_8074E898;
+    if (arg1) {
+        effectSpawnMultiTierRing((f32)((f64)temp_scale * 0.36), arg1, arg0->unk7C, arg0->unk80 + 4.0f, arg0->unk84);
+        actorSpawn(0x145, sp34.a[arg1]);
+        func_8067B238(D_807FBB44, arg0, arg0->unk4->unk38 * 0.5f);
+        sub = D_807FBB44->unk174;
+        ((Actor174_5390 *)sub)->unk6 = arg1 - 1;
+    }
+}
 
 void effectSpawnBoneWhite(Actor *arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
     func_80714998(2);
@@ -558,7 +580,53 @@ void particleInitDefaultState(void) {
     func_80714A28(4);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80686390.s")
+extern s32 D_8071FBF4;
+
+void func_80686390(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
+    f32 f;
+    f32 scale;
+
+    if (arg0 != NULL) {
+        scale = (arg0->unk4 != NULL) ? (f64)arg0->unk4->unk38 / 0.15 : 1.0;
+        if (arg0->unk6A & 4) {
+            f32 limit;
+
+            if (arg0->unkC0 > -10.0f || (arg0->unk6A & arg0->unk6C & 1)) {
+                f = 0.0f;
+            } else {
+                f = arg0->unkA0 - arg0->unk80;
+            }
+            limit = (arg0->unkAC - arg0->unkA4) * 2;
+            f = (f < limit ? f : limit) < 0.0f ? 0.0f : (f < limit ? f : limit);
+
+            if (arg0->unk58 == 0x29 || arg0->unk58 == 0x32) {
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0x2C7, 0xFF, 0x7F, 1);
+            } else if (f < 10.0f) {
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0x10, (u8)((f64)f * 25.5), 0x7F, 1);
+            } else if (f < 20.0f) {
+                sfxPlayFromActorWithAltitudeCheck(arg0, 0xF, 0xFF, 0x7F, 1);
+            } else {
+                effectSpawnBurstParticles(arg0);
+            }
+        }
+    } else {
+        scale = arg1;
+    }
+    particleInitDefaultState();
+    func_80714CC0(&D_8071FBF4, (f32)((f64)scale * 0.3), arg2, arg3, arg4);
+    particleInitDefaultState();
+    func_8071496C(2);
+    func_80714CC0(&D_8071FBF4, (f32)((f64)scale * 0.05),
+        (f32)((randomNonNegative() >> 15) % (u8)(30.0f * scale)) + arg2 - (f32)(u8)(15.0f * scale),
+        arg3,
+        (f32)((randomNonNegative() >> 15) % (u8)(30.0f * scale)) + arg4 - (f32)(u8)(15.0f * scale));
+    particleInitDefaultState();
+    func_8071496C(4);
+    func_80714CC0(&D_8071FBF4, (f32)((f64)scale * 0.05),
+        (f32)((randomNonNegative() >> 15) % (u8)(30.0f * scale)) + arg2 - (f32)(u8)(15.0f * scale),
+        arg3,
+        (f32)((randomNonNegative() >> 15) % (u8)(30.0f * scale)) + arg4 - (f32)(u8)(15.0f * scale));
+}
 
 void func_8068696C(Actor *arg0) {
     s32 i;
@@ -660,7 +728,59 @@ void effectActorGrowthTick(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
+#ifdef NON_MATCHING
+void func_806871DC(u8 arg0) {
+    s32 var_s2;
+    s32 temp_s3;
+    s16 var_s4;
+    s16 var_v0;
+
+    var_s2 = (((D_8076A064 & 3) * 4) + 3) & 0xFF;
+    temp_s3 = arg0 & 0xFF;
+    var_s4 = 0;
+    do {
+        var_v0 = var_s2;
+        if (var_s2 == 0x10) {
+            var_v0 = 0x14;
+        } else if (var_v0 == 0x11) {
+            var_v0 = 0x15;
+        } else {
+            var_v0 = var_s2 & 0xFF;
+        }
+
+        switch (temp_s3) {
+        case 3:
+            if (var_v0 < 10) {
+                break;
+            }
+            /* fallthrough */
+        case 1:
+            func_80714998(1);
+            func_807149C8(0xB4, 0xB4, 0xB4, 0xC8);
+            effectSpawnBoneDefault(D_807FBB40, var_v0, 2.0f, 0.0f, 0.0f, 0.0f, -0x78);
+            break;
+
+        case 2:
+            if (var_v0 < 10) {
+                break;
+            }
+            /* fallthrough */
+        case 0:
+            func_807149B8(1);
+            func_8071498C(func_80717D4C);
+            func_80714950(-0x3E8);
+            func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
+            func_80714C08(&D_80720120, (f32)(((f64)((randomNonNegative() >> 15) % 100) / 30.0) + 1.0), D_807FBB40, var_v0, 0);
+            break;
+        }
+        var_s4++;
+        var_s2 = (var_s2 + 1) & 0xFF;
+    } while (var_s4 < 4);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_806871DC.s")
+#endif
 
 void func_80687400(void) {
     func_80609140(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
