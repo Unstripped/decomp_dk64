@@ -85,7 +85,6 @@ u8 func_80663FCC(s16 arg0) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 typedef struct ColSmall_Sched {
     u8 pad0[0x290];
     s16 unk290;
@@ -98,17 +97,21 @@ f32 sfxUpdateDistanceVolumeAndPan(f32, f32, f32, u8, u8, f32);
 void func_80664044(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
     ActorTargetEntry *entry;
     s32 i;
+    ColSmall_Sched **new_var;
+    s32 stride;
     s32 j;
     s32 found;
 
     for (i = 0; i < D_807F9424; i++) {
-        entry = &D_807F9420[i];
+        stride = 12;  // FAKE: constant in a local, flips s2/s3 preheader order
+        if (D_807F9420 == 0) {}  // FAKE: dead statement, steers P into a3 / s4-s6 order
+        j = 0;
+        found = 0;
+        entry = (ActorTargetEntry *)((s32)D_807F9420 + i * stride);
         if (entry->unk6 == arg0) {
-            if (D_807F9420 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            j = 0;
-            found = 0;
             do {
-                if (D_807F9420[i].u.unk7_arr[j] == D_807FC924->unk290) {
+                new_var = &D_807FC924;  // FAKE: pointer-to-pointer read steers regalloc
+                if (D_807F9420[i].u.unk7_arr[j] == (*new_var)->unk290) {
                     found = 1;
                 }
                 j++;
@@ -123,7 +126,4 @@ void func_80664044(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
         }
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/68AA0/func_80664044.s")
-#endif

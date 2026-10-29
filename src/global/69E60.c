@@ -160,7 +160,6 @@ u8 func_80665558(void) {
     return D_80748E04;
 }
 
-#ifdef NON_MATCHING
 typedef struct ColSmall_Actor5564 {
     char pad0[0x4];
     ActorSub4 *unk4;
@@ -302,15 +301,16 @@ void func_80665564(ColSmall_Actor5564 *arg0, f32 arg1) {
             arg0->unkDE = 0x400;
             arg0->unkDC = var_a1;
         } else {
-            var_a1 = (s32)((f32)func_806CC10C(arg0->unkDE, 0x400) * var_fv0);  // FAKE: temp via dead var_a1 steers temp regs
-            arg0->unkDE += var_a1;
+            diff = (f32)func_806CC10C(arg0->unkDE, 0x400) * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
+            arg0->unkDE += diff;
             arg0->unkDE &= 0xFFF;
         }
     } else {
-        arg0->unkDC += (s32)((f32)diff * var_fv0);
+        diff = (f32)diff * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
+        arg0->unkDC += diff;
         arg0->unkDC &= 0xFFF;
-        var_a1 = (s32)((f32)func_806CC10C(arg0->unkDE, var_a2) * var_fv0);  // FAKE: temp via dead var_a1 steers temp regs
-        arg0->unkDE += var_a1;
+        diff = (f32)func_806CC10C(arg0->unkDE, var_a2) * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
+        arg0->unkDE += diff;
         arg0->unkDE &= 0xFFF;
     }
     if (!(arg0->unk6A & 0x20)) {
@@ -325,10 +325,6 @@ void func_80665564(ColSmall_Actor5564 *arg0, f32 arg1) {
         arg0->unkE0 = (f32)((0x400 - var_t0) / var_t1->unk0);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/69E60/func_80665564.s")
-#endif
 
 extern u8 D_80748D48[][10];
 

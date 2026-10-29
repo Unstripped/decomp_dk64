@@ -112,7 +112,6 @@ s32 mathPickCloserTargetPoint3D(f32 arg0, f32 arg1, f32 arg2, TargetVec3f *arg3,
     return 1;
 }
 
-#ifdef NON_MATCHING
 typedef struct Prj9A_CamView {
     u8 pad0[0x210];
     f32 unk210;
@@ -136,7 +135,8 @@ void func_8068ECF4(s32 arg0, u8 arg1) {
     f32 sp40;
 
     actorGetNodePos(D_807FBB40, arg0, &sp48, &sp44, &sp40);
-    tgt = (s32)(func_80611BB4(((Prj9A_CamView *)D_807FC924)->unk218 - sp40, sp48 - ((Prj9A_CamView *)D_807FC924)->unk210) * 651.8986f + 1024.0f) & 0xFFF;
+    tgt = sp48 - ((Prj9A_CamView *)D_807FC924)->unk210;  // FAKE: tgt holds the 2nd arg so it is evaluated first
+    tgt = (s16)(func_80611BB4(((Prj9A_CamView *)D_807FC924)->unk218 - sp40, tgt) * 651.8986f + 1024.0f) & 0xFFF;
     cur = D_807FBB40->unkE6;
     if (cur < tgt) {
         diff = tgt - cur;
@@ -164,17 +164,13 @@ void func_8068ECF4(s32 arg0, u8 arg1) {
         if (alpha != 0) {
             vol = 3.3f;
             if (D_807FBB40->unk4 != NULL) {
-                vol = 3.3f * D_807FBB40->unk4->unk38;
+                vol *= D_807FBB40->unk4->unk38;
             }
             func_807149C8(0xFF, 0xFF, 0xFF, alpha);
             func_80714C08(&D_80720054, vol, D_807FBB40, arg0, 2);
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8068ECF4.s")
-#endif
 
 extern Actor *D_807FBB40;
 
