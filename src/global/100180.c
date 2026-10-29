@@ -418,12 +418,10 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     Gfx *g4;
     Gfx *g5;
     Gfx *g6;
-    Gfx *g7;
     Gfx *g8;
     Gfx *g9;
     Gfx *g10;
     Gfx *g11;
-    Gfx *g12;
     s8 yoff;
     s16 gx;
     s16 h4;
@@ -432,6 +430,8 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     s16 h;
     s32 count;
     s32 i;
+    s32 len;
+    s32 tmp;
     u8 *fi;
     u8 *glyph;
     Vtx *vp;
@@ -442,11 +442,11 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     count = 0;
     center = 0;
     strStart = str;
-    i = func_806FBEAC(str);
-    if (i == 0) {
+    len = func_806FBEAC(str);
+    if (len == 0) {
         return dl;
     }
-    vp = (Vtx *)func_80610FE8(i << 6);
+    vp = (Vtx *)func_80610FE8(len << 6);
     heapFreeDeferred(vp);
     batch = vp;
     if (flags & 0x80) {
@@ -471,7 +471,7 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         L3CMD(g6, 0xFC121803, 0xFF0FFFFF);
     }
     if (flags & 1) {
-        L3CMD(g7, 0xDA380003, (u32)&D_2000180);
+        L3CMD(g3, 0xDA380003, (u32)&D_2000180);
     }
     dl = func_805FD030(dl);
     fi = D_80754A34 + font * 6;
@@ -486,26 +486,29 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                     if (ch != 0x20) {
                         yoff = func_806FB914(font, &ch) * 4;
                         glyph = (u8 *)((u8 **)D_80754A18)[font] + ch * 4;
-                        w = glyph[2];
-                        h = fi[2];
+                        w4 = glyph[2];
+                        h4 = fi[2];
+                        w = w4;
+                        h = h4;
+                        w4 = w4 * 4;
                         if (count && count) {}
-                        w4 = w * 4;
-                        h4 = h * 4;
+                        if (count && count) {}
+                        h4 = h4 * 4;
                         gx = *(s16 *)glyph;
                         if (center) {
-                            i = (fi[5] * 4 - w4) / 2;
-                            if (i < 0) {
+                            tmp = (fi[5] * 4 - w4) / 2;
+                            if (tmp < 0) {
+                                if (yoff == 0) {}
                                 pad = 0;
                             } else {
-                                pad = i;
+                                pad = tmp;
                             }
                             x += pad;
                         }
-                        if (ch >= (D_807549FC[font] + line)[-1] && ch < (D_807549FC[font] + line)[0]) {
+                        if (ch >= D_807549FC[font][line - 1] && ch < D_807549FC[font][line]) {
                             if (started == 0) {
                                 started = 1;
                                 dl = func_806FBEF0(dl, font, (s16)line);
-                                if (w && w) {}
                             }
                             v = (s16 *)vp;
                             v[0] = x;
@@ -527,13 +530,13 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             v[24] = x;
                             v[26] = -5;
                             v[28] = gx << 6;
+                            if (count && count) {}
                             v[29] = 0;
                             vp++;
                             vp++;
                             vp++;
                             vp++;
                             if (flags & 0x32) {
-                                if (yoff) {}
                                 func_80704298(vp - 4, idx, flags, yoff);
                             }
                             count += 4;
@@ -548,14 +551,12 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             }
                         }
                         if (center) {
-                            if (center) {}
-                            i = fi[5] * 4;
-                            x += (w4 < i) ? w4 : i;
-                            if (w4 < i) {
-                                x = x + i - pad - w4;
+                            tmp = fi[5] * 4;
+                            x += (w4 < tmp) ? w4 : tmp;
+                            if (w4 < tmp) {
+                                x = x + tmp - pad - w4;
                             }
                         } else {
-                            if (flags) {}
                             x += (((u8 **)D_80754A18)[font][ch * 4 + 2] + fi[4]) * 4;
                         }
                     } else if (center) {
@@ -571,11 +572,10 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             x = startX;
             if (count != 0) {
                 L3VTX(g11, osVirtualToPhysical(batch), count, 0);
-                if (batch) {}
                 batch = vp;
                 i = count / 4;
                 while (i-- > 0) {
-                    L3QUAD(g12, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
+                    L3QUAD(g1, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
                 }
                 if (count) {}
                 count = 0;
