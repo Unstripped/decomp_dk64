@@ -793,9 +793,7 @@ void arcadeDrawLadder(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3) {
     *arg0 = sp60;
 }
 
-void arcadeDrawStage1Ladders(arg0)
-Gfx **arg0;
-{
+void arcadeDrawStage1Ladders(Gfx **arg0) {
     Gfx *sp2C;
     s32 sp28;
 
