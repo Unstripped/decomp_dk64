@@ -130,7 +130,7 @@ void actorFindActiveByType(s32, s32 *);
 void actorScriptStart(void *, s32);
 s32 camIsCutsceneActive();
 void camStartPath(void *, s32, s32);
-s32 flagGet(s32, s32);
+s32 flagGet(s16, u8);
 s32 func_806119A0();
 f32 func_806119FC();
 void func_8067AB20(s32, s32, s32, s32, void *, s32);
@@ -376,7 +376,7 @@ extern u8 D_807211D0;
 extern u8 D_80721444;
 void func_80030894(void *, void *, s32, s32, f32, s32, s32);
 s32 func_8060C6B8(s32, s32, u8, s32);
-s32 flagGet(s32, s32);
+s32 flagGet(s16, u8);
 
 void func_80028834(MenuScreenActor *arg0, s32 arg1) {
     Menu3R1_Struct174 *temp_s0 = arg0->unk174;
@@ -1280,7 +1280,7 @@ void func_8002C0C8(MenuScreenActor *arg0, s32 arg1) {
     flag = 0x1D;
     i = 1;
     do {
-        if (flagGet((s16)flag, 1) != 0) {
+        if (flagGet(flag, 1) != 0) {
             D_80033FAF |= 1 << i;
         }
         i += 1;
@@ -1916,7 +1916,7 @@ extern s16 D_80033978[][2];
 extern s8 D_80033988[];
 extern s16 D_80033998[];
 extern s8 D_8074453C[];
-extern s8 D_8074453F;
+
 extern s8 D_80744540;
 void func_80712634(s32, s32);
 void func_807127F4(s32);
@@ -2088,16 +2088,12 @@ Gfx *func_8002E420(MenuScreenActor *arg0, Gfx *arg1) {
 }
 
 extern s8 D_8076A0DA;
-extern s8 D_80033989;
-extern s8 D_8003398A;
-extern s8 D_8003398B;
-extern s8 D_8003398C;
+
 
 void func_8002E8B8(MenuScreenActor *arg0, s32 arg1) {
     Menu3R1_Struct174 *temp_s0 = (Menu3R1_Struct174 *)arg0->unk174;
     s32 j;
     s32 i;
-    s8 *p;
     s8 n;
 
     temp_s0->unk17 = D_8076A0DA;
@@ -2136,7 +2132,7 @@ void func_8002E8B8(MenuScreenActor *arg0, s32 arg1) {
         i = 4;
         j = 2;
         do {
-            if (flagGet((s16)j, 1) != 0) {
+            if (flagGet(j, 1) != 0) {
                 D_80033998[0] |= i;
             }
             i *= 2;
@@ -2151,14 +2147,14 @@ void func_8002E8B8(MenuScreenActor *arg0, s32 arg1) {
         D_80033998[1] = 0;
         i = 1;
         do {
-            if (flagGet((s16)j, 1) != 0) {
+            if (flagGet(j, 1) != 0) {
                 D_80033998[1] |= i;
             }
             i *= 2;
             j += 1;
         } while (j != 0x13);
     } else {
-        D_80033989 = 0;
+        D_80033988[1] = 0;
     }
     if (flagGet(0x13, 1) != 0) {
         j = 0x14;
@@ -2166,37 +2162,36 @@ void func_8002E8B8(MenuScreenActor *arg0, s32 arg1) {
         D_80033998[2] = 0;
         i = 1;
         do {
-            if (flagGet((s16)j, 1) != 0) {
+            if (flagGet(j, 1) != 0) {
                 D_80033998[2] |= i;
             }
             i *= 2;
             j += 1;
         } while (j != 0x1C);
     } else {
-        D_8003398A = 0;
+        D_80033988[2] = 0;
     }
     if (flagGet(0x21, 1) == 0) {
-        D_8003398B = 0;
+        D_80033988[3] = 0;
     } else {
         D_800339A4 |= 8;
     }
     if (flagGet(0x22, 1) == 0) {
-        D_8003398C = 0;
+        D_80033988[4] = 0;
     } else {
         D_800339A4 |= 0x10;
     }
-    i = 0;
-    for (p = D_80033988; i != 5; i++, p++) {
-        n = *p;
+    for (i = 0; i != 5; i++) {
+        n = D_80033988[i];
         if (n > 0) {
             s16 m = D_80033998[i];
             if (!((1 << D_8074453C[i]) & m)) {
                 do {
                     D_8074453C[i] += 1;
                     if (D_8074453C[i] >= n) {
-                        *p = 0;
+                        D_80033988[i] = 0;
                         D_8074453C[i] = 0;
-                        n = *p;
+                        n = D_80033988[i];
                     }
                 } while (n > 0 && !((1 << D_8074453C[i]) & m));
             }
