@@ -73,8 +73,8 @@ void collisionBufferCacheUpdate(void);
 void collisionPurgeExpiredBuffers(void);
 s32 collisionIsTriangleDegenerate(CollisionTri *);
 s8 func_8066D2F4(s16 *);
-s16 func_8066D4DC(s16 *, u8 *, f32 *);
-void func_8066DD34(CollisionBox *);
+s16 func_8066D4DC();
+s32 func_8066DD34(CollisionBox *);
 void actorSub140Free(ActorSub140 *);
 void actorSetNodeValue(Actor *, s32, u16);
 void actorOrNodeFlags(Actor *, s32, u8);
@@ -502,7 +502,89 @@ void collisionPurgeExpiredBuffers(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066CEE4.s")
+typedef struct Col7BInput {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ u8 unk12;
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ s8 unk14;
+} Col7BInput;
+
+s32 func_8066CEE4(u8 *arg0, u8 *arg1, f32 (*arg2)[4]) {
+#define C7B_IN ((Col7BInput *)arg0)
+#define C7B_OUT ((CollisionBox *)arg1)
+    u8 sp6C[4];
+    s16 sp58[10];
+    f32 sp54;
+    f32 sp50;
+    f32 sp4C;
+    f32 sp48;
+    f32 sp44;
+    f32 sp40;
+    f32 sp3C;
+    f32 sp38;
+    f32 sp34;
+
+    guMtxXFMF(arg2, (f32)C7B_IN->unk0, (f32)C7B_IN->unk2, (f32)C7B_IN->unk4, &sp54, &sp50, &sp4C);
+    sp58[0] = (s32)sp54;
+    sp58[1] = (s32)sp50;
+    sp58[2] = (s32)sp4C;
+    guMtxXFMF(arg2, (f32)C7B_IN->unk6, (f32)C7B_IN->unk8, (f32)C7B_IN->unkA, &sp48, &sp44, &sp40);
+    sp58[3] = (s32)sp48;
+    sp58[4] = (s32)sp44;
+    sp58[5] = (s32)sp40;
+    guMtxXFMF(arg2, (f32)C7B_IN->unkC, (f32)C7B_IN->unkE, (f32)C7B_IN->unk10, &sp3C, &sp38, &sp34);
+    sp58[6] = (s32)sp3C;
+    sp58[7] = (s32)sp38;
+    sp58[8] = (s32)sp34;
+    if (collisionIsTriangleDegenerate((CollisionTri *)sp58) != 0) {
+        return 0;
+    }
+    if (C7B_IN->unk12 & 1) {
+        C7B_OUT->unk4D = 1;
+    } else {
+        C7B_OUT->unk4D = 0;
+    }
+    if (C7B_IN->unk12 & 2) {
+        C7B_OUT->unk4F = C7B_IN->unk13;
+    } else {
+        C7B_OUT->unk4F = 0;
+    }
+    if (C7B_IN->unk12 & 4) {
+        C7B_OUT->unk51 = 1;
+    } else {
+        C7B_OUT->unk51 = 0;
+    }
+    if (C7B_IN->unk12 & 8) {
+        C7B_OUT->unk50 = 5;
+    } else {
+        C7B_OUT->unk50 = 0xFF;
+    }
+    C7B_OUT->unk4E = C7B_IN->unk14;
+    C7B_OUT->unk24 = (s32)(sp54 * 8.0f);
+    C7B_OUT->unk28 = (s32)(sp50 * 8.0f);
+    C7B_OUT->unk2C = (s32)(sp4C * 8.0f);
+    C7B_OUT->unk30 = (s32)(sp48 * 8.0f);
+    C7B_OUT->unk34 = (s32)(sp44 * 8.0f);
+    C7B_OUT->unk38 = (s32)(sp40 * 8.0f);
+    C7B_OUT->unk3C = (s32)(sp3C * 8.0f);
+    C7B_OUT->unk40 = (s32)(sp38 * 8.0f);
+    C7B_OUT->unk44 = (s32)(sp34 * 8.0f);
+    sp58[9] = func_8066D4DC(sp58, sp6C);
+    C7B_OUT->unk4B = func_8066D2F4(sp58);
+    C7B_OUT->unk48 = sp58[9];
+    C7B_OUT->unk4C = sp6C[0];
+    return func_8066DD34(C7B_OUT);
+#undef C7B_IN
+#undef C7B_OUT
+}
 
 s32 collisionIsTriangleDegenerate(CollisionTri *arg0) {
     s16 temp_a1;
@@ -524,13 +606,260 @@ s32 collisionIsTriangleDegenerate(CollisionTri *arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066D2F4.s")
+f32 func_80611BB4(f32, f32);
+
+s8 func_8066D2F4(s16 *a) {
+    f32 v2[3];
+    f32 v1[3];
+    f32 cross[3];
+    f32 len;
+    f32 angle;
+    f32 temp;
+
+    v2[0] = a[6] - a[0];
+    v2[1] = a[7] - a[1];
+    v2[2] = a[8] - a[2];
+    v1[0] = a[3] - a[0];
+    v1[1] = a[4] - a[1];
+    v1[2] = a[5] - a[2];
+    cross[0] = (v2[1] * v1[2]) - (v2[2] * v1[1]);
+    cross[1] = (v2[2] * v1[0]) - (v2[0] * v1[2]);
+    cross[2] = (v2[0] * v1[1]) - (v2[1] * v1[0]);
+
+    len = sqrtf((cross[0] * cross[0]) + (cross[2] * cross[2]));
+    if (((f64)len < 0.01) && ((f64)len > -0.01)) {
+        angle = 1.57f;
+    } else {
+        if (0.0f < cross[1]) {
+            temp = cross[1];
+        } else {
+            temp = -cross[1];
+        }
+        angle = func_80611BB4(temp, len);
+    }
+
+    if ((f64)(f32)((f64)angle * 57.29577791868205) < 10.0) {
+        return 1;
+    }
+    if ((f64)(f32)((f64)angle * 57.29577791868205) < 45.0) {
+        return 2;
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066D4DC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066DB40.s")
+#ifdef NON_MATCHING
+typedef struct Col7BHitIn {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ u8 unk14;
+    /* 0x15 */ u8 unk15;
+    /* 0x16 */ u8 unk16;
+} Col7BHitIn;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066DD34.s")
+typedef struct Col7BHitOut {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ s16 unk24;
+    /* 0x26 */ s16 unk26;
+} Col7BHitOut;
+
+typedef struct Col7BTriWork {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ s32 unk24;
+    /* 0x28 */ s32 unk28;
+    /* 0x2C */ s32 unk2C;
+    /* 0x30 */ s32 unk30;
+    /* 0x34 */ s32 unk34;
+    /* 0x38 */ s32 unk38;
+    /* 0x3C */ s32 unk3C;
+    /* 0x40 */ s32 unk40;
+    /* 0x44 */ s32 unk44;
+    /* 0x48 */ s16 unk48;
+    /* 0x4A */ u8 pad4A;
+    /* 0x4B */ u8 unk4B;
+    /* 0x4C */ u8 unk4C;
+    /* 0x4D */ u8 unk4D;
+    /* 0x4E */ u8 pad4E;
+    /* 0x4F */ u8 unk4F;
+    /* 0x50 */ u8 unk50;
+    /* 0x51 */ u8 unk51;
+    /* 0x52 */ u8 pad52[0x58 - 0x52];
+} Col7BTriWork;
+
+s32 func_8066DB40(void *arg0, void *arg1) {
+#define C7B_IN ((Col7BHitIn *)arg0)
+#define C7B_OUT ((Col7BHitOut *)arg1)
+    Col7BTriWork sp28;
+    s32 pad[2];
+    s16 temp_a0;
+    s16 temp_v1;
+    s16 temp_v0;
+
+    sp28.unk24 = C7B_IN->unk0;
+    sp28.unk28 = C7B_IN->unk2;
+    sp28.unk2C = C7B_IN->unk4;
+    sp28.unk30 = C7B_IN->unk6;
+    sp28.unk34 = C7B_IN->unk8;
+    sp28.unk38 = C7B_IN->unkA;
+    sp28.unk3C = C7B_IN->unkC;
+    sp28.unk40 = C7B_IN->unkE;
+    sp28.unk44 = C7B_IN->unk10;
+
+    sp28.unk24 *= 8; sp28.unk28 *= 8; sp28.unk2C *= 8;
+    sp28.unk30 *= 8; sp28.unk34 *= 8; sp28.unk38 *= 8;
+    sp28.unk3C *= 8; sp28.unk40 *= 8; sp28.unk44 *= 8;
+
+    sp28.unk48 = C7B_IN->unk12;
+    sp28.unk4C = C7B_IN->unk14;
+    sp28.unk4D = 0;
+    sp28.unk4F = 0;
+    if (C7B_IN->unk16 & 4) {
+        sp28.unk51 = 1;
+    } else {
+        sp28.unk51 = 0;
+    }
+    sp28.unk50 = C7B_IN->unk15;
+    sp28.unk4B = 1;
+    func_8066DD34((CollisionBox *)&sp28);
+
+    *(s64 *)&C7B_OUT->unk0 = *(s64 *)&sp28.unk0;
+    *(s64 *)&C7B_OUT->unk8 = *(s64 *)&sp28.unk8;
+    *(s64 *)&C7B_OUT->unk10 = *(s64 *)&sp28.unk10;
+    *(s64 *)&C7B_OUT->unk18 = *(s64 *)&sp28.unk18;
+    C7B_OUT->unk20 = sp28.unk20;
+
+temp_a0 = C7B_IN->unk8;
+    temp_v1 = C7B_IN->unk2;
+    if (temp_v1 < temp_a0) {
+        C7B_OUT->unk24 = temp_v1;
+    } else {
+        C7B_OUT->unk24 = temp_a0;
+    }
+    temp_v1 = C7B_OUT->unk24;
+    temp_a0 = C7B_IN->unkE;
+    if (temp_v1 < temp_a0) {
+        C7B_OUT->unk24 = temp_v1;
+    } else {
+        C7B_OUT->unk24 = temp_a0;
+    }
+
+    temp_v0 = C7B_IN->unk8;
+    temp_v1 = C7B_IN->unk2;
+    if (temp_v0 < temp_v1) {
+        C7B_OUT->unk26 = temp_v1;
+    } else {
+        C7B_OUT->unk26 = temp_v0;
+    }
+    temp_a0 = C7B_IN->unkE;
+    temp_v0 = C7B_OUT->unk26;
+    if (temp_a0 < temp_v0) {
+        C7B_OUT->unk26 = temp_v0;
+    } else {
+        C7B_OUT->unk26 = temp_a0;
+    }
+
+    return 1;
+#undef C7B_IN
+#undef C7B_OUT
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066DB40.s")
+#endif
+
+typedef struct Col7BPlane {
+    /* 0x00 */ s64 nx;
+    /* 0x08 */ s64 ny;
+    /* 0x10 */ s64 nz;
+    /* 0x18 */ s64 d;
+    /* 0x20 */ f32 len;
+    /* 0x24 */ s32 x0;
+    /* 0x28 */ s32 y0;
+    /* 0x2C */ s32 z0;
+    /* 0x30 */ s32 x1;
+    /* 0x34 */ s32 y1;
+    /* 0x38 */ s32 z1;
+    /* 0x3C */ s32 x2;
+    /* 0x40 */ s32 y2;
+    /* 0x44 */ s32 z2;
+    /* 0x48 */ s16 unk48;
+    /* 0x4A */ u8 axis;
+} Col7BPlane;
+
+s32 func_8066DD34(CollisionBox *arg) {
+#define C7B_P ((Col7BPlane *)arg)
+    s64 d1[3];
+    s64 d2[3];
+    s64 ax;
+    s64 ay;
+    s64 az;
+
+    d1[0] = C7B_P->x0 - C7B_P->x1;
+    d1[1] = C7B_P->y0 - C7B_P->y1;
+    d1[2] = C7B_P->z0 - C7B_P->z1;
+    d2[0] = C7B_P->x0 - C7B_P->x2;
+    d2[1] = C7B_P->y0 - C7B_P->y2;
+    d2[2] = C7B_P->z0 - C7B_P->z2;
+    C7B_P->nx = d1[1] * d2[2] - d1[2] * d2[1];
+    C7B_P->ny = d1[2] * d2[0] - d1[0] * d2[2];
+    C7B_P->nz = d1[0] * d2[1] - d1[1] * d2[0];
+    C7B_P->d = -(C7B_P->nx * C7B_P->x1 + C7B_P->ny * C7B_P->y1 + C7B_P->nz * C7B_P->z1);
+    C7B_P->len = sqrtf((f32)(C7B_P->nx * C7B_P->nx + C7B_P->ny * C7B_P->ny + C7B_P->nz * C7B_P->nz));
+    if (C7B_P->len == 0.0) {
+        return 0;
+    }
+    if (C7B_P->nx >= 0) {
+        ax = C7B_P->nx;
+    } else {
+        ax = 0 - C7B_P->nx;
+    }
+    if (C7B_P->ny >= 0) {
+        ay = C7B_P->ny;
+    } else {
+        ay = 0 - C7B_P->ny;
+    }
+    if (C7B_P->nz >= 0) {
+        az = C7B_P->nz;
+    } else {
+        az = 0 - C7B_P->nz;
+    }
+    if (az >= ax && az >= ay) {
+        C7B_P->axis = 0;
+    }
+    if (ay >= ax && ay >= az) {
+        C7B_P->axis = 1;
+    }
+    if (ax >= ay && ax >= az) {
+        C7B_P->axis = 2;
+    }
+    return 1;
+#undef C7B_P
+}
 
 void actorSub140Free(ActorSub140 *arg0) {
     void *temp;

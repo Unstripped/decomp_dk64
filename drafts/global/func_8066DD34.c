@@ -1,1 +1,0 @@
-// func_8066DD34 (src/global/70FD0.c): 3D collision triangle normal cross product, plane equation D, sqrtf length and major axis determination using 64-bit int math [draft C lost: was saved as a whole-file copy without this function]

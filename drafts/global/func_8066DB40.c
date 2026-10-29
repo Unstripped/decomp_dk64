@@ -1,8 +1,5 @@
-// func_8066DB40 (src/global/70FD0.c): Closest diff 4 insns in vertex 3x3 stores + min/max branch scheduling; frame 0x80 matched
-#include "common.h"
-#include "actor.h"
-
-typedef struct M70N_CollisionInput {
+// func_8066DB40 (src/global/70FD0.c): stage 5-6, parked NON_MATCHING in src: frame 0x80 + all stores match; remaining 7 insn diff = register picks in min/max chains (target a0/v1,v1/v0 vs ours v0/v1,a0): temp locals declared/assigned in 4 blocks, tried all rgs assignments of 8 roles to 4 temps, 4x s64 copy of output words (needed), mul-by-8 order 0..8 in 3 lines, stores order adbcegf. deadsweep: no improvement.
+typedef struct Col7BHitIn {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 unk4;
@@ -16,9 +13,9 @@ typedef struct M70N_CollisionInput {
     /* 0x14 */ u8 unk14;
     /* 0x15 */ u8 unk15;
     /* 0x16 */ u8 unk16;
-} M70N_CollisionInput;
+} Col7BHitIn;
 
-typedef struct M70N_CollisionOutput {
+typedef struct Col7BHitOut {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
@@ -30,9 +27,9 @@ typedef struct M70N_CollisionOutput {
     /* 0x20 */ f32 unk20;
     /* 0x24 */ s16 unk24;
     /* 0x26 */ s16 unk26;
-} M70N_CollisionOutput;
+} Col7BHitOut;
 
-typedef struct M70N_TriWork {
+typedef struct Col7BTriWork {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
@@ -61,90 +58,81 @@ typedef struct M70N_TriWork {
     /* 0x50 */ u8 unk50;
     /* 0x51 */ u8 unk51;
     /* 0x52 */ u8 pad52[0x58 - 0x52];
-} M70N_TriWork;
+} Col7BTriWork;
 
-void func_8066DD34(CollisionBox *work);
-
-s32 func_8066DB40(M70N_CollisionInput *arg0, M70N_CollisionOutput *arg1) {
-    M70N_TriWork sp28;
+s32 func_8066DB40(void *arg0, void *arg1) {
+#define C7B_IN ((Col7BHitIn *)arg0)
+#define C7B_OUT ((Col7BHitOut *)arg1)
+    Col7BTriWork sp28;
     s32 pad[2];
     s16 temp_a0;
     s16 temp_v1;
     s16 temp_v0;
 
-    sp28.unk24 = arg0->unk0;
-    sp28.unk28 = arg0->unk2;
-    sp28.unk2C = arg0->unk4;
-    sp28.unk30 = arg0->unk6;
-    sp28.unk34 = arg0->unk8;
-    sp28.unk38 = arg0->unkA;
-    sp28.unk3C = arg0->unkC;
-    sp28.unk40 = arg0->unkE;
-    sp28.unk44 = arg0->unk10;
+    sp28.unk24 = C7B_IN->unk0;
+    sp28.unk28 = C7B_IN->unk2;
+    sp28.unk2C = C7B_IN->unk4;
+    sp28.unk30 = C7B_IN->unk6;
+    sp28.unk34 = C7B_IN->unk8;
+    sp28.unk38 = C7B_IN->unkA;
+    sp28.unk3C = C7B_IN->unkC;
+    sp28.unk40 = C7B_IN->unkE;
+    sp28.unk44 = C7B_IN->unk10;
 
-    sp28.unk2C *= 8;
-    sp28.unk28 *= 8;
-    sp28.unk24 *= 8;
-    sp28.unk30 *= 8;
-    sp28.unk34 *= 8;
-    sp28.unk38 *= 8;
-    sp28.unk44 *= 8;
-    sp28.unk40 *= 8;
-    sp28.unk3C *= 8;
+    sp28.unk24 *= 8; sp28.unk28 *= 8; sp28.unk2C *= 8;
+    sp28.unk30 *= 8; sp28.unk34 *= 8; sp28.unk38 *= 8;
+    sp28.unk3C *= 8; sp28.unk40 *= 8; sp28.unk44 *= 8;
 
-    sp28.unk48 = arg0->unk12;
+    sp28.unk48 = C7B_IN->unk12;
+    sp28.unk4C = C7B_IN->unk14;
     sp28.unk4D = 0;
     sp28.unk4F = 0;
-    sp28.unk4C = arg0->unk14;
-    if (arg0->unk16 & 4) {
+    if (C7B_IN->unk16 & 4) {
         sp28.unk51 = 1;
     } else {
         sp28.unk51 = 0;
     }
+    sp28.unk50 = C7B_IN->unk15;
     sp28.unk4B = 1;
-    sp28.unk50 = arg0->unk15;
-
     func_8066DD34((CollisionBox *)&sp28);
 
-    arg1->unk0 = sp28.unk0;
-    arg1->unk4 = sp28.unk4;
-    arg1->unkC = sp28.unkC;
-    arg1->unk8 = sp28.unk8;
-    arg1->unk14 = sp28.unk14;
-    arg1->unk10 = sp28.unk10;
-    arg1->unk1C = sp28.unk1C;
-    arg1->unk18 = sp28.unk18;
-    arg1->unk20 = sp28.unk20;
+    *(s64 *)&C7B_OUT->unk0 = *(s64 *)&sp28.unk0;
+    *(s64 *)&C7B_OUT->unk8 = *(s64 *)&sp28.unk8;
+    *(s64 *)&C7B_OUT->unk10 = *(s64 *)&sp28.unk10;
+    *(s64 *)&C7B_OUT->unk18 = *(s64 *)&sp28.unk18;
+    C7B_OUT->unk20 = sp28.unk20;
 
-    temp_a0 = arg0->unk8;
-    temp_v1 = arg0->unk2;
+temp_a0 = C7B_IN->unk8;
+    temp_v1 = C7B_IN->unk2;
     if (temp_v1 < temp_a0) {
-        arg1->unk24 = temp_v1;
+        C7B_OUT->unk24 = temp_v1;
     } else {
-        arg1->unk24 = temp_a0;
+        C7B_OUT->unk24 = temp_a0;
     }
-    temp_v1 = arg1->unk24;
-    temp_v0 = arg0->unkE;
-    if (temp_v1 < temp_v0) {
-        arg1->unk24 = temp_v1;
+    temp_v1 = C7B_OUT->unk24;
+    temp_a0 = C7B_IN->unkE;
+    if (temp_v1 < temp_a0) {
+        C7B_OUT->unk24 = temp_v1;
     } else {
-        arg1->unk24 = temp_v0;
+        C7B_OUT->unk24 = temp_a0;
     }
 
-    temp_a0 = arg0->unk8;
-    temp_v1 = arg0->unk2;
-    if (temp_a0 < temp_v1) {
-        arg1->unk26 = temp_v1;
-    } else {
-        arg1->unk26 = temp_a0;
-    }
-    temp_v0 = arg0->unkE;
-    temp_v1 = arg1->unk26;
+    temp_v0 = C7B_IN->unk8;
+    temp_v1 = C7B_IN->unk2;
     if (temp_v0 < temp_v1) {
-        arg1->unk26 = temp_v1;
+        C7B_OUT->unk26 = temp_v1;
     } else {
-        arg1->unk26 = temp_v0;
+        C7B_OUT->unk26 = temp_v0;
+    }
+    temp_a0 = C7B_IN->unkE;
+    temp_v0 = C7B_OUT->unk26;
+    if (temp_a0 < temp_v0) {
+        C7B_OUT->unk26 = temp_v0;
+    } else {
+        C7B_OUT->unk26 = temp_a0;
     }
 
     return 1;
+#undef C7B_IN
+#undef C7B_OUT
 }

@@ -1,4 +1,4 @@
-// func_8066D4DC (src/global/70FD0.c): from .scratch/L66D4DC/func_8066D4DC_best.c
+// func_8066D4DC (src/global/70FD0.c): stage 6: all int temp regs, frame 0xa8, stack offsets and 409 opcodes match (136 lines differ, only FP temp swap f8<->f10 from stmt 2 on: sp9C[1]/sp9C[2] CSE temps take f10/f8 in target, f8/f10 here). K&R (arg0,arg1) required: 2 params, a2 untouched, declaration in file must become unprototyped s16 func_8066D4DC(). Key: ONE s16 var_v1 (no separate sp42 slot) fixed the int ring; declare it LAST
 f32 func_80611BB4(f32, f32);
 
 s16 func_8066D4DC(arg0, arg1)
@@ -17,10 +17,9 @@ u8 *arg1;
     f32 sp54;
     f32 dist;
     f32 temp_ft5;
-    s16 var_v1;
-    s16 sp42;
     f32 sp38;
     f32 sp34;
+    s16 var_v1;
 
     sp9C[0] = arg0[6] - arg0[0];
     sp9C[1] = arg0[7] - arg0[1];
@@ -63,9 +62,8 @@ u8 *arg1;
     }
 
     if (0.0 <= (f64)sp84[0] && 0.0 <= (f64)sp84[2]) {
-        sp42 = (s32)((f64)(f32)((f64)angle * 57.29577791868205) * 11.375);
+        var_v1 = (s32)((f64)(f32)((f64)angle * 57.29577791868205) * 11.375);
     }
-    var_v1 = sp42;
     if (0.0 <= (f64)sp84[0] && (f64)sp84[2] < 0.0) {
         var_v1 = (s32)((180.0 - (f64)(f32)((f64)angle * 57.29577791868205)) * 11.375);
     }
