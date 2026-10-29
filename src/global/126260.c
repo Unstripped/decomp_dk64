@@ -89,7 +89,29 @@ void func_8072167C(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
     D_8075568C = (f32) ((f64) D_8075568C + ((f64) ((f32) arg2 - D_8075568C) * 0.1));
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/126260/func_8072177C.s")
+void func_8072177C(s32 arg0, s16 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8) {
+    s32 var_v0;
+    s32 temp_t3;
+    Command *temp_v1;
+
+    var_v0 = D_807FDB74;
+    if (var_v0 >= 0x20) {
+        temp_t3 = var_v0 - 1;
+        D_807FDB74 = temp_t3 & 0xFFFF;
+        var_v0 = temp_t3 & 0xFF;
+    }
+    temp_v1 = (Command *)(D_807FDB70 + var_v0 * 0x10);
+    D_807FDB74 = var_v0 + 1;
+    temp_v1->unk0 = arg0;
+    temp_v1->unk4 = arg1;
+    temp_v1->unk6 = arg2;
+    temp_v1->unk8 = arg3;
+    temp_v1->unkA = arg4;
+    temp_v1->unkB = arg5;
+    temp_v1->unkC = arg6;
+    temp_v1->unkD = arg7;
+    temp_v1->unkE = arg8;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/126260/func_80721814.s")
 
