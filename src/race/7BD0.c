@@ -45,7 +45,9 @@ typedef struct RaceUnknown174 {
     struct RaceUnknownActor *unk30;
     char pad34[2];
     u8 unk36;
-    char pad37[0x11];
+    char pad37[0xD];
+    u8 unk44;
+    char pad45[3];
     Struct806C7C94 *unk48;
     char pad4C[0x88 - 0x4C];
     struct RaceUnknownActor *unk88;
@@ -385,7 +387,7 @@ Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
     }
     WRITE_GFX(arg0++, 0xFA000000, 0xFF0000FF);
     var_s1 = 0;
-    if ((5 - *((u8 *)arg1 + 0x44)) > 0) {
+    if ((5 - arg1->unk44) > 0) {
         var_s0 = 0;
         do {
             temp_t2 = temp_fs1;
@@ -394,7 +396,7 @@ Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
             var_s1 += 1;
             var_s0 += 0x18;
             arg0 = next;
-        } while (var_s1 < (5 - *((u8 *)arg1 + 0x44)));
+        } while (var_s1 < (5 - arg1->unk44));
     }
     WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
     return arg0;
