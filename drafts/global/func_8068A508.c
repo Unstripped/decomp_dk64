@@ -1,29 +1,17 @@
-// func_8068A508 (src/global/8F050.c): Closest diff: frame 0x88 and all int/float registers match; func_8065D0FC hoisted before switch eliminated callee-saved float spills; minor regalloc remaining
-#include "common.h"
-
-typedef struct Act8CA_Struct_8F050 {
-    s16 unk0;
-    s16 unk2;
-    f32 unk4;
-    u8 unk8;
-    u8 unk9;
-    s16 unkA;
-    s32 unkC[2];
-} Act8CA_Struct_8F050;
-
-typedef struct R2CA_PlayerC924 {
+// func_8068A508 (src/global/8F050.c): Stage 5, score 120 (frame 0x88, saved regs match, minor addiu hoisting and regalloc for entry pointer and unk174)
+typedef struct KaF_PlayerC924 {
     u8 pad[0x210];
     f32 unk210;
     f32 unk214;
     f32 unk218;
-} R2CA_PlayerC924;
+} KaF_PlayerC924;
 
-typedef struct R2CA_Sub174 {
+typedef struct KaF_Sub174 {
     u8 pad[0x1A4];
     u8 unk1A4;
-} R2CA_Sub174;
+} KaF_Sub174;
 
-typedef struct R2CA_ActorAll {
+typedef struct KaF_ActorAll {
     u8 pad0[0x4C];
     s32 unk4C;
     u8 pad50[0x8];
@@ -35,40 +23,31 @@ typedef struct R2CA_ActorAll {
     f32 unk80;
     f32 unk84;
     u8 pad88[0xEC];
-    R2CA_Sub174 *unk174;
-} R2CA_ActorAll;
+    KaF_Sub174 *unk174;
+} KaF_ActorAll;
 
-typedef struct R2CA_ActorEntry {
-    R2CA_ActorAll *actor;
+typedef struct KaF_ActorEntry {
+    KaF_ActorAll *actor;
     u32 unk4;
-} R2CA_ActorEntry;
-
-typedef struct Act8CA_Actor4C {
-    u8 pad[0x4C];
-    s32 unk4C;
-} Act8CA_Actor4C;
+} KaF_ActorEntry;
 
 extern u16 gActiveActorCount;
-extern R2CA_ActorEntry gActiveActors[];
-extern R2CA_PlayerC924 *D_807FC924;
+extern KaF_ActorEntry gActiveActors[];
+extern KaF_PlayerC924 *D_807FC924;
 extern u8 D_807FC928;
 extern s32 D_807552F4[];
-extern Act8CA_Struct_8F050 D_80750100[];
 
-s32 func_80612E90(void *, s32, s32);
-void func_80613794(void *, s32);
-f32 func_8065D0FC(f32);
-s32 func_8068A3A0(s32, s32 *);
-void func_8068A404(Act8CA_Actor4C *, s32, s32);
+void func_80613794(void *, u32);
+f32 renderScaleDistanceByFov(f32);
 
 void func_8068A508(void) {
     s32 pad;
     s32 sp80;
     s32 pad2[3];
     s32 var_s1;
-    R2CA_ActorEntry *entry_ptr;
-    R2CA_ActorAll *actor;
-    Act8CA_Struct_8F050 *entry;
+    KaF_ActorEntry *entry_ptr;
+    KaF_ActorAll *actor;
+    ActorConfig8F050 *entry;
     f32 dist_sq;
     f32 r;
     s32 a2;
@@ -83,14 +62,15 @@ void func_8068A508(void) {
                           (((actor->unk7C - D_807FC924->unk210) * (actor->unk7C - D_807FC924->unk210)) +
                            ((actor->unk80 - D_807FC924->unk214) * (actor->unk80 - D_807FC924->unk214)));
                 if (func_8068A3A0(actor->unk58, &sp80) != 0) {
-                    r = func_8065D0FC(((Act8CA_Struct_8F050 *)((u8 *)D_80750100 + sp80 * 20))->unk4);
-                    entry = (Act8CA_Struct_8F050 *)((u8 *)D_80750100 + sp80 * 20);
+                    r = renderScaleDistanceByFov(((ActorConfig8F050 *)((u8 *)D_80750100 + sp80 * 20))->unk4);
+                    entry = (ActorConfig8F050 *)((u8 *)D_80750100 + sp80 * 20);
                     switch (entry->unk8) {
                     case 0:
                         if (D_807FC928 >= 2) {
-                            a2 = D_807552F4[actor->unk174->unk1A4];
+                            pad = actor->unk174->unk1A4;
+                            a2 = D_807552F4[pad];
                             if (a2 >= 0) {
-                                func_8068A404((Act8CA_Actor4C *)actor, sp80, a2);
+                                func_8068A404((Actor4C *)actor, sp80, a2);
                             }
                         }
                         break;
