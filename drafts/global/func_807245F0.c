@@ -1,4 +1,4 @@
-// func_807245F0 (src/global/1292F0.c): stage 5-6: frame 0x78, saved regs, all stack offsets, branch layout and scheduling identical; only t-register numbering differs from li 4096 (unkE store) to the end (target t7/t5/t6/t0/t3/t4/t8 vs t5/t1/t4/t8/t9/t0/t5), ring 2 behind; unk118 alloc head matches via else-arm reload; s16 cast blocks 0x1000+0x800 folding
+// func_807245F0 (src/global/1292F0.c): stage 6: frame 0x78, saved regs, stack layout, scheduling, relocs, rodata (3.14159274101257324) 100% matched; score 10: only 2 insns differ: subu t2 vs t0, addiu t3,t2 vs t3,t0
 typedef struct Fx127BPathState {
     u8 pad0[4];
     s32 unk4;
@@ -80,7 +80,7 @@ void func_807245F0(Fx127BPathOwner *arg0, u8 arg1) {
         }
         func_80723CCC(s->unk12, idx, frac, &x1, &y1, &z1);
         ang = mathAngleBetweenPointsDeg((s32)x0, (s32)z0, (s32)x1, (s32)z1);
-        s->unkE = ((s16)(0x1000 - (s32)(ang * 2048.0 / 3.141592741012573)) + 0x800) & 0xFFF;
+        s->unkE = (((((s16)(0x1000 - (s16)(s32)(ang * 2048.0 / 3.14159274101257324)) & 0xFFFF) & 0xFFFF) + 0x800) & 0xFFF);
         s->unk10 = 0x23;
         cnt = pathEntryCount(s->unk12) - 1;
         if (s->unk4 >= cnt) {

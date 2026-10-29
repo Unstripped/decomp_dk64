@@ -92,7 +92,7 @@ void func_807245F0(Fx127BPathOwner *arg0, u8 arg1) {
         }
         func_80723CCC(s->unk12, idx, frac, &x1, &y1, &z1);
         ang = mathAngleBetweenPointsDeg((s32)x0, (s32)z0, (s32)x1, (s32)z1);
-        s->unkE = ((s16)(0x1000 - (s32)(ang * 2048.0 / 3.141592741012573)) + 0x800) & 0xFFF;
+        s->unkE = (((((s16)(0x1000 - (s16)(s32)(ang * 2048.0 / 3.14159274101257324)) & 0xFFFF) & 0xFFFF) + 0x800) & 0xFFF);
         s->unk10 = 0x23;
         cnt = pathEntryCount(s->unk12) - 1;
         if (s->unk4 >= cnt) {
