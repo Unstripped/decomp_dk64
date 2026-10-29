@@ -74,23 +74,23 @@ void func_80717930(void);
 void func_80717D4C(void);
 void func_80718080(void);
 void func_8071827C(void);
-void func_807184F4(void);
+void effectGroundDecalSpinUpdate(void);
 void func_8071910C(void);
-void func_80719A0C(void);
-void func_80719B88(void);
-void func_80719C00(void);
+void effectDecelerateDriftUpdate(void);
+void timedEffectCountdownTick(void);
+void effectSpiralRiseUpdate(void);
 void effectSpriteMotionUpdate(void);
-void func_8071AF30(void);
-void func_8071DB74(void);
-void func_8071DC90(void);
+void effectFollowParentUpdate(void);
+void effectFloorFallUpdate(void);
+void effectActorOrbitFollowUpdate(void);
 void func_8071E110(void *, s32, s32, f32, f32, s32);
-void func_8071E1C8(void);
-void func_8071EA24(void);
+void effectArcAroundActorUpdate(void);
+void effectBurstParticleUpdate(void);
 void func_8071EFDC(void);
 
 void effectSpawnActorBone(s32 arg0, u8 arg1, f32 arg2) {
     func_807149B8(1);
-    func_8071498C(func_8071AF30);
+    func_8071498C(effectFollowParentUpdate);
     func_80714950(arg0);
     func_80714A28(4);
     func_80714C08(&D_80720120, arg2, D_807FBB40, arg1, 0);
@@ -157,14 +157,14 @@ void actorSpawnEffectChild(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, Act
 }
 
 extern s32 D_8071FF58;
-void func_807197B4(void);
+void effectWobbleScaleUpdate(void);
 
 void effectSpawnSmoke(u8 arg0) {
     if (!(D_8076A064 & 0x1F)) {
         func_80714998(2);
         func_807149B8(1);
         func_807149FC(0x3C);
-        func_8071498C(func_807197B4);
+        func_8071498C(effectWobbleScaleUpdate);
         if (arg0) {
             func_80714C08(&D_8071FF58, 0.05f, D_807FBB40, (u8)arg0, 0);
         } else {
@@ -302,7 +302,7 @@ void effectSpawnOctagonRing(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     s16 var_s0;
 
     for (var_s0 = 0; var_s0 < 8; var_s0++) {
-        func_8071498C(func_80719A0C);
+        func_8071498C(effectDecelerateDriftUpdate);
         func_80714950(var_s0);
         func_807149B8(1);
         func_807149C8(0xFF, 0xFF, 0xFF, 0xC8);
@@ -348,7 +348,7 @@ void effectSpawnMultiTierRing(f32 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
         }
         if (temp_t6 >= 2) {
             for (var_s0 = 0; var_s0 < 8; var_s0++) {
-                func_8071498C(func_80719B88);
+                func_8071498C(timedEffectCountdownTick);
                 func_80714950(var_s0);
                 func_807149B8(1);
                 func_807149FC(-1);
@@ -358,7 +358,7 @@ void effectSpawnMultiTierRing(f32 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
         }
         if (temp_t6 >= 3) {
             for (var_s0 = 0; var_s0 < 9; var_s0++) {
-                func_8071498C(func_80719C00);
+                func_8071498C(effectSpiralRiseUpdate);
                 func_80714950(var_s0);
                 func_807149B8(1);
                 func_807149FC(-1);
@@ -438,7 +438,7 @@ void effectSpawnActorScale(Actor *arg0) {
     func_80714998(3);
     func_807149B8(1);
     func_807149FC(1);
-    func_8071498C(func_807184F4);
+    func_8071498C(effectGroundDecalSpinUpdate);
     func_80714A28(4);
     func_807149C8(0xC8, 0xFF, 0xFF, 0xC8);
     ((Actor338 *)func_80714CC0(&D_8071FED0, (f64) sp28 * 0.6, arg0->unk7C, arg0->unkAC, arg0->unk84))->unk338 = arg0;
@@ -471,7 +471,7 @@ void effectSpawnBurstParticles(Actor *arg0) {
             do {
                 func_807149B8(1);
                 func_807149FC(-1);
-                func_8071498C(func_8071DB74);
+                func_8071498C(effectFloorFallUpdate);
                 func_80714A28(4);
                 func_80714CC0(&D_80720B58, scale01, arg0->unk7C, arg0->unkAC, arg0->unk84);
                 i++;
@@ -497,7 +497,7 @@ void func_8068696C(Actor *arg0) {
         func_807149B8(1);
         func_807149FC(-1);
         func_80714950(arg0);
-        func_8071498C(func_8071DC90);
+        func_8071498C(effectActorOrbitFollowUpdate);
         func_80714CC0((void *)D_8074E880[i % 3], 0.7f, arg0->unk7C, arg0->unk80, arg0->unk84);
     }
 }
@@ -509,14 +509,14 @@ void effectSpawnRingBursts(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
         func_807149B8(1);
         func_807149FC(-1);
         func_80714950(arg0);
-        func_8071498C(func_8071E1C8);
+        func_8071498C(effectArcAroundActorUpdate);
         func_8071E110(func_80714CC0((void *)D_8074E880[i], 0.7f, arg0->unk7C, arg0->unk80, arg0->unk84), 1, (u16)(i * 1365.3334f), arg1, arg2, arg3);
     }
     for (i = 0; i != 3; i++) {
         func_807149B8(1);
         func_807149FC(-1);
         func_80714950(arg0);
-        func_8071498C(func_8071E1C8);
+        func_8071498C(effectArcAroundActorUpdate);
         func_8071E110(func_80714CC0((void *)D_8074E880[i], 0.7f, arg0->unk7C, arg0->unk80, arg0->unk84), 0, (u16)(i * 1365.3334f), arg1, arg2, arg3);
     }
 }
@@ -527,7 +527,7 @@ void func_80686CF8(Actor *arg0) {
     for (i = 0; i < 30; i++) {
         func_807149B8(1);
         func_807149FC(1);
-        func_8071498C(func_8071EA24);
+        func_8071498C(effectBurstParticleUpdate);
         func_8071496C((s16)(i / 7));
         func_80714CC0((void *)D_8074E880[i % 3], 1.4f, arg0->unk7C, arg0->unk80 + 10.0f, arg0->unk84);
     }

@@ -860,13 +860,13 @@ typedef struct F1Act {
 #define F1S9C ((F1Dc9c *)D_807FDC9C)
 
 s32 func_80725ED4(s32, Actor *, void *, s16 *, s16 *, s16 *);
-s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
+s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_807232B8(s32, s32);
 void func_80723320(s32, s32);
 void func_8072334C(s32, s32);
 void func_80723484(s32);
-void func_807238D4(s32, f32 *, f32 *, f32 *);
+void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724E48(u8);
 void func_8072DC7C(u8);
 void actorSetDefaultState(s32);
@@ -893,7 +893,7 @@ void func_8072B7CC(s32 arg0) {
         case 8:
             switch (F1A->unk155) {
                 case 0:
-                    F1A->unk15F = func_80723020(D_807FBB40, F1S9C->unk2, 0, 0.0f, 0.0f, 0.0f, 0);
+                    F1A->unk15F = pathPlaybackStart(D_807FBB40, F1S9C->unk2, 0, 0.0f, 0.0f, 0.0f, 0);
                     func_80723284(F1A->unk15F, (u32)((f64)(u32)F1S9C->unkC * 0.1));
                     func_807232B8(F1A->unk15F, 1);
                     func_80723320(F1A->unk15F, -1);
@@ -901,7 +901,7 @@ void func_8072B7CC(s32 arg0) {
                     F1A->unk155++;
                 case 1:
                     func_80723484(F1A->unk15F);
-                    func_807238D4(F1A->unk15F, &F1A->unk7C, &F1A->unk80, &F1A->unk84);
+                    pathPlaybackGetPosition(F1A->unk15F, &F1A->unk7C, &F1A->unk80, &F1A->unk84);
                     if (F1S98->unk38 != 0.0f) {
                         F1A->unkB8 = sqrtf(((F1A->unk7C - F1A->unk88) * (F1A->unk7C - F1A->unk88)) + ((F1A->unk80 - F1A->unk8C) * (F1A->unk80 - F1A->unk8C)) + ((F1A->unk84 - F1A->unk90) * (F1A->unk84 - F1A->unk90))) * 40.0f;
                         actorUpdateAnimSpeedFromSpeed(0);

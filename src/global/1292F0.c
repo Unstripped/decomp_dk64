@@ -11,7 +11,7 @@ typedef struct {
 void heapFree(void *);
 
 #ifdef NON_MATCHING
-typedef struct Fx127BPathState {
+typedef struct PathFollowState {
     u8 pad0[4];
     s32 unk4;
     f32 unk8;
@@ -20,9 +20,9 @@ typedef struct Fx127BPathState {
     s16 unkE;
     s16 unk10;
     s16 unk12;
-} Fx127BPathState;
+} PathFollowState;
 
-typedef struct Fx127BPathOwner {
+typedef struct PathFollowOwner {
     u8 pad0[0x7C];
     s32 unk7C;
     s32 unk80;
@@ -30,19 +30,19 @@ typedef struct Fx127BPathOwner {
     u8 pad88[0x28];
     s8 unkB0;
     u8 padB1[0x67];
-    Fx127BPathState *unk118;
-} Fx127BPathOwner;
+    PathFollowState *unk118;
+} PathFollowOwner;
 
 s32 pathExists(u8);
-void func_80723F88(s32, s32, s32, s32, s32 *, f32 *);
-void func_80724154(s32, s32, s32, s32, s32 *, f32 *);
-void func_80723CCC(s32, s32, f32, f32 *, f32 *, f32 *);
+void pathFindClosestPoint(s32, s32, s32, s32, s32 *, f32 *);
+void pathRefineClosestPoint(s32, s32, s32, s32, s32 *, f32 *);
+void pathSplineSample(s32, s32, f32, f32 *, f32 *, f32 *);
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 s16 pathEntryCount(s32);
 
-void func_807245F0(Fx127BPathOwner *arg0, u8 arg1) {
+void func_807245F0(PathFollowOwner *arg0, u8 arg1) {
     s32 fresh;
-    Fx127BPathState *s;
+    PathFollowState *s;
     s32 idx;
     f32 frac;
     f32 x0;
@@ -78,19 +78,19 @@ void func_807245F0(Fx127BPathOwner *arg0, u8 arg1) {
             return;
         }
         if (fresh != 0) {
-            func_80723F88(s->unk12, arg0->unk7C, arg0->unk80, arg0->unk84, &s->unk4, &s->unk8);
+            pathFindClosestPoint(s->unk12, arg0->unk7C, arg0->unk80, arg0->unk84, &s->unk4, &s->unk8);
         } else {
-            func_80724154(s->unk12, arg0->unk7C, arg0->unk80, arg0->unk84, &s->unk4, &s->unk8);
+            pathRefineClosestPoint(s->unk12, arg0->unk7C, arg0->unk80, arg0->unk84, &s->unk4, &s->unk8);
         }
         frac = s->unk8;
         idx = s->unk4;
-        func_80723CCC(s->unk12, idx, frac, &x0, &y0, &z0);
+        pathSplineSample(s->unk12, idx, frac, &x0, &y0, &z0);
         frac = frac + 0.4;
         if (frac >= 1.0) {
             idx += 1;
             frac = frac - 1.0;
         }
-        func_80723CCC(s->unk12, idx, frac, &x1, &y1, &z1);
+        pathSplineSample(s->unk12, idx, frac, &x1, &y1, &z1);
         ang = mathAngleBetweenPointsDeg((s32)x0, (s32)z0, (s32)x1, (s32)z1);
         s->unkE = (((((s16)(0x1000 - (s16)(s32)(ang * 2048.0 / 3.14159274101257324)) & 0xFFFF) & 0xFFFF) + 0x800) & 0xFFF);
         s->unk10 = 0x23;

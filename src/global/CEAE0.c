@@ -2594,13 +2594,13 @@ void func_806CF878(void) {
 }
 
 extern s32 D_8071FF40;
-extern s32 func_807195D4;
+extern s32 effectSpiralDriftMatrixUpdate;
 
 void func_806CF918(void) {
     s32 i;
 
     for (i = 0; i != 0xC8; i += 0x28) {
-        func_8071498C(&func_807195D4);
+        func_8071498C(&effectSpiralDriftMatrixUpdate);
         func_807149B8(1);
         func_80714950(i);
         func_807149FC(0x45);

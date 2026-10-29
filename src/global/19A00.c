@@ -1653,7 +1653,7 @@ extern void func_8071B24C(void);
 extern void func_8071B44C(void);
 extern u8 D_8071FE08[];
 extern u8 D_8071FF18[];
-extern void func_8071D28C(void);
+extern void effectOrbitSourceUpdate(void);
 extern s32 D_807FBB60;
 extern f32 D_807F5AF8;
 extern f32 D_807F5AFC;
@@ -1741,7 +1741,7 @@ extern s32 D_807FBB68;
 extern u8 D_8072006C;
 extern u8 D_80720B58;
 void func_8071A440(void);
-void func_8071DB74(void);
+void effectFloorFallUpdate(void);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, s16, s16, s32);
 
 void func_80618608(Actor *arg0) {
@@ -1753,7 +1753,7 @@ void func_80618608(Actor *arg0) {
         for (var_s0 = 0; var_s0 < 0x14; var_s0++) {
             func_807149B8(1);
             func_807149FC(-1);
-            func_8071498C(func_8071DB74);
+            func_8071498C(effectFloorFallUpdate);
             func_80714A28(4);
             func_80714C08(&D_80720B58, 0.1f, arg0, sp3F, 0);
         }

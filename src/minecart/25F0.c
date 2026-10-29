@@ -199,7 +199,7 @@ void actorSpawnNodeEffectFacingCamera(s32, s32);
 void actorApproachTargetSpeed(s32);
 void minecartFollowTrack(MinecartCart *, s32, s32);
 void actorGetNodePos(Actor_25F0 *, s32, f32 *, f32 *, f32 *);
-void func_8072177C(Actor_25F0 *, s16, s16, s16, s32, s32, s32, s32, s32);
+void commandQueuePush(Actor_25F0 *, s16, s16, s16, s32, s32, s32, s32, s32);
 void minecartPlayPassBySfx(MinecartCart *);
 void minecartChooseBranchSide(MinecartCart *);
 u8 *func_80610FE8(s32);
@@ -658,7 +658,7 @@ void func_800280BC(void) {
         actorApproachTargetSpeed(0x200);
         minecartFollowTrack(cart, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp44, &sp48, &sp4C);
-        func_8072177C(D_807FBB40, sp44, sp48, sp4C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        commandQueuePush(D_807FBB40, sp44, sp48, sp4C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         minecartPlayPassBySfx(cart);
         return;
     case 2:
@@ -730,7 +730,7 @@ void func_8002835C(void) {
             cart->unk34--;
         }
         actorGetNodePos(D_807FBB40, 5, &sp58, &sp5C, &sp60);
-        func_8072177C(D_807FBB40, sp58, sp5C, sp60, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        commandQueuePush(D_807FBB40, sp58, sp5C, sp60, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         minecartPlayPassBySfx(cart);
         return;
     case 2:
@@ -805,7 +805,7 @@ case_1:
         actorSpawnNodeEffectFacingCamera(6, 0xFF);
         minecartFollowTrack(cart, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp74, &sp78, &sp7C);
-        func_8072177C(D_807FBB40, sp74, sp78, sp7C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        commandQueuePush(D_807FBB40, sp74, sp78, sp7C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         if (D_807FBB4C->unk154 == 0x70 || cart->unk10 == 0x90) {
             D_807FBB40->unk154++;
         }

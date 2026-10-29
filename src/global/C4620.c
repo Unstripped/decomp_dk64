@@ -321,12 +321,12 @@ void func_806F09F0(Actor *, u16);
 void actorSetTargetSpeed(Actor *, s32);
 void actorScriptStart(void *, s32);
 void func_80614D00(Actor *, f32, f32);
-s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
+s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_80723320(s32, s32);
 void func_8072334C(s32, s32);
 void func_80723484(s32);
-void func_807238D4(s32, f32 *, f32 *, f32 *);
+void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 s32 func_80723C98();
 void actorSetUniformScale(Actor *, f32);
 void *spawnNodeActivate(s32, s32);
@@ -401,7 +401,7 @@ void func_806BFBF4(void) {
                 state->unk22 = cmd->unk6;
                 break;
             case 24:
-                state->unk30 = func_80723020(D_807FBB40, state->unk2D, 0, 0.0f, 0.0f, 0.0f, 0);
+                state->unk30 = pathPlaybackStart(D_807FBB40, state->unk2D, 0, 0.0f, 0.0f, 0.0f, 0);
                 state->unk31 = cmd->unk4;
                 state->unk32 = cmd->unk6;
                 func_80723284(state->unk30, state->unk2E / cmd->unk4);
@@ -412,7 +412,7 @@ void func_806BFBF4(void) {
                 t = cmd->unk4;
                 state->unk2D = t;
                 state->unk2E = cmd->unk6;
-                state->unk2F = func_80723020(D_807FBB40, t & 0xFF, 0, 0.0f, 0.0f, 0.0f, 0);
+                state->unk2F = pathPlaybackStart(D_807FBB40, t & 0xFF, 0, 0.0f, 0.0f, 0.0f, 0);
                 func_80723284(state->unk2F, state->unk2E);
                 func_80723320(state->unk2F, 1);
                 func_8072334C(state->unk2F, 1);
@@ -592,7 +592,7 @@ void func_806BFBF4(void) {
                 actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68);
             } else if (func_80723C98(state->unk30, 4, &sp70, &sp6C) != 0) {
                 func_80723484(state->unk30);
-                func_807238D4(state->unk30, &sp70, &sp6C, &sp68);
+                pathPlaybackGetPosition(state->unk30, &sp70, &sp6C, &sp68);
                 sp6C += 10.0f;
             } else {
                 state->unk30 = 0xFF;
@@ -623,7 +623,7 @@ void func_806BFBF4(void) {
             break;
         case 0xC:
             func_80723484(state->unk2F);
-            func_807238D4(state->unk2F, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
+            pathPlaybackGetPosition(state->unk2F, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
             func_8072E320(8.0f);
             break;
         case 0xE:
@@ -1043,8 +1043,8 @@ void func_806C1CCC(void) {
 
 extern u8 D_8071FF58[];
 extern u8 D_80720B58[];
-void func_807197B4();
-void func_8071F078();
+void effectWobbleScaleUpdate();
+void effectScatterFallUpdate();
 void animSetLoopLimit(Actor *, s32, s32);
 void animSetFinished(Actor *, s32, s32);
 void animSetFrameAndSubframe(Actor *, s32, s16, f32);
@@ -1096,7 +1096,7 @@ void func_806C1E44(void) {
                             func_80714998(2);
                             func_807149B8(1);
                             func_807149FC(0x28);
-                            func_8071498C(func_807197B4);
+                            func_8071498C(effectWobbleScaleUpdate);
                             func_80714C08(D_8071FF58, 0.05f, D_807FBB40, 1, 0);
                         }
                     }
@@ -1114,7 +1114,7 @@ void func_806C1E44(void) {
                     do {
                         func_807149B8(1);
                         func_807149FC(0x28);
-                        func_8071498C(func_8071F078);
+                        func_8071498C(effectScatterFallUpdate);
                         func_80714950(D_807FBB40->unkE6);
                         func_80714C08(D_80720B58, 0.7f, D_807FBB40, 1, 0);
                         i++;
@@ -1462,7 +1462,7 @@ void effectSpawnActorScale(Actor *);
 void func_80685F60(Actor *);
 void sfxStopSlotSound(Actor *, s32);
 void actorSetGroupState(u8, u8);
-void func_8072177C(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
+void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
 void effectSpawnJointBeam(s32, s32, s32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 extern s32 D_807FBB68;
@@ -1734,7 +1734,7 @@ void func_806C2DF4(void) {
             break;
     }
     if (D_8076A0A8 == 0xD0 && (LgV->unk60 & 0x1000)) {
-        func_8072177C(D_807FBB40, LgV->unk7C, LgV->unk80 + 30.0f, LgV->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        commandQueuePush(D_807FBB40, LgV->unk7C, LgV->unk80 + 30.0f, LgV->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     }
     if (LgV->unk4->unk64 == 0x22A) {
         if ((randomNonNegative() >> 15) % 100 >= 0x47 || LgV->unk155 != 0) {

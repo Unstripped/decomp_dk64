@@ -120,7 +120,7 @@ void minecartFollowTrack(struct MinecartCart *, s16, u8);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 camIsCutsceneActive(void);
 void actorSpawnNodeEffectFacingCamera(s32, s32);
-void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
+void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 s32 actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void lightSetDistanceThreshold(s32);
 void lightSetFovAngles(f32, f32);
@@ -282,8 +282,8 @@ void minecartPlayerCartUpdate(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
         minecartStepSpeedToTarget(s1);
         minecartFollowTrack(s1, arg2, arg3);
         actorGetNodePos(D_807FBB40, 5, &sp58[0], &sp58[1], &sp58[2]);
-        func_8072177C(D_807FBB40, (s16)(s32)sp58[0], (s16)(s32)sp58[1], (s16)(s32)sp58[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
-        func_8072177C(s1->unk4, (s16)(s32)sp58[0], (s16)(s32)sp58[1], (s16)(s32)sp58[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        commandQueuePush(D_807FBB40, (s16)(s32)sp58[0], (s16)(s32)sp58[1], (s16)(s32)sp58[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        commandQueuePush(s1->unk4, (s16)(s32)sp58[0], (s16)(s32)sp58[1], (s16)(s32)sp58[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
         break;
 
     default:

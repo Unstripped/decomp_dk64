@@ -460,7 +460,7 @@ void func_807149B8(s32);
 void func_807149FC(s32);
 void func_80714CC0(s32, f32, f32, f32, f32);
 s32 flagGet(s16, s32);
-void D_8071CDE0(void);
+void effectWispHomeUpdate(void);
 
 extern s32 D_8074E880[];
 extern Boss3C_Struct_8478 *D_807FDC94;
@@ -481,7 +481,7 @@ u8 arg5;
         return;
     }
     for (s0 = 0; s0 < 6; s0++) {
-        func_8071498C(D_8071CDE0);
+        func_8071498C(effectWispHomeUpdate);
         func_807149FC(-1);
         func_807149B8(1);
         func_80714950(D_807FDC94);

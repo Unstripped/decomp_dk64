@@ -1665,7 +1665,7 @@ void func_807149C8(s32, s32, s32, s32);
 void func_807149FC(s32);
 void func_80714A28(s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
-void func_8071720C(void);
+void effectPuffRiseUpdate(void);
 void func_80717404(void);
 void func_80717D4C(void);
 void func_80718BF4(void);
@@ -1827,7 +1827,7 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
         case 9:
             for (i = 0; i < arg2; i++) {
                 func_80714998(2);
-                func_8071498C(func_8071720C);
+                func_8071498C(effectPuffRiseUpdate);
                 func_807149B8(1);
                 func_80714950(1);
                 func_8071496C(i * 3);

@@ -231,7 +231,7 @@ void func_80714950(void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void func_80714998(s32);
 void func_8071EDEC(void);
-void func_8071720C(void);
+void effectPuffRiseUpdate(void);
 extern void *D_8074E880[];
 
 void bossSpawnSparkles(void) {
@@ -251,7 +251,7 @@ void bossSpawnSparkles(void) {
     func_80714CC0(D_80720120, 1.5f, sp6C, sp68, sp64);
     for (i = 0; i < 4; i++) {
         func_80714998(2);
-        func_8071498C(func_8071720C);
+        func_8071498C(effectPuffRiseUpdate);
         func_807149B8(1);
         func_80714C08(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.5f, D_807FBB40, ((randomNonNegative() >> 15) % 32767 % 22) + 2, 0);
     }

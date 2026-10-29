@@ -306,7 +306,7 @@ void func_80714950(s32);
 void func_8071498C(void *);
 void func_807149B8(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_8071720C(void);
+void effectPuffRiseUpdate(void);
 void func_80717D4C(void);
 extern void *D_8074E880[];
 
@@ -318,7 +318,7 @@ void actorSpawnRandomParticleNearActor(u8 arg0, s8 arg1) {
 
     switch (arg0) {
         case 0:
-            func_8071498C(func_8071720C);
+            func_8071498C(effectPuffRiseUpdate);
             break;
         case 1:
             func_80714950(-0x258);

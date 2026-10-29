@@ -780,7 +780,7 @@ extern StructBB70_Race D_807FBB70;
 extern RaceDC9C *D_807FDC9C;
 void func_8067E278(s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
+void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 
 void func_80029054(void) {
     RaceActor *temp_v0;
@@ -809,9 +809,9 @@ void func_80029054(void) {
         D_807FBB40->unk154 = 0x40;
     }
     actorGetNodePos(D_807FBB40, 6, &sp3C, &sp40, &sp44);
-    func_8072177C(D_807FBB40, (s16)sp3C, (s16)sp40, (s16)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    commandQueuePush(D_807FBB40, (s16)sp3C, (s16)sp40, (s16)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     actorGetNodePos(D_807FBB40, 0xB, &sp3C, &sp40, &sp44);
-    func_8072177C(D_807FBB40, (s16)sp3C, (s16)sp40, (s16)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    commandQueuePush(D_807FBB40, (s16)sp3C, (s16)sp40, (s16)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     racePathFollowStep(sp50, temp_s1, 1);
     if ((temp_s1->unk34 == 0) && (sp48->unk34 == 5)) {
         D_807FDC9C->unk14 = 0;

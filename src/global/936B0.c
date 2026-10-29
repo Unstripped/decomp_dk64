@@ -2853,7 +2853,7 @@ void actorApplyTransformAndRender(void) {
 extern u8 D_8071FBC8;
 extern u8 D_8071FC40;
 extern u8 D_80720804;
-void func_807189BC(void);
+void effectProjectileDriftUpdate(void);
 
 typedef struct ProjectileParticleActor {
     u8 pad0[0x60];
@@ -2919,7 +2919,7 @@ void projectileParticleSpawnerTick(void) {
     if (G_PROJECTILE_PARTICLE_ACTOR->unk6A & 4) {
         func_807149B8(1);
         func_807149FC(-1);
-        func_8071498C(func_807189BC);
+        func_8071498C(effectProjectileDriftUpdate);
         func_80714950((s32)D_807FBB40);
         func_80714CC0(&D_8071FC40, 0.3f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
     }
@@ -3219,7 +3219,7 @@ void func_8067E278(s32, s32);
 void actorSetUniformScale(Actor *, f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 f32 func_80612794(s16);
-void func_8071AF30(void);
+void effectFollowParentUpdate(void);
 
 void projectileChaseTargetUpdate(void) {
     ProjectileChaseState *sp44;
@@ -3314,7 +3314,7 @@ void projectileChaseTargetUpdate(void) {
     }
     if (CHASE_ACTOR->unk58 == 0x59) {
         func_807149B8(1);
-        func_8071498C(func_8071AF30);
+        func_8071498C(effectFollowParentUpdate);
         func_807149A8(1000);
         func_80714950((s32)D_807FBB40);
         func_80714C08(&D_80720120, 1.0f, D_807FBB40, 1, 0);

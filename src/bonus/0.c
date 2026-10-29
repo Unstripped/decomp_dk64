@@ -70,7 +70,7 @@ extern LB3bTbl D_807FBB70;
 extern u8 D_8002D863[];
 
 void behaviourFrameBegin(void);
-void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
+void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
 void slotQueueSetDisplayMode(s32, s32, s32);
@@ -127,7 +127,7 @@ void bonusControllerUpdate(void) {
     behaviourFrameBegin();
     sp6F = D_807FDC9C->unk14;
     sp6E = D_807FDC9C->unkA;
-    func_8072177C(D_807FBB4C, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 30.0f, D_807FBB4C->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    commandQueuePush(D_807FBB4C, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 30.0f, D_807FBB4C->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     if (!(D_807FBB40->unk60 & 0x10)) {
         sp67 = 0;
         currentActorClearFlag();

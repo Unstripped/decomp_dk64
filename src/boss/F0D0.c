@@ -63,7 +63,7 @@ void actorDespawn(void *);
 void playerStateQueueCallback(s32, void *, s32);
 void camStartShakeFromPoint(void *, s32, s32, f32, f32, f32, f32, f32);
 extern void *gCamActor;
-extern void *D_8071720C;
+extern void *effectPuffRiseUpdate;
 extern void *D_8074E880[];
 #ifdef NON_MATCHING
 u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
@@ -171,7 +171,7 @@ void func_800336C0(void) {
 
     sp24 = (f32) ((f64) D_807FBB40->unk4->unk38 / 0.15);
     func_80714998(2);
-    func_8071498C(&D_8071720C);
+    func_8071498C(&effectPuffRiseUpdate);
     func_807149B8(1);
     func_80714950(1);
     func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) sp24, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);

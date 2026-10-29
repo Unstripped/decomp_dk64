@@ -80,7 +80,7 @@ void func_807149C8(s32, s32, s32, s32);
 void func_80714998(s32);
 void func_80714A08(f32, f32);
 void func_8071498C(void (*)(void));
-void func_8071B8EC(void);
+void effectSparkSpawnUpdate(void);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void actorUpdateModelMatrix(Actor *, s32);
 
@@ -246,7 +246,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             func_807149C8(0xFF, 0xFF, 0xFF, 1);
             func_80714998(1);
             func_80714A08(-0.4f, 0.4f);
-            func_8071498C(func_8071B8EC);
+            func_8071498C(effectSparkSpawnUpdate);
             func_80714CC0(&D_80720630, 0.3f, BA790A->unk7C, BA790A->unkA4 + 7.0f, BA790A->unk84);
             BA790A->unk60 &= ~4;
             BA790A->unk155 = BA790A->unk155 + 1;

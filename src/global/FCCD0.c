@@ -801,7 +801,7 @@ void func_807149C8(s32, s32, s32, s32);
 void func_807149FC(s32);
 void func_80714A28(s32);
 void *func_80714CC0(s32, f32, f32, f32, f32);
-void func_8071BE04(void);
+void effectWaveMotionUpdate(void);
 
 void effectSpawnSprite(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     u8 unused_byte;
@@ -819,7 +819,7 @@ void effectSpawnSprite(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     func_80714998(((u8 *)&sp2C)[3]);
     func_80714944(arg4);
     func_80714950(arg0);
-    func_8071498C(func_8071BE04);
+    func_8071498C(effectWaveMotionUpdate);
     func_80714A28(0x21);
     if (arg1 == 3) {
         func_807149C8(0xFF, 0, 0, 0xFF);

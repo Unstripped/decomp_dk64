@@ -511,7 +511,7 @@ s16 func_806531B8(f32, f32, f32, s32);
 s32 renderEntryAddOrUpdate(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
 void func_80715A3C(s16 *, u8, u8 *, s32, s32, s32 *);
 void effectFreeAndUnlink(EffectNode *);
-void func_80715B30(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, f32, u8);
+void effectComputeTransformMatrix(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, f32, u8);
 
 void func_80715270(u8 arg0) {
     EffectNode *effect;
@@ -599,7 +599,7 @@ after_model_slot:
                         offset = 0;
                         do {
                             if (((u8 *)D_807FC924)[offset] != 0) {
-                                func_80715B30((Mtx *)((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128),
+                                effectComputeTransformMatrix((Mtx *)((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128),
                                               UA1_D08_FIELD(u8, effect, 0x32C),
                                               UA1_D08_FIELD(f32, effect, 0x360),
                                               UA1_D08_FIELD(f32, effect, 0x364),
@@ -813,7 +813,7 @@ void matrixMakeRotationZ(f32 (*)[4], f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 distance3D(f32, f32, f32, f32, f32, f32);
 
-void func_80715B30(Mtx *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, u8 arg10) {
+void effectComputeTransformMatrix(Mtx *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, u8 arg10) {
     f32 pad[2];
     f32 distance;
     f32 value;

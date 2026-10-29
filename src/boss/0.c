@@ -14,7 +14,7 @@ typedef struct BossActorPos {
 struct BossA_Struct_807FBB40;
 extern struct BossA_Struct_807FBB40 *D_807FBB40;
 extern BossByteTable6 D_8003598C;
-extern u8 D_8071E864;
+extern u8 effectDecelDriftFadeUpdate;
 extern u8 D_8071FFA0;
 
 void func_8067E2E4(void *, s32, f32);
@@ -35,7 +35,7 @@ void func_80024000(void) {
     }
 
     for (i = 0; i < 12; i++) {
-        func_8071498C((void *)(s32)&D_8071E864);
+        func_8071498C((void *)(s32)&effectDecelDriftFadeUpdate);
         func_80714950(i);
         func_807149B8(1);
         func_807149C8(0x8C, 0x8C, 0x8C, 0xFF);
@@ -559,7 +559,7 @@ typedef struct BossActorUnkC0 {
     f32 unkC0;
 } BossActorUnkC0;
 
-extern u8 D_8071AF30;
+extern u8 effectFollowParentUpdate;
 extern u8 D_80720120;
 
 void func_807149A8(s32);
@@ -572,7 +572,7 @@ void func_800253AC(void) {
 
     dval = (0.0 < (f64)((BossActorUnkC0 *)D_807FBB40)->unkC0) ? (f64)((BossActorUnkC0 *)D_807FBB40)->unkC0 : 0.0;
     val = (f32)((f32)((dval / 150.0) * 0.12) + 0.3) * 4.0f;
-    p = (s32)&D_8071AF30;
+    p = (s32)&effectFollowParentUpdate;
     func_807149B8(1);
     func_8071498C((void *)p);
     func_807149A8(1000);

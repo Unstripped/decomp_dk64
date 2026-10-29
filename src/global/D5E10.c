@@ -3739,7 +3739,7 @@ void func_806CF0D0(void);
 void func_806CEED8(void);
 s16 func_806CE928(Actor *, f32, f32, s32);
 
-void func_80717100();
+void effectOrbitXZUpdate();
 extern u8 D_8071FC8C;
 void func_805FF9AC(u16, s16, s16, s16);
 f32 func_80612794(s16);
@@ -3759,7 +3759,7 @@ void func_806D9AD4(void) {
         randomNonNegative();
         func_807149B8(1);
         func_80714950((G17_P->unk23C << 16) + (s32)(15.0 * (G17_A->unk128 / 255.0)));
-        func_8071498C(func_80717100);
+        func_8071498C(effectOrbitXZUpdate);
         func_80714CC0((s32)&D_8071FC8C, 0.5f, G17_A->unk7C, sp28, G17_A->unk84);
         sel = G17_A->unk155;
     }
@@ -4481,7 +4481,7 @@ typedef struct LBActor {
 
 extern u8 D_8071FC58;
 extern u8 D_8071FCC0;
-void func_8071720C();
+void effectPuffRiseUpdate();
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
@@ -4549,7 +4549,7 @@ void func_806DBB04(void) {
         sp54 += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
         func_80714998(2);
         func_807149B8(1);
-        func_8071498C(func_8071720C);
+        func_8071498C(effectPuffRiseUpdate);
         func_80714950((randomNonNegative() >> 15) % 100 + 0x64);
         if (sp63 == 2) {
             func_80714CC0((s32)&D_8071FCC0, 0.5f, sp5C, sp58, sp54);

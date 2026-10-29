@@ -271,7 +271,7 @@ extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 s32 lightCheckPlayerDistance(LightVolume *);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_8072177C(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
+void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 #ifdef NON_MATCHING
@@ -350,7 +350,7 @@ void func_8065A884(void) {
                                     } else {
                                         intensity = (dot - light->unkC) * light->unk10;
                                     }
-                                    func_8072177C(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
+                                    commandQueuePush(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
                                         0xFF,
                                         (u32)((f32)light->unk36 * intensity),
                                         (u32)((f32)light->unk37 * intensity),
@@ -430,7 +430,7 @@ void func_8065A884(void) {
                             }
                             innerDist = maxDist / 3.0f;
                             if (dist < innerDist) {
-                                func_8072177C(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
+                                commandQueuePush(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
                                     0xFF, light->unk36, light->unk37, light->unk38, 0);
                                 if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
                                     func_8065D254(actor, 0x3C9, 0x40, 0x40,
@@ -446,7 +446,7 @@ void func_8065A884(void) {
                                 distFromInner = dist - innerDist;
                                 if (distFromInner < range) {
                                     factor = 1.0f - (distFromInner / range);
-                                    func_8072177C(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
+                                    commandQueuePush(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
                                         0xFF,
                                         (u32)((f32)light->unk36 * factor),
                                         (u32)((f32)light->unk37 * factor),

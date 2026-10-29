@@ -222,7 +222,7 @@ typedef struct CsCursor {
     /* 0x4 */ s32 idx;
 } CsCursor;
 extern u8 D_8071FB54[];
-void func_8071C004(void);
+void timedLightPulse(void);
 
 void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     CsCursor *st;
@@ -251,7 +251,7 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
         func_80714998(2);
         func_807149B8(1);
         func_80714950(0);
-        func_8071498C(func_8071C004);
+        func_8071498C(timedLightPulse);
         func_80714CC0(D_8071FB54, 0.667f, x, y + 10, z);
         st->timer = 0x19;
     }
@@ -380,7 +380,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern void *D_8074E880[];
 void func_8071496C(s16);
-void func_8071EA24();
+void effectBurstParticleUpdate();
 
 void csCmdSpawnEffectsAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 i;
@@ -388,7 +388,7 @@ void csCmdSpawnEffectsAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
     for (i = 0; i < 30; i++) {
         func_807149B8(1);
         func_807149FC(1);
-        func_8071498C(func_8071EA24);
+        func_8071498C(effectBurstParticleUpdate);
         func_8071496C(i / 7);
         func_80714CC0(D_8074E880[i % 3], 1.4f, gCsPosX, gCsPosY, gCsPosZ);
     }
@@ -996,7 +996,7 @@ void func_80645D14(s32 **slot, s16 csId, s16 b, s16 c) {
 }
 
 extern u8 D_80720B00;
-void func_8071EB70(void);
+void effectProximityFadeUpdate(void);
 
 void func_80645F40(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x = 0.0f;
@@ -1006,7 +1006,7 @@ void func_80645F40(CsState *cs, s16 csId, s16 b, s16 c) {
         for (i = 1; i != 0xB; i++) {
             func_807149B8(1);
             func_80714998(2);
-            func_8071498C(func_8071EB70);
+            func_8071498C(effectProximityFadeUpdate);
             func_80714950(0x2BC);
             func_807149A8(0x2BC);
             func_80714B84(&D_80720B00, x + 1.1, csId, i, 1);
@@ -1327,7 +1327,7 @@ extern s32 D_80748150;
 extern u8 D_80748154[];
 extern u8 D_80720BE8[];
 void func_8071BB14(void);
-void func_8071E864(void);
+void effectDecelDriftFadeUpdate(void);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
 
 void func_80646978(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -1364,7 +1364,7 @@ void func_80646978(CsState *cs, s16 csId, s16 b, s16 c) {
         i = 0;
     }
     do {
-        func_8071498C(func_8071E864);
+        func_8071498C(effectDecelDriftFadeUpdate);
         func_80714950(i);
         func_807149B8(1);
         func_807149C8(0x8C, 0x8C, 0x8C, 0xFF);
@@ -2154,7 +2154,7 @@ void csCmdShowRemainingDigits(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8071F8E4(void);
+void effectLerpPathUpdate(void);
 
 typedef struct CsCamVecView {
     /* 0x000 */ u8 pad0[0x220];
@@ -2235,7 +2235,7 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
     px = gCsPosX; py = gCsPosY + 15.0; pz = gCsPosZ;
     ex = p->unk220 * 50.0 + px;
     ang = 0;
-    cb = func_8071F8E4;
+    cb = effectLerpPathUpdate;
     ez = p->unk228 * 50.0 + pz;
     for (i = 0; i != 4; i++) {
         t = func_80612790(ang) * 100.0;

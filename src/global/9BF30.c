@@ -305,7 +305,7 @@ void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80714C08(void *, f32, Actor *, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_8071F758(void);
+void effectPulseSpinUpdate(void);
 void func_8071ABDC(void);
 
 #define G_ACTOR ((ProjectileActor *)D_807FBB40)
@@ -337,7 +337,7 @@ void projectileActorUpdate(void) {
             func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
         }
         if (sub->unk13 == 3) {
-            func_8071498C(func_8071F758);
+            func_8071498C(effectPulseSpinUpdate);
         }
         func_80714C08(((void **)&sp68)[sub->unk13 - 1], G_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
         sub->unk0 = D_8076A068;

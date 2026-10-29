@@ -682,8 +682,8 @@ void actorSpawnRingBurstAndUpdate(void) {
 void actorDespawn(void *);
 void func_80714950(s32);
 void func_8071498C(void (*)(void));
-void func_8071D28C(void);
-void func_8071EB70(void);
+void effectOrbitSourceUpdate(void);
+void effectProximityFadeUpdate(void);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueAddValue(s32, s32, s32);
 
@@ -702,13 +702,13 @@ s32 actorListFindIdByActor(Actor *);
 s32 actorListLookupEntry(s32);
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
-s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
+s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
 void func_807232B8(s32, s32);
 void func_80723284(s32, s32);
 void func_80723320(s32, s32);
 void func_8072334C(s32, s32);
 void func_80723484(s32);
-void func_807238D4(s32, f32 *, f32 *, f32 *);
+void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724994(s32, s32, s32, s32, s32);
 f32 func_80612794(s16);
 void func_80714A28(s32);
@@ -734,7 +734,7 @@ void func_806A7600(void *arg0) {
         actorAppendModelNode(D_807FBB40, 0.0f, 12.0f, 0.0f, 80.0f, -1);
         temp_v1->unk0 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk0;
         temp_v1->unk1 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk4;
-        temp_v1->unk2 = func_80723020(D_807FBB40, temp_v1->unk0, 0, 0.0f, 0.0f, 0.0f, 0);
+        temp_v1->unk2 = pathPlaybackStart(D_807FBB40, temp_v1->unk0, 0, 0.0f, 0.0f, 0.0f, 0);
         if (temp_v1->unk2 != -1) {
             func_807232B8(temp_v1->unk2, 1);
             func_80723284(temp_v1->unk2, temp_v1->unk1);
@@ -745,7 +745,7 @@ void func_806A7600(void *arg0) {
     } else {
         if (temp_v1->unk2 != -1) {
             func_80723484(temp_v1->unk2);
-            func_807238D4(temp_v1->unk2, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
+            pathPlaybackGetPosition(temp_v1->unk2, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
         }
         D_807FBB40->unk80 += 5.0 * func_80612794(temp_v1->unk4);
         temp_v1->unk4 = (temp_v1->unk4 + 0x50) & 0xFFF;
@@ -781,7 +781,7 @@ void func_806A7600(void *arg0) {
                 if (cond != 0) {
                     func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
                 } else {
-                    func_8071498C(&func_8071EB70);
+                    func_8071498C(&effectProximityFadeUpdate);
                     func_80714950(0x226);
                 }
                 func_80714A28(4);
@@ -880,7 +880,7 @@ void effectActorSparkleTick(void) {
             if (D_8076A064 % 5 == 0) {
                 idx = (randomNonNegative() >> 15) % 0xFF % 7;
                 table = D_807504A4;
-                func_8071498C(&func_8071D28C);
+                func_8071498C(&effectOrbitSourceUpdate);
                 func_807149FC(-1);
                 func_807149B8(1);
                 func_80714950(100);
@@ -893,7 +893,7 @@ void effectActorSparkleTick(void) {
     }
     if (!(D_8076A064 & 0xF)) {
         func_807149B8(1);
-        func_8071498C(&func_8071EB70);
+        func_8071498C(&effectProximityFadeUpdate);
         func_80714950(0x226);
         func_80714998(2);
         func_807149C8(0xFF, 0xFF, 0xFF, flag ? 0xFF : 0x7F);

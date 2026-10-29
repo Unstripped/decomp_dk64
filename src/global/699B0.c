@@ -69,7 +69,7 @@ void func_807149C8(s32, s32, s32, s32);
 void func_807149FC(s32);
 void func_80714A28(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_80717B64(void);
+void effectPlayerDistanceFadeUpdate(void);
 void func_80717D4C(void);
 
 void particleSpawnPathTrail(void) {
@@ -98,7 +98,7 @@ void particleSpawnPathTrail(void) {
                             func_80714998(3);
                             func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
                             func_80714A28(4);
-                            func_8071498C(func_80717B64);
+                            func_8071498C(effectPlayerDistanceFadeUpdate);
                             func_807149FC(2);
                             func_80714944((randomNonNegative() % 10000) % 6);
                             func_807149A8(node->unk14);

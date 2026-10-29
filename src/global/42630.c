@@ -1312,15 +1312,15 @@ void func_8070B308(s32);
 s32 func_807146A4(s16);
 void func_807149B8(s32);
 void func_80714B84(s32, f32, s16, s16, s32);
-s32 func_80723020(s32, s16, u8, f32, f32, f32, s32);
+s32 pathPlaybackStart(s32, s16, u8, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_807232EC(s32, u8);
 void func_80723320(s32, s16);
 void func_8072334C(s32, u8);
 void func_80723380(s32, u8);
-void func_80723428(s32);
+void pathPlaybackFree(s32);
 void func_80723484(s32);
-void func_807238D4(s32, f32 *, f32 *, f32 *);
+void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724994(s32, s16, s16, s32, s32);
 void zoneEntrySetDisabled(u8, u8, u8);
 void volumeTriggerSetEnabled(s16, u8);
@@ -1960,15 +1960,15 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         func_8072334C(cs->unk38, CMDB(cmd)->a);
         break;
     case 0x22:
-        cs->unk38 = func_80723020(0, cmd->a, CMDB(cmd)->b, gCsPosX, gCsPosY, gCsPosZ, cmd->c);
+        cs->unk38 = pathPlaybackStart(0, cmd->a, CMDB(cmd)->b, gCsPosX, gCsPosY, gCsPosZ, cmd->c);
         break;
     case 0x23:
-        func_80723428(cs->unk38);
+        pathPlaybackFree(cs->unk38);
         cs->unk38 = -1;
         break;
     case 0x4:
         func_80723484(cs->unk38);
-        func_807238D4(cs->unk38, &gCsPosX, &gCsPosY, &gCsPosZ);
+        pathPlaybackGetPosition(cs->unk38, &gCsPosX, &gCsPosY, &gCsPosZ);
         break;
     case 0x27:
         modelSlotSetNodeAnimMode(csId, cmd->a, CMDB(cmd)->b);

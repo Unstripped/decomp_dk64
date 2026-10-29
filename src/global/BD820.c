@@ -26,7 +26,7 @@ typedef struct BD820View9C {
 
 extern void *D_8074E880[];
 extern u8 D_8071FFA0[];
-extern void func_8071C9E8(void);
+extern void effectWispWanderUpdate(void);
 extern void func_80717D4C(void);
 
 s32 randomNonNegative(void);
@@ -46,7 +46,7 @@ void modelSlotOrFlags(s32, s32);
 void func_806B8C78(void);
 
 void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 arg3) {
-    func_8071498C(func_8071C9E8);
+    func_8071498C(effectWispWanderUpdate);
     func_807149FC(-1);
     func_807149B8(1);
     func_8071496C(arg3);
