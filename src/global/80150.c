@@ -876,7 +876,132 @@ void tagBarrelInitUnlockedKongs(Actor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_8068412C.s")
+typedef struct KaB3_TagBarrelData {
+    /* 0x00 */ Actor *unk0;
+    /* 0x04 */ u16 unk4;
+    /* 0x06 */ s8 unk6;
+    /* 0x07 */ s8 unk7;
+    /* 0x08 */ Actor *unk8[5];
+    /* 0x1C */ Actor *unk1C;
+    /* 0x20 */ s8 unk20;
+    /* 0x21 */ u8 pad21;
+    /* 0x22 */ s16 unk22;
+    /* 0x24 */ f32 unk24;
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ u8 pad2A[2];
+    /* 0x2C */ f32 unk2C;
+    /* 0x30 */ f32 unk30;
+    /* 0x34 */ f32 unk34;
+    /* 0x38 */ s16 unk38;
+    /* 0x3A */ u8 pad3A[2];
+    /* 0x3C */ u32 unk3C;
+} KaB3_TagBarrelData;
+
+extern u8 D_8071FC8C[];
+void func_807149A8(s32);
+void func_80714A28(s32);
+s32 mapIsBossArena(void);
+void func_8067ACB4(Actor *);
+s32 func_806C9D7C(void);
+s32 func_806832F4(s32, s32);
+void func_806833DC(KaB3_TagBarrelData *);
+void func_806836D0(KaB3_TagBarrelData *);
+Gfx *func_80683AD8(Gfx *, Actor *);
+void renderCallbacksRegister(void *, void *, s32);
+void func_8067AAB8(s32, Actor *, s16, f32, s16);
+void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
+void slotQueuePopActiveMask(void);
+void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+
+void func_8068412C(void) {
+    Actor *actor = D_807FBB40;
+    KaB3_TagBarrelData *sub = actor->unk174;
+
+    if (!(actor->unk60 & 0x10)) {
+        sub->unk22 = actor->unkE6;
+        sub->unk24 = D_807FBB40->unk80;
+        *(s16 *)&D_807FBB40->unk145[1] = 0;
+        D_807FBB40->unk15E = 0;
+        func_80714998(2);
+        func_807149FC(-1);
+        func_807149B8(1);
+        func_807149A8(0x3E8);
+        func_80714A28(4);
+        actor = D_807FBB40;
+        func_80714CC0(&D_8071FC8C, 1.3f, actor->unk7C, (f32)((f64)actor->unk80 + 13.0), actor->unk84);
+        if (mapIsBossArena()) {
+            D_807FBB40->unk12A = 0x7D0;
+        } else {
+            D_807FBB40->unk12A = 0x15E;
+        }
+        actor = D_807FBB40;
+        actor->unkA4 = actor->unk80;
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
+        D_807FBB40->unk110 = 0;
+        actor = D_807FBB40;
+        actor->unk60 |= 2;
+        actor = D_807FBB40;
+    }
+    tagBarrelInitUnlockedKongs(actor);
+    tagBarrelUpdateInteractable();
+    func_8067ACB4(D_807FBB40);
+    actor = D_807FBB40;
+    switch (actor->unk154) {
+    case 0:
+        if (sub->unk4 != 0) {
+            sub->unk4--;
+            if (sub->unk4 == 0) {
+                D_807FBB40->unk144 = 2;
+            }
+        } else {
+            func_806833DC(sub);
+        }
+        actor = D_807FBB40;
+        if (actor->unk155[0] == 0xA) {
+            if (((Actor *)D_807FBB4C)->unk6A & 4 || func_806C9D7C() != 0) {
+                actor = D_807FBB40;
+                actor->unk155[0] = 0;
+            } else if (((Actor *)D_807FBB4C)->unk110 != 1 && (((Actor *)D_807FBB4C)->unk6A & ((Actor *)D_807FBB4C)->unk6C & 1)) {
+                func_806832F4(((Actor *)D_807FBB4C)->unk58, 1);
+            }
+        }
+        actor = D_807FBB40;
+        break;
+    case 1:
+        func_806836D0(sub);
+        renderCallbacksRegister(func_80683AD8, D_807FBB40, 3);
+        actor = D_807FBB40;
+        break;
+    case 2:
+        if (sub->unk4 != 0) {
+            sub->unk4--;
+        } else {
+            func_8067AAB8((s32)actor, sub->unk0, sub->unk38, 180.0f, 0x46);
+            actorAppendCallback(sub->unk0, (s32)D_807FBB40, 0x40, 1, 0, 0);
+            slotQueuePopActiveMask();
+            D_807FBB40->unk154 = 0;
+            D_807FBB40->unk155[0] = 0;
+            if (func_806832F4(((Actor *)D_807FBB4C)->unk58, 0) != 0) {
+                D_807FBB40->unk155[0] = 0xA;
+            }
+            sub->unk4 = 0x1E;
+        }
+        actor = D_807FBB40;
+        break;
+    }
+    func_8065D254(actor, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x64, 0x78, 0, 1.0f);
+    actor = D_807FBB40;
+    if (actor->unk154 != 1) {
+        actor->unkE6 += 0x32;
+        actor = D_807FBB40;
+        actor->unkE6 &= 0xFFF;
+        D_807FBB40->unk80 = func_80612794(sub->unk28) * 5.0f + sub->unk24;
+        sub->unk28 += 0x32;
+        sub->unk28 &= 0xFFF;
+        actor = D_807FBB40;
+    }
+    actorUpdateModelMatrix(actor, 0);
+}
 
 void func_806844EC(void) {
     func_8068412C();
