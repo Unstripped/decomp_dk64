@@ -684,11 +684,11 @@ extern u8 D_8004BB60[];
 extern u8 D_8004BB90[];
 extern u8 D_8004BBC0[];
 #define ArcR2_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-void arcadeDrawTitleText();
-void arcadeDrawStage1Background();
-void arcadeDrawStage2Background();
-void func_800275E8();
-void arcadeDrawStage4Background();
+void arcadeDrawTitleText(Gfx **);
+void arcadeDrawStage1Background(Gfx **);
+void arcadeDrawStage2Background(Gfx **);
+void func_800275E8(Gfx **);
+void arcadeDrawStage4Background(Gfx **);
 typedef struct ArcR2_Entity {
     void *ptr;
 } ArcR2_Entity;
@@ -709,9 +709,7 @@ void arcadeDrawLadder();
 void func_8070F2FC(Gfx **, s16, s16);
 void arcadeStopSound(s32);
 extern s32 D_8076D1F8;
-void arcadeDrawBackground(arg0)
-Gfx **arg0;
-{
+void arcadeDrawBackground(Gfx **arg0) {
     Gfx *sp4C;
 
     sp4C = *arg0;
