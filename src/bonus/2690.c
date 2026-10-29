@@ -65,9 +65,10 @@ f32 func_80611BB4(f32, f32);
 void func_8060E7EC(s32, s32, s32);
 void bonusResetAmmo(void *);
 extern u16 D_807FD63C;
+struct Struct_71B4;
 typedef struct {
-    void *unk0;
-    char pad4[4];
+    struct Struct_71B4 *unk0;
+    u8 unk4[4];
     u8 unk8;
     u8 unk9;
     char padA[7];
@@ -96,7 +97,7 @@ typedef struct {
     s16 *unk17C;
 } Actor_BB44;
 
-typedef struct {
+typedef struct Struct_71B4 {
     Actor_BB44 *unk0[6];
     char pad18[3];
     u8 unk1B;
@@ -472,8 +473,8 @@ void bonusSpawnTarget(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) 
     }
 }
 
-void bonusDespawnTarget(u8 *arg0, s32 *arg1) {
-    arg1[arg0[9]] = 0;
+void bonusDespawnTarget(Struct_174 *arg0, Struct_71B4 *arg1) {
+    arg1->unk0[arg0->unk9] = 0;
     actorDespawn(D_807FBB40);
 }
 
@@ -927,12 +928,6 @@ void bonusPopupGameUpdate(void) {
 }
 
 typedef struct {
-    Struct_71B4 *unk0;
-    char pad4[4];
-    u8 unk8;
-} BonusB_Sub84C0;
-
-typedef struct {
     char pad0[0x60];
     s32 unk60;
     char pad64[0xE0];
@@ -941,20 +936,20 @@ typedef struct {
     u8 unk154;
     u8 unk155;
     char pad156[0x1E];
-    BonusB_Sub84C0 *unk174;
+    Struct_174 *unk174;
 } BonusB_Actor84C0;
 
 #define BB_A ((BonusB_Actor84C0 *)D_807FBB40)
 
 void bonusTargetUpdate(void) {
-    BonusB_Sub84C0 *sub = BB_A->unk174;
+    Struct_174 *sub = BB_A->unk174;
     Struct_71B4 *p = sub->unk0;
     s32 step;
 
     if (!(BB_A->unk60 & 0x10)) {
         BB_A->unk144 = 0x24;
     }
-    func_8072881C(0, (u8 *)sub + 4, sub, p);
+    func_8072881C(0, sub->unk4, sub, p);
     switch (BB_A->unk154) {
     case 0:
         if (D_807FBB85 != 0) {
@@ -973,12 +968,12 @@ void bonusTargetUpdate(void) {
             BB_A->unk154 = 1;
             BB_A->unk155 = 0;
         } else if (BB_A->unk155 != 0) {
-            bonusDespawnTarget((u8 *)sub, (s32 *)p);
+            bonusDespawnTarget(sub, p);
         }
         break;
     case 1:
         if (BB_A->unk155 != 0) {
-            bonusDespawnTarget((u8 *)sub, (s32 *)p);
+            bonusDespawnTarget(sub, p);
         }
         break;
     }
