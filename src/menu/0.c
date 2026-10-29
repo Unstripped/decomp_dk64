@@ -107,9 +107,13 @@ typedef struct {
 typedef struct {
     char pad0[0x60];
     s32 unk60;
-    char pad64[0xFB];
+    char pad64[0xF0];
+    u8 unk154;
+    char pad155[0xA];
     u8 unk15F;
-    char pad160[0x20];
+    char pad160[0x14];
+    s16 *unk174;
+    char pad178[8];
     MenuStruct_80024000 *unk180;
 } MenuRenderActor;
 extern MenuRenderActor *D_807FBB40;
@@ -442,7 +446,7 @@ void menuDispatchAction(void) {
     s32 var_a3;
     s32 pad2;
     s32 sp20;
-    register u8 var_v1;
+    u8 var_v1;
     MenuStruct_80024000 *temp_s0;
 
     var_a3 = -1;
@@ -532,7 +536,7 @@ extern void *D_800330D4;
 extern u8 D_800330E0[];
 extern s16 D_80033220[];
 extern u8 D_80033228[];
-extern u8 D_80033258;
+extern s8 D_80033258;
 extern MenuProgressGridVtx *D_80033F10;
 
 void *func_80610FE8(s32);
@@ -548,10 +552,10 @@ void menuUpdateProgressGrid(void) {
     s32 k;
     s32 idx;
 
-    var_s0 = *(s16 **)((u8 *)D_807FBB40 + 0x174);
+    var_s0 = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         *var_s0 = 0xF0;
-        *((u8 *)D_807FBB40 + 0x154) = 0;
+        D_807FBB40->unk154 = 0;
         D_800330D0 = (s32)func_80610FE8(0x80);
         D_800330D4 = func_80610FE8(0x140);
         memcpy(D_800330D4, D_800330E0, 0x140);
@@ -582,10 +586,8 @@ void menuUpdateProgressGrid(void) {
                     D_80033F10[n].unk4 = 0x16;
                     D_80033F10[n].unk8 = (j * 30 + 30) << 6;
                     D_80033F10[n].unkA = (D_80033220[k] + r * 30) << 6;
-                    idx += 1;
-                    idx += 1;
-                    D_80033F10[n].unkC = D_80033228[idx - 2];
-                    D_80033F10[n].unkD = D_80033228[idx - 1];
+                    D_80033F10[n].unkC = D_80033228[idx++];
+                    D_80033F10[n].unkD = D_80033228[idx++];
                     D_80033F10[n].unkE = D_80033228[idx];
                     D_80033F10[n].unkF = 0xFF;
                     D_80033F10[n].unk6 = 0;
@@ -630,7 +632,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *arg1) {
     s32 j;
     s32 x;
     s32 y;
-    s16 *var_p = *(s16 **)((u8 *)arg1 + 0x174);
+    s16 *var_p = arg1->unk174;
     MenuProgressGridVtx *v;
     s32 k;
     f32 mf[4][4];
@@ -692,7 +694,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *arg1) {
         gDPLoadTextureBlock(g++, tex, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP | G_TX_NOMIRROR,
                             G_TX_WRAP | G_TX_NOMIRROR, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
         gSP2Triangles(g++, 16, 17, 18, 0, 16, 18, 19, 0);
-        if (*(s8 *)&D_80033258 == 0) {
+        if (D_80033258 == 0) {
             for (k = 0; k < 0x140; k++) {
                 D_80033F10[k].unkC = 0;
                 D_80033F10[k].unkD = 0xFF;
