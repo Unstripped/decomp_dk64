@@ -571,6 +571,11 @@ typedef struct {
 
 extern s32 D_8076A0A8;
 extern void *D_807FD580;
+typedef struct {
+    char pad0[0x104];
+    void *unk104;
+} BonusB_Cam104;
+#define BB_CAMCTX ((BonusB_Cam104 *)D_807FD580)
 
 typedef struct {
     char pad0[0x104];
@@ -1136,7 +1141,7 @@ Gfx *func_80029B9C(Gfx *gdl, Actor_BB44 *arg1) {
     p1 = arg1->unk178;
     actor = arg1;
 
-    if (actor->unk58 != 0x7E && actor->unk154 == 0 && ((u8 *)actor->unk174)[0x26] != 0) {
+    if (actor->unk58 != 0x7E && actor->unk154 == 0 && ((Struct_7548 *)actor->unk174)->unk26 != 0) {
         gdl = bonusRenderCrosshair(gdl, (void *)arg1);
     }
     gSPDisplayList(gdl++, &D_1000118);
@@ -1349,7 +1354,7 @@ void func_8002A398(void) {
         func_806FDAB8(t0->unk3, 0.0f);
         t0->unk0 = 0x1E;
         playerStateQueueCallback(0x48, 0, 0);
-        camSetTarget(*(void **)((u8 *)D_807FD580 + 0x104), D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camSetTarget(BB_CAMCTX->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         BB2->unkE8 = 0x9A;
         for (i = 1; i != 7; i++) {
@@ -1379,7 +1384,7 @@ void func_8002A398(void) {
 
                 n = D_8002D904;
                 u->unk0 = D_807FBB40;
-                p = (Point3f *)((u8 *)*D_807F5FD4 + (n + n + n) * 12) + 1;
+                p = *D_807F5FD4 + (n + n + n) + 1;
                 D_807FBB44->unk7C = p->x + 50.0;
                 D_807FBB44->unk80 = p->y + 12.0;
                 D_807FBB44->unk84 = p->z - 5.0;
@@ -1391,7 +1396,7 @@ void func_8002A398(void) {
             }
             n = D_8002D904;
             t0->unk0 = 0x5A;
-            ((s8 *)&D_8002D900)[4] = (1 - n) & 0xFFFF;
+            ((s8 *)&D_8002D900)[4] = (u16)(1 - n);
         }
         t3c->unk22 = 0;
         if (BB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
@@ -1451,7 +1456,7 @@ void func_8002A398(void) {
         case -2:
             if (D_807444EC != 1) {
                 t3c->unk0++;
-                func_806A2A10(0xDC, 0x2A, *((u8 *)t0 + 5));
+                func_806A2A10(0xDC, 0x2A, (u8)t0->unk4);
                 func_8070D8C0(D_807FBB40, 0, 0xB);
             }
             break;
