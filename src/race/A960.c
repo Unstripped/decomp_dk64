@@ -343,12 +343,12 @@ u8 func_8002F0AC(RaceWaypoint *arg0) {
 f32 func_80611BB4(f32, f32);
 s32 mathAngleDistance(s16, s16);
 
-s32 raceIsFacingWaypoint(RaceWaypoint *arg0) {
+u8 raceIsFacingWaypoint(RaceWaypoint *arg0) {
     f32 diff_x = D_807FBB40->x - (f32)arg0->x;
     f32 diff_z = D_807FBB40->z - (f32)arg0->z;
     s16 angle = (s32)(func_80611BB4(diff_x, diff_z) * 651.8986206f) & 0xFFF;
 
-    return (mathAngleDistance(angle, arg0->angle) < 0x400) & 0xFF;
+    return mathAngleDistance(angle, arg0->angle) < 0x400;
 }
 
 f32 func_8002F304(RaceWaypoint *arg0, f32 arg1, f32 arg2) {
@@ -394,10 +394,8 @@ void func_8002F490(RaceTracker *arg0) {
     RaceActorState *state;
     RaceRoute *list;
     RaceWaypoint *node;
-    RacePlayerPos *pl;
+    s32 pad;
     f32 sp38;
-    RacePlayerPos *p;
-    u8 pidx;
     u16 val;
 
     actor = arg0->actor;
@@ -409,11 +407,11 @@ void func_8002F490(RaceTracker *arg0) {
         if (node != NULL) {
             if (((f32)node->x - D_807FBB40->x) * ((f32)node->x - D_807FBB40->x) + ((f32)node->z - D_807FBB40->z) * ((f32)node->z - D_807FBB40->z) > 900.0f) {
                 sp38 = mathAngleBetweenPointsDeg(node->x, node->z, (s32)D_807FBB40->x, (s32)D_807FBB40->z);
-                pl = D_807FC924;
-                pidx = arg0->playerIdx;
-                p = pl;
-                p += pidx;
-                D_807FBB40->unkEC = (s32)(sp38 - mathAngleBetweenPointsDeg((s32)p->f228, (s32)p->f230, (s32)p->pos[pidx], (s32)pl->pos[2]));
+                D_807FBB40->unkEC = (s32)(sp38 - mathAngleBetweenPointsDeg(
+                    (s32)D_807FC924[arg0->playerIdx].f228,
+                    (s32)D_807FC924[arg0->playerIdx].f230,
+                    (s32)D_807FC924[arg0->playerIdx].pos[arg0->playerIdx],
+                    (s32)D_807FC924->pos[2]));
             }
             if (arg0->unk38 != 0) {
                 arg0->unk38 = raceIsFacingWaypoint(node);
