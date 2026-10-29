@@ -1,5 +1,10 @@
 #include "common.h"
 
+typedef struct MenuScreenActor {
+    char pad0[0x174];
+    void *unk174;
+} MenuScreenActor;
+
 extern s8 D_80745844;
 void configureCSPOutputMode(s32);
 
@@ -30,8 +35,8 @@ s32 func_80609140(s32, s32, f32, f32, s32, s32);
 extern s8 D_80033734;
 extern s32 gCamActor;
 
-void func_80027E60(void *arg0, s32 arg1) {
-    Menu3A_Struct7E60 *temp_v0 = *(Menu3A_Struct7E60 **)((u8 *)arg0 + 0x174);
+void func_80027E60(MenuScreenActor *arg0, s32 arg1) {
+    Menu3A_Struct7E60 *temp_v0 = arg0->unk174;
     s32 var_v1 = 0;
 
     if (D_80033734 != 0) {
@@ -66,8 +71,8 @@ extern MenuPositionedActor *D_807FBB4C;
 extern s8 D_80033734;
 extern s32 D_807FBB60;
 
-void menuResetCameraAndFlags(void *arg0, s32 arg1) {
-    f32 *temp_v0 = *(f32 **)((u8 *)arg0 + 0x174);
+void menuResetCameraAndFlags(MenuScreenActor *arg0, s32 arg1) {
+    f32 *temp_v0 = arg0->unk174;
     D_807FBB4C->unk7C = 109.0f;
     D_807FBB4C->unk80 = 6.0f;
     D_807FBB4C->unk84 = 55.0f;
@@ -311,7 +316,7 @@ void *func_80610FE8(s32);
 void heapFreeDeferred(void *);
 s32 textDrawStringVtx(s32, s16, s16, s16, void *, s32);
 
-s32 func_800286C8(void *arg0, Gfx *arg1) {
+s32 func_800286C8(MenuScreenActor *arg0, Gfx *arg1) {
     Gfx *g;
     s32 spD0;
     s32 padCC;
@@ -322,7 +327,7 @@ s32 func_800286C8(void *arg0, Gfx *arg1) {
     f32 sp7C[4][4];
     f32 sp3C[4][4];
     Mtx *sp38;
-    void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
+    void *temp_a0 = arg0->unk174;
 
     D_807FBB60 |= 0x10;
     gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
@@ -360,8 +365,8 @@ void func_80030894(void *, void *, s32, s32, f32, s32, s32);
 s32 func_8060C6B8(s32, s32, u8, s32);
 s32 flagGet(s32, s32);
 
-void func_80028834(void *arg0, s32 arg1) {
-    s8 *temp_s0 = *(s8 **)((u8 *)arg0 + 0x174);
+void func_80028834(MenuScreenActor *arg0, s32 arg1) {
+    s8 *temp_s0 = arg0->unk174;
 
     D_800337F8 = 0;
     D_800337F4 = 0;
@@ -421,8 +426,8 @@ void menuUpdateScrollAnimation();
 void menuUpdateItemTransition(void *, void *, s32);
 extern s8 D_80033F48;
 
-void menuHandleSelectionInput(void *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+void menuHandleSelectionInput(MenuScreenActor *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
     s32 temp_v0;
 
     if (temp_s0->unk0 == 0.0f) {
@@ -459,8 +464,8 @@ int _sprintf(char *, const char *, ...);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 s32 menuCheckSaveFile();
 
-s32 func_80028D3C(void *arg0, Gfx *arg1) {
-    void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
+s32 func_80028D3C(MenuScreenActor *arg0, Gfx *arg1) {
+    void *temp_a0 = arg0->unk174;
     s32 idx;
     f32 spFC;
     f32 spF8;
@@ -488,8 +493,8 @@ extern s8 D_8076A0D2;
 extern u8 D_80720D14;
 extern u8 D_807204BC;
 
-void func_80028EA8(void *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+void func_80028EA8(MenuScreenActor *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
 
     temp_s0->unk17 = D_8076A0D2;
     func_80030894(temp_s0, &D_80720C34, 0xA0, 0x78, 0.75f, 2, 4);
@@ -544,8 +549,8 @@ void controllerSetActiveMask(s32);
 void func_807144B8(s8);
 extern s8 D_80033F48;
 
-void menuHandleConfirmationInput(void *arg0, s32 arg1) {
-    MenuScreenState *temp_s0 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
+void menuHandleConfirmationInput(MenuScreenActor *arg0, s32 arg1) {
+    MenuScreenState *temp_s0 = arg0->unk174;
 
     if (temp_s0->unk0 == 0.0f && temp_s0->unk4 == 0.0f) {
         if (arg1 & 1) {
@@ -720,8 +725,8 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
 #endif
 
 
-void menuHandleFileSelectInput(void *arg0, s32 arg1) {
-    MenuScreenState *temp_s0 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
+void menuHandleFileSelectInput(MenuScreenActor *arg0, s32 arg1) {
+    MenuScreenState *temp_s0 = arg0->unk174;
 
     if (temp_s0->unk0 == 0.0f) {
         if (temp_s0->unk4 == 0.0f) {
@@ -789,8 +794,8 @@ Gfx *menuDrawFileSlotLabel(void *arg0, Gfx *arg1) {
 #endif
 
 
-void menuInitFileSelect(void *arg0, s32 arg1) {
-    MenuScreenState *temp_s0 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
+void menuInitFileSelect(MenuScreenActor *arg0, s32 arg1) {
+    MenuScreenState *temp_s0 = arg0->unk174;
     void *sp34;
 
     temp_s0->unk17 = 0;
@@ -820,8 +825,8 @@ void *func_80714CC0(void *, f32, f32, f32, f32);
 void func_8060C830(s32, s32);
 extern s8 D_80033FAC;
 
-void menuMysteryHandleInput(void *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+void menuMysteryHandleInput(MenuScreenActor *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
 
     if (temp_s0->unk0 == 0.0f && temp_s0->unk4 == 0.0f) {
         if (arg1 & 1) {
@@ -888,8 +893,8 @@ Gfx *func_8002A088(void *arg0, Gfx *arg1) {
 
 extern s8 D_80033FAC;
 
-void func_8002A36C(void *arg0, s32 arg1) {
-    MenuScreenState *temp_s0 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
+void func_8002A36C(MenuScreenActor *arg0, s32 arg1) {
+    MenuScreenState *temp_s0 = arg0->unk174;
 
     D_80033FAC = 0;
     temp_s0->unk17 = 0;
@@ -904,11 +909,8 @@ extern s8 D_80033698;
 extern s8 D_80744538;
 extern s8 D_8076A104;
 
-void menuBossReplayHandleInput(arg0, arg1)
-void *arg0;
-s32 arg1;
-{
-    Menu3R1_Struct174 *temp_s0 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+void menuBossReplayHandleInput(MenuScreenActor *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
 
     if (temp_s0->unk0 == 0.0f) {
         if (temp_s0->unk4 == 0.0f) {
@@ -951,8 +953,8 @@ Gfx *func_8068C5A8(Gfx *, u16, s32, s32, s32, s32, s16, s32, f32, f32, s32, f32)
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-Gfx *menuDrawSubmenuRing(void *arg0, Gfx *arg1) {
-    MenuScreenState *temp_s2 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
+Gfx *menuDrawSubmenuRing(MenuScreenActor *arg0, Gfx *arg1) {
+    MenuScreenState *temp_s2 = arg0->unk174;
     s32 padx;
     s32 idx;
     s32 i;
@@ -1034,8 +1036,8 @@ void menuReleasePlayerControllerSlot(s32 arg0) {
 
 extern s8 D_8076A0D6;
 
-void menuInitControllerSlots(void *arg0, s32 arg1) {
-    MenuScreenState *temp_s0 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
+void menuInitControllerSlots(MenuScreenActor *arg0, s32 arg1) {
+    MenuScreenState *temp_s0 = arg0->unk174;
     s32 i;
     s32 j;
 
@@ -1128,8 +1130,8 @@ extern s8 D_8076A0E6;
 extern s8 D_8076A0E7;
 s32 menuSetElementCoordinates(s32, s32, f32, f32, f32);
 
-s32 func_8002B708(void *arg0, Gfx *arg1) {
-    MenuL4_S174 *sp164 = *(MenuL4_S174 **)((u8 *)arg0 + 0x174);
+s32 func_8002B708(MenuScreenActor *arg0, Gfx *arg1) {
+    MenuL4_S174 *sp164 = arg0->unk174;
     s32 padA0;
     s32 idx;
     s32 id;
@@ -1264,8 +1266,8 @@ extern u8 D_80720D80;
 extern u8 D_807211AC;
 s32 actorSpawn(s32, s32);
 
-void func_8002C0C8(void *arg0, s32 arg1) {
-    MenuScreenState *temp_s6 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
+void func_8002C0C8(MenuScreenActor *arg0, s32 arg1) {
+    MenuScreenState *temp_s6 = arg0->unk174;
     s32 flag;
     s32 i;
     s8 *p;
@@ -1325,8 +1327,8 @@ void func_8002C0C8(void *arg0, s32 arg1) {
 }
 
 
-void func_8002C584(void *arg0, s32 arg1) {
-    MenuScreenState *temp_s0 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
+void func_8002C584(MenuScreenActor *arg0, s32 arg1) {
+    MenuScreenState *temp_s0 = arg0->unk174;
 
     if (temp_s0->unk0 == 0.0 && (arg1 & 1)) {
         func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -1400,8 +1402,8 @@ extern s8 D_8076A105;
 extern u8 D_8003387C[];
 extern u8 D_80033F24[];
 
-void func_8002C91C(void *arg0, s32 arg1) {
-    MenuScreenState *sp4C = *(MenuScreenState **)((u8 *)arg0 + 0x174);
+void func_8002C91C(MenuScreenActor *arg0, s32 arg1) {
+    MenuScreenState *sp4C = arg0->unk174;
     s32 i;
     s8 t;
     s32 n;
@@ -1570,8 +1572,8 @@ void seqUpdateVolume(s32);
 s32 func_8060C648(s32, s32, u8, s32, s32);
 void func_8060DEA8(void);
 
-void menuHandleSoundOptionsInput(void *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s0 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+void menuHandleSoundOptionsInput(MenuScreenActor *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s0 = arg0->unk174;
     s8 flag = 0;
 
     menuCheckCheatCodeSequence();
@@ -1671,7 +1673,7 @@ extern s32 *D_80033F28;
 extern s8 D_80745844;
 s32 menuDrawScrollSelector(s32, void *, void *, s32, u32 *, s16, f32 *, f32, s16);
 
-s32 menuFormatOptionValues(void *arg0, s32 arg1) {
+s32 menuFormatOptionValues(MenuScreenActor *arg0, s32 arg1) {
     void *sp64;
     u32 sp60;
     f32 sp5C;
@@ -1682,7 +1684,7 @@ s32 menuFormatOptionValues(void *arg0, s32 arg1) {
     s16 sp4C;
     char sp40[12];
 
-    sp64 = *(void **)((u8 *)arg0 + 0x174);
+    sp64 = arg0->unk174;
     D_807FBB60 &= ~0x10;
     func_800317E8(sp64, 160.0f, 20.0f, &sp58, &sp54, 2, 0, 1.5f);
     arg1 = menuDrawScrollSelector(
@@ -1726,11 +1728,6 @@ typedef struct Menu3B_Sub174 {
     s8 unk17;
 } Menu3B_Sub174;
 
-typedef struct MenuScreenActor {
-    char pad[0x174];
-    Menu3B_Sub174 *unk174;
-} MenuScreenActor;
-
 extern u8 D_80720D38;
 
 void func_8002D7EC(MenuScreenActor *arg0, s32 arg1) {
@@ -1762,8 +1759,8 @@ void heapFreeDeferred(void *);
 void func_8060C8AC(s32);
 void menuLoadTextTable(void);
 
-void func_8002D8AC(void *arg0, s32 arg1) {
-    Menu3M7_Sub174 *temp_s1 = *(Menu3M7_Sub174 **)((u8 *)arg0 + 0x174);
+void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
+    Menu3M7_Sub174 *temp_s1 = arg0->unk174;
     s8 flag = 0;
     s32 i;
 
@@ -1936,8 +1933,8 @@ void func_80712634(s32, s32);
 void func_807127F4(s32);
 void func_807126B0(s16, s32, s16, s8, s32, s32, s32);
 
-void func_8002DFA8(void *arg0, s32 arg1) {
-    Menu3R1_Struct174 *temp_s1 = *(Menu3R1_Struct174 **)((u8 *)arg0 + 0x174);
+void func_8002DFA8(MenuScreenActor *arg0, s32 arg1) {
+    Menu3R1_Struct174 *temp_s1 = arg0->unk174;
     s8 flag = 0;
     s8 cnt;
     s8 sel;
@@ -2833,8 +2830,8 @@ void func_8002E8B8();
 void menuHandleHighScoreNameEntryInput();
 void lightSetColor(f32, f32, f32, s32);
 
-s32 menuUpdateStateDispatch(void *arg0, s32 arg1, s32 arg2, s32 arg3) {
-    void *temp_t0 = *(void **)((u8 *)arg0 + 0x174);
+s32 menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    void *temp_t0 = arg0->unk174;
     s32 sp18 = 0;
 
     if (**(u16 **)((u8 *)D_807FC924 + 0x298) & 0x8000) {
