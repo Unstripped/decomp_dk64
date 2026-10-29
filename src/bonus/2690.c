@@ -1302,7 +1302,7 @@ Gfx *func_80029B9C(Gfx *, Actor_BB44 *);
 
 void func_8002A398(void) {
     Struct_7548 *t3c = BB2->unk174;
-    LargeB1_Sub178 *t0 = (LargeB1_Sub178 *)BB2->unk178;
+    LargeB1_Sub178 *t0 = BB2->unk178;
     Point3f *p;
     f32 y;
     f32 z;
