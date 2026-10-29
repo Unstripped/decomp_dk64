@@ -39,7 +39,7 @@ void arcadeRenderEntities(Gfx **);
 void arcadeRenderEntity(Gfx **, s32);
 void arcadeInitStage(void);
 #define ArcR1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-Gfx *textDrawString(Gfx *, s32, s16, s16, s32);
+Gfx *textDrawString(Gfx *, s32, s16, s16, char *);
 extern s16 D_8004C72E;
 extern s16 D_8004C732;
 extern u8 D_8004C725;
@@ -167,7 +167,7 @@ void arcadeSetTextPosition(s32 arg0, s32 arg1) {
     D_8004C730 = arg1;
 }
 
-void arcadeDrawString(Gfx **arg0, s32 arg1) {
+void arcadeDrawString(Gfx **arg0, char *arg1) {
     Gfx *g = *arg0;
 
     gDPPipeSync(g++);
@@ -528,7 +528,7 @@ void arcadeGameplayLoop(Gfx **arg0) {
     if (D_8004C6DC++ == 0x3C) {
         D_8004C71C = D_8004C71B;
         D_8004C71D = 0;
-        D_8004BCE9[arcadeFindEntityByType(0xD) << 5] = 2;
+        D_8004BCD0[arcadeFindEntityByType(0xD)].unk19 = 2;
     }
     arcadeDispatchEntities();
     arcadeRenderEntities(&sp34);
@@ -703,10 +703,10 @@ extern u8 D_8004BB00[];
 extern u8 D_80032C20[];
 extern u8 D_80032DF8[];
 void func_80005A90(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
-void func_8070E8F0(s32 *, void *);
+void func_8070E8F0(Gfx **, void *);
 void func_8070F2C8(s32, s16, s32, u8);
 void arcadeDrawLadder();
-void func_8070F2FC(s32 *, s16, s16);
+void func_8070F2FC(Gfx **, s16, s16);
 void arcadeStopSound(s32);
 extern s32 D_8076D1F8;
 void arcadeDrawBackground(arg0)
@@ -757,13 +757,13 @@ Gfx **arg0;
 
 #define ArcA1_D6D0 (*(void **)&D_8004C6D0)
 void arcadeDrawLadder(arg0, arg1, arg2, arg3)
-s32 *arg0;
+Gfx **arg0;
 s32 arg1;
 s32 arg2;
 s32 arg3;
 {
     s32 i;
-    s32 sp60;
+    Gfx *sp60;
 
     D_8004C719 = 8;
     D_8004C71A = 4;
@@ -929,13 +929,13 @@ void arcadeDrawTitleText(Gfx **arg0) {
     if (D_8004C6DC & 0x182) ArcA1_P6D0 = D_80032C20;
     else ArcA1_P6D0 = D_80032DF8;
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&sp94, D_8004BB00 + D_807444FC * 0x18);
+    func_8070E8F0(&sp94, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, ((s16 *)&D_8004C6D4)[1], 0, 0);
     for (i = 0; i < 12; i++) {
         row = sp64.words[i];
         for (j = 0; j < 25; j++) {
             if ((1 << j) & row) {
-                func_8070F2FC((s32 *)&sp94, 0x3E0 - (j << 5), (s32)((f64)(i * 8 + 0x3F) * 4.0));
+                func_8070F2FC(&sp94, 0x3E0 - (j << 5), (s32)((f64)(i * 8 + 0x3F) * 4.0));
             }
         }
     }
@@ -954,69 +954,69 @@ void arcadeDrawStage1Background(Gfx **arg0) {
     ArcL1_P6D0 = D_80034568;
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcL1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     sp68 = *arg0;
-    func_8070E8F0((s32 *)&sp68, D_8004BB00 + D_807444FC * 0x18);
+    func_8070E8F0(&sp68, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, ((s16 *)&D_8004C6D4)[1], 0, 0);
     for (i = 0; i < 6; i++) {
-        func_8070F2FC((s32 *)&sp68, i * 0x20 + 0x220, 0xE0);
+        func_8070F2FC(&sp68, i * 0x20 + 0x220, 0xE0);
     }
     if (D_8004C708 >= 6) {
         for (i = 0; i < 0xE; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x380);
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x380);
         }
         for (i = 0xE; i < 0x1C; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0xF7 - ((i - 0xC) / 2)) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0xF7 - ((i - 0xC) / 2)) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1C; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x368);
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x368);
         }
     }
     if (D_8004C708 >= 5) {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)((i / 2) + 0xCF) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)((i / 2) + 0xCF) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x2F4);
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x2F4);
         }
     }
     if (D_8004C708 >= 4) {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0xBB - (i / 2)) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0xBB - (i / 2)) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x281);
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x281);
         }
     }
     if (D_8004C708 >= 3) {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)((i / 2) + 0x8D) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)((i / 2) + 0x8D) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x20D);
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x20D);
         }
     }
     if (D_8004C708 >= 2) {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0x79 - (i / 2)) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(0x79 - (i / 2)) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x19A);
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x19A);
         }
     }
     if (D_8004C708 > 0) {
         for (i = 0; i < 0x12; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x142);
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x142);
         }
         for (i = 0x12; i < 0x1A; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(((i - 0x10) / 2) + 0x53) * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s16)(s32)((((f64)(((i - 0x10) / 2) + 0x53) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC((s32 *)&sp68, i * 0x20 + 0xC0, 0x142);
+            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x142);
         }
     }
     arcadeDrawStage1Ladders(&sp68);
@@ -1037,13 +1037,13 @@ void arcadeDrawStage2Background(Gfx **arg0) {
         D_8004C6D4 = 0x400;
         ArcA1_P6D0 = D_80032F18;
         func_80005A90(D_8004BC50 + (D_807444FC * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-        func_8070E8F0((s32 *)&sp60, D_8004BC50 + (D_807444FC * 3 * 8));
+        func_8070E8F0(&sp60, D_8004BC50 + (D_807444FC * 3 * 8));
         func_8070F2C8(0x400, D_8004C6D6, 0, 0);
         for (i = 0; i < 4; i++) {
-            func_8070F2FC((s32 *)&sp60, 0x1DC, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
+            func_8070F2FC(&sp60, 0x1DC, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
         }
         for (i = 0; i < 4; i++) {
-            func_8070F2FC((s32 *)&sp60, 0x31C, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
+            func_8070F2FC(&sp60, 0x31C, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
         }
     }
     D_8004C719 = 8;
@@ -1051,63 +1051,63 @@ void arcadeDrawStage2Background(Gfx **arg0) {
     D_8004C6D4 = 0x400;
     ArcA1_P6D0 = D_80032C20;
     func_80005A90(D_8004BB00 + (D_807444FC * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&sp60, D_8004BB00 + (D_807444FC * 3 * 8));
+    func_8070E8F0(&sp60, D_8004BB00 + (D_807444FC * 3 * 8));
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     for (i = 0; i < 0x1C; i++) {
-        func_8070F2FC((s32 *)&sp60, i * 0x20 + 0xC0, 0x380);
+        func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x380);
     }
     if (D_8004C708 == 0) {
         for (i = 1; i < 0x1B; i++) {
             if (i != 7 && i != 0x14) {
-                func_8070F2FC((s32 *)&sp60, (i << 5) + 0xC0, 0x2F8);
+                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x2F8);
             }
         }
         for (i = 2; i < 0x1A; i++) {
             if (i != 7 && i != 0x14) {
-                func_8070F2FC((s32 *)&sp60, (i << 5) + 0xC0, 0x270);
+                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x270);
             }
         }
         for (i = 3; i < 0x19; i++) {
             if (i != 7 && i != 0x14) {
-                func_8070F2FC((s32 *)&sp60, (i << 5) + 0xC0, 0x1EC);
+                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x1EC);
             }
         }
         for (i = 4; i < 0x18; i++) {
             if (i != 7 && i != 0x14) {
-                func_8070F2FC((s32 *)&sp60, (i << 5) + 0xC0, 0x164);
+                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x164);
             }
         }
     } else {
         for (i = 8; i < 0x14; i++) {
-            func_8070F2FC((s32 *)&sp60, i * 0x20 + 0xC0, 0x360);
-            func_8070F2FC((s32 *)&sp60, i * 0x20 + 0xC0, 0x340);
-            func_8070F2FC((s32 *)&sp60, i * 0x20 + 0xC0, 0x320);
-            func_8070F2FC((s32 *)&sp60, i * 0x20 + 0xC0, 0x300);
+            func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x360);
+            func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x340);
+            func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x320);
+            func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x300);
         }
         for (i = 1; i < 0x1B; i++) {
             if (i < 7 || i >= 0x15) {
-                func_8070F2FC((s32 *)&sp60, (i << 5) + 0xC0, 0x2F8);
+                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x2F8);
             }
         }
         for (i = 2; i < 0x1A; i++) {
             if (i < 7 || i >= 0x15) {
-                func_8070F2FC((s32 *)&sp60, (i << 5) + 0xC0, 0x270);
+                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x270);
             }
         }
         for (i = 3; i < 0x19; i++) {
             if (i < 7 || i >= 0x15) {
-                func_8070F2FC((s32 *)&sp60, (i << 5) + 0xC0, 0x1EC);
+                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x1EC);
             }
         }
         for (i = 4; i < 0x18; i++) {
             if (i < 7 || i >= 0x15 || D_8004C708 == 2) {
-                func_8070F2FC((s32 *)&sp60, (i << 5) + 0xC0, 0x164);
+                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x164);
             }
         }
     }
     if (D_8004C708 < 2) {
         for (i = 0; i < 0xE; i++) {
-            func_8070F2FC((s32 *)&sp60, i * 0x20 + 0x1A0, 0xD8);
+            func_8070F2FC(&sp60, i * 0x20 + 0x1A0, 0xD8);
         }
     }
     arcadeDrawStage2Ladders(&sp60);
@@ -1127,7 +1127,7 @@ s16 arg3;
     i = arg1;
     if (arg1 < arg2) {
         do {
-            func_8070F2FC((s32 *)&sp40, (s16) ((i << 5) + 0xC0), (s16) (s32) ((((f64) arg3 * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp40, (s16) ((i << 5) + 0xC0), (s16) (s32) ((((f64) arg3 * 0.875) + 8.0) * 4.0));
             i++;
         } while (i < arg2);
     }
@@ -1164,20 +1164,20 @@ void func_800275E8(Gfx **arg0) {
     D_8004C6D4 = 0x400;
     ArcA1_P6D0 = D_80032F40;
     func_80005A90(D_8004BC50 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&sp90, D_8004BC50 + D_807444FC * 0x18);
+    func_8070E8F0(&sp90, D_8004BC50 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     for (j = 5; j < 0x14; j++) {
-        func_8070F2FC((s32 *)&sp90, 0x15C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
+        func_8070F2FC(&sp90, 0x15C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
     }
     for (j = 5; j < 0x14; j++) {
-        func_8070F2FC((s32 *)&sp90, 0x25C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
+        func_8070F2FC(&sp90, 0x25C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
     }
     D_8004C719 = 8;
     D_8004C71A = 0xA;
     D_8004C6D4 = 0x492;
     ArcA1_P6D0 = D_80034568;
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&sp90, D_8004BB00 + D_807444FC * 0x18);
+    func_8070E8F0(&sp90, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     n = 21;
     pt = D_8004A7C8;
@@ -1195,7 +1195,7 @@ void func_800275E8(Gfx **arg0) {
             }
         }
         for (j = 0; j < 2; j++) {
-            func_8070F2FC((s32 *)&sp90, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
+            func_8070F2FC(&sp90, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
         }
         bar++;
         if (bar == (ArcA1_Bar *)D_8004BCD0) break;
@@ -1228,54 +1228,54 @@ void arcadeDrawStage4Background(Gfx **arg0) {
     D_8004C6D4 = 0x492;
     ArcA3_P6D0 = D_80032D50;
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&sp6C, D_8004BB00 + D_807444FC * 0x18);
+    func_8070E8F0(&sp6C, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     x = 0x220;
     do {
-        func_8070F2FC((s32 *)&sp6C, x, 0xE0);
+        func_8070F2FC(&sp6C, x, 0xE0);
         x += step;
     } while (x < 0x2E0);
     x = 0xC0;
     do {
-        func_8070F2FC((s32 *)&sp6C, x, 0x380);
+        func_8070F2FC(&sp6C, x, 0x380);
         x += step;
     } while (x < 0x440);
     i = 1;
     do {
         if (i != 6 && i != 7 && i != 0x13 && i != 0x14) {
-            func_8070F2FC((s32 *)&sp6C, (s16)((i << 5) + 0xC0), 0x268);
+            func_8070F2FC(&sp6C, (s16)((i << 5) + 0xC0), 0x268);
         }
         i += one;
     } while (i < 0x1B);
     ArcA3_P6D0 = D_80032CA8;
     func_80005A90(D_8004BC20 + D_807444FC * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&sp6C, D_8004BC20 + D_807444FC * 0x18);
+    func_8070E8F0(&sp6C, D_8004BC20 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     x = 0xE0;
     do {
-        func_8070F2FC((s32 *)&sp6C, x, 0x150);
+        func_8070F2FC(&sp6C, x, 0x150);
         x += step;
     } while (x < 0x420);
     i = 0;
     do {
         if (i < 0xC || i >= 0x10) {
-            func_8070F2FC((s32 *)&sp6C, (s16)((i << 5) + 0xC0), 0x1DC);
+            func_8070F2FC(&sp6C, (s16)((i << 5) + 0xC0), 0x1DC);
         }
         i += one;
     } while (i < 0x1C);
     x = 0xE0;
     do {
-        func_8070F2FC((s32 *)&sp6C, x, 0x2F4);
+        func_8070F2FC(&sp6C, x, 0x2F4);
         x += step;
     } while (x < 0x420);
     ArcA3_P6D0 = D_800342B8;
     func_80005A90(D_8004BC50 + D_807444FC * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&sp6C, D_8004BC50 + D_807444FC * 0x18);
+    func_8070E8F0(&sp6C, D_8004BC50 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     x = 0x240;
     do {
         for (i = 0x9F; (i ^ 0) != 0x87; i -= 8) {
-            func_8070F2FC((s32 *)&sp6C, x, (s16)(s32)((((f64)i * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp6C, x, (s16)(s32)((((f64)i * 0.875) + 8.0) * 4.0));
         }
         x += step;
     } while (x != 0x2C0);
@@ -1416,9 +1416,7 @@ s32 arcadeCheckStage4Ladders(s32, s32);
 
 
 void func_80005A90(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
-void func_8070E8F0(s32 *, void *);
 void func_8070F2C8(s32, s16, s32, u8);
-void func_8070F2FC(s32 *, s16, s16);
 extern u8 D_8004A338[];
 extern u8 D_8004A358[];
 extern u8 D_8004A378[];
@@ -2115,7 +2113,7 @@ s32 arcadeCheckStage4Ladders(s32 arg0, s32 arg1) {
     if (arcadeCheckLadderBounds(arg0, arg1, 0xF4, 0x7F, 0x7F, 0xA7)) {
         return 1;
     }
-    var_v0 = (s32) D_8004BCD4;
+    var_v0 = (s32)D_8004BCD0[0].unk4;
     if (var_v0 == 0x61) {
         var_v0 = 0x57;
     } else {
@@ -2124,7 +2122,7 @@ s32 arcadeCheckStage4Ladders(s32 arg0, s32 arg1) {
     if (arcadeCheckLadderBounds(arg0, arg1, 0x44, 0x57, var_v0, 0x7F)) {
         return 1;
     }
-    var_v0 = (s32) D_8004BCF4;
+    var_v0 = (s32)D_8004BCD0[1].unk4;
     if (var_v0 == 0x61) {
         var_v0 = 0x57;
     } else {
@@ -2153,22 +2151,20 @@ s32 arcadeCheckStageLadders(s32 arg0, s32 arg1) {
 }
 
 void arcadeRenderEntity(Gfx **arg0, s32 arg1) {
-    s32 sp4C;
+    Gfx *sp4C;
     s32 off;
+    f32 scale;
 
-    {
-        f32 scale;
-        if (D_8004A338[D_8004BCD0[arg1].unk18] & 1) {
-            scale = 1024.0f;
-        } else {
-            scale = 1170.2858f;
+    if (D_8004A338[D_8004BCD0[arg1].unk18] & 1) {
+        scale = 1024.0f;
+    } else {
+        scale = 1170.2858f;
     }
     off = arg1 * 0x18;
     func_80005A90(D_8004AC00 + D_807444FC * 0x780 + off, D_8004BCD0[arg1].unk14, 0, D_8004BCD0[arg1].unk1E, D_8004BCD0[arg1].unk1E, D_8004BCD0[arg1].unk1F, 0, 2, 0, 0);
-    sp4C = (s32)*arg0;
+    sp4C = *arg0;
     func_8070E8F0(&sp4C, D_8004AC00 + D_807444FC * 0x780 + off);
     func_8070F2C8(0x400, (s32)scale, (u8)(D_8004BCD0[arg1].unk1A & 1), D_8004BCD0[arg1].unk1B);
-    }
     if (D_8004A338[D_8004BCD0[arg1].unk18] & 2) {
         func_8070F2FC(&sp4C, (s32)(D_8004BCD0[arg1].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[arg1].unk18]) * 4, (s32)((f64)(D_8004BCD0[arg1].unk4 - (f32)(u32)D_8004A378[D_8004BCD0[arg1].unk18]) * 0.875 + 8.0) * 4);
     } else {
@@ -2182,7 +2178,7 @@ void arcadeRenderEntity(Gfx **arg0, s32 arg1) {
         }
         func_8070F2FC(&sp4C, (s32)(D_8004BCD0[arg1].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[arg1].unk18]) * 4, (s32)(((f64)(D_8004BCD0[arg1].unk4 - (f32)off - (f32)(u32)D_8004A378[D_8004BCD0[arg1].unk18]) * 0.875 + 8.0) * 4.0));
     }
-    *arg0 = (Gfx *)sp4C;
+    *arg0 = sp4C;
 }
 
 void arcadeRenderEntities(Gfx **arg0) {
@@ -2228,9 +2224,7 @@ extern s32 D_8004A75C;
 
 void arcadeUpdatePlayerAnimation(s32 arg0) {
     s32 val;
-    ArcadeEntity *ptr = &D_8004BCD0[arg0];
     s32 b;
-    s32 t;
     s32 s4;
     s32 s0;
     f32 fs0;
@@ -2340,12 +2334,10 @@ void arcadeUpdatePlayerAnimation(s32 arg0) {
             } else {
                 D_8004BCD0[arg0].unk14 = D_8003D600;
             }
-            t = (s32)D_8004BCD0[arg0].unk10 & 3;
-            if ((t ^ 0) == 2) {
-                ptr->unk1A ^= 1;
-                t = (s32)D_8004BCD0[arg0].unk10 & 3;
+            if (((s32)D_8004BCD0[arg0].unk10 & 3) == 2) {
+                D_8004BCD0[arg0].unk1A ^= 1;
             }
-            if (t == 1) {
+            if (((s32)D_8004BCD0[arg0].unk10 & 3) == 1) {
                 D_8004BCD0[arg0].unk1B = !D_8004BCD0[arg0].unk1B;
             }
         }
@@ -2848,7 +2840,7 @@ extern u8 D_8003E868[];
 extern s32 D_8076D1F8;
 /* ArcR4 declarations */
 extern ArcadeEntity D_8004A5F8;
-extern s32 D_8004A318[][2];
+extern s32 D_8004A318[];
 extern u8 D_8004BCE9[];
 
 #ifdef NON_MATCHING
@@ -3018,7 +3010,7 @@ void func_8002E158(s32 arg0) {
             D_8004BCD0[arg0].unk18 = 0;
         }
         if (arcadeAbs(D_8004BCD0[arg0].unk0 - D_8004BCD0[D_8004C71F].unk0) < 7) {
-            if (D_8004BCD0[arg0].unk4 - *(f32 *)((u8 *)&D_8004BCD4 + (D_8004C71F << 5)) < 4.0f && D_8004BCD0[arg0].unk4 - *(f32 *)((u8 *)&D_8004BCD4 + (D_8004C71F << 5)) > -8.0f) {
+            if (D_8004BCD0[arg0].unk4 - D_8004BCD0[D_8004C71F].unk4 < 4.0f && D_8004BCD0[arg0].unk4 - D_8004BCD0[D_8004C71F].unk4 > -8.0f) {
                 arcadeKillPlayer();
             }
         }
@@ -3386,7 +3378,7 @@ void func_8002EEB8(s32 arg0) {
                 return;
             }
             if (D_8004BCD0[arg0].unk1C == 0x14) {
-                D_8004BCE9[idx << 5] = 2;
+                D_8004BCD0[idx].unk19 = 2;
                 return;
             }
             break;
@@ -3603,17 +3595,10 @@ void func_80030044(s32 arg0) {
 }
 
 void func_80030210(s32 arg0) {
-    s32 cond;
-
     if (0.0f == D_8004BCD0[arg0].unk10) {
         n_alSndpPlay(D_8076D1F8, 0x45, 0x7FFF, 0x3F, 1.0f, 0, 0);
     }
-    cond = 0;
-    if (D_8004BCD0[arg0].unk10 > 40.0f) {
-        cond = 1;
-    }
-    D_8004BCD0[arg0].unk10 += 1.0f;
-    if (cond) {
+    if (D_8004BCD0[arg0].unk10++ > 40.0f) {
         D_8004BCD0[arg0].unk18 = 0;
     }
 }
@@ -3790,7 +3775,7 @@ void func_80030B08(u8 arg0) {
             D_8004BCD0[arg0].unk18 = 0;
         }
         if (arcadeAbs(D_8004BCD0[arg0].unk0 - D_8004BCD0[D_8004C71F].unk0) < 12) {
-            if (D_8004BCD0[arg0].unk4 - *(f32 *)((u8 *)&D_8004BCD4 + (D_8004C71F << 5)) < 4.0f && D_8004BCD0[arg0].unk4 - *(f32 *)((u8 *)&D_8004BCD4 + (D_8004C71F << 5)) > -8.0f) {
+            if (D_8004BCD0[arg0].unk4 - D_8004BCD0[D_8004C71F].unk4 < 4.0f && D_8004BCD0[arg0].unk4 - D_8004BCD0[D_8004C71F].unk4 > -8.0f) {
                 arcadeKillPlayer();
             }
         }
@@ -3798,13 +3783,10 @@ void func_80030B08(u8 arg0) {
 }
 
 void func_80030C70(u8 arg0) {
-    s32 temp_v1;
-
     if (460.0f < D_8004BCD0[arcadeFindEntityByType(0x17)].unk10) {
         return;
     }
-    temp_v1 = D_8004BCD0[arg0].unk1C;
-    D_8004BCD0[arg0].unk1C = (D_8004BCD0[arg0].unk1A = (temp_v1 / 8) & 1, temp_v1 + 1);
+    D_8004BCD0[arg0].unk1A = (D_8004BCD0[arg0].unk1C++ / 8) & 1;
 }
 
 extern u8 *D_80746800;
@@ -4034,8 +4016,8 @@ void arcadeSpawnStage2Enemies(void) {
         if (r >= 4) {
             r = 1;
         }
-        D_8004BCD0[idx].unk0 = ((s32 *)D_8004A318)[r * 2];
-        D_8004BCD0[idx].unk4 = ((s32 *)D_8004A318)[r * 2 + 1];
+        D_8004BCD0[idx].unk0 = D_8004A318[r * 2];
+        D_8004BCD0[idx].unk4 = D_8004A318[r * 2 + 1];
         if (160.0f < D_8004BCD0[D_8004C71F].unk0) {
             D_8004BCD0[idx].unk1A = 1 - D_8004BCD0[idx].unk1A;
             D_8004BCD0[idx].unk8 = -D_8004BCD0[idx].unk8;
@@ -4044,15 +4026,14 @@ void arcadeSpawnStage2Enemies(void) {
     }
     if (D_8004C718 == 0) {
         arcadeStopSound(0);
-        if (D_8004BCD0) {}
         D_8004C718 = 1;
         D_8004C708 = 1;
         D_8004C71D = 2;
-        D_8004BCE9[arcadeFindEntityByType(0x17) << 5] = 8;
+        D_8004BCD0[arcadeFindEntityByType(0x17)].unk19 = 8;
     }
 }
 
-s32 _sprintf(s32, const char *, ...);
+s32 _sprintf(char *, const char *, ...);
 extern u8 D_8004A82C[5][3];
 extern u8 D_8004BCEC;
 
@@ -4067,39 +4048,39 @@ void arcadeDrawNameRegistration(Gfx **arg0) {
     if (D_8004C724 == 3) {
         arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
         arcadeSetTextPosition(0x78, 0x3B);
-        _sprintf((s32)p, "NAME %.3s", D_8004A774);
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "NAME %.3s", D_8004A774);
+        arcadeDrawString(&g, p);
         arcadeSetTextPosition(0xA0, 0x41);
-        _sprintf((s32)p, "---");
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "---");
+        arcadeDrawString(&g, p);
         if (D_8004C6DC < 0x708) {
             arcadeSetTextPosition(0x60, 0x7B);
-            _sprintf((s32)p, "REGI TIME <%02d>", 0x1E - D_8004C6DC / 0x3C);
+            _sprintf(p, "REGI TIME <%02d>", 0x1E - D_8004C6DC / 0x3C);
         } else {
             arcadeSetTextPosition(0x40, 0x7B);
-            _sprintf((s32)p, "YOUR NAME WAS");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "YOUR NAME WAS");
+            arcadeDrawString(&g, p);
             arcadeSetTextPosition(0xB0, 0x7B);
-            _sprintf((s32)p, "REGISTERED.");
+            _sprintf(p, "REGISTERED.");
         }
-        arcadeDrawString(&g, (s32)p);
+        arcadeDrawString(&g, p);
         arcadeSetTextColor(0xFF, 0, 0, 0xFF);
         arcadeSetTextPosition(0x58, 0x2B);
-        _sprintf((s32)p, "NAME REGISTRATION");
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "NAME REGISTRATION");
+        arcadeDrawString(&g, p);
         arcadeSetTextColor(0, 0xFF, 0, 0xFF);
         arcadeSetTextPosition(0x58, 0x4B);
-        _sprintf((s32)p, "A B C D E F G H I J");
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "A B C D E F G H I J");
+        arcadeDrawString(&g, p);
         arcadeSetTextPosition(0x58, 0x5B);
-        _sprintf((s32)p, "K L M N O P Q R S T");
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "K L M N O P Q R S T");
+        arcadeDrawString(&g, p);
         arcadeSetTextPosition(0x58, 0x6B);
-        _sprintf((s32)p, "U V W X Y Z . -");
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "U V W X Y Z . -");
+        arcadeDrawString(&g, p);
         arcadeSetTextPosition(0xD4, 0x6B);
-        _sprintf((s32)p, "ba");
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "ba");
+        arcadeDrawString(&g, p);
     }
     arcadeSetTextColor(0xFF, 0, 0, 0xFF);
     for (i = 0; i < 5; i++) {
@@ -4107,17 +4088,17 @@ void arcadeDrawNameRegistration(Gfx **arg0) {
             arcadeSetTextColor(0xFF, 0xFF, 0, 0xFF);
         }
         arcadeSetTextPosition(0x38, 0x8B + i * 0x10);
-        if (i == D_8004BCEC && (D_8004C6DC & 0x20) && D_8004C724 == 3) {
-            _sprintf((s32)p, "%.3s", D_8004A82C[i]);
+        if (i == D_8004BCD0[0].unk1C && (D_8004C6DC & 0x20) && D_8004C724 == 3) {
+            _sprintf(p, "%.3s", D_8004A82C[i]);
         } else {
-            _sprintf((s32)p, "%.3s  %06d  %.3s", D_8004A82C[i], D_8004A74C[i], D_8004A778[i]);
+            _sprintf(p, "%.3s  %06d  %.3s", D_8004A82C[i], D_8004A74C[i], D_8004A778[i]);
         }
-        arcadeDrawString(&g, (s32)p);
+        arcadeDrawString(&g, p);
     }
     arcadeSetTextColor(0, 0xFF, 0, 0xFF);
     arcadeSetTextPosition(0xB8, 0xDB);
-    _sprintf((s32)p, "CREDIT 00");
-    arcadeDrawString(&g, (s32)p);
+    _sprintf(p, "CREDIT 00");
+    arcadeDrawString(&g, p);
     *arg0 = g;
 }
 
@@ -4155,30 +4136,30 @@ void arcadeDrawHud(Gfx **arg0) {
     ArcL8_P6D0 = D_8003DA90;
     D_8004C71A = 8;
     func_80005A90(&D_8004BBF0[D_807444FC], ArcL8_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&g, &D_8004BBF0[D_807444FC]);
+    func_8070E8F0(&g, &D_8004BBF0[D_807444FC]);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     if (D_8004A83C == 0) {
     }
     for (i = 0; i < D_8004C71C; i++) {
-        func_8070F2FC((s32 *)&g, i * 0x20 + 0x360, 0x4C);
+        func_8070F2FC(&g, i * 0x20 + 0x360, 0x4C);
     }
     arcadeSetTextColor(0xFF, 0, 0, 0xFF);
     if ((D_8004C6D8 & 0x10) || D_8004C724 == 0) {
         arcadeSetTextPosition(0x48, 0x13);
-        _sprintf((s32)p, "1UP");
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "1UP");
+        arcadeDrawString(&g, p);
     }
     arcadeSetTextPosition(0x78, 0x13);
-    _sprintf((s32)p, "HIGH SCORE");
-    arcadeDrawString(&g, (s32)p);
+    _sprintf(p, "HIGH SCORE");
+    arcadeDrawString(&g, p);
     arcadeSetTextColor(0, 0, 0xFF, 0xFF);
     arcadeSetTextPosition(0xD8, 0x1B);
-    _sprintf((s32)p, "L=%02d", D_8004A76C);
-    arcadeDrawString(&g, (s32)p);
+    _sprintf(p, "L=%02d", D_8004A76C);
+    arcadeDrawString(&g, p);
     arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     arcadeSetTextPosition(0x38, 0x1B);
-    _sprintf((s32)p, "%06d    %06d", D_8004A748, D_8004A760);
-    arcadeDrawString(&g, (s32)p);
+    _sprintf(p, "%06d    %06d", D_8004A748, D_8004A760);
+    arcadeDrawString(&g, p);
     if (D_8004C724 == 5 || D_8004C724 == 4) {
         if (D_8004A764 != 0) {
             if (D_8004C722 == 2) {
@@ -4189,8 +4170,8 @@ void arcadeDrawHud(Gfx **arg0) {
                 arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
             }
             arcadeSetTextPosition(0x78, 0xA3);
-            _sprintf((s32)p, "GAME OVER");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "GAME OVER");
+            arcadeDrawString(&g, p);
         }
         if (D_8004C724 == 4) {
             if (D_8004A768 == 0 || D_8004C722 == 4) {
@@ -4202,16 +4183,16 @@ void arcadeDrawHud(Gfx **arg0) {
             }
             arcadeSetStageTextColor(0);
             arcadeSetTextPosition(0x88, 0x8B);
-            _sprintf((s32)p, "RETURN");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "RETURN");
+            arcadeDrawString(&g, p);
             arcadeSetStageTextColor(1);
             arcadeSetTextPosition(0x68, 0x9B);
-            _sprintf((s32)p, "DELETE HISCORE");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "DELETE HISCORE");
+            arcadeDrawString(&g, p);
             arcadeSetStageTextColor(2);
             arcadeSetTextPosition(0x68, 0xAB);
-            _sprintf((s32)p, "EXIT DK ARCADE");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "EXIT DK ARCADE");
+            arcadeDrawString(&g, p);
         }
         if (D_8004C722 == 2) {
             if (D_8004C71E < 0xA) {
@@ -4238,32 +4219,32 @@ void arcadeDrawHud(Gfx **arg0) {
         } else {
             i = 0;
         }
-        _sprintf((s32)p, "%02d00", i);
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "%02d00", i);
+        arcadeDrawString(&g, p);
     }
     if (D_8004C724 == 2) {
         n = (D_8004C723 & 3) + 1;
         arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
         arcadeSetTextPosition(0x48, 0xD7);
-        _sprintf((s32)p, "HOW HIGH CAN YOU GET ?");
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "HOW HIGH CAN YOU GET ?");
+        arcadeDrawString(&g, p);
         arcadeSetTextPosition(0x58, 0xC9);
-        _sprintf((s32)p, "@%% m");
-        arcadeDrawString(&g, (s32)p);
+        _sprintf(p, "@%% m");
+        arcadeDrawString(&g, p);
         if (n >= 2) {
             arcadeSetTextPosition(0x58, 0xAD);
-            _sprintf((s32)p, "%%) m");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "%%) m");
+            arcadeDrawString(&g, p);
         }
         if (n >= 3) {
             arcadeSetTextPosition(0x58, 0x91);
-            _sprintf((s32)p, "&%% m");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "&%% m");
+            arcadeDrawString(&g, p);
         }
         if (n >= 4) {
             arcadeSetTextPosition(0x50, 0x75);
-            _sprintf((s32)p, "!)) m");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "!)) m");
+            arcadeDrawString(&g, p);
         }
     }
     if (D_8004C724 == 3) {
@@ -4273,22 +4254,22 @@ void arcadeDrawHud(Gfx **arg0) {
         if (!(D_8004C6DC & 0x200)) {
             arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
             arcadeSetTextPosition(0x70, 0x33);
-            _sprintf((s32)p, "INSERT COIN");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "INSERT COIN");
+            arcadeDrawString(&g, p);
             arcadeSetTextPosition(0x68, 0x43);
-            _sprintf((s32)p, "PLAYER    COIN");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "PLAYER    COIN");
+            arcadeDrawString(&g, p);
             arcadeSetTextPosition(0x78, 0x53);
-            _sprintf((s32)p, "1        1");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "1        1");
+            arcadeDrawString(&g, p);
             arcadeSetTextPosition(0x38, 0x7B);
-            _sprintf((s32)p, "RANK  SCORE  NAME");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "RANK  SCORE  NAME");
+            arcadeDrawString(&g, p);
             arcadeDrawNameRegistration(&g);
             arcadeSetTextColor(0xFF, 0, 0, 0xFF);
             arcadeSetTextPosition(0x78, 0x63);
-            _sprintf((s32)p, "2        2");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "2        2");
+            arcadeDrawString(&g, p);
         } else {
             if (D_8004C6DC & 0x182) {
                 arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
@@ -4296,11 +4277,9 @@ void arcadeDrawHud(Gfx **arg0) {
                 arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
             }
             arcadeSetTextPosition(0x68, 0xD7);
-            _sprintf((s32)p, "c NINTENDO 1981");
-            arcadeDrawString(&g, (s32)p);
+            _sprintf(p, "c NINTENDO 1981");
+            arcadeDrawString(&g, p);
         }
-    }
-    if (&D_8004BBF0[0] != 0) {
     }
     *arg0 = g;
     D_8004A83C++;
