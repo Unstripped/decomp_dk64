@@ -612,7 +612,59 @@ typedef struct {
     f32 angleIncrement;
 } M2Interpolation;
 
+#ifdef NON_MATCHING
+extern f32 D_807FDB50;
+extern f32 D_807FDB54;
+extern f32 D_807FDB58;
+
+void func_807186C8(TimedEffectActorView *arg0, s8 *arg1) {
+    EffectMatrix spA0;
+    EffectMatrix sp60;
+    f32 start[3];
+    f32 end[3];
+    f32 result[3];
+    s32 i;
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(0x28);
+        ((M2Interpolation *)arg0->unk384)->progress = 0.0f;
+        ((M2Interpolation *)arg0->unk384)->startX = D_807FDB50;
+        ((M2Interpolation *)arg0->unk384)->startY = D_807FDB54;
+        ((M2Interpolation *)arg0->unk384)->startZ = D_807FDB58;
+        ((M2Interpolation *)arg0->unk384)->endX = arg0->unk340;
+        ((M2Interpolation *)arg0->unk384)->endY = arg0->unk344;
+        ((M2Interpolation *)arg0->unk384)->endZ = arg0->unk348;
+        ((M2Interpolation *)arg0->unk384)->increment = 0.01f;
+        ((M2Interpolation *)arg0->unk384)->angle = (f32)((u32)(func_806119A0() % 36000U) / 100U);
+        ((M2Interpolation *)arg0->unk384)->angleIncrement = (f32)((u32)(func_806119A0() % 400U) / 100U);
+    }
+    start[0] = ((M2Interpolation *)arg0->unk384)->startX;
+    start[1] = ((M2Interpolation *)arg0->unk384)->startY;
+    start[2] = ((M2Interpolation *)arg0->unk384)->startZ;
+    end[0] = ((M2Interpolation *)arg0->unk384)->endX;
+    end[1] = ((M2Interpolation *)arg0->unk384)->endY;
+    end[2] = ((M2Interpolation *)arg0->unk384)->endZ;
+    for (i = 0; i < 3; i++) {
+        result[i] = end[i] + (start[i] - end[i]) * ((M2Interpolation *)arg0->unk384)->progress;
+    }
+    arg0->unk340 = result[0];
+    arg0->unk344 = result[1];
+    arg0->unk348 = result[2];
+    ((M2Interpolation *)arg0->unk384)->progress += ((M2Interpolation *)arg0->unk384)->increment;
+    ((M2Interpolation *)arg0->unk384)->increment = (f32)((f64)((M2Interpolation *)arg0->unk384)->increment + 0.001);
+    arg0->unk360 = (f32)((f64)arg0->unk360 * 0.975);
+    arg0->unk364 = (f32)((f64)arg0->unk364 * 0.975);
+    ((M2Interpolation *)arg0->unk384)->angle += ((M2Interpolation *)arg0->unk384)->angleIncrement;
+    guScaleF(spA0, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp60, ((M2Interpolation *)arg0->unk384)->angle, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(spA0, sp60, spA0);
+    guMtxF2L(spA0, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    ((u8 *)arg0)[0x32C] = 2;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807186C8.s")
+#endif
 
 
 typedef struct {
@@ -631,7 +683,43 @@ typedef struct {
     s16 unk6;
 } NM2Projectile;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807189BC.s")
+void func_807189BC(TimedEffectActorView *arg0, s8 *arg1) {
+    NM2Projectile *proj;
+    NM2ProjectileSource *src;
+    f64 min;
+    f64 temp;
+
+    src = (NM2ProjectileSource *)arg0->unk35C;
+    if (arg0->unk384 == NULL) {
+        proj = func_80610FE8(8); arg0->unk384 = proj;
+        temp = (f64)src->unkB8 * 0.01;
+        min = 2.0;
+        if (temp < min) {
+            proj->unk0 = min;
+        } else {
+            proj->unk0 = temp;
+        }
+        proj->unk2 = src->unkE6;
+        proj->unk4 = (s16)(((s32)(randomNonNegative() >> 0xF) % 1000) + 0xC8);
+        arg0->unk360 += ((f64)((s32)(randomNonNegative() >> 0xF) % 100) / 500.0);
+        arg0->unk364 = arg0->unk360;
+        proj->unk6 = (s16)src->unkAC;
+    }
+    proj = arg0->unk384;
+    arg0->unk340 -= (f32)proj->unk0 * func_80612794(proj->unk2);
+    arg0->unk348 -= (f32)proj->unk0 * func_80612790(proj->unk2);
+    arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)proj->unk4 / 500.0));
+    if ((f32)proj->unk6 <= arg0->unk344) {
+        *arg1 = 1;
+        func_80718124((f32)((f64)arg0->unk360 * 1.5), arg0->unk340, (f32)proj->unk6, arg0->unk348);
+    }
+    if ((s32)arg0->unk36D >= 0xC) {
+        arg0->unk36D -= 0xA;
+        return;
+    }
+    *arg1 = 1;
+    arg0->unk36D = 0U;
+}
 
 
 typedef struct {
@@ -646,7 +734,77 @@ typedef struct {
 } NM2MotionState;
 
 
+#ifdef NON_MATCHING
+s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
+s32 collisionGetFloorHeight(s32 *);
+
+void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
+    f64 temp_fv1;
+    f32 sp3C;
+    f32 temp_fv0;
+    f32 var_fv1;
+    f32 sp30;
+    NM2MotionState *state;
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(0x20);
+        ((NM2MotionState *)arg0->unk384)->unk0 = 0;
+        ((NM2MotionState *)arg0->unk384)->unk4 = 0.0f;
+        ((NM2MotionState *)arg0->unk384)->unk8 = arg0->unk340;
+        ((NM2MotionState *)arg0->unk384)->unkC = arg0->unk348;
+        ((NM2MotionState *)arg0->unk384)->unk10 = ((f64)(func_806119A0() % 10000U) / 10000.0) * 0.19;
+        ((NM2MotionState *)arg0->unk384)->unk14 = ((f64)(func_806119A0() % 10000U) / 10000.0) * 0.077;
+        if ((func_806119A0() / 10000U) & 1) {
+            ((NM2MotionState *)arg0->unk384)->unk10 = (f32)(0.0 - (f64)((NM2MotionState *)arg0->unk384)->unk10);
+            ((NM2MotionState *)arg0->unk384)->unk14 = (f32)(0.0 - (f64)((NM2MotionState *)arg0->unk384)->unk14);
+        }
+        sp30 = arg0->unk344;
+        collisionCheckGroundAtPoint(arg0->unk340, arg0->unk348, &sp30);
+        if (collisionGetFloorHeight((s32 *)((u8 *)arg0->unk384 + 0x18)) == 0) {
+            ((NM2MotionState *)arg0->unk384)->unk18 = 0.0f;
+        }
+        ((NM2MotionState *)arg0->unk384)->unk1C = (f32)D_8076A064;
+    }
+    sp3C = sinApprox(((NM2MotionState *)arg0->unk384)->unk10 * (f32)((NM2MotionState *)arg0->unk384)->unk0);
+    temp_fv0 = sinApprox(((NM2MotionState *)arg0->unk384)->unk14 * (f32)((NM2MotionState *)arg0->unk384)->unk0) * 6.0f;
+    arg0->unk340 = ((NM2MotionState *)arg0->unk384)->unk8 + (sp3C * 6.0f);
+    arg0->unk348 = ((NM2MotionState *)arg0->unk384)->unkC + temp_fv0;
+    ((NM2MotionState *)arg0->unk384)->unk0 += 1;
+    ((NM2MotionState *)arg0->unk384)->unk4 = (f32)((f64)((NM2MotionState *)arg0->unk384)->unk4 + 0.02);
+    var_fv1 = ((NM2MotionState *)arg0->unk384)->unk4;
+    if ((f64)var_fv1 > 1.0) {
+        ((NM2MotionState *)arg0->unk384)->unk4 = 1.0f;
+        var_fv1 = ((NM2MotionState *)arg0->unk384)->unk4;
+    }
+    arg0->unk344 += var_fv1;
+    state = arg0->unk384;
+    switch (arg0->unk35C) {
+    case 0:
+        arg0->unk360 = (f32)(((f64)state->unk0 * 0.01) + 0.01);
+        if ((f64)arg0->unk360 > 0.12) arg0->unk360 = 0.12f;
+        break;
+    case 1:
+        arg0->unk360 = (f32)(((f64)state->unk0 * 0.005) + 0.05);
+        if ((f64)arg0->unk360 > 0.07) arg0->unk360 = 0.07f;
+        break;
+    case 2:
+        arg0->unk360 = (f32)(((f64)state->unk0 * 0.02) + 0.02);
+        if ((f64)arg0->unk360 > 0.24) arg0->unk360 = 0.24f;
+        break;
+    }
+    arg0->unk364 = arg0->unk360;
+    sp3C = sinApprox((f32)((f64)((NM2MotionState *)arg0->unk384)->unk0 * 0.17));
+    arg0->unk360 = (f32)((f64)arg0->unk360 + ((f64)sp3C * 0.03));
+    arg0->unk364 = (f32)((f64)arg0->unk364 + ((f64)sinApprox((f32)((f64)((NM2MotionState *)arg0->unk384)->unk0 * 0.2267)) * 0.03));
+    if ((((NM2MotionState *)arg0->unk384)->unk1C + 100.0f) < (f32)D_8076A064) *arg1 = 1;
+    if (((NM2MotionState *)arg0->unk384)->unk18 <= arg0->unk344) {
+        *arg1 = 1;
+        func_80718124(0.3f, arg0->unk340, arg0->unk344, arg0->unk348);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80718BF4.s")
+#endif
 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071910C.s")
