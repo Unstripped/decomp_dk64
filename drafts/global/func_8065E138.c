@@ -1,129 +1,118 @@
-// func_8065E138 (src/global/61AA0.c): 318/319 insns; inner loop structure matched, D_807F78C0 array indexing hoisted vs loop preheader register allocation difference
+// func_8065E138 (src/global/61AA0.c): stage 6, parked under NON_MATCHING in 61AA0.c (RenderA): text identical except (1) loop-preheader temp regs for sll i<<6 / lui D_807F78C0 / sll zero,6 are t7,t9,t8 vs target t9,t8,t7; (2) found block: target keeps node+0x30 in a0 (addiu a0,t1,0x30; return addu v0,t7,a0) while ours folds it into addu t7,t1 + addiu 0x30. Natural form = for(i;!mismatch&&i<arg0) / for(j;mismatch&&j<arg0) with u8 mismatch; deadsweep + permuter 240s found nothing natural (permuter hint: reassigning node after sub=node->sub materialises a0).
+#include "common.h"
+
 typedef struct {
-    float unk0;
-    float unk4;
-    float unk8;
-    float unkC;
-    float unk10;
-    float unk14;
-    float unk18;
-    float unk1C;
-    float unk20;
-    float unk24;
-    float unk28;
-    float unk2C;
-    float unk30;
-    float unk34;
-    short unk38;
-    short unk3A;
-    short unk3C;
-    unsigned char unk3E;
-    unsigned char pad3F;
-} SubEntry;
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+    s16 unk38;
+    s16 unk3A;
+    s16 unk3C;
+    u8 unk3E;
+    u8 pad3F;
+} RenderASub;
 
-typedef struct Node {
-    float unk0;
-    float unk4;
-    float unk8;
-    int unkC;
-    int unk10;
-    struct Node *hash_next;
-    struct Node *unk18;
-    struct Node *next;
-    struct Node *prev;
-    short unk24;
-    short unk26;
-    unsigned char unk28;
-    unsigned char unk29;
-    unsigned char pad2A[6];
-    SubEntry sub[1];
-} Node;
+typedef struct RenderANode {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    s32 unkC;
+    s32 unk10;
+    struct RenderANode *hash_next;
+    struct RenderANode *hash_prev;
+    struct RenderANode *list_next;
+    struct RenderANode *list_prev;
+    s16 unk24;
+    s16 unk26;
+    u8 unk28;
+    u8 unk29;
+    u8 pad2A[6];
+    RenderASub sub[1];
+} RenderANode;
 
-extern int D_8076A064;
-extern float *D_8076A0B4;
-extern float *D_8076A0B8;
-extern float *D_8076A0BC;
-extern SubEntry D_807F78C0[];
-extern Node *D_807F8EC0[];
-extern Node *D_807F9050;
-extern Node *D_807F9054;
-extern short D_807F9058;
-extern short D_807F905A;
-int func_8065EA98(int, short, unsigned char);
-
+extern RenderANode *D_807F8EC0[100];
+extern RenderANode *D_807F9050;
+extern RenderANode *D_807F9054;
+extern s16 D_807F9058;
+extern s16 D_807F905A;
+extern s32 D_8076A064;
+extern f32 *D_8076A0B4;
+extern f32 *D_8076A0B8;
+extern f32 *D_8076A0BC;
+extern RenderASub D_807F78C0[];
+s32 matrixCacheHash(s32, s16, u8);
+void *func_80610FE8(s32);
+void heapFree(void *);
+void heapFreeDeferred(void *);
 #define DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
-void *func_8065E138(arg0, arg1, arg2, arg3)
-int arg0;
-int arg1;
-short arg2;
-unsigned char arg3;
-{
-    Node *node;
-    int var_t0;
-    int var_a1;
-    int var_a0;
+void *func_8065E138(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
+    RenderANode *node;
+    s32 i;
+    s32 j;
+    u8 mismatch;
+    RenderASub *a;
+    RenderASub *b;
 
     D_807F9058++;
-    node = D_807F8EC0[func_8065EA98(arg0, arg2, arg3)];
+    node = D_807F8EC0[matrixCacheHash(arg0, arg2, arg3)];
     while (node != NULL) {
-        if (arg0 == node->unk29 && arg2 == node->unk24 && arg3 == node->unk28) {
+        if (arg0 == node->unk29 && arg2 == node->unk24 && node->unk28 == arg3) {
             if (node->unk0 == D_8076A0B4[arg1] && node->unk4 == D_8076A0B8[arg1]) {
-                var_t0 = 0;
                 if (node->unk8 == D_8076A0BC[arg1]) {
-                    var_a1 = 0;
-                    if (arg0 > 0) {
-                        do {
-                            var_a1 = 1;
-                            if (arg0 > 0) {
-                                SubEntry *sub_node = (SubEntry *)((char *)node + (var_t0 << 6) + 0x30);
-                                var_a0 = 0;
-                                do {
-                                    var_a0++;
-                                    if (D_807F78C0[var_a0 - 1].unk3E == 1) {
-                                        if (sub_node->unk38 == D_807F78C0[var_a0 - 1].unk38 &&
-                                            sub_node->unk3A == D_807F78C0[var_a0 - 1].unk3A &&
-                                            sub_node->unk3C == D_807F78C0[var_a0 - 1].unk3C &&
-                                            (double)DIFF(D_807F78C0[var_a0 - 1].unkC, sub_node->unkC) < 0.05 &&
-                                            (double)DIFF(D_807F78C0[var_a0 - 1].unk10, sub_node->unk10) < 0.05 &&
-                                            (double)DIFF(D_807F78C0[var_a0 - 1].unk14, sub_node->unk14) < 0.05 &&
-                                            (double)DIFF(D_807F78C0[var_a0 - 1].unk2C, sub_node->unk2C) < 0.05 &&
-                                            (double)DIFF(D_807F78C0[var_a0 - 1].unk30, sub_node->unk30) < 0.05 &&
-                                            (double)DIFF(D_807F78C0[var_a0 - 1].unk34, sub_node->unk34) < 0.05 &&
-                                            sub_node->unk0 == D_807F78C0[var_a0 - 1].unk0 &&
-                                            sub_node->unk4 == D_807F78C0[var_a0 - 1].unk4) {
-                                            var_a1 = 0;
-                                        }
-                                    } else if (sub_node->unk38 == D_807F78C0[var_a0 - 1].unk38 &&
-                                               sub_node->unk3A == D_807F78C0[var_a0 - 1].unk3A &&
-                                               sub_node->unk3C == D_807F78C0[var_a0 - 1].unk3C &&
-                                               (double)DIFF(D_807F78C0[var_a0 - 1].unk2C, sub_node->unk2C) < 0.05 &&
-                                               (double)DIFF(D_807F78C0[var_a0 - 1].unk30, sub_node->unk30) < 0.05 &&
-                                               (double)DIFF(D_807F78C0[var_a0 - 1].unk34, sub_node->unk34) < 0.05 &&
-                                               sub_node->unk1C == D_807F78C0[var_a0 - 1].unk1C) {
-                                        var_a1 = 0;
-                                    }
-                                } while (var_a1 != 0 && var_a0 < arg0);
+                    i = 0;
+                    mismatch = 0;
+                    for (; !mismatch && i < arg0; i++) {
+                        mismatch = 1;
+                        a = &node->sub[i];
+                        for (j = 0; mismatch && j < arg0; j++) {
+                            b = &D_807F78C0[j];
+                            if (b->unk3E == 1) {
+                                if (a->unk38 == b->unk38 && a->unk3A == b->unk3A && a->unk3C == b->unk3C &&
+                                    (double)DIFF(b->unkC, a->unkC) < 0.05 &&
+                                    (double)DIFF(b->unk10, a->unk10) < 0.05 &&
+                                    (double)DIFF(b->unk14, a->unk14) < 0.05 &&
+                                    (double)DIFF(b->unk2C, a->unk2C) < 0.05 &&
+                                    (double)DIFF(b->unk30, a->unk30) < 0.05 &&
+                                    (double)DIFF(b->unk34, a->unk34) < 0.05 &&
+                                    a->unk0 == b->unk0 && a->unk4 == b->unk4) {
+                                    mismatch = 0;
+                                }
+                            } else if (a->unk38 == b->unk38 && a->unk3A == b->unk3A && a->unk3C == b->unk3C &&
+                                       (double)DIFF(b->unk2C, a->unk2C) < 0.05 &&
+                                       (double)DIFF(b->unk30, a->unk30) < 0.05 &&
+                                       (double)DIFF(b->unk34, a->unk34) < 0.05 &&
+                                       a->unk1C == b->unk1C) {
+                                mismatch = 0;
                             }
-                            if (var_a1 != 0) break;
-                            var_t0++;
-                        } while (var_t0 < arg0);
+                        }
                     }
-                    if (var_a1 == 0) {
-                        SubEntry *sub = node->sub;
+                    if (!mismatch) {
+                        RenderASub *sub = node->sub;
                         node->unkC = D_8076A064;
                         D_807F905A++;
-                        if (node->prev != NULL) {
-                            if (node->next == NULL) {
-                                D_807F9054 = node->prev;
+                        if (node->list_prev != NULL) {
+                            if (node->list_next == NULL) {
+                                D_807F9054 = node->list_prev;
                             }
-                            node->prev->next = node->next;
-                            if (node->next != NULL) {
-                                node->next->prev = node->prev;
+                            node->list_prev->list_next = node->list_next;
+                            if (node->list_next != NULL) {
+                                node->list_next->list_prev = node->list_prev;
                             }
-                            D_807F9050->prev = node;
-                            node->prev = NULL;
-                            node->next = D_807F9050;
+                            D_807F9050->list_prev = node;
+                            node->list_prev = NULL;
+                            node->list_next = D_807F9050;
                             D_807F9050 = node;
                         }
                         return &sub[arg0];
