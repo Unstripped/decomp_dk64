@@ -233,13 +233,11 @@ void minecartPlayerCartUpdate(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
             s1->unk30 = arg1;
             playerStateQueueCallback(0x45, D_807FBB40, s1->unk8);
             D_807FBB40->unk154++;
-            goto case_1;
+        } else {
+            actorUpdateModelMatrix(D_807FBB40, 0);
+            break;
         }
-        actorUpdateModelMatrix(D_807FBB40, 0);
-        break;
-
     case 1:
-    case_1:
         minecartFollowTrack(s1, arg2, arg3);
         camSetTargetScaled(sp90->unk104, D_807FBB40, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
         D_807FBB40->unk154++;

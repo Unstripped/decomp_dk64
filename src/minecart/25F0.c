@@ -877,7 +877,6 @@ void func_800280BC(void) {
             D_807FDC90->unk26 = 0x46;
             D_807FBB40->unkB8 = 0.0f;
             D_807FBB40->unk154++;
-            goto case_1;
         } else {
             func_80724E48(1);
             minecartStartScriptNearPlayer();
@@ -885,7 +884,6 @@ void func_800280BC(void) {
             return;
         }
     case 1:
-case_1:
         func_80724E48(1);
         minecartStartScriptNearPlayer();
         minecartAdjustTargetSpeed();
@@ -947,13 +945,11 @@ void func_8002835C(void) {
             D_807FDC90->unk26 = sp70->unk4;
             D_807FBB40->unkB8 = 0.0f;
             D_807FBB40->unk154++;
-            goto case_1;
         } else {
             actorUpdateModelMatrix(D_807FBB40, 0);
             return;
         }
     case 1:
-case_1:
         if ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82)) {
             minecartChooseBranchSide(sp74);
             minecartApplyJunction(sp74, &D_80028BD0, 0, 3);
