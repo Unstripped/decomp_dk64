@@ -153,7 +153,7 @@ void bonusControllerUpdate(void) {
     s32 pad58;
     s32 sp54;
     s32 pad50;
-    volatile s32 pad4C;
+    s32 pad4C;
     s32 t;
     u8 *pv;
 
@@ -381,8 +381,6 @@ render:
                     t = 0x59;
                     break;
                 case 0:
-                    if (!pv && !pv && !pv) {
-                    }
                     t = 0x52;
                     break;
                 default:
