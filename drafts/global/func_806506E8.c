@@ -1,31 +1,25 @@
-// func_806506E8 (src/global/54150.c): M54B:  func_806506E8 (src/global/54150.c) — closest diff: same 44 insns and frame;  * only the position of the last of the four hoisted global-address `addiu`s  * differs (expected hoists &D_807F6BE0, &D_807F6BEC, &D_807444FC, &D_807F6960 
-/* func_806506E8 (src/global/54150.c) — closest diff: same 44 insns and frame;
- * only the position of the last of the four hoisted global-address `addiu`s
- * differs (expected hoists &D_807F6BE0, &D_807F6BEC, &D_807444FC, &D_807F6960
- * in that order, i.e. reverse first-use; this emits &D_807F6960 first). */
-typedef struct M54B_Slot {
+// func_806506E8 (src/global/54150.c): ModelA 2026-10-29: text-identical, reloc only. Counted index loop over D_807F6960[i] reproduces the hoisted-address order; end pointer relocs as D_807F6960+0x280, expected D_807F6BE0.
+typedef struct MtxCopyRequest {
     s32 unk0;
     s32 unk4;
     s32 unk8;
     u8 unkC;
     u8 padD[3];
-} M54B_Slot;
+} MtxCopyRequest;
 
-extern M54B_Slot D_807F6960[];
-extern u32 D_807F6BE0;
-extern u8 D_807F6BEC;
+extern MtxCopyRequest D_807F6960[];
+
 extern u8 D_807444FC;
+extern u8 D_807F6BEC;
 void *memcpy(void *, const void *, unsigned int);
 
 void func_806506E8(s32 arg0) {
-    M54B_Slot *slot = D_807F6960;
-
-    do {
-        if (slot->unk0 == arg0 && slot->unkC == D_807444FC) {
-            memcpy((void *)slot->unk8, (void *)slot->unk4, 0x40);
-            slot->unk0 = 0;
+    s32 i;
+    for (i = 0; i < 0x28; i++) {
+        if (D_807F6960[i].unk0 == arg0 && D_807F6960[i].unkC == D_807444FC) {
+            memcpy((void *)D_807F6960[i].unk8, (void *)D_807F6960[i].unk4, 0x40);
+            D_807F6960[i].unk0 = 0;
             D_807F6BEC = 1;
         }
-        slot++;
-    } while (slot != (M54B_Slot *)&D_807F6BE0);
+    }
 }

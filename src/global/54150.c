@@ -24,56 +24,57 @@ typedef struct ModelData {
 void *func_80610FE8(s32);
 void *memcpy(void *, const void *, unsigned int);
 
-#ifdef NON_MATCHING
 void func_8064F450(ModelData **arg0, u8 *arg1) {
-    ModelData *m;
+    u8 *p2;
+    u32 n;
+    u8 *p1;
     u8 *src;
     u32 size;
-    u32 n;
+    ModelData *m;
     u32 i;
-    u8 *p1;
-    u8 *p2;
 
-    if (*(u32 *)(arg1 + 0x68) == *(u32 *)(arg1 + 0x64)) {
-        *arg0 = NULL;
+    if (*(u32 *)(arg1 + 0x68) != *(u32 *)(arg1 + 0x64)) {
+        m = func_80610FE8(0xD0);
+        *arg0 = m;
+        n = *(u32 *)(arg1 + *(u32 *)(arg1 + 0x68));
+        m->unk0 = func_80610FE8(n);
+        m->unk4 = func_80610FE8(n);
+        src = arg1 + *(u32 *)(arg1 + 0x68);
+        size = *(u32 *)(src + 4);
+        memcpy(m->unk0, src + 8, size);
+        memcpy(m->unk4, src + 8, size);
+        i = (n - size) >> 6;
+        p1 = m->unk0 + size;
+        p2 = m->unk4 + size;
+        for (; i != 0; i--) {
+            guMtxIdent((Mtx *)p1);
+            guMtxIdent((Mtx *)p2);
+            p1 += 0x40;
+            p2 += 0x40;
+        }
+        {
+            u8 *q = arg1 + *(u32 *)(arg1 + 0x64);
+            s32 j;
+
+            for (j = 0; j < 10; j++) {
+                ModelVertex *v = &m->unk8[j];
+                v->unk0 = (u32)q + *(u32 *)(q + j * 4);
+                v->unk4 = 0.0f;
+                v->unk8 = 0;
+                v->unkA = 0;
+                v->unkE = 0;
+                v->unkF = 0;
+                v->unk10 = 0;
+                v->unk11 = 0;
+                v->unkC = 1;
+                v->unk12 = 0;
+                v->unk13 = 0;
+            }
+        }
     } else {
-    m = func_80610FE8(0xD0);
-    *arg0 = m;
-    n = *(u32 *)(arg1 + *(u32 *)(arg1 + 0x68));
-    m->unk0 = func_80610FE8(n);
-    m->unk4 = func_80610FE8(n);
-    src = arg1 + *(u32 *)(arg1 + 0x68);
-    size = *(u32 *)(src + 4);
-    memcpy(m->unk0, src + 8, size);
-    memcpy(m->unk4, src + 8, size);
-    p1 = m->unk0 + size;
-    p2 = m->unk4 + size;
-    for (i = (n - size) >> 6; i != 0; i--) {
-        guMtxIdent((Mtx *)p1);
-        guMtxIdent((Mtx *)p2);
-        p1 += 0x40;
-        p2 += 0x40;
-    }
-    src = arg1 + *(u32 *)(arg1 + 0x64);
-    for (i = 0; i < 10; i++) {
-        m->unk8[i].unk0 = (u32)src + *(u32 *)(src + i * 4);
-        m->unk8[i].unk4 = 0.0f;
-        m->unk8[i].unk8 = 0;
-        m->unk8[i].unkA = 0;
-        m->unk8[i].unkC = 1;
-        m->unk8[i].unkE = 0;
-        m->unk8[i].unkF = 0;
-        m->unk8[i].unk10 = 0;
-        m->unk8[i].unk11 = 0;
-        m->unk8[i].unk12 = 0;
-        m->unk8[i].unk13 = 0;
-    }
+        *arg0 = NULL;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_8064F450.s")
-#endif
 
 typedef struct ModelSlot {
     u8 pad0[0x24];
@@ -198,7 +199,6 @@ void func_8064FB64();
 void func_8065054C();
 void func_806505F0();
 
-#ifdef NON_MATCHING
 void func_8064F97C(ModelAnimEntryRaw *arg0) {
     u8 *node;
     s16 stride;
@@ -206,6 +206,8 @@ void func_8064F97C(ModelAnimEntryRaw *arg0) {
     u8 *p;
     u32 a;
     u32 b;
+    u32 c;
+    u32 d;
 
     node = arg0->unk0;
     stride = *(u8 *)node * 0x24 + 8;
@@ -214,25 +216,19 @@ void func_8064F97C(ModelAnimEntryRaw *arg0) {
     i = 0;
     p = node + 0x3C;
     while (i < *(u8 *)(node + 0x39)) {
-        u32 v;
-
         func_8064FB64(arg0->unk11, arg0->unk4, p, p + 8, arg0->unk13);
-        v = *(u32 *)p;
+        c = *(u32 *)p + b;
         if (arg0->unkE == 0) {
-            func_8065054C(D_807F6BE8, v + a, v + b);
+            d = *(u32 *)p + a;
+            func_8065054C(D_807F6BE8, d, c);
         } else {
-            func_806505F0(v + b);
+            func_806505F0(c);
         }
         i++;
         p += stride;
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_8064F97C.s")
-#endif
-
-#ifdef NON_MATCHING
 void func_8064FA7C(u32 *arg0, u32 *arg1) {
     u8 *node;
     s16 stride;
@@ -240,25 +236,23 @@ void func_8064FA7C(u32 *arg0, u32 *arg1) {
     u8 *p;
     u32 a;
     u32 b;
+    u32 c;
 
     node = (u8 *)*arg1;
     stride = *(u8 *)node * 0x24 + 8;
-    a = arg0[D_807444FC ^ 1];
-    *(volatile u32 *)&D_807F6BE0 = a;
-    b = arg0[D_807444FC];
-    *(volatile u32 *)&D_807F6BE4 = b;
+    a = D_807F6BE0 = arg0[D_807444FC ^ 1];
+    b = D_807F6BE4 = arg0[D_807444FC];
+    if (D_807444FC == 0) {}  // FAKE: deadsweep dead statement (extends D_807444FC live range: v1 not v0, address temps a2/a3)
     p = node + 0x3C;
     i = 0;
     while (i < *(u8 *)(node + 0x39)) {
-        func_8065054C(arg0, *(u32 *)p + a, *(u32 *)p + b);
+        c = *(u32 *)p + b;
+        func_8065054C(arg0, *(u32 *)p + a, c);
         i++;
         p += stride;
     }
+    if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (extends D_807444FC live range: v1 not v0, address temps a2/a3)
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_8064FA7C.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_8064FB64.s")
 
@@ -305,59 +299,36 @@ void func_8065051C(void) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
     s32 found;
     s32 i;
-    MtxCopyRequest *slot;
 
     found = 0;
     i = 0;
-    slot = &D_807F6960[0];
-    do {
-        if (slot->unk0 == 0) {
+    while (found == 0 && i < 0x28) {
+        if (D_807F6960[i].unk0 == 0) {
             found = 1;
         } else {
             i++;
-            slot++;
         }
-    } while (found == 0 && i < 0x28);
+    }
 
     if (found != 0) {
-        slot = &D_807F6960[i];
-        slot->unk0 = arg0;
-        slot->unk4 = arg1;
-        slot->unk8 = arg2;
-        slot->unkC = D_807444FC ^ 1;
+        D_807F6960[i].unk0 = arg0;
+        D_807F6960[i].unk4 = arg1;
+        D_807F6960[i].unk8 = arg2;
+        D_807F6960[i].unkC = D_807444FC ^ 1;
         return;
     }
     faultSetMessage(0xB, 0, 0, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_8065054C.s")
-#endif
 
 #ifdef NON_MATCHING
 void func_806505F0(s32 arg0) {
-    MtxCopyRequest *slot = D_807F6960;
-
-    for (;;) {
-        if (slot->unk0 != 0 && slot->unk8 == arg0) {
-            slot->unk0 = 0;
-        }
-        if (slot[1].unk0 != 0 && slot[1].unk8 == arg0) {
-            slot[1].unk0 = 0;
-        }
-        if (slot[2].unk0 != 0 && slot[2].unk8 == arg0) {
-            slot[2].unk0 = 0;
-        }
-        if (slot[3].unk0 != 0 && slot[3].unk8 == arg0) {
-            slot[3].unk0 = 0;
-        }
-        slot += 4;
-        if (slot == (MtxCopyRequest *)&D_807F6BE0) {
-            break;
+    s32 i;
+    for (i = 0; i < 0x28; i++) {
+        if (D_807F6960[i].unk0 != 0 && D_807F6960[i].unk8 == arg0) {
+            D_807F6960[i].unk0 = 0;
         }
     }
 }
@@ -368,24 +339,10 @@ void func_806505F0(s32 arg0) {
 
 #ifdef NON_MATCHING
 void func_80650684(s32 arg0) {
-    MtxCopyRequest *slot = D_807F6960;
-
-    for (;;) {
-        if (slot->unk0 == arg0) {
-            slot->unk0 = 0;
-        }
-        if (slot[1].unk0 == arg0) {
-            slot[1].unk0 = 0;
-        }
-        if (slot[2].unk0 == arg0) {
-            slot[2].unk0 = 0;
-        }
-        if (slot[3].unk0 == arg0) {
-            slot[3].unk0 = 0;
-        }
-        slot += 4;
-        if (slot == (MtxCopyRequest *)&D_807F6BE0) {
-            break;
+    s32 i;
+    for (i = 0; i < 0x28; i++) {
+        if (D_807F6960[i].unk0 == arg0) {
+            D_807F6960[i].unk0 = 0;
         }
     }
 }
@@ -396,41 +353,37 @@ void func_80650684(s32 arg0) {
 
 #ifdef NON_MATCHING
 void func_806506E8(s32 arg0) {
-    MtxCopyRequest *slot = D_807F6960;
-
-    do {
-        if (slot->unk0 == arg0 && slot->unkC == D_807444FC) {
-            memcpy((void *)slot->unk8, (void *)slot->unk4, 0x40);
-            slot->unk0 = 0;
+    s32 i;
+    for (i = 0; i < 0x28; i++) {
+        if (D_807F6960[i].unk0 == arg0 && D_807F6960[i].unkC == D_807444FC) {
+            memcpy((void *)D_807F6960[i].unk8, (void *)D_807F6960[i].unk4, 0x40);
+            D_807F6960[i].unk0 = 0;
             D_807F6BEC = 1;
         }
-        slot++;
-    } while (slot != (MtxCopyRequest *)&D_807F6BE0);
+    }
 }
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_806506E8.s")
 #endif
 
-#ifdef NON_MATCHING
 void func_80650794(s16 arg0, s16 arg1, u8 arg2, f32 arg3) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
     u32 value;
-    u32 level;
+    s32 level;
 
     group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         value = (u32)(8.0f * arg3);
-        level = (value & 0xFF) < 0x10 ? (value & 0xFF) : 0xF;
+        level = value & 0xFF;
+        if ((u8)value >= 0x10) {
+            level = 0xF;
+        }
         entry->unk13 = (level << 4) + arg2;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_80650794.s")
-#endif
 
 void modelAnimEntryStart(s16 arg0, s16 arg1, s16 arg2) {
     ModelAnimGroup *group;
@@ -480,22 +433,15 @@ void modelAnimEntrySetUnkC(s16 arg0, s16 arg1, s16 arg2) {
     }
 }
 
-#ifdef NON_MATCHING
 s16 func_80650A70(s16 arg0, s16 arg1) {
     ModelAnimGroup *group;
-    s16 value;
 
     group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
-    value = 0;
     if (group != NULL) {
-        value = group->entries[arg1].unkC;
+        return group->entries[arg1].unkC;
     }
-    return value;
+    return 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_80650A70.s")
-#endif
 
 void modelAnimEntrySetTime(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
     ModelAnimGroup *group;
