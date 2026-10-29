@@ -1,33 +1,33 @@
-// func_80681E18 (src/global/80150.c): Stage 3: updated stale callee names (collisionCheckGroundAtPoint, sfxAllocateChannel); switch on unk154 with kong check
-typedef struct KaB2_80681E18 {
+// func_80681E18 (src/global/80150.c): Stage 5: frame 0x58 and s0/ra match; exact 368 insns, shape=3; diff is caller-saved regalloc (/ for var_v1, / for 1, / for &D_807FBB70)
+typedef struct KaN4_80681E18 {
     s16 unk0;
     s16 pad2;
     Actor *unk4;
-} KaB2_80681E18;
+} KaN4_80681E18;
 
-typedef struct KaB2_ActorD580 {
+typedef struct KaN4_ActorD580 {
     u8 pad0[0x1A3];
     u8 unk1A3;
-} KaB2_ActorD580;
+} KaN4_ActorD580;
 
 extern u8 D_807FC950[][0x5E];
 extern s16 D_80750390;
 extern s32 D_807FBB68;
 
-u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
+s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 s32 sfxAllocateChannel(s32, f32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void func_806F8BC4(s32, u8, s32);
-void func_80679200(Actor *, s32, s32, u8, s32, void *);
-void func_8067AAB8(Actor *, Actor *, s16, f32, s16);
-void func_806C7BAC(Actor *, Actor *);
+void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
+void func_8067AAB8(s32, Actor *, s16, f32, s16);
+void func_806C7BAC(s32, Actor *);
 
 void func_80681E18(void) {
-    KaB2_80681E18 *var_v1;
+    KaN4_80681E18 *var_v1;
     s32 pad[3];
 
-    var_v1 = (KaB2_80681E18 *)D_807FBB40->unk174;
+    var_v1 = (KaN4_80681E18 *)D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unkA4 = 99999.0f;
         collisionCheckGroundAtPoint(D_807FBB40->unk7C, D_807FBB40->unk84, &D_807FBB40->unkA4);
@@ -80,10 +80,10 @@ void func_80681E18(void) {
         func_8067DCC0();
         D_807FBB40->unk60 &= ~0x8000;
         D_807FBB40->unk128 = 0;
-        func_80679200(var_v1->unk4, (s32)D_807FBB40, 0x40, 1, 0, 0);
-        func_8067AAB8(D_807FBB40, var_v1->unk4, var_v1->unk4->unkE6, (f32) D_80750390, 0);
-        func_806C7BAC(var_v1->unk4, D_807FBB40);
-        ((KaB2_ActorD580 *)D_807FD580)->unk1A3 = 1;
+        actorAppendCallback(var_v1->unk4, (s32)D_807FBB40, 0x40, 1, 0, 0);
+        func_8067AAB8((s32)D_807FBB40, var_v1->unk4, var_v1->unk4->unkE6, (f32) D_80750390, 0);
+        func_806C7BAC((s32)var_v1->unk4, D_807FBB40);
+        ((KaN4_ActorD580 *)D_807FD580)->unk1A3 = 1;
         D_807FBB40->unk154 = 3;
         break;
     case 3:

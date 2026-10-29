@@ -1,17 +1,55 @@
-// func_806836D0 (src/global/80150.c): stage 4: 0x50 frame matches, s0/s1/ra saved set matches, diff in regalloc reuse of s0 across live ranges
-typedef struct KaB3_Pad {
+// func_806836D0 (src/global/80150.c): Stage 4: frame 0x50 matches; var_s0 reused; diff is s2 saved reg vs s1/s0 reuse
+typedef struct KaN4_Pad {
     u8 pad0[0x2C];
     u16 unk2C;
     s8 unk2E;
     s8 unk2F;
     s8 unk30;
-} KaB3_Pad;
-extern KaB3_Pad D_807FD610;
+} KaN4_Pad;
+extern KaN4_Pad D_807FD610;
 
-typedef struct KaB3_PlayerData {
+typedef struct KaN4_PlayerData {
     u8 pad0[0x2E2];
     u16 unk2E2;
-} KaB3_PlayerData;
+} KaN4_PlayerData;
+
+typedef struct KaN4_TagBarrelData {
+    Actor *unk0;
+    u16 unk4;
+    s8 unk6;
+    s8 unk7;
+    Actor *unk8[5];
+    Actor *unk1C;
+    s8 unk20;
+    u8 pad21;
+    s16 unk22;
+    f32 unk24;
+    s16 unk28;
+    u8 pad2A[2];
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+    s16 unk38;
+    u8 pad3A[2];
+    u32 unk3C;
+} KaN4_TagBarrelData;
+
+typedef struct KaN4_KongSub {
+    u8 pad0[0x8C];
+    u8 unk8C;
+    u8 pad8D[0x104 - 0x8D];
+    Actor *unk104;
+    u8 pad108[0x1F0 - 0x108];
+    u32 unk1F0;
+} KaN4_KongSub;
+
+typedef struct KaN4_ActorKong {
+    u8 pad0[0x12C];
+    s32 unk12C;
+} KaN4_ActorKong;
+
+extern s32 D_8074E848[];
+extern s32 D_807FBB60;
 
 s32 func_805FCA64(void);
 s32 screenWipeGetState(void);
@@ -22,39 +60,43 @@ void camRestoreYaw(Actor *);
 void camResetPlayer(Actor *, s32);
 void func_806C8E58(s16);
 void func_80609140(s32, s32, f32, f32, s32, s32);
+void lightSetColor(f32, f32, f32, s32);
+void sfxSetChannelParam(s32, s32, s32);
+struct KaB3_TagBarrelData;
 
-void func_806836D0(KaB3_TagBarrelData *arg0) {
-    s32 pad4C;
+void func_806836D0(struct KaB3_TagBarrelData *arg0_in) {
+    KaN4_TagBarrelData *arg0 = (KaN4_TagBarrelData *)arg0_in;
+    s32 pad[4];
     volatile u16 sp4A;
-    u8 pad38[0x12];
     Actor *sp34;
-    KaB3_KongSub *sp30;
+    KaN4_KongSub *sp30;
     s32 sp28;
-    Actor *curKong;
-    s32 kongIndex;
-    s32 isUnlocked;
-    s32 timerExpired;
+    s32 var_s0;
+    s32 temp_t3;
 
-    sp4A = arg0->unk4;
-    if (sp4A != 0) {
-        arg0->unk4--;
+    var_s0 = arg0->unk4;
+    sp4A = var_s0;
+    if (var_s0 != 0) {
+        arg0->unk4 = var_s0 - 1;
         func_80682AB4(arg0);
+        var_s0 = arg0->unk4;
     }
     arg0->unk3C++;
-    if (arg0->unk4 == 0 && func_805FCA64() != 0) {
-        kongIndex = arg0->unk6;
-        curKong = arg0->unk8[kongIndex];
-        timerExpired = arg0->unk3C >= 9001;
-        isUnlocked = curKong->unk58 == 0x13C;
-
-        if ((D_807FD610.unk30 >= 0x29 && !timerExpired) || !isUnlocked) {
+    if (var_s0 == 0 && func_805FCA64() != 0) {
+        temp_t3 = arg0->unk3C >= 9001;
+        var_s0 = ((Actor *)arg0->unk8[arg0->unk6])->unk58 == 0x13C;
+        if (((D_807FD610.unk30 >= 0x29) && !temp_t3) || !var_s0) {
             arg0->unk4 = 20;
-            if (curKong->unk58 == 0x13C) {
-                func_80682DF4(curKong, (u16 *)curKong->unk174, 0x8C);
+            if (((Actor *)arg0->unk8[arg0->unk6])->unk58 == 0x13C) {
+                func_80682DF4(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->unk174, 0x8C);
             }
             arg0->unk7 = arg0->unk6;
-            if (isUnlocked) {
-                arg0->unk20 = (D_807FD610.unk2E < 0) ? -1 : 1;
+            if (var_s0) {
+                if (D_807FD610.unk2E < 0) {
+                    arg0->unk20 = -1;
+                } else {
+                    arg0->unk20 = 1;
+                }
             }
             arg0->unk6 += arg0->unk20;
             if (arg0->unk6 < 0) {
@@ -62,21 +104,20 @@ void func_806836D0(KaB3_TagBarrelData *arg0) {
             } else if (arg0->unk6 >= 5) {
                 arg0->unk6 = 0;
             }
-            curKong = arg0->unk8[arg0->unk6];
-            if (curKong->unk58 == 0x13C) {
-                func_80682DF4(curKong, (u16 *)curKong->unk174, 0x8B);
+            if (((Actor *)arg0->unk8[arg0->unk6])->unk58 == 0x13C) {
+                func_80682DF4(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->unk174, 0x8B);
             }
         } else {
-            if (!timerExpired && sp4A != 0) {
-                sfxSetChannelParam(0x65, 0x7E - D_8074E848[kongIndex], 3);
+            if (!temp_t3 && sp4A != 0) {
+                sfxSetChannelParam(0x65, 0x7E - D_8074E848[arg0->unk6], 3);
                 sfxSetChannelParam(0x65, D_8074E848[arg0->unk6], 2);
                 return;
             }
-            if (((timerExpired && isUnlocked) || (D_807FD610.unk2C & 0xE000)) && screenWipeGetState() == 0) {
-                if (isUnlocked) {
+            if (((temp_t3 && var_s0) || (D_807FD610.unk2C & 0xE000)) && screenWipeGetState() == 0) {
+                if (var_s0) {
                     sp34 = arg0->unk0;
                     sp30 = sp34->unk174;
-                    sp28 = ((KaB3_ActorKong *)sp34)->unk12C;
+                    sp28 = ((KaN4_ActorKong *)sp34)->unk12C;
                     if (sp28 == -1) {
                         sp28 = 0;
                     }
@@ -97,15 +138,16 @@ void func_806836D0(KaB3_TagBarrelData *arg0) {
                     D_807FBB40->unk155[0] = 0;
                     arg0->unk4 = 30;
                     sp30->unk1F0 &= ~0x20000000;
-                    func_806C8E58(((R2FKongAction *)D_8074E814)[arg0->unk6].unk2);
-                    func_806F09F0(sp34, ((R2FKongAction *)D_8074E814)[arg0->unk6].unk2);
+                    var_s0 = ((R2FKongAction *)D_8074E814)[arg0->unk6].unk2;
+                    func_806C8E58(var_s0);
+                    func_806F09F0(sp34, var_s0);
                     *(u8 *)((u8 *)sp30 + 0x8C) = 0;
                     sp34->unkE6 = arg0->unk38;
                     camRestoreYaw(sp30->unk104);
                     camResetPlayer(sp34, 0);
                     screenWipeStart(3);
                     healthRefill(0);
-                    ((KaB3_PlayerData *)D_807FC924)->unk2E2 |= 0x11;
+                    ((KaN4_PlayerData *)D_807FC924)->unk2E2 |= 0x11;
                     return;
                 }
                 func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);

@@ -1,4 +1,4 @@
-// func_806832F4 (src/global/80150.c): Stage 5: 3 insns diff at return (branch likely vs regular branch, v1 vs t3 temp), frame 0x30 matches; resolved v0/v1 swap via u16 camStartPath return
+// func_806832F4 (src/global/80150.c): Stage 5: 3 insns diff at return (beqz vs beqzl, t3 vs v1, extra move), frame 0x30 and ra callee-saved match; resolved v0/v1 swap via u16 camStartPath()
 s32 func_805FEF10(void *);
 
 s32 func_806832F4(s32 arg0, s32 arg1) {

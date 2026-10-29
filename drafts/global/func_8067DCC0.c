@@ -1,11 +1,10 @@
-// func_8067DCC0 (src/global/80150.c): Stage 5: 1 insn diff (move a0, s6 vs li a0, 2), frame 0x80 matches, all callee saves match; .rodata constant D_80759550 reloc diff
+// func_8067DCC0 (src/global/80150.c): MATCH: text-identical, TEXT OK; unprototyped func_80714950 and 2U copy-propagated s6
 extern s32 D_8071FE64;
 extern s32 D_8071FE88;
 extern s32 D_8071FEAC;
 void func_8071910C(void);
 void func_8060E7EC(s32, s32, s32);
 u32 func_806119A0(void);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 
 void func_8067DCC0(void) {
     void (*sp5C)(void);
@@ -26,7 +25,7 @@ void func_8067DCC0(void) {
         func_807149FC(0xA);
         func_8071498C(func_8071910C);
         func_80714998(2);
-        func_80714950(2);
+        func_80714950(2U);
         switch (temp_s0) {
         case 0:
             func_80714CC0(&D_8071FE64, (f64) temp_fs0 * 0.25, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
