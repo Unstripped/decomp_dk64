@@ -34,7 +34,7 @@ typedef struct {
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
 f32 jetpacRandFloat(void);
-void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 void func_8070E8F0(Gfx **arg0, s32 arg1);
 void func_8070F2C8(s32 arg0, s32 arg1, u8 arg2, s32 arg3);
 void func_8070F2FC(Gfx **arg0, s16 arg1, s16 arg2);
@@ -129,7 +129,7 @@ void jetpacUpdateExplosion(JetpacExplosion *arg0) {
             arg0->color[2] = 0xFF;
         }
     }
-    func_80025700(&D_8002B9C0[frame], arg0->x, arg0->y, (s32)&arg0->color[0], 0);
+    func_80025700(&D_8002B9C0[frame], arg0->x, arg0->y, arg0->color, 0);
     arg0->timer++;
 }
 
@@ -238,7 +238,7 @@ void jetpacUpdateLaser(JetpacActor *arg0) {
     }
 }
 
-void jetpacDrawLaserSegment(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+void jetpacDrawLaserSegment(s32 arg0, s32 *arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5) {
     func_80025700(&D_8002C4D0[arg0], *arg1, arg3, arg4, arg5);
     *arg1 += arg2;
     if (*arg1 < 0) {
@@ -283,7 +283,7 @@ void jetpacDrawLaser(JetpacActor *arg0) {
             } else {
                 spr = 2;
             }
-            jetpacDrawLaserSegment(spr, &pos, dir, y, (s32)arg0->color, flip);
+            jetpacDrawLaserSegment(spr, &pos, dir, y, arg0->color, flip);
             frame++;
         }
     }
@@ -540,9 +540,9 @@ void jetpacDrawPlayer(void) {
             color = D_8002F060;
             if (D_8002F080 == 0) {
                 x = (s16)(s32)x & 0xFFFE;
-                func_80025700(&D_8002C3A8[idx], (s32)x, (s32)y, (s32)color, D_8002F068);
+                func_80025700(&D_8002C3A8[idx], (s32)x, (s32)y, color, D_8002F068);
             } else {
-                func_80025700(&D_8002C330, (s32)x, (s32)y, (s32)color, D_8002F068);
+                func_80025700(&D_8002C330, (s32)x, (s32)y, color, D_8002F068);
                 if (D_8002F068 == 0) {
                     if (idx == 4) {
                         x -= 1.0f;
@@ -554,7 +554,7 @@ void jetpacDrawPlayer(void) {
                     }
                     x += 10.0f;
                 }
-                func_80025700(&D_8002C348[idx], (s32)x, (s32)(y + 18.0f), (s32)color, D_8002F068);
+                func_80025700(&D_8002C348[idx], (s32)x, (s32)(y + 18.0f), color, D_8002F068);
             }
         }
         if (D_8002F094 < 14) {
