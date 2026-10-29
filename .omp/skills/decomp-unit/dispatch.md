@@ -85,6 +85,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 - Agents' long sweep/beam jobs hold shared `tools/dk` locks: a gate then waits 5–15 min.
   The brief's "batch variants inside one `tools/dk` call" keeps it bounded; do not kill them.
 - Only a TU re-split of a file waits for every agent on that file.
+- Dispatching more tasks than slots queues the rest; a queued task's copy is made when it
+  starts. After a shared declaration change, rewrite queued tasks' base commit to the new
+  HEAD (their task file is read at start) and merge each with the base its task file names.
 
 ## Large functions
 
