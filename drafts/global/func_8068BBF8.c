@@ -1,11 +1,14 @@
-// func_8068BBF8 (src/global/8F4B0.c): Stage 5, score 1480 (300/312 insns matched; frame 0x58, clamp macro, late_rodata floats, switch structure and tail 100% matched; minor regalloc in early return and switch index)
+// func_8068BBF8 (src/global/8F4B0.c): stage 5, score 44 (frame 0x58, 300/312 insns matched; minor regalloc in switch index/return)
+#include "common.h"
+#include "actor.h"
+
 typedef struct {
     char pad[0xE4];
     s16 unkE4;
     s16 unkE6;
     char padE8[0x4];
     s16 unkEC;
-} KaF_ActorE4;
+} KaN6_ActorE4;
 
 void func_80609140(s32, s32, f32, f32, s32, s32);
 f32 func_80612794(s16);
@@ -18,6 +21,7 @@ extern s32 D_8076A0A8;
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern s16 D_807FC624;
+extern void *D_807FC924;
 
 void func_8068BBF8(void) {
     void *sp54;
@@ -48,8 +52,8 @@ void func_8068BBF8(void) {
     sp40 = 0.08f;
     sp3C = 8.0f;
     sp34 = (void *)((*(u8 *)((u8 *)sp54 + 0xFB) * 0x2F0) + (u8 *)D_807FC924);
-    *(s16 *)((u8 *)sp34 + 0x2CC) = ((KaF_ActorE4 *)D_807FBB40)->unkEC;
-    ((KaF_ActorE4 *)D_807FBB40)->unkEC = ((KaF_ActorE4 *)D_807FBB40)->unkE4;
+    *(s16 *)((u8 *)sp34 + 0x2CC) = ((KaN6_ActorE4 *)D_807FBB40)->unkEC;
+    ((KaN6_ActorE4 *)D_807FBB40)->unkEC = ((KaN6_ActorE4 *)D_807FBB40)->unkE4;
     *(s16 *)((u8 *)sp34 + 0x2CA) = (s16)(s32)*(f32 *)((u8 *)sp34 + 0x214);
     sp48 = mathAngleBetweenPointsRad(*(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x230), *(f32 *)((u8 *)sp34 + 0x228));
     temp_fv1 = *(f32 *)((u8 *)sp34 + 0x230) - *(f32 *)((u8 *)sp34 + 0x218);
@@ -73,7 +77,8 @@ void func_8068BBF8(void) {
         return;
     }
     if ((D_8076A0A8 == 0x1F) || (D_8076A0A8 == 0x33)) {
-        ((KaF_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
+        if (D_807FC624 && D_807FC624) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        ((KaN6_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
         if (D_8076A0A8 == 0x1F) {
             if (D_807FC624 < 0x1E) {
                 func_80609140(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
@@ -82,11 +87,13 @@ void func_8068BBF8(void) {
                 func_80609140(0x14, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }
         }
+        if (D_807444EC && D_807444EC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         D_807FC624 = (D_807FC624 + 0x1E) & 0xFFF;
         return;
     }
     if (D_807444EC != 1) {
             temp_v1_2 = temp_a0_2->unk154;
+            if (D_8076A0A8 && D_8076A0A8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             switch ((s32)temp_v1_2) {
             case 0x63:
                 sp40 = 0.02f;
@@ -122,7 +129,7 @@ calc_angle:
             temp_v0_2 = -sp3A;
             var_v1 = (temp_v0_2 < sp4E) ? sp4E : temp_v0_2;
             var_v1 = (var_v1 < sp3A) ? ((temp_v0_2 < sp4E) ? sp4E : temp_v0_2) : sp3A;
-            temp_fv0 = (f32)((KaF_ActorE4 *)D_807FBB40)->unkE4;
-            ((KaF_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)var_v1 * sp3C) - temp_fv0) * sp40) + temp_fv0);
+            temp_fv0 = (f32)((KaN6_ActorE4 *)D_807FBB40)->unkE4;
+            ((KaN6_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)var_v1 * sp3C) - temp_fv0) * sp40) + temp_fv0);
     }
 }

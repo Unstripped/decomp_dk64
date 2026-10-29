@@ -1,4 +1,7 @@
-// func_8068A858 (src/global/8F4B0.c): Stage 5, score 39 (frame 0x48, head 140 and tail 60 exact match, regalloc/scheduling diff around D_807FC621 load/store)
+// func_8068A858 (src/global/8F4B0.c): stage 5, score 39 (frame 0x48, head 140 and tail 60 exact match, regalloc around D_807FC621 load/store)
+#include "common.h"
+#include "actor.h"
+
 typedef struct {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
@@ -8,14 +11,14 @@ typedef struct {
     /* 0x08 */ s16 unk8;
     /* 0x0A */ s16 unkA;
     /* 0x0C */ s16 unkC;
-} KaF_Entry0E;
+} KaN6_Entry0E;
 
 extern s32 D_8076A064;
 extern Actor *D_807FBB40;
 extern u8 D_807FC621;
 extern u8 D_807FC622;
 extern u8 D_807501C0[][3];
-extern KaF_Entry0E D_80750194[];
+extern KaN6_Entry0E D_80750194[];
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -29,7 +32,7 @@ void func_8068A858(u8 *arg0, u8 *arg1, u8 *arg2) {
     f32 sp38;
     u8 temp_v1;
     u8 idx;
-    KaF_Entry0E *entry;
+    KaN6_Entry0E *entry;
 
     if (D_807FBB40->unk60 & 4) {
         switch (D_807FC622) {

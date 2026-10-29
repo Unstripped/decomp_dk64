@@ -23,7 +23,88 @@ void func_8068A830(void) {
     func_80727678();
     spawnNodesUpdate();
 }
+#ifdef NON_MATCHING
+typedef struct {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 unk1;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+} KaN6_Entry0E;
+
+extern s32 D_8076A064;
+extern Actor *D_807FBB40;
+extern u8 D_807FC621;
+extern u8 D_807FC622;
+extern u8 D_807501C0[][3];
+extern KaN6_Entry0E D_80750194[];
+
+f32 func_80612790(s16);
+f32 func_80612794(s16);
+void lightSetFovAngles(f32, f32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+
+void func_8068A858(u8 *arg0, u8 *arg1, u8 *arg2) {
+    f32 pad;
+    f32 sp40;
+    f32 sp3C;
+    f32 sp38;
+    u8 temp_v1;
+    u8 idx;
+    KaN6_Entry0E *entry;
+
+    if (D_807FBB40->unk60 & 4) {
+        switch (D_807FC622) {
+        case 0:
+            *arg0 = 0xFF;
+            *arg1 = 0xFF;
+            *arg2 = 0xFF;
+            break;
+        case 1:
+            if (!(D_8076A064 & 0xF)) {
+                goto set_color;
+            }
+            break;
+        case 2:
+            if (!(D_8076A064 & 3)) {
+set_color:
+                idx = (u32)(func_80612790(D_8076A064 * 200) * 4.0f + 4.0f);
+                *arg0 = D_807501C0[idx][0];
+                *arg1 = D_807501C0[idx][1];
+                *arg2 = D_807501C0[idx][2];
+            }
+            break;
+        }
+
+        {
+            u8 *ptr = &D_807FC621;
+            if (D_80750194) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if ((*ptr & 0x80) && (temp_v1 = *ptr & 0x7F)) {
+                entry = &D_80750194[temp_v1];
+                if (D_807501C0 && D_807501C0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                sp40 = (f32)(entry - 1)->unk8;
+                sp3C = (f32)(entry - 1)->unkA;
+                sp38 = (f32)(entry - 1)->unkC;
+                *ptr = temp_v1;
+                if (D_807FC622 != 0) {
+                    sp40 += 80.0f * func_80612794(D_8076A064 * 400);
+                    sp38 += 80.0f * func_80612790(D_8076A064 * 200);
+                    entry = &D_80750194[D_807FC621];
+                }
+                lightSetFovAngles((f32)(u32)(entry - 1)->unk0, (f32)(u32)(entry - 1)->unk1);
+                entry = &D_80750194[D_807FC621];
+                lightAdd((f32)(entry - 1)->unk2, (f32)(entry - 1)->unk4, (f32)(entry - 1)->unk6, sp40, sp3C, sp38, 0.0f, 1, *arg0, *arg1, *arg2);
+            }
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8F4B0/func_8068A858.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8F4B0/func_8068ABE0.s")
 
@@ -522,4 +603,135 @@ void func_8068BA2C(void) {
     }
 }
 
+#ifdef NON_MATCHING
+typedef struct {
+    char pad[0xE4];
+    s16 unkE4;
+    s16 unkE6;
+    char padE8[0x4];
+    s16 unkEC;
+} KaN6_ActorE4;
+
+void func_80609140(s32, s32, f32, f32, s32, s32);
+f32 func_80612794(s16);
+void camUpdate(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+void func_806C9D20(u8);
+extern u8 D_807444EC;
+extern s16 D_807FC624;
+
+void func_8068BBF8(void) {
+    void *sp54;
+    s16 sp52;
+    s16 pad50[1];
+    s16 sp4E;
+    f32 sp48;
+    f32 pad44[1];
+    f32 sp40;
+    f32 sp3C;
+    s16 sp3A;
+    void *sp34;
+    s32 pad30[1];
+    f32 temp_fa0;
+    f32 temp_fa1;
+    f32 temp_fv0;
+    f32 temp_fv1;
+    f32 var_fv1;
+    Actor *temp_a0_2;
+    s16 temp_v0;
+    s32 temp_v0_2;
+    s16 temp_v1_3;
+    s32 var_v1;
+    u8 temp_v1_2;
+    sp54 = D_807FBB40->unk174;
+    sp4E = 0;
+    sp3A = 0x1E;
+    sp40 = 0.08f;
+    sp3C = 8.0f;
+    sp34 = (void *)((*(u8 *)((u8 *)sp54 + 0xFB) * 0x2F0) + (u8 *)D_807FC924);
+    *(s16 *)((u8 *)sp34 + 0x2CC) = ((KaN6_ActorE4 *)D_807FBB40)->unkEC;
+    ((KaN6_ActorE4 *)D_807FBB40)->unkEC = ((KaN6_ActorE4 *)D_807FBB40)->unkE4;
+    *(s16 *)((u8 *)sp34 + 0x2CA) = (s16)(s32)*(f32 *)((u8 *)sp34 + 0x214);
+    sp48 = mathAngleBetweenPointsRad(*(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x230), *(f32 *)((u8 *)sp34 + 0x228));
+    temp_fv1 = *(f32 *)((u8 *)sp34 + 0x230) - *(f32 *)((u8 *)sp34 + 0x218);
+    temp_fa1 = *(f32 *)((u8 *)sp34 + 0x228) - *(f32 *)((u8 *)sp34 + 0x210);
+    temp_fa0 = mathAngleBetweenPointsRad(0.0f, *(f32 *)((u8 *)sp34 + 0x214), sqrtf((temp_fv1 * temp_fv1) + (temp_fa1 * temp_fa1)), *(f32 *)((u8 *)sp34 + 0x22C)) + 3.1415927f;
+    var_fv1 = temp_fa0;
+    if (temp_fa0 > 6.2831855f) {
+        var_fv1 = temp_fa0 - 6.2831855f;
+    }
+    if (var_fv1 > 3.1415927f) {
+        var_fv1 = 3.1415927f - (var_fv1 - 3.1415927f);
+    }
+    *(f32 *)((u8 *)sp34 + 0x2D4) = 6.2831855f - sp48;
+    *(f32 *)((u8 *)sp34 + 0x2D8) = 6.2831855f - var_fv1;
+    func_806C9D20(*(u8 *)((u8 *)sp54 + 0xFB));
+    sp52 = mathAngleBetweenPoints2D(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
+    camUpdate(D_807FBB40, (u8 *)sp34 + 0x210, (u8 *)sp34 + 0x214, (u8 *)sp34 + 0x218, (u8 *)sp34 + 0x228, (u8 *)sp34 + 0x22C, (u8 *)sp34 + 0x230, (u8 *)sp34 + 0x240, (u8 *)sp34 + 0x244, (u8 *)sp34 + 0x248);
+    temp_v0 = mathAngleBetweenPoints2D(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
+    temp_a0_2 = *(Actor **)sp54;
+    if (D_807FBB4C != temp_a0_2) {
+        return;
+    }
+    if ((D_8076A0A8 == 0x1F) || (D_8076A0A8 == 0x33)) {
+        if (D_807FC624 && D_807FC624) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        ((KaN6_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
+        if (D_8076A0A8 == 0x1F) {
+            if (D_807FC624 < 0x1E) {
+                func_80609140(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
+            }
+            if ((D_807FC624 >= 0x800) && (D_807FC624 < 0x81E)) {
+                func_80609140(0x14, 0x7FFF, 64.0f, 1.0f, 10, 128);
+            }
+        }
+        if (D_807444EC && D_807444EC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        D_807FC624 = (D_807FC624 + 0x1E) & 0xFFF;
+        return;
+    }
+    if (D_807444EC != 1) {
+            temp_v1_2 = temp_a0_2->unk154;
+            if (D_8076A0A8 && D_8076A0A8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            switch ((s32)temp_v1_2) {
+            case 0x63:
+                sp40 = 0.02f;
+                sp3C = 15.0f;
+                goto calc_angle;
+            case 0x7:
+            case 0x8:
+            case 0x9:
+            case 0xA:
+            case 0xB:
+            case 0xF:
+            case 0x10:
+            case 0x11:
+            case 0x12:
+            case 0x13:
+            case 0x14:
+                sp3A = 0x64;
+                sp40 = 0.1f;
+            case 0x4F:
+            case 0x69:
+            case 0x6D:
+calc_angle:
+                temp_v1_3 = sp52 - temp_v0;
+                if (temp_v1_3 >= 0x801) {
+                    sp4E = temp_v1_3 - 0x1000;
+                } else if (temp_v1_3 < -0x800) {
+                    sp4E = temp_v1_3 + 0x1000;
+                } else {
+                    sp4E = temp_v1_3;
+                }
+                break;
+            }
+            temp_v0_2 = -sp3A;
+            var_v1 = (temp_v0_2 < sp4E) ? sp4E : temp_v0_2;
+            var_v1 = (var_v1 < sp3A) ? ((temp_v0_2 < sp4E) ? sp4E : temp_v0_2) : sp3A;
+            temp_fv0 = (f32)((KaN6_ActorE4 *)D_807FBB40)->unkE4;
+            ((KaN6_ActorE4 *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)var_v1 * sp3C) - temp_fv0) * sp40) + temp_fv0);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8F4B0/func_8068BBF8.s")
+#endif
