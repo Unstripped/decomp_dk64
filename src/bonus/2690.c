@@ -1541,7 +1541,7 @@ void func_8002AD10(void) {
 
     sp28 = (BonusC_AD10_S *)D_807FBB40->unk174;
     v = sp28->unk0;
-    sp20 = (BonusC_AD10_B *)v->unk178;
+    sp20 = v->unk178;
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x2B5, sp20);
     }
@@ -1648,7 +1648,7 @@ void func_8002B920(void) {
             } else {
                 sp40 = 3.0f;
             }
-            BDX->unkE6 -= func_806CC10C((s16)(mathAngleBetweenPoints2D(BDX->unk7C, BDX->unk84, temp_s1->unk4, temp_s1->unk8) + 0x800), BDX->unkE6) >> 3;
+            BDX->unkE6 -= func_806CC10C(mathAngleBetweenPoints2D(BDX->unk7C, BDX->unk84, temp_s1->unk4, temp_s1->unk8) + 0x800, BDX->unkE6) >> 3;
             BDX->unk7C += func_80612794(BDX->unkE6) * sp40;
             BDX->unk84 += func_80612790(BDX->unkE6) * sp40;
             temp_s1->unkE--;
@@ -1660,7 +1660,7 @@ void func_8002B920(void) {
                 } else {
                     temp_s1->unkE = (func_806119A0() & 0x3F) + 0xF;
                 }
-                angle = (s16)mathAngleBetweenPoints2D(temp_s2->unk0, temp_s2->unk4, temp_s1->unk4, temp_s1->unk8);
+                angle = mathAngleBetweenPoints2D(temp_s2->unk0, temp_s2->unk4, temp_s1->unk4, temp_s1->unk8);
                 angle += ((func_806119A0() & 7) << 8) + 0x400;
                 sp3C = func_806119FC() * 70.0;
                 temp_s1->unk4 = func_80612794(angle) * sp3C + temp_s2->unk0;
@@ -2017,7 +2017,7 @@ void func_8002BF98(void) {
         temp_s5->unk10 = sp74 * sp78;
     }
     LB4A->unk7C = func_80612794(temp_s5->unk1C) * 5.0 + (temp_s5->unk4 + temp_s5->unkC);
-    LB4A->unk84 = func_80612790((s16)(temp_s5->unk1C * 2)) * 2.0 + (temp_s5->unk8 + temp_s5->unk10);
+    LB4A->unk84 = func_80612790(temp_s5->unk1C * 2) * 2.0 + (temp_s5->unk8 + temp_s5->unk10);
     LB4C->unk7C = temp_s5->unk4 + temp_s5->unkC * 0.5f;
     LB4C->unk80 = LB4A->unk80;
     LB4C->unk84 = temp_s5->unk8 + temp_s5->unk10 * 0.5f;
@@ -2124,10 +2124,10 @@ Gfx *func_8002CC08(Gfx *arg0, Actor_BB44 *arg1) {
     gSPMatrix(arg0++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     temp_v0 = arg1->unk154;
     if (temp_v0 == 0 || temp_v0 == 1) {
-        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0xE1, 0.0f);
-        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0x13B, 0.0f);
-        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x2D, 0.0f);
-        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x87, 0.0f);
+        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
+        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
+        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
+        arg0 = func_8068C5A8(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
     }
     gSPMatrix(arg0++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     switch (arg1->unk154) {
