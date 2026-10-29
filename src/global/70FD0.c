@@ -95,11 +95,206 @@ u8 actorSetTargetAngleAndCheck(s32, s16);
 void actorClearTargetAngle(void);
 u8 actorCheckTargetAngle();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066C2D0.s")
+typedef struct Col7A_SlotAsset {
+    /* 0x00 */ u8 pad0[0x60];
+    /* 0x60 */ s32 unk60;
+} Col7A_SlotAsset;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066C610.s")
+typedef struct Col7A_Tri {
+    /* 0x00 */ u8 pad0[8];
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ u8 padC[0x18];
+    /* 0x24 */ u8 unk24;
+    /* 0x25 */ u8 pad25[3];
+} Col7A_Tri;
+
+typedef struct Col7A_Slot {
+    /* 0x00 */ u8 pad0[0x24];
+    /* 0x24 */ Col7A_SlotAsset *unk24;
+    /* 0x28 */ DynamicBuffer unk28;
+    /* 0x48 */ Col7A_Tri unk48;
+    /* 0x70 */ u8 pad70[8];
+    /* 0x78 */ s32 *unk78;
+    /* 0x7C */ struct Col7DHitInfo *unk7C;
+    /* 0x80 */ u8 pad80[8];
+    /* 0x88 */ s16 unk88;
+    /* 0x8A */ u8 pad8A[6];
+} Col7A_Slot; // size = 0x90
+
+extern u8 D_807444FC;
+extern Col7A_Slot *D_807F6000;
+
+void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, s32 *, u8);
+void func_8066C7F4();
+
+typedef struct Col7A_CollAsset {
+    /* 0x00 */ u8 pad0[0x20];
+    /* 0x20 */ s32 unk20;
+    /* 0x24 */ u8 pad24[0x28];
+    /* 0x4C */ s32 unk4C;
+    /* 0x50 */ u8 pad50[0x10];
+    /* 0x60 */ s32 unk60;
+} Col7A_CollAsset;
+
+typedef struct Col7A_CollBuf {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ u8 unk14;
+    /* 0x15 */ u8 unk15;
+    /* 0x16 */ u8 pad16[2];
+    /* 0x18 */ u8 *unk18;
+    /* 0x1C */ u8 *unk1C;
+} Col7A_CollBuf;
+
+#define COL7A_ASSET ((Col7A_CollAsset *)arg1)
+
+s32 func_8066CEE4(u8 *, u8 *, f32 (*)[4]);
+
+void func_8066C2D0(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
+    s32 off;
+    s32 *anim;
+    s32 count;
+    u8 *entry;
+    u8 *out;
+    f32 sp124[4][4];
+    f32 spE4[4][4];
+    f32 spA4[4][4];
+    f32 sp64[4][4];
+    s32 i;
+    Col7A_CollBuf *buf;
+    s32 sp58;
+    u8 *sp54;
+    s8 lastBone;
+    s8 bone;
+
+    off = arg0 * 0x90;
+    anim = ((Col7A_Slot *)((u8 *)D_807F6000 + off))->unk78;
+    buf = (Col7A_CollBuf *)((0, off) + (s32)D_807F6000); // FAKE: comma operand steers addu operand order
+    if (D_807F6000 && D_807F6000) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    lastBone = -1;
+    buf = (Col7A_CollBuf *)((u8 *)buf + 0x28);
+    if (anim != NULL) {
+        sp58 = anim[D_807444FC];
+    } else {
+        sp58 = 0;
+    }
+    sp54 = (u8 *)(COL7A_ASSET->unk60 + arg1);
+    buf->unkC = (s32)((f32)COL7A_ASSET->unk20 * arg8 * 8.0f * 1.5);
+    buf->unk0 = (s32)(arg2 * 8.0f);
+    buf->unk4 = (s32)(arg3 * 8.0f);
+    buf->unk8 = (s32)(arg4 * 8.0f);
+    count = *(s32 *)(COL7A_ASSET->unk4C + arg1);
+    if (count != 0) {
+        buf->unk15 |= 2;
+        if (!(buf->unk15 & 1)) {
+            buf->unk18 = func_80610FE8(count * 0x58);
+        }
+        entry = (u8 *)(COL7A_ASSET->unk4C + arg1) + 4;
+        out = buf->unk18;
+        guScaleF(sp124, arg8, arg8, arg8);
+        guRotateF(spE4, arg5, 1.0f, 0.0f, 0.0f);
+        guMtxCatF(sp124, spE4, sp124);
+        guRotateF(spE4, arg6, 0.0f, 1.0f, 0.0f);
+        guMtxCatF(sp124, spE4, sp124);
+        guRotateF(spE4, arg7, 0.0f, 0, 1.0f);
+        guMtxCatF(sp124, spE4, sp124);
+        guTranslateF(spE4, arg2, arg3, arg4);
+        guMtxCatF(sp124, spE4, sp124);
+        i = 0;
+        if (count > 0) {
+            do {
+                bone = entry[0x14];
+                if ((bone ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
+                    if (func_8066CEE4(entry, out, sp124) != 0) {
+                        out += 0x58;
+                    }
+                } else {
+                    if (lastBone != bone) {
+                        func_8066C7F4((bone << 5) + sp54, sp58, spA4);
+                        guMtxCatF(spA4, sp124, sp64);
+                        lastBone = entry[0x14];
+                    }
+                    if (func_8066CEE4(entry, out, sp64) != 0) {
+                        out += 0x58;
+                    }
+                }
+                i++;
+                entry += 0x16;
+            } while (i != count);
+        }
+        buf->unk1C = out;
+    } else {
+        buf->unk18 = NULL;
+        buf->unk1C = NULL;
+    }
+    buf->unk15 |= 1;
+    buf->unk10 = D_8076A064;
+}
+
+void func_8066C610(s16 arg0, s8 arg1, f32 (*arg2)[4]) {
+    f32 spEC;
+    f32 spE8;
+    f32 spE4;
+    f32 spE0;
+    f32 spDC;
+    f32 spD8;
+    f32 spD4;
+    s32 spD0;
+    s32 pad;
+    f32 sp8C[4][4];
+    f32 sp4C[4][4];
+    s32 sp48;
+    void *sp44;
+    Col7A_Slot *entry;
+
+    entry = (Col7A_Slot *)((u8 *)D_807F6000 + arg0 * sizeof(Col7A_Slot));
+    if (entry->unk78 != NULL) {
+        sp48 = entry->unk78[D_807444FC];
+    } else {
+        sp48 = 0;
+    }
+    sp44 = entry->unk24->unk60 + (u8 *)entry->unk24;
+    modelSlotGetTransformVectors(arg0, &spEC, &spE8, &spE4, &spE0, &spDC, &spD8, &spD4, &spD0, 0);
+    guScaleF(sp8C, spD4, spD4, spD4);
+    guRotateF(sp4C, spE0, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(sp8C, sp4C, sp8C);
+    guRotateF(sp4C, spDC, 0.0f, 1.0f, 0.0f);
+    guMtxCatF(sp8C, sp4C, sp8C);
+    guRotateF(sp4C, spD8, 0.0f, 0, 1.0f);
+    guMtxCatF(sp8C, sp4C, sp8C);
+    guTranslateF(sp4C, spEC, spE8, spE4);
+    if (arg1 != -1) {
+        guMtxCatF(sp8C, sp4C, sp8C);
+        func_8066C7F4((arg1 << 5) + (u8 *)sp44, sp48, arg2);
+        guMtxCatF(arg2, sp8C, arg2);
+        return;
+    }
+    guMtxCatF(sp8C, sp4C, arg2);
+}
+
+#ifdef NON_MATCHING
+void func_8066C7F4(s32 *arg0, u8 *arg1, f32 (*arg2)[4]) {
+    volatile s32 i; // FAKE: volatile reproduces the memory-resident i (stack slot 0x7C, reloaded after memcpy)
+    s32 j;
+    Mtx sp38;
+
+    i = 1;
+    memcpy(&sp38, arg0[0] + arg1, 0x40);
+    j = i;
+    if (arg0[1] != -1) {
+        do {
+            guMtxCatL(&sp38, (Mtx *)(arg0[j] + arg1), &sp38);
+        } while (arg0[++j] != -1);
+    }
+    guMtxL2F(arg2, &sp38);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066C7F4.s")
+#endif
 
 void collisionTransformNode(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
     func_8066C2D0(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
@@ -112,11 +307,180 @@ void dynamicBufferFree(DynamicBuffer *arg0) {
     arg0->unk15 &= ~1;
 }
 
+#ifdef NON_MATCHING
+typedef struct Col7A_C958Arg {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ u8 pad4[5];
+    /* 0x09 */ u8 unk9;
+    /* 0x0A */ u8 padA[6];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+} Col7A_C958Arg;
+
+typedef struct Col7A_C958Cache {
+    /* 0x00 */ void *unk0;
+    /* 0x04 */ u8 *unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+} Col7A_C958Cache;
+
+extern s32 D_8076A0A8;
+extern s32 D_807FB530;
+
+void *func_8066B0F8(s32, s32, s32, s32);
+s32 assetGetSize(s32, s32);
+void assetSetImmediateFree(void);
+void assetFreeBuffer(void *, s32, s32);
+void gunzip(void *, void *, void *);
+
+void func_8066C958(Col7A_C958Arg *arg0) {
+    u8 *var_s0;
+    void *sp60;
+    void *sp5C;
+    void *sp58;
+    s32 *var_a2;
+    u8 *var_v1;
+    u8 *temp_a0;
+    s32 temp_lo;
+    s32 var_a3;
+    s32 var_s1;
+    s32 elem_size;
+    s32 sp38;
+    s32 d1;
+    void *sp30;
+
+    var_s1 = 4;
+    var_s0 = func_8066B0F8(2, D_8076A0A8, 1, 0);
+    D_807FB549 = 0;
+    if (arg0->unk9 & 1) {
+        sp60 = var_s0;
+        var_s0 = func_80610FE8(arg0->unk0);
+        sp30 = func_80610FE8(0x2400);
+        sp5C = var_s0;
+        sp58 = sp60;
+        gunzip(&sp58, &sp5C, sp30);
+        heapFree(sp30);
+        assetSetImmediateFree();
+        assetFreeBuffer(sp60, 0x14C, 0xA);
+        D_807FB549 = 1;
+    }
+    sp38 = assetGetSize(2, D_8076A0A8);
+    if (D_8076A0A8 && D_8076A0A8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (D_807FB534 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    D_807FB530 = *(s32 *)var_s0;
+    D_807FB534 = func_80610FE8(0x1518);
+    temp_lo = arg0->unk10 * arg0->unk12;
+    var_a2 = (s32 *)(var_s0 + 4);
+    var_a3 = 0;
+    elem_size = 24;
+    D_807FB538 = temp_lo;
+    if (temp_lo > 0) {
+        do {
+            temp_a0 = var_s0 + var_s1 + 4;
+            var_s1 = *var_a2;
+            if (D_807FB549 != 0) {
+                ((Col7A_C958Cache *)D_807FB534)[var_a3].unk4 = temp_a0;
+            } else {
+                ((Col7A_C958Cache *)D_807FB534)[var_a3].unk4 = NULL;
+            }
+            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk0 = NULL;
+            var_v1 = var_s0 + var_s1;
+            ((Col7A_C958Cache *)D_807FB534)[var_a3].unkC = sp38 + (temp_a0 - var_s0);
+            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk10 = var_v1 - temp_a0;
+            var_a2 = (s32 *)var_v1;
+            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk8 = 0;
+            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk14 = (var_v1 - temp_a0) / elem_size;
+            var_a3++;
+        } while (var_a3 < D_807FB538);
+    }
+    if (D_807FB549 == 0) {
+        assetSetImmediateFree();
+        assetFreeBuffer(var_s0, 0x17C, 0xA);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066C958.s")
+#endif
+
+#ifdef NON_MATCHING
+typedef struct Col7A_CacheView {
+    void *unk0;
+    void *unk4;
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    s32 unk14;
+} Col7A_CacheView;
+
+#define COL7A_CACHE ((Col7A_CacheView *)D_807FB534)
+
+void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
+s32 func_8066DB40(void *, void *);
+
+void func_8066CB88(s32 arg0) {
+    s32 sp54;
+    s32 pad;
+    void *s2;
+    void *s1;
+    s32 s0;
+
+    if (COL7A_CACHE[arg0].unk0 == NULL && arg0 < D_807FB538) {
+        sp54 = COL7A_CACHE[arg0].unk10;
+        if (sp54 != 0) {
+            if (D_807FB549 == 0) {
+                COL7A_CACHE[arg0].unk4 = func_80610FE8(sp54);
+                func_8060B140(COL7A_CACHE[arg0].unkC, COL7A_CACHE[arg0].unk4, &sp54, 0, 0, 0, 0);
+            }
+            s0 = COL7A_CACHE[arg0].unk14 * 0x28;
+            COL7A_CACHE[arg0].unk0 = func_80610FE8(s0);
+            s1 = COL7A_CACHE[arg0].unk4;
+            s2 = COL7A_CACHE[arg0].unk0;
+            if (D_807FB534 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (s0 != 0) {
+                do {
+                    if (func_8066DB40(s1, s2) != 0) {
+                        s2 = (void *)((u8 *)s2 + 0x28);
+                    }
+                    s0 -= 0x28;
+                    s1 = (void *)((u8 *)s1 + 0x18);
+                } while (s0 != 0);
+            }
+        }
+    }
+    COL7A_CACHE[arg0].unk8 = D_8076A064;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066CB88.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066CCD8.s")
+extern s32 D_80747D70;
+extern s16 D_80748E40;
+
+void modelSlotTriBufferRelease(Col7A_Tri *);
+
+void func_8066CCD8(void) {
+    DynamicBuffer *a0;
+    Col7A_Tri *a1;
+
+    if (D_80747D70 != 0) {
+        D_80748E40++;
+        if (D_80748E40 >= D_80747D70) {
+            D_80748E40 = 0;
+        }
+        a0 = &D_807F6000[D_80748E40].unk28;
+        if ((a0->unk15 & 1) && ((u32)(D_8076A064 - a0->unk10) >= 0x1F)) {
+            dynamicBufferFree(a0);
+        }
+        a1 = &D_807F6000[D_80748E40].unk48;
+        if ((a1->unk24 & 1) && ((u32)(D_8076A064 - a1->unk8) >= 0x1F)) {
+            modelSlotTriBufferRelease(a1);
+        }
+    }
+}
 
 void collisionBufferCacheUpdate(void) {
     collisionPurgeExpiredBuffers();
@@ -679,14 +1043,6 @@ typedef struct Col7DHitInfo {
     u8 unk9B;
 } Col7DHitInfo;
 
-typedef struct Col7DSlot {
-    u8 pad0[0x7C];
-    Col7DHitInfo *unk7C;
-    u8 pad80[8];
-    s16 unk88;
-    u8 pad8A[0x90 - 0x8A];
-} Col7DSlot;
-
 typedef struct Col7DHitSub {
     s32 unk0;
     s32 unk4;
@@ -728,7 +1084,6 @@ extern s32 D_807FB5C8;
 extern s32 D_807FB5CC;
 extern s32 D_807FB5D0;
 extern CollisionBox *D_807FB5D8;
-extern Col7DSlot *D_807F6000;
 s32 matrix4Invert(f32 (*)[4], f32 (*)[4]); // FAKE: non-void return flips the $v0/$v1 pick in func_8066F84C
 void func_8066C610(s16, s8, f32 [4][4]);
 void func_8066FE08();
@@ -1362,7 +1717,6 @@ void actorGetSubNodePos(ActorTargetWork *arg0, s32 arg1, f32 *arg2, f32 *arg3, f
     *arg4 = node->z;
 }
 
-extern u8 D_807444FC;
 s32 actorStepSubNodeList(ActorTargetWork *arg0, s32 arg1) {
     ActorTargetSub140 *sub = arg0->unk140;
     u8 val;
