@@ -88,9 +88,7 @@ typedef struct RaceSub4 {
     char pad0[0x4];
     f32 unk4;
     char pad8[0x34 - 0x8];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
+    f32 unk34[3];
 } RaceSub4;
 
 typedef struct RaceUnknownActor {
@@ -939,7 +937,6 @@ void func_8002D778(void) {
     RaceFActorView *pa;
     s32 k;
     RacePair *list;
-    RacePair *list0;
 
     t = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -993,9 +990,7 @@ void func_8002D778(void) {
         if (t->unk1C != 0) {
             t->unk1C = t->unk1C - 1;
         } else {
-            list0 = t->unk20;
-            i = 0;
-            list = list0;
+            list = t->unk20;
             for (i = 0; i < t->unk1E; i++) {
                 s = list[i].unk4;
                 if (s->unk27 == 0) {
@@ -1007,7 +1002,7 @@ void func_8002D778(void) {
                         scale = 0.3f;
                     }
                     for (k = 0; k < 3; k++) {
-                        (&pa->unk4->unk34)[k] = scale * 0.15;
+                        pa->unk4->unk34[k] = scale * 0.15;
                     }
                     pa->unkE8 = 0;
                     pa->unkE4 = 0;
@@ -1031,6 +1026,7 @@ f32 func_80612794(s16);
 
 void func_8002DA68(RaceUnknown174 *arg0) {
     s16 var_v0;
+    f32 temp_fa0;
     f32 temp_fv1;
 
     switch (D_807FBB40->unk154) {
@@ -1050,13 +1046,11 @@ void func_8002DA68(RaceUnknown174 *arg0) {
         break;
     }
     arg0->unk2 = var_v0 & 0xFFF;
-    {
-        f32 temp_fa0 = (((func_80612794(arg0->unk2) + 1.0f) * 1.5) + 1.0) * arg0->unk4;
-        D_807FBB40->unk4->unk3C = temp_fa0;
-    }
-    temp_fv1 = D_807FBB40->unk4->unk3C;
-    D_807FBB40->unk4->unk38 = temp_fv1;
-    D_807FBB40->unk4->unk34 = temp_fv1;
+    temp_fa0 = (((func_80612794(arg0->unk2) + 1.0f) * 1.5) + 1.0) * arg0->unk4;
+    D_807FBB40->unk4->unk34[2] = temp_fa0;
+    temp_fv1 = D_807FBB40->unk4->unk34[2];
+    D_807FBB40->unk4->unk34[1] = temp_fv1;
+    D_807FBB40->unk4->unk34[0] = temp_fv1;
 }
 void animSetSpeed(RaceUnknownActor *, s32, f32);
 void animSetLoopLimit(RaceUnknownActor *, s32, s32);
@@ -1085,7 +1079,7 @@ void func_8002DC24(void) {
     RaceUnknown174 *temp_a0 = D_807FBB40->unk174;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
-        temp_a0->unk4 = D_807FBB40->unk4->unk38;
+        temp_a0->unk4 = D_807FBB40->unk4->unk34[1];
     }
     switch (temp_a0->unk0) {
     case 2:
