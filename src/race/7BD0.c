@@ -1427,12 +1427,10 @@ void func_8002E644(RaceFE644Arg *arg0) {
     f32 sp40;
     s32 sp3C;
     RaceUnknownActor *s0;
-    s32 four;
 
     s0 = arg0->unk0;
     sp5C = (s0->unk7C - D_807FBB40->unk7C) * (s0->unk7C - D_807FBB40->unk7C) + (s0->unk84 - D_807FBB40->unk84) * (s0->unk84 - D_807FBB40->unk84);
-    four = 4;
-    if (D_807FBD70 == four && sp5C < arg0->unk14 && (arg0->unkF == 1 || arg0->unkF == 0 || arg0->unkF == 4 || (D_807FBB40->unk58 == 0x143 && arg0->unkF == 5))) {
+    if (D_807FBD70 == 4 && sp5C < arg0->unk14 && (arg0->unkF == 1 || arg0->unkF == 0 || arg0->unkF == 4 || (D_807FBB40->unk58 == 0x143 && arg0->unkF == 5))) {
         sp46 = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, s0->unk7C, s0->unk84);
         sp40 = 1.0f;
         if (mathAngleDistance(s0->unkEE, sp46) < 0x200) {
@@ -1474,17 +1472,14 @@ s32 func_8002E8EC(RaceStruct3 *arg0, RaceStruct3 *arg1, s32 arg2) {
 
     if (arg1->unk45 != 0) {
         ret = 0;
-        goto end;
-    }
-    if (arg0->unk36 != 0) {
+    } else if (arg0->unk36 != 0) {
         if (slotQueueGetValue(11, 0) >= arg2) {
             ret = 1;
         } else {
             ret = 3;
         }
-        goto end;
+    } else {
+        ret = 2;
     }
-    ret = 2;
-end:
     return ret;
 }
