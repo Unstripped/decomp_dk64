@@ -29,9 +29,20 @@ extern s32 D_807FBB60;
 extern s8 D_8076A105;
 void func_80714638(void);
 s32 randomNonNegative(void);
+typedef struct MpSpawnPoint {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+} MpSpawnPoint;
+
 typedef struct MpMapEntry {
     s32 unk0;
-    char pad[0x1C];
+    s32 count;
+    MpSpawnPoint *items;
+    s32 ids[4];
+    char pad1C[4];
 } MpMapEntry;
 extern MpMapEntry D_80026FA4[];
 extern s32 D_8076A0A8;
@@ -637,12 +648,6 @@ s32 mpFindModelSlotByType(s32 arg0) {
     modelSlotFindByType(arg0, &sp3C, &sp38, &sp34, &sp30, &sp2E, &sp2C);
 }
 
-typedef struct MpSpawnPos {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-} MpSpawnPos;
-
 typedef struct MpSpawnCooldownState {
     char pad[0x4C];
     u8 unk4C;
@@ -662,9 +667,9 @@ extern s32 D_807552F0;
 
 void func_80025654(MpSpawnCooldownState *arg0) {
     s32 temp;
-    MpSpawnPos * volatile sp20;
+    MpSpawnPoint * volatile sp20;
 
-    sp20 = *(MpSpawnPos **)((u8 *)mpFindCurrentMapEntry() + 8);
+    sp20 = mpFindCurrentMapEntry()->items;
     if (func_8071432C() != 0 && !(D_807FBB60 & 2)) {
         if (D_807552E8 == 3) {
             mpUpdateMatchTimer();
@@ -674,7 +679,7 @@ void func_80025654(MpSpawnCooldownState *arg0) {
                 actorFindByType(0x7A) == 0 &&
                 mpFindModelSlotByType(0x1D2) == 0) {
                 {
-                    MpSpawnPos *pos = sp20;
+                    MpSpawnPoint *pos = sp20;
                     if (func_806F5EB4(0x1D2, 0, pos->unk0, pos->unk2, pos->unk4) == 0) {
                         pos = sp20;
                         func_806F5FE8(0x1D2, pos->unk0, pos->unk2, pos->unk4, 10);
@@ -690,27 +695,13 @@ void func_80025654(MpSpawnCooldownState *arg0) {
     }
 }
 
-typedef struct MpSpawnPoint {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-} MpSpawnPoint;
-
-typedef struct MpSpawnPointTable {
-    char pad0[4];
-    s32 count;
-    MpSpawnPoint *items;
-} MpSpawnPointTable;
-
 f32 func_806119FC(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_806F5F2C(s32, s32, s16, s16, s32);
 
 void mpUpdateItemSpawns(void) {
-    MpSpawnPointTable *sp84;
+    MpMapEntry *sp84;
     s32 sp80;
     s32 sp7C;
     MpSpawnPoint *items;
@@ -728,7 +719,7 @@ void mpUpdateItemSpawns(void) {
     f32 fs4;
     s16 s2_val;
 
-    sp84 = (MpSpawnPointTable *) mpFindCurrentMapEntry();
+    sp84 = mpFindCurrentMapEntry();
     items = sp84->items;
     mpUpdateMatchTimer();
     if (func_8071432C() != 0 && !(D_807FBB60 & 2)) {
@@ -941,19 +932,14 @@ void mpApplyPendingEffect(s32 arg0) {
 
 void csModelStateSetFirstByte(s16, s32);
 
-typedef struct MpMapEntryIds {
-    char pad[0xC];
-    s32 unkC[4];
-} MpMapEntryIds;
-
 void func_80025F84(void) {
-    MpMapEntryIds *temp;
+    MpMapEntry *temp;
     s32 i;
 
-    temp = (MpMapEntryIds *)mpFindCurrentMapEntry();
+    temp = mpFindCurrentMapEntry();
     i = 0;
-    while (i < 4 && temp->unkC[i] != -1) {
-        csModelStateSetFirstByte(temp->unkC[i], 0);
+    while (i < 4 && temp->ids[i] != -1) {
+        csModelStateSetFirstByte(temp->ids[i], 0);
         i++;
     }
 }
@@ -1088,8 +1074,8 @@ void mpUpdate(void) {
             flag = 1;
         case 2:
             if (flag != 0) {
-                s16 *q = *(s16 **)((u8 *)mpFindCurrentMapEntry() + 8);
-                func_806F5FE8(0x1D2, q[0], q[1], q[2], 10);
+                MpSpawnPoint *q = mpFindCurrentMapEntry()->items;
+                func_806F5FE8(0x1D2, q->unk0, q->unk2, q->unk4, 10);
             }
             break;
         case 4:
