@@ -38,8 +38,12 @@ a context compaction:
 
 ## 1. Pick the unit ([split.md](split.md))
 
-Next candidate files from ROADMAP section 9, or matching rounds on its listed near-misses.
-Check every file before converting it:
+Every global file is C, so a unit is matching rounds on unmatched functions. Pick from
+`python3 tools/ledger.py rank` (attempt ledger `drafts/attempts.jsonl`): never-attempted
+first, then most units (new findings) since the last attempt, fewest attempts, unparked
+before parked; tier 3 = `blocked` (split/data work first). Group the top of the ranking by
+file/subsystem (`rank --file src/<seg>/<f>.c ...` shows a file's set). For a file still to
+convert, check it first:
 - `python3 tools/unit_check.py count global <file>...` (size);
 - `python3 tools/unit_check.py handasm global <file>...`: every count must be 0 (else
   hand-written asm: keep it asm);
@@ -71,7 +75,12 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
    (`--stage` every file the merge depends on outside the given `src` files: headers a unify
    agent extended, symbol files). Continue only after `GATE_OK` and `COMMITTED`. Append new
    findings to `local://findings.md`; refill the slot from the new HEAD with a concrete
-   next step per function.
+   next step per function. Then record every function of the task, matched or not (zero
+   yield too, also when the copy is not merged):
+   `cat local://tasks/<A>.md | python3 tools/ledger.py record --unit "<YYYY-MM-DD: unit>" --agent <A> --seg <seg> --task -`
+   (outcome and stage come from the tree after the merge; add `FUNC=skipped` for functions
+   the report says it never reached). Your own probes: `--agent orchestrator FUNC`; a
+   split/data blocker: `--unit - FUNC=blocked --note "..."`.
 6. Stop rule (dispatch.md): a round matching fewer than ~1 function per agent, or only
    near-misses and 500+-instruction functions left. List what is left with
    `python3 tools/unit_check.py left src/<seg>/<file>.c ...` before stopping.
