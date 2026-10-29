@@ -1219,7 +1219,7 @@ void arcadeDrawStage4Background(Gfx **arg0) {
     i = 1;
     do {
         if (i != 6 && i != 7 && i != 0x13 && i != 0x14) {
-            func_8070F2FC(&sp6C, (s16)((i << 5) + 0xC0), 0x268);
+            func_8070F2FC(&sp6C, ((i << 5) + 0xC0), 0x268);
         }
         i += one;
     } while (i < 0x1B);
@@ -1235,7 +1235,7 @@ void arcadeDrawStage4Background(Gfx **arg0) {
     i = 0;
     do {
         if (i < 0xC || i >= 0x10) {
-            func_8070F2FC(&sp6C, (s16)((i << 5) + 0xC0), 0x1DC);
+            func_8070F2FC(&sp6C, ((i << 5) + 0xC0), 0x1DC);
         }
         i += one;
     } while (i < 0x1C);
@@ -1251,7 +1251,7 @@ void arcadeDrawStage4Background(Gfx **arg0) {
     x = 0x240;
     do {
         for (i = 0x9F; (i ^ 0) != 0x87; i -= 8) {
-            func_8070F2FC(&sp6C, x, (s16)(s32)((((f64)i * 0.875) + 8.0) * 4.0));
+            func_8070F2FC(&sp6C, x, (s32)((((f64)i * 0.875) + 8.0) * 4.0));
         }
         x += step;
     } while (x != 0x2C0);
