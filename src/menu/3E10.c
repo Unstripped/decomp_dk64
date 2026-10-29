@@ -1835,18 +1835,6 @@ void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
     }
 }
 
-typedef struct MenuTextTable {
-    char padA4[0xA4];
-    void *unkA4;
-    void *unkA8;
-    char padAC[0xBC - 0xAC];
-    void *unkBC;
-    char padC0[0xC4 - 0xC0];
-    void *unkC4;
-    char padC8[0xCC - 0xC8];
-    void *unkCC;
-    void *unkD0;
-} MenuTextTable;
 
 extern s16 D_80033674;
 
@@ -1867,9 +1855,9 @@ Gfx *func_8002DBDC(MenuScreenActor *arg0, Gfx *arg1) {
     D_807FBB60 &= ~0x10;
     func_800317E8(sp6C, 160.0f, 20.0f, &sp64, &sp60, D_800338FC, 0, 1.5f);
     arg1 = menuDrawScrollSelector(
-        textDrawStringVtx(arg1, 1, 0x280, (s16)(sp60 * 4.0f), ((MenuTextTable *)D_80033F28)->unkA4, 0x81),
+        textDrawStringVtx(arg1, 1, 0x280, (s16)(sp60 * 4.0f), (void *)D_80033F28[0x29], 0x81),
         sp6C,
-        &((MenuTextTable *)D_80033F28)->unkA8,
+        D_80033F28 + 0x2A,
         D_800338FC,
         &sp68,
         1,
@@ -1884,19 +1872,19 @@ Gfx *func_8002DBDC(MenuScreenActor *arg0, Gfx *arg1) {
 
     switch (sp68) {
     case 0:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, ((MenuTextTable *)((u8 *)D_80033F28 + D_807444C0 * 4))->unkBC, 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, (void *)D_80033F28[D_807444C0 + 0x2F], 0x81);
         break;
     case 1:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, ((MenuTextTable *)((u8 *)D_80033F28 + D_8074452C * 4))->unkC4, 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, (void *)D_80033F28[D_8074452C + 0x31], 0x81);
         break;
     case 2:
         D_80033674 = 0;
         break;
     case 3:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, ((MenuTextTable *)((u8 *)D_80033F28 + D_80744530 * 4))->unkD0, 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, (void *)D_80033F28[D_80744530 + 0x34], 0x81);
         break;
     case 4:
-        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, ((MenuTextTable *)D_80033F28)->unkCC, 0x81);
+        arg1 = textDrawStringVtx(arg1, 1, (s16)sp64, y + 0x40, (void *)D_80033F28[0x33], 0x81);
         break;
     }
 
