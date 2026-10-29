@@ -24,17 +24,22 @@ extern s32 D_8076D1F8;
 extern s16 D_8002BA52[];
 void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 typedef struct {
+    u8 pad0[0x1C];
+    s32 unk1C;
+    u8 pad20[0x44 - 0x20];
+    void (*unk44)(void *);
+    u8 pad48[4];
+} J0aItem;
+
+typedef struct {
     s32 stage;
     s32 score;
     s32 lives;
     s32 unkC;
     s32 unk10;
-    u8 pad14[0x114 - 0x14];
-    s32 unk114;
-    u8 pad118[0x148 - 0x118];
-    u8 unk148[0x18C - 0x148];
-    void (*unk18C)(void *);
-    u8 pad190[0x194 - 0x190];
+    J0aItem items[4];
+    s32 unk144;
+    J0aItem bonus;
 } JetpacPlayer;
 
 typedef struct {
@@ -273,12 +278,6 @@ void jetpacPlayerStateUpdate(void);
 void jetpacItemsUpdate(void);
 void jetpacDrawPlayer(void);
 
-typedef struct {
-    u8 pad0[0x44];
-    void (*unk44)(void *);
-    u8 pad48[4];
-} J0aItem;
-
 void jetpacStateGameplay(s32 arg0) {
     JetpacPlayer *sp1C = &jetpacGame.players[jetpacGame.active_player];
 
@@ -286,13 +285,13 @@ void jetpacStateGameplay(s32 arg0) {
         sp1C->score -= 1000000;
     }
     func_80024408(arg0);
-    if (((J0aItem *)&sp1C->pad14[sp1C->unk10 * 0x4C])->unk44) {
+    if (sp1C->items[sp1C->unk10].unk44) {
     }
     jetpacPlayerStateUpdate();
     jetpacUpdateLasers();
-    sp1C->unk18C(&sp1C->unk148);
+    sp1C->bonus.unk44(&sp1C->bonus);
     {
-        J0aItem *it = (J0aItem *)&sp1C->pad14[sp1C->unk10 * 0x4C];
+        J0aItem *it = &sp1C->items[sp1C->unk10];
         it->unk44(it);
     }
     jetpacUpdateActors();
@@ -368,7 +367,7 @@ void jetpacStateTakeoff(s32 arg0) {
 
     func_80024408(arg0);
     jetpacUpdateLasers();
-    sp1C->unk18C(&sp1C->unk148);
+    sp1C->bonus.unk44(&sp1C->bonus);
     jetpacUpdateRocketFlight();
     jetpacUpdateActors();
     jetpacInitRdp(arg0);
@@ -474,7 +473,7 @@ void jetpacStartStage(void) {
     jetpacSpawnBonusItem(player);
     if ((player->stage & 3) == 0) {
         jetpacInitRocketParts(player);
-        player->unk114 = 0;
+        player->items[3].unk1C = 0;
         player->unk10 = 1;
         jetpacSetState(2);
     } else {
