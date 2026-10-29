@@ -876,9 +876,7 @@ void arcadeDrawStage3Ladders(Gfx **arg0) {
     *arg0 = sp24;
 }
 
-void arcadeDrawStage4Ladders(arg0)
-Gfx **arg0;
-{
+void arcadeDrawStage4Ladders(Gfx **arg0) {
     Gfx *sp24;
 
     sp24 = *arg0;
