@@ -1,118 +1,86 @@
-// func_8066A988 (src/global/6AD90.c): Identical twin of func_80669E04 at +0x24 offset; same-side half-plane point in triangle test
-
+// func_8066A988 (src/global/6AD90.c): func_8066A988 (src/global/6AD90.c): twin of func_80669E04 at CollisionBoxTriangle +0x24 (arg0->tri.x/z); same stage 4 NON_MATCHING park, same prologue diff (see func_80669E04 draft note).
 #include "common.h"
-typedef struct {
+
+typedef struct CollisionTriF {
     f32 x[3];
     f32 y[3];
     f32 z[3];
-} R1C_TriangleF;
+} CollisionTriF;
 
-s32 func_80669E04(R1C_TriangleF *arg0, f32 arg1, f32 arg2) {
-    f64 spA0;
-    f64 sp98;
-    f64 sp90;
-    f64 sp88;
-    f32 sp64;
-    f32 sp60;
-    f32 sp5C;
-    f32 sp58;
-    f32 sp54;
-    f32 sp44;
-    f64 sp38;
-    f32 temp_fs0;
-    f32 temp_ft4;
-    f32 temp_ft5;
-    f64 temp_fa1;
-    f64 temp_fs1;
-    f64 temp_fs2;
-    f64 temp_fs3;
-    f64 temp_fs4;
-    f64 temp_fs5;
-    f64 var_fa0;
-    f64 var_fa1;
-    f64 var_fs0;
-    f64 var_ft4;
-    f64 var_ft5;
-    f64 var_fv0;
-    f64 var_fv1;
-    s32 var_a0;
-    s32 var_a1;
-    s32 var_v0;
-    s32 var_v1;
+typedef struct CollisionBoxTriangle {
+    u8 pad0[0x24];
+    CollisionTriF tri;
+} CollisionBoxTriangle;
 
-    temp_ft5 = arg0->x[1];
-    temp_ft4 = arg0->x[2];
-    temp_fs0 = arg0->z[2];
-    sp58 = arg0->z[1];
-    var_v1 = 0;
-    sp54 = arg0->x[0];
-    sp60 = temp_ft5;
-    temp_fs5 = (f64) sp54;
-    sp44 = arg0->z[0];
-    sp64 = temp_ft4;
-    temp_fa1 = (f64) sp44;
-    temp_fs1 = (temp_fs5 + ((f64) (temp_ft4 + temp_ft5) * 0.5)) * 0.5;
-    sp38 = temp_fa1;
-    var_fa1 = sp98;
-    temp_fs2 = (temp_fa1 + ((f64) (temp_fs0 + sp58) * 0.5)) * 0.5;
-    var_fa0 = spA0;
-    var_ft4 = sp90;
-    var_ft5 = sp88;
-    var_v0 = 0;
-    sp5C = temp_fs0;
-    temp_fs4 = (f64) arg2;
-    temp_fs3 = (f64) arg1;
+u8 func_8066A988(CollisionBoxTriangle *arg0, f32 arg1, f32 arg2) {
+    f64 dx;
+    f64 dz;
+    f64 ox;
+    f64 oz;
+    f32 x0;
+    f32 x1;
+    f32 x2;
+    f32 z0;
+    f32 z1;
+    f32 z2;
+    f64 cx;
+    f64 cz;
+    f64 a;
+    f64 b;
+    f64 c;
+    s32 i;
+    s32 outside;
+    s32 sideP;
+    s32 sideC;
+
+    x1 = arg0->tri.x[1];
+    x2 = arg0->tri.x[2];
+    z2 = arg0->tri.z[2];
+    z1 = arg0->tri.z[1];
+    outside = 0;
+    x0 = arg0->tri.x[0];
+    z0 = arg0->tri.z[0];
+    cx = (x0 + (f64)(x2 + x1) * 0.5) * 0.5;
+    cz = (z0 + (f64)(z2 + z1) * 0.5) * 0.5;
+    i = 0;
     do {
-        switch (var_v0) {
-        default:
-            var_fv0 = (temp_fs3 - var_ft4) * var_fa1;
-            var_fv1 = (temp_fs4 - var_ft5) * var_fa0;
-            var_fs0 = ((temp_fs1 - var_ft4) * var_fa1) - ((temp_fs2 - var_ft5) * var_fa0);
-            break;
+        switch (i) {
         case 0:
-            var_ft5 = sp38;
-            var_ft4 = temp_fs5;
-            var_fa0 = (f64) (sp60 - sp54);
-            var_fa1 = (f64) (sp58 - sp44);
-            var_fv0 = (temp_fs3 - temp_fs5) * var_fa1;
-            var_fv1 = (temp_fs4 - var_ft5) * var_fa0;
-            var_fs0 = ((temp_fs1 - temp_fs5) * var_fa1) - ((temp_fs2 - var_ft5) * var_fa0);
+            dx = x1 - x0;
+            dz = z1 - z0;
+            ox = x0;
+            oz = z0;
             break;
         case 1:
-            var_ft5 = sp38;
-            var_ft4 = temp_fs5;
-            var_fa0 = (f64) (sp64 - sp54);
-            var_fa1 = (f64) (sp5C - sp44);
-            var_fv0 = (temp_fs3 - temp_fs5) * var_fa1;
-            var_fv1 = (temp_fs4 - var_ft5) * var_fa0;
-            var_fs0 = ((temp_fs1 - temp_fs5) * var_fa1) - ((temp_fs2 - var_ft5) * var_fa0);
+            dx = x2 - x0;
+            dz = z2 - z0;
+            ox = x0;
+            oz = z0;
             break;
         case 2:
-            var_ft4 = (f64) sp60;
-            var_fa0 = (f64) (sp64 - sp60);
-            var_fa1 = (f64) (sp5C - sp58);
-            var_ft5 = (f64) sp58;
-            var_fv0 = (temp_fs3 - var_ft4) * var_fa1;
-            var_fv1 = (temp_fs4 - var_ft5) * var_fa0;
-            var_fs0 = ((temp_fs1 - var_ft4) * var_fa1) - ((temp_fs2 - var_ft5) * var_fa0);
+            dx = x2 - x1;
+            dz = z2 - z1;
+            ox = x1;
+            oz = z1;
             break;
         }
-        var_v0 += 1;
-        var_a1 = -1;
-        if (var_fv1 <= var_fv0) {
-            var_a1 = 1;
+        a = (arg1 - ox) * dz;
+        b = (arg2 - oz) * dx;
+        c = (cx - ox) * dz - (cz - oz) * dx;
+        i++;
+        if (b <= a) {
+            sideP = 1;
+        } else {
+            sideP = -1;
         }
-        var_a0 = -1;
-        if (var_fs0 >= 0.0) {
-            var_a0 = 1;
+        if (c >= 0.0) {
+            sideC = 1;
+        } else {
+            sideC = -1;
         }
-        if (var_a0 != var_a1) {
-            var_v1 = 1;
+        if (sideC != sideP) {
+            outside = 1;
         }
-    } while (var_v0 != 3);
-    sp88 = var_ft5;
-    sp90 = var_ft4;
-    sp98 = var_fa1;
-    spA0 = var_fa0;
-    return (var_v1 == 0) & 0xFF;
+    } while (i != 3);
+    return outside == 0;
 }

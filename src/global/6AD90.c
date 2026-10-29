@@ -989,7 +989,83 @@ s32 collisionCheckTriangleBoundingBoxXZ(CollisionTriF *arg0, f32 arg1, f32 arg2)
     return 1;
 }
 
+#ifdef NON_MATCHING
+u8 func_80669E04(CollisionTriF *arg0, f32 arg1, f32 arg2) {
+    f64 dx;
+    f64 dz;
+    f64 ox;
+    f64 oz;
+    f32 x0;
+    f32 x1;
+    f32 x2;
+    f32 z0;
+    f32 z1;
+    f32 z2;
+    f64 cx;
+    f64 cz;
+    f64 a;
+    f64 b;
+    f64 c;
+    s32 i;
+    s32 outside;
+    s32 sideP;
+    s32 sideC;
+
+    x1 = arg0->x[1];
+    x2 = arg0->x[2];
+    z2 = arg0->z[2];
+    z1 = arg0->z[1];
+    outside = 0;
+    x0 = arg0->x[0];
+    z0 = arg0->z[0];
+    cx = (x0 + (f64)(x2 + x1) * 0.5) * 0.5;
+    cz = (z0 + (f64)(z2 + z1) * 0.5) * 0.5;
+    i = 0;
+    do {
+        switch (i) {
+        case 0:
+            dx = x1 - x0;
+            dz = z1 - z0;
+            ox = x0;
+            oz = z0;
+            break;
+        case 1:
+            dx = x2 - x0;
+            dz = z2 - z0;
+            ox = x0;
+            oz = z0;
+            break;
+        case 2:
+            dx = x2 - x1;
+            dz = z2 - z1;
+            ox = x1;
+            oz = z1;
+            break;
+        }
+        a = (arg1 - ox) * dz;
+        b = (arg2 - oz) * dx;
+        c = (cx - ox) * dz - (cz - oz) * dx;
+        i++;
+        if (b <= a) {
+            sideP = 1;
+        } else {
+            sideP = -1;
+        }
+        if (c >= 0.0) {
+            sideC = 1;
+        } else {
+            sideC = -1;
+        }
+        if (sideC != sideP) {
+            outside = 1;
+        }
+    } while (i != 3);
+    return outside == 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80669E04.s")
+#endif
 
 void gunzip(void *, void *, void *);
 void heapFreeDeferred(void *);
@@ -1013,7 +1089,155 @@ typedef struct {
     u8 unk8;
 } DmaQueueEntry;
 
+typedef struct {
+    u8 pad0[0x48];
+    u32 unk48;
+    u32 unk4C;
+    u32 unk50;
+} Col6C_StructA64C;
+
+#ifdef NON_MATCHING
+typedef struct {
+    u8 pad0[0x24];
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+    f32 unk38;
+    f32 unk3C;
+    f32 unk40;
+    f32 unk44;
+    u8 pad48[0x56 - 0x48];
+    u8 unk56;
+} Col6C_Tri;
+
+struct CollisionBoxTriangle;
+s32 collisionCheckBoxTriangleBoundsXZ(struct CollisionBoxTriangle *, f32, f32);
+u8 func_8066A988(struct CollisionBoxTriangle *, f32, f32);
+void func_8066A64C(s32, Actor *, Col6C_StructA64C *, f32, f32, f32);
+void collisionRecordBoxTriangle(void *, f32);
+
+extern s8 D_807F94AD;
+
+s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
+    f32 pad;
+    Col6C_Tri *hit_tri;
+    f32 pad128[6];
+    f64 sp108;
+    f32 pad108[22];
+    f32 hit_y;
+    f32 padAC[4];
+    Actor *hit_actor;
+    f32 pad98[2];
+    f32 sp8C;
+    ActorEntry *entry;
+    f32 sp84;
+    f32 sp80;
+    f32 sp78;
+    f32 temp_fa1;
+    f32 temp_fs1;
+    f32 y;
+    f32 temp_ft5;
+    f64 temp_fa0;
+    f64 ny;
+    f64 nz;
+    f64 temp_fs2;
+    f64 temp_fs3;
+    f64 nx;
+    f64 temp_ft4;
+    f64 temp_fv0;
+    f64 temp_fv1;
+    f64 d;
+    s32 hit;
+    s32 i;
+    s32 j;
+    Actor *actor;
+    Col6C_Tri *tri;
+    u16 actor_count;
+
+    hit = 0;
+    hit_y = 999999.0f;
+    (void)2000.0; // FAKE: keeps the first 2000.0 rodata literal slot
+    actor_count = gActiveActorCount;
+    i = 0;
+    if ((s32)actor_count > 0) {
+        entry = gActiveActors;
+        do {
+            actor = entry->actor;
+            if (!(actor->unk60 & 0x2000)) {
+                if (actor->unk140 != NULL && arg0 != actor && (actor->unk60 & 0x10)) {
+                    tri = actor->unk140->unk98;
+                    j = 0;
+                    if (actor->unk140->unk94 > 0) {
+                        do {
+                            if ((collisionCheckBoxTriangleBoundsXZ((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
+                                (func_8066A988((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
+                                (tri->unk56 != 0) &&
+                                ((temp_fa1 = tri->unk24,
+                                  sp8C = tri->unk28,
+                                  temp_ft5 = tri->unk30,
+                                  sp84 = tri->unk34,
+                                  temp_fa0 = (f64)(temp_fa1 - sp8C),
+                                  temp_fs1 = tri->unk3C,
+                                  sp80 = tri->unk40,
+                                  temp_ft4 = (f64)(temp_ft5 - sp84),
+                                  temp_fv0 = (f64)(temp_fs1 - sp80),
+                                  temp_fs2 = (f64)(temp_fa1 - tri->unk2C),
+                                  temp_fs3 = (f64)(temp_ft5 - tri->unk38),
+                                  sp78 = sp8C,
+                                  temp_fv1 = (f64)(temp_fs1 - tri->unk44),
+                                  nx = (temp_ft4 * temp_fv1) - (temp_fv0 * temp_fs3),
+                                  ny = (temp_fv0 * temp_fs2) - (temp_fa0 * temp_fv1),
+                                  nz = (temp_fa0 * temp_fs3) - (temp_ft4 * temp_fs2),
+                                  d = -(((f64)sp80 * nz) + ((nx * (f64)sp78) + (ny * (f64)sp84))),
+                                  0.01 < ny * 2000.0) || ny * 2000.0 < -0.01)) {
+                                    if (arg0 != NULL) {
+                                        if (D_807F94BC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                                        func_80666D88(arg3, (f32)((2000.0 * (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)))) - 1000.0), 0, arg0, 0);
+                                    }
+                                    if (arg2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                                    if (D_807F94BC != 0) {
+                                        collisionRecordBoxTriangle(tri, (f32)((2000.0 * (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)))) - 1000.0));
+                                    }
+                                    if (collisionCheckBoxTriangleWinding(tri) != 0) {
+                                        y = (f32)((2000.0 * (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)))) - 1000.0);
+                                        if (mathCheckCloserFloatThreshold(hit_y, y, (f32)((f64)arg3 + 4.0), 0) != 0) {
+                                            hit_tri = tri;
+                                            hit_actor = actor;
+                                            hit = 1;
+                                            hit_y = y;
+                                        }
+                                    }
+                            }
+                            j++;
+                            tri++;
+                        } while (j < actor->unk140->unk94);
+                    }
+                }
+            }
+            i++;
+            entry++;
+        } while (i < (s32)gActiveActorCount);
+    }
+
+    if (hit != 0 && mathCheckCloserFloatThreshold(*arg4, hit_y, (f32)((f64)arg3 + 4.0), 0) != 0) {
+        *arg4 = hit_y;
+        func_8066ACA4(arg0, hit_tri, 1);
+        if (hit_actor->unk68 & 8) {
+            D_807F94AD = 1;
+        }
+        if (arg0 != NULL) {
+            func_8066A64C((s32)arg0, hit_actor, (Col6C_StructA64C *)hit_tri, arg1, hit_y, arg2);
+            if (D_807F94BC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        }
+    }
+    return hit;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066A08C.s")
+#endif
 
 void collisionRecordBoxTriangle(void *arg0, f32 arg1) {
     if (D_807F9510 != 0xA) {
@@ -1029,9 +1253,72 @@ void collisionRecordBoxTriangle(void *arg0, f32 arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066A64C.s")
+extern u8 D_807444FC;
+extern Actor *D_807F9470;
+extern f32 D_807F9474;
+extern f32 D_807F9478;
+extern f32 D_807F947C;
+extern u32 D_807F9480;
+extern s8 D_807F94B2;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066A75C.s")
+void matrix4Invert(float [4][4], float [4][4]);
+
+void func_8066A64C(s32 arg0, Actor *arg1, Col6C_StructA64C *arg2, f32 arg3, f32 arg4, f32 arg5) {
+    float sp78[4][4];
+    float sp38[4][4];
+    ActorSub140 *sub;
+    s32 idx;
+    Mtx *mtx;
+
+    D_807F9470 = arg1;
+    sub = arg1->unk140;
+    if (D_8076A064 == sub->unk88) {
+        idx = D_807444FC;
+    } else {
+        idx = (D_807444FC ^ 1) & 0xFF;
+    }
+    mtx = (Mtx *)((Mtx **)&sub->unk74)[idx];
+    if ((arg2->unk4C != arg2->unk48) || (arg2->unk50 != arg2->unk48)) {
+        D_807F94B2 = 1;
+    }
+    D_807F9480 = arg2->unk48;
+    if (arg2->unk48 == -1) {
+        memcpy(sp78, (void *)sub->unk70, 0x40);
+    } else {
+        guMtxL2F(sp78, (Mtx *)(((arg2->unk48 >> 6) << 6) + (u8 *)mtx));
+    }
+    matrix4Invert(sp38, sp78);
+    guMtxXFMF(sp38, arg3, arg4, arg5, &D_807F9474, &D_807F9478, &D_807F947C);
+}
+
+void func_8066A75C(Actor *actor, u32 arg1, f32 *arg2, f32 arg3, f32 *arg4) {
+    s32 idx;
+    f32 sp78;
+    f32 sp74;
+    f32 sp70;
+    ActorSub140 *sub;
+    Mtx *mtx;
+    {
+        float sp28[4][4];
+
+        sp78 = *arg2;
+        sp74 = *arg4;
+        sub = actor->unk140;
+        if (D_8076A064 == sub->unk88) {
+            idx = D_807444FC;
+        } else {
+            idx = D_807444FC ^ 1;
+            idx = idx & 0xFF; // FAKE: split mask steers sub/idx v0/v1 allocation
+        }
+        mtx = ((Mtx **)&sub->unk74)[idx];
+        if (arg1 == -1) {
+            memcpy(sp28, (void *)sub->unk70, 0x40);
+        } else {
+            guMtxL2F(sp28, (Mtx *)(((arg1 >> 6) << 6) + (u8 *)mtx));
+        }
+        guMtxXFMF(sp28, sp78, arg3, sp74, arg2, &sp70, arg4);
+    }
+}
 
 typedef struct CollisionBoxTriangle {
     u8 pad0[0x24];
@@ -1073,7 +1360,83 @@ s32 collisionCheckBoxTriangleBoundsXZ(CollisionBoxTriangle *arg0, f32 arg1, f32 
     return 1;
 }
 
+#ifdef NON_MATCHING
+u8 func_8066A988(CollisionBoxTriangle *arg0, f32 arg1, f32 arg2) {
+    f64 dx;
+    f64 dz;
+    f64 ox;
+    f64 oz;
+    f32 x0;
+    f32 x1;
+    f32 x2;
+    f32 z0;
+    f32 z1;
+    f32 z2;
+    f64 cx;
+    f64 cz;
+    f64 a;
+    f64 b;
+    f64 c;
+    s32 i;
+    s32 outside;
+    s32 sideP;
+    s32 sideC;
+
+    x1 = arg0->tri.x[1];
+    x2 = arg0->tri.x[2];
+    z2 = arg0->tri.z[2];
+    z1 = arg0->tri.z[1];
+    outside = 0;
+    x0 = arg0->tri.x[0];
+    z0 = arg0->tri.z[0];
+    cx = (x0 + (f64)(x2 + x1) * 0.5) * 0.5;
+    cz = (z0 + (f64)(z2 + z1) * 0.5) * 0.5;
+    i = 0;
+    do {
+        switch (i) {
+        case 0:
+            dx = x1 - x0;
+            dz = z1 - z0;
+            ox = x0;
+            oz = z0;
+            break;
+        case 1:
+            dx = x2 - x0;
+            dz = z2 - z0;
+            ox = x0;
+            oz = z0;
+            break;
+        case 2:
+            dx = x2 - x1;
+            dz = z2 - z1;
+            ox = x1;
+            oz = z1;
+            break;
+        }
+        a = (arg1 - ox) * dz;
+        b = (arg2 - oz) * dx;
+        c = (cx - ox) * dz - (cz - oz) * dx;
+        i++;
+        if (b <= a) {
+            sideP = 1;
+        } else {
+            sideP = -1;
+        }
+        if (c >= 0.0) {
+            sideC = 1;
+        } else {
+            sideC = -1;
+        }
+        if (sideC != sideP) {
+            outside = 1;
+        }
+    } while (i != 3);
+    return outside == 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066A988.s")
+#endif
 
 typedef struct CollisionBoxTriangleWork {
     u8 pad0[0x24];

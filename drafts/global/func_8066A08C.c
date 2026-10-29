@@ -1,4 +1,16 @@
-// func_8066A08C (src/global/6AD90.c): 309 vs 318 insns (delta 9); exact 0x130 frame, exact 17 saved regs, prologue/epilogue/control flow match; rodata matched with (void)2000.0
+// func_8066A08C (src/global/6AD90.c): func_8066A08C (src/global/6AD90.c): stage 3 (frame 0x130, 17 saved regs, loop/branch skeleton match; 354 vs 361 normalized lines). Target: d=-(sp80*nz+(nx*sp78+ny*sp84)) lives in $f0 (caller-saved, sdc1/ldc1 0x108(sp) around each of 3 calls) while fs0..fs5 = ny,nz,y,const 2000.0,arg2(lwc1 0x138 hoisted),nx; ny*2000.0 NOT CSE'd (recomputed each time with its own 2000.0 rodata literal). Ours puts d in f30 and CSEs. Draft keeps temp_* vars from m2c (real source probably has x0,y0,z0 as plain tri->field reads and only sp8C/sp84/sp80/sp78 as named f32 locals). deadsweep: 3 dead stmts (full 247).
+#include "common.h"
+#include "actor.h"
+
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
+extern u8 D_807F94BC;
+typedef struct {
+    u8 pad0[0x48];
+    u32 unk48;
+    u32 unk4C;
+    u32 unk50;
+} Col6C_StructA64C;
 typedef struct {
     u8 pad0[0x24];
     f32 unk24;
@@ -12,25 +24,22 @@ typedef struct {
     f32 unk44;
     u8 pad48[0x56 - 0x48];
     u8 unk56;
-} R4M_Triangle;
+} Col6C_Tri;
 
-s32 func_8066A834(R4M_Triangle *, f32, f32);
-s32 func_8066A988(R4M_Triangle *, f32, f32);
+s32 func_8066A834(Col6C_Tri *, f32, f32);
+s32 func_8066A988(Col6C_Tri *, f32, f32);
 void func_80666D88(f32, f32, s32, s32, s32);
-void func_8066A64C(s32, Actor *, R4M_Triangle *, f32, f32, f32);
+void func_8066A64C(s32, Actor *, Col6C_StructA64C *, f32, f32, f32);
 void func_8066A584(void *, f32);
 void func_8066ACA4();
 s32 func_8066AC10(void *);
 s32 func_80666FC8(f32, f32, f32, s32);
 
 extern s8 D_807F94AD;
-extern u8 D_807F94BC;
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 
 s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     f32 pad;
-    R4M_Triangle *hit_tri;
+    Col6C_Tri *hit_tri;
     f32 pad128[6];
     f64 sp108;
     f32 pad108[22];
@@ -61,7 +70,7 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     s32 i;
     s32 j;
     Actor *actor;
-    R4M_Triangle *tri;
+    Col6C_Tri *tri;
     u16 actor_count;
 
     hit = 0;
@@ -101,8 +110,10 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
                                   d = -(((f64)sp80 * nz) + ((nx * (f64)sp78) + (ny * (f64)sp84))),
                                   0.01 < ny * 2000.0) || ny * 2000.0 < -0.01)) {
                                     if (arg0 != NULL) {
+                                        if (D_807F94BC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                                         func_80666D88(arg3, (f32)((2000.0 * (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)))) - 1000.0), 0, (s32)arg0, 0);
                                     }
+                                    if (arg2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                                     if (D_807F94BC != 0) {
                                         func_8066A584(tri, (f32)((2000.0 * (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)))) - 1000.0));
                                     }
@@ -135,6 +146,7 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
         }
         if (arg0 != NULL) {
             func_8066A64C((s32)arg0, hit_actor, hit_tri, arg1, hit_y, arg2);
+            if (D_807F94BC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
     return hit;
