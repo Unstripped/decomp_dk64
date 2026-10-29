@@ -210,7 +210,7 @@ segments:
       - [0x145D70, c, 145D70] # -g; rodata 0x165280-0x165290
       - [0x146010, asm] # RSP microcode text (mtc0/RSP jal targets), not C; was the tail of splat's 145D70
       - [0x146C40, asm] # RSP microcode text (two overlays, each with a handwritten mfc0/mtc0 DMA helper), not C
-      - [0x149160, data, 0]
+      - [0x149160, .data, 0]
       - [0x1492E0, data, 3C10]
       - [0x149FA0, data, 5650]
       - [0x149FB0, data, 5A50]
@@ -334,9 +334,13 @@ segments:
       - [0x165270, .rodata, 145950]
       - [0x165280, .rodata, 145D70]
       - [0x165290, rodata]
-      - { start: 0x165D50, type: bss, vram: 0x80761050 }
+      - { start: 0x165D50, type: .bss, vram: 0x80761050, name: 0 } # D_80761050..D_8076A150 (0x80761050-0x8076A160)
+      - { start: 0x165D50, type: .bss, vram: 0x8076A160, name: 3C10 } # D_8076A160[18] slots .. D_8076AF14 (0x8076A160-0x8076AF20)
+      - { start: 0x165D50, type: bss, vram: 0x8076AF20, name: 165D50_8076AF20 }
       - { start: 0x165D50, type: .bss, vram: 0x80770DF0, name: 7130 } # D_80770DF0..D_80770F38 (func_806057F8's static pitch at 0x80770F38)
       - { start: 0x165D50, type: bss, vram: 0x80770F40, name: 165D50_80770F40 }
+      - { start: 0x165D50, type: .bss, vram: 0x807F02D0, name: 131B0 } # D_807F02D0..D_807F0568 (0x807F02D0-0x807F0570)
+      - { start: 0x165D50, type: bss, vram: 0x807F0570, name: 165D50_807F0570 }
       - { start: 0x165D50, type: .bss, vram: 0x807F5B10, name: 201B0 }
       - { start: 0x165D50, type: bss, vram: 0x807F5D30, name: 165D50_807F5D30 }
 

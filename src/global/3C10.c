@@ -64,23 +64,10 @@ extern s32 D_8076A0A8;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
 extern s8 D_8076A0B2;
-extern Struct8076A160 D_8076A160[18];
 extern s16 D_8076A172;
 extern u8 D_8076A220;
 extern s16 D_8076A232;
 extern Struct8076A160 D_8076A2E0[];
-extern u8 D_8076AEE0;
-extern s16 D_8076AEE2;
-extern f32 D_8076AEE4;
-extern f32 D_8076AEE8;
-extern f32 D_8076AEEC;
-extern s16 D_8076AEF0;
-extern s16 D_8076AEF2;
-extern u16 D_8076AEF4;
-extern u8 D_8076AEF6;
-extern s16 D_8076AF00[];
-extern s32 D_8076AF10;
-extern u8 D_8076AF14;
 extern s32 D_807F6010;
 extern Struct807FBB4C *D_807FBB4C;
 extern s32 D_807FBB60;
@@ -146,6 +133,28 @@ s32 flagGet(s32, s32);
 void flagSet();
 void func_807313BC(void);
 void heapFree(void *);
+
+// .bss 0x8076A160-0x8076AF20
+Struct8076A160 D_8076A160[18];
+u8 D_8076AEE0;
+u8 D_8076AEE1;
+s16 D_8076AEE2;
+f32 D_8076AEE4;
+f32 D_8076AEE8;
+f32 D_8076AEEC;
+s16 D_8076AEF0;
+s16 D_8076AEF2;
+u16 D_8076AEF4;
+u8 D_8076AEF6;
+u8 D_8076AEF7;
+u8 D_8076AEF8[8];
+s16 D_8076AF00[7];
+u16 D_8076AF0E;
+s32 D_8076AF10;
+u8 D_8076AF14;
+u8 D_8076AF15;
+u16 D_8076AF16;
+u8 D_8076AF18[8];
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/3C10/func_805FEF10.s")
 

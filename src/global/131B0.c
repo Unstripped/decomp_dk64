@@ -24,16 +24,7 @@ extern u8 D_8076A0B1;
 extern u32 D_8076A064;
 extern u8 D_807ECD09;
 extern OSMesgQueue D_807ECCF0;
-extern OSPfs D_807F02D0[4];
-extern RumbleInfo D_807F0470[4];
 extern u8 D_807F0474[];
-extern u32 D_807F04E4;
-extern TaskNode *D_807F04E0;
-extern u64 D_807F04F8;
-extern u64 D_807F0508;
-extern u64 D_807F04C0;
-extern u64 D_807F04D0;
-extern s32 D_807F0564;
 extern u32 D_807FBB60;
 extern PlayerStruct *D_807FC924;
 
@@ -73,6 +64,31 @@ extern u32 camIsCutsceneActive(void);
 extern s32 func_8071432C(void);
 extern s32 func_8071441C(void);
 extern s32 func_807143E8(void);
+
+// .bss 0x807F02D0-0x807F0570
+OSPfs D_807F02D0[4];
+RumbleInfo D_807F0470[4];
+u64 D_807F04C0;
+u32 D_807F04C8;
+u32 D_807F04CC;
+u64 D_807F04D0;
+u32 D_807F04D8;
+u32 D_807F04DC;
+TaskNode *D_807F04E0;
+u32 D_807F04E4;
+u64 D_807F04E8;
+u64 D_807F04F0;
+u64 D_807F04F8;
+u32 D_807F0500;
+u32 D_807F0504;
+u64 D_807F0508;
+u32 D_807F0510;
+u32 D_807F0514;
+u16 D_807F0518[20];
+u8 D_807F0540[32];
+u32 D_807F0560;
+s32 D_807F0564;
+u64 D_807F0568;
 
 void rumbleInfoClear(RumbleInfo *arg0) {
     bzero(arg0, 0x14);
