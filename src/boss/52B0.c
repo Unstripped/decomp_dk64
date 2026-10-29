@@ -28,14 +28,12 @@ void func_80613C48(void *, s16, f32, f32);
 void func_80614D00(void *, f32, f32);
 
 void func_800292B0(f32 arg0) {
-    f32 zero = 0.0f;
-
-    projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, zero, zero, zero);
+    projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, 0.0f, 0.0f, 0.0f);
     func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
     D_807FBB44->unk80 = D_807FBB40->unk80;
     D_807FBB44->unk4->unk38 *= arg0;
-    func_80613C48(D_807FBB44, 0x4F9, zero, zero);
-    func_80614D00(D_807FBB44, 1.5f, zero);
+    func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
+    func_80614D00(D_807FBB44, 1.5f, 0.0f);
 }
 
 
