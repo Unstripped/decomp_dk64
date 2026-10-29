@@ -3541,16 +3541,13 @@ s32 func_800317E8(void *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 *arg4, s32 arg5
 
 f32 menuEvaluateSpline(f32 *arg0, f32 arg1, f32 *arg2) {
     f32 sp[4];
-    f32 m2 = -2.0f;
-    f32 p3 = 3.0f;
-    f32 m3 = -3.0f;
 
-    sp[0] = (arg0[0] + arg0[0] + m2 * arg0[1] + arg0[2]) + arg0[3];
-    sp[1] = (m3 * arg0[0] + p3 * arg0[1] + m2 * arg0[2]) - arg0[3];
+    sp[0] = (arg0[0] + arg0[0] + -2.0f * arg0[1] + arg0[2]) + arg0[3];
+    sp[1] = (-3.0f * arg0[0] + 3.0f * arg0[1] + -2.0f * arg0[2]) - arg0[3];
     sp[2] = arg0[2];
     sp[3] = arg0[0];
     if (arg2 != NULL) {
-        *arg2 = ((((p3 * sp[0]) * arg1) + (sp[1] + sp[1])) * arg1) + sp[2];
+        *arg2 = ((((3.0f * sp[0]) * arg1) + (sp[1] + sp[1])) * arg1) + sp[2];
     }
     return (((((sp[0] * arg1) + sp[1]) * arg1) + sp[2]) * arg1) + sp[3];
 }
