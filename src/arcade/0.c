@@ -705,7 +705,7 @@ extern u8 D_80032DF8[];
 void func_80005A90(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
 void func_8070E8F0(Gfx **, void *);
 void func_8070F2C8(s32, s16, s32, u8);
-void arcadeDrawLadder();
+void arcadeDrawLadder(Gfx **, s32, s32, s32);
 void func_8070F2FC(Gfx **, s16, s16);
 void arcadeStopSound(s32);
 extern s32 D_8076D1F8;
@@ -754,12 +754,7 @@ void arcadeDrawBackground(Gfx **arg0) {
 }
 
 #define ArcA1_D6D0 (*(void **)&D_8004C6D0)
-void arcadeDrawLadder(arg0, arg1, arg2, arg3)
-Gfx **arg0;
-s32 arg1;
-s32 arg2;
-s32 arg3;
-{
+void arcadeDrawLadder(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 i;
     Gfx *sp60;
 
