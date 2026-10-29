@@ -824,7 +824,7 @@ extern u8 D_8071FBC8;
 extern u8 D_8071FE08;
 void func_8071495C(void);
 void *func_80714CC0(void *, f32, f32, f32, f32);
-void func_8060C830(s32, s32);
+void func_8060C830(u8, s32);
 extern s8 D_80033FAC;
 
 void menuMysteryHandleInput(MenuScreenActor *arg0, s32 arg1) {
@@ -838,7 +838,7 @@ void menuMysteryHandleInput(MenuScreenActor *arg0, s32 arg1) {
                 func_8071495C();
                 func_80714CC0(&D_8071FE08, 10.3f, 240.0f, 120.0f, -10.0f);
                 func_80609140(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                func_8060C830((u8)D_80033F48, 1);
+                func_8060C830(D_80033F48, 1);
                 temp_s0->unk16 = 0;
                 temp_s0->unk13 = 2;
             } else if ((arg1 & 4) && (D_80033FAC != 0)) {
@@ -991,8 +991,8 @@ Gfx *menuDrawSubmenuRing(MenuScreenActor *arg0, Gfx *arg1) {
             id = 0xB1;
         }
         arg1 = func_8068C5A8(
-            func_8068C5A8(arg1, id, 0, 2, 0x20, 0x40, (s32)(sp174 - 96.0), (s32)sp170, 3.0f, -3.0f, 0, 0.0f),
-            id + 4, 0, 2, 0x20, 0x40, (s32)sp174, (s32)sp170, 3.0f, -3.0f, 0, 0.0f);
+            func_8068C5A8(arg1, id, 0, 2, 0x20, 0x40, sp174 - 96.0, sp170, 3.0f, -3.0f, 0, 0.0f),
+            id + 4, 0, 2, 0x20, 0x40, sp174, sp170, 3.0f, -3.0f, 0, 0.0f);
     }
 }
 
@@ -1231,9 +1231,9 @@ Gfx *func_8002B708(MenuScreenActor *arg0, Gfx *arg1) {
         id = D_80033FAD * 6 + D_80744534 * 2 + 0x98;
         gDPPipeSync(arg1++);
         gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
-        arg1 = func_8068C5A8(arg1, id, 0, 2, 0x20, 0x40, (s32)(sp154 - 128.0), (s32)sp150, 4.0f, -4.0f, 0, 0.0f);
+        arg1 = func_8068C5A8(arg1, id, 0, 2, 0x20, 0x40, sp154 - 128.0, sp150, 4.0f, -4.0f, 0, 0.0f);
         gDPPipeSync(arg1++);
-        arg1 = func_8068C5A8(arg1, ++id, 0, 2, 0x20, 0x40, (s32)sp154, (s32)sp150, 4.0f, -4.0f, 0, 0.0f);
+        arg1 = func_8068C5A8(arg1, ++id, 0, 2, 0x20, 0x40, sp154, sp150, 4.0f, -4.0f, 0, 0.0f);
     }
     return arg1;
 }
@@ -3541,7 +3541,7 @@ s32 func_800317E8(void *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 *arg4, s32 arg5
     t = ((100.0f / dist) * t * arg7) + 1.0f;
     *arg3 = (arg1 * t) + 160.0f;
     *arg4 = (arg2 * t) + 120.0f;
-    *arg4 = *arg4 + (f32)((Menu10_Sel *)arg0)->unkC;
+    *arg4 = *arg4 + ((Menu10_Sel *)arg0)->unkC;
     return idx;
 }
 
@@ -3695,7 +3695,7 @@ void func_80031B08(void) {
         D_80033698 -= 1;
     }
     if (Menu10_A->unk155 < 6) {
-        if ((f64)D_8003369C > -30.0) {
+        if (D_8003369C > -30.0) {
             D_807FBB60 |= 0x10000;
         } else {
             D_80033698 = 3;
@@ -3704,12 +3704,12 @@ void func_80031B08(void) {
     D_80033738 = 0x14;
     Menu10_A->unk80 = -D_8003369C;
     D_807FC924->unk210 = Menu10_A->unk7C;
-    D_807FC924->unk214 = (f32)(((f64)D_80033678[D_80033F50] * 50.0) + (f64)(Menu10_A->unk80 + 13.1f + D_8003369C) - 0.1);
+    D_807FC924->unk214 = (D_80033678[D_80033F50] * 50.0) + (Menu10_A->unk80 + 13.1f + D_8003369C) - 0.1;
     D_807FC924->unk218 = Menu10_A->unk84 - 50.0f;
     D_807FC924->unk228 = Menu10_A->unk7C;
     D_807FC924->unk22C = D_807FC924->unk214;
     D_807FC924->unk230 = 10020.0f;
-    D_80754CE0 = (s32)(D_80033678[D_80033F50] * 400.0f);
+    D_80754CE0 = D_80033678[D_80033F50] * 400.0f;
     actorUpdateModelMatrix(Menu10_A, 0);
 }
 
