@@ -1,4 +1,4 @@
-// func_8069346C (src/global/936B0.c): regalloc near-miss: 663 insns vs 661 expected (2 off), frame -104 matched, s0/s1 swapped between var_s0 and D_807FBB40
+// func_8069346C (src/global/936B0.c): stage 5: text same size/frame -104 matched (stale callee names fixed: sfxPlayFromActorWithAltitudeCheck, camStartShakeFromPoint, actorAppendModelNode/SubNode, actorApplyVelocity, actorSpawnSparkleBurst). Locals i (temp_v0+loops)/var_a0(also chain byte) split from flag; remaining diff only v0/v1 vs t-reg temps (angle-wrap temp should be v1)
 typedef struct M93J_ActorExtra {
     /* 0x00 */ u32 unk0;
     /* 0x04 */ u8 unk4;
@@ -66,15 +66,17 @@ s16 func_80672A70(s16, s16);
 
 void func_8069346C(void) {
     M93J_ActorExtra *sp64;
+    s32 var_s0;
     f32 sp5C;
     f32 sp3C;
-    s32 var_s0;
+    s32 i;
+    s32 var_a0;
 
     sp64 = M93J_ACTOR->unk174;
     var_s0 = 0;
     sp5C = M93J_ACTOR->unk124->unkC * 2.5f;
     if (!(M93J_ACTOR->unk60 & 0x10)) {
-        func_80608528(D_807FBB40, 0xF4, 0xFF, 0x7F, 5);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF4, 0xFF, 0x7F, 5);
         M93J_ACTOR->unk6A &= 0xFFFE;
         M93J_ACTOR->unkEE = (s16)((M93J_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
         M93J_ACTOR->unkB8 = (f32)(((f64)(M93J_ACTOR->unk124->unk4 / (f32)4)) * 2.6);
@@ -82,8 +84,8 @@ void func_8069346C(void) {
         M93J_ACTOR->unkC0 = M93J_ACTOR->unk124->unk8;
         M93J_ACTOR->unk144 = 0x3C;
         func_8066EB40(D_807FBB40, sp5C * 60.0);
-        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, sp5C * 50.0, -1);
-        func_8066E854(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, sp5C * 50.0, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         sp64->unk13 = (u8)(u32)M93J_ACTOR->unk124->unk10;
         func_807149FC(-1);
         func_807149B8(1);
@@ -102,21 +104,25 @@ void func_8069346C(void) {
         sp64->unk4 = 0;
         M93J_ACTOR->unk60 |= 0x01080000;
         M93J_ACTOR->unkFA = 0x2328;
-        M93J_ACTOR->unk16E = M93J_ACTOR->unk16F = (u32)(60.0f * sp5C);
+        var_a0 = (u32)(60.0f * sp5C);
+        M93J_ACTOR->unk16E = var_a0;
+        M93J_ACTOR->unk16F = var_a0;
         sp64->unk1C = 0;
         sp64->unk20 = 0;
     }
     if ((u32)(sp64->unk0 + 5) < D_8076A068) {
         M93J_ACTOR->unk60 &= ~0x00080000;
     }
-    func_80690C60((D_807FC928 >= 2) ? 3 : 2, D_807FBB40, NULL, 1);
+    var_a0 = 2;
+    if (D_807FC928 >= 2) {
+        var_a0 = 3;
+    }
+    func_80690C60(var_a0, D_807FBB40, NULL, 1);
     func_8067ACB4(D_807FBB40);
     if (M93J_ACTOR->unkFC != 0 && func_806725A0(D_807FBB40, M93J_ACTOR->unkEE) == 0) {
-        s32 temp_v0;
-
-        func_80608528(D_807FBB40, 0xF5, 0xFF, 0x7F, 0x1E);
-        temp_v0 = func_80672A70(M93J_ACTOR->unkF4, M93J_ACTOR->unkF6);
-        M93J_ACTOR->unkEE = temp_v0 + (temp_v0 - ((M93J_ACTOR->unkEE + 0x800) & 0xFFF));
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF5, 0xFF, 0x7F, 0x1E);
+        i = func_80672A70(M93J_ACTOR->unkF4, M93J_ACTOR->unkF6);
+        M93J_ACTOR->unkEE = i + (i - ((M93J_ACTOR->unkEE + 0x800) & 0xFFF));
         if (M93J_ACTOR->unkEE < 0) {
             M93J_ACTOR->unkEE += 0xFFF;
         }
@@ -127,7 +133,7 @@ void func_8069346C(void) {
             var_s0 = 1;
         }
     }
-    func_806651FC(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
     func_80665564(D_807FBB40, 0.0f);
     M93J_ACTOR->unkC0 += D_807502E4 * sp5C;
     if (M93J_ACTOR->unkC0 < (f32)D_807502D0) {
@@ -142,19 +148,19 @@ void func_8069346C(void) {
             sp3C = 100.0f * sp5C;
             M93J_ACTOR->unkC0 = 150.0f * sp5C;
             func_8066EB40(D_807FBB40, sp3C);
-            func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, sp3C, -1);
+            actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, sp3C, -1);
             break;
         case 2:
             sp3C = 150.0f * sp5C;
             M93J_ACTOR->unkC0 = 100.0f * sp5C;
             func_8066EB40(D_807FBB40, sp3C);
-            func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, sp3C, -1);
+            actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, sp3C, -1);
             break;
         case 3:
             M93J_ACTOR->unkC0 = 80.0f * sp5C;
             break;
         }
-        func_80608528(D_807FBB40, 0xF5, 0xFF, 0x7F, 0x1E);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF5, 0xFF, 0x7F, 0x1E);
         sp64->unk4++;
         M93J_ACTOR->unkB8 = ((f64)M93J_ACTOR->unkB8 / 3.0) * 2.5;
     }
@@ -179,32 +185,32 @@ void func_8069346C(void) {
             func_80714950(0x100D2);
             func_8071498C(func_8071A8B0);
             func_80714CC0(&D_80720120, 2.0f, D_807FBB40->unk7C, D_807FBB40->unk80 + 22.0f, D_807FBB40->unk84);
-            func_806915B0();
+            actorSpawnSparkleBurst();
             if (D_80750AD0 == 0) {
-                var_s0 = 0;
+                i = 0;
                 do {
                     func_807149B8(1);
-                    func_80714950(0x0B010000 + var_s0);
+                    func_80714950(0x0B010000 + i);
                     func_8071498C(func_8071ABDC);
                     func_80714CC0(&D_807200EC, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
-                    var_s0++;
-                } while (var_s0 != 12);
+                    i++;
+                } while (i != 12);
             }
         }
-        var_s0 = 0;
+        i = 0;
         if (D_807FC928 > 0) {
             do {
-                func_8061EF4C(D_807FC924[var_s0].actor->unk174->unk104, 7, 0x16, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
-                var_s0++;
-            } while (var_s0 < D_807FC928);
+                camStartShakeFromPoint(D_807FC924[i].actor->unk174->unk104, 7, 0x16, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
+                i++;
+            } while (i < D_807FC928);
         }
         func_8066EB40(D_807FBB40, sp3C);
-        func_8066E8E4(D_807FBB40, 0.0f, 0.0f, 0.0f, sp3C, -1);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, sp3C, -1);
         M93J_ACTOR->unk154 = 1;
     } else if (M93J_ACTOR->unk154 != 0) {
         if (M93J_ACTOR->unk154++ == 2) {
             if (sp64->unk13 != 0xCA) {
-                func_80608528(D_807FBB40, 0xF6, 0xFF, 0x7F, 0x1E);
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF6, 0xFF, 0x7F, 0x1E);
             }
             actorDespawn(D_807FBB40);
             D_80029FA0--;
