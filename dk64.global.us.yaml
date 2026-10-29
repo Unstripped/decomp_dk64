@@ -102,6 +102,7 @@ segments:
       - [0x79890, c, 79890]
       - [0x7A510, c, 7A510]
       - [0x7AF60, c, 7AF60]
+      - [0x7BA00, c, 7BA00] # hidden TU: 7AF60 rodata ends with a 4-byte pad after jtbl_807591E8 (func_8067680C) at 0x15DF4C; func_80676D00's floats start the 16-aligned 0x15DF50 (any 16-aligned start from func_80676A70 on is layout-neutral: no rodata users between)
       - [0x7BBD0, c, 7BBD0]
       - [0x7CA80, c, 7CA80]
       - [0x80150, c, 80150]
@@ -258,6 +259,7 @@ segments:
       - [0x15DEA0, .rodata, 79890]
       - [0x15DEC0, .rodata, 7A510]
       - [0x15DEE0, .rodata, 7AF60]
+      - [0x15DF50, .rodata, 7BA00]
       - [0x15DF60, .rodata, 7CA80]
       - [0x15E090, .rodata, 80150]
       - [0x15E790, .rodata, 89250]

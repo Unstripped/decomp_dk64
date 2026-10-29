@@ -1,4 +1,3 @@
-// func_80676D00 (src/global/7AF60.c): from .scratch/Beh7AF4/func_80676D00_best.c
 #include "common.h"
 #include "actor.h"
 
@@ -21,7 +20,7 @@ void func_80676D00(Actor* arg0, Actor* arg1, s32 arg2, s32 arg3) {
         beh = arg1->unk174;
         kong = beh[0x1A4];
         *(s32*)(beh + 0x1F0) |= 0x80000;
-        if (*(s16*)(beh + 0xD4) == 0) {
+        if (*(s16*)(beh + 0xD4) == (beh[0x1A4] * 0)) { // FAKE: keeps kong live across check
             if (D_807FBB4C->unk154 != 0x36) {
                 if (func_806EB400(D_807FBB4C)) {
                     if (D_807FBB4C->unk58 == 6 && D_807FC924[kong].unk2C0 == 2) {
