@@ -171,7 +171,7 @@ void func_80714A28(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 
 extern u8 D_807213D0;
-void func_80717DB4(void);
+void effectDriftXZUpdate(void);
 
 void actorEntryEmitJitterParticle(s16 arg0) {
     ActorProximityEntry *entry;
@@ -182,7 +182,7 @@ void actorEntryEmitJitterParticle(s16 arg0) {
         func_807149B8(1);
         func_80714998(7);
         func_80714950(((randomNonNegative() % 10000) % 50) - 120);
-        func_8071498C(func_80717DB4);
+        func_8071498C(effectDriftXZUpdate);
         func_807149C8(255, 200, 200, 200);
         func_80714A08(0.2f, 0.1f);
         func_80714A28(4);

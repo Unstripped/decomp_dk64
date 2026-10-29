@@ -79,7 +79,7 @@ void func_8071910C(void);
 void func_80719A0C(void);
 void func_80719B88(void);
 void func_80719C00(void);
-void func_80719EF4(void);
+void effectSpriteMotionUpdate(void);
 void func_8071AF30(void);
 void func_8071DB74(void);
 void func_8071DC90(void);
@@ -404,7 +404,7 @@ void effectSpawnScatter(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
         func_80714950((randomNonNegative() >> 15) % 360);
         func_807149B8(1);
         func_807149C8(0x9B, 0x9B, 0x9B, 0xC8);
-        func_8071498C(func_80719EF4);
+        func_8071498C(effectSpriteMotionUpdate);
         sp24 = randomNonNegative();
         mod100k = 100000;
         mod10 = 10;

@@ -392,7 +392,7 @@ typedef struct {
     s16 unkE;
 } Fx11BADriftState;
 
-void func_80717DB4(RotatingEffectActorView *arg0, void *arg1) {
+void effectDriftXZUpdate(RotatingEffectActorView *arg0, void *arg1) {
     Fx11BADriftState *state;
 
     if (arg0->unk384 == NULL) {
@@ -420,7 +420,7 @@ typedef struct {
     f32 unkC;
 } VelocityMotionState;
 
-void func_80717F1C(arg0, arg1)
+void effectShrinkOffsetUpdate(arg0, arg1)
 TimedEffectActorView *arg0;
 s8 *arg1;
 {
@@ -454,7 +454,7 @@ void func_80718080(TimedEffectActorView *arg0) {
     f32 temp_fv0;
     VelocityMotionState *temp_v0;
 
-    func_80717F1C();
+    effectShrinkOffsetUpdate();
     temp_v0 = arg0->unk384;
     arg0->unk360 = temp_v0->unkC * temp_v0->unk8;
     arg0->unk364 = arg0->unk360;
@@ -478,7 +478,7 @@ void func_80718124(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
 
 extern s16 D_807502D0;
 
-void func_80718188(TimedEffectActorView *arg0, s8 *arg1) {
+void effectFallUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     s16 *temp_v0;
     s16 *var_v1;
 
@@ -687,7 +687,7 @@ void func_80719B88(TimedEffectActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80719C00.s")
 
-void func_80719EF4(TimedEffectActorView *arg0, s8 *arg1) {
+void effectSpriteMotionUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp1C;
     f32 temp_fv1;
     TimedEffectActorView *var_a1;
@@ -710,7 +710,7 @@ void func_80719EF4(TimedEffectActorView *arg0, s8 *arg1) {
 }
 
 
-void func_8071A038(TimedEffectActorView *arg0, s8 *arg1) {
+void effectSpriteMatrixUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp78[4][4];
     f32 sp38[4][4];
     f32 sp34;
@@ -851,7 +851,7 @@ void func_8071A440(TimedLightActorView *arg0, s8 *arg1) {
 
 extern s32 D_8002FBB0[];
 extern s32 D_8002FBC0;
-void func_8071A674(TimedLightActorView *arg0, s8 *arg1) {
+void timedLightOrbitUpdate(TimedLightActorView *arg0, s8 *arg1) {
     f32 var_fv0;
     s32 *var_v0;
 

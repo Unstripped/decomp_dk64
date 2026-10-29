@@ -717,7 +717,7 @@ void csCmdRandomPointEffects(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
 extern f32 D_807480E8;
 extern u8 D_807480EF;
 extern u8 D_80720CD8[];
-void func_80718188(void);
+void effectFallUpdate(void);
 
 void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 idx;
@@ -728,7 +728,7 @@ void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
         y = D_807F5FD4[b][idx].y;
         if (collisionCheckGroundAtPoint(D_807F5FD4[b][idx].x, D_807F5FD4[b][idx].z, &y)) {
             func_80714950(y + 2.0);
-            func_8071498C((void *)func_80718188);
+            func_8071498C((void *)effectFallUpdate);
             func_807149FC(-1);
             func_807149B8(1);
             func_807149C8(0xFF, 0xFF, 0xFF, D_807480EF);

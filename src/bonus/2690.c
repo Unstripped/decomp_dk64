@@ -211,7 +211,7 @@ s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
 s32 func_806119A0(void);
 f32 func_806119FC(void);
-extern u8 D_8071A038[];
+void effectSpriteMatrixUpdate();
 extern u8 D_8071FFD4[];
 void func_80714944(s32);
 void func_80714950(void *);
@@ -435,7 +435,7 @@ void bonusResetAmmo(void *arg0) {
     s32 p;
     y = 0x118;
     for (i = 0; i < 5; i++) {
-        p = (s32)D_8071A038;
+        p = (s32)effectSpriteMatrixUpdate;
         temp_s3 = (s32 *)arg0 + i;
         if (temp_s3[1] != 0) {
             effectFreeAndUnlink(temp_s3[1]);

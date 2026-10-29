@@ -281,7 +281,7 @@ f32 func_80611BB4(f32, f32);
 s16 func_806CC190(s16, s16, f32);
 void func_80714950(void *);
 void func_8071498C(void *);
-extern u8 D_8071A674;
+void timedLightOrbitUpdate();
 extern u8 D_8072006C;
 extern s32 D_8002FBB0[4];
 extern u8 D_8002FBC0;
@@ -426,7 +426,7 @@ void racePathFollowStep(RacePathState *arg0, RaceParticipant *arg1, u8 arg2) {
         if ((u32)(func_806119A0() & 0xFF) < D_807FBB40->unkB8 * 0.3 && arg0->unk0 == arg0->unk1) {
             mathPickCloserTargetPoint3D(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, cur, &points[next], &points[next], nxt2, &hx, &hy, &hz);
             func_80714950(D_807FBB40);
-            func_8071498C(&D_8071A674);
+            func_8071498C(timedLightOrbitUpdate);
             D_8002FBB0[D_8002FBC0] = func_80714CC0(&D_8072006C, 0.4f, hx, hy, hz);
             D_8002FBC0++;
             D_8002FBC0 = D_8002FBC0 % 4;
