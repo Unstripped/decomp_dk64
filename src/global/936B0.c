@@ -112,7 +112,69 @@ s32 mathPickCloserTargetPoint3D(f32 arg0, f32 arg1, f32 arg2, TargetVec3f *arg3,
     return 1;
 }
 
+#ifdef NON_MATCHING
+typedef struct Prj9A_CamView {
+    u8 pad0[0x210];
+    f32 unk210;
+    u8 pad214[4];
+    f32 unk218;
+} Prj9A_CamView;
+f32 func_80611BB4(f32, f32);
+void func_807149C8(s32, s32, s32, s32);
+s32 func_80714C08(void *, f32, Actor *, s32, s32);
+struct PlayerTrackEntry;
+extern struct PlayerTrackEntry *D_807FC924;
+extern Actor *D_807FBB40;
+extern u8 D_80720054;
+
+void func_8068ECF4(s32 arg0, u8 arg1) {
+    f32 tgt;
+    f32 cur;
+    s16 diff;
+    f32 sp48;
+    f32 sp44;
+    f32 sp40;
+
+    actorGetNodePos(D_807FBB40, arg0, &sp48, &sp44, &sp40);
+    tgt = (s32)(func_80611BB4(((Prj9A_CamView *)D_807FC924)->unk218 - sp40, sp48 - ((Prj9A_CamView *)D_807FC924)->unk210) * 651.8986f + 1024.0f) & 0xFFF;
+    cur = D_807FBB40->unkE6;
+    if (cur < tgt) {
+        diff = tgt - cur;
+    } else {
+        diff = cur - tgt;
+    }
+    if (diff > 0x800) {
+        diff = 0x1000 - diff;
+    }
+    if (diff < 0x384) {
+        f32 fv0;
+        f32 scale;
+        s32 alpha;
+        f32 vol;
+        f32 af;
+
+        fv0 = (1024.0f - diff) * 0.0014285714f;
+        if (fv0 < 1.0f) {
+            scale = fv0;
+        } else {
+            scale = 1.0f;
+        }
+        af = (u32)arg1;
+        alpha = (u32)(scale * af) & 0xFF;
+        if (alpha != 0) {
+            vol = 3.3f;
+            if (D_807FBB40->unk4 != NULL) {
+                vol = 3.3f * D_807FBB40->unk4->unk38;
+            }
+            func_807149C8(0xFF, 0xFF, 0xFF, alpha);
+            func_80714C08(&D_80720054, vol, D_807FBB40, arg0, 2);
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8068ECF4.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8068EF54.s")
 
@@ -207,7 +269,41 @@ void actorInitAnimations(Actor *arg0, Actor *arg1) {
     func_8067B238(arg0, arg1, 0.15f);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690190.s")
+typedef struct Prj9A_F32At4 {
+    u8 pad0[4];
+    f32 unk4;
+} Prj9A_F32At4;
+extern s16 D_80770628[];
+extern f32 D_80770B68[];
+extern f32 D_80770BC0[];
+u32 func_806119A0(void);
+
+void func_80690190(arg0, arg1)
+Prj9A_F32At4 *arg0;
+s16 arg1;
+{
+    s16 idx;
+
+    idx = D_80770628[D_807FBB40->unk6E];
+    if (D_807FBB40->unk80 < D_807FBB40->unkAC + 4.0f) {
+        D_80770B68[idx] = ((f64)D_807FBB40->unkB8 / 300.0) + 1.0;
+        D_80770BC0[idx] = 1.0f;
+    } else {
+        D_80770B68[idx] = (f64)arg0->unk4 + 1.2;
+        D_80770BC0[idx] = 5.0f;
+    }
+
+    idx = D_80770628[*(s16 *)D_807FBB40->unk70];
+    if (D_807FBB40->unk80 < D_807FBB40->unkAC + 4.0f) {
+        if (D_80770BC0[idx] == 0.0f) {
+            D_80770B68[idx] = (((f64)(u32)func_806119A0() / 4294967295.0) * 0.05 + 0.975) * (0.2 + ((f64)D_807FBB40->unkB8 / 300.0));
+            D_80770BC0[idx] = 1.0f;
+        }
+    } else {
+        D_80770B68[idx] = ((f64)arg0->unk4 * 1.5) + 0.2;
+        D_80770BC0[idx] = 8.0f;
+    }
+}
 
 typedef struct SpawnCoord {
     s16 x;
@@ -315,7 +411,7 @@ extern f32 D_80750300;
 extern Actor *D_807FBB4C;
 void camSetTargetScaled(void *, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_8068F72C(void *, s32, s32, s32);
-void func_80690190(void *, s32, void *);
+void func_80690190();
 s32 camIsCutsceneActive(void);
 void lightAdd(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32);
 void lensFlareAddSource(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32);
@@ -475,11 +571,107 @@ void projectileAimFromActorAndSpawn(s16 arg0, s16 arg1, f32 arg2, Actor *arg3, s
     projectileAimAndSpawn(arg0, arg1, arg2, sp34, sp30, sp2C, arg5, arg6);
 }
 
+#ifdef NON_MATCHING
+typedef struct Prj9A_Sub104 {
+    u8 pad0[0x104];
+    Actor *unk104;
+} Prj9A_Sub104;
+typedef struct Prj9A_SubF3 {
+    u8 pad0[0xF3];
+    u8 unkF3;
+} Prj9A_SubF3;
+typedef struct Prj9A_Aim174 {
+    u8 pad0[0x14];
+    f32 unk14;
+    u8 pad18[4];
+    Actor *unk1C;
+} Prj9A_Aim174;
+extern s32 D_807FBB64;
+void func_800268C0(s32);
+void func_8071D260(void);
+s32 func_80690F30(u16, void **, void *, s32, s32, s32, f32 *, f32 *, f32 *);
+
+void func_80690C60(arg0, arg1, arg2, arg3)
+u16 arg0;
+Actor *arg1;
+void *arg2;
+volatile u8 arg3; // FAKE: volatile reproduces the per-path re-lbu of the stack-passed u8 instead of a CSE spill
+{
+    s32 temp_lo;
+    Actor *sp78;
+    s16 sp76;
+    s16 temp_v1;
+    s16 temp_t0;
+    s16 sp70;
+    s16 sp6E;
+    s16 sp6C;
+    f32 temp_fv0;
+    f32 temp_fv1;
+    f32 dist;
+    f64 var_ft2;
+    u32 temp_t4;
+    Prj9A_Aim174 *sp50;
+    f32 sp4C;
+    f32 sp48;
+    f32 sp44;
+    f32 var_fv0;
+    f32 ratio;
+
+    sp50 = arg1->unk174;
+    if (!((f64)arg1->unkB8 < 0.1)) {
+        if ((arg2 != 0) && (((Prj9A_SubF3 *)((Prj9A_Sub104 *)((Actor *)arg1->unk11C)->unk174)->unk104->unk174)->unkF3 == 3)) {
+            func_8071498C(func_8071D260);
+            func_80714950(0x32);
+            func_80714CC0(arg2, sp50->unk14, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+        }
+        if (func_80690F30(arg0, (void **)&sp78, arg1, 0, arg3, arg3 == 0, &sp4C, &sp48, &sp44) != 0) {
+            sp76 = mathAngleBetweenPoints2D(sp4C, sp44, arg1->unk7C, arg1->unk84);
+            temp_lo = mathAngleDistance(sp76, arg1->unkEE) / 10;
+            temp_v1 = arg1->unkEE;
+            temp_t0 = (temp_v1 + temp_lo) & 0xFFF;
+            sp6E = (temp_v1 - temp_lo) & 0xFFF;
+            sp70 = temp_t0;
+            sp6C = mathAngleDistance(temp_t0, sp76);
+            if (sp6C < mathAngleDistance(sp6E, sp76)) {
+                arg1->unkEE = sp70;
+            } else {
+                arg1->unkEE = sp6E;
+            }
+            if (arg3 == 0) {
+                temp_fv0 = sp4C - arg1->unk7C;
+                temp_fv1 = sp44 - arg1->unk84;
+                dist = sqrtf((temp_fv0 * temp_fv0) + (temp_fv1 * temp_fv1));
+                if (dist < 100.0f) {
+                    sp50->unk1C = sp78;
+                    if ((sp78 != NULL) && (D_807FBB64 & 0x04000000)) {
+                        func_800268C0(0x80);
+                    }
+                }
+                ratio = dist / (arg1->unkB8 * 0.025f);
+                if (sp78 != NULL) {
+                    temp_t4 = sp78->unk15E;
+                    var_ft2 = temp_t4;
+                    var_fv0 = var_ft2 * 0.5;
+                } else {
+                    var_fv0 = 0.0f;
+                }
+                arg1->unkC0 = (((sp48 + var_fv0) - arg1->unk80) / ratio) / 0.025f;
+            }
+        } else if (sp50->unk1C != NULL) {
+            if (D_807FBB64 & 0x04000000) {
+                func_800268C0(4);
+            }
+            sp50->unk1C = NULL;
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690C60.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690F30.s")
 
-u32 func_806119A0(void);
 void func_807149C8(s32, s32, s32, s32);
 extern s32 D_8071FFA0;
 void func_80717D4C(void);
