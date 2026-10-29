@@ -1,22 +1,22 @@
-// func_80679DC4 (src/global/7CA80.c): from .scratch/R3C/func_80679DC4_best.c
+// func_80679DC4 (src/global/7CA80.c): stage 5: 182 insns, frame 0x40, score 44 with dead statement, regalloc only ( vs , temp registers)
 struct R2CEntry2F0;
 extern struct R2CEntry2F0 *D_807FC924;
 
-typedef struct R3C_Entry2F0 {
+typedef struct KaA2_Entry2F0 {
     u8 pad0[0x2C0];
     u8 unk2C0;
     u8 pad2C1[0x2F0 - 0x2C1];
-} R3C_Entry2F0;
+} KaA2_Entry2F0;
 
-typedef struct R3C_StructD580 {
+typedef struct KaA2_StructD580 {
     u8 pad0[0x1A4];
     u8 unk1A4;
     u8 pad1A5[0x1F0 - 0x1A5];
     u32 unk1F0;
     u8 pad1F4[0x200 - 0x1F4];
     u16 unk200;
-} R3C_StructD580;
-extern R3C_StructD580 *D_807FD580;
+} KaA2_StructD580;
+extern KaA2_StructD580 *D_807FD580;
 
 extern u8 D_807FBB85;
 extern s32 D_80720E2C;
@@ -27,7 +27,7 @@ void func_807149FC(s32);
 void func_807149B8(s32);
 void func_8071498C(void *);
 void func_80714C08(void *, s32, Actor *, s32, s32);
-void func_8071F758(void);
+void effectPulseSpinUpdate(void);
 
 void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
     s32 sp3C;
@@ -40,7 +40,7 @@ void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
         var_a2 = 1;
-        if (((R3C_Entry2F0 *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
+        if (((KaA2_Entry2F0 *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
             return;
         }
         sp3C = 0x2E;
@@ -60,8 +60,8 @@ void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
             case 3:
                 func_807149FC(0xF0);
                 func_807149B8(1);
-                sp24 = &func_8071F758;
-                func_8071498C(&func_8071F758);
+                sp24 = &effectPulseSpinUpdate;
+                func_8071498C(&effectPulseSpinUpdate);
                 func_80714C08(&D_80720E2C, 0x3ECCCCCD, arg0, 1, 2);
                 func_807149FC(0xF0);
                 func_807149B8(1);
@@ -77,6 +77,7 @@ void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
             }
             D_807FD580->unk200 = 0xF0;
         } else if (arg1 != NULL && ((arg1->unk5C & 1) || (arg1->unk5C & 4) || (arg1->unk5C & 2))) {
+            if (D_807FD580 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (func_80714608(0) != 0) {
                 if (func_806D0DE4(arg0, arg1, var_a2) != 0) {
                     sp3C = 0x31;

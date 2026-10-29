@@ -1,4 +1,4 @@
-// func_8067889C (src/global/7CA80.c): from .scratch/R3B/func_8067889C_best.c
+// func_8067889C (src/global/7CA80.c): stage 4: frame 0x40, s0-s7/fp match, register permutation between D_807FBB3C and arg0
 extern void (*D_8074C0A0[])(void);
 extern u16 D_807FBB3C;
 void func_80678CC8(Actor *);

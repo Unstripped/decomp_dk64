@@ -426,6 +426,9 @@ static void func_8067881C(void) {}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80678824.s")
 
+extern void (*D_8074C0A0[])(void);
+void func_80678CC8(Actor *);
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_8067889C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_806789E4.s")
@@ -482,7 +485,7 @@ typedef struct R3B_Actor {
 void actorUpdatePositionAndSub140(Actor *);
 void func_80678E6C(Actor *);
 void actorUpdateModelMatrices(Actor *);
-void func_806790F4(s32);
+void func_806790F4();
 void func_8067A1DC(Actor *);
 void actorUpdateEffects(Actor *);
 void animListUpdate(Actor *);
@@ -619,7 +622,11 @@ void actorRegisterGlobalCallback(ActorCallbackNode *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_806790F4.s")
+void func_806790F4(arg0)
+u8 arg0;
+{
+    do { ActorCallbackNode **ptr = D_807FBFE0; do { if (((*ptr) != 0) && ((*ptr)->unk4 == arg0)) { ((void (*)(void *)) (*ptr)->callback)(&(*ptr)->unk8); heapFree(*ptr); *ptr = 0; } ptr++; } while (ptr != ((ActorCallbackNode **) (&D_807FBFF0))); } while (0); // FAKE: one-line statement line coordinates steer mirrored-pair scheduling
+}
 
 void actorFreeCallbackList(Actor *actor) {
     ActorCallbackNode *node = actor->unk13C;

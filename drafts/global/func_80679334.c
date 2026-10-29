@@ -1,4 +1,4 @@
-// func_80679334 (src/global/7CA80.c): from .scratch/R3A/func_80679334_best.c
+// func_80679334 (src/global/7CA80.c): stage 4: frame 0x28, s0-s3 match, s0/s1 regalloc swap between i and entry pointer
 void func_80679334(void) {
     ActorQueueEntry *entry;
     s32 i;
@@ -8,11 +8,11 @@ void func_80679334(void) {
     ActorCallbackNode *prev;
     s32 changed;
 
-    for (i = 0; i < D_807FBFD8; i++) {
-        D_807FBF18[i].arg6--;
-        if (D_807FBF18[i].arg6 == 0) {
-            actor = (Actor *)D_807FBF18[i].arg0;
-            if (func_8067AF44(actor)) {
+    for (i = 0, entry = D_807FBF18; i < D_807FBFD8; i++, entry++) {
+        entry->arg6--;
+        if (entry->arg6 == 0) {
+            actor = (Actor *)entry->arg0;
+            if (actorTableContains(actor)) {
                 curr = actor->unk13C;
                 link = &actor->unk13C;
                 prev = NULL;
@@ -23,13 +23,13 @@ void func_80679334(void) {
                         curr = curr->next;
                     } while (curr != NULL);
                 }
-                *link = D_807FBF18[i].node;
-                D_807FBF18[i].node->prev = prev;
+                *link = entry->node;
+                entry->node->prev = prev;
             } else {
-                if (D_807FBF18[i].node->unk10 != NULL) {
-                    heapFree(D_807FBF18[i].node->unk10);
+                if (entry->node->unk10 != NULL) {
+                    heapFree(entry->node->unk10);
                 }
-                heapFree(D_807FBF18[i].node);
+                heapFree(entry->node);
             }
         }
     }

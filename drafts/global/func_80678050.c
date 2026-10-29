@@ -1,4 +1,4 @@
-// func_80678050 (src/global/7CA80.c): from .scratch/R3B/func_80678050_best.c
+// func_80678050 (src/global/7CA80.c): stage 4: frame 0x40, s0/ra match, field assignment scheduling and temp regalloc differ
 extern u16 *D_8074E218[];
 extern u16 D_8074DA58[];
 extern u32 D_807FBB64;
