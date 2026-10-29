@@ -58,16 +58,9 @@ s32 randomNonNegative(void);
 void camStartPath(void *, s32, s32);
 
 void func_8002C5F4(void) {
-    s32 rand;
-
-    rand = randomNonNegative();
-    func_8002C520(2, ((rand >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
-
-    rand = randomNonNegative();
-    func_8002C520(3, ((rand >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
-
-    rand = randomNonNegative();
-    func_8002C520(4, ((rand >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
+    func_8002C520(2, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
+    func_8002C520(3, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
+    func_8002C520(4, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
 
     if (!(D_807FDC90->unk1A & 0x8000)) {
         D_807FDC90->unk1A |= 0x8000;
@@ -98,19 +91,17 @@ void bossAnimFrameBounceStep(void) {
         val += 1;
         if (val >= 2) {
             var_t0 = 0;
-            goto done;
+        } else {
+            var_t1 = 0x8000;
         }
-        var_t1 = 0x8000;
-        goto done;
     } else {
         val -= 1;
         if (val <= 0) {
             var_t0 = 0x80;
-            goto done;
+        } else {
+            var_t1 = 0x8000;
         }
     }
-    var_t1 = 0x8000;
-done:
     animSetFrameAndSubframe(D_807FBB40, 0, (s16)val, 0.0f);
     animSetFrameAndSubframe(D_807FBB40, 1, (s16)val, 0.0f);
     D_807FDC90->unk28 = var_t1 | val | var_t0;
