@@ -1991,10 +1991,10 @@ void func_8002DFA8(MenuScreenActor *arg0, s32 arg1) {
                     }
                 }
                 if (arg1 & 0x100) {
-                    if (&D_8074453F == &D_8074453C[idx]) {
+                    if (idx == 3) {
                         D_80744544 ^= 1;
                         flag = 1;
-                    } else if (&D_80744540 == &D_8074453C[idx]) {
+                    } else if (idx == 4) {
                         flag = 1;
                         D_80744544 ^= 1 << (sel + 1);
                         if (sel == 6) {
