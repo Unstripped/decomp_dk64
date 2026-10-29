@@ -146,7 +146,7 @@ void func_80699284(void) {
     t = PAN_MIN(30.0, sp66) / 30.0;
     D_807FBB40->unkE6 = spEA;
     l1Angle = (f32)spE8 - (2048.0f + -2048.0f * t);
-    *(s16 *)D_807FBB40->unkE8 = l1Angle;
+    D_807FBB40->unkE8 = l1Angle;
     guRotateF(mtx1, spE8 / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
     guRotateF(mtx2, spEA / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx1, mtx2, mtx1);
@@ -927,7 +927,7 @@ void textMarkerUpdate(void) {
     u8 *model;
 
     model = (u8 *)D_807FBB40->unk174;
-    if (*(s16 *)(D_807FBB40->unkE8 + 6) != 0) {
+    if (D_807FBB40->unkEE != 0) {
         renderCallbacksRegister(textMarkerRender, D_807FBB40, 3);
         return;
     }

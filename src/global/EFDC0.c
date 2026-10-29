@@ -518,8 +518,8 @@ void func_806EC3BC(void) {
     ((EfN2PlayerState *)D_807FD580)->unk10 = D_807539DC[D_807FD584];
     D_807FBB40->unk154 = 0x4F;
     D_807FBB40->unk155[0] = 1;
-    if (*(f32 *)D_807FBB40->unkC0 > 0.0f) {
-        *(f32 *)D_807FBB40->unkC0 = 0.0f;
+    if (D_807FBB40->unkC0 > 0.0f) {
+        D_807FBB40->unkC0 = 0.0f;
     }
     func_80614E78(D_807FBB40, 0x36);
     func_80613AF8(D_807FBB40, 0x31, 0.0f, 8.0f);

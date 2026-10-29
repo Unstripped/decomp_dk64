@@ -146,7 +146,7 @@ void actorPlaceModelAtCamera(void) {
 
     mathAngleBetweenPoints3D(&spBE, &spBC, D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, D_807FC924->unk228, D_807FC924->unk22C, D_807FC924->unk230);
     D_807FBB40->unkE6 = spBC;
-    *(s16 *)D_807FBB40->unkE8 = spBE;
+    D_807FBB40->unkE8 = spBE;
     guRotateF(mtx1, spBE / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
     guRotateF(mtx2, spBC / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx1, mtx2, mtx1);

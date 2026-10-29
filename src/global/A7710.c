@@ -78,7 +78,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
                                 (s16)((D_807FC924->unk276 * 4) - 0x3C),
                                 gfxResourceFindById(sub->unk10)->unk4, 1);
         } else {
-            angle = (f32)(6.28318548202514648 - 2.0 * *(f64 *)actor->unk160);
+            angle = (f32)(6.28318548202514648 - 2.0 * actor->unk160);
             offset = 8;
             if (actor->unk168 == 3) {
                 offset = -7;

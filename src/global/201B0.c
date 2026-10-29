@@ -974,7 +974,7 @@ u16 camStartPath(void *arg0, s16 arg1, u8 arg2) {
     D_807FBB60 &= ~0x1001;
     D_807FBB4C->unkB8 = 0.0f;
     if (D_8074E77C[0] == 7) {
-        *(f32 *)D_807FBB4C->unkC0 = 0.0f;
+        D_807FBB4C->unkC0 = 0.0f;
     }
     D_807FBB4C->unk60 |= 0x400;
     D_807FD580->unk10 = 0;
