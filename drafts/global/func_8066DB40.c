@@ -1,4 +1,4 @@
-// func_8066DB40 (src/global/70FD0.c): stage 5-6, parked NON_MATCHING in src: frame 0x80 + all stores match; remaining 7 insn diff = register picks in min/max chains (target a0/v1,v1/v0 vs ours v0/v1,a0): temp locals declared/assigned in 4 blocks, tried all rgs assignments of 8 roles to 4 temps, 4x s64 copy of output words (needed), mul-by-8 order 0..8 in 3 lines, stores order adbcegf. deadsweep: no improvement.
+// func_8066DB40 (src/global/70FD0.c): stage 6 (frame 0x80, all stores match; 7 insn diff, only a0/v0/v1 picks in the four min/max blocks: target loads unk8 into a0 and unk2 into v1, mine v0/v1). NM2 retried: 3 locals in all 6 declaration orders, no locals + s32 pad[2] (diff 12), +1 deadsweep stmt in the first branch (diff 8, 6 with two FAKE dead ifs, no text 0), ternary/if-else/compare-direction/cast variants of the 4 blocks (65536 combos, best 7-10), beam search of 2-3 dead statements over 14 globals/fields, permuter 400s (nothing). Park C is the 7-diff temps version.
 typedef struct Col7BHitIn {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;

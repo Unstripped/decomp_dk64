@@ -275,26 +275,19 @@ void func_8066C610(s16 arg0, s8 arg1, f32 (*arg2)[4]) {
     guMtxCatF(sp8C, sp4C, arg2);
 }
 
-#ifdef NON_MATCHING
 void func_8066C7F4(s32 *arg0, u8 *arg1, f32 (*arg2)[4]) {
-    volatile s32 i; // FAKE: volatile reproduces the memory-resident i (stack slot 0x7C, reloaded after memcpy)
-    s32 j;
+    s32 i;
     Mtx sp38;
 
     i = 1;
     memcpy(&sp38, arg0[0] + arg1, 0x40);
-    j = i;
     if (arg0[1] != -1) {
         do {
-            guMtxCatL(&sp38, (Mtx *)(arg0[j] + arg1), &sp38);
-        } while (arg0[++j] != -1);
+            guMtxCatL(&sp38, (Mtx *)(arg0[i] + arg1), &sp38);
+        } while (arg0[++i] != -1);
     }
     guMtxL2F(arg2, &sp38);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066C7F4.s")
-#endif
 
 void collisionTransformNode(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
     func_8066C2D0(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
@@ -307,7 +300,6 @@ void dynamicBufferFree(DynamicBuffer *arg0) {
     arg0->unk15 &= ~1;
 }
 
-#ifdef NON_MATCHING
 typedef struct Col7A_C958Arg {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ u8 pad4[5];
@@ -367,45 +359,32 @@ void func_8066C958(Col7A_C958Arg *arg0) {
         D_807FB549 = 1;
     }
     sp38 = assetGetSize(2, D_8076A0A8);
-    if (D_8076A0A8 && D_8076A0A8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    if (D_807FB534 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     D_807FB530 = *(s32 *)var_s0;
     D_807FB534 = func_80610FE8(0x1518);
-    temp_lo = arg0->unk10 * arg0->unk12;
     var_a2 = (s32 *)(var_s0 + 4);
-    var_a3 = 0;
     elem_size = 24;
-    D_807FB538 = temp_lo;
-    if (temp_lo > 0) {
-        do {
-            temp_a0 = var_s0 + var_s1 + 4;
-            var_s1 = *var_a2;
-            if (D_807FB549 != 0) {
-                ((Col7A_C958Cache *)D_807FB534)[var_a3].unk4 = temp_a0;
-            } else {
-                ((Col7A_C958Cache *)D_807FB534)[var_a3].unk4 = NULL;
-            }
-            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk0 = NULL;
-            var_v1 = var_s0 + var_s1;
-            ((Col7A_C958Cache *)D_807FB534)[var_a3].unkC = sp38 + (temp_a0 - var_s0);
-            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk10 = var_v1 - temp_a0;
-            var_a2 = (s32 *)var_v1;
-            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk8 = 0;
-            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk14 = (var_v1 - temp_a0) / elem_size;
-            var_a3++;
-        } while (var_a3 < D_807FB538);
+    D_807FB538 = arg0->unk10 * arg0->unk12;
+    for (var_a3 = 0; var_a3 < D_807FB538; var_a3++) {
+        temp_a0 = var_s0 + var_s1 + 4;
+        var_s1 = *var_a2;
+        if (D_807FB549 != 0) {
+            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk4 = temp_a0;
+        } else {
+            ((Col7A_C958Cache *)D_807FB534)[var_a3].unk4 = NULL;
+        }
+        ((Col7A_C958Cache *)D_807FB534)[var_a3].unk0 = NULL;
+        ((Col7A_C958Cache *)D_807FB534)[var_a3].unkC = (0, sp38) + (temp_a0 - var_s0); // FAKE: comma steers addu operand order (sp38 first)
+        ((Col7A_C958Cache *)D_807FB534)[var_a3].unk10 = (var_s0 + var_s1) - temp_a0;
+        var_a2 = (s32 *)(var_s0 + var_s1);
+        ((Col7A_C958Cache *)D_807FB534)[var_a3].unk8 = 0;
+        ((Col7A_C958Cache *)D_807FB534)[var_a3].unk14 = ((s32)(var_s0 + var_s1) - (s32)temp_a0) / elem_size; // FAKE: s32 casts steer the register pick of the subtraction (v1 vs t-reg)
     }
     if (D_807FB549 == 0) {
         assetSetImmediateFree();
         assetFreeBuffer(var_s0, 0x17C, 0xA);
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066C958.s")
-#endif
-
-#ifdef NON_MATCHING
 typedef struct Col7A_CacheView {
     void *unk0;
     void *unk4;
@@ -425,7 +404,7 @@ void func_8066CB88(s32 arg0) {
     s32 pad;
     void *s2;
     void *s1;
-    s32 s0;
+    s32 cnt;
 
     if (COL7A_CACHE[arg0].unk0 == NULL && arg0 < D_807FB538) {
         sp54 = COL7A_CACHE[arg0].unk10;
@@ -434,28 +413,20 @@ void func_8066CB88(s32 arg0) {
                 COL7A_CACHE[arg0].unk4 = func_80610FE8(sp54);
                 func_8060B140(COL7A_CACHE[arg0].unkC, COL7A_CACHE[arg0].unk4, &sp54, 0, 0, 0, 0);
             }
-            s0 = COL7A_CACHE[arg0].unk14 * 0x28;
-            COL7A_CACHE[arg0].unk0 = func_80610FE8(s0);
+            cnt = COL7A_CACHE[arg0].unk14;
+            COL7A_CACHE[arg0].unk0 = func_80610FE8(cnt * 0x28);
             s1 = COL7A_CACHE[arg0].unk4;
             s2 = COL7A_CACHE[arg0].unk0;
-            if (D_807FB534 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            if (s0 != 0) {
-                do {
-                    if (func_8066DB40(s1, s2) != 0) {
-                        s2 = (void *)((u8 *)s2 + 0x28);
-                    }
-                    s0 -= 0x28;
-                    s1 = (void *)((u8 *)s1 + 0x18);
-                } while (s0 != 0);
+            for (; cnt != 0; cnt--) {
+                if (func_8066DB40(s1, s2) != 0) {
+                    s2 = (void *)((u8 *)s2 + 0x28);
+                }
+                s1 = (void *)((u8 *)s1 + 0x18);
             }
         }
     }
     COL7A_CACHE[arg0].unk8 = D_8076A064;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066CB88.s")
-#endif
 
 extern s32 D_80747D70;
 extern s16 D_80748E40;
