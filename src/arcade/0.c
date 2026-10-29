@@ -1105,7 +1105,7 @@ void arcadeDrawGirderSpan(Gfx **arg0, u8 arg1, u8 arg2, s16 arg3) {
 
     sp40 = *arg0;
     for (i = arg1; i < arg2; i++) {
-        func_8070F2FC(&sp40, (s16) ((i << 5) + 0xC0), (s16) (s32) ((((f64) arg3 * 0.875) + 8.0) * 4.0));
+        func_8070F2FC(&sp40, ((i << 5) + 0xC0), (s32)((((f64) arg3 * 0.875) + 8.0) * 4.0));
     }
     *arg0 = sp40;
 }
