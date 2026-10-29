@@ -238,7 +238,6 @@ void bossSpawnSparkles(void) {
     f32 sp6C;
     f32 sp68;
     f32 sp64;
-    s32 pad[1];
     s16 i;
 
     actorGetNodePos(D_807FBB40, 1, &sp6C, &sp68, &sp64);
