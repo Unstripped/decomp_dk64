@@ -1826,7 +1826,7 @@ typedef struct ActorTargetWork {
 extern u8 D_807FB548;
 extern u8 D_807FB61C;
 
-s32 func_806730A4(s32, s32, s32, s32);
+u8 func_806730A4(s32, s32, s32, s32);
 void func_80671880();
 s32 func_806734E4();
 void actorUpdateCollisionExtents(ActorTargetWork *);
@@ -2103,7 +2103,60 @@ ret_32_3:
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671880.s")
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671A6C.s")
+typedef struct Col7E_SubActor {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    u8 pad10[0xC];
+    f32 unk1C;
+    f32 unk20;
+    u8 unk24;
+    u8 pad25[0x70 - 0x25];
+    void *unk70;
+    s32 unk74[2];
+    u8 pad7C[0x84 - 0x7C];
+    s32 unk84;
+    s32 unk88;
+    ActorTargetNode8C *unk8C;
+    ActorTargetNode *unk90;
+} Col7E_SubActor;
+
+void func_80671A6C(Col7E_SubActor *arg0, u8 arg1) {
+    ActorTargetNode *node;
+    u8 var_v0;
+    f32 spA4;
+    f32 spA0;
+    f32 sp9C;
+    f32 mtx[4][4];
+    s32 mtx_base;
+
+    if (arg1 || (D_8076A064 != arg0->unk84)) {
+        if (D_8076A064 == arg0->unk88) {
+            var_v0 = D_807444FC;
+        } else {
+            var_v0 = D_807444FC ^ 1;
+        }
+        node = arg0->unk90;
+        mtx_base = arg0->unk74[var_v0];
+        if (node != NULL) {
+            if (mtx_base) {} // FAKE: raises mtx_base register priority so -1 gets s5, mtx_base s6
+            do {
+                if (node->unk18 == -1) {
+                    memcpy(&mtx, arg0->unk70, sizeof(mtx));
+                    guMtxXFMF(mtx, node->x, node->y, node->z, &spA4, &spA0, &sp9C);
+                } else {
+                    guMtxXFML((Mtx *)(((node->unk18 >> 6) << 6) + mtx_base), node->x, node->y, node->z, &spA4, &spA0, &sp9C);
+                }
+                node->unkC = (s32)(spA4 * 8.0f);
+                node->unk10 = (s32)(spA0 * 8.0f);
+                node->unk14 = (s32)(sp9C * 8.0f);
+                node = node->next;
+            } while (node != NULL);
+        }
+        arg0->unk84 = D_8076A064;
+    }
+}
 
 s32 actorGetNodePos(ActorTargetWork *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     s32 pad0;
@@ -2171,8 +2224,91 @@ s32 actorStepSubNodeList(ActorTargetWork *arg0, s32 arg1) {
     return (((u32)node->unk18 >> 6) << 6) + base;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671E00.s")
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671F54.s")
+u8 func_80671F54(f32, f32, f32, f32, s16 *, s16 *);
+
+s32 func_80671E00(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s16 *arg5, u8 arg6, u16 arg7) {
+    u8 ret;
+
+    arg0 *= 8.0f;
+    arg1 *= 8.0f;
+    arg2 *= 8.0f;
+    *arg4 = 0;
+    *arg5 = 0xFFF;
+    arg3 *= 8.0f;
+    D_807FB606 = 0;
+    func_80672E90(arg0, arg1, arg2);
+    actorSetCameraBoundaryMode(arg7);
+    if (arg6 != 0) {
+        ret = func_806734E4((s32)arg0, (s32)arg1, (s32)arg2, (s32)arg3, arg4, arg5);
+        ret |= func_80671F54(arg0, arg1, arg2, arg3, arg4, arg5);
+    } else {
+        ret = func_806730A4(arg0, arg1, arg2, (s32)arg3);
+        if (ret == 0) {
+            ret = func_80671F54(arg0, arg1, arg2, arg3, arg4, arg5);
+        }
+    }
+    return ret;
+}
+extern s32 D_807FB53C;
+
+typedef struct Col7E_Sub28 {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    u8 pad10[5];
+    u8 unk15;
+    u8 pad16[2];
+    s32 unk18;
+    s32 unk1C;
+} Col7E_Sub28;
+
+typedef struct Col7E_Struct7C {
+    u8 pad0[0x70];
+    u8 unk70;
+} Col7E_Struct7C;
+
+s32 func_80673708(s32, s32, s32, s32, s32, s32, s16 *, s16 *);
+s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
+extern u8 D_807FB5FD;
+
+u8 func_80671F54(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s16 *arg5) {
+    s32 temp_ft0;
+    s32 temp_ft1;
+    s32 temp_ft2;
+    s32 temp_ft3;
+    u8 var_fp;
+    s32 var_s6;
+    void *temp_s0;
+    Col7E_Struct7C *temp_v0;
+
+    var_fp = 0;
+    D_807FB5FD = 0;
+    var_s6 = 0;
+    if (D_80747D70 > 0) {
+        do {
+            temp_s0 = (void *)((0, var_s6 * 0x90) + (s32)D_807F6000); // FAKE: (0, off) + (s32)G steers addu operand order
+            if ((temp_s0 = (void *)((u8 *)temp_s0 + 0x28), *(s32 *)((u8 *)temp_s0 + 0x18)) != 0 &&
+                (D_807FB53C != 0xBC || (*(u8 *)((u8 *)D_807F6000 + var_s6 * 0x90 + 0x6C) & 2))) { // FAKE: comma advances temp_s0 before the branch without a val local
+                temp_ft0 = arg0;
+                temp_ft1 = arg1;
+                temp_ft2 = arg2;
+                temp_ft3 = arg3;
+                if (func_80674ADC(temp_ft0, temp_ft1, temp_ft2, temp_ft3,
+                                  *(s32 *)((u8 *)temp_s0 + 0x0),
+                                  *(s32 *)((u8 *)temp_s0 + 0x4),
+                                  *(s32 *)((u8 *)temp_s0 + 0x8),
+                                  *(s32 *)((u8 *)temp_s0 + 0xC)) != 0 &&
+                    (*(u8 *)((u8 *)temp_s0 + 0x15) & 1) &&
+                    ((temp_v0 = *(Col7E_Struct7C **)((u8 *)D_807F6000 + var_s6 * 0x90 + 0x7C)) == NULL || temp_v0->unk70 != 0)) {
+                    var_fp |= func_80673708(temp_ft0, temp_ft1, temp_ft2, temp_ft3, *(s32 *)((u8 *)temp_s0 + 0x18), *(s32 *)((u8 *)temp_s0 + 0x1C), arg4, arg5);
+                }
+            }
+            var_s6++;
+        } while (var_s6 < D_80747D70);
+    }
+    return var_fp;
+}
 
 s16 func_80672A70();
 
@@ -2234,7 +2370,51 @@ s16 arg3;
     return (s16)(s32)((f32)arg3 * var_fv1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80672328.s")
+typedef struct Col7E_Actor {
+    u8 pad0[0x88];
+    f32 unk88;
+    u8 pad8C[4];
+    f32 unk90;
+} Col7E_Actor;
+
+struct ActorMotionWork;
+s32 func_80611E60(s32);
+s32 func_806725A0(struct ActorMotionWork *, s16);
+
+s32 func_80672328(struct ActorMotionWork *arg0, f32 arg1, f32 arg2) {
+    s32 sp28;
+    s32 sp24;
+    s32 sp44;
+    s32 sp40;
+    s32 sp20;
+    s32 sp1C;
+    f32 sp34;
+    s16 var_a2;
+
+    sp44 = (s32)(((Col7E_Actor *)arg0)->unk88 * 8.0f);
+    sp40 = (s32)(((Col7E_Actor *)arg0)->unk90 * 8.0f);
+    sp28 = (s32)(arg1 * 8.0f);
+    sp24 = (s32)(arg2 * 8.0f);
+    sp20 = sp28 - sp44;
+    sp1C = sp24 - sp40;
+    sp34 = sqrtf((f32)((sp20 * sp20) + (sp1C * sp1C)));
+    if ((f64)sp34 == 0.0) {
+        return 1;
+    }
+    if (sp20 >= 0 && sp1C >= 0) {
+        var_a2 = (s16)(func_80611E60((s32)(((f64)sp20 * 65535.9) / (f64)sp34)) >> 4);
+    }
+    if (sp20 >= 0 && sp1C < 0) {
+        var_a2 = (func_80611E60((s32)(((f64)(sp40 - sp24) * 65535.9) / (f64)sp34)) >> 4) + 0x400;
+    }
+    if (sp20 < 0 && sp1C < 0) {
+        var_a2 = (func_80611E60((s32)(((f64)(sp44 - sp28) * 65535.9) / (f64)sp34)) >> 4) + 0x800;
+    }
+    if (sp20 < 0 && sp1C >= 0) {
+        var_a2 = (func_80611E60((s32)(((f64)sp1C * 65535.9) / (f64)sp34)) >> 4) + 0xC00;
+    }
+    return func_806725A0(arg0, var_a2) ? 1 : 0;
+}
 
 typedef struct ActorMotionSub140 {
     u8 pad0[0x1C];
@@ -2284,7 +2464,7 @@ typedef struct ActorMotionWork {
 
 void func_80672680();
 
-void func_806725A0(arg0, arg1)
+s32 func_806725A0(arg0, arg1)
 ActorMotionWork *arg0;
 s16 arg1;
 {
@@ -2525,7 +2705,6 @@ void actorClearMovementFlags(ActorMotionWork *arg0) {
     arg0->unk64 |= 0x2000;
 }
 
-extern s32 D_807FB53C;
 extern s16 D_807FB5F8;
 extern s16 D_807FB5FA;
 

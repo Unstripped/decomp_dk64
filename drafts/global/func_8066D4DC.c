@@ -1,4 +1,4 @@
-// func_8066D4DC (src/global/70FD0.c): 409/409 insns, 0x170 text bytes (409/409 opcodes match, 0x54/0x42/0x38/0x34 stack offsets match, 0xA8 frame match); 0 off on size, pure regalloc differences
+// func_8066D4DC (src/global/70FD0.c): from .scratch/L66D4DC/func_8066D4DC_best.c
 f32 func_80611BB4(f32, f32);
 
 s16 func_8066D4DC(arg0, arg1)
