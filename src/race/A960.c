@@ -125,7 +125,7 @@ void *func_80610FE8(s32);
 void heapClearBlock(void *);
 void func_8002EDD4(RaceWaypoint *);
 
-void raceLoadRouteData(s32 arg0) {
+void raceLoadRouteData(u8 *arg0) {
     u8 *src;
     RaceRoute *ent;
     RaceWaypoint *node;
@@ -135,7 +135,7 @@ void raceLoadRouteData(s32 arg0) {
     s32 sz;
 
     if (arg0 != 0) {
-        src = (u8 *)arg0;
+        src = arg0;
         memcpy(D_8002FCF0, src, 1);
         src += 1;
         memcpy(&D_8002FCF0->count2, src, 2);
@@ -174,7 +174,7 @@ void raceLoadRouteData(s32 arg0) {
     }
 }
 
-s32 func_8066B0F8(s32, s32, s32, s32);
+u8 *func_8066B0F8(s32, s32, s32, s32);
 void func_80025FDC(void);
 void func_80029488(void);
 void func_8002D0FC(void);
@@ -182,7 +182,7 @@ void func_8002D064(void);
 extern s16 D_80750AC4;
 
 void func_8002EC08(s32 arg0) {
-    s32 sp1C;
+    u8 *sp1C;
 
     sp1C = func_8066B0F8(0x18, arg0, 1, 1);
     D_8002FCF0 = func_80610FE8(0x10);
