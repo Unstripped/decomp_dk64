@@ -31,16 +31,28 @@ typedef struct {
 extern Struct_D_8002E800 D_8002E800[];
 extern Struct_D_8002E800 D_8002E848[];
 typedef struct {
-    u8 pad[0x1C];
-    s32 unk1C[2];
-    u8 pad2[0x194 - 0x24];
+    s32 stage;
+    s32 score;
+    u8 pad8[0x194 - 8];
 } JetpacPlayer;
 
 typedef struct {
+    u8 pad0[0x1C];
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    s32 unk28;
+    u8 pad2C[0x34 - 0x2C];
+} J4Ledge;
+
+typedef struct {
+    u8 pad0[0x1C];
     JetpacPlayer players[2];
-    u8 pad[0x344 - (sizeof(JetpacPlayer) * 2)];
     s32 currentPlayer;
-    u8 pad3[0x790 - 0x348];
+    u8 pad348[0x350 - 0x348];
+    J4Ledge ledges[4];
+    JetpacActor player;
+    u8 pad470[0x790 - 0x470];
     s32 unk790;
 } JetpacGlobal;
 
@@ -103,11 +115,6 @@ JetpacActor *jetpacFindFreeActor(void) {
     return NULL;
 }
 
-typedef struct {
-    u8 pad0[0x420];
-    JetpacActor unk420;
-} J4Global;
-
 extern s32 D_8002F064;
 extern s32 D_8002F07C;
 extern JetpacActor jetpacPlayer;
@@ -126,7 +133,7 @@ s32 jetpacCheckPlayerHit(JetpacActor *arg0) {
     f32 px;
     f32 py;
 
-    p = &((J4Global *)&jetpacGame)->unk420;
+    p = &jetpacGame.player;
     ax = arg0->unk0;
     ay = arg0->unk4;
     px = p->unk0;
@@ -214,13 +221,11 @@ void jetpacSpawnActor(void) {
     s32 pad[2];
     void (*fn)(JetpacActor *);
     JetpacActor *actor;
-    JetpacGlobal *g;
-    s32 *p;
+    JetpacPlayer *p;
     s32 idx;
 
-    g = &jetpacGame;
-    p = g->players[g->currentPlayer].unk1C;
-    idx = p[0];
+    p = &jetpacGame.players[jetpacGame.currentPlayer];
+    idx = p->stage;
     fn = D_8002E8F4[idx % 8];
     actor = jetpacAllocActor();
     if (actor != NULL) {
@@ -228,20 +233,6 @@ void jetpacSpawnActor(void) {
         actor->unk14 = 3;
     }
 }
-
-typedef struct {
-    u8 pad0[0x1C];
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
-    u8 pad2C[0x34 - 0x2C];
-} J4Ledge;
-
-typedef struct {
-    u8 pad0[0x350];
-    J4Ledge ledges[4];
-} J4Global2;
 
 void jetpacBounceOffLedge(JetpacActor *arg0, s32 arg1) {
     J4Ledge *l;
@@ -254,7 +245,7 @@ void jetpacBounceOffLedge(JetpacActor *arg0, s32 arg1) {
     f32 ly1;
     f32 ly2;
 
-    l = &((J4Global2 *)&jetpacGame)->ledges[arg1];
+    l = &jetpacGame.ledges[arg1];
     ax1 = arg0->unk0 + (f32)arg0->unk1C;
     ax2 = arg0->unk0 + (f32)arg0->unk24;
     lx1 = l->unk1C;
@@ -491,8 +482,8 @@ void func_80029F7C(JetpacActor *arg0) {
             jetpacCheckPlayerHit(arg0);
         }
         if (arg0->unk14 == 4) {
-            s32 *p = jetpacGame.players[jetpacGame.currentPlayer].unk1C;
-            p[1] += arg0->unk44;
+            JetpacPlayer *p = &jetpacGame.players[jetpacGame.currentPlayer];
+            p->score += arg0->unk44;
             return;
         }
 
@@ -707,7 +698,7 @@ void func_8002A944(JetpacActor *arg0) {
 
 s32 jetpacKillActorInBox(f32 x1, f32 y1, f32 x2, f32 y2) {
     JetpacActor *actor = jetpacActors;
-    s32 *playerData;
+    JetpacPlayer *playerData;
     s32 i;
 
     for (i = 0; i < 6; i++, actor++) {
@@ -717,9 +708,9 @@ s32 jetpacKillActorInBox(f32 x1, f32 y1, f32 x2, f32 y2) {
                               actor->unk4 + (f32)actor->unk20,
                               actor->unk0 + (f32)actor->unk24,
                               actor->unk4 + (f32)actor->unk28)) {
-                playerData = jetpacGame.players[jetpacGame.currentPlayer].unk1C;
+                playerData = &jetpacGame.players[jetpacGame.currentPlayer];
                 jetpacActorExplode(actor);
-                playerData[1] += actor->unk44;
+                playerData->score += actor->unk44;
                 return 1;
             }
         }
