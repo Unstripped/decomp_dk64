@@ -1,28 +1,6 @@
 // func_80714D08 (src/global/119370.c): stage 4: 0x30 frame and s0-s2 reached; parameter/FPR/register order remains
 #include "common.h"
-typedef struct EffectGridNode {
-    void *unk0;
-    s32 unk4;
-    u8 unk8;
-    u8 unk9;
-    u8 padA[0x1A];
-    struct EffectGridNode *unk24;
-} EffectGridNode;
-typedef struct EffectNode {
-    u8 pad0[0x20];
-    u8 itemCount;
-    u8 pad21[0x317];
-    s32 resource;
-    u8 pad33C[0x33];
-    u8 mode;
-    u8 pad370[0x14];
-    void *allocation;
-    u8 pad388[4];
-    u16 flags;
-    u8 pad38E[0xA];
-    struct EffectNode *previous;
-    struct EffectNode *next;
-} EffectNode;
+
 extern EffectGridNode *D_807FDB00;
 extern EffectNode *D_807FDB04;
 extern EffectNode *D_807FDB08;
@@ -36,6 +14,7 @@ void *func_80610FE8(s32);
 void effectGridRegister(EffectGridNode *);
 void effectResetState(void);
 void func_8071509C(EffectNode *);
+
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 
 void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
@@ -49,15 +28,17 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
     s32 i;
 
     effectGridRegister((EffectGridNode *)arg0);
+    z = arg2;
+    x = arg1;
+    y = arg3;
     node = D_807FDB00;
     found = 0;
     if (node != NULL) {
         do {
             if (node->unk0 == (void *)arg0) {
                 found = 1;
-            } else {
-                node = node->unk24;
             }
+            node = node->unk24;
         } while ((found == 0) && (node != NULL));
     }
     if (found == 0) {
@@ -73,9 +54,6 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
         effect->previous = NULL;
     }
     D_807FDB08 = effect;
-    x = arg1;
-    y = arg3;
-    z = arg2;
     if (D_807FDB1D != 0) {
         z *= 4.0f;
         y *= 4.0f;
@@ -145,4 +123,3 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
     func_8071509C(effect);
     effectResetState();
 }
-#undef UA1_D08_FIELD

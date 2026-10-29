@@ -1,5 +1,6 @@
-// func_8071509C (src/global/119370.c): stage 5/6: structure matches (renormalized vertex pointer, 3-step index/pointer advance); remaining: register assignment (mode web should take t1, not a3) + store scheduling around v1.s
+// func_8071509C (src/global/119370.c): stage 5/6: structure matches (renormalized vertex pointer, 3-step index/pointer advance); remaining: register assignment (mode web in a3 vs t1) + store scheduling
 #include "common.h"
+
 typedef struct Fx119AEffectVertex {
     s16 x;
     s16 y;
@@ -23,7 +24,7 @@ void func_8071509C(EffectNode *effect) {
     s32 x;
     s32 y;
 
-    node = Fx119A_EN_FIELD(EffectGridNode *, effect, 0x330);
+    node = *(EffectGridNode **)((u8 *)effect + 0x330);
     vertexIndex = 0;
     startX = -(node->unk8 * node->unkC) / 2;
     if (effect->mode == 0) {
@@ -33,9 +34,9 @@ void func_8071509C(EffectNode *effect) {
     }
     for (row = 0; row < node->unk9; row++) {
         x = startX;
+        column = 0;
         if (node->unk8 > 0) {
             vertex = (Fx119AEffectVertex *)((u8 *)effect + 0x28) + vertexIndex;
-            column = 0;
             do {
                 vertex[0].x = x;
                 vertex[0].y = y;
