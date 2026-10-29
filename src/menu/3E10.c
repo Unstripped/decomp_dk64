@@ -1803,8 +1803,8 @@ void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
                 }
                 D_807550C8 &= 3;
                 if (flag != 0) {
-                    for (i = 0; i != 0x194; i += 4) {
-                        heapFreeDeferred((void *)*(s32 *)((u8 *)D_80033F28 + i));
+                    for (i = 0; i != 0x65; i++) {
+                        heapFreeDeferred((void *)D_80033F28[i]);
                     }
                     heapFreeDeferred(D_80033F28);
                     menuLoadTextTable();
