@@ -136,9 +136,9 @@ u8 bonusGetReelSymbol(LB3Obj *obj, u8 arg1) {
 void func_807149B8(s32);
 s32 func_8071498C(void (*)(void));
 void func_80714950(s32);
-s32 func_80714CC0(s32, f32, f32, f32, f32);
+s32 func_80714CC0(void *, f32, f32, f32, f32);
 s32 randomNonNegative();
-extern s32 D_8074E880[];
+extern void *D_8074E880[];
 void D_80717404(void);
 
 void bonusSpawnEffectBurst(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
@@ -273,7 +273,7 @@ void bonusReelGameUpdate(void) {
                 func_8071495C();
                 func_80714998(2);
                 func_807149FC(-1);
-                obj->unk20 = func_80714CC0((s32)&D_80720CF0, 1.0f, 40.0f, 200.0f, 5.0f);
+                obj->unk20 = func_80714CC0(&D_80720CF0, 1.0f, 40.0f, 200.0f, 5.0f);
             }
             break;
         }
