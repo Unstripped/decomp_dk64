@@ -1426,7 +1426,7 @@ void func_8002C91C(MenuScreenActor *arg0, s32 arg1) {
     }
     menuUpdateCameraPositions();
     sp4C->unk17 = 0;
-    for (i = 0; i < D_80033878;) {
+    for (i = 0; i < D_80033878; i++) {
         actorSpawn(0x151, D_8003386C[D_8003387C[i]]);
         {
             s16 *q = Menu6_A->unk17C;
@@ -1437,7 +1437,6 @@ void func_8002C91C(MenuScreenActor *arg0, s32 arg1) {
         sub = Menu6_A->unk174;
         sub->unk0 = arg0;
         sub->unk8 = (i == D_8076A105) + 1;
-        i += 1;
     }
     func_80030894(sp4C, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
 }
