@@ -3814,21 +3814,21 @@ s32 menuCalculateGamePercentage(void) {
 
     func_806ABE3C();
     pct = 0.0f;
-    pct = (f64)pct + ((f64)(f32)D_807FC828.unk0 * 0.4);
-    pct = (f64)pct + ((f64)(f32)D_807FC828.unk4 * 0.25);
-    pct = (f64)pct + ((f64)(f32)D_807FC828.unkA * 0.2);
-    pct = (f64)pct + ((f64)(f32)D_807FC828.unk6 * 0.2);
-    pct = (f64)pct + ((f64)(f32)D_807FC828.unk2 * 0.5);
-    pct = (f64)pct + ((f64)(f32)D_807FC828.unk8 * 0.5);
-    pct = (f64)pct + ((f64)(f32)D_807FC828.unkC * 0.5);
+    pct += (f32)D_807FC828.unk0 * 0.4;
+    pct += (f32)D_807FC828.unk4 * 0.25;
+    pct += (f32)D_807FC828.unkA * 0.2;
+    pct += (f32)D_807FC828.unk6 * 0.2;
+    pct += (f32)D_807FC828.unk2 * 0.5;
+    pct += (f32)D_807FC828.unk8 * 0.5;
+    pct += (f32)D_807FC828.unkC * 0.5;
 
     if (D_807FC828.unk0 == 0xC9) {
-        pct = (f64)pct - 0.4;
+        pct -= 0.4;
     }
 
-    if ((f64)pct == 100.0) {
+    if (pct == 100.0) {
         if (flagGet(0x12D, 0) != 0 && flagGet(0x12D, 0) != 0) {
-            pct = (f64)pct + 1.0;
+            pct += 1.0;
         }
     }
 
