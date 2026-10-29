@@ -1003,7 +1003,6 @@ extern s8 D_8076A0E8[][4];
 
 void menuAssignPlayerControllerSlot(s32 arg0, s32 arg1) {
     s8 temp_v0 = D_8076A0E4[arg0];
-    s8 *temp_v1 = &D_8076A0E4[arg0];
     s32 var_a2 = 0;
     s8 *temp_a3 = &D_8076A100[arg0];
     s8 temp_t0 = *temp_a3;
@@ -1019,12 +1018,11 @@ void menuAssignPlayerControllerSlot(s32 arg0, s32 arg1) {
             D_8076A0E8[arg1][var_v0] = arg0;
         }
     }
-    *temp_v1 = arg1;
+    D_8076A0E4[arg0] = arg1;
 }
 
 void menuReleasePlayerControllerSlot(s32 arg0) {
     s8 temp_v0 = D_8076A0E4[arg0];
-    s8 *temp_v1 = &D_8076A0E4[arg0];
     s8 *temp_a1 = &D_8076A100[arg0];
     s8 temp_a2 = *temp_a1;
 
@@ -1032,7 +1030,7 @@ void menuReleasePlayerControllerSlot(s32 arg0) {
         D_8076A0E8[temp_v0][temp_a2] = -1;
     }
     *temp_a1 = -1;
-    *temp_v1 = -0x80;
+    D_8076A0E4[arg0] = -0x80;
 }
 
 
