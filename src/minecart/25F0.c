@@ -342,7 +342,7 @@ void minecartFollowerChildBehaviour(void) {
     D_807FBB40->unkE6 = s2->unkE6;
     D_807FBB40->unk7C = (func_80612794(s2->unkE6 + sp66) * 47.0f + s2->unk7C - D_807FBB40->unk7C) * 0.3 + D_807FBB40->unk7C;
     D_807FBB40->unk84 = (func_80612790(s2->unkE6 + sp66) * 47.0f + s2->unk84 - D_807FBB40->unk84) * 0.3 + D_807FBB40->unk84;
-    D_807FBB40->unk80 = D_807FBB40->unk80 + (s2->unk80 - 10.0f - D_807FBB40->unk80) * 0.3;
+    D_807FBB40->unk80 += (s2->unk80 - 10.0f - D_807FBB40->unk80) * 0.3;
     switch (s2->unk154) {
     case 2:
     case 3:
@@ -397,7 +397,7 @@ void minecartFollowerChildBehaviour(void) {
                     sp50 = func_80612794(sp58 * 1536.0f + 1024.0f) * (D_807FBB40->unk168 * -110);
                     sp4C = (func_80612790(sp58 * 4096.0f) * 0.5 + 0.5) * 50.0 + -30.0;
                     D_807FBB40->unk7C = ((func_80612794(D_807FBB4C->unkE6 - 0x400) * sp50 + sp68->unkA) - D_807FBB40->unk7C) * sp54 + D_807FBB40->unk7C;
-                    D_807FBB40->unk80 = D_807FBB40->unk80 + (((D_807FD580->unk88->unkA4 + sp4C) - D_807FBB40->unk80) * sp54);
+                    D_807FBB40->unk80 += (D_807FD580->unk88->unkA4 + sp4C - D_807FBB40->unk80) * sp54;
                     D_807FBB40->unk84 = ((func_80612790(D_807FBB4C->unkE6 - 0x400) * sp50 + sp68->unkE) - D_807FBB40->unk84) * sp54 + D_807FBB40->unk84;
                     if (sp68->unk2C < 0x10) {
                         D_807FBB40->unk132 = 0;
