@@ -1172,7 +1172,6 @@ typedef struct {
     f32 unk8;
 } Fx11BDMotion3;
 
-#ifdef NON_MATCHING
 void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
     void *ptr;
     s32 pad0;
@@ -1193,8 +1192,8 @@ void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
         sp46 = (u32)(func_806119A0() / 10000U) % 180U;
         guRotateF(sp8C, (f32)sp48, 0.0f, 1.0f, 0.0f);
         sp4B = arg0->unk35C >> 0x10;
-        sp4A = arg0->unk35C >> 8;
-        sp49 = (short)arg0->unk35C;
+        sp4A = (arg0->unk35C >> 8) & 0xFF;
+        sp49 = arg0->unk35C & 0xFF;
         ptr = func_80610FE8(0xC);
         arg0->unk384 = ptr;
         guAlignF(sp4C, (f32)sp46, (f32)sp4B, (f32)sp4A, (f32)sp49);
@@ -1220,10 +1219,6 @@ void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
         arg0->unk36D = 0;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071A1E4.s")
-#endif
 
 typedef struct {
     u8 pad0[0x16];
