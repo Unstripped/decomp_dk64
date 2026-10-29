@@ -674,7 +674,146 @@ void actorQueueCollisionCallbacks(CollisionActor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066F4AC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066F84C.s")
+typedef struct Col7DHitInfo {
+    u8 pad0[0x9B];
+    u8 unk9B;
+} Col7DHitInfo;
+
+typedef struct Col7DSlot {
+    u8 pad0[0x7C];
+    Col7DHitInfo *unk7C;
+    u8 pad80[8];
+    s16 unk88;
+    u8 pad8A[0x90 - 0x8A];
+} Col7DSlot;
+
+typedef struct Col7DHitSub {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    u8 pad10[0x26 - 0x10];
+    s16 unk26;
+    f32 unk28[3];
+    f32 unk34[3];
+    f32 unk40[3];
+    f32 unk4C;
+    f32 unk50;
+    f32 unk54;
+    s16 unk58;
+    s8 unk5A;
+    s32 unk5C;
+    u8 pad60[4];
+    s16 unk64;
+    s16 unk66;
+    u8 pad68[4];
+    u8 unk6C;
+} Col7DHitSub;
+
+typedef struct Col7DHitActor {
+    u8 pad0[0x5C];
+    u16 unk5C;
+    u8 pad5E[2];
+    u32 unk60;
+    u8 pad64[0x7C - 0x64];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0x140 - 0x88];
+    Col7DHitSub *unk140;
+} Col7DHitActor;
+
+extern s32 D_807FB5C4;
+extern s32 D_807FB5C8;
+extern s32 D_807FB5CC;
+extern s32 D_807FB5D0;
+extern CollisionBox *D_807FB5D8;
+extern Col7DSlot *D_807F6000;
+s32 matrix4Invert(f32 (*)[4], f32 (*)[4]); // FAKE: non-void return flips the $v0/$v1 pick in func_8066F84C
+void func_8066C610(s16, s8, f32 [4][4]);
+void func_8066FE08();
+struct ActorFacingWork;
+s32 func_806744A8(struct ActorFacingWork *, s32, s32, s32, s32);
+void actorReflectCollisionAngle(CollisionActor *, CollisionPlane *, CollisionVec3i *);
+s32 actorGetCollisionThreshold(CollisionActor *);
+
+void func_8066F84C(arg0, arg1, arg2)
+s32 arg0;
+Col7DHitActor *arg1;
+CollisionBox *arg2;
+{
+    Col7DHitSub *sub;
+    f32 pad[7];
+    f32 mtx[4][4];
+    f32 mtxC[4][4];
+    f32 inv[4][4];
+    s32 off;
+    s32 hit;
+    u8 ok;
+    f32 x[3];
+    f32 y[3];
+    f32 z[3];
+    f32 px;
+    f32 py;
+    f32 pz;
+    s32 i;
+
+    sub = arg1->unk140;
+    hit = 0;
+    ok = func_806744A8((struct ActorFacingWork *)D_807FB5D8, sub->unk0, sub->unk4, sub->unk8, sub->unkC);
+    func_8066FE08(arg0);
+    if (ok != 0) {
+        sub->unk5A = D_807FB5D8->unk4E;
+        sub->unk58 = D_807FB5D8 - arg2;
+        func_8066C610(arg0, D_807FB5D8->unk4E, mtx);
+        matrix4Invert(inv, mtx);
+        off = arg0 * 0x90;
+        if (D_807F6000[arg0].unk7C != NULL && (D_807F6000[arg0].unk7C->unk9B & 0x24)) {
+            hit = 1;
+        }
+        if (hit != 0) {
+            px = arg1->unk7C;
+            py = arg1->unk80;
+            pz = arg1->unk84;
+        } else {
+            px = (f32)D_807FB5C4 / 8;
+            py = (f32)D_807FB5C8 / 8;
+            pz = (f32)D_807FB5CC / 8;
+        }
+        if (!(arg1->unk60 & 0x800)) {
+            guMtxXFMF(inv, px, py, pz, &sub->unk4C, &sub->unk50, &sub->unk54);
+        }
+        x[0] = (f32)D_807FB5D8->unk24 / 8;
+        y[0] = (f32)D_807FB5D8->unk28 / 8;
+        z[0] = (f32)D_807FB5D8->unk2C / 8;
+        x[1] = (f32)D_807FB5D8->unk30 / 8;
+        y[1] = (f32)D_807FB5D8->unk34 / 8;
+        z[1] = (f32)D_807FB5D8->unk38 / 8;
+        x[2] = (f32)D_807FB5D8->unk3C / 8;
+        y[2] = (f32)D_807FB5D8->unk40 / 8;
+        z[2] = (f32)D_807FB5D8->unk44 / 8;
+        for (i = 0; i < 3; i++) {
+            guMtxXFMF(inv, x[i], y[i], z[i], &sub->unk28[i], &sub->unk34[i], &sub->unk40[i]);
+        }
+        sub->unk26 = *(s16 *)((u8 *)D_807F6000 + off + 0x88);
+        sub->unk5C = D_807FB5D0;
+        if (sub->unk5C < 0x14) {
+            sub->unk5C = 0x14;
+        }
+        sub->unk64 = actorGetCollisionThreshold((CollisionActor *)arg1);
+        sub->unk66 = D_807FB5D8->unk48;
+        if (D_807FB5D8->unk4C != 0) {
+            sub->unk66 -= 0x800;
+        }
+        if (sub->unk66 < 0) {
+            sub->unk66 += 0x1000;
+        }
+        sub->unk6C = 1;
+        if (arg1->unk5C & 1) {
+            actorReflectCollisionAngle((CollisionActor *)arg1, (CollisionPlane *)D_807FB5D8, (CollisionVec3i *)sub);
+        }
+    }
+}
 
 void actorReflectCollisionAngle(CollisionActor *arg0, CollisionPlane *arg1, CollisionVec3i *arg2) {
     ActorSub174State *sub = arg0->unk174;
@@ -721,7 +860,94 @@ s32 actorGetCollisionThreshold(CollisionActor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80670548.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80670C5C.s")
+typedef struct Col7DPlane {
+    u8 pad0[0x28];
+    f32 unk28[3];
+    f32 unk34[3];
+    f32 unk40[3];
+    f32 unk4C;
+    f32 unk50;
+    f32 unk54;
+    u8 pad58[2];
+    s8 unk5A;
+} Col7DPlane;
+
+typedef struct Col7DSub174 {
+    u8 pad0[0xE0];
+    f32 unkE0;
+    f32 unkE4;
+    u8 unkE8;
+} Col7DSub174;
+
+typedef struct Col7DWork {
+    u8 pad0[0x174];
+    Col7DSub174 *unk174;
+} Col7DWork;
+
+extern s16 D_80753D50[];
+extern s16 D_80753D60[];
+extern u8 D_807FC929;
+extern s16 D_807FD584;
+
+void func_80670C5C(Col7DWork *arg0, s16 arg1, Col7DPlane *arg2) {
+    f32 mtx[4][4];
+    f32 spCC;
+    f32 spC8;
+    f32 spC4;
+    s32 i;
+    f32 spB4[3];
+    f32 spA8[3];
+    f32 sp9C[3];
+    f32 normal[3];
+    f32 v1[3];
+    f32 v2[3];
+    f32 inv_len;
+    f32 norm[3];
+    f32 out[3];
+    Col7DSub174 *sub;
+    f32 sp54;
+    f32 scale;
+
+    sub = arg0->unk174;
+    if (D_807FC924[D_807FC929].unk2C0 == 1) {
+        sp54 = D_80753D50[D_807FD584];
+    } else {
+        sp54 = D_80753D60[D_807FD584];
+    }
+
+    func_8066C610(arg1, arg2->unk5A, mtx);
+    guMtxXFMF(mtx, arg2->unk4C, arg2->unk50, arg2->unk54, &spCC, &spC8, &spC4);
+
+    for (i = 0; i < 3; i++) {
+        guMtxXFMF(mtx, arg2->unk28[i], arg2->unk34[i], arg2->unk40[i], &spB4[i], &spA8[i], &sp9C[i]);
+    }
+
+    v1[0] = spB4[2] - spB4[0];
+    v1[1] = spA8[2] - spA8[0];
+    v1[2] = sp9C[2] - sp9C[0];
+
+    v2[0] = spB4[1] - spB4[0];
+    v2[1] = spA8[1] - spA8[0];
+    v2[2] = sp9C[1] - sp9C[0];
+
+    normal[0] = (v1[1] * v2[2]) - (v1[2] * v2[1]);
+    normal[1] = (v1[2] * v2[0]) - (v1[0] * v2[2]);
+    normal[2] = (v1[0] * v2[1]) - (v1[1] * v2[0]);
+
+    inv_len = 1.0f / sqrtf((normal[0] * normal[0]) + (normal[1] * normal[1]) + (normal[2] * normal[2]));
+    norm[0] = normal[0] * inv_len;
+    norm[1] = normal[1] * inv_len;
+    norm[2] = normal[2] * inv_len;
+
+    scale = sp54 / 8;
+    out[0] = norm[0] * scale;
+    out[1] = norm[1] * scale;
+    out[2] = norm[2] * scale;
+
+    sub->unkE0 = spCC - out[0];
+    sub->unkE4 = spC4 - out[2];
+    sub->unkE8 = 1;
+}
 
 typedef struct {
     u8 pad0[0x48];
@@ -878,13 +1104,6 @@ typedef struct ActorFacingWork {
 } ActorFacingWork;
 
 extern PlayerContext *D_807FD580;
-extern s32 D_807FB5D0;
-extern s32 D_807FB5C4;
-extern s32 D_807FB5CC;
-extern s16 D_80753D50[];
-extern s16 D_80753D60[];
-extern s16 D_807FD584;
-extern u8 D_807FC929;
 extern s32 D_807FB5DC;
 extern s16 D_807FB5F6;
 
@@ -987,7 +1206,90 @@ void actorUpdateSubActorOffsets(ActorTargetWork *arg0, u8 arg1) {
     }
 }
 
+#ifdef NON_MATCHING
+typedef struct Col7DPlaneActor {
+    u8 pad0[0x60];
+    u32 unk60;
+} Col7DPlaneActor;
+
+typedef struct Col7DPlaneSub {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    u8 pad10[0xB0 - 0x10];
+    s32 unkB0;
+    s32 unkB4;
+} Col7DPlaneSub;
+
+extern CollisionBox *D_807FB5D4;
+
+void func_80671528(arg0, arg1, arg2, arg3, arg4)
+ActorTargetWork *arg0;
+f32 *arg1;
+f32 *arg2;
+f32 *arg3;
+volatile u8 arg4; // FAKE: reload arg4 from its stack home after the calls
+{
+    CollisionBox *box;
+    f32 padA;
+    Col7DPlaneSub *sub;
+    f32 v1[3];
+    f32 v2[3];
+    f32 n[3];
+    f32 padB;
+    f32 x[3];
+    f32 y[3];
+    f32 z[3];
+    f32 inv_len;
+
+    sub = (Col7DPlaneSub *)arg0->unk140;
+    if (arg4 != 0) {
+        box = (CollisionBox *)func_806732A8(D_807FB5DC, D_807FB5F6);
+    } else {
+        box = D_807FB5D4;
+    }
+    x[0] = (f32)box->unk24 / 8;
+    y[0] = (f32)box->unk28 / 8;
+    z[0] = (f32)box->unk2C / 8;
+    x[1] = (f32)box->unk30 / 8;
+    y[1] = (f32)box->unk34 / 8;
+    z[1] = (f32)box->unk38 / 8;
+    x[2] = (f32)box->unk3C / 8;
+    y[2] = (f32)box->unk40 / 8;
+    z[2] = (f32)box->unk44 / 8;
+
+    v1[0] = x[2] - x[0];
+    v1[1] = y[2] - y[0];
+    v1[2] = z[2] - z[0];
+
+    v2[0] = x[1] - x[0];
+    v2[1] = y[1] - y[0];
+    v2[2] = z[1] - z[0];
+
+    n[0] = (v1[1] * v2[2]) - (v2[1] * v1[2]);
+    n[1] = (v1[2] * v2[0]) - (v2[2] * v1[0]);
+    n[2] = (v1[0] * v2[1]) - (v2[0] * v1[1]);
+
+    inv_len = 1.0f / sqrtf((n[2] * n[2]) + ((n[0] * n[0]) + (n[1] * n[1])));
+    *arg1 = n[0] * inv_len;
+    *arg2 = n[1] * inv_len;
+    *arg3 = n[2] * inv_len;
+
+    func_806744A8((ActorFacingWork *)box, sub->unk0, sub->unk4, sub->unk8, sub->unkC);
+    if (arg4 != 0) {
+        if (((Col7DPlaneActor *)arg0)->unk60 & 0x800) {
+            D_807FB5C4 = sub->unkB0;
+            D_807FB5CC = sub->unkB4;
+        }
+        sub->unkB0 = D_807FB5C4;
+        sub->unkB4 = D_807FB5CC;
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671528.s")
+#endif
 
 s32 actorGetPlayerThreshold(ActorTargetWork *arg0) {
     ActorTargetSub174 *sub;
