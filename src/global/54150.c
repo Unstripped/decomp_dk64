@@ -323,7 +323,7 @@ void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
     faultSetMessage(0xB, 0, 0, 0);
 }
 
-#ifdef NON_MATCHING
+
 void func_806505F0(s32 arg0) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
@@ -332,12 +332,8 @@ void func_806505F0(s32 arg0) {
         }
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_806505F0.s")
-#endif
 
-#ifdef NON_MATCHING
 void func_80650684(s32 arg0) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
@@ -346,12 +342,9 @@ void func_80650684(s32 arg0) {
         }
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_80650684.s")
-#endif
 
-#ifdef NON_MATCHING
+
 void func_806506E8(s32 arg0) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
@@ -362,10 +355,6 @@ void func_806506E8(s32 arg0) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_806506E8.s")
-#endif
 
 void func_80650794(s16 arg0, s16 arg1, u8 arg2, f32 arg3) {
     ModelAnimGroup *group;
