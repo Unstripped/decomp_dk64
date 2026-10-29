@@ -895,7 +895,7 @@ void func_800254D0(void) {
         case 5:                                     /* switch 2 */
             sfxStopSlotSound(D_807FBB40, 1);
             D_807FBB40->unk154 = 0x40;
-            bossSpawnParticleRing(0x124, (s16) (s32) D_807FBB40->unk7C, (s16) (s32) D_807FBB40->unk80, (s16) (s32) D_807FBB40->unk84, mathAngleBetweenPoints2D((f32) D_807FDCA0->unk14->unk82, (f32) D_807FDCA0->unk14->unk86, D_807FBB40->unk7C, D_807FBB40->unk84), 5);
+            bossSpawnParticleRing(0x124, (s16)D_807FBB40->unk7C, (s16)D_807FBB40->unk80, (s16)D_807FBB40->unk84, mathAngleBetweenPoints2D((f32) D_807FDCA0->unk14->unk82, (f32) D_807FDCA0->unk14->unk86, D_807FBB40->unk7C, D_807FBB40->unk84), 5);
             break;
         }
         break;
