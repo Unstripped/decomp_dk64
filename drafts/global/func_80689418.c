@@ -1,28 +1,17 @@
-// func_80689418 (src/global/8D3E0.c): unified ActorListNode types; R2ASpawnInfo stack layout matched (0x80 frame)
-#include "common.h"
-#include "actor.h"
+// func_80689418 (src/global/8D3E0.c): Stage 4: frame 0x88 vs 0x80, multu strength reduction differences in entry lookup
+typedef struct KaE_R3D3B_Entry30 {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ char unk4[4];
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ char unkA[2];
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ char unk14[0x1C];
+} KaE_R3D3B_Entry30;
+extern KaE_R3D3B_Entry30 D_8074E8B0[];
 
-typedef struct Struct8074E8B0 {
-    s16 unk0;
-    s16 unk2;
-    s32 unk4;
-    char pad8[0x28];
-} Struct8074E8B0;
-extern Struct8074E8B0 D_8074E8B0[];
-
-typedef struct R2ASpawnInfo {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    s16 unk18;
-    s16 unk1A;
-    s32 unk1C;
-} R2ASpawnInfo;
-
-typedef struct ActorListNode {
+typedef struct KaE_ActorListNode {
     /* 0x00 */ s16 unk00;
     /* 0x02 */ s16 unk02;
     /* 0x04 */ f32 unk04;
@@ -45,27 +34,39 @@ typedef struct ActorListNode {
     /* 0x54 */ f32 unk54;
     /* 0x58 */ s16 unk58;
     /* 0x5A */ s16 unk5A;
-    /* 0x5C */ s32 (*unk5C)(struct ActorListNode *);
-    /* 0x60 */ s32 (*unk60)(struct ActorListNode *);
-    /* 0x64 */ struct ActorListNode *unk64;
-    /* 0x68 */ struct ActorListNode *unk68;
-} ActorListNode;
+    /* 0x5C */ s32 (*unk5C)(struct KaE_ActorListNode *);
+    /* 0x60 */ s32 (*unk60)(struct KaE_ActorListNode *);
+    /* 0x64 */ struct KaE_ActorListNode *prev;
+    /* 0x68 */ struct KaE_ActorListNode *next;
+} KaE_ActorListNode;
 
-extern ActorListNode *D_807FC400;
+typedef struct KaE_R2ASpawnInfo {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    s16 unk18;
+    s16 unk1A;
+    s32 unk1C;
+} KaE_R2ASpawnInfo;
+
 extern Actor *D_807FBB44;
+extern ActorListNode *D_807FC400;
 
 void actorDeregisterActive(Actor *);
 void actorRegisterActive(Actor *);
-s32 actorSpawnFromInfo(R2ASpawnInfo *);
+s32 actorSpawnFromInfo(KaE_R2ASpawnInfo *);
 s32 func_80612E90(Actor *, s16, s32);
 void func_80613794(Actor *, s32);
 void func_8068A1B8(void);
 
 void func_80689418(void) {
-    R2ASpawnInfo spawnInfo;
-    ActorListNode *node;
+    KaE_R2ASpawnInfo spawnInfo;
+    KaE_ActorListNode *node;
 
-    node = D_807FC400;
+    node = (KaE_ActorListNode *)D_807FC400;
     if (node != NULL) {
         do {
             if (node->unk48 != 0) {
@@ -77,7 +78,7 @@ void func_80689418(void) {
                         node->unk10 = actor->unk7C;
                         node->unk14 = actor->unk80;
                         node->unk18 = actor->unk84;
-                        node->unk4A = actor->unk12C;
+                        node->unk4A = (s16)(s32)actor->unk12C;
                         func_80613794(node->unk44, 0);
                         func_80613794(node->unk44, 1);
                         func_80613794(node->unk44, 2);
@@ -89,7 +90,7 @@ void func_80689418(void) {
                 s32 i = 0;
                 if (actor == NULL) {
                     s16 target = node->unk00 + 0x10;
-                    Struct8074E8B0 *entry = D_8074E8B0;
+                    KaE_R3D3B_Entry30 *entry = D_8074E8B0;
                     do {
                         if (target == entry->unk0) {
                             found = 1;
@@ -101,7 +102,7 @@ void func_80689418(void) {
 
                     spawnInfo.unk0 = target;
                     spawnInfo.unk4 = D_8074E8B0[i].unk2;
-                    spawnInfo.unk8 = D_8074E8B0[i].unk4;
+                    spawnInfo.unk8 = (s32)D_8074E8B0[i].unk4;
                     spawnInfo.unkC = node->unk04;
                     spawnInfo.unk10 = node->unk08;
                     spawnInfo.unk14 = node->unk0C;
@@ -120,13 +121,13 @@ void func_80689418(void) {
                     }
                 } else if (node->unk48 == 0) {
                     if (node->unk58 != 0) {
-                        node->unk44->unk0 = func_80612E90(actor, node->unk58, 0);
+                        *(s32 *)node->unk44 = func_80612E90(actor, node->unk58, 0);
                     }
                     actorRegisterActive(node->unk44);
                     node->unk48 = 1;
                 }
             }
-            node = node->unk68;
+            node = node->next;
         } while (node != NULL);
     }
     func_8068A1B8();

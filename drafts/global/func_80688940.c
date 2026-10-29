@@ -1,42 +1,42 @@
-// func_80688940 (src/global/8D3E0.c): frame 0x70, slots 0x5C/0x60 and s0-s8 match; char pad[12]; addu and branch delay slot scheduling diff
-typedef struct R3D3B_Container {
-    s32 count;
-    ActorListRecord items[1];
-} R3D3B_Container;
-
-s32 assetLoad(s32, s32, s32, s32);
-void func_8066B424(void);
-void func_8066B434(s32, s32, s32);
-void modelAssetGetSubtables(void *, void *, void *);
-s32 func_80688C84(u16);
+// func_80688940 (src/global/8D3E0.c): Stage 5: frame 0x70, 1-insn diff at 2f8 (addiu v0,t8,4; move s1,v0 vs addiu s1,t8,4)
 extern u8 D_807500B0;
 extern s16 D_807FC408[];
+
+void *assetLoad(s32, s32, s32, s32);
+void assetSetImmediateFree(void);
+void assetFreeBuffer(void *, s32, s32);
+
+typedef struct KaE_R3D3B_Container {
+    s32 count;
+    ActorListRecord items[1];
+} KaE_R3D3B_Container;
 
 void func_80688940(void) {
     char pad[12];
     void *sp60;
-    R3D3B_Container *container;
+    KaE_R3D3B_Container *container;
     s32 j;
     ActorListRecord *item;
     s32 count;
-    s32 total;
+    u16 total;
     s32 i;
-    s32 temp_v0;
+    void *temp_v0;
 
+    total = 0;
     if (D_807500B0 == 0) {
-        total = 0;
         D_807500B0 = 1;
         for (i = 0; i < 0xDD; i++) {
             D_807FC408[i] = total;
             temp_v0 = assetLoad(9, i, 1, 1);
-            if (temp_v0 != 0) {
-                modelAssetGetSubtables((void *)temp_v0, &sp60, &container);
+            if (temp_v0 != NULL) {
+                modelAssetGetSubtables((s32)temp_v0, (s32 *)&sp60, (s32 **)&container);
                 count = container->count;
-                for (j = 0, item = container->items; j < count; j++, item++) {
-                    total = (total + func_80688C84(item->unk32 + 0x10)) & 0xFFFF;
+                item = (ActorListRecord *)((s32 *)container + 1);
+                for (j = 0; j < count; j++, item++) {
+                    total += func_80688C84(item->unk32 + 0x10);
                 }
-                func_8066B424();
-                func_8066B434(temp_v0, 0x168, 0x34);
+                assetSetImmediateFree();
+                assetFreeBuffer(temp_v0, 0x168, 0x34);
             }
         }
     }

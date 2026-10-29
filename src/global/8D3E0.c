@@ -81,9 +81,139 @@ u8 func_80689F80(ActorListNode *);
 u8 func_80689FEC(ActorListNode *);
 void func_8068A1B8(void);
 
+extern s16 D_8076A0AA;
+extern u8 D_8076A0AB;
+extern s32 D_807F6010;
+extern s32 D_807F6C28;
+
+typedef struct {
+    u8 pad0[0x18];
+    s32 unk18;
+    void *unk1C;
+    void *unk20;
+    u8 pad24[0xC0 - 0x24];
+} KaE_Struct8076A160;
+extern KaE_Struct8076A160 D_8076A160[];
+
+s32 func_80600080(s32);
+u16 modelTypeCountBeforeMap(u8);
+void modelAssetGetSubtables(s32, s32 *, s32 **);
+void modelSlotsLoadMap(s32, s32, u8, u16, s32);
+void csTimerQueueFire(s16);
+void actorListSpawnFromRecords(s32 *);
+void modelSlotsApplyRecords(void *, void *);
+void lightSetColor(f32, f32, f32, s16);
+s32 func_805FF030(u8, s32);
+void func_80688A6C(void);
+s32 func_806C7B34(void);
+
+#ifdef NON_MATCHING
+void func_806886E0(s32 arg0, u8 arg1, u8 arg2) {
+    s32 sp5C;
+    s32 *sp58;
+    s32 sp54;
+    s32 pad;
+    u16 sp4E;
+    s32 flag;
+
+    flag = 0;
+    func_80688A6C();
+    sp54 = func_80600080(D_8076A0A8);
+    if (sp54 == -1) {
+        switch (arg1) {
+        case 0:
+            D_807F6010 = arg0;
+            sp4E = modelTypeCountBeforeMap(D_8076A0AB);
+            flag = 1;
+            break;
+        case 1:
+            arg0 = D_807F6010;
+            break;
+        }
+    } else {
+        D_807F6010 = arg0;
+        arg0 = D_8076A160[sp54].unk18;
+    }
+    modelAssetGetSubtables(arg0, &sp5C, &sp58);
+    if (arg2 != 0) {
+        arg0 = 0;
+    } else {
+        arg0 = func_806C7B34();
+    }
+    modelSlotsLoadMap(sp5C, arg0, (u8)flag, sp4E, func_805FF030(D_8076A0AB, 1));
+    csTimerQueueFire(D_8076A0AA);
+    actorListSpawnFromRecords(sp58);
+    if (sp54 != -1) {
+        if (D_8076A160[sp54].unk20 != NULL) {
+            modelSlotsApplyRecords(D_8076A160[sp54].unk20, D_8076A160[sp54].unk1C);
+        }
+        if (D_807F6C28 > 0) {
+            arg0 = (s32)&D_8076A160[sp54];
+            flag = 0;
+            do {
+                lightSetColor((f32)((f64)(u32)((u8 *)arg0)[0x24] / 255.0),
+                              (f32)((f64)(u32)((u8 *)arg0)[0x25] / 255.0),
+                              (f32)((f64)(u32)((u8 *)arg0)[0x26] / 255.0),
+                              flag);
+                flag++;
+                arg0 += 3;
+            } while (flag < D_807F6C28);
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_806886E0.s")
+#endif
+extern u8 D_807500B0;
+extern s16 D_807FC408[];
+
+void *assetLoad(s32, s32, s32, s32);
+void assetSetImmediateFree(void);
+void assetFreeBuffer(void *, s32, s32);
+
+typedef struct KaE_R3D3B_Container {
+    s32 count;
+    ActorListRecord items[1];
+} KaE_R3D3B_Container;
+
+#ifdef NON_MATCHING
+void func_80688940(void) {
+    char pad[12];
+    void *sp60;
+    KaE_R3D3B_Container *container;
+    s32 j;
+    ActorListRecord *item;
+    s32 count;
+    u16 total;
+    s32 i;
+    void *temp_v0;
+
+    total = 0;
+    if (D_807500B0 == 0) {
+        D_807500B0 = 1;
+        for (i = 0; i < 0xDD; i++) {
+            D_807FC408[i] = total;
+            temp_v0 = assetLoad(9, i, 1, 1);
+            if (temp_v0 != NULL) {
+                modelAssetGetSubtables((s32)temp_v0, (s32 *)&sp60, (s32 **)&container);
+                count = container->count;
+                item = (ActorListRecord *)((s32 *)container + 1);
+                for (j = 0; j < count; j++, item++) {
+                    total += func_80688C84(item->unk32 + 0x10);
+                }
+                assetSetImmediateFree();
+                assetFreeBuffer(temp_v0, 0x168, 0x34);
+            }
+        }
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688940.s")
+#endif
+
+void *func_80610FE8(s32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688A6C.s")
 
@@ -124,7 +254,39 @@ void actorSetCustomInt(Actor *actor, s16 arg1, s32 arg2) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688D20.s")
+typedef struct {
+    void *ptr;
+    u8 pad4[0xC0 - 4];
+} KaE_Struct8076A178;
+extern KaE_Struct8076A178 D_8076A178[];
+
+void func_80688D20(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
+    s32 pad[2];
+    void *sp34;
+    void *sp30;
+    s32 temp_v0;
+    s32 count;
+    u8 found;
+    ActorListRecord *item;
+
+    found = 0;
+    temp_v0 = func_80600080(arg0);
+    if (temp_v0 != -1) {
+        modelAssetGetSubtables((s32)D_8076A178[temp_v0].ptr, (s32 *)&sp34, (s32 **)&sp30);
+        count = *(s32 *)sp30;
+        item = sp30 = (ActorListRecord *)((s32 *)sp30 + 1);
+        if (count != 0) {
+            do {
+                if (item->unk34 == arg1) {
+                    ((f32 *)item->unk10)[arg2] = arg3;
+                    found = 1;
+                }
+                count--;
+                item++;
+            } while (count != 0 && !found);
+        }
+    }
+}
 
 s16 actorListAllocId(void) {
     s16 id;
@@ -237,7 +399,117 @@ void actorListSpawnNodeEntry(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f
     func_80689250((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, (void *)arg7, 1, arg6, actorListAllocId());
 }
 
+typedef struct KaE_R3D3B_Entry30 {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ char unk4[4];
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ char unkA[2];
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ char unk14[0x1C];
+} KaE_R3D3B_Entry30;
+extern KaE_R3D3B_Entry30 D_8074E8B0[];
+
+#ifdef NON_MATCHING
+ActorListNode *func_80689250(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, void *arg6, u8 arg7, s32 arg8, s16 arg9) {
+    ActorListNode *node;
+    KaE_R3D3B_Entry30 *entry;
+    s32 found;
+    s32 i;
+
+    found = 0;
+    i = 0;
+    do {
+        if ((s16)(arg0 + 0x10) == D_8074E8B0[i].unk0) {
+            found = 1;
+        } else {
+            i++;
+        }
+    } while (!found && i < 0x80);
+    entry = &D_8074E8B0[i];
+
+    node = func_80610FE8(sizeof(ActorListNode));
+    node->unk00 = arg0;
+    node->unk0C = arg3;
+    node->unk18 = arg3;
+    node->unk04 = arg1;
+    node->unk10 = arg1;
+    node->unk08 = arg2;
+    node->unk14 = arg2;
+    node->unk5A = arg9;
+    node->unk1C = arg4;
+    node->unk44 = 0;
+    node->prev = NULL;
+    node->unk48 = 0;
+    node->unk20 = arg5;
+    node->unk5C = entry->unkC;
+    node->unk60 = entry->unk10;
+    node->unk58 = entry->unk2;
+    node->unk4A = func_806531B8(arg1, arg2, arg3, 0);
+    node->unk4C = arg7;
+    node->unk50 = arg8;
+    node->unk54 = (f32)entry->unk8 * (f32)entry->unk8;
+
+    for (i = 0; i < 8; i++) {
+        ((f32 *)node->unk24)[i] = ((f32 *)arg6)[i];
+    }
+
+    node->next = D_807FC400;
+    if (D_807FC400 != NULL) {
+        D_807FC400->prev = node;
+    }
+    D_807FC400 = node;
+
+    return node;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689250.s")
+#endif
+
+typedef struct KaE_ActorListNode {
+    /* 0x00 */ s16 unk00;
+    /* 0x02 */ s16 unk02;
+    /* 0x04 */ f32 unk04;
+    /* 0x08 */ f32 unk08;
+    /* 0x0C */ f32 unk0C;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ char unk24[0x20];
+    /* 0x44 */ Actor *unk44;
+    /* 0x48 */ u8 unk48;
+    /* 0x49 */ u8 unk49;
+    /* 0x4A */ s16 unk4A;
+    /* 0x4C */ u8 unk4C;
+    /* 0x4D */ char unk4D[3];
+    /* 0x50 */ s32 unk50;
+    /* 0x54 */ f32 unk54;
+    /* 0x58 */ s16 unk58;
+    /* 0x5A */ s16 unk5A;
+    /* 0x5C */ s32 (*unk5C)(struct KaE_ActorListNode *);
+    /* 0x60 */ s32 (*unk60)(struct KaE_ActorListNode *);
+    /* 0x64 */ struct KaE_ActorListNode *prev;
+    /* 0x68 */ struct KaE_ActorListNode *next;
+} KaE_ActorListNode;
+
+typedef struct KaE_R2ASpawnInfo {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    s16 unk18;
+    s16 unk1A;
+    s32 unk1C;
+} KaE_R2ASpawnInfo;
+
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689418.s")
 
@@ -451,7 +723,71 @@ s32 func_80689BAC(s16 arg0) {
     return 0;
 }
 
+#ifdef NON_MATCHING
+s32 func_80689C20(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
+    s32 total = *arg0;
+    u8 count = arg2;
+    s32 bestIndex = -1;
+    f32 minDistance = 9999999.0f;
+    s32 i;
+    s16 *ptr;
+    s16 *end;
+    f32 dx, dy, dz, dist;
+
+    for (i = 0; i < total; i++) {
+        if (count > 0) {
+            s32 j = 0;
+            ActorListRecord *item = (ActorListRecord *)((u8 *)arg0 + (i * 0x38) + 4);
+            s16 target = item->unk32 + 0x10;
+            if (count & 1) {
+                if (arg1[0] == target) {
+                    dx = item->unk00 - arg3;
+                    dy = item->unk04 - arg4;
+                    dz = item->unk08 - arg5;
+                    dist = (dz * dz) + ((dx * dx) + (dy * dy));
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        bestIndex = item->unk34;
+                    }
+                }
+                j = 1;
+                if (count == 1) {
+                    continue;
+                }
+            }
+            ptr = &arg1[j];
+            end = &arg1[count];
+            do {
+                if (*ptr == target) {
+                    dx = item->unk00 - arg3;
+                    dy = item->unk04 - arg4;
+                    dz = item->unk08 - arg5;
+                    dist = (dz * dz) + ((dx * dx) + (dy * dy));
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        bestIndex = item->unk34;
+                    }
+                }
+                if (*(ptr + 1) == target) {
+                    dx = item->unk00 - arg3;
+                    dy = item->unk04 - arg4;
+                    dz = item->unk08 - arg5;
+                    dist = (dz * dz) + ((dx * dx) + (dy * dy));
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        bestIndex = item->unk34;
+                    }
+                }
+                ptr += 2;
+            } while (ptr != end);
+        }
+    }
+    return bestIndex;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689C20.s")
+#endif
 
 typedef struct ActorListPlayerEntry {
     u8 unk0;

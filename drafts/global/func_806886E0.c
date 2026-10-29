@@ -1,6 +1,5 @@
-// func_806886E0 (src/global/8D3E0.c): 99% matched; 1-insn delay slot scheduling diff (sll vs move s1, zero)
-extern s32 D_8076A0A8;
-extern u8 D_8076A0AA;
+// func_806886E0 (src/global/8D3E0.c): Stage 5: 99% matched, 1-insn delay slot scheduling diff (sll vs move s1, zero)
+extern s16 D_8076A0AA;
 extern u8 D_8076A0AB;
 extern s32 D_807F6010;
 extern s32 D_807F6C28;
@@ -11,26 +10,22 @@ typedef struct {
     void *unk1C;
     void *unk20;
     u8 pad24[0xC0 - 0x24];
-} Struct8076A160;
-extern Struct8076A160 D_8076A160[];
+} KaE_Struct8076A160;
+extern KaE_Struct8076A160 D_8076A160[];
 
 s32 func_80600080(s32);
 u16 modelTypeCountBeforeMap(u8);
 void modelAssetGetSubtables(s32, s32 *, s32 **);
 void modelSlotsLoadMap(s32, s32, u8, u16, s32);
-void func_8063DBD8(u8);
-void func_80688FC0(s32 *);
+void csTimerQueueFire(s16);
+void actorListSpawnFromRecords(s32 *);
 void modelSlotsApplyRecords(void *, void *);
-void func_80659670(f32, f32, f32, s32);
+void lightSetColor(f32, f32, f32, s16);
 s32 func_805FF030(u8, s32);
 void func_80688A6C(void);
 s32 func_806C7B34(void);
 
-void func_806886E0(arg0, arg1, arg2)
-s32 arg0;
-u8 arg1;
-u8 arg2;
-{
+void func_806886E0(s32 arg0, u8 arg1, u8 arg2) {
     s32 sp5C;
     s32 *sp58;
     s32 sp54;
@@ -63,21 +58,23 @@ u8 arg2;
         arg0 = func_806C7B34();
     }
     modelSlotsLoadMap(sp5C, arg0, (u8)flag, sp4E, func_805FF030(D_8076A0AB, 1));
-    func_8063DBD8(D_8076A0AA);
-    func_80688FC0(sp58);
+    csTimerQueueFire(D_8076A0AA);
+    actorListSpawnFromRecords(sp58);
     if (sp54 != -1) {
         if (D_8076A160[sp54].unk20 != NULL) {
             modelSlotsApplyRecords(D_8076A160[sp54].unk20, D_8076A160[sp54].unk1C);
         }
-        arg0 = (s32)&D_8076A160[sp54];
-        flag = 0;
-        while (flag < D_807F6C28) {
-            func_80659670((f32)((f64)(u32)((u8 *)arg0)[0x24] / 255.0),
-                          (f32)((f64)(u32)((u8 *)arg0)[0x25] / 255.0),
-                          (f32)((f64)(u32)((u8 *)arg0)[0x26] / 255.0),
-                          flag);
-            flag++;
-            arg0 += 3;
+        if (D_807F6C28 > 0) {
+            arg0 = (s32)&D_8076A160[sp54];
+            flag = 0;
+            do {
+                lightSetColor((f32)((f64)(u32)((u8 *)arg0)[0x24] / 255.0),
+                              (f32)((f64)(u32)((u8 *)arg0)[0x25] / 255.0),
+                              (f32)((f64)(u32)((u8 *)arg0)[0x26] / 255.0),
+                              flag);
+                flag++;
+                arg0 += 3;
+            } while (flag < D_807F6C28);
         }
     }
 }

@@ -1,16 +1,4 @@
-// func_80689C20 (src/global/8D3E0.c): 0x18 frame matches; inner loop matched; register allocation difference on item/target
-typedef struct ActorListRecord {
-    /* 0x00 */ f32 unk00;
-    /* 0x04 */ f32 unk04;
-    /* 0x08 */ f32 unk08;
-    /* 0x0C */ f32 unk0C;
-    /* 0x10 */ char unk10[0x20];
-    /* 0x30 */ s16 unk30;
-    /* 0x32 */ s16 unk32;
-    /* 0x34 */ s16 unk34;
-    /* 0x36 */ char pad36[2];
-} ActorListRecord;
-
+// func_80689C20 (src/global/8D3E0.c): Stage 4: frame 0x18 matches, 4 insns diff on item/target regalloc
 s32 func_80689C20(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
     s32 total = *arg0;
     u8 count = arg2;
