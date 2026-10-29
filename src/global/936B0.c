@@ -586,7 +586,7 @@ typedef struct Prj9A_Aim174 {
     u8 pad18[4];
     Actor *unk1C;
 } Prj9A_Aim174;
-extern s32 D_807FBB64;
+extern u32 D_807FBB64;
 void func_800268C0(s32);
 void func_8071D260(void);
 s32 func_80690F30(u16, void **, void *, s32, s32, s32, f32 *, f32 *, f32 *);
@@ -1433,7 +1433,71 @@ void projectileBeamUpdate(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80694948.s")
+extern u8 D_80720268;
+
+void func_80694948(void) {
+    ProjectileActorExtra *sp34;
+    s32 var_a0;
+    s32 sp2C;
+    u8 sp2B;
+
+    sp34 = (ProjectileActorExtra *)G_PROJECTILE_ACTOR->unk174;
+    sp2B = 0;
+    if (!(G_PROJECTILE_ACTOR->unk60 & 0x10)) {
+        G_PROJECTILE_ACTOR->unk6A &= 0xFFFE;
+        G_PROJECTILE_ACTOR->unkEE = (s16)((G_PROJECTILE_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_PROJECTILE_ACTOR->unkB8 = G_PROJECTILE_ACTOR->unk124->unk4;
+        G_PROJECTILE_ACTOR->unkC0 = G_PROJECTILE_ACTOR->unk124->unk8;
+        G_PROJECTILE_ACTOR->unk144 = 0x3C;
+        func_8066EB40(D_807FBB40, 60.0f);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        func_807149FC(-1);
+        func_807149B8(1);
+        func_80714A28(4);
+        func_80714C08(&D_80720268, G_PROJECTILE_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        sp34->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
+        sp34->unk0 = D_8076A068;
+        G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
+        G_PROJECTILE_ACTOR->unk16E = 0x3C;
+        G_PROJECTILE_ACTOR->unk16F = 0x3C;
+        sp34->unk13 = (u8)(u32)G_PROJECTILE_ACTOR->unk124->unk10;
+        sp34->unk1C = 0;
+    }
+    sp2C = D_80750358;
+    if (sp34->unk13 & 2) {
+        var_a0 = 2;
+        if (D_807FC928 >= 2) {
+            var_a0 = 3;
+        }
+        func_80690C60(var_a0, D_807FBB40, &D_80720268, 0);
+    }
+    if (sp34->unk13 & 4) {
+        sp2C = D_8075036C;
+    }
+    func_8067ACB4(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
+    func_80665564(D_807FBB40, 0.0f);
+    if (!D_807FBB40->unk154 && (G_PROJECTILE_ACTOR->unkFD != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || D_807FBB85 != 0)) {
+        sp2B = 1;
+    } else if (D_807FBB40->unk154) {
+        if (D_807FBB40->unk154++ == 2) {
+            actorDespawn(D_807FBB40);
+        }
+    }
+    if (D_807FC928 >= 2) {
+        sp2C = (s32)((f32)sp2C * 1.4f);
+    }
+    if ((u32)(sp34->unk0 + sp2C) < D_8076A068) {
+        actorDespawn(D_807FBB40);
+    }
+    if (sp2B != 0) {
+        projectileSpawnExplosion();
+        func_8066EB40(D_807FBB40, 250.0f);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 250.0f, -1);
+        D_807FBB40->unk154 = 1;
+    }
+}
 
 extern u8 D_807206A8;
 extern u8 D_807206DC;
@@ -1675,7 +1739,78 @@ void projectileMatrixRotationUpdate(void) {
     actorUpdateModelMatrix(D_807FBB40, 1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80695724.s")
+extern u8 D_8072006C;
+void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
+void lightSetFlags(s32);
+
+void func_80695724(f32 arg0, u8 arg1) {
+    ProjectileRotActorExtra *temp_s2;
+    ActorSub4 *temp_v0;
+    u8 sp97;
+    u8 sp96;
+    u8 sp95;
+    f32 sp4C[4][4];
+    s32 sp48;
+
+    temp_s2 = G_PROJECTILE_ROT_ACTOR->unk174;
+    if (!(G_PROJECTILE_ROT_ACTOR->unk60 & 0x10)) {
+        if (arg1 == 1) {
+            func_806086CC(G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84, 0x306, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+        }
+        G_PROJECTILE_ROT_ACTOR->unk6A &= 0xFFFE;
+        G_PROJECTILE_ROT_ACTOR->unkEE = (s16)((G_PROJECTILE_ROT_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
+        G_PROJECTILE_ROT_ACTOR->unkE6 = G_PROJECTILE_ROT_ACTOR->unkEE;
+        G_PROJECTILE_ROT_ACTOR->unkB8 = G_PROJECTILE_ROT_ACTOR->unk124->unk4;
+        G_PROJECTILE_ROT_ACTOR->unkC0 = G_PROJECTILE_ROT_ACTOR->unk124->unk8;
+        G_PROJECTILE_ROT_ACTOR->unk132 = (u8)(u32)G_PROJECTILE_ROT_ACTOR->unk124->unk10;
+        temp_v0 = G_PROJECTILE_ROT_ACTOR->unk4;
+        temp_v0->unk34 = 2.0 * temp_v0->unk34;
+        temp_v0 = G_PROJECTILE_ROT_ACTOR->unk4;
+        temp_v0->unk38 = 2.0 * temp_v0->unk38;
+        temp_v0 = G_PROJECTILE_ROT_ACTOR->unk4;
+        temp_v0->unk3C = 2.0 * temp_v0->unk3C;
+        temp_s2->unk8 = -(func_80611BB4(G_PROJECTILE_ROT_ACTOR->unkC0, G_PROJECTILE_ROT_ACTOR->unkB8) * 57.295776f);
+        G_PROJECTILE_ROT_ACTOR->unk144 = 0x3C;
+        temp_s2->unk0 = D_8076A068;
+        temp_s2->unk12 = 0;
+        G_PROJECTILE_ROT_ACTOR->unk60 |= 0x80000;
+        temp_s2->unk10 = 0;
+    }
+    sp48 = arg1;
+    func_8067ACB4(D_807FBB40);
+    actorApplyVelocity(D_807FBB40);
+    func_80665564(D_807FBB40, arg0);
+    if (sp48 != 0) {
+        if (sp48 == 1) {
+            sp97 = 0xFF;
+            sp96 = 0;
+            sp95 = 0;
+        }
+    } else {
+        sp97 = 0xFF;
+        sp96 = 0xFF;
+        sp95 = 0xFF;
+    }
+    lightSetFlags(1);
+    lightAdd(G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, *(s32 *)&G_PROJECTILE_ROT_ACTOR->unk84, 0.0f, 0.0f, 0.0f, 80.0f, 0, sp97, sp96, sp95);
+    if (sp48 == 1) {
+        if (!temp_s2->unk12 && ((G_PROJECTILE_ROT_ACTOR->unk6A & 1) || G_PROJECTILE_ROT_ACTOR->unkFD != 0 || D_807FBB85 != 0)) {
+            func_80714950(0x1006E);
+            func_8071498C(func_8071A8B0);
+            func_80714CC0(&D_8072006C, 1.2f, G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84);
+            effectSpawnBoneWhite(0, 0, 0.8f, G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84, -0x50);
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF6, 0xFF, 0x3F, 0x14);
+            temp_s2->unk12 = 2;
+        } else if (temp_s2->unk12) {
+            if (--temp_s2->unk12 == 0) {
+                actorDespawn(D_807FBB40);
+            }
+        }
+        if ((u32)(temp_s2->unk0 + D_80750344) < D_8076A068) {
+            actorDespawn(D_807FBB40);
+        }
+    }
+}
 
 void actorApplyTransformAndRender(void) {
     ProjectileRotSub174 *sp1C;
@@ -1880,11 +2015,144 @@ void projectileHomingParticleUpdate(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80696574.s")
+typedef struct Prj9C_TrackSub {
+    u8 pad0[0x88];
+    Actor *unk88;
+    u8 pad8C[0x104 - 0x8C];
+    s32 unk104;
+} Prj9C_TrackSub;
+
+typedef struct Prj9C_TrackActor {
+    u8 pad0[0x174];
+    Prj9C_TrackSub *unk174;
+} Prj9C_TrackActor;
+
+typedef struct Prj9C_Cam104 {
+    u8 pad0[0x104];
+    s32 unk104;
+} Prj9C_Cam104;
+
+typedef struct Prj9C_Actor155 {
+    u8 pad0[0x155];
+    u8 unk155;
+} Prj9C_Actor155;
+
+extern u32 D_807FBB64;
+extern f32 D_807502F8;
+extern void *D_807FD580;
+void func_80666290(Actor *, u8 *, f32 *, u8 *, void *, s32);
+void func_80666280(s32);
+f32 func_80612790(s16);
+void func_80685B44(void *, s32, f32, s32, s32, s32, s32, s32, s32);
+
+void func_80696574(void) {
+    u32 *temp_v0;
+    s16 i;
+    u8 sp79;
+    u8 sp78;
+    u8 sp77;
+    f32 sp70;
+    f32 sp6C;
+    s32 flag;
+    f64 var_fv1;
+    Prj9C_TrackSub *sub;
+    u8 temp_v1_2;
+    f64 temp_fv0_2;
+    f32 temp_fv0;
+
+    temp_v0 = D_807FBB40->unk174;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        temp_fv0 = D_807FBB40->unk80;
+        D_807FBB40->unk9C = temp_fv0;
+        D_807FBB40->unkA0 = temp_fv0;
+        if (D_807FBB64 & 0x80000) {
+            D_807FBB40->unk144 = 0x3C;
+        } else {
+            D_807FBB40->unk144 = 0x1C;
+        }
+        *temp_v0 = D_8076A068;
+        D_807FBB40->unk60 |= 0x80000;
+        func_80666290(D_807FBB40, &sp79, &sp70, &sp78, &sp6C, sp77);
+        D_807FBB40->unkC4 = D_807502F8 - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
+        D_807FBB40->unk6A &= 0xFFFE;
+    }
+    if (D_807FBB70.unk200 == 5) {
+        sub = ((Prj9C_TrackActor *)D_807FBB70.unk1FC)->unk174;
+        if (sub->unk88 != NULL && (sub->unk88->unk58 == 0x1D || sub->unk88->unk58 == 0x50)) {
+            camStartShake(sub->unk104, 0xA, 0x14);
+            playerStateQueueCallback(0x34, D_807FBB40, 0);
+            func_80685B44(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84);
+            actorDespawn(D_807FBB40);
+        }
+    } else {
+        for (i = 0; i < D_807FBB70.unk254; i++) {
+            if (D_807FBB70.unk258[i] == 1) {
+                D_807FBB40->unk154 = 1;
+            }
+        }
+        if (D_807FBB40->unk154 == 1) {
+            func_80666280(1);
+            func_8067ACB4(D_807FBB40);
+            actorApplyVelocity(D_807FBB40);
+            func_80665564(D_807FBB40, (f32)(((f64)func_80612790((s16)(D_807FBB40->unkE8 + 0x800)) * 0.5 + 0.5) * 15.0));
+            flag = D_807FBB40->unk6A & 1;
+            if (flag != 0 && !(D_807FBB40->unk6C & 1)) {
+                temp_v1_2 = D_807FBB40->unk155[0];
+                if (temp_v1_2 < 2) {
+                    D_807FBB40->unk155[0] = temp_v1_2 + 1;
+                    D_807FBB40->unkC0 = (f32)((f64)(D_807FBB40->unkA0 - D_807FBB40->unk80) * 1.5);
+                    camStartShake(((Prj9C_Cam104 *)D_807FD580)->unk104, 0xA, 0x14);
+                    sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1C1, 0xFF, 0x7F, 0x1E);
+                    func_80685B44(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84);
+                    flag = D_807FBB40->unk6A & 1;
+                }
+            }
+            if (flag == 0) {
+                temp_fv0_2 = (f64)D_807FBB40->unkC0 * 0.5;
+                if (temp_fv0_2 > 0.0) {
+                    var_fv1 = temp_fv0_2;
+                } else {
+                    var_fv1 = -temp_fv0_2;
+                }
+                D_807FBB40->unkE8 = (s16)(s32)((f64)D_807FBB40->unkE8 - var_fv1);
+            }
+            D_807FBB40->unkC0 = D_807FBB40->unkC0 + D_807FBB40->unkC4;
+            temp_fv0 = (f32)D_807502D0;
+            if (D_807FBB40->unkC0 < temp_fv0) {
+                D_807FBB40->unkC0 = temp_fv0;
+            }
+        }
+        temp_fv0 = D_807FBB40->unk4->unk38 * 300.0f;
+        func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, (s16)(s32)temp_fv0, (s16)(s32)temp_fv0, 1, 0x96, 0x96, 0, 1.0f);
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80696A6C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_806970CC.s")
+void func_80696A6C(void);
+s16 func_80672A70(s16, s16);
+
+void func_806970CC(void) {
+    s16 temp_v0;
+    s16 t;
+
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        G_PROJECTILE_ACTOR->unkFA = 0x2328;
+    }
+    func_80696A6C();
+    if (!D_807FBB40->unkFC) {
+        return;
+    }
+    if (func_806725A0(D_807FBB40, D_807FBB40->unkEE)) {
+        return;
+    }
+    sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF5, 0xFF, 0x7F, 0x1E);
+    temp_v0 = func_80672A70(D_807FBB40->unkF4, D_807FBB40->unkF6);
+    t = D_807FBB40->unkEE;
+    t = (t + 0x800) & 0xFFF;
+    D_807FBB40->unkEE = temp_v0 + (s16)(temp_v0 - t);
+}
 
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
