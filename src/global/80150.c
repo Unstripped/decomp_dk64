@@ -68,7 +68,7 @@ s16 func_805FF018(s32, s32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 randomNonNegative(void);
 void actorScriptStart();
-void camStartPath(void *, s32, s32);
+u16 camStartPath();
 void actorUpdateModelMatrix(Actor *, s32);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
@@ -93,7 +93,7 @@ void func_8068A764(Actor *, u8);
 void func_8069B908(void);
 void slotQueueCancel(s32, s32);
 s32 func_8070E750(s32, s32, s32);
-void func_80714950(s32);
+void func_80714950();
 void func_8071496C(s32);
 void func_8071498C(void *);
 void func_80714998(s32);
@@ -463,7 +463,46 @@ void func_8067C6FC(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_8067C71C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_8067DCC0.s")
+extern s32 D_8071FE64;
+extern s32 D_8071FE88;
+extern s32 D_8071FEAC;
+void func_8071910C(void);
+void func_8060E7EC(s32, s32, s32);
+u32 func_806119A0(void);
+
+void func_8067DCC0(void) {
+    void (*sp5C)(void);
+    f32 temp_fs0;
+    u32 temp_s0;
+    s32 var_s1;
+
+    temp_fs0 = (f64) D_807FBB40->unk4->unk38 / 0.15;
+    func_8060E7EC(0, 0xB4, 0xA);
+    func_807149B8(0);
+    func_807149FC(1);
+    func_80714CC0(&D_8071FE08, (f64) temp_fs0 * 0.75, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+    sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x23, 0xFF, 0x7F, 1);
+
+    for (var_s1 = 0; var_s1 != 7; var_s1++) {
+        temp_s0 = ((s32) (func_806119A0() / 10000U)) % 3;
+        func_807149B8(1);
+        func_807149FC(0xA);
+        func_8071498C(func_8071910C);
+        func_80714998(2);
+        func_80714950(2U);
+        switch (temp_s0) {
+        case 0:
+            func_80714CC0(&D_8071FE64, (f64) temp_fs0 * 0.25, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+            break;
+        case 1:
+            func_80714CC0(&D_8071FE88, (f64) temp_fs0 * 0.25, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+            break;
+        case 2:
+            func_80714CC0(&D_8071FEAC, (f64) temp_fs0 * 0.25, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+            break;
+        }
+    }
+}
 
 void func_8067DF44(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     f64 sp80;
@@ -801,7 +840,7 @@ extern s16 D_80750390;
 extern s32 D_807FBB68;
 
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-s32 sfxAllocateChannel(s32, f32);
+void sfxAllocateChannel(s32, f32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_806F8BC4(s32, u8, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
@@ -1152,9 +1191,172 @@ void func_80683158(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
+#ifdef NON_MATCHING
+s32 func_805FEF10(void *);
+
+s32 func_806832F4(s32 arg0, s32 arg1) {
+    s32 pad;
+    s32 sp28;
+    s32 sp24 = 0;
+    struct {
+        char unk0[2];
+        s16 unk2;
+    } sp20;
+
+    switch (D_8076A0A8) {
+    default:
+        return 0;
+    case 7:
+    case 26:
+    case 30:
+    case 38:
+    case 42:
+    case 48:
+        sp28 = func_805FEF10(&sp20);
+        if (sp28 != 0) {
+            sp24 = flagGet(sp20.unk2, 0);
+            if (arg1 != 0 && sp24 == 0) {
+                flagSet(sp20.unk2, 1, 0);
+                camStartPath(D_807FBB4C, 0x19, 4);
+                D_807FBB40->unk144 = 1;
+                D_807FBB40->unk155[0] = 0xB;
+            }
+        }
+        return (sp28 != 0) && (sp24 == 0);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_806832F4.s")
+#endif
+
+typedef struct KaN3_TagBarrelData {
+    /* 0x00 */ Actor *unk0;
+    /* 0x04 */ u16 unk4;
+    /* 0x06 */ s8 unk6;
+    /* 0x07 */ s8 unk7;
+    /* 0x08 */ Actor *unk8[5];
+    /* 0x1C */ Actor *unk1C;
+    /* 0x20 */ s8 unk20;
+    /* 0x21 */ u8 pad21;
+    /* 0x22 */ s16 unk22;
+    /* 0x24 */ f32 unk24;
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ u8 pad2A[2];
+    /* 0x2C */ f32 unk2C;
+    /* 0x30 */ f32 unk30;
+    /* 0x34 */ f32 unk34;
+    /* 0x38 */ s16 unk38;
+    /* 0x3A */ u8 pad3A[2];
+    /* 0x3C */ u32 unk3C;
+} KaN3_TagBarrelData;
+
+typedef struct KaN3_KongSub {
+    u8 pad0[0x104];
+    Actor *unk104;
+    u8 pad108[0x1F0 - 0x108];
+    s32 unk1F0;
+} KaN3_KongSub;
+
+typedef struct KaN3_ActorKong {
+    u8 pad0[0x5A];
+    s16 unk5A;
+    u8 pad5C[0x12C - 0x5C];
+    s16 unk12C;
+} KaN3_ActorKong;
+
+struct KaB3_TagBarrelData;
+extern s32 D_8074E848[];
+extern s32 D_807FBB60;
+
+s32 camIsCutsceneActive(void);
+void func_806C93E4(Actor *, void *);
+void func_806C9304(Actor *, void *);
+void lightGetColor(f32 *, f32 *, f32 *, s16);
+void lightSetColor(f32, f32, f32, s32);
+void sfxSetChannelParam(s32, s32, s32);
+void camSaveYaw(Actor *);
+void func_8060DEC8(void);
+void func_8061B650(Actor *);
+void slotQueueClearAllFlags(void);
+
+#ifdef NON_MATCHING
+void func_806833DC(struct KaB3_TagBarrelData *arg0_in) {
+#define arg0 ((KaN3_TagBarrelData *)arg0_in)
+    KaN3_ActorKong *kong;
+    f32 dummy;
+    Actor *sp34;
+    KaN3_KongSub *sp30;
+    s32 sp28;
+
+    switch (D_807FBB40->unk155[0]) {
+    case 0xB:
+        if (camIsCutsceneActive() == 0) {
+            D_807FBB40->unk144 = 2;
+            D_807FBB40->unk155[0] = 0;
+        }
+        break;
+    case 0:
+    case 0xA:
+        if (D_807FBB70.unk200 == 4) {
+            arg0->unk0 = (Actor *)D_807FBB70.unk1FC;
+            arg0->unk0->unk144 = 1;
+            ((KaN3_KongSub *)arg0->unk0->unk174)->unk1F0 |= 0x20000000;
+            D_807FBB40->unk155[0] = 1;
+            arg0->unk4 = 2;
+            arg0->unk3C = 0;
+        }
+        break;
+    case 1:
+        if (arg0->unk4 != 0) {
+            arg0->unk4--;
+        } else {
+            sp34 = arg0->unk0;
+            sp28 = ((KaN3_ActorKong *)sp34)->unk12C;
+            sp30 = sp34->unk174;
+            if (sp28 == -1) {
+                sp28 = 0;
+            }
+            func_806C93E4(arg0->unk0, sp30);
+            func_806C9304(arg0->unk0, sp30);
+            lightGetColor(&arg0->unk2C, &arg0->unk30, &arg0->unk34, (s16)sp28);
+            kong = (KaN3_ActorKong *)sp34;
+            lightSetColor(dummy = 1.0f, 1.0f, 1.0f, (s16)sp28);
+            D_807FBB40->unkE6 = arg0->unk22;
+            D_807FBB40->unk144 = 1;
+            sp28 = kong->unk5A;
+            D_807FBB60 &= 0xFFFCFFCF;
+            arg0->unk6 = 0;
+            if (sp28 != ((R2FKongAction *)D_8074E814)[arg0->unk6].unk2) {
+                do {
+                    arg0->unk6++;
+                } while (sp28 != ((R2FKongAction *)D_8074E814)[arg0->unk6].unk2);
+            }
+            arg0->unk7 = arg0->unk6;
+            if (D_8076A0A8 != 0x11) {
+                sfxAllocateChannel(0x65, 1.0f);
+                sfxSetChannelParam(0x65, 0x7E - D_8074E848[arg0->unk6], 1);
+            }
+            flagSet(func_805FF018(D_807FBB40->unk58, arg0->unk6), 1, 0);
+            tagBarrelSpawnKongs((R2FStruct_80682E38 *)arg0);
+            camSaveYaw(sp30->unk104);
+            arg0->unk38 = sp34->unkE6;
+            sp34->unkE6 = D_807FBB40->unkE6;
+            func_8060DEC8();
+            camStartPath(D_807FBB40, 0xE, 0xC);
+            func_8061B650(sp30->unk104);
+            slotQueueClearAllFlags();
+            D_807FBB40->unk154 = 1;
+            D_807FBB40->unk155[0] = 0;
+        }
+        break;
+    }
+#undef arg0
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_806833DC.s")
+#endif
 
 typedef struct KaN4_Pad {
     u8 pad0[0x2C];
@@ -1205,8 +1407,6 @@ typedef struct KaN4_ActorKong {
     s32 unk12C;
 } KaN4_ActorKong;
 
-extern s32 D_8074E848[];
-extern s32 D_807FBB60;
 
 s32 func_805FCA64(void);
 s32 screenWipeGetState(void);
@@ -1217,8 +1417,6 @@ void camRestoreYaw(Actor *);
 void camResetPlayer(Actor *, s32);
 void func_806C8E58(s16);
 void func_80609140(s32, s32, f32, f32, s32, s32);
-void lightSetColor(f32, f32, f32, s32);
-void sfxSetChannelParam(s32, s32, s32);
 struct KaB3_TagBarrelData;
 
 #ifdef NON_MATCHING
@@ -1328,7 +1526,131 @@ s32 tagBarrelIsKongUnlocked(ActorGroup5 *arg0, s32 arg1) {
     return ret;
 }
 
+#ifdef NON_MATCHING
+extern Gfx D_1000118;
+extern Mtx D_20000C0;
+extern Mtx D_2000180;
+extern s16 D_80744490;
+extern s16 D_80744494;
+extern u32 D_8076A064;
+
+Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, s32);
+s32 textGetFontHeight(s32);
+
+Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
+    f32 spF8;
+    f32 spF0;
+    u8 pad70[0x40];
+    s32 sp6C;
+    u8 pad48[0x24];
+    s32 sp44;
+    f32 temp_fa0;
+    f32 temp_fa0_2;
+    f32 temp_fa0_3;
+    f32 temp_fa1;
+    f32 temp_fv0;
+    f32 temp_fv0_2;
+    f32 temp_fv0_3;
+    f32 temp_fv0_4;
+    f32 temp_fv1;
+    f32 temp_fv1_2;
+    f32 var_fa0;
+    f32 var_fa0_2;
+    f32 var_fv0;
+    f32 var_fv0_2;
+    f32 var_fv1;
+    f32 var_fv1_2;
+    s32 temp_ft3;
+    s32 temp_v0;
+    KaN3_TagBarrelData *temp_s1;
+
+    temp_s1 = (KaN3_TagBarrelData *)arg1->unk174;
+    temp_fa0 = (f32) ((f64) (D_80744494 - 0x1E) * 4.0);
+    if (arg1->unk154 != 1) {
+        return arg0;
+    }
+    arg0->words.w0 = 0xDE000000;
+    arg0->words.w1 = (u32)&D_1000118;
+    arg0++;
+    arg0->words.w0 = 0xFCFFFFFF;
+    arg0->words.w1 = 0xFFFCF279;
+    arg0++;
+    arg0->words.w0 = 0xDA380007;
+    arg0->words.w1 = (u32)&D_20000C0;
+    arg0++;
+    arg0->words.w0 = 0xDA380003;
+    arg0->words.w1 = (u32)&D_2000180;
+    arg0++;
+    temp_ft3 = (s32) temp_fa0;
+    sp44 = (s16) temp_ft3;
+    spF0 = temp_fa0;
+    arg0 = func_8068C5A8(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, 0xA0, (s16)temp_ft3, 5.0f, 5.0f, 0, 0.0f);
+    arg0 = func_8068C5A8(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, (s32)((f64)(D_80744490 - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f);
+    spF8 = (f32)(u32)temp_s1->unk4 * 0.05f;
+    sp6C = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk6);
+    spF0 -= (f32) textGetFontHeight(1) * 1.2f;
+    arg0[0].words.w0 = 0xFCFF97FF;
+    arg0[0].words.w1 = 0xFF2CFE7F;
+    arg0++;
+    if (sp6C != 0) {
+        temp_fv0 = 1.0f - spF8;
+        temp_fv1 = temp_fv0 * 0.5f;
+        var_fa0 = temp_fv1;
+        if (temp_s1->unk20 < 0) {
+            var_fa0 = 1.0f - temp_fv1;
+        }
+        temp_fv1_2 = 2.0f * temp_fv0;
+        temp_fa0_2 = var_fa0 * ((f32) D_80744490 * 4.0f);
+        if (temp_fv1_2 < 1.0f) {
+            var_fv0 = 0.0f;
+        } else {
+            temp_fv0_2 = temp_fv1_2 - 1.0f;
+            if (temp_fv0_2 > 1.0f) {
+                var_fv1 = 1.0f;
+            } else {
+                var_fv1 = temp_fv0_2;
+            }
+            var_fv0 = var_fv1;
+        }
+        arg0[0].words.w0 = 0xFA000000;
+        arg0[0].words.w1 = (s32) (((u32) (var_fv0 * 255.0f) & 0xFF) | ~0xFF);
+        arg0++;
+        arg0 = hudDrawScaledText(arg0, (s16) (s32) temp_fa0_2, (s16) (s32) spF0, 0.15f, sp6C);
+    }
+    if (temp_s1->unk4 != 0) {
+        temp_v0 = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk7);
+        if (temp_v0 != 0) {
+            temp_fv0_3 = 0.5f * spF8;
+            var_fa0_2 = temp_fv0_3;
+            if (temp_s1->unk20 > 0) {
+                var_fa0_2 = 1.0f - temp_fv0_3;
+            }
+            temp_fv0_4 = 2.0f * spF8;
+            temp_fa0_3 = var_fa0_2 * ((f32) D_80744490 * 4.0f);
+            if (temp_fv0_4 < 1.0f) {
+                var_fv0_2 = 0.0f;
+            } else {
+                temp_fa1 = temp_fv0_4 - 1.0f;
+                if (temp_fa1 > 1.0f) {
+                    var_fv1_2 = 1.0f;
+                } else {
+                    var_fv1_2 = temp_fa1;
+                }
+                var_fv0_2 = var_fv1_2;
+            }
+            arg0[0].words.w0 = 0xFA000000;
+            arg0[0].words.w1 = (s32) (((u32) (var_fv0_2 * 255.0f) & 0xFF) | ~0xFF);
+            arg0++;
+            arg0 = hudDrawScaledText(arg0, (s16) (s32) temp_fa0_3, (s16) (s32) spF0, 0.15f, temp_v0);
+        }
+    }
+    return arg0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_80683AD8.s")
+#endif
 
 void tagBarrelInitUnlockedKongs(Actor *arg0) {
     s32 i;
