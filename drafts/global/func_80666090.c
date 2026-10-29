@@ -1,4 +1,4 @@
-// func_80666090 (src/global/6AD90.c): STAGE 4 (frame 0x60, s0-s3 saved, address caching in s0/s2/s3 reached by direct global access, parked NON_MATCHING in src copy): remaining ~10 text rows = temp regs in loop (second E[i] ptr load uses a0 vs expected t1; lw *a3 t2 vs a0; addu a1 operand order). Needs pad5C/pad30 used locals for frame, one deadsweep 'if (D_807F9514 && D_807F9514) {}' in loop; permuter 55 vs 65 only.
+// func_80666090 (src/global/6AD90.c): stage 4 (10 text rows): loop addu operand order reversed vs target (target 'addu t8,v0,t7' base+(a3-s1); 'addu a1,s1,a0' s1+*a3; ours complex first) plus resulting t1/a0/t2 temp swaps. Tried: s32/u32 pointer-free locals, deadsweep 780 variants (no gain), prior permuter.
 typedef struct {
     u8 pad0[4];
     u32 unk4;

@@ -1031,7 +1031,7 @@ typedef struct CollisionActorWork {
     u8 unk12F;
 } CollisionActorWork;
 
-void func_806699C4(CollisionActorWork *, s16, s8, s8, f32, f32, f32);
+void func_806699C4(CollisionActorWork *, s16, s8, u8, f32, f32, f32);
 void func_8066C610(s16, s8, float [4][4]);
 s32 hashTableLookup();
 
@@ -1111,26 +1111,21 @@ s32 collisionCheckTriangleWindingF32(CollisionTriF *arg0) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 void matrix4Invert(float [4][4], float [4][4]);
 
-void func_806699C4(CollisionActorWork *arg0, s16 arg1, s8 arg2, s8 arg3, f32 arg4, f32 arg5, f32 arg6) {
+void func_806699C4(CollisionActorWork *arg0, s16 arg1, s8 arg2, u8 arg3, f32 arg4, f32 arg5, f32 arg6) {
     f32 pad2[10];
     float spB0[4][4];
     float pad[4][4];
     float sp30[4][4];
 
-    arg0->unk10C = (arg1 + D_807F6000)->unk88;
-    arg0->unk10E = (((((((((arg3 & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF); // FAKE: nine nested &0xFF shift uopt temp numbering
+    arg0->unk10C = D_807F6000[arg1].unk88;
+    arg0->unk10E = arg3;
     arg0->unk10F = arg2;
     func_8066C610(arg1, arg2, spB0);
     matrix4Invert(sp30, spB0);
     guMtxXFMF(sp30, arg4, arg5, arg6, &arg0->unk100, &arg0->unk104, &arg0->unk108);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806699C4.s")
-#endif
 
 void actorUpdateSubnodeRotationAndMtx(CollisionActorWork *arg0) {
     f32 pad[10];

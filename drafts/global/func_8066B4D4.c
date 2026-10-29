@@ -1,4 +1,4 @@
-// func_8066B4D4 (src/global/6AD90.c): func_8066B4D4 (src/global/6AD90.c): stage 5, 1 insn differs: then-path 'addu a0,t5,t4' target vs 'addu a0,t4,t5' (operand order; casts/xor0/comma/named temp all fail). Found via permuter: 'var_t0 = arg1' first, local t = table[1]&0x7FFFFFFF in else, decl order pad,sp44,t,sp38,table,temp_v0,sp2C,var_t0
+// func_8066B4D4 (src/global/6AD90.c): stage 5: 1 insn: then-path addu a0,t5,t4 (D_8000DDCC first) vs ours addu a0,t4,t5; numbering (and=t4,D=t5) already equal. Tried: operand/cast/pointer/named-temp spellings, dead expr stmts, u32/s16/u8 param+local types, 200 random decl orders, deadsweep 75 variants, permuter 300s: none flips operand order (uopt canonical operand order by expr ids). 80666090 shows the same reversed (var vs complex) addu order.
 extern s32 D_8000DDCC;
 extern s32 *D_807F9528[];
 void func_8060B140(s32, void *, void *, s32, s32, s32, s32);

@@ -1,4 +1,4 @@
-// func_806672B8 (src/global/6AD90.c): STAGE 6: 1 insn off (final return reads sp9F with lb instead of lbu); frame 0xF8 and all offsets/regs exact. sp9F must be s8 (u8 gets enregistered -> lbu v1/move v0,v1 instead of 2 loads); with (u8) cast on test or return one lbu appears but the other lb remains, both casts CSE the load (82 rows). Needs pad[2]+spA0[12]+decl order (temp_fs1,temp_s0 first), u8 temp_s0, effectGetTableFlag u8 return, func_806608FC 4th param u8, s8 view for unkB0=-1, unk6A before unkB0 store.
+// func_806672B8 (src/global/6AD90.c): stage 6: only final-test load: target 'lbu t4,159(sp)' (test) + separate 'lbu v0,159(sp)' (return), ours lb/lbu with s8 sp9F. u8 sp9F gets enregistered (extra candidate coloured v0, constant 1 hoisted to s8, 'lbu v1;move v0,v1'). Tried (u8) casts on test/return in all combos, u8/s8/u32 return type, volatile u8 (allocation shifts), u8 sp9C[4] array, struct{u8} (frame shrinks), address-taken (&sp9F) (allocation shifts 90 rows): none.
 typedef struct Col6A2SubNode {
     /* 0x00 */ u8 pad0[0x46];
     /* 0x46 */ s16 unk46;
