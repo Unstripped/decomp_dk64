@@ -190,7 +190,12 @@ def restore_locals(lines, base_lines):
         if any(l.strip() == line.strip() for l in body):
             continue
         use = rf"\b{re.escape(name)}\b"
-        if re.search(use, header) or any(LOCAL_DECL.match(l) and LOCAL_DECL.match(l).group(1) == name for l in body):
+        # declared again elsewhere in the body, also inline after a brace: `{ s32 tv = ...;`
+        redecl = re.compile(
+            r"(?:^|[{;])\s*(?!(?:return|goto|else|case|do|default|break|continue|sizeof)\b)"
+            r"(?:(?:const|volatile|static|register|unsigned|signed|struct|union|enum)\s+)*"
+            rf"[A-Za-z_]\w*[\s\*]+{re.escape(name)}\s*(?:\[[^\]]*\]\s*)*(?:=|;)")
+        if re.search(use, header) or any(redecl.search(l) for l in body):
             continue  # a parameter, or declared again elsewhere in the body
         if not any(re.search(use, l) for l in body):
             continue
