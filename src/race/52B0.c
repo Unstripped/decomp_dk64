@@ -1,76 +1,10 @@
 #include "common.h"
 
 extern s32 D_8002FC5C[];
-void func_8002CAC8(s32, void *, s32);
+void func_8002CAC8(s32, void *, void *);
 void func_8002D0B0(void);
 s32 func_8002E8EC(s32, s32, s32);
 
-void func_800292B0(s32 arg0, u8 *arg1) {
-    func_8002CAC8(arg0, arg1, *(s32 *)(arg1 + 0x174));
-}
-
-extern u8 D_807FC928;
-extern void *D_807FBB40;
-extern void *D_807FBB44;
-void func_8002BBD0(void *, s32);
-void actorSpawn(s32, s32);
-void func_8002BC2C(void *, s32, void *, void *);
-void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
-void func_8002BCB0(void *, s32, void *, void *);
-void actorInitFromSpawnPoint(void *, void *);
-
-void func_800292D0(u8 *arg0) {
-    u8 *sp5C;
-    u8 *sp58;
-    u8 *sp54;
-    s32 var_s1;
-    s32 var_s0;
-    s32 var_s5;
-
-    var_s5 = D_807FC928;
-    var_s1 = 0;
-    sp5C = *(u8 **)(arg0 + 0x174);
-    if (var_s5 == 1) {
-        var_s5++;
-    }
-    func_8002BBD0(arg0, var_s5);
-    for (var_s0 = 0; var_s0 < D_807FC928; var_s0++) {
-        actorSpawn(0x133, 0x9F);
-        sp54 = (u8 *)D_807FBB44;
-        sp58 = *(u8 **)(sp54 + 0x174);
-        sp58[0x27] = 0;
-        func_8002BC2C(arg0, var_s1, sp54, sp58);
-        var_s1++;
-        sp58[0x28] = var_s0;
-    }
-    var_s0 = 0;
-    if (D_807FC928 == 1) {
-        sp54 = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
-        sp58 = *(u8 **)(sp54 + 0x178);
-        sp58[0x27] = 1;
-        func_8002BC2C(arg0, var_s1, sp54, sp58);
-        func_8002BCB0(arg0, 0, *(void **)(sp54 + 0x180), (u8 *)*(void **)(sp54 + 0x180) + 4);
-        sp5C[0x25] = 1;
-    } else {
-        sp5C[0x25] = 0;
-    }
-    if (var_s5 > 0) {
-        do {
-            func_8002BCB0(arg0, var_s0, &sp54, &sp58);
-            sp58[0x36] = var_s0;
-            *(void **)(sp58 + 0x30) = arg0;
-            if (sp58[0x27] == 0) {
-                actorInitFromSpawnPoint(sp54, sp58);
-            }
-            var_s0++;
-        } while (var_s0 != var_s5);
-    }
-    sp5C[0x26] = 0;
-}
-
-void func_80029488(void) {
-    func_8002D0B0();
-}
 typedef struct {
     u8 pad0[0x4];
     f32 unk4;
@@ -81,20 +15,23 @@ typedef struct {
     u8 pad1E[0x25 - 0x1E];
     u8 unk25;
     u8 unk26;
-    u8 pad27;
+    u8 unk27;
     u8 unk28;
     u8 pad29[0x30 - 0x29];
     void *unk30;
     u8 unk34;
     u8 unk35;
-    u8 pad36[0x44 - 0x36];
+    u8 unk36;
+    u8 pad37[0x44 - 0x37];
     u8 unk44;
     u8 pad45[0x104 - 0x45];
     s32 unk104;
 } RaceC_State;
 
+typedef struct RaceC_Actor RaceC_Actor;
+
 typedef struct {
-    void *unk0;
+    RaceC_Actor *unk0;
     s32 unk4;
     u8 unk8;
     u8 pad9;
@@ -114,7 +51,7 @@ typedef struct {
     u16 unk64;
 } RaceC_Sub;
 
-typedef struct {
+struct RaceC_Actor {
     u8 pad0[0x4];
     RaceC_Sub *unk4;
     u8 pad8[0x60 - 0x8];
@@ -139,10 +76,10 @@ typedef struct {
     u8 unk144;
     u8 pad145[0x174 - 0x145];
     RaceC_State *unk174;
-    s32 unk178;
-    s32 unk17C;
+    RaceC_State *unk178;
+    void *unk17C;
     RaceC_Target *unk180;
-} RaceC_Actor;
+};
 
 typedef struct {
     u8 pad0[4];
@@ -152,24 +89,91 @@ typedef struct {
 
 #define RC_A ((RaceC_Actor *)D_807FBB40)
 
+extern u8 D_807FC928;
+extern void *D_807FBB40;
+extern RaceC_Actor *D_807FBB44;
+void func_8002BBD0(void *, s32);
+void actorSpawn(s32, s32);
+void func_8002BC2C(void *, s32, void *, void *);
+RaceC_Actor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
+void func_8002BCB0(void *, s32, void *, void *);
+void actorInitFromSpawnPoint(void *, void *);
+
+void func_800292B0(s32 arg0, RaceC_Actor *arg1) {
+    func_8002CAC8(arg0, arg1, arg1->unk174);
+}
+
+void func_800292D0(RaceC_Actor *arg0) {
+    RaceC_State *sp5C;
+    RaceC_State *sp58;
+    RaceC_Actor *sp54;
+    s32 var_s1;
+    s32 var_s0;
+    s32 var_s5;
+
+    var_s5 = D_807FC928;
+    var_s1 = 0;
+    sp5C = arg0->unk174;
+    if (var_s5 == 1) {
+        var_s5++;
+    }
+    func_8002BBD0(arg0, var_s5);
+    for (var_s0 = 0; var_s0 < D_807FC928; var_s0++) {
+        actorSpawn(0x133, 0x9F);
+        sp54 = D_807FBB44;
+        sp58 = sp54->unk174;
+        sp58->unk27 = 0;
+        func_8002BC2C(arg0, var_s1, sp54, sp58);
+        var_s1++;
+        sp58->unk28 = var_s0;
+    }
+    var_s0 = 0;
+    if (D_807FC928 == 1) {
+        sp54 = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
+        sp58 = sp54->unk178;
+        sp58->unk27 = 1;
+        func_8002BC2C(arg0, var_s1, sp54, sp58);
+        func_8002BCB0(arg0, 0, sp54->unk180, &sp54->unk180->unk4);
+        sp5C->unk25 = 1;
+    } else {
+        sp5C->unk25 = 0;
+    }
+    if (var_s5 > 0) {
+        do {
+            func_8002BCB0(arg0, var_s0, &sp54, &sp58);
+            sp58->unk36 = var_s0;
+            sp58->unk30 = arg0;
+            if (sp58->unk27 == 0) {
+                actorInitFromSpawnPoint(sp54, sp58);
+            }
+            var_s0++;
+        } while (var_s0 != var_s5);
+    }
+    sp5C->unk26 = 0;
+}
+
+void func_80029488(void) {
+    func_8002D0B0();
+}
+
 extern RaceC_Player *D_807FC924;
 void actorInitAnimations(void *, void *);
 void actorOrNodeFlags(void *, s32, s32);
-void func_80690190(void *, s32);
+void func_80690190(void *, void *);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
 void camSetTargetScaled(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 f32 func_8002D2C0(void *);
-void func_8068F72C(void *, s32, s32, s32);
+void func_8068F72C(void *, void *, s32, s32);
 s32 func_807142D8(void);
 void renderCallbacksRegister(void *, void *, s32);
 void sfxStopSlotSound(void *, u8);
-void actorInterpolateAngles(u8, void *, s32);
+void actorInterpolateAngles(u8, void *, void *);
 void actorUpdateModelMatrix(void *, s32);
 
 void func_800294A8(void) {
     s32 v34;
-    s32 sp68;
+    RaceC_State *sp68;
     RaceC_State *s4;
     RaceC_State *s1;
     RaceC_State *s0;
@@ -283,6 +287,8 @@ s32 func_8002A080(s32 arg0, s32 arg1) {
 typedef struct {
     u8 pad0[0x25];
     u8 unk25;
+    u8 pad26[2];
+    u8 unk28;
 } RaceC_DC90;
 
 typedef struct {
@@ -296,8 +302,15 @@ typedef struct {
 } RaceC_DC9C;
 
 typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    u8 pad6[4];
+} RaceC_Waypoint;
+
+typedef struct {
     u8 pad0[0x14];
-    s16 *unk14;
+    RaceC_Waypoint *unk14;
 } RaceC_DCA0;
 
 extern RaceC_DC90 *D_807FDC90;
@@ -329,7 +342,7 @@ void actorScriptStart(void *, s32);
 
 void func_8002A0AC(void) {
     RaceC_State *s0;
-    s32 sp50;
+    void *sp50;
     RaceC_Target *sp4C;
     f32 sp48;
     f64 dv;
@@ -341,7 +354,7 @@ void func_8002A0AC(void) {
     s32 v;
     f32 fv1;
 
-    s0 = (RaceC_State *)RC_A->unk178;
+    s0 = RC_A->unk178;
     sp50 = RC_A->unk17C;
     sp4C = RC_A->unk180;
     sp48 = 0.0f;
@@ -361,9 +374,9 @@ void func_8002A0AC(void) {
         s0->unk4 = 1.0f;
         D_807FDC90->unk25 = D_807FDC9C->unk11 - 5;
         idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
-        RC_A->unk7C = ((s16 (*)[5])D_807FDCA0->unk14)[idx][0];
-        RC_A->unk80 = ((s16 (*)[5])D_807FDCA0->unk14)[idx][1];
-        RC_A->unk84 = ((s16 (*)[5])D_807FDCA0->unk14)[idx][2];
+        RC_A->unk7C = D_807FDCA0->unk14[idx].unk0;
+        RC_A->unk80 = D_807FDCA0->unk14[idx].unk2;
+        RC_A->unk84 = D_807FDCA0->unk14[idx].unk4;
         D_80750AC8 = 0xA;
     }
     if (sp4C->unkA != 0) {
@@ -441,7 +454,7 @@ void func_8002A0AC(void) {
         break;
     case 0x2A0:
         if (RC_A->unk4->unk0->unk10 == 0x4A7) {
-            func_80029F88(D_807FBB40, s0, RC_A->unkB8 - ((RaceC_Actor *)sp4C->unk0)->unkB8, (sp48 - D_8002FC30) * 40.0f, 23.0f);
+            func_80029F88(D_807FBB40, s0, RC_A->unkB8 - sp4C->unk0->unkB8, (sp48 - D_8002FC30) * 40.0f, 23.0f);
             break;
         }
     default:
@@ -451,5 +464,5 @@ void func_8002A0AC(void) {
         break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
-    func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
+    func_8072881C(0, &D_807FDC90->unk28);
 }
