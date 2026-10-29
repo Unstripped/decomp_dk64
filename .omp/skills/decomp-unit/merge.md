@@ -53,9 +53,10 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
   fix the printed clash in `src`, then `tools/merge_gate.sh - - src/<seg>/<f>.c` (merge with
   no copies: re-prunes, re-checks, gates). To restart a failed merge, restore the pre-merge
   state you verified (your own `cp`, or HEAD only when `git diff` shows no uncommitted work).
-- A gate failing with `build/global.gz: ... exceed segment size` after merging a copy that
-  only improved parks: the copy left a park's C bare (no `#ifdef`). `git checkout` the file
-  (HEAD has no other uncommitted work) and take only its real matches via `drafts.py paste`.
+- `build/global.gz: ... exceed segment size` means some text differs (a bare unparked C
+  function, or a non-match such as swapped `mul.s` operands in a "reloc-only" paste). Check
+  the merged file for a function that lost its `#ifdef NON_MATCHING` block. Before restoring,
+  `git diff` the file and `cp` it aside; then restore and take only real matches (`drafts.py paste`).
 - A multi-file gate stops at the first failing file: the later files' copies were never
   merged. After fixing, re-gate those files WITH the copy and its base (`- -` merges nothing:
   jetpac 3060.c's two matches were silently dropped that way and found only via `left`).
