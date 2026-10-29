@@ -1,36 +1,36 @@
-// func_80681E18 (src/global/80150.c): from .scratch/R3D/func_80681E18_best.c
-typedef struct R2H_80681E18 {
+// func_80681E18 (src/global/80150.c): Stage 3: updated stale callee names (collisionCheckGroundAtPoint, sfxAllocateChannel); switch on unk154 with kong check
+typedef struct KaB2_80681E18 {
     s16 unk0;
     s16 pad2;
     Actor *unk4;
-} R2H_80681E18;
+} KaB2_80681E18;
 
-typedef struct R2H_ActorD580 {
+typedef struct KaB2_ActorD580 {
     u8 pad0[0x1A3];
     u8 unk1A3;
-} R2H_ActorD580;
+} KaB2_ActorD580;
 
 extern u8 D_807FC950[][0x5E];
 extern s16 D_80750390;
 extern s32 D_807FBB68;
 
-void func_80667110(f32, f32, f32 *);
-void func_80602A94(s32, f32);
+u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
+s32 sfxAllocateChannel(s32, f32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_80608528(Actor *, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void func_806F8BC4(s32, u8, s32);
 void func_80679200(Actor *, s32, s32, u8, s32, void *);
 void func_8067AAB8(Actor *, Actor *, s16, f32, s16);
 void func_806C7BAC(Actor *, Actor *);
 
 void func_80681E18(void) {
-    R2H_80681E18 *var_v1;
+    KaB2_80681E18 *var_v1;
     s32 pad[3];
 
-    var_v1 = (R2H_80681E18 *)D_807FBB40->unk174;
+    var_v1 = (KaB2_80681E18 *)D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unkA4 = 99999.0f;
-        func_80667110(D_807FBB40->unk7C, D_807FBB40->unk84, &D_807FBB40->unkA4);
+        collisionCheckGroundAtPoint(D_807FBB40->unk7C, D_807FBB40->unk84, &D_807FBB40->unkA4);
         if (1 == *(s32 *)D_807FBB40->unk124) {
             if (func_8067B450(D_807FBB40) == 0) {
                 D_807FBB40->unk154 = 0x14;
@@ -48,7 +48,7 @@ void func_80681E18(void) {
         D_807FBB40->unk60 |= 0x200000;
         if ((D_8076A0A8 == 0x11) || (D_8076A0A8 == 0xC9) || (D_8076A0A8 == 0xCC)) {
         } else {
-            func_80602A94(0x48, 1.0f);
+            sfxAllocateChannel(0x48, 1.0f);
         }
     }
     switch (D_807FBB40->unk154) {
@@ -71,7 +71,7 @@ void func_80681E18(void) {
     case 1:
         var_v1->unk0--;
         if (var_v1->unk0 == 0) {
-            func_80608528(D_807FBB40, 0x1C6, 0xFF, 0x7F, 0);
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1C6, 0xFF, 0x7F, 0);
             D_807FBB40->unk154 = 2;
             func_806F8BC4(5, (D_807FBB68 & 2) ? 0 : 1, 0);
         }
@@ -83,7 +83,7 @@ void func_80681E18(void) {
         func_80679200(var_v1->unk4, (s32)D_807FBB40, 0x40, 1, 0, 0);
         func_8067AAB8(D_807FBB40, var_v1->unk4, var_v1->unk4->unkE6, (f32) D_80750390, 0);
         func_806C7BAC(var_v1->unk4, D_807FBB40);
-        ((R2H_ActorD580 *)D_807FD580)->unk1A3 = 1;
+        ((KaB2_ActorD580 *)D_807FD580)->unk1A3 = 1;
         D_807FBB40->unk154 = 3;
         break;
     case 3:

@@ -1,15 +1,25 @@
-// func_8067BA7C (src/global/80150.c): from .scratch/R2G/func_8067BA7C_best.c
-void func_8067BA7C(s32 arg0) {
-    Actor *actor = D_807FBB40;
+// func_8067BA7C (src/global/80150.c): stage 3: frame size 0x30 matches, s0 matches, missing s1=&D_807FBB40 hoist
+void animSetSpeed(Actor *, s32, f32);
+void animSetLoopMode(Actor *, s32, s32);
+void animSetDirection(Actor *, s32, s32);
+void animSetLoopLimit(Actor *, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
+void func_80689114(s16, f32, f32, f32, s16, f32, void *);
+extern u8 D_807FBBA8;
+extern s32 D_8071FE08;
+void func_807149B8(s32);
+void func_807149FC(s32);
+void func_80714CC0(void *, f32, f32, f32, f32);
+void actorUpdateModelMatrix(Actor *, s32);
 
-    if (!(actor->unk60 & 0x10) && arg0 == 0x13) {
-        func_80688370(actor, 0, 0.5f);
-        func_806883C8(D_807FBB40, 0, 0);
-        func_8068839C(D_807FBB40, 0, 0);
-        func_8068842C(D_807FBB40, 0, -1);
-        actor = D_807FBB40;
+void func_8067BA7C(s32 arg0) {
+    if (!(D_807FBB40->unk60 & 0x10) && arg0 == 0x13) {
+        animSetSpeed(D_807FBB40, 0, 0.5f);
+        animSetLoopMode(D_807FBB40, 0, 0);
+        animSetDirection(D_807FBB40, 0, 0);
+        animSetLoopLimit(D_807FBB40, 0, -1);
     }
-    switch (actor->unk154) {
+    switch (D_807FBB40->unk154) {
     case 0:
     case 1:
     case 2:
@@ -30,34 +40,29 @@ void func_8067BA7C(s32 arg0) {
     case 19:
         break;
     case 10:
-        func_80608528(actor, 0x31, 0xFF, 0x7F, 1);
+        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x31, 0xFF, 0x7F, 1);
         func_807149B8(0);
         func_807149FC(1);
-        actor = D_807FBB40;
-        func_80714CC0(&D_8071FE08, 0.5f, actor->unk7C, actor->unk80 + 7.0f, actor->unk84);
-        actor = D_807FBB40;
-        func_80689114((s16)arg0, actor->unk7C, (f32)((f64)actor->unk80 + 8.3), actor->unk84, 0, 1.0f, actor);
-        actor = D_807FBB40;
-        actor->unk154++;
+        func_80714CC0(&D_8071FE08, 0.5f, D_807FBB40->unk7C, D_807FBB40->unk80 + 7.0f, D_807FBB40->unk84);
+        func_80689114(arg0, D_807FBB40->unk7C, (f32)((f64)D_807FBB40->unk80 + 8.3), D_807FBB40->unk84, 0, 1.0f, D_807FBB40);
+        D_807FBB40->unk154++;
         break;
     case 11:
         if (D_807FBBA8 != 0) {
-            actor->unk154 = 0x14;
+            D_807FBB40->unk154 = 0x14;
         }
         break;
     case 20:
         if (arg0 == 0x95) {
-            actor = D_807FBB40;
-            actor->unk168 = 0x1E;
-            actor = D_807FBB40;
-            actor->unk154 = 0x15;
+            D_807FBB40->unk168 = 0x1E;
+            D_807FBB40->unk154 = 0x15;
         }
         break;
     case 21:
-        if (actor->unk168 != 0) {
-            actor->unk168--;
+        if (D_807FBB40->unk168 != 0) {
+            D_807FBB40->unk168--;
         } else {
-            actor->unk154 = 0xA;
+            D_807FBB40->unk154 = 0xA;
         }
         break;
     }
