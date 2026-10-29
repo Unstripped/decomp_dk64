@@ -1298,7 +1298,6 @@ typedef struct {
 } LargeB1_Sub178;
 
 extern s8 D_8002D904;
-Gfx *func_80029B9C(Gfx *, Actor_BB44 *);
 
 void func_8002A398(void) {
     Struct_7548 *t3c = BB2->unk174;
