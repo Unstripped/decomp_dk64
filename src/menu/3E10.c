@@ -1668,7 +1668,8 @@ void menuHandleSoundOptionsInput(MenuScreenActor *arg0, s32 arg1) {
 
 extern s16 D_80033674;
 extern s8 D_80745844;
-Gfx *menuDrawScrollSelector(Gfx *, void *, void *, s32, u32 *, s16, f32 *, f32, s16);
+struct Menu3B_Sub174;
+Gfx *menuDrawScrollSelector(Gfx *, struct Menu3B_Sub174 *, char **, s32, u32 *, s16, f32 *, f32, s16);
 
 Gfx *menuFormatOptionValues(MenuScreenActor *arg0, Gfx *arg1) {
     void *sp64;
@@ -2496,22 +2497,22 @@ void menuUpdateCameraPositions(void) {
 extern char D_800339C4[];
 extern f32 D_80033F44;
 
-Gfx *menuDrawScrollSelector(Gfx *arg0, void *arg1, void *arg2, s32 arg3, u32 *arg4, s16 arg5, f32 *arg6, f32 arg7, s16 arg8) {
-    s32 idx = ((Menu3B_Sub174 *)arg1)->unk17;
+Gfx *menuDrawScrollSelector(Gfx *arg0, Menu3B_Sub174 *arg1, char **arg2, s32 arg3, u32 *arg4, s16 arg5, f32 *arg6, f32 arg7, s16 arg8) {
+    s32 idx = arg1->unk17;
     f32 v;
     f32 sp3C;
     f32 sp38;
     s16 y;
 
-    if (((Menu3B_Sub174 *)arg1)->unk4 != 0.0f) {
-        if (((Menu3B_Sub174 *)arg1)->unk4 > 0.5f) {
+    if (arg1->unk4 != 0.0f) {
+        if (arg1->unk4 > 0.5f) {
             idx++;
         }
         if (idx >= arg3) {
             idx = 0;
         }
     }
-    v = ((Menu3B_Sub174 *)arg1)->unk4 - 0.5f;
+    v = arg1->unk4 - 0.5f;
     if (v < 0.0f) {
         v = -v;
     }
@@ -2520,10 +2521,10 @@ Gfx *menuDrawScrollSelector(Gfx *arg0, void *arg1, void *arg2, s32 arg3, u32 *ar
     if (D_80033F44 < 0.0f) {
         v = -v;
     }
-    func_800317E8(arg1, (f32)(v + 160.0), arg7, &sp3C, &sp38, 2, 0, 2.0f);
+    func_800317E8(arg1, v + 160.0, arg7, &sp3C, &sp38, 2, 0, 2.0f);
     y = (s16)(sp38 * 4.0f);
     if (arg8 & (1 << idx)) {
-        arg0 = textDrawStringVtx(arg0, arg5, (s16)(sp3C * 4.0f), y, *(void **)((u8 *)arg2 + idx * 4), 0x81);
+        arg0 = textDrawStringVtx(arg0, arg5, (s16)(sp3C * 4.0f), y, arg2[idx], 0x81);
     } else {
         arg0 = textDrawStringVtx(arg0, arg5, (s16)(sp3C * 4.0f), y, D_800339C4, 0x81);
     }
