@@ -36,7 +36,7 @@ void gunzip(void *, void *, void *);
 void heapFree(void *);
 
 void func_80666090(Col6AAssetHeader *arg0) {
-    s32 pad5C;
+    s32 off;
     void *sp58;
     void *sp54;
     void *sp50;
@@ -47,9 +47,7 @@ void func_80666090(Col6AAssetHeader *arg0) {
     s32 base;
     s32 i;
     void *sp34;
-    s32 pad30;
 
-    pad5C = pad30; // FAKE: reading a pad local makes uopt reserve its stack slot (frame 0x60)
     D_807F9514 = (struct CollisionBufferEntry *)func_80610FE8(0x11A8);
     D_807F9518 = (u32)(arg0->unk18 * arg0->unk1A);
     var_s1 = (u8 *)func_8066B0F8(3, D_8076A0A8, 1, 0);
@@ -72,7 +70,8 @@ void func_80666090(Col6AAssetHeader *arg0) {
         ((Col6ABufferEntry *)D_807F9514)[i].unk8 = 0;
         if (D_807F9514 && D_807F9514) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         a2 = a3 + 4;
-        ((Col6ABufferEntry *)D_807F9514)[i].unkC = base + (a3 - var_s1) + 4;
+        off = a3 - var_s1;
+        ((Col6ABufferEntry *)D_807F9514)[i].unkC = base + off + 4;
         a1 = var_s1 + *(u32 *)a3;
         a3 = a1;
         if (D_807F951C) {
@@ -750,7 +749,6 @@ u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     return var_v1;
 }
 
-#ifdef NON_MATCHING
 typedef struct Col6A2SubNode {
     /* 0x00 */ u8 pad0[0x46];
     /* 0x46 */ s16 unk46;
@@ -775,7 +773,6 @@ u8 effectGetTableFlag(Col6A2Node *);
 f32 func_806608FC(Col6A2Node *, s32, s32, u8);
 s32 func_80668C30(s16 *, f32, f32);
 f32 func_8066785C(s16 *, f32, f32);
-s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
 
 s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     f32 temp_fs1;
@@ -785,7 +782,7 @@ s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     f32 y[4];
     f32 z[4];
     s16 spA0[12]; // 12 not 9: slot size so arrays start at 0xB8
-    s8 sp9F; // FAKE: s8 (not u8) keeps sp9F in memory like the original (final lbu then only differs: lb)
+    u8 sp9F;
     f32 var_fs5;
     Col6A2Node *var_s3;
     f32 var_fs0;
@@ -846,6 +843,7 @@ s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
                 case 0:
                 case 2:
                 case 3:
+                    if (var_fs0 && var_fs0) {}  // FAKE: deadsweep dead statement (keeps sp9F out of a register)
                     sp9F = 1;
                     if (var_s3->unk0->unk60 == 2 || var_s3->unk0->unk60 == 3) {
                         if ((var_fs0 < *arg2 ? *arg2 - var_fs0 : -(*arg2 - var_fs0)) < 6.0f) {
@@ -883,15 +881,11 @@ s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
             var_s3 = var_s3->next;
         } while (var_s3 != NULL);
     }
-    if (sp9F != 0) {
+    if ((u32)sp9F) { // FAKE: (u32) cast keeps the test load separate from the (u8) return load (no CSE)
         *arg2 = var_fs5;
     }
     return (u8)sp9F;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806672B8.s")
-#endif
 
 f32 func_8066785C(s16 *arg0, f32 arg1, f32 arg2) {
     f64 dx01 = arg0[0] - arg0[1];
@@ -1141,30 +1135,40 @@ s32 collisionCheckTriangleXZBoundsS16(CollisionMeshTriS *arg0, s32 arg1, s32 arg
 
 #ifdef NON_MATCHING
 s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
-    f64 padTop[4]; // pad: reproduces frame 0xC8 / slot layout (unused)
+    f64 t0_d;
+    f64 hx;
+    f64 pad0[1]; // pad: reproduces slot layout (unused)
+    f64 var_fv0;
     f64 var_fa0, var_fa1, var_ft4, var_ft5;
-    f64 padMid[1]; // pad: reproduces slot layout (unused)
-    f64 var_fv0, var_fv1, var_fs0;
-    f64 mid_x, mid_z;
-    f64 d_arg1, d_arg2;
-    f64 t0_d, t1_d;
+    f64 mid_x;
+    f64 pad1[1]; // pad: reproduces slot layout (unused)
+    f64 hz;
+    f64 mid_z;
+    f64 d_arg2;
+    f64 d_arg1;
+    f64 var_fv1;
+    f64 pad2[1]; // pad: reproduces slot layout (unused)
+    f64 var_fs0;
+    f64 t1_d;
     s32 i;
     s32 mismatch = 0;
 
+    hx = (f64)(arg0[1] + arg0[2]) * 0.5;
+    hz = (f64)(arg0[7] + arg0[8]) * 0.5;
+    t0_d = arg0[0];
+    mid_x = (t0_d + hx) * 0.5;
+    t1_d = arg0[6];
+    mid_z = (t1_d + hz) * 0.5;
     d_arg1 = arg1;
     d_arg2 = arg2;
-    mid_x = ((f64)arg0[0] + (f64)(arg0[2] + arg0[1]) * 0.5) * 0.5;
-    mid_z = ((f64)arg0[6] + (f64)(arg0[8] + arg0[7]) * 0.5) * 0.5;
-    t0_d = arg0[0];
-    t1_d = arg0[6];
 
     for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
-            var_ft4 = t0_d;
             var_ft5 = t1_d;
-            var_fa0 = (f64)(arg0[1] - arg0[0]);
             var_fa1 = (f64)(arg0[7] - arg0[6]);
+            var_ft4 = t0_d;
+            var_fa0 = (f64)(arg0[1] - arg0[0]);
             break;
         case 1:
             var_ft4 = t0_d;
@@ -1173,10 +1177,10 @@ s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
             var_fa1 = (f64)(arg0[8] - arg0[6]);
             break;
         case 2:
-            var_ft4 = (f64)arg0[1];
-            var_ft5 = (f64)arg0[7];
             var_fa0 = (f64)(arg0[2] - arg0[1]);
+            var_ft4 = (f64)arg0[1];
             var_fa1 = (f64)(arg0[8] - arg0[7]);
+            var_ft5 = (f64)arg0[7];
             break;
         }
 
@@ -2423,7 +2427,6 @@ void assetSetTableEntry(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-#ifdef NON_MATCHING
 s32 func_8066B4D4(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
     s32 pad[2];
     s32 sp44;
@@ -2439,7 +2442,8 @@ s32 func_8066B4D4(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
     temp_v0 = table[0];
     if (temp_v0 & 0x80000000) {
         sp2C = 8;
-        func_8060B140(D_8000DDCC + (temp_v0 & 0x7FFFFFFF), &sp38, &sp2C, 0, 0, 0, 0);
+        temp_v0 &= 0x7FFFFFFF;
+        func_8060B140(D_8000DDCC + temp_v0, &sp38, &sp2C, 0, 0, 0, 0);
         sp44 = (s16)(sp38 >> 48);
         func_8066B4D4(arg0, sp44, arg2, arg3);
         var_t0 = sp44;
@@ -2450,10 +2454,6 @@ s32 func_8066B4D4(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
     }
     return var_t0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066B4D4.s")
-#endif
 
 s32 assetGetTableEntry(s32 arg0, s32 arg1) {
     s32 *ptr = D_807F95A8[arg0];

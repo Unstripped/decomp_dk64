@@ -1,4 +1,4 @@
-// func_80666090 (src/global/6AD90.c): stage 4 (10 text rows): loop addu operand order reversed vs target (target 'addu t8,v0,t7' base+(a3-s1); 'addu a1,s1,a0' s1+*a3; ours complex first) plus resulting t1/a0/t2 temp swaps. Tried: s32/u32 pointer-free locals, deadsweep 780 variants (no gain), prior permuter.
+// func_80666090 (src/global/6AD90.c): func_80666090 (src/global/6AD90.c): stage 5, 9 text rows, shape 0 (registers only): loop addu operand order reversed vs target (target 'addu t8,v0,t7' base+(a3-s1) and 'addu a1,s1,a0' s1+*a3; ours complex first) plus t1/a0/t2 temp swaps. Named 'off' local replaces the pad5C FAKE (frame 0x60 ok). Tried (NM3): 756 statement permutations of loop head, 96 w-local forms, 6000 random decl orders, local+global deadsweep, nine-& hack: none flips the addu order.
 typedef struct {
     u8 pad0[4];
     u32 unk4;
@@ -32,7 +32,7 @@ void gunzip(void *, void *, void *);
 void heapFree(void *);
 
 void func_80666090(Col6AAssetHeader *arg0) {
-    s32 pad5C;
+    s32 off;
     void *sp58;
     void *sp54;
     void *sp50;
@@ -43,9 +43,7 @@ void func_80666090(Col6AAssetHeader *arg0) {
     s32 base;
     s32 i;
     void *sp34;
-    s32 pad30;
 
-    pad5C = pad30; // FAKE: reading a pad local makes uopt reserve its stack slot (frame 0x60)
     D_807F9514 = (struct CollisionBufferEntry *)func_80610FE8(0x11A8);
     D_807F9518 = (u32)(arg0->unk18 * arg0->unk1A);
     var_s1 = (u8 *)func_8066B0F8(3, D_8076A0A8, 1, 0);
@@ -68,7 +66,8 @@ void func_80666090(Col6AAssetHeader *arg0) {
         ((Col6ABufferEntry *)D_807F9514)[i].unk8 = 0;
         if (D_807F9514 && D_807F9514) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         a2 = a3 + 4;
-        ((Col6ABufferEntry *)D_807F9514)[i].unkC = base + (a3 - var_s1) + 4;
+        off = a3 - var_s1;
+        ((Col6ABufferEntry *)D_807F9514)[i].unkC = base + off + 4;
         a1 = var_s1 + *(u32 *)a3;
         a3 = a1;
         if (D_807F951C) {
