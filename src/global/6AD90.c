@@ -2,7 +2,98 @@
 #include "actor.h"
 
 
+#ifdef NON_MATCHING
+typedef struct {
+    u8 pad0[4];
+    u32 unk4;
+    u8 pad8;
+    u8 unk9;
+    u8 padA[0xE];
+    s16 unk18;
+    s16 unk1A;
+} Col6AAssetHeader;
+
+typedef struct {
+    u32 unk0;
+    u32 unk4;
+    u32 unk8;
+    u32 unkC;
+    u32 unk10;
+} Col6ABufferEntry;
+
+struct CollisionBufferEntry;
+extern struct CollisionBufferEntry *D_807F9514;
+extern s32 D_807F9518;
+extern u8 D_807F951C;
+extern s32 D_8076A0A8;
+extern u8 D_807F94B4;
+void *func_80610FE8(s32);
+void *func_8066B0F8(s32, s32, s32, s32);
+s32 assetGetSize(s32, s32);
+void assetSetImmediateFree(void);
+void assetFreeBuffer(void *, s32, s32);
+void gunzip(void *, void *, void *);
+void heapFree(void *);
+
+void func_80666090(Col6AAssetHeader *arg0) {
+    s32 pad5C;
+    void *sp58;
+    void *sp54;
+    void *sp50;
+    u8 *var_s1;
+    u8 *a3;
+    u8 *a1;
+    u8 *a2;
+    s32 base;
+    s32 i;
+    void *sp34;
+    s32 pad30;
+
+    pad5C = pad30; // FAKE: reading a pad local makes uopt reserve its stack slot (frame 0x60)
+    D_807F9514 = (struct CollisionBufferEntry *)func_80610FE8(0x11A8);
+    D_807F9518 = (u32)(arg0->unk18 * arg0->unk1A);
+    var_s1 = (u8 *)func_8066B0F8(3, D_8076A0A8, 1, 0);
+    D_807F951C = 0;
+    if (arg0->unk9 & 2) {
+        sp58 = var_s1;
+        var_s1 = func_80610FE8(arg0->unk4);
+        sp34 = func_80610FE8(0x2400);
+        sp54 = var_s1;
+        sp50 = sp58;
+        gunzip(&sp50, &sp54, sp34);
+        heapFree(sp34);
+        assetSetImmediateFree();
+        assetFreeBuffer(sp58, 0x9D, 0x3A);
+        D_807F951C = 1;
+    }
+    base = assetGetSize(3, D_8076A0A8);
+    a3 = var_s1 + 4;
+    for (i = 0; i < D_807F9518; i++) {
+        ((Col6ABufferEntry *)D_807F9514)[i].unk8 = 0;
+        if (D_807F9514 && D_807F9514) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        a2 = a3 + 4;
+        ((Col6ABufferEntry *)D_807F9514)[i].unkC = base + (a3 - var_s1) + 4;
+        a1 = var_s1 + *(u32 *)a3;
+        a3 = a1;
+        if (D_807F951C) {
+            ((Col6ABufferEntry *)D_807F9514)[i].unk0 = (u32)a2;
+            ((Col6ABufferEntry *)D_807F9514)[i].unk4 = (u32)a1;
+        } else {
+            ((Col6ABufferEntry *)D_807F9514)[i].unk0 = 0;
+            ((Col6ABufferEntry *)D_807F9514)[i].unk4 = 0;
+        }
+        ((Col6ABufferEntry *)D_807F9514)[i].unk10 = a1 - a2;
+    }
+    if (!D_807F951C) {
+        assetSetImmediateFree();
+        assetFreeBuffer(var_s1, 0xC3, 0x3A);
+    }
+    D_807F94B4 = 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666090.s")
+#endif
 
 extern u8 D_807F94B4;
 
@@ -17,7 +108,24 @@ extern u8 D_807F94B3;
 extern u8 D_807F94BC;
 extern f32 D_807F948C;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666290.s")
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
+
+void func_80666290(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u8 arg5) {
+    f32 sp3C;
+    f32 sp38;
+    f32 sp34;
+
+    D_807F94BC = 0;
+    D_807F94B3 = 0;
+    if (((u8 *)arg0)[0xCC] != 0 && arg0->unk110 == 0 && (arg0->unk60 & 0x10)) {
+        actorGetNodePos(arg0, ((u8 *)arg0)[0xCC] ^ 0, &sp3C, &sp38, &sp34); // FAKE: x ^ 0 keeps the node id in v0 (no spill)
+    } else {
+        sp3C = arg0->unk7C;
+        sp38 = arg0->unk8C;
+        sp34 = arg0->unk84;
+    }
+    func_80666428(arg0, sp3C, sp38, sp34, arg1, arg2, arg3, arg4, arg5);
+}
 
 void collisionCheckActorFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     u8 sp3F;
@@ -93,7 +201,76 @@ u8 func_80666AEC(void) {
     return D_807F94AA;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666AF8.s")
+extern s16 D_807F9490;
+extern s16 D_807F9498;
+extern u8 D_807F949E;
+extern s16 D_807F94A6;
+extern s16 D_807F94A8;
+f32 func_80611BB4(f32, f32);
+
+void func_80666AF8(u8 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 arg6) {
+    f32 temp_fv0_2;
+    f32 var_fa0;
+    f32 var_fa0_2;
+    f32 var_fa1;
+    f64 temp_fv0;
+    s16 var_v0_2;
+    s16 var_v0_3;
+    u8 var_v0;
+
+    arg0 = arg4;
+    var_v0 = arg0;
+    if (arg0 == 0xFF) {
+        arg0 = 0;
+        var_v0 = 0;
+    }
+    if (var_v0 == 0xFE) {
+        arg0 = 0;
+    }
+    (&D_807F949E)[(((((((((arg6 & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF)] = arg0; // FAKE: nine nested &0xFF consume uopt temp numbering (t6/t7 skew)
+    if (arg3 > 0.0f) {
+        var_fa1 = arg3;
+    } else {
+        var_fa1 = -arg3;
+    }
+    if ((f64) var_fa1 < 0.01) {
+        var_v0_2 = 0x400;
+    } else {
+        if (arg1 > 0.0f) {
+            var_fa0 = arg1;
+        } else {
+            var_fa0 = -arg1;
+        }
+        var_v0_2 = (s16) (s32) ((func_80611BB4(var_fa0, var_fa1) / 3.1415927f) * 2048.0f);
+    }
+    temp_fv0 = (f64) arg1;
+    if ((temp_fv0 >= 0.0) && ((f64) arg3 >= 0.0)) {
+        var_v0_2 -= 0x800;
+    } else if ((temp_fv0 >= 0.0) && ((f64) arg3 < 0.0)) {
+        var_v0_2 = -var_v0_2;
+    } else if ((temp_fv0 < 0.0) && ((f64) arg3 >= 0.0)) {
+        var_v0_2 = 0x800 - var_v0_2;
+    }
+    if (arg5) {
+        (&D_807F9490)[arg6] = var_v0_2 & 0xFFF;
+    }
+    D_807F94A6 = var_v0_2 & 0xFFF;
+    temp_fv0_2 = sqrtf((arg1 * arg1) + (arg3 * arg3));
+    if ((f64) temp_fv0_2 < 0.01) {
+        var_v0_3 = 0x400;
+    } else {
+        if (arg2 > 0.0f) {
+            var_fa0_2 = arg2;
+        } else {
+            var_fa0_2 = -arg2;
+        }
+        var_v0_3 = (s16) (s32) ((func_80611BB4(var_fa0_2, temp_fv0_2) / 3.1415927f) * 2048.0f);
+    }
+    if (arg5) {
+        (&D_807F9498)[arg6] = var_v0_3;
+    }
+    D_807F94A8 = var_v0_3;
+}
 
 typedef struct {
     u8 pad[0x2C0];
@@ -102,12 +279,100 @@ typedef struct {
 } CollisionPlayerPosition;
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666D88.s")
+extern CollisionPlayerPosition *D_807FC924;
+extern u8 D_807FC929;
+extern s16 D_807FD584;
+extern f32 D_80752F7C[];
+extern f32 D_80752F98[];
+extern f32 D_80752FB4[];
+extern f32 D_80752FD0[];
+extern f32 D_80752FEC[];
+extern f32 D_80753008[];
+extern f32 D_807F9460;
+extern s8 D_807F9464;
+
+void func_80666D88(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4) {
+    f32 *var_v1;
+    f32 *var_v0;
+    f32 var_fa0;
+    f32 var_ft4;
+    f32 var_fv0;
+    f32 var_fv1;
+    f32 diff;
+    s32 temp;
+    s32 flag;
+    u8 temp_v0;
+
+    flag = 1;
+    if (arg0 < arg1) {
+        if ((arg3 != NULL) && (arg3->unk5C & 1)) {
+            temp_v0 = D_807FC924[D_807FC929].unk2C0;
+            if (temp_v0 != 0) {
+                if (temp_v0 != 2) {
+                    var_v0 = D_80752F98; var_v1 = D_80752F7C; // FAKE: same-line join steers as1 scheduling (addiu order)
+                } else {
+                    var_v0 = D_80753008;
+                    var_v1 = D_80752FEC;
+                }
+            } else {
+                var_v0 = D_80752FD0;
+                var_v1 = D_80752FB4;
+            }
+            var_fv0 = var_v0[D_807FD584];
+            var_fv1 = var_v1[D_807FD584];
+        } else {
+            var_fv0 = 10.0f;
+            var_fv1 = 20.0f;
+        }
+        if (arg4 != 0) {
+            var_fv0 /= (f32)2;
+        }
+        temp = arg2;
+        if (arg2 == 1) {
+            var_ft4 = var_fv0 * 6.0f;
+        } else {
+            var_ft4 = var_fv0;
+        }
+        diff = arg1 - arg0;
+        if (var_ft4 < diff) {
+            if (flag == temp) {
+                var_fa0 = var_fv1 * 6.0f;
+            } else {
+                var_fa0 = var_fv1;
+            }
+            if (diff < var_fa0) {
+                D_807F9464 = flag;
+                D_807F9460 = arg1 - var_fa0;
+                if (arg2) {
+                    D_807F9460 /= 6.0f;
+                }
+            }
+        }
+    }
+}
 
 extern f32 D_807F9468;
 extern u8 D_807F946C;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666F04.s")
+s32 func_80666F04(f32 arg0, f32 arg1, u8 arg2, u8 arg3) {
+    f32 var_fv0;
+    s32 var_v1;
+
+    var_v1 = 0;
+    if (arg3 == 0xFF && arg0 < arg1) {
+        var_fv0 = (arg2 == 1) ? 150.0 : 25.0;
+        if ((arg1 - arg0) < var_fv0) {
+            D_807F946C = 1;
+            var_v1 = 1;
+            D_807F9468 = arg1 - var_fv0;
+            if (arg2) {
+                D_807F9468 /= 6.0f;
+            }
+            D_807F9468 = (f64)D_807F9468 + 6.0;
+        }
+    }
+    return var_v1;
+}
 
 s32 mathCheckCloserFloatThreshold(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     f32 var_fv0;
@@ -164,8 +429,6 @@ s32 mathCheckCloserFloatThreshold(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
 
 extern u8 D_807F9484;
 extern f32 D_807F9488;
-extern s16 D_807F9490;
-extern s16 D_807F9498;
 extern u8 D_807F94B5;
 extern u8 D_807F9510;
 u8 collisionTestSubmeshBoundary(f32, f32, f32 *, s32);
@@ -280,7 +543,6 @@ typedef struct CollisionHitEntry {
 } CollisionHitEntry;
 
 extern CollisionHitEntry D_807F94C0[];
-extern s16 D_807F94A8;
 s32 collisionCheckTriangleWindingS16();
 void func_806689F0();
 
@@ -405,8 +667,6 @@ typedef struct CrossProductStack3D {
     f32 v0[3];
     f32 v1[3];
 } CrossProductStack3D;
-
-void func_80666AF8(s32, f32, f32, f32, u8, u8, s32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806689F0.s")
 
