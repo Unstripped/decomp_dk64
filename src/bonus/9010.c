@@ -27,8 +27,20 @@ typedef struct BonusEHud {
     u8 unkD;
 } BonusEHud;
 
-Gfx *bonusRenderScoreHud(Gfx *gdl, void *arg1) {
-    BonusEHud *hud = *(BonusEHud **)((u8 *)arg1 + 0x174);
+struct BonusEActor9;
+typedef struct BonusEActor9 {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x11C - 0x64];
+    struct BonusEActor9 *unk11C;
+    u8 pad120[0x154 - 0x120];
+    u8 unk154;
+    u8 pad155[0x174 - 0x155];
+    BonusEHud *unk174;
+} BonusEActor9;
+
+Gfx *bonusRenderScoreHud(Gfx *gdl, BonusEActor9 *arg1) {
+    BonusEHud *hud = arg1->unk174;
     s16 i;
     s16 y;
     char buf[24];
@@ -46,7 +58,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, void *arg1) {
     }
     switch (D_8076A0A8) {
     case 0xBF:
-        if (*(u8 *)((u8 *)arg1 + 0x154) == 2) {
+        if (arg1->unk154 == 2) {
             y = 0x1E0 - (D_8002D92C * 3 << 4);
             for (i = -1; i < D_8002D92C; i++) {
                 if (i >= 0) {
@@ -72,18 +84,6 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, void *arg1) {
     }
     return gdl;
 }
-
-struct BonusEActor9;
-typedef struct BonusEActor9 {
-    u8 pad0[0x60];
-    u32 unk60;
-    u8 pad64[0x11C - 0x64];
-    struct BonusEActor9 *unk11C;
-    u8 pad120[0x154 - 0x120];
-    u8 unk154;
-    u8 pad155[0x174 - 0x155];
-    BonusEHud *unk174;
-} BonusEActor9;
 
 #define BA9 ((BonusEActor9 *)D_807FBB40)
 
@@ -137,11 +137,11 @@ void bonusScoreHudUpdate(void) {
                 }
                 func_8070D8C0(D_807FBB40, 0, sp28);
                 BA9->unk154 = 1;
-                func_806A2A10(0xDC, 0x2A, *((u8 *)&hud->unk4 + 1));
+                func_806A2A10(0xDC, 0x2A, (u8)hud->unk4);
             } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camStartPath(D_807FBB4C, 1, 1);
                 BA9->unk154 = 2;
-                func_806A2A10(0xDC, 0x2A, *((u8 *)&hud->unk4 + 1));
+                func_806A2A10(0xDC, 0x2A, (u8)hud->unk4);
                 actorSetStateTwo(BA9->unk11C);
             }
         }
