@@ -1,30 +1,29 @@
-// func_8071F1D0 (src/global/11BC10.c): Fx11BI copy C (agent stopped: subagent credits ran out), deadsweep score full=48 vs expected; earlier note: stage 3: m2c behavior recovered; typed attempt had 0x38 frame versus target 0x28
+// func_8071F1D0 (src/global/11BC10.c): Fx11BI2 stage 5 (parked NON_MATCHING in copy; same frame/s0 set): deadsweep 13 vs 26 plain; remaining diff: with two dead 'if (D_8075567C) {}' the global is no longer address-CSEd (lui/lb/lui at/sb like target) but dir gets sll/sra sign-ext, lb v1 vs a0, state ptr v1 ok; tried s32 dir, volatile, array, order of stores, permuter (no win)
 extern s8 D_8075567C;
 
 void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
     TimedMotionState *var_v1;
-    TimedMotionState *temp_v0;
-    f32 temp_ft5;
+    s8 dir;
 
-    var_v1 = (TimedMotionState *)arg0->unk384;
-    if (var_v1 == NULL) {
-        temp_v0 = (TimedMotionState *)func_80610FE8(0xC);
-        arg0->unk384 = temp_v0;
-        temp_v0->unk0 = arg0->unk340;
-        temp_v0->unk4 = arg0->unk348;
-        temp_v0->unk8 = (f32)D_8075567C;
-        D_8075567C = -D_8075567C;
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(0xC);
         var_v1 = (TimedMotionState *)arg0->unk384;
+        dir = D_8075567C;
+        if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        var_v1->unk0 = arg0->unk340;
+        var_v1->unk4 = arg0->unk348;
+        var_v1->unk8 = (f32)dir;
+        D_8075567C = -dir;
     }
     var_v1 = (TimedMotionState *)arg0->unk384;
     arg0->unk340 = (func_80612794(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk0;
-    temp_ft5 = (func_80612790(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk4;
+    arg0->unk348 = (func_80612790(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk4;
+    if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     arg0->unk344 = arg0->unk344 + 0.5f;
-    arg0->unk348 = temp_ft5;
-    if (arg0->unk36D < 5) {
-        *arg1 = 1;
-    } else {
+    if (arg0->unk36D >= 5) {
         arg0->unk36D = arg0->unk36D - 4;
+    } else {
+        *arg1 = 1;
     }
     arg0->unk35C = arg0->unk35C + (s32)((f64)var_v1->unk8 * 200.0);
 }

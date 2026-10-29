@@ -2024,7 +2024,39 @@ void func_8071EA24(TimedEffectActorView *arg0, s8 *arg1) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EB70.s")
+extern s32 D_807FC924;
+
+void func_8071EB70(TimedEffectActorView *arg0, s8 *arg1) {
+    f32 *state;
+    f32 pad; // FAKE: unused slot shifts the spill homes
+    f32 limit;
+    f32 dist;
+    f32 dx;
+    f32 dy;
+    s32 iv;
+    f32 dz;
+
+    limit = (f32)((arg0->unk35C * 3) / 4);
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(4);
+        *(f32 *)arg0->unk384 = (f32)arg0->unk36D;
+    }
+    state = (f32 *)arg0->unk384;
+    dz = *(f32 *)((u8 *)D_807FC924 + 0x224) - arg0->unk348;
+    dx = *(f32 *)((u8 *)D_807FC924 + 0x21C) - arg0->unk340;
+    dy = *(f32 *)((u8 *)D_807FC924 + 0x220) - arg0->unk344;
+    dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
+    if (dist < limit) {
+        arg0->unk36D = (u32)*state;
+        return;
+    }
+    iv = *state * ((dist - limit) / ((f32)arg0->unk35C - limit));
+    if (*state < (f32)iv) {
+        iv = *state;
+    }
+    arg0->unk36D = (u32)(*state - (f32)iv);
+}
+
 
 void actorGetNodePos(s32, s32, f32 *, f32 *, f32 *);
 typedef struct {
@@ -2054,7 +2086,28 @@ void func_8071EEA4(TimedEffectActorView *arg0, s32 arg1) {
 
 void matrixMakeRotationZ(f32 (*arg0)[4], f32 arg1);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EEE0.s")
+void func_8071EEE0(TimedEffectActorView *arg0, s8 *arg1) {
+    TimedMotionState *var_v1;
+    f32 sp6C[4][4];
+    f32 sp2C[4][4];
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(0xC);
+        var_v1 = (TimedMotionState *)arg0->unk384;
+        var_v1->unk0 = 0.01f;
+        var_v1->unk4 = arg0->unk360;
+        var_v1->unk8 = 0.0f;
+    }
+    var_v1 = (TimedMotionState *)arg0->unk384;
+    var_v1->unk0 = (f32)(((f64)(var_v1->unk4 - var_v1->unk0) * 0.1) + (f64)var_v1->unk0);
+    var_v1->unk8 += 5.0f;
+    guScaleF(sp6C, arg0->unk360, arg0->unk364, 0.0f);
+    matrixMakeRotationZ(sp2C, var_v1->unk8);
+    guMtxCatF(sp6C, sp2C, sp6C);
+    guMtxF2L(sp6C, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    arg0->pad0[0x32C] = 2;
+}
+
 
 void func_8071EFDC(TimedEffectActorView *arg0, s8 *arg1) {
     s32 temp_t7;
@@ -2082,10 +2135,59 @@ void func_8071F034(TimedEffectActorView *arg0, s32 arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F078.s")
+void func_8071F078(TimedEffectActorView *arg0, s8 *arg1) {
+    TimedMotionState *var_v1;
 
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(8);
+        var_v1 = (TimedMotionState *)arg0->unk384;
+        var_v1->unk0 = (f32)(((f64)((randomNonNegative() >> 0xF) % 100) / 10.0) + 2.0);
+        var_v1->unk4 = (f32)(-8.0 - ((f64)((randomNonNegative() >> 0xF) % 100) / 70.0));
+        arg0->unk35C += (s16)((randomNonNegative() >> 0xF) % 800) - 0x190;
+        arg0->unk35C = arg0->unk35C % 4095;
+    }
+    var_v1 = (TimedMotionState *)arg0->unk384;
+    arg0->unk340 += var_v1->unk0 * func_80612794(*(s16 *)((u8 *)arg0 + 0x35E));
+    arg0->unk348 += var_v1->unk0 * func_80612790(*(s16 *)((u8 *)arg0 + 0x35E));
+    arg0->unk344 += var_v1->unk4;
+}
+
+
+
+#ifdef NON_MATCHING
+extern s8 D_8075567C;
+
+void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
+    TimedMotionState *var_v1;
+    s8 dir;
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(0xC);
+        var_v1 = (TimedMotionState *)arg0->unk384;
+        dir = D_8075567C;
+        if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        var_v1->unk0 = arg0->unk340;
+        var_v1->unk4 = arg0->unk348;
+        var_v1->unk8 = (f32)dir;
+        D_8075567C = -dir;
+    }
+    var_v1 = (TimedMotionState *)arg0->unk384;
+    arg0->unk340 = (func_80612794(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk0;
+    arg0->unk348 = (func_80612790(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk4;
+    if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    arg0->unk344 = arg0->unk344 + 0.5f;
+    if (arg0->unk36D >= 5) {
+        arg0->unk36D = arg0->unk36D - 4;
+    } else {
+        *arg1 = 1;
+    }
+    arg0->unk35C = arg0->unk35C + (s32)((f64)var_v1->unk8 * 200.0);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F1D0.s")
+#endif
+
 
 typedef struct {
     f32 unk0;
@@ -2158,7 +2260,36 @@ void func_8071F3C0(FallingEffectActorView *arg0, s32 arg1) {
     arg0->unk364 = arg0->unk360;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F444.s")
+void func_8071F444(TimedEffectActorView *arg0, s8 *arg1) {
+    TimedMotionState *var_s0;
+
+    if (arg0->unk384 == NULL) {
+        if (D_8076A064 & 1) {
+            arg0->unk360 = arg0->unk360 * -1.0f;
+        }
+        arg0->unk384 = func_80610FE8(8);
+        var_s0 = (TimedMotionState *)arg0->unk384;
+        var_s0->unk0 = (f32)(((randomNonNegative() >> 0xF) % 20) + 5);
+        var_s0->unk4 = 0.0f;
+        var_s0->unk8 = (f32)(((randomNonNegative() >> 0xF) % 100) + 0xA);
+        var_s0->unkC = 0.0f;
+    }
+    var_s0 = (TimedMotionState *)arg0->unk384;
+    {
+        f32 t = func_80612794((s16)var_s0->unk4);
+        arg0->unk344 = (f32)((f64)arg0->unk344 + ((1.0 + (f64)t) * (f64)(f32)(1.0 + ((f64)var_s0->unk0 * 0.4))));
+    }
+    arg0->unk340 += func_80612794((s16)var_s0->unkC) * (f32)((f64)var_s0->unk8 * 0.5);
+    if (*(u8 *)((u8 *)arg0 + 0x350) == 0) {
+        *(s16 *)((u8 *)arg0 + 0x34E) = (s16)(s32)(((f64)func_80612794((s16)var_s0->unkC) * 2.5) + 2.5);
+    }
+    var_s0->unk4 = var_s0->unk4 + 100.0f;
+    var_s0->unkC = var_s0->unkC + 50.0f;
+    if (arg0->unk344 > 960.0f) {
+        *arg1 = 1;
+    }
+}
+
 
 typedef struct {
     u8 unk0[0x32C];
@@ -2188,7 +2319,30 @@ void func_8071F660(SineScaleActorView *arg0, void *arg1) {
     arg0->unk32C = 2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F758.s")
+void func_8071F758(TimedEffectActorView *arg0, s8 *arg1) {
+    TimedMotionState *var_v1;
+    f32 sp6C[4][4];
+    f32 sp2C[4][4];
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(0xC);
+        var_v1 = (TimedMotionState *)arg0->unk384;
+        var_v1->unk0 = 0.01f;
+        var_v1->unk4 = arg0->unk360;
+        var_v1->unk8 = 0.0f;
+    }
+    var_v1 = (TimedMotionState *)arg0->unk384;
+    var_v1->unk0 = (f32)(((f64)(var_v1->unk4 - var_v1->unk0) * 0.1) + (f64)var_v1->unk0);
+    var_v1->unk8 += 5.0f;
+    arg0->unk360 = (f32)(((f64)func_80612794((s16)(D_8076A064 * 50)) * 0.1) + (f64)var_v1->unk0);
+    arg0->unk364 = (f32)(((f64)func_80612790((s16)(D_8076A064 * 25)) * 0.1) + (f64)var_v1->unk0);
+    guScaleF(sp6C, arg0->unk360, arg0->unk364, 0.0f);
+    matrixMakeRotationZ(sp2C, var_v1->unk8);
+    guMtxCatF(sp6C, sp2C, sp6C);
+    guMtxF2L(sp6C, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    arg0->pad0[0x32C] = 2;
+}
+
 
 typedef struct {
     f32 unk0;
@@ -2204,4 +2358,33 @@ typedef struct {
 } Fx11BIRiseMotionState;
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F8E4.s")
+
+void func_8071F8E4(TimedEffectActorView *arg0, s8 *arg1) {
+    f32 sp78[4][4];
+    f32 sp38[4][4];
+    Fx11BIRiseMotionState *state;
+
+    if (arg0->unk384 != NULL) {
+        state = arg0->unk384;
+        state->unk20 = state->unk20 + state->unk24;
+        if ((f64)state->unk20 >= 1.0) {
+            *(u8 *)arg1 = 0xFF;
+            state->unk20 = 1.0f;
+        }
+        arg0->unk340 = (state->unk14 * state->unk20) + state->unk8;
+        arg0->unk344 = (state->unk18 * state->unk20) + state->unkC;
+        arg0->unk348 = (state->unk1C * state->unk20) + state->unk10;
+        if (!(D_8076A064 & 3)) {
+            func_807149B8(1);
+            func_8071498C(func_8071C818);
+            func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
+        }
+        state->unk4 = state->unk4 + state->unk0;
+        guScaleF(sp78, arg0->unk360, arg0->unk364, 0.0f);
+        guRotateF(sp38, state->unk4, 0.0f, 0.0f, 1.0f);
+        guMtxCatF(sp78, sp38, sp78);
+        guMtxF2L(sp78, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+        arg0->pad0[0x32C] = 2;
+    }
+}
+
