@@ -206,7 +206,7 @@ f32 func_80027920(RaceActor *arg0, RaceCursor *arg1, RaceActor *arg2, RaceCursor
     return total;
 }
 
-s32 func_806119A0(void);
+u32 func_806119A0(void);
 
 void func_80027AF8(RaceCursor *arg0, s8 arg1) {
     if (arg1 > 0) {
@@ -223,7 +223,7 @@ void func_80027B30(RaceCursor *arg0) {
         arg0->unk1++;
         break;
     case 1:
-        if ((u32)(func_806119A0() & 0xFF) >= 0x80) {
+        if ((func_806119A0() & 0xFF) >= 0x80) {
             arg0->unk1++;
         } else {
             arg0->unk1--;
@@ -261,7 +261,7 @@ void func_80714C08(void *, f32, void *, s32, s32);
 void func_80027C60(void) {
     s32 var_s0;
 
-    for (var_s0 = 1; var_s0 != 3; var_s0++) {
+    for (var_s0 = 1; var_s0 < 3; var_s0++) {
         func_807149B8(1);
         func_80714C08(&D_80720120, 1.0f, D_807FBB40, var_s0, 0);
     }
@@ -272,9 +272,9 @@ extern u8 D_8002FC00[];
 f32 func_8002E1C8(RaceAux *, f32, f32 *, u8 *);
 void func_8002DE78(RaceAux *, s32, f32 *, u8 *);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-void sfxStopSlotSound(void *, s32);
-s32 spawnNodeHasActor(s32);
-void *spawnNodeActivate(s32, s32);
+void sfxStopSlotSound(void *, u8);
+s32 spawnNodeHasActor(u8);
+void *spawnNodeActivate(s16, s32);
 
 void func_80027CE8(void) {
     RaceState *sp54;
@@ -286,7 +286,7 @@ void func_80027CE8(void) {
     f32 sp3C;
     f32 sp38;
     u8 flag;
-    s32 temp_v0;
+    u32 temp_v0;
     s32 var_s0;
     s32 var_s1;
     RaceActor *temp_v0_3;
@@ -316,28 +316,31 @@ void func_80027CE8(void) {
     case 1:
         if (flag) {
             temp_v0 = func_806119A0();
-            if ((D_8002FBD0[2] < sp3C) && (sp3C < D_8002FBD0[4]) && (temp_s2->unk0 != sp48->unk0) && ((u8)((u32)(temp_v0 & 0xFF) < 0x14U))) {
+            if ((D_8002FBD0[2] < sp3C) && (sp3C < D_8002FBD0[4]) && (temp_s2->unk0 != sp48->unk0) && ((u8)((temp_v0 & 0xFF) < 0x14))) {
                 func_80027AF8(temp_s2, sp48->unk0 - temp_s2->unk0);
-            } else if ((D_8002FBD0[6] < sp3C) && (sp3C < D_8002FBD0[8]) && (temp_s2->unk0 == sp48->unk0) && ((u8)((u32)(temp_v0 & 0xFF) < 0x14U))) {
+            } else if ((D_8002FBD0[6] < sp3C) && (sp3C < D_8002FBD0[8]) && (temp_s2->unk0 == sp48->unk0) && ((u8)((temp_v0 & 0xFF) < 0x14))) {
                 func_80027B30(temp_s2);
             }
             flag = (temp_s2->unk0 == temp_s2->unk1) && (temp_s2->unk4 == 0);
-            if (flag && ((var_s0 = 2, (sp3C < D_8002FBD0[2])) || (D_8002FBD0[4] < sp3C))) {
-                var_s1 = 0;
-                do {
-                    if (spawnNodeHasActor(var_s0 & 0xFF) != 0) {
-                        temp_v0_3 = spawnNodeActivate((s16)var_s0, 0);
-                        temp_a3_2 = temp_v0_3->view.b.unk178;
-                        if (temp_a3_2->unk0 == temp_s2->unk0) {
-                            temp_fv0_2 = func_80027920(D_807FBB40, temp_s2, temp_v0_3, temp_a3_2);
-                            if ((temp_fv0_2 > 20.0f) && (temp_fv0_2 < 300.0f)) {
-                                var_s1 = 1;
-                                func_80027B30(temp_s2);
+            if (flag) {
+                var_s0 = 2;
+                if ((sp3C < D_8002FBD0[2]) || (D_8002FBD0[4] < sp3C)) {
+                    var_s1 = 0;
+                    do {
+                        if (spawnNodeHasActor(var_s0) != 0) {
+                            temp_v0_3 = spawnNodeActivate(var_s0, 0);
+                            temp_a3_2 = temp_v0_3->view.b.unk178;
+                            if (temp_a3_2->unk0 == temp_s2->unk0) {
+                                temp_fv0_2 = func_80027920(D_807FBB40, temp_s2, temp_v0_3, temp_a3_2);
+                                if ((temp_fv0_2 > 20.0f) && (temp_fv0_2 < 300.0f)) {
+                                    var_s1 = 1;
+                                    func_80027B30(temp_s2);
+                                }
                             }
                         }
-                    }
-                    var_s0 += 1;
-                } while ((var_s0 < 7) && (var_s1 == 0));
+                        var_s0++;
+                    } while ((var_s0 < 7) && (var_s1 == 0));
+                }
             }
         }
         break;
@@ -350,7 +353,7 @@ void func_80027CE8(void) {
         D_807FBB40->unk72 = 0x14;
     }
     if (D_807FBB40->unk72 > 0) {
-        D_807FBB40->unk72 = D_807FBB40->unk72 - 1;
+        D_807FBB40->unk72--;
     } else if (D_807FBB40->unk6E[1] != -1) {
         sfxStopSlotSound(D_807FBB40, 1);
     }
@@ -361,7 +364,7 @@ void func_80027CE8(void) {
     sp40->unk14 = sp3C;
 }
 
-void func_8060E7EC(s32, s32, s32, u8 *);
+void func_8060E7EC(s32, u8, s32, u8 *);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 
 void func_800280E8(RaceCursor *arg0) {
@@ -380,22 +383,22 @@ void func_800280E8(RaceCursor *arg0) {
         y = -(D_807FBB40->unkB8 - v1->unkB8);
     }
     if (*flag == 0) {
-        y = y * 1.5;
+        y *= 1.5;
         y = (y > 10.0) ? 10.0 : y;
         *flag = 3;
-        func_8060E7EC(0, (u32)(255.0f * y * 0.1f) & 0xFF, *flag, flag);
+        func_8060E7EC(0, 255.0f * y * 0.1f, *flag, flag);
         func_80609140(0x18A, 0x7FFF, 64.0f, 1.0f, 0xA, 0);
         if (sp28->unk14 < 0.0f) {
-            v1->unkB8 = v1->unkB8 - y;
-            D_807FBB40->unkB8 = D_807FBB40->unkB8 + y;
+            v1->unkB8 -= y;
+            D_807FBB40->unkB8 += y;
         } else {
-            v1->unkB8 = v1->unkB8 + y;
-            D_807FBB40->unkB8 = D_807FBB40->unkB8 - y;
+            v1->unkB8 += y;
+            D_807FBB40->unkB8 -= y;
         }
     }
 }
 
-void func_806086CC(f32, f32, s32, s32, s32, u8, s32, s32, f32, s32);
+void func_806086CC(f32, f32, f32, s32, s32, u8, s32, s32, f32, s32);
 
 void func_800282D8(void) {
     RaceState *temp_v0;
@@ -418,7 +421,7 @@ void func_800282D8(void) {
     case 0x47:
     case 0x4E:
     case 0x54:
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, *(s32 *)&D_807FBB40->unk84, 0x187, 0xFF, (s32)(((f64)(temp_t0->unk1C - 0x1D) * 0.5) + 157.0), 0, 0, 0.3f, 0);
+        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x187, 0xFF, (s32)(((f64)(temp_t0->unk1C - 0x1D) * 0.5) + 157.0), 0, 0, 0.3f, 0);
         break;
     }
 }
@@ -432,7 +435,7 @@ void func_800283D4(f32 arg0) {
 
     temp_v0 = D_80770628[D_807FBB40->unk6E[0]];
     D_807FBB40->unk74 = 1.0f;
-    D_80770B68[temp_v0] = (f64) (arg0 * 0.05f) + 1.0;
+    D_80770B68[temp_v0] = (f64)(arg0 * 0.05f) + 1.0;
     D_80770BC0[temp_v0] = 1.0f;
 }
 
@@ -514,7 +517,7 @@ void func_80028440(void) {
         temp_s0->unk20 = 0.0f;
     }
     if (*sp6C != 0) {
-        *sp6C = *sp6C - 1;
+        (*sp6C)--;
     }
     temp_v0_2 = temp_s0->unk39;
     if (temp_v0_2 != 0) {
@@ -524,17 +527,15 @@ void func_80028440(void) {
         } else {
             temp_s0->unk20 = 0.0f;
         }
-    } else {
-        if ((temp_s1->unk34 >= 2) && (temp_s1->unk34 < 4)) {
-            func_80027CE8();
-        }
+    } else if ((temp_s1->unk34 >= 2) && (temp_s1->unk34 < 4)) {
+        func_80027CE8();
     }
     if (temp_s1->unk34 == 1) {
         func_800282D8();
     }
     if (temp_s1->unk34 < 5) {
         racePathFollowStep(temp_s0, temp_s1, 1);
-        D_807FBB40->unk80 += 50.0f * func_80612794((s16)(s32)(temp_s0->unk20 * 0.5f));
+        D_807FBB40->unk80 += 50.0f * func_80612794((s16)(temp_s0->unk20 * 0.5f));
     } else {
         D_807FBB40->unkB8 = 0.0f;
     }
@@ -553,14 +554,14 @@ void func_80028440(void) {
         case 1:
             if (!(D_807FBB40->unk60 & 0x02000000)) {
                 camResumePath();
-                temp_s1->unk35 = temp_s1->unk35 + 1;
+                temp_s1->unk35++;
                 var_a0 = temp_s1->unk35;
             }
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                temp_s1->unk35 = temp_s1->unk35 + 1;
+                temp_s1->unk35++;
             }
             var_a0 = temp_s1->unk35;
             break;
@@ -573,7 +574,7 @@ void func_80028440(void) {
             do {
                 spawnNodeSpawnById(var_s0, 0, 0, 0, 0, 0, 0);
                 var_s0 += 1;
-            } while (var_s0 != 7);
+            } while (var_s0 < 7);
         }
     } else if (temp_s1->unk34 == 4) {
         if (temp_s1->unk35 == 0) {
@@ -584,7 +585,7 @@ void func_80028440(void) {
             } else {
                 func_805FF544();
             }
-            temp_s1->unk35 = temp_s1->unk35 + 1;
+            temp_s1->unk35++;
         }
     } else if (temp_s1->unk34 == 5) {
         temp_v1_3 = temp_s1->unk35;
@@ -598,17 +599,17 @@ void func_80028440(void) {
                 D_807FBB40->unkE8 = 0;
                 do {
                     if (*(s16 *)((u8 *)D_807FBB40 + var_v1 + 0x6E) != -1) {
-                        sfxStopSlotSound(D_807FBB40, var_s0 & 0xFF);
+                        sfxStopSlotSound(D_807FBB40, var_s0);
                     }
                     var_s0 += 1;
                     var_v1 += 2;
                 } while (var_s0 != 2);
             }
-            temp_s1->unk35 = temp_s1->unk35 + 1;
+            temp_s1->unk35++;
             break;
         case 1:
             if (D_807FBB40->unk60 & 0x02000000) {
-                temp_s1->unk35 = temp_s1->unk35 + 1;
+                temp_s1->unk35++;
             }
             break;
         case 2:
@@ -617,14 +618,14 @@ void func_80028440(void) {
                 if ((temp_s1->unk36 == 0) || (slotQueueGetValue(0xB, 0) < 0xA)) {
                     temp_s1->unk35 = 3;
                 }
-                temp_s1->unk35 = temp_s1->unk35 + 1;
+                temp_s1->unk35++;
             }
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
                 csModelStateSetFirstByte(0x62, 0xA);
-                temp_s1->unk35 = temp_s1->unk35 + 1;
+                temp_s1->unk35++;
             }
             break;
         case 4:
@@ -635,7 +636,7 @@ void func_80028440(void) {
                 } else {
                     hudSpawnTextScreen(1);
                 }
-                temp_s1->unk35 = temp_s1->unk35 + 1;
+                temp_s1->unk35++;
             }
             break;
         }
@@ -755,7 +756,7 @@ void raceFindNearestWaypoint(RaceCursor *arg0) {
     px = D_807FBB40->unk7C;
     py = D_807FBB40->unk80;
     pz = D_807FBB40->unk84;
-    for (i = 0; i != 3; i++) {
+    for (i = 0; i < 3; i++) {
         for (j = 0; j < count; j++) {
             d = RB_SQ(px - p->x) + RB_SQ(py - p->y) + RB_SQ(pz - p->z);
             if (d < best) {
@@ -812,9 +813,9 @@ void func_80029054(void) {
         D_807FBB40->unk154 = 0x40;
     }
     actorGetNodePos(D_807FBB40, 6, &sp3C, &sp40, &sp44);
-    func_8072177C(D_807FBB40, (s16)(s32)sp3C, (s16)(s32)sp40, (s16)(s32)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    func_8072177C(D_807FBB40, (s16)sp3C, (s16)sp40, (s16)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     actorGetNodePos(D_807FBB40, 0xB, &sp3C, &sp40, &sp44);
-    func_8072177C(D_807FBB40, (s16)(s32)sp3C, (s16)(s32)sp40, (s16)(s32)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    func_8072177C(D_807FBB40, (s16)sp3C, (s16)sp40, (s16)sp44, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     racePathFollowStep(sp50, temp_s1, 1);
     if ((temp_s1->unk34 == 0) && (sp48->unk34 == 5)) {
         D_807FDC9C->unk14 = 0;
