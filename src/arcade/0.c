@@ -1305,7 +1305,8 @@ void arcadeSpawnStage1Entities(void) {
     D_8004BCD0[i].unk1C = 1;
     D_8004BCD0[i].unk0 = 48.0f;
     i--;
-    D_8004BCD0[i] = D_8004A718; D_8004BCD0[i].unk1C = 2; D_8004BCD0[i].unk4 = 65.0f; i--;
+    D_8004BCD0[i] = D_8004A718;
+    D_8004BCD0[i].unk1C = 2; D_8004BCD0[i].unk4 = 65.0f; i--;
     D_8004BCD0[i] = D_8004A718;
     D_8004BCD0[i].unk1C = 3;
     D_8004BCD0[i].unk0 = 48.0f;
