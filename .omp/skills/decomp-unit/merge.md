@@ -45,6 +45,8 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 - An agent asking for a shared prototype change (`s32` → `u8` param so a constant is not
   shared, `s16` → `s32` so a register arg is not re-extended): apply it in `src` yourself,
   `tools/objdiff.sh` the file, gate, then message every running agent on that file.
+- A file created by a mid-unit TU split has no `expected/` object: `snapshot` it, gate with
+  `touch` + `tools/dk make`, commit by hand, then `tools/dk make expected`.
 
 ## When a merge fails
 

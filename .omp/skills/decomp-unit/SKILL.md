@@ -47,6 +47,9 @@ Check every file before converting it:
 - hidden TUs: `python3 tools/rodata_owners.py <seg>` (split.md);
 - hidden empty functions: `python3 tools/unit_check.py empty-funcs <seg> <file>...`.
 - false splits, fall-through hand asm, TU padding: `python3 tools/unit_check.py boundaries <seg> <file>...`.
+- revisit of an early unit's leftovers: grep their drafts' notes for rodata/pad/"together"
+  claims first; a text-identical function blocked by a pad between functions is a hidden TU
+  (7AF60 → 7BA00 landed 2 functions); note-less old drafts get a stage in round 1.
 
 ## 2. Split into C ([split.md](split.md))
 

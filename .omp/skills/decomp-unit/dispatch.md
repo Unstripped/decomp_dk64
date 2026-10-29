@@ -113,6 +113,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   max); a fresh-eyes pass on a sibling's park checks branch sense first. Reject dead tests
   on a local before its first assignment (`if (step == 0) {}`, `if (k && k) {}`): an
   uninitialised read is not equivalent C; grep every park's dead `if` locals before merging.
+- A report naming one exact small shape diff (`move v0,s1; addiu s1,8; sw 0(v0)`) is worth
+  your own 5-minute test: `deadsweep.py score <copy> <src> FUNC --body <variant>` on 2–3
+  idiom variants (a GBI macro form matched a 520-insn park the agent had left at 4 insns).
 - An agent whose last message answers a late async notice ("earlier report stands") hides
   its report: read `history://<id>` and take the last `## 1.` section.
 - Save every report as it arrives: append `read agent://<id>` to `.scratch/all-reports.md`
