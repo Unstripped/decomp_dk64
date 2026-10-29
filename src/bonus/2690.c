@@ -1881,7 +1881,7 @@ struct LargeB4Actor {
 };
 
 typedef struct {
-    char pad0[4];
+    LargeB4Actor *unk0;
     s16 unk4;
     char pad6[2];
     f32 unk8;
@@ -1926,7 +1926,7 @@ void func_8002BF98(void) {
     LargeB4Sub *temp_s5 = LB4A->unk174;
     LargeB4Spawn *temp_s0;
     s32 i;
-    s8 *p;
+    s32 pad;
     s16 sp5A;
 
     if (!(LB4A->unk60 & 0x10)) {
@@ -1962,7 +1962,7 @@ void func_8002BF98(void) {
         LB4A->unk4->unk34 = 0.33f;
         LB4A->unk4->unk38 = 0.33f;
         LB4A->unk4->unk3C = 0.33f;
-        camSetTarget(*(void **)((u8 *)D_807FD580 + 0x104), D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         LB4A->unk154 = 3;
         temp_s5->unk14 = 0.0;
@@ -1971,19 +1971,17 @@ void func_8002BF98(void) {
         temp_s5->unk10 = 0.0;
         temp_s5->unk0 = 1.0;
         i = 0;
-        p = (s8 *)temp_s5;
         do {
+            temp_s5->unk2A[i] = 1;
             i++;
-            p[0x2A] = 1;
-            p++;
         } while (i != 1);
     }
-    for (i = 0, p = (s8 *)temp_s5; i < 1; i++, p++) {
-        if (p[0x2A] > 0) {
-            p[0x2A] = p[0x2A] - 1;
-            if (p[0x2A] == 0 && actorSpawn(0x14B, 0x21) != 0) {
+    for (i = 0; i < 1; i++) {
+        if (temp_s5->unk2A[i] > 0) {
+            temp_s5->unk2A[i] -= 1;
+            if (temp_s5->unk2A[i] == 0 && actorSpawn(0x14B, 0x21) != 0) {
                 temp_s0 = (LargeB4Spawn *)D_807FBB44->unk174;
-                *(void **)temp_s0 = D_807FBB40;
+                temp_s0->unk0 = LB4A;
                 temp_s0->unkC = 2;
                 temp_s0->unkC = (func_806119A0() & 0x3F) + 0xF;
                 temp_s0->unk4 = func_806119A0() & 0xF;
@@ -2010,8 +2008,8 @@ void func_8002BF98(void) {
     lightSetColor(temp_s5->unk0, temp_s5->unk0, temp_s5->unk0, -1);
     switch (LB4A->unk154) {
         case 0: {
-            sp84 = func_80612794((&D_807FC924[D_807FC929])->unk2C8);
-            fv0 = func_80612790((&D_807FC924[D_807FC929])->unk2C8);
+            sp84 = func_80612794(D_807FC924[D_807FC929].unk2C8);
+            fv0 = func_80612790(D_807FC924[D_807FC929].unk2C8);
             fv1 = temp_s5->unk14;
             sp7C = temp_s5->unk18;
             sp74 = D_807ECDEC->unk2 * 0.06f;
@@ -2030,7 +2028,7 @@ void func_8002BF98(void) {
             if (temp_s5->unk1E > 0) {
                 temp_s5->unk1E = temp_s5->unk1E - 1;
             }
-            if (temp_s5->unk1E <= 0 && (*(&D_807FC924[D_807FC929])->unk298 & 0xE000)) {
+            if (temp_s5->unk1E <= 0 && (*D_807FC924[D_807FC929].unk298 & 0xE000)) {
                 func_80609140(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
                 sp7C = func_80612794(D_807FC924->unk2C8) * 30.0f + D_807FC924->unk210;
                 sp78 = D_807FC924->unk214 - 25.0f;
@@ -2044,7 +2042,7 @@ void func_8002BF98(void) {
         case 3:
             if (D_807444EC != 1) {
                 LB4A->unk154 = 4;
-                func_806A2A10(0xDC, 0x2A, *((u8 *)temp_s5 + 0x21));
+                func_806A2A10(0xDC, 0x2A, (u8)temp_s5->unk20);
                 func_8070D8C0(D_807FBB40, 0, 0xC);
             }
             break;
