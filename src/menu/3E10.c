@@ -3119,7 +3119,8 @@ typedef struct Menu10_Spin {
 
 typedef struct Menu10_Spinner {
     char pad0[0x128];
-    char mtx[0x218];
+    Mtx mtx[8];
+    char pad328[0x18];
     f32 unk340;
     f32 unk344;
     char pad348[0x384 - 0x348];
@@ -3152,7 +3153,7 @@ void func_80030A90(Menu10_Spinner *arg0, s32 arg1) {
     arg0->unk344 = arg0->unk344 + p->vy;
     p->ang = p->ang + p->dir;
     guRotateF(sp30, p->ang, 0.0f, 0.0f, 1.0f);
-    guMtxF2L(sp30, (void *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp30, &arg0->mtx[D_807444FC]);
 }
 
 #ifdef NON_MATCHING
