@@ -2163,9 +2163,6 @@ void func_8002C8EC(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-#define BDCC_ANIM_TEX ((((D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF)
-
 Gfx *func_8002CC08(Gfx *arg0, Actor_BB44 *arg1) {
     Struct_CC08_174 *sp84;
     f32 sp80;
@@ -2174,24 +2171,23 @@ Gfx *func_8002CC08(Gfx *arg0, Actor_BB44 *arg1) {
     s16 sp76;
     s16 sp74;
 
-
     sp84 = (Struct_CC08_174 *)arg1->unk174;
     camProjectToScreen(arg1->unk7C, arg1->unk80, arg1->unk84, &sp80, &sp7C, 0, 1.0f, D_807FC929);
-    sp76 = (s32)(f32)(sp80 * 4.0);
-    sp74 = (s32)(f32)(sp7C * 4.0);
-    WRITE_GFX(arg0++, 0xE7000000, 0);
-    WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
-    WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
-    WRITE_GFX(arg0++, 0xDE000000, &D_1000118);
-    WRITE_GFX(arg0++, 0xDA380007, &D_20000C0);
+    sp76 = (f32)(sp80 * 4.0);
+    sp74 = (f32)(sp7C * 4.0);
+    gDPPipeSync(arg0++);
+    gDPSetCombineMode(arg0++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+    gDPSetRenderMode(arg0++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gSPDisplayList(arg0++, D_1000118);
+    gSPMatrix(arg0++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     temp_v0 = arg1->unk154;
     if (temp_v0 == 0 || temp_v0 == 1) {
-        arg0 = func_8068C5A8(arg0, BDCC_ANIM_TEX, 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0xE1, 0.0f);
-        arg0 = func_8068C5A8(arg0, BDCC_ANIM_TEX, 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0x13B, 0.0f);
-        arg0 = func_8068C5A8(arg0, BDCC_ANIM_TEX, 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x2D, 0.0f);
-        arg0 = func_8068C5A8(arg0, BDCC_ANIM_TEX, 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x87, 0.0f);
+        arg0 = func_8068C5A8(arg0, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0xE1, 0.0f);
+        arg0 = func_8068C5A8(arg0, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 - 0x34), 3.2f, 3.2f, 0x13B, 0.0f);
+        arg0 = func_8068C5A8(arg0, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp76 + 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x2D, 0.0f);
+        arg0 = func_8068C5A8(arg0, (u16)((D_8076A064 >> 1) % 12 + 0x83), 0, 2, 0x20, 0x10, (s16)(sp76 - 0x34), (s16)(sp74 + 0x34), 3.2f, 3.2f, 0x87, 0.0f);
     }
-    WRITE_GFX(arg0++, 0xDA380003, &D_2000180);
+    gSPMatrix(arg0++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     switch (arg1->unk154) {
     case 7:
         do {
