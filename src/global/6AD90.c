@@ -208,7 +208,7 @@ extern s16 D_807F94A6;
 extern s16 D_807F94A8;
 f32 func_80611BB4(f32, f32);
 
-void func_80666AF8(u8 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 arg6) {
+void func_80666AF8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 arg6) {
     f32 temp_fv0_2;
     f32 var_fa0;
     f32 var_fa0_2;
@@ -218,16 +218,15 @@ void func_80666AF8(u8 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 a
     s16 var_v0_3;
     u8 var_v0;
 
-    arg0 = arg4;
-    var_v0 = arg0;
-    if (arg0 == 0xFF) {
-        arg0 = 0;
+    var_v0 = arg4;
+    if (arg4 == 0xFF) {
+        arg4 = 0;
         var_v0 = 0;
     }
     if (var_v0 == 0xFE) {
-        arg0 = 0;
+        arg4 = 0;
     }
-    (&D_807F949E)[(((((((((arg6 & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF)] = arg0; // FAKE: nine nested &0xFF consume uopt temp numbering (t6/t7 skew)
+    (&D_807F949E)[arg6] = arg4;
     if (arg3 > 0.0f) {
         var_fa1 = arg3;
     } else {
@@ -823,7 +822,24 @@ typedef struct CrossProductStack3D {
     f32 v1[3];
 } CrossProductStack3D;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_806689F0.s")
+void func_806689F0(arg0, arg1, arg2)
+s32 arg0;
+CollisionPlaneTriS *arg1;
+u8 arg2;
+{
+    CrossProductStack3D sp;
+
+    sp.v1[0] = arg1->x[2] - arg1->x[0];
+    sp.v1[1] = arg1->y[2] - arg1->y[0];
+    sp.v1[2] = arg1->z[2] - arg1->z[0];
+    sp.v0[0] = arg1->x[1] - arg1->x[0];
+    sp.v0[1] = arg1->y[1] - arg1->y[0];
+    sp.v0[2] = arg1->z[1] - arg1->z[0];
+    sp.cross[0] = (sp.v1[1] * sp.v0[2]) - (sp.v1[2] * sp.v0[1]);
+    sp.cross[1] = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
+    sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
+    func_80666AF8(arg0, sp.cross[0], sp.cross[1], sp.cross[2], arg1->unk14, arg2, 0);
+}
 
 s32 collisionCheckTriangleXZBoundsS16(CollisionMeshTriS *arg0, s32 arg1, s32 arg2) {
     s32 p0, p1, p2;
@@ -1062,7 +1078,24 @@ typedef struct CollisionPlaneTriF {
 } CollisionPlaneTriF;
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80669830.s")
+void func_80669830(arg0, arg1, arg2)
+s32 arg0;
+CollisionPlaneTriF *arg1;
+u8 arg2;
+{
+    CrossProductStack3D sp;
+
+    sp.v1[0] = arg1->x[2] - arg1->x[0];
+    sp.v1[1] = arg1->y[2] - arg1->y[0];
+    sp.v1[2] = arg1->z[2] - arg1->z[0];
+    sp.v0[0] = arg1->x[1] - arg1->x[0];
+    sp.v0[1] = arg1->y[1] - arg1->y[0];
+    sp.v0[2] = arg1->z[1] - arg1->z[0];
+    sp.cross[0] = (sp.v1[1] * sp.v0[2]) - (sp.v1[2] * sp.v0[1]);
+    sp.cross[1] = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
+    sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
+    func_80666AF8(arg0, sp.cross[0], sp.cross[1], sp.cross[2], arg1->unk24, arg2, 1);
+}
 
 s32 collisionCheckTriangleWindingF32(CollisionTriF *arg0) {
     CrossProductStack sp;
@@ -1686,7 +1719,6 @@ s32 collisionCheckBoxTriangleWinding(CollisionBoxTriangleWork *arg0) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 void func_8066ACA4(arg0, arg1, arg2)
 s32 arg0;
 CollisionBoxTriangleWork *arg1;
@@ -1705,10 +1737,6 @@ u8 arg2;
     sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
     func_80666AF8(arg0, sp.cross[0], sp.cross[1], sp.cross[2], 1, arg2, 2);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066ACA4.s")
-#endif
 
 extern s32 D_8000DDCC;
 extern s32 D_807F9520;
