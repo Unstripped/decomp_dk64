@@ -80,7 +80,7 @@ void menuUpdateLightFadeActor(void) {
             actorScriptStart(D_807FBB40, 0x2D6);
             D_807FBB40->unk154++;
             D_807FBB40->unk155 = 0;
-            D_807FBB60 &= 0xFFFFFFCF;
+            D_807FBB60 &= ~0x30;
         }
         break;
     case 1:
