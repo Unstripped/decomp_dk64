@@ -93,7 +93,7 @@ typedef struct CamLAct {
     /* 0xB4 */ f32 unkB4;
 } CamLAct;
 
-extern f32 D_807FD888;
+extern f32 gScreenFadeProgress;
 s32 func_806259FC(s16, s16);
 
 #define CAML_GROUP ((CamLPair *)D_807476C0)
@@ -240,7 +240,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                                             if (e->unk17 & 4) {
                                                 break;
                                             }
-                                            if (D_807FD888 == 0.0f) {
+                                            if (gScreenFadeProgress == 0.0f) {
                                                 break;
                                             }
                                         }
@@ -370,7 +370,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                 func_8061F18C(arg0, *arg1, *arg2, *arg3);
             }
         }
-        if ((st->unkAC & 0x8000) || D_807FD888 > 27.0f || (best->unk17 & 0x38)) {
+        if ((st->unkAC & 0x8000) || gScreenFadeProgress > 27.0f || (best->unk17 & 0x38)) {
             D_807FBB60 |= 0x2000;
             st->unkAC &= 0xFFFF7FFF;
         }

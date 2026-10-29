@@ -121,7 +121,7 @@ void func_80026D40(void *, u8);
 void func_805FF188(s32, s32);
 void func_805FF1B0(u8);
 void func_805FF2F4();
-void func_80709464(u8);
+void healthRefill(u8);
 void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
 void effectFreeAndUnlink(void *, void *);
@@ -375,7 +375,7 @@ done:
             }
             if (!D_807FC929 && !D_807FC929) {
             }
-            func_80709464(D_807FC929);
+            healthRefill(D_807FC929);
             func_805FF1B0(D_807FC929);
             LCA_P->unk244 = 1;
         } else {

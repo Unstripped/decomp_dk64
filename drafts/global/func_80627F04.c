@@ -15,7 +15,7 @@ extern s16 D_807F5D7C;
 extern void *D_807FBB48;
 extern s32 D_807FBB68;
 extern void *D_807FC924;
-extern f32 D_807FD88C;
+extern f32 gScreenFadeRate;
 
 void actorClearMovementFlags(void *);
 s32 actorFindActiveByType(s32, void *);
@@ -462,7 +462,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             return;
         case 0x23:
             D_8076AEE0 = a;
-            D_807FD88C = sv[3] / 100.0;
+            gScreenFadeRate = sv[3] / 100.0;
             return;
         case 0x3A:
             func_8071268C();

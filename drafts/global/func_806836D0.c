@@ -13,7 +13,7 @@ s32 screenWipeGetState();                                /* extern */
 ? func_80682DF4(void *, s32, ?, s32);               /* extern */
 ? func_806C8E58(s16);                               /* extern */
 ? func_806F09F0(void *, s32);                       /* extern */
-? func_80709464(?);                                 /* extern */
+? healthRefill(?);                                 /* extern */
 extern ? D_8074E816;
 extern ? D_8074E848;
 extern void *D_807FBB40;
@@ -123,7 +123,7 @@ void func_806836D0(void *arg0) {
                     func_80627888(sp30->unk104);
                     func_8061EB04(sp34, 0);
                     screenWipeStart(3);
-                    func_80709464(0);
+                    healthRefill(0);
                     D_807FC924->unk2E2 = (u16) (D_807FC924->unk2E2 | 0x11);
                     return;
                 }

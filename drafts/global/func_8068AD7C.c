@@ -46,7 +46,7 @@ typedef struct {
 } Act8F4_Struct_C924;
 
 void func_80659620(void *, void *, void *, s32);
-void func_80704AFC(f32, f32, f32);
+void lightSetOverrideColor(f32, f32, f32);
 void func_8070B308(s32);
 void func_805FF158(s32);
 s32 func_8068ABE0(s16);
@@ -128,7 +128,7 @@ void func_8068AD7C(void) {
             temp_s1->unk0 = 0xFF;
             break;
         case 0xF:
-            func_80704AFC((f64)temp_s0[0] / 255.0, (f64)temp_s0[1] / 255.0, (f64)temp_s0[2] / 255.0);
+            lightSetOverrideColor((f64)temp_s0[0] / 255.0, (f64)temp_s0[1] / 255.0, (f64)temp_s0[2] / 255.0);
             break;
         case 0xE:
             temp_s1->unkC = (f64)temp_s0[0] / 255.0;

@@ -64,7 +64,7 @@ void func_8068412C(void) {
         } else {
             func_8067AAB8(actor, sub->unk0, sub->unk38, 180.0f, 0x46);
             func_80679200(sub->unk0, D_807FBB40, 0x40, 1, 0, 0);
-            func_806FB2B8();
+            slotQueuePopActiveMask();
             D_807FBB40->unk154 = 0;
             D_807FBB40->unk155[0] = 0;
             if (func_806832F4(((Actor *)D_807FBB4C)->unk58, 0) != 0) {

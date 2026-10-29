@@ -205,8 +205,8 @@ extern f32 D_80750828[];
 void func_805FEE84(u8, u8, u8, u8);
 void *func_80610FE8(s32);
 void heapFreeDeferred(void *);
-s32 func_806FBD5C();
-Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
+s32 textGetStringWidth();
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 void guScaleF(f32 mf[4][4], f32 x, f32 y, f32 z);
 void guTranslateF(f32 mf[4][4], f32 x, f32 y, f32 z);
 void guMtxCatF(f32 mf[4][4], f32 nf[4][4], f32 res[4][4]);
@@ -297,7 +297,7 @@ Gfx *func_806C75A4(Gfx *gdl, Actor *arg1) {
     yoff = -D_807506D0[D_80750754].unk5 * 0x23;
     if (D_807506D0[D_80750754].unk5 > 0) {
         do {
-            gdl = func_806FC530(gdl, 1, -(s16)(func_806FBD5C(1, p) * 2), yoff, p, 0);
+            gdl = textDrawStringVtx(gdl, 1, -(s16)(textGetStringWidth(1, p) * 2), yoff, p, 0);
             yoff += 0x60;
             if (*p != 0) {
                 do {

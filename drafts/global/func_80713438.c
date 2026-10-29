@@ -1,7 +1,7 @@
 // func_80713438 (src/global/117190.c): Stage 3: separate double multiply draft; target keeps both mul.d operations but draft still saves f20 and schedules display-list stores differently.
 s32 func_80610FE8(s32);
 void heapFreeDeferred(void *);
-s32 func_806FBD5C(s16, s32);
+s32 textGetStringWidth(s16, s32);
 extern s16 D_80744490;
 
 void func_80713438(Gfx *arg0, u8 arg1) {
@@ -25,7 +25,7 @@ void func_80713438(Gfx *arg0, u8 arg1) {
     sp34 = temp_v0_2;
     heapFreeDeferred(temp_v0_2);
     _sprintf(sp34, "%c%s", 0x63, sp30);
-    temp_ft4 = 0.5 * (f64) func_806FBD5C(1, sp34);
+    temp_ft4 = 0.5 * (f64) textGetStringWidth(1, sp34);
     arg0->words.w0 = 0xE200001C;
     arg0->words.w1 = 0x504240;
     temp_t0 = arg0 + 1;
@@ -34,5 +34,5 @@ void func_80713438(Gfx *arg0, u8 arg1) {
     temp_t0->words.w1 = arg1;
     temp_t1->words.w0 = 0xFCFF97FF;
     temp_t1->words.w1 = 0xFF2CFE7F;
-    func_806FC530(temp_t1 + 1, 1, (s16) (s32) ((f32) ((f64) sp28 - temp_ft4) * 4.0f), (s16) (s32) (418.0f * 4.0f), sp34, 4);
+    textDrawStringVtx(temp_t1 + 1, 1, (s16) (s32) ((f32) ((f64) sp28 - temp_ft4) * 4.0f), (s16) (s32) (418.0f * 4.0f), sp34, 4);
 }

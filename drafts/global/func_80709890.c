@@ -38,7 +38,7 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
     if (arg1 == NULL) {
         return 0;
     }
-    D_807FD9B4 = func_80610FE8(0x708);
+    gFbTileTable = func_80610FE8(0x708);
     if (k && k) {}
     arg0->unk10 = func_80610FE8(arg0->unk0 * 0x10);
     arg0->unk14 = func_80610FE8(arg0->unk0 * 0x10);
@@ -57,7 +57,7 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
         b = (EaBlockB *)(arg0->unk1C + count);
         b->unk8 = (u8 *)(b + 1);
         q = (EaEntry *)b->unk8;
-        if (D_807FD9B4 && D_807FD9B4) {}
+        if (gFbTileTable && gFbTileTable) {}
         count = 1;
         while ((q++)->unk0 != 0) {
             count++;

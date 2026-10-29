@@ -325,7 +325,7 @@ void *func_807132DC(void) {
 }
 extern Mtx D_807FDAC0;
 void *func_8070E750(s32, s32, s32);
-Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 
 void func_8071338C(Gfx *arg0) {
     f32 temp_f0 = 20.0f;
@@ -334,7 +334,7 @@ void func_8071338C(Gfx *arg0) {
     temp_v0 = func_8070E750(0xC, 0, 1);
     R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
     R117D_WRITE_GFX(arg0++, 0xDA380003, &D_807FDAC0);
-    func_806FC530(arg0, 1, 0x118, (s16) ((temp_f0 + temp_f0) * 4.0f), temp_v0, 4);
+    textDrawStringVtx(arg0, 1, 0x118, (s16) ((temp_f0 + temp_f0) * 4.0f), temp_v0, 4);
 }
 
 

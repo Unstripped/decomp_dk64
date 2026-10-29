@@ -137,10 +137,10 @@ extern s16 D_80744490;
 extern s16 D_80744494;
 extern u8 D_8074450C;
 char *func_8070E750(s32, s32, s32);
-s32 func_806FD894(s32);
+s32 textGetFontHeight(s32);
 s32 texCacheFindOrLoad(s32);
-s32 func_806FBD5C(s32, char *);
-Gfx *func_806FC530(Gfx *, s32, s16, s16, char *, s32);
+s32 textGetStringWidth(s32, char *);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 
 Gfx *func_8003292C(Gfx *dl, void *arg1) {
@@ -161,7 +161,7 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     spCC = func_8070E750(0xD, 0, 1);
     spC8 = func_8070E750(0xD, 1, 1);
     spC4 = func_8070E750(0xD, 2, 1);
-    spC0 = func_806FD894(1);
+    spC0 = textGetFontHeight(1);
     gDPPipeSync(dl++);
     gSPDisplayList(dl++, D_1000118);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
@@ -194,11 +194,11 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     } while (y != 0x52);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
-    x = (s32)((f32)(D_80744490 - func_806FBD5C(1, spCC)) * 0.5f);
+    x = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
     gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
-    dl = func_806FC530(dl, 1, (s16)(x * 4), (s16)((s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0) * 4), spCC, 0);
+    dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)((s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0) * 4), spCC, 0);
     x = (s32)((f32)D_80744490 * 0.5f) * 4;
     off = D_8074450C * 0xC8;
     return hudDrawScaledText(hudDrawScaledText(dl, (s16)x, (s16)(off * 4), 0.5f, spC8), (s16)x, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), 0.5f, spC4);

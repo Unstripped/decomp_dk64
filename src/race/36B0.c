@@ -383,7 +383,7 @@ void camStartPath(void *, s16, s32);
 void camResumePath(void);
 void func_805FF544(void);
 void csModelStateSetFirstByte(s32, s32);
-s32 func_806F8AD4(s32, s32);
+s32 slotQueueGetValue(s32, s32);
 void hudSpawnTextScreen(s32);
 s32 playerStateQueueCallback(s32, s32, s32);
 void spawnNodeSpawnById(s16, s32, s32, s32, s32, s32, s32);
@@ -542,7 +542,7 @@ void func_80028440(void) {
         case 2:
             if (!(*(s32 *)((u8 *)D_807FBB40 + 0x60) & 0x02000000)) {
                 camResumePath();
-                if ((temp_s1[0x36] == 0) || (func_806F8AD4(0xB, 0) < 0xA)) {
+                if ((temp_s1[0x36] == 0) || (slotQueueGetValue(0xB, 0) < 0xA)) {
                     temp_s1[0x35] = 3;
                 }
                 temp_s1[0x35] = temp_s1[0x35] + 1;

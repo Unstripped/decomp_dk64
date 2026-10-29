@@ -8,10 +8,10 @@ extern s8 D_8002DEF0[];
 extern s32 D_8076A0A8;
 extern void *D_807FBB40;
 s32 _sprintf(char *, const char *, ...);
-Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
+Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
-s32 func_806FBD5C(s32, char *);
-Gfx *func_806FC530(Gfx *, s32, s16, s16, char *, s32);
+s32 textGetStringWidth(s32, char *);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 
 typedef struct BonusEHud {
     s16 unk0;
@@ -39,7 +39,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, void *arg1) {
     gDPSetCombineMode(gdl++, G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM);
     gDPSetRenderMode(gdl++, G_RM_OPA_SURF, G_RM_TEX_EDGE2);
     gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gdl = func_806FE078(gdl, hud->unk3, 8, 30.0f, 36.0f, 0.0f, 1.0f);
+    gdl = textDrawAnimated(gdl, hud->unk3, 8, 30.0f, 36.0f, 0.0f, 1.0f);
     gdl = func_8068DC54(gdl, 0x26, 0x2D, &hud->unk8, hud->unkA, &hud->unk6);
     if (hud->unk6 > 0) {
         hud->unk6 -= 2;
@@ -56,7 +56,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, void *arg1) {
                 } else {
                     buf[0] = 0;
                 }
-                gdl = func_806FC530(gdl, 6, 0x280 - func_806FBD5C(6, buf) * 2, y, buf, 1);
+                gdl = textDrawStringVtx(gdl, 6, 0x280 - textGetStringWidth(6, buf) * 2, y, buf, 1);
                 y += 0x30;
             }
         }
@@ -65,7 +65,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, void *arg1) {
         if (hud->unkC != 0) {
             hud->unkC -= 1;
             if ((hud->unkC & 0x1F) < 0x14) {
-                gdl = func_806FE078(gdl, hud->unkD, 8, 100.0f, 100.0f, 0.0f, 1.0f);
+                gdl = textDrawAnimated(gdl, hud->unkD, 8, 100.0f, 100.0f, 0.0f, 1.0f);
             }
         }
         break;
@@ -102,7 +102,7 @@ void camResumePath(void);
 void actorSetStateTwo(void *);
 void func_805FF378(s32, s32);
 void func_806A2A10(s32, s32, s32);
-s32 func_806FDB8C(s32, char *, s32, f32, f32, f32);
+s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_8070D8C0(void *, s32, u8);
 void renderCallbacksRegister(void *, void *, s32);
 
@@ -117,8 +117,8 @@ void bonusScoreHudUpdate(void) {
         D_8002D92C = 0;
         D_8002D930 = 0;
         D_80744518 = 0;
-        hud->unk3 = func_806FDB8C(1, "SCORE", 8, 0.0f, 0.0f, 0.0f);
-        hud->unkD = func_806FDB8C(1, "LAP BONUS", 8, 0.0f, 0.0f, 0.0f);
+        hud->unk3 = gfxResourceCreate(1, "SCORE", 8, 0.0f, 0.0f, 0.0f);
+        hud->unkD = gfxResourceCreate(1, "LAP BONUS", 8, 0.0f, 0.0f, 0.0f);
         D_8002D920 = 0;
         D_8002D924 = 0;
         D_8002D928 = 0;

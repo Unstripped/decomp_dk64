@@ -32,7 +32,7 @@ extern u16 D_807FCC44;
 extern u8 D_807FCC40[];
 
 void camStartPath(s32, s32, s32);
-void func_806F8A8C(s32, s32, s32);
+void slotQueueSetShownValue(s32, s32, s32);
 s32 camIsPathPaused(void);
 void func_8070D8C0(void *, s32, s32);
 void func_806A2A10(s32, s32, s32);
@@ -40,7 +40,7 @@ void camResumePath(void);
 void actorSetStateTwo(void *);
 void sfxAllocateChannel(s32, f32);
 void flagSet(s16, s32, s32);
-s32 func_806FDB8C(s32, char *, s32, f32, f32, f32);
+s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_805FF800(s32 *, s32 *);
 void func_805FF628(s32, s32);
@@ -69,7 +69,7 @@ void func_80029118(void) {
         tmp = *(u16 *)&D_807FCC40[4];
         D_80029FA4 = tmp;
         D_807FCC44 = 0;
-        func_806F8A8C(4, 0, 0);
+        slotQueueSetShownValue(4, 0, 0);
         switch (D_8076A0A8) {
         case 0xB1:
             temp_s0->unk4 = 0x3C;
@@ -147,7 +147,7 @@ void func_80029118(void) {
         break;
     case 0x3:
         D_807FBB40->unk11C->unk154 = 1;
-        temp_s0->unk2 = func_806FDB8C(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
+        temp_s0->unk2 = gfxResourceCreate(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
         func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
         temp_s0->unk0 = 0x78;
         D_807FBB40->unk154 = 0xFE;
@@ -179,7 +179,7 @@ void func_80029118(void) {
                 }
                 tmp = D_80029FA4;
                 D_807FCC44 = tmp;
-                func_806F8A8C(4, 0, D_80029FA4);
+                slotQueueSetShownValue(4, 0, D_80029FA4);
                 func_805FF800(&sp3C, &sp38);
                 func_805FF628(sp3C, 0);
             }
@@ -189,7 +189,7 @@ void func_80029118(void) {
         D_80029FA8 = 0;
         if (sp70 && sp70) {
         }
-        temp_s0->unk2 = func_806FDB8C(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
+        temp_s0->unk2 = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
         temp_s0->unk0 = 0x78;
         D_807FBB40->unk154 = 0xFE;
         break;

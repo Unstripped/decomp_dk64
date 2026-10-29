@@ -6,7 +6,7 @@ typedef struct Act90A_D9DC {
     /* 0x1C */ s32 unk1C;
 } Act90A_D9DC;
 
-Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 int _sprintf(char *, const char *, ...);
 
 extern Gfx D_1000118;
@@ -18,5 +18,5 @@ Gfx *func_8068DBA4(Gfx *arg0, Act90A_D9DC *arg1) {
     Act90A_WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
     Act90A_WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFF96);
     _sprintf(sp34, "%d", arg1->unk14);
-    return func_806FC530(arg0, 3, 0x370, 0x50, sp34, 1);
+    return textDrawStringVtx(arg0, 3, 0x370, 0x50, sp34, 1);
 }

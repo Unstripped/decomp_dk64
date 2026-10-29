@@ -515,7 +515,7 @@ extern Gfx D_1000118;
 
 void heapFreeDeferred(void *);
 void *func_8070068C(Gfx *);
-void func_806FC530(void *, s32, s32, s32, char *, s32);
+void textDrawStringVtx(void *, s32, s32, s32, char *, s32);
 
 void bossDrawRoundText(Gfx *arg0, s32 arg1) {
     Boss2C_MtxF sp90;
@@ -536,7 +536,7 @@ void bossDrawRoundText(Gfx *arg0, s32 arg1) {
     Boss2C_WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
     Boss2C_WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFFF);
     arg0 = func_8070068C(arg0);
-    func_806FC530(arg0, 1, 0, 0, sp3C, 0);
+    textDrawStringVtx(arg0, 1, 0, 0, sp3C, 0);
 }
 
 static void func_80028818(void) {}
@@ -570,8 +570,8 @@ extern s32 D_8076D1F8;
 extern u32 D_80767CC0;
 extern s32 D_8076A0A8;
 
-void func_806FB370(s32, s32, s32);
-void func_80709464(u8);
+void slotQueueSetDisplayMode(s32, s32, s32);
+void healthRefill(u8);
 void sfxStopChannel(s32, s32);
 void func_80712524(s32, s32);
 void n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
@@ -602,17 +602,17 @@ void bossRoundFrame(u8 *arg0) {
         func_80714CC0((s32)D_8071FE08, 1.0f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84);
     }
     if (!(BA40->unk60 & 0x10)) {
-        func_806FB370(5, 0, 1);
-        func_806FB370(2, 0, 1);
+        slotQueueSetDisplayMode(5, 0, 1);
+        slotQueueSetDisplayMode(2, 0, 1);
         BA40->unk60 &= 0xFFFDFFFF;
         if ((sp44->unk14 == 0) || (BA40->unk58 != 0x126)) {
             if (flagGet(0x5A, 2) == 0) {
-                func_80709464(0);
+                healthRefill(0);
             }
             D_80750AD4++;
             if (D_80750AD4 >= 0xD) {
                 sfxStopChannel(0x2B, 0);
-                func_80709464(0);
+                healthRefill(0);
                 flagSet(0x55, 0, 2);
                 func_80712524(0xD7, 0);
                 D_80750AD4 = 0;

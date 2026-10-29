@@ -47,8 +47,8 @@ extern RenderState *D_807FC924;
 s32 func_805FCA64(void);
 Gfx *func_8070068C(Gfx *);
 GfxResource *gfxResourceFindById(u8);
-Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
-Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
+Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 f32 sinApprox(f32);
 f32 cosApprox(f32);
 void func_8071495C(void);
@@ -74,7 +74,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
         unk15F = actor->unk15F;
         if (unk15F == 0xB) {
             gfx = func_8070068C(gfx);
-            gfx = func_806FC530(gfx, 0x86, (s16)(s32)(actor->unk7C * 4.0f),
+            gfx = textDrawStringVtx(gfx, 0x86, (s16)(s32)(actor->unk7C * 4.0f),
                                 (s16)((D_807FC924->unk276 * 4) - 0x3C),
                                 gfxResourceFindById(sub->unk10)->unk4, 1);
         } else {
@@ -83,7 +83,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
             if (actor->unk168 == 3) {
                 offset = -7;
             }
-            gfx = func_806FE078(gfx, sub->unk10, unk15F, actor->unk7C + (f32)offset,
+            gfx = textDrawAnimated(gfx, sub->unk10, unk15F, actor->unk7C + (f32)offset,
                                 actor->unk80 + 5.0f, 0.0f, 1.0f);
             if (actor->unk154 == 2) {
                 gfx = func_8070068C(gfx);

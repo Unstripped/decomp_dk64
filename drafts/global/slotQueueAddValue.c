@@ -1,4 +1,4 @@
-// func_806F91B4 (src/global/FCCD0.c): stage 4 (parked): frame 0x50 + no callee-saved match, K&R params (s32,u8,s16); pa/pb dummy &arg1/&arg2 + 10 named locals (arg1/arg2 memory resident, prologue/arg0 in a3 match). Left (46 diff lines): CSE spills of arg0*0x30/a2 at 0x20/0x1C vs 0x24/0x20 (need one more named word after sp28 without growing frame), t1/t5 vs t3/t1 temp ring, lw/sw ordering around slot ptr; naming var_t2/temp_a2 grows frame to 0x58
+// slotQueueAddValue (src/global/FCCD0.c): stage 4 (parked): frame 0x50 + no callee-saved match, K&R params (s32,u8,s16); pa/pb dummy &arg1/&arg2 + 10 named locals (arg1/arg2 memory resident, prologue/arg0 in a3 match). Left (46 diff lines): CSE spills of arg0*0x30/a2 at 0x20/0x1C vs 0x24/0x20 (need one more named word after sp28 without growing frame), t1/t5 vs t3/t1 temp ring, lw/sw ordering around slot ptr; naming var_t2/temp_a2 grows frame to 0x58
 typedef struct NM2StatSlot {
     u16 *unk0;
     u8 pad4[0x28];
@@ -14,7 +14,7 @@ extern void flagSet(s16, s32, s32);
 extern s16 flagGridIndex(s32, s32, u8, s32);
 extern void sfxAllocateChannel(s32, f32);
 
-void func_806F91B4(arg0, arg1, arg2)
+void slotQueueAddValue(arg0, arg1, arg2)
 s32 arg0;
 u8 arg1;
 s16 arg2;
@@ -45,7 +45,7 @@ s16 arg2;
             } else {
                 temp_v1 = *((u16 **)(temp_v0 + (arg0 * 0x30)));
                 *temp_v1 += arg2;
-                temp_v0_2 = func_806F8EDC(arg0, sp28);
+                temp_v0_2 = slotQueueGetMaxValue(arg0, sp28);
                 temp_v1 = *((u16 **)(temp_v0 + (arg0 * 0x30)));
                 if (temp_v0_2 < *temp_v1) {
                     *temp_v1 = temp_v0_2;

@@ -78,7 +78,7 @@ void func_80029364(void) {
         t0->unk14 = t0->unk16;
         t0->unkE = 0x3C;
         t0->unk12 = 0;
-        c = func_806FDB8C(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        c = gfxResourceCreate(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
         t0->unk11 = c;
         func_806FDAB8(c, 0.0f);
         t0->unk0 = 0x3C;

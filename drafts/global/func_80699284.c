@@ -41,9 +41,9 @@ void func_80613C48(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
-void func_807002AC(s16 *, s32 *, f32);
+void color5551CopyLerpToWhite(s16 *, s32 *, f32);
 void animSetNodeItem(void *, s32, s16, s32);
-void func_806F91B4(s32, u8, s32);
+void slotQueueAddValue(s32, u8, s32);
 void sfxAllocateChannel(s32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
@@ -91,13 +91,13 @@ void func_80699284(void) {
     t = L1_MIN(1.0, ((sp66 - 0x1E) < 0 ? 0 : (sp66 - 0x1E)) / 60.0f * 5.0);
     if (t < 1.0 && D_807FBB40->unk58 != 0xD9) {
         l1Dest = &(&spEC[0]->unk8)[D_807444FC];
-        func_807002AC((s16 *)spEC[0]->unk4, l1Dest, t);
+        color5551CopyLerpToWhite((s16 *)spEC[0]->unk4, l1Dest, t);
         animSetNodeItem(D_807FBB40, 0, 0, (&spEC[0]->unk8)[D_807444FC]);
     } else {
         animSetNodeItem(D_807FBB40, 0, 0, (s32)spEC[0]->unk4);
         if (D_807FBB40->unk155[0] == 0) {
             if (D_807FD580->unk1EC == 1) {
-                func_806F91B4(0xC, D_807FD580->unk1A4, 1);
+                slotQueueAddValue(0xC, D_807FD580->unk1A4, 1);
                 sfxAllocateChannel(0x2E, 1.0f);
             } else if (D_807FD580->unk1EC == 2) {
                 func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);

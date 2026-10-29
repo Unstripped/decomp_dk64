@@ -76,8 +76,8 @@ void func_80613C48(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
-void func_807002AC(s16 *, s32 *, f32);
-void func_806F91B4(s32, u8, s32);
+void color5551CopyLerpToWhite(s16 *, s32 *, f32);
+void slotQueueAddValue(s32, u8, s32);
 void sfxAllocateChannel(s32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
@@ -125,13 +125,13 @@ void func_80699284(void) {
     t = PAN_MIN(1.0, ((sp66 - 0x1E) < 0 ? 0 : (sp66 - 0x1E)) / 60.0f * 5.0);
     if (t < 1.0 && D_807FBB40->unk58 != 0xD9) {
         l1Dest = &(&spEC[0]->unk8)[D_807444FC];
-        func_807002AC((s16 *)spEC[0]->unk4, l1Dest, t);
+        color5551CopyLerpToWhite((s16 *)spEC[0]->unk4, l1Dest, t);
         animSetNodeItem(D_807FBB40, 0, 0, (&spEC[0]->unk8)[D_807444FC]);
     } else {
         animSetNodeItem(D_807FBB40, 0, 0, (s32)spEC[0]->unk4);
         if (D_807FBB40->unk155[0] == 0) {
             if (((PlayerControlState *)D_807FD580)->unk1EC == 1) {
-                func_806F91B4(0xC, ((PlayerControlState *)D_807FD580)->unk1A4, 1);
+                slotQueueAddValue(0xC, ((PlayerControlState *)D_807FD580)->unk1A4, 1);
                 sfxAllocateChannel(0x2E, 1.0f);
             } else if (((PlayerControlState *)D_807FD580)->unk1EC == 2) {
                 func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
@@ -814,8 +814,8 @@ typedef struct TextMarkerState {
 } TextMarkerState;
 
 s32 actorSpawn(s32, s32);
-s32 func_806FDB8C(s16, s32, s32, f32, f32, f32);
-s32 func_806FBD5C(s16, s32);
+s32 gfxResourceCreate(s16, s32, s32, f32, f32, f32);
+s32 textGetStringWidth(s16, s32);
 extern Actor *D_807FBB44;
 
 void textSpawnMarker(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, u8 arg6, u8 arg7) {
@@ -825,13 +825,13 @@ void textSpawnMarker(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, 
     if (actorSpawn(0xE8, 0) != 0) {
         sub = D_807FBB44->unk174;
         if (arg0 & 0x80) {
-            sub->unkA = func_806FDB8C((s16)(arg0 & 0xFF7F), arg3, 2, 160.0f, (f32)arg2, 0.0f);
+            sub->unkA = gfxResourceCreate((s16)(arg0 & 0xFF7F), arg3, 2, 160.0f, (f32)arg2, 0.0f);
             *(s16 *)((u8 *)D_807FBB44 + 0xEE) = 1;
             D_807FBB44->unk80 = (f32)arg2;
             return;
         }
         if (arg1 == 0) {
-            D_807FBB44->unk7C = (f32)((D_80744490 - func_806FBD5C((s16)arg0, arg3)) * 2);
+            D_807FBB44->unk7C = (f32)((D_80744490 - textGetStringWidth((s16)arg0, arg3)) * 2);
         } else {
             D_807FBB44->unk7C = (f32)(arg1 * 4);
         }
@@ -899,7 +899,7 @@ void *renderAppendScaledMatrix(void *arg0, ActorPositionView *arg1, s16 arg2, f3
 
 extern Gfx D_1000118;
 void actorUpdateModelMatrix(Actor *, s32);
-Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
+Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 
 Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     void *model;
@@ -911,9 +911,9 @@ Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     WRITE_GFX_U32(gfx++, 0xFC11FE23, 0xFFFFF3F9);
     WRITE_GFX_U32(gfx++, 0xDA380003, &D_2000180);
     if (actor->unk168++ < 100) {
-        gfx = func_806FE078(gfx, *(u8 *)((u8 *)model + 0xA), 2, 160.0f, actor->unk80, 0.0f, 1.0f);
+        gfx = textDrawAnimated(gfx, *(u8 *)((u8 *)model + 0xA), 2, 160.0f, actor->unk80, 0.0f, 1.0f);
     } else {
-        gfx = func_806FE078(gfx, *(u8 *)((u8 *)model + 0xA), 1, 160.0f, actor->unk80, 0.0f, 1.0f);
+        gfx = textDrawAnimated(gfx, *(u8 *)((u8 *)model + 0xA), 1, 160.0f, actor->unk80, 0.0f, 1.0f);
     }
     return gfx;
 }
@@ -995,14 +995,14 @@ void textCopyGlyphBlock(s32 *arg0, s32 *arg1, u8 arg2) {
     } while (i < 0x20);
 }
 
-void *func_806FBB9C(s16);
+void *textFontLoadSheet(s16);
 void animSetLoopLimit(Actor *, s32, s16);
 void animSetSpeed(Actor *, s32, f32);
 
 s32 textBuildDigitNode(u8 arg0, void *arg1, u8 arg2, u8 arg3, u8 arg4) {
     void *temp;
 
-    temp = func_806FBB9C(arg0 + arg3);
+    temp = textFontLoadSheet(arg0 + arg3);
     if (arg1 != NULL) {
         heapFreeDeferred((Mtx *)arg1);
     }

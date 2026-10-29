@@ -35,7 +35,7 @@ extern u16 D_8075A740;
 
 f32 func_80612D1C(f32);
 s32 func_80611A44(void);
-Gfx *func_806FC530(Gfx *, s32, s32, s32, u16 *, s32);
+Gfx *textDrawStringVtx(Gfx *, s32, s32, s32, u16 *, s32);
 
 void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     u16 spE8;
@@ -100,5 +100,5 @@ void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     dl[2].words.w0 = 0xFA000000;
     dl[2].words.w1 = node->unk3 | 0x2828FF00;
     spE8 = mdl->unk2;
-    *arg0 = (s32) func_806FC530(&dl[3], 6, 0, 0, &spE8, 0);
+    *arg0 = (s32) textDrawStringVtx(&dl[3], 6, 0, 0, &spE8, 0);
 }

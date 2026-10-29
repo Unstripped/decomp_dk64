@@ -685,7 +685,7 @@ void func_8071498C(void (*)(void));
 void func_8071D28C(void);
 void func_8071EB70(void);
 void slotQueueUpdate(s32, s32, s32);
-void func_806F91B4(s32, s32, s32);
+void slotQueueAddValue(s32, s32, s32);
 
 void func_806A7600(void *);
 
@@ -804,7 +804,7 @@ void func_806A7600(void *arg0) {
                 flagSet(temp_v1->unk6, 1, 0);
             }
             slotQueueUpdate(0, 0, 0);
-            func_806F91B4(0, 0, 0xA);
+            slotQueueAddValue(0, 0, 0xA);
         }
     }
 }
@@ -859,7 +859,7 @@ extern u32 D_8076A064;
 extern u8 D_80721170;
 extern SfxTable D_807504A4;
 s32 randomNonNegative(void);
-s32 func_806F8EDC(s32, s32);
+s32 slotQueueGetMaxValue(s32, s32);
 
 void effectActorSparkleTick(void) {
     s32 flag;
@@ -887,7 +887,7 @@ void effectActorSparkleTick(void) {
                 func_80714C08((void *)table.unk0[idx], 0.2f, D_807FBB40, 1, 0);
                 sfxAllocateChannel(0x7F, 1.0f);
                 slotQueueUpdate(7, 0, 0);
-                func_806F91B4(7, 0, (s16)func_806F8EDC(7, 0));
+                slotQueueAddValue(7, 0, (s16)slotQueueGetMaxValue(7, 0));
             }
         }
     }

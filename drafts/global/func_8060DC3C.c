@@ -4,7 +4,7 @@ extern void func_8060BA14(void);
 extern u8 func_8060C6B8(s32, s32, s32, s32);
 extern void func_8060C758(s32, s32);
 extern void func_806C9AE0(void);
-extern void func_80709464(s32);
+extern void healthRefill(s32);
 extern u8 D_8074E77C, D_80750AC0, D_807FC928, D_807FC950[];
 extern s32 D_80750AB0;
 extern u8 D_807ECEA8[], D_807ED6A8[];
@@ -16,7 +16,7 @@ void func_8060DC3C(s32 arg0, s32 arg1) {
     if (func_8060C6B8(0xD, 0, 0, selector) == 0) func_8060C758(selector, 0);
     if (arg1 != 0) func_8060BA14();
     D_807FC928 = 0; D_807FC950[0x2FC] = func_8060C6B8(0xC, 0, 0, selector);
-    func_80709464(0); collectibleCountsClear(); D_80750AB0 = func_8060C6B8(0xE, 0, 0, selector);
+    healthRefill(0); collectibleCountsClear(); D_80750AB0 = func_8060C6B8(0xE, 0, 0, selector);
     i = 0; do {
         entry = D_807FC950 + (i * 0x5E); j = 0;
         do { entry[j] = func_8060C6B8(j + 4, i, 0, selector); j++; } while (j != 5);

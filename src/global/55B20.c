@@ -2637,8 +2637,8 @@ s16 arg3;
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658C10.s")
 #endif
 
-extern s32 func_80700AE4(s16, s16);
-extern s32 func_807009F4(s32);
+extern s32 zbufferReadDepth(s16, s16);
+extern s32 zbufferDepthToDistance(s32);
 
 #ifdef NON_MATCHING
 void func_80658CCC(void) {
@@ -2648,7 +2648,7 @@ void func_80658CCC(void) {
     do {
         if (p->unk10 != 0) {
             if (D_8076A064 == p->unkC) {
-                if ((f32)func_807009F4((s16)func_80700AE4(p->unk4, p->unk6)) <= (f32)p->unk8) {
+                if ((f32)zbufferDepthToDistance((s16)zbufferReadDepth(p->unk4, p->unk6)) <= (f32)p->unk8) {
                     p->unk11 = 1;
                 } else {
                     p->unk11 = 0;

@@ -7,7 +7,7 @@ typedef struct R117d2MenuObject {
 extern s32 D_807FBB64;
 extern s32 D_807FBB68;
 extern u8 D_807FC928;
-void func_80709464(u8);
+void healthRefill(u8);
 s32 func_805FF800(s32 *, s32 *);
 void func_80026D40(void *);
 void func_805FF1B0(s32);
@@ -18,7 +18,7 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
     s32 var_a0;
     s32 var_a1;
 
-    func_80709464(arg1 & 0xFF);
+    healthRefill(arg1 & 0xFF);
     if (D_807FBB64 & 1) {
         arg0->unk155++;
         if (D_807FBB68 & 2) {

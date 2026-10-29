@@ -17,24 +17,24 @@ extern s16 D_80744494;
 extern u8 D_807444F8;
 extern u8 D_807444FC;
 
-typedef struct DaF10D2D0_Player {
+typedef struct HealthHudState {
     u8 pad0[0x2E0];
     u16 unk2E0;
     u8 unk2E2;
     u8 unk2E3;
     u8 unk2E4;
     u8 unk2E5;
-} DaF10D2D0_Player;
+} HealthHudState;
 
-#define DaF10D2D0_FLAGS(p) (*(u16 *)&(p)->unk2E2)
+#define HEALTH_HUD_FLAGS(p) (*(u16 *)&(p)->unk2E2)
 
-typedef struct DaF10D2D0_Hud {
+typedef struct HealthStats {
     u8 pad0[0x2FB];
     s8 unk2FB;
     u8 unk2FC;
-} DaF10D2D0_Hud;
+} HealthStats;
 
-Gfx *func_807085D0();
+Gfx *healthHudDraw();
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
@@ -44,7 +44,7 @@ f32 func_80612794(s16);
 s32 func_80714464();
 Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
-Gfx *func_807085D0(Gfx *arg0, DaF10D2D0_Hud *arg1, void *arg2, DaF10D2D0_Player *arg3) {
+Gfx *healthHudDraw(Gfx *arg0, HealthStats *arg1, void *arg2, HealthHudState *arg3) {
     s16 i;
     s8 pips;
     u32 amp;
@@ -103,19 +103,19 @@ Gfx *func_807085D0(Gfx *arg0, DaF10D2D0_Hud *arg1, void *arg2, DaF10D2D0_Player 
 }
 
 
-typedef struct R1F10D2D0_InitData {
+typedef struct HealthHudInit {
     f32 unk0;
     s16 unk4;
     s16 unk6;
     u8 unk8;
     u8 unk9;
     u8 unkA;
-} R1F10D2D0_InitData;
+} HealthHudInit;
 
 extern s32 D_807FBB64;
 extern s32 func_807142D8();
 
-void func_80708BB8(R1F10D2D0_InitData *arg0) {
+void func_80708BB8(HealthHudInit *arg0) {
     if (D_807FBB64 & 0x800) {
         arg0->unk6 = 0x20;
     } else {
@@ -132,7 +132,7 @@ void func_80708BB8(R1F10D2D0_InitData *arg0) {
 
 
 
-typedef struct NmF10D2D0_PlayerState {
+typedef struct HealthPlayerState {
     u8 unk0;
     u8 pad1[0x2E1];
     u16 unk2E2;
@@ -144,16 +144,16 @@ typedef struct NmF10D2D0_PlayerState {
     s8 unk2FB;
     u8 unk2FC;
     s8 unk2FD;
-} NmF10D2D0_PlayerState;
+} HealthPlayerState;
 
 void func_80026B0C(s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 s32 func_805FCA64(void);
 s32 func_8071432C(void);
 s32 func_8071441C(void);
-s32 func_8070943C(void);
+s32 healthGetPerMelon(void);
 
-void func_80708C24(s32 arg0, NmF10D2D0_PlayerState *arg1, NmF10D2D0_PlayerState *arg2, s32 arg3) {
+void healthApplyPendingDelta(s32 arg0, HealthPlayerState *arg1, HealthPlayerState *arg2, s32 arg3) {
     u8 state;
     s32 limit;
 
@@ -161,7 +161,7 @@ void func_80708C24(s32 arg0, NmF10D2D0_PlayerState *arg1, NmF10D2D0_PlayerState 
     if (state & 0x10) {
         arg1->unk2E2 ^= 0x10;
         if (arg2->unk2FD > 0) {
-            limit = func_8070943C();
+            limit = healthGetPerMelon();
             arg3 = arg2->unk2FB + arg2->unk2FD;
             limit = arg2->unk2FC * limit;
             if (arg3 < limit) {
@@ -197,10 +197,10 @@ void func_80708C24(s32 arg0, NmF10D2D0_PlayerState *arg1, NmF10D2D0_PlayerState 
 s32 func_806C8DE0(s32);
 f32 sinApprox(f32);
 
-s32 func_80708DA4(arg0, arg1, arg2)
+s32 healthHudUpdateDraw(arg0, arg1, arg2)
 s32 arg0;
 s16 arg1;
-DaF10D2D0_Player *arg2;
+HealthHudState *arg2;
 {
     s32 idx;
     f32 angle;
@@ -220,8 +220,8 @@ DaF10D2D0_Player *arg2;
         mode = 0;
     }
     if (single == 0) {
-        func_80708C24(arg1, (NmF10D2D0_PlayerState *)arg2, (NmF10D2D0_PlayerState *)hud, (s32)elem);
-        DaF10D2D0_FLAGS(arg2) &= 0xFFEA;
+        healthApplyPendingDelta(arg1, (HealthPlayerState *)arg2, (HealthPlayerState *)hud, (s32)elem);
+        HEALTH_HUD_FLAGS(arg2) &= 0xFFEA;
         bits = arg2->unk2E3;
     }
     if (bits & 0x10) {
@@ -236,7 +236,7 @@ DaF10D2D0_Player *arg2;
         }
     }
     if (bits & 1) {
-        DaF10D2D0_FLAGS(arg2) ^= 1;
+        HEALTH_HUD_FLAGS(arg2) ^= 1;
         switch (mode) {
         case 0:
             arg2->unk2E5 = 18;
@@ -251,9 +251,9 @@ DaF10D2D0_Player *arg2;
         }
     } else if (bits & 4) {
         arg2->unk2E5 = 1;
-        DaF10D2D0_FLAGS(arg2) ^= 4;
+        HEALTH_HUD_FLAGS(arg2) ^= 4;
         arg2->unk2E4 = 2;
-        DaF10D2D0_FLAGS(arg2) &= 8;
+        HEALTH_HUD_FLAGS(arg2) &= 8;
     } else {
         switch (mode) {
         case 1:
@@ -265,7 +265,7 @@ DaF10D2D0_Player *arg2;
             }
             break;
         case 2:
-            func_80708C24(arg1, (NmF10D2D0_PlayerState *)arg2, (NmF10D2D0_PlayerState *)hud, (s32)elem);
+            healthApplyPendingDelta(arg1, (HealthPlayerState *)arg2, (HealthPlayerState *)hud, (s32)elem);
             break;
         case 3:
             angle = 1.5707963705062866 - arg2->unk2E5 / 18.0 * 1.5707963705062866 + 1.5707963705062866;
@@ -277,25 +277,25 @@ DaF10D2D0_Player *arg2;
         }
     }
     if (func_805FCA64() != 0 || (bits & 0x80)) {
-        if (arg2->unk2E4 != 0 || DaF10D2D0_FLAGS(arg2) != 0) {
-            arg0 = (s32)func_807085D0((Gfx *)arg0, (DaF10D2D0_Hud *)hud, elem, arg2);
+        if (arg2->unk2E4 != 0 || HEALTH_HUD_FLAGS(arg2) != 0) {
+            arg0 = (s32)healthHudDraw((Gfx *)arg0, (HealthStats *)hud, elem, arg2);
         }
     }
     return arg0;
 }
 
 
-typedef struct NmF10D2D0b_PlayerState {
+typedef struct HealthHudPlayerView {
     u8 unk0;
     u8 pad1[0x2E1];
     u16 unk2E2;
     u8 unk2E4;
-} NmF10D2D0b_PlayerState;
+} HealthHudPlayerView;
 
 extern s8 D_80744504;
-s32 func_80708DA4();
+s32 healthHudUpdateDraw();
 
-s32 func_80709344(s32 arg0) {
+s32 healthHudDrawAll(s32 arg0) {
     s16 var_s0;
     s32 temp_lo;
     u16 temp_v1;
@@ -307,12 +307,12 @@ s32 func_80709344(s32 arg0) {
         do {
             temp_lo = var_s0 * 0x2F0;
             temp_v0 = (s32)D_807FC924 + temp_lo;
-            if (((NmF10D2D0b_PlayerState *)temp_v0)->unk0 != 0) {
-                temp_v1 = ((NmF10D2D0b_PlayerState *)temp_v0)->unk2E2;
-                if (!(temp_v1 & 0x20) && (((((NmF10D2D0b_PlayerState *)temp_v0)->unk2E4 != 0 || temp_v1 != 0) &&
+            if (((HealthHudPlayerView *)temp_v0)->unk0 != 0) {
+                temp_v1 = ((HealthHudPlayerView *)temp_v0)->unk2E2;
+                if (!(temp_v1 & 0x20) && (((((HealthHudPlayerView *)temp_v0)->unk2E4 != 0 || temp_v1 != 0) &&
                                            D_80744504 == 0) ||
                                           temp_v1 & 0x10)) {
-                    arg0 = func_80708DA4(arg0, (s16)(var_s0 + 0), (temp_lo ^ 0) + (s32)D_807FC924, (s32)D_807FC924);
+                    arg0 = healthHudUpdateDraw(arg0, (s16)(var_s0 + 0), (temp_lo ^ 0) + (s32)D_807FC924, (s32)D_807FC924);
                 }
             }
             var_s0 += 1;
@@ -322,7 +322,7 @@ s32 func_80709344(s32 arg0) {
 }
 
 
-s32 func_8070943C(void) {
+s32 healthGetPerMelon(void) {
     s32 ret;
 
     ret = 4;
@@ -331,12 +331,12 @@ s32 func_8070943C(void) {
 
 
 
-void func_80709464(u8 arg0) {
+void healthRefill(u8 arg0) {
     s32 temp_v0;
     s32 temp_v1;
     s32 product_factor;
 
-    temp_v0 = func_8070943C();
+    temp_v0 = healthGetPerMelon();
     temp_v1 = (arg0 * 0x306) + (s32)D_807FC950;
     *(u8 *)(temp_v1 + 0x2FD) = 0;
     *(s8 *)(temp_v1 + 0x2FB) = (s8)(*(u8 *)(temp_v1 + 0x2FC) * (product_factor = temp_v0));

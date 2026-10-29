@@ -149,22 +149,22 @@ void func_806C9AE0(void);
 void func_806D0430(f32);
 void func_806F3760(s16);
 void func_806F4778(void);
-s32 func_806FAB20(s32);
-void func_806FBB58(void);
-void func_806FBC34(void);
+s32 slotQueueBuildDisplayList(s32);
+void textFontInitTables(void);
+void textFontAgeSheets(void);
 void gfxResourceListReset(void);
-s32 func_807007B8(s32);
+s32 lensFlareBuildDisplayList(s32);
 void func_80700BF4(void);
 void func_80701C90(void);
 s32 func_80701CA0(s32);
-void *func_80704484(void *, u8);
+void *screenFadeUpdate(void *, u8);
 Gfx *func_80704960(Gfx *);
-void func_807040E0(s32, s32, s32);
-void func_80704108(s32, s32, s32);
-void func_80705B30(void);
-s32 func_80709344(s32);
+void vtxGradientSetColorA(s32, s32, s32);
+void vtxGradientSetColorB(s32, s32, s32);
+void gfxBackgroundReset(void);
+s32 healthHudDrawAll(s32);
 void func_807094D0(s32, u32 *);
-void func_8070A934(s32, s32);
+void transitionRunFrame(s32, s32);
 void func_8070B308(s32);
 s32 func_8070B318(void);
 void func_8070DD44(void);
@@ -380,8 +380,8 @@ extern u32 D_807FBB60;
 extern u32 D_807FBB64;
 extern PlayerStruct *D_807FC924;
 extern u8 D_807FC928;
-extern f32 D_807FD888;
-extern f32 D_807FD88C;
+extern f32 gScreenFadeProgress;
+extern f32 gScreenFadeRate;
 extern s32 D_807FF100;
 extern u8 gScheduler[];
 
@@ -496,7 +496,7 @@ void func_805FBE04(void) {
     D_807FBB60 = 0x30030;
     D_8076A0B1 |= 1;
     D_8076A0B2 = 0;
-    D_807FD888 = 31.0f;
+    gScreenFadeProgress = 31.0f;
     D_8076A0B1 |= 4;
     modelSkipListClear();
     func_806C9AE0();
@@ -555,7 +555,7 @@ void func_805FC2B0(void) {
     }
     func_8070DD44();
     D_8076A150 = D_8076A050[D_807444FC];
-    if ((D_8076A0B1 & 1) && D_807FD888 == 31.0f) {
+    if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {
         sp2C = D_8076A050[D_807444FC];
         sp28 = D_8076A048 + 0xDB0;
         renderCallbacksReset();
@@ -572,7 +572,7 @@ void func_805FC2B0(void) {
             func_807094D0(3, &D_807FBB60);
         }
     } else {
-        sp2C = func_80704484(sp2C, D_8076AEE0);
+        sp2C = screenFadeUpdate(sp2C, D_8076AEE0);
     }
     if (D_8076A0A4 != 0 && D_807444EC != 6) {
         func_805FE71C(sp2C, D_807444FC, &D_8076A088, 0);
@@ -686,7 +686,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
 
     glist = (Gfx *)func_80701CA0(playerViewsRender(glist, arg0, 0xFFFD));
     if (D_807FC928 == 1) {
-        glist = (Gfx *)func_807007B8((s32)glist);
+        glist = (Gfx *)lensFlareBuildDisplayList((s32)glist);
     }
     glist = gfxPassThrough(screenWipeDraw(renderCallbacksExecute((s32)glist, 1)));
 
@@ -777,8 +777,8 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     if (D_807467E4 != 0) {
         D_807467E4 -= 1;
     }
-    glist = (Gfx *)func_80714060(func_806FAB20(func_80709344((s32)glist)));
-    func_806FBC34();
+    glist = (Gfx *)func_80714060(slotQueueBuildDisplayList(healthHudDrawAll((s32)glist)));
+    textFontAgeSheets();
     texCacheUpdate();
     commandQueueReset();
     *arg1 = glist;
@@ -923,13 +923,13 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
     }
     D_807F6010 = 0;
     collisionInitTables();
-    func_806FBB58();
+    textFontInitTables();
     gfxResourceListReset();
-    func_807040E0(0xFF, 0xFF, 0xFF);
-    func_80704108(0xFF, 0xFF, 0xFF);
+    vtxGradientSetColorA(0xFF, 0xFF, 0xFF);
+    vtxGradientSetColorB(0xFF, 0xFF, 0xFF);
     if (D_807444EC == 0) {
         D_8076A0A0 = func_8066B0F8(0x13, 0, 1, 1);
-        func_80705B30();
+        gfxBackgroundReset();
         commandStateInit();
         func_806F3760(D_8076A0AA);
         proxPathListClear();
@@ -1006,9 +1006,9 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
     func_80712BD4();
     func_805FF670();
     D_8076A0B1 ^= 1;
-    D_807FD888 = 31.0f;
+    gScreenFadeProgress = 31.0f;
     D_8076A0B1 |= 4;
-    D_807FD88C = -1.0f;
+    gScreenFadeRate = -1.0f;
     if ((D_807444F8 != 2) && (D_8076AEE0 == 1)) {
         sfxAllocateChannel(0x2B, 1.0f);
     }

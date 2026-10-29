@@ -318,7 +318,7 @@ void func_8068F72C(void *, s32, s32, s32);
 void func_80690190(void *, s32, void *);
 s32 camIsCutsceneActive(void);
 void lightAdd(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32);
-void func_8070033C(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32);
+void lensFlareAddSource(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32);
 s32 flagGet(s32, s32);
 
 void actorUpdatePlayerInteraction(void) {
@@ -356,7 +356,7 @@ void actorUpdatePlayerInteraction(void) {
         if (flagGet(0x6B, 2) == 0) {
             if (camIsCutsceneActive() != 0 && (D_807FBB4C->unk6A & 0x100)) {
                 actorGetNodePos(D_807FBB40, 2, &sp44, &sp40, (f32 *)&sp3C);
-                func_8070033C(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 0.0f, 0xFF, 0xFF, 0xFF);
+                lensFlareAddSource(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 0.0f, 0xFF, 0xFF, 0xFF);
             }
             if (camIsCutsceneActive() == 0) {
                 D_807FBB4C->unk6A &= ~0x100;

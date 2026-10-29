@@ -145,7 +145,7 @@ void func_806A7600(void *arg0) {
                 flagSet(temp_v1->unk6, 1, 0);
             }
             func_806F8BC4(0, 0, 0);
-            func_806F91B4(0, 0, 0xA);
+            slotQueueAddValue(0, 0, 0xA);
         }
     }
 }

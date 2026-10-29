@@ -7,7 +7,7 @@ s32 modelTypeIsCounted(u16);                             /* extern */
 ? modelAssetGetSubtables(s32, s32 **, ? *);                  /* extern */
 s32 modelSlotFindByType(s16, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *); /* extern */
 s32 func_8066B0F8(?, s32, ?, ?);                    /* extern */
-? func_806F833C(?, u8);                             /* extern */
+? slotQueueInit(?, u8);                             /* extern */
 ? heapClearBlock(void *);                           /* extern */
 ? heapFree(void *);                                 /* extern */
 ? memcpy(void *, void *, ?);                        /* extern */
@@ -115,7 +115,7 @@ void func_806F4778(void) {
         sp88 = 0;
     }
     D_807FD798 = 0;
-    func_806F833C(1, D_807FC928);
+    slotQueueInit(1, D_807FC928);
     var_s7 = &D_80753EF0;
     do {
         temp_s6 = var_s7->unk0;

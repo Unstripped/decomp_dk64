@@ -8,7 +8,7 @@ void heapFreeDeferred(void *);
 void func_80612CA0(Act90A_MtxF, f32);
 s32 func_8068C12C(u16);
 void func_80702464(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);
-void func_80704444(Vtx *, s16, s16, s16, s16, s32);
+void vtxSetPosTex(Vtx *, s16, s16, s16, s16, s32);
 
 #define Act90A_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
@@ -96,12 +96,12 @@ Gfx *func_8068C5A8(Gfx *glist, u16 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
         s1 = 0.0f - scaled_w;
         t1 = (f32)((u8)arg5 - 1) + scaled_h;
 
-        func_80704444(var_s0++, -half_w, half_h, s1, t1, 6);
+        vtxSetPosTex(var_s0++, -half_w, half_h, s1, t1, 6);
         s2 = (f32)((u8)arg4 - 1) + scaled_w;
-        func_80704444(var_s0++, half_w, half_h, s2, t1, 6);
+        vtxSetPosTex(var_s0++, half_w, half_h, s2, t1, 6);
         t2 = 0.0f - scaled_h;
-        func_80704444(var_s0++, half_w, -half_h, s2, t2, 6);
-        func_80704444(var_s0++, -half_w, -half_h, s1, t2, 6);
+        vtxSetPosTex(var_s0++, half_w, -half_h, s2, t2, 6);
+        vtxSetPosTex(var_s0++, -half_w, -half_h, s1, t2, 6);
     } else {
         half_w = (u8)arg4 >> 1;
         scaled_w = (f32)(u8)arg4 * arg11;
@@ -109,12 +109,12 @@ Gfx *func_8068C5A8(Gfx *glist, u16 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
         s1 = 0.0f - scaled_w;
         t1 = (f32)((u8)arg5 - 1) + scaled_h;
 
-        func_80704444(var_s0++, -half_w, 0, s1, t1, 6);
+        vtxSetPosTex(var_s0++, -half_w, 0, s1, t1, 6);
         s2 = (f32)((u8)arg4 - 1) + scaled_w;
-        func_80704444(var_s0++, half_w, 0, s2, t1, 6);
+        vtxSetPosTex(var_s0++, half_w, 0, s2, t1, 6);
         t2 = 0.0f - scaled_h;
-        func_80704444(var_s0++, half_w, -(u8)arg5, s2, t2, 6);
-        func_80704444(var_s0++, -half_w, -(u8)arg5, s1, t2, 6);
+        vtxSetPosTex(var_s0++, half_w, -(u8)arg5, s2, t2, 6);
+        vtxSetPosTex(var_s0++, -half_w, -(u8)arg5, s1, t2, 6);
     }
 
     Act90A_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(var_s0 - 4));

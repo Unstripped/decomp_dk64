@@ -135,9 +135,9 @@ extern u8 D_807FC950[][0x5E];
 extern void func_8071D0F0(void);
 
 u8 func_805FF030(u8, s32);
-s32 func_806F8AD4(s32, s32);
+s32 slotQueueGetValue(s32, s32);
 void slotQueueCancel(s32, s32);
-void func_806F91B4(s32, s32, s32, void *);
+void slotQueueAddValue(s32, s32, s32, void *);
 void camSetTargetCutsceneUnscaled(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void actorSetUniformScale(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -147,7 +147,7 @@ void func_8071498C(void (*)(void));
 void func_807149FC(s32);
 void func_807149B8(s32);
 void func_80714950(void *);
-void *func_806FACE8(s32);
+void *slotQueueGetSpriteAsset(s32);
 s32 func_80714C08(void *, f32, Actor *, s32, s32);
 
 void func_806BE09C(void) {
@@ -164,7 +164,7 @@ void func_806BE09C(void) {
     idx = func_805FF030(D_8076A0AB, 0);
     ratio = (f32)D_807FC930[idx] / (f32)D_807446C0[idx];
     if (func_806BDD90() == 1) {
-        R1C2CBS->unk2C = func_806F8AD4(0, 0);
+        R1C2CBS->unk2C = slotQueueGetValue(0, 0);
         if (R1C2CBS->unk2C != 0) {
             D_807FBB40->unk154 = 0x12;
             D_807FBB40->unk155[0] = 0;
@@ -199,7 +199,7 @@ void func_806BE09C(void) {
                 if (!(D_8076A064 & 3)) {
                     row = D_807FC950[D_8074E77C];
                     R1C2CBS->unk2C--;
-                    func_806F91B4(0, 0, -1, D_807FC950);
+                    slotQueueAddValue(0, 0, -1, D_807FC950);
                     ((u16 *)(row + 0x26))[idx] += 1;
                     sum = 0;
                     for (i = 0; i < 5; i++) sum += ((u16 *)(D_807FC950[i] + 0x26))[idx];
@@ -211,7 +211,7 @@ void func_806BE09C(void) {
                     func_807149FC(-1);
                     func_807149B8(1);
                     func_80714950(D_807FBB40);
-                    func_80714C08(func_806FACE8(0), 0.3f, D_807FBB4C, 4, 0);
+                    func_80714C08(slotQueueGetSpriteAsset(0), 0.3f, D_807FBB4C, 4, 0);
                 }
             } else if (R1C2CBS->unk2E == 0) {
                 R1C2CBS->unk2C = 0x1E;
@@ -269,8 +269,8 @@ void func_806BE674(u8 arg0) {
 
 s16 func_80609140(s16, s32, f32, f32, u8, u8);
 s32 _sprintf(char *, const char *, ...);
-s32 func_806FBD5C();
-Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
+s32 textGetStringWidth();
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 Gfx *func_8070068C(Gfx *);
 s32 func_8070E750(s32, s32, s32);
 extern Gfx D_1000118;
@@ -306,7 +306,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *arg1) {
     gDPSetCombineMode(gdl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
     gdl = func_8070068C(gdl);
-    gdl = func_806FC530(gdl, 1, (s16)((0x140 - func_806FBD5C(1, buf)) << 1), 0xAA, buf, 1);
+    gdl = textDrawStringVtx(gdl, 1, (s16)((0x140 - textGetStringWidth(1, buf)) << 1), 0xAA, buf, 1);
     n = arg1->unk168-- == 0;
     if (n) {
         arg1->unk155[0]++;

@@ -21,7 +21,7 @@ s32 menuDrawHighScoreTable(void *arg0, s32 arg1) {
     temp_s0 = *(void **)((u8 *)arg0 + 0x174);
     D_807FBB60 &= ~0x10;
     func_800317E8(temp_s0, 160.0f, 20.0f, &sp140, &sp13C, 2, 0, 1.0f);
-    arg1 = func_806FC530(arg1, 1, 0x280, (s16)(sp13C * 4.0), ((void **)D_80033F28)[D_800339A8 + 0x5F], 0x81);
+    arg1 = textDrawStringVtx(arg1, 1, 0x280, (s16)(sp13C * 4.0), ((void **)D_80033F28)[D_800339A8 + 0x5F], 0x81);
     func_800317E8(temp_s0, 160.0f, 205.0f, &sp140, &sp13C, 2, 0, 1.0f);
     i = 0;
     var_s3 = (s16)(sp13C * 4.0);
@@ -47,13 +47,13 @@ s32 menuDrawHighScoreTable(void *arg0, s32 arg1) {
     do {
         _sprintf(sp68, "%d.", i + 1);
         e = (Menu3B_Struct_6 *)((u8 *)sp130 + i * 6);
-        arg1 = func_806FC530(arg1, 1, (s16)(ft4 + 0x50), var_s3, sp68, 1);
+        arg1 = textDrawStringVtx(arg1, 1, (s16)(ft4 + 0x50), var_s3, sp68, 1);
         _sprintf(sp68, "%c %c %c", e->unk2, e->unk3, e->unk4);
-        arg1 = func_806FC530(arg1, 0x81, (s16)(ft4 + 0x118), var_s3, sp68, 1);
+        arg1 = textDrawStringVtx(arg1, 0x81, (s16)(ft4 + 0x118), var_s3, sp68, 1);
         _sprintf(sp68, "%d", e->unk0);
-        arg1 = func_806FC530(arg1, 0x81, (s16)(0x3E8 - ft4), var_s3, sp68, 1);
+        arg1 = textDrawStringVtx(arg1, 0x81, (s16)(0x3E8 - ft4), var_s3, sp68, 1);
         if (i == D_80033F60 && (D_8076A064 & 0x1F) < 0x14) {
-            arg1 = func_806FC530(arg1, 0x81, (s16)(ft4 + 0x118), var_s3 + 0x34, D_800339AC[D_80033F61], 1);
+            arg1 = textDrawStringVtx(arg1, 0x81, (s16)(ft4 + 0x118), var_s3 + 0x34, D_800339AC[D_80033F61], 1);
         }
         var_s3 += 0x6C;
     } while (++i < 5);

@@ -1,4 +1,4 @@
-// func_80024CA4 (src/multiplayer/0.c): stage 5 (OPS 2 of 368 mnemonic diffs; harness score 242 vs 295): fixed this round: var_s0/var_s1 swap (drop else{var_s1=0xFF}), col/i swap (dummy 'if (col) {}' before 'if (pre != 0)' block), last two func_806FC530 calls via named fx/fy statements. Remaining: (a) expected 'b' after BAD LUCK block + no extra 'andi t4,s2,0xff' on primcolor alpha (target alpha reg already masked; idx then has own reg: ours col=s5/idx-temp=s6/pre=s1 vs target col=s6/idx=var_s1=s1/pre=s5), (b) fx/fy f20/f22 mirrored, (c) IV slots 136/140 vs 140/144. Reusing var_s1 for idx hoists the mask above the branch (worse).
+// func_80024CA4 (src/multiplayer/0.c): stage 5 (OPS 2 of 368 mnemonic diffs; harness score 242 vs 295): fixed this round: var_s0/var_s1 swap (drop else{var_s1=0xFF}), col/i swap (dummy 'if (col) {}' before 'if (pre != 0)' block), last two textDrawStringVtx calls via named fx/fy statements. Remaining: (a) expected 'b' after BAD LUCK block + no extra 'andi t4,s2,0xff' on primcolor alpha (target alpha reg already masked; idx then has own reg: ours col=s5/idx-temp=s6/pre=s1 vs target col=s6/idx=var_s1=s1/pre=s5), (b) fx/fy f20/f22 mirrored, (c) IV slots 136/140 vs 140/144. Reusing var_s1 for idx hoists the mask above the branch (worse).
 typedef struct MpA_CA4_Rect {
     char pad[4];
     s16 unk4;
@@ -28,7 +28,7 @@ typedef struct MpA_CA4_Plr {
     char pad2[0x2F0 - 8];
 } MpA_CA4_Plr;
 
-u32 func_806FD894(s32);
+u32 textGetFontHeight(s32);
 
 Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
     MpA_CA4_Data *sp104;
@@ -47,8 +47,8 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
     MpA_CA4_Rect *rect;
 
     sp104 = (MpA_CA4_Data *)((Struct_800249D8_Arg1_MpDraw *)arg1)->unk174;
-    spF0 = (f32) func_806FD894(1);
-    spC0 = (f32) func_806FD894(1);
+    spF0 = (f32) textGetFontHeight(1);
+    spC0 = (f32) textGetFontHeight(1);
     var_s0 = func_800246EC(arg0, sp104, 0.0f);
     gSPDisplayList(var_s0++, &D_1000118);
     gSPMatrix(var_s0++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
@@ -64,9 +64,9 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
                 var_s1 = ((MpA_CA4_Plr *)D_807FC924)[var_s7].unk4->unk129;
                 gDPSetPrimColor(var_s0++, 0, 0, 255, 255, 255, (u8) (0xFF - var_s1));
                 _sprintf(spCC, "BAD LUCK");
-                fx = (f32) ((f64) fx - ((f64) func_806FBD5C(1, spCC) * 0.25));
+                fx = (f32) ((f64) fx - ((f64) textGetStringWidth(1, spCC) * 0.25));
                 fy = (f32) ((f64) fy - ((f64) spF0 * 0.25));
-                var_s0 = func_806FC530(var_s0, 1, (s16) (s32) (fx * 8.0f), (s16) (s32) (fy * 8.0f), spCC, 4);
+                var_s0 = textDrawStringVtx(var_s0, 1, (s16) (s32) (fx * 8.0f), (s16) (s32) (fy * 8.0f), spCC, 4);
             }
             if (var_s1 == 0) {
             } else {
@@ -79,15 +79,15 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
                     idx = var_s7;
                     fx = (f32) rect->unk4 + 4.0f;
                     fy = ((f32) rect->unkA - ((8.0f + spC0) * 0.5f)) * 8.0f;
-                    pre = (s32) func_806F8AD4(3, idx);
+                    pre = (s32) slotQueueGetValue(3, idx);
                     if (pre != 0) {
                         gDPSetPrimColor(var_s0++, 0, 0, 100, 30, 0, temp_s2);
                         _sprintf(spCC, "%d", pre);
                     } else {
-                        _sprintf(spCC, "%d", func_806F8AD4(2, idx));
+                        _sprintf(spCC, "%d", slotQueueGetValue(2, idx));
                     }
                     temp_s2 = (s16) (s32) fy;
-                    var_s0 = func_806FC530(var_s0, 1, (s16) (s32) (fx * 8.0f), temp_s2, spCC, 4);
+                    var_s0 = textDrawStringVtx(var_s0, 1, (s16) (s32) (fx * 8.0f), temp_s2, spCC, 4);
                     if (col) {
                     }
                     if (pre != 0) {
@@ -95,14 +95,14 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
                         ((Gfx *) pre)->words.w0 = 0xFA000000;
                         ((Gfx *) pre)->words.w1 = col;
                     }
-                    _sprintf(spCC, "%d", func_806F8AD4(4, idx));
-                    fx = (f32) rect->unk8 - ((f32) (func_806FBD5C(1, spCC) + 8) * 0.5f);
-                    var_s0 = func_806FC530(var_s0, 1, (s16) (s32) (fx * 8.0f), temp_s2, spCC, 4);
+                    _sprintf(spCC, "%d", slotQueueGetValue(4, idx));
+                    fx = (f32) rect->unk8 - ((f32) (textGetStringWidth(1, spCC) + 8) * 0.5f);
+                    var_s0 = textDrawStringVtx(var_s0, 1, (s16) (s32) (fx * 8.0f), temp_s2, spCC, 4);
                 }
                 _sprintf(spCC, "%d", mpGetPlayerScore(var_s7));
-                fx = (f32) rect->unk8 - (((f32) func_806FBD5C(1, spCC) * 0.5f) + 50.0f);
+                fx = (f32) rect->unk8 - (((f32) textGetStringWidth(1, spCC) * 0.5f) + 50.0f);
                 fy = (f32) ((f64) rect->unk6 + (8.0 + ((f64) (8.0f - (spC0 * 0.5f)) * 0.5))) * 8.0f;
-                var_s0 = func_806FC530(var_s0, 1, (s16) (s32) (fx * 8.0f), (s16) (s32) fy, spCC, 4);
+                var_s0 = textDrawStringVtx(var_s0, 1, (s16) (s32) (fx * 8.0f), (s16) (s32) fy, spCC, 4);
             }
     }
     return var_s0;

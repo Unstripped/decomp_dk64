@@ -106,10 +106,10 @@ void heapFree(void *);
 void heapFreeDeferred(void *);
 void *func_80610FE8(s32);
 s32 _sprintf(char *, const char *, ...);
-Gfx *func_806FC530(Gfx *, s32, s16, s32, void *, s32);
-s32 func_806FBD5C();
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s32, void *, s32);
+s32 textGetStringWidth();
 Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
-Gfx *func_80703374(Gfx *, s32, s32, s32, s32);
+Gfx *gfxFillScreenColor(Gfx *, s32, s32, s32, s32);
 Gfx *hudSetupTextState(Gfx *);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, void *);
 void func_806AA304();
@@ -121,7 +121,7 @@ void func_80714950(void *);
 void func_8071498C(void (*)());
 void func_80714A28(s32);
 ACDC0TextObj *func_80714CC0(s32, f32, f32, f32, f32);
-s32 func_806FACE8(s32);
+s32 slotQueueGetSpriteAsset(s32);
 f32 func_806119FC(void);
 f32 sqrtf(f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
@@ -659,7 +659,7 @@ Gfx *func_806AA09C(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale) {
     ACDC0_WRITE_GFX(dl++, 0xDA380002, (u32)mtx);
     _sprintf(buf1, "%d", n1);
     _sprintf(buf2, "%d", n2);
-    dl = func_806FC530(func_806FC530(dl, 1, 0, -0x28, buf1, 0x80), 1, w, 0x28, buf2, 0);
+    dl = textDrawStringVtx(textDrawStringVtx(dl, 1, 0, -0x28, buf1, 0x80), 1, w, 0x28, buf2, 0);
     ACDC0_WRITE_GFX(dl++, 0xD8380002, 0x40);
     dl->words.w0 = 0xE7000000;
     dl->words.w1 = 0;
@@ -733,7 +733,7 @@ s32 func_805FF030(s32, s32);
 f32 floatCeil(f32);
 s32 func_806C8DE0(s32);
 s32 func_806F6E58(s32);
-s32 func_806FA7A4(s32);
+s32 slotQueueGetCountStep(s32);
 s32 flagGridIndex(s32, s32, s32);
 s32 flagGridSumRows(s32, s32, s32, s32);
 void func_806AB4EC(ACDC0HudEntry *, s32, s32, s32, f32, u8, s32);
@@ -800,7 +800,7 @@ void func_806AA304(arg0, arg1)
             func_806AB4EC(arg0, 2, 0x1E, 0x7D, 0.65f, 2, 1);
         }
         if (func_806F6E58(D_8074E77C)) {
-            f = func_806FA7A4(5);
+            f = slotQueueGetCountStep(5);
             func_806AB808(arg0, 0x1E, 0xA0, 0xC, -0xA, (s32)floatCeil((f32)(u32)D_807FCC46 / f), 1, 1);
             func_806AB4EC(arg0, 5, 0x1E, 0xA0, 0.65f, 2, 1);
         }
@@ -1018,7 +1018,7 @@ void func_806AB4EC(ACDC0HudEntry *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, 
         obj = func_80714CC0(arg1, arg4, fy, (f32)arg3, -10.0f);
     } else {
         fy = arg2;
-        obj = func_80714CC0(func_806FACE8(arg1), arg4, fy, (f32)arg3, -10.0f);
+        obj = func_80714CC0(slotQueueGetSpriteAsset(arg1), arg4, fy, (f32)arg3, -10.0f);
     }
     arg1 = 7;
     if (arg6 == 6) {
@@ -1107,16 +1107,16 @@ void func_806AB808(ACDC0HudEntry *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, 
         break;
     case 2:
         _sprintf((char *)buf, "%d", arg5);
-        arg3 -= func_806FBD5C(1, buf) >> 1;
+        arg3 -= textGetStringWidth(1, buf) >> 1;
         break;
     default:
         _sprintf((char *)buf, "%d", arg5);
         break;
     }
     if (flag != 0) {
-        arg3 -= func_806FBD5C(1, buf);
+        arg3 -= textGetStringWidth(1, buf);
     }
-    D_807FC810 = func_806FBD5C(1, buf);
+    D_807FC810 = textGetStringWidth(1, buf);
     idx = D_807FC7F8[arg0->unk15];
     list = D_807FC7F0[arg0->unk15];
     len = sqrtf((640.0f - (f32)(arg1 * 4)) * (640.0f - (f32)(arg1 * 4)) + (480.0f - (f32)(arg2 * 4)) * (480.0f - (f32)(arg2 * 4)));
@@ -1152,7 +1152,7 @@ Gfx *hudDrawItemLabel(Gfx *dl, ACDC0HudEntry *arg1, s32 arg2) {
     ACDC0_WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
     y2 = y + 0x40;
     dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, tex), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[col + 9]);
-    D_807FC808 = (f32)func_806FBD5C(1, tex) * 1.4;
+    D_807FC808 = (f32)textGetStringWidth(1, tex) * 1.4;
     return dl;
 }
 
@@ -1168,7 +1168,7 @@ Gfx *hudDrawScaledText(Gfx *dl, s16 arg1, s16 arg2, f32 scale, void *arg4) {
     guMtxCatF(m1, m2, m1);
     guMtxF2L(m1, mtx);
     ACDC0_WRITE_GFX(dl++, 0xDA380002, (u32)mtx);
-    dl = func_806FC530(dl, 1, 0, 0, arg4, 0x80);
+    dl = textDrawStringVtx(dl, 1, 0, 0, arg4, 0x80);
     ACDC0_WRITE_GFX(dl++, 0xD8380002, 0x40);
     return dl;
 }
@@ -1294,7 +1294,7 @@ void func_806ABE3C(void) {
 #endif
 
 Gfx *hudDrawDimOverlay(Gfx *dl, Actor *actor) {
-    return func_80703374(dl, 0, 0, 0, 0x46);
+    return gfxFillScreenColor(dl, 0, 0, 0, 0x46);
 }
 
 #ifdef NON_MATCHING
@@ -1534,16 +1534,16 @@ Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
     } else {
         val = actor->unk128;
     }
-    dl = hudSetupTextState(func_80703374(dl, 0, 0, 0, val));
+    dl = hudSetupTextState(gfxFillScreenColor(dl, 0, 0, 0, val));
     gDPSetCombineLERP(dl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     dl->words.w0 = 0xFA000000;
     dl->words.w1 = (actor->unk128 & 0xFF) | 0xFFFFFF00;
     dl++;
-    dl = func_806FC530(dl, 1, 0x168, 0x104, D_807FC7E0[0], 1);
+    dl = textDrawStringVtx(dl, 1, 0x168, 0x104, D_807FC7E0[0], 1);
     _sprintf(buf, "q %s", D_807FC7E0[1]);
-    dl = func_806FC530(dl, 1, 0x208, 0x190, buf, 1);
+    dl = textDrawStringVtx(dl, 1, 0x208, 0x190, buf, 1);
     _sprintf(buf, "b %s", D_807FC7E0[2]);
-    return func_806FC530(dl, 1, 0x208, 0x21C, buf, 1);
+    return textDrawStringVtx(dl, 1, 0x208, 0x21C, buf, 1);
 }
 
 void hudSpawnTextScreen(u8 arg0) {

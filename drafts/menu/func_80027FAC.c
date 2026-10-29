@@ -38,7 +38,7 @@ s32 flagGet(s32, s32);
 s32 func_806119A0();
 f32 func_806119FC();
 void func_8067AB20(s32, s32, s32, s32, void *, s32);
-void func_80708574(f32);
+void gfxSetBackgroundBlend(f32);
 void lightSetColor(f32, f32, f32, s32);
 void menuHandleScrollInput();
 void menuUpdateItemTransition(void *, void *, s32);
@@ -223,5 +223,5 @@ void func_80027FAC(void *arg0, s32 arg1) {
     }
     D_80033F58 += (var_ft4 - D_80033F58) * 0.01;
     lightSetColor(D_80033F58 * 0.83 + 0.17, D_80033F58 * 0.8 + 0.2, D_80033F58 * 0.6 + 0.4, -1);
-    func_80708574(D_80033F5C);
+    gfxSetBackgroundBlend(D_80033F5C);
 }

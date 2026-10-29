@@ -1,10 +1,10 @@
-// func_806FC530 (src/global/100180.c): Stage 6 (NM7): parked NON_MATCHING; frame 0xC8, saved set s0-s8/ra, .text 9312 all match; full=198 shape=78 (L3 253/116). IR matches target for w/w4/h/h4 (w4=glyph[2]; w=w4; w4*=4 gives raw copy + sext pair), index-form compare D_807549FC[font][line-1]&&[line] (hoisted line load + separate reload), final-flush 'if (count) {}' keeps blez loop, 'i' split into len/tmp/i (target uses v1/v0/a3) with g12->g1 and g7->g3 merged to keep frame 0xC8. Remaining diff: regalloc only (count/gx/h4/yoff/const 0x7000000/mask: want count s8, vp s1, g9+gx s2, w4 s3, const s4, x s5, yoff a3, h4 t0, w t1, h t2); m5 variant (no len/tmp, full=210) matched dl s0 vp s1 w4 s3 x s5 count s8 w t1 but h4 s2 (prio 83 > count 58). Priority = savings/#blocks: dead 'if (V && V) {}' adds blocks (dilutes short ranges) and refs (raises V).
+// textDrawStringVtx (src/global/100180.c): Stage 6 (NM7): parked NON_MATCHING; frame 0xC8, saved set s0-s8/ra, .text 9312 all match; full=198 shape=78 (L3 253/116). IR matches target for w/w4/h/h4 (w4=glyph[2]; w=w4; w4*=4 gives raw copy + sext pair), index-form compare D_807549FC[font][line-1]&&[line] (hoisted line load + separate reload), final-flush 'if (count) {}' keeps blez loop, 'i' split into len/tmp/i (target uses v1/v0/a3) with g12->g1 and g7->g3 merged to keep frame 0xC8. Remaining diff: regalloc only (count/gx/h4/yoff/const 0x7000000/mask: want count s8, vp s1, g9+gx s2, w4 s3, const s4, x s5, yoff a3, h4 t0, w t1, h t2); m5 variant (no len/tmp, full=210) matched dl s0 vp s1 w4 s3 x s5 count s8 w t1 but h4 s2 (prio 83 > count 58). Priority = savings/#blocks: dead 'if (V && V) {}' adds blocks (dilutes short ranges) and refs (raises V).
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
-Gfx *func_806FBEF0(Gfx *, u8, s32);
+Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
 void heapFreeDeferred(void *);
 Gfx *func_805FD030(Gfx *);
-void func_80704298(void *, u8, u8, s8);
+void vtxSetQuadGradientColors(void *, u8, u8, s8);
 
 #define L3CMD(g, a, b) \
     { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); }
@@ -13,7 +13,7 @@ void func_80704298(void *, u8, u8, s8);
 #define L3VTX(g, v, n, v0) \
     L3CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
 
-Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
+Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     u8 line;
     u8 idx;
     u8 ch;
@@ -53,7 +53,7 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     count = 0;
     center = 0;
     strStart = str;
-    len = func_806FBEAC(str);
+    len = textCountNonSpace(str);
     if (len == 0) {
         return dl;
     }
@@ -62,7 +62,7 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     batch = vp;
     if (flags & 0x80) {
         flags &= ~0x80;
-        x = x - func_806FBD5C(font, str) * 2;
+        x = x - textGetStringWidth(font, str) * 2;
         startX = x;
     }
     if (font & 0x80) {
@@ -95,7 +95,7 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             if (ch) {
                 do {
                     if (ch != 0x20) {
-                        yoff = func_806FB914(font, &ch) * 4;
+                        yoff = textMapCharToGlyph(font, &ch) * 4;
                         glyph = (u8 *)((u8 **)D_80754A18)[font] + ch * 4;
                         w4 = glyph[2];
                         h4 = fi[2];
@@ -119,7 +119,7 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         if (ch >= D_807549FC[font][line - 1] && ch < D_807549FC[font][line]) {
                             if (started == 0) {
                                 started = 1;
-                                dl = func_806FBEF0(dl, font, (s16)line);
+                                dl = textLoadFontSheetGfx(dl, font, (s16)line);
                             }
                             v = (s16 *)vp;
                             v[0] = x;
@@ -148,7 +148,7 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             vp++;
                             vp++;
                             if (flags & 0x32) {
-                                func_80704298(vp - 4, idx, flags, yoff);
+                                vtxSetQuadGradientColors(vp - 4, idx, flags, yoff);
                             }
                             count += 4;
                             if (count >= 0x20) {

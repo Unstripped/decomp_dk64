@@ -267,8 +267,8 @@ Gfx *func_805FD030(Gfx *);
 s32 _sprintf(char *, const char *, ...);
 void *heapFreeDeferred(void *);
 void *func_8070E750(s32, s32, s32);
-s32 func_806FBD5C(s32, void *);
-Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
+s32 textGetStringWidth(s32, void *);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 
 Gfx *func_8002BEE8(Gfx *arg0, RaceUnknownActor *arg1) {
     u8 sp3F;
@@ -302,8 +302,8 @@ Gfx *func_8002BEE8(Gfx *arg0, RaceUnknownActor *arg1) {
             WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
             WRITE_GFX(arg0++, 0xFA000000, sp3F & 0xFF);
             WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
-            sp38 -= func_806FBD5C(1, var_s1) >> 1;
-            arg0 = func_806FC530(arg0, 1, (s16)(sp38 * 4), 0x3C, var_s1, 1);
+            sp38 -= textGetStringWidth(1, var_s1) >> 1;
+            arg0 = textDrawStringVtx(arg0, 1, (s16)(sp38 * 4), 0x3C, var_s1, 1);
         }
     }
     return arg0;
@@ -345,7 +345,7 @@ Gfx *func_8002C14C(Gfx *arg0, RaceUnknown174 *arg1) {
     return arg0;
 }
 
-u32 func_806FD894(s32);
+u32 textGetFontHeight(s32);
 
 Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
     f32 temp_fs0;
@@ -363,18 +363,18 @@ Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
     Gfx *next;
 
     temp_s0 = arg1->unk48;
-    temp_fv0 = (f32)func_806FD894(1) * 0.5f;
+    temp_fv0 = (f32)textGetFontHeight(1) * 0.5f;
     sp70 = temp_fv0;
     temp_fs0 = (f32)(temp_s0->unk4 + 8);
     temp_fs2 = (f32)(temp_s0->unkA - 0x10);
     temp_fs2 -= 2 * temp_fv0;
     temp_v0_2 = func_8070E750(0x26, 0xA, 1);
     WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFFF);
-    arg0 = func_806FC530(arg0, 1, (s16)(s32)(2.0f * (temp_fs0 * 4.0f)), (s16)(s32)(2.0f * (temp_fs2 * 4.0f)), temp_v0_2, 4);
+    arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)(2.0f * (temp_fs0 * 4.0f)), (s16)(s32)(2.0f * (temp_fs2 * 4.0f)), temp_v0_2, 4);
     WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
     WRITE_GFX(arg0++, 0xDA380005, (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50));
     temp_t1 = 0.5f;
-    temp_fs0 += temp_t1 * (f32)func_806FBD5C(1, temp_v0_2);
+    temp_fs0 += temp_t1 * (f32)textGetStringWidth(1, temp_v0_2);
     temp_fs0 = (f32)((f64)temp_fs0 + 8.0);
     temp_fs1 = temp_fs0 + temp_fs0;
     temp_fs2 = (f32)((f64)temp_fs2 + (0.4 * (f64)sp70));
@@ -430,7 +430,7 @@ typedef struct RaceE76CView {
 } RaceE76CView;
 extern s32 D_8002FCC0[];
 u32 strlen(u8 *);
-Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
+Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 #define RaceE76C ((RaceE76CView *)arg1)
 
 Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
@@ -469,14 +469,14 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
         sp68 = func_80610FE8(sp48 + 8);
         heapFreeDeferred(sp68);
         _sprintf(sp68, "%s %d %s %d", sp50, var_t0, sp4C, temp_t1->unk24);
-        arg0 = func_806FC530(arg0, 1, (s16)(s32)(2.0f * (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), sp68, 4);
+        arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)(2.0f * (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), sp68, 4);
         g0 = arg0++;
         g0->words.w0 = 0xDA380007;
         g0->words.w1 = (u32)&D_20000C0;
         g0 = arg0++;
         g0->words.w0 = 0xDA380005;
         g0->words.w1 = (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50);
-        ret = func_806FD894(1);
+        ret = textGetFontHeight(1);
         sp5C = (s32)((f32)sp5C - (0.5f * (f32)ret));
         var_a3 = temp_t1->unk0;
     }
@@ -488,10 +488,10 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
         if (RaceE76C->unk45 != 0) {
             var_v0 = 4;
         }
-        arg0 = func_806FC530(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), func_8070E750(0x26, D_8002FCC0[var_v0], 1), 4);
+        arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), func_8070E750(0x26, D_8002FCC0[var_v0], 1), 4);
     }
     if (RaceE76C->unk34 >= 3 && RaceE76C->unk34 < 5) {
-        arg0 = func_806FE078(arg0, RaceE76C->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
+        arg0 = textDrawAnimated(arg0, RaceE76C->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
     }
     return arg0;
 }
@@ -693,7 +693,7 @@ void func_8002D0FC(void) {
 }
 
 extern s32 D_8002FCD4[];
-s32 func_806FDB8C(s32, void *, s32, f32, f32, f32);
+s32 gfxResourceCreate(s32, void *, s32, f32, f32, f32);
 
 void func_8002D148(RacePair *arg0, u8 arg1) {
     extern RaceUnknownActor *D_807FBB40;
@@ -710,7 +710,7 @@ void func_8002D148(RacePair *arg0, u8 arg1) {
                 slot = 3;
             }
             if (arg0->unk4->unk27 == 0) {
-                arg0->unk4->unk46 = func_806FDB8C(1, func_8070E750(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
+                arg0->unk4->unk46 = gfxResourceCreate(1, func_8070E750(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
             }
         }
     }
@@ -1486,7 +1486,7 @@ void func_8002E644(RaceFE644Arg *arg0) {
     }
 }
 
-s32 func_806F8AD4(s32, s32);
+s32 slotQueueGetValue(s32, s32);
 s32 func_8002E8EC(RaceStruct3 *arg0, RaceStruct3 *arg1, s32 arg2) {
     s32 ret;
 
@@ -1495,7 +1495,7 @@ s32 func_8002E8EC(RaceStruct3 *arg0, RaceStruct3 *arg1, s32 arg2) {
         goto end;
     }
     if (arg0->unk36 != 0) {
-        if (func_806F8AD4(11, 0) >= arg2) {
+        if (slotQueueGetValue(11, 0) >= arg2) {
             ret = 1;
         } else {
             ret = 3;

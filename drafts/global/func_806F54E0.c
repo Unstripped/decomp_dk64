@@ -3,7 +3,7 @@ s32 func_805FF030(u8, s32);
 s16 flagGridIndex(s32, s32, u8);
 s32 func_806C9974(u8, s8);
 void func_8060DEC8(void);
-void func_806F91B4(s32, u8, s32);
+void slotQueueAddValue(s32, u8, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 extern s8 D_80029FA0;
 extern s8 D_80753EF2[];
@@ -43,7 +43,7 @@ u8 arg2;
         case 0xDD: case 0xDE: case 0xDF: case 0xE0: case 0xE1:
             flagSet(flagGridIndex(0x1D5, func_805FF030(D_8076A0AB, 1), D_8074E77C[(u8)arg0]), 1, 0);
         case 0x74: case 0x288:
-            func_806F91B4(temp_v0, arg0, 1);
+            slotQueueAddValue(temp_v0, arg0, 1);
             shouldComplete = 1;
             break;
         case 0x91: case 0x15D: case 0x15E: case 0x15F: case 0x160:
@@ -52,16 +52,16 @@ u8 arg2;
             }
         case 0xA: case 0xD: case 0x16: case 0x1E: case 0x1F:
             flagSet(0x18B, 1, 0);
-            func_806F91B4(temp_v0, arg0, 1);
+            slotQueueAddValue(temp_v0, arg0, 1);
             break;
         case 0x1C: case 0x1D: case 0x23: case 0x24: case 0x27:
             flagSet(0x18C, 1, 0);
         case 0x98: case 0xEC: case 0x1D2:
-            func_806F91B4(temp_v0, arg0, 1);
+            slotQueueAddValue(temp_v0, arg0, 1);
             break;
         case 0x56:
             flagSet(0x173, 1, 0);
-            func_806F91B4(temp_v0, arg0, 1);
+            slotQueueAddValue(temp_v0, arg0, 1);
             break;
         case 0xB7:
             D_807FC950[(u8)arg0].actions[0].unk6 += 5;
@@ -71,7 +71,7 @@ u8 arg2;
             func_806F5498();
             break;
         case 0x8E:
-            func_806F91B4(temp_v0, arg0, 0x96);
+            slotQueueAddValue(temp_v0, arg0, 0x96);
             break;
         case 0x57:
             func_806C9974(arg0, 1);

@@ -10,8 +10,8 @@ extern u8 D_807FC929;
 extern P19LProjectileView *D_807FD568;
 extern s16 D_807FD584;
 void slotQueueUpdate(s32, s32, s32);
-s32 func_806F8AD4(s32, u8);
-void func_806F91B4(s32, u8, s32);
+s32 slotQueueGetValue(s32, u8);
+void slotQueueAddValue(s32, u8, s32);
 s32 func_8067ACDC(Actor *, s32, s32);
 s32 func_80671E00(f32, f32, f32, f32, s16 *, s16 *, s32, s32);
 s32 func_806725E4(s16, s16, s16, s32);
@@ -33,8 +33,8 @@ void func_80618104(Actor *arg0) {
 
     sp44 = arg0->unk174;
     slotQueueUpdate(4, 0, 0);
-    if ((func_806F8AD4(4, sp44->unk1A4) != 0) && (func_8067ACDC(arg0, 4, 0) < D_80753E64[D_807FD584])) {
-        func_806F91B4(4, sp44->unk1A4, -1);
+    if ((slotQueueGetValue(4, sp44->unk1A4) != 0) && (func_8067ACDC(arg0, 4, 0) < D_80753E64[D_807FD584])) {
+        slotQueueAddValue(4, sp44->unk1A4, -1);
         sp50 = (f32)((f64)arg0->unk4->unk38 * 2.6666667064030967);
         switch (arg0->unk58) {
             case 2:

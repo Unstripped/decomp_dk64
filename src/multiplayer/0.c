@@ -22,7 +22,7 @@ Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32)
 Gfx *func_8068E7B4(Gfx *, f32, f32, s32);
 extern s32 D_807552E8;
 extern u8 D_807FC950[];
-s32 func_806F8AD4(s32, u8);
+s32 slotQueueGetValue(s32, u8);
 extern s32 D_807552EC;
 extern u8 D_807FC928;
 extern s32 D_807FBB60;
@@ -112,11 +112,11 @@ s32 mpGetPlayerScore(s32 arg0) {
     switch (D_807552E8) {
     case 2:
     case 3:
-        var_v1 = func_806F8AD4(1, arg0);
+        var_v1 = slotQueueGetValue(1, arg0);
         break;
     case 4:
     case 5:
-        var_v1 = func_806F8AD4(7, arg0);
+        var_v1 = slotQueueGetValue(7, arg0);
         break;
     case 0:
     case 1:
@@ -313,8 +313,8 @@ Gfx *func_800246EC(Gfx *glistp, void *arg1v, f32 arg2) {
 #endif
 
 int _sprintf(char *, const char *, ...);
-s32 func_806FBD5C(s32, char *);
-Gfx *func_806FC530(Gfx *, s32, s16, s16, char *, s32);
+s32 textGetStringWidth(s32, char *);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 Gfx *func_800246EC(Gfx *, void *, f32);
 
 typedef struct MpDrawViewport {
@@ -360,7 +360,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpDrawActor *arg1) {
         if ((s32) D_807FC928 > 0) {
             do {
                 _sprintf(sp98, "%d", mpGetPlayerScore(var_s2));
-                temp = func_806FC530(glistp, 1, (s16) (s32) ((((f32) (var_s2 + 1) * temp_fs2) - (f32) ((f32) func_806FBD5C(1, sp98) * 0.25)) * 8.0f), (s16) (s32) (temp_fs0 * 8.0f), sp98, 4);
+                temp = textDrawStringVtx(glistp, 1, (s16) (s32) ((((f32) (var_s2 + 1) * temp_fs2) - (f32) ((f32) textGetStringWidth(1, sp98) * 0.25)) * 8.0f), (s16) (s32) (temp_fs0 * 8.0f), sp98, 4);
                 var_s2 = var_s2 + 1;
                 glistp = temp;
             } while (var_s2 < (s32) D_807FC928);
@@ -399,7 +399,7 @@ typedef struct MpBadLuckPlayer {
     char pad2[0x2F0 - 8];
 } MpBadLuckPlayer;
 
-u32 func_806FD894(s32);
+u32 textGetFontHeight(s32);
 
 Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
     MpBadLuckState *sp104;
@@ -418,8 +418,8 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
     MpBadLuckRect *rect;
 
     sp104 = (MpBadLuckState *)((MpDrawActor *)arg1)->unk174;
-    spF0 = (f32) func_806FD894(1);
-    spC0 = (f32) func_806FD894(1);
+    spF0 = (f32) textGetFontHeight(1);
+    spC0 = (f32) textGetFontHeight(1);
     var_s0 = func_800246EC(arg0, sp104, 0.0f);
     gSPDisplayList(var_s0++, &D_1000118);
     gSPMatrix(var_s0++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
@@ -435,9 +435,9 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
                 var_s1 = ((MpBadLuckPlayer *)D_807FC924)[var_s7].unk4->unk129;
                 gDPSetPrimColor(var_s0++, 0, 0, 255, 255, 255, (u8) (0xFF - var_s1));
                 _sprintf(spCC, "BAD LUCK");
-                fx = (f32) ((f64) fx - ((f64) func_806FBD5C(1, spCC) * 0.25));
+                fx = (f32) ((f64) fx - ((f64) textGetStringWidth(1, spCC) * 0.25));
                 fy = (f32) ((f64) fy - ((f64) spF0 * 0.25));
-                var_s0 = func_806FC530(var_s0, 1, (s16) (s32) (fx * 8.0f), (s16) (s32) (fy * 8.0f), spCC, 4);
+                var_s0 = textDrawStringVtx(var_s0, 1, (s16) (s32) (fx * 8.0f), (s16) (s32) (fy * 8.0f), spCC, 4);
             }
             if (var_s1 == 0) {
             } else {
@@ -450,15 +450,15 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
                     idx = var_s7;
                     fx = (f32) rect->unk4 + 4.0f;
                     fy = ((f32) rect->unkA - ((8.0f + spC0) * 0.5f)) * 8.0f;
-                    pre = (s32) func_806F8AD4(3, idx);
+                    pre = (s32) slotQueueGetValue(3, idx);
                     if (pre != 0) {
                         gDPSetPrimColor(var_s0++, 0, 0, 100, 30, 0, temp_s2);
                         _sprintf(spCC, "%d", pre);
                     } else {
-                        _sprintf(spCC, "%d", func_806F8AD4(2, idx));
+                        _sprintf(spCC, "%d", slotQueueGetValue(2, idx));
                     }
                     temp_s2 = (s16) (s32) fy;
-                    var_s0 = func_806FC530(var_s0, 1, (s16) (s32) (fx * 8.0f), temp_s2, spCC, 4);
+                    var_s0 = textDrawStringVtx(var_s0, 1, (s16) (s32) (fx * 8.0f), temp_s2, spCC, 4);
                     if (col) {
                     }
                     if (pre != 0) {
@@ -466,14 +466,14 @@ Gfx *func_80024CA4(Gfx *arg0, void *arg1) {
                         ((Gfx *) pre)->words.w0 = 0xFA000000;
                         ((Gfx *) pre)->words.w1 = col;
                     }
-                    _sprintf(spCC, "%d", func_806F8AD4(4, idx));
-                    fx = (f32) rect->unk8 - ((f32) (func_806FBD5C(1, spCC) + 8) * 0.5f);
-                    var_s0 = func_806FC530(var_s0, 1, (s16) (s32) (fx * 8.0f), temp_s2, spCC, 4);
+                    _sprintf(spCC, "%d", slotQueueGetValue(4, idx));
+                    fx = (f32) rect->unk8 - ((f32) (textGetStringWidth(1, spCC) + 8) * 0.5f);
+                    var_s0 = textDrawStringVtx(var_s0, 1, (s16) (s32) (fx * 8.0f), temp_s2, spCC, 4);
                 }
                 _sprintf(spCC, "%d", mpGetPlayerScore(var_s7));
-                fx = (f32) rect->unk8 - (((f32) func_806FBD5C(1, spCC) * 0.5f) + 50.0f);
+                fx = (f32) rect->unk8 - (((f32) textGetStringWidth(1, spCC) * 0.5f) + 50.0f);
                 fy = (f32) ((f64) rect->unk6 + (8.0 + ((f64) (8.0f - (spC0 * 0.5f)) * 0.5))) * 8.0f;
-                var_s0 = func_806FC530(var_s0, 1, (s16) (s32) (fx * 8.0f), (s16) (s32) fy, spCC, 4);
+                var_s0 = textDrawStringVtx(var_s0, 1, (s16) (s32) (fx * 8.0f), (s16) (s32) fy, spCC, 4);
             }
     }
     return var_s0;
@@ -579,7 +579,7 @@ s32 mpUpdateScoreEffects(void) {
         do {
             ac = ((MpEffectActor *)((MpEffectPlayer *)D_807FC924)[i].unk4)->unk174;
             sc = &((MpEffectScore *)D_807FC950)[i];
-            if (func_806F8AD4(1, i) != 0) {
+            if (slotQueueGetValue(1, i) != 0) {
                 temp_s3 = sc->unk2FD + sc->unk2FB;
                 if (ac->unk260 == 0) {
                     p = (void *)(s32)&D_8071F3C0;
@@ -981,14 +981,14 @@ void mpFreeHudIcons(MpHudIconState *arg0) {
 }
 
 void mpApplyPendingEffect(s32);
-void func_806F91B4(s32, u8, s32);
+void slotQueueAddValue(s32, u8, s32);
 s32 cameraFindViewportEntry(u8);
 void func_806C9AE0(void);
 s32 n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void n_alSndpPostEvent(void *, s32, s16);
 void func_80609140(s16, s32, f32, f32, s32, s32);
 void func_806F5FA0(s32, s32, s32);
-void func_806F833C(s32);
+void slotQueueInit(s32);
 void *func_80610FE8(s32);
 s32 func_8066B0F8(s32, s32, s32, s32);
 void func_8071495C(void);
@@ -1094,9 +1094,9 @@ void mpUpdate(void) {
             break;
         case 4:
             for (i = 0; i < D_807FC928; i++) {
-                func_806F91B4(7, i, *(s16 *)((u8 *)&D_807552E4 + 0xE));
+                slotQueueAddValue(7, i, *(s16 *)((u8 *)&D_807552E4 + 0xE));
             }
-            func_806F833C(0);
+            slotQueueInit(0);
             break;
         }
         if (MP_SETTINGS->unk0 == 0 && D_8076A0A8 == 0x6B) {
@@ -1234,7 +1234,7 @@ void mpSetFlags(u8 arg0) {
 
 extern void func_806F0C18(void *);
 extern s32 func_80714608(s32);
-extern void func_806F91B4(s32, u8, s32);
+extern void slotQueueAddValue(s32, u8, s32);
 extern u8 *D_807FD580;
 
 typedef struct MpResetActor {
@@ -1274,13 +1274,13 @@ void func_800268DC(MpResetActor *arg0, MpResetState *arg1, MpResetPlayer *arg2) 
         *(s16 *)(D_807FD580 + 0x21E) = 0;
     }
     if (D_807552E8 == 3 || D_807552E8 == 5) {
-        func_806F91B4(1, arg1->unk1A4, -10);
+        slotQueueAddValue(1, arg1->unk1A4, -10);
     }
 }
 
 void func_8002698C(MpResetState *arg0) {
     if (D_807552E8 == 2) {
-        func_806F91B4(1, arg0->unk1A4, -3);
+        slotQueueAddValue(1, arg0->unk1A4, -3);
     }
 }
 
@@ -1331,10 +1331,10 @@ void mpDropItemsOnHit(u8 arg0, s8 arg1) {
     s1 = &((MpHitScore *)D_807FC950)[arg0];
     sp34 = s1->unk2FB + s1->unk2FD + arg1;
     sp30 = s1->unk2FA - sp34;
-    if (func_806F8AD4(1, arg0) != 0 && (sp34 <= 0 || sp30 >= 2)) {
+    if (slotQueueGetValue(1, arg0) != 0 && (sp34 <= 0 || sp30 >= 2)) {
         sp34 = (s32)((MpHitControllerActor *)actorFindByType(0x13E))->unk174;
         ((MpHitCooldownState *)sp34)->unk4C = 1;
-        func_806F91B4(1, arg0, -10);
+        slotQueueAddValue(1, arg0, -10);
         if (D_807552E8 == 5) {
             func_80025F84();
         }
@@ -1360,16 +1360,16 @@ void mpApplyDeathPenalty(s32 arg0) {
     target->unk144 = 12;
     switch (D_807552E8) {
     case 2:
-        func_806F91B4(1, arg0, -3);
+        slotQueueAddValue(1, arg0, -3);
         break;
     case 5:
-        func_806F91B4(7, arg0, -0x40);
+        slotQueueAddValue(7, arg0, -0x40);
         /* fallthrough */
     case 3:
         mpDropItemsOnHit(arg0, 0);
         break;
     case 4:
-        func_806F91B4(7, arg0, -1);
+        slotQueueAddValue(7, arg0, -1);
         break;
     }
 }

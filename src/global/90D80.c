@@ -166,7 +166,7 @@ Gfx *renderBonusTargetMarker(Gfx *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/90D80/func_8068D9DC.s")
 
-Gfx *func_806FC530(Gfx *, s32, s16, s16, void *, s32);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 int _sprintf();
 Gfx *func_8068DAF4(Gfx *arg0, u8 *arg1) {
     char sp38[8];
@@ -175,7 +175,7 @@ Gfx *func_8068DAF4(Gfx *arg0, u8 *arg1) {
     WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
     WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFF96);
     _sprintf(sp38, "%d", *arg1);
-    return func_806FC530(arg0, 3, 0x104, 0x50, sp38, 1);
+    return textDrawStringVtx(arg0, 3, 0x104, 0x50, sp38, 1);
 }
 #pragma GLOBAL_ASM("asm/global/nonmatchings/90D80/func_8068DBA4.s")
 #pragma GLOBAL_ASM("asm/global/nonmatchings/90D80/func_8068DC54.s")

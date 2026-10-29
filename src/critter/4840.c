@@ -27,7 +27,7 @@ typedef struct Actor_4840 {
     u8 *unk174;
 } Actor_4840;
 
-s32 func_806FBD5C(s16, s32);
+s32 textGetStringWidth(s16, s32);
 void heapFree(void *);
 void actorSpawn(s32, s32);
 extern s16 D_80744490;
@@ -61,13 +61,13 @@ s16 critterLayoutWords(TextData *arg0, char *arg1, s16 arg2) {
 
     _strcpy(sp4C, arg1);
     arg1 = _strtok(sp4C, " ");
-    v1 = (s32)(func_806FBD5C(6, (s32)arg1) * 0.5 * 4.0);
+    v1 = (s32)(textGetStringWidth(6, (s32)arg1) * 0.5 * 4.0);
     sp70[0] = arg2;
     var_s1 = 1;
     sp94[0] = arg2 + v1;
     arg2 = arg2 + v1 * 2 + 0x14;
     while ((arg1 = _strtok(NULL, " ")) != NULL) {
-        v1 = (s32)(func_806FBD5C(6, (s32)arg1) * 0.5 * 4.0);
+        v1 = (s32)(textGetStringWidth(6, (s32)arg1) * 0.5 * 4.0);
         sp70[var_s1] = arg2;
         sp94[var_s1++] = arg2 + v1;
         arg2 = arg2 + v1 * 2 + 0x14;
@@ -83,7 +83,7 @@ s16 critterLayoutWords(TextData *arg0, char *arg1, s16 arg2) {
 }
 
 f32 func_80612794(s16);
-Gfx *func_806FC530(Gfx *, s32, s16, s16, s32, s32);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
 extern u8 D_807444FC;
 
 Gfx *critterDrawWord(Gfx *glistp, u8 *arg1, char *arg2, u8 arg3) {
@@ -111,7 +111,7 @@ Gfx *critterDrawWord(Gfx *glistp, u8 *arg1, char *arg2, u8 arg3) {
     guMtxF2L(sp98, (Mtx *)(arg1 + 0x90 + arg3 * 0x80 + D_807444FC * 0x40));
     gSPMatrix(glistp++, arg1 + 0x90 + arg3 * 0x80 + D_807444FC * 0x40, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, sp57);
-    return func_806FC530(glistp, 6, 0, 0, (s32)arg2, 0);
+    return textDrawStringVtx(glistp, 6, 0, 0, (s32)arg2, 0);
 }
 
 Gfx *critterRenderText(Gfx *glistp, Actor_4840 *actor) {
@@ -136,7 +136,7 @@ void critterShowText(u8 arg0, s32 arg1, s16 arg2, u8 arg3, s16 arg4, u16 arg5) {
     u8 *s0;
     s16 sp2A;
 
-    sp2A = (D_80744490 - func_806FBD5C(arg0, (s32)D_8002A1C0 + (arg3 << 5))) * 2;
+    sp2A = (D_80744490 - textGetStringWidth(arg0, (s32)D_8002A1C0 + (arg3 << 5))) * 2;
     if (D_8002A1C4 != NULL) {
         s0 = D_8002A1C4->unk174;
         heapFree(*(void **)(s0 + 8));

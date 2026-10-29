@@ -1318,7 +1318,7 @@ void camSetPath(u8 arg0) {
 
 extern u16 gCamPathLoopStep;
 extern u8 D_8076AEE0;
-extern f32 D_807FD88C;
+extern f32 gScreenFadeRate;
 
 void camResumePath(void);
 
@@ -1339,7 +1339,7 @@ void camLoopPathStep(u8 arg0, u8 arg1) {
 
 void func_8061D9EC(s32 arg0, s32 arg1, s32 arg2) {
     D_8076AEE0 = 0;
-    D_807FD88C = -0.8f;
+    gScreenFadeRate = -0.8f;
 }
 
 void timerQueueAdd(void *, s32, s32, s32, s32);
@@ -1347,7 +1347,7 @@ void timerQueueAdd(void *, s32, s32, s32, s32);
 void func_8061DA14(s32 arg0, s32 arg1, s32 arg2) {
     D_8076A0B1 |= 0x40;
     D_8076AEE0 = 0;
-    D_807FD88C = 0.8f;
+    gScreenFadeRate = 0.8f;
     timerQueueAdd(func_8061D9EC, 0x8000003C, 0, 0, 0);
 }
 
@@ -1575,7 +1575,7 @@ void camUpdate(struct CamResetCam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
     switch (D_807444EC) {
     case 0:
         if (!(st->unkAC & 0x100)) {
-            if (0.0f < D_807FD88C) {
+            if (0.0f < gScreenFadeRate) {
                 if (func_807142D8() == 0) {
                     return;
                 }
@@ -2169,7 +2169,7 @@ typedef struct CamZoneActor {
     /* 0xB4 */ f32 unkB4;
 } CamZoneActor;
 
-extern f32 D_807FD888;
+extern f32 gScreenFadeProgress;
 s32 camIsCellNeighbour(s16, s16);
 
 #define CAM_ZONE_GROUP ((CamZonePair *)gCamZoneGroups)
@@ -2316,7 +2316,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                                             if (e->unk17 & 4) {
                                                 break;
                                             }
-                                            if (D_807FD888 == 0.0f) {
+                                            if (gScreenFadeProgress == 0.0f) {
                                                 break;
                                             }
                                         }
@@ -2446,7 +2446,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                 func_8061F18C(arg0, *arg1, *arg2, *arg3);
             }
         }
-        if ((st->unkAC & 0x8000) || D_807FD888 > 27.0f || (best->unk17 & 0x38)) {
+        if ((st->unkAC & 0x8000) || gScreenFadeProgress > 27.0f || (best->unk17 & 0x38)) {
             D_807FBB60 |= 0x2000;
             st->unkAC &= 0xFFFF7FFF;
         }
@@ -2928,7 +2928,7 @@ struct CamFollowPosActor {
 };
 
 extern u8 D_80750AB4;
-extern f32 D_807FD888;
+extern f32 gScreenFadeProgress;
 
 s32 actorTableContains(void *);
 s32 func_805FCA64(void);
@@ -3036,7 +3036,7 @@ u8 camComputeFollowPos(CamActor *arg0, CamActor *arg1, f32 *arg2, f32 *arg3, f32
                 }
             }
         }
-        if (!(cam->unkAC & 0x100) && D_807FD888 == 0.0f && 2.0 * cam->unkA0 < D_807476AC && cam->unkE8 == 0 &&
+        if (!(cam->unkAC & 0x100) && gScreenFadeProgress == 0.0f && 2.0 * cam->unkA0 < D_807476AC && cam->unkE8 == 0 &&
             cam->unkF3 != 5 && !(D_807FBB68 & 2) && !(D_807FBB64 & 0x2001)) {
             camFindClearYaw(arg0, -1.0f, cam->unkB2, 0);
         } else {

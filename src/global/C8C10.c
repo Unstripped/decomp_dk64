@@ -189,7 +189,7 @@ extern s16 D_80750AC8;
 
 s32 flagGet(s16, s32);
 s32 func_807142D8();
-s32 func_806F8AD4(s32, s32);
+s32 slotQueueGetValue(s32, s32);
 void func_80724CA4(s32, s32);
 void func_80724E48(u8);
 void actorSpawnNodeEntryAtActor(s32, s16);
@@ -221,7 +221,7 @@ void func_806C4414(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
             var = arg0;
         } else {
             playerStateQueueCallback(0x46, 0, 0);
-            if (func_806F8AD4(0xB, 0) < arg5) {
+            if (slotQueueGetValue(0xB, 0) < arg5) {
                 D_807FBB40->unk15F = 0;
                 var = arg1;
             } else {
@@ -264,7 +264,7 @@ void func_806C4414(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
             } else {
                 D_807FBB40->unk15F++;
                 if (arg4 == R1C8aC->unk13) {
-                    if (func_806F8AD4(0xB, 0) >= arg5) {
+                    if (slotQueueGetValue(0xB, 0) >= arg5) {
                         D_807FDC90->unk2C = 0x78;
                     }
                 }
@@ -279,7 +279,7 @@ void func_806C4414(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
             D_807FBB40->unk154 = 0x40;
             func_806C43A8();
             if (arg4 == R1C8aC->unk13) {
-                if (flagGet(arg6, 0) != 0 || func_806F8AD4(0xB, 0) >= arg5) {
+                if (flagGet(arg6, 0) != 0 || slotQueueGetValue(0xB, 0) >= arg5) {
                     func_805FF544();
                 } else {
                     hudSpawnTextScreen(1);
@@ -408,10 +408,10 @@ u8 func_806C4AC4(u16 arg0, u16 arg1) {
     return ret;
 }
 
-void func_806FB370();
+void slotQueueSetDisplayMode();
 
 void func_806C4E8C(void) {
-    func_806FB370(5, 0, 0);
+    slotQueueSetDisplayMode(5, 0, 0);
 }
 
 void csModelStateSetFirstByte();
@@ -487,7 +487,7 @@ void csModelStateSetFirstByte(s32, s32);
 void actorScriptStart(Actor *, s32);
 void func_8070E8DC(s32);
 s32 camIsCutsceneActive(void);
-void func_806FB370(s32, s32, s32);
+void slotQueueSetDisplayMode(s32, s32, s32);
 void func_8072A450(void);
 void func_806C4EB4(void);
 s32 func_80724A20(void);
@@ -568,7 +568,7 @@ void func_806C4F5C(void) {
                         LgS->unk2C = 0xA;
                         LgA->unk154 = 2;
                         LgA->unk155 = 0;
-                        func_806FB370(5, 0, 1);
+                        slotQueueSetDisplayMode(5, 0, 1);
                         actorScriptStart(D_807FBB40, 0x244);
                     }
                     break;
@@ -613,7 +613,7 @@ void func_806C4F5C(void) {
             LgA->unk155 = 0;
             actorScriptStart(D_807FBB40, 0x244);
             LgS->unk25 = 2;
-            func_806FB370(5, 0, 1);
+            slotQueueSetDisplayMode(5, 0, 1);
             break;
     }
     switch (func_806C4AC4(0x78, 0xA)) {
@@ -759,7 +759,7 @@ void func_806C55E0(void) {
                     camResumePath();
                     D_807FDC98->unk46 |= 0x24;
                     LA->unk154 = 2;
-                    func_806FB370(5, 0, 1);
+                    slotQueueSetDisplayMode(5, 0, 1);
                     slotQueueUpdate(5, 1, 0);
                     *sp20 = 0x78;
                     LS90->unk2C = 0x10;

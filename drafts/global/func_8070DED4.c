@@ -1,6 +1,6 @@
 // func_8070DED4 (src/global/112080.c): stage 2: behavior and blocks recovered from local asm; frame/register allocation differs (0xA0 vs 0x98)
-extern s32 func_806FD894(s32);
-extern s16 func_806FD7A8(s32, u8);
+extern s32 textGetFontHeight(s32);
+extern s16 textGetCharAdvance(s32, u8);
 extern s32 _sprintf(u8 *, char *, ...);
 extern void *D_8074E778[];
 extern u16 D_80750AC8;
@@ -55,7 +55,7 @@ s32 func_8070DED4(L112dContainer *arg0, u8 *arg1, u16 arg2) {
     flags = 0;
     width = 0;
     character = 1;
-    time = (f32)func_806FD894(6);
+    time = (f32)textGetFontHeight(6);
     if (time < 0.0f) {
         time += 4294967296.0f;
     }
@@ -131,7 +131,7 @@ s32 func_8070DED4(L112dContainer *arg0, u8 *arg1, u16 arg2) {
                     do {
                         *entryLink = func_80610FE8(0xA8);
                         heapClearBlock(*entryLink);
-                        (*entryLink)->width = func_806FD7A8(6, text[0]);
+                        (*entryLink)->width = textGetCharAdvance(6, text[0]);
                         (*entryLink)->flags = flags;
                         (*entryLink)->character = text[0];
                         width = (width + (*entryLink)->width) & 0xFFFF;

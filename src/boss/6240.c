@@ -338,7 +338,7 @@ void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f
 void loadModelAssetTable(void);
 void func_806D0430(f32);
 void func_806D0468(void *, s32);
-void func_806FB370(s32, s32, s32);
+void slotQueueSetDisplayMode(s32, s32, s32);
 void effectFreeAll(void);
 void func_8072881C(s32, void *);
 void behaviourFrameBegin(void);
@@ -377,7 +377,7 @@ void func_8002A92C(void) {
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         camSetSecondTarget(gCamActor, 0, 0);
-        func_806FB370(5, 0, 1);
+        slotQueueSetDisplayMode(5, 0, 1);
         currentActorClearFlag();
         func_806D0430(1.2f);
         loadModelAssetTable();

@@ -70,7 +70,7 @@ if (found) {}
         func_8062D1A8();
         break;
     case 0x83:
-        func_806FB370(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
+        slotQueueSetDisplayMode(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
         break;
     case 0x80:
         func_8060DEC8();

@@ -38,8 +38,8 @@ void func_80609140(s32, s32, f32, f32, s32, s32);
 s32 func_80611A44(void);
 f32 func_806FDA8C(s32);
 void func_806FDAB8(s32, f32);
-u8 func_806FDB8C(s16, char *, u8, s32, f32, f32);
-void func_806FDF1C(s32, char *);
+u8 gfxResourceCreate(s16, char *, u8, s32, f32, f32);
+void gfxResourceSetString(s32, char *);
 void renderCallbacksRegister(void *, Actor *, s32);
 s32 strlen(char *);
 void func_806A2B90(Gfx *, Actor *);
@@ -68,7 +68,7 @@ void func_806A2E30(void) {
             _sprintf(text, "%.2d:%.2d:00", (u32)sub->unkC / 60U, (u32)sub->unkC % 60U);
         }
         mode = D_807FBB40->unk15F;
-        sub->unk10 = func_806FDB8C(mode == 0xB ? 6 : 3, text, mode, 0, 0.0f, 0.0f);
+        sub->unk10 = gfxResourceCreate(mode == 0xB ? 6 : 3, text, mode, 0, 0.0f, 0.0f);
     }
     if (D_807FBB40->unk154 == 3) {
         now = osGetTime();
@@ -153,11 +153,11 @@ void func_806A2E30(void) {
                 _sprintf(text, "00:00:00");
             }
             D_807FBB40->unk168 = strlen(text);
-            func_806FDF1C(sub->unk10, text);
+            gfxResourceSetString(sub->unk10, text);
         } else {
             D_807FBB40->unk154 = 5;
             D_807FBB40->unk155[0] = 0;
-            func_806FDF1C(sub->unk10, "00:00:00");
+            gfxResourceSetString(sub->unk10, "00:00:00");
         }
         break;
     case 5:

@@ -180,14 +180,14 @@ void func_806EB4F8(void) {
     func_80614E78(D_807FBB40, 0x4A);
 }
 
-extern s32 func_806F8AD4(s32, u8);
+extern s32 slotQueueGetValue(s32, u8);
 
 void func_806EB544(void) {
     s32 selector;
     f32 unused;
 
     selector = 2;
-    if (func_806F8AD4(3, EfA_P->unk1A4) != 0) {
+    if (slotQueueGetValue(3, EfA_P->unk1A4) != 0) {
         selector = 3;
     }
     slotQueueUpdate(selector, 0, 0);

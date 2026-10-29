@@ -64,7 +64,7 @@ s32 func_805FF030(s32, s32);
 f32 func_80612E40(f32);
 s32 func_806C8DE0(s32);
 s32 func_806F6E58(s32);
-s32 func_806FA7A4(s32);
+s32 slotQueueGetCountStep(s32);
 s32 flagGet(s16, s32);
 s32 flagGridIndex(s32, s32, s32);
 s32 flagGridSumRows(s32, s32, s32, s32);
@@ -129,7 +129,7 @@ void func_806AA304(ACDC0HudEntry *arg0, s32 arg1) {
             func_806AB4EC(arg0, 2, 0x1E, 0x7D, 0.65f, 2, 1);
         }
         if (func_806F6E58(D_8074E77C)) {
-            f = func_806FA7A4(5);
+            f = slotQueueGetCountStep(5);
             func_806AB808(arg0, 0x1E, 0xA0, 0xC, -0xA, (s32)func_80612E40((f32)(u32)D_807FCC46 / f), 1, 1);
             func_806AB4EC(arg0, 5, 0x1E, 0xA0, 0.65f, 2, 1);
         }

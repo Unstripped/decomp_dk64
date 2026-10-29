@@ -25,8 +25,8 @@ Gfx *func_8070068C(Gfx *);
 void *_sprintf(char *, const char *, ...);
 void *func_80610FE8(s32);
 void heapFreeDeferred(void *);
-s16 func_806FBD5C(u8, char *);
-Gfx *func_806FC530(Gfx *, s32, s16, s16, s32, s32);
+s16 textGetStringWidth(u8, char *);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
 
 void func_8069FA40(Gfx *arg0, Actor *arg1) {
     f32 spFC;
@@ -86,7 +86,7 @@ void func_8069FA40(Gfx *arg0, Actor *arg1) {
         break;
     }
     sp2C = sp65;
-    sp66 = func_806FBD5C(sp65, sp68);
+    sp66 = textGetStringWidth(sp65, sp68);
     if (sp64 != 0) {
         arg1->unk7C = (f32)((0x140 - sp66) * 2);
     }
@@ -96,5 +96,5 @@ void func_8069FA40(Gfx *arg0, Actor *arg1) {
     guMtxCatF(spBC, sp7C, spBC);
     guMtxF2L(spBC, (Mtx *)sp78);
     WRITE_GFX(arg0++, 0xDA380003, (u32)sp78);
-    func_806FC530(arg0, (s16)sp2C, (s16)(sp66 * -2), 0, sp68, 0);
+    textDrawStringVtx(arg0, (s16)sp2C, (s16)(sp66 * -2), 0, sp68, 0);
 }

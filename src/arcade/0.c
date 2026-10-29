@@ -39,7 +39,7 @@ void arcadeRenderEntities(Gfx **);
 void arcadeRenderEntity(Gfx **, s32);
 void arcadeInitStage(void);
 #define ArcR1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-Gfx *func_806FD490(Gfx *, s32, s16, s16, s32);
+Gfx *textDrawString(Gfx *, s32, s16, s16, s32);
 extern s16 D_8004C72E;
 extern s16 D_8004C732;
 extern u8 D_8004C725;
@@ -50,7 +50,7 @@ extern u8 D_8004C728;
 void controllerStartRead(void);
 void controllerUpdate(void);
 void func_80610044(Gfx *, s32, s32, s32, s32, s32);
-Gfx *func_80704484(Gfx *, s32);
+Gfx *screenFadeUpdate(Gfx *, s32);
 void func_805FE71C(Gfx *, u8, s32 *, s32);
 void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
 Gfx *func_805FE4D4(Gfx *);
@@ -65,7 +65,7 @@ extern s32 D_8076A064;
 extern u8 *D_8076A048;
 extern u8 D_80767CE8;
 extern u8 D_8076A0B1;
-extern f32 D_807FD888;
+extern f32 gScreenFadeProgress;
 extern u8 D_807444EC;
 extern void *D_8076A080;
 extern Gfx D_1000090;
@@ -81,12 +81,12 @@ void arcadeRunFrame(void) {
     D_8076A064++;
     D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
     controllerUpdate();
-    if ((D_8076A0B1 & 1) && D_807FD888 == 31.0f) {
+    if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {
         sp2C = D_8076A050[D_807444FC];
     } else {
         arcadeBuildDisplayList(D_8076A048, &sp2C);
     }
-    sp2C = func_80704484(sp2C, 0);
+    sp2C = screenFadeUpdate(sp2C, 0);
     if (D_807444EC != 3) {
         sp28 = D_8076A048 + 0xDB0;
         func_805FE71C(sp2C, D_807444FC, &D_8076A088, 0);
@@ -177,7 +177,7 @@ void arcadeDrawString(Gfx **arg0, s32 arg1) {
     gDPSetPrimColor(g++, 0, 0, D_8004C725, D_8004C726, D_8004C727, D_8004C728);
     ArcR1_WRITE_GFX(g++, 0xFC119623, 0xFF2FFFFF);
     ArcR1_WRITE_GFX(g++, 0xE200001C, 0x00504240);
-    *arg0 = func_806FD490(g, 2, D_8004C72E, D_8004C732, arg1);
+    *arg0 = textDrawString(g, 2, D_8004C72E, D_8004C732, arg1);
 }
 
 extern u32 D_8004A738;

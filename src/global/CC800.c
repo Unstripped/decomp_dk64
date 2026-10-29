@@ -184,7 +184,7 @@ void *func_80610FE8(s32);
 void heapClearBlock(void *);
 void func_806C850C(s32, u8);
 void func_80708BB8(void *);
-void func_80709464(u8);
+void healthRefill(u8);
 void func_806C80E4(void);
 extern u8 D_807FC950[][0x5E];
 extern G00Sub6 D_807ECD10[];
@@ -258,7 +258,7 @@ void func_806C7D40(s32 arg0) {
         func_80708BB8(blk->unk2DC);
         if (((D_807FBB64 & 1) && !(D_807FBB68 & 2)) ||
             (((G00Player306 *)D_807FC950)[i].unk2FB + ((G00Player306 *)D_807FC950)[i].unk2FD <= 0)) {
-            func_80709464(sel);
+            healthRefill(sel);
         }
     }
     if (D_807FD570 != 0) {
@@ -922,7 +922,7 @@ typedef struct G01Pos {
 #define G01A ((G01Act *)D_807FBB48)
 
 void func_806C8220(s32, void *, s32);
-void func_806F833C(s32);
+void slotQueueInit(s32);
 
 typedef struct G01Arg8F8C {
     /* 0x00 */ s32 unk0;
@@ -960,7 +960,7 @@ void func_806C8F8C(void *arg) {
     G01A->unk4->unk24 = func_80610FE8(0x100);
     *G01A->unk4->unk24 = 0xFF;
     func_806C8220(1, G01A->unk178, G01A->unk58);
-    func_806F833C(0);
+    slotQueueInit(0);
 }
 
 extern s16 D_8076AEE2;
@@ -1093,7 +1093,7 @@ void func_806C9434(s32 arg0) {
     } while (i < 2);
     func_806C90C4(arg0);
     func_806C8220(0, sp34, G01A->unk58);
-    func_80709464(ctl->unk1A4);
+    healthRefill(ctl->unk1A4);
     G01A->unkB8 = 0.0f;
     ctl->unk1F0 &= 0xF7FFFF5F;
     ctl->unk200 = 0;
@@ -1289,7 +1289,7 @@ void func_806C9AE0(void) {
         } else {
             p->unk2FC = 1;
         }
-        func_80709464(i);
+        healthRefill(i);
         p++;
     }
     collectibleCountsClear();
@@ -1300,15 +1300,15 @@ void func_806C9AE0(void) {
 void func_806C9C1C(s32);
 
 extern s32 D_80750B34[];
-void func_806F91B4(s32, u8, s32);
+void slotQueueAddValue(s32, u8, s32);
 
 void func_806C9C1C(s32 arg0) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        func_806F91B4(D_80750B34[i], arg0, 0x270F);
+        slotQueueAddValue(D_80750B34[i], arg0, 0x270F);
     }
-    func_806F833C(0);
+    slotQueueInit(0);
 }
 
 void flagSet(s32, s32, s32);

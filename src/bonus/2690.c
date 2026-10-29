@@ -214,7 +214,7 @@ void actorUpdateModelMatrix(void *, s32);
 extern u8 D_1000118[];
 extern u8 D_2000180[];
 Gfx *bonusRenderCrosshair();
-Gfx *func_806FE078(Gfx *, s32, s32, f32, f32, f32, f32);
+Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s32, void *);
 extern u8 D_20000C0[];
 extern u32 D_8076A064;
@@ -230,9 +230,9 @@ void func_806BF920(void);
 extern s16 D_80744490;
 extern s16 D_80744494;
 s32 func_8070E750(s32, s32, s32);
-s32 func_806FBD5C(s32, s32);
-s32 func_806FD894(s32);
-Gfx *func_806FC530(Gfx *, s32, s16, s16, s32, s32);
+s32 textGetStringWidth(s32, s32);
+s32 textGetFontHeight(s32);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
 void func_806F0C18(void *, s16 *);
 void func_80613C48(void *, s16, f32, f32);
 void func_80614644(void *, void *, s32);
@@ -319,7 +319,7 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, BonusA_Actor6940 *arg1) {
     gDPSetRenderMode(gdl++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
     gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     if (arg1->unk154 != 1) {
-        gdl = func_8068DC54(func_806FE078(gdl, temp_t0->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &temp_t0->unk20, temp_t0->unk22, &temp_t0->unk24);
+        gdl = func_8068DC54(textDrawAnimated(gdl, temp_t0->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &temp_t0->unk20, temp_t0->unk22, &temp_t0->unk24);
     }
     if (temp_s1->unk25 != 0) {
         sp48 = D_80744490 >> 1;
@@ -328,8 +328,8 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, BonusA_Actor6940 *arg1) {
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s1->unk25);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-        sp48 -= func_806FBD5C(1, sp64) >> 1;
-        gdl = func_806FC530(gdl, 1, sp48 << 2, (D_80744494 - func_806FD894(1)) * 2, sp64, 1);
+        sp48 -= textGetStringWidth(1, sp64) >> 1;
+        gdl = textDrawStringVtx(gdl, 1, sp48 << 2, (D_80744494 - textGetFontHeight(1)) * 2, sp64, 1);
         temp_s1->unk25 -= (temp_s1->unk25 < 8) ? temp_s1->unk25 : 8;
     }
     if (temp_s1->unk24 != 0) {
@@ -338,8 +338,8 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, BonusA_Actor6940 *arg1) {
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s1->unk24);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-        sp34 -= func_806FBD5C(1, sp64) >> 1;
-        gdl = func_806FC530(gdl, 1, sp34 << 2, (func_806FD894(1) + D_80744494) * 2, sp64, 1);
+        sp34 -= textGetStringWidth(1, sp64) >> 1;
+        gdl = textDrawStringVtx(gdl, 1, sp34 << 2, (textGetFontHeight(1) + D_80744494) * 2, sp64, 1);
         temp_s1->unk24 -= (temp_s1->unk24 < 8) ? temp_s1->unk24 : 8;
     }
     return gdl;
@@ -377,8 +377,8 @@ typedef struct {
     Struct_6940_174 *unk174;
     BonusA_CF0_List *unk178;
 } BonusA_ActorCF0;
-s32 func_806FDB8C(s32, s32, s32, f32, f32, f32);
-void func_806FDAEC(s16);
+s32 gfxResourceCreate(s32, s32, s32, f32, f32, f32);
+void gfxResourceFree(s16);
 
 Gfx *bonusRenderPopupGameHud(Gfx *gdl, BonusA_ActorCF0 *arg1) {
     Struct_6940_174 *temp_s2 = arg1->unk174;
@@ -404,8 +404,8 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, BonusA_ActorCF0 *arg1) {
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s2->unk25);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-        var_s1 -= func_806FBD5C(1, var_s3) >> 1;
-        gdl = func_806FC530(gdl, 1, var_s1 << 2, (D_80744494 - func_806FD894(1)) * 2, var_s3, 1);
+        var_s1 -= textGetStringWidth(1, var_s3) >> 1;
+        gdl = textDrawStringVtx(gdl, 1, var_s1 << 2, (D_80744494 - textGetFontHeight(1)) * 2, var_s3, 1);
         temp_s2->unk25 -= (temp_s2->unk25 < 8) ? temp_s2->unk25 : 8;
     }
     if (temp_s2->unk24 != 0) {
@@ -415,8 +415,8 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, BonusA_ActorCF0 *arg1) {
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s2->unk24);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-        var_s1 -= func_806FBD5C(1, var_s3) >> 1;
-        gdl = func_806FC530(gdl, 1, var_s1 << 2, (func_806FD894(1) + D_80744494) * 2, var_s3, 1);
+        var_s1 -= textGetStringWidth(1, var_s3) >> 1;
+        gdl = textDrawStringVtx(gdl, 1, var_s1 << 2, (textGetFontHeight(1) + D_80744494) * 2, var_s3, 1);
         temp_s2->unk24 -= (temp_s2->unk24 < 8) ? temp_s2->unk24 : 8;
     }
     for (i = 0; i < 6; i++) {
@@ -426,7 +426,7 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, BonusA_ActorCF0 *arg1) {
         temp_inner = temp_s1->unk174;
         if (temp_inner->unk5 != 0 && arg1->unk154 == 0) {
             if (temp_inner->unk8 < 0) {
-                temp_inner->unk8 = func_806FDB8C(1, func_8070E750(0x1A, 9, 1), 9, temp_s1->unk7C * 0.25, temp_s1->unk80 * 0.25, temp_s1->unk84 * 0.25);
+                temp_inner->unk8 = gfxResourceCreate(1, func_8070E750(0x1A, 9, 1), 9, temp_s1->unk7C * 0.25, temp_s1->unk80 * 0.25, temp_s1->unk84 * 0.25);
             }
             if (var_s5 == 0) {
                 gSPDisplayList(gdl++, D_1000118);
@@ -439,9 +439,9 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, BonusA_ActorCF0 *arg1) {
                 gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 var_s5 = 1;
             }
-            gdl = func_806FE078(gdl, temp_inner->unk8, 9, temp_s1->unk7C, temp_s1->unk80 + 20.0f, temp_s1->unk84, 0.1f);
+            gdl = textDrawAnimated(gdl, temp_inner->unk8, 9, temp_s1->unk7C, temp_s1->unk80 + 20.0f, temp_s1->unk84, 0.1f);
         } else if (temp_inner->unk8 >= 0) {
-            func_806FDAEC(temp_inner->unk8);
+            gfxResourceFree(temp_inner->unk8);
             temp_inner->unk8 = -1;
         }
     }
@@ -631,7 +631,7 @@ void bonusTargetGameUpdate(void) {
     u8 idx;
 
     if (!(BB2->unk60 & 0x10)) {
-        c = func_806FDB8C(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        c = gfxResourceCreate(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
         t0->unk25 = c;
         func_806FDAB8(c, 0.0f);
         t3c->unk23 = 5;
@@ -1211,12 +1211,12 @@ Gfx *func_80029B9C(Gfx *gdl, Actor_BB44 *arg1) {
     switch (actor->unk58) {
     case 0x7D:
         if (actor->unk154 != 3) {
-            gdl = func_8068DC54(func_806FE078(gdl, p0->unk11, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p0->unk14, p0->unk16, p0->unk12);
+            gdl = func_8068DC54(textDrawAnimated(gdl, p0->unk11, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p0->unk14, p0->unk16, p0->unk12);
         }
         break;
     case 0x7C:
         if (actor->unk154 != 3) {
-            gdl = func_8068DC54(func_806FE078(gdl, p1->unk3, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p1->unk8, p1->unkA, p1->unk6);
+            gdl = func_8068DC54(textDrawAnimated(gdl, p1->unk3, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p1->unk8, p1->unkA, p1->unk6);
         }
         break;
     case 0x7E:
@@ -1226,7 +1226,7 @@ Gfx *func_80029B9C(Gfx *gdl, Actor_BB44 *arg1) {
         case 0:
         case 1:
         case 2:
-            gdl = func_8068DC54(func_806FE078(gdl, p2->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p2->unk28, p2->unk2A, p2->unk26);
+            gdl = func_8068DC54(textDrawAnimated(gdl, p2->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p2->unk28, p2->unk2A, p2->unk26);
             break;
         }
         break;
@@ -1408,7 +1408,7 @@ void func_8002A398(void) {
         t0->unk4 = 0x3C;
         t0->unk6 = 0;
         t0->unk8 = t0->unkA;
-        t0->unk3 = func_806FDB8C(1, func_8070E750(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
+        t0->unk3 = gfxResourceCreate(1, func_8070E750(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
         func_806FDAB8(t0->unk3, 0.0f);
         t0->unk0 = 0x1E;
         playerStateQueueCallback(0x48, 0, 0);
@@ -1964,7 +1964,7 @@ void func_8002BF98(void) {
         temp_s5->unk24 = 0;
         temp_s5->unk26 = temp_s5->unk28;
         temp_s5->unk20 = 0x3C;
-        temp_s5->unk23 = func_806FDB8C(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        temp_s5->unk23 = gfxResourceCreate(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
         func_806FDAB8(temp_s5->unk23, 0.0f);
         LB4A->unk4->unk34 = 0.33f;
         LB4A->unk4->unk38 = 0.33f;
@@ -2206,7 +2206,7 @@ Gfx *func_8002CC08(Gfx *arg0, Actor_BB44 *arg1) {
         break;
     case 0:
     case 1:
-        arg0 = func_8068DC54(func_806FE078(arg0, sp84->unk23, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &sp84->unk26, sp84->unk28, &sp84->unk24);
+        arg0 = func_8068DC54(textDrawAnimated(arg0, sp84->unk23, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &sp84->unk26, sp84->unk28, &sp84->unk24);
         break;
     }
     return arg0;

@@ -206,7 +206,7 @@ void actorSpawnChildAtNode(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
 }
 
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void func_8070033C(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
+void lensFlareAddSource(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
@@ -224,7 +224,7 @@ void func_806AE394(f32 arg0, f32 arg1) {
     actorGetNodePos(D_807FBB40, 1, &sp64, &sp60, &sp5C);
     actorGetNodePos(D_807FBB40, 2, &sp58, &sp54, &sp50);
     sp4E = mathAngleBetweenPoints2D(sp58, sp50, sp64, sp5C);
-    func_8070033C(sp64, sp60, sp5C, sp58, sp54, sp50, 0.6f, 0xFF, 0xFF, 0xFF);
+    lensFlareAddSource(sp64, sp60, sp5C, sp58, sp54, sp50, 0.6f, 0xFF, 0xFF, 0xFF);
     sp64 = func_80612794(sp4E) * arg0 + D_807FBB40->unk7C;
     sp5C = func_80612790(sp4E) * arg0 + D_807FBB40->unk84;
     lightAdd(sp64, D_807FBB40->unk80, sp5C, 0.0f, 0.0f, 0.0f, arg1, 0, 0xFF, 0xFF, 0xFF);

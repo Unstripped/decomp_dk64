@@ -28,7 +28,7 @@ extern f32 D_807F5D94;
 extern u16 *D_807F5D80;
 void *func_80610FE8(s32);
 void blurBuildDivTable(void);
-void func_8070A848(void *, s32);
+void fbCopySetAlpha(void *, s32);
 
 void screenWipeStart(arg0)
 u8 arg0;
@@ -39,7 +39,7 @@ u8 arg0;
         if (D_807F5D84 == 0) {
             D_807F5D80 = func_80610FE8(D_80744490 * D_80744494 * 2);
         }
-        func_8070A848(D_807F5D80, D_80744470[D_807444FC]);
+        fbCopySetAlpha(D_807F5D80, D_80744470[D_807444FC]);
         D_807F5D84 = 1;
         D_80747B20 = 5;
         switch (sel) {
@@ -218,7 +218,7 @@ Gfx *screenWipeDraw(Gfx *arg0) {
 }
 
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-void func_80704130(s32, s32, s32, s32, s32, s32);
+void vtxSetColor(s32, s32, s32, s32, s32, s32);
 
 void screenWipeAlphaRadialSweep(s32 arg0, s32 arg1, s32 arg2) {
     f32 ang;
@@ -226,7 +226,7 @@ void screenWipeAlphaRadialSweep(s32 arg0, s32 arg1, s32 arg2) {
 
     ang = mathAngleBetweenPointsDeg(0xA0, 0x78, arg0, arg1);
     if (D_807F5D94 < 20.0) {
-        func_80704130(arg2, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        vtxSetColor(arg2, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         return;
     }
     alpha = 0;
@@ -240,7 +240,7 @@ void screenWipeAlphaRadialSweep(s32 arg0, s32 arg1, s32 arg2) {
     } else {
         alpha = 0;
     }
-    func_80704130(arg2, 0xFF, 0xFF, 0xFF, alpha, 0);
+    vtxSetColor(arg2, 0xFF, 0xFF, 0xFF, alpha, 0);
 }
 
 f32 sqrtf(f32);
@@ -271,7 +271,7 @@ void screenWipeAlphaByDistance(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     } else {
         alpha = (s16)(((dist - D_807F5D8C) / (D_807F5D90 - D_807F5D8C)) * 255.0f);
     }
-    func_80704130(arg2, 0xFF, 0xFF, 0xFF, alpha, 0);
+    vtxSetColor(arg2, 0xFF, 0xFF, 0xFF, alpha, 0);
 }
 
 extern s32 D_80747B28;

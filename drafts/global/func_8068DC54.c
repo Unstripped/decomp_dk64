@@ -83,17 +83,17 @@ block_dce8:
 
     sp74 = (f32)((f64)func_80612D1C((f32)((((f64)(u32)*arg5 / 12.0) * 1.57079637050628662) + 1.57079637050628662)) * 96.0);
     if (arg4 == *arg3) {
-        arg0 = func_806FC530(arg0, 3, arg1 * 4, arg2 * 4, sp70, 1);
-        arg0 = func_806FC530(arg0, 3, (arg1 * 4) + 0x50, arg2 * 4, sp6C, 1);
+        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, arg2 * 4, sp70, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, arg2 * 4, sp6C, 1);
     } else if (sp70[0] != sp68[0]) {
-        arg0 = func_806FC530(arg0, 3, arg1 * 4, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp68, 1);
-        arg0 = func_806FC530(arg0, 3, arg1 * 4, (s16)((f32)(arg2 * 4 + 4) + sp74), sp70, 1);
-        arg0 = func_806FC530(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp64, 1);
-        arg0 = func_806FC530(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), sp6C, 1);
+        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp68, 1);
+        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, (s16)((f32)(arg2 * 4 + 4) + sp74), sp70, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp64, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), sp6C, 1);
     } else {
-        arg0 = func_806FC530(arg0, 3, arg1 * 4, arg2 * 4, sp70, 1);
-        arg0 = func_806FC530(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp64, 1);
-        arg0 = func_806FC530(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), sp6C, 1);
+        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, arg2 * 4, sp70, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp64, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), sp6C, 1);
     }
 
     if ((*arg3 + sp5E) >= 100) {
@@ -106,11 +106,11 @@ block_dce8:
         arg0++;
         _sprintf(sp60, "%d", var_s0);
         if (*arg3 >= 100 && *arg3 != 0xC7) {
-            arg0 = func_806FC530(arg0, 3, (arg1 * 4) - 0x50, arg2 * 4, sp60, 1);
+            arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) - 0x50, arg2 * 4, sp60, 1);
         } else if (*arg3 == 0x63 || *arg3 == 0xC7) {
-            arg0 = func_806FC530(arg0, 3, (arg1 * 4) - 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp60, 1);
+            arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) - 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp60, 1);
             if (*arg3 == 0xC7) {
-                arg0 = func_806FC530(arg0, 3, (arg1 * 4) - 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), "1", 1);
+                arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) - 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), "1", 1);
             }
         }
     }

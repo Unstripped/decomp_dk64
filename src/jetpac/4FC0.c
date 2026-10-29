@@ -84,7 +84,7 @@ void jetpacBounceOffLedge(JetpacActor *, s32);
 void jetpacPlaySound(s32 arg0);
 void func_80025700(void *, s32, s32, void *, s32);
 void jetpacUpdateExplosion(void *);
-Gfx *func_806FD490(Gfx *, s32, s16, s16, s32);
+Gfx *textDrawString(Gfx *, s32, s16, s16, s32);
 void func_80029640(JetpacActor *actor, f32 a1, f32 a2);
 void func_800298C8(JetpacActor *actor);
 extern u8 D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3;
@@ -832,5 +832,5 @@ void jetpacDrawString(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
         gDPSetPrimColor(g++, 0, 0, D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3);
         gDPSetEnvColor(g++, D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC);
     }
-    *arg0 = func_806FD490(g, 4, (s16)arg2, (s16)arg3, arg1);
+    *arg0 = textDrawString(g, 4, (s16)arg2, (s16)arg3, arg1);
 }

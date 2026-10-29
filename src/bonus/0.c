@@ -2,7 +2,7 @@
 
 s32 func_805FCA64(void);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
-Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
+Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 Gfx *func_8070068C(Gfx *);
 extern Gfx D_1000118;
 extern Gfx D_2000180;
@@ -19,7 +19,7 @@ Gfx *bonusRenderCounterHud(Gfx *gdl, void *arg1) {
         gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
         gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gdl = func_8068DC54(
-            func_806FE078(gdl, *(u8 *)((u8 *)temp_s0 + 9), 8, 30.0f, 36.0f, 0.0f, 1.5f),
+            textDrawAnimated(gdl, *(u8 *)((u8 *)temp_s0 + 9), 8, 30.0f, 36.0f, 0.0f, 1.5f),
             0x26, 0x32, (u8 *)temp_s0 + 2, *(s16 *)((u8 *)temp_s0 + 4), (u8 *)temp_s0 + 8);
     }
     return gdl;
@@ -98,7 +98,7 @@ void behaviourFrameBegin(void);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
-void func_806FB370(s32, s32, s32);
+void slotQueueSetDisplayMode(s32, s32, s32);
 void func_806A2A10(s32, s32, u8);
 s32 randomNonNegative(void);
 void csModelStateSetByte(s16, s32, s32);
@@ -107,7 +107,7 @@ void func_806C8E58(s32);
 void func_80614E78(void *, s32);
 void func_806D03BC(void);
 s32 func_8070E750(s32, s32, s32);
-s32 func_806FDB8C(s32, char *, s32, f32, f32, f32);
+s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_806FDAB8(u8, f32);
 void *spawnNodeActivate(s16, s32);
 s32 strlen(char *);
@@ -115,7 +115,7 @@ s32 func_80610FE8(s32);
 void heapFreeDeferred(s32);
 s32 _sprintf(char *, const char *, ...);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
-s32 func_806F8AD4(s32, s32);
+s32 slotQueueGetValue(s32, s32);
 void bonusEndWin(u8, u8);
 void bonusEndLose(u8, u8);
 void func_80726EE0(s32);
@@ -157,9 +157,9 @@ void bonusControllerUpdate(void) {
         sp67 = 0;
         currentActorClearFlag();
         *(u16 *)((u8 *)D_807FDC98 + 0x46) |= 0x80;
-        func_806FB370(2, 0, 1);
-        func_806FB370(5, 0, 1);
-        func_806FB370(4, 0, 2);
+        slotQueueSetDisplayMode(2, 0, 1);
+        slotQueueSetDisplayMode(5, 0, 1);
+        slotQueueSetDisplayMode(4, 0, 2);
         LB->unk154 = 0;
         func_806A2A10(0xDC, 0x2A, LC->unkB);
         switch (sp6F) {
@@ -205,7 +205,7 @@ tail:
             break;
         }
         if (sp67 != 0) {
-            s->unk9 = func_806FDB8C(1, (char *)sp68, 8, 0.0f, 0.0f, 0.0f);
+            s->unk9 = gfxResourceCreate(1, (char *)sp68, 8, 0.0f, 0.0f, 0.0f);
             func_806FDAB8(s->unk9, 0.0f);
             s->unk4 = sp6E;
             s->unk2 = sp6E;
@@ -244,11 +244,11 @@ tail:
                         break;
                     case 2:
                         a2v = 1;
-                        if (func_806F8AD4(0xB, 0) < sp6E) {
+                        if (slotQueueGetValue(0xB, 0) < sp6E) {
                             if (s->unk4 >= 2) {
                                 sp68 = func_8070E750(0x1A, 0x11, 1);
                                 sp54 = func_80610FE8(strlen((char *)sp68) + 5);
-                                _sprintf((char *)sp54, "%d %s", sp6E - func_806F8AD4(0xB, 0), (char *)sp68);
+                                _sprintf((char *)sp54, "%d %s", sp6E - slotQueueGetValue(0xB, 0), (char *)sp68);
                             } else {
                                 sp54 = func_8070E750(0x1A, 0x12, 1);
                             }
@@ -321,9 +321,9 @@ tail:
                 bonusEndWin(1, 0xE);
             }
         case 2:
-            if ((((sp6E - func_806F8AD4(0xB, 0)) < 0) ? 0 : (sp6E - func_806F8AD4(0xB, 0))) != s->unk4) {
+            if ((((sp6E - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (sp6E - slotQueueGetValue(0xB, 0))) != s->unk4) {
                 func_806FDAB8(s->unk9, 3.1415927f);
-                s->unk4 = ((sp6E - func_806F8AD4(0xB, 0)) < 0) ? 0 : (sp6E - func_806F8AD4(0xB, 0));
+                s->unk4 = ((sp6E - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (sp6E - slotQueueGetValue(0xB, 0));
             }
 render:
             if (s->unk0 >= 2) {

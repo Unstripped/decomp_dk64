@@ -968,8 +968,8 @@ void func_806D2DC4(void) {
 extern f32 D_807536E4[];
 extern s32 D_807FBB68;
 void func_80687400();
-s32 func_806F8AD4();
-void func_806F91B4();
+s32 slotQueueGetValue();
+void slotQueueAddValue();
 f32 func_806F46B0(s16);
 s32 sfxPlayFromActorWithAltitudeCheck();
 
@@ -1046,8 +1046,8 @@ void func_806D2E9C(void) {
     }
     if (camIsCutsceneActive() == 0) {
         func_806CC948();
-        if ((func_806F8AD4(5, D_807FC929) != 0) && !(G10_P->unk1F0 & 0x10000)) {
-            func_806F91B4(5, D_807FC929, -1);
+        if ((slotQueueGetValue(5, D_807FC929) != 0) && !(G10_P->unk1F0 & 0x10000)) {
+            slotQueueAddValue(5, D_807FC929, -1);
         }
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -5770,7 +5770,7 @@ void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
 void currentActorClearFlag();
 void effectSpawnKongRing();
-void func_80709464(u8);
+void healthRefill(u8);
 void slotQueueUpdate(s32, s32, s32);
 extern s32 D_80750FE0;
 extern s32 D_80750FF0;
@@ -5836,10 +5836,10 @@ void func_806DED44(void) {
             owner = G20_E40->unk174;
             currentActorClearFlag();
             func_806CFF9C(D_807FBB40);
-            func_80709464(owner->unk1A4);
+            healthRefill(owner->unk1A4);
             p = &D_80750FE0;
             do {
-                func_806F91B4(*p, 0, 0x270F);
+                slotQueueAddValue(*p, 0, 0x270F);
                 slotQueueUpdate(*p, 0, 0);
             } while (++p != &D_80750FF0);
         }

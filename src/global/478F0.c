@@ -2980,11 +2980,11 @@ void csCmdPosFromNode(CsState *cs, s16 csId, s16 b, s16 c) {
     modelSlotGetNodePos(gCsModelIds[b], 1, c, &gCsPosX, &gCsPosY, &gCsPosZ);
 }
 
-void func_806FAC64(u8);
+void slotQueueSelectPlayerResource(u8);
 void slotQueueCancel(s32, s32);
 void slotQueueUpdate(s32, u8, s32);
 void func_8064B514(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_806FAC64(b);
+    slotQueueSelectPlayerResource(b);
     if (c != 0) {
         slotQueueCancel(0xD, 0);
     } else {
@@ -3212,8 +3212,8 @@ s32 func_8064BE58(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern s32 D_807552F0;
-s32 func_806F8AD4(s32, u8);
-void func_806F91B4(s32, u8, s16);
+s32 slotQueueGetValue(s32, u8);
+void slotQueueAddValue(s32, u8, s16);
 
 s32 func_8064BE80(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 q;
@@ -3221,9 +3221,9 @@ s32 func_8064BE80(CsState *cs, s16 csId, s16 b, s16 c) {
     if (idx < 0) {
         return 0;
     }
-    if (func_806F8AD4(1, (u8)idx)) {
-        func_806F91B4(7, (u8)idx, 1);
-        q = (f32)func_806F8AD4(7, (u8)idx) / (f32)D_807552F0;
+    if (slotQueueGetValue(1, (u8)idx)) {
+        slotQueueAddValue(7, (u8)idx, 1);
+        q = (f32)slotQueueGetValue(7, (u8)idx) / (f32)D_807552F0;
         q = (f32)0.5 * q + 0.5f;
         func_80609140(0x2A1, 0x7FFF, 63.0f, q, 5, 0);
         return 1;
@@ -4160,9 +4160,9 @@ void func_8064E65C(CsState *cs, s16 csId, s16 b, s16 c) {
 void flagSet(s32, s32, s32);
 
 void func_8064EA48(CsState *cs, s16 csId, s16 b, s16 c) {
-    if (func_806F8AD4(1, 0) >= 2) {
+    if (slotQueueGetValue(1, 0) >= 2) {
         slotQueueUpdate(1, 0, 0);
-        func_806F91B4(1, 0, -2);
+        slotQueueAddValue(1, 0, -2);
         flagSet(0x83, 1, 0);
     }
 }

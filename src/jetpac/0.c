@@ -73,7 +73,7 @@ extern s32 D_8002F064;
 void controllerStartRead(void);
 void controllerUpdate(void);
 void func_80610044(Gfx *, s32, s32, s32, s32, s32);
-Gfx *func_80704484(Gfx *, s32);
+Gfx *screenFadeUpdate(Gfx *, s32);
 void func_805FE71C(Gfx *, u8, s32 *, s32);
 void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
 Gfx *func_805FE4D4(Gfx *);
@@ -91,7 +91,7 @@ extern s32 D_8076A064;
 extern u8 *D_8076A048;
 extern u8 D_80767CE8;
 extern u8 D_8076A0B1;
-extern f32 D_807FD888;
+extern f32 gScreenFadeProgress;
 extern void *D_8076A080;
 extern Gfx D_1000090;
 extern Gfx D_1000040;
@@ -107,12 +107,12 @@ void jetpacRunFrame(void) {
     D_8076A064++;
     D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
     controllerUpdate();
-    if ((D_8076A0B1 & 1) && D_807FD888 == 31.0f) {
+    if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {
         sp2C = D_8076A050[D_807444FC];
     } else {
         jetpacBuildDisplayList(D_8076A048, &sp2C);
     }
-    sp2C = func_80704484(sp2C, 0);
+    sp2C = screenFadeUpdate(sp2C, 0);
     if (D_807444EC != 4) {
         sp28 = D_8076A048 + 0xDB0;
         func_805FE71C(sp2C, D_807444FC, &D_8076A088, 0);

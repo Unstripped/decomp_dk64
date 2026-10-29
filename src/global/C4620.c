@@ -1011,7 +1011,7 @@ done:
 
 void func_80613194();
 void renderCallbacksRegister(void *, void *, s32);
-void func_807035C4();
+void gfxBuildScanlineNoise();
 
 void func_806C1CCC(void) {
     behaviourFrameBegin();
@@ -1029,7 +1029,7 @@ void func_806C1CCC(void) {
         func_806BFBF4();
         if (R1V->unk60 & 4) {
             if (R1V->unk4->unk0->unk10 == 0x2C4 && 25.0f < R1V->unk4->unk0->unk4) {
-                renderCallbacksRegister(func_807035C4, 0, 3);
+                renderCallbacksRegister(gfxBuildScanlineNoise, 0, 3);
             }
         }
         func_80724E48(D_807FDC94 == D_807FBB4C ? 5 : 7);

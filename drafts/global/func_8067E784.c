@@ -72,10 +72,10 @@ void func_806883C8(Actor *, s32, s32);
 void func_806884B8(Actor *, s32, s32);
 void func_806884E4(Actor *, s32);
 void func_806C8D20(Actor *);
-s32 func_806F8AD4(s32, s32);
+s32 slotQueueGetValue(s32, s32);
 void func_806F8BC4(s32, s32, s32);
-void func_806F91B4(s32, u8, s32);
-s32 func_806FA7A4(s32);
+void slotQueueAddValue(s32, u8, s32);
+s32 slotQueueGetCountStep(s32);
 
 void func_8067E784(void) {
     R2K_TagBarrelState *var_t0;
@@ -158,11 +158,11 @@ void func_8067E784(void) {
             var_t0->unk0 = 0x64;
         }
         if (var_t0->unk1C != 0) {
-            s32 temp_s0 = func_806F8AD4(5, playerState->unk1A4);
-            s32 temp_lo = func_806FA7A4(5) * var_t0->unk1C;
+            s32 temp_s0 = slotQueueGetValue(5, playerState->unk1A4);
+            s32 temp_lo = slotQueueGetCountStep(5) * var_t0->unk1C;
 
             if (temp_s0 < temp_lo) {
-                func_806F91B4(5, playerState->unk1A4, (s16)(temp_lo - temp_s0));
+                slotQueueAddValue(5, playerState->unk1A4, (s16)(temp_lo - temp_s0));
             }
         }
         D_807FBB40->unk154 = 1;

@@ -21,7 +21,7 @@ typedef struct G21Actor1A0 {
 } G21Actor1A0;
 
 void func_80614E78(void *, s32);
-s32 func_806F8AD4(u8, u8);
+s32 slotQueueGetValue(u8, u8);
 void slotQueueUpdate(s32, s32, s32);
 
 void func_806DF390(s32 arg0, G21Actor1A0 *arg1, u8 arg2) {
@@ -41,7 +41,7 @@ void func_806DF3D0(s32 arg0, G21Actor1A0 *arg1, u8 arg2) {
 
     id = 0x4B;
     a = 2;
-    if (func_806F8AD4(3, arg1->unk1A4)) {
+    if (slotQueueGetValue(3, arg1->unk1A4)) {
         a = 3;
     }
     slotQueueUpdate(a, 0, 0);
@@ -1238,7 +1238,7 @@ s32 func_80714608(s32);
 s32 func_8067ACDC(void *, s32, s32);
 void func_806F0C18(void *);
 void func_806CFF9C(Actor *);
-void func_806F91B4(s32, s32, s32);
+void slotQueueAddValue(s32, s32, s32);
 void func_807149B8(s32);
 void func_8071498C(void *);
 
@@ -1275,7 +1275,7 @@ u8 arg1;
 
     if ((LE40B_PAD(D_807FD63C, u16) & 0x4000) || arg1) {
         flags = D_807FD568[2];
-        if ((flags & 2) && func_806F8AD4(3, D_807FC929)) {
+        if ((flags & 2) && slotQueueGetValue(3, D_807FC929)) {
             sel = 3;
         } else {
             flags &= ~2;
@@ -1285,10 +1285,10 @@ u8 arg1;
             flags &= ~4;
         }
         slotQueueUpdate(sel, 0, 0);
-        if (func_806F8AD4((u8)sel, D_807FC929)) {
+        if (slotQueueGetValue((u8)sel, D_807FC929)) {
             if (func_8067ACDC(D_807FBB40, 4, (s32)actorIsActiveType2B) < D_80753E64[D_807FD584]) {
                 hasFlag = flags & 2;
-                func_806F91B4(sel, D_807FC929, -1);
+                slotQueueAddValue(sel, D_807FC929, -1);
                 if (!arg0) {
                     s32 v = LE40B_S->unk8F + 1;
                     if (v >= 0x15) {
@@ -1399,7 +1399,7 @@ u8 arg1;
                     projectileGetTargetCoords(D_807FBB48, LE40B_S->unk90 + 9);
                     projectileSpawnNodeEntry(spawnId, (s16)flags, scale, D_807FBB48->unkE6, D_80753E2C[D_807FD584], 0.0f, D_807FBB48);
                 }
-                if ((func_80714608(0) != 0) && (func_806F8AD4((u8)sel, D_807FC929) == 0)) {
+                if ((func_80714608(0) != 0) && (slotQueueGetValue((u8)sel, D_807FC929) == 0)) {
                     func_806F0C18(D_807FBB40);
                     func_806CFF9C(D_807FBB40);
                 }
@@ -1504,7 +1504,7 @@ s32 func_806E2CC4(void) {
     if (var_v1 != 0) {
         var_v1 = (D_807FBB64 & 0x200) == 0;
         if (var_v1 != 0) {
-            var_v1 = func_806F8AD4(4, D_807FC929) != 0;
+            var_v1 = slotQueueGetValue(4, D_807FC929) != 0;
             if (var_v1 != 0) {
                 var_v1 = D_8074E77C[D_807FC929] < 6;
                 if (var_v1 != 0) {
@@ -1861,7 +1861,7 @@ void func_806E3B00(void) {
     f32 temp;
 
     if (!(G24_PAD(D_807FD63A, u16) & 0x2000)) {
-        if (func_806F8AD4(5, D_807FC929) && G24_M->unk1A3) {
+        if (slotQueueGetValue(5, D_807FC929) && G24_M->unk1A3) {
             func_806E384C();
         } else {
             sfxStopSlotSound(D_807FBB40, 0);
@@ -1940,7 +1940,7 @@ void func_806E3E40(void) {
     f32 arg;
     s16 t;
 
-    if (func_806F8AD4(5, D_807FC929) && G24_M->unk1A3) {
+    if (slotQueueGetValue(5, D_807FC929) && G24_M->unk1A3) {
         if (G24_PAD(D_807FD63C, u16) & 0x2000) {
             D_807FD6E0 = 0;
             D_807FD6E1 = 0;
@@ -2445,13 +2445,13 @@ void func_806E52D0(void) {
         r = func_806E560C((G26Mob *)D_807FBB40);
         if ((D_8076A0A8 != 0xCD) || (r != 0)) {
             n = r;
-            if ((func_806F8AD4(7, D_807FC929) != 0) || (n != 0)) {
+            if ((slotQueueGetValue(7, D_807FC929) != 0) || (n != 0)) {
                 playerStateQueueCallback(0x53, 0, *((u8 *)D_807FD580 + 0x1A4));
                 if (!(D_807FBB68 & 2)) {
                     D_807FBB40->unk144 = 1;
                 }
                 if (n == 0) {
-                    func_806F91B4(7, D_807FC929, -1);
+                    slotQueueAddValue(7, D_807FC929, -1);
                 }
             }
             if (n == 0) {
@@ -2860,14 +2860,14 @@ void func_806E61D0(void) {
 
 extern u8 D_807FC8B9;
 extern s32 D_807FBB60;
-extern f32 D_807FD888;
+extern f32 gScreenFadeProgress;
 s32 camIsCutsceneActive(void);
 s32 func_8071432C(void);
 s32 screenWipeGetState(void);
 s32 screenWipeGetCooldown(void);
 
 void func_806E6234(void) {
-    if ((G25_PAD(D_807FD63C, u16) & 0x1000) && (camIsCutsceneActive() == 0) && (D_807FD888 == 0.0f) &&
+    if ((G25_PAD(D_807FD63C, u16) & 0x1000) && (camIsCutsceneActive() == 0) && (gScreenFadeProgress == 0.0f) &&
         ((func_8071432C() != 0) || (func_8071441C() != 0) || (func_807142D8() != 0)) &&
         (screenWipeGetState() == 0) && (screenWipeGetCooldown() == 0)) {
         D_807FC8B9 = D_807FC929;
@@ -4267,11 +4267,11 @@ void func_806E9BA8(arg0) s32 arg0; {
 
     if (G30_PAD(D_807FD63C, u16) & 0x4000) {
         if (!(D_807FD580->unk1F0 & 0x8000)) {
-            if (func_806F8AD4(6, D_807FC929) > 0) {
+            if (slotQueueGetValue(6, D_807FC929) > 0) {
                 func_80609140(0x263, 0x7FFF, 63.0f, 1.0f, 0xA, 0);
                 G29_PAR->unk154 = arg0;
                 G29_PAR->unk155 = 0;
-                func_806F91B4(6, D_807FC929, -1);
+                slotQueueAddValue(6, D_807FC929, -1);
                 cam = (G30Cam *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0);
                 lightAdd(cam->unk210, cam->unk214, cam->unk218, cam->unk228, cam->unk22C, cam->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);
             }
@@ -4290,7 +4290,7 @@ void func_806E9CFC(void) {
 s32 playerStateSetCallbackParameters();
 
 s32 func_806E9D1C(arg0, arg1, arg2) s16 arg0; u8 arg1; u8 arg2; {
-    if (((D_807FC928 < 2) || (D_80750AB8 != 1)) && (D_807FD888 == 0.0f) && (G30_A->unkE0 == 0.0f)) {
+    if (((D_807FC928 < 2) || (D_80750AB8 != 1)) && (gScreenFadeProgress == 0.0f) && (G30_A->unkE0 == 0.0f)) {
         playerStateSetCallbackParameters(D_807FC929, arg1, arg2, 0);
         playerStateQueueCallback(arg0, 0, D_807FC929);
         G30_A->unkB8 = 0.0f;

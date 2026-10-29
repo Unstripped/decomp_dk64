@@ -28,19 +28,19 @@ typedef struct {
     s16 unk274;
     s16 unk276;
     u8 unk278[0x78];
-} AaView;
+} PlayerViewport;
 
-#define AA_VIEW(i) ((AaView *)((u8 *)D_807FC924 + (i) * 0x2F0))
+#define PLAYER_VIEWPORT(i) ((PlayerViewport *)((u8 *)D_807FC924 + (i) * 0x2F0))
 
-Gfx *func_806FEDB0(Gfx *arg0, u8 arg1) {
+Gfx *playerViewGfxSetup(Gfx *arg0, u8 arg1) {
     gDPPipeSync(arg0++);
-    gSPViewport(arg0++, osVirtualToPhysical(((AaView *)D_807FC924)[arg1].unk250[D_807444FC]));
+    gSPViewport(arg0++, osVirtualToPhysical(((PlayerViewport *)D_807FC924)[arg1].unk250[D_807444FC]));
     {
         Gfx *_g = (Gfx *)(arg0++);
-        _g->words.w0 = ((s32)((f32)AA_VIEW(arg1)->unk272 * 4.0f) & 0xFFF) | 0xED000000 |
-                       (((s32)((f32)AA_VIEW(arg1)->unk270 * 4.0f) & 0xFFF) << 12);
-        _g->words.w1 = ((s32)((f32)AA_VIEW(arg1)->unk276 * 4.0f) & 0xFFF) |
-                       (((s32)((f32)AA_VIEW(arg1)->unk274 * 4.0f) & 0xFFF) << 12);
+        _g->words.w0 = ((s32)((f32)PLAYER_VIEWPORT(arg1)->unk272 * 4.0f) & 0xFFF) | 0xED000000 |
+                       (((s32)((f32)PLAYER_VIEWPORT(arg1)->unk270 * 4.0f) & 0xFFF) << 12);
+        _g->words.w1 = ((s32)((f32)PLAYER_VIEWPORT(arg1)->unk276 * 4.0f) & 0xFFF) |
+                       (((s32)((f32)PLAYER_VIEWPORT(arg1)->unk274 * 4.0f) & 0xFFF) << 12);
     }
     gSPDisplayList(arg0++, &D_1000118);
     gDPSetCombineMode(arg0++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
@@ -52,19 +52,19 @@ Gfx *func_806FEDB0(Gfx *arg0, u8 arg1) {
 typedef struct {
     u8 unk0[0x1A4];
     u8 unk1A4;
-} R1F103AB0aState;
+} ActorPlayerState;
 
 Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *func_806FEF7C(Gfx *arg0, Actor *arg1) {
-    arg0 = func_806FEDB0(arg0, ((R1F103AB0aState *)arg1->unk174)->unk1A4);
+    arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->unk174)->unk1A4);
     gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
     return func_8068C5A8(arg0, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, 0.001f);
 }
 
 extern u8 *D_807FD568;
-s32 func_806F8AD4(s32, u8);
+s32 slotQueueGetValue(s32, u8);
 s32 func_80690F30(s32, void *, Actor *, s32, s32, s32, void *, void *, void *);
 
 Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
@@ -75,9 +75,9 @@ Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
     s32 sp4C;
     Gfx *dl;
 
-    player = ((R1F103AB0aState *)arg1->unk174)->unk1A4;
-    dl = func_806FEDB0(arg0, player);
-    if ((D_807FD568[2] & 2) && func_806F8AD4(3, player) &&
+    player = ((ActorPlayerState *)arg1->unk174)->unk1A4;
+    dl = playerViewGfxSetup(arg0, player);
+    if ((D_807FD568[2] & 2) && slotQueueGetValue(3, player) &&
         func_80690F30(2, &sp58, arg1, 1, 0, 0, &sp54, &sp50, &sp4C)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {
@@ -98,7 +98,7 @@ Gfx *func_806FF144(Gfx *arg0) {
 }
 
 void func_806FF32C(s32 arg0, Actor *arg1) {
-    func_806FF144(func_806FEDB0(arg0, ((R1F103AB0aState *)arg1->unk174)->unk1A4));
+    func_806FF144(playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->unk174)->unk1A4));
 }
 
 typedef struct {
@@ -106,12 +106,12 @@ typedef struct {
     u8 unk1EC;
     u8 unk1ED[3];
     s32 unk1F0;
-} AaFF358State;
+} ActorHudState;
 
 Gfx *func_806FF358(Gfx *arg0, Actor *arg1) {
-    AaFF358State *state;
+    ActorHudState *state;
 
-    state = (AaFF358State *)((Actor **)D_807FC924)[1]->unk174;
+    state = (ActorHudState *)((Actor **)D_807FC924)[1]->unk174;
     gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0xFF, 0xFF, 0xC8);
     arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0x50, 0.5f, 0.5f, 0, 0.0f);
     arg0 = func_8068C5A8(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0x50, 0.5f, 0.5f, 0x5A, 0.0f);
@@ -132,10 +132,10 @@ Gfx *func_806FF358(Gfx *arg0, Actor *arg1) {
 }
 
 Gfx *func_806FF628(Gfx *arg0, Actor *arg1) {
-    AaFF358State *state;
+    ActorHudState *state;
 
-    state = (AaFF358State *)((Actor **)D_807FC924)[1]->unk174;
-    arg0 = func_806FEDB0(arg0, ((R1F103AB0aState *)state)->unk1A4);
+    state = (ActorHudState *)((Actor **)D_807FC924)[1]->unk174;
+    arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)state)->unk1A4);
     if (state->unk1EC == 2) {
         gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0, 0, 0x64);
         arg0 = func_8068C5A8(arg0, 0x45, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
@@ -156,11 +156,11 @@ Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
     s32 sp60;
 
     sp6C = 2;
-    sp77 = ((R1F103AB0aState *)arg1->unk174)->unk1A4;
+    sp77 = ((ActorPlayerState *)arg1->unk174)->unk1A4;
     if (D_807FC928 >= 2) {
         sp6C = 3;
     }
-    dl = (Gfx *)func_806FEDB0((s32)dl, sp77);
+    dl = (Gfx *)playerViewGfxSetup((s32)dl, sp77);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
     dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x100, 0x40, 3.0f, 2.0f, 0, 0.0f);
     dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x40, 0x40, 2.0f, 3.0f, 0x5A, 0.0f);
@@ -170,7 +170,7 @@ Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
     dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x60, 3.0f, 3.0f, 0x5A, 0.0f);
     dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x90, 3.0f, 3.0f, 0xB4, 0.0f);
     dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x90, 3.0f, 3.0f, 0x10E, 0.0f);
-    if (func_806F8AD4(3, sp77) && func_80690F30((u16)sp6C, &sp70, arg1, 1, 0, 0, &sp68, &sp64, &sp60)) {
+    if (slotQueueGetValue(3, sp77) && func_80690F30((u16)sp6C, &sp70, arg1, 1, 0, 0, &sp68, &sp64, &sp60)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {
         gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
@@ -184,13 +184,13 @@ void func_806FFB2C(s32 arg0, Actor *arg1) {
     Gfx *dl;
 
     sp3C = arg1->unk155[0] * 1.4;
-    dl = (Gfx *)func_806FEDB0(arg0, ((R1F103AB0aState *)arg1->unk174)->unk1A4);
+    dl = (Gfx *)playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->unk174)->unk1A4);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
     func_8068C5A8(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, sp3C);
 }
 
-u16 func_806FFC04(u16 arg0) {
+u16 color5551ToSepia(u16 arg0) {
     u16 sum;
     u8 a;
     f32 f;
@@ -213,7 +213,7 @@ s16 *func_806FFEAC(s16 *arg0, s32 arg1) {
 
     for (i = 0; i < 0x40; i++) {
         for (j = 0; j < 0x20; j++) {
-            *arg0++ = func_806FFC04(((u16 *)arg1)[j + i * D_80744490]);
+            *arg0++ = color5551ToSepia(((u16 *)arg1)[j + i * D_80744490]);
         }
     }
     return arg0;
@@ -255,7 +255,7 @@ s32 func_806FFF88(void) {
     return sp34;
 }
 
-u16 func_80700088(f32 arg0, u16 arg1) {
+u16 color5551LerpToWhite(f32 arg0, u16 arg1) {
     u8 lsb;
 
     lsb = arg1 & 1;
@@ -265,7 +265,7 @@ u16 func_80700088(f32 arg0, u16 arg1) {
 s32 func_80610FE8(s32);
 void heapFreeDeferred(void *);
 
-void func_807002AC(u16 *arg0, s16 **arg1, f32 arg2) {
+void color5551CopyLerpToWhite(u16 *arg0, s16 **arg1, f32 arg2) {
     s16 *var_s0;
     s16 var_s1;
 
@@ -273,7 +273,7 @@ void func_807002AC(u16 *arg0, s16 **arg1, f32 arg2) {
     heapFreeDeferred(*arg1);
     var_s0 = *arg1;
     for (var_s1 = 0; var_s1 < 0x5000; var_s1++) {
-        *var_s0++ = func_80700088(arg2, *arg0++);
+        *var_s0++ = color5551LerpToWhite(arg2, *arg0++);
     }
 }
 
@@ -285,13 +285,13 @@ typedef struct {
     u8 unkD;
     u8 unkE;
     u8 unkF;
-} Ab2TrailPoint;
+} LensFlarePoint;
 
 typedef struct {
     f32 x;
     f32 y;
     f32 z;
-} Ab2Vec3;
+} Vec3f;
 
 typedef struct {
     u8 unk0[0x210];
@@ -301,25 +301,25 @@ typedef struct {
     f32 unk21C;
     f32 unk220;
     f32 unk224;
-} Ab2P8070033C;
+} LensFlareCamView;
 
 extern u8 D_80754BC0;
-extern Ab2TrailPoint D_807FD808[2];
+extern LensFlarePoint D_807FD808[2];
 extern f32 D_807FD840[2][3][3];
 extern f32 D_807FD848[2][3][3];
-void vec3fNormalize(f32 *, Ab2Vec3);
+void vec3fNormalize(f32 *, Vec3f);
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
-#define Ab2PL ((Ab2P8070033C *)D_807FC924)
-#define Ab2DIST ((Ab2PL->unk224 - arg2) * (Ab2PL->unk224 - arg2)) + (((Ab2PL->unk21C - arg0) * (Ab2PL->unk21C - arg0)) + ((Ab2PL->unk220 - arg1) * (Ab2PL->unk220 - arg1)))
+#define LENS_FLARE_CAM ((LensFlareCamView *)D_807FC924)
+#define LENS_FLARE_DIST2 ((LENS_FLARE_CAM->unk224 - arg2) * (LENS_FLARE_CAM->unk224 - arg2)) + (((LENS_FLARE_CAM->unk21C - arg0) * (LENS_FLARE_CAM->unk21C - arg0)) + ((LENS_FLARE_CAM->unk220 - arg1) * (LENS_FLARE_CAM->unk220 - arg1)))
 
-void func_8070033C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, u8 arg8, u8 arg9) {
+void lensFlareAddSource(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, u8 arg8, u8 arg9) {
     f32 sp84;
     f32 sp80;
     u8 var_v1;
-    Ab2Vec3 sp70;
-    Ab2Vec3 sp64;
-    Ab2Vec3 sp58;
+    Vec3f sp70;
+    Vec3f sp64;
+    Vec3f sp58;
     f32 temp_fv1;
     f32 pad0;
     f32 pad1;
@@ -331,9 +331,9 @@ void func_8070033C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f
             sp70.y = arg4 - arg1;
             sp70.z = arg5 - arg2;
             vec3fNormalize(&sp58.x, sp70);
-            sp70.x = Ab2PL->unk210 - arg0;
-            sp70.y = Ab2PL->unk214 - arg1;
-            sp70.z = Ab2PL->unk218 - arg2;
+            sp70.x = LENS_FLARE_CAM->unk210 - arg0;
+            sp70.y = LENS_FLARE_CAM->unk214 - arg1;
+            sp70.z = LENS_FLARE_CAM->unk218 - arg2;
             vec3fNormalize(&sp64.x, sp70);
             temp_fv1 = (sp64.x * sp58.x) + (sp64.y * sp58.y) + (sp64.z * sp58.z);
             if ((f64)temp_fv1 < 0.0) {
@@ -344,7 +344,7 @@ void func_8070033C(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f
             }
         }
         if (var_v1 != 0) {
-            D_807FD848[D_807444FC][D_80754BC0][0] = sqrtf(Ab2DIST) > 995.0f ? 995.0f : sqrtf(Ab2DIST);
+            D_807FD848[D_807444FC][D_80754BC0][0] = sqrtf(LENS_FLARE_DIST2) > 995.0f ? 995.0f : sqrtf(LENS_FLARE_DIST2);
             camProjectToScreen(arg0, arg1, arg2, &sp84, &sp80, 0, 4.0f, 0);
             D_807FD840[D_807444FC][D_80754BC0][0] = (f32)((f64)sp84 * 0.25);
             D_807FD840[D_807444FC][D_80754BC0][1] = (f32)((f64)sp80 * 0.25);
@@ -368,53 +368,53 @@ typedef struct {
     s16 unk272;
     s16 unk274;
     s16 unk276;
-} Ab2P8070068C;
+} ViewportBounds;
 
-#define Ab2GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+#define GFX_PKT(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 Gfx *func_8070068C(Gfx *arg0) {
-    Ab2GFX(arg0++, 0xDA380007, &D_2000100);
-    Ab2GFX(arg0++, 0xDC080008, osVirtualToPhysical((u8 *)D_807FC924 + (D_807444FC * 0x10) + 0x250));
-    Ab2GFX(arg0++, ((s32)((f32)((Ab2P8070068C *)D_807FC924)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((Ab2P8070068C *)D_807FC924)->unk270 * 4.0f) & 0xFFF) << 12), ((s32)((f32)((Ab2P8070068C *)D_807FC924)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((Ab2P8070068C *)D_807FC924)->unk274 * 4.0f) & 0xFFF) << 12));
+    GFX_PKT(arg0++, 0xDA380007, &D_2000100);
+    GFX_PKT(arg0++, 0xDC080008, osVirtualToPhysical((u8 *)D_807FC924 + (D_807444FC * 0x10) + 0x250));
+    GFX_PKT(arg0++, ((s32)((f32)((ViewportBounds *)D_807FC924)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((ViewportBounds *)D_807FC924)->unk270 * 4.0f) & 0xFFF) << 12), ((s32)((f32)((ViewportBounds *)D_807FC924)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((ViewportBounds *)D_807FC924)->unk274 * 4.0f) & 0xFFF) << 12));
     return arg0;
 }
 
 extern u8 D_807FD838[2][3];
 extern u8 D_2000180;
-Gfx *func_80701098();
+Gfx *lensFlareDrawSource();
 
-Gfx *func_807007B8(Gfx *arg0) {
+Gfx *lensFlareBuildDisplayList(Gfx *arg0) {
     s16 i;
 
     if (D_80754BC0 != 0) {
-        Ab2GFX(arg0++, 0xE7000000, 0);
+        GFX_PKT(arg0++, 0xE7000000, 0);
         arg0 = func_8070068C(arg0);
-        Ab2GFX(arg0++, 0xDA380003, (u32)&D_2000180);
-        Ab2GFX(arg0++, 0xE7000000, 0);
-        Ab2GFX(arg0++, 0xD9000000, 0);
-        Ab2GFX(arg0++, 0xD9FFFFFF, 0x200004);
-        Ab2GFX(arg0++, 0xE3000A01, 0);
-        Ab2GFX(arg0++, 0xE3000C00, 0x80000);
-        Ab2GFX(arg0++, 0xE3001201, 0x2000);
-        Ab2GFX(arg0++, 0xD7000002, 0x80008000);
-        Ab2GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-        Ab2GFX(arg0++, 0xE200001C, 0x504340);
-        Ab2GFX(arg0++, 0xE3001801, 0xC0);
-        Ab2GFX(arg0++, 0xE3001A01, 0x30);
+        GFX_PKT(arg0++, 0xDA380003, (u32)&D_2000180);
+        GFX_PKT(arg0++, 0xE7000000, 0);
+        GFX_PKT(arg0++, 0xD9000000, 0);
+        GFX_PKT(arg0++, 0xD9FFFFFF, 0x200004);
+        GFX_PKT(arg0++, 0xE3000A01, 0);
+        GFX_PKT(arg0++, 0xE3000C00, 0x80000);
+        GFX_PKT(arg0++, 0xE3001201, 0x2000);
+        GFX_PKT(arg0++, 0xD7000002, 0x80008000);
+        GFX_PKT(arg0++, 0xFC119623, 0xFF2FFFFF);
+        GFX_PKT(arg0++, 0xE200001C, 0x504340);
+        GFX_PKT(arg0++, 0xE3001801, 0xC0);
+        GFX_PKT(arg0++, 0xE3001A01, 0x30);
         for (i = 0; i < D_80754BC0; i++) {
             if (D_807FD838[D_807444FC ^ 1][i] != 0) {
-                arg0 = func_80701098(arg0, D_807FD808[i], (u32)(D_807FD838[D_807444FC ^ 1][i]--));
+                arg0 = lensFlareDrawSource(arg0, D_807FD808[i], (u32)(D_807FD838[D_807444FC ^ 1][i]--));
             }
         }
-        Ab2GFX(arg0++, 0xE3001801, 0);
-        Ab2GFX(arg0++, 0xE3001A01, 0);
+        GFX_PKT(arg0++, 0xE3001801, 0);
+        GFX_PKT(arg0++, 0xE3001A01, 0);
     }
     return arg0;
 }
 
 extern s16 *D_8076A0A0;
 
-s16 func_807009F4(s16 arg0) {
+s16 zbufferDepthToDistance(s16 arg0) {
     s16 lo;
     s16 hi;
     s16 mid;
@@ -460,31 +460,31 @@ typedef struct {
     s32 unk34;
     s32 unk38;
     s32 unk3C;
-} R2F103AB0dTileCopy;
+} ZbufferDecodeTable;
 typedef struct {
     u8 unk0[0x270];
     s16 unk270;
     s16 unk272;
     s16 unk274;
     s16 unk276;
-} R2F103AB0dPlayerView;
-extern R2F103AB0dTileCopy D_80754BC4;
+} ZbufferViewBounds;
+extern ZbufferDecodeTable D_80754BC4;
 extern s32 D_8076A060;
-#define R2F103AB0dPlayer ((R2F103AB0dPlayerView *)D_807FC924)
+#define ZBUFFER_VIEW ((ZbufferViewBounds *)D_807FC924)
 
-s32 func_80700AE4(s16 arg0, s16 arg1) {
-    R2F103AB0dTileCopy tileCopy;
+s32 zbufferReadDepth(s16 arg0, s16 arg1) {
+    ZbufferDecodeTable tileCopy;
     u16 tile;
     u16 new_var;
     s32 *tileInfo;
     u16 *map;
     s32 result;
-    R2F103AB0dTileCopy *tileCopyPtr;
+    ZbufferDecodeTable *tileCopyPtr;
 
     tileCopy = D_80754BC4;
     tileCopyPtr = &tileCopy;
     map = (u16 *)D_8076A060;
-    if ((arg0 < R2F103AB0dPlayer->unk270) || (R2F103AB0dPlayer->unk274 < arg0) || (arg1 < R2F103AB0dPlayer->unk272) || (R2F103AB0dPlayer->unk276 < arg1)) return 0xFFFF;
+    if ((arg0 < ZBUFFER_VIEW->unk270) || (ZBUFFER_VIEW->unk274 < arg0) || (arg1 < ZBUFFER_VIEW->unk272) || (ZBUFFER_VIEW->unk276 < arg1)) return 0xFFFF;
     map = (u16 *)((u8 *)map + (((D_80744490 * arg1) + arg0) * 2));
     tile = *map;
     tileInfo = (s32 *)tileCopyPtr + (((tile >> 0xD) & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 7) * 2);
@@ -503,9 +503,9 @@ typedef struct {
     s16 unk27A;
     u8 pad27C[4];
     f32 unk280;
-} AdViewport;
+} ViewportRectInfo;
 
-#define ADVP ((AdViewport *)D_807FC924)
+#define VIEWPORT_INFO ((ViewportRectInfo *)D_807FC924)
 
 extern s32 D_807FBB60;
 extern s16 D_807FD800;
@@ -517,9 +517,9 @@ typedef struct {
     f32 unk0;
     f32 unk4;
     f32 unk8;
-} AdPoint;
+} ScreenPoint;
 
-#define AD_840 ((AdPoint (*)[3])D_807FD840)
+#define FLARE_SCREEN_POINTS ((ScreenPoint (*)[3])D_807FD840)
 
 typedef struct {
     u8 pad0[0x2E];
@@ -527,9 +527,9 @@ typedef struct {
     u8 pad2F;
     u8 unk30;
     u8 pad31[3];
-} AdD610;
+} PlayerSampleInfo;
 
-extern AdD610 D_807FD610[];
+extern PlayerSampleInfo D_807FD610[];
 
 typedef struct {
     u8 pad0[0x10E];
@@ -540,30 +540,30 @@ typedef struct {
     s16 unk116;
     s16 unk118;
     s16 unk11A;
-} AdPlayerState;
+} PlayerStateDepth;
 
 typedef struct {
     u8 unk0;
     u8 pad1[3];
     Actor *unk4;
     u8 pad8[0x2F0 - 8];
-} AdView2F0;
+} PlayerViewSlot;
 
 typedef struct {
     u8 pad0[0x174];
-    AdPlayerState *unk174;
-} AdActor174;
+    PlayerStateDepth *unk174;
+} ActorWithPlayerState;
 
-s32 func_80700AE4(s16, s16);
+s32 zbufferReadDepth(s16, s16);
 
 void func_80700BF4(void) {
     u8 i;
-    AdPlayerState *st;
+    PlayerStateDepth *st;
     s16 x;
     s16 y;
     u16 w;
     s32 base;
-    AdD610 *p;
+    PlayerSampleInfo *p;
     s32 r;
     s32 flag;
     s32 bad = 0x7FFF;
@@ -571,54 +571,54 @@ void func_80700BF4(void) {
     if (D_80754BC0 != 0) {
         do {
             D_80754BC0--;
-            if ((f32)ADVP->unk270 < AD_840[D_807444FC][D_80754BC0].unk0 &&
-                AD_840[D_807444FC][D_80754BC0].unk0 < (f32)ADVP->unk274 &&
-                (f32)ADVP->unk272 < AD_840[D_807444FC][D_80754BC0].unk4 &&
-                AD_840[D_807444FC][D_80754BC0].unk4 < (f32)ADVP->unk276 &&
+            if ((f32)VIEWPORT_INFO->unk270 < FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk0 &&
+                FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk0 < (f32)VIEWPORT_INFO->unk274 &&
+                (f32)VIEWPORT_INFO->unk272 < FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk4 &&
+                FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk4 < (f32)VIEWPORT_INFO->unk276 &&
                 !(D_807FBB60 & 2)) {
-                if (AD_840[D_807444FC][D_80754BC0].unk8 <
-                    (f32)func_807009F4(func_80700AE4((s16)AD_840[D_807444FC][D_80754BC0].unk0,
-                                                     (s16)AD_840[D_807444FC][D_80754BC0].unk4))) {
+                if (FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk8 <
+                    (f32)zbufferDepthToDistance(zbufferReadDepth((s16)FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk0,
+                                                     (s16)FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk4))) {
                     D_807FD838[D_807444FC][D_80754BC0] = 5;
                 }
             }
         } while (D_80754BC0 != 0);
     }
-    r = func_80700AE4(0xA0, 0xDC);
+    r = zbufferReadDepth(0xA0, 0xDC);
     flag = bad == r;
     if (flag == 0) {
-        r = func_80700AE4(0xC, 0x78);
+        r = zbufferReadDepth(0xC, 0x78);
         flag = bad == r;
         if (flag == 0) {
-            r = func_80700AE4(0x134, 0x78);
+            r = zbufferReadDepth(0x134, 0x78);
             flag = bad == r;
         }
     }
     D_807FD800 = flag;
-    D_807FD802 = func_807009F4(func_80700AE4(D_807FD804, D_807FD806));
+    D_807FD802 = zbufferDepthToDistance(zbufferReadDepth(D_807FD804, D_807FD806));
     base = 0x28;
     for (i = 0; i < D_807FC928; i++) {
-        if (((AdView2F0 *)D_807FC924)[i].unk0 != 0) {
-            st = ((AdActor174 *)((AdView2F0 *)D_807FC924)[i].unk4)->unk174;
+        if (((PlayerViewSlot *)D_807FC924)[i].unk0 != 0) {
+            st = ((ActorWithPlayerState *)((PlayerViewSlot *)D_807FC924)[i].unk4)->unk174;
             p = &D_807FD610[i];
             x = st->unk10E;
             y = st->unk110 - 0x14;
             x += p->unk2E;
             w = (u32)(base + p->unk30 / 1.5);
-            st->unk114 = func_807009F4(func_80700AE4(x, y));
-            st->unk116 = func_807009F4(func_80700AE4(x, st->unk112));
-            st->unk118 = func_807009F4(func_80700AE4(x - w, y));
-            st->unk11A = func_807009F4(func_80700AE4(x + w, y));
+            st->unk114 = zbufferDepthToDistance(zbufferReadDepth(x, y));
+            st->unk116 = zbufferDepthToDistance(zbufferReadDepth(x, st->unk112));
+            st->unk118 = zbufferDepthToDistance(zbufferReadDepth(x - w, y));
+            st->unk11A = zbufferDepthToDistance(zbufferReadDepth(x + w, y));
         }
     }
 }
 
 typedef struct {
     u8 unk0[0x21C];
-    Ab2Vec3 unk21C;
+    Vec3f unk21C;
     u8 unk228[0xC];
-    Ab2Vec3 unk234;
-} L5Cam;
+    Vec3f unk234;
+} CameraAxes;
 
 typedef struct {
     f32 unk0;
@@ -629,33 +629,33 @@ typedef struct {
     u8 unkB;
     s8 unkC;
     u8 pad[3];
-} L5Sprite;
+} LensFlareSprite;
 
-extern L5Sprite D_80754AF0[];
+extern LensFlareSprite D_80754AF0[];
 void vec3fSet(f32 *, f32, f32, f32);
-Ab2Vec3 vec3fSub(Ab2Vec3, Ab2Vec3);
-Ab2Vec3 vec3fAdd(Ab2Vec3, Ab2Vec3);
-Ab2Vec3 vec3fScale(Ab2Vec3, f32);
-f32 vec3fDot(Ab2Vec3, Ab2Vec3);
-Gfx *func_80703374(Gfx *, u8, u8, u8, u8);
+Vec3f vec3fSub(Vec3f, Vec3f);
+Vec3f vec3fAdd(Vec3f, Vec3f);
+Vec3f vec3fScale(Vec3f, f32);
+f32 vec3fDot(Vec3f, Vec3f);
+Gfx *gfxFillScreenColor(Gfx *, u8, u8, u8, u8);
 
 /* K&R: `i` is a 4th (unused input) parameter, the loop counter has no frame home; callers pass 3 args. */
 /* padX/padY are unused locals that keep the original frame layout. */
-Gfx *func_80701098(dl, pt, arg2, i)
+Gfx *lensFlareDrawSource(dl, pt, arg2, i)
 Gfx *dl;
-Ab2TrailPoint pt;
+LensFlarePoint pt;
 u8 arg2;
 s16 i;
 {
-    Ab2Vec3 sp1B4;
-    Ab2Vec3 sp1A8;
-    Ab2Vec3 sp19C;
-    Ab2Vec3 sp190;
-    Ab2Vec3 sp184;
-    Ab2Vec3 sp178;
-    Ab2Vec3 sp16C;
-    Ab2Vec3 sp160;
-    Ab2Vec3 padX[7];
+    Vec3f sp1B4;
+    Vec3f sp1A8;
+    Vec3f sp19C;
+    Vec3f sp190;
+    Vec3f sp184;
+    Vec3f sp178;
+    Vec3f sp16C;
+    Vec3f sp160;
+    Vec3f padX[7];
     f32 sp108;
     f32 padY[4];
     f32 spF4;
@@ -666,8 +666,8 @@ s16 i;
 
     spF0 = (f32)((f64)arg2 / 5.0);
     vec3fSet(&sp160.x, pt.unk0, pt.unk4, pt.unk8);
-    vec3fSet(&sp178.x, ((L5Cam *)D_807FC924)->unk21C.x, ((L5Cam *)D_807FC924)->unk21C.y, ((L5Cam *)D_807FC924)->unk21C.z);
-    vec3fSet(&sp16C.x, ((L5Cam *)D_807FC924)->unk234.x, ((L5Cam *)D_807FC924)->unk234.y, ((L5Cam *)D_807FC924)->unk234.z);
+    vec3fSet(&sp178.x, ((CameraAxes *)D_807FC924)->unk21C.x, ((CameraAxes *)D_807FC924)->unk21C.y, ((CameraAxes *)D_807FC924)->unk21C.z);
+    vec3fSet(&sp16C.x, ((CameraAxes *)D_807FC924)->unk234.x, ((CameraAxes *)D_807FC924)->unk234.y, ((CameraAxes *)D_807FC924)->unk234.z);
     vec3fNormalize(&sp19C.x, vec3fSub(sp16C, sp178));
     sp1B4 = vec3fAdd(sp178, vec3fScale(sp19C, 5000.0f));
     vec3fNormalize(&sp190.x, vec3fSub(sp160, sp178));
@@ -705,7 +705,7 @@ s16 i;
     dl->words.w0 = 0xE7000000; dl->words.w1 = 0;
     dl++;
     if ((f64)fs0 > 0.97) {
-        dl = func_80703374(dl, pt.unkC, pt.unkD, pt.unkE, (u32)(((f64)fs0 - 0.97) * 33.0 * 128.0));
+        dl = gfxFillScreenColor(dl, pt.unkC, pt.unkD, pt.unkE, (u32)(((f64)fs0 - 0.97) * 33.0 * 128.0));
         dl->words.w0 = 0xD7000002; dl->words.w1 = 0x80008000;
         dl[1].words.w0 = 0xFC119623; dl[1].words.w1 = 0xFF2FFFFF;
         dl += 2;
@@ -742,32 +742,32 @@ typedef struct {
     u8 pad292[0x56];
     u8 unk2E8;
     u8 pad2E9[7];
-} L6Blk;
+} PlayerViewBlock;
 
 typedef struct {
     u8 pad0[0x104];
     Actor *unk104;
     u8 pad108[0xE0];
     f32 unk1E8;
-} L6A;
+} PlayerOverlayState;
 
 typedef struct {
     u8 pad0[0x90];
     f32 unk90;
     u8 pad94[0x66];
     u8 unkFA;
-} L6B;
+} CameraActorState;
 
-#define L6P(i) (&((L6Blk *)D_807FC924)[i])
-#define L6GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
+#define PLAYER_VIEW_BLOCK(i) (&((PlayerViewBlock *)D_807FC924)[i])
+#define OVERLAY_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 Gfx *func_80701CA0(Gfx *dl) {
     extern s16 D_80744498;
     extern s16 D_8074449C;
     extern s16 D_807444A0;
     extern s16 D_807444A4;
-    L6A *a;
-    L6B *b;
+    PlayerOverlayState *a;
+    CameraActorState *b;
     Vtx *vtx;
     u8 *pf;
     f32 v;
@@ -791,40 +791,40 @@ Gfx *func_80701CA0(Gfx *dl) {
     case 0xB3:
         return dl;
     case 0x1E:
-        if ((L6P(0)->unk290 == 9 || L6P(0)->unk290 == 0xA) && flagGet(0x9C, 0) != 0) {
+        if ((PLAYER_VIEW_BLOCK(0)->unk290 == 9 || PLAYER_VIEW_BLOCK(0)->unk290 == 0xA) && flagGet(0x9C, 0) != 0) {
             return dl;
         }
     default:
         break;
     }
     for (i = 0; i < D_807FC928; i++) {
-        if (L6P(i)->unk0 != 0) {
-            a = (L6A *)L6P(i)->unk4->unk174;
+        if (PLAYER_VIEW_BLOCK(i)->unk0 != 0) {
+            a = (PlayerOverlayState *)PLAYER_VIEW_BLOCK(i)->unk4->unk174;
             /* dead check: makes a->unk104 a shared load candidate (temp register order) */
             if (a->unk104 == 0) {}
-            b = (L6B *)a->unk104->unk174;
-            if (force != 0 || (L6P(i)->unk2E8 != 0 && L6P(i)->unk220 < L6P(i)->unk24C + 3.0f)) {
+            b = (CameraActorState *)a->unk104->unk174;
+            if (force != 0 || (PLAYER_VIEW_BLOCK(i)->unk2E8 != 0 && PLAYER_VIEW_BLOCK(i)->unk220 < PLAYER_VIEW_BLOCK(i)->unk24C + 3.0f)) {
                 vtx = (Vtx *)func_80610FE8(0x40);
                 heapFreeDeferred(vtx);
-                vtx[0].v.ob[0] = L6P(i)->unk270;
-                vtx[0].v.ob[1] = L6P(i)->unk272;
+                vtx[0].v.ob[0] = PLAYER_VIEW_BLOCK(i)->unk270;
+                vtx[0].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk272;
                 vtx[0].v.ob[2] = -10;
-                vtx[1].v.ob[0] = L6P(i)->unk274;
-                vtx[1].v.ob[1] = L6P(i)->unk272;
+                vtx[1].v.ob[0] = PLAYER_VIEW_BLOCK(i)->unk274;
+                vtx[1].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk272;
                 vtx[1].v.ob[2] = -10;
-                vtx[2].v.ob[0] = L6P(i)->unk274;
-                vtx[2].v.ob[1] = L6P(i)->unk276;
+                vtx[2].v.ob[0] = PLAYER_VIEW_BLOCK(i)->unk274;
+                vtx[2].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk276;
                 vtx[2].v.ob[2] = -10;
-                vtx[3].v.ob[0] = L6P(i)->unk270;
-                vtx[3].v.ob[1] = L6P(i)->unk276;
+                vtx[3].v.ob[0] = PLAYER_VIEW_BLOCK(i)->unk270;
+                vtx[3].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk276;
                 vtx[3].v.ob[2] = -10;
                 gDPPipeSync(dl++);
                 dl = func_805FCFD8(dl);
-                L6GFX(dl++, (((s32)((f32)D_80744498 * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)D_8074449C * 4.0f) & 0xFFF),
+                OVERLAY_GFX(dl++, (((s32)((f32)D_80744498 * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)D_8074449C * 4.0f) & 0xFFF),
                       (((s32)((f32)D_807444A0 * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)D_807444A4 * 4.0f) & 0xFFF));
                 gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
-                L6GFX(dl++, 0xFCFFFFFF, 0xFFFDF6FB);
-                v = L6P(i)->unk24C - L6P(i)->unk220;
+                OVERLAY_GFX(dl++, 0xFCFFFFFF, 0xFFFDF6FB);
+                v = PLAYER_VIEW_BLOCK(i)->unk24C - PLAYER_VIEW_BLOCK(i)->unk220;
                 switch (D_8076A0A8) {
                 case 0x1E:
                     v = (f32)((f64)v * 0.07);
@@ -851,7 +851,7 @@ Gfx *func_80701CA0(Gfx *dl) {
                     v = (f32)((u32)a->unk1E8 & 0xFF);
                 }
                 gDPSetPrimColor(dl++, 0, 0, 0, 0, 0x3C, (u32)((f32)fp + v));
-                L6GFX(dl++, 0xE3000A01, 0);
+                OVERLAY_GFX(dl++, 0xE3000A01, 0);
                 gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
                 gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
                 gSPVertex(dl++, osVirtualToPhysical(vtx), 4, 0);
@@ -859,8 +859,8 @@ Gfx *func_80701CA0(Gfx *dl) {
                 drew = 1;
                 gDPPipeSync(dl++);
             }
-            L6P(i)->unk2E8 = b->unkFA;
-            L6P(i)->unk24C = b->unk90;
+            PLAYER_VIEW_BLOCK(i)->unk2E8 = b->unkFA;
+            PLAYER_VIEW_BLOCK(i)->unk24C = b->unk90;
         }
     }
     if (drew != 0) {
@@ -893,7 +893,7 @@ extern s16 D_807444A4;
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
-Gfx *func_80703374(Gfx *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
+Gfx *gfxFillScreenColor(Gfx *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
     if (arg4 != 0) {
         WRITE_GFX(arg0++, 0xD9000000, 0);
         WRITE_GFX(arg0++, 0xD9FFFFFF, 0x200004);
@@ -914,7 +914,7 @@ Gfx *func_80703374(Gfx *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
 
 s32 randomNonNegative(void);
 
-Gfx *func_807035C4(Gfx *arg0, s32 arg1) {
+Gfx *gfxBuildScanlineNoise(Gfx *arg0, s32 arg1) {
     s16 i;
     s16 y;
     s32 r;
@@ -927,13 +927,13 @@ Gfx *func_807035C4(Gfx *arg0, s32 arg1) {
     WRITE_GFX(arg0++, 0xE3000A01, 0);
     WRITE_GFX(arg0++, 0xFC71FEE3, 0xFFFFF7FB);
     WRITE_GFX(arg0++, 0xED028028, 0x4D4394);
-    gDPFillRectangle(arg0++, 10, ADVP->unk272, 0x135, ADVP->unk276);
+    gDPFillRectangle(arg0++, 10, VIEWPORT_INFO->unk272, 0x135, VIEWPORT_INFO->unk276);
     gDPPipeSync(arg0++);
     gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
     gDPSetCombineMode(arg0++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
     for (i = 0; i < 10; i++) {
         r = randomNonNegative() >> 15;
-        y = ADVP->unk272 + r % (ADVP->unk276 - ADVP->unk272);
+        y = VIEWPORT_INFO->unk272 + r % (VIEWPORT_INFO->unk276 - VIEWPORT_INFO->unk272);
         r = randomNonNegative() >> 15;
         y2 = r % 10 + 2;
         gDPFillRectangle(arg0++, 10, y, 0x135, y + y2);
@@ -946,22 +946,22 @@ extern s16 D_807444AC;
 extern s16 D_807444B0;
 s32 func_805FCA64();
 
-void func_80703850(u8 arg0) {
+void viewportShrinkToCenter(u8 arg0) {
     f32 scale;
 
     scale = (f32)((f64)(f32)(u32)arg0 / 255.0);
     if (func_805FCA64() != 0) {
-        ADVP->unk272 = (s32)((f32)D_8074449C + ((f32)((D_80744494 >> 1) - D_8074449C - 1) * scale));
-        ADVP->unk276 = (s32)((f32)D_807444A4 + ((f32)((D_80744494 >> 1) - D_807444A4) * scale));
+        VIEWPORT_INFO->unk272 = (s32)((f32)D_8074449C + ((f32)((D_80744494 >> 1) - D_8074449C - 1) * scale));
+        VIEWPORT_INFO->unk276 = (s32)((f32)D_807444A4 + ((f32)((D_80744494 >> 1) - D_807444A4) * scale));
     } else {
-        ADVP->unk272 = (s32)((f32)D_807444AC + ((f32)((D_80744494 >> 1) - D_807444AC - 1) * scale));
-        ADVP->unk276 = (s32)((f32)D_807444B0 + ((f32)((D_80744494 >> 1) - D_807444B0) * scale));
+        VIEWPORT_INFO->unk272 = (s32)((f32)D_807444AC + ((f32)((D_80744494 >> 1) - D_807444AC - 1) * scale));
+        VIEWPORT_INFO->unk276 = (s32)((f32)D_807444B0 + ((f32)((D_80744494 >> 1) - D_807444B0) * scale));
     }
-    ADVP->unk270 = (s32)((f32)D_80744498 + ((f32)((D_80744490 >> 1) - D_80744498 - 1) * scale));
-    ADVP->unk274 = (s32)((f32)D_807444A0 + ((f32)((D_80744490 >> 1) - D_807444A0) * scale));
-    ADVP->unk27A = ADVP->unk276 - ADVP->unk272;
-    ADVP->unk278 = ADVP->unk274 - ADVP->unk270;
-    ADVP->unk280 = (f32)ADVP->unk278 / (f32)ADVP->unk27A;
+    VIEWPORT_INFO->unk270 = (s32)((f32)D_80744498 + ((f32)((D_80744490 >> 1) - D_80744498 - 1) * scale));
+    VIEWPORT_INFO->unk274 = (s32)((f32)D_807444A0 + ((f32)((D_80744490 >> 1) - D_807444A0) * scale));
+    VIEWPORT_INFO->unk27A = VIEWPORT_INFO->unk276 - VIEWPORT_INFO->unk272;
+    VIEWPORT_INFO->unk278 = VIEWPORT_INFO->unk274 - VIEWPORT_INFO->unk270;
+    VIEWPORT_INFO->unk280 = (f32)VIEWPORT_INFO->unk278 / (f32)VIEWPORT_INFO->unk27A;
 }
 
 typedef struct {
@@ -977,11 +977,11 @@ typedef struct {
     s16 x3, y3;
     u8 pad3[0xB];
     u8 a3;
-} AeRectVtx;
+} ScreenQuadVtx;
 
-extern AeRectVtx D_80754C48[];
+extern ScreenQuadVtx D_80754C48[];
 
-Gfx *func_80703AB0(Gfx *arg0, u8 arg1) {
+Gfx *screenFadeDrawGradient(Gfx *arg0, u8 arg1) {
     gSPDisplayList(arg0++, &D_1000118);
     gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
@@ -1014,7 +1014,7 @@ void assetFreeBuffer(s32, s32, s32);
 f32 sinApprox(f32);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 
-Gfx *func_80703CF8(Gfx *arg0, u8 arg1) {
+Gfx *screenFadeDrawSpinTexture(Gfx *arg0, u8 arg1) {
     Mtx *mtx;
     f32 sp_bc[4][4];
     f32 sp_7c[4][4];
@@ -1054,7 +1054,7 @@ Gfx *func_80703CF8(Gfx *arg0, u8 arg1) {
 
 extern s16 D_807FD892;
 
-void func_807040D0(s16 arg0) {
+void vtxGradientSetPosition(s16 arg0) {
     D_807FD892 = arg0;
 }
 
@@ -1062,7 +1062,7 @@ extern s8 D_807FD894;
 extern s8 D_807FD895;
 extern s8 D_807FD896;
 
-void func_807040E0(s8 arg0, s8 arg1, s8 arg2) {
+void vtxGradientSetColorA(s8 arg0, s8 arg1, s8 arg2) {
     D_807FD894 = arg0;
     D_807FD895 = arg1;
     D_807FD896 = arg2;
@@ -1072,7 +1072,7 @@ extern s8 D_807FD897;
 extern s8 D_807FD898;
 extern s8 D_807FD899;
 
-void func_80704108(s8 arg0, s8 arg1, s8 arg2) {
+void vtxGradientSetColorB(s8 arg0, s8 arg1, s8 arg2) {
     D_807FD897 = arg0;
     D_807FD898 = arg1;
     D_807FD899 = arg2;
@@ -1089,11 +1089,11 @@ typedef struct {
     s8 unkD;
     s8 unkE;
     u8 unkF;
-} R1F103AB0cTransformView;
+} VtxColorView;
 
 f32 func_80612794(s16);
 
-void func_80704130(R1F103AB0cTransformView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5) {
+void vtxSetColor(VtxColorView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5) {
     arg0->unkC = arg1;
     arg0->unkD = arg2;
     arg0->unkE = arg3;
@@ -1110,9 +1110,9 @@ void func_80704130(R1F103AB0cTransformView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 
     }
 }
 
-#define AE_U8(sym) (*(u8 *)&(sym))
+#define AS_U8(sym) (*(u8 *)&(sym))
 
-void func_80704298(R1F103AB0cTransformView *arg0, u8 arg1, u8 arg2) {
+void vtxSetQuadGradientColors(VtxColorView *arg0, u8 arg1, u8 arg2) {
     s16 lo;
     s16 hi;
     s32 t;
@@ -1139,13 +1139,13 @@ void func_80704298(R1F103AB0cTransformView *arg0, u8 arg1, u8 arg2) {
     if (hi >= 0x100) {
         hi = 0xFF;
     }
-    func_80704130(arg0++, AE_U8(D_807FD894), AE_U8(D_807FD895), AE_U8(D_807FD896), lo, arg2);
-    func_80704130(arg0++, AE_U8(D_807FD894), AE_U8(D_807FD895), AE_U8(D_807FD896), hi, arg2);
-    func_80704130(arg0++, AE_U8(D_807FD897), AE_U8(D_807FD898), AE_U8(D_807FD899), hi, arg2 | 0x40);
-    func_80704130(arg0, AE_U8(D_807FD897), AE_U8(D_807FD898), AE_U8(D_807FD899), lo, arg2 | 0x40);
+    vtxSetColor(arg0++, AS_U8(D_807FD894), AS_U8(D_807FD895), AS_U8(D_807FD896), lo, arg2);
+    vtxSetColor(arg0++, AS_U8(D_807FD894), AS_U8(D_807FD895), AS_U8(D_807FD896), hi, arg2);
+    vtxSetColor(arg0++, AS_U8(D_807FD897), AS_U8(D_807FD898), AS_U8(D_807FD899), hi, arg2 | 0x40);
+    vtxSetColor(arg0, AS_U8(D_807FD897), AS_U8(D_807FD898), AS_U8(D_807FD899), lo, arg2 | 0x40);
 }
 
-void func_80704444(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, u8 arg5) {
+void vtxSetPosTex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, u8 arg5) {
     arg0[0] = arg1;
     arg0[1] = arg2;
     arg0[2] = 0x3E8;
@@ -1158,13 +1158,13 @@ typedef struct {
     s32 unk0;
     s32 unk4;
     s32 unk8;
-} AeTransitionStruct;
+} ScreenFadeChannels;
 
-extern f32 D_807FD888;
-extern f32 D_807FD88C;
+extern f32 gScreenFadeProgress;
+extern f32 gScreenFadeRate;
 extern s16 D_8076A0AA;
 extern u8 D_80750AC0;
-extern AeTransitionStruct D_80754CC8;
+extern ScreenFadeChannels D_80754CC8;
 
 u8 func_805FF000(u8);
 u8 func_80600454(s16, u8 *);
@@ -1174,21 +1174,21 @@ void sfxStopChannel(s32, s32);
 s32 func_8070B318(void);
 void func_8070B308(s32);
 void osViBlack(u8);
-void func_8070B324(f32, s32, void *);
+void transitionSetAudioVolume(f32, s32, void *);
 
-Gfx *func_80704484(Gfx *arg0, u8 arg1) {
+Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
     s32 p0;
     u8 sp5B;
     f32 sp54;
     s32 p1;
-    AeTransitionStruct sp44;
+    ScreenFadeChannels sp44;
     f32 val;
     f32 x;
     u16 alpha;
 
-    if (D_807FD88C != 0.0f) {
-        D_807FD888 += D_807FD88C * (arg1 == 2 ? 2 : 1);
-        if (D_807FD888 < 0.0f) {
+    if (gScreenFadeRate != 0.0f) {
+        gScreenFadeProgress += gScreenFadeRate * (arg1 == 2 ? 2 : 1);
+        if (gScreenFadeProgress < 0.0f) {
             func_805FF000(D_8076A0AB);
             if (!(D_8076A0B1 & 0x20) && func_80600454(D_8076A0AA, &sp5B)) {
                 textSpawnMarkerChecked(1, 0, 0x64, func_8070E750(0x23, sp5B, 1), 0, 0x28, 6, 8);
@@ -1198,20 +1198,20 @@ Gfx *func_80704484(Gfx *arg0, u8 arg1) {
             if (func_8070B318() == 2) {
                 func_8070B308(0);
             }
-            D_807FD88C = 0.0f;
-            D_807FD888 = 0.0f;
+            gScreenFadeRate = 0.0f;
+            gScreenFadeProgress = 0.0f;
             D_8076A0B1 &= 0xFFBF;
-        } else if (D_807FD888 > 31.0f) {
+        } else if (gScreenFadeProgress > 31.0f) {
             if (D_8076A0B1 & 1) {
                 sfxStopChannel(0x2C, 0);
             }
-            D_807FD88C = 0.0f;
-            D_807FD888 = 31.0f;
+            gScreenFadeRate = 0.0f;
+            gScreenFadeProgress = 31.0f;
             osViBlack(1);
             D_8076A0B1 |= 0xC;
         } else {
-            sp54 = D_807FD888 * 0.03225806355f;
-            val = D_807FD888 * 255.0f / 28.0f;
+            sp54 = gScreenFadeProgress * 0.03225806355f;
+            val = gScreenFadeProgress * 255.0f / 28.0f;
             if (val < 0.0f) {
                 x = 0.0f;
                 alpha = (u32)x;
@@ -1223,32 +1223,32 @@ Gfx *func_80704484(Gfx *arg0, u8 arg1) {
                 }
                 alpha = (u32)x;
             }
-            if (D_807FD888 < D_807FD88C * 2 + 31.0f && (D_8076A0B1 & 4)) {
+            if (gScreenFadeProgress < gScreenFadeRate * 2 + 31.0f && (D_8076A0B1 & 4)) {
                 D_8076A0B1 ^= 6;
             }
-            if (D_807FD888 > 28.0f && arg1 != 3) {
-                arg0 = func_80703374(arg0, 0, 0, 0, 0xFF);
+            if (gScreenFadeProgress > 28.0f && arg1 != 3) {
+                arg0 = gfxFillScreenColor(arg0, 0, 0, 0, 0xFF);
             } else {
                 switch (arg1) {
                     case 3:
                         if (D_80750AC0 == 1) {
-                            func_80703850(alpha);
+                            viewportShrinkToCenter(alpha);
                             break;
                         }
                     case 2:
-                        arg0 = func_80703AB0(arg0, alpha);
+                        arg0 = screenFadeDrawGradient(arg0, alpha);
                         break;
                     case 1:
-                        arg0 = func_80703CF8(arg0, alpha);
+                        arg0 = screenFadeDrawSpinTexture(arg0, alpha);
                         break;
                     default:
-                        arg0 = func_80703374(arg0, 0, 0, 0, alpha);
+                        arg0 = gfxFillScreenColor(arg0, 0, 0, 0, alpha);
                         break;
                 }
             }
             if ((D_8076A0B1 & 0x41) || !(D_8076A0B1 & 0x20)) {
                 sp44 = D_80754CC8;
-                func_8070B324(1.0f - sp54, D_807FD88C >= 0.0f, &sp44);
+                transitionSetAudioVolume(1.0f - sp54, gScreenFadeRate >= 0.0f, &sp44);
             }
         }
     }

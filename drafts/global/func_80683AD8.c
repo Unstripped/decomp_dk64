@@ -18,7 +18,7 @@ extern u32 D_8076A064;
 
 Gfx *func_8068C5A8(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, s32);
-s32 func_806FD894(s32);
+s32 textGetFontHeight(s32);
 
 Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
     f32 spF8;
@@ -75,7 +75,7 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
     }
     spF8 = var_ft1 * 0.05f;
     sp6C = func_80683A80((ActorGroup5 *)temp_s1, temp_s1->unk6);
-    spF0 -= (f32) func_806FD894(1) * 1.2f;
+    spF0 -= (f32) textGetFontHeight(1) * 1.2f;
     dlist[0].words.w0 = 0xFCFF97FF;
     dlist[0].words.w1 = 0xFF2CFE7F;
     dlist++;

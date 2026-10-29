@@ -536,7 +536,7 @@ extern u8 *D_80035AA4[];
 
 void flagSet(s16, s32, s32);
 void func_8070B308(s32);
-void func_806FB370(s32, s32, s32);
+void slotQueueSetDisplayMode(s32, s32, s32);
 void func_80614E78(void *, s32);
 void func_805FF158(s32);
 void func_805FF378(s32, s32);
@@ -557,7 +557,7 @@ void func_8002FF74(void) {
     behaviourFrameBegin();
     if (!(BOSS_ACTOR->unk60 & 0x10)) {
         func_8070B308(0);
-        func_806FB370(2, 0, 1);
+        slotQueueSetDisplayMode(2, 0, 1);
         D_807FBB4C->unk154 = 0x5F;
         D_807FBB4C->unk155 = 0;
         func_80614E78(D_807FBB4C, 0x4B);

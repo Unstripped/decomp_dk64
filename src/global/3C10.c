@@ -87,7 +87,7 @@ extern s32 D_807FBB60;
 extern s32 D_807FBB64;
 extern s32 D_807FBB68;
 extern u16 D_807FC930[];
-extern f32 D_807FD88C;
+extern f32 gScreenFadeRate;
 
 /* Function declarations */
 s32 func_805FEF74(s32 arg0);
@@ -288,7 +288,7 @@ void func_805FF378(s32 arg0, s32 arg1) {
             D_807444E8 = arg1;
             D_8076A0B2 = 3;
             func_805FF168();
-            D_807FD88C = 1.0f;
+            gScreenFadeRate = 1.0f;
             if ((D_807444F8 != 1) && (D_8076AEE0 == 1) && !(D_807FBB68 & 2) && (D_8076A0A8 != 0x4C)) {
                 sfxAllocateChannel(0x2C, 1.0f);
             }

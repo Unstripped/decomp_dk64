@@ -42,7 +42,7 @@ void func_8062A944(f32, f32, f32);
 void func_8062AD28(f32, f32, f32, PlanePoly *, f32 *);
 void mapTreeFrameUpdate(MapBspNode *, MapVisNode *, struct MapDistributeEntry *, f32, f32, f32, u8, u8, u8);
 Gfx *func_80722294(Gfx *, void *, s16);
-Gfx *func_8070835C(Gfx *, s16);
+Gfx *gfxDrawPlayerViewBackground(Gfx *, s16);
 Gfx *fogApply(Gfx *);
 void mapSetClipBounds();
 Gfx *mapTreeRender(Gfx *, MapBspNode *, MapVisNode *, f32, f32, f32, s32);
@@ -80,7 +80,7 @@ Gfx *func_8062C29C(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f
     gSPLookAtX(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[D_807444FC]));
     gSPLookAtY(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[D_807444FC]) + 0x10);
     mapSetClipBounds(L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
-    gfx = func_8070835C(fogApply(gfx), D_807FC929);
+    gfx = gfxDrawPlayerViewBackground(fogApply(gfx), D_807FC929);
     gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk88[D_807444FC]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk8[D_807444FC]), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(gfx++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);

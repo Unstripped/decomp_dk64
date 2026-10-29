@@ -1,4 +1,4 @@
-// func_807024E0 (src/global/103AB0.c): Stage 5 (L7): parked-quality C, compiles; frame 0x1D8, s0-s7/fp/fs0-fs2 and tile-load/vertex/callback/loop code identical to target (~21 hunks left). Open: row-prologue hoist order, spill-slot order of x+tw/B0/AC/A8/90/8C temps, add.s xf+tw operand order, a0/a1 (scale/v) + s4/s5 (xs/xe) alloc. Place AFTER func_80704444 (uses R1F103AB0cTransformView); forward proto of func_807024E0 must be (Gfx**,s32,s32,u32,s32,u32,u32,f32 x6,u8,u8,u8,void(*)()); pad locals reproduce named-local frame; named top-block order scale,ustep,vstep,xs,xe,ye,th,tw,u0 reproduces temp-slot order
+// func_807024E0 (src/global/103AB0.c): Stage 5 (L7): parked-quality C, compiles; frame 0x1D8, s0-s7/fp/fs0-fs2 and tile-load/vertex/callback/loop code identical to target (~21 hunks left). Open: row-prologue hoist order, spill-slot order of x+tw/B0/AC/A8/90/8C temps, add.s xf+tw operand order, a0/a1 (scale/v) + s4/s5 (xs/xe) alloc. Place AFTER vtxSetPosTex (uses R1F103AB0cTransformView); forward proto of func_807024E0 must be (Gfx**,s32,s32,u32,s32,u32,u32,f32 x6,u8,u8,u8,void(*)()); pad locals reproduce named-local frame; named top-block order scale,ustep,vstep,xs,xe,ye,th,tw,u0 reproduces temp-slot order
 void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5, u32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14, u8 arg15, void (*arg16)()) {
     Gfx *dl;
     s32 y;
@@ -80,21 +80,21 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
             }
             if (arg15 != 0) {
                 if (x == xs && arg15 == 1) {
-                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
+                    vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
-                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+                    vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
             if (arg16 != NULL) {
                 arg16(u, v, vtx);
             }
             xf = (f32)x - 16.0;
-            func_80704444((s16 *)vtx++, u, v, xf, (s16)(f32)((f32)y - 16.0), flag);
+            vtxSetPosTex((s16 *)vtx++, u, v, xf, (s16)(f32)((f32)y - 16.0), flag);
             if (arg15 != 0) {
                 if (x + tw >= xe && arg15 == 2) {
-                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
+                    vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
-                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+                    vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
             vb = (s16)(v + vstep);
@@ -104,29 +104,29 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
             }
             ua = (s16)(u + ustep);
             xa = xf + (f32)tw;
-            func_80704444((s16 *)vtx++, ua, v, xa, (s16)(f32)((f32)y - 16.0), flag);
+            vtxSetPosTex((s16 *)vtx++, ua, v, xa, (s16)(f32)((f32)y - 16.0), flag);
             if (arg15 != 0) {
                 if (x + tw >= xe && arg15 == 2) {
-                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
+                    vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
-                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+                    vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
             if (arg16 != NULL) {
                 arg16(ua, vb, vtx);
             }
-            func_80704444((s16 *)vtx++, ua, vc, xa, (s16)((f32)(f32)((f32)y - 16.0) + (f32)th), flag);
+            vtxSetPosTex((s16 *)vtx++, ua, vc, xa, (s16)((f32)(f32)((f32)y - 16.0) + (f32)th), flag);
             if (arg15 != 0) {
                 if (x == xs && arg15 == 1) {
-                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
+                    vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
-                    func_80704130(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+                    vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
             if (arg16 != NULL) {
                 arg16(u, vb, vtx);
             }
-            func_80704444((s16 *)vtx++, u, vc, xf, (s16)((f32)(f32)((f32)y - 16.0) + (f32)th), flag);
+            vtxSetPosTex((s16 *)vtx++, u, vc, xf, (s16)((f32)(f32)((f32)y - 16.0) + (f32)th), flag);
             gSPVertex(dl++, osVirtualToPhysical(vtx - 4), 4, 0);
             gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(dl++);

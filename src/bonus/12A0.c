@@ -3,7 +3,7 @@
 extern Gfx D_1000118;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
-Gfx *func_806FE078(Gfx *, u8, s32, f32, f32, f32, f32);
+Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
 
 Gfx *bonusRenderReelHud(Gfx *gdl, void *arg1) {
@@ -17,7 +17,7 @@ Gfx *bonusRenderReelHud(Gfx *gdl, void *arg1) {
     gSPMatrix(gdl++, &D_2000080, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     return func_8068DC54(
-        func_806FE078(gdl, *(u8 *)((u8 *)temp_t0 + 0x19), 8, 30.0f, 36.0f, 0.0f, 1.5f),
+        textDrawAnimated(gdl, *(u8 *)((u8 *)temp_t0 + 0x19), 8, 30.0f, 36.0f, 0.0f, 1.5f),
         0x26, 0x32, (u8 *)temp_t0 + 0x14, *(s16 *)((u8 *)temp_t0 + 0x16), (u8 *)temp_t0 + 0x18);
 }
 
@@ -136,7 +136,7 @@ extern void *D_807FBB48;
 extern u8 D_807444EC;
 extern s32 D_807457E4[];
 extern u8 D_80720CF0;
-s32 func_806FDB8C(s32, char *, s32, f32, f32, f32);
+s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_806FDAB8(u8, f32);
 s32 playerStateQueueCallback(s32, s32, s32);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -172,7 +172,7 @@ void bonusReelGameUpdate(void) {
     if (!(LA->unk60 & 0x10)) {
         LA->unk7C = 52.0f;
         LA->unk84 = 18.0f;
-        obj->unk19 = func_806FDB8C(1, "HIT", 8, 0.0f, 0.0f, 0.0f);
+        obj->unk19 = gfxResourceCreate(1, "HIT", 8, 0.0f, 0.0f, 0.0f);
         func_806FDAB8(obj->unk19, 0.0f);
         obj->unk16 = 3;
         obj->unk14 = 3;

@@ -149,8 +149,8 @@ segments:
       - [0xFCCD0, c, FCCD0]
       - [0x100180, c, 100180]
       - [0x1025E0, c, 1025E0]
-      - [0x103AB0, c, 103AB0] # hidden TU: rodata pad after D_8075DE60 (func_806FE078) at 0x162B70; func_806FEDB0 is the only 16-aligned start before D_8075DE70's user func_806FEF7C
-      - [0x109660, c, 109660] # hidden TU (tentative): data pad after D_80754CC8 (func_80704484) at 0x1599E0; first 16-aligned start after it (func_80704960, no data/rodata users before func_80704B20); rodata D_8075DF90 is 16-aligned, layout-neutral
+      - [0x103AB0, c, 103AB0] # hidden TU: rodata pad after D_8075DE60 (textDrawAnimated) at 0x162B70; playerViewGfxSetup is the only 16-aligned start before D_8075DE70's user func_806FEF7C
+      - [0x109660, c, 109660] # hidden TU (tentative): data pad after D_80754CC8 (screenFadeUpdate) at 0x1599E0; first 16-aligned start after it (func_80704960, no data/rodata users before gfxDrawBackgroundQuad); rodata D_8075DF90 is 16-aligned, layout-neutral
       - [0x10D2D0, c, 10D2D0]
       - [0x10E1D0, c, 10E1D0]
       - [0x110F00, c, 110F00]

@@ -78,7 +78,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                 y = y * 4 + (s32)(fa * it[j].unk4);
                 off = off + it[j].unkC * 4;
                 y = y + it[j].unkE * 4 + hud->unkC[i] * 4;
-                dl = func_806FC530(dl, 1, (s16)off, (s16)y, it[j].unk11, 1);
+                dl = textDrawStringVtx(dl, 1, (s16)off, (s16)y, it[j].unk11, 1);
             }
         }
     }

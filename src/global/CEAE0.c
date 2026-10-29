@@ -263,17 +263,17 @@ extern s32 D_8076A064;
 extern s32 D_807FBB64;
 extern u16 D_807FD63A[][0x1A];
 s32 flagGet(s32, s32);
-s32 func_806F8AD4(s32, u8);
+s32 slotQueueGetValue(s32, u8);
 void effectSpawnBurst(s32);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void slotQueueUpdate(s32, s32, s32);
-s32 func_806FA7A4(s32);
-void func_806F91B4(s32, u8, s16);
+s32 slotQueueGetCountStep(s32);
+void slotQueueAddValue(s32, u8, s16);
 void func_80614E78(Actor *, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 
 void func_806CA2E4(void) {
-    if (G02_P->unkC8 != -1 && (flagGet(0x179, 0) == 0 || G02_A->unkE0 != 0.0f || (D_807FBB64 & 0x800000) || func_806F8AD4(5, G02_P->unk1A4) == 0)) {
+    if (G02_P->unkC8 != -1 && (flagGet(0x179, 0) == 0 || G02_A->unkE0 != 0.0f || (D_807FBB64 & 0x800000) || slotQueueGetValue(5, G02_P->unk1A4) == 0)) {
         func_806CA2AC();
         G02_P->unkC8 = -1;
         return;
@@ -296,7 +296,7 @@ void func_806CA2E4(void) {
                 G02_A->unk154 = 0x2D;
                 G02_A->unk155 = 0;
                 slotQueueUpdate(5, 0, 0);
-                func_806F91B4(5, G02_P->unk1A4, -func_806FA7A4(5));
+                slotQueueAddValue(5, G02_P->unk1A4, -slotQueueGetCountStep(5));
                 func_80614E78(D_807FBB40, 0x42);
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF2, 0xFF, 0x7F, 0);
                 G02_A->unkB8 = 0.0f;
@@ -452,7 +452,7 @@ void func_80026D40(void *, u8);
 void func_805FF188(s32, s32);
 void func_805FF1B0(u8);
 void func_805FF2F4();
-void func_80709464(u8);
+void healthRefill(u8);
 void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
 void effectFreeAndUnlink(void *, void *);
@@ -706,7 +706,7 @@ done:
             }
             if (!D_807FC929 && !D_807FC929) {
             }
-            func_80709464(D_807FC929);
+            healthRefill(D_807FC929);
             func_805FF1B0(D_807FC929);
             LCA_P->unk244 = 1;
         } else {
@@ -858,13 +858,13 @@ void func_806CB53C(void) {
             D_807FD610[D_807FC929].unk2A |= 0x2000;
         }
         if (!(D_80750B54[D_807FBB40->unk154][0] & 0x300) && !(LB_P->unk1F0 & 0x14000) && camIsCutsceneActive() == 0 && !(LB_P->unk1F4 & 0x10)) {
-            func_806F91B4(5, LB_P->unk1A4, -1);
+            slotQueueAddValue(5, LB_P->unk1A4, -1);
         }
     } else {
         LB_P->unk23F = 0;
     }
     LB_P->unk1F0 &= 0x7FFFFFFF;
-    if (((D_807FD610[D_807FC929].unk2C & 2) && (D_807FD610[D_807FC929].unk2A & 0x2000) && D_807FC928 == 1) || func_806F8AD4(5, LB_P->unk1A4) == 0) {
+    if (((D_807FD610[D_807FC929].unk2C & 2) && (D_807FD610[D_807FC929].unk2A & 0x2000) && D_807FC928 == 1) || slotQueueGetValue(5, LB_P->unk1A4) == 0) {
         if (!(LB_P->unk1F0 & 0x2000) && D_8076A0A8 != 0xCF) {
             flag = 0;
             if (D_807FC924[D_807FC929].unk2C0 != 1) {

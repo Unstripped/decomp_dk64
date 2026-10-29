@@ -9,7 +9,7 @@ void func_806E3E40(void) {
     f32 arg;
     s16 t;
 
-    if (func_806F8AD4(5, D_807FC929) && G24_M->unk1A3) {
+    if (slotQueueGetValue(5, D_807FC929) && G24_M->unk1A3) {
         if (G24_PAD(D_807FD63C, u16) & 0x2000) {
             D_807FD6E0 = 0;
             D_807FD6E1 = 0;

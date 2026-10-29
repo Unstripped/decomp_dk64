@@ -1588,8 +1588,8 @@ void func_8072DAA4(void) {
 }
 
 extern u8 D_807FC929;
-s32 func_806F8AD4(s32, u8);
-void func_806F91B4(s32, u8, s16);
+s32 slotQueueGetValue(s32, u8);
+void slotQueueAddValue(s32, u8, s16);
 void slotQueueUpdate(s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
@@ -1598,12 +1598,12 @@ void func_8072DB68(s32 arg0) {
     u8 cnt;
     s16 i;
 
-    if (func_806F8AD4(0xB, D_807FC929) >= 4) {
+    if (slotQueueGetValue(0xB, D_807FC929) >= 4) {
         cnt = 3;
     } else {
-        cnt = func_806F8AD4(0xB, D_807FC929);
+        cnt = slotQueueGetValue(0xB, D_807FC929);
     }
-    func_806F91B4(0xB, D_807FC929, -cnt);
+    slotQueueAddValue(0xB, D_807FC929, -cnt);
     slotQueueUpdate(0xB, 0, 0);
     sfxAllocateChannel(0x41, 1.0f);
     for (i = 0; i < cnt; i++) {

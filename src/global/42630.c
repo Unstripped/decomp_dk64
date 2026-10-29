@@ -1307,7 +1307,7 @@ void func_806CF398(Actor *);
 void playerStateQueueCallback(s16, s32, s32);
 void playerStateSetCallbackParameters(s32, s16, s16, s16);
 void func_806F4F50(s16, f32, f32, f32);
-void func_806FB370(u8, u8, u8);
+void slotQueueSetDisplayMode(u8, u8, u8);
 void func_8070B308(s32);
 s32 func_807146A4(s16);
 void func_807149B8(s32);
@@ -1420,7 +1420,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         func_8062D1A8();
         break;
     case 0x83:
-        func_806FB370(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
+        slotQueueSetDisplayMode(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
         break;
     case 0x80:
         func_8060DEC8();

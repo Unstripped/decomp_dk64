@@ -17,23 +17,23 @@ extern s16 D_80744494;
 extern u8 D_807444F8;
 extern u8 D_807444FC;
 
-extern s32 func_806FBD5C(s16, s32);
-void func_806FC530(s32, s16, s16, s16, s32, u8);
+extern s32 textGetStringWidth(s16, s32);
+void textDrawStringVtx(s32, s16, s16, s16, s32, u8);
 
-void func_806FD8E0(s32 arg0, s16 arg1, s32 arg2, s16 arg3, u8 arg4) {
+void textDrawStringCentered(s32 arg0, s16 arg1, s32 arg2, s16 arg3, u8 arg4) {
     s16 width;
     s16 height;
 
-    width = (D_80744490 - func_806FBD5C(arg1, arg2)) * 2;
+    width = (D_80744490 - textGetStringWidth(arg1, arg2)) * 2;
     height = arg3 * 4;
-    func_806FC530(arg0, arg1, width, height, arg2, arg4);
+    textDrawStringVtx(arg0, arg1, width, height, arg2, arg4);
 }
 
 void func_806FD950(s32 arg0, s16 arg1, s32 arg2, s16 arg3) {
-    func_806FC530(arg0, arg1, 0x60, (s16)(arg3 * 4), arg2, 1);
+    textDrawStringVtx(arg0, arg1, 0x60, (s16)(arg3 * 4), arg2, 1);
 }
 
-typedef struct R1F1025E0Entry {
+typedef struct GfxResourceEntry {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -48,32 +48,32 @@ typedef struct R1F1025E0Entry {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} R1F1025E0Entry;
+} GfxResourceEntry;
 
-typedef struct R1F1025E0Node {
-    struct R1F1025E0Node *next;
+typedef struct GfxResourceNode {
+    struct GfxResourceNode *next;
     void *unk4;
-    R1F1025E0Entry *unk8;
+    GfxResourceEntry *unk8;
     s8 unkC;
     u8 unkD;
     u8 unkE[6];
     f32 unk14;
     f32 unk18;
     s16 unk1C;
-} R1F1025E0Node;
+} GfxResourceNode;
 
-extern R1F1025E0Node *D_80754AD0;
-extern s16 D_80754AD4;
+extern GfxResourceNode *gGfxResourceList;
+extern s16 gGfxResourceNextId;
 
 void gfxResourceListReset(void) {
-    D_80754AD0 = NULL;
-    D_80754AD4 = 0;
+    gGfxResourceList = NULL;
+    gGfxResourceNextId = 0;
 }
 
-R1F1025E0Node *gfxResourceFindById(s16 arg0) {
-    R1F1025E0Node *var_v1;
+GfxResourceNode *gfxResourceFindById(s16 arg0) {
+    GfxResourceNode *var_v1;
 
-    var_v1 = D_80754AD0;
+    var_v1 = gGfxResourceList;
     if ((var_v1 != NULL) && (arg0 != var_v1->unk1C)) {
 loop_2:
         var_v1 = var_v1->next;
@@ -84,7 +84,7 @@ loop_2:
     return var_v1;
 }
 
-R1F1025E0Entry *gfxResourceCopyEntry(R1F1025E0Entry *arg0, s16 arg1, s16 arg2) {
+GfxResourceEntry *gfxResourceCopyEntry(GfxResourceEntry *arg0, s16 arg1, s16 arg2) {
     *arg0 = gfxResourceFindById(arg1)->unk8[arg2];
     return arg0;
 }
@@ -99,11 +99,11 @@ void func_806FDAB8(s16 arg0, f32 arg1) {
 
 void heapFree(void *);
 
-void func_806FDAEC(s16 arg0) {
-    R1F1025E0Node *var_a1;
-    R1F1025E0Node *var_v0;
+void gfxResourceFree(s16 arg0) {
+    GfxResourceNode *var_a1;
+    GfxResourceNode *var_v0;
 
-    var_a1 = D_80754AD0;
+    var_a1 = gGfxResourceList;
     var_v0 = NULL;
     if ((var_a1 != NULL) && (arg0 != var_a1->unk1C)) {
 loop_2:
@@ -116,7 +116,7 @@ loop_2:
     if (var_v0 != NULL) {
         var_v0->next = var_a1->next;
     } else {
-        D_80754AD0 = var_a1->next;
+        gGfxResourceList = var_a1->next;
     }
     heapFree(var_a1->unk4);
     heapFree(var_a1->unk8);
@@ -129,41 +129,41 @@ s32 randomNonNegative();
 s32 strlen(char *);
 void *func_80610FE8(s32);
 void heapClearBlock(void *);
-s16 func_806FBEAC(char *);
+s16 textCountNonSpace(char *);
 
-s16 func_806FDB8C(s16 arg0, char *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
-    R1F1025E0Node *node;
-    R1F1025E0Node *tail;
-    R1F1025E0Entry *entries;
+s16 gfxResourceCreate(s16 arg0, char *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
+    GfxResourceNode *node;
+    GfxResourceNode *tail;
+    GfxResourceEntry *entries;
     void *name;
     u8 count;
     s16 i;
 
-    func_806FBD5C(arg0, (s32)arg1);
+    textGetStringWidth(arg0, (s32)arg1);
     node = func_80610FE8(0x20);
     heapClearBlock(node);
-    if (D_80754AD0 == NULL) {
-        D_80754AD0 = node;
+    if (gGfxResourceList == NULL) {
+        gGfxResourceList = node;
         node->next = NULL;
-        D_80754AD4 = 0;
+        gGfxResourceNextId = 0;
     } else {
-        tail = D_80754AD0;
+        tail = gGfxResourceList;
         while (tail->next != NULL) {
             tail = tail->next;
         }
         tail->next = node;
         node->next = NULL;
     }
-    node->unk1C = (s16)(D_80754AD4 & 0xFFFF);
-    D_80754AD4++;
-    if (D_80754AD4 && D_80754AD4) {
+    node->unk1C = (s16)(gGfxResourceNextId & 0xFFFF);
+    gGfxResourceNextId++;
+    if (gGfxResourceNextId && gGfxResourceNextId) {
     }
     name = func_80610FE8(strlen(arg1) + 1);
     node->unk4 = name;
     _strcpy((s32)name, (s32)arg1);
-    count = func_806FBEAC(arg1);
+    count = textCountNonSpace(arg1);
     node->unkD = count;
-    entries = func_80610FE8(count * sizeof(R1F1025E0Entry));
+    entries = func_80610FE8(count * sizeof(GfxResourceEntry));
     node->unk8 = entries;
     heapClearBlock(entries);
     node->unkC = arg0;
@@ -188,7 +188,7 @@ s16 func_806FDB8C(s16 arg0, char *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
     return node->unk1C;
 }
 
-void func_806FDF1C(s16 arg0, s32 arg1) {
+void gfxResourceSetString(s16 arg0, s32 arg1) {
     _strcpy((s32)gfxResourceFindById(arg0)->unk4, arg1);
 }
 
@@ -208,10 +208,10 @@ void func_806FDF54(f32 *arg0, f32 *arg1) {
     *arg0 = (f32)((f64)((f32)func_806CC190((s16)(s32)(((f64)*arg0 * 2048.0) / 3.1415927410125732), (s16)(s32)(((f64)*arg1 * 2048.0) / 3.1415927410125732), 5.0f) * 3.1415927410125732f) * 0.00048828125);
 }
 
-typedef struct L4Node {
-    struct L4Node *next;
+typedef struct GfxResourceNodeView {
+    struct GfxResourceNodeView *next;
     u8 *unk4;
-    R1F1025E0Entry *unk8;
+    GfxResourceEntry *unk8;
     u8 unkC;
     u8 unkD;
     u8 padE[2];
@@ -219,18 +219,18 @@ typedef struct L4Node {
     f32 unk14;
     f32 unk18;
     s16 unk1C;
-} L4Node;
+} GfxResourceNodeView;
 
 extern u8 D_80754A37[];
 extern s32 func_805FCA64();
-extern s16 func_806FD7A8(s16, s32);
-extern Gfx *func_806FCC88(Gfx *, L4Node *);
-extern Gfx *func_806FD094(Gfx *, L4Node *);
+extern s16 textGetCharAdvance(s16, s32);
+extern Gfx *textObjectDrawFlat(Gfx *, GfxResourceNodeView *);
+extern Gfx *textObjectDrawRotated(Gfx *, GfxResourceNodeView *);
 f32 sinApprox(f32);
 f32 cosApprox(f32);
 
-Gfx *func_806FE078(Gfx *arg0, s16 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
-    L4Node *node;
+Gfx *textDrawAnimated(Gfx *arg0, s16 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
+    GfxResourceNodeView *node;
     f32 var_fs2;
     f32 var_fs3;
     f32 var_fs4;
@@ -244,9 +244,9 @@ Gfx *func_806FE078(Gfx *arg0, s16 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, 
 
     var_s5 = 0;
     var_fs3 = arg3;
-    node = (L4Node *)gfxResourceFindById(arg1);
+    node = (GfxResourceNodeView *)gfxResourceFindById(arg1);
     var_s3 = 0;
-    var_fs4 = ((f32)D_80744490 - ((f32)func_806FBD5C(node->unkC, (s32)node->unk4) * arg6)) / 2 + -3;
+    var_fs4 = ((f32)D_80744490 - ((f32)textGetStringWidth(node->unkC, (s32)node->unk4) * arg6)) / 2 + -3;
     sp7C = (f32)(D_80744490 >> 3);
     var_fs2 = node->unk10;
     sp70 = 6.2831855f / (f32)node->unkD;
@@ -262,7 +262,7 @@ Gfx *func_806FE078(Gfx *arg0, s16 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, 
             s32 temp_a2;
             u8 temp_a0;
 
-            glyph = func_806FD7A8(node->unkC, var_a1) * arg6;
+            glyph = textGetCharAdvance(node->unkC, var_a1) * arg6;
             temp_a1 = glyph;
             temp_s1 = glyph;
             temp_a2 = temp_a1 / 2;
@@ -396,10 +396,10 @@ Gfx *func_806FE078(Gfx *arg0, s16 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, 
     switch (arg2) {
         case 9:
         case 10:
-            return func_806FD094(arg0, node);
+            return textObjectDrawRotated(arg0, node);
         case 0xFF:
             node->unk10 = (f32)((f64)node->unk10 + 0.04);
-            return func_806FD094(arg0, node);
+            return textObjectDrawRotated(arg0, node);
         case 8:
             if (func_805FCA64() == 0) {
                 return arg0;
@@ -410,5 +410,5 @@ Gfx *func_806FE078(Gfx *arg0, s16 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, 
             break;
     }
     node->unk10 = (f32)((f64)node->unk10 + 0.04);
-    return func_806FCC88(arg0, node);
+    return textObjectDrawFlat(arg0, node);
 }

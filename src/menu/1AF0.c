@@ -42,7 +42,7 @@ typedef struct {
 } MenuShopPromptActor;
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
-Gfx *func_806FC530();
+Gfx *textDrawStringVtx();
 char *func_8070E750(s32, s32, s32);
 s32 _sprintf(char *, const char *, ...);
 
@@ -66,9 +66,9 @@ Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *arg1) {
             arg1->unk15F += diff >= 9 ? 8 : diff;
             gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, arg1->unk15F);
             _sprintf(buf, "q %s", func_8070E750(0x24, 0x10, 1));
-            dl = func_806FC530(dl, 1, 0x1F4, 0x190, buf, 1);
+            dl = textDrawStringVtx(dl, 1, 0x1F4, 0x190, buf, 1);
             _sprintf(buf, "b %s", func_8070E750(0x24, 0x11, 1));
-            dl = func_806FC530(dl, 1, 0x1F4, 0x1F4, buf, 1);
+            dl = textDrawStringVtx(dl, 1, 0x1F4, 0x1F4, buf, 1);
             break;
         }
         }
@@ -118,8 +118,8 @@ typedef struct {
 extern MenuM1_C924 *D_807FC924;
 extern u8 D_800334DC[];
 u8 func_806F6E58(u8);
-void func_806F91B4(s32, s32, s16);
-void func_80709464(s32);
+void slotQueueAddValue(s32, s32, s16);
+void healthRefill(s32);
 void func_8060DEC8(void);
 
 void menuApplyPurchase(Struct_80025D14 *arg0, s32 arg1) {
@@ -147,7 +147,7 @@ void menuApplyPurchase(Struct_80025D14 *arg0, s32 arg1) {
         u8 v = D_800334DC[arg0->unk11];
         if (D_807FC950[8][0xC] < v) {
             D_807FC950[8][0xC] = v;
-            func_80709464(0);
+            healthRefill(0);
             D_807FC924->unk2E2 |= 0x11;
         }
     }
@@ -165,9 +165,9 @@ void menuApplyPurchase(Struct_80025D14 *arg0, s32 arg1) {
         }
         break;
     }
-    func_806F91B4(1, 0, -arg0->unk4);
+    slotQueueAddValue(1, 0, -arg0->unk4);
     if (sp1E >= 0) {
-        func_806F91B4(sp1E, 0, 0x270F);
+        slotQueueAddValue(sp1E, 0, 0x270F);
     }
     func_8060DEC8();
 }
@@ -261,14 +261,14 @@ void func_80025FB4(void *arg0, void *arg1, s32 arg2) {
     M1S->unk10 = D_807FCC4C;
 }
 
-s32 func_806F8AD4(s32, s32);
+s32 slotQueueGetValue(s32, s32);
 
 s32 menuGetOptionAvailability(Struct_80025D14 *arg0, s32 arg1) {
     s32 ret = 0;
 
     arg0->unkF = 3;
     if (arg0->unkB >= 0) {
-        s32 val = func_806F8AD4(1, 0);
+        s32 val = slotQueueGetValue(1, 0);
         ret = 2;
         if (val >= arg0->unk4) {
             arg0->unkF = 1;
@@ -313,7 +313,7 @@ s32 currentActorTestClearFlag();
 s32 flagSet(s16, s32, s32);
 s32 flagCountRange(s16, s32, s32);
 void func_8070D8C0(void *, u16, u8);
-void func_806F833C(s32);
+void slotQueueInit(s32);
 void slotQueueUpdate(s32, s32, s32);
 typedef struct {
     u8 hi;
@@ -433,7 +433,7 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
         }
         func_8070D8C0(D_807FBB40, sp42, sp44[sp3C].lo);
         if (sp3C == 2 || sp3C == 3 || sp3C == 6 || sp3C == 7) {
-            func_806F833C(0);
+            slotQueueInit(0);
             slotQueueUpdate(1, 1, 0);
             slotQueueUpdate(0xE, 1, 0);
         }
@@ -506,7 +506,7 @@ typedef struct {
 } MenuM1b_C924;
 #define M1B_C924 ((MenuM1b_C924 *)D_807FC924)
 extern s32 D_807FBB60;
-s32 func_806F8EDC(s32, s32);
+s32 slotQueueGetMaxValue(s32, s32);
 
 void renderCallbacksRegister(void *, void *, s32);
 void slotQueueCancel(s32, s32);
@@ -647,7 +647,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
                 sp2C = D_800334E4[arg0->unk11];
             case 3:
                 if (sp2C == -1) {
-                    D_80750AC8 = func_806F8EDC(2, 0);
+                    D_80750AC8 = slotQueueGetMaxValue(2, 0);
                     sp2C = 0x15;
                 }
                 sp28 = 7;
@@ -732,9 +732,9 @@ void func_80026DAC(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
                     v = 4;
                 }
                 if (v >= 0 && (((u8 *)arg1)[v] & 1)) {
-                    if (func_806F8AD4((u8)sp24, 0) < func_806F8EDC(sp24, 0)) {
+                    if (slotQueueGetValue((u8)sp24, 0) < slotQueueGetMaxValue(sp24, 0)) {
                         func_8070D8C0(D_807FBB40, sp2C, sp28);
-                        func_806F91B4(sp24, 0, 0x3E7);
+                        slotQueueAddValue(sp24, 0, 0x3E7);
                         arg0->unkE = 0;
                         sp30 = 5;
                     }
@@ -1011,7 +1011,7 @@ Gfx *menuDrawTransformedWidgets(Gfx *dl, void *arg1) {
     for (i = 0; i < 2; i++) {
         if (fp->unk0[i] != 0) {
             gSPMatrix(dl++, &fp->unk10[i], G_MTX_LOAD | G_MTX_PUSH);
-            dl = func_806FC530(dl, D_8003353C[i].unk2, 0, 0, fp->unk0[i], 0x80);
+            dl = textDrawStringVtx(dl, D_8003353C[i].unk2, 0, 0, fp->unk0[i], 0x80);
             gSPPopMatrix(dl++, G_MTX_MODELVIEW);
         }
     }
@@ -1040,7 +1040,7 @@ extern s32 D_80033634[];
 extern s32 D_80033648[];
 extern s16 D_80033542;
 Struct_BB40_58 *spawnNodeActivate(s32, s32);
-s32 func_806FD894(s32);
+s32 textGetFontHeight(s32);
 void actorDespawn(void *);
 void renderCallbacksRegister(void *, void *, s32);
 
@@ -1068,7 +1068,7 @@ void menuUpdateTransformedWidgets(void) {
             guTranslateF(mB, 640.0f, 800.0f, 0.0f);
             guMtxCatF(mA, mB, mA);
             guMtxF2L(mA, &fp->unk10[0]);
-            cnt = func_806FD894(D_80033542);
+            cnt = textGetFontHeight(D_80033542);
             guTranslateF(mB, 0.0f, (f32)(cnt * 4), 0);
             guMtxCatF(mA, mB, mA);
             guMtxF2L(mA, &fp->unk10[1]);

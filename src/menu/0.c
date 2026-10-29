@@ -231,7 +231,7 @@ extern u8 D_2000180[];
 
 s32 _sprintf(char *, const char *, ...);
 Gfx *hudDrawScaledText(Gfx *, s32, s16, f32, char *);
-Gfx *func_806FC530(Gfx *, s32, s32, s32, char *, s32);
+Gfx *textDrawStringVtx(Gfx *, s32, s32, s32, char *, s32);
 char *func_8070E750(s32, s32, s32);
 
 Gfx *menuDrawOptionsOverlay(Gfx *arg0, MenuRenderActor *arg1) {
@@ -259,12 +259,12 @@ Gfx *menuDrawOptionsOverlay(Gfx *arg0, MenuRenderActor *arg1) {
     } else {
         WRITE_GFX(arg0++, 0xFA000000, (arg1->unk15F & 0xFF) | ~0xFF);
         _sprintf(sp70, "q %s", func_8070E750(0x2A, 0, 1));
-        arg0 = func_806FC530(arg0, 1, 0x15E, 0x190, sp70, 1);
+        arg0 = textDrawStringVtx(arg0, 1, 0x15E, 0x190, sp70, 1);
         _sprintf(sp70, "b %s", func_8070E750(0x2A, 1, 1));
-        arg0 = func_806FC530(arg0, 1, 0x15E, 0x1F4, sp70, 1);
+        arg0 = textDrawStringVtx(arg0, 1, 0x15E, 0x1F4, sp70, 1);
         if (temp_s7->unk19 != 0) {
             _sprintf(sp70, "n %s", func_8070E750(0x2A, 2, 1));
-            arg0 = func_806FC530(arg0, 1, 0x15E, 0x258, sp70, 1);
+            arg0 = textDrawStringVtx(arg0, 1, 0x15E, 0x258, sp70, 1);
         }
     }
     return arg0;

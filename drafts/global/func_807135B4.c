@@ -11,7 +11,7 @@ extern R117fPair D_80755370;
 extern s32 D_8076A064;
 extern s32 D_8076A0A8;
 extern u8 D_807ECD09;
-u8 func_806FD894(s16);
+u8 textGetFontHeight(s16);
 s32 func_807142D8();
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, void *);
 
@@ -31,7 +31,7 @@ Gfx *func_807135B4(Gfx *arg0) {
         sp40 = 0;
         sp34 = (f32) D_80744490;
         var_v1 = sp40;
-        sp30 = (f32) (0xBD - func_806FD894(6));
+        sp30 = (f32) (0xBD - textGetFontHeight(6));
         if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (var_v1 = 1, (D_8076A0A8 == 0x4C)))) {
         } else {
             sp34 = (f32) ((f64) sp34 * 0.5);

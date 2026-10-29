@@ -122,7 +122,7 @@ void func_8002AED8(void) {
         t->unk22 = 0x3C;
         t->unk28 = t->unk2A;
         fs0 = 1 * 0.0f;
-        c = func_806FDB8C(1, func_8070E750(0x1A, 2, 1), 8, fs0, fs0, fs0);
+        c = gfxResourceCreate(1, func_8070E750(0x1A, 2, 1), 8, fs0, fs0, fs0);
         t->unk25 = c;
         func_806FDAB8(c, fs0);
         lightSetColor(1.0f, 1.0f, 1.0f, -1);

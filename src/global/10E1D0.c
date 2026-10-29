@@ -53,15 +53,15 @@ u8 arg0;
     n_alSndpPlay(D_8076D1F8, 0x1BC, 0x7FFF, 0x3F, 1.0f, 0, &D_807FD9C8);
 }
 
-typedef struct EaGridCell {
+typedef struct FbTile {
     s32 offset;
     s32 width;
     s32 height;
-} EaGridCell;
+} FbTile;
 
-extern EaGridCell *D_807FD9B4;
+extern FbTile *gFbTileTable;
 
-void func_807095E4(s32 arg0, s32 arg1) {
+void fbBuildTileTable(s32 arg0, s32 arg1) {
     s32 cols;
     s32 rows;
     s32 remW;
@@ -91,16 +91,16 @@ void func_807095E4(s32 arg0, s32 arg1) {
     for (row = 0; row < rows; row++) {
         x = 0;
         for (col = 0; col < cols; col++) {
-            D_807FD9B4[idx].offset = D_80744490 * y + x;
+            gFbTileTable[idx].offset = D_80744490 * y + x;
             if (remW != 0 && col == cols - 1) {
-                D_807FD9B4[idx].width = remW;
+                gFbTileTable[idx].width = remW;
             } else {
-                D_807FD9B4[idx].width = arg0;
+                gFbTileTable[idx].width = arg0;
             }
             if (remH != 0 && row == 0) {
-                D_807FD9B4[idx].height = remH;
+                gFbTileTable[idx].height = remH;
             } else {
-                D_807FD9B4[idx].height = arg1;
+                gFbTileTable[idx].height = arg1;
             }
             x += arg0;
             idx++;
@@ -110,18 +110,18 @@ void func_807095E4(s32 arg0, s32 arg1) {
 }
 
 #ifdef NON_MATCHING
-typedef struct EaEntry {
+typedef struct MeshEntry {
     u32 unk0;
     u8 pad[0x18];
-} EaEntry;
+} MeshEntry;
 
-typedef struct EaBlockB {
+typedef struct MeshBlobTail {
     u32 *unk0;
     s32 *unk4;
     u8 *unk8;
-} EaBlockB;
+} MeshBlobTail;
 
-typedef struct EaBlockA {
+typedef struct MeshBlobHeader {
     s32 unk0;
     s32 unk4;
     u8 *unk8;
@@ -131,17 +131,17 @@ typedef struct EaBlockA {
     u32 *unk18;
     s32 *unk1C;
     s32 *unk20;
-} EaBlockA;
+} MeshBlobHeader;
 
 void *func_80610FE8(s32);
 
-s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) {
+s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **arg2, s32 **arg3) {
     s32 count;
     s32 k;
     s32 sum;
-    EaBlockB *b;
+    MeshBlobTail *b;
     u32 *p;
-    EaEntry *q;
+    MeshEntry *q;
 
     if (arg0 == NULL) {
         return 0;
@@ -149,7 +149,7 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
     if (arg1 == NULL) {
         return 0;
     }
-    D_807FD9B4 = func_80610FE8(0x708);
+    gFbTileTable = func_80610FE8(0x708);
     if (k && k) {}
     arg0->unk10 = func_80610FE8(arg0->unk0 * 0x10);
     arg0->unk14 = func_80610FE8(arg0->unk0 * 0x10);
@@ -165,10 +165,10 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
     arg0->unk1C = arg0->unk20 + count;
     *arg1 = arg0;
     if (arg2 != NULL) {
-        b = (EaBlockB *)(arg0->unk1C + count);
+        b = (MeshBlobTail *)(arg0->unk1C + count);
         b->unk8 = (u8 *)(b + 1);
-        q = (EaEntry *)b->unk8;
-        if (D_807FD9B4 && D_807FD9B4) {}
+        q = (MeshEntry *)b->unk8;
+        if (gFbTileTable && gFbTileTable) {}
         count = 1;
         while ((q++)->unk0 != 0) {
             count++;
@@ -205,10 +205,10 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_80709890.s")
 #endif
 
-typedef struct EaSortView { s32 unk0, unk4, unk8; u8 *unkC; s32 unk10, unk14; s32 *unk18, *unk1C, *unk20; } EaSortView;
-typedef struct EaSortEntry { s32 unk0, unk4, unk8; u8 padC[0x10]; } EaSortEntry;
-s32 func_80709ACC(EaSortView *arg0) {
-    EaSortEntry *e;
+typedef struct MeshRangeView { s32 unk0, unk4, unk8; u8 *unkC; s32 unk10, unk14; s32 *unk18, *unk1C, *unk20; } MeshRangeView;
+typedef struct MeshTriEntry { s32 unk0, unk4, unk8; u8 padC[0x10]; } MeshTriEntry;
+s32 meshComputeVertexRanges(MeshRangeView *arg0) {
+    MeshTriEntry *e;
     s32 new_var;
     s32 min;
     s32 off;
@@ -219,7 +219,7 @@ s32 func_80709ACC(EaSortView *arg0) {
     min = 0;
     off = 0;
     while (arg0->unk18[k]) {
-        e = (EaSortEntry *)(arg0->unkC + off);
+        e = (MeshTriEntry *)(arg0->unkC + off);
         new_var = e->unk8;
         min = max = e->unk0;
         for (i = 0; i < arg0->unk18[k]; i++, off += 0x1C, e++) {
@@ -235,24 +235,24 @@ s32 func_80709ACC(EaSortView *arg0) {
     return 1;
 }
 
-typedef struct L11Cell {
+typedef struct MeshCell {
     s32 v0, v1, v2, st0, st1, st2, texture;
-} L11Cell;
-typedef struct L11Tex {
+} MeshCell;
+typedef struct MeshTexInfo {
     s32 offset, width, height;
-} L11Tex;
-typedef struct L11Info {
+} MeshTexInfo;
+typedef struct MeshInfo {
     s32 vertex_count, unk4;
     f32 *vertices;
-    L11Cell *cells;
+    MeshCell *cells;
     u8 *screen_vertices[2];
     s32 *column_counts, *column_ends, *column_starts;
-} L11Info;
-extern L11Tex D_80754F80[];
+} MeshInfo;
+extern MeshTexInfo D_80754F80[];
 extern u16 D_80754FC8[];
 s16 func_8070C200(f32);
 
-void func_80709BC4(Gfx **arg0, L11Info *arg1, u8 *arg2) {
+void meshDrawTextured(Gfx **arg0, MeshInfo *arg1, u8 *arg2) {
     Gfx *glist = *arg0;
     s32 j, k, row, texture, prev, base, count;
 
@@ -275,7 +275,7 @@ void func_80709BC4(Gfx **arg0, L11Info *arg1, u8 *arg2) {
                     texture = -1 - texture;
                     gDPLoadTextureBlock(glist++, D_80754FC8 + D_80754F80[texture].offset, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80754F80[texture].width, D_80754F80[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 } else {
-                    gDPLoadTextureTile(glist++, arg2 + D_807FD9B4[texture].offset * 2, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, 0, 0, 0, D_807FD9B4[texture].width, D_807FD9B4[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureTile(glist++, arg2 + gFbTileTable[texture].offset * 2, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, 0, 0, 0, gFbTileTable[texture].width, gFbTileTable[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 }
             }
             gSPModifyVertex(glist++, arg1->cells[k].v0 - base, G_MWO_POINT_ST, arg1->cells[k].st0);
@@ -288,21 +288,21 @@ void func_80709BC4(Gfx **arg0, L11Info *arg1, u8 *arg2) {
     *arg0 = glist;
 }
 
-typedef f32 LcMatrix[4][4];
+typedef f32 AnimMatrix[4][4];
 
-typedef struct LcVec3 {
+typedef struct AnimVec3 {
     f32 x;
     f32 y;
     f32 z;
-} LcVec3;
+} AnimVec3;
 
-typedef struct LcModel {
+typedef struct AnimModel {
     s32 unk0;
     s32 unk4;
-    LcVec3 *vertices;
-} LcModel;
+    AnimVec3 *vertices;
+} AnimModel;
 
-typedef struct LcAnimEntry {
+typedef struct AnimEntry {
     s32 kind;
     s32 group;
     s32 start;
@@ -310,36 +310,36 @@ typedef struct LcAnimEntry {
     f32 scale;
     u32 source;
     u32 destination;
-} LcAnimEntry;
+} AnimEntry;
 
-typedef struct LcAnim {
+typedef struct AnimTable {
     s32 *counts;
     u16 **indices;
-    LcAnimEntry *entries;
-} LcAnim;
+    AnimEntry *entries;
+} AnimTable;
 
 void mtxMulAffineF(f32 *, f32 *, f32 *);
 void mtxRotateZDegF(f32 *, f32);
 void func_8070D07C(f32 *, f32 *, f32, f32, f32, f32, f32, f32);
 
-#define LC_MODEL ((LcModel *)arg0)
-#define LC_ANIM ((LcAnim *)arg1)
+#define ANIM_MODEL ((AnimModel *)arg0)
+#define ANIM_TABLE ((AnimTable *)arg1)
 
-void func_8070A220(void *arg0, s32 arg1, s32 frame) {
+void meshApplyAnimation(void *arg0, s32 arg1, s32 frame) {
     u32 sidx;
     u32 didx;
-    LcMatrix m1B8;
-    LcMatrix m178;
-    LcMatrix m138;
-    LcMatrix mF8;
-    LcMatrix mB8;
+    AnimMatrix m1B8;
+    AnimMatrix m178;
+    AnimMatrix m138;
+    AnimMatrix mF8;
+    AnimMatrix mB8;
     s16 idx;
     s32 i;
     s32 count;
     u16 *indices;
     s32 end;
-    LcVec3 *src;
-    LcVec3 *dst;
+    AnimVec3 *src;
+    AnimVec3 *dst;
     f32 angle;
     f32 dx;
     f32 dy;
@@ -352,27 +352,27 @@ void func_8070A220(void *arg0, s32 arg1, s32 frame) {
     if (i && i) {}
 
     idx = 0;
-    while (LC_ANIM->entries[idx].kind != 0) {
+    while (ANIM_TABLE->entries[idx].kind != 0) {
         end = frame;
-        if (frame < LC_ANIM->entries[idx].start) {
+        if (frame < ANIM_TABLE->entries[idx].start) {
             goto next;
         }
-        kindv = LC_ANIM->entries[idx].kind;
+        kindv = ANIM_TABLE->entries[idx].kind;
         if (i && i) {}
-        if (LC_ANIM->entries[idx].end < frame) {
-            end = LC_ANIM->entries[idx].end;
+        if (ANIM_TABLE->entries[idx].end < frame) {
+            end = ANIM_TABLE->entries[idx].end;
         }
         switch (kindv) {
         case 1:
-                sidx = LC_ANIM->entries[idx].source;
-                didx = LC_ANIM->entries[idx].destination;
-                src = &LC_MODEL->vertices[sidx];
-                dst = &LC_MODEL->vertices[didx];
+                sidx = ANIM_TABLE->entries[idx].source;
+                didx = ANIM_TABLE->entries[idx].destination;
+                src = &ANIM_MODEL->vertices[sidx];
+                dst = &ANIM_MODEL->vertices[didx];
                 dx = dst->x - src->x;
                 if (1) {
                     dy = dst->y - src->y;
                     dz = dst->z - src->z;
-                    angle = (f32)(LC_ANIM->entries[idx].start - end) * LC_ANIM->entries[idx].scale;
+                    angle = (f32)(ANIM_TABLE->entries[idx].start - end) * ANIM_TABLE->entries[idx].scale;
                 }
                 func_8070D07C(&m1B8[0][0], &m138[0][0],
                     -dx, -dy, -dz,
@@ -380,24 +380,24 @@ void func_8070A220(void *arg0, s32 arg1, s32 frame) {
                 mtxRotateZDegF(&m178[0][0], angle);
                 mtxMulAffineF(&m178[0][0], &m1B8[0][0], &mB8[0][0]);
                 mtxMulAffineF(&m138[0][0], &mB8[0][0], &mF8[0][0]);
-                count = LC_ANIM->counts[LC_ANIM->entries[idx].group];
-                indices = LC_ANIM->indices[LC_ANIM->entries[idx].group];
+                count = ANIM_TABLE->counts[ANIM_TABLE->entries[idx].group];
+                indices = ANIM_TABLE->indices[ANIM_TABLE->entries[idx].group];
                 for (i = 0; i < count; i++) {
                     j = indices[i];
-                    x = LC_MODEL->vertices[j].x;
-                    y = LC_MODEL->vertices[j].y;
-                    z = LC_MODEL->vertices[j].z;
-                    LC_MODEL->vertices[j].x = x * mF8[0][0] + y * mF8[1][0] + z * mF8[2][0] + mF8[3][0];
-                    LC_MODEL->vertices[j].y = x * mF8[0][1] + y * mF8[1][1] + z * mF8[2][1] + mF8[3][1];
-                    LC_MODEL->vertices[j].z = x * mF8[0][2] + y * mF8[1][2] + z * mF8[2][2] + mF8[3][2];
+                    x = ANIM_MODEL->vertices[j].x;
+                    y = ANIM_MODEL->vertices[j].y;
+                    z = ANIM_MODEL->vertices[j].z;
+                    ANIM_MODEL->vertices[j].x = x * mF8[0][0] + y * mF8[1][0] + z * mF8[2][0] + mF8[3][0];
+                    ANIM_MODEL->vertices[j].y = x * mF8[0][1] + y * mF8[1][1] + z * mF8[2][1] + mF8[3][1];
+                    ANIM_MODEL->vertices[j].z = x * mF8[0][2] + y * mF8[1][2] + z * mF8[2][2] + mF8[3][2];
                 }
             break;
         case 2:
-            sidx = LC_ANIM->entries[idx].source;
-            didx = LC_ANIM->entries[idx].destination;
-            LC_MODEL->vertices[sidx].x = LC_MODEL->vertices[didx].x;
-            LC_MODEL->vertices[sidx].y = LC_MODEL->vertices[didx].y;
-            LC_MODEL->vertices[sidx].z = LC_MODEL->vertices[didx].z;
+            sidx = ANIM_TABLE->entries[idx].source;
+            didx = ANIM_TABLE->entries[idx].destination;
+            ANIM_MODEL->vertices[sidx].x = ANIM_MODEL->vertices[didx].x;
+            ANIM_MODEL->vertices[sidx].y = ANIM_MODEL->vertices[didx].y;
+            ANIM_MODEL->vertices[sidx].z = ANIM_MODEL->vertices[didx].z;
             break;
         }
 next:
@@ -405,7 +405,7 @@ next:
     }
 }
 
-void func_8070A848(s32 *arg0, s32 *arg1) {
+void fbCopySetAlpha(s32 *arg0, s32 *arg1) {
     s32 i;
     s32 *src = arg1;
     s32 *dst = arg0;
@@ -424,7 +424,7 @@ void func_8070A848(s32 *arg0, s32 *arg1) {
     }
 }
 
-typedef struct EbBufferSet {
+typedef struct TransitionBuffers {
     s32 unk0;
     s32 unk4;
     void *unk8;
@@ -436,7 +436,7 @@ typedef struct EbBufferSet {
     s32 unk20;
     s32 unk24;
     s32 unk28;
-} EbBufferSet;
+} TransitionBuffers;
 
 extern u8 *D_8076A048;
 extern Gfx *D_8076A050[];
@@ -446,8 +446,8 @@ extern s32 D_8076A08C;
 extern u8 D_8076A0A4;
 extern u8 D_8076A0B2;
 extern Mtx D_80767CE8;
-extern f32 D_807FD888;
-extern EbBufferSet *D_807FD9A8;
+extern f32 gScreenFadeProgress;
+extern TransitionBuffers *D_807FD9A8;
 extern s32 D_807FD9B0;
 extern s32 D_807FD9B8;
 
@@ -455,14 +455,14 @@ void func_805FE71C(Gfx *, u8, s32 *, u8);
 void func_805FE7B4(Gfx *, s32, s32 *, u8);
 void func_805FF378(s32, s32);
 void func_80610044(Gfx *, s32, s32, u8, s32, s32);
-void func_8070AC74();
-void func_8070AF24(void);
-u8 func_8070B7EC(Gfx **, s32, s32);
+void transitionBeginDisplayList();
+void transitionInit(void);
+u8 transitionRender(Gfx **, s32, s32);
 void heapFreeDeferred(void *);
 void assetFreeBuffer(s32, s32, s32);
 void camRestartPath(void);
 
-void func_8070A934(s32 arg0, s32 arg1) {
+void transitionRunFrame(s32 arg0, s32 arg1) {
     Gfx *sp34;
     Gfx *sp30;
 
@@ -476,28 +476,28 @@ void func_8070A934(s32 arg0, s32 arg1) {
         break;
     case 0:
         *(u8 *)&D_807FD9BC = 1;
-        func_8070AF24();
+        transitionInit();
         break;
     }
-    if ((D_8076A0B1 & 1) && (D_807FD888 == 31.0f)) {
+    if ((D_8076A0B1 & 1) && (gScreenFadeProgress == 31.0f)) {
         sp34 = D_8076A050[D_807444FC];
         if (D_8076A0B2 == 1) {
             D_807444EC = D_807444F4;
         }
     } else {
-        func_8070AC74(D_8076A048, &sp34, &D_8076A0B1);
-        if (func_8070B7EC(&sp34, D_807FD9B8, D_807FD9B0) != 0) {
+        transitionBeginDisplayList(D_8076A048, &sp34, &D_8076A0B1);
+        if (transitionRender(&sp34, D_807FD9B8, D_807FD9B0) != 0) {
             switch (D_807444F8) {
             case 1:
                 osViBlack(1);
                 func_805FF378(arg0, arg1);
-                D_807FD888 = 31.0f;
+                gScreenFadeProgress = 31.0f;
                 D_807444F8 = 2;
                 break;
             case 2:
                 heapFreeDeferred((void *)D_807FD9B0);
                 heapFreeDeferred(D_807FD9A8->unk8);
-                heapFreeDeferred((void *)D_807FD9B4);
+                heapFreeDeferred((void *)gFbTileTable);
                 heapFreeDeferred(D_807FD9A8->unk10);
                 heapFreeDeferred(D_807FD9A8->unk14);
                 assetFreeBuffer(D_807FD9B8, 0x24B, 0x4A);
@@ -505,7 +505,7 @@ void func_8070A934(s32 arg0, s32 arg1) {
                     camRestartPath();
                 }
                 D_807444F8 = 3;
-                D_807FD888 = 0.0f;
+                gScreenFadeProgress = 0.0f;
                 break;
             }
         }
@@ -532,7 +532,7 @@ Gfx *func_805FCFD8();
 Gfx *func_805FE398();
 Gfx *func_805FE4D4();
 
-void func_8070AC74(void *arg0, Gfx **arg1) {
+void transitionBeginDisplayList(void *arg0, Gfx **arg1) {
     Gfx *dl = D_8076A050[D_807444FC];
 
     gSPSegment(dl++, 0, 0);
@@ -559,7 +559,7 @@ void func_8070AC74(void *arg0, Gfx **arg1) {
     *arg1 = dl;
 }
 
-extern s32 D_80755068;
+extern s32 gTransitionProgress;
 extern s32 D_8075506C;
 extern void *D_807FD9A4;
 extern s32 D_807FD9AC;
@@ -568,39 +568,39 @@ extern s32 *D_80744470[];
 void *func_80610FE8(s32);
 s32 func_8066B0F8();
 s32 func_80709890();
-s32 func_80709ACC();
+s32 meshComputeVertexRanges();
 
-void func_8070AF24(void) {
+void transitionInit(void) {
     switch (D_807444F8) {
     case 1:
-        D_80755068 = 0;
+        gTransitionProgress = 0;
         D_8075506C = 0;
         break;
     case 2:
-        D_80755068 = 0x78;
+        gTransitionProgress = 0x78;
         break;
     }
     D_807FD9B8 = func_8066B0F8(0x13, 1, 1, 1);
     D_807FD9B0 = (s32)func_80610FE8(D_80744490 * D_80744494 * 2);
-    func_8070A848((s32 *)D_807FD9B0, D_80744470[D_807444FC]);
+    fbCopySetAlpha((s32 *)D_807FD9B0, D_80744470[D_807444FC]);
     func_80709890((void *)D_807FD9B8, (void *)&D_807FD9A8, (void *)&D_807FD9AC, 0);
-    func_80709ACC((void *)D_807FD9A8);
+    meshComputeVertexRanges((void *)D_807FD9A8);
     D_807FD9A4 = D_807FD9A8->unk8;
     D_807FD9A8->unk8 = func_80610FE8(D_807FD9A8->unk0 * 0xC);
-    func_807095E4(D_807FD9A8->unk24, D_807FD9A8->unk28);
+    fbBuildTileTable(D_807FD9A8->unk24, D_807FD9A8->unk28);
 }
 
-typedef struct EbMask {
+typedef struct TransitionDitherMask {
     u16 data[24];
-} EbMask;
+} TransitionDitherMask;
 
-extern EbMask D_80755074;
+extern TransitionDitherMask D_80755074;
 
-void func_8070B05C(u16 *arg0) {
-    EbMask temp = D_80755074;
+void transitionMaskFramebuffer(u16 *arg0) {
+    TransitionDitherMask temp = D_80755074;
     s32 i;
     u16 *pixels = arg0 + 0x9D;
-    s32 t = D_80755068 - 5;
+    s32 t = gTransitionProgress - 5;
     s32 count = (t * 0xF0) / 0x50;
 
     for (i = 0; i < count; i++) {
@@ -639,7 +639,7 @@ extern s32 D_807550A4;
 void n_alSndpSetGroupVol(u8, u16);
 void seqSetChannelVolumeScale(s32, f32);
 
-void func_8070B324(f32 arg0, s32 arg1, s32 *arg2) {
+void transitionSetAudioVolume(f32 arg0, s32 arg1, s32 *arg2) {
     s32 sp34;
     u16 sp28;
     u16 temp_s0;
@@ -671,31 +671,31 @@ void func_8070B324(f32 arg0, s32 arg1, s32 *arg2) {
     osSetThreadPri(0, sp34);
 }
 
-typedef struct L11bChannels {
+typedef struct TransitionChannels {
     s32 a[4];
-} L11bChannels;
+} TransitionChannels;
 
-extern L11bChannels D_807550A8;
+extern TransitionChannels D_807550A8;
 extern s32 D_807FD9A0;
 extern s32 D_807FD9C0;
 extern Gfx D_1000020[];
 extern Mtx D_2000000;
 extern Mtx D_2000200;
 
-void func_8070A220(void *, s32, s32);
+void meshApplyAnimation(void *, s32, s32);
 void n_alSndpPostEvent();
 void n_alSndpStop(s32);
 
-#define L11B_RAW(pkt, a, b)              \
+#define TRANS_RAW(pkt, a, b)              \
     {                                    \
         Gfx *_g = (Gfx *)(pkt);          \
         _g->words.w0 = (a);              \
         _g->words.w1 = (b);              \
     }
-#define L11B_MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define L11B_MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define TRANS_MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define TRANS_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
-u8 func_8070B7EC(Gfx **arg0, s32 arg1, s32 arg2) {
+u8 transitionRender(Gfx **arg0, s32 arg1, s32 arg2) {
     Gfx *glist;
     Gfx *start;
     Gfx *out;
@@ -704,7 +704,7 @@ u8 func_8070B7EC(Gfx **arg0, s32 arg1, s32 arg2) {
     s8 delta;
     s32 i;
     s32 volume;
-    L11bChannels channels;
+    TransitionChannels channels;
 
     out = *arg0;
     if (D_807444F8 == 1) {
@@ -718,33 +718,33 @@ u8 func_8070B7EC(Gfx **arg0, s32 arg1, s32 arg2) {
     start = glist;
     if (D_807FD9C8 != 0) {
         if (D_807444F8 == 1) {
-            value = (f64)D_80755068 - 20.0;
+            value = (f64)gTransitionProgress - 20.0;
             D_807FD9C4 = (f32)((0.9 / ((value * 0.001 * value) + 1.0)) + 0.6);
-            if (D_80755068 < 60) {
+            if (gTransitionProgress < 60) {
                 volume = 0x7FFF;
             } else {
-                volume = 0x7FFF - (((D_80755068 - 60) * 0x7FFF) / 60);
+                volume = 0x7FFF - (((gTransitionProgress - 60) * 0x7FFF) / 60);
             }
         } else {
-            D_807FD9C4 = (f32)(((1.5 / (((((f32)(120 - D_80755068) - 40.0f)) * 0.001 * (((f32)(120 - D_80755068) - 40.0f))) + 1.0)) + (0.0002 * ((f32)(120 - D_80755068) - 30.0f) * ((f32)(120 - D_80755068) - 30.0f))) - 0.2);
-            if ((f32)(120 - D_80755068) < 110.0f) {
+            D_807FD9C4 = (f32)(((1.5 / (((((f32)(120 - gTransitionProgress) - 40.0f)) * 0.001 * (((f32)(120 - gTransitionProgress) - 40.0f))) + 1.0)) + (0.0002 * ((f32)(120 - gTransitionProgress) - 30.0f) * ((f32)(120 - gTransitionProgress) - 30.0f))) - 0.2);
+            if ((f32)(120 - gTransitionProgress) < 110.0f) {
                 volume = 0x7FFF;
             } else {
-                volume = (s32)(32767.0f - (((f32)(120 - D_80755068) - 110.0f) * 32767.0f / 10.0f));
+                volume = (s32)(32767.0f - (((f32)(120 - gTransitionProgress) - 110.0f) * 32767.0f / 10.0f));
             }
         }
         n_alSndpPostEvent(D_807FD9C8, 0x10, *(s32 *)&D_807FD9C4, volume);
         n_alSndpPostEvent(D_807FD9C8, 8, volume);
     }
     {
-        f32 progress = (f64)D_80755068 / 120.0;
-        func_8070B324(1.0f - progress, D_807444F8 == 1, channels.a);
+        f32 progress = (f64)gTransitionProgress / 120.0;
+        transitionSetAudioVolume(1.0f - progress, D_807444F8 == 1, channels.a);
     }
     gDPSetCycleType(glist++, G_CYC_1CYCLE);
     gSPClearGeometryMode(glist++, 0xFFFFFF);
     gSPSetGeometryMode(glist++, G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x553078);
-    L11B_RAW(glist++, 0xFCFFFFFF, 0xFFFCF279);
+    TRANS_RAW(glist++, 0xFCFFFFFF, 0xFFFCF279);
     gSPTexture(glist++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
     gDPSetTexturePersp(glist++, G_TP_PERSP);
     gSPDisplayList(glist++, D_1000020);
@@ -754,17 +754,17 @@ u8 func_8070B7EC(Gfx **arg0, s32 arg1, s32 arg2) {
         ((f32 *)D_807FD9A8->unk8)[i * 3 + 1] = ((f32 *)D_807FD9A4)[i * 3 + 1];
         ((f32 *)D_807FD9A8->unk8)[i * 3 + 2] = ((f32 *)D_807FD9A4)[i * 3 + 2];
     }
-    func_8070A220(D_807FD9A8, D_807FD9AC, D_80755068);
+    meshApplyAnimation(D_807FD9A8, D_807FD9AC, gTransitionProgress);
     if (delta < 0) {
-        D_807FD9A0 = ((D_80755068 * 0xF0) - 0x960) / 80;
+        D_807FD9A0 = ((gTransitionProgress * 0xF0) - 0x960) / 80;
     } else {
-        D_807FD9A0 = ((D_80755068 * 0xF0) - 0x4B0) / 80;
+        D_807FD9A0 = ((gTransitionProgress * 0xF0) - 0x4B0) / 80;
     }
-    if (D_80755068 >= 5 && D_80755068 < 0x56) {
-        func_8070B05C((u16 *)arg2);
+    if (gTransitionProgress >= 5 && gTransitionProgress < 0x56) {
+        transitionMaskFramebuffer((u16 *)arg2);
     }
-    if (D_80755068 >= 0x6D && (f64)D_80755068 <= 120.0) {
-        D_8075506C = 0xDC - D_80755068 * 2;
+    if (gTransitionProgress >= 0x6D && (f64)gTransitionProgress <= 120.0) {
+        D_8075506C = 0xDC - gTransitionProgress * 2;
     }
     gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(glist++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
@@ -775,23 +775,23 @@ u8 func_8070B7EC(Gfx **arg0, s32 arg1, s32 arg2) {
     gSPMatrix(glist++, matrix, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPSetColorDither(glist++, G_CD_DISABLE);
     gDPSetAlphaDither(glist++, G_AD_DISABLE);
-    func_80709BC4(&glist, (L11Info *)D_807FD9A8, (u8 *)arg2);
-    D_80755068 += delta;
-    D_807FD9C0 = func_8066B0F8(0xE, 0x6A - L11B_MIN(L11B_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
+    meshDrawTextured(&glist, (MeshInfo *)D_807FD9A8, (u8 *)arg2);
+    gTransitionProgress += delta;
+    D_807FD9C0 = func_8066B0F8(0xE, 0x6A - TRANS_MIN(TRANS_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
     assetFreeBuffer(D_807FD9C0, 0x381, 0x4A);
     gDPPipeSync(glist++);
     gDPSetCycleType(glist++, G_CYC_1CYCLE);
     gDPSetTexturePersp(glist++, G_TP_NONE);
-    L11B_RAW(glist++, 0xFCFFFFFF, 0xFFFCF279);
+    TRANS_RAW(glist++, 0xFCFFFFFF, 0xFFFCF279);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x5041C8);
     gDPPipeSync(glist++);
     gDPLoadTextureBlock(glist++, D_807FD9C0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 32, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-    gSPTextureRectangle(glist++, 0x260, L11B_MAX((s16)(D_807FD9A0 << 2), 0), 0x2A0, L11B_MAX((s16)((D_807FD9A0 + 0x1F) << 2), 0), 0, 0, -((D_807FD9A0 << 2 < 0) ? L11B_MIN(((s16)(D_807FD9A0 << 2) << 10) >> 7, 0) : 0), 0x400, 0x400);
+    gSPTextureRectangle(glist++, 0x260, TRANS_MAX((s16)(D_807FD9A0 << 2), 0), 0x2A0, TRANS_MAX((s16)((D_807FD9A0 + 0x1F) << 2), 0), 0, 0, -((D_807FD9A0 << 2 < 0) ? TRANS_MIN(((s16)(D_807FD9A0 << 2) << 10) >> 7, 0) : 0), 0x400, 0x400);
     gSPEndDisplayList(glist++);
     gSPDisplayList(out++, start);
     *arg0 = out;
-    if (D_80755068 < 0 || (f64)D_80755068 > 120.0) {
+    if (gTransitionProgress < 0 || (f64)gTransitionProgress > 120.0) {
         n_alSndpStop(D_807FD9C8);
     }
-    return D_80755068 < 0 || (f64)D_80755068 > 120.0;
+    return gTransitionProgress < 0 || (f64)gTransitionProgress > 120.0;
 }

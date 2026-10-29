@@ -30,7 +30,7 @@ void actorSetTintFromPalette(u8 arg0) {
 u8 *_strchr(u8 *, s32);
 u32 _strcspn(u8 *, char *);
 u8 *_strncpy(u8 *, u8 *, u32);
-s32 func_806FBD5C();
+s32 textGetStringWidth();
 u8 *func_8070E750(s32, s32, s32);
 void textSpawnMarkerChecked(s32, s32, s32, u8 *, s32, s32, s32, s32);
 u32 strlen(u8 *);
@@ -54,7 +54,7 @@ u8 arg2;
         actorSetTintFromPalette(arg2);
         s += strlen(sp44);
     }
-    if ((s16)func_806FBD5C(6, s) >= 0x12D) {
+    if ((s16)textGetStringWidth(6, s) >= 0x12D) {
         idx = (s32)strlen(s) / 2;
         if (s[idx] != 0x20) {
             do {

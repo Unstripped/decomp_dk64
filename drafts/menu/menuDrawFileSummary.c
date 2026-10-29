@@ -42,13 +42,13 @@ s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
     y = D_80033F4C;
     y -= 0x140;
     _sprintf(spA4, "%d%%", D_80033F51);
-    arg1 = (Gfx *)func_806FC530((s32)arg1, 1, 0x280, y, spA4, 0x81);
+    arg1 = (Gfx *)textDrawStringVtx((s32)arg1, 1, 0x280, y, spA4, 0x81);
     y += 0x8C;
     _sprintf(spA4, "%03d", D_8003380C);
-    arg1 = (Gfx *)func_806FC530((s32)arg1, 1, 0x280, y, spA4, 0x81);
+    arg1 = (Gfx *)textDrawStringVtx((s32)arg1, 1, 0x280, y, spA4, 0x81);
     y += 0x8C;
     _sprintf(spA4, "%03d:%02d", D_80033810, D_80033814);
-    arg1 = (Gfx *)func_806FC530((s32)arg1, 1, 0x280, y, spA4, 0x81);
+    arg1 = (Gfx *)textDrawStringVtx((s32)arg1, 1, 0x280, y, spA4, 0x81);
     fv1 = func_80612794((s16)((D_8076A064 * 0x78) & 0xFFF)) * 0.1f + 0.5f;
     y = (s32)((f32)y + 40.0f);
     sc = y;
