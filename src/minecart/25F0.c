@@ -220,9 +220,8 @@ s32 mathAngleDistance(s16, s16);
 s32 playerStateQueueCallback(s32, void *, s32);
 
 void minecartFollowerBehaviour(void) {
-    u8 sp47;
+    u8 sp47 = 0x96;
 
-    sp47 = 0x96;
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x310);
@@ -361,7 +360,7 @@ void minecartFollowerChildBehaviour(void) {
                 break;
             case 1:
                 d = D_807FBB40->unk4->unk0[1] / 17.0;
-                var = (d > 1.0) ? 1.0 : d;
+                var = MIN(1.0, d);
                 x = func_80612790(var * 2048.0f + 2048.0f) * 0.5 + 0.5;
                 D_807FBB40->unk7C = (sp68->unkA - D_807FBB40->unk7C) * x + D_807FBB40->unk7C;
                 D_807FBB40->unk80 = (D_807FBB40->unk80 + 10.0f) + ((D_807FD580->unk88->unkA4 - (D_807FBB40->unk80 + 10.0f)) * x);
@@ -572,11 +571,15 @@ void minecartStartScriptNearPlayer(void) {
 void minecartChooseBranchSide(MinecartCart *arg0) {
     PlayerState_25F0 *c = D_807FDC94->unk174;
     MinecartCart *d = c->unk88->unk174;
-    u8 b;
-    b = *d->unk34 - 0x10;
-    if (b < *arg0->unk34) { arg0->unk42 = 1; return; }
-    if (*arg0->unk34 < b) { arg0->unk42 = 2; return; }
-    arg0->unk42 = 0;
+    u8 b = *d->unk34 - 0x10;
+
+    if (b < *arg0->unk34) {
+        arg0->unk42 = 1;
+    } else if (*arg0->unk34 < b) {
+        arg0->unk42 = 2;
+    } else {
+        arg0->unk42 = 0;
+    }
 }
 
 void minecartAdjustTargetSpeed(void) {
@@ -669,18 +672,18 @@ void func_800280BC(void) {
 }
 
 void func_8002835C(void) {
-    MinecartCart *sp74;
-    StructBB70_Sub *sp70;
+    MinecartCart *cart;
+    StructBB70_Sub *sub;
     f32 sp6C;
     f32 sp68;
     f32 sp64;
     f32 sp60;
     f32 sp5C;
     f32 sp58;
-    u8 *temp_v0_2;
+    u8 *alloc;
     s32 pad0, pad1, pad2;
 
-    sp74 = D_807FBB40->unk178;
+    cart = D_807FBB40->unk178;
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         if ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82)) {
@@ -699,14 +702,14 @@ void func_8002835C(void) {
     switch (D_807FBB40->unk154) {
     case 0:
         if (D_807FBB70.unk254 != 0) {
-            sp70 = D_807FBB70.unk278;
-            temp_v0_2 = func_80610FE8(4);
-            temp_v0_2[0] = sp70->unk2;
-            temp_v0_2[1] = 0xFF;
-            sp74->unk30 = temp_v0_2;
-            sp74->unk34 = temp_v0_2;
-            sp74->unk10 = 1;
-            D_807FDC90->unk26 = sp70->unk4;
+            sub = D_807FBB70.unk278;
+            alloc = func_80610FE8(4);
+            alloc[0] = sub->unk2;
+            alloc[1] = 0xFF;
+            cart->unk30 = alloc;
+            cart->unk34 = alloc;
+            cart->unk10 = 1;
+            D_807FDC90->unk26 = sub->unk4;
             D_807FBB40->unkB8 = 0.0f;
             D_807FBB40->unk154++;
         } else {
@@ -715,20 +718,20 @@ void func_8002835C(void) {
         }
     case 1:
         if ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82)) {
-            minecartChooseBranchSide(sp74);
-            minecartApplyJunction(sp74, D_80028BD0, 0, 3);
+            minecartChooseBranchSide(cart);
+            minecartApplyJunction(cart, D_80028BD0, 0, 3);
             actorGetNodePos(D_807FBB40, 1, &sp58, &sp5C, &sp60);
             actorGetNodePos(D_807FBB40, 2, &sp64, &sp68, &sp6C);
         }
         actorApproachTargetSpeed(0x200);
-        minecartFollowTrack(sp74, 0x7FFF, 0x23);
+        minecartFollowTrack(cart, 0x7FFF, 0x23);
         if ((D_807FBB40->unk154 == 2) && ((D_8076A0A8 == 0x4D) || (D_8076A0A8 == 0x81) || (D_8076A0A8 == 0x82))) {
             D_807FBB40->unk154 = 1;
-            sp74->unk34--;
+            cart->unk34--;
         }
         actorGetNodePos(D_807FBB40, 5, &sp58, &sp5C, &sp60);
         func_8072177C(D_807FBB40, sp58, sp5C, sp60, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-        minecartPlayPassBySfx(sp74);
+        minecartPlayPassBySfx(cart);
         return;
     case 2:
         D_807FBB40->unk154 = 0x40;
@@ -741,18 +744,18 @@ void func_8002835C(void) {
 }
 
 void func_800286EC(void) {
-    MinecartCart *sp84;
+    MinecartCart *cart;
     s32 pad;
     f32 sp7C;
     f32 sp78;
     f32 sp74;
-    PlayerState_25F0 *sp70;
+    PlayerState_25F0 *playerState;
     f64 t1;
     f64 t2;
 
-    sp84 = D_807FBB40->unk178;
+    cart = D_807FBB40->unk178;
     behaviourFrameBegin();
-    sp70 = D_807FDC94->unk174;
+    playerState = D_807FDC94->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk144 = 0x3C;
         D_807FDC90->unk35 = 2;
@@ -773,15 +776,15 @@ void func_800286EC(void) {
         if (D_807FBB70.unk254 != 0) {
             switch (D_8076A0A8) {
             case 0x37:
-                sp84->unk34 = D_80028C40;
+                cart->unk34 = D_80028C40;
                 break;
             case 0x6A:
-                sp84->unk34 = D_80028C48;
+                cart->unk34 = D_80028C48;
                 break;
             default:
-                sp84->unk34 = D_80028C34;
+                cart->unk34 = D_80028C34;
             }
-            sp84->unk10 = 1;
+            cart->unk10 = 1;
             D_807FBB40->unkB8 = 0.0f;
             D_807FBB40->unk154++;
             goto case_1;
@@ -795,15 +798,15 @@ case_1:
             (D_807FBB40->unk7C - D_807FBB4C->unk7C) * (D_807FBB40->unk7C - D_807FBB4C->unk7C) + (D_807FBB40->unk84 - D_807FBB4C->unk84) * (D_807FBB40->unk84 - D_807FBB4C->unk84) < 22500.0f) {
             D_807FDC90->unk26 = 0;
         } else {
-            t2 = sp70->unk88->unkB8 * 1.4;
+            t2 = playerState->unk88->unkB8 * 1.4;
             D_807FDC90->unk26 = MIN(MAX(t2, 45.0), 90.0);
         }
         actorApproachTargetSpeed(0x200);
         func_8068ECF4(6, 0xFF);
-        minecartFollowTrack(sp84, 0x7FFF, 0x23);
+        minecartFollowTrack(cart, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp74, &sp78, &sp7C);
         func_8072177C(D_807FBB40, sp74, sp78, sp7C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-        if (D_807FBB4C->unk154 == 0x70 || sp84->unk10 == 0x90) {
+        if (D_807FBB4C->unk154 == 0x70 || cart->unk10 == 0x90) {
             D_807FBB40->unk154++;
         }
         return;
