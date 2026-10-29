@@ -28,7 +28,7 @@ extern u8 D_807F951C;
 extern s32 D_8076A0A8;
 extern u8 D_807F94B4;
 void *func_80610FE8(s32);
-void *func_8066B0F8(s32, s32, s32, s32);
+void *func_8066B0F8(s32, u32, u8, u8);
 s32 assetGetSize(s32, s32);
 void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
@@ -1299,7 +1299,7 @@ u8 func_80669E04(CollisionTriF *arg0, f32 arg1, f32 arg2) {
 void gunzip(void *, void *, void *);
 void heapFreeDeferred(void *);
 extern void *D_80748E14;
-void func_8066B5F4(void);
+void func_8066B5F4();
 s32 func_8066B4D4(s32, s32, s32 *, s32 *);
 s32 collisionBstLookupAndDecrementByHash();
 void collisionBstDeleteByHash();
@@ -1686,7 +1686,29 @@ s32 collisionCheckBoxTriangleWinding(CollisionBoxTriangleWork *arg0) {
     return 0;
 }
 
+#ifdef NON_MATCHING
+void func_8066ACA4(arg0, arg1, arg2)
+s32 arg0;
+CollisionBoxTriangleWork *arg1;
+u8 arg2;
+{
+    CrossProductStack3D sp;
+
+    sp.v1[0] = arg1->tri.x[2] - arg1->tri.x[0];
+    sp.v1[1] = arg1->tri.y[2] - arg1->tri.y[0];
+    sp.v1[2] = arg1->tri.z[2] - arg1->tri.z[0];
+    sp.v0[0] = arg1->tri.x[1] - arg1->tri.x[0];
+    sp.v0[1] = arg1->tri.y[1] - arg1->tri.y[0];
+    sp.v0[2] = arg1->tri.z[1] - arg1->tri.z[0];
+    sp.cross[0] = (sp.v1[1] * sp.v0[2]) - (sp.v1[2] * sp.v0[1]);
+    sp.cross[1] = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
+    sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
+    func_80666AF8(arg0, sp.cross[0], sp.cross[1], sp.cross[2], 1, arg2, 2);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066ACA4.s")
+#endif
 
 extern s32 D_8000DDCC;
 extern s32 D_807F9520;
@@ -1695,7 +1717,7 @@ extern void *D_807F9628[];
 extern s32 D_807F9680;
 extern u8 D_807FB220;
 extern u8 D_807FB221;
-void *func_8066B0F8(s32, s32, s32, s32);
+void *func_8066B0F8(s32, u32, u8, u8);
 
 void collisionInitTables(void) {
     s32 i;
@@ -1802,7 +1824,82 @@ void assetSetRomTableOffset(s32 arg0) {
     D_807F9678 = arg0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066B0F8.s")
+void *heapAllocFromPool(s32, s32);
+void collisionBstInsertByHash();
+s32 assetGetTableEntry(s32, s32);
+void faultSetMessage(s32, s32, s32, s32);
+extern OSIoMesg D_807F9688[];
+
+void *func_8066B0F8(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
+    s32 pad;
+    s32 sp50;
+    s32 sp4C;
+    s32 var_a1;
+    void *buffer;
+
+    buffer = (void *)arg3;
+    func_8066B5F4();
+    if (buffer == NULL) {
+        if ((arg1 >= 0x80000000U) && (arg1 < 0xA0000000U)) {
+            collisionBstInsertByHash(arg1, arg0, 0);
+            D_807F967C = 0;
+            D_807F9678 = 0;
+            return (void *)arg1;
+        }
+        buffer = (void *)assetGetTableEntry(arg0, arg1);
+        if (buffer != NULL) {
+            collisionBstInsertByHash(buffer, arg0, arg1);
+            D_807F967C = 0;
+            D_807F9678 = 0;
+            return buffer;
+        }
+    }
+    func_8066B4D4(arg0, arg1, &sp50, &sp4C);
+    if (sp4C == 0) {
+        D_807F967C = 0;
+        D_807F9678 = 0;
+        return NULL;
+    }
+    if (D_80748E18[arg0] != 0) {
+        var_a1 = D_807FB1A0[arg0][arg1];
+    } else {
+        var_a1 = sp4C;
+    }
+    if (D_807F9678 == 0) {
+        buffer = func_80610FE8(var_a1);
+    } else {
+        buffer = heapAllocFromPool(D_807F9678, var_a1);
+    }
+    if (arg2 != 0) {
+        if (D_80748E18[arg0] != 0) {
+            void *temp_v0_2 = func_80610FE8(sp4C);
+            func_8060B140(sp50, temp_v0_2, &sp4C, 0, 0, 0, 0);
+            assetInflateAndFree(temp_v0_2, buffer);
+        } else {
+            func_8060B140(sp50, buffer, &sp4C, 0, 0, 0, 0);
+        }
+    } else {
+        if (D_807F9680 == 0xC0) {
+            faultSetMessage(6, 0, 0, 0);
+        }
+        D_807FA8A0[D_807F9680].unk8 = D_80748E18[arg0];
+        if (D_80748E18[arg0] != 0) {
+            D_807FA8A0[D_807F9680].unk0 = func_80610FE8(sp4C);
+            D_807FA8A0[D_807F9680].unk4 = buffer;
+        } else {
+            D_807FA8A0[D_807F9680].unk4 = buffer;
+            D_807FA8A0[D_807F9680].unk0 = buffer;
+        }
+        osInvalDCache(D_807FA8A0[D_807F9680].unk0, sp4C);
+        osPiStartDma(&D_807F9688[D_807F9680], 0, 0, sp50, D_807FA8A0[D_807F9680].unk0, (u32)sp4C, &D_807656D0);
+        D_807F9680 += 1;
+    }
+    assetSetTableEntry(arg0, arg1, (s32)buffer);
+    collisionBstInsertByHash(buffer, arg0, arg1);
+    D_807F967C = 0;
+    D_807F9678 = 0;
+    return buffer;
+}
 
 void assetSetImmediateFree(void) {
     D_807F967D = 1;
@@ -1830,7 +1927,37 @@ void assetSetTableEntry(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
+#ifdef NON_MATCHING
+s32 func_8066B4D4(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
+    s32 pad[2];
+    s32 sp44;
+    s32 t;
+    u64 sp38;
+    s32 *table;
+    s32 temp_v0;
+    s32 sp2C;
+    s32 var_t0;
+
+    var_t0 = arg1;
+    table = &D_807F9528[arg0][arg1];
+    temp_v0 = table[0];
+    if (temp_v0 & 0x80000000) {
+        sp2C = 8;
+        func_8060B140(D_8000DDCC + (temp_v0 & 0x7FFFFFFF), &sp38, &sp2C, 0, 0, 0, 0);
+        sp44 = (s16)(sp38 >> 48);
+        func_8066B4D4(arg0, sp44, arg2, arg3);
+        var_t0 = sp44;
+    } else {
+        t = table[1] & 0x7FFFFFFF;
+        *arg2 = D_8000DDCC + temp_v0;
+        *arg3 = t - temp_v0;
+    }
+    return var_t0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066B4D4.s")
+#endif
 
 s32 assetGetTableEntry(s32 arg0, s32 arg1) {
     s32 *ptr = D_807F95A8[arg0];
@@ -1842,7 +1969,40 @@ s32 assetGetTableEntry(s32 arg0, s32 arg1) {
     return ret;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066B5F4.s")
+void func_8066B5F4(s32 arg0) {
+    u32 sp54;
+    s32 pad50;
+    u64 sp48;
+    s32 pad44;
+    u32 sp40;
+    u32 sp3C;
+
+    sp3C = 8;
+    if (D_807F9528[arg0] != NULL) {
+        return;
+    }
+    sp54 = ((u32 *)D_807F9520)[arg0];
+    func_8060B140(D_8000DDCC + sp54, &sp48, &sp3C, 0, 0, 0, 0);
+    sp40 = (u32)(sp48 >> 32) - sp54;
+    D_807F9528[arg0] = func_80610FE8(sp40);
+    func_8060B140(D_8000DDCC + sp54, D_807F9528[arg0], &sp40, 0, 0, 0, 0);
+    switch (arg0) {
+        case 4:
+        case 7:
+        case 14:
+        case 25: {
+            u32 i;
+            D_807F95A8[arg0] = func_80610FE8(sp40);
+            for (i = 0; i < (u32)(sp40 / 4); i++) {
+                D_807F95A8[arg0][i] = 0;
+            }
+            break;
+        }
+        default:
+            D_807F95A8[arg0] = NULL;
+            break;
+    }
+}
 
 
 typedef struct CollisionBstNodeBase {
@@ -1885,7 +2045,6 @@ typedef struct CollisionBstNode {
     /* 0x18 */ struct CollisionBstNode *right;
 } CollisionBstNode;
 
-void faultSetMessage(s32, s32, s32, s32);
 void collisionQueueSearch(s32, u8 *, u16 *, s32 *);
 void collisionBstLookupOrAssert(CollisionBstNode *arg0, u32 arg1, s32 *arg2, s32 *arg3) {
     u8 sp2F;
@@ -1974,7 +2133,31 @@ void collisionQueueSearch(s32 arg0, u8 *arg1, u16 *arg2, s32 *arg3) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066BAB8.s")
+void func_8066BAB8(arg0, arg1, arg2)
+s32 arg0;
+u8 arg1;
+u16 arg2;
+{
+    u8 idx = D_807FB221;
+    CollisionQueueEntry *item = &D_807FB228[idx];
+
+    item->unk0 = D_8076A064;
+    item->unk4 = arg0;
+    item->unkA = arg1;
+    item->unk8 = arg2;
+    D_807FB221 = idx + 1;
+
+    if (D_807FB221 == 0x40) {
+        D_807FB221 = 0;
+    }
+
+    if (D_807FB220 == D_807FB221) {
+        D_807FB220++;
+        if (D_807FB220 == 0x40) {
+            D_807FB220 = 0;
+        }
+    }
+}
 
 void func_8066BAB8();
 
@@ -2082,8 +2265,8 @@ typedef struct CollisionBstFlatItem {
     /* 0x10 */ u8 unk10;
 } CollisionBstFlatItem;
 
-void func_8066BFF0(CollisionBstNodeBase *, CollisionBstFlatItem *, s32 *);
-void func_8066C0DC(void *, s32, s32);
+void func_8066BFF0();
+void func_8066C0DC();
 CollisionBstNodeBase *collisionBstBuildBalanced(CollisionBstFlatItem *, s32, s32);
 void collisionBstFreeTree(CollisionBstNodeBase *);
 
@@ -2143,9 +2326,84 @@ CollisionBstNodeBase *collisionBstBuildBalanced(CollisionBstFlatItem *buffer, s3
     return (CollisionBstNodeBase *)node;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066BFF0.s")
+void func_8066BFF0(CollisionBstNode *node, CollisionBstFlatItem *buffer, s32 *index) {
+    if (node == NULL) {
+        return;
+    }
+    buffer[*index].unk0 = node->unk0;
+    buffer[*index].unk4 = node->unk4;
+    buffer[*index].unk8 = node->unk8;
+    buffer[*index].unkC = node->unkC;
+    buffer[*index].unk10 = node->unk10;
+    (*index)++;
+    func_8066BFF0(node->left, buffer, index);
+    func_8066BFF0(node->right, buffer, index);
+}
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066C0DC.s")
+void func_8066C0DC(CollisionBstFlatItem *arr, s32 low, s32 high) {
+    s32 i;
+    s32 j;
+    u32 pivot;
+    CollisionBstFlatItem *pivot_ptr;
+    s32 size = 20;
+    u32 temp0;
+    s32 temp1;
+    s32 temp2;
+    s32 temp3;
+    u8 temp4;
+
+    if (low < high) {
+        pivot_ptr = (CollisionBstFlatItem *)((u8 *)arr + high * size);
+        pivot = pivot_ptr->unk0;
+        i = low - 1;
+        j = high;
+
+        while (1) {
+            while (arr[++i].unk0 < pivot && i < high)
+                ;
+            while (pivot < arr[--j].unk0 && low < j)
+                ;
+            if (i >= j) {
+                break;
+            }
+            temp0 = arr[i].unk0;
+            temp1 = arr[i].unk4;
+            temp2 = arr[i].unk8;
+            temp3 = arr[i].unkC;
+            temp4 = arr[i].unk10;
+            arr[i].unk0 = arr[j].unk0;
+            arr[i].unk4 = arr[j].unk4;
+            arr[i].unk8 = arr[j].unk8;
+            arr[i].unkC = arr[j].unkC;
+            arr[i].unk10 = arr[j].unk10;
+            arr[j].unk0 = temp0;
+            arr[j].unk4 = temp1;
+            arr[j].unk8 = temp2;
+            arr[j].unkC = temp3;
+            arr[j].unk10 = temp4;
+        }
+
+        temp0 = arr[i].unk0;
+        temp1 = arr[i].unk4;
+        temp2 = arr[i].unk8;
+        temp3 = arr[i].unkC;
+        temp4 = arr[i].unk10;
+        arr[i].unk0 = pivot_ptr->unk0;
+        arr[i].unk4 = pivot_ptr->unk4;
+        arr[i].unk8 = pivot_ptr->unk8;
+        arr[i].unkC = pivot_ptr->unkC;
+        arr[i].unk10 = pivot_ptr->unk10;
+        if (!arr) {} // FAKE: dead check steers uopt coloring of the a0-a3 temps
+        pivot_ptr->unk0 = temp0;
+        pivot_ptr->unk4 = temp1;
+        pivot_ptr->unk8 = temp2;
+        pivot_ptr->unkC = temp3;
+        pivot_ptr->unk10 = temp4;
+
+        func_8066C0DC(arr, low, i - 1);
+        func_8066C0DC(arr, i + 1, high);
+    }
+}
 
 u32 collisionGetBucketIndex(u32 arg0) {
     return (arg0 >> 12) % 20;
