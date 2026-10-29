@@ -196,11 +196,7 @@ f32 func_80027920(RaceActor *arg0, RaceCursor *arg1, RaceActor *arg2, RaceCursor
             total += raceGetPathDistance(count, arg3->unk0, cur);
             cur = raceGetNextWaypointIndex(count, cur);
         }
-        if (dir >= 0) {
-            sign = 1;
-        } else {
-            sign = -1;
-        }
+        sign = (dir >= 0) ? 1 : -1;
         total = sign * total;
     }
     return total;
