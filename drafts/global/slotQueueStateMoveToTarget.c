@@ -1,4 +1,4 @@
-// slotQueueStateMoveToTarget (src/global/FCCD0.c): stage 5 (NM9): 4 diff lines vs 7; regs all match (shape ok), only as1 schedule around beqz/jal differs: target 'move a0,s4; beqz; lhu a1 (delay); move s0,a1; jal; move s1,a2 (delay)', ours 'lhu a1; move s1,a2; beqz; move s0,a1 (delay); jal; move a0,s4 (delay)'. KEY: use 'absd' (existing local) for the +-1 direction instead of 'sign' (sign merged with x in s0, target sign=a0; a NEW local grows frame). Tried: all placements/orders of sign/x/s1 stmts (identical text), embedded assignments in call args (E2 gets a3), line joins, deadsweep -extra all locals, permuter 500s: no gain.
+// slotQueueStateMoveToTarget (src/global/FCCD0.c): stage 5 (NM9): 4 diff lines vs 7 WITH a dead `if (step == 0) {}` before step's first assignment (removed: uninitialised read; re-measure the diff without it). Regs all match (shape ok), only as1 schedule around beqz/jal differs: target 'move a0,s4; beqz; lhu a1 (delay); move s0,a1; jal; move s1,a2 (delay)', ours 'lhu a1; move s1,a2; beqz; move s0,a1 (delay); jal; move a0,s4 (delay)'. KEY: use 'absd' (existing local) for the +-1 direction instead of 'sign' (sign merged with x in s0, target sign=a0; a NEW local grows frame). Tried: all placements/orders of sign/x/s1 stmts (identical text), embedded assignments in call args (E2 gets a3), line joins, deadsweep -extra all locals, permuter 500s: no gain.
 typedef struct FcCNode {
     s32 unk0;
     u8 pad4[8];
@@ -37,7 +37,6 @@ s32 slotQueueStateMoveToTarget(s32 arg0, s32 arg1) {
     s32 absd;
     s32 sign;
     s32 tmp;
-    if (step == 0) {}
 
     node = FCC_SLOT->unk28;
     s1 = 0;

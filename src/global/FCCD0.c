@@ -1248,7 +1248,6 @@ s32 slotQueueStateMoveToTarget(s32 arg0, s32 arg1) {
     s32 absd;
     s32 sign;
     s32 tmp;
-    if (step == 0) {}
 
     node = SLOT_QUEUE_FADE_SLOT->unk28;
     s1 = 0;
