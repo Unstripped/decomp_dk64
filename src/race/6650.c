@@ -413,11 +413,7 @@ void func_8002B180(Struct_sp58 *arg0, Struct_8002B180_Arg1 *arg1) {
             func_8002DE78(arg1, 0, &D_8002FC70, &D_8002FCA0);
         }
         temp_fv0 = func_8002E1C8(arg1, sp38, &D_8002FC70, &D_8002FCA0);
-        if (BBV->unkB8 < 650.0f) {
-            BBV->unkB8 = BBV->unkB8;
-        } else {
-            BBV->unkB8 = 650.0f;
-        }
+        BBV->unkB8 = (BBV->unkB8 < 650.0f) ? BBV->unkB8 : 650.0f;
         arg0->unk4 = temp_fv0;
     }
 }
