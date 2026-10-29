@@ -662,7 +662,6 @@ typedef struct {
     f32 angle;
     f32 angleIncrement;
 } M2Interpolation;
-#ifdef NON_MATCHING
 extern f32 D_807FDB50;
 extern f32 D_807FDB54;
 extern f32 D_807FDB58;
@@ -711,10 +710,6 @@ void func_807186C8(TimedEffectActorView *arg0, s8 *arg1) {
     guMtxF2L(spA0, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
     ((u8 *)arg0)[0x32C] = 2;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807186C8.s")
-#endif
 
 
 typedef struct {
