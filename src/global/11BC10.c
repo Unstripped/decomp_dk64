@@ -2073,7 +2073,7 @@ void func_8071CDE0(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->pad0[0x32C] = 2;
 }
 
-#ifdef NON_MATCHING
+
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -2086,11 +2086,12 @@ u8 func_805FF030(u8, u8);
 extern u8 D_8076A0AB;
 extern u16 D_807FC930[];
 
+#ifdef NON_MATCHING
 void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
     FxInt1Motion16 *motion;
-    LightOwnerView **lightNodePtr;
-    s32 node;
     f32 factor;
+    s32 node;
+    f64 pad;
 
     node = arg0->unk35C;
     motion = arg0->unk384;
@@ -2103,13 +2104,12 @@ void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
     actorGetNodePos(node, 1, &motion->unk4, &motion->unk8, &motion->unkC);
     factor = (f32)((f64)motion->unk0 / 30.0);
     arg0->unk340 = (D_807FBB4C->unk7C - motion->unk4) * factor + motion->unk4;
-    lightNodePtr = &D_807FD580;
     arg0->unk344 = (D_807FBB4C->unk80 - motion->unk8) * factor + motion->unk8;
     arg0->unk348 = (D_807FBB4C->unk84 - motion->unkC) * factor + motion->unkC;
     motion->unk0 -= 1.0f;
     if (motion->unk0 == 0.0f) {
-        if (D_807FBB4C && D_807FBB4C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        *(s32 *)((u8 *)(*lightNodePtr) + 0x1F0) |= 0x20000;
+        if (((D_807FBB4C && D_807FBB4C) && D_807FBB4C) != 0U) {}  // FAKE: deadsweep
+        *(s32 *)((u8 *)D_807FD580 + 0x1F0) |= 0x20000;
         D_807FC930[func_805FF030(D_8076A0AB, 0)]++;
         *arg1 = 1;
     }
@@ -2118,6 +2118,7 @@ void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D0F0.s")
 #endif
+
 
 void func_8071D260(TimedEffectActorView *arg0, s8 *arg1) {
     u16 difference;
@@ -2791,21 +2792,23 @@ void func_8071F078(TimedEffectActorView *arg0, s8 *arg1) {
 
 
 
-#ifdef NON_MATCHING
+
 extern s8 D_8075567C;
 
+#ifdef NON_MATCHING
 void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
     TimedMotionState *var_v1;
-    s8 dir;
+    TimedMotionState *temp;
+    s32 dir;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
-        var_v1 = (TimedMotionState *)arg0->unk384;
+        temp = func_80610FE8(0xC);
         dir = D_8075567C;
         if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        var_v1->unk0 = arg0->unk340;
-        var_v1->unk4 = arg0->unk348;
-        var_v1->unk8 = (f32)dir;
+        arg0->unk384 = temp;
+        temp->unk0 = arg0->unk340;
+        temp->unk4 = arg0->unk348;
+        temp->unk8 = (f32)dir;
         D_8075567C = -dir;
     }
     var_v1 = (TimedMotionState *)arg0->unk384;
@@ -2824,6 +2827,7 @@ void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F1D0.s")
 #endif
+
 
 
 typedef struct {
