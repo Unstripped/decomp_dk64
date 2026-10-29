@@ -62,9 +62,9 @@ typedef struct {
     char pad6C[0x6E - 0x6C];
     s16 unk6E[2];
     char pad72[0x7C - 0x72];
-    s32 unk7C;
-    s32 unk80;
-    s32 unk84;
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
     char pad88[0xB8 - 0x88];
     f32 unkB8;
     f32 unkBC;
@@ -124,7 +124,7 @@ void func_80026D2C(f32);
 void func_8068ECF4(s32, u8);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
-void func_806F4D70(u8, s32, s32, s32, f32);
+void func_806F4D70(u8, f32, f32, f32, f32);
 void renderCallbacksRegister(void *, void *, s32);
 typedef struct {
     char pad[0x25];
@@ -163,7 +163,7 @@ extern Struct_FDCA0 *D_807FDCA0;
 
 s32 raceGetRoute(u8);
 f32 func_8002F784(s32, Struct_sp58 *, void *);
-s32 mathAngleDiscrete(f32, f32, s32, s32, f32);
+s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
 f32 raceGetProgressPercent(s32, Struct_sp58 *, Struct_sp5C *);
 f32 func_8002E1C8(void *, f32, void *, void *);
@@ -348,17 +348,6 @@ void func_8002AE9C(void) {
     actorUpdateModelMatrix(var_s1, 0);
 }
 
-typedef struct {
-    char pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0xB8 - 0x88];
-    f32 unkB8;
-    char padBC[0xE6 - 0xBC];
-    s16 unkE6;
-} Race2B180View;
-#define BBV ((Race2B180View *)D_807FBB40)
 void func_8002B180(Struct_sp58 *arg0, Struct_8002B180_Arg1 *arg1) {
     f32 var_ft5;
     f32 var_fv1;
@@ -382,19 +371,19 @@ void func_8002B180(Struct_sp58 *arg0, Struct_8002B180_Arg1 *arg1) {
     sp38 = func_8002F784(sp3C, arg0, arg1->unk4);
     idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
     var_v1 = &D_807FDCA0->unk14[idx];
-    dx = (f32)var_v1->unk0 - BBV->unk7C;
-    dz = (f32)var_v1->unk4 - BBV->unk84;
+    dx = (f32)var_v1->unk0 - D_807FBB40->unk7C;
+    dz = (f32)var_v1->unk4 - D_807FBB40->unk84;
     sp58 = sqrtf((dx * dx) + (dz * dz));
     var_v1 = &D_807FDCA0->unk14[idx];
     if (sp58 < (f32)var_v1->unk7) {
-        if (BBV->unk7C) {
+        if (D_807FBB40->unk7C) {
         }
         D_807FDC90->unk25++;
         D_807FDC90->unk25 = D_807FDC90->unk25 % D_807FDC9C->unk11;
     }
     var_v1 = &D_807FDCA0->unk14[idx];
     sp_angle = mathAngleDiscrete((f32)var_v1->unk0, (f32)var_v1->unk4, D_807FBB40->unk7C, D_807FBB40->unk84, sp58);
-    temp_ft4 = func_806CC10C((s16)sp_angle, BBV->unkE6);
+    temp_ft4 = func_806CC10C((s16)sp_angle, D_807FBB40->unkE6);
 
     sp_angle = sp58;
     var_ft5 = temp_ft4;
@@ -413,7 +402,7 @@ void func_8002B180(Struct_sp58 *arg0, Struct_8002B180_Arg1 *arg1) {
             func_8002DE78(arg1, 0, &D_8002FC70, &D_8002FCA0);
         }
         temp_fv0 = func_8002E1C8(arg1, sp38, &D_8002FC70, &D_8002FCA0);
-        BBV->unkB8 = (BBV->unkB8 < 650.0f) ? BBV->unkB8 : 650.0f;
+        D_807FBB40->unkB8 = (D_807FBB40->unkB8 < 650.0f) ? D_807FBB40->unkB8 : 650.0f;
         arg0->unk4 = temp_fv0;
     }
 }
