@@ -273,8 +273,8 @@ void raceInitParticipants(Struct_arg0 *arg0) {
 s32 func_8002CAC8(void *arg0, void *arg1, void *arg2);
 void actorDrawAnimatedEffect(s32 arg0, void *arg1);
 
-void func_8002AE6C(void *arg0, u8 *arg1) {
-    actorDrawAnimatedEffect(func_8002CAC8(arg0, arg1, *(void **)(arg1 + 0x174)), arg1);
+void func_8002AE6C(void *arg0, Actor_BB40 *arg1) {
+    actorDrawAnimatedEffect(func_8002CAC8(arg0, arg1, arg1->unk174), arg1);
 }
 
 void func_8002AE9C(void) {
@@ -439,12 +439,8 @@ void func_8002B610(Struct_sp58 *arg0, Struct_8002B610_Arg1 *arg1) {
     if (arg0->unk35 == 0) {
         Struct_8002B610_Sub *sub = arg1->unk4;
         Struct_PlayerActor *actor = D_807FC924[sub->unk28].unk4;
-        s32 a = 0xBE;
-        s32 b = 0x4A;
         Struct_174 *unk174 = actor->unk174;
-        s32 c = 0xAE;
-        s32 d = 0x2D;
-        camSetTargetScaled(unk174->unk104, arg1->unk0, 4, 0x800, a, 0, b, c, d, 0, 0.2f);
+        camSetTargetScaled(unk174->unk104, arg1->unk0, 4, 0x800, 0xBE, 0, 0x4A, 0xAE, 0x2D, 0, 0.2f);
         arg0->unk35++;
     }
     func_800282D8();
@@ -463,15 +459,15 @@ void camStartPath(void *, s32, s32);
 void currentActorClearFlag(void);
 void func_805FF544(void);
 
-void func_8002B6F4(u8 *arg0, s32 arg1) {
-    if (arg0[0x35] == 0) {
+void func_8002B6F4(Struct_sp58 *arg0, void *arg1) {
+    if (arg0->unk35 == 0) {
         if (flagGet(0x145, 0) == 0) {
             camStartPath(D_807FBB40, 1, 1);
             currentActorClearFlag();
         } else {
             func_805FF544();
         }
-        arg0[0x35]++;
+        arg0->unk35++;
     }
 }
 
@@ -565,7 +561,7 @@ void func_8002B964(void) {
             func_8002B610(var_s1, (Struct_8002B610_Arg1 *)sp20);
             break;
         case 4:
-            func_8002B6F4((u8 *)var_s1, (s32)sp20->unk4);
+            func_8002B6F4(var_s1, sp20->unk4);
             break;
         case 5:
             func_8002B76C(var_s1, sp20->unk4);
