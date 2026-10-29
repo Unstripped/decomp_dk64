@@ -163,7 +163,7 @@ void func_8002A240(void) {
     f32 sp20;
     if (s0->unk4 != 0) {
         s0->unk4--;
-        sp20 = (f32)(func_80612794((s16)(s32)(((f64)(u32)s0->unk4 / 10.0) * (s0->unk8 - (s0->unk8 + 0x400)) + (s0->unk8 + 0x400))) * 20.0);
+        sp20 = (f32)(func_80612794((s16)(((f64)s0->unk4 / 10.0) * (s0->unk8 - (s0->unk8 + 0x400)) + (s0->unk8 + 0x400))) * 20.0);
         D_807FBB40->unk7C += sp20 * func_80612794(s0->unk6);
         D_807FBB40->unk84 += sp20 * func_80612790(s0->unk6);
         if (s0->unk4 == 0) {
@@ -172,7 +172,7 @@ void func_8002A240(void) {
     } else if (((randomNonNegative() >> 15) % 1000) >= 941) {
         s0->unk4 = 10;
     }
-    D_807FBB40->unk80 += 8.0 * (f64)func_80612794((s16)(s32)((f64)(u32)D_8076A064 * 200.0));
+    D_807FBB40->unk80 += 8.0 * (f64)func_80612794((s16)((f64)D_8076A064 * 200.0));
 }
 void *actorFindByType(s32);
 void func_8067AB20(void *, void *, s32, s32, void *, s32);
@@ -389,7 +389,7 @@ void func_8002A92C(void) {
         D_807FBB40->unk155 = 0;
     }
     D_807FD580->unkD4 = (D_807FD580->unkD4 < 50) ? D_807FD580->unkD4 : 50;
-    D_807FBB40->unk16A = (u8) (u32) (((f64) func_80612794((s16) (D_8076A064 * 0x64)) * 50.0) + 200.0);
+    D_807FBB40->unk16A = (u8) (((f64) func_80612794((s16) (D_8076A064 * 0x64)) * 50.0) + 200.0);
     D_807FBB40->unk16B = D_807FBB40->unk16A;
     D_807FBB40->unk16C = D_807FBB40->unk16A;
     if (D_807FBB40->unk154 == 0x55) {
