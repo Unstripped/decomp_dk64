@@ -1726,7 +1726,70 @@ void func_8071DB74(TimedEffectActorView *arg0, s8 *arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071DC90.s")
+typedef struct {
+    u8 pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0xEC];
+    void *unk174;
+} Fx11BHDTarget;
+
+typedef struct {
+    u8 pad0[0x1F0];
+    u32 unk1F0;
+} Fx11BHDFlags;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+} Fx11BHDState;
+
+void func_8071DC90(TimedEffectActorView *arg0, s8 *arg1) {
+    Fx11BHDState *temp_v0;
+    Fx11BHDTarget *sp28;
+    Fx11BHDFlags *temp_v1;
+    f32 sp20;
+
+    sp20 = 0.3f;
+    sp28 = (Fx11BHDTarget *)(u32)arg0->unk35C;
+    if (arg0->unk384 == NULL) {
+        temp_v0 = func_80610FE8(0x18);
+        arg0->unk384 = temp_v0;
+        temp_v0->unk0 = 0.0f;
+        temp_v0->unk4 = (f32)(func_806119FC() * 4095.0f);
+        temp_v0->unk8 = (f32)((func_806119FC() > 0.5 ? (f64)func_806119FC() : 0.5) * 300.0);
+        if ((f64)func_806119FC() > 0.5) {
+            temp_v0->unk8 = (f32)-temp_v0->unk8;
+        }
+        temp_v0->unkC = (f32)(func_806119FC() * 4095.0f);
+        temp_v0->unk10 = (f32)((func_806119FC() > 0.5 ? (f64)func_806119FC() : 0.5) * 300.0);
+        if ((f64)func_806119FC() > 0.5) {
+            temp_v0->unk10 = (f32)-temp_v0->unk10;
+        }
+        temp_v0->unk14 = (f32)(func_806119FC() > 0.3 ? (f64)func_806119FC() : 0.3);
+        sp20 = 1.0f;
+    }
+    temp_v0 = arg0->unk384;
+    if (temp_v0->unk0 < 1.0f) {
+        temp_v0->unk0 = temp_v0->unk0 + 0.033333335f;
+    }
+    temp_v0->unk4 = (f32)(temp_v0->unk4 + temp_v0->unk8);
+    temp_v0->unk4 = (f32)((((s32)temp_v0->unk4 & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    temp_v0->unkC = (f32)(temp_v0->unkC + temp_v0->unk10);
+    temp_v0->unkC = (f32)((((s32)temp_v0->unkC & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    arg0->unk340 = (f32) (((((func_80612794((s16) (s32) temp_v0->unk4) * (15.0f * temp_v0->unk0)) + sp28->unk7C) - arg0->unk340) * sp20) + arg0->unk340);
+    arg0->unk348 = (f32) (((((func_80612790((s16) (s32) temp_v0->unk4) * (15.0f * temp_v0->unk0)) + sp28->unk84) - arg0->unk348) * sp20) + arg0->unk348);
+    arg0->unk344 = (f32) (((((((func_80612794((s16) (s32) temp_v0->unkC) * (temp_v0->unk14 * temp_v0->unk0)) + 1.0f) * 15.0f) + sp28->unk80) - arg0->unk344) * sp20) + arg0->unk344);
+    temp_v1 = sp28->unk174;
+    if (!(temp_v1->unk1F0 & 0x10)) {
+        *arg1 = 1;
+    }
+}
 
 void func_8071E028(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp68[4][4];
@@ -1763,11 +1826,184 @@ void func_8071E110(TimedEffectActorView *arg0, u8 arg1, u16 arg2, f32 arg3, f32 
     temp_v0->unk14 = (f32)(u32)arg2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071E1C8.s")
+typedef struct {
+    u8 pad0[0x7C];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+} Fx11BHE1Target;
+
+extern s32 actorTableContains(void *);
+
+void func_8071E1C8(TimedEffectActorView *arg0, s8 *arg1) {
+    f64 pad0;
+    f32 sp3C;
+    f32 pad1;
+    f64 pad2;
+    f32 sp2C;
+    f32 pad3;
+    f32 temp_fa0;
+    f32 temp_fv0;
+    f32 var_fv0;
+    f32 var_fv1;
+    Fx11BHE1Target *temp_s2;
+    TimedEffectActorView *var_a0;
+    TimedMotionState *temp_v0;
+
+    if (arg0->unk384 == NULL) {
+        *arg1 = 1;
+        return;
+    }
+    temp_v0 = arg0->unk384;
+    temp_s2 = (Fx11BHE1Target *)(u32)arg0->unk35C;
+    sp3C = 2.0f; // FAKE: dead store keeps the 2.0f scale in a register across the actorTableContains call
+    if (actorTableContains(temp_s2) == 0) {
+        *arg1 = 1;
+        return;
+    }
+    var_fv0 = temp_v0->unk10 * ((1.0f - (temp_v0->unk0 * sp3C)) * 2048.0f);
+    var_fv0 = (f32)((((s32)var_fv0 & 0xFFFF) & 0xFFFF) & 0xFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    sp2C = func_80612794((s16)(s32)var_fv0) * temp_v0->unk8;
+    temp_v0->unk14 = (f32)((f64)temp_v0->unk14 + (2.0 * (f64)((1.0f - (temp_v0->unk0 * sp3C)) * 4096.0f) * (f64)temp_v0->unkC));
+    temp_v0->unk14 = (f32)((((s32)temp_v0->unk14 & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    sp3C = func_80612794((s16)(s32)temp_v0->unk14) * sp2C;
+    temp_fv0 = func_80612790((s16)(s32)temp_v0->unk14);
+    temp_fa0 = temp_v0->unk4;
+    var_fv1 = temp_v0->unk10 * temp_fa0;
+    if (temp_v0->unk0 == 0.0f) {
+        var_fv1 = temp_fa0 - var_fv1;
+    }
+    arg0->unk340 = (f32)(temp_s2->unk7C + sp3C);
+    var_a0 = arg0;
+    var_a0->unk348 = (f32)(temp_s2->unk84 + (temp_fv0 * sp2C));
+    arg0->unk344 = (f32)(temp_s2->unk80 + var_fv1);
+    temp_v0->unk10 = (f32)(temp_v0->unk10 + temp_v0->unkC);
+    if (temp_v0->unk10 >= 1.0f) {
+        *arg1 = 1;
+    }
+}
+
+#ifdef NON_MATCHING
+s16 func_806531B8(f32, f32, f32, s32);
+void lightSetRadius(s32);
+void lightSetTargetId(s32);
+
+void func_8071E3EC(TimedEffectActorView *arg0, s8 *arg1) {
+    f64 var_fv0;
+    f32 sp4C;
+    f32 sp48;
+    f32 sp44;
+    f32 sp40;
+    f32 temp_fv0;
+    s32 temp_v0_2;
+    VelocityState *temp_v0;
+    VelocityState *var_v1;
+
+    if (arg0->unk384 == NULL) {
+        temp_v0 = func_80610FE8(0xC);
+        arg0->unk384 = temp_v0;
+        temp_v0->unk0 = 0.0f;
+        temp_v0->unk4 = 0.0f;
+        temp_v0->unk8 = (f32)func_806531B8(arg0->unk340, arg0->unk344, arg0->unk348, 0);
+    }
+    var_v1 = arg0->unk384;
+    if ((f64)var_v1->unk4 == 0.0) {
+        var_v1->unk0 = (f32)((f64)var_v1->unk0 + 30.0);
+        if ((f64)var_v1->unk0 > 300.0) {
+            var_v1->unk4 = 1.0f;
+            var_v1->unk0 = 300.0f;
+        }
+    } else {
+        var_v1->unk0 = (f32)((f64)var_v1->unk0 - 30.0);
+        if ((f64)var_v1->unk0 < 30.0) {
+            *arg1 = 1;
+            var_v1->unk0 = 30.0f;
+        }
+    }
+    var_fv0 = (f64)var_v1->unk0;
+    if (var_fv0 < 300.0) {
+        sp4C = (f32)(var_fv0 / 300.0);
+    } else {
+        sp4C = 1.0f;
+    }
+    lightSetRadius(1000);
+    lightSetTargetId((s16)(s32)var_v1->unk8);
+    temp_v0_2 = arg0->unk35C;
+    switch (temp_v0_2) {
+    case 0:
+        sp48 = 1.0f;
+        sp44 = 1.0f;
+        sp40 = 1.0f;
+        lightSetFlags(2);
+        lightSetRadius(1000);
+        break;
+    case 1:
+        sp48 = 1.0f;
+        sp44 = 0.5f;
+        sp40 = 0.3f;
+        lightSetFlags(3);
+        lightSetRadius(1000);
+        break;
+    case 2:
+        sp48 = 1.0f;
+        sp44 = 0.5f;
+        sp40 = 0.3f;
+        lightSetFlags(2);
+        lightSetRadius(2000);
+        break;
+    case 3:
+        sp48 = 1.0f;
+        sp44 = 1.0f;
+        sp40 = 1.0f;
+        lightSetFlags(2);
+        lightSetRadius(2000);
+        break;
+    }
+    temp_fv0 = 255.0f * sp4C;
+    lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, var_v1->unk0, 0, (u32)(temp_fv0 * sp48), (u32)(temp_fv0 * sp44), (u32)(temp_fv0 * sp40));
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071E3EC.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071E864.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+} Fx11BHE8State;
+
+void func_8071E864(TimedEffectActorView *arg0, s8 *arg1) {
+    f32 sp24;
+    Fx11BHE8State *temp_v0;
+    Fx11BHE8State *sp1C;
+    f32 temp_fa0;
+
+    if (arg0->unk384 == NULL) {
+        temp_v0 = func_80610FE8(8);
+        arg0->unk384 = temp_v0;
+        temp_v0->unk0 = 10.0f;
+        temp_v0->unk4 = (f32)(arg0->unk35C * 0x154);
+    }
+    sp1C = (Fx11BHE8State *)arg0->unk384;
+    sp1C->unk0 = (f32)((f64)sp1C->unk0 - 0.2);
+    if ((f64)sp1C->unk0 < 0.8) {
+        sp1C->unk0 = 0.8f;
+    }
+    sp24 = func_80612794((s16)(s32)sp1C->unk4);
+    sp24 = sp1C->unk0 * sp24; // FAKE: forces mul.s operand order (load first, call result second)
+    temp_fa0 = func_80612790((s16)(s32)sp1C->unk4);
+    temp_fa0 = sp1C->unk0 * temp_fa0; // FAKE: forces mul.s operand order (load first, call result second)
+    arg0->unk360 = (f32)((f64)arg0->unk360 * 1.08);
+    arg0->unk364 = (f32)((f64)arg0->unk364 * 1.08);
+    if ((f64)arg0->unk360 > 8.0) {
+        arg0->unk36D = arg0->unk36D - 0x32;
+        if (arg0->unk36D < 0x33) {
+            *arg1 = 1;
+        }
+    }
+    arg0->unk340 = (f32)(arg0->unk340 + sp24);
+    arg0->unk348 = (f32)(arg0->unk348 + temp_fa0);
+}
 
 void func_8071EA24(TimedEffectActorView *arg0, s8 *arg1) {
     TimedMotionState *var_v1;
