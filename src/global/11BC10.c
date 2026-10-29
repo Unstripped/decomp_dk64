@@ -554,13 +554,100 @@ void func_80718380(TimedEffectActorView *arg0, s8 *arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807184F4.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+} Ub3TwoFloats;
+
+typedef struct {
+    u8 pad0[0xAC];
+    f32 unkAC;
+} Ub3TargetView;
+
+void func_807184F4(TimedEffectActorView *arg0, s8 *arg1) {
+    EffectMatrix sp70;
+    EffectMatrix sp30;
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(8);
+        ((Ub3TwoFloats *) arg0->unk384)->unk0 = 0.0f;
+        ((Ub3TwoFloats *) arg0->unk384)->unk4 = (f32) ((func_806119A0() % 400U) / 100U);
+    }
+    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp30, ((Ub3TwoFloats *) arg0->unk384)->unk0, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(sp70, sp30, sp70);
+    guRotateF(sp30, 90.0f, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(sp70, sp30, sp70);
+    if (arg0->unk338 != NULL) {
+        arg0->unk344 = ((Ub3TargetView *) arg0->unk338)->unkAC;
+    }
+    guTranslateF(sp30, arg0->unk340, arg0->unk344, arg0->unk348);
+    guMtxCatF(sp70, sp30, sp70);
+    guMtxF2L(sp70, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    if (arg0->unk35C != 0) {
+        ((Ub3TwoFloats *) arg0->unk384)->unk0 += ((Ub3TwoFloats *) arg0->unk384)->unk4;
+        arg0->unk360 = (f32) ((f64) arg0->unk360 - 0.02);
+        arg0->unk364 = (f32) ((f64) arg0->unk364 - 0.02);
+        if (arg0->unk36D >= 0xA) {
+            arg0->unk36D -= 0xA;
+        } else {
+            arg0->unk36D = 0;
+        }
+    }
+    ((u8 *) arg0)[0x32C] = 3;
+}
+
+
+
+typedef struct {
+    f32 progress;
+    f32 startX;
+    f32 startY;
+    f32 startZ;
+    f32 endX;
+    f32 endY;
+    f32 endZ;
+    f32 increment;
+    f32 angle;
+    f32 angleIncrement;
+} M2Interpolation;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807186C8.s")
 
+
+typedef struct {
+    u8 pad0[0xAC];
+    f32 unkAC;
+    u8 padB0[8];
+    f32 unkB8;
+    u8 padBC[0x2A];
+    s16 unkE6;
+} NM2ProjectileSource;
+
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+} NM2Projectile;
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807189BC.s")
 
+
+typedef struct {
+    s32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+} NM2MotionState;
+
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80718BF4.s")
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071910C.s")
 
