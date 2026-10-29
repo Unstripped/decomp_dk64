@@ -604,7 +604,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             D_807FC924->unk4->unk60 &= ~0x40000000;
             sp28 = 0;
             sp2C = -1;
-            if (sp2C) {
+            if (sp2C) { // FAKE: empty guard steers regalloc
             }
             currentActorClearFlag();
             switch (arg0->unkB) {

@@ -894,7 +894,7 @@ void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*arg2)(Critt
         old = obj->speed;
         spd = (tgt - old) * rate;
         obj->speed = old + spd;
-        obj->accel = *(volatile f32 *)&obj->speed - old;
+        obj->accel = *(volatile f32 *)&obj->speed - old; // FAKE: volatile forces reload
     }
     dist = sqrtf(dx * dx + dz * dz);
     if ((u8)use_y) {

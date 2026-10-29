@@ -1250,7 +1250,7 @@ void arcadeDrawStage4Background(Gfx **arg0) {
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     x = 0x240;
     do {
-        for (i = 0x9F; (i ^ 0) != 0x87; i -= 8) {
+        for (i = 0x9F; (i ^ 0) != 0x87; i -= 8) { // FAKE: no-op `^ 0` steers codegen
             func_8070F2FC(&sp6C, x, (s32)((((f64)i * 0.875) + 8.0) * 4.0));
         }
         x += step;
@@ -1292,7 +1292,7 @@ void arcadeSpawnStage1Entities(void) {
     D_8004C71F = arcadeFindFreeEntity();
     D_8004BCD0[D_8004C71F] = D_8004A398;
     D_8004C170 = D_8004A458;
-    i = D_8004C71F & 0;
+    i = D_8004C71F & 0; // FAKE: `& 0` load steers codegen (i = 0)
     i = i + 0x24;
     D_8004BCD0[i--] = D_8004A638;
     D_8004BCD0[i] = D_8004A638;
@@ -1457,7 +1457,7 @@ void arcadeSpawnStage3Entities(void) {
     D_8004BCD0[D_8004C71F].unk0 = 56.0f;
     D_8004BCD0[D_8004C71F].unk4 = 231.0f;
     D_8004C170 = D_8004A478;
-    i = D_8004C71F & 0;
+    i = D_8004C71F & 0; // FAKE: `& 0` load steers codegen (i = 0)
     i = i + 0x24;
     p = &D_8004BCD0[i];
     *p = D_8004A478;
@@ -2221,7 +2221,7 @@ void arcadeUpdatePlayerAnimation(s32 arg0) {
     D_8004BCD0[arg0].unk1B = 0;
     val = (s32)D_8004BCD0[arg0].unk10;
     if (D_8004BCD0[arg0].unk19 == 2) {
-        if (D_8004A764 && D_8004A764) {}
+        if (D_8004A764 && D_8004A764) {} // FAKE: empty guard steers regalloc
         if (D_8004C710 != 0) {
             if (D_8004C710 & 8) {
                 switch (val & 3) {
@@ -2354,7 +2354,7 @@ void arcadeUpdatePlayerEntity(s32 arg0) {
     s32 phase;
 
     if (E.unk19 == 8 || D_8004C71D == 0) {
-        if (D_8004BC84 == 0) {}
+        if (D_8004BC84 == 0) {} // FAKE: empty guard steers regalloc
         if (E.unk19 == 2) {
             arcadeCheckPlayerCollision((s32)E.unk0, (s32)E.unk4);
             if (E.unk8 < 0.0f) {
@@ -2573,7 +2573,7 @@ void arcadeUpdatePlayerEntity(s32 arg0) {
             n_alSndpPostEvent(D_80770DFC, 0x10, *(s32 *)&sp44);
         }
         coll = arcadeCheckPlayerCollision((s32)E.unk0, (s32)E.unk4);
-        if (D_8004BC80 && D_8004BC80) {}
+        if (D_8004BC80 && D_8004BC80) {} // FAKE: empty guard steers regalloc
         E.unk1C = D_8004C6F8;
         D_8004C704 = (s32)(E.unk4 - (f32)D_8004C6E4);
         if (D_8004C71E < 0 && E.unk19 != 8) {
@@ -3297,7 +3297,7 @@ void func_8002EEB8(s32 arg0) {
                 D_8004BCD0[idx].unk8 = (((f64)D_8004BCD0[D_8004C71F].unk0 - 92.0) / 200.0 + ((f64)arcadeRand() - 16384.0) / 30000.0) * arcadeMinFloat(3.0f, (f32)D_8004A76C);
                 if ((f32)arcadeRand() < arcadeMinFloat((f32)(u32)D_8004A76C, 3.0f) * 2000.0f + 4096.0f) {
                     D_8004BCD0[idx].unk1C = 6;
-                    if (D_80040540 == 0) {}
+                    if (D_80040540 == 0) {} // FAKE: empty guard steers regalloc
                     return;
                 }
             } else if (D_8004BCD0[arg0].unk1C == 0x14) {
@@ -3324,7 +3324,7 @@ void func_8002EEB8(s32 arg0) {
                 D_8004BCD0[arg0].unk14 = D_80043498;
                 D_8004BCD0[arg0].unk1A = 0;
                 D_8004BCD0[idx].unk19 = 1;
-                if (D_80040540 == 0) {}
+                if (D_80040540 == 0) {} // FAKE: empty guard steers regalloc
                 return;
             }
             break;
@@ -3335,7 +3335,7 @@ void func_8002EEB8(s32 arg0) {
                 D_8004BCD0[arg0].unk19 = 0xC;
                 D_8004BCD0[arg0].unk14 = D_800424D0;
                 D_8004BCD0[arg0].unk1A = 0;
-                if (D_80040540 == 0) {}
+                if (D_80040540 == 0) {} // FAKE: empty guard steers regalloc
                 return;
             }
             break;
@@ -3430,7 +3430,7 @@ void func_8002F82C(s32 arg0) {
                 cnt = D_8004BCD0[arg0].unk1C;
             }
             D_8004BCD0[arg0].unk14 = D_800424D0;
-            D_8004BCD0[arg0].unk1A = ((cnt & 0x20) / 32) == (((cnt & 0x20) / 32) * 0);
+            D_8004BCD0[arg0].unk1A = ((cnt & 0x20) / 32) == (((cnt & 0x20) / 32) * 0); // FAKE: `x == x * 0` steers scheduling (x == 0)
         }
         break;
     case 8:
@@ -3518,7 +3518,7 @@ void func_8002FE28(s32 arg0) {
                 cnt = (s32)D_8004BCD0[arg0].unk10;
             }
             D_8004BCD0[arg0].unk14 = D_800424D0;
-            D_8004BCD0[arg0].unk1A = ((cnt & 0x20) / 32) == (((cnt & 0x20) / 32) * 0);
+            D_8004BCD0[arg0].unk1A = ((cnt & 0x20) / 32) == (((cnt & 0x20) / 32) * 0); // FAKE: `x == x * 0` steers scheduling (x == 0)
         }
         if ((s32)D_8004BCD0[arg0].unk10 % (0x72 - (s32)arcadeMinFloat((u32)D_8004A76C, 4.0f) * 0xC) == 0) {
             D_8004C71E -= 1;
@@ -3553,7 +3553,7 @@ void func_80030044(s32 arg0) {
             D_8004BCD0[arg0].unk14 = D_80040540;
         } else {
             D_8004BCD0[arg0].unk14 = D_800424D0;
-            D_8004BCD0[arg0].unk1A = (((s32)D_8004BCD0[arg0].unk10 & 0x20) / 32) == ((((s32)D_8004BCD0[arg0].unk10 & 0x20) / 32) * 0);
+            D_8004BCD0[arg0].unk1A = (((s32)D_8004BCD0[arg0].unk10 & 0x20) / 32) == ((((s32)D_8004BCD0[arg0].unk10 & 0x20) / 32) * 0); // FAKE: `x == x * 0` steers scheduling (x == 0)
         }
         break;
     case 5:
@@ -4116,7 +4116,7 @@ void arcadeDrawHud(Gfx **arg0) {
     func_80005A90(&D_8004BBF0[D_807444FC], ArcL8_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     func_8070E8F0(&g, &D_8004BBF0[D_807444FC]);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
-    if (D_8004A83C == 0) {
+    if (D_8004A83C == 0) { // FAKE: empty guard steers regalloc
     }
     for (i = 0; i < D_8004C71C; i++) {
         func_8070F2FC(&g, i * 0x20 + 0x360, 0x4C);

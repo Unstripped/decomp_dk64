@@ -1029,7 +1029,7 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *arg1) {
 
     p2 = (void *)arg1->unk174;
     p0 = ((BonusActorExt *)arg1)->unk178;
-    if (p2) {
+    if (p2) { // FAKE: empty guard steers regalloc
     }
     p1 = ((BonusActorExt *)arg1)->unk178;
     actor = arg1;
@@ -1276,7 +1276,7 @@ void func_8002A398(void) {
                 D_807FBB44->unk84 = p->z - 5.0;
                 D_807FBB44->unkE6 = -0x400;
                 D_807FBB44->unk4->unk34 = 0.08f;
-                if (u) {}
+                if (u) {} // FAKE: empty guard steers regalloc
                 D_807FBB44->unk4->unk38 = 0.08f;
                 D_807FBB44->unk4->unk3C = 0.08f;
             }
@@ -1960,7 +1960,7 @@ Gfx *func_8002CC08(Gfx *arg0, Actor *arg1) {
     switch (arg1->unk154) {
     case 7:
         do {
-        } while (0);
+        } while (0); // FAKE: empty do/while(0) steers branch codegen
         break;
     case 0:
     case 1:

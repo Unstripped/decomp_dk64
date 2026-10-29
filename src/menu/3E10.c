@@ -1398,7 +1398,7 @@ void func_8002C91C(MenuScreenActor *arg0, s32 arg1) {
             D_8003387C[n] = t & 0x7F;
             D_80033F20[n] = i;
             D_80033F24[i] = n;
-            if ((n ^ 0) == D_8076A105) {
+            if ((n ^ 0) == D_8076A105) { // FAKE: no-op `^ 0` steers codegen
                 D_80744524[i] += 1;
             }
             D_80033878 = n + 1;

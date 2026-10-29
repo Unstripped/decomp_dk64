@@ -50,7 +50,7 @@ void func_80032550(void) {
                 actorScriptStart(D_807FBB40, 0x2A7);
                 D_807FBB40->unk155++;
             }
-        } while (0);
+        } while (0); // FAKE: do/while(0) wrapper steers branch codegen
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }

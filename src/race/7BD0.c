@@ -1002,7 +1002,7 @@ void func_8002D778(void) {
                     pa->unkE4 = 0;
                 }
             }
-            if (!t->unk1C && !t->unk1C && !t->unk1C) {
+            if (!t->unk1C && !t->unk1C && !t->unk1C) { // FAKE: empty guard steers regalloc
             }
             func_8002D224(5);
         }

@@ -285,7 +285,7 @@ void jetpacStateGameplay(s32 arg0) {
         sp1C->score -= 1000000;
     }
     func_80024408(arg0);
-    if (sp1C->items[sp1C->unk10].unk44) {
+    if (sp1C->items[sp1C->unk10].unk44) { // FAKE: empty guard steers regalloc
     }
     jetpacPlayerStateUpdate();
     jetpacUpdateLasers();

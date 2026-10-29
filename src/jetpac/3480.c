@@ -264,7 +264,7 @@ void jetpacDrawItem(JetpacItem *arg0, s32 arg1) {
 
     sp58 = D_8002DCE8;
     inner = &jetpacGame.players[jetpacGame.active_player];
-    if (D_8002F3C0) {
+    if (D_8002F3C0) { // FAKE: empty guard steers regalloc
     }
     if (arg0->unk1C >= 2) {
         x = (s32)arg0->unk8;
@@ -564,7 +564,7 @@ void jetpacUpdateRocketFlight(void) {
     for (i = 0; i < 3; i++) {
         item->unkC = t;
         t += 16.0f;
-        if (!t) {
+        if (!t) { // FAKE: empty guard steers regalloc
         }
         item++;
     }

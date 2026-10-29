@@ -201,7 +201,7 @@ void func_80027448(void) {
             }
             if (*sp60 >= 0x2E) {
                 D_807FBB40->unk155 = 0;
-                if (func_806FB418() < sp64) {
+                if (func_806FB418() < sp64) { // FAKE: empty guard keeps the call; real body probably missing
                 }
             }
             break;

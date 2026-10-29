@@ -112,7 +112,7 @@ typedef struct {
 } JetpacExplosion;
 
 void jetpacUpdateExplosion(JetpacExplosion *arg0) {
-    volatile s32 frame;
+    volatile s32 frame; // FAKE: volatile forces stack home
     s32 timer;
 
     timer = arg0->timer;
@@ -391,10 +391,10 @@ void jetpacUpdatePlayerMovement(JetpacActor *arg0) {
     } else if ((u = arg0->unk30) != 0) {
         if (a1 != 0) {
             arg0->vy = 0.0f;
-            u = (*(volatile s32 *)&arg0->unk30);
+            u = (*(volatile s32 *)&arg0->unk30); // FAKE: volatile forces reload
         } else {
             arg0->vy += 0.2;
-            u = (*(volatile s32 *)&arg0->unk30);
+            u = (*(volatile s32 *)&arg0->unk30); // FAKE: volatile forces reload
         }
     }
     if (sp34 != 0) {
@@ -415,10 +415,10 @@ void jetpacUpdatePlayerMovement(JetpacActor *arg0) {
         vx = arg0->vx;
         if (vx > 0.0f) {
             arg0->vx = vx - 0.16666667f;
-            u = (*(volatile s32 *)&arg0->unk30);
+            u = (*(volatile s32 *)&arg0->unk30); // FAKE: volatile forces reload
         } else if (vx < 0.0f) {
             arg0->vx = vx + 0.16666667f;
-            u = (*(volatile s32 *)&arg0->unk30);
+            u = (*(volatile s32 *)&arg0->unk30); // FAKE: volatile forces reload
         }
     }
     if (u != 0) {

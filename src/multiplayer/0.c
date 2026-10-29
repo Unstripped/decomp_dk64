@@ -646,7 +646,7 @@ extern s32 D_807552F0;
 
 void func_80025654(MpControllerState *arg0) {
     s32 temp;
-    MpSpawnPoint * volatile sp20;
+    MpSpawnPoint * volatile sp20; // FAKE: volatile forces stack home
 
     sp20 = mpFindCurrentMapEntry()->items;
     if (func_8071432C() != 0 && !(D_807FBB60 & 2)) {

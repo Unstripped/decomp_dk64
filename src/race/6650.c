@@ -376,7 +376,7 @@ void func_8002B180(Struct_sp58 *arg0, Struct_8002B180_Arg1 *arg1) {
     sp58 = sqrtf((dx * dx) + (dz * dz));
     var_v1 = &D_807FDCA0->unk14[idx];
     if (sp58 < (f32)var_v1->unk7) {
-        if (D_807FBB40->unk7C) {
+        if (D_807FBB40->unk7C) { // FAKE: empty guard steers float regalloc
         }
         D_807FDC90->unk25++;
         D_807FDC90->unk25 = D_807FDC90->unk25 % D_807FDC9C->unk11;
@@ -389,7 +389,7 @@ void func_8002B180(Struct_sp58 *arg0, Struct_8002B180_Arg1 *arg1) {
     var_ft5 = temp_ft4;
     var_fv1 = (u32)D_807FDCA0->unk14[idx].unk7;
     sp54[0] = var_fv1 * 1.2f;
-    if (var_fv1) {
+    if (var_fv1) { // FAKE: empty guard steers float regalloc
     }
     if (sp_angle < sp54[0]) {
         sp_angle = sp_angle - var_fv1;
