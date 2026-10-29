@@ -431,7 +431,6 @@ extern s8 D_80033F48;
 
 void menuHandleSelectionInput(MenuScreenActor *arg0, s32 arg1) {
     Menu3R1_Struct174 *temp_s0 = arg0->unk174;
-    s32 temp_v0;
 
     if (temp_s0->unk0 == 0.0f) {
         if (temp_s0->unk4 == 0.0f) {
