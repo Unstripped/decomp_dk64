@@ -367,15 +367,11 @@ s8 D_807445C8 = 0;
 s32 D_807445CC[5] = { 0, 0x4B0, 0, 0, 0 };
 
 // .bss 0x80761050-0x8076A160
-OSMesg D_80761050;
-u32 D_80761054;
-u8 D_80761058[16];
-OSMesgQueue D_80761068;
-u8 D_80761080[944];
+OSMesgQueue D_80761050;
+OSMesg D_80761068[0xF2];
 OSThread D_80761430;
 u8 D_807615E0[160];
-s32 D_80761680;
-s32 D_80761684;
+u64 D_80761680;
 u8 D_80761688[16216];
 OSMesgQueue *D_807655E0;
 u32 D_807655E4;
@@ -453,7 +449,31 @@ void *D_8076A150;
 u32 D_8076A154;
 u8 D_8076A158[8];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/0/globalInit.s")
+// as1 schedules by source line: each segment entry stays on one line (matches the target store order)
+#define SEG ((SegEntry *)gSegmentTable)
+
+void globalInit(OSMesgQueue *arg0, s32 arg1) {
+    if (arg1 != 0) {
+        func_805FB5C4(arg0, arg1);
+    }
+    D_807655E0 = arg0;
+    SEG[0].vramStart = (u32)boot_VRAM; SEG[0].vramEnd = (u32)boot_VRAM_END; SEG[0].bssStart = (u32)boot_BSS_START; SEG[0].bssEnd = (u32)boot_BSS_END;
+    SEG[1].vramStart = (u32)globalInit; SEG[1].vramEnd = (u32)global_VRAM_END; SEG[1].bssStart = (u32)&D_80761050; SEG[1].bssEnd = (u32)global_BSS_END;
+    SEG[2].vramStart = (u32)multiplayer_VRAM; SEG[2].vramEnd = (u32)multiplayer_VRAM_END; SEG[2].bssStart = (u32)multiplayer_BSS_START; SEG[2].bssEnd = (u32)multiplayer_BSS_END;
+    SEG[3].vramStart = (u32)minecart_VRAM; SEG[3].vramEnd = (u32)minecart_VRAM_END; SEG[3].bssStart = (u32)minecart_BSS_START; SEG[3].bssEnd = (u32)minecart_BSS_END;
+    SEG[4].vramStart = (u32)bonus_VRAM; SEG[4].vramEnd = (u32)bonus_VRAM_END; SEG[4].bssStart = (u32)bonus_BSS_START; SEG[4].bssEnd = (u32)bonus_BSS_END;
+    SEG[5].vramStart = (u32)race_VRAM; SEG[5].vramEnd = (u32)race_VRAM_END; SEG[5].bssStart = (u32)race_BSS_START; SEG[5].bssEnd = (u32)race_BSS_END;
+    SEG[6].vramStart = (u32)critter_VRAM; SEG[6].vramEnd = (u32)critter_VRAM_END; SEG[6].bssStart = (u32)critter_BSS_START; SEG[6].bssEnd = (u32)critter_BSS_END;
+    SEG[7].vramStart = (u32)boss_VRAM; SEG[7].vramEnd = (u32)boss_VRAM_END; SEG[7].bssStart = (u32)boss_BSS_START; SEG[7].bssEnd = (u32)boss_BSS_END;
+    SEG[8].vramStart = (u32)arcade_VRAM; SEG[8].vramEnd = (u32)arcade_VRAM_END; SEG[8].bssStart = (u32)arcade_BSS_START; SEG[8].bssEnd = (u32)arcade_BSS_END;
+    SEG[9].vramStart = (u32)jetpac_VRAM; SEG[9].vramEnd = (u32)jetpac_VRAM_END; SEG[9].bssStart = (u32)jetpac_BSS_START; SEG[9].bssEnd = (u32)jetpac_BSS_END;
+    SEG[10].vramStart = (u32)menu_VRAM; SEG[10].vramEnd = (u32)menu_VRAM_END; SEG[10].bssStart = (u32)menu_BSS_START; SEG[10].bssEnd = (u32)menu_BSS_END;
+    osDpSetStatus(4);
+    osCreatePiManager(0x96, &D_80761050, D_80761068, 0xF2);
+    D_80761680 = 0x12345678;
+    osCreateThread(&D_80761430, 3, func_805FBFF4, NULL, &D_807655E0, 0xA);
+    osStartThread(&D_80761430);
+}
 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/0/func_805FB5C4.s")
