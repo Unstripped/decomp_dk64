@@ -1489,7 +1489,6 @@ s32 collisionBuildBoxFromMatrix(f32 *arg0, CollisionBox *arg1) {
     return 1;
 }
 
-#ifdef NON_MATCHING
 void func_8066F06C(ActorSub140 *arg0) {
     Col7C_Ent58 *first;
     s32 i;
@@ -1498,12 +1497,7 @@ void func_8066F06C(ActorSub140 *arg0) {
     Mtx *mtx;
     float sp6C[4][4];
     s32 j;
-    f32 *var_s1;
-    f32 *var_s2;
-    f32 *var_s3;
-    f32 *var_s0;
     u32 unk48;
-    s32 pad1;
 
     first = arg0->unk98;
     if (first != NULL) {
@@ -1514,36 +1508,20 @@ void func_8066F06C(ActorSub140 *arg0) {
         }
         mtx = ((Mtx **)&arg0->unk74)[var_v1];
         curr = first;
-        i = 0;
-        if (arg0->unk94 > 0) {
-            do {
-                var_s0 = (f32 *)curr;
-                var_s1 = (f32 *)((u8 *)curr + 0x24);
-                var_s2 = (f32 *)((u8 *)curr + 0x30);
-                var_s3 = (f32 *)((u8 *)curr + 0x3C);
-                for (j = 0; j != 0xC; j += 4) {
-                    unk48 = *(s32 *)((u8 *)var_s0 + 0x48);
-                    if ((unk48 ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
-                        memcpy(sp6C, (void *)arg0->unk70, 0x40);
-                        guMtxXFMF(sp6C, var_s0[0], var_s0[3], var_s0[6], var_s1, var_s2, var_s3);
-                    } else {
-                        guMtxXFML((Mtx *)((((unk48 >> 6) << 6)) + (u8 *)mtx), var_s0[0], var_s0[3], var_s0[6], var_s1, var_s2, var_s3);
-                    }
-                    var_s0++;
-                    var_s1++;
-                    var_s2++;
-                    var_s3++;
+        for (i = 0; i < arg0->unk94; i++) {
+            for (j = 0; j < 3; j++) {
+                unk48 = (&curr->unk48)[j];
+                if ((unk48 ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
+                    memcpy(sp6C, (void *)arg0->unk70, 0x40);
+                    guMtxXFMF(sp6C, curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
+                } else {
+                    guMtxXFML((Mtx *)((((unk48 >> 6) << 6)) + (u8 *)mtx), curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
                 }
-                i++;
-                curr = (Col7C_Ent58 *)((u8 *)curr + 0x58);
-            } while (i < arg0->unk94);
+            }
+            curr = (Col7C_Ent58 *)((u8 *)curr + 0x58);
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066F06C.s")
-#endif
 
 u8 actorSetTargetAngleAndCheck(s32 arg0, s16 arg1) {
     s16 sp1E;
@@ -1692,7 +1670,6 @@ void actorQueueCollisionCallbacks(CollisionActor *arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct Col7C_Node {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s32 unk10;
@@ -1781,7 +1758,7 @@ u8 func_8066F4AC(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
                         if ((*SLOT).unk7C != NULL && ((u8 *)(*SLOT).unk7C)[0x6E] == 0) {
                             D_807FB602 = sp5F;
                         }
-                        if (ret != 0 && D_807FB5FD == 0 && D_807FB61C != 0) {
+                        if (ret && D_807FB5FD == 0 && D_807FB61C != 0) {
                             actorUpdateSubActorOffsets((struct ActorTargetWork *)arg0, 0);
                         }
                     }
@@ -1793,10 +1770,6 @@ u8 func_8066F4AC(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
 }
 #undef SLOT0
 #undef SLOT
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066F4AC.s")
-#endif
 
 typedef struct Col7DHitInfo {
     u8 pad0[0x9B];
@@ -2375,16 +2348,16 @@ volatile u8 arg4; // FAKE: reload arg4 from its stack home after the calls
     z[2] = (f32)box->unk44 / 8;
 
     v1[0] = x[2] - x[0];
-    v1[1] = y[2] - y[0];
-    v1[2] = z[2] - z[0];
 
     v2[0] = x[1] - x[0];
     v2[1] = y[1] - y[0];
+    v1[2] = z[2] - z[0];
+    v1[1] = y[2] - y[0];
     v2[2] = z[1] - z[0];
 
     n[0] = (v1[1] * v2[2]) - (v2[1] * v1[2]);
-    n[1] = (v1[2] * v2[0]) - (v2[2] * v1[0]);
-    n[2] = (v1[0] * v2[1]) - (v2[0] * v1[1]);
+    n[1] = (v2[0] * v1[2]) - (v1[0] * v2[2]);
+    n[2] = (v1[0] * v2[1]) - (v1[1] * v2[0]);
 
     inv_len = 1.0f / sqrtf((n[2] * n[2]) + ((n[0] * n[0]) + (n[1] * n[1])));
     *arg1 = n[0] * inv_len;
@@ -2431,7 +2404,88 @@ ret_32_3:
     return 0x32;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671880.s")
+typedef struct Col7DNode {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 unkC;
+    s32 unk10;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    u32 unk20;
+    u8 pad24[4];
+    struct Col7DNode *unk28;
+} Col7DNode;
+
+typedef struct Col7DSub140 {
+    u8 pad0[0x70];
+    void *unk70;
+    s32 unk74[2];
+    s32 unk7C;
+    s32 unk80;
+    s32 unk84;
+    s32 unk88;
+    Col7DNode *unk8C;
+} Col7DSub140;
+
+typedef struct Col7DActor {
+    u8 pad0[4];
+    f32 *unk4;
+    u8 pad8[0x64 - 8];
+    u32 unk64;
+    u8 pad68[0x120 - 0x68];
+    f32 unk120;
+    u8 pad124[0x140 - 0x124];
+    Col7DSub140 *unk140;
+} Col7DActor;
+
+void func_80671880(arg0, arg1)
+Col7DActor *arg0;
+u8 arg1;
+{
+    f32 scale = 0.15f;
+    Col7DSub140 *sub = arg0->unk140;
+    f32 sp_b4;
+    f32 sp_b0;
+    f32 sp_ac;
+    f32 mtx[4][4];
+    Col7DNode *node;
+    s32 base;
+    u8 idx;
+
+    if (arg1 != 0 || sub->unk7C != sub->unk80) {
+        if (arg0->unk4 != NULL) {
+            scale = arg0->unk4[0xE];
+        }
+        if (arg0->unk64 & 0x800) {
+            scale = arg0->unk120;
+        }
+        if (D_8076A064 == sub->unk88) {
+            idx = D_807444FC;
+        } else {
+            idx = D_807444FC ^ 1;
+        }
+        node = sub->unk8C;
+        base = sub->unk74[idx];
+        if (base) {} // FAKE: raises base coloring priority (swaps s5/s6)
+        while (node != NULL) {
+            if (node->unk20 == -1) {
+                memcpy(mtx, sub->unk70, 0x40);
+                guMtxXFMF(mtx, node->x, node->y, node->z, &sp_b4, &sp_b0, &sp_ac);
+            } else {
+                guMtxXFML((Mtx *)(((node->unk20 >> 6) << 6) + base), node->x, node->y, node->z, &sp_b4, &sp_b0, &sp_ac);
+            }
+            node->unk10 = sp_b4 * 8.0f;
+            node->unk14 = sp_b0 * 8.0f;
+            node->unk18 = sp_ac * 8.0f;
+            node->unk1C = node->unkC * scale * 8.0f;
+            node = node->unk28;
+        }
+        sub->unk7C = sub->unk80;
+    }
+}
+
 typedef struct Col7E_SubActor {
     s32 unk0;
     s32 unk4;

@@ -1,4 +1,4 @@
-// func_80671528 (src/global/70FD0.c): stage 6 (also parked NON_MATCHING in copy): frame 0x88, all insns/stack/relocs match, only FP temp numbering differs from the 2nd cvt group on (target mtc1 f18/cvt f6/div f10, mine f6/f18/f10). volatile u8 arg4 reproduces lbu 0x9b reload; (f32)x / 8 keeps div.s. Tried: arg4 types, v1/v2 order, dead-if sweep on 5 globals, no-code casts per conversion (512 masks), /(f32)8.
+// func_80671528 (src/global/70FD0.c): stage 6: frame 0x88, callee-saved, all insns/stack/relocs match except FP temp numbering from the 2nd cvt group on (deadsweep/permuter-style search: v1/v2 sub order [v1[0],v2[0],v2[1],v1[2],v1[1],v2[2]] and cross-product operand flips fixed the cvt groups; 42 text diff lines left: spill-reload FP reg picks f6/f18/f10 in the sub block and the cross-product mul schedule). volatile u8 arg4 reproduces lbu 0x9b reload; prototyped def with volatile u8 arg4 compiles identically (usable by permuter). Tried: scalar v1/v2/n/x/y/z, 720 sub orders, 64 product flips, joint hill-climbs, deadsweep with globals+locals (no gain).
 typedef struct Col7DPlaneActor {
     u8 pad0[0x60];
     u32 unk60;
@@ -52,16 +52,16 @@ volatile u8 arg4; // FAKE: reload arg4 from its stack home after the calls
     z[2] = (f32)box->unk44 / 8;
 
     v1[0] = x[2] - x[0];
-    v1[1] = y[2] - y[0];
-    v1[2] = z[2] - z[0];
 
     v2[0] = x[1] - x[0];
     v2[1] = y[1] - y[0];
+    v1[2] = z[2] - z[0];
+    v1[1] = y[2] - y[0];
     v2[2] = z[1] - z[0];
 
     n[0] = (v1[1] * v2[2]) - (v2[1] * v1[2]);
-    n[1] = (v1[2] * v2[0]) - (v2[2] * v1[0]);
-    n[2] = (v1[0] * v2[1]) - (v2[0] * v1[1]);
+    n[1] = (v2[0] * v1[2]) - (v1[0] * v2[2]);
+    n[2] = (v1[0] * v2[1]) - (v1[1] * v2[0]);
 
     inv_len = 1.0f / sqrtf((n[2] * n[2]) + ((n[0] * n[0]) + (n[1] * n[1])));
     *arg1 = n[0] * inv_len;

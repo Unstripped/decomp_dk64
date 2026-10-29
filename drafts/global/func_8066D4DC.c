@@ -1,4 +1,4 @@
-// func_8066D4DC (src/global/70FD0.c): stage 6: all int temp regs, frame 0xa8, stack offsets and 409 opcodes match (136 lines differ, only FP temp swap f8<->f10 from stmt 2 on: sp9C[1]/sp9C[2] CSE temps take f10/f8 in target, f8/f10 here). K&R (arg0,arg1) required: 2 params, a2 untouched, declaration in file must become unprototyped s16 func_8066D4DC(). Key: ONE s16 var_v1 (no separate sp42 slot) fixed the int ring; declare it LAST
+// func_8066D4DC (src/global/70FD0.c): stage 6: frame 0xa8, all int temps/stack slots/409 opcodes match; ~57 diff lines, only FP temp regs (f4/f6/f8/f10 swaps in 2nd cross product/sp68 adds). K&R (arg0,arg1) required (a2 untouched; file prototype must become s16 func_8066D4DC()). ONE s16 var_v1 (no sp42) fixed int ring. statement order of sp34/temp_ft5/sp38 matters
 f32 func_80611BB4(f32, f32);
 
 s16 func_8066D4DC(arg0, arg1)
@@ -40,7 +40,7 @@ u8 *arg1;
     len = 1.0f / len;
 
     sp78[0] = sp84[0] * len;
-    sp78[1] = sp84[1] * len;
+    sp78[1] = len * sp84[1];
     sp78[2] = sp84[2] * len;
 
     if (sp84[0] >= 0.0f) {
@@ -78,23 +78,23 @@ u8 *arg1;
     sp78[1] *= 20.0f;
     sp78[2] *= 20.0f;
 
-    sp68[0] = sp78[0] + (f32)arg0[0];
-    sp68[1] = sp78[1] + (f32)arg0[1];
-    sp68[2] = sp78[2] + (f32)arg0[2];
+    sp68[0] = arg0[0] + sp78[0];
+    sp68[1] = sp78[1] + arg0[1];
+    sp68[2] = arg0[2] + sp78[2];
 
     sp9C[0] = arg0[0] - arg0[3];
-    sp9C[1] = arg0[1] - arg0[4];
     sp9C[2] = arg0[2] - arg0[5];
+    sp9C[1] = arg0[1] - arg0[4];
 
     sp90[0] = arg0[0] - arg0[6];
     sp90[1] = arg0[1] - arg0[7];
     sp90[2] = arg0[2] - arg0[8];
 
-    temp_ft5 = sp9C[1] * sp90[2] - sp90[1] * sp9C[2];
+    temp_ft5 = sp9C[1] * sp90[2] - sp9C[2] * sp90[1];
     sp38 = sp9C[2] * sp90[0] - sp90[2] * sp9C[0];
     sp34 = sp9C[0] * sp90[1] - sp90[0] * sp9C[1];
 
-    sp54 = -(((f32)arg0[3] * temp_ft5) + ((f32)arg0[4] * sp38) + ((f32)arg0[5] * sp34));
+    sp54 = -((arg0[3] * temp_ft5) + ((f32)arg0[4] * sp38) + ((f32)arg0[5] * sp34));
 
     dist = (temp_ft5 * sp68[0]) + (sp38 * sp68[1]) + (sp34 * sp68[2]) + sp54;
 
