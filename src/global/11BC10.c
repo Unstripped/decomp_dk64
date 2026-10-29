@@ -74,7 +74,6 @@ typedef struct {
     s16 unk8;
 } Fx11BAMotion10;
 
-#ifdef NON_MATCHING
 void func_80717100(RotatingEffectActorView *arg0, void *arg1) {
     Fx11BAMotion10 *var_v1;
 
@@ -82,8 +81,8 @@ void func_80717100(RotatingEffectActorView *arg0, void *arg1) {
         arg0->unk384 = func_80610FE8(0xA);
         var_v1 = arg0->unk384;
         var_v1->unk0 = (s16) ((randomNonNegative() >> 15) % 0xFFF);
-        var_v1->unk2 = arg0->unk35C;
-        var_v1->unk4 = ((arg0->unk35C >> 16) & 0xFFFF) & 0xFFFF; // FAKE: advance ugen temp ring by 2
+        var_v1->unk2 = arg0->unk35C & 0xFFFF;
+        var_v1->unk4 = (arg0->unk35C >> 16) & 0xFFFF;
         var_v1->unk6 = arg0->unk340;
         var_v1->unk8 = arg0->unk348;
     }
@@ -92,10 +91,6 @@ void func_80717100(RotatingEffectActorView *arg0, void *arg1) {
     arg0->unk340 = func_80612794(var_v1->unk0) * var_v1->unk2 + var_v1->unk6;
     arg0->unk348 = func_80612790(var_v1->unk0) * var_v1->unk2 + var_v1->unk8;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717100.s")
-#endif
 
 
 typedef struct {
