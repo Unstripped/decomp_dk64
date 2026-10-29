@@ -1363,7 +1363,7 @@ typedef struct TagBarrelInputPad {
     u16 unk2C;
     s8 unk2E;
     s8 unk2F;
-    s8 unk30;
+    u8 unk30;
 } TagBarrelInputPad;
 extern TagBarrelInputPad D_807FD610;
 
