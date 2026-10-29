@@ -1838,7 +1838,7 @@ s32 arcadeCheckStage3Collision(s32 arg0, s32 arg1) {
     }
     if (arg0 >= 0x4D && arg0 < 0x64) {
         end = (ArcadeLift *)(s32)&D_8004BCAC;
-        for (bar = (ArcadeLift *)D_8004BC88; ; ) {
+        for (bar = D_8004BC88; ; ) {
             f32 y = bar->y;
             bar++;
             if (y < (f32)(arg1 + 4) && (f32)(arg1 - 0x10) < y) {
@@ -1850,7 +1850,7 @@ s32 arcadeCheckStage3Collision(s32 arg0, s32 arg1) {
         }
     }
     if (arg0 >= 0x8D && arg0 < 0xA4) {
-        end = (ArcadeLift *)D_8004BCD0;
+        end = &D_8004BC88[6];
         for (bar = D_8004BCAC; ; ) {
             f32 y = bar->y;
             bar++;
