@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 
 typedef struct {
     f32 pad0;
@@ -17,30 +18,6 @@ typedef struct {
     s32 unk68;
 } Struct_4;
 
-typedef struct {
-    char pad[4];
-    Struct_4 *unk4;
-    char pad8[0x58];
-    s32 unk60;
-    char pad64[0x18];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x5E];
-    s16 unkE6;
-    s16 unkE8;
-    char padEA[0x3E];
-    s16 unk128;
-    char pad12A[0x1A];
-    u8 unk144;
-    char pad145[0xF];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x1E];
-    struct Struct_7548 *unk174;
-    void *unk178;
-} Actor_74A0;
-
 typedef struct Struct_7548 {
     s16 unk0;
     char pad2[2];
@@ -55,7 +32,14 @@ typedef struct Struct_7548 {
     u8 unk25;
     u8 unk26;
 } Struct_7548;
-extern Actor_74A0 *D_807FBB40;
+// Actor storage beyond the 0x178-byte Actor view (bonus actors keep a second payload pointer here).
+typedef struct BonusActorExt {
+    Actor actor;
+    void *unk178;
+    s16 *unk17C;
+} BonusActorExt;
+
+extern Actor *D_807FBB40;
 
 void actorDespawn(void *);
 void func_80609140(s32, s32, f32, f32, s32, s32);
@@ -81,29 +65,8 @@ typedef struct {
 } Struct_174;
 
 
-typedef struct {
-    char pad[4];
-    Struct_4 *unk4;
-    char pad8[0x50];
-    s32 unk58;
-    char pad5C[4];
-    s32 unk60;
-    char pad64[0x18];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x5E];
-    s16 unkE6;
-    char padE8[0x6C];
-    u8 unk154;
-    char pad155[0x1F];
-    Struct_174 *unk174;
-    void *unk178;
-    s16 *unk17C;
-} Actor_BB44;
-
 typedef struct Struct_71B4 {
-    Actor_BB44 *unk0[6];
+    Actor *unk0[6];
     char pad18[3];
     u8 unk1B;
     u8 unk1C;
@@ -128,7 +91,7 @@ typedef struct {
 } Struct_T0;
 
 typedef struct {
-    Actor_BB44 *unk0;
+    Actor *unk0;
     u8 unk4;
 } Struct_Sp50;
 typedef struct {
@@ -259,13 +222,13 @@ void func_807149FC(s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
 void effectFreeAndUnlink(s32);
 
-extern Actor_BB44 *D_807FBB44;
+extern Actor *D_807FBB44;
 s32 randomNonNegative(void);
 s32 actorSpawn(s32, s32);
 void actorScriptStart();
 void func_80614D00(void *, f32, f32);
 
-Gfx *bonusRenderCrosshair(Gfx *gdl, Actor_74A0 *arg1) {
+Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *arg1) {
     Struct_7548 *temp_v0 = arg1->unk174;
     s16 sp6A = temp_v0->unk1E;
     s16 sp68 = temp_v0->unk20;
@@ -291,9 +254,9 @@ typedef struct {
     u8 unk24;
     u8 unk25;
 } BonusA_6940_178;
-Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor_74A0 *arg1) {
+Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *arg1) {
     Struct_7548 *temp_s1 = arg1->unk174;
-    BonusA_6940_178 *temp_t0 = arg1->unk178;
+    BonusA_6940_178 *temp_t0 = ((BonusActorExt *)arg1)->unk178;
     s32 pad1[4];
     s32 sp64;
     s32 pad2[6];
@@ -367,9 +330,9 @@ typedef struct {
 s32 gfxResourceCreate(s32, s32, s32, f32, f32, f32);
 void gfxResourceFree(s16);
 
-Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor_74A0 *arg1) {
+Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *arg1) {
     Struct_7548 *temp_s2 = arg1->unk174;
-    BonusA_CF0_List *temp_list = arg1->unk178;
+    BonusA_CF0_List *temp_list = ((BonusActorExt *)arg1)->unk178;
     s32 var_s5 = 0;
     s32 var_s1;
     s32 var_s3;
@@ -527,37 +490,20 @@ u8 bonusAimAndFire(f32 arg0, f32 arg1, f32 arg2) {
                         temp_s0->unk18[var_v0] = 10;
                     }
                 } else if (temp_s0->unk23 == 0) {
-                    if (D_807FBB40->unk155 == 0) {
+                    if (D_807FBB40->unk155[0] == 0) {
                         sp40[0] = 2;
-                        D_807FBB40->unk155 = 1;
+                        D_807FBB40->unk155[0] = 1;
                     }
                 }
             } else if (temp_s0->unk23 < 5) {
                 temp_s0->unk23 = 5;
                 bonusResetAmmo(temp_s0);
-                D_807FBB40->unk155 = 0;
+                D_807FBB40->unk155[0] = 0;
             }
         }
     }
     return sp40[0];
 }
-
-typedef struct BonusB2_Actor {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[0x84];
-    s16 unkE8;
-    char padEA[0x11C - 0xEA];
-    struct BonusB2_Actor *unk11C;
-    char pad120[0x154 - 0x120];
-    u8 unk154;
-    u8 unk155;
-    char pad156[9];
-    u8 unk15F;
-    char pad160[0x14];
-    Struct_7548 *unk174;
-    void *unk178;
-} BonusB2_Actor;
 
 typedef struct {
     char pad0[0x2E];
@@ -566,8 +512,6 @@ typedef struct {
     u8 unk30;
     u8 unk31;
 } BonusB_Ctrl;
-
-#define BB2 ((BonusB2_Actor *)D_807FBB40)
 
 extern s32 D_8076A0A8;
 extern void *D_807FD580;
@@ -599,15 +543,15 @@ void func_8070D8C0(void *, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
 void bonusTargetGameUpdate(void) {
-    Struct_7548 *t3c = BB2->unk174;
-    Struct_71B4 *t0 = BB2->unk178;
+    Struct_7548 *t3c = D_807FBB40->unk174;
+    Struct_71B4 *t0 = ((BonusActorExt *)D_807FBB40)->unk178;
     Point3f *p;
     f32 ang;
     u8 c;
     s32 r;
     u8 idx;
 
-    if (!(BB2->unk60 & 0x10)) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
         c = gfxResourceCreate(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
         t0->unk25 = c;
         func_806FDAB8(c, 0.0f);
@@ -617,7 +561,7 @@ void bonusTargetGameUpdate(void) {
         playerStateQueueCallback(0x48, 0, 0);
         camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, -7, 0, 0x16, 0x2C, 4, 0, 0.05f);
         camStartPath(0, 0, 1);
-        BB2->unkE8 = 0x310;
+        D_807FBB40->unkE8 = 0x310;
         switch (D_8076A0A8) {
         case 0xA:
             t0->unk27 = 0x55;
@@ -655,7 +599,7 @@ void bonusTargetGameUpdate(void) {
     }
     if (t3c->unk0 > 0) {
         t3c->unk22 = 0;
-        if (BB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
+        if (D_807FBB40->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
             ang = func_80611BB4(D_807FD610.unk2F, D_807FD610.unk2E) / 6.2831855f * 8.0 + 5.5;
             if (9.0f < ang) {
                 ang -= 8.0f;
@@ -667,15 +611,15 @@ void bonusTargetGameUpdate(void) {
             t3c->unk25 = 0xFF;
             func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
-        switch (BB2->unk154) {
+        switch (D_807FBB40->unk154) {
         case 0:
-            if (BB2->unk11C->unk154 == 5) {
-                BB2->unk154 = 0xFF;
+            if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
+                D_807FBB40->unk154 = 0xFF;
             }
             if (t0->unk22 == 0) {
                 bonusEndWin(0, 0);
                 camStartPath(0, 1, 0x11);
-                BB2->unk154 = 1;
+                D_807FBB40->unk154 = 1;
             } else if (t0->unk27 < (randomNonNegative() >> 0xF) % 100) {
                 r = (randomNonNegative() >> 0xF) % 0xFF;
                 idx = r % 8;
@@ -684,19 +628,19 @@ void bonusTargetGameUpdate(void) {
                     bonusSpawnTarget(p->x, p->y, p->z, idx, t0);
                 }
             }
-            if (BB2->unk11C->unk154 == 4 && BB2->unk11C->unk155 != 0xFF) {
-                BB2->unk154 = 0xFE;
+            if (((Actor *)D_807FBB40->unk11C)->unk154 == 4 && ((Actor *)D_807FBB40->unk11C)->unk155[0] != 0xFF) {
+                D_807FBB40->unk154 = 0xFE;
             }
             break;
         case 0xFE:
             t3c->unk24 = 0xFF;
             func_80609140(0x142, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            BB2->unk154 = 0;
+            D_807FBB40->unk154 = 0;
             break;
         case 0xFF:
             bonusEndLose(0, 5);
             camStartPath(0, 1, 0x11);
-            BB2->unk154 = 1;
+            D_807FBB40->unk154 = 1;
             break;
         }
     } else {
@@ -709,9 +653,9 @@ void bonusTargetGameUpdate(void) {
             }
             break;
         case -1:
-            if (!(BB2->unk60 & 0x2000000)) {
+            if (!(D_807FBB40->unk60 & 0x2000000)) {
                 t3c->unk0 = 1;
-                actorSetStateTwo(BB2->unk11C);
+                actorSetStateTwo((void *)D_807FBB40->unk11C);
                 bonusResetAmmo(t3c);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -725,7 +669,7 @@ void bonusTargetGameUpdate(void) {
 }
 
 typedef struct {
-    Actor_BB44 *unk0[6];
+    Actor *unk0[6];
     char pad18[2];
     u8 unk1A;
     u8 unk1B;
@@ -737,19 +681,19 @@ typedef struct {
 void bonusPopupSpawnActors(BonusB_Sub178 *);
 
 void bonusPopupGameUpdate(void) {
-    Struct_7548 *t0 = BB2->unk174;
-    BonusB_Sub178 *s38 = BB2->unk178;
+    Struct_7548 *t0 = D_807FBB40->unk174;
+    BonusB_Sub178 *s38 = ((BonusActorExt *)D_807FBB40)->unk178;
     Point3f *p;
     f32 y;
     f32 z;
 
-    if (!(BB2->unk60 & 0x10)) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
         t0->unk23 = 5;
         t0->unk0 = -2;
         playerStateQueueCallback(0x48, 0, 0);
         camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
-        BB2->unkE8 = 0x9A;
+        D_807FBB40->unkE8 = 0x9A;
         switch (D_8076A0A8) {
         case 0x12:
             s38->unk20 = 0.5f;
@@ -778,14 +722,14 @@ void bonusPopupGameUpdate(void) {
         }
         bonusPopupSpawnActors(s38);
     }
-    if (BB2->unk154 == 0) {
-        BB2->unk15F = 1;
+    if (D_807FBB40->unk154 == 0) {
+        D_807FBB40->unk15F = 1;
     } else {
-        BB2->unk15F = 0;
+        D_807FBB40->unk15F = 0;
     }
     if (t0->unk0 > 0) {
         t0->unk22 = 0;
-        if (BB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
+        if (D_807FBB40->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
             if (D_807FD610.unk2F > 0) {
                 if (D_807FD610.unk2E < -0x28) {
                     t0->unk22 = 1;
@@ -812,9 +756,9 @@ void bonusPopupGameUpdate(void) {
         switch (bonusAimAndFire(p->x, y, z)) {
         case 1:
             if (t0->unk22) {
-                Actor_BB44 *e = s38->unk0[t0->unk22 - 1];
-                if (e->unk174->unk1C == 0) {
-                    e->unk174->unk1C = 6;
+                Actor *e = s38->unk0[t0->unk22 - 1];
+                if (((Struct_174 *)e->unk174)->unk1C == 0) {
+                    ((Struct_174 *)e->unk174)->unk1C = 6;
                 }
             }
             break;
@@ -823,30 +767,30 @@ void bonusPopupGameUpdate(void) {
             func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
-        switch (BB2->unk154) {
+        switch (D_807FBB40->unk154) {
         case 0:
-            if (BB2->unk11C->unk154 == 5) {
-                BB2->unk154 = 0xFF;
+            if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
+                D_807FBB40->unk154 = 0xFF;
             }
-            if (BB2->unk11C->unk154 == 4 && BB2->unk11C->unk155 != 0xFF) {
-                BB2->unk154 = 0xFE;
+            if (((Actor *)D_807FBB40->unk11C)->unk154 == 4 && ((Actor *)D_807FBB40->unk11C)->unk155[0] != 0xFF) {
+                D_807FBB40->unk154 = 0xFE;
             }
             break;
         case 2:
             bonusEndLose(0, 1);
             camStartPath(0, 1, 0x11);
-            BB2->unk154 = 1;
-            BB2->unk155 = 0;
+            D_807FBB40->unk154 = 1;
+            D_807FBB40->unk155[0] = 0;
             break;
         case 0xFE:
             t0->unk24 = 0xFF;
-            BB2->unk154 = 0;
+            D_807FBB40->unk154 = 0;
             break;
         case 0xFF:
             bonusEndWin(0, 0);
             camStartPath(0, 1, 0x11);
-            BB2->unk154 = 1;
-            BB2->unk155 = 1;
+            D_807FBB40->unk154 = 1;
+            D_807FBB40->unk155[0] = 1;
             break;
         }
     } else {
@@ -859,9 +803,9 @@ void bonusPopupGameUpdate(void) {
             }
             break;
         case -1:
-            if (!(BB2->unk60 & 0x2000000)) {
+            if (!(D_807FBB40->unk60 & 0x2000000)) {
                 t0->unk0 = 1;
-                actorSetStateTwo(BB2->unk11C);
+                actorSetStateTwo((void *)D_807FBB40->unk11C);
                 bonusResetAmmo(t0);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -874,30 +818,16 @@ void bonusPopupGameUpdate(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-typedef struct {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[0xE0];
-    u8 unk144;
-    char pad145[0xF];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x1E];
-    Struct_174 *unk174;
-} BonusB_Actor84C0;
-
-#define BB_A ((BonusB_Actor84C0 *)D_807FBB40)
-
 void bonusTargetUpdate(void) {
-    Struct_174 *sub = BB_A->unk174;
+    Struct_174 *sub = D_807FBB40->unk174;
     Struct_71B4 *p = sub->unk0;
     s32 step;
 
-    if (!(BB_A->unk60 & 0x10)) {
-        BB_A->unk144 = 0x24;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unk144 = 0x24;
     }
     func_8072881C(0, sub->unk4, sub, p);
-    switch (BB_A->unk154) {
+    switch (D_807FBB40->unk154) {
     case 0:
         if (D_807FBB85 != 0) {
             if (p->unk22 - ((sub->unk8 != 0) ? 2 : 1) < 0) {
@@ -908,14 +838,14 @@ void bonusTargetUpdate(void) {
             }
             func_806FDAB8(p->unk25, 3.1415927f);
             actorScriptStart(D_807FBB40, (sub->unk8 != 0) ? 0x212 : 0x210);
-            BB_A->unk154 = 1;
-            BB_A->unk155 = 0;
-        } else if (BB_A->unk155 != 0) {
+            D_807FBB40->unk154 = 1;
+            D_807FBB40->unk155[0] = 0;
+        } else if (D_807FBB40->unk155[0] != 0) {
             bonusDespawnTarget(sub, p);
         }
         break;
     case 1:
-        if (BB_A->unk155 != 0) {
+        if (D_807FBB40->unk155[0] != 0) {
             bonusDespawnTarget(sub, p);
         }
         break;
@@ -941,7 +871,7 @@ typedef struct {
 void bonusPopupSpawnActors(BonusB_Sub178 *arg0) {
     s32 i;
     BonusB_Sub8648 *s2;
-    Actor_BB44 *s5;
+    Actor *s5;
     Point3f *s3;
 
     for (i = 1; i != 7; i++) {
@@ -991,33 +921,6 @@ typedef struct {
     f32 unkC;
 } BonusB_Sub8E3C;
 
-typedef struct {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[6];
-    u16 unk6A;
-    u16 unk6C;
-    char pad6E[0xE];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x30];
-    f32 unkB8;
-    char padBC[4];
-    f32 unkC0;
-    f32 unkC4;
-    char padC8[0x1C];
-    s16 unkE4;
-    s16 unkE6;
-    s16 unkE8;
-    char padEA[4];
-    s16 unkEE;
-    char padF0[0x84];
-    BonusB_Sub8E3C *unk174;
-} BonusB_Actor8E3C;
-
-#define BB_C ((BonusB_Actor8E3C *)D_807FBB40)
-
 extern s16 D_8002D8C0[];
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -1027,17 +930,17 @@ void actorApplyVelocity(void *);
 void func_80665564(void *, f32);
 
 void func_80028E3C(void) {
-    BonusB_Sub8E3C *t0 = BB_C->unk174;
+    BonusB_Sub8E3C *t0 = D_807FBB40->unk174;
     BonusB_Par8E3C *p40 = t0->unk0->unk174;
     f32 temp;
     f64 v;
     s16 idx;
     s32 a0;
 
-    if (!(BB_C->unk60 & 0x10)) {
-        BB_C->unkE6 = (randomNonNegative() >> 0xF) % 4096;
-        BB_C->unkC4 = -10.0f;
-        BB_C->unk6A &= 0xFFFE;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unkE6 = (randomNonNegative() >> 0xF) % 4096;
+        D_807FBB40->unkC4 = -10.0f;
+        D_807FBB40->unk6A &= 0xFFFE;
         func_80613C48(D_807FBB40, 0x688, 0.0f, 0.0f);
         func_80614D00(D_807FBB40, 1.0, 0.0f);
     }
@@ -1052,39 +955,39 @@ void func_80028E3C(void) {
                     a0 = 0x64;
                 }
                 idx = D_8002D8C0[idx];
-                func_806086CC(BB_C->unk7C, BB_C->unk80, BB_C->unk84, idx, 0xFF, a0, 0, 0, 0.0f, 0);
+                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, idx, 0xFF, a0, 0, 0, 0.0f, 0);
             }
             if (p40->unkC < 40.0f) {
                 t0->unk4 = 1;
-                func_806086CC(BB_C->unk7C, BB_C->unk80, BB_C->unk84, 0x1ED, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1ED, 0xFF, 0x7F, 0, 0, 0.0f, 0);
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x76, 0xFF, 0x7F, 0x1E);
-                BB_C->unkEE = BB_C->unkE6;
-                BB_C->unkB8 = 10.0f;
+                D_807FBB40->unkEE = D_807FBB40->unkE6;
+                D_807FBB40->unkB8 = 10.0f;
                 actorScriptStart(t0->unk0, 0x1F7);
             }
         }
     }
     if (t0->unk4 == 0) {
-        actorGetNodePos(t0->unk0, 1, &BB_C->unk7C, &BB_C->unk80, &BB_C->unk84);
+        actorGetNodePos(t0->unk0, 1, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
     } else {
-        if ((BB_C->unk6A & 1) && !(BB_C->unk6C & 1)) {
-            BB_C->unkC0 = t0->unkC * -0.8f;
+        if ((D_807FBB40->unk6A & 1) && !(D_807FBB40->unk6C & 1)) {
+            D_807FBB40->unkC0 = t0->unkC * -0.8f;
             v = -t0->unkC * 1.5;
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xFF, (u8)((255.0 < v) ? 255.0 : v), 0x7F, 0xA);
         }
-        BB_C->unkC0 = BB_C->unkC0 + BB_C->unkC4;
-        t0->unkC = BB_C->unkC0;
+        D_807FBB40->unkC0 = D_807FBB40->unkC0 + D_807FBB40->unkC4;
+        t0->unkC = D_807FBB40->unkC0;
         func_8067ACB4(D_807FBB40);
         actorApplyVelocity(D_807FBB40);
         func_80665564(D_807FBB40, 0);
     }
-    BB_C->unkE6 += p40->unkC;
-    if (BB_C->unkE6 >= 0x1000) {
-        BB_C->unkE6 -= 0x1000;
+    D_807FBB40->unkE6 += p40->unkC;
+    if (D_807FBB40->unkE6 >= 0x1000) {
+        D_807FBB40->unkE6 -= 0x1000;
     }
     temp = 30000.0f / p40->unkC;
-    BB_C->unkE4 = func_80612794(BB_C->unkE6) * -temp;
-    BB_C->unkE8 = func_80612790(BB_C->unkE6) * temp;
+    D_807FBB40->unkE4 = func_80612794(D_807FBB40->unkE6) * -temp;
+    D_807FBB40->unkE8 = func_80612790(D_807FBB40->unkE6) * temp;
     temp = temp * 0.006666667f;
     temp = (temp < 1.0f) ? 1.0f : ((temp > 2.5f) ? 2.5f : temp);
     func_80614D00(D_807FBB40, temp, 0.0f);
@@ -1118,17 +1021,17 @@ typedef struct {
     s16 unk2A;
 } BonusC_9B9C_C;
 
-Gfx *func_80029B9C(Gfx *gdl, Actor_BB44 *arg1) {
-    Actor_BB44 *actor;
+Gfx *func_80029B9C(Gfx *gdl, Actor *arg1) {
+    Actor *actor;
     BonusC_9B9C_B *p0;
     BonusC_9B9C_A *p1;
     BonusC_9B9C_C *p2;
 
     p2 = (void *)arg1->unk174;
-    p0 = arg1->unk178;
+    p0 = ((BonusActorExt *)arg1)->unk178;
     if (p2) {
     }
-    p1 = arg1->unk178;
+    p1 = ((BonusActorExt *)arg1)->unk178;
     actor = arg1;
 
     if (actor->unk58 != 0x7E && actor->unk154 == 0 && ((Struct_7548 *)actor->unk174)->unk26 != 0) {
@@ -1172,15 +1075,15 @@ typedef struct {
 } BonusC_9E54_S;
 
 void func_80029E54(void *arg0) {
-    Actor_BB44 *a = arg0;
+    Actor *a = arg0;
     s32 i;
     s16 *X = &D_8002D8CA - 1;
-    Struct_T0 *base = a->unk178;
+    Struct_T0 *base = ((BonusActorExt *)a)->unk178;
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x147, X[i - 1]) != 0) {
             BonusC_9E54_S *temp_v1 = (BonusC_9E54_S *)D_807FBB44->unk174;
-            s16 *temp_a1 = D_807FBB44->unk17C;
+            s16 *temp_a1 = ((BonusActorExt *)D_807FBB44)->unk17C;
             Point3f *pt;
             f32 scale;
 
@@ -1209,7 +1112,7 @@ void func_80029E54(void *arg0) {
 void func_8002A010(void) {
     f32 scale;
     Struct_Sp50 *sp50;
-    Actor_BB44 *v;
+    Actor *v;
     Struct_T0 *sp48;
     f32 sp44;
     f32 sp40;
@@ -1220,7 +1123,7 @@ void func_8002A010(void) {
 
     sp50 = (Struct_Sp50 *)D_807FBB40->unk174;
     v = sp50->unk0;
-    sp48 = (Struct_T0 *)v->unk178;
+    sp48 = (Struct_T0 *)((BonusActorExt *)v)->unk178;
     if (!(D_807FBB40->unk60 & 0x10)) {
         if (sp50->unk4 != 5) {
             actorClearAllNodeFlags(D_807FBB40);
@@ -1247,7 +1150,7 @@ void func_8002A010(void) {
         if (flags & 0x80) {
             sp48->unk8[sp50->unk4] = flags & 0x7F;
             actorScriptStart(D_807FBB40, D_8002D8D4[sp50->unk4]);
-        } else if (sp44 < 0.05f && D_807FBB40->unk4->unk68 != 0) {
+        } else if (sp44 < 0.05f && ((Struct_4 *)D_807FBB40->unk4)->unk68 != 0) {
             actorScriptStart(D_807FBB40, 0);
         }
         if (var_a3 != 0) {
@@ -1300,15 +1203,15 @@ typedef struct {
 extern s8 D_8002D904;
 
 void func_8002A398(void) {
-    Struct_7548 *t3c = BB2->unk174;
-    LargeB1_Sub178 *t0 = BB2->unk178;
+    Struct_7548 *t3c = D_807FBB40->unk174;
+    LargeB1_Sub178 *t0 = ((BonusActorExt *)D_807FBB40)->unk178;
     Point3f *p;
     f32 y;
     f32 z;
     s32 n;
     s32 i;
 
-    if (!(BB2->unk60 & 0x10)) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
         t3c->unk23 = 5;
         t3c->unk0 = -2;
         D_8002D904 = 0;
@@ -1339,7 +1242,7 @@ void func_8002A398(void) {
         playerStateQueueCallback(0x48, 0, 0);
         camSetTarget(BB_CAMCTX->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
-        BB2->unkE8 = 0x9A;
+        D_807FBB40->unkE8 = 0x9A;
         for (i = 1; i != 7; i++) {
             if (actorSpawn(0x148, 0x21) != 0) {
                 BonusC_9E54_S *u = (BonusC_9E54_S *)D_807FBB44->unk174;
@@ -1382,7 +1285,7 @@ void func_8002A398(void) {
             ((s8 *)&D_8002D900)[4] = (u16)(1 - n);
         }
         t3c->unk22 = 0;
-        if (BB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
+        if (D_807FBB40->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
             if (D_807FD610.unk2F > 0) {
                 if (D_807FD610.unk2E < -0x28) {
                     t3c->unk22 = 1;
@@ -1414,24 +1317,24 @@ void func_8002A398(void) {
             func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
-        switch (BB2->unk154) {
+        switch (D_807FBB40->unk154) {
         case 0:
             if (t0->unk8 == 0) {
-                BB2->unk154 = 2;
+                D_807FBB40->unk154 = 2;
             }
-            if (BB2->unk11C->unk154 == 5) {
-                BB2->unk154 = 1;
+            if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
+                D_807FBB40->unk154 = 1;
             }
             break;
         case 1:
             bonusEndLose(0, 1);
             camStartPath(0, 1, 0x11);
-            BB2->unk154 = 3;
+            D_807FBB40->unk154 = 3;
             break;
         case 2:
             bonusEndWin(0, 0);
             camStartPath(0, 1, 0x11);
-            BB2->unk154 = 3;
+            D_807FBB40->unk154 = 3;
             break;
         }
     } else {
@@ -1444,9 +1347,9 @@ void func_8002A398(void) {
             }
             break;
         case -1:
-            if (!(BB2->unk60 & 0x2000000)) {
+            if (!(D_807FBB40->unk60 & 0x2000000)) {
                 t3c->unk0 = 1;
-                actorSetStateTwo(BB2->unk11C);
+                actorSetStateTwo((void *)D_807FBB40->unk11C);
                 bonusResetAmmo(t3c);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -1474,12 +1377,12 @@ void func_8002AAA4(void) {
     s32 i;
 
     sp64 = (Struct_AAA4_174 *)D_807FBB40->unk174;
-    temp_v0 = D_807FBB40->unk4;
+    temp_v0 = (Struct_4 *)D_807FBB40->unk4;
     sp50 = temp_v0->unk0;
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x239);
         D_807FBB40->unk144 = 0x24;
-        temp_v0 = D_807FBB40->unk4;
+        temp_v0 = (Struct_4 *)D_807FBB40->unk4;
     }
     sp54 = temp_v0->unk64;
     if (sp54 == 0x239) {
@@ -1515,20 +1418,20 @@ typedef struct {
 } BonusC_AD10_B;
 
 typedef struct {
-    Actor_BB44 *unk0;
+    Actor *unk0;
     s8 unk4;
 } BonusC_AD10_S;
 
 void func_8002AD10(void) {
     s32 pad;
     BonusC_AD10_S *sp28;
-    Actor_BB44 *v;
+    Actor *v;
     BonusC_AD10_B *sp20;
     Point3f *p;
 
     sp28 = (BonusC_AD10_S *)D_807FBB40->unk174;
     v = sp28->unk0;
-    sp20 = v->unk178;
+    sp20 = ((BonusActorExt *)v)->unk178;
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x2B5, sp20);
     }
@@ -1569,29 +1472,7 @@ typedef struct {
 } BonusDModel;
 
 typedef struct {
-    char pad0[4];
-    BonusDModel *unk4;
-    char pad8[0x58];
-    s32 unk60;
-    char pad64[0x18];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x5E];
-    s16 unkE6;
-    char padE8[0x40];
-    s16 unk128;
-    char pad12A[0x1A];
-    u8 unk144;
-    char pad145[0xF];
-    u8 unk154;
-    char pad155[0x1F];
-    void *unk174;
-} BonusDActor;
-#define BDX ((BonusDActor *)D_807FBB40)
-
-typedef struct {
-    BonusDActor *unk0;
+    Actor *unk0;
     f32 unk4;
     f32 unk8;
     s16 unkC;
@@ -1610,21 +1491,21 @@ typedef struct {
 } BonusDB920Tgt;
 
 void func_8002B920(void) {
-    BonusDB920Link *temp_s1 = BDX->unk174;
-    BonusDActor *sp48 = temp_s1->unk0;
+    BonusDB920Link *temp_s1 = D_807FBB40->unk174;
+    Actor *sp48 = temp_s1->unk0;
     BonusDB920Tgt *temp_s2 = sp48->unk174;
     f32 sp40;
     f32 sp3C;
     f32 dx;
 
-    if (!(BDX->unk60 & 0x10)) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x32F);
-        BDX->unk4->unk34 = 0.06f;
-        BDX->unk4->unk38 = 0.06f;
-        BDX->unk4->unk3C = 0.06f;
+        D_807FBB40->unk4->unk34 = 0.06f;
+        D_807FBB40->unk4->unk38 = 0.06f;
+        D_807FBB40->unk4->unk3C = 0.06f;
         sfxPlayActorSound(D_807FBB40, 0x10E, 0x3C, 1, 0, 0xFF, 1.0f, 0);
     }
-    if (BDX->unk154 == 0) {
+    if (D_807FBB40->unk154 == 0) {
         if (temp_s2->unk2C == 0) {
             if (temp_s1->unkC > 0) {
                 if (temp_s1->unkC == 0x28) {
@@ -1635,9 +1516,9 @@ void func_8002B920(void) {
             } else {
                 sp40 = 3.0f;
             }
-            BDX->unkE6 -= func_806CC10C(mathAngleBetweenPoints2D(BDX->unk7C, BDX->unk84, temp_s1->unk4, temp_s1->unk8) + 0x800, BDX->unkE6) >> 3;
-            BDX->unk7C += func_80612794(BDX->unkE6) * sp40;
-            BDX->unk84 += func_80612790(BDX->unkE6) * sp40;
+            D_807FBB40->unkE6 -= func_806CC10C(mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, temp_s1->unk4, temp_s1->unk8) + 0x800, D_807FBB40->unkE6) >> 3;
+            D_807FBB40->unk7C += func_80612794(D_807FBB40->unkE6) * sp40;
+            D_807FBB40->unk84 += func_80612790(D_807FBB40->unkE6) * sp40;
             temp_s1->unkE--;
             if (temp_s1->unkE <= 0) {
                 s16 angle;
@@ -1657,12 +1538,12 @@ void func_8002B920(void) {
             if (temp_s2->unk2C == 0x28) {
                 sfxPlayFromActorDirect(D_807FBB40, 0x801, 0xFF, 3.0f, 2, 0);
             }
-            BDX->unk80 = func_80612794(temp_s2->unk18) * 5.0 + (sp48->unk80 - 30.0);
+            D_807FBB40->unk80 = func_80612794(temp_s2->unk18) * 5.0 + (sp48->unk80 - 30.0);
         }
     } else {
-        BDX->unk128 -= 4;
-        if (BDX->unk128 < 5) {
-            BDX->unk128 = 0;
+        D_807FBB40->unk128 -= 4;
+        if (D_807FBB40->unk128 < 5) {
+            D_807FBB40->unk128 = 0;
             actorDespawn(D_807FBB40);
         }
     }
@@ -1670,9 +1551,9 @@ void func_8002B920(void) {
         f32 dz;
         dx = func_80612794(sp48->unkE6) * 65.0f + sp48->unk7C;
         dz = func_80612790(sp48->unkE6) * 65.0f + sp48->unk84;
-        dx -= BDX->unk7C;
-        dz -= BDX->unk84;
-        if (BDX->unk154 == 0) {
+        dx -= D_807FBB40->unk7C;
+        dz -= D_807FBB40->unk84;
+        if (D_807FBB40->unk154 == 0) {
             if (dx < 12.0 && dx > -12.0 && dz < 12.0 && dz > -12.0) {
                 s32 var_v0;
 
@@ -1687,10 +1568,10 @@ void func_8002B920(void) {
                         var_v0 = 1;
                     }
                 }
-                BDX->unk154 = 1;
+                D_807FBB40->unk154 = 1;
                 sfxPlayFromActorDirect(D_807FBB40, 0x16, 0xFF, 1.0f, 0x14, 0);
-                BDX->unk128 = 0xFF;
-                BDX->unk60 &= ~0x8000;
+                D_807FBB40->unk128 = 0xFF;
+                D_807FBB40->unk60 &= ~0x8000;
             } else if (dx * dx + dz * dz < 900.0f) {
                 temp_s1->unkC = 0x3C;
                 temp_s1->unkE = 1;
@@ -1715,46 +1596,28 @@ typedef struct {
     f32 unk3C;
 } BonusDBE44Model;
 
-typedef struct BonusDBE44Actor BonusDBE44Actor;
 typedef struct {
-    BonusDBE44Actor *unk0;
+    Actor *unk0;
 } BonusDBE44Link;
 
-struct BonusDBE44Actor {
-    char pad0[4];
-    BonusDBE44Model *unk4;
-    char pad8[0x58];
-    s32 unk60;
-    char pad64[0x18];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x5E];
-    s16 unkE6;
-    s16 unkE8;
-    char padEA[0x8A];
-    BonusDBE44Link *unk174;
-};
-
-#define BDA ((BonusDBE44Actor *)D_807FBB40)
 void func_8002BE44(void) {
-    BonusDBE44Link *link = BDA->unk174;
-    BonusDBE44Actor *temp_v1 = link->unk0;
-    BonusDBE44Anim *sp24 = BDA->unk4->unk0;
-    BonusDBE44Anim *var_t0 = temp_v1->unk4->unk0;
+    BonusDBE44Link *link = D_807FBB40->unk174;
+    Actor *temp_v1 = link->unk0;
+    BonusDBE44Anim *sp24 = ((BonusDBE44Model *)D_807FBB40->unk4)->unk0;
+    BonusDBE44Anim *var_t0 = ((BonusDBE44Model *)temp_v1->unk4)->unk0;
     s16 var_a1;
 
-    if (!(BDA->unk60 & 0x10)) {
-        BDA->unkE8 = 0;
-        BDA->unkE6 = 0x800;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unkE8 = 0;
+        D_807FBB40->unkE6 = 0x800;
         func_80613C48(D_807FBB40, 0x5FB, 0, 0);
-        BDA->unk4->unk34 = 0.2f;
-        BDA->unk4->unk38 = 0.2f;
-        BDA->unk4->unk3C = 0.2f;
+        D_807FBB40->unk4->unk34 = 0.2f;
+        D_807FBB40->unk4->unk38 = 0.2f;
+        D_807FBB40->unk4->unk3C = 0.2f;
     }
-    BDA->unk7C = temp_v1->unk7C;
-    BDA->unk80 = temp_v1->unk80 - 35.0;
-    BDA->unk84 = temp_v1->unk84;
+    D_807FBB40->unk7C = temp_v1->unk7C;
+    D_807FBB40->unk80 = temp_v1->unk80 - 35.0;
+    D_807FBB40->unk84 = temp_v1->unk84;
     if (sp24 != NULL) {
         if (var_t0 != NULL) {
             var_a1 = var_t0->unk10;
@@ -1770,7 +1633,6 @@ void func_8002BE44(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-typedef struct LargeB4Actor LargeB4Actor;
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -1791,28 +1653,8 @@ typedef struct {
     s8 unk2A[1];
 } LargeB4Sub;
 
-struct LargeB4Actor {
-    char pad0[4];
-    Struct_4 *unk4;
-    char pad8[0x58];
-    s32 unk60;
-    char pad64[0x18];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x94];
-    LargeB4Actor *unk11C;
-    char pad120[0x24];
-    u8 unk144;
-    char pad145[0xF];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x1E];
-    LargeB4Sub *unk174;
-};
-
 typedef struct {
-    LargeB4Actor *unk0;
+    Actor *unk0;
     s16 unk4;
     char pad6[2];
     f32 unk8;
@@ -1837,15 +1679,13 @@ typedef struct {
     s8 unk3;
 } LargeB4Ctrl;
 
-extern void *D_807FBB4C;
+extern Actor *D_807FBB4C;
 extern LargeB4Player *D_807FC924;
 extern LargeB4Ctrl *D_807ECDEC;
 void lightSetColor(f32, f32, f32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-Gfx *func_8002CC08(Gfx *, Actor_BB44 *);
+Gfx *func_8002CC08(Gfx *, Actor *);
 
-#define LB4A ((LargeB4Actor *)D_807FBB40)
-#define LB4C ((LargeB4Actor *)D_807FBB4C)
 void func_8002BF98(void) {
     f32 sp84;
     f32 fv0;
@@ -1854,19 +1694,19 @@ void func_8002BF98(void) {
     f32 sp74;
     f32 fv1;
     f32 ft5;
-    LargeB4Sub *temp_s5 = LB4A->unk174;
+    LargeB4Sub *temp_s5 = D_807FBB40->unk174;
     LargeB4Spawn *temp_s0;
     s32 i;
     s32 pad;
     s16 sp5A;
 
-    if (!(LB4A->unk60 & 0x10)) {
-        LB4C->unk154 = 0x77;
-        LB4C->unk155 = 0;
-        LB4C->unk144 = 1;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB4C->unk154 = 0x77;
+        D_807FBB4C->unk155[0] = 0;
+        D_807FBB4C->unk144 = 1;
         temp_s5->unk0 = 1.0f;
-        temp_s5->unk4 = LB4A->unk7C;
-        temp_s5->unk8 = LB4A->unk84;
+        temp_s5->unk4 = D_807FBB40->unk7C;
+        temp_s5->unk8 = D_807FBB40->unk84;
         switch (D_8076A0A8) {
             case 0x67:
                 temp_s5->unk28 = 4;
@@ -1890,12 +1730,12 @@ void func_8002BF98(void) {
         temp_s5->unk20 = 0x3C;
         temp_s5->unk23 = gfxResourceCreate(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
         func_806FDAB8(temp_s5->unk23, 0.0f);
-        LB4A->unk4->unk34 = 0.33f;
-        LB4A->unk4->unk38 = 0.33f;
-        LB4A->unk4->unk3C = 0.33f;
+        D_807FBB40->unk4->unk34 = 0.33f;
+        D_807FBB40->unk4->unk38 = 0.33f;
+        D_807FBB40->unk4->unk3C = 0.33f;
         camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
-        LB4A->unk154 = 3;
+        D_807FBB40->unk154 = 3;
         temp_s5->unk14 = 0.0;
         temp_s5->unk18 = 0.0;
         temp_s5->unkC = 0.0;
@@ -1912,7 +1752,7 @@ void func_8002BF98(void) {
             temp_s5->unk2A[i] -= 1;
             if (temp_s5->unk2A[i] == 0 && actorSpawn(0x14B, 0x21) != 0) {
                 temp_s0 = (LargeB4Spawn *)D_807FBB44->unk174;
-                temp_s0->unk0 = LB4A;
+                temp_s0->unk0 = D_807FBB40;
                 temp_s0->unkC = 2;
                 temp_s0->unkC = (func_806119A0() & 0x3F) + 0xF;
                 temp_s0->unk4 = func_806119A0() & 0xF;
@@ -1925,7 +1765,7 @@ void func_8002BF98(void) {
         }
     }
     temp_s5->unk1C += 0x19;
-    if (LB4A->unk154 == 0 || LB4A->unk154 == 1) {
+    if (D_807FBB40->unk154 == 0 || D_807FBB40->unk154 == 1) {
         temp_s5->unk0 = temp_s5->unk0 - 0.03333333333333333;
         if (temp_s5->unk0 < 0.0) {
             temp_s5->unk0 = 0.0;
@@ -1937,7 +1777,7 @@ void func_8002BF98(void) {
         }
     }
     lightSetColor(temp_s5->unk0, temp_s5->unk0, temp_s5->unk0, -1);
-    switch (LB4A->unk154) {
+    switch (D_807FBB40->unk154) {
         case 0: {
             sp84 = func_80612794(D_807FC924[D_807FC929].unk2C8);
             fv0 = func_80612790(D_807FC924[D_807FC929].unk2C8);
@@ -1951,10 +1791,10 @@ void func_8002BF98(void) {
             temp_s5->unkC = temp_s5->unkC + temp_s5->unk14;
             temp_s5->unk10 = temp_s5->unk10 - temp_s5->unk18;
             if (temp_s5->unk26 == 0) {
-                LB4A->unk154 = 5;
+                D_807FBB40->unk154 = 5;
             }
-            if (LB4A->unk11C->unk154 == 5) {
-                LB4A->unk154 = 6;
+            if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
+                D_807FBB40->unk154 = 6;
             }
             if (temp_s5->unk1E > 0) {
                 temp_s5->unk1E = temp_s5->unk1E - 1;
@@ -1965,34 +1805,34 @@ void func_8002BF98(void) {
                 sp78 = D_807FC924->unk214 - 25.0f;
                 sp74 = func_80612790(D_807FC924->unk2C8) * 30.0f + D_807FC924->unk218;
                 projectileSetTargetCoords(sp7C, sp78, sp74);
-                projectileAimAndSpawn(0x23, 1, 0.8f, LB4A->unk7C, LB4A->unk80, LB4A->unk84, 625.0f, D_807FBB40);
+                projectileAimAndSpawn(0x23, 1, 0.8f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 625.0f, D_807FBB40);
                 temp_s5->unk1E = 0x1E;
             }
             break;
         }
         case 3:
             if (D_807444EC != 1) {
-                LB4A->unk154 = 4;
+                D_807FBB40->unk154 = 4;
                 func_806A2A10(0xDC, 0x2A, (u8)temp_s5->unk20);
                 func_8070D8C0(D_807FBB40, 0, 0xC);
             }
             break;
         case 4:
-            if (!(LB4A->unk60 & 0x02000000)) {
-                LB4A->unk154 = 0;
-                actorSetStateTwo(LB4A->unk11C);
+            if (!(D_807FBB40->unk60 & 0x02000000)) {
+                D_807FBB40->unk154 = 0;
+                actorSetStateTwo((void *)D_807FBB40->unk11C);
                 sfxAllocateChannel(8, 1.0);
             }
             break;
         case 5:
         case 6:
-            if (LB4A->unk154 == 6) {
+            if (D_807FBB40->unk154 == 6) {
                 bonusEndLose(0, 1);
             } else {
                 bonusEndWin(0, 0);
             }
             camStartPath(0, 1, 0x11);
-            LB4A->unk154 = 7;
+            D_807FBB40->unk154 = 7;
             break;
     }
     sp7C = temp_s5->unkC;
@@ -2003,13 +1843,13 @@ void func_8002BF98(void) {
         temp_s5->unkC = sp7C * sp78;
         temp_s5->unk10 = sp74 * sp78;
     }
-    LB4A->unk7C = func_80612794(temp_s5->unk1C) * 5.0 + (temp_s5->unk4 + temp_s5->unkC);
-    LB4A->unk84 = func_80612790(temp_s5->unk1C * 2) * 2.0 + (temp_s5->unk8 + temp_s5->unk10);
-    LB4C->unk7C = temp_s5->unk4 + temp_s5->unkC * 0.5f;
-    LB4C->unk80 = LB4A->unk80;
-    LB4C->unk84 = temp_s5->unk8 + temp_s5->unk10 * 0.5f;
+    D_807FBB40->unk7C = func_80612794(temp_s5->unk1C) * 5.0 + (temp_s5->unk4 + temp_s5->unkC);
+    D_807FBB40->unk84 = func_80612790(temp_s5->unk1C * 2) * 2.0 + (temp_s5->unk8 + temp_s5->unk10);
+    D_807FBB4C->unk7C = temp_s5->unk4 + temp_s5->unkC * 0.5f;
+    D_807FBB4C->unk80 = D_807FBB40->unk80;
+    D_807FBB4C->unk84 = temp_s5->unk8 + temp_s5->unk10 * 0.5f;
     renderCallbacksRegister(func_8002CC08, D_807FBB40, 3);
-    lightAdd(LB4A->unk7C, LB4A->unk80 + 25.0, LB4A->unk84, LB4A->unk7C, LB4A->unk80, LB4A->unk84, 25.0f, 1, 0xFF, 0xFF, 0xFF);
+    lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80 + 25.0, D_807FBB40->unk84, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 25.0f, 1, 0xFF, 0xFF, 0xFF);
 }
 
 
@@ -2023,7 +1863,7 @@ typedef struct {
 } BonusDC8ECTgt;
 
 typedef struct {
-    BonusDActor *unk0;
+    Actor *unk0;
     s16 unk4;
     char pad6[2];
     f32 unk8;
@@ -2037,28 +1877,28 @@ void func_8002C8EC(void) {
     f32 sp30, sp34;
     s16 temp_s0_2;
     s32 var_v0;
-    BonusDActor *temp_v0;
-    BonusDC8ECLink *temp_s2 = BDX->unk174;
+    Actor *temp_v0;
+    BonusDC8ECLink *temp_s2 = D_807FBB40->unk174;
     BonusDC8ECTgt *temp_s3;
 
     temp_v0 = temp_s2->unk0;
     temp_s3 = temp_v0->unk174;
 
-    if (!(BDX->unk60 & 0x10)) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x232);
-        BDX->unk144 = 0x24;
-        BDX->unk4->unk34 = 0.25f;
-        BDX->unk4->unk38 = 0.25f;
-        BDX->unk4->unk3C = 0.25f;
+        D_807FBB40->unk144 = 0x24;
+        D_807FBB40->unk4->unk34 = 0.25f;
+        D_807FBB40->unk4->unk38 = 0.25f;
+        D_807FBB40->unk4->unk3C = 0.25f;
     }
-    if (BDX->unk154 == 0) {
+    if (D_807FBB40->unk154 == 0) {
         sp40 = D_8002D90C;
         temp_s0_2 = temp_s2->unk4 * 0xC8 - 0x578;
         sp30 = func_80612794(temp_s0_2) * temp_s2->unk8 + temp_s3->unk4;
         sp34 = func_80612790(temp_s0_2) * temp_s2->unk8 + temp_s3->unk8;
-        BDX->unkE6 -= func_806CC10C(mathAngleBetweenPoints2D(BDX->unk7C, BDX->unk84, sp30, sp34) + 0x800, BDX->unkE6) >> 5;
-        BDX->unk7C += func_80612794(BDX->unkE6) * sp40;
-        BDX->unk84 += func_80612790(BDX->unkE6) * sp40;
+        D_807FBB40->unkE6 -= func_806CC10C(mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, sp30, sp34) + 0x800, D_807FBB40->unkE6) >> 5;
+        D_807FBB40->unk7C += func_80612794(D_807FBB40->unkE6) * sp40;
+        D_807FBB40->unk84 += func_80612790(D_807FBB40->unkE6) * sp40;
         temp_s2->unkC--;
         if (temp_s2->unkC <= 0) {
             temp_s2->unkC = (func_806119A0() & 0x3F) + 0xF;
@@ -2066,10 +1906,10 @@ void func_8002C8EC(void) {
             temp_s2->unk8 = 40.0 * func_806119FC() + 10.0;
         }
         if (D_807FBB85 == 1) {
-            BDX->unk128 = 0xFF;
-            BDX->unk60 &= ~0x8000;
+            D_807FBB40->unk128 = 0xFF;
+            D_807FBB40->unk60 &= ~0x8000;
             actorScriptStart(D_807FBB40, 0x332);
-            BDX->unk154 = 1;
+            D_807FBB40->unk154 = 1;
             func_80609140(0x16, 0x7FFF, 63.0f, 1.0f, 0, 0);
             var_v0 = 0;
             if (temp_s3->unk28 != 0) {
@@ -2083,16 +1923,16 @@ void func_8002C8EC(void) {
             }
         }
     } else {
-        BDX->unk128 -= 4;
-        if (BDX->unk128 < 5) {
-            BDX->unk128 = 0;
+        D_807FBB40->unk128 -= 4;
+        if (D_807FBB40->unk128 < 5) {
+            D_807FBB40->unk128 = 0;
             actorDespawn(D_807FBB40);
         }
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-Gfx *func_8002CC08(Gfx *arg0, Actor_BB44 *arg1) {
+Gfx *func_8002CC08(Gfx *arg0, Actor *arg1) {
     Struct_CC08_174 *sp84;
     f32 sp80;
     f32 sp7C;
