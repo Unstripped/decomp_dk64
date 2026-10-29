@@ -176,7 +176,199 @@ void func_8068ECF4(s32 arg0, u8 arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8068ECF4.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8068EF54.s")
+extern Actor *D_807FBB40;
+
+f32 func_80611BB4(f32, f32);
+
+typedef struct L68EF54Owner {
+    u8 pad0[0xBC];
+    s16 unkBC;
+    u8 padBE[0x1A0 - 0xBE];
+    u16 unk1A0;
+    u8 unk1A2;
+    u8 unk1A3;
+    u8 pad1A4[0x1F4 - 0x1A4];
+    u32 unk1F4;
+    u8 pad1F8[0x240 - 0x1F8];
+    u8 unk240;
+} L68EF54Owner;
+
+typedef struct L68EF54State {
+    Actor *unk0;
+    Actor *unk4;
+    s32 unk8;
+} L68EF54State;
+
+typedef struct L68EF54Model {
+    u8 pad0[4];
+    f32 unk4;
+    u8 pad8[8];
+    s16 unk10;
+} L68EF54Model;
+
+typedef struct L68EF54Buf {
+    s8 unk0;
+    u8 unk1;
+    u16 unk2;
+    u16 unk4;
+    u16 unk6;
+    u8 unk8;
+} L68EF54Buf;
+
+typedef struct L68EF54Sub4 {
+    u8 pad0[0x1C];
+    L68EF54Buf *unk1C;
+} L68EF54Sub4;
+
+extern u32 D_8076A064;
+extern s32 D_8076A0A8;
+extern Actor *D_807FBB48;
+void sfxStopChannel(s32, s32);
+void slotQueueCancel(s32, s32);
+void func_806F0C18(void *);
+void effectSpawnActorBone(void *, s32, f32);
+s32 func_80611A70(f32, f32, f32 *, f32 *);
+void matrixMakeRotationY(f32 (*)[4], f32);
+void matrixMakeRotationX(void *, s32);
+s32 camIsCutsceneActive(void);
+void lightAdd(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32);
+void actorDespawn(Actor *);
+void sfxStopSlotSound(Actor *, s32);
+void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+void *func_80610FE8(s32);
+
+#define L68EF54_MAX(a, b) ((a) < (b) ? (b) : (a))
+#define L68EF54_MIN(a, b) ((a) < (b) ? (a) : (b))
+
+void func_8068EF54(void) {
+    f32 sp11C;
+    f32 sp118;
+    f32 sp114;
+    f32 spD4[4][4];
+    f32 sp94[4][4];
+    f32 sp90;
+    f64 ratio;
+    f32 var;
+    f32 glow;
+    L68EF54State *sp7C;
+    L68EF54Owner *sp78;
+    Actor *sp74;
+    L68EF54Model *model;
+    f32 sp6C;
+    f32 sp68;
+    f32 sp64;
+    L68EF54Buf *buf;
+
+    sp7C = D_807FBB40->unk174;
+    sp74 = sp7C->unk0;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        ((L68EF54Sub4 *)D_807FBB40->unk4)->unk1C = func_80610FE8(0x10);
+        buf = ((L68EF54Sub4 *)D_807FBB40->unk4)->unk1C;
+        buf->unk0 = -0x80;
+        buf->unk1 = 1;
+        buf->unk2 = 0;
+        buf->unk4 = 0;
+        buf->unk6 = 0;
+        buf->unk8 = 0;
+        D_807FBB40->unkE6 = 0;
+        if (sp74->unk58 == 0xC5) {
+            D_807FBB40->unk16A = 0xFF;
+            D_807FBB40->unk16B = 0xFF;
+            D_807FBB40->unk16C = 0xFF;
+            D_807FBB40->unk60 |= 0x800000;
+        }
+        sp7C->unk8 = 0;
+    }
+    buf = ((L68EF54Sub4 *)D_807FBB40->unk4)->unk1C;
+    switch (sp74->unk5C) {
+    case 1:
+        sp78 = sp74->unk174;
+        buf->unk2 = sp78->unk1A0;
+        if ((sp74->unk6A & 5) || sp78->unk240 == 1 || (sp74->unk154 == 0x42 && sp78->unkBC != 0x31) || sp74->unk154 == 0x87) {
+            actorAppendCallback(sp7C->unk4, (s32)D_807FBB40, 0x2000000, 0, 0, 0);
+            sp78->unk1A3 = 0;
+            actorDespawn(D_807FBB40);
+            sfxStopChannel(0x48, 0);
+            sfxStopSlotSound(D_807FBB48, 0);
+            slotQueueCancel(5, 0);
+            sp78->unk240 = 0;
+            if (!(sp78->unk1F4 & 4)) {
+                func_806F0C18(sp74);
+            }
+        }
+        if (sp78->unk1A2 != 0 || (camIsCutsceneActive() && D_8076A064 % 5 == 0)) {
+            ratio = (0, sp74->unkC0 > 0.0 ? sp74->unkC0 : 0.0);  // FAKE: comma steers FP candidate order
+            if (D_8076A064 & 1) {
+                effectSpawnActorBone(sp74, 1, (f32)(ratio / 150.0 * 0.12) + 0.3);
+            } else {
+                effectSpawnActorBone(sp74, 2, (f32)(ratio / 150.0 * 0.12) + 0.3);
+            }
+            sp78->unk1A2 = 0;
+            sp7C->unk8 = D_8076A064;
+        }
+        if (D_8076A0A8 == 0x5C) {
+            if (D_8076A064 && D_8076A064) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            glow = (30.0 - (f64)(s32)(D_8076A064 - sp7C->unk8)) / 30.0 * 100.0;
+            if (glow > 0.0) {
+                lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, *(s32 *)&D_807FBB40->unk84, 0.0f, 0.0f, 0.0f, glow, 0, 0xFF, 0xC8, 0xC8);
+            }
+        }
+        break;
+    case 0x40:
+        model = *(L68EF54Model **)sp74->unk4;
+        switch (model->unk10) {
+        case 0x113:
+            if (model->unk4 < 70.0f) {
+                var = L68EF54_MIN(L68EF54_MAX(0.1, (model->unk4 - 39.0f) / 30.0), 0.49);
+            } else {
+                var = 0.5f;
+            }
+            break;
+        case 0x12C:
+            var = L68EF54_MAX(0.5 - model->unk4 / 50.0f, 0.01);
+            break;
+        case 0x12F:
+        case 0x130:
+            var = 0.25f;
+            break;
+        case 0x12D:
+        case 0x12E:
+            var = 0.0f;
+            break;
+        default:
+            var = 0.5f;
+            break;
+        }
+        buf->unk2 = 0;
+        if (!(sp74->unk60 & 4) || sp74->unk154 == 0x3C) {
+            actorDespawn(D_807FBB40);
+        } else if (var > 0.05) {
+            if (D_8076A064 & 1) {
+                effectSpawnActorBone(sp74, 1, var);
+            } else {
+                effectSpawnActorBone(sp74, 2, var);
+            }
+        }
+        break;
+    }
+    actorGetNodePos(sp74, 1, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
+    actorGetNodePos(sp74, 0xB, &sp11C, &sp118, &sp114);
+    func_80611A70(D_807FBB40->unk7C, D_807FBB40->unk84, &sp11C, &sp114);
+    sp90 = func_80611BB4(sp11C - D_807FBB40->unk7C, sp114 - D_807FBB40->unk84);
+    if (sp74->unk5C == 0x40) {
+        actorGetNodePos(sp74, 0xC, &sp6C, &sp68, &sp64);
+        sp74->unkEE = mathAngleBetweenPoints2D(sp6C, sp64, D_807FBB40->unk7C, D_807FBB40->unk84);
+        matrixMakeRotationY(spD4, (sp74->unkEE * 360) / 4096);
+    } else {
+        matrixMakeRotationY(spD4, (sp74->unkE6 * 360) / 4096);
+    }
+    matrixMakeRotationX(sp94, 0xC2B40000);
+    guMtxCatF(spD4, sp94, spD4);
+    guAlignF(sp94, sp90 * 57.295776f + 180.0f, sp11C - D_807FBB40->unk7C, sp118 - D_807FBB40->unk80, sp114 - D_807FBB40->unk84);
+    guMtxCatF(spD4, sp94, (f32(*)[4])((u8 *)D_807FBB40 + 0xC));
+    actorUpdateModelMatrix(D_807FBB40, 1);
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_8068F72C.s")
 
@@ -211,7 +403,6 @@ typedef struct ProjectileAngleSub1C {
 
 s16 func_806CC190(s16, s16, f32);
 
-extern Actor *D_807FBB40;
 
 void actorInterpolateAngles(u8 arg0, ProjectileAngleTarget *arg1, ProjectileAngleStep *arg2) {
     f32 var_fv0;
@@ -236,7 +427,6 @@ void actorInterpolateAngles(u8 arg0, ProjectileAngleTarget *arg1, ProjectileAngl
     temp_v1->unk8 = 0;
 }
 
-void *func_80610FE8(s32);
 void heapClearBlock(void *);
 
 void actorAllocSubBuffer(Actor *arg0, s32 arg1) {
@@ -249,7 +439,6 @@ void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void animSetSpeed(Actor *, s32, f32);
 void animSetLoopLimit(Actor *, s32, s32);
 void func_8067B238(Actor *, Actor *, f32);
-extern s32 D_8076A0A8;
 
 void actorInitAnimations(Actor *arg0, Actor *arg1) {
     u8 sp37[4];
@@ -412,8 +601,6 @@ extern Actor *D_807FBB4C;
 void camSetTargetScaled(void *, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_8068F72C(void *, s32, s32, s32);
 void func_80690190();
-s32 camIsCutsceneActive(void);
-void lightAdd(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32);
 void lensFlareAddSource(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32);
 s32 flagGet(s32, s32);
 
@@ -482,7 +669,6 @@ void projectileSetTargetCoords(f32 arg0, f32 arg1, f32 arg2) {
 
 #include "actor.h"
 
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void projectileCalculateTrajectoryAndSpawn(s16, s16, s16, f32, f32, f32, f32, f32, s32);
 typedef struct {
     f32 unk0;
@@ -1020,7 +1206,6 @@ void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8067ACB4(Actor *);
 void actorApplyVelocity(Actor *);
 void func_80665564(Actor *, f32);
-void actorDespawn(Actor *);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80714A28(s32);
@@ -2126,9 +2311,7 @@ void func_80613C48(Actor *, s32, f32, f32);
 void func_80614D00(Actor *, f32, f32);
 
 
-f32 func_80611BB4(f32, f32);
 void func_80695724(f32, u8);
-void matrixMakeRotationX(void *, s32);
 
 typedef struct ProjectileRotSub174 {
     u8 pad0[8];
@@ -2803,7 +2986,6 @@ typedef struct M93K_Actor {
 #define M93K_ACTOR ((M93K_Actor *)D_807FBB40)
 #define M93K_TARGET ((M93K_Actor *)D_807FBB4C)
 
-void sfxStopSlotSound(Actor *, s32);
 void func_8067E278(s32, s32);
 void actorSetUniformScale(Actor *, f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
@@ -2937,7 +3119,6 @@ void func_806970CC(void) {
 
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 
 void actorAppendActiveCallback8(void) {
     s16 i;
