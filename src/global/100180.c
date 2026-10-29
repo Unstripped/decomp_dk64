@@ -597,7 +597,6 @@ extern Mtx D_2000080;
 extern Gfx D_2000180;
 Gfx *func_806FBEF0(Gfx *, u8, s32);
 
-#ifdef NON_MATCHING
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -668,26 +667,20 @@ Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
                                        arg1->unk8[idx].unk0, arg1->unk8[idx].unk4, 0.0f);
                             gSPMatrix(dl++, mp + idx, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
                             gDPPipeSync(dl++);
-                            vp[3].v.tc[1] = 0;
-                            vp[0].v.ob[0] = -(gw * 2);
-                            vp[0].v.ob[1] = gh * 2 - 1;
-                            vp[0].v.ob[2] = -5;
-                            vp[0].v.tc[0] = gx << 6;
-                            vp[0].v.tc[1] = gh << 6;
+                            vp[0].v.ob[0] = -(gw * 2); vp[0].v.ob[1] = gh * 2 - 1; vp[0].v.ob[2] = -5;
+                            vp[0].v.tc[0] = gx << 6; vp[0].v.tc[1] = gh << 6;
+                            if (D_2000200) {}
                             vp[1].v.ob[0] = gw * 2 - 1;
                             vp[1].v.ob[1] = gh * 2 - 1;
                             vp[1].v.ob[2] = -5;
                             vp[1].v.tc[0] = (gx + gw) << 6;
                             vp[1].v.tc[1] = gh << 6;
-                            vp[2].v.ob[0] = gw * 2 - 1;
-                            vp[2].v.ob[2] = -5;
+                            vp[2].v.ob[1] = -(gh * 2);
+                            vp[2].v.ob[0] = gw * 2 - 1; vp[2].v.ob[2] = -5;
                             vp[2].v.tc[0] = (gx + gw) << 6;
                             vp[2].v.tc[1] = 0;
-                            vp[3].v.ob[1] = -(gh * 2);
-                            vp[3].v.ob[0] = -(gw * 2);
-                            vp[3].v.ob[2] = -5;
-                            vp[3].v.tc[0] = gx << 6;
-                            vp[2].v.ob[1] = -(gh * 2);
+                            vp[3].v.ob[0] = -(gw * 2); vp[3].v.ob[1] = -(gh * 2); vp[3].v.ob[2] = -5;
+                            vp[3].v.tc[1] = 0; vp[3].v.tc[0] = gx << 6;
                             vp += 4;
                             gSPVertex(dl++, osVirtualToPhysical(spB4), 4, 0);
                             gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
@@ -708,12 +701,6 @@ Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
     gDPPipeSync(dl++);
     return dl;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FCC88.s")
-#endif
-
-#ifdef NON_MATCHING
 
 Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
     s32 line;
@@ -764,27 +751,20 @@ Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
                                        arg1->unk8[idx].unk8);
                             gSPMatrix(dl++, mp + idx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             gDPPipeSync(dl++);
-                            ((s16 *)vp)[0] = -(gw * 2);
-                            ((s16 *)vp)[1] = gh * 2 - 1;
-                            ((s16 *)vp)[2] = 0;
-                            ((s16 *)vp)[4] = gx << 6;
-                            ((s16 *)vp)[5] = gh << 6;
+                            ((s16 *)vp)[0] = -(gw * 2); ((s16 *)vp)[1] = gh * 2 - 1; ((s16 *)vp)[2] = 0;
+                            ((s16 *)vp)[4] = gx << 6; ((s16 *)vp)[5] = gh << 6;
+                            if (i && i) {}
                             ((s16 *)vp)[8] = gw * 2 - 1;
                             ((s16 *)vp)[9] = gh * 2 - 1;
                             ((s16 *)vp)[10] = 0;
                             ((s16 *)vp)[12] = (gx + gw) << 6;
-                            if (i && i) {}
                             ((s16 *)vp)[13] = gh << 6;
                             ((s16 *)vp)[17] = -(gh * 2);
-                            ((s16 *)vp)[16] = gw * 2 - 1;
-                            ((s16 *)vp)[18] = 0;
+                            ((s16 *)vp)[16] = gw * 2 - 1; ((s16 *)vp)[18] = 0;
                             ((s16 *)vp)[20] = (gx + gw) << 6;
                             ((s16 *)vp)[21] = 0;
-                            ((s16 *)vp)[25] = -(gh * 2);
-                            ((s16 *)vp)[24] = -(gw * 2);
-                            ((s16 *)vp)[26] = 0;
-                            ((s16 *)vp)[28] = gx << 6;
-                            ((s16 *)vp)[29] = 0;
+                            ((s16 *)vp)[24] = -(gw * 2); ((s16 *)vp)[25] = -(gh * 2); ((s16 *)vp)[26] = 0;
+                            ((s16 *)vp)[29] = 0; ((s16 *)vp)[28] = gx << 6;
                             vp += 4;
                             gSPVertex(dl++, osVirtualToPhysical(spB4), 4, 0);
                             gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
@@ -802,10 +782,6 @@ Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
     gDPPipeSync(dl++);
     return dl;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/func_806FD094.s")
-#endif
 
 typedef struct {
     u8 unk0;
