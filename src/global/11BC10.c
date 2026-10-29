@@ -1169,7 +1169,75 @@ void func_8071AADC(TimedLightActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071ABDC.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071AF30.s")
+typedef struct {
+    u8 pad0[0x58];
+    s32 mode;
+    u8 pad5C[4];
+    u32 flags;
+    u8 pad64[0x54];
+    f32 speed;
+    u8 padBC[0x32];
+    s16 angle;
+} Fx11BE2_ParentAF30;
+
+typedef struct {
+    u8 pad0[0x32C];
+    u8 state;
+    u8 pad32D[0x13];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad34C[0x10];
+    Fx11BE2_ParentAF30 *parent;
+    f32 scaleX;
+    f32 scaleY;
+    u8 pad368[5];
+    u8 brightness;
+    u8 pad36E[0x16];
+    Mtx *matrix;
+} Fx11BE2_ActorAF30;
+
+void *memcpy(void *, const void *, size_t);
+
+void func_8071AF30(Fx11BE2_ActorAF30 *arg0, s8 *arg1) {
+    f32 mtx0[4][4];
+    f32 mtx1[4][4];
+    s32 angle;
+    f32 trig;
+    Fx11BE2_ParentAF30 *parent;
+
+    parent = arg0->parent;
+    if (parent->flags & 4) {
+        if (arg0->matrix == NULL) {
+            arg0->matrix = func_80610FE8(0x40);
+            angle = (u32) (func_806119A0() % 36000U) / 100U;
+            guScaleF(mtx0, arg0->scaleX, arg0->scaleY, 0.0f);
+            guRotateF(mtx1, (f32) angle, 0.0f, 0.0f, 1.0f);
+            guMtxCatF(mtx0, mtx1, mtx0);
+            guMtxF2L(mtx0, arg0->matrix);
+            arg0->brightness = 0xC8;
+        }
+        if ((parent->mode == 0xC5) && ((f64) arg0->scaleX < 0.5)) {
+            trig = func_80612794(parent->angle);
+            arg0->x = (f32) ((f64) arg0->x - ((10.0 * (f64) arg0->scaleX) * (f64) trig));
+            trig = func_80612790(parent->angle);
+            arg0->z = (f32) ((f64) arg0->z - ((10.0 * (f64) arg0->scaleX) * (f64) trig));
+        } else {
+            trig = func_80612794(parent->angle);
+            arg0->x = (f32) ((f64) arg0->x + (((f64) parent->speed * 0.003) * (f64) trig));
+            trig = func_80612790(parent->angle);
+            arg0->z = (f32) ((f64) arg0->z + (((f64) parent->speed * 0.003) * (f64) trig));
+            arg0->y = (f32) ((f64) arg0->y - 0.1);
+        }
+        if (parent->mode == 0xFE) {
+            arg0->y = (f32) ((f64) arg0->y - 0.6);
+        }
+        memcpy((u8 *) arg0 + (D_807444FC << 6) + 0x128, arg0->matrix, 0x40);
+        arg0->state = 2;
+        return;
+    }
+    *arg1 = 1;
+}
 
 typedef struct {
     u8 pad0[0xB8];
@@ -1261,8 +1329,57 @@ void func_8071B44C(MotionEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 = (f32)(arg0->unk348 + (speed * call_result));
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071B520.s")
+typedef struct {
+    u8 pad0[0x32C];
+    u8 state;
+    u8 pad32D[0x13];
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 unk34C;
+    s16 timer;
+    u8 unk350;
+    u8 unk351;
+    u8 pad352[0xA];
+    s32 rotation;
+    f32 scaleX;
+    f32 scaleY;
+    u8 pad368[5];
+    u8 brightness;
+} Fx11BE2_ActorB520;
 
+s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
+
+void func_8071B520(Fx11BE2_ActorB520 *arg0, s8 *arg1) {
+    f32 mtx0[4][4];
+    f32 mtx1[4][4];
+    f32 groundY;
+    f32 temp_f;
+    f32 pad1;
+    f32 pad2;
+
+    groundY = arg0->y;
+    if ((collisionCheckGroundAtPoint(arg0->x, arg0->z, &groundY) == 0) ||
+        (((arg0->y < groundY) ? (groundY - arg0->y) : -(groundY - arg0->y)) > 10.0)) {
+        temp_f = (f32) arg0->timer + ((f32) (u32) arg0->unk351 / (f32) (u32) arg0->unk350);
+        if (arg0->timer >= 7) {
+            arg0->y = (f32) ((f64) arg0->y - (0.3 * ((f64) (14 - (s32) (20.0f - temp_f)) / 14.0)));
+        }
+    }
+    if (arg0->timer == 0x10) {
+        arg0->unk350 = 0xA;
+    }
+    guScaleF(mtx0, arg0->scaleX, arg0->scaleY, 0.0f);
+    guRotateF(mtx1, (f32) ((arg0->rotation * 360) / 4096), 0.0f, 1.0f, 0.0f);
+    guMtxCatF(mtx0, mtx1, mtx0);
+    guTranslateF(mtx1, arg0->x, arg0->y, arg0->z);
+    guMtxCatF(mtx0, mtx1, mtx0);
+    guMtxF2L(mtx0, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    if (arg0->timer >= 0x13) {
+        arg0->brightness -= 0x14;
+    }
+    arg0->state = 3;
+}
 
 void func_8071B758(TimedEffectActorView *arg0, s8 *arg1) {
     f32 ratio;
@@ -1291,7 +1408,59 @@ void func_8071B89C(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk364 = temp_fv0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071B8EC.s")
+typedef struct {
+    u8 pad0[0x340];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad34C[2];
+    s16 timer;
+    u8 pad350[4];
+    s32 count;
+    s32 previousCount;
+    u8 pad35C[0x11];
+    u8 brightness;
+} Fx11BE2_ActorB8EC;
+
+void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void func_807149C8(s32, s32, s32, s32);
+extern u8 D_8071FFA0;
+
+void func_8071B8EC(Fx11BE2_ActorB8EC *arg0, s8 *arg1) {
+    s32 pad;
+    s32 random;
+
+    if (arg0->previousCount == 0) {
+        if (arg0->brightness < 0xE1) {
+            arg0->brightness += 0x1E;
+        } else {
+            arg0->brightness = 0xFF;
+        }
+    }
+    if ((arg0->timer == 3) || (arg0->timer == 0x11) || (arg0->timer == 0x15)) {
+        func_806086CC(arg0->x, arg0->y, arg0->z, 0x14F, 0xFF, 0x7F, 0x1E, 0x4B, 0.3f, 0);
+    }
+    if ((arg0->count - arg0->previousCount) < 3) {
+        if (arg0->brightness >= 0xB) {
+            arg0->brightness -= 0xA;
+        } else {
+            *arg1 = 1;
+        }
+        return;
+    }
+    if (((randomNonNegative() >> 15) % 100) >= 91) {
+        func_80714998(3);
+        func_8071498C(func_80717D4C);
+        func_80714950(-0xA);
+        func_807149B8(1);
+        func_807149C8(0x9B, 0x9B, 0x9B, 0x96);
+        random = randomNonNegative();
+        func_80714CC0((s32)&D_8071FFA0, 0.8f,
+            (f32)(((random >> 15) % 65535) & 7) + arg0->x,
+            arg0->y + 10.0f,
+            (f32)(((randomNonNegative() >> 15) % 65535) & 7) + arg0->z);
+    }
+}
 
 typedef struct {
     f32 angle;
@@ -1347,7 +1516,63 @@ void func_8071BC80(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 += var_v0->unk8;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071BE04.s")
+typedef struct {
+    u8 unk0;
+    u8 pad1;
+    s16 unk2;
+    u8 unk4;
+} Fx11BE2_WaveData;
+
+typedef struct {
+    u8 pad0[4];
+    f32 unk4;
+    f32 unk8;
+    u8 padC[4];
+    s16 unk10;
+    u8 pad12[2];
+    Fx11BE2_WaveData *unk14;
+} Fx11BE2_WaveState;
+
+typedef struct {
+    u8 pad0[0x32C];
+    u8 unk32C;
+    u8 pad32D[0x13];
+    f32 unk340;
+    f32 unk344;
+    f32 unk348;
+    u8 pad34C[0x10];
+    Fx11BE2_WaveState *unk35C;
+    f32 unk360;
+    f32 unk364;
+    u8 pad368[5];
+    s8 unk36D;
+} Fx11BE2_WaveActorView;
+
+void func_8071BE04(Fx11BE2_WaveActorView *arg0, s8 *arg1) {
+    f32 sp70[4][4];
+    f32 sp30[4][4];
+    f32 scale;
+    Fx11BE2_WaveState *sp28;
+    Fx11BE2_WaveData *sp24;
+    f32 sp20;
+
+    sp28 = arg0->unk35C;
+    sp24 = sp28->unk14;
+    sp20 = func_80612794(sp28->unk10);
+    arg0->unk36D = (u32) ((f32) (u32) sp24->unk0 * sp20);
+    sp20 = 1.0f - sp20;
+    scale = arg0->unk364;
+    if (sp24->unk4 != 0) {
+        scale = (f32) ((((f64) func_80612794(sp24->unk2) * 0.15) + 0.85) * (f64) arg0->unk364);
+        sp24->unk2 += 0xAA;
+        sp24->unk2 &= 0xFFF;
+    }
+    guScaleF(sp70, arg0->unk360, scale, 0.0f);
+    guTranslateF(sp30, arg0->unk340 + (sp28->unk4 * sp20), arg0->unk344 + (sp28->unk8 * sp20), arg0->unk348);
+    guMtxCatF(sp70, sp30, sp70);
+    guMtxF2L(sp70, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    arg0->unk32C = 3;
+}
 
 typedef struct {
     u8 pad0[0x16];
@@ -1369,7 +1594,6 @@ typedef struct {
     u32 unk35C;
 } FxInt1FadeView;
 
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void func_807149FC(s32);
 void func_8071C24C();
 extern u8 D_807201D4;
@@ -1417,7 +1641,6 @@ void func_8071C004(FxInt1FadeView *arg0, s8 *arg1) {
 }
 
 void func_80714944(s32);
-s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 extern u8 D_8071FB54;
 
 void func_8071C24C(TimedEffectActorView *arg0, u8 *arg1) {
