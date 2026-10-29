@@ -62,7 +62,6 @@ Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *arg1) {
             st->unkE = 5;
         case 5: {
             s32 diff = 0xFF - arg1->unk15F;
-            s32 step;
 
             arg1->unk15F += diff >= 9 ? 8 : diff;
             gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, arg1->unk15F);
@@ -207,7 +206,6 @@ s32 func_805FF030(s32, s32);
 
 void func_80025FB4(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
     MenuM1_Entry *tbl;
-    MenuM1_Entry *e;
     s32 found = 0;
     s32 count = 6;
     s32 i;
