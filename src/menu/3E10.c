@@ -70,17 +70,37 @@ Gfx *func_80027F34(void *arg0, Gfx *arg1) {
     return arg1;
 }
 
-typedef struct MenuPositionedActor {
-    char pad[0x7C];
+typedef struct MenuActorNode {
+    char pad0[0x34];
+    f32 unk34;
+    f32 unk38;
+    f32 unk3C;
+} MenuActorNode;
+
+typedef struct MenuActor {
+    char pad0[4];
+    MenuActorNode *unk4;
+    char pad8[0x60 - 8];
+    u32 unk60;
+    char pad64[0x7C - 0x64];
     f32 unk7C;
     f32 unk80;
     f32 unk84;
-    char pad88[0x154 - 0x88];
+    char pad88[0xE6 - 0x88];
+    s16 unkE6;
+    s16 unkE8;
+    char padEA[0x154 - 0xEA];
     u8 unk154;
     u8 unk155;
-} MenuPositionedActor;
+    char pad156[0x174 - 0x156];
+    void *unk174;
+    char pad178[4];
+    s16 *unk17C;
+} MenuActor;
 
-extern MenuPositionedActor *D_807FBB4C;
+extern MenuActor *D_807FBB40;
+extern MenuActor *D_807FBB44;
+extern MenuActor *D_807FBB4C;
 extern s8 D_80033734;
 extern s32 D_807FBB60;
 
@@ -1238,23 +1258,11 @@ Gfx *func_8002B708(MenuScreenActor *arg0, Gfx *arg1) {
     return arg1;
 }
 
-struct MenuM9_Actor;
-extern struct MenuM9_Actor *D_807FBB44;
-typedef struct Menu6_Actor {
-    char pad0[0x154];
-    s8 unk154;
-    s8 unk155;
-    char pad156[0x174 - 0x156];
-    void *unk174;
-    char pad178[4];
-    s16 *unk17C;
-} Menu6_Actor;
 typedef struct Menu6_Sub174 {
     void *unk0;
     char pad4[4];
     s8 unk8;
 } Menu6_Sub174;
-#define Menu6_A ((Menu6_Actor *)D_807FBB44)
 extern s16 D_8003386C[];
 extern s8 D_80033FAE;
 extern s8 D_80033FAF;
@@ -1295,13 +1303,13 @@ void func_8002C0C8(MenuScreenActor *arg0, s32 arg1) {
     do {
         actorSpawn(0x151, D_8003386C[D_8076A0E4[i] & 0x7F]);
         {
-            s16 *q = Menu6_A->unk17C;
+            s16 *q = D_807FBB44->unk17C;
             *q = D_8003386C[D_8076A0E4[i] & 0x7F];
         }
-        Menu6_A->unk154 = i;
+        D_807FBB44->unk154 = i;
         i += 1;
-        Menu6_A->unk155 = D_8076A0E4[i - 1] & 0x7F;
-        sub = Menu6_A->unk174;
+        D_807FBB44->unk155 = D_8076A0E4[i - 1] & 0x7F;
+        sub = D_807FBB44->unk174;
         sub->unk0 = arg0;
         sub->unk8 = 0;
     } while (i != 4);
@@ -1425,12 +1433,12 @@ void func_8002C91C(MenuScreenActor *arg0, s32 arg1) {
     for (i = 0; i < D_80033878; i++) {
         actorSpawn(0x151, D_8003386C[D_8003387C[i]]);
         {
-            s16 *q = Menu6_A->unk17C;
+            s16 *q = D_807FBB44->unk17C;
             *q = D_8003386C[D_8003387C[i]];
         }
-        Menu6_A->unk154 = D_80033F20[i] | 0x80;
-        Menu6_A->unk155 = D_8003387C[i];
-        sub = Menu6_A->unk174;
+        D_807FBB44->unk154 = D_80033F20[i] | 0x80;
+        D_807FBB44->unk155 = D_8003387C[i];
+        sub = D_807FBB44->unk174;
         sub->unk0 = arg0;
         sub->unk8 = (i == D_8076A105) + 1;
     }
@@ -1438,8 +1446,6 @@ void func_8002C91C(MenuScreenActor *arg0, s32 arg1) {
 }
 
 #ifdef NON_MATCHING
-struct Menu3B_Struct_BB40;
-extern struct Menu3B_Struct_BB40 *D_807FBB40;
 typedef struct MenuModelScale {
     char pad0[0x34];
     f32 unk34;
@@ -2623,13 +2629,6 @@ void menuUpdateScrollAnimation(Menu3B_Sub174 *arg0, s32 arg1) {
     }
 }
 
-typedef struct MenuM9_Vec {
-    char pad[0x34];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} MenuM9_Vec;
-
 typedef struct Menu10_Sub174 {
     f32 unk0;
     f32 unk4;
@@ -2637,24 +2636,6 @@ typedef struct Menu10_Sub174 {
     char padC[0x23C - 0xC];
     u16 unk23C;
 } Menu10_Sub174;
-
-typedef struct MenuM9_Actor {
-    char pad0[4];
-    MenuM9_Vec *unk4;
-    char pad8[0x60 - 8];
-    u32 unk60;
-    char pad64[0x7C - 0x64];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0xE6 - 0x88];
-    s16 unkE6;
-    char padE8[0x154 - 0xE8];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x174 - 0x156];
-    void *unk174;
-} MenuM9_Actor;
 
 typedef struct MenuM9_Sub174 {
     f32 unk0;
@@ -2669,9 +2650,6 @@ typedef struct MenuM9_Sub174 {
     s8 unk17;
 } MenuM9_Sub174;
 
-struct Menu3B_Struct_BB40;
-extern struct Menu3B_Struct_BB40 *D_807FBB40;
-extern MenuM9_Actor *D_807FBB44;
 extern u8 D_8076A0D0[];
 extern s8 D_80033738;
 extern f32 D_8003369C;
@@ -2686,14 +2664,12 @@ void renderCallbacksRegister(void *, void *, s32);
 void *func_80610FE8(s32);
 void menuInitGfxState(Gfx *, s32);
 
-#define MenuM9_A ((MenuM9_Actor *)D_807FBB4C)
-
 void menuInit(void) {
-    MenuM9_Sub174 *sub = ((MenuM9_Actor *)D_807FBB40)->unk174;
-    Menu10_Sub174 *sp20 = MenuM9_A->unk174;
+    MenuM9_Sub174 *sub = D_807FBB40->unk174;
+    Menu10_Sub174 *sp20 = D_807FBB4C->unk174;
     s32 i;
 
-    if (!(((MenuM9_Actor *)D_807FBB40)->unk60 & 0x10)) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB60 |= 0x10;
         menuLoadTextTable();
         menuLoadHighScores();
@@ -2705,25 +2681,25 @@ void menuInit(void) {
                 D_8076A0D1[i + 3] = 0;
             }
         } else {
-            MenuM9_A->unk7C = 700.0f;
-            MenuM9_A->unk80 = 0.0f;
-            MenuM9_A->unk84 = 70.0f;
+            D_807FBB4C->unk7C = 700.0f;
+            D_807FBB4C->unk80 = 0.0f;
+            D_807FBB4C->unk84 = 70.0f;
         }
         D_80033F50 = 0;
         D_80033738 = 0;
         D_80033F60 = -1;
         D_8003369C = 0.0f;
         actorSpawn(0x14D, 0xD7);
-        D_807FBB44->unk7C = MenuM9_A->unk7C;
-        D_807FBB44->unk80 = MenuM9_A->unk80;
-        D_807FBB44->unk84 = MenuM9_A->unk84;
-        D_807FBB44->unkE6 = MenuM9_A->unkE6;
+        D_807FBB44->unk7C = D_807FBB4C->unk7C;
+        D_807FBB44->unk80 = D_807FBB4C->unk80;
+        D_807FBB44->unk84 = D_807FBB4C->unk84;
+        D_807FBB44->unkE6 = D_807FBB4C->unkE6;
         if (D_80744514 != 0) {
             D_80033738 = 0x15;
-            MenuM9_A->unk154 = 0x85;
-            MenuM9_A->unk155 = 0;
-            actorScriptStart(MenuM9_A, 0x347);
-            MenuM9_A->unk155 = 6;
+            D_807FBB4C->unk154 = 0x85;
+            D_807FBB4C->unk155 = 0;
+            actorScriptStart(D_807FBB4C, 0x347);
+            D_807FBB4C->unk155 = 6;
             func_8061B650(gCamActor);
             D_80033F3C = 1.0f;
             sp20->unk23C = 0x50;
@@ -2748,14 +2724,14 @@ void menuInit(void) {
             break;
         default:
             actorScriptStart(D_807FBB44, 0x349);
-            MenuM9_A->unk154 = 0x86;
-            MenuM9_A->unk155 = 0;
+            D_807FBB4C->unk154 = 0x86;
+            D_807FBB4C->unk155 = 0;
             sub->unk12 = 0;
             break;
         }
-        MenuM9_A->unk4->unk34 = MenuM9_A->unk4->unk34 * 0.8;
-        MenuM9_A->unk4->unk38 = MenuM9_A->unk4->unk38 * 0.8;
-        MenuM9_A->unk4->unk3C = MenuM9_A->unk4->unk3C * 0.8;
+        D_807FBB4C->unk4->unk34 = D_807FBB4C->unk4->unk34 * 0.8;
+        D_807FBB4C->unk4->unk38 = D_807FBB4C->unk4->unk38 * 0.8;
+        D_807FBB4C->unk4->unk3C = D_807FBB4C->unk4->unk3C * 0.8;
         sub->unk17 = 0;
         sub->unkC = 0;
         sub->unkE = 0;
@@ -3558,19 +3534,11 @@ f32 menuEvaluateSpline(f32 *arg0, f32 arg1, f32 *arg2) {
     return (((((sp[0] * arg1) + sp[1]) * arg1) + sp[2]) * arg1) + sp[3];
 }
 
-typedef struct Menu3B_Struct_BB40 {
-    char pad[0xE6];
-    s16 unkE6;
-    char padE8[0x155 - 0xE8];
-    u8 unk155;
-} Menu3B_Struct_BB40;
-
-extern Menu3B_Struct_BB40 *D_807FBB40;
 extern s8 D_80033734;
 void camStartPath(void *, s32, s32);
 
 void menuActorStateDispatch(void) {
-    Menu3B_Struct_BB40 *actor = D_807FBB40;
+    MenuActor *actor = D_807FBB40;
 
     switch (actor->unk155) {
     case 0:
@@ -3595,24 +3563,6 @@ void menuActorStateDispatch(void) {
 }
 
 
-typedef struct Menu10_Actor {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[0x7C - 0x64];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0xE6 - 0x88];
-    s16 unkE6;
-    s16 unkE8;
-    char padEA[0x155 - 0xEA];
-    u8 unk155;
-    char pad156[0x174 - 0x156];
-    Menu10_Sub174 *unk174;
-} Menu10_Actor;
-
-#define Menu10_A ((Menu10_Actor *)D_807FBB40)
-
 void actorUpdateModelMatrix(void *, s32);
 
 extern f32 D_80033678[];
@@ -3623,15 +3573,15 @@ void func_80031B08(void) {
     Menu10_Sub174 *temp_v1;
     s32 i;
 
-    temp_v1 = Menu10_A->unk174;
+    temp_v1 = D_807FBB40->unk174;
     D_8003369C += 4.5f;
     if (D_8003369C > 0.0f) {
         D_8003369C = 0.0f;
     }
-    switch (Menu10_A->unk155) {
+    switch (D_807FBB40->unk155) {
     case 0:
-        Menu10_A->unkE6 = 0x800;
-        Menu10_A->unk155 = 1;
+        D_807FBB40->unkE6 = 0x800;
+        D_807FBB40->unk155 = 1;
         actorScriptStart(D_807FBB40, 0x346);
         func_8061B650(gCamActor);
         D_8003369C = -35.0f;
@@ -3639,7 +3589,7 @@ void func_80031B08(void) {
     case 1:
         if (D_8003369C == 0.0f) {
             actorScriptStart(D_807FBB40, 0x347);
-            Menu10_A->unk155 = 2;
+            D_807FBB40->unk155 = 2;
             temp_v1->unk23C = 0;
         }
         break;
@@ -3654,7 +3604,7 @@ void func_80031B08(void) {
         if (*D_807FC924->unk298 & 0x8000) {
             if (D_800337F0 == 1) {
                 actorScriptStart(D_807FBB40, 0x348);
-                Menu10_A->unk155 = 4;
+                D_807FBB40->unk155 = 4;
                 D_800337F4 = 0x3C;
             } else if (D_800337F0 == -1) {
                 func_80609140(0x98, 0x61A8, 63.0f, 1.0f, 0, 0);
@@ -3666,7 +3616,7 @@ void func_80031B08(void) {
         D_80033F3C = D_80033F40;
         D_800337F4 = 0;
         temp_v1->unk23C = 0;
-        Menu10_A->unk155 = 6;
+        D_807FBB40->unk155 = 6;
         break;
     case 6:
     case 7:
@@ -3694,7 +3644,7 @@ void func_80031B08(void) {
     if (D_80033698 != 0) {
         D_80033698 -= 1;
     }
-    if (Menu10_A->unk155 < 6) {
+    if (D_807FBB40->unk155 < 6) {
         if (D_8003369C > -30.0) {
             D_807FBB60 |= 0x10000;
         } else {
@@ -3702,28 +3652,16 @@ void func_80031B08(void) {
         }
     }
     D_80033738 = 0x14;
-    Menu10_A->unk80 = -D_8003369C;
-    D_807FC924->unk210 = Menu10_A->unk7C;
-    D_807FC924->unk214 = (D_80033678[D_80033F50] * 50.0) + (Menu10_A->unk80 + 13.1f + D_8003369C) - 0.1;
-    D_807FC924->unk218 = Menu10_A->unk84 - 50.0f;
-    D_807FC924->unk228 = Menu10_A->unk7C;
+    D_807FBB40->unk80 = -D_8003369C;
+    D_807FC924->unk210 = D_807FBB40->unk7C;
+    D_807FC924->unk214 = (D_80033678[D_80033F50] * 50.0) + (D_807FBB40->unk80 + 13.1f + D_8003369C) - 0.1;
+    D_807FC924->unk218 = D_807FBB40->unk84 - 50.0f;
+    D_807FC924->unk228 = D_807FBB40->unk7C;
     D_807FC924->unk22C = D_807FC924->unk214;
     D_807FC924->unk230 = 10020.0f;
     D_80754CE0 = D_80033678[D_80033F50] * 400.0f;
-    actorUpdateModelMatrix(Menu10_A, 0);
+    actorUpdateModelMatrix(D_807FBB40, 0);
 }
-
-typedef struct Menu10_Node {
-    char pad0[0x34];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} Menu10_Node;
-
-typedef struct Menu10_Link {
-    char pad0[4];
-    Menu10_Node *unk4;
-} Menu10_Link;
 
 extern f32 D_8003378C[];
 void actorDespawn(void *);
@@ -3743,30 +3681,30 @@ void func_80032024(void) {
     s32 pad1;
     s32 pad2;
 
-    pos = Menu10_A->unk174;
+    pos = D_807FBB40->unk174;
     if (D_807FBB4C->unk155 < 6) {
         if (D_80033738 == 0x14) {
             actorDespawn(D_807FBB40);
             D_80033738 += 1;
             actorSpawn(0x14D, 0xD7);
-            ((Menu10_Link *)D_807FBB44)->unk4->unk34 = 0.14f;
-            ((Menu10_Link *)D_807FBB44)->unk4->unk38 = 0.14f;
-            ((Menu10_Link *)D_807FBB44)->unk4->unk3C = 0.14f;
+            D_807FBB44->unk4->unk34 = 0.14f;
+            D_807FBB44->unk4->unk38 = 0.14f;
+            D_807FBB44->unk4->unk3C = 0.14f;
         } else if (D_80033738 == 0x15) {
             actorGetNodePos(D_807FBB4C, 2, &x[0], &y[0], &z[0]);
             actorGetNodePos(D_807FBB4C, 3, &x[1], &y[1], &z[1]);
             cx = (x[0] + x[1]) * 0.5f;
             cy = y[0];
             cz = (z[0] + z[1]) * 0.5f;
-            Menu10_A->unk7C = cx;
-            Menu10_A->unk80 = cy;
-            Menu10_A->unk84 = cz;
-            pos->unk0 = Menu10_A->unk7C;
-            pos->unk4 = Menu10_A->unk80;
-            pos->unk8 = Menu10_A->unk84;
-            Menu10_A->unkE6 = 0;
-            Menu10_A->unkE8 = 0x400;
-            camProjectToScreen(Menu10_A->unk7C, Menu10_A->unk80, Menu10_A->unk84, &s[1], &s[0], 0, 1.0f, 0);
+            D_807FBB40->unk7C = cx;
+            D_807FBB40->unk80 = cy;
+            D_807FBB40->unk84 = cz;
+            pos->unk0 = D_807FBB40->unk7C;
+            pos->unk4 = D_807FBB40->unk80;
+            pos->unk8 = D_807FBB40->unk84;
+            D_807FBB40->unkE6 = 0;
+            D_807FBB40->unkE8 = 0x400;
+            camProjectToScreen(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, &s[1], &s[0], 0, 1.0f, 0);
             s[0] = s[0] - 120.0f;
             if (s[0] < -35.0f) {
                 if (s[0] > -75.0f) {
@@ -3776,15 +3714,15 @@ void func_80032024(void) {
             }
         }
     } else {
-        Menu10_A->unk7C = pos->unk0;
-        Menu10_A->unk80 = pos->unk4 - (D_80033F3C * 19.0f);
-        Menu10_A->unk84 = pos->unk8 - (D_80033F3C * 50.0f);
+        D_807FBB40->unk7C = pos->unk0;
+        D_807FBB40->unk80 = pos->unk4 - (D_80033F3C * 19.0f);
+        D_807FBB40->unk84 = pos->unk8 - (D_80033F3C * 50.0f);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
     if (D_80033698 != 0) {
-        Menu10_A->unk60 &= ~4;
+        D_807FBB40->unk60 &= ~4;
     } else {
-        Menu10_A->unk60 |= 4;
+        D_807FBB40->unk60 |= 4;
     }
 }
 
