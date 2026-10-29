@@ -1270,7 +1270,6 @@ void func_8002C0C8(MenuScreenActor *arg0, s32 arg1) {
     MenuScreenState *temp_s6 = arg0->unk174;
     s32 flag;
     s32 i;
-    s8 *p;
     Menu6_Sub174 *sub;
 
     menuUpdateCameraPositions();
@@ -2806,7 +2805,7 @@ typedef struct MenuDispatch174 {
     s16 unkC;
     s16 unkE;
     char pad10[2];
-    u8 unk12;
+    s8 unk12;
     char pad13[4];
     s8 unk17;
 } MenuDispatch174;
@@ -2880,7 +2879,7 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, Gfx *arg2, s32 arg
     case 1:
         break;
     case 2:
-        D_8076A0D0[(s8)temp_t0->unk12] = temp_t0->unk17;
+        D_8076A0D0[temp_t0->unk12] = temp_t0->unk17;
         lightSetColor(1.0f, 1.0f, 1.0f, 0);
         break;
     }
