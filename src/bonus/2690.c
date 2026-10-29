@@ -38,10 +38,12 @@ typedef struct {
     u8 unk155;
     char pad156[0x1E];
     struct Struct_7548 *unk174;
+    void *unk178;
 } Actor_74A0;
 
 typedef struct Struct_7548 {
-    void *unk0;
+    s16 unk0;
+    char pad2[2];
     s32 unk4[5];
     u8 unk18[5];
     char pad1D;
@@ -49,7 +51,8 @@ typedef struct Struct_7548 {
     s16 unk20;
     u8 unk22;
     u8 unk23;
-    char pad24[2];
+    u8 unk24;
+    u8 unk25;
     u8 unk26;
 } Struct_7548;
 extern Actor_74A0 *D_807FBB40;
@@ -164,12 +167,6 @@ extern ActorEntry_B930 gActiveActors[];
 extern u16 gActiveActorCount;
 extern s16 D_8002D900;
 typedef struct {
-    char pad[0x24];
-    u8 unk24;
-    u8 unk25;
-    u8 unk26;
-} Struct_6940_174;
-typedef struct {
     f32 unk0;
     f32 unk4;
     char pad8[0x10];
@@ -219,7 +216,6 @@ void actorUpdateModelMatrix(void *, s32);
 
 extern u8 D_1000118[];
 extern u8 D_2000180[];
-Gfx *bonusRenderCrosshair();
 Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s32, void *);
 extern u8 D_20000C0[];
@@ -295,16 +291,8 @@ typedef struct {
     u8 unk24;
     u8 unk25;
 } BonusA_6940_178;
-typedef struct {
-    char pad[0x154];
-    u8 unk154;
-    char pad155[0x1F];
-    Struct_6940_174 *unk174;
-    BonusA_6940_178 *unk178;
-} BonusA_Actor6940;
-
-Gfx *bonusRenderTargetGameHud(Gfx *gdl, BonusA_Actor6940 *arg1) {
-    Struct_6940_174 *temp_s1 = arg1->unk174;
+Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor_74A0 *arg1) {
+    Struct_7548 *temp_s1 = arg1->unk174;
     BonusA_6940_178 *temp_t0 = arg1->unk178;
     s32 pad1[4];
     s32 sp64;
@@ -315,7 +303,7 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, BonusA_Actor6940 *arg1) {
 
     if (arg1->unk154 == 0) {
         if (temp_s1->unk26 != 0) {
-            gdl = bonusRenderCrosshair(gdl, (Actor_74A0 *)arg1);
+            gdl = bonusRenderCrosshair(gdl, arg1);
         }
     }
     gSPDisplayList(gdl++, D_1000118);
@@ -376,18 +364,11 @@ typedef struct {
 typedef struct {
     BonusA_CF0_Actor *unk0[6];
 } BonusA_CF0_List;
-typedef struct {
-    char pad0[0x154];
-    u8 unk154;
-    char pad155[0x1F];
-    Struct_6940_174 *unk174;
-    BonusA_CF0_List *unk178;
-} BonusA_ActorCF0;
 s32 gfxResourceCreate(s32, s32, s32, f32, f32, f32);
 void gfxResourceFree(s16);
 
-Gfx *bonusRenderPopupGameHud(Gfx *gdl, BonusA_ActorCF0 *arg1) {
-    Struct_6940_174 *temp_s2 = arg1->unk174;
+Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor_74A0 *arg1) {
+    Struct_7548 *temp_s2 = arg1->unk174;
     BonusA_CF0_List *temp_list = arg1->unk178;
     s32 var_s5 = 0;
     s32 var_s1;
@@ -400,7 +381,7 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, BonusA_ActorCF0 *arg1) {
 
     if (arg1->unk154 == 0) {
         if (temp_s2->unk26 != 0) {
-            gdl = bonusRenderCrosshair(gdl, (Actor_74A0 *)arg1);
+            gdl = bonusRenderCrosshair(gdl, arg1);
         }
     }
     if (temp_s2->unk25 != 0) {
@@ -467,14 +448,14 @@ void bonusSpawnTarget(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) 
         temp_v1 = D_807FBB44->unk174;
         actorScriptStart(D_807FBB44, var_a3 ? 0x211 : 0x20F);
         func_80614D00(D_807FBB44, arg4->unk2C, 0.0f);
-        D_807FBB44->unk7C = (f32) arg0;
-        D_807FBB44->unk80 = (f32) (arg1 - 0x19);
-        D_807FBB44->unk84 = (f32) arg2;
+        D_807FBB44->unk7C = arg0;
+        D_807FBB44->unk80 = arg1 - 0x19;
+        D_807FBB44->unk84 = arg2;
         D_807FBB44->unkE6 = 0xC00;
         temp_v1->unk9 = arg3;
         temp_v1->unk8 = var_a3;
         temp_v1->unk0 = arg4;
-        ((void **)arg4)[arg3] = D_807FBB44;
+        arg4->unk0[arg3] = D_807FBB44;
     }
 }
 
@@ -561,15 +542,6 @@ u8 bonusAimAndFire(f32 arg0, f32 arg1, f32 arg2) {
     return sp40[0];
 }
 
-typedef struct {
-    s16 unk0;
-    char pad2[0x20];
-    u8 unk22;
-    u8 unk23;
-    u8 unk24;
-    u8 unk25;
-} BonusB2_Sub174;
-
 typedef struct BonusB2_Actor {
     char pad0[0x60];
     s32 unk60;
@@ -580,9 +552,11 @@ typedef struct BonusB2_Actor {
     char pad120[0x154 - 0x120];
     u8 unk154;
     u8 unk155;
-    char pad156[0x1E];
-    BonusB2_Sub174 *unk174;
-    Struct_71B4 *unk178;
+    char pad156[9];
+    u8 unk15F;
+    char pad160[0x14];
+    Struct_7548 *unk174;
+    void *unk178;
 } BonusB2_Actor;
 
 typedef struct {
@@ -620,11 +594,10 @@ void func_8070D8C0(void *, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
 void bonusTargetGameUpdate(void) {
-    BonusB2_Sub174 *t3c = BB2->unk174;
+    Struct_7548 *t3c = BB2->unk174;
     Struct_71B4 *t0 = BB2->unk178;
     Point3f *p;
     f32 ang;
-    f32 ang2;
     u8 c;
     s32 r;
     u8 idx;
@@ -679,11 +652,10 @@ void bonusTargetGameUpdate(void) {
         t3c->unk22 = 0;
         if (BB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
             ang = func_80611BB4((f32)D_807FD610.unk2F, (f32)D_807FD610.unk2E) / 6.2831855f * 8.0 + 5.5;
-            ang2 = ang;
             if (9.0f < ang) {
-                ang2 = ang - 8.0f;
+                ang -= 8.0f;
             }
-            t3c->unk22 = (u32)ang2;
+            t3c->unk22 = (u32)ang;
         }
         p = *D_807F5FD4 + t3c->unk22;
         if (bonusAimAndFire(p->x, p->y, p->z) == 2) {
@@ -748,15 +720,6 @@ void bonusTargetGameUpdate(void) {
 }
 
 typedef struct {
-    s16 unk0;
-    char pad2[0x20];
-    u8 unk22;
-    u8 unk23;
-    u8 unk24;
-    u8 unk25;
-} BonusB_Sub7F14;
-
-typedef struct {
     Actor_BB44 *unk0[6];
     char pad18[2];
     u8 unk1A;
@@ -766,41 +729,22 @@ typedef struct {
     f32 unk20;
 } BonusB_Sub178;
 
-typedef struct BonusB_Actor7F14 {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[0x84];
-    s16 unkE8;
-    char padEA[0x11C - 0xEA];
-    struct BonusB_Actor7F14 *unk11C;
-    char pad120[0x154 - 0x120];
-    u8 unk154;
-    u8 unk155;
-    char pad156[9];
-    u8 unk15F;
-    char pad160[0x14];
-    BonusB_Sub7F14 *unk174;
-    BonusB_Sub178 *unk178;
-} BonusB_Actor7F14;
-
-#define BB_B ((BonusB_Actor7F14 *)D_807FBB40)
-
 void bonusPopupSpawnActors(BonusB_Sub178 *);
 
 void bonusPopupGameUpdate(void) {
-    BonusB_Sub7F14 *t0 = BB_B->unk174;
-    BonusB_Sub178 *s38 = BB_B->unk178;
+    Struct_7548 *t0 = BB2->unk174;
+    BonusB_Sub178 *s38 = BB2->unk178;
     Point3f *p;
     f32 y;
     f32 z;
 
-    if (!(BB_B->unk60 & 0x10)) {
+    if (!(BB2->unk60 & 0x10)) {
         t0->unk23 = 5;
         t0->unk0 = -2;
         playerStateQueueCallback(0x48, 0, 0);
         camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
-        BB_B->unkE8 = 0x9A;
+        BB2->unkE8 = 0x9A;
         switch (D_8076A0A8) {
         case 0x12:
             s38->unk20 = 0.5f;
@@ -829,14 +773,14 @@ void bonusPopupGameUpdate(void) {
         }
         bonusPopupSpawnActors(s38);
     }
-    if (BB_B->unk154 == 0) {
-        BB_B->unk15F = 1;
+    if (BB2->unk154 == 0) {
+        BB2->unk15F = 1;
     } else {
-        BB_B->unk15F = 0;
+        BB2->unk15F = 0;
     }
     if (t0->unk0 > 0) {
         t0->unk22 = 0;
-        if (BB_B->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
+        if (BB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
             if (D_807FD610.unk2F > 0) {
                 if (D_807FD610.unk2E < -0x28) {
                     t0->unk22 = 1;
@@ -874,30 +818,30 @@ void bonusPopupGameUpdate(void) {
             func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
-        switch (BB_B->unk154) {
+        switch (BB2->unk154) {
         case 0:
-            if (BB_B->unk11C->unk154 == 5) {
-                BB_B->unk154 = 0xFF;
+            if (BB2->unk11C->unk154 == 5) {
+                BB2->unk154 = 0xFF;
             }
-            if (BB_B->unk11C->unk154 == 4 && BB_B->unk11C->unk155 != 0xFF) {
-                BB_B->unk154 = 0xFE;
+            if (BB2->unk11C->unk154 == 4 && BB2->unk11C->unk155 != 0xFF) {
+                BB2->unk154 = 0xFE;
             }
             break;
         case 2:
             bonusEndLose(0, 1);
             camStartPath(0, 1, 0x11);
-            BB_B->unk154 = 1;
-            BB_B->unk155 = 0;
+            BB2->unk154 = 1;
+            BB2->unk155 = 0;
             break;
         case 0xFE:
             t0->unk24 = 0xFF;
-            BB_B->unk154 = 0;
+            BB2->unk154 = 0;
             break;
         case 0xFF:
             bonusEndWin(0, 0);
             camStartPath(0, 1, 0x11);
-            BB_B->unk154 = 1;
-            BB_B->unk155 = 1;
+            BB2->unk154 = 1;
+            BB2->unk155 = 1;
             break;
         }
     } else {
@@ -910,9 +854,9 @@ void bonusPopupGameUpdate(void) {
             }
             break;
         case -1:
-            if (!(BB_B->unk60 & 0x2000000)) {
+            if (!(BB2->unk60 & 0x2000000)) {
                 t0->unk0 = 1;
-                actorSetStateTwo(BB_B->unk11C);
+                actorSetStateTwo(BB2->unk11C);
                 bonusResetAmmo(t0);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -1368,7 +1312,7 @@ extern s8 D_8002D904;
 Gfx *func_80029B9C(Gfx *, Actor_BB44 *);
 
 void func_8002A398(void) {
-    BonusB2_Sub174 *t3c = BB2->unk174;
+    Struct_7548 *t3c = BB2->unk174;
     LargeB1_Sub178 *t0 = (LargeB1_Sub178 *)BB2->unk178;
     Point3f *p;
     f32 y;
