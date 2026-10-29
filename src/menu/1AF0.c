@@ -514,10 +514,7 @@ void slotQueueCancel(s32, s32);
 s32 actorSpawn(s32, s32);
 void func_80614E78(void *, s32);
 
-void func_80026874(arg0, arg1)
-Struct_80025D14 *arg0;
-void *arg1;
-{
+void func_80026874(Struct_80025D14 *arg0, void *arg1) {
     s32 sp24;
     s32 sp20;
 
@@ -541,7 +538,7 @@ void *arg1;
             case 0:
             case 1:
                 playerStateQueueCallback(0x52, 0, 0);
-                D_807FBB60 &= 0xFFFEFFCF;
+                D_807FBB60 &= ~0x10030;
                 M1B_C924->unk4->unk60 |= 0x40000000;
                 break;
             case 4:
@@ -574,24 +571,22 @@ void *arg1;
                 return;
             }
             sp20 = 0xA;
-            goto done;
+            break;
         case 0xBF:
             sp24 = 9;
             sp20 = 0x11;
-            goto done;
+            break;
         case 0xBE:
             sp24 = 7;
             sp20 = 0x10;
-        default:
-        done:
-            slotQueueCancel(1, 0);
-            slotQueueCancel(0xE, 0);
-            camStartPath((s32)M1B_C924->unk4, 3, 1);
-            arg0->unkD = 3;
-            arg0->unkE = 0;
-            func_8070D8C0(D_807FBB40, sp24, sp20);
             break;
         }
+        slotQueueCancel(1, 0);
+        slotQueueCancel(0xE, 0);
+        camStartPath((s32)M1B_C924->unk4, 3, 1);
+        arg0->unkD = 3;
+        arg0->unkE = 0;
+        func_8070D8C0(D_807FBB40, sp24, sp20);
         break;
     }
 }
@@ -612,7 +607,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
         if (currentActorTestClearFlag() != 0) {
             sp24 = -1;
             D_807FBB60 |= 0x10030;
-            M1B_C924->unk4->unk60 &= 0xBFFFFFFF;
+            M1B_C924->unk4->unk60 &= ~0x40000000;
             sp28 = 0;
             sp2C = -1;
             if (sp2C) {
@@ -636,7 +631,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
                     sp28 = 9;
                 } else {
                     sp2C = 0x13;
-                    if (*((u8 *)arg0 + 0x10) + 1 == *(u8 *)&D_807FCC4C) {
+                    if (D_807FCC4C == arg0->unk10 + 1) {
                         sp2C = 0x14;
                         sp28 = 9;
                     } else {
@@ -757,7 +752,6 @@ void func_80026DAC(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
     }
 }
 
-void func_80026874();
 void func_80026B28(Struct_80025D14 *, void *, s32);
 void func_80026DAC(Struct_80025D14 *, void *, s32);
 
@@ -769,7 +763,7 @@ void menuDispatchCurrentMenuAction(Struct_80025D14 *arg0, void *arg1, s32 arg2) 
         menuDispatchSubmenuAction(arg0, arg1, flag);
         break;
     case 1:
-        func_80026874(arg0, arg1, arg2);
+        func_80026874(arg0, arg1);
         break;
     case 2:
         func_80026B28(arg0, arg1, arg2);
