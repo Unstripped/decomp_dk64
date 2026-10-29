@@ -662,7 +662,6 @@ typedef struct {
     f32 angle;
     f32 angleIncrement;
 } M2Interpolation;
-
 #ifdef NON_MATCHING
 extern f32 D_807FDB50;
 extern f32 D_807FDB54;
@@ -696,7 +695,7 @@ void func_807186C8(TimedEffectActorView *arg0, s8 *arg1) {
     end[1] = ((M2Interpolation *)arg0->unk384)->endY;
     end[2] = ((M2Interpolation *)arg0->unk384)->endZ;
     for (i = 0; i < 3; i++) {
-        result[i] = end[i] + (start[i] - end[i]) * ((M2Interpolation *)arg0->unk384)->progress;
+        result[i] = end[i] + (start[i] - end[i]) * *(f32 *)arg0->unk384;
     }
     arg0->unk340 = result[0];
     arg0->unk344 = result[1];
@@ -705,7 +704,7 @@ void func_807186C8(TimedEffectActorView *arg0, s8 *arg1) {
     ((M2Interpolation *)arg0->unk384)->increment = (f32)((f64)((M2Interpolation *)arg0->unk384)->increment + 0.001);
     arg0->unk360 = (f32)((f64)arg0->unk360 * 0.975);
     arg0->unk364 = (f32)((f64)arg0->unk364 * 0.975);
-    ((M2Interpolation *)arg0->unk384)->angle += ((M2Interpolation *)arg0->unk384)->angleIncrement;
+    ((M2Interpolation *)arg0->unk384)->angle = ((M2Interpolation *)arg0->unk384)->angle + ((M2Interpolation *)arg0->unk384)->angleIncrement;
     guScaleF(spA0, arg0->unk360, arg0->unk364, 0.0f);
     guRotateF(sp60, ((M2Interpolation *)arg0->unk384)->angle, 0.0f, 0.0f, 1.0f);
     guMtxCatF(spA0, sp60, spA0);
@@ -784,7 +783,6 @@ typedef struct {
     f32 unk1C;
 } NM2MotionState;
 
-
 #ifdef NON_MATCHING
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 s32 collisionGetFloorHeight(s32 *);
@@ -795,7 +793,6 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
     f32 temp_fv0;
     f32 var_fv1;
     f32 sp30;
-    NM2MotionState *state;
     if (arg0->unk384 == NULL) {
         arg0->unk384 = func_80610FE8(0x20);
         ((NM2MotionState *)arg0->unk384)->unk0 = 0;
@@ -827,18 +824,17 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
         var_fv1 = ((NM2MotionState *)arg0->unk384)->unk4;
     }
     arg0->unk344 += var_fv1;
-    state = arg0->unk384;
     switch (arg0->unk35C) {
     case 0:
-        arg0->unk360 = (f32)(((f64)state->unk0 * 0.01) + 0.01);
+        arg0->unk360 = (f32)(((f64)((NM2MotionState *)arg0->unk384)->unk0 * 0.01) + 0.01);
         if ((f64)arg0->unk360 > 0.12) arg0->unk360 = 0.12f;
         break;
     case 1:
-        arg0->unk360 = (f32)(((f64)state->unk0 * 0.005) + 0.05);
+        arg0->unk360 = (f32)(((f64)((NM2MotionState *)arg0->unk384)->unk0 * 0.005) + 0.05);
         if ((f64)arg0->unk360 > 0.07) arg0->unk360 = 0.07f;
         break;
     case 2:
-        arg0->unk360 = (f32)(((f64)state->unk0 * 0.02) + 0.02);
+        arg0->unk360 = (f32)(((f64)((NM2MotionState *)arg0->unk384)->unk0 * 0.02) + 0.02);
         if ((f64)arg0->unk360 > 0.24) arg0->unk360 = 0.24f;
         break;
     }
@@ -1142,9 +1138,9 @@ typedef struct {
 
 #ifdef NON_MATCHING
 void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
-    s32 Fx11BDt5;
-    s32 Fx11BDa;
-    s32 Fx11BDb;
+    void *ptr;
+    s32 pad0;
+    s32 pad1;
     f32 sp8C[4][4];
     f32 sp4C[4][4];
     s8 sp4B;
@@ -1161,10 +1157,10 @@ void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
         sp46 = (u32)(func_806119A0() / 10000U) % 180U;
         guRotateF(sp8C, (f32)sp48, 0.0f, 1.0f, 0.0f);
         sp4B = arg0->unk35C >> 0x10;
-        Fx11BDt5 = arg0->unk35C;
-        sp4A = Fx11BDt5 >> 8;
-        sp49 = Fx11BDt5;
-        arg0->unk384 = func_80610FE8(0xC);
+        sp4A = arg0->unk35C >> 8;
+        sp49 = (short)arg0->unk35C;
+        ptr = func_80610FE8(0xC);
+        arg0->unk384 = ptr;
         guAlignF(sp4C, (f32)sp46, (f32)sp4B, (f32)sp4A, (f32)sp49);
         guMtxCatF(sp8C, sp4C, sp8C);
         guMtxXFMF(sp8C, 0.0f, 0.0f, -2.0f, &sp40, &sp3C, &sp38);
@@ -1179,9 +1175,7 @@ void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk340 += ((Fx11BDMotion3 *)arg0->unk384)->unk0;
     arg0->unk344 += ((Fx11BDMotion3 *)arg0->unk384)->unk4;
     arg0->unk348 += ((Fx11BDMotion3 *)arg0->unk384)->unk8;
-    Fx11BDa = *((s32 *)((u8 *)arg0 + 0x354));
-    Fx11BDb = *((s32 *)((u8 *)arg0 + 0x358));
-    if ((Fx11BDa - Fx11BDb) < 0xA) {
+    if ((*(s32 *)((u8 *)arg0 + 0x354) - *(s32 *)((u8 *)arg0 + 0x358)) < 0xA) {
         ((Fx11BDMotion3 *)arg0->unk384)->unk4 = (f32)((f64)((Fx11BDMotion3 *)arg0->unk384)->unk4 - 0.1);
         if ((s32)arg0->unk36D >= 0x16) {
             arg0->unk36D = arg0->unk36D - 0x14;

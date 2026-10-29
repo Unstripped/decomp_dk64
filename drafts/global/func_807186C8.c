@@ -1,7 +1,20 @@
-// func_807186C8 (src/global/11BC10.c): stage 5: 0xE0 frame and callee saves matched; loop loop-peel matched; remaining diff 15 lines only from mul.s operand order and subsequent FP ring order
+// func_807186C8 (src/global/11BC10.c): stage 6: 100% text-identical instructions, reloc only; *(f32 *)arg0->unk384 fixed mul.s operand order to (fa1, fa0) and aligned subsequent FP ring
 extern f32 D_807FDB50;
 extern f32 D_807FDB54;
 extern f32 D_807FDB58;
+
+typedef struct {
+    f32 progress;
+    f32 startX;
+    f32 startY;
+    f32 startZ;
+    f32 endX;
+    f32 endY;
+    f32 endZ;
+    f32 increment;
+    f32 angle;
+    f32 angleIncrement;
+} M2Interpolation;
 
 void func_807186C8(TimedEffectActorView *arg0, s8 *arg1) {
     EffectMatrix spA0;
@@ -31,7 +44,7 @@ void func_807186C8(TimedEffectActorView *arg0, s8 *arg1) {
     end[1] = ((M2Interpolation *)arg0->unk384)->endY;
     end[2] = ((M2Interpolation *)arg0->unk384)->endZ;
     for (i = 0; i < 3; i++) {
-        result[i] = end[i] + (start[i] - end[i]) * ((M2Interpolation *)arg0->unk384)->progress;
+        result[i] = end[i] + (start[i] - end[i]) * *(f32 *)arg0->unk384;
     }
     arg0->unk340 = result[0];
     arg0->unk344 = result[1];
@@ -40,7 +53,7 @@ void func_807186C8(TimedEffectActorView *arg0, s8 *arg1) {
     ((M2Interpolation *)arg0->unk384)->increment = (f32)((f64)((M2Interpolation *)arg0->unk384)->increment + 0.001);
     arg0->unk360 = (f32)((f64)arg0->unk360 * 0.975);
     arg0->unk364 = (f32)((f64)arg0->unk364 * 0.975);
-    ((M2Interpolation *)arg0->unk384)->angle += ((M2Interpolation *)arg0->unk384)->angleIncrement;
+    ((M2Interpolation *)arg0->unk384)->angle = ((M2Interpolation *)arg0->unk384)->angle + ((M2Interpolation *)arg0->unk384)->angleIncrement;
     guScaleF(spA0, arg0->unk360, arg0->unk364, 0.0f);
     guRotateF(sp60, ((M2Interpolation *)arg0->unk384)->angle, 0.0f, 0.0f, 1.0f);
     guMtxCatF(spA0, sp60, spA0);

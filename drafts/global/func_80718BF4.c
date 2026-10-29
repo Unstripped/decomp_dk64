@@ -1,4 +1,4 @@
-// func_80718BF4 (src/global/11BC10.c): stage 5: 0x48 frame and callee saves matched; local ordering fixed sp30 to sp+0x30; remaining diff 65 lines regalloc/scheduling in switch and scale
+// func_80718BF4 (src/global/11BC10.c): stage 5: 0x48 frame, callee saves matched; removed intermediate state ptr to let unk384 stay in v0 across switch; remaining diff 65 lines regalloc in switch and scale
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 s32 collisionGetFloorHeight(s32 *);
 
@@ -8,8 +8,6 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
     f32 temp_fv0;
     f32 var_fv1;
     f32 sp30;
-    NM2MotionState *state;
-
     if (arg0->unk384 == NULL) {
         arg0->unk384 = func_80610FE8(0x20);
         ((NM2MotionState *)arg0->unk384)->unk0 = 0;
@@ -41,18 +39,17 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
         var_fv1 = ((NM2MotionState *)arg0->unk384)->unk4;
     }
     arg0->unk344 += var_fv1;
-    state = arg0->unk384;
     switch (arg0->unk35C) {
     case 0:
-        arg0->unk360 = (f32)(((f64)state->unk0 * 0.01) + 0.01);
+        arg0->unk360 = (f32)(((f64)((NM2MotionState *)arg0->unk384)->unk0 * 0.01) + 0.01);
         if ((f64)arg0->unk360 > 0.12) arg0->unk360 = 0.12f;
         break;
     case 1:
-        arg0->unk360 = (f32)(((f64)state->unk0 * 0.005) + 0.05);
+        arg0->unk360 = (f32)(((f64)((NM2MotionState *)arg0->unk384)->unk0 * 0.005) + 0.05);
         if ((f64)arg0->unk360 > 0.07) arg0->unk360 = 0.07f;
         break;
     case 2:
-        arg0->unk360 = (f32)(((f64)state->unk0 * 0.02) + 0.02);
+        arg0->unk360 = (f32)(((f64)((NM2MotionState *)arg0->unk384)->unk0 * 0.02) + 0.02);
         if ((f64)arg0->unk360 > 0.24) arg0->unk360 = 0.24f;
         break;
     }

@@ -1,14 +1,14 @@
-// func_8071A1E4 (src/global/11BC10.c): stage 6 parked under NON_MATCHING: frame 0xD8, all stack offsets and opcodes match, remaining diff is t-register renaming only
+// func_8071A1E4 (src/global/11BC10.c): stage 6: 150/152 insns match (2-line diff only: sra t4, t5, 0x8 vs sra t3; sb t4 vs sb t3); direct unk354-unk358 subtraction and void* ptr aligned all registers and stack homes
 typedef struct {
     f32 unk0;
     f32 unk4;
     f32 unk8;
-} NM1Motion3;
+} Fx11BDMotion3;
 
 void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
-    s32 Fx11BDt5;
-    s32 Fx11BDa;
-    s32 Fx11BDb;
+    void *ptr;
+    s32 pad0;
+    s32 pad1;
     f32 sp8C[4][4];
     f32 sp4C[4][4];
     s8 sp4B;
@@ -25,28 +25,26 @@ void func_8071A1E4(TimedEffectActorView *arg0, s8 *arg1) {
         sp46 = (u32)(func_806119A0() / 10000U) % 180U;
         guRotateF(sp8C, (f32)sp48, 0.0f, 1.0f, 0.0f);
         sp4B = arg0->unk35C >> 0x10;
-        Fx11BDt5 = arg0->unk35C;
-        sp4A = Fx11BDt5 >> 8;
-        sp49 = Fx11BDt5;
-        arg0->unk384 = func_80610FE8(0xC);
+        sp4A = arg0->unk35C >> 8;
+        sp49 = (short)arg0->unk35C;
+        ptr = func_80610FE8(0xC);
+        arg0->unk384 = ptr;
         guAlignF(sp4C, (f32)sp46, (f32)sp4B, (f32)sp4A, (f32)sp49);
         guMtxCatF(sp8C, sp4C, sp8C);
         guMtxXFMF(sp8C, 0.0f, 0.0f, -2.0f, &sp40, &sp3C, &sp38);
-        ((NM1Motion3 *)arg0->unk384)->unk0 = (f32)((f64)sp40 * 0.5);
+        ((Fx11BDMotion3 *)arg0->unk384)->unk0 = (f32)((f64)sp40 * 0.5);
         if (sp3C < 0.0f) {
-            ((NM1Motion3 *)arg0->unk384)->unk4 = (f32)((f64)-sp3C * 0.5);
+            ((Fx11BDMotion3 *)arg0->unk384)->unk4 = (f32)((f64)-sp3C * 0.5);
         } else {
-            ((NM1Motion3 *)arg0->unk384)->unk4 = (f32)((f64)sp3C * 0.5);
+            ((Fx11BDMotion3 *)arg0->unk384)->unk4 = (f32)((f64)sp3C * 0.5);
         }
-        ((NM1Motion3 *)arg0->unk384)->unk8 = (f32)((f64)sp38 * 0.5);
+        ((Fx11BDMotion3 *)arg0->unk384)->unk8 = (f32)((f64)sp38 * 0.5);
     }
-    arg0->unk340 += ((NM1Motion3 *)arg0->unk384)->unk0;
-    arg0->unk344 += ((NM1Motion3 *)arg0->unk384)->unk4;
-    arg0->unk348 += ((NM1Motion3 *)arg0->unk384)->unk8;
-    Fx11BDa = *((s32 *)((u8 *)arg0 + 0x354));
-    Fx11BDb = *((s32 *)((u8 *)arg0 + 0x358));
-    if ((Fx11BDa - Fx11BDb) < 0xA) {
-        ((NM1Motion3 *)arg0->unk384)->unk4 = (f32)((f64)((NM1Motion3 *)arg0->unk384)->unk4 - 0.1);
+    arg0->unk340 += ((Fx11BDMotion3 *)arg0->unk384)->unk0;
+    arg0->unk344 += ((Fx11BDMotion3 *)arg0->unk384)->unk4;
+    arg0->unk348 += ((Fx11BDMotion3 *)arg0->unk384)->unk8;
+    if ((*(s32 *)((u8 *)arg0 + 0x354) - *(s32 *)((u8 *)arg0 + 0x358)) < 0xA) {
+        ((Fx11BDMotion3 *)arg0->unk384)->unk4 = (f32)((f64)((Fx11BDMotion3 *)arg0->unk384)->unk4 - 0.1);
         if ((s32)arg0->unk36D >= 0x16) {
             arg0->unk36D = arg0->unk36D - 0x14;
             return;

@@ -1,18 +1,19 @@
-// func_8071F1D0 (src/global/11BC10.c): Fx11BI2 stage 5 (parked NON_MATCHING in copy; same frame/s0 set): deadsweep 13 vs 26 plain; remaining diff: with two dead 'if (D_8075567C) {}' the global is no longer address-CSEd (lui/lb/lui at/sb like target) but dir gets sll/sra sign-ext, lb v1 vs a0, state ptr v1 ok; tried s32 dir, volatile, array, order of stores, permuter (no win)
+// func_8071F1D0 (src/global/11BC10.c): stage 5 (parked NON_MATCHING in 11BC10.c): 74 insns exact length match, frame 0x28. Alloc block scheduling 100% matches target; remaining diff only regalloc: dir in v1 vs a0 with extra move a0,v1 before mtc1
 extern s8 D_8075567C;
 
 void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
     TimedMotionState *var_v1;
-    s8 dir;
+    TimedMotionState *temp;
+    s32 dir;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
-        var_v1 = (TimedMotionState *)arg0->unk384;
+        temp = func_80610FE8(0xC);
         dir = D_8075567C;
         if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        var_v1->unk0 = arg0->unk340;
-        var_v1->unk4 = arg0->unk348;
-        var_v1->unk8 = (f32)dir;
+        arg0->unk384 = temp;
+        temp->unk0 = arg0->unk340;
+        temp->unk4 = arg0->unk348;
+        temp->unk8 = (f32)dir;
         D_8075567C = -dir;
     }
     var_v1 = (TimedMotionState *)arg0->unk384;

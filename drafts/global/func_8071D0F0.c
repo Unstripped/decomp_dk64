@@ -1,4 +1,4 @@
-// func_8071D0F0 (src/global/11BC10.c): func_8071D0F0 (src/global/11BC10.c): stage 6, parked NON_MATCHING in FxInt1 copy. Frame 0x38 + all stack homes match (decl order motion,lightNodePtr,node,factor,pad puts node at 0x2C); deadsweep 'if (D_807FBB4C && D_807FBB4C) {}' fixes D_807FBB4C addr a0. Remaining 14 diff lines = reg only: motion web pre-call t0 (target splits motion at actorGetNodePos call: pre piece t0, reload v1) vs ours single v1; ugen lui for D_807FD580 t1 vs v0 (cascade of cand 26). Tried: decl order perms (120), m2 copy var, f32* array form, callee return types s32/s64/f32 for actorGetNodePos, permuter 420s (no gain), Actor->unk7C direct fields (same).
+// func_8071D0F0 (src/global/11BC10.c): stage 6 (parked NON_MATCHING in 11BC10.c): 92 insns exact match, all stack homes match. Remaining 14 diff lines purely regalloc: pre-call motion in t0 vs v1 cascades lui D_807FD580 v0 vs t1 and D_807FBB4C load t1 vs t0
 typedef struct {
     f32 unk0;
     f32 unk4;
