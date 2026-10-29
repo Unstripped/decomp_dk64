@@ -12,7 +12,11 @@ ingests the agent's report, including attempts that improved nothing.
     python3 tools/ledger.py seed-git            # one-off approximate history (idempotent)
 
 record: functions come from the `- \\`FUNC\\`` lines of a task file (`-` = stdin, e.g.
-  `cat local://tasks/A.md | ... --task -`) plus explicit FUNC arguments. Run it AFTER the
+  `cat local://tasks/A.md | ... --task -`) plus explicit FUNC arguments. Every function must
+  be a function of SEG (a C definition in src/<seg>/ or a `glabel` of a GLOBAL_ASM file
+  there; names resolve through the symbol file, the `.s`, then the link map), else nothing
+  is written: a typo, a data symbol or the wrong segment is never logged as `matched`.
+  Run it AFTER the
   agent's copy is merged (or rejected): the default OUTCOME is derived from the tree:
   `matched` (no longer GLOBAL_ASM), `parked` (inside `#ifdef NON_MATCHING`), else `attempted`;
   the stage comes from the draft's first line. Override with FUNC=matched|parked|attempted|
@@ -92,22 +96,52 @@ def symbols(seg):
     return _syms[seg]
 
 
+_maps = {}
+
+
+def map_symbols(seg):
+    """name -> vram of the .text symbols the link map gives src/<seg>/ objects (names that
+    are in no symbol file, e.g. ultralib's); empty before the first build."""
+    if seg not in _maps:
+        path = os.path.join(ROOT, "build", "dk64.us.map" if seg == "boot" else f"{seg}.map")
+        out, obj = {}, None
+        if os.path.exists(path):
+            for line in open(path):
+                m = re.match(r"\s*\.text\s+0x[0-9a-f]+\s+0x[0-9a-f]+\s+(\S+)", line)
+                if m:
+                    obj = m.group(1)
+                    continue
+                if re.match(r"\s*\.\w+\s", line):
+                    obj = None
+                s = re.match(r"\s+0x0*([0-9a-f]{8})\s+(\w+)\s*$", line)
+                if s and obj and f"/src/{seg}/" in obj:
+                    out[s.group(2)] = int(s.group(1), 16)
+        _maps[seg] = out
+    return _maps[seg]
+
+
 def vram_of(seg, name):
     m = re.fullmatch(r"func_([0-9A-Fa-f]{8})", name)
     if m:
         return int(m.group(1), 16)
     v = symbols(seg)[0].get(name)
     if v is None:
-        for p in glob.glob(os.path.join(ROOT, "asm", "**", "nonmatchings", "**", name + ".s"), recursive=True):
+        asmdir = os.path.join(ROOT, "asm", "nonmatchings") if seg == "boot" else os.path.join(ROOT, "asm", seg, "nonmatchings")
+        for p in glob.glob(os.path.join(asmdir, "**", name + ".s"), recursive=True):
             for line in open(p):
                 mm = INSN.match(line)
                 if mm:
                     return int(mm.group(1), 16)
+    if v is None:
+        v = map_symbols(seg).get(name)
     return v
 
 
 def name_of(seg, vram):
-    return symbols(seg)[1].get(vram, f"func_{vram:08X}")
+    n = symbols(seg)[1].get(vram)
+    if n is None:
+        n = next((k for k, v in map_symbols(seg).items() if v == vram and not k.startswith("func_")), None)
+    return n or f"func_{vram:08X}"
 
 
 def unmatched():
@@ -139,6 +173,41 @@ def unmatched():
             out[(seg, v)] = dict(name=func, src=os.path.relpath(src, ROOT), parked=func in parked,
                                  stage=stage, insns=n, note=note)
     return out
+
+# A C function DEFINITION starting at column 0 (`T name(params)`, or `name(params)` with the
+# return type on the line above) then `{`, optionally after K&R parameter declarations
+# (`T a; T (*cb)(Actor *);`). A prototype has `;` right after `)`, so it never matches.
+# Comments are stripped first (ultralib puts them between `)` and `{`).
+DEFN = re.compile(r"^(?:[A-Za-z_][\w \t\*]*?\b)?(\w+)\s*\([^;{}]*\)(?:\s*[A-Za-z_][^;{}]*;)*\s*\{", re.M)
+COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
+
+
+def inventory(seg):
+    """VRAMs of every function of SEG: C definitions in src/<seg>/ plus every `glabel` of the
+    GLOBAL_ASM files they include (a `.s` can hold more than one function)."""
+    vrams = {v for (s, v) in unmatched() if s == seg}
+    for src in glob.glob(os.path.join(ROOT, "src", seg, "**", "*.c"), recursive=True):
+        text = open(src).read()
+        for name in DEFN.findall(COMMENT.sub(" ", text)):
+            if name in ("if", "while", "for", "switch", "return", "sizeof"):
+                continue
+            v = vram_of(seg, name)
+            if v is not None:
+                vrams.add(v)
+        for m in PRAGMA.finditer(text):
+            if (m.group(1) or "boot") != seg:
+                continue
+            path = os.path.join(ROOT, re.search(r'"([^"]+)"', m.group(0)).group(1))
+            if not os.path.exists(path):
+                continue
+            pending = False
+            for line in open(path):
+                if line.startswith("glabel "):
+                    pending = True
+                elif pending and INSN.match(line):
+                    vrams.add(int(INSN.match(line).group(1), 16))
+                    pending = False
+    return vrams
 
 
 def load():
@@ -172,10 +241,11 @@ def cmd_record(a):
         a.unit = None
     elif not any(e["type"] == "unit" and e["unit"] == a.unit for e in load()):
         events.append(dict(type="unit", unit=a.unit, ts=ts, approx=False))
+    known = inventory(a.seg)
     for f, o in funcs:
         v = vram_of(a.seg, f)
-        if v is None:
-            sys.exit(f"{a.seg} {f}: unknown function (not func_XXXXXXXX, not in {os.path.basename(symfile(a.seg))}, no .s)")
+        if v is None or v not in known:
+            sys.exit(f"{a.seg} {f}: not a function of segment {a.seg} (no C definition or GLOBAL_ASM function in src/{a.seg}/); nothing recorded")
         cur = live.get((a.seg, v))
         if o is None:
             o = "matched" if cur is None else "parked" if cur["parked"] else "attempted"
