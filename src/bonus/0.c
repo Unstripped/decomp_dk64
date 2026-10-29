@@ -135,7 +135,7 @@ void actorSetStateTwo(void *);
 void func_8070E8DC(s32);
 void func_8070D8C0(void *, s32, u8);
 void sfxAllocateChannel(s32, f32);
-u16 camStartPath(s32, s32, s32);
+u16 camStartPath(void *, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
@@ -403,7 +403,7 @@ render:
         if (sp6F == 4 && LP->unk80 < -20.0f) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x362, 0xFF, 0x7F, 0);
             bonusEndLose(0, 1);
-            camStartPath((s32)D_807FBB40, 1, 1);
+            camStartPath(D_807FBB40, 1, 1);
             return;
         }
         if (LP->unk154 == 0x73) {
