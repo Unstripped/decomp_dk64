@@ -274,7 +274,99 @@ Gfx *func_8068DBA4(Gfx *arg0, KaG_Countdown *arg1) {
     return textDrawStringVtx(arg0, 3, 0x370, 0x50, sp34, 1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/90D80/func_8068DC54.s")
+Gfx *func_805FD030(Gfx *);
+f32 sinApprox(f32);
+
+Gfx *func_8068DC54(Gfx *arg0, s16 arg1, s16 arg2, s16 *arg3, s16 arg4, u8 *arg5) {
+    f32 sp74;
+    u8 sp70[2];
+    u8 sp6C[2];
+    u8 sp68[2];
+    u8 sp64[2];
+    char sp60[4];
+    s16 sp5E;
+    s16 var_s0;
+    s16 var_v1;
+    s32 temp;
+
+    var_v1 = *arg3;
+    if (arg4 < var_v1) {
+        sp5E = -1;
+    } else {
+        sp5E = 1;
+    }
+
+    if (arg4 != var_v1) {
+        if (*arg5 != 0) {
+            *arg5 -= 1;
+            if (*arg5 == 0) {
+                *arg3 += sp5E;
+                if (arg4 != *arg3) {
+                    *arg5 = 0xC;
+                }
+            }
+        } else {
+            *arg5 = 0xC;
+        }
+    }
+    arg0 = func_805FD030(arg0);
+    gDPSetScissor(arg0++, G_SC_NON_INTERLACE, arg1, arg2, arg1 + 0x34, arg2 + 0x1B);
+
+    var_s0 = 0;
+    var_v1 = *arg3;
+    while (var_v1 >= 100) {
+        (var_v1 -= 100), var_s0++;
+    }
+    if (var_v1 == 99) {
+        var_s0++;
+    }
+
+    sp70[0] = (var_v1 / 10) + '0';
+    sp70[1] = 0;
+    sp6C[0] = (var_v1 % 10) + '0';
+    sp6C[1] = 0;
+    sp68[0] = ((var_v1 + sp5E) / 10) + '0';
+    sp68[1] = 0;
+    sp64[0] = ((var_v1 + sp5E) % 10) + '0';
+    sp64[1] = 0;
+
+    sp74 = sinApprox((((f64)*arg5 / 12.0) * 1.57079637050628662) + 1.57079637050628662) * 96.0;
+
+    if (arg4 == *arg3) {
+        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, arg2 * 4, sp70, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, arg2 * 4, sp6C, 1);
+    } else if (sp70[0] != sp68[0]) {
+        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp68, 1);
+        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, (s16)((f32)(arg2 * 4 + 4) + sp74), sp70, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp64, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), sp6C, 1);
+    } else {
+        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, arg2 * 4, sp70, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp64, 1);
+        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), sp6C, 1);
+    }
+
+    if ((*arg3 + sp5E) >= 100) {
+        temp = arg1 - 0x14;
+        if (temp < 0) {
+            temp = 0;
+        }
+        gDPSetScissor(arg0++, G_SC_NON_INTERLACE, temp, arg2, arg1 + 0x34, arg2 + 0x1B);
+        _sprintf(sp60, "%d", var_s0);
+        if (*arg3 >= 100 && *arg3 != 0xC7) {
+            arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) - 0x50, arg2 * 4, sp60, 1);
+        } else if (*arg3 == 0x63 || *arg3 == 0xC7) {
+            arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) - 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp60, 1);
+            if (*arg3 == 0xC7) {
+                arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) - 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), "1", 1);
+            }
+        }
+    }
+
+    gDPPipeSync(arg0++);
+    gDPSetScissor(arg0++, G_SC_NON_INTERLACE, D_807FC924->rect[0], D_807FC924->rect[1], D_807FC924->rect[2], D_807FC924->rect[3]);
+    return arg0;
+}
 
 
 extern Mtx D_20000C0;
