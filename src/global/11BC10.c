@@ -1357,7 +1357,24 @@ void func_8071E110(TimedEffectActorView *arg0, u8 arg1, u16 arg2, f32 arg3, f32 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071E864.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EA24.s")
+void func_8071EA24(TimedEffectActorView *arg0, s8 *arg1) {
+    TimedMotionState *var_v1;
+
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(0xC);
+        var_v1 = (TimedMotionState *)arg0->unk384;
+        var_v1->unk0 = func_806119FC() * 4095.0f;
+        var_v1->unk4 = (f32)(((f64)func_806119FC() * 0.5 + 1.0) * 5.0);
+        var_v1->unk8 = 15.0f;
+    }
+    var_v1 = (TimedMotionState *)arg0->unk384;
+    var_v1->unk4 = var_v1->unk4 - 1.0f;
+    var_v1->unk8 = (f32)((f64)var_v1->unk8 * 0.95);
+    arg0->unk340 += var_v1->unk8 * func_80612794((s16)var_v1->unk0);
+    arg0->unk348 += var_v1->unk8 * func_80612790((s16)var_v1->unk0);
+    arg0->unk344 = arg0->unk344 + var_v1->unk4;
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EB70.s")
 
@@ -1386,6 +1403,8 @@ void func_8071EDEC(TargetTrackingActorView *arg0, s32 arg1) {
 void func_8071EEA4(TimedEffectActorView *arg0, s32 arg1) {
     arg0->unk364 = (f32) (((f64) arg0->unk35C / 100.0) + 1.0);
 }
+
+void matrixMakeRotationZ(f32 (*arg0)[4], f32 arg1);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071EEE0.s")
 
@@ -1416,6 +1435,7 @@ void func_8071F034(TimedEffectActorView *arg0, s32 arg1) {
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F078.s")
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F1D0.s")
 
@@ -1504,7 +1524,6 @@ typedef struct {
     f32 unk364;
 } SineScaleActorView;
 
-void matrixMakeRotationZ(f32 (*arg0)[4], f32 arg1);
 
 void func_8071F660(SineScaleActorView *arg0, void *arg1) {
     f32 sp68[4][4];
@@ -1522,5 +1541,19 @@ void func_8071F660(SineScaleActorView *arg0, void *arg1) {
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F758.s")
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+    f32 unk24;
+} Fx11BIRiseMotionState;
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F8E4.s")
