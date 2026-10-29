@@ -1,4 +1,4 @@
-// func_8071910C (src/global/11BC10.c): stage 5: 0xD8 frame matched, s0-only saved. Callee func_806086CC 4th arg is s16 in TU causing sll/sra on a3.
+// func_8071910C (src/global/11BC10.c): stage 5: 0xD8 frame matched, s0-only saved. Callee func_806086CC 4th arg is s16 in TU causing sll/sra on a3. [orchestrator: with the file decl now s16 for arg 3, the unparked C is still 16 bytes (4 insns) too long: not decl-only]
 typedef struct {
     f32 unk0;
     f32 unk4;
