@@ -996,7 +996,6 @@ void projectileAimFromActorAndSpawn(s16 arg0, s16 arg1, f32 arg2, Actor *arg3, s
     projectileAimAndSpawn(arg0, arg1, arg2, sp34, sp30, sp2C, arg5, arg6);
 }
 
-#ifdef NON_MATCHING
 typedef struct Prj9A_Sub104 {
     u8 pad0[0x104];
     Actor *unk104;
@@ -1020,21 +1019,21 @@ void func_80690C60(arg0, arg1, arg2, arg3)
 u16 arg0;
 Actor *arg1;
 void *arg2;
-volatile u8 arg3; // FAKE: volatile reproduces the per-path re-lbu of the stack-passed u8 instead of a CSE spill
+u8 arg3;
 {
-    s32 temp_lo;
+    Prj9A_Sub104 *temp_a; // named pointer-chain locals: colour the two chain loads into v0/v1
     Actor *sp78;
     s16 sp76;
-    s16 temp_v1;
-    s16 temp_t0;
+    s16 temp_lo;
+    s16 temp_t0; // FAKE: unused s16 local, reserves a frame home slot
     s16 sp70;
     s16 sp6E;
     s16 sp6C;
     f32 temp_fv0;
     f32 temp_fv1;
     f32 dist;
-    f64 var_ft2;
-    u32 temp_t4;
+    f64 var_ft2; // FAKE: unused f64 local, reserves a frame home slot
+    Prj9A_SubF3 *temp_t4;
     Prj9A_Aim174 *sp50;
     f32 sp4C;
     f32 sp48;
@@ -1044,19 +1043,21 @@ volatile u8 arg3; // FAKE: volatile reproduces the per-path re-lbu of the stack-
 
     sp50 = arg1->unk174;
     if (!((f64)arg1->unkB8 < 0.1)) {
-        if ((arg2 != 0) && (((Prj9A_SubF3 *)((Prj9A_Sub104 *)((Actor *)arg1->unk11C)->unk174)->unk104->unk174)->unkF3 == 3)) {
-            func_8071498C(func_8071D260);
-            func_80714950(0x32);
-            func_80714CC0(arg2, sp50->unk14, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+        if (arg2 != 0) {
+            temp_a = ((Actor *)arg1->unk11C)->unk174;
+            temp_t4 = temp_a->unk104->unk174;
+            if (temp_t4->unkF3 == 3) {
+                func_8071498C(func_8071D260);
+                func_80714950(0x32);
+                func_80714CC0(arg2, sp50->unk14, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+            }
         }
-        if (func_80690F30(arg0, (void **)&sp78, arg1, 0, arg3, arg3 == 0, &sp4C, &sp48, &sp44) != 0) {
+        if (func_80690F30(arg0, (void **)&sp78, arg1, 0, *(u8 *)&arg3, arg3 == 0, &sp4C, &sp48, &sp44) != 0) { // FAKE: address-taken byte read keeps the arg3 lbu in a ring temp (candidate left uncoloured)
             sp76 = mathAngleBetweenPoints2D(sp4C, sp44, arg1->unk7C, arg1->unk84);
             temp_lo = mathAngleDistance(sp76, arg1->unkEE) / 10;
-            temp_v1 = arg1->unkEE;
-            temp_t0 = (temp_v1 + temp_lo) & 0xFFF;
-            sp6E = (temp_v1 - temp_lo) & 0xFFF;
-            sp70 = temp_t0;
-            sp6C = mathAngleDistance(temp_t0, sp76);
+            sp70 = (arg1->unkEE + temp_lo) & 0xFFF;
+            sp6E = (arg1->unkEE - temp_lo) & 0xFFF;
+            sp6C = mathAngleDistance(sp70, sp76);
             if (sp6C < mathAngleDistance(sp6E, sp76)) {
                 arg1->unkEE = sp70;
             } else {
@@ -1074,9 +1075,7 @@ volatile u8 arg3; // FAKE: volatile reproduces the per-path re-lbu of the stack-
                 }
                 ratio = dist / (arg1->unkB8 * 0.025f);
                 if (sp78 != NULL) {
-                    temp_t4 = sp78->unk15E;
-                    var_ft2 = temp_t4;
-                    var_fv0 = var_ft2 * 0.5;
+                    var_fv0 = (f64)sp78->unk15E * 0.5;
                 } else {
                     var_fv0 = 0.0f;
                 }
@@ -1090,10 +1089,6 @@ volatile u8 arg3; // FAKE: volatile reproduces the per-path re-lbu of the stack-
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/936B0/func_80690C60.s")
-#endif
 
 typedef struct L690F30_Slot {
     f32 unk0;
