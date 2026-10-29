@@ -163,4 +163,22 @@ void triggerZoneUpdate(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/684C0/func_80663BE8.s")
+void func_80663BE8(Actor *arg0) {
+    TriggerZoneNode *node;
+    TriggerZoneSubNode **subListPtr;
+    TriggerZoneSubNode *subNode;
+    Actor *spawned;
+
+    for (node = D_807F9410; node != NULL; node = node->next) {
+        for (subListPtr = &node->subList, subNode = *subListPtr; subNode != NULL; ) {
+            spawned = subNode->spawnedActor;
+            if (arg0 == spawned) {
+                *subListPtr = subNode->next;
+                heapFree(subNode);
+                return;
+            }
+            subListPtr = &subNode->next;
+            subNode = subNode->next;
+        }
+    }
+}

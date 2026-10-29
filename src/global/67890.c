@@ -1,7 +1,78 @@
 #include "common.h"
 #include "actor.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/67890/func_80662B90.s")
+struct ActorTargetEntry;
+struct ActorTargetDistanceEntry;
+
+typedef struct RenderB67890_Quad {
+    f32 unk0[8];
+    s16 unk20[12];
+    s16 pad38[4];
+} RenderB67890_Quad;
+
+typedef struct RenderB67890_Dist {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    u8 pad10[4];
+} RenderB67890_Dist;
+
+typedef struct RenderB67890_Vtx {
+    s16 ob[3];
+    s16 flag;
+    s16 tc[2];
+    u8 cn[4];
+} RenderB67890_Vtx;
+
+extern struct ActorTargetEntry *D_807F93F0;
+extern struct ActorTargetDistanceEntry *D_807F93F4;
+extern s32 D_807F93F8;
+extern RenderB67890_Vtx *D_807F93FC;
+extern u32 D_807F9400;
+
+void *func_80610FE8(s32);
+s32 assetLoad(s32, s32, s32, s32);
+
+#define RB_QUAD(i) (&((RenderB67890_Quad *)D_807F93F0)[i])
+#define RB_VTX(off) ((RenderB67890_Vtx *)((u8 *)D_807F93FC + (off)))
+
+void func_80662B90(void *arg0) {
+    s32 j;
+    s32 sp[3];
+    s32 i;
+    s32 vtx_off;
+    u8 *p;
+
+    p = arg0;
+    sp[0] = 0;
+    D_807F93F8 = *(s32 *)(p + *(s32 *)(p + 0x50));
+    if (D_807F93F8 != 0) {
+        D_807F93F0 = (struct ActorTargetEntry *)(p + *(s32 *)(p + 0x50) + 4);
+        D_807F93F4 = func_80610FE8(D_807F93F8 * 0x14);
+        D_807F93FC = func_80610FE8(D_807F93F8 << 6);
+        i = 0;
+        if (D_807F93F8 > 0) {
+            vtx_off = sp[0] * 0x10;
+            do {
+                for (j = 0; j < 4; j++) {
+                    RB_VTX(vtx_off)->ob[0] = RB_QUAD(i)->unk20[j];
+                    RB_VTX(vtx_off)->ob[1] = RB_QUAD(i)->unk20[j + 4];
+                    RB_VTX(vtx_off)->ob[2] = RB_QUAD(i)->unk20[j + 8];
+                    RB_VTX(vtx_off)->tc[0] = (s32)(RB_QUAD(i)->unk0[j * 2] * 50.0f) << 5;
+                    RB_VTX(vtx_off)->tc[1] = (s32)(RB_QUAD(i)->unk0[j * 2 + 1] * 50.0f) << 5;
+                    vtx_off += 0x10;
+                }
+
+                ((RenderB67890_Dist *)D_807F93F4)[i].unk4 = (f32)((f64)(RB_QUAD(i)->unk20[0] + RB_QUAD(i)->unk20[1] + RB_QUAD(i)->unk20[2] + RB_QUAD(i)->unk20[3]) * 0.25);
+                ((RenderB67890_Dist *)D_807F93F4)[i].unk8 = (f32)((f64)(RB_QUAD(i)->unk20[4] + RB_QUAD(i)->unk20[5] + RB_QUAD(i)->unk20[6] + RB_QUAD(i)->unk20[7]) * 0.25);
+                ((RenderB67890_Dist *)D_807F93F4)[i].unkC = (f32)((f64)(RB_QUAD(i)->unk20[8] + RB_QUAD(i)->unk20[9] + RB_QUAD(i)->unk20[10] + RB_QUAD(i)->unk20[11]) * 0.25);
+                i++;
+            } while (i < D_807F93F8);
+        }
+        D_807F9400 = assetLoad(7, 0x3C7, 1, 0);
+    }
+}
 
 typedef struct ActorTargetEntry {
     u8 pad0[0x38];
@@ -10,7 +81,6 @@ typedef struct ActorTargetEntry {
 } ActorTargetEntry;
 
 extern ActorTargetEntry *D_807F93F0;
-extern s32 D_807F93F8;
 
 s32 actorTargetTableContainsId(s32 arg0) {
     s32 i;
@@ -120,4 +190,31 @@ Gfx *renderDepthSortedTargets(Gfx *arg0) {
     return arg0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/67890/func_80663594.s")
+typedef struct RenderB67890_TargetView {
+    u8 pad0[0x10];
+    u8 unk10;
+    u8 unk11;
+    u8 unk12;
+    u8 unk13;
+} RenderB67890_TargetView;
+
+#define RB_TGT ((RenderB67890_TargetView *)D_807F93F4)
+
+#define W(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+
+Gfx *func_80663594(Gfx *glist, s32 arg1) {
+    W(glist++, 0xE7000000, 0);
+    W(glist++, 0xE200001C, 0x00504A50);
+    W(glist++, 0xFC11FE23, 0xFFFFF7FB);
+    W(glist++, 0xE3000A01, 0);
+    W(glist++, 0xD9000000, 0);
+    W(glist++, 0xD9FFFFFF, 0x00200005);
+    gDPSetPrimColor(glist++, 0, 0, 100, 100, 100, RB_TGT[arg1].unk10);
+    W(glist++, 0xD7000002, 0xFFFFFFFF);
+    gDPLoadTextureBlock(glist++, D_807F9400, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
+    gDPSetTileSize(glist++, 0, RB_TGT[arg1].unk12, RB_TGT[arg1].unk13, 63 << 2, 63 << 2);
+    gSPVertex(glist++, osVirtualToPhysical(&D_807F93FC[arg1 * 4]), 4, 0);
+    W(glist++, 0x06000204, 0x00000406);
+    W(glist++, 0xE7000000, 0);
+    return glist;
+}
