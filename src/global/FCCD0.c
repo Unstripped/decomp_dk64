@@ -1287,11 +1287,11 @@ s32 func_806FA7BC(s32 arg0, s32 arg1) {
                 step = tmp;
             }
             if ((x - s1) >= 0) {
-                sign = 1;
+                absd = 1;
             } else {
-                sign = -1;
+                absd = -1;
             }
-            FCC_SLOT->unk4 += sign * step;
+            FCC_SLOT->unk4 += absd * step;
         }
         flag = *FCC_SLOT->unk0 == ((u16 *)FCC_SLOT)[2];
     }

@@ -1,4 +1,4 @@
-// func_806FA7BC (src/global/FCCD0.c): stage 5 (7 diff lines vs 14): same frame/regs; hoist 'sign = *unk0' before the NULL check + sign/-1 as if/else + dead 'if (step == 0) {}' (deadsweep) fixed step/abs/join regs. Left: target hoists move a0,s4 before beqz with lhu a1 in beqz delay then move s0,a1; jal; move s1,a2 delay (ours: lhu a1/move s1,a2 before beqz, move a0,s4 in jal delay) and sign/x coalesce in s0 (target sign=a0). Tried arg-list assignments, stmt permutations, local decl order, permuter 900s x2
+// func_806FA7BC (src/global/FCCD0.c): stage 5 (NM9): 4 diff lines vs 7; regs all match (shape ok), only as1 schedule around beqz/jal differs: target 'move a0,s4; beqz; lhu a1 (delay); move s0,a1; jal; move s1,a2 (delay)', ours 'lhu a1; move s1,a2; beqz; move s0,a1 (delay); jal; move a0,s4 (delay)'. KEY: use 'absd' (existing local) for the +-1 direction instead of 'sign' (sign merged with x in s0, target sign=a0; a NEW local grows frame). Tried: all placements/orders of sign/x/s1 stmts (identical text), embedded assignments in call args (E2 gets a3), line joins, deadsweep -extra all locals, permuter 500s: no gain.
 typedef struct FcCNode {
     s32 unk0;
     u8 pad4[8];
@@ -76,11 +76,11 @@ s32 func_806FA7BC(s32 arg0, s32 arg1) {
                 step = tmp;
             }
             if ((x - s1) >= 0) {
-                sign = 1;
+                absd = 1;
             } else {
-                sign = -1;
+                absd = -1;
             }
-            FCC_SLOT->unk4 += sign * step;
+            FCC_SLOT->unk4 += absd * step;
         }
         flag = *FCC_SLOT->unk0 == ((u16 *)FCC_SLOT)[2];
     }
@@ -96,5 +96,3 @@ s32 func_806FA7BC(s32 arg0, s32 arg1) {
     }
     return arg1;
 }
-
-#undef FCC_SLOT
