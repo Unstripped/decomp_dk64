@@ -38,6 +38,8 @@ typedef struct BossD_DC90 {
     s16 unkE;
     u8 pad10[0x1A - 0x10];
     u16 unk1A;
+    u8 pad1C[0x28 - 0x1C];
+    u8 unk28[4];
 } BossD_DC90;
 
 extern BossD_Actor *D_807FBB40;
@@ -464,8 +466,8 @@ void func_80030EC4(void) {
         billboardSetFlags(1);
         func_8065D254(BOSS_ACTOR, 0x3C8, 0x40, 0x40, 0x3C, 0x3C, 1, 0x12C, 0xB4, 0, 1.0f);
     }
-    if (func_8072881C(0, (u8 *)D_807FDC90 + 0x28) != 0) {
-        func_8072881C(0x81, (u8 *)D_807FDC90 + 0x28);
+    if (func_8072881C(0, D_807FDC90->unk28) != 0) {
+        func_8072881C(0x81, D_807FDC90->unk28);
     }
     actorUpdateModelMatrix(BOSS_ACTOR, 0);
 }
