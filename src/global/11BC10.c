@@ -347,7 +347,63 @@ void func_80714998(s32);
 void func_80718380();
 extern u8 D_8071FEF4;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80717B64.s")
+typedef struct {
+    u8 pad0[0x210];
+    f32 unk210;
+    f32 unk214;
+    f32 unk218;
+} NM1PlayerView;
+
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+} NM1FalloffState;
+
+extern void *D_807FC924;
+
+void func_80717B64(arg0, arg1)
+TimedEffectActorView *arg0;
+s8 *arg1;
+{
+    NM1FalloffState *var_v1;
+    f32 dy;
+    f32 scale;
+    f32 dz;
+    f32 dx;
+    f32 dist;
+    s32 temp_v0;
+    s32 value;
+
+    scale = (f32) ((s32) (arg0->unk34C * 3) / 4);
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = func_80610FE8(6);
+        var_v1 = arg0->unk384;
+        var_v1->unk0 = 0;
+        var_v1->unk2 = *(s16 *) ((u8 *) arg0->unk330 + 0x16) * arg0->unk350;
+        var_v1->unk4 = arg0->unk36D;
+    }
+    var_v1 = arg0->unk384;
+    temp_v0 = var_v1->unk0;
+    if (temp_v0 == var_v1->unk2) {
+        *arg1 = 1;
+    } else {
+        var_v1->unk0 = temp_v0 + 1;
+    }
+    dz = ((NM1PlayerView *) D_807FC924)->unk218 - arg0->unk348;
+    dx = ((NM1PlayerView *) D_807FC924)->unk210 - arg0->unk340;
+    dy = ((NM1PlayerView *) D_807FC924)->unk214 - arg0->unk344;
+    dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
+    if (dist < scale) {
+        arg0->unk36D = var_v1->unk4;
+        return;
+    }
+    value = (s32) ((f32) var_v1->unk4 * ((dist - scale) / ((f32) arg0->unk34C - scale)));
+    if (var_v1->unk4 < value) {
+        value = (s32) var_v1->unk4;
+    }
+    arg0->unk36D = var_v1->unk4 - value;
+}
 
 void func_80717CE8(arg0, arg1)
 TimedEffectActorView *arg0;
@@ -809,7 +865,44 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071910C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807195D4.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+} NM1TwoFloats;
+
+void func_807195D4(TimedEffectActorView *arg0, s8 *arg1) {
+    NM1TwoFloats *temp_v0;
+    f32 spB0;
+    f32 temp_fv0;
+    EffectMatrix sp6C;
+    EffectMatrix sp2C;
+
+    if (arg0->unk384 == NULL) {
+        temp_v0 = func_80610FE8(8);
+        arg0->unk384 = temp_v0;
+        temp_fv0 = arg0->unk35C * 2;
+        temp_v0->unk0 = (f32) temp_fv0;
+        ((NM1TwoFloats *) arg0->unk384)->unk4 = 0.0f;
+        arg0->unk36D = 0U;
+    }
+    if ((s32) arg0->unk36D >= 0xDD) {
+        arg0->unk36D = 0xFFU;
+    } else {
+        arg0->unk36D += 0x14;
+    }
+    spB0 = (f32) ((f64) sinApprox(((NM1TwoFloats *) arg0->unk384)->unk0 * 0.017453292f) * 2.5);
+    temp_fv0 = cosApprox(((NM1TwoFloats *) arg0->unk384)->unk0 * 0.017453292f);
+    arg0->unk340 = (f32) (arg0->unk340 + spB0);
+    arg0->unk344 = (f32) ((f64) arg0->unk344 + 3.5);
+    arg0->unk348 = (f32) (arg0->unk348 + (f32) ((f64) temp_fv0 * 2.5));
+    ((NM1TwoFloats *) arg0->unk384)->unk0 = (f32) ((f64) ((NM1TwoFloats *) arg0->unk384)->unk0 + 8.0);
+    ((NM1TwoFloats *) arg0->unk384)->unk4 = (f32) ((f64) ((NM1TwoFloats *) arg0->unk384)->unk4 + 7.3);
+    guScaleF(sp6C, arg0->unk360, arg0->unk364, 0.0f);
+    guRotateF(sp2C, ((NM1TwoFloats *) arg0->unk384)->unk4, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(sp6C, sp2C, sp6C);
+    guMtxF2L(sp6C, (Mtx *) (((u8 *) arg0) + (D_807444FC << 6) + 0x128));
+    ((u8 *) arg0)[0x32C] = 2;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_807197B4.s")
 
@@ -2182,7 +2275,6 @@ void func_8071EA24(TimedEffectActorView *arg0, s8 *arg1) {
 }
 
 
-extern s32 D_807FC924;
 
 void func_8071EB70(TimedEffectActorView *arg0, s8 *arg1) {
     f32 *state;

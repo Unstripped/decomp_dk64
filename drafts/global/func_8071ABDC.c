@@ -1,15 +1,13 @@
-// func_8071ABDC (src/global/11BC10.c): Stage 3: behavioral motion draft compiled; corrected actor state offset is 0x384, but the frame is 0x50 versus target 0xC0.
+// func_8071ABDC (src/global/11BC10.c): stage 3: frame 0xC0 matches with unused 128-byte matrix buffer; sh at 0x2C, swc1 at 0x38 and 0x30 match, sp24 sits at 0x28 vs target 0x24
 typedef struct {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
-} M2AbdcMotion;
+} Fx11BE2_AbdcMotion;
 
 typedef struct {
-    u8 pad0[0x330];
-    void *unk330;
-    u8 pad334[0xC];
+    u8 pad0[0x340];
     f32 unk340;
     f32 unk344;
     f32 unk348;
@@ -20,70 +18,67 @@ typedef struct {
     u8 pad360[0xD];
     u8 unk36D;
     u8 pad36E[0x16];
-    M2AbdcMotion *unk384;
-} M2AbdcActorView;
+    Fx11BE2_AbdcMotion *unk384;
+} Fx11BE2_ActorABDC;
 
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
+f32 sinApprox(f32);
+f32 cosApprox(f32);
+u32 func_806119A0(void);
+void *func_80610FE8(s32);
 
-void func_8071ABDC(M2AbdcActorView *arg0, s8 *arg1) {
+void func_8071ABDC(Fx11BE2_ActorABDC *arg0, s8 *arg1) {
+    f32 sp80[4][4];
+    f32 sp40[4][4];
+    f32 pad3C;
     f32 sp38;
+    f32 pad34;
     f32 sp30;
+    s16 pad_s, sp2C;
     f32 sp24;
-    f32 temp_fa0;
-    f64 temp_ft5;
-    s16 sp2C;
-    s16 temp_t9;
-    u8 temp_v0_8;
-    M2AbdcMotion *temp_v0;
 
     if (arg0->unk384 == NULL) {
         arg0->unk384 = func_80610FE8(0x10);
-        temp_t9 = ((s32)arg0->unk35C >> 16) & 0xFF;
-        sp2C = temp_t9;
-        temp_v0 = arg0->unk384;
-        if (temp_t9 == 0) {
-            temp_v0->unk0 = (f32)(((f64)(f32)((func_806119A0() / 10000U) % 100U) / 20.0) - 2.5);
+        sp2C = (s16) ((arg0->unk35C >> 16) & 0xFF);
+        if (sp2C == 0) {
+            arg0->unk384->unk0 = (f32) (((f64) (f32) ((func_806119A0() / 10000U) % 100U) / 20.0) - 2.5);
         } else {
-            temp_v0->unk0 = (f32)(((f64)(f32)((func_806119A0() / 10000U) % 100U) / 10.0) - 2.5);
+            arg0->unk384->unk0 = (f32) (((f64) (f32) ((func_806119A0() / 10000U) % 100U) / 10.0) - 2.5);
         }
-        temp_fa0 = (f32)((arg0->unk35C & 0xFFFF) * 0x1E) * 0.017453292f;
-        sp24 = temp_fa0;
-        sp38 = (f32)((f64)func_80612D1C(temp_fa0) * 2.5);
-        temp_ft5 = (f64)func_80612D10(temp_fa0) * 2.5;
-        temp_v0->unk4 = sp38;
-        temp_v0->unk8 = (f32)temp_ft5;
+        sp24 = (f32) ((arg0->unk35C & 0xFFFF) * 30) * 0.017453292f;
+        sp38 = (f32) ((f64) sinApprox(sp24) * 2.5);
+        arg0->unk384->unk8 = (f32) ((f64) cosApprox(sp24) * 2.5);
+        arg0->unk384->unk4 = sp38;
         if (sp2C == 1) {
-            temp_v0->unk4 *= 2.0f;
-            temp_v0->unk8 *= 2.0f;
+            arg0->unk384->unk4 *= 2.0f;
+            arg0->unk384->unk8 *= 2.0f;
         } else if (sp2C == 2) {
-            temp_v0->unk4 *= 4.0f;
-            temp_v0->unk8 *= 4.0f;
+            arg0->unk384->unk4 *= 4.0f;
+            arg0->unk384->unk8 *= 4.0f;
         }
         sp30 = arg0->unk344;
         if (collisionCheckGroundAtPoint(arg0->unk340, arg0->unk348, &sp30) != 0) {
-            temp_v0->unkC = sp30;
+            arg0->unk384->unkC = sp30;
         } else {
-            temp_v0->unkC = 0.0f;
+            arg0->unk384->unkC = 0.0f;
         }
     }
-    temp_v0 = arg0->unk384;
     if (arg0->unk34E >= 9) {
-        temp_v0->unk0 = (f32)((f64)temp_v0->unk0 - 0.63);
-        temp_v0->unk4 = (f32)((f64)temp_v0->unk4 * 0.9);
-        temp_v0->unk8 = (f32)((f64)temp_v0->unk8 * 0.9);
+        arg0->unk384->unk0 = (f32) ((f64) arg0->unk384->unk0 - 0.63);
+        arg0->unk384->unk4 = (f32) ((f64) arg0->unk384->unk4 * 0.9);
+        arg0->unk384->unk8 = (f32) ((f64) arg0->unk384->unk8 * 0.9);
     }
-    if (arg0->unk34E >= (((s32)arg0->unk35C >> 24) & 0xFF)) {
-        temp_v0_8 = arg0->unk36D;
-        if (temp_v0_8 >= 0x3C) {
-            arg0->unk36D = temp_v0_8 - 0x3C;
+    if (arg0->unk34E >= (s16) ((arg0->unk35C >> 24) & 0xFF)) {
+        if (arg0->unk36D >= 0x3C) {
+            arg0->unk36D -= 0x3C;
         } else {
             arg0->unk36D = 0;
         }
     }
-    arg0->unk340 += temp_v0->unk4;
-    arg0->unk348 += temp_v0->unk8;
-    arg0->unk344 += temp_v0->unk0;
-    if (arg0->unk344 < temp_v0->unkC) {
+    arg0->unk340 += arg0->unk384->unk4;
+    arg0->unk348 += arg0->unk384->unk8;
+    arg0->unk344 += arg0->unk384->unk0;
+    if (arg0->unk344 < arg0->unk384->unkC) {
         *arg1 = 1;
     }
 }

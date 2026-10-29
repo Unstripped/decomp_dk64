@@ -1,12 +1,21 @@
-// func_80719C00 (src/global/11BC10.c): stage 3: 188 of 189 insns; frame and stack homes match; remaining diff is the f-register allocation ring in the malloc-init region (0.0f constant and unk348 load swap f6/f8) plus one interleaved store; six declaration orders tried
+// func_80719C00 (src/global/11BC10.c): stage 4: frame 0x20 and all stack homes match, remaining diff is FP register ring and interleaved stores in malloc-init region
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+} NM1Motion6;
+
 void func_80719C00(TimedEffectActorView *arg0, s8 *arg1) {
+    NM1Motion6 *var_v0;
     f32 temp_fv0;
+    NM1Motion6 *var_v1;
     f32 var_fv1;
-    Fx11BDMotion6 *var_v0;
-    Fx11BDMotion6 *var_v1;
     TimedEffectActorView *var_a2;
 
-    var_v1 = (Fx11BDMotion6 *)(var_a2 = arg0)->unk384;
+    var_v1 = (NM1Motion6 *)(var_a2 = arg0)->unk384;
     if (var_v1 == NULL) {
         var_v0 = func_80610FE8(0x18);
         arg0->unk384 = var_v0;
@@ -16,7 +25,7 @@ void func_80719C00(TimedEffectActorView *arg0, s8 *arg1) {
         var_v0->unkC = (f32)arg0->unk35C * 455.1111f;
         var_v0->unk10 = ((arg0->unk35C % 3) * 0x64) - 0x64;
         var_v0->unk14 = 375.0f;
-        var_v1 = (Fx11BDMotion6 *)arg0->unk384;
+        var_v1 = (NM1Motion6 *)arg0->unk384;
     }
     var_v0 = var_v1;
     var_a2->unk344 = (f32)((f64)var_a2->unk344 + 0.3);
