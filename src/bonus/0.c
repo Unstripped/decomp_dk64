@@ -115,15 +115,15 @@ void csModelStateSetFirstByte(s32, s32);
 void func_806C8E58(s32);
 void func_80614E78(void *, s32);
 void func_806D03BC(void);
-s32 func_8070E750(s32, s32, s32);
+char *func_8070E750(s32, s32, s32);
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_806FDAB8(u8, f32);
 void *spawnNodeActivate(s16, s32);
 s32 strlen(char *);
-s32 func_80610FE8(s32);
-void heapFreeDeferred(s32);
+char *func_80610FE8(s32);
+void heapFreeDeferred(void *);
 s32 _sprintf(char *, const char *, ...);
-void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
+void textSpawnMarkerChecked(s32, s32, s32, char *, s32, s32, s32, s32);
 s32 slotQueueGetValue(s32, s32);
 void bonusEndWin(u8, u8);
 void bonusEndLose(u8, u8);
@@ -144,14 +144,14 @@ void bonusControllerUpdate(void) {
     LB3bState *s;
     u8 sp6F;
     u8 sp6E;
-    s32 sp68;
+    char *sp68;
     u8 sp67;
     u8 v3;
     u8 a2v;
-    s32 sp60;
+    char *sp60;
     s32 pad5C;
     s32 pad58;
-    s32 sp54;
+    char *sp54;
     s32 pad50;
     s32 pad4C;
     s32 t;
@@ -214,7 +214,7 @@ tail:
             break;
         }
         if (sp67 != 0) {
-            s->unk9 = gfxResourceCreate(1, (char *)sp68, 8, 0.0f, 0.0f, 0.0f);
+            s->unk9 = gfxResourceCreate(1, sp68, 8, 0.0f, 0.0f, 0.0f);
             func_806FDAB8(s->unk9, 0.0f);
             s->unk4 = sp6E;
             s->unk2 = sp6E;
@@ -232,9 +232,9 @@ tail:
                         if (s->unk4 != 0) {
                             if (s->unk4 >= 2) {
                                 sp68 = func_8070E750(0x1A, 0xF, 1);
-                                sp60 = func_80610FE8(strlen((char *)sp68) + 5);
+                                sp60 = func_80610FE8(strlen(sp68) + 5);
                                 heapFreeDeferred(sp60);
-                                _sprintf((char *)sp60, "%d %s", s->unk4, (char *)sp68);
+                                _sprintf(sp60, "%d %s", s->unk4, sp68);
                             } else {
                                 sp60 = func_8070E750(0x1A, 0x10, 1);
                             }
@@ -256,8 +256,8 @@ tail:
                         if (slotQueueGetValue(0xB, 0) < sp6E) {
                             if (s->unk4 >= 2) {
                                 sp68 = func_8070E750(0x1A, 0x11, 1);
-                                sp54 = func_80610FE8(strlen((char *)sp68) + 5);
-                                _sprintf((char *)sp54, "%d %s", sp6E - slotQueueGetValue(0xB, 0), (char *)sp68);
+                                sp54 = func_80610FE8(strlen(sp68) + 5);
+                                _sprintf(sp54, "%d %s", sp6E - slotQueueGetValue(0xB, 0), sp68);
                             } else {
                                 sp54 = func_8070E750(0x1A, 0x12, 1);
                             }
