@@ -2632,6 +2632,14 @@ typedef struct MenuM9_Vec {
     f32 unk3C;
 } MenuM9_Vec;
 
+typedef struct Menu10_Sub174 {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    char padC[0x23C - 0xC];
+    u16 unk23C;
+} Menu10_Sub174;
+
 typedef struct MenuM9_Actor {
     char pad0[4];
     MenuM9_Vec *unk4;
@@ -2684,7 +2692,7 @@ void menuInitGfxState(Gfx *, s32);
 
 void menuInit(void) {
     MenuM9_Sub174 *sub = ((MenuM9_Actor *)D_807FBB40)->unk174;
-    u8 *sp20 = MenuM9_A->unk174;
+    Menu10_Sub174 *sp20 = MenuM9_A->unk174;
     s32 i;
 
     if (!(((MenuM9_Actor *)D_807FBB40)->unk60 & 0x10)) {
@@ -2720,7 +2728,7 @@ void menuInit(void) {
             MenuM9_A->unk155 = 6;
             func_8061B650(gCamActor);
             D_80033F3C = 1.0f;
-            *(s16 *)(sp20 + 0x23C) = 0x50;
+            sp20->unk23C = 0x50;
         }
         switch (D_80744514) {
         case 1:
@@ -3588,13 +3596,6 @@ void menuActorStateDispatch(void) {
     }
 }
 
-typedef struct Menu10_Sub174 {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    char padC[0x23C - 0xC];
-    u16 unk23C;
-} Menu10_Sub174;
 
 typedef struct Menu10_Actor {
     char pad0[0x60];
