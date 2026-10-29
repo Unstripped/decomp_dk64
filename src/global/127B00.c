@@ -43,7 +43,48 @@ void pathFreeAsset(s32 arg0) {
     assetFreeBuffer(sp1C, 0x47, 0x27);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/127B00/func_80722E48.s")
+typedef struct PathPoint {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+} PathPoint;
+
+extern PathPlayback *D_807FDBF8[];
+
+void func_80722E48(s16 *arg0) {
+    s16 *var_s2;
+    PathPoint *var_a0;
+    s16 temp_s5;
+    s16 temp_s7;
+    s16 var_s0;
+    s16 var_s4;
+
+    for (var_s4 = 0; var_s4 < 0x1A; var_s4++) {
+        D_807FDB90[var_s4] = NULL;
+    }
+    temp_s7 = *arg0;
+    var_s2 = arg0 + 1;
+    for (var_s4 = 0; var_s4 < temp_s7; var_s4++) {
+        temp_s5 = *var_s2++;
+        D_807FDB90[temp_s5] = func_80610FE8(8);
+        D_807FDB90[temp_s5]->unk4 = *var_s2++;
+        var_s2++;
+        D_807FDB90[temp_s5]->unk0 = func_80610FE8((D_807FDB90[temp_s5]->unk4 + 1) * sizeof(PathPoint));
+        var_s0 = 0;
+        var_a0 = (PathPoint *)var_s2;
+        while (var_s0 < D_807FDB90[temp_s5]->unk4) {
+            ((PathPoint *)D_807FDB90[temp_s5]->unk0)[var_s0] = *var_a0;
+            var_s0 += 1;
+            var_a0 += 1;
+        }
+        var_s2 = (s16 *)var_a0;
+    }
+    for (var_s4 = 0; var_s4 < 0x20; var_s4++) {
+        D_807FDBF8[var_s4] = NULL;
+    }
+}
 
 s32 pathExists(u8 arg0) {
     if (D_807FDB90[arg0] != NULL) {
@@ -52,8 +93,68 @@ s32 pathExists(u8 arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/127B00/func_80723020.s")
-extern PathPlayback *D_807FDBF8[];
+void *memcpy(void *, const void *, unsigned int);
+
+s32 func_80723020(s32 arg0, s32 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6) {
+    PathEntry *path;
+    s32 i;
+    s32 found;
+    PathPlayback *pad; // FAKE: unused local steers stack layout (spill and sp54 slots)
+    PathPoint sp54;
+    s32 extra;
+    s32 j;
+    s32 dstOff;
+    s32 srcOff;
+
+    i = 0;
+    found = 0;
+    extra = 0;
+    if (D_807FDB90[arg1] == NULL) {
+        return -1;
+    }
+    while (i < 0x20 && !found) {
+        if (D_807FDBF8[i] == NULL) {
+            found = 1;
+        } else {
+            i++;
+        }
+    }
+    if (!found) {
+        return -1;
+    }
+    if (D_807FDB90[arg1]->unk4 == 1 && !arg2) {
+        return -1;
+    }
+    D_807FDBF8[i] = func_80610FE8(0x2C);
+    path = (PathEntry *)&D_807FDBF8[i]->unk4;
+    path->unk4 = D_807FDB90[arg1]->unk4;
+    path->unk0 = func_80610FE8(path->unk4 * 10 + 10);
+    if (arg2 != 0) {
+        path->unk4++;
+        ((u8 *)&sp54)[8] = arg6;
+        sp54.unk2 = arg3;
+        sp54.unk4 = arg4;
+        sp54.unk6 = arg5;
+        memcpy(path->unk0, &sp54, 10);
+        extra = 1;
+    }
+    for (j = 0, dstOff = extra * 10, srcOff = 0; j < D_807FDB90[arg1]->unk4; j++) {
+        memcpy(path->unk0 + dstOff, D_807FDB90[arg1]->unk0 + srcOff, 10);
+        srcOff += 10;
+        dstOff += 10;
+    }
+    D_807FDBF8[i]->unk0 = arg0;
+    D_807FDBF8[i]->unkC = 0.0f;
+    *(s32 *)((u8 *)D_807FDBF8[i] + 0x1C) = 0;
+    *(s32 *)((u8 *)D_807FDBF8[i] + 0x10) = 0;
+    D_807FDBF8[i]->unk16 = 0;
+    D_807FDBF8[i]->unk15 = 0;
+    D_807FDBF8[i]->unk14 = 0;
+    D_807FDBF8[i]->unk18 = 1;
+    D_807FDBF8[i]->unk21 = 0;
+    D_807FDBF8[i]->unk20 = 1;
+    return i;
+}
 
 
 void func_80723284(s32 arg0, u8 arg1) {
@@ -141,9 +242,154 @@ void pathPlaybackStopForActor(s32 arg0) {
     } while (var_s0 != 0x20);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/127B00/func_80723428.s")
+void heapFree(void *);
+
+void func_80723428(s32 arg0) {
+    if ((arg0 == -1) || (D_807FDBF8[arg0] != NULL)) {
+        heapFree(D_807FDBF8[arg0]);
+        D_807FDBF8[arg0] = NULL;
+    }
+}
+
+#ifdef NON_MATCHING
+typedef struct Fx127A2PlaybackView {
+    s32 unk0;
+    PathEntry path;
+    f32 unkC;
+    s32 unk10;
+    u8 unk14;
+    u8 unk15;
+    u8 unk16;
+    u8 pad17;
+    s32 unk18;
+    s32 unk1C;
+    u8 unk20;
+    u8 unk21;
+} Fx127A2PlaybackView;
+
+void func_80723484(s32 arg0) {
+    Fx127A2PlaybackView *pb;
+    PathEntry *path;
+    f32 prog;
+    f32 step;
+    f32 fa;
+    s32 next;
+    s32 tmp;
+    s32 limit;
+    s32 quot;
+    s32 total;
+    u32 tq;
+    s32 whole;
+
+    if (arg0 != -1 && D_807FDBF8[arg0] != NULL && ((Fx127A2PlaybackView *)D_807FDBF8[arg0])->unk21 != 0) {
+        pb = (Fx127A2PlaybackView *)D_807FDBF8[arg0];
+        path = &pb->path;
+        if (path == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (pb->unk16 == 0) {
+            path = &pb->path;
+            next = pb->unk10 + 1;
+        } else {
+            tmp = pb->unk10 + 1;
+            if (tmp >= path->unk4) {
+                next = tmp % (path->unk4 - 1);
+            } else {
+                next = tmp;
+            }
+        }
+        prog = pb->unkC;
+        fa = (f32)(u32)path->unk0[pb->unk10 * 10 + 8];
+        step = (f32)(u32)pb->unk20 *
+               (f32)((f64)(fa +
+                           (f32)(path->unk0[next * 10 + 8] - path->unk0[pb->unk10 * 10 + 8]) * prog) /
+                     300.0);
+        switch (pb->unk14) {
+        case 0:
+            pb->unkC += step;
+            whole = (s32)pb->unkC;
+            pb->unk10 = pb->unk10 + whole;
+            pb->unkC -= (f32)whole;
+            if (pb->unk16 == 0) {
+                limit = pb->path.unk4 - 1;
+            } else {
+                limit = pb->path.unk4;
+            }
+            if (pb->unk10 >= limit) {
+                limit = pb->path.unk4 - 1;
+                quot = pb->unk10 / limit;
+                total = pb->unk1C += quot;
+                if (total >= pb->unk18 && pb->unk18 != -1) {
+                    pb->unk10 = pb->path.unk4 - 2;
+                    pb->unk21 = 0;
+                    pb->unkC = 1.0f;
+                    if (pb->unk15 == 1) {
+                        pb->unk14 = 1;
+                    }
+                } else {
+                    switch (pb->unk15) {
+                    case 0:
+                        if (total && total) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                        if (pb->unk16 == 0) {
+                            pb->unk10 = pb->unk10 % limit;
+                        } else {
+                            pb->unk10 = pb->unk10 % pb->path.unk4;
+                        }
+                        break;
+                    case 1:
+                        if (quot != 0) {
+                            pb->unk14 = 1;
+                            pb->unk10 = pb->path.unk4 - 2;
+                            pb->unkC = 1.0f;
+                        }
+                        break;
+                    }
+                }
+            }
+            break;
+        case 1:
+            pb->unkC -= step;
+            if ((f64)pb->unkC < 0.0) {
+                whole = (s32)pb->unkC - 1;
+                pb->unk10 = pb->unk10 + whole;
+                pb->unkC -= (f32)whole;
+            }
+            if (pb->unk10 < 0) {
+                limit = -pb->unk10;
+                quot = limit / pb->path.unk4;
+                total = pb->unk1C += quot + 1;
+                if (total >= pb->unk18 && pb->unk18 != -1) {
+                    pb->unk10 = 0;
+                    pb->unk21 = 0;
+                    pb->unkC = 0.0f;
+                    if (pb->unk15 == 1) {
+                        pb->unk14 = 0;
+                    }
+                } else {
+                    switch (pb->unk15) {
+                    case 0:
+                        pb->unk10 = limit % (pb->path.unk4 - 1);
+                        if (pb->unk10 != 0) {
+                            pb->unk10 = pb->path.unk4 - pb->unk10 - 1;
+                        }
+                        break;
+                    case 1:
+                        tq = quot + 1;
+                        if (tq) {
+                            pb->unk14 = 0;
+                            pb->unk10 = 0;
+                            pb->unkC = 0.0f;
+                        }
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/127B00/func_80723484.s")
+#endif
 
 typedef struct Fx127BPoint {
     s16 unk0;

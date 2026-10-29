@@ -1,159 +1,129 @@
-// func_80723484 (src/global/127B00.c): stage 1: m2c starter regenerated in second pass; not yet integrated after priority small-function matches
-extern ? D_807FDBF8;
+// func_80723484 (src/global/127B00.c): Fx127A2 stage 5: parked NON_MATCHING; all integer regs/ctrl flow match, only FP scheduling remains (extra mov.s prog copy f0<-f2, ldc1 300.0 hoisted early, FP temp numbering); 2 FAKE deadsweep stmts (path==0, total&&total)
+typedef struct Fx127A2PlaybackView {
+    s32 unk0;
+    PathEntry path;
+    f32 unkC;
+    s32 unk10;
+    u8 unk14;
+    u8 unk15;
+    u8 unk16;
+    u8 pad17;
+    s32 unk18;
+    s32 unk1C;
+    u8 unk20;
+    u8 unk21;
+} Fx127A2PlaybackView;
 
 void func_80723484(s32 arg0) {
-    f32 temp_fa0;
-    f32 temp_fv1;
-    f32 temp_fv1_2;
-    f32 temp_fv1_3;
-    f32 var_ft1;
-    f32 var_ft5;
-    s16 temp_a1_3;
-    s16 temp_t1;
-    s16 var_a0_2;
-    s32 *var_a0;
-    s32 temp_a0;
-    s32 temp_a0_2;
-    s32 temp_a0_3;
-    s32 temp_a3;
-    s32 temp_a3_2;
-    s32 temp_ft3;
-    s32 temp_hi;
-    s32 temp_lo;
-    s32 temp_lo_2;
-    s32 temp_t0;
-    s32 temp_t0_3;
-    s32 temp_t0_5;
-    s32 temp_t1_2;
-    s32 temp_t4;
-    s32 temp_t7;
-    s32 var_a2;
-    u8 temp_a1_2;
-    u8 temp_t0_2;
-    u8 temp_t0_4;
-    u8 temp_t0_6;
-    u8 temp_t2;
-    u8 temp_t9;
-    void *temp_a1;
+    Fx127A2PlaybackView *pb;
+    PathEntry *path;
+    f32 prog;
+    f32 step;
+    f32 fa;
+    s32 next;
+    s32 tmp;
+    s32 limit;
+    s32 quot;
+    s32 total;
+    u32 tq;
+    s32 whole;
 
-    if ((arg0 != -1) && (temp_a1 = *(&D_807FDBF8 + (arg0 * 4)), (temp_a1 != NULL)) && (temp_a1->unk21 != 0)) {
-        temp_a1_2 = temp_a1->unk16;
-        var_a0 = temp_a1 + 4;
-        if (temp_a1_2 == 0) {
-            var_a0 = temp_a1 + 4;
-            var_a2 = temp_a1->unk10 + 1;
+    if (arg0 != -1 && D_807FDBF8[arg0] != NULL && ((Fx127A2PlaybackView *)D_807FDBF8[arg0])->unk21 != 0) {
+        pb = (Fx127A2PlaybackView *)D_807FDBF8[arg0];
+        path = &pb->path;
+        if (path == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (pb->unk16 == 0) {
+            path = &pb->path;
+            next = pb->unk10 + 1;
         } else {
-            temp_t1 = var_a0->unk4;
-            temp_t0 = temp_a1->unk10 + 1;
-            if (temp_t0 >= temp_t1) {
-                var_a2 = temp_t0 % (s32) (temp_t1 - 1);
+            tmp = pb->unk10 + 1;
+            if (tmp >= path->unk4) {
+                next = tmp % (path->unk4 - 1);
             } else {
-                var_a2 = temp_t0;
+                next = tmp;
             }
         }
-        temp_t1_2 = *var_a0;
-        temp_fv1 = temp_a1->unkC;
-        temp_t2 = (temp_t1_2 + (temp_a1->unk10 * 0xA))->unk8;
-        var_ft1 = (f32) temp_t2;
-        if ((s32) temp_t2 < 0) {
-            var_ft1 += 4294967296.0f;
-        }
-        temp_t9 = temp_a1->unk20;
-        var_ft5 = (f32) temp_t9;
-        if ((s32) temp_t9 < 0) {
-            var_ft5 += 4294967296.0f;
-        }
-        temp_t0_2 = temp_a1->unk14;
-        temp_fa0 = var_ft5 * (f32) ((f64) (var_ft1 + ((f32) ((temp_t1_2 + (var_a2 * 0xA))->unk8 - temp_t2) * temp_fv1)) / 300.0);
-        switch (temp_t0_2) {                        /* switch 1; irregular */
-        case 0:                                     /* switch 1 */
-            temp_a1->unkC = (f32) (temp_fv1 + temp_fa0);
-            temp_fv1_2 = temp_a1->unkC;
-            temp_ft3 = (s32) temp_fv1_2;
-            temp_a1->unk10 = (s32) (temp_a1->unk10 + temp_ft3);
-            temp_a1->unkC = (f32) (temp_fv1_2 - (f32) temp_ft3);
-            if (temp_a1_2 == 0) {
-                var_a0_2 = temp_a1->unk8 - 1;
+        prog = pb->unkC;
+        fa = (f32)(u32)path->unk0[pb->unk10 * 10 + 8];
+        step = (f32)(u32)pb->unk20 *
+               (f32)((f64)(fa +
+                           (f32)(path->unk0[next * 10 + 8] - path->unk0[pb->unk10 * 10 + 8]) * prog) /
+                     300.0);
+        switch (pb->unk14) {
+        case 0:
+            pb->unkC += step;
+            whole = (s32)pb->unkC;
+            pb->unk10 = pb->unk10 + whole;
+            pb->unkC -= (f32)whole;
+            if (pb->unk16 == 0) {
+                limit = pb->path.unk4 - 1;
             } else {
-                var_a0_2 = temp_a1->unk8;
+                limit = pb->path.unk4;
             }
-            temp_a3 = temp_a1->unk10;
-            temp_a0 = temp_a1->unk8 - 1;
-            if (temp_a3 >= var_a0_2) {
-                temp_lo = temp_a3 / temp_a0;
-                temp_t0_3 = temp_a1->unk18;
-                temp_t7 = temp_a1->unk1C + temp_lo;
-                temp_a1->unk1C = temp_t7;
-                if ((temp_t7 >= temp_t0_3) && (temp_t0_3 != -1)) {
-                    temp_a1->unk10 = (s32) (temp_a1->unk8 - 2);
-                    temp_a1->unk21 = 0U;
-                    temp_a1->unkC = 1.0f;
-                    if (temp_a1->unk15 == 1) {
-                        temp_a1->unk14 = 1U;
-                        return;
+            if (pb->unk10 >= limit) {
+                limit = pb->path.unk4 - 1;
+                quot = pb->unk10 / limit;
+                total = pb->unk1C += quot;
+                if (total >= pb->unk18 && pb->unk18 != -1) {
+                    pb->unk10 = pb->path.unk4 - 2;
+                    pb->unk21 = 0;
+                    pb->unkC = 1.0f;
+                    if (pb->unk15 == 1) {
+                        pb->unk14 = 1;
                     }
                 } else {
-                    temp_t0_4 = temp_a1->unk15;
-                    switch (temp_t0_4) {            /* switch 2; irregular */
-                    case 0:                         /* switch 2 */
-                        if (temp_a1->unk16 == 0) {
-                            temp_a1->unk10 = (s32) (temp_a3 % temp_a0);
-                            return;
+                    switch (pb->unk15) {
+                    case 0:
+                        if (total && total) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                        if (pb->unk16 == 0) {
+                            pb->unk10 = pb->unk10 % limit;
+                        } else {
+                            pb->unk10 = pb->unk10 % pb->path.unk4;
                         }
-                        temp_a1->unk10 = (s32) (temp_a3 % temp_a1->unk8);
-                        return;
-                    case 1:                         /* switch 2 */
-                        if (temp_lo != 0) {
-                            temp_a1->unk14 = 1U;
-                            temp_a1->unk10 = (s32) (temp_a1->unk8 - 2);
-                            temp_a1->unkC = 1.0f;
-                            return;
+                        break;
+                    case 1:
+                        if (quot != 0) {
+                            pb->unk14 = 1;
+                            pb->unk10 = pb->path.unk4 - 2;
+                            pb->unkC = 1.0f;
                         }
                         break;
                     }
                 }
             }
             break;
-        case 1:                                     /* switch 1 */
-            temp_a1->unkC = (f32) (temp_fv1 - temp_fa0);
-            temp_fv1_3 = temp_a1->unkC;
-            if ((f64) temp_fv1_3 < 0.0) {
-                temp_a0_2 = (s32) temp_fv1_3 - 1;
-                temp_a1->unk10 = (s32) (temp_a1->unk10 + temp_a0_2);
-                temp_a1->unkC = (f32) (temp_fv1_3 - (f32) temp_a0_2);
+        case 1:
+            pb->unkC -= step;
+            if ((f64)pb->unkC < 0.0) {
+                whole = (s32)pb->unkC - 1;
+                pb->unk10 = pb->unk10 + whole;
+                pb->unkC -= (f32)whole;
             }
-            temp_a3_2 = temp_a1->unk10;
-            temp_a0_3 = -temp_a3_2;
-            if (temp_a3_2 < 0) {
-                temp_a1_3 = temp_a1->unk8;
-                temp_t0_5 = temp_a1->unk18;
-                temp_lo_2 = temp_a0_3 / temp_a1_3;
-                temp_t4 = temp_a1->unk1C + temp_lo_2 + 1;
-                temp_a1->unk1C = temp_t4;
-                if ((temp_t4 >= temp_t0_5) && (temp_t0_5 != -1)) {
-                    temp_a1->unk10 = 0;
-                    temp_a1->unk21 = 0U;
-                    temp_a1->unkC = 0.0f;
-                    if (temp_a1->unk15 == 1) {
-                        temp_a1->unk14 = 0U;
-                        return;
+            if (pb->unk10 < 0) {
+                limit = -pb->unk10;
+                quot = limit / pb->path.unk4;
+                total = pb->unk1C += quot + 1;
+                if (total >= pb->unk18 && pb->unk18 != -1) {
+                    pb->unk10 = 0;
+                    pb->unk21 = 0;
+                    pb->unkC = 0.0f;
+                    if (pb->unk15 == 1) {
+                        pb->unk14 = 0;
                     }
                 } else {
-                    temp_t0_6 = temp_a1->unk15;
-                    switch (temp_t0_6) {            /* switch 3; irregular */
-                    case 0:                         /* switch 3 */
-                        temp_hi = temp_a0_3 % (s32) (temp_a1_3 - 1);
-                        temp_a1->unk10 = temp_hi;
-                        if (temp_hi != 0) {
-                            temp_a1->unk10 = (s32) ((temp_a1_3 - temp_hi) - 1);
-                            return;
+                    switch (pb->unk15) {
+                    case 0:
+                        pb->unk10 = limit % (pb->path.unk4 - 1);
+                        if (pb->unk10 != 0) {
+                            pb->unk10 = pb->path.unk4 - pb->unk10 - 1;
                         }
                         break;
-                    case 1:                         /* switch 3 */
-                        if ((temp_lo_2 + 1) != 0) {
-                            temp_a1->unk14 = 0U;
-                            temp_a1->unk10 = 0;
-                            temp_a1->unkC = 0.0f;
+                    case 1:
+                        tq = quot + 1;
+                        if (tq) {
+                            pb->unk14 = 0;
+                            pb->unk10 = 0;
+                            pb->unkC = 0.0f;
                         }
                         break;
                     }
