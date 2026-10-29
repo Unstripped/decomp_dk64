@@ -1,4 +1,4 @@
-// func_8071E864 (src/global/11BC10.c): text-identical, reloc only: all 117 insns match; fdiff FAILED only on %hi/%lo spelling (.rodata+0x3a0 in C build vs dlabel D_8075EA70/78/80/88 in expected .s); shape: state ptr via field reads CSEd + sp1C copy, no named u8 temp (inline unk36D -= 0x32 then reload-andi); EA84 .float 0 is 8-align padding before the 1.08 double
+// func_8071E864 (src/global/11BC10.c): stage 6 (NOT reloc-only: ROM gate failed; 2+ mul.s operand-order swaps at 0x7a3c/0x7a78 remain); fdiff FAILED only on %hi/%lo spelling (.rodata+0x3a0 in C build vs dlabel D_8075EA70/78/80/88 in expected .s); shape: state ptr via field reads CSEd + sp1C copy, no named u8 temp (inline unk36D -= 0x32 then reload-andi); EA84 .float 0 is 8-align padding before the 1.08 double
 typedef struct {
     f32 unk0;
     f32 unk4;

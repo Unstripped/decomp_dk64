@@ -1,4 +1,4 @@
-// func_80718BF4 (src/global/11BC10.c): stage 4: frame 0x48 retained; ground-check scratch currently sp+0x38 versus target sp+0x30. Reordering locals moved it to sp+0x44, so original order retained.
+// func_80718BF4 (src/global/11BC10.c): Fx11BB copy C (agent stopped: subagent credits ran out), deadsweep score full=290 vs expected; earlier note: stage 4: frame 0x48 retained; ground-check scratch currently sp+0x38 versus target sp+0x30. Reordering locals moved it to sp+0x44, so original order retained.
 typedef struct {
     s32 unk0;
     f32 unk4;

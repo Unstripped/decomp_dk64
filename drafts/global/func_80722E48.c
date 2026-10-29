@@ -1,10 +1,13 @@
-// func_80722E48 (src/global/127B00.c): stage 4: exact 10-byte lhu/sh copy tail; frame and saved-register coloring remain
-typedef struct PathEntry { u8 *unk0; s16 unk4; } PathEntry;
-typedef struct PathPlayback PathPlayback;
-typedef struct PathPoint { s16 unk0; s16 unk2; s16 unk4; s16 unk6; s16 unk8; } PathPoint;
-extern PathEntry *D_807FDB90[];
+// func_80722E48 (src/global/127B00.c): Fx127A copy C (agent stopped: subagent credits ran out), deadsweep score full=69 vs expected; earlier note: stage 4: exact 10-byte lhu/sh copy tail; frame and saved-register coloring remain
+typedef struct PathPoint {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+} PathPoint;
+
 extern PathPlayback *D_807FDBF8[];
-void *func_80610FE8(s32);
 
 void func_80722E48(s16 *arg0) {
     PathEntry **temp_s1;

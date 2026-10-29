@@ -1,4 +1,4 @@
-// func_807186C8 (src/global/11BC10.c): Stage 3: direct-reload, unrolled interpolation draft compiled; frame is 0xD8 versus target 0xE0.
+// func_807186C8 (src/global/11BC10.c): Fx11BB copy C (agent stopped: subagent credits ran out), deadsweep score full=161 vs expected; earlier note: Stage 3: direct-reload, unrolled interpolation draft compiled; frame is 0xD8 versus target 0xE0.
 extern f32 D_807FDB50;
 extern f32 D_807FDB54;
 extern f32 D_807FDB58;

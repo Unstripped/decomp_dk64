@@ -1,199 +1,169 @@
-// func_80715270 (src/global/119370.c): Stage 1: m2c reconstruction retained for the large display-list/effect update; target inspection confirms 0x80 frame and s0-s7 state traversal. It needs concrete runtime view/prototype recovery before a meaningful compiler attempt.
-? actorGetNodePos(void *, u8, void *, void *, void *); /* extern */
-? assetFreeBuffer(s32, ?, ?);                       /* extern */
-? renderEntryAddOrUpdate(?, ?, void *, ?32, f32, ?32, s32, s32, s32, s32, s32); /* extern */
-? modelSlotGetNodePos(s16, ?, u8, void *, void *, void *); /* extern */
-s8 func_806531B8(?32, f32, ?, ?, ?32, ?);           /* extern */
-? effectFreeAndUnlink(void *);                       /* extern */
-? func_80715A3C(s32, u8, s32, s32, s32, void *);    /* extern */
-? func_80715B30(void *, u8, s32, s32, f32, f32, f32, ?32, f32, ?32, s32); /* extern */
-? memcpy(void *, void *, ?);                        /* extern */
+// func_80715270 (src/global/119370.c): stage 5: full structure reconstructed (private-copy diff 11660->2559 lines). Remaining: (1) ==1/==2 chain at 0xc94 - target beq==1->out-of-line modelSlot block then li at,2; beql==2->actor block with a0 load in delay; mine bne!=1 with modelSlot inline; (2) prologue: target andi a0,0xff with a0 home at c3c/c38, mine andi s7,a0,0xff at c14. Confirmed fixes baked in: mode==0 renderEntryAddOrUpdate arg7 = unk34C (s16 0x34C); flags|=8 after the 32D if/else; 351-wrap condition (arg0==0 || flags&1).
+#define Fx119A_EN_FIELD(type, node, offset) (*(type *)((u8 *)(node) + (offset)))
 extern u8 D_807444FC;
-extern u8 D_80750AB4;
-extern s32 D_8076A064;
+extern u32 D_8076A064;
 extern s32 D_807FC924;
-extern void *D_807FDB00;
-extern void *D_807FDB04;
-
-void func_80715270(s32 arg0) {
+void assetFreeBuffer(s32, s32, s32);
+s16 func_806531B8(f32, f32, f32, s32);
+s32 renderEntryAddOrUpdate(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
+void func_80715A3C(s16 *, u8, u8 *, s32, s32, s32 *);
+void effectFreeAndUnlink(EffectNode *);
+void func_80715270(u8 arg0) {
+    EffectNode *effect;
+    EffectGridNode *node2;
     u8 sp7B;
-    ? (*temp_v0_3)(void *, u8 *);
-    s16 temp_v0;
-    s32 temp_s7;
-    s32 temp_t2;
-    s32 temp_t3;
-    s32 temp_v0_5;
-    s32 temp_v0_9;
-    s32 var_s0;
-    s32 var_s0_2;
-    s32 var_s0_3;
-    s32 var_s0_4;
-    s32 var_s0_5;
-    s32 var_s1;
-    s32 var_s1_2;
-    s32 var_s1_3;
-    s32 var_s2_2;
-    s32 var_v1;
-    u16 temp_v0_7;
-    u8 temp_t6;
-    u8 temp_v0_2;
-    u8 temp_v1;
-    void *temp_a0;
-    void *temp_v0_10;
-    void *temp_v0_4;
-    void *temp_v0_6;
-    void *temp_v0_8;
-    void *var_s1_4;
-    void *var_s2;
-    s32 phi_v1;
-    s32 phi_v1_2;
+    s32 i;
+    s32 offset;
 
-    var_s2 = D_807FDB04;
-    temp_s7 = arg0 & 0xFF;
-    if (var_s2 != NULL) {
-        do {
-            temp_v0 = var_s2->unk368;
-            if (temp_v0 == 0) {
-                var_s2->unk32C = 0U;
-                var_s2->unk32D = 0U;
-                var_s2->unk21 = 0;
-                var_s2->unk330->unk18 = (s32) D_8076A064;
-                temp_v0_2 = var_s2->unk334;
-                var_s2->unk38C = (u16) (var_s2->unk38C & 0xFFEF);
-                switch (temp_v0_2) {                /* irregular */
-                case 1:
-                    modelSlotGetNodePos(var_s2->unk33C, 1, var_s2->unk33E, var_s2 + 0x340, var_s2 + 0x344, var_s2 + 0x348);
-                    break;
-                case 2:
-                    temp_a0 = var_s2->unk338;
-                    if ((temp_a0->unk60 & 0x200) || (temp_a0->unk4 == 0)) {
-                        actorGetNodePos(temp_a0, var_s2->unk33E, var_s2 + 0x340, var_s2 + 0x344, var_s2 + 0x348);
-                    } else {
-                        var_s2->unk38C = (u16) (var_s2->unk38C | 0x10);
-                    }
-                    break;
-                }
-                sp7B = 0;
-                if ((temp_s7 == 0) || (var_s2->unk38C & 1)) {
-                    temp_v0_3 = var_s2->unk328;
-                    if (temp_v0_3 != NULL) {
-                        temp_v0_3(var_s2, &sp7B);
-                    }
-                } else if (var_s2->unk328 != NULL) {
-                    var_s0 = 0;
-                    var_s1 = 0;
-                    if ((s32) D_80750AB4 > 0) {
-                        do {
-                            if (*(D_807FC924 + var_s1) != 0) {
-                                temp_v0_4 = var_s2 + (var_s0 << 7);
-                                memcpy(temp_v0_4 + (D_807444FC << 6) + 0x128, temp_v0_4 + ((D_807444FC ^ 1) << 6) + 0x128, 0x40);
-                            }
-                            var_s0 += 1;
-                            var_s1 += 0x2F0;
-                        } while (var_s0 < (s32) D_80750AB4);
-                    }
-                    var_s2->unk32C = 3U;
-                }
-                if (var_s2->unk330->unk16 == var_s2->unk34E) {
-                    temp_v0_5 = var_s2->unk354;
-                    var_s2->unk34E = 0;
-                    temp_t3 = var_s2->unk358 + 1;
-                    var_s2->unk358 = temp_t3;
-                    if ((temp_v0_5 == temp_t3) && (temp_v0_5 != -1)) {
-                        var_s2->unk32D = 1U;
-                    }
-                }
-                if (sp7B != 0) {
-                    var_s2->unk32D = 1U;
-                }
-                if (var_s2->unk32D != 0) {
-                    effectFreeAndUnlink(var_s2);
+    effect = D_807FDB04;
+    for (; effect != NULL; effect = effect->next) {
+        if (Fx119A_EN_FIELD(s16, effect, 0x368) == 0) {
+            Fx119A_EN_FIELD(u8, effect, 0x32C) = 0;
+            Fx119A_EN_FIELD(u8, effect, 0x32D) = 0;
+            Fx119A_EN_FIELD(u8, effect, 0x21) = 0;
+            Fx119A_EN_FIELD(s32, Fx119A_EN_FIELD(EffectGridNode *, effect, 0x330), 0x18) = D_8076A064;
+            effect->flags &= 0xFFEF;
+            if (Fx119A_EN_FIELD(u8, effect, 0x334) == 1) {
+                modelSlotGetNodePos(Fx119A_EN_FIELD(s16, effect, 0x33C), 1, Fx119A_EN_FIELD(u8, effect, 0x33E),
+                                    (f32 *)((u8 *)effect + 0x340), (f32 *)((u8 *)effect + 0x344),
+                                    (f32 *)((u8 *)effect + 0x348));
+            } else if (Fx119A_EN_FIELD(u8, effect, 0x334) == 2) {
+                Actor *actor = Fx119A_EN_FIELD(Actor *, effect, 0x338);
+                if ((actor->unk60 & 0x200) != 0 || actor->unk4 == NULL) {
+                    actorGetNodePos(actor, Fx119A_EN_FIELD(u8, effect, 0x33E), (f32 *)((u8 *)effect + 0x340),
+                                    (f32 *)((u8 *)effect + 0x344), (f32 *)((u8 *)effect + 0x348));
                 } else {
-                    temp_v1 = D_80750AB4;
-                    var_s0_2 = 1;
-                    var_s1_2 = 0x2F0;
-                    phi_v1 = (s32) temp_v1;
-                    phi_v1_2 = (s32) temp_v1;
-                    if ((s32) temp_v1 >= 2) {
-                        do {
-                            if (*(D_807FC924 + var_s1_2) != 0) {
-                                temp_t2 = D_807444FC << 6;
-                                memcpy(var_s2 + (var_s0_2 << 7) + temp_t2 + 0x128, var_s2 + temp_t2 + 0x128, 0x40);
-                                phi_v1 = (s32) D_80750AB4;
-                            }
-                            var_s0_2 += 1;
-                            var_s1_2 += 0x2F0;
-                        } while (var_s0_2 < phi_v1);
-                    }
-                    if (var_s2->unk32C != 3) {
-                        var_s0_3 = 0;
-                        if ((s32) temp_v1 > 0) {
-                            var_s1_3 = 0;
-                            do {
-                                temp_v0_6 = D_807FC924 + var_s1_3;
-                                if (temp_v0_6->unk0 != 0) {
-                                    func_80715B30(var_s2 + (var_s0_3 << 7) + (D_807444FC << 6) + 0x128, var_s2->unk32C, var_s2->unk360, var_s2->unk364, temp_v0_6->unk21C, temp_v0_6->unk220, temp_v0_6->unk224, var_s2->unk340, var_s2->unk344, var_s2->unk348, (s32) var_s2->unk36F);
-                                    phi_v1_2 = (s32) D_80750AB4;
-                                }
-                                var_s0_3 += 1;
-                                var_s1_3 += 0x2F0;
-                            } while (var_s0_3 < phi_v1_2);
-                        }
-                        var_s2->unk32C = 3U;
-                    }
-                    if (var_s2->unk36F == 0) {
-                        temp_v0_7 = var_s2->unk38C;
-                        var_s0_4 = 1;
-                        if (temp_v0_7 & 4) {
-                            var_s0_4 = 4;
-                            if (!(temp_v0_7 & 8)) {
-                                var_s2->unk38A = func_806531B8(var_s2->unk340, var_s2->unk344, 0, 5, var_s2->unk348, 0);
-                            }
-                        }
-                        renderEntryAddOrUpdate(0, 5, var_s2, var_s2->unk340, var_s2->unk344, var_s2->unk348, (s32) var_s2->unk34C, 0, 1, -1, var_s0_4);
-                    } else {
-                        renderEntryAddOrUpdate(0, 5, var_s2, var_s2->unk340, var_s2->unk344, var_s2->unk348, 0, 0, 1, -1, 3);
-                    }
-                    temp_v0_8 = var_s2->unk330;
-                    func_80715A3C(temp_v0_8->unk20, temp_v0_8->unk15, temp_v0_8->unk1C, var_s2->unk380, (s32) var_s2->unk34E, var_s2 + 0x370);
-                    if ((temp_s7 == 0) || (var_s2->unk38C & 1)) {
-                        temp_t6 = var_s2->unk351 + 1;
-                        var_s2->unk351 = temp_t6;
-                        if (var_s2->unk350 == (temp_t6 & 0xFF)) {
-                            var_s2->unk351 = 0U;
-                            var_s2->unk34E = (s16) (var_s2->unk34E + 1);
-                        }
-                    }
+                    effect->flags |= 0x10;
                 }
-                var_s2->unk38C = (u16) (var_s2->unk38C | 8);
-            } else if ((temp_s7 == 0) || (var_s2->unk38C & 1)) {
-                var_s2->unk368 = (s16) (temp_v0 - 1);
             }
-            var_s2 = var_s2->unk39C;
-        } while (var_s2 != NULL);
-    }
-    var_s1_4 = D_807FDB00;
-    if (var_s1_4 != NULL) {
-        do {
-            temp_v0_9 = var_s1_4->unk18;
-            if (((u32) (D_8076A064 - temp_v0_9) < 0xBU) && (temp_v0_9 != -1)) {
-                var_s0_5 = 0;
-                var_s2_2 = 0;
-                var_v1 = var_s1_4->unk16 * var_s1_4->unk8 * var_s1_4->unk9;
-                if (var_v1 > 0) {
+            sp7B = 0;
+            if (arg0 == 0 || (effect->flags & 1)) {
+                if (Fx119A_EN_FIELD(void *, effect, 0x328) != NULL) {
+                    ((void (*)(void *, u8 *))Fx119A_EN_FIELD(void *, effect, 0x328))(effect, &sp7B);
+                }
+            } else if (Fx119A_EN_FIELD(void *, effect, 0x328) != NULL) {
+                if (D_80750AB4 > 0) {
+                    i = 0;
+                    offset = 0;
                     do {
-                        temp_v0_10 = var_s1_4->unk1C + var_s2_2;
-                        if ((temp_v0_10->unk4 != -1) && ((D_8076A064 - var_s1_4->unk18) == 0xA)) {
-                            assetFreeBuffer(temp_v0_10->unk0, 0x319, 0x1F);
-                            (var_s1_4->unk1C + var_s2_2)->unk4 = -1;
-                            var_v1 = var_s1_4->unk16 * var_s1_4->unk8 * var_s1_4->unk9;
+                        if (((u8 *)D_807FC924)[offset] != 0) {
+                            memcpy((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128,
+                                   (u8 *)effect + i * 0x80 + (D_807444FC ^ 1) * 0x40 + 0x128, 0x40);
                         }
-                        var_s0_5 += 1;
-                        var_s2_2 += 8;
-                    } while (var_s0_5 < var_v1);
+                        i++;
+                        offset += 0x2F0;
+                    } while (i < D_80750AB4);
+                }
+                Fx119A_EN_FIELD(u8, effect, 0x32C) = 3;
+            }
+            if (Fx119A_EN_FIELD(s16, Fx119A_EN_FIELD(EffectGridNode *, effect, 0x330), 0x16) ==
+                Fx119A_EN_FIELD(s16, effect, 0x34E)) {
+                Fx119A_EN_FIELD(s16, effect, 0x34E) = 0;
+                Fx119A_EN_FIELD(s32, effect, 0x358) = Fx119A_EN_FIELD(s32, effect, 0x358) + 1;
+                if (Fx119A_EN_FIELD(s32, effect, 0x354) == Fx119A_EN_FIELD(s32, effect, 0x358) &&
+                    -1 != Fx119A_EN_FIELD(s32, effect, 0x354)) {
+                    Fx119A_EN_FIELD(u8, effect, 0x32D) = 1;
                 }
             }
-            var_s1_4 = var_s1_4->unk24;
-        } while (var_s1_4 != NULL);
+            if (sp7B != 0) {
+                Fx119A_EN_FIELD(u8, effect, 0x32D) = 1;
+            }
+            if (Fx119A_EN_FIELD(u8, effect, 0x32D) != 0) {
+                effectFreeAndUnlink(effect);
+            } else {
+                if (D_80750AB4 >= 2) {
+                    i = 1;
+                    offset = 0x2F0;
+                    do {
+                        if (((u8 *)D_807FC924)[offset] != 0) {
+                            memcpy((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128,
+                                   (u8 *)effect + D_807444FC * 0x40 + 0x128, 0x40);
+                        }
+                        i++;
+                        offset += 0x2F0;
+                    } while (i < D_80750AB4);
+                }
+                if (Fx119A_EN_FIELD(u8, effect, 0x32C) != 3) {
+                    if (D_80750AB4 > 0) {
+                        i = 0;
+                        offset = 0;
+                        do {
+                            if (((u8 *)D_807FC924)[offset] != 0) {
+                                func_80715B30((Mtx *)((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128),
+                                              Fx119A_EN_FIELD(u8, effect, 0x32C),
+                                              Fx119A_EN_FIELD(f32, effect, 0x360),
+                                              Fx119A_EN_FIELD(f32, effect, 0x364),
+                                              Fx119A_EN_FIELD(f32, (u8 *)D_807FC924 + offset, 0x21C),
+                                              Fx119A_EN_FIELD(f32, (u8 *)D_807FC924 + offset, 0x220),
+                                              Fx119A_EN_FIELD(f32, (u8 *)D_807FC924 + offset, 0x224),
+                                              Fx119A_EN_FIELD(f32, effect, 0x340),
+                                              Fx119A_EN_FIELD(f32, effect, 0x344),
+                                              Fx119A_EN_FIELD(f32, effect, 0x348), effect->mode);
+                            }
+                            i++;
+                            offset += 0x2F0;
+                        } while (i < D_80750AB4);
+                    }
+                    Fx119A_EN_FIELD(u8, effect, 0x32C) = 3;
+                }
+                if (effect->mode == 0) {
+                    s32 renderArg = 1;
+                    if (effect->flags & 4) {
+                        renderArg = 4;
+                        if (!(effect->flags & 8)) {
+                            Fx119A_EN_FIELD(s8, effect, 0x38A) = func_806531B8(
+                                Fx119A_EN_FIELD(f32, effect, 0x340), Fx119A_EN_FIELD(f32, effect, 0x344),
+                                Fx119A_EN_FIELD(f32, effect, 0x348), 0);
+                        }
+                    }
+                    renderEntryAddOrUpdate(0, 5, effect, Fx119A_EN_FIELD(f32, effect, 0x340),
+                                           Fx119A_EN_FIELD(f32, effect, 0x344),
+                                           Fx119A_EN_FIELD(f32, effect, 0x348),
+                                           Fx119A_EN_FIELD(s16, effect, 0x34C), 0, 1, -1, renderArg);
+                } else {
+                    renderEntryAddOrUpdate(0, 5, effect, Fx119A_EN_FIELD(f32, effect, 0x340),
+                                           Fx119A_EN_FIELD(f32, effect, 0x344),
+                                           Fx119A_EN_FIELD(f32, effect, 0x348), 0, 0, 1, -1, 3);
+                }
+                func_80715A3C((s16 *)Fx119A_EN_FIELD(void *, Fx119A_EN_FIELD(EffectGridNode *, effect, 0x330), 0x20),
+                              Fx119A_EN_FIELD(u8, Fx119A_EN_FIELD(EffectGridNode *, effect, 0x330), 0x15),
+                              (u8 *)Fx119A_EN_FIELD(void *, Fx119A_EN_FIELD(EffectGridNode *, effect, 0x330), 0x1C),
+                              Fx119A_EN_FIELD(s32, effect, 0x380), Fx119A_EN_FIELD(s16, effect, 0x34E),
+                              &Fx119A_EN_FIELD(s32, effect, 0x370));
+                if (arg0 == 0 || (effect->flags & 1)) {
+                    Fx119A_EN_FIELD(u8, effect, 0x351) = Fx119A_EN_FIELD(u8, effect, 0x351) + 1;
+                    if (Fx119A_EN_FIELD(u8, effect, 0x350) ==
+                        (Fx119A_EN_FIELD(u8, effect, 0x351) & 0xFF)) {
+                        Fx119A_EN_FIELD(s16, effect, 0x34E) = Fx119A_EN_FIELD(s16, effect, 0x34E) + 1;
+                        Fx119A_EN_FIELD(u8, effect, 0x351) = 0;
+                    }
+                }
+            }
+            effect->flags |= 8;
+        } else {
+            if (arg0 == 0 || (effect->flags & 1)) {
+                Fx119A_EN_FIELD(s16, effect, 0x368) = Fx119A_EN_FIELD(s16, effect, 0x368) - 1;
+            }
+        }
     }
-}
+    for (node2 = D_807FDB00; node2 != NULL; node2 = node2->unk24) {
+        if (D_8076A064 - node2->unk18 >= 0xB) {
+            continue;
+        }
+        if (node2->unk18 == -1) {
+            continue;
+        }
+        if (node2->unk16 * node2->unk8 * node2->unk9 > 0) {
+            i = 0;
+            offset = 0;
+            do {
+                if (((s32 *)((u8 *)node2->unk20 + offset))[1] != -1) {
+                    if (D_8076A064 - node2->unk18 == 0xA) {
+                        assetFreeBuffer(((s32 *)((u8 *)node2->unk20 + offset))[0], 0x319, 0x1F);
+                        ((s32 *)((u8 *)node2->unk20 + offset))[1] = -1;
+                    }
+                }
+                i++;
+                offset += 8;
+            } while (i < node2->unk16 * node2->unk8 * node2->unk9);
+    }
