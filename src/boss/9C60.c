@@ -113,8 +113,7 @@ typedef struct Boss2F_9C60_BB4C {
 
 typedef struct Boss2F_9C60_DC90 {
     char pad[0x28];
-    u8 unk28;
-    char pad29[3];
+    u8 unk28[4];
     s16 unk2C;
 } Boss2F_9C60_DC90;
 
@@ -373,8 +372,8 @@ void func_8002DE04(void) {
         break;
     }
     func_8072A450();
-    if (func_8072881C(0, (u8 *)D_807FDC90 + 0x28) != 0) {
-        func_8072881C(0x81, (u8 *)D_807FDC90 + 0x28);
+    if (func_8072881C(0, D_807FDC90->unk28) != 0) {
+        func_8072881C(0x81, D_807FDC90->unk28);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
