@@ -7,12 +7,13 @@ typedef struct {
     char pad6[4];
     u8 unkA;
     s8 unkB;
-    char padC[1];
+    u8 unkC;
     u8 unkD;
     u8 unkE;
     u8 unkF;
-    char pad10[1];
+    u8 unk10;
     u8 unk11;
+    u8 unk12;
 } Struct_80025D14;
 
 extern u8 D_807FC950[][0x5E];
@@ -20,14 +21,14 @@ extern u8 D_8074E77C;
 
 s32 menuCheckBitgridOtherSlots(Struct_80025D14 *arg0, s32 arg1) {
     s32 found = 0;
-    do { s32 i = 0; do {
-            if (i != D_8074E77C) {
-                found |= D_807FC950[i][arg0->unkB] & (1 << (arg1 + 0x1F));
-            }
-            i++;
-        } while (found == 0 && i != 5);
-        return found;
-    } while (0);
+    s32 i;
+
+    for (i = 0; found == 0 && i != 5; i++) {
+        if (i != D_8074E77C) {
+            found |= D_807FC950[i][arg0->unkB] & (1 << (arg1 + 0x1F));
+        }
+    }
+    return found;
 }
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/D_80033A50.s")
@@ -297,10 +298,10 @@ s32 func_80026250(Struct_80025D14 *arg0) {
     }
 }
 
-void menuResetSubmenuState(s8 *arg0, s32 *arg1) {
+void menuResetSubmenuState(Struct_80025D14 *arg0, s32 *arg1) {
     *arg1 = 0;
-    arg0[0xF] = 1;
-    arg0[0xB] = -1;
+    arg0->unkF = 1;
+    arg0->unkB = -1;
 }
 
 extern u16 D_800334EC[];
@@ -386,7 +387,7 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             if (arg0->unkA == 0) {
                 if (flagGet(0x61, 2) != 0) {
                     flagSet(0x61, 0, 2);
-                    menuResetSubmenuState((s8 *)arg0, &sp3C);
+                    menuResetSubmenuState(arg0, &sp3C);
                     if (flagGet(0x17B, 0) != 0) {
                         v = 0x20;
                     } else if (flagGet(0x62, 2) != 0) {
@@ -398,7 +399,7 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
                 } else {
                     cnt = flagCountRange(0x225, 0x28, 0);
                     if (cnt >= 0xF) {
-                        menuResetSubmenuState((s8 *)arg0, &sp3C);
+                        menuResetSubmenuState(arg0, &sp3C);
                         if (flagGet(0x17B, 0) != 0) {
                             v = 0x20;
                         } else {
