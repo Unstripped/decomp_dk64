@@ -6,8 +6,102 @@ extern Mtx D_2000180;
 Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
 
+struct LB3Actor;
+typedef struct LB3Obj {
+    struct LB3Actor *act[4];
+    s16 unk10;
+    s16 unk12;
+    s16 unk14;
+    s16 unk16;
+    u8 unk18;
+    u8 unk19;
+    u8 unk1A;
+    u8 pad1B;
+    u8 unk1C;
+    u8 unk1D;
+    u8 unk1E;
+    u8 pad1F;
+    s32 unk20;
+} LB3Obj;
+
+typedef struct LB3Actor {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x6E - 0x64];
+    s16 unk6E;
+    u8 pad70[0x7C - 0x70];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0xE8 - 0x88];
+    s16 unkE8;
+    u8 padEA[0xF0 - 0xEA];
+    s16 unkF0;
+    u8 padF2[0x11C - 0xF2];
+    struct LB3Actor *unk11C;
+    u8 pad120[0x154 - 0x120];
+    u8 unk154;
+    u8 unk155;
+    u8 pad156[9];
+    u8 unk15F;
+    u8 pad160[0x168 - 0x160];
+    s16 unk168;
+    u8 pad16A[0x174 - 0x16A];
+    LB3Obj *unk174;
+} LB3Actor;
+
+typedef struct LB3Player {
+    u8 pad0[0x104];
+    void *unk104;
+} LB3Player;
+
+typedef struct LB3PlayerActor {
+    u8 pad0[0x155];
+    u8 unk155;
+    u8 pad156[0x174 - 0x156];
+    LB3Player *unk174;
+} LB3PlayerActor;
+
+struct BonusEActor;
+typedef struct BonusEObj {
+    struct LB3Actor *unk0;
+    s16 unk4;
+} BonusEObj;
+
+typedef struct BonusEActor {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x7C - 0x64];
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
+    u8 pad88[0xE8 - 0x88];
+    s16 unkE8;
+    u8 padEA[6];
+    s16 unkF0;
+    u8 padF2[0x154 - 0xF2];
+    u8 unk154;
+    u8 unk155;
+    u8 pad156[9];
+    s8 unk15F;
+    f64 unk160;
+    s16 unk168;
+    u8 pad16A[0xA];
+    BonusEObj *unk174;
+} BonusEActor;
+
+s32 actorSpawn(s32, s32);
+extern void *D_807FBB40;
+extern void *D_807FBB44;
+extern void *D_807FBB4C;
+
+#define LA ((LB3Actor *)D_807FBB40)
+#define BA ((BonusEActor *)D_807FBB40)
+#define RA ((BonusEActor *)D_807FBB44)
+#define LPA ((LB3PlayerActor *)D_807FBB4C)
+
 Gfx *bonusRenderReelHud(Gfx *gdl, void *arg1) {
-    void *temp_t0 = *(void **)((u8 *)arg1 + 0x174);
+    LB3Obj *temp_t0 = ((LB3Actor *)arg1)->unk174;
 
     gDPPipeSync(gdl++);
     gDPSetPrimColor(gdl++, 0, 0, 200, 200, 200, 255);
@@ -17,30 +111,26 @@ Gfx *bonusRenderReelHud(Gfx *gdl, void *arg1) {
     gSPMatrix(gdl++, &D_2000080, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     return func_8068DC54(
-        textDrawAnimated(gdl, *(u8 *)((u8 *)temp_t0 + 0x19), 8, 30.0f, 36.0f, 0.0f, 1.5f),
-        0x26, 0x32, (u8 *)temp_t0 + 0x14, *(s16 *)((u8 *)temp_t0 + 0x16), (u8 *)temp_t0 + 0x18);
+        textDrawAnimated(gdl, temp_t0->unk19, 8, 30.0f, 36.0f, 0.0f, 1.5f),
+        0x26, 0x32, &temp_t0->unk14, temp_t0->unk16, &temp_t0->unk18);
 }
-
-s32 actorSpawn(s32, s32);
-extern void *D_807FBB40;
-extern void *D_807FBB44;
 
 void *bonusSpawnReel(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
     if (actorSpawn(0xDB, arg0) != 0) {
-        void **ptr = *(void ***)((u8 *)D_807FBB44 + 0x174);
-        *(f32 *)((u8 *)D_807FBB44 + 0x7C) = (f32)arg1;
-        *(f32 *)((u8 *)D_807FBB44 + 0x80) = (f32)arg2;
-        *(f32 *)((u8 *)D_807FBB44 + 0x84) = (f32)arg3;
-        *ptr = D_807FBB40;
+        BonusEObj *obj = RA->unk174;
+        RA->unk7C = (f32)arg1;
+        RA->unk80 = (f32)arg2;
+        RA->unk84 = (f32)arg3;
+        obj->unk0 = D_807FBB40;
     }
     return D_807FBB44;
 }
 
 extern u8 *D_8002D8B0[];
 
-u8 bonusGetReelSymbol(u8 **arg0, u8 arg1) {
+u8 bonusGetReelSymbol(LB3Obj *obj, u8 arg1) {
     s32 idx = arg1;
-    return D_8002D8B0[idx][arg0[idx][0x15F]];
+    return D_8002D8B0[idx][obj->act[idx]->unk15F];
 }
 
 void func_807149B8(s32);
@@ -63,21 +153,20 @@ void bonusSpawnEffectBurst(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
 }
 
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-extern void *D_807FBB4C;
 
-void bonusReelNextRound(s32 arg0) {
-    void *temp_v0 = *(void **)((u8 *)D_807FBB4C + 0x174);
-    camSetTarget(*(void **)((u8 *)temp_v0 + 0x104), D_807FBB4C, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
-    *(u8 *)((u8 *)D_807FBB40 + 0x154) = 3;
-    *(u8 *)((u8 *)D_807FBB40 + 0x155) = 1;
-    *(s16 *)((u8 *)D_807FBB40 + 0x168) = 0;
+void bonusReelNextRound(LB3Obj *arg0) {
+    LB3Player *temp_v0 = LPA->unk174;
+    camSetTarget(temp_v0->unk104, D_807FBB4C, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
+    LA->unk154 = 3;
+    LA->unk155 = 1;
+    LA->unk168 = 0;
 }
 
-void bonusInitActors(u8 **arg0, u8 arg1) {
+void bonusInitActors(LB3Obj *obj, u8 arg1) {
     u8 i = 0;
     do {
-        arg0[i][0x154]++;
-        *(s16 *)(arg0[i] + 0xF0) = arg1;
+        obj->act[i]->unk154++;
+        obj->act[i]->unkF0 = arg1;
     } while (++i < 4);
 }
 
@@ -88,48 +177,6 @@ void bonusInitActors(u8 **arg0, u8 arg1) {
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/D_8002DCA0.s")
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/D_8002DCA8.s")
-
-struct LB3Actor;
-typedef struct LB3Obj {
-    struct LB3Actor *act[4];
-    s16 unk10;
-    s16 unk12;
-    s16 unk14;
-    s16 unk16;
-    u8 pad18;
-    u8 unk19;
-    u8 unk1A;
-    u8 pad1B;
-    u8 unk1C;
-    u8 unk1D;
-    u8 unk1E;
-    u8 pad1F;
-    s32 unk20;
-} LB3Obj;
-
-typedef struct LB3Actor {
-    u8 pad0[0x60];
-    u32 unk60;
-    u8 pad64[0x6E - 0x64];
-    s16 unk6E;
-    u8 pad70[0x7C - 0x70];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xE8 - 0x88];
-    s16 unkE8;
-    u8 padEA[0x11C - 0xEA];
-    struct LB3Actor *unk11C;
-    u8 pad120[0x154 - 0x120];
-    u8 unk154;
-    u8 unk155;
-    u8 pad156[0x168 - 0x156];
-    s16 unk168;
-    u8 pad16A[0x174 - 0x16A];
-    LB3Obj *unk174;
-} LB3Actor;
-
-#define LA ((LB3Actor *)D_807FBB40)
 
 extern s32 D_8076A0A8;
 extern void *D_807FBB48;
@@ -161,13 +208,13 @@ void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void actorUpdateModelMatrix(void *, s32);
 
 void bonusReelGameUpdate(void) {
-    u8 *sp4C;
+    LB3Player *sp4C;
     LB3Obj *obj;
     u8 i;
     s32 two;
 
     two = 2;
-    sp4C = *(u8 **)((u8 *)D_807FBB4C + 0x174);
+    sp4C = LPA->unk174;
     obj = LA->unk174;
     if (!(LA->unk60 & 0x10)) {
         LA->unk7C = 52.0f;
@@ -181,7 +228,7 @@ void bonusReelGameUpdate(void) {
         obj->act[2] = bonusSpawnReel(0x92, 7, 1, 0x12);
         obj->act[3] = bonusSpawnReel(0x93, 0x15, 1, 0x12);
         playerStateQueueCallback(0x49, 0, 0);
-        camSetTargetScaled(*(void **)(sp4C + 0x104), D_807FBB4C, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
+        camSetTargetScaled(sp4C->unk104, D_807FBB4C, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
         camStartPath(0, 1, 1);
         switch (D_8076A0A8) {
         case 0x20:
@@ -261,9 +308,9 @@ void bonusReelGameUpdate(void) {
             obj->unk10 += obj->unk12;
             if (obj->unk10 >= 0x800) {
                 obj->unk12 = -0x40;
-                bonusInitActors((u8 **)obj, (u32)((f32)obj->unk1E + (f32)(obj->unk1D - obj->unk1E) * ((f32)(obj->unk16 - 1) / (f32)two)));
+                bonusInitActors(obj, (u32)((f32)obj->unk1E + (f32)(obj->unk1D - obj->unk1E) * ((f32)(obj->unk16 - 1) / (f32)two)));
                 LA->unk6E = func_80609140(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
-                camSetTarget(*(void **)(sp4C + 0x104), D_807FBB48, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
+                camSetTarget(sp4C->unk104, D_807FBB48, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->unk10 < 0x400) {
                 LA->unk154 = 5;
                 LA->unk155 = 0;
@@ -291,11 +338,11 @@ void bonusReelGameUpdate(void) {
         }
     case 1:
         if (LA->unk11C->unk154 != 5) {
-            if (bonusGetReelSymbol((u8 **)obj, 0) == 0 && bonusGetReelSymbol((u8 **)obj, 0) == bonusGetReelSymbol((u8 **)obj, 1) && bonusGetReelSymbol((u8 **)obj, 1) == bonusGetReelSymbol((u8 **)obj, 2) && bonusGetReelSymbol((u8 **)obj, 2) == bonusGetReelSymbol((u8 **)obj, 3)) {
+            if (bonusGetReelSymbol(obj, 0) == 0 && bonusGetReelSymbol(obj, 0) == bonusGetReelSymbol(obj, 1) && bonusGetReelSymbol(obj, 1) == bonusGetReelSymbol(obj, 2) && bonusGetReelSymbol(obj, 2) == bonusGetReelSymbol(obj, 3)) {
                 func_806FDAB8(obj->unk19, 3.1415927f);
                 obj->unk16 -= 1;
                 if (obj->unk16 == 0) {
-                    *(u8 *)((u8 *)D_807FBB4C + 0x155) = 1;
+                    LPA->unk155 = 1;
                     bonusEndWin(0, 0);
                     LA->unk154 = 8;
                     obj->unk10 = 0;
@@ -303,14 +350,14 @@ void bonusReelGameUpdate(void) {
                     camStartPath(0, 0, 0x11);
                 } else {
                     textSpawnMarkerChecked(0, 0, 0xB4, func_8070E750(0x1A, 0xB, 1), 0, 0x28, 8, 8);
-                    bonusReelNextRound((s32)obj);
+                    bonusReelNextRound(obj);
                 }
             } else {
                 textSpawnMarkerChecked(0, 0, 0xB4, func_8070E750(0x1A, 0xC, 1), 0, 0x28, 8, 8);
-                bonusReelNextRound((s32)obj);
+                bonusReelNextRound(obj);
             }
         } else {
-            *(u8 *)((u8 *)D_807FBB4C + 0x155) = 2;
+            LPA->unk155 = 2;
             bonusEndLose(0, 1);
             LA->unk154 = 9;
             obj->unk10 = 0;
@@ -321,8 +368,7 @@ void bonusReelGameUpdate(void) {
     case 8:
         i = 0;
         do {
-            if ((obj->unk10 - i * 8 + 0x18) % 32) {
-            } else {
+            if (!((obj->unk10 - i * 8 + 0x18) % 32)) {
                 bonusSpawnEffectBurst(obj->act[i]->unk7C, obj->act[i]->unk80, obj->act[i]->unk84 + 20.0f, 0xF);
             }
         } while (++i < 4);
@@ -341,32 +387,6 @@ void bonusReelGameUpdate(void) {
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-
-struct BonusEActor;
-typedef struct BonusEObj {
-    struct BonusEActor *unk0;
-    s16 unk4;
-} BonusEObj;
-
-typedef struct BonusEActor {
-    u8 pad0[0x60];
-    u32 unk60;
-    u8 pad64[0xE8 - 0x64];
-    s16 unkE8;
-    u8 padEA[6];
-    s16 unkF0;
-    u8 padF2[0x154 - 0xF2];
-    u8 unk154;
-    u8 unk155;
-    u8 pad156[9];
-    s8 unk15F;
-    f64 unk160;
-    s16 unk168;
-    u8 pad16A[0xA];
-    BonusEObj *unk174;
-} BonusEActor;
-
-#define BA ((BonusEActor *)D_807FBB40)
 
 f32 asinApprox(f32);
 f32 sinApprox(f32);
@@ -427,21 +447,21 @@ void camStartPathNearWall(void *, s32, s32, s32);
 void bonusEndWin(u8 arg0, u8 arg1) {
     func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
     textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
-    *(u8 *)((u8 *)*(void **)((u8 *)D_807FBB40 + 0x11C) + 0x154) = 0;
+    LA->unk11C->unk154 = 0;
     sfxAllocateChannel(0x28, 1.0f);
     playerStateQueueCallback(0x44, 0, 0);
-    *(u8 *)((u8 *)D_807FBB40 + 0x154) += 1;
+    LA->unk154 += 1;
     if (arg0 != 0) {
         camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
     }
 }
 
 void bonusEndLose(u8 arg0, u8 arg1) {
-    *(u8 *)((u8 *)*(void **)((u8 *)D_807FBB40 + 0x11C) + 0x154) = 0;
+    LA->unk11C->unk154 = 0;
     textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
     sfxAllocateChannel(0x57, 1.0f);
     playerStateQueueCallback(0x43, 0, 0);
-    *(u8 *)((u8 *)D_807FBB40 + 0x154) += 1;
+    LA->unk154 += 1;
     if (arg0 != 0) {
         camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
     }
