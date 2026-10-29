@@ -1,8 +1,24 @@
-// func_807024E0 (src/global/103AB0.c): Stage 5 (L7): parked-quality C, compiles; frame 0x1D8, s0-s7/fp/fs0-fs2 and tile-load/vertex/callback/loop code identical to target (~21 hunks left). Open: row-prologue hoist order, spill-slot order of x+tw/B0/AC/A8/90/8C temps, add.s xf+tw operand order, a0/a1 (scale/v) + s4/s5 (xs/xe) alloc. Place AFTER vtxSetPosTex (uses R1F103AB0cTransformView); forward proto of func_807024E0 must be (Gfx**,s32,s32,u32,s32,u32,u32,f32 x6,u8,u8,u8,void(*)()); pad locals reproduce named-local frame; named top-block order scale,ustep,vstep,xs,xe,ye,th,tw,u0 reproduces temp-slot order
+// func_807024E0 (src/global/103AB0.c): Stage 5: code identical to target except y-row preheader order (45 opcode diffs, 931 vs 933 insns); frame 0x1D8 and homes y/u/v/xe/ye/flag (464/456/452/396/388/387) match. Blocker is uopt temp-slot layout: spilltemps (uoptreg2.c) gives PRE temps slots in candidate-bit order, reusing a slot when regions do not overlap (see ok-fine notes/ido-uopt-temp-slots). Target temps need: named locals 248 B (here 268), temps 128 B; call-arg values (u16,v16,xf16,yA,vb,vc,yC) created late by copy propagation (a per-row copy of v gives 18/22 target slots and the target's move a0,a1, but then v lands in s8); x+tw must reuse the ushr(y,5) slot. vc s32 (separate vb/vc temps) and siz s32 (siz temp after yhi) confirmed; statement order/decl order of loop-top vars has no effect. Draft carries the VtxColorView typedef and vtxSetColor/vtxSetPosTex prototypes (drop the duplicate typedef on integration). NOT paste-ready as-is: also replace the forward proto at 103AB0.c:877 with (Gfx **, s32, s32, u32, s32, u32, u32, f32 x6, u8, u8, u8, void (*)()), since drafts.py paste only replaces the pragma
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    u8 unk6[2];
+    s16 unk8;
+    s16 unkA;
+    s8 unkC;
+    s8 unkD;
+    s8 unkE;
+    u8 unkF;
+} VtxColorView;
+
+void vtxSetColor(VtxColorView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5);
+void vtxSetPosTex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, u8 arg5);
+
 void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5, u32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14, u8 arg15, void (*arg16)()) {
     Gfx *dl;
     s32 y;
-    R1F103AB0cTransformView *vtx;
+    VtxColorView *vtx;
     s32 u;
     s32 v;
     s32 x;
@@ -14,9 +30,8 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     s32 lrt;
     f32 xf;
     s32 ua;
-    s16 ub;
     s32 vb;
-    s16 vc;
+    s32 vc;
     s16 xa;
     u32 ustep;
     u32 xe;
@@ -25,12 +40,11 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     u8 flag;
     s32 ylo;
     u32 yhi;
-    u8 siz;
+    s32 siz;
     u32 xmax;
     f32 fsc;
     u32 vstep;
     u32 ymax;
-    s32 padF;
     s32 u0;
     u32 th;
     u32 tw;
@@ -53,7 +67,7 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     } else {
         gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
     }
-    vtx = (R1F103AB0cTransformView *)func_80610FE8(((((xe - xs) / tw) + 1) * (((ye - ys) / th) + 1)) << 6);
+    vtx = (VtxColorView *)func_80610FE8(((((xe - xs) / tw) + 1) * (((ye - ys) / th) + 1)) << 6);
     heapFreeDeferred(vtx);
     gDPPipeSync(dl++);
     v = (s32)(fsc * arg12);
