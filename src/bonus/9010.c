@@ -1,12 +1,13 @@
 
 #include "common.h"
+#include "actor.h"
 
 extern Gfx D_1000118;
 extern Mtx D_2000180;
 extern s8 D_8002D92C;
 extern s8 D_8002DEF0[];
 extern s32 D_8076A0A8;
-extern void *D_807FBB40;
+extern Actor *D_807FBB40;
 s32 _sprintf(char *, const char *, ...);
 Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 Gfx *func_8068DC54(Gfx *, s32, s32, void *, s16, void *);
@@ -27,19 +28,7 @@ typedef struct BonusEHud {
     u8 unkD;
 } BonusEHud;
 
-struct BonusEActor9;
-typedef struct BonusEActor9 {
-    u8 pad0[0x60];
-    u32 unk60;
-    u8 pad64[0x11C - 0x64];
-    struct BonusEActor9 *unk11C;
-    u8 pad120[0x154 - 0x120];
-    u8 unk154;
-    u8 pad155[0x174 - 0x155];
-    BonusEHud *unk174;
-} BonusEActor9;
-
-Gfx *bonusRenderScoreHud(Gfx *gdl, BonusEActor9 *arg1) {
+Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *arg1) {
     BonusEHud *hud = arg1->unk174;
     s16 i;
     s16 y;
@@ -85,13 +74,11 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, BonusEActor9 *arg1) {
     return gdl;
 }
 
-#define BA9 ((BonusEActor9 *)D_807FBB40)
-
 extern u8 D_807444EC;
 extern s16 D_80744518;
 extern u16 D_807ECD58;
 extern u16 D_807ECD60;
-extern void *D_807FBB4C;
+extern Actor *D_807FBB4C;
 extern s8 D_8002D920;
 extern s8 D_8002D924;
 extern s8 D_8002D928;
@@ -107,12 +94,12 @@ void func_8070D8C0(void *, s32, u8);
 void renderCallbacksRegister(void *, void *, s32);
 
 void bonusScoreHudUpdate(void) {
-    BonusEHud *hud = BA9->unk174;
+    BonusEHud *hud = D_807FBB40->unk174;
     s32 sp28;
 
-    if (!(BA9->unk60 & 0x10)) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
         camStartPath(0, 0, 1);
-        BA9->unk154 = 0;
+        D_807FBB40->unk154 = 0;
         hud->unk4 = 0x3C;
         D_8002D92C = 0;
         D_8002D930 = 0;
@@ -123,7 +110,7 @@ void bonusScoreHudUpdate(void) {
         D_8002D924 = 0;
         D_8002D928 = 0;
     }
-    switch (BA9->unk154) {
+    switch (D_807FBB40->unk154) {
     case 0:
         if (D_807444EC == 1) {
             if (camIsPathPaused()) {
@@ -136,27 +123,27 @@ void bonusScoreHudUpdate(void) {
                     break;
                 }
                 func_8070D8C0(D_807FBB40, 0, sp28);
-                BA9->unk154 = 1;
+                D_807FBB40->unk154 = 1;
                 func_806A2A10(0xDC, 0x2A, (u8)hud->unk4);
             } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camStartPath(D_807FBB4C, 1, 1);
-                BA9->unk154 = 2;
+                D_807FBB40->unk154 = 2;
                 func_806A2A10(0xDC, 0x2A, (u8)hud->unk4);
-                actorSetStateTwo(BA9->unk11C);
+                actorSetStateTwo((void *)D_807FBB40->unk11C);
             }
         }
         break;
     case 1:
-        if (!(BA9->unk60 & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
+        if (!(D_807FBB40->unk60 & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
             camResumePath();
-            BA9->unk154 = 2;
-            actorSetStateTwo(BA9->unk11C);
+            D_807FBB40->unk154 = 2;
+            actorSetStateTwo((void *)D_807FBB40->unk11C);
         }
         break;
     case 2:
-        if (BA9->unk11C->unk154 == 5) {
+        if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
             D_8002D930 = 0;
-            BA9->unk154 = 3;
+            D_807FBB40->unk154 = 3;
             hud->unk0 = 0x78;
         }
         switch (D_8076A0A8) {
@@ -188,11 +175,11 @@ void bonusScoreHudUpdate(void) {
         }
         break;
     case 3:
-        BA9->unk11C->unk154 = 1;
+        ((Actor *)D_807FBB40->unk11C)->unk154 = 1;
         hud->unk0 -= 1;
         if (hud->unk0 == 0) {
             func_805FF378(0x50, 0);
-            BA9->unk154 = 4;
+            D_807FBB40->unk154 = 4;
         }
         break;
     }
