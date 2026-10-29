@@ -497,11 +497,7 @@ void func_80027778(void) {
             }
         }
         a = sp64->unk10 - 2;
-        if (a < 0) {
-            D_807FBB40->unk168 = 0;
-        } else {
-            D_807FBB40->unk168 = a;
-        }
+        D_807FBB40->unk168 = MAX(0, a);
         D_807FBB40->unkB8 = 1100.0f;
         D_807FBB40->unkC0 = 400.0f;
         D_807FBB40->unk60 |= 0x800000;
@@ -525,7 +521,7 @@ void func_80027778(void) {
     if ((sp5E - D_807FBB40->unk7C) * (sp5E - D_807FBB40->unk7C) + (sp5C - D_807FBB40->unk84) * (sp5C - D_807FBB40->unk84) < 1600.0f) {
         D_807FBB40->unk168++;
     }
-    if (D_807FBB85 != 0 || (D_807FBB40->unkF0--, D_807FBB40->unkF0 == 0)) {
+    if (D_807FBB85 != 0 || --D_807FBB40->unkF0 == 0) {
         if (D_807FBB40->unk11C != NULL) {
             D_807FBB40->unk11C->unk15F--;
         }
@@ -562,16 +558,13 @@ void func_80027778(void) {
 }
 
 void minecartStartScriptNearPlayer(void) {
-    f32 dx, dy, dz;
-
     if (D_807FBB40->unk155 != 0) {
         return;
     }
     if (func_8072DE10(10000) != 0 ||
-        (dx = D_807FDC94->unk7C - D_807FBB40->unk7C,
-         dy = D_807FDC94->unk80 - D_807FBB40->unk80,
-         dz = D_807FDC94->unk84 - D_807FBB40->unk84,
-         dx * dx + dy * dy + dz * dz < 2500.0f)) {
+        (D_807FDC94->unk7C - D_807FBB40->unk7C) * (D_807FDC94->unk7C - D_807FBB40->unk7C) +
+        (D_807FDC94->unk80 - D_807FBB40->unk80) * (D_807FDC94->unk80 - D_807FBB40->unk80) +
+        (D_807FDC94->unk84 - D_807FBB40->unk84) * (D_807FDC94->unk84 - D_807FBB40->unk84) < 2500.0f) {
         actorScriptStart(D_807FBB40, 0x280);
     }
 }
@@ -587,35 +580,17 @@ void minecartChooseBranchSide(MinecartCart *arg0) {
 }
 
 void minecartAdjustTargetSpeed(void) {
-    s32 temp_a0;
-    s32 temp_v1_2;
     u16 temp_v1;
-    u8 temp_v1_3;
     PlayerState_25F0 *comp = D_807FDC94->unk174;
 
     temp_v1 = D_807FBB40->unk4->unk1C->unk4;
-    if ((temp_v1 >= 0x47D1) && (temp_v1 < 0xB830)) {
-        Struct_DC90 *dc90 = D_807FDC90;
-        temp_v1_2 = dc90->unk26 - 5;
-        if (temp_v1_2 < 9) {
-            dc90->unk26 = 9;
-            return;
-        }
-        dc90->unk26 = temp_v1_2;
-        return;
+    if (temp_v1 >= 0x47D1 && temp_v1 < 0xB830) {
+        D_807FDC90->unk26 = MAX(9, D_807FDC90->unk26 - 5);
+    } else if (temp_v1 < 0x3830 || temp_v1 >= 0xC7D1) {
+        D_807FDC90->unk26 = MIN(D_807FDC9C->unkD, D_807FDC90->unk26 + 5);
+    } else {
+        D_807FDC90->unk26 = comp->unk88->unkB8;
     }
-    if ((temp_v1 < 0x3830) || (temp_v1 >= 0xC7D1)) {
-        Struct_DC90 *dc90 = D_807FDC90;
-        temp_v1_3 = D_807FDC9C->unkD;
-        temp_a0 = dc90->unk26 + 5;
-        if (temp_v1_3 < temp_a0) {
-            dc90->unk26 = temp_v1_3;
-            return;
-        }
-        dc90->unk26 = temp_a0;
-        return;
-    }
-    D_807FDC90->unk26 = comp->unk88->unkB8;
 }
 
 void minecartPlayPassBySfx(MinecartCart *arg0) {
@@ -774,10 +749,6 @@ void func_800286EC(void) {
     PlayerState_25F0 *sp70;
     f64 t1;
     f64 t2;
-    f64 t4;
-    f64 t5;
-    f32 dx;
-    f32 dz;
 
     sp84 = D_807FBB40->unk178;
     behaviourFrameBegin();
@@ -793,12 +764,7 @@ void func_800286EC(void) {
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF6, 0xFF, 0x7F, 0x1E);
         camStartShake(gCamActor, 0xA, 0x14);
         t1 = D_807FBB40->unkB8 * 1.2;
-        if (t1 > 0.0) {
-            t4 = t1;
-        } else {
-            t4 = -t1;
-        }
-        D_807FBB40->unkB8 = -t4;
+        D_807FBB40->unkB8 = -(t1 > 0.0 ? t1 : -t1);
         playerStateQueueCallback(0x34, D_807FBB40, 0);
     }
     func_80724A20();
@@ -826,26 +792,11 @@ void func_800286EC(void) {
 case_1:
     case 1:
         if (mathAngleDistance(mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, D_807FBB40->unk7C, D_807FBB40->unk84), D_807FBB40->unkE6) >= 0x201 &&
-            (dx = D_807FBB40->unk7C - D_807FBB4C->unk7C, dz = D_807FBB40->unk84 - D_807FBB4C->unk84, dx * dx + dz * dz < 22500.0f)) {
+            (D_807FBB40->unk7C - D_807FBB4C->unk7C) * (D_807FBB40->unk7C - D_807FBB4C->unk7C) + (D_807FBB40->unk84 - D_807FBB4C->unk84) * (D_807FBB40->unk84 - D_807FBB4C->unk84) < 22500.0f) {
             D_807FDC90->unk26 = 0;
         } else {
             t2 = sp70->unk88->unkB8 * 1.4;
-            if (t2 > 45.0) {
-                t4 = t2;
-            } else {
-                t4 = 45.0;
-            }
-            if (t4 < 90.0) {
-                if (t2 > 45.0) {
-                    t5 = t2;
-                } else {
-                    t5 = 45.0;
-                }
-                D_807FDC90->unk26 = t5;
-            } else {
-                t5 = 90.0;
-                D_807FDC90->unk26 = t5;
-            }
+            D_807FDC90->unk26 = MIN(MAX(t2, 45.0), 90.0);
         }
         actorApproachTargetSpeed(0x200);
         func_8068ECF4(6, 0xFF);
