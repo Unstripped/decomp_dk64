@@ -1,7 +1,13 @@
 #include "common.h"
 
 typedef struct {
-    u8 pad0[0x38];
+    u8 pad0[4];
+    f32 unk4;
+} BossE_F0D0_SubSub0;
+
+typedef struct {
+    BossE_F0D0_SubSub0 *unk0;
+    u8 pad4[0x38 - 4];
     f32 unk38;
     u8 pad3C[0x64 - 0x3C];
     u16 unk64;
@@ -14,7 +20,9 @@ typedef struct {
     f32 unk7C;
     f32 unk80;
     f32 unk84;
-    u8 pad88[0x128 - 0x88];
+    u8 pad88[0xE6 - 0x88];
+    s16 unkE6;
+    u8 padE8[0x128 - 0xE8];
     s16 unk128;
     u8 pad12A[0x154 - 0x12A];
     u8 unk154;
@@ -144,35 +152,18 @@ f32 func_80612794(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 func_806CC190(s16, s16, f32);
 
-typedef struct {
-    u8 pad0[4];
-    f32 unk4;
-} Boss2D_SubSub0;
-
-typedef struct {
-    Boss2D_SubSub0 *unk0;
-} Boss2D_SubStruct;
-
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-} Boss2D_Node;
-
 void bossInterpolateWaypoints(u8 *arg0, f32 arg1) {
     f64 val;
     f32 temp_f;
 
-    val = (f64)(((Boss2D_SubStruct *)D_807FBB40->unk4)->unk0->unk4 * arg1);
+    val = (f64)(D_807FBB40->unk4->unk0->unk4 * arg1);
 
     temp_f = (f32)(1.0 + (f64)func_80612794((s16)(s32)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
 
-    D_807FBB40->unk7C = (f32)((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk0 + (f32)(((Boss2D_Node *)D_807FDCA0->unk14)[arg0[0]].unk0 - ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk0) * temp_f;
-    D_807FBB40->unk84 = (f32)((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk4 + (f32)(((Boss2D_Node *)D_807FDCA0->unk14)[arg0[0]].unk4 - ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk4) * temp_f;
+    D_807FBB40->unk7C = (f32)D_807FDCA0->unk14[arg0[1]].unk0 + (f32)(D_807FDCA0->unk14[arg0[0]].unk0 - D_807FDCA0->unk14[arg0[1]].unk0) * temp_f;
+    D_807FBB40->unk84 = (f32)D_807FDCA0->unk14[arg0[1]].unk4 + (f32)(D_807FDCA0->unk14[arg0[0]].unk4 - D_807FDCA0->unk14[arg0[1]].unk4) * temp_f;
 
-    *(s16 *)((u8 *)D_807FBB40 + 0xE6) = func_806CC190(*(s16 *)((u8 *)D_807FBB40 + 0xE6), mathAngleBetweenPoints2D(((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk0, ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[1]].unk4, ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[0]].unk0, ((Boss2D_Node *)D_807FDCA0->unk14)[arg0[0]].unk4), 10.0f);
+    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D(D_807FDCA0->unk14[arg0[1]].unk0, D_807FDCA0->unk14[arg0[1]].unk4, D_807FDCA0->unk14[arg0[0]].unk0, D_807FDCA0->unk14[arg0[0]].unk4), 10.0f);
 }
 
 void func_800336C0(void) {
