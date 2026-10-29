@@ -3,8 +3,9 @@
 typedef struct JetpacActor {
     f32 x;
     f32 y;
-    u8 pad8[8];
-    u8 unk10[4];
+    f32 vx;
+    f32 vy;
+    u8 color[4];
     s32 unk14;
     s32 unk18;
     s32 unk1C;
@@ -13,12 +14,13 @@ typedef struct JetpacActor {
     s32 unk28;
     s32 unk2C;
     s32 unk30;
-    u8 pad34[8];
+    s32 unk34;
+    s32 unk38;
     s32 unk3C;
     s32 unk40;
     s32 unk44;
     void (*unk48)(struct JetpacActor *);
-    u8 pad4C[4];
+    s32 unk4C;
 } JetpacActor;
 void jetpacSnapActorToGrid(JetpacActor *arg0);
 typedef struct JetpacState {
@@ -37,24 +39,54 @@ void func_8070E8F0(Gfx **arg0, s32 arg1);
 void func_8070F2C8(s32 arg0, s32 arg1, u8 arg2, s32 arg3);
 void func_8070F2FC(Gfx **arg0, s16 arg1, s16 arg2);
 typedef struct {
-    u8 pad0[8];
+    s32 stage;
+    s32 score;
     s32 lives;
-} JetpacPlayerData;
+    s32 unkC;
+    u8 pad10[0x194 - 0x10];
+} JetpacPlayer;
 
 typedef struct {
-    u8 pad0[0x1C];
-    JetpacPlayerData data;
-    u8 pad28[0x194 - 0x28];
-} JetpacSession;
+    u8 pad0[4];
+    f32 unk4;
+    u8 pad8[0x18];
+    s32 unk20;
+    u8 pad24[4];
+    s32 unk28;
+    u8 pad2C[8];
+} J0a2Ledge;
 
 typedef struct {
-    JetpacSession sessions[2];
-    u8 pad328[0x344 - 0x328];
+    f32 x;
+    f32 y;
+    f32 vx;
+    f32 vy;
+    u8 color[4];
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    s32 unk28;
+    s32 unk2C;
+    s32 unk30;
+    u8 pad34[0x44 - 0x34];
+    s32 unk44;
+    u8 tint[4];
+} JetpacPlayerActor;
+
+typedef struct {
+    u32 unk0;
+    u8 pad4[0x1C - 4];
+    JetpacPlayer players[2];
     s32 currentSession;
+    u8 pad348[0x350 - 0x348];
+    J0a2Ledge ledges[4];
+    JetpacPlayerActor player;
 } JetpacGame;
 
 extern JetpacGame jetpacGame;
-void jetpacNextPlayerOrGameOver(JetpacPlayerData *arg0);
+void jetpacNextPlayerOrGameOver(JetpacPlayer *arg0);
 typedef struct {
     s32 x;
     s32 y;
@@ -251,47 +283,26 @@ void jetpacDrawLaser(JetpacActor *arg0) {
             } else {
                 spr = 2;
             }
-            jetpacDrawLaserSegment(spr, &pos, dir, y, (s32)arg0->unk10, flip);
+            jetpacDrawLaserSegment(spr, &pos, dir, y, (s32)arg0->color, flip);
             frame++;
         }
     }
 }
 
-typedef struct J1bActor {
-    f32 x;
-    f32 y;
-    f32 vx;
-    f32 vy;
-    u8 color[4];
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
-    s32 unk2C;
-    s32 unk30;
-    u8 pad34[8];
-    s32 unk3C;
-    s32 unk40;
-    s32 unk44;
-    void (*unk48)(struct J1bActor *);
-    s32 unk4C;
-} J1bActor;
 
 void jetpacPlaySound(s32 arg0);
 
 void jetpacFireLaser(arg0)
-J1bActor *arg0;
+JetpacActor *arg0;
 {
-    J1bActor *p;
+    JetpacActor *p;
     s32 ix;
     s32 iy;
     s32 col;
     f32 vy;
     f32 absVy;
 
-    p = (J1bActor *)jetpacFindFreeLaser((JetpacState *)arg0);
+    p = jetpacFindFreeLaser((JetpacState *)arg0);
     if (p == NULL) {
         vy = arg0->vy;
         if (vy > 0.0f) {
@@ -330,47 +341,15 @@ J1bActor *arg0;
         p->unk14 = 3;
         p->unk2C = 0;
         p->unk40 = (s32)(jetpacRandFloat() * 8.0f) + 13;
-        p->unk48 = (void (*)(J1bActor *))jetpacUpdateLaser;
+        p->unk48 = jetpacUpdateLaser;
         p->unk4C = 0;
         jetpacPlaySound(6);
     }
 }
 
-typedef struct {
-    f32 x;
-    f32 y;
-    f32 unk8;
-    f32 unkC;
-    u8 pad10[8];
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
-    u8 pad2C[4];
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-} J0a2Actor;
 
-typedef struct {
-    u8 pad0[4];
-    f32 unk4;
-    u8 pad8[0x18];
-    s32 unk20;
-    u8 pad24[4];
-    s32 unk28;
-    u8 pad2C[8];
-} J0a2Ledge;
 
-typedef struct {
-    u8 pad0[0xC];
-    s32 unkC;
-} J0a2Player;
 
-#define J0a2A ((J0a2Actor *)arg0)
-#define J0a2Flags (*(u32 *)&jetpacGame)
-extern f32 D_8002EF84[];
 extern s32 D_8002EF74;
 s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
 s32 jetpacCheckLedgeEdge(s32, s32, s32);
@@ -378,7 +357,7 @@ s32 jetpacIsOverRocket(f32);
 void jetpacSetState(s32);
 
 void jetpacUpdatePlayerMovement(JetpacActor *arg0) {
-    J0a2Player *sp54;
+    JetpacPlayer *sp54;
     f32 mx;
     f32 my;
     f32 vx;
@@ -393,53 +372,53 @@ void jetpacUpdatePlayerMovement(JetpacActor *arg0) {
 
     s32 fire;
 
-    sp54 = (J0a2Player *)&jetpacGame.sessions[D_8002EF74].data;
-    fire = J0a2Flags & 0x4000;
-    sp34 = J0a2Flags & 0x200;
-    sp30 = J0a2Flags & 0x100;
-    a2 = J0a2Flags & 0x8000;
-    a1 = J0a2Flags & 0x2030;
-    if (fire && J0a2A->unk38 >= 5) {
-        jetpacFireLaser((J1bActor *)arg0, a1, a2);
-        J0a2A->unk38 = 0;
-    } else if (J0a2A->unk38 < 5) {
-        J0a2A->unk38++;
+    sp54 = &jetpacGame.players[D_8002EF74];
+    fire = jetpacGame.unk0 & 0x4000;
+    sp34 = jetpacGame.unk0 & 0x200;
+    sp30 = jetpacGame.unk0 & 0x100;
+    a2 = jetpacGame.unk0 & 0x8000;
+    a1 = jetpacGame.unk0 & 0x2030;
+    if (fire && arg0->unk38 >= 5) {
+        jetpacFireLaser(arg0, a1, a2);
+        arg0->unk38 = 0;
+    } else if (arg0->unk38 < 5) {
+        arg0->unk38++;
     }
-    if (a2 != 0 && (J0a2A->unk30 == 0 || a1 == 0)) {
+    if (a2 != 0 && (arg0->unk30 == 0 || a1 == 0)) {
         jetpacSetFlying(arg0, 1);
-        J0a2A->unkC -= 0.2f;
-        u = J0a2A->unk30;
-    } else if ((u = J0a2A->unk30) != 0) {
+        arg0->vy -= 0.2f;
+        u = arg0->unk30;
+    } else if ((u = arg0->unk30) != 0) {
         if (a1 != 0) {
-            J0a2A->unkC = 0.0f;
-            u = (*(volatile s32 *)&J0a2A->unk30);
+            arg0->vy = 0.0f;
+            u = (*(volatile s32 *)&arg0->unk30);
         } else {
-            J0a2A->unkC += 0.2;
-            u = (*(volatile s32 *)&J0a2A->unk30);
+            arg0->vy += 0.2;
+            u = (*(volatile s32 *)&arg0->unk30);
         }
     }
     if (sp34 != 0) {
-        J0a2A->unk8 -= 0.33333334f;
-        if (J0a2A->unk18 == 0 && J0a2A->unk8 <= 0.0f) {
-            J0a2A->unk18 = 1;
-            jetpacSetFlying(arg0, J0a2A->unk30);
+        arg0->vx -= 0.33333334f;
+        if (arg0->unk18 == 0 && arg0->vx <= 0.0f) {
+            arg0->unk18 = 1;
+            jetpacSetFlying(arg0, arg0->unk30);
         }
-        u = J0a2A->unk30;
+        u = arg0->unk30;
     } else if (sp30 != 0) {
-        J0a2A->unk8 += 0.33333334f;
-        if (J0a2A->unk18 != 0 && J0a2A->unk8 >= 0.0f) {
-            J0a2A->unk18 = 0;
-            jetpacSetFlying(arg0, J0a2A->unk30);
+        arg0->vx += 0.33333334f;
+        if (arg0->unk18 != 0 && arg0->vx >= 0.0f) {
+            arg0->unk18 = 0;
+            jetpacSetFlying(arg0, arg0->unk30);
         }
-        u = J0a2A->unk30;
+        u = arg0->unk30;
     } else {
-        vx = J0a2A->unk8;
+        vx = arg0->vx;
         if (vx > 0.0f) {
-            J0a2A->unk8 = vx - 0.16666667f;
-            u = (*(volatile s32 *)&J0a2A->unk30);
+            arg0->vx = vx - 0.16666667f;
+            u = (*(volatile s32 *)&arg0->unk30);
         } else if (vx < 0.0f) {
-            J0a2A->unk8 = vx + 0.16666667f;
-            u = (*(volatile s32 *)&J0a2A->unk30);
+            arg0->vx = vx + 0.16666667f;
+            u = (*(volatile s32 *)&arg0->unk30);
         }
     }
     if (u != 0) {
@@ -449,75 +428,75 @@ void jetpacUpdatePlayerMovement(JetpacActor *arg0) {
         mx = 1.0f;
         my = 0.0f;
     }
-    vx = J0a2A->unk8;
-    J0a2A->unk8 = (vx < -mx) ? -mx : ((mx < vx) ? mx : vx);
-    vy = J0a2A->unkC;
-    J0a2A->unkC = (vy < -my) ? -my : ((my < vy) ? my : vy);
-    if (J0a2A->unk8 < 0.1 && J0a2A->unk8 > -0.1) {
-        J0a2A->unk8 = 0.0f;
+    vx = arg0->vx;
+    arg0->vx = (vx < -mx) ? -mx : ((mx < vx) ? mx : vx);
+    vy = arg0->vy;
+    arg0->vy = (vy < -my) ? -my : ((my < vy) ? my : vy);
+    if (arg0->vx < 0.1 && arg0->vx > -0.1) {
+        arg0->vx = 0.0f;
     }
-    if (J0a2A->unkC < 0.1 && J0a2A->unkC > -0.1) {
-        J0a2A->unkC = 0.0f;
+    if (arg0->vy < 0.1 && arg0->vy > -0.1) {
+        arg0->vy = 0.0f;
     }
-    vx = J0a2A->unk8;
-    if (J0a2A->unk30 != 0) {
-        idx = jetpacCheckLedgeCollision(J0a2A->unk1C + J0a2A->x + vx, J0a2A->unk20 + J0a2A->y + J0a2A->unkC,
-                                        J0a2A->unk24 + J0a2A->x + vx, J0a2A->unk28 + J0a2A->y + J0a2A->unkC, 1);
+    vx = arg0->vx;
+    if (arg0->unk30 != 0) {
+        idx = jetpacCheckLedgeCollision(arg0->unk1C + arg0->x + vx, arg0->unk20 + arg0->y + arg0->vy,
+                                        arg0->unk24 + arg0->x + vx, arg0->unk28 + arg0->y + arg0->vy, 1);
         if (idx >= 0) {
-            if ((f32)*(s32 *)((u8 *)&jetpacGame + idx * 0x34 + 0x378) <= J0a2A->unk20 + J0a2A->y) {
-                J0a2A->unkC *= -0.4f;
-                if ((J0a2A->unkC > 0.0f ? J0a2A->unkC : -J0a2A->unkC) <= 0.15f) {
-                    J0a2A->unkC = 0.0f;
+            if ((f32)jetpacGame.ledges[idx].unk28 <= arg0->unk20 + arg0->y) {
+                arg0->vy *= -0.4f;
+                if ((arg0->vy > 0.0f ? arg0->vy : -arg0->vy) <= 0.15f) {
+                    arg0->vy = 0.0f;
                 }
-            } else if (J0a2A->unk28 + J0a2A->y <= (f32)*(s32 *)((u8 *)&jetpacGame + idx * 0x34 + 0x370)) {
-                J0a2A->unk34 = idx;
-                J0a2A->unkC = 0.0f;
+            } else if (arg0->unk28 + arg0->y <= (f32)jetpacGame.ledges[idx].unk20) {
+                arg0->unk34 = idx;
+                arg0->vy = 0.0f;
                 jetpacSetFlying(arg0, 0);
-                J0a2A->y = *(f32 *)((u8 *)D_8002EF84 + idx * 0x34) - 24.0f;
+                arg0->y = jetpacGame.ledges[idx].unk4 - 24.0f;
             } else {
-                J0a2A->unk8 *= -0.5f;
+                arg0->vx *= -0.5f;
             }
         }
     } else {
-        idx = jetpacCheckLedgeEdge(J0a2A->unk34, (s32)(J0a2A->unk1C + J0a2A->x + vx), (s32)(J0a2A->unk24 + J0a2A->x + vx));
+        idx = jetpacCheckLedgeEdge(arg0->unk34, (s32)(arg0->unk1C + arg0->x + vx), (s32)(arg0->unk24 + arg0->x + vx));
         switch (idx) {
         case -2:
         case 2:
             jetpacSetFlying(arg0, 1);
-            J0a2A->unkC = -0.5f;
+            arg0->vy = -0.5f;
             break;
         case -1:
         case 1:
-            if (J0a2A->unk18 == 0 && sp34 == 0) {
-                J0a2A->unk8 = 1.0f;
+            if (arg0->unk18 == 0 && sp34 == 0) {
+                arg0->vx = 1.0f;
             } else if (sp30 == 0) {
-                J0a2A->unk8 = -1.0f;
+                arg0->vx = -1.0f;
             }
             break;
         }
     }
-    J0a2A->x = J0a2A->x + J0a2A->unk8;
-    if (J0a2A->x + J0a2A->unk24 > 256.0f) {
-        J0a2A->x -= 256.0f;
+    arg0->x = arg0->x + arg0->vx;
+    if (arg0->x + arg0->unk24 > 256.0f) {
+        arg0->x -= 256.0f;
     }
-    if (J0a2A->x + J0a2A->unk1C < 0.0f) {
-        J0a2A->x += 256.0f;
+    if (arg0->x + arg0->unk1C < 0.0f) {
+        arg0->x += 256.0f;
     }
-    J0a2A->y = J0a2A->y + J0a2A->unkC;
-    if (J0a2A->y < 18.0f) {
-        J0a2A->y = 18.0f;
-        J0a2A->unkC = 0;
+    arg0->y = arg0->y + arg0->vy;
+    if (arg0->y < 18.0f) {
+        arg0->y = 18.0f;
+        arg0->vy = 0;
     }
-    if (J0a2A->y > 168.0f) {
-        J0a2A->y = 168.0f;
+    if (arg0->y > 168.0f) {
+        arg0->y = 168.0f;
     }
-    if (jetpacIsOverRocket(J0a2A->x) != 0 && sp54->unkC == 8 && J0a2A->y > 152.0f) {
+    if (jetpacIsOverRocket(arg0->x) != 0 && sp54->unkC == 8 && arg0->y > 152.0f) {
         jetpacSetState(4);
     }
 }
 
 void jetpacUpdatePlayerDeath(JetpacActor *arg0) {
-    JetpacPlayerData *p = &jetpacGame.sessions[jetpacGame.currentSession].data;
+    JetpacPlayer *p = &jetpacGame.players[jetpacGame.currentSession];
 
     if (arg0->unk2C < 14) {
         arg0->unk2C++;
@@ -630,32 +609,13 @@ void jetpacPlayerStateUpdate(void) {
     }
 }
 
-typedef struct {
-    u8 pad0[0x420];
-    f32 x;
-    f32 y;
-    f32 vx;
-    f32 vy;
-    u8 color[4];
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
-    s32 unk2C;
-    s32 unk30;
-    u8 pad454[0x464 - 0x454];
-    s32 unk44;
-    u8 tint[4];
-} J1bGameView;
 
 extern JetpacActor D_8002C518;
 extern s32 D_8002F084;
 extern s32 D_8002F088;
 
 void jetpacInitPlayer(void) {
-    J1bGameView *g = (J1bGameView *)&jetpacGame;
+    JetpacPlayerActor *g = &jetpacGame.player;
     JetpacActor tmpl;
 
     tmpl = D_8002C518;
