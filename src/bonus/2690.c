@@ -941,7 +941,7 @@ typedef struct {
 void bonusPopupSpawnActors(BonusB_Sub178 *arg0) {
     s32 i;
     BonusB_Sub8648 *s2;
-    BonusB_Actor84C0 *s5;
+    Actor_BB44 *s5;
     Point3f *s3;
 
     for (i = 1; i != 7; i++) {
@@ -957,7 +957,7 @@ void bonusPopupSpawnActors(BonusB_Sub178 *arg0) {
             D_807FBB44->unk60 |= 0x1000;
             D_807FBB44->unkE6 = 0x800;
             arg0->unk0[i - 1] = D_807FBB44;
-            s5 = (BonusB_Actor84C0 *)D_807FBB44;
+            s5 = D_807FBB44;
             if (actorSpawn(0x12D, 0x16) != 0) {
                 BonusB_Sub8648b *v0 = (BonusB_Sub8648b *)D_807FBB44->unk174;
                 v0->unk0 = s5;
@@ -1030,7 +1030,6 @@ void func_80028E3C(void) {
     BonusB_Sub8E3C *t0 = BB_C->unk174;
     BonusB_Par8E3C *p40 = t0->unk0->unk174;
     f32 temp;
-    f32 c;
     f64 v;
     s16 idx;
     s32 a0;
@@ -1079,7 +1078,7 @@ void func_80028E3C(void) {
         actorApplyVelocity(D_807FBB40);
         func_80665564(D_807FBB40, 0);
     }
-    BB_C->unkE6 = (f32)BB_C->unkE6 + p40->unkC;
+    BB_C->unkE6 += p40->unkC;
     if (BB_C->unkE6 >= 0x1000) {
         BB_C->unkE6 -= 0x1000;
     }
@@ -1087,12 +1086,7 @@ void func_80028E3C(void) {
     BB_C->unkE4 = func_80612794(BB_C->unkE6) * -temp;
     BB_C->unkE8 = func_80612790(BB_C->unkE6) * temp;
     temp = temp * 0.006666667f;
-    if (temp < 1.0f) {
-        temp = 1.0f;
-    } else {
-        c = (temp > 2.5f) ? 2.5f : temp;
-        temp = c;
-    }
+    temp = (temp < 1.0f) ? 1.0f : ((temp > 2.5f) ? 2.5f : temp);
     func_80614D00(D_807FBB40, temp, 0.0f);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -1178,25 +1172,25 @@ typedef struct {
 } BonusC_9E54_S;
 
 void func_80029E54(void *arg0) {
-    void *a = arg0;
+    Actor_BB44 *a = arg0;
     s32 i;
     s16 *X = &D_8002D8CA - 1;
-    s8 *base = ((Actor_BB44 *)a)->unk178;
+    Struct_T0 *base = a->unk178;
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x147, X[i - 1]) != 0) {
             BonusC_9E54_S *temp_v1 = (BonusC_9E54_S *)D_807FBB44->unk174;
             s16 *temp_a1 = D_807FBB44->unk17C;
-            f32 *pt;
+            Point3f *pt;
             f32 scale;
 
             *temp_a1 = X[i - 1];
             temp_v1->unk0 = a;
             temp_v1->unk4 = i - 1;
-            pt = (f32 *)((u8 *)*D_807F5FD4 + ((base + 8)[temp_v1->unk4] & 0x7F) * 12) + 3;
-            D_807FBB44->unk7C = pt[0];
-            D_807FBB44->unk80 = pt[1];
-            D_807FBB44->unk84 = pt[2];
+            pt = *D_807F5FD4 + (base->unk8[temp_v1->unk4] & 0x7F) + 1;
+            D_807FBB44->unk7C = pt->x;
+            D_807FBB44->unk80 = pt->y;
+            D_807FBB44->unk84 = pt->z;
             D_807FBB44->unk154 = 0;
             D_807FBB44->unk60 |= 0x1000;
             D_807FBB44->unkE6 = 0x800;
@@ -1204,11 +1198,7 @@ void func_80029E54(void *arg0) {
                 func_806F0C18(D_807FBB44, temp_a1);
                 actorScriptStart(D_807FBB44, D_8002D8D4[i - 1]);
             }
-            if (i != 6) {
-                scale = 0.25f;
-            } else {
-                scale = 0.04f;
-            }
+            scale = (i != 6) ? 0.25f : 0.04f;
             D_807FBB44->unk4->unk34 = scale;
             D_807FBB44->unk4->unk38 = scale;
             D_807FBB44->unk4->unk3C = scale;
@@ -1224,10 +1214,9 @@ void func_8002A010(void) {
     f32 sp44;
     f32 sp40;
     f32 sp3C;
-    f32 *p;
+    Point3f *p;
     s8 var_a3;
     s8 flags;
-    Struct_4 *u4;
 
     sp50 = (Struct_Sp50 *)D_807FBB40->unk174;
     v = sp50->unk0;
@@ -1239,10 +1228,10 @@ void func_8002A010(void) {
         }
         D_807FBB40->unk144 = 0x24;
     }
-    p = (f32 *)((u8 *)*D_807F5FD4 + (sp48->unk8[sp50->unk4] & 0x7F) * 12) + 3;
-    D_807FBB40->unk7C = p[0];
-    D_807FBB40->unk80 = p[1];
-    D_807FBB40->unk84 = p[2];
+    p = *D_807F5FD4 + (sp48->unk8[sp50->unk4] & 0x7F) + 1;
+    D_807FBB40->unk7C = p->x;
+    D_807FBB40->unk80 = p->y;
+    D_807FBB40->unk84 = p->z;
     lightGetColor(&sp44, &sp40, &sp3C, 0);
     if (sp44 < 0.1f) {
         D_807FBB40->unk144 = 0;
@@ -1275,8 +1264,7 @@ void func_8002A010(void) {
         if (sp48->unk0 < -0x1C) {
             D_807FBB40->unk154 = 0;
         }
-        u4 = D_807FBB40->unk4;
-        scale = u4->unk34;
+        scale = D_807FBB40->unk4->unk34;
         if (D_807FBB40->unk154 == 1) {
             scale = scale - 0.005;
             if (scale < 0.0) {
@@ -1285,7 +1273,7 @@ void func_8002A010(void) {
         } else {
             scale = 0.04f;
         }
-        u4->unk34 = scale;
+        D_807FBB40->unk4->unk34 = scale;
         D_807FBB40->unk4->unk38 = scale;
         D_807FBB40->unk4->unk3C = scale;
         if (var_a3 != 0) {
