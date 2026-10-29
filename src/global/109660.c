@@ -415,7 +415,7 @@ typedef struct {
 
 extern Mtx D_807FD8A8[];
 extern f32 D_80754CE4;
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 void func_807063B8(RectSpan *, u8 *, u8, f32);
 void gfxGetBackgroundTint(s16, u8 *, u8 *, u8 *);
 void func_80702464(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
@@ -452,7 +452,7 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 
     arg1 = 6.2831855f - arg1;
     arg2 = (arg4 / arg5) * (6.2831855f - arg2);
     if (D_807FD8A0 == 0) {
-        D_807FD8A0 = func_8066B0F8(0xE, arg3, 0, 0);
+        D_807FD8A0 = assetLoad(0xE, arg3, 0, 0);
     }
     gSPMatrix(arg0++, &D_807FD8A8[D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(arg0++, &D_807FD928, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -524,7 +524,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
     }
     if (D_807FD978 == 0) {
         for (n = 0; n < 8; n++) {
-            (&D_807FD978)[n] = func_8066B0F8(0x19, D_80754CEC[n], 0, 0);
+            (&D_807FD978)[n] = assetLoad(0x19, D_80754CEC[n], 0, 0);
         }
     }
     k = 0;

@@ -31,7 +31,7 @@ extern ActorProximityEntry *D_807F9430;
 extern s16 D_807F9434;
 
 void *func_80610FE8(s32);
-s32 func_8066461C(s16);
+s32 actorEntryTypeIsEmitter(s16);
 void actorApplyRotatedOffset(s32, s32, f32);
 void actorInitEntryPoints(void) {
     s32 count;
@@ -39,7 +39,7 @@ void actorInitEntryPoints(void) {
 
     count = 0;
     for (i = 0; i < D_80747D70; i++) {
-        if (func_8066461C(D_807F6000[i].unk84)) {
+        if (actorEntryTypeIsEmitter(D_807F6000[i].unk84)) {
             count++;
         }
     }
@@ -49,7 +49,7 @@ void actorInitEntryPoints(void) {
         D_807F9430 = func_80610FE8(count * sizeof(ActorProximityEntry));
         count = 0;
         for (i = 0; i < D_80747D70; i++) {
-            if (func_8066461C(D_807F6000[i].unk84)) {
+            if (actorEntryTypeIsEmitter(D_807F6000[i].unk84)) {
                 D_807F9430[count].unk0 = D_807F6000[i].unk84;
                 D_807F9430[count].unk2 = D_807F6000[i].unk0;
                 D_807F9430[count].unk4 = D_807F6000[i].unk4;
@@ -104,28 +104,28 @@ void actorClearEntrySlot(s16 arg0) {
     }
 }
 
-s32 func_8066461C(s16 arg0) {
+s32 actorEntryTypeIsEmitter(s16 arg0) {
     if ((arg0 == 1) || (arg0 == 0x10) || (arg0 == 0x74) || (arg0 == 0xF3) || (arg0 == 0x138) || (arg0 == 0x288)) {
         return 1;
     }
     return 0;
 }
 
-typedef struct ColSmall_Player {
+typedef struct PlayerPositionView {
     u8 pad0[0x21C];
     f32 x;
     f32 y;
     f32 z;
-} ColSmall_Player;
+} PlayerPositionView;
 
-extern ColSmall_Player *D_807FC924;
+extern PlayerPositionView *D_807FC924;
 extern u8 D_807FC928;
 
 s32 func_8063C2A8(s16);
-void func_80664834(s16);
-void func_80664A38(s16);
+void actorEntryEmitJitterParticle(s16);
+void actorEntryEmitScaledParticle(s16);
 
-void func_8066466C(void) {
+void actorUpdateEntryEmitters(void) {
     s32 i;
     f32 dz;
     f32 dx;
@@ -146,11 +146,11 @@ void func_8066466C(void) {
                         case 0x10:
                         case 0xF3:
                         case 0x138:
-                            func_80664834(i);
+                            actorEntryEmitJitterParticle(i);
                             break;
                         case 0x74:
                         case 0x288:
-                            func_80664A38(i);
+                            actorEntryEmitScaledParticle(i);
                             break;
                     }
                 }
@@ -173,7 +173,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 extern u8 D_807213D0;
 void func_80717DB4(void);
 
-void func_80664834(s16 arg0) {
+void actorEntryEmitJitterParticle(s16 arg0) {
     ActorProximityEntry *entry;
     s32 sp20;
     s32 temp;
@@ -199,7 +199,7 @@ void func_80664834(s16 arg0) {
 
 extern u8 D_80720A7C;
 
-void func_80664A38(s16 arg0) {
+void actorEntryEmitScaledParticle(s16 arg0) {
     f32 sp34;
     s32 temp;
     s32 sp2C;

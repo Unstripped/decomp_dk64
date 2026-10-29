@@ -77,7 +77,7 @@ typedef struct {
 } VolumeTriggerHook; // size = 0x10
 
 extern VolumeTriggerHook D_807557A0[];
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 s32 assetFreeBuffer(void *, s32, s32);
 s32 actorFindActiveByType(s16, Actor **);
 
@@ -90,7 +90,7 @@ void volumeTriggerTableInit(s32 arg0) {
     Actor *sp30;
     void *buf;
 
-    buf = func_8066B0F8(0x12, arg0, 1, 0);
+    buf = assetLoad(0x12, arg0, 1, 0);
     volumeTriggerTableLoad(buf);
     if (buf != NULL) {
         assetFreeBuffer(buf, 0xC1, 0x3D);

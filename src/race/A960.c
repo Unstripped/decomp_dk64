@@ -174,7 +174,7 @@ void raceLoadRouteData(u8 *arg0) {
     }
 }
 
-u8 *func_8066B0F8(s32, s32, s32, s32);
+u8 *assetLoad(s32, s32, s32, s32);
 void func_80025FDC(void);
 void func_80029488(void);
 void func_8002D0FC(void);
@@ -184,7 +184,7 @@ extern s16 D_80750AC4;
 void func_8002EC08(s32 arg0) {
     u8 *sp1C;
 
-    sp1C = func_8066B0F8(0x18, arg0, 1, 1);
+    sp1C = assetLoad(0x18, arg0, 1, 1);
     D_8002FCF0 = func_80610FE8(0x10);
     heapClearBlock(D_8002FCF0);
     raceLoadRouteData(sp1C);

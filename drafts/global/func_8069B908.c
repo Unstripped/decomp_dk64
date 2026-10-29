@@ -67,7 +67,7 @@ void actorListSetPosByActor(Actor *, f32, f32, f32);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, s32);
 void actorApplyVelocity(Actor *);
 void actorDespawn(Actor *);
-void func_80665564(Actor *, s32);
+void actorUpdateFloorContactAndTilt(Actor *, s32);
 void func_806791DC(Actor *, s32);
 void func_806791EC(Actor *, s32);
 void func_8067A170(void *, s32);
@@ -79,7 +79,7 @@ void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxAllocateChannel(s32, f32);
 void sfxSetVolumeAndPan(s32, f32, f32, s32);
 void func_806A5DF0(s32, f32, f32, f32, s32, s32, s32, s32);
-s32 func_806725A0(Actor *, s16);
+s32 actorAngleInArc(Actor *, s16);
 f32 func_806119FC(void);
 s32 func_80611A44(void);
 void func_80714950(s32);
@@ -119,7 +119,7 @@ void func_8069B908(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         *(s16 *)((u8 *)D_807FBB40 + 0xFA) = 0x270F;
         D_807FBB40->unkA4 = 99999.0f;
-        func_80665564(D_807FBB40, 0);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0);
         if (actorHasActiveMovementFlags(D_807FBB40) != 0) {
             D_807FBB40->unk144 = 2;
             D_807FBB40->unk68 |= 1;
@@ -273,7 +273,7 @@ void func_8069B908(void) {
             (u32)(D_8076A068 - sp13C->unk0) >= 0x5B) {
             var_v0 = 1;
         }
-        if (var_v0 != 0 || (D_807FBB40->unkFC != 0 && func_806725A0(D_807FBB40, D_807FBB40->unkE6) == 0)) {
+        if (var_v0 != 0 || (D_807FBB40->unkFC != 0 && actorAngleInArc(D_807FBB40, D_807FBB40->unkE6) == 0)) {
             D_807FBB40->unk154 = 4;
         }
         D_807FBB40->unk68 &= 0xFFFE;
@@ -387,7 +387,7 @@ void func_8069B908(void) {
     if (D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 3) {
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = D_807FBB40->unkE6;
         actorApplyVelocity(D_807FBB40);
-        func_80665564(D_807FBB40, 0);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0);
         if (D_807FBB40->unk154 == 3 && (D_807FBB40->unk6A & 1) && !(D_807FBB40->unk6C & 1)) {
             D_807FBB40->unk154 = 4;
         }

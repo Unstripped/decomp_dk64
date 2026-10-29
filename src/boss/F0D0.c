@@ -376,7 +376,7 @@ void actorUpdateModelMatrix(void *, s32);
 void actorApplyGravity(void);
 void func_8072A450(void);
 void func_80614D00(void *, f32, f32);
-void func_80665564(void *, f32);
+void actorUpdateFloorContactAndTilt(void *, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
@@ -540,7 +540,7 @@ void func_80033AF0(void) {
             sp7F = 1;
             actorApplyGravity();
             actorApplyVelocityCustom(D_807FBB40, 0.0f, BF->unkC0);
-            func_80665564(D_807FBB40, 0.0f);
+            actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
             if (BF->unk110 == 1) {
                 BF->unk155++;
             }
@@ -563,7 +563,7 @@ void func_80033AF0(void) {
             BF->unk155++;
         case 4:
             func_8067ACB4(D_807FBB40);
-            func_80665564(D_807FBB40, 0.0f);
+            actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
             bossInterpolateWaypoints((u8 *)sub, 0.025f);
             if (BF->unk4->unk0->unk4 >= 40.0f) {
                 BF->unk6A |= 1;
@@ -659,7 +659,7 @@ void func_80033AF0(void) {
             sub->unk6 = sp83;
         case 2:
             func_8067ACB4(D_807FBB40);
-            func_80665564(D_807FBB40, 0.0f);
+            actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
             bossInterpolateWaypoints((u8 *)sub, BF->unk4->unk64 == 0x223 ? 0.02173913f : 0.041666664f);
             if (BF->unk4->unk64 == 0x223) {
                 v = 0x35;

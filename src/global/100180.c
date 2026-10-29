@@ -249,7 +249,7 @@ void textFontInitTables(void) {
     heapClearBlock(allocation);
 }
 
-void *func_8066B0F8(s32, s16, u8, s32);
+void *assetLoad(s32, s16, u8, s32);
 
 
 void *textFontLoadSheet(s16 arg0) {
@@ -263,7 +263,7 @@ void *textFontLoadSheet(s16 arg0) {
     if (*temp_v0 == 0) {
         arg0 = arg0;
         var_v1 = arg0 * 4;
-        *(void **)((u8 *) gTextFontSheets + var_v1) = func_8066B0F8(0xE, temp_a1, 1, 1);
+        *(void **)((u8 *) gTextFontSheets + var_v1) = assetLoad(0xE, temp_a1, 1, 1);
         *(gTextFontSheetAges + arg0) = 3;
     } else {
         *temp_v0 = 3;

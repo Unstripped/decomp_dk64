@@ -142,8 +142,8 @@ void func_806651FC(Actor *);
 void func_8066E6C8(Actor *, s32, s32);
 void func_8066EA64(Actor *, s32);
 void func_8066EA90(Actor *, s32);
-s32 func_806725A0(Actor *, s16);
-void func_80672680(s16, s16, s16, s16, s16 *);
+s32 actorAngleInArc(Actor *, s16);
+void mathAngleClampToArc(s16, s16, s16, s16, s16 *);
 s32 func_80672BD4(Actor *);
 void func_80677FA8(s32, s32);
 void func_806791DC(Actor *, s32);
@@ -185,7 +185,7 @@ void func_8067C71C(void) {
             func_8066EA90(D_807FBB40, 3);
         }
         temp_s0->unkA4 = 99999.0f;
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         if (func_80672BD4(D_807FBB40)) {
             R2J_ACTOR->unk154 = 2;
             R2J_ACTOR->unk68 |= 1;
@@ -289,7 +289,7 @@ void func_8067C71C(void) {
             R2J_ACTOR->unkC0 = (f32)D_807502D0;
         }
         temp_s1->unk14 -= 10.0f;
-        if (R2J_ACTOR->unkFC != 0 && func_806725A0(D_807FBB40, R2J_ACTOR->unkE6) == 0) {
+        if (R2J_ACTOR->unkFC != 0 && actorAngleInArc(D_807FBB40, R2J_ACTOR->unkE6) == 0) {
             func_80608528(D_807FBB40, 0x23, 0xFF, 0x7F, 1);
             func_80608528(D_807FBB40, 0x17, 0xFF, 0x7F, 1);
             R2J_ACTOR->unk154 = 8;
@@ -341,7 +341,7 @@ void func_8067C71C(void) {
         }
         if (R2J_ACTOR->unkFC != 0) {
             temp_a0 = R2J_ACTOR->unkEE;
-            func_80672680(temp_a0, temp_a0, R2J_ACTOR->unkF4, R2J_ACTOR->unkF6, (s16 *)&R2J_ACTOR->unkF2);
+            mathAngleClampToArc(temp_a0, temp_a0, R2J_ACTOR->unkF4, R2J_ACTOR->unkF6, (s16 *)&R2J_ACTOR->unkF2);
             R2J_ACTOR->unkEE = R2J_ACTOR->unkF2;
         }
         break;
@@ -443,7 +443,7 @@ void func_8067C71C(void) {
             R2J_ACTOR->unkEE = R2J_ACTOR->unkE6;
         }
         func_806651FC(D_807FBB40);
-        func_80665564(D_807FBB40, 7.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 7.0f);
         if (R2J_ACTOR->unk154 == 2 && temp_s1->unk8 == 360.0f && (R2J_ACTOR->unk80 - R2J_ACTOR->unk8C) < -2.0f && (D_807FBB64 & 1)) {
             func_806CF4B8(D_807FBB40);
             R2J_ACTOR->unk154 = 4;

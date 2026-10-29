@@ -96,14 +96,14 @@ void func_8060B700(void) {
     func_8060B6CC();
 }
 
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 void assetFreeBuffer(s32, s32, s32);
 void func_8060B5C0(s32);
 
 void func_8060B750(s32 arg0) {
     s32 sp1C;
 
-    sp1C = func_8066B0F8(0x11, arg0, 1, 1);
+    sp1C = assetLoad(0x11, arg0, 1, 1);
     func_8060B5C0(sp1C);
     assetFreeBuffer(sp1C, 0xF8, 0x33);
     D_807ECE98 = D_807463A8;

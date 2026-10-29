@@ -31,7 +31,7 @@ extern s16 D_807F9424;
 extern s32 D_80747D70;
 
 void *func_80610FE8(s32);
-u8 func_80663FCC(s16);
+u8 mapObjectIsTargetType(s16);
 s8 func_806531B8(f32, f32, f32, s32);
 s32 mapObjectCollectIdsByType(s8, void *, s16);
 
@@ -42,7 +42,7 @@ void actorInitTargetEntries(void) {
 
     D_807F9424 = 0;
     for (i = 0; i < D_80747D70; i++) {
-        if (func_80663FCC(i)) {
+        if (mapObjectIsTargetType(i)) {
             D_807F9424++;
         }
     }
@@ -51,7 +51,7 @@ void actorInitTargetEntries(void) {
     if (D_807F9424 != 0) {
         D_807F9420 = func_80610FE8(D_807F9424 * sizeof(ActorTargetEntry));
         for (i = 0; i < D_80747D70; i++) {
-            s32 cond = func_80663FCC(i);
+            s32 cond = mapObjectIsTargetType(i);
             u8 res = cond;
             if (cond) {
                 s32 temp;
@@ -76,7 +76,7 @@ typedef struct ActorTargetType {
     u8 pad86[0xA];
 } ActorTargetType;
 
-u8 func_80663FCC(s16 arg0) {
+u8 mapObjectIsTargetType(s16 arg0) {
     s16 val = ((ActorTargetType *)D_807F6000)[arg0].unk84;
 
     if (val == 1 || val == 0xC || val == 0x10 || val == 0xF3 || val == 0x134 || val == 0x135 || val == 0x138) {
@@ -85,19 +85,19 @@ u8 func_80663FCC(s16 arg0) {
     return 0;
 }
 
-typedef struct ColSmall_Sched {
+typedef struct PlayerAreaView {
     u8 pad0[0x290];
     s16 unk290;
-} ColSmall_Sched;
+} PlayerAreaView;
 
-extern ColSmall_Sched *D_807FC924;
+extern PlayerAreaView *D_807FC924;
 
 f32 sfxUpdateDistanceVolumeAndPan(f32, f32, f32, u8, u8, f32);
 
-void func_80664044(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
+void actorTargetEntriesUpdateSfx(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
     ActorTargetEntry *entry;
     s32 i;
-    ColSmall_Sched **new_var;
+    PlayerAreaView **new_var;
     s32 stride;
     s32 j;
     s32 found;

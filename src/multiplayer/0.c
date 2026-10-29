@@ -904,7 +904,7 @@ void func_80609140(s16, s32, f32, f32, s32, s32);
 void func_806F5FA0(s32, s32, s32);
 void slotQueueInit(s32);
 void *func_80610FE8(s32);
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 void func_8071495C(void);
 void func_80714944(s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
@@ -977,8 +977,8 @@ void mpUpdate(void) {
         s7->unkC = D_807552E4.unkC;
         s7->unkC = s7->unkC * 60;
         D_807FBB40->unk64 |= 2;
-        s7->unk44 = func_8066B0F8(0xE, 0xB9, 0, 0);
-        s7->unk48 = func_8066B0F8(0xE, 0xBA, 0, 0);
+        s7->unk44 = assetLoad(0xE, 0xB9, 0, 0);
+        s7->unk48 = assetLoad(0xE, 0xBA, 0, 0);
         s7->unk10 = 0;
     }
     s7->unk0 += D_807445B0;

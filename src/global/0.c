@@ -124,10 +124,10 @@ void actorInitEntryPoints(void);
 void particleFindPathIndices(s16);
 void collisionInitTables(void);
 void dmaDrainQueueAndFreeBuffer(void);
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 void assetFreeBuffer(s32, s32, s32);
 void collisionBstRebalanceAll(void);
-void func_8066CCD8(void);
+void modelSlotExpireNextBuffers(void);
 void collisionBufferCacheUpdate(void);
 void actorInit(void);
 void func_806787CC(void);
@@ -543,7 +543,7 @@ void func_805FC2B0(void) {
         func_8065D1AC();
         func_8068A508();
         collisionBufferCacheUpdate();
-        func_8066CCD8();
+        modelSlotExpireNextBuffers();
         effectUpdateAndDispatch();
         func_80678824();
         triggerZoneUpdate();
@@ -928,14 +928,14 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
     vtxGradientSetColorA(0xFF, 0xFF, 0xFF);
     vtxGradientSetColorB(0xFF, 0xFF, 0xFF);
     if (D_807444EC == 0) {
-        D_8076A0A0 = func_8066B0F8(0x13, 0, 1, 1);
+        D_8076A0A0 = assetLoad(0x13, 0, 1, 1);
         gfxBackgroundReset();
         commandStateInit();
         func_806F3760(D_8076A0AA);
         proxPathListClear();
         mapSearchTableReset();
         pathFreeAsset(D_8076A0A8);
-        sp2C = func_8066B0F8(1, D_8076A0A8, 1, 1);
+        sp2C = assetLoad(1, D_8076A0A8, 1, 1);
         renderEntryListsReset();
         mapChunkAllocLists(sp2C);
         mapHeaderLoad(sp2C);
@@ -945,7 +945,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         func_80688940();
         modelTypeCountsInit();
         displayListFreeQueueReset();
-        sp24 = func_8066B0F8(9, D_8076A0A8, 1, 1);
+        sp24 = assetLoad(9, D_8076A0A8, 1, 1);
         modelSlotsAllocate(D_8076A0A8, 1);
         func_806886E0(sp24, 0, 0);
         actorInitTargetEntries();
@@ -953,14 +953,14 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         actorInit();
         actorSpawnInitialSet();
         volumeTriggerTableInit(D_8076A0A8);
-        camInit(sp28 = func_8066B0F8(8, D_8076A0A8, 1, 1));
+        camInit(sp28 = assetLoad(8, D_8076A0A8, 1, 1));
         if (sp28 != 0) {
             assetFreeBuffer(sp28, 0x8D0, 2);
         }
         func_80712B80();
         func_806C7D40(D_807444E8);
         effectResetLists();
-        sp28 = func_8066B0F8(0x10, D_8076A0A8, 1, 1);
+        sp28 = assetLoad(0x10, D_8076A0A8, 1, 1);
         func_80724C78(sp28);
         if (sp28 != 0) {
             assetFreeBuffer(sp28, 0x8DD, 2);
@@ -971,7 +971,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         func_8070E8C8();
         timerQueueAdd(sfxPlayCurrent, 2, 0, 0, 0);
         if (D_807FBB64 & 0x1000) {
-            sp28 = func_8066B0F8(0x16, D_8076A0A8, 1, 1);
+            sp28 = assetLoad(0x16, D_8076A0A8, 1, 1);
             func_80026FD0(sp28);
             if (sp28 != 0) {
                 assetFreeBuffer(sp28, 0x8ED, 2);

@@ -135,7 +135,7 @@ extern u8 D_80755698[];
 extern s32 D_8076A0A8;
 void func_80614EBC(void *, s32);
 s16 func_80613448(void *, s32);
-void func_80665564(void *, s32);
+void actorUpdateFloorContactAndTilt(void *, s32);
 void behaviourSetAnimIds(s16, s16, s16, s16);
 void actorSetTargetSpeed(void *, u8);
 s32 func_80611A44(void);
@@ -306,7 +306,7 @@ void func_80726744(void *arg0, void *arg1) {
     node->unk34 = 0.75f;
     act->unkA4 = node->unk6;
     if (type != 8) {
-        func_80665564(act, 0);
+        actorUpdateFloorContactAndTilt(act, 0);
         if (D_807FBB68 & 2) {
             act->unk110 = 0;
         } else if ((type == 4) || (act->unk58 == 0xF8)) {

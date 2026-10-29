@@ -565,7 +565,7 @@ extern s32 D_807FD9AC;
 extern s32 *D_80744470[];
 
 void *func_80610FE8(s32);
-s32 func_8066B0F8();
+s32 assetLoad();
 s32 func_80709890();
 s32 meshComputeVertexRanges();
 
@@ -579,7 +579,7 @@ void transitionInit(void) {
         gTransitionProgress = 0x78;
         break;
     }
-    D_807FD9B8 = func_8066B0F8(0x13, 1, 1, 1);
+    D_807FD9B8 = assetLoad(0x13, 1, 1, 1);
     D_807FD9B0 = (s32)func_80610FE8(D_80744490 * D_80744494 * 2);
     fbCopySetAlpha((s32 *)D_807FD9B0, D_80744470[D_807444FC]);
     func_80709890((void *)D_807FD9B8, (void *)&D_807FD9A8, (void *)&D_807FD9AC, 0);
@@ -776,7 +776,7 @@ u8 transitionRender(Gfx **arg0, s32 arg1, s32 arg2) {
     gDPSetAlphaDither(glist++, G_AD_DISABLE);
     meshDrawTextured(&glist, (MeshInfo *)D_807FD9A8, (u8 *)arg2);
     gTransitionProgress += delta;
-    D_807FD9C0 = func_8066B0F8(0xE, 0x6A - TRANS_MIN(TRANS_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
+    D_807FD9C0 = assetLoad(0xE, 0x6A - TRANS_MIN(TRANS_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
     assetFreeBuffer(D_807FD9C0, 0x381, 0x4A);
     gDPPipeSync(glist++);
     gDPSetCycleType(glist++, G_CYC_1CYCLE);

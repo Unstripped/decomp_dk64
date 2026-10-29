@@ -30,14 +30,14 @@ extern PathEntry *D_807FDB90[];
 
 
 void assetFreeBuffer(s32, s32, s32);
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 void func_80722E48(s16 *);
 
 void pathFreeAsset(s32 arg0) {
     s32 sp1C;
     s32 temp_v0;
 
-    temp_v0 = func_8066B0F8(0xF, arg0, 1, 1);
+    temp_v0 = assetLoad(0xF, arg0, 1, 1);
     sp1C = temp_v0;
     func_80722E48((s16 *) temp_v0);
     assetFreeBuffer(sp1C, 0x47, 0x27);

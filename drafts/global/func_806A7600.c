@@ -22,14 +22,14 @@ extern s16 D_8075038C;
 extern f32 D_80750388;
 void func_806C9974(s32, s32);
 void func_8067ACB4(Actor *);
-s32 func_806725A0(Actor *, s16);
-s16 func_80672A70(s16, s16);
+s32 actorAngleInArc(Actor *, s16);
+s16 mathAngleArcMidpoint(s16, s16);
 void actorApplyVelocity(Actor *);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void func_8066EB40(Actor *, f32);
+void actorSetCollisionRadius(Actor *, f32);
 void actorUpdateModelMatrix(Actor *, s32);
 
 typedef struct AA960ConfigInt {
@@ -71,7 +71,7 @@ void func_806A7600(void *arg0) {
             return;
         }
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
-        func_8066EB40(D_807FBB40, 175.0f);
+        actorSetCollisionRadius(D_807FBB40, 175.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 12.0f, 0.0f, 80.0f, -1);
         temp_v1->unk0 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk0;
         temp_v1->unk1 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk4;

@@ -9,7 +9,7 @@ void func_806883C8(void *, s32, s32);
 void func_8068839C(void *, s32, s32);
 void func_8068842C(void *, s32, s32);
 void func_806651FC(void *);
-void func_80665564(void *, f32);
+void actorUpdateFloorContactAndTilt(void *, f32);
 s32 func_80672BD4(void *);
 void func_80689114(s32, f32, f32, f32, s32, f32, void *);
 void func_80608528(void *, s32, s32, s32, s32);
@@ -73,7 +73,7 @@ u8 func_8067BF84(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
         *arg1 = 0;
         D_807FBB40->unk80 = -10.0f;
         func_806651FC(D_807FBB40);
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         if (func_80672BD4(D_807FBB40) != 0) {
             *arg2 = 1;
         } else {
@@ -93,7 +93,7 @@ u8 func_8067BF84(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     if (*arg2 != 0) {
         temp_s0->unk80 = -10.0f;
         func_806651FC(D_807FBB40);
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     }
     actorUpdateModelMatrix(temp_s0, 0);
     return sp47;

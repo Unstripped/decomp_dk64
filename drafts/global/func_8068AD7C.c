@@ -78,7 +78,7 @@ void func_80659670(f32, f32, f32, s16);
 void func_80608DA8(s32, s32, s32, s32, s32);
 void func_80711410(f32, s16, f32, s16, f32);
 s32 func_807122B4(void);
-void func_8066466C(void);
+void actorUpdateEntryEmitters(void);
 void func_80664D20(void);
 
 extern Actor *D_807FBB40;
@@ -340,7 +340,7 @@ void func_8068AD7C(void) {
         break;
     }
 
-    func_8066466C();
+    actorUpdateEntryEmitters();
     func_80664D20();
     D_807FC621 |= 0x80;
 }

@@ -59,7 +59,7 @@ extern s16 D_807FC3F0;
 void *func_80610FE8(s32);
 void func_8061421C();
 void func_80614A64(Actor *);
-ActorSub140 *func_80665F24(Actor *);
+ActorSub140 *actorSub140CreateFromModel(Actor *);
 void collisionClearFlags(Actor *);
 void actorUpdateSubnodeRotationAndMtx(Actor *);
 void actorUpdateMovementFlags(Actor *);
@@ -155,7 +155,7 @@ extern void *D_807FBB58;
 extern void *D_807FBB5C;
 extern s32 D_807FBB38;
 
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 
 void actorInit(void) {
     u16 i;
@@ -174,7 +174,7 @@ void actorInit(void) {
     }
     D_807FBB32 = 0;
 
-    D_807FBB50 = (R3B_Header *)func_8066B0F8(0xD, 0, 1, 1);
+    D_807FBB50 = (R3B_Header *)assetLoad(0xD, 0, 1, 1);
     D_807FBB54 = (void *)(D_807FBB50->unkC + (s32)D_807FBB50);
     D_807FBB58 = (void *)(D_807FBB50->unk8 + (s32)D_807FBB50);
     D_807FBB5C = (void *)(D_807FBB50->unk4 + (s32)D_807FBB50);
@@ -1066,7 +1066,7 @@ typedef struct R2EArgB2DC {
 
 s32 func_8067B2DC(R2EArgB2DC *arg0) {
     if (func_806134B4(D_807FBB44, arg0->unk2, arg0) != 0) {
-        D_807FBB44->unk140 = func_80665F24(D_807FBB44);
+        D_807FBB44->unk140 = actorSub140CreateFromModel(D_807FBB44);
         D_807FBB44->unk15E = (u32)(((f64)((R2EActorSub140 *)D_807FBB44->unk140)->unkC * 0.15) * 0.5);
         return 1;
     }
@@ -1074,7 +1074,7 @@ s32 func_8067B2DC(R2EArgB2DC *arg0) {
 }
 
 s32 func_8067B3F4(s32 arg0) {
-    D_807FBB44->unk140 = func_80665F24(D_807FBB44);
+    D_807FBB44->unk140 = actorSub140CreateFromModel(D_807FBB44);
     return 1;
 }
 

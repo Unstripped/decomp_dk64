@@ -65,7 +65,7 @@ Gfx *func_806FEF7C(Gfx *arg0, Actor *arg1) {
 
 extern u8 *D_807FD568;
 s32 slotQueueGetValue(s32, u8);
-s32 func_80690F30(s32, void *, Actor *, s32, s32, s32, void *, void *, void *);
+s32 projectileFindHomingTarget(s32, void *, Actor *, s32, s32, s32, void *, void *, void *);
 
 Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
     u8 player;
@@ -78,7 +78,7 @@ Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
     player = ((ActorPlayerState *)arg1->unk174)->unk1A4;
     dl = playerViewGfxSetup(arg0, player);
     if ((D_807FD568[2] & 2) && slotQueueGetValue(3, player) &&
-        func_80690F30(2, &sp58, arg1, 1, 0, 0, &sp54, &sp50, &sp4C)) {
+        projectileFindHomingTarget(2, &sp58, arg1, 1, 0, 0, &sp54, &sp50, &sp4C)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {
         gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
@@ -170,7 +170,7 @@ Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
     dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x60, 3.0f, 3.0f, 0x5A, 0.0f);
     dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x90, 3.0f, 3.0f, 0xB4, 0.0f);
     dl = func_8068C5A8(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x90, 3.0f, 3.0f, 0x10E, 0.0f);
-    if (slotQueueGetValue(3, sp77) && func_80690F30((u16)sp6C, &sp70, arg1, 1, 0, 0, &sp68, &sp64, &sp60)) {
+    if (slotQueueGetValue(3, sp77) && projectileFindHomingTarget((u16)sp6C, &sp70, arg1, 1, 0, 0, &sp68, &sp64, &sp60)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {
         gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
@@ -219,10 +219,10 @@ s16 *func_806FFEAC(s16 *arg0, s32 arg1) {
     return arg0;
 }
 
-s32 func_8066B0F8();
+s32 assetLoad();
 
 void func_806FFF5C(void) {
-    func_8066B0F8(0x19, 0x138B, 1, 1);
+    assetLoad(0x19, 0x138B, 1, 1);
 }
 
 extern void *D_80744470[];
@@ -1023,7 +1023,7 @@ Gfx *screenFadeDrawSpinTexture(Gfx *arg0, u8 arg1) {
     f32 q;
 
     if (arg1 != 0) {
-        h = func_8066B0F8(0xE, 0x5F, 0, 0);
+        h = assetLoad(0xE, 0x5F, 0, 0);
         assetFreeBuffer(h, 0x540, 0x2F);
         mtx = (Mtx *)func_80610FE8(0x40);
         heapFreeDeferred(mtx);

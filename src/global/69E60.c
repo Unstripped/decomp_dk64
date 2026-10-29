@@ -17,7 +17,7 @@ typedef struct ActorPhysicsWork {
 } ActorPhysicsWork;
 
 void func_8067ACB4(void);
-void func_80672680(s16, s16, s16, s16, void *);
+void mathAngleClampToArc(s16, s16, s16, s16, void *);
 s16 func_80672134(s16, s16, s16, s16);
 void func_80665ACC(Actor *);
 
@@ -29,7 +29,7 @@ s16 arg2;
     func_8067ACB4();
     func_80665ACC((Actor *)arg0);
     if (arg0->unkFC != 0) {
-        func_80672680(arg0->unkEE, arg1, arg0->unkF4, arg0->unkF6, &arg0->unkF2);
+        mathAngleClampToArc(arg0->unkEE, arg1, arg0->unkF4, arg0->unkF6, &arg0->unkF2);
         arg0->unkFA = func_80672134(arg0->unkF4, arg0->unkF6, arg2, arg0->unkF8);
         if ((arg0->unk64 & 0x200) && (arg0->unk64 & 0x100)) {
             arg0->unkFA = 0;
@@ -152,15 +152,15 @@ void actorApplyVelocityCustom(ActorVelocityCustomWork *arg0, f32 arg1, f32 arg2)
 extern u8 D_80748E00;
 extern u8 D_80748E04;
 
-void func_80665548(void) {
+void actorSkipFloorSnap(void) {
     D_80748E00 = 1;
 }
 
-u8 func_80665558(void) {
+u8 actorGetFloorSnapped(void) {
     return D_80748E04;
 }
 
-typedef struct ColSmall_Actor5564 {
+typedef struct ActorFloorContactView {
     char pad0[0x4];
     ActorSub4 *unk4;
     char pad8[0x54];
@@ -188,13 +188,13 @@ typedef struct ColSmall_Actor5564 {
     s16 unkDC;
     s16 unkDE;
     f32 unkE0;
-} ColSmall_Actor5564;
+} ActorFloorContactView;
 
 typedef struct {
     s16 unk0;
     char pad2[0x24];
     s16 unk26;
-} ColSmall_StructD580;
+} CameraStateView;
 
 typedef struct {
     s16 unk0;
@@ -203,11 +203,11 @@ typedef struct {
     u8 pad4[2];
     u8 unk6;
     u8 pad7[3];
-} ColSmall_Entry8D40;
+} ActorTiltTableEntry;
 
-extern ColSmall_Entry8D40 D_80748D40[];
-extern ColSmall_Entry8D40 D_80748DA4;
-extern ColSmall_StructD580 *D_807FD580;
+extern ActorTiltTableEntry D_80748D40[];
+extern ActorTiltTableEntry D_80748DA4;
+extern CameraStateView *D_807FD580;
 extern Actor *D_807FBB40;
 extern s32 D_8076A0A8;
 
@@ -215,10 +215,10 @@ extern s32 D_8076A0A8;
 
 
 
-void func_80666290(Actor *, u8 *, f32 *, u8 *, void *, s32);
+void collisionQueryActorFloor(Actor *, u8 *, f32 *, u8 *, void *, s32);
 void func_806D09E8(Actor *);
 s32 func_806CC10C(s16, s16);
-void func_80665564(ColSmall_Actor5564 *arg0, f32 arg1) {
+void actorUpdateFloorContactAndTilt(ActorFloorContactView *arg0, f32 arg1) {
     f32 sp5C;
     u8 sp5B;
     f32 sp54;
@@ -230,10 +230,10 @@ void func_80665564(ColSmall_Actor5564 *arg0, f32 arg1) {
     s16 var_a1;
     s16 var_a2;
     s16 diff;
-    ColSmall_Entry8D40 *var_t1;
+    ActorTiltTableEntry *var_t1;
     f32 var_fv0;
 
-    func_80666290((Actor *)arg0, &sp5B, &sp5C, &sp53, &sp54, 0);
+    collisionQueryActorFloor((Actor *)arg0, &sp5B, &sp5C, &sp53, &sp54, 0);
     if (arg0->unk5C & 1) {
         func_806D09E8((Actor *)arg0);
     }
@@ -429,7 +429,7 @@ typedef struct ActorTransformWork {
 
 void func_8066E2C0(f32, f32, f32, f32, f32, f32, void *, s32, s32, void *);
 
-void func_80665F24(ActorTransformWork *arg0) {
+void actorSub140CreateFromModel(ActorTransformWork *arg0) {
     f32 fv0;
     f32 fv1;
     f32 ft4;

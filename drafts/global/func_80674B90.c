@@ -53,7 +53,7 @@ typedef struct Beh7984A_Actor {
 
 extern u8 D_807FB606;
 s32 actorTableContains(void *);
-void func_80671880(void *, s32);
+void actorUpdateCollisionSpheres(void *, s32);
 s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
 void func_80675478(void *, void *, f32 *, f32 *);
 void func_806755A8(s32, s32, s32, s32, s32, s32);
@@ -83,7 +83,7 @@ u8 func_80674B90(Beh7984A_Actor *arg0, Beh7984A_Actor *arg1, f32 *arg2, f32 *arg
     D_807FB606 = 0;
     cb = arg0->unk13C;
     sub140 = arg0->unk140;
-    func_80671880(arg0, 1);
+    actorUpdateCollisionSpheres(arg0, 1);
     if (!actorTableContains(arg1)) {
         return 0;
     }

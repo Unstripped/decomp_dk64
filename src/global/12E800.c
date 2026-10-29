@@ -512,10 +512,10 @@ typedef struct E3DcA0 {
 s32 mathAngleDistance(s16, s16);
 void func_8067ACB4(Actor *);
 void actorTurnTowardTarget(u8, f32, f32, u16);
-void func_80666280(s32);
+void collisionSetQueryMode(s32);
 void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocityCustom(Actor *, f32, f32);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorApproachTargetSpeed(u16);
 void actorApplyVelocity(Actor *);
 u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
@@ -550,10 +550,10 @@ u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
         actorApplyGravity();
     }
     if (!(E3C98->unk46 & 0x200)) {
-        func_80666280(2);
+        collisionSetQueryMode(2);
     }
     if (E3CA0->unk19 == 1 && (arg0 != 0x37 || !(E3C98->unk46 & 0x10))) {
-        func_80666280(1);
+        collisionSetQueryMode(1);
     }
     if (arg3 & 0x4000) {
         E3A->unkFC = 0;
@@ -565,7 +565,7 @@ u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
         if (!(arg3 & 1)) {
             actorApplyVelocityCustom(D_807FBB40, 0, E3A->unkC0);
         }
-        func_80665564(D_807FBB40, arg4);
+        actorUpdateFloorContactAndTilt(D_807FBB40, arg4);
         if (!(arg3 & 0x2000)) {
             func_8072A714();
         }
@@ -585,7 +585,7 @@ u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
         actorApplyVelocity(D_807FBB40);
     }
     if (!(arg3 & 8)) {
-        func_80665564(D_807FBB40, arg4);
+        actorUpdateFloorContactAndTilt(D_807FBB40, arg4);
     } else if (E3CA0->unk19 != 1 && (arg3 & 0x10)) {
         collisionCheckActorFloor(D_807FBB40, E3A->unk7C, E3A->unk8C, E3A->unk84, &E3A->unkA4);
     }

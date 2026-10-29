@@ -63,9 +63,9 @@ s32 func_8067B1E0(Actor *);
 void actorSetTargetAngleBounds();
 struct Col7DWork;
 struct Col7DPlane;
-void func_80670C5C(struct Col7DWork *, s16, struct Col7DPlane *);
+void actorCalcPlaneContactPoint(struct Col7DWork *, s16, struct Col7DPlane *);
 struct ActorMotionWork;
-s32 func_80672328(struct ActorMotionWork *, f32, f32);
+s32 actorCheckPointInAngleArc(struct ActorMotionWork *, f32, f32);
 
 s32 func_80670548(arg0)
 Actor *arg0;
@@ -158,10 +158,10 @@ Actor *arg0;
                 ret = 1;
             }
             if (arg0->unk5C & 1) {
-                func_80670C5C((struct Col7DWork *)arg0, slot, (struct Col7DPlane *)sub);
+                actorCalcPlaneContactPoint((struct Col7DWork *)arg0, slot, (struct Col7DPlane *)sub);
             }
             if (ret != 0) {
-                func_8066C610(slot, sub->unk5A, mtx);
+                modelSlotBuildTransformMatrix(slot, sub->unk5A, mtx);
                 guMtxXFMF(mtx, sub->unk4C, sub->unk50, sub->unk54, &x, &y, &z);
                 if (kind == 1 || kind == 4) {
                     arg0->unk7C = x;
@@ -205,7 +205,7 @@ Actor *arg0;
                     out[0] = out[0] * scale;
                     out[1] = out[1] * scale;
                     out[2] = out[2] * scale;
-                    if (kind == 3 || func_80672328((struct ActorMotionWork *)arg0, x - out[0], z - out[2]) != 0) {
+                    if (kind == 3 || actorCheckPointInAngleArc((struct ActorMotionWork *)arg0, x - out[0], z - out[2]) != 0) {
                         arg0->unk7C = x - out[0];
                         arg0->unk84 = z - out[2];
                     }

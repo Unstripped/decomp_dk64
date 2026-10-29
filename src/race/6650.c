@@ -121,7 +121,7 @@ void flagSet(s32, s32, s32);
 void hudSpawnTextScreen(s32);
 void func_80026CA8(void);
 void func_80026D2C(f32);
-void func_8068ECF4(s32, u8);
+void actorSpawnNodeEffectFacingCamera(s32, u8);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
 void func_806F4D70(u8, f32, f32, f32, f32);
@@ -175,7 +175,7 @@ s16 mathAngleFromVector2D(f32, f32);
 s16 func_806CC190(s16, s16, f32, s16);
 void actorStepPhysics(Actor_BB40 *, s16, s16);
 void actorApplyVelocity(Actor_BB40 *);
-void func_80665564(Actor_BB40 *, s32);
+void actorUpdateFloorContactAndTilt(Actor_BB40 *, s32);
 void func_8002F490(Struct_sp58 *);
 typedef struct {
     char pad[0x104];
@@ -336,8 +336,8 @@ void func_8002AE9C(void) {
         sp43 = 0xF0;
     }
     if (flags & 4) {
-        func_8068ECF4(1, sp43);
-        func_8068ECF4(2, sp43);
+        actorSpawnNodeEffectFacingCamera(1, sp43);
+        actorSpawnNodeEffectFacingCamera(2, sp43);
         var_s1 = D_807FBB40;
     }
     if (var_s3->unk34 > 0 && var_s3->unk34 < 5) {

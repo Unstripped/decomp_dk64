@@ -1450,7 +1450,7 @@ typedef struct LgC2DF4S9C {
 
 void func_806136B4(Actor *);
 void func_806134B4(Actor *, u16);
-ActorSub140 *func_80665F24(Actor *);
+ActorSub140 *actorSub140CreateFromModel(Actor *);
 void actorSetUniformScale(Actor *, f32);
 void func_80728950(s32);
 void currentActorAnimSetFrame(s32, s32);
@@ -1481,7 +1481,7 @@ void func_806C2DF4(void) {
         sp54 = LgV->unk4->unk38;
         func_806136B4(D_807FBB40);
         func_806134B4(D_807FBB40, state->unk0);
-        LgV->unk140 = func_80665F24(D_807FBB40);
+        LgV->unk140 = actorSub140CreateFromModel(D_807FBB40);
         LgV->unk146 = 0;
         LgV->unk12A = 0xFA0;
         D_807FDC98->unk46 |= 0x20;

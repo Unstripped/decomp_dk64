@@ -30,7 +30,7 @@ extern u8 D_807F8E88;
 extern s16 D_807F8E8A;
 extern Struct807F8E90 D_807F8E90[4];
 
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_8065D964(s16 *, s16, s16, s16, s16);
 
@@ -78,7 +78,7 @@ void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
     if (!found) {
         return;
     }
-    D_807F8E90[i].unk8 = func_8066B0F8(7, arg1, 0, 0);
+    D_807F8E90[i].unk8 = assetLoad(7, arg1, 0, 0);
     D_807F8E90[i].unk4 = arg1;
 
 block_21:

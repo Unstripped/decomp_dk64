@@ -1,5 +1,5 @@
 // func_806794EC (src/global/7CA80.c): from .scratch/R3C/func_806794EC_best.c
-s32 func_80672328(void *, ?32, ?32);                /* extern */
+s32 actorCheckPointInAngleArc(void *, ?32, ?32);                /* extern */
 ? func_80675810(void *, void *);                    /* extern */
 ? func_80678F9C(void *, void *);                    /* extern */
 ? func_80679DC4(void *, void *, s32);               /* extern */
@@ -281,7 +281,7 @@ void func_806794EC(void *arg0) {
             var_s2 = var_s2->unk14;
         } while (var_s2 != NULL);
     }
-    if ((var_s7 != -1) && ((sp3E == 1) || (func_80672328(arg0, sp4C, sp44) != 0))) {
+    if ((var_s7 != -1) && ((sp3E == 1) || (actorCheckPointInAngleArc(arg0, sp4C, sp44) != 0))) {
         switch (sp40) {                             /* switch 3; irregular */
         case 16:                                    /* switch 3 */
             arg0->unk7C = sp4C;

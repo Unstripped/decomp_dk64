@@ -1430,7 +1430,7 @@ typedef struct MapChunkAnim {
 } MapChunkAnim; /* 0x7C */
 
 void assetFreeBuffer(s32, s32, s32);
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 
 #define MAP_CHUNK_ANIM ((MapChunkAnim *)D_807F5FC4)[i]
 
@@ -1457,7 +1457,7 @@ void mapChunkAnimateTextures(u8 arg0) {
                 if (MAP_CHUNK_ANIM.unk8 != 0) {
                     assetFreeBuffer(MAP_CHUNK_ANIM.unk8, 0x7E3, 5);
                 }
-                MAP_CHUNK_ANIM.unk8 = func_8066B0F8(7, MAP_CHUNK_ANIM.unkC[MAP_CHUNK_ANIM.unk5], 0, 0);
+                MAP_CHUNK_ANIM.unk8 = assetLoad(7, MAP_CHUNK_ANIM.unkC[MAP_CHUNK_ANIM.unk5], 0, 0);
             }
         }
     }
@@ -1550,7 +1550,7 @@ void displayListResolveTextureImages();
 void mapRelocateOffsetTable(s32);
 void mapSurfaceEffectsReset(void);
 void func_80650ECC(void *);
-void func_8066C958(void *);
+void collisionInitStaticCache(void *);
 void func_80666090(void *);
 void func_8065F1C0(void *);
 void func_80662B90(void *);
@@ -1614,7 +1614,7 @@ void mapHeaderLoad(s32 arg0) {
     mapOffsetSlotsInit(sp28);
     D_807F5E60 = (MapVisNode *)mapTreeCloneShape((MapTreeLinks *)D_807F5DE4);
     func_80650ECC((void *)arg0);
-    func_8066C958((void *)arg0);
+    collisionInitStaticCache((void *)arg0);
     func_80666090((void *)arg0);
     func_8065F1C0((void *)arg0);
     func_80662B90((void *)arg0);
@@ -1658,7 +1658,7 @@ void displayListResolveTextureImages(RawGfxCmd *arg0, RawGfxCmd *arg1) {
         w = arg0->unk0;
         if ((w >> 24) == (0, 0xFD)) {
             if (((arg0->unk4 << 4) >> 28) == 0) {
-                arg0->unk4 = func_8066B0F8(0x19, arg0->unk4, 1, 0);
+                arg0->unk4 = assetLoad(0x19, arg0->unk4, 1, 0);
             }
             ;
         }

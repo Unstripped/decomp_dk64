@@ -48,7 +48,7 @@ extern s32 D_807FB628;
 
 s32 func_80679010(void *, void *);
 s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
-void func_80671880(void *, s32);
+void actorUpdateCollisionSpheres(void *, s32);
 f32 func_80675234(s32, s32, s32, s32, s32, s32, s32);
 void func_80675180(void *, f32, f32, f32, void *, f32 *, f32 *, f32 *);
 void func_806752D4(s32, f32, f32, f32, f32, s32, s32);
@@ -103,8 +103,8 @@ void func_80674E14(Beh7984A_Actor *arg0) {
                 s0 == 0 &&
                 func_80674ADC(sub_unk0, sub_unk4, sub_unk8, sub_unkC,
                               actor_sub140->unk0, actor_sub140->unk4, actor_sub140->unk8, actor_sub140->unkC)) {
-                func_80671880(arg0, 0);
-                func_80671880(actor, 0);
+                actorUpdateCollisionSpheres(arg0, 0);
+                actorUpdateCollisionSpheres(actor, 0);
                 var_s4 = 1;
                 node1 = sub140->unk8C;
                 if (node1 != NULL) {

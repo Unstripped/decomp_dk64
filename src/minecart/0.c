@@ -119,7 +119,7 @@ void actorUpdateModelMatrix(void *, s32);
 void minecartFollowTrack(struct MinecartCart *, s16, u8);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 camIsCutsceneActive(void);
-void func_8068ECF4(s32, s32);
+void actorSpawnNodeEffectFacingCamera(s32, s32);
 void func_8072177C(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 s32 actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void lightSetDistanceThreshold(s32);
@@ -278,7 +278,7 @@ void minecartPlayerCartUpdate(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
                 D_807FBB40->unk155++;
             }
         }
-        func_8068ECF4(6, 0xFF);
+        actorSpawnNodeEffectFacingCamera(6, 0xFF);
         minecartStepSpeedToTarget(s1);
         minecartFollowTrack(s1, arg2, arg3);
         actorGetNodePos(D_807FBB40, 5, &sp58[0], &sp58[1], &sp58[2]);
@@ -581,7 +581,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_8067ACB4(void *);
 void matrixMakeRotationZ(f32 (*)[4], f32);
-void func_80665564(void *, f32);
+void actorUpdateFloorContactAndTilt(void *, f32);
 void minecartFollowTrack(MinecartCart *arg0, s16 arg1, u8 arg2) {
     u8 i;
     u8 cnt;
@@ -829,5 +829,5 @@ void minecartFollowTrack(MinecartCart *arg0, s16 arg1, u8 arg2) {
             arg0->unk39 = 0;
         }
     }
-    func_80665564(D_807FBB40, 0);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0);
 }

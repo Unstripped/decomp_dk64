@@ -633,7 +633,7 @@ typedef struct SiblingActor {
 
 s32 randomNonNegative(void);
 void actorUpdateModelMatrix(void *, s32);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_8067ACB4(Actor *);
 void actorApplyVelocity(Actor *);
 extern f32 D_80750394;
@@ -655,7 +655,7 @@ void actorUpdateSpinAndVelocity(void) {
     }
     func_8067ACB4(D_807FBB40);
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, 0.0f);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     ATTACHED_ACTOR->unkC0 += D_80750394;
     ATTACHED_ACTOR->unkE8 += sub->unk4;
     ATTACHED_ACTOR->unkE4 += sub->unk0;
@@ -706,7 +706,7 @@ void actorFallAndBurstUpdate(void) {
         ATTACHED_ACTOR->unkC0 = 0.0f;
         ATTACHED_ACTOR->unk12A = 0x7D0;
         ATTACHED_ACTOR->unkA4 = 99999.0f;
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     }
     if (camIsCutsceneActive() != 0) {
         ATTACHED_ACTOR->unk132 = 2;
@@ -715,7 +715,7 @@ void actorFallAndBurstUpdate(void) {
     }
     func_8067ACB4(D_807FBB40);
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, 0.0f);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     ATTACHED_ACTOR->unkC0 += D_80750398;
     if (ATTACHED_ACTOR->unkA4 != 99999.0f) {
         billboardSetFlags(1);
@@ -972,7 +972,7 @@ void actorSetNodeValuesForFrame(MatrixArray *arg0) {
 
 #ifdef NON_MATCHING
 
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 void func_80724D28(s32, s32);
 f32 func_80612794(s16);
 f32 func_80612790(s16);
@@ -999,7 +999,7 @@ void func_806A112C(void) {
         }
         if (ATTACHED_ACTOR->unk15F == 0) {
             val = (f32) ((f64) ATTACHED_ACTOR->unk4->unk38 / 0.15);
-            sub->unk0 = func_8066B0F8(0x13, 6, 1, 1);
+            sub->unk0 = assetLoad(0x13, 6, 1, 1);
             animSetChannelFrames(D_807FBB40, D_807503D4[0], D_807503E0[0]);
             n = 1;
             d = 75.0f * val;

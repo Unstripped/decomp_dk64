@@ -4,7 +4,7 @@ typedef struct R3D3B_Container {
     ActorListRecord items[1];
 } R3D3B_Container;
 
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 void func_8066B424(void);
 void func_8066B434(s32, s32, s32);
 void modelAssetGetSubtables(void *, void *, void *);
@@ -28,7 +28,7 @@ void func_80688940(void) {
         D_807500B0 = 1;
         for (i = 0; i < 0xDD; i++) {
             D_807FC408[i] = total;
-            temp_v0 = func_8066B0F8(9, i, 1, 1);
+            temp_v0 = assetLoad(9, i, 1, 1);
             if (temp_v0 != 0) {
                 modelAssetGetSubtables((void *)temp_v0, &sp60, &container);
                 count = container->count;

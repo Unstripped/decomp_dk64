@@ -160,7 +160,7 @@ s32 camIsCutsceneActive(void);
 s32 func_8061CC00(void);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void actorSetStateTwo(s32);
-s16 func_80672A70(s16, s16);
+s16 mathAngleArcMidpoint(s16, s16);
 s32 camStartPath(void *, s32, s32);
 void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 void renderCallbacksRegister(void *, void *, s32);
@@ -198,7 +198,7 @@ void func_806B7EA0(void) {
     }
     if (((Actor *)D_807FBB40->unk11C)->unk154 == 5 && D_807FBB40->unk154 != 0x11) {
         if (D_807FDC94->unkFC != 0) {
-            D_807FDC94->unkE6 = func_80672A70(D_807FDC94->unkF4, D_807FDC94->unkF6);
+            D_807FDC94->unkE6 = mathAngleArcMidpoint(D_807FDC94->unkF4, D_807FDC94->unkF6);
         }
         camStartPath(0, 6, 5);
         D_807FBB40->unk154 = 0x11;
@@ -277,7 +277,7 @@ extern u8 D_807201D4[];
 extern void func_80717D4C(void);
 
 void behaviourFrameBegin(void);
-void func_8066EB40(Actor *, f32);
+void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void actorSetNodeFlag(Actor *, s32);
@@ -296,7 +296,7 @@ void actorUpdatePeriodicParticleEmitter(void) {
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         BC3B0S90->unk30 = BC3B0S9C->unkB;
-        func_8066EB40(D_807FBB40, 300.0f);
+        actorSetCollisionRadius(D_807FBB40, 300.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 280.0f, -1);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
     }

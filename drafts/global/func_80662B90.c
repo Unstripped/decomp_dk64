@@ -48,7 +48,7 @@ extern R5B_Vtx *D_807F93FC;
 extern s32 D_807F9400;
 
 void *func_80610FE8(s32);
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 #define E(i) ((R5B_Entry40 *)((u8 *)D_807F93F0 + ((i) << 6)))
 #define V(off) ((R5B_Vtx *)((u8 *)D_807F93FC + (off)))
 
@@ -109,6 +109,6 @@ void func_80662B90(void *arg0) {
                 i++;
             } while (i < D_807F93F8);
         }
-        D_807F9400 = func_8066B0F8(7, 0x3C7, 1, 0);
+        D_807F9400 = assetLoad(7, 0x3C7, 1, 0);
     }
 }

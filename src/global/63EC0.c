@@ -92,7 +92,7 @@ typedef struct EffectBufferEntry {
     u8 pad1[0x1C7];
 } EffectBufferEntry;
 
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 void effectNodeApproachTargetPos(EffectNode *);
 void screenShakeStep(void);
 Gfx *func_8065FEB8(Gfx *, EffectNode *);
@@ -463,7 +463,7 @@ void screenShakeStop(void) {
 }
 
 void effectInitTextureTableRGBA32(u8 arg0) {
-    D_80748A9C[arg0].unk0 = func_8066B0F8(7, 0x3C5, 1, 0);
+    D_80748A9C[arg0].unk0 = assetLoad(7, 0x3C5, 1, 0);
 }
 
 Gfx *effectBuildGdlTexture32x32RGBA(Gfx *dlist, EffectNode *arg1, u8 arg2) {
@@ -517,8 +517,8 @@ void effectNodeStepUVAndPos(EffectNode *arg0) {
 }
 
 void effectInitTextureTableCI4(u8 arg0) {
-    D_80748A90[arg0].res0 = func_8066B0F8(0x19, 0x2EE, 1, 0);
-    D_80748A90[arg0].res1 = func_8066B0F8(0x19, 0x2EF, 1, 0);
+    D_80748A90[arg0].res0 = assetLoad(0x19, 0x2EE, 1, 0);
+    D_80748A90[arg0].res1 = assetLoad(0x19, 0x2EF, 1, 0);
 }
 
 Gfx *effectBuildGdlTexture64x64CI4(Gfx *dlist, EffectNode *arg1, u8 arg2) {
@@ -551,7 +551,7 @@ void effectNodeUpdateAlphaOffset(EffectNode *arg0) {
 }
 
 void effectInitTextureTable0(u8 arg0) {
-    D_80748A9C[arg0].unk0 = func_8066B0F8(0x19, 0xF0, 1, 0);
+    D_80748A9C[arg0].unk0 = assetLoad(0x19, 0xF0, 1, 0);
 }
 
 Gfx *effectBuildMipmapGdl(Gfx *glist, s32 arg1, u8 arg2) {
@@ -582,7 +582,7 @@ void effectNoopCallback1(s32 arg0) {
 }
 
 void effectInitTextureTable1(u8 arg0) {
-    D_80748A9C[arg0].unk0 = func_8066B0F8(0x19, 0xAF4, 1, 0);
+    D_80748A9C[arg0].unk0 = assetLoad(0x19, 0xAF4, 1, 0);
 }
 
 void effectBuildMipmapGdlWrapper(Gfx *arg0, s32 arg1, u8 arg2) {
@@ -593,7 +593,7 @@ void effectNoopCallback2(s32 arg0) {
 }
 
 void effectInitTextureTable2(u8 arg0) {
-    D_80748A9C[arg0].unk0 = func_8066B0F8(0x19, 0x75C, 1, 0);
+    D_80748A9C[arg0].unk0 = assetLoad(0x19, 0x75C, 1, 0);
 }
 
 Gfx *effectBuildMipmapGdlDup(Gfx *glist, s32 arg1, u8 arg2) {
@@ -624,7 +624,7 @@ void effectNoopCallback3(s32 arg0) {
 }
 
 void effectInitTextureTable3(u8 arg0) {
-    D_80748A9C[arg0].unk0 = func_8066B0F8(7, 0x3B9, 1, 0);
+    D_80748A9C[arg0].unk0 = assetLoad(7, 0x3B9, 1, 0);
 }
 
 Gfx *effectBuildSingleTextureGdl(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
@@ -643,7 +643,7 @@ Gfx *effectBuildSingleTextureGdl(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
 }
 
 void effectInitTextureTable4(u8 arg0) {
-    D_80748A9C[arg0].unk0 = func_8066B0F8(7, 0x3D2, 1, 0);
+    D_80748A9C[arg0].unk0 = assetLoad(7, 0x3D2, 1, 0);
 }
 
 Gfx *effectBuildSingleTextureGdlDup(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
@@ -662,8 +662,8 @@ Gfx *effectBuildSingleTextureGdlDup(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
 }
 
 void effectInitTextureTableDual(u8 arg0) {
-    D_80748A90[arg0].res0 = func_8066B0F8(7, 0x3BA, 1, 0);
-    D_80748A90[arg0].res1 = func_8066B0F8(7, 0x3DB, 1, 0);
+    D_80748A90[arg0].res0 = assetLoad(7, 0x3BA, 1, 0);
+    D_80748A90[arg0].res1 = assetLoad(7, 0x3DB, 1, 0);
 }
 
 extern s32 D_80748B68;

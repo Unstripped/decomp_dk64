@@ -204,7 +204,7 @@ void func_8002427C(CritterGroup *grp) {
     }
 }
 
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 
 void critterPlayAudio(CritterObj *obj) {
     s32 i;
@@ -213,7 +213,7 @@ void critterPlayAudio(CritterObj *obj) {
     for (i = 0; i < 2; i++) {
         if (v = obj->texId[i]) {
             if (obj->tex[i] == 0) {
-                obj->tex[i] = func_8066B0F8(0xE, v, 0, 0);
+                obj->tex[i] = assetLoad(0xE, v, 0, 0);
             }
         }
     }

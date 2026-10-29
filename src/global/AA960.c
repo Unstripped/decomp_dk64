@@ -319,13 +319,13 @@ typedef struct BehaviourConfig {
 extern ActorGlobalState D_807FBB70;
 extern s16 D_8075038C;
 void func_8067ACB4(Actor *);
-s32 func_806725A0(Actor *, s16);
-s16 func_80672A70(s16, s16);
+s32 actorAngleInArc(Actor *, s16);
+s16 mathAngleArcMidpoint(s16, s16);
 void actorApplyVelocity(Actor *);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void func_8066EB40(Actor *, f32);
+void actorSetCollisionRadius(Actor *, f32);
 u32 func_806119A0(void);
 s32 camIsCutsceneActive(void);
 s32 func_806F5C30(s32);
@@ -356,10 +356,10 @@ void func_806A664C(f32 arg0) {
     }
     func_8067ACB4(D_807FBB40);
     if (D_807FBB40->unkFC != 0) {
-        if (func_806725A0(D_807FBB40, *(s16 *)((u8 *)D_807FBB40 + 0xEE)) == 0) {
+        if (actorAngleInArc(D_807FBB40, *(s16 *)((u8 *)D_807FBB40 + 0xEE)) == 0) {
             s32 temp;
 
-            temp = func_80672A70(D_807FBB40->unkF4, D_807FBB40->unkF6);
+            temp = mathAngleArcMidpoint(D_807FBB40->unkF4, D_807FBB40->unkF6);
             *(s16 *)((u8 *)D_807FBB40 + 0xEE) = temp + (temp - ((*(s16 *)((u8 *)D_807FBB40 + 0xEE) + 0x800) & 0xFFF));
         }
     }
@@ -368,7 +368,7 @@ void func_806A664C(f32 arg0) {
         break;
     case 1:
         D_807FBB40->unk144 = 0x1C;
-        func_8066EB40(D_807FBB40, 60.0f);
+        actorSetCollisionRadius(D_807FBB40, 60.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) = (f32)((f64)((func_806119A0() / 10000) % 200) * 0.5 + 220.0 - 50.0);
@@ -378,7 +378,7 @@ void func_806A664C(f32 arg0) {
         D_807FBB40->unk154++;
     case 2:
         actorApplyVelocity(D_807FBB40);
-        func_80665564(D_807FBB40, arg0);
+        actorUpdateFloorContactAndTilt(D_807FBB40, arg0);
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) -= 20.0f;
         if (*(f32 *)((u8 *)D_807FBB40 + 0xC0) < (f32)D_8075038C) {
             *(f32 *)((u8 *)D_807FBB40 + 0xC0) = (f32)D_8075038C;
@@ -481,14 +481,14 @@ extern s16 D_8075038C;
 extern f32 D_80750388;
 void func_806C9974(s32, s32);
 void func_8067ACB4(Actor *);
-s32 func_806725A0(Actor *, s16);
-s16 func_80672A70(s16, s16);
+s32 actorAngleInArc(Actor *, s16);
+s16 mathAngleArcMidpoint(s16, s16);
 void actorApplyVelocity(Actor *);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void func_8066EB40(Actor *, f32);
+void actorSetCollisionRadius(Actor *, f32);
 void actorUpdateModelMatrix(Actor *, s32);
 
 #ifdef NON_MATCHING
@@ -534,14 +534,14 @@ void func_806A6DB4(u8 arg0) {
         D_807FBB40->unk154 = D_807FBB70.unk1[0];
     }
     func_8067ACB4(D_807FBB40);
-    if (D_807FBB40->unkFC != 0 && func_806725A0(D_807FBB40, AA960_PHY->unkEE) == 0) {
-        temp = func_80672A70(D_807FBB40->unkF4, D_807FBB40->unkF6);
+    if (D_807FBB40->unkFC != 0 && actorAngleInArc(D_807FBB40, AA960_PHY->unkEE) == 0) {
+        temp = mathAngleArcMidpoint(D_807FBB40->unkF4, D_807FBB40->unkF6);
         AA960_PHY->unkEE = temp + (temp - ((AA960_PHY->unkEE + 0x800) & 0xFFF));
     }
     if (D_807FBB40->unk154 == 1 || D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 4
         || D_807FBB40->unk154 == 5 || D_807FBB40->unk154 == 6) {
         D_807FBB40->unk144 = 0x1C;
-        func_8066EB40(D_807FBB40, 60.0f);
+        actorSetCollisionRadius(D_807FBB40, 60.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         switch (D_807FBB40->unk154) {
@@ -572,7 +572,7 @@ void func_806A6DB4(u8 arg0) {
         break;
     case 3:
         actorApplyVelocity(D_807FBB40);
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         AA960_PHY->unkC0 += D_80750388;
         if (AA960_PHY->unkC0 < (f32)D_8075038C) {
             AA960_PHY->unkC0 = (f32)D_8075038C;
@@ -671,7 +671,7 @@ void actorSpawnRingBurstAndUpdate(void) {
         D_807FBB40->unk60 |= 0x400;
         effectSpawnRingBursts(D_807FBB40, 20.0f, 40.0f, 0x1E);
         D_807FBB40->unkA4 = 99999.0f;
-        func_80665564(D_807FBB40, 0);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0);
     }
     func_806A6DB4(0);
     if (D_807FBB40->unkA4 != 99999.0f) {
@@ -730,7 +730,7 @@ void func_806A7600(void *arg0) {
             return;
         }
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
-        func_8066EB40(D_807FBB40, 175.0f);
+        actorSetCollisionRadius(D_807FBB40, 175.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 12.0f, 0.0f, 80.0f, -1);
         temp_v1->unk0 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk0;
         temp_v1->unk1 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk4;
@@ -869,10 +869,10 @@ void effectActorSparkleTick(void) {
     flag = D_807FC954[D_8074E77C * 94] & 1;
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorAppendModelSubNode(D_807FBB40, 0.0f, 10.0f, 0.0f, -1);
-        func_8066EB40(D_807FBB40, 175.0f);
+        actorSetCollisionRadius(D_807FBB40, 175.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 10.0f, 0.0f, 80.0f, -1);
         D_807FBB40->unkA4 = 99999.0f;
-        func_80665564(D_807FBB40, 0);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0);
     }
     func_8067ACB4(D_807FBB40);
     if (flag != 0) {

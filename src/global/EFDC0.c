@@ -1629,7 +1629,7 @@ typedef struct {
 } EfDNavigationPlayer;
 
 extern void func_806C9F74(Actor *);
-extern s16 func_80672A70(s16, s16);
+extern s16 mathAngleArcMidpoint(s16, s16);
 extern s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 extern void camStartPathNearWall(Actor *, s32, s32, s32);
 
@@ -1642,7 +1642,7 @@ void func_806EFB4C(void) {
     D_807FBB48->unk154 = 0x70;
     D_807FBB48->unk155[0] = 0;
     if (D_807FBB48->unkFC != 0) {
-        D_807FBB48->unkE6 = func_80672A70(D_807FBB48->unkF4, D_807FBB48->unkF6);
+        D_807FBB48->unkE6 = mathAngleArcMidpoint(D_807FBB48->unkF4, D_807FBB48->unkF6);
     } else {
         D_807FBB48->unkE6 = mathAngleBetweenPoints2D(
             ((EfDNavigationPlayer *)D_807FC924)[D_807FC929].unk210,

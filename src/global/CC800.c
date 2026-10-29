@@ -935,7 +935,7 @@ typedef struct G01Arg8F8C {
 void func_806136B4(Actor *, void *);
 void actorSub140Free(ActorSub140 *);
 void func_806134B4(Actor *, u16);
-ActorSub140 *func_80665F24(Actor *);
+ActorSub140 *actorSub140CreateFromModel(Actor *);
 
 void func_806C8F8C(void *arg) {
     G01Arg8F8C *arg0 = arg;
@@ -945,7 +945,7 @@ void func_806C8F8C(void *arg) {
     func_806136B4(D_807FBB48, arg0);
     actorSub140Free(G01A->unk140);
     func_806134B4(D_807FBB48, arg0->unkA);
-    G01A->unk140 = func_80665F24(D_807FBB48);
+    G01A->unk140 = actorSub140CreateFromModel(D_807FBB48);
     G01A->unk60 &= ~0x1000;
     G01A->unk60 |= arg0->unkC;
     G01A->unk4->unk1C = func_80610FE8(0x100);
@@ -1119,12 +1119,12 @@ extern G01Pos *D_807FC900;
 extern u8 D_807FC904;
 extern G01Pos D_807FC908;
 extern G01Pos D_807FD574;
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 u32 assetGetCachedSizeOrResolve(s32, s32);
 void func_806C9658(s32);
 
 void func_806C95D0(s32 arg0) {
-    D_807FC900 = func_8066B0F8(0x17, arg0, 1, 1);
+    D_807FC900 = assetLoad(0x17, arg0, 1, 1);
     D_807FC904 = assetGetCachedSizeOrResolve(0x17, arg0) / 10U;
     func_806C9658(arg0);
     D_807FC908.unk6 = 0;

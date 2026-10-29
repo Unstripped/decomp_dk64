@@ -1311,7 +1311,7 @@ void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
     func_80655410(arg0, arg1, arg2);
 }
 
-extern s32 func_8066B0F8(s32, s32, s32, s32);
+extern s32 assetLoad(s32, s32, s32, s32);
 
 #ifdef NON_MATCHING
 u8 *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
@@ -1330,7 +1330,7 @@ u8 *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
             if ((tag >> 0x18) == 0xFD) {
                 temp_v0 = *(s32 *)(p + 4);
                 if (((u32)(temp_v0 * 0x10) >> 0x1C) == zero) {
-                    *(s32 *)(p + 4) = func_8066B0F8(0x19, temp_v0, zero, zero);
+                    *(s32 *)(p + 4) = assetLoad(0x19, temp_v0, zero, zero);
                     count++;
                 }
                 if (zero) {
@@ -2465,7 +2465,7 @@ void func_80658930(u8 *);
 void mapLoadNodeAsset(s32 arg0) {
     u8 *p;
 
-    p = (u8 *)func_8066B0F8(0x14, arg0, 1, 1);
+    p = (u8 *)assetLoad(0x14, arg0, 1, 1);
     func_80658930(p);
     if (p != NULL) {
         assetFreeBuffer(p, 0xBED, 0x22);

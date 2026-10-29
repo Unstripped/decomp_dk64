@@ -70,7 +70,7 @@ s32 randomNonNegative(void);
 void actorScriptStart();
 void camStartPath(void *, s32, s32);
 void actorUpdateModelMatrix(Actor *, s32);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void actorDespawn(Actor *);
 void func_8067B4C8(void);
@@ -157,7 +157,7 @@ void func_8067BD08(void) {
 
 void func_8067BDB8(void) {
     func_8067BA7C(0x95);
-    func_80665564(D_807FBB40, 0.0f);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     D_807FBB40->unk80 = D_807FBB40->unkA4;
 }
 
@@ -298,7 +298,7 @@ void func_8067C2B8(void) {
         temp_a1 = R2H_ACTOR->unkEE;
         actorStepPhysics(D_807FBB40, temp_a1, temp_a1);
         actorApplyVelocity(D_807FBB40);
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         R2H_ACTOR->unk80 = R2H_ACTOR->unkA4;
         if (temp_v0->unk8 == 0) {
             R2H_ACTOR->unk144 = 0x3C;
@@ -326,7 +326,7 @@ void func_8067C2B8(void) {
         temp_a1 = R2H_ACTOR->unkEE;
         actorStepPhysics(D_807FBB40, temp_a1, temp_a1);
         actorApplyVelocity(D_807FBB40);
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         if (temp_v0->unk8 == 0) {
             if (((f64) R2H_ACTOR->unkB8 == 0.0) || !(R2H_ACTOR->unk60 & 0x10)) {
                 R2H_ACTOR->unk144 = 2;

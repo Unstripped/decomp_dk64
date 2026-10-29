@@ -6,7 +6,7 @@ f32 func_80612790(s16);                             /* extern */
 f32 func_80612794(s16);                             /* extern */
 ? actorUpdateModelMatrix(void *, ?);                         /* extern */
 ? func_8065D254(void *, ?, ?, ?, s32, s32, s32, s32, s32, s32, f32); /* extern */
-? func_80665564(void *, ?);                         /* extern */
+? actorUpdateFloorContactAndTilt(void *, ?);                         /* extern */
 ? func_8067ACB4(f64, f32, void *);                  /* extern */
 ? actorSetUniformScale(void *, s32);                       /* extern */
 s16 mathAngleBetweenPoints2D(f32, f32, void **, f32, f32); /* extern */
@@ -77,7 +77,7 @@ void func_806A2328(f64 arg0, f32 arg1) {
     D_807FBB40->unk7C = (f32) ((func_80612794(temp_s2->unk6) * (f32) D_807FBB40->unkEC) + (f32) temp_s2->unk0);
     D_807FBB40->unk84 = (f32) ((func_80612790(temp_s2->unk6) * (f32) D_807FBB40->unkEC) + (f32) temp_s2->unk4);
     D_807FBB40->unk80 = (f32) ((func_80612790((s16) (s32) (2048.0f + sp48)) * (f32) D_807FBB40->unkF0) + (f32) temp_s2->unk2);
-    func_80665564(D_807FBB40, 0);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0);
     D_807FBB40->unkE6 = (s16) (D_807FBB40->unkE6 + 0x12C);
     if ((D_807FBB40->unkE6 & 0x7FF) < 0x12C) {
         func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1DF, 0xFF, 0x7F, 0x14, 0x3C, 0.7f, 0);

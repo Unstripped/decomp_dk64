@@ -115,7 +115,7 @@ void func_8067E784(void) {
             }
         }
         D_807FBB40->unkA4 = D_807FBB40->unk80;
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         D_807FBB40->unk60 |= 2;
         var_t0->unk10 = D_807FBB40->unk4->unk38;
         var_t0->unk8 = 0;

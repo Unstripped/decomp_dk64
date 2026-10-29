@@ -1223,7 +1223,7 @@ void projectileSetTargetCoords(f32, f32, f32);
 void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, void *);
 void func_8060E7EC(u8, u8, s32);
 void camStartShake(s32, s32, s32);
-s32 func_80672630(void *, s32, s32);
+s32 actorAngleInArcWithMargin(void *, s32, s32);
 void func_80714950(s32);
 s32 func_80714C08(void *, f32, Actor *, s32, s32);
 f32 cosApprox(f32);
@@ -1366,10 +1366,10 @@ u8 arg1;
                     ang = D_807FBB40->unkE6;
                 }
                 if (D_807FBB40->unk58 == 4) {
-                    if ((!arg0 && func_806E2B20(D_807FBB40)) || func_80672630(D_807FBB40, ang, 0) == 0) {
+                    if ((!arg0 && func_806E2B20(D_807FBB40)) || actorAngleInArcWithMargin(D_807FBB40, ang, 0) == 0) {
                         projectileSetSpawnFlag();
                     }
-                } else if (func_80672630(D_807FBB40, ang, 0) == 0) {
+                } else if (actorAngleInArcWithMargin(D_807FBB40, ang, 0) == 0) {
                     projectileSetSpawnFlag();
                 }
                 if (arg0) {
@@ -1440,7 +1440,7 @@ u8 arg1;
 }
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-s32 func_80671E00(f32, f32, f32, f32, void *, void *, s32, s32);
+s32 collisionTestSphere(f32, f32, f32, f32, void *, void *, s32, s32);
 
 u8 func_806E2B20(void *arg0) {
     f32 temp3;
@@ -1465,7 +1465,7 @@ u8 func_806E2B20(void *arg0) {
         do {
             temp3 = sp68;
         } while (0);
-        sp63 = func_80671E00(((sp7C - sp78) * var_fs1) + sp78, ((sp74 - sp70) * var_fs1) + sp70, temp3 = ((sp6C - sp68) * var_fs1) + temp3, 10.0f, &sp66, &sp64, 0, 0);
+        sp63 = collisionTestSphere(((sp7C - sp78) * var_fs1) + sp78, ((sp74 - sp70) * var_fs1) + sp70, temp3 = ((sp6C - sp68) * var_fs1) + temp3, 10.0f, &sp66, &sp64, 0, 0);
     }
     return sp63;
 }
@@ -2116,8 +2116,8 @@ extern u8 D_807FC9AE[];
 extern u8 D_807FCA0C[];
 extern u8 D_807FCAC8[];
 s32 func_806E4580(void);
-s32 func_806725E4();
-s32 func_80671E00(f32, f32, f32, f32, void *, void *, s32, s32);
+s32 mathAngleInArcWithMargin();
+s32 collisionTestSphere(f32, f32, f32, f32, void *, void *, s32, s32);
 void func_80618104(void *);
 void func_80617770(void *, s32, s32);
 void func_806F0B34(void *);
@@ -2275,8 +2275,8 @@ void func_806E4AD8(void) {
     if (G25_PAD(D_807FD63C, u16) & 0x2000) {
         if (G25_P->unk1AC->unkFC == 0) {
             f = (G25_P->unk1AC->unk58 == 0x3D) ? D_80750FF4 : 30.0f;
-            if (func_80671E00(G25_A->unk7C, G25_A->unk80, G25_A->unk84, f, &sp3E, &sp3C, 1, 0)) {
-                if (!func_806725E4(sp3E, sp3C, G25_A->unkE6, 0)) {
+            if (collisionTestSphere(G25_A->unk7C, G25_A->unk80, G25_A->unk84, f, &sp3E, &sp3C, 1, 0)) {
+                if (!mathAngleInArcWithMargin(sp3E, sp3C, G25_A->unkE6, 0)) {
                     ok = 0;
                 }
             }

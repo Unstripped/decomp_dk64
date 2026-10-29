@@ -6,7 +6,7 @@ u16 modelTypeCountBeforeMap(u8);                              /* extern */
 s32 modelTypeIsCounted(u16);                             /* extern */
 ? modelAssetGetSubtables(s32, s32 **, ? *);                  /* extern */
 s32 modelSlotFindByType(s16, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *); /* extern */
-s32 func_8066B0F8(?, s32, ?, ?);                    /* extern */
+s32 assetLoad(?, s32, ?, ?);                    /* extern */
 ? slotQueueInit(?, u8);                             /* extern */
 ? heapClearBlock(void *);                           /* extern */
 ? heapFree(void *);                                 /* extern */
@@ -88,7 +88,7 @@ void func_806F4778(void) {
         D_80754240 = NULL;
     }
     sp6A = modelTypeCountBeforeMap(D_8076A0A8.unk3);
-    temp_v0_2 = func_8066B0F8(9, D_8076A0A8.unk0, 1, 1);
+    temp_v0_2 = assetLoad(9, D_8076A0A8.unk0, 1, 1);
     sp7C = temp_v0_2;
     if (temp_v0_2 != 0) {
         modelAssetGetSubtables(temp_v0_2, &sp78, &sp74);

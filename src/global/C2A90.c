@@ -25,7 +25,7 @@ void actorApplyGravity(void);
 u8 func_805FF0C8(void);
 void func_80724CA4(s32, s32);
 void actorApplyVelocity(Actor *);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 
 u8 func_806BDD90(void) {
     s16 i;
@@ -45,7 +45,7 @@ u8 func_806BDD90(void) {
     }
     actorApplyGravity();
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, 0.0f);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     for (i = 0; i < D_807FBB70.unk254; i++) {
         if (D_807FBB70.unk258[i] == 3) {
             return ((u8 *)D_807FBB70.unk278[i])[3];

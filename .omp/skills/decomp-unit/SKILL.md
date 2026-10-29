@@ -32,8 +32,9 @@ a context compaction:
    ~75 KB, so search it (`search_concepts`, or grep the body read from Python) when you
    write an agent's next step, fix a split symbol, or append quirks in §4.
 2. `ROADMAP.md` section 9; `git status` (unexpected changes are the user's: never stage them).
-3. `tools/dk make` must end with `build/dk64.us.z64: OK`; `tools/dk make progress` for the
-   starting numbers.
+3. `find src -name '*.c' -exec touch {} +`, then `tools/dk make` must end with
+   `build/dk64.us.z64: OK` (make has no header deps: an `include/` retype left 6 files of
+   stale objects hiding broken C); `tools/dk make progress` for the starting numbers.
 
 ## 1. Pick the unit ([split.md](split.md))
 

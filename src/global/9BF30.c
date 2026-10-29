@@ -2,7 +2,7 @@
 #include "actor.h"
 
 void *func_80610FE8(s32);
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 extern u8 *D_807FC7C0;
 
 #ifdef NON_MATCHING
@@ -25,7 +25,7 @@ extern u8 D_807444FC;
 extern u8 *D_807FC924;
 
 void actorFreeModelNodeList(Actor *);
-void func_8066EB40(Actor *, f32);
+void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -76,7 +76,7 @@ Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
             spE4 = (f32)((((f64)sub->unk8) * 0.15) * 2048.0);
             break;
         }
-        func_8066EB40(arg1, spE4);
+        actorSetCollisionRadius(arg1, spE4);
     }
 
     i = 0;
@@ -134,7 +134,7 @@ void loadModelAssetTable(void) {
     i = 0;
     D_807FC7C0 = func_80610FE8(0xC0);
     for (j = 0; j < 0x30; j++) {
-        ((s32 *)D_807FC7C0)[i++] = func_8066B0F8(0x19, i + 0x1654, 1, 1);
+        ((s32 *)D_807FC7C0)[i++] = assetLoad(0x19, i + 0x1654, 1, 1);
     }
 }
 
@@ -295,12 +295,12 @@ void func_807149C8(s32, s32, s32, s32);
 void func_8071498C(void (*)(void));
 void func_80714950();
 s32 randomNonNegative(void);
-void func_8066EB40(Actor *, f32);
+void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8067ACB4(Actor *);
 void actorApplyVelocity(Actor *);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80714C08(void *, f32, Actor *, s32, s32);
@@ -323,7 +323,7 @@ void projectileActorUpdate(void) {
         G_ACTOR->unkB8 = G_ACTOR->unk124->unk4;
         G_ACTOR->unkC0 = G_ACTOR->unk124->unk8;
         G_ACTOR->unk144 = 0x3C;
-        func_8066EB40(D_807FBB40, 40.0f);
+        actorSetCollisionRadius(D_807FBB40, 40.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 30.0f, -1);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         sub->unk13 = (u8)(u32)G_ACTOR->unk124->unk10;
@@ -347,7 +347,7 @@ void projectileActorUpdate(void) {
     }
     func_8067ACB4(D_807FBB40);
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, 4.0f);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 4.0f);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);
     if ((G_ACTOR->unk6A & 1) || (G_ACTOR->unkFC != 0) || (D_807FBB85 != 0)) {
         if (sub->unk13 == 3) {

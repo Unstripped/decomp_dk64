@@ -65,7 +65,7 @@ s16 modelTypeCountGet(u8 arg0) {
 }
 
 u8 func_805FF030(u8, u8);
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 void modelAssetGetSubtables(u8 *, u8 **, u8 **);
 s32 modelTypeIsCounted(u16);
 void assetSetImmediateFree(void);
@@ -89,7 +89,7 @@ void modelTypeCountsInit(void) {
             D_807F6150[i] = 0;
         }
         for (i = 0; i != 0xDD; i++) {
-            asset = func_8066B0F8(9, i, 1, 1);
+            asset = assetLoad(9, i, 1, 1);
             if (asset != NULL) {
                 slot = func_805FF030(i, 1);
                 modelAssetGetSubtables(asset, &entries, &sp54);
@@ -124,7 +124,7 @@ u16 modelTypeCountBeforeMap(u8 arg0) {
     total = 0;
     for (i = 0; i < arg0; i++) {
         if (slot == func_805FF030(i, 1)) {
-            asset = func_8066B0F8(9, i, 1, 1);
+            asset = assetLoad(9, i, 1, 1);
             if (asset != NULL) {
                 modelAssetGetSubtables(asset, &entries, &sp58);
                 count = *(s32 *)entries;
@@ -341,7 +341,7 @@ void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
         mapDistributeEntries(sp94);
         renderEntryListFree(sp94);
         func_8062D1A8();
-        csScriptLoad(func_8066B0F8(0xA, D_8076A0A8, 1, 0));
+        csScriptLoad(assetLoad(0xA, D_8076A0A8, 1, 0));
         n = *(s32 *)entry;
         rec = (u8 *)entry + 4;
         while (n--) {
@@ -586,7 +586,7 @@ void modelQuadBuildOutput(struct ModelQuadOwner *, f32, f32, f32, f32, f32, f32,
 void modelSlotLinkTexAnimTextures(u8 *, ModelSlot *);
 void modelSlotInitTexAnimNodes(u8 *, ModelSlot *, s32);
 void func_8064F450(void *, void *);
-void func_8066C2D0(s32, void *, f32, f32, f32, f32, f32, f32, f32);
+void collisionBuildSlotBoxes(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 struct ModelAssetData;
 void modelSlotBuildTriangleBuffer(s32, struct ModelAssetData *, f32, f32, f32, f32, f32, f32, f32);
 struct ModelTriBuffer;
@@ -637,7 +637,7 @@ s16 modelSlotInit(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f3
     func_8064F450(MODEL_SLOT_PTR->unk78, s0);
     MODEL_SLOT_BY_INDEX->unk3C = 0;
     MODEL_SLOT_BY_INDEX->unk3D = 0;
-    func_8066C2D0(arg0, s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    collisionBuildSlotBoxes(arg0, s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
     dynamicBufferFree(MODEL_SLOT_PTR->unk28);
     modelSlotClearTail(arg0);
     MODEL_SLOT_BY_INDEX->unk6C = 0;
@@ -706,7 +706,7 @@ s16 modelSlotInit(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f3
         node->unk2C = s0->unk37 * 10;
         node->unk2E = s0->unk38;
         node->unk30 = s0->unk39;
-        node->unk0 = (s32)func_8066B0F8(0x19, s0->unk28, 1, 0);
+        node->unk0 = (s32)assetLoad(0x19, s0->unk28, 1, 0);
         modelSlotUpdateGroundCoords(arg0, 0);
     }
     *arg12 = renderEntryAddOrUpdate(sp68, type, MODEL_SLOT_BY_INDEX->unk20, arg2, arg3, arg4, s0->unk1E, D_807F6004, 0, 0, 0);
@@ -779,14 +779,14 @@ void modelApplyMapOverrideValue(s32 arg0, u8 *arg1) {
 }
 
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-u8 func_80667174(void);
+u8 collisionGetSurfaceType(void);
 
 s32 groundSurfaceTypeAt(f32 x, f32 y, f32 z) {
     f32 sp1C;
 
     sp1C = y + 10.0f;
     if (collisionCheckGroundAtPoint(x, z, &sp1C) != 0) {
-        return func_80667174();
+        return collisionGetSurfaceType();
     }
     return 0xF;
 }
@@ -906,7 +906,7 @@ void modelSlotBuildProxPaths(s16 arg0, ModelPathTable *arg1, f32 arg2) {
 }
 
 
-void func_8066C610(s16, s8, f32 (*)[4]);
+void modelSlotBuildTransformMatrix(s16, s8, f32 (*)[4]);
 
 typedef struct ModelPosNode {
     /* 0x0 */ f32 x;
@@ -971,7 +971,7 @@ void modelSlotBuildVertPosList(s32 arg0, ModelVertTable *arg1, f32 arg2, f32 arg
                     pz = &node->z;
                     break;
             }
-            func_8066C610(arg0, vert->unk6, sp6C);
+            modelSlotBuildTransformMatrix(arg0, vert->unk6, sp6C);
             guMtxXFMF(sp6C, vert->x, vert->y, vert->z, &node->x, py, pz);
             count--;
             vert++;
@@ -1032,7 +1032,7 @@ Mtx *modelSlotGetNodeMatrix(s32 arg0, u8 arg1, s32 arg2) {
     for (arg2--; p != NULL && arg2 != 0; arg2--) {
         p += 8;
     }
-    func_8066C610(idx, p[6], sp24);
+    modelSlotBuildTransformMatrix(idx, p[6], sp24);
     sp20 = func_80610FE8(0x40);
     guMtxF2L(sp24, sp20);
     return sp20;
@@ -1082,7 +1082,7 @@ void modelSlotBuildNodePosList(s32 arg0, ModelVertTable *arg1, f32 arg2, f32 arg
                     pz = &node->z;
                     break;
             }
-            func_8066C610(arg0, vert->unk6, spAC);
+            modelSlotBuildTransformMatrix(arg0, vert->unk6, spAC);
             guMtxXFMF(spAC, vert->x, vert->y, vert->z, &node->x, py, pz);
             count--;
             vert++;
@@ -1156,7 +1156,7 @@ typedef struct ModelAssetData {
 void bboxExpandFromTriangle(f32 *, f32 *);
 void boundsTransformToAabb(f32 (*)[4], void *, void *);
 s32 modelTriangleTransform(void *, void *, f32 (*)[4]);
-void func_8066C7F4(void *, void *, f32 (*)[4]);
+void modelBuildBoneChainMatrix(void *, void *, f32 (*)[4]);
 
 void modelSlotBuildTriangleBuffer(s32 arg0, ModelAssetData *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
     s32 count;
@@ -1225,7 +1225,7 @@ void modelSlotBuildTriangleBuffer(s32 arg0, ModelAssetData *arg1, f32 arg2, f32 
             }
         } else {
             if (lastBone != bone) {
-                func_8066C7F4(sp60 + (bone << 5), sp64, spB8);
+                modelBuildBoneChainMatrix(sp60 + (bone << 5), sp64, spB8);
                 guMtxCatF(spB8, sp138, sp78);
                 lastBone = entry[0x13];
             }
@@ -1775,9 +1775,9 @@ void modelSlotLoadAssetTextures(u8 *arg0, ModelSlotAsset *arg1) {
     if (arg1->unk20 > (type * 0)) {
         p = arg1;
         do {
-            *(s32 *)((u8 *)p + 0x24) = (s32)func_8066B0F8(type, src[0], 1, 0);
+            *(s32 *)((u8 *)p + 0x24) = (s32)assetLoad(type, src[0], 1, 0);
             if (src[1] != -1) {
-                *(s32 *)((u8 *)p + 0x34) = (s32)func_8066B0F8(type, src[1], 1, 0);
+                *(s32 *)((u8 *)p + 0x34) = (s32)assetLoad(type, src[1], 1, 0);
             } else {
                 *(s32 *)((u8 *)p + 0x34) = 0;
             }
@@ -2416,9 +2416,9 @@ void modelSlotInitFromAsset(ModelSlot *arg0, s32 arg1) {
     ModelType2Obj *obj;
 
     if (func_80636A8C(arg1) != 0) {
-        arg0->unk24 = func_8066B0F8(4, arg1, 1, 1);
+        arg0->unk24 = assetLoad(4, arg1, 1, 1);
     } else {
-        arg0->unk24 = func_8066B0F8(4, arg1, 1, 0);
+        arg0->unk24 = assetLoad(4, arg1, 1, 0);
     }
     hdr = (ModelAssetHeader *)arg0->unk24;
     arg0->unk8C = 0;
@@ -2457,7 +2457,7 @@ f32 func_80636A44(s32 arg0) {
     s32 *asset;
     f32 result;
 
-    asset = func_8066B0F8(4, arg0, 1, 0);
+    asset = assetLoad(4, arg0, 1, 0);
     result = ((f32 *)asset)[1];
     assetFreeBuffer(asset, 0xB87, 7);
     return result;
@@ -2468,7 +2468,7 @@ u8 func_80636A8C(s32 arg0) {
     s32 *asset;
     s32 result;
 
-    asset = func_8066B0F8(4, arg0, 1, 0);
+    asset = assetLoad(4, arg0, 1, 0);
     if (*asset & 8) {
         result = 1;
     } else {
@@ -2615,7 +2615,7 @@ s32 dlResolveNodeTextures(DisplayListCmd *arg0, DisplayListCmd *arg1, ModelSegme
                     } while (found == 0 && node != NULL);
                 }
                 if (found == 0) {
-                    arg0->unk4 = (s32)func_8066B0F8(0x19, arg0->unk4, (u8)(arg3 == 0), 0);
+                    arg0->unk4 = (s32)assetLoad(0x19, arg0->unk4, (u8)(arg3 == 0), 0);
                     if (arg0->unk4 & 7) {
                         arg0->unk4 &= ~0xF;
                         result = 1;
@@ -3184,7 +3184,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *
                 if (arg0->unkD0 != 0) {
                     func_8066B0DC();
                 }
-                arg0->unk3C = (s32)func_8066B0F8(7, arg0->unk5C[sp30], 0, 0);
+                arg0->unk3C = (s32)assetLoad(7, arg0->unk5C[sp30], 0, 0);
                 temp_a0 = arg0->unk40;
                 if (temp_a0 != 0) {
                     assetFreeBuffer((void *)temp_a0, 0xFCE, 7);
@@ -3192,7 +3192,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *
                 if (arg0->unkD0 != 0) {
                     func_8066B0DC();
                 }
-                arg0->unk40 = (s32)func_8066B0F8(7, arg0->unk5C[sp2C], 0, 0);
+                arg0->unk40 = (s32)assetLoad(7, arg0->unk5C[sp2C], 0, 0);
             } else {
                 if (temp_a3 != 0) {
                     assetFreeBuffer((void *)temp_a3, 0xFD5, 7);
@@ -3202,7 +3202,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *
                 if (arg0->unkD0 != 0) {
                     func_8066B0DC();
                 }
-                arg0->unk40 = (s32)func_8066B0F8(7, arg0->unk5C[sp2C], 0, 0);
+                arg0->unk40 = (s32)assetLoad(7, arg0->unk5C[sp2C], 0, 0);
             }
         } else {
             if (temp_a3 != 0) {
@@ -3211,7 +3211,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *
             if (arg0->unkD0 != 0) {
                 func_8066B0DC();
             }
-            arg0->unk3C = (s32)func_8066B0F8(7, arg0->unk5C[sp30], 0, 0);
+            arg0->unk3C = (s32)assetLoad(7, arg0->unk5C[sp30], 0, 0);
         }
     }
     arg0->unk49 = 0;

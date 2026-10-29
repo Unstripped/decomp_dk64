@@ -671,7 +671,7 @@ extern s32 D_80033810;
 extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
-extern u32 D_80671880;
+extern u32 actorUpdateCollisionSpheres;
 void func_8060DC3C(s32, s32);
 s32 menuCalculateGamePercentage(void);
 
@@ -713,7 +713,7 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
     }
     osPiReadIo(func_800297A8(0xAFFE1464), &sp64);
     if (func_800297A8(0x0107183B) != sp64) {
-        *(u32 *)(s32)&D_80671880 = 0x03E00008;
+        *(u32 *)(s32)&actorUpdateCollisionSpheres = 0x03E00008;
     }
     D_8003380C = 0;
     for (k = 0; k != 5; k++) {

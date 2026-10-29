@@ -41,7 +41,7 @@ extern Actor_4840 *D_807FBB40;
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *critterRenderText(Gfx *, Actor_4840 *);
 
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 extern s32 D_8002A1C0;
 extern Actor_4840 *D_8002A1C4;
 extern u16 *D_8002A1C8;
@@ -49,8 +49,8 @@ extern u16 D_8002A1CC;
 extern u16 D_8002A1CE;
 
 void critterInitText(void) {
-    D_8002A1C0 = func_8066B0F8(0x13, 4, 1, 1);
-    D_8002A1C8 = (u16 *)func_8066B0F8(0x13, 5, 1, 1);
+    D_8002A1C0 = assetLoad(0x13, 4, 1, 1);
+    D_8002A1C8 = (u16 *)assetLoad(0x13, 5, 1, 1);
     D_8002A1C4 = 0;
     D_8002A1CE = 0;
     D_8002A1CC = 1;

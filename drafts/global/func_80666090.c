@@ -24,7 +24,7 @@ extern u8 D_807F951C;
 extern s32 D_8076A0A8;
 extern u8 D_807F94B4;
 void *func_80610FE8(s32);
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 s32 assetGetSize(s32, s32);
 void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
@@ -46,7 +46,7 @@ void func_80666090(Col6AAssetHeader *arg0) {
 
     D_807F9514 = (struct CollisionBufferEntry *)func_80610FE8(0x11A8);
     D_807F9518 = (u32)(arg0->unk18 * arg0->unk1A);
-    var_s1 = (u8 *)func_8066B0F8(3, D_8076A0A8, 1, 0);
+    var_s1 = (u8 *)assetLoad(3, D_8076A0A8, 1, 0);
     D_807F951C = 0;
     if (arg0->unk9 & 2) {
         sp58 = var_s1;

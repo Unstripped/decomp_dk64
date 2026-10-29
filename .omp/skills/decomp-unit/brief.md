@@ -144,8 +144,9 @@ swapped externs in a comparison look identical in the text.
 Your budget is finite: near-misses first, then never-attempted functions smallest to largest;
 after a serious effort on one, move on and come back if budget remains. Before writing C,
 read the matched C that `tools/dk python3 tools/similar.py -s <segment> <FUNC>` lists, then
-take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. Every assigned
-function must be compiled and fdiff'd once before you report (uncompiled = unattempted).
+take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. In an old draft, check
+every `func_` callee against the symbol files first (stale names compile as undeclared:
+double-promoted f32 args, wrong size). Compile and fdiff every assigned function once.
 When the permuter (or anything else) reaches score 0, put the readable C into your copy in
 place of the function's `GLOBAL_ASM` line and confirm with fdiff: a match left only in a
 draft is not merged.
@@ -159,18 +160,13 @@ stage 1-3 with untried next steps is unfinished work. A frame-size mismatch is s
 A function's own rodata constants (the `dlabel D_8075xxxx` blocks inside its `.s`) are C
 literals of the right type (`0.35f`, `1.07`), one occurrence per rodata entry in source
 order; never `extern f64 D_8075...` for them (identical code, but `.rodata` fails).
-Report every assigned function, matched or not. A function that won't match gets its exact
-original `#pragma GLOBAL_ASM(...)` line back (or is parked under `#ifdef NON_MATCHING`
-if behaviourally equivalent; see above), and its best draft (the function plus the
-local declarations it needs) is persisted for later sessions with
+Report every assigned function, matched or not. One that won't match gets its exact original
+`#pragma GLOBAL_ASM(...)` line back (or a NON_MATCHING park, see above) and EVERY unmatched
+function gets a saved draft (even "no stored draft" ones):
 `python3 tools/drafts.py save <seg> <FUNC> .scratch/<YourName>/<FUNC>_best.c --note "<closest diff, what you tried>"`,
-where `<FUNC>_best.c` holds ONLY that function and the declarations it needs (never your
-whole private copy: `save` rejects files with `#pragma GLOBAL_ASM` lines)
-(writes `drafts/<seg>/<FUNC>.c`, replacing the old draft). EVERY unmatched function gets a
-saved draft, including ones your task lists as "no stored draft" (that only means there is
-nothing to start from). Start from the stored draft
-(`python3 tools/drafts.py show <seg> <FUNC>`) if there is one. Your final file MUST give OK or
-TEXT OK: never leave non-matching C in it.
+where `<FUNC>_best.c` holds ONLY that function and its declarations (`save` rejects
+`#pragma GLOBAL_ASM` lines). Start from `python3 tools/drafts.py show <seg> <FUNC>` if one
+exists. Your final file MUST give OK or TEXT OK: never leave non-matching C in it.
 
 # Report (final message)
 (Write it in full as your LAST message: if an async job notice arrives after it, repeat the

@@ -61,7 +61,7 @@ extern void *D_807FC924;
 void *func_80610FE8(s32);
 void heapClearBlock(void *);
 u32 func_80611A44(void);
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 
 void func_8070F5CC(u8 type, s16 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5) {
     R114c4EffectPool *pool;
@@ -80,7 +80,7 @@ void func_8070F5CC(u8 type, s16 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5) {
         D_807FDA1C = type;
         setup = (R114c4TextureSetup *)((u8 *)&D_80755264 + (type * 0x14));
         for (i = 0; i < setup->count; i++) {
-            D_807FD9F0[i] = (u32)func_8066B0F8(setup->type != 0 ? 0x19 : 7, setup->images[i], 1, 1);
+            D_807FD9F0[i] = (u32)assetLoad(setup->type != 0 ? 0x19 : 7, setup->images[i], 1, 1);
         }
         D_807FDA18 = setup->width;
         D_807FDA19 = setup->height;

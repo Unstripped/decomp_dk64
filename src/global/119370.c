@@ -389,7 +389,7 @@ typedef struct EffectRouteEntry {
     s32 column;
 } EffectRouteEntry;
 
-s32 func_8066B0F8(s32, s16, s32, s32);
+s32 assetLoad(s32, s16, s32, s32);
 
 void func_80715A3C(s16 *arg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5) {
     u8 category;
@@ -412,7 +412,7 @@ void func_80715A3C(s16 *arg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5) 
                 } else {
                     category = 7;
                 }
-                value = func_8066B0F8(category, arg0[index + i], 0, 0);
+                value = assetLoad(category, arg0[index + i], 0, 0);
                 *out = value;
                 entry->value = value;
             } else {

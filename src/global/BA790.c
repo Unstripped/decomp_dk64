@@ -64,7 +64,7 @@ void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 u32 actorMoveWithinZone(u32, f32, f32, u16, f32);
 void func_8072C918(s32, s32, s32);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void actorScriptStart(void *, s32);
 void func_8067E278(s32, s32);
@@ -155,7 +155,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
     case 4:
         sfxStopSlotSound(D_807FBB40, 0);
         if (BA790A->unk155 == 0) {
-            func_80665564(D_807FBB40, 6.0f);
+            actorUpdateFloorContactAndTilt(D_807FBB40, 6.0f);
             BA790A->unk155 = 1;
         }
         if (D_807444EC != 1) {

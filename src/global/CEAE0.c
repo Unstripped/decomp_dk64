@@ -1205,7 +1205,7 @@ extern f32 D_80753A5C[];
 void actorApplyVelocityCustom(Actor *, f32, f32);
 void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocity(Actor *);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 
 void func_806CC638(f32 arg0) {
     f32 vx;
@@ -1252,7 +1252,7 @@ void func_806CC638(f32 arg0) {
     G03_A->unkEE = G03_A->unkE6;
     actorStepPhysics(D_807FBB40, G03_A->unkEE, G03_A->unkE6);
     actorApplyVelocityCustom(D_807FBB40, G03_A->unkB8, G03_A->unkC0);
-    func_80665564(D_807FBB40, 0.0f);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     func_806CC364(0);
 }
 
@@ -1303,7 +1303,7 @@ void func_806CC970(void) {
     }
     actorStepPhysics(D_807FBB40, angle, angle);
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, G03_MAX(-G03_P->unkD6 * 0.125, -6.0));
+    actorUpdateFloorContactAndTilt(D_807FBB40, G03_MAX(-G03_P->unkD6 * 0.125, -6.0));
     G03_A->unk60 |= 1;
     dx = G03_A->unk7C - G03_A->unk88;
     dz = G03_A->unk84 - G03_A->unk90;
@@ -2642,7 +2642,7 @@ typedef struct G06PlayerView {
 #define G06_P ((G06PlayerView *)D_807FD580)
 
 u8 func_806CFC90(Actor *, f32 *, u8, f32);
-s32 func_806725A0(Actor *, s16);
+s32 actorAngleInArc(Actor *, s16);
 s32 func_80666AEC(void);
 void collisionGetCoords(void *, s16 *);
 extern f32 D_80753E10[];
@@ -2660,7 +2660,7 @@ void func_806CF9CC(void) {
 
     if (!(D_807FBB64 & 0x20000) && D_807FBB40->unkFC != 0 && G06_P->unk8C == 0 && !(D_807FBB40->unk6A & 1) && G06_P->unkE8 != 0) {
         flag = (D_8076A0A8 == 0x53 || D_8076A0A8 == 0xC5) ? 1 : 0;
-        notWall = func_806725A0(D_807FBB40, D_807FBB40->unkE6) == 0;
+        notWall = actorAngleInArc(D_807FBB40, D_807FBB40->unkE6) == 0;
         if (notWall || !(D_80753E10[D_807FD584] < D_807FBB40->unkB8) || flag != 0) {
             sp3B = func_806CFC90(D_807FBB40, &sp3C, notWall, flag ? 30.0 : 15.0);
             collisionGetCoords(&sp38, &sp36);

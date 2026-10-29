@@ -1,4 +1,4 @@
-// func_806A6DB4 (src/global/AA960.c): stage 6: size/frame/blocks/literals match; only temp-register naming differs (expected v1/t1/t2 vs built t6/t7/t9/t0 in the func_80672A70 tail, and tN rotations after). Key fixes vs old draft: (a) the unk58-sfx call and temp_v1->unk0++ are INSIDE the if((unk6A&1)&&!(unk6C&1)) block; (b) unkB8 / 2 (integer constant, so IDO emits div.s by 2.0f; /2.0f folds to *0.5f); (c) 'temp = 0xC8;' before the switch makes uopt color the sfx-id temp (no home-slot store); temp shared with the func_80672A70 result.
+// func_806A6DB4 (src/global/AA960.c): stage 6: size/frame/blocks/literals match; only temp-register naming differs (expected v1/t1/t2 vs built t6/t7/t9/t0 in the mathAngleArcMidpoint tail, and tN rotations after). Key fixes vs old draft: (a) the unk58-sfx call and temp_v1->unk0++ are INSIDE the if((unk6A&1)&&!(unk6C&1)) block; (b) unkB8 / 2 (integer constant, so IDO emits div.s by 2.0f; /2.0f folds to *0.5f); (c) 'temp = 0xC8;' before the switch makes uopt color the sfx-id temp (no home-slot store); temp shared with the mathAngleArcMidpoint result.
 typedef struct AA960Config124 {
     f32 unk0;
     f32 unk4;
@@ -22,14 +22,14 @@ extern s16 D_8075038C;
 extern f32 D_80750388;
 void func_806C9974(s32, s32);
 void func_8067ACB4(Actor *);
-s32 func_806725A0(Actor *, s16);
-s16 func_80672A70(s16, s16);
+s32 actorAngleInArc(Actor *, s16);
+s16 mathAngleArcMidpoint(s16, s16);
 void actorApplyVelocity(Actor *);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void func_8066EB40(Actor *, f32);
+void actorSetCollisionRadius(Actor *, f32);
 void actorUpdateModelMatrix(Actor *, s32);
 
 typedef struct AA960PhysicsActor {
@@ -73,14 +73,14 @@ void func_806A6DB4(u8 arg0) {
         D_807FBB40->unk154 = D_807FBB70.unk1[0];
     }
     func_8067ACB4(D_807FBB40);
-    if (D_807FBB40->unkFC != 0 && func_806725A0(D_807FBB40, AA960_PHY->unkEE) == 0) {
-        temp = func_80672A70(D_807FBB40->unkF4, D_807FBB40->unkF6);
+    if (D_807FBB40->unkFC != 0 && actorAngleInArc(D_807FBB40, AA960_PHY->unkEE) == 0) {
+        temp = mathAngleArcMidpoint(D_807FBB40->unkF4, D_807FBB40->unkF6);
         AA960_PHY->unkEE = temp + (temp - ((AA960_PHY->unkEE + 0x800) & 0xFFF));
     }
     if (D_807FBB40->unk154 == 1 || D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 4
         || D_807FBB40->unk154 == 5 || D_807FBB40->unk154 == 6) {
         D_807FBB40->unk144 = 0x1C;
-        func_8066EB40(D_807FBB40, 60.0f);
+        actorSetCollisionRadius(D_807FBB40, 60.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         switch (D_807FBB40->unk154) {
@@ -111,7 +111,7 @@ void func_806A6DB4(u8 arg0) {
         break;
     case 3:
         actorApplyVelocity(D_807FBB40);
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         AA960_PHY->unkC0 += D_80750388;
         if (AA960_PHY->unkC0 < (f32)D_8075038C) {
             AA960_PHY->unkC0 = (f32)D_8075038C;

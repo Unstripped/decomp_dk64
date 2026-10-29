@@ -32,7 +32,7 @@ extern u8 D_8071FE08[];
 extern u8 D_80720E14[];
 void func_8071EEE0(void);
 
-void func_8066EB40(Actor *, f32);
+void actorSetCollisionRadius(Actor *, f32);
 void func_8067ACB4(Actor *);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void actorUpdateModelMatrix(Actor *, s32);
@@ -70,7 +70,7 @@ void func_8069B010(void) {
     if (!(temp_s0->unk60 & 0x10)) {
         temp_s0->unk6A = (u16) (temp_s0->unk6A & 0xFFFE);
         D_807FBB40->unk144 = 2;
-        func_8066EB40(D_807FBB40, 60.0f);
+        actorSetCollisionRadius(D_807FBB40, 60.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 60.0f, -1);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         func_807149FC(-1);

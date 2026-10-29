@@ -419,7 +419,7 @@ f32 func_80612794(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
 void func_8065D254(Actor_3340 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_80665564(Actor_3340 *, f32);
+void actorUpdateFloorContactAndTilt(Actor_3340 *, f32);
 u8 func_8072881C(u8, u32 *);
 
 void func_80028120(void) {
@@ -557,7 +557,7 @@ void func_80028120(void) {
         J1b2A->unk60 = J1b2A->unk60 & ~4;
     } else {
         J1b2A->unk60 = J1b2A->unk60 | 4;
-        func_80665564(D_807FBB40, 0);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0);
         func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x23, 0xF, 1, 0x4B, 0x78, J1b2A->unkE6, 1.0f);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);

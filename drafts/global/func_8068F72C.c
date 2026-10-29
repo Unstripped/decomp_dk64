@@ -74,7 +74,7 @@ s32 func_806CC10C(s16, s16);
 s16 func_806CC190(s16, s16, f32);
 void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocity(Actor *);
-void func_80665564(Actor *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_8002F490(void *);
 
 #define S ((L6919E02State *)arg0)
@@ -224,7 +224,7 @@ u8 arg3;
     }
     actorStepPhysics(D_807FBB40, G_L6919E02->unkE6, S->unk0);
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, 0.0f);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     if (arg2 == 0) {
         if (G_L6919E02->unk80 < G_L6919E02->unkAC) {
             G_L6919E02->unk80 = G_L6919E02->unkAC;

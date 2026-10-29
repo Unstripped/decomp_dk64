@@ -14,7 +14,7 @@ s32 func_8070DDDC(u16 arg0, s32 arg1) {
     var_v0 = func_8070D928(arg0);
     var_a0 = var_v0;
     if (var_v0 == NULL) {
-        temp_a0 = func_8066B0F8(0xC, arg0, 1, 1);
+        temp_a0 = assetLoad(0xC, arg0, 1, 1);
         var_v1 = &D_807550C0;
         if (D_807550C0 != NULL) {
             var_v0_2 = D_807550C0;

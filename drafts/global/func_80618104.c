@@ -13,8 +13,8 @@ void slotQueueUpdate(s32, s32, s32);
 s32 slotQueueGetValue(s32, u8);
 void slotQueueAddValue(s32, u8, s32);
 s32 func_8067ACDC(Actor *, s32, s32);
-s32 func_80671E00(f32, f32, f32, f32, s16 *, s16 *, s32, s32);
-s32 func_806725E4(s16, s16, s16, s32);
+s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, s32, s32);
+s32 mathAngleInArcWithMargin(s16, s16, s16, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void projectileSetSpawnFlag(void);
 void projectileGetTargetCoords(Actor *, s32);
@@ -44,14 +44,14 @@ void func_80618104(Actor *arg0) {
             case 5: var_fv0 = 20.0f; break;
             default: var_fv0 = 30.0f; break;
         }
-        if (func_80671E00(arg0->unk7C, (f32)((f64)arg0->unk80 + 30.0), arg0->unk84, var_fv0, &sp40, &sp3E, 1, 0) != 0) {
+        if (collisionTestSphere(arg0->unk7C, (f32)((f64)arg0->unk80 + 30.0), arg0->unk84, var_fv0, &sp40, &sp3E, 1, 0) != 0) {
             if (arg0->unk154 == 2) {
                 temp_v0 = &D_807FC924[D_807FC929];
                 var_a2 = mathAngleBetweenPoints2D(temp_v0->unk228, temp_v0->unk230, temp_v0->unk210, temp_v0->unk218);
             } else {
                 var_a2 = arg0->unkE6;
             }
-            if (func_806725E4(sp40, sp3E, var_a2, 0) == 0) projectileSetSpawnFlag();
+            if (mathAngleInArcWithMargin(sp40, sp3E, var_a2, 0) == 0) projectileSetSpawnFlag();
         }
         if (arg0->unk154 == 2) {
             projectileGetTargetCoords(D_807FBB48, 6);

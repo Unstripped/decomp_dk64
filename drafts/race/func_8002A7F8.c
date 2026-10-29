@@ -1,5 +1,5 @@
-// func_8002A7F8 (src/race/6650.c): FE3c: stage 5, 24 diff lines (was 30). then-arm now: sp4E=(s16)(s32)(cos*sp20); fv0 = sin*sp20; sp4E &= 0xFFF; a3 = (s32)fv0 & 0xFFF (float temp splits the call from the mask so the sp4E reload/andi lands at t4,t5 like target). Remaining: then-arm raw trunc goes to 'mfc1 a3' (dest hint) vs target 'mfc1 t9' + andi t0/sll t1/sra a3, plus 3 later t-reg numbers (else-arm sra/sll, final mfc1). Split forms (a3=(s32)fv0; a3&=0xFFF) give the target then-arm exactly but shift the else-arm ring (li t7 vs t4, +3 hidden temps); else-arm 'a0=(a0+0x800)&0xFFF' merged hints a0 (46). Tried ~1000 statement-order/cast/var-reuse/dummy-stmt variants. func_80665564 prototype must be (Actor_BB40 *, f32) in 6650.c (only decl in file).
-void func_80665564(Actor_BB40 *, f32); /* file decl must be f32 (li a1,0 for 0.0f); was s32 */
+// func_8002A7F8 (src/race/6650.c): FE3c: stage 5, 24 diff lines (was 30). then-arm now: sp4E=(s16)(s32)(cos*sp20); fv0 = sin*sp20; sp4E &= 0xFFF; a3 = (s32)fv0 & 0xFFF (float temp splits the call from the mask so the sp4E reload/andi lands at t4,t5 like target). Remaining: then-arm raw trunc goes to 'mfc1 a3' (dest hint) vs target 'mfc1 t9' + andi t0/sll t1/sra a3, plus 3 later t-reg numbers (else-arm sra/sll, final mfc1). Split forms (a3=(s32)fv0; a3&=0xFFF) give the target then-arm exactly but shift the else-arm ring (li t7 vs t4, +3 hidden temps); else-arm 'a0=(a0+0x800)&0xFFF' merged hints a0 (46). Tried ~1000 statement-order/cast/var-reuse/dummy-stmt variants. actorUpdateFloorContactAndTilt prototype must be (Actor_BB40 *, f32) in 6650.c (only decl in file).
+void actorUpdateFloorContactAndTilt(Actor_BB40 *, f32); /* file decl must be f32 (li a1,0 for 0.0f); was s32 */
 void func_8002A7F8(Struct_sp58 *arg0) {
     f32 sp5C;
     f32 sp58;
@@ -125,7 +125,7 @@ void func_8002A7F8(Struct_sp58 *arg0) {
     a0 = D_807FBB40->unkEE;
     actorStepPhysics(D_807FBB40, a0, a0);
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, 0.0f);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     if (D_807FBB64 & 0x2000) {
         func_8002F490(arg0);
     }

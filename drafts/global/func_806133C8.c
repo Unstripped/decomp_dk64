@@ -10,7 +10,7 @@ void func_806133C8(Perm3bCommand *arg0, Perm3bCommand *arg1) {
             if ((temp_v0 >> 0x18) == 0xFD) {
                 temp_v0 = var_s0->unk4;
                 if (((temp_v0 * 0x10) >> 0x1C) == 0) {
-                    var_s0->unk4 = func_8066B0F8(0x19, temp_v0, 0, 0);
+                    var_s0->unk4 = assetLoad(0x19, temp_v0, 0, 0);
                 }
             }
             var_s0++;

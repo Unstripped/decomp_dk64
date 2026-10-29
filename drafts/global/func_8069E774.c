@@ -44,7 +44,7 @@ s32 func_80613448(Actor *);
 s32 func_8061CB50(void);
 void func_8061F0B0(void *, s32, s32);
 f32 func_80612794(s16);
-void func_8066EB40(void *, f32);
+void actorSetCollisionRadius(void *, f32);
 void playerStateQueueCallback(s16, Actor *, s32);
 s32 func_80714608(s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
@@ -156,7 +156,7 @@ void func_8069E774(void) {
         if (animIsPlaying(D_807FBB40, 0, 0) == 0) {
             sp87 = 1;
             *sp74 &= 0xFDFFFFFF;
-            func_8066EB40(sp78, (f32)node->unkC);
+            actorSetCollisionRadius(sp78, (f32)node->unkC);
             actorGetOrSetNodeScale(sp78, func_8069E724(sp78->unk58), 0.0f);
             actorDespawn(D_807FBB40);
         }
@@ -186,7 +186,7 @@ void func_8069E774(void) {
                 }
             }
             if (D_807FBB40->unk15F != 0) {
-                func_8066EB40(
+                actorSetCollisionRadius(
                     D_807FBB40,
                     (f32)(2.0 * ((f64)(D_807FBB40->unk4->unk34 * sp48) *
                                  6.66666667)));
@@ -196,7 +196,7 @@ void func_8069E774(void) {
                           6.66666667));
             }
         } else if (sp87 == 0) {
-            func_8066EB40((Actor *)D_807FBB40->unk11C,
+            actorSetCollisionRadius((Actor *)D_807FBB40->unk11C,
                           (f32)(2.0 * ((f64)(D_807FBB40->unk4->unk34 * sp48) *
                                        6.66666667)));
             actorGetOrSetNodeScale(

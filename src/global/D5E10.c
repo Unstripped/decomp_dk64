@@ -2287,7 +2287,7 @@ void func_806D61B8(void) {
 }
 
 extern s16 D_80753548[];
-s32 func_806725A0();
+s32 actorAngleInArc();
 
 void func_806D6558(void) {
     func_806D3608();
@@ -2308,7 +2308,7 @@ void func_806D6558(void) {
                     G13_P->unk68 = D_8075352C[D_807FD584];
                 }
             }
-            if (G13_A->unkFC != 0 && func_806725A0(D_807FBB40, G13_A->unkE6) == 0) {
+            if (G13_A->unkFC != 0 && actorAngleInArc(D_807FBB40, G13_A->unkE6) == 0) {
                 func_80614E78(D_807FBB40, 0x49);
                 G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
                 G13_A->unk155 = 3;
@@ -2327,7 +2327,7 @@ void func_806D6558(void) {
             break;
         case 2:
             func_806DF6D4(0x1A);
-            if (G13_A->unkFC != 0 && func_806725A0(D_807FBB40, G13_A->unkE6) == 0) {
+            if (G13_A->unkFC != 0 && actorAngleInArc(D_807FBB40, G13_A->unkE6) == 0) {
                 func_80614E78(D_807FBB40, 0x49);
                 G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
                 G13_A->unk155++;
@@ -5305,13 +5305,13 @@ extern f32 D_80753D8C[];
 extern s16 D_80753DA8[];
 extern s16 D_80753DB8[];
 u8 actorSetTargetAngleAndCheck(Actor *, s16);
-s32 func_80672A70(s16, s16);
+s32 mathAngleArcMidpoint(s16, s16);
 s32 func_80666AEC(void);
 void collisionGetCoords(void *, s16 *);
 void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocity(Actor *);
-void func_80665548(void);
-void func_80665564(Actor *, f32);
+void actorSkipFloorSnap(void);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 
 void func_806DDAB0(void) {
     f32 sp64;
@@ -5405,7 +5405,7 @@ void func_806DDAB0(void) {
         if (sp62 == 0) {
             LD5C_A->unkB8 = 0.0f;
         }
-        LD5C_P->unkEC = func_80672A70(LD5C_A->unkF4, LD5C_A->unkF6) + 0x800;
+        LD5C_P->unkEC = mathAngleArcMidpoint(LD5C_A->unkF4, LD5C_A->unkF6) + 0x800;
         LD5C_P->unkEC &= 0xFFF;
         LD5C_A->unkE6 = func_806CC190(LD5C_A->unkE6, LD5C_P->unkEC, 3.0f);
         LD5C_A->unk7C = LD5C_P->unkE0;
@@ -5451,8 +5451,8 @@ void func_806DDAB0(void) {
     }
     actorStepPhysics(D_807FBB40, LD5C_A->unkEE, LD5C_A->unkEE);
     actorApplyVelocity(D_807FBB40);
-    func_80665548();
-    func_80665564(D_807FBB40, 0);
+    actorSkipFloorSnap();
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 

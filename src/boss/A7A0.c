@@ -206,7 +206,7 @@ s32 camStartPath(void *, s32, s32);
 s32 camIsPlayingPath(s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void playerStateQueueCallback(s32, void *, s32);
-void func_8066EB40(void *, f32);
+void actorSetCollisionRadius(void *, f32);
 void actorOrNodeFlags(void *, s32, s32);
 s32 currentActorTestClearFlag(void);
 void func_805FF158(s32);
@@ -294,7 +294,7 @@ void func_8002EA7C(void) {
                 func_8002EA14();
                 ACTOR40->unk154 = sp28[sp178->unk15++];
                 ACTOR40->unk155 = 0;
-                func_8066EB40(ACTOR4C, (f32)(ACTOR4C->unk140->unkC * 2));
+                actorSetCollisionRadius(ACTOR4C, (f32)(ACTOR4C->unk140->unkC * 2));
                 actorOrNodeFlags(ACTOR4C, 6, 1);
                 actorOrNodeFlags(ACTOR4C, 7, 1);
                 actorOrNodeFlags(ACTOR4C, 8, 1);

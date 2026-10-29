@@ -80,7 +80,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_8067E278(s32, s32);
 void actorGetOrSetNodeScale(void *, s32, f32);
-void func_8066EB40(void *, f32);
+void actorSetCollisionRadius(void *, f32);
 void projectileGetTargetCoords(void *, s32);
 void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
 void projectileSetTargetCoords(f32, f32, f32);
@@ -101,7 +101,7 @@ void func_8072D9D4(void);
 void camStartPath(void *, s32, s32);
 void behaviourSetAnimIds(s32, s32, s32);
 void actorApplyVelocityCustom(void *, f32, f32);
-void func_80665564(void *, f32);
+void actorUpdateFloorContactAndTilt(void *, f32);
 
 void func_806B2790(void) {
     u8 flag;
@@ -462,7 +462,7 @@ void func_806B3680(void) {
                         func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x35C, 0xFF, 0x7F, 0, 0x32, 0.3f, 0);
                         func_8067E278(0, 1);
                         actorGetOrSetNodeScale(D_807FBB40, 1, D_807FBB40->unk140->unkC * sp54);
-                        func_8066EB40(D_807FBB40, D_807FBB40->unk140->unkC * sp54);
+                        actorSetCollisionRadius(D_807FBB40, D_807FBB40->unk140->unkC * sp54);
                         D_807FBB40->unk60 &= ~4;
                         D_807FBB40->unk155[0]++;
                     }
@@ -966,7 +966,7 @@ void func_806B52DC(void) {
     }
     func_8067ACB4(D_807FBB40);
     actorApplyVelocityCustom(D_807FBB40, D_807FBB40->unkB8, 0.0f);
-    func_80665564(D_807FBB40, 0.0f);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     switch (D_807FBB40->unk154) {
     case 6:
         D_807FBB40->unk128 = D_807FBB40->unk128 + ((B7490Actor *) D_807FBB40)->unkEC;

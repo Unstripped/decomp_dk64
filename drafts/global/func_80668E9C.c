@@ -72,9 +72,9 @@ u8 func_80669E04(struct CollisionTriF *, f32, f32);
 s32 collisionCheckSurfaceFilter(u8, u8 *);
 void collisionRecordTriangleF(struct CollisionTriF *, f32);
 s32 collisionCheckTriangleWindingF32(struct CollisionTriF *);
-void func_80669830();
+void collisionStoreTriangleNormalAnglesF32();
 struct CollisionActorWork;
-void func_806699C4(struct CollisionActorWork *, s16, s8, u8, f32, f32, f32);
+void collisionAttachActorToObjectNode(struct CollisionActorWork *, s16, s8, u8, f32, f32, f32);
 
 #define L668E9C_ENTRIES ((L668E9C_Entry *)D_807F6000)
 
@@ -181,7 +181,7 @@ u8 func_80668E9C(L668E9C_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f3
                     y = (f32)((2000.0 * (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)))) - 1000.0);
                     func_80666D88(arg4, y, 0, (Actor *)arg0, 0);
                     if (func_80666F04(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
-                        func_806699C4((struct CollisionActorWork *)arg0, sp9A, -1, 0, arg2, y, arg3);
+                        collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, sp9A, -1, 0, arg2, y, arg3);
                         arg0->unk110 = 2;
                     }
                 }
@@ -203,14 +203,14 @@ u8 func_80668E9C(L668E9C_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f3
 
     if (hit != 0 && mathCheckCloserFloatThreshold(*arg5, hit_y, (f32)((f64)arg4 + 4.0), 0) != 0) {
         *arg5 = hit_y;
-        func_80669830(arg0, hit_tri, 1);
+        collisionStoreTriangleNormalAnglesF32(arg0, hit_tri, 1);
         sub7C = L668E9C_ENTRIES[sp9A].unk7C;
         if (sub7C != NULL && sub7C->unk4F != 0) {
             D_807F94AC = 1;
         }
         if (arg0 != NULL) {
             if (arg0->unk110 != 2 && arg0->unk110 != 3) {
-                func_806699C4((struct CollisionActorWork *)arg0, sp9A, hit_tri->unk26, hit_tri->unk27, arg2, hit_y, arg3);
+                collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, sp9A, hit_tri->unk26, hit_tri->unk27, arg2, hit_y, arg3);
             }
             arg0->unk78 = hit_tri->unk25;
         }

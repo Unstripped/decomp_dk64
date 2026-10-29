@@ -21,7 +21,7 @@ Gfx *func_8068D264(Gfx *glist, f32 *arg1) {
 
     sp80 = *arg1;
     sp7C = D_80744478 * 0.5;
-    sp84 = func_8066B0F8(0x19, 0x173C, 1, 0);
+    sp84 = assetLoad(0x19, 0x173C, 1, 0);
     func_8066B434(sp84, 0x1B2, 0x46);
 
     gDPPipeSync(glist++);

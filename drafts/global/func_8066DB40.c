@@ -94,7 +94,7 @@ s32 func_8066DB40(void *arg0, void *arg1) {
     }
     sp28.unk50 = C7B_IN->unk15;
     sp28.unk4B = 1;
-    func_8066DD34((CollisionBox *)&sp28);
+    collisionBuildPlane((CollisionBox *)&sp28);
 
     *(s64 *)&C7B_OUT->unk0 = *(s64 *)&sp28.unk0;
     *(s64 *)&C7B_OUT->unk8 = *(s64 *)&sp28.unk8;

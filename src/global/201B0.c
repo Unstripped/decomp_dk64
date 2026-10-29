@@ -2539,7 +2539,7 @@ typedef struct CamPlayerRecSaved {
     /* 0x2C1 */ u8 pad2C1[0x2F];
 } CamPlayerRecSaved; // size = 0x2F0
 
-s32 func_80671E00(f32, f32, f32, f32, void *, void *, s32, s32);
+s32 collisionTestSphere(f32, f32, f32, f32, void *, void *, s32, s32);
 
 void camFindClearYaw(CamActor *arg0, f32 arg1, s16 arg2, u8 arg3) {
     CamFindYawTarget *tgt;
@@ -2600,7 +2600,7 @@ void camFindClearYaw(CamActor *arg0, f32 arg1, s16 arg2, u8 arg3) {
     do {
         again = 0;
         sawCol = camComputeFollowPos(arg0, cam->unk0, &x, &y, &z, -1.0f) == 1;
-        while (cam->unkA0 < f * 100.0f && !sawCol && (ret = func_80671E00(x, y, z, 10.0f * f, &out1, &out0, 1, 0xBC), hit = ret, ret == 0)) {
+        while (cam->unkA0 < f * 100.0f && !sawCol && (ret = collisionTestSphere(x, y, z, 10.0f * f, &out1, &out0, 1, 0xBC), hit = ret, ret == 0)) {
             saved = cam->unkB2;
             cam->unkA0 += 10.0f * f;
             ((CamActorHeightSpeed *)arg0)->unkB4 += f * 3.0f;
@@ -2686,8 +2686,8 @@ typedef struct CamWallActor {
 
 extern u8 D_807FB606;
 extern f32 D_807476AC;
-s16 func_80672A70(s16, s16);
-void func_80672680(s16, s16, s16, s16, void *);
+s16 mathAngleArcMidpoint(s16, s16);
+void mathAngleClampToArc(s16, s16, s16, s16, void *);
 s16 func_80672134(s16, s16, s16, s16);
 
 u8 camResolveWallCollision(CamActor *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 arg4, f32 *arg5, f32 arg6) {
@@ -2710,7 +2710,7 @@ u8 camResolveWallCollision(CamActor *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 ar
     } else {
         v -= 0.1 * st->unkF1;
     }
-    if (func_80671E00(*arg3, arg4, *arg5, v, &sp4A, &sp48, 1, 0xBC)) {
+    if (collisionTestSphere(*arg3, arg4, *arg5, v, &sp4A, &sp48, 1, 0xBC)) {
         if (D_807FB606 != 0) {
             st->unkFC = 2;
             sp44 = (((CamWallActor *)arg0)->unkEE + 0x800) & 0xFFF;
@@ -2719,11 +2719,11 @@ u8 camResolveWallCollision(CamActor *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 ar
             s16 sp3A;
             s16 t;
 
-            sp3A = func_80672A70(sp4A, sp48);
+            sp3A = mathAngleArcMidpoint(sp4A, sp48);
             arg1 += 0.5 * func_80612794(sp3A);
             arg2 += 0.5 * func_80612790(sp3A);
             st->unkFC = 1;
-            func_80672680(((CamWallActor *)arg0)->unkEE, ((CamWallActor *)arg0)->unkEE, sp4A, sp48, &sp44);
+            mathAngleClampToArc(((CamWallActor *)arg0)->unkEE, ((CamWallActor *)arg0)->unkEE, sp4A, sp48, &sp44);
             t = func_80672134(sp4A, sp48, ((CamWallActor *)arg0)->unkE6, 100);
             if ((f32)t < arg6) {
                 sp42 = t;
@@ -3510,7 +3510,7 @@ void func_806228BC(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f
     }
     *arg3 = tgt->unk84;
     if (tgt->unkFC != 0) {
-        angle = func_80672A70(tgt->unkF4, tgt->unkF6);
+        angle = mathAngleArcMidpoint(tgt->unkF4, tgt->unkF6);
         *arg1 += 5.0 * func_80612794(angle);
         *arg3 += 5.0 * func_80612790(angle);
     }
@@ -4592,13 +4592,13 @@ void camLoadPathTable(void *arg0, CamPathData *arg1, u8 arg2) {
     arg1->unkD8[53].unk1 = 8;
 }
 
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 void splineSetBasisTension(f32);
 void assetFreeBuffer(void *, s32, s32);
 void func_80625C30(void);
 
 void camInit(void *arg0) {
-    void *buf = func_8066B0F8(8, 0, 1, 1);
+    void *buf = assetLoad(8, 0, 1, 1);
 
     splineSetBasisTension(0.5f);
     gCamActivePaths = &gCamMapPaths;
@@ -5089,7 +5089,7 @@ void camStartPathNearWall(CamActor *arg0, u8 arg1, u8 arg2, u8 arg3) {
     s16 sp2E;
     s16 sp2C;
 
-    if (func_80671E00(arg0->unk7C, arg0->unk80, arg0->unk84, 80.0f, &sp2E, &sp2C, 1, 0xBC)) {
+    if (collisionTestSphere(arg0->unk7C, arg0->unk80, arg0->unk84, 80.0f, &sp2E, &sp2C, 1, 0xBC)) {
         arg0->unkE6 = mathAngleBetweenPoints2D(((CamPlayerRec *)D_807FC924)->unk210, ((CamPlayerRec *)D_807FC924)->unk218, arg0->unk7C, arg0->unk84);
         camStartPath(arg0, arg2, arg3);
     } else {

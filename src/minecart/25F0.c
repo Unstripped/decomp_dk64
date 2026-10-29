@@ -195,7 +195,7 @@ void func_8067E278(s32, s32);
 void func_80724E48(s32);
 s32 func_8072DE10(s32);
 void minecartStartScriptNearPlayer(void);
-void func_8068ECF4(s32, s32);
+void actorSpawnNodeEffectFacingCamera(s32, s32);
 void actorApproachTargetSpeed(s32);
 void minecartFollowTrack(MinecartCart *, s32, s32);
 void actorGetNodePos(Actor_25F0 *, s32, f32 *, f32 *, f32 *);
@@ -214,7 +214,7 @@ void animSetLoopMode(void *, s32, s32);
 void animSetLoopLimit(void *, s32, s32);
 void actorApplyGravity(void);
 void actorApplyVelocity(void *);
-void func_80665564(void *, f32);
+void actorUpdateFloorContactAndTilt(void *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleDistance(s16, s16);
 s32 playerStateQueueCallback(s32, void *, s32);
@@ -516,7 +516,7 @@ void func_80027778(void) {
     D_807FBB40->unkEE = D_807FBB40->unkE6;
     actorApplyGravity();
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, 2.0 * func_80612794(D_8076A064 * 0x64) + 10.0);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 2.0 * func_80612794(D_8076A064 * 0x64) + 10.0);
     if ((sp5E - D_807FBB40->unk7C) * (sp5E - D_807FBB40->unk7C) + (sp5C - D_807FBB40->unk84) * (sp5C - D_807FBB40->unk84) < 1600.0f) {
         D_807FBB40->unk168++;
     }
@@ -654,7 +654,7 @@ void func_800280BC(void) {
         func_80724E48(1);
         minecartStartScriptNearPlayer();
         minecartAdjustTargetSpeed();
-        func_8068ECF4(6, 0xFF);
+        actorSpawnNodeEffectFacingCamera(6, 0xFF);
         actorApproachTargetSpeed(0x200);
         minecartFollowTrack(cart, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp44, &sp48, &sp4C);
@@ -802,7 +802,7 @@ case_1:
             D_807FDC90->unk26 = MIN(MAX(t2, 45.0), 90.0);
         }
         actorApproachTargetSpeed(0x200);
-        func_8068ECF4(6, 0xFF);
+        actorSpawnNodeEffectFacingCamera(6, 0xFF);
         minecartFollowTrack(cart, 0x7FFF, 0x23);
         actorGetNodePos(D_807FBB40, 5, &sp74, &sp78, &sp7C);
         func_8072177C(D_807FBB40, sp74, sp78, sp7C, 0xFF, 0xFF, 0xFF, 0xFF, 0);

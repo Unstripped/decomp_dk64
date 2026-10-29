@@ -577,7 +577,7 @@ void func_806F3760(s16 arg0) {
     s32 sp1C;
     s32 temp_v0;
 
-    temp_v0 = func_8066B0F8(0x15, arg0, 1, 0);
+    temp_v0 = assetLoad(0x15, arg0, 1, 0);
     sp1C = temp_v0;
     func_806F4528((void *)temp_v0);
     if (sp1C != 0) {

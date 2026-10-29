@@ -79,6 +79,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   void→s32 toggles over ALL callees, named vs inline temps, adjsave from `uopt_trace -l 5`.
   With the unit's whole `local://findings.md` (≈40 merged reports) such passes matched 13 of
   19 parks in the slot-queue/text unit (2–4 parks per agent).
+- A matched callee's narrow (u8/s16) prototyped param forces every caller to narrow `a0`:
+  callers stuck on that are one prototype puzzle across callee + callers for ONE agent
+  allowed to re-spell the matched callee (6AD90 unit: 3 callers matched, a FAKE removed).
 - Agents' long sweep/beam jobs hold shared `tools/dk` locks: a gate then waits 5–15 min.
   The brief's "batch variants inside one `tools/dk` call" keeps it bounded; do not kill them.
 - Only a TU re-split of a file waits for every agent on that file.

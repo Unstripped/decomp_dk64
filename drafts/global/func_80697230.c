@@ -18,7 +18,7 @@ extern u8 D_807444FC;
 extern u8 *D_807FC924;
 
 void actorFreeModelNodeList(Actor *);
-void func_8066EB40(Actor *, f32);
+void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -69,7 +69,7 @@ Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
             spE4 = (f32)((((f64)sub->unk8) * 0.15) * 2048.0);
             break;
         }
-        func_8066EB40(arg1, spE4);
+        actorSetCollisionRadius(arg1, spE4);
     }
 
     i = 0;

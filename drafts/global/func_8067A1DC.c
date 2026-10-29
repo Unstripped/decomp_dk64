@@ -38,7 +38,7 @@ void func_8067A69C(Actor *, s32, s32, s32, s32, s32);
 void func_80679200(Actor *, s32, s32, u8, s32, void *);
 void func_8067A70C(Actor *, s32, f32, f32, f32, u8, u8);
 void func_806CF42C(Actor *);
-void func_8066A75C(Actor *, s32, void *, s32, void *);
+void collisionTransformPointByActorMtx(Actor *, s32, void *, s32, void *);
 void func_806776A0(Actor *, s32, void *, void *, s32, s32, s32, s32);
 
 void func_8067A1DC(Actor *arg0) {
@@ -118,7 +118,7 @@ void func_8067A1DC(Actor *arg0) {
             if (GLOBAL->unk8C[i] == 0) {
                 var_s1 = (u8 *)&D_807FBB70 + i * 4;
                 var_s0 = (u8 *)&D_807FBB70 + i * 12;
-                func_8066A75C(arg0, *(s32 *)(var_s1 + 0x6C), var_s0 + 0x3C, *(s32 *)(var_s0 + 0x40), var_s0 + 0x44);
+                collisionTransformPointByActorMtx(arg0, *(s32 *)(var_s1 + 0x6C), var_s0 + 0x3C, *(s32 *)(var_s0 + 0x40), var_s0 + 0x44);
                 func_8067A69C(arg0, *(s32 *)(var_s1 + 0x7C), *(s32 *)(var_s0 + 0x3C), *(s32 *)(var_s0 + 0x44), 1, 1);
             }
             i++;

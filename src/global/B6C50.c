@@ -53,7 +53,7 @@ void actorScriptStart(B6C50Actor *, s32);
 void camStartPath(B6C50Actor *, s32, s32);
 s32 currentActorTestClearFlag(void);
 void actorUpdateModelMatrix(B6C50Actor *, s32);
-void func_80665564(B6C50Actor *, f32);
+void actorUpdateFloorContactAndTilt(B6C50Actor *, f32);
 void func_8067B238(B6C50Actor *, B6C50Actor *, f32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
 void func_806A2A10(s32, s32, u8);
@@ -87,7 +87,7 @@ void func_806B1F50(void) {
         D_807FBB44->unk84 = func_80612790(D_807FBB40->unkE6) * 14.0f + D_807FBB40->unk84;
         actorClearNodeFlag(D_807FBB44, 3);
         actorClearNodeFlag(D_807FBB44, 1);
-        func_80665564(D_807FBB44, 14.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB44, 14.0f);
         D_807FBB40->unk68 &= 0xFFBF;
         D_807FBB44->unk60 |= 0x1000;
         func_807149B8(1);

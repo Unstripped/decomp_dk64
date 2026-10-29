@@ -11,7 +11,7 @@ typedef struct {
     u8 padA[0xE];
     s16 unk18;
     s16 unk1A;
-} Col6AAssetHeader;
+} CollisionMeshHeader;
 
 typedef struct {
     u32 unk0;
@@ -19,7 +19,7 @@ typedef struct {
     u32 unk8;
     u32 unkC;
     u32 unk10;
-} Col6ABufferEntry;
+} CollisionMeshCellEntry;
 
 struct CollisionBufferEntry;
 extern struct CollisionBufferEntry *D_807F9514;
@@ -28,14 +28,14 @@ extern u8 D_807F951C;
 extern s32 D_8076A0A8;
 extern u8 D_807F94B4;
 void *func_80610FE8(s32);
-void *func_8066B0F8(s32, u32, u8, u8);
+void *assetLoad(s32, u32, u8, u8);
 s32 assetGetSize(s32, s32);
 void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
 void gunzip(void *, void *, void *);
 void heapFree(void *);
 
-void func_80666090(Col6AAssetHeader *arg0) {
+void func_80666090(CollisionMeshHeader *arg0) {
     s32 off;
     void *sp58;
     void *sp54;
@@ -50,7 +50,7 @@ void func_80666090(Col6AAssetHeader *arg0) {
 
     D_807F9514 = (struct CollisionBufferEntry *)func_80610FE8(0x11A8);
     D_807F9518 = (u32)(arg0->unk18 * arg0->unk1A);
-    var_s1 = (u8 *)func_8066B0F8(3, D_8076A0A8, 1, 0);
+    var_s1 = (u8 *)assetLoad(3, D_8076A0A8, 1, 0);
     D_807F951C = 0;
     if (arg0->unk9 & 2) {
         sp58 = var_s1;
@@ -67,21 +67,21 @@ void func_80666090(Col6AAssetHeader *arg0) {
     base = assetGetSize(3, D_8076A0A8);
     a3 = var_s1 + 4;
     for (i = 0; i < D_807F9518; i++) {
-        ((Col6ABufferEntry *)D_807F9514)[i].unk8 = 0;
+        ((CollisionMeshCellEntry *)D_807F9514)[i].unk8 = 0;
         if (D_807F9514 && D_807F9514) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         a2 = a3 + 4;
         off = a3 - var_s1;
-        ((Col6ABufferEntry *)D_807F9514)[i].unkC = base + off + 4;
+        ((CollisionMeshCellEntry *)D_807F9514)[i].unkC = base + off + 4;
         a1 = var_s1 + *(u32 *)a3;
         a3 = a1;
         if (D_807F951C) {
-            ((Col6ABufferEntry *)D_807F9514)[i].unk0 = (u32)a2;
-            ((Col6ABufferEntry *)D_807F9514)[i].unk4 = (u32)a1;
+            ((CollisionMeshCellEntry *)D_807F9514)[i].unk0 = (u32)a2;
+            ((CollisionMeshCellEntry *)D_807F9514)[i].unk4 = (u32)a1;
         } else {
-            ((Col6ABufferEntry *)D_807F9514)[i].unk0 = 0;
-            ((Col6ABufferEntry *)D_807F9514)[i].unk4 = 0;
+            ((CollisionMeshCellEntry *)D_807F9514)[i].unk0 = 0;
+            ((CollisionMeshCellEntry *)D_807F9514)[i].unk4 = 0;
         }
-        ((Col6ABufferEntry *)D_807F9514)[i].unk10 = a1 - a2;
+        ((CollisionMeshCellEntry *)D_807F9514)[i].unk10 = a1 - a2;
     }
     if (!D_807F951C) {
         assetSetImmediateFree();
@@ -96,7 +96,7 @@ void func_80666090(Col6AAssetHeader *arg0) {
 
 extern u8 D_807F94B4;
 
-void func_80666280(arg0)
+void collisionSetQueryMode(arg0)
 u8 arg0;
 {
     D_807F94B4 = arg0;
@@ -109,7 +109,7 @@ extern f32 D_807F948C;
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 
-void func_80666290(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u8 arg5) {
+void collisionQueryActorFloor(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u8 arg5) {
     f32 sp3C;
     f32 sp38;
     f32 sp34;
@@ -160,12 +160,12 @@ u8 collisionGetStateByte(void) {
 }
 
 #ifdef NON_MATCHING
-typedef struct Col6AF83Sub174 {
+typedef struct CollisionQueryPlayerState {
     u8 pad0[0x1F0];
     u32 unk1F0;
-} Col6AF83Sub174;
+} CollisionQueryPlayerState;
 
-typedef struct Col6AF83Actor {
+typedef struct CollisionQueryActor {
     u8 pad0[0x5C];
     u16 unk5C;
     u8 pad5E[6];
@@ -187,8 +187,8 @@ typedef struct Col6AF83Actor {
     u8 pad10E[2];
     u8 unk110;
     u8 pad111[0x63];
-    Col6AF83Sub174 *unk174;
-} Col6AF83Actor;
+    CollisionQueryPlayerState *unk174;
+} CollisionQueryActor;
 
 u8 func_8062BCC8(void *, f32, f32, f32, s32);
 u8 collisionTestSubmeshBoundary(f32, f32, f32 *, s32);
@@ -224,7 +224,7 @@ extern u8 D_807F94AC;
 extern s8 D_807F94AD;
 extern s8 D_807F94B2;
 extern u8 D_807F94B6;
-extern Col6AF83Sub174 *D_807F94B8;
+extern CollisionQueryPlayerState *D_807F94B8;
 extern u8 D_807F9510;
 
 s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5, u8 *arg6, f32 *arg7, u8 arg8) {
@@ -251,16 +251,16 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         return 0;
     }
     if (arg0 != NULL) {
-        ((Col6AF83Actor *)arg0)->unk110 = 0;
-        ((Col6AF83Actor *)arg0)->unk6A &= 0xFBF1;
-        ((Col6AF83Actor *)arg0)->unk10C = -1;
+        ((CollisionQueryActor *)arg0)->unk110 = 0;
+        ((CollisionQueryActor *)arg0)->unk6A &= 0xFBF1;
+        ((CollisionQueryActor *)arg0)->unk10C = -1;
         D_807F94B6 = 0;
         D_807F9464 = 0;
         D_807F946C = 0;
         D_807F946D = arg8;
-        ((Col6AF83Actor *)arg0)->unk64 &= ~0x40;
-        if (((Col6AF83Actor *)arg0)->unk5C & 1) {
-            D_807F94B8 = ((Col6AF83Actor *)arg0)->unk174;
+        ((CollisionQueryActor *)arg0)->unk64 &= ~0x40;
+        if (((CollisionQueryActor *)arg0)->unk5C & 1) {
+            D_807F94B8 = ((CollisionQueryActor *)arg0)->unk174;
             D_807F94B8->unk1F0 &= ~0x6000;
         }
     }
@@ -275,8 +275,8 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     sp58 = arg2;
     sp5F = collisionTestSubmeshBoundary(arg1, arg3, &sp58, (s32)arg0);
     if ((sp5F != 0) && (arg0 != NULL)) {
-        ((Col6AF83Actor *)arg0)->unkA8 = sp58;
-        ((Col6AF83Actor *)arg0)->unkD0 = D_807F949E;
+        ((CollisionQueryActor *)arg0)->unkA8 = sp58;
+        ((CollisionQueryActor *)arg0)->unkD0 = D_807F949E;
     }
     val2 = 0;
     if (D_807F94B4 != 2) {
@@ -346,12 +346,12 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         if (arg0 != NULL) {
             sp5E = D_807F949E;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
             sp5F = sp5E;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            ((Col6AF83Actor *)arg0)->unkD1 = sp5F;
-            ((Col6AF83Actor *)arg0)->unkDA = D_807F9498;
-            ((Col6AF83Actor *)arg0)->unkD8 = D_807F9490;
-            ((Col6AF83Actor *)arg0)->unkA4 = sp58;
-            if ((D_807F94B6 != 0) && (((Col6AF83Actor *)arg0)->unk6C & 1)) {
-                ((Col6AF83Actor *)arg0)->unk6A |= 0x400;
+            ((CollisionQueryActor *)arg0)->unkD1 = sp5F;
+            ((CollisionQueryActor *)arg0)->unkDA = D_807F9498;
+            ((CollisionQueryActor *)arg0)->unkD8 = D_807F9490;
+            ((CollisionQueryActor *)arg0)->unkA4 = sp58;
+            if ((D_807F94B6 != 0) && (((CollisionQueryActor *)arg0)->unk6C & 1)) {
+                ((CollisionQueryActor *)arg0)->unk6A |= 0x400;
             }
         }
         D_807F94A4 = D_807F9498;
@@ -364,12 +364,12 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     case 2:
         if (arg0 != NULL) {
             sp5E = D_807F949F;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            ((Col6AF83Actor *)arg0)->unkD1 = sp5E;
-            ((Col6AF83Actor *)arg0)->unkDA = D_807F949A;
-            ((Col6AF83Actor *)arg0)->unkD8 = D_807F9492;
-            ((Col6AF83Actor *)arg0)->unkA4 = sp54;
-            if (((Col6AF83Actor *)arg0)->unk6C & 1) {
-                ((Col6AF83Actor *)arg0)->unk110 = 1;
+            ((CollisionQueryActor *)arg0)->unkD1 = sp5E;
+            ((CollisionQueryActor *)arg0)->unkDA = D_807F949A;
+            ((CollisionQueryActor *)arg0)->unkD8 = D_807F9492;
+            ((CollisionQueryActor *)arg0)->unkA4 = sp54;
+            if (((CollisionQueryActor *)arg0)->unk6C & 1) {
+                ((CollisionQueryActor *)arg0)->unk110 = 1;
             }
         }
         D_807F94A4 = D_807F949A;
@@ -382,13 +382,13 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     case 3:
         if (arg0 != NULL) {
             sp5E = D_807F94A0;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            ((Col6AF83Actor *)arg0)->unkD1 = sp5E;
-            ((Col6AF83Actor *)arg0)->unkDA = D_807F949C;
-            ((Col6AF83Actor *)arg0)->unkD8 = D_807F9494;
-            ((Col6AF83Actor *)arg0)->unkA4 = sp50;
-            if (((Col6AF83Actor *)arg0)->unk6C & 1) {
+            ((CollisionQueryActor *)arg0)->unkD1 = sp5E;
+            ((CollisionQueryActor *)arg0)->unkDA = D_807F949C;
+            ((CollisionQueryActor *)arg0)->unkD8 = D_807F9494;
+            ((CollisionQueryActor *)arg0)->unkA4 = sp50;
+            if (((CollisionQueryActor *)arg0)->unk6C & 1) {
                 func_8067A7EC(arg0, (s32)D_807F9470, *(s32 *)&D_807F9474, *(s32 *)&D_807F9478, D_807F947C, (s32)D_807F9480, *(u8 *)&D_807F94B2);
-                ((Col6AF83Actor *)arg0)->unk6A |= 8;
+                ((CollisionQueryActor *)arg0)->unk6A |= 8;
             }
         }
         D_807F94A4 = D_807F949C;
@@ -456,7 +456,7 @@ extern s16 D_807F94A6;
 extern s16 D_807F94A8;
 f32 func_80611BB4(f32, f32);
 
-void func_80666AF8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 arg6) {
+void collisionStoreSurfaceNormalAngles(s32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 arg6) {
     f32 temp_fv0_2;
     f32 var_fa0;
     f32 var_fa0_2;
@@ -696,12 +696,12 @@ u8 collisionGetFloorHeight(f32 *arg0) {
     return D_807F9484;
 }
 
-u8 func_80667174(void) {
+u8 collisionGetSurfaceType(void) {
     return D_807F94B5;
 }
 
-s32 func_806672B8(f32, f32, f32 *, s32);
-u8 func_806679BC(f32, f32, f32 *, Actor *);
+s32 collisionTestGridMeshHeight(f32, f32, f32 *, s32);
+u8 collisionTestStaticMeshFloor(f32, f32, f32 *, Actor *);
 extern u8 D_807F94B6;
 
 u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
@@ -714,9 +714,9 @@ u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     s32 var_v1;
 
     sp38 = *arg2;
-    sp3F = func_806679BC(arg0, arg1, &sp38, (Actor *)arg3);
+    sp3F = collisionTestStaticMeshFloor(arg0, arg1, &sp38, (Actor *)arg3);
     sp34 = *arg2;
-    val = func_806672B8(arg0, arg1, &sp34, arg3) * 2;
+    val = collisionTestGridMeshHeight(arg0, arg1, &sp34, arg3) * 2;
     val += sp3F;
     switch (val) {
     case 0:
@@ -747,7 +747,7 @@ u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     return var_v1;
 }
 
-typedef struct Col6A2SubNode {
+typedef struct GridMeshBounds {
     /* 0x00 */ u8 pad0[0x46];
     /* 0x46 */ s16 unk46;
     /* 0x48 */ s16 unk48;
@@ -755,24 +755,24 @@ typedef struct Col6A2SubNode {
     /* 0x4C */ s16 unk4C;
     /* 0x4E */ u8 pad4E[0x60 - 0x4E];
     /* 0x60 */ u8 unk60;
-} Col6A2SubNode;
-typedef struct Col6A2Node {
-    /* 0x00 */ Col6A2SubNode *unk0;
+} GridMeshBounds;
+typedef struct GridMeshNode {
+    /* 0x00 */ GridMeshBounds *unk0;
     /* 0x04 */ u8 pad4[0x2C - 0x04];
     /* 0x2C */ s16 unk2C;
     /* 0x2E */ u8 pad2E[0x4A - 0x2E];
     /* 0x4A */ u8 unk4A;
     /* 0x4B */ u8 pad4B[0x50 - 0x4B];
-    /* 0x50 */ struct Col6A2Node *next;
-} Col6A2Node;
+    /* 0x50 */ struct GridMeshNode *next;
+} GridMeshNode;
 
-extern Col6A2Node *D_807F93C0;
-u8 effectGetTableFlag(Col6A2Node *);
-f32 func_806608FC(Col6A2Node *, s32, s32, u8);
+extern GridMeshNode *D_807F93C0;
+u8 effectGetTableFlag(GridMeshNode *);
+f32 func_806608FC(GridMeshNode *, s32, s32, u8);
 s32 func_80668C30(s16 *, f32, f32);
-f32 func_8066785C(s16 *, f32, f32);
+f32 collisionTriangleHeightAtXZ(s16 *, f32, f32);
 
-s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
+s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     f32 temp_fs1;
     u8 temp_s0;
     f32 pad[2]; // pad: reproduces frame 0xF8 (unused)
@@ -782,7 +782,7 @@ s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     s16 spA0[12]; // 12 not 9: slot size so arrays start at 0xB8
     u8 sp9F;
     f32 var_fs5;
-    Col6A2Node *var_s3;
+    GridMeshNode *var_s3;
     f32 var_fs0;
     f32 sp8C;
     s32 cell_x;
@@ -829,12 +829,12 @@ s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
                 spA0[8] = z[3] * 6.0f;
 
                 if (func_80668C30(spA0, var_fs0, temp_fs1) != 0) {
-                    var_fs0 = func_8066785C(spA0, var_fs0, temp_fs1) / 6.0f;
+                    var_fs0 = collisionTriangleHeightAtXZ(spA0, var_fs0, temp_fs1) / 6.0f;
                 } else {
                     spA0[1] = x[2] * 6.0f;
                     spA0[4] = y[2] * 6.0f;
                     spA0[7] = z[2] * 6.0f;
-                    var_fs0 = func_8066785C(spA0, var_fs0, temp_fs1) / 6.0f;
+                    var_fs0 = collisionTriangleHeightAtXZ(spA0, var_fs0, temp_fs1) / 6.0f;
                 }
 
                 switch (var_s3->unk0->unk60) {
@@ -885,7 +885,7 @@ s32 func_806672B8(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     return (u8)sp9F;
 }
 
-f32 func_8066785C(s16 *arg0, f32 arg1, f32 arg2) {
+f32 collisionTriangleHeightAtXZ(s16 *arg0, f32 arg1, f32 arg2) {
     f64 dx01 = arg0[0] - arg0[1];
     f64 dy01 = arg0[3] - arg0[4];
     f64 dz01 = arg0[6] - arg0[7];
@@ -901,25 +901,25 @@ f32 func_8066785C(s16 *arg0, f32 arg1, f32 arg2) {
     return (2000.0 * val) - 1000.0;
 }
 
-typedef struct L6679BCTri {
+typedef struct CollisionStaticTri {
     s16 v[9];
     s16 unk12;
     u8 unk14;
     u8 unk15;
     u8 unk16;
     s8 unk17;
-} L6679BCTri;
+} CollisionStaticTri;
 
-typedef struct L6679BCBuf {
+typedef struct CollisionCellRange {
     u32 unk0;
     u32 unk4;
     u32 pad[3];
-} L6679BCBuf;
+} CollisionCellRange;
 
-typedef struct L6679BCSub174 {
+typedef struct CollisionHitPlayerState {
     u8 pad0[0x1F0];
     u32 unk1F0;
-} L6679BCSub174;
+} CollisionHitPlayerState;
 
 struct CollisionBufferEntry;
 struct CollisionTriS;
@@ -931,23 +931,23 @@ extern u16 D_807F9452;
 extern u16 D_807F9454;
 extern u16 D_807F9456;
 extern u8 D_807F5FC0;
-extern struct Col6AF83Sub174 *D_807F94B8;
+extern struct CollisionQueryPlayerState *D_807F94B8;
 extern u8 D_807F94AB;
-u8 func_80668520(f32 *, f32, f32, f32 *);
+u8 collisionTestHardcodedFloorPlane(f32 *, f32, f32, f32 *);
 void dynamicBufferAllocateEntry(s32);
 s32 collisionCheckTriangleXZBoundsS16();
 f32 mapOffsetSlotGetValue(s8);
 void collisionRecordTriangleS(struct CollisionTriS *, f32);
 s32 collisionCheckTriangleWindingS16();
 struct CollisionPlaneTriS;
-void func_806689F0(s32, struct CollisionPlaneTriS *, u8);
+void collisionStoreTriangleNormalAnglesS16(s32, struct CollisionPlaneTriS *, u8);
 
-u8 func_806679BC(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
+u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     s32 padTop;
-    L6679BCTri *sp150;
-    L6679BCTri *sp14C;
+    CollisionStaticTri *sp150;
+    CollisionStaticTri *sp14C;
     s32 cell;
-    L6679BCTri *tri;
+    CollisionStaticTri *tri;
     s32 padH[2];
     f64 h2;
     f64 nx;
@@ -978,13 +978,13 @@ u8 func_806679BC(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     }
     if (D_807F9454 <= arg0 / D_807F9450 || arg0 < 0.0) {
         if (D_8076A0A8 == 0x57 && arg3 != NULL) {
-            return func_80668520(&spS.cc, spC4, cur, arg2);
+            return collisionTestHardcodedFloorPlane(&spS.cc, spC4, cur, arg2);
         }
         return 0;
     }
     if (D_807F9456 <= arg1 / D_807F9452 || arg1 < 0.0) {
         if (D_8076A0A8 == 0x57 && arg3 != NULL) {
-            return func_80668520(&spS.cc, spC4, cur, arg2);
+            return collisionTestHardcodedFloorPlane(&spS.cc, spC4, cur, arg2);
         }
         return 0;
     }
@@ -993,11 +993,11 @@ u8 func_806679BC(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     arg1 = arg1 * 6.0f;
     if (arg3 != NULL && arg3->unk150 != 0 && collisionCheckTriangleXZBoundsS16(arg3->unk150, (s32)arg0, (s32)arg1) != 0 &&
         func_80668C30((s16 *)arg3->unk150, arg0, arg1) != 0 && D_807F5FC0 == 0) {
-        tri = (L6679BCTri *)arg3->unk150;
+        tri = (CollisionStaticTri *)arg3->unk150;
         sp150 = tri + 1;
     } else {
-        tri = (L6679BCTri *)((L6679BCBuf *)D_807F9514)[cell].unk0;
-        sp150 = (L6679BCTri *)((L6679BCBuf *)D_807F9514)[cell].unk4;
+        tri = (CollisionStaticTri *)((CollisionCellRange *)D_807F9514)[cell].unk0;
+        sp150 = (CollisionStaticTri *)((CollisionCellRange *)D_807F9514)[cell].unk4;
     }
     if (tri != sp150) {
         sp9C = (s32)arg1;
@@ -1028,12 +1028,12 @@ u8 func_806679BC(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                     }
                     if ((tri->unk12 & 0x100) && arg3 != NULL && (arg3->unk5C & 1)) {
                         if ((f64)(*arg2 * 6.0f) < h2 && ((diff = h2 - (f64)(*arg2 * 6.0f)) < 600.0f)) {
-                            ((L6679BCSub174 *)D_807F94B8)->unk1F0 |= 0x2000;
+                            ((CollisionHitPlayerState *)D_807F94B8)->unk1F0 |= 0x2000;
                         }
                     }
                     if ((tri->unk12 & 0xA00) && arg3 != NULL && (arg3->unk5C & 1)) {
                         if ((f64)(*arg2 * 6.0f) < h2 && ((diff = h2 - (f64)(*arg2 * 6.0f)) < 800.0f)) {
-                            ((L6679BCSub174 *)D_807F94B8)->unk1F0 |= 0x4000;
+                            ((CollisionHitPlayerState *)D_807F94B8)->unk1F0 |= 0x4000;
                         }
                     }
                     if (tri->unk12 & 0x4850) {
@@ -1076,7 +1076,7 @@ u8 func_806679BC(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                                         D_807F94B5 = (u32)((f32)D_807F94B5 + (f32)(0xF - D_807F94B5) * t);
                                     }
                                 }
-                                func_806689F0((s32)arg3, (struct CollisionPlaneTriS *)tri, 1);
+                                collisionStoreTriangleNormalAnglesS16((s32)arg3, (struct CollisionPlaneTriS *)tri, 1);
                                 if (arg3 != NULL) {
                                     arg3->unk70[8] = tri->unk15;
                                     arg3->unk16D = D_807F94B5;
@@ -1136,7 +1136,7 @@ u8 func_806679BC(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
         }
     }
     if (D_8076A0A8 == 0x57 && arg3 != NULL) {
-        spS.cb |= func_80668520(&spS.cc, spC4, cur, arg2);
+        spS.cb |= collisionTestHardcodedFloorPlane(&spS.cc, spC4, cur, arg2);
     }
     if (arg3 != NULL) {
         arg3->unk150 = 0;
@@ -1146,7 +1146,7 @@ u8 func_806679BC(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
 
 s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
 
-u8 func_80668520(f32 *arg0, f32 arg1, f32 arg2, f32 *arg3) {
+u8 collisionTestHardcodedFloorPlane(f32 *arg0, f32 arg1, f32 arg2, f32 *arg3) {
     f32 diff;
     f64 val;
 
@@ -1196,7 +1196,7 @@ void collisionRecordTriangleS(CollisionTriS *arg0, f32 arg1) {
         if (arg0->unk12 & 0x400) {
             D_807F94C0[D_807F9510].unk6 |= 8;
         }
-        func_806689F0(0, (struct CollisionPlaneTriS *)arg0, 0);
+        collisionStoreTriangleNormalAnglesS16(0, (struct CollisionPlaneTriS *)arg0, 0);
         D_807F94C0[D_807F9510].unk4 = D_807F94A8;
         D_807F9510++;
     }
@@ -1303,7 +1303,7 @@ typedef struct CrossProductStack3D {
     f32 v1[3];
 } CrossProductStack3D;
 
-void func_806689F0(s32 arg0, CollisionPlaneTriS *arg1, u8 arg2) {
+void collisionStoreTriangleNormalAnglesS16(s32 arg0, CollisionPlaneTriS *arg1, u8 arg2) {
     CrossProductStack3D sp;
 
     sp.v1[0] = arg1->x[2] - arg1->x[0];
@@ -1315,7 +1315,7 @@ void func_806689F0(s32 arg0, CollisionPlaneTriS *arg1, u8 arg2) {
     sp.cross[0] = (sp.v1[1] * sp.v0[2]) - (sp.v1[2] * sp.v0[1]);
     sp.cross[1] = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
     sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
-    func_80666AF8(arg0, sp.cross[0], sp.cross[1], sp.cross[2], arg1->unk14, arg2, 0);
+    collisionStoreSurfaceNormalAngles(arg0, sp.cross[0], sp.cross[1], sp.cross[2], arg1->unk14, arg2, 0);
 }
 
 s32 collisionCheckTriangleXZBoundsS16(CollisionMeshTriS *arg0, s32 arg1, s32 arg2) {
@@ -1441,23 +1441,23 @@ typedef struct {
     u8 unk25;
     s8 unk26;
     u8 unk27;
-} L668E9C_Tri;
+} CollisionActorTri;
 
 typedef struct {
-    L668E9C_Tri *tri_start;
-    L668E9C_Tri *tri_end;
+    CollisionActorTri *tri_start;
+    CollisionActorTri *tri_end;
     s32 timestamp;
     u8 bbox[0x24 - 0xC];
     u8 flags;
     u8 unk25[2];
-} L668E9C_Sub;
+} ModelSlotTriBufferView;
 
 typedef struct {
     u8 pad0[0x4F];
     u8 unk4F;
     u8 pad50[0x71 - 0x50];
     u8 unk71;
-} L668E9C_Sub7C;
+} ModelSlotHitFlagsView;
 
 typedef struct {
     f32 unk0;
@@ -1470,12 +1470,12 @@ typedef struct {
     u8 pad1C[0x24 - 0x1C];
     s32 *unk24;
     u8 pad28[0x48 - 0x28];
-    L668E9C_Sub unk48;
+    ModelSlotTriBufferView unk48;
     void *unk70;
     u8 pad74[0x7C - 0x74];
-    L668E9C_Sub7C *unk7C;
+    ModelSlotHitFlagsView *unk7C;
     u8 pad80[0x90 - 0x80];
-} L668E9C_Entry;
+} ModelSlotCollisionView;
 
 typedef struct {
     u8 pad0[0x5C];
@@ -1486,7 +1486,7 @@ typedef struct {
     u8 unk110;
     u8 pad111[0x174 - 0x111];
     u8 *unk174;
-} L668E9C_Actor;
+} CollisionSlotActorView;
 
 struct CollisionModelEntry;
 struct CollisionBoundingBox;
@@ -1505,19 +1505,19 @@ u8 func_80669E04(struct CollisionTriF *, f32, f32);
 s32 collisionCheckSurfaceFilter(u8, u8 *);
 void collisionRecordTriangleF(struct CollisionTriF *, f32);
 s32 collisionCheckTriangleWindingF32(struct CollisionTriF *);
-void func_80669830();
+void collisionStoreTriangleNormalAnglesF32();
 struct CollisionActorWork;
-void func_806699C4(struct CollisionActorWork *, s16, s8, u8, f32, f32, f32);
+void collisionAttachActorToObjectNode(struct CollisionActorWork *, s16, s8, u8, f32, f32, f32);
 
-#define L668E9C_ENTRIES ((L668E9C_Entry *)D_807F6000)
+#define MODEL_SLOT_ENTRIES ((ModelSlotCollisionView *)D_807F6000)
 
-u8 func_80668E9C(L668E9C_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 *arg5) {
+u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 *arg5) {
     f64 ny;
-    L668E9C_Tri *hit_tri;
-    L668E9C_Sub *sp90;
+    CollisionActorTri *hit_tri;
+    ModelSlotTriBufferView *sp90;
     f32 pad1[1];
     f32 temp_ft5;
-    L668E9C_Tri *tri;
+    CollisionActorTri *tri;
     f64 temp_ft4;
     f64 nx;
     f64 nz;
@@ -1526,7 +1526,7 @@ u8 func_80668E9C(L668E9C_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f3
     s16 sp9A;
     f64 d;
     f64 temp_fa0;
-    L668E9C_Sub7C *sub7C;
+    ModelSlotHitFlagsView *sub7C;
     f64 temp_fs2;
     f64 temp_fv1;
     f32 y;
@@ -1536,7 +1536,7 @@ u8 func_80668E9C(L668E9C_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f3
     f32 temp_fa1;
     s32 sp8C;
     f64 temp_fs3;
-    L668E9C_Tri *tri_end;
+    CollisionActorTri *tri_end;
     f32 spv[3];
 
     hit = 0;
@@ -1548,9 +1548,9 @@ u8 func_80668E9C(L668E9C_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f3
         return 0;
     }
 
-    sp90 = &L668E9C_ENTRIES[sp9A].unk48;
-    if (arg0 != NULL && L668E9C_ENTRIES[sp9A].unk70 != NULL && D_807F946D != 0) {
-        actorCheckNearbyNodeInteractions(arg0, sp9A, L668E9C_ENTRIES[sp9A].unk70);
+    sp90 = &MODEL_SLOT_ENTRIES[sp9A].unk48;
+    if (arg0 != NULL && MODEL_SLOT_ENTRIES[sp9A].unk70 != NULL && D_807F946D != 0) {
+        actorCheckNearbyNodeInteractions(arg0, sp9A, MODEL_SLOT_ENTRIES[sp9A].unk70);
     }
 
     if (!(sp90->flags & 4)) {
@@ -1567,21 +1567,21 @@ u8 func_80668E9C(L668E9C_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f3
 
     sp8C = sp9A * 0x90;
     if (arg0 != NULL && (arg0->unk5C & 1)) {
-        if (func_806D0964(*L668E9C_ENTRIES[sp9A].unk24, arg0->unk174[0x1A4]) != 0) {
+        if (func_806D0964(*MODEL_SLOT_ENTRIES[sp9A].unk24, arg0->unk174[0x1A4]) != 0) {
             return 0;
         }
     }
 
-    sub7C = L668E9C_ENTRIES[sp9A].unk7C;
+    sub7C = MODEL_SLOT_ENTRIES[sp9A].unk7C;
     if (sub7C != NULL && sub7C->unk71 == 0) {
         return 0;
     }
 
     if (!(sp90->flags & 1)) {
-        modelSlotBuildTriangleBufferThunk(sp9A, L668E9C_ENTRIES[sp9A].unk24,
-            L668E9C_ENTRIES[sp9A].unk0, L668E9C_ENTRIES[sp9A].unk4, L668E9C_ENTRIES[sp9A].unk8,
-            L668E9C_ENTRIES[sp9A].unk10, L668E9C_ENTRIES[sp9A].unk14, L668E9C_ENTRIES[sp9A].unk18,
-            L668E9C_ENTRIES[sp9A].unkC);
+        modelSlotBuildTriangleBufferThunk(sp9A, MODEL_SLOT_ENTRIES[sp9A].unk24,
+            MODEL_SLOT_ENTRIES[sp9A].unk0, MODEL_SLOT_ENTRIES[sp9A].unk4, MODEL_SLOT_ENTRIES[sp9A].unk8,
+            MODEL_SLOT_ENTRIES[sp9A].unk10, MODEL_SLOT_ENTRIES[sp9A].unk14, MODEL_SLOT_ENTRIES[sp9A].unk18,
+            MODEL_SLOT_ENTRIES[sp9A].unkC);
     } else {
         sp90->timestamp = D_8076A064;
     }
@@ -1614,7 +1614,7 @@ u8 func_80668E9C(L668E9C_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f3
                     y = (f32)((2000.0 * (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)))) - 1000.0);
                     func_80666D88(arg4, y, 0, (Actor *)arg0, 0);
                     if (func_80666F04(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
-                        func_806699C4((struct CollisionActorWork *)arg0, sp9A, -1, 0, arg2, y, arg3);
+                        collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, sp9A, -1, 0, arg2, y, arg3);
                         arg0->unk110 = 2;
                     }
                 }
@@ -1636,14 +1636,14 @@ u8 func_80668E9C(L668E9C_Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f3
 
     if (hit != 0 && mathCheckCloserFloatThreshold(*arg5, hit_y, (f32)((f64)arg4 + 4.0), 0) != 0) {
         *arg5 = hit_y;
-        func_80669830(arg0, hit_tri, 1);
-        sub7C = L668E9C_ENTRIES[sp9A].unk7C;
+        collisionStoreTriangleNormalAnglesF32(arg0, hit_tri, 1);
+        sub7C = MODEL_SLOT_ENTRIES[sp9A].unk7C;
         if (sub7C != NULL && sub7C->unk4F != 0) {
             D_807F94AC = 1;
         }
         if (arg0 != NULL) {
             if (arg0->unk110 != 2 && arg0->unk110 != 3) {
-                func_806699C4((struct CollisionActorWork *)arg0, sp9A, hit_tri->unk26, hit_tri->unk27, arg2, hit_y, arg3);
+                collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, sp9A, hit_tri->unk26, hit_tri->unk27, arg2, hit_y, arg3);
             }
             arg0->unk78 = hit_tri->unk25;
         }
@@ -1663,7 +1663,7 @@ typedef struct CollisionTriF {
 } CollisionTriF;
 
 s32 collisionCheckTriangleWindingF32(CollisionTriF *);
-void func_80669830();
+void collisionStoreTriangleNormalAnglesF32();
 
 void collisionRecordTriangleF(CollisionTriF *arg0, f32 arg1) {
     if (D_807F9510 != 10) {
@@ -1673,7 +1673,7 @@ void collisionRecordTriangleF(CollisionTriF *arg0, f32 arg1) {
         } else {
             D_807F94C0[D_807F9510].unk6 = 2;
         }
-        func_80669830(0, arg0, 0);
+        collisionStoreTriangleNormalAnglesF32(0, arg0, 0);
         D_807F94C0[D_807F9510].unk4 = D_807F94A8;
         D_807F9510++;
     }
@@ -1740,8 +1740,8 @@ typedef struct CollisionActorWork {
     u8 unk12F;
 } CollisionActorWork;
 
-void func_806699C4(CollisionActorWork *, s16, s8, u8, f32, f32, f32);
-void func_8066C610(s16, s8, float [4][4]);
+void collisionAttachActorToObjectNode(CollisionActorWork *, s16, s8, u8, f32, f32, f32);
+void modelSlotBuildTransformMatrix(s16, s8, float [4][4]);
 s32 hashTableLookup();
 
 void actorCheckNearbyNodeInteractions(arg0, arg1, arg2)
@@ -1765,7 +1765,7 @@ CollisionLinkedNode *arg2;
             if (dist < 5.0) {
                 if (dy > 0.0f) {
                     if (dy < 25.0) {
-                        func_806699C4(arg0, arg1, -1, 0, arg2->x, arg2->y, arg2->z);
+                        collisionAttachActorToObjectNode(arg0, arg1, -1, 0, arg2->x, arg2->y, arg2->z);
                         arg0->unk110 = 3;
                         arg0->unk12F = count;
                         D_807F946C = 1;
@@ -1787,7 +1787,7 @@ typedef struct CollisionPlaneTriF {
 } CollisionPlaneTriF;
 
 
-void func_80669830(arg0, arg1, arg2)
+void collisionStoreTriangleNormalAnglesF32(arg0, arg1, arg2)
 s32 arg0;
 CollisionPlaneTriF *arg1;
 u8 arg2;
@@ -1803,7 +1803,7 @@ u8 arg2;
     sp.cross[0] = (sp.v1[1] * sp.v0[2]) - (sp.v1[2] * sp.v0[1]);
     sp.cross[1] = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
     sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
-    func_80666AF8(arg0, sp.cross[0], sp.cross[1], sp.cross[2], arg1->unk24, arg2, 1);
+    collisionStoreSurfaceNormalAngles(arg0, sp.cross[0], sp.cross[1], sp.cross[2], arg1->unk24, arg2, 1);
 }
 
 s32 collisionCheckTriangleWindingF32(CollisionTriF *arg0) {
@@ -1822,7 +1822,7 @@ s32 collisionCheckTriangleWindingF32(CollisionTriF *arg0) {
 
 void matrix4Invert(float [4][4], float [4][4]);
 
-void func_806699C4(CollisionActorWork *arg0, s16 arg1, s8 arg2, u8 arg3, f32 arg4, f32 arg5, f32 arg6) {
+void collisionAttachActorToObjectNode(CollisionActorWork *arg0, s16 arg1, s8 arg2, u8 arg3, f32 arg4, f32 arg5, f32 arg6) {
     f32 pad2[10];
     float spB0[4][4];
     float pad[4][4];
@@ -1831,7 +1831,7 @@ void func_806699C4(CollisionActorWork *arg0, s16 arg1, s8 arg2, u8 arg3, f32 arg
     arg0->unk10C = D_807F6000[arg1].unk88;
     arg0->unk10E = arg3;
     arg0->unk10F = arg2;
-    func_8066C610(arg1, arg2, spB0);
+    modelSlotBuildTransformMatrix(arg1, arg2, spB0);
     matrix4Invert(sp30, spB0);
     guMtxXFMF(sp30, arg4, arg5, arg6, &arg0->unk100, &arg0->unk104, &arg0->unk108);
 }
@@ -1849,7 +1849,7 @@ void actorUpdateSubnodeRotationAndMtx(CollisionActorWork *arg0) {
 
     sp42 = hashTableLookup(arg0->unk10C);
     if (sp42 != -1) {
-        func_8066C610(sp42, arg0->unk10F, sp90);
+        modelSlotBuildTransformMatrix(sp42, arg0->unk10F, sp90);
         sub = D_807F6000[sp42].unk7C;
         if (sub != NULL) {
             if (arg0->unkFC == 0) {
@@ -2036,8 +2036,8 @@ u8 func_80669E04(CollisionTriF *arg0, f32 arg1, f32 arg2) {
 void gunzip(void *, void *, void *);
 void heapFreeDeferred(void *);
 extern void *D_80748E14;
-void func_8066B5F4();
-s32 func_8066B4D4(s32, s32, s32 *, s32 *);
+void assetEnsureTableLoaded();
+s32 assetResolveRomRange(s32, s32, s32 *, s32 *);
 s32 collisionBstLookupAndDecrementByHash();
 void collisionBstDeleteByHash();
 void assetSetTableEntry(s32, s32, s32);
@@ -2048,7 +2048,7 @@ extern s32 *D_807F95A8[];
 extern u8 D_80748E18[];
 extern s32 *D_807FB1A0[];
 s32 collisionCheckBoxTriangleWinding();
-void func_8066ACA4();
+void collisionStoreBoxTriangleNormalAngles();
 typedef struct {
     void *unk0;
     void *unk4;
@@ -2060,7 +2060,7 @@ typedef struct {
     u32 unk48;
     u32 unk4C;
     u32 unk50;
-} Col6C_StructA64C;
+} CollisionVertexBoneRefs;
 
 #ifdef NON_MATCHING
 typedef struct {
@@ -2076,19 +2076,19 @@ typedef struct {
     f32 unk44;
     u8 pad48[0x56 - 0x48];
     u8 unk56;
-} Col6C_Tri;
+} CollisionBoxTriView;
 
 struct CollisionBoxTriangle;
 s32 collisionCheckBoxTriangleBoundsXZ(struct CollisionBoxTriangle *, f32, f32);
 u8 func_8066A988(struct CollisionBoxTriangle *, f32, f32);
-void func_8066A64C(s32, Actor *, Col6C_StructA64C *, f32, f32, f32);
+void collisionTransformPointToActorLocal(s32, Actor *, CollisionVertexBoneRefs *, f32, f32, f32);
 void collisionRecordBoxTriangle(void *, f32);
 
 extern s8 D_807F94AD;
 
 s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     f32 pad;
-    Col6C_Tri *hit_tri;
+    CollisionBoxTriView *hit_tri;
     f32 pad128[6];
     f64 sp108;
     f32 pad108[22];
@@ -2119,7 +2119,7 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     s32 i;
     s32 j;
     Actor *actor;
-    Col6C_Tri *tri;
+    CollisionBoxTriView *tri;
     u16 actor_count;
 
     hit = 0;
@@ -2189,12 +2189,12 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
 
     if (hit != 0 && mathCheckCloserFloatThreshold(*arg4, hit_y, (f32)((f64)arg3 + 4.0), 0) != 0) {
         *arg4 = hit_y;
-        func_8066ACA4(arg0, hit_tri, 1);
+        collisionStoreBoxTriangleNormalAngles(arg0, hit_tri, 1);
         if (hit_actor->unk68 & 8) {
             D_807F94AD = 1;
         }
         if (arg0 != NULL) {
-            func_8066A64C((s32)arg0, hit_actor, (Col6C_StructA64C *)hit_tri, arg1, hit_y, arg2);
+            collisionTransformPointToActorLocal((s32)arg0, hit_actor, (CollisionVertexBoneRefs *)hit_tri, arg1, hit_y, arg2);
             if (D_807F94BC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
@@ -2213,7 +2213,7 @@ void collisionRecordBoxTriangle(void *arg0, f32 arg1) {
         } else {
             D_807F94C0[D_807F9510].unk6 = 2;
         }
-        func_8066ACA4(0, arg0, 0, D_807F94C0);
+        collisionStoreBoxTriangleNormalAngles(0, arg0, 0, D_807F94C0);
         D_807F94C0[D_807F9510].unk4 = D_807F94A8;
         D_807F9510++;
     }
@@ -2229,7 +2229,7 @@ extern s8 D_807F94B2;
 
 void matrix4Invert(float [4][4], float [4][4]);
 
-void func_8066A64C(s32 arg0, Actor *arg1, Col6C_StructA64C *arg2, f32 arg3, f32 arg4, f32 arg5) {
+void collisionTransformPointToActorLocal(s32 arg0, Actor *arg1, CollisionVertexBoneRefs *arg2, f32 arg3, f32 arg4, f32 arg5) {
     float sp78[4][4];
     float sp38[4][4];
     ActorSub140 *sub;
@@ -2257,7 +2257,7 @@ void func_8066A64C(s32 arg0, Actor *arg1, Col6C_StructA64C *arg2, f32 arg3, f32 
     guMtxXFMF(sp38, arg3, arg4, arg5, &D_807F9474, &D_807F9478, &D_807F947C);
 }
 
-void func_8066A75C(Actor *actor, u32 arg1, f32 *arg2, f32 arg3, f32 *arg4) {
+void collisionTransformPointByActorMtx(Actor *actor, u32 arg1, f32 *arg2, f32 arg3, f32 *arg4) {
     s32 idx;
     f32 sp78;
     f32 sp74;
@@ -2423,7 +2423,7 @@ s32 collisionCheckBoxTriangleWinding(CollisionBoxTriangleWork *arg0) {
     return 0;
 }
 
-void func_8066ACA4(arg0, arg1, arg2)
+void collisionStoreBoxTriangleNormalAngles(arg0, arg1, arg2)
 s32 arg0;
 CollisionBoxTriangleWork *arg1;
 u8 arg2;
@@ -2439,7 +2439,7 @@ u8 arg2;
     sp.cross[0] = (sp.v1[1] * sp.v0[2]) - (sp.v1[2] * sp.v0[1]);
     sp.cross[1] = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
     sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
-    func_80666AF8(arg0, sp.cross[0], sp.cross[1], sp.cross[2], 1, arg2, 2);
+    collisionStoreSurfaceNormalAngles(arg0, sp.cross[0], sp.cross[1], sp.cross[2], 1, arg2, 2);
 }
 
 extern s32 D_8000DDCC;
@@ -2449,7 +2449,7 @@ extern void *D_807F9628[];
 extern s32 D_807F9680;
 extern u8 D_807FB220;
 extern u8 D_807FB221;
-void *func_8066B0F8(s32, u32, u8, u8);
+void *assetLoad(s32, u32, u8, u8);
 
 void collisionInitTables(void) {
     s32 i;
@@ -2475,7 +2475,7 @@ void collisionInitTables(void) {
 
     for (i = 0; i < 0x20; i++) {
         if (D_80748E18[i] != 0) {
-            D_807FB1A0[i] = func_8066B0F8(0x1A, i, 1, 1);
+            D_807FB1A0[i] = assetLoad(0x1A, i, 1, 1);
         } else {
             D_807FB1A0[i] = NULL;
         }
@@ -2527,8 +2527,8 @@ s32 assetGetSize(s32 arg0, s32 arg1) {
     s32 sp1C;
     s32 sp18;
 
-    func_8066B5F4();
-    func_8066B4D4(arg0, arg1, &sp1C, &sp18);
+    assetEnsureTableLoaded();
+    assetResolveRomRange(arg0, arg1, &sp1C, &sp18);
     if (sp18 == 0) {
         return 0;
     }
@@ -2542,8 +2542,8 @@ s32 assetGetCachedSizeOrResolve(s32 arg0, s32 arg1) {
     if (D_80748E18[arg0] != 0) {
         sp18 = D_807FB1A0[arg0][arg1];
     } else {
-        func_8066B5F4();
-        func_8066B4D4(arg0, arg1, &sp1C, &sp18);
+        assetEnsureTableLoaded();
+        assetResolveRomRange(arg0, arg1, &sp1C, &sp18);
     }
     return sp18;
 }
@@ -2562,7 +2562,7 @@ s32 assetGetTableEntry(s32, s32);
 void faultSetMessage(s32, s32, s32, s32);
 extern OSIoMesg D_807F9688[];
 
-void *func_8066B0F8(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
+void *assetLoad(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
     s32 pad;
     s32 sp50;
     s32 sp4C;
@@ -2570,7 +2570,7 @@ void *func_8066B0F8(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
     void *buffer;
 
     buffer = (void *)arg3;
-    func_8066B5F4();
+    assetEnsureTableLoaded();
     if (buffer == NULL) {
         if ((arg1 >= 0x80000000U) && (arg1 < 0xA0000000U)) {
             collisionBstInsertByHash(arg1, arg0, 0);
@@ -2586,7 +2586,7 @@ void *func_8066B0F8(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
             return buffer;
         }
     }
-    func_8066B4D4(arg0, arg1, &sp50, &sp4C);
+    assetResolveRomRange(arg0, arg1, &sp50, &sp4C);
     if (sp4C == 0) {
         D_807F967C = 0;
         D_807F9678 = 0;
@@ -2659,7 +2659,7 @@ void assetSetTableEntry(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-s32 func_8066B4D4(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
+s32 assetResolveRomRange(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
     s32 pad[2];
     s32 sp44;
     s32 t;
@@ -2677,7 +2677,7 @@ s32 func_8066B4D4(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
         temp_v0 &= 0x7FFFFFFF;
         func_8060B140(D_8000DDCC + temp_v0, &sp38, &sp2C, 0, 0, 0, 0);
         sp44 = (s16)(sp38 >> 48);
-        func_8066B4D4(arg0, sp44, arg2, arg3);
+        assetResolveRomRange(arg0, sp44, arg2, arg3);
         var_t0 = sp44;
     } else {
         t = table[1] & 0x7FFFFFFF;
@@ -2697,7 +2697,7 @@ s32 assetGetTableEntry(s32 arg0, s32 arg1) {
     return ret;
 }
 
-void func_8066B5F4(s32 arg0) {
+void assetEnsureTableLoaded(s32 arg0) {
     u32 sp54;
     s32 pad50;
     u64 sp48;
@@ -2861,7 +2861,7 @@ void collisionQueueSearch(s32 arg0, u8 *arg1, u16 *arg2, s32 *arg3) {
     }
 }
 
-void func_8066BAB8(arg0, arg1, arg2)
+void collisionQueueAppend(arg0, arg1, arg2)
 s32 arg0;
 u8 arg1;
 u16 arg2;
@@ -2887,7 +2887,7 @@ u16 arg2;
     }
 }
 
-void func_8066BAB8();
+void collisionQueueAppend();
 
 s32 collisionBstLookupAndDecrement(CollisionBstNodeBase *node, u32 arg1) {
     u8 sp2F;
@@ -2905,7 +2905,7 @@ s32 collisionBstLookupAndDecrement(CollisionBstNodeBase *node, u32 arg1) {
         if (node->unk10 == 0) {
             node->unkC--;
         }
-        func_8066BAB8(arg1, node->unk7, node->unkA);
+        collisionQueueAppend(arg1, node->unk7, node->unkA);
         return node->unkC;
     }
     if (node->unk0 < arg1) {
@@ -2993,8 +2993,8 @@ typedef struct CollisionBstFlatItem {
     /* 0x10 */ u8 unk10;
 } CollisionBstFlatItem;
 
-void func_8066BFF0();
-void func_8066C0DC();
+void collisionBstFlatten();
+void collisionBstSortFlatItems();
 CollisionBstNodeBase *collisionBstBuildBalanced(CollisionBstFlatItem *, s32, s32);
 void collisionBstFreeTree(CollisionBstNodeBase *);
 
@@ -3008,8 +3008,8 @@ void collisionBstRebalanceBucket(s32 arg0) {
     count = collisionBstCountNodes(D_807F9628[arg0]);
     if (count != 0) {
         buffer = func_80610FE8(count * 20);
-        func_8066BFF0(D_807F9628[arg0], buffer, &index);
-        func_8066C0DC(buffer, 0, count - 1);
+        collisionBstFlatten(D_807F9628[arg0], buffer, &index);
+        collisionBstSortFlatItems(buffer, 0, count - 1);
         new_root = collisionBstBuildBalanced(buffer, 0, count - 1);
         collisionBstFreeTree(D_807F9628[arg0]);
         D_807F9628[arg0] = new_root;
@@ -3054,7 +3054,7 @@ CollisionBstNodeBase *collisionBstBuildBalanced(CollisionBstFlatItem *buffer, s3
     return (CollisionBstNodeBase *)node;
 }
 
-void func_8066BFF0(CollisionBstNode *node, CollisionBstFlatItem *buffer, s32 *index) {
+void collisionBstFlatten(CollisionBstNode *node, CollisionBstFlatItem *buffer, s32 *index) {
     if (node == NULL) {
         return;
     }
@@ -3064,11 +3064,11 @@ void func_8066BFF0(CollisionBstNode *node, CollisionBstFlatItem *buffer, s32 *in
     buffer[*index].unkC = node->unkC;
     buffer[*index].unk10 = node->unk10;
     (*index)++;
-    func_8066BFF0(node->left, buffer, index);
-    func_8066BFF0(node->right, buffer, index);
+    collisionBstFlatten(node->left, buffer, index);
+    collisionBstFlatten(node->right, buffer, index);
 }
 
-void func_8066C0DC(CollisionBstFlatItem *arr, s32 low, s32 high) {
+void collisionBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
     s32 i;
     s32 j;
     u32 pivot;
@@ -3128,8 +3128,8 @@ void func_8066C0DC(CollisionBstFlatItem *arr, s32 low, s32 high) {
         pivot_ptr->unkC = temp3;
         pivot_ptr->unk10 = temp4;
 
-        func_8066C0DC(arr, low, i - 1);
-        func_8066C0DC(arr, i + 1, high);
+        collisionBstSortFlatItems(arr, low, i - 1);
+        collisionBstSortFlatItems(arr, i + 1, high);
     }
 }
 

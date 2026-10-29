@@ -17,7 +17,7 @@ void *func_80614130(s32 id) {
     if (D_807FBB32 >= 0x20) {
         return NULL;
     }
-    asset = (void *)func_8066B0F8(0xB, id, 1, 1);
+    asset = (void *)assetLoad(0xB, id, 1, 1);
     *(u16 *)((u8 *)asset + 6) += 6;
     entry->id = id;
     entry->asset = asset;

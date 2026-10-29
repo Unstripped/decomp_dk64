@@ -399,7 +399,7 @@ s32 proxPathFindNearestSegment(Actor *arg0, ProxPath *arg1, f32 *arg2, u8 *arg3)
     return ret;
 }
 
-s32 func_806725E4(s16, s16, s16, s32);
+s32 mathAngleInArcWithMargin(s16, s16, s16, s32);
 
 s32 func_8072F8D4(ProxPath *arg0, s32 arg1, s16 arg2) {
     s16 slot;
@@ -413,7 +413,7 @@ s32 func_8072F8D4(ProxPath *arg0, s32 arg1, s16 arg2) {
         return 1;
     }
     delta = D_807F6000[slot].unk14 * 4096.0f / 360.0f;
-    if (func_806725E4((s16)((arg0->unk34[arg1].unk10 + delta) & 0xFFF), (s16)((arg0->unk34[arg1].unk14 + delta) & 0xFFF), arg2, 0)) {
+    if (mathAngleInArcWithMargin((s16)((arg0->unk34[arg1].unk10 + delta) & 0xFFF), (s16)((arg0->unk34[arg1].unk14 + delta) & 0xFFF), arg2, 0)) {
         return 1;
     }
     return 0;

@@ -22,7 +22,7 @@ void func_8068412C(void) {
         }
         actor = D_807FBB40;
         actor->unkA4 = actor->unk80;
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         D_807FBB40->unk110 = 0;
         actor = D_807FBB40;
         actor->unk60 |= 2;

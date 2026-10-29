@@ -16,7 +16,7 @@ extern f32 D_807F6174;
 extern f32 D_807F6178;
 extern void *D_807F617C;
 
-void *func_8066B0F8(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);
 u8 fogGetEnabled(void);
 
 void mapSurfaceEffectsReset(void) {
@@ -92,7 +92,7 @@ void func_8063C6D8(void) {
 
 void func_8063C784(void) {
     D_807F6178 = 255.0f;
-    D_807F617C = func_8066B0F8(0x19, 0x565, 1, 0);
+    D_807F617C = assetLoad(0x19, 0x565, 1, 0);
 }
 
 Gfx *func_8063C7C4(Gfx *g) {
@@ -151,8 +151,8 @@ extern void *D_807F618C;
 void func_8063CADC(void) {
     D_807F6180 = 255.0f;
     D_807F6184 = 255.0f;
-    D_807F6188 = func_8066B0F8(7, 0x3B7, 0, 0);
-    D_807F618C = func_8066B0F8(7, 0x3B8, 0, 0);
+    D_807F6188 = assetLoad(7, 0x3B7, 0, 0);
+    D_807F618C = assetLoad(7, 0x3B8, 0, 0);
 }
 
 Gfx *func_8063CB40(Gfx *g) {
@@ -220,7 +220,7 @@ void func_8063CE64(void) {
 extern void *D_807F6190;
 
 void func_8063CF0C(void) {
-    D_807F6190 = func_8066B0F8(7, 0x3E0, 1, 0);
+    D_807F6190 = assetLoad(7, 0x3E0, 1, 0);
 }
 
 extern f32 D_80747E00;
@@ -279,7 +279,7 @@ void func_8063D288(void) {
 
     D_807F6194 = 0;
     for (i = 0; i < 11; i++) {
-        D_80747E0C[i].unk4 = func_8066B0F8(7, D_80747E0C[i].unk0, 1, 0);
+        D_80747E0C[i].unk4 = assetLoad(7, D_80747E0C[i].unk0, 1, 0);
     }
 }
 
@@ -343,7 +343,7 @@ extern void *D_807F619C;
 extern f32 D_807F61A0;
 
 void func_8063D608(void) {
-    D_807F619C = func_8066B0F8(0x19, 0x1765, 1, 0);
+    D_807F619C = assetLoad(0x19, 0x1765, 1, 0);
 }
 
 Gfx *func_8063D638(Gfx *g) {

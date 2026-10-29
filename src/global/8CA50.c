@@ -35,7 +35,7 @@ extern s32 D_8076A0A8;
 extern u8 D_807FC928;
 
 void *func_80610FE8(s32);
-void *func_8066B0F8(s32, s32, u8, s32);
+void *assetLoad(s32, s32, u8, s32);
 void animListFree(AnimNode **);
 void func_80687FC8(AnimNode *);
 AnimNode *animGetNodeByIndex(AnimActor *, u32);
@@ -94,7 +94,7 @@ void animListInit(AnimActor *arg0, AnimInitData *arg1) {
             i = 0;
             if (num > 0) {
                 do {
-                    res = func_8066B0F8(0x19, *src, unk, 0);
+                    res = assetLoad(0x19, *src, unk, 0);
                     i++;
                     *unk0 = res;
                     *unk4 = res;

@@ -927,7 +927,7 @@ void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_8067ACB4(void *);
 void actorApplyVelocity(void *);
-void func_80665564(void *, f32);
+void actorUpdateFloorContactAndTilt(void *, f32);
 
 void func_80028E3C(void) {
     BonusB_Sub8E3C *t0 = D_807FBB40->unk174;
@@ -979,7 +979,7 @@ void func_80028E3C(void) {
         t0->unkC = D_807FBB40->unkC0;
         func_8067ACB4(D_807FBB40);
         actorApplyVelocity(D_807FBB40);
-        func_80665564(D_807FBB40, 0);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0);
     }
     D_807FBB40->unkE6 += p40->unkC;
     if (D_807FBB40->unkE6 >= 0x1000) {

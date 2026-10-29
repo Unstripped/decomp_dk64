@@ -98,11 +98,11 @@ s32 randomNonNegative(void);
 void actorUpdateModelMatrix(B2CE0Actor *, s32);
 
 void matrixMakeRotationX(f32 (*)[4], f32);
-void func_80666280(s32);
+void collisionSetQueryMode(s32);
 void actorApplyGravity(void);
 void func_8067ACB4(B2CE0Actor *);
 void actorApplyVelocity(B2CE0Actor *);
-void func_80665564(B2CE0Actor *, f32);
+void actorUpdateFloorContactAndTilt(B2CE0Actor *, f32);
 void func_8065D254(B2CE0Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
@@ -155,11 +155,11 @@ void func_806ADFE0(void) {
     if (D_807FBB40->unk168 > 0) {
         D_807FBB40->unk168 -= 10;
     }
-    func_80666280(1);
+    collisionSetQueryMode(1);
     actorApplyGravity();
     func_8067ACB4(D_807FBB40);
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, 0);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 10, 10, 1, 200, 0x80, 0, 1.0f);
     if (D_807FBB40->unk15F != 0) {
         actorUpdateModelMatrix(D_807FBB40, 0);

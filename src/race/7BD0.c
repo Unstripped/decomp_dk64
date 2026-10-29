@@ -1066,7 +1066,7 @@ void func_8002DB90() {
     }
 }
 
-void func_80665564(RaceUnknownActor *, f32);
+void actorUpdateFloorContactAndTilt(RaceUnknownActor *, f32);
 void actorUpdateModelMatrix(RaceUnknownActor *, s32);
 
 void func_8002DC24(void) {
@@ -1081,7 +1081,7 @@ void func_8002DC24(void) {
         break;
     case 1:
         func_8002DB90(temp_a0);
-        func_80665564(D_807FBB40, 0.0f);
+        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         D_807FBB40->unk80 = D_807FBB40->unkAC;
         D_807FBB40->unk6A |= 4;
         D_807FBB40->unk6C |= 4;

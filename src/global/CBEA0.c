@@ -106,7 +106,7 @@ extern f32 D_807FC8E8;
 extern f32 D_807FC8EC;
 extern u8 *D_807FC8F0;
 
-u8 *func_8066B0F8(s32, s32, s32, s32);
+u8 *assetLoad(s32, s32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *func_806C75A4(Gfx *, Actor *);
 
@@ -120,7 +120,7 @@ void func_806C7270(void) {
     s32 t;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FC8F0 = func_8066B0F8(0x13, 7, 1, 1);
+        D_807FC8F0 = assetLoad(0x13, 7, 1, 1);
         D_807FC8E0 = 0;
         for (i = 0; D_807FC8F0[i] != 0x2A; i++) {
             if (D_807FC8F0[i] == 0xA) {

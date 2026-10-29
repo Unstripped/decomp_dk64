@@ -35,7 +35,7 @@ void texCacheUpdate(void) {
     }
 }
 
-s32 func_8066B0F8(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);
 
 s32 texCacheFindOrLoad(u16 arg0) {
     s16 i;
@@ -52,7 +52,7 @@ s32 texCacheFindOrLoad(u16 arg0) {
     for (i = 0; i < 0x20; i++) {
         entry = &D_807FC690[i];
         if (entry->unk6 == 0) {
-            entry->unk0 = func_8066B0F8(0xE, arg0, 0, 0);
+            entry->unk0 = assetLoad(0xE, arg0, 0, 0);
             entry->unk6 = 2;
             entry->unk4 = arg0;
             return entry->unk0;

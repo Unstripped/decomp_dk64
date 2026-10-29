@@ -29,9 +29,9 @@ typedef struct {
 s32 func_8066A834(Col6C_Tri *, f32, f32);
 s32 func_8066A988(Col6C_Tri *, f32, f32);
 void func_80666D88(f32, f32, s32, s32, s32);
-void func_8066A64C(s32, Actor *, Col6C_StructA64C *, f32, f32, f32);
+void collisionTransformPointToActorLocal(s32, Actor *, Col6C_StructA64C *, f32, f32, f32);
 void func_8066A584(void *, f32);
-void func_8066ACA4();
+void collisionStoreBoxTriangleNormalAngles();
 s32 func_8066AC10(void *);
 s32 func_80666FC8(f32, f32, f32, s32);
 
@@ -140,12 +140,12 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
 
     if (hit != 0 && func_80666FC8(*arg4, hit_y, (f32)((f64)arg3 + 4.0), 0) != 0) {
         *arg4 = hit_y;
-        func_8066ACA4(arg0, hit_tri, 1);
+        collisionStoreBoxTriangleNormalAngles(arg0, hit_tri, 1);
         if (hit_actor->unk68 & 8) {
             D_807F94AD = 1;
         }
         if (arg0 != NULL) {
-            func_8066A64C((s32)arg0, hit_actor, hit_tri, arg1, hit_y, arg2);
+            collisionTransformPointToActorLocal((s32)arg0, hit_actor, hit_tri, arg1, hit_y, arg2);
             if (D_807F94BC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }

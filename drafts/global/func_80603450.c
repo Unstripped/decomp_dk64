@@ -77,7 +77,7 @@ extern u32 D_807FBB60;
 extern Aud7130L2_D580 *D_807FD580;
 
 s32 func_8062F388(Aud7130L2_Emitter **);
-void func_80664044(s32, s32, s32, f32);
+void actorTargetEntriesUpdateSfx(s32, s32, s32, f32);
 s32 flagGet(s32, s32);
 void n_alSndpPostEvent(s32, s32, ...);
 f32 func_80611BB4(f32, f32);
@@ -313,7 +313,7 @@ void func_80603450(void) {
                 var_fs1 = 0.0f;
             } else {
                 if (s2 == 1) {
-                    func_80664044(1, 0xFF, 0xC8, 0.3f);
+                    actorTargetEntriesUpdateSfx(1, 0xFF, 0xC8, 0.3f);
                 }
                 for (s0 = spC8 - 1; s0 >= 0; s0--) {
                     if (s2 + 1 == spBC[s0].unk7) {

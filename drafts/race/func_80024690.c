@@ -145,7 +145,7 @@ void func_805FF544(void);
 f32 func_80611BB4(f32, f32);
 void func_8063DA40(s32, s32);
 f32 sqrtf(f32);
-void func_80665564(void *, s32);
+void actorUpdateFloorContactAndTilt(void *, s32);
 void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_806CCC10(void);
 void hudSpawnTextScreen(s32);
@@ -526,7 +526,7 @@ void func_80024690(void) {
     actorApplyGravity();
     actorStepPhysics(D_807FBB40, L4_D->unkEE, L4_D->unkEE);
     actorApplyVelocity(D_807FBB40);
-    func_80665564(D_807FBB40, 0);
+    actorUpdateFloorContactAndTilt(D_807FBB40, 0);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
     if (sp54->unk34 == 2) {
         func_8002F490(sp54);
