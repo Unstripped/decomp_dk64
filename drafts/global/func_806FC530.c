@@ -1,4 +1,4 @@
-// func_806FC530 (src/global/100180.c): Stage 6 (L3): parked NON_MATCHING in private copy; same frame 0xC8, saved s0-s8/ra, .text size equal (9312); loop/branch structure matches; remaining diff regalloc: count lives in a $t reg with save/restore around calls (target s8), dl s0 ok but g9/g11 Gfx temps take s1 (target vp s1), yoff/w/gx in s regs (target a3,t1,s2), line split not colored (target s6). deadsweep 314->253; 18 word locals (Gfx *g1..g12 as function-level temps, not block-scoped macro _g) reproduce frame. Semantics verified against asm.
+// func_806FC530 (src/global/100180.c): Stage 6 (NM7): parked NON_MATCHING; frame 0xC8 and saved set match; full=227 shape=80 (was 253/116). IR now matches target for: w4=glyph[2]; w=w4; w4*=4 (sext/copy pattern), index-form compares D_807549FC[font][line-1]/[line] (hoisted line load), dead if(vp&&vp) lifts vp over g9. Remaining: regalloc only: vp s2 (want s1, g9/gx s2), h4 s4 (want t0), yoff uncolored (want a3), const 0x7000000 s7 (want s4), count s8 ok.
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
 Gfx *func_806FBEF0(Gfx *, u8, s32);
@@ -97,26 +97,31 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                     if (ch != 0x20) {
                         yoff = func_806FB914(font, &ch) * 4;
                         glyph = (u8 *)((u8 **)D_80754A18)[font] + ch * 4;
-                        w = glyph[2];
-                        h = fi[2];
+                        w4 = glyph[2];
+                        h4 = fi[2];
+                        w = w4;
+                        h = h4;
+                        w4 = w4 * 4;
                         if (count && count) {}
-                        w4 = w * 4;
-                        h4 = h * 4;
+                        if (count && count) {}
+                        if (count && count) {}
+                        if (count && count) {}
+                        h4 = h4 * 4;
                         gx = *(s16 *)glyph;
                         if (center) {
                             i = (fi[5] * 4 - w4) / 2;
                             if (i < 0) {
+                                if (yoff == 0) {}
                                 pad = 0;
                             } else {
                                 pad = i;
                             }
                             x += pad;
                         }
-                        if (ch >= (D_807549FC[font] + line)[-1] && ch < (D_807549FC[font] + line)[0]) {
+                        if (ch >= D_807549FC[font][line - 1] && ch < D_807549FC[font][line]) {
                             if (started == 0) {
                                 started = 1;
                                 dl = func_806FBEF0(dl, font, (s16)line);
-                                if (w && w) {}
                             }
                             v = (s16 *)vp;
                             v[0] = x;
@@ -143,8 +148,8 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             vp++;
                             vp++;
                             vp++;
+                            if (vp && vp) {}
                             if (flags & 0x32) {
-                                if (yoff) {}
                                 func_80704298(vp - 4, idx, flags, yoff);
                             }
                             count += 4;
@@ -159,14 +164,12 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             }
                         }
                         if (center) {
-                            if (center) {}
                             i = fi[5] * 4;
                             x += (w4 < i) ? w4 : i;
                             if (w4 < i) {
                                 x = x + i - pad - w4;
                             }
                         } else {
-                            if (flags) {}
                             x += (((u8 **)D_80754A18)[font][ch * 4 + 2] + fi[4]) * 4;
                         }
                     } else if (center) {
@@ -182,13 +185,11 @@ Gfx *func_806FC530(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             x = startX;
             if (count != 0) {
                 L3VTX(g11, osVirtualToPhysical(batch), count, 0);
-                if (batch) {}
                 batch = vp;
                 i = count / 4;
                 while (i-- > 0) {
                     L3QUAD(g12, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
                 }
-                if (count) {}
                 count = 0;
             }
             str = strStart;

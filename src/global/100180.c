@@ -624,6 +624,7 @@ extern u8 D_2000200[];
 void heapFreeDeferred(void *);
 Gfx *func_8070068C(Gfx *);
 
+typedef struct { s16 unk0; u8 unk2; u8 unk3; } NM3Glyph;
 Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
     s32 line;
     u8 chr;
@@ -656,37 +657,37 @@ Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
                     if (chr != 0x20) {
                         func_806FB914(arg1->unkC, &chr);
                         if (chr >= (D_807549FC[arg1->unkC] + line)[-1] && chr < (D_807549FC[arg1->unkC] + line)[0]) {
-                            gw = ((u8 *)((u8 **)D_80754A18)[arg1->unkC])[chr * 4 + 2];
-                            gx = *(s16 *)((u8 *)((u8 **)D_80754A18)[arg1->unkC] + chr * 4);
+                            gw = ((NM3Glyph *)D_80754A18[arg1->unkC])[chr].unk2;
+                            gx = ((NM3Glyph *)D_80754A18[arg1->unkC])[chr].unk0;
                             gh = D_80754A36[arg1->unkC * 6];
                             if (started == 0) {
                                 started = 1;
-                                dl = func_806FBEF0(dl, arg1->unkC, line);
+                                dl = func_806FBEF0(dl, arg1->unkC, (s16)line);
                             }
                             guPosition(mp + idx, 0.0f, 0.0f, arg1->unk8[idx].unk20 * 57.295776f, arg1->unk8[idx].unk30,
                                        arg1->unk8[idx].unk0, arg1->unk8[idx].unk4, 0.0f);
                             gSPMatrix(dl++, mp + idx, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
                             gDPPipeSync(dl++);
-                            ((s16 *)vp)[0] = -(gw * 2);
-                            ((s16 *)vp)[1] = gh * 2 - 1;
-                            ((s16 *)vp)[2] = -5;
-                            ((s16 *)vp)[4] = gx << 6;
-                            ((s16 *)vp)[5] = gh << 6;
-                            ((s16 *)vp)[8] = gw * 2 - 1;
-                            ((s16 *)vp)[9] = gh * 2 - 1;
-                            ((s16 *)vp)[10] = -5;
-                            ((s16 *)vp)[12] = (gx + gw) << 6;
-                            ((s16 *)vp)[13] = gh << 6;
-                            ((s16 *)vp)[17] = -(gh * 2);
-                            ((s16 *)vp)[16] = gw * 2 - 1;
-                            ((s16 *)vp)[18] = -5;
-                            ((s16 *)vp)[20] = (gx + gw) << 6;
-                            ((s16 *)vp)[21] = 0;
-                            ((s16 *)vp)[25] = -(gh * 2);
-                            ((s16 *)vp)[24] = -(gw * 2);
-                            ((s16 *)vp)[26] = -5;
-                            ((s16 *)vp)[28] = gx << 6;
-                            ((s16 *)vp)[29] = 0;
+                            vp[3].v.tc[1] = 0;
+                            vp[0].v.ob[0] = -(gw * 2);
+                            vp[0].v.ob[1] = gh * 2 - 1;
+                            vp[0].v.ob[2] = -5;
+                            vp[0].v.tc[0] = gx << 6;
+                            vp[0].v.tc[1] = gh << 6;
+                            vp[1].v.ob[0] = gw * 2 - 1;
+                            vp[1].v.ob[1] = gh * 2 - 1;
+                            vp[1].v.ob[2] = -5;
+                            vp[1].v.tc[0] = (gx + gw) << 6;
+                            vp[1].v.tc[1] = gh << 6;
+                            vp[2].v.ob[0] = gw * 2 - 1;
+                            vp[2].v.ob[2] = -5;
+                            vp[2].v.tc[0] = (gx + gw) << 6;
+                            vp[2].v.tc[1] = 0;
+                            vp[3].v.ob[1] = -(gh * 2);
+                            vp[3].v.ob[0] = -(gw * 2);
+                            vp[3].v.ob[2] = -5;
+                            vp[3].v.tc[0] = gx << 6;
+                            vp[2].v.ob[1] = -(gh * 2);
                             vp += 4;
                             gSPVertex(dl++, osVirtualToPhysical(spB4), 4, 0);
                             gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
@@ -695,8 +696,7 @@ Gfx *func_806FCC88(Gfx *dl, HbTextObj *arg1) {
                         }
                         idx++;
                     }
-                    chr = arg1->unk4[i];
-                    i++;
+                    chr = arg1->unk4[i++];
                 } while (chr);
                 idx = 0;
             }
@@ -751,12 +751,12 @@ Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
                     if (chr != 0x20) {
                         func_806FB914(arg1->unkC, &chr);
                         if (chr >= (D_807549FC[arg1->unkC] + line)[-1] && chr < (D_807549FC[arg1->unkC] + line)[0]) {
-                            gw = ((u8 *)((u8 **)D_80754A18)[arg1->unkC])[chr * 4 + 2];
-                            gx = *(s16 *)((u8 *)((u8 **)D_80754A18)[arg1->unkC] + chr * 4);
+                            gw = ((NM3Glyph *)D_80754A18[arg1->unkC])[chr].unk2;
+                            gx = ((NM3Glyph *)D_80754A18[arg1->unkC])[chr].unk0;
                             gh = D_80754A36[arg1->unkC * 6];
                             if (started == 0) {
                                 started = 1;
-                                dl = func_806FBEF0(dl, arg1->unkC, line);
+                                dl = func_806FBEF0(dl, arg1->unkC, (s16)line);
                             }
                             guPosition(mp + idx, arg1->unk8[idx].unk18 * 57.295776f,
                                        arg1->unk8[idx].unk1C * 57.295776f, arg1->unk8[idx].unk20 * 57.295776f,
@@ -773,6 +773,7 @@ Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
                             ((s16 *)vp)[9] = gh * 2 - 1;
                             ((s16 *)vp)[10] = 0;
                             ((s16 *)vp)[12] = (gx + gw) << 6;
+                            if (i && i) {}
                             ((s16 *)vp)[13] = gh << 6;
                             ((s16 *)vp)[17] = -(gh * 2);
                             ((s16 *)vp)[16] = gw * 2 - 1;
@@ -791,8 +792,7 @@ Gfx *func_806FD094(Gfx *dl, HbTextObj *arg1) {
                         }
                         idx++;
                     }
-                    chr = arg1->unk4[i];
-                    i++;
+                    chr = arg1->unk4[i++];
                 } while (chr);
                 idx = 0;
             }
