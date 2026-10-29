@@ -411,7 +411,30 @@ void effectSpawnScatter(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
         func_80714CC0(&D_8071FFA0, arg0, (f32)(((sp24 >> 15) % mod100k) % mod10) + (arg1 - 5.0f), arg2, (f32)(((randomNonNegative() >> 15) % mod100k) % mod10) + (arg3 - 5.0f));
     }
 }
-#pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80685B44.s")
+void func_807180F4(void);
+
+void func_80685B44(void *arg0, u8 arg1, f32 arg2, u8 arg3, u8 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8) {
+    s16 var_s1;
+    s8 dx;
+    s8 dz;
+
+    var_s1 = 0;
+    if (arg3 > 0) {
+        do {
+            dx = ((randomNonNegative() >> 15) % 32767 % (arg4 * 2)) + (-arg4);
+            dz = ((randomNonNegative() >> 15) % 32767 % (arg4 * 2)) + (-arg4);
+            func_80714950(-arg5 - ((randomNonNegative() >> 15) % 80));
+            func_8071498C(func_807180F4);
+            func_807149B8(1);
+            func_80714998(2);
+            if (arg1) {
+                func_8071496C((s16)arg1);
+            }
+            func_80714CC0(arg0, arg2, (f32)(arg6 + dx), (f32)arg7, (f32)(arg8 + dz));
+            var_s1 = (s16)(var_s1 + 1);
+        } while (var_s1 < arg3);
+    }
+}
 
 void actorUpdateEffects(Actor *arg0) {
     if (!(arg0->unk64 & 4)) {
@@ -444,7 +467,54 @@ void effectSpawnActorScale(Actor *arg0) {
     ((Actor338 *)func_80714CC0(&D_8071FED0, (f64) sp28 * 0.6, arg0->unk7C, arg0->unkAC, arg0->unk84))->unk338 = arg0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80685F60.s")
+typedef struct KaD_Player_Data {
+    u8 pad0[0x2C0];
+    u8 unk2C0;
+    u8 pad2C1[0x2F0 - 0x2C1];
+} KaD_Player_Data;
+
+typedef struct KaD_ActorUnk118 {
+    u8 pad0[0x10];
+    s16 unk10;
+} KaD_ActorUnk118;
+
+extern KaD_Player_Data *D_807FC924;
+extern u8 D_807FC929;
+extern s16 D_80753A08[];
+extern s16 D_80753A18[];
+
+void func_80685F60(Actor *arg0) {
+    register f32 var_fv0;
+    u8 var_v1;
+    var_v1 = 0;
+    if (*(void **)arg0->unk00 != NULL && arg0->unk4 != NULL) {
+        if (arg0->unk5C == 1) {
+            if (D_807FC924[D_807FC929].unk2C0 == 1) {
+                var_fv0 = D_80753A08[arg0->unk58];
+            } else {
+                var_fv0 = D_80753A18[arg0->unk58];
+            }
+        } else {
+            var_fv0 = (f32)(u32)arg0->unk15E;
+        }
+        if ((arg0->unkAC - var_fv0) <= arg0->unk80) {
+            if (!(D_8076A064 & 3)) {
+                var_v1 = (f64)arg0->unkB8 != 0.0;
+                if (*(KaD_ActorUnk118 **)arg0->unk118 != NULL && (*(KaD_ActorUnk118 **)arg0->unk118)->unk10 != 0) {
+                    var_v1 = 1;
+                }
+            }
+            if (var_v1) {
+                func_80714950(1);
+            } else if (((f64)arg0->unkB8 == 0.0) && (((u32)D_8076A064 % 24 == 0) || ((f64)arg0->unkBC != 0.0))) {
+                var_v1 = 1;
+            }
+            if (var_v1) {
+                effectSpawnActorScale(arg0);
+            }
+        }
+    }
+}
 
 void effectSpawnBurstParticles(Actor *arg0) {
     f32 var_fs0;
@@ -551,7 +621,22 @@ void func_80686E40(f32 arg0, f32 arg1, f32 arg2, void *arg3) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_80686F90.s")
+void func_80686F90(u8 arg0, s16 arg1, s16 arg2) {
+    u8 temp;
+
+    actorSpawn(0x109, 0xC0);
+    temp = arg0;
+    if (temp) {
+        actorGetNodePos(D_807FBB40, temp, &D_807FBB44->unk7C, &D_807FBB44->unk80, &D_807FBB44->unk84);
+    } else {
+        D_807FBB44->unk7C = D_807FBB40->unk7C;
+        D_807FBB44->unk80 = D_807FBB40->unk80;
+        D_807FBB44->unk84 = D_807FBB40->unk84;
+    }
+    D_807FBB44->unkE6 = arg1;
+    D_807FBB44->unkE8 = arg2;
+    D_807FBB44->unk4->unk38 = (f32)(D_807FBB44->unk4->unk38 * 0.01);
+}
 
 void effectActorGrowthTick(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
