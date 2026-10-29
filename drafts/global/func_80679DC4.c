@@ -1,22 +1,22 @@
-// func_80679DC4 (src/global/7CA80.c): stage 5: 182 insns, frame 0x40, score 44 with dead statement, regalloc only ( vs , temp registers)
+// func_80679DC4 (src/global/7CA80.c): stage 5: 182 insns, frame 0x40, score 44 with dead statement, regalloc only (a2 vs a3, temp registers)
 struct R2CEntry2F0;
 extern struct R2CEntry2F0 *D_807FC924;
 
-typedef struct KaA2_Entry2F0 {
+typedef struct KaN2_Entry2F0 {
     u8 pad0[0x2C0];
     u8 unk2C0;
     u8 pad2C1[0x2F0 - 0x2C1];
-} KaA2_Entry2F0;
+} KaN2_Entry2F0;
 
-typedef struct KaA2_StructD580 {
+typedef struct KaN2_StructD580 {
     u8 pad0[0x1A4];
     u8 unk1A4;
     u8 pad1A5[0x1F0 - 0x1A5];
     u32 unk1F0;
     u8 pad1F4[0x200 - 0x1F4];
     u16 unk200;
-} KaA2_StructD580;
-extern KaA2_StructD580 *D_807FD580;
+} KaN2_StructD580;
+extern KaN2_StructD580 *D_807FD580;
 
 extern u8 D_807FBB85;
 extern s32 D_80720E2C;
@@ -40,7 +40,7 @@ void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
         var_a2 = 1;
-        if (((KaA2_Entry2F0 *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
+        if (((KaN2_Entry2F0 *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
             return;
         }
         sp3C = 0x2E;

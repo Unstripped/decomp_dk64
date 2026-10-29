@@ -1,4 +1,6 @@
-// func_80679334 (src/global/7CA80.c): stage 4: frame 0x28, s0-s3 match, s0/s1 regalloc swap between i and entry pointer
+// func_80679334 (src/global/7CA80.c): stage 3: 87 insns, frame 0x30 vs 0x28 (extra s4 reg for %hi(D_807FBF18)); deadsweep round 2 full=63 text=53
+s32 actorTableContains(Actor *);
+
 void func_80679334(void) {
     ActorQueueEntry *entry;
     s32 i;
@@ -10,6 +12,7 @@ void func_80679334(void) {
 
     for (i = 0, entry = D_807FBF18; i < D_807FBFD8; i++, entry++) {
         entry->arg6--;
+        if (D_807FBFD8 && D_807FBFD8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (entry->arg6 == 0) {
             actor = (Actor *)entry->arg0;
             if (actorTableContains(actor)) {
@@ -28,6 +31,7 @@ void func_80679334(void) {
             } else {
                 if (entry->node->unk10 != NULL) {
                     heapFree(entry->node->unk10);
+                    if (D_807FBF18) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
                 heapFree(entry->node);
             }

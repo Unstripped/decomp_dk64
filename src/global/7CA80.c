@@ -67,7 +67,7 @@ void func_80675EE0(Actor *);
 void actorInitDamage(Actor *);
 void func_80677EC8(s32);
 s32 func_80678014(s32);
-s32 func_80678050(s32);
+s32 func_80678050();
 void actorDespawn(Actor *);
 s32 actorQueueOrDespawn(Actor *);
 void actorFlushDespawnQueue(void);
@@ -249,7 +249,170 @@ s32 func_80678014(s32 arg0) {
     return 0;
 }
 
+#ifdef NON_MATCHING
+extern u16 *D_8074E218[];
+extern u16 D_8074DA58[];
+extern u32 D_807FBB64;
+extern u16 D_80748D4A;
+extern u16 D_807FBB3E;
+void heapClearBlock(void *);
+void actorTableInsert(Actor *);
+void actorInitHealth(Actor *);
+
+typedef struct KaN2_ActorAlloc {
+    u8 pad0[0x54];
+    /* 0x54 */ s32 unk54;
+    /* 0x58 */ s32 unk58;
+    /* 0x5C */ s16 unk5C;
+    u8 pad5E[2];
+    /* 0x60 */ u32 unk60;
+    /* 0x64 */ u32 unk64;
+    /* 0x68 */ s16 unk68;
+    /* 0x6A */ s16 unk6A;
+    /* 0x6C */ s16 unk6C;
+    /* 0x6E */ s16 unk6E;
+    /* 0x70 */ s16 unk70;
+    u8 pad72[6];
+    /* 0x78 */ u8 unk78;
+    u8 pad79[0x37];
+    /* 0xB0 */ s8 unkB0;
+    u8 padB1[0x1B];
+    /* 0xCC */ u8 unkCC;
+    /* 0xCD */ u8 unkCD;
+    /* 0xCE */ s16 unkCE;
+    u8 padD0[4];
+    /* 0xD4 */ void *unkD4;
+    u8 padD8[2];
+    /* 0xDA */ s16 unkDA;
+    u8 padDC[0x1C];
+    /* 0xF8 */ s16 unkF8;
+    u8 padFA[0x16];
+    /* 0x110 */ u8 unk110;
+    u8 pad111[3];
+    /* 0x114 */ void *unk114;
+    /* 0x118 */ void *unk118;
+    /* 0x11C */ s32 unk11C;
+    /* 0x120 */ u8 pad120[4];
+    /* 0x124 */ s32 unk124;
+    /* 0x128 */ s16 unk128;
+    /* 0x12A */ s16 unk12A;
+    /* 0x12C */ s16 unk12C;
+    u8 pad12E[2];
+    /* 0x130 */ u8 unk130;
+    /* 0x131 */ u8 unk131;
+    /* 0x132 */ s16 unk132;
+    u8 pad134[4];
+    /* 0x138 */ s32 unk138;
+    /* 0x13C */ void *unk13C;
+    u8 pad140[4];
+    /* 0x144 */ u8 unk144;
+    u8 pad145[1];
+    /* 0x146 */ s16 unk146;
+    /* 0x148 */ void *unk148;
+    /* 0x14C */ void *unk14C;
+    /* 0x150 */ s32 unk150;
+    u8 pad154[2];
+    /* 0x156 */ u8 unk156;
+    u8 pad157[0x16];
+    /* 0x16D */ u8 unk16D;
+    u8 pad16E[6];
+    /* 0x174 */ void *unk174;
+} KaN2_ActorAlloc;
+
+s32 func_80678050(arg0)
+u16 arg0;
+{
+    u16 **typesPtr;
+    s32 headerSize;
+    KaN2_ActorAlloc *actor;
+    s32 totalDataSize;
+    u16 *types;
+    void **ptrArray;
+    u8 *dataPtr;
+
+    typesPtr = &D_8074E218[arg0];
+    types = *typesPtr;
+    headerSize = 0x174;
+    totalDataSize = 0;
+    if (*types != 0) {
+        do {
+            headerSize = (headerSize + 4) & 0xFFFF;
+            totalDataSize = (totalDataSize + D_8074DA58[*types]) & 0xFFFF;
+            types++;
+        } while (*types != 0);
+    }
+    headerSize = (headerSize + 7) & 0xFFF8;
+    totalDataSize += headerSize;
+    actor = (KaN2_ActorAlloc *)func_80610FE8(totalDataSize & 0xFFFF);
+    if (actor != NULL) {
+        heapClearBlock(actor);
+        types = *typesPtr;
+        if (*types != 0) {
+            ptrArray = (void **)&actor->unk174;
+            dataPtr = (u8 *)actor + headerSize;
+            do {
+                *ptrArray++ = dataPtr;
+                dataPtr += D_8074DA58[*types++];
+            } while (*types != 0);
+        }
+        actor->unk13C = NULL;
+        actor->unk138 = -1;
+        actor->unk144 = 2;
+        actor->unk110 = 0;
+        actor->unkF8 = 0x50;
+        actor->unk60 = 0x58144;
+        actor->unk64 = 0;
+        actor->unk128 = 0xFF;
+        actor->unk58 = arg0;
+        if (D_807FBB64 & 0x100) {
+            actor->unk12A = 0x7D0;
+        } else {
+            actor->unk12A = 0x1F4;
+        }
+        actor->unk68 = 0;
+        actor->unk156 = 0;
+        actor->unk78 = 0;
+        actor->unk6C = 1;
+        actor->unk6A = 1;
+        actor->unk132 = 1;
+        actor->unk114 = NULL;
+        actor->unk118 = NULL;
+        actor->unk11C = 0;
+        actor->unk6E = -1;
+        actor->unk70 = -1;
+        actor->unk150 = 0;
+        actor->unk12C = -1;
+        actor->unk124 = 0;
+        actor->unk148 = NULL;
+        actor->unk14C = NULL;
+        actor->unkD4 = &D_80748D4A;
+        actor->unk146 = -1;
+        actor->unkDA = 0x400;
+        actor->unkCC = 0;
+        actor->unkCD = 0;
+        actor->unk130 = 0;
+        actor->unk131 = 0;
+        actor->unk16D = 0xF;
+        actor->unkCE = 0;
+        actor->unkB0 = -1;
+        actor->unk5C = D_8074D624[arg0];
+        actor->unk54 = D_807FBB38;
+        D_807FBB38++;
+        actorTableInsert((Actor *)actor);
+        actorInitHealth((Actor *)actor);
+        gActiveActors[gActiveActorCount].actor = (Actor *)actor;
+        gActiveActors[gActiveActorCount].unk4 = 0;
+        D_807FBB3E = gActiveActorCount;
+        gActiveActorCount++;
+        D_807FBB44 = (Actor *)actor;
+        return 1;
+    }
+    return 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80678050.s")
+#endif
 
 void actorDespawn(Actor *arg0) {
     actorListRemoveByActor();
@@ -703,9 +866,164 @@ ActorCallbackNode *actorAllocCallbackNode(s32 arg0, s32 arg1, u8 arg2, s32 arg3,
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_806794EC.s")
 
+struct R2CEntry2F0;
+extern struct R2CEntry2F0 *D_807FC924;
+
+typedef struct KaN2_Entry2F0 {
+    u8 pad0[0x2C0];
+    u8 unk2C0;
+    u8 pad2C1[0x2F0 - 0x2C1];
+} KaN2_Entry2F0;
+
+typedef struct KaN2_StructD580 {
+    u8 pad0[0x1A4];
+    u8 unk1A4;
+    u8 pad1A5[0x1F0 - 0x1A5];
+    u32 unk1F0;
+    u8 pad1F4[0x200 - 0x1F4];
+    u16 unk200;
+} KaN2_StructD580;
+extern KaN2_StructD580 *D_807FD580;
+
+#ifdef NON_MATCHING
+extern u8 D_807FBB85;
+extern s32 D_80720E2C;
+void func_80686CF8(Actor *);
+s32 func_80714608(s32);
+s32 func_806D0DE4(Actor *, Actor *, s32);
+void func_807149FC(s32);
+void func_807149B8(s32);
+void func_8071498C(void *);
+void func_80714C08(void *, s32, Actor *, s32, s32);
+void effectPulseSpinUpdate(void);
+void func_80679DC4(Actor *arg0, Actor *arg1, s32 arg2) {
+    s32 sp3C;
+    s32 var_a2;
+    void *sp24;
+    s32 temp_a3;
+    s32 var_v0;
+
+    temp_a3 = arg2 & 0xFF;
+    D_807FBB85 = 1;
+    if (arg0 == D_807FBB48) {
+        var_a2 = 1;
+        if (((KaN2_Entry2F0 *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
+            return;
+        }
+        sp3C = 0x2E;
+        if (temp_a3 != 0) {
+            sp3C = 0x30;
+        }
+        if (arg1 != NULL && arg1->unk58 == 0x116) {
+            func_80686CF8(arg0);
+            switch (arg1->unk155[0]) {
+            case 1:
+                var_a2 = 0;
+                D_807FD580->unk1F0 ^= 0x80;
+                break;
+            case 2:
+                sp3C = 0x27;
+                break;
+            case 3:
+                func_807149FC(0xF0);
+                func_807149B8(1);
+                sp24 = &effectPulseSpinUpdate;
+                func_8071498C(&effectPulseSpinUpdate);
+                func_80714C08(&D_80720E2C, 0x3ECCCCCD, arg0, 1, 2);
+                func_807149FC(0xF0);
+                func_807149B8(1);
+                func_8071498C(sp24);
+                func_80714C08(&D_80720E2C, 0x3EC28F5C, arg0, 5, 2);
+                func_807149FC(0xF0);
+                func_807149B8(1);
+                func_8071498C(sp24);
+                func_80714C08(&D_80720E2C, 0x3E99999A, arg0, 6, 2);
+                var_a2 = 0;
+                D_807FD580->unk1F0 |= 0x08000000;
+                break;
+            }
+            D_807FD580->unk200 = 0xF0;
+        } else if (arg1 != NULL && ((arg1->unk5C & 1) || (arg1->unk5C & 4) || (arg1->unk5C & 2))) {
+            if (D_807FD580 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (func_80714608(0) != 0) {
+                if (func_806D0DE4(arg0, arg1, var_a2) != 0) {
+                    sp3C = 0x31;
+                } else {
+                    var_v0 = 1;
+                    if (arg1->unk5C & 4) {
+                        var_v0 = 3;
+                    }
+                    if (arg1->unk154 != 0x28 && var_v0 < 3) {
+                        sp3C = 0x2B;
+                    } else {
+                        sp3C = 0xE;
+                    }
+                }
+            }
+        }
+        if (var_a2 != 0) {
+            playerStateQueueCallback((s16)sp3C, (s32)arg1, D_807FC929);
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80679DC4.s")
+#endif
+
+#ifdef NON_MATCHING
+ActorCallbackNode *func_8067A09C(ActorCallbackNode *head) {
+    ActorCallbackNode *new_head = head;
+    ActorCallbackNode *curr;
+    ActorCallbackNode *scan;
+    s32 inserted;
+    ActorCallbackNode *temp;
+
+    if (head != NULL) {
+        curr = head->next;
+        if (curr != NULL) {
+            do {
+                scan = curr->prev;
+                inserted = 0;
+                if (scan != NULL) {
+                    do {
+                        if ((s32)curr->callback >= (s32)scan->callback) {
+                            inserted = 1;
+                            curr->prev->next = curr->next;
+                            if (curr->next != NULL) {
+                                curr->next->prev = curr->prev;
+                            }
+                            temp = scan->next;
+                            scan->next = curr;
+                            curr->next = temp;
+                            if (temp != NULL) {
+                                temp->prev = curr;
+                            }
+                            curr->prev = scan;
+                        }
+                        scan = scan->prev;
+                    } while ((scan != NULL) && (!inserted));
+                }
+                if (!inserted) {
+                    curr->prev->next = curr->next;
+                    if (curr->next != NULL) {
+                        curr->next->prev = curr->prev;
+                    }
+                    curr->prev = NULL;
+                    curr->next = new_head;
+                    new_head->prev = curr;
+                    new_head = curr;
+                }
+                curr = curr->next;
+            } while (curr != NULL);
+        }
+    }
+    return new_head;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_8067A09C.s")
+#endif
 
 void func_8067A170(s32 arg0, u8 arg1) {
     s32 i;
@@ -1017,7 +1335,59 @@ void actorTableSort(void) {
     } while (!done);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_8067B100.s")
+typedef struct KaN2_Actor174 {
+    u8 pad0[0x1A4];
+    u8 unk1A4;
+} KaN2_Actor174;
+
+typedef struct KaN2_Player {
+    u8 pad0[4];
+    Actor *actor;
+    u8 pad8[0x294 - 0x8];
+    s32 unk294;
+    u16 *unk298;
+    u8 pad29C[0x2C1 - 0x29C];
+    u8 unk2C1;
+    u8 pad2C2[0x2F0 - 0x2C2];
+} KaN2_Player;
+
+typedef struct KaN2_Sub950 {
+    u8 pad[0x5E];
+} KaN2_Sub950;
+
+typedef struct KaN2_Array950 {
+    KaN2_Sub950 sub[8];
+    u8 pad[0x306 - 8 * 0x5E];
+} KaN2_Array950;
+
+typedef struct KaN2_5C414 {
+    s32 unk0;
+    u8 pad4[12];
+} KaN2_5C414;
+
+extern u8 D_8074E77C[];
+extern KaN2_Array950 D_807FC950[];
+extern void *D_807FD568;
+extern s32 D_807ECDEC;
+extern u16 D_807ECDF0;
+extern KaN2_5C414 D_8075C414[];
+extern s16 D_807FD584;
+
+void func_8067B100(Actor *arg0) {
+    u8 temp_v0;
+    KaN2_Player *player;
+
+    D_807FD580 = arg0->unk174;
+    D_807FC929 = ((KaN2_Actor174 *)D_807FD580)->unk1A4;
+    temp_v0 = D_8074E77C[D_807FC929];
+    player = (KaN2_Player *)D_807FC924 + D_807FC929;
+    D_807FBB48 = player->actor;
+    D_807FD568 = &D_807FC950[D_807FC929].sub[temp_v0];
+    D_807ECDEC = player->unk294;
+    D_807ECDF0 = *player->unk298;
+    D_807FD584 = D_8075C414[temp_v0].unk0;
+    player->unk2C1 = 0;
+}
 
 u8 func_8067B1E0(s32 arg0) {
     s32 i;

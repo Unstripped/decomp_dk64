@@ -1,14 +1,14 @@
-// func_80678050 (src/global/7CA80.c): stage 4: frame 0x40, s0/ra match, field assignment scheduling and temp regalloc differ
+// func_80678050 (src/global/7CA80.c): stage 5: 156 insns, frame 0x40, s0/ra match, field assignment scheduling and temp regalloc differ
 extern u16 *D_8074E218[];
 extern u16 D_8074DA58[];
 extern u32 D_807FBB64;
 extern u16 D_80748D4A;
 extern u16 D_807FBB3E;
 void heapClearBlock(void *);
-void func_8067AE90(Actor *);
-void func_806761D0(Actor *);
+void actorTableInsert(Actor *);
+void actorInitHealth(Actor *);
 
-typedef struct R3B_ActorAlloc {
+typedef struct KaN2_ActorAlloc {
     u8 pad0[0x54];
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -66,16 +66,18 @@ typedef struct R3B_ActorAlloc {
     /* 0x16D */ u8 unk16D;
     u8 pad16E[6];
     /* 0x174 */ void *unk174;
-} R3B_ActorAlloc;
+} KaN2_ActorAlloc;
 
 s32 func_80678050(arg0)
 u16 arg0;
 {
     u16 **typesPtr;
-    u16 *types;
     s32 headerSize;
-    u16 totalDataSize;
-    R3B_ActorAlloc *actor;
+    KaN2_ActorAlloc *actor;
+    s32 totalDataSize;
+    u16 *types;
+    void **ptrArray;
+    u8 *dataPtr;
 
     typesPtr = &D_8074E218[arg0];
     types = *typesPtr;
@@ -83,21 +85,20 @@ u16 arg0;
     totalDataSize = 0;
     if (*types != 0) {
         do {
-            u16 temp_t2 = D_8074DA58[*types];
             headerSize = (headerSize + 4) & 0xFFFF;
-            totalDataSize = (totalDataSize + temp_t2) & 0xFFFF;
+            totalDataSize = (totalDataSize + D_8074DA58[*types]) & 0xFFFF;
             types++;
         } while (*types != 0);
     }
     headerSize = (headerSize + 7) & 0xFFF8;
     totalDataSize += headerSize;
-    actor = (R3B_ActorAlloc *)func_80610FE8(totalDataSize & 0xFFFF);
+    actor = (KaN2_ActorAlloc *)func_80610FE8(totalDataSize & 0xFFFF);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = *typesPtr;
         if (*types != 0) {
-            void **ptrArray = (void **)&actor->unk174;
-            u8 *dataPtr = (u8 *)actor + headerSize;
+            ptrArray = (void **)&actor->unk174;
+            dataPtr = (u8 *)actor + headerSize;
             do {
                 *ptrArray++ = dataPtr;
                 dataPtr += D_8074DA58[*types++];
@@ -146,16 +147,13 @@ u16 arg0;
         actor->unk5C = D_8074D624[arg0];
         actor->unk54 = D_807FBB38;
         D_807FBB38++;
-        func_8067AE90((Actor *)actor);
-        func_806761D0((Actor *)actor);
-        {
-            u16 idx = gActiveActorCount;
-            gActiveActors[idx].actor = (Actor *)actor;
-            gActiveActors[idx].unk4 = 0;
-            D_807FBB3E = idx;
-            gActiveActorCount = idx + 1;
-            D_807FBB44 = (Actor *)actor;
-        }
+        actorTableInsert((Actor *)actor);
+        actorInitHealth((Actor *)actor);
+        gActiveActors[gActiveActorCount].actor = (Actor *)actor;
+        gActiveActors[gActiveActorCount].unk4 = 0;
+        D_807FBB3E = gActiveActorCount;
+        gActiveActorCount++;
+        D_807FBB44 = (Actor *)actor;
         return 1;
     }
     return 0;
