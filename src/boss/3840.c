@@ -473,11 +473,9 @@ s16 arg3;
 s16 arg4;
 u8 arg5;
 {
-    s16 sp4C;
     s16 s0;
 
     sfxAllocateChannel(0x36, 1.0f);
-    sp4C = (s16)arg0;
     if (flagGet((s16)arg0, 0) != 0) {
         func_80028458();
         return;
@@ -489,7 +487,7 @@ u8 arg5;
         func_80714950(D_807FDC94);
         func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, D_807FDC94->unk7C, D_807FDC94->unk80 + (f32)D_807FDC94->unk15E, D_807FDC94->unk84);
     }
-    actorSpawnNodeEntryScaled(0x48, (f32)arg1, (f32)arg2, (f32)arg3, (s32)arg4, (s32)arg5, sp4C, 0);
+    actorSpawnNodeEntryScaled(0x48, (f32)arg1, (f32)arg2, (f32)arg3, (s32)arg4, (s32)arg5, (s16)arg0, 0);
 }
 
 void func_806A2A10(s32, s32, s32);
@@ -620,8 +618,8 @@ void bossRoundFrame(u8 *arg0) {
                 BA40->unk155 = 0;
             }
         }
-        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, (u8 *)s0 + 4);
-        n_alSndpPlay(D_8076D1F8, 0x119, 0, 0x40, 1.0f, 0x80, (u8 *)s0 + 8);
+        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &s0->unk4);
+        n_alSndpPlay(D_8076D1F8, 0x119, 0, 0x40, 1.0f, 0x80, &s0->unk8);
     }
     func_80724A20();
     switch (BA40->unk154) {
