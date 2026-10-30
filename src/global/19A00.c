@@ -1776,10 +1776,10 @@ void func_807149B8(s32);
 void func_807149FC(s32);
 void func_80714A28(s32);
 void func_80714C08(void *, f32, Actor *, u8, s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void *func_80714CC0(void *, f32, f32, f32, f32);
 void effectSpawnBone(Actor *, s32, f32, f32, f32, f32, s32);
 void actorGetNodePosOrPosition(Actor *, s32 *, f32 *, f32 *);
-void camStartShakeFromPoint(s32, u8, u8, s32, f32, f32, f32, f32);
+void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32);
 extern void func_8071B1AC(void);
 extern void func_8071B24C(void);
 extern void func_8071B44C(void);
@@ -1790,7 +1790,7 @@ extern s32 D_807FBB60;
 extern f32 D_807F5AF8;
 extern f32 D_807F5AFC;
 extern f32 D_807F5B00;
-void actorSpawn(s32, s16);
+void actorSpawn(s32, s32);
 void actorDespawn(void *);
 void func_8067B238(Actor *, Actor *, s32);
 void func_806D9924(Actor *);
@@ -2004,8 +2004,31 @@ void func_80618968(Actor *arg0) {
     ((ActorScriptView *)arg0)->unkC4 = value;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618998.s")
+extern u8 D_807444EC;
 
+void func_80618998(Actor *arg0) {
+    s32 sp4C;
+    f32 sp48;
+    f32 sp44;
+    s16 sp42;
+    s16 sp40;
+    u8 sp3F;
+    u8 sp3E;
+    s32 temp_v0;
+    s32 var_v1;
+
+    actorGetNodePosOrPosition(arg0, &sp4C, &sp48, &sp44);
+    scriptReadU8(&sp3E);
+    scriptReadU8(&sp3F);
+    scriptReadU16((u8 *)&sp42);
+    scriptReadU16((u8 *)&sp40);
+    sp3F = (u32)((f64)sp3F * ((f64)arg0->unk4->unk38 / 0.15));
+    temp_v0 = arg0->unk58;
+    if ((temp_v0 == 0xCC) || ((arg0->unk6A & 1) && ((arg0->unk60 & 4) || (temp_v0 == 0xE4)) && (D_807444EC != 1))) {
+        var_v1 = (sp3F >= 21) ? 20 : sp3F;
+        camStartShakeFromPoint(((GlobalSpawnView *)D_807FD580)->unk104, sp3E, var_v1, sp4C, sp48, sp44, (f32)sp42, (f32)sp40);
+    }
+}
 void func_80618B6C(Actor *arg0) {
     s32 sp3C;
     f32 sp38;
@@ -2080,7 +2103,26 @@ void func_80618D20(Actor *arg0) {
     actorClearNodeFlag(arg0, sp1F);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618D68.s")
+extern void *D_80746B80[];
+void func_8071496C(s32);
+
+void func_80618D68(Actor *arg0) {
+    s32 i;
+    u8 sp43;
+    u8 sp42;
+
+    scriptReadU8(&sp43);
+    scriptReadU8(&sp42);
+    for (i = sp43; i < sp42; i++) {
+        func_8071498C(effectOrbitSourceUpdate);
+        func_807149FC(-1);
+        func_807149B8(1);
+        func_8071496C(1);
+        func_80714950(1);
+        func_80714A28(0x20);
+        func_80714C08(D_80746B80[i], 0.2f, arg0, 7, 0);
+    }
+}
 
 void func_80618E4C(Actor *arg0) {
     u8 sp1F;
@@ -2141,9 +2183,150 @@ void func_80619018(Actor *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806190C0.s")
+typedef struct RvH_EffectView {
+    u8 pad0[0x35C];
+    s32 unk35C;
+} RvH_EffectView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806192A4.s")
+extern u8 D_80750AD0;
+extern void (*D_80746BD4[])(void);
+s32 effectFallStateInit(Actor *, void *, u8 *);
+void effectFreeAndUnlink(void *);
+
+void func_806190C0(Actor *arg0) {
+    u16 sp4E;
+    u16 sp4C;
+    u8 sp4B;
+    u8 sp4A;
+    s8 sp49;
+    u8 sp48;
+    s16 sp46;
+    f32 sp40;
+    f32 sp3C;
+    f32 sp38;
+    f32 sp34;
+    RvH_EffectView *effect;
+    u8 sp2F;
+    u8 node;
+
+    scriptReadU16((u8 *)&sp4E);
+    scriptReadU16((u8 *)&sp4C);
+    scriptReadU8(&sp4B);
+    scriptReadU8(&sp4A);
+    scriptReadU8((u8 *)&sp49);
+    scriptReadU8(&sp48);
+    scriptReadU16((u8 *)&sp46);
+    if (D_80750AD0 == 0) {
+        sp40 = (f32)(u32)sp4C * 0.00048828125f;
+        func_807149B8(1);
+        func_80714998(sp4B);
+        func_807149FC(sp46);
+        if ((node = sp4A) == 0) {
+            sp3C = arg0->unk7C;
+            sp38 = arg0->unk80;
+            sp34 = arg0->unk84;
+        } else {
+            actorGetNodePos(arg0, node ^ 0, &sp3C, &sp38, &sp34); // FAKE: delay-slot scheduling
+        }
+        sp38 += (f32)sp49 * sp40;
+        if (sp48 != 0) {
+            func_8071498C(D_80746BD4[sp48]);
+        }
+        effect = func_80714CC0(D_80746B80[sp4E], sp40, sp3C, sp38, sp34);
+        sp2F = 0;
+        switch (sp48) {
+            case 1:
+                effectFallStateInit(arg0, effect, &sp2F);
+                break;
+            case 2:
+                effect->unk35C = 1;
+                break;
+            case 4:
+                effect->unk35C = -50 - ((randomNonNegative() >> 15) % 50);
+                break;
+        }
+        if (sp2F != 0) {
+            effectFreeAndUnlink(effect);
+        }
+    }
+}
+
+typedef struct RvH_NodeState {
+    s16 unk0;
+    s16 unk2;
+    Actor *unk4;
+    s32 unk8;
+    s16 unkC;
+    u8 padE[2];
+    f32 unk10;
+} RvH_NodeState;
+
+typedef struct RvH_ActorView92A4 {
+    u8 pad0[0x54];
+    s32 unk54;
+} RvH_ActorView92A4;
+
+typedef struct RvH_ActorSub4_92A4 {
+    u8 pad0[0x64];
+    u16 unk64;
+} RvH_ActorSub4_92A4;
+
+void func_807149C8(s32, s32, s32, s32);
+
+void func_806192A4(Actor *arg0) {
+    u16 sp46;
+    u16 sp44;
+    u16 sp42;
+    u16 sp40;
+    f32 var_fs0;
+    RvH_NodeState *var_v1;
+
+    var_fs0 = (f32)((f64)arg0->unk4->unk38 / 0.15);
+    scriptReadU16((u8 *)&sp46);
+    scriptReadU16((u8 *)&sp44);
+    scriptReadU16((u8 *)&sp42);
+    scriptReadU16((u8 *)&sp40);
+    actorSpawn(0x139, sp42);
+    func_8067B238(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+    D_807FBB44->unkE6 = arg0->unkE6;
+    D_807FBB44->unkE8 = arg0->unkE8;
+    D_807FBB44->unkE4 = arg0->unkE4;
+    var_v1 = (RvH_NodeState *)D_807FBB44->unk174;
+    var_v1->unk10 = 0.0f;
+    if (sp46 != 0xFFFF) {
+        func_807149FC(-1);
+        func_807149B8(1);
+        switch (arg0->unk58) {
+            default:
+                var_fs0 = (f32)((f64)var_fs0 * 0.2);
+                break;
+            case 0xBB:
+                var_fs0 = (f32)((f64)var_fs0 * 0.4);
+                func_807149C8(0, 0xFF, 0, 0xFF);
+                break;
+            case 4:
+            case 5:
+                func_80714998(0);
+                var_fs0 = (f32)((f64)var_fs0 * 0.18);
+                var_v1->unk10 = -1.4f;
+                break;
+            case 3:
+                func_80714998(0);
+                var_fs0 = (f32)((f64)var_fs0 * 0.25);
+                var_v1->unk10 = -1.4f;
+                break;
+        }
+    }
+    D_807FBB44->unk80 -= var_v1->unk10;
+    if (sp46 != 0xFFFF) {
+        func_80714C08(D_80746B80[sp46], var_fs0, D_807FBB44, 1, 2);
+    }
+    var_v1->unk0 = sp44;
+    var_v1->unk4 = arg0;
+    var_v1->unk8 = ((RvH_ActorView92A4 *)arg0)->unk54;
+    var_v1->unkC = ((RvH_ActorSub4_92A4 *)arg0->unk4)->unk64;
+    var_v1->unk2 = sp40;
+}
 
 void scriptCmdDespawnActor(Actor *arg0) {
     actorDespawn(arg0);
