@@ -1,4 +1,4 @@
-// func_8072FDD4 (src/global/133A90.c): stage 6: ptr form (no sub local) fixes lw order; only swap left: 0.0 double const in f12 vs prev in f2 (target const f2, prev f12). uopt colours f-candidates by index order: prev (M var, idx14) before the 0.0 constant (idx45); dead ifs/locals/orderings/types did not move it.
+// func_8072FDD4 (src/global/133A90.c): stage 6: 35 insns, same frame; only swap left: 0.0 double const in f12 vs prev in f2 (target const f2, prev f12).
 typedef struct H1ProxSub {
     u8 pad0[4];
     f32 unk4;

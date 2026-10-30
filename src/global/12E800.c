@@ -1276,7 +1276,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
     u8 type;
     u8 sp4D;
     s16 ang;
-    u32 ret;
+    u8 ret;
     s32 near;
     C1Act *me;
 
@@ -1339,7 +1339,8 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
                 return;
             }
         case 0x23:
-            if ((ret != C1D90->unk36) && ((sp4D == 0) || ((s32)ret >= 7))) {
+            if (C1D90->unk36 == ret) {
+            } else if ((sp4D == 0) || ((s32)ret >= 7)) {
                 func_8072C870(type, C1D9C->unkD, arg2);
                 return;
             }
@@ -1425,24 +1426,20 @@ typedef struct D1DcA0View {
 
 #define D1DCA0 ((D1DcA0View *)D_807FDCA0)
 
-#ifdef NON_MATCHING
 void func_8072CFE8(s16 *arg0, s16 *arg1, s16 *arg2) {
-    s32 idx;
+    s32 temp;
+    u8 idx;
     s32 v;
+    u8 new_var;
 
-    idx = 0;
-    if (((D1DC90G->unk25 & 0x7F) + 1) < D1DC9CG->unk11) {
-        idx = (u8)((D1DC90G->unk25 & 0x7F) + 1);
-    }
+    new_var = D1DC90G->unk25 & 0x7F;
+    temp = new_var + 1;
+    idx = (temp < D1DC9CG->unk11) ? (u8)temp : 0;
     v = ((D1Pair *)D1DC98G->unk20)[idx].a;
     *arg0 = D1DCA0->unk14[v].x;
     *arg1 = D1DCA0->unk14[v].y;
     *arg2 = D1DCA0->unk14[v].z;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072CFE8.s")
-#endif
 
 
 void func_8072CFE8(s16 *, s16 *, s16 *);

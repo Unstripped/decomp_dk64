@@ -36,15 +36,11 @@ s32 flagCountRange(s32, s32, u8);
 u8 *func_8060E25C(u8);
 
 #ifdef NON_MATCHING
-extern u8 D_807FDD92[12];
-
 void func_80731030(void) {
     s32 i;
 
-    D_807FDD90[0] = 0;
-    D_807FDD90[1] = 0;
-    for (i = 0; i < 12; i++) {
-        D_807FDD92[i] = 0;
+    for (i = 0; i < 14; i++) {
+        D_807FDD90[i] = 0;
     }
 }
 #else
