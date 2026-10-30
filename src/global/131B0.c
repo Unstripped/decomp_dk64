@@ -351,7 +351,7 @@ void schedMain(void *arg0) {
     s32 flag;
     s32 pad1;
     int new_var;
-    s32 pad2;
+    u32 cnt;
     s32 pad3;
     s32 pad4;
 
@@ -360,9 +360,10 @@ void schedMain(void *arg0) {
         if (D_807F0560 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (D_807563B4 != 0) {
             if (D_80746830 == 0) {
-                if (D_8074682C == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 D_8074682C--;
             }
+            if (D_80744470 && D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (D_807F0518 && D_807F0518) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (D_8074682C <= 0) {
                 D_807F0518[0]++;
                 new_var = D_807F0518[0];
@@ -387,7 +388,6 @@ void schedMain(void *arg0) {
                         flag = 1;
                     }
                     if (flag) {
-                        if (D_80746848 && D_80746848) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         if (D_80746848 == 0) {
                             flag = 0;
                             D_80746848 = 1;
@@ -402,8 +402,9 @@ void schedMain(void *arg0) {
         }
         switch (msg) {
         case 0x29A:
-            D_807F0560++;
-            if (D_807F0560 % 0x1E0 == 0) {
+            cnt = D_807F0560 + 1;
+            D_807F0560 = cnt;
+            if (cnt % 0x1E0 == 0) {
                 D_807F04C8 = D_807F04D0;
                 D_807F04D8 = D_807F04DC;
             }
@@ -458,7 +459,7 @@ extern u32 D_8074684C[];
 
 #ifdef NON_MATCHING
 void schedHandleRetrace(SchedStruct *sc) {
-    s32 sp54;
+    TaskNode *sp54;
     s32 i;
     s32 s2;
     s32 n;
@@ -472,25 +473,23 @@ void schedHandleRetrace(SchedStruct *sc) {
         if (D_80744510 == 1) {
             if (D_80746858 == 0) {
                 osViBlack(1);
+                if (D_80744510 && D_80744510) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             if (D_80746858 == 0x3C) {
-                if (D_8074684C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 osViSetMode(&osViModeTable[D_8074684C[osTvType]]);
                 osViSetSpecialFeatures(0x42);
                 osViBlack(0);
                 D_80744510 = 2;
+                if (D_80744470 && D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             D_80746858++;
         }
         osViSwapBuffer((void *)D_80744470[0]);
     }
-    if (D_80746858 == -1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (D_807F04E0 != NULL) {
         if (D_8076A0B1 & 2) {
-            if (D_80746858 == -1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_8076A0B1 ^= 2;
             osViBlack(0);
-            if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         osViSwapBuffer(D_807F04E0->framebuffer);
         D_80746824 = D_80746820;
@@ -512,13 +511,14 @@ void schedHandleRetrace(SchedStruct *sc) {
     n = sc->cmdQ.validCount;
     for (i = 0; i < n; i++) {
         osRecvMesg(&sc->cmdQ, (OSMesg *)&sp54, 0);
-        if (sp54 == -1) {}  // FAKE: steers uopt (hoists -1 into s2)
-        if ((u32)sc->unk284 % ((u32 *)((TaskNode *)sp54)->unk50)[2] == 0) {
-            schedAppendTask(sc, (TaskNode *)sp54);
+        if (sp54 == (TaskNode *)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
+        if ((u32)sc->unk284 % ((u32 *)sp54->unk50)[2] == 0) {
+            schedAppendTask(sc, sp54);
         } else {
             osSendMesg(&sc->cmdQ, (OSMesg)sp54, 0);
+            if (D_80746858 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
-        if (sp54 == -1) {}  // FAKE: steers uopt (hoists -1 into s2)
+        if (sp54 == (TaskNode *)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
     }
     if (sc->audioListHead != NULL) {
         if ((sc->unk284 & 1) == 0) {
@@ -771,6 +771,7 @@ s32 func_8060FAE4(s32 arg0, s32 arg1) {
                 }
             }
         }
+        if (D_80746A1C && D_80746A1C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (buttons & 0x800) {
             if (!(D_80746A1C & 0x800)) {
                 D_80746A24 = 0;
@@ -846,6 +847,7 @@ s32 func_8060FAE4(s32 arg0, s32 arg1) {
                 }
                 line = 0x1E;
             } else {
+                if (D_80744470 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 colorIdx = 0;
                 found = 0;
                 if (op == 0xE7) {
@@ -889,6 +891,7 @@ s32 func_8060FAE4(s32 arg0, s32 arg1) {
                         faultPrintf("  %05x Undef.............\n", off);
                     }
                     line++;
+                    if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
             }
             faultFontSetColorMode(0);

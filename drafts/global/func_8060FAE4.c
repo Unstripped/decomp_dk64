@@ -1,4 +1,4 @@
-// func_8060FAE4 (src/global/131B0.c): stage 4-5: frame 0xB8 and all stack slots match (layout via pad locals), callee set matches; remaining: extern address hoisting (pointer v1/s1 vs separate lui), op/a0 copy register (v1 vs a0), q++ copy; deadsweep brought full 219->160
+// func_8060FAE4 (src/global/131B0.c): stage 4-5 (parked): frame 0xB8 + callee set match; 3 deadsweep FAKEs (full 224->142). Remaining: uopt pointerizes extern/bss scalars in the first block (D_807F0568 -> s1 with 'move a0,s1; lhu 0(s1)', D_80746A2C/A1C pointers in a1/v1, D_80746A14 chain-store pointer) where the target re-emits lui per access; no single dead stmt removes the D_807F0568 pointer (predicate sweep over all points/syms); op/i swap s0/s1 in the loop; beam sweep plateaus ~140
 typedef struct {
     u8 op;
     char name[13];
@@ -66,6 +66,7 @@ s32 func_8060FAE4(s32 arg0, s32 arg1) {
                 }
             }
         }
+        if (D_80746A1C && D_80746A1C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (buttons & 0x800) {
             if (!(D_80746A1C & 0x800)) {
                 D_80746A24 = 0;
@@ -141,6 +142,7 @@ s32 func_8060FAE4(s32 arg0, s32 arg1) {
                 }
                 line = 0x1E;
             } else {
+                if (D_80744470 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 colorIdx = 0;
                 found = 0;
                 if (op == 0xE7) {
@@ -184,6 +186,7 @@ s32 func_8060FAE4(s32 arg0, s32 arg1) {
                         faultPrintf("  %05x Undef.............\n", off);
                     }
                     line++;
+                    if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
             }
             faultFontSetColorMode(0);

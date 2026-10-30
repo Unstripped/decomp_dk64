@@ -1,4 +1,4 @@
-// schedMain (src/global/131B0.c): stage 6: structure matches (shape diff = hw-reg consts as lui 0xa410 + jtbl/.rodata relocs); remaining = temp-register numbering shifted by one in first loop block (v0/t9 vs t8/t0), tried deadsweep+permuter; dead stmts tagged FAKE; needs bss D_807F04C8/0500/0510 u64, OSTimer D_807F0540 (retyped in copy)
+// schedMain (src/global/131B0.c): stage 6: ONLY diff: cond2 of the range check emits 'bnez at; move s0,zero' (as1 pulls i=0 into the delay slot) vs expected 'bnezl at; slti at,v0,-299; move s0,zero'; cnt local (pad2 reused: cnt = D_807F0560 + 1; D_807F0560 = cnt) fixed the v0 candidate + temp numbering; 4 dead stmts left; as1 refuses the pull only if s0 live at target (real read of i after loop reproduces bnezl in a toy, but expected has none)
 extern u8 D_807563B4;
 extern s8 D_80746830;
 extern s16 D_8074682C;
@@ -15,7 +15,7 @@ void schedMain(void *arg0) {
     s32 flag;
     s32 pad1;
     int new_var;
-    s32 pad2;
+    u32 cnt;
     s32 pad3;
     s32 pad4;
 
@@ -24,9 +24,10 @@ void schedMain(void *arg0) {
         if (D_807F0560 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (D_807563B4 != 0) {
             if (D_80746830 == 0) {
-                if (D_8074682C == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 D_8074682C--;
             }
+            if (D_80744470 && D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (D_807F0518 && D_807F0518) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (D_8074682C <= 0) {
                 D_807F0518[0]++;
                 new_var = D_807F0518[0];
@@ -51,7 +52,6 @@ void schedMain(void *arg0) {
                         flag = 1;
                     }
                     if (flag) {
-                        if (D_80746848 && D_80746848) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         if (D_80746848 == 0) {
                             flag = 0;
                             D_80746848 = 1;
@@ -66,8 +66,9 @@ void schedMain(void *arg0) {
         }
         switch (msg) {
         case 0x29A:
-            D_807F0560++;
-            if (D_807F0560 % 0x1E0 == 0) {
+            cnt = D_807F0560 + 1;
+            D_807F0560 = cnt;
+            if (cnt % 0x1E0 == 0) {
                 D_807F04C8 = D_807F04D0;
                 D_807F04D8 = D_807F04DC;
             }
