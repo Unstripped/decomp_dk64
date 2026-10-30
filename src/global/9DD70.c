@@ -260,25 +260,25 @@ f32 sinApprox(f32);
 void *memcpy(void *, const void *, unsigned int);
 
 void func_80699958(u8 arg0, u8 arg1) {
+    f32 sp128[32];
     f32 spC0[26];
-    f32 sp128[26];
-    f32 spBC;
     f32 var_fa0;
     WaveState *state;
-    ProximityGlobals *g;
     s32 i;
     s32 j;
-    s32 found;
-    f64 temp;
+    u8 found;
     f32 dist;
-    f32 val;
 
     state = (WaveState *)D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((NodeListHead *)D_807FBB40->unk4)->unk24 = (WaveNode *)heapAlloc((arg0 * 0x10) + 0x10);
+        ((NodeListHead *)D_807FBB40->unk4)->unk24 = (WaveNode *)heapAlloc((arg0 + 1) * 0x10);
         for (i = 0; i < arg0; i++) {
             ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk0 = i;
-            ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk1 = (i == arg0 - 1) ? 0xFF : i + 1;
+            if (i != arg0 - 1) {
+                ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk1 = i + 1;
+            } else {
+                ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk1 = 0xFF;
+            }
             ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk4 = 0.0f;
             ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unkC = 0.0f;
             ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk8 = 0.0f;
@@ -309,23 +309,25 @@ void func_80699958(u8 arg0, u8 arg1) {
         sp128[i] = 0.0f;
         spC0[i] = 0.0f;
     }
-    g = (ProximityGlobals *)&D_807FBB70;
     i = 0;
     if ((s32)D_807FBB70.unk39 > 0) {
         do {
             found = 0;
-            for (j = 0; j < (s32)state->unk94 && found == 0; j++) {
-                if (state->unk74[j] == g->unk7C[i]) {
+            j = 0;
+            while (j < (s32)state->unk94 && found == 0) {
+                if (state->unk74[j] == ((ProximityGlobals *)&D_807FBB70)->unk7C[i]) {
                     found = 1;
+                } else {
+                    j++;
                 }
             }
             if (!found) {
                 switch (arg1) {
                 case 0:
-                    actorAddNodeForceSlot(g->entries[i].unk8, arg1);
+                    actorAddNodeForceSlot(((ProximityGlobals *)&D_807FBB70)->entries[i].unk8, arg1);
                     break;
                 case 1:
-                    actorAddNodeForceSlot(g->entries[i].unk0, arg1);
+                    actorAddNodeForceSlot(((ProximityGlobals *)&D_807FBB70)->entries[i].unk0, arg1);
                     break;
                 }
             }
@@ -336,9 +338,12 @@ void func_80699958(u8 arg0, u8 arg1) {
     if ((s32)state->unk94 > 0) {
         do {
             found = 0;
-            for (j = 0; j < (s32)D_807FBB70.unk39 && found == 0; j++) {
-                if (g->unk7C[j] == state->unk74[i]) {
+            j = 0;
+            while (j < (s32)D_807FBB70.unk39 && found == 0) {
+                if (state->unk74[i] == ((ProximityGlobals *)&D_807FBB70)->unk7C[j]) {
                     found = 1;
+                } else {
+                    j++;
                 }
             }
             if (!found) {
@@ -354,34 +359,31 @@ void func_80699958(u8 arg0, u8 arg1) {
         do {
             switch (arg1) {
             case 0:
-                state->unk84[i] = g->entries[i].unk8;
+                state->unk84[i] = ((ProximityGlobals *)&D_807FBB70)->entries[i].unk8;
                 break;
             case 1:
-                state->unk84[i] = g->entries[i].unk8;
+                state->unk84[i] = ((ProximityGlobals *)&D_807FBB70)->entries[i].unk8;
                 break;
             }
             i++;
         } while (i < (s32)state->unk94);
         i = 0;
     }
-    var_fa0 = spBC;
     if ((s32)D_807FBB70.unk39 > 0) {
         do {
             switch (arg1) {
             case 0:
-                temp = (f64)g->entries[i].unk8 / 843.0;
-                if (temp > 0.0) {
-                    var_fa0 = (f32)temp;
+                if ((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk8 / 843.0 > 0) {
+                    var_fa0 = (f32)((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk8 / 843.0);
                 } else {
-                    var_fa0 = (f32)-temp;
+                    var_fa0 = (f32)-((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk8 / 843.0);
                 }
                 break;
             case 1:
-                temp = (f64)g->entries[i].unk0 / 480.0;
-                if (temp > 0.0) {
-                    var_fa0 = (f32)temp;
+                if ((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk0 / 480.0 > 0) {
+                    var_fa0 = (f32)((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk0 / 480.0);
                 } else {
-                    var_fa0 = (f32)-temp;
+                    var_fa0 = (f32)-((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk0 / 480.0);
                 }
                 break;
             }
@@ -394,43 +396,39 @@ void func_80699958(u8 arg0, u8 arg1) {
                 }
                 switch (arg1) {
                 case 0:
-                    val = (f32)(3.0 - (f64)dist);
-                    if (val < 0.0f) {
-                        val = 0.0f;
+                    dist = (f32)(3.0 - (f64)dist);
+                    if (dist < 0.0) {
+                        dist = 0.0f;
                     }
-                    sp128[j] -= 45.0f * val;
+                    sp128[j] -= 45.0f * dist;
                     break;
                 case 1:
-                    val = (f32)(7.0 - (f64)dist);
-                    if (val < 0.0f) {
-                        val = 0.0f;
+                    dist = (f32)(7.0 - (f64)dist);
+                    if (dist < 0.0) {
+                        dist = 0.0f;
                     }
-                    sp128[j] -= 70.0f * val;
+                    sp128[j] -= 70.0f * dist;
                     break;
                 }
             }
         } while (i < (s32)D_807FBB70.unk39);
-        spBC = var_fa0;
         i = 0;
     }
     for (i = 0; i < 4; i++) {
-        j = 0;
         if (state->unkB8[i] != 0) {
-            if (arg0 > 0) {
-                do {
-                    if (state->unk98[i] < (f32)j) {
-                        dist = (f32)j - state->unk98[i];
-                    } else {
-                        dist = -((f32)j - state->unk98[i]);
-                    }
-                    val = (f32)(3.0 - (f64)dist);
-                    if (val < 0.0f) {
-                        val = 0.0f;
-                    }
-                    temp = (f64)state->unkB8[i];
-                    spC0[j] = spC0[j] + (val * state->unkA8[i] * sinApprox((f32)(temp * 0.5)));
-                    j++;
-                } while (j != arg0);
+            for (j = 0; j < arg0; j++) {
+                if (state->unk98[i] < (f32)j) {
+                    dist = (f32)j - state->unk98[i];
+                } else {
+                    dist = -((f32)j - state->unk98[i]);
+                }
+                dist = (f32)(3.0 - (f64)dist);
+                if (dist < 0.0) {
+                    dist = 0.0f;
+                }
+                var_fa0 = sinApprox((f32)((f64)state->unkB8[i] * 0.5));
+                spC0[j] = ((dist * state->unkA8[i]) * var_fa0) + spC0[j];
+
             }
             state->unkA8[i] = (f32)((f64)state->unkA8[i] - ((f64)state->unkA8[i] / 20.0));
             if ((f64)state->unkA8[i] < 0.5) {
@@ -459,7 +457,7 @@ void func_80699958(u8 arg0, u8 arg1) {
             if (sp128[i] < state->unk4[i]) {
                 switch (arg1) {
                 case 0:
-                    state->unk4[i] = (f32)((f64)state->unk4[i] - ((f64)(state->unk4[i] - sp128[i]) * 0.5));
+                    state->unk4[i] = (f32)((f64)state->unk4[i] - ((f64)(state->unk4[i] - sp128[i]) * 0.5f));
                     break;
                 case 1:
                     state->unk4[i] = (f32)((f64)state->unk4[i] - ((f64)(state->unk4[i] - sp128[i]) * 0.125));
@@ -471,10 +469,10 @@ void func_80699958(u8 arg0, u8 arg1) {
             }
             ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk8 = spC0[i] + state->unk4[i];
             i++;
-        } while (i != arg0);
+        } while (i < arg0);
     }
     ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[0].unk8 = 0.0f;
-    ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[arg0 - 1].unk8 = 0.0f;
+    *(f32 *)((u8 *)((NodeListHead *)D_807FBB40->unk4)->unk24 + (arg0 << 4) - 8) = 0.0f;  // FAKE: byte-offset form stops the CSE of arg0 * 16 across the calls
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #else
