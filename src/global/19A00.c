@@ -5,7 +5,29 @@ extern u8 *D_807F5AF0;
 extern Struct807FD580 *D_807FD580;
 extern Actor *D_807FBB44;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614D00.s")
+typedef struct RvG_State4D00 {
+    u8 pad0[0x48];
+    f32 unk48;
+    f32 unk4C;
+    f32 unk50;
+    f32 unk54;
+    f32 unk58;
+} RvG_State4D00;
+
+void func_80614D00(Actor *arg0, f32 arg1, f32 arg2) {
+    RvG_State4D00 *temp_v0;
+
+    temp_v0 = (RvG_State4D00 *)arg0->unk4;
+    if (arg2 > 0.0f) {
+        temp_v0->unk58 = arg2;
+        temp_v0->unk50 = arg1;
+        temp_v0->unk54 = 0.0f;
+        temp_v0->unk4C = temp_v0->unk48;
+        return;
+    }
+    temp_v0->unk48 = arg1;
+    temp_v0->unk58 = 0.0f;
+}
 
 typedef struct RampValue {
     u8 pad0[0x24];
@@ -227,7 +249,23 @@ s32 func_806151BC(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_8061522C.s")
+s32 func_8061522C(Actor *arg0) {
+    u8 pad;
+    u8 min;
+    u8 max;
+    u8 val;
+
+    D_807F5AF0++;
+    scriptReadU8(&min);
+    scriptReadU8(&max);
+    val = (((randomNonNegative() >> 15) % 32767) % ((max - min) + 1)) + min;
+    if (val != 0) {
+        ((ScriptState *)arg0->unk4)->unk7C = val - 1;
+        ((ScriptState *)arg0->unk4)->flags |= 2;
+        return 0;
+    }
+    return 1;
+}
 
 s32 func_806152FC(Actor *arg0) {
     D_807F5AF0++;
@@ -523,9 +561,26 @@ s32 func_8061599C(s32 arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806159EC.s")
+void func_80613CA8(s32, s16, f32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615A3C.s")
+s32 func_806159EC(s32 arg0) {
+    s16 sp1E;
+
+    D_807F5AF0++;
+    scriptReadU16((u8 *)&sp1E);
+    func_80613CA8(arg0, sp1E, 0.0f, (f32)0); // FAKE: (f32)0 breaks the 0.0f CSE (li a3 instead of mfc1)
+    return 1;
+}
+s32 func_80615A3C(s32 arg0) {
+    s16 sp1E;
+    f32 sp18;
+
+    D_807F5AF0++;
+    scriptReadU16((u8 *)&sp1E);
+    scriptReadU32((u8 *)&sp18);
+    func_80613C48(arg0, sp1E, 0.0f, sp18);
+    return 1;
+}
 
 s32 func_80615A94(s32 arg0) {
     s8 sp1F;
@@ -556,7 +611,16 @@ s32 func_80615B34(s32 arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615B84.s")
+s32 func_80615B84(s32 arg0) {
+    s16 sp1E;
+    f32 sp18;
+
+    D_807F5AF0++;
+    scriptReadU16((u8 *)&sp1E);
+    scriptReadU32((u8 *)&sp18);
+    func_80613AF8(arg0, sp1E, 0.0f, sp18);
+    return 1;
+}
 
 s32 func_80615BDC(s32 arg0) {
     u16 sp1E;
@@ -643,7 +707,29 @@ typedef struct ScriptMotionState {
     s32 unk84;
 } ScriptMotionState;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80615DA4.s")
+s32 func_80615DA4(Actor *arg0) {
+    u8 sp27;
+    ScriptMotion *sp20;
+
+    if (((ScriptMotionState *)arg0->unk4)->unk84 != 0) {
+        sp20 = ((ScriptMotionState *)arg0->unk4)->unk4;
+    } else {
+        sp20 = ((ScriptMotionState *)arg0->unk4)->unk0;
+    }
+    D_807F5AF0++;
+    scriptReadU8(&sp27);
+    sp20->unk1E = sp20->unkC;
+    sp20->unk20 = sp27;
+    sp20->unk1C |= 8;
+    if ((f32)sp20->unkC < sp20->unk4) {
+        sp20->unk8 = sp20->unk4 - (f32)sp20->unkC;
+    } else {
+        sp20->unk8 = -(sp20->unk4 - (f32)sp20->unkC);
+    }
+    sp20->unkE = sp27;
+    ((ScriptMotionState *)arg0->unk4)->unk78 |= 0x20;
+    return 1;
+}
 
 s32 func_80615E74(Actor *arg0) {
     u8 sp2F;
@@ -830,11 +916,11 @@ s32 func_80616254(Actor *arg0) {
     return 1;
 }
 
-void func_80614D00(Actor *, s32, s32);
+void func_80614D00(Actor *, f32, f32);
 
 s32 func_806162C4(Actor *arg0) {
-    s32 sp1C;
-    s32 sp18;
+    f32 sp1C;
+    f32 sp18;
 
     D_807F5AF0++;
     scriptReadU32((u8 *)&sp1C);
@@ -1271,9 +1357,55 @@ s32 func_80617140(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617238.s")
+typedef struct RvG_PlayerStruct {
+    u8 pad0[0x2C0];
+    u8 unk2C0;
+    u8 pad2C1[0x2F0 - 0x2C1];
+} RvG_PlayerStruct;
+extern RvG_PlayerStruct *D_807FC924;
+
+typedef struct RvG_Global7238 {
+    u8 pad0[0x1A4];
+    u8 unk1A4;
+} RvG_Global7238;
 
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+s32 func_80617238(Actor *arg0) {
+    s16 sp3E;
+    u8 sp3D;
+    u8 pad;
+    u8 sp3B;
+    s32 var_v0;
+
+    sp3B = 0xFF;
+    D_807F5AF0++;
+    scriptReadU16((u8 *)&sp3E);
+    scriptReadU8(&sp3D);
+    if (D_807FC924[((RvG_Global7238 *)D_807FD580)->unk1A4].unk2C0 == 2) {
+        var_v0 = 0xA;
+    } else if (D_807FC924[((RvG_Global7238 *)D_807FD580)->unk1A4].unk2C0 == 0) {
+        var_v0 = 0xFF;
+        sp3B = (u8)(u32)((f64)(var_v0 ^ 0) * 0.5); // FAKE: blocks constant folding of the conversion
+    } else {
+        switch (arg0->unk58) {
+        case 6:
+        case 7:
+        case 8:
+            var_v0 = 0x5A;
+            break;
+        case 2:
+        case 4:
+            var_v0 = 0x32;
+            break;
+        default:
+            var_v0 = 0x50;
+            break;
+        }
+    }
+    sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp3E, sp3B, 0x7F, sp3D, var_v0, 0.3f, 0);
+    return 1;
+}
+
 
 s32 func_80617400(Actor *arg0) {
     s16 sp36;
