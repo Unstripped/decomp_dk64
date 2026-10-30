@@ -124,7 +124,7 @@ void billboardCacheInit(void) {
     D_807F8E8A = 0;
 }
 
-extern s8 D_807F8E88;
+extern u8 D_807F8E88;
 extern s32 D_8076A064;
 void assetFreeBuffer(void *, s32, s32);
 
@@ -144,7 +144,138 @@ void billboardSetFlags(s16 arg0) {
     D_807F8E8A = arg0;
 }
 
+typedef struct {
+    Mtx matrices[2];
+    Vtx verts[2][4];
+    u16 unk100;
+    u8 unk102;
+    u8 unk103;
+    u8 unk104;
+    u8 unk105;
+    u8 unk106;
+    s8 unk107;
+} RenderLBillboard;
+extern RenderLBillboard D_807F7F10[16];
+extern u8 D_807444FC;
+
+#ifdef NON_MATCHING
+void billboardSetVertex(s16 *, s16, s16, s16, s16);
+void *assetLoad(s32, s32, s32, s32);
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+#define RL_ACT(T, off) (*(T *)((u8 *)actor + (off)))
+
+void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, u8 arg6, s16 arg7, u8 arg8, s16 arg9, f32 arg10) {
+    s32 found;
+    s32 i;
+    f32 scale;
+    f32 sp8C[4][4];
+    f32 sp4C[4][4];
+    f32 sp48;
+    f32 sp44;
+    f32 sp40;
+    f32 sp3C;
+
+    found = FALSE;
+    i = 0;
+    if (D_807F8E88 == 15) {
+        D_807F8E8A = 0;
+        return;
+    }
+    if ((actor->unkA4 > 32767.0f) || (actor->unkA4 < -32768.0f)) {
+        D_807F8E8A = 0;
+        return;
+    }
+
+    do {
+        if ((D_807F8E90[i].unk0 != -1) && (arg1 == D_807F8E90[i].unk4)) {
+            found = TRUE;
+        } else {
+            i++;
+        }
+    } while ((i < 4) && !found);
+
+    if (found) {
+        goto block_21;
+    }
+    i = 0; found = FALSE;
+    while ((i < 4) && !found) {
+        if ((D_807F8E90[i].unk0 & 0xFFFFFFFF) == -1) { // FAKE: no-op mask gives this -1 its own constant candidate
+            found = TRUE;
+        } else {
+            i++;
+        }
+    }
+
+    if (!found) {
+        return;
+    }
+    D_807F8E90[i].unk8 = assetLoad(7, arg1, 0, 0);
+    D_807F8E90[i].unk4 = arg1;
+
+block_21:
+    D_807F8E90[i * 1].unk0 = D_8076A064; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
+    D_807F7F10[D_807F8E88].unk102 = i;
+    D_807F7F10[D_807F8E88].unk106 = arg8;
+    if (actor->unk64 & 0x40) {
+        *(u16 *)&D_807F8E8A |= 1;
+    }
+    D_807F7F10[D_807F8E88].unk100 = *(u16 *)&D_807F8E8A;
+    D_807F7F10[D_807F8E88].unk107 = RL_ACT(s16, 0x12C);
+
+    billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][0], (s16)-((f32)arg4 * arg10), -arg5, 0, 0);
+    billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][1], arg4, -arg5, arg2 - 1, 0);
+    billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][2], (s16)-((f32)arg4 * arg10), arg5, 0, arg3 - 1);
+    billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][3], arg4, arg5, arg2 - 1, arg3 - 1);
+
+    sp48 = actor->unkA4;
+    if ((*(u16 *)&D_807F8E8A & 2) && (actor->unk6A & 2) && (actor->unkAC <= actor->unk80)) {
+        f32 diff1 = (actor->unk80 > actor->unkAC) ? (actor->unk80 - actor->unkAC) : -(actor->unk80 - actor->unkAC);
+        f32 diff2 = (actor->unk80 > actor->unkA4) ? (actor->unk80 - actor->unkA4) : -(actor->unk80 - actor->unkA4);
+        if (diff1 < diff2) {
+            sp48 = actor->unkAC;
+        }
+    }
+    scale = 1.0 - (f64)((actor->unk80 - sp48) / (f32)arg7);
+    if (scale < 0.0) {
+        scale = 0.0f;
+    }
+    guScaleF(sp8C, scale, scale, scale);
+
+    guRotateF(sp4C, (f32)((arg9 * 360) / 4095), 0.0f, 1.0f, 0.0f);
+    guMtxCatF(sp8C, sp4C, sp8C);
+    if (actor->unk60 & 2) {
+        if (RL_ACT(s16, 0xDA) < 1000) {
+            guRotateF(sp4C, -((f64)RL_ACT(s16, 0xD8) / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
+            guMtxCatF(sp8C, sp4C, sp8C);
+        }
+        guRotateF(sp4C, 90.0 - (f64)RL_ACT(s16, 0xDA) / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
+        guMtxCatF(sp8C, sp4C, sp8C);
+        if (RL_ACT(s16, 0xDA) < 1000) {
+            guRotateF(sp4C, (f64)RL_ACT(s16, 0xD8) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+            guMtxCatF(sp8C, sp4C, sp8C);
+        }
+    }
+
+    if (RL_ACT(u8, 0xCC)) {
+        actorGetNodePos(actor, RL_ACT(u8, 0xCC), &sp44, &sp40, &sp3C);
+        guTranslateF(sp4C, sp44, actor->unkA4, sp3C);
+    } else {
+        guTranslateF(sp4C, actor->unk7C, sp48, actor->unk84);
+    }
+    guMtxCatF(sp8C, sp4C, sp8C);
+
+    guMtxF2L(sp8C, &D_807F7F10[D_807F8E88].matrices[D_807444FC]);
+
+    D_807F7F10[D_807F8E88].unk103 = arg2;
+    D_807F7F10[D_807F8E88].unk104 = arg3;
+    D_807F7F10[D_807F8E88].unk105 = arg6;
+    D_807F8E88++;
+    D_807F8E8A = 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/61AA0/func_8065D254.s")
+#endif
 
 void billboardSetVertex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     arg0[0] = arg1;
@@ -154,7 +285,107 @@ void billboardSetVertex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     arg0[5] = arg4 << 5;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/61AA0/func_8065D994.s")
+Gfx *func_8065D994(Gfx *gdl, s16 arg1) {
+    s32 i;
+    s32 var_t2;
+    s32 var_s6;
+    s32 found;
+    s32 temp_a1;
+
+    i = 0;
+    var_t2 = 0;
+    var_s6 = 1;
+    found = 0;
+    while (i < D_807F8E88 && found == 0) {
+        if (arg1 == D_807F7F10[i].unk107) {
+            found = 1;
+        }
+        i++;
+    }
+    if (found == 0) {
+        return gdl;
+    }
+
+    gDPPipeSync(gdl++);
+    gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504DD8);
+    gSPClearGeometryMode(gdl++, -1);
+    gSPSetGeometryMode(gdl++, 0x200405);
+    gSPSetOtherMode(gdl++, G_SETOTHERMODE_H, 20, 2, 0);
+    gSPTexture(gdl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
+    gDPSetCombine(gdl++, 0x119623, 0xFF2FFFFF);
+
+    i = 0;
+    if (D_807F8E88 > 0) {
+        do {
+            if (arg1 == D_807F7F10[i].unk107) {
+                RenderLBillboard *temp_s5;
+
+                gDPPipeSync(gdl++);
+                temp_s5 = &D_807F7F10[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
+                if (var_s6 != 0) {
+                    if (D_807F7F10[i].unk100 & 1) {
+                        gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
+                        var_s6 = 0;
+                    }
+                }
+                if (var_s6 == 0) {
+                    if (!(D_807F7F10[i].unk100 & 1)) {
+                        gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504DD8);
+                        var_s6 = 1;
+                    }
+                }
+                gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, D_807F7F10[i].unk106);
+                temp_a1 = (s32)D_807F8E90[D_807F7F10[i].unk102].unk8;
+                if (temp_a1 != var_t2) {
+                    var_t2 = temp_a1;
+                    switch (D_807F7F10[i].unk105) {
+                    case 0:
+                        gDPLoadTextureBlock_4b(
+                            gdl++,
+                            (u8 *)temp_a1 + 0x80000000,
+                            G_IM_FMT_IA,
+                            D_807F7F10[i].unk103,
+                            D_807F7F10[i].unk104,
+                            0,
+                            G_TX_CLAMP,
+                            G_TX_CLAMP,
+                            0,
+                            0,
+                            0,
+                            0
+                        );
+                        break;
+                    case 1:
+                        gDPLoadTextureBlock(
+                            gdl++,
+                            (u8 *)D_807F8E90[D_807F7F10[i].unk102].unk8 + 0x80000000,
+                            G_IM_FMT_IA,
+                            G_IM_SIZ_8b,
+                            D_807F7F10[i].unk103,
+                            D_807F7F10[i].unk104,
+                            0,
+                            G_TX_CLAMP,
+                            G_TX_CLAMP,
+                            0,
+                            0,
+                            0,
+                            0
+                        );
+                        break;
+                    }
+                }
+                gSPMatrix(gdl++, osVirtualToPhysical(&temp_s5->matrices[D_807444FC]), G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+                gSPVertex(gdl++, osVirtualToPhysical(&temp_s5->verts[D_807444FC][0]), 4, 0);
+                gSP2Triangles(gdl++, 0, 3, 1, 0, 0, 2, 3, 0);
+                gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
+            }
+            i++;
+        } while (i < D_807F8E88);
+    }
+    gDPPipeSync(gdl++);
+    return gdl;
+}
+
 
 typedef struct {
     f32 unk0;
