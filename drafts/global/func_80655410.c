@@ -1,4 +1,4 @@
-// func_80655410 (src/global/55B20.c): stage 5-6: frame/spills/regs match; deadsweep text=12 of 532. Remaining: load order of cell/chunk chain after func_8065BAA0 (lw t2/t3 before lw t5), j-loop tail lui a0/addiu a0 vs addiu s3 delay slot, else-branch func_8065C990 arg0 in v0+move a0 (mine a0 direct). Keys: 4 dummy words + u8 q=j in if block (matrixCache arg4 is u8), named locals matrix (after memcpy) src (memcpy source) key (cell.unk2 before node=), nodeIdx/found init after call, flag=1 AFTER the 8065BAA0 call.
+// func_80655410 (src/global/55B20.c): stage 6: PARKED NON_MATCHING in 55B20.c. frame 0xD0/spills/regs/schedule match; deadsweep text=3 of 532: else-branch func_8065C990 arg0 (unk60[D_807444FC]) lives in v0 + 'move a0,v0' in target, mine loads it straight into a0 (addu a1,t1,a0). Tried named locals/register/casts/operand swaps/dead stmts (deadsweep+random search)/permuter: no change. Keys: 2 pad words + u8 q=j (matrixCache arg4 u8) + named locals matrix/src/key; key=..;node=.. on ONE line; nodeIdx/found init after call; flag=1 after 8065BAA0 call; for(j=0;j<2;j++) (do-while left the loop-tail delay slot wrong).
 typedef struct L655410Node {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 pad2[0x12];
@@ -59,7 +59,7 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
     void *matrix;
     u8 *src;
     s16 key;
-    s32 e4;
+    s32 pad0;
     L655410Node *node;
     s16 boxIdx;
     s32 j;
@@ -67,7 +67,7 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
     s32 nodeIdx;
     s32 found;
     u8 hit;
-    s32 p1;
+    s32 pad1;
     u8 q;
     u8 flag;
     flag = 0;
@@ -80,15 +80,13 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
                 flag = 0;
                 for (k = 0; k < D_807F70AC; k++) {
                     if ((i == L655410_CELL[k].unk0) && (L655410_CELL[k].unk19 != 0)) {
-                        j = 0;
-                        do {
+                        for (j = 0; j < 2; j++) {
                             if (L655410_CELL[k].unk10[j] != 0) {
                                 boxIdx = L655410_CELL[k].unk2;
                                 obj = func_8065BAA0(arg0, arg1, arg2, D_807F70B4[boxIdx].unk0, D_807F70B4[boxIdx].unk2, D_807F70B4[boxIdx].unk4, D_807F70B4[boxIdx].unk6, D_807F70B4[boxIdx].unk8, D_807F70B4[boxIdx].unkA, i, &hit);
                                 nodeIdx = 0;
                                 found = 0;
-                                key = L655410_CELL[k].unk2;
-                                node = L655410_CHUNK[i].unk4C;
+                                key = L655410_CELL[k].unk2; node = L655410_CHUNK[i].unk4C;  // FAKE: same-line statements steer scheduling
                                 do {
                                     if (key == node->unk0) {
                                         found = 1;
@@ -112,8 +110,7 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
                                     }
                                 }
                             }
-                            j += 1;
-                        } while (j != 2);
+                        }
                     }
                 }
             } else {
@@ -137,3 +134,5 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
     }
     func_8065FB64(arg0, arg1, arg2);
 }
+#undef L655410_CHUNK
+#undef L655410_CELL
