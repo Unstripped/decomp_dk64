@@ -72,7 +72,6 @@ extern s16 *D_807463A8;
 extern s16 *D_807ECE90;
 
 
-#ifdef NON_MATCHING
 void *heapAlloc(s32);
 
 void func_8060B5C0(s32 arg0) {
@@ -95,12 +94,9 @@ void func_8060B5C0(s32 arg0) {
     arg0 += 2;
     temp_s0 = D_807463A0 * 2;
     memcpy(D_807ECE90, (void *)arg0, temp_s0);
-    memcpy(&D_807ECE20, (void *)(temp_s0 + arg0), 0x70);
+    temp_s0 = arg0 + temp_s0;
+    memcpy(&D_807ECE20, (void *)temp_s0, 0x70);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10130/func_8060B5C0.s")
-#endif
 
 
 void func_8060B6CC(void) {

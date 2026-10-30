@@ -85,10 +85,11 @@ loop_1:
     goto loop_1;
 }
 
+extern u8 D_807ECEA8[];
+
 #ifdef NON_MATCHING
 extern s32 func_8071432C(void);
 extern s32 func_80714394(void);
-extern u8 D_807ECEA8[];
 
 void func_8060BA14(void) {
     u8 original;
@@ -114,7 +115,47 @@ void func_8060BA14(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BB18.s")
 
+#ifdef NON_MATCHING
+s32 func_8060BBE0(arg0, arg1)
+unsigned short arg0;
+unsigned char arg1;
+{
+    u32 *ptr;
+    u32 data;
+    u32 result;
+    u8 start;
+    u8 bit;
+    u8 shift;
+    u8 rem;
+
+    result = 0;
+    start = arg0 & 0x1F;
+    shift = 0;
+    bit = arg0 & 0x1F;
+    data = 0;
+    rem = arg1;
+    ptr = (u32 *)D_807ECEA8 + (arg0 >> 5);
+    if (rem) {
+        do {
+            data |= 1 << bit;
+            bit++;
+            rem--;
+            if ((bit >= 0x20) || !rem) {
+                result |= ((*ptr & data) >> start) << shift;
+                bit = 0;
+                ptr++;
+                data = 0;
+                start = 0;
+                shift = -(rem - arg1);
+            }
+        } while (rem);
+    }
+    return result;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BBE0.s")
+#endif
 
 void func_8060BCA0(s32 arg0, u8 arg1, u8 arg2, u16 *arg3, u8 *arg4) {
     *arg3 = D_807ECEA0[0] + *arg3 + (arg1 * 0xA1) + 0x320;
