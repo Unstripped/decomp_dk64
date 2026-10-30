@@ -1,10 +1,10 @@
-// func_8064FB64 (src/global/54150.c): stage 5: target computes arg3+arg0*0x24 twice (v1 and a1) with the 0x24 folded into the loads; IDO CSEs to one base. Target spills all 9 floats to slots 0xD8..0xF8 and saves only s0; here 2 stay in f20/f22 and mtx addr in s1 (frame layout shifted 0x10). Target .rodata has 9 distinct doubles, ours 7 (duplicate -180 not materialised)
-typedef struct M54C_Track {
+// func_8064FB64 (src/global/54150.c): stage 4-5 (asm-differ score 13424 -> 5110): frame 0x100, saves only ra+s0(=work), switch now 10-entry (case 0: break), x/y/z/c6-c8 memory homes D8..F8, off FC as target. Needed: K&R params typed arg2 (ModelBTrack *), no arg2/kk locals, keys ((ModelBKey*)arg3)[arg0+1]/[arg0] (two t7/t8 bases), work declared BEFORE mtx (first declared = HIGHER addr), s32 padB[5] above work (target gap 28 bytes), x,y,z,c6,c7,c8 as 3-stmt chains, c0,c1,c2 single expr, 12 greedy dead-if FAKEs (found by an fdiff-score greedy sweep over statement positions x {x,y,z,c0..c8,off,arg0,arg1,work,mtx}; fdiff is ~0.3s per compile so a 1500-variant round is ~5 min). Left: mtx/work at 0x44/0x84 vs 0x3C/0x7C (lower gap 8 bytes too large, upper gap 20 vs 28), target forwards the def of x/y/z into the compare (cvt.d.s f0,f2; swc1) vs ours swc1+lwc1 reload, c6-c8 evaluation interleave, s0 addiu hoisted early
+typedef struct ModelBTrack {
     u8 *unk0;
     u8 *unk4;
-} M54C_Track;
+} ModelBTrack;
 
-typedef struct M54C_Key {
+typedef struct ModelBKey {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -14,23 +14,20 @@ typedef struct M54C_Key {
     f32 unk18;
     f32 unk1C;
     f32 unk20;
-} M54C_Key; /* 0x24 */
+} ModelBKey; /* 0x24 */
 
-void func_80612BC0(void *, f32);
-void func_80612C30(void *, f32);
-void func_80612CA0(void *, f32);
+void matrixMakeRotationX(f32 (*)[4], f32);
+void matrixMakeRotationY(f32 (*)[4], f32);
+void matrixMakeRotationZ(f32 (*)[4], f32);
 
-void func_8064FB64(arg0, arg1, arg2raw, arg3, arg4)
+void func_8064FB64(arg0, arg1, arg2, arg3, arg4)
 u8 arg0;
 u32 arg1;
-void *arg2raw;
+ModelBTrack *arg2;
 u8 *arg3;
 u8 arg4;
 {
     u32 off;
-    M54C_Track *arg2;
-    M54C_Key *k0;
-    f32 *kf;
     f32 x;
     f32 y;
     f32 z;
@@ -40,47 +37,59 @@ u8 arg4;
     f32 c0;
     f32 c1;
     f32 c2;
+    s32 padB[5];
     float work[4][4];
     float mtx[4][4];
 
-    arg2 = arg2raw;
     off = D_807F6BE0;
-    k0 = (M54C_Key *)(arg3 + arg0 * 0x24);
-    kf = (f32 *)(arg3 + arg0 * 0x24);
-    x = kf[12] - k0->unkC;
+    x = ((ModelBKey *)arg3)[arg0 + 1].unkC - ((ModelBKey *)arg3)[arg0].unkC;
     if (x < -180.0) {
         x += 360.0;
     } else if (x > 180.0) {
         x -= 360.0;
     }
+    if (work) {} // FAKE: deadsweep-style (steers float/uopt allocation)
+    if (arg1 == 0) {} // FAKE: deadsweep-style (steers float/uopt allocation)
     x *= (*(f32 *)&arg1);
-    x += k0->unkC;
-    y = kf[13] - k0->unk10;
+    x += ((ModelBKey *)arg3)[arg0].unkC;
+    if (arg0 == 0) {} // FAKE: deadsweep-style (steers float/uopt allocation)
+    y = ((ModelBKey *)arg3)[arg0 + 1].unk10 - ((ModelBKey *)arg3)[arg0].unk10;
     if (y < -180.0) {
         y += 360.0;
     } else if (y > 180.0) {
         y -= 360.0;
     }
     y *= (*(f32 *)&arg1);
-    y += k0->unk10;
-    z = kf[14] - k0->unk14;
+    y += ((ModelBKey *)arg3)[arg0].unk10;
+    z = ((ModelBKey *)arg3)[arg0 + 1].unk14 - ((ModelBKey *)arg3)[arg0].unk14;
     if (z < -180.0) {
         z += 360.0;
     } else if (z > 180.0) {
         z -= 360.0;
     }
+    if (work) {} // FAKE: deadsweep-style (steers float/uopt allocation)
     z *= (*(f32 *)&arg1);
-    z += k0->unk14;
-    c7 = (kf[16] - k0->unk1C) * (*(f32 *)&arg1) + k0->unk1C;
-    c8 = (kf[17] - k0->unk20) * (*(f32 *)&arg1);
-    c8 = c8 + k0->unk20;
-    c6 = (kf[15] - k0->unk18) * (*(f32 *)&arg1) + k0->unk18;
-    c0 = (kf[9] - k0->unk0) * (*(f32 *)&arg1) + k0->unk0;
-    c2 = (kf[11] - k0->unk8) * (*(f32 *)&arg1);
-    c2 = c2 + k0->unk8;
-    c1 = (kf[10] - k0->unk4) * (*(f32 *)&arg1);
-    c1 = c1 + k0->unk4;
+    z += ((ModelBKey *)arg3)[arg0].unk14;
+    c6 = ((ModelBKey *)arg3)[arg0 + 1].unk18 - ((ModelBKey *)arg3)[arg0].unk18;
+    c6 *= (*(f32 *)&arg1);
+    if (mtx == 0) {} // FAKE: deadsweep-style (steers float/uopt allocation)
+    c6 += ((ModelBKey *)arg3)[arg0].unk18;
+    if (arg0 && arg0) {} // FAKE: deadsweep-style (steers float/uopt allocation)
+    c7 = ((ModelBKey *)arg3)[arg0 + 1].unk1C - ((ModelBKey *)arg3)[arg0].unk1C;
+    if (c1) {} // FAKE: deadsweep-style (steers float/uopt allocation)
+    if (work && work) {} // FAKE: deadsweep-style (steers float/uopt allocation)
+    c7 *= (*(f32 *)&arg1);
+    c7 += ((ModelBKey *)arg3)[arg0].unk1C;
+    c8 = ((ModelBKey *)arg3)[arg0 + 1].unk20 - ((ModelBKey *)arg3)[arg0].unk20;
+    c8 *= (*(f32 *)&arg1);
+    c8 += ((ModelBKey *)arg3)[arg0].unk20;
+    if (mtx == 0) {} // FAKE: deadsweep-style (steers float/uopt allocation)
+    c0 = (((ModelBKey *)arg3)[arg0 + 1].unk0 - ((ModelBKey *)arg3)[arg0].unk0) * (*(f32 *)&arg1) + ((ModelBKey *)arg3)[arg0].unk0;
+    c1 = (((ModelBKey *)arg3)[arg0 + 1].unk4 - ((ModelBKey *)arg3)[arg0].unk4) * (*(f32 *)&arg1) + ((ModelBKey *)arg3)[arg0].unk4;
+    c2 = (((ModelBKey *)arg3)[arg0 + 1].unk8 - ((ModelBKey *)arg3)[arg0].unk8) * (*(f32 *)&arg1) + ((ModelBKey *)arg3)[arg0].unk8;
     switch (arg4 & 0xF) {
+    case 0:
+        break;
     case 1:
         c6 *= (f32)(((arg4 >> 4) & 0xF) * 0.125);
         break;
@@ -109,14 +118,17 @@ u8 arg4;
         c2 *= (f32)(((arg4 >> 4) & 0xF) * 0.125);
         break;
     }
+    if (c8 == 0) {} // FAKE: deadsweep-style (steers float/uopt allocation)
+    if (c1 && c1) {} // FAKE: deadsweep-style (steers float/uopt allocation)
+    if (c6 && c6) {} // FAKE: deadsweep-style (steers float/uopt allocation)
     memcpy(work, arg2->unk4 + off, 0x40);
     guScaleF(mtx, c0, c1, c2);
     guMtxCatF(work, mtx, work);
-    func_80612CA0(mtx, z);
+    matrixMakeRotationZ(mtx, z);
     guMtxCatF(work, mtx, work);
-    func_80612C30(mtx, y);
+    matrixMakeRotationY(mtx, y);
     guMtxCatF(work, mtx, work);
-    func_80612BC0(mtx, x);
+    matrixMakeRotationX(mtx, x);
     guMtxCatF(work, mtx, work);
     guTranslateF(mtx, c6, c7, c8);
     guMtxCatF(work, mtx, work);
