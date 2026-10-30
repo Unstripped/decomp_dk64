@@ -1,4 +1,4 @@
-// func_805FCA94 (src/global/0.c): Stage 6 (frame 0xC0, s0-s4 + f20-f30 saved set match; parked NON_MATCHING in src copy, equivalent C). Remaining: s2/s3/s4 order (exp s2=i,s3=&D_807444FC,s4=&D_807FC924; mine i=s4), extra 'lw a2,D_807445CC' preload from the deadsweep stmt (exp loads CC per branch), 'move s0,v1' after each v=&S0V[i] reload (exp addu s0 direct), FP scratch numbering (add.s f18 vs f4). 0.04/0.05/0.4/0.1 must be C literals (doubles hoisted as values into f24-f30): rodata D_80756590..A8 lives in 14C450.data.s, needs a 0.c rodata carve. The D_807445CC address web (s5) is only killed by the FAKE if(CC&&CC) stmts. Permuter 80k iters 3270->1845, nothing near 0; direct S0V[i] in-loop (no v) was worse.
+// func_805FCA94 (src/global/450.c): Stage 6 (src/global/450.c, TU 450; frame 0xC0 and s0-s4/f20-f30 set match). Fixed Sched0View size 0x2F0 (stride 752): text diff 131 -> 101 lines (deadsweep). Remaining: (1) first v=&S0V[i] goes addu v1 + move s0 instead of addu s0, (2) lui/lw a2,D_807445CC preload from the FAKE if(CC&&CC) (expected only hoists the lui t8 above the first if), D_807444FC lbu v0 preloads from the FAKE 4FC statements, (3) FP scratch numbering (mul.d f4,f22,f18 const-first vs mine f18=f10*f22). The 0.04/0.05/0.4/0.1 doubles are C literals; their rodata (0x15B290-0x15B2E0 incl. 8x+-20000.0f, 255.0, 0.549f in 805FD088/805FE7FC) is only carvable as .rodata 450 once this matches (GLOBAL_ASM late_rodata would reorder it). Permuter 2x20min from this base: best 1621 vs 2245 baseline, not near 0.
 extern u8 D_80750AB4;
 f32 func_806276AC(void);
 void func_8062754C(f32);
@@ -48,6 +48,7 @@ typedef struct {
     f32 unk280;
     f32 unk284;
     f32 unk288;
+    u8 pad28C[0x2F0 - 0x28C];
 } Sched0View;
 
 #define S0V ((Sched0View *)D_807FC924)
@@ -68,6 +69,8 @@ void func_805FCA94(void *arg0) {
         func_8062754C(func_806276AC());
     }
     for (i = 0; i < D_80750AB4; i++) {
+        if (D_80750AB4 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (i && i) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         v = &S0V[i];
         if (v->unk0 != 0) {
             if (S0DIFF(v->unk210, v->unk228) < 0.5 && S0DIFF(v->unk218, v->unk230) < 0.5) {
@@ -86,10 +89,12 @@ void func_805FCA94(void *arg0) {
             if (D_807445CC[0] && D_807445CC[0]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             fov = v->unk280;
             pl = (Sched0PlayerData *)v->unk4->unk174;
+            if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             held = (Sched0Held *)pl->unk104->unk174;
             if (pl->unk1F0 & 0x100) {
                 if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 fov = fov + 0.5 * sinApprox(D_807445CC[0] * 0.1);
+                if (D_807444FC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 v = &S0V[i];
             } else if (pl->unk1F0 & 0x2000000) {
                 fov = fov + 0.05 * sinApprox(D_807445CC[0] * 0.4);
@@ -99,7 +104,7 @@ void func_805FCA94(void *arg0) {
                 v = &S0V[i];
                 if (D_807444FC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
-            guPerspective(&v->unk88[D_807444FC], &S0V[i].unk188, v->unk27C, fov * aspect, v->unk284, v->unk288, 1.0f);
+            guPerspective(&v->unk88[D_807444FC], (u16 *)(i * 0x2F0 + (s32)D_807FC924 + 0x188), v->unk27C, fov * aspect, v->unk284, v->unk288, 1.0f);  // FAKE: operand order (i*0x2F0 first) keeps this address from CSE with v
         }
     }
     if (S0DIFF(S0V->unk210, S0V->unk228) < 0.5 && S0DIFF(S0V->unk218, S0V->unk230) < 0.5) {
