@@ -29,7 +29,48 @@ void mtxScaleTranslateL(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
     guMtxF2L(sp28.m, arg0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C2D8.s")
+void func_8070C2D8(Mat4F *arg0, Mat4F *arg1, Mat4F *arg2) {
+    f32 t00;
+    f32 t01;
+    f32 t02;
+    f32 t10;
+    f32 t11;
+    f32 t12;
+    f32 t20;
+    f32 t21;
+    f32 t22;
+    f32 t30;
+    f32 t31;
+    f32 t32;
+    t00 = (arg0->m[0][0] * arg1->m[0][0]) + (arg0->m[0][1] * arg1->m[1][0]) + (arg0->m[0][2] * arg1->m[2][0]);
+    t01 = (arg0->m[0][0] * arg1->m[0][1]) + (arg0->m[0][1] * arg1->m[1][1]) + (arg0->m[0][2] * arg1->m[2][1]);
+    t02 = (arg0->m[0][0] * arg1->m[0][2]) + (arg0->m[0][1] * arg1->m[1][2]) + (arg0->m[0][2] * arg1->m[2][2]);
+    t10 = (arg0->m[1][0] * arg1->m[0][0]) + (arg0->m[1][1] * arg1->m[1][0]) + (arg0->m[1][2] * arg1->m[2][0]);
+    t11 = (arg0->m[1][0] * arg1->m[0][1]) + (arg0->m[1][1] * arg1->m[1][1]) + (arg0->m[1][2] * arg1->m[2][1]);
+    t12 = (arg0->m[1][0] * arg1->m[0][2]) + (arg0->m[1][1] * arg1->m[1][2]) + (arg0->m[1][2] * arg1->m[2][2]);
+    t20 = (arg0->m[2][0] * arg1->m[0][0]) + (arg0->m[2][1] * arg1->m[1][0]) + (arg0->m[2][2] * arg1->m[2][0]);
+    t21 = (arg0->m[2][0] * arg1->m[0][1]) + (arg0->m[2][1] * arg1->m[1][1]) + (arg0->m[2][2] * arg1->m[2][1]);
+    t22 = (arg0->m[2][0] * arg1->m[0][2]) + (arg0->m[2][1] * arg1->m[1][2]) + (arg0->m[2][2] * arg1->m[2][2]);
+    t30 = (arg0->m[3][0] * arg1->m[0][0]) + (arg0->m[3][1] * arg1->m[1][0]) + (arg0->m[3][2] * arg1->m[2][0]) + arg1->m[3][0];
+    t31 = (arg0->m[3][0] * arg1->m[0][1]) + (arg0->m[3][1] * arg1->m[1][1]) + (arg0->m[3][2] * arg1->m[2][1]) + arg1->m[3][1];
+    t32 = (arg0->m[3][0] * arg1->m[0][2]) + (arg0->m[3][1] * arg1->m[1][2]) + (arg0->m[3][2] * arg1->m[2][2]) + arg1->m[3][2];
+    arg2->m[0][0] = t00;
+    arg2->m[1][0] = t10;
+    arg2->m[2][0] = t20;
+    arg2->m[3][0] = t30;
+    arg2->m[0][1] = t01;
+    arg2->m[1][1] = t11;
+    arg2->m[2][1] = t21;
+    arg2->m[3][1] = t31;
+    arg2->m[0][2] = t02;
+    arg2->m[1][2] = t12;
+    arg2->m[2][2] = t22;
+    arg2->m[3][2] = t32;
+    arg2->m[0][3] = 0.0f;
+    arg2->m[1][3] = 0.0f;
+    arg2->m[2][3] = 0.0f;
+    arg2->m[3][3] = 1.0f;
+}
 
 void mtxMulAffineF(Mat4F *arg0, Mat4F *arg1, Mat4F *arg2) {
     arg2->m[0][0] = (arg0->m[0][0] * arg1->m[0][0]) + (arg0->m[0][1] * arg1->m[1][0]) + (arg0->m[0][2] * arg1->m[2][0]);
@@ -50,7 +91,17 @@ void mtxMulAffineF(Mat4F *arg0, Mat4F *arg1, Mat4F *arg2) {
     arg2->m[3][3] = 1.0f;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C808.s")
+void func_8070C808(Mat4F *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
+    f32 x = *arg1;
+    f32 y = *arg2;
+    f32 z = *arg3;
+    f32 ox = ((x * arg0->m[0][0] + y * arg0->m[1][0]) + z * arg0->m[2][0]) + arg0->m[3][0];
+    f32 oy = ((x * arg0->m[0][1] + y * arg0->m[1][1]) + z * arg0->m[2][1]) + arg0->m[3][1];
+    f32 oz = ((x * arg0->m[0][2] + y * arg0->m[1][2]) + z * arg0->m[2][2]) + arg0->m[3][2];
+    *arg1 = ox;
+    *arg2 = oy;
+    *arg3 = oz;
+}
 
 void mtxRotateXRatioF(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3) {
     f32 temp_fv1;
@@ -245,7 +296,85 @@ void mtxTranslateL(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
     guMtxF2L(sp18, arg0);
 }
 
+#ifdef NON_MATCHING
+void func_8070CDD0(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
+    f32 padtop[4]; // FAKE: pad words steer the frame size
+    f32 m00;
+    f32 m10;
+    f32 m20;
+    f32 inv;
+    f32 m11;
+    f32 m21;
+    f32 m02;
+    f32 m12;
+    f32 m22;
+
+    if ((arg2 == 0.0f) && (arg4 == 0.0f)) {
+        if (arg3 == 0.0f) {
+            mtxIdentityF(arg0->m);
+            mtxIdentityF(arg1->m);
+            return;
+        }
+        m00 = 1.0f;
+        m10 = 0.0f;
+        m20 = 0.0f;
+        m11 = 0.0f;
+        m21 = -1.0f;
+        m02 = 0.0f;
+        m12 = 1.0f;
+        m22 = 0.0f;
+    } else {
+        inv = 1.0 / sqrtf((arg2 * arg2) + (arg3 * arg3) + (arg4 * arg4));
+        arg2 = arg2 * inv;
+        arg3 = arg3 * inv;
+        arg4 = arg4 * inv;
+        m11 = sqrtf((arg2 * arg2) + (arg4 * arg4));
+        m22 = -arg4;
+        inv = 1.0 / m11;
+        m21 = -arg3;
+        m00 = -arg4 * inv;
+        m20 = -arg2;
+        m12 = arg3 * m00;
+        m10 = arg3 * (m20 * inv);
+        m02 = -(m20 * inv);
+    }
+    arg0->m[0][0] = m00;
+    arg0->m[1][0] = m10;
+    arg0->m[2][0] = m20;
+    arg0->m[3][0] = 0.0f;
+    arg0->m[0][1] = 0.0f;
+    arg0->m[1][1] = m11;
+    arg0->m[2][1] = m21;
+    arg0->m[3][1] = 0.0f;
+    arg0->m[0][2] = m02;
+    arg0->m[1][2] = m12;
+    arg0->m[3][2] = 0.0f;
+    arg0->m[0][3] = 0.0f;
+    arg0->m[1][3] = 0.0f;
+    arg0->m[2][3] = 0.0f;
+    arg0->m[3][3] = 1.0f;
+    arg0->m[2][2] = m22;
+    arg1->m[0][0] = m00;
+    arg1->m[1][0] = 0.0f;
+    arg1->m[3][0] = 0.0f;
+    arg1->m[0][1] = m10;
+    arg1->m[1][1] = m11;
+    arg1->m[2][0] = m02;
+    arg1->m[3][1] = 0.0f;
+    arg1->m[0][2] = m20;
+    arg1->m[1][2] = m21;
+    arg1->m[2][1] = m12;
+    arg1->m[3][2] = 0.0f;
+    arg1->m[0][3] = 0.0f;
+    arg1->m[1][3] = 0.0f;
+    arg1->m[2][3] = 0.0f;
+    arg1->m[3][3] = 1.0f;
+    arg1->m[2][2] = m22;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CDD0.s")
+#endif
 
 void func_8070D020(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4) {
     Mat4F sp60;
@@ -256,7 +385,85 @@ void func_8070D020(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4) {
     guMtxF2L(sp20.m, arg1);
 }
 
+#ifdef NON_MATCHING
+void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+    f32 padtop[4]; // FAKE: pad words steer the frame size
+    f32 m00;
+    f32 m10;
+    f32 m20;
+    f32 inv;
+    f32 m11;
+    f32 m21;
+    f32 m02;
+    f32 m12;
+    f32 m22;
+
+    if ((arg2 == 0.0f) && (arg4 == 0.0f)) {
+        if (arg3 == 0.0f) {
+            mtxIdentityF(arg0->m);
+            mtxIdentityF(arg1->m);
+            return;
+        }
+        m00 = 1.0f;
+        m10 = 0.0f;
+        m20 = 0.0f;
+        m11 = 0.0f;
+        m21 = -1.0f;
+        m02 = 0.0f;
+        m12 = 1.0f;
+        m22 = 0.0f;
+    } else {
+        inv = 1.0 / sqrtf((arg2 * arg2) + (arg3 * arg3) + (arg4 * arg4));
+        arg2 = arg2 * inv;
+        arg3 = arg3 * inv;
+        arg4 = arg4 * inv;
+        m11 = sqrtf((arg2 * arg2) + (arg4 * arg4));
+        m22 = -arg4;
+        inv = 1.0 / m11;
+        m00 = -arg4 * inv;
+        m21 = -arg3;
+        m20 = -arg2;
+        m10 = arg3 * (m20 * inv);
+        m02 = -(m20 * inv);
+        m12 = arg3 * m00;
+    }
+    arg0->m[0][0] = m00;
+    arg0->m[3][0] = -arg5;
+    arg0->m[1][0] = m10;
+    arg0->m[2][0] = m20;
+    arg0->m[3][1] = -arg6;
+    arg0->m[0][1] = 0.0f;
+    arg0->m[1][1] = m11;
+    arg0->m[2][1] = m21;
+    arg0->m[0][2] = m02;
+    arg0->m[1][2] = m12;
+    arg0->m[2][2] = m22;
+    arg0->m[0][3] = 0.0f;
+    arg0->m[3][3] = 1.0f;
+    arg0->m[1][3] = 0.0f;
+    arg0->m[2][3] = 0.0f;
+    arg0->m[3][2] = -arg7;
+    arg1->m[3][1] = (arg5 * m10) + (arg6 * m11) + (arg7 * m12);
+    arg1->m[0][0] = m00;
+    arg1->m[3][0] = (arg5 * m00) + (arg7 * m02);
+    arg1->m[1][0] = 0.0f;
+    arg1->m[2][0] = m02;
+    arg1->m[0][1] = m10;
+    arg1->m[1][1] = m11;
+    arg1->m[2][1] = m12;
+    arg1->m[0][2] = m20;
+    arg1->m[1][2] = m21;
+    arg1->m[2][2] = m22;
+    arg1->m[0][3] = 0.0f;
+    arg1->m[1][3] = 0.0f;
+    arg1->m[3][3] = 1.0f;
+    arg1->m[3][2] = (arg5 * m20) + (arg6 * m21) + (arg7 * m22);
+    arg1->m[2][3] = 0.0f;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070D07C.s")
+#endif
 
 void func_8070D300(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     Mat4F sp68;

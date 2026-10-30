@@ -1,76 +1,75 @@
-// func_8070CDD0 (src/global/110F00.c): compilable structured candidate; frame 0x50 vs target 0x60 and register allocation differ
+// func_8070CDD0 (src/global/110F00.c): stage 4 (parked NON_MATCHING in 110F00.c): frame 0x60 + prologue + zero-branch + final stores identical; main path differs: target stores -arg4 CSE temp at sp28 and m00 value at sp20 (3 spill slots sp20/24/28 below 9 named homes) and colours -arg2 temp in f12, mine spills -arg2 temp; statement-order search (ord2) best ~39 diff lines; decl order m00 m10 m20 inv m11 m21 m02 m12 m22 + padtop[4] gives target home layout
 void func_8070CDD0(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
-    f32 temp_fv0;
-    f32 temp_fv1;
-    f32 temp_fv2;
-    f32 temp_fv3;
-    f32 temp_fv4;
-    f32 temp_fv5;
-    f32 temp_fv6;
-    f32 temp_fv7;
-    f32 temp_fv8;
+    f32 padtop[4]; // FAKE: pad words steer the frame size
+    f32 m00;
+    f32 m10;
+    f32 m20;
+    f32 inv;
+    f32 m11;
+    f32 m21;
+    f32 m02;
+    f32 m12;
+    f32 m22;
 
     if ((arg2 == 0.0f) && (arg4 == 0.0f)) {
         if (arg3 == 0.0f) {
-            mtxIdentityF(arg0);
-            mtxIdentityF(arg1);
+            mtxIdentityF(arg0->m);
+            mtxIdentityF(arg1->m);
             return;
         }
-        temp_fv0 = 1.0f;
-        temp_fv1 = 0.0f;
-        temp_fv2 = 0.0f;
-        temp_fv3 = 0.0f;
-        temp_fv4 = 0.0f;
-        temp_fv5 = -1.0f;
-        temp_fv6 = 0.0f;
-        temp_fv7 = 0.0f;
-        temp_fv8 = 1.0f;
+        m00 = 1.0f;
+        m10 = 0.0f;
+        m20 = 0.0f;
+        m11 = 0.0f;
+        m21 = -1.0f;
+        m02 = 0.0f;
+        m12 = 1.0f;
+        m22 = 0.0f;
     } else {
-        temp_fv0 = 1.0 / sqrtf((arg2 * arg2) + (arg3 * arg3) + (arg4 * arg4));
-        arg2 *= temp_fv0;
-        arg3 *= temp_fv0;
-        arg4 *= temp_fv0;
-        temp_fv1 = sqrtf((arg2 * arg2) + (arg4 * arg4));
-        temp_fv2 = -arg4;
-        temp_fv3 = -arg2;
-        temp_fv4 = temp_fv2 / temp_fv1;
-        temp_fv5 = temp_fv3 / temp_fv1;
-        temp_fv6 = arg3 * temp_fv5;
-        temp_fv7 = -arg3;
-        temp_fv8 = arg3 * temp_fv4;
-        temp_fv0 = temp_fv4;
-        temp_fv1 = temp_fv5;
+        inv = 1.0 / sqrtf((arg2 * arg2) + (arg3 * arg3) + (arg4 * arg4));
+        arg2 = arg2 * inv;
+        arg3 = arg3 * inv;
+        arg4 = arg4 * inv;
+        m11 = sqrtf((arg2 * arg2) + (arg4 * arg4));
+        m22 = -arg4;
+        inv = 1.0 / m11;
+        m21 = -arg3;
+        m00 = -arg4 * inv;
+        m20 = -arg2;
+        m12 = arg3 * m00;
+        m10 = arg3 * (m20 * inv);
+        m02 = -(m20 * inv);
     }
-    arg0->m[0][0] = temp_fv0;
-    arg0->m[1][0] = temp_fv6;
-    arg0->m[2][0] = temp_fv3;
+    arg0->m[0][0] = m00;
+    arg0->m[1][0] = m10;
+    arg0->m[2][0] = m20;
     arg0->m[3][0] = 0.0f;
     arg0->m[0][1] = 0.0f;
-    arg0->m[1][1] = temp_fv1;
-    arg0->m[2][1] = temp_fv7;
+    arg0->m[1][1] = m11;
+    arg0->m[2][1] = m21;
     arg0->m[3][1] = 0.0f;
-    arg0->m[0][2] = -temp_fv5;
-    arg0->m[1][2] = temp_fv8;
-    arg0->m[2][2] = 0.0f;
+    arg0->m[0][2] = m02;
+    arg0->m[1][2] = m12;
     arg0->m[3][2] = 0.0f;
     arg0->m[0][3] = 0.0f;
     arg0->m[1][3] = 0.0f;
     arg0->m[2][3] = 0.0f;
     arg0->m[3][3] = 1.0f;
-    arg1->m[0][0] = temp_fv0;
+    arg0->m[2][2] = m22;
+    arg1->m[0][0] = m00;
     arg1->m[1][0] = 0.0f;
-    arg1->m[2][0] = -temp_fv5;
     arg1->m[3][0] = 0.0f;
-    arg1->m[0][1] = temp_fv6;
-    arg1->m[1][1] = temp_fv1;
-    arg1->m[2][1] = temp_fv8;
+    arg1->m[0][1] = m10;
+    arg1->m[1][1] = m11;
+    arg1->m[2][0] = m02;
     arg1->m[3][1] = 0.0f;
-    arg1->m[0][2] = temp_fv3;
-    arg1->m[1][2] = temp_fv7;
-    arg1->m[2][2] = 0.0f;
+    arg1->m[0][2] = m20;
+    arg1->m[1][2] = m21;
+    arg1->m[2][1] = m12;
     arg1->m[3][2] = 0.0f;
     arg1->m[0][3] = 0.0f;
     arg1->m[1][3] = 0.0f;
-    arg1->m[2][3] = temp_fv2;
+    arg1->m[2][3] = 0.0f;
     arg1->m[3][3] = 1.0f;
+    arg1->m[2][2] = m22;
 }
