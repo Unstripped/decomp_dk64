@@ -493,7 +493,7 @@ extern Mtx D_20000C0;
 extern Mtx D_2000180;
 Gfx *func_805FD030(void);
 
-void *func_807132DC(void) {
+void *func_807132DC() {
     Gfx *gfx = func_805FD030();
 
     R117D_WRITE_GFX(gfx++, 0xDE000000, &D_1000118);
@@ -508,14 +508,14 @@ void *func_807132DC(void) {
 void *func_8070E750(s32, s32, s32);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 
-void func_8071338C(Gfx *arg0) {
+Gfx *func_8071338C(Gfx *arg0) {
     f32 temp_f0 = 20.0f;
     void *temp_v0;
 
     temp_v0 = func_8070E750(0xC, 0, 1);
     R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
     R117D_WRITE_GFX(arg0++, 0xDA380003, &D_807FDAC0);
-    textDrawStringVtx(arg0, 1, 0x118, (s16) ((temp_f0 + temp_f0) * 4.0f), temp_v0, 4);
+    return textDrawStringVtx(arg0, 1, 0x118, (s16) ((temp_f0 + temp_f0) * 4.0f), temp_v0, 4);
 }
 
 
@@ -612,13 +612,38 @@ void func_80713764(Gfx *arg0, u8 arg1, f32 arg2) {
     renderRotatedSprite(arg0, 0x2C, 0, 2, 0xE0, 0x80, (s32) x, (s32) y, 1.0f, 1.0f, 0, 0.0f);
 }
 
-void *func_807132DC(void);
+void *func_807132DC();
 Gfx *func_807135B4(Gfx *);
 
-void func_807138A4(void) {
-    func_807135B4(func_807132DC());
+Gfx *func_807138A4(Gfx *arg0) {
+    return func_807135B4(func_807132DC(arg0));
 }
+#ifdef NON_MATCHING
+void viewportSetFromRect(void *, s32, s32, s32, s32);
+Gfx *func_806FF144(void *);
+
+Gfx *func_807138CC(Gfx *arg0) {
+    void *sp3C;
+    f32 temp_fv0;
+
+    sp3C = (void *)heapAlloc(0x10);
+    heapFreeDeferred(sp3C);
+    viewportSetFromRect(sp3C, 0xA, 0xA, 0x135, 0xE5);
+    arg0 = func_8071338C(func_807135B4(func_807132DC(arg0)));
+    if ((u32)++D_80755320 < 0xD3U) {
+        temp_fv0 = (f32) (0xD2U - D_80755320) * 0.03333333507f;
+        temp_fv0 = (temp_fv0 < 0.0f) ? 0.0f : ((temp_fv0 > 1.0f) ? 1.0f : temp_fv0);
+        arg0 = ((Gfx *(*)(Gfx *, s32, f32))func_80713764)(((Gfx *(*)(Gfx *, s32))func_80713438)(arg0, (u32) (255.0f * temp_fv0) & 0xFF), (u32) (255.0f * temp_fv0) & 0xFF, 0);
+    }
+    arg0->words.w0 = 0xDC080008;
+    arg0->words.w1 = (u32)sp3C;
+    arg0++;
+    return func_806FF144(arg0);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807138CC.s")
+#endif
 
 
 Gfx *func_80713AA8(Gfx *arg0) {
@@ -631,7 +656,41 @@ Gfx *func_80713AA8(Gfx *arg0) {
     return arg0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713B40.s")
+extern u8 D_80755378[];
+
+Gfx *func_80713B40(Gfx *arg0) {
+    s16 temp_t0;
+    s16 temp_v0;
+    s16 var_v1;
+    u32 new_var; // FAKE: extra temp for the alpha byte steers regalloc
+
+    temp_t0 = D_8075531C - 0x8C;
+    if (temp_t0 >= 0) {
+        if (temp_t0 < 0x96) {
+            temp_v0 = temp_t0 - 0x5A;
+            var_v1 = temp_v0; // FAKE: copy of temp_v0 steers regalloc
+            if (var_v1 < 0) {
+                var_v1 = 0xFF;
+            } else {
+                var_v1 = 0x3C - var_v1;
+                var_v1 = var_v1 * 5;
+            }
+            if (temp_t0 < 0x3C) {
+                var_v1 = temp_t0 * 5;
+            }
+            if (var_v1 >= 0x100) {
+                var_v1 = 0xFF;
+            }
+            arg0 = func_80713AA8(arg0);
+            new_var = var_v1 & 0xFF;
+            arg0->words.w0 = 0xFA000000;
+            arg0->words.w1 = (u32)(new_var | ~0xFF);
+            arg0 = hudDrawScaledText(arg0 + 1, 0x280, (s16)(s32)(480.0 - ((f64)(f32)((f64)(0x96 - temp_t0) / 40.0) * 32.0)), (f32)((f64)(0x96 - temp_t0) / 40.0), D_80755378);
+        }
+    }
+    return arg0;
+}
+
 
 
 extern u64 D_807445B0;
@@ -663,15 +722,134 @@ void func_80713C8C(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713DFC.s")
+extern s32 D_80755348;
+Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);
+
+Gfx *func_80713DFC(Gfx *arg0) {
+    s32 pad[8]; // FAKE: frame size 0x40 (eight unused words above sp1C)
+    f32 sp1C;
+    Gfx *temp_v0;
+
+    if ((func_80712628() != 0) && !(D_807FBB60 & 3)) {
+        sp1C = (f32) D_80744490 * 0.5f;
+        temp_v0 = func_807132DC(arg0);
+        R117D_WRITE_GFX(temp_v0++, 0xFC119623, 0xFF2FFFFF);
+        R117D_WRITE_GFX(temp_v0++, 0xFA000000, 0xFFFFFFFF);
+        arg0 = renderTimerMinutesSecondsHUD(temp_v0, sp1C, 214.0f, D_80755348);
+    }
+    return arg0;
+}
 
 s32 func_80713EA8(s32 arg0) {
     return arg0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713EB0.s")
+extern s16 D_807FC828[];
+void func_806ABE3C();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80714060.s")
+void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
+    s32 sp18;
+    s32 sum;
+    s32 i;
+
+    if (arg0 >= 0) {
+        if (D_80755314 == 0xE) {
+            if (arg2 == 1) {
+                if (flagGet(0x2A, 1) == 0) {
+                    arg0 = -1;
+                }
+            }
+            if (arg2 == 2) {
+                if (flagGet(0x2B, 1) == 0) {
+                    arg0 = -1;
+                }
+            }
+        } else {
+            func_806ABE3C(); // FAKE: a0 still holds arg0; passing it makes uopt emit move a0,a3
+            sum = 0; for (i = 0; i < 7; i++) { sum += D_807FC828[i]; } if (arg2 == 1) { // FAKE: one source line lets as1 reorder the unrolled loads
+                if (sum < 0x118) {
+                    arg0 = -1;
+                } else {
+                    flagSet(0x2A, 1, 1);
+                }
+            }
+            if (arg2 == 2) {
+                if (sum < 0x119) {
+                    arg0 = -1;
+                } else {
+                    flagSet(0x2B, 1, 1);
+                }
+            }
+        }
+        if (arg0 >= 0) {
+            func_80712524(arg0, arg1);
+            return;
+        }
+    }
+    if (D_80755314 == 0xE) {
+        func_8070B308(0);
+        func_80712490(0x50, 0, 5);
+        return;
+    }
+    func_807124B8(0x28, 0, 1);
+}
+
+Gfx *func_807138CC(Gfx *);
+Gfx *func_80713B40(Gfx *);
+extern s8 D_807552E0;
+void camStartPath(s32, s16, s32);
+
+Gfx *func_80714060(Gfx *arg0) {
+    char buffer[40];
+
+    if ((D_80755338 != 0) && (D_8076A064 == 1)) {
+        D_80755338 = 0;
+        if (D_8075533C >= 0) {
+            camStartPath(0, (s16)D_8075533C, 1);
+        }
+    }
+    if (D_807552E0 != 0) {
+        arg0 = func_807132DC(arg0);
+        _sprintf(buffer, "SECURITY %d", D_807552E0);
+        arg0 = hudDrawScaledText(arg0, 0x280, 0x1E0, 1.0f, buffer);
+    }
+    D_807552E0 = 0;
+    R117D_WRITE_GFX(arg0++, 0xE7000000, 0);
+    if (D_80755334 < 0x5A) {
+        D_80755334++;
+    }
+    if ((func_80712628() != 0) && (D_80755314 != 6)) {
+        func_8071261C();
+    }
+    if (D_8075531C != 0) {
+        if (D_80755314 == D_80755318) {
+            D_8075531C--;
+            switch (D_80755314) {
+            case 0:
+            case 1: func_80713270(); break;
+            case 2: func_8071321C(); break;
+            case 3: func_80712FC8(); break;
+            case 7:
+            case 9: func_80713168(); break;
+            case 14: func_80713088(); break;
+            case 11: func_807130D4(); break;
+            case 6: func_80713C8C(); break;
+            }
+        }
+    }
+    switch (D_80755314) {
+    case 0:
+    case 1: arg0 = (Gfx *)func_8071375C((s32)arg0); break;
+    case 2: arg0 = func_807138A4(arg0); break;
+    case 3: arg0 = func_807138CC(arg0); break;
+    case 7:
+    case 9: arg0 = func_80713B40(arg0); break;
+    case 6: arg0 = func_80713DFC(arg0); break;
+    case 5: arg0 = (Gfx *)func_80713EA8((s32)arg0); break;
+    case 11: break;
+    }
+    return arg0;
+}
 
 typedef struct {
     s32 unk0;
