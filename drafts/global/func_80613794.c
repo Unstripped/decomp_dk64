@@ -1,4 +1,4 @@
-// func_80613794 (src/global/17B90.c): stage 5: frame 0x40 and 7 saved regs match; entry switch, buffer frees, and table shift match; remaining diff is loop bound reload and cmdList comparison order
+// func_80613794 (src/global/17B90.c): stage 5: frame 0x40 and 7 saved regs match; parked NON_MATCHING; loop bound reload into t8 vs v0 reuse and cmdList comparison order
 #include "common.h"
 
 typedef struct {
@@ -6,42 +6,49 @@ typedef struct {
     u8 pad4[0x48];
     void *unk4C;
     void *unk50;
-} RvE3_ControllerView;
+} RvT2_ControllerView;
 
 typedef struct {
     u16 unk0;
     u16 unk2;
-    void *unk4;
-    u8 unk8;
-    u8 pad9[3];
-} RvE3_StateEntry;
+    u32 unk4;
+    u32 unk8;
+} RvD_StateEntry;
 
 typedef struct {
     u32 unk0;
     u32 unk4;
-} ControllerCommand;
+} RvT2_ControllerCommand;
 
 typedef struct {
-    ControllerCommand *start;
-} ControllerCommandList;
+    RvT2_ControllerCommand *start;
+} RvT2_ControllerCommandList;
 
 typedef struct {
     u8 pad0[4];
-    ControllerCommandList *commands;
-} ControllerSub;
+    RvT2_ControllerCommandList *commands;
+} RvT2_ControllerSub;
 
-extern RvE3_StateEntry D_807FB630[];
-extern RvE3_StateEntry D_807FB7B0[];
-extern u16 D_807FBB30;
+struct RvE2_CacheEntry {
+    s32 id;
+    s32 refCount;
+    void *asset;
+};
+extern struct RvE2_CacheEntry D_807FB7B0[];
+extern RvD_StateEntry D_807FB630[];
+extern s16 D_807FBB30;
 
-void assetFreeBuffer(u32, s32, s32);
+void assetFreeBuffer(void *, s32, s32);
 
-void func_80613794(RvE3_ControllerView *arg0, u8 arg1) {
-    ControllerSub *sub;
-    RvE3_StateEntry *entry;
-    ControllerCommand *cmd;
-    ControllerCommandList *cmdList;
-    RvE3_StateEntry *last;
+void func_80613794(arg0, arg1)
+RvT2_ControllerView *arg0;
+u8 arg1;
+{
+    RvT2_ControllerSub *sub;
+    RvD_StateEntry *entry;
+    RvT2_ControllerCommand *cmd;
+    RvT2_ControllerCommandList *cmdList;
+    RvD_StateEntry *last;
     u32 val;
 
     switch (arg1) {
@@ -62,29 +69,28 @@ void func_80613794(RvE3_ControllerView *arg0, u8 arg1) {
     if (sub != NULL) {
         entry = D_807FB630;
         do {
-            if (entry->unk4 == sub) {
+            if (entry->unk4 == (u32)sub) {
                 break;
             }
-            entry++;
-        } while (entry != D_807FB7B0);
+        } while (++entry != (RvD_StateEntry *)D_807FB7B0);
 
-        if (entry == D_807FB7B0) {
+        if (entry == (RvD_StateEntry *)D_807FB7B0) {
             return;
         }
 
         if (--entry->unk2 == 0) {
             cmdList = sub->commands;
             cmd = cmdList->start;
-            if (cmd != (ControllerCommand *)cmdList) {
+            if (cmd != (RvT2_ControllerCommand *)cmdList) {
                 do {
                     if ((cmd->unk0 >> 24) == (0, 0xFD)) {
                         val = cmd->unk4;
                         if ((val >= 0x80000000) && (val < 0xA0000000)) {
-                            assetFreeBuffer(val ^ 0, 0x270, 0x15);
+                            assetFreeBuffer((void *)(val ^ 0), 0x270, 0x15);
                         }
                     }
                     cmd++;
-                } while ((ControllerCommand *)cmdList != cmd);
+                } while ((RvT2_ControllerCommand *)cmdList != cmd);
             }
 
             val = D_807FBB30 - 1;
@@ -97,11 +103,11 @@ void func_80613794(RvE3_ControllerView *arg0, u8 arg1) {
             entry->unk2 = last->unk2;
 
             last->unk0 = 0;
-            last->unk4 = NULL;
+            last->unk4 = 0;
             last->unk8 = 0;
             last->unk2 = 0;
 
-            assetFreeBuffer((u32)sub, 0x281, 0x15);
+            assetFreeBuffer((void *)sub, 0x281, 0x15);
         }
     }
 }
