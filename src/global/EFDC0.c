@@ -165,7 +165,31 @@ void func_806EB364(void) {
     func_80614E78(D_807FBB40, 0xD);
 }
 
+#define EfA_Q ((EfAQueuedCall *)D_807FC924)
+
+#ifdef NON_MATCHING
+typedef struct EfASubActor {
+    u8 pad0[0xD4];
+    s16 unkD4;
+    u8 padD6[0x11A];
+    s32 unk1F0;
+} EfASubActor;
+
+s32 func_806EB400(Actor *arg0) {
+    s32 pred;
+    EfASubActor *sub;
+
+    sub = (EfASubActor *)arg0->unk174;
+    pred = (sub->unkD4 == 0) || (EfA_Q[D_807FC929].unk29C == 0x3F);
+    if ((D_8074E77C[D_807FC929] == 7) || (sub->unk1F0 & 0x8000)) {
+        return 0;
+    }
+    return ((arg0->unk154 == 0x34) || (arg0->unk154 == 0x36)) ? 0 : (pred & 1);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB400.s")
+#endif
 
 void func_806EB4B4(void) {
     D_807FBB40->unk154 = 0x23;
@@ -238,7 +262,65 @@ void func_806EB6D8(void) {
     actorScriptStart(D_807FBB40, 0x14F);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB744.s")
+typedef struct EfN2SubActor {
+    u8 pad0[0xB2];
+    s16 unkB2;
+    f32 unkB4;
+    f32 unkB8;
+    s16 unkBC;
+    u8 padBE[0x31];
+    u8 unkEF;
+    u8 unkF0;
+    u8 padF1[2];
+    s8 unkF3;
+} EfN2SubActor;
+
+typedef struct EfN2TargetActor {
+    u8 pad0[0xB4];
+    f32 unkB4;
+} EfN2TargetActor;
+
+void camSaveYaw(void *);
+void camSetZoomLevel(void *, s32);
+void func_806F0D68(Actor *);
+void sfxStopSlotSound(Actor *, u8);
+
+void func_806EB744(void) {
+    Actor *actor;
+    s16 speed;
+    s32 state;
+    s16 state2;
+    EfN2SubActor *subactor;
+    u8 type;
+
+    actor = EfA_P->unk104;
+    subactor = actor->unk174;
+    if (D_807FC924 && D_807FC924) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    type = subactor->unkEF;
+    speed = subactor->unkB8;
+    if (type != 0) {
+        subactor->unkF0 = type;
+        speed = 0x80;
+    }
+    camSaveYaw(EfA_P->unk104);
+    camSetZoomLevel(EfA_P->unk104, 0);
+    state = EfA_Q[D_807FC929].unk2A8;
+    state2 = state;
+    subactor->unkF3 = state2;
+    if ((u8)state2 == 3) {
+        sfxStopSlotSound(D_807FBB48, 0);
+        func_80609140(0x26, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        if (EfA_Q[D_807FC929].unk2AC != 0) {
+            func_806F0D68(D_807FBB48);
+        }
+    }
+    subactor->unkBC = 0x80;
+    ((EfN2TargetActor *)EfA_P->unk104)->unkB4 = speed;
+    subactor->unkB8 = speed;
+    subactor->unkB2 = D_807FBB48->unkE6 + 0x800;
+    D_807FBB48->unkB8 = 0.0f;
+    D_807FBB48->unk6A |= 0x2000;
+}
 
 void func_806EB8CC(void) {
     func_806EB744();
@@ -494,7 +576,22 @@ void func_806EC044(void) {
     slotQueueUpdate(0, 1, 0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC1A8.s")
+void func_806EC1A8(void) {
+    s32 animation;
+
+    *(u32 *)((u8 *)EfA_P->unk104->unk174 + 0xAC) |= 4;
+    D_807FBB48->unk154 = 0x6D;
+    D_807FBB48->unk155[0] = 0;
+    actorScriptStart(D_807FBB48, 0);
+    EFB_P->unk50 = 0;
+    EFB_P->unk4C = -1;
+    D_807FBB48->unk60 &= ~1;
+    if (D_8076A0A8 == 0x27) {
+        D_807FBB48->unk144 = 1;
+    }
+    EFB_P->unk88 = (EfBActor *)EFB_C[D_807FC929].unk2A0;
+    if (D_807FBB48->unk58 == 2) { animation = 0x53; } else { animation = 0x1C7; } func_80613C48(D_807FBB48, (s16)animation, 0.0f, 0.0f); // FAKE: one source line steers the scheduler (li at,2 after mfc1)
+}
 
 void func_806EC2CC(void) {
     Actor *actor;
@@ -597,7 +694,73 @@ extern f32 D_80753940[];
 extern f32 D_80753D70[];
 extern f32 D_80753D8C[];
 extern s32 D_80767CC0;
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EC4AC.s")
+extern f32 D_80753250[];
+extern s16 D_8075388C[];
+extern s16 D_807538D8[];
+extern s16 D_807538E8[];
+extern s16 D_807538F8[];
+extern f32 D_80753988[];
+extern s16 D_807539FC[];
+extern f32 D_80753A5C[];
+void func_806CF398(Actor *);
+
+void func_806EC4AC(void) {
+    f32 temp_fa0;
+    f32 temp_ft4;
+    f32 temp_fv0;
+    f32 temp_fv0_2;
+    f32 temp_fv0_3;
+    f32 temp_fv1;
+    f32 var_fa1;
+    f32 var_fs0;
+    f32 var_ft5;
+    f32 var_ft5b;
+
+    func_806CF398(D_807FBB48);
+    temp_fv0 = D_80753A5C[D_807FD584];
+    if (temp_fv0 > 0.0f) {
+        var_fs0 = temp_fv0;
+    } else {
+        var_fs0 = -temp_fv0;
+    }
+    temp_ft4 = EFN3_A48->unkAC;
+    temp_fv0_2 = D_807538D8[D_807FD584];
+    var_ft5 = EFN3_A48->unkA0 - temp_ft4;
+    if (temp_fv0_2 < var_ft5) {
+        var_ft5 = temp_fv0_2;
+    }
+    temp_fa0 = D_807538E8[D_807FD584] + ((D_807538F8[D_807FD584] - D_807538E8[D_807FD584]) * (var_ft5 / temp_fv0_2));
+    temp_fa0 -= (temp_ft4 - D_8075388C[D_807FD584]) - EFN3_A48->unk80;
+    temp_fa0 *= 40.0f;
+    var_ft5 *= 40.0f;
+    temp_fv0_2 *= 40.0f;
+    if (temp_fa0 > 0.0f) {
+        var_fa1 = EFN3_A48->unkC0;
+        var_fa1 = (f32)((f64)var_fa1 * (0.5 + (f64)(var_ft5 / (2 * temp_fv0_2))));
+        var_ft5b = (var_fa1 * var_fa1) / (2 * temp_fa0);
+        if (var_ft5b < var_fs0) {
+            var_ft5b = var_fs0;
+        }
+    } else {
+        var_fa1 = 0.0f;
+        var_ft5b = var_fs0;
+    }
+    EFN3_A48->unkC0 = var_fa1;
+    EFN3_P->unk1C = var_ft5b;
+    EFN3_P->unk10 = 0;
+    EFN3_P->unk30 = D_80753250[D_807FD584];
+    temp_fv0_3 = EFN3_A40->unkB8;
+    temp_fv1 = D_80753988[D_807FD584];
+    if (temp_fv0_3 < temp_fv1) {
+        EFN3_A40->unkB8 = temp_fv0_3;
+    } else {
+        EFN3_A40->unkB8 = temp_fv1;
+    }
+    EFN3_A48->unk154 = 0x4E;
+    EFN3_A48->unk155 = 0;
+    func_80614E78(D_807FBB40, 0x35);
+    EFN3_P->unk48 = D_807539FC[D_807FD584];
+}
 
 
 void func_806EC708(void) {
@@ -763,10 +926,8 @@ extern f32 D_807535CC[];
 extern s16 D_8075380C[];
 void camStartBlendRamp(void *, s32);
 s16 actorListFindIdByActor(Actor *);
-void sfxStopSlotSound(Actor *, u8);
 void func_806CFE7C(void);
 void func_806CA2AC(void);
-void func_806CF398(Actor *);
 
 
 
@@ -922,7 +1083,42 @@ typedef struct EfN8PlayerD4 {
 extern s16 D_807530B0[];
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED244.s")
+typedef struct EfdAPlayer {
+    u8 pad0[0x88];
+    Actor *unk88;
+} EfdAPlayer;
+
+void func_806ED244(void) {
+    Actor *camTarget;
+    Actor *target;
+    f32 zero;
+    f32 v;
+
+    target = ((EfdAPlayer *)D_807FD580)->unk88;
+    zero = 0.0f;
+    if (target->unkB8 >= zero) {
+        func_8072DB68(3);
+        target = ((EfdAPlayer *)D_807FD580)->unk88;
+    }
+    camTarget = ((EfAQueuedCall *)D_807FC924)[D_807FC929].unk2A0;
+    if (camTarget != NULL) {
+        if (camTarget->unkB8 != zero) {
+            v = camTarget->unkB8 > zero ? camTarget->unkB8 : -camTarget->unkB8;
+            target->unkB8 = (f32)(2.0 * (f64)v);
+        } else {
+            v = target->unkB8 > zero ? target->unkB8 : -target->unkB8;
+            target->unkB8 = v < 50.0f ? -50.0f : -(target->unkB8 > zero ? target->unkB8 : -target->unkB8);
+        }
+    } else {
+        v = target->unkB8 > zero ? target->unkB8 : -target->unkB8;
+        target->unkB8 = v < 50.0f ? -50.0f : -(target->unkB8 > zero ? target->unkB8 : -target->unkB8);
+    }
+    actorScriptStart(((EfdAPlayer *)D_807FD580)->unk88, 0x292);
+    if (D_807FD580 && D_807FD580) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (D_807FBB48->unk154 != 9) {
+        func_80614E78(D_807FBB48, 0x83);
+    }
+}
 
 
 void func_806ED420(void) {
@@ -946,9 +1142,72 @@ void func_806ED420(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED508.s")
+s32 flagGet(s16, s32);
+void flagSet(s16, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806ED5C0.s")
+void func_806ED508(u16 arg0) {
+    u16 ev;
+    s16 anim;
+
+    switch (arg0) {
+    case 0x12:
+        ev = 0x16D;
+        anim = 0x23;
+        break;
+    case 0x81:
+        ev = 0x16E;
+        anim = 0x24;
+        break;
+    }
+    if (flagGet(ev, 0) == 0) {
+        if (arg0 == 0x81) {
+            D_807FBB48->unkB8 = 0.0f;
+        }
+        camStartPath(NULL, anim, 5);
+        flagSet(ev, 1, 0);
+    }
+}
+
+void func_806ED5C0(Actor *arg0) {
+    s16 id;
+    u16 state;
+    s32 ev;
+
+    state = arg0->unk58;
+    id = actorListFindIdByActor(arg0);
+    switch (D_8076A0A8) {
+    case 26:
+        if (id == 0x11) {
+            return;
+        }
+        break;
+    case 48:
+        if (id == 0x17) {
+            return;
+        }
+        break;
+    }
+    switch (state) {
+    case 0x19:
+        ev = 0x169;
+        break;
+    case 0x28:
+        ev = 0x168;
+        break;
+    case 0x39:
+        ev = 0x16B;
+        break;
+    case 0x38:
+        ev = 0x16A;
+        break;
+    default:
+        return;
+    }
+    if (flagGet(ev, 0) == 0) {
+        camStartPath(NULL, 0x16, 5);
+        flagSet(ev, 1, 0);
+    }
+}
 
 typedef struct EfL1PlayerState {
     u8 pad0[0x10];
@@ -1026,7 +1285,6 @@ void func_806CFF1C(Actor *);
 void func_806D0468(Actor *, s32);
 void func_806ED508(u16);
 void func_806ED5C0(Actor *);
-void func_806F0D68(Actor *);
 
 void func_806ED6B0(void) {
     u8 flag;
@@ -1588,21 +1846,20 @@ void func_806EFA1C(void) {
     D_807FBB40->unk155[0] = 0;
 }
 
-#ifdef NON_MATCHING
 typedef struct EfN7SpawnParams {
     u16 values[5];
 } EfN7SpawnParams;
 
-extern u16 D_8075D380[];
+extern EfN7SpawnParams D_8075D380;
 extern void actorSpawn(s32, s32);
 
 void func_806EFA3C(void) {
     EfN7SpawnParams spawnParams;
-    f32 height = D_807FBB48->unk4->unk34;
+    s32 pad;
+    f32 height;
 
-    *(u32 *)&spawnParams.values[0] = *(u32 *)&D_8075D380[0];
-    *(u32 *)&spawnParams.values[2] = *(u32 *)&D_8075D380[2];
-    spawnParams.values[4] = D_8075D380[4];
+    spawnParams = D_8075D380;
+    height = D_807FBB48->unk4->unk34;
     actorSpawn(0x140, 0xB9);
     if (D_807FBB48->unk58 == 2) {
         height *= 1.25;
@@ -1614,10 +1871,6 @@ void func_806EFA3C(void) {
     D_807FBB40->unk154 = 0x79;
     D_807FBB40->unk155[0] = 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EFA3C.s")
-#endif
 
 
 typedef struct {
@@ -1793,7 +2046,6 @@ void func_806F007C(void) {
     actorScriptStart(D_807FBB40, 0);
 }
 
-extern f32 D_80753250[];
 
 void func_806F00BC(void) {
     func_806CA2AC();
@@ -1863,7 +2115,60 @@ void func_806F0344(void) {
     D_807FBB44->unk11C = (s32)D_807FBB48;
 }
 
+#ifdef NON_MATCHING
+void func_806F03C4(void) {
+    s32 ev;
+    EfECamBlock *camera;
+
+    switch (D_807FBB48->unk58) {
+    case 2:
+        if (D_807FD580 && D_807FD580) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        ev = 7;
+        camera = &EfECam[D_807FC929];
+        break;
+    case 3:
+        ev = 0;
+        camera = &EfECam[D_807FC929];
+        break;
+    case 4:
+        EfEPS->unk1F0 |= 0x100;
+        ev = 4;
+        camera = &EfECam[D_807FC929];
+        break;
+    case 5:
+        camera = &EfECam[D_807FC929];
+        if (camera->unk2C0 == 1) {
+            ev = 8;
+        } else {
+            ev = 0x1F;
+        }
+        break;
+    case 6:
+        ev = 9;
+        camera = &EfECam[D_807FC929];
+        break;
+    default:
+        camera = &EfECam[D_807FC929];
+        break;
+    }
+    D_807FBB48->unkE6 = mathAngleBetweenPoints2D(camera->unk210, camera->unk218,
+                                                  D_807FBB48->unk7C, D_807FBB48->unk84);
+    if (D_807FBB68 & 2) {
+        EfEPS->unk1F0 &= ~0x100;
+        actorScriptStart(D_807FBB48, 0x165);
+    } else {
+        if (D_807FBB48->unk154 != 0x56) {
+            camStartPath(D_807FBB48, (s16)ev, 5);
+        }
+        func_80614E78(D_807FBB48, 0x5A);
+    }
+    D_807FBB48->unk154 = 0x67;
+    D_807FBB48->unk155[0] = 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806F03C4.s")
+#endif
 
 void func_806E9964(EfEPlayerState *);
 

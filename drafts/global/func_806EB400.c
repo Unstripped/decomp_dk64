@@ -1,4 +1,4 @@
-// func_806EB400 (src/global/EFDC0.c): Stage 4: semantic reconstruction; target keeps predicate in v1 through global test.
+// func_806EB400 (src/global/EFDC0.c): Stage 4 (frame 0, no saved regs): C is behaviourally exact and parked in src under NON_MATCHING. Diff = 6 lines, regalloc only: target keeps result in a1 (andi t6,a1,1; move a1,t6; move a1,zero; move v0,a1) and the state byte in v1; ours puts state in v0 and the ternary result in v1. The pred copy 'move a1,v1' only appears with 'pred = (A||B); ... return c ? 0 : (pred & 1)' (|| value, not a named result var). Tried: named result var / if-else / early-return forms, u8/s32 pred, extra 'if (arg0) {}' liveness, deadsweep (no gain), joined source lines, 2 permuter runs (~12 min total, no gain).
 typedef struct EfASubActor {
     u8 pad0[0xD4];
     s16 unkD4;
@@ -9,26 +9,13 @@ typedef struct EfASubActor {
 #define EfA_Q ((EfAQueuedCall *)D_807FC924)
 
 s32 func_806EB400(Actor *arg0) {
-    s32 temp_t6;
-    s32 var_a1;
-    s32 var_v1;
-    u8 temp_v1;
-    EfASubActor *temp_v0;
+    s32 pred;
+    EfASubActor *sub;
 
-    temp_v0 = (EfASubActor *)arg0->unk174;
-    temp_t6 = temp_v0->unkD4 == 0;
-    var_v1 = temp_t6;
-    if (temp_t6 == 0) {
-        var_v1 = EfA_Q[D_807FC929].unk29C == 0x3F;
-    }
-    if ((D_8074E77C[D_807FC929] == 7) || (temp_v0->unk1F0 & 0x8000)) {
+    sub = (EfASubActor *)arg0->unk174;
+    pred = (sub->unkD4 == 0) || (EfA_Q[D_807FC929].unk29C == 0x3F);
+    if ((D_8074E77C[D_807FC929] == 7) || (sub->unk1F0 & 0x8000)) {
         return 0;
     }
-    temp_v1 = arg0->unk154;
-    if ((temp_v1 != 0x34) && (temp_v1 != 0x36)) {
-        var_a1 = var_v1 & 1;
-    } else {
-        var_a1 = 0;
-    }
-    return var_a1;
+    return ((arg0->unk154 == 0x34) || (arg0->unk154 == 0x36)) ? 0 : (pred & 1);
 }
