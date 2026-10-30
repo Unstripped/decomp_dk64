@@ -1,12 +1,12 @@
-// func_80658624 (src/global/55B20.c): stage 6: 175/175 insns; only temp-reg renames + lbu-delay-slot/arg-setup scheduling differ. u8 flag with flag=(flag|f())&0xFF, p init inside if(arg0>0)
+// func_80658624 (src/global/55B20.c): from .scratch/S55f/func_80658624_best.c
 typedef struct M55P6Vec3 {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
-    /* 0x08 */ s32 unk8;
+    /* 0x08 */ f32 unk8;
 } M55P6Vec3;
 
 extern f32 D_807F6D78[];
-s32 func_80626F8C(f32, f32, s32, f32 *, f32 *, s32, f32, s32);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
 void func_80658624(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     f32 sp7C;
@@ -15,7 +15,7 @@ void func_80658624(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     s16 x;
     s16 y;
     s32 i;
-    s32 flag;
+    u8 flag;
 
     *arg1 = D_807FC924[D_807FC929].unk274;
     *arg2 = D_807FC924[D_807FC929].unk276;
@@ -26,7 +26,7 @@ void func_80658624(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     if (arg0 > 0) {
         p = (M55P6Vec3 *)D_807F6D78;
         do {
-            flag |= (u8)func_80626F8C(p->unk0, p->unk4, p->unk8, &sp7C, &sp78, 0, 1.0f, D_807FC929);
+            flag |= camProjectToScreen(p->unk0, p->unk4, p->unk8, &sp7C, &sp78, 0, 1.0f, D_807FC929);
             x = (s16)sp7C;
             y = (s16)sp78;
             if (x < D_807FC924[D_807FC929].unk270) {

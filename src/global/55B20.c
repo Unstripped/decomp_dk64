@@ -2284,6 +2284,7 @@ u8 arg2;
     s32 found;
 
     gfx = (Gfx *)arg0;
+    if (arg1 == 0.0f) {} // FAKE: rs
     WRITE_GFX(gfx++, 0xE7000000, 0);
     if (((MapChunkEffect *)D_807F6C18)[arg1].unk5 != 2) {
         switch (arg2) {
@@ -2314,6 +2315,7 @@ u8 arg2;
                     node++;
                 }
             } while (found == 0);
+            if (D_807F70B0 == 0) {} // FAKE: rs
             if (node->unk18 == 0) {
                 continue;
             }
@@ -2321,9 +2323,9 @@ u8 arg2;
                 continue;
             }
             WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk14[arg2]));
-            WRITE_GFX(gfx++, 0xE7000000, 0);
+            { Gfx *_g = gfx; _g->words.w0 = (0xE7000000); _g->words.w1 = (u32)(0); gfx++; }
             WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk4[arg2]));
-            WRITE_GFX(gfx++, 0xE7000000, 0);
+            { Gfx *_g = gfx; _g->words.w0 = (0xE7000000); gfx++; _g->words.w1 = (u32)(0); }
         }
     }
     return (s32)gfx;
@@ -2442,7 +2444,83 @@ s32 mapGridPointEmit(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     return 0;
 }
 
+typedef struct {
+    f32 x[4];
+    f32 y[4];
+    f32 px;
+    f32 py;
+} S55eQuad;
+
+#define Q ((S55eQuad *)arg0)
+#ifdef NON_MATCHING
+s32 func_8065776C(u8 *arg0) {
+    f32 mx;
+    f32 my;
+    f32 ex;
+    f32 ey;
+    f32 vx;
+    f32 vy;
+    f32 dx;
+    f32 dy;
+    f32 cross;
+    f32 cross2;
+    s32 i;
+
+    mx = (Q->x[0] + Q->x[2]) * 0.5;
+    my = (Q->y[0] + Q->y[2]) * 0.5;
+    for (i = 0; i != 4; i++) {
+        switch (i) {
+        case 0:
+            vx = Q->x[0];
+            vy = Q->y[0];
+            ex = Q->x[1] - vx;
+            ey = Q->y[1] - vy;
+            if (mx == 0.0f) {} // FAKE: rs
+            break;
+        case 1:
+            vx = Q->x[1];
+            vy = Q->y[1];
+            ex = Q->x[2] - vx;
+            ey = Q->y[2] - vy;
+            if (cross && cross) {} // FAKE: rs
+            break;
+        case 2:
+            vx = Q->x[2];
+            vy = Q->y[2];
+            ex = Q->x[3] - vx;
+            ey = Q->y[3] - vy;
+            break;
+        case 3:
+            vx = Q->x[3];
+            vy = Q->y[3];
+            ex = Q->x[0] - vx;
+            ey = Q->y[0] - vy;
+            break;
+        }
+        dx = Q->px - vx;
+        dy = Q->py - vy;
+        if (1) {} // FAKE: rs
+        if (dy > 0.0f) {} // FAKE: rs
+        if (dx * ey - dy * ex != 0.0) {
+            if (1) {} // FAKE: rs
+            cross2 = (mx - vx) * ey - (my - vy) * ex;
+            if (cross2 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (dx * ey - dy * ex > 0.0) {
+                if (i) {} // FAKE: rs
+                if (cross2 <= 0.0) {
+                    return 0;
+                }
+            } else if (cross2 >= 0.0) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_8065776C.s")
+#endif
 
 
 
@@ -2477,20 +2555,21 @@ void mapGridPointBuildVectors(s32 arg0, f32 arg1, f32 arg2, f32 arg3, MapGridQua
     }
 }
 
-#ifdef NON_MATCHING
 void func_80657CB0(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
+    f32 n10;
     f32 t;
-    f32 a = (f32)(-D_807F6C24[arg0].unk18);
-
-    t = (a - ((f32)D_807F6C24[arg0].unk10 * arg3 + ((f32)D_807F6C24[arg0].unk0 * arg1 + (f32)D_807F6C24[arg0].unk8 * arg2))) / D_807F6C24[arg0].unk24;
+    f32 n0;
+    f32 n8;
+    f32 a;
+    a = (f32)(-D_807F6C24[arg0].unk18);
+    n8 = (f32)D_807F6C24[arg0].unk8;
+    n0 = (f32)D_807F6C24[arg0].unk0;
+    n10 = (f32)D_807F6C24[arg0].unk10;
+    t = (a - (n10 * arg3 + (n0 * arg1 + n8 * arg2))) / D_807F6C24[arg0].unk24;
     *arg4 = (f32)D_807F6C24[arg0].unk0 * t + arg1;
     *arg5 = (f32)D_807F6C24[arg0].unk8 * t + arg2;
     *arg6 = (f32)D_807F6C24[arg0].unk10 * t + arg3;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80657CB0.s")
-#endif
 
 void mapRectIntersect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 *arg8, s32 *arg9, s32 *arg10, s32 *arg11) {
     if ((arg0 == arg2) || (arg1 == arg3)) {
@@ -2544,45 +2623,27 @@ s32 mapGridPointPlaneDistanceWithin(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 
 }
 
 #ifdef NON_MATCHING
-extern f32 D_807F6C88;
-extern f32 D_807F6C8C;
-extern f32 D_807F6C90;
-extern f32 D_807F6C94;
-extern f32 D_807F6C98;
-extern f32 D_807F6C9C;
-extern f32 D_807F6CA0;
-extern f32 D_807F6CA4;
-extern f32 D_807F6CA8;
-extern f32 D_807F6CAC;
-extern f32 D_807F6CB0;
-extern f32 D_807F6CB4;
+f32 D_807F6C88[12];
 extern f32 D_807F6E68[];
 extern f32 D_807F6F58[];
 extern f32 D_807F6D78[];
 
 void func_806582F8(f32 *, f32 *, s32, s32 *, s32);
 
-s32 func_80658134(arg0, arg1, arg2, arg3)
-s32 arg0;
-s32 arg1;
-s32 arg2;
-s32 arg3;
+s32 func_80658134(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
 {
-    s32 n1 = 0;
-    s32 n2 = 0;
-    D_807F6C88 = D_807F6C14[arg0].unk0[0];
-    D_807F6C8C = D_807F6C14[arg0].unk10[0];
-    D_807F6C90 = D_807F6C14[arg0].unk20[0];
-    D_807F6C94 = D_807F6C14[arg0].unk0[1];
-    D_807F6C98 = D_807F6C14[arg0].unk10[1];
-    D_807F6C9C = D_807F6C14[arg0].unk20[1];
-    D_807F6CA0 = D_807F6C14[arg0].unk0[2];
-    D_807F6CA4 = D_807F6C14[arg0].unk10[2];
-    D_807F6CA8 = D_807F6C14[arg0].unk20[2];
-    D_807F6CAC = D_807F6C14[arg0].unk0[3];
-    D_807F6CB0 = D_807F6C14[arg0].unk10[3];
-    D_807F6CB4 = D_807F6C14[arg0].unk20[3];
-    func_806582F8(&D_807F6C88, D_807F6E68, 4, &n2, 0);
+    s32 k;
+    s32 n2;
+    s32 n1;
+
+    n1 = 0;
+    n2 = 0;
+    for (k = 0; k < 4; k++) {
+        D_807F6C88[k * 3] = D_807F6C14[arg0].unk0[k];
+        D_807F6C88[k * 3 + 1] = D_807F6C14[arg0].unk10[k];
+        D_807F6C88[k * 3 + 2] = D_807F6C14[arg0].unk20[k];
+    }
+    func_806582F8(D_807F6C88, D_807F6E68, 4, &n2, 0);
     if (n2 == 0) {
         return 0;
     }

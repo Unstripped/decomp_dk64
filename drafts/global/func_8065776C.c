@@ -1,73 +1,66 @@
-// func_8065776C (src/global/55B20.c): stage 2: frame must be 0x78 (locals 0x74 mx,0x70 my,0x6C ex,0x68 ey,0x64 vx,0x60 vy,0x40 x0,0x3C y2,0x38 y0). Target ALSO emits dead loads of ex/ey/vy/vx from 0x6C/0x68/0x60/0x64 at entry (into fs3/fs4/ft5/ft4) and dead stores of vx/vy/ex/ey at 0x64/0x60/0x6C/0x68 just before return 1 - these 4 locals are read before written, so the source must read them pre-loop; FCR map: vx=ft4 vy=ft5 ex=fs3 ey=fs4. Cross test is dx*ey-dy*ex vs (mx-vx)*ey-(my-vy)*ex, both in f64 vs 0.0 (f32 0.0 pair fs0/fs0f); mid = (x0+x2)*0.5 in f64 (untyped 0.5)
-#include "common.h"
-
+// func_8065776C (src/global/55B20.c): stage 5: prototyped f32 locals mx,my,ex,ey,vx,vy (decl order gives 0x60-0x74 slots + dead entry loads/exit stores), cross inlined (named f32 cross was spilled swc1 f0,84(sp); inlining 'dx*ey-dy*ex' twice gives CSE'd cvt.d.s in f0 as target). Frame 0x78 ok, size 130 vs 131? Remaining 17 text lines after random dead-statement search (rs.py): dy colours f2 where target has f14 (dx f12 ok), case0 first lwc1 is y0(0x38) in target vs x0, cross2 sub operand temps f12/f14 vs f6/f8. 7 FAKE stmts
 typedef struct {
     f32 x[4];
     f32 y[4];
     f32 px;
     f32 py;
-} M55P5Quad;
+} S55eQuad;
 
-s32 func_8065776C(M55P5Quad *arg0) {
-    f32 sp74;
-    f32 sp70;
-    f32 sp6C;
-    f32 sp68;
-    f32 sp64;
-    f32 sp60;
-    f32 sp40;
-    f32 sp3C;
-    f32 sp38;
-    f32 vx;
-    f32 vy;
+#define Q ((S55eQuad *)arg0)
+s32 func_8065776C(u8 *arg0) {
+    f32 mx;
+    f32 my;
     f32 ex;
     f32 ey;
+    f32 vx;
+    f32 vy;
     f32 dx;
     f32 dy;
     f32 cross;
     f32 cross2;
     s32 i;
 
-    sp74 = (arg0->x[0] + arg0->x[2]) * 0.5;
-    sp70 = (arg0->y[0] + arg0->y[2]) * 0.5;
-    sp40 = arg0->x[0];
-    sp38 = arg0->y[0];
-    sp3C = arg0->y[2];
-
-    i = 0;
-    do {
+    mx = (Q->x[0] + Q->x[2]) * 0.5;
+    my = (Q->y[0] + Q->y[2]) * 0.5;
+    for (i = 0; i != 4; i++) {
         switch (i) {
         case 0:
-            vx = sp40;
-            vy = sp38;
-            ex = arg0->x[1] - vx;
-            ey = arg0->y[1] - vy;
+            vx = Q->x[0];
+            vy = Q->y[0];
+            ex = Q->x[1] - vx;
+            ey = Q->y[1] - vy;
+            if (mx == 0.0f) {} // FAKE: rs
             break;
         case 1:
-            vx = arg0->x[1];
-            vy = arg0->y[1];
-            ex = arg0->x[2] - vx;
-            ey = sp3C - vy;
+            vx = Q->x[1];
+            vy = Q->y[1];
+            ex = Q->x[2] - vx;
+            ey = Q->y[2] - vy;
+            if (cross && cross) {} // FAKE: rs
             break;
         case 2:
-            vx = arg0->x[2];
-            vy = sp3C;
-            ex = arg0->x[3] - vx;
-            ey = arg0->y[3] - vy;
+            vx = Q->x[2];
+            vy = Q->y[2];
+            ex = Q->x[3] - vx;
+            ey = Q->y[3] - vy;
             break;
         case 3:
-            vx = arg0->x[3];
-            vy = arg0->y[3];
-            ex = sp40 - vx;
-            ey = sp38 - vy;
+            vx = Q->x[3];
+            vy = Q->y[3];
+            ex = Q->x[0] - vx;
+            ey = Q->y[0] - vy;
             break;
         }
-        dx = arg0->px - vx;
-        dy = arg0->py - vy;
-        cross = dx * ey - dy * ex;
-        if (cross != 0.0) {
-            cross2 = (sp74 - vx) * ey - (sp70 - vy) * ex;
-            if (cross > 0.0) {
+        dx = Q->px - vx;
+        dy = Q->py - vy;
+        if (1) {} // FAKE: rs
+        if (dy > 0.0f) {} // FAKE: rs
+        if (dx * ey - dy * ex != 0.0) {
+            if (1) {} // FAKE: rs
+            cross2 = (mx - vx) * ey - (my - vy) * ex;
+            if (cross2 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (dx * ey - dy * ex > 0.0) {
+                if (i) {} // FAKE: rs
                 if (cross2 <= 0.0) {
                     return 0;
                 }
@@ -75,11 +68,6 @@ s32 func_8065776C(M55P5Quad *arg0) {
                 return 0;
             }
         }
-        i++;
-    } while (i != 4);
-    sp68 = ey;
-    sp6C = ex;
-    sp60 = vy;
-    sp64 = vx;
+    }
     return 1;
 }
