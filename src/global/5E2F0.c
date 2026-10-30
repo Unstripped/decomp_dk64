@@ -532,7 +532,6 @@ s32 lightCheckVolumeBounds(LightVolume *, f32, f32, f32, s16, s16, s16, s16, s16
 s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
     f32 diff[6];
     s32 i;
-    LightVolume *var_s0;
     f32 dist;
     f32 temp_fa0, temp_fa1;
     f32 temp_f1;
@@ -545,55 +544,56 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
 
     *arg10 = 0;
     D_807F7BC0 = 0;
-    three = 3.0f;
-    var_s0 = D_807F7500;
-    for (i = 0; i < D_80748300; i++, var_s0++) {
-        if (lightCheckVolumeBounds(var_s0, arg0, arg1, arg2, a3, a4, a5, a6, arg7, arg8, arg9)) {
+    three = 3;
+    for (i = 0; i < D_80748300; i++) {
+        if (lightCheckVolumeBounds(&D_807F7500[i], arg0, arg1, arg2, a3, a4, a5, a6, arg7, arg8, arg9)) {
             if (D_807F7BC0 < 12) {
-                if (var_s0->unk3A & 1) {
+                if (D_807F7500[i].unk3A & 1) {
                     *arg10 = 1;
                 }
                 D_807F78C0[D_807F7BC0].unk3F = i;
-                D_807F78C0[D_807F7BC0].unk38 = var_s0->x * 3.0f;
-                D_807F78C0[D_807F7BC0].unk3A = var_s0->y * 3.0f;
-                D_807F78C0[D_807F7BC0].unk3C = var_s0->z * 3.0f;
-                D_807F78C0[D_807F7BC0].unk2C = (f64)(u32)var_s0->unk36 / 255.0;
-                D_807F78C0[D_807F7BC0].unk30 = (f64)(u32)var_s0->unk37 / 255.0;
-                D_807F78C0[D_807F7BC0].unk34 = (f64)(u32)var_s0->unk38 / 255.0;
-                D_807F78C0[D_807F7BC0].unk3E = var_s0->unk39;
-                switch (var_s0->unk39) {
+                D_807F78C0[D_807F7BC0].unk38 = D_807F7500[i].x * 3.0f;
+                D_807F78C0[D_807F7BC0].unk3A = D_807F7500[i].y * 3.0f;
+                D_807F78C0[D_807F7BC0].unk3C = D_807F7500[i].z * 3.0f;
+                D_807F78C0[D_807F7BC0].unk2C = (f64)(u32)D_807F7500[i].unk36 / 255.0;
+                D_807F78C0[D_807F7BC0].unk30 = (f64)(u32)D_807F7500[i].unk37 / 255.0;
+                D_807F78C0[D_807F7BC0].unk34 = (f64)(u32)D_807F7500[i].unk38 / 255.0;
+                D_807F78C0[D_807F7BC0].unk3E = D_807F7500[i].unk39;
+                switch ((u32)D_807F7500[i].unk39) {
+                    if (i == 0) {}  // FAKE: steers FP temp colours (random search)
+                    if (!temp_ft4) {}  // FAKE: steers FP temp colours (random search)
                 case 1:
-                    diff[0] = var_s0->unk24 - var_s0->x;
-                    diff[1] = var_s0->unk28 - var_s0->y;
-                    diff[2] = var_s0->unk2C - var_s0->z;
-                    dist = sqrtf((diff[2] * diff[2]) + ((diff[0] * diff[0]) + (diff[1] * diff[1])));
+                    diff[0] = D_807F7500[i].unk24 - D_807F7500[i].x;
+                    diff[1] = D_807F7500[i].unk28 - D_807F7500[i].y;
+                    diff[2] = D_807F7500[i].unk2C - D_807F7500[i].z;
+                    dist = sqrtf((diff[2] * diff[2]) + ((diff[1] * diff[1]) + (diff[0] * diff[0])));
                     if (dist == 0.0f) {
                         dist = 0.1f;
                     }
-                    D_807F78C0[D_807F7BC0].unk18 = 0x127690;
-                    D_807F78C0[D_807F7BC0].unk4 = var_s0->unk4;
                     D_807F78C0[D_807F7BC0].unkC = diff[0] / dist;
-                    D_807F78C0[D_807F7BC0].unk0 = var_s0->unkC;
                     D_807F78C0[D_807F7BC0].unk10 = diff[1] / dist;
-                    D_807F78C0[D_807F7BC0].unk8 = var_s0->unk10;
+                    D_807F78C0[D_807F7BC0].unk4 = D_807F7500[i].unk4;
                     D_807F78C0[D_807F7BC0].unk14 = diff[2] / dist;
+                    D_807F78C0[D_807F7BC0].unk18 = 0x127690;
+                    D_807F78C0[D_807F7BC0].unk0 = D_807F7500[i].unkC;
+                    D_807F78C0[D_807F7BC0].unk8 = D_807F7500[i].unk10;
                     break;
                 case 0:
-                    if (var_s0->unk14 == 0.0f) {
-                        var_s0->unk14 = 0.1f;
+                    if (D_807F7500[i].unk14 == 0.0f) {
+                        D_807F7500[i].unk14 = 0.1f;
                     }
-                    temp_fa0 = var_s0->unk14 * 3.0f;
-                    temp_f1 = var_s0->unk14 / three;
+                    temp_f1 = D_807F7500[i].unk14 / three;
                     temp_fa1 = temp_f1 * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
+                    temp_fa0 = D_807F7500[i].unk14 * 3.0f;
                     D_807F78C0[D_807F7BC0].unk18 = (s32)(temp_fa0 * temp_fa0);
+                    D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
                     D_807F78C0[D_807F7BC0].unk1C = 1.0f / (temp_fa0 - temp_fa1);
-                    temp_ft4 = var_s0->unk14 * 1.3f;
+                    temp_ft4 = D_807F7500[i].unk14 * 1.3f;
                     temp_f1 = temp_ft4 / three;
                     temp_ft5 = temp_f1 * 3.0f;
                     temp_ft2 = temp_ft4 * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk28 = temp_ft5;
                     D_807F78C0[D_807F7BC0].unk24 = 1.0f / (temp_ft2 - temp_ft5);
+                    D_807F78C0[D_807F7BC0].unk28 = temp_ft5;
                     break;
                 }
                 lightAddDedupEntry(D_807F7BC0);
@@ -601,6 +601,8 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
             }
         }
     }
+    if (D_807F7BC0 > 0.0f) {}  // FAKE: steers FP temp colours (random search)
+    if (arg10 && arg10) {}  // FAKE: deadsweep: arg10 priority above a3..a6 (s4)
     return D_807F7BC0;
 }
 #else
