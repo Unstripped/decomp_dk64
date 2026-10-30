@@ -1,46 +1,56 @@
-// func_8061324C (src/global/17B90.c): stage 1; m2c starter retained. Remaining: table-entry/node types, nested scan loop, and allocation-list writeback.
-drafts/global/func_8061324C.c
-// func_8061324C (src/global/17B90.c): stage 1: m2c starter; needs concrete command/list-node structs and loop/control-flow matching
-void *heapAlloc(?);                             /* extern */
+// func_8061324C (src/global/17B90.c): stage 4+: matches frame 0x38, callee-saved set s0-s7,ra, stack layout; ~20 lines regalloc diff in inner loop and entry save scheduling
+typedef struct RvD2_Cmd {
+    u32 unk0;
+    u32 unk4;
+} RvD2_Cmd;
 
-void func_8061324C(void *arg0, s32 arg1, void **arg2) {
-    s32 var_v1;
-    u32 temp_s1;
-    u32 temp_v1;
-    void **var_s5;
-    void *temp_v0;
-    void *var_s0;
-    void *var_s3;
+typedef struct RvD2_Node {
+    RvD2_Cmd *unk0;
+    RvD2_Cmd *unk4;
+    u8 unk8;
+    struct RvD2_Node *next;
+} RvD2_Node;
 
-    var_s5 = arg2;
-    var_s3 = arg0;
+void *heapAlloc(s32);
+
+void func_8061324C(RvD2_Cmd *arg0, RvD2_Cmd *arg1, RvD2_Node **arg2) {
+    RvD2_Cmd *curr;
+    RvD2_Cmd *search;
+    RvD2_Node **tail;
+    RvD2_Node *node;
+    u32 cmd0;
+    u32 id;
+    s32 found;
+    u32 search_cmd;
+
+    curr = arg0;
+    tail = arg2;
     if (arg0 != arg1) {
         do {
-            temp_v1 = var_s3->unk0;
-            if (((temp_v1 >> 0x18) == 0xDE) && (((temp_v1 >> 0x10) & 0xFF) == 1)) {
-                var_s0 = arg0;
-                var_v1 = 0;
-                temp_s1 = (u32) (var_s3->unk4 * 0x10) >> 0x1C;
+            cmd0 = curr->unk0;
+            if (((cmd0 >> 24) == (0, 0xDE)) && (((cmd0 >> 16) & 0xFF) == (0, 1))) {
+                id = (u32)(curr->unk4 * 0x10) >> 0x1C;
+                search = arg0;
+                found = 0;
                 if (arg0 != arg1) {
-loop_5:
-                    if ((((u32) var_s0->unk0 >> 0x18) == 0) && (temp_s1 == var_s0->unk4)) {
-                        var_v1 = 1;
-                    } else {
-                        var_s0 += 8;
-                    }
-                    if ((var_v1 == 0) && (var_s0 != arg1)) {
-                        goto loop_5;
-                    }
+                    do {
+                        search_cmd = search->unk0;
+                        if (((search_cmd >> 24) == 0) && (id == search->unk4)) {
+                            found = 1;
+                        } else {
+                            search++;
+                        }
+                    } while (!found && (search != arg1));
                 }
-                temp_v0 = heapAlloc(0x10);
-                *var_s5 = temp_v0;
-                var_s5 = temp_v0 + 0xC;
-                temp_v0->unk8 = (s8) temp_s1;
-                temp_v0->unk0 = (void *) (var_s3 + 8);
-                temp_v0->unk4 = var_s0;
+                node = heapAlloc(sizeof(RvD2_Node));
+                *tail = node;
+                tail = &node->next;
+                node->unk8 = id;
+                node->unk0 = curr + 1;
+                node->unk4 = search;
             }
-            var_s3 += 8;
-        } while (var_s3 != arg1);
+            curr++;
+        } while (curr != arg1);
     }
-    *var_s5 = NULL;
+    *tail = NULL;
 }
