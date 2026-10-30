@@ -1,10 +1,11 @@
-// func_8060CBBC (src/global/104F0.c): stage 2: typed m2c reconstruction compiled and was fdiff'd twice. Earliest remaining difference is frame 0x90 versus target 0x98; target's loop-local pointer/register allocation diverges after initialization. Reworked sector validation/order logic and data-size expressions, but did not improve the frame.
-extern s32 func_8060B968();
-extern void func_8060C758(s32, s32);
-extern void func_8060C648(s32, u8, u8, u8, s32);
+// func_8060CBBC (src/global/104F0.c): stage 4: frame 0x98 matches target, callee-saved set s0-s7/fp/ra matches target, array stack offset 0x78 matches target via pad[2] local; remaining diff is regalloc of failed in $fp vs stack and loop index pointer scheduling
+#include <ultra64.h>
+
+extern s32 func_8060B968(void *, s32, s32);
+extern void func_8060C758();
 extern s32 func_8060C6B8(s32, u8, u8, u8);
 extern void func_8060CB74(void);
-extern void func_8060B8F8(s32);
+extern void eepromDispatchCommand(s32);
 extern s16 D_807ECEA0[];
 extern u8 D_807ECEA8[];
 extern u8 D_807ED6A8[];
@@ -13,12 +14,13 @@ extern u8 D_807550C8;
 extern u8 D_80744530;
 
 void func_8060CBBC(void) {
-    u8 valid[4];
-    u8 sectorOrder[4];
+    u32 pad[2];
     s32 failed;
     s32 i;
     s32 height;
     s32 checksumIndex;
+    u8 valid[4];
+    u8 sectorOrder[4];
 
     failed = 0;
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
@@ -31,12 +33,12 @@ void func_8060CBBC(void) {
     for (i = 0; i < 4; i++) {
         checksumIndex = (((i + 1) * height) / 4) - 1;
         valid[i] = 1;
-        if (((u32 *)D_807ED6A8)[checksumIndex] != func_8060B968(D_807ED6A8 + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF, checksumIndex, D_807ED6A8)) {
+        if (((u32 *)D_807ED6A8)[checksumIndex] != func_8060B968(D_807ED6A8 + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF, checksumIndex)) {
             valid[i] = 0;
             func_8060C758(i & 0xFF, 0);
             func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
         }
-        failed |= valid[i] == 0;
+        failed |= (valid[i] == 0);
     }
     for (i = 0; i < 4; i++) {
         s32 version;
@@ -63,10 +65,10 @@ void func_8060CBBC(void) {
             func_8060C648(0xF, 0, 0, j & 0xFF, i);
         }
     }
-    D_807EDEA8[0] = sectorOrder[0];
     D_807EDEA8[1] = sectorOrder[1];
     D_807EDEA8[2] = sectorOrder[2];
     D_807EDEA8[3] = sectorOrder[3];
+    D_807EDEA8[0] = sectorOrder[0];
     height = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
     height /= 8;
     checksumIndex = ((height + 0x40) / 4) - 1;
@@ -80,5 +82,5 @@ void func_8060CBBC(void) {
         D_807550C8 = 0;
         func_8060C648(0x1F, 0, 0, 0, 0);
     }
-    if (failed != 0) func_8060B8F8(1);
+    if (failed != 0) eepromDispatchCommand(1);
 }

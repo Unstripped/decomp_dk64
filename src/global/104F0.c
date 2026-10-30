@@ -389,10 +389,63 @@ int arg1;
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C8AC.s")
+typedef struct RvB2Config {
+    s16 value;
+    u8 byte2;
+    u8 byte3;
+    u8 byte4;
+    u8 byte5;
+} RvB2Config;
+
+extern s32 D_807467EC[];
+extern RvB2Config D_80744548[];
+extern RvB2Config D_80744568[];
+
+extern const u8 D_80757044[];
+extern const u8 D_80757064[];
+
+void func_8060C8AC(u8 arg0) {
+    s32 i;
+
+    if (arg0 & 1) {
+        func_8060C648(0x11, 0, 0, 0, 0);
+    }
+    if (arg0 & 2) {
+        for (i = 0; i != 5; i++) {
+            func_8060C648(0x15, 0, i, 0, D_807467EC[i]);
+            func_8060C648(0x12, 0, i, 0, 0x20);
+            func_8060C648(0x13, 0, i, 0, 0x20);
+            func_8060C648(0x14, 0, i, 0, 0x20);
+        }
+    }
+    if (arg0 & 4) {
+        for (i = 0; i != 5; i++) {
+            func_8060C648(0x19, 0, i, 0, ((RvB2Config *)D_80757044)[i].value);
+            func_8060C648(0x16, 0, i, 0, ((RvB2Config *)D_80757044)[i].byte2);
+            func_8060C648(0x17, 0, i, 0, ((RvB2Config *)D_80757044)[i].byte3);
+            func_8060C648(0x18, 0, i, 0, ((RvB2Config *)D_80757044)[i].byte4);
+            D_80744548[i] = ((RvB2Config *)D_80757044)[i];
+        }
+    }
+    if (arg0 & 8) {
+        for (i = 0; i != 5; i++) {
+            func_8060C648(0x1D, 0, i, 0, ((RvB2Config *)D_80757064)[i].value);
+            func_8060C648(0x1A, 0, i, 0, ((RvB2Config *)D_80757064)[i].byte2);
+            func_8060C648(0x1B, 0, i, 0, ((RvB2Config *)D_80757064)[i].byte3);
+            func_8060C648(0x1C, 0, i, 0, ((RvB2Config *)D_80757064)[i].byte4);
+            D_80744568[i] = ((RvB2Config *)D_80757064)[i];
+        }
+    }
+    if (arg0 & 0x10) {
+        func_8060C648(0x1E, 0, 0, 0, 0);
+    }
+    if (arg0 & 0x20) {
+        func_8060C648(0x1F, 0, 0, 0, 0);
+    }
+}
 
 extern void flagsClearAllBank1(void);
-extern void func_8060C8AC(s32);
+extern void func_8060C8AC(u8);
 
 void func_8060CB74(void) {
     flagsClearAllBank1();
@@ -405,7 +458,89 @@ void func_8060CB9C(void) {
     eepromDispatchCommand(3);
 }
 
+#ifdef NON_MATCHING
+extern void func_8060C758();
+extern s32 func_8060C6B8(s32, u8, u8, u8);
+extern void func_8060CB74(void);
+extern u8 D_807ED6A8[];
+extern u8 D_807550C8;
+extern u8 D_80744530;
+
+void func_8060CBBC(void) {
+    u32 pad[2];
+    s32 failed;
+    s32 i;
+    s32 height;
+    s32 checksumIndex;
+    u8 valid[4];
+    u8 sectorOrder[4];
+
+    failed = 0;
+    memcpy(D_807ECEA8, D_807ED6A8, 0x800);
+    for (i = 0; i < 4; i++) {
+        D_807EDEA8[i] = i;
+        sectorOrder[i] = 0xFF;
+    }
+    height = (((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7;
+    height /= 8;
+    for (i = 0; i < 4; i++) {
+        checksumIndex = (((i + 1) * height) / 4) - 1;
+        valid[i] = 1;
+        if (((u32 *)D_807ED6A8)[checksumIndex] != func_8060B968(D_807ED6A8 + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF)) {
+            valid[i] = 0;
+            func_8060C758(i & 0xFF, 0);
+            func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
+        }
+        failed |= (valid[i] == 0);
+    }
+    for (i = 0; i < 4; i++) {
+        s32 version;
+        s32 j;
+        if (valid[i] == 0 || func_8060C6B8(0xD, 0, 0, i & 0xFF) == 0) continue;
+        version = func_8060C6B8(0xF, 0, 0, i & 0xFF);
+        sectorOrder[i] = version;
+        for (j = 0; j < 4 && sectorOrder[i] == version; j++) {
+            if (j != i && valid[j] != 0 && func_8060C6B8(0xD, 0, 0, j & 0xFF) != 0 && func_8060C6B8(0xF, 0, 0, j & 0xFF) == version && func_8060C6B8(0x10, 0, 0, j & 0xFF) >= func_8060C6B8(0x10, 0, 0, i & 0xFF)) {
+                sectorOrder[i] = 0xFF;
+                func_8060C758(i & 0xFF, 0);
+                func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
+                failed = 1;
+            }
+        }
+    }
+    for (i = 0; i < 4; i++) {
+        s32 found = 0;
+        s32 j;
+        for (j = 0; j < 4; j++) if (sectorOrder[j] == i) found = 1;
+        if (found == 0) for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == 0xFF) {
+            sectorOrder[j] = i;
+            found = 1;
+            func_8060C648(0xF, 0, 0, j & 0xFF, i);
+        }
+    }
+    D_807EDEA8[1] = sectorOrder[1];
+    D_807EDEA8[2] = sectorOrder[2];
+    D_807EDEA8[3] = sectorOrder[3];
+    D_807EDEA8[0] = sectorOrder[0];
+    height = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
+    height /= 8;
+    checksumIndex = ((height + 0x40) / 4) - 1;
+    if (((u32 *)D_807ED6A8)[checksumIndex] != func_8060B968(D_807ED6A8 + (height & 0xFFFF), 0x3C)) {
+        func_8060CB74();
+        failed = 1;
+    }
+    D_807550C8 = func_8060C6B8(0x1F, 0, 0, 0);
+    D_80744530 = func_8060C6B8(0x20, 0, 0, 0);
+    if (D_807550C8 > 0) {
+        D_807550C8 = 0;
+        func_8060C648(0x1F, 0, 0, 0, 0);
+    }
+    if (failed != 0) eepromDispatchCommand(1);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060CBBC.s")
+#endif
 
 extern void func_8060C758();
 extern void func_8060CB74(void);
@@ -434,7 +569,53 @@ void func_8060D0A8(void) {
     D_807467C8 = (u8) sp28;
 }
 
+#ifdef NON_MATCHING
+extern OSMesgQueue D_807ECCF0;
+extern s32 D_807EDEAC;
+extern s32 _strcasecmp(char *, char *);
+extern char *D_807467C0;
+extern s8 D_807467C4;
+extern s8 D_807467CC;
+extern u8 D_807ED6A8[];
+
+void func_8060D14C(void) {
+    s32 var_s0;
+    s32 var_s2;
+    u8 *var_s1;
+
+    var_s2 = 0;
+    var_s1 = D_807ED6A8;
+    if (D_807EDEAC != 2) {
+        func_8060D0A8();
+        D_807467CC = 1;
+        return;
+    }
+    D_807467C4 = 1;
+    var_s0 = 0;
+    do {
+        var_s2 |= osEepromRead(&D_807ECCF0, (u8)var_s0, var_s1);
+        sleepMilliseconds(15.0f);
+        var_s0 += 1;
+        if (D_80744460 != 0) {
+            D_807467C4 = 0;
+            return;
+        }
+        var_s1 += 8;
+    } while ((var_s0 < 0x100) && (var_s2 == 0));
+    D_807467C4 = 0;
+    D_807467CC = 1;
+    if (var_s2 == 0) {
+        var_s2 = _strcasecmp((char *)D_807ED6A8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+    }
+    if (var_s2 != 0) {
+        func_8060D0A8();
+    }
+    func_8060CB9C();
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D14C.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D2C8.s")
 
