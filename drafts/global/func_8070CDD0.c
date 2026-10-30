@@ -1,4 +1,4 @@
-// func_8070CDD0 (src/global/110F00.c): stage 4 (parked NON_MATCHING in 110F00.c): frame 0x60 + prologue + zero-branch + final stores identical; main path differs: target stores -arg4 CSE temp at sp28 and m00 value at sp20 (3 spill slots sp20/24/28 below 9 named homes) and colours -arg2 temp in f12, mine spills -arg2 temp; statement-order search (ord2) best ~39 diff lines; decl order m00 m10 m20 inv m11 m21 m02 m12 m22 + padtop[4] gives target home layout
+// func_8070CDD0 (src/global/110F00.c): stage 4 (parked NON_MATCHING): full diff 30 (was 39): frame 0x60, prologue, zero-branch, final stores, T4(-arg4) spill sp28 + m00t sp20 + -arg2 in f12 all match (needs m00/m22 before m20 and m02 = -m20 * inv, which is a 3rd use of -arg2 -> its adjsave 4.0 beats -arg4 3.0). Remaining: target shares t=m20*inv (spilled sp24, reloaded for m10 and neg m02) where mine multiplies twice and has no sp24 slot; with m02 = -(m20*inv) the f12/spill roles flip back unless -arg2 is first seen before -arg4 (B,A,E order), but then T4/m00t share a slot (frame slots 0x24/0x28 not 0x28/0x24/0x20) and -arg3 neg is hoisted. Tried: exhaustive topo orders x expr forms, named temps, lsweep of dead local uses, permuter 63k iters.
 void func_8070CDD0(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 padtop[4]; // FAKE: pad words steer the frame size
     f32 m00;
@@ -31,14 +31,14 @@ void func_8070CDD0(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
         arg3 = arg3 * inv;
         arg4 = arg4 * inv;
         m11 = sqrtf((arg2 * arg2) + (arg4 * arg4));
-        m22 = -arg4;
         inv = 1.0 / m11;
-        m21 = -arg3;
         m00 = -arg4 * inv;
+        m22 = -arg4;
         m20 = -arg2;
-        m12 = arg3 * m00;
         m10 = arg3 * (m20 * inv);
-        m02 = -(m20 * inv);
+        m12 = arg3 * m00;
+        m02 = -m20 * inv;
+        m21 = -arg3;
     }
     arg0->m[0][0] = m00;
     arg0->m[1][0] = m10;

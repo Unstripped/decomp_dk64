@@ -1,4 +1,4 @@
-// func_8070D07C (src/global/110F00.c): stage 4 (parked NON_MATCHING in 110F00.c): same insn count (165), frame 0x88, saved regs fs0-fs5, prologue + zero branch identical; differs from main path where -arg2/-arg4 temps get swapped spill/colour roles (target colours m20=-arg2 straight into fs3 and spills -arg4 temp sp50, mine the reverse); sibling of func_8070CDD0, permuter 6224->2087
+// func_8070D07C (src/global/110F00.c): stage 4 (parked NON_MATCHING): unchanged best full=54 shape=36 (165 insns, frame 0x88, fs0-fs5 match). Remaining: same role swap as func_8070CDD0 (target colours -arg2 in f26 and spills -arg4 temp sp80 + t sp76; mine colours -arg4 in f12 and spills -arg2 at sp72). Ordering m20 before m22/m00 (I0 K D B A E H J F I) fixes roles (neg.s f26 / sp76 T4 spill) but T4 and m00t then share sp76, t lands sp80 and total diff rises to 63/46. Exhaustive order search + dead-use sweep found nothing better.
 void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     f32 padtop[4]; // FAKE: pad words steer the frame size
     f32 m00;

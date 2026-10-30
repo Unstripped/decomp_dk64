@@ -329,14 +329,14 @@ void func_8070CDD0(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
         arg3 = arg3 * inv;
         arg4 = arg4 * inv;
         m11 = sqrtf((arg2 * arg2) + (arg4 * arg4));
-        m22 = -arg4;
         inv = 1.0 / m11;
-        m21 = -arg3;
         m00 = -arg4 * inv;
+        m22 = -arg4;
         m20 = -arg2;
-        m12 = arg3 * m00;
         m10 = arg3 * (m20 * inv);
-        m02 = -(m20 * inv);
+        m12 = arg3 * m00;
+        m02 = -m20 * inv;
+        m21 = -arg3;
     }
     arg0->m[0][0] = m00;
     arg0->m[1][0] = m10;
