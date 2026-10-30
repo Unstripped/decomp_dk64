@@ -1028,53 +1028,50 @@ s16 func_806531B8(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     return best;
 }
 
-#ifdef NON_MATCHING
 s32 func_806533C4(f32 arg0, f32 arg1, f32 arg2) {
     s32 var_v0;
     s32 var_v1;
     f32 var_fv0;
     f32 var_fv1;
 
-    var_v0 = 0;
     if (arg0 <= arg2) {
         var_v0 = 1;
     } else if ((arg0 - arg2) < 60.0f) {
         var_v0 = 1;
+    } else {
+        var_v0 = 0;
     }
-    var_v1 = 0;
     if (arg1 <= arg2) {
         var_v1 = 1;
     } else if ((arg1 - arg2) < 60.0f) {
         var_v1 = 1;
+    } else {
+        var_v1 = 0;
     }
-    if (var_v0 != 0 || var_v1 != 0) {
-        if (var_v1 != 0) {
-            if (var_v0 == 0) {
-                return 1;
-            }
-            if (arg2 < arg0) {
-                var_fv0 = arg0 - arg2;
-            } else {
-                var_fv0 = arg2 - arg0;
-            }
-            if (arg2 < arg1) {
-                var_fv1 = arg1 - arg2;
-            } else {
-                var_fv1 = arg2 - arg1;
-            }
-            if (var_fv0 < var_fv1) {
-                return 0;
-            }
-            return 1;
-        }
+    if (var_v0 == 0 && var_v1 == 0) {
         return 0;
     }
-    return 0;
+    if (var_v1 == 0) {
+        return 0;
+    }
+    if (var_v0 == 0) {
+        return 1;
+    }
+    if (arg2 < arg0) {
+        var_fv0 = arg0 - arg2;
+    } else {
+        var_fv0 = arg2 - arg0;
+    }
+    if (arg2 < arg1) {
+        var_fv1 = arg1 - arg2;
+    } else {
+        var_fv1 = arg2 - arg1;
+    }
+    if (var_fv0 < var_fv1) {
+        return 0;
+    }
+    return 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806533C4.s")
-#endif
 
 typedef struct {
     /* 0x00 */ s16 unk0;
@@ -1229,8 +1226,8 @@ s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
     s32 flag;
     s32 i;
 
-    fs3 = arg1;
     fs4 = arg2;
+    fs3 = arg1;
     fs5 = ((MapCollisionNode *)arg0)->unk0;
     sp38 = ((MapCollisionNode *)arg0)->unkC;
     fs1 = (fs5 + ((f64)(((MapCollisionNode *)arg0)->unk4 + ((MapCollisionNode *)arg0)->unk2) * 0.5)) * 0.5;
@@ -1382,30 +1379,29 @@ extern s32 assetLoad(s32, s32, s32, s32);
 #ifdef NON_MATCHING
 u8 *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
     s32 count;
-    u8 *p;
     s32 temp_v0;
     s32 zero;
     u32 tag;
 
-    p = arg0;
     zero = 0;
     count = zero;
-    if ((p != arg1) && (arg2 > zero)) {
+    if ((arg0 != arg1) && (arg2 > zero)) {
         do {
-            tag = *(u32 *)p;
+            tag = *(u32 *)arg0;
             if ((tag >> 0x18) == 0xFD) {
-                temp_v0 = *(s32 *)(p + 4);
+                temp_v0 = *(s32 *)(arg0 + 4);
                 if (((u32)(temp_v0 * 0x10) >> 0x1C) == zero) {
-                    *(s32 *)(p + 4) = assetLoad(0x19, temp_v0, zero, zero);
+                    *(s32 *)(arg0 + 4) = assetLoad(0x19, temp_v0, zero, zero);
                     count++;
                 }
+                if (arg0 && arg0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (zero) {
                 }
             }
-            p += 8;
-        } while ((p != arg1) && (count < arg2));
+            arg0 += 8;
+        } while ((arg0 != arg1) && (count < arg2));
     }
-    return p;
+    return arg0;
 }
 #else
 
@@ -1443,7 +1439,89 @@ void mapChunkSetFlagBit3(s16 arg0) {
     D_807F6C18[arg0].unk7 |= 8;
 }
 
+#ifdef NON_MATCHING
+extern u32 D_807FBB68;
+extern s32 D_8076A064;
+extern s32 mapObjectCollectIdsByType();
+
+void func_80653FA4(void) {
+    s32 i;
+    s8 *q;
+    s8 buf[0x10];
+    u8 flags[0x34];
+    s8 *qend;
+    s32 idx;
+
+    if (!(D_807FBB68 & 0x100)) {
+        for (i = 0; i < D_807F6C28; i++) {
+            if (D_8076A064 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            flags[i] = 0;
+        }
+        if (D_8076A064 && D_8076A064) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        for (i = 0; i < D_807F6C28; i++) {
+            if (D_807F6C18[i].unk1 != 0) {
+                flags[i] = 1;
+                D_807F6C18[i].unk28 = D_8076A064;
+                if (!(D_807F6C18[i].unk7 & 4)) {
+                    D_807F6C18[i].unk8 = (s32)func_80653DF0((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 0x270F);
+                    D_807F6C18[i].unk7 |= 4;
+                    D_807F6C18[i].unk7 &= 0xFFFC;
+                }
+                q = buf;
+                qend = q + (s16)mapObjectCollectIdsByType((s8)i, buf, 0x10);
+                if (buf == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (qend > q) {
+                  do {
+                    idx = *q;
+                    if (flags[idx] == 0) {
+                        if (D_807F6C18[idx].unk1 == 0) {
+                            if (!(D_807F6C18[idx].unk7 & 4)) {
+                                D_807F6C18[idx].unk8 = (s32)func_80653DF0((u8 *)D_807F6C18[idx].unk8, (u8 *)D_807F6C18[idx].unk10, 5);
+                                if (D_807F6C18[idx].unk8 == D_807F6C18[idx].unk10) {
+                                    D_807F6C18[idx].unk7 &= 0xFFFD;
+                                    D_807F6C18[idx].unk7 |= 4;
+                                } else {
+                                    D_807F6C18[idx].unk7 |= 2;
+                                    if (buf) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                                }
+                                D_807F6C18[idx].unk7 &= 0xFFFE;
+                            }
+                            flags[idx] = 1;
+                        }
+                    }
+                    q++;
+                  } while (q < qend);
+                }
+            }
+        }
+        for (i = 0; i < D_807F6C28; i++) {
+            if (flags[i] == 0) {
+                if (D_807F6C18[i].unk7 & 8) {
+                    if (!(D_807F6C18[i].unk7 & 4)) {
+                        D_807F6C18[i].unk8 = (s32)func_80653DF0((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 5);
+                        if (D_807F6C18[i].unk8 == D_807F6C18[i].unk10) {
+                            D_807F6C18[i].unk7 &= 0xFFFD;
+                            D_807F6C18[i].unk7 |= 4;
+                        } else {
+                            D_807F6C18[i].unk7 |= 2;
+                        }
+                        D_807F6C18[i].unk7 &= 0xFFFE;
+                    }
+                } else if (!(D_807F6C18[i].unk7 & 1) && (u32)(D_8076A064 - D_807F6C18[i].unk28) >= 3U) {
+                    mapChunkReleaseAssets((u8 *)D_807F6C18[i].unkC, (u8 *)D_807F6C18[i].unk8);
+                    D_807F6C18[i].unk8 = D_807F6C18[i].unkC;
+                    D_807F6C18[i].unk7 |= 1;
+                    D_807F6C18[i].unk7 &= ~6;
+                }
+            }
+            D_807F6C18[i].unk7 &= ~8;
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80653FA4.s")
+#endif
 
 extern void func_80654418(f32, f32, f32);
 extern void func_80655258(f32, f32, f32, s32);
@@ -1464,7 +1542,6 @@ void mapChunkRenderNodes(f32 arg0, f32 arg1, f32 arg2) {
     mapTriggerApplyZones(arg0, arg1, arg2);
 }
 
-#ifdef NON_MATCHING
 extern f32 D_807F5FAC;
 extern s32 D_807482F4;
 extern u8 D_807F7148[];
@@ -1474,33 +1551,22 @@ void func_806545D4(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *
 void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
     f32 spF8[4][4];
     f32 spB8[4][4];
-    u8 sp84[0x34];
     s32 i;
-    s32 off;
-    u8 *p;
+    u8 sp84[0x30];
 
     func_8062A944(D_807F5FB4, D_807F5FB0, D_807F5FAC);
     guMtxL2F(spF8, (Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
     matrix4Invert(spB8, spF8);
-    off = 0;
-    i = 0;
-    while (i < D_807F6C28) {
-        p = (u8 *)D_807F6C18 + off;
-        if (p[0] == 1) {
-            func_806545D4(*(s32 *)(p + 0x68), *(s32 *)(p + 0x6C), *(s32 *)(p + 0x70), *(s32 *)(p + 0x74),
-                          arg0, arg1, arg2, D_807FC929, spB8, p + 0x88, sp84);
+    for (i = 0; i < D_807F6C28; i++) {
+        if (D_807F6C18[i].unk0 == 1) {
+            func_806545D4(D_807F6C18[i].unk68, D_807F6C18[i].unk6C, D_807F6C18[i].unk70, D_807F6C18[i].unk74,
+                          arg0, arg1, arg2, D_807FC929, spB8, &D_807F6C18[i].pad88, sp84);
+            if (i == D_807482F4) {
+                memcpy(D_807F7148, &D_807F6C18[i].pad88, 0x140);
+            }
         }
-        if (i == D_807482F4) {
-            memcpy(D_807F7148, (u8 *)D_807F6C18 + off + 0x88, 0x140);
-        }
-        i++;
-        off += 0x1C8;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654418.s")
-#endif
 
 #ifdef NON_MATCHING
 typedef struct S55dRoad {
@@ -1839,7 +1905,6 @@ s32 func_80654FEC(void *arg0, f32 arg1, f32 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654FEC.s")
 #endif
 
-extern f32 D_807F5FAC;
 s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 
 void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
