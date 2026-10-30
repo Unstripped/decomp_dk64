@@ -107,6 +107,11 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 
 - Compare every report against its assigned list: agents have silently skipped functions
   and deleted another function's `GLOBAL_ASM` line (`merge_drafts.py` refuses the latter).
+- Merge the file the report names as final (`<f>_final.c` is common): copy it to
+  `.scratch/<A>M/<f>.c` first. `grep -n` each function the report calls unmatched in that copy:
+  one left as C (MainLoop's `frameTimingUpdate`) failed the gate on segment size.
+- The `wait` status line lags: before reassigning an agent's "untouched" functions, ask it
+  (`write agent://<id>`); EffB had already worked them.
 - Check the stage of everything parked: agents park stage-2/3 C despite the brief. Only
   stage 4+ (same blocks, saved registers and frame) stays parked; turn the rest back into
   the bare pragma with the draft kept.

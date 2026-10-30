@@ -3,7 +3,8 @@
 Commands below run on the host unless prefixed `tools/dk`. `tools/unit_check.py` and
 `tools/rodata_owners.py` work on the current all-asm split. For a file that is already a C
 baseline (every global file now is), run them in a throwaway worktree with that file set
-back to `asm` (`git worktree add -f .scratch/wt HEAD; ln -sfn ../../bin .scratch/wt/bin`, edit
+back to `asm` (`git worktree add -f .scratch/wt HEAD; rm -rf .scratch/wt/.dkd; cp -R bin baserom.us.z64 .scratch/wt/`
+(symlinks dangle: only the worktree is mounted in its container), edit
 its yaml, `tools/dk sh -c 'cd .scratch/wt && python3 -m splat split dk64.global.us.yaml'`,
 then the worktree's own `tools/`), and `git worktree remove --force` it afterwards.
 
@@ -61,17 +62,21 @@ Hidden TUs found only after round 1 cost a re-split while agents run; settle the
   function in that range matches.
 - Unreferenced strings ending exactly where a file's first rodata label starts belong to
   that file's TU.
-- Own `.data`/`.bss`: a `u64` store with ONE `lui` for both halves (`lui at; sw; sw 4(at)`)
-  means the symbol is defined in that TU. List every data/bss label's users across
-  `asm/<seg>` and `src/<seg>`; a 16-aligned run used only by the file is its own: carve it
-  before round 1 (`[0xOFF, .data, <file>]` between `data` pieces, `{type: .bss, vram, name}`
-  between named `bss` pieces, as 7130/201B0), define every object in address order in the
-  stub (objects > 4 bytes 8-aligned), interior labels the asm still uses go to
-  `undefined_syms.us.txt` (`/* */` comments only). Mid-run (201B0): put the definition block
-  in `.scratch/<file>_defs.c`, re-split + `restore_split_asm.sh` as one
-  `tools/dk --hold sh -c 'tools/dk make split && tools/restore_split_asm.sh <base> <yaml>'`,
-  `make expected`, and tell every running agent which extern lines to delete and where to
-  insert that block.
+- Own `.data`/`.bss`/`.rodata`: a single-`lui` u64 store, one `lui at` shared by stores to
+  `sym`/`sym+2`, an extern f64 that must be a hoisted literal, or an old note "needs TU
+  BSS/data" means the TU defines that object. Users per label: scan every `D_`/named symbol in
+  `asm/<seg>` + `src/<seg>` (bss is laid out in TU order, so the owner's run sits between its
+  neighbours' labels). Carving is ONE worktree agent's job, run alongside round 1 on the other
+  files (early-units unit: 3 carve agents matched 12 functions blocked since unit 1 and found 2
+  hidden TUs): it carves (`[0xOFF, .data, <file>]`, `{type: .bss, vram, name}` between bss
+  pieces, `[0xOFF, .rodata, <file>]`), defines every object in address order with gap sizes
+  (.bss arrays >= 8 bytes align 8), puts interior labels in `undefined_syms.us.txt` (`/* */`
+  only), gates the carve alone, then matches the blocked functions there (its task: worktree
+  setup, ranges + users, precedent commits `18e0b66`/`f5d9b84`, blocked functions with notes;
+  it may run make/split in its worktree). Land it by `git cherry-pick` + one
+  `tools/dk --hold sh -c 'tools/dk make split && tools/restore_split_asm.sh <oldest base> <yaml>'`,
+  touch, make, `make expected`. Retyping a carved object wider later turns its neighbours
+  into interior labels: add them to `undefined_syms.us.txt` or the link fails.
 
 ## Hidden empty functions
 
