@@ -32,7 +32,7 @@ void func_80611844(void);
 s32 func_8071432C(void);
 void func_80712944(OSContPad *);
 void func_8060B4D4(OSContPad *);
-void func_806F3E0C(OSContPad *, OSContPad *);
+void playerStateWaypointAimUpdate(OSContPad *, OSContPad *);
 void func_8060EA28(void);
 void controllerLatchPad(OSContPad *pad);
 
@@ -90,7 +90,7 @@ void controllerUpdate(void) {
         case 3:
             func_80712944(D_807ECDF4);
             controllerLatchPad(D_807ECDF4);
-            func_806F3E0C(D_807ECDE8, D_807ECDF4);
+            playerStateWaypointAimUpdate(D_807ECDE8, D_807ECDF4);
             break;
         }
     }

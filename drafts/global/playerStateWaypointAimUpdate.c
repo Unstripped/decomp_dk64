@@ -1,4 +1,4 @@
-// func_806F3E0C (src/global/F56F0.c): Stage 5 (parked NON_MATCHING in src copy): frame 0x50, saved set (none; t0-t3 + a3 hoist), block/opcode order identical, 455 insns. Remaining diff regalloc only: target close=t2, val716(u8 D_807FD716 CSE)=a2 with early lui a2, &D_807FD714=a0, ring scratch t7/t8; mine close=a1, val716=v1, &714=t2, yawT temp in a0. Matched pieces: 4-arg K&R playerStateQueueCallback with &D_807FD70C (keeps it in a3), next=D_807FD70C+1 (not cur+1: frame 0x68), D_807FD70C++;cur=D_807FD70C, close &= 0xFF (andi+move), u8 flags=D_807FD716, yawT=*D_807FD708 + eq temp, blend=1.0f before flag clear, 1 deadsweep dead if. Tried: permuter ~100 min total, deadsweep+local-extras beam (best 15 text lines but +1 insn), decl-order/stmt-order brute force (no effect), temp-naming sweep.
+// playerStateWaypointAimUpdate (src/global/F56F0.c): Stage 5 (parked NON_MATCHING in src copy): frame 0x50, saved set (none; t0-t3 + a3 hoist), block/opcode order identical, 455 insns. Remaining diff regalloc only: target close=t2, val716(u8 D_807FD716 CSE)=a2 with early lui a2, &D_807FD714=a0, ring scratch t7/t8; mine close=a1, val716=v1, &714=t2, yawT temp in a0. Matched pieces: 4-arg K&R playerStateQueueCallback with &D_807FD70C (keeps it in a3), next=D_807FD70C+1 (not cur+1: frame 0x68), D_807FD70C++;cur=D_807FD70C, close &= 0xFF (andi+move), u8 flags=D_807FD716, yawT=*D_807FD708 + eq temp, blend=1.0f before flag clear, 1 deadsweep dead if. Tried: permuter ~100 min total, deadsweep+local-extras beam (best 15 text lines but +1 insn), decl-order/stmt-order brute force (no effect), temp-naming sweep.
 typedef struct F5L1Control {
     u16 flags;
     s8 yaw;
@@ -58,7 +58,7 @@ extern s16 D_807FD714;
 extern s16 D_807FD718;
 extern s32 D_807FD71C;
 
-void func_806F3E0C(F5L1Control *arg0, s32 arg1) {
+void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
     F5L1Target *tgt;
     f32 ang;
     f32 camAng;

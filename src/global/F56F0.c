@@ -1697,7 +1697,7 @@ extern u8 D_8076A0B3;
 #define F5L1_WP (*(F5L1Waypoint **)&D_807FD70C)
 #define F5L1_TGTA (*(Actor **)&D_807FD710)
 
-void func_806F3E0C(F5L1Control *arg0, s32 arg1) {
+void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
     F5L1Target *tgt;
     f32 ang;
     f32 camAng;
@@ -1786,7 +1786,7 @@ void func_806F3E0C(F5L1Control *arg0, s32 arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F3E0C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/playerStateWaypointAimUpdate.s")
 #endif
 
 typedef struct {

@@ -289,6 +289,7 @@ playerStateDispatchQueuedCallback = 0x806EB194; // type:func
 actorSetPositionAndFacingAngle = 0x806F37BC; // type:func
 deferredEntryFree = 0x806F3950; // type:func
 timerDecrementOrSetFlag = 0x806F3DC8; // type:func
+playerStateWaypointAimUpdate = 0x806F3E0C; // type:func
 gridBuildNodeLists = 0x806F4778; // type:func
 gridAppendPositionNode = 0x806F4DC0; // type:func
 gridCoordsToIndex = 0x806F4EBC; // type:func
