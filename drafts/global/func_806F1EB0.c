@@ -1,144 +1,103 @@
-// func_806F1EB0 (src/global/F56F0.c): stage 2: full m2c reconstruction saved; needs local view types and block/frame matching
-? actorGetNodePos(void *, ?, f32 *, ? *, f32 *);    /* extern */
-f32 func_80611BB4(f32, f32);                        /* extern */
-? func_806F1A18(f32, f32, f32 *, f32 *);            /* extern */
-f32 func_806F1AE0(void *, f32 *, ?);                /* extern */
-s32 func_806F1B58(f32 *, ?);                        /* extern */
-f32 func_806F1B90(f32, f32 *, f32);                 /* extern */
-extern ? D_80752CBF;
+// func_806F1EB0 (src/global/F56F0.c): Stage 5 (parked NON_MATCHING): same saved regs, frame 0xF0, all FP code exact. Remaining ~11 diff lines: arg1 in s4 instead of s2 (the deadsweep-found 'if (i == 0) {}' after loop 1 is what makes index land in s7 but also makes i interfere with arg1), loop-1 preheader order (move v1,s0 before addiu v0,sp,0xa4) and the resulting sll/addu s1 placement. Tricks: ret = 0 (int) keeps its zero apart from the loop-hoisted 0.0f; (0 < ret) not 0.0f < ret; slot = arg1; slot += index gives addu base,off; one-line 'k++; cur++;' fixes the tail store order. Uses F56AState (0x13C stride) from src/global/F56F0.c.
+extern s8 D_80752CBF[];
 
-void func_806F1EB0(void *arg0, s32 arg1, s32 *arg2) {
+void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
+    F56AState *state = ((F56AActor *) arg0)->unk178;
+    F56APair *pair;
+    F5BSlot *slot;
     f32 spE0;
-    s32 spCC;
+    s32 index;
+    s32 kind;
+    s32 value;
+    s32 i;
+    s32 k;
     f32 spC8;
     f32 spC4;
-    ? spBC;
-    f32 spB8;
-    ? spB4;
-    f32 spB0;
-    f32 spAC;
-    ? spA8;
-    f32 spA4;
-    f32 *sp94;
-    s32 sp90;
-    f32 *temp_s0;
-    f32 *var_s0;
-    f32 *var_v0;
-    f32 *var_v1;
-    f32 temp_fa0;
-    f32 temp_ft2;
-    f32 temp_ft3;
-    f32 temp_ft3_2;
-    f32 temp_ft4;
-    f32 temp_fv0;
-    f32 temp_fv0_2;
-    f32 temp_fv0_3;
-    f32 temp_fv1;
-    f32 var_fs2;
-    f32 var_fs2_2;
-    f32 var_fs3;
-    f32 var_fs5;
-    f32 var_fv0;
-    f32 var_fv1;
-    s16 temp_v0_2;
-    s32 temp_t2;
-    s32 var_s2;
-    s32 var_s7;
-    s8 var_fp;
-    s8 var_s3;
-    u8 temp_v0;
-    void *var_s1;
+    f32 ret;
+    f32 angle;
+    f32 pos[2][3];
+    f32 y;
+    f32 newvel;
+    f32 delta;
+    F56AState *cur;
+    s32 active;
+    f32 boost;
+    f32 accel0;
+    f32 accel1;
 
-    temp_s0 = arg0->unk178;
-    var_s7 = *arg2;
-    var_fs5 = 0.0f;
-    var_s3 = 0x16;
-    sp94 = temp_s0;
-    sp90 = func_806F1B58(temp_s0, 5);
-    var_fp = -0x80;
-    actorGetNodePos(arg0, 0xD, &spA4, &spA8, &spAC);
-    actorGetNodePos(arg0, 0xE, &spB0, &spB4, &spB8);
-    temp_fv0 = func_80611BB4(spAC - spB8, spA4 - spB0);
-    var_v0 = &spA4;
-    var_v1 = temp_s0;
-    if (sp90 == 0) {
-        do {
-            *var_v1 = temp_fv0;
-            temp_ft4 = var_v0->unk4;
-            var_v0 += 0xC;
-            var_v1 += 0x13C;
-            var_v1->unk-138 = temp_ft4;
-        } while (var_v0 != &spBC);
-        temp_v0 = temp_s0->unk14;
-        if ((temp_v0 != 0) && (arg0->unk60 & 0x100) && (temp_s0->unk18 == 5)) {
-            temp_s0->unk14 = (u8) (temp_v0 - 1);
+    index = *arg2;
+    ret = 0;
+    kind = 0x16;
+    cur = state;
+    active = func_806F1B58((F5BActor *) arg0, (F5N1Predicate *) state, 5);
+    value = -0x80;
+    actorGetNodePos(arg0, 0xD, &pos[0][0], &pos[0][1], &pos[0][2]);
+    actorGetNodePos(arg0, 0xE, &pos[1][0], &pos[1][1], &pos[1][2]);
+    angle = func_80611BB4(pos[0][2] - pos[1][2], pos[0][0] - pos[1][0]);
+    if (active == 0) {
+        for (i = 0; i != 2; i++) {
+            state[i].unk0 = angle;
+            state[i].unk4 = pos[i][1];
+        }
+        if (i == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if ((state->unk14 != 0) && (((F56AActor *) arg0)->unk60 & 0x100) && (state->unk18 == 5)) {
+            state->unk14 -= 1;
         }
     } else {
-        temp_v0_2 = (*arg0->unk4)->unk10;
-        if (temp_v0_2 >= 0) {
-            var_fv1 = (f32) *(&D_80752CBF + temp_v0_2);
+        s16 idx = ((F56AIdxSub *) arg0->unk4)->unk0->unk10;
+
+        if (idx >= 0) {
+            newvel = D_80752CBF[idx];
         } else {
-            var_fv1 = -128.0f;
+            newvel = -128.0f;
         }
-        temp_fv0_2 = temp_s0->unk10;
-        temp_s0->unk10 = (f32) ((f64) temp_fv0_2 + ((f64) (var_fv1 - temp_fv0_2) * 0.3));
-        var_fp = (s8) (s32) temp_s0->unk10;
-        var_fs5 = func_806F1B90(temp_fv0, temp_s0, temp_fv0);
-        spE0 = func_806F1AE0(arg0, temp_s0, 0x3CA3D70A);
+        state->unk10 = state->unk10 + ((newvel - state->unk10) * 0.3);
+        value = (s8) (s32) state->unk10;
+        ret = func_806F1B90(&state->unk0, angle);
+        spE0 = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
     }
-    var_s1 = arg1 + (var_s7 * 8);
-    spCC = 0;
+    slot = arg1; slot += index; k = 0; // FAKE: one source line lets as1 schedule the loop preheader
     do {
-        var_fs3 = 0.0f;
-        var_fs2 = 0.0f;
+        accel1 = 0.0f;
+        accel0 = 0.0f;
         spC8 = 0.0f;
         spC4 = 0.0f;
-        var_s0 = sp94 + 0x1C;
-        if (sp90 != 0) {
-            temp_fv0_3 = (sp + (spCC * 0xC))->unkA8;
-            temp_ft3 = sp94->unk8;
-            temp_fv1 = temp_fv0_3 - sp94->unk4;
-            sp94->unk4 = temp_fv0_3;
-            sp94->unk8 = temp_fv1;
-            temp_fa0 = temp_fv1 - temp_ft3;
-            if (var_fs5 > 0.0f) {
-                var_fv0 = var_fs5;
+        pair = cur->unk1C;
+        if (active != 0) {
+            y = pos[k][1];
+            newvel = y - cur->unk4;
+            delta = newvel - cur->unk8;
+            cur->unk4 = y;
+            cur->unk8 = newvel;
+            boost = 0.4f * ret;
+            y = (0 < ret) ? ret : -ret;
+            if (k != 0) {
+                accel0 = -spE0;
+                accel1 = -((y * 0.3f) + (-0.015f * delta - 0.0008f * newvel));
             } else {
-                var_fv0 = -var_fs5;
+                accel0 = spE0;
+                accel1 = (y * 0.3f) + (-0.015f * delta - 0.0008f * newvel);
             }
-            if (spCC != 0) {
-                var_fs2_2 = -spE0;
-                var_fs3 = -((var_fv0 * 0.3f) + ((-0.015f * temp_fa0) - (0.0008f * temp_fv1)));
-            } else {
-                var_fs2_2 = spE0;
-                var_fs3 = (var_fv0 * 0.3f) + ((-0.015f * temp_fa0) - (0.0008f * temp_fv1));
+            accel0 += boost;
+        }
+        i = 0;
+        do {
+            if (active != 0) {
+                func_806F1A18(accel1, 0.06f, &pair->unk0, &spC8);
+                func_806F1A18(accel0, 0.06f, &pair->unkC, &spC4);
             }
-            var_fs2 = var_fs2_2 + (0.4f * var_fs5);
-        }
-        var_s2 = 0;
-loop_21:
-        if (sp90 != 0) {
-            func_806F1A18(var_fs3, 0.06f, var_s0, &spC8);
-            func_806F1A18(var_fs2, 0.06f, var_s0 + 0xC, &spC4);
-        }
-        var_s1->unk0 = var_fp;
-        var_s1->unk1 = var_s3;
-        var_s1->unk2 = 0;
-        temp_ft2 = var_s0->unkC;
-        temp_ft3_2 = var_s0->unk10;
-        var_s2 += 1;
-        var_s0 += 0x18;
-        var_s7 += 1;
-        var_s1 += 8;
-        var_s3 += 1;
-        var_s1->unk-4 = (s16) (s32) ((f64) (temp_ft3_2 + temp_ft2) * 10430.218905280077);
-        var_s1->unk-2 = (s16) (s32) ((f64) (var_s0->unk-14 + var_s0->unk-18) * 10430.218905280077);
-        if (var_s2 != 8) {
-            goto loop_21;
-        }
-        temp_t2 = spCC + 1;
-        sp94 += 0x13C;
-        spCC = temp_t2;
-    } while (temp_t2 != 2);
-    *arg2 = var_s7;
+            slot->unk0 = value;
+            slot->unk1 = kind;
+            slot->unk2 = 0;
+            slot->unk4 = (s32) ((pair->unkC.unk4 + pair->unkC.unk0) * 10430.218905280077);
+            slot->unk6 = (s32) ((pair->unk0.unk4 + pair->unk0.unk0) * 10430.218905280077);
+            i++;
+            pair++;
+            index++;
+            slot++;
+            kind++;
+        } while (i != 8);
+        k++; cur++; // FAKE: one source line orders the k/cur reload-increment-store tail
+    } while (k != 2);
+    *arg2 = index;
 }

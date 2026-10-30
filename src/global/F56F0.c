@@ -381,9 +381,103 @@ void func_806F149C(Actor *arg0) {
     func_806D0150(arg0);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F14BC.s")
+typedef struct F5N3ActorMeta14BC {
+    u8 pad0[4];
+    f32 unk4;
+    u8 pad8[0x1C];
+    f32 unk24;
+} F5N3ActorMeta14BC;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1668.s")
+typedef struct F5N3ActorSub14BC {
+    F5N3ActorMeta14BC *meta;
+    u8 pad4[0x84];
+    s32 unk88;
+} F5N3ActorSub14BC;
+
+typedef struct F5N3Actor14BC {
+    u8 pad0[0x4];
+    F5N3ActorSub14BC *unk4;
+    u8 pad8[0x62];
+    u16 unk6A;
+    u8 pad6C[0x14];
+    f32 unk80;
+    u8 pad84[0x20];
+    f32 unkA4;
+    u8 padA8[4];
+    f32 unkAC;
+    u8 padB0[4];
+    f32 unkB4;
+    u8 padB8[8];
+    f32 unkC0;
+    f32 unkC4;
+    f32 unkC8;
+} F5N3Actor14BC;
+
+s32 func_806F1668(f32, f32, f32, f32);
+void func_80614D00(Actor *, f32, f32);
+
+#define F5N3_A ((F5N3Actor14BC *) arg0)
+
+void func_806F14BC(Actor *arg0) {
+    f32 limit;
+    u8 amount;
+    f64 den;
+    f32 base;
+    f32 value;
+    f32 high;
+    f32 ratio;
+    s32 count;
+
+    scriptReadU32(&limit);
+    scriptReadU8(&amount);
+    base = F5N3_A->unk4->meta->unk4;
+    F5N3_A->unk4->unk88 = 0;
+    if ((F5N3_A->unk6A & 2) && ((F5N3_A->unkAC - F5N3_A->unkA4) > 12.0f)) {
+        high = (F5N3_A->unkAC < F5N3_A->unkA4) ? F5N3_A->unkA4 : F5N3_A->unkAC;
+        value = F5N3_A->unk80 - high;
+        if (value < 0.0f) {
+            value = 0.0f;
+        }
+    } else {
+        value = F5N3_A->unkB4;
+    }
+    count = func_806F1668(value * 40.0f, F5N3_A->unkC0, F5N3_A->unkC8, F5N3_A->unkC4);
+    if (count == 0) {
+        F5N3_A->unk4->unk88 = 1;
+        return;
+    }
+    ratio = ((f32)(u32)amount - base) / (f32)count;
+    if (ratio < 0.0f) {
+        ratio = 0.01f;
+    }
+    den = (F5N3_A->unk4->meta->unk24 < 0.01) ? 0.01 : F5N3_A->unk4->meta->unk24;
+    ratio = ratio / den;
+    if (limit < ratio) {
+        ratio = limit;
+    }
+    func_80614D00(arg0, ratio, 0.0f);
+}
+
+extern f32 sqrtf(f32);
+
+s32 func_806F1668(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+    f32 quot;
+    f32 val;
+    f32 res;
+
+    if ((arg0 < 0.0f) || (0.0f < arg2) || (0.0f <= arg3)) {
+        return 0;
+    }
+    quot = (arg2 - arg1) / arg3;
+    val = arg0;
+    val += ((arg1 + arg2) / 2) * quot;
+    if (val > 0.0f) {
+        res = quot - val / arg2;
+    } else {
+        res = (-sqrtf((arg1 * arg1) - (2 * arg3 * arg0)) - arg1) / arg3;
+    }
+    return (s32)(res + 0.5);
+}
 
 typedef struct F5N3PlayerState1768 {
     u8 pad0[0x8E];
@@ -507,7 +601,26 @@ void func_806F1990(s32 arg0, F5BSlot *arg1, s32 *arg2) {
     *arg2 += 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1A18.s")
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+} F5N1Spring;
+
+f32 cosApprox(f32);
+f32 sinApprox(f32);
+
+void func_806F1A18(f32 arg0, f32 arg1, F5N1Spring *arg2, f32 *arg3) {
+    s32 pad[1];
+    f32 sp20;
+
+    sp20 = cosApprox(arg2->unk4);
+    arg2->unk8 += arg0 * cosApprox(*arg3) * sp20;
+    arg2->unk8 -= arg1 * sinApprox(arg2->unk4);
+    arg2->unk8 = (f32)((f64)arg2->unk8 * 0.93);
+    arg2->unk4 = (f32)(arg2->unk4 + arg2->unk8);
+    *arg3 += arg2->unk4 + arg2->unk0;
+}
 
 f32 func_806F1AE0(F5BActor *arg0, F5BAccel *arg1, f32 arg2) {
     f32 temp_fa0;
@@ -519,13 +632,240 @@ f32 func_806F1AE0(F5BActor *arg0, F5BAccel *arg1, f32 arg2) {
     return (temp_fa0 + temp_fv1) * arg2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1B58.s")
+typedef struct {
+    u8 pad0[0x14];
+    u8 unk14;
+    u8 pad15[3];
+    s32 unk18;
+} F5N1Predicate;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1B90.s")
+s32 func_806F1B58(F5BActor *arg0, F5N1Predicate *arg1, s32 arg2) {
+    s32 ret = (arg0->unk60 & 0x100) != 0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1C04.s")
+    if (ret != 0) {
+        ret = arg1->unk14 == 0;
+        if (ret != 0) {
+            return arg2 == arg1->unk18;
+        }
+    } // FAKE: no final return keeps ret in $v0 (same idiom as func_80026250)
+}
+
+f32 func_806F1B90(f32 *arg0, f32 arg1) {
+    f32 diff;
+
+    diff = arg1 - *arg0;
+    *arg0 = arg1;
+    if (diff > 3.1415927f) {
+        diff = 6.2831855f - diff;
+    } else if (diff < -3.1415927f) {
+        diff = -(6.2831855f + diff);
+    }
+    diff *= 0.15915494f;
+    return diff;
+}
+
+typedef struct {
+    F5N1Spring unk0;
+    F5N1Spring unkC;
+} F56APair;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    u8 padC[4];
+    f32 unk10;
+    u8 unk14;
+    u8 pad15[3];
+    s32 unk18;
+    F56APair unk1C[8];
+    u8 padDC[0x60];
+} F56AState;
+
+typedef struct {
+    u8 pad0[0x10];
+    s16 unk10;
+} F56AIdxMeta;
+
+typedef struct {
+    F56AIdxMeta *unk0;
+} F56AIdxSub;
+
+typedef struct {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x114];
+    F56AState *unk178;
+} F56AActor;
+
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+f32 func_80611BB4(f32, f32);
+
+void func_806F1C04(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
+    F56AState *state = ((F56AActor *) arg0)->unk178;
+    F56APair *pair;
+    s32 pad5[1];
+    f32 posB[3];
+    f32 posA[3];
+    s32 value = -0x80;
+    f32 accel0 = 0.0f;
+    f32 accel1 = 0.0f;
+    f32 angle;
+    s32 active;
+    s32 index;
+    s32 i;
+    f32 ret;
+    f32 sp80;
+    f32 sp7C;
+    s32 kind;
+    s32 pad4[2];
+
+    pair = state->unk1C;
+    active = func_806F1B58((F5BActor *) arg0, (F5N1Predicate *) state, 2);
+    sp80 = 0.0f;
+    sp7C = 0.0f;
+    index = *arg2;
+    kind = 0x14;
+    actorGetNodePos(arg0, 0xD, &posA[0], &posA[1], &posA[2]);
+    actorGetNodePos(arg0, 0xE, &posB[0], &posB[1], &posB[2]);
+    angle = func_80611BB4(posA[2] - posB[2], posA[0] - posB[0]);
+    if (active == 0) {
+        state->unk0 = angle;
+        state->unk4 = posA[1];
+        if ((state->unk14 != 0) && (((F56AActor *) arg0)->unk60 & 0x100) && (state->unk18 == 2)) {
+            state->unk14 -= 1;
+        }
+    } else {
+        ret = func_806F1B90(&state->unk0, angle);
+        state->unk10 = state->unk10 + ((-128.0f - state->unk10) * 0.3);
+        value = (s8) (s32) state->unk10;
+        accel1 = 0.4f * ret;
+        accel0 = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
+    }
+    for (i = 0; i != 4; i++) {
+        if (active != 0) {
+            func_806F1A18(accel0, 0.06f, &pair->unk0, &sp80);
+            func_806F1A18(accel1, 0.06f, &pair->unkC, &sp7C);
+        }
+        arg1[index].unk0 = value;
+        arg1[index].unk1 = kind;
+        arg1[index].unk2 = (s32) ((pair->unk0.unk4 + pair->unk0.unk0) * 10430.218905280077);
+        arg1[index].unk4 = 0;
+        arg1[index].unk6 = (s32) ((pair->unkC.unk4 + pair->unkC.unk0) * 10430.218905280077);
+        pair++;
+        index++;
+        kind++;
+    }
+    *arg2 = index;
+}
+
+#ifdef NON_MATCHING
+extern s8 D_80752CBF[];
+
+void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
+    F56AState *state = ((F56AActor *) arg0)->unk178;
+    F56APair *pair;
+    F5BSlot *slot;
+    f32 spE0;
+    s32 index;
+    s32 kind;
+    s32 value;
+    s32 i;
+    s32 k;
+    f32 spC8;
+    f32 spC4;
+    f32 ret;
+    f32 angle;
+    f32 pos[2][3];
+    f32 y;
+    f32 newvel;
+    f32 delta;
+    F56AState *cur;
+    s32 active;
+    f32 boost;
+    f32 accel0;
+    f32 accel1;
+
+    index = *arg2;
+    ret = 0;
+    kind = 0x16;
+    cur = state;
+    active = func_806F1B58((F5BActor *) arg0, (F5N1Predicate *) state, 5);
+    value = -0x80;
+    actorGetNodePos(arg0, 0xD, &pos[0][0], &pos[0][1], &pos[0][2]);
+    actorGetNodePos(arg0, 0xE, &pos[1][0], &pos[1][1], &pos[1][2]);
+    angle = func_80611BB4(pos[0][2] - pos[1][2], pos[0][0] - pos[1][0]);
+    if (active == 0) {
+        for (i = 0; i != 2; i++) {
+            state[i].unk0 = angle;
+            state[i].unk4 = pos[i][1];
+        }
+        if (i == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if ((state->unk14 != 0) && (((F56AActor *) arg0)->unk60 & 0x100) && (state->unk18 == 5)) {
+            state->unk14 -= 1;
+        }
+    } else {
+        s16 idx = ((F56AIdxSub *) arg0->unk4)->unk0->unk10;
+
+        if (idx >= 0) {
+            newvel = D_80752CBF[idx];
+        } else {
+            newvel = -128.0f;
+        }
+        state->unk10 = state->unk10 + ((newvel - state->unk10) * 0.3);
+        value = (s8) (s32) state->unk10;
+        ret = func_806F1B90(&state->unk0, angle);
+        spE0 = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
+    }
+    slot = arg1; slot += index; k = 0; // FAKE: one source line lets as1 schedule the loop preheader
+    do {
+        accel1 = 0.0f;
+        accel0 = 0.0f;
+        spC8 = 0.0f;
+        spC4 = 0.0f;
+        pair = cur->unk1C;
+        if (active != 0) {
+            y = pos[k][1];
+            newvel = y - cur->unk4;
+            delta = newvel - cur->unk8;
+            cur->unk4 = y;
+            cur->unk8 = newvel;
+            boost = 0.4f * ret;
+            y = (0 < ret) ? ret : -ret;
+            if (k != 0) {
+                accel0 = -spE0;
+                accel1 = -((y * 0.3f) + (-0.015f * delta - 0.0008f * newvel));
+            } else {
+                accel0 = spE0;
+                accel1 = (y * 0.3f) + (-0.015f * delta - 0.0008f * newvel);
+            }
+            accel0 += boost;
+        }
+        i = 0;
+        do {
+            if (active != 0) {
+                func_806F1A18(accel1, 0.06f, &pair->unk0, &spC8);
+                func_806F1A18(accel0, 0.06f, &pair->unkC, &spC4);
+            }
+            slot->unk0 = value;
+            slot->unk1 = kind;
+            slot->unk2 = 0;
+            slot->unk4 = (s32) ((pair->unkC.unk4 + pair->unkC.unk0) * 10430.218905280077);
+            slot->unk6 = (s32) ((pair->unk0.unk4 + pair->unk0.unk0) * 10430.218905280077);
+            i++;
+            pair++;
+            index++;
+            slot++;
+            kind++;
+        } while (i != 8);
+        k++; cur++; // FAKE: one source line orders the k/cur reload-increment-store tail
+    } while (k != 2);
+    *arg2 = index;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1EB0.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F22A8.s")
 
