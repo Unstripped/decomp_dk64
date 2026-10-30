@@ -1,4 +1,4 @@
-// func_80612E90 (src/global/17B90.c): stage 2: reconstructed entire function logic, asset loading, pointer relocation across split tail func_80613044 and downstream calls
+// func_80612E90 (src/global/17B90.c): stage 4: exact frame 0x40 and callee-saved s0,s1,s2,ra via K&R unsigned char arg2; exact 25-instruction match on tail func_80613044; remaining diff is loop pointer scheduling
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -6,14 +6,14 @@ typedef short s16;
 typedef int s32;
 #define NULL ((void *)0)
 
-typedef struct RvD2_StateEntry {
+typedef struct RvR2_StateEntry {
     u16 unk0;
     u16 unk2;
     void *unk4;
     u8 unk8;
-} RvD2_StateEntry;
+} RvR2_StateEntry;
 
-typedef struct RvD2_Asset {
+typedef struct RvR2_Asset {
     void *unk0;
     void **unk4;
     void *unk8;
@@ -23,9 +23,9 @@ typedef struct RvD2_Asset {
     u8 pad18[8];
     u8 unk20;
     u8 unk21;
-} RvD2_Asset;
+} RvR2_Asset;
 
-extern RvD2_StateEntry D_807FB630[];
+extern RvR2_StateEntry D_807FB630[];
 extern void *D_807FB634;
 extern u16 D_807FBB30;
 extern u16 D_807FBB32;
@@ -38,20 +38,22 @@ void renderReplaceSegment6Commands(void *, void *);
 void func_806133C8(void *, void *);
 void func_806130A4(void *, void *);
 
-void *func_80612E90(void *arg0, s32 arg1, s32 arg2) {
-    RvD2_StateEntry *entry;
-    RvD2_Asset *asset;
+void *func_80612E90(arg0, arg1, arg2)
+void *arg0;
+s32 arg1;
+unsigned char arg2;
+{
+    RvR2_StateEntry *entry;
+    RvR2_Asset *asset;
     s32 delta;
     s32 i;
-    s32 flag;
 
-    flag = arg2 & 0xFF;
     i = 0;
     if ((s16)D_807FBB30 > 0) {
         entry = D_807FB630;
         do {
             i++;
-            if (arg1 == entry->unk0 && flag == entry->unk8) {
+            if (arg1 == entry->unk0 && arg2 == entry->unk8) {
                 entry->unk2++;
                 animListInit(arg0, entry->unk4);
                 return entry->unk4;
@@ -64,11 +66,13 @@ void *func_80612E90(void *arg0, s32 arg1, s32 arg2) {
         return D_807FB634;
     }
 
-    entry = &D_807FB630[i];
+    do {
+        entry = &D_807FB630[i];
+    } while (0);
     asset = assetLoad(5, arg1 - 1, 1, 1);
     entry->unk0 = arg1;
     D_807FBB30++;
-    entry->unk8 = flag;
+    entry->unk8 = arg2;
     entry->unk2 = 1;
     entry->unk4 = asset;
 
@@ -97,7 +101,7 @@ void *func_80612E90(void *arg0, s32 arg1, s32 arg2) {
     func_806133C8(*asset->unk4, asset->unk4);
     animListInit(arg0, asset);
 
-    if (flag & 1) {
+    if (arg2 & 1) {
         func_806130A4(*asset->unk4, asset->unk4);
     }
 

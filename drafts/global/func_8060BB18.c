@@ -1,4 +1,4 @@
-// func_8060BB18 (src/global/104F0.c): stage 3: K&R narrow params (u32 arg0, u16 arg1, u8 arg2), diff is missing s0 save / 8-byte frame in leaf
+// func_8060BB18 (src/global/104F0.c): stage 3: verified leaf with no jal; target saves s0 to 0x4(sp) for arg0 in 8-byte frame, while IDO leaf codegen allocates only temps for frame 0
 void func_8060BB18(arg0, arg1, arg2)
 u32 arg0;
 unsigned short arg1;
