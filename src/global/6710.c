@@ -246,7 +246,6 @@ void audioDmaFrameUpdate(void);
 s32 n_alAudioFrame(void *, s32 *, u32, s16);
 OSMesgQueue *func_8060EE58(void *);
 
-#ifdef NON_MATCHING
 s32 func_80601EE4(AudioTask *task, AudioAiBuffer *aiBuf) {
     u32 physSampleBuf;
     s32 pad[1];
@@ -264,13 +263,13 @@ s32 func_80601EE4(AudioTask *task, AudioAiBuffer *aiBuf) {
     }
     if (((s32)aiLen < 0x5C) && ((count = D_80770558[zero]) == 0)) {
         task->sampleCount = D_8077019C;
-        count += 2; // FAKE: count is 0 here; keeps the 2 in $v0 instead of a scratch li
+        count = (count & 0) + 2; // FAKE: folds to 2 after const-prop; keeps li in count's register ($v0) instead of a scratch li
         D_80770558[zero] = count;
     } else {
         count = D_80770558[zero];
         if (((s32)aiLen >= 0x115) && (count == 0)) {
             task->sampleCount = D_80770194;
-            count += 2; // FAKE: count is 0 here; keeps the 2 in $v0 instead of a scratch li
+            count = (count & 0) + 2; // FAKE: folds to 2 after const-prop; keeps li in count's register ($v0) instead of a scratch li
             D_80770558[zero] = count;
         } else {
             task->sampleCount = 0x2E0;
@@ -308,10 +307,6 @@ s32 func_80601EE4(AudioTask *task, AudioAiBuffer *aiBuf) {
     D_807452C8 ^= 1;
     return 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6710/func_80601EE4.s")
-#endif
 
 void audioCheckAiLength(s32 arg0) {
     s32 zero = 0;
