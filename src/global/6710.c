@@ -71,11 +71,13 @@ extern OSMesg D_807704C0[32];
 void *audioDmaNew();
 void n_alInit(s32 *, AudioInitArgs *);
 void audioThreadMain();
-#ifdef NON_MATCHING
+#include "common.h"
+#include "actor.h"
+
+
 void func_80601A10(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
     AudioDmaNode *curr;
     AudioSynthesizerConfig sp44;
-    AudioDmaNode *prev;
     u32 i;
 
     arg0->dmaNew = audioDmaNew;
@@ -91,13 +93,12 @@ void func_80601A10(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
     D_8076FE68[0].prev = NULL;
     D_8076FE68[0].next = NULL;
 
-    curr = &D_8076FE68[1];
-    prev = &D_8076FE68[0];
-    for (i = 0; (i ^ 0) < 39; i++, prev++, curr++) {
-        alLink((ALLink *)curr, (ALLink *)prev);
-        prev->unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
+    for (i = 0; (i ^ 0) < 39; i++) { // FAKE: x ^ 0 keeps i from being strength-reduced away (steers LFTR)
+        if (arg2 != 0) {} // FAKE: dead use of arg2 swaps $s4/$s5 and the i/prev register order
+        alLink((ALLink *)&D_8076FE68[i + 1], (ALLink *)&D_8076FE68[i]);
+        D_8076FE68[i].unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
     }
-    prev->unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
+    D_8076FE68[i].unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
 
     for (curr = (AudioDmaNode *)D_8076D4D0.cmdBuffers; curr < (AudioDmaNode *)D_8076D4D0.tasks; ) {
         *(void **)curr = alHeapDBAlloc(NULL, 0, arg0->heap, 1, arg2->cmdCount * 8);
@@ -105,13 +106,11 @@ void func_80601A10(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
     }
 
     D_807701A0 = arg2->cmdCount;
-    for (curr = (AudioDmaNode *)D_8076D4D0.cmdBuffers; curr < (AudioDmaNode *)&D_8076D4D0.tasks[1]; ) {
-        AudioTask *task = alHeapDBAlloc(NULL, 0, arg0->heap, 1, sizeof(AudioTask));
-        *(AudioTask **)((u8 *)curr + 8) = task;
-        task->msgBuf = 2;
-        task->self = task;
-        task->sampleBuffer = alHeapDBAlloc(NULL, 0, arg0->heap, 1, D_8077019C * 4);
-        curr = (AudioDmaNode *)((u8 *)curr + 4);
+    for (i = 0; i < 3; i++) {
+        ((AudioTask **)&D_8076D4D0)[i + 2] = alHeapDBAlloc(NULL, 0, arg0->heap, 1, sizeof(AudioTask));
+        ((AudioTask **)&D_8076D4D0)[i + 2]->msgBuf = 2;
+        ((AudioTask **)&D_8076D4D0)[i + 2]->self = ((AudioTask **)&D_8076D4D0)[i + 2];
+        ((AudioTask **)&D_8076D4D0)[i + 2]->sampleBuffer = alHeapDBAlloc(NULL, 0, arg0->heap, 1, D_8077019C * 4);
     }
     osCreateMesgQueue(&D_8076D6D0, D_8076D6E8, 8);
     osCreateMesgQueue(&D_8076D698, D_8076D6B0, 8);
@@ -119,10 +118,6 @@ void func_80601A10(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
 
     osCreateThread(&D_8076D4E8, 4, audioThreadMain, NULL, D_8076FE68, arg1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6710/func_80601A10.s")
-#endif
 
 extern s8 D_807452CC;
 
@@ -225,18 +220,19 @@ s32 func_80601EE4(AudioTask *task, AudioAiBuffer *aiBuf) {
     }
     if (((s32)aiLen < 0x5C) && ((count = D_80770558[zero]) == 0)) {
         task->sampleCount = D_8077019C;
-        count = 2;
+        count += 2; // FAKE: count is 0 here; keeps the 2 in $v0 instead of a scratch li
         D_80770558[zero] = count;
     } else {
         count = D_80770558[zero];
         if (((s32)aiLen >= 0x115) && (count == 0)) {
             task->sampleCount = D_80770194;
-            count = 2;
+            count += 2; // FAKE: count is 0 here; keeps the 2 in $v0 instead of a scratch li
             D_80770558[zero] = count;
         } else {
             task->sampleCount = 0x2E0;
             if (count != 0) {
-                D_80770558[zero] = count - 1;
+                count--;
+                D_80770558[zero] = count;
             }
         }
     }

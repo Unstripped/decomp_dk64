@@ -189,7 +189,7 @@ def restore_locals(lines, base_lines):
         body = lines[start + 1:end]
         if any(l.strip() == line.strip() for l in body):
             continue
-        use = rf"\b{re.escape(name)}\b"
+        use = rf"(?<!\.)(?<!->)\b{re.escape(name)}\b"  # a `.prev` / `->prev` member is not a use
         # declared again elsewhere in the body, also inline after a brace: `{ s32 tv = ...;`
         redecl = re.compile(
             r"(?:^|[{;])\s*(?!(?:return|goto|else|case|do|default|break|continue|sizeof)\b)"
@@ -197,7 +197,7 @@ def restore_locals(lines, base_lines):
             rf"[A-Za-z_]\w*[\s\*]+{re.escape(name)}\s*(?:\[[^\]]*\]\s*)*(?:=|;)")
         if re.search(use, header) or any(redecl.search(l) for l in body):
             continue  # a parameter, or declared again elsewhere in the body
-        if not any(re.search(use, l) for l in body):
+        if not any(re.search(use, re.sub(r"//.*|/\*.*?\*/", "", l)) for l in body):
             continue
         at = start + 1
         prev = base_lines[i - 1].strip() if i - 1 > k else None
