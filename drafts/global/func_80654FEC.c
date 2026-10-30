@@ -1,4 +1,4 @@
-// func_80654FEC (src/global/55B20.c): Same body as func_80653804 (target bytes are identical apart from addresses). Same stage 4 near-miss: arg2 spilled to home instead of $f20 and the f64 callee-saved coloring rotation.
+// func_80654FEC (src/global/55B20.c): stage 4 (parked NON_MATCHING in 55B20.c, frame 0xC8 ok): same body as func_80653804. Parked form emulates the uninitialised-home reads with sp88..spA0 + named invariants fs1..fs5: text 202 lines off (arg2 stays at home, f64 coloring rotation). NEW lead (not parked): natural form WITHOUT named invariants (inline (f64)arg1, (f64)u0, centroid exprs in each switch case; vars dx,dz,ox,oz declared before fv0,fv1,fs0, default case reads them) drops diff to full=171/shape=60 but frame becomes 0xE8 (needs ~4 fewer reserved slots; every unused f64 pad = +8, int locals reserve homes: s8 ints give 0xD8) and params land in f12/f14 instead of f14/f20. Declaration-order shuffles of the parked form do nothing
 typedef struct {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;

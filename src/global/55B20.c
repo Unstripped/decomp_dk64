@@ -1502,7 +1502,54 @@ void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654418.s")
 #endif
 
+#ifdef NON_MATCHING
+typedef struct S55dRoad {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ f32 unk1C;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ f32 unk24;
+    /* 0x28 */ f32 unk28;
+    /* 0x2C */ f32 unk2C;
+} S55dRoad;
+
+extern S55dRoad D_807F5DF0;
+void func_806545D4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
+    f32 uv3;
+    f32 t;
+    f32 a;
+    f32 uv2;
+    f32 uv1;
+    f32 uv0;
+    f32 m[4][3];
+    s32 i;
+    MapPlayer *p;
+
+    p = &D_807FC924[arg7];
+    a = ((((f32)(arg0 - p->unk270)) / (f32)p->unk278) * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
+    uv3 = a;
+    uv2 = ((((f32)(arg2 - p->unk270)) / (f32)p->unk278) * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
+    t = D_807F5DF0.unk1C - D_807F5DF0.unk4;
+    uv1 = (t * (((f32)(arg1 - p->unk272)) / (f32)p->unk27A)) + D_807F5DF0.unk4;
+    uv0 = (t * (((f32)(arg3 - p->unk272)) / (f32)p->unk27A)) + D_807F5DF0.unk4;
+    m[0][0] = uv2; m[0][1] = uv0; m[0][2] = D_807F5DF0.unk8;
+    m[1][0] = a; m[1][1] = uv0; m[1][2] = D_807F5DF0.unk14;
+    m[2][0] = uv2; m[2][1] = uv1; m[2][2] = D_807F5DF0.unk20;
+    m[3][0] = a; m[3][1] = uv1; m[3][2] = D_807F5DF0.unk2C;
+    for (i = 0; i < 4; i++) {
+        guMtxXFMF((float (*)[4])arg8, m[i][0], m[i][1], m[i][2], &((f32 (*)[3])arg10)[i][0], &((f32 (*)[3])arg10)[i][1], &((f32 (*)[3])arg10)[i][2]);
+    }
+    func_8062AD28(arg4, arg5, arg6, arg9, arg10);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806545D4.s")
+#endif
 
 typedef struct MapTriangle {
     /* 0x00 */ s16 unk0;
@@ -1516,7 +1563,79 @@ typedef struct MapTriangle {
     /* 0x10 */ s16 unk10;
 } MapTriangle;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806547A8.s")
+typedef struct S55dZone {
+    u8 pad0[8];
+    s32 unk8;
+    s16 unkC;
+    s16 unkE;
+    s16 unk10;
+    s16 unk12;
+    u8 pad14[0x44];
+    s16 unk58[8];
+    u8 unk68;
+} S55dZone;
+
+extern void *D_807F70B8[];
+extern u8 D_807F7048[];
+extern u8 D_807F7058;
+extern u8 D_807F7060[];
+extern u8 D_807F7070;
+
+s32 mapTriangleBoundsContainPoint(MapTriangle *, f32, f32);
+s32 func_80654FEC(void *, f32, f32);
+f32 func_80654CCC(MapTriangle *, f32, f32);
+
+void func_806547A8(f32 arg0, f32 arg1, f32 arg2) {
+    s32 pad[10]; // FAKE: frame size
+    S55dZone **p;
+    S55dZone *zone;
+    MapTriangle *node;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 n;
+    s32 found;
+    f32 h;
+
+    D_807F7058 = 0;
+    D_807F7070 = 0;
+    for (p = (S55dZone **)D_807F70B8, i = 0; i != 0x20; i++) {
+        if (*p != NULL) {
+            zone = *p;
+            if ((f32)zone->unk10 <= arg1 && arg1 <= (f32)(zone->unk12 + zone->unkE)) {
+                node = (MapTriangle *)((u8 *)zone->unk8);
+                for (j = 0; j < zone->unkC; j++, node++) {
+                    if (mapTriangleBoundsContainPoint(node, arg0, arg2) != 0 && func_80654FEC(node, arg0, arg2) != 0) {
+                        h = func_80654CCC(node, arg0, arg2);
+                        if (h <= arg1 && arg1 <= (f32)zone->unkE + h) {
+                            k = 0;
+                            if (D_807F7058 != 0x10) {
+                                D_807F7048[D_807F7058] = i;
+                                D_807F7058++;
+                            }
+                            for (; k < zone->unk68; k++) {
+                                found = 0;
+                                n = 0;
+                                while (!found && n < D_807F7070) {
+                                    if (D_807F7060[n] == zone->unk58[k]) {
+                                        found = 1;
+                                    } else {
+                                        n++;
+                                    }
+                                }
+                                if (!found && n != 0x10) {
+                                    D_807F7060[D_807F7070] = zone->unk58[k];
+                                    D_807F7070++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        p++;
+    }
+}
 
 typedef struct MapTrigger {
     s16 unk0[10];
@@ -1526,9 +1645,6 @@ typedef struct MapTrigger {
     u8 unk56;
 } MapTrigger;
 
-extern void *D_807F70B8[];
-extern u8 D_807F7048[];
-extern u8 D_807F7058;
 
 void mapCellSetFlag(s32, u8);
 
@@ -1723,27 +1839,22 @@ s32 func_80654FEC(void *arg0, f32 arg1, f32 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654FEC.s")
 #endif
 
-#ifdef NON_MATCHING
-
+extern f32 D_807F5FAC;
 s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
+
 void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
+    s32 idx;
     s32 i;
-    MapBox *box;
     s32 off;
 
     i = 0;
     if (D_807F70AC > 0) {
-        off = 0;
-        do {
+        off = 0; do { // FAKE: scheduling (joins the loop preheader store)
             if (arg3 == ((MapCell *)((u8 *)D_807F70B0 + off))->unk4) {
                 if (D_807F6C18[((MapCell *)((u8 *)D_807F70B0 + off))->unk0].unk0 == 1) {
-                    box = (MapBox *)D_807F70B4;
-                    if (func_8062DBDC(box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk0,
-                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk2,
-                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk4,
-                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk6,
-                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unk8,
-                                      box[((MapCell *)((u8 *)D_807F70B0 + off))->unk2].unkA,
+                    idx = ((MapCell *)((u8 *)D_807F70B0 + off))->unk2;
+                    if (func_8062DBDC(D_807F70B4[idx].unk0, D_807F70B4[idx].unk2, D_807F70B4[idx].unk4,
+                                      D_807F70B4[idx].unk6, D_807F70B4[idx].unk8, D_807F70B4[idx].unkA,
                                       arg0, arg1, arg2, D_807F5FAC,
                                       (u8 *)&D_807F6C18[((MapCell *)((u8 *)D_807F70B0 + off))->unk0] + 0x88) != 0) {
                         ((MapCell *)((u8 *)D_807F70B0 + off))->unk18 = 1;
@@ -1759,11 +1870,6 @@ void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
         } while (i < D_807F70AC);
     }
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655258.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655410.s")
 
@@ -2180,8 +2286,6 @@ void mapChunkEffectSetFlag(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656F14.s")
 
-extern u8 D_807F7070;
-extern u8 D_807F7060[];
 
 s32 mapChunkHitListExcludes(s32 arg0) {
     u8 *p = D_807F7060;

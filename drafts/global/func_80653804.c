@@ -1,15 +1,4 @@
-// func_80653804 (src/global/55B20.c): stage 4: frame 0xC8 + sp88/sp90/sp98/spA0 slots match (4 lead f64 decls + pad count). Remaining: arg2 spills to its home slot (target does mtc1 a2,$f20 then cvt.d.s $f28,$f20 late) and the f64 callee-saved coloring is a full rotation (target fs5=f30, fs1=f22, fs2=f24, fs3=f26, fs4=f28; mine fs5=f22, fs1=f30, ...), so block layout/order differs. Permuter 500s only got 7917->7215. Tried explicit f32 locals for arg1/arg2, evaluating the two half-sum products into fs1/fs2 before fs5/sp38, reordering fs4 after fs1/fs2 - all worse or unchanged (205/155 vs 203/155).
-typedef struct {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ u8 pad6[6];
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[2];
-} M55P3Box;
-
+// func_80653804 (src/global/55B20.c): stage 4 (S55c): frame 0xC8 + callee-saved set match; score 202->136 by statement order fs4=arg2; fs3=arg1; then fs5/sp38/fs1/fs2 (e3). Remaining: arg1 spilled to home (sw a1,204(sp)) with arg2 in f14 -- target moves BOTH args first (mtc1 a1,f14; mtc1 a2,f20) and loads lh unk2,unk4,unk10,unkE before unk0/unkC; arg2 candidate 'not colored, not splittable' in uopt trace; f64 callee coloring still rotated (fs5=f22 vs f30). inline (f64)arg1/arg2 uses balloon frame to 0x148. decl-order permutations of the f64 locals (60 random) and deadsweep give nothing legitimate
 s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
     f64 lead0;
     f64 lead1;
@@ -44,12 +33,12 @@ s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
     s32 flag;
     s32 i;
 
-    fs3 = arg1;
     fs4 = arg2;
-    fs5 = ((M55P3Box *)arg0)->unk0;
-    sp38 = ((M55P3Box *)arg0)->unkC;
-    fs1 = (fs5 + ((f64)(((M55P3Box *)arg0)->unk4 + ((M55P3Box *)arg0)->unk2) * 0.5)) * 0.5;
-    fs2 = (sp38 + ((f64)(((M55P3Box *)arg0)->unk10 + ((M55P3Box *)arg0)->unkE) * 0.5)) * 0.5;
+    fs3 = arg1;
+    fs5 = ((MapCollisionNode *)arg0)->unk0;
+    sp38 = ((MapCollisionNode *)arg0)->unkC;
+    fs1 = (fs5 + ((f64)(((MapCollisionNode *)arg0)->unk4 + ((MapCollisionNode *)arg0)->unk2) * 0.5)) * 0.5;
+    fs2 = (sp38 + ((f64)(((MapCollisionNode *)arg0)->unk10 + ((MapCollisionNode *)arg0)->unkE) * 0.5)) * 0.5;
     ft5 = sp88;
     ft4 = sp90;
     fa1 = sp98;
@@ -66,8 +55,8 @@ s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
         case 0:
             ft4 = fs5;
             ft5 = sp38;
-            fa1 = (f64)(((M55P3Box *)arg0)->unkE - ((M55P3Box *)arg0)->unkC);
-            fa0 = (f64)(((M55P3Box *)arg0)->unk2 - ((M55P3Box *)arg0)->unk0);
+            fa1 = (f64)(((MapCollisionNode *)arg0)->unkE - ((MapCollisionNode *)arg0)->unkC);
+            fa0 = (f64)(((MapCollisionNode *)arg0)->unk2 - ((MapCollisionNode *)arg0)->unk0);
             fv0 = (fs3 - fs5) * fa1;
             fv1 = (fs4 - ft5) * fa0;
             fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
@@ -75,17 +64,17 @@ s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
         case 1:
             ft4 = fs5;
             ft5 = sp38;
-            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkC);
-            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk0);
+            fa1 = (f64)(((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkC);
+            fa0 = (f64)(((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk0);
             fv0 = (fs3 - fs5) * fa1;
             fv1 = (fs4 - ft5) * fa0;
             fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
             break;
         case 2:
-            ft4 = (f64)((M55P3Box *)arg0)->unk2;
-            ft5 = (f64)((M55P3Box *)arg0)->unkE;
-            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk2);
-            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkE);
+            ft4 = (f64)((MapCollisionNode *)arg0)->unk2;
+            ft5 = (f64)((MapCollisionNode *)arg0)->unkE;
+            fa0 = (f64)(((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk2);
+            fa1 = (f64)(((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkE);
             fv0 = (fs3 - ft4) * fa1;
             fv1 = (fs4 - ft5) * fa0;
             fs0 = ((fs1 - ft4) * fa1) - ((fs2 - ft5) * fa0);
