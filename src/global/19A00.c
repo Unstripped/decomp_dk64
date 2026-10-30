@@ -1508,7 +1508,32 @@ s32 func_806174B4(Actor *arg0) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_806175C4.s")
+typedef struct RvG2_State75C4 {
+    u8 pad0[0x34];
+    f32 unk34;
+} RvG2_State75C4;
+
+
+s32 func_806175C4(Actor *arg0) {
+    s16 sp46;
+    u8 sp45;
+    u8 sp44;
+    u8 sp43;
+    u8 sp42;
+    f32 var_fv1;
+    f64 val;
+
+    D_807F5AF0++;
+    scriptReadU16((u8 *)&sp46);
+    scriptReadU8(&sp43);
+    scriptReadU8(&sp42);
+    scriptReadU8(&sp45);
+    scriptReadU8(&sp44);
+    val = (((((f64)((RvG2_State75C4 *)arg0->unk4)->unk34 / 0.4381361) * 200.0) + 55.0) * (f64)sp43) / 255;
+    var_fv1 = (val > 255.0) ? 255.0 : val;
+    sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp46, (u32)var_fv1, sp42, sp45, sp44, 0.3f, 0);
+    return 1;
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617770.s")
 
