@@ -283,6 +283,71 @@ void func_80614A64(ControllerActorView *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614B34.s")
+typedef struct RvF_SegmentNode {
+    void *unk0;
+    void *unk4;
+    u8 unk8;
+    struct RvF_SegmentNode *unkC;
+} RvF_SegmentNode;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614C38.s")
+typedef struct {
+    void *unk0;
+    Gfx **unk4;
+    u8 pad8[0xC];
+    RvF_SegmentNode *unk14;
+    u8 pad18[9];
+    u8 unk21;
+} RvF_Display;
+
+typedef struct {
+    RvF_Display *unk0;
+    u8 pad4[4];
+    void *unk8;
+    u8 padC[0x40];
+    RvF_Display *unk4C;
+    RvF_Display *unk50;
+    u8 pad54[0xF2];
+    u16 unk146;
+} RvF_Actor;
+
+Gfx *animSetSegments(Gfx *, void *);
+Gfx *func_80614C38(Gfx *, RvF_Actor *, RvF_Display *);
+
+Gfx *func_80614B34(Gfx *gdl, RvF_Actor *actor) {
+    RvF_Display *display = actor->unk0;
+    s32 i;
+
+    if (actor->unk4C != NULL) {
+        display = actor->unk4C;
+    }
+    if (actor->unk50 != NULL) {
+        display = actor->unk50;
+    }
+    gdl = animSetSegments(gdl, actor);
+    gdl = func_80614C38(gdl, actor, display);
+    gSPSegment(gdl++, 4, osVirtualToPhysical(actor->unk8));
+    gSPSegment(gdl++, 3, osVirtualToPhysical(display->unk0));
+    for (i = 0; i < display->unk21; i++) {
+        gSPDisplayList(gdl++, display->unk4[i]);
+    }
+    return gdl;
+}
+
+Gfx *func_80614C38(Gfx *gdl, RvF_Actor *arg1, RvF_Display *arg2) {
+    u16 flags = arg1->unk146;
+    RvF_SegmentNode *node = arg2->unk14;
+    s32 shift;
+
+    if (node != NULL) {
+        do {
+            shift = (node->unk8 - 7) & 0xFF;
+            if ((flags >> shift) & 1) {
+                gSPSegment(gdl++, node->unk8, osVirtualToPhysical(node->unk0));
+            } else {
+                gSPSegment(gdl++, node->unk8, osVirtualToPhysical(node->unk4));
+            }
+            node = node->unkC;
+        } while (node != NULL);
+    }
+    return gdl;
+}

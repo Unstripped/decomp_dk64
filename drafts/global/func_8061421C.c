@@ -1,159 +1,141 @@
-// func_8061421C (src/global/17B90.c): stage 3: compilable typed draft reached correct core control flow but has frame/layout and structure-offset differences; remaining diff starts target frame 0x40 versus candidate 0x30, then register allocation and call argument layout.
-? func_80613944(f32, f32, void *, s32 *, f32, void *); /* extern */
-? func_80614644(void *, void *, f32, f32, f32);     /* extern */
-? func_80614D90(void *);                            /* extern */
-extern s32 D_80744478;
+// func_8061421C (src/global/17B90.c): stage 4; promoted from stage 3. Frame size 0x40 and save set s0/ra match target exactly. Rebuilt true types, field offsets, rate casting idiom, local fabs inlining, and unk8/unkC calls. Remaining diff is spill slot assignments and regalloc.
+extern u32 D_80744478;
 extern u8 D_80746B60;
+void func_80613944();
+void func_80614D90(void *);
 
-void func_8061421C(void *arg0) {
-    void *sp3C;
-    void *sp38;
-    f32 sp2C;
-    f32 sp28;
-    f32 sp20;
-    f32 temp_a2;
-    f32 temp_fa0;
-    f32 temp_fa0_2;
-    f32 temp_fa1;
-    f32 temp_fa1_2;
-    f32 temp_ft4;
-    f32 temp_fv0;
-    f32 temp_fv0_2;
-    f32 temp_fv0_3;
-    f32 temp_fv1;
-    f32 temp_fv1_2;
-    f32 temp_fv1_3;
-    f32 temp_fv1_4;
-    f32 var_fa1;
-    f32 var_ft1;
-    f32 var_fv0;
-    f32 var_fv0_2;
-    f32 var_fv0_3;
-    f64 var_ft2;
-    s16 temp_a0;
-    s16 temp_v1;
-    s16 temp_v1_2;
-    s32 *temp_a1;
-    void *temp_a3;
-    void *temp_s0;
-    void *temp_v0;
+typedef struct {
+    void *unk0;
+    f32 unk4;
+    f32 unk8;
+    s16 unkC;
+    s16 unkE;
+    u8 pad10[4];
+    f32 unk14;
+    f32 unk18;
+    u16 unk1C;
+    s16 unk1E;
+    s16 unk20;
+    u8 pad22[2];
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+} RvF_MotionWindow;
 
-    temp_v0 = arg0->unk4;
-    temp_a3 = temp_v0->unk0;
-    temp_s0 = temp_v0->unk4;
-    temp_a1 = temp_v0->unk8;
-    temp_a2 = temp_v0->unkC;
-    sp28 = temp_a3->unk4;
-    temp_v1 = temp_v0->unk30;
-    if (temp_v1 & 1) {
-        var_ft2 = (f64) D_80744478;
-        if (D_80744478 < 0) {
-            var_ft2 += 4294967296.0;
-        }
-        var_fa1 = (f32) (var_ft2 * 0.5);
+typedef struct {
+    RvF_MotionWindow *unk0;
+    RvF_MotionWindow *unk4;
+    void *unk8;
+    void *unkC;
+    f32 unk10;
+    u8 pad14[0x14];
+    s16 unk28;
+    u8 pad2A[2];
+    s16 unk2C;
+    s16 unk2E;
+    s16 unk30;
+    u8 pad32[0xE];
+    f32 unk40;
+    f32 unk44;
+    f32 unk48;
+    f32 unk4C;
+    f32 unk50;
+    f32 unk54;
+    f32 unk58;
+    u8 pad5C[0x1C];
+    s32 unk78;
+    s32 unk7C;
+    f32 unk80;
+    s32 unk84;
+} RvF_MotionCore;
+
+typedef struct {
+    u8 pad0[4];
+    RvF_MotionCore *unk4;
+} RvF_MotionOwner;
+
+void func_80614644(RvF_MotionOwner *, RvF_MotionWindow *, f32);
+
+void func_8061421C(RvF_MotionOwner *arg0) {
+    RvF_MotionCore *core = arg0->unk4;
+    RvF_MotionWindow *win0 = core->unk0;
+    RvF_MotionWindow *win4 = core->unk4;
+    void *unk8 = core->unk8;
+    f32 rate;
+    f32 step;
+    f32 pos = win0->unk4;
+
+    if (core->unk30 & 1) {
+        rate = (f32) ((f64) (u32) D_80744478 * 0.5);
     } else {
-        var_fa1 = 1.0f;
+        rate = 1.0f;
     }
-    temp_v0->unk30 = (s16) (temp_v1 & 0xFFFE);
+    core->unk30 &= ~1;
     if (D_80746B60 == 0) {
-        temp_v0->unk30 = (s16) (temp_v0->unk30 | (temp_v0->unk0->unk1C & 1));
+        core->unk30 |= (win0->unk1C & 1);
     }
-    temp_fv1 = temp_v0->unk58;
-    if (temp_fv1 > 0.0f) {
-        temp_v0->unk54 = (f32) (temp_v0->unk54 + var_fa1);
-        temp_fa0 = temp_v0->unk54;
-        if (temp_fa0 < temp_fv1) {
-            temp_fv0 = temp_v0->unk4C;
-            temp_v0->unk48 = (f32) (temp_fv0 + (((temp_v0->unk50 - temp_fv0) * temp_fa0) / temp_fv1));
+    if (core->unk58 > 0.0f) {
+        core->unk54 += rate;
+        if (core->unk54 < core->unk58) {
+            core->unk48 = core->unk4C + (((core->unk50 - core->unk4C) * core->unk54) / core->unk58);
         } else {
-            temp_v0->unk58 = 0.0f;
-            temp_v0->unk48 = (f32) temp_v0->unk50;
+            core->unk58 = 0.0f;
+            core->unk48 = core->unk50;
         }
     }
-    temp_ft4 = temp_a3->unk34;
-    temp_fa0_2 = temp_v0->unk48 * var_fa1;
-    if (temp_ft4 > 0.0f) {
-        if (temp_fa0_2 > 0.0f) {
-            var_fv0 = temp_fa0_2;
+    step = core->unk48 * rate;
+    if (win0->unk34 > 0.0f) {
+        win0->unk30 += (step > 0.0f) ? step : -step;
+        if (win0->unk30 < win0->unk34) {
+            win0->unk24 = win0->unk28 + (((win0->unk2C - win0->unk28) * win0->unk30) / win0->unk34);
         } else {
-            var_fv0 = -temp_fa0_2;
-        }
-        temp_a3->unk30 = (f32) (temp_a3->unk30 + var_fv0);
-        temp_fv1_2 = temp_a3->unk30;
-        if (temp_fv1_2 < temp_ft4) {
-            temp_fv0_2 = temp_a3->unk28;
-            temp_a3->unk24 = (f32) (temp_fv0_2 + (((temp_a3->unk2C - temp_fv0_2) * temp_fv1_2) / temp_ft4));
-        } else {
-            temp_a3->unk34 = 0.0f;
-            temp_a3->unk24 = (f32) temp_a3->unk2C;
+            win0->unk34 = 0.0f;
+            win0->unk24 = win0->unk2C;
         }
     }
-    temp_fa1 = temp_s0->unk34;
-    if (temp_fa1 > 0.0f) {
-        if (temp_fa0_2 > 0.0f) {
-            var_fv0_2 = temp_fa0_2;
+    if (win4->unk34 > 0.0f) {
+        win4->unk30 += (step > 0.0f) ? step : -step;
+        if (win4->unk30 < win4->unk34) {
+            win4->unk24 = win4->unk28 + (((win4->unk2C - win4->unk28) * win4->unk30) / win4->unk34);
         } else {
-            var_fv0_2 = -temp_fa0_2;
-        }
-        temp_s0->unk30 = (f32) (temp_s0->unk30 + var_fv0_2);
-        temp_fv1_3 = temp_s0->unk30;
-        if (temp_fv1_3 < temp_fa1) {
-            temp_fv0_3 = temp_s0->unk28;
-            temp_s0->unk24 = (f32) (temp_fv0_3 + (((temp_s0->unk2C - temp_fv0_3) * temp_fv1_3) / temp_fa1));
-        } else {
-            temp_s0->unk34 = 0.0f;
-            temp_s0->unk24 = (f32) temp_s0->unk2C;
+            win4->unk34 = 0.0f;
+            win4->unk24 = win4->unk2C;
         }
     }
-    if (*temp_a1 != 0) {
-        if (temp_fa0_2 > 0.0f) {
-            var_fv0_3 = temp_fa0_2;
+    if (*(s32 *)unk8 != 0) {
+        core->unk40 += (step > 0.0f) ? step : -step;
+        if (core->unk40 < core->unk44) {
+            core->unk10 = (core->unk44 - core->unk40) / core->unk44;
         } else {
-            var_fv0_3 = -temp_fa0_2;
+            func_80613944(arg0, unk8);
+            func_80613944(arg0, core->unkC);
+            core->unk78 &= ~0x10;
         }
-        temp_fv1_4 = temp_v0->unk44;
-        temp_v0->unk40 = (f32) (temp_v0->unk40 + var_fv0_3);
-        temp_fa1_2 = temp_v0->unk40;
-        if (temp_fa1_2 < temp_fv1_4) {
-            temp_v0->unk10 = (f32) ((temp_fv1_4 - temp_fa1_2) / temp_fv1_4);
-        } else {
-            sp3C = temp_v0;
-            sp2C = temp_a2;
-            sp38 = temp_a3;
-            sp20 = temp_fa0_2;
-            func_80613944(temp_fa0_2, temp_fa1_2, arg0, temp_a1, temp_a2, temp_a3);
-            func_80613944((bitwise f32) arg0, sp2C);
-            temp_v0->unk78 = (s32) (temp_v0->unk78 & ~0x10);
-        }
-        var_ft1 = sp28 + (((temp_fa0_2 * temp_a3->unk24) / 2.0f) * (1.0f - temp_v0->unk10));
+        pos += ((step * win0->unk24) / 2.0f) * (1.0f - core->unk10);
     } else {
-        var_ft1 = sp28 + (temp_fa0_2 * temp_a3->unk24);
+        pos += step * win0->unk24;
     }
-    sp28 = var_ft1;
-    sp3C = temp_v0;
-    func_80614644((bitwise void *) temp_fa0_2, arg0, (bitwise f32) temp_a3, sp28, (bitwise f32) temp_a3);
-    if (temp_s0->unk0 != 0) {
-        temp_v1_2 = temp_v0->unk28;
-        temp_a0 = temp_v0->unk2C;
-        if (temp_v1_2 < temp_a0) {
-            temp_v0->unk28 = (s16) (temp_v1_2 + temp_v0->unk2E);
-            if (temp_a0 < temp_v0->unk28) {
-                goto block_40;
+    func_80614644(arg0, win0, pos);
+    if (win4->unk0 != NULL) {
+        if (core->unk28 < core->unk2C) {
+            core->unk28 += core->unk2E;
+            if (core->unk28 > core->unk2C) {
+                core->unk28 = core->unk2C;
             }
-        } else if (temp_a0 < temp_v1_2) {
-            temp_v0->unk28 = (s16) (temp_v1_2 - temp_v0->unk2E);
-            if (temp_v0->unk28 < temp_a0) {
-block_40:
-                temp_v0->unk28 = temp_a0;
+        } else if (core->unk28 > core->unk2C) {
+            core->unk28 -= core->unk2E;
+            if (core->unk28 < core->unk2C) {
+                core->unk28 = core->unk2C;
             }
         }
-        sp3C = temp_v0;
-        sp28 = temp_s0->unk4 + temp_s0->unk24;
-        func_80614644(arg0, temp_s0, sp28);
-        if ((temp_s0->unk24 == 0.0f) && (temp_s0->unk1C & 0x10)) {
-            temp_v0->unk2C = 0;
-            if (temp_v0->unk28 == 0) {
-                func_80613944((bitwise f32) arg0, (bitwise f32) temp_s0);
+        pos = win4->unk4 + win4->unk24;
+        func_80614644(arg0, win4, pos);
+        if ((win4->unk24 == 0.0f) && (win4->unk1C & 0x10)) {
+            core->unk2C = 0;
+            if (core->unk28 == 0) {
+                func_80613944(arg0, win4);
             }
         }
     }
