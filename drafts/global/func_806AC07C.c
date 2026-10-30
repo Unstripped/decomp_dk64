@@ -1,4 +1,4 @@
-// func_806AC07C (src/global/ACDC0.c): stage 6: size+frame match; text diff 147 lines (regalloc only): FP temp ring rotated from 'arg0->unk344 = arg0->unk344 + sin*10.0f' on (load alloc'd first in target) + case6 end mtc1 zero,f2; mov.s f14,f2 vs direct mtc1 zero,f14. Tricks: type=(s32)item->unk0 (lets head a2/type v1), single ang var (no tmp), case6 dist sum in sc (sc = dz*dz+dx*dx; f12/f2 colours + 4.0 const f16), t=0.0f in case6 only.
+// func_806AC07C (src/global/ACDC0.c): stage 6 (parked NON_MATCHING): size+frame+blocks match, 145 text-diff lines, regalloc only: FP temp pool rotation from case 8 'arg0->unk344 = arg0->unk344 + func_80612794(ang)*10.0f' (target allocs load f4 first, then const f6, mul f10, add f8; ours const, mul, load). Fixed vs old park: item head a2/type v1 (type=(s32)item->unk0), single ang var, case6 dist in sc (sc=dz*dz+dx*dx; gives f12/f2 + 4.0 const f16), item->unk24=0 else + t=0.0f in case 6 (mov.s f14,f2). A dead 'if (arg0->unk344 + 1.0f) {}' before 'if (type==8)' drops 145->114 but adds a candidate f12 elsewhere; rs.py dead-statement search plateaued at 94 (junk). permuter: no gain.
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -160,7 +160,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
                     if ((f64)func_806119FC() < 0.25) {
                         item->unk24 = (f64)func_806119FC() * 40.0 + 15.0;
                     } else {
-                        item->unk24 = 0.0f;
+                        item->unk24 = 0;
                     }
                 }
             }

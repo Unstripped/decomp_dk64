@@ -1340,7 +1340,6 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
     f32 sc;
     s32 type;
     s32 sp40;
-    s32 tmp;
     s32 ang;
     s32 i;
     s16 five;
@@ -1350,7 +1349,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
         t = src->unk0;
         item = arg0->unk384;
         sp40 = (f64)src->tbl[(s32)item->unk4] * 4.0;
-        type = (s32)arg0->unk384->unk0;
+        type = (s32)item->unk0;
         switch (type) {
         case 0:
         case 4:
@@ -1435,19 +1434,20 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             }
             break;
         case 6:
-            if ((item->unk14 - item->unk1C) * (item->unk14 - item->unk1C) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18) < 400.0f) {
+            sc = (item->unk14 - item->unk1C) * (item->unk14 - item->unk1C) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18);
+            if (sc < 400.0f) {
                 item->unk24 = (f64)item->unk24 - 1.0;
                 if ((f64)item->unk24 < 0.0) {
                     item->unk20 = (f64)item->unk20 + (1000.0 + (f64)func_806119FC() * 2000.0);
-                    tmp = (s32)item->unk20 & 0xFFF;
-                    item->unk20 = tmp;
+                    ang = (s32)item->unk20 & 0xFFF;
+                    item->unk20 = ang;
                     sc = ((f64)func_806119FC() * 40.0 + 20.0) * 4.0;
-                    item->unk18 = (f64)func_80612794(tmp) * ((f64)sc * 0.8);
-                    item->unk1C = func_80612790(tmp) * sc;
+                    item->unk18 = (f64)func_80612794(ang) * ((f64)sc * 0.8);
+                    item->unk1C = func_80612790(ang) * sc;
                     if ((f64)func_806119FC() < 0.25) {
                         item->unk24 = (f64)func_806119FC() * 40.0 + 15.0;
                     } else {
-                        item->unk24 = 0.0f;
+                        item->unk24 = 0;
                     }
                 }
             }
@@ -1471,7 +1471,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             arg0->unk340 = item->unk10 + item->unk8;
             sc = func_80612794(ang);
             arg0->unk344 = sc * 10.0f + (item->unkC + item->unk14 + (f32)sp40 + 960.0f * t);
-            t = 0.0;
+            t = 0.0f;
             break;
         case 10:
             i = (s32)item->unk8;
@@ -1492,7 +1492,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             }
             break;
         }
-        if (src->unk15 != (s32)item->unk4 && (sp40 < -0x3C0 || sp40 >= 0x3C1)) {
+        if ((s32)item->unk4 != src->unk15 && (sp40 < -0x3C0 || sp40 >= 0x3C1)) {
             *arg1 = 1;
         }
         if (t > 1.0f || src->unk0 > 1.0f) {
