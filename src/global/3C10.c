@@ -57,8 +57,20 @@ extern u8 D_80744824;
 extern u8 D_80744828;
 extern Struct807447A0 D_8074482C[];
 extern u8 D_8074E77C;
-extern u8 D_807565E0[];
-extern u8 D_80756630[];
+const u8 D_807565E0[80] = {
+    0x01, 0x0F, 0x05, 0x19, 0x07, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x2A, 0x11, 0x26, 0x0A, 0x73, 0x74,
+    0x75, 0x12, 0x76, 0x77, 0x78, 0x20, 0x79, 0x7A, 0x7B, 0x42, 0x44, 0x45, 0x7C, 0x43, 0x4A, 0x4B,
+    0x7D, 0x7E, 0x7F, 0x80, 0x41, 0x4D, 0x81, 0x82, 0x4E, 0x4F, 0x83, 0x60, 0x84, 0x85, 0x63, 0x86,
+    0x87, 0x68, 0x88, 0x89, 0x67, 0x8A, 0x8B, 0x8C, 0x65, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93,
+    0x66, 0x94, 0x95, 0x96, 0x35, 0x49, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0x00, 0x00,
+};
+const u8 D_80756630[80] = {
+    0x0A, 0x0B, 0x0C, 0x0D, 0x00, 0x02, 0x03, 0x04, 0x05, 0x06, 0x0E, 0x08, 0x01, 0x0F, 0x0F, 0x0F,
+    0x0F, 0x10, 0x10, 0x10, 0x10, 0x11, 0x11, 0x11, 0x11, 0x12, 0x12, 0x12, 0x12, 0x13, 0x13, 0x13,
+    0x13, 0x14, 0x14, 0x14, 0x14, 0x15, 0x15, 0x15, 0x16, 0x16, 0x16, 0x17, 0x17, 0x17, 0x18, 0x18,
+    0x18, 0x19, 0x19, 0x19, 0x1A, 0x1A, 0x1A, 0x1A, 0x1B, 0x1B, 0x1B, 0x1B, 0x1C, 0x1C, 0x1C, 0x1C,
+    0x1D, 0x1D, 0x1D, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x27, 0x23, 0x24, 0x25, 0x22, 0x26, 0x00, 0x00,
+};
 extern s32 D_80767CC4;
 extern s32 D_8076A0A8;
 extern u8 D_8076A0AB;
@@ -109,8 +121,6 @@ void modelAssetGetSubtables(s32, s32 *, s32 *);
 void func_806003EC(s16 arg0);
 s32 func_8060042C(s16 arg0);
 u8 func_80600454(s16 arg0, u8 *arg1);
-s32 func_80600530(void);
-void frameTimingReset(s32 arg0);
 
 /* External functions */
 void func_8002920C(void);
@@ -134,7 +144,7 @@ void flagSet();
 void func_807313BC(void);
 void heapFree(void *);
 
-// .bss 0x8076A160-0x8076AF20
+// .bss 0x8076A160-0x8076AF00
 Struct8076A160 D_8076A160[18];
 u8 D_8076AEE0;
 u8 D_8076AEE1;
@@ -148,13 +158,6 @@ u16 D_8076AEF4;
 u8 D_8076AEF6;
 u8 D_8076AEF7;
 u8 D_8076AEF8[8];
-s16 D_8076AF00[7];
-u16 D_8076AF0E;
-s32 D_8076AF10;
-u8 D_8076AF14;
-u8 D_8076AF15;
-u16 D_8076AF16;
-u8 D_8076AF18[8];
 
 typedef struct {
     s32 unk0;
@@ -466,7 +469,113 @@ s32 func_805FF938(s16 target) {
     return found;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/3C10/func_805FF9AC.s")
+typedef struct {
+    u8 pad0[0x58];
+    s32 unk58;
+} MainLoopView58;
+
+typedef struct {
+    u8 pad0[0x24];
+    u8 rgb[52][3];
+} MainLoopSlotColors;
+
+typedef struct {
+    u8 pad0[0x1AC];
+    MainLoopView58 *unk1AC;
+    u8 pad1B0[0x1F0 - 0x1B0];
+    s32 unk1F0;
+} MainLoopObj;
+
+typedef struct {
+    u8 pad0[0x174];
+    MainLoopObj *unk174;
+} MainLoopHolder;
+
+extern s8 D_80750ACC;
+extern s32 D_807F6C28;
+extern s32 D_807FD56C;
+extern s16 D_807FD570;
+void func_806F5378();
+void func_806115A8(u8 **);
+void func_8063B8D8(u8 **, s32 *);
+void modelSlotsPackRecords(u8 **, s32 *);
+void lightGetColor(f32 *, f32 *, f32 *, s16);
+void faultSetMessage(s32, s32, s32, s32);
+
+void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
+    Struct807FBB4C *cam;
+    s32 sp50;
+    s32 i;
+    s32 found;
+    s32 k;
+    f32 r;
+    f32 g;
+    f32 b;
+    s32 pad;
+    MainLoopObj *obj;
+
+    found = 0;
+    i = 0;
+    while (i < 18 && !found) {
+        if (D_8076A160[i].unk0 != 0 && D_8076A0A8 == D_8076A160[i].unk12) {
+            found = 1;
+        } else {
+            i++;
+        }
+    }
+    if (found) {
+        func_805FFEF8(D_8076A0A8);
+    } else {
+        found = 0;
+        i = 0;
+        while (i < 18 && !found) {
+            if (D_8076A160[i].unk0 == 0) {
+                found = 1;
+            } else {
+                i++;
+            }
+        }
+        if (!found) {
+            faultSetMessage(0xA, 0, 0, 0);
+        }
+    }
+    func_806F5378();
+    func_8063B8D8((u8 **)&D_8076A160[i].unk18, &sp50);
+    func_806115A8((u8 **)&D_8076A160[i].unk18);
+    modelSlotsPackRecords((u8 **)&D_8076A160[i].unk20, (s32 *)&D_8076A160[i].unk1C);
+    if (D_8076A160[i].unk20 != 0) {
+        func_806115A8((u8 **)&D_8076A160[i].unk20);
+    }
+    D_8076A160[i].unk2 = arg3;
+    if (arg3 & 1) {
+        cam = D_807FBB4C;
+        D_8076A160[i].unk4 = cam->unk7C;
+        D_8076A160[i].unk8 = cam->unk80;
+        D_8076A160[i].unkC = cam->unk84;
+        D_8076A160[i].unk10 = cam->unkE6;
+    }
+    D_8076A160[i].unk12 = D_8076A0A8;
+    if (arg3 & 2) {
+        D_8076A160[i].unk14 = arg2;
+    }
+    for (k = 0; k < D_807F6C28; k++) {
+        lightGetColor(&r, &g, &b, k);
+        ((MainLoopSlotColors *)&D_8076A160[i])->rgb[k][0] = (u32)(r * 255.0);
+        ((MainLoopSlotColors *)&D_8076A160[i])->rgb[k][1] = (u32)(g * 255.0);
+        ((MainLoopSlotColors *)&D_8076A160[i])->rgb[k][2] = (u32)(b * 255.0);
+    }
+    k = 1;
+    D_80750ACC = k;
+    obj = ((MainLoopHolder *)D_807FBB4C)->unk174;
+    D_807FD56C = obj->unk1F0;
+    if (obj->unk1AC != NULL) {
+        D_807FD570 = obj->unk1AC->unk58;
+    } else {
+        D_807FD570 = 0;
+    }
+    D_8076A160[i].unk0 = k;
+    func_805FF378(arg0, arg1);
+}
 
 s32 func_805FFE50(s32 arg0, s16 arg1, s16 arg2) {
     s32 i = 0;
@@ -635,52 +744,3 @@ u8 func_80600454(s16 arg0, u8 *arg1) {
     }
     return ret;
 }
-
-s32 func_80600530(void) {
-    s32 i;
-    s32 found;
-
-    i = 0;
-    found = 0;
-    while (!found && i < 8) {
-        if (D_8076A0A8 == D_80744734[i]) {
-            found = 1;
-        } else {
-            i++;
-        }
-    }
-    if (!found) {
-        i = 0;
-    }
-    return i;
-}
-
-void frameTimingReset(s32 arg0) {
-    s32 i;
-
-    for (i = 0; i < 8; i++) {
-        D_8076AF00[i] = 2;
-    }
-
-    D_8076AF10 = D_80767CC4;
-    switch (arg0) {
-    case 0x6:
-    case 0x1B:
-    case 0x27:
-    case 0x28:
-    case 0x37:
-    case 0x4C:
-    case 0x6A:
-    case 0x98:
-    case 0x99:
-    case 0xAC:
-    case 0xD0:
-        D_8076AF14 = 0;
-        break;
-    default:
-        D_8076AF14 = 1;
-        break;
-    }
-}
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/3C10/frameTimingUpdate.s")
