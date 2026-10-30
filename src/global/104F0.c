@@ -155,9 +155,54 @@ void func_8060BF84(s32 arg0, u8 arg1, u16 *arg2, u8 *arg3) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C2C4.s")
+void func_8060C2C4(s32 arg0, s32 arg1, u8 arg2, u16 *arg3, s8 *arg4) {
+    s32 temp_s2;
+    s32 temp_v0;
+    s32 var_s0;
+
+    temp_s2 = arg2 & 0xFF;
+    *arg3 += 0x320;
+    var_s0 = 0;
+    if (temp_s2 > 0) {
+        do {
+            temp_v0 = modelTypeCountGet(var_s0 & 0xFF);
+            var_s0 += 1;
+            *arg3 += temp_v0;
+        } while (var_s0 != temp_s2);
+    }
+    *arg4 = 1;
+}
+
+#ifdef NON_MATCHING
+extern void func_8060BEA8(s32, u8, u16 *, u8 *);
+
+void func_8060C340(arg0, arg1, arg2, arg3, arg4, arg5)
+u16 *arg0;
+u8 *arg1;
+s32 arg2;
+unsigned char arg3;
+unsigned char arg4;
+unsigned char arg5;
+{
+    *arg0 = arg5 * ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
+    if (arg2 >= 0x11) {
+        func_8060BF84(arg2, arg4, arg0, arg1);
+        return;
+    }
+    if (arg2 >= 0xC) {
+        func_8060BEA8(arg2, arg4, arg0, arg1);
+        return;
+    }
+    if (arg2 > 0) {
+        func_8060BCA0(arg2, arg3, arg4, arg0, arg1);
+        return;
+    }
+    func_8060C2C4(arg2, arg3, arg4, arg0, (s8 *)arg1);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C340.s")
+#endif
 
 extern s32 _strchr(u8 *);
 extern u8 *D_80746800;
@@ -235,9 +280,51 @@ s32 func_8060C724(u8 arg0) {
     return func_8060C6B8(0x10, 0, 0, arg0) + 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C758.s")
+extern u8 D_807ECEA8[];
+void func_8060C758();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C830.s")
+void func_8060C758(arg0, arg1)
+unsigned char arg0;
+int arg1;
+{
+    u8 *new_var;
+    s32 s0;
+    s32 new_var2;
+    s32 size;
+    s32 offset;
+
+    do {
+        s0 = arg0;
+        offset = func_8060B9D0(s0);
+        size = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
+        new_var = D_807ECEA8 + (offset * size);
+    } while (0); // FAKE: schedules addiu t0 before lui at
+    D_807467C8 = s0;
+    bzero(new_var, size);
+    new_var2 = s0;
+    func_8060C648(0xC, 0, 0, new_var2, 1);
+    func_8060C648(0xF, 0, 0, s0 ^ 0, new_var2); // FAKE: prevents a3 CSE spill
+    if (arg1 != 0) {
+        eepromDispatchCommand(1);
+    }
+}
+
+void func_8060C830(arg0, arg1)
+unsigned char arg0;
+int arg1;
+{
+    u32 temp = arg0;
+
+    D_807467C8 = temp;
+    arg0 = temp;
+    func_8060C758(temp, 0);
+    if (func_8060C6B8(0xF, 0, 0, 3) == arg0) {
+        func_8060C758(3, 0);
+    }
+    if (arg1 != 0) {
+        eepromDispatchCommand(1);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C8AC.s")
 
@@ -257,8 +344,7 @@ void func_8060CB9C(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060CBBC.s")
 
-extern void func_8060C758(s32, s32);
-extern u8 D_807ECEA8[];
+extern void func_8060C758();
 extern void func_8060CB74(void);
 
 void func_8060D0A8(void) {

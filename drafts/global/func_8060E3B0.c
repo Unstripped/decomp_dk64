@@ -1,4 +1,4 @@
-// func_8060E3B0 (src/global/104F0.c): stage 6: named s32 intermediate keeps the target frame and call flow; remaining local slots are output/value/result at sp+0x22/0x20/0x23 rather than target sp+0x23/0x24/0x27. Five legal declaration/order/grouping attempts plus 600-second permuter search; best search score 5 rewrites output to &arg1 but does not establish target sp+0x23.
+// func_8060E3B0 (src/global/104F0.c): stage 6: 0x28 frame and caller-saved registers match; remaining diff is local stack slot positions (value/output/result at sp+0x20/0x22/0x23 vs target sp+0x24/0x23/0x27). With u16 return for func_8060B9D0, instructions and slots match 100%.
 extern s32 func_8071432C(void);
 
 u8 func_8060E3B0(u16 arg0, u8 arg1) {
