@@ -83,7 +83,7 @@ void func_806133C8(ControllerCommand *arg0, ControllerCommand *arg1) {
     if (arg0 != arg1) {
         do {
             temp_v0 = arg0->unk0;
-            if ((temp_v0 >> 0x18) == (0, 0xFD)) {
+            if ((temp_v0 >> 0x18) == (0, 0xFD)) { // FAKE: keeps bnel operand order
                 temp_v0 = arg0->unk4;
                 if (((temp_v0 * 0x10) >> 0x1C) == 0) {
                     arg0->unk4 = (u32)assetLoad(0x19, temp_v0 ^ 0, 0, 0); // FAKE: steers move a1, v0 into delay slot
@@ -170,9 +170,24 @@ void func_806136B4(ControllerAnimView *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613944.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613A50.s")
+typedef struct { u8 pad[0x14]; f32 a; f32 b; } RvE_State;
+typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } RvE_Scale;
+typedef struct { RvE_State *state; u8 pad[4]; RvE_Scale *scale; } RvE_Holder;
+typedef struct { u8 pad[4]; RvE_Holder *holder; } RvE_Controller;
+void func_80614644(RvE_Controller *, RvE_State *, f32, s16);
+
+void func_80613A50(RvE_Controller *arg0, s8 arg1) {
+    f32 temp;
+    s16 count = (s32)((arg0->holder->state->b - arg0->holder->state->a) + 1.0f);
+    s16 span = (s32)((arg0->holder->scale->b - arg0->holder->scale->a) + 1.0f);
+    temp = (arg0->holder->scale->scale * (f32)count) / (f32)span;
+    temp += (f32)arg1;
+    func_80614644(arg0, arg0->holder->state, temp, count);
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613AF8.s")
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613BA0.s")
 
@@ -188,7 +203,7 @@ typedef struct {
     ControllerState *unk0;
 } ControllerStateHolder;
 
-typedef struct {
+typedef struct ControllerStateView {
     u8 pad0[4];
     ControllerStateHolder *unk4;
 } ControllerStateView;
@@ -209,13 +224,12 @@ void func_80613C48(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613CA8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613FB0.s")
 
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613FB0.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614014.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614130.s")
-
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_8061421C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614644.s")
