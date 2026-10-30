@@ -102,7 +102,22 @@ void func_8071268C(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807126B0.s")
+extern u8 D_807FC950[][0x5E];
+extern s8 D_8074E77C;
+
+void func_807126B0(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4, s8 arg5, s8 arg6) {
+    s32 i;
+
+    D_8074E77C = arg2;
+    D_807FC950[8][0xC] = arg6;
+    D_807FC950[8][0xB] = arg6 * 4;
+    for (i = 0; i < 5; i++) {
+        D_807FC950[i][0] = arg3;
+        D_807FC950[i][1] = arg4;
+        D_807FC950[i][4] = arg5;
+    }
+    func_80712490(arg0, arg1, 12);
+}
 
 void func_80712774(s32 arg0) {
     func_80712490(arg0, 0, 0xD);
@@ -237,7 +252,6 @@ void func_80712A40(void) {
 }
 
 extern u8 D_80755328;
-extern s8 D_8074E77C;
 extern u8 D_80750AC0;
 extern u16 D_8075531C;
 extern u16 D_807ECD66;
@@ -509,7 +523,6 @@ void func_8071338C(Gfx *arg0) {
 
 extern s16 D_80744490;
 
-#ifdef NON_MATCHING
 s32 heapAlloc(s32);
 void heapFreeDeferred(void *);
 s32 textGetStringWidth(s16, s32);
@@ -534,20 +547,15 @@ void func_80713438(Gfx *arg0, u8 arg1) {
     _sprintf((char *) sp34, "%c%s", 0x63, sp30);
     temp_ft4 = (f64) textGetStringWidth(1, sp34);
     temp_ft4 = 0.5 * temp_ft4;
-    new_var2 = (s16) ((s32) (((f32) (((f64) sp28) - temp_ft4)) * 4.0f)); R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
-    if (sp28 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    R117D_WRITE_GFX(arg0++, 0xFA000000, arg1);
+    sp28 = (f32) (((f64) sp28) - temp_ft4);
+    new_var2 = (s16) ((s32) (sp28 * 4.0f));
+    R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
+    R117D_WRITE_GFX(arg0++, 0xFA000000, arg1 & 0xFF);
     R117D_WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
-    if (y && y) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     textDrawStringVtx(arg0, 1, new_var2, (s16) ((s32) (y * 4.0f)), (void *) sp34, 4);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713438.s")
-#endif
 
 
-#ifdef NON_MATCHING
 typedef struct {
     s32 unk0;
     s32 unk4;
@@ -577,16 +585,13 @@ Gfx *func_807135B4(Gfx *arg0) {
         if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (var_v1 = 1, (D_8076A0A8 == 0x4C)))) {
             return arg0;
         }
+        if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
         sp34 = (f32) ((f64) sp34 * 0.5);
         R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
         arg0 = hudDrawScaledText(arg0, (s16) (s32) (sp34 * 4.0f), (s16) (s32) ((f32) D_8074450C * sp30 * 4.0f), 0.7f, func_8070E750(0xC, (s32) (&sp38.unk0)[var_v1], 1));
     }
     return arg0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807135B4.s")
-#endif
 
 s32 func_8071375C(s32 arg0) {
     return arg0;
