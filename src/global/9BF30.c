@@ -5,7 +5,6 @@ void *heapAlloc(s32);
 s32 assetLoad(s32, s32, s32, s32);
 extern u8 *D_807FC7C0;
 
-#ifdef NON_MATCHING
 typedef struct ActorTrailState {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 pad2;
@@ -31,8 +30,6 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void matrixMakeRotationY(f32 (*)[4], f32);
 
-#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-
 Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
     ActorTrailState *sub;
     f32 mtx2[4][4];
@@ -50,20 +47,21 @@ Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
     f32 vz;
     f32 vy;
     f32 vscale;
+    Gfx *_g; // FAKE: three loop packets below share this one Gfx pointer; shrinks the block-local stack homes by 12 bytes
 
     sub = arg1->unk174;
     sp110 = 0x1000 / sub->unk0;
     idx = (((sub->unk10++) % 16) + arg1->unk168) & 0xFF;
 
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xDE000000; _g->words.w1 = (u32)(&D_1000118); } ;
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xDA380007; _g->words.w1 = (u32)(&D_2000000); } ;
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xDA380005; _g->words.w1 = (u32)(&D_2000200); } ;
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xD7000002; _g->words.w1 = 0x80008000; } ;
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xFC119623; _g->words.w1 = 0xFF2FFFFF; } ;
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xE3001201; _g->words.w1 = 0x00002000; } ;
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xD9FFFFFF; _g->words.w1 = 0x00000001; } ;
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xE200001C; _g->words.w1 = 0x00504A50; } ;
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xFA000000; _g->words.w1 = 0xFFFFFFFF; } ;
+    gSPDisplayList(arg0++, &D_1000118);
+    gSPMatrix(arg0++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(arg0++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPTexture(arg0++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
+    gDPSetCombine(arg0++, 0x119623, 0xFF2FFFFF);
+    gDPSetTextureFilter(arg0++, G_TF_BILERP);
+    gSPGeometryMode(arg0++, 0, G_ZBUFFER);
+    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x00504A50);
+    gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
 
     actorFreeModelNodeList(arg1);
 
@@ -92,7 +90,7 @@ Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
             case 1:
                 q0 = ((f64)((*((s16 *)(((u8 *)arg1) + 0xEE))) - arg1->unk15F)) * 0.05;
                 q1 = (1.0 < q0) ? (1.0) : (q0);
-                f = (f32)((q1 * 0.029) + 0.001);
+                f = (f32)((q1 * 0.028999999999999998) + 0.001);
                 vscale = 130.0f * f;
                 vz = 1500.0f * f;
                 vx = func_80612794(arg1->unkE6 + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * sp110)))));
@@ -102,8 +100,8 @@ Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
             if (arg1->unk15F != 0) {
                 actorAppendModelNode(arg1, vx, vz, vy, (f32)(((f64)vscale) * 80.0), -1);
             }
-            { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xFD180000; _g->words.w1 = ((s32 *)D_807FC7C0)[idx]; } ;
-            { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xF5180000; _g->words.w1 = 0x07080200; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xE6000000; _g->words.w1 = 0x00000000; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xF3000000; _g->words.w1 = 0x073FF080; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xE7000000; _g->words.w1 = 0x00000000; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; } ;             { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xF2000000; _g->words.w1 = 0x0007C07C; } ;
+            _g = (Gfx *)(arg0++); _g->words.w0 = 0xFD180000; _g->words.w1 = ((s32 *)D_807FC7C0)[idx];
+            gDPSetTile(arg0++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(arg0++); gDPLoadBlock(arg0++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(arg0++); _g = (Gfx *)(arg0++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(arg0++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // FAKE: shared Gfx pointer; one source line steers scheduling
 
             guScaleF(mtx2, vscale, vscale, vscale);
             matrixMakeRotationY(mtx1, (f32)(((*((s16 *)(D_807FC924 + 0x2C8))) * 0x168) / 4096));
@@ -111,20 +109,16 @@ Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
             guTranslateF(mtx1, arg1->unk7C + vx, arg1->unk80, arg1->unk84 + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
             guMtxF2L(mtx2, (Mtx *)(sub->unk4 + (((i * 2) + D_807444FC) << 6)));
-            { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xDA380003; _g->words.w1 = (u32)(sub->unk4 + (((i * 2) + D_807444FC) << 6)); } ;
-            { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0x01004008; _g->words.w1 = osVirtualToPhysical(&D_80750280); } ;
-            { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0x06000204; _g->words.w1 = 0x00000406; } ;
-            { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xE7000000; _g->words.w1 = 0x00000000; } ;
+            _g = (Gfx *)(arg0++); _g->words.w0 = 0xDA380003; _g->words.w1 = (u32)(sub->unk4 + (((i * 2) + D_807444FC) << 6)); // FAKE: shared Gfx pointer
+            gSPVertex(arg0++, osVirtualToPhysical(&D_80750280), 4, 0);
+            gSP2Triangles(arg0++, 0, 1, 2, 0, 0, 2, 3, 0);
+            gDPPipeSync(arg0++);
             i++;
         } while (i < sub->unk0);
     }
     return arg0;
 }
 
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9BF30/func_80697230.s")
-#endif
 
 
 void loadModelAssetTable(void) {
