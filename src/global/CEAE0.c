@@ -2276,14 +2276,14 @@ typedef struct G05Node {
 } G05Node;
 
 void func_806CEFBC();
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void actorRegisterGlobalCallback(void *);
 
 void func_806CEE64(f32 arg0) {
     G05Node *node;
 
     if (G05_P->unk1AC != NULL) {
-        node = func_80610FE8(0x14);
+        node = heapAlloc(0x14);
         node->unk0 = func_806CEFBC;
         node->unk8 = arg0;
         node->unkC = D_807FBB40;
@@ -2374,7 +2374,7 @@ void func_806CF0D0(void) {
     G05Node2 *node;
 
     if (G05_P->unk1AC != NULL) {
-        node = func_80610FE8(0x14);
+        node = heapAlloc(0x14);
         node->unk0 = func_806CF138;
         node->unk8 = D_807FBB40;
         node->unkC = G05_P->unk1AC;

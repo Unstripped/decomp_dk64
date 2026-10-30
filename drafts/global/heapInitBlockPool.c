@@ -1,8 +1,8 @@
-// func_80610C74 (src/global/15050.c): stage 4: frame 0x20 + s0 same, full diff 63 lines regalloc: orig spills owner(a0)/start(a1)/blockSize(a3) homes at entry because loop candidates take v0=cur v1=next a0=prev a1=bound(copy of end) a2=end a3=bs t0=stride t1=rem t2=&A28 (first-fit, 9 candidates); mine lacks the separate loop-bound candidate (a1=copy of a2) so owner stays in a0. Loop bound as recomputed (start+size-0x10) and direct D_807F0988[D_807F0A28] fields helped (86->63); permuter hint: local new_var=0x10 used in bound and end->size gives n=95/95 (full 76)
+// heapInitBlockPool (src/global/15050.c): stage 4: frame 0x20 + s0 same, full diff 63 lines regalloc: orig spills owner(a0)/start(a1)/blockSize(a3) homes at entry because loop candidates take v0=cur v1=next a0=prev a1=bound(copy of end) a2=end a3=bs t0=stride t1=rem t2=&A28 (first-fit, 9 candidates); mine lacks the separate loop-bound candidate (a1=copy of a2) so owner stays in a0. Loop bound as recomputed (start+size-0x10) and direct D_807F0988[D_807F0A28] fields helped (86->63); permuter hint: local new_var=0x10 used in bound and end->size gives n=95/95 (full 76)
 void heapSortPools(void);
 
 
-s32 func_80610C74(void *owner, u8 *start, u32 size, u16 blockSize) {
+s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
     u16 bs;
     u32 stride;
     u32 rem;

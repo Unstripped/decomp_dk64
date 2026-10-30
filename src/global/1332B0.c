@@ -38,7 +38,7 @@ typedef struct {
 } VolumeTriggerTable;
 
 extern VolumeTriggerTable *D_80755A14;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void volumeTriggerTableLoad(s16 *arg0) {
     VolumeTriggerRaw *src;
@@ -53,7 +53,7 @@ void volumeTriggerTableLoad(s16 *arg0) {
         D_80755A14->count = *arg0;
         while (i < D_80755A14->count) {
             if (i == 0) {
-                D_80755A14->entries = func_80610FE8(D_80755A14->count * 0x3A);
+                D_80755A14->entries = heapAlloc(D_80755A14->count * 0x3A);
                 e = D_80755A14->entries;
             } else {
                 e++;

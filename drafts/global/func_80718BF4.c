@@ -9,7 +9,7 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
     f32 var_fv1;
     f32 sp30;
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0x20);
+        arg0->unk384 = heapAlloc(0x20);
         ((NM2MotionState *)arg0->unk384)->unk0 = 0;
         ((NM2MotionState *)arg0->unk384)->unk4 = 0.0f;
         ((NM2MotionState *)arg0->unk384)->unk8 = arg0->unk340;

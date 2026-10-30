@@ -98,11 +98,11 @@ void func_806A8158(void) {
             break;
     }
     if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FC7E0 = func_80610FE8(0x6C);
+        D_807FC7E0 = heapAlloc(0x6C);
         for (i = 0; i < 0x1B; i++) {
             D_807FC7E0[i] = func_8070E750(0x24, i, 0);
         }
-        D_807FC7E8 = func_80610FE8(0x24);
+        D_807FC7E8 = heapAlloc(0x24);
         for (i = 0; i < 9; i++) {
             D_807FC7E8[i] = func_8070E750(0x23, i, 0);
         }
@@ -137,7 +137,7 @@ void func_806A8158(void) {
         D_807FC808 = 0.0f;
         D_807FC80C = 0;
         D_807FC80D = D_807FC80C;
-        D_807FC7F0[0] = func_80610FE8(0x1E0);
+        D_807FC7F0[0] = heapAlloc(0x1E0);
         D_807FC7F0[1] = D_807FC7F0[0] + 10;
         D_807FC7F8[0] = 0;
         D_807FC7F8[1] = 0;

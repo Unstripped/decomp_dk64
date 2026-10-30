@@ -226,7 +226,7 @@ void func_806FFF5C(void) {
 }
 
 extern void *D_80744470[];
-s32 func_80610FE8(s32);
+s32 heapAlloc(s32);
 
 s32 func_806FFF88(void) {
     s32 sp34;
@@ -239,7 +239,7 @@ s32 func_806FFF88(void) {
         func_806FFF5C();
         return;
     }
-    sp34 = func_80610FE8(0xA000);
+    sp34 = heapAlloc(0xA000);
     var_s1 = sp34;
     var_s2 = (s32)D_80744470[D_807444FC] + (D_80744490 * 7 << 4) + 0xA0;
     var_s3 = 0;
@@ -262,14 +262,14 @@ u16 color5551LerpToWhite(f32 arg0, u16 arg1) {
     return ((u8)((((arg1 & 0xF800) >> 11) - 0x1F) * arg0 + 31.0f) << 11) + ((u8)((((arg1 & 0x7C0) >> 6) - 0x1F) * arg0 + 31.0f) << 6) + ((u8)((((arg1 & 0x3E) >> 1) - 0x1F) * arg0 + 31.0f) << 1) + lsb;
 }
 
-s32 func_80610FE8(s32);
+s32 heapAlloc(s32);
 void heapFreeDeferred(void *);
 
 void color5551CopyLerpToWhite(u16 *arg0, s16 **arg1, f32 arg2) {
     s16 *var_s0;
     s16 var_s1;
 
-    *arg1 = (s16 *)func_80610FE8(0xA000);
+    *arg1 = (s16 *)heapAlloc(0xA000);
     heapFreeDeferred(*arg1);
     var_s0 = *arg1;
     for (var_s1 = 0; var_s1 < 0x5000; var_s1++) {
@@ -804,7 +804,7 @@ Gfx *func_80701CA0(Gfx *dl) {
             if (a->unk104 == 0) {}
             b = (CameraActorState *)a->unk104->unk174;
             if (force != 0 || (PLAYER_VIEW_BLOCK(i)->unk2E8 != 0 && PLAYER_VIEW_BLOCK(i)->unk220 < PLAYER_VIEW_BLOCK(i)->unk24C + 3.0f)) {
-                vtx = (Vtx *)func_80610FE8(0x40);
+                vtx = (Vtx *)heapAlloc(0x40);
                 heapFreeDeferred(vtx);
                 vtx[0].v.ob[0] = PLAYER_VIEW_BLOCK(i)->unk270;
                 vtx[0].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk272;
@@ -1025,7 +1025,7 @@ Gfx *screenFadeDrawSpinTexture(Gfx *arg0, u8 arg1) {
     if (arg1 != 0) {
         h = assetLoad(0xE, 0x5F, 0, 0);
         assetFreeBuffer(h, 0x540, 0x2F);
-        mtx = (Mtx *)func_80610FE8(0x40);
+        mtx = (Mtx *)heapAlloc(0x40);
         heapFreeDeferred(mtx);
         gSPDisplayList(arg0++, &D_1000118);
         gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);

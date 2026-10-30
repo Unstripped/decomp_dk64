@@ -58,7 +58,7 @@ extern u8 D_807FDA1C;
 extern u8 D_807FDA28;
 extern u8 D_807FDA30;
 extern void *D_807FC924;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 u32 func_80611A44(void);
 void *assetLoad(s32, s32, s32, s32);
@@ -75,7 +75,7 @@ void func_8070F5CC(u8 type, s16 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5) {
         return;
     }
     if ((pool->count == 0) && (D_807FDA28 == 0)) {
-        pool->entries = func_80610FE8(0x5C00);
+        pool->entries = heapAlloc(0x5C00);
         heapClearBlock(pool->entries);
         D_807FDA1C = type;
         setup = (R114c4TextureSetup *)((u8 *)&D_80755264 + (type * 0x14));

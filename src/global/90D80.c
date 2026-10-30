@@ -114,7 +114,7 @@ void renderCallbacksRegister(void *func, void *actor, u8 layer) {
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFreeDeferred(void *);
 typedef f32 RenderMtxF[4][4];
 void matrixMakeRotationZ(RenderMtxF, f32);
@@ -125,7 +125,7 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
     RenderMtxF sp60;
     Mtx *mtx;
     s32 pad;
-    mtx = func_80610FE8(sizeof(Mtx));
+    mtx = heapAlloc(sizeof(Mtx));
     heapFreeDeferred(mtx);
 
     gDPPipeSync(glist++);

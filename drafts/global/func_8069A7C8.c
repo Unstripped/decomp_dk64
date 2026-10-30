@@ -59,7 +59,7 @@ void func_8069A7C8(void) {
     state = (M1ProximityState *)D_807FBB40->unk174;
     if (!(flags & 0x10)) {
         D_807FBB40->unk60 = flags | 0x400;
-        ((M1Sub4 *)D_807FBB40->unk4)->unk24 = (M1Sub4Node *)func_80610FE8(0x20);
+        ((M1Sub4 *)D_807FBB40->unk4)->unk24 = (M1Sub4Node *)heapAlloc(0x20);
         ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk0 = 1;
         ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk1 = 0xFF;
         ((M1Sub4 *)D_807FBB40->unk4)->unk24->unk4 = 0.0f;

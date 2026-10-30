@@ -62,7 +62,7 @@ extern u8 D_807FB546;
 extern u8 D_807FB549;
 extern u8 D_807FB604;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFree(void *);
 
 void dynamicBufferPurgeExpired(void);
@@ -190,7 +190,7 @@ void collisionBuildSlotBoxes(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f
     if (count != 0) {
         buf->unk15 |= 2;
         if (!(buf->unk15 & 1)) {
-            buf->unk18 = func_80610FE8(count * 0x58);
+            buf->unk18 = heapAlloc(count * 0x58);
         }
         entry = (u8 *)(MODEL_COLLISION_ASSET->unk4C + arg1) + 4;
         out = buf->unk18;
@@ -348,8 +348,8 @@ void collisionInitStaticCache(CollisionStaticHeader *arg0) {
     D_807FB549 = 0;
     if (arg0->unk9 & 1) {
         sp60 = var_s0;
-        var_s0 = func_80610FE8(arg0->unk0);
-        sp30 = func_80610FE8(0x2400);
+        var_s0 = heapAlloc(arg0->unk0);
+        sp30 = heapAlloc(0x2400);
         sp5C = var_s0;
         sp58 = sp60;
         gunzip(&sp58, &sp5C, sp30);
@@ -360,7 +360,7 @@ void collisionInitStaticCache(CollisionStaticHeader *arg0) {
     }
     sp38 = assetGetSize(2, D_8076A0A8);
     D_807FB530 = *(s32 *)var_s0;
-    D_807FB534 = func_80610FE8(0x1518);
+    D_807FB534 = heapAlloc(0x1518);
     var_a2 = (s32 *)(var_s0 + 4);
     elem_size = 24;
     D_807FB538 = arg0->unk10 * arg0->unk12;
@@ -410,11 +410,11 @@ void collisionLoadStaticCell(s32 arg0) {
         sp54 = COLLISION_STATIC_CELLS[arg0].unk10;
         if (sp54 != 0) {
             if (D_807FB549 == 0) {
-                COLLISION_STATIC_CELLS[arg0].unk4 = func_80610FE8(sp54);
+                COLLISION_STATIC_CELLS[arg0].unk4 = heapAlloc(sp54);
                 func_8060B140(COLLISION_STATIC_CELLS[arg0].unkC, COLLISION_STATIC_CELLS[arg0].unk4, &sp54, 0, 0, 0, 0);
             }
             cnt = COLLISION_STATIC_CELLS[arg0].unk14;
-            COLLISION_STATIC_CELLS[arg0].unk0 = func_80610FE8(cnt * 0x28);
+            COLLISION_STATIC_CELLS[arg0].unk0 = heapAlloc(cnt * 0x28);
             s1 = COLLISION_STATIC_CELLS[arg0].unk4;
             s2 = COLLISION_STATIC_CELLS[arg0].unk0;
             for (; cnt != 0; cnt--) {
@@ -1049,7 +1049,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if (s3 > 0) {
             one = 1;
             do {
-                node = (ActorSphereNodeSrc *)func_80610FE8(sizeof(ActorSphereNodeSrc));
+                node = (ActorSphereNodeSrc *)heapAlloc(sizeof(ActorSphereNodeSrc));
                 node->next = NULL;
                 node->unk0 = *(f32 *)arg9;
                 node->unk4 = *((f32 *)arg9 + 1);
@@ -1073,7 +1073,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if (s3 > 0) {
             s2 = &sub140->unk90;
             do {
-                subnode = (ActorPointNode *)func_80610FE8(sizeof(ActorPointNode));
+                subnode = (ActorPointNode *)heapAlloc(sizeof(ActorPointNode));
                 subnode->next = NULL;
                 subnode->unk0 = *(f32 *)arg9;
                 subnode->unk4 = *((f32 *)arg9 + 1);
@@ -1091,8 +1091,8 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         arg9 += 4;
         sub140->unk9C = (s32)s2;
         if (s2 != NULL) {
-            sub140->unkA0 = (a3 = func_80610FE8((s32)s2 * sizeof(ActorSub140SrcTri)));
-            sub140->unkA4 = (s32)func_80610FE8((s32)s2 * sizeof(ActorSub140Tri));
+            sub140->unkA0 = (a3 = heapAlloc((s32)s2 * sizeof(ActorSub140SrcTri)));
+            sub140->unkA4 = (s32)heapAlloc((s32)s2 * sizeof(ActorSub140Tri));
             sub140->unkA8 = sub140->unkA4;
         }
         if ((s32)s2 > 0) {
@@ -1123,7 +1123,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         arg9 += 4;
         sub140->unk94 = (s32)s2;
         if (s2 != NULL) {
-            tmp = func_80610FE8((s32)s2 * sizeof(ActorSub140Tri));
+            tmp = heapAlloc((s32)s2 * sizeof(ActorSub140Tri));
             sub140->unk98 = tmp;
             sp54 = tmp;
         }
@@ -1222,7 +1222,7 @@ void func_8066E6C8(Actor *arg0, s32 arg1, u8 arg2) {
 void actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     ActorSub140 *temp_v0;
 
-    temp_v0 = (ActorSub140 *)func_80610FE8(sizeof(ActorSub140));
+    temp_v0 = (ActorSub140 *)heapAlloc(sizeof(ActorSub140));
     temp_v0->unk0 = (s32) (arg0 * 8.0f);
     temp_v0->unk4 = (s32) (arg1 * 8.0f);
     temp_v0->unk8 = (s32) (arg2 * 8.0f);
@@ -1286,7 +1286,7 @@ void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
     ActorModelSubNode *curr;
 
     sub = arg0->unk140;
-    node = (ActorModelSubNode *)func_80610FE8(sizeof(ActorModelSubNode));
+    node = (ActorModelSubNode *)heapAlloc(sizeof(ActorModelSubNode));
     node->next = NULL;
     head = (ActorModelSubNode **)&sub->unk90;
     node->unk0 = arg1;
@@ -1314,7 +1314,7 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     ActorModelNode *curr;
 
     sub = arg0->unk140;
-    node = (ActorModelNode *)func_80610FE8(sizeof(ActorModelNode));
+    node = (ActorModelNode *)heapAlloc(sizeof(ActorModelNode));
     node->next = NULL;
     head = (ActorModelNode **)&sub->unk8C;
     node->unk0 = arg1;

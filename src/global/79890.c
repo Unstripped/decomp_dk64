@@ -64,7 +64,7 @@ typedef struct Beh798_Node {
     struct Beh798_Node *next;
 } Beh798_Node;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 extern Beh798_Node *D_807FB620;
 extern Beh798_Node *D_807FB624;
 extern s32 D_807FB628;
@@ -72,7 +72,7 @@ extern s32 D_807FB628;
 void func_806752D4(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, s32 arg6) {
     Beh798_Node *temp_v0;
 
-    temp_v0 = func_80610FE8(sizeof(Beh798_Node));
+    temp_v0 = heapAlloc(sizeof(Beh798_Node));
     temp_v0->unk0 = arg1;
     temp_v0->unk4 = arg2;
     temp_v0->unk8 = arg3;
@@ -109,7 +109,7 @@ void func_80675380(s32 arg0, void *arg1) {
     Beh798_Node *node;
     Beh798_Node *next;
 
-    arr = func_80610FE8(D_807FB628 * sizeof(Beh7982_Elem));
+    arr = heapAlloc(D_807FB628 * sizeof(Beh7982_Elem));
     node = D_807FB620;
     for (i = 0; i < D_807FB628; i++) {
         arr[i].unk0 = node->unk0;

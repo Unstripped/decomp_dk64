@@ -854,7 +854,7 @@ void actorMirrorParentModelY(void) {
 }
 
 
-void func_80663BE8(void *);
+void triggerZoneRemoveSpawned(void *);
 
 void actorMirrorParentModelAxis(void) {
     Mtx mtxL;
@@ -876,13 +876,13 @@ void actorMirrorParentModelAxis(void) {
     }
     if (!actorTableContains((Actor *) sub->unk0) || sub->unk4 != ATTACHED_ACTOR->unk11C->unk54) {
         actorDespawn(D_807FBB40);
-        func_80663BE8(D_807FBB40);
+        triggerZoneRemoveSpawned(D_807FBB40);
         return;
     }
     if (!(sub->unk8 == ATTACHED_ACTOR->unk11C->unk58 && actorIsActive((Actor *) sub->unk0)
           && (((ParentActor *) sub->unk0)->unk68 & 0x80))) {
         actorDespawn(D_807FBB40);
-        func_80663BE8(D_807FBB40);
+        triggerZoneRemoveSpawned(D_807FBB40);
         ((ParentActor *) sub->unk0)->unk156--;
         return;
     }

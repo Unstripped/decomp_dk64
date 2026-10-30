@@ -26,7 +26,7 @@ typedef struct P112bTextTable {
     s32 offset;
 } P112bTextTable;
 
-extern void *func_80610FE8(s32);
+extern void *heapAlloc(s32);
 extern void *func_8070DDDC(s32, s32);
 extern u8 D_807550C8;
 extern void heapFreeDeferred(void *);
@@ -42,7 +42,7 @@ s32 func_8070E750(s32 arg0, s32 arg1, s32 arg2) {
     source = (s32)(table->entries[arg1].resource->choices + D_807550C8)->value->text + table->offset;
     textLength = (table->entries[arg1].resource->choices + D_807550C8)->value->length;
     length = textLength;
-    destination = (s32)func_80610FE8(length + 1);
+    destination = (s32)heapAlloc(length + 1);
     if (arg2 & 1) {
         heapFreeDeferred(destination);
     }

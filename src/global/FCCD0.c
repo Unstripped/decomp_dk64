@@ -137,7 +137,7 @@ extern s16 D_80744544;
 extern u16 D_80750AC4;
 extern u16 D_80750AC8;
 extern void *gSlotQueueMaskList;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 s32 func_806C8DE0(s32);
 s32 slotQueueGetMaxValue();
@@ -169,7 +169,7 @@ void slotQueueInit(s32 arg0) {
         sp96 = 0;
     }
     if (arg0 != 0) {
-        gSlotQueue = func_80610FE8(D_807FC928 * 0x2D0);
+        gSlotQueue = heapAlloc(D_807FC928 * 0x2D0);
         heapClearBlock(gSlotQueue);
         gSlotQueueMaskList = 0;
     }
@@ -730,22 +730,22 @@ typedef struct SlotQueueNodeRecord {
 void slotQueueAllocSpriteNode(SlotQueueNodeRecord **arg0) {
     SlotQueueNodeRecord *temp;
 
-    temp = func_80610FE8(0x1C);
+    temp = heapAlloc(0x1C);
     *arg0 = temp;
     heapClearBlock(temp);
     (*arg0)->unk0 = 1;
-    (*arg0)->unk14 = func_80610FE8(0xC);
+    (*arg0)->unk14 = heapAlloc(0xC);
     heapClearBlock((*arg0)->unk14);
 }
 
 void slotQueueAllocLabelNode(SlotQueueNodeRecord **arg0) {
     SlotQueueNodeRecord *temp;
 
-    temp = func_80610FE8(0x1C);
+    temp = heapAlloc(0x1C);
     *arg0 = temp;
     heapClearBlock(temp);
     (*arg0)->unk0 = 0;
-    (*arg0)->unk14 = func_80610FE8(0x88);
+    (*arg0)->unk14 = heapAlloc(0x88);
     heapClearBlock((*arg0)->unk14);
 }
 
@@ -1594,7 +1594,7 @@ void slotQueuePushActiveMask(void) {
     while (*link != NULL) {
         link = &(*link)->next;
     }
-    alloc = func_80610FE8(8);
+    alloc = heapAlloc(8);
     *link = alloc;
     heapClearBlock(alloc);
     for (i = 0; i < 15; i++) {

@@ -20,7 +20,7 @@ void func_80649E34(CsState *cs, s16 csId, s16 b, s16 c)
   s32 d;
   if ((*((CsB8E34State **) cs)) == 0)
   {
-    st = func_80610FE8(8);
+    st = heapAlloc(8);
     *((CsB8E34State **) cs) = st;
     st->unk0 = 0;
     st->unk4 = 0;

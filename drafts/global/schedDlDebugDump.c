@@ -1,4 +1,4 @@
-// func_8060FAE4 (src/global/131B0.c): stage 4-5 (parked): frame 0xB8 + callee set match; 3 deadsweep FAKEs (full 224->142). Remaining: uopt pointerizes extern/bss scalars in the first block (D_807F0568 -> s1 with 'move a0,s1; lhu 0(s1)', D_80746A2C/A1C pointers in a1/v1, D_80746A14 chain-store pointer) where the target re-emits lui per access; no single dead stmt removes the D_807F0568 pointer (predicate sweep over all points/syms); op/i swap s0/s1 in the loop; beam sweep plateaus ~140
+// schedDlDebugDump (src/global/131B0.c): stage 4-5 (parked): frame 0xB8 + callee set match; 3 deadsweep FAKEs (full 224->142). Remaining: uopt pointerizes extern/bss scalars in the first block (D_807F0568 -> s1 with 'move a0,s1; lhu 0(s1)', D_80746A2C/A1C pointers in a1/v1, D_80746A14 chain-store pointer) where the target re-emits lui per access; no single dead stmt removes the D_807F0568 pointer (predicate sweep over all points/syms); op/i swap s0/s1 in the loop; beam sweep plateaus ~140
 typedef struct {
     u8 op;
     char name[13];
@@ -21,7 +21,7 @@ extern u32 D_80744478;
 extern void faultFontSetColorMode(s32);
 extern void controllerStartRead(void);
 
-s32 func_8060FAE4(s32 arg0, s32 arg1) {
+s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     u8 op;
     s32 size;
     u32 *w;

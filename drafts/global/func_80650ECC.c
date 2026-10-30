@@ -36,7 +36,7 @@ extern u8 *D_807F6C24;
 extern struct M55P2SearchEntry *D_807F70B0;
 extern struct M55P2BoxEntry *D_807F70B4;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void lightSetTargetColor(f32, f32, f32, s16);
 void lightCopyTargetColors(s16);
 void func_80651904(s32, s32, void *, s32 *, s32, s32);
@@ -62,7 +62,7 @@ void func_80650ECC(M50ECCMapData *arg0) {
     D_807F70AB = 0;
     if (D_807F6C28 != 0) {
         D_807F7138 = arg0->unkC;
-        D_807F7074 = func_80610FE8(0x40);
+        D_807F7074 = heapAlloc(0x40);
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
         off = arg0->unk58;
         D_807F70AC = *(s32 *)((u8 *)arg0 + off);
@@ -77,7 +77,7 @@ void func_80650ECC(M50ECCMapData *arg0) {
         off = arg0->unk6C;
         D_807F6C20 = *(s32 *)((u8 *)arg0 + off);
         D_807F6C1C = (u8 *)arg0 + off + 4;
-        D_807F6C2C = func_80610FE8(D_807F6C20);
+        D_807F6C2C = heapAlloc(D_807F6C20);
         off = arg0->unk70;
         D_807F6C10 = *(s32 *)((u8 *)arg0 + off);
         D_807F6C0C = (u8 *)arg0 + off + 4;
@@ -89,7 +89,7 @@ void func_80650ECC(M50ECCMapData *arg0) {
                 ((M50ECCReloc *)D_807F6C0C)[i].unkC += (s32)arg0 + base;
             }
         }
-        D_807F6C18 = func_80610FE8(D_807F6C28 * 0x1C8);
+        D_807F6C18 = heapAlloc(D_807F6C28 * 0x1C8);
         w4 = w + 4;
         i = 0;
         if (D_807F6C28 > 0) {
@@ -174,7 +174,7 @@ void func_80650ECC(M50ECCMapData *arg0) {
                 D_807F6C18[i].unk86 = *(s16 *)(w4 + colOff + 0xA);
                 D_807F6C18[i].unk28 = -1;
                 if (count != 0) {
-                    D_807F6C18[i].unk4C = func_80610FE8(count * 0x24);
+                    D_807F6C18[i].unk4C = heapAlloc(count * 0x24);
                     memcpy(D_807F6C18[i].unk4C, buf, count * 0x24);
                     j = 0;
                     for (j = 0; j < count; j++) {
@@ -186,7 +186,7 @@ void func_80650ECC(M50ECCMapData *arg0) {
                 i++;
             } while (i < D_807F6C28);
         }
-        D_807F6C24 = func_80610FE8(D_807F6C20 / 2 * 0x30);
+        D_807F6C24 = heapAlloc(D_807F6C20 / 2 * 0x30);
         for (i = 0; i < D_807F6C20 / 2; i++) {
             func_80651C2C(i, D_807F6C24 + i * 0x30);
         }

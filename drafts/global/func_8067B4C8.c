@@ -43,7 +43,7 @@ typedef struct KaS2_ActorSub174_B4C8 {
 } KaS2_ActorSub174_B4C8;
 
 extern u8 D_8071FBC8;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void sfxAllocateChannel(s32, f32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorQueueDelayedCallback(Actor *, Actor *, s32, s32, s32, s32, s32);
@@ -58,7 +58,7 @@ void func_8067B4C8(void) {
     temp_s0 = D_807FBB40;
     temp_s2 = (KaS2_8067B4C8 *)temp_s0->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((KaS2_ActorSub4 *)D_807FBB40->unk4)->unk1C = (KaS2_ActorSub4_1C *)func_80610FE8(0x10);
+        ((KaS2_ActorSub4 *)D_807FBB40->unk4)->unk1C = (KaS2_ActorSub4_1C *)heapAlloc(0x10);
         ((KaS2_ActorSub4 *)D_807FBB40->unk4)->unk1C->unk0 = 0x7F;
         ((KaS2_ActorSub4 *)D_807FBB40->unk4)->unk1C->unk1 = 2;
         ((KaS2_ActorSub4 *)D_807FBB40->unk4)->unk1C->unk2 = (s16)(u32)((((KaS2_SpawnArgs *)D_807FBB40->unk124)->yaw * 65536.0f) / 360.0f);

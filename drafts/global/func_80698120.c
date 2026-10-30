@@ -77,7 +77,7 @@ extern ActorGlobalState D_807FBB70;
 
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void actorUpdateModelMatrix(void *, s32);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 s32 func_80611A44(void);
 f32 func_80612D1C(f32);
 s32 mathAngleDistance(s16, s16);
@@ -110,7 +110,7 @@ void func_80698120(s32 arg0) {
         data->unk1C = D_807FBB40->unk80;
         data->unk18 = 0.0f;
         data->unk24 = (f32)((f64)(s32)((func_80611A44() >> 15) % 100) / 1000.0 + 0.1);
-        ((L98120_Sub4 *)D_807FBB40->unk4)->unk1C = func_80610FE8(0x80);
+        ((L98120_Sub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x80);
         proxPathAdd(D_807FBB40, 0, 0, 0, (u8)arg0, 0.0f, (f32)((f64)(u8)arg0 * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
         for (i = 1; i <= (u8)arg0; i++) {
             proxPathSetSegment(D_807FBB40, 0, (u8)(i - 1), (u8)i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);

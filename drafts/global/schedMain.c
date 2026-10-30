@@ -57,7 +57,7 @@ void schedMain(void *arg0) {
                             D_80746848 = 1;
                         }
                     }
-                    func_8060FAE4(D_80746844, flag);
+                    schedDlDebugDump(D_80746844, flag);
                     D_80746844 = 0;
                     D_8074682C = -0x12C;
                 }
@@ -75,7 +75,7 @@ void schedMain(void *arg0) {
             schedHandleRetrace(arg0);
             break;
         case 0x29E:
-            func_8060F208(arg0);
+            schedStartAudioOrYield(arg0);
             break;
         case 0x29B:
             schedHandleRSP(arg0);

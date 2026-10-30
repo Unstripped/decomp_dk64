@@ -27,7 +27,7 @@ s32 func_8070DDDC(u16 arg0, s32 arg1) {
         sp1C = temp_a0;
         sp20 = func_8070D6D8(temp_a0);
         assetFreeBuffer(temp_a0, 0x1F1, 0x50);
-        var_v0 = func_80610FE8(0x10);
+        var_v0 = heapAlloc(0x10);
         var_a0 = var_v0;
         *var_v1 = var_v0;
         var_v0->unk4 = sp20;

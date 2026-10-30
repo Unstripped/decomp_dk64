@@ -255,7 +255,7 @@ extern u8 D_807444FC;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFreeDeferred(void *);
 s32 func_806A3E9C();
 
@@ -315,7 +315,7 @@ Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
     state = arg1->unk174;
     node = state->unkC;
     stop = 0;
-    dl = func_80610FE8(0x4000);
+    dl = heapAlloc(0x4000);
     heapFreeDeferred(dl);
     start = dl;
     WRITE_GFX(dl++, 0xDE000000, (u32) &D_1000118);
@@ -937,7 +937,7 @@ extern u16 D_807ECD58;
 extern u16 D_807ECD66;
 extern u8 D_807503F0;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void camResumePath(void);
 void func_806A4DDC(Actor *);
 void func_806A5174(Actor *, SpriteBehaviour *, f32);
@@ -956,7 +956,7 @@ void func_806A5868(void) {
     sp18 = 0.05f;
     if (!(D_807FBB40->unk60 & 0x10)) {
         sp18 = 1.0f;
-        sub->unk34 = func_80610FE8(0x280);
+        sub->unk34 = heapAlloc(0x280);
         sub->unk55 = 0;
     } else if (!(sub->unk55 & 1)) {
         if (D_807FBB40->unk154 != 4 && D_807FBB40->unk154 != 5) {

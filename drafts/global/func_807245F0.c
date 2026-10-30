@@ -46,7 +46,7 @@ void func_807245F0(Fx127BPathOwner *arg0, u8 arg1) {
     sp47 = 0;
     fresh = 0;
     if (arg0->unk118 == NULL) {
-        arg0->unk118 = func_80610FE8(0x14);
+        arg0->unk118 = heapAlloc(0x14);
         s = arg0->unk118;
         if (arg0->unkB0 != -1 && pathExists(arg0->unkB0) != 0) {
             s->unk12 = arg0->unkB0;

@@ -21,7 +21,7 @@ typedef struct ModelData {
     ModelVertex unk8[10];
 } ModelData; /* 0xD0 */
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void *memcpy(void *, const void *, unsigned int);
 
 void func_8064F450(ModelData **arg0, u8 *arg1) {
@@ -34,11 +34,11 @@ void func_8064F450(ModelData **arg0, u8 *arg1) {
     u32 i;
 
     if (*(u32 *)(arg1 + 0x68) != *(u32 *)(arg1 + 0x64)) {
-        m = func_80610FE8(0xD0);
+        m = heapAlloc(0xD0);
         *arg0 = m;
         n = *(u32 *)(arg1 + *(u32 *)(arg1 + 0x68));
-        m->unk0 = func_80610FE8(n);
-        m->unk4 = func_80610FE8(n);
+        m->unk0 = heapAlloc(n);
+        m->unk4 = heapAlloc(n);
         src = arg1 + *(u32 *)(arg1 + 0x68);
         size = *(u32 *)(src + 4);
         memcpy(m->unk0, src + 8, size);
@@ -140,13 +140,13 @@ u8 *arg0;
 
 void heapFreeDeferred(void *);
 void heapFree(void *);
-void func_80650684();
+void mtxCopyQueueCancelGroup();
 
 void modelSlotFree(u8 **arg0) {
     if (arg0 != NULL) {
         heapFreeDeferred(arg0[0]);
         heapFreeDeferred(arg0[1]);
-        func_80650684(arg0);
+        mtxCopyQueueCancelGroup(arg0);
         heapFree(arg0);
     }
 }
@@ -157,7 +157,7 @@ extern u32 D_807F6BE8;
 extern u8 D_807F6BEC;
 extern u8 D_807444FC;
 s32 hashTableLookup();
-void func_806506E8();
+void mtxCopyQueueFlush();
 void modelAnimEntryStep(void *);
 
 u8 modelSlotStepAnimations(arg0)
@@ -182,22 +182,22 @@ s16 arg0;
             }
             p += 0x14;
         }
-        func_806506E8(base);
+        mtxCopyQueueFlush(base);
     }
     return D_807F6BEC;
 }
 
-void func_806500E0(void *);
+void modelAnimEntryAdvance(void *);
 void func_8064F97C(ModelAnimEntryRaw *);
 
 void modelAnimEntryStep(void *arg0) {
-    func_806500E0(arg0);
+    modelAnimEntryAdvance(arg0);
     func_8064F97C(arg0);
 }
 
-void func_8064FB64();
-void func_8065054C();
-void func_806505F0();
+void modelAnimEntryBuildKeyMatrix();
+void mtxCopyQueuePush();
+void mtxCopyQueueCancelDest();
 
 void func_8064F97C(ModelAnimEntryRaw *arg0) {
     u8 *node;
@@ -216,13 +216,13 @@ void func_8064F97C(ModelAnimEntryRaw *arg0) {
     i = 0;
     p = node + 0x3C;
     while (i < *(u8 *)(node + 0x39)) {
-        func_8064FB64(arg0->unk11, arg0->unk4, p, p + 8, arg0->unk13);
+        modelAnimEntryBuildKeyMatrix(arg0->unk11, arg0->unk4, p, p + 8, arg0->unk13);
         c = *(u32 *)p + b;
         if (arg0->unkE == 0) {
             d = *(u32 *)p + a;
-            func_8065054C(D_807F6BE8, d, c);
+            mtxCopyQueuePush(D_807F6BE8, d, c);
         } else {
-            func_806505F0(c);
+            mtxCopyQueueCancelDest(c);
         }
         i++;
         p += stride;
@@ -247,17 +247,17 @@ void func_8064FA7C(u32 *arg0, u32 *arg1) {
     i = 0;
     while (i < *(u8 *)(node + 0x39)) {
         c = *(u32 *)p + b;
-        func_8065054C(arg0, *(u32 *)p + a, c);
+        mtxCopyQueuePush(arg0, *(u32 *)p + a, c);
         i++;
         p += stride;
     }
     if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (extends D_807444FC live range: v1 not v0, address temps a2/a3)
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_8064FB64.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/modelAnimEntryBuildKeyMatrix.s")
 
 #ifdef NON_MATCHING
-typedef struct ModelBAnim {
+typedef struct ModelAnimEntryView {
     u8 *unk0;
     f32 unk4;
     s16 unk8;
@@ -269,12 +269,12 @@ typedef struct ModelBAnim {
     s8 unk11;
     u8 unk12;
     u8 unk13;
-} ModelBAnim;
+} ModelAnimEntryView;
 
 extern u32 D_80744478;
 
-void func_806500E0(void *arg0raw) {
-    ModelBAnim *arg0;
+void modelAnimEntryAdvance(void *arg0raw) {
+    ModelAnimEntryView *arg0;
     u8 *node;
     u8 *p;
     u32 limit;
@@ -373,7 +373,7 @@ void func_806500E0(void *arg0raw) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/func_806500E0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/modelAnimEntryAdvance.s")
 #endif
 
 
@@ -417,7 +417,7 @@ void func_8065051C(void) {
     }
 }
 
-void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
+void mtxCopyQueuePush(s32 arg0, s32 arg1, s32 arg2) {
     s32 found;
     s32 i;
 
@@ -442,7 +442,7 @@ void func_8065054C(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 
-void func_806505F0(s32 arg0) {
+void mtxCopyQueueCancelDest(s32 arg0) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
         if (D_807F6960[i].unk0 != 0 && D_807F6960[i].unk8 == arg0) {
@@ -452,7 +452,7 @@ void func_806505F0(s32 arg0) {
 }
 
 
-void func_80650684(s32 arg0) {
+void mtxCopyQueueCancelGroup(s32 arg0) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
         if (D_807F6960[i].unk0 == arg0) {
@@ -463,7 +463,7 @@ void func_80650684(s32 arg0) {
 
 
 
-void func_806506E8(s32 arg0) {
+void mtxCopyQueueFlush(s32 arg0) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
         if (D_807F6960[i].unk0 == arg0 && D_807F6960[i].unkC == D_807444FC) {
@@ -474,7 +474,7 @@ void func_806506E8(s32 arg0) {
     }
 }
 
-void func_80650794(s16 arg0, s16 arg1, u8 arg2, f32 arg3) {
+void modelAnimEntrySetUnk13(s16 arg0, s16 arg1, u8 arg2, f32 arg3) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
     u32 value;
@@ -540,7 +540,7 @@ void modelAnimEntrySetUnkC(s16 arg0, s16 arg1, s16 arg2) {
     }
 }
 
-s16 func_80650A70(s16 arg0, s16 arg1) {
+s16 modelAnimEntryGetUnkC(s16 arg0, s16 arg1) {
     ModelAnimGroup *group;
 
     group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;

@@ -6,7 +6,7 @@ extern u32 D_8076A064;
 extern s32 D_8076A0A8;
 extern Actor *D_807FBB4C;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 u32 func_806119A0(void);
 f32 func_806119FC(void);
 char randomNonNegative(void); // FAKE: byte-return home steers effectWispHomeUpdate's spill layout (real return is s32)
@@ -53,7 +53,7 @@ void func_80716FB4(RotatingEffectActorView *arg0, void *arg1) {
 
     var_v1 = (RotationState *)arg0->unk384;
     if (var_v1 == NULL) {
-        arg0->unk384 = func_80610FE8(8);
+        arg0->unk384 = heapAlloc(8);
         ((RotationState *)arg0->unk384)->unk0 = (func_806119A0() % 36000U) / 100U;
         ((RotationState *)arg0->unk384)->unk4 = (func_806119A0() % 400U) / 100U;
         var_v1 = (RotationState *)arg0->unk384;
@@ -78,7 +78,7 @@ void effectOrbitXZUpdate(RotatingEffectActorView *arg0, void *arg1) {
     OrbitMotionState10 *var_v1;
 
     if (!arg0->unk384) {
-        arg0->unk384 = func_80610FE8(0xA);
+        arg0->unk384 = heapAlloc(0xA);
         var_v1 = arg0->unk384;
         var_v1->unk0 = (s16) ((randomNonNegative() >> 15) % 0xFFF);
         var_v1->unk2 = arg0->unk35C & 0xFFFF;
@@ -107,7 +107,7 @@ void effectPuffRiseUpdate(RotatingEffectActorView *arg0, void *arg1) {
     PuffRiseMotionState *var_v1;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(8);
+        arg0->unk384 = heapAlloc(8);
         var_v1 = arg0->unk384;
         var_v1->unk0 = (randomNonNegative() >> 15) % 0xFFF;
         var_v1->unk2 = ((randomNonNegative() >> 15) % 10) + 2;
@@ -160,7 +160,7 @@ void func_80717404(ConfettiActorView *arg0, void *arg1) {
     s32 rem;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
+        arg0->unk384 = heapAlloc(0xC);
         var_s2 = &arg0->unk35C;
         do {} while (0); // FAKE: block boundary
         motion = arg0->unk384;
@@ -227,7 +227,7 @@ void func_80717814(RotatingEffectActorView *arg0, void *arg1) {
 
     actor = arg0;
     if (actor->unk384 == NULL) {
-        actor->unk384 = func_80610FE8(4);
+        actor->unk384 = heapAlloc(4);
         motion = actor->unk384;
         motion->unk0 = (randomNonNegative() >> 15) % 4095;
         motion->unk2 = ((randomNonNegative() >> 15) % 10) + 2;
@@ -280,7 +280,7 @@ void func_80717930(OrbitEffectActorView *arg0, void *arg1) {
     ScaleHolder *temp_v0_2;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0xA);
+        arg0->unk384 = heapAlloc(0xA);
         temp_v0 = arg0->unk384;
         ((OrbitMotionState *)temp_v0)->unk0 = (randomNonNegative() >> 0xF) % 4095;
         ((OrbitMotionState *)temp_v0)->unk2 = arg0->unk340;
@@ -370,7 +370,7 @@ s8 *arg1;
 
     scale = (f32) ((s32) (arg0->unk34C * 3) / 4);
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(6);
+        arg0->unk384 = heapAlloc(6);
         var_v1 = arg0->unk384;
         var_v1->unk0 = 0;
         var_v1->unk2 = *(s16 *) ((u8 *) arg0->unk330 + 0x16) * arg0->unk350;
@@ -445,7 +445,7 @@ void effectDriftXZUpdate(RotatingEffectActorView *arg0, void *arg1) {
     DriftMotionState *state;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0x10);
+        arg0->unk384 = heapAlloc(0x10);
         state = arg0->unk384;
         state->unk0 = arg0->unk340;
         state->unk4 = arg0->unk348;
@@ -478,7 +478,7 @@ s8 *arg1;
 
     if (arg0->unk384 == NULL) {
         parent = arg0->unk338;
-        arg0->unk384 = func_80610FE8(0x10);
+        arg0->unk384 = heapAlloc(0x10);
         state = arg0->unk384;
         if (parent != NULL) {
             state->unk0 = (*(f32 *) ((u8 *) parent + 0xB8) * 0.025f) * func_80612794(*(s16 *) ((u8 *) parent + 0xEE));
@@ -533,7 +533,7 @@ void effectFallUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
     var_v1 = arg0->unk384;
     if (var_v1 == NULL) {
-        temp_v0 = func_80610FE8(2);
+        temp_v0 = heapAlloc(2);
         arg0->unk384 = temp_v0;
         *temp_v0 = 0;
         var_v1 = arg0->unk384;
@@ -580,7 +580,7 @@ void func_80718380(TimedEffectActorView *arg0, s8 *arg1) {
     u32 temp_v1;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(4);
+        arg0->unk384 = heapAlloc(4);
         temp_v1 = (u32) (func_806119A0() % 36000U) / 100U;
         *(f32 *) arg0->unk384 = (f32) temp_v1;
     }
@@ -618,7 +618,7 @@ void effectGroundDecalSpinUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     EffectMatrix sp30;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(8);
+        arg0->unk384 = heapAlloc(8);
         ((GroundSpinState *) arg0->unk384)->unk0 = 0.0f;
         ((GroundSpinState *) arg0->unk384)->unk4 = (f32) ((func_806119A0() % 400U) / 100U);
     }
@@ -673,7 +673,7 @@ void effectInterpolationUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     s32 i;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0x28);
+        arg0->unk384 = heapAlloc(0x28);
         ((EffectInterpolationState *)arg0->unk384)->progress = 0.0f;
         ((EffectInterpolationState *)arg0->unk384)->startX = D_807FDB50;
         ((EffectInterpolationState *)arg0->unk384)->startY = D_807FDB54;
@@ -734,7 +734,7 @@ void effectProjectileDriftUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
     src = (ProjectileSourceActor *)arg0->unk35C;
     if (arg0->unk384 == NULL) {
-        proj = func_80610FE8(8); arg0->unk384 = proj;
+        proj = heapAlloc(8); arg0->unk384 = proj;
         temp = (f64)src->unkB8 * 0.01;
         min = 2.0;
         if (temp < min) {
@@ -787,7 +787,7 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
     f32 var_fv1;
     f32 sp30;
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0x20);
+        arg0->unk384 = heapAlloc(0x20);
         ((GroundBounceMotionState *)arg0->unk384)->unk0 = 0;
         ((GroundBounceMotionState *)arg0->unk384)->unk4 = 0.0f;
         ((GroundBounceMotionState *)arg0->unk384)->unk8 = arg0->unk340;
@@ -875,7 +875,7 @@ void func_8071910C(TimedEffectActorView *arg0, s8 *arg1) {
 
     state = (Fx11BC2RotationState *) arg0->unk384;
     if (state == NULL) {
-        arg0->unk384 = func_80610FE8(0x1C);
+        arg0->unk384 = heapAlloc(0x1C);
         ((Fx11BC2RotationState *) arg0->unk384)->unk0 = (f32) (((f64) (f32) (u32) ((func_806119A0() / 10000U) % 100U) / 25.0) + 5.0 + (((s32) arg0->unk35C >> 8) * 3.0));
         sp54 = ((f32) (u32) ((func_806119A0() / 10000U) % 1000U) / 500.0f) + (f32) (arg0->unk35C & 0xFF);
         sp50 = (f32) (u32) ((func_806119A0() / 10000U) % 360U);
@@ -940,7 +940,7 @@ void effectSpiralDriftMatrixUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     EffectMatrix sp2C;
 
     if (arg0->unk384 == NULL) {
-        temp_v0 = func_80610FE8(8);
+        temp_v0 = heapAlloc(8);
         arg0->unk384 = temp_v0;
         temp_fv0 = arg0->unk35C * 2;
         temp_v0->unk0 = (f32) temp_fv0;
@@ -979,7 +979,7 @@ void effectWobbleScaleUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp2C;
     WobbleScaleState *state;
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
+        arg0->unk384 = heapAlloc(0xC);
         ((WobbleScaleState *) arg0->unk384)->unk0 = 0;
         ((WobbleScaleState *) arg0->unk384)->unk4 = arg0->unk360;
         ((WobbleScaleState *) arg0->unk384)->unk8 = arg0->unk364;
@@ -1021,7 +1021,7 @@ void effectDecelerateDriftUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
     var_v1 = (RotationState *) arg0->unk384;
     if (var_v1 == NULL) {
-        temp_v0 = func_80610FE8(8);
+        temp_v0 = heapAlloc(8);
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = ((f64) arg0->unk360 / 0.36) * 2.5;
         temp_v0->unk4 = (f32) (u32) ((D_8076A064 * 40) + (arg0->unk35C << 9));
@@ -1083,7 +1083,7 @@ void effectSpiralRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
     var_v1 = (SpiralRiseState *)(var_a2 = arg0)->unk384;
     if (var_v1 == NULL) {
-        var_v0 = func_80610FE8(0x18);
+        var_v0 = heapAlloc(0x18);
         arg0->unk384 = var_v0;
         var_v0->unk0 = arg0->unk340;
         var_v0->unk4 = arg0->unk348;
@@ -1119,7 +1119,7 @@ void effectSpriteMotionUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     TimedEffectActorView *var_a1;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(8);
+        arg0->unk384 = heapAlloc(8);
         ((RotationState *)arg0->unk384)->unk0 = 3.2f;
         ((RotationState *)arg0->unk384)->unk4 = (f32)arg0->unk35C;
     }
@@ -1197,7 +1197,7 @@ void effectParticleArcUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         sp4B = arg0->unk35C >> 0x10;
         sp4A = (arg0->unk35C >> 8) & 0xFF;
         sp49 = arg0->unk35C & 0xFF;
-        ptr = func_80610FE8(0xC);
+        ptr = heapAlloc(0xC);
         arg0->unk384 = ptr;
         guAlignF(sp4C, (f32)sp46, (f32)sp4B, (f32)sp4A, (f32)sp49);
         guMtxCatF(sp8C, sp4C, sp8C);
@@ -1377,7 +1377,7 @@ void effectFollowParentUpdate(FollowParentActorView *arg0, s8 *arg1) {
     parent = arg0->parent;
     if (parent->flags & 4) {
         if (arg0->matrix == NULL) {
-            arg0->matrix = func_80610FE8(0x40);
+            arg0->matrix = heapAlloc(0x40);
             angle = (u32) (func_806119A0() % 36000U) / 100U;
             guScaleF(mtx0, arg0->scaleX, arg0->scaleY, 0.0f);
             guRotateF(mtx1, (f32) angle, 0.0f, 0.0f, 1.0f);
@@ -1463,7 +1463,7 @@ void func_8071B2EC(MotionEffectActorView *arg0, s8 *arg1) {
     f32 call_result;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(8);
+        arg0->unk384 = heapAlloc(8);
         ((MotionState *)arg0->unk384)->unk0 = (f32)((MotionParentView *)arg0->unk338)->unkEE;
         ((MotionState *)arg0->unk384)->unk4 = ((MotionParentView *)arg0->unk338)->unkB8 + 30.0f;
     }
@@ -1485,7 +1485,7 @@ void func_8071B44C(MotionEffectActorView *arg0, s8 *arg1) {
     f32 call_result;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(4);
+        arg0->unk384 = heapAlloc(4);
         ((MotionState *)arg0->unk384)->unk0 = ((MotionParentView *)arg0->unk338)->unkB8;
     }
     speed = 0.35f;
@@ -1639,7 +1639,7 @@ void func_8071BB14(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp30[4][4];
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(8);
+        arg0->unk384 = heapAlloc(8);
         ((RandomRotationState *)arg0->unk384)->angle = (f32)((func_806119A0() % 36000U) / 100U);
         ((RandomRotationState *)arg0->unk384)->speed = (f32)((f64)(func_806119A0() % 10000U) / 7000.0);
     }
@@ -1668,7 +1668,7 @@ void func_8071BC80(TimedEffectActorView *arg0, s8 *arg1) {
 
     var_v0 = arg0->unk384;
     if (var_v0 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
+        arg0->unk384 = heapAlloc(0xC);
         guRotateF(sp90, -(f32)((func_806119A0() % 36000U) / 1000U), 1.0f, 0.0f, 0.0f);
         guRotateF(sp50, (f32)((arg0->unk35C * 0x168) / 4096), 0.0f, 1.0f, 0.0f);
         guMtxCatF(sp90, sp50, sp90);
@@ -1817,7 +1817,7 @@ void effectFallingSparkUpdate(TimedEffectActorView *arg0, u8 *arg1) {
     f32 *temp_v0;
 
     if (*(s32 *)&arg0->unk384 == 0) {
-        temp_v0 = func_80610FE8(0xC);
+        temp_v0 = heapAlloc(0xC);
         arg0->unk384 = temp_v0;
         *temp_v0 = 6.0f;
     }
@@ -1902,7 +1902,7 @@ void func_8071C620(TimedEffectActorView *arg0, s8 *arg1) {
 
     var_v0 = arg0->unk384;
     if (var_v0 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
+        arg0->unk384 = heapAlloc(0xC);
         guRotateF(sp90, (f32)((func_806119A0() % 36000U) / 100U), 1.0f, 0.0f, 0.0f);
         guRotateF(sp50, (f32)((func_806119A0() % 36000U) / 100U), 0.0f, 0.0f, 1.0f);
         guMtxCatF(sp90, sp50, sp90);
@@ -1977,7 +1977,7 @@ void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
     if (arg0->unk384 == NULL) {
         sp5B = (randomNonNegative() >> 0xF) % 1000 % 6;
-        arg0->unk384 = func_80610FE8(0xE);
+        arg0->unk384 = heapAlloc(0xE);
         state = arg0->unk384;
         state->speed = ((randomNonNegative() >> 0xF) % 5) + 10;
         sp4C = &D_80755650[sp5B * 3];
@@ -2045,7 +2045,7 @@ void effectWispHomeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
     if (arg0->unk384 == NULL) {
         randomNonNegative();
-        state = func_80610FE8(8);
+        state = heapAlloc(8);
         arg0->unk384 = state;
         state->angle = 0;
         state->y = (s16)arg0->unk344;
@@ -2099,7 +2099,7 @@ void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
     node = arg0->unk35C;
     motion = arg0->unk384;
     if (motion == NULL) {
-        motion = func_80610FE8(0x10);
+        motion = heapAlloc(0x10);
         arg0->unk384 = motion;
         motion->unk0 = 30.0f;
         motion = arg0->unk384;
@@ -2189,7 +2189,7 @@ void effectOrbitSourceUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
     source = arg0->unk338;
     if (arg0->unk384 == NULL) {
-        temp_v0 = func_80610FE8(0x20);
+        temp_v0 = heapAlloc(0x20);
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = sqrtf(((source->unk7C - arg0->unk340) * (source->unk7C - arg0->unk340)) + ((source->unk84 - arg0->unk348) * (source->unk84 - arg0->unk348)));
         temp_v0->unk4 = (func_806119FC() * 20.0f) + 10.0f;
@@ -2272,7 +2272,7 @@ void effectBallisticUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp40;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
+        arg0->unk384 = heapAlloc(0xC);
         guRotateF(sp90, -(f32) ((func_806119A0() % 36000U) / 1000U), 1.0f, 0.0f, 0.0f);
         guRotateF(sp50, (f32) ((arg0->unk35C * 360) / 4096), 0.0f, 1.0f, 0.0f);
         guMtxCatF(sp90, sp50, sp90);
@@ -2301,7 +2301,7 @@ void effectFallStateInit(OrbitSourceActor *arg0, TimedEffectActorView *arg1, s8 
     f32 var_fv0;
     u32 r;
 
-    temp_v0 = func_80610FE8(0x10);
+    temp_v0 = heapAlloc(0x10);
     arg1->unk384 = temp_v0;
     sp24 = temp_v0;
     var_fv0 = func_806119FC();
@@ -2400,7 +2400,7 @@ void effectActorOrbitFollowUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     sp20 = 0.3f;
     sp28 = (ActorOrbitTarget *)(u32)arg0->unk35C;
     if (arg0->unk384 == NULL) {
-        temp_v0 = func_80610FE8(0x18);
+        temp_v0 = heapAlloc(0x18);
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = 0.0f;
         temp_v0->unk4 = (f32)(func_806119FC() * 4095.0f);
@@ -2458,7 +2458,7 @@ typedef struct {
 void func_8071E110(TimedEffectActorView *arg0, u8 arg1, u16 arg2, f32 arg3, f32 arg4, s32 arg5) {
     TimedMotionState *temp_v0;
 
-    temp_v0 = func_80610FE8(0x18);
+    temp_v0 = heapAlloc(0x18);
     arg0->unk384 = temp_v0;
     temp_v0->unk0 = (f32)(u32)arg1;
     temp_v0->unk4 = arg4;
@@ -2542,7 +2542,7 @@ void func_8071E3EC(TimedEffectActorView *arg0, s8 *arg1) {
     VelocityState *var_v1;
 
     if (arg0->unk384 == NULL) {
-        temp_v0 = func_80610FE8(0xC);
+        temp_v0 = heapAlloc(0xC);
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = 0.0f;
         temp_v0->unk4 = 0.0f;
@@ -2621,7 +2621,7 @@ void effectDecelDriftFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 temp_fa0;
 
     if (arg0->unk384 == NULL) {
-        temp_v0 = func_80610FE8(8);
+        temp_v0 = heapAlloc(8);
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = 10.0f;
         temp_v0->unk4 = (f32)(arg0->unk35C * 0x154);
@@ -2651,7 +2651,7 @@ void effectBurstParticleUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     TimedMotionState *var_v1;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
+        arg0->unk384 = heapAlloc(0xC);
         var_v1 = (TimedMotionState *)arg0->unk384;
         var_v1->unk0 = func_806119FC() * 4095.0f;
         var_v1->unk4 = (f32)(((f64)func_806119FC() * 0.5 + 1.0) * 5.0);
@@ -2679,7 +2679,7 @@ void effectProximityFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
     limit = (f32)((arg0->unk35C * 3) / 4);
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(4);
+        arg0->unk384 = heapAlloc(4);
         *(f32 *)arg0->unk384 = (f32)arg0->unk36D;
     }
     state = (f32 *)arg0->unk384;
@@ -2732,7 +2732,7 @@ void effectScaleSpinUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp2C[4][4];
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
+        arg0->unk384 = heapAlloc(0xC);
         var_v1 = (TimedMotionState *)arg0->unk384;
         var_v1->unk0 = 0.01f;
         var_v1->unk4 = arg0->unk360;
@@ -2779,7 +2779,7 @@ void effectScatterFallUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     TimedMotionState *var_v1;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(8);
+        arg0->unk384 = heapAlloc(8);
         var_v1 = (TimedMotionState *)arg0->unk384;
         var_v1->unk0 = (f32)(((f64)((randomNonNegative() >> 0xF) % 100) / 10.0) + 2.0);
         var_v1->unk4 = (f32)(-8.0 - ((f64)((randomNonNegative() >> 0xF) % 100) / 70.0));
@@ -2804,7 +2804,7 @@ void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
     s32 dir;
 
     if (arg0->unk384 == NULL) {
-        temp = func_80610FE8(0xC);
+        temp = heapAlloc(0xC);
         dir = D_8075567C;
         if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         arg0->unk384 = temp;
@@ -2875,7 +2875,7 @@ void func_8071F2F8(FallingEffectActorView *arg0, s32 arg1) {
 
     var_v1 = arg0->unk384;
     if (var_v1 == NULL) {
-        temp_v0 = func_80610FE8(8);
+        temp_v0 = heapAlloc(8);
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = (f32) (arg0->unk35C & 0xFFFF);
         temp_v0->unk4 = (f32) ((s32) arg0->unk35C >> 0x10);
@@ -2894,7 +2894,7 @@ void func_8071F3C0(FallingEffectActorView *arg0, s32 arg1) {
 
     var_v1 = arg0->unk384;
     if (var_v1 == NULL) {
-        temp_v0 = func_80610FE8(4);
+        temp_v0 = heapAlloc(4);
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = (f32) ((f64) arg0->unk364 * 6.666666666666667);
         var_v1 = arg0->unk384;
@@ -2910,7 +2910,7 @@ void effectSwayRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         if (D_8076A064 & 1) {
             arg0->unk360 = arg0->unk360 * -1.0f;
         }
-        arg0->unk384 = func_80610FE8(8);
+        arg0->unk384 = heapAlloc(8);
         var_s0 = (TimedMotionState *)arg0->unk384;
         var_s0->unk0 = (f32)(((randomNonNegative() >> 0xF) % 20) + 5);
         var_s0->unk4 = 0.0f;
@@ -2968,7 +2968,7 @@ void effectPulseSpinUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp2C[4][4];
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0xC);
+        arg0->unk384 = heapAlloc(0xC);
         var_v1 = (TimedMotionState *)arg0->unk384;
         var_v1->unk0 = 0.01f;
         var_v1->unk4 = arg0->unk360;

@@ -1,8 +1,8 @@
-// func_8065F964 (src/global/63EC0.c): stage 3 (EffC2): 104 insns, 28 text lines, only frame 0xd0 vs 0xc8 + const regs s7/s8 + t7/t8 order differ. Frame reserve is NOT the declared-local count (i/idx/target all inline or named still 0xd0; replacing counter i with address-taken spA8 gives 0xc8, so the strength-reduced loop counter/IV costs 8). Narrow s16 i+idx gives 0xc8 but kills the IV (sll/sra, no pointer s0). Struct/u8-cast/M/P field forms, register kw, scopes, decl-order brute force (720), permuter 8min: no change.
+// effectNodeComputeBounds (src/global/63EC0.c): stage 3 (EffC2): 104 insns, 28 text lines, only frame 0xd0 vs 0xc8 + const regs s7/s8 + t7/t8 order differ. Frame reserve is NOT the declared-local count (i/idx/target all inline or named still 0xd0; replacing counter i with address-taken spA8 gives 0xc8, so the strength-reduced loop counter/IV costs 8). Narrow s16 i+idx gives 0xc8 but kills the IV (sll/sra, no pointer s0). Struct/u8-cast/M/P field forms, register kw, scopes, decl-order brute force (720), permuter 8min: no change.
 void mapRectIntersect(s32, s32, s32, s32, s32, s32, s32, s32, s32 *, s32 *, s32 *, s32 *);
 void func_806545D4(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
 
-void func_8065F964(EffectNode *arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, void *arg5, void *arg6) {
+void effectNodeComputeBounds(EffectNode *arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, void *arg5, void *arg6) {
     s32 s2 = 0;
     s32 s3 = 0;
     s32 s4 = 0;

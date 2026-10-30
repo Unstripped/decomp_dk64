@@ -57,7 +57,7 @@ void func_8063039C(void) {
     D_807F5FF4 = 0;
 }
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 RenderEntry *renderEntryAddOrUpdate(RenderEntry *arg0, u8 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, s16 arg6, s16 arg7, u8 arg8, s16 arg9, u8 arg10) {
     s32 found;
@@ -100,7 +100,7 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *arg0, u8 arg1, s32 arg2, f32 ar
         }
         arg0->unk23 = 1;
     } else {
-        node = func_80610FE8(0x28);
+        node = heapAlloc(0x28);
         node->unk24 = arg1;
         node->unk0 = arg2;
         node->unk4 = arg3;

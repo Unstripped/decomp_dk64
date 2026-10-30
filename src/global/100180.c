@@ -231,7 +231,7 @@ s32 textMapCharToGlyph(s16 arg0, u8 *arg1) {
     return spDF;
 }
 
-s32 func_80610FE8(s32);
+s32 heapAlloc(s32);
 void heapClearBlock(s32);
 extern u8 *gTextFontSheetAges;
 
@@ -241,8 +241,8 @@ void textFontInitTables(void) {
     s32 temp_v0;
     u8 **heap_buffer;
 
-    gTextFontSheets = func_80610FE8(0xAC);
-    temp_v0 = func_80610FE8(0x2B);
+    gTextFontSheets = heapAlloc(0xAC);
+    temp_v0 = heapAlloc(0x2B);
     heap_buffer = &gTextFontSheetAges;
     allocation_slot = (s32 *)heap_buffer;
     allocation = (*allocation_slot = temp_v0);
@@ -446,7 +446,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     if (len == 0) {
         return dl;
     }
-    vp = (Vtx *)func_80610FE8(len << 6);
+    vp = (Vtx *)heapAlloc(len << 6);
     heapFreeDeferred(vp);
     batch = vp;
     if (flags & 0x80) {
@@ -638,9 +638,9 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *arg1) {
     s32 gh;
 
     idx = 0;
-    vp = (Vtx *)func_80610FE8(arg1->unkD << 6);
+    vp = (Vtx *)heapAlloc(arg1->unkD << 6);
     heapFreeDeferred(vp);
-    mp = (Mtx *)func_80610FE8(arg1->unkD << 6);
+    mp = (Mtx *)heapAlloc(arg1->unkD << 6);
     heapFreeDeferred(mp);
     spB4 = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
@@ -718,9 +718,9 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *arg1) {
     f32 fb;
 
     idx = 0;
-    vp = (Vtx *)func_80610FE8(arg1->unkD << 6);
+    vp = (Vtx *)heapAlloc(arg1->unkD << 6);
     heapFreeDeferred(vp);
-    mp = (Mtx *)func_80610FE8(arg1->unkD << 6);
+    mp = (Mtx *)heapAlloc(arg1->unkD << 6);
     heapFreeDeferred(mp);
     spB4 = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);

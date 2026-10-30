@@ -59,7 +59,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
     hud = actor->unk174;
     tab = D_807FC950;
     sp138 = func_805FF030(D_8076A0AB, 1);
-    list = func_80610FE8(0x1F40);
+    list = heapAlloc(0x1F40);
     heapFreeDeferred(list);
     gSPDisplayList(dl++, list);
     ret = dl;

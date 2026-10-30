@@ -104,7 +104,7 @@ extern s8 D_8076A105;
 
 void heapFree(void *);
 void heapFreeDeferred(void *);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 s32 _sprintf(char *, const char *, ...);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s32, void *, s32);
 s32 textGetStringWidth();
@@ -253,11 +253,11 @@ void func_806A8158(void) {
             break;
     }
     if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FC7E0 = func_80610FE8(0x6C);
+        D_807FC7E0 = heapAlloc(0x6C);
         for (i = 0; i < 0x1B; i++) {
             D_807FC7E0[i] = func_8070E750(0x24, i, 0);
         }
-        D_807FC7E8 = func_80610FE8(0x24);
+        D_807FC7E8 = heapAlloc(0x24);
         for (i = 0; i < 9; i++) {
             D_807FC7E8[i] = func_8070E750(0x23, i, 0);
         }
@@ -292,7 +292,7 @@ void func_806A8158(void) {
         D_807FC808 = 0.0f;
         D_807FC80C = 0;
         D_807FC80D = D_807FC80C;
-        D_807FC7F0[0] = func_80610FE8(0x1E0);
+        D_807FC7F0[0] = heapAlloc(0x1E0);
         D_807FC7F0[1] = D_807FC7F0[0] + 10;
         D_807FC7F8[0] = 0;
         D_807FC7F8[1] = 0;
@@ -640,7 +640,7 @@ Gfx *func_806AA09C(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale) {
     char buf1[8];
     char buf2[8];
 
-    mtx = func_80610FE8(0x40);
+    mtx = heapAlloc(0x40);
     heapFreeDeferred(mtx);
     if (n1 >= 0x64) {
         w = 0x7C;
@@ -1024,7 +1024,7 @@ void func_806AB4EC(ACDC0HudEntry *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, 
     if (arg6 == 6) {
         arg1 = 10;
     }
-    buf = func_80610FE8(arg1 * 4);
+    buf = heapAlloc(arg1 * 4);
     obj->unk384 = buf;
     if (arg6 == 9) {
         arg6 = 7;
@@ -1161,7 +1161,7 @@ Gfx *hudDrawScaledText(Gfx *dl, s16 arg1, s16 arg2, f32 scale, void *arg4) {
     f32 m2[4][4];
     Mtx *mtx;
 
-    mtx = func_80610FE8(0x40);
+    mtx = heapAlloc(0x40);
     heapFreeDeferred(mtx);
     guScaleF(m1, scale, scale, 1.0f);
     guTranslateF(m2, arg1, arg2, 0.0f);
@@ -1571,7 +1571,7 @@ void hudTextScreenUpdate(void) {
         D_807FBB40->unk168 = 0x1E;
         D_807FBB40->unk128 = 0;
         D_807FBB40->unk60 &= ~0x8000;
-        D_807FC7E0 = func_80610FE8(0xC);
+        D_807FC7E0 = heapAlloc(0xC);
         for (i = 0; i < 3; i++) {
             D_807FC7E0[i] = func_8070E750(0x24, i + 0xF, 0);
         }
@@ -1636,7 +1636,7 @@ void hudTwoOptionMenuUpdate(void) {
     u16 btn;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FC7E0 = func_80610FE8(0x10);
+        D_807FC7E0 = heapAlloc(0x10);
         i = 0;
         do {
             D_807FC7E0[i] = func_8070E750(0x24, i, 0);

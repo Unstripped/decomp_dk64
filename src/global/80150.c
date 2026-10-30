@@ -1142,7 +1142,7 @@ typedef struct R2G_Actor {
 } R2G_Actor;
 
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 void func_806C8220(s32, void *, u16);
 void func_806F1C04(Actor *, void *, s32 *);
@@ -1160,7 +1160,7 @@ void func_80683158(void) {
     extra = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk60 |= 0x1000;
-        ((R2G_ActorSub4 *)D_807FBB40->unk4)->unk1C = func_80610FE8(0x100);
+        ((R2G_ActorSub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x100);
         heapClearBlock(((R2G_ActorSub4 *)D_807FBB40->unk4)->unk1C);
         func_806C8220(0, ((R2G_Actor *)D_807FBB40)->unk178, extra->unk0);
         switch (extra->unk0) {

@@ -22,7 +22,7 @@ typedef struct EaBlockA {
     s32 *unk20;
 } EaBlockA;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) {
     s32 count;
@@ -38,9 +38,9 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
     if (arg1 == NULL) {
         return 0;
     }
-    gFbTileTable = func_80610FE8(0x708);
-    arg0->unk10 = func_80610FE8(arg0->unk0 * 0x10);
-    arg0->unk14 = func_80610FE8(arg0->unk0 * 0x10);
+    gFbTileTable = heapAlloc(0x708);
+    arg0->unk10 = heapAlloc(arg0->unk0 * 0x10);
+    arg0->unk14 = heapAlloc(arg0->unk0 * 0x10);
     arg0->unk8 = (u8 *)arg0 + 0x2C;
     arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
     arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);

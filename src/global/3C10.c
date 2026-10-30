@@ -125,7 +125,7 @@ u8 func_80600454(s16 arg0, u8 *arg1);
 /* External functions */
 void func_8002920C(void);
 void sfxAllocateChannel(s32, f32);
-void func_80611614(void *);
+void heapUnregisterSurvivor(void *);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void camStartPath(void *, s32, s32);
@@ -162,14 +162,14 @@ u8 D_8076AEF8[8];
 typedef struct {
     s32 unk0;
     s32 unk4;
-} MainLoopPair;
+} KeyValuePair;
 
 typedef struct {
     u8 pad0[0x58];
     s32 unk58;
-} MainLoopView58;
+} Unk58View;
 
-extern MainLoopPair D_80744800[];
+extern KeyValuePair D_80744800[];
 
 s32 func_805FEF10(s32 *arg0) {
     u32 i;
@@ -177,7 +177,7 @@ s32 func_805FEF10(s32 *arg0) {
 
     found = 0;
     for (i = 0; (i ^ 0) < 4 && !found; i++) { // FAKE: blocks loop-test replacement so i keeps its own compare
-        found = ((MainLoopView58 *)D_807FBB4C)->unk58 == D_80744800[i].unk0;
+        found = ((Unk58View *)D_807FBB4C)->unk58 == D_80744800[i].unk0;
         if (found) {
             *arg0 = D_80744800[i].unk4;
         }
@@ -472,26 +472,26 @@ s32 func_805FF938(s16 target) {
 typedef struct {
     u8 pad0[0x24];
     u8 rgb[52][3];
-} MainLoopSlotColors;
+} SlotLightColors;
 
 typedef struct {
     u8 pad0[0x1AC];
-    MainLoopView58 *unk1AC;
+    Unk58View *unk1AC;
     u8 pad1B0[0x1F0 - 0x1B0];
     s32 unk1F0;
-} MainLoopObj;
+} PlayerActorData;
 
 typedef struct {
     u8 pad0[0x174];
-    MainLoopObj *unk174;
-} MainLoopHolder;
+    PlayerActorData *unk174;
+} ActorPlayerHolder;
 
 extern s8 D_80750ACC;
 extern s32 D_807F6C28;
 extern s32 D_807FD56C;
 extern s16 D_807FD570;
 void func_806F5378();
-void func_806115A8(u8 **);
+void heapRegisterSurvivor(u8 **);
 void func_8063B8D8(u8 **, s32 *);
 void modelSlotsPackRecords(u8 **, s32 *);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
@@ -507,7 +507,7 @@ void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
     f32 g;
     f32 b;
     s32 pad;
-    MainLoopObj *obj;
+    PlayerActorData *obj;
 
     found = 0;
     i = 0;
@@ -536,10 +536,10 @@ void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
     }
     func_806F5378();
     func_8063B8D8((u8 **)&D_8076A160[i].unk18, &sp50);
-    func_806115A8((u8 **)&D_8076A160[i].unk18);
+    heapRegisterSurvivor((u8 **)&D_8076A160[i].unk18);
     modelSlotsPackRecords((u8 **)&D_8076A160[i].unk20, (s32 *)&D_8076A160[i].unk1C);
     if (D_8076A160[i].unk20 != 0) {
-        func_806115A8((u8 **)&D_8076A160[i].unk20);
+        heapRegisterSurvivor((u8 **)&D_8076A160[i].unk20);
     }
     D_8076A160[i].unk2 = arg3;
     if (arg3 & 1) {
@@ -555,13 +555,13 @@ void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
     }
     for (k = 0; k < D_807F6C28; k++) {
         lightGetColor(&r, &g, &b, k);
-        ((MainLoopSlotColors *)&D_8076A160[i])->rgb[k][0] = (u32)(r * 255.0);
-        ((MainLoopSlotColors *)&D_8076A160[i])->rgb[k][1] = (u32)(g * 255.0);
-        ((MainLoopSlotColors *)&D_8076A160[i])->rgb[k][2] = (u32)(b * 255.0);
+        ((SlotLightColors *)&D_8076A160[i])->rgb[k][0] = (u32)(r * 255.0);
+        ((SlotLightColors *)&D_8076A160[i])->rgb[k][1] = (u32)(g * 255.0);
+        ((SlotLightColors *)&D_8076A160[i])->rgb[k][2] = (u32)(b * 255.0);
     }
     k = 1;
     D_80750ACC = k;
-    obj = ((MainLoopHolder *)D_807FBB4C)->unk174;
+    obj = ((ActorPlayerHolder *)D_807FBB4C)->unk174;
     D_807FD56C = obj->unk1F0;
     if (obj->unk1AC != NULL) {
         D_807FD570 = obj->unk1AC->unk58;
@@ -608,10 +608,10 @@ void func_805FFEF8(s32 arg0) {
 
     if (found) {
         Struct8076A160 *slot = &D_8076A160[i];
-        func_80611614(&slot->unk18);
+        heapUnregisterSurvivor(&slot->unk18);
         heapFree((void *)slot->unk18);
         if (slot->unk1C != 0) {
-            func_80611614(&slot->unk20);
+            heapUnregisterSurvivor(&slot->unk20);
             heapFree(slot->unk20);
         }
         slot->unk0 = 0;
@@ -624,10 +624,10 @@ void func_805FFFC8(void) {
     ptr = D_8076A160, end = (Struct8076A160 *)&D_8076AEE0;
     do {
         if (ptr->unk0) {
-            func_80611614(&ptr->unk18);
+            heapUnregisterSurvivor(&ptr->unk18);
             heapFree((void *)ptr->unk18);
             if (ptr->unk1C != 0) {
-                func_80611614(&ptr->unk20);
+                heapUnregisterSurvivor(&ptr->unk20);
                 heapFree(ptr->unk20);
             }
             ptr->unk0 = 0;

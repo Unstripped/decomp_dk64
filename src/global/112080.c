@@ -16,14 +16,14 @@ typedef struct S112a2Record {
     u8 *data;
 } S112a2Record;
 
-extern void *func_80610FE8(s32);
+extern void *heapAlloc(s32);
 
 void func_8070D3CC(S112a2Record *arg0, s32 *arg1) {
     s32 i;
     u8 *data;
 
     func_8070D380(1, arg0, arg1);
-    data = arg0->data = func_80610FE8(arg0->count * 8);
+    data = arg0->data = heapAlloc(arg0->count * 8);
     for (i = 0; i < arg0->count; i++) {
         func_8070D380(8, data, arg1);
         data += 8;
@@ -52,11 +52,11 @@ void func_8070D568(S112a2ItemList *arg0, s32 *arg1) {
     S112a2Item *item;
 
     func_8070D380(1, arg0, arg1);
-    item = arg0->items = func_80610FE8(arg0->count * 16);
+    item = arg0->items = heapAlloc(arg0->count * 16);
     for (i = 0; i < arg0->count; i++, item++) {
         func_8070D380(1, item, arg1);
         if (item->flags & 4) {
-            item->data = func_80610FE8(4);
+            item->data = heapAlloc(4);
             func_8070D380(4, item->data, arg1);
         } else {
             item->data = NULL;
@@ -89,7 +89,7 @@ void func_8070D654(S112aItemList *arg0, s32 *arg1) {
     s32 i;
     S112aItemList *item;
 
-    item = arg0->items = func_80610FE8(arg0->count * 8);
+    item = arg0->items = heapAlloc(arg0->count * 8);
     for (i = 0; i < arg0->count; i++) {
         func_8070D568((S112a2ItemList *)item, arg1);
         item = (S112aItemList *)((u8 *)item + 8);
@@ -110,12 +110,12 @@ S112aParsedList *func_8070D6D8(s32 arg0) {
     s32 length;
     S112aParsedList *header;
 
-    header = func_80610FE8(0x10);
+    header = heapAlloc(0x10);
     func_8070D380(1, header, &arg0);
     func_8070D654((S112aItemList *)header, &arg0);
     func_8070D380(2, (u8 *)header + 8, &arg0);
     length = header->length;
-    payload = func_80610FE8(length);
+    payload = heapAlloc(length);
     header->payload = payload;
     memcpy(payload, arg0, length);
     return header;
@@ -148,7 +148,7 @@ void *func_8070D754(void *arg0) {
         } while ((*link != NULL) && ((*link)->key != arg0));
     }
     if (*link == NULL) {
-        *link = func_80610FE8(0x10);
+        *link = heapAlloc(0x10);
         heapClearBlock(*link);
         (*link)->key = arg0;
         actorSpawn(0x12B, 0, arg0);
@@ -180,7 +180,7 @@ void func_8070D82C(S112dContainer *arg0, u16 arg1, u8 arg2) {
     while (*entry != NULL) {
         entry = &(*entry)->next;
     }
-    *entry = func_80610FE8(8);
+    *entry = heapAlloc(8);
     (*entry)->id = arg1;
     (*entry)->count = arg2;
     (*entry)->next = NULL;

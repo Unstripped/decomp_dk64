@@ -92,7 +92,7 @@ u16 arg0;
     }
     headerSize = (headerSize + 7) & 0xFFF8;
     totalDataSize += headerSize;
-    actor = (ActorAllocBlock *)func_80610FE8(totalDataSize & 0xFFFF);
+    actor = (ActorAllocBlock *)heapAlloc(totalDataSize & 0xFFFF);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = *typesPtr;

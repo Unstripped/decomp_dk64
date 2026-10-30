@@ -8,7 +8,7 @@ typedef struct F9A_PositionNode {
 } F9A_PositionNode;
 
 extern F9A_PositionNode *D_807FD780[];
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 void heapFreeDeferred(void *);
 
@@ -25,7 +25,7 @@ void func_806F4DC0(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
             var_v0 = var_v0->next;
         } while (var_v0 != NULL);
     }
-    temp_v0 = func_80610FE8(0x14);
+    temp_v0 = heapAlloc(0x14);
     *var_v1 = temp_v0;
     heapClearBlock(temp_v0);
     (*var_v1)->unk0 = arg1;

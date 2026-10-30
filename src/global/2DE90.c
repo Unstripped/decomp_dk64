@@ -26,7 +26,7 @@ extern s16 D_807F5D88;
 extern f32 D_807F5D8C;
 extern f32 D_807F5D94;
 extern u16 *D_807F5D80;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void blurBuildDivTable(void);
 void fbCopySetAlpha(void *, s32);
 
@@ -37,7 +37,7 @@ u8 arg0;
 
     if ((D_807F5D84 == 0) || (arg0 == 7)) {
         if (D_807F5D84 == 0) {
-            D_807F5D80 = func_80610FE8(D_80744490 * D_80744494 * 2);
+            D_807F5D80 = heapAlloc(D_80744490 * D_80744494 * 2);
         }
         fbCopySetAlpha(D_807F5D80, D_80744470[D_807444FC]);
         D_807F5D84 = 1;
@@ -281,7 +281,7 @@ extern s32 D_80747B38;
 void blurBuildDivTable(void) {
     s32 i;
 
-    D_80747B2C = func_80610FE8((D_80747B28 << 5) + 1);
+    D_80747B2C = heapAlloc((D_80747B28 << 5) + 1);
     for (i = 0; i <= (D_80747B28 << 5); i++) {
         D_80747B2C[i] = i / D_80747B28;
     }
@@ -396,7 +396,7 @@ void *_memset(u8 *, s32, u32);
 
 void screenBufferAllocate(void) {
     if (D_80747B40 == 0) {
-        D_807F5DD8 = func_80610FE8(0x25800);
+        D_807F5DD8 = heapAlloc(0x25800);
         _memset(D_807F5DD8, 0, 0x25800);
         D_80747B40 = 1;
     }

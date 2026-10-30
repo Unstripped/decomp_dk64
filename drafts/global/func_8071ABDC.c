@@ -25,7 +25,7 @@ s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 f32 sinApprox(f32);
 f32 cosApprox(f32);
 u32 func_806119A0(void);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void func_8071ABDC(NM5_ActorABDC *arg0, s8 *arg1) {
     f32 sp80[4][4];
@@ -38,7 +38,7 @@ void func_8071ABDC(NM5_ActorABDC *arg0, s8 *arg1) {
     f32 sp24;
 
     if (arg0->unk384 == NULL) {
-        arg0->unk384 = func_80610FE8(0x10);
+        arg0->unk384 = heapAlloc(0x10);
         sp2C = (s16) ((arg0->unk35C >> 16) & 0xFF);
         if (sp2C == 0) {
             arg0->unk384->unk0 = (f32) (((f64) (f32) ((func_806119A0() / 10000U) % 100U) / 20.0) - 2.5);

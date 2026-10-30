@@ -23,7 +23,7 @@ typedef struct M55P7Node {
 } M55P7Node;
 
 extern u8 *D_807F70B8[];
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void func_80651708(s32);
 
 void func_80658930(u8 *arg0) {
@@ -49,12 +49,12 @@ void func_80658930(u8 *arg0) {
     for (i = 0; i < n; i++) {
         idx = *(s16 *)p;
         p += 2;
-        base[idx] = func_80610FE8(0x6C);
+        base[idx] = heapAlloc(0x6C);
         ((M55P7Node *)base[idx])->unk10 = 0x7FFF;
         ((M55P7Node *)base[idx])->unk12 = -0x8000;
         ((M55P7Node *)base[idx])->unk8 = 0;
         ((M55P7Node *)base[idx])->unk4 = *(s16 *)(p - 2);
-        ((M55P7Node *)base[idx])->unk0 = func_80610FE8((u32)((M55P7Node *)base[idx])->unk4 * 6);
+        ((M55P7Node *)base[idx])->unk0 = heapAlloc((u32)((M55P7Node *)base[idx])->unk4 * 6);
         memcpy(((M55P7Node *)base[idx])->unk0,
                p,
                (u32)((M55P7Node *)base[idx])->unk4 * 6);

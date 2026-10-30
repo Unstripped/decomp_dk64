@@ -45,7 +45,7 @@ typedef struct CamF2Path {
     /* 0xD8 */ CamPathPoint *unkD8;
 } CamF2Path;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 void func_80626478(s16 *, s16 *);
 
@@ -83,7 +83,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
         h = &CF2_A1->heads[i];
         cnt = h->unk0 = hdr != NULL ? *hdr++ : 0;
         if (arg2 != 0) {
-            h->unk4 = func_80610FE8(cnt * 0x12U);
+            h->unk4 = heapAlloc(cnt * 0x12U);
             for (j = 0; j < cnt; j++) {
                 dst = &h->unk4[j];
                 buf = *(CamF2Seg *)data;
@@ -97,8 +97,8 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
     hdr = (s16 *)data;
     cnt = CF2_A1->unkC0 = hdr != NULL ? *hdr++ : 0;
     if (arg2 != 0) {
-        CF2_A1->unkC8 = func_80610FE8(cnt);
-        CF2_A1->unkC4 = func_80610FE8(cnt * 0x1CU);
+        CF2_A1->unkC8 = heapAlloc(cnt);
+        CF2_A1->unkC4 = heapAlloc(cnt * 0x1CU);
         s = hdr;
         for (i = 0; i < cnt; i++) {
             CF2_A1->unkC8[i] = func_806531B8(s[8], s[9], s[10], 0);
@@ -109,14 +109,14 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
     }
     i = 0;
     cnt = CF2_A1->unkCC = hdr != NULL ? *hdr++ : 0;
-    CF2_A1->unkD0 = func_80610FE8(cnt * 0xCU);
+    CF2_A1->unkD0 = heapAlloc(cnt * 0xCU);
     for (i = 0; i < cnt; i++) {
         m = *hdr++;
         k = m;
 
         CF2_A1->unkD0[i].unk0 = m;
-        CF2_A1->unkD0[i].unk4 = func_80610FE8(m * 2);
-        CF2_A1->unkD0[i].unk8 = func_80610FE8(m * 2);
+        CF2_A1->unkD0[i].unk4 = heapAlloc(m * 2);
+        CF2_A1->unkD0[i].unk8 = heapAlloc(m * 2);
         for (j = 0; j < k; j++) {
             CF2_A1->unkD0[i].unk4[j] = *hdr++;
             CF2_A1->unkD0[i].unk8[j] = *hdr++;
@@ -124,7 +124,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
     }
     i = 0;
     cnt = CF2_A1->unkD4 = hdr != NULL ? *hdr++ : 0;
-    CF2_A1->unkD8 = func_80610FE8(0x6400);
+    CF2_A1->unkD8 = heapAlloc(0x6400);
     heapClearBlock(CF2_A1->unkD8);
     rd = (u8 *)hdr;
     if (cnt != 0) {
@@ -160,7 +160,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
                     s = (s16 *)(rd + 0x20);
                     j = 0;
                     u->unk0 = *(s16 *)(rd + 4);
-                    u->unk4 = func_80610FE8(u->unk0 * 0xEU);
+                    u->unk4 = heapAlloc(u->unk0 * 0xEU);
                     for (; j < u->unk0; j++) {
                         ((CamF2E *)u->unk4)[j] = *(CamF2E *)s;
                         s += 7;
@@ -171,7 +171,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
                     s = (s16 *)(rd + 0x14);
                     j = 0;
                     u->unk0 = *(s16 *)(rd + 4);
-                    u->unk4 = func_80610FE8(u->unk0 * 8U);
+                    u->unk4 = heapAlloc(u->unk0 * 8U);
                     for (; j < u->unk0; j++) {
                         ((CamF2Q *)u->unk4)[j] = *(CamF2Q *)s;
                         s += 4;

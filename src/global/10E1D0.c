@@ -133,7 +133,7 @@ typedef struct MeshBlobHeader {
     s32 *unk20;
 } MeshBlobHeader;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **arg2, s32 **arg3) {
     s32 count;
@@ -149,9 +149,9 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
     if (arg1 == NULL) {
         return 0;
     }
-    gFbTileTable = func_80610FE8(0x708);
-    arg0->unk10 = func_80610FE8(arg0->unk0 * 0x10);
-    arg0->unk14 = func_80610FE8(arg0->unk0 * 0x10);
+    gFbTileTable = heapAlloc(0x708);
+    arg0->unk10 = heapAlloc(arg0->unk0 * 0x10);
+    arg0->unk14 = heapAlloc(arg0->unk0 * 0x10);
     arg0->unk8 = (u8 *)arg0 + 0x2C;
     arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
     arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
@@ -564,7 +564,7 @@ extern void *D_807FD9A4;
 extern s32 D_807FD9AC;
 extern s32 *D_80744470[];
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 s32 assetLoad();
 s32 func_80709890();
 s32 meshComputeVertexRanges();
@@ -580,12 +580,12 @@ void transitionInit(void) {
         break;
     }
     D_807FD9B8 = assetLoad(0x13, 1, 1, 1);
-    D_807FD9B0 = (s32)func_80610FE8(D_80744490 * D_80744494 * 2);
+    D_807FD9B0 = (s32)heapAlloc(D_80744490 * D_80744494 * 2);
     fbCopySetAlpha((s32 *)D_807FD9B0, D_80744470[D_807444FC]);
     func_80709890((void *)D_807FD9B8, (void *)&D_807FD9A8, (void *)&D_807FD9AC, 0);
     meshComputeVertexRanges((void *)D_807FD9A8);
     D_807FD9A4 = D_807FD9A8->unk8;
-    D_807FD9A8->unk8 = func_80610FE8(D_807FD9A8->unk0 * 0xC);
+    D_807FD9A8->unk8 = heapAlloc(D_807FD9A8->unk0 * 0xC);
     fbBuildTileTable(D_807FD9A8->unk24, D_807FD9A8->unk28);
 }
 
@@ -712,7 +712,7 @@ u8 transitionRender(Gfx **arg0, s32 arg1, s32 arg2) {
         delta = -4;
     }
     channels = D_807550A8;
-    glist = func_80610FE8(0x4800);
+    glist = heapAlloc(0x4800);
     heapFreeDeferred(glist);
     start = glist;
     if (D_807FD9C8 != 0) {
@@ -768,7 +768,7 @@ u8 transitionRender(Gfx **arg0, s32 arg1, s32 arg2) {
     gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(glist++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPPerspNormalize(glist++, D_8076A09C);
-    matrix = func_80610FE8(0x40);
+    matrix = heapAlloc(0x40);
     heapFreeDeferred(matrix);
     guTranslate(matrix, 0.0f, (f32)D_8075506C, 0.0f);
     gSPMatrix(glist++, matrix, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);

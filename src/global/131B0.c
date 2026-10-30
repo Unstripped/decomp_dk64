@@ -46,7 +46,7 @@ void schedAddClient(SchedStruct *, TaskNode *, s32, s32, s32);
 void schedRemoveClient(SchedStruct *, TaskNode *);
 void schedMain(void *);
 void func_8060F1D0(SchedStruct *, TaskNode *);
-void func_8060F208(SchedStruct *);
+void schedStartAudioOrYield(SchedStruct *);
 void schedHandleRetrace(SchedStruct *);
 void schedHandleRSP(SchedStruct *);
 void schedHandleRDP(SchedStruct *);
@@ -55,7 +55,7 @@ void schedAppendTask(SchedStruct *, TaskNode *);
 void schedStartTask(SchedStruct *, s32);
 void schedYield(SchedStruct *);
 void func_8060FAA4(OSMesgQueue *, OSMesg, s32);
-s32 func_8060FAE4(s32, s32);
+s32 schedDlDebugDump(s32, s32);
 
 extern s32 controllerGetPort(s32);
 extern u8 controllerGetActiveMask(void);
@@ -68,7 +68,7 @@ extern s32 func_807143E8(void);
 typedef struct {
     u16 button;
     u8 pad2[6];
-} Sched1ContPad;
+} ContPadButtons;
 
 // .bss 0x807F02D0-0x807F0570
 OSPfs D_807F02D0[4];
@@ -92,7 +92,7 @@ u16 D_807F0518[20];
 OSTimer D_807F0540;
 u32 D_807F0560;
 s32 D_807F0564;
-Sched1ContPad D_807F0568;
+ContPadButtons D_807F0568;
 
 void rumbleInfoClear(RumbleInfo *arg0) {
     bzero(arg0, 0x14);
@@ -393,7 +393,7 @@ void schedMain(void *arg0) {
                             D_80746848 = 1;
                         }
                     }
-                    func_8060FAE4(D_80746844, flag);
+                    schedDlDebugDump(D_80746844, flag);
                     D_80746844 = 0;
                     D_8074682C = -0x12C;
                 }
@@ -411,7 +411,7 @@ void schedMain(void *arg0) {
             schedHandleRetrace(arg0);
             break;
         case 0x29E:
-            func_8060F208(arg0);
+            schedStartAudioOrYield(arg0);
             break;
         case 0x29B:
             schedHandleRSP(arg0);
@@ -444,7 +444,7 @@ void func_8060F1D0(SchedStruct *arg0, TaskNode *arg1) {
     }
 }
 
-void func_8060F208(SchedStruct *arg0) {
+void schedStartAudioOrYield(SchedStruct *arg0) {
     if (arg0->curRSPTask != NULL) {
         schedYield(arg0);
     } else {
@@ -704,9 +704,9 @@ typedef struct {
     char name[13];
     u8 size;
     u8 warn;
-} Sched1DlOp;
+} DlOpInfo;
 
-extern Sched1DlOp D_8074685C[];
+extern DlOpInfo D_8074685C[];
 extern s8 D_80746A2C;
 extern s16 D_80746A1C;
 extern u32 D_80746A18;
@@ -722,7 +722,7 @@ extern void faultFontSetColorMode(s32);
 extern void controllerStartRead(void);
 
 #ifdef NON_MATCHING
-s32 func_8060FAE4(s32 arg0, s32 arg1) {
+s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     u8 op;
     s32 size;
     u32 *w;
@@ -731,7 +731,7 @@ s32 func_8060FAE4(s32 arg0, s32 arg1) {
     s32 off;
     s32 colorIdx;
     s32 found;
-    Sched1DlOp *e;
+    DlOpInfo *e;
     s32 n;
     s32 mode;
     s32 done;
@@ -900,6 +900,6 @@ s32 func_8060FAE4(s32 arg0, s32 arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/func_8060FAE4.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedDlDebugDump.s")
 #endif
 

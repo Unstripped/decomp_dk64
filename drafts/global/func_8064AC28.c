@@ -44,7 +44,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 bestD;
 
     if (*(CsB10Set **)cs == NULL) {
-        p = *(CsB10Set **)cs = func_80610FE8(0x50);
+        p = *(CsB10Set **)cs = heapAlloc(0x50);
         p->unk4E = 0;
         if (flagGet(0x146, 0) != 0) {
             e = (CsB10W *)p;

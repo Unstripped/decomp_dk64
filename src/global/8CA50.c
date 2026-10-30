@@ -34,7 +34,7 @@ typedef struct AnimInitData {
 extern s32 D_8076A0A8;
 extern u8 D_807FC928;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void *assetLoad(s32, s32, u8, s32);
 void animListFree(AnimNode **);
 void animNodeAdvanceTime(AnimNode *);
@@ -68,7 +68,7 @@ void animListInit(AnimActor *arg0, AnimInitData *arg1) {
     if (count != 0) {
         unk = 1;
         do {
-            node = func_80610FE8(sizeof(AnimNode));
+            node = heapAlloc(sizeof(AnimNode));
             *next_ptr = node;
             num = *src;
             node->unk1C = 0;
@@ -87,8 +87,8 @@ void animListInit(AnimActor *arg0, AnimInitData *arg1) {
             next_ptr = &node->next;
             node->unk23 = src[2];
             src += 3;
-            node->unk0 = func_80610FE8(alloc_size);
-            node->unk4 = func_80610FE8(alloc_size);
+            node->unk0 = heapAlloc(alloc_size);
+            node->unk4 = heapAlloc(alloc_size);
             unk0 = node->unk0;
             unk4 = node->unk4;
             i = 0;

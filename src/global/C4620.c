@@ -65,7 +65,7 @@ typedef struct R1C46aActor {
 
 #define R1V ((R1C46aActor *)D_807FBB40)
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void func_806C8220();
 void func_806F22A8(Actor *, void *, s32 *);
 void func_806F1EB0(Actor *, void *, s32 *);
@@ -97,7 +97,7 @@ void func_806BF920(void) {
                 break;
         }
         if (sp1C != 0) {
-            R1V->unk4->unk1C = func_80610FE8(0x100);
+            R1V->unk4->unk1C = heapAlloc(0x100);
             func_806C8220(0, R1V->unk178, sp1C);
         }
     }
@@ -459,7 +459,7 @@ void func_806BFBF4(void) {
                     heapFree(LgBS98->unk20);
                 }
                 LgBS9C->unk11 = 1;
-                LgBS98->unk20 = func_80610FE8(2);
+                LgBS98->unk20 = heapAlloc(2);
                 LgBS98->unk20[1] = 0;
                 LgBS98->unk20[0] = cmd->unk4;
                 LgBS90->unk25 = 0;

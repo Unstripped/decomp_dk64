@@ -12,7 +12,7 @@ typedef struct QueuedFunction {
 extern s32 D_8076A068;
 extern QueuedFunction *gTimerQueue;
 void heapFree(void *);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 s32 osPiReadIo(u32, u32 *);
 
 void timerQueueInit(void) {
@@ -37,7 +37,7 @@ void timerQueueAdd(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 sp24;
 
     prev = NULL;
-    node = func_80610FE8(0x18);
+    node = heapAlloc(0x18);
     sp28 = 0xC6F0AFA9;
     sp24 = 0x5FAFBA0C;
     ((s32 (*)(u32, s32 *))func_8060095C((s32)osPiReadIo + 0xC000FF01, &sp28, &sp24))(sp24, &sp30);

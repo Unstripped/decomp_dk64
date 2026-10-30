@@ -16,7 +16,7 @@ void actorSetUniformScale(Actor *arg0, f32 arg1) {
     }
 }
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 void heapFreeDeferred(void *);
 void actorFindActiveByType(s32, void *);
@@ -26,7 +26,7 @@ void func_80724994(u8 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     s16 *sp24;
     void *sp20;
 
-    sp24 = func_80610FE8(8);
+    sp24 = heapAlloc(8);
     heapFreeDeferred(sp24);
     sp24[0] = arg1;
     sp24[1] = arg2;
@@ -173,7 +173,7 @@ typedef struct A1Entry10 {
 void func_80724CA4(s16 arg0, s16 arg1) {
     u8 *table;
 
-    A1SUB4->unk1C = func_80610FE8(arg1 * 8 + 8);
+    A1SUB4->unk1C = heapAlloc(arg1 * 8 + 8);
     heapClearBlock(A1SUB4->unk1C);
     table = A1SUB4->unk1C;
     table[0] = 0x7F;
@@ -184,7 +184,7 @@ void func_80724CA4(s16 arg0, s16 arg1) {
 void func_80724D28(s16 arg0, s16 arg1) {
     A1Entry10 *table;
 
-    A1SUB4->unk24 = func_80610FE8(arg1 * 0x10 + 0x10);
+    A1SUB4->unk24 = heapAlloc(arg1 * 0x10 + 0x10);
     heapClearBlock(A1SUB4->unk24);
     table = A1SUB4->unk24;
     table[0].unk0 = arg0;
@@ -195,7 +195,7 @@ void func_80724D28(s16 arg0, s16 arg1) {
 void func_80724DB0(s16 arg0, s16 arg1) {
     A1Entry10 *table;
 
-    A1SUB4->unk20 = func_80610FE8(arg1 * 0x10 + 0x10);
+    A1SUB4->unk20 = heapAlloc(arg1 * 0x10 + 0x10);
     heapClearBlock(A1SUB4->unk20);
     table = A1SUB4->unk20;
     table[0].unk4 = 1.0f;

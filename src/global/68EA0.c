@@ -30,7 +30,7 @@ extern s32 D_80747D70;
 extern ActorProximityEntry *D_807F9430;
 extern s16 D_807F9434;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 s32 actorEntryTypeIsEmitter(s16);
 void actorApplyRotatedOffset(s32, s32, f32);
 void actorInitEntryPoints(void) {
@@ -46,7 +46,7 @@ void actorInitEntryPoints(void) {
 
     D_807F9434 = count;
     if (count != 0) {
-        D_807F9430 = func_80610FE8(count * sizeof(ActorProximityEntry));
+        D_807F9430 = heapAlloc(count * sizeof(ActorProximityEntry));
         count = 0;
         for (i = 0; i < D_80747D70; i++) {
             if (actorEntryTypeIsEmitter(D_807F6000[i].unk84)) {

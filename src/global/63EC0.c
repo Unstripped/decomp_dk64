@@ -95,8 +95,8 @@ typedef struct EffectBufferEntry {
 void *assetLoad(s32, s32, s32, s32);
 void effectNodeApproachTargetPos(EffectNode *);
 void screenShakeStep(void);
-Gfx *func_8065FEB8(Gfx *, EffectNode *);
-void func_80660070(void *, void *, EffectNode *);
+Gfx *effectWaterSetScissor(Gfx *, EffectNode *);
+void effectWaterBuildMeshGdl(void *, void *, EffectNode *);
 Gfx *effectBuildMipmapGdl(Gfx *, s32, u8);
 
 extern EffectNode *D_807F93C0;
@@ -116,7 +116,7 @@ extern f32 D_807F93E0;
 extern f32 D_807F93E4;
 extern f32 D_807F93E8;
 
-typedef struct EffCF1C0Sub {
+typedef struct WaterTargetData {
     u8 pad0[0xC];
     f32 unkC;
     f32 unk10;
@@ -132,10 +132,10 @@ typedef struct EffCF1C0Sub {
     u8 unk67;
     u8 unk68;
     u8 pad69[3];
-} EffCF1C0Sub;
+} WaterTargetData;
 
-typedef struct EffCF1C0Node {
-    EffCF1C0Sub *target;
+typedef struct WaterNodeData {
+    WaterTargetData *target;
     f32 unk4;
     f32 unk8;
     f32 unkC;
@@ -160,34 +160,34 @@ typedef struct EffCF1C0Node {
     u8 unk4C;
     u8 unk4D;
     u8 pad4E[2];
-    struct EffCF1C0Node *next;
-} EffCF1C0Node;
+    struct WaterNodeData *next;
+} WaterNodeData;
 
-typedef struct EffCF1C0Entry {
+typedef struct WaterTypeEntry {
     void (*func)(u8);
     u8 pad4[0x10];
     u8 unk14;
     u8 pad15[3];
-} EffCF1C0Entry;
+} WaterTypeEntry;
 
 extern s32 D_8076A0A8;
 
-void *func_80610FE8(s32);
-void func_80660D38(Vtx *, EffectNode *);
-void func_80660520(Vtx *, EffectNode *);
+void *heapAlloc(s32);
+void effectWaterSetMeshPositionsUV(Vtx *, EffectNode *);
+void effectWaterSetMeshHeightsAlpha(Vtx *, EffectNode *);
 
 void func_8065F1C0(u8 *arg0) {
     u8 pad[0x1C];
     s32 i;
-    EffCF1C0Sub *base;
-    EffCF1C0Node **var_fp;
+    WaterTargetData *base;
+    WaterNodeData **var_fp;
     s32 count;
 
     for (i = 0; i < 9; i++) {
-        ((EffCF1C0Entry *)D_80748A90)[i].unk14 = 0;
+        ((WaterTypeEntry *)D_80748A90)[i].unk14 = 0;
     }
 
-    var_fp = (EffCF1C0Node **)&D_807F93C0;
+    var_fp = (WaterNodeData **)&D_807F93C0;
     if (D_8076A0A8 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     D_807F93C0 = NULL;
     count = *(u8 *)(arg0 + *(s32 *)(arg0 + 0x4C) + 3);
@@ -197,14 +197,14 @@ void func_8065F1C0(u8 *arg0) {
         return;
     }
 
-    base = (EffCF1C0Sub *)(arg0 + *(s32 *)(arg0 + 0x4C) + 4);
+    base = (WaterTargetData *)(arg0 + *(s32 *)(arg0 + 0x4C) + 4);
     for (i = 0; i < count; i++) {
-        EffCF1C0Node *node = func_80610FE8(0x54);
+        WaterNodeData *node = heapAlloc(0x54);
         s32 temp_s3;
         s32 temp_s4;
         s32 temp_s1;
         u8 temp_a0;
-        EffCF1C0Entry *entry2;
+        WaterTypeEntry *entry2;
 
         *var_fp = node;
         node->target = &base[i];
@@ -232,21 +232,21 @@ void func_8065F1C0(u8 *arg0) {
         temp_s4 = ((s32)(base[i].unk4C - base[i].unk48) / base[i].unk44) + 1;
         node->unk48 = (temp_s3 + 1) * (temp_s4 + 1);
 
-        node->dl[0] = func_80610FE8(node->unk48 * 0x10);
-        func_80660D38((Vtx *)node->dl[0], (EffectNode *)node);
-        func_80660520((Vtx *)node->dl[0], (EffectNode *)node);
+        node->dl[0] = heapAlloc(node->unk48 * 0x10);
+        effectWaterSetMeshPositionsUV((Vtx *)node->dl[0], (EffectNode *)node);
+        effectWaterSetMeshHeightsAlpha((Vtx *)node->dl[0], (EffectNode *)node);
 
-        node->dl[1] = func_80610FE8(node->unk48 * 0x10);
-        func_80660D38((Vtx *)node->dl[1], (EffectNode *)node);
-        func_80660520((Vtx *)node->dl[1], (EffectNode *)node);
+        node->dl[1] = heapAlloc(node->unk48 * 0x10);
+        effectWaterSetMeshPositionsUV((Vtx *)node->dl[1], (EffectNode *)node);
+        effectWaterSetMeshHeightsAlpha((Vtx *)node->dl[1], (EffectNode *)node);
 
         temp_s1 = (temp_s3 * temp_s4) + (((temp_s3 / 16) + 1) * temp_s4 * 2);
         temp_s1 += 0xC8;
-        node->vtx[0] = func_80610FE8(temp_s1 << 3);
-        node->vtx[1] = func_80610FE8(temp_s1 * 8);
+        node->vtx[0] = heapAlloc(temp_s1 << 3);
+        node->vtx[1] = heapAlloc(temp_s1 * 8);
 
         temp_a0 = base[i].unk66;
-        entry2 = (EffCF1C0Entry *)D_80748A90 + temp_a0;
+        entry2 = (WaterTypeEntry *)D_80748A90 + temp_a0;
         if (entry2->unk14 == 0) {
             entry2->func(temp_a0);
             entry2->unk14 = 1;
@@ -319,7 +319,7 @@ void effectUpdateNodes(void) {
     }
 }
 
-typedef struct EffCF678Sub {
+typedef struct WaterTargetUpdateView {
     u8 pad0[0xC];
     f32 unkC;
     f32 unk10;
@@ -335,11 +335,11 @@ typedef struct EffCF678Sub {
     s16 unk50[1];
     u8 pad52[0x15];
     u8 unk67;
-} EffCF678Sub;
+} WaterTargetUpdateView;
 
 s32 effectCheckTargetActive(EffectSubNode *);
 void effectWaterSetMeshColors(Vtx *, EffectNode *);
-void func_8065F964(EffectNode *, f32, f32, f32, u8, void *, void *);
+void effectNodeComputeBounds(EffectNode *, f32, f32, f32, u8, void *, void *);
 s32 func_8062DBDC(s16, s16, s16, s16, s32, s16, f32, f32, f32, f32, void *);
 s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 extern f32 D_807F5FAC;
@@ -363,10 +363,10 @@ void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     if (node != NULL) {
         do {
             if (effectCheckTargetActive(node->target) != 0 && !(node->unk4C & 1)) {
-                temp_fs0 = (f32)((EffCF678Sub *)node->target)->unk4E + node->unk4;
-                temp_fs1 = ((EffCF678Sub *)node->target)->unk10 + ((EffCF678Sub *)node->target)->unkC;
-                if (((EffCF678Sub *)node->target)->unk67 == 1) {
-                    var_s1 = (u8 *)&D_807F6C18[((EffCF678Sub *)node->target)->unk50[0]] + 0x88;
+                temp_fs0 = (f32)((WaterTargetUpdateView *)node->target)->unk4E + node->unk4;
+                temp_fs1 = ((WaterTargetUpdateView *)node->target)->unk10 + ((WaterTargetUpdateView *)node->target)->unkC;
+                if (((WaterTargetUpdateView *)node->target)->unk67 == 1) {
+                    var_s1 = (u8 *)&D_807F6C18[((WaterTargetUpdateView *)node->target)->unk50[0]] + 0x88;
                 } else {
                     if (var_s5 == 0) {
                         guMtxL2F(spD8, (Mtx *)((u8 *)D_807FC924 + (arg3 * 0x2F0) + (D_807444FC << 6) + 8));
@@ -374,15 +374,15 @@ void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
                         matrix4Invert(sp98, spD8);
                     }
                     var_s1 = sp120;
-                    func_8065F964(node, arg0, arg1, arg2, arg3, sp98, sp120);
+                    effectNodeComputeBounds(node, arg0, arg1, arg2, arg3, sp98, sp120);
                 }
-                if (func_8062DBDC(((EffCF678Sub *)node->target)->unk46, (s16)(temp_fs0 - temp_fs1), ((EffCF678Sub *)node->target)->unk48, ((EffCF678Sub *)node->target)->unk4A,
-                                  (s32)(temp_fs0 + temp_fs1), ((EffCF678Sub *)node->target)->unk4C, arg0, arg1, arg2, D_807F5FAC, var_s1) != 0 || node->pad4D[0] != 0) {
-                    if ((f64)((EffCF678Sub *)node->target)->unk24 != 0.0 || (f64)((EffCF678Sub *)node->target)->unk28 != 0.0) {
-                        func_80660D38(node->dl[D_807444FC], node);
+                if (func_8062DBDC(((WaterTargetUpdateView *)node->target)->unk46, (s16)(temp_fs0 - temp_fs1), ((WaterTargetUpdateView *)node->target)->unk48, ((WaterTargetUpdateView *)node->target)->unk4A,
+                                  (s32)(temp_fs0 + temp_fs1), ((WaterTargetUpdateView *)node->target)->unk4C, arg0, arg1, arg2, D_807F5FAC, var_s1) != 0 || node->pad4D[0] != 0) {
+                    if ((f64)((WaterTargetUpdateView *)node->target)->unk24 != 0.0 || (f64)((WaterTargetUpdateView *)node->target)->unk28 != 0.0) {
+                        effectWaterSetMeshPositionsUV(node->dl[D_807444FC], node);
                     }
-                    if ((f64)((EffCF678Sub *)node->target)->unkC != 0.0 || (f64)((EffCF678Sub *)node->target)->unk10 != 0.0) {
-                        func_80660520(node->dl[D_807444FC], node);
+                    if ((f64)((WaterTargetUpdateView *)node->target)->unkC != 0.0 || (f64)((WaterTargetUpdateView *)node->target)->unk10 != 0.0) {
+                        effectWaterSetMeshHeightsAlpha(node->dl[D_807444FC], node);
                     }
                     effectWaterSetMeshColors((Vtx *)node->dl[D_807444FC], node);
                     node->unk4C |= 1;
@@ -393,7 +393,7 @@ void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_8065F964.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/effectNodeComputeBounds.s")
 
 s32 effectCheckTargetActive(EffectSubNode *arg0) {
     s32 i;
@@ -406,7 +406,7 @@ s32 effectCheckTargetActive(EffectSubNode *arg0) {
     return 0;
 }
 
-typedef struct EffATargetFB64 {
+typedef struct WaterTargetRenderView {
     u8 pad0[0xC];
     f32 unkC;
     f32 unk10;
@@ -420,10 +420,10 @@ typedef struct EffATargetFB64 {
     u8 unk66;
     u8 unk67;
     u8 unk68;
-} EffATargetFB64;
+} WaterTargetRenderView;
 
-typedef struct EffANodeFB64 {
-    EffATargetFB64 *target;
+typedef struct WaterNodeRenderView {
+    WaterTargetRenderView *target;
     f32 unk4;
     u8 pad8[8];
     f32 x;
@@ -439,15 +439,15 @@ typedef struct EffANodeFB64 {
     u8 pad4A[2];
     u8 unk4C;
     u8 pad4D[3];
-    struct EffANodeFB64 *next;
-} EffANodeFB64;
+    struct WaterNodeRenderView *next;
+} WaterNodeRenderView;
 
-typedef struct EffAEntryFB64 {
+typedef struct EffectBufferEntryView {
     u8 unk0;
     u8 pad1[2];
     u8 unk3;
     u8 pad4[0x1C4];
-} EffAEntryFB64;
+} EffectBufferEntryView;
 
 extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
@@ -461,15 +461,15 @@ s32 func_8065BAA0(f32, f32, f32, s16, s32, s32, s32, s32, s32, s32, u8 *);
 void func_8065C990(s32, s32, s32, void *, s32, s32);
 
 void func_8065FB64(f32 arg0, f32 arg1, f32 arg2) {
-    EffANodeFB64 *node;
-    EffATargetFB64 *target;
+    WaterNodeRenderView *node;
+    WaterTargetRenderView *target;
     u8 sp8F;
     s16 s1;
     s32 v0;
     s32 temp_a0;
     u8 flags;
 
-    node = (EffANodeFB64 *)D_807F93C0;
+    node = (WaterNodeRenderView *)D_807F93C0;
     if (node != NULL) {
         do {
             flags = node->unk4C;
@@ -485,7 +485,7 @@ void func_8065FB64(f32 arg0, f32 arg1, f32 arg2) {
                     D_807F7EF4 = D_8076A0BC[s1];
                     if (D_807FBB60 & 0x10) {
                         temp_a0 = node->unk1C[D_807444FC];
-                        func_8065C990(temp_a0, temp_a0 + node->unk48 * 16, 1, &D_807F78C0, v0, ((EffAEntryFB64 *)D_807F6C18)[s1].unk3 == 1);
+                        func_8065C990(temp_a0, temp_a0 + node->unk48 * 16, 1, &D_807F78C0, v0, ((EffectBufferEntryView *)D_807F6C18)[s1].unk3 == 1);
                     }
                     node->unk4C |= 2;
                 }
@@ -501,10 +501,10 @@ Gfx *effectWaterRenderSurfaces(Gfx *gdl, u8 arg1, u8 arg2) {
     water = D_807F93C0;
     while (water != NULL) {
         if ((water->unk4C & 1) && (arg2 == D_80748A90[water->unk0->unk66].unk16)) {
-            gdl = func_8065FEB8(gdl, water);
+            gdl = effectWaterSetScissor(gdl, water);
             gSPDisplayList(gdl++, osVirtualToPhysical(water->vtx[D_807444FC]));
             if (!(water->unk4C & 4)) {
-                func_80660070(water->vtx[D_807444FC], water->dl[D_807444FC], water);
+                effectWaterBuildMeshGdl(water->vtx[D_807444FC], water->dl[D_807444FC], water);
                 water->unk4C |= 4;
             }
         }
@@ -513,17 +513,17 @@ Gfx *effectWaterRenderSurfaces(Gfx *gdl, u8 arg1, u8 arg2) {
     return gdl;
 }
 
-typedef struct EffAStruct1C8FEB8 {
+typedef struct EffectBufferEntryRect {
     u8 pad[0x68];
     s32 unk68;
     s32 unk6C;
     s32 unk70;
     s32 unk74;
-} EffAStruct1C8FEB8;
+} EffectBufferEntryRect;
 
-#define EFFA_ENTRY(off) ((EffAStruct1C8FEB8 *)((u32)D_807F6C18 + (off)))
+#define EFFECT_BUFFER_RECT(off) ((EffectBufferEntryRect *)((u32)D_807F6C18 + (off)))
 
-Gfx *func_8065FEB8(Gfx *gdl, EffectNode *water) {
+Gfx *effectWaterSetScissor(Gfx *gdl, EffectNode *water) {
     s32 index;
     s32 offset;
 
@@ -534,19 +534,19 @@ Gfx *func_8065FEB8(Gfx *gdl, EffectNode *water) {
         {
             Gfx *_g = (Gfx *)gdl++;
 
-            _g->words.w0 = ((s32)(EFFA_ENTRY(offset)->unk6C * 4.0f) & 0xFFF) | 0xED000000 | (((s32)(EFFA_ENTRY(offset)->unk68 * 4.0f) & 0xFFF) << 12);
-            _g->words.w1 = ((s32)(EFFA_ENTRY(offset)->unk74 * 4.0f) & 0xFFF) | (((s32)(EFFA_ENTRY(offset)->unk70 * 4.0f) & 0xFFF) << 12);
+            _g->words.w0 = ((s32)(EFFECT_BUFFER_RECT(offset)->unk6C * 4.0f) & 0xFFF) | 0xED000000 | (((s32)(EFFECT_BUFFER_RECT(offset)->unk68 * 4.0f) & 0xFFF) << 12);
+            _g->words.w1 = ((s32)(EFFECT_BUFFER_RECT(offset)->unk74 * 4.0f) & 0xFFF) | (((s32)(EFFECT_BUFFER_RECT(offset)->unk70 * 4.0f) & 0xFFF) << 12);
         }
     } else {
         gDPSetScissor(gdl++, G_SC_NON_INTERLACE, water->unk40, water->unk42, water->unk44, water->unk46);
     }
     return gdl;
 }
-#undef EFFA_ENTRY
+#undef EFFECT_BUFFER_RECT
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80660070.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/effectWaterBuildMeshGdl.s")
 
-typedef struct EffBHeightSub {
+typedef struct WaterHeightView {
     u8 pad0[0xC];
     f32 unkC;
     f32 unk10;
@@ -560,12 +560,12 @@ typedef struct EffBHeightSub {
     u8 unk64;
     u8 unk65;
     u8 unk66;
-} EffBHeightSub;
+} WaterHeightView;
 
 f32 func_806608FC(EffectNode *, s32, s32, u8);
 
-#define EFFB_HSUB ((EffBHeightSub *)water->unk0)
-void func_80660520(Vtx *vtx, EffectNode *water) {
+#define WATER_HEIGHT ((WaterHeightView *)water->unk0)
+void effectWaterSetMeshHeightsAlpha(Vtx *vtx, EffectNode *water) {
     s32 countX;
     s32 countZ;
     s16 maxX;
@@ -585,15 +585,15 @@ void func_80660520(Vtx *vtx, EffectNode *water) {
     u8 flag;
 
     step = water->unk2C;
-    minX = EFFB_HSUB->unk46;
-    maxX = EFFB_HSUB->unk4A;
-    minZ = EFFB_HSUB->unk48;
-    maxZ = EFFB_HSUB->unk4C;
-    baseHeight = (f32)EFFB_HSUB->unk4E + water->unk4;
-    heightScale = EFFB_HSUB->unk10 + EFFB_HSUB->unkC;
-    alphaMax = EFFB_HSUB->unk65;
-    alphaBase = EFFB_HSUB->unk64;
-    flag = D_80748AA5[EFFB_HSUB->unk66].unk0;
+    minX = WATER_HEIGHT->unk46;
+    maxX = WATER_HEIGHT->unk4A;
+    minZ = WATER_HEIGHT->unk48;
+    maxZ = WATER_HEIGHT->unk4C;
+    baseHeight = (f32)WATER_HEIGHT->unk4E + water->unk4;
+    heightScale = WATER_HEIGHT->unk10 + WATER_HEIGHT->unkC;
+    alphaMax = WATER_HEIGHT->unk65;
+    alphaBase = WATER_HEIGHT->unk64;
+    flag = D_80748AA5[WATER_HEIGHT->unk66].unk0;
     countX = ((maxX - minX) / step) + 1;
     countZ = ((maxZ - minZ) / step) + 1;
     z = minZ;
@@ -615,7 +615,7 @@ void func_80660520(Vtx *vtx, EffectNode *water) {
         z += step;
     }
 }
-#undef EFFB_HSUB
+#undef WATER_HEIGHT
 
 typedef struct WaterEffectSubNode {
     u8 pad[0x46];
@@ -666,7 +666,7 @@ void effectWaterSetMeshColors(Vtx *vtx, EffectNode *water) {
 f32 func_80612794(s16);
 
 #ifdef NON_MATCHING
-typedef struct EffBHeightSub2 {
+typedef struct WaterHeightView2 {
     u8 pad0[4];
     f32 unk4;
     f32 unk8;
@@ -678,14 +678,14 @@ typedef struct EffBHeightSub2 {
     s16 unk4A;
     s16 unk4C;
     s16 unk4E;
-} EffBHeightSub2;
+} WaterHeightView2;
 
 f32 sqrtf(f32);
 
 f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
     s32 temp1;
     s32 temp;
-    EffBHeightSub2 * sub;
+    WaterHeightView2 * sub;
     f32 dx;
     f32 dz;
     f32 dist;
@@ -699,11 +699,11 @@ f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
     switch (type) {
     case 0:
         {
-            temp1 = (s32)(((EffBHeightSub2 *)water->unk0)->unk4 * (f32)arg1);
-            temp = (s32)(((EffBHeightSub2 *)water->unk0)->unk8 * (f32)arg2);
+            temp1 = (s32)(((WaterHeightView2 *)water->unk0)->unk4 * (f32)arg1);
+            temp = (s32)(((WaterHeightView2 *)water->unk0)->unk8 * (f32)arg2);
             sin1 = func_80612794((s16)((water->unk30 + temp1) % 4095));
         }
-        return (func_80612794((s16)((water->unk34 + temp) % 4095)) * ((EffBHeightSub2 *)water->unk0)->unk10) + ((f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4 + (((EffBHeightSub2 *)water->unk0)->unkC * sin1));
+        return (func_80612794((s16)((water->unk34 + temp) % 4095)) * ((WaterHeightView2 *)water->unk0)->unk10) + ((f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4 + (((WaterHeightView2 *)water->unk0)->unkC * sin1));
 
     case 1:
     case 2:
@@ -724,22 +724,22 @@ f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
                 h = (f32)((f64)D_807F93D4 + ((0.0 - (f64)D_807F93D4) * (f64)((D_807F93DC - D_807F93E8) / (D_807F93E4 - D_807F93E8))));
             }
             if ((f64)diff < 50.0) {
-                baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
+                baseH = (f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4;
                 h += baseH;
             } else if ((f64)diff > 150.0) {
-                baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
+                baseH = (f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4;
                 h = baseH;
             } else {
-                baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
+                baseH = (f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4;
                 h = (f32)((f64)baseH + ((f64)h + ((0.0 - (f64)h) * (((f64)diff - 50.0) / 100.0))));
             }
         } else {
-            baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
+            baseH = (f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4;
             h = baseH;
         }
 
         if (type == 2) {
-            sub = (EffBHeightSub2 *)water->unk0;
+            sub = (WaterHeightView2 *)water->unk0;
             d = arg1 - sub->unk46;
             edgeDist = (f32)(d > 0 ? d : -d);
 
@@ -771,7 +771,7 @@ f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_806608FC.s")
 #endif
 
-typedef struct EffBWaterSub {
+typedef struct WaterWaveView {
     f32 unk0;
     u8 pad4[0x18];
     f32 unk1C;
@@ -783,10 +783,10 @@ typedef struct EffBWaterSub {
     s16 unk48;
     s16 unk4A;
     s16 unk4C;
-} EffBWaterSub;
+} WaterWaveView;
 
-#define EFFB_SUB ((EffBWaterSub *)water->unk0)
-void func_80660D38(Vtx *vtx, EffectNode *water) {
+#define WATER_WAVE ((WaterWaveView *)water->unk0)
+void effectWaterSetMeshPositionsUV(Vtx *vtx, EffectNode *water) {
     s32 countX;
     s32 countZ;
     s16 maxX;
@@ -806,10 +806,10 @@ void func_80660D38(Vtx *vtx, EffectNode *water) {
     s32 tcZ;
 
     step = water->unk2C;
-    minX = EFFB_SUB->unk46;
-    maxX = EFFB_SUB->unk4A;
-    minZ = EFFB_SUB->unk48;
-    maxZ = EFFB_SUB->unk4C;
+    minX = WATER_WAVE->unk46;
+    maxX = WATER_WAVE->unk4A;
+    minZ = WATER_WAVE->unk48;
+    maxZ = WATER_WAVE->unk4C;
     countX = ((maxX - minX) / step) + 1;
     countZ = ((maxZ - minZ) / step) + 1;
     z = minZ;
@@ -822,14 +822,14 @@ void func_80660D38(Vtx *vtx, EffectNode *water) {
             if (maxZ < z) {
                 z = maxZ;
             }
-            offX = (s32)(EFFB_SUB->unk1C * (f32)x);
-            offZ = (s32)(EFFB_SUB->unk20 * (f32)z);
-            posX = (func_80612794((water->unk38 + offX) & 0xFFF) * EFFB_SUB->unk24) + (f32)x;
-            posZ = (func_80612794((water->unk3C + offZ) & 0xFFF) * EFFB_SUB->unk28) + (f32)z;
+            offX = (s32)(WATER_WAVE->unk1C * (f32)x);
+            offZ = (s32)(WATER_WAVE->unk20 * (f32)z);
+            posX = (func_80612794((water->unk38 + offX) & 0xFFF) * WATER_WAVE->unk24) + (f32)x;
+            posZ = (func_80612794((water->unk3C + offZ) & 0xFFF) * WATER_WAVE->unk28) + (f32)z;
             vtx->v.ob[0] = posX * 3;
             vtx->v.ob[2] = posZ * 3;
-            tcX = (s32)((f32)x * EFFB_SUB->unk0);
-            tcZ = (s32)((f32)z * EFFB_SUB->unk0);
+            tcX = (s32)((f32)x * WATER_WAVE->unk0);
+            tcZ = (s32)((f32)z * WATER_WAVE->unk0);
             vtx->v.tc[0] = tcX % 0x7FFF;
             vtx->v.tc[1] = tcZ % 0x7FFF;
             vtx++;
@@ -838,7 +838,7 @@ void func_80660D38(Vtx *vtx, EffectNode *water) {
         z += step;
     }
 }
-#undef EFFB_SUB
+#undef WATER_WAVE
 
 s32 mathBitwiseNot(s32 arg0) {
     return ~arg0;

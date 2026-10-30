@@ -3,7 +3,7 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63810/func_8065EB10.s")
 
-typedef struct RenderB63810_LightEntry {
+typedef struct QueuedLightEntry {
     s16 unk0;
     u8 pad2[2];
     f32 unk4;
@@ -16,21 +16,21 @@ typedef struct RenderB63810_LightEntry {
     u8 unk17;
     u8 unk18;
     u8 pad19[3];
-} RenderB63810_LightEntry;
+} QueuedLightEntry;
 
 extern s16 D_80748A84;
 extern s32 D_8076A0A8;
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
 extern s32 D_807FBB68;
-extern RenderB63810_LightEntry D_807F9070[];
+extern QueuedLightEntry D_807F9070[];
 
 void lightSetFlags(u8);
 void lightSetTargetId(s16);
 void lightSetRadius(s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
-void func_8065EFF0(void) {
+void lightFlushQueued(void) {
     s32 i;
 
     if (D_8076A0A8 == 0x30 && !(((Struct807FD580 *)D_807FBB4C->unk174)->unk1F0 & 0x100000)) {

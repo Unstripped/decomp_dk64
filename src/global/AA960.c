@@ -929,7 +929,7 @@ extern u8 D_807504CC;
 extern u8 D_807504D0;
 extern f32 D_807504C0;
 extern f32 D_807504C4;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 
 void effectActorShrinkTick(void) {
@@ -938,7 +938,7 @@ void effectActorShrinkTick(void) {
 
     temp_v1 = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((ActorDrawBuffer *)D_807FBB40->unk4)->unk20 = func_80610FE8(0x20);
+        ((ActorDrawBuffer *)D_807FBB40->unk4)->unk20 = heapAlloc(0x20);
         heapClearBlock(((ActorDrawBuffer *)D_807FBB40->unk4)->unk20);
         temp_v1->unk4 = 0;
         temp_v1->unk0 = 1.0f;

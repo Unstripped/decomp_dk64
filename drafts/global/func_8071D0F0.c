@@ -20,7 +20,7 @@ void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
     node = arg0->unk35C;
     motion = arg0->unk384;
     if (motion == NULL) {
-        motion = func_80610FE8(0x10);
+        motion = heapAlloc(0x10);
         arg0->unk384 = motion;
         motion->unk0 = 30.0f;
         motion = arg0->unk384;

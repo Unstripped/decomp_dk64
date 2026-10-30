@@ -2105,7 +2105,7 @@ extern void *D_8076BF38[];
 extern AudioCSeq D_8076BF48[];
 extern u8 D_80770598[];
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFree(void *);
 void func_8060B140(s32, void *, s32 *, s32, s32, s32, void *);
 void n_alCSeqNew(void *, void *);
@@ -2138,7 +2138,7 @@ void seqLoadAndPlay(s32 arg0, u8 arg1, f32 arg2) {
     D_80770598[arg0] = 0;
     D_80770568[arg0] = arg2;
     D_80770560[arg0] = arg1;
-    temp = (s32)func_80610FE8(0x8000);
+    temp = (s32)heapAlloc(0x8000);
     {
         s32 base = D_8076D200[arg1];
         s32 addr = base + D_8000DDCC;

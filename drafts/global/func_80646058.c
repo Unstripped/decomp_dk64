@@ -77,7 +77,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
 
     hit = 0;
     if (*(CsB46State **)cs == NULL) {
-        n = func_80610FE8(0x1C);
+        n = heapAlloc(0x1C);
         *(CsB46State **)cs = n;
         n->idx = 0;
         n->timer = D_807480F4;

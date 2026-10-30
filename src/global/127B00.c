@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 typedef struct PathEntry {
     u8 *unk0;
     s16 unk4;
@@ -68,10 +68,10 @@ void pathTableLoad(s16 *arg0) {
     var_s2 = arg0 + 1;
     for (var_s4 = 0; var_s4 < temp_s7; var_s4++) {
         temp_s5 = *var_s2++;
-        D_807FDB90[temp_s5] = func_80610FE8(8);
+        D_807FDB90[temp_s5] = heapAlloc(8);
         D_807FDB90[temp_s5]->unk4 = *var_s2++;
         var_s2++;
-        D_807FDB90[temp_s5]->unk0 = func_80610FE8((D_807FDB90[temp_s5]->unk4 + 1) * sizeof(PathPoint));
+        D_807FDB90[temp_s5]->unk0 = heapAlloc((D_807FDB90[temp_s5]->unk4 + 1) * sizeof(PathPoint));
         var_s0 = 0;
         var_a0 = (PathPoint *)var_s2;
         while (var_s0 < D_807FDB90[temp_s5]->unk4) {
@@ -125,10 +125,10 @@ s32 pathPlaybackStart(s32 arg0, s32 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5,
     if (D_807FDB90[arg1]->unk4 == 1 && !arg2) {
         return -1;
     }
-    D_807FDBF8[i] = func_80610FE8(0x2C);
+    D_807FDBF8[i] = heapAlloc(0x2C);
     path = (PathEntry *)&D_807FDBF8[i]->unk4;
     path->unk4 = D_807FDB90[arg1]->unk4;
-    path->unk0 = func_80610FE8(path->unk4 * 10 + 10);
+    path->unk0 = heapAlloc(path->unk4 * 10 + 10);
     if (arg2 != 0) {
         path->unk4++;
         ((u8 *)&sp54)[8] = arg6;

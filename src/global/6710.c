@@ -125,7 +125,7 @@ void audioThreadMain();
 #include "actor.h"
 
 
-void func_80601A10(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
+void audioThreadInit(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
     AudioDmaNode *curr;
     AudioSynthesizerConfig sp44;
     u32 i;
@@ -190,7 +190,7 @@ extern AudioSched gScheduler;
 s32 audioDmaCallback();
 
 void schedAddClient(void *, void *, OSMesgQueue *, s32, s32);
-s32 func_80601EE4();
+s32 audioBuildTask();
 void audioCheckAiLength();
 void seqUpdateVolumeFades(void);
 void n_alClose(void *);
@@ -213,7 +213,7 @@ void audioThreadMain(s32 arg0) {
             if (gScheduler.audioListHead != NULL) {
                 osSendMesg(&gScheduler.interruptQ, (OSMesg)0x29E, 1);
             }
-            func_80601EE4(D_8076D4D0.tasks[D_807452C0 % numBuffers], var_s0);
+            audioBuildTask(D_8076D4D0.tasks[D_807452C0 % numBuffers], var_s0);
             arg0 = first != 0;
             first = 0;
             var_s0 = D_8076D4D0.tasks[(D_807452C0 + 1) % numBuffers];
@@ -246,7 +246,7 @@ void audioDmaFrameUpdate(void);
 s32 n_alAudioFrame(void *, s32 *, u32, s16);
 OSMesgQueue *func_8060EE58(void *);
 
-s32 func_80601EE4(AudioTask *task, AudioAiBuffer *aiBuf) {
+s32 audioBuildTask(AudioTask *task, AudioAiBuffer *aiBuf) {
     u32 physSampleBuf;
     s32 pad[1];
     s32 cmdCount;

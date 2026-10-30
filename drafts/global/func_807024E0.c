@@ -67,7 +67,7 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     } else {
         gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
     }
-    vtx = (VtxColorView *)func_80610FE8(((((xe - xs) / tw) + 1) * (((ye - ys) / th) + 1)) << 6);
+    vtx = (VtxColorView *)heapAlloc(((((xe - xs) / tw) + 1) * (((ye - ys) / th) + 1)) << 6);
     heapFreeDeferred(vtx);
     gDPPipeSync(dl++);
     v = (s32)(fsc * arg12);

@@ -1,4 +1,4 @@
-// func_80660070 (src/global/63EC0.c): stage 3 (EffC2): frame 0x98 vs 0x90 only real diff (16 text lines = frame/spill offsets + multu a1,t7 operand order). Wins vs old draft: segLen = (countX - x + 1) >= 17 ? 16 : ... (branch sense bnez), vtxNext += before vtxStart += in the tail update. Facts: expected function-level order high->low is vtxStart(0x8c) vtxNext countX ? x +4 done(0x68) ... total(0x40, lowest); region needs 2 fewer words: removing any 2 of the 3 tail Gfx macros (raw words writes) gives 0x90 but changes code; sibling block-locals overlap (2 sibling '{s32 p;}' cost +8 total). Narrow u8/s16 locals, k/i merge, rowEnd/x merge (permuter find) do not fix it.
+// effectWaterBuildMeshGdl (src/global/63EC0.c): stage 3 (EffC2): frame 0x98 vs 0x90 only real diff (16 text lines = frame/spill offsets + multu a1,t7 operand order). Wins vs old draft: segLen = (countX - x + 1) >= 17 ? 16 : ... (branch sense bnez), vtxNext += before vtxStart += in the tail update. Facts: expected function-level order high->low is vtxStart(0x8c) vtxNext countX ? x +4 done(0x68) ... total(0x40, lowest); region needs 2 fewer words: removing any 2 of the 3 tail Gfx macros (raw words writes) gives 0x90 but changes code; sibling block-locals overlap (2 sibling '{s32 p;}' cost +8 total). Narrow u8/s16 locals, k/i merge, rowEnd/x merge (permuter find) do not fix it.
 typedef struct EffC2MeshBuilder {
     Gfx *(*fn)(void *, EffectNode *, u8);
     u8 pad4[0x14];
@@ -17,7 +17,7 @@ typedef struct EffC2MeshSub {
 extern EffC2MeshBuilder D_80748A94[];
 extern s32 D_807F93EC;
 
-void func_80660070(void *arg0, void *arg1, EffectNode *water) {
+void effectWaterBuildMeshGdl(void *arg0, void *arg1, EffectNode *water) {
     s32 countX;
     Gfx * gdl;
     s32 countZ;

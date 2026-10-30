@@ -26,15 +26,15 @@ void func_80024000(void);
 void func_80026FD0(s32);
 void func_8002EC08(s32);
 void func_805FB7E4(void);
-void func_805FB944();
+void viModeSetup();
 void func_805FBC5C(void);
 void func_805FBE04(void);
-void func_805FBFF4(s32);
+void mainThreadLoop(s32);
 void func_805FC2B0(void);
-s32 func_805FC668(void);
+s32 pauseStateUpdate(void);
 s32 func_805FC98C(void);
 s32 func_805FCA64(void);
-void func_805FCA94(void *);
+void playerViewsBuildMatrices(void *);
 Gfx *func_805FCFD8(Gfx *);
 Gfx *func_805FD030(Gfx *);
 void func_805FD088(Struct_8076A048 *, Gfx **, Gfx **);
@@ -74,7 +74,7 @@ void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
 void func_8060FFF0(void);
 void func_80610044(void *, s32, s32, u8, s32, s32);
 void func_80610268(s32);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void func_80611730(void);
 void camResetAllPlayers(void);
 void camInit(s32);
@@ -98,7 +98,7 @@ void func_80658CCC(void);
 void lightInitGlobals(void);
 void lightClearCount(void);
 void billboardCacheInit(void);
-void func_8065D1AC(void);
+void billboardCacheEvictStale(void);
 void effectUpdateAndDispatch(void);
 void triggerZoneUpdate(void);
 void actorInitTargetEntries(void);
@@ -420,7 +420,7 @@ loop_5:
 
 void loadOverlay(u8, u8, s32);
 
-void func_805FB944(arg0)
+void viModeSetup(arg0)
 u8 arg0;
 {
     u8 var_a1;
@@ -501,7 +501,7 @@ void func_805FBC5C(void) {
     osCreateMesgQueue(&D_807659E8, &D_80765A00, 0x10);
     schedAddClient(&gScheduler, &D_80767CD8, &D_807659E8, 1, 1);
     D_8076A0A8 = D_807444E4;
-    func_805FB944(0);
+    viModeSetup(0);
     D_8076A07C = 5;
     func_8060FFF0();
     controllerInit();
@@ -548,7 +548,7 @@ void func_805FBE04(void) {
 extern s16 D_8074682C;
 extern u8 D_807F059C;
 
-void func_805FBFF4(s32 arg0) {
+void mainThreadLoop(s32 arg0) {
     u8 first;
     s32 sp38;
 
@@ -630,19 +630,19 @@ void func_805FC2B0(void) {
     }
     D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
     controllerUpdate();
-    if (func_805FC668() != 0) {
-        func_8065D1AC();
+    if (pauseStateUpdate() != 0) {
+        billboardCacheEvictStale();
         func_806789E4();
         func_80715270(1);
         func_80603450();
         func_806057F8();
         func_806025D4();
-        func_805FCA94(D_8076A048);
+        playerViewsBuildMatrices(D_8076A048);
     } else {
         lightClearCount();
         func_806787CC();
-        func_805FCA94(D_8076A048);
-        func_8065D1AC();
+        playerViewsBuildMatrices(D_8076A048);
+        billboardCacheEvictStale();
         actorProximityUpdate();
         collisionBufferCacheUpdate();
         modelSlotExpireNextBuffers();
@@ -699,7 +699,7 @@ void sfxStopChannel(s32, s32);
 void slotQueuePopActiveMask(void);
 void slotQueueReset(void);
 
-s32 func_805FC668(void) {
+s32 pauseStateUpdate(void) {
     Actor *actor;
 
     if ((D_8076A0A8 == 0x50) || (func_80714360() == 0 && func_8071432C() == 0 && func_8071441C() == 0 && func_807143E8() == 0)) {
@@ -786,14 +786,14 @@ typedef struct {
     f32 unk90;
     u8 pad94[0xFA - 0x94];
     u8 unkFA;
-} Sched0Held;
+} HeldActorData;
 
 typedef struct {
     u8 pad0[0x104];
     Actor *unk104;
     u8 pad108[0x1F0 - 0x108];
     s32 unk1F0;
-} Sched0PlayerData;
+} PlayerActorData;
 
 typedef struct {
     u8 unk0;
@@ -826,15 +826,15 @@ typedef struct {
     f32 unk284;
     f32 unk288;
     u8 pad28C[0x2F0 - 0x28C];
-} Sched0View;
+} PlayerViewData;
 
-#define S0V ((Sched0View *)D_807FC924)
-#define S0DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
+#define PLAYER_VIEWS ((PlayerViewData *)D_807FC924)
+#define ABS_DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
-void func_805FCA94(void *arg0) {
+void playerViewsBuildMatrices(void *arg0) {
     Actor *pa;
-    Sched0PlayerData *pl;
-    Sched0Held *held;
+    PlayerActorData *pl;
+    HeldActorData *held;
     s32 i;
     f32 fov;
     f32 aspect;
@@ -847,43 +847,43 @@ void func_805FCA94(void *arg0) {
         func_8062754C(func_806276AC());
     }
     for (i = 0; i < D_80750AB4; i++) {
-        if (S0V[i].unk0 != 0) {
-            if (S0DIFF(S0V[i].unk210, S0V[i].unk228) < 0.5 && S0DIFF(S0V[i].unk218, S0V[i].unk230) < 0.5) {
+        if (PLAYER_VIEWS[i].unk0 != 0) {
+            if (ABS_DIFF(PLAYER_VIEWS[i].unk210, PLAYER_VIEWS[i].unk228) < 0.5 && ABS_DIFF(PLAYER_VIEWS[i].unk218, PLAYER_VIEWS[i].unk230) < 0.5) {
                 offs = 1.0f;
             } else {
                 offs = 0.0f;
             }
-            guLookAtHilite(&S0V[i].unk8[D_807444FC], &S0V[i].unk190[D_807444FC], &S0V[i].unk1D0[D_807444FC],
-                           S0V[i].unk210 + offs, S0V[i].unk214, S0V[i].unk218 + offs,
-                           S0V[i].unk228, S0V[i].unk22C, S0V[i].unk230,
-                           S0V[i].unk240, S0V[i].unk244, S0V[i].unk248,
+            guLookAtHilite(&PLAYER_VIEWS[i].unk8[D_807444FC], &PLAYER_VIEWS[i].unk190[D_807444FC], &PLAYER_VIEWS[i].unk1D0[D_807444FC],
+                           PLAYER_VIEWS[i].unk210 + offs, PLAYER_VIEWS[i].unk214, PLAYER_VIEWS[i].unk218 + offs,
+                           PLAYER_VIEWS[i].unk228, PLAYER_VIEWS[i].unk22C, PLAYER_VIEWS[i].unk230,
+                           PLAYER_VIEWS[i].unk240, PLAYER_VIEWS[i].unk244, PLAYER_VIEWS[i].unk248,
                            D_807444CC, D_807444D0, D_807444D4,
                            D_807444D8, D_807444DC, func_807444E0,
                            0x20, 0x20);
-            fov = S0V[i].unk280;
+            fov = PLAYER_VIEWS[i].unk280;
             cc = D_807445CC;
-            pl = (Sched0PlayerData *)S0V[i].unk4->unk174;
+            pl = (PlayerActorData *)PLAYER_VIEWS[i].unk4->unk174;
             pa = pl->unk104;
-            held = (Sched0Held *)pa->unk174;
+            held = (HeldActorData *)pa->unk174;
             if (pl->unk1F0 & 0x100) {
                 fov += 0.5 * sinApprox(cc[0] * 0.1);
             } else if (pl->unk1F0 & 0x2000000) {
                 fov += 0.05 * sinApprox(cc[0] * 0.4);
-            } else if (held->unkFA != 0 && S0V[i].unk220 < held->unk90 + 3.0f) {
+            } else if (held->unkFA != 0 && PLAYER_VIEWS[i].unk220 < held->unk90 + 3.0f) {
                 fov += 0.04 * sinApprox(cc[0] * 0.1);
             }
-            guPerspective(&S0V[i].unk88[D_807444FC], (u16 *)(i * 0x2F0 + (s32)D_807FC924 + 0x188), S0V[i].unk27C, fov * aspect, S0V[i].unk284, S0V[i].unk288, 1.0f);  // FAKE: operand order (i*0x2F0 first) keeps this address from CSE with the S0V[i] address
+            guPerspective(&PLAYER_VIEWS[i].unk88[D_807444FC], (u16 *)(i * 0x2F0 + (s32)D_807FC924 + 0x188), PLAYER_VIEWS[i].unk27C, fov * aspect, PLAYER_VIEWS[i].unk284, PLAYER_VIEWS[i].unk288, 1.0f);  // FAKE: operand order (i*0x2F0 first) keeps this address from CSE with the PLAYER_VIEWS[i] address
         }
     }
-    if (S0DIFF(S0V->unk210, S0V->unk228) < 0.5 && S0DIFF(S0V->unk218, S0V->unk230) < 0.5) {
+    if (ABS_DIFF(PLAYER_VIEWS->unk210, PLAYER_VIEWS->unk228) < 0.5 && ABS_DIFF(PLAYER_VIEWS->unk218, PLAYER_VIEWS->unk230) < 0.5) {
         offs = 1.0f;
     } else {
         offs = 0.0f;
     }
-    guPerspective((Mtx *)arg0, &D_8076A09C, S0V->unk27C, fov * aspect, S0V->unk284, S0V->unk288, 1.0f);
-    guLookAt((Mtx *)((u8 *)arg0 + 0x200), S0V->unk210 + offs, S0V->unk214, S0V->unk218 + offs,
-             S0V->unk228, S0V->unk22C, S0V->unk230,
-             S0V->unk240, S0V->unk244, S0V->unk248);
+    guPerspective((Mtx *)arg0, &D_8076A09C, PLAYER_VIEWS->unk27C, fov * aspect, PLAYER_VIEWS->unk284, PLAYER_VIEWS->unk288, 1.0f);
+    guLookAt((Mtx *)((u8 *)arg0 + 0x200), PLAYER_VIEWS->unk210 + offs, PLAYER_VIEWS->unk214, PLAYER_VIEWS->unk218 + offs,
+             PLAYER_VIEWS->unk228, PLAYER_VIEWS->unk22C, PLAYER_VIEWS->unk230,
+             PLAYER_VIEWS->unk240, PLAYER_VIEWS->unk244, PLAYER_VIEWS->unk248);
     D_807445CC[0]++;
 }
 
@@ -1087,8 +1087,8 @@ void func_805FE544(u8 arg0) {
     } else {
         D_8076A058 = arg0 * 3000;
     }
-    D_8076A050[0] = func_80610FE8(D_8076A058 * sizeof(Gfx));
-    D_8076A050[1] = func_80610FE8(D_8076A058 * sizeof(Gfx));
+    D_8076A050[0] = heapAlloc(D_8076A058 * sizeof(Gfx));
+    D_8076A050[1] = heapAlloc(D_8076A058 * sizeof(Gfx));
     func_805FE71C(func_805FE634(D_8076A050[0], 0), 0, &D_8076A088, 1);
     func_805FE71C(func_805FE634((void *)D_8076A054, 1), 1, &D_8076A088, 1);
 }
@@ -1181,7 +1181,7 @@ void func_805FE7FC(void) {
     } else {
         D_807444EC = 0;
     }
-    func_805FB944(1, &D_8076A0A8);
+    viModeSetup(1, &D_8076A0A8);
     
 if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         D_80750AC0 = 1;

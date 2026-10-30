@@ -145,7 +145,7 @@ extern s8 D_807F6903;
 extern s16 D_807F693C;
 extern u8 D_807F693E;
 extern s8 D_807F693F;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 struct CsStateFull;
 void csStateInit(struct CsStateFull *);
 void *memcpy(void *, const void *, unsigned int);
@@ -177,7 +177,7 @@ void csScriptLoad(s16 *arg0) {
             p++;
             slot = hashTableLookup(gCsModelIds[id]);
             if (slot != -1) {
-                ((CsLoadSlot *)D_807F6000)[slot].unk7C = func_80610FE8(0xA4);
+                ((CsLoadSlot *)D_807F6000)[slot].unk7C = heapAlloc(0xA4);
                 csStateInit(((CsLoadSlot *)D_807F6000)[slot].unk7C);
                 ((CsLoadSlot *)D_807F6000)[slot].unk7C->unkA0 = NULL;
                 m = p[0];
@@ -185,7 +185,7 @@ void csScriptLoad(s16 *arg0) {
                 ((CsLoadSlot *)D_807F6000)[slot].unk7C->unk9C = p[1];
                 p += 2;
                 while (m != 0) {
-                    node = func_80610FE8(0x50);
+                    node = heapAlloc(0x50);
                     *tail = node;
                     node->unk4C = NULL;
                     c1 = *p;
@@ -726,7 +726,7 @@ s32 func_80689BAC(s16);
 u16 func_8067ACC0(u16);
 s32 func_806419F8(void);
 void func_80641724(s16);
-s16 func_80650A70(s16, s16);
+s16 modelAnimEntryGetUnkC(s16, s16);
 Actor *spawnNodeActivate(s16, u16);
 u8 spawnNodeHasActor(u8);
 s32 spawnNodeIsInCooldown(u8);
@@ -907,7 +907,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x1C:
-        h = func_80650A70(csId, cmd->a);
+        h = modelAnimEntryGetUnkC(csId, cmd->a);
         if ((cmd->b == 0 && h < cmd->c) || (cmd->b == 1 && cmd->c < h)) {
             ret = 1;
         } else {
@@ -1295,7 +1295,7 @@ void csStartCamPath(void *, s16, s16, s16);
 void csSnapToGround(s16, s16);
 void csSetRot(s16, s16, void *, s16, u8);
 void csSetPos(s16, s16, void *, s16, u8);
-void func_80650794(s16, s16, u8, f32);
+void modelAnimEntrySetUnk13(s16, s16, u8, f32);
 void func_8067A9F0(s32, Actor *, f32, f32, f32);
 void func_8067ABC0(s32, Actor *, u8, s16, s32, f32, f32, f32);
 s32 cutsceneTriggerCheck(s16);
@@ -1586,7 +1586,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         func_80714B84(slot, cmd->b / 100.0, csId, cmd->c, 0);
         break;
     case 0x4C:
-        h = (s16)(func_80650A70(csId, cmd->a) + cmd->b);
+        h = (s16)(modelAnimEntryGetUnkC(csId, cmd->a) + cmd->b);
         if (h < 0) {
             h = 0;
         }
@@ -2057,7 +2057,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x77:
-        func_80650794(csId, cmd->a, CMDB(cmd)->b, cmd->c / 1000.0);
+        modelAnimEntrySetUnk13(csId, cmd->a, CMDB(cmd)->b, cmd->c / 1000.0);
         break;
     }
 }
@@ -2115,7 +2115,7 @@ void func_80641874(s16 arg0, s16 arg1) {
     s16 *sp24;
     void *sp20;
 
-    sp24 = func_80610FE8(4);
+    sp24 = heapAlloc(4);
     heapFreeDeferred(sp24);
     sp24[1] = arg0;
     sp24[0] = arg1;
@@ -2201,7 +2201,7 @@ typedef struct CsAuxView {
 void csStateShareScript(s16 a, s16 b, s16 c) {
     a = hashTableLookup(a);
     b = hashTableLookup(b);
-    D_807F6000[a].unk7C = func_80610FE8(0xA4);
+    D_807F6000[a].unk7C = heapAlloc(0xA4);
     csStateInit(D_807F6000[a].unk7C);
     ((CsAuxView *)D_807F6000[a].unk7C)->unk48 = c;
     ((CsAuxView *)D_807F6000[a].unk7C)->unkA0 = ((CsAuxView *)D_807F6000[b].unk7C)->unkA0;

@@ -128,7 +128,7 @@ extern u8 D_807F8E88;
 extern s32 D_8076A064;
 void assetFreeBuffer(void *, s32, s32);
 
-void func_8065D1AC(void) {
+void billboardCacheEvictStale(void) {
     s32 i;
 
     D_807F8E88 = 0;
@@ -154,15 +154,15 @@ typedef struct {
     u8 unk105;
     u8 unk106;
     s8 unk107;
-} RenderLBillboard;
-extern RenderLBillboard D_807F7F10[16];
+} BillboardData;
+extern BillboardData D_807F7F10[16];
 extern u8 D_807444FC;
 
 #ifdef NON_MATCHING
 void billboardSetVertex(s16 *, s16, s16, s16, s16);
 void *assetLoad(s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-#define RL_ACT(T, off) (*(T *)((u8 *)actor + (off)))
+#define ACTOR_FIELD(T, off) (*(T *)((u8 *)actor + (off)))
 
 void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, u8 arg6, s16 arg7, u8 arg8, s16 arg9, f32 arg10) {
     s32 found;
@@ -220,7 +220,7 @@ block_21:
         *(u16 *)&D_807F8E8A |= 1;
     }
     D_807F7F10[D_807F8E88].unk100 = *(u16 *)&D_807F8E8A;
-    D_807F7F10[D_807F8E88].unk107 = RL_ACT(s16, 0x12C);
+    D_807F7F10[D_807F8E88].unk107 = ACTOR_FIELD(s16, 0x12C);
 
     billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][0], (s16)-((f32)arg4 * arg10), -arg5, 0, 0);
     billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][1], arg4, -arg5, arg2 - 1, 0);
@@ -244,20 +244,20 @@ block_21:
     guRotateF(sp4C, (f32)((arg9 * 360) / 4095), 0.0f, 1.0f, 0.0f);
     guMtxCatF(sp8C, sp4C, sp8C);
     if (actor->unk60 & 2) {
-        if (RL_ACT(s16, 0xDA) < 1000) {
-            guRotateF(sp4C, -((f64)RL_ACT(s16, 0xD8) / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
+        if (ACTOR_FIELD(s16, 0xDA) < 1000) {
+            guRotateF(sp4C, -((f64)ACTOR_FIELD(s16, 0xD8) / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
             guMtxCatF(sp8C, sp4C, sp8C);
         }
-        guRotateF(sp4C, 90.0 - (f64)RL_ACT(s16, 0xDA) / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
+        guRotateF(sp4C, 90.0 - (f64)ACTOR_FIELD(s16, 0xDA) / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
         guMtxCatF(sp8C, sp4C, sp8C);
-        if (RL_ACT(s16, 0xDA) < 1000) {
-            guRotateF(sp4C, (f64)RL_ACT(s16, 0xD8) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+        if (ACTOR_FIELD(s16, 0xDA) < 1000) {
+            guRotateF(sp4C, (f64)ACTOR_FIELD(s16, 0xD8) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
             guMtxCatF(sp8C, sp4C, sp8C);
         }
     }
 
-    if (RL_ACT(u8, 0xCC)) {
-        actorGetNodePos(actor, RL_ACT(u8, 0xCC), &sp44, &sp40, &sp3C);
+    if (ACTOR_FIELD(u8, 0xCC)) {
+        actorGetNodePos(actor, ACTOR_FIELD(u8, 0xCC), &sp44, &sp40, &sp3C);
         guTranslateF(sp4C, sp44, actor->unkA4, sp3C);
     } else {
         guTranslateF(sp4C, actor->unk7C, sp48, actor->unk84);
@@ -318,7 +318,7 @@ Gfx *func_8065D994(Gfx *gdl, s16 arg1) {
     if (D_807F8E88 > 0) {
         do {
             if (arg1 == D_807F7F10[i].unk107) {
-                RenderLBillboard *temp_s5;
+                BillboardData *temp_s5;
 
                 gDPPipeSync(gdl++);
                 temp_s5 = &D_807F7F10[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
@@ -407,35 +407,35 @@ typedef struct {
     s16 unk3C;
     u8 unk3E;
     u8 pad3F;
-} RenderASub;
+} MatrixCacheSub;
 
-typedef struct RenderANode {
+typedef struct MatrixCacheNode {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     s32 unkC;
     s32 unk10;
-    struct RenderANode *hash_next;
-    struct RenderANode *hash_prev;
-    struct RenderANode *list_next;
-    struct RenderANode *list_prev;
+    struct MatrixCacheNode *hash_next;
+    struct MatrixCacheNode *hash_prev;
+    struct MatrixCacheNode *list_next;
+    struct MatrixCacheNode *list_prev;
     s16 unk24;
     s16 unk26;
     u8 unk28;
     u8 unk29;
     u8 pad2A[6];
-    RenderASub sub[1];
-} RenderANode;
+    MatrixCacheSub sub[1];
+} MatrixCacheNode;
 
-extern RenderANode *D_807F8EC0[100];
-extern RenderANode *D_807F9050;
-extern RenderANode *D_807F9054;
+extern MatrixCacheNode *D_807F8EC0[100];
+extern MatrixCacheNode *D_807F9050;
+extern MatrixCacheNode *D_807F9054;
 extern s32 D_807F905C;
 extern u16 D_807F9060;
 extern s32 D_807F9064;
 s32 mapIsBonusOrSpecial(void);
 
-void func_8065E040(s32 arg0) {
+void matrixCacheInit(s32 arg0) {
     s32 i;
     for (i = 0; i < 100; i++) {
         D_807F8EC0[i] = NULL;
@@ -470,21 +470,21 @@ void matrixCacheResetStats(void) {
 extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
 extern f32 *D_8076A0BC;
-extern RenderASub D_807F78C0[];
+extern MatrixCacheSub D_807F78C0[];
 s32 matrixCacheHash(s32, s16, u8);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFree(void *);
 void heapFreeDeferred(void *);
 
 #define DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
-void *func_8065E138(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
-    RenderANode *node;
+void *matrixCacheLookup(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
+    MatrixCacheNode *node;
     s32 i;
     s32 j;
     u8 mismatch;
-    RenderASub *a;
-    RenderASub *b;
+    MatrixCacheSub *a;
+    MatrixCacheSub *b;
 
     D_807F9058++;
     node = D_807F8EC0[matrixCacheHash(arg0, arg2, arg3)];
@@ -520,7 +520,7 @@ void *func_8065E138(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
                         }
                     }
                     if (!mismatch) {
-                        RenderASub *sub = node->sub;
+                        MatrixCacheSub *sub = node->sub;
                         node->unkC = D_8076A064;
                         D_807F905A++;
                         if (node->list_prev != NULL) {
@@ -547,16 +547,16 @@ void *func_8065E138(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
     return 0;
 }
 
-void *func_8065E634(s32 arg0, s32 arg1, s16 arg2, u8 arg3, s32 arg4, u8 arg5) {
+void *matrixCacheInsert(s32 arg0, s32 arg1, s16 arg2, u8 arg3, s32 arg4, u8 arg5) {
     void *sp18;
     u32 sp1C;
     s32 dummy;
-    RenderANode *sp30;
-    RenderANode **bucket;
-    RenderANode *head;
+    MatrixCacheNode *sp30;
+    MatrixCacheNode **bucket;
+    MatrixCacheNode *head;
 
     sp1C = (arg0 << 6) + (arg4 * 0x10) + 0x30;
-    sp30 = func_80610FE8(sp1C);
+    sp30 = heapAlloc(sp1C);
 
     bucket = &D_807F8EC0[matrixCacheHash(arg0, arg2, arg3)];
     head = *bucket;
@@ -606,16 +606,16 @@ void *func_8065E634(s32 arg0, s32 arg1, s16 arg2, u8 arg3, s32 arg4, u8 arg5) {
     return arg0 * 0x40 + (u8 *)sp18;
 }
 
-s32 func_8065E81C(u8 arg0, s16 arg1) {
+s32 matrixCacheEvict(u8 arg0, s16 arg1) {
     s32 pad0;
     s32 pad1;
     s32 pad2;
     s32 pad3;
     s32 pad4;
     u8 sp43;
-    RenderANode *node;
-    RenderANode *next;
-    RenderANode **bucket;
+    MatrixCacheNode *node;
+    MatrixCacheNode *next;
+    MatrixCacheNode **bucket;
     u32 cond;
 
     cond = arg0;
@@ -682,7 +682,7 @@ s32 matrixCacheDecayLimit(void) {
     if ((u32)D_807F9064 < 0x10000) {
         return 0;
     }
-    return func_8065E81C(1, 0);
+    return matrixCacheEvict(1, 0);
 }
 
 s32 matrixCacheHash(s32 arg0, s16 arg1, u8 arg2) {

@@ -260,7 +260,7 @@ extern u8 D_807FBBEC;
 extern ActorGlobalState D_807FBB70;
 void func_80613C48(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
-Mtx *func_80610FE8(s32);
+Mtx *heapAlloc(s32);
 void actorUpdateModelMatrix(Actor *, s32);
 s32 func_8069A750(void);
 void actorAddNodeForceSlot(f32, u8);
@@ -283,7 +283,7 @@ void func_80699958(u8 arg0, u8 arg1) {
 
     state = (WaveState *)D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((NodeListHead *)D_807FBB40->unk4)->unk24 = (WaveNode *)func_80610FE8((arg0 * 0x10) + 0x10);
+        ((NodeListHead *)D_807FBB40->unk4)->unk24 = (WaveNode *)heapAlloc((arg0 * 0x10) + 0x10);
         for (i = 0; i < arg0; i++) {
             ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk0 = i;
             ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk1 = (i == arg0 - 1) ? 0xFF : i + 1;
@@ -543,7 +543,7 @@ extern ActorGlobalState D_807FBB70;
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069A750.s")
 
-Mtx *func_80610FE8(s32);
+Mtx *heapAlloc(s32);
 
 #ifdef NON_MATCHING
 /* Behaviourally equivalent, same blocks/frame/saved regs; remaining diff is FP
@@ -608,7 +608,7 @@ void func_8069A7C8(void) {
     state = (ProximityState *)D_807FBB40->unk174;
     if (!(flags & 0x10)) {
         D_807FBB40->unk60 = flags | 0x400;
-        ((ModelNodeList *)D_807FBB40->unk4)->unk24 = (ModelNodeRecord *)func_80610FE8(0x20);
+        ((ModelNodeList *)D_807FBB40->unk4)->unk24 = (ModelNodeRecord *)heapAlloc(0x20);
         ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk0 = 1;
         ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk1 = 0xFF;
         ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk4 = 0.0f;
@@ -841,7 +841,7 @@ void textSpawnMarker(u8 arg0, s16 arg1, s16 arg2, s32 arg3, u16 arg4, u16 arg5, 
         D_807FBB44->unk16B = 0xFF;
         D_807FBB44->unk16C = 0xFF;
         len = strlen((char *)arg3) + 1;
-        sub->unk0 = (void *)func_80610FE8(len);
+        sub->unk0 = (void *)heapAlloc(len);
         _strcpy((char *)sub->unk0, (char *)arg3);
         sub->unk4 = arg4;
         sub->unk6 = arg5;
@@ -882,7 +882,7 @@ void *renderAppendScaledMatrix(void *arg0, ActorPositionView *arg1, s16 arg2, f3
     f32 mtxA[4][4];
     f32 mtxB[4][4];
 
-    temp = func_80610FE8(0x40);
+    temp = heapAlloc(0x40);
     heapFreeDeferred(temp);
     guScaleF(mtxA, arg3, arg3, 1.0f);
     guTranslateF(mtxB, (f32)((f64)arg1->unk7C + 2.0 * (f64)arg2), arg1->unk80, 0.0f);
@@ -1007,7 +1007,7 @@ s32 textBuildDigitNode(u8 arg0, void *arg1, u8 arg2, u8 arg3, u8 arg4) {
         heapFreeDeferred((Mtx *)arg1);
     }
     /* Reusing the parameter keeps both pointers in one callee-saved register. */
-    arg1 = (void *)func_80610FE8(arg4 << 7);
+    arg1 = (void *)heapAlloc(arg4 << 7);
     textCopyGlyphBlock((s32 *)arg1, (s32 *)temp, arg4);
     animSetLoopLimit(D_807FBB40, arg2, -1);
     animSetSpeed(D_807FBB40, arg2, 0.0f);

@@ -234,12 +234,12 @@ typedef struct {
     u8 unk1A;
 } F9A_DestinationNode;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 F9A_DestinationNode *func_806F53EC(F9A_SourceNode *arg0) {
     F9A_DestinationNode *temp_v0;
 
-    temp_v0 = func_80610FE8(0x20);
+    temp_v0 = heapAlloc(0x20);
     temp_v0->unk10 = 0;
     temp_v0->unk14 = 0.0f;
     temp_v0->unk0 = arg0->unk0;

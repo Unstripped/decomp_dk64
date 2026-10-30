@@ -236,7 +236,7 @@ if (found) {}
         func_80714B84(slot, cmd->b / 100.0, csId, cmd->c, 0);
         break;
     case 0x4C:
-        h = (s16)(func_80650A70(csId, cmd->a) + cmd->b);
+        h = (s16)(modelAnimEntryGetUnkC(csId, cmd->a) + cmd->b);
         if (h < 0) {
             h = 0;
         }
@@ -707,7 +707,7 @@ if (found) {}
         }
         break;
     case 0x77:
-        func_80650794(csId, cmd->a, CMDB(cmd)->b, cmd->c / 1000.0);
+        modelAnimEntrySetUnk13(csId, cmd->a, CMDB(cmd)->b, cmd->c / 1000.0);
         break;
     }
 }

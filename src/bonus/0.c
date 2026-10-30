@@ -86,7 +86,7 @@ s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_806FDAB8(u8, f32);
 void *spawnNodeActivate(s16, s32);
 s32 strlen(char *);
-char *func_80610FE8(s32);
+char *heapAlloc(s32);
 void heapFreeDeferred(void *);
 s32 _sprintf(char *, const char *, ...);
 void textSpawnMarkerChecked(s32, s32, s32, char *, s32, s32, s32, s32);
@@ -198,7 +198,7 @@ tail:
                         if (s->unk4 != 0) {
                             if (s->unk4 >= 2) {
                                 sp68 = func_8070E750(0x1A, 0xF, 1);
-                                sp60 = func_80610FE8(strlen(sp68) + 5);
+                                sp60 = heapAlloc(strlen(sp68) + 5);
                                 heapFreeDeferred(sp60);
                                 _sprintf(sp60, "%d %s", s->unk4, sp68);
                             } else {
@@ -222,7 +222,7 @@ tail:
                         if (slotQueueGetValue(0xB, 0) < sp6E) {
                             if (s->unk4 >= 2) {
                                 sp68 = func_8070E750(0x1A, 0x11, 1);
-                                sp54 = func_80610FE8(strlen(sp68) + 5);
+                                sp54 = heapAlloc(strlen(sp68) + 5);
                                 _sprintf(sp54, "%d %s", sp6E - slotQueueGetValue(0xB, 0), sp68);
                             } else {
                                 sp54 = func_8070E750(0x1A, 0x12, 1);

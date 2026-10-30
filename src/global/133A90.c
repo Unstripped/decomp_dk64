@@ -45,7 +45,7 @@ typedef struct ProxPath {
 } ProxPath; // size = 0x3C
 
 extern ProxPath *D_807FDCC0;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFree(void *);
 
 void proxPathListClear(void) {
@@ -98,7 +98,7 @@ void proxPathAdd(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, f32 
         tail = &node->next;
         node = node->next;
     }
-    node = *tail = func_80610FE8(0x3C);
+    node = *tail = heapAlloc(0x3C);
     node->unk0 = arg0;
     node->unk4 = arg1;
     node->unk5 = arg2;
@@ -116,7 +116,7 @@ void proxPathAdd(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, f32 
     node->unk30 = argE;
     node->unk31 = 1;
     node->next = NULL;
-    node->unk34 = func_80610FE8(arg4 * 0x1C);
+    node->unk34 = heapAlloc(arg4 * 0x1C);
 }
 
 void proxPathSetSegment(Actor *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5, f32 arg6, f32 arg7, u8 arg8, s16 arg9, s16 argA, s16 argB, s16 argC) {

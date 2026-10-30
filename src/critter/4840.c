@@ -11,7 +11,7 @@ typedef struct TextData {
     char text[32];
 } TextData;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 s16 critterLayoutWords(TextData *arg0, char *arg1, s16 arg2);
 
 extern u8 D_1000118[];
@@ -77,8 +77,8 @@ s16 critterLayoutWords(TextData *arg0, char *arg1, s16 arg2) {
         arg2 = arg2 + v1 * 2 + 0x14;
     }
     arg0->unk2 = var_s1;
-    arg0->unk8 = (s16 *)func_80610FE8(var_s1 * 2);
-    arg0->unk4 = (s16 *)func_80610FE8(var_s1 * 2);
+    arg0->unk8 = (s16 *)heapAlloc(var_s1 * 2);
+    arg0->unk4 = (s16 *)heapAlloc(var_s1 * 2);
     for (v1 = 0; v1 < var_s1; v1++) {
         arg0->unk4[v1] = sp70[v1];
         arg0->unk8[v1] = sp94[v1];

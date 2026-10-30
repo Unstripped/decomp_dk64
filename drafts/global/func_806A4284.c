@@ -14,7 +14,7 @@ extern u8 D_807444FC;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFreeDeferred(void *);
 s32 func_806A3E9C();
 
@@ -74,7 +74,7 @@ Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
     state = arg1->unk174;
     node = state->unkC;
     stop = 0;
-    dl = func_80610FE8(0x4000);
+    dl = heapAlloc(0x4000);
     heapFreeDeferred(dl);
     start = dl;
     WRITE_GFX(dl++, 0xDE000000, (u32) &D_1000118);

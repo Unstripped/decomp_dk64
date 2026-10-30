@@ -12,7 +12,7 @@ typedef struct R2P1bCellEntry {
 
 extern void *D_807F70B8[];
 void heapFree(void *);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void func_80651708(s32 arg0) {
     R2P1bCellEntry *var_v1;
@@ -32,7 +32,7 @@ void func_80651708(s32 arg0) {
         var_a1 = 0;
     }
     if (var_a1 != 0) {
-        var_v1->unk8 = func_80610FE8(var_a1 * 0x12);
+        var_v1->unk8 = heapAlloc(var_a1 * 0x12);
         var_v1->unkC = var_a1;
         if (var_v1->unk4 >= 3) {
             var_a3 = 1;

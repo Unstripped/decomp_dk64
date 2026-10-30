@@ -6,13 +6,13 @@ extern u16 *D_807ECE94;
 extern s16 *D_807ECE90;
 extern s16 *D_807ECE98;
 extern u8 D_807ECE20[];
-s16 *func_80610FE8(s32);
+s16 *heapAlloc(s32);
 void func_8060B5C0(s32 arg0) {
     s32 temp_s1;
     s32 temp_s0;
-    if (D_807463A8 == NULL) D_807463A8 = func_80610FE8(0x1C20);
+    if (D_807463A8 == NULL) D_807463A8 = heapAlloc(0x1C20);
     D_807ECE98 = D_807463A8;
-    if (D_807ECE90 == NULL) D_807ECE90 = func_80610FE8(0xE10);
+    if (D_807ECE90 == NULL) D_807ECE90 = heapAlloc(0xE10);
     D_807ECE94 = D_807ECE90;
     memcpy(&D_807463B0, arg0, 2);
     temp_s1 = arg0 + 2;

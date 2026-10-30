@@ -14,7 +14,7 @@ extern BossB_Struct_DC98 *D_807FDC98;
 extern BossB_Struct_DC9C *D_807FDC9C;
 
 void heapFree(void *);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void func_80027840(u8 *arg0) {
     s16 i;
@@ -24,7 +24,7 @@ void func_80027840(u8 *arg0) {
         heapFree(D_807FDC98->unk20);
     }
     D_807FDC9C->unk11 = *arg0;
-    D_807FDC98->unk20 = func_80610FE8(*arg0 * 2);
+    D_807FDC98->unk20 = heapAlloc(*arg0 * 2);
     dst = D_807FDC98->unk20;
     for (i = 0; i < *arg0; i++) {
         dst[0] = arg0[i + 1];
@@ -521,7 +521,7 @@ void bossDrawRoundText(Gfx *arg0, s32 arg1) {
     Mtx *sp4C;
     char sp3C[16];
 
-    sp4C = func_80610FE8(sizeof(Mtx));
+    sp4C = heapAlloc(sizeof(Mtx));
     heapFreeDeferred(sp4C);
     guScaleF(sp90, 0.6f, 0.6f, 1.0f);
     guTranslateF(sp50, 100.0f, (f32)(D_807FC924->unk276 * 4 - 0x3C), 0.0f);

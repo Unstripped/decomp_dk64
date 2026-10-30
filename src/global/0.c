@@ -16,8 +16,8 @@ typedef struct {
     u32 bssEnd;
 } SegEntry;
 
-void func_805FB5C4(OSMesgQueue *, s32);
-void func_805FBFF4(s32);
+void mainThreadHalt(OSMesgQueue *, s32);
+void mainThreadLoop(s32);
 void audioThreadStop(s32);
 void func_8060E930(void);
 
@@ -97,7 +97,7 @@ u64 D_807655E8;
 
 void globalInit(OSMesgQueue *arg0, s32 arg1) {
     if (arg1 != 0) {
-        func_805FB5C4(arg0, arg1);
+        mainThreadHalt(arg0, arg1);
     }
     D_807655E0 = arg0;
     SEG[0].vramStart = (u32)boot_VRAM; SEG[0].vramEnd = (u32)boot_VRAM_END; SEG[0].bssStart = (u32)boot_BSS_START; SEG[0].bssEnd = (u32)boot_BSS_END;
@@ -114,12 +114,12 @@ void globalInit(OSMesgQueue *arg0, s32 arg1) {
     osDpSetStatus(4);
     osCreatePiManager(0x96, &D_80761050, D_80761068, 0xF2);
     D_80761680 = 0x12345678;
-    osCreateThread(&D_80761430, 3, func_805FBFF4, NULL, &D_807655E0, 0xA);
+    osCreateThread(&D_80761430, 3, mainThreadLoop, NULL, &D_807655E0, 0xA);
     osStartThread(&D_80761430);
 }
 
 
-void func_805FB5C4(OSMesgQueue *arg0, s32 arg1) {
+void mainThreadHalt(OSMesgQueue *arg0, s32 arg1) {
     u64 *p;
     u64 *q;
     Struct80744464 sp34;

@@ -10,7 +10,7 @@ extern s16 D_807FDB1A, D_807FDB38, D_807FDB3A, D_807FDB3C, D_807FDB3E, D_807FDB4
 extern u8 D_807FDB18, D_807FDB1C, D_807FDB1D, D_807FDB28, D_80750AB4;
 extern f32 D_807FDB20, D_807FDB24;
 extern u16 D_807FDB36;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void effectGridRegister(EffectGridNode *);
 void effectResetState(void);
 void func_8071509C(EffectNode *);
@@ -45,7 +45,7 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
         effectResetState();
         return;
     }
-    effect = func_80610FE8(0x3A0);
+    effect = heapAlloc(0x3A0);
     if (D_807FDB04 != NULL) {
         D_807FDB08->next = effect;
         effect->previous = D_807FDB08;
@@ -115,8 +115,8 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
     UA1_D08_FIELD(s16, effect, 0x394) = D_807FDB42;
     cursor = effect;
     for (i = 0; i < D_80750AB4; i++) {
-        *((void **)cursor + 0) = func_80610FE8(0x200);
-        *((void **)cursor + 1) = func_80610FE8(0x200);
+        *((void **)cursor + 0) = heapAlloc(0x200);
+        *((void **)cursor + 1) = heapAlloc(0x200);
         cursor = (EffectNode *)((u8 *)cursor + 8);
     }
     *((u8 *)effect + 0x20) = D_80750AB4;

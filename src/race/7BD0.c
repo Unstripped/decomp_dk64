@@ -1,6 +1,6 @@
 #include "common.h"
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 struct RaceUnknownActor;
 struct RaceStruct3;
@@ -146,7 +146,7 @@ void func_8002BBD0(RaceUnknownActor *arg0, s32 arg1) {
     void *temp_v0;
 
     sp1C = arg0->unk174;
-    temp_v0 = func_80610FE8(arg1 * 8);
+    temp_v0 = heapAlloc(arg1 * 8);
     sp1C->unk20 = temp_v0;
     heapClearBlock(temp_v0);
     sp1C->unk1E = arg1;
@@ -289,7 +289,7 @@ Gfx *func_8002BEE8(Gfx *arg0, RaceUnknownActor *arg1) {
                 if (var_a2 >= 3) {
                     var_a2 = 3;
                 }
-                var_s1 = func_80610FE8(4);
+                var_s1 = heapAlloc(4);
                 heapFreeDeferred(var_s1);
                 _sprintf(var_s1, "%d", var_a2);
             } else {
@@ -466,7 +466,7 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
         sp4C = (s32)func_8070E750(0x26, 0xC, 1);
         sp48 = strlen((u8 *)sp50);
         sp48 += strlen((u8 *)sp4C);
-        sp68 = func_80610FE8(sp48 + 8);
+        sp68 = heapAlloc(sp48 + 8);
         heapFreeDeferred(sp68);
         _sprintf(sp68, "%s %d %s %d", sp50, var_t0, sp4C, temp_t1->unk24);
         arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)(2.0f * (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), sp68, 4);

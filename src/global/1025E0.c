@@ -127,7 +127,7 @@ void _strcpy(s32, s32);
 extern u8 D_8074450C;
 s32 randomNonNegative();
 s32 strlen(char *);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 s16 textCountNonSpace(char *);
 
@@ -140,7 +140,7 @@ s16 gfxResourceCreate(s16 arg0, char *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg
     s16 i;
 
     textGetStringWidth(arg0, (s32)arg1);
-    node = func_80610FE8(0x20);
+    node = heapAlloc(0x20);
     heapClearBlock(node);
     if (gGfxResourceList == NULL) {
         gGfxResourceList = node;
@@ -158,12 +158,12 @@ s16 gfxResourceCreate(s16 arg0, char *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg
     gGfxResourceNextId++;
     if (gGfxResourceNextId && gGfxResourceNextId) {
     }
-    name = func_80610FE8(strlen(arg1) + 1);
+    name = heapAlloc(strlen(arg1) + 1);
     node->unk4 = name;
     _strcpy((s32)name, (s32)arg1);
     count = textCountNonSpace(arg1);
     node->unkD = count;
-    entries = func_80610FE8(count * sizeof(GfxResourceEntry));
+    entries = heapAlloc(count * sizeof(GfxResourceEntry));
     node->unk8 = entries;
     heapClearBlock(entries);
     node->unkC = arg0;

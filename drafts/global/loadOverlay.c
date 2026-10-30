@@ -24,12 +24,12 @@ extern s32 D_807F0984;
 extern s32 D_807F5A60;
 
 void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
-void func_806109EC(void);
-void func_80610A88(void *src, void *dst, s32 size);
+void heapSortSurvivors(void);
+void heapMoveWords(void *src, void *dst, s32 size);
 void func_80610B84(s32 oldBase, s32 newBase, u32 size);
-void func_80610BD8(s32, s32, s32);
-s32 func_80610C74(s32 *, s32, s32, s32);
-void *func_80610FE8(s32);
+void heapInitGeneralPool(s32, s32, s32);
+s32 heapInitBlockPool(s32 *, s32, s32, s32);
+void *heapAlloc(s32);
 void heapLockBlock(u8 *ptr);
 
 void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
@@ -157,14 +157,14 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     }
 #define HL(k) (*(u8 **)D_807F5A70[k])
     if (arg0 && D_807F5A68) {
-        func_806109EC();
+        heapSortSurvivors();
         for (i = 1; i < D_807F5A68; i++) {
             {
                 dst = HL(i - 1) + ((HeapBlock *)HL(i - 1) - 1)->size;
                 src = (HeapBlock *)HL(i) - 1;
                 HL(i) = dst + 0x10;
                 total = src->size + 0x10;
-                func_80610A88(src, dst, total);
+                heapMoveWords(src, dst, total);
                 func_80610B84((s32)src, (s32)dst, total);
             }
         }
@@ -182,7 +182,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
                     *hp = *hp + (s32)dst - (s32)first;
                 } while (i < D_807F5A68);
             }
-            func_80610A88(first, dst, total);
+            heapMoveWords(first, dst, total);
             func_80610B84((s32)first, (s32)dst, total);
         }
         p = (u32 *)(HL(0) - 0x10);
@@ -192,11 +192,11 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         D_807F5A68 = 0;
         D_807F5A70[0] = NULL;
     }
-    func_80610BD8(0, addr[0], sizes[0]);
-    D_807F0974 = func_80610C74(&D_807F0974, addr[1], sizes[1], 0x10);
-    D_807F0978 = func_80610C74(&D_807F0978, addr[2], sizes[2], 0x20);
-    D_807F097C = func_80610C74(&D_807F097C, addr[3], sizes[3], 0x30);
-    D_807F0980 = func_80610C74(&D_807F0980, addr[4], sizes[4], 0x1000);
+    heapInitGeneralPool(0, addr[0], sizes[0]);
+    D_807F0974 = heapInitBlockPool(&D_807F0974, addr[1], sizes[1], 0x10);
+    D_807F0978 = heapInitBlockPool(&D_807F0978, addr[2], sizes[2], 0x20);
+    D_807F097C = heapInitBlockPool(&D_807F097C, addr[3], sizes[3], 0x30);
+    D_807F0980 = heapInitBlockPool(&D_807F0980, addr[4], sizes[4], 0x1000);
     if (D_807F5A68 != 0) {
         last = NULL;
         if (total) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -220,7 +220,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         D_807F0988[0].freeList->prev = NULL;
         ((HeapBlock **)(D_807F0988[0].size + D_807F0988[0].start - 0x10))[0] = D_807F0988[0].freeList;
     }
-    D_807F5A64 = func_80610FE8(0x10);
+    D_807F5A64 = heapAlloc(0x10);
     heapLockBlock(D_807F5A64);
     if (arg2 == 0) {
         D_807F0984 = 0x28000;
@@ -228,7 +228,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         if (bssStart) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         D_807F0984 = arg2;
     }
-    D_807F05A4 = func_80610FE8(D_807F0984 + 0x80);
+    D_807F05A4 = heapAlloc(D_807F0984 + 0x80);
     heapLockBlock(D_807F05A4);
     if (size != 0) {
         if (bssStart != NULL) {

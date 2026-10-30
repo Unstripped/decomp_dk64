@@ -57,7 +57,7 @@ void func_8063B8D8(u8 **arg0, s32 *arg1) {
         heapFree(D_807F6010);
     }
     size = D_80747D70 * 0x30 + 8; p = D_807F66F0; do { if (*p) { size += 0x24; count++; } p++; } while (p < &D_807F6902); size += actorListGetSerializedSize();
-    D_807F6010 = func_80610FE8(size);
+    D_807F6010 = heapAlloc(size);
     *(s32 *)D_807F6010 = D_80747D70;
     out = (ModelSlotSerializedOut *)(D_807F6010 + 4);
     for (i = 0; i < D_80747D70; i++, out++) {

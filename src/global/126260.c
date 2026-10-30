@@ -13,7 +13,7 @@ extern u8 D_807FDB7E;
 extern u8 D_807FDB7F;
 extern u8 D_807FDB80;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
@@ -72,7 +72,7 @@ void commandStateInit(void) {
     D_807FDB60.unkE = 7;
     D_807FDB60.unk6 = D_807FDB60.unk8;
     D_807FDB60.unk4 = D_807FDB60.unk8;
-    D_807FDB70 = (s32) func_80610FE8(0x200);
+    D_807FDB70 = (s32) heapAlloc(0x200);
     commandSetParameters(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
     commandSetFlags(1, 1);
 }

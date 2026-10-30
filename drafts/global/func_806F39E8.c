@@ -1,5 +1,5 @@
 // func_806F39E8 (src/global/F56F0.c): Stage 3: path-pair allocator and sin/cos transform reconstructed. Closest draft needs compact 0x38 frame and point layout preserving delay-slot stores.
-void *func_80610FE8(?);                             /* extern */
+void *heapAlloc(?);                             /* extern */
 f32 func_80612790(s16);                             /* extern */
 f32 func_80612794(s16);                             /* extern */
 ? func_806F386C(u8, s32, ?, ?, s32);                /* extern */
@@ -27,7 +27,7 @@ void func_806F39E8(s32 arg0, void *arg1, u8 arg2) {
     temp_v1 = D_80753E90->unk4 + (D_80753E90->unk0 * 8);
     *temp_v1 = 2;
     sp2C = temp_v1;
-    temp_v0 = func_80610FE8(0x24);
+    temp_v0 = heapAlloc(0x24);
     sp2C->unk4 = temp_v0;
     heapClearBlock(temp_v0);
     temp_v0_2 = sp2C->unk4;

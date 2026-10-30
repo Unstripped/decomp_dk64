@@ -7,7 +7,7 @@ typedef struct KaS1_R3D3B_Container {
 void *assetLoad(s32, s32, s32, s32);
 void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 s32 func_80688C84(u16);
 void modelAssetGetSubtables(s32, s32 *, s32 **);
 extern s32 D_8076A0A8;
@@ -48,7 +48,7 @@ void func_80688A6C(void) {
         } while (i != count);
     }
     if (D_807FC5C8) {
-        D_807FC5C4 = func_80610FE8(D_807FC5C8 * sizeof(ActorListEntry4));
+        D_807FC5C4 = heapAlloc(D_807FC5C8 * sizeof(ActorListEntry4));
         i = 0;
     } else {
         D_807FC5C4 = NULL;

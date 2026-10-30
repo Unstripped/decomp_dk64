@@ -17,7 +17,7 @@ typedef struct CamE3Path {
     /* 0xC4 */ CamE3Ent *unkC4;
 } CamE3Path;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFree(void *);
 
 #define CAME3_PATH ((CamE3Path *)D_807476FC)
@@ -39,7 +39,7 @@ void func_80625C30(void) {
     if (D_80747704 != NULL) {
         heapFree(D_80747704);
     }
-    D_80747704 = func_80610FE8(CAME3_PATH->unkC0 * 4 + 4);
+    D_80747704 = heapAlloc(CAME3_PATH->unkC0 * 4 + 4);
     for (i = 0; i < CAME3_PATH->unkC0; i++) {
         CAME3_SORT[i].unk0 = i;
         CAME3_SORT[i].unk2 = func_80625A80(i);
@@ -70,7 +70,7 @@ void func_80625C30(void) {
     if (D_807476C0 != NULL) {
         heapFree(D_807476C0);
     }
-    D_807476C0 = func_80610FE8(D_807F5CDA * 4 + 4);
+    D_807476C0 = heapAlloc(D_807F5CDA * 4 + 4);
     CAME3_GROUP[0].unk0 = CAME3_SORT[0].unk2;
     CAME3_GROUP[0].unk2 = 0;
     k = 1;

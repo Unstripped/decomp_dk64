@@ -213,7 +213,7 @@ void actorListInitOffsets(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/actorListInitOffsets.s")
 #endif
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688A6C.s")
 
@@ -429,7 +429,7 @@ ActorListNode *actorListSpawnNodeInternal(s16 arg0, f32 arg1, f32 arg2, f32 arg3
     } while (!found && i < 0x80);
     entry = &D_8074E8B0[i];
 
-    node = func_80610FE8(sizeof(ActorListNode));
+    node = heapAlloc(sizeof(ActorListNode));
     node->unk00 = arg0;
     node->unk0C = arg3;
     node->unk18 = arg3;

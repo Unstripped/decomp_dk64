@@ -203,7 +203,7 @@ extern f32 D_80750818[];
 extern f32 D_80750828[];
 
 void func_805FEE84(u8, u8, u8, u8);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFreeDeferred(void *);
 s32 textGetStringWidth();
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
@@ -242,7 +242,7 @@ Gfx *func_806C75A4(Gfx *gdl, Actor *arg1) {
     if (D_807FC8E8 == 0.0f) {
         return gdl;
     }
-    mtx = func_80610FE8(0x40);
+    mtx = heapAlloc(0x40);
     heapFreeDeferred(mtx);
     R1C2CB_GFX(gdl++, 0xE7000000, 0);
     R1C2CB_GFX(gdl++, 0xDE000000, &D_1000118);

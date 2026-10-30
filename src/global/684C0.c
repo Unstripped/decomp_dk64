@@ -39,7 +39,7 @@ typedef struct TriggerZoneNode {
 
 extern TriggerZoneNode *D_807F9410;
 extern Actor *D_807FBB44;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 s32 triggerZoneContainsActor();
 void triggerZoneSpawnTrigger();
 
@@ -55,7 +55,7 @@ void triggerZoneInit(TriggerZoneActor *arg0) {
     temp_s3 = (TriggerZoneData *)((s32 *)(arg0->unk54 + (u8 *)arg0) + 1);
     *var_s1 = NULL;
     for (var_s0 = 0; var_s0 < temp_s2; var_s0++) {
-        temp_v0_2 = func_80610FE8(sizeof(TriggerZoneNode));
+        temp_v0_2 = heapAlloc(sizeof(TriggerZoneNode));
         *var_s1 = temp_v0_2;
         var_s1 = &temp_v0_2->next;
         temp_v0_2->zone = &temp_s3[var_s0];
@@ -86,7 +86,7 @@ void triggerZoneCheckEntry(TriggerZoneActor *arg0) {
                         subNode = subNode->next;
                     } while (subNode != NULL);
                 }
-                newNode = func_80610FE8(sizeof(TriggerZoneSubNode));
+                newNode = heapAlloc(sizeof(TriggerZoneSubNode));
                 *var_s0 = newNode;
                 newNode->actor = arg0;
                 newNode->unk4 = arg0->unk54;
@@ -163,7 +163,7 @@ void triggerZoneUpdate(void) {
     }
 }
 
-void func_80663BE8(Actor *arg0) {
+void triggerZoneRemoveSpawned(Actor *arg0) {
     TriggerZoneNode *node;
     TriggerZoneSubNode **subListPtr;
     TriggerZoneSubNode *subNode;

@@ -16,7 +16,7 @@ typedef struct {
 } F5N4RawEntry;
 
 extern F5N4List *D_80753E90;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void func_806F4528(void *arg0) {
     u8 *source;
@@ -28,7 +28,7 @@ void func_806F4528(void *arg0) {
     if (arg0 != NULL) {
         D_80753E90->unk0 = *(s16 *)arg0;
         source = (u8 *)arg0 + 2;
-        D_80753E90->unk4 = func_80610FE8((D_80753E90->unk0 * 8) + 8);
+        D_80753E90->unk4 = heapAlloc((D_80753E90->unk0 * 8) + 8);
         entry = D_80753E90->unk4;
         for (outer = 0; outer < D_80753E90->unk0; outer++, entry++) {
             entry->unk0 = *(s16 *)source;
@@ -37,7 +37,7 @@ void func_806F4528(void *arg0) {
                 destination = entry->unk4;
                 for (inner = 0; inner < entry->unk0; inner++) {
                     if (inner == 0) {
-                        destination = func_80610FE8(entry->unk0 * 0x12);
+                        destination = heapAlloc(entry->unk0 * 0x12);
                         entry->unk4 = destination;
                     }
                     *(F5N4RawEntry *)destination = *(F5N4RawEntry *)source;

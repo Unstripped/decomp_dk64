@@ -21,7 +21,7 @@ void func_807149B8(u8);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714B84(void *, f32, s32, s32, s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
 f32 func_80612790(s16);
@@ -88,7 +88,7 @@ void csCmdFlickerLight(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 g;
 
     if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = func_80610FE8(4);
+        *(s32 **)cs = heapAlloc(4);
         **(s32 **)cs = b;
     }
     p = *(s32 **)cs;
@@ -120,7 +120,7 @@ void csCmdBouncePos(CsState *cs, s16 csId, s16 b, s16 c) {
     CsBounce *n;
 
     if (*(CsBounce **)cs == NULL) {
-        n = func_80610FE8(0x10);
+        n = heapAlloc(0x10);
         *(CsBounce **)cs = n;
         n->vy = 7.0f;
         n->angle = (u32)func_806119A0() / 10000 % 1548 + 0x5DC;
@@ -183,7 +183,7 @@ void csCmdBobbingLights(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 sn;
 
     if (*(s16 **)cs == NULL) {
-        ang = func_80610FE8(2);
+        ang = heapAlloc(2);
         *(s16 **)cs = ang;
         *ang = 0;
     }
@@ -232,7 +232,7 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 z;
 
     if (*(CsCursor **)cs == NULL) {
-        st = func_80610FE8(8);
+        st = heapAlloc(8);
         *(CsCursor **)cs = st;
         st->timer = 0;
         st->idx = 0;
@@ -348,7 +348,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 t;
     f32 f;
     if (((CsLightView *)cs)->unk0 == NULL) {
-        ((CsLightView *)cs)->unk0 = func_80610FE8(8);
+        ((CsLightView *)cs)->unk0 = heapAlloc(8);
     }
     q = ((CsLightView *)cs)->unk0;
     if (b == 1) {
@@ -416,7 +416,7 @@ void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSfxState *t;
 
     if (((CsSfxView *)cs)->unk0 == NULL) {
-        t = func_80610FE8(0xC);
+        t = heapAlloc(0xC);
         ((CsSfxView *)cs)->unk0 = t;
         t->unk0 = 0;
         t->unk4 = 0;
@@ -544,7 +544,7 @@ void func_806443E4(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     cam = D_807FBB4C->unk174;
     if (!(cam->unk1F0 & 0x20000000)) {
         if (*(CsFlicker **)arg0 == NULL) {
-            n = func_80610FE8(0x10);
+            n = heapAlloc(0x10);
             *(CsFlicker **)arg0 = n;
             n->unk0 = 0;
             n->unk4 = 0.0f;
@@ -653,7 +653,7 @@ void csCmdSplineLights(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     f32 *n;
 
     if (*(f32 **)arg0 == NULL) {
-        n = func_80610FE8(8);
+        n = heapAlloc(8);
         *(f32 **)arg0 = n;
         n[0] = 0.0f;
         n[1] = 0.0f;
@@ -829,7 +829,7 @@ void func_80645700(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 f;
 
     if (*(CsFloatPair **)cs == NULL && c != 0) {
-        q = func_80610FE8(8);
+        q = heapAlloc(8);
         *(CsFloatPair **)cs = q;
         q->a = 0.0f;
         q->b = 0.0f;
@@ -957,7 +957,7 @@ void func_80645D14(s32 **slot, s16 csId, s16 b, s16 c) {
     u8 near = 0;
 
     if (*slot == NULL) {
-        *slot = func_80610FE8(4);
+        *slot = heapAlloc(4);
         **slot = 1;
     }
     p = *slot;
@@ -1094,7 +1094,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
 
     hit = 0;
     if (*(CsPointHitState **)cs == NULL) {
-        n = func_80610FE8(0x1C);
+        n = heapAlloc(0x1C);
         *(CsPointHitState **)cs = n;
         n->idx = 0;
         n->timer = D_807480F4;
@@ -1273,7 +1273,7 @@ void func_80646770(s32 **slot, s16 csId, s16 b, s16 c) {
 
     hit = 0;
     if (*slot == NULL) {
-        *slot = func_80610FE8(4);
+        *slot = heapAlloc(4);
         **slot = 0;
     }
     p = *slot;
@@ -1517,7 +1517,7 @@ void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
 
     q = *(s32 **)cs;
     if (q == NULL) {
-        *(s32 **)cs = func_80610FE8(4);
+        *(s32 **)cs = heapAlloc(4);
         **(s32 **)cs = 0;
         q = *(s32 **)cs;
     }
@@ -1609,7 +1609,7 @@ void csCmdBlinkNodeFrames(CsState *cs, s16 csId, s16 b, s16 c) {
     CsBlink *n;
 
     if (*(CsBlink **)cs == NULL) {
-        n = func_80610FE8(8);
+        n = heapAlloc(8);
         *(CsBlink **)cs = n;
         n->time = 0;
         n->state = 0;
@@ -1698,7 +1698,7 @@ void func_80648000(CsState *cs, s16 csId, s16 b, s16 c) {
 #define S ((CsMatrixState *)cs)
 
     if (S->unk0 == NULL && (S->unk9A & 1)) {
-        m = func_80610FE8(0x44);
+        m = heapAlloc(0x44);
         S->unk0 = m;
         modelSlotGetNodePos(csId, 1, 1, &sp40, &m[4][0], &sp38);
         m[4][0] -= 10.0;
@@ -1750,7 +1750,7 @@ void func_8064826C(CsState *cs, s16 csId, s16 b, s16 c) {
     sx = func_80612794((s16)((gCsRotY + 90.0f) * 4096.0f / 360.0f)) * 15.0f;
     sz = func_80612790((s16)((gCsRotY + 90.0f) * 4096.0f / 360.0f)) * 15.0f;
     if (*(CsOrbitCounters **)cs == NULL) {
-        p = func_80610FE8(0xC);
+        p = heapAlloc(0xC);
         *(CsOrbitCounters **)cs = p;
         p->unk0 = 0;
         p->unk4 = 0;
@@ -1969,7 +1969,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 flag;
 
     if (((CsFadeView *)cs)->unk0 == NULL) {
-        q = func_80610FE8(8);
+        q = heapAlloc(8);
         ((CsFadeView *)cs)->unk0 = q;
         q->unk0 = 0;
         q->unk2 = 0;
@@ -2247,7 +2247,7 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
         func_807149B8(0);
         func_8071498C(cb);
         obj = (CsObjStateView *)func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
-        q = obj->unk384 = func_80610FE8(0x28);
+        q = obj->unk384 = heapAlloc(0x28);
         q->unk0 = (randomNonNegative() >> 15) % 5 + 10;
         q->unk4 = 0.0f;
         q->unk8 = xs;
@@ -2285,7 +2285,7 @@ void func_80649BF0(CsState *cs, s16 csId, s16 b, s16 c) {
 
     d = *((u8 *)cs + 0x48);
     if (*(CsStepState **)cs == NULL) {
-        st = func_80610FE8(8);
+        st = heapAlloc(8);
         *(CsStepState **)cs = st;
         st->cnt = 0;
         st->prev = -1;
@@ -2389,7 +2389,7 @@ void func_80649E34(CsState *cs, s16 csId, s16 b, s16 c)
   s32 d;
   if ((*((CsPairState **) cs)) == 0)
   {
-    st = func_80610FE8(8);
+    st = heapAlloc(8);
     *((CsPairState **) cs) = st;
     st->unk0 = 0;
     st->unk4 = 0;
@@ -2452,7 +2452,7 @@ void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     u64 elapsed;
 
     if (*(CsCountdown **)cs == NULL) {
-        *(CsCountdown **)cs = func_80610FE8(0x20);
+        *(CsCountdown **)cs = heapAlloc(0x20);
         t = *(CsCountdown **)cs;
         t->last = osGetTime();
         t->duration = b;
@@ -2581,7 +2581,7 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     timerRan = 0;
     count = 0;
     if (*(CsFx **)cs == NULL) {
-        t = func_80610FE8(0x50);
+        t = heapAlloc(0x50);
         *(CsFx **)cs = t;
         t->pad4E = 0;
         t->ent[0].state = 0;
@@ -2681,7 +2681,7 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
 
     found = 0;
     if (*(u8 **)cs == NULL) {
-        *(u8 **)cs = func_80610FE8(0xA);
+        *(u8 **)cs = heapAlloc(0xA);
         p = *(u8 **)cs;
         for (row = 0; row < 6; row++) p[row] = 0;
         p[6] = 1;
@@ -2794,7 +2794,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 bestD;
 
     if (*(CsEntrySet **)cs == NULL) {
-        p = *(CsEntrySet **)cs = func_80610FE8(0x50);
+        p = *(CsEntrySet **)cs = heapAlloc(0x50);
         p->unk4E = 0;
         if (flagGet(0x146, 0) != 0) {
             e = (CsEntryView *)p;
@@ -2928,7 +2928,7 @@ void csCmdTransformSave(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSavedTransform *p;
 
     if (*(CsSavedTransform **)cs == NULL) {
-        *(CsSavedTransform **)cs = func_80610FE8(0x28);
+        *(CsSavedTransform **)cs = heapAlloc(0x28);
     }
     p = *(CsSavedTransform **)cs;
     p->v[0] = gCsPosX;
@@ -3314,7 +3314,7 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 
     cam = D_807FC924->unk4->unk174;
     if (*(CsShake **)cs == NULL) {
-        p = func_80610FE8(8);
+        p = heapAlloc(8);
         *(CsShake **)cs = p;
         p->unk0 = 0;
         p->unk4 = 0;
@@ -3378,7 +3378,7 @@ void func_8064C708(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *p;
 
     if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = func_80610FE8(4);
+        *(s32 **)cs = heapAlloc(4);
         **(s32 **)cs = 0;
     }
     p = *(s32 **)cs;
@@ -3405,7 +3405,7 @@ void func_8064C814(CsState *cs, s16 csId, s16 b, s16 c) {
     CsShake *p;
 
     if (*(CsShake **)cs == NULL) {
-        p = func_80610FE8(8);
+        p = heapAlloc(8);
         *(CsShake **)cs = p;
         p->unk0 = 0;
         p->unk4 = 0;
@@ -3440,7 +3440,7 @@ void func_8064C9F8(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *p;
 
     if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = func_80610FE8(4);
+        *(s32 **)cs = heapAlloc(4);
         **(s32 **)cs = 0;
     }
     p = *(s32 **)cs;
@@ -3465,7 +3465,7 @@ void func_8064CB3C(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *p;
 
     if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = func_80610FE8(4);
+        *(s32 **)cs = heapAlloc(4);
         **(s32 **)cs = 0;
     }
     p = *(s32 **)cs;
@@ -3492,7 +3492,7 @@ void csCmdSfxOnAnimChange(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *p;
 
     if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = func_80610FE8(4);
+        *(s32 **)cs = heapAlloc(4);
         **(s32 **)cs = 0x64;
     }
     p = *(s32 **)cs;
@@ -3537,7 +3537,7 @@ void func_8064CD3C(CsState *cs, s16 csId, s16 b, s16 c) {
     CsTrailPoint *pts;
 
     if (*(CsTrail **)cs == NULL) {
-        tr = func_80610FE8(0x170);
+        tr = heapAlloc(0x170);
         *(CsTrail **)cs = tr;
         for (i = 0; i < 30; i++) { tr->pts[i].x = D_807F61FC; tr->pts[i].y = D_807F6200; tr->pts[i].z = D_807F6204; }
     }
@@ -3630,7 +3630,7 @@ void func_8064D1E8(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 e;
 
     if (*(CsSineState **)cs == NULL) {
-        t = func_80610FE8(0xC);
+        t = heapAlloc(0xC);
         *(CsSineState **)cs = t;
         t->unk0 = 0;
         t->unk4 = 0;
@@ -3673,7 +3673,7 @@ void func_8064D1E8(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-s16 func_80650A70(s16, s16);
+s16 modelAnimEntryGetUnkC(s16, s16);
 extern s32 D_807482B4;
 extern s32 D_807482B8;
 extern s32 D_807482BC;
@@ -3711,7 +3711,7 @@ void func_8064D418(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 d;
 
     if (*(CsBeatState **)cs == NULL) {
-        t = func_80610FE8(0x18);
+        t = heapAlloc(0x18);
         *(CsBeatState **)cs = t;
         t->unk0 = 0;
         t->unk4 = 0;
@@ -3721,7 +3721,7 @@ void func_8064D418(CsState *cs, s16 csId, s16 b, s16 c) {
         t->unk14 = 0x14;
     }
     p = *(CsBeatState **)cs;
-    frame = func_80650A70(csId, 1);
+    frame = modelAnimEntryGetUnkC(csId, 1);
     switch (p->unk0) {
         case 0:
             if (p->unk4 == 0) {
@@ -3858,7 +3858,7 @@ void func_8064DB98(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 w;
 
     if (*(s32 **)cs == NULL) {
-        p = func_80610FE8(4);
+        p = heapAlloc(4);
         *(s32 **)cs = p;
         *p = 0;
     }
@@ -3945,7 +3945,7 @@ void func_8064DF5C(CsState *cs, s16 csId, s16 b, s16 c) {
 
     full = 0;
     if (*(u8 **)cs == NULL) {
-        p = func_80610FE8(6);
+        p = heapAlloc(6);
         *(u8 **)cs = p;
         p[4] = 0;
         p[5] = 0;
@@ -4003,7 +4003,7 @@ void csSeqMatch(CsState *cs, s16 csId, s16 val, u8 *pat, s32 len, s16 okId, s16 
     s32 j;
 
     if (*(u8 **)cs == NULL) {
-        p = func_80610FE8(7);
+        p = heapAlloc(7);
         *(u8 **)cs = p;
         p[5] = 0;
         p[6] = 0;
@@ -4113,7 +4113,7 @@ void func_8064E65C(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     ((CsStateTailView *)cs)->unk98 = y - gCsPosY;
     if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = func_80610FE8(4);
+        *(s32 **)cs = heapAlloc(4);
         **(s32 **)cs = 0;
     }
     q = *(s32 **)cs;
@@ -4292,7 +4292,7 @@ void func_8064EE08(CsEffView *e, u8 *flag) {
     CsEffState *s;
 
     if (e->unk384 == NULL) {
-        s = func_80610FE8(8);
+        s = heapAlloc(8);
         e->unk384 = s;
         s->unk0 = 0;
         s->unk2 = 0;

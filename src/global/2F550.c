@@ -317,7 +317,7 @@ typedef struct MapOffsetSlot {
 extern MapOffsetSlot *D_807F5FB8;
 extern s32 D_807F5FBC;
 extern u8 D_807F5FC0;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void mapOffsetSlotsInit(s32 arg0) {
     s32 i;
@@ -327,7 +327,7 @@ void mapOffsetSlotsInit(s32 arg0) {
         D_807F5FBC = 0;
         return;
     }
-    D_807F5FB8 = func_80610FE8(arg0 * 0x90);
+    D_807F5FB8 = heapAlloc(arg0 * 0x90);
     D_807F5FBC = arg0;
     for (i = 0; i < arg0; i++) {
         D_807F5FB8[i].unk80 = 0.0f;
@@ -424,7 +424,7 @@ MapVisNodeNew *mapTreeCloneShape(MapTreeLinks *arg0) {
     if (arg0 == NULL) {
         return NULL;
     }
-    node = func_80610FE8(0x14);
+    node = heapAlloc(0x14);
     node->unk4 = 0;
     node->unk8 = 0;
     node->unk1 = 3;
@@ -661,7 +661,7 @@ Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
 }
 
 
-void func_8065EFF0(void);
+void lightFlushQueued(void);
 void mapDistributeEntries(MapBspNode *);
 void func_8063039C(void);
 void mapChunkAnimateTextures(u8);
@@ -670,7 +670,7 @@ void func_8065A884(void);
 void effectUpdateNodes(void);
 
 void mapFrameBegin(s32 arg0) {
-    func_8065EFF0();
+    lightFlushQueued();
     mapDistributeEntries(D_807F5FF4);
     func_8063039C();
     if (D_807F6C28 == 0) {
@@ -1543,7 +1543,7 @@ void fogSetParams(u8);
 void renderSetSegment6Override(u8);
 void lightSetTargetColor(f32, f32, f32, s16);
 void lightCopyTargetColors(s16);
-void func_8065E040(s32);
+void matrixCacheInit(s32);
 struct MapRelocNode;
 void mapTreeRelocate(struct MapRelocNode *, s32, s32);
 void displayListResolveTextureImages();
@@ -1553,7 +1553,7 @@ void func_80650ECC(void *);
 void collisionInitStaticCache(void *);
 void func_80666090(void *);
 void func_8065F1C0(void *);
-void func_80662B90(void *);
+void actorTargetTableLoad(void *);
 void triggerZoneInit(void *);
 void func_8062F318(void);
 
@@ -1605,7 +1605,7 @@ void mapHeaderLoad(s32 arg0) {
     D_807F5DEC = D_807F5DE0 + off34;
     lightSetTargetColor(1.0f, 1.0f, 1.0f, -1);
     lightCopyTargetColors(-1);
-    func_8065E040(MAP_HDR->unkE << 10);
+    matrixCacheInit(MAP_HDR->unkE << 10);
     mapTreeRelocate((struct MapRelocNode *)(s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off34));
     displayListResolveTextureImages(D_807F5DE0 + off34, D_807F5DE0 + off38);
     mapRelocateOffsetTable((s32)(D_807F5DE0 + off40));
@@ -1617,7 +1617,7 @@ void mapHeaderLoad(s32 arg0) {
     collisionInitStaticCache((void *)arg0);
     func_80666090((void *)arg0);
     func_8065F1C0((void *)arg0);
-    func_80662B90((void *)arg0);
+    actorTargetTableLoad((void *)arg0);
     triggerZoneInit((void *)arg0);
     func_8062F318();
 }

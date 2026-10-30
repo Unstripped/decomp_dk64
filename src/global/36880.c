@@ -30,7 +30,7 @@ extern u8 D_807444FC;
 
 s32 hashTableLookup(s32);
 void heapFree(void *);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void assetFreeBuffer(void *, s32, s32);
 
 extern u8 D_807F6148;
@@ -210,7 +210,7 @@ s16 modelSlotsAllocate(s32 arg0, u8 arg1) {
             break;
     }
     if (arg1 != 0) {
-        D_807F6000 = func_80610FE8(D_807F614A * 0x90);
+        D_807F6000 = heapAlloc(D_807F614A * 0x90);
         heapClearBlock(D_807F6000);
     }
     return D_807F614A;
@@ -690,7 +690,7 @@ s16 modelSlotInit(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f3
     MODEL_SLOT_BY_INDEX->unk86 = type;
     MODEL_SLOT_BY_INDEX->unk7C = NULL;
     if (s0->unk28 != -1) {
-        node = func_80610FE8(0x38);
+        node = heapAlloc(0x38);
         *sp4C = node;
         node->unk34 = 0;
         node->unk4 = 1.0f;
@@ -950,7 +950,7 @@ void modelSlotBuildVertPosList(s32 arg0, ModelVertTable *arg1, f32 arg2, f32 arg
         do {
             switch (arg9) {
                 case 0:
-                    node = func_80610FE8(0x10);
+                    node = heapAlloc(0x10);
                     *tail = node;
                     tail = &node->next;
                     node->next = NULL;
@@ -1033,7 +1033,7 @@ Mtx *modelSlotGetNodeMatrix(s32 arg0, u8 arg1, s32 arg2) {
         p += 8;
     }
     modelSlotBuildTransformMatrix(idx, p[6], sp24);
-    sp20 = func_80610FE8(0x40);
+    sp20 = heapAlloc(0x40);
     guMtxF2L(sp24, sp20);
     return sp20;
 }
@@ -1061,7 +1061,7 @@ void modelSlotBuildNodePosList(s32 arg0, ModelVertTable *arg1, f32 arg2, f32 arg
         do {
             switch (arg9) {
                 case 0:
-                    node = func_80610FE8(0x10);
+                    node = heapAlloc(0x10);
                     *tail = node;
                     tail = &node->next;
                     node->next = NULL;
@@ -1202,7 +1202,7 @@ void modelSlotBuildTriangleBuffer(s32 arg0, ModelAssetData *arg1, f32 arg2, f32 
         return;
     }
     if (!(buf->unk24 & 1)) {
-        buf->unk0 = func_80610FE8(count * 0x28);
+        buf->unk0 = heapAlloc(count * 0x28);
     }
     buf->unk24 |= 4;
     entry = (u8 *)(arg1->unk50 + (s32)arg1) + 0x10;
@@ -1431,10 +1431,10 @@ void modelSlotInitTexAnimNodes(u8 *arg0, ModelSlot *arg1, s32 arg2) {
             if (count != 0) {
                 obj = arg1->unk20;
                 len1 = dlLengthToEndDL(obj->unkA0);
-                obj->unkA4 = func_80610FE8(len1);
+                obj->unkA4 = heapAlloc(len1);
                 memcpy(obj->unkA4, obj->unkA0, len1);
                 len2 = dlLengthToEndDL(obj->unkA8);
-                obj->unkAC = func_80610FE8(len2);
+                obj->unkAC = heapAlloc(len2);
                 memcpy(obj->unkAC, obj->unkA8, len2);
             }
             break;
@@ -1443,7 +1443,7 @@ void modelSlotInitTexAnimNodes(u8 *arg0, ModelSlot *arg1, s32 arg2) {
             break;
     }
     for (i = 0; i < count; i++) {
-        node = func_80610FE8(0xD8);
+        node = heapAlloc(0xD8);
         node->unk48 = 1;
         node->unk49 = 0;
         node->unk4A = entry[1];
@@ -1727,7 +1727,7 @@ void modelQuadBuildOutput(ModelQuadOwner *arg0, f32 arg1, f32 arg2, f32 arg3, f3
     out->unk10 = arg8;
     out->unk20 = *(s32 *)(*(s32 *)(data + 0x70) + (s32)data);
     sum = 0;
-    out->unk1C = func_80610FE8(out->unk20 << 6);
+    out->unk1C = heapAlloc(out->unk20 << 6);
     for (i = 0; i < out->unk20; i++) {
         out->rgba[0] = q->rgba[0];
         out->rgba[1] = q->rgba[1];
@@ -2173,7 +2173,7 @@ void displayListFreeQueueAdd(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     DisplayListFreeRecord *rec;
     DisplayListFreeRecord *old;
 
-    rec = func_80610FE8(0x1C);
+    rec = heapAlloc(0x1C);
     old = D_807F6160;
     D_807F6160 = rec;
     rec->unk18 = old;
@@ -2426,7 +2426,7 @@ void modelSlotInitFromAsset(ModelSlot *arg0, s32 arg1) {
     arg0->unk84 = arg1;
     if (hdr->unk1C != 1) {
         if (hdr->unk1C == 2) {
-            obj = func_80610FE8(0x60);
+            obj = heapAlloc(0x60);
             sp28 = obj;
             obj->unk4A = arg1;
             obj->unk50 = 0;
@@ -2434,11 +2434,11 @@ void modelSlotInitFromAsset(ModelSlot *arg0, s32 arg1) {
             obj->unk4C = -1;
             obj->unk4E = 0;
             obj->unk5B = 0;
-            obj->unk14 = func_80610FE8(D_80750AB4 << 6);
-            obj->unk18 = func_80610FE8(D_80750AB4 << 6);
+            obj->unk14 = heapAlloc(D_80750AB4 << 6);
+            obj->unk18 = heapAlloc(D_80750AB4 << 6);
         }
     } else {
-        seg = func_80610FE8(0xC8);
+        seg = heapAlloc(0xC8);
         sp28 = seg;
         seg->unkB4 = arg1;
         seg->unkB8 = 0;
@@ -3599,9 +3599,9 @@ Gfx *spriteListRender(Gfx *arg0, SpriteGfxNode *arg1) {
                 n++;
             } while (p != NULL);
         }
-        vtxs = func_80610FE8(n << 6);
+        vtxs = heapAlloc(n << 6);
         heapFreeDeferred(vtxs);
-        mtxs = func_80610FE8(n << 6);
+        mtxs = heapAlloc(n << 6);
         heapFreeDeferred(mtxs);
     }
     if (arg1 != NULL) {
@@ -3799,7 +3799,7 @@ void func_8063B8D8(u8 **arg0, s32 *arg1) {
         heapFree(D_807F6010);
     }
     size = D_80747D70 * 0x30 + 8; p = gCsVarsDirty; do { if (*p) { size += 0x24; count++; } p++; } while (p < &D_807F6902); size += actorListGetSerializedSize();
-    D_807F6010 = func_80610FE8(size);
+    D_807F6010 = heapAlloc(size);
     *(s32 *)D_807F6010 = D_80747D70;
     out = (ModelSlotSerializedOut *)(D_807F6010 + 4);
     for (i = 0; i < D_80747D70; i++, out++) {
@@ -3889,7 +3889,7 @@ void modelSlotsPackRecords(u8 **arg0, s32 *arg1) {
         }
     }
     if (count != 0) {
-        buf = func_80610FE8(count * 0x254 + size);
+        buf = heapAlloc(count * 0x254 + size);
         cur = buf;
         for (i = 0; i < D_80747D70; i++) {
             if (MODEL_SLOT_PACKED_ENTRY(i)->unk7C != NULL) {

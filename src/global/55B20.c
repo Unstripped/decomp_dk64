@@ -67,7 +67,7 @@ extern s32 D_8076A0BC;
 extern s32 D_8076A0C0;
 extern s32 D_8076A0C4;
 extern s32 D_8076A0C8;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void mapChunkAllocLists(MapHeader *arg0) {
     s32 temp;
@@ -81,12 +81,12 @@ void mapChunkAllocLists(MapHeader *arg0) {
         count = 1;
     }
     size = count * 4;
-    D_8076A0B4 = (s32)func_80610FE8(size);
-    D_8076A0B8 = (s32)func_80610FE8(size);
-    D_8076A0BC = (s32)func_80610FE8(size);
-    D_8076A0C0 = (s32)func_80610FE8(size);
-    D_8076A0C4 = (s32)func_80610FE8(size);
-    D_8076A0C8 = (s32)func_80610FE8(size);
+    D_8076A0B4 = (s32)heapAlloc(size);
+    D_8076A0B8 = (s32)heapAlloc(size);
+    D_8076A0BC = (s32)heapAlloc(size);
+    D_8076A0C0 = (s32)heapAlloc(size);
+    D_8076A0C4 = (s32)heapAlloc(size);
+    D_8076A0C8 = (s32)heapAlloc(size);
 }
 
 typedef struct MapData {
@@ -169,7 +169,7 @@ void func_80650ECC(MapData *arg0) {
     D_807F70AB = 0;
     if (D_807F6C28 != 0) {
         D_807F7138 = arg0->unkC;
-        D_807F7074 = func_80610FE8(0x40);
+        D_807F7074 = heapAlloc(0x40);
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
         off = arg0->unk58;
         D_807F70AC = *(s32 *)((u8 *)arg0 + off);
@@ -184,7 +184,7 @@ void func_80650ECC(MapData *arg0) {
         off = arg0->unk6C;
         D_807F6C20 = *(s32 *)((u8 *)arg0 + off);
         D_807F6C1C = (u8 *)arg0 + off + 4;
-        D_807F6C2C = func_80610FE8(D_807F6C20);
+        D_807F6C2C = heapAlloc(D_807F6C20);
         off = arg0->unk70;
         D_807F6C10 = *(s32 *)((u8 *)arg0 + off);
         D_807F6C0C = (u8 *)arg0 + off + 4;
@@ -196,7 +196,7 @@ void func_80650ECC(MapData *arg0) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unkC += (s32)arg0 + base;
             }
         }
-        D_807F6C18 = func_80610FE8(D_807F6C28 * 0x1C8);
+        D_807F6C18 = heapAlloc(D_807F6C28 * 0x1C8);
         w4 = w + 4;
         i = 0;
         if (D_807F6C28 > 0) {
@@ -281,7 +281,7 @@ void func_80650ECC(MapData *arg0) {
                 D_807F6C18[i].unk86 = *(s16 *)(w4 + colOff + 0xA);
                 D_807F6C18[i].unk28 = -1;
                 if (count != 0) {
-                    D_807F6C18[i].unk4C = func_80610FE8(count * 0x24);
+                    D_807F6C18[i].unk4C = heapAlloc(count * 0x24);
                     memcpy(D_807F6C18[i].unk4C, buf, count * 0x24);
                     j = 0;
                     for (j = 0; j < count; j++) {
@@ -293,7 +293,7 @@ void func_80650ECC(MapData *arg0) {
                 i++;
             } while (i < D_807F6C28);
         }
-        D_807F6C24 = func_80610FE8(D_807F6C20 / 2 * 0x30);
+        D_807F6C24 = heapAlloc(D_807F6C20 / 2 * 0x30);
         for (i = 0; i < D_807F6C20 / 2; i++) {
             func_80651C2C(i, (u8 *)D_807F6C24 + i * 0x30);
         }
@@ -349,7 +349,7 @@ void func_80651708(s32 arg0) {
         var_a1 = 0;
     }
     if (var_a1 != 0) {
-        var_v1->unk8 = func_80610FE8(var_a1 * 0x12);
+        var_v1->unk8 = heapAlloc(var_a1 * 0x12);
         var_v1->unkC = var_a1;
         if (var_v1->unk4 >= 3) {
             var_a3 = 1;
@@ -1720,7 +1720,7 @@ typedef struct {
 
 void modelSlotFreeTexAnimBuffers(s32, u8);
 void modelSlotFreeAssetTextures(s32, u8);
-s32 func_8065E81C(s32, s32);
+s32 matrixCacheEvict(s32, s32);
 void heapFree(void *);
 
 void mapChunkFreeIdleBuffers(void) {
@@ -1729,7 +1729,7 @@ void mapChunkFreeIdleBuffers(void) {
     MapChunkDraw *eff;
 
     if (D_807F713A != 0) {
-        func_8065E81C(0, 0x190);
+        matrixCacheEvict(0, 0x190);
     }
     i = 0;
     off = 0;
@@ -2513,12 +2513,12 @@ void func_80658930(u8 *arg0) {
     for (i = 0; i < n; i++) {
         idx = *(s16 *)p;
         p += 2;
-        base[idx] = func_80610FE8(0x6C);
+        base[idx] = heapAlloc(0x6C);
         ((MapNodeData *)base[idx])->unk10 = 0x7FFF;
         ((MapNodeData *)base[idx])->unk12 = -0x8000;
         ((MapNodeData *)base[idx])->unk8 = 0;
         ((MapNodeData *)base[idx])->unk4 = *(s16 *)(p - 2);
-        ((MapNodeData *)base[idx])->unk0 = func_80610FE8((u32)((MapNodeData *)base[idx])->unk4 * 6);
+        ((MapNodeData *)base[idx])->unk0 = heapAlloc((u32)((MapNodeData *)base[idx])->unk4 * 6);
         memcpy(((MapNodeData *)base[idx])->unk0,
                p,
                (u32)((MapNodeData *)base[idx])->unk4 * 6);

@@ -180,7 +180,7 @@ typedef struct G00Player306 {
     /* 0x2FE */ u8 pad2FE[8];
 } G00Player306;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 void func_806C850C(s32, u8);
 void func_80708BB8(void *);
@@ -202,7 +202,7 @@ void func_806C7D40(s32 arg0) {
     u8 sel;
     G00Entry *e;
 
-    D_807FC924 = func_80610FE8(D_807FC928 * 0x2F0);
+    D_807FC924 = heapAlloc(D_807FC928 * 0x2F0);
     heapClearBlock(D_807FC924);
     for (i = 0; i < D_807FC928; i++) {
         blk = &D_807FC924[i];
@@ -548,11 +548,11 @@ void func_806C850C(s32 arg0, u8 arg1) {
         D_807FBB44->unk64 |= 0x200;
     }
     D_807FBB44->unk68 |= 0xC0;
-    ((G00Sub4 *)D_807FBB44->unk4)->unk1C = func_80610FE8(0x100);
+    ((G00Sub4 *)D_807FBB44->unk4)->unk1C = heapAlloc(0x100);
     *((G00Sub4 *)D_807FBB44->unk4)->unk1C = 0;
-    ((G00Sub4 *)D_807FBB44->unk4)->unk20 = func_80610FE8(0x200);
+    ((G00Sub4 *)D_807FBB44->unk4)->unk20 = heapAlloc(0x200);
     *((G00Sub4 *)D_807FBB44->unk4)->unk20 = 0xFF;
-    ((G00Sub4 *)D_807FBB44->unk4)->unk24 = func_80610FE8(0x200);
+    ((G00Sub4 *)D_807FBB44->unk4)->unk24 = heapAlloc(0x200);
     new_var = 1;
     *((G00Sub4 *)D_807FBB44->unk4)->unk24 = 0xFF;
     D_807FBB48 = D_807FBB44;
@@ -948,16 +948,16 @@ void func_806C8F8C(void *arg) {
     G01A->unk140 = actorSub140CreateFromModel(D_807FBB48);
     G01A->unk60 &= ~0x1000;
     G01A->unk60 |= arg0->unkC;
-    G01A->unk4->unk1C = func_80610FE8(0x100);
+    G01A->unk4->unk1C = heapAlloc(0x100);
     *G01A->unk4->unk1C = 0;
-    G01A->unk4->unk20 = func_80610FE8(0x100);
+    G01A->unk4->unk20 = heapAlloc(0x100);
     if (1) {}
     if (1) {}
     if (1) {}
     if (1) {}
     if (1) {}
     *G01A->unk4->unk20 = 0xFF;
-    G01A->unk4->unk24 = func_80610FE8(0x100);
+    G01A->unk4->unk24 = heapAlloc(0x100);
     *G01A->unk4->unk24 = 0xFF;
     func_806C8220(1, G01A->unk178, G01A->unk58);
     slotQueueInit(0);

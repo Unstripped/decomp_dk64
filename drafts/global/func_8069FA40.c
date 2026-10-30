@@ -23,7 +23,7 @@ extern Gfx D_1000118;
 extern char *D_80750338[];
 Gfx *func_8070068C(Gfx *);
 void *_sprintf(char *, const char *, ...);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFreeDeferred(void *);
 s16 textGetStringWidth(u8, char *);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
@@ -52,7 +52,7 @@ void func_8069FA40(Gfx *arg0, Actor *arg1) {
     WRITE_GFX(arg0++, 0xE7000000, 0);
     WRITE_GFX(arg0++, 0xFA000000, (arg1->unkE6 & 0xFF) | 0xFFFFFF00);
     arg0 = func_8070068C(arg0);
-    sp78 = func_80610FE8(0x40);
+    sp78 = heapAlloc(0x40);
     heapFreeDeferred(sp78);
     sp65 = 1;
     switch (((M4ActorTail *)arg1)->unk15F) {

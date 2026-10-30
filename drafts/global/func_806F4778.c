@@ -1,7 +1,7 @@
 // func_806F4778 (src/global/F9450.c): Stage 1 m2c reconstruction: reviewed target initializer against source types. It requires concrete 0x1C list-node, 0x14 asset-entry, and 0x30 placement-record definitions before a useful compile trial; retained full flow draft unchanged.
 ? assetFreeBuffer(s32, ?, ?);                       /* extern */
 ? assetSetImmediateFree();                          /* extern */
-void *func_80610FE8(s32, s16 *, s16 *);             /* extern */
+void *heapAlloc(s32, s16 *, s16 *);             /* extern */
 u16 modelTypeCountBeforeMap(u8);                              /* extern */
 s32 modelTypeIsCounted(u16);                             /* extern */
 ? modelAssetGetSubtables(s32, s32 **, ? *);                  /* extern */
@@ -81,7 +81,7 @@ void func_806F4778(void) {
     sp70 = 0;
     D_807FD738 = 0;
     if (D_807FBB64 & 0x10000) {
-        temp_v0 = func_80610FE8(0x4B0);
+        temp_v0 = heapAlloc(0x4B0);
         D_80754240 = temp_v0;
         heapClearBlock(temp_v0);
     } else {
@@ -122,7 +122,7 @@ void func_806F4778(void) {
         spC4 = 0;
         if (modelSlotFindByType(temp_s6, &spC4, &spBC, &spB8, &spB4, &spB2, &sp66) != 0) {
             do {
-                temp_v0_3 = func_80610FE8(0x1C);
+                temp_v0_3 = heapAlloc(0x1C);
                 temp_v0_3->unk8 = (s16) (s32) spBC;
                 temp_v0_3->unkA = (s16) (s32) spB8;
                 temp_v0_3->unkC = (s16) (s32) spB4;
@@ -181,7 +181,7 @@ block_25:
     D_807FD722 = ((s16) D_807FD726 / 500) + 1;
     D_807FD724 = ((s16) D_807FD728 / 500) + 1;
     D_807FD720 = D_807FD722 * D_807FD724;
-    D_80754244 = func_80610FE8(D_807FD720 * 4, &D_807FD726, &D_807FD728);
+    D_80754244 = heapAlloc(D_807FD720 * 4, &D_807FD726, &D_807FD728);
     sp94 = 0;
     var_s7_2 = 0;
     if (D_807FD724 > 0) {
@@ -202,7 +202,7 @@ block_25:
                                 temp_lo = var_s7_2 * 0x1F4;
                                 temp_v1 = var_s3->unkC;
                                 if ((temp_v1 >= temp_lo) && (temp_v1 < (s16) (temp_lo + 0x1F4))) {
-                                    temp_v0_6 = func_80610FE8(0x1C);
+                                    temp_v0_6 = heapAlloc(0x1C);
                                     memcpy(temp_v0_6, var_s3, 0x1C);
                                     temp_v0_6->unk18 = 0;
                                     if (var_s5_2 != NULL) {

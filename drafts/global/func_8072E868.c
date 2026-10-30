@@ -27,7 +27,7 @@ typedef struct {
 } F1Table;
 
 extern F1Table *D_80755A14;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 extern F1Table *D_80755A14;
 typedef struct {

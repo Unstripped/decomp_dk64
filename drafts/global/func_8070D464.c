@@ -17,7 +17,7 @@ void func_8070D464(void *arg0, s32 *arg1) {
     u8 *payload;
 
     if (((P112bVariant *)arg0)->flags & 1) {
-        data = ((P112bVariant *)arg0)->data = func_80610FE8(8);
+        data = ((P112bVariant *)arg0)->data = heapAlloc(8);
         for (i = 0; i != 1; i++) {
             func_8070D3CC(data, arg1);
             data = (P112bRecord *)((u8 *)data + 8);
@@ -27,9 +27,9 @@ void func_8070D464(void *arg0, s32 *arg1) {
     if ((((P112bVariant *)arg0)->flags & 2) == 0) {
         return;
     }
-    data = ((P112bVariant *)arg0)->data = func_80610FE8(8);
+    data = ((P112bVariant *)arg0)->data = heapAlloc(8);
     func_8070D380(1, data, arg1);
-    payload = data->data = func_80610FE8(data->count * 4);
+    payload = data->data = heapAlloc(data->count * 4);
     for (i = 0; i < data->count; i++) {
         func_8070D380(4, payload, arg1);
         payload += 4;

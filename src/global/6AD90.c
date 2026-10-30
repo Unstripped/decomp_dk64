@@ -27,7 +27,7 @@ extern s32 D_807F9518;
 extern u8 D_807F951C;
 extern s32 D_8076A0A8;
 extern u8 D_807F94B4;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void *assetLoad(s32, u32, u8, u8);
 s32 assetGetSize(s32, s32);
 void assetSetImmediateFree(void);
@@ -48,14 +48,14 @@ void func_80666090(CollisionMeshHeader *arg0) {
     s32 i;
     void *sp34;
 
-    D_807F9514 = (struct CollisionBufferEntry *)func_80610FE8(0x11A8);
+    D_807F9514 = (struct CollisionBufferEntry *)heapAlloc(0x11A8);
     D_807F9518 = (u32)(arg0->unk18 * arg0->unk1A);
     var_s1 = (u8 *)assetLoad(3, D_8076A0A8, 1, 0);
     D_807F951C = 0;
     if (arg0->unk9 & 2) {
         sp58 = var_s1;
-        var_s1 = func_80610FE8(arg0->unk4);
-        sp34 = func_80610FE8(0x2400);
+        var_s1 = heapAlloc(arg0->unk4);
+        sp34 = heapAlloc(0x2400);
         sp54 = var_s1;
         sp50 = sp58;
         gunzip(&sp50, &sp54, sp34);
@@ -1214,7 +1214,7 @@ extern s32 D_8076A064;
 extern u8 D_807F951C;
 void actorClearBufferReferences(s32);
 void heapFree(void *);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
 
 void dynamicBufferAllocateEntry(s32 arg0) {
@@ -1223,7 +1223,7 @@ void dynamicBufferAllocateEntry(s32 arg0) {
     if (D_807F9514[arg0].unk0 == 0) {
         sp34 = D_807F9514[arg0].unk10;
         if (sp34 != 0) {
-            D_807F9514[arg0].unk0 = (u32)func_80610FE8(sp34);
+            D_807F9514[arg0].unk0 = (u32)heapAlloc(sp34);
             D_807F9514[arg0].unk4 = D_807F9514[arg0].unk0 + (sp34 / 24) * 24;
             func_8060B140(D_807F9514[arg0].unkC, (void *)D_807F9514[arg0].unk0, &sp34, 0, 0, 0, 0);
         }
@@ -2456,7 +2456,7 @@ void collisionInitTables(void) {
     s32 sp40;
 
     sp40 = 0x80;
-    D_807F9520 = (s32)func_80610FE8(0x80);
+    D_807F9520 = (s32)heapAlloc(0x80);
     func_8060B140(D_8000DDCC, (void *)D_807F9520, &sp40, 0, 0, 0, 0);
 
     for (i = 0; i < 0x20; i++) {
@@ -2492,7 +2492,7 @@ void assetInflateAndFree(void *arg0, void *arg1) {
     sp24 = arg0;
     sp20 = arg1;
     if (D_80748E14 == NULL) {
-        D_80748E14 = func_80610FE8(0x2400);
+        D_80748E14 = heapAlloc(0x2400);
     }
     gunzip(&sp24, &sp20, D_80748E14);
     heapFree(arg0);
@@ -2598,13 +2598,13 @@ void *assetLoad(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
         var_a1 = sp4C;
     }
     if (D_807F9678 == 0) {
-        buffer = func_80610FE8(var_a1);
+        buffer = heapAlloc(var_a1);
     } else {
         buffer = heapAllocFromPool(D_807F9678, var_a1);
     }
     if (arg2 != 0) {
         if (D_80748E18[arg0] != 0) {
-            void *temp_v0_2 = func_80610FE8(sp4C);
+            void *temp_v0_2 = heapAlloc(sp4C);
             func_8060B140(sp50, temp_v0_2, &sp4C, 0, 0, 0, 0);
             assetInflateAndFree(temp_v0_2, buffer);
         } else {
@@ -2616,7 +2616,7 @@ void *assetLoad(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
         }
         D_807FA8A0[D_807F9680].unk8 = D_80748E18[arg0];
         if (D_80748E18[arg0] != 0) {
-            D_807FA8A0[D_807F9680].unk0 = func_80610FE8(sp4C);
+            D_807FA8A0[D_807F9680].unk0 = heapAlloc(sp4C);
             D_807FA8A0[D_807F9680].unk4 = buffer;
         } else {
             D_807FA8A0[D_807F9680].unk4 = buffer;
@@ -2712,7 +2712,7 @@ void assetEnsureTableLoaded(s32 arg0) {
     sp54 = ((u32 *)D_807F9520)[arg0];
     func_8060B140(D_8000DDCC + sp54, &sp48, &sp3C, 0, 0, 0, 0);
     sp40 = (u32)(sp48 >> 32) - sp54;
-    D_807F9528[arg0] = func_80610FE8(sp40);
+    D_807F9528[arg0] = heapAlloc(sp40);
     func_8060B140(D_8000DDCC + sp54, D_807F9528[arg0], &sp40, 0, 0, 0, 0);
     switch (arg0) {
         case 4:
@@ -2720,7 +2720,7 @@ void assetEnsureTableLoaded(s32 arg0) {
         case 14:
         case 25: {
             u32 i;
-            D_807F95A8[arg0] = func_80610FE8(sp40);
+            D_807F95A8[arg0] = heapAlloc(sp40);
             for (i = 0; i < (u32)(sp40 / 4); i++) {
                 D_807F95A8[arg0][i] = 0;
             }
@@ -2806,7 +2806,7 @@ void collisionBstInsertByHash(s32 arg0, s32 arg1, s32 arg2) {
 
 CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 arg1, s32 arg2, s32 arg3) {
     if (node == NULL) {
-        node = (CollisionBstNode *)func_80610FE8(sizeof(CollisionBstNode));
+        node = (CollisionBstNode *)heapAlloc(sizeof(CollisionBstNode));
         node->unkC = 1;
         node->unk0 = arg1;
         node->unk4 = arg2;
@@ -3007,7 +3007,7 @@ void collisionBstRebalanceBucket(s32 arg0) {
     index = 0;
     count = collisionBstCountNodes(D_807F9628[arg0]);
     if (count != 0) {
-        buffer = func_80610FE8(count * 20);
+        buffer = heapAlloc(count * 20);
         collisionBstFlatten(D_807F9628[arg0], buffer, &index);
         collisionBstSortFlatItems(buffer, 0, count - 1);
         new_root = collisionBstBuildBalanced(buffer, 0, count - 1);
@@ -3030,7 +3030,7 @@ CollisionBstNodeBase *collisionBstBuildBalanced(CollisionBstFlatItem *buffer, s3
     CollisionBstNode *node;
     s32 mid;
 
-    node = (CollisionBstNode *)func_80610FE8(sizeof(CollisionBstNode));
+    node = (CollisionBstNode *)heapAlloc(sizeof(CollisionBstNode));
     mid = (start + end) / 2;
 
     node->unk0 = buffer[mid].unk0;

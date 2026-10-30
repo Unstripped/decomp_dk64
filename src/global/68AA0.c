@@ -30,7 +30,7 @@ extern ActorTargetEntry *D_807F9420;
 extern s16 D_807F9424;
 extern s32 D_80747D70;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 u8 mapObjectIsTargetType(s16);
 s8 func_806531B8(f32, f32, f32, s32);
 s32 mapObjectCollectIdsByType(s8, void *, s16);
@@ -49,7 +49,7 @@ void actorInitTargetEntries(void) {
 
     D_807F9420 = NULL;
     if (D_807F9424 != 0) {
-        D_807F9420 = func_80610FE8(D_807F9424 * sizeof(ActorTargetEntry));
+        D_807F9420 = heapAlloc(D_807F9424 * sizeof(ActorTargetEntry));
         for (i = 0; i < D_80747D70; i++) {
             s32 cond = mapObjectIsTargetType(i);
             u8 res = cond;

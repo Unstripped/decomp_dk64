@@ -35,7 +35,7 @@ extern s32 D_807FD56C;
 extern s16 D_807FD570;
 void func_805FFEF8(s32);
 void func_806F5378();
-void func_806115A8(u8 **);
+void heapRegisterSurvivor(u8 **);
 void func_8063B8D8(u8 **, s32 *);
 void modelSlotsPackRecords(u8 **, s32 *);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
@@ -80,10 +80,10 @@ void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
     }
     func_806F5378();
     func_8063B8D8((u8 **)&D_8076A160[i].unk18, &sp50);
-    func_806115A8((u8 **)&D_8076A160[i].unk18);
+    heapRegisterSurvivor((u8 **)&D_8076A160[i].unk18);
     modelSlotsPackRecords((u8 **)&D_8076A160[i].unk20, (s32 *)&D_8076A160[i].unk1C);
     if (D_8076A160[i].unk20 != 0) {
-        func_806115A8((u8 **)&D_8076A160[i].unk20);
+        heapRegisterSurvivor((u8 **)&D_8076A160[i].unk20);
     }
     D_8076A160[i].unk2 = arg3;
     if (arg3 & 1) {

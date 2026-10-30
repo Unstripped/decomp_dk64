@@ -1071,7 +1071,7 @@ void critterUpdateGroups(CritterGroups *groups) {
 
 extern CritterGroups *critterGroups;
 void *memcpy(void *, const void *, unsigned int);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 s16 func_806531B8(f32, f32, f32, s32);
 void critterInitGroup(CritterGroup *);
@@ -1089,7 +1089,7 @@ void critterLoadData(u8 *arg0) {
         for (g = 0; g < critterGroups->count; g++) {
             j = 0;
             if (g == 0) {
-                critterGroups->groups = func_80610FE8(critterGroups->count * 0xC);
+                critterGroups->groups = heapAlloc(critterGroups->count * 0xC);
                 heapClearBlock(critterGroups->groups);
                 grp = critterGroups->groups;
             } else {
@@ -1100,7 +1100,7 @@ void critterLoadData(u8 *arg0) {
             if (grp->zoneCount > 0) {
                 do {
                     if (j == 0) {
-                        grp->zones = func_80610FE8(grp->zoneCount * 0x2C);
+                        grp->zones = heapAlloc(grp->zoneCount * 0x2C);
                         heapClearBlock(grp->zones);
                         ent = grp->zones;
                     } else {
@@ -1122,10 +1122,10 @@ void critterLoadData(u8 *arg0) {
 
 void critterInit(void *arg0) {
     critterCurrentTexture = 0;
-    critterGroups = func_80610FE8(8);
+    critterGroups = heapAlloc(8);
     heapClearBlock(critterGroups);
     critterLoadData(arg0);
-    critterPlayerZone = func_80610FE8(0x2C);
+    critterPlayerZone = heapAlloc(0x2C);
     heapClearBlock(critterPlayerZone);
 }
 
@@ -1194,7 +1194,7 @@ void critterInitGroup(CritterGroup *grp) {
         cb = func_8002427C;
         break;
     }
-    heapClearBlock(grp->objs = func_80610FE8(grp->count * 0x1F0));
+    heapClearBlock(grp->objs = heapAlloc(grp->count * 0x1F0));
     ent = grp->objs;
     if (grp->zoneCount == 1) {
         flag = 0;

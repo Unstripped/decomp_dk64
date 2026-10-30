@@ -1,4 +1,4 @@
-// func_8064FB64 (src/global/54150.c): stage 4-5 (asm-differ score 13424 -> 5110): frame 0x100, saves only ra+s0(=work), switch now 10-entry (case 0: break), x/y/z/c6-c8 memory homes D8..F8, off FC as target. Needed: K&R params typed arg2 (ModelBTrack *), no arg2/kk locals, keys ((ModelBKey*)arg3)[arg0+1]/[arg0] (two t7/t8 bases), work declared BEFORE mtx (first declared = HIGHER addr), s32 padB[5] above work (target gap 28 bytes), x,y,z,c6,c7,c8 as 3-stmt chains, c0,c1,c2 single expr, 12 greedy dead-if FAKEs (found by an fdiff-score greedy sweep over statement positions x {x,y,z,c0..c8,off,arg0,arg1,work,mtx}; fdiff is ~0.3s per compile so a 1500-variant round is ~5 min). Left: mtx/work at 0x44/0x84 vs 0x3C/0x7C (lower gap 8 bytes too large, upper gap 20 vs 28), target forwards the def of x/y/z into the compare (cvt.d.s f0,f2; swc1) vs ours swc1+lwc1 reload, c6-c8 evaluation interleave, s0 addiu hoisted early
+// modelAnimEntryBuildKeyMatrix (src/global/54150.c): stage 4-5 (asm-differ score 13424 -> 5110): frame 0x100, saves only ra+s0(=work), switch now 10-entry (case 0: break), x/y/z/c6-c8 memory homes D8..F8, off FC as target. Needed: K&R params typed arg2 (ModelBTrack *), no arg2/kk locals, keys ((ModelBKey*)arg3)[arg0+1]/[arg0] (two t7/t8 bases), work declared BEFORE mtx (first declared = HIGHER addr), s32 padB[5] above work (target gap 28 bytes), x,y,z,c6,c7,c8 as 3-stmt chains, c0,c1,c2 single expr, 12 greedy dead-if FAKEs (found by an fdiff-score greedy sweep over statement positions x {x,y,z,c0..c8,off,arg0,arg1,work,mtx}; fdiff is ~0.3s per compile so a 1500-variant round is ~5 min). Left: mtx/work at 0x44/0x84 vs 0x3C/0x7C (lower gap 8 bytes too large, upper gap 20 vs 28), target forwards the def of x/y/z into the compare (cvt.d.s f0,f2; swc1) vs ours swc1+lwc1 reload, c6-c8 evaluation interleave, s0 addiu hoisted early
 typedef struct ModelBTrack {
     u8 *unk0;
     u8 *unk4;
@@ -20,7 +20,7 @@ void matrixMakeRotationX(f32 (*)[4], f32);
 void matrixMakeRotationY(f32 (*)[4], f32);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 
-void func_8064FB64(arg0, arg1, arg2, arg3, arg4)
+void modelAnimEntryBuildKeyMatrix(arg0, arg1, arg2, arg3, arg4)
 u8 arg0;
 u32 arg1;
 ModelBTrack *arg2;

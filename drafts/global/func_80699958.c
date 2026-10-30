@@ -49,7 +49,7 @@ extern u8 D_807FBBEC;
 extern ActorGlobalState D_807FBB70;
 void func_80613C48(Actor *, s16, f32, f32);
 void func_80614D00(Actor *, f32, f32);
-Mtx *func_80610FE8(s32);
+Mtx *heapAlloc(s32);
 void actorUpdateModelMatrix(Actor *, s32);
 s32 func_8069A750(void);
 void func_8069A614(f32, u8);
@@ -72,7 +72,7 @@ void func_80699958(u8 arg0, u8 arg1) {
 
     state = (L2State *)D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((L2Sub4 *)D_807FBB40->unk4)->unk24 = (L2Node *)func_80610FE8((arg0 * 0x10) + 0x10);
+        ((L2Sub4 *)D_807FBB40->unk4)->unk24 = (L2Node *)heapAlloc((arg0 * 0x10) + 0x10);
         for (i = 0; i < arg0; i++) {
             ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[i].unk0 = i;
             ((L2Node *)((L2Sub4 *)D_807FBB40->unk4)->unk24)[i].unk1 = (i == arg0 - 1) ? 0xFF : i + 1;

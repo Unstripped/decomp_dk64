@@ -1,4 +1,4 @@
-// func_806500E0 (src/global/54150.c): stage 6 (parked NON_MATCHING in src copy, fdiff plain TEXT OK): switch(unkF)/switch(unk10), += store+reload, else-first inverted branches, q temps match layout + all integer regs (v1/a1 colouring fixed by FAKE dead if(arg0->unk11) before p + u32 cast for addu order). Left: float regs (ours unk4=f12,out=f2; target unk4=f2,out=f12; frac is a temp f4 in target but var f0 here) and head schedule (ldc1 300.0 hoisted before lh 0xC, li 4 before sltiu) which follows from the float colouring; deadsweep (locals+fields), permuter 1500s: no gain
+// modelAnimEntryAdvance (src/global/54150.c): stage 6 (parked NON_MATCHING in src copy, fdiff plain TEXT OK): switch(unkF)/switch(unk10), += store+reload, else-first inverted branches, q temps match layout + all integer regs (v1/a1 colouring fixed by FAKE dead if(arg0->unk11) before p + u32 cast for addu order). Left: float regs (ours unk4=f12,out=f2; target unk4=f2,out=f12; frac is a temp f4 in target but var f0 here) and head schedule (ldc1 300.0 hoisted before lh 0xC, li 4 before sltiu) which follows from the float colouring; deadsweep (locals+fields), permuter 1500s: no gain
 typedef struct ModelBAnim {
     u8 *unk0;
     f32 unk4;
@@ -15,7 +15,7 @@ typedef struct ModelBAnim {
 
 extern u32 D_80744478;
 
-void func_806500E0(void *arg0raw) {
+void modelAnimEntryAdvance(void *arg0raw) {
     ModelBAnim *arg0;
     u8 *node;
     u8 *p;

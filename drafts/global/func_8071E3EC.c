@@ -15,7 +15,7 @@ void func_8071E3EC(TimedEffectActorView *arg0, s8 *arg1) {
     VelocityState *var_v1;
 
     if (arg0->unk384 == NULL) {
-        temp_v0 = func_80610FE8(0xC);
+        temp_v0 = heapAlloc(0xC);
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = 0.0f;
         temp_v0->unk4 = 0.0f;

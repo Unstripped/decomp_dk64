@@ -121,7 +121,7 @@ RaceWaypoint *raceGetWaypoint(u8 idx) {
 }
 
 void *memcpy(void *, const void *, unsigned int);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 void func_8002EDD4(RaceWaypoint *);
 
@@ -140,19 +140,19 @@ void raceLoadRouteData(u8 *arg0) {
         src += 1;
         memcpy(&D_8002FCF0->count2, src, 2);
         src += 2;
-        D_8002FCF0->items = func_80610FE8(D_8002FCF0->count * 12);
+        D_8002FCF0->items = heapAlloc(D_8002FCF0->count * 12);
         heapClearBlock(D_8002FCF0->items);
         ent = D_8002FCF0->items;
         for (i = 0; i < D_8002FCF0->count; i++) {
             memcpy(ent, src, 2);
             src += 2;
-            ent->items = func_80610FE8(ent->count * 2);
+            ent->items = heapAlloc(ent->count * 2);
             sz = ent->count * 2;
             memcpy(ent->items, src, sz);
             src += sz;
             ent++;
         }
-        D_8002FCF0->items2 = func_80610FE8(D_8002FCF0->count2 * 40);
+        D_8002FCF0->items2 = heapAlloc(D_8002FCF0->count2 * 40);
         heapClearBlock(D_8002FCF0->items2);
         node = D_8002FCF0->items2;
         for (m = 0; m < D_8002FCF0->count2; m++) {
@@ -185,7 +185,7 @@ void func_8002EC08(s32 arg0) {
     u8 *sp1C;
 
     sp1C = assetLoad(0x18, arg0, 1, 1);
-    D_8002FCF0 = func_80610FE8(0x10);
+    D_8002FCF0 = heapAlloc(0x10);
     heapClearBlock(D_8002FCF0);
     raceLoadRouteData(sp1C);
     switch (arg0) {

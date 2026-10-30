@@ -3,7 +3,7 @@ typedef struct CsB0Point3f {
     f32 x, y, z;
 } CsB0Point3f;
 extern CsB0Point3f **D_807F5FD4;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 f32 func_80612794(s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
@@ -16,7 +16,7 @@ void func_80643440(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 sn;
 
     if (*(s16 **)cs == NULL) {
-        ang = func_80610FE8(2);
+        ang = heapAlloc(2);
         *(s16 **)cs = ang;
         *ang = 0;
     }

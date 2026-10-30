@@ -1,7 +1,7 @@
 // func_8061324C (src/global/17B90.c): stage 1; m2c starter retained. Remaining: table-entry/node types, nested scan loop, and allocation-list writeback.
 drafts/global/func_8061324C.c
 // func_8061324C (src/global/17B90.c): stage 1: m2c starter; needs concrete command/list-node structs and loop/control-flow matching
-void *func_80610FE8(?);                             /* extern */
+void *heapAlloc(?);                             /* extern */
 
 void func_8061324C(void *arg0, s32 arg1, void **arg2) {
     s32 var_v1;
@@ -32,7 +32,7 @@ loop_5:
                         goto loop_5;
                     }
                 }
-                temp_v0 = func_80610FE8(0x10);
+                temp_v0 = heapAlloc(0x10);
                 *var_s5 = temp_v0;
                 var_s5 = temp_v0 + 0xC;
                 temp_v0->unk8 = (s8) temp_s1;

@@ -49,9 +49,9 @@ Gfx *renderRotatedSprite(Gfx *glist, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32
                       (f32)((s16)arg6 - ((u8)arg4 >> 1)), (f32)((s16)arg7 - ((u8)arg5 >> 1)),
                       1, (s32)var_s0);
     } else {
-        mtx1 = func_80610FE8(sizeof(Mtx));
+        mtx1 = heapAlloc(sizeof(Mtx));
         heapFreeDeferred(mtx1);
-        var_s0 = func_80610FE8(sizeof(Mtx));
+        var_s0 = heapAlloc(sizeof(Mtx));
         heapFreeDeferred(var_s0);
 
         switch (arg3) {

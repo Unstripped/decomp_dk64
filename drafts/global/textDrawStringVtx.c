@@ -57,7 +57,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     if (len == 0) {
         return dl;
     }
-    vp = (Vtx *)func_80610FE8(len << 6);
+    vp = (Vtx *)heapAlloc(len << 6);
     heapFreeDeferred(vp);
     batch = vp;
     if (flags & 0x80) {

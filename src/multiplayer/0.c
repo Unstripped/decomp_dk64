@@ -903,7 +903,7 @@ void n_alSndpPostEvent(void *, s32, s16);
 void func_80609140(s16, s32, f32, f32, s32, s32);
 void func_806F5FA0(s32, s32, s32);
 void slotQueueInit(s32);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void *assetLoad(s32, s32, s32, s32);
 void func_8071495C(void);
 void func_80714944(s32);
@@ -972,7 +972,7 @@ void mpUpdate(void) {
             func_806F5FA0(0x212, 0xD4, 0x24E);
             func_806F5FA0(0x28E, 0xD4, 0x247);
         }
-        s7->unk30 = func_80610FE8(0x40);
+        s7->unk30 = heapAlloc(0x40);
         guScale(s7->unk30, 0.5f, 0.5f, 1.0f);
         s7->unkC = D_807552E4.unkC;
         s7->unkC = s7->unkC * 60;

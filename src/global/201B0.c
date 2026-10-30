@@ -4463,7 +4463,7 @@ typedef struct CamPathZoneEntries {
     /* 0xC4 */ CamZoneEntry *unkC4;
 } CamPathZoneEntries;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFree(void *);
 
 #define CAM_ZONE_ENTRIES_PATH ((CamPathZoneEntries *)gCamActivePaths)
@@ -4483,7 +4483,7 @@ void func_80625C30(void) {
     if (gCamZoneSorted != NULL) {
         heapFree(gCamZoneSorted);
     }
-    gCamZoneSorted = func_80610FE8(CAM_ZONE_ENTRIES_PATH->unkC0 * 4 + 4);
+    gCamZoneSorted = heapAlloc(CAM_ZONE_ENTRIES_PATH->unkC0 * 4 + 4);
     for (i = 0; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
         CAM_ZONE_SORT[i].unk0 = i;
         CAM_ZONE_SORT[i].unk2 = camGetZoneCell(i);
@@ -4514,7 +4514,7 @@ void func_80625C30(void) {
     if (gCamZoneGroups != NULL) {
         heapFree(gCamZoneGroups);
     }
-    gCamZoneGroups = func_80610FE8(gCamZoneGroupCount * 4 + 4);
+    gCamZoneGroups = heapAlloc(gCamZoneGroupCount * 4 + 4);
     CAM_ZONE_GROUP[0].unk0 = CAM_ZONE_SORT[0].unk2;
     CAM_ZONE_GROUP[0].unk2 = 0;
     k = 1;
@@ -4709,7 +4709,7 @@ typedef struct CamPathLoad {
     /* 0xD8 */ CamPathPoint *unkD8;
 } CamPathLoad;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapClearBlock(void *);
 void camCopyVec3s(s16 *, s16 *);
 
@@ -4747,7 +4747,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
         h = &CAM_LOAD_PATH->heads[i];
         cnt = h->unk0 = hdr != NULL ? *hdr++ : 0;
         if (arg2 != 0) {
-            h->unk4 = func_80610FE8(cnt * 0x12U);
+            h->unk4 = heapAlloc(cnt * 0x12U);
             for (j = 0; j < cnt; j++) {
                 dst = &h->unk4[j];
                 buf = *(CamPathSeg *)data;
@@ -4761,8 +4761,8 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
     hdr = (s16 *)data;
     cnt = CAM_LOAD_PATH->unkC0 = hdr != NULL ? *hdr++ : 0;
     if (arg2 != 0) {
-        CAM_LOAD_PATH->unkC8 = func_80610FE8(cnt);
-        CAM_LOAD_PATH->unkC4 = func_80610FE8(cnt * 0x1CU);
+        CAM_LOAD_PATH->unkC8 = heapAlloc(cnt);
+        CAM_LOAD_PATH->unkC4 = heapAlloc(cnt * 0x1CU);
         s = hdr;
         for (i = 0; i < cnt; i++) {
             CAM_LOAD_PATH->unkC8[i] = func_806531B8(s[8], s[9], s[10], 0);
@@ -4773,14 +4773,14 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
     }
     i = 0;
     cnt = CAM_LOAD_PATH->unkCC = hdr != NULL ? *hdr++ : 0;
-    CAM_LOAD_PATH->unkD0 = func_80610FE8(cnt * 0xCU);
+    CAM_LOAD_PATH->unkD0 = heapAlloc(cnt * 0xCU);
     for (i = 0; i < cnt; i++) {
         m = *hdr++;
         k = m;
 
         CAM_LOAD_PATH->unkD0[i].unk0 = m;
-        CAM_LOAD_PATH->unkD0[i].unk4 = func_80610FE8(m * 2);
-        CAM_LOAD_PATH->unkD0[i].unk8 = func_80610FE8(m * 2);
+        CAM_LOAD_PATH->unkD0[i].unk4 = heapAlloc(m * 2);
+        CAM_LOAD_PATH->unkD0[i].unk8 = heapAlloc(m * 2);
         for (j = 0; j < k; j++) {
             CAM_LOAD_PATH->unkD0[i].unk4[j] = *hdr++;
             CAM_LOAD_PATH->unkD0[i].unk8[j] = *hdr++;
@@ -4788,7 +4788,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
     }
     i = 0;
     cnt = CAM_LOAD_PATH->unkD4 = hdr != NULL ? *hdr++ : 0;
-    CAM_LOAD_PATH->unkD8 = func_80610FE8(0x6400);
+    CAM_LOAD_PATH->unkD8 = heapAlloc(0x6400);
     heapClearBlock(CAM_LOAD_PATH->unkD8);
     rd = (u8 *)hdr;
     if (cnt != 0) {
@@ -4824,7 +4824,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
                     s = (s16 *)(rd + 0x20);
                     j = 0;
                     u->unk0 = *(s16 *)(rd + 4);
-                    u->unk4 = func_80610FE8(u->unk0 * 0xEU);
+                    u->unk4 = heapAlloc(u->unk0 * 0xEU);
                     for (; j < u->unk0; j++) {
                         ((CamPathKeyPosLookRaw *)u->unk4)[j] = *(CamPathKeyPosLookRaw *)s;
                         s += 7;
@@ -4835,7 +4835,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
                     s = (s16 *)(rd + 0x14);
                     j = 0;
                     u->unk0 = *(s16 *)(rd + 4);
-                    u->unk4 = func_80610FE8(u->unk0 * 8U);
+                    u->unk4 = heapAlloc(u->unk0 * 8U);
                     for (; j < u->unk0; j++) {
                         ((CamPathKeyPosRaw *)u->unk4)[j] = *(CamPathKeyPosRaw *)s;
                         s += 4;

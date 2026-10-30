@@ -28,7 +28,7 @@ void func_8071910C(TimedEffectActorView *arg0, s8 *arg1) {
 
     state = (Fx11BC2RotationState *) arg0->unk384;
     if (state == NULL) {
-        arg0->unk384 = func_80610FE8(0x1C);
+        arg0->unk384 = heapAlloc(0x1C);
         var_fv0 = (f32) (u32) ((func_806119A0() / 10000U) % 100U);
         ((Fx11BC2RotationState *) arg0->unk384)->unk0 = (f32) (((f64) var_fv0 / 25.0) + 5.0 + (((s32) arg0->unk35C >> 8) * 3.0));
         sp54 = ((f32) (u32) ((func_806119A0() / 10000U) % 1000U) / 500.0f) + (f32) (arg0->unk35C & 0xFF);

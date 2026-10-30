@@ -539,7 +539,7 @@ extern u8 D_80033228[];
 extern s8 D_80033258;
 extern MenuProgressGridVtx *D_80033F10;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 Gfx *menuDrawProgressGrid(Gfx *, MenuRenderActor *);
 void *memcpy(void *, const void *, s32);
 
@@ -556,11 +556,11 @@ void menuUpdateProgressGrid(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         *var_s0 = 0xF0;
         D_807FBB40->unk154 = 0;
-        D_800330D0 = (s32)func_80610FE8(0x80);
-        D_800330D4 = func_80610FE8(0x140);
+        D_800330D0 = (s32)heapAlloc(0x80);
+        D_800330D4 = heapAlloc(0x140);
         memcpy(D_800330D4, D_800330E0, 0x140);
         *var_s0 = -0x3E8;
-        D_80033F10 = func_80610FE8(0x1400);
+        D_80033F10 = heapAlloc(0x1400);
         flag = flagCountRange(0x1FD, 0x28, 0) == 0x28;
         n = 0;
         for (r = 0; r < 5; r++) {

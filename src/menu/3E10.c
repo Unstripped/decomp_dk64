@@ -342,7 +342,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
 extern char **D_80033F28;
 s32 func_800317E8(MenuScreenState *, f32, f32, f32 *, f32 *, s32, s8, f32);
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFreeDeferred(void *);
 Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, void *, s32);
 
@@ -362,7 +362,7 @@ Gfx *func_800286C8(MenuScreenActor *arg0, Gfx *arg1) {
     D_807FBB60 |= 0x10;
     gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
     spD0 = func_800317E8(temp_a0, 160.0f, 20.0f, &spC4, &spC0, 5, 1, 0.3f);
-    sp38 = func_80610FE8(0x40);
+    sp38 = heapAlloc(0x40);
     heapFreeDeferred(sp38);
     guScaleF(sp7C, 0.7f, 0.7f, 1.0f);
     guTranslateF(sp3C, spC4 * 4.0, spC0 * 4.0, 0.0f);
@@ -2595,7 +2595,7 @@ void func_8061B650(s32);
 void func_8060CB9C(void);
 void menuInsertHighScore(void);
 void renderCallbacksRegister(void *, void *, s32);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void menuInitGfxState(Gfx *, s32);
 
 void menuInit(void) {
@@ -2673,7 +2673,7 @@ void menuInit(void) {
         sub->unk10 = 0;
         sub->unk0 = 1.0f;
         sub->unk4 = 0.0f;
-        D_80033F34 = func_80610FE8(0x80);
+        D_80033F34 = heapAlloc(0x80);
         D_80033F30 = 0;
         menuUpdateStateDispatch(D_807FBB40, 0, 0, 0);
         D_80744514 = 0;
@@ -2968,7 +2968,7 @@ void func_80030894(MenuScreenState *arg0, void *arg1, s32 arg2, s32 arg3, f32 ar
     func_8071498C(func_80030C14);
     func_80714A28(1);
     sp3C = func_80714CC0(arg1, arg4, arg2, arg3, -10.0f);
-    sp38 = func_80610FE8(0x28);
+    sp38 = heapAlloc(0x28);
     sp3C->unk384 = sp38;
     sp38->unk0 = arg6;
     sp38->unk4 = arg0->unk15;
@@ -3041,7 +3041,7 @@ void func_80030A90(Menu10_Spinner *arg0, s32 arg1) {
     s16 sp72;
     f32 sp30[4][4];
     if (arg0->unk384 == NULL) {
-        p = arg0->unk384 = func_80610FE8(0x10);
+        p = arg0->unk384 = heapAlloc(0x10);
         sp72 = func_806119A0() * 0x10;
         p->vx = func_80612794(sp72) * 60.0f;
         p->vy = func_80612790(sp72) * 60.0f;
@@ -3692,7 +3692,7 @@ char *func_8070E750(s32, s32, s32);
 void menuLoadTextTable(void) {
     s32 i;
 
-    D_80033F28 = func_80610FE8(0x194);
+    D_80033F28 = heapAlloc(0x194);
     i = 0;
     do {
         D_80033F28[i] = func_8070E750(0x25, i, 0);

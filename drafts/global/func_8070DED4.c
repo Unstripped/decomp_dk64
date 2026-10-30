@@ -5,7 +5,7 @@ extern s32 _sprintf(u8 *, char *, ...);
 extern void *D_8074E778[];
 extern u16 D_80750AC8;
 extern Actor *D_807FBB48;
-extern void *func_80610FE8(s32);
+extern void *heapAlloc(s32);
 extern void heapClearBlock(void *);
 extern void heapFreeDeferred();
 
@@ -66,7 +66,7 @@ s32 func_8070DED4(L112dContainer *arg0, u8 *arg1, u16 arg2) {
             group = group->next;
         } while (group != NULL);
     }
-    *groupLink = func_80610FE8(0x20);
+    *groupLink = heapAlloc(0x20);
     heapClearBlock(*groupLink);
     (*groupLink)->unk0 = 1;
     (*groupLink)->height = time;
@@ -89,7 +89,7 @@ s32 func_8070DED4(L112dContainer *arg0, u8 *arg1, u16 arg2) {
                         }
                         if (entry != NULL) {
                             groupLink = &(*groupLink)->next;
-                            *groupLink = func_80610FE8(0x20);
+                            *groupLink = heapAlloc(0x20);
                             heapClearBlock(*groupLink);
                             (*groupLink)->unk0 = 1;
                             (*groupLink)->height = time;
@@ -129,7 +129,7 @@ s32 func_8070DED4(L112dContainer *arg0, u8 *arg1, u16 arg2) {
                 }
                 if (text[0] != 0) {
                     do {
-                        *entryLink = func_80610FE8(0xA8);
+                        *entryLink = heapAlloc(0xA8);
                         heapClearBlock(*entryLink);
                         (*entryLink)->width = textGetCharAdvance(6, text[0]);
                         (*entryLink)->flags = flags;

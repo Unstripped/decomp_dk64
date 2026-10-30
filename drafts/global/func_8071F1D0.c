@@ -7,7 +7,7 @@ void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
     s32 dir;
 
     if (arg0->unk384 == NULL) {
-        temp = func_80610FE8(0xC);
+        temp = heapAlloc(0xC);
         dir = D_8075567C;
         if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         arg0->unk384 = temp;

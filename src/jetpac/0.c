@@ -83,7 +83,7 @@ Gfx *screenFadeUpdate(Gfx *, s32);
 void func_805FE71C(Gfx *, u8, s32 *, s32);
 void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
 Gfx *func_805FE4D4(Gfx *);
-Gfx *func_80610FE8(s32);
+Gfx *heapAlloc(s32);
 void heapFreeDeferred(void *);
 void func_80025168();
 void jetpacBuildDisplayList(u8 *, Gfx **);
@@ -148,7 +148,7 @@ void jetpacBuildDisplayList(u8 *arg0, Gfx **arg1) {
     gDPSetFillColor(glist++, 0x00010001);
     gDPFillRectangle(glist++, 0, 0, 319, 239);
     J0a_WRITE_GFX(glist++, 0xDA380007, &D_2000080);
-    sp68 = func_80610FE8(0x5DC0);
+    sp68 = heapAlloc(0x5DC0);
     heapFreeDeferred(sp68);
     sp6C = sp68;
     func_80025168(&sp6C);

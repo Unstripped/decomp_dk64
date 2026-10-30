@@ -232,7 +232,7 @@ void actorDespawn(Actor *);
 void sfxStopSlotSound(Actor *, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 #define PICK_MAX(a, b) ((a) < (b) ? (b) : (a))
 #define PICK_MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -259,7 +259,7 @@ void func_8068EF54(void) {
     sp7C = D_807FBB40->unk174;
     sp74 = sp7C->unk0;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((ActorSub4BufView *)D_807FBB40->unk4)->unk1C = func_80610FE8(0x10);
+        ((ActorSub4BufView *)D_807FBB40->unk4)->unk1C = heapAlloc(0x10);
         buf = ((ActorSub4BufView *)D_807FBB40->unk4)->unk1C;
         buf->unk0 = -0x80;
         buf->unk1 = 1;
@@ -669,7 +669,7 @@ void actorInterpolateAngles(u8 arg0, ProjectileAngleTarget *arg1, ProjectileAngl
 void heapClearBlock(void *);
 
 void actorAllocSubBuffer(Actor *arg0, s32 arg1) {
-    ((ProjectileActorBase *)arg0)->unk4->unk1C = func_80610FE8(arg1 * 8);
+    ((ProjectileActorBase *)arg0)->unk4->unk1C = heapAlloc(arg1 * 8);
     heapClearBlock(((ProjectileActorBase *)arg0)->unk4->unk1C);
 }
 

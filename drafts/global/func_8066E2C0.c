@@ -64,7 +64,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if (s3 > 0) {
             one = 1;
             do {
-                node = (Col7C_Node2C *)func_80610FE8(sizeof(Col7C_Node2C));
+                node = (Col7C_Node2C *)heapAlloc(sizeof(Col7C_Node2C));
                 node->next = NULL;
                 node->unk0 = *(f32 *)arg9;
                 node->unk4 = *((f32 *)arg9 + 1);
@@ -88,7 +88,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if (s3 > 0) {
             s2 = &sub140->unk90;
             do {
-                subnode = (Col7C_Node20 *)func_80610FE8(sizeof(Col7C_Node20));
+                subnode = (Col7C_Node20 *)heapAlloc(sizeof(Col7C_Node20));
                 subnode->next = NULL;
                 subnode->unk0 = *(f32 *)arg9;
                 subnode->unk4 = *((f32 *)arg9 + 1);
@@ -106,8 +106,8 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         arg9 += 4;
         sub140->unk9C = (s32)s2;
         if (s2 != NULL) {
-            sub140->unkA0 = (a3 = func_80610FE8((s32)s2 * sizeof(Col7C_Ent2C)));
-            sub140->unkA4 = (s32)func_80610FE8((s32)s2 * sizeof(Col7C_Ent58));
+            sub140->unkA0 = (a3 = heapAlloc((s32)s2 * sizeof(Col7C_Ent2C)));
+            sub140->unkA4 = (s32)heapAlloc((s32)s2 * sizeof(Col7C_Ent58));
             sub140->unkA8 = sub140->unkA4;
         }
         if ((s32)s2 > 0) {
@@ -138,7 +138,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         arg9 += 4;
         sub140->unk94 = (s32)s2;
         if (s2 != NULL) {
-            tmp = func_80610FE8((s32)s2 * sizeof(Col7C_Ent58));
+            tmp = heapAlloc((s32)s2 * sizeof(Col7C_Ent58));
             sub140->unk98 = tmp;
             sp54 = tmp;
         }

@@ -5,7 +5,7 @@
  * u8 locals `flag` at 0x96 and `hit` at 0x9F are 9 bytes apart there, while
  * cfe packs mine adjacently), so `i` is in a saved register here but spilled
  * at 0xCC in the original; that in turn lets uopt hoist the D_8076A0B4/B8/BC
- * address computations above func_8065E634 (original recomputes them lazily
+ * address computations above matrixCacheInsert (original recomputes them lazily
  * after memcpy).  414 vs 432 instructions.
  */
 typedef struct L55410Node {
@@ -50,10 +50,10 @@ typedef struct L55410Effect {
 void matrixCacheResetStats(void);
 void lightClearActiveCount(void);
 s32 func_8065BAA0(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, u8 *);
-void *func_8065E138(s32, s32, s16, s32);
-void *func_8065E634(s32, s32, s16, s32, s32, u8);
+void *matrixCacheLookup(s32, s32, s16, s32);
+void *matrixCacheInsert(s32, s32, s16, s32, s32, u8);
 void func_8065C990(void *, void *, s32, void *, s32, s32);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void func_8065FB64(f32, f32, f32);
 extern f32 D_8076A0B4[];
 extern f32 D_8076A0B8[];
@@ -110,9 +110,9 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
                                         }
                                     } while (found == 0);
                                     if (D_807FBB60 & 0x10) {
-                                        ((L55410Node *)((u8 *)((L55410Effect *)((u8 *)D_807F6C18 + off))->unk4C + nodeIdx * 0x24))->unk14[j] = func_8065E138(obj, i, boxIdx, j);
+                                        ((L55410Node *)((u8 *)((L55410Effect *)((u8 *)D_807F6C18 + off))->unk4C + nodeIdx * 0x24))->unk14[j] = matrixCacheLookup(obj, i, boxIdx, j);
                                         if (((L55410Node *)((u8 *)((L55410Effect *)((u8 *)D_807F6C18 + off))->unk4C + nodeIdx * 0x24))->unk14[j] == NULL) {
-                                            ((L55410Node *)((u8 *)((L55410Effect *)((u8 *)D_807F6C18 + off))->unk4C + nodeIdx * 0x24))->unk14[j] = func_8065E634(obj, i, boxIdx, j, ((L55410Cell *)D_807F70B0)[k].unk10[j], hit);
+                                            ((L55410Node *)((u8 *)((L55410Effect *)((u8 *)D_807F6C18 + off))->unk4C + nodeIdx * 0x24))->unk14[j] = matrixCacheInsert(obj, i, boxIdx, j, ((L55410Cell *)D_807F70B0)[k].unk10[j], hit);
                                             memcpy(((L55410Node *)((u8 *)((L55410Effect *)((u8 *)D_807F6C18 + off))->unk4C + nodeIdx * 0x24))->unk14[j], ((L55410Effect *)((u8 *)D_807F6C18 + off))->unk54 + ((L55410Cell *)D_807F70B0)[k].unk8[j] * 0x10, ((L55410Cell *)D_807F70B0)[k].unk10[j] * 0x10);
                                             D_807F7EEC = D_8076A0B4[i];
                                             D_807F7EF0 = D_8076A0B8[i];
@@ -133,7 +133,7 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
                         obj = func_8065BAA0(arg0, arg1, arg2, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -1, &hit);
                     }
                     if (((L55410Effect *)D_807F6C18)[i].unk60[D_807444FC] == NULL) {
-                        ((L55410Effect *)D_807F6C18)[i].unk60[D_807444FC] = func_80610FE8(((L55410Effect *)((u8 *)D_807F6C18 + off))->unk5C);
+                        ((L55410Effect *)D_807F6C18)[i].unk60[D_807444FC] = heapAlloc(((L55410Effect *)((u8 *)D_807F6C18 + off))->unk5C);
                     }
                     memcpy(((L55410Effect *)((u8 *)D_807F6C18 + off))->unk60[D_807444FC], ((L55410Effect *)((u8 *)D_807F6C18 + off))->unk54, ((L55410Effect *)((u8 *)D_807F6C18 + off))->unk5C);
                     D_807F7EEC = D_8076A0B4[i];

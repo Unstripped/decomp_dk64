@@ -56,7 +56,7 @@ extern ActorCallbackNode *D_807FBFE0[];
 extern s32 D_807FBFF0[];
 extern s16 D_807FC3F0;
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void func_8061421C();
 void func_80614A64(Actor *);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
@@ -343,7 +343,7 @@ u16 arg0;
     }
     headerSize = (headerSize + 7) & 0xFFF8;
     totalDataSize += headerSize;
-    actor = (ActorAllocBlock *)func_80610FE8(totalDataSize & 0xFFFF);
+    actor = (ActorAllocBlock *)heapAlloc(totalDataSize & 0xFFFF);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = *typesPtr;
@@ -743,7 +743,7 @@ void func_80678F64(Actor *actor) {
 
 void func_80678F9C(Actor *actor, s32 item) {
     if (actor->unk114 == NULL) {
-        actor->unk114 = func_80610FE8(sizeof(ActorList));
+        actor->unk114 = heapAlloc(sizeof(ActorList));
         actor->unk114->count = 0;
     }
     if (actor->unk114->count != 4) {
@@ -853,7 +853,7 @@ void actorQueueDelayedCallback(s32 arg0, s32 arg1, s32 arg2, u8 arg3, s32 arg4, 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorDelayedCallbacksTick.s")
 
 ActorCallbackNode *actorAllocCallbackNode(s32 arg0, s32 arg1, u8 arg2, s32 arg3, void *arg4) {
-    ActorCallbackNode *node = func_80610FE8(sizeof(ActorCallbackNode));
+    ActorCallbackNode *node = heapAlloc(sizeof(ActorCallbackNode));
 
     node->callback = (void *)arg1;
     node->unk4 = arg2;
@@ -1038,7 +1038,7 @@ void func_8067A170(s32 arg0, u8 arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_8067A1DC.s")
 
 void func_8067A69C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
-    ActorPayloadA69C *temp = func_80610FE8(sizeof(ActorPayloadA69C));
+    ActorPayloadA69C *temp = heapAlloc(sizeof(ActorPayloadA69C));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
     temp->unk8 = arg4;
@@ -1047,7 +1047,7 @@ void func_8067A69C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) 
 }
 
 void func_8067A70C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6) {
-    ActorPayloadA70C *temp = func_80610FE8(sizeof(ActorPayloadA70C));
+    ActorPayloadA70C *temp = heapAlloc(sizeof(ActorPayloadA70C));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
     temp->unk8 = arg4;
@@ -1057,7 +1057,7 @@ void func_8067A70C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5,
 }
 
 void func_8067A784(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
-    ActorPayloadAAB8 *temp = func_80610FE8(sizeof(ActorPayloadAAB8));
+    ActorPayloadAAB8 *temp = heapAlloc(sizeof(ActorPayloadAAB8));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
     temp->unk8 = arg4;
@@ -1065,7 +1065,7 @@ void func_8067A784(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
 }
 
 void func_8067A7EC(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, u8 arg6) {
-    ActorPayloadA7EC *temp = func_80610FE8(sizeof(ActorPayloadA7EC));
+    ActorPayloadA7EC *temp = heapAlloc(sizeof(ActorPayloadA7EC));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
     temp->unk8 = arg4;
@@ -1085,7 +1085,7 @@ typedef struct R2DActorPayloadA864 {
 } R2DActorPayloadA864;
 
 void func_8067A864(s32 arg0, Actor *arg1, s16 arg2, s16 arg3, void *arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
-    R2DActorPayloadA864 *temp = func_80610FE8(sizeof(R2DActorPayloadA864));
+    R2DActorPayloadA864 *temp = heapAlloc(sizeof(R2DActorPayloadA864));
     temp->unk0 = arg2;
     temp->unk2 = arg3;
     memcpy(temp->unk4, arg4, 0xC);
@@ -1105,7 +1105,7 @@ typedef struct R2DActorPayloadA908 {
 } R2DActorPayloadA908;
 
 void func_8067A908(s32 arg0, Actor *arg1, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
-    R2DActorPayloadA908 *temp = func_80610FE8(sizeof(R2DActorPayloadA908));
+    R2DActorPayloadA908 *temp = heapAlloc(sizeof(R2DActorPayloadA908));
     memcpy(temp, arg2, 0xC);
     memcpy((u8 *)temp + 0xC, arg3, 0x24);
     temp->unk30 = arg4;
@@ -1115,13 +1115,13 @@ void func_8067A908(s32 arg0, Actor *arg1, void *arg2, void *arg3, s32 arg4, s32 
 }
 
 void func_8067A99C(s32 arg0, Actor *arg1, s32 arg2) {
-    s32 *temp = func_80610FE8(sizeof(s32));
+    s32 *temp = heapAlloc(sizeof(s32));
     *temp = arg2;
     actorAppendCallback(arg1, arg0, 0x40000, 0, 1, temp);
 }
 
 void func_8067A9F0(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4) {
-    f32 *temp = func_80610FE8(3 * sizeof(f32));
+    f32 *temp = heapAlloc(3 * sizeof(f32));
     temp[0] = arg2;
     temp[1] = arg3;
     temp[2] = arg4;
@@ -1129,14 +1129,14 @@ void func_8067A9F0(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4) {
 }
 
 void func_8067AA58(s32 arg0, Actor *arg1, f32 arg2, f32 arg3) {
-    f32 *temp = func_80610FE8(2 * sizeof(f32));
+    f32 *temp = heapAlloc(2 * sizeof(f32));
     temp[0] = arg2;
     temp[1] = arg3;
     actorAppendCallback(arg1, arg0, 0x200000, 0, 1, temp);
 }
 
 void func_8067AAB8(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
-    ActorPayloadAAB8 *temp = func_80610FE8(sizeof(ActorPayloadAAB8));
+    ActorPayloadAAB8 *temp = heapAlloc(sizeof(ActorPayloadAAB8));
     temp->unk4 = arg3;
     temp->unk8 = arg4;
     temp->unk0 = arg2;
@@ -1144,7 +1144,7 @@ void func_8067AAB8(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
 }
 
 void func_8067AB20(s32 arg0, Actor *arg1, s32 arg2, u8 arg3, void *arg4, u8 arg5) {
-    void *temp = func_80610FE8(8);
+    void *temp = heapAlloc(8);
     memcpy(temp, arg4, 8);
     if (!arg5) {
         actorAppendCallback(arg1, arg0, arg2, arg3, 1, temp);
@@ -1154,7 +1154,7 @@ void func_8067AB20(s32 arg0, Actor *arg1, s32 arg2, u8 arg3, void *arg4, u8 arg5
 }
 
 void func_8067ABC0(s32 arg0, Actor *arg1, u8 arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6, f32 arg7) {
-    ActorPayloadABC0 *temp = func_80610FE8(sizeof(ActorPayloadABC0));
+    ActorPayloadABC0 *temp = heapAlloc(sizeof(ActorPayloadABC0));
     temp->unk0 = arg5;
     temp->unk4 = arg6;
     temp->unk8 = arg7;

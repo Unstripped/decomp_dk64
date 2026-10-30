@@ -18,8 +18,8 @@ extern void *D_807F5A70[];
 
 s32 matrixCacheDecayLimit(void);
 void heapQueueDeferredFree(void *ptr);
-void func_80611408(HeapBlock *block);
-HeapBlock *func_806111F8(s32 pool, u32 size);
+void heapFreeToPool(HeapBlock *block);
+HeapBlock *heapBestFitAlloc(s32 pool, u32 size);
 void func_80611730(void);
 
 #ifdef NON_MATCHING
@@ -30,9 +30,9 @@ typedef struct {
     u32 vramEnd;
     u32 bssStart;
     u32 bssEnd;
-} HeapLSegEntry;
+} SegmentTableEntry;
 
-extern HeapLSegEntry gSegmentTable[];
+extern SegmentTableEntry gSegmentTable[];
 extern u8 D_8074450C;
 extern u32 D_80744470;
 extern u32 D_80744474;
@@ -47,12 +47,12 @@ extern s32 D_807F0984;
 extern s32 D_807F5A60;
 
 void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
-void func_806109EC(void);
-void func_80610A88(u32 *src, u32 *dst, u32 size);
+void heapSortSurvivors(void);
+void heapMoveWords(u32 *src, u32 *dst, u32 size);
 void func_80610B84(s32 oldBase, s32 newBase, u32 size);
-s32 func_80610BD8(s32, s32, s32);
-s32 func_80610C74(void *, u8 *, u32, u16);
-void *func_80610FE8(u32);
+s32 heapInitGeneralPool(s32, s32, s32);
+s32 heapInitBlockPool(void *, u8 *, u32, u16);
+void *heapAlloc(u32);
 void heapLockBlock(u8 *ptr);
 
 void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
@@ -180,14 +180,14 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     }
 #define HL(k) (*(u8 **)D_807F5A70[k])
     if (arg0 && D_807F5A68) {
-        func_806109EC();
+        heapSortSurvivors();
         for (i = 1; i < D_807F5A68; i++) {
             {
                 dst = HL(i - 1) + ((HeapBlock *)HL(i - 1) - 1)->size;
                 src = (HeapBlock *)HL(i) - 1;
                 HL(i) = dst + 0x10;
                 total = src->size + 0x10;
-                func_80610A88(src, dst, total);
+                heapMoveWords(src, dst, total);
                 func_80610B84((s32)src, (s32)dst, total);
             }
         }
@@ -205,7 +205,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
                     *hp = *hp + (s32)dst - (s32)first;
                 } while (i < D_807F5A68);
             }
-            func_80610A88(first, dst, total);
+            heapMoveWords(first, dst, total);
             func_80610B84((s32)first, (s32)dst, total);
         }
         p = (u32 *)(HL(0) - 0x10);
@@ -215,11 +215,11 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         D_807F5A68 = 0;
         D_807F5A70[0] = NULL;
     }
-    func_80610BD8(0, addr[0], sizes[0]);
-    D_807F0974 = func_80610C74(&D_807F0974, addr[1], sizes[1], 0x10);
-    D_807F0978 = func_80610C74(&D_807F0978, addr[2], sizes[2], 0x20);
-    D_807F097C = func_80610C74(&D_807F097C, addr[3], sizes[3], 0x30);
-    D_807F0980 = func_80610C74(&D_807F0980, addr[4], sizes[4], 0x1000);
+    heapInitGeneralPool(0, addr[0], sizes[0]);
+    D_807F0974 = heapInitBlockPool(&D_807F0974, addr[1], sizes[1], 0x10);
+    D_807F0978 = heapInitBlockPool(&D_807F0978, addr[2], sizes[2], 0x20);
+    D_807F097C = heapInitBlockPool(&D_807F097C, addr[3], sizes[3], 0x30);
+    D_807F0980 = heapInitBlockPool(&D_807F0980, addr[4], sizes[4], 0x1000);
     if (D_807F5A68 != 0) {
         last = NULL;
         if (total) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -243,7 +243,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         D_807F0988[0].freeList->prev = NULL;
         ((HeapBlock **)(D_807F0988[0].size + D_807F0988[0].start - 0x10))[0] = D_807F0988[0].freeList;
     }
-    D_807F5A64 = func_80610FE8(0x10);
+    D_807F5A64 = heapAlloc(0x10);
     heapLockBlock(D_807F5A64);
     if (arg2 == 0) {
         D_807F0984 = 0x28000;
@@ -251,7 +251,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         if (bssStart) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         D_807F0984 = arg2;
     }
-    D_807F05A4 = func_80610FE8(D_807F0984 + 0x80);
+    D_807F05A4 = heapAlloc(D_807F0984 + 0x80);
     heapLockBlock(D_807F05A4);
     if (size != 0) {
         if (bssStart != NULL) {
@@ -279,7 +279,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/15050/loadOverlay.s")
 #endif
 
-void func_806109EC(void) {
+void heapSortSurvivors(void) {
     s32 i;
     s32 j;
     s32 swapped;
@@ -301,7 +301,7 @@ void func_806109EC(void) {
     }
 }
 
-void func_80610A88(u32 *src, u32 *dst, u32 size) {
+void heapMoveWords(u32 *src, u32 *dst, u32 size) {
     u32 *s = src;
     u32 *d = dst;
     u32 i = size >> 2;
@@ -329,7 +329,7 @@ void func_80610B84(s32 oldBase, s32 newBase, u32 size) {
     }
 }
 
-s32 func_80610BD8(s32 owner, s32 start, s32 size) {
+s32 heapInitGeneralPool(s32 owner, s32 start, s32 size) {
     HeapBlock *blk;
     HeapBlock *end;
 
@@ -354,7 +354,7 @@ s32 func_80610BD8(s32 owner, s32 start, s32 size) {
 #ifdef NON_MATCHING
 void heapSortPools(void);
 
-s32 func_80610C74(void *owner, u8 *start, u32 size, u16 blockSize) {
+s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
     u16 bs;
     u32 stride;
     u32 rem;
@@ -400,7 +400,7 @@ s32 func_80610C74(void *owner, u8 *start, u32 size, u16 blockSize) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610C74.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/heapInitBlockPool.s")
 #endif
 
 void heapSortPools(void) {
@@ -421,7 +421,7 @@ void heapSortPools(void) {
 }
 
 #ifdef NON_MATCHING
-s32 func_80610E84(s32 idx) {
+s32 heapReleasePool(s32 idx) {
     HeapBlock *blk;
     HeapBlock *tail;
     u8 *start;
@@ -475,14 +475,14 @@ s32 func_80610E84(s32 idx) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610E84.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/heapReleasePool.s")
 #endif
 
 #ifdef NON_MATCHING
 s32 func_8061116C(void);
 extern s32 D_80746A34;
 
-void *func_80610FE8(u32 size) {
+void *heapAlloc(u32 size) {
     s32 n;
     HeapPool *pool;
     HeapBlock *blk;
@@ -510,7 +510,7 @@ void *func_80610FE8(u32 size) {
                 }
             }
         }
-        blk = func_806111F8(0, size);
+        blk = heapBestFitAlloc(0, size);
         res = blk + 1;
         if (blk != NULL) {
             D_80746A30 = 1;
@@ -526,7 +526,7 @@ void *func_80610FE8(u32 size) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610FE8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/heapAlloc.s")
 #endif
 
 u8 func_80611154(void) {
@@ -555,7 +555,7 @@ s32 heapFreeBytes(void) {
 }
 
 void *heapAllocFromPool(s32 pool, s32 size) {
-    u8 *ptr = (u8 *)func_806111F8(pool, (size + 0xF) & ~0xF);
+    u8 *ptr = (u8 *)heapBestFitAlloc(pool, (size + 0xF) & ~0xF);
 
     if (ptr != NULL) {
         ptr += 0x10;
@@ -564,7 +564,7 @@ void *heapAllocFromPool(s32 pool, s32 size) {
     return NULL;
 }
 
-HeapBlock *func_806111F8(s32 pool, u32 size) {
+HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
     HeapBlock *blk;
     HeapBlock *best;
     HeapBlock *newBlk;
@@ -620,7 +620,7 @@ HeapBlock *func_806111F8(s32 pool, u32 size) {
 void heapFree(u8 *ptr) {
     if (ptr != D_807F5A64) {
         if ((ptr -= 0x10)[0xB] == 0) {
-            func_80611408((HeapBlock *)ptr);
+            heapFreeToPool((HeapBlock *)ptr);
         }
     }
 }
@@ -649,7 +649,7 @@ void heapQueueDeferredFree(void *ptr) {
 
 void heapCoalesce(HeapBlock *block);
 
-void func_80611408(HeapBlock *block) {
+void heapFreeToPool(HeapBlock *block) {
     s32 i;
     s32 off;
     HeapPool *pool;
@@ -726,7 +726,7 @@ void heapLockBlock(u8 *ptr) {
 
 void faultSetMessage(s32, s32, s32, s32);
 
-void func_806115A8(u8 **handle) {
+void heapRegisterSurvivor(u8 **handle) {
     HeapBlock *b;
 
     b = (HeapBlock *)*handle;
@@ -741,7 +741,7 @@ void func_806115A8(u8 **handle) {
     }
 }
 
-void func_80611614(u8 **handle) {
+void heapUnregisterSurvivor(u8 **handle) {
     HeapBlock *b;
     s32 i;
 
@@ -805,7 +805,7 @@ void func_80611730(void) {
         do {
             entry = &D_807F0A58[i];
             if (--entry->delay == 0 && flag == 0) {
-                func_80611408(entry->ptr);
+                heapFreeToPool(entry->ptr);
                 D_807F5A58 = D_807F5A58 - 1;
                 count = D_807F5A58;
                 entry->ptr = D_807F0A58[count].ptr;

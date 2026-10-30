@@ -455,7 +455,7 @@ typedef struct MinecartElem {
 
 
 void heapFree(void *);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void minecartApplyJunction(MinecartCart *arg0, MinecartElem **arg1, u8 arg2, u8 arg3) {
     u8 i = 0;
@@ -469,7 +469,7 @@ void minecartApplyJunction(MinecartCart *arg0, MinecartElem **arg1, u8 arg2, u8 
             if (temp_s5 >= arg2 && temp_s5 <= arg3 && arg0->unk10 == temp_s1->unk0) {
                 heapFree(arg0->unk30);
                 found = 1;
-                arg0->unk30 = func_80610FE8(3);
+                arg0->unk30 = heapAlloc(3);
                 arg0->unk34 = arg0->unk30;
                 arg0->unk30[0] = temp_s1->unk3;
                 arg0->unk34[1] = temp_s1->unk1;
@@ -497,7 +497,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
     sp44 = D_807FBB40->unk174;
     sp40 = D_807FBB4C->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        sp44->unk30 = func_80610FE8(3);
+        sp44->unk30 = heapAlloc(3);
         sp44->unk30[0] = 0x10;
         sp44->unk30[1] = 0xFF;
         sp44->unk24 = 3.0f;

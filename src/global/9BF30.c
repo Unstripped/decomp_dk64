@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 s32 assetLoad(s32, s32, s32, s32);
 extern u8 *D_807FC7C0;
 
@@ -132,7 +132,7 @@ void loadModelAssetTable(void) {
     s16 j;
 
     i = 0;
-    D_807FC7C0 = func_80610FE8(0xC0);
+    D_807FC7C0 = heapAlloc(0xC0);
     for (j = 0; j < 0x30; j++) {
         ((s32 *)D_807FC7C0)[i++] = assetLoad(0x19, i + 0x1654, 1, 1);
     }
@@ -170,7 +170,7 @@ void func_80697988(void) {
     sub = ACTOR2->unk174;
     if (!(ACTOR2->unk60 & 0x10)) {
         *(s16 *)((u8 *)ACTOR2 + 0xEE) = ACTOR2->unk15F;
-        sub->unk4 = func_80610FE8(0x1000);
+        sub->unk4 = heapAlloc(0x1000);
         if (ACTOR2->unk15F != 0) {
             ACTOR2->unk144 = 0x24;
         }

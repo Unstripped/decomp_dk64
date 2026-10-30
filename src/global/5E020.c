@@ -35,7 +35,7 @@ void hashTableClear(void) {
 }
 
 s32 hashTableHashKey(s32);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void hashTableInsert(s32 key, s32 value) {
     HashNode *node;
@@ -48,7 +48,7 @@ void hashTableInsert(s32 key, s32 value) {
         node = node->next;
     }
     if (node == NULL) {
-        node = func_80610FE8(sizeof(HashNode));
+        node = heapAlloc(sizeof(HashNode));
         *prev = node;
         node->key = key;
         node->value = value;

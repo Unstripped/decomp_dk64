@@ -1,5 +1,5 @@
-// func_80610E84 (src/global/15050.c): stage 5: frame 0x18/idx home spill identical, whole body identical but regalloc: orig bs=t0,count=t1,A28addr=t2,base=t3,const20=t4 (a0 never taken by bs); mine bs=a0,count=t0,.. (all t's shifted by one) and mine hoists 'move v0,zero' to entry while orig keeps three separate or v0,zero (bnezl delay slot, FD4 block, post-jal). Direct D_807F0988[idx].field (no pool local) fixed 'move a3,a0'; deadsweep best 33 lines (3 fake ifs), permuter n/a; idx colored a0 in orig but -1 in mine (uopt trace -l 5)
-s32 func_80610E84(s32 idx) {
+// heapReleasePool (src/global/15050.c): stage 5: frame 0x18/idx home spill identical, whole body identical but regalloc: orig bs=t0,count=t1,A28addr=t2,base=t3,const20=t4 (a0 never taken by bs); mine bs=a0,count=t0,.. (all t's shifted by one) and mine hoists 'move v0,zero' to entry while orig keeps three separate or v0,zero (bnezl delay slot, FD4 block, post-jal). Direct D_807F0988[idx].field (no pool local) fixed 'move a3,a0'; deadsweep best 33 lines (3 fake ifs), permuter n/a; idx colored a0 in orig but -1 in mine (uopt trace -l 5)
+s32 heapReleasePool(s32 idx) {
     HeapBlock *blk;
     HeapBlock *tail;
     u8 *start;

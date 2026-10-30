@@ -1,5 +1,5 @@
 // func_806F3BEC (src/global/F56F0.c): Stage 3: actor-coordinate path-pair allocator reconstructed. Closest draft needs compact 0x40 frame and target temporary ordering.
-void *func_80610FE8(?, s16 *);                      /* extern */
+void *heapAlloc(?, s16 *);                      /* extern */
 f32 func_80612790(s16);                             /* extern */
 f32 func_80612794(s16);                             /* extern */
 ? func_806F386C(u8, void *, ?, ?, s32);             /* extern */
@@ -27,7 +27,7 @@ void func_806F3BEC(void *arg0, s16 arg1, s16 arg2, u8 arg3) {
     if (arg0->unk154 != 0x44) {
         *temp_a1 = 2;
         sp30 = temp_a1;
-        temp_v0 = func_80610FE8(0x24, temp_a1);
+        temp_v0 = heapAlloc(0x24, temp_a1);
         sp30->unk4 = temp_v0;
         heapClearBlock(temp_v0);
         temp_v0_2 = sp30->unk4;

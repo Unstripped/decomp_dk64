@@ -31,7 +31,7 @@ void func_80697988(void) {
     sub = ACTOR2->unk174;
     if (!(ACTOR2->unk60 & 0x10)) {
         *(s16 *)((u8 *)ACTOR2 + 0xEE) = ACTOR2->unk15F;
-        sub->unk4 = func_80610FE8(0x1000);
+        sub->unk4 = heapAlloc(0x1000);
         if (ACTOR2->unk15F != 0) {
             ACTOR2->unk144 = 0x24;
         }

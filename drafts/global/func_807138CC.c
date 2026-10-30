@@ -1,7 +1,7 @@
 // func_807138CC (src/global/117190.c): stage 4: preincrement/merged-alpha candidate remains best manual form (frame 0x48 vs target 0x40); 900-second permuter improved score 765→725 only through extra pointer aliases that regressed frame to 0x50, rejected
 // func_807138CC: stage 4. Direct display parameter and preincrement counter now match target register flow; merging alpha and byte temporaries reduced frame to 0x48. Remaining target frame is 0x40 (sp3C target 0x3C, current 0x44).
 extern u32 D_80755320;
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void heapFreeDeferred(void *);
 void viewportSetFromRect(void *, s32, s32, s32, s32);
 Gfx *func_806FF144(void *);
@@ -16,7 +16,7 @@ Gfx *func_807138CC(Gfx *arg0) {
     s32 sp28;
     f32 temp_fv0;
 
-    sp3C = func_80610FE8(0x10);
+    sp3C = heapAlloc(0x10);
     heapFreeDeferred(sp3C);
     viewportSetFromRect(sp3C, 0xA, 0xA, 0x135, 0xE5);
     arg0 = func_8071338C(func_807135B4(func_807132DC(arg0)));

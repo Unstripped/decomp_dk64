@@ -134,11 +134,11 @@ void func_806C850C(s32 arg0, u8 arg1) {
         D_807FBB44->unk64 |= 0x200;
     }
     D_807FBB44->unk68 |= 0xC0;
-    ((G00Sub4 *)D_807FBB44->unk4)->unk1C = func_80610FE8(0x100);
+    ((G00Sub4 *)D_807FBB44->unk4)->unk1C = heapAlloc(0x100);
     *((G00Sub4 *)D_807FBB44->unk4)->unk1C = 0;
-    ((G00Sub4 *)D_807FBB44->unk4)->unk20 = func_80610FE8(0x200);
+    ((G00Sub4 *)D_807FBB44->unk4)->unk20 = heapAlloc(0x200);
     *((G00Sub4 *)D_807FBB44->unk4)->unk20 = 0xFF;
-    ((G00Sub4 *)D_807FBB44->unk4)->unk24 = func_80610FE8(0x200);
+    ((G00Sub4 *)D_807FBB44->unk4)->unk24 = heapAlloc(0x200);
     new_var = 1;
     *((G00Sub4 *)D_807FBB44->unk4)->unk24 = 0xFF;
     D_807FBB48 = D_807FBB44;

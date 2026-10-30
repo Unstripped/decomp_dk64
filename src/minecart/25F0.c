@@ -202,7 +202,7 @@ void actorGetNodePos(Actor_25F0 *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(Actor_25F0 *, s16, s16, s16, s32, s32, s32, s32, s32);
 void minecartPlayPassBySfx(MinecartCart *);
 void minecartChooseBranchSide(MinecartCart *);
-u8 *func_80610FE8(s32);
+u8 *heapAlloc(s32);
 f32 sqrtf(f32);
 u32 func_806119A0(void);
 void camSetTarget(void *, void *, s32, s16, s32, s32, s32, s32, s32, s32, f32);
@@ -636,7 +636,7 @@ void func_800280BC(void) {
     case 0:
         if (D_807FBB70.unk254 != 0) {
             sub = D_807FBB70.unk278;
-            alloc = func_80610FE8(2);
+            alloc = heapAlloc(2);
             alloc[0] = sub->unk2;
             alloc[1] = 0xFF;
             cart->unk34 = alloc;
@@ -703,7 +703,7 @@ void func_8002835C(void) {
     case 0:
         if (D_807FBB70.unk254 != 0) {
             sub = D_807FBB70.unk278;
-            alloc = func_80610FE8(4);
+            alloc = heapAlloc(4);
             alloc[0] = sub->unk2;
             alloc[1] = 0xFF;
             cart->unk30 = alloc;

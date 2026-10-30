@@ -534,13 +534,13 @@ void func_806D22C0(void) {
     }
 }
 
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 void actorRegisterGlobalCallback(ActorCallbackNode *);
 
 void actorRegisterCurrentActorGlobalCallback(void *arg0) {
     ActorCallbackNode *node;
 
-    node = func_80610FE8(0x14);
+    node = heapAlloc(0x14);
     node->callback = arg0;
     node->unk8 = (s32)D_807FBB48;
     node->unk4 = 1;
@@ -4775,7 +4775,7 @@ void func_806DC410(void) {
         return;
     }
     LD5_P->unk100 = D_80753C84[D_807FD584];
-    node = func_80610FE8(0x14);
+    node = heapAlloc(0x14);
     node->callback = &func_807300BC;
     node->unk8 = (s32)D_807FBB48;
     node->unk4 = 1;
@@ -5082,7 +5082,7 @@ void func_806DD24C(void) {
         return;
     }
     L6_P->unk100 = D_80753CA4[D_807FD584];
-    node = func_80610FE8(0x14);
+    node = heapAlloc(0x14);
     node->callback = &func_807300BC;
     node->unk8 = (s32)D_807FBB48;
     node->unk4 = 1;

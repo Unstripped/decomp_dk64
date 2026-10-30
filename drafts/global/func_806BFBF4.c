@@ -284,7 +284,7 @@ void func_806BFBF4(void) {
                     heapFree(LgBS98->unk20);
                 }
                 LgBS9C->unk11 = 1;
-                LgBS98->unk20 = func_80610FE8(2);
+                LgBS98->unk20 = heapAlloc(2);
                 LgBS98->unk20[1] = 0;
                 LgBS98->unk20[0] = cmd->unk4;
                 LgBS90->unk25 = 0;

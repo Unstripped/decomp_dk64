@@ -158,7 +158,7 @@ void func_800257A4(RacePathState *arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4
 
 extern s32 D_807F5FD0;
 void *memcpy(void *, const void *, unsigned int);
-void *func_80610FE8(s32);
+void *heapAlloc(s32);
 
 void func_8002597C(void) {
     RaceAPoint3f *buf;
@@ -169,8 +169,8 @@ void func_8002597C(void) {
     s32 count;
 
     count = (D_807F5FD4[1] - D_807F5FD4[0]) / 2;
-    buf = func_80610FE8(count * 0x24);
-    tbl = func_80610FE8(0x10);
+    buf = heapAlloc(count * 0x24);
+    tbl = heapAlloc(0x10);
     for (i = 0; i < 4; i++) {
         tbl[i] = buf + i * count;
     }
