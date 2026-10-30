@@ -1016,17 +1016,352 @@ void gridDispatchRect(u8 arg0, F9F1_Rect *arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6644.s")
+typedef struct F9N7_Flag {
+    u8 pad0[0x1F4];
+    s32 unk1F4;
+} F9N7_Flag;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F69A8.s")
+typedef struct F9N7_Ref {
+    u8 pad0[0x58];
+    s32 unk58;
+    u8 pad5C[0x118];
+    F9N7_Flag *unk174;
+} F9N7_Ref;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6E58.s")
+typedef struct F9N7_Player {
+    u8 pad0[4];
+    F9N7_Ref *unk4;
+    u8 pad8[0x2E8];
+} F9N7_Player;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6EDC.s")
+typedef struct F9N7_Slot {
+    u8 pad0[0x7C];
+    u8 *unk7C;
+    u8 pad80[0xC];
+    u8 unk8C;
+    u8 pad8D[3];
+} F9N7_Slot;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6F28.s")
+extern F9N7_Slot *D_807F6000;
+typedef struct F9N7_Kong {
+    u8 unk0;
+    u8 pad1[0x5D];
+} F9N7_Kong;
+
+typedef struct F9N7_KongArr {
+    F9N7_Kong kong[8];
+    u8 pad2F0[0x16];
+} F9N7_KongArr;
+
+extern F9N7_KongArr D_807FC952[];
+s32 hashTableLookup();
+
+#define F9N7_PLAYER ((F9N7_Player *)D_807FC924)
+
+s32 func_806F6644(s16 arg0, u8 arg1, u16 arg2) {
+    u8 flags;
+    F9N7_Flag *ctl;
+    F9N7_Slot *slot;
+
+    switch (arg2) {
+    case 0x11:
+        if ((D_807FC952[D_807FC929].kong[D_8074E77C[D_807FC929]].unk0 & 3) != 3) {
+            return 0;
+        }
+        break;
+    case 0x8F:
+        if ((D_807FC952[D_807FC929].kong[D_8074E77C[D_807FC929]].unk0 & 1) == 0) {
+            return 0;
+        }
+        break;
+    case 0x98:
+        ctl = F9N7_PLAYER[D_807FC929].unk4->unk174;
+        if ((ctl->unk1F4 & 1) == 0) {
+            return 0;
+        }
+        break;
+    case 0x8E:
+        ctl = F9N7_PLAYER[D_807FC929].unk4->unk174;
+        if ((ctl->unk1F4 & 2) == 0) {
+            return 0;
+        }
+        break;
+    case 0x90:
+        slot = &D_807F6000[hashTableLookup(arg0)];
+        if (*(s16 *)(slot->unk7C + 0x64) != 0xFF) {
+            return 0;
+        }
+        break;
+    }
+    flags = D_807F6000[hashTableLookup(arg0)].unk8C;
+    if ((flags & 8) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 2)) {
+        return 0;
+    }
+    if ((flags & 2) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 3)) {
+        return 0;
+    }
+    if ((flags & 4) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 5)) {
+        return 0;
+    }
+    if ((flags & 0x10) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 4)) {
+        return 0;
+    }
+    if ((flags & 1) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 6)) {
+        return 0;
+    }
+    return 1;
+}
+
+typedef struct F9N8_RectNode {
+    u8 pad0[0x10];
+    struct F9N8_RectNode *next;
+} F9N8_RectNode;
+
+typedef struct F9N8_Node {
+    s16 unk0;
+    s16 unk2;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    u8 unk10;
+    u8 pad11[3];
+    f32 unk14;
+    u8 unk18;
+    u8 unk19;
+    u8 unk1A;
+    u8 pad1B;
+    struct F9N8_Node *unk1C;
+} F9N8_Node;
+
+typedef struct F9N8_Type {
+    u8 pad0[2];
+    s8 unk2;
+    u8 pad3;
+    f32 unk4;
+    f32 unk8;
+    u8 padC[8];
+} F9N8_Type;
 
 extern s16 D_807FD790;
+extern u8 D_807444FC;
+extern s16 D_8076A0AA;
+void func_806F73A0(u8);
+void func_806F70FC(f32, f32, f32, f32, f32, s32);
+void func_806358E8(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
+void func_806398E4(s32, u8, u8);
+void slotQueueGetPosition(s32, f32 *, f32 *, f32 *);
+void slotQueueUpdate(s32, s32, s32);
+s16 csModelSlotGetTableIndex(s16);
+void func_807314F4(s16, s16);
+void playerStateHandleSoundEffects(s16, s32);
+s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
+void guMtxL2F(f32 (*)[4], Mtx *);
+void guMtxXFML(Mtx *, f32, f32, f32, f32 *, f32 *, f32 *);
+void guMtxXFMF(f32 (*)[4], f32, f32, f32, f32 *, f32 *, f32 *);
+
+typedef struct F9N8_Player {
+    u8 pad0[8];
+    Mtx mtx[8];
+    u8 padm[0x2F0 - 8 - 0x200];
+} F9N8_Player;
+
+void func_806F69A8(u8 arg0) {
+    F9N8_RectNode *rect;
+    F9N8_Node *node;
+    F9N8_Node *prev;
+    F9N8_Node *next;
+    F9N8_Type *type;
+    s32 idx;
+    f32 mf[4][4];
+    f32 inv[4][4];
+    f32 outX;
+    f32 outY;
+    f32 outZ;
+    s32 slot;
+    f32 fx;
+    f32 fy;
+    f32 vx;
+    f32 vy;
+    f32 vz;
+    f32 v3;
+    f32 v4;
+    f32 v5;
+    f32 v6;
+    f32 v7;
+    s32 padC[3];
+    Mtx *mtx;
+    f32 pz;
+    f32 py;
+    f32 px;
+    s16 tbl;
+    f32 fz;
+
+    D_807FD798 = 0;
+    func_806F73A0(arg0);
+    D_807FD734 = NULL;
+    gridDispatchRect(arg0, (F9F1_Rect *)&D_807FD740[arg0]);
+    rect = (F9N8_RectNode *)D_807FD780[arg0];
+    if (rect != NULL) {
+        do {
+            gridDispatchRect(arg0, (F9F1_Rect *)rect);
+            rect = rect->next;
+        } while (rect != NULL);
+    }
+    if ((D_807FD730 != NULL) && (D_807FC928 == 1)) {
+        mtx = &((F9N8_Player *)D_807FC924)[arg0].mtx[D_807444FC];
+        guMtxL2F(mf, mtx);
+        matrix4Invert(inv, mf);
+        node = (F9N8_Node *)D_807FD730;
+        prev = NULL;
+        if (node != NULL) {
+            do {
+                if (node->unk18 != 0) {
+                    node->unk18 = node->unk18 - 1;
+                    prev = node;
+                    node = node->unk1C;
+                } else {
+                    idx = func_806F4E74(node->unk2);
+                    type = (F9N8_Type *)((u8 *)&D_80753EF0 + idx * 0x14);
+                    slot = type->unk2;
+                    if (node->unk10 == 0) {
+                        modelSlotGetTransformVectors(node->unk0, &vx, &vy, &vz, &v3, &v4, &v5, &v6, &v7, 1);
+                        guMtxXFML(mtx, vx, vy, vz, &node->unk4, &node->unk8, &node->unkC);
+                        node->unk10 = 1;
+                        func_806398E4(node->unk0, 1, 0);
+                        if (node->unk19 != 0) {
+                            playerStateHandleSoundEffects(node->unk2, arg0 & 0xFF);
+                        }
+                        if ((slot >= 0) && !(D_807FBB64 & 0x4000) && ((slot != 0xB) || !(D_807FBB64 & 0x10000000))) {
+                            slotQueueUpdate(func_806F544C(slot, node->unk2, node->unk1A), 0, 0);
+                        }
+                        switch (node->unk2) {
+                        case 0xEC:
+                            func_806F70FC(vx, vy, vz, 0.1f, 200.0f, 0xA);
+                            break;
+                        case 0x18D:
+                            func_806F70FC(vx, vy, vz, 0.3f, 20.0f, 0x14);
+                            break;
+                        }
+                        if (D_807FD798 != 4) {
+                            tbl = csModelSlotGetTableIndex(node->unk0);
+                            (&D_807FD790)[D_807FD798] = tbl;
+                            D_807FD798 += 1;
+                            func_807314F4(D_8076A0AA, tbl);
+                        }
+                    }
+                    slotQueueGetPosition(slot, &px, &py, &pz);
+                    fx = ((px - node->unk4) * node->unk14) + node->unk4;
+                    fy = ((py - node->unk8) * node->unk14) + node->unk8;
+                    fz = ((pz - node->unkC) * node->unk14) + node->unkC;
+                    guMtxXFMF(inv, fx, fy, fz, &outX, &outY, &outZ);
+                    next = node->unk1C;
+                    type = (F9N8_Type *)((u8 *)&D_80753EF0 + idx * 0x14);
+                    node->unk14 = node->unk14 + type->unk4;
+                    if ((type->unk8 < node->unk14) || (type->unk2 == -2)) {
+                        func_806F54E0(arg0, node->unk2, node->unk1A);
+                        modelSlotFreeByIndex(node->unk0, 1);
+                        if (prev != NULL) {
+                            prev->unk1C = node->unk1C;
+                        } else {
+                            D_807FD730 = (F9A_LinkedNode *)node->unk1C;
+                        }
+                        heapFree(node);
+                    } else {
+                        func_806358E8(node->unk0, outX, outY, outZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 0, 1);
+                        prev = node;
+                    }
+                    node = next;
+                }
+            } while (node != NULL);
+        }
+    }
+}
+
+extern u8 D_80754238[];
+
+s32 func_806F6E58(s16 arg0) {
+    u8 var_v1;
+
+    var_v1 = 0;
+    if (arg0 < 5) {
+        var_v1 = ((u8 *)D_807FC950)[arg0 * 0x5E] >= D_80754238[arg0];
+    }
+    var_v1 |= flagGet(0x179, 0);
+    return var_v1;
+}
+
+s32 func_806F6EDC(void) {
+    s32 i;
+    u8 r;
+
+    i = 0;
+    do {
+        r = func_806F6E58(i);
+        i++;
+    } while (i < 5 && r == 0);
+    return r;
+}
+
+typedef struct F9N6_FlagBlock {
+    u8 pad0[0x1F4];
+    s32 flags;
+} F9N6_FlagBlock;
+
+typedef struct F9N6_PlayerRef {
+    u8 pad0[0x154];
+    u8 unk154;
+    u8 pad155[0x1F];
+    F9N6_FlagBlock *unk174;
+} F9N6_PlayerRef;
+
+typedef struct F94C_PlayerBlock {
+    u8 pad0[4];
+    F9N6_PlayerRef *unk4;
+    u8 pad8[0x2E8];
+} F94C_PlayerBlock;
+
+void func_806F603C(void);
+void func_806F69A8(u8);
+
+void func_806F6F28(void) {
+    s16 var_fp;
+    u8 sp45;
+    u8 i;
+    F9N6_FlagBlock *temp_v0;
+    var_fp = 0;
+    sp45 = 0;
+    if (D_807FBB64 & 0x10000) {
+        func_806F603C();
+    }
+    if (flagGet(0x179, 0) != 0) {
+        var_fp = 1;
+    }
+    if (func_806F6E58(D_8074E77C[0]) != 0) {
+        sp45 = 1;
+    }
+
+    i = 0;
+    if (D_807FC928 > 0) {
+        do {
+            temp_v0 = ((F94C_PlayerBlock *)D_807FC924)[i].unk4->unk174;
+            if (var_fp != 0) {
+                temp_v0->flags |= 1;
+            } else {
+                temp_v0->flags &= -2;
+            }
+            if (sp45) {
+                temp_v0->flags |= 2;
+            } else {
+                temp_v0->flags &= -3;
+            }
+            if ((((F94C_PlayerBlock *)D_807FC924)[i].unk4->unk154 != 0x36) && (D_807FD738 == 0)) {
+                func_806F69A8(i);
+            }
+            i++;
+        } while (i < D_807FC928);
+    }
+}
+
 
 s32 listContainsS16(s16 arg0) {
     s32 step;
