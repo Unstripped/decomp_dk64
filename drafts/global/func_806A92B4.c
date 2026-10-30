@@ -1,4 +1,4 @@
-// func_806A92B4 (src/global/ACDC0.c): stage 4 (frame 0x1a0, callee-saved set), unified decls; reg-blind insn match ~85% (890 vs 874 insns; text 16 insns short). Findings (apply with: tab = (ACDC0CountEntry *)((u8 *)D_807FC7F8 + 0x158) [same address, reloc-only diff] AND renderRotatedSprite 4th param u8 in the top block): hoisted const 2 lands in s8 like the target, 'li a3,2' per call, no li s7,200 (shifts), const 0x140 stays unfolded via the y0 narrow var, stack slots hud/i/tab/ret/sp138 match (0x15c/0x158/0x144/0x140/0x138). Why: uopt keys hoisted constants by (symbol,offset): entry tab=&D_807FC950 and case 2 D_807FC950[j] shared one lda candidate that out-prioritised const 2 for s8; the original's entry constant is a different (sym,off). Still open: list should be on the stack (mine in s0), x/y vars should be s0/s1 (mine off=s2,y=s0), dl packets via _g temps (v0/v1) - adding any Gfx* temp (macro gDPSetPrimColor) spills dl to the stack (-ve save), fb should spill at 0xa8 not 0x108, loop-1 x/y expression scheduling. Permuter 600s on the earlier base: no useful result.
+// func_806A92B4 (src/global/ACDC0.c): stage 4, L6A92B4: macros at FA-packet sites (inline gDPSetPrimColor(dl++)) + FAKE dl use + u8 4th param; frame 0x1a0 and callee-saved set match; shape diff 128 lines/890; open: list uncolored, s-reg colouring (j/off/y splits), FP scheduling
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -52,12 +52,9 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
     f32 fb;
     f32 fc;
     f32 fd;
-    f32 fe;
-    f32 ff;
-    f32 fh;
 
     hud = actor->unk174;
-    tab = D_807FC950;
+    tab = (ACDC0CountEntry *)((u8 *)D_807FC7F8 + 0x158);
     sp138 = func_805FF030(D_8076A0AB, 1);
     list = heapAlloc(0x1F40);
     heapFreeDeferred(list);
@@ -110,9 +107,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                     fc = fc * 0.75f;
                     fe = (func_80612794(ang) * 0.5f + 0.5f) * 30.0f * 0.75f;
                     gDPPipeSync(dl++);
-                    dl->words.w1 = 0xFFFFFF50;
-                    dl->words.w0 = 0xFA000000;
-                    dl++;
+                    gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0x50);
                     y = (s32)((f32)(j * 0x69 + 0x280) + fd - fb);
                     fh = -fc;
                     dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)(s32)fe, fa, fh, 0, 0.0f);
@@ -151,13 +146,9 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
             if (hud->unk17 != 3) {
                 do {
                     if (j == hud->unk17) {
-                        dl->words.w1 = (ang & 0xFF) | 0xFFFFFF00;
-                        dl->words.w0 = 0xFA000000;
-                        dl++;
+                        gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang);
                     } else {
-                        dl->words.w0 = 0xFA000000;
-                        dl->words.w1 = ((ang >> 1) & 0xFF) | 0xFFFFFF00;
-                        dl++;
+                        gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang >> 1);
                     }
                     if (j == 2 && (sp138 == 7 || (sp138 == 8 && func_80712628() != 0 && *(s8 *)D_807505CC == 0))) {
                         j++;
@@ -174,9 +165,8 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                     y += 0x44;
                 } while (j < 3);
             } else {
-                dl->words.w1 = (ang & 0xFF) | 0xFFFFFF00;
-                dl->words.w0 = 0xFA000000;
-                dl = hudDrawScaledText(dl + 1, 0x280, 0x198, 0.7f, D_807FC7E0[7]);
+                gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang);
+                dl = hudDrawScaledText(dl, 0x280, 0x198, 0.7f, D_807FC7E0[7]);
                 _sprintf(buf, "q %s", D_807FC7E0[16]);
                 dl = hudDrawScaledText(dl, 0x280, 0x1E8, 1.0f, buf);
                 _sprintf(buf, "b %s", D_807FC7E0[17]);
@@ -198,6 +188,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                         fb = 180.0f * fa;
                         fa = fa * 3.0f;
                         fc = 32.0f * fa;
+                        if (dl) {} // FAKE: keeps dl (param) above hoisted D_807FC840 for s7
                         fd = 6.0f * fa;
                         fe = 30.0f * fa;
                         fc = 480.0f + fc;

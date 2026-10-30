@@ -304,8 +304,7 @@ void func_806A8158(void) {
         screenWipeStart(7);
     }
     if (hud->unk0 == 0.0f && D_807FC8B8 == 0) {
-        x = hud->unk15;
-        moved = hud->unk8[x] != hud->unk8[1 - x];
+        moved = hud->unk8[hud->unk15] != hud->unk8[1 - hud->unk15];
         buttons = *D_807FC924->unk298;
         if (moved == 0 && hud->unk4 == 0.0f && D_807FC80C == D_807FC80D) {
             if (buttons & 0x5000) {
@@ -328,10 +327,10 @@ void func_806A8158(void) {
                     flag = 1;
                 } else if (buttons & 0x2000) {
                     hud->unk13 = hud->unk13 - 1;
-                    flag = 1;
                     if (hud->unk13 < 0) {
                         hud->unk13 = 3;
                     }
+                    flag = 1;
                 }
                 if (flag != 0) {
                     hud->unk16 = 1;
@@ -388,8 +387,8 @@ void func_806A8158(void) {
                         }
                     }
                 } else if (buttons & 0x8000) {
-                    a2 = func_805FF030(D_8076A0AB, 1);
-                    i = a2 == 8;
+                    i = (a2 = func_805FF030(D_8076A0AB, 1)) == 8;
+                    if (D_807FC8B8 && D_807FC8B8) {} // FAKE: steers seq temp register (a0 not v1)
                     if (i) {
                         i = func_80712628() != 0;
                     }
@@ -420,7 +419,7 @@ void func_806A8158(void) {
                 }
                 break;
             case 1:
-                hud->unk10 = D_807505A4[D_807FC800] + (s32)(D_807FC804 * 0.5f * D_807FC802);
+                hud->unk10 = D_807505A4[D_807FC800] + (s16)(D_807FC804 * 0.5f * D_807FC802);
                 hud->unk10 = hud->unk10 & 0xFFF;
                 if (D_807FC804 == 0.0f) {
                     D_807FC802 = 0;
@@ -428,22 +427,22 @@ void func_806A8158(void) {
                         x = D_807ECDEC->unk2;
                         if (x < -0x28) {
                             do {
-                                D_807FC800 += 1;
                                 D_807FC802 -= 0x333;
+                                D_807FC800 += 1;
                                 if (D_807FC800 >= 5) {
                                     D_807FC800 = 0;
                                 }
                             } while (L10_LIST[D_807FC800] == 0);
                         } else if (x >= 0x29) {
                             do {
-                                D_807FC800 -= 1;
                                 D_807FC802 += 0x333;
+                                D_807FC800 -= 1;
                                 if (D_807FC800 < 0) {
                                     D_807FC800 = 4;
                                 }
                             } while (L10_LIST[D_807FC800] == 0);
                         }
-                        if (hud->unk14 != D_807FC800) {
+                        if (D_807FC800 != hud->unk14) {
                             D_807FC804 = 2.0f;
                             func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                         }
@@ -459,12 +458,12 @@ void func_806A8158(void) {
                     }
                     hud->unk4 = 1.0f - hud->unk4;
                     hud->unk4 = hud->unk4 * 1.3f;
-                    if (hud->unk4 > 1.2f && hud->unk14 != D_807FC800) {
+                    if (hud->unk4 > 1.2f && D_807FC800 != hud->unk14) {
                         hud->unk14 = D_807FC800;
                         func_80609140(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
                         func_806AA304(hud, 1);
                     }
-                    if (hud->unk14 == D_807FC800 && hud->unk4 > 1.0f) {
+                    if (D_807FC800 == hud->unk14 && hud->unk4 > 1.0f) {
                         hud->unk4 = 1.0f;
                     }
                 }
@@ -476,7 +475,7 @@ void func_806A8158(void) {
                 func_806ABC94(hud, moved, buttons);
                 break;
             case 3:
-                i = diff = -func_806CC10C(D_807FC80D * D_807FC83A, hud->unk10);
+                diff = i = -func_806CC10C(D_807FC80D * D_807FC83A, hud->unk10);
                 flag = D_807FC83A / 10;
                 if (diff > 0) {
                     if (flag < diff) {
@@ -498,11 +497,11 @@ void func_806A8158(void) {
                         }
                         flag = 1;
                     } else if (x >= 0x29) {
-                        flag = 1;
                         D_807FC80D -= 1;
                         if (D_807FC80D < 0) {
                             D_807FC80D = D_807FC83C - 1;
                         }
+                        flag = 1;
                     }
                     if (flag != 0 && D_807FC80D != D_807FC80C) {
                         func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -520,7 +519,8 @@ void func_806A8158(void) {
                 if (flag < diff) {
                     diff = flag;
                 }
-                hud->unk4 = (f32)(flag - diff) / (f32)((f64)(f32)flag * 0.9);
+                diff = flag - diff;
+                hud->unk4 = (f32)diff / (f32)((f64)(f32)flag * 0.9);
                 if (hud->unk4 > 1.0f && D_807FC80C != D_807FC80D) {
                     D_807FC80C = D_807FC80D;
                 }
@@ -530,6 +530,7 @@ void func_806A8158(void) {
     if (hud->unk16 == 1) {
         hud->unk0 = hud->unk0 + 0.13f;
         if (hud->unk0 > 1.3f) {
+            if (D_807505D4) {} // FAKE: steers D_807505D4 address hoist
             x = hud->unk13;
             hud->unk0 = 1.0f;
             if (-1 == x) {
@@ -549,7 +550,9 @@ void func_806A8158(void) {
             func_80609140(0x3C, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
     }
-    if ((D_807505D4 -= 1) < 0) {
+    half = D_807505D4 - 1;
+    D_807505D4 = half;
+    if ((s8)half < 0) {
         D_807505D4 = 0;
     }
     if (D_807467E4 == 0x1C) {
