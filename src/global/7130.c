@@ -60,12 +60,10 @@ extern AmbientSfxEntry D_807459FC[];
 
 s16 func_806531B8(f32, f32, f32, s32);
 void sfxAllocateChannel(s32, f32);
-#ifdef NON_MATCHING
 void func_80602498(void) {
-    AmbientSfxEntry *entry;
+    u8 i;
     s16 count;
     s16 v0;
-    u8 i;
 
     D_80745650 = 1;
     if (D_80745654 != 0) {
@@ -76,16 +74,16 @@ void func_80602498(void) {
     }
 
     count = 29;
+    if (count) {}  // FAKE: dead use of count steers uopt register priority (t0 instead of a0)
     v0 = func_806531B8(D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, 0);
 
     i = 0; do {
-        entry = &D_807459FC[i];
-        if (D_8076A0A8 == entry->unk0 && v0 == entry->unk2) {
-            D_80770DC9 = entry->unk8;
-            sfxAllocateChannel(entry->unk4, 1.0f);
-            if (entry->unk6 != 0) {
-                count = entry->unk6;
-                D_80770DD8[1] = count;
+        if (D_8076A0A8 == D_807459FC[i].unk0 && v0 == D_807459FC[i].unk2) {
+            D_80770DC9 = D_807459FC[i].unk8;
+            sfxAllocateChannel(D_807459FC[i].unk4, 1.0f);
+            if (D_807459FC[i].unk6 != 0) {
+                count = D_807459FC[i].unk6;
+                D_80770DD8[1] = D_807459FC[i].unk6;
             }
             return;
         }
@@ -93,10 +91,6 @@ void func_80602498(void) {
 
     D_80770DD8[1] = 0xFF;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80602498.s")
-#endif
 void func_80602498(void);
 void sfxPlayCurrent(u8 arg0, u8 arg1, u8 arg2) {
     func_80602498();
@@ -203,11 +197,94 @@ void sfxSetChannelTempo(s32 arg0, f32 arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80602E6C.s")
-
-f32 func_80602E6C(f32, f32, f32, u8, u8, f32);
 extern f32 D_80770DDC;
 extern f32 D_80770DE0;
+extern f32 D_80770DE4;
+f32 sinApprox(f32);
+f32 cosApprox(f32);
+f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
+f32 sqrtf(f32);
+#pragma intrinsic(sqrtf)
+
+f32 func_80602E6C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, f32 arg5) {
+    f32 sp2C;
+    f32 dy;
+    f32 sp24;
+    f32 sp20;
+    f32 pad;
+    f32 sp18;
+    f64 diff;
+
+    sp18 = 0.0f;
+    sp2C = D_807FC924->unk210 - arg0;
+    dy = D_807FC924->unk214 - arg1;
+    sp24 = D_807FC924->unk218 - arg2;
+
+    diff = ((f64)arg5 > 0.8) ? ((f64)arg5 - 0.8) : -((f64)arg5 - 0.8);
+
+    if (diff < 0.1 && dy < 0.0f) {
+        dy *= 20.0f;
+    }
+
+    D_80770DE4 = sqrtf((sp2C * sp2C) + (dy * dy) + (sp24 * sp24));
+
+    if ((f64)arg5 >= 0.8) {
+        f32 l_dz = D_807FC924->unk230 - D_807FC924->unk218;
+        f32 l_dx = D_807FC924->unk228 - D_807FC924->unk210;
+        sp18 = mathAngleBetweenPointsRad(D_807FC924->unk214, 0.0f, D_807FC924->unk22C, sqrtf((l_dz * l_dz) + (l_dx * l_dx)));
+
+        l_dz = arg2 - D_807FC924->unk218;
+        l_dx = arg0 - D_807FC924->unk210;
+        D_80770DDC = mathAngleBetweenPointsRad(D_807FC924->unk214, 0.0f, arg1, sqrtf((l_dz * l_dz) + (l_dx * l_dx))) - sp18;
+
+        if (D_80770DDC < 0.0f) {
+            D_80770DDC += 6.2831855f;
+        }
+
+        if (D_80770DDC > 0.3926991f && (f64)D_80770DDC < 5.890486389398575) {
+            D_80770DE4 = (1.0f - (sinApprox((f32)(((f64)D_80770DDC * 4.0 / 7.0) + 2.942101601958275)) * 4.0f)) * D_80770DE4;
+        }
+    }
+
+    D_80770DDC = mathAngleBetweenPointsRad(D_807FC924->unk210, D_807FC924->unk218, arg0, arg2) - D_807FC924->unk2C4;
+    if (D_80770DDC < 0.0f) {
+        D_80770DDC += 6.2831855f;
+    }
+
+    if (D_80770DDC > 0.7853982f && (f64)D_80770DDC < 5.497787296772003 && (f64)sp18 < 4.0) {
+        D_80770DE4 = (1.0f - (sinApprox((f32)(((2.0 * (f64)D_80770DDC) / 3.0) + 2.617993950843811)) * arg5)) * D_80770DE4;
+    }
+
+    if (D_80770DE4 < 1.0f) {
+        D_80770DE4 = 1.0f;
+    }
+
+    {
+        f32 dist = (f32)(arg4 * 0xFA0);
+        f64 temp = ((f64)(dist / sqrtf(D_80770DE4))) - (((f64)dist * 0.12909946) - 32767.0);
+        f64 a3_f64 = (f64)arg3;
+        sp20 = (f32)(temp * a3_f64 * 0.00392156862745098);
+    }
+
+    if (sp20 < 10.0f) {
+        return 0.0f;
+    }
+
+    D_80770DE0 = cosApprox(D_80770DDC);
+    D_80770DDC = (f32)((f64)(1.0f - sinApprox(D_80770DDC)) * 63.5);
+
+    if (sp20 < 10.0f) {
+        return 0.0f;
+    }
+
+    if (sp20 > 32767.0f) {
+        sp20 = 32767.0f;
+    }
+
+    return sp20;
+}
+
+f32 func_80602E6C(f32, f32, f32, u8, u8, f32);
 extern f32 D_80770DE8;
 extern f32 D_80770DEC;
 f32 D_80770DF0;
@@ -302,7 +379,6 @@ extern f32 D_80770DCC;
 extern f32 D_80770DD0;
 extern f32 D_80770DD4;
 extern u8 D_80770DD9;
-extern f32 D_80770DE4;
 s32 D_80770DF8[16];
 u32 D_80770E38[16];
 f32 D_80770E78[16];
@@ -316,8 +392,6 @@ void actorTargetEntriesUpdateSfx(s32, s32, s32, f32);
 s32 flagGet(s32, s32);
 void n_alSndpPostEvent(s32, s32, ...);
 f32 func_80611BB4(f32, f32);
-f32 sinApprox(f32);
-f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 void n_alSndpStop(s32);
 void seqSetVolumeInstant(s32, f32);
@@ -1933,7 +2007,6 @@ s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
 }
 
 extern s32 D_807457C8;
-f32 sqrtf(f32);
 #pragma intrinsic(sqrtf)
 
 void sfxPlayAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, f32 arg5, u8 arg6, u8 arg7) {
