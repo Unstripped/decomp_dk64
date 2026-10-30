@@ -1,4 +1,4 @@
-// func_806A92B4 (src/global/ACDC0.c): stage 4, L6A92B4: macros at FA-packet sites (inline gDPSetPrimColor(dl++)) + FAKE dl use + u8 4th param; frame 0x1a0 and callee-saved set match; shape diff 128 lines/890; open: list uncolored, s-reg colouring (j/off/y splits), FP scheduling
+// func_806A92B4 (src/global/ACDC0.c): stage 4 (L6A92B4, base 6e500df): frame 0x1a0 + callee-saved set match; reg-blind diff ~128 lines/890 insns, exact ~570. Done: inline gDPSetPrimColor(dl++) at 4 FA sites + gDPPipeSync(dl++) give target v0/v1 _g copies (needs FAKE if(dl){} in case1 to keep dl in s7), renderRotatedSprite 4th param u8, 3 of {x,fe,ff,fh} removed. Open: list must be uncolored (late dead use does it), s-reg colouring (target L1 off s0,y s1,it s2,j s3: needs j/off/y split per loop), FP scheduling, 780.0f literal rematerialised in target. Permuter 25min: 23863->22967 useless; annealing over var splits+dead uses reached exact ~507 only.
 typedef struct {
     f32 unk0;
     f32 unk4;
