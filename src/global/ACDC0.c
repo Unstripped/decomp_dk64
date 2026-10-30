@@ -91,7 +91,7 @@ extern s16 D_80744720[];
 extern s16 D_807505B2[];
 extern s16 D_807505B8[];
 extern s16 D_807505CC[];
-extern u8 D_80750530;
+extern s8 D_80750530[5];
 extern u8 D_80750531[];
 extern u16 D_807ECD58;
 extern s32 D_8076A0A8;
@@ -667,7 +667,6 @@ Gfx *func_806AA09C(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale) {
     return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, (s32)((f32)x + (f32)(w - 0x10) * scale), (s32)((f32)y + 45.0f * scale), scale * 3.125, scale * 3.125, 0, 0.0f);
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     /* 0x00 */ u8 pad0[2];
     /* 0x02 */ u8 unk2;
@@ -758,10 +757,9 @@ void func_806AA304(arg0, arg1)
     s32 flag;
     void *s;
     s32 j;
-    s16 *p;
+    L9Entry8 *q;
     s32 x;
     s32 cnt;
-    L9Entry8 *q;
     L9Hud *hud;
 
     hud = (L9Hud *)arg0;
@@ -844,9 +842,8 @@ void func_806AA304(arg0, arg1)
             }
         }
         if (arg1 == 0) {
-            fp = (s8 *)&D_80750530;
-            for (i = 0; i < 5; i++, fp++) {
-                if (*fp) {
+            for (i = 0; i < 5; i++) {
+                if (D_80750530[i]) {
                     s = D_80750518[i];
                 } else {
                     s = &D_807211D0;
@@ -885,7 +882,7 @@ void func_806AA304(arg0, arg1)
         sum = 0;
         sum3 = 0;
         for (i = 0; i < 5; i++) {
-            sum = sum + L9ENT(i)->unk26[idx] + L9ENT(i)->unkA[idx];
+            sum += L9ENT(i)->unkA[idx] + L9ENT(i)->unk26[idx];
             sum3 += L9ENT(i)->unk42[idx];
         }
         cnt8 = 0;
@@ -893,7 +890,8 @@ void func_806AA304(arg0, arg1)
             found[i] = 0;
         }
         for (i = 0; D_80755DA8[i].unk0 != 0xFF; i++) {
-            if (func_805FF030(D_80755DA8[i].unk0, 1) == idx) {
+            j = func_805FF030(D_80755DA8[i].unk0, 1);
+            if (idx == j) {
                 xs = D_80755DA8[i].unk4;
                 if (xs >= 0x24D && xs < 0x261 && cnt8 < 4) {
                     found[cnt8++] = flagGet(xs, 0);
@@ -958,19 +956,17 @@ void func_806AA304(arg0, arg1)
         }
         break;
     case 3:
-        D_807FC83C = (x = 0);
-        p = &D_807FC828;
-        do {
-            if (*p > 0) {
+        D_807FC83C = 0;
+        for (i = 0; i < 8; i++) {
+            if ((&D_807FC828)[i] > 0) {
                 D_807FC83C++;
             }
-            p++;
-        } while (p < &D_807FC838);
+        }
         D_807FC83A = 0x1000 / D_807FC83C;
+        x = 0;
         cnt = 0;
-        p = &D_807FC828;
-        for (i = 0; i < 8; i++, p++) {
-            if (*p > 0) {
+        for (i = 0; i < 8; i++) {
+            if ((&D_807FC828)[i] > 0) {
                 if (i != 5) {
                     f = 0.75f;
                     flag = 5;
@@ -994,10 +990,6 @@ void func_806AA304(arg0, arg1)
     }
     D_8074E77C = saved;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806AA304.s")
-#endif
 
 void func_806AB4EC(ACDC0HudEntry *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, u8 arg5, s32 arg6) {
     ACDC0TextObj *obj;
@@ -1282,7 +1274,7 @@ void func_806ABE3C(void) {
     D_807FC834 = flagGet(0x84, 0);
     D_807FC830 = flagGet(0x17B, 0);
     D_807FC836 = flagCountRange(0x1FD, 0x28, 0);
-    D_80750530 = 1;
+    D_80750530[0] = 1;
     for (i = 0; i < 4; i++) {
         D_80750531[i] = flagGet(D_807505B2[i - 1], 0);
     }

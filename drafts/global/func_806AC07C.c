@@ -1,4 +1,4 @@
-// func_806AC07C (src/global/ACDC0.c): stage 5-6: size 20896B + frame 0x58 match; remaining regalloc only (item head ptr v1 vs a2, type a0 vs v1, 4.0 const f12 vs f16) + case6 'mtc1 zero,f2; mov.s f14,f2' vs direct mtc1 + one scheduling swap. Tricks: t=0.0 double literal in case3/6 (avoid zero-const CSE), s16 five=5 in case10 (avoid iv-elim addiu -20), head via arg0->unk384->unk0 + item copy (a2 temp + move a3), ang/tmp s32 vars passed to s16 params (CSE'd conv). Needs f32 func_806119FC() unprototyped, D_80750530 s8 array
+// func_806AC07C (src/global/ACDC0.c): stage 6: size+frame match; text diff 147 lines (regalloc only): FP temp ring rotated from 'arg0->unk344 = arg0->unk344 + sin*10.0f' on (load alloc'd first in target) + case6 end mtc1 zero,f2; mov.s f14,f2 vs direct mtc1 zero,f14. Tricks: type=(s32)item->unk0 (lets head a2/type v1), single ang var (no tmp), case6 dist sum in sc (sc = dz*dz+dx*dx; f12/f2 colours + 4.0 const f16), t=0.0f in case6 only.
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -38,14 +38,11 @@ typedef struct {
     L7_Item *unk384;
 } L7_Hud;
 
-f32 func_806119FC(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-extern f32 D_807FC808;
 extern f32 D_807FC840[];
 extern f32 D_807FC868[];
 extern f32 D_807FC890[];
-extern s8 D_80750530[];
 extern u8 D_8075054C[][4];
 extern s32 D_8076A064;
 
@@ -56,7 +53,6 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
     f32 sc;
     s32 type;
     s32 sp40;
-    s32 tmp;
     s32 ang;
     s32 i;
     s16 five;
@@ -66,7 +62,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
         t = src->unk0;
         item = arg0->unk384;
         sp40 = (f64)src->tbl[(s32)item->unk4] * 4.0;
-        type = (s32)arg0->unk384->unk0;
+        type = (s32)item->unk0;
         switch (type) {
         case 0:
         case 4:
@@ -151,15 +147,16 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             }
             break;
         case 6:
-            if ((item->unk14 - item->unk1C) * (item->unk14 - item->unk1C) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18) < 400.0f) {
+            sc = (item->unk14 - item->unk1C) * (item->unk14 - item->unk1C) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18);
+            if (sc < 400.0f) {
                 item->unk24 = (f64)item->unk24 - 1.0;
                 if ((f64)item->unk24 < 0.0) {
                     item->unk20 = (f64)item->unk20 + (1000.0 + (f64)func_806119FC() * 2000.0);
-                    tmp = (s32)item->unk20 & 0xFFF;
-                    item->unk20 = tmp;
+                    ang = (s32)item->unk20 & 0xFFF;
+                    item->unk20 = ang;
                     sc = ((f64)func_806119FC() * 40.0 + 20.0) * 4.0;
-                    item->unk18 = (f64)func_80612794(tmp) * ((f64)sc * 0.8);
-                    item->unk1C = func_80612790(tmp) * sc;
+                    item->unk18 = (f64)func_80612794(ang) * ((f64)sc * 0.8);
+                    item->unk1C = func_80612790(ang) * sc;
                     if ((f64)func_806119FC() < 0.25) {
                         item->unk24 = (f64)func_806119FC() * 40.0 + 15.0;
                     } else {
@@ -187,7 +184,7 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             arg0->unk340 = item->unk10 + item->unk8;
             sc = func_80612794(ang);
             arg0->unk344 = sc * 10.0f + (item->unkC + item->unk14 + (f32)sp40 + 960.0f * t);
-            t = 0.0;
+            t = 0.0f;
             break;
         case 10:
             i = (s32)item->unk8;
@@ -201,14 +198,14 @@ void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
             if (i >= five) {
                 i -= five;
             }
-            if (D_80750530[i] == 0) {
+            if (((s8 *)&D_80750530)[i] == 0) {
                 arg0->unk36A = D_8075054C[i][0];
                 arg0->unk36B = D_8075054C[i][1];
                 arg0->unk36C = D_8075054C[i][2];
             }
             break;
         }
-        if (src->unk15 != (s32)item->unk4 && (sp40 < -0x3C0 || sp40 >= 0x3C1)) {
+        if ((s32)item->unk4 != src->unk15 && (sp40 < -0x3C0 || sp40 >= 0x3C1)) {
             *arg1 = 1;
         }
         if (t > 1.0f || src->unk0 > 1.0f) {
