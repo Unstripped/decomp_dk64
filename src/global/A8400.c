@@ -677,7 +677,6 @@ void func_806A4DDC(Actor *arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A4DDC.s")
 #endif
 
-#ifdef NON_MATCHING
 typedef struct SpriteFrameNode {
     /* 0x00 */ u8 pad0[0x2C];
     /* 0x2C */ u8 unk2C;
@@ -724,6 +723,7 @@ typedef struct MapBounds {
     /* 0x276 */ s16 unk276;
 } MapBounds;
 
+extern struct ScreenBounds *D_807FC924;
 extern u8 D_807FC929;
 extern s16 D_80744490;
 
@@ -731,7 +731,8 @@ void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 s32 func_80613448(void *);
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
-#define CURRENT_BOUNDS ((MapBounds *) ((u8 *) D_807FC924 + (D_807FC929 * 0x2F0)))
+#define SPRITE_SUB ((SpriteSub *) arg1)
+#define SPRITE_BOUNDS ((MapBounds *) ((u8 *) D_807FC924 + (D_807FC929 * 0x2F0)))
 #define CLAMP_TO_BOUNDS(x, l, h) ((x) < (l) ? (l) : ((h) < (x) ? (h) : (x)))
 
 struct SpriteBehaviour;
@@ -739,11 +740,12 @@ struct SpriteBehaviour;
 void func_806A5174(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) {
     f32 sp7C, sp78;
     s32 sp74;
-    f32 lo, hi;
+    SpriteFrameNode *node;
+    s32 pad; // FAKE: frame layout (unused word between sp74 and sp68)
     f32 sp68, sp64, sp60;
 
     sp74 = 0;
-    switch (((SpriteSub *) arg1)->unk4->unk58) {
+    switch (SPRITE_SUB->unk4->unk58) {
     case 0x22:
     case 0x2E:
     case 0x7C:
@@ -752,16 +754,17 @@ void func_806A5174(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) {
     case 0x7F:
     case 0xDA:
     case 0x100:
-        ((SpriteSub *) arg1)->unk3C = 1;
-        ((SpriteSub *) arg1)->unk24 = (f32) CURRENT_BOUNDS->unk274;
-        ((SpriteSub *) arg1)->unk28 = (f32) CURRENT_BOUNDS->unk276;
+        SPRITE_SUB->unk3C = 1;
+        SPRITE_SUB->unk24 = (f32) SPRITE_BOUNDS->unk274;
+        SPRITE_SUB->unk28 = (f32) SPRITE_BOUNDS->unk276;
         break;
     case 0xFE:
-        sp74 = ((SpriteSub *) arg1)->unk4->unk17C->unk2C;
+        node = SPRITE_SUB->unk4->unk17C;
+        sp74 = node->unk2C;
         break;
     default:
-        if (((SpriteSub *) arg1)->unk4->unk0 != 0) {
-            switch (func_80613448(((SpriteSub *) arg1)->unk4)) {
+        if (SPRITE_SUB->unk4->unk0 != 0) {
+            switch (func_80613448(SPRITE_SUB->unk4)) {
             case 0x11:
             case 0x12:
             case 0x1D:
@@ -807,30 +810,30 @@ void func_806A5174(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) {
         }
         break;
     }
-    if ((((SpriteSub *) arg1)->unk4->unk0 == 0) && (((SpriteSub *) arg1)->unk3C == 0)) {
-        ((SpriteSub *) arg1)->unk3C = 1;
-        ((SpriteSub *) arg1)->unk24 = (f32) CURRENT_BOUNDS->unk270;
-        ((SpriteSub *) arg1)->unk28 = (f32) CURRENT_BOUNDS->unk272;
+    if ((SPRITE_SUB->unk4->unk0 == 0) && (SPRITE_SUB->unk3C == 0)) {
+        SPRITE_SUB->unk3C = 1;
+        SPRITE_SUB->unk24 = (f32) SPRITE_BOUNDS->unk270;
+        SPRITE_SUB->unk28 = (f32) SPRITE_BOUNDS->unk272;
     }
-    if (((SpriteSub *) arg1)->unk3C == 0) {
+    if (SPRITE_SUB->unk3C == 0) {
         if (sp74 == 0) {
-            sp68 = ((SpriteSub *) arg1)->unk4->unk7C;
-            sp64 = ((SpriteSub *) arg1)->unk4->unk80 + 1.5 * ((SpriteSub *) arg1)->unk4->unk15E;
-            sp60 = ((SpriteSub *) arg1)->unk4->unk84;
+            sp68 = SPRITE_SUB->unk4->unk7C;
+            sp64 = SPRITE_SUB->unk4->unk80 + 1.5 * SPRITE_SUB->unk4->unk15E;
+            sp60 = SPRITE_SUB->unk4->unk84;
         } else {
-            actorGetNodePos(((SpriteSub *) arg1)->unk4, sp74, &sp68, &sp64, &sp60);
+            actorGetNodePos(SPRITE_SUB->unk4, sp74, &sp68, &sp64, &sp60);
         }
         if (camProjectToScreen(sp68, sp64, sp60, &sp7C, &sp78, 0, 1.0f, D_807FC929) != 0) {
-            sp7C = ((SpriteSub *) arg1)->unk24;
-            sp78 = ((SpriteSub *) arg1)->unk28;
+            sp7C = SPRITE_SUB->unk24;
+            sp78 = SPRITE_SUB->unk28;
         }
-        sp7C = CLAMP_TO_BOUNDS(sp7C, (f32) (CURRENT_BOUNDS->unk270 - 0x64), (f32) (CURRENT_BOUNDS->unk274 + 0x64));
-        sp78 = CLAMP_TO_BOUNDS(sp78, (f32) (CURRENT_BOUNDS->unk272 - 0x64), (f32) (CURRENT_BOUNDS->unk276 + 0x64));
-        ((SpriteSub *) arg1)->unk24 = sp7C;
-        ((SpriteSub *) arg1)->unk28 = sp78;
+        sp7C = CLAMP_TO_BOUNDS(sp7C, (f32) (SPRITE_BOUNDS->unk270 - 0x64), (f32) (SPRITE_BOUNDS->unk274 + 0x64));
+        sp78 = CLAMP_TO_BOUNDS(sp78, (f32) (SPRITE_BOUNDS->unk272 - 0x64), (f32) (SPRITE_BOUNDS->unk276 + 0x64));
+        SPRITE_SUB->unk24 = sp7C;
+        SPRITE_SUB->unk28 = sp78;
     }
-    sp7C = ((SpriteSub *) arg1)->unk24;
-    sp78 = ((SpriteSub *) arg1)->unk28;
+    sp7C = SPRITE_SUB->unk24;
+    sp78 = SPRITE_SUB->unk28;
     if (((f32) D_80744490 * 0.5f) < sp7C) {
         sp7C = sp7C - 131.1999969482421875;
     } else {
@@ -839,19 +842,15 @@ void func_806A5174(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) {
     if (sp78 > 60.7999992370605469) {
         sp78 = sp78 - 60.7999992370605469;
     }
-    sp7C = (f32) CLAMP_TO_BOUNDS((f64) sp7C, (f64) CURRENT_BOUNDS->unk270 + 91.1999969482421875 + 5.0,
-                           (f64) CURRENT_BOUNDS->unk274 - 96.1999969482421875);
-    sp78 = (f32) CLAMP_TO_BOUNDS((f64) sp78, (f64) CURRENT_BOUNDS->unk272 + 60.7999992370605469 + 5.0,
-                           (f64) CURRENT_BOUNDS->unk276 - 65.7999992370605469);
-    ((SpriteSub *) arg1)->unk2C = ((sp7C - ((SpriteSub *) arg1)->unk2C) * arg2) + ((SpriteSub *) arg1)->unk2C;
-    ((SpriteSub *) arg1)->unk30 = ((sp78 - ((SpriteSub *) arg1)->unk30) * arg2) + ((SpriteSub *) arg1)->unk30;
-    ((PositionView *) arg0)->unk7C = (((((SpriteSub *) arg1)->unk2C - ((SpriteSub *) arg1)->unk24) * ((SpriteSub *) arg1)->unk20) + ((SpriteSub *) arg1)->unk24);
-    ((PositionView *) arg0)->unk80 = (((((SpriteSub *) arg1)->unk30 - ((SpriteSub *) arg1)->unk28) * ((SpriteSub *) arg1)->unk20) + ((SpriteSub *) arg1)->unk28);
+    sp7C = (f32) CLAMP_TO_BOUNDS((f64) sp7C, (f64) SPRITE_BOUNDS->unk270 + 91.1999969482421875 + 5.0,
+                           (f64) SPRITE_BOUNDS->unk274 - 96.1999969482421875);
+    sp78 = (f32) CLAMP_TO_BOUNDS((f64) sp78, (f64) SPRITE_BOUNDS->unk272 + 60.7999992370605469 + 5.0,
+                           (f64) SPRITE_BOUNDS->unk276 - 65.7999992370605469);
+    SPRITE_SUB->unk2C = ((sp7C - SPRITE_SUB->unk2C) * arg2) + SPRITE_SUB->unk2C;
+    SPRITE_SUB->unk30 = ((sp78 - SPRITE_SUB->unk30) * arg2) + SPRITE_SUB->unk30;
+    ((PositionView *) arg0)->unk7C = (((SPRITE_SUB->unk2C - SPRITE_SUB->unk24) * SPRITE_SUB->unk20) + SPRITE_SUB->unk24);
+    ((PositionView *) arg0)->unk80 = (((SPRITE_SUB->unk30 - SPRITE_SUB->unk28) * SPRITE_SUB->unk20) + SPRITE_SUB->unk28);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A5174.s")
-#endif
 
 typedef struct ChainRowNode {
     /* 0x00 */ u8 pad0[0xC];

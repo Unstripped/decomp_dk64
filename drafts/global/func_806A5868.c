@@ -1,8 +1,8 @@
-// func_806A5868 (src/global/A8400.c): stage 6, regalloc only: flag block keeps &D_807ECD58 in a0 and an extra u8 mask; equal code size, same blocks/saved regs
+// func_806A5868 (src/global/A8400.c): stage 6, regalloc only (text diff 13): switch(unk154) + `!(f < unk18)` + unk1D `>= 0x34 ? 0x33 : x` + bare `if (sub->unk1D)` + v0 hoisted before the else-if matched structure; remaining: first-load temp a1 + move v0,a1 (expected single v0), ori/andi t0/t9 order in unk55 &~4 / |4 arm, FP temp ring f10/f8/f18 in case 2. FAKE `if (v0) {}` in flag block
 #include "common.h"
 #include "actor.h"
 
-typedef struct M8Sub {
+typedef struct SpriteBehaviour {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u8 pad2[0x2];
     /* 0x04 */ void *unk4;
@@ -21,7 +21,7 @@ typedef struct M8Sub {
     /* 0x3A */ s16 unk3A;
     /* 0x3C */ u8 pad3C[0x19];
     /* 0x55 */ u8 unk55;
-} M8Sub;
+} SpriteBehaviour;
 
 extern Actor *D_807FBB40;
 extern u16 D_807ECD58;
@@ -29,19 +29,15 @@ extern u16 D_807ECD66;
 extern u8 D_807503F0;
 
 void *heapAlloc(s32);
-void func_8061CB08(void);
-void func_806A4284(void);
+void camResumePath(void);
 void func_806A4DDC(Actor *);
-void func_806A5174(Actor *, M8Sub *, f32);
-void resNodeListFree(M8Sub *);
+void func_806A5174(Actor *, SpriteBehaviour *, f32);
+void resNodeListFree(SpriteBehaviour *);
 void resQueueRemove(void *);
-void func_8070E808(Actor *, void *);
-void func_806A57C0(M8SeqHead *);
-void func_8070E808(void *, void *);
 void renderCallbacksRegister(void *, void *, s32);
 
 void func_806A5868(void) {
-    M8Sub *sub;
+    SpriteBehaviour *sub;
     f32 sp18;
     u8 state;
     u8 v0;
@@ -53,53 +49,55 @@ void func_806A5868(void) {
         sp18 = 1.0f;
         sub->unk34 = heapAlloc(0x280);
         sub->unk55 = 0;
-    } else if (!(sub->unk55 & 1)) {
-        if (D_807FBB40->unk154 != 4 && D_807FBB40->unk154 != 5) {
-            if (15.0 < (f64)sub->unk0) {
-                v0 = sub->unk55;
-                if (D_807ECD66 & 0x4000) {
-                    v0 = (sub->unk55 |= 1);
-                }
-                if (D_807ECD58 & 0x2000) {
-                    sub->unk55 = v0 | 2;
-                } else {
-                    sub->unk55 = v0 & 0xFFFD;
-                }
-                v0 = sub->unk55;
-                if (v0 & 2) {
-                    sub->unk55 = v0 & 0xFFFB;
-                } else if (D_807ECD58 == 0x8000) {
-                    sub->unk55 = v0 | 4;
-                } else {
-                    sub->unk55 = v0 & 0xFFFB;
-                }
-                if (sub->unk55 & 1) {
-                    func_8061CB08();
-                    D_807FBB40->unk154 = 5;
+    } else {
+        v0 = sub->unk55;
+        if (!(v0 & 1)) {
+            if (D_807FBB40->unk154 != 4 && D_807FBB40->unk154 != 5) {
+                if (15.0 < (f64)sub->unk0) {
+                    if (D_807ECD66 & 0x4000) {
+                        v0 = (sub->unk55 |= 1);
+                    }
+                    if (D_807ECD58 & 0x2000) {
+                        sub->unk55 = v0 | 2;
+                    } else {
+                        sub->unk55 = v0 & 0xFFFD;
+                    }
+                    if (v0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                    v0 = sub->unk55;
+                    if ((v0 & 2) || D_807ECD58 != 0x8000) {
+                        sub->unk55 = v0 & 0xFFFB;
+                    } else {
+                        sub->unk55 = v0 | 4;
+                    }
+                    if (sub->unk55 & 1) {
+                        camResumePath();
+                        D_807FBB40->unk154 = 5;
+                    }
                 }
             }
         }
     }
     sub->unk38 = sub->unk38 + 0x14;
     sub->unk3A = sub->unk3A + 0x32;
-    state = D_807FBB40->unk154;
-    if (state == 0) {
+    switch (D_807FBB40->unk154) {
+    case 0:
         if (sub->unk0 < 0x1E) {
             sub->unk0 = sub->unk0 + 1;
         } else {
             D_807FBB40->unk154 = 1;
             sub->unk1D = D_807503F0;
             func_8070E808(D_807FBB40, sub->unk4);
-            func_806A57C0((M8SeqHead *)sub);
+            renderCalcChainCenterOffset((ChainRowHead *)sub);
         }
-    } else if (state == 2) {
+        break;
+    case 2:
         f = 2.0f;
         if (sub->unk55 & 4) {
             f = f * 3.0f;
         } else if (sub->unk55 & 2) {
             f = f * 0.5f;
         }
-        if (f >= sub->unk18) {
+        if (!(f < sub->unk18)) {
             f = sub->unk18;
         }
         sub->unk18 = sub->unk18 - f;
@@ -107,19 +105,22 @@ void func_806A5868(void) {
         if ((f64)sub->unk18 < 0.0001) {
             D_807FBB40->unk154 = 1;
         }
-    } else if (state == 4) {
-        if (sub->unk1D != 0) {
-            sub->unk1D -= (sub->unk1D < 0x34) ? sub->unk1D : 0x33;
-        } else if (sub->unk0 == 0) {
-            D_807FBB40->unk154 = 5;
-        } else {
+        break;
+    case 4:
+        if (sub->unk1D) {
+            sub->unk1D -= (sub->unk1D >= 0x34) ? 0x33 : sub->unk1D;
+        } else if (sub->unk0 != 0) {
             if (sub->unkC != NULL) {
                 resNodeListFree(sub);
             }
             sub->unk0 = sub->unk0 - 1;
+        } else {
+            D_807FBB40->unk154 = 5;
         }
-    } else if (state == 5) {
+        break;
+    case 5:
         resQueueRemove(sub->unk4);
+        break;
     }
     if (D_807FBB40->unk154 != 5) {
         sub->unk20 = (f32)sub->unk0 * 0.033333335f;
