@@ -181,7 +181,6 @@ void faultDrawRegs(OSThread *a0) {
         faultUnwindStack(a0);
     }
 }
-
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/136820/faultDrawRegs.s")

@@ -1,4 +1,4 @@
-// faultDrawRegs (src/global/136820.c): stage 6: identical except temp numbering: target t6,t7,t8,[t9 burned],t0..t5 contiguous; ours t6,t7,t8,t9(first lw D_807563B8),[t0,t1 burned after the guard],t2.. (the two burns are not the j loop, x/y counters, stores, pc/ra casts, post-loop code: removed each, still t9->t2). ~700 source variants (loop/store/guard/cast/ctx-placement/u64 temps/pointer forms/redundant ops) never change it; only 64-bit casts of pc/ra change numbering but to non-target sequences (t4 t5 t9 / t1 t9 t4)
+// faultDrawRegs (src/global/136820.c): stage 6: identical except temp numbering: target t6,t7,t8,[t9 burned],t0..t5 contiguous; ours t6,t7,t8,t9(first lw D_807563B8),[t0,t1 burned after the guard],t2..
 typedef struct {
     s32 unk0;
     s32 unk4;

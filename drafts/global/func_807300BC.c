@@ -1,4 +1,4 @@
-// func_807300BC (src/global/133A90.c): same frame 0x140/saved regs; only v0/v1 + t-reg numbering in guRotateF angle (target subu v0..sra v0; unk58 temp in v1; mine v1/t4 and v0); (s16)(0, x) comma trick from permuter; parked NON_MATCHING
+// func_807300BC (src/global/133A90.c): stage 5: same frame 0x140/saved regs; only v0/v1 + t-reg numbering in guRotateF angle (target subu v0..sra v0; unk58 temp in v1; mine v1/t4 and v0); (s16)(0, x) comma trick from permuter; parked NON_MATCHING
 typedef struct H1ProxSub {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
