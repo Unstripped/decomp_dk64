@@ -43,6 +43,7 @@ segments:
     bss_size: 0x9E0B0
     subsegments:
       - [0x0, c, 0]
+      - [0x450, c, 450] # hidden TU: seg11DmaRead (0x805FB750); func_805FBFF4's `.align 5` epilogue (0x805FC290) is 32-aligned only from here
       - [0x3C10, c, 3C10]
       - [0x5650, c, 5650]
       - [0x5A50, c, 5A50]
@@ -210,7 +211,8 @@ segments:
       - [0x145D70, c, 145D70] # -g; rodata 0x165280-0x165290
       - [0x146010, asm] # RSP microcode text (mtc0/RSP jal targets), not C; was the tail of splat's 145D70
       - [0x146C40, asm] # RSP microcode text (two overlays, each with a handwritten mfc0/mtc0 DMA helper), not C
-      - [0x149160, .data, 0]
+      - [0x149160, .data, 0] # D_80744460/64 only (0x80744460-0x80744470)
+      - [0x149170, .data, 450] # 0x80744470-0x807445E0
       - [0x1492E0, data, 3C10]
       - [0x149FA0, data, 5650]
       - [0x149FB0, data, 5A50]
@@ -334,7 +336,8 @@ segments:
       - [0x165270, .rodata, 145950]
       - [0x165280, .rodata, 145D70]
       - [0x165290, rodata]
-      - { start: 0x165D50, type: .bss, vram: 0x80761050, name: 0 } # D_80761050..D_8076A150 (0x80761050-0x8076A160)
+      - { start: 0x165D50, type: .bss, vram: 0x80761050, name: 0 } # D_80761050..D_807655E8 (0x80761050-0x807655F0)
+      - { start: 0x165D50, type: .bss, vram: 0x807655F0, name: 450 } # D_807655F0..D_8076A158 (0x807655F0-0x8076A160)
       - { start: 0x165D50, type: .bss, vram: 0x8076A160, name: 3C10 } # D_8076A160[18] slots .. D_8076AF14 (0x8076A160-0x8076AF20)
       - { start: 0x165D50, type: bss, vram: 0x8076AF20, name: 165D50_8076AF20 }
       - { start: 0x165D50, type: .bss, vram: 0x80770DF0, name: 7130 } # D_80770DF0..D_80770F38 (func_806057F8's static pitch at 0x80770F38)
