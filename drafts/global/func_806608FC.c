@@ -1,4 +1,4 @@
-// func_806608FC (src/global/63EC0.c): stage 5: frame/callee-saved match; 32 text lines differ: dz/dx f0/f2 swap, h f14 vs f18, 100.0 const not hoisted into f14, type spill slot 32 vs 36; 1 deadsweep fake (D_807F93E4)
+// func_806608FC (src/global/63EC0.c): stage 5 (EffC2): frame/callee-saved match; 22 text lines (shape 4): dz/dx f0/f2 swap (dz=f0 expected; mine dz=f2 whichever sum order), h f14 vs f18 (so 100.0 const lands f16/f17 not f14/f15), 'move a0,v0' (sub var in a0 vs expected CSE'd v0 -- dropping sub shifts case-0 regs), type spill slot 32 vs 36. Wins: (dx*dx)+(dz*dz) sum order; '/ (100.0 * 1.0)' permuter find (FAKE) stops per-branch 100.0 CSE; 2 FAKEs total (D_807F93E4 dead stmt + this). Local decl order doesn't affect regs (permuted 262).
 typedef struct EffBHeightSub2 {
     u8 pad0[4];
     f32 unk4;
@@ -13,7 +13,6 @@ typedef struct EffBHeightSub2 {
     s16 unk4E;
 } EffBHeightSub2;
 
-f32 func_80612794(s16);
 f32 sqrtf(f32);
 
 f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
@@ -44,7 +43,7 @@ f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
         if (D_807F93C4 != 0) {
             dz = (f32)arg2 - D_807F93C8[1];
             dx = (f32)arg1 - D_807F93C8[0];
-            dist = sqrtf((dz * dz) + (dx * dx));
+            dist = sqrtf((dx * dx) + (dz * dz));
             if (dist < D_807F93DC) {
                 diff = D_807F93DC - dist;
             } else {
@@ -65,7 +64,7 @@ f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
                 h = baseH;
             } else {
                 baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
-                h = (f32)((f64)baseH + ((f64)h + ((0.0 - (f64)h) * (((f64)diff - 50.0) / 100.0))));
+                h = (f32)((f64)baseH + ((f64)h + ((0.0 - (f64)h) * (((f64)diff - 50.0) / (100.0 * 1.0)))));  // FAKE: folds to 100.0 but keeps the constant out of the sibling-branch CSE (steers f-reg pick)
             }
         } else {
             baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
