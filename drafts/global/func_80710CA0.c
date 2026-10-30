@@ -1,4 +1,4 @@
-// func_80710CA0 (src/global/114270.c): stage 5 (NON_MATCHING parked in 114270.c): natural C, 474 vs 476 insns, same frame 0x150/saved set. Only diffs: (1) target keeps the loop-entry guard 'bltzl s5; lw ra' (i>=0 not constant-folded) (2) count spill sw s0,0x64(sp) vs 0x5C. Tried: s8/s16/s32/u8 i, for/while/do, cond order/spelling grid(480), param as i, named const, dead if(i), register, permuter 900s, deadsweep. Key finds: gSPMatrix MODELVIEW, switch(D_807FDA1C), ternary rem, (&T)[G = G + 1] = i, f64 locals first and after mats shape frame.
+// func_80710CA0 (src/global/114270.c): stage 5: loop-entry guard FIXED: 'i = 0x80;' before the unrelated 'if (TEX==1)' then 'while (--i >= 0 && processed != count)' gives li s5,127 + bltzl s5. Only remaining diff: count spill sw s0,0x5C(sp) vs 0x64 (and its reload lw t6): spill slot 8 bytes lower than target; frame/regs/insns identical (551 lines). Tried ~400 decl-order permutations of i/count/processed/entry/player/flags, posX drop, pad words: slot never moved.
 #include "common.h"
 #include "actor.h"
 
@@ -8,7 +8,6 @@ extern u8 D_807FDA1A;
 extern u8 D_807FDA1C;
 extern u8 D_807FDA30;
 Gfx *func_807105D4(Gfx *, u8);
-
 typedef struct L10CA0Entry {
     s16 unk0; u8 pad2[6]; f32 unk8; f32 unkC; f32 unk10; u8 pad14[0xC];
     s16 unk20; s16 unk22; s16 unk24; u8 pad26[2]; f32 unk28; u8 pad2C[0x84];
@@ -19,18 +18,11 @@ typedef struct L10CA0CamView { u8 pad0[0xB4]; f32 unkB4; } L10CA0CamView;
 typedef struct L10CA0PlayerView { u8 pad0[0x90]; f32 unk90; u8 pad94[0x66]; u8 unkFA; u8 padFB[0x119]; f32 unk214; } L10CA0PlayerView;
 typedef struct L10CA0TimerView { u8 pad0[0xBC]; s16 unkBC; } L10CA0TimerView;
 
-extern Actor *gCamActor;
-extern Actor *D_807FBB4C;
 extern void *D_807FD580;
 extern void *D_807FDAB0;
 extern s16 D_807FDAB4;
-extern f32 D_807FD9EC;
-extern u8 D_80755264;
 extern u8 D_807444FC;
 extern u8 D_807FDA1B;
-extern s16 D_807FDA1E;
-extern s32 D_807FDA20;
-extern s32 D_807FDA24;
 extern u8 D_1000020, D_1000118, D_20000C0;
 void matrixMakeRotationZ(f32 (*)[4], f32);
 s32 mapChunkContainsPoint(s16, s16, s16);
@@ -74,10 +66,11 @@ Gfx *func_80710CA0(Gfx *arg0, Actor *arg1) {
     gDPSetCombineMode(arg0++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetTextureFilter(arg0++, G_TF_BILERP);
     gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    i = 0x80;
     if (L10CA0_TEX == 1) {
         arg0 = func_807105D4(arg0, 0);
     }
-    for (i = 0x7F; i >= 0 && processed != count; i--) {
+    while (--i >= 0 && processed != count) {  // i = 0x80 above: pre-decrement while with i set before an unrelated if keeps the entry guard
         entry = &L10CA0_POOL->entries[i];
         D_807FDAB0 = entry;
         D_807FDAB4 = D_807FDA1E;
@@ -126,3 +119,6 @@ Gfx *func_80710CA0(Gfx *arg0, Actor *arg1) {
     }
     return arg0;
 }
+
+#undef L10CA0_POOL
+#undef L10CA0_TEX

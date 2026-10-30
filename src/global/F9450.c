@@ -917,7 +917,7 @@ extern s32 func_805FF030(u8, s32);
 extern void func_8060E430(u16, u8, u8);
 extern void func_806F58A0(u8, s16, F9N2At58 *);
 extern void func_806F5A48(u8, s16, F9N2At58 *, u16);
-extern void playerStateHandleSoundEffects(s16, s32);
+extern void playerStateHandleSoundEffects(s16, u8);
 
 void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
     F9N2At58 *player;
@@ -979,7 +979,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
                     break;
                 }
                 if (D_807FC928 >= 2) {
-                    playerStateHandleSoundEffects(arg0->unk2, arg1 & 0xFF);
+                    playerStateHandleSoundEffects(arg0->unk2, arg1);
                     modelSlotFreeByIndex(arg0->unk0, 1);
                 }
                 if (D_807FBB64 & 0x10000) {
@@ -1153,7 +1153,7 @@ void slotQueueGetPosition(s32, f32 *, f32 *, f32 *);
 void slotQueueUpdate(s32, s32, s32);
 s16 csModelSlotGetTableIndex(s16);
 void func_807314F4(s16, s16);
-void playerStateHandleSoundEffects(s16, s32);
+void playerStateHandleSoundEffects(s16, u8);
 s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 void guMtxL2F(f32 (*)[4], Mtx *);
 void guMtxXFML(Mtx *, f32, f32, f32, f32 *, f32 *, f32 *);
@@ -1229,7 +1229,7 @@ void func_806F69A8(u8 arg0) {
                         node->unk10 = 1;
                         func_806398E4(node->unk0, 1, 0);
                         if (node->unk19 != 0) {
-                            playerStateHandleSoundEffects(node->unk2, arg0 & 0xFF);
+                            playerStateHandleSoundEffects(node->unk2, arg0);
                         }
                         if ((slot >= 0) && !(D_807FBB64 & 0x4000) && ((slot != 0xB) || !(D_807FBB64 & 0x10000000))) {
                             slotQueueUpdate(func_806F544C(slot, node->unk2, node->unk1A), 0, 0);
@@ -1431,11 +1431,8 @@ f32 func_806F7378(s32 arg0) {
     return 0.0f;
 }
 
-#ifdef NON_MATCHING
-
 extern s32 camDistance3D(s32, s32, s32, s32, s32, s32);
 extern s16 modelSlotAppend(s32, f32, f32, f32, f32, u8);
-extern void func_806F50C8(s16, s16, s16, u8, u8, u8);
 
 typedef struct {
     u8 pad0[4];
@@ -1485,35 +1482,35 @@ void func_80731410(s16, s16, s16, u8);
 u8 func_8073198C(s16);
 void modelFlagsApplyState(s16, s16, u8 *);
 
+#define F94D_ENTRY (&((F94D_Entry *) &D_80753EF0)[k])
+
 void func_806F73A0(u8 arg0) {
     Actor *player;
     s32 i;
     F94D_Sub *playerSub;
-    F94D_Entry *entry;
     Actor *actor;
     F94D_Sub *sub;
     F94D_Node *node;
     s32 found;
     s32 flag;
-    u32 temp_a0;
+    F94D_Sub *ps;
+    s32 k;
     s16 slot;
     s16 tblIdx;
 
-    player = ((F94D_Block *) D_807FC924)[arg0 & 0xFF].unk4;  // FAKE: & 0xFF reads arg0 as one ucvt candidate (s6), not the u8 param home
-    if (D_807FC924 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    player = ((F94D_Block *) D_807FC924)[arg0].unk4;
     playerSub = player->unk174;
-    if (D_807FCC4B[(arg0 & 0xFF) * 0x306] > 0) {  // FAKE: & 0xFF reads arg0 as one ucvt candidate (s6), not the u8 param home
-        entry = (F94D_Entry *) &D_80753EF0;
-        do {
-            if (entry->unkE != 0) {
+    if (D_807FCC4B[arg0 * 0x306] > 0) {
+        for (k = 0; k < 0x2A; k++) {
+            if (F94D_ENTRY->unkE != 0) {
                 for (i = 0; i < gActiveActorCount; i++) {
                     {
                         actor = gActiveActors[i].unk0;
-                        if ((D_807FBB60 & 0x10000) && (entry->unkE == actor->unk58) && ((entry->unkC == 0) || (entry->unkC == player->unk58))) {
-                            node = (F94D_Node *) D_807FD780[arg0 & 0xFF];  // FAKE: & 0xFF reads arg0 as one ucvt candidate (s6), not the u8 param home
-                            found = (f32) camDistance3D((s32) actor->unk7C, (s32) ((f32) entry->unk10 + actor->unk80), (s32) actor->unk84, (s32) D_807FD740[arg0 & 0xFF].unk0, (s32) D_807FD740[arg0 & 0xFF].unk4, (s32) D_807FD740[arg0 & 0xFF].unk8) < ((f32) entry->unk12 + D_807FD740[arg0 & 0xFF].unkC) - 1.0f;  // FAKE: & 0xFF reads arg0 as one ucvt candidate (s6), not the u8 param home
+                        if ((D_807FBB60 & 0x10000) && (F94D_ENTRY->unkE == actor->unk58) && ((F94D_ENTRY->unkC == 0) || (F94D_ENTRY->unkC == player->unk58))) {
+                            node = (F94D_Node *) D_807FD780[arg0];
+                            found = (f32) camDistance3D((s32) actor->unk7C, (s32) ((f32) F94D_ENTRY->unk10 + actor->unk80), (s32) actor->unk84, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk0, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk4, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk8) < ((f32) F94D_ENTRY->unk12 + ((F94D_Node *)&D_807FD740[arg0])->unkC) - 1.0f;
                             while ((found == 0) && (node != NULL)) {
-                                found = (f32) camDistance3D((s32) actor->unk7C, (s32) ((f32) entry->unk10 + actor->unk80), (s32) actor->unk84, (s32) node->unk0, (s32) node->unk4, (s32) node->unk8) < ((f32) entry->unk12 + node->unkC) - 1.0f;
+                                found = (f32) camDistance3D((s32) actor->unk7C, (s32) ((f32) F94D_ENTRY->unk10 + actor->unk80), (s32) actor->unk84, (s32) node->unk0, (s32) node->unk4, (s32) node->unk8) < ((f32) F94D_ENTRY->unk12 + node->unkC) - 1.0f;
                                 node = node->unk10;
                             }
                             if ((actor->unk154 == 0x64) || (found != 0)) {
@@ -1522,57 +1519,61 @@ void func_806F73A0(u8 arg0) {
                                 }
                                 sub = actor->unk174;
                                 if (sub->unk1 != 0) {
-                                    if (D_807FC928 && D_807FC928) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                                     if (D_807FC928 >= 2) {
                                         switch ((u32) actor->unk58) {
                                         case 0x7A:
-                                            playerStateHandleSoundEffects(0x1D2, (arg0 & 0xFF) & 0xFF);  // FAKE: (x & 0xFF) & 0xFF keeps the andi after arg0 stays in s6
-                                            func_806F54E0(arg0 & 0xFF, 0x1D2, 0);  // FAKE: & 0xFF reads arg0 as one ucvt candidate (s6), not the u8 param home
+                                            playerStateHandleSoundEffects(0x1D2, arg0);
+                                            func_806F54E0(arg0, 0x1D2, 0);
                                             break;
                                         case 0x79:
-                                            playerStateHandleSoundEffects(0x8E, (arg0 & 0xFF) & 0xFF);  // FAKE: (x & 0xFF) & 0xFF keeps the andi after arg0 stays in s6
+                                            playerStateHandleSoundEffects(0x8E, arg0);
                                             playerSub->unk264 = 0;
                                             break;
                                         case 0x2F:
-                                            playerStateHandleSoundEffects(0x57, (arg0 & 0xFF) & 0xFF);  // FAKE: (x & 0xFF) & 0xFF keeps the andi after arg0 stays in s6
-                                            func_806F54E0(arg0 & 0xFF, 0x57, 0);  // FAKE: & 0xFF reads arg0 as one ucvt candidate (s6), not the u8 param home
+                                            playerStateHandleSoundEffects(0x57, arg0);
+                                            func_806F54E0(arg0, 0x57, 0);
                                             break;
                                         case 0x77:
-                                            playerStateHandleSoundEffects(0x1D0, (arg0 & 0xFF) & 0xFF);  // FAKE: (x & 0xFF) & 0xFF keeps the andi after arg0 stays in s6
+                                            playerStateHandleSoundEffects(0x1D0, arg0);
                                             playerSub->unk264 = 1;
                                             break;
                                         case 0x78:
-                                            playerStateHandleSoundEffects(0x1CF, (arg0 & 0xFF) & 0xFF);  // FAKE: (x & 0xFF) & 0xFF keeps the andi after arg0 stays in s6
+                                            playerStateHandleSoundEffects(0x1CF, arg0);
                                             playerSub->unk264 = 2;
                                             break;
                                         case 0x33:
-                                            playerStateHandleSoundEffects(0x8F, (arg0 & 0xFF) & 0xFF);  // FAKE: (x & 0xFF) & 0xFF keeps the andi after arg0 stays in s6
-                                            if ((func_80714608(0) != 0) && (((F94D_Sub *) player->unk174)->unk8C == 0)) {
+                                            playerStateHandleSoundEffects(0x8F, arg0);
+                                            if ((func_80714608(0) != 0) && ((ps = player->unk174)->unk8C == 0)) {  // FAKE: named ps local puts the player->unk174 reload in v0
                                                 func_806F0D68(player);
                                                 func_806CFF9C(player);
                                             }
                                             break;
                                         case 0x34:
-                                            playerStateHandleSoundEffects(0x56, (arg0 & 0xFF) & 0xFF);  // FAKE: (x & 0xFF) & 0xFF keeps the andi after arg0 stays in s6
+                                            playerStateHandleSoundEffects(0x56, arg0);
                                             playerSub->unk264 = 3;
                                             break;
                                         case 0x76:
-                                            playerStateHandleSoundEffects(0x1D1, (arg0 & 0xFF) & 0xFF);  // FAKE: (x & 0xFF) & 0xFF keeps the andi after arg0 stays in s6
+                                            playerStateHandleSoundEffects(0x1D1, arg0);
                                             playerSub->unk264 = 4;
                                             break;
                                         }
                                     } else {
-                                        temp_a0 = actor->unk58;
-                                        flag = 1;
-                                        if ((actor->unk58 != 0x2F) && (actor->unk58 != 0x48) && (actor->unk58 != 0x56)) {
+                                        switch (actor->unk58) {
+                                        case 0x2F:
+                                        case 0x48:
+                                        case 0x56:
+                                            flag = 1;
+                                            break;
+                                        default:
                                             flag = 0;
+                                            break;
                                         }
-                                        slot = modelSlotAppend(entry->unk0, actor->unk7C, func_806F7378(temp_a0) + actor->unk80, actor->unk84, 0.0f, 0);
+                                        slot = modelSlotAppend(F94D_ENTRY->unk0, actor->unk7C, func_806F7378(actor->unk58) + actor->unk80, actor->unk84, 0.0f, 0);
                                         tblIdx = csModelSlotGetTableIndex(slot);
                                         func_80731410(D_8076A0AA, tblIdx, sub->unkA, func_8073198C(sub->unkA));
                                         tblIdx = csModelSlotGetTableIndex(slot);
                                         modelFlagsApplyState(D_8076A0AA, tblIdx, &D_807F6000[hashTableLookup(slot)].unk8C);
-                                        func_806F50C8(slot, entry->unk0, 0, 1, 0, flag);
+                                        func_806F50C8(slot, F94D_ENTRY->unk0, 0, 1, 0, flag);
                                         actor->unk11C = 0;
                                     }
                                     actorDespawn(actor);
@@ -1582,14 +1583,11 @@ void func_806F73A0(u8 arg0) {
                     }
                 }
             }
-            entry++;
-        } while ((u8 *) entry != D_80754238);
+        }
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F73A0.s")
-#endif
+#undef F94D_ENTRY
 
 typedef struct {
     u8 pad0[0x1A4];
@@ -1606,7 +1604,7 @@ void func_80687CC8(void);
 void playerStateQueueCallback();
 void sfxAllocateChannel(s32, f32);
 
-void playerStateHandleSoundEffects(s16 arg0, s32 arg1) {
+void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
     f32 temp_fv0;
     f32 temp_fv0_2;
     f64 var_ft0;

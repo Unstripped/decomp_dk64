@@ -565,10 +565,11 @@ Gfx *func_80710CA0(Gfx *arg0, Actor *arg1) {
     gDPSetCombineMode(arg0++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetTextureFilter(arg0++, G_TF_BILERP);
     gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    i = 0x80;
     if (L10CA0_TEX == 1) {
         arg0 = func_807105D4(arg0, 0);
     }
-    for (i = 0x7F; i >= 0 && processed != count; i--) {
+    while (--i >= 0 && processed != count) {  // i = 0x80 above: pre-decrement while with i set before an unrelated if keeps the entry guard
         entry = &L10CA0_POOL->entries[i];
         D_807FDAB0 = entry;
         D_807FDAB4 = D_807FDA1E;
