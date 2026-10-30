@@ -572,7 +572,6 @@ S112aParsedList *func_8070DDDC(u16 arg0, s32 arg1) {
     return node->parsed;
 }
 
-#ifdef NON_MATCHING
 typedef struct S112cLine {
     s16 width;
     u8 pad2[0xE];
@@ -604,18 +603,19 @@ extern void *D_8074E778[];
 extern u16 D_80750AC8;
 
 s32 func_8070DED4(s32 arg0, s32 arg1, u16 arg2) {
-    S112cLine **rowLines;
-    u8 textBuffer[0xC];
-    S112cRow **rowLink;
-    S112cLine *line;
-    s32 i;
-    u8 character;
     S112cRow **rowHead;
-    u32 width;
+    S112cRow **rowLink;
+    S112cLine **rowLines;
+    S112cLine *line;
     S112cLine **lineLink;
-    u32 flags;
+    u32 width;
+    s32 i;
+    u16 flags;
+    u8 character;
+    u8 textBuffer[0xC];
     u8 *text;
     f32 time;
+    S112cLine *p;
     rowLink = &((S112cOwner *)arg0)->rows;
     rowHead = &((S112cOwner *)arg0)->rows;
     line = NULL;
@@ -635,17 +635,16 @@ s32 func_8070DED4(s32 arg0, s32 arg1, u16 arg2) {
     (*rowLink)->height = time;
     rowLines = &(*rowLink)->lines;
     for (i = 0; i <= arg2; i++) {
-        if ((i == arg2) || ((((u8 *)arg1)[i] == 0x20) && (character == 0))) {
-            character = 1;
+        if ((i == arg2) || ((((u8 *)arg1)[i] == 0x20U) && (character == 0))) { // FAKE: unsigned 0x20 keeps heapAlloc's li a0,32 apart from the hoisted s4
             if (((*rowLink)->width == 0.0f) || ((f64)((*rowLink)->width + (f32)width) < 124.8f)) {
                 (*rowLink)->width += (f32)width;
                 width = 0;
             } else {
                 do { width = 0; } while (0); // FAKE: splits the basic block like the original
-                while ((line != NULL) && (line->character == 0x20)) {
-                    text = (u8 *)line;
-                    line = ((S112cLine *)text)->next;
-                    heapFreeDeferred(text);
+                while ((line != NULL) && (line->character == 0x20U)) { // FAKE: unsigned 0x20 keeps heapAlloc's li a0,32 apart from the hoisted s4
+                    p = line;
+                    line = p->next;
+                    heapFreeDeferred(p);
                 }
                 if (line != NULL) {
                     rowLink = &(*rowLink)->next;
@@ -655,11 +654,12 @@ s32 func_8070DED4(s32 arg0, s32 arg1, u16 arg2) {
                     (*rowLink)->height = time;
                     rowLines = &(*rowLink)->lines;
                     (*rowLink)->width = 0.0f;
-                    for (text = (u8 *)line; text != NULL; text = (u8 *)((S112cLine *)text)->next) {
-                        (*rowLink)->width += (f32)((S112cLine *)text)->width;
+                    for (p = line; p != NULL; p = p->next) {
+                        (*rowLink)->width += (f32)p->width;
                     }
                 }
             }
+            character = 1;
             if (line != NULL) {
                 *rowLines = line;
                 rowLines = lineLink;
@@ -670,7 +670,7 @@ s32 func_8070DED4(s32 arg0, s32 arg1, u16 arg2) {
                 i--;
             }
         } else if ((((u8 *)arg1)[i] > 0) && (((u8 *)arg1)[i] < 0x10)) {
-            flags = (flags ^ (1 << ((u8 *)arg1)[i])) & 0xFFFF;
+            flags ^= 1 << ((u8 *)arg1)[i];
         } else {
             character = 0;
             do { } while (0); // FAKE: splits the basic block like the original
@@ -693,7 +693,8 @@ s32 func_8070DED4(s32 arg0, s32 arg1, u16 arg2) {
                     (*lineLink)->width = textGetCharAdvance(6, text[0]);
                     (*lineLink)->flags = flags;
                     (*lineLink)->character = text[0];
-                    width = (width + (*lineLink)->width) & 0xFFFF;
+                    width += (*lineLink)->width;
+                    width &= 0xFFFF;
                     lineLink = &(*lineLink)->next;
                     text++;
                 } while (text[0] != 0);
@@ -701,10 +702,6 @@ s32 func_8070DED4(s32 arg0, s32 arg1, u16 arg2) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/112080/func_8070DED4.s")
-#endif
 
 extern s32 func_8070DED4(s32, s32, u16);
 extern u8 D_807550C8;
