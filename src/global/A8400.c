@@ -233,7 +233,6 @@ s32 func_806A3E9C(s32 arg0, SpriteAnim *arg1, s32 arg2) {
     return arg0;
 }
 
-#ifdef NON_MATCHING
 typedef struct ScreenBounds {
     /* 0x000 */ u8 pad0[0x270];
     /* 0x270 */ s16 unk270;
@@ -244,6 +243,7 @@ typedef struct ScreenBounds {
 } ScreenBounds;
 
 extern ScreenBounds *D_807FC924;
+#ifdef NON_MATCHING
 extern u8 D_807FC929;
 extern u8 D_807444FC;
 extern Gfx D_1000118;
@@ -577,18 +577,6 @@ struct ChainNode {
 void func_8070D9AC(ChainNode *);
 void func_8070E808(Actor *, void *);
 
-#ifndef NON_MATCHING
-typedef struct ScreenBounds {
-    /* 0x000 */ u8 pad0[0x270];
-    /* 0x270 */ s16 unk270;
-    /* 0x272 */ s16 unk272;
-    /* 0x274 */ s16 unk274;
-    /* 0x276 */ s16 unk276;
-    /* 0x278 */ u8 pad278[0x2F0 - 0x278];
-} ScreenBounds;
-
-extern ScreenBounds *D_807FC924;
-#endif
 
 void func_806A4DDC(Actor *arg0) {
     ChainState *state;
