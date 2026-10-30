@@ -348,9 +348,9 @@ u16 func_806DFF34(u16 arg0, u16 *arg1) {
     if (var_v0 != 0) {
         do {
             var_v1 |= var_v0;
-            if (&arg0) {}
+            if (&arg0) {} // FAKE: pins arg0 in memory
             arg1++;
-            if (var_v0 & arg0) {}
+            if (var_v0 & arg0) {} // FAKE: makes the and-result a uopt candidate
             if (var_v0 & arg0) {
                 var_a2 |= arg1[0];
             }
@@ -783,7 +783,6 @@ void func_806E0BEC(void) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_806E0D40(void) {
     f32 var_fv0;
     s16 temp_v1;
@@ -794,14 +793,10 @@ void func_806E0D40(void) {
     func_806E007C();
     if (G22_M->unk4 != 0.0f) {
         pad = &D_807FD610[D_807FC929];
-        if (1) {
-        }
-        if (1) {
-        }
-        if (1) {
-        }
-        if (1) {
-        }
+        if (1) {} // FAKE: steers uopt candidate priority (temp_v1 before temp_a0)
+        if (1) {} // FAKE: steers uopt candidate priority (temp_v1 before temp_a0)
+        if (1) {} // FAKE: steers uopt candidate priority (temp_v1 before temp_a0)
+        if (1) {} // FAKE: steers uopt candidate priority (temp_v1 before temp_a0)
         temp_v1 = D_807FBB40->unkE6;
         temp_a0 = temp_v1 - G22_M->unkA;
         if (temp_a0 > 0) {
@@ -814,16 +809,15 @@ void func_806E0D40(void) {
         }
         if (var_fv0 > 400.0f) {
             var_fv0 = 400.0f;
-            if (temp_a0 && temp_a0) {
-            }
+            if (temp_a0 && temp_a0) {} // FAKE: steers uopt candidate priority
         }
-        if (var_fv0 > 1.0f) {
-        }
+        if (var_fv0 > 1.0f) {} // FAKE: keeps the 2048/4096/400 compare chain
         var_fv0 = (f32)((pad->unk2E * G22_M->unk48) / 400);
         D_807FBB40->unkE6 = (s16)(s32)((f32)temp_v1 - var_fv0);
+        if (1) {} // FAKE: steers uopt candidate priority
         if (D_807FBB40->unkE6 >= 0x1000) {
-            if (!D_807FBB40 && !D_807FBB40 && !D_807FBB40) {
-            }
+            if (!D_807FBB40 && !D_807FBB40 && !D_807FBB40) {} // FAKE: steers uopt candidate priority
+            if (temp_a0) {} // FAKE: steers uopt candidate priority
             D_807FBB40->unkE6 -= 0x1000;
         }
         if (D_807FBB40->unkE6 < 0) {
@@ -835,10 +829,6 @@ void func_806E0D40(void) {
         G22_M->unk1A0 = (u32)((f64)(pad->unk2F * 0xCC) * 0.6 + 63000.0);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E0D40.s")
-#endif
 
 void func_806E0FAC(void) {
     f32 var_fv0;
@@ -1941,11 +1931,14 @@ void func_806E3E40(void) {
     s16 t;
 
     if (slotQueueGetValue(5, D_807FC929) && G24_M->unk1A3) {
+        if (!ground) {} // FAKE: dead test steers uopt coloring
         if (G24_PAD(D_807FD63C, u16) & 0x2000) {
             D_807FD6E0 = 0;
+            if (D_807FBB40 == 0) {} // FAKE: dead test steers uopt coloring
             D_807FD6E1 = 0;
         }
         ang = G24_A->unkEE - G24_A->unkE6;
+        if (D_807FD6E0 && D_807FD6E0) {} // FAKE: dead test steers uopt coloring
         if (ang < 0.0f) {
             ang += 4096.0f;
         }
@@ -1956,6 +1949,7 @@ void func_806E3E40(void) {
         } else {
             a = -ground;
         }
+        if (D_807FBB40 != 0) {} // FAKE: dead test steers uopt coloring
         if (a > 10.0f) {
             if (ang > 2048.0f) {
                 arg = 1024.0f;
@@ -1964,21 +1958,28 @@ void func_806E3E40(void) {
             }
             arg += G24_A->unkE6;
             if (arg >= 4096.0f) {
+                if (1) {} // FAKE: dead test steers uopt coloring
                 arg -= 4096.0f;
             }
+            if (arg != 0) {} // FAKE: dead test steers uopt coloring
             G24_M->unk2C = 8.0f;
             func_806CD424((s32)arg, 0.0f, G24_M->unk38);
         }
         ang = func_80612790(t) * G24_A->unkB8;
         ground = G24_A->unkC0;
+        if (D_807FD6E1 + 1.0f) {} // FAKE: dead test steers uopt coloring
         if (ground > 0.0f) {
+            if (D_807FD6E1) {} // FAKE: dead test steers uopt coloring
             ground = 0.0f;
+            if (ang) {} // FAKE: dead test steers uopt coloring
         }
         if (ang > 0.0f) {
             a = ang;
         } else {
             a = -ang;
+            if (1) {} // FAKE: dead test steers uopt coloring
         }
+        if (1) {} // FAKE: dead test steers uopt coloring
         if (a > 10.0f) {
             if (ground > 0.0f) {
                 a = ground;
@@ -1996,20 +1997,25 @@ void func_806E3E40(void) {
             a = -ang;
         }
         if (((a > 10.0f) || (G24_A->unkC0 < 0.0f)) && (D_807FD6E1 == 0)) {
+            if (!D_807FD6E1) {} // FAKE: dead test steers uopt coloring
             D_807FD6E0 = 4;
         }
         if (D_807FD6E0 != 0) {
             D_807FD6E0 -= 1;
             if (D_807FD6E0 == 0) {
+                if (a) {} // FAKE: dead test steers uopt coloring
                 D_807FD6E1 = 8;
             }
             func_806E384C();
         } else {
             sfxStopSlotSound(D_807FBB40, 0);
+            if (!D_807FBB40) {} // FAKE: dead test steers uopt coloring
         }
         if (D_807FD6E1 != 0) {
+            if (D_807FBB40 && D_807FBB40) {} // FAKE: dead test steers uopt coloring
             D_807FD6E1 -= 1;
         }
+        if (D_807FD6E1 == 0) {} // FAKE: dead test steers uopt coloring
     }
 }
 #else

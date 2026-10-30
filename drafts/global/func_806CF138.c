@@ -1,16 +1,11 @@
-// func_806CF138 (src/global/CEAE0.c): stage 6: asm-differ score 45 (7 lines, was 200): ONLY sp4C (target f2, ours f14) and the sp48 reload (target f14, ours f0) differ; everything else matches. Dead tests that matter: if (sp68) {} between the two actorGetNodePos calls, if (!sp50) {} before sp4C, if (sp34) {} between sp40= and sp44= (reads of later-assigned vars extend live ranges), if (sp4C) {} at end; sp40= before sp44=. Found by random hill-climbing of dead-test positions. Cause (uopt -l 5): post-call 'sp44 = dz' is linked to the pre-call dz candidate so dz interferes with sp4C/sp48reload (bits 19 vs 51/101); target has dz unlinked like dx. Moving sp44= into the sp4C block (both before the test) gets sp4C=f2 but sp44 then colors f16 (test var sp34 takes f18). Address-of / pointer tricks no effect. NOTE: the score-45 form reads uninitialised sp50/sp34 in dead tests (UB); src parks a version without those two tests.
+// func_806CF138 (src/global/CEAE0.c): stage 6, 7 diff lines (full=7): ONLY sp4C (target f2, ours f14) and sp48 reload (target f14, ours f0) differ. Callee asinApprox (name from CEAE0.c). uopt -l 6 this unit: candidates 15 sp5C expr f0, 21 dz1 expr f2, 27 dx1 expr f14, 51 sp4C var -> takes f14 because it interferes with 21 (post-call sp40/sp44 occurrences of the same (sp64-sp60)/(sp74-sp70) expressions are linked to the pre-call ones). Tried without effect: deadsweep sweep with all spXX extras (660 variants), 2 random SA/hill-climbs 40k-120k iters with forms if(X)/!X/X&&X/X==0/X>0.0f/X<0.0f/1/X+1.0f/X*2.0f, *(&sp64) forms for either occurrence, first-part dz/dx as named locals (9), (f32)/*1.0f/+(-x) on the second-part subs.
 typedef struct G05CbArg2 {
     /* 0x0 */ Actor *unk0;
     /* 0x4 */ Actor *unk4;
 } G05CbArg2;
 
-s32 func_806CF2EC(s32 *, s32 *);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-f32 sqrtf(f32);
 f32 func_80611850(f32);
-f32 func_806118FC(f32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 asinApprox(f32);
 void func_8067AA58(Actor *, Actor *, f32, f32);
 
 void func_806CF138(G05CbArg2 *arg0) {
@@ -36,20 +31,20 @@ void func_806CF138(G05CbArg2 *arg0) {
 
     func_806CF2EC(&sp30, &sp2C);
     actorGetNodePos(arg0->unk0, sp30, &sp70, &sp68, &sp60);
-    if (sp68) {}
+    if (sp68) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk0, sp2C, &sp74, &sp6C, &sp64);
     sp5C = sp6C - sp68;
     sp58 = sqrtf((sp64 - sp60) * (sp64 - sp60) + ((sp74 - sp70) * (sp74 - sp70) + sp5C * sp5C));
-    sp54 = func_806118FC(sp5C / sp58) * 57.29577637f;
+    sp54 = asinApprox(sp5C / sp58) * 57.29577637f;
     sp48 = func_80612794(arg0->unk0->unkE6) * 50.0f;
-    if (!sp50) {}
+    if (!sp50) {} // FAKE: dead test steers uopt coloring
     sp4C = func_80612790(arg0->unk0->unkE6) * 50.0f;
     sp40 = sp74 - sp70;
-    if (sp34) {}
+    if (sp34) {} // FAKE: dead test steers uopt coloring
     sp44 = sp64 - sp60;
     sp3C = sp44 * sp4C + sp48 * sp40;
     sp38 = sqrtf(sp4C * sp4C + sp48 * sp48);
     sp34 = sqrtf(sp44 * sp44 + sp40 * sp40);
-    if (sp4C) {}
+    if (sp4C) {} // FAKE: dead test steers uopt coloring
     func_8067AA58(arg0->unk0, arg0->unk4, sp54, 90.0 - func_80611850(sp3C / (sp38 * sp34)) * 57.29577637f);
 }
