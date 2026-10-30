@@ -1,74 +1,4 @@
-// func_80730408 (src/global/133A90.c): stage 4-5: pad2[4]->pad2[2] fixes frame to 0x288 (648) with the 133A90.c H1ActorB gaining ActorSub4 *unk4 at 4. Remaining: stack offset set differs only in 3 slots (target f64 temp@64, idx s32@72, f32 temp@208; mine idx@68, f64 temp@72, f32 temp@216) and idx v1 vs v0; 386 diff lines; decl adjacent swaps don't move it; permuter earlier best 1597 (stage 3 note kept in older draft).
-typedef struct H1ProxSub {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ u8 pad2[2];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ s16 unk16;
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 pad19[3];
-} H1ProxSub; // size = 0x1C
-
-typedef struct H1ProxNode {
-    /* 0x00 */ Actor *unk0;
-    /* 0x04 */ u8 unk4;
-    /* 0x05 */ u8 unk5;
-    /* 0x06 */ u8 unk6;
-    /* 0x07 */ u8 unk7;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[4];
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 pad19[3];
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ u8 unk30;
-    /* 0x31 */ u8 unk31;
-    /* 0x32 */ u8 pad32[2];
-    /* 0x34 */ H1ProxSub *unk34;
-    /* 0x38 */ struct H1ProxNode *next;
-} H1ProxNode; // size = 0x3C
-
-typedef struct H1ActorState {
-    /* 0x000 */ u8 pad0[0x130];
-    /* 0x130 */ Actor *unk130;
-    /* 0x134 */ u8 unk134;
-    /* 0x135 */ u8 pad135[3];
-    /* 0x138 */ f32 unk138;
-    /* 0x13C */ f32 unk13C;
-    /* 0x140 */ f32 unk140;
-    /* 0x144 */ f32 unk144;
-    /* 0x148 */ f32 unk148;
-    /* 0x14C */ u8 pad14C[0x10];
-    /* 0x15C */ u8 unk15C[0x40];
-    /* 0x19C */ s16 unk19C;
-    /* 0x19E */ s16 unk19E;
-    /* 0x1A0 */ u8 pad1A0[4];
-    /* 0x1A4 */ u8 unk1A4;
-} H1ActorState;
-
-typedef struct H1SlotEntry {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ u8 padC[8];
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ u8 pad18[0xC];
-    /* 0x24 */ u32 *unk24;
-    /* 0x28 */ u8 pad28[0x5C];
-    /* 0x84 */ s16 unk84;
-    /* 0x86 */ u8 pad86[0xA];
-} H1SlotEntry; // size = 0x90
-
+// func_80730408 (src/global/133A90.c): Stage 5: 441/441 insns, frame 0x288 exact, all 28 stack slots exact match (target f64 temp@64, idx@72, savedScale@208 matched via pad2[4], int idx before savedScale, and deadsweep if (D_807F6000 && D_807F6000) {}); remaining diff pure regalloc (idx v1 vs v0 and temporary registers)
 typedef struct H1ActorB {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ ActorSub4 *unk4;
@@ -91,16 +21,12 @@ typedef struct H1ActorB {
     /* 0x174 */ H1ActorState *unk174;
 } H1ActorB;
 
-extern H1SlotEntry *D_807F6000;
-s32 hashTableLookup();
-
 void splineSetBasisTension(f32);
 void func_80611A70(f32, f32, f32 *, f32 *);
-f32 func_80611BB4(f32, f32);
-void proxPathInterpolatePosition(u8, f32, H1ProxNode *, f32 *, f32 *, f32 *);
+void proxPathInterpolatePosition(u8, f32, ProxPath *, f32 *, f32 *, f32 *);
 void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
 
-void func_80730408(H1ActorB *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3, f32 arg4) {
+void func_80730408(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg2, u8 arg3, f32 arg4) {
     f32 one;
     f32 pad1[20];
     f32 p2[3];
@@ -119,13 +45,13 @@ void func_80730408(H1ActorB *arg0, H1ActorState *arg1, H1ProxNode *arg2, u8 arg3
     f32 oy;
     f32 oz;
     f32 yaw;
-    f32 pad2[2];
+    f32 pad2[4];
     Mtx mA;
-    s32 idx;
+    int idx;
     f32 savedScale;
     Mtx mB;
     Mtx mC;
-
+    if (D_807F6000 && D_807F6000) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     splineSetBasisTension(0.5f);
     a = arg4 - 0.1;
     idx = (s8)arg3;

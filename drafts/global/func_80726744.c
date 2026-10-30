@@ -1,4 +1,4 @@
-// func_80726744 (src/global/1295B0.c): Stage 5: 398/399 insns, frame 0x40, same switch/jtbl; fdiff score 463 (was ~3000 at start). Call args via (ang + 0, ang | 0, ang * 1, ang) gives 3 parallel sll/sra + raw a3; s32 v reused for act->unkE6 and entry->unkF (CSE across byte stores); node->unkA is u8; entry reused as the unk17C pointer in case 6; 7 locals for frame 0x40; unk154 assigned before unk155. Remaining: entry spill slot 0x24 vs 0x20, type in a3 vs a2 (a2 holds the 255 const), li a1,255 / li a1,0 vs move a1,zero. Decl-order shuffles (45) and dead if(0) did not beat 463.
+// func_80726744 (src/global/1295B0.c): Stage 5: 398/399 insns, frame 0x40 exact, same switch/jtbl; 1 extra li a1,255 before jal func_80613448 due to a1/a2 reg swap (CSE constant), entry spill 0x24 vs 0x20; deadsweep round 1 tried 6396 variants without improvement
 typedef struct A4Act {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ void *unk4;
@@ -133,12 +133,12 @@ extern s32 D_807FBB68;
 extern u8 D_807FC928;
 extern u8 D_80755698[];
 extern s32 D_8076A0A8;
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 s16 func_80613448(void *, s32);
 void actorUpdateFloorContactAndTilt(void *, s32);
 void behaviourSetAnimIds(s16, s16, s16, s16);
 void actorSetTargetSpeed(void *, u8);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 #define A4P4 ((A4Player *)D_807FC924)
 
 void func_80726744(void *arg0, void *arg1) {
@@ -167,7 +167,7 @@ void func_80726744(void *arg0, void *arg1) {
     }
     ang = entry->unk4;
     if (ang != 0) {
-        func_80614EBC(act, ang);
+        actorScriptStart(act, ang);
     }
     D_807FDC98 = (Struct807FDC98 *)node;
     behaviourSetAnimIds(ang + 0, ang | 0, ang * 1, ang);
@@ -299,7 +299,7 @@ void func_80726744(void *arg0, void *arg1) {
             break;
     }
     if (D_807FC928 >= 2) {
-        st->unk4 = A4P4[(func_80611A44() >> 0xF) % D_807FC928].unk4;
+        st->unk4 = A4P4[(randomNonNegative() >> 0xF) % D_807FC928].unk4;
     } else {
         st->unk4 = (void *)D_807FBB4C;
     }
