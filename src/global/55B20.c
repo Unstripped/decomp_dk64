@@ -661,7 +661,9 @@ u8 mapChunkPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
     return flag;
 }
 
-extern s32 D_807F6C80;
+s32 D_807F6C80;
+s32 D_807F6C84; // unreferenced word between the chunk count and D_807F6C88
+f32 D_807F6C88[12];
 extern s16 D_807F6C58[];
 struct MapCell;
 struct MapBox;
@@ -2622,8 +2624,6 @@ s32 mapGridPointPlaneDistanceWithin(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 
     return (v <= (f32)arg4) & 0xFF;
 }
 
-#ifdef NON_MATCHING
-f32 D_807F6C88[12];
 extern f32 D_807F6E68[];
 extern f32 D_807F6F58[];
 extern f32 D_807F6D78[];
@@ -2665,10 +2665,6 @@ s32 func_80658134(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
     }
     return n2;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658134.s")
-#endif
 
 typedef struct MapPlane {
     /* 0x00 */ f64 unk0;

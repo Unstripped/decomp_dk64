@@ -2132,3 +2132,4 @@ __osPiAccessQueue = 0x80016328; // type:OSMesgQueue size:0x18
 __osPfsPifRam = 0x800164F0; // type:OSPifRam size:0x40
 __osPfsInodeCache = 0x80016530; // type:OSInode size:0x100
 D_807FC7D0 = 0x807FC7D0; // type:u64 size:0x8
+D_807F6C88 = 0x807F6C88; // type:f32 size:0x30
