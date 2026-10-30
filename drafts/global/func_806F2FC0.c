@@ -1,4 +1,4 @@
-// func_806F2FC0 (src/global/F56F0.c): Stage 3 reconstructed all selector 0/1/4/5 paths; current closest has target control flow but needs ABI/register-frame tuning.
+// func_806F2FC0 (src/global/F56F0.c): from .scratch/F56C/func_806F2FC0_best.c
 typedef struct F5N5EffectState {
     u8 pad0[0x8E];
     u8 unk8E;
@@ -9,15 +9,14 @@ typedef struct F5N5EffectState {
 
 void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
 
-void func_806F2FC0(Actor *arg0, F5N5EffectState *arg1, s32 arg2) {
-    s16 bone;
+void func_806F2FC0(Actor *arg0, F5N5EffectState *arg1, u16 arg2) {
+    u8 state0;
+    u8 state2;
+    u16 bone;
     s32 selector;
     s32 shouldSpawn;
-    u8 state0;
-    u8 state1;
-    u8 state2;
 
-    selector = arg2 & 0xFFFF;
+    selector = arg2;
     switch (selector) {
     case 0:
         state0 = arg1->unk8E;
@@ -35,10 +34,10 @@ void func_806F2FC0(Actor *arg0, F5N5EffectState *arg1, s32 arg2) {
         }
         break;
     case 1:
-        state1 = arg1->unk8E;
+        selector = arg1->unk8E;
         shouldSpawn = 0;
-        if ((state1 != 0) && (state1 != 3)) {
-            if ((state1 == 0x10) && ((s32)arg1->unk8F < 6)) {
+        if ((selector != 0) && (selector != 3)) {
+            if ((selector == 0x10) && ((s32)arg1->unk8F < 6)) {
                 arg1->unk8F = 0;
             }
         } else if ((s32)arg1->unk8F >= 6) {

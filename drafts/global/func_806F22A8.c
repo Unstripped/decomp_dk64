@@ -1,120 +1,152 @@
-// func_806F22A8 (src/global/F56F0.c): stage 2: full m2c reconstruction saved; needs local view types and block/frame matching
-? actorGetNodePos(void *, ?, ? *, f32 *, ? *);      /* extern */
-s32 func_80611A44();                                /* extern */
-? func_806F1A18(f32, f32, void *, f32 *);           /* extern */
-f32 func_806F1AE0(f32, f32, void *, void *, ?);     /* extern */
-s32 func_806F1B58(void *, ?);                       /* extern */
-extern ? D_80752D4E;
+// func_806F22A8 (src/global/F56F0.c): Stage 5: frame 0xD0 + stack slots + instruction stream match; diffs: kind in s6 vs s3 / arg1 s3 vs s4, loop lb/sb order and entry-ptr increment position (target loads 0/4(s2) before addiu s2), lwc1 140(sp) order after func_806F1AE0. Uses F56A* types (identical to src) + s8 value[4] to keep byte in memory, f64 pad2 frame pad
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+} F5N1Spring;
+
+void func_806F1A18(f32 arg0, f32 arg1, F5N1Spring *arg2, f32 *arg3);
+
+typedef struct {
+    u8 pad0[0x14];
+    u8 unk14;
+    u8 pad15[3];
+    s32 unk18;
+} F5N1Predicate;
+
+s32 func_806F1B58(F5BActor *arg0, F5N1Predicate *arg1, s32 arg2);
+
+typedef struct {
+    F5N1Spring unk0;
+    F5N1Spring unkC;
+} F56APair;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    u8 padC[4];
+    f32 unk10;
+    u8 unk14;
+    u8 pad15[3];
+    s32 unk18;
+    F56APair unk1C[8];
+    u8 padDC[0x60];
+} F56AState;
+
+typedef struct {
+    u8 pad0[0x10];
+    s16 unk10;
+} F56AIdxMeta;
+
+typedef struct {
+    F56AIdxMeta *unk0;
+} F56AIdxSub;
+
+typedef struct {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x114];
+    F56AState *unk178;
+} F56AActor;
+
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+s32 randomNonNegative(void);
+extern s8 D_80752D4E[];
 extern f32 D_80752F4C;
 
-void func_806F22A8(void *arg0, s32 arg1, s32 *arg2) {
+void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
+    F56AState *state;
+    F56APair *pair;
+    s32 index;
+    s32 kind;
+    s32 active;
+    s32 i;
+    s32 pad;
     f32 spB0;
     f32 spAC;
     f32 spA8;
     f32 spA4;
-    ? sp90;
-    f32 sp8C;
-    ? sp88;
-    s8 sp87;
-    f32 sp7C;
-    f32 temp_fa1;
-    f32 temp_fs2;
-    f32 temp_ft4;
-    f32 temp_ft5;
-    f32 temp_fv0;
-    f32 temp_fv0_2;
-    f32 temp_fv1;
-    f32 var_fa0;
-    f32 var_fs0;
-    f32 var_fs1;
-    f32 var_fs2;
-    f32 var_fs3;
-    s16 temp_v0_2;
-    s32 temp_fp;
-    s32 var_s1;
-    s32 var_s7;
-    s8 var_s3;
-    u8 temp_v0;
-    void *temp_s0;
-    void *var_s0;
-    void *var_s2;
+    f32 fs3;
+    f32 fs2;
+    f32 fs1;
+    f32 fs0;
+    f32 z;
+    f32 y;
+    f32 x;
+    s8 value[4];
+    f32 target;
+    f32 dz;
+    f32 result;
+    f64 pad2;
 
-    temp_s0 = arg0->unk178;
-    var_s7 = *arg2;
-    var_s3 = 0x1A;
-    var_fs1 = 0.06f;
-    var_s2 = temp_s0 + 0x1C;
+    state = ((F56AActor *) arg0)->unk178;
+    index = *arg2;
+    kind = 0x1A;
+    pair = state->unk1C;
     spAC = 0.0f;
     spB0 = 0.0f;
-    var_fs3 = 0.0f;
-    var_fs2 = 0.0f;
+    fs3 = 0.0f;
+    fs2 = 0.0f;
     spA8 = 0.0003f;
     spA4 = 1.0f;
-    temp_fp = func_806F1B58(temp_s0, 3);
-    sp87 = -0x80;
-    actorGetNodePos(arg0, 5, &sp88, &sp8C, &sp90);
-    if (temp_fp == 0) {
-        temp_s0->unk0 = (f32) arg0->unkE6;
-        temp_s0->unk4 = sp8C;
+    fs1 = 0.06f;
+    active = func_806F1B58((F5BActor *) arg0, (F5N1Predicate *) state, 3);
+    value[3] = -0x80;
+    actorGetNodePos(arg0, 5, &x, &y, &z);
+    if (active == 0) {
+        state->unk0 = (f32) arg0->unkE6;
+        state->unk4 = y;
         D_80752F4C = 0.0f;
-        temp_v0 = temp_s0->unk14;
-        if ((temp_v0 != 0) && (arg0->unk60 & 0x100) && (temp_s0->unk18 == 3)) {
-            temp_s0->unk14 = (u8) (temp_v0 - 1);
+        if ((state->unk14 != 0) && (((F56AActor *) arg0)->unk60 & 0x100) && (state->unk18 == 3)) {
+            state->unk14 -= 1;
         }
     } else {
-        temp_fs2 = sp8C - temp_s0->unk4;
-        temp_v0_2 = (*arg0->unk4)->unk10;
-        temp_fv1 = (f32) arg0->unkE6;
-        temp_fa1 = temp_fs2 - temp_s0->unk8;
-        var_fs0 = temp_s0->unk0 - temp_fv1;
-        if (temp_v0_2 >= 0) {
-            var_fa0 = (f32) *(&D_80752D4E + temp_v0_2);
+        fs2 = y - state->unk4;
+        dz = fs2 - state->unk8;
+        fs0 = state->unk0 - (f32) arg0->unkE6;
+        if (((F56AIdxSub *) arg0->unk4)->unk0->unk10 >= 0) {
+            target = (f32) D_80752D4E[((F56AIdxSub *) arg0->unk4)->unk0->unk10];
         } else {
-            var_fa0 = -128.0f;
+            target = -128.0f;
         }
-        temp_fv0 = temp_s0->unk10;
-        temp_s0->unk0 = temp_fv1;
-        temp_s0->unk10 = (f32) ((f64) temp_fv0 + ((f64) (var_fa0 - temp_fv0) * 0.3));
-        sp87 = (s8) (s32) temp_s0->unk10;
+        state->unk0 = (f32) arg0->unkE6;
+        state->unk10 = (f32) ((f64) state->unk10 + ((f64) (target - state->unk10) * 0.3));
+        value[3] = (s8) state->unk10;
         if (arg0->unk154 == 0x4F) {
-            var_fs1 = 0.01f;
+            fs1 = 0.01f;
             spA8 = 0.0001f;
             spA4 = 0.4f;
         }
-        sp7C = temp_fa1;
-        temp_fv0_2 = func_806F1AE0(var_fa0, temp_fa1, arg0, temp_s0, 0x3C343958);
-        temp_s0->unk8 = temp_fs2;
-        temp_s0->unk4 = sp8C;
-        var_fs3 = (-temp_fv0_2 - ((0.005f * temp_fa1) + (0.0008f * temp_fs2))) * spA4;
-        if ((32.0f + ((1.0f - spA4) * 8.0f)) < (f32) ((s32) (func_80611A44() >> 0xF) % 40)) {
-            D_80752F4C = (f32) (0x14 - ((s32) (func_80611A44() >> 0xF) % 40)) * spA8;
+        result = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.011f);
+        state->unk8 = fs2;
+        state->unk4 = y;
+        fs3 = (-result - ((0.005f * dz) + (0.0008f * fs2))) * spA4;
+        if ((32.0f + ((1.0f - spA4) * 8.0f)) < (f32) ((randomNonNegative() >> 15) % 40)) {
+            D_80752F4C = (f32) (0x14 - ((randomNonNegative() >> 15) % 40)) * spA8;
         }
-        if (var_fs0 > 2048.0f) {
-            var_fs0 = 4096.0f - var_fs0;
-        } else if (var_fs0 < -2048.0f) {
-            var_fs0 = -(4096.0f + var_fs0);
+        if (fs0 > 2048.0f) {
+            fs0 = 4096.0f - fs0;
+        } else if (fs0 < -2048.0f) {
+            fs0 = -(4096.0f + fs0);
         }
-        var_fs2 = (f32) ((f64) ((1.0f - (arg0->unkB8 / 130.0f)) * D_80752F4C) + (2e-05 * (f64) var_fs0));
+        fs2 = (f32) ((f64) ((1.0f - (arg0->unkB8 / 130.0f)) * D_80752F4C) + (2e-05 * (f64) fs0));
     }
-    var_s0 = arg1 + (var_s7 * 8);
-    var_s1 = 0;
+    i = 0;
     do {
-        if (temp_fp != 0) {
-            func_806F1A18(var_fs3, var_fs1, var_s2, &spB0);
-            func_806F1A18(var_fs2, var_fs1, var_s2 + 0xC, &spAC);
+        if (active != 0) {
+            func_806F1A18(fs3, fs1, &pair->unk0, &spB0);
+            func_806F1A18(fs2, fs1, &pair->unkC, &spAC);
         }
-        var_s0->unk1 = var_s3;
-        var_s1 += 1;
-        var_s0->unk0 = sp87;
-        temp_ft4 = var_s2->unk0;
-        temp_ft5 = var_s2->unk4;
-        var_s2 += 0x18;
-        var_s7 += 1;
-        var_s0 += 8;
-        var_s3 += 1;
-        var_s0->unk-6 = (s16) (s32) ((f64) (temp_ft5 + temp_ft4) * 10430.218905280077);
-        var_s0->unk-2 = 0;
-        var_s0->unk-4 = (s16) (s32) ((f64) (var_s2->unk-8 + var_s2->unk-C) * 10430.218905280077);
-    } while (var_s1 != 0xB);
-    *arg2 = var_s7;
+        arg1[index].unk1 = kind;
+        i += 1;
+        arg1[index].unk0 = value[3];
+        arg1[index].unk2 = (s16) (s32) ((f64) (pair->unk0.unk4 + pair->unk0.unk0) * 10430.218905280077);
+        arg1[index].unk4 = (s16) (s32) ((f64) (pair->unkC.unk4 + pair->unkC.unk0) * 10430.218905280077);
+        arg1[index].unk6 = 0;
+        pair++;
+        index++;
+        kind++;
+    } while (i != 11);
+    *arg2 = index;
 }

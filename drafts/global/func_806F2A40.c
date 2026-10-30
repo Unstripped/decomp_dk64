@@ -1,4 +1,4 @@
-// func_806F2A40 (src/global/F56F0.c): Stage 3 semantic draft; target needs 8-byte s0 output cache. Bounded 600s -j2 permuter found scoring mutations as low as 1790, none reviewed as a faithful cutover.
+// func_806F2A40 (src/global/F56F0.c): Stage 4: 1.07 constant for unk258, ternary inc matches branch shape; remaining: target keeps arg2 in a2, arg0 in a3, arg1 in s0 (frame 8) while ours leaves a0/a1 in place
 typedef struct F5CPlayerState {
     u8 pad0[0x21E];
     u16 unk21E;
@@ -30,6 +30,8 @@ void func_806F2A40(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
     f32 var_fa0;
     f32 var_fv1;
     u16 temp_v1;
+    s32 adj;
+    s32 inc;
     actor = arg0;
     out = arg1;
     temp_v1 = F5C_PS->unk21E;
@@ -37,7 +39,7 @@ void func_806F2A40(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
     if ((f64)temp_fv0 < 1e-05) temp_fv0 = 0.000009999999747f;
     if ((actor->unk154 == 0x34) || (actor->unk154 == 0x84)) {
         if ((f64)F5C_PS->unk25C > 0.01) {
-            F5C_PS->unk258 = (f32)((f64)F5C_PS->unk258 * 0.7);
+            F5C_PS->unk258 = (f32)((f64)F5C_PS->unk258 * 1.07);
             F5C_PS->unk25C = (f32)((f64)F5C_PS->unk25C * 0.7);
         } else {
             actor->unk60 &= ~0x8000;
@@ -51,9 +53,9 @@ void func_806F2A40(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
         var_fv1 = temp_fv0;
         if (temp_v1 < 0x1E) {
             actor->unk60 |= 0x8000;
-            temp_v1 = 0x1E - temp_v1;
-            if (temp_v1 >= 3) temp_v1 = 2;
-            F5C_PS->unk21E += temp_v1;
+            adj = 0x1E - F5C_PS->unk21E;
+            inc = (adj >= 3) ? 2 : adj;
+            F5C_PS->unk21E += inc;
             F5C_PS->unk258 = 1.0f;
             F5C_PS->unk25C = F5C_PS->unk258;
         }

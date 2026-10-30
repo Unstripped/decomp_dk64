@@ -869,11 +869,140 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F22A8.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F2754.s")
+typedef struct F5N5PathSample {
+    u8 pad0[0x210];
+    f32 x0;
+    f32 z0;
+    f32 y0;
+    u8 pad21C[0x228 - 0x21C];
+    f32 x1;
+    f32 z1;
+    f32 y1;
+    u8 pad234[0x2F0 - 0x234];
+} F5N5PathSample;
+
+typedef struct F5N5Chain3 {
+    u8 pad0[0xB2];
+    s16 unkB2;
+} F5N5Chain3;
+
+typedef struct F5N5Chain2 {
+    u8 pad0[0x174];
+    F5N5Chain3 *unk174;
+} F5N5Chain2;
+
+typedef struct F5N5Chain1 {
+    u8 pad0[0x104];
+    F5N5Chain2 *unk104;
+} F5N5Chain1;
+
+typedef struct F5N5CameraActor {
+    u8 pad0[0xE6];
+    s16 unkE6;
+    u8 padE8[0x174 - 0xE8];
+    F5N5Chain1 *unk174;
+} F5N5CameraActor;
+
+typedef struct F5N5CameraEntry {
+    s8 unk0;
+    u8 unk1;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+} F5N5CameraEntry;
+
+extern f32 func_80611BB4(f32, f32);
+#define F5N5_PATH_SAMPLE ((F5N5PathSample *)D_807FC924 + D_807FC929)
+
+void func_806F2754(F5N5CameraActor *arg0, F5N5CameraEntry *arg1, s32 *arg2) {
+    f32 x;
+    s16 delta;
+    F5N5Chain3 *chain;
+    f32 y;
+    f32 planarAngle;
+    chain = arg0->unk174->unk104->unk174;
+    delta = (chain->unkB2 - arg0->unkE6) - 0x800;
+    x = F5N5_PATH_SAMPLE->y0 - F5N5_PATH_SAMPLE->y1;
+    y = F5N5_PATH_SAMPLE->x0 - F5N5_PATH_SAMPLE->x1;
+    planarAngle = func_80611BB4(F5N5_PATH_SAMPLE->z0 - F5N5_PATH_SAMPLE->z1, sqrtf((x * x) + (y * y)));
+    delta &= 0xFFF;
+    if ((delta < 0xC00) && (delta >= 0x801)) {
+        arg0->unkE6 = (arg0->unkE6 + delta) - 0xC00;
+        delta = 0xC00;
+    } else if ((delta >= 0x401) && (delta < 0x800)) {
+        arg0->unkE6 = (arg0->unkE6 + delta) - 0x400;
+        delta = 0x400;
+    }
+    arg1[*arg2].unk0 = -128;
+    arg1[*arg2].unk1 = 2;
+    arg1[*arg2].unk4 = (s16)(u32)(((f64)delta / 4095.0) * 65535.0);
+    arg1[*arg2].unk2 = (s16)(u32)((f64)(planarAngle / 6.2831855f) * 65535.0);
+    arg1[*arg2].unk6 = 0;
+    *arg2 += 1;
+}
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F2A40.s")
 
+#ifdef NON_MATCHING
+typedef struct F5CState16 { u8 pad0[0x16]; s16 unk16; } F5CState16;
+typedef struct F5CTurnActor { u8 pad0[0x6A]; u16 unk6A; u8 pad6C[0xDC - 0x6C]; s16 unkDC; s16 unkDE; u8 padE0[6]; s16 unkE6; } F5CTurnActor;
+typedef struct F5CTurnEntry { s8 unk0; u8 unk1; s16 unk2; s16 unk4; s16 unk6; } F5CTurnEntry;
+#define F5C_S16 ((F5CState16 *)D_807FD580)
+s16 func_806CC10C(s16, s16);
+extern f32 func_80612790(s16);
+extern f32 func_80612794(s16);
+void func_806F2C48(F5CTurnActor *arg0, F5CTurnEntry *arg1, s32 *arg2) {
+    s32 entry_index;
+    s8 v;
+    u16 angle;
+    u16 yaw;
+    u16 scaled;
+    f32 amplitude;
+    f32 cosine;
+    f32 factor;
+    entry_index = *arg2;
+    if (arg0->unk6A & 1) {
+        F5C_S16->unk16 += 2;
+        if (F5C_S16->unk16 >= 0x80) F5C_S16->unk16 = 0x7F;
+    } else {
+        F5C_S16->unk16 -= 2;
+        if (F5C_S16->unk16 < 0) F5C_S16->unk16 = 0;
+    }
+    if (F5C_S16->unk16 != 0) {
+        yaw = (arg0->unkDC - 0x800) & 0xFFF;
+        scaled = (0x400 - arg0->unkDE) & 0xFFF;
+        if (scaled >= 0x156) scaled = 0x155;
+        scaled = scaled * 0x10;
+        angle = func_806CC10C(arg0->unkE6, yaw);
+        amplitude = func_80612790(angle) * (f32)scaled;
+        factor = (f32)scaled;
+        cosine = func_80612794(angle);
+        v = (s8)((F5C_S16->unk16 * 6) / 10);
+        if (v != 0) {
+            arg1[entry_index].unk1 = 1;
+            arg1[entry_index].unk4 = 0;
+            arg1[entry_index].unk0 = v;
+            arg1[entry_index].unk2 = (s16)amplitude;
+            arg1[entry_index].unk6 = (s16)((-cosine) * factor);
+            entry_index += 1;
+        }
+        v = (s8)((F5C_S16->unk16 * 3) / 10);
+        if (v != 0) {
+            arg1[entry_index].unk1 = 2;
+            arg1[entry_index].unk4 = 0;
+            arg1[entry_index].unk0 = v;
+            arg1[entry_index].unk2 = (s16)amplitude;
+            arg1[entry_index].unk6 = (s16)((-cosine) * factor);
+            entry_index += 1;
+        }
+    }
+    *arg2 = entry_index;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F2C48.s")
+#endif
 typedef struct F5CEntry {
     u8 unk0;
     u8 unk1;
