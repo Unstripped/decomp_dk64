@@ -2689,7 +2689,6 @@ typedef struct MapVec3 {
 
 void func_8065850C(f32 *, f32 *, s32, f32 *);
 
-#ifdef NON_MATCHING
 void func_806582F8(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 arg4) {
     f32 sp7C[3];
     MapPlane *plane;
@@ -2699,43 +2698,34 @@ void func_806582F8(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 arg4) {
     s32 i;
     f64 y;
     f64 z;
-    f64 d;
 
+    cur = (MapVec3 *)arg0; // FAKE: gives cur an earlier candidate index than arg4 (s7/s8 colouring)
     n = 0;
-    prev = (MapVec3 *)&arg0[arg2 * 3] - 1;
-    cur = (MapVec3 *)arg0;
+    prev = arg2 - 1 + (MapVec3 *)arg0;
     plane = (MapPlane *)(D_807F5E68 + (arg4 << 6));
-    for (i = 0; i < arg2; i++) {
-        d = plane->unk38;
-        y = d + (((plane->unk20 * cur->x) + (plane->unk28 * cur->y)) + (plane->unk30 * cur->z));
-        z = d + (((plane->unk20 * prev->x) + (plane->unk28 * prev->y)) + (plane->unk30 * prev->z));
+    for (i = 0; i < arg2; i++, prev = cur) {
+        cur = i + (MapVec3 *)arg0;
+        y = plane->unk38 + (((plane->unk20 * cur->x) + (plane->unk28 * cur->y)) + (plane->unk30 * cur->z));
+        z = plane->unk38 + (((plane->unk20 * prev->x) + (plane->unk28 * prev->y)) + (plane->unk30 * prev->z));
         if (y >= 0.0) {
             if (z >= 0.0) {
-                memcpy(arg1 + n * 3, cur, 0xC);
+                memcpy(n + (MapVec3 *)arg1, cur, 0xC);
                 n++;
             } else {
                 func_8065850C((f32 *)prev, (f32 *)cur, arg4, sp7C);
-                memcpy(arg1 + n * 3, sp7C, 0xC);
-                n++;
-                memcpy(arg1 + n * 3, cur, 0xC);
-                n++;
+                memcpy(n++ + (MapVec3 *)arg1, sp7C, 0xC);
+                memcpy(n++ + (MapVec3 *)arg1, cur, 0xC);
             }
         } else if (z >= 0.0) {
             func_8065850C((f32 *)prev, (f32 *)cur, arg4, sp7C);
-            memcpy(arg1 + n * 3, sp7C, 0xC);
-            n++;
+            memcpy(n++ + (MapVec3 *)arg1, sp7C, 0xC);
         }
-        prev = cur++;
     }
     *arg3 = n;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806582F8.s")
-#endif
-
-#ifdef NON_MATCHING
 void func_8065850C(f32 *arg0, f32 *arg1, s32 arg2, f32 *arg3) {
+    f32 pad[3];
     f64 *m;
     f32 x1;
     f64 s;
@@ -2749,12 +2739,63 @@ void func_8065850C(f32 *arg0, f32 *arg1, s32 arg2, f32 *arg3) {
     arg3[1] = arg0[1] + ((arg1[1] - arg0[1]) * s);
     arg3[2] = arg0[2] + ((arg1[2] - arg0[2]) * s);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_8065850C.s")
-#endif
+typedef struct S55fVec3 {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+} S55fVec3;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658624.s")
+extern f32 D_807F6D78[];
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+
+void func_80658624(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
+    f32 sp7C;
+    f32 sp78;
+    s16 x;
+    s16 y;
+    s32 i;
+    u8 flag;
+
+    *arg1 = D_807FC924[D_807FC929].unk274;
+    *arg2 = D_807FC924[D_807FC929].unk276;
+    *arg3 = D_807FC924[D_807FC929].unk270;
+    *arg4 = D_807FC924[D_807FC929].unk272;
+    flag = 0;
+    for (i = 0; i < arg0; i++) {
+        flag |= camProjectToScreen(((S55fVec3 *)D_807F6D78)[i].unk0, ((S55fVec3 *)D_807F6D78)[i].unk4, ((S55fVec3 *)D_807F6D78)[i].unk8, &sp7C, &sp78, 0, 1.0f, D_807FC929); x = (s16)sp7C; y = (s16)sp78; // FAKE: same-line statements steer sra scheduling
+        if (x < D_807FC924[D_807FC929].unk270) {
+            x = D_807FC924[D_807FC929].unk270;
+        }
+        if (y < D_807FC924[D_807FC929].unk272) {
+            y = D_807FC924[D_807FC929].unk272;
+        }
+        if (D_807FC924[D_807FC929].unk274 < x) {
+            x = D_807FC924[D_807FC929].unk274;
+        }
+        if (D_807FC924[D_807FC929].unk276 < y) {
+            y = D_807FC924[D_807FC929].unk276;
+        }
+        if (x < *arg1) {
+            *arg1 = x;
+        }
+        if (y < *arg2) {
+            *arg2 = y;
+        }
+        if (*arg3 < x) {
+            *arg3 = x;
+        }
+        if (*arg4 < y) {
+            *arg4 = y;
+        }
+    }
+    if ((*arg1 == *arg3) || (*arg2 == *arg4) || (flag != 0)) {
+        *arg1 = -1;
+        *arg2 = -1;
+        *arg3 = -1;
+        *arg4 = -1;
+    }
+}
 
 void func_80658930(u8 *);
 
@@ -2779,28 +2820,29 @@ typedef struct MapNodeData {
     /* 0x12 */ s16 unk12;
     /* 0x14 */ u8 unk14[0x20];
     /* 0x34 */ s8 unk34;
+    /* 0x35 */ u8 pad35;
     /* 0x36 */ u8 unk36[0x20];
     /* 0x56 */ s8 unk56;
+    /* 0x57 */ u8 pad57;
     /* 0x58 */ u8 unk58[0x10];
     /* 0x68 */ s8 unk68;
 } MapNodeData;
 
 #ifdef NON_MATCHING
+#define MapNodeSlot(i) (*(MapNodeData **)((s32)D_807F70B8 + (i) * 4))
 void func_80658930(u8 *arg0) {
     s32 *w;
     s32 *end;
-    u8 **base;
     s16 n;
     s32 i;
     s16 idx;
     u8 *p;
+    s32 slot;
 
-    end = (s32 *)&D_807F7138;
-    w = (s32 *)D_807F70B8;
+    w = (s32 *)D_807F70B8; end = (s32 *)&D_807F7138; // FAKE: same-line statements steer lui/addiu scheduling
     do {
         *w++ = 0;
     } while (w < end);
-    base = (u8 **)D_807F70B8;
     if (arg0 == NULL) {
         return;
     }
@@ -2809,30 +2851,31 @@ void func_80658930(u8 *arg0) {
     for (i = 0; i < n; i++) {
         idx = *(s16 *)p;
         p += 2;
-        base[idx] = heapAlloc(0x6C);
-        ((MapNodeData *)base[idx])->unk10 = 0x7FFF;
-        ((MapNodeData *)base[idx])->unk12 = -0x8000;
-        ((MapNodeData *)base[idx])->unk8 = 0;
-        ((MapNodeData *)base[idx])->unk4 = *(s16 *)(p - 2);
-        ((MapNodeData *)base[idx])->unk0 = heapAlloc((u32)((MapNodeData *)base[idx])->unk4 * 6);
-        memcpy(((MapNodeData *)base[idx])->unk0,
-               p,
-               (u32)((MapNodeData *)base[idx])->unk4 * 6);
-        p += ((u32)((MapNodeData *)base[idx])->unk4 * 6 / 2) * 2;
-        ((MapNodeData *)base[idx])->unkE = *(s16 *)p;
-        ((MapNodeData *)base[idx])->unk34 = (s8)*(s16 *)(p + 2);
+        MapNodeSlot(idx) = heapAlloc(0x6C);
+        MapNodeSlot(idx)->unk10 = 0x7FFF;
+        MapNodeSlot(idx)->unk12 = -0x8000;
+        MapNodeSlot(idx)->unk8 = 0;
+        MapNodeSlot(idx)->unk4 = *(s16 *)p;
+        p += 2;
+        slot = (s32)D_807F70B8 + idx * 4;
+        (*(MapNodeData **)slot)->unk0 = heapAlloc((u32)(*(MapNodeData **)slot)->unk4 * 6);
+        memcpy((*(MapNodeData **)slot)->unk0, p, (u32)(*(MapNodeData **)slot)->unk4 * 6);
+        p += ((u32)(*(MapNodeData **)slot)->unk4 * 6 / 2) * 2;
+        (*(MapNodeData **)slot)->unkE = *(s16 *)p;
+        (*(MapNodeData **)slot)->unk34 = (s8)*(s16 *)(p + 2);
         p += 4;
-        memcpy(((MapNodeData *)base[idx])->unk14, p, 0x20);
-        ((MapNodeData *)base[idx])->unk56 = (s8)*(s16 *)(p + 0x20);
+        memcpy((*(MapNodeData **)slot)->unk14, p, 0x20);
+        (*(MapNodeData **)slot)->unk56 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy(((MapNodeData *)base[idx])->unk36, p, 0x20);
-        ((MapNodeData *)base[idx])->unk68 = (s8)*(s16 *)(p + 0x20);
+        memcpy((*(MapNodeData **)slot)->unk36, p, 0x20);
+        (*(MapNodeData **)slot)->unk68 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy(((MapNodeData *)base[idx])->unk58, p, 0x10);
+        memcpy((*(MapNodeData **)slot)->unk58, p, 0x10);
         p += 0x10;
         func_80651708(idx);
     }
 }
+#undef MapNodeSlot
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658930.s")
@@ -2896,7 +2939,6 @@ void mapSearchTableReset(void) {
 extern s32 D_807F7290;
 extern s32 D_8076A064;
 
-#ifdef NON_MATCHING
 void func_80658C10();
 
 void func_80658C10(arg0, arg1, arg2, arg3)
@@ -2921,17 +2963,14 @@ s16 arg3;
     if (found) {
         p = &((MapSearchEntry *)&D_807F7290)[i];
         p->unk10 = 1;
+        p->unkC = D_8076A064;
+        p->unk0 = arg0;
         p->unk4 = arg1;
         p->unk6 = arg2;
         p->unk8 = arg3;
-        p->unkC = D_8076A064;
-        p->unk0 = arg0;
+        if (found) {} // FAKE: keeps found live past the stores (p in a0, not v0)
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658C10.s")
-#endif
 
 extern s32 zbufferReadDepth(s16, s16);
 extern s32 zbufferDepthToDistance(s32);
@@ -2999,7 +3038,6 @@ typedef struct MapPlayerPosition {
     /* 0x224 */ f32 unk224;
 } MapPlayerPosition;
 
-void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
 s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
     f32 sp44;

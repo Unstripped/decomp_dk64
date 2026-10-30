@@ -1,9 +1,11 @@
-// func_80658930 (src/global/55B20.c): only diff: target hoists &D_807F70B8 to s6 and spills n to 0x46; draft rematerialises base and colours n to s8 (uopt colouring tie-break)
-// func_80658930: loop body matches the target instruction-for-instruction; only
-// (a) the target keeps &D_807F70B8 in $s6 (LICM hoist) while this draft rematerialises
-// it inside the loop, and (b) the target spills n to its stack slot 0x46 while this
-// draft colours n to $s8. Both are one uopt colouring tie-break apart.
-typedef struct M55P7Node {
+// func_80658930 (src/global/55B20.c): stage 6: 2-line scheduling diff only (li s8,-32768 in blez delay slot in target vs after sh spill in draft); base hoist, n spill, regs, frame all match
+// Everything else matches: base hoisted to s6, n spilled to 0x46(sp), p=s0/slot=s1, lui/addiu order (joined `w = ..; end = ..;` line), frame 80.
+// Found: (s32)D_807F70B8 + idx*4 integer arithmetic (not array/ixa form) hoists the base; a `slot` s32 temp for the later accesses fixes the p/slot colouring (permuter hint);
+// unk4 = *(s16 *)p; p += 2; (second halfword, not p - 2).
+extern s16 D_807F7138;
+extern void *D_807F70B8[];
+void func_80651708(s32);
+typedef struct S55fNodeData {
     /* 0x00 */ u8 *unk0;
     /* 0x04 */ s16 unk4;
     /* 0x06 */ u8 pad6[0x2];
@@ -20,27 +22,22 @@ typedef struct M55P7Node {
     /* 0x57 */ u8 pad57;
     /* 0x58 */ u8 unk58[0x10];
     /* 0x68 */ s8 unk68;
-} M55P7Node;
+} S55fNodeData;
 
-extern u8 *D_807F70B8[];
-void *heapAlloc(s32);
-void func_80651708(s32);
-
+#define S55fNodeSlot(i) (*(S55fNodeData **)((s32)D_807F70B8 + (i) * 4))
 void func_80658930(u8 *arg0) {
     s32 *w;
     s32 *end;
-    u8 **base;
     s16 n;
     s32 i;
     s16 idx;
     u8 *p;
+    s32 slot;
 
-    end = (s32 *)&D_807F7138;
-    w = (s32 *)D_807F70B8;
+    w = (s32 *)D_807F70B8; end = (s32 *)&D_807F7138; // FAKE: same-line statements steer lui/addiu scheduling
     do {
         *w++ = 0;
     } while (w < end);
-    base = D_807F70B8;
     if (arg0 == NULL) {
         return;
     }
@@ -49,27 +46,28 @@ void func_80658930(u8 *arg0) {
     for (i = 0; i < n; i++) {
         idx = *(s16 *)p;
         p += 2;
-        base[idx] = heapAlloc(0x6C);
-        ((M55P7Node *)base[idx])->unk10 = 0x7FFF;
-        ((M55P7Node *)base[idx])->unk12 = -0x8000;
-        ((M55P7Node *)base[idx])->unk8 = 0;
-        ((M55P7Node *)base[idx])->unk4 = *(s16 *)(p - 2);
-        ((M55P7Node *)base[idx])->unk0 = heapAlloc((u32)((M55P7Node *)base[idx])->unk4 * 6);
-        memcpy(((M55P7Node *)base[idx])->unk0,
-               p,
-               (u32)((M55P7Node *)base[idx])->unk4 * 6);
-        p += ((u32)((M55P7Node *)base[idx])->unk4 * 6 / 2) * 2;
-        ((M55P7Node *)base[idx])->unkE = *(s16 *)p;
-        ((M55P7Node *)base[idx])->unk34 = (s8)*(s16 *)(p + 2);
+        S55fNodeSlot(idx) = heapAlloc(0x6C);
+        S55fNodeSlot(idx)->unk10 = 0x7FFF;
+        S55fNodeSlot(idx)->unk12 = -0x8000;
+        S55fNodeSlot(idx)->unk8 = 0;
+        S55fNodeSlot(idx)->unk4 = *(s16 *)p;
+        p += 2;
+        slot = (s32)D_807F70B8 + idx * 4;
+        (*(S55fNodeData **)slot)->unk0 = heapAlloc((u32)(*(S55fNodeData **)slot)->unk4 * 6);
+        memcpy((*(S55fNodeData **)slot)->unk0, p, (u32)(*(S55fNodeData **)slot)->unk4 * 6);
+        p += ((u32)(*(S55fNodeData **)slot)->unk4 * 6 / 2) * 2;
+        (*(S55fNodeData **)slot)->unkE = *(s16 *)p;
+        (*(S55fNodeData **)slot)->unk34 = (s8)*(s16 *)(p + 2);
         p += 4;
-        memcpy(((M55P7Node *)base[idx])->unk14, p, 0x20);
-        ((M55P7Node *)base[idx])->unk56 = (s8)*(s16 *)(p + 0x20);
+        memcpy((*(S55fNodeData **)slot)->unk14, p, 0x20);
+        (*(S55fNodeData **)slot)->unk56 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy(((M55P7Node *)base[idx])->unk36, p, 0x20);
-        ((M55P7Node *)base[idx])->unk68 = (s8)*(s16 *)(p + 0x20);
+        memcpy((*(S55fNodeData **)slot)->unk36, p, 0x20);
+        (*(S55fNodeData **)slot)->unk68 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy(((M55P7Node *)base[idx])->unk58, p, 0x10);
+        memcpy((*(S55fNodeData **)slot)->unk58, p, 0x10);
         p += 0x10;
         func_80651708(idx);
     }
 }
+#undef S55fNodeSlot
