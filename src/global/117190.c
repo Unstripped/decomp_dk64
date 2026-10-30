@@ -954,9 +954,42 @@ s32 func_80714464(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807144B8.s")
-
+extern s8 D_8074452C;
+extern u8 D_807467C8;
 void func_806C9AE0(void);
+void func_80731030(void);
+void func_8060DC3C(u8, s32);
+s32 func_8060C6B8(s32, s32, s32, u8);
+void func_805FF4D8(s32, s32);
+
+void func_807144B8(u8 arg0) {
+    s32 var_a0;
+    s32 var_a1;
+
+    D_807445B8 = osGetTime();
+    D_80755350 = 0;
+    func_806C9AE0();
+    func_80731030();
+    func_8060DC3C(arg0, 1);
+    D_8074E77C = 0;
+    if ((func_8060C6B8(0xD, 0, 0, D_807467C8) != 0) || (D_8074452C != 0)) {
+        if (flagGet(0x186, 0) != 0) {
+            var_a0 = 0x22;
+            var_a1 = 0;
+        } else {
+            var_a0 = 0xB0;
+            var_a1 = 1;
+        }
+    } else {
+        D_80755338 = 1;
+        D_8075533C = 0;
+        var_a0 = 0x99;
+        var_a1 = 0;
+    }
+    func_805FF4D8(var_a0, var_a1);
+    D_80755318 = 6;
+}
+
 
 
 void func_8071458C(void) {
