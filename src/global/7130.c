@@ -1845,27 +1845,29 @@ extern u8 D_807457D8;
 extern s32 D_807457E4[];
 extern u8 D_80745834;
 
-#ifdef NON_MATCHING
-void func_80608DA8(s16 arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4) {
-    f32 orig_pitch;
+void func_80608DA8(arg0, arg1, arg2, arg3, arg4)
+s16 arg0;
+u8 arg1;
+u8 arg2;
+u8 arg3;
+u8 arg4;
+{
     s32 vol;
-    f32 pitch;
     f32 pan;
-    u8 reverb;
+    f32 pitch;
+    u8 reverb = 0;
 
-    vol = (s32)(((f64)((arg1 & 0xFF) * 0x7FFF)) / 255.0);
+    vol = (s32)(((f64)(arg1 * 0x7FFF)) / 255.0);
     if (vol < 1001) {
         return;
     }
 
-    pitch = (f64)(u32)(arg2 & 0xFF) / 127.0;
-    orig_pitch = pitch;
-    pan = ((f64)(u32)func_806119A0() / 4294967295.0) * (2.0 * (f64)(u32)(arg3 & 0xFF)) + (63.5 - (f64)(u32)(arg3 & 0xFF));
-    reverb = 0;
+    pitch = (f64)(u32)arg2 / 127.0;
+    pan = ((f64)(u32)func_806119A0() / 4294967295.0) * (2.0 * (f64)(u32)arg3) + (63.5 - (f64)(u32)arg3);
 
     if (arg3 != 0) {
-        vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)(arg3 & 0xFF) / 155.0))) * (f64)vol;
-        pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)(arg3 & 0xFF) / 100.0)) + ((f64)orig_pitch - ((f64)(u32)(arg3 & 0xFF) / 255.0));
+        vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg3 / 155.0))) * (f64)vol;
+        pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg3 / 100.0)) + ((f64)pitch - ((f64)(u32)arg3 / 255.0));
     }
 
     if (D_8077058E >= 21) {
@@ -1882,12 +1884,7 @@ void func_80608DA8(s16 arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4) {
     n_alSndpSetPriority(D_807457D0[D_807457D8], 0);
     D_807457D8 ^= 1;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80608DA8.s")
-#endif
-
-#ifdef NON_MATCHING
 s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     s16 res;
     s16 i;
@@ -1909,11 +1906,7 @@ s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     if (i > 0) {
         osSetThreadPri(NULL, 26);
         if (D_8077058E >= 21) {
-            s32 reverb = (D_8077058E * 100) / 255;
-            if (reverb < (arg5 & 0x7F)) {
-                reverb = arg5 & 0x7F;
-            }
-            arg5 = reverb | (arg5 & 0x80);
+            arg5 = ((((D_8077058E * 100) / 255) < (arg5 & 0x7F)) ? (arg5 & 0x7F) : ((D_8077058E * 100) / 255)) | (arg5 & 0x80);
         }
 
         if (arg0 < 0x800) {
@@ -1938,10 +1931,6 @@ s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
 
     return -1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80609140.s")
-#endif
 
 extern s32 D_807457C8;
 f32 sqrtf(f32);
@@ -2230,7 +2219,6 @@ void seqPlayWithDefaultVolume(s32 arg0, u8 arg1) {
 }
 
 void seqUpdateUnderwaterAudio(s32);
-#ifdef NON_MATCHING
 void func_8060A6A0(s32 arg0, u8 arg1, f32 arg2) {
     f64 var_fv0;
     f32 pan, vol;
@@ -2241,6 +2229,7 @@ void func_8060A6A0(s32 arg0, u8 arg1, f32 arg2) {
     vol = ((var_fv0 * 0.35) / 255.0) + 1.0;
     if (arg0 != 0) {
         if (D_80745658[D_80770560[arg0]] & 1) {
+            var_fv0 = (f64)(u32)D_8077058E;  // FAKE: dead reload keeps pan/vol computed before the branch
             alCSPSetChlPanVolume(gSeqPlayers[arg0], pan, vol);
         } else {
             alCSPSetChlPanVolume(gSeqPlayers[arg0], 0.0f, 1.0f);
@@ -2248,7 +2237,3 @@ void func_8060A6A0(s32 arg0, u8 arg1, f32 arg2) {
     }
     seqUpdateUnderwaterAudio(arg0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_8060A6A0.s")
-#endif
