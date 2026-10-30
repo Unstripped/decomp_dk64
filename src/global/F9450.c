@@ -766,12 +766,35 @@ void func_806F5A48(u8 arg0, s16 arg1, F9N2At58 *arg2, u16 arg3) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F5C30.s")
+extern s32 D_80754248[];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F5CE4.s")
+s32 func_806F5C30(s32 arg0) {
+    s32 i;
+
+    for (i = 0; i < 7; i++) {
+        if (arg0 == D_80754248[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+extern s32 D_80754264[];
+
+s32 func_806F5CE4(arg0)
+s32 arg0;
+{
+    s32 i;
+
+    for (i = 0; i < 6; i++) {
+        if (arg0 == D_80754264[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 extern s32 randomNonNegative(void);
-extern s32 D_80754248[];
 
 void func_806F5D80(s32 *arg0, s32 *arg1) {
     *arg0 = D_80754248[((u32) (randomNonNegative() >> 0xF) % 7U)];
