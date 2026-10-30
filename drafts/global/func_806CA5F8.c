@@ -1,4 +1,4 @@
-// func_806CA5F8 (src/global/CEAE0.c): stage 6 near-miss, ~24 real differing insns of 1250 (all regalloc; was ~124): (1) fx: target keeps LCA_P->unk254 temp in a1 (lw a1; beqz a1; move a0,a1 -> effectFreeAndUnlink; reload lw a1 after create/free; join 'move s0,a1') with s0 only AFTER the join; ours keeps fx in s0 whole + 'move a1,s0'; (2) 4 blocks D_807FBB48 ptr (create-path args, node-pos/func_80626F8C x3) target v1, ours v0: candidate gets v1 if actorGetNodePos/func_8071495C/func_80626F8C return s32 (v0 hard-forbidden) but then D_807FD580 ptr flips to v0 and the whole early part reshuffles (139 vs 38 diff lines). Fixed this round: float rotation after sqrtf (dz = sqrtf(...) reusing dz local, no frame change; a new f32 local grows frame/shifts u8 slots), beq operand order ((u32)v != unk1A4). Tried without success: fx as two locals / arg0 param as carrier / old local (frame +8) / 1-arg call / PRE-only join, s32 returns of every callee, dead-test position scans, 4 permuter runs x 900s.
+// func_806CA5F8 (src/global/CEAE0.c): stage 6, 9 diff lines (shape 1; regalloc only). Fixed vs old park: effectFreeAndUnlink ONE-arg; camProjectToScreen declared s32 (its real return type) - needed to get D_807FBB48 ptr v1; removed the two 'if (D_807FBB48 && D_807FBB48) {}' dead stmts; added dead 'if (D_807FBB40 && D_807FBB40) {}' as first statement (deadsweep). ONLY remaining: fx (LCA_P->unk254): target keeps it in a1 over arms/join test (lw a1; bnez a1; move a0,a1; reload lw a1 after create/free) and 'move s0,a1' in the delay slot of the join beqz (live range split, s0 only in body); ours s0 whole, no move. actorGetNodePos s32 (real return) breaks the file (another fn declares it void).
 typedef struct LCA5F8Fx {
     /* 0x000 */ u8 pad0[0x340];
     /* 0x340 */ f32 unk340;
@@ -124,8 +124,8 @@ void func_805FF2F4();
 void healthRefill(u8);
 void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
-void effectFreeAndUnlink(void *, void *);
-void func_80626F8C(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
+void effectFreeAndUnlink(void *);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
 s32 playerStateQueueCallback(s32, Actor *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 sqrtf(f32);
@@ -151,6 +151,7 @@ void func_806CA5F8(s32 arg0) {
     f32 sp48;
     LCA5F8Fx *fx;
     s16 flags;
+    if (D_807FBB40 && D_807FBB40) {}  // FAKE: steers uopt candidate colouring (D_807FBB48 pointer v1)
 
     sp64 = D_807FBB40;
     D_807FD580 = D_807FBB40->unk174;
@@ -249,8 +250,6 @@ void func_806CA5F8(s32 arg0) {
                 LCA_P->unk24A = LCA_P->unk24A - 1;
             } else {
                 LCA_P->unk248 = -1;
-                if (D_807FBB48 && D_807FBB48) {
-                }
                 LCA_P->unk249 = 0;
             }
         }
@@ -289,13 +288,13 @@ void func_806CA5F8(s32 arg0) {
                 fx = LCA_P->unk254;
                 if (fx != NULL) {
                     LCA_P->unk254 = NULL;
-                    effectFreeAndUnlink(fx, fx);
+                    effectFreeAndUnlink(fx);
                     fx = LCA_P->unk254;
                 }
             }
             if (fx != NULL) {
                 actorGetNodePos(D_807FBB48, 1, &sp5C, &sp58, &sp54);
-                func_80626F8C(sp5C, sp58, sp54, &sp4C, &sp48, NULL, 1.0f, 0);
+                camProjectToScreen(sp5C, sp58, sp54, &sp4C, &sp48, NULL, 1.0f, 0);
                 fx->unk340 = sp4C * 4.0f;
                 fx->unk344 = sp48 * 4.0f;
                 fx->unk348 = 5.0f;
@@ -344,9 +343,9 @@ case2:
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2C0, 0xFF, 0x7F, 0);
         }
         if (D_8076A0A8 == 0x53 || D_8076A0A8 == 0xC5) {
-            playerStateQueueCallback(0x40, sp64, D_807FC929);
-        } else {
-            playerStateQueueCallback(0x30, sp64, D_807FC929);
+        playerStateQueueCallback(0x40, sp64, D_807FC929);
+    } else {
+        playerStateQueueCallback(0x30, sp64, D_807FC929);
         }
     }
 done:
@@ -357,16 +356,14 @@ done:
         }
     }
     actorGetNodePos(D_807FBB48, 6, &LCA_SLOT(D_807FC929).unk2B4, &LCA_SLOT(D_807FC929).unk2B8, &LCA_SLOT(D_807FC929).unk2BC);
-    func_80626F8C(D_807FBB48->unk7C, LCA_SLOT(D_807FC929).unk2B8, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
+    camProjectToScreen(D_807FBB48->unk7C, LCA_SLOT(D_807FC929).unk2B8, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
     LCA_P->unk10E = sp70;
     LCA_P->unk110 = sp6C;
-    func_80626F8C(D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
+    camProjectToScreen(D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
     LCA_P->unk112 = sp6C;
     LCA_P->unk1F8 = LCA_P->unk1F0;
     if (LCA_P->unk268 != 0) {
         LCA_P->unk268 = LCA_P->unk268 - 1;
-        if (D_807FBB48 && D_807FBB48) {
-        }
     }
     if ((D_807FBB40->unk7C < (f32)D_807F5FE4 || D_807FBB40->unk84 < (f32)D_807F5FE6 || (f32)D_807F5FE8 < D_807FBB40->unk7C || (f32)D_807F5FEA < D_807FBB40->unk84 || sp68 != 0) && LCA_P->unk244 == 0 && (u32)D_8076A064 >= 0x65 && !(D_807FBB64 & 0x4000) && D_8076A0A8 != 0xE) {
         if (D_807FC928 == 1) {

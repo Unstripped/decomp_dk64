@@ -1922,7 +1922,6 @@ void func_806E3E40(void) {
     s16 t;
 
     if (slotQueueGetValue(5, D_807FC929) && G24_M->unk1A3) {
-        if (!ground) {} // FAKE: dead test steers uopt coloring
         if (G24_PAD(D_807FD63C, u16) & 0x2000) {
             D_807FD6E0 = 0;
             if (D_807FBB40 == 0) {} // FAKE: dead test steers uopt coloring
