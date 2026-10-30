@@ -299,3 +299,7 @@ D_807F04FC = 0x807F04FC;
 D_807F0504 = 0x807F0504;
 D_807F050C = 0x807F050C;
 D_807F0514 = 0x807F0514;
+
+/* F600, 6710 bss/data interior labels (inside objects defined in C) */
+D_807ECD62 = 0x807ECD62;
+D_807ECD63 = 0x807ECD63;

@@ -217,7 +217,8 @@ segments:
       - [0x1492E0, data, 3C10]
       - [0x149FA0, data, 5650]
       - [0x149FB0, data, 5A50]
-      - [0x149FC0, data]
+      - [0x149FC0, .data, 6710]
+      - [0x14A1F0, data]
       - [0x14B510, data, 131B0]
       - [0x14B730, data, 15050]
       - [0x14B740, data]
@@ -343,8 +344,12 @@ segments:
       - { start: 0x165D50, type: .bss, vram: 0x8076A160, name: 3C10 } # D_8076A160[18] slots .. D_8076AEF8 (0x8076A160-0x8076AF00)
       - { start: 0x165D50, type: .bss, vram: 0x8076AF00, name: 5230 } # D_8076AF00..D_8076AF18 (0x8076AF00-0x8076AF20)
       - { start: 0x165D50, type: bss, vram: 0x8076AF20, name: 165D50_8076AF20 }
+      - { start: 0x165D50, type: .bss, vram: 0x8076D4C0, name: 6710 } # D_8076D4C0..D_80770558 (0x8076D4C0-0x80770560)
+      - { start: 0x165D50, type: bss, vram: 0x80770560, name: 165D50_80770560 }
       - { start: 0x165D50, type: .bss, vram: 0x80770DF0, name: 7130 } # D_80770DF0..D_80770F38 (func_806057F8's static pitch at 0x80770F38)
       - { start: 0x165D50, type: bss, vram: 0x80770F40, name: 165D50_80770F40 }
+      - { start: 0x165D50, type: .bss, vram: 0x807ECCD0, name: F600 } # D_807ECCD0..D_807ECDFC (0x807ECCD0-0x807ECE00)
+      - { start: 0x165D50, type: bss, vram: 0x807ECE00, name: 165D50_807ECE00 }
       - { start: 0x165D50, type: .bss, vram: 0x807F02D0, name: 131B0 } # D_807F02D0..D_807F0568 (0x807F02D0-0x807F0570)
       - { start: 0x165D50, type: bss, vram: 0x807F0570, name: 165D50_807F0570 }
       - { start: 0x165D50, type: .bss, vram: 0x807F5B10, name: 201B0 }

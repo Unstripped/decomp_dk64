@@ -2,22 +2,32 @@
 
 extern volatile u8 D_807467C4;
 extern s8 D_80746834;
-extern OSContStatus D_807ECCD0[4];
-extern OSMesg D_807ECCE0[4];
-extern OSMesgQueue D_807ECCF0;
-extern u8 D_807ECD08;
-extern u8 D_807ECD09;
-extern OSContPad D_807ECD10[4];
-extern OSContPad D_807ECD28[4];
-extern s16 D_807ECD40[4];
-extern s16 D_807ECD48[4];
-extern s16 D_807ECD50[4];
-extern OSContPad D_807ECD58;
-extern s16 D_807ECD68[4][16];
-extern OSContPad *D_807ECDE8;
-extern OSContPad *D_807ECDF4;
-extern u8 D_807ECDF8;
-extern u8 D_807ECDFC[4];
+
+// .bss 0x807ECCD0-0x807ECE00
+OSContStatus D_807ECCD0[4];
+OSMesg D_807ECCE0[4];
+OSMesgQueue D_807ECCF0;
+u8 D_807ECD08;
+u8 D_807ECD09;
+OSContPad D_807ECD10[4];
+OSContPad D_807ECD28[4];
+u16 D_807ECD40[4];
+u16 D_807ECD48[4];
+u16 D_807ECD50[4];
+OSContPad D_807ECD58;
+u8 D_807ECD5E[2];
+OSContPad D_807ECD60;
+u16 D_807ECD66;
+s16 D_807ECD68[4][16];
+OSContPad *D_807ECDE8;
+OSContPad *D_807ECDEC;
+u16 D_807ECDF0;
+OSContPad *D_807ECDF4;
+u8 D_807ECDF8;
+u8 D_807ECDF9;
+u8 D_807ECDFA;
+u8 D_807ECDFB;
+u8 D_807ECDFC[4];
 
 void controllerWaitRead(void);
 void controllerSetActiveMask(u8 mask);
@@ -109,10 +119,6 @@ void controllerGetReadData(OSContPad *pad) {
 }
 
 #ifdef NON_MATCHING
-extern OSContPad D_807ECD60;
-extern u16 D_807ECD66;
-extern OSContPad *D_807ECDEC;
-extern u16 D_807ECDF0;
 extern u8 D_807463B8;
 extern s32 D_8076A064;
 extern u8 D_8076A0B1;

@@ -51,22 +51,72 @@ typedef struct AudioTaskConfig {
     u32 cmdCount;
 } AudioTaskConfig;
 
-extern OSThread D_8076D4E8;
-extern AudioContext D_8076D4D0;
+typedef struct AudioAlState {
+    s32 words[0x2760 / 4];
+} AudioAlState;
+
+typedef struct AudioDmaContext {
+    u8 unk0;
+    u8 pad1[3];
+    AudioDmaNode *unk4;
+    AudioDmaNode *unk8;
+} AudioDmaContext;
+
 extern s32 D_8000DCB4;
-extern AudioSynthesizerConfig D_807452D0;
-extern OSMesgQueue D_8076D698;
-extern OSMesg D_8076D6B0[8];
-extern OSMesgQueue D_8076D6D0;
-extern OSMesg D_8076D6E8[8];
-extern s32 D_8076D708;
-extern AudioDmaNode D_8076FE68[];
-extern s32 D_80770194;
-extern s32 D_8077019C;
-extern s32 D_807701A0;
-extern s32 *D_807701A4;
-extern OSMesgQueue D_807704A8;
-extern OSMesg D_807704C0[32];
+
+// .data 0x807452C0-0x807454F0
+u32 D_807452C0 = 0;
+u32 D_807452C4 = 0;
+s32 D_807452C8 = 0;
+s8 D_807452CC = 0;
+AudioSynthesizerConfig D_807452D0 = { {
+    0x8, 0x2270, 0x0, 0xC0, 0x2666, 0xFFFFD99A,
+    0x0, 0x0, 0x0, 0x0, 0xC0, 0x188,
+    0x2666, 0xFFFFD99A, 0x2B84, 0x0, 0x0, 0x0,
+    0x370, 0xB00, 0x4000, 0xFFFFC000, 0x11EB, 0x0,
+    0x0, 0x0, 0x420, 0x840, 0x2000, 0xFFFFE000,
+    0x0, 0x0, 0x0, 0x0, 0xDC8, 0x1818,
+    0x4000, 0xFFFFC000, 0x11EB, 0x0, 0x0, 0x0,
+    0xE78, 0x14A8, 0x2000, 0xFFFFE000, 0x0, 0x0,
+    0x0, 0x0, 0x14A8, 0x1740, 0x2000, 0xFFFFE000,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x1978,
+    0x32C8, 0xFFFFCD38, 0x0, 0x17C, 0xA, 0x0,
+    0x0, 0x1, 0xA50, 0x0, 0x898, 0x3334,
+    0x0, 0x7335, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0,
+} };
+s32 D_807454E8[2] = { 1, 0 };
+
+// .bss 0x8076D4C0-0x80770560
+u8 D_8076D4C0[0x10];
+AudioContext D_8076D4D0;
+OSThread D_8076D4E8;
+OSMesgQueue D_8076D698;
+OSMesg D_8076D6B0[8];
+OSMesgQueue D_8076D6D0;
+OSMesg D_8076D6E8[8];
+AudioAlState D_8076D708;
+AudioDmaNode D_8076FE68[40];
+AudioDmaContext D_80770188;
+s32 D_80770194;
+s32 D_80770198;
+s32 D_8077019C;
+s32 D_807701A0;
+s32 *D_807701A4;
+OSIoMesg D_807701A8[32];
+OSMesgQueue D_807704A8;
+OSMesg D_807704C0[32];
+u8 D_80770540[0x18];
+s32 D_80770558[2];
 
 void *audioDmaNew();
 void n_alInit(s32 *, AudioInitArgs *);
@@ -87,8 +137,8 @@ void func_80601A10(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
     sp44 = D_807452D0;
     arg0->synConfig = &sp44;
     arg0->unk24 = (u8 *)&sp44 + 0x10C;
-    n_alInit(&D_8076D708, arg0);
-    D_807701A4 = &D_8076D708;
+    n_alInit((s32 *)&D_8076D708, arg0);
+    D_807701A4 = (s32 *)&D_8076D708;
 
     D_8076FE68[0].prev = NULL;
     D_8076FE68[0].next = NULL;
@@ -119,8 +169,6 @@ void func_80601A10(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
     osCreateThread(&D_8076D4E8, 4, audioThreadMain, NULL, D_8076FE68, arg1);
 }
 
-extern s8 D_807452CC;
-
 void audioThreadStart(void) {
     D_807452CC = 1;
     osStartThread(&D_8076D4E8);
@@ -138,9 +186,7 @@ typedef struct AudioSched {
     void *audioListHead;
 } AudioSched;
 
-extern u8 D_8076D4C0;
 extern AudioSched gScheduler;
-extern u32 D_807452C0;
 s32 audioDmaCallback();
 
 void schedAddClient(void *, void *, OSMesgQueue *, s32, s32);
@@ -193,8 +239,6 @@ typedef struct AudioAiBuffer {
 
 extern u32 D_805FB000[];
 extern u32 D_805FB0D0[];
-extern s32 D_807452C8;
-extern s32 D_80770558[];
 extern u32 func_80741310[];
 extern u64 D_80760590[];
 
@@ -269,8 +313,6 @@ s32 func_80601EE4(AudioTask *task, AudioAiBuffer *aiBuf) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/6710/func_80601EE4.s")
 #endif
 
-extern s32 D_807454E8[];
-
 void audioCheckAiLength(s32 arg0) {
     s32 zero = 0;
     if (((osAiGetLength() >> 2) == 0) && (D_807454E8[zero] == 0)) {
@@ -278,17 +320,6 @@ void audioCheckAiLength(s32 arg0) {
     }
 }
 
-
-typedef struct AudioDmaContext {
-    u8 unk0;
-    u8 pad1[3];
-    AudioDmaNode *unk4;
-    AudioDmaNode *unk8;
-} AudioDmaContext;
-
-extern AudioDmaContext D_80770188;
-extern OSIoMesg D_807701A8[];
-extern u32 D_807452C4;
 
 s32 audioDmaCallback(u32 addr, s32 len, void *state) {
     void *sp44;
