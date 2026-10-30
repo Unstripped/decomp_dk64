@@ -843,56 +843,47 @@ typedef struct {
 #define S0DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
 void func_805FCA94(void *arg0) {
-    Sched0View *v;
+    Actor *pa;
     Sched0PlayerData *pl;
     Sched0Held *held;
     s32 i;
     f32 fov;
     f32 aspect;
     f32 offs;
+    s32 *cc;
 
-    if (D_807445CC[0] && D_807445CC[0]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     aspect = func_8062A850();
+    if (D_807445CC && D_807445CC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (D_807FC928 >= 2 && D_80750AB8 == 1) {
         func_8062754C(func_806276AC());
     }
     for (i = 0; i < D_80750AB4; i++) {
-        if (D_80750AB4 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        if (i && i) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        v = &S0V[i];
-        if (v->unk0 != 0) {
-            if (S0DIFF(v->unk210, v->unk228) < 0.5 && S0DIFF(v->unk218, v->unk230) < 0.5) {
+        if (S0V[i].unk0 != 0) {
+            if (S0DIFF(S0V[i].unk210, S0V[i].unk228) < 0.5 && S0DIFF(S0V[i].unk218, S0V[i].unk230) < 0.5) {
                 offs = 1.0f;
             } else {
                 offs = 0.0f;
             }
-            guLookAtHilite(&v->unk8[D_807444FC], &v->unk190[D_807444FC], &v->unk1D0[D_807444FC],
-                           v->unk210 + offs, v->unk214, v->unk218 + offs,
-                           v->unk228, v->unk22C, v->unk230,
-                           v->unk240, v->unk244, v->unk248,
+            guLookAtHilite(&S0V[i].unk8[D_807444FC], &S0V[i].unk190[D_807444FC], &S0V[i].unk1D0[D_807444FC],
+                           S0V[i].unk210 + offs, S0V[i].unk214, S0V[i].unk218 + offs,
+                           S0V[i].unk228, S0V[i].unk22C, S0V[i].unk230,
+                           S0V[i].unk240, S0V[i].unk244, S0V[i].unk248,
                            D_807444CC, D_807444D0, D_807444D4,
                            D_807444D8, D_807444DC, func_807444E0,
                            0x20, 0x20);
-            v = &S0V[i];
-            if (D_807445CC[0] && D_807445CC[0]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            fov = v->unk280;
-            pl = (Sched0PlayerData *)v->unk4->unk174;
-            if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            held = (Sched0Held *)pl->unk104->unk174;
+            fov = S0V[i].unk280;
+            cc = D_807445CC;
+            pl = (Sched0PlayerData *)S0V[i].unk4->unk174;
+            pa = pl->unk104;
+            held = (Sched0Held *)pa->unk174;
             if (pl->unk1F0 & 0x100) {
-                if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                fov = fov + 0.5 * sinApprox(D_807445CC[0] * 0.1);
-                if (D_807444FC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                v = &S0V[i];
+                fov += 0.5 * sinApprox(cc[0] * 0.1);
             } else if (pl->unk1F0 & 0x2000000) {
-                fov = fov + 0.05 * sinApprox(D_807445CC[0] * 0.4);
-                v = &S0V[i];
-            } else if (held->unkFA != 0 && v->unk220 < held->unk90 + 3.0f) {
-                fov = fov + 0.04 * sinApprox(D_807445CC[0] * 0.1);
-                v = &S0V[i];
-                if (D_807444FC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                fov += 0.05 * sinApprox(cc[0] * 0.4);
+            } else if (held->unkFA != 0 && S0V[i].unk220 < held->unk90 + 3.0f) {
+                fov += 0.04 * sinApprox(cc[0] * 0.1);
             }
-            guPerspective(&v->unk88[D_807444FC], (u16 *)(i * 0x2F0 + (s32)D_807FC924 + 0x188), v->unk27C, fov * aspect, v->unk284, v->unk288, 1.0f);  // FAKE: operand order (i*0x2F0 first) keeps this address from CSE with v
+            guPerspective(&S0V[i].unk88[D_807444FC], (u16 *)(i * 0x2F0 + (s32)D_807FC924 + 0x188), S0V[i].unk27C, fov * aspect, S0V[i].unk284, S0V[i].unk288, 1.0f);  // FAKE: operand order (i*0x2F0 first) keeps this address from CSE with the S0V[i] address
         }
     }
     if (S0DIFF(S0V->unk210, S0V->unk228) < 0.5 && S0DIFF(S0V->unk218, S0V->unk230) < 0.5) {
