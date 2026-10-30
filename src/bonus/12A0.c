@@ -142,7 +142,7 @@ void bonusEndWin(u8, u8);
 void bonusEndLose(u8, u8);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
-s32 func_8070E750(s32, s32, s32);
+s32 textTableGetString(s32, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void actorUpdateModelMatrix(void *, s32);
 
@@ -288,11 +288,11 @@ void bonusReelGameUpdate(void) {
                     obj->unk1A = 0;
                     camStartPath(0, 0, 0x11);
                 } else {
-                    textSpawnMarkerChecked(0, 0, 0xB4, func_8070E750(0x1A, 0xB, 1), 0, 0x28, 8, 8);
+                    textSpawnMarkerChecked(0, 0, 0xB4, textTableGetString(0x1A, 0xB, 1), 0, 0x28, 8, 8);
                     bonusReelNextRound(obj);
                 }
             } else {
-                textSpawnMarkerChecked(0, 0, 0xB4, func_8070E750(0x1A, 0xC, 1), 0, 0x28, 8, 8);
+                textSpawnMarkerChecked(0, 0, 0xB4, textTableGetString(0x1A, 0xC, 1), 0, 0x28, 8, 8);
                 bonusReelNextRound(obj);
             }
         } else {
@@ -385,7 +385,7 @@ void camStartPathNearWall(void *, s32, s32, s32);
 
 void bonusEndWin(u8 arg0, u8 arg1) {
     func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
-    textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
+    textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, arg1, 1), 0, 0x28, 8, 8);
     ((Actor *)D_807FBB40->unk11C)->unk154 = 0;
     sfxAllocateChannel(0x28, 1.0f);
     playerStateQueueCallback(0x44, 0, 0);
@@ -397,7 +397,7 @@ void bonusEndWin(u8 arg0, u8 arg1) {
 
 void bonusEndLose(u8 arg0, u8 arg1) {
     ((Actor *)D_807FBB40->unk11C)->unk154 = 0;
-    textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
+    textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, arg1, 1), 0, 0x28, 8, 8);
     sfxAllocateChannel(0x57, 1.0f);
     playerStateQueueCallback(0x43, 0, 0);
     D_807FBB40->unk154 += 1;

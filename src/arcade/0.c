@@ -703,10 +703,10 @@ extern u8 D_8004BB00[];
 extern u8 D_80032C20[];
 extern u8 D_80032DF8[];
 void func_80005A90(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
-void func_8070E8F0(Gfx **, void *);
+void dlAppendTextureLoad(Gfx **, void *);
 void func_8070F2C8(s32, s16, s32, u8);
 void arcadeDrawLadder(Gfx **, s32, s32, s32);
-void func_8070F2FC(Gfx **, s16, s16);
+void dlAppendTextureRectangle(Gfx **, s16, s16);
 void arcadeStopSound(s32);
 extern s32 D_8076D1F8;
 void arcadeDrawBackground(Gfx **arg0) {
@@ -769,26 +769,26 @@ void arcadeDrawLadder(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_80005A90(D_8004BB90 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 2, 0, 2, 0, 0);
     func_80005A90(D_8004BBC0 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 3, 0, 2, 0, 0);
     sp60 = *arg0;
-    func_8070E8F0(&sp60, D_8004BB30 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&sp60, D_8004BB30 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     for (i = 0; i < arg3 / 4; i++) {
-        func_8070F2FC(&sp60, arg1 * 4, (s32)((f64)(i * 4 + arg2 + 8) * 4.0));
+        dlAppendTextureRectangle(&sp60, arg1 * 4, (s32)((f64)(i * 4 + arg2 + 8) * 4.0));
     }
     D_8004C71A = arg3 % 4;
     if (D_8004C71A != 0) {
         switch (D_8004C71A) {
         case 1:
-            func_8070E8F0(&sp60, D_8004BB60 + D_807444FC * 0x18);
+            dlAppendTextureLoad(&sp60, D_8004BB60 + D_807444FC * 0x18);
             break;
         case 2:
-            func_8070E8F0(&sp60, D_8004BB90 + D_807444FC * 0x18);
+            dlAppendTextureLoad(&sp60, D_8004BB90 + D_807444FC * 0x18);
             break;
         case 3:
-            func_8070E8F0(&sp60, D_8004BBC0 + D_807444FC * 0x18);
+            dlAppendTextureLoad(&sp60, D_8004BBC0 + D_807444FC * 0x18);
             break;
         }
         func_8070F2C8(0x400, D_8004C6D6, 0, 0);
-        func_8070F2FC(&sp60, arg1 * 4, (s32)((f64)(i * 4 + arg2 + 8) * 4.0));
+        dlAppendTextureRectangle(&sp60, arg1 * 4, (s32)((f64)(i * 4 + arg2 + 8) * 4.0));
     }
     *arg0 = sp60;
 }
@@ -914,13 +914,13 @@ void arcadeDrawTitleText(Gfx **arg0) {
     if (D_8004C6DC & 0x182) ArcA1_P6D0 = D_80032C20;
     else ArcA1_P6D0 = D_80032DF8;
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0(&sp94, D_8004BB00 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&sp94, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, ((s16 *)&D_8004C6D4)[1], 0, 0);
     for (i = 0; i < 12; i++) {
         row = sp64.words[i];
         for (j = 0; j < 25; j++) {
             if ((1 << j) & row) {
-                func_8070F2FC(&sp94, 0x3E0 - (j << 5), (s32)((f64)(i * 8 + 0x3F) * 4.0));
+                dlAppendTextureRectangle(&sp94, 0x3E0 - (j << 5), (s32)((f64)(i * 8 + 0x3F) * 4.0));
             }
         }
     }
@@ -939,69 +939,69 @@ void arcadeDrawStage1Background(Gfx **arg0) {
     ArcL1_P6D0 = D_80034568;
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcL1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     sp68 = *arg0;
-    func_8070E8F0(&sp68, D_8004BB00 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&sp68, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, ((s16 *)&D_8004C6D4)[1], 0, 0);
     for (i = 0; i < 6; i++) {
-        func_8070F2FC(&sp68, i * 0x20 + 0x220, 0xE0);
+        dlAppendTextureRectangle(&sp68, i * 0x20 + 0x220, 0xE0);
     }
     if (D_8004C708 >= 6) {
         for (i = 0; i < 0xE; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x380);
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, 0x380);
         }
         for (i = 0xE; i < 0x1C; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(0xF7 - ((i - 0xC) / 2)) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(0xF7 - ((i - 0xC) / 2)) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1C; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x368);
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, 0x368);
         }
     }
     if (D_8004C708 >= 5) {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)((i / 2) + 0xCF) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, (s32)((((f64)((i / 2) + 0xCF) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x2F4);
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, 0x2F4);
         }
     }
     if (D_8004C708 >= 4) {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(0xBB - (i / 2)) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(0xBB - (i / 2)) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x281);
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, 0x281);
         }
     }
     if (D_8004C708 >= 3) {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)((i / 2) + 0x8D) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, (s32)((((f64)((i / 2) + 0x8D) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x20D);
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, 0x20D);
         }
     }
     if (D_8004C708 >= 2) {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(0x79 - (i / 2)) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(0x79 - (i / 2)) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 2; i < 0x1C; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x19A);
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, 0x19A);
         }
     }
     if (D_8004C708 > 0) {
         for (i = 0; i < 0x12; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x142);
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, 0x142);
         }
         for (i = 0x12; i < 0x1A; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(((i - 0x10) / 2) + 0x53) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, (s32)((((f64)(((i - 0x10) / 2) + 0x53) * 0.875) + 8.0) * 4.0));
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
-            func_8070F2FC(&sp68, i * 0x20 + 0xC0, 0x142);
+            dlAppendTextureRectangle(&sp68, i * 0x20 + 0xC0, 0x142);
         }
     }
     arcadeDrawStage1Ladders(&sp68);
@@ -1022,13 +1022,13 @@ void arcadeDrawStage2Background(Gfx **arg0) {
         D_8004C6D4 = 0x400;
         ArcA1_P6D0 = D_80032F18;
         func_80005A90(D_8004BC50 + (D_807444FC * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-        func_8070E8F0(&sp60, D_8004BC50 + (D_807444FC * 3 * 8));
+        dlAppendTextureLoad(&sp60, D_8004BC50 + (D_807444FC * 3 * 8));
         func_8070F2C8(0x400, D_8004C6D6, 0, 0);
         for (i = 0; i < 4; i++) {
-            func_8070F2FC(&sp60, 0x1DC, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp60, 0x1DC, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
         }
         for (i = 0; i < 4; i++) {
-            func_8070F2FC(&sp60, 0x31C, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp60, 0x31C, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
         }
     }
     D_8004C719 = 8;
@@ -1036,63 +1036,63 @@ void arcadeDrawStage2Background(Gfx **arg0) {
     D_8004C6D4 = 0x400;
     ArcA1_P6D0 = D_80032C20;
     func_80005A90(D_8004BB00 + (D_807444FC * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0(&sp60, D_8004BB00 + (D_807444FC * 3 * 8));
+    dlAppendTextureLoad(&sp60, D_8004BB00 + (D_807444FC * 3 * 8));
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     for (i = 0; i < 0x1C; i++) {
-        func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x380);
+        dlAppendTextureRectangle(&sp60, i * 0x20 + 0xC0, 0x380);
     }
     if (D_8004C708 == 0) {
         for (i = 1; i < 0x1B; i++) {
             if (i != 7 && i != 0x14) {
-                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x2F8);
+                dlAppendTextureRectangle(&sp60, (i << 5) + 0xC0, 0x2F8);
             }
         }
         for (i = 2; i < 0x1A; i++) {
             if (i != 7 && i != 0x14) {
-                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x270);
+                dlAppendTextureRectangle(&sp60, (i << 5) + 0xC0, 0x270);
             }
         }
         for (i = 3; i < 0x19; i++) {
             if (i != 7 && i != 0x14) {
-                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x1EC);
+                dlAppendTextureRectangle(&sp60, (i << 5) + 0xC0, 0x1EC);
             }
         }
         for (i = 4; i < 0x18; i++) {
             if (i != 7 && i != 0x14) {
-                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x164);
+                dlAppendTextureRectangle(&sp60, (i << 5) + 0xC0, 0x164);
             }
         }
     } else {
         for (i = 8; i < 0x14; i++) {
-            func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x360);
-            func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x340);
-            func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x320);
-            func_8070F2FC(&sp60, i * 0x20 + 0xC0, 0x300);
+            dlAppendTextureRectangle(&sp60, i * 0x20 + 0xC0, 0x360);
+            dlAppendTextureRectangle(&sp60, i * 0x20 + 0xC0, 0x340);
+            dlAppendTextureRectangle(&sp60, i * 0x20 + 0xC0, 0x320);
+            dlAppendTextureRectangle(&sp60, i * 0x20 + 0xC0, 0x300);
         }
         for (i = 1; i < 0x1B; i++) {
             if (i < 7 || i >= 0x15) {
-                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x2F8);
+                dlAppendTextureRectangle(&sp60, (i << 5) + 0xC0, 0x2F8);
             }
         }
         for (i = 2; i < 0x1A; i++) {
             if (i < 7 || i >= 0x15) {
-                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x270);
+                dlAppendTextureRectangle(&sp60, (i << 5) + 0xC0, 0x270);
             }
         }
         for (i = 3; i < 0x19; i++) {
             if (i < 7 || i >= 0x15) {
-                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x1EC);
+                dlAppendTextureRectangle(&sp60, (i << 5) + 0xC0, 0x1EC);
             }
         }
         for (i = 4; i < 0x18; i++) {
             if (i < 7 || i >= 0x15 || D_8004C708 == 2) {
-                func_8070F2FC(&sp60, (i << 5) + 0xC0, 0x164);
+                dlAppendTextureRectangle(&sp60, (i << 5) + 0xC0, 0x164);
             }
         }
     }
     if (D_8004C708 < 2) {
         for (i = 0; i < 0xE; i++) {
-            func_8070F2FC(&sp60, i * 0x20 + 0x1A0, 0xD8);
+            dlAppendTextureRectangle(&sp60, i * 0x20 + 0x1A0, 0xD8);
         }
     }
     arcadeDrawStage2Ladders(&sp60);
@@ -1105,7 +1105,7 @@ void arcadeDrawGirderSpan(Gfx **arg0, u8 arg1, u8 arg2, s16 arg3) {
 
     sp40 = *arg0;
     for (i = arg1; i < arg2; i++) {
-        func_8070F2FC(&sp40, ((i << 5) + 0xC0), (s32)((((f64) arg3 * 0.875) + 8.0) * 4.0));
+        dlAppendTextureRectangle(&sp40, ((i << 5) + 0xC0), (s32)((((f64) arg3 * 0.875) + 8.0) * 4.0));
     }
     *arg0 = sp40;
 }
@@ -1140,20 +1140,20 @@ void func_800275E8(Gfx **arg0) {
     D_8004C6D4 = 0x400;
     ArcA1_P6D0 = D_80032F40;
     func_80005A90(D_8004BC50 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0(&sp90, D_8004BC50 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&sp90, D_8004BC50 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     for (j = 5; j < 0x14; j++) {
-        func_8070F2FC(&sp90, 0x15C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&sp90, 0x15C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
     }
     for (j = 5; j < 0x14; j++) {
-        func_8070F2FC(&sp90, 0x25C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&sp90, 0x25C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
     }
     D_8004C719 = 8;
     D_8004C71A = 0xA;
     D_8004C6D4 = 0x492;
     ArcA1_P6D0 = D_80034568;
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0(&sp90, D_8004BB00 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&sp90, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     n = 21;
     pt = D_8004A7C8;
@@ -1171,7 +1171,7 @@ void func_800275E8(Gfx **arg0) {
             }
         }
         for (j = 0; j < 2; j++) {
-            func_8070F2FC(&sp90, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp90, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
         }
         bar++;
         if (bar == (ArcA1_Bar *)D_8004BCD0) break;
@@ -1204,54 +1204,54 @@ void arcadeDrawStage4Background(Gfx **arg0) {
     D_8004C6D4 = 0x492;
     ArcA3_P6D0 = D_80032D50;
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0(&sp6C, D_8004BB00 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&sp6C, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     x = 0x220;
     do {
-        func_8070F2FC(&sp6C, x, 0xE0);
+        dlAppendTextureRectangle(&sp6C, x, 0xE0);
         x += step;
     } while (x < 0x2E0);
     x = 0xC0;
     do {
-        func_8070F2FC(&sp6C, x, 0x380);
+        dlAppendTextureRectangle(&sp6C, x, 0x380);
         x += step;
     } while (x < 0x440);
     i = 1;
     do {
         if (i != 6 && i != 7 && i != 0x13 && i != 0x14) {
-            func_8070F2FC(&sp6C, ((i << 5) + 0xC0), 0x268);
+            dlAppendTextureRectangle(&sp6C, ((i << 5) + 0xC0), 0x268);
         }
         i += one;
     } while (i < 0x1B);
     ArcA3_P6D0 = D_80032CA8;
     func_80005A90(D_8004BC20 + D_807444FC * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0(&sp6C, D_8004BC20 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&sp6C, D_8004BC20 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     x = 0xE0;
     do {
-        func_8070F2FC(&sp6C, x, 0x150);
+        dlAppendTextureRectangle(&sp6C, x, 0x150);
         x += step;
     } while (x < 0x420);
     i = 0;
     do {
         if (i < 0xC || i >= 0x10) {
-            func_8070F2FC(&sp6C, ((i << 5) + 0xC0), 0x1DC);
+            dlAppendTextureRectangle(&sp6C, ((i << 5) + 0xC0), 0x1DC);
         }
         i += one;
     } while (i < 0x1C);
     x = 0xE0;
     do {
-        func_8070F2FC(&sp6C, x, 0x2F4);
+        dlAppendTextureRectangle(&sp6C, x, 0x2F4);
         x += step;
     } while (x < 0x420);
     ArcA3_P6D0 = D_800342B8;
     func_80005A90(D_8004BC50 + D_807444FC * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0(&sp6C, D_8004BC50 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&sp6C, D_8004BC50 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     x = 0x240;
     do {
         for (i = 0x9F; (i ^ 0) != 0x87; i -= 8) { // FAKE: no-op `^ 0` steers codegen
-            func_8070F2FC(&sp6C, x, (s32)((((f64)i * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&sp6C, x, (s32)((((f64)i * 0.875) + 8.0) * 4.0));
         }
         x += step;
     } while (x != 0x2C0);
@@ -2149,10 +2149,10 @@ void arcadeRenderEntity(Gfx **arg0, s32 arg1) {
     off = arg1 * 0x18;
     func_80005A90(D_8004AC00 + D_807444FC * 0x780 + off, D_8004BCD0[arg1].unk14, 0, D_8004BCD0[arg1].unk1E, D_8004BCD0[arg1].unk1E, D_8004BCD0[arg1].unk1F, 0, 2, 0, 0);
     sp4C = *arg0;
-    func_8070E8F0(&sp4C, D_8004AC00 + D_807444FC * 0x780 + off);
+    dlAppendTextureLoad(&sp4C, D_8004AC00 + D_807444FC * 0x780 + off);
     func_8070F2C8(0x400, (s32)scale, (u8)(D_8004BCD0[arg1].unk1A & 1), D_8004BCD0[arg1].unk1B);
     if (D_8004A338[D_8004BCD0[arg1].unk18] & 2) {
-        func_8070F2FC(&sp4C, (s32)(D_8004BCD0[arg1].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[arg1].unk18]) * 4, (s32)((f64)(D_8004BCD0[arg1].unk4 - (f32)(u32)D_8004A378[D_8004BCD0[arg1].unk18]) * 0.875 + 8.0) * 4);
+        dlAppendTextureRectangle(&sp4C, (s32)(D_8004BCD0[arg1].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[arg1].unk18]) * 4, (s32)((f64)(D_8004BCD0[arg1].unk4 - (f32)(u32)D_8004A378[D_8004BCD0[arg1].unk18]) * 0.875 + 8.0) * 4);
     } else {
         if (D_8004BCD0[arg1].unk18 == 2) {
             off = (s32)D_8004BCD0[arg1].unk10;
@@ -2162,7 +2162,7 @@ void arcadeRenderEntity(Gfx **arg0, s32 arg1) {
         } else {
             off = 0;
         }
-        func_8070F2FC(&sp4C, (s32)(D_8004BCD0[arg1].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[arg1].unk18]) * 4, (s32)(((f64)(D_8004BCD0[arg1].unk4 - (f32)off - (f32)(u32)D_8004A378[D_8004BCD0[arg1].unk18]) * 0.875 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&sp4C, (s32)(D_8004BCD0[arg1].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[arg1].unk18]) * 4, (s32)(((f64)(D_8004BCD0[arg1].unk4 - (f32)off - (f32)(u32)D_8004A378[D_8004BCD0[arg1].unk18]) * 0.875 + 8.0) * 4.0));
     }
     *arg0 = sp4C;
 }
@@ -4114,12 +4114,12 @@ void arcadeDrawHud(Gfx **arg0) {
     ArcL8_P6D0 = D_8003DA90;
     D_8004C71A = 8;
     func_80005A90(&D_8004BBF0[D_807444FC], ArcL8_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0(&g, &D_8004BBF0[D_807444FC]);
+    dlAppendTextureLoad(&g, &D_8004BBF0[D_807444FC]);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     if (D_8004A83C == 0) { // FAKE: empty guard steers regalloc
     }
     for (i = 0; i < D_8004C71C; i++) {
-        func_8070F2FC(&g, i * 0x20 + 0x360, 0x4C);
+        dlAppendTextureRectangle(&g, i * 0x20 + 0x360, 0x4C);
     }
     arcadeSetTextColor(0xFF, 0, 0, 0xFF);
     if ((D_8004C6D8 & 0x10) || D_8004C724 == 0) {

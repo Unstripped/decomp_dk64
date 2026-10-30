@@ -4,7 +4,7 @@ extern Mtx D_20000C0;
 extern s16 D_80744490;
 extern s16 D_80744494;
 extern u8 D_8074450C;
-char *func_8070E750(s32, s32, s32);
+char *textTableGetString(s32, s32, s32);
 s32 textGetFontHeight(s32);
 s32 texCacheFindOrLoad(s32);
 s32 textGetStringWidth(s32, char *);
@@ -26,9 +26,9 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     s16 yy;
     s16 yyo;
 
-    spCC = func_8070E750(0xD, 0, 1);
-    spC8 = func_8070E750(0xD, 1, 1);
-    spC4 = func_8070E750(0xD, 2, 1);
+    spCC = textTableGetString(0xD, 0, 1);
+    spC8 = textTableGetString(0xD, 1, 1);
+    spC4 = textTableGetString(0xD, 2, 1);
     spC0 = textGetFontHeight(1);
     gDPPipeSync(dl++);
     gSPDisplayList(dl++, D_1000118);

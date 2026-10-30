@@ -3687,7 +3687,7 @@ s32 menuCalculateGamePercentage(void) {
     return pct;
 }
 
-char *func_8070E750(s32, s32, s32);
+char *textTableGetString(s32, s32, s32);
 
 void menuLoadTextTable(void) {
     s32 i;
@@ -3695,7 +3695,7 @@ void menuLoadTextTable(void) {
     D_80033F28 = heapAlloc(0x194);
     i = 0;
     do {
-        D_80033F28[i] = func_8070E750(0x25, i, 0);
+        D_80033F28[i] = textTableGetString(0x25, i, 0);
         i++;
     } while (i != 0x65);
 }

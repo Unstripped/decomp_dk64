@@ -272,7 +272,7 @@ s32 _sprintf(char *, const char *, ...);
 s32 textGetStringWidth();
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 Gfx *func_8070068C(Gfx *);
-s32 func_8070E750(s32, s32, s32);
+s32 textTableGetString(s32, s32, s32);
 extern Gfx D_1000118;
 
 Gfx *func_806BE6F0(Gfx *gdl, Actor *arg1) {
@@ -289,7 +289,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *arg1) {
         }
         _sprintf(buf, "%d", n);
     } else {
-        _sprintf(buf, (char *)func_8070E750(0x26, 9, 1));
+        _sprintf(buf, (char *)textTableGetString(0x26, 9, 1));
     }
     if (arg1->unk168 % 30 == 0) {
         if (v != 0) {

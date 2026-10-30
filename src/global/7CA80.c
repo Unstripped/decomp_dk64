@@ -501,7 +501,7 @@ void effectFreeByResource(Actor *);
 void pathPlaybackStopForActor(Actor *);
 void actorSub140Free(ActorSub140 *);
 void proxPathRemoveActor(Actor *);
-void func_8070DA74(Actor *);
+void resQueueRemove(Actor *);
 void renderCallbacksDisableForActor(Actor *);
 void actorTableRemove();
 typedef struct R2EActor {
@@ -568,7 +568,7 @@ void actorFreeImmediate(Actor *arg0) {
     }
     func_8062D26C(arg0);
     if (arg0->unk58 != 0x12B) {
-        func_8070DA74(arg0);
+        resQueueRemove(arg0);
     }
     renderCallbacksDisableForActor(arg0);
     actorTableRemove(arg0);

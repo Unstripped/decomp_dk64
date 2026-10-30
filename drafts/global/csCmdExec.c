@@ -681,7 +681,7 @@ if (found) {}
         }
         break;
     case 0x51:
-        func_806F4F50(csId, D_807F621C, D_807F6220, D_807F6224);
+        gridMoveNode(csId, D_807F621C, D_807F6220, D_807F6224);
         break;
     case 0x5E:
         func_80641874(cmd->a, cmd->b);

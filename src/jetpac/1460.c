@@ -33,9 +33,9 @@ extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
 f32 jetpacRandFloat(void);
 void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
-void func_8070E8F0(Gfx **arg0, s32 arg1);
+void dlAppendTextureLoad(Gfx **arg0, s32 arg1);
 void func_8070F2C8(s32 arg0, s32 arg1, u8 arg2, s32 arg3);
-void func_8070F2FC(Gfx **arg0, s16 arg1, s16 arg2);
+void dlAppendTextureRectangle(Gfx **arg0, s16 arg1, s16 arg2);
 typedef struct {
     u8 pad0[8];
     s32 lives;
@@ -252,9 +252,9 @@ void jetpacGridDraw(Gfx **arg0) {
             if (cell->count > 0) {
                 item_idx = 0;
                 do {
-                    func_8070E8F0(&g, item->unkC);
+                    dlAppendTextureLoad(&g, item->unkC);
                     func_8070F2C8(0x400, 0x400, item->unk8, 0);
-                    func_8070F2FC(&g, (item->x + 0x20) << 2, (item->y + 0x18) << 2);
+                    dlAppendTextureRectangle(&g, (item->x + 0x20) << 2, (item->y + 0x18) << 2);
                     item_idx++;
                     item++;
                 } while (item_idx < cell->count);

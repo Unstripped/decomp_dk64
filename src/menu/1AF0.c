@@ -44,7 +44,7 @@ typedef struct {
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 Gfx *textDrawStringVtx();
-char *func_8070E750(s32, s32, s32);
+char *textTableGetString(s32, s32, s32);
 s32 _sprintf(char *, const char *, ...);
 
 Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *arg1) {
@@ -65,9 +65,9 @@ Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *arg1) {
 
             arg1->unk15F += diff >= 9 ? 8 : diff;
             gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, arg1->unk15F);
-            _sprintf(buf, "q %s", func_8070E750(0x24, 0x10, 1));
+            _sprintf(buf, "q %s", textTableGetString(0x24, 0x10, 1));
             dl = textDrawStringVtx(dl, 1, 0x1F4, 0x190, buf, 1);
-            _sprintf(buf, "b %s", func_8070E750(0x24, 0x11, 1));
+            _sprintf(buf, "b %s", textTableGetString(0x24, 0x11, 1));
             dl = textDrawStringVtx(dl, 1, 0x1F4, 0x1F4, buf, 1);
             break;
         }
@@ -1070,7 +1070,7 @@ void menuUpdateTransformedWidgets(void) {
             }
             for (i = 0; i < 2; i++) {
                 if (sp34.a[i] >= 0) {
-                    fp->unk0[i] = func_8070E750(0x27, sp34.a[i], 0);
+                    fp->unk0[i] = textTableGetString(0x27, sp34.a[i], 0);
                 } else {
                     fp->unk0[i] = 0;
                 }

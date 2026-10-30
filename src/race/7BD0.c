@@ -266,7 +266,7 @@ extern s16 D_80744490;
 Gfx *func_805FD030(Gfx *);
 s32 _sprintf(char *, const char *, ...);
 void *heapFreeDeferred(void *);
-void *func_8070E750(s32, s32, s32);
+void *textTableGetString(s32, s32, s32);
 s32 textGetStringWidth(s32, void *);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 
@@ -295,7 +295,7 @@ Gfx *func_8002BEE8(Gfx *arg0, RaceUnknownActor *arg1) {
             } else {
                 temp_fv0 = (f32)(0x78 - temp_v1->unk1C) * 0.033333335f;
                 sp3F = (u8)(u32)((f32)sp3F * temp_fv0);
-                var_s1 = func_8070E750(0x26, 9, 1);
+                var_s1 = textTableGetString(0x26, 9, 1);
             }
             WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
             WRITE_GFX(arg0++, 0xE7000000, 0);
@@ -368,7 +368,7 @@ Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
     temp_fs0 = (f32)(temp_s0->unk4 + 8);
     temp_fs2 = (f32)(temp_s0->unkA - 0x10);
     temp_fs2 -= 2 * temp_fv0;
-    temp_v0_2 = func_8070E750(0x26, 0xA, 1);
+    temp_v0_2 = textTableGetString(0x26, 0xA, 1);
     WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFFF);
     arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)(2.0f * (temp_fs0 * 4.0f)), (s16)(s32)(2.0f * (temp_fs2 * 4.0f)), temp_v0_2, 4);
     WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
@@ -462,8 +462,8 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
     if (var_a3 & 4) {
         var_t0 = (var_t0 < temp_t1->unk24) ? var_t0 : temp_t1->unk24;
         var_t0 = (var_t0 >= 2) ? var_t0 : 1;
-        sp50 = (s32)func_8070E750(0x26, 0xB, 1);
-        sp4C = (s32)func_8070E750(0x26, 0xC, 1);
+        sp50 = (s32)textTableGetString(0x26, 0xB, 1);
+        sp4C = (s32)textTableGetString(0x26, 0xC, 1);
         sp48 = strlen((u8 *)sp50);
         sp48 += strlen((u8 *)sp4C);
         sp68 = heapAlloc(sp48 + 8);
@@ -488,7 +488,7 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
         if (RaceE76C->unk45 != 0) {
             var_v0 = 4;
         }
-        arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), func_8070E750(0x26, D_8002FCC0[var_v0], 1), 4);
+        arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), textTableGetString(0x26, D_8002FCC0[var_v0], 1), 4);
     }
     if (RaceE76C->unk34 >= 3 && RaceE76C->unk34 < 5) {
         arg0 = textDrawAnimated(arg0, RaceE76C->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
@@ -698,7 +698,7 @@ void func_8002D148(RacePair *arg0, u8 arg1) {
                 slot = 3;
             }
             if (arg0->unk4->unk27 == 0) {
-                arg0->unk4->unk46 = gfxResourceCreate(1, func_8070E750(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
+                arg0->unk4->unk46 = gfxResourceCreate(1, textTableGetString(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
             }
         }
     }

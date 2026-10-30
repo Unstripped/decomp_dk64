@@ -100,11 +100,11 @@ void func_806A8158(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FC7E0 = heapAlloc(0x6C);
         for (i = 0; i < 0x1B; i++) {
-            D_807FC7E0[i] = func_8070E750(0x24, i, 0);
+            D_807FC7E0[i] = textTableGetString(0x24, i, 0);
         }
         D_807FC7E8 = heapAlloc(0x24);
         for (i = 0; i < 9; i++) {
-            D_807FC7E8[i] = func_8070E750(0x23, i, 0);
+            D_807FC7E8[i] = textTableGetString(0x23, i, 0);
         }
         D_8076A098++;
         D_807FC7FC = ((L10Player *)D_807FC924)->unk214;

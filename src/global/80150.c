@@ -92,7 +92,7 @@ s32 actorListFindIdByActor(Actor *);
 void func_8068A764(Actor *, u8);
 void func_8069B908(void);
 void slotQueueCancel(s32, s32);
-s32 func_8070E750(s32, s32, s32);
+s32 textTableGetString(s32, s32, s32);
 void func_80714950();
 void func_8071496C(s32);
 void func_8071498C(void *);
@@ -1521,7 +1521,7 @@ s32 tagBarrelIsKongUnlocked(ActorGroup5 *arg0, s32 arg1) {
     s32 ret = 0;
 
     if ((type ^ 0x13C) == 0) {
-        ret = func_8070E750(2, D_8074E85C[arg1], 1);
+        ret = textTableGetString(2, D_8074E85C[arg1], 1);
     }
     return ret;
 }

@@ -81,7 +81,7 @@ void csModelStateSetFirstByte(s32, s32);
 void func_806C8E58(s32);
 void func_80614E78(void *, s32);
 void func_806D03BC(void);
-char *func_8070E750(s32, s32, s32);
+char *textTableGetString(s32, s32, s32);
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_806FDAB8(u8, f32);
 void *spawnNodeActivate(s16, s32);
@@ -144,7 +144,7 @@ void bonusControllerUpdate(void) {
         case 4:
         case 13:
 tail:
-            sp68 = func_8070E750(0x1A, 2, 1);
+            sp68 = textTableGetString(0x1A, 2, 1);
             sp67 = 1;
             break;
         case 15:
@@ -172,7 +172,7 @@ tail:
         case 8:
         case 11:
             D_80750AC4 = 0;
-            sp68 = func_8070E750(0x1A, 3, 1);
+            sp68 = textTableGetString(0x1A, 3, 1);
             sp67 = 1;
             break;
         case 9:
@@ -197,12 +197,12 @@ tail:
                     case 0:
                         if (s->unk4 != 0) {
                             if (s->unk4 >= 2) {
-                                sp68 = func_8070E750(0x1A, 0xF, 1);
+                                sp68 = textTableGetString(0x1A, 0xF, 1);
                                 sp60 = heapAlloc(strlen(sp68) + 5);
                                 heapFreeDeferred(sp60);
                                 _sprintf(sp60, "%d %s", s->unk4, sp68);
                             } else {
-                                sp60 = func_8070E750(0x1A, 0x10, 1);
+                                sp60 = textTableGetString(0x1A, 0x10, 1);
                             }
                             textSpawnMarkerChecked(0, 0, 0x8C, sp60, 0, 0x28, 8, 8);
                             a2v = 0;
@@ -210,7 +210,7 @@ tail:
                         break;
                     case 16:
                         if (s->unk2 == 0 && v3 != 0x28) {
-                            textSpawnMarkerChecked(0, 0, 0x8C, func_8070E750(0x1A, 0x17, 1), 0, 0x28, 8, 8);
+                            textSpawnMarkerChecked(0, 0, 0x8C, textTableGetString(0x1A, 0x17, 1), 0, 0x28, 8, 8);
                             a2v = 0;
                         }
                         if (v3 == 0x28) {
@@ -221,11 +221,11 @@ tail:
                         a2v = 1;
                         if (slotQueueGetValue(0xB, 0) < sp6E) {
                             if (s->unk4 >= 2) {
-                                sp68 = func_8070E750(0x1A, 0x11, 1);
+                                sp68 = textTableGetString(0x1A, 0x11, 1);
                                 sp54 = heapAlloc(strlen(sp68) + 5);
                                 _sprintf(sp54, "%d %s", sp6E - slotQueueGetValue(0xB, 0), sp68);
                             } else {
-                                sp54 = func_8070E750(0x1A, 0x12, 1);
+                                sp54 = textTableGetString(0x1A, 0x12, 1);
                             }
                             textSpawnMarkerChecked(0, 0, 0x8C, sp54, 0, 0x28, 8, 8);
                             a2v = 0;
@@ -503,7 +503,7 @@ void func_80024E38(void) {
         break;
     case 1:
         if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
-            textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, 0x15, 1), 0, 0x28, 8, 8);
+            textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, 0x15, 1), 0, 0x28, 8, 8);
             func_80726EE0(0);
             sfxAllocateChannel(0x28, 1.0f);
             actorSpawnNodeEntryScaled(0x56, 588.0f, 240.0f, 582.0f, 0, 0, bonusGetSoundForMap(), 0);

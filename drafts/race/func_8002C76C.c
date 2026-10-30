@@ -43,8 +43,8 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
     if (var_a3 & 4) {
         var_t0 = (var_t0 < temp_t1->unk24) ? var_t0 : temp_t1->unk24;
         var_t0 = (var_t0 >= 2) ? var_t0 : 1;
-        sp50 = (s32)func_8070E750(0x26, 0xB, 1);
-        sp4C = (s32)func_8070E750(0x26, 0xC, 1);
+        sp50 = (s32)textTableGetString(0x26, 0xB, 1);
+        sp4C = (s32)textTableGetString(0x26, 0xC, 1);
         sp48 = strlen((u8 *)sp50);
         sp48 += strlen((u8 *)sp4C);
         sp68 = heapAlloc(sp48 + 8);
@@ -69,7 +69,7 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
         if (RaceE76C->unk45 != 0) {
             var_v0 = 4;
         }
-        arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), func_8070E750(0x26, D_8002FCC0[var_v0], 1), 4);
+        arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), textTableGetString(0x26, D_8002FCC0[var_v0], 1), 4);
     }
     if (RaceE76C->unk34 >= 3 && RaceE76C->unk34 < 5) {
         arg0 = textDrawAnimated(arg0, RaceE76C->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);

@@ -129,7 +129,7 @@ s32 flagGet(s16, s32);
 s32 flagCountRange(s32, s32, s32);
 void actorSpawn(s32, s32);
 void actorDespawn(Actor *);
-char *func_8070E750(s32, s32, s32);
+char *textTableGetString(s32, s32, s32);
 void camStartPath(s32, s32, s32);
 void func_80724994(s32, s32, s32, s32, s32);
 void func_805FF378(s32, s32);
@@ -255,11 +255,11 @@ void func_806A8158(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FC7E0 = heapAlloc(0x6C);
         for (i = 0; i < 0x1B; i++) {
-            D_807FC7E0[i] = func_8070E750(0x24, i, 0);
+            D_807FC7E0[i] = textTableGetString(0x24, i, 0);
         }
         D_807FC7E8 = heapAlloc(0x24);
         for (i = 0; i < 9; i++) {
-            D_807FC7E8[i] = func_8070E750(0x23, i, 0);
+            D_807FC7E8[i] = textTableGetString(0x23, i, 0);
         }
         D_8076A098++;
         D_807FC7FC = ((L10Player *)D_807FC924)->unk214;
@@ -1573,7 +1573,7 @@ void hudTextScreenUpdate(void) {
         D_807FBB40->unk60 &= ~0x8000;
         D_807FC7E0 = heapAlloc(0xC);
         for (i = 0; i < 3; i++) {
-            D_807FC7E0[i] = func_8070E750(0x24, i + 0xF, 0);
+            D_807FC7E0[i] = textTableGetString(0x24, i + 0xF, 0);
         }
     }
     if (D_807FBB40->unk168 != 0) {
@@ -1639,7 +1639,7 @@ void hudTwoOptionMenuUpdate(void) {
         D_807FC7E0 = heapAlloc(0x10);
         i = 0;
         do {
-            D_807FC7E0[i] = func_8070E750(0x24, i, 0);
+            D_807FC7E0[i] = textTableGetString(0x24, i, 0);
             i++;
         } while (i != 4);
         D_807FBB60 &= ~0x10030;

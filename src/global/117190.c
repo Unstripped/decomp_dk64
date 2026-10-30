@@ -505,14 +505,14 @@ void *func_807132DC() {
     R117D_WRITE_GFX(gfx++, 0xED028028, 0x4D4394);
     return gfx;
 }
-void *func_8070E750(s32, s32, s32);
+void *textTableGetString(s32, s32, s32);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 
 Gfx *func_8071338C(Gfx *arg0) {
     f32 temp_f0 = 20.0f;
     void *temp_v0;
 
-    temp_v0 = func_8070E750(0xC, 0, 1);
+    temp_v0 = textTableGetString(0xC, 0, 1);
     R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
     R117D_WRITE_GFX(arg0++, 0xDA380003, &D_807FDAC0);
     return textDrawStringVtx(arg0, 1, 0x118, (s16) ((temp_f0 + temp_f0) * 4.0f), temp_v0, 4);
@@ -538,7 +538,7 @@ Gfx *func_80713438(Gfx *arg0, u8 arg1) {
     f64 temp_ft4;
     s32 temp_a0;
 
-    sp30 = (s32) func_8070E750(0xC, 1, 1);
+    sp30 = (s32) textTableGetString(0xC, 1, 1);
     temp_a0 = strlen((char *) sp30) + 2;
     sp28 = (f32) ((f64) D_80744490 * 0.5 * 2.0f);
     y = 418.0f;
@@ -588,7 +588,7 @@ Gfx *func_807135B4(Gfx *arg0) {
         if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
         sp34 = (f32) ((f64) sp34 * 0.5);
         R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
-        arg0 = hudDrawScaledText(arg0, (s16) (s32) (sp34 * 4.0f), (s16) (s32) ((f32) D_8074450C * sp30 * 4.0f), 0.7f, func_8070E750(0xC, (s32) (&sp38.unk0)[var_v1], 1));
+        arg0 = hudDrawScaledText(arg0, (s16) (s32) (sp34 * 4.0f), (s16) (s32) ((f32) D_8074450C * sp30 * 4.0f), 0.7f, textTableGetString(0xC, (s32) (&sp38.unk0)[var_v1], 1));
     }
     return arg0;
 }
@@ -721,7 +721,7 @@ void func_80713C8C(void) {
 extern s32 D_80755348;
 Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);
 
-Gfx *func_80713DFC(Gfx *arg0) {
+Gfx *hudDrawCountdownTimer(Gfx *arg0) {
     s32 pad[8]; // FAKE: frame size 0x40 (eight unused words above sp1C)
     f32 sp1C;
     Gfx *temp_v0;
@@ -795,7 +795,7 @@ Gfx *func_80713B40(Gfx *);
 extern s8 D_807552E0;
 void camStartPath(s32, s16, s32);
 
-Gfx *func_80714060(Gfx *arg0) {
+Gfx *screenStateTickAndDraw(Gfx *arg0) {
     char buffer[40];
 
     if ((D_80755338 != 0) && (D_8076A064 == 1)) {
@@ -840,7 +840,7 @@ Gfx *func_80714060(Gfx *arg0) {
     case 3: arg0 = func_807138CC(arg0); break;
     case 7:
     case 9: arg0 = func_80713B40(arg0); break;
-    case 6: arg0 = func_80713DFC(arg0); break;
+    case 6: arg0 = hudDrawCountdownTimer(arg0); break;
     case 5: arg0 = (Gfx *)func_80713EA8((s32)arg0); break;
     case 11: break;
     }

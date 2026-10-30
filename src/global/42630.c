@@ -1306,7 +1306,7 @@ void func_806C92C4(s16);
 void func_806CF398(Actor *);
 void playerStateQueueCallback(s16, s32, s32);
 void playerStateSetCallbackParameters(s32, s16, s16, s16);
-void func_806F4F50(s16, f32, f32, f32);
+void gridMoveNode(s16, f32, f32, f32);
 void slotQueueSetDisplayMode(u8, u8, u8);
 void func_8070B308(s32);
 s32 func_807146A4(s16);
@@ -2031,7 +2031,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x51:
-        func_806F4F50(csId, gCsPosX, gCsPosY, gCsPosZ);
+        gridMoveNode(csId, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x5E:
         func_80641874(cmd->a, cmd->b);

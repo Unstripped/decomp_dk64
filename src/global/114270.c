@@ -529,7 +529,7 @@ s32 mapChunkContainsPoint(s16, s16, s16);
 #define L10CA0_POOL ((L10CA0Header *)D_807550E0)
 #define L10CA0_TEX (&D_80755264)[D_807FDA1C * 0x14]
 
-Gfx *func_80710CA0(Gfx *arg0, Actor *arg1) {
+Gfx *effectSpriteRenderPool(Gfx *arg0, Actor *arg1) {
     f64 scaleSize;
     f32 mtxScale[4][4];
     f32 mtxTemp[4][4];
@@ -623,7 +623,7 @@ Gfx *func_80710CA0(Gfx *arg0, Actor *arg1) {
 #undef L10CA0_TEX
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_80710CA0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/effectSpriteRenderPool.s")
 #endif
 
 typedef struct AngBPlayerView {
@@ -636,7 +636,7 @@ extern u8 D_807FDA1B;
 extern f32 *D_8076A0B4;
 extern u8 D_8077058C[];
 void func_8070F5CC(u8, s16, f32, s16, s32, s32);
-Gfx *func_80710CA0(Gfx *, Actor *);
+Gfx *effectSpriteRenderPool(Gfx *, Actor *);
 void renderCallbacksRegister(void *, void *, s32);
 
 void func_80711410(f32 arg0, s16 arg1, f32 arg2, s16 arg3, f32 arg4) {
@@ -677,7 +677,7 @@ void func_80711410(f32 arg0, s16 arg1, f32 arg2, s16 arg3, f32 arg4) {
             var_s0 += 1;
         } while (var_s0 != var_s5);
         if (*D_807550E0 != 0) {
-            renderCallbacksRegister(&func_80710CA0, 0, 1);
+            renderCallbacksRegister(&effectSpriteRenderPool, 0, 1);
         }
     }
 }
@@ -716,7 +716,7 @@ void func_80711950(f32 arg0, s16 arg1, s16 arg2) {
             func_8070F5CC(1, arg2, (f32)((f64)value + 0.075), (s16)(s32)((u32)random % 320U), -10, 200);
         }
         if (*D_807550E0 != 0) {
-            renderCallbacksRegister(&func_80710CA0, 0, 1);
+            renderCallbacksRegister(&effectSpriteRenderPool, 0, 1);
         }
     }
 }
@@ -775,7 +775,7 @@ void func_80711BD0(f32 arg0, s16 arg1, s16 arg2, u8 arg3) {
             } while (var_s0 != var_s1);
         }
         if (*D_807550E0 != 0) {
-            renderCallbacksRegister(&func_80710CA0, 0, 1);
+            renderCallbacksRegister(&effectSpriteRenderPool, 0, 1);
         }
     }
 }
@@ -807,7 +807,7 @@ void func_80711F90(f32 arg0, s16 arg1, s32 arg2, s16 arg3, f32 arg4) {
         } while (var_s0 != var_s4);
     }
     if (*D_807550E0 != 0) {
-        renderCallbacksRegister(&func_80710CA0, 0, 1);
+        renderCallbacksRegister(&effectSpriteRenderPool, 0, 1);
     }
 }
 
@@ -821,7 +821,7 @@ s32 func_807122B4(void) {
     queue = D_807550E0;
     if (*queue != 0) {
         D_8077058C[0] = (u8)(u32)((f64)(u32)D_8077058C[0] * 0.9);
-        renderCallbacksRegister((void *)func_80710CA0, NULL, 1);
+        renderCallbacksRegister((void *)effectSpriteRenderPool, NULL, 1);
         return 0;
     }
     if (D_807FDA1C != 6) {

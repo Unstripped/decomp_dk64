@@ -639,7 +639,7 @@ s32 mpFindModelSlotByType(s32 arg0) {
 
 s32 func_8071432C(void);
 void *actorFindByType();
-s32 func_806F5EB4(s32, s32, s16, s16, s16);
+s32 delayedSpawnQueueContains(s32, s32, s16, s16, s16);
 void func_806F5FE8(s32, s16, s16, s16, s32);
 
 extern s32 D_807552F0;
@@ -657,7 +657,7 @@ void func_80025654(MpControllerState *arg0) {
         if (temp == -1) {
             if (arg0->unk4C == 0 && actorFindByType(0x7A) == 0 && mpFindModelSlotByType(0x1D2) == 0) {
                 MpSpawnPoint *pos = sp20;
-                if (func_806F5EB4(0x1D2, 0, pos->unk0, pos->unk2, pos->unk4) == 0) {
+                if (delayedSpawnQueueContains(0x1D2, 0, pos->unk0, pos->unk2, pos->unk4) == 0) {
                     pos = sp20;
                     func_806F5FE8(0x1D2, pos->unk0, pos->unk2, pos->unk4, 10);
                 }

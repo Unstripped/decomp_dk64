@@ -33,8 +33,8 @@ void func_8061CB08(void);
 void func_806A4284(void);
 void func_806A4DDC(Actor *);
 void func_806A5174(Actor *, M8Sub *, f32);
-void func_8070DA28(M8Sub *);
-void func_8070DA74(void *);
+void resNodeListFree(M8Sub *);
+void resQueueRemove(void *);
 void func_8070E808(Actor *, void *);
 void func_806A57C0(M8SeqHead *);
 void func_8070E808(void *, void *);
@@ -114,12 +114,12 @@ void func_806A5868(void) {
             D_807FBB40->unk154 = 5;
         } else {
             if (sub->unkC != NULL) {
-                func_8070DA28(sub);
+                resNodeListFree(sub);
             }
             sub->unk0 = sub->unk0 - 1;
         }
     } else if (state == 5) {
-        func_8070DA74(sub->unk4);
+        resQueueRemove(sub->unk4);
     }
     if (D_807FBB40->unk154 != 5) {
         sub->unk20 = (f32)sub->unk0 * 0.033333335f;

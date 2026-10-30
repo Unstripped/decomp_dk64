@@ -130,7 +130,7 @@ void func_806C95D0(s32);
 void func_806C9AE0(void);
 void func_806D0430(f32);
 void func_806F3760(s16);
-void func_806F4778(void);
+void gridBuildNodeLists(void);
 s32 slotQueueBuildDisplayList(s32);
 void textFontInitTables(void);
 void textFontAgeSheets(void);
@@ -149,13 +149,13 @@ void func_807094D0(s32, u32 *);
 void transitionRunFrame(s32, s32);
 void func_8070B308(s32);
 s32 func_8070B318(void);
-void func_8070DD44(void);
+void resListTick(void);
 void func_8070E8C8(void);
 void func_8070F570(void);
 void func_80712A40(void);
 void func_80712B80(void);
 void func_80712BD4(void);
-s32 func_80714060(s32);
+s32 screenStateTickAndDraw(s32);
 s32 func_80714464(void);
 void effectResetLists(void);
 void func_80715270(s32);
@@ -169,7 +169,7 @@ void func_80731030(void);
 s32 flagGet(s32, s32);
 void faultSetMessage(s32, s32, s32, s32);
 void faultThreadInit(void);
-void func_806F6F28(void);
+void gridTickPlayers(void);
 
 void seg11DmaRead(s32, s32, void *);
 void gunzip(void *, void *, void *);
@@ -653,9 +653,9 @@ void func_805FC2B0(void) {
         func_80603450();
         func_806025D4();
         func_806057F8();
-        func_806F6F28();
+        gridTickPlayers();
     }
-    func_8070DD44();
+    resListTick();
     D_8076A150 = D_8076A050[D_807444FC];
     if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {
         sp2C = D_8076A050[D_807444FC];
@@ -1052,7 +1052,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     if (D_807467E4 != 0) {
         D_807467E4 -= 1;
     }
-    glist = (Gfx *)func_80714060(slotQueueBuildDisplayList(healthHudDrawAll((s32)glist)));
+    glist = (Gfx *)screenStateTickAndDraw(slotQueueBuildDisplayList(healthHudDrawAll((s32)glist)));
     textFontAgeSheets();
     texCacheUpdate();
     commandQueueReset();
@@ -1242,7 +1242,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         }
         camResetAllPlayers();
         renderCallbacksReset();
-        func_806F4778();
+        gridBuildNodeLists();
         func_8070E8C8();
         timerQueueAdd(sfxPlayCurrent, 2, 0, 0, 0);
         if (D_807FBB64 & 0x1000) {

@@ -318,7 +318,7 @@ typedef struct S112bNodeList {
     u8 state;
 } S112bNodeList;
 
-void func_8070DA28(S112bNodeList *arg0) {
+void resNodeListFree(S112bNodeList *arg0) {
     S112aFreeNode *node;
 
     S112aFreeNode *current;
@@ -356,7 +356,7 @@ typedef struct S112bQueueEntry {
 
 extern void actorDespawn(void *);
 
-void func_8070DA74(Actor *arg0) {
+void resQueueRemove(Actor *arg0) {
     Actor *actor;
     S112bActorState *state;
     S112bQueueEntry **link;
@@ -378,7 +378,7 @@ void func_8070DA74(Actor *arg0) {
     if (found != NULL) {
         actor = found->actor;
         state = actor->unk174;
-        func_8070DA28((S112bNodeList *)state);
+        resNodeListFree((S112bNodeList *)state);
         func_8070D970(state->id);
         node = found->entries;
         if (node != NULL) {
@@ -501,7 +501,7 @@ typedef struct S112bSlotNode {
     struct S112bSlotNode *next;
 } S112bSlotNode;
 
-void func_8070DD44(void) {
+void resListTick(void) {
     S112bSlotNode **link;
     S112bSlotNode *node;
 
@@ -537,7 +537,7 @@ typedef struct S112bResNode {
 extern void *assetLoad(s32, s32, s32, s32);
 extern void assetFreeBuffer(void *, s32, s32);
 
-S112aParsedList *func_8070DDDC(u16 arg0, s32 arg1) {
+S112aParsedList *resNodeGetOrLoad(u16 arg0, s32 arg1) {
     S112bResNode *node;
     S112aParsedList *parsed;
     void *asset;
@@ -602,7 +602,7 @@ extern s32 _sprintf(u8 *, char *, ...);
 extern void *D_8074E778[];
 extern u16 D_80750AC8;
 
-s32 func_8070DED4(s32 arg0, s32 arg1, u16 arg2) {
+s32 textLayoutAppendRows(s32 arg0, s32 arg1, u16 arg2) {
     S112cRow **rowHead;
     S112cRow **rowLink;
     S112cLine **rowLines;
@@ -703,7 +703,7 @@ s32 func_8070DED4(s32 arg0, s32 arg1, u16 arg2) {
     }
 }
 
-extern s32 func_8070DED4(s32, s32, u16);
+extern s32 textLayoutAppendRows(s32, s32, u16);
 extern u8 D_807550C8;
 
 typedef struct R112cDrawCommand {
@@ -743,7 +743,7 @@ void func_8070E2AC(s32 arg0, void *arg1, void *arg2) {
     if (temp_s2->count > 0) {
         do {
             temp_v0 = (R112cDrawCommand *) ((u8 *) temp_s2->commands + var_s1);
-            func_8070DED4(var_s4, temp_v0->unk0 + var_s3->unkC, temp_v0->unk4);
+            textLayoutAppendRows(var_s4, temp_v0->unk0 + var_s3->unkC, temp_v0->unk4);
             var_s0 += 1;
             var_s1 += 8;
         } while (var_s0 < temp_s2->count);
@@ -876,7 +876,7 @@ typedef struct S112bResParsed {
     S112bResKind *kinds;
 } S112bResParsed;
 
-void func_8070E548(Actor *arg0, u16 arg1, u8 arg2) {
+void resApplyKind(Actor *arg0, u16 arg1, u8 arg2) {
     S112bResState *state;
     S112bResParsed *parsed;
     S112bResLink **link;
@@ -887,7 +887,7 @@ void func_8070E548(Actor *arg0, u16 arg1, u8 arg2) {
     if (arg0->unk60 & 0x10) {
         func_8070D970(state->id);
     }
-    parsed = (S112bResParsed *)func_8070DDDC(arg1, 0);
+    parsed = (S112bResParsed *)resNodeGetOrLoad(arg1, 0);
     link = &state->links;
     state->id = arg1;
     item = parsed->kinds[arg2].items;
@@ -940,7 +940,7 @@ typedef struct S112bTextTable {
     s32 base;
 } S112bTextTable;
 
-char *func_8070E750(s32 arg0, s32 arg1, s32 arg2) {
+char *textTableGetString(s32 arg0, s32 arg1, s32 arg2) {
     S112bTextGroup *group;
     S112bTextChoice *choice;
     S112bTextEntry *entry;
@@ -949,7 +949,7 @@ char *func_8070E750(s32 arg0, s32 arg1, s32 arg2) {
     char *dest;
     S112bTextTable *table;
 
-    table = (S112bTextTable *)func_8070DDDC(arg0, 1);
+    table = (S112bTextTable *)resNodeGetOrLoad(arg0, 1);
     group = table->rows[arg1].group;
     choice = group->choices + D_807550C8;
     entry = choice->entry;
@@ -1005,7 +1005,7 @@ void func_8070E808(Actor *arg0, void *arg1) {
         arg0->unk154 = 4;
         return;
     }
-    func_8070E548(arg0, temp_v0->unk8->unk0, temp_v0->unk8->unk2);
+    resApplyKind(arg0, temp_v0->unk8->unk0, temp_v0->unk8->unk2);
     arg1 = temp_v0->unk8;
     temp_v0->unk8 = ((R112cE808Item *) arg1)->unk4;
     heapFreeDeferred(arg1);

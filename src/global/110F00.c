@@ -29,7 +29,7 @@ void mtxScaleTranslateL(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
     guMtxF2L(sp28.m, arg0);
 }
 
-void func_8070C2D8(Mat4F *arg0, Mat4F *arg1, Mat4F *arg2) {
+void mtxMulAffineAliasSafeF(Mat4F *arg0, Mat4F *arg1, Mat4F *arg2) {
     f32 t00;
     f32 t01;
     f32 t02;
@@ -91,7 +91,7 @@ void mtxMulAffineF(Mat4F *arg0, Mat4F *arg1, Mat4F *arg2) {
     arg2->m[3][3] = 1.0f;
 }
 
-void func_8070C808(Mat4F *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
+void mtxTransformPointF(Mat4F *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
     f32 x = *arg1;
     f32 y = *arg2;
     f32 z = *arg3;

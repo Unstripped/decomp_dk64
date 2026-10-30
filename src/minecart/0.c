@@ -137,7 +137,7 @@ extern Struct_807FBB40 *D_807FBB40;
 extern Struct_807FBB4C *D_807FBB4C;
 
 void func_80609140(s32, s32, f32, f32, s32, s32);
-s32 func_8070E750();
+s32 textTableGetString();
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 s32 playerStateQueueCallback();
@@ -145,7 +145,7 @@ void camStartPath();
 
 void func_80024000(u8 arg0, u8 arg1) {
     func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
-    textSpawnMarkerChecked(0x81, 0, 0x78, func_8070E750(0x1A, arg1, 1), 0, 0x28, 8, 8);
+    textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, arg1, 1), 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
     sfxAllocateChannel(0x28, 1.0f);
     playerStateQueueCallback(0x44, 0, 0);
@@ -156,7 +156,7 @@ void func_80024000(u8 arg0, u8 arg1) {
 }
 
 void func_800240DC(u8 arg0, u8 arg1) {
-    s32 temp = func_8070E750(0x1A, arg1, 1);
+    s32 temp = textTableGetString(0x1A, arg1, 1);
     textSpawnMarkerChecked(0x81, 0, 0x78, temp, 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
     sfxAllocateChannel(0x2A, 1.0f);

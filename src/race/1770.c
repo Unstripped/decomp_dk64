@@ -522,7 +522,7 @@ void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
 f32 func_8002D2C0(void *);
 void func_806F4D70(u8, f32, f32, f32, f32);
-void func_806F4DC0(u8, f32, f32, f32, f32);
+void gridAppendPositionNode(u8, f32, f32, f32, f32);
 void actorSpawnNodeEffectFacingCamera(s32, s32);
 void sfxStopSlotSound(void *, s32);
 void renderCallbacksRegister(void *, void *, s32);
@@ -630,7 +630,7 @@ void func_80026F04(void) {
         sp58 *= 0.5;
         sp50 += D_807FBB40->unk90;
         sp50 *= 0.5;
-        func_806F4DC0(s1->unk28, sp58, sp54, sp50, 12.0f);
+        gridAppendPositionNode(s1->unk28, sp58, sp54, sp50, 12.0f);
     }
     if (D_807FBB40->unk60 & 4) {
         actorSpawnNodeEffectFacingCamera(1, 0xC8);

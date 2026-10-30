@@ -35,9 +35,9 @@ extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
 f32 jetpacRandFloat(void);
 void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
-void func_8070E8F0(Gfx **arg0, s32 arg1);
+void dlAppendTextureLoad(Gfx **arg0, s32 arg1);
 void func_8070F2C8(s32 arg0, s32 arg1, u8 arg2, s32 arg3);
-void func_8070F2FC(Gfx **arg0, s16 arg1, s16 arg2);
+void dlAppendTextureRectangle(Gfx **arg0, s16 arg1, s16 arg2);
 typedef struct {
     s32 stage;
     s32 score;

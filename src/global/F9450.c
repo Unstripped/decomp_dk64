@@ -13,11 +13,11 @@ extern s32 D_8076A0A8;
 extern u8 D_8074E77C[];
 
 void gridFreeAllNodeLists(void);
-void func_806F4778(void);
+void gridBuildNodeLists(void);
 
 void func_806F4750(void) {
     gridFreeAllNodeLists();
-    func_806F4778();
+    gridBuildNodeLists();
 }
 
 typedef struct {
@@ -95,7 +95,7 @@ void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
 void slotQueueInit(s32);
 
-void func_806F4778(void) {
+void gridBuildNodeLists(void) {
     s32 cookie;
     s32 found;
     f32 posX;
@@ -272,7 +272,7 @@ typedef struct F9A_PositionNode {
 
 void heapFreeDeferred(void *);
 
-void func_806F4DC0(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
+void gridAppendPositionNode(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     F9A_PositionNode **var_v1;
     F9A_PositionNode *var_v0;
     F9A_PositionNode *temp_v0;
@@ -356,7 +356,7 @@ void func_806F6204(F9F1_Node *, u8, F9F1_Rect *);
 
 s32 gridCoordsToIndex(f32, f32);
 
-void func_806F4F50(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
+void gridMoveNode(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
     s32 pad[4];
     F9F1_Node *node;
     F9F1_Node *prev;
@@ -397,7 +397,7 @@ extern s16 D_80753EFC[];
 void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, u8);
 s32 func_806F4E74(s16);
 
-void func_806F50C8(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
+void gridAddModelNode(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
     F9F1_Node *node;
     f32 x;
     f32 y;
@@ -687,7 +687,7 @@ typedef struct {
 
 extern s16 modelSlotAppend(s32, f32, f32, f32, f32, u8);
 extern void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, u8);
-extern void func_806F50C8(s16, s16, s16, u8, u8, u8);
+extern void gridAddModelNode(s16, s16, s16, u8, u8, u8);
 
 void func_806F58A0(u8 arg0, s16 arg1, F9N2At58 *arg2) {
     s32 var_s0;
@@ -721,7 +721,7 @@ void func_806F58A0(u8 arg0, s16 arg1, F9N2At58 *arg2) {
     var_s1 = 0;
     do {
         if (D_807FC928 == 1) {
-            func_806F50C8(modelSlotAppend(var_s2, sp7C, sp78, sp74, 0.0f, 0), var_s2, var_s0, 1, 0, 1);
+            gridAddModelNode(modelSlotAppend(var_s2, sp7C, sp78, sp74, 0.0f, 0), var_s2, var_s0, 1, 0, 1);
         } else {
             func_806F54E0(arg0, var_s2, 0);
         }
@@ -758,7 +758,7 @@ void func_806F5A48(u8 arg0, s16 arg1, F9N2At58 *arg2, u16 arg3) {
     var_s0 = 0;
     for (var_s1 = 0; var_s1 != 5; var_s1++) {
         if (D_807FC928 == 1) {
-            func_806F50C8(modelSlotAppend(var_s2, sp90, sp8C, sp88, 0.0f, 0), var_s2, var_s0, 1, (arg3 == 0x11) ? 1 : 0, 1);
+            gridAddModelNode(modelSlotAppend(var_s2, sp90, sp8C, sp88, 0.0f, 0), var_s2, var_s0, 1, (arg3 == 0x11) ? 1 : 0, 1);
         } else {
             func_806F54E0(arg0, var_s2, (arg3 == 0x11) ? 1 : 0);
         }
@@ -768,7 +768,7 @@ void func_806F5A48(u8 arg0, s16 arg1, F9N2At58 *arg2, u16 arg3) {
 
 extern s32 D_80754248[];
 
-s32 func_806F5C30(s32 arg0) {
+s32 actorTypeIsRespawnPickup(s32 arg0) {
     s32 i;
 
     for (i = 0; i < 7; i++) {
@@ -813,7 +813,7 @@ typedef struct F9N5_QueueSlot {
 
 extern F9N5_QueueSlot *D_80754240;
 
-void func_806F5DF8(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4, s32 arg5) {
+void delayedSpawnQueueAdd(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4, s32 arg5) {
     s32 i;
     s32 found;
 
@@ -831,7 +831,7 @@ void func_806F5DF8(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4, s32 arg5) {
     }
 }
 
-s32 func_806F5EB4(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
+s32 delayedSpawnQueueContains(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
     s32 i;
     s32 found;
 
@@ -844,15 +844,15 @@ s32 func_806F5EB4(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
     return found;
 }
 
-s32 func_806F5C30(s32);
-void func_806F5DF8(s32, s32, s16, s16, s16, s32);
+s32 actorTypeIsRespawnPickup(s32);
+void delayedSpawnQueueAdd(s32, s32, s16, s16, s16, s32);
 s32 func_80714608(s32);
 
 void func_806F5F2C(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
-    if ((func_80714608(0) != 0) && (func_806F5C30(arg0) != 0)) {
+    if ((func_80714608(0) != 0) && (actorTypeIsRespawnPickup(arg0) != 0)) {
         func_806F5D80(&arg0, &arg1);
     }
-    func_806F5DF8(arg0, 1, arg2, arg3, arg4, arg1);
+    delayedSpawnQueueAdd(arg0, 1, arg2, arg3, arg4, arg1);
 }
 
 void func_806F5FA0(s16 arg0, s16 arg1, s16 arg2) {
@@ -863,7 +863,7 @@ s32 func_806F5CE4();
 
 void func_806F5FE8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
     if (func_806F5CE4() != 0) {
-        func_806F5DF8(arg0, 0, arg1, arg2, arg3, arg4);
+        delayedSpawnQueueAdd(arg0, 0, arg1, arg2, arg3, arg4);
     }
 }
 
@@ -872,7 +872,7 @@ extern void func_80686E40(f32, f32, f32, s32);
 extern s32 func_8071432C(void);
 extern s32 D_807FBB60;
 
-void func_806F603C(void) {
+void delayedSpawnQueueTick(void) {
     s32 i;
 
     if (func_8071432C() != 0) {
@@ -887,7 +887,7 @@ void func_806F603C(void) {
                         if (D_80754240[i].unk0 != 0) {
                             actorSpawnNodeEntryScaled((s16) D_80754240[i].unk4, (f32) D_80754240[i].unk8, (f32) D_80754240[i].unkA, (f32) D_80754240[i].unkC, 0, 0x19, -1, 0);
                         } else {
-                            func_806F50C8(modelSlotAppend(D_80754240[i].unk4, (f32) D_80754240[i].unk8, (f32) D_80754240[i].unkA, (f32) D_80754240[i].unkC, 0.0f, 0), (s16) D_80754240[i].unk4, 0, 1, 0, 0);
+                            gridAddModelNode(modelSlotAppend(D_80754240[i].unk4, (f32) D_80754240[i].unk8, (f32) D_80754240[i].unkA, (f32) D_80754240[i].unkC, 0.0f, 0), (s16) D_80754240[i].unk4, 0, 1, 0, 0);
                         }
                     }
                 }
@@ -911,7 +911,7 @@ typedef struct {
 extern F9A_LinkedNode *D_807FD734;
 extern s32 camDistance3D(s32, s32, s32, s32, s32, s32);
 extern s32 func_8063C2A8(s16);
-extern s32 func_806F6644(s16, u8, u16);
+extern s32 gridCheckNodeCondition(s16, u8, u16);
 extern void modelSlotFreeNestedBuffer(s32, u8);
 extern s32 func_805FF030(u8, s32);
 extern void func_8060E430(u16, u8, u8);
@@ -933,7 +933,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
                 ((f32) dist < (f32) ((F9N6_TableEntry *) &D_80753EF0)[arg0->unk14].unk12 + arg2->unkC) &&
                 ((arg0->unk4 == 0) || (player->unk58 == arg0->unk4)) &&
                 (func_8063C2A8(arg0->unk0) != 0) &&
-                (func_806F6644(arg0->unk0, arg1, (u16) arg0->unk2) != 0)) {
+                (gridCheckNodeCondition(arg0->unk0, arg1, (u16) arg0->unk2) != 0)) {
                 arg0->unkE = 1;
                 modelSlotFreeNestedBuffer(arg0->unk0, 1);
                 if (arg0->unk6 != -1) {
@@ -1058,7 +1058,7 @@ s32 hashTableLookup();
 
 #define F9N7_PLAYER ((F9N7_Player *)D_807FC924)
 
-s32 func_806F6644(s16 arg0, u8 arg1, u16 arg2) {
+s32 gridCheckNodeCondition(s16 arg0, u8 arg1, u16 arg2) {
     u8 flags;
     F9N7_Flag *ctl;
     F9N7_Slot *slot;
@@ -1145,8 +1145,8 @@ typedef struct F9N8_Type {
 extern s16 D_807FD790;
 extern u8 D_807444FC;
 extern s16 D_8076A0AA;
-void func_806F73A0(u8);
-void func_806F70FC(f32, f32, f32, f32, f32, s32);
+void gridCollectActorsInRange(u8);
+void effectSpawnRandomSpread(f32, f32, f32, f32, f32, s32);
 void func_806358E8(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
 void func_806398E4(s32, u8, u8);
 void slotQueueGetPosition(s32, f32 *, f32 *, f32 *);
@@ -1165,7 +1165,7 @@ typedef struct F9N8_Player {
     u8 padm[0x2F0 - 8 - 0x200];
 } F9N8_Player;
 
-void func_806F69A8(u8 arg0) {
+void gridUpdatePlayerNodes(u8 arg0) {
     F9N8_RectNode *rect;
     F9N8_Node *node;
     F9N8_Node *prev;
@@ -1197,7 +1197,7 @@ void func_806F69A8(u8 arg0) {
     f32 fz;
 
     D_807FD798 = 0;
-    func_806F73A0(arg0);
+    gridCollectActorsInRange(arg0);
     D_807FD734 = NULL;
     gridDispatchRect(arg0, (F9F1_Rect *)&D_807FD740[arg0]);
     rect = (F9N8_RectNode *)D_807FD780[arg0];
@@ -1236,10 +1236,10 @@ void func_806F69A8(u8 arg0) {
                         }
                         switch (node->unk2) {
                         case 0xEC:
-                            func_806F70FC(vx, vy, vz, 0.1f, 200.0f, 0xA);
+                            effectSpawnRandomSpread(vx, vy, vz, 0.1f, 200.0f, 0xA);
                             break;
                         case 0x18D:
-                            func_806F70FC(vx, vy, vz, 0.3f, 20.0f, 0x14);
+                            effectSpawnRandomSpread(vx, vy, vz, 0.3f, 20.0f, 0x14);
                             break;
                         }
                         if (D_807FD798 != 4) {
@@ -1320,10 +1320,10 @@ typedef struct F94C_PlayerBlock {
     u8 pad8[0x2E8];
 } F94C_PlayerBlock;
 
-void func_806F603C(void);
-void func_806F69A8(u8);
+void delayedSpawnQueueTick(void);
+void gridUpdatePlayerNodes(u8);
 
-void func_806F6F28(void) {
+void gridTickPlayers(void) {
     s16 var_fp;
     u8 sp45;
     u8 i;
@@ -1331,7 +1331,7 @@ void func_806F6F28(void) {
     var_fp = 0;
     sp45 = 0;
     if (D_807FBB64 & 0x10000) {
-        func_806F603C();
+        delayedSpawnQueueTick();
     }
     if (flagGet(0x179, 0) != 0) {
         var_fp = 1;
@@ -1355,7 +1355,7 @@ void func_806F6F28(void) {
                 temp_v0->flags &= -3;
             }
             if ((((F94C_PlayerBlock *)D_807FC924)[i].unk4->unk154 != 0x36) && (D_807FD738 == 0)) {
-                func_806F69A8(i);
+                gridUpdatePlayerNodes(i);
             }
             i++;
         } while (i < D_807FC928);
@@ -1396,7 +1396,7 @@ extern u8 D_8071FC58;
 extern u8 func_8071C48C;
 extern u8 func_8071C620;
 
-void func_806F70FC(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
+void effectSpawnRandomSpread(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
     f32 x;
     f32 y;
     f32 z;
@@ -1484,7 +1484,7 @@ void modelFlagsApplyState(s16, s16, u8 *);
 
 #define F94D_ENTRY (&((F94D_Entry *) &D_80753EF0)[k])
 
-void func_806F73A0(u8 arg0) {
+void gridCollectActorsInRange(u8 arg0) {
     Actor *player;
     s32 i;
     F94D_Sub *playerSub;
@@ -1514,7 +1514,7 @@ void func_806F73A0(u8 arg0) {
                                 node = node->unk10;
                             }
                             if ((actor->unk154 == 0x64) || (found != 0)) {
-                                if ((D_807FBB64 & 0x10000) && (func_806F5C30(actor->unk58) != 0)) {
+                                if ((D_807FBB64 & 0x10000) && (actorTypeIsRespawnPickup(actor->unk58) != 0)) {
                                     func_806F5F2C(actor->unk58, 0x258, (s16) (s32) actor->unk7C, (s16) (s32) actor->unk80, (s32) actor->unk84);
                                 }
                                 sub = actor->unk174;
@@ -1573,7 +1573,7 @@ void func_806F73A0(u8 arg0) {
                                         func_80731410(D_8076A0AA, tblIdx, sub->unkA, func_8073198C(sub->unkA));
                                         tblIdx = csModelSlotGetTableIndex(slot);
                                         modelFlagsApplyState(D_8076A0AA, tblIdx, &D_807F6000[hashTableLookup(slot)].unk8C);
-                                        func_806F50C8(slot, F94D_ENTRY->unk0, 0, 1, 0, flag);
+                                        gridAddModelNode(slot, F94D_ENTRY->unk0, 0, 1, 0, flag);
                                         actor->unk11C = 0;
                                     }
                                     actorDespawn(actor);

@@ -328,7 +328,7 @@ void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void actorSetCollisionRadius(Actor *, f32);
 u32 func_806119A0(void);
 s32 camIsCutsceneActive(void);
-s32 func_806F5C30(s32);
+s32 actorTypeIsRespawnPickup(s32);
 void func_806F5F2C(s32, s32, s16, s16, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void actorDespawn(void *);
@@ -438,7 +438,7 @@ void func_806A664C(f32 arg0) {
     case 4:
         state->unk4[0x36D] -= 5;
         if ((s32)state->unk4[0x36D] < 0xA) {
-            if ((D_807FBB64 & 0x10000) && func_806F5C30(D_807FBB40->unk58) != 0) {
+            if ((D_807FBB64 & 0x10000) && actorTypeIsRespawnPickup(D_807FBB40->unk58) != 0) {
                 func_806F5F2C(D_807FBB40->unk58, 0x258, (s16)(s32)D_807FBB40->unk7C, (s16)(s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84);
             }
             actorDespawn(D_807FBB40);

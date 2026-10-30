@@ -194,7 +194,7 @@ void lightGetColor(f32 *, f32 *, f32 *, s32);
 void func_806BF920(void);
 extern s16 D_80744490;
 extern s16 D_80744494;
-s32 func_8070E750(s32, s32, s32);
+s32 textTableGetString(s32, s32, s32);
 s32 textGetStringWidth(s32, s32);
 s32 textGetFontHeight(s32);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
@@ -280,7 +280,7 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *arg1) {
     }
     if (temp_s1->unk25 != 0) {
         sp48 = D_80744490 >> 1;
-        sp64 = func_8070E750(0x1A, 6, 1);
+        sp64 = textTableGetString(0x1A, 6, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s1->unk25);
@@ -291,7 +291,7 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *arg1) {
     }
     if (temp_s1->unk24 != 0) {
         sp34 = D_80744490 >> 1;
-        sp64 = func_8070E750(0x1A, 8, 1);
+        sp64 = textTableGetString(0x1A, 8, 1);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s1->unk24);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
@@ -349,7 +349,7 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *arg1) {
     }
     if (temp_s2->unk25 != 0) {
         var_s1 = D_80744490 >> 1;
-        var_s3 = func_8070E750(0x1A, 6, 1);
+        var_s3 = textTableGetString(0x1A, 6, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s2->unk25);
@@ -360,7 +360,7 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *arg1) {
     }
     if (temp_s2->unk24 != 0) {
         var_s1 = D_80744490 >> 1;
-        var_s3 = func_8070E750(0x1A, 7, 1);
+        var_s3 = textTableGetString(0x1A, 7, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s2->unk24);
@@ -376,7 +376,7 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *arg1) {
         temp_inner = temp_s1->unk174;
         if (temp_inner->unk5 != 0 && arg1->unk154 == 0) {
             if (temp_inner->unk8 < 0) {
-                temp_inner->unk8 = gfxResourceCreate(1, func_8070E750(0x1A, 9, 1), 9, temp_s1->unk7C * 0.25, temp_s1->unk80 * 0.25, temp_s1->unk84 * 0.25);
+                temp_inner->unk8 = gfxResourceCreate(1, textTableGetString(0x1A, 9, 1), 9, temp_s1->unk7C * 0.25, temp_s1->unk80 * 0.25, temp_s1->unk84 * 0.25);
             }
             if (var_s5 == 0) {
                 gSPDisplayList(gdl++, D_1000118);
@@ -552,7 +552,7 @@ void bonusTargetGameUpdate(void) {
     u8 idx;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
-        c = gfxResourceCreate(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
         t0->unk25 = c;
         func_806FDAB8(c, 0.0f);
         t3c->unk23 = 5;
@@ -1236,7 +1236,7 @@ void func_8002A398(void) {
         t0->unk4 = 0x3C;
         t0->unk6 = 0;
         t0->unk8 = t0->unkA;
-        t0->unk3 = gfxResourceCreate(1, func_8070E750(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
+        t0->unk3 = gfxResourceCreate(1, textTableGetString(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
         func_806FDAB8(t0->unk3, 0.0f);
         t0->unk0 = 0x1E;
         playerStateQueueCallback(0x48, 0, 0);
@@ -1728,7 +1728,7 @@ void func_8002BF98(void) {
         temp_s5->unk24 = 0;
         temp_s5->unk26 = temp_s5->unk28;
         temp_s5->unk20 = 0x3C;
-        temp_s5->unk23 = gfxResourceCreate(1, func_8070E750(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        temp_s5->unk23 = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
         func_806FDAB8(temp_s5->unk23, 0.0f);
         D_807FBB40->unk4->unk34 = 0.33f;
         D_807FBB40->unk4->unk38 = 0.33f;

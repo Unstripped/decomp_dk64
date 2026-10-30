@@ -23,7 +23,7 @@ extern u8 D_807FD9D5;
 
 #define L8F0_TEXTURE ((L8F0Texture *)D_807550D0)
 
-void func_8070E8F0(Gfx **arg0, void *arg1) {
+void dlAppendTextureLoad(Gfx **arg0, void *arg1) {
     Gfx *gfx = *arg0;
     s32 width;
     s32 height;
@@ -98,7 +98,7 @@ typedef struct R1135bTexture {
 
 extern R1135bTexture *D_807550D0;
 
-void func_8070F2FC(Gfx **arg0, s16 arg1, s16 arg2) {
+void dlAppendTextureRectangle(Gfx **arg0, s16 arg1, s16 arg2) {
     Gfx *dl;
     f32 fx;
     f32 fy;

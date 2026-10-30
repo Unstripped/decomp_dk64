@@ -31,7 +31,7 @@ u8 *_strchr(u8 *, s32);
 u32 _strcspn(u8 *, char *);
 u8 *_strncpy(u8 *, u8 *, u32);
 s32 textGetStringWidth();
-u8 *func_8070E750(s32, s32, s32);
+u8 *textTableGetString(s32, s32, s32);
 void textSpawnMarkerChecked(s32, s32, s32, u8 *, s32, s32, s32, s32);
 u32 strlen(u8 *);
 
@@ -46,7 +46,7 @@ u8 arg2;
     s16 idx;
     u8 *s;
 
-    s = func_8070E750(1, arg0, 1);
+    s = textTableGetString(1, arg0, 1);
     if (_strchr(s, 0x3A) != 0) {
         _strncpy(sp44, s, idx = _strcspn(s, ":") + 1);
         sp44[idx] = 0;

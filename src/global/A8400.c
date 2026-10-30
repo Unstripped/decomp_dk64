@@ -941,8 +941,8 @@ void *heapAlloc(s32);
 void camResumePath(void);
 void func_806A4DDC(Actor *);
 void func_806A5174(Actor *, SpriteBehaviour *, f32);
-void func_8070DA28(SpriteBehaviour *);
-void func_8070DA74(void *);
+void resNodeListFree(SpriteBehaviour *);
+void resQueueRemove(void *);
 void renderCallbacksRegister(void *, void *, s32);
 
 void func_806A5868(void) {
@@ -1019,12 +1019,12 @@ void func_806A5868(void) {
             D_807FBB40->unk154 = 5;
         } else {
             if (sub->unkC != NULL) {
-                func_8070DA28(sub);
+                resNodeListFree(sub);
             }
             sub->unk0 = sub->unk0 - 1;
         }
     } else if (state == 5) {
-        func_8070DA74(sub->unk4);
+        resQueueRemove(sub->unk4);
     }
     if (D_807FBB40->unk154 != 5) {
         sub->unk20 = (f32)sub->unk0 * 0.033333335f;

@@ -1,4 +1,4 @@
-// func_80710CA0 (src/global/114270.c): stage 5: loop-entry guard FIXED: 'i = 0x80;' before the unrelated 'if (TEX==1)' then 'while (--i >= 0 && processed != count)' gives li s5,127 + bltzl s5. Only remaining diff: count spill sw s0,0x5C(sp) vs 0x64 (and its reload lw t6): spill slot 8 bytes lower than target; frame/regs/insns identical (551 lines). Tried ~400 decl-order permutations of i/count/processed/entry/player/flags, posX drop, pad words: slot never moved.
+// effectSpriteRenderPool (src/global/114270.c): stage 5: loop-entry guard FIXED: 'i = 0x80;' before the unrelated 'if (TEX==1)' then 'while (--i >= 0 && processed != count)' gives li s5,127 + bltzl s5. Only remaining diff: count spill sw s0,0x5C(sp) vs 0x64 (and its reload lw t6): spill slot 8 bytes lower than target; frame/regs/insns identical (551 lines). Tried ~400 decl-order permutations of i/count/processed/entry/player/flags, posX drop, pad words: slot never moved.
 #include "common.h"
 #include "actor.h"
 
@@ -30,7 +30,7 @@ s32 mapChunkContainsPoint(s16, s16, s16);
 #define L10CA0_POOL ((L10CA0Header *)D_807550E0)
 #define L10CA0_TEX (&D_80755264)[D_807FDA1C * 0x14]
 
-Gfx *func_80710CA0(Gfx *arg0, Actor *arg1) {
+Gfx *effectSpriteRenderPool(Gfx *arg0, Actor *arg1) {
     f64 scaleSize;
     f32 mtxScale[4][4];
     f32 mtxTemp[4][4];

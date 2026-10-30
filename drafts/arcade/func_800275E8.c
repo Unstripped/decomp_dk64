@@ -28,20 +28,20 @@ void func_800275E8(Gfx **arg0) {
     D_8004C6D4 = 0x400;
     ArcA1_P6D0 = D_80032F40;
     func_80005A90(D_8004BC50 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&sp90, D_8004BC50 + D_807444FC * 0x18);
+    dlAppendTextureLoad((s32 *)&sp90, D_8004BC50 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     for (j = 5; j < 0x14; j++) {
-        func_8070F2FC((s32 *)&sp90, 0x15C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
+        dlAppendTextureRectangle((s32 *)&sp90, 0x15C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
     }
     for (j = 5; j < 0x14; j++) {
-        func_8070F2FC((s32 *)&sp90, 0x25C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
+        dlAppendTextureRectangle((s32 *)&sp90, 0x25C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
     }
     D_8004C719 = 8;
     D_8004C71A = 0xA;
     D_8004C6D4 = 0x492;
     ArcA1_P6D0 = D_80034568;
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    func_8070E8F0((s32 *)&sp90, D_8004BB00 + D_807444FC * 0x18);
+    dlAppendTextureLoad((s32 *)&sp90, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
     n = 21;
     pt = D_8004A7C8;
@@ -59,7 +59,7 @@ void func_800275E8(Gfx **arg0) {
             }
         }
         for (j = 0; j < 2; j++) {
-            func_8070F2FC((s32 *)&sp90, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
+            dlAppendTextureRectangle((s32 *)&sp90, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
         }
         bar++;
         if (bar == (ArcA1_Bar *)D_8004BCD0) break;

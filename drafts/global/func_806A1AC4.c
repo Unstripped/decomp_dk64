@@ -12,7 +12,7 @@ void actorSetUniformScale(Actor *, f32);
 s32 flagGet(s16, s32);
 void func_80614EBC(Actor *, s32);
 void currentActorAnimSetFrame(s32, s32);
-void func_8070DA74(Actor *);
+void resQueueRemove(Actor *);
 void func_8070D8C0(Actor *, s32, s32);
 void func_8061CC40(Actor *, s32, s32);
 void flagSet(s32, s32, s32);
@@ -54,7 +54,7 @@ void func_806A1AC4(void) {
     switch (D_807FBB40->unk154) {
     case 0:
         if (D_807FBB70.unk254 != 0 && D_807FBB70.unk258[0] == 1) {
-            func_8070DA74(D_807FBB40);
+            resQueueRemove(D_807FBB40);
             func_8070D8C0(D_807FBB40, 0x1F, 1);
             func_8061CC40(D_807FBB40, 0x12, 1);
             flagSet(0xFB, 1, 0);
