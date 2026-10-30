@@ -658,7 +658,75 @@ void func_8060D14C(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D14C.s")
 #endif
 
+#ifdef NON_MATCHING
+extern s32 _sprintf();
+extern void func_8060BA14(void);
+extern char *D_807467C0;
+extern s8 D_807467C4;
+extern s8 D_807467E4;
+extern f32 D_807467E8;
+extern u8 D_807ECD08[];
+extern s32 D_807EDEAC;
+extern OSMesgQueue D_807ECCF0;
+extern u8 D_807ED6A8[];
+
+void func_8060D2C8(s32 arg0) {
+    s32 i;
+    s32 textOffset;
+    s32 offset;
+    s32 sector;
+    s32 dataLength;
+    s32 height;
+    u8 savedData[0x800];
+    u8 workingData[0x800];
+    u8 *sp5C;
+    s32 after_1;
+    s32 after_2;
+
+    if (D_807EDEAC != 2) return;
+    textOffset = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
+    textOffset = (textOffset + 0x207) & ~7;
+    textOffset /= 8;
+    _sprintf((char *)D_807ECEA8 + textOffset, D_807467C0);
+    memcpy(workingData, D_807ECEA8, 0x800);
+    memcpy(savedData, D_807ED6A8, 0x800);
+    offset = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
+    offset /= 8;
+    if (arg0 == 0) {
+        func_8060BA14();
+        height = (((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7;
+        height /= 8;
+        for (i = 0; i < 4; i++) {
+            ((u32 *)workingData)[(((i + 1) * height) / 4) - 1] = func_8060B968(workingData + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF);
+        }
+        sector = 0;
+    } else sector = offset & 0xFFFF;
+    ((u32 *)workingData)[((offset + 0x40) / 4) - 1] = func_8060B968(workingData + (offset & 0xFFFF), 0x3C);
+    dataLength = strlen(D_807467C0);
+    bzero(workingData + dataLength + offset + 0x40, 0x800 - offset - dataLength - 0x40);
+    osWritebackDCacheAll();
+    memcpy(D_807ED6A8 + sector * 8, workingData + sector * 8, 0x800 - sector * 8);
+    if (D_807ECD08[0] != 0) do sleepMilliseconds(1.0f); while (D_807ECD08[0] != 0);
+    if (D_80744460 == 0) {
+        D_807467C4 = 1;
+        for (sector &= 0xFFFF; sector < 0x100; sector += 2) {
+            D_807467E4 = 0x1E;
+            D_807467E8 = (f32)sector * 0.00390625f;
+            if (((u32 *)(savedData + sector * 8))[0] != ((u32 *)(workingData + sector * 8))[0] || ((u32 *)(savedData + sector * 8))[1] != ((u32 *)(workingData + sector * 8))[1]) {
+                for (i = 0; i < 2; i++) {
+                    if (D_80744460 != 0) break;
+                    osEepromWrite(&D_807ECCF0, (sector + i) & 0xFF, workingData + (sector + i) * 8);
+                    sleepMilliseconds(15.0f);
+                }
+            }
+        }
+        D_807467C4 = 0;
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D2C8.s")
+#endif
 
 extern void func_8060D2C8(s32);
 
@@ -679,8 +747,8 @@ extern u8 D_8074E77C;
 
 #ifdef NON_MATCHING
 void func_8060D7A8(void) {
-    u8 *entry;
     s32 i;
+    u8 *entry;
 
     if (func_806F6EDC() != 0) {
         s32 v = slotQueueGetMaxValue(5, 0);
@@ -698,6 +766,7 @@ void func_8060D7A8(void) {
         s32 v = slotQueueGetMaxValue(2, 0);
         *(s16 *)(D_807FC950 + 0x2F0) = (s16)(u32)((f64)(u32)v * 0.5);
     }
+    if (D_8074E77C && D_8074E77C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     entry = D_807FC950;
     i = 0;
     do {

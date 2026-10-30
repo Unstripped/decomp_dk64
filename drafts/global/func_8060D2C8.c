@@ -1,14 +1,14 @@
 // func_8060D2C8 (src/global/104F0.c): stage 4: target frame 0x1078 and buffer locations sp+0x60 / sp+0x860 match by placing 6 scalar locals before arrays and 3 locals after arrays; remaining diff is regalloc and D_807ECD08 pointer caching at sp+0x5C.
 extern s32 _sprintf();
 extern s32 func_8060B968();
-extern void func_8060BA14();
+extern void func_8060BA14(void);
 extern void sleepMilliseconds(f32);
-extern char D_807467C0[];
+extern char *D_807467C0;
 extern s8 D_807467C4;
 extern s8 D_807467E4;
 extern f32 D_807467E8;
-extern u8 D_80744460;
-extern u8 D_807ECD08;
+extern s8 D_80744460;
+extern u8 D_807ECD08[];
 extern s32 D_807EDEAC;
 extern OSMesgQueue D_807ECCF0;
 extern s16 D_807ECEA0[];
@@ -51,7 +51,7 @@ void func_8060D2C8(s32 arg0) {
     bzero(workingData + dataLength + offset + 0x40, 0x800 - offset - dataLength - 0x40);
     osWritebackDCacheAll();
     memcpy(D_807ED6A8 + sector * 8, workingData + sector * 8, 0x800 - sector * 8);
-    if (D_807ECD08 != 0) do sleepMilliseconds(1.0f); while (D_807ECD08 != 0);
+    if (D_807ECD08[0] != 0) do sleepMilliseconds(1.0f); while (D_807ECD08[0] != 0);
     if (D_80744460 == 0) {
         D_807467C4 = 1;
         for (sector &= 0xFFFF; sector < 0x100; sector += 2) {
