@@ -635,9 +635,7 @@ extern u8 D_807FDA1B;
 extern f32 *D_8076A0B4;
 extern u8 D_8077058C[];
 void func_8070F5CC(u8, s16, f32, s16, s32, s32);
-#ifndef NON_MATCHING
 Gfx *func_80710CA0(Gfx *, Actor *);
-#endif
 void renderCallbacksRegister(void *, void *, s32);
 
 void func_80711410(f32 arg0, s16 arg1, f32 arg2, s16 arg3, f32 arg4) {
