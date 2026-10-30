@@ -715,7 +715,6 @@ void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u
     s32 i;
 
     if (mapChunkIsInUse(arg7) == 0) {
-        if (b > 0.0f) {} // FAKE: regalloc steer (random search)
         *arg6 = 0xFF;
         *arg5 = 0xFF;
         *arg4 = 0xFF;

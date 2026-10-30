@@ -2625,7 +2625,6 @@ s32 func_8065776C(u8 *arg0) {
             vy = Q->y[1];
             ex = Q->x[2] - vx;
             ey = Q->y[2] - vy;
-            if (cross && cross) {} // FAKE: rs
             break;
         case 2:
             vx = Q->x[2];
