@@ -1,4 +1,4 @@
-// func_806ABC94 (src/global/ACDC0.c): R3ACDC0 stage 6: first half (cur in a0, 'move a0,s0' late, temps) now identical via new_var = 1 - idx2 (twin 1-idx2 occurrence) and v = arg0->unk8[idx] + dir without cur var; reloc D_807FC7F9[-d] matches. Remaining: second half ptr=v1/d=v0 (orig ptr=v0,d=v1), orig 'move t0,t4; negu t2,t0' (neg of scaled idx2) vs mine negu+sll because new_var forces 1-idx2 CSE; inline 1-idx2 gives neg-of-scaled but breaks first half. permuter 480s from this: no gain (score 280).
+// func_806ABC94 (src/global/ACDC0.c): func_806ABC94 (src/global/ACDC0.c): stage 6, 1 text diff cluster. First half + clamp/loop identical in structure; remaining only second half (arg1 != 0): target 'lb t0; sll t4,t0,1; addu v0,s0,t4; lh v1,0xc(v0); move t0,t4; negu t2,t0; ...; addu t3,s0,t2 (in bnez delay slot)' vs mine 'negu+addu right after lh, delay slot filled with lui a2' (2 insns shorter total). A local 'off = idx2*2' used for the loads gives the 'move t0,t4' copy but then uopt folds the unk8[1-idx2] store into 'subu s0-off' instead of negu+addu; every spelling of the store tried (index 1-idx2, (&unk8[1])[-idx2], u8* arith, +-off, pointer temp, early q=&unk8[1-idx2]) keeps negu/addu OR the move, never both; decl-order/type perms (s8/s32/u32 idx2,d s16) no change; rs.py 12000 iters x2 seeds no gain (26 diff lines baseline). 2-reloc diff vs D_807FC7F9 ok.
 typedef struct ACDC0HudEntry {
     /* 0x00 */ u8 pad0[8];
     /* 0x08 */ s16 unk8[2];
@@ -12,17 +12,17 @@ typedef struct ACDC0HudEntry {
 
 extern s8 D_8075052C;
 extern s8 D_807505D0;
-extern s8 D_807FC7F9;
 void func_806AA304(ACDC0HudEntry *, s32, s32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 
+extern s8 D_807FC7F9;
+
 s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
     s32 dir;
-    s32 new_var;
-    s32 idx;
+    u32 idx;
     s32 v;
     s32 d;
-    s32 idx2;
+    u32 idx2;
 
     if (arg1 == 0) {
         dir = 0;
@@ -39,6 +39,7 @@ s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
             if (v < 0) {
                 v = D_807505D0;
             }
+            if (D_8075052C == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (D_807505D0 < v) {
                 v = 0;
             }
@@ -54,6 +55,7 @@ s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
     if (arg1 != 0) {
         idx2 = arg0->unk15;
         d = arg0->unkC[idx2];
+        if (idx2 && idx2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (d >= 0x15) {
             d = 0x14;
         }
@@ -63,8 +65,7 @@ s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
         arg0->unkC[0] -= d;
         arg0->unkC[1] -= d;
         if (arg0->unkC[idx2] == 0) {
-            new_var = 1 - idx2;
-            arg0->unk8[new_var] = arg0->unk8[idx2];
+            arg0->unk8[1 - idx2] = arg0->unk8[idx2];
             d = arg0->unk15;
             arg1 = 0;
             (&D_807FC7F9)[-d] = 0;

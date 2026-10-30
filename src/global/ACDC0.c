@@ -1239,7 +1239,7 @@ s32 func_806ABC94(ACDC0HudEntry *arg0, s32 arg1, s32 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806ABC94.s")
 #endif
 
-#ifdef NON_MATCHING
+
 void func_806ABE3C(void) {
     s16 *p;
     s16 *p0;
@@ -1251,15 +1251,15 @@ void func_806ABE3C(void) {
 
     p0 = (s16 *)((u8 *)&D_807FC82A - 2); do {
         *p0++ = 0;
-    } while (p0 < (s16 *)((u8 *)&D_807FC82A + 10));
+    } while (p0 < (s16 *)((u8 *)&D_807FC82A + 12));
     n = 0;
-    e = D_807FC950; k = 0; do { n += e->unk42[0]; n += e->unk42[1];
+    k = 0; e = D_807FC950; do { n += D_807FC950[k].unk42[0]; n += D_807FC950[k].unk42[1];
         for (i = 2; i < 14; i++) {
-            n += D_807FC950[k].unk42[i];
+            n += e->unk42[i];
         }
         e++;
         k++;
-    } while (e < D_807FCB26);
+    } while (&D_807FC950[k] < D_807FCB26);
     D_807FC828 = n;
     n = 0;
     p = D_80744710; do {
@@ -1288,10 +1288,6 @@ void func_806ABE3C(void) {
     }
     D_807FC838 = 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/func_806ABE3C.s")
-#endif
 
 Gfx *hudDrawDimOverlay(Gfx *dl, Actor *actor) {
     return gfxFillScreenColor(dl, 0, 0, 0, 0x46);
