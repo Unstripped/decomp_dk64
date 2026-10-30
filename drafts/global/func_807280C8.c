@@ -1,17 +1,19 @@
-// func_807280C8 (src/global/1295B0.c): stage 6, 5 diff lines: sum assigned back into dz; only cvt.s.w(arg1) schedule differs
-s32 mapChunkIsVisibleForPlayer(s32, s16);
-
+// func_807280C8 (src/global/1295B0.c): stage 6; score 55. Instruction schedule matches target 100% (split dx and dead unk210 read steer cvt.s.w and add.s); remaining diff is 3 temporary float registers (/, /, /).
 u8 func_807280C8(SpawnNode *arg0, s32 arg1) {
     f32 dx;
     f32 dy;
     f32 dz;
+    f32 dxy;
     s32 ret;
 
     dz = C1PLAYERS[0].unk218 - arg0->unk18->unk84;
-    dx = C1PLAYERS[0].unk210 - arg0->unk18->unk7C;
+    dx = C1PLAYERS[0].unk210;
+    dx -= arg0->unk18->unk7C;
     dy = C1PLAYERS[0].unk214 - arg0->unk18->unk80;
+    if (C1PLAYERS[0].unk210 && C1PLAYERS[0].unk210) {} // FAKE: steer cvt.s.w schedule
     ret = 0;
-    dz = ((dz * dz) + ((dx * dx) + (dy * dy)));
+    dxy = (dx * dx) + (dy * dy);
+    dz = (dz * dz) + dxy;
     if (arg1 < dz) {
         ret = 1;
     }
