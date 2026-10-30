@@ -475,7 +475,7 @@ s32 matrixCacheHash(s32, s16, u8);
 void *func_80610FE8(s32);
 void heapFree(void *);
 void heapFreeDeferred(void *);
-#ifdef NON_MATCHING
+
 #define DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
 void *func_8065E138(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
@@ -496,9 +496,9 @@ void *func_8065E138(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
                     mismatch = 0;
                     for (; !mismatch && i < arg0; i++) {
                         mismatch = 1;
-                        a = &node->sub[i];
                         for (j = 0; mismatch && j < arg0; j++) {
                             b = &D_807F78C0[j];
+                            a = &node->sub[i];
                             if (b->unk3E == 1) {
                                 if (a->unk38 == b->unk38 && a->unk3A == b->unk3A && a->unk3C == b->unk3C &&
                                     (double)DIFF(b->unkC, a->unkC) < 0.05 &&
@@ -536,6 +536,7 @@ void *func_8065E138(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
                             node->list_next = D_807F9050;
                             D_807F9050 = node;
                         }
+                        node = NULL; // FAKE: redefining node stops uopt forwarding node->sub into the return, keeping it in a0
                         return &sub[arg0];
                     }
                 }
@@ -545,10 +546,6 @@ void *func_8065E138(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
     }
     return 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/61AA0/func_8065E138.s")
-#endif
 
 void *func_8065E634(s32 arg0, s32 arg1, s16 arg2, u8 arg3, s32 arg4, u8 arg5) {
     void *sp18;

@@ -1,7 +1,4 @@
-// func_8065D254 (src/global/61AA0.c): stage 5, parked NON_MATCHING in 61AA0.c: text identical except one insn: loop-2 preheader li a0,-1 is last (before lw) instead of first (bnez delay slot); mask/i*1 FAKE nodes used; D_807F8E8A should be u16 (lhu), cast used
-#include "common.h"
-#include "actor.h"
-
+// func_8065D254 (src/global/61AA0.c): stage 5: frame 0xd8 + callee-saved set match, ONE insn off: loop-2 hoisted -1 constant 'li a0,-1' must be the bnez-found delay-slot insn (first of the loop-2 preheader) but we emit it either not at all (single -1 web shared with loop 1, this draft, 1-insn diff) or last in the preheader before the lw (distinct web via (u32)/mask/FAKE & 0xFFFFFFFF, parked in src, 2-line diff). Tried: do/while/for/goto/nested-if loop forms, s32/u32/mask/-1== operand orders in all 16 loop1xloop2 combos, variable holding -1 (propagated), deadsweep 4 form families (~6000 variants), permuter 2x(420s+800s)
 typedef struct {
     s32 unk0;
     s16 unk4;
@@ -10,6 +7,8 @@ typedef struct {
 } BillboardCacheEntry;
 extern BillboardCacheEntry D_807F8E90[4];
 extern s16 D_807F8E8A;
+extern u8 D_807F8E88;
+extern s32 D_8076A064;
 
 typedef struct {
     Mtx matrices[2];
@@ -23,13 +22,11 @@ typedef struct {
     s8 unk107;
 } RenderLBillboard;
 extern RenderLBillboard D_807F7F10[16];
-extern u8 D_807F8E88;
 extern u8 D_807444FC;
 
 void billboardSetVertex(s16 *, s16, s16, s16, s16);
 void *assetLoad(s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-extern s32 D_8076A064;
 #define RL_ACT(T, off) (*(T *)((u8 *)actor + (off)))
 
 void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, u8 arg6, s16 arg7, u8 arg8, s16 arg9, f32 arg10) {
@@ -67,7 +64,7 @@ void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
     }
     i = 0; found = FALSE;
     while ((i < 4) && !found) {
-        if ((D_807F8E90[i].unk0 & 0xFFFFFFFF) == -1) { // FAKE: no-op mask gives this -1 its own constant candidate
+        if (D_807F8E90[i].unk0 == -1) {
             found = TRUE;
         } else {
             i++;
