@@ -529,7 +529,7 @@ s32 textGetStringWidth(s16, s32);
 s32 strlen(char *);
 s32 _sprintf(char *, const char *, ...);
 
-void func_80713438(Gfx *arg0, u8 arg1) {
+Gfx *func_80713438(Gfx *arg0, u8 arg1) {
     s32 sp34;
     s32 sp30;
     f32 y;
@@ -552,7 +552,7 @@ void func_80713438(Gfx *arg0, u8 arg1) {
     R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
     R117D_WRITE_GFX(arg0++, 0xFA000000, arg1 & 0xFF);
     R117D_WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
-    textDrawStringVtx(arg0, 1, new_var2, (s16) ((s32) (y * 4.0f)), (void *) sp34, 4);
+    return textDrawStringVtx(arg0, 1, new_var2, (s16) ((s32) (y * 4.0f)), (void *) sp34, 4);
 }
 
 
@@ -599,7 +599,7 @@ s32 func_8071375C(s32 arg0) {
 extern s16 D_80744494;
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
-void func_80713764(Gfx *arg0, u8 arg1, f32 arg2) {
+Gfx *func_80713764(Gfx *arg0, u8 arg1, f32 arg2) {
     f32 x;
     f32 y;
 
@@ -609,7 +609,7 @@ void func_80713764(Gfx *arg0, u8 arg1, f32 arg2) {
     R117D_WRITE_GFX(arg0++, 0xFA000000, (s32) ((arg1 & 0xFF) | ~0xFF)); // FAKE: no-op mask advances the scratch-register ring
     R117D_WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
     R117D_WRITE_GFX(arg0++, 0xE3001201, 0);
-    renderRotatedSprite(arg0, 0x2C, 0, 2, 0xE0, 0x80, (s32) x, (s32) y, 1.0f, 1.0f, 0, 0.0f);
+    return renderRotatedSprite(arg0, 0x2C, 0, 2, 0xE0, 0x80, (s32) x, (s32) y, 1.0f, 1.0f, 0, 0.0f);
 }
 
 void *func_807132DC();
@@ -618,32 +618,28 @@ Gfx *func_807135B4(Gfx *);
 Gfx *func_807138A4(Gfx *arg0) {
     return func_807135B4(func_807132DC(arg0));
 }
-#ifdef NON_MATCHING
 void viewportSetFromRect(void *, s32, s32, s32, s32);
 Gfx *func_806FF144(void *);
 
 Gfx *func_807138CC(Gfx *arg0) {
     void *sp3C;
     f32 temp_fv0;
+    Gfx *g;
 
     sp3C = (void *)heapAlloc(0x10);
     heapFreeDeferred(sp3C);
     viewportSetFromRect(sp3C, 0xA, 0xA, 0x135, 0xE5);
-    arg0 = func_8071338C(func_807135B4(func_807132DC(arg0)));
+    arg0 = func_807135B4(func_807132DC(arg0));
+    arg0 = func_8071338C(arg0);
     if ((u32)++D_80755320 < 0xD3U) {
         temp_fv0 = (f32) (0xD2U - D_80755320) * 0.03333333507f;
         temp_fv0 = (temp_fv0 < 0.0f) ? 0.0f : ((temp_fv0 > 1.0f) ? 1.0f : temp_fv0);
-        arg0 = ((Gfx *(*)(Gfx *, s32, f32))func_80713764)(((Gfx *(*)(Gfx *, s32))func_80713438)(arg0, (u32) (255.0f * temp_fv0) & 0xFF), (u32) (255.0f * temp_fv0) & 0xFF, 0);
+        arg0 = func_80713764(func_80713438(arg0, (u32) (255.0f * temp_fv0)), (u32) (255.0f * temp_fv0), 0);
     }
-    arg0->words.w0 = 0xDC080008;
-    arg0->words.w1 = (u32)sp3C;
-    arg0++;
+    g = arg0++; g->words.w0 = 0xDC080008; // FAKE: same-line pointer-copy and first store steers as1 move/ori order
+    g->words.w1 = (u32)sp3C;
     return func_806FF144(arg0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807138CC.s")
-#endif
 
 
 Gfx *func_80713AA8(Gfx *arg0) {
