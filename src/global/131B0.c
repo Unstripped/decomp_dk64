@@ -65,31 +65,34 @@ extern s32 func_8071432C(void);
 extern s32 func_8071441C(void);
 extern s32 func_807143E8(void);
 
+typedef struct {
+    u16 button;
+    u8 pad2[6];
+} Sched1ContPad;
+
 // .bss 0x807F02D0-0x807F0570
 OSPfs D_807F02D0[4];
 RumbleInfo D_807F0470[4];
 u64 D_807F04C0;
-u32 D_807F04C8;
-u32 D_807F04CC;
+u64 D_807F04C8;
 u64 D_807F04D0;
 u32 D_807F04D8;
 u32 D_807F04DC;
 TaskNode *D_807F04E0;
 u32 D_807F04E4;
-u64 D_807F04E8;
+u32 D_807F04E8;
+u32 D_807F04EC;
 u32 D_807F04F0;
 u32 D_807F04F4;
 u64 D_807F04F8;
-u32 D_807F0500;
-u32 D_807F0504;
+u64 D_807F0500;
 u64 D_807F0508;
-u32 D_807F0510;
-u32 D_807F0514;
+u64 D_807F0510;
 u16 D_807F0518[20];
-u8 D_807F0540[32];
+OSTimer D_807F0540;
 u32 D_807F0560;
 s32 D_807F0564;
-u64 D_807F0568;
+Sched1ContPad D_807F0568;
 
 void rumbleInfoClear(RumbleInfo *arg0) {
     bzero(arg0, 0x14);
@@ -134,7 +137,20 @@ void rumbleMotorStop(u8 arg0) {
     D_807F0474[arg0 * 0x14] = 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/func_8060E6E8.s")
+void func_8060E6E8(s32 arg0) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < 4; i++) {
+        rumbleInfoClear(&D_807F0470[i]);
+        D_807F0470[i].unk00 = 0;
+        if (D_807ECD09 & (1 << i)) {
+            for (j = 0; j < 2; j++) {
+                rumbleMotorStop(i);
+            }
+        }
+    }
+}
 
 s32 func_8060E79C(u8 arg0) {
     if (arg0 >= 4) {
@@ -318,7 +334,107 @@ s32 func_8060EE58(SchedStruct *arg0) {
     return (s32)arg0 + 0x58;
 }
 
+extern u8 D_807563B4;
+extern s8 D_80746830;
+extern s16 D_8074682C;
+extern s8 D_80746844;
+extern s8 D_80746848;
+extern u32 D_8076154C;
+extern u32 D_80744470[];
+extern void faultFontInit(s32, s32, s32);
+extern void faultPrintf(const char *, ...);
+
+#ifdef NON_MATCHING
+void schedMain(void *arg0) {
+    u32 msg;
+    s32 i;
+    s32 flag;
+    s32 pad1;
+    int new_var;
+    s32 pad2;
+    s32 pad3;
+    s32 pad4;
+
+    for (;;) {
+        osRecvMesg(arg0, (OSMesg *)&msg, OS_MESG_BLOCK);
+        if (D_807F0560 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (D_807563B4 != 0) {
+            if (D_80746830 == 0) {
+                if (D_8074682C == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                D_8074682C--;
+            }
+            if (D_8074682C <= 0) {
+                D_807F0518[0]++;
+                new_var = D_807F0518[0];
+                osViSwapBuffer((void *)D_80744470[(new_var >> 5) & 1]);
+                if (D_80746848 && D_80746848) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                osViBlack(0);
+                D_807F0518[0]++;
+                if (D_8074682C < -0x9F && D_8074682C >= -0x100) {
+                    for (i = 0; i < 2; i++) {
+                        faultFontInit(D_80744470[i & 1], 2, 2);
+                        faultPrintf("CURRENT=%x\n", IO_READ(DPC_CURRENT_REG));
+                        faultPrintf("START=%x\n", IO_READ(DPC_START_REG));
+                        faultPrintf("END=%x\n", IO_READ(DPC_END_REG));
+                        faultPrintf("DPSTAT=%x\n", IO_READ(DPC_STATUS_REG));
+                        faultPrintf("SPSTAT=%x\n", IO_READ(SP_STATUS_REG));
+                        faultPrintf("MAIN-PC=%x\n", D_8076154C);
+                    }
+                }
+                if (D_8074682C < -0x12B) {
+                    flag = 0;
+                    if ((D_807F0518[0] & 0x1F) == 0) {
+                        flag = 1;
+                    }
+                    if (flag) {
+                        if (D_80746848 && D_80746848) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                        if (D_80746848 == 0) {
+                            flag = 0;
+                            D_80746848 = 1;
+                        }
+                    }
+                    func_8060FAE4(D_80746844, flag);
+                    D_80746844 = 0;
+                    D_8074682C = -0x12C;
+                }
+                osWritebackDCacheAll();
+            }
+        }
+        switch (msg) {
+        case 0x29A:
+            D_807F0560++;
+            if (D_807F0560 % 0x1E0 == 0) {
+                D_807F04C8 = D_807F04D0;
+                D_807F04D8 = D_807F04DC;
+            }
+            schedHandleRetrace(arg0);
+            break;
+        case 0x29E:
+            func_8060F208(arg0);
+            break;
+        case 0x29B:
+            schedHandleRSP(arg0);
+            break;
+        case 0x29C:
+            schedHandleRDP(arg0);
+            break;
+        case 0x29F:
+            if (osSendMesg(D_807F0540.mq, D_807F0540.msg, OS_MESG_BLOCK) == -1) {
+            }
+            break;
+        case 0x2A0:
+        case 0x3F2:
+            break;
+        default:
+            func_8060F1D0(arg0, (TaskNode *)msg);
+            break;
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedMain.s")
+#endif
 
 void func_8060F1D0(SchedStruct *arg0, TaskNode *arg1) {
     schedAppendTask(arg0, arg1);
@@ -336,7 +452,89 @@ void func_8060F208(SchedStruct *arg0) {
     }
 }
 
+extern s8 D_80744510;
+extern s16 D_80746858;
+extern u32 D_8074684C[];
+
+#ifdef NON_MATCHING
+void schedHandleRetrace(SchedStruct *sc) {
+    s32 sp54;
+    s32 i;
+    s32 s2;
+    s32 n;
+    TaskNode *client;
+    TaskNode *fb;
+
+    sc->unk284++;
+    sc->unk280++;
+    D_807F04F8 = osGetTime();
+    if (D_80744510 != 0) {
+        if (D_80744510 == 1) {
+            if (D_80746858 == 0) {
+                osViBlack(1);
+            }
+            if (D_80746858 == 0x3C) {
+                if (D_8074684C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                osViSetMode(&osViModeTable[D_8074684C[osTvType]]);
+                osViSetSpecialFeatures(0x42);
+                osViBlack(0);
+                D_80744510 = 2;
+            }
+            D_80746858++;
+        }
+        osViSwapBuffer((void *)D_80744470[0]);
+    }
+    if (D_80746858 == -1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (D_807F04E0 != NULL) {
+        if (D_8076A0B1 & 2) {
+            if (D_80746858 == -1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            D_8076A0B1 ^= 2;
+            osViBlack(0);
+            if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        }
+        osViSwapBuffer(D_807F04E0->framebuffer);
+        D_80746824 = D_80746820;
+        D_80746820 = sc->unk284 + 1;
+        osDpSetStatus(8);
+        if (D_807F04E0->msgQ != NULL) {
+            func_8060FAA4(D_807F04E0->msgQ, D_807F04E0->msg, 0);
+        }
+        D_807F04E0 = NULL;
+    } else {
+        fb = osViGetCurrentFramebuffer();
+        if (osViGetNextFramebuffer() == (void *)fb) {
+            if (osDpGetStatus() & 2) {
+                sc->unk288 = osGetTime();
+                osDpSetStatus(4);
+            }
+        }
+    }
+    n = sc->cmdQ.validCount;
+    for (i = 0; i < n; i++) {
+        osRecvMesg(&sc->cmdQ, (OSMesg *)&sp54, 0);
+        if (sp54 == -1) {}  // FAKE: steers uopt (hoists -1 into s2)
+        if ((u32)sc->unk284 % ((u32 *)((TaskNode *)sp54)->unk50)[2] == 0) {
+            schedAppendTask(sc, (TaskNode *)sp54);
+        } else {
+            osSendMesg(&sc->cmdQ, (OSMesg)sp54, 0);
+        }
+        if (sp54 == -1) {}  // FAKE: steers uopt (hoists -1 into s2)
+    }
+    if (sc->audioListHead != NULL) {
+        if ((sc->unk284 & 1) == 0) {
+            osSetTimer(&D_807F0540, 0x445C0, 0, ((OSMesgQueue **)sc->audioListHead->unk50)[1], (OSMesg)5);
+        }
+    }
+    for (client = sc->clientList; client != NULL; client = client->next) {
+        if ((s32)client->framebuffer == 3) {
+            osSendMesg((OSMesgQueue *)client->state, (OSMesg)0x29A, 0);
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedHandleRetrace.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedHandleRSP.s")
 
@@ -474,4 +672,204 @@ void func_8060FAA4(OSMesgQueue *arg0, OSMesg arg1, s32 arg2) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/D_80757188.s")
 
+typedef struct {
+    u8 op;
+    char name[13];
+    u8 size;
+    u8 warn;
+} Sched1DlOp;
+
+extern Sched1DlOp D_8074685C[];
+extern s8 D_80746A2C;
+extern s16 D_80746A1C;
+extern u32 D_80746A18;
+extern u32 D_80746A20;
+extern s32 D_80746A24;
+extern s32 D_80746A28;
+extern s32 D_80746A14;
+extern char *D_80746A0C[];
+extern u32 D_807F05A4;
+extern u32 D_807F0984;
+extern u32 D_80744478;
+extern void faultFontSetColorMode(s32);
+extern void controllerStartRead(void);
+
+#ifdef NON_MATCHING
+s32 func_8060FAE4(s32 arg0, s32 arg1) {
+    u8 op;
+    s32 size;
+    u32 *w;
+    s32 line;
+    s32 i;
+    s32 off;
+    s32 colorIdx;
+    s32 found;
+    Sched1DlOp *e;
+    s32 n;
+    s32 mode;
+    s32 done;
+    char buf[36];
+    u32 cur;
+    s16 buttons;
+    u16 raw;
+    s32 ret;
+    char *q;
+    u32 *p;
+
+    done = 0;
+    ret = 0;
+    if (arg0 == 0) {
+        osContGetReadData((OSContPad *)&D_807F0568);
+        raw = D_807F0568.button;
+        buttons = raw;
+        if (arg1 != 0 && D_80746A2C != 0) {
+            buttons = raw | 0x400;
+        }
+        if (buttons & 0x1000) {
+            if (!(D_80746A1C & 0x1000)) {
+                if (D_80746A2C > 0) {
+                    D_80746A2C--;
+                }
+            }
+        }
+        if (buttons & 0x400) {
+            if (!(D_80746A1C & 0x400)) {
+                if (D_80746A18 != 0) {
+                    D_80746A24 = D_80746A28;
+                    D_80746A20 = D_80746A18;
+                }
+            }
+        }
+        if (buttons & 0x800) {
+            if (!(D_80746A1C & 0x800)) {
+                D_80746A24 = 0;
+                D_80746A20 = D_807F05A4;
+            }
+        }
+        if (buttons & 0x10) {
+            if (!(D_80746A1C & 0x10)) {
+                ret = 1;
+            }
+        }
+        D_80746A1C = buttons;
+    } else {
+        D_80746A24 = 0;
+        D_80746A20 = D_80746A14 = D_807F05A4;
+        D_80746A1C = 0;
+        D_80746A18 = 0;
+    }
+    p = D_80744470;
+    do {
+        faultFontInit(*p, 0, 1);
+        line = 0;
+        mode = D_80746A24;
+        cur = D_80746A20;
+        while (done == 0 && line < 0xF) {
+            off = cur - D_807F05A4;
+            if (line < 0xE) {
+                D_80746A28 = mode;
+                D_80746A18 = cur;
+            }
+            op = *(u32 *)cur >> 24;
+            if (D_807F05A4 + D_807F0984 < cur) {
+                done = 1;
+            }
+            if ((op & 0xF0) == 0xC0) {
+                mode = 2;
+                size = 0x20;
+                n = 0;
+                if (op & 4) {
+                    buf[0] = 'S';
+                    size = 0x60;
+                    n = 1;
+                }
+                if (op & 2) {
+                    buf[n] = 'T';
+                    n++;
+                    size += 0x40;
+                }
+                q = buf + n;
+                if (op & 1) {
+                    *q = 'Z';
+                    size += 0x10;
+                    q++;
+                }
+                *q = 0;
+                size >>= 2;
+                faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);
+                line++;
+                if (line == 1) {
+                    w = (u32 *)cur;
+                    for (i = 0; i < size * 4; i += 16) {
+                        faultPrintf("  %08x.%08x.%08x.%08x\n", w[0], w[1], w[2], w[3]);
+                        w += 4;
+                        line++;
+                    }
+                    D_80746A18 = size * 4 + cur;
+                } else {
+                    D_80746A18 = cur;
+                }
+                while (line < 0xF) {
+                    faultPrintf("  ----------------------------------\n");
+                    line++;
+                }
+                line = 0x1E;
+            } else {
+                colorIdx = 0;
+                found = 0;
+                if (op == 0xE7) {
+                    mode = 0;
+                }
+                if (op == 0xF6) {
+                    mode = 0;
+                }
+                if (mode != 0) {
+                    mode = 0;
+                    faultFontSetColorMode(1);
+                    colorIdx = 1;
+                }
+                for (i = 0; i < 0x1B; i++) {
+                    if (op == D_8074685C[i].op) {
+                        op = i;
+                        found = 1;
+                        i = 0x1B;
+                    }
+                }
+                e = &D_8074685C[op];
+                if (e->warn != 0) {
+                    mode = 1;
+                }
+                if (found) {
+                    size = e->size >> 2;
+                    faultPrintf("  %05x.:.%s...%s.\n", off, e->name, D_80746A0C[colorIdx]);
+                    line++;
+                    if (size < 3) {
+                        faultPrintf("  %08x..%08x............\n", ((u32 *)cur)[0], ((u32 *)cur)[1]);
+                        line++;
+                    } else {
+                        faultPrintf("  %08x.%08x.%08x.%08x...\n", ((u32 *)cur)[0], ((u32 *)cur)[1], ((u32 *)cur)[2], ((u32 *)cur)[3]);
+                        line += 2;
+                    }
+                } else {
+                    size = 2;
+                    if (op == 0) {
+                        faultPrintf(" %05x  NOOP..........\n", off);
+                    } else {
+                        faultPrintf("  %05x Undef.............\n", off);
+                    }
+                    line++;
+                }
+            }
+            faultFontSetColorMode(0);
+            cur += size * 4;
+        }
+        p++;
+    } while (p != &D_80744478);
+    controllerStartRead();
+    return ret;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/func_8060FAE4.s")
+#endif
+
