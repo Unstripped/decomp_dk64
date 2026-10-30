@@ -448,15 +448,197 @@ void func_8060D788(void) {
     func_8060D2C8(1);
 }
 
+extern s32 flagGet(s32, s32);
+extern s32 func_806F6EDC(void);
+extern s32 slotQueueGetMaxValue(s32, s32);
+extern u8 D_807FC950[];
+extern u8 D_807FC952;
+extern u8 D_8074E77C;
+
+#ifdef NON_MATCHING
+void func_8060D7A8(void) {
+    u8 *entry;
+    s32 i;
+
+    if (func_806F6EDC() != 0) {
+        s32 v = slotQueueGetMaxValue(5, 0);
+        *(s16 *)(D_807FC950 + 0x2F6) = (s16)(u32)((f64)(u32)v * 0.5);
+    }
+    if (flagGet(0x184, 0) != 0) {
+        s32 v = slotQueueGetMaxValue(4, 0);
+        *(s16 *)(D_807FC950 + 0x2F4) = (s16)(u32)((f64)(u32)v * 0.5);
+    }
+    if (flagGet(0x179, 0) != 0) {
+        s32 v = slotQueueGetMaxValue(6, 0);
+        *(s16 *)(D_807FC950 + 0x2F8) = (s16)(u32)((f64)(u32)v * 0.5);
+    }
+    if (D_807FC952 != 0) {
+        s32 v = slotQueueGetMaxValue(2, 0);
+        *(s16 *)(D_807FC950 + 0x2F0) = (s16)(u32)((f64)(u32)v * 0.5);
+    }
+    entry = D_807FC950;
+    i = 0;
+    do {
+        D_8074E77C = i;
+        if (entry[4] != 0) {
+            s32 v = slotQueueGetMaxValue(7, 0);
+            *(s16 *)(entry + 8) = (s16)(u32)((f64)(u32)v * 0.5);
+        }
+        i++;
+        entry += 0x5E;
+    } while (i != 5);
+    D_8074E77C = 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D7A8.s")
+#endif
+
+extern void collectibleCountsClear(void);
+extern void func_8060BA14(void);
+extern void func_806C9AE0(void);
+extern void healthRefill(s32);
+extern u8 D_80750AC0;
+extern s32 D_80750AB0;
+extern u8 D_807ED6A8[];
+extern u16 D_807FC930[];
+extern u8 D_807FC928;
+
+#ifdef NON_MATCHING
+void func_8060DC3C(s32 arg0, s32 arg1) {
+    s32 i;
+    u8 selector;
+    u8 *base;
+    u8 *entry;
+    u8 *field;
+    u16 *sum;
+    s32 j;
+    s32 value;
+
+    base = D_807FC950;
+    selector = arg0;
+    entry = base;
+    D_80750AC0 = 1;
+    func_806C9AE0();
+    memcpy(D_807ECEA8, D_807ED6A8, 0x800);
+    D_807467C8 = selector;
+    D_8074E77C = 0;
+    if (func_8060C6B8(0xD, 0, 0, selector) == 0) {
+        func_8060C758(selector, 0);
+    }
+    if (arg1 != 0) {
+        func_8060BA14();
+    }
+    D_807FC928 = 0;
+    base[0x2FC] = func_8060C6B8(0xC, 0, 0, selector);
+    healthRefill(0);
+    collectibleCountsClear();
+    D_80750AB0 = func_8060C6B8(0xE, 0, 0, selector);
+    i = 0;
+    do {
+        j = 0;
+        field = entry;
+        do {
+            *field = func_8060C6B8(j + 4, i, 0, selector);
+            j++;
+            field++;
+        } while (j != 5);
+        *(s16 *)(entry + 6) = func_8060C6B8(9, i, 0, selector);
+        entry[5] = func_8060C6B8(0xA, i, 0, selector);
+        if (func_8060C6B8(0xB, i, 0, selector) != 0) {
+            entry[5] |= 0x80;
+        }
+        sum = D_807FC930;
+        field = entry;
+        j = 0;
+        do {
+            *(s16 *)(field + 0xA) = func_8060C6B8(1, i, j, selector);
+            value = func_8060C6B8(2, i, j, selector);
+            *(s16 *)(field + 0x26) = value;
+            *sum += value;
+            *(s16 *)(field + 0x42) = func_8060C6B8(3, i, j, selector);
+            j++;
+            field += 2;
+            sum++;
+        } while (j != 8);
+        i++;
+        entry += 0x5E;
+    } while (i != 5);
+    if (arg1 != 0) {
+        func_8060D7A8();
+    }
+    D_8074E77C = 0;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060DC3C.s")
+#endif
 
 void func_8060DEA8(void) {
     eepromDispatchCommand(2);
 }
 
+extern u32 func_805FC98C(void);
+extern s32 func_80714394(void);
+extern s32 func_8071432C(void);
+
+#ifdef NON_MATCHING
+void func_8060DEC8(void) {
+    u8 *entry;
+    u8 *base;
+    u32 total;
+    u32 value;
+    s32 i;
+    s32 j;
+    u8 *field;
+
+    if (D_807FC928 == 1) {
+        if (func_80714394() != 0 || func_8071432C() != 0) {
+            base = D_807FC950;
+            entry = base;
+            total = func_805FC98C();
+            value = func_8060C724(D_807467C8);
+            if (total >= 0x400000U) {
+                total = -1;
+            }
+            func_8060C648(0xD, 0, 0, D_807467C8, 1);
+            func_8060C648(0xE, 0, 0, D_807467C8, total);
+            func_8060C648(0xC, 0, 0, D_807467C8, base[0x2FC]);
+            func_8060C648(0xF, 0, 0, D_807467C8, D_807467C8);
+            func_8060C648(0x10, 0, 0, D_807467C8, value);
+            i = 0;
+            do {
+                u8 row_idx = i;
+                j = 0;
+                field = entry;
+                do {
+                    func_8060C648(j + 4, row_idx, 0, D_807467C8, *field);
+                    j++;
+                    field++;
+                } while (j != 5);
+                func_8060C648(9, row_idx, 0, D_807467C8, *(u16 *)(entry + 6));
+                func_8060C648(0xA, row_idx, 0, D_807467C8, entry[5] & 0x7F);
+                func_8060C648(0xB, row_idx, 0, D_807467C8, ((s32)entry[5] >> 7) & 1);
+                j = 0;
+                field = entry;
+                do {
+                    func_8060C648(1, row_idx, (u8)j, D_807467C8, *(u16 *)(field + 0xA));
+                    func_8060C648(2, row_idx, (u8)j, D_807467C8, *(u16 *)(field + 0x26));
+                    func_8060C648(3, row_idx, (u8)j, D_807467C8, *(u16 *)(field + 0x42));
+                    j++;
+                    field += 2;
+                } while (j != 8);
+                i++;
+                entry += 0x5E;
+            } while (i != 5);
+            eepromDispatchCommand(1);
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060DEC8.s")
+#endif
 
 void eepromThreadMain(void *arg0) {
     OSMesg msg;
@@ -489,7 +671,6 @@ extern s32 func_8060B9D0();
 extern s32 func_807142D8(void);
 extern void func_80731030(void);
 extern u8 D_807EDEB0[];
-extern u8 D_807FC928;
 
 u8 *func_8060E25C(s32 arg0) {
     u8 *result;
@@ -516,7 +697,26 @@ u8 *func_8060E25C(s32 arg0) {
     return result;
 }
 
+#ifdef NON_MATCHING
+u8 func_8060E3B0(u16 arg0, u8 arg1) {
+    s32 new_var;
+    u8 result;
+    u8 output;
+    u16 value;
+
+    result = 0;
+    if (func_8071432C() != 0) {
+        new_var = func_8060B9D0(D_807467C8);
+        func_8060C340(&value, &output, 0, 0, arg1, new_var);
+        new_var = func_8060BBE0((value + arg0) & 0xFFFF, 1);
+        result = new_var;
+    }
+    return result;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E3B0.s")
+#endif
 
 extern s32 func_8060B9D0();
 extern void func_8060BB18();
