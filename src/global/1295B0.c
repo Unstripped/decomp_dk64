@@ -146,7 +146,7 @@ void func_80724C2C(s16 arg0) {
 }
 
 extern struct SpawnNodeList *D_80755694;
-void func_80728300(void *, void *, void *);
+void func_80728300();
 
 void func_80724C78(void *arg0) {
     func_80728300(arg0, D_80755690, D_80755694);
@@ -411,7 +411,6 @@ s32 func_807255A8(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
     }
     return 1;
 }
-
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807255A8.s")
@@ -1572,6 +1571,7 @@ void zoneAssignToBehaviour(C1Holder *arg0) {
         arg0->unk1C = C1TBL->unk4;
     }
 }
+
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80728300.s")
 

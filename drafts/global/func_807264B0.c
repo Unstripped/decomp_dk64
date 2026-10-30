@@ -1,4 +1,4 @@
-// func_807264B0 (src/global/1295B0.c): func_807264B0 (src/global/1295B0.c): regalloc only; target s3=5,s4=1(store),s5=found,s6=0xA,s7=1(cmp),s8=&D_807FDC9C; ours puts const 5 last. Permuter hints: no-op 'if (e->flags) {}' and '(e->flags & 0xFFFF) & 0x80' fixed float/table regs; extra D_807FDC9C uses shift s-regs.
+// func_807264B0 (src/global/1295B0.c): Stage 5: regalloc only (142/142 insns, frame 0x68 exact). Target s3=5,s4=1(store),s5=found,s6=0xA,s7=1(cmp),s8=&D_807FDC9C; built s3=1,s4=found,s5=0xA,s6=1,s7=5,s8=&D_807FDC9C. Deadsweep if (D_807FDC9C == 0) {} reduces to full=9 text=9 shape=2 (only s3 and s8 swapped).
 #include "common.h"
 #include "actor.h"
 

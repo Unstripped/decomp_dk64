@@ -1,4 +1,6 @@
-// func_80728300 (src/global/1295B0.c): stage 4: 338 vs 337 insns. Needs forward decl at line ~149 made unprototyped ('void func_80728300();', allowed) so typed params keep a1 spilled like the target. '(cnt << 1) * 3' / '(cnt << 1) * 5' at the two allocation calls gives the target's shift sequences and only 2 multu (drop the 6/10 constant from the call sites). Remaining: s-reg set: target s0-s7 (frame 0x60; src t0 and p a3 both caller-saved with spills) vs built s0-s8 (p gets s2, i gets s8, src v1). 'p = src' after the alloc call makes src take an s-reg (worse); dead 'if (i) {}' reads have no effect; two permuter runs 600s best 3414 from 4485 (only an extra u8 temp hint).
+// func_80728300 (src/global/1295B0.c): Stage 3/4: 338 vs 337 insns. Line 149 forward decl made unprototyped 'void func_80728300();' in 1295B0.c (allowed, func_80724C78 caller matches). (cnt << 1) * 3 and (cnt << 1) * 5 at alloc calls gives target shifts and 2 multu. Remaining: target s0-s7 (frame 0x60; src t0 and p a3 both caller-saved with spills) vs built s0-s8 (frame 0x58; p gets s2, i gets s8, src v1).
+#include "common.h"
+
 typedef struct C1S6 {
     s16 v[3];
 } C1S6;
