@@ -555,7 +555,6 @@ void func_805FBE04(void) {
     guPerspective(&D_80768E98, &D_8076A09C, D_807444B8, D_807444BC * sp28, D_807444C8, D_807444C4, 1.0f);
 }
 
-#ifdef NON_MATCHING
 extern s16 D_8074682C;
 extern u8 D_807F059C;
 
@@ -624,10 +623,6 @@ void func_805FBFF4(s32 arg0) {
         D_807444F0 = D_807444EC;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/450/func_805FBFF4.s")
-#endif
 
 void func_805FC2B0(void) {
     Gfx *sp2C;
