@@ -455,8 +455,8 @@ void func_805FF2F4();
 void healthRefill(u8);
 void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
-void effectFreeAndUnlink(void *, void *);
-void camProjectToScreen(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
+void effectFreeAndUnlink(void *);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
 s32 playerStateQueueCallback(s32, Actor *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 sqrtf(f32);
@@ -482,6 +482,7 @@ void func_806CA5F8(s32 arg0) {
     f32 sp48;
     LCA5F8Fx *fx;
     s16 flags;
+    if (D_807FBB40 && D_807FBB40) {}  // FAKE: steers uopt candidate colouring (D_807FBB48 pointer v1)
 
     sp64 = D_807FBB40;
     D_807FD580 = D_807FBB40->unk174;
@@ -571,7 +572,7 @@ void func_806CA5F8(s32 arg0) {
     LCA_P->unkE8 = 0;
     D_807FD580->unk1F0 &= 0xBFFFFFFF;
     func_806CF580();
-    if (!D_8076A0A8 && !D_8076A0A8) {
+    if (!D_8076A0A8 && !D_8076A0A8) { // FAKE: steers uopt candidate colouring
     }
     LCA_P->unk0 = D_807FBB48->unk154;
     if (D_807FC928 >= 2) {
@@ -580,8 +581,6 @@ void func_806CA5F8(s32 arg0) {
                 LCA_P->unk24A = LCA_P->unk24A - 1;
             } else {
                 LCA_P->unk248 = -1;
-                if (D_807FBB48 && D_807FBB48) {
-                }
                 LCA_P->unk249 = 0;
             }
         }
@@ -609,7 +608,7 @@ void func_806CA5F8(s32 arg0) {
                     func_807149C8(0xFF, 0xFF, 0xFF, 0x78);
                     func_8071495C();
                     LCA_P->unk254 = (LCA5F8Fx *)func_80714CC0(&D_80720020, 0.7f, D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84);
-                    if (D_807FC924 && D_807FC924) {
+                    if (D_807FC924 && D_807FC924) { // FAKE: steers uopt candidate colouring (D_807FC924 pointer v1)
                     }
                     fx = LCA_P->unk254;
                 }
@@ -620,7 +619,7 @@ void func_806CA5F8(s32 arg0) {
                 fx = LCA_P->unk254;
                 if (fx != NULL) {
                     LCA_P->unk254 = NULL;
-                    effectFreeAndUnlink(fx, fx);
+                    effectFreeAndUnlink(fx);
                     fx = LCA_P->unk254;
                 }
             }
@@ -696,15 +695,13 @@ done:
     LCA_P->unk1F8 = LCA_P->unk1F0;
     if (LCA_P->unk268 != 0) {
         LCA_P->unk268 = LCA_P->unk268 - 1;
-        if (D_807FBB48 && D_807FBB48) {
-        }
     }
     if ((D_807FBB40->unk7C < (f32)D_807F5FE4 || D_807FBB40->unk84 < (f32)D_807F5FE6 || (f32)D_807F5FE8 < D_807FBB40->unk7C || (f32)D_807F5FEA < D_807FBB40->unk84 || sp68 != 0) && LCA_P->unk244 == 0 && (u32)D_8076A064 >= 0x65 && !(D_807FBB64 & 0x4000) && D_8076A0A8 != 0xE) {
         if (D_807FC928 == 1) {
             if (flagGet(0x186, 0) == 0) {
                 func_805FF188(0xB0, 1);
             }
-            if (!D_807FC929 && !D_807FC929) {
+            if (!D_807FC929 && !D_807FC929) { // FAKE: steers uopt candidate colouring
             }
             healthRefill(D_807FC929);
             func_805FF1B0(D_807FC929);

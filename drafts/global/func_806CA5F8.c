@@ -1,4 +1,4 @@
-// func_806CA5F8 (src/global/CEAE0.c): stage 6, 9 diff lines (shape 1; regalloc only). Fixed vs old park: effectFreeAndUnlink ONE-arg; camProjectToScreen declared s32 (its real return type) - needed to get D_807FBB48 ptr v1; removed the two 'if (D_807FBB48 && D_807FBB48) {}' dead stmts; added dead 'if (D_807FBB40 && D_807FBB40) {}' as first statement (deadsweep). ONLY remaining: fx (LCA_P->unk254): target keeps it in a1 over arms/join test (lw a1; bnez a1; move a0,a1; reload lw a1 after create/free) and 'move s0,a1' in the delay slot of the join beqz (live range split, s0 only in body); ours s0 whole, no move. actorGetNodePos s32 (real return) breaks the file (another fn declares it void).
+// func_806CA5F8 (src/global/CEAE0.c): stage 6, 9 diff lines (shape 1; regalloc only), base 6e500df. vs old park: effectFreeAndUnlink ONE-arg (was (void*,void*) hack: sw zero now in jal delay slot); camProjectToScreen declared s32 (real return); dropped both 'if (D_807FBB48 && D_807FBB48) {}'; added deadsweep 'if (D_807FBB40 && D_807FBB40) {}' as first stmt (BB48 ptr -> v1). ONLY remaining diff: fx (LCA_P->unk254): target a1 over arms/join test (lw a1; bnez a1; move a0,a1; reload lw a1 after create/free) + 'move s0,a1' in the delay slot of the join beqz (live range split, s0 only in body); ours s0 whole. Tried (no change): 2nd local tmp + fx=tmp (any type; copy merged, also costs 4 frame bytes), decl order perms, dead fx tests x1-8, deadsweep greedy (0 more), rs.py annealing 8000 iters, permuter. actorGetNodePos s32 (real return) breaks other fn in file (declares void).
 typedef struct LCA5F8Fx {
     /* 0x000 */ u8 pad0[0x340];
     /* 0x340 */ f32 unk340;
@@ -241,7 +241,7 @@ void func_806CA5F8(s32 arg0) {
     LCA_P->unkE8 = 0;
     D_807FD580->unk1F0 &= 0xBFFFFFFF;
     func_806CF580();
-    if (!D_8076A0A8 && !D_8076A0A8) {
+    if (!D_8076A0A8 && !D_8076A0A8) { // FAKE: steers uopt candidate colouring
     }
     LCA_P->unk0 = D_807FBB48->unk154;
     if (D_807FC928 >= 2) {
@@ -277,7 +277,7 @@ void func_806CA5F8(s32 arg0) {
                     func_807149C8(0xFF, 0xFF, 0xFF, 0x78);
                     func_8071495C();
                     LCA_P->unk254 = (LCA5F8Fx *)func_80714CC0(&D_80720020, 0.7f, D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84);
-                    if (D_807FC924 && D_807FC924) {
+                    if (D_807FC924 && D_807FC924) { // FAKE: steers uopt candidate colouring (D_807FC924 pointer v1)
                     }
                     fx = LCA_P->unk254;
                 }
@@ -370,7 +370,7 @@ done:
             if (flagGet(0x186, 0) == 0) {
                 func_805FF188(0xB0, 1);
             }
-            if (!D_807FC929 && !D_807FC929) {
+            if (!D_807FC929 && !D_807FC929) { // FAKE: steers uopt candidate colouring
             }
             healthRefill(D_807FC929);
             func_805FF1B0(D_807FC929);
