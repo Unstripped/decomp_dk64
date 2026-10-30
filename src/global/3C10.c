@@ -470,11 +470,6 @@ s32 func_805FF938(s16 target) {
 }
 
 typedef struct {
-    u8 pad0[0x58];
-    s32 unk58;
-} MainLoopView58;
-
-typedef struct {
     u8 pad0[0x24];
     u8 rgb[52][3];
 } MainLoopSlotColors;
