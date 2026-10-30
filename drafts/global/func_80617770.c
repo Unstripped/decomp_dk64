@@ -1,3 +1,5 @@
+// func_80617770 (src/global/19A00.c): stage 4: 0x40 frame matches, s0/ra saved, 127 insns match, diff 520; pitch in t-reg, var_v1 at 0x3c; remaining diff is regalloc
+drafts/global/func_80617770.c
 // func_80617770 (src/global/19A00.c): stage 4: 0x40/0x48 frame, s0 saved, dynamic 0xFF * 0.5 FP conversion reproduced; remaining diff is uninitialized pitch register allocation in branch
 typedef struct RvH_SoundState {
     u8 pad0[0xC4];

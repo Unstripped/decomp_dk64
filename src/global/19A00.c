@@ -1362,7 +1362,89 @@ s32 func_80616DB4(Actor *arg0) {
     return 1;
 }
 
+struct RvG_PlayerStruct;
+extern struct RvG_PlayerStruct *D_807FC924;
+
+typedef struct RvH_PlayerView6E08 {
+    u8 pad0[0x2C0];
+    u8 unk2C0;
+    u8 pad2C1[0x2F0 - 0x2C1];
+} RvH_PlayerView6E08;
+
+typedef struct RvH_State6E08 {
+    u8 pad0[0x104];
+    s32 unk104;
+    u8 pad108[0x9C];
+    u8 unk1A4;
+} RvH_State6E08;
+
+typedef struct RvH_ActorSoundView6E08 {
+    u8 pad0[0x78];
+    u8 unk78;
+    u8 pad79[3];
+    s32 unk7C;
+    f32 unk80;
+    f32 unk84;
+} RvH_ActorSoundView6E08;
+
+void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32);
+s16 func_8060A7C0(s16, Actor *, u8);
+
+#ifdef NON_MATCHING
+s32 func_80616E08(Actor *arg0) {
+    s16 sp4E;
+    u8 sp4D;
+    s16 sp4A;
+    u8 sp49;
+    u8 var_v1;
+    u8 sp48;
+
+    D_807F5AF0++;
+    scriptReadU16((u8 *)&sp4E);
+    scriptReadU8(&sp4D);
+    scriptReadU16((u8 *)&sp4A);
+    scriptReadU8(&sp49);
+    if (((RvH_PlayerView6E08 *)D_807FC924)[((RvH_State6E08 *)D_807FD580)->unk1A4].unk2C0 == 2) {
+        if (sp4E == 1) {
+            sp4D = (u32)((f64)(u32)sp4D * 0.5);
+        }
+        sp48 = 0xA;
+        camStartShakeFromPoint(((RvH_State6E08 *)D_807FD580)->unk104, 0xA, 8, ((RvH_ActorSoundView6E08 *)arg0)->unk7C, ((RvH_ActorSoundView6E08 *)arg0)->unk80, ((RvH_ActorSoundView6E08 *)arg0)->unk84, 100.0f, 800.0f);
+        var_v1 = 0xA;
+    } else if (((RvH_PlayerView6E08 *)D_807FC924)[((RvH_State6E08 *)D_807FD580)->unk1A4].unk2C0 == 0) {
+        var_v1 = 0xFF;
+        sp4D = (u32)((f64)(u32)sp4D * 0.5);
+    } else {
+        switch (arg0->unk58) {
+        case 6:
+        case 7:
+            var_v1 = 0x46;
+            break;
+        case 8:
+            var_v1 = 0x5A;
+            break;
+        case 2:
+        case 4:
+            var_v1 = 0x32;
+            break;
+        default:
+            var_v1 = 0x50;
+            break;
+        }
+    }
+    sp48 = var_v1;
+    sp4E = func_8060A7C0(sp4E, arg0, ((RvH_ActorSoundView6E08 *)arg0)->unk78);
+    if ((sp4E == 2) || (sp4E == 8)) {
+        sp49 = 0xA;
+    }
+    sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp4E, (s32)sp4D, (s32)sp4A, (s32)sp49, (s32)var_v1, 0.3f, 0);
+    return 1;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616E08.s")
+#endif
 
 typedef struct ActorSoundView {
     u8 pad0[0x78];
@@ -1371,7 +1453,6 @@ typedef struct ActorSoundView {
 
 extern s32 D_807457C8;
 
-s16 func_8060A7C0(s16, Actor *, u8);
 void n_alSndpStop(s32);
 void sfxPlayFromActorDirect(Actor *, s16, u8, f32, s32, s32);
 
@@ -1412,7 +1493,6 @@ typedef struct RvG_Global7238 {
     u8 unk1A4;
 } RvG_Global7238;
 
-void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 s32 func_80617238(Actor *arg0) {
     s16 sp3E;
     u8 sp3D;
@@ -1535,7 +1615,50 @@ s32 func_806175C4(Actor *arg0) {
     return 1;
 }
 
+typedef struct RvH_SoundState {
+    u8 pad0[0xC4];
+    s32 unkC4;
+    u8 padC8[0xDC];
+    u8 unk1A4;
+} RvH_SoundState;
+
+extern s16 *D_807FBB5C;
+void sfxPlayAtPositionForPlayer(f32, f32, f32, s16, u8, u8, u8, u8, f32);
+
+#ifdef NON_MATCHING
+void func_80617770(Actor *arg0, s16 arg1, u8 arg2) {
+    u8 pad0, pad1, pad2;
+    u8 var_v1;
+    s32 pitch;
+    s32 temp_v0;
+
+    arg1 = D_807FBB5C[(arg1 * 7 + arg0->unk58 - 2) & 0xFFFF];
+    var_v1 = 0xFF;
+    if (arg1 == 0) {
+        if (((RvH_SoundState *)D_807FD580)->unkC4 != 0) {
+            n_alSndpStop(((RvH_SoundState *)D_807FD580)->unkC4);
+        }
+    }
+    temp_v0 = D_807FC924[((RvH_SoundState *)D_807FD580)->unk1A4].unk2C0;
+    pitch = 0x7F;
+    if (temp_v0 == 2) {
+        temp_v0 = 10;
+    } else if (temp_v0 == 0) {
+        temp_v0 = 80;
+        var_v1 = (u8)(u32)((f64)(var_v1 ^ 0) * 0.5);
+    } else {
+        if (arg0->unk58 == (0, 2) || arg0->unk58 == 4) {
+            temp_v0 = 50;
+        } else {
+            temp_v0 = 60;
+        }
+    }
+    sfxPlayAtPositionForPlayer(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, var_v1, pitch, arg2, temp_v0, 0.3f);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617770.s")
+#endif
 
 void func_80617770(Actor *, s16, u8);
 void sfxStopSlotSound(Actor *, u8);
@@ -1834,7 +1957,72 @@ s32 scriptOpWaitTimer(Actor *arg0) {
 void scriptCmdNop(Actor *arg0) {
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80618104.s")
+typedef struct { u8 pad0[0x1A4]; u8 unk1A4; } RvH_P19LNodeState;
+typedef struct { u8 pad0[0x210]; f32 unk210; u8 pad214[4]; f32 unk218; u8 pad21C[0xC]; f32 unk228; u8 pad22C[4]; f32 unk230; u8 pad234[0xBC]; } RvH_P19LPlayerView;
+typedef struct { u8 pad0[2]; u8 unk2; } RvH_P19LProjectileView;
+extern f32 D_80753E48[];
+extern s16 D_80753E64[];
+extern Actor *D_807FBB48;
+extern u8 D_807FC929;
+extern RvH_P19LProjectileView *D_807FD568;
+extern s16 D_807FD584;
+void slotQueueUpdate(s32, s32, s32);
+s32 slotQueueGetValue(s32, u8);
+void slotQueueAddValue(s32, u8, s32);
+s32 func_8067ACDC(Actor *, s32, s32);
+s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, s32, s32);
+s32 mathAngleInArcWithMargin(s16, s16, s16, s32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+void projectileSetSpawnFlag(void);
+void projectileGetTargetCoords(Actor *, s32);
+void projectileSpawnNodeEntry(s32, u8, f32, s16, f32, f32, Actor *);
+
+void func_80618104(Actor *arg0) {
+    f32 var_fv0;
+    f32 sp50;
+    f32 temp_fv0;
+    f32 temp_fv1;
+    RvH_P19LNodeState *sp44;
+    s16 pad;
+    s16 sp40;
+    s16 sp3E;
+    s16 var_a2;
+    RvH_P19LPlayerView *temp_v0;
+
+    sp44 = arg0->unk174;
+    slotQueueUpdate(4, 0, 0);
+    if ((slotQueueGetValue(4, sp44->unk1A4) != 0) && (func_8067ACDC(arg0, 4, 0) < D_80753E64[D_807FD584])) {
+        slotQueueAddValue(4, sp44->unk1A4, -1);
+        sp50 = (f32)((f64)arg0->unk4->unk38 * 2.6666667064030967);
+        switch (arg0->unk58) {
+            case 2:
+            case 6:
+            case 7: var_fv0 = 30.0f; break;
+            case 3:
+            case 5: var_fv0 = 20.0f; break;
+            default: var_fv0 = 30.0f; break;
+        }
+        if (collisionTestSphere(arg0->unk7C, (f32)((f64)arg0->unk80 + 30.0), arg0->unk84, var_fv0, &sp40, &sp3E, 1, 0) != 0) {
+            if (arg0->unk154 == 2) {
+                temp_v0 = &((RvH_P19LPlayerView *)D_807FC924)[D_807FC929];
+                var_a2 = mathAngleBetweenPoints2D(temp_v0->unk228, temp_v0->unk230, temp_v0->unk210, temp_v0->unk218);
+            } else {
+                var_a2 = arg0->unkE6;
+            }
+            if (mathAngleInArcWithMargin(sp40, sp3E, var_a2, 0) == 0) projectileSetSpawnFlag();
+        }
+        if (arg0->unk154 == 2) {
+            projectileGetTargetCoords(D_807FBB48, 6);
+            temp_fv0 = ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk230 - ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk218;
+            temp_fv1 = ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk228 - ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk210;
+            sqrtf((temp_fv0 * temp_fv0) + (temp_fv1 * temp_fv1));
+            projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, mathAngleBetweenPoints2D(((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk228, ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk230, ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk210, ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk218), D_80753E48[D_807FD584], 0.0f, arg0);
+            return;
+        }
+        projectileGetTargetCoords(arg0, 7);
+        projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, arg0->unkE6, D_80753E48[D_807FD584], 0.0f, arg0);
+    }
+}
 
 void func_80714950(s32);
 void func_8071498C(void *);
@@ -1847,7 +2035,6 @@ void func_80714C08(void *, f32, Actor *, u8, s32);
 void *func_80714CC0(void *, f32, f32, f32, f32);
 void effectSpawnBone(Actor *, s32, f32, f32, f32, f32, s32);
 void actorGetNodePosOrPosition(Actor *, s32 *, f32 *, f32 *);
-void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32);
 extern void func_8071B1AC(void);
 extern void func_8071B24C(void);
 extern void func_8071B44C(void);
