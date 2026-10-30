@@ -1,11 +1,10 @@
-// func_806F03C4 (src/global/EFDC0.c): Stage 5 (frame 0x20, jump table, 2 diff lines): per-arm camera=&EfECam[idx] + s32 ev (colours to a3, spilled around the call) + redundant else in case 5 + one dead 'if (D_807FD580 && D_807FD580) {}' in case 2 reproduce everything except one hoist: ours emits 'lui t9,%hi(D_807FC929)' for the default arm right after 'lw t6,0x58(a0)' in the dispatch block, target keeps it as the first instruction of the default arm. Pair deadsweep, arm statement order, line joins, default-arm spellings and a 4 min permuter run did not move it.
+// func_806F03C4 (src/global/EFDC0.c): Stage 5 (frame 0x20, jump table, all arms/regs match; 2 text lines + 2 reloc lines: as1 hoists the default arm's 'lui t9,%hi(D_807FC929)' into the dispatch block (between 'lw t6,0x58(a0)' and 'addiu t7,t6,-2'; as1 speculates independent head instructions of the beqz target into the lw-use stall) while the target keeps it as the first instruction of the default arm. Not needed: the old deadsweep 'if (D_807FD580 && D_807FD580) {}' in case 2 (removed, same score). Tried: 48 arm-statement-order x case-5 spellings, default spellings (idx*0x2F0 first, pointer arithmetic, ev=ev, no break, goto), switch cast s32/u8, cached Actor local, decl order, deadsweep with ev/camera/D_807FBB44/D_8074E77C extras (1517 variants), 10 min permuter -j 2: none move the lui. idx-first default arm (D_807FC929*0x2F0 + base) hoists lui t6 into the beqz delay slot instead.
 void func_806F03C4(void) {
     s32 ev;
     EfECamBlock *camera;
 
     switch (D_807FBB48->unk58) {
     case 2:
-        if (D_807FD580 && D_807FD580) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         ev = 7;
         camera = &EfECam[D_807FC929];
         break;

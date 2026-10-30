@@ -1,4 +1,4 @@
-// func_806F3E0C (src/global/F56F0.c): Stage 4/5: frame 0x50, saved set and all blocks match (455 insns); only regalloc differs: target close=t2/tgt=t3/val716=a2/&714=a0, mine close=a1/tgt=t2/val716=v0/&714=v1; 4-arg K&R playerStateQueueCallback with &D_807FD70C forces a3 hoist; next=D_807FD70C+1; close &= 0xFF gives andi+move
+// func_806F3E0C (src/global/F56F0.c): Stage 4/5: frame 0x50, saved set, opcode sequence match (455 insns); only regalloc differs: target close=t2 tgt=t3 val716=a2, mine close=a1 tgt=t2 val716=v1. K&R 4-arg playerStateQueueCallback keeps &D_807FD70C in a3; close &= 0xFF gives andi+move; u8 flags = D_807FD716 local; yawT=*D_807FD708 temp; blend=1.0f before flag clear
 typedef struct F5L1Control {
     u16 flags;
     s8 yaw;
@@ -71,6 +71,7 @@ void func_806F3E0C(F5L1Control *arg0, s32 arg1) {
     f32 dx;
     f32 dz;
     s32 close;
+    u8 flags;
     s16 pitchT;
 
     cur = D_807FD70C;
@@ -85,13 +86,15 @@ void func_806F3E0C(F5L1Control *arg0, s32 arg1) {
         close = 1;
     }
     close &= 0xFF;
-    if ((D_807FD716 == 0) & 1) {
+    flags = D_807FD716;
+    if ((flags == 0) & 1) {
         D_807FD716 |= 1;
         arg0->yaw = 0;
         arg0->pitch = 0;
     }
     if (close) {
-        if (*D_807FD708 == D_807FD714 + 2) {
+        yawT = *D_807FD708;
+        if (yawT == D_807FD714 + 2) {
             D_807463B8 = 0;
             if (D_807444EC == 0) {
                 D_8076A0B1 &= 0xFFEF;
@@ -120,8 +123,8 @@ void func_806F3E0C(F5L1Control *arg0, s32 arg1) {
         yawT = 0;
     } else {
         if (D_807FD716 & 2) {
-            D_807FD716 &= 0xFFFD;
             blend = 1.0f;
+            D_807FD716 &= 0xFFFD;
         }
         if (D_807FD710->unk154 == 0x4F) {
             ang = mathAngleBetweenPointsDeg(next->x, next->z, (s32)D_807FD710->unk7C, (s32)D_807FD710->unk84) * 0.017453292f - (D_807FD710->unkE6 * 3.1415927f) * 0.00048828125;

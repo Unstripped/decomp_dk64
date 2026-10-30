@@ -2385,7 +2385,6 @@ void func_806F03C4(void) {
 
     switch (D_807FBB48->unk58) {
     case 2:
-        if (D_807FD580 && D_807FD580) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         ev = 7;
         camera = &EfECam[D_807FC929];
         break;
