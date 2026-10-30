@@ -125,4 +125,176 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
     return gfx;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A7710/func_806A2E30.s")
+typedef struct L6A2Timer {
+    /* 0x00 */ u64 unk0;
+    /* 0x08 */ u32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ u8 unk10;
+} L6A2Timer;
+
+extern u64 D_807445B0;
+extern u64 gCamPathTimeDelta;
+extern s32 D_8076A0A8;
+u64 __ll_mul(u64, u64);
+u64 __ull_div(u64, u64);
+u64 __ull_rem(u64, u64);
+f64 __ull_to_d(u64);
+s32 _sprintf(char *, char *, ...);
+s32 strlen(char *);
+s16 func_80609140(s32, s32, f32, f32, s32, s32);
+s32 randomNonNegative(void);
+f32 func_806FDA8C(s16);
+void func_806FDAB8(s16, f32);
+s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
+void gfxResourceSetString(s16, char *);
+void renderCallbacksRegister(void *, void *, s32);
+
+void func_806A2E30(void) {
+    f32 nextBeepAngle;
+    f32 angle;
+    char text[0x20];
+    L6A2Timer *timer;
+    s32 pad;
+    u64 usec;
+    s32 secsLeft;
+
+    timer = D_807FBB40->unk174;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        if (D_807FBB40->unk15F == 6) {
+            _sprintf(text, "%.2d", timer->unkC);
+        } else {
+            _sprintf(text, "%.2d:%.2d:00", (u32)timer->unkC / 60U, (u32)timer->unkC % 60U);
+        }
+        timer->unk10 = gfxResourceCreate(D_807FBB40->unk15F == 0xB ? 6 : 3, text, D_807FBB40->unk15F, 0.0f, 0.0f, 0.0f);
+    }
+    if (D_807FBB40->unk154 == 3) {
+        timer->unk0 = osGetTime() - D_807FC7D0;
+        D_807FBB40->unk154 = 2;
+        D_807FBB40->unk155[0] = 1;
+    }
+    timer->unk0 += D_807445B0;
+    if (D_807FBB40->unk15F == 0xB) {
+        timer->unk0 += gCamPathTimeDelta;
+    }
+    usec = __ull_div(__ll_mul(osGetTime() - timer->unk0, 0x40), 0xBB8);
+    timer->unk8 = __ull_div(usec, 0xF4240);
+    if (gCamPathTimeDelta == 0) {
+        D_807FC7D8 = __ull_rem(__ull_div(usec, 0x2710), 0x64);
+    }
+    nextBeepAngle = ((f32)(s32)((func_806FDA8C(timer->unk10) - 1.5707964f) / 3.1415927f) * 3.1415927f) + 3.1415927f + 1.5707964f;
+    angle = (f32)(((__ull_to_d(usec) / 10000.0) / 100.0) * 3.1415927410125732 + 1.5707963705062866);
+    func_806FDAB8(timer->unk10, 0.0f);
+    secsLeft = timer->unkC - timer->unk8;
+    switch (D_807FBB40->unk154) {
+    case 1:
+        if (D_807FBB40->unk128 < 0xFF) {
+            if (D_807FBB40->unk128 + 3 >= 0x100) {
+                D_807FBB40->unk128 = 0xFF;
+            } else {
+                D_807FBB40->unk128 = D_807FBB40->unk128 + 3;
+            }
+        }
+        func_806FDAB8(timer->unk10, 1.5707964f);
+        D_807FBB40->unk168 = 0;
+        break;
+    case 4:
+        D_807FBB40->unk154 = 2;
+        D_807FBB40->unk155[0] = 0xFF;
+        // fallthrough
+    case 2:
+        if (D_807FBB40->unk155[0] == 0) {
+            D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
+            timer->unk0 = osGetTime();
+            timer->unk8 = 0;
+            angle = 1.5707964f;
+        }
+        secsLeft = timer->unkC - timer->unk8;
+        if (secsLeft >= 0) {
+            func_806FDAB8(timer->unk10, angle < 0.0f ? 0.0f : angle);
+            D_807FBB40->unk160 = angle < 0.0f ? 0.0f : angle;
+            if (nextBeepAngle <= angle) {
+                if (timer->unk8 >= timer->unkC
+                    && (D_807FBB40->unk15F == 6 || timer->unkC < timer->unk8 || D_807FC7D8 >= 0x5B)) {
+                    D_807FBB40->unk154 = 5;
+                    D_807FBB40->unk155[0] = 0;
+                } else if (D_807FBB40->unk15F == 6) {
+                    if ((s32)(nextBeepAngle / 3.1415927f) & 1) {
+                        func_80609140(0x8E, 0x58EF, 63.0f, 1.0f, 5, 0);
+                    } else {
+                        func_80609140(0x8F, 0x58EF, 63.0f, 1.0f, 5, 0);
+                    }
+                }
+                if (secsLeft == 0xA) {
+                    D_807FBB40->unk154 = 4;
+                }
+            }
+            if (D_807FBB40->unk15F == 6) {
+                _sprintf(text, "%.2d", secsLeft);
+            } else if (D_807FBB40->unk154 != 5) {
+                _sprintf(text, "%.2d:%.2d:%.2d", secsLeft / 60, secsLeft % 60, 0x63 - D_807FC7D8);
+            } else {
+                _sprintf(text, "00:00:00");
+            }
+            D_807FBB40->unk168 = strlen(text);
+            gfxResourceSetString(timer->unk10, text);
+        } else {
+            D_807FBB40->unk154 = 5;
+            D_807FBB40->unk155[0] = 0;
+            gfxResourceSetString(timer->unk10, "00:00:00");
+        }
+        break;
+    case 5:
+        switch (D_8076A0A8) {
+        case 0x35:
+        case 0x49:
+        case 0x9B:
+        case 0x9C:
+        case 0x9D:
+        case 0x9E:
+        case 0x9F:
+        case 0xA0:
+        case 0xA1:
+        case 0xA2:
+            switch (D_807FBB40->unk155[0]) {
+            case 0:
+            case 7:
+            case 14:
+            case 21:
+            case 28:
+            case 35:
+            case 42:
+                func_80609140(0x3BD, 0x7FFF, 63.0f, 1.15f, 1, 0x80);
+                break;
+            }
+            D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
+            break;
+        case 0x13:
+        case 0x15:
+        case 0x16:
+        case 0x17:
+        case 0x18:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:
+            break;
+        case 0x14:
+        default:
+            if (D_807FBB40->unk155[0] == 0) {
+                func_80609140(0x1BB, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
+            }
+            break;
+        }
+        D_807FBB40->unk168 = 0;
+        if (secsLeft <= 0 && secsLeft >= -2) {
+            func_806FDAB8(timer->unk10, (f32)((((f64)((randomNonNegative() >> 15) % 180)) / 180.0) * 3.1415927410125732 + 1.5707963705062866));
+        }
+        break;
+    }
+    renderCallbacksRegister(renderActorSpriteCallback, D_807FBB40, 7);
+}
+
+void func_806A36F4(void) {
+}
