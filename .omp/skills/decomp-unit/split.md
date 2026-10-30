@@ -77,7 +77,11 @@ Hidden TUs found only after round 1 cost a re-split while agents run; settle the
   it may run make/split in its worktree). Land it by `git cherry-pick` + one
   `tools/dk --hold sh -c 'tools/dk make split && tools/restore_split_asm.sh <oldest base> <yaml>'`,
   touch, make, `make expected`. Retyping a carved object wider later turns its neighbours
-  into interior labels: add them to `undefined_syms.us.txt` or the link fails.
+  into interior labels: add them to `undefined_syms.us.txt` or the link fails. A one-object
+  carve the orchestrator does inline (yaml `.bss` entry + next auto `bss` piece, define in C,
+  split + restore under one lease) must START 16-aligned: IDO 16-aligns a TU's `.bss`, so
+  `D_807F6C88` alone landed at `...C90`; `0x807F6C80`–`0x807F6CC0` with its leading neighbours
+  defined matched (unused tail before the next label is fine).
 
 ## Hidden empty functions
 

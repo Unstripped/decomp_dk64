@@ -32,7 +32,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   stop at a request budget (~150–200 tool calls): 14–20-function lists came back with 7–9
   untouched (2C700 unit), so a long list is split, never re-prompted as is.
 - Functions over ~400 instructions: held back from round 1, one agent each (2–3 per agent
-  once single ones finish quickly), smallest first, dispatched as soon as slots free.
+  once single ones finish quickly), smallest first, dispatched as soon as slots free. Queue
+  them all at once with task files saying "base = HEAD when you start, report it as `Base:`"
+  (revisit unit: 18 queued that way, 9 matched, every merge took the reported base).
 - Later passes: ≤6 functions, near-misses first. A stage-6 near-miss of 1–8 instructions is
   worth one dedicated agent; a second dedicated pass is worth it only with new findings in
   the context.

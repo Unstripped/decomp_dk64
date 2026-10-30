@@ -19,6 +19,9 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
   unify agent extended, a symbol file); otherwise the gate passes on the working tree but the
   commit does not build. When unsure, gate without `--commit`, `git status`, commit the
   unit's files yourself after `GATE_OK`.
+- The copy argument is a DIRECTORY holding `<f>.c`. An agent's HEAD-based file
+  (`<f>_head.c`, built against current `src`) goes to `.scratch/<A>H/<f>.c` with its base,
+  or, when `src` is unchanged since, `cp` it over `src` and gate `- - src/<seg>/<f>.c`.
 - Never pipe a merge or gate into `tail`/`grep` and chain `&& git commit`: the pipe hides the
   exit status, and a conflict (src untouched) or a red build was committed that way twice.
   Without `--commit`, commit only after reading `GATE_OK`. A bare `merge_drafts.py merge`

@@ -117,8 +117,8 @@ swapped externs in a comparison look identical in the text.
   gates are `fdiff.sh` OK/TEXT OK and `--non-matching`), `uopt_trace.sh` before guessing at
   any register question, permuter always with `-j 2` and a `--seconds` limit (shared CPU).
   At stage 4+ run `tools/dk python3 tools/deadsweep.py sweep <copy> <src> FUNC --extra <each
-  local>` first (dead local uses matched 4 stalled parks; reject one placed before the local's
-  first assignment). Report the stage reached (1–6) for every unmatched function.
+  local>` first (dead local uses matched 4 stalled parks; reject any dead use, also from rs.py/
+  permuter, placed before the local's first assignment). Report the stage (1–6) of each unmatched.
 - Any construct you keep only to steer codegen (deadsweep statements, `volatile`, `x ^ 0`,
   `do {} while (0)`) ends in a trailing `// FAKE: <what it steers>` comment (AGENTS.md
   Conventions); keep deadsweep's own tag. Shared globals use the type most of `src/` gives

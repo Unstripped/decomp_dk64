@@ -20,6 +20,10 @@
   the agent to harvest its C from the `.old` copy (bonus/race unit: 30 functions matched).
 - **Orchestrator session disposed**: subagents die with it. Keep the unclaimed dispatch
   queue in `.scratch/queue.md` (lists, large functions) so a new session resumes from disk.
+  `local://` files of the old session stay on disk (`~/.omp/.../sessions/<id>/local/`): copy
+  brief/findings/tasks into the new session. Relaunch every task with "continue from your
+  existing copy"; give each surviving copy's base (the recent commit whose file differs
+  least from it: `git show <c>:<f> | diff - copy | wc -l`), and finish a half-merged gate first.
 - Check `git status` for unrelated work (a parallel session in the same tree): stage only the
   unit's files, never `git add -A`. A gate failing while `git status` shows a modified `src`
   file outside the merge is that session mid-edit: `git checkout` nothing of it; re-run
