@@ -530,56 +530,59 @@ void seqSetVolumeInstant(s32, f32);
 #ifdef NON_MATCHING
 void func_80603450(void) {
     s8 spE7;
+    s8 spE6;
     u8 spE5;
-    f32 spCC;
-    s32 spC8;
-    AmbientEmitter *spC0;
-    LevelSoundEmitter *spBC;
+    s32 n;
     s32 var_s1;
     s16 s2;
     s16 s0;
-    f32 var_fs0;
     f32 var_fs1;
+    f32 var_fs0;
+    f32 spCC;
+    s32 spC8;
+    s16 spC4;
+    AmbientEmitter *spC0;
+    LevelSoundEmitter *spBC;
 
     spE7 = -1;
     spE5 = 0;
 
     switch (D_8076A0A8) {
     case 7:
-        spC0 = D_80745F74;
         var_s1 = 7;
+        spC0 = D_80745F74;
         break;
     case 0x26:
-        spC0 = D_80745FD8;
         var_s1 = 4;
+        spC0 = D_80745FD8;
         break;
     case 0x1E:
-        spC0 = D_80746010;
         var_s1 = 3;
+        spC0 = D_80746010;
         break;
     case 0x27:
-        spC0 = D_8074603C;
         var_s1 = 4;
+        spC0 = D_8074603C;
         break;
     case 0x1A:
-        spC0 = D_80746074;
         var_s1 = 4;
+        spC0 = D_80746074;
         break;
     case 0xE:
-        spC0 = D_807460AC;
         var_s1 = 4;
+        spC0 = D_807460AC;
         break;
     case 0x1B:
-        spC0 = D_807460E4;
         var_s1 = 10;
+        spC0 = D_807460E4;
         break;
     case 0x37:
-        spC0 = D_807461E0;
         var_s1 = 7;
+        spC0 = D_807461E0;
         break;
     case 0x22:
-        spC0 = D_80746244;
         var_s1 = 4;
+        spC0 = D_80746244;
         break;
     case 0xB0:
         var_s1 = 3;
@@ -589,12 +592,12 @@ void func_80603450(void) {
         spC0 = D_80746170;
         var_s1 = 8;
         if (D_807FD580->unk1F0 & 0x100000) {
-            sfxStopChannel(0x46, 0);
+            sfxStopChannel(0x44, 0);
             if (sfxGetChannelVolume(0x44) < 0.1) {
                 sfxAllocateChannel(0x46, 1.0f);
             }
         } else {
-            sfxStopChannel(0x44, 0);
+            sfxStopChannel(0x46, 0);
             if (sfxGetChannelVolume(0x46) < 0.1) {
                 sfxAllocateChannel(0x44, 1.0f);
             }
@@ -605,25 +608,30 @@ void func_80603450(void) {
         break;
     }
 
-    if (var_s1 != 0 && D_80745650 != 0 && (s0 = 0, D_80745654 == 0)) {
+    if (var_s1 != 0 && *(u8 *)&D_80745650 != 0 && D_80745654 == 0) {
         D_80770DD4 = 1000000.0f;
         var_fs1 = 0.0f;
+        s0 = 0;
+        n = var_s1;
         if (var_s1 > 0) {
             do {
-                AmbientEmitter *entry = &spC0[s0];
+                AmbientEmitter *entry = (AmbientEmitter *)((s32)spC0 + s0 * 14);
+                f32 dx = D_807FC924->unk210 - (f32)entry->unk0;
+                f32 dz = D_807FC924->unk218 - (f32)entry->unk4;
                 if (entry->unk6 == -1) {
-                    D_80770DE4 = sqrtf((D_807FC924->unk210 - (f32)entry->unk0) * (D_807FC924->unk210 - (f32)entry->unk0) + (D_807FC924->unk218 - (f32)entry->unk4) * (D_807FC924->unk218 - (f32)entry->unk4));
+                    D_80770DE4 = sqrtf(dx * dx + dz * dz);
                     if (D_80770DE4 < (f32)(entry->unk8 - 20)) {
                         sfxAllocateChannel(entry->unkB, 1.0f);
                     } else if (D_80770DE4 > (f32)entry->unk8) {
                         sfxStopChannel(entry->unkB, 0);
                     }
                 } else {
-                    D_80770DE4 = sqrtf((D_807FC924->unk210 - (f32)entry->unk0) * (D_807FC924->unk210 - (f32)entry->unk0) + (D_807FC924->unk214 - (f32)entry->unk2) * (D_807FC924->unk214 - (f32)entry->unk2) + (D_807FC924->unk218 - (f32)entry->unk4) * (D_807FC924->unk218 - (f32)entry->unk4));
+                    f32 dy = D_807FC924->unk214 - (f32)entry->unk2;
+                    D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
                     if (s0 == 0 || D_80770DE4 < D_80770DD4) {
                         spE7 = s0;
                         D_80770DD4 = D_80770DE4;
-                        var_fs0 = ((f64)func_80611BB4(D_807FC924->unk210 - (f32)entry->unk0, D_807FC924->unk218 - (f32)entry->unk4) * 4096.0) / 6.2831854820251465 - (f64)entry->unk6;
+                        var_fs0 = ((f64)func_80611BB4(dx, dz) * 4096.0) / 6.2831854820251465 - (f64)entry->unk6;
                     }
                 }
                 s0++;
@@ -635,13 +643,12 @@ void func_80603450(void) {
                     D_80770DE8 = 0.0f;
                 }
                 var_fs1 += D_80770DE8;
-            } while (s0 < var_s1);
+            } while (s0 < n);
         }
         D_80770DE4 = D_80770DD4;
         if (spE7 >= 0 && D_80770DE4 < (f32)spC0[spE7].unk8) {
-            AmbientEmitter *closest = &spC0[spE7];
-            if (closest->unk6 >= 0x1001) {
-                D_80770DC9 = closest->unk6 & 1;
+            if (spC0[spE7].unk6 >= 0x1001) {
+                D_80770DC9 = spC0[spE7].unk6 & 1;
             } else {
                 if (var_fs0 > 2048.0f) {
                     var_fs0 -= 4096.0f;
@@ -656,15 +663,15 @@ void func_80603450(void) {
                 } else {
                     D_80770DCB = 1;
                     D_80770DC9 = 0;
-                    sfxAllocateChannel(closest->unkC, 1.0f);
+                    sfxAllocateChannel(spC0[spE7].unkC, 1.0f);
                 }
             }
             if (D_80770DC9 != 0) {
-                D_80770DC8 = closest->unkA;
+                D_80770DC8 = spC0[spE7].unkA;
             } else {
                 D_80770DC8 = 0;
             }
-            D_80770DD9 = closest->unkB;
+            D_80770DD9 = spC0[spE7].unkB;
         } else {
             D_80770DCB = 0;
         }
@@ -680,20 +687,19 @@ void func_80603450(void) {
                 var_fs1 = 0.0f;
             }
         }
-        if (D_80770DD9 == 0xFF) {
-            AmbientEmitter *closest = &spC0[spE7];
-            D_80770DD9 = closest->unkB;
-            D_80770DC8 = closest->unkA;
+        if (D_80770DD8[1] == 0xFF) {
+            D_80770DD8[1] = spC0[spE7].unkB;
+            D_80770DC8 = spC0[spE7].unkA;
             if (D_80770DC9 == 0) {
-                sfxAllocateChannel(closest->unkC, 1.0f);
+                sfxAllocateChannel(spC0[spE7].unkC, 1.0f);
             }
         }
-        if (D_80770DC9 != 0 && D_80770DD9 != 0) {
-            sfxAllocateChannel(D_80770DD9, 1.0f);
+        if (D_80770DC9 != 0 && D_80770DD8[1] != 0) {
+            sfxAllocateChannel(D_80770DD8[1], 1.0f);
         } else if (D_80745838 != 0) {
             seqSetTargetVolume(0, 1.0f);
         } else {
-            sfxStopChannel(D_80770DD9, 0);
+            sfxStopChannel(D_80770DD8[1], 0);
         }
         D_80770DCA = D_80770DC9;
         if (var_fs1 != 0.0f) {
@@ -708,7 +714,8 @@ void func_80603450(void) {
         if (var_fs1 < 0.0f) {
             var_fs1 = 0.0f;
         }
-        D_8077058E = (u8)(u32)(f32)((((255.0 - (f64)(u32)D_80745BDC[D_8076A0A8][1]) * ((f64)(u32)D_80770DC8 / 127.0) * (f64)var_fs1) / 255.0) + (f64)(u32)D_80745BDC[D_8076A0A8][1]);
+        var_fs1 = (f32)((f64)(u32)D_80745BDC[D_8076A0A8][1] + (((255.0 - (f64)(u32)D_80745BDC[D_8076A0A8][1]) * ((f64)(u32)D_80770DC8 / 127.0) * (f64)var_fs1) / 255.0));
+        D_8077058E = (u8)(u32)var_fs1;
     } else {
         D_8077058E = D_80745BDC[D_8076A0A8][1];
     }
@@ -717,21 +724,21 @@ void func_80603450(void) {
         D_8077058E = 0xFF;
     }
 
-    if (D_8077058D != D_8077058E) {
-        f64 v = (f64)(u32)D_8077058E;
-        f32 pan = (f32)((v * 0.3) / 255.0);
-        f32 vol = (f32)(((v * 0.35) / 255.0) + 1.0);
+    if (D_8077058E != D_8077058D) {
+        var_fs0 = (f32)(((f64)(u32)D_8077058E * 0.3) / 255.0);
+        var_fs1 = (f32)((((f64)(u32)D_8077058E * 0.35) / 255.0) + 1.0);
+        if (D_8077058E) {} // FAKE: deadsweep
         if (D_8076A0A8 == 0xE) {
             if (D_8077058E != 0) {
                 seqSetVolumeInstant(0, 1.0f);
             } else {
                 seqSetVolumeInstant(0, 0.6f);
             }
-            alCSPSetChlPanVolume(gSeqPlayers[0], pan, vol);
+            alCSPSetChlPanVolume(gSeqPlayers[0], var_fs0, var_fs1);
         }
         for (s0 = 0; s0 < 4; s0++) {
             if (D_80745658[D_80770560[s0]] & 1) {
-                alCSPSetChlPanVolume(gSeqPlayers[s0], pan, vol);
+                alCSPSetChlPanVolume(gSeqPlayers[s0], var_fs0, var_fs1);
             } else {
                 alCSPSetChlPanVolume(gSeqPlayers[s0], 0.0f, 1.0f);
             }
@@ -759,7 +766,7 @@ void func_80603450(void) {
                 for (s0 = spC8 - 1; s0 >= 0; s0--) {
                     if (s2 + 1 == spBC[s0].unk7) {
                         sfxUpdateDistanceVolumeAndPan((f32)spBC[s0].unk0, (f32)spBC[s0].unk2, (f32)spBC[s0].unk4,
-                            (u8)((D_80745B28[s2].unk2 * spBC[s0].unk6) / 255.0),
+                            (u8)((spBC[s0].unk6 * D_80745B28[s2].unk2) / 255.0),
                             D_80745B28[s2].unk3, D_80745B28[s2].unk4);
                     }
                 }
@@ -773,12 +780,11 @@ void func_80603450(void) {
             }
         }
         if (D_80745B28[s2].unk0 == 0x1E) {
-            u32 timer = D_80767CC0 / 12U;
             var_fs1 = (f32)((f64)var_fs1 * 0.6);
-            if (timer != D_80770E38[s2]) {
-                D_80770E38[s2] = timer;
+            if ((D_80767CC0 / 12U) != D_80770E38[s2]) {
+                D_80770E38[s2] = (D_80767CC0 / 12U);
                 if (var_fs1 > 10.0f) {
-                    n_alSndpPlay(D_8076D1F8, 0x1E, (u16)var_fs1, 0x3F, 0.4f, 0, &D_80770DF8[s2]);
+                    n_alSndpPlay(D_8076D1F8, D_80745B28[s2].unk0, (u16)var_fs1, 0x3F, 0.4f, 0, &D_80770DF8[s2]);
                     D_80770EB8[s2] = var_fs1 + 1.0f;
                     D_80770EF8[s2] = 300.0f;
                 }
@@ -787,10 +793,11 @@ void func_80603450(void) {
         if (var_fs1 != D_80770EB8[s2] || D_80770DF8[s2] == 0) {
             if (var_fs1 > 10.0f) {
                 if (D_80770DF8[s2] == 0) {
-                    if (D_80745B28[s2].unk0 < 0x800) {
-                        n_alSndpPlay(D_8076D1F8, D_80745B28[s2].unk0, (u16)var_fs1, 0x3F, D_80745B28[s2].unk8, 0, &D_80770DF8[s2]);
+                    spC4 = D_80745B28[s2].unk0;
+                    if (spC4 < 0x800) {
+                        n_alSndpPlay(D_8076D1F8, spC4, (u16)var_fs1, 0x3F, D_80745B28[s2].unk8, 0, &D_80770DF8[s2]);
                     } else {
-                        n_alSndpPlay(D_8076D1FC, D_80745B28[s2].unk0 - 0x7FF, (u16)var_fs1, 0x3F, D_80745B28[s2].unk8, 0, &D_80770DF8[s2]);
+                        n_alSndpPlay(D_8076D1FC, spC4 - 0x7FF, (u16)var_fs1, 0x3F, D_80745B28[s2].unk8, 0, &D_80770DF8[s2]);
                     }
                     D_80770E78[s2] = 0.0f;
                     D_80770EF8[s2] = 255.0f;
@@ -837,14 +844,12 @@ void func_80603450(void) {
             if (var_fs0 != D_80770EF8[s2]) {
                 if (D_80770EF8[s2] != 255.0f) {
                     if (D_80770EF8[s2] < var_fs0) {
-                        f32 t = D_80770EF8[s2] + 8.0f;
-                        if (t < var_fs0) {
-                            var_fs0 = t;
+                        if (D_80770EF8[s2] + 8.0f < var_fs0) {
+                            var_fs0 = D_80770EF8[s2] + 8.0f;
                         }
                     } else {
-                        f32 t = D_80770EF8[s2] - 8.0f;
-                        if (var_fs0 < t) {
-                            var_fs0 = t;
+                        if (var_fs0 < D_80770EF8[s2] - 8.0f) {
+                            var_fs0 = D_80770EF8[s2] - 8.0f;
                         }
                     }
                 }
@@ -867,10 +872,9 @@ void func_80603450(void) {
         }
         if (D_807457DC != 0) {
             n_alSndpPostEvent(D_807457DC, 8, (s32)(((f64)(u32)D_8077058C[0] * 10767.0) / 255.0));
-            spCC = (f32)(1.0 - (((f64)(u32)D_8077058E * 0.5) / 255.0));
+            spCC = (f32)(1.0 - (((f64)(u32)D_8077058E * 0.5) / 255));
             if (D_80770DC9 & (D_80770DD4 < 1000.0f)) {
-                AmbientEmitter *s0 = &spC0[spE7];
-                var_fs0 = mathAngleBetweenPointsRad(D_807FC924->unk210, D_807FC924->unk218, (f32)s0->unk0, (f32)s0->unk4) - D_807FC924->unk2C4;
+                var_fs0 = mathAngleBetweenPointsRad(D_807FC924->unk210, D_807FC924->unk218, (f32)spC0[spE7].unk0, (f32)spC0[spE7].unk4) - D_807FC924->unk2C4;
                 if (var_fs0 < 0.0f) {
                     var_fs0 += 6.2831855f;
                 }
@@ -890,6 +894,8 @@ void func_80603450(void) {
     } else if (D_807457DC != 0) {
         n_alSndpStop(D_807457DC);
     }
+    if (D_80770DC8) {} // FAKE: keeps address un-hoisted
+    if (D_8077058D) {} // FAKE: keeps address un-hoisted
 }
 #else
 
