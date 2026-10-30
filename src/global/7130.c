@@ -96,7 +96,138 @@ void sfxPlayCurrent(u8 arg0, u8 arg1, u8 arg2) {
     func_80602498();
 }
 
+#ifdef NON_MATCHING
+extern s16 D_807458DC[];
+extern f32 D_807458F4[];
+extern s16 D_80745924[];
+extern s32 D_8074593C[][12];
+extern u8 D_80770560[];
+extern f32 D_80770568[];
+extern ALCSPlayer *gSeqPlayers[];
+
+/* The two stack arrays are block-copied from these static initialisers (D_80745B20 = -1s, D_80745B24 = 0s):
+ * a struct-typed local makes the compiler emit one lw/sw copy and keep &sp68 in a callee-saved register. */
+typedef struct {
+    s8 b[4];
+} S7130aBytes4;
+typedef struct {
+    u8 b[4];
+} S7130aUBytes4;
+extern S7130aBytes4 D_80745B20;
+extern S7130aUBytes4 D_80745B24;
+
+void func_8060131C(s32, s32, s32);
+void func_806013E8(s32, s32, s32);
+void sfxStopChannel();
+void seqSetTargetVolume(s32, f32);
+void func_8060A6A0(s32, u8, f32);
+
+// deadsweep round 3: full=62 text=62 inserted `if (D_8074593C && D_8074593C) {}` at line 18
+void func_806025D4(void) {
+    u8 i;
+    u8 j;
+    u8 s1;
+    u8 s2;
+    S7130aBytes4 sp68;
+    S7130aUBytes4 sp64;
+    s32 s5;
+    s32 vol;
+    u8 sel;
+
+    sp68 = D_80745B20;
+    sp64 = D_80745B24;
+
+    if (*(u8 *)&D_80745650 != 0) {
+        i = 0;
+        do {
+            sp64.b[i] = alCSPGetState(gSeqPlayers[i]);
+        } while (++i < 4);
+
+        i = 0; do {
+            s5 = D_807458DC[i];
+            if (s5 != 0) {
+                s1 = sfxGetChannelIndex((s16)s5);
+                s2 = sfxGetBankIndex((s16)(u16)s5);  // FAKE: (u16) keeps this conv from being CSE'd with the one above
+                if (s5 == D_80770560[s2] && sp64.b[s2] == 1) {
+                    if (D_80745924[i] == 1) {
+                        D_80745924[i] = 2;
+                    }
+                    if (D_80745924[i] == 2) {
+                        j = 0;
+                        do {
+                            if (!s2) {}  // FAKE: steers uopt register order (s7/s8)
+                            vol = (j & 1) ? 0 : 0xFF;
+                            sel = j & 2;
+                            if (D_8074593C[j][s1] != 0) {
+                                if (sel) {
+                                    func_8060131C(s2, D_8074593C[j][s1], vol);
+                                } else {
+                                    func_806013E8(s2, D_8074593C[j][s1], vol);
+                                }
+                                D_8074593C[j][s1] = 0;
+                            }
+                        } while (++j < 4);
+                    }
+                }
+                if (!(D_80745658[s5] & 0x100) && D_80745924[i] == 2) {
+                    if (sp64.b[sfxGetBankIndex((s16)(s5 ^ 0))] == 0 || s5 != D_80770560[s2]) {  // FAKE: ^ 0 keeps this conv from being CSE'd with the earlier two
+                        sfxStopChannel(s5, 0);
+                    }
+                }
+            }
+        } while (++i < 12);
+
+        i = 0;
+        do {
+            s5 = D_807458DC[i];
+            if (s5 != 0) {
+                if (D_80745658[s5] & 0x80) {
+                    j = 0;
+                    do {
+                        sp68.b[j] = -1;
+                    } while (++j < 4);
+                }
+                sp68.b[sfxGetBankIndex((s16)s5)] = i;
+            }
+        } while (++i < 12);
+
+        i = 0;
+        if (1) {}  // FAKE: steers uopt register order (s7/s8)
+        do {
+            s8 idx = sp68.b[i];
+            if (sp64.b[i] != 0) {
+                if (sp64.b[i] == 1) {
+                    if (idx == -1) {
+                        seqSetTargetVolume(i, 0.0f);
+                        if ((f64)D_80770568[i] < 0.1 || D_80770560[i] == 0x4B) {
+                            alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
+                        }
+                    } else {
+                                                if (D_80770560[i] != D_807458DC[idx] || (D_80745924[idx] == 0 && (D_80745658[D_807458DC[idx]] & 0x200))) {
+                            alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
+                        } else if (D_80770568[i] == 0.0f) {
+                            seqSetTargetVolume(i, D_807458F4[idx]);
+                        }
+                    }
+                }
+            } else {
+                if (idx != -1) {
+                                        if (D_80770560[i] == D_807458DC[idx] && D_80745924[idx] == 2) {
+                        seqSetTargetVolume(i, D_807458F4[idx]);
+                        alCSPPlay(gSeqPlayers[i]);
+                    } else {
+                        func_8060A6A0(i, (u8)D_807458DC[idx], D_807458F4[idx]);
+                        D_80745924[sfxGetChannelIndex(D_807458DC[idx])] = 1;
+                    }
+                }
+            }
+        } while (++i < 4);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_806025D4.s")
+#endif
 
 extern s16 D_807458DC[];
 extern f32 D_807458F4[];
@@ -1041,26 +1172,24 @@ void sfxStopSlotSound(Actor *arg0, u8 arg1) {
 void faultSetMessage(s32, s32, s32, s32);
 
 #ifdef NON_MATCHING
-void func_80605380(s16 arg0) {
-    s16 a1 = D_80770628[arg0];
-    s16 t0 = --D_80770740[a1];
+void func_80605380(arg0)
+s16 arg0;
+{
+    D_80770740[D_80770628[arg0]]--;
 
-    if (t0 != 0) {
-        s16 v1 = D_807707A0[a1][t0];
-        D_80770658[v1] = D_80770658[D_807707A0[a1][D_80770658[arg0]]];
-        D_807707A0[a1][D_80770658[arg0]] = v1;
+    if (D_80770740[D_80770628[arg0]] != 0) {
+        D_80770658[D_807707A0[D_80770628[arg0]][D_80770740[D_80770628[arg0]]]] = D_80770658[D_807707A0[D_80770628[arg0]][D_80770658[arg0]]];
+        D_807707A0[D_80770628[arg0]][D_80770658[arg0]] = D_807707A0[D_80770628[arg0]][D_80770740[D_80770628[arg0]]];
     } else {
-        D_80770710[a1] = 0;
-        D_807706F8[a1] = 0;
+        D_80770710[D_80770628[arg0]] = 0;
+        D_807706F8[D_80770628[arg0]] = 0;
     }
 
-    if (t0 < 0 || t0 >= 23) {
-        faultSetMessage(9, t0, 0, 0);
-        a1 = D_80770628[arg0];
-        t0 = D_80770740[a1];
+    if (D_80770740[D_80770628[arg0]] < 0 || D_80770740[D_80770628[arg0]] >= 23) {
+        faultSetMessage(9, D_80770740[D_80770628[arg0]] * 1, 0, 0);  // FAKE: keeps count out of $a1
     }
 
-    D_807707A0[a1][t0] = -1;
+    D_807707A0[D_80770628[arg0]][D_80770740[D_80770628[arg0]]] = -1;
     D_807705F8[arg0] = -1;
     D_807705A0[arg0] = NULL;
     D_80770628[arg0] = -1;

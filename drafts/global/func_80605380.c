@@ -1,4 +1,4 @@
-// func_80605380 (src/global/7130.c): Stage 6, frame 0x30 exact, same insn count. Remaining: uopt colors count var (adjsave 2.67) before a1 var (2.33) so count->$a1, a1->$a2 (expected a1->$a1, count->$t0 via 'or a1,t0,zero'); cascades into arg0 t0 vs t1, t3/t2 swaps. Tried: s32/s16 var types, decl order, single dead 'if (a1) {}' / 'if (t0) {}' / 'if (arg0) {}' at every position (none helps; two deadsweep stmts reach text score 31 but move count into $s0 and grow frame to 0x38)
+// func_80605380 (src/global/7130.c): Stage 6 (one insn): K&R definition + pure expression form (no locals) + 'faultSetMessage(9, E * 1, 0, 0)' fake: text identical except 'move t1,t6' sits before 'addiu a0,a0,lo' (target: after it, before beqz t0). Tried (all no change): first-stmt forms (--x, -=1, +=-1), tail store permutations (120), fake forms (+0,|0,^0,<<0,...), cond forms (!(>=0&&<23), >22, etc.), local-based hybrids (a1 s16/s32/int x count local x reassign x fake, best 10 lines worse), deadsweep single stmt x 8 syms x 3 forms at every position (327), random dead-stmt hill-climb 12000x2. Candidate ids show the move is the {62}=arg0*2 live-range split inserted in candidate order vs the &D_80770658 addiu.
 #include "common.h"
 
 extern s16 D_80770628[];
@@ -12,28 +12,24 @@ extern void *D_807705A0[];
 
 void faultSetMessage(s32, s32, s32, s32);
 
-void func_80605380(s16 arg0) {
-    s16 a1 = D_80770628[arg0];
-    s16 t0;
+void func_80605380(arg0)
+s16 arg0;
+{
+    D_80770740[D_80770628[arg0]]--;
 
-    t0 = --D_80770740[a1];
-
-    if (t0 != 0) {
-        s16 v1 = D_807707A0[a1][t0];
-        D_80770658[v1] = D_80770658[D_807707A0[a1][D_80770658[arg0]]];
-        D_807707A0[a1][D_80770658[arg0]] = v1;
+    if (D_80770740[D_80770628[arg0]] != 0) {
+        D_80770658[D_807707A0[D_80770628[arg0]][D_80770740[D_80770628[arg0]]]] = D_80770658[D_807707A0[D_80770628[arg0]][D_80770658[arg0]]];
+        D_807707A0[D_80770628[arg0]][D_80770658[arg0]] = D_807707A0[D_80770628[arg0]][D_80770740[D_80770628[arg0]]];
     } else {
-        D_80770710[a1] = 0;
-        D_807706F8[a1] = 0;
+        D_80770710[D_80770628[arg0]] = 0;
+        D_807706F8[D_80770628[arg0]] = 0;
     }
 
-    if (t0 < 0 || t0 >= 23) {
-        faultSetMessage(9, t0, 0, 0);
-        a1 = D_80770628[arg0];
-        t0 = D_80770740[a1];
+    if (D_80770740[D_80770628[arg0]] < 0 || D_80770740[D_80770628[arg0]] >= 23) {
+        faultSetMessage(9, D_80770740[D_80770628[arg0]] * 1, 0, 0);  // FAKE: keeps count out of $a1
     }
 
-    D_807707A0[a1][t0] = -1;
+    D_807707A0[D_80770628[arg0]][D_80770740[D_80770628[arg0]]] = -1;
     D_807705F8[arg0] = -1;
     D_807705A0[arg0] = NULL;
     D_80770628[arg0] = -1;
