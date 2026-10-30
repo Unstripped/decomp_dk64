@@ -1,4 +1,4 @@
-// func_8060DEC8 (src/global/104F0.c): stage 4: 0x48 frame, callee-saved set (s0-s7, fp, ra) and all loop instructions match; remaining diff is regalloc: s8/s7 swap between outer counter i and entry, s1/s0 swap in loop 2, and s2 caching for base[0x2FC].
+// func_8060DEC8 (src/global/104F0.c): stage 4: frame 0x48 and callee-saved set (s0-s7, fp, ra) match; deadsweep reduced diff to 13 text lines
 extern u8 D_807FC928;
 extern u8 D_807FC950[];
 extern u8 D_807467C8;
@@ -25,6 +25,7 @@ void func_8060DEC8(void) {
             entry = base;
             total = func_805FC98C();
             value = func_8060C724(D_807467C8);
+            if (D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (total >= 0x400000U) {
                 total = -1;
             }
@@ -37,6 +38,7 @@ void func_8060DEC8(void) {
             do {
                 u8 row_idx = i;
                 j = 0;
+                if (D_807467C8 && D_807467C8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 field = entry;
                 do {
                     func_8060C648(j + 4, row_idx, 0, D_807467C8, *field);

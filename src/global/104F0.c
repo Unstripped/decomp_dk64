@@ -738,10 +738,13 @@ void func_8060DC3C(s32 arg0, s32 arg1) {
     s32 value;
 
     base = D_807FC950;
+    if (base && base) {} // FAKE: keep base in register
     selector = arg0;
+    if (selector && selector) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     entry = base;
     D_80750AC0 = 1;
     func_806C9AE0();
+    if (D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
     D_807467C8 = selector;
     D_8074E77C = 0;
@@ -757,22 +760,23 @@ void func_8060DC3C(s32 arg0, s32 arg1) {
     collectibleCountsClear();
     D_80750AB0 = func_8060C6B8(0xE, 0, 0, selector);
     i = 0;
+    if (D_807FC930) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     do {
         j = 0;
         field = entry;
         do {
-            *field = func_8060C6B8(j + 4, i, 0, selector);
+            *field++ = func_8060C6B8(j + 4, i, 0, selector);
             j++;
-            field++;
         } while (j != 5);
         *(s16 *)(entry + 6) = func_8060C6B8(9, i, 0, selector);
         entry[5] = func_8060C6B8(0xA, i, 0, selector);
         if (func_8060C6B8(0xB, i, 0, selector) != 0) {
             entry[5] |= 0x80;
         }
-        sum = D_807FC930;
+        if (D_807FC930) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         field = entry;
         j = 0;
+        sum = D_807FC930;
         do {
             *(s16 *)(field + 0xA) = func_8060C6B8(1, i, j, selector);
             value = func_8060C6B8(2, i, j, selector);
@@ -784,6 +788,7 @@ void func_8060DC3C(s32 arg0, s32 arg1) {
             sum++;
         } while (j != 8);
         i++;
+        if (D_807467C8 && D_807467C8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         entry += 0x5E;
     } while (i != 5);
     if (arg1 != 0) {
@@ -820,6 +825,7 @@ void func_8060DEC8(void) {
             entry = base;
             total = func_805FC98C();
             value = func_8060C724(D_807467C8);
+            if (D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (total >= 0x400000U) {
                 total = -1;
             }
@@ -832,6 +838,7 @@ void func_8060DEC8(void) {
             do {
                 u8 row_idx = i;
                 j = 0;
+                if (D_807467C8 && D_807467C8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 field = entry;
                 do {
                     func_8060C648(j + 4, row_idx, 0, D_807467C8, *field);
@@ -921,17 +928,14 @@ u8 *func_8060E25C(s32 arg0) {
 
 #ifdef NON_MATCHING
 u8 func_8060E3B0(u16 arg0, u8 arg1) {
-    s32 new_var;
     u8 result;
-    u8 output;
     u16 value;
+    u8 output;
 
     result = 0;
     if (func_8071432C() != 0) {
-        new_var = func_8060B9D0(D_807467C8);
-        func_8060C340(&value, &output, 0, 0, arg1, new_var);
-        new_var = func_8060BBE0((value + arg0) & 0xFFFF, 1);
-        result = new_var;
+        func_8060C340(&value, &output, 0, 0, arg1, func_8060B9D0(D_807467C8));
+        result = func_8060BBE0((value + arg0) & 0xFFFF, 1);
     }
     return result;
 }
@@ -943,7 +947,6 @@ u8 func_8060E3B0(u16 arg0, u8 arg1) {
 extern s32 func_8060B9D0();
 extern void func_8060BB18();
 extern void func_8060C340();
-extern s32 func_8071432C(void);
 
 void func_8060E430(u16 arg0, u8 arg1, u8 arg2) {
     u16 value;
