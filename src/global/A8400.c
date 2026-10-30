@@ -184,7 +184,6 @@ void mathAddWaveOffset(f32 *arg0, f32 *arg1, f32 arg2, f32 arg3, MotionAngles *a
     *arg1 += (arg2 * arg3) * 16.0f * func_80612790((s16) ((s16) ((s32) ((f32) arg4->unk3A + (arg2 * 3000.0f))) & 0xFFF));
 }
 
-#ifdef NON_MATCHING
 extern u8 D_807444FC;
 
 typedef struct SpriteAnim {
@@ -203,41 +202,36 @@ s32 func_806A3E9C(s32 arg0, SpriteAnim *arg1, s32 arg2) {
     f32 spA8[4][4];
     f32 spA4;
     f32 spA0;
-    f32 scale;
-    s32 cnt;
-    s32 i;
+    u8 cnt;
+    u32 i;
+    s32 tmp;
     s32 idx;
-    s32 ret;
-    s32 off;
 
-    ret = arg0;
     cnt = (u8) (u32) ((((f64) arg1->unk20 < 0.320000000000000007) ? (f64) arg1->unk20 : 0.320000000000000007) * 12.5);
+    if (arg0 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     i = 1;
+    if (D_807444FC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     idx = 1;
     if (cnt > 0) {
         do {
             spA4 = (f32) ((f64) (arg1->unk2C - arg1->unk24) * ((f64) i * 0.0800000000000000017) + (f64) arg1->unk24);
             spA0 = (f32) ((f64) (arg1->unk30 - arg1->unk28) * ((f64) i * 0.0800000000000000017) + (f64) arg1->unk28);
-            guTranslateF(spE8, -48.0f, -32.0f, 0.0f);
-            scale = (f32) (((f64) i * 0.0800000000000000017) * 1.9f * 4.0 * 0.5);
-            guScaleF(spA8, scale, scale, 1.0f);
+            guTranslateF(spE8, -48.0f, -32.0f, 0);
+            guScaleF(spA8, (f32) (((f64) i * 0.0800000000000000017) * 1.9f * 4.0 * 0.5), (f32) (((f64) i * 0.0800000000000000017) * 1.9f * 4.0 * 0.5), 1.0f);
             guMtxCatF(spE8, spA8, spE8);
             mathAddWaveOffset(&spA4, &spA0, (f32) ((f64) i * 0.0800000000000000017), 1.0f, (MotionAngles *) arg1);
             guTranslateF(spA8, spA4 * 4.0f, spA0 * 4.0f, 0.0f);
             guMtxCatF(spE8, spA8, spE8);
-            off = idx * 2;
-            guMtxF2L(spE8, (Mtx *) (arg1->unk34 + ((off + D_807444FC) << 6)));
-            ret = (s32) renderTextureSprite((Gfx *) ret, (s32) (arg1->unk34 + ((off + D_807444FC) << 6)), (u32) ((((f64) (idx * 300) * 0.0800000000000000017) > 150.0) ? 150.0 : ((f64) (idx * 300) * 0.0800000000000000017)) & 0xFF, arg2);
+            guMtxF2L(spE8, (Mtx *) (arg1->unk34 + ((idx * 2 + D_807444FC) << 6)));
+            tmp = (s32) renderTextureSprite((Gfx *) arg0, (s32) (arg1->unk34 + ((idx * 2 + D_807444FC) << 6)), (u32) ((((f64) (idx * 300) * 0.0800000000000000017) > 150.0) ? 150.0 : ((f64) (idx * 300) * 0.0800000000000000017)), arg2);
             i = (i + 1) & 0xFF;
             idx = i;
+            arg0 = tmp;
+            if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         } while (cnt >= idx);
     }
-    return ret;
+    return arg0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A3E9C.s")
-#endif
 
 #ifdef NON_MATCHING
 typedef struct ScreenBounds {
@@ -373,7 +367,6 @@ Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A4284.s")
 #endif
 
-#ifdef NON_MATCHING
 void func_8071495C(void);
 void func_80714998(s32);
 void func_807149B8(s32);
@@ -425,11 +418,10 @@ typedef struct SpriteVector {
 } SpriteVector;
 
 void func_806A495C(SpriteRow *arg0, SpriteVector *arg1, SpriteVector *arg2) {
+    SpriteObjectSlot *slot = &arg0->unk10;
     f32 sp38 = (f32) arg0->unk0 * 0.5f;
     f32 sp34 = arg0->unk4;
     f32 sp30 = arg0->unk8;
-    SpriteObjectSlot *slot = &arg0->unk10;
-    SpriteObject *model;
 
     if (slot->unk4 == NULL) {
         func_807149FC(-1);
@@ -438,13 +430,13 @@ void func_806A495C(SpriteRow *arg0, SpriteVector *arg1, SpriteVector *arg2) {
         func_80714998(2);
         func_80714A68((s16) (s32) arg2->unk44, (s16) (s32) arg2->unk48, (s16) (s32) arg2->unk4C,
                       (s16) (s32) arg2->unk50);
-        model = func_80714CC0(D_80755390[slot->unk0], 1.0f, arg2->unk44, arg2->unk48, 1.0f);
-        slot->unk4 = model;
+        slot->unk4 = func_80714CC0(D_80755390[slot->unk0], 1.0f, arg2->unk44, arg2->unk48, 1);
         if (slot->unk2 != 0) {
-            model->unk360 *= -1.0f;
+            slot->unk4->unk360 *= -1.0f;
         }
     }
-    slot->unk4->unk340 = (f32) (((f64) arg2->unk44 + (sp34 + sp38)) * 4.0);
+    sp34 += sp38;
+    slot->unk4->unk340 = (f32) (((f64) arg2->unk44 + sp34) * 4.0);
     slot->unk4->unk344 = (f32) (((f64) arg2->unk48 + (sp30 + (arg1->unk18 * 0.5f))) * 4.0);
     slot->unk4->unk36D = arg0->unk3;
     slot->unk4->unk38E = (s16) (s32) arg2->unk44;
@@ -452,12 +444,7 @@ void func_806A495C(SpriteRow *arg0, SpriteVector *arg1, SpriteVector *arg2) {
     slot->unk4->unk392 = (s16) (s32) arg2->unk4C;
     slot->unk4->unk394 = (s16) (s32) arg2->unk50;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A495C.s")
-#endif
-
-#ifdef NON_MATCHING
 typedef struct SpriteNode {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 unk2;
@@ -500,16 +487,15 @@ void func_806A4B84(f32 arg0, ActorStateView *arg1, SpriteChainState *arg2, Sprit
     f32 var_fs0;
     s32 var_a0;
     s32 var_s3;
-    s16 temp16;
     u8 var_a0_2;
     u8 temp;
     SpriteNode *node;
 
     node = arg3->unkC;
     var_s3 = 0;
-    var_fs0 = ((f64) 136.8f - arg3->unk14) * 0.5;
+    var_fs0 = ((f64) 136.8f - arg3->unk14) / 2.0;
     while (node != NULL && *arg5 == 0) {
-        if (arg4 != 0 && var_s3 == arg2->unk11) {
+        if (arg4 && var_s3 == arg2->unk11) {
             if (!(arg2->unk55 & 4)) {
                 *arg5 = 1;
             }
@@ -523,8 +509,8 @@ void func_806A4B84(f32 arg0, ActorStateView *arg1, SpriteChainState *arg2, Sprit
                     if (arg2->unk55 & 2) {
                         var_a0 = (s32) (var_a0 * 0.5);
                     }
-                    if (!(arg2->unk55 & 4) && (var_a0 < (0xFF - temp))) {
-                        node->unk2 = temp + var_a0;
+                    if (!(arg2->unk55 & 4) && (var_a0 < (0xFF - node->unk2))) {
+                        node->unk2 = node->unk2 + var_a0;
                     } else {
                         node->unk2 = 0xFF;
                         if (node->unkA0 != NULL) {
@@ -553,16 +539,11 @@ void func_806A4B84(f32 arg0, ActorStateView *arg1, SpriteChainState *arg2, Sprit
         if (arg3->unk0 & 2) {
             func_806A495C((SpriteRow *) node, (SpriteVector *) arg3, (SpriteVector *) arg2);
         }
-        temp16 = node->unk0;
+        var_fs0 += (f32) node->unk0;
         node = node->unkA0;
         var_s3++;
-        var_fs0 += (f32) temp16;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A4B84.s")
-#endif
 
 #ifdef NON_MATCHING
 typedef struct ChainNode ChainNode;
