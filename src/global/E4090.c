@@ -152,7 +152,6 @@ typedef struct G21Table {
 
 extern G21Table D_807FD610[];
 
-#ifdef NON_MATCHING
 u16 func_806DFF34(u16, u16 *);
 f32 func_80611BB4(f32, f32);
 f32 sqrtf(f32);
@@ -162,6 +161,11 @@ typedef struct LE40Ctl {
     /* 0x2 */ s8 unk2;
     /* 0x3 */ s8 unk3;
 } LE40Ctl;
+
+typedef struct LE40Btn {
+    /* 0x0 */ u16 unk0;
+    /* 0x2 */ u8 pad2[0x32];
+} LE40Btn;
 
 typedef struct LE40Tbl {
     void (*fn[17])(void);
@@ -174,9 +178,8 @@ typedef struct LE40Player {
 } LE40Player;
 
 #define LE40_P ((LE40Player *)D_807FD580)
-#define LE40_PAD(sym, T) (*(T *)((u8 *)&(sym) + D_807FC929 * 0x34))
 #define LE40_E D_807FD610[D_807FC929]
-#define LE40_Q ((G21Table *)((u8 *)D_807FD610 + D_807FC929 * 0x34))
+#define LE40_BTN (((LE40Btn *)D_807FD63A)[D_807FC929].unk0)
 #define LE40_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define LE40_MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -198,14 +201,13 @@ s32 func_806DF6D4(s32 arg0) {
     s16 ang;
 
     old = D_807FBB48->unk154;
-    ang = -80;
-    LE40_PAD(D_807FD63A, u16) = func_806DFF34(D_807ECDEC->unk0, D_80750FF0);
+    LE40_BTN = func_806DFF34(D_807ECDEC->unk0, D_80750FF0);
     LE40_E.unk2C = func_806DFF34(D_807ECDF0, D_80750FF0);
     if (LE40_P->unk1F4 & 0x20) {
         LE40_E.unk2A = 0;
         LE40_E.unk2C = 0;
     }
-    D_807ECDEC->unk2 = LE40_MIN((D_807ECDEC->unk2 > ang ? D_807ECDEC->unk2 : -80), 80);
+    D_807ECDEC->unk2 = LE40_MIN(LE40_MAX(D_807ECDEC->unk2, -80), 80);
     D_807ECDEC->unk3 = LE40_MIN(LE40_MAX(D_807ECDEC->unk3, -80), 80);
     LE40_E.unk2E = D_807ECDEC->unk2;
     LE40_E.unk2F = D_807ECDEC->unk3;
@@ -260,81 +262,70 @@ s32 func_806DF6D4(s32 arg0) {
     if (mag > 70.0f) {
         mag = 70.0f;
     }
-    LE40_Q->unkC = mag - LE40_Q->unk4;
-    LE40_Q->unk4 = mag;
+    LE40_E.unkC = mag - LE40_E.unk4;
+    LE40_E.unk4 = mag;
     if (mag != 0.0f) {
-        LE40_Q->unk0 = 0;
-        LE40_Q->unk8 = (mag - 5.0f) / 65.0f;
+        LE40_E.unk0 = 0;
+        LE40_E.unk8 = (mag - 5.0f) / 65.0f;
     } else {
-        LE40_Q->unk8 = 0.0f;
-        LE40_Q->unk0 = LE40_Q->unk0 + 1;
+        LE40_E.unk8 = 0.0f;
+        LE40_E.unk0 = LE40_E.unk0 + 1;
     }
     if (mag != 0.0f) {
-        t = ang = func_80611BB4(LE40_Q->unk2E, -LE40_Q->unk2F) * 4096.0f / 6.2831855f;
-        LE40_Q->unk28 = (*(s16 *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C8) + t) & 0xFFF;
+        t = ang = func_80611BB4(LE40_E.unk2E, -LE40_E.unk2F) * 4096.0f / 6.2831855f;
+        LE40_E.unk28 = (*(s16 *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C8) + t) & 0xFFF;
     } else {
-        ang = LE40_Q->unk20[D_807FC929 * 0];
+        ang = LE40_E.unk20[0];
     }
-    for (i = 3; (i ^ 0) != 0; i--) {
+    for (i = 3; i != 0; i--) {
         LE40_E.unk20[i] = LE40_E.unk20[i - 1];
         LE40_E.unk10[i] = LE40_E.unk10[i - 1];
-        if (LE40_E.unk2E) {
-        }
-        if (D_807FC929) {
-        }
     }
-    LE40_Q->unk20[0] = ang;
-    LE40_Q->unk10[0] = mag;
+    LE40_E.unk20[0] = ang;
+    LE40_E.unk10[0] = mag;
     D_80751004[arg0].fn[1]();
-    if (LE40_PAD(D_807FD63A, u16) & 0x1000) {
+    if (LE40_BTN & 0x1000) {
         D_80751004[arg0].fn[0]();
     }
-    if (LE40_PAD(D_807FD63A, u16) & 0x8000) {
+    if (LE40_BTN & 0x8000) {
         D_80751004[arg0].fn[2]();
     } else {
         D_80751004[arg0].fn[5]();
     }
-    if (LE40_PAD(D_807FD63A, u16) & 0x4000) {
+    if (LE40_BTN & 0x4000) {
         D_80751004[arg0].fn[3]();
     } else {
         D_80751004[arg0].fn[6]();
     }
-    if (LE40_PAD(D_807FD63A, u16) & 0x2000) {
+    if (LE40_BTN & 0x2000) {
         D_80751004[arg0].fn[4]();
     } else {
         D_80751004[arg0].fn[7]();
     }
-    if (LE40_PAD(D_807FD63A, u16) & 0x10) {
+    if (LE40_BTN & 0x10) {
         D_80751004[arg0].fn[9]();
     } else {
         D_80751004[arg0].fn[11]();
     }
-    if (LE40_PAD(D_807FD63A, u16) & 0x20) {
+    if (LE40_BTN & 0x20) {
         D_80751004[arg0].fn[8]();
     }
-    if (LE40_PAD(D_807FD63A, u16) & 8) {
+    if (LE40_BTN & 8) {
         D_80751004[arg0].fn[12]();
     }
-    if (LE40_PAD(D_807FD63A, u16) & 4) {
+    if (LE40_BTN & 4) {
         D_80751004[arg0].fn[15]();
     }
-    if (LE40_PAD(D_807FD63A, u16) & 2) {
+    if (LE40_BTN & 2) {
         D_80751004[arg0].fn[13]();
     }
-    if (LE40_PAD(D_807FD63A, u16) & 1) {
+    if (LE40_BTN & 1) {
         D_80751004[arg0].fn[14]();
     }
-    if (!D_807FD610) {
-        if (!LE40_E.unk2F) {
-        }
-    }
+    if (D_807FD610) {} // FAKE: keeps &D_807FD610 live to the tail (const-hoist register order)
     D_80751004[arg0].fn[16]();
     return D_807FBB48->unk154 - old;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806DF6D4.s")
-#endif
 
 #ifdef NON_MATCHING
 u16 func_806DFF34(u16 arg0, u16 *arg1) {
