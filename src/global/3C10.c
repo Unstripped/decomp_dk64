@@ -156,7 +156,31 @@ u8 D_8076AF15;
 u16 D_8076AF16;
 u8 D_8076AF18[8];
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/3C10/func_805FEF10.s")
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+} MainLoopPair;
+
+typedef struct {
+    u8 pad0[0x58];
+    s32 unk58;
+} MainLoopView58;
+
+extern MainLoopPair D_80744800[];
+
+s32 func_805FEF10(s32 *arg0) {
+    u32 i;
+    s32 found;
+
+    found = 0;
+    for (i = 0; (i ^ 0) < 4 && !found; i++) { // FAKE: blocks loop-test replacement so i keeps its own compare
+        found = ((MainLoopView58 *)D_807FBB4C)->unk58 == D_80744800[i].unk0;
+        if (found) {
+            *arg0 = D_80744800[i].unk4;
+        }
+    }
+    return found;
+}
 
 s32 func_805FEF74(s32 arg0) {
     s32 i;
