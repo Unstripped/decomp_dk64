@@ -1,78 +1,73 @@
-// func_80651904 (src/global/55B20.c): stage 5: instructions structurally identical; IDO copies a0-a3 into s0-s3, uses s8 and saves ra, target keeps a0-a3 and s0-s7 with no ra save. Needs u8 5th param (lbu 0x3b(sp)); file prototype must be 'void func_80651904(R2P1bNode8 *, s32, u8 *, s32 *, u8, s32);' (the base prototype declares s32/void* and conflicts).
-typedef struct R2P1bNode8 {
-    /* 0x0 */ s32 unk0;
+// func_80651904 (src/global/55B20.c): stage 4 (S55a revisit): natural C using buf[idx] struct index (S55aEntry 0x24 = s16 key + s32 a[4] + s32 b[4]; S55aCell 0x1C with s16 unk8[4]); same callee-saved set s0-s7, no ra, frame 0x28 (as target). Remaining diff regalloc only (shape ~39): buf copied to s0 because n takes a2 first; invariants (-1,0x24,&cells,&chunks,kind,chunk) land in s4-s7 instead of v0/t0-t3; found/cfound/cidx in v1/t1/t2 instead of s0/s4/s3; target uses multu only for n*0x24 and shifts for *count*0x24 (ours multu everywhere). Needs definition 'u8 kind' (lbu 0x3b(sp)): file prototype (s32,s32,void*,s32*,s32,s32) conflicts unless K&R def (cfe warning only; parked that way in 55B20.c). deadsweep greedy 5 rounds -> full 90 (fake if (D_807F70B0==0){} etc., not natural); dead params uses at top, declaration-order permutations (120), permuter 420s (5193->4708) no help.
+typedef struct S55aNode {
+    /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
-} R2P1bNode8;
+} S55aNode;
 
-extern struct M55P2SearchEntry *D_807F70B0;
+typedef struct S55aEntry {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ u8 pad2[2];
+    /* 0x04 */ s32 unk4[4];
+    /* 0x14 */ s32 unk14[4];
+} S55aEntry; /* 0x24 */
 
-void func_80651904(R2P1bNode8 *var_a0, s32 var_a1, u8 *arg2, s32 *arg3, u8 arg4, s32 arg5) {
-    s32 temp_s1;
-    s32 temp_s5;
-    s32 temp_s6;
-    s32 temp_s7;
-    s32 temp_t4;
-    s32 var_s0;
-    s32 var_s3;
-    s32 var_s4;
-    s32 var_t5;
-    u8 *temp_t4_2;
-    u8 *var_s2;
-    u8 *var_s2_2;
+typedef struct S55aCell {
+    /* 0x00 */ u8 pad0[0x2];
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ u8 pad4[0x4];
+    /* 0x08 */ s16 unk8[4];
+    /* 0x10 */ u8 pad10[0xC];
+} S55aCell; /* 0x1C */
 
-    if (var_a1 != 0) {
+void func_80651904(S55aNode *list, s32 size, S55aEntry *buf, s32 *count, u8 kind, s32 chunk) {
+    s32 n;
+    s32 key;
+    s32 found;
+    s32 idx;
+    s32 cfound;
+    s32 cidx;
+
+    if (size != 0) {
         do {
-            var_t5 = 0;
-            var_s0 = 0;
-            var_a1 -= 8;
-            if (((u32)var_a0->unk0 >> 0x18) == 0) {
-                temp_s1 = *arg3;
-                temp_t4 = var_a0->unk4;
-                temp_s7 = arg5 * 0x1C8;
-                var_s3 = 0;
-                var_s4 = 0;
-                temp_s5 = arg4 * 4;
-                temp_s6 = arg4 * 2;
-                if (temp_s1 > 0) {
-                    var_s2 = arg2;
+            idx = 0;
+            found = 0;
+            size -= 8;
+            if ((list->unk0 >> 24) == 0) {
+                n = *count;
+                key = list->unk4;
+                cidx = 0;
+                cfound = 0;
+                if (n > 0) {
                     do {
-                        if (temp_t4 == *(s16 *)(var_s2 + 0)) {
-                            var_s0 = 1;
+                        if (key == buf[idx].unk0) {
+                            found = 1;
                         } else {
-                            var_t5 += 1;
-                            var_s2 += 0x24;
+                            idx += 1;
                         }
-                        if (!((var_t5 < temp_s1) && (var_s0 == 0))) {
-                            break;
-                        }
-                    } while (1);
+                    } while (idx < n && found == 0);
                 }
-                var_s2_2 = (u8 *)D_807F70B0;
                 do {
-                    if (temp_t4 == *(s16 *)(var_s2_2 + 2)) {
-                        var_s4 = 1;
+                    if (key == ((S55aCell *)D_807F70B0)[cidx].unk2) {
+                        cfound = 1;
                     } else {
-                        var_s3 += 1;
-                        var_s2_2 += 0x1C;
+                        cidx += 1;
                     }
-                } while (var_s4 == 0);
-                if (var_s0 == 0) {
-                    *(s16 *)(arg2 + temp_s1 * 0x24) = (s16)temp_t4;
-                    *(s32 *)(arg2 + *arg3 * 0x24 + 4) = -1;
-                    *(s32 *)(arg2 + *arg3 * 0x24 + 8) = -1;
-                    *(s32 *)(arg2 + *arg3 * 0x24 + 0xC) = -1;
-                    *(s32 *)(arg2 + *arg3 * 0x24 + 0x10) = -1;
-                    temp_t4_2 = arg2 + (*arg3 * 0x24) + temp_s5;
-                    *(s32 *)(temp_t4_2 + 4) = (s32)((u8 *)var_a0 + 8);
-                    *(s32 *)(temp_t4_2 + 0x14) = (*(s16 *)((u8 *)D_807F70B0 + var_s3 * 0x1C + temp_s6 + 8) << 4) + *(s32 *)((u8 *)D_807F6C18 + temp_s7 + 0x58);
-                    *arg3 += 1;
+                } while (cfound == 0);
+                if (found == 0) {
+                    buf[n].unk0 = key;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + 4) = -1;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + 8) = -1;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + 0xC) = -1;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + 0x10) = -1;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 4) = (s32)list + 8;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 0x14) = (((S55aCell *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
+                    *count += 1;
                 } else {
-                    temp_t4_2 = arg2 + (var_t5 * 0x24) + temp_s5;
-                    *(s32 *)(temp_t4_2 + 4) = (s32)((u8 *)var_a0 + 8);
-                    *(s32 *)(temp_t4_2 + 0x14) = (*(s16 *)((u8 *)D_807F70B0 + var_s3 * 0x1C + temp_s6 + 8) << 4) + *(s32 *)((u8 *)D_807F6C18 + temp_s7 + 0x58);
+                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 4) = (s32)list + 8;
+                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 0x14) = (((S55aCell *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
                 }
             }
-            var_a0 += 1;
-        } while (var_a1 != 0);
+            list += 1;
+        } while (size != 0);
     }
 }

@@ -316,7 +316,6 @@ void func_80650ECC(MapData *arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80650ECC.s")
 #endif
 
-#ifdef NON_MATCHING
 typedef struct MapNodeEntry {
     /* 0x00 */ u8 *unk0;
     /* 0x04 */ s16 unk4;
@@ -358,6 +357,7 @@ void func_80651708(s32 arg0) {
             var_a1 = 0xC;
             do {
                 temp_lo = var_a3 * 6;
+                if (var_a1 && var_a1) {}  // FAKE: deadsweep: steers uopt coloring (keeps unk4 temp in a0)
                 var_a3 = var_a2;
                 *(s16 *)(var_v1->unk8 + var_v0 - 0x24) = *(s16 *)(var_v1->unk0 + 0);
                 var_a2 += 1;
@@ -368,14 +368,13 @@ void func_80651708(s32 arg0) {
                 *(s16 *)(var_v1->unk8 + var_v0 - 0x16) = *(s16 *)(var_v1->unk0 + temp_lo + 4);
                 *(s16 *)(var_v1->unk8 + var_v0 - 0x20) = *(s16 *)(var_v1->unk0 + var_a1);
                 *(s16 *)(var_v1->unk8 + var_v0 - 0x1A) = *(s16 *)(var_v1->unk0 + var_a1 + 2);
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x14) = *(s16 *)(var_v1->unk0 + var_a1 + 4);
                 var_v0 += 0x12;
-                *(s16 *)((var_v1->unk8 + var_v0) - 0x14) = *(s16 *)(var_v1->unk0 + var_a1 + 4);
                 var_a1 += 6;
             } while (var_a2 < var_v1->unk4);
         }
     }
-    var_v1->unk12 = -0x8000;
-    var_v1->unk10 = 0x7FFF;
+    var_v1->unk10 = 0x7FFF; var_v1->unk12 = -0x8000;  // FAKE: same-line stores flip the store scheduling order
     var_a2 = 0;
     if (var_v1->unk4 > 0) {
         var_a0_2 = var_v1->unk0;
@@ -391,12 +390,91 @@ void func_80651708(s32 arg0) {
         } while (var_a2 < var_v1->unk4);
     }
 }
+
+#ifdef NON_MATCHING
+typedef struct S55aNode {
+    /* 0x0 */ u32 unk0;
+    /* 0x4 */ s32 unk4;
+} S55aNode;
+
+typedef struct S55aEntry {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ u8 pad2[2];
+    /* 0x04 */ s32 unk4[4];
+    /* 0x14 */ s32 unk14[4];
+} S55aEntry; /* 0x24 */
+
+typedef struct S55aCell {
+    /* 0x00 */ u8 pad0[0x2];
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ u8 pad4[0x4];
+    /* 0x08 */ s16 unk8[4];
+    /* 0x10 */ u8 pad10[0xC];
+} S55aCell; /* 0x1C */
+
+void func_80651904(list, size, buf, count, kind, chunk)
+s32 list;
+s32 size;
+void *buf;
+s32 *count;
+u8 kind;
+s32 chunk;
+{
+    s32 n;
+    s32 key;
+    s32 found;
+    s32 idx;
+    s32 cfound;
+    s32 cidx;
+
+    if (size != 0) {
+        do {
+            idx = 0;
+            found = 0;
+            size -= 8;
+            if ((((S55aNode *)list)->unk0 >> 24) == 0) {
+                n = *count;
+                key = ((S55aNode *)list)->unk4;
+                cidx = 0;
+                cfound = 0;
+                if (n > 0) {
+                    do {
+                        if (key == ((S55aEntry *)buf)[idx].unk0) {
+                            found = 1;
+                        } else {
+                            idx += 1;
+                        }
+                    } while (idx < n && found == 0);
+                }
+                do {
+                    if (key == ((S55aCell *)D_807F70B0)[cidx].unk2) {
+                        cfound = 1;
+                    } else {
+                        cidx += 1;
+                    }
+                } while (cfound == 0);
+                if (found == 0) {
+                    ((S55aEntry *)buf)[n].unk0 = key;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + 4) = -1;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + 8) = -1;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + 0xC) = -1;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + 0x10) = -1;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 4) = list + 8;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 0x14) = (((S55aCell *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
+                    *count += 1;
+                } else {
+                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 4) = list + 8;
+                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 0x14) = (((S55aCell *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
+                }
+            }
+            list += 8;
+        } while (size != 0);
+    }
+}
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651708.s")
-#endif
-
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651904.s")
+#endif
 
 s32 mapChunkIsInUse(s16 arg0) {
     s32 var_v0;
@@ -422,7 +500,44 @@ void mapObjectSetByte(s16 arg0, u8 arg1, u8 arg2) {
     D_807F6C1C[(u32)(arg0 * 2) * 0xA + arg1 * 0xA + 9] = arg2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651C2C.s")
+f32 sqrtf(f32);
+
+void func_80651C2C(s32 arg0, void *arg1p) {
+    s64 a2v;
+    s64 a1v;
+    s64 a0v;
+    s64 b2v;
+    s64 b1v;
+    s64 b0v;
+    s64 x;
+    s64 y;
+    s64 z;
+
+    a0v = (s64)(D_807F6C14[arg0].unk0[0] - D_807F6C14[arg0].unk0[1]);
+    a1v = (s64)(D_807F6C14[arg0].unk10[0] - D_807F6C14[arg0].unk10[1]);
+    a2v = (s64)(D_807F6C14[arg0].unk20[0] - D_807F6C14[arg0].unk20[1]);
+    b0v = (s64)(D_807F6C14[arg0].unk0[0] - D_807F6C14[arg0].unk0[2]);
+    b1v = (s64)(D_807F6C14[arg0].unk10[0] - D_807F6C14[arg0].unk10[2]);
+    b2v = (s64)(D_807F6C14[arg0].unk20[0] - D_807F6C14[arg0].unk20[2]);
+    ((MapGridPoint *)arg1p)->unk0 = a1v * b2v - a2v * b1v;
+    ((MapGridPoint *)arg1p)->unk8 = a2v * b0v - a0v * b2v;
+    ((MapGridPoint *)arg1p)->unk10 = a0v * b1v - a1v * b0v;
+    ((MapGridPoint *)arg1p)->unk18 = (s64)-(((f32)((MapGridPoint *)arg1p)->unk0 * D_807F6C14[arg0].unk0[1] + (f32)((MapGridPoint *)arg1p)->unk8 * D_807F6C14[arg0].unk10[1]) + (f32)((MapGridPoint *)arg1p)->unk10 * D_807F6C14[arg0].unk20[1]);
+    ((MapGridPoint *)arg1p)->unk24 = (f32)(((MapGridPoint *)arg1p)->unk0 * ((MapGridPoint *)arg1p)->unk0 + ((MapGridPoint *)arg1p)->unk8 * ((MapGridPoint *)arg1p)->unk8 + ((MapGridPoint *)arg1p)->unk10 * ((MapGridPoint *)arg1p)->unk10);
+    ((MapGridPoint *)arg1p)->unk20 = sqrtf(((MapGridPoint *)arg1p)->unk24);
+    x = ((MapGridPoint *)arg1p)->unk0 >= 0 ? ((MapGridPoint *)arg1p)->unk0 : 0 - ((MapGridPoint *)arg1p)->unk0;
+    y = ((MapGridPoint *)arg1p)->unk8 >= 0 ? ((MapGridPoint *)arg1p)->unk8 : 0 - ((MapGridPoint *)arg1p)->unk8;
+    z = ((MapGridPoint *)arg1p)->unk10 >= 0 ? ((MapGridPoint *)arg1p)->unk10 : 0 - ((MapGridPoint *)arg1p)->unk10;
+    if ((z >= x) && (z >= y)) {
+        ((MapGridPoint *)arg1p)->unk28 = 0;
+    }
+    if ((y >= x) && (y >= z)) {
+        ((MapGridPoint *)arg1p)->unk28 = 1;
+    }
+    if ((x >= y) && (x >= z)) {
+        ((MapGridPoint *)arg1p)->unk28 = 2;
+    }
+}
 
 struct MapCell;
 
@@ -509,8 +624,7 @@ void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
     *sp40 = renderEntryAddOrUpdate(*sp40, arg0->unk24, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk1C, arg0->unk1E, arg0->unk22, *level, 0);
 }
 
-#ifdef NON_MATCHING
-void func_806307CC(s32, s32, s32, s32, u8 *);
+void func_806307CC(s32, s32, s32, u8, u8 *);
 
 void func_806524A0(s32 arg0, u8 arg1) {
     u8 flag;
@@ -524,10 +638,6 @@ void func_806524A0(s32 arg0, u8 arg1) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806524A0.s")
-#endif
 
 s32 renderEntryRemove(s32, s32, s32, u8 *);
 
@@ -630,35 +740,23 @@ void mapChunkResolveNodeAssets(void) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_80652A08(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
-    s32 var_v1;
-    s32 var_s0;
-    s32 var_s1;
-    void *temp_v0;
+    s32 i;
 
-    var_v1 = D_807F6C28;
-    var_s1 = 0;
-    if (var_v1 > 0) {
-        var_s0 = 0;
+    i = 0;
+    if (D_807F6C28 > 0) {
         do {
-            if (((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk0 == 1 || arg3) {
-                if (((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk6 != 0) {
-                    ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk24 = 0;
+            if (D_807F6C18[i].unk0 == 1 || arg3) {
+                if (D_807F6C18[i].unk6 != 0) {
+                    D_807F6C18[i].unk24 = 0;
                 } else {
-                    ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk24 = spriteListBuildDisplayChain(((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk14, ((MapChunk *)((u8 *)D_807F6C18 + var_s0))->unk1C, arg0, arg1, arg2);
+                    D_807F6C18[i].unk24 = spriteListBuildDisplayChain(D_807F6C18[i].unk14, D_807F6C18[i].unk1C, arg0, arg1, arg2);
                 }
-                var_v1 = D_807F6C28;
             }
-            var_s1 += 1;
-            var_s0 += 0x1C8;
-        } while (var_s1 < var_v1);
+            i += 1;
+        } while (i < D_807F6C28);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652A08.s")
-#endif
 
 typedef struct MapNode {
     /* 0x00 */ s32 unk0;
@@ -2704,7 +2802,6 @@ typedef struct MapPlayerPosition {
 } MapPlayerPosition;
 
 void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-f32 sqrtf(f32);
 
 s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
     f32 sp44;
