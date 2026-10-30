@@ -233,7 +233,7 @@ typedef struct { u8 pad[0x14]; f32 a; f32 b; } RvE_State;
 typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } RvE_Scale;
 typedef struct { RvE_State *state; u8 pad[4]; RvE_Scale *scale; } RvE_Holder;
 typedef struct { u8 pad[4]; RvE_Holder *holder; } RvE_Controller;
-void func_80614644(RvE_Controller *, RvE_State *, f32, s16);
+void func_80614644(RvE_Controller *, RvE_State *, f32);
 
 void func_80613A50(RvE_Controller *arg0, s8 arg1) {
     f32 temp;
@@ -241,7 +241,7 @@ void func_80613A50(RvE_Controller *arg0, s8 arg1) {
     s16 span = (s32)((arg0->holder->scale->b - arg0->holder->scale->a) + 1.0f);
     temp = (arg0->holder->scale->scale * (f32)count) / (f32)span;
     temp += (f32)arg1;
-    func_80614644(arg0, arg0->holder->state, temp, count);
+    func_80614644(arg0, arg0->holder->state, temp);
 }
 
 
@@ -286,7 +286,82 @@ void func_80613C48(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613FB0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614014.s")
+typedef struct {
+    f32 unk0;
+    u16 unk4;
+    u8 pad6[0xC];
+    u8 unk12;
+} RvE3_Resource;
+
+typedef struct {
+    RvE3_Resource *unk0;
+    u8 pad4[0xC];
+    s16 unk10;
+    f32 unk14;
+    f32 unk18;
+    u16 unk1C;
+    u8 pad1E[6];
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+} RvE3_Slot;
+
+typedef struct {
+    void *unk0;
+    RvE3_Slot *unk4;
+    u8 pad8[0x20];
+    s16 unk28;
+    u8 pad2A[2];
+    s16 unk2C;
+    s16 unk2E;
+} RvE3_Anim;
+
+typedef struct {
+    void *unk0;
+    RvE3_Anim *unk4;
+} RvE3_Controller;
+
+void *func_80614130(s32 id);
+
+void func_80614014(RvE3_Controller *arg0, u16 arg1, f32 arg2, u8 arg3) {
+    RvE3_Slot *slot;
+    RvE3_Resource *resource;
+
+    slot = arg0->unk4->unk4;
+    if (slot->unk0 != NULL) {
+        func_80613944(arg0, slot);
+    }
+    resource = func_80614130(arg1);
+    if (resource != NULL) {
+        slot->unk0 = resource;
+        slot->unk10 = arg1;
+        slot->unk1C = resource->unk4;
+        slot->unk14 = 0.0f;
+        slot->unk18 = (f32)(resource->unk12 - 1);
+        slot->unk34 = 0.0f;
+        slot->unk24 = resource->unk0;
+        slot->unk2C = resource->unk0;
+        slot->unk28 = resource->unk0;
+        slot->unk30 = 0.0f;
+        arg0->unk4->unk28 = 0;
+        arg0->unk4->unk2C = 0xFF;
+        arg0->unk4->unk2E = arg3;
+    } else {
+        slot->unk0 = NULL;
+        slot->unk10 = -1;
+        slot->unk1C = 0;
+        slot->unk14 = 0.0f;
+        slot->unk34 = 0.0f;
+        slot->unk24 = 0.0f;
+        slot->unk2C = 0.0f;
+        slot->unk28 = 0.0f;
+        slot->unk30 = 0.0f;
+        slot->unk18 = 0;
+    }
+    func_80614644((RvE_Controller *)arg0, (RvE_State *)slot, arg2);
+}
 
 typedef struct {
     s32 id;
