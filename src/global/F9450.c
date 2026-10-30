@@ -20,8 +20,6 @@ void func_806F4750(void) {
     func_806F4778();
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F4778.s")
-
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -31,6 +29,223 @@ typedef struct {
 
 extern F9N3_FloatTableEntry D_807FD740[];
 extern s32 D_807FD780[];
+
+struct F9F1_Node;
+struct F9A_LinkedNode;
+
+typedef struct F94A_Node {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    u8 unkE;
+    u8 padF;
+    s16 unk10;
+    u8 unk12;
+    u8 unk13;
+    u8 unk14;
+    u8 pad15[3];
+    struct F94A_Node *unk18;
+} F94A_Node;
+
+typedef struct {
+    u8 pad0[0x28];
+    u16 unk28;
+    s16 unk2A;
+    u8 pad2C[4];
+} F94A_Entry;
+
+typedef struct {
+    s16 unk0;
+    u8 pad2[0xA];
+    s16 unkC;
+    u8 padE[6];
+} F94A_TypeEntry;
+
+extern s16 D_80753EF0;
+extern struct F9F1_Node **D_80754244;
+extern void *D_80754240;
+extern u16 D_807F9450;
+extern u16 D_807F9452;
+extern u16 D_807F9454;
+extern u16 D_807F9456;
+extern s32 D_807FBB64;
+extern s16 D_807FD720;
+extern s16 D_807FD722;
+extern s16 D_807FD724;
+extern s16 D_807FD726;
+extern s16 D_807FD728;
+extern struct F9F1_Node *D_807FD72C;
+extern struct F9A_LinkedNode *D_807FD730;
+extern u8 D_807FD738;
+extern u8 D_807FD798;
+void *heapAlloc(s32);
+void heapClearBlock(void *);
+void heapFree(void *);
+void *memcpy(void *, const void *, unsigned int);
+u16 modelTypeCountBeforeMap(u8);
+s32 modelTypeIsCounted(u16);
+void modelAssetGetSubtables(u8 *, u8 **, u8 **);
+s32 modelSlotFindByType(s32, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *);
+void *assetLoad(s32, u32, u8, u8);
+void assetSetImmediateFree(void);
+void assetFreeBuffer(void *, s32, s32);
+void slotQueueInit(s32);
+
+void func_806F4778(void) {
+    s32 cookie;
+    s32 found;
+    f32 posX;
+    f32 posY;
+    f32 posZ;
+    s16 modelId;
+    s16 type;
+    F94A_Node *head;
+    F94A_TypeEntry *typeEntry;
+    F94A_Node *node;
+    F94A_Node *tail;
+    F94A_Node *copy;
+    s16 zlo;
+    s32 cellIdx;
+    s32 xi;
+    s32 zi;
+    s32 i;
+    F94A_Entry *p;
+    s32 idx;
+    u8 *asset;
+    u8 *sub;
+    u8 *unusedOut;
+    s32 entryCount;
+    F94A_Entry *entries;
+    u16 baseCount;
+    u16 count;
+    s16 sp66;
+    s16 pad66;
+
+    tail = NULL;
+    head = NULL;
+    entryCount = 0;
+    D_807FD738 = 0;
+    if (D_807FBB64 & 0x10000) {
+        D_80754240 = heapAlloc(0x4B0);
+        heapClearBlock(D_80754240);
+    } else {
+        D_80754240 = NULL;
+    }
+    baseCount = modelTypeCountBeforeMap(D_8076A0A8);
+    asset = assetLoad(9, D_8076A0A8, 1, 1);
+    if (asset != NULL) {
+        modelAssetGetSubtables(asset, &sub, &unusedOut);
+        entryCount = *(s32 *) sub;
+        entries = (F94A_Entry *) (sub + 4);
+    }
+    D_807FD726 = 0;
+    D_807FD728 = 0;
+    D_807FD730 = NULL;
+    D_807FD72C = NULL;
+    for (i = 0; i < D_807FC928; i++) {
+        D_807FD740[i].unk0 = 0.0f;
+        D_807FD740[i].unk4 = 0.0f;
+        D_807FD740[i].unk8 = 0.0f;
+        D_807FD740[i].unkC = 0.0f;
+        D_807FD780[i] = 0;
+    }
+    D_807FD798 = 0;
+    slotQueueInit(1);
+    typeEntry = (F94A_TypeEntry *) &D_80753EF0;
+    for (i = 0; i < 0x2AU; i++) {
+        type = typeEntry->unk0;
+        cookie = 0;
+        if (modelSlotFindByType(type, &cookie, &posX, &posY, &posZ, &modelId, &sp66) != 0) {
+            do {
+                node = heapAlloc(0x1C);
+                node->unk8 = posX;
+                node->unkA = posY;
+                node->unkC = posZ;
+                node->unk0 = modelId;
+                node->unk4 = typeEntry->unkC;
+                node->unk2 = type;
+                node->unkE = 0;
+                node->unk10 = 0;
+                node->unk12 = 1;
+                node->unk13 = 0;
+                node->unk14 = i;
+                if (modelTypeIsCounted(typeEntry->unk0) != 0) {
+                    found = 0;
+                    idx = 0;
+                    count = 0;
+                    while (found == 0 && idx < entryCount) {
+                        if (sp66 == entries[idx].unk2A) {
+                            found = 1;
+                        } else {
+                            idx++;
+                        }
+                        if (found == 0 && modelTypeIsCounted(entries[idx - 1].unk28) != 0) {
+                            count++;
+                        }
+                    }
+                    if (found != 0) {
+                        node->unk6 = baseCount + count;
+                    } else {
+                        node->unk6 = -1;
+                    }
+                } else {
+                    node->unk6 = -1;
+                }
+                node->unk18 = NULL;
+                if (tail != NULL) {
+                    tail->unk18 = node;
+                } else {
+                    head = node;
+                }
+                tail = node;
+            } while (modelSlotFindByType(type, &cookie, &posX, &posY, &posZ, &modelId, &sp66) != 0);
+        }
+        typeEntry++;
+    }
+    D_807FD726 = D_807F9450 * D_807F9454;
+    D_807FD728 = D_807F9452 * D_807F9456;
+    D_807FD722 = D_807FD726 / 500 + 1;
+    D_807FD724 = D_807FD728 / 500 + 1;
+    D_807FD720 = D_807FD722 * D_807FD724;
+    D_80754244 = heapAlloc(D_807FD720 * 4);
+    cellIdx = 0;
+    for (zi = 0; zi < D_807FD724; zi++) {
+        for (xi = 0; xi < D_807FD722; xi++) {
+            ((F94A_Node **) D_80754244)[cellIdx] = NULL;
+            tail = NULL;
+            for (node = head; node != NULL; node = node->unk18) {
+                if (node->unk8 >= (s16) (xi * 500) && node->unk8 < (s16) (xi * 500 + 500)) {
+                    zlo = zi * 500;
+                    if (node->unkC >= zlo && node->unkC < (s16) (zi * 500 + 500)) {
+                        copy = heapAlloc(0x1C);
+                        memcpy(copy, node, 0x1C);
+                        copy->unk18 = NULL;
+                        if (tail != NULL) {
+                            tail->unk18 = copy;
+                        } else {
+                            ((F94A_Node **) D_80754244)[cellIdx] = copy;
+                        }
+                        tail = copy;
+                    }
+                }
+            }
+            cellIdx++;
+        }
+    }
+    while (head != NULL) {
+        node = head;
+        head = node->unk18;
+        heapFree(node);
+    }
+    if (entryCount != 0) {
+        assetSetImmediateFree();
+        assetFreeBuffer(asset, 0x1C0, 0x14);
+    }
+}
 
 void func_806F4D70(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     unsigned short temp_t6;
@@ -47,9 +262,35 @@ void func_806F4D70(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     D_807FD780[temp_t6] = 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F4DC0.s")
+typedef struct F9A_PositionNode {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    struct F9A_PositionNode *next;
+} F9A_PositionNode;
 
-extern s16 D_80753EF0;
+void heapFreeDeferred(void *);
+
+void func_806F4DC0(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
+    F9A_PositionNode **var_v1;
+    F9A_PositionNode *var_v0;
+    F9A_PositionNode *temp_v0;
+
+    var_v1 = (F9A_PositionNode **) &D_807FD780[arg0];
+    while (*var_v1 != NULL) {
+        var_v1 = &(*var_v1)->next;
+    }
+    temp_v0 = heapAlloc(0x14);
+    *var_v1 = temp_v0;
+    heapClearBlock(temp_v0);
+    (*var_v1)->unk0 = arg1;
+    (*var_v1)->unk4 = arg2;
+    (*var_v1)->unk8 = arg3;
+    (*var_v1)->unkC = arg4;
+    heapFreeDeferred(*var_v1);
+}
+
 
 s32 func_806F4E74(s16 arg0) {
     s16 *var_a1;
@@ -70,8 +311,6 @@ s32 func_806F4E74(s16 arg0) {
     return var_v1;
 }
 
-extern s16 D_807FD722;
-extern s16 D_807FD724;
 
 s32 gridCoordsToIndex(f32 arg0, f32 arg1) {
     s32 temp_ft1;
@@ -112,14 +351,100 @@ typedef struct F9F1_Node {
 
 extern s8 D_807FCC4B[];
 extern F9F1_Node **D_80754244;
-extern s16 D_807FD726;
-extern s16 D_807FD728;
 extern F9F1_Node *D_807FD72C;
 void func_806F6204(F9F1_Node *, u8, F9F1_Rect *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F4F50.s")
+s32 gridCoordsToIndex(f32, f32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F50C8.s")
+void func_806F4F50(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
+    s32 pad[4];
+    F9F1_Node *node;
+    F9F1_Node *prev;
+    s32 i;
+    s32 found;
+    s32 idx;
+
+    i = 0;
+    found = 0;
+    while (found == 0 && i < D_807FD720) {
+        prev = NULL;
+        node = D_80754244[i];
+        while (node != NULL && arg0 != node->unk0) {
+            prev = node;
+            node = node->next;
+        }
+        if (node != NULL && arg0 == node->unk0) {
+            found = 1;
+            if (prev != NULL) {
+                prev->next = node->next;
+            } else {
+                D_80754244[i] = node->next;
+            }
+        }
+        i++;
+    }
+    idx = gridCoordsToIndex(arg1, arg3);
+    if (D_807FD720 >= idx && idx >= 0) {
+        node->next = D_80754244[idx];
+        D_80754244[idx] = node;
+        node->unk8 = (s16) arg1;
+        node->unkA = (s16) arg2;
+        node->unkC = (s16) arg3;
+    }
+}
+
+extern s16 D_80753EFC[];
+void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, u8);
+s32 func_806F4E74(s16);
+
+void func_806F50C8(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
+    F9F1_Node *node;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 u54;
+    f32 u50;
+    f32 u4C;
+    f32 u48;
+    f32 u44;
+    s32 idx;
+    s32 type;
+    F9F1_Node **tail;
+    F9F1_Node *cur;
+
+    modelSlotGetTransformVectors(arg0, &x, &y, &z, &u54, &u50, &u4C, &u48, &u44, 1);
+    if (arg5 || ((idx = gridCoordsToIndex(x, z), (D_807FD720 >= idx)) && (idx >= 0))) {
+        node = heapAlloc(0x1C);
+        node->unk8 = (s16) x;
+        node->unkA = (s16) y;
+        node->unkC = (s16) z;
+        node->unk0 = arg0;
+        type = func_806F4E74(arg1);
+        node->unk4 = *(s16 *) ((u8 *) D_80753EFC + type * 20);
+        node->unk2 = arg1;
+        node->unkE = 0;
+        node->unk10 = arg2;
+        node->unk12 = arg3;
+        node->unk6 = -1;
+        node->unk13 = arg4;
+        node->unk14 = type;
+        node->next = NULL;
+        if (arg5) {
+            tail = &D_807FD72C;
+            cur = D_807FD72C;
+        } else {
+            cur = D_80754244[idx];
+            tail = &D_80754244[idx];
+        }
+        if (cur != NULL) {
+            do {
+                tail = &cur->next;
+                cur = cur->next;
+            } while (cur != NULL);
+        }
+        *tail = node;
+    }
+}
 
 typedef struct F9A_LinkedNode {
     s16 unk0;
@@ -131,8 +456,6 @@ typedef struct F9A_LinkedNode {
 } F9A_LinkedNode;
 
 extern F9A_LinkedNode *D_807FD730;
-void heapFree(void *);
-extern s16 D_807FD720;
 void slotQueueReleaseAll(void);
 
 void gridFreeAllNodeLists(void) {
@@ -193,8 +516,7 @@ typedef struct F9A_CleanupNode {
 
 
 
-extern u8 D_807FD738;
-void func_806F54E0(s32, s16, u8);
+void func_806F54E0();
 void modelSlotFreeByIndex(s16, s32);
 
 void func_806F5378(void) {
@@ -234,7 +556,6 @@ typedef struct {
     u8 unk1A;
 } F9A_DestinationNode;
 
-void *heapAlloc(s32);
 
 F9A_DestinationNode *func_806F53EC(F9A_SourceNode *arg0) {
     F9A_DestinationNode *temp_v0;
@@ -270,7 +591,94 @@ void func_806F5498(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F54E0.s")
+s32 func_805FF030(u8, s32);
+s32 flagGridIndex(s32, s32, u8);
+s32 func_806C9974(u8, s8);
+void func_8060DEC8(void);
+void slotQueueAddValue(s32, u8, s32);
+void func_80609140(s32, s32, f32, f32, s32, s32);
+extern s8 D_80029FA0;
+extern s8 D_80753EF2[];
+extern u8 D_8076A0AB;
+
+typedef struct {
+    u8 pad0[6];
+    u16 unk6;
+    u8 pad8[0x56];
+} F9L3_Action;
+
+typedef struct {
+    F9L3_Action sub[8];
+    u8 pad2F0[0x306 - 8 * 0x5E];
+} F9L3_PlayerData;
+
+extern F9L3_PlayerData D_807FC950[];
+
+void func_806F54E0(arg0, arg1, arg2)
+s32 arg0;
+s32 arg1;
+u8 arg2;
+{
+    s32 i;
+    s32 temp_v0;
+    u8 shouldComplete;
+
+    shouldComplete = 0;
+    if ((D_807FBB64 & 0x10000000) && (arg1 != 0x56)) {
+        D_80029FA0--;
+        return;
+    }
+    if (D_8076A0A8 != 0xF) {
+        temp_v0 = func_806F4E74(arg1);
+        temp_v0 = func_806F544C(D_80753EF2[temp_v0 * 0x14], arg1, arg2);
+        switch (arg1) {
+        case 0xDD: case 0xDE: case 0xDF: case 0xE0: case 0xE1:
+            flagSet((s16) flagGridIndex(0x1D5, func_805FF030(D_8076A0AB, 1), D_8074E77C[(u8)arg0]), 1, 0);
+        case 0x74: case 0x288:
+            slotQueueAddValue(temp_v0, arg0, 1);
+            shouldComplete = 1;
+            break;
+        case 0x91: case 0x15D: case 0x15E: case 0x15F: case 0x160:
+            if (D_807FC928 == 1) {
+                func_80609140(0x331, 0x7FFF, 63.0f, 1.0f, 5, 0);
+            }
+        case 0xA: case 0xD: case 0x16: case 0x1E: case 0x1F:
+            flagSet(0x18B, 1, 0);
+            slotQueueAddValue(temp_v0, arg0, 1);
+            break;
+        case 0x1C: case 0x1D: case 0x23: case 0x24: case 0x27:
+            flagSet(0x18C, 1, 0);
+        case 0x98: case 0xEC: case 0x1D2:
+            slotQueueAddValue(temp_v0, arg0, 1);
+            break;
+        case 0x56:
+            flagSet(0x173, 1, 0);
+            slotQueueAddValue(temp_v0, arg0, 1);
+            break;
+        case 0xB7:
+            for (i = 0; i < 5; i++) {
+                D_807FC950[(u8)arg0].sub[i].unk6 += 5;
+            }
+            func_806F5498();
+            break;
+        case 0x8E:
+            slotQueueAddValue(temp_v0, arg0, 0x96);
+            break;
+        case 0x57:
+            func_806C9974(arg0, 1);
+            break;
+        case 0x13C:
+            shouldComplete = 1;
+            break;
+        case 0x18D:
+            shouldComplete = 1;
+            break;
+        }
+        if (shouldComplete != 0) {
+            func_8060DEC8();
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F58A0.s")
 
@@ -351,7 +759,6 @@ void gridDispatchRect(u8 arg0, F9F1_Rect *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6F28.s")
 
-extern u8 D_807FD798;
 extern s16 D_807FD790;
 
 s32 listContainsS16(s16 arg0) {
@@ -398,7 +805,6 @@ typedef struct {
 extern Actor *D_807FBB4C;
 extern u8 D_80745838;
 
-void func_80609140(s32, s32, f32, f32, s32, s32);
 void func_80687C48(void);
 void func_80687CC8(void);
 void playerStateQueueCallback();
