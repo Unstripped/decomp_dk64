@@ -69,7 +69,8 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
     (`u8 sel` instead of `s32 sel`);
   - one global with two struct types: keep the wider struct (indexed with the right stride),
     `typedef` the other name to it or delete it and adapt users; scalar vs array: keep the
-    array;
+    array; one agent's `extern void *G;` above another's `extern T *G;`: make the first
+    `extern struct T *G;` and give `T`'s typedef that tag (2 clashes this way in one unit);
   - two callers with different prototypes for one cross-file callee: pick the one consistent
     with the callee's asm (an int `a3` is homed with `sw`, an f32 goes through `mtc1`); keep a
     needed extra argument via an unprototyped declaration (`void f();`);

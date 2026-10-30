@@ -98,7 +98,8 @@ swapped externs in a comparison look identical in the text.
   prototype the orchestrator must change instead). If your function calls or is called by
   a function matched in another agent's range, its declaration must agree with that
   definition (cfe rejects a K&R `void f();` next to a prototyped `void f(s32, f32)`
-  definition): read the callee/caller first. Prefix new type names with your agent name.
+  definition): read the callee/caller first. Prefix new type names with your agent name,
+  also types copied from a stored draft (two agents reusing one draft's `F9N6_` clashed).
   When you revert a function to GLOBAL_ASM, delete the declarations you added for it.
   Don't reorder or reformat; never search-and-replace across the file (it rewrote a parked function).
   Never move an existing block (typedefs/externs) even if your function sits above it:
@@ -107,8 +108,7 @@ swapped externs in a comparison look identical in the text.
   Other agents' merges land in `src` while you work: before declaring a callee or global
   your file may already have, grep the current file too (`grep -n <name> src/<seg>/<file>.c`)
   and reuse that declaration's exact type.
-- If your task says your private copy already exists (a relaunched agent), do not
-  re-create it: fdiff it first and continue from it.
+- Relaunched agent whose private copy already exists: fdiff it and continue; never re-create it.
 - Skip formatters and linters. NEVER edit `tools/`, `Makefile` or the splat configs.
 
 # Large functions and near-misses
@@ -116,9 +116,9 @@ swapped externs in a comparison look identical in the text.
   permuter search-hint rule, NON_MATCHING parking) with these exceptions: no ROM build (your
   gates are `fdiff.sh` OK/TEXT OK and `--non-matching`), `uopt_trace.sh` before guessing at
   any register question, permuter always with `-j 2` and a `--seconds` limit (shared CPU).
-  At stage 4+ run `tools/dk python3 tools/deadsweep.py sweep <copy> <src> FUNC` first (greedy
-  dead-statement insertion; read its docstring). Report the stage reached (1–6) for every
-  unmatched function.
+  At stage 4+ run `tools/dk python3 tools/deadsweep.py sweep <copy> <src> FUNC --extra <each
+  local>` first (dead local uses matched 4 stalled parks; reject one placed before the local's
+  first assignment). Report the stage reached (1–6) for every unmatched function.
 - Any construct you keep only to steer codegen (deadsweep statements, `volatile`, `x ^ 0`,
   `do {} while (0)`) ends in a trailing `// FAKE: <what it steers>` comment (AGENTS.md
   Conventions); keep deadsweep's own tag. Shared globals use the type most of `src/` gives
