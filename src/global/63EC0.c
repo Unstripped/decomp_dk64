@@ -337,7 +337,76 @@ Gfx *func_8065FEB8(Gfx *gdl, EffectNode *water) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80660070.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80660520.s")
+typedef struct EffBHeightSub {
+    u8 pad0[0xC];
+    f32 unkC;
+    f32 unk10;
+    u8 pad14[0x46 - 0x14];
+    s16 unk46;
+    s16 unk48;
+    s16 unk4A;
+    s16 unk4C;
+    s16 unk4E;
+    u8 pad50[0x64 - 0x50];
+    u8 unk64;
+    u8 unk65;
+    u8 unk66;
+} EffBHeightSub;
+
+f32 func_806608FC(EffectNode *, s32, s32, u8);
+
+#define EFFB_HSUB ((EffBHeightSub *)water->unk0)
+void func_80660520(Vtx *vtx, EffectNode *water) {
+    s32 countX;
+    s32 countZ;
+    s16 maxX;
+    s16 maxZ;
+    s16 step;
+    s16 minX;
+    s16 minZ;
+    s16 x;
+    s16 z;
+    s32 j;
+    s32 i;
+    f32 baseHeight;
+    f32 heightScale;
+    f32 h;
+    u8 alphaMax;
+    u8 alphaBase;
+    u8 flag;
+
+    step = water->unk2C;
+    minX = EFFB_HSUB->unk46;
+    maxX = EFFB_HSUB->unk4A;
+    minZ = EFFB_HSUB->unk48;
+    maxZ = EFFB_HSUB->unk4C;
+    baseHeight = (f32)EFFB_HSUB->unk4E + water->unk4;
+    heightScale = EFFB_HSUB->unk10 + EFFB_HSUB->unkC;
+    alphaMax = EFFB_HSUB->unk65;
+    alphaBase = EFFB_HSUB->unk64;
+    flag = D_80748AA5[EFFB_HSUB->unk66].unk0;
+    countX = ((maxX - minX) / step) + 1;
+    countZ = ((maxZ - minZ) / step) + 1;
+    z = minZ;
+    for (j = 0; j <= countZ; j++) {
+        x = minX;
+        for (i = 0; i <= countX; i++) {
+            if (maxX < x) {
+                x = maxX;
+            }
+            if (maxZ < z) {
+                z = maxZ;
+            }
+            h = func_806608FC(water, x, z, flag);
+            vtx->v.ob[1] = h * 3.0f;
+            vtx->v.cn[3] = (u32)(((h - baseHeight) / heightScale) * (f32)alphaMax + (f32)alphaBase);
+            vtx++;
+            x += step;
+        }
+        z += step;
+    }
+}
+#undef EFFB_HSUB
 
 typedef struct WaterEffectSubNode {
     u8 pad[0x46];
@@ -385,9 +454,182 @@ void effectWaterSetMeshColors(Vtx *vtx, EffectNode *water) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_806608FC.s")
+f32 func_80612794(s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_80660D38.s")
+#ifdef NON_MATCHING
+typedef struct EffBHeightSub2 {
+    u8 pad0[4];
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    u8 pad14[0x46 - 0x14];
+    s16 unk46;
+    s16 unk48;
+    s16 unk4A;
+    s16 unk4C;
+    s16 unk4E;
+} EffBHeightSub2;
+
+f32 sqrtf(f32);
+
+f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
+    s32 temp1;
+    s32 temp;
+    EffBHeightSub2 * sub;
+    f32 dx;
+    f32 dz;
+    f32 dist;
+    f32 diff;
+    f32 h;
+    f32 baseH;
+    f32 edgeDist;
+    s32 d;
+    f32 sin1;
+
+    switch (type) {
+    case 0:
+        {
+            temp1 = (s32)(((EffBHeightSub2 *)water->unk0)->unk4 * (f32)arg1);
+            temp = (s32)(((EffBHeightSub2 *)water->unk0)->unk8 * (f32)arg2);
+            sin1 = func_80612794((s16)((water->unk30 + temp1) % 4095));
+        }
+        return (func_80612794((s16)((water->unk34 + temp) % 4095)) * ((EffBHeightSub2 *)water->unk0)->unk10) + ((f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4 + (((EffBHeightSub2 *)water->unk0)->unkC * sin1));
+
+    case 1:
+    case 2:
+        if (D_807F93C4 != 0) {
+            dz = (f32)arg2 - D_807F93C8[1];
+            dx = (f32)arg1 - D_807F93C8[0];
+            dist = sqrtf((dz * dz) + (dx * dx));
+            if (dist < D_807F93DC) {
+                diff = D_807F93DC - dist;
+            } else {
+                diff = -(D_807F93DC - dist);
+            }
+            if (D_807F93DC < D_807F93E8) {
+                h = D_807F93D4;
+            } else if (D_807F93E4 < D_807F93DC) {
+                h = 0.0f;
+            } else {
+                h = (f32)((f64)D_807F93D4 + ((0.0 - (f64)D_807F93D4) * (f64)((D_807F93DC - D_807F93E8) / (D_807F93E4 - D_807F93E8))));
+            }
+            if ((f64)diff < 50.0) {
+                baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
+                h += baseH;
+            } else if ((f64)diff > 150.0) {
+                baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
+                h = baseH;
+            } else {
+                baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
+                h = (f32)((f64)baseH + ((f64)h + ((0.0 - (f64)h) * (((f64)diff - 50.0) / 100.0))));
+            }
+        } else {
+            baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
+            h = baseH;
+        }
+
+        if (type == 2) {
+            sub = (EffBHeightSub2 *)water->unk0;
+            d = arg1 - sub->unk46;
+            edgeDist = (f32)(d > 0 ? d : -d);
+
+            d = arg1 - sub->unk4A;
+            dx = (f32)(d > 0 ? d : -d);
+            if (dx < edgeDist) edgeDist = dx;
+
+            d = arg2 - sub->unk4C;
+            dx = (f32)(d > 0 ? d : -d);
+            if (dx < edgeDist) edgeDist = dx;
+            if (D_807F93E4 && D_807F93E4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+
+            d = arg2 - sub->unk48;
+            dx = (f32)(d > 0 ? d : -d);
+            if (dx < edgeDist) edgeDist = dx;
+
+            if ((f64)edgeDist < 100.0) {
+                h = (f32)((f64)baseH + ((f64)(h - baseH) * ((f64)edgeDist / 100.0)));
+            }
+        }
+        return h;
+
+    default:
+        return 0.0f;
+    }
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_806608FC.s")
+#endif
+
+typedef struct EffBWaterSub {
+    f32 unk0;
+    u8 pad4[0x18];
+    f32 unk1C;
+    f32 unk20;
+    f32 unk24;
+    f32 unk28;
+    u8 pad2C[0x46 - 0x2C];
+    s16 unk46;
+    s16 unk48;
+    s16 unk4A;
+    s16 unk4C;
+} EffBWaterSub;
+
+#define EFFB_SUB ((EffBWaterSub *)water->unk0)
+void func_80660D38(Vtx *vtx, EffectNode *water) {
+    s32 countX;
+    s32 countZ;
+    s16 maxX;
+    s16 maxZ;
+    s16 step;
+    s16 minX;
+    s16 minZ;
+    s16 x;
+    s16 z;
+    s32 j;
+    s32 i;
+    s16 posX;
+    s16 posZ;
+    s32 offX;
+    s32 offZ;
+    s32 tcX;
+    s32 tcZ;
+
+    step = water->unk2C;
+    minX = EFFB_SUB->unk46;
+    maxX = EFFB_SUB->unk4A;
+    minZ = EFFB_SUB->unk48;
+    maxZ = EFFB_SUB->unk4C;
+    countX = ((maxX - minX) / step) + 1;
+    countZ = ((maxZ - minZ) / step) + 1;
+    z = minZ;
+    for (j = 0; j <= countZ; j++) {
+        x = minX;
+        for (i = 0; i <= countX; i++) {
+            if (maxX < x) {
+                x = maxX;
+            }
+            if (maxZ < z) {
+                z = maxZ;
+            }
+            offX = (s32)(EFFB_SUB->unk1C * (f32)x);
+            offZ = (s32)(EFFB_SUB->unk20 * (f32)z);
+            posX = (func_80612794((water->unk38 + offX) & 0xFFF) * EFFB_SUB->unk24) + (f32)x;
+            posZ = (func_80612794((water->unk3C + offZ) & 0xFFF) * EFFB_SUB->unk28) + (f32)z;
+            vtx->v.ob[0] = posX * 3;
+            vtx->v.ob[2] = posZ * 3;
+            tcX = (s32)((f32)x * EFFB_SUB->unk0);
+            tcZ = (s32)((f32)z * EFFB_SUB->unk0);
+            vtx->v.tc[0] = tcX % 0x7FFF;
+            vtx->v.tc[1] = tcZ % 0x7FFF;
+            vtx++;
+            x += step;
+        }
+        z += step;
+    }
+}
+#undef EFFB_SUB
 
 s32 mathBitwiseNot(s32 arg0) {
     return ~arg0;

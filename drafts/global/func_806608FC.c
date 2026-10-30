@@ -1,5 +1,5 @@
-// func_806608FC (src/global/63EC0.c): from .scratch/R4A63EC0/func_806608FC_best.c
-typedef struct R4A_SubStruct {
+// func_806608FC (src/global/63EC0.c): stage 5: frame/callee-saved match; 32 text lines differ: dz/dx f0/f2 swap, h f14 vs f18, 100.0 const not hoisted into f14, type spill slot 32 vs 36; 1 deadsweep fake (D_807F93E4)
+typedef struct EffBHeightSub2 {
     u8 pad0[4];
     f32 unk4;
     f32 unk8;
@@ -11,28 +11,33 @@ typedef struct R4A_SubStruct {
     s16 unk4A;
     s16 unk4C;
     s16 unk4E;
-} R4A_SubStruct;
+} EffBHeightSub2;
 
 f32 func_80612794(s16);
+f32 sqrtf(f32);
 
 f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
-    f32 sin1;
+    s32 temp1;
     s32 temp;
-    R4A_SubStruct *sub;
-    f32 dx, dz, dist, diff;
-    f32 h, baseH;
+    EffBHeightSub2 * sub;
+    f32 dx;
+    f32 dz;
+    f32 dist;
+    f32 diff;
+    f32 h;
+    f32 baseH;
     f32 edgeDist;
+    s32 d;
+    f32 sin1;
 
     switch (type) {
     case 0:
-        sub = (R4A_SubStruct *)water->unk0;
         {
-            s32 temp1 = (s32)(sub->unk4 * (f32)arg1);
-            temp = (s32)(sub->unk8 * (f32)arg2);
+            temp1 = (s32)(((EffBHeightSub2 *)water->unk0)->unk4 * (f32)arg1);
+            temp = (s32)(((EffBHeightSub2 *)water->unk0)->unk8 * (f32)arg2);
             sin1 = func_80612794((s16)((water->unk30 + temp1) % 4095));
         }
-        sub = (R4A_SubStruct *)water->unk0;
-        return (func_80612794((s16)((water->unk34 + temp) % 4095)) * sub->unk10) + ((f32)sub->unk4E + water->unk4 + (sub->unkC * sin1));
+        return (func_80612794((s16)((water->unk34 + temp) % 4095)) * ((EffBHeightSub2 *)water->unk0)->unk10) + ((f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4 + (((EffBHeightSub2 *)water->unk0)->unkC * sin1));
 
     case 1:
     case 2:
@@ -53,38 +58,37 @@ f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
                 h = (f32)((f64)D_807F93D4 + ((0.0 - (f64)D_807F93D4) * (f64)((D_807F93DC - D_807F93E8) / (D_807F93E4 - D_807F93E8))));
             }
             if ((f64)diff < 50.0) {
-                baseH = (f32)((R4A_SubStruct *)water->unk0)->unk4E + water->unk4;
+                baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
                 h += baseH;
             } else if ((f64)diff > 150.0) {
-                baseH = (f32)((R4A_SubStruct *)water->unk0)->unk4E + water->unk4;
+                baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
                 h = baseH;
             } else {
-                baseH = (f32)((R4A_SubStruct *)water->unk0)->unk4E + water->unk4;
+                baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
                 h = (f32)((f64)baseH + ((f64)h + ((0.0 - (f64)h) * (((f64)diff - 50.0) / 100.0))));
             }
         } else {
-            baseH = (f32)((R4A_SubStruct *)water->unk0)->unk4E + water->unk4;
+            baseH = (f32)((EffBHeightSub2 *)water->unk0)->unk4E + water->unk4;
             h = baseH;
         }
 
         if (type == 2) {
-            s32 d;
-            sub = (R4A_SubStruct *)water->unk0;
+            sub = (EffBHeightSub2 *)water->unk0;
             d = arg1 - sub->unk46;
-            if (d < 0) d = -d;
-            edgeDist = (f32)d;
+            edgeDist = (f32)(d > 0 ? d : -d);
 
             d = arg1 - sub->unk4A;
-            if (d < 0) d = -d;
-            if ((f32)d < edgeDist) edgeDist = (f32)d;
+            dx = (f32)(d > 0 ? d : -d);
+            if (dx < edgeDist) edgeDist = dx;
 
             d = arg2 - sub->unk4C;
-            if (d < 0) d = -d;
-            if ((f32)d < edgeDist) edgeDist = (f32)d;
+            dx = (f32)(d > 0 ? d : -d);
+            if (dx < edgeDist) edgeDist = dx;
+            if (D_807F93E4 && D_807F93E4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
 
             d = arg2 - sub->unk48;
-            if (d < 0) d = -d;
-            if ((f32)d < edgeDist) edgeDist = (f32)d;
+            dx = (f32)(d > 0 ? d : -d);
+            if (dx < edgeDist) edgeDist = dx;
 
             if ((f64)edgeDist < 100.0) {
                 h = (f32)((f64)baseH + ((f64)(h - baseH) * ((f64)edgeDist / 100.0)));
