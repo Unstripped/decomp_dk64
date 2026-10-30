@@ -1,6 +1,45 @@
 #include "common.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/16A20/func_80611D20.s")
+extern u16 D_80746A50[];
+extern u16 D_80746ACC[];
+extern u16 D_80746B4C[];
+
+s32 func_80611D20(s32 arg0) {
+    u32 val;
+    u16 *var_a2;
+    s32 var_a1;
+    s32 var_v1;
+    s32 index;
+    u16 temp_a3;
+    u16 next;
+    s32 masked;
+    s32 diff;
+
+    var_v1 = 7;
+    if (arg0 >= 0x7FE0) {
+        var_a1 = 3;
+        var_a2 = D_80746B4C;
+        arg0 -= 0x7FE0;
+    } else {
+        var_v1 = 0x1FF;
+        if (arg0 >= 0x7800) {
+            var_v1 = 0x1F;
+            var_a1 = 5;
+            var_a2 = D_80746ACC;
+            arg0 -= 0x7800;
+        } else {
+            var_a1 = 9;
+            var_a2 = D_80746A50;
+        }
+    }
+    index = arg0 >> var_a1;
+    temp_a3 = var_a2[index];
+    next = var_a2[index + 1];
+    masked = arg0 & var_v1;
+    val = temp_a3;
+    diff = val - next;
+    return val - (((s32)(((u32)diff) * masked)) >> var_a1);
+}
 
 s32 func_80611D20(s32);
 

@@ -75,10 +75,47 @@ command_lookup:
         }
     }
 }
+void *assetLoad(s32, s32, s32, s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_806133C8.s")
+void func_806133C8(ControllerCommand *arg0, ControllerCommand *arg1) {
+    u32 temp_v0;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613448.s")
+    if (arg0 != arg1) {
+        do {
+            temp_v0 = arg0->unk0;
+            if ((temp_v0 >> 0x18) == (0, 0xFD)) {
+                temp_v0 = arg0->unk4;
+                if (((temp_v0 * 0x10) >> 0x1C) == 0) {
+                    arg0->unk4 = (u32)assetLoad(0x19, temp_v0 ^ 0, 0, 0); // FAKE: steers move a1, v0 into delay slot
+                }
+            }
+            arg0++;
+        } while (arg0 != arg1);
+    }
+}
+
+typedef struct {
+    u16 unk0;
+    u16 unk2;
+    u32 unk4;
+    u32 unk8;
+} RvD_StateEntry;
+
+extern RvD_StateEntry D_807FB630[];
+
+u16 func_80613448(u32 *arg0) {
+    u32 val = *arg0;
+    s32 i;
+    for (i = (u16)D_807FBB30; i >= 0; i--) {
+        if (val == D_807FB630[i].unk4) {
+            break;
+        }
+    }
+    if (i >= 0) {
+        return D_807FB630[i].unk0;
+    }
+    return 0;
+}
 
 typedef struct {
     void *unk0;

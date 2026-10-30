@@ -1,8 +1,13 @@
 #include "common.h"
 
 extern s32 D_80746A40;
+extern u64 __ll_mul(u64, u64);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/166A0/func_806119A0.s")
+s32 func_806119A0(void) {
+    u64 seed = (u32)D_80746A40;
+    u64 prod = __ll_mul(seed, 0x01DF5E0DULL);
+    return D_80746A40 = (prod + 1) & 0xFFFFFFFF;
+}
 
 void setRandomSeed(s32 arg0) {
     D_80746A40 = arg0;
@@ -10,7 +15,9 @@ void setRandomSeed(s32 arg0) {
 
 s32 func_806119A0(void);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/166A0/func_806119FC.s")
+f32 func_806119FC(void) {
+    return (f32)(u32)func_806119A0() * 2.3283064e-10f;
+}
 
 s32 randomNonNegative(void) {
     return func_806119A0() & 0x7FFFFFFF;
