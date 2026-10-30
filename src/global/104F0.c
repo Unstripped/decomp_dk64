@@ -278,8 +278,6 @@ void func_8060C2C4(s32 arg0, s32 arg1, u8 arg2, u16 *arg3, s8 *arg4) {
 }
 
 #ifdef NON_MATCHING
-extern void func_8060BEA8(s32, u8, u16 *, u8 *);
-
 void func_8060C340(arg0, arg1, arg2, arg3, arg4, arg5)
 u16 *arg0;
 u8 *arg1;
@@ -499,7 +497,6 @@ void func_8060CB9C(void) {
     eepromDispatchCommand(3);
 }
 
-#ifdef NON_MATCHING
 extern void func_8060C758();
 extern s32 func_8060C6B8(s32, u8, u8, u8);
 extern void func_8060CB74(void);
@@ -507,21 +504,26 @@ extern u8 D_807ED6A8[];
 extern u8 D_807550C8;
 extern u8 D_80744530;
 
+#ifdef NON_MATCHING
 void func_8060CBBC(void) {
-    u32 pad[2];
-    s32 failed;
     s32 i;
+    s32 j;
+    s32 version;
+    s32 found;
     s32 height;
     s32 checksumIndex;
     u8 valid[4];
     u8 sectorOrder[4];
-
+    u32 pad[4];
+    u8 failed;
     failed = 0;
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
-    for (i = 0; i < 4; i++) {
+    i = 0;
+    do {
         D_807EDEA8[i] = i;
         sectorOrder[i] = 0xFF;
-    }
+        i++;
+    } while (i < 4);
     height = (((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7;
     height /= 8;
     for (i = 0; i < 4; i++) {
@@ -535,8 +537,7 @@ void func_8060CBBC(void) {
         failed |= (valid[i] == 0);
     }
     for (i = 0; i < 4; i++) {
-        s32 version;
-        s32 j;
+
         if (valid[i] == 0 || func_8060C6B8(0xD, 0, 0, i & 0xFF) == 0) continue;
         version = func_8060C6B8(0xF, 0, 0, i & 0xFF);
         sectorOrder[i] = version;
@@ -545,13 +546,12 @@ void func_8060CBBC(void) {
                 sectorOrder[i] = 0xFF;
                 func_8060C758(i & 0xFF, 0);
                 func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
-                failed = 1;
+                failed |= 1;
             }
         }
     }
     for (i = 0; i < 4; i++) {
-        s32 found = 0;
-        s32 j;
+        found = 0;
         for (j = 0; j < 4; j++) if (sectorOrder[j] == i) found = 1;
         if (found == 0) for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == 0xFF) {
             sectorOrder[j] = i;
@@ -568,7 +568,7 @@ void func_8060CBBC(void) {
     checksumIndex = ((height + 0x40) / 4) - 1;
     if (((u32 *)D_807ED6A8)[checksumIndex] != func_8060B968(D_807ED6A8 + (height & 0xFFFF), 0x3C)) {
         func_8060CB74();
-        failed = 1;
+        failed |= 1;
     }
     D_807550C8 = func_8060C6B8(0x1F, 0, 0, 0);
     D_80744530 = func_8060C6B8(0x20, 0, 0, 0);
@@ -620,9 +620,9 @@ extern s8 D_807467CC;
 extern u8 D_807ED6A8[];
 
 void func_8060D14C(void) {
-    s32 var_s0;
     s32 var_s2;
     u8 *var_s1;
+    s32 var_s0;
 
     var_s2 = 0;
     var_s1 = D_807ED6A8;
@@ -791,7 +791,6 @@ extern void func_806C9AE0(void);
 extern void healthRefill(s32);
 extern u8 D_80750AC0;
 extern s32 D_80750AB0;
-extern u8 D_807ED6A8[];
 extern u16 D_807FC930[];
 extern u8 D_807FC928;
 

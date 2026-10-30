@@ -1,5 +1,6 @@
 // func_8060C340 (src/global/104F0.c): stage 4: frame 0x28, exact control flow and schedule, registers s0/s1/ra match; remaining 6 preamble regalloc substitutions (multu $t6/$t1 vs $t0/$t1)
 #include <ultra64.h>
+
 extern s16 D_807ECEA0[];
 extern void func_8060BF84(s32, u8, u16 *, u8 *);
 extern void func_8060BEA8(s32, u8, u16 *, u8 *);
