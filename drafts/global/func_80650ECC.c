@@ -1,5 +1,5 @@
-// func_80650ECC (src/global/55B20.c): stage 4-5: statement sequence identical (515/527 insns); uopt caches &D_807F70AC in s0 and spills arg0 (target keeps arg0 in s7, frame 0xED8 vs my 0xEE8); needs regalloc/decl hunt
-typedef struct M50ECCMapData {
+// func_80650ECC (src/global/55B20.c): L650ECC: locals w/w4/colOff are ONE local array s32 tab[3] (tab[0]=w+4, tab[1]=w, tab[2]=colOff) + u8 *e = tab[0]+tab[2] per iteration: reproduces mem IV, uncoloured add, arg0 in s7 (518/527 insns). Remaining: D_807F70AC &-cache in s0, frame +24, regalloc/scheduling. total should be u32 (srl).
+typedef struct MapData {
     /* 0x00 */ u8 pad0[0xC];
     /* 0x0C */ s16 unkC;
     /* 0x0E */ u8 padE[0x26];
@@ -12,13 +12,13 @@ typedef struct M50ECCMapData {
     /* 0x68 */ s32 unk68;
     /* 0x6C */ s32 unk6C;
     /* 0x70 */ s32 unk70;
-} M50ECCMapData;
+} MapData;
 
-typedef struct M50ECCReloc {
+typedef struct MapRelocEntry {
     /* 0x0 */ u8 pad0[8];
     /* 0x8 */ s32 unk8;
     /* 0xC */ s32 unkC;
-} M50ECCReloc;
+} MapRelocEntry;
 
 extern s32 D_807F5DE8;
 extern s32 D_807F70AC;
@@ -31,18 +31,34 @@ extern u8 D_807F70AA;
 extern Mtx *D_807F7074;
 extern u8 *D_807F6C0C;
 extern s32 D_807F6C10;
-extern u8 *D_807F6C14;
-extern u8 *D_807F6C24;
-extern struct M55P2SearchEntry *D_807F70B0;
-extern struct M55P2BoxEntry *D_807F70B4;
+typedef struct {
+    /* 0x00 */ s64 unk0;
+    /* 0x08 */ s64 unk8;
+    /* 0x10 */ s64 unk10;
+    /* 0x18 */ s64 unk18;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ f32 unk24;
+    /* 0x28 */ u8 unk28;
+    /* 0x29 */ u8 pad29[0x7];
+} MapGridPoint; /* 0x30 */
 
-void *heapAlloc(s32);
+typedef struct {
+    /* 0x00 */ f32 unk0[4];
+    /* 0x10 */ f32 unk10[4];
+    /* 0x20 */ f32 unk20[4];
+} MapGridVectors;
+
+extern MapGridVectors *D_807F6C14;
+extern MapGridPoint *D_807F6C24;
+extern struct MapCell *D_807F70B0;
+extern struct MapBox *D_807F70B4;
+
 void lightSetTargetColor(f32, f32, f32, s16);
 void lightCopyTargetColors(s16);
 void func_80651904(s32, s32, void *, s32 *, s32, s32);
 void func_80651C2C(s32, void *);
 
-void func_80650ECC(M50ECCMapData *arg0) {
+void func_80650ECC(MapData *arg0) {
     u8 *q;
     u8 *p;
     s32 base;
@@ -50,12 +66,13 @@ void func_80650ECC(M50ECCMapData *arg0) {
     s32 count;
     s32 i;
     s32 j;
-    s32 total;
+    u32 total;
     s32 val;
     s32 off;
-    s32 colOff;
-    u8 *w;
-    u8 *w4;
+    s32 woff;
+    s32 poff;
+    u8 *e;
+    s32 tab[3];
 
     D_807F70AC = 0;
     D_807F713A = 0;
@@ -66,14 +83,14 @@ void func_80650ECC(M50ECCMapData *arg0) {
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
         off = arg0->unk58;
         D_807F70AC = *(s32 *)((u8 *)arg0 + off);
-        D_807F70B0 = (struct M55P2SearchEntry *)((u8 *)arg0 + off + 4);
+        D_807F70B0 = (struct MapCell *)((u8 *)arg0 + off + 4);
         off = arg0->unk5C;
-        D_807F70B4 = (struct M55P2BoxEntry *)((u8 *)arg0 + off + 4);
+        D_807F70B4 = (struct MapBox *)((u8 *)arg0 + off + 4);
         off = arg0->unk60;
-        D_807F6C14 = (u8 *)arg0 + off;
+        D_807F6C14 = (MapGridVectors *)((u8 *)arg0 + off);
         base = arg0->unk34;
-        w = (u8 *)arg0 + arg0->unk64;
-        p = (u8 *)arg0 + arg0->unk68;
+        woff = arg0->unk64;
+        poff = arg0->unk68;
         off = arg0->unk6C;
         D_807F6C20 = *(s32 *)((u8 *)arg0 + off);
         D_807F6C1C = (u8 *)arg0 + off + 4;
@@ -82,18 +99,20 @@ void func_80650ECC(M50ECCMapData *arg0) {
         D_807F6C10 = *(s32 *)((u8 *)arg0 + off);
         D_807F6C0C = (u8 *)arg0 + off + 4;
         for (i = 0; i < D_807F6C10; i++) {
-            if (((M50ECCReloc *)D_807F6C0C)[i].unk8 != -1) {
-                ((M50ECCReloc *)D_807F6C0C)[i].unk8 += (s32)arg0 + base;
+            if (((MapRelocEntry *)D_807F6C0C)[i].unk8 != -1) {
+                ((MapRelocEntry *)D_807F6C0C)[i].unk8 += (s32)arg0 + base;
             }
-            if (((M50ECCReloc *)D_807F6C0C)[i].unkC != -1) {
-                ((M50ECCReloc *)D_807F6C0C)[i].unkC += (s32)arg0 + base;
+            if (((MapRelocEntry *)D_807F6C0C)[i].unkC != -1) {
+                ((MapRelocEntry *)D_807F6C0C)[i].unkC += (s32)arg0 + base;
             }
         }
         D_807F6C18 = heapAlloc(D_807F6C28 * 0x1C8);
-        w4 = w + 4;
+        p = (u8 *)arg0 + poff;
         i = 0;
         if (D_807F6C28 > 0) {
-            colOff = 0;
+            tab[1] = (s32)arg0 + woff;
+            tab[0] = tab[1] + 4;
+            tab[2] = 0;
             do {
                 count = 0;
                 D_807F6C18[i].unk0 = 0;
@@ -166,12 +185,13 @@ void func_80650ECC(M50ECCMapData *arg0) {
                 p += 8;
                 D_807F6C18[i].unk60 = 0;
                 D_807F6C18[i].unk64 = 0;
-                D_807F6C18[i].unk78 = *(s32 *)(w4 + colOff) + (s32)w;
-                D_807F6C18[i].unk7C = *(s32 *)(w4 + colOff + 0xC) + (s32)w;
-                D_807F6C18[i].unk80 = *(s16 *)(w4 + colOff + 4);
-                D_807F6C18[i].unk82 = *(s16 *)(w4 + colOff + 6);
-                D_807F6C18[i].unk84 = *(s16 *)(w4 + colOff + 8);
-                D_807F6C18[i].unk86 = *(s16 *)(w4 + colOff + 0xA);
+                e = (u8 *)(tab[0] + tab[2]);
+                D_807F6C18[i].unk78 = *(s32 *)e + tab[1];
+                D_807F6C18[i].unk7C = *(s32 *)(e + 0xC) + tab[1];
+                D_807F6C18[i].unk80 = *(s16 *)(e + 4);
+                D_807F6C18[i].unk82 = *(s16 *)(e + 6);
+                D_807F6C18[i].unk84 = *(s16 *)(e + 8);
+                D_807F6C18[i].unk86 = *(s16 *)(e + 0xA);
                 D_807F6C18[i].unk28 = -1;
                 if (count != 0) {
                     D_807F6C18[i].unk4C = heapAlloc(count * 0x24);
@@ -182,13 +202,13 @@ void func_80650ECC(M50ECCMapData *arg0) {
                     }
                 }
                 D_807F6C18[i].unk50 = count;
-                colOff += 0xC;
+                tab[2] += 0xC;
                 i++;
             } while (i < D_807F6C28);
         }
         D_807F6C24 = heapAlloc(D_807F6C20 / 2 * 0x30);
         for (i = 0; i < D_807F6C20 / 2; i++) {
-            func_80651C2C(i, D_807F6C24 + i * 0x30);
+            func_80651C2C(i, (u8 *)D_807F6C24 + i * 0x30);
         }
         D_807F7079 = 1;
         D_807F7078[0] = 1;

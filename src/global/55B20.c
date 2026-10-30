@@ -2975,31 +2975,24 @@ s16 arg3;
 extern s32 zbufferReadDepth(s16, s16);
 extern s32 zbufferDepthToDistance(s32);
 
-#ifdef NON_MATCHING
 void func_80658CCC(void) {
-    MapSearchEntry *p;
+    s32 i;
 
-    p = (MapSearchEntry *)&D_807F7290;
-    do {
-        if (p->unk10 != 0) {
-            if (D_8076A064 == p->unkC) {
-                if ((f32)zbufferDepthToDistance((s16)zbufferReadDepth(p->unk4, p->unk6)) <= (f32)p->unk8) {
-                    p->unk11 = 1;
+    for (i = 0; i < 10; i++) {
+        if (((MapSearchEntry *)&D_807F7290)[i].unk10 != 0) {
+            if (D_8076A064 == ((MapSearchEntry *)&D_807F7290)[i].unkC) {
+                if ((f32)zbufferDepthToDistance((s16)zbufferReadDepth(((MapSearchEntry *)&D_807F7290)[i].unk4, ((MapSearchEntry *)&D_807F7290)[i].unk6)) <= (f32)((MapSearchEntry *)&D_807F7290)[i].unk8) {
+                    ((MapSearchEntry *)&D_807F7290)[i].unk11 = 1;
                 } else {
-                    p->unk11 = 0;
+                    ((MapSearchEntry *)&D_807F7290)[i].unk11 = 0;
                 }
             }
         }
-        if ((u32)(D_8076A064 - p->unkC) >= 3) {
-            p->unk10 = 0;
+        if ((u32)(D_8076A064 - ((MapSearchEntry *)&D_807F7290)[i].unkC) >= 3) {
+            ((MapSearchEntry *)&D_807F7290)[i].unk10 = 0;
         }
-        p++;
-    } while (p != (MapSearchEntry *)&D_807F7358);
+    }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658CCC.s")
-#endif
 
 extern u8 D_807F72A1;
 extern s32 D_807F72A4;
@@ -3030,14 +3023,12 @@ s16 arg3;
     D_807F735E = arg3;
 }
 
-#ifdef NON_MATCHING
 typedef struct MapPlayerPosition {
     /* 0x000 */ u8 pad0[0x21C];
     /* 0x21C */ f32 unk21C;
     /* 0x220 */ f32 unk220;
     /* 0x224 */ f32 unk224;
 } MapPlayerPosition;
-
 
 s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
     f32 sp44;
@@ -3049,32 +3040,33 @@ s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
     s16 z0;
     s16 z1;
     f32 d;
+    f32 t;
 
     camProjectToScreen(arg0, arg1, arg2, &sp44, &sp40, 0, 1.0f, D_807FC929);
     x = (s16)sp44;
     z = (s16)sp40;
-    d = sqrtf(((arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224) * (arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224))
+    d = sqrtf((((f32)arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224) * (arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224))
             + (((arg0 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk21C) * (arg0 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk21C))
-            + ((arg1 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk220) * (arg1 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk220))));
+            + ((arg1 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk220) * (arg1 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk220))));  // FAKE: (f32)arg2 cast shifts the t5-t7 temp rotation
     if (d < 90.0f) {
         return 0;
     }
     x0 = 20;
     x1 = 20;
     z0 = 0;
+    t = (d - 60.0f) / 120.0f;
     if (d >= 180.0f) {
         z1 = 50;
+    } else if (t > 0.0) {
+        x0 = -60.0f * t + 80.0f;
+        x1 = -60.0f * t + 80.0f;
+        z0 = -130.0f * t + 130.0f;
+        z1 = -80.0f * t + 130.0f;
     } else {
         x0 = 80;
         x1 = 80;
         z0 = 130;
         z1 = 130;
-        if ((d - 60.0f) / 120.0f > 0.0) {
-            x0 = -60.0f * ((d - 60.0f) / 120.0f) + 80.0f;
-            x1 = -60.0f * ((d - 60.0f) / 120.0f) + 80.0f;
-            z0 = -130.0f * ((d - 60.0f) / 120.0f) + 130.0f;
-            z1 = -80.0f * ((d - 60.0f) / 120.0f) + 130.0f;
-        }
     }
     if ((x < D_807F7358 - x0 - arg3) || (D_807F735C + x1 + arg3 < x)
         || (z < D_807F735A - z0 - arg4) || (D_807F735E + z1 + arg4 < z)) {
@@ -3082,8 +3074,4 @@ s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
     }
     return 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658E8C.s")
-#endif
 
