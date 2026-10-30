@@ -476,7 +476,37 @@ void globalInit(OSMesgQueue *arg0, s32 arg1) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/0/func_805FB5C4.s")
+void func_805FB5C4(OSMesgQueue *arg0, s32 arg1) {
+    u64 *p;
+    u64 *q;
+    Struct80744464 sp34;
+    s32 pad[4];
+    void *sp20;
+
+    sp34 = D_80744464;
+    if (arg1 == 2) {
+        osViBlack(1);
+        audioThreadStop(1);
+        D_80744460 = 1;
+        while (1) {
+        }
+    }
+    osRecvMesg(arg0, &sp20, 1);
+    D_80744460 = 1;
+    audioThreadStop(1);
+    osStopThread(&D_80761430);
+    p = &D_807655E8; // FAKE: keeps the D_807655E8 address web split so IDO does not hoist it into $s0
+    osSetThreadPri(NULL, 0xB);
+    D_807655E8 = osGetTime();
+    while (osGetTime() < *(q = p) + 0x22ADD7) { // FAKE: second pointer copy, see above
+    }
+    osViBlack(1);
+    __osSpSetStatus(0xAAAA82);
+    osDpSetStatus(0x1D6);
+    func_8060E930();
+    while (1) {
+    }
+}
 
 void seg11DmaRead(s32 arg0, s32 arg1, void *arg2) {
     s32 sp2C;
