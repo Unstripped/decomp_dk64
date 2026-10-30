@@ -47,7 +47,32 @@ s32 func_80712548(void) {
     return flagCountRange(0x1FD, 0x28, 0) + 0xA;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80712574.s")
+typedef struct R117gTimedState {
+    u64 time;
+    s32 unk8;
+    s32 duration;
+    u8 active;
+    u8 index;
+} R117gTimedState;
+
+extern R117gTimedState D_80755340;
+extern u16 D_80755358[];
+
+void func_80712574(void) {
+    u32 i;
+    s32 found = 0;
+
+    D_80755340.active = 1;
+    D_80755340.index = 0;
+    D_80755340.time = osGetTime();
+    D_80755340.duration = func_80712548() * 60;
+    for (i = 0; (i < 10) && (found == 0); i++) {
+        if (D_80755358[i] < D_80755340.duration) {
+            D_80755340.index = i;
+            found = 1;
+        }
+    }
+}
 
 void func_8071261C(void) {
     D_80755350 = 0;
@@ -108,7 +133,57 @@ void func_807127F4(s32 arg0) {
     D_80750754 = -2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80712830.s")
+typedef struct R117d2MenuObject {
+    u8 unk0[0x155];
+    u8 unk155;
+} R117d2MenuObject;
+
+extern s32 D_807FBB64;
+extern u8 D_807FC928;
+void healthRefill(u8);
+s32 func_805FF800(s32 *, s32 *);
+void func_80026D40(void *);
+void func_805FF1B0(s32);
+
+void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
+    s32 var_a0;
+    s32 var_a1;
+    s32 pad;
+    s32 sp20;
+    s32 sp1C;
+
+    healthRefill((u8) arg1);
+    if (arg1 == 0) {} // FAKE: keeps arg1 in a1 with an eager restore after healthRefill
+    if (D_807FBB64 & 1) {
+        arg0->unk155++;
+        if (D_807FBB68 & 2) {
+            flagSet(0x5C, 1, 2);
+            var_a0 = 0x22;
+            var_a1 = 0xC;
+        } else {
+            if (D_8076A0A8 == 0x3C) {
+                var_a0 = 0x3E;
+                var_a1 = 1;
+            } else {
+                var_a0 = 0x2A;
+                var_a1 = 2;
+            }
+        }
+        func_805FF378(var_a0, var_a1);
+        return;
+    }
+    if (D_807FBB64 & 0x400) {
+        arg0->unk155++;
+        func_805FF800(&sp20, &sp1C);
+        func_805FF378(sp20, sp1C);
+        return;
+    }
+    if (D_807FC928 >= 2) {
+        func_80026D40(arg0);
+        return;
+    }
+    func_805FF1B0(arg1);
+}
 
 extern u16 D_80755308;
 extern u8 D_8075530C;
@@ -126,19 +201,11 @@ void func_80712944(OSContPad *arg0) {
 }
 extern u8 D_80755324;
 
-typedef struct R117gTimedState {
-    u64 time;
-    s32 unk8;
-    s32 duration;
-    u8 active;
-    u8 index;
-} R117gTimedState;
 
 extern u64 D_807445B8;
 extern u64 D_807445C0;
 extern s8 D_80746B60;
 extern u32 D_807FBB60;
-extern R117gTimedState D_80755340;
 extern s32 D_80755320;
 
 void func_8060B6CC(void);
@@ -186,7 +253,110 @@ void func_80712B80(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80712BD4.s")
+typedef struct R117iPlayerView {
+    s32 unk0;
+    s32 unk4;
+} R117iPlayerView;
+
+extern u16 D_8075E5C2[];
+
+extern u8 D_807467CC;
+extern u8 D_8076A0AB;
+extern u8 D_8075532C;
+extern s32 D_80755334;
+extern s32 D_807552EC;
+extern Mtx D_807FDAC0;
+s32 flagGet(s32, s32);
+s32 func_805FF030(u8, s32);
+s32 func_8060B49C(s32, s32);
+void eepromInit(void);
+void func_80712574(void);
+void func_8060DEC8(void);
+void actorSpawn(s32, s32);
+
+void func_80712BD4(void) {
+    u8 blocked;
+
+    blocked = flagGet(0x302, 0);
+    D_80755334 = 0;
+    D_80755330 = 0;
+    if (D_807467CC == 0) {
+        eepromInit();
+    }
+    if (func_805FF030(D_8076A0AB, 1) == 8) {
+        if ((D_807FBB68 & 2) == 0) {
+            if (D_8076A0A8 != 0xD6) {
+                if (func_80712628() == 0) {
+                    if (blocked == 0) {
+                        func_80712574();
+                    }
+                }
+            }
+        }
+    }
+    guScale(&D_807FDAC0, 0.5f, 0.5f, 1.0f);
+    switch (D_80755314) {
+    case 0:
+        D_8075531C = 0x708;
+        D_80755308 = 0;
+        D_80755338 = 1;
+        D_8075533C = 0;
+        break;
+    case 1:
+        D_8075531C = 0x708;
+        D_80755308 = 0x1000;
+        D_80755338 = 1;
+        D_8075533C = 0;
+        break;
+    case 2:
+        D_8075531C = 0x1644;
+        D_80755308 = 0x1000;
+        D_80755338 = 1;
+        D_8075533C = 0;
+        break;
+    case 3:
+        D_8075532C++;
+        D_8075531C = func_8060B49C(((R117iPlayerView *)D_807FC924)->unk4, D_8075E5C0[D_80755328 * 4]);
+        if (D_8075531C < *(u16 *) ((u8 *) D_8075E5C2 + D_80755328 * 4)) {
+            D_8075531C = D_8075531C;
+        } else {
+            D_8075531C = *(u16 *) ((u8 *) D_8075E5C2 + D_80755328 * 4);
+        }
+        D_80755328++;
+        D_80755328 = (u32) D_80755328 % 5U;
+        D_80755308 = 0x1000;
+        break;
+    case 7:
+        D_8075531C = 0x410;
+        D_80755318 = D_80755314 = 9;
+    case 9:
+        D_80755308 = 0x9000;
+        break;
+    case 5:
+        D_807552EC = 0;
+    case 6:
+    case 12:
+    case 13:
+        D_8075531C = 1;
+        D_80755308 = 0xFFFF;
+        D_8075530C = 0xFF;
+        D_80755310 = 0xFF;
+        break;
+    case 10:
+        D_8075531C = 1;
+        D_8075530C = 0;
+        D_80755310 = 0;
+        D_80755308 = 0;
+        actorSpawn(0x152, 0);
+        break;
+    case 14:
+        actorSpawn(0x152, 0);
+    case 11:
+        D_8075531C = 0x1E;
+        break;
+    }
+    func_8060DEC8();
+}
 
 void func_80712EDC(void) {
     D_80750AC0 = 1;
@@ -214,8 +384,6 @@ void func_80712F10(s32 *arg0, s32 *arg1) {
 }
 
 
-extern s32 D_80755334;
-extern u8 D_8075532C;
 void func_8060B7D0(s32 *, s32 *);
 extern u16 D_807ECD48;
 void func_80712FC8(void) {
@@ -323,7 +491,6 @@ void *func_807132DC(void) {
     R117D_WRITE_GFX(gfx++, 0xED028028, 0x4D4394);
     return gfx;
 }
-extern Mtx D_807FDAC0;
 void *func_8070E750(s32, s32, s32);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 
@@ -340,17 +507,108 @@ void func_8071338C(Gfx *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/D_8075E5C0.s")
 
+extern s16 D_80744490;
+
+#ifdef NON_MATCHING
+s32 heapAlloc(s32);
+void heapFreeDeferred(void *);
+s32 textGetStringWidth(s16, s32);
+s32 strlen(char *);
+s32 _sprintf(char *, const char *, ...);
+
+void func_80713438(Gfx *arg0, u8 arg1) {
+    s32 sp34;
+    s32 sp30;
+    f32 y;
+    f32 sp28;
+    s16 new_var2;
+    f64 temp_ft4;
+    s32 temp_a0;
+
+    sp30 = (s32) func_8070E750(0xC, 1, 1);
+    temp_a0 = strlen((char *) sp30) + 2;
+    sp28 = (f32) ((f64) D_80744490 * 0.5 * 2.0f);
+    y = 418.0f;
+    sp34 = heapAlloc(temp_a0);
+    heapFreeDeferred((void *) sp34);
+    _sprintf((char *) sp34, "%c%s", 0x63, sp30);
+    temp_ft4 = (f64) textGetStringWidth(1, sp34);
+    temp_ft4 = 0.5 * temp_ft4;
+    new_var2 = (s16) ((s32) (((f32) (((f64) sp28) - temp_ft4)) * 4.0f)); R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
+    if (sp28 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    R117D_WRITE_GFX(arg0++, 0xFA000000, arg1);
+    R117D_WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
+    if (y && y) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    textDrawStringVtx(arg0, 1, new_var2, (s16) ((s32) (y * 4.0f)), (void *) sp34, 4);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713438.s")
+#endif
+
+
+#ifdef NON_MATCHING
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+} R117fPair;
+
+extern u8 D_8074450C;
+extern R117fPair D_80755370;
+extern s32 D_8076A064;
+extern u8 D_807ECD09;
+u8 textGetFontHeight(s16);
+s32 func_807142D8();
+Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, void *);
+
+Gfx *func_807135B4(Gfx *arg0) {
+    s32 temp_v0;
+    s32 var_v1;
+    R117fPair sp38;
+    f32 sp34;
+    f32 sp30;
+
+    temp_v0 = D_8076A064 - 0x5A;
+    if ((temp_v0 >= 0) && !(temp_v0 & 0x10)) {
+        sp38 = D_80755370;
+        var_v1 = 0;
+        sp34 = (f32) D_80744490;
+        sp30 = (f32) (0xBD - textGetFontHeight(6));
+        if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (var_v1 = 1, (D_8076A0A8 == 0x4C)))) {
+            return arg0;
+        }
+        sp34 = (f32) ((f64) sp34 * 0.5);
+        R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
+        arg0 = hudDrawScaledText(arg0, (s16) (s32) (sp34 * 4.0f), (s16) (s32) ((f32) D_8074450C * sp30 * 4.0f), 0.7f, func_8070E750(0xC, (s32) (&sp38.unk0)[var_v1], 1));
+    }
+    return arg0;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_807135B4.s")
+#endif
 
 s32 func_8071375C(s32 arg0) {
     return arg0;
 }
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/func_80713764.s")
+extern s16 D_80744494;
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+
+void func_80713764(Gfx *arg0, u8 arg1, f32 arg2) {
+    f32 x;
+    f32 y;
+
+    x = (f32) ((f64) D_80744490 * 0.5);
+    y = (f32) (((f64) D_80744494 * 0.5) + -20.0 + (f64) arg2);
+    R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
+    R117D_WRITE_GFX(arg0++, 0xFA000000, (s32) ((arg1 & 0xFF) | ~0xFF)); // FAKE: no-op mask advances the scratch-register ring
+    R117D_WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
+    R117D_WRITE_GFX(arg0++, 0xE3001201, 0);
+    renderRotatedSprite(arg0, 0x2C, 0, 2, 0xE0, 0x80, (s32) x, (s32) y, 1.0f, 1.0f, 0, 0.0f);
+}
 
 void *func_807132DC(void);
-void func_807135B4(void *);
+Gfx *func_807135B4(Gfx *);
 
 void func_807138A4(void) {
     func_807135B4(func_807132DC());
@@ -372,8 +630,6 @@ Gfx *func_80713AA8(Gfx *arg0) {
 
 
 extern u64 D_807445B0;
-extern u16 D_80755358[];
-s32 flagGet(s32, s32);
 void sfxAllocateChannel(s32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 
@@ -424,7 +680,6 @@ typedef struct {
     s32 unk20;
 } R117cState;
 
-extern s32 D_807552EC;
 extern s32 D_807552E4;
 extern s32 D_80755384[];
 extern s8 D_80750AB8;
@@ -539,7 +794,6 @@ void func_807145F8(void) {
     D_80755324 = 1;
 }
 
-extern u8 D_807FC928;
 
 s32 func_80714608(s32 arg0) {
     s32 var_v0;
