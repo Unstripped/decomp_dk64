@@ -288,7 +288,52 @@ void func_80613C48(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614014.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614130.s")
+typedef struct {
+    s32 id;
+    s32 refCount;
+    void *asset;
+} RvE2_CacheEntry;
+extern RvE2_CacheEntry D_807FB7B0[];
+
+void *func_80614130(s32 id) {
+    RvE2_CacheEntry *entry;
+    u32 i;
+    void *asset;
+    s32 count;
+    s32 bound;
+
+    if (id < 0) {
+        return NULL;
+    }
+
+    count = (u16)D_807FBB32;
+    i = 0;
+    if ((bound = count) != 0) {
+        entry = D_807FB7B0;
+        do {
+            if (id == entry->id) {
+                entry->refCount++;
+                return entry->asset;
+            }
+            entry++;
+        } while (++i < (u32)bound);
+    }
+
+    if (count >= 0x20) {
+        return NULL;
+    }
+
+    asset = assetLoad(0xB, id, 1, 1);
+    *(u16 *)((u8 *)asset + 6) += 6;
+    bound = (u16)D_807FBB32;
+    entry = &D_807FB7B0[bound];
+    entry->asset = asset;
+    entry->refCount++;
+    D_807FBB32 = bound + 1;
+    entry->id = id;
+    return asset;
+}
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_8061421C.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614644.s")

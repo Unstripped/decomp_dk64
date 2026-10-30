@@ -1,49 +1,65 @@
-// func_80613944 (src/global/17B90.c): stage 3: semantic C starter compiles; target uses 0x20 frame while C emits 0x28 frame due to local variable / argument slot differences
+// func_80613944 (src/global/17B90.c): stage 5; frame 0x28 matches target; score 26 after deadsweep; struct member copy order matches (id, asset, refCount)
 typedef struct {
-    s32 unk0;
+    s32 id;
     s32 refCount;
     void *asset;
-} RvE_CacheEntry;
-
-typedef struct {
-    u8 pad0[4];
-    void *unk4;
-    u8 pad8[0x7C];
-    s32 unk84;
-} RvE_AnimView;
-
-extern RvE_CacheEntry D_807FB7B0[];
-extern u16 D_807FBB32;
+} RvE2_CacheEntry;
+extern RvE2_CacheEntry D_807FB7B0[];
+extern s16 D_807FBB32;
 void assetFreeBuffer(void *, s32, s32);
 
-void func_80613944(RvE_AnimView *arg0, void **arg1) {
-    void *temp_a2;
-    RvE_CacheEntry *entry;
-    s32 i;
-    u16 last_idx;
-    RvE_CacheEntry *last;
+typedef struct {
+    void *unk0;
+    void *unk4;
+    void *unk8;
+    void *unkC;
+} ControllerAnimData;
 
-    temp_a2 = *arg1;
+typedef struct {
+    void *unk0;
+    ControllerAnimData *unk4;
+} ControllerAnimView;
+
+typedef struct {
+    u8 pad0[0x84];
+    s32 unk84;
+} RvE2_AnimData;
+
+int func_80613944(ControllerAnimView *arg0, void **arg1) {
+    void *temp_a2 = *arg1;
+    s32 i;
+    RvE2_CacheEntry *entry;
+    s32 count;
+    s32 last_idx;
+    RvE2_CacheEntry *last;
+
     if (temp_a2 != NULL) {
+        count = (u16)D_807FBB32;
         entry = D_807FB7B0;
-        for (i = 0; i < (u16)D_807FBB32; i++, entry++) {
-            if (temp_a2 == entry->asset) {
-                if (--entry->refCount == 0) {
-                    assetFreeBuffer(entry->asset, 0x298, 0x15);
-                    last_idx = D_807FBB32 - 1;
-                    last = &D_807FB7B0[last_idx];
-                    D_807FBB32 = last_idx;
-                    *entry = *last;
-                    last->unk0 = 0xFFFF;
-                    last->refCount = 0;
-                    last->asset = NULL;
+        i = 0;
+        if (count > 0) {
+            do {
+                if (temp_a2 == entry->asset) {
+                    if (--entry->refCount == 0) {
+                        assetFreeBuffer(entry->asset, 0x298, 0x15);
+                        last_idx = D_807FBB32 - 1;
+                        last = &D_807FB7B0[(u16)last_idx];
+                        D_807FBB32 = last_idx;
+                        entry->id = last->id;
+                        entry->asset = last->asset;
+                        entry->refCount = last->refCount;
+                        last->id = 0xFFFF;
+                        last->asset = NULL;
+                        last->refCount = 0;
+                    }
+                    break;
                 }
-                break;
-            }
+                entry++;
+            } while (++i < count);
         }
         *arg1 = NULL;
     }
     if ((void *)arg1 == arg0->unk4->unk4) {
-        arg0->unk4->unk84 = 0;
+        ((RvE2_AnimData *)arg0->unk4)->unk84 = 0;
     }
 }

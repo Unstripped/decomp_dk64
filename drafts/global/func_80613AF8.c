@@ -1,11 +1,20 @@
-// func_80613AF8 (src/global/17B90.c): stage 6; permuter best 125; remaining table lookup register allocation and call scheduling
-typedef struct { u8 pad0[0x4E]; s16 value; } Perm3GlobalView;
-typedef struct { u8 pad0[0x58]; s32 value; } Perm3Controller;
+// func_80613AF8 (src/global/17B90.c): stage 6; frame 0x18 matches; all instructions 1:1, permuter best score 125 (table lookup and if/else regalloc)
+typedef struct {
+    u8 pad0[0x4E];
+    s16 unk4E;
+} RvE2_GlobalView;
+
+typedef struct {
+    u8 pad0[0x58];
+    s32 unk58;
+} RvE2_ControllerStateView;
+
 extern Struct807FD580 *D_807FD580;
 extern u16 *D_807FBB58;
-void func_80613C48(Perm3Controller *, s16, f32, f32);
+struct ControllerStateView;
+void func_80613C48(struct ControllerStateView *, s16, f32, f32);
 
-void func_80613AF8(Perm3Controller *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void func_80613AF8(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     s32 flag;
     s16 index;
     u16 *table;
@@ -14,12 +23,12 @@ void func_80613AF8(Perm3Controller *arg0, s16 arg1, f32 arg2, f32 arg3) {
     if (arg1 >= 0) {
         flag = arg1 & 0x4000;
         index = arg1 - flag;
-        ((Perm3GlobalView *)D_807FD580)->value = index;
-        value = arg0->value;
+        ((RvE2_GlobalView *)D_807FD580)->unk4E = index;
+        value = ((RvE2_ControllerStateView *)arg0)->unk58;
         table = D_807FBB58;
-        arg1 = table[((index * 7 + value - 2) & 0xFFFF)] + flag;
+        arg1 = table[(u32)(((index * 7 + value) - 2) & 0xFFFF)] + flag;
     } else {
-        ((Perm3GlobalView *)D_807FD580)->value = arg1;
+        ((RvE2_GlobalView *)D_807FD580)->unk4E = arg1;
     }
     func_80613C48(arg0, arg1, arg2, arg3);
 }
