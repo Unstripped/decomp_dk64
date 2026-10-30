@@ -689,7 +689,7 @@ extern s16 D_807503A0;
 void lightSetFovAngles(f32, f32);
 void lightSetFlags(u8);
 void lightSetTargetId(s16);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
+s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void func_8069AB74(void) {
@@ -749,11 +749,188 @@ void func_8069AFF0(void) {
     func_8069AB74();
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069B010.s")
+typedef struct S9DCamView {
+    u8 pad0[0x210];
+    f32 unk210;
+    f32 unk214;
+    f32 unk218;
+    u8 pad21C[0xC];
+    f32 unk228;
+    f32 unk22C;
+    f32 unk230;
+} S9DCamView;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069B3FC.s")
+typedef struct S9DLinkView {
+    u8 pad0[0xEC];
+    s16 unkEC;
+    u8 padEE[0x66];
+    u8 unk154;
+    u8 pad155[0xA];
+    u8 unk15F;
+} S9DLinkView;
 
+extern Actor *D_807FBB4C;
+extern s16 D_80750378;
 extern s32 D_8076A068;
+extern u8 D_8071FE08[];
+extern u8 D_80720E14[];
+void effectScaleSpinUpdate();
+void actorDespawn(Actor *);
+void sfxAllocateChannel(s32, f32);
+void actorSetCollisionRadius(Actor *, f32);
+void func_8067ACB4(Actor *);
+void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void actorAppendCallback(Actor *, Actor *, s32, u8, s32, void *);
+void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
+void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
+void collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
+void func_8071498C(void *);
+void func_807149B8(u8);
+void func_807149FC(s32);
+s32 func_80714C08(void *, f32, Actor *, s32, s32);
+s32 func_80714CC0(void *, f32, f32, f32, f32);
+f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
+
+void func_8069B010(void) {
+    s32 *p = D_807FBB40->unk174;
+    S9DLinkView *link;
+
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unk6A &= 0xFFFE;
+        D_807FBB40->unk144 = 2;
+        actorSetCollisionRadius(D_807FBB40, 60.0f);
+        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 60.0f, -1);
+        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        func_807149FC(-1);
+        func_807149B8(1);
+        func_8071498C(effectScaleSpinUpdate);
+        func_80714C08(D_80720E14, 0.9f, D_807FBB40, 1, 2);
+        *p = D_8076A068;
+        D_807FBB40->unk60 |= 0x80000;
+        collisionCheckActorFloor(D_807FBB40, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, &D_807FBB40->unkA4);
+    }
+    func_8067ACB4(D_807FBB40);
+    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x4B, 0x78, 0, 1.0f);
+    link = (S9DLinkView *)D_807FBB40->unk11C;
+    if (link != NULL) {
+        if (link->unk154 != 2 && link->unk154 != 0x26) {
+            actorDespawn(D_807FBB40);
+            return;
+        }
+        if (D_807FBB40->unk15F == link->unk15F) {
+            if ((D_807FBB40->unk7C - D_807FBB4C->unk7C) * (D_807FBB40->unk7C - D_807FBB4C->unk7C) + (D_807FBB40->unk84 - D_807FBB4C->unk84) * (D_807FBB40->unk84 - D_807FBB4C->unk84) > 900.0f) {
+                ((S9DLinkView *)D_807FBB40->unk11C)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk84, (s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84) - mathAngleBetweenPointsDeg((s32)((S9DCamView *)D_807FC924)->unk228, (s32)((S9DCamView *)D_807FC924)->unk230, (s32)((S9DCamView *)D_807FC924)->unk210, (s32)((S9DCamView *)D_807FC924)->unk218));
+            }
+            lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
+        }
+        if (D_807FBD70 == 9) {
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1CE, 0xFF, 0x7F, 0x1E);
+            func_80714CC0(D_8071FE08, 1.0f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+            actorAppendCallback((Actor *)D_807FBB40->unk11C, D_807FBB40, 0x02000000, D_807FBB40->unk15F, 0, 0);
+            actorDespawn(D_807FBB40);
+        }
+        if (D_8076A0A8 != 0x48 && D_8076A0A8 != 0x11 && (u32)(*p + D_80750378) < (u32)D_8076A068) {
+            actorAppendCallback((Actor *)D_807FBB40->unk11C, D_807FBB40, 0x02000000, 0xFF, 0, 0);
+            actorDespawn(D_807FBB40);
+        }
+    } else {
+        actorDespawn(D_807FBB40);
+    }
+}
+
+extern u8 D_8071FC58;
+extern u8 D_8071FC8C;
+extern u8 D_8071FCC0;
+void func_80717D4C(void);
+s32 randomNonNegative(void);
+void func_80714950(s32);
+void sfxStopChannel(s32, s32);
+
+void func_8069B3FC(void) {
+    s16 *p = D_807FBB40->unk174;
+    S9DCamView *cam = D_807FBB4C->unk174;
+    s32 i;
+    f32 x;
+    f32 y;
+    f32 z;
+    s32 j;
+    void *sel;
+
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unk144 = 1;
+        D_807FBB40->unk60 |= 0x400;
+        actorScriptStart(D_807FBB40, 0x298);
+        *p = 0;
+        sfxAllocateChannel(0x3B, 1.0f);
+    } else {
+        actorGetNodePos(D_807FBB40, 1, &x, &y, &z);
+        cam->unk210 = x;
+        cam->unk214 = y;
+        cam->unk218 = z;
+        if (D_807FBB40->unk155[0] < 4) {
+            for (j = 2; j < 3; j++) {
+                for (i = 0; i < 2; i++) {
+                    func_8071498C(func_80717D4C);
+                    func_807149B8(1);
+                    func_80714950((randomNonNegative() >> 15) % 10000 % 120 + 0x50);
+                    switch ((randomNonNegative() >> 15) % 10000 % 3) {
+                        case 0:
+                            sel = &D_8071FC58;
+                            break;
+                        case 1:
+                            sel = &D_8071FC8C;
+                            break;
+                        case 2:
+                            sel = &D_8071FCC0;
+                            break;
+                    }
+                    func_80714C08(sel, 0.6f, D_807FBB40, j, 0);
+                }
+            }
+        }
+        switch (D_807FBB40->unk155[0]) {
+            case 0:
+                *p += 0x1E;
+                break;
+            case 1:
+                D_807FBB4C->unk155[0]++;
+                D_807FBB40->unk155[0]++;
+                break;
+            case 2:
+                *p -= 0x2A;
+                if (*p < 0) {
+                    *p = 0;
+                }
+                break;
+            case 3:
+                *p -= 0x2A;
+                if (*p < 0) {
+                    *p = 0;
+                }
+                D_807FBB4C->unk155[0]++;
+                D_807FBB40->unk60 &= ~0x8000;
+                D_807FBB40->unk128 = 0xFF;
+                D_807FBB40->unk155[0]++;
+                break;
+            case 4:
+                *p -= 0x2A;
+                if (*p < 0) {
+                    *p = 0;
+                }
+                D_807FBB40->unk128 -= 0x28;
+                if (D_807FBB40->unk128 < 0x28) {
+                    D_807FBB4C->unk155[0]++;
+                    sfxStopChannel(0x3B, 0);
+                    actorDespawn(D_807FBB40);
+                }
+                break;
+        }
+    }
+    D_807FBB40->unkE6 += *p;
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
+
 extern s16 D_80744490;
 s32 actorTableContains();
 void func_8069B908(void);
@@ -961,11 +1138,97 @@ void *renderAppendScaledMatrix(void *arg0, ActorPositionView *arg1, s16 arg2, f3
     return (u8 *)arg0 + 8;
 }
 
+extern Gfx D_1000118;
+
+#ifdef NON_MATCHING
+#define S9D_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+
+extern s32 D_8074E880[];
+void func_80717404(void);
+void func_8071495C(void);
+void vtxGradientSetPosition(s16);
+extern Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, char *, u8);
+
+void func_8069D424(Gfx *gfx, Actor *actor) {
+    char **sub;
+    s16 x;
+    s16 y;
+    u8 state;
+    u8 mode;
+    s16 width;
+
+    if (&state == 0) {} // FAKE: keeps state/mode/width/x/y in spill-style home slots
+    sub = actor->unk174;
+    state = 3;
+    mode = (u8)actor->unk84;
+    S9D_GFX(gfx++, 0xDE000000, &D_1000118);
+    S9D_GFX(gfx++, 0xFC119623, 0xFF2FFFFF);
+
+    x = actor->unk155[0];
+    switch (x) {
+        case 2:
+            vtxGradientSetPosition((s16)(actor->unk15F * 3 + 0x4000));
+            break;
+        case 0:
+            if (actor->unk84 == 1.0f) {
+                s16 w2;
+
+                w2 = (s16)(s32)((((f64)actor->unk15F * 0.0078125 > 1.0 ? 1.0 : (f64)actor->unk15F * 0.0078125) * 0.9) * (f64)textGetStringWidth((s16)(s32)actor->unk84, (s32)*sub) + (f64)actor->unk7C * 0.25);
+                func_807149B8(1);
+                func_8071498C(func_80717404);
+                func_80714950(0xA);
+                func_8071495C();
+                func_80714CC0((void *)D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, (f32)w2, (f32)((f64)actor->unk80 * 0.25 + 12.0), -5.0f);
+            }
+        default:
+            vtxGradientSetPosition((s16)(actor->unk15F * 3));
+            break;
+    }
+
+    x = (s16)(s32)actor->unk7C;
+    y = (s16)(s32)actor->unk80;
+    switch (mode) {
+        case 1:
+            width = textGetStringWidth((s16)(s32)actor->unk84, (s32)*sub);
+            state = 0x13;
+            gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, width, 0.8f);
+            state &= 0xFFFE;
+            x = -(width * 2);
+            y = 0;
+            break;
+        case 6:
+            state = 0x23;
+            S9D_GFX(gfx++, 0xE3000A01, 0x100000);
+            S9D_GFX(gfx++, 0xE200001C, 0x0C184240);
+            break;
+        case 0:
+            mode = 6;
+            width = textGetStringWidth(6, (s32)*sub);
+            actor->unk7C = (f32)((D_80744490 - width) * 2);
+            gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, width, 0.8f);
+            state = 0;
+            x = -(width * 2);
+            y = 0;
+            break;
+        case 10:
+            mode = 6;
+            gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, 0, 0.8f);
+            state = 0;
+            x = 0;
+            y = 0;
+            break;
+    }
+
+    S9D_GFX(gfx++, 0xFA000000, (actor->unk16A << 24) | (actor->unk16B << 16) | (actor->unk16C << 8) | actor->unk15F);
+    textDrawStringVtx(gfx, (s16)mode, x, y, *sub, state);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069D424.s")
+#endif
 
 #define WRITE_GFX_U32(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
-extern Gfx D_1000118;
 Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 
 Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
@@ -987,7 +1250,6 @@ Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
 
 void renderCallbacksRegister(void *, void *, s32);
 void heapFree(void *);
-void actorDespawn(Actor *);
 void func_8069D424(Gfx *, Actor *);
 
 void textMarkerUpdate(void) {
