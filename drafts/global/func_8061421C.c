@@ -1,4 +1,4 @@
-// func_8061421C (src/global/17B90.c): stage 4; promoted from stage 3. Frame size 0x40 and save set s0/ra match target exactly. Rebuilt true types, field offsets, rate casting idiom, local fabs inlining, and unk8/unkC calls. Remaining diff is spill slot assignments and regalloc.
+// func_8061421C (src/global/17B90.c): stage 4; frame 0x40 and save set s0/ra match; spill slots (0x3C,0x38,0x2C,0x28,0x20) and byte size 7792 match; local declaration order core,win0,win4,unk8,unkC,pos,rate,step and integer-0 ternary (step > 0); remaining diff is spill scheduling and regalloc
 extern u32 D_80744478;
 extern u8 D_80746B60;
 void func_80613944();
@@ -22,11 +22,11 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvF_MotionWindow;
+} RvR1_MotionWindow;
 
 typedef struct {
-    RvF_MotionWindow *unk0;
-    RvF_MotionWindow *unk4;
+    RvR1_MotionWindow *unk0;
+    RvR1_MotionWindow *unk4;
     void *unk8;
     void *unkC;
     f32 unk10;
@@ -49,28 +49,36 @@ typedef struct {
     s32 unk7C;
     f32 unk80;
     s32 unk84;
-} RvF_MotionCore;
+} RvR1_MotionCore;
 
 typedef struct {
     u8 pad0[4];
-    RvF_MotionCore *unk4;
-} RvF_MotionOwner;
+    RvR1_MotionCore *unk4;
+} RvR1_MotionOwner;
 
-void func_80614644(RvF_MotionOwner *, RvF_MotionWindow *, f32);
+typedef struct { u8 pad[0x14]; f32 a; f32 b; } RvE_State;
+typedef struct { u8 pad[4]; void *holder; } RvE_Controller;
+void func_80614644(RvE_Controller *, RvE_State *, f32);
 
-void func_8061421C(RvF_MotionOwner *arg0) {
-    RvF_MotionCore *core = arg0->unk4;
-    RvF_MotionWindow *win0 = core->unk0;
-    RvF_MotionWindow *win4 = core->unk4;
-    void *unk8 = core->unk8;
+void func_8061421C(RvR1_MotionOwner *arg0) {
+    RvR1_MotionCore *core;
+    RvR1_MotionWindow *win0;
+    RvR1_MotionWindow *win4;
+    void *unk8;
+    void *unkC;
+    f32 pos;
     f32 rate;
     f32 step;
-    f32 pos = win0->unk4;
 
+    core = arg0->unk4;
+    win0 = core->unk0;
+    win4 = core->unk4;
+    unk8 = core->unk8;
+    pos = win0->unk4;
+    unkC = core->unkC;
+    rate = 1.0f;
     if (core->unk30 & 1) {
         rate = (f32) ((f64) (u32) D_80744478 * 0.5);
-    } else {
-        rate = 1.0f;
     }
     core->unk30 &= ~1;
     if (D_80746B60 == 0) {
@@ -87,7 +95,7 @@ void func_8061421C(RvF_MotionOwner *arg0) {
     }
     step = core->unk48 * rate;
     if (win0->unk34 > 0.0f) {
-        win0->unk30 += (step > 0.0f) ? step : -step;
+        win0->unk30 += (step > 0) ? step : -step;
         if (win0->unk30 < win0->unk34) {
             win0->unk24 = win0->unk28 + (((win0->unk2C - win0->unk28) * win0->unk30) / win0->unk34);
         } else {
@@ -96,7 +104,7 @@ void func_8061421C(RvF_MotionOwner *arg0) {
         }
     }
     if (win4->unk34 > 0.0f) {
-        win4->unk30 += (step > 0.0f) ? step : -step;
+        win4->unk30 += (step > 0) ? step : -step;
         if (win4->unk30 < win4->unk34) {
             win4->unk24 = win4->unk28 + (((win4->unk2C - win4->unk28) * win4->unk30) / win4->unk34);
         } else {
@@ -105,19 +113,19 @@ void func_8061421C(RvF_MotionOwner *arg0) {
         }
     }
     if (*(s32 *)unk8 != 0) {
-        core->unk40 += (step > 0.0f) ? step : -step;
+        core->unk40 += (step > 0) ? step : -step;
         if (core->unk40 < core->unk44) {
             core->unk10 = (core->unk44 - core->unk40) / core->unk44;
         } else {
             func_80613944(arg0, unk8);
-            func_80613944(arg0, core->unkC);
+            func_80613944(arg0, unkC);
             core->unk78 &= ~0x10;
         }
         pos += ((step * win0->unk24) / 2.0f) * (1.0f - core->unk10);
     } else {
         pos += step * win0->unk24;
     }
-    func_80614644(arg0, win0, pos);
+    func_80614644((RvE_Controller *)arg0, (RvE_State *)win0, pos);
     if (win4->unk0 != NULL) {
         if (core->unk28 < core->unk2C) {
             core->unk28 += core->unk2E;
@@ -131,7 +139,7 @@ void func_8061421C(RvF_MotionOwner *arg0) {
             }
         }
         pos = win4->unk4 + win4->unk24;
-        func_80614644(arg0, win4, pos);
+        func_80614644((RvE_Controller *)arg0, (RvE_State *)win4, pos);
         if ((win4->unk24 == 0.0f) && (win4->unk1C & 0x10)) {
             core->unk2C = 0;
             if (core->unk28 == 0) {

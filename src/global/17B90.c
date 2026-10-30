@@ -409,9 +409,297 @@ void *func_80614130(s32 id) {
     return asset;
 }
 
+extern u32 D_80744478;
+extern u8 D_80746B60;
+void func_80614D90(void *);
+
+typedef struct {
+    void *unk0;
+    f32 unk4;
+    f32 unk8;
+    s16 unkC;
+    s16 unkE;
+    u8 pad10[4];
+    f32 unk14;
+    f32 unk18;
+    u16 unk1C;
+    s16 unk1E;
+    s16 unk20;
+    u8 pad22[2];
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+} RvR1_MotionWindow;
+
+typedef struct {
+    RvR1_MotionWindow *unk0;
+    RvR1_MotionWindow *unk4;
+    void *unk8;
+    void *unkC;
+    f32 unk10;
+    u8 pad14[0x14];
+    s16 unk28;
+    u8 pad2A[2];
+    s16 unk2C;
+    s16 unk2E;
+    s16 unk30;
+    u8 pad32[0xE];
+    f32 unk40;
+    f32 unk44;
+    f32 unk48;
+    f32 unk4C;
+    f32 unk50;
+    f32 unk54;
+    f32 unk58;
+    u8 pad5C[0x1C];
+    s32 unk78;
+    s32 unk7C;
+    f32 unk80;
+    s32 unk84;
+} RvR1_MotionCore;
+
+typedef struct {
+    u8 pad0[4];
+    RvR1_MotionCore *unk4;
+} RvR1_MotionOwner;
+
+#ifdef NON_MATCHING
+void func_8061421C(RvR1_MotionOwner *arg0) {
+    RvR1_MotionCore *core;
+    RvR1_MotionWindow *win0;
+    RvR1_MotionWindow *win4;
+    void *unk8;
+    void *unkC;
+    f32 pos;
+    f32 rate;
+    f32 step;
+
+    core = arg0->unk4;
+    win0 = core->unk0;
+    win4 = core->unk4;
+    unk8 = core->unk8;
+    pos = win0->unk4;
+    unkC = core->unkC;
+    rate = 1.0f;
+    if (core->unk30 & 1) {
+        rate = (f32) ((f64) (u32) D_80744478 * 0.5);
+    }
+    core->unk30 &= ~1;
+    if (D_80746B60 == 0) {
+        core->unk30 |= (win0->unk1C & 1);
+    }
+    if (core->unk58 > 0.0f) {
+        core->unk54 += rate;
+        if (core->unk54 < core->unk58) {
+            core->unk48 = core->unk4C + (((core->unk50 - core->unk4C) * core->unk54) / core->unk58);
+        } else {
+            core->unk58 = 0.0f;
+            core->unk48 = core->unk50;
+        }
+    }
+    step = core->unk48 * rate;
+    if (win0->unk34 > 0.0f) {
+        win0->unk30 += (step > 0) ? step : -step;
+        if (win0->unk30 < win0->unk34) {
+            win0->unk24 = win0->unk28 + (((win0->unk2C - win0->unk28) * win0->unk30) / win0->unk34);
+        } else {
+            win0->unk34 = 0.0f;
+            win0->unk24 = win0->unk2C;
+        }
+    }
+    if (win4->unk34 > 0.0f) {
+        win4->unk30 += (step > 0) ? step : -step;
+        if (win4->unk30 < win4->unk34) {
+            win4->unk24 = win4->unk28 + (((win4->unk2C - win4->unk28) * win4->unk30) / win4->unk34);
+        } else {
+            win4->unk34 = 0.0f;
+            win4->unk24 = win4->unk2C;
+        }
+    }
+    if (*(s32 *)unk8 != 0) {
+        core->unk40 += (step > 0) ? step : -step;
+        if (core->unk40 < core->unk44) {
+            core->unk10 = (core->unk44 - core->unk40) / core->unk44;
+        } else {
+            func_80613944(arg0, unk8);
+            func_80613944(arg0, unkC);
+            core->unk78 &= ~0x10;
+        }
+        pos += ((step * win0->unk24) / 2.0f) * (1.0f - core->unk10);
+    } else {
+        pos += step * win0->unk24;
+    }
+    func_80614644((RvE_Controller *)arg0, (RvE_State *)win0, pos);
+    if (win4->unk0 != NULL) {
+        if (core->unk28 < core->unk2C) {
+            core->unk28 += core->unk2E;
+            if (core->unk28 > core->unk2C) {
+                core->unk28 = core->unk2C;
+            }
+        } else if (core->unk28 > core->unk2C) {
+            core->unk28 -= core->unk2E;
+            if (core->unk28 < core->unk2C) {
+                core->unk28 = core->unk2C;
+            }
+        }
+        pos = win4->unk4 + win4->unk24;
+        func_80614644((RvE_Controller *)arg0, (RvE_State *)win4, pos);
+        if ((win4->unk24 == 0.0f) && (win4->unk1C & 0x10)) {
+            core->unk2C = 0;
+            if (core->unk28 == 0) {
+                func_80613944(arg0, win4);
+            }
+        }
+    }
+    func_80614D90(arg0);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_8061421C.s")
+#endif
+
+#ifdef NON_MATCHING
+void func_80614644(RvE_Controller *arg0_raw, RvE_State *arg1_raw, f32 arg2) {
+    RvR1_MotionOwner *arg0 = (RvR1_MotionOwner *)arg0_raw;
+    RvR1_MotionWindow *arg1 = (RvR1_MotionWindow *)arg1_raw;
+    f32 temp_fa0;
+    f32 temp_fa0_2;
+    f32 temp_ft4;
+    f32 temp_fv0;
+    f32 temp_fv1;
+    s16 temp_v0_2;
+    s32 temp_a0;
+    s32 temp_t2;
+    s8 mask;
+    void *var_a0;
+    s32 var_a2;
+    s32 var_a3;
+    s32 var_v1;
+    u16 temp_v1;
+    RvR1_MotionCore *temp_v0;
+
+
+    temp_v0 = arg0->unk4;
+    temp_v1 = arg1->unk1C;
+    temp_fv0 = arg1->unk14;
+    temp_fv1 = arg1->unk18;
+    var_a2 = 0;
+    var_a3 = 0;
+    if (temp_v0->unk84 != 0) {
+        var_a0 = temp_v0->unk4;
+    } else {
+        var_a0 = temp_v0->unk0;
+    }
+    if (temp_v1 & 8) {
+        temp_fa0 = arg2 - (f32) arg1->unk1E;
+        if (temp_fa0 > 0) {
+            arg1->unk8 = temp_fa0;
+        } else {
+            arg1->unk8 = -temp_fa0;
+        }
+        if ((f64) arg1->unk8 < 1.0) {
+            arg1->unk4 = arg2;
+            arg1->unkC = arg1->unk1E;
+            arg1->unkE = arg1->unk20;
+            return;
+        }
+        arg2 += (f32) ((arg1->unk20 - arg1->unk1E) - (s32) temp_fa0);
+        mask = 0xFFF7;
+        arg1->unk1C = (u16) ((s16) arg1->unk1C & mask);
+        if (arg1 == var_a0) {
+            temp_v0->unk78 &= ~0x20;
+        }
+    }
+    mask = ~8;
+    if (temp_v1 & 4) {
+        if (temp_fv1 < arg2) {
+            var_a3 = 1;
+            arg2 = (2 * temp_fv1) - arg2;
+        } else if (arg2 < temp_fv0) {
+            var_a3 = 1;
+            var_a2 = 1;
+            arg2 = (2 * temp_fv0) - arg2;
+        }
+        if (var_a3 != 0) {
+            arg1->unk24 = 0.0f - arg1->unk24;
+            if (arg1->unk34 != 0.0f) {
+                arg1->unk2C = 0.0f - arg1->unk2C;
+                arg1->unk28 = 0.0f - arg1->unk28;
+            }
+            if (arg1 == var_a0) {
+                temp_v0->unk78 &= ~4;
+            }
+        }
+    } else if (temp_v1 & 2) {
+        if (((f64) temp_fv1 + 1.0) <= (f64) arg2) {
+            var_a2 = 1;
+            arg2 -= (1.0f + temp_fv1) - temp_fv0;
+        } else if (arg2 < temp_fv0) {
+            var_a2 = 1;
+            arg2 += (1.0f + temp_fv1) - temp_fv0;
+        }
+    } else if (temp_fv1 <= arg2) {
+        arg2 = temp_fv1;
+        if (arg1->unk24 >= 0.0f) {
+            arg1->unk24 = 0.0f;
+            arg1->unk34 = 0.0f;
+            var_a2 = 1;
+        }
+    } else if (arg2 < temp_fv0) {
+        arg2 = temp_fv0;
+        var_a2 = 1;
+        if (arg1->unk24 <= 0.0f) {
+            arg1->unk24 = 0.0f;
+            arg1->unk34 = 0.0f;
+        }
+    }
+    if (arg1 == var_a0) {
+        var_v1 = temp_v0->unk78;
+        if (var_v1 & 0x3F) {
+            if (var_a2 != 0) {
+                temp_a0 = temp_v0->unk7C;
+                temp_t2 = var_v1 & ~1;
+                temp_v0->unk78 = temp_t2;
+                if (temp_a0 != 0) {
+                    temp_v0->unk7C = temp_a0 - 1;
+                    var_v1 = temp_t2;
+                } else {
+                    var_v1 = temp_v0->unk78 & ~2;
+                    temp_v0->unk78 = var_v1;
+                }
+            }
+            if (var_v1 & 8) {
+                temp_fa0_2 = temp_v0->unk80;
+                temp_ft4 = arg1->unk4;
+                if (arg2 == temp_fa0_2) {
+                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = var_v1 & mask;
+                } else if (temp_fa0_2 < arg2) {
+                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & mask;
+                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & mask;
+                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & mask;
+                else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & mask;
+            }
+        }
+    }
+    arg1->unk4 = arg2;
+    arg1->unkC = (s16) arg2;
+    temp_v0_2 = arg1->unkC;
+    arg1->unkE = temp_v0_2 + 1;
+    arg1->unk8 = arg2 - (f32) temp_v0_2;
+    if (temp_fv1 < (f32) arg1->unkE) {
+        if (temp_v1 & 2) {
+            arg1->unkE = (s16) temp_fv0;
+            return;
+        }
+        arg1->unkE = temp_v0_2;
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614644.s")
+#endif
 
 typedef struct {
     u8 pad0[4];

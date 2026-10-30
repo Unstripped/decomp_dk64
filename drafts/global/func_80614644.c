@@ -1,4 +1,4 @@
-// func_80614644 (src/global/17B90.c): stage 4; leaf function, frame size 0, no callee-saved registers. Direct arg2 usage and load reordering resolved all three initial float registers (f0, f2, f14). Permuter best score 1525. Remaining diff is -9 constant hoisting and local zero-sub scheduling.
+// func_80614644 (src/global/17B90.c): stage 4; leaf function frame 0; permuter score 845 (down from 1525); initial float registers resolved by load order; new_var = 0xFFF7 narrow formal idiom hoisted -9 constant into t2 and CSEd across 5 branches; remaining diff is t1 vs t2 regalloc and zero-sub scheduling
 typedef struct {
     void *unk0;
     f32 unk4;
@@ -17,11 +17,11 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvF_MotionWindow;
+} RvR1_MotionWindow;
 
 typedef struct {
-    RvF_MotionWindow *unk0;
-    RvF_MotionWindow *unk4;
+    RvR1_MotionWindow *unk0;
+    RvR1_MotionWindow *unk4;
     void *unk8;
     void *unkC;
     f32 unk10;
@@ -44,14 +44,20 @@ typedef struct {
     s32 unk7C;
     f32 unk80;
     s32 unk84;
-} RvF_MotionCore;
+} RvR1_MotionCore;
 
 typedef struct {
     u8 pad0[4];
-    RvF_MotionCore *unk4;
-} RvF_MotionOwner;
+    RvR1_MotionCore *unk4;
+} RvR1_MotionOwner;
 
-void func_80614644(RvF_MotionOwner *arg0, RvF_MotionWindow *arg1, f32 arg2) {
+typedef struct { u8 pad[0x14]; f32 a; f32 b; } RvE_State;
+typedef struct { u8 pad[4]; void *holder; } RvE_Controller;
+
+void func_80614644(RvE_Controller *arg0_raw, RvE_State *arg1_raw, f32 arg2) {
+    RvR1_MotionOwner *arg0 = (RvR1_MotionOwner *)arg0_raw;
+    RvR1_MotionWindow *arg1 = (RvR1_MotionWindow *)arg1_raw;
+    s8 new_var;
     f32 temp_fa0;
     f32 temp_fa0_2;
     f32 temp_ft4;
@@ -65,13 +71,12 @@ void func_80614644(RvF_MotionOwner *arg0, RvF_MotionWindow *arg1, f32 arg2) {
     s32 var_a3;
     s32 var_v1;
     u16 temp_v1;
-    RvF_MotionCore *temp_v0;
-    s32 mask;
+    RvR1_MotionCore *temp_v0;
 
-    temp_fv0 = arg1->unk14;
-    temp_fv1 = arg1->unk18;
     temp_v0 = arg0->unk4;
     temp_v1 = arg1->unk1C;
+    temp_fv0 = arg1->unk14;
+    temp_fv1 = arg1->unk18;
     var_a2 = 0;
     var_a3 = 0;
     if (temp_v0->unk84 != 0) {
@@ -92,13 +97,13 @@ void func_80614644(RvF_MotionOwner *arg0, RvF_MotionWindow *arg1, f32 arg2) {
             arg1->unkE = arg1->unk20;
             return;
         }
-        arg1->unk1C = (u16) ((s16) arg1->unk1C & 0xFFF7);
         arg2 += (f32) ((arg1->unk20 - arg1->unk1E) - (s32) temp_fa0);
+        new_var = 0xFFF7;
+        arg1->unk1C = (u16) ((s16) arg1->unk1C & new_var);
         if (arg1 == var_a0) {
             temp_v0->unk78 &= ~0x20;
         }
     }
-    mask = ~8;
     if (temp_v1 & 4) {
         if (temp_fv1 < arg2) {
             var_a3 = 1;
@@ -109,7 +114,7 @@ void func_80614644(RvF_MotionOwner *arg0, RvF_MotionWindow *arg1, f32 arg2) {
             arg2 = (2 * temp_fv0) - arg2;
         }
         if (var_a3 != 0) {
-            arg1->unk24 = 0 - arg1->unk24;
+            arg1->unk24 = 0.0f - arg1->unk24;
             if (arg1->unk34 != 0.0f) {
                 arg1->unk2C = 0.0f - arg1->unk2C;
                 arg1->unk28 = 0.0f - arg1->unk28;
@@ -160,12 +165,12 @@ void func_80614644(RvF_MotionOwner *arg0, RvF_MotionWindow *arg1, f32 arg2) {
                 temp_fa0_2 = temp_v0->unk80;
                 temp_ft4 = arg1->unk4;
                 if (arg2 == temp_fa0_2) {
-                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = var_v1 & mask;
+                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = (~8) & var_v1;
                 } else if (temp_fa0_2 < arg2) {
-                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & mask;
-                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & mask;
-                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & mask;
-                else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & mask;
+                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = (~8) & var_v1;
+                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = (~8) & var_v1;
+                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = (~8) & var_v1;
+                else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = (~8) & var_v1;
             }
         }
     }
