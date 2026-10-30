@@ -514,19 +514,68 @@ Gfx *func_807105D4(Gfx *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_80710CA0.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_80711410.s")
+typedef struct AngBPlayerView {
+    u8 pad0[0x2C4];
+    f32 unk2C4;
+} AngBPlayerView;
+
+extern s32 D_807FBB60;
+extern u8 D_807FDA1B;
+extern f32 *D_8076A0B4;
+extern u8 D_8077058C[];
+void func_8070F5CC(u8, s16, f32, s16, s32, s32);
+void func_80710CA0(void);
+void renderCallbacksRegister(void *, void *, s32);
+
+void func_80711410(f32 arg0, s16 arg1, f32 arg2, s16 arg3, f32 arg4) {
+    f32 temp_fs1;
+    f64 temp_fa0;
+    f64 temp_fv1;
+    f64 temp_fv2;
+    f64 var_fv0;
+    s32 var_s0;
+    s32 var_s5;
+
+    if (D_807FBB60 & 0x10) {
+        temp_fv1 = (f64)arg0;
+        temp_fv2 = (f64)arg2;
+        D_807FDA1E = (s16)(s32)(cosApprox(((AngBPlayerView *)D_807FC924)->unk2C4) * (f32)arg1);
+        temp_fa0 = (temp_fv1 * 255) / 3.9;
+        if (temp_fa0 > 255.0) {
+            var_fv0 = 255.0;
+        } else {
+            var_fv0 = temp_fa0;
+        }
+        D_8077058C[0] = (u8)(u32)(var_fv0 * temp_fv2);
+        if (temp_fv1 < 1.0) {
+            arg0 *= 100.0f;
+            if ((f32)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 100) < arg0) {
+                var_s5 = 1;
+            } else {
+                var_s5 = 0;
+            }
+        } else {
+            var_s5 = (s32)arg0;
+        }
+        D_807FDA1B = (u8)(u32)((*D_8076A0B4 * 100.0f) + 100.0f);
+        var_s0 = 0;
+        if (var_s5 > 0) do { // FAKE: if/do on one line steers as1 preheader scheduling
+            temp_fs1 = (f32)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 320);
+            func_8070F5CC(0, arg3, (f32)(((f64)(f32)((f64)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 125) / 800.0) + 0.1) * 2.5 * (f64)arg4), (s16)(s32)temp_fs1, -10, (u32)(90.0f * arg4) & 0xFF);
+            var_s0 += 1;
+        } while (var_s0 != var_s5);
+        if (*D_807550E0 != 0) {
+            renderCallbacksRegister(&func_80710CA0, 0, 1);
+        }
+    }
+}
 
 typedef struct R114cPlayerView {
     u8 pad0[0x2C4];
     f32 unk2C4;
 } R114cPlayerView;
 
-extern s32 D_807FBB60;
-extern u8 D_807FDA1B;
 u32 func_806119A0(void);
-void func_8070F5CC(u8, s16, f32, s16, s32, s32);
-void func_80710CA0(void);
-void renderCallbacksRegister(void *, void *, s32);
 
 void func_80711950(f32 arg0, s16 arg1, s16 arg2) {
     s32 random;
@@ -563,7 +612,61 @@ void func_80711950(f32 arg0, s16 arg1, s16 arg2) {
 
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_80711BD0.s")
+extern u8 D_807212E0;
+s32 func_807149FC(s32);
+void func_8071495C(void);
+void effectSwayRiseUpdate(void);
+
+void func_80711BD0(f32 arg0, s16 arg1, s16 arg2, u8 arg3) {
+    f32 temp_fv1;
+    f32 var_fs0;
+    f64 temp_fv0;
+    s32 temp_s0;
+    s32 var_s0;
+    s32 var_s1;
+
+    if (D_807FBB60 & 0x10) {
+        if ((arg3 == 3) && (((s32)(randomNonNegative() >> 0xF) % 1000) >= 0x3DA)) {
+            func_807149FC(-1);
+            func_8071498C(&effectSwayRiseUpdate);
+            func_8071495C();
+            temp_s0 = randomNonNegative();
+            func_80714CC0((s32)&D_807212E0, (f32)(((f64)((s32)(temp_s0 >> 0xF) % 100) * 0.01) + 0.4), (f32)((s32)(randomNonNegative() >> 0xF) % 320), 0.0f, -5.0f);
+        }
+        D_807FDA1E = (s16)(s32)(cosApprox(((R114cPlayerView *)D_807FC924)->unk2C4) * (f32)arg1);
+        if ((f64)arg0 < 1.0) {
+            arg0 *= 100.0f;
+            if ((f32)(s32)((u32)(func_806119A0() / 10000U) % 100U) < arg0) {
+                var_s1 = 1;
+            } else {
+                var_s1 = 0;
+            }
+        } else {
+            var_s1 = (s32)arg0;
+        }
+        D_807FDA1B = 0xFF;
+        var_s0 = 0;
+        if (var_s1 > 0) {
+            do {
+                temp_fv1 = (f32)((f64)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 80) * 0.005);
+                var_fs0 = temp_fv1;
+                if (D_807FDA1C != 3) {
+                    temp_fv0 = (f64)temp_fv1 * 3.0;
+                    var_fs0 = (f32)((temp_fv0 > 0.3 ? temp_fv0 : 0.3) < 2.0 ? (temp_fv0 > 0.3 ? temp_fv0 : 0.3) : 2.0);
+                }
+                var_fs0 = (f32)((f64)var_fs0 + 0.2);
+                if ((D_807FDA1C == 4) && (((s32)(randomNonNegative() >> 0xF) % 100) >= 0x33)) {
+                    var_fs0 *= -1.0f;
+                }
+                func_8070F5CC(arg3, arg2, var_fs0, (s16)(s32)((u32)(func_806119A0() / 10000U) % 320U), -10, 0xC8);
+                var_s0 += 1;
+            } while (var_s0 != var_s1);
+        }
+        if (*D_807550E0 != 0) {
+            renderCallbacksRegister(&func_80710CA0, 0, 1);
+        }
+    }
+}
 
 
 void func_80711F90(f32 arg0, s16 arg1, s32 arg2, s16 arg3, f32 arg4) {
@@ -596,4 +699,29 @@ void func_80711F90(f32 arg0, s16 arg1, s32 arg2, s16 arg3, f32 arg4) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_807122B4.s")
+void assetFreeBuffer(void *, s32, s32);
+void heapFreeDeferred(void *);
+
+s32 func_807122B4(void) {
+    s16 i;
+    u16 *queue;
+
+    queue = D_807550E0;
+    if (*queue != 0) {
+        D_8077058C[0] = (u8)(u32)((f64)(u32)D_8077058C[0] * 0.9);
+        renderCallbacksRegister((void *)func_80710CA0, NULL, 1);
+        return 0;
+    }
+    if (D_807FDA1C != 6) {
+        D_8077058C[0] = 0;
+        heapFreeDeferred(*(void **)((u8 *)queue + 4));
+        for (i = 0; i < (s32)(&D_80755264)[D_807FDA1C * 0x14]; i++) {
+            assetFreeBuffer((void *)D_807FD9F0[i], 0x34A, 0x64);
+        }
+        D_807FDA1C = 6;
+        D_807FDA28 = 0;
+        return 1;
+    }
+    // FAKE: no final return keeps queue in $v0
+}
+
