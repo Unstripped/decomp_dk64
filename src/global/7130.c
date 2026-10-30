@@ -1793,7 +1793,7 @@ void func_806057F8(void) {
     }
 }
 
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+s16 func_806086CC(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 
 void sfxPlayFromActorWithAltitudeCheck(Actor *arg0, s16 arg1, u8 arg2, s16 arg3, u8 arg4) {
     s32 var_v0;
@@ -1821,15 +1821,20 @@ extern u8 D_807FC928;
 void camGetPathStartPose(s16 *, s16 *, s16 *, s16 *);
 s16 func_80609140(s16, s32, f32, f32, u8, u8);
 
-#ifdef NON_MATCHING
-void func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, f32 arg8, s32 arg9) {
-    s16 pos[4];
-    f32 sp74;
+#pragma intrinsic(sqrtf)
+
+s16 func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16 arg5, u8 arg6, u8 arg7, f32 arg8, u8 arg9) {
     f32 diff;
     f32 angle2;
+    s32 dist;
     s32 var_a1;
-    s32 closest_idx;
+    f32 sp74;
+    u8 closest_idx;
     u8 i;
+    s32 pad0;  // FAKE: unused locals reserve 12 bytes of frame
+    s32 pad1;
+    s32 pad2;
+    s16 pos[4];
 
     D_80770DE4 = -1.0f;
     closest_idx = 0;
@@ -1838,15 +1843,16 @@ void func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5, s
             s32 dx = D_807FC924[i].unk210 - arg0;
             s32 dy = D_807FC924[i].unk214 - arg1;
             s32 dz = D_807FC924[i].unk218 - arg2;
-            if (D_80770DE4 == -1.0f || (f32)(dx * dx + dy * dy + dz * dz) < D_80770DE4) {
+            dist = dx * dx + dy * dy + dz * dz;
+            if (D_80770DE4 == -1.0f || (f32)dist < D_80770DE4) {
                 closest_idx = i;
-                D_80770DE4 = dx * dx + dy * dy + dz * dz;
+                D_80770DE4 = dist;
             }
         }
     }
 
     if (D_80770DE4 == -1.0f) {
-        return;
+        return -1;
     }
 
     pos[0] = D_807FC924[closest_idx].unk210;
@@ -1872,8 +1878,8 @@ void func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5, s
     } else {
         D_80770DE4 = sqrtf(D_80770DE4);
         if (D_807FC928 == 1 && (f64)arg8 >= 0.8) {
-            arg0 = mathAngleBetweenPointsRad(pos[1], 0.0f, arg1, sqrtf(((arg2 - pos[2]) * (arg2 - pos[2])) + ((arg0 - pos[0]) * (arg0 - pos[0]))));
-            angle2 = mathAngleBetweenPointsRad(pos[1], 0.0f, D_807FC924->unk22C, sqrtf(((D_807FC924->unk230 - pos[2]) * (D_807FC924->unk230 - pos[2])) + ((D_807FC924->unk228 - pos[0]) * (D_807FC924->unk228 - pos[0]))));
+            arg0 = mathAngleBetweenPointsRad(pos[1], 0.0f, arg1, sqrtf(((arg0 - pos[0]) * (arg0 - pos[0])) + ((arg2 - pos[2]) * (arg2 - pos[2]))));
+            angle2 = mathAngleBetweenPointsRad(pos[1], 0.0f, D_807FC924->unk22C, sqrtf(((D_807FC924->unk228 - pos[0]) * (D_807FC924->unk228 - pos[0])) + ((D_807FC924->unk230 - pos[2]) * (D_807FC924->unk230 - pos[2]))));
             diff = arg0 - angle2;
             if (arg0 < angle2) {
                 diff += 6.2831855f;
@@ -1887,13 +1893,10 @@ void func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5, s
         }
 
         if ((f64)sp74 > 0.7853981852531433 && (f64)sp74 < 5.497787296772003) {
-            arg0 = 1.0f;
-            D_80770DE4 *= arg0 - (sinApprox(((2.0 * (f64)sp74) / 3.0) + 2.617993950843811) * arg8);
-        } else {
-            arg0 = 1.0f;
+            D_80770DE4 = (1.0f - (sinApprox(((2.0 * (f64)sp74) / 3.0) + 2.617993950843811) * arg8)) * D_80770DE4;
         }
-        if (D_80770DE4 < arg0) {
-            D_80770DE4 = arg0;
+        if (D_80770DE4 < 1.0f) {
+            D_80770DE4 = 1.0f;
         }
 
         var_a1 = (((f32)(arg7 * 4000) / sqrtf(D_80770DE4)) - (((f32)(arg7 * 4000) / 7.74596600000000013) - 32767.0));
@@ -1904,13 +1907,10 @@ void func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5, s
     }
 
     if (var_a1 >= 1001) {
-        func_80609140(arg3, var_a1, (arg0 - sinApprox(sp74)) * 63.5, (f64)arg5 / 127.0, arg6, arg9);
+        return func_80609140(arg3, var_a1, (1.0f - sinApprox(sp74)) * 63.5, (f64)arg5 / 127.0, arg6, arg9);
     }
+    return -1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_806086CC.s")
-#endif
 
 u32 func_806119A0(void);
 void n_alSndpSetPriority(s32, s32);
