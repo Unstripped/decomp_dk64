@@ -1154,9 +1154,8 @@ void actorPlaySoundAndFinish(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
 void flagSet(s32, s32, s32);
-void func_8070E8DC(void);
+void func_8070E8DC(s32);
 s32 func_80600530(void);
 void func_8070D8C0(Actor *, s32, u8);
 
@@ -1165,21 +1164,18 @@ extern s8 D_807F6950;
 
 void func_8069E088(void) {
     s16 unk;
-    u8 unk154;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80613C48(D_807FBB40, 0x5ED, 0.0f, 0.0f);
     }
     D_807FBB40->unk15E = 0x14;
-    unk154 = D_807FBB40->unk154;
-    if (unk154 < 0x1E) {
-        D_807FBB40->unk154 = unk154 + 1;
-        unk154 = D_807FBB40->unk154;
+    if (D_807FBB40->unk154 < 0x1E) {
+        D_807FBB40->unk154++;
     }
     if (D_807FBB40->unk154 == 0x1E) {
         unk = 0;
         D_807FBB40->unk154 = 0x64;
-        func_8070E8DC();
+        func_8070E8DC(1);
         if (flagGet(0x178, 0) == 0) {
             flagSet(0x178, 1, 0);
         } else {
@@ -1195,7 +1191,3 @@ void func_8069E088(void) {
     D_807FBB40->unk4->unk3C = 0.0f;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069E088.s")
-#endif
