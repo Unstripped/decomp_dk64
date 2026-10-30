@@ -1,7 +1,7 @@
-// func_8065C334 (src/global/5E2F0.c): Stage 5/6: frame 0x88, 16 saved regs matched, text size matched (13216 bytes), switch dispatch matched; regalloc/hoisting order of 1.0f remaining
+// func_8065C334 (src/global/5E2F0.c): L65C334 stage 5: frame 0x88 + FP callee-saved set (f20..f30) + text size match; for-loop over D_807F7BC8[i] (move a0,zero in blez delay slot), factor arms: unk4<=dot -> 1.0f else (dot-unk0)*unk8 (old draft had them swapped), raw diff f32 d[3] at 96.. needs pad[7]+4 uopt temp slots (fake nx read late in case 1). Remaining ~80 text diff lines (deadsweep/random fakes): case1 raw dx/dy/dz should be caller-saved coloured f2/f14/f16 spilled around sqrtf (target: nz/nx/ny stores 92/84/88, f20=ny) but ours keeps them as temps/array; arg6 pointer should be coloured v1 (lw v1,160(sp)); case0 (diff_val-range) f2 vs f14.
 #include <ultra64.h>
 
-typedef struct Cam2_Struct_40 {
+typedef struct LightTrigger {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -21,25 +21,27 @@ typedef struct Cam2_Struct_40 {
     /* 0x3C */ s16 unk3C;
     /* 0x3E */ u8 unk3E;
     /* 0x3F */ u8 unk3F;
-} Cam2_Struct_40;
+} LightTrigger;
 
-extern Cam2_Struct_40 D_807F7BC8[];
+extern LightTrigger D_807F7BC8[];
 extern s16 D_807F7EC8;
 extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
 extern f32 *D_8076A0BC;
-
-s32 func_80651B64(s16);
+s32 mapChunkIsInUse(s16);
 
 void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
-    f32 diff[14];
-    Cam2_Struct_40 *entry;
+    f32 pad[7];
+    f32 d[3];
+    LightTrigger *entry;
     f32 r;
     f32 g;
     f32 b;
     s32 three;
+    s32 i;
 
-    if (func_80651B64(arg7) == 0) {
+    if (mapChunkIsInUse(arg7) == 0) {
+        if (b > 0.0f) {} // FAKE: regalloc steer (random search)
         *arg6 = 0xFF;
         *arg5 = 0xFF;
         *arg4 = 0xFF;
@@ -48,43 +50,51 @@ void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u
     if (D_807F7EC8 == 0) {
         *arg4 = (s32)(D_8076A0B4[arg7] * 255.0f);
         *arg5 = (s32)(D_8076A0B8[arg7] * 255.0f);
+        if (arg6 != 0) {} // FAKE: regalloc steer (random search)
         *arg6 = (s32)(D_8076A0BC[arg7] * 255.0f);
         return;
     }
     r = D_8076A0B4[arg7];
     g = D_8076A0B8[arg7];
     b = D_8076A0BC[arg7];
-    if (D_807F7EC8 > 0) {
-        three = 3;
-        entry = D_807F7BC8;
-        do {
+    three = 3;
+    for (i = 0; i < D_807F7EC8; i++) {
+        {
+            entry = &D_807F7BC8[i];
             switch (entry->unk3E) {
             default:
                 break;
+                if (arg7) {} // FAKE: regalloc steer (random search)
             case 1: {
+                f32 nx;
+                f32 ny;
+                f32 nz;
                 f32 dist;
                 f32 dot;
                 f32 factor;
 
-                diff[0] = arg0 - (f32)(entry->unk38 / three);
-                diff[1] = arg1 - (f32)(entry->unk3A / three);
-                diff[2] = arg2 - (f32)(entry->unk3C / three);
-                dist = sqrtf((diff[2] * diff[2]) + ((diff[0] * diff[0]) + (diff[1] * diff[1])));
+                d[0] = arg0 - (f32)(entry->unk38 / three);
+                d[1] = arg1 - (f32)(entry->unk3A / three);
+                d[2] = arg2 - (f32)(entry->unk3C / three);
+                dist = sqrtf((d[2] * d[2]) + ((d[0] * d[0]) + (d[1] * d[1])));
                 if (dist == 0.0f) {
+        if (1) {} // FAKE: regalloc steer (random search)
                     dist = 0.1f;
                 }
-                diff[3] = diff[0] / dist;
-                diff[4] = diff[1] / dist;
-                diff[5] = diff[2] / dist;
-                dot = (entry->unk14 * diff[5]) + ((diff[3] * entry->unkC) + (diff[4] * entry->unk10));
+                nz = d[2] / dist;
+                nx = d[0] / dist;
+                    if (r && r) {} // FAKE: regalloc steer (random search)
+                ny = d[1] / dist;
+                dot = (entry->unk14 * nz) + ((nx * entry->unkC) + (ny * entry->unk10));
                 if (dot < 0.0f) {
                     dot = 0.0f;
                 }
                 if (entry->unk0 <= dot) {
                     if (entry->unk4 <= dot) {
-                        factor = (dot - entry->unk0) * entry->unk8;
-                    } else {
                         factor = 1.0f;
+                    } else {
+                        factor = (dot - entry->unk0) * entry->unk8;
+                        if (nx == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     }
                     if ((f64)dist > 300.0) {
                         if ((f64)dist > 1100.0) {
@@ -100,16 +110,20 @@ void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u
                 break;
             }
             case 0: {
+                f32 dx;
+                f32 dy;
+                f32 dz;
                 f32 dist;
                 f32 diff_val;
                 f32 range;
                 f32 max_range;
                 f32 factor;
 
-                diff[2] = (f32)(entry->unk3C / three) - arg2;
-                diff[0] = (f32)(entry->unk38 / three) - arg0;
-                diff[1] = (f32)(entry->unk3A / three) - arg1;
-                dist = sqrtf((diff[2] * diff[2]) + ((diff[0] * diff[0]) + (diff[1] * diff[1])));
+                dz = (f32)(entry->unk3C / three) - arg2;
+                dx = (f32)(entry->unk38 / three) - arg0;
+                dy = (f32)(entry->unk3A / three) - arg1;
+                dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
+                    if (arg6 != 0) {} // FAKE: regalloc steer (random search)
                 diff_val = dist - (f32)arg3;
                 if (dist <= (f32)arg3) {
                     diff_val = 0.1f;
@@ -126,13 +140,14 @@ void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u
                         r += entry->unk2C * factor;
                         g += entry->unk30 * factor;
                         b += entry->unk34 * factor;
+                        if (arg3 + 1.0f) {} // FAKE: regalloc steer (random search)
                     }
                 }
                 break;
+                if (b != 0) {} // FAKE: regalloc steer (random search)
             }
             }
-            entry++;
-        } while (entry < &D_807F7BC8[D_807F7EC8]);
+        }
     }
     if (r > 1.0f) {
         r = 1.0f;
@@ -145,5 +160,7 @@ void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u
     }
     *arg4 = (s32)(r * 255.0f);
     *arg5 = (s32)(g * 255.0f);
+    if (arg6 == 0) {} // FAKE: regalloc steer (random search)
+    if (D_8076A0B4 && D_8076A0B4) {} // FAKE: regalloc steer (random search)
     *arg6 = (s32)(b * 255.0f);
 }
