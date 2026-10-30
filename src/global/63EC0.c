@@ -116,7 +116,144 @@ extern f32 D_807F93E0;
 extern f32 D_807F93E4;
 extern f32 D_807F93E8;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_8065F1C0.s")
+typedef struct EffCF1C0Sub {
+    u8 pad0[0xC];
+    f32 unkC;
+    f32 unk10;
+    u8 pad14[0x30];
+    s16 unk44;
+    s16 unk46;
+    s16 unk48;
+    s16 unk4A;
+    s16 unk4C;
+    s16 unk4E;
+    s16 unk50[11];
+    u8 unk66;
+    u8 unk67;
+    u8 unk68;
+    u8 pad69[3];
+} EffCF1C0Sub;
+
+typedef struct EffCF1C0Node {
+    EffCF1C0Sub *target;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 x;
+    f32 y;
+    f32 z;
+    void *dl[2];
+    void *vtx[2];
+    s16 unk2C;
+    u8 pad2E[2];
+    s32 unk30;
+    s32 unk34;
+    s32 unk38;
+    s32 unk3C;
+    s16 unk40;
+    s16 unk42;
+    s16 unk44;
+    s16 unk46;
+    s16 unk48;
+    u8 unk4A;
+    u8 unk4B;
+    u8 unk4C;
+    u8 unk4D;
+    u8 pad4E[2];
+    struct EffCF1C0Node *next;
+} EffCF1C0Node;
+
+typedef struct EffCF1C0Entry {
+    void (*func)(u8);
+    u8 pad4[0x10];
+    u8 unk14;
+    u8 pad15[3];
+} EffCF1C0Entry;
+
+extern s32 D_8076A0A8;
+
+void *func_80610FE8(s32);
+void func_80660D38(Vtx *, EffectNode *);
+void func_80660520(Vtx *, EffectNode *);
+
+void func_8065F1C0(u8 *arg0) {
+    u8 pad[0x1C];
+    s32 i;
+    EffCF1C0Sub *base;
+    EffCF1C0Node **var_fp;
+    s32 count;
+
+    for (i = 0; i < 9; i++) {
+        ((EffCF1C0Entry *)D_80748A90)[i].unk14 = 0;
+    }
+
+    var_fp = (EffCF1C0Node **)&D_807F93C0;
+    if (D_8076A0A8 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    D_807F93C0 = NULL;
+    count = *(u8 *)(arg0 + *(s32 *)(arg0 + 0x4C) + 3);
+    D_807F93C4 = 0;
+
+    if (count == (count * 0)) {  // FAKE: extra use of count steers the v0/v1 pick
+        return;
+    }
+
+    base = (EffCF1C0Sub *)(arg0 + *(s32 *)(arg0 + 0x4C) + 4);
+    for (i = 0; i < count; i++) {
+        EffCF1C0Node *node = func_80610FE8(0x54);
+        s32 temp_s3;
+        s32 temp_s4;
+        s32 temp_s1;
+        u8 temp_a0;
+        EffCF1C0Entry *entry2;
+
+        *var_fp = node;
+        node->target = &base[i];
+        node->unk2C = base[i].unk44;
+        node->unk4 = 0.0f;
+        node->unkC = 0.0f;
+        node->unk8 = 0.0f;
+        node->unk30 = 0;
+        node->unk34 = 0;
+        node->unk38 = 0;
+        node->unk3C = 0;
+        node->unk4A = 0;
+        node->unk4B = 0;
+        node->x = base[i].unkC;
+        node->y = base[i].unk10;
+        node->z = 0.0f;
+        node->unk4D = 0;
+        var_fp = &node->next;
+
+        if (((D_8076A0A8 == 0x53) || (D_8076A0A8 == 0xC5)) && (i == 0)) {
+            node->unk4D = 1;
+        }
+
+        temp_s3 = ((s32)(base[i].unk4A - base[i].unk46) / base[i].unk44) + 1;
+        temp_s4 = ((s32)(base[i].unk4C - base[i].unk48) / base[i].unk44) + 1;
+        node->unk48 = (temp_s3 + 1) * (temp_s4 + 1);
+
+        node->dl[0] = func_80610FE8(node->unk48 * 0x10);
+        func_80660D38((Vtx *)node->dl[0], (EffectNode *)node);
+        func_80660520((Vtx *)node->dl[0], (EffectNode *)node);
+
+        node->dl[1] = func_80610FE8(node->unk48 * 0x10);
+        func_80660D38((Vtx *)node->dl[1], (EffectNode *)node);
+        func_80660520((Vtx *)node->dl[1], (EffectNode *)node);
+
+        temp_s1 = (temp_s3 * temp_s4) + (((temp_s3 / 16) + 1) * temp_s4 * 2);
+        temp_s1 += 0xC8;
+        node->vtx[0] = func_80610FE8(temp_s1 << 3);
+        node->vtx[1] = func_80610FE8(temp_s1 * 8);
+
+        temp_a0 = base[i].unk66;
+        entry2 = (EffCF1C0Entry *)D_80748A90 + temp_a0;
+        if (entry2->unk14 == 0) {
+            entry2->func(temp_a0);
+            entry2->unk14 = 1;
+        }
+        node->next = NULL;
+    }
+}
 
 void effectNodeSetTargetPosition(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     EffectNode *node = D_807F93C0;
@@ -182,7 +319,79 @@ void effectUpdateNodes(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_8065F678.s")
+typedef struct EffCF678Sub {
+    u8 pad0[0xC];
+    f32 unkC;
+    f32 unk10;
+    u8 pad14[0x10];
+    f32 unk24;
+    f32 unk28;
+    u8 pad2C[0x1A];
+    s16 unk46;
+    s16 unk48;
+    s16 unk4A;
+    s16 unk4C;
+    s16 unk4E;
+    s16 unk50[1];
+    u8 pad52[0x15];
+    u8 unk67;
+} EffCF678Sub;
+
+s32 effectCheckTargetActive(EffectSubNode *);
+void effectWaterSetMeshColors(Vtx *, EffectNode *);
+void func_8065F964(EffectNode *, f32, f32, f32, u8, void *, void *);
+s32 func_8062DBDC(s16, s16, s16, s16, s32, s16, f32, f32, f32, f32, void *);
+s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
+extern f32 D_807F5FAC;
+extern void *D_807FC924;
+
+void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
+    EffectNode *node;
+    u8 *var_s1;
+    s32 var_s5;
+    f32 temp_fs1;
+    f32 temp_fs0;
+    s32 pad1;
+    u8 sp120[0x138];
+    u32 pad[2];
+    f32 spD8[4][4];
+    f32 sp98[4][4];
+
+    node = D_807F93C0;
+    var_s5 = 0;
+
+    if (node != NULL) {
+        do {
+            if (effectCheckTargetActive(node->target) != 0 && !(node->unk4C & 1)) {
+                temp_fs0 = (f32)((EffCF678Sub *)node->target)->unk4E + node->unk4;
+                temp_fs1 = ((EffCF678Sub *)node->target)->unk10 + ((EffCF678Sub *)node->target)->unkC;
+                if (((EffCF678Sub *)node->target)->unk67 == 1) {
+                    var_s1 = (u8 *)&D_807F6C18[((EffCF678Sub *)node->target)->unk50[0]] + 0x88;
+                } else {
+                    if (var_s5 == 0) {
+                        guMtxL2F(spD8, (Mtx *)((u8 *)D_807FC924 + (arg3 * 0x2F0) + (D_807444FC << 6) + 8));
+                        var_s5 = 1;
+                        matrix4Invert(sp98, spD8);
+                    }
+                    var_s1 = sp120;
+                    func_8065F964(node, arg0, arg1, arg2, arg3, sp98, sp120);
+                }
+                if (func_8062DBDC(((EffCF678Sub *)node->target)->unk46, (s16)(temp_fs0 - temp_fs1), ((EffCF678Sub *)node->target)->unk48, ((EffCF678Sub *)node->target)->unk4A,
+                                  (s32)(temp_fs0 + temp_fs1), ((EffCF678Sub *)node->target)->unk4C, arg0, arg1, arg2, D_807F5FAC, var_s1) != 0 || node->pad4D[0] != 0) {
+                    if ((f64)((EffCF678Sub *)node->target)->unk24 != 0.0 || (f64)((EffCF678Sub *)node->target)->unk28 != 0.0) {
+                        func_80660D38(node->dl[D_807444FC], node);
+                    }
+                    if ((f64)((EffCF678Sub *)node->target)->unkC != 0.0 || (f64)((EffCF678Sub *)node->target)->unk10 != 0.0) {
+                        func_80660520(node->dl[D_807444FC], node);
+                    }
+                    effectWaterSetMeshColors((Vtx *)node->dl[D_807444FC], node);
+                    node->unk4C |= 1;
+                }
+            }
+            node = node->next;
+        } while (node != NULL);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_8065F964.s")
 
