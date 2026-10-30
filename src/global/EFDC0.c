@@ -167,7 +167,6 @@ void func_806EB364(void) {
 
 #define EfA_Q ((EfAQueuedCall *)D_807FC924)
 
-#ifdef NON_MATCHING
 typedef struct EfASubActor {
     u8 pad0[0xD4];
     s16 unkD4;
@@ -184,12 +183,15 @@ s32 func_806EB400(Actor *arg0) {
     if ((D_8074E77C[D_807FC929] == 7) || (sub->unk1F0 & 0x8000)) {
         return 0;
     }
-    return ((arg0->unk154 == 0x34) || (arg0->unk154 == 0x36)) ? 0 : (pred & 1);
+    pred |= 0; // FAKE: second def of pred keeps the || copy out of copy propagation
+    if ((arg0->unk154 != 0x34) && (arg0->unk154 != 0x36)) {
+        if (sub) {} // FAKE: keeps sub live so the state byte takes v1
+        pred &= 1;
+    } else {
+        pred = 0;
+    }
+    return pred;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806EB400.s")
-#endif
 
 void func_806EB4B4(void) {
     D_807FBB40->unk154 = 0x23;
