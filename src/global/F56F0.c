@@ -1028,7 +1028,75 @@ void func_806F2EDC(s32 arg0, F5CEntry *arg1, s32 *arg2, u8 arg3, u8 arg4, f32 ar
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F2FC0.s")
+typedef struct F5N5EffectState {
+    u8 pad0[0x8E];
+    u8 unk8E;
+    u8 unk8F;
+    u8 unk90;
+    u8 unk91;
+} F5N5EffectState;
+
+void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
+
+void func_806F2FC0(Actor *arg0, F5N5EffectState *arg1, u16 arg2) {
+    u8 state0;
+    u8 state2;
+    u16 bone;
+    s32 selector;
+    s32 shouldSpawn;
+
+    selector = arg2;
+    switch (selector) {
+    case 0:
+        state0 = arg1->unk8E;
+        if (state0 != 0) {
+            if ((state0 == 0x10) && ((s32)arg1->unk8F < 4)) {
+                arg1->unk8F = 0;
+                return;
+            }
+        } else {
+            if ((s32)arg1->unk8F >= 4) {
+                effectSpawnBoneWhite(arg0, 0xA, 0.3f, 0.0f, 0.0f, 0.0f, -10);
+                return;
+            }
+            return;
+        }
+        break;
+    case 1:
+        selector = arg1->unk8E;
+        shouldSpawn = 0;
+        if ((selector != 0) && (selector != 3)) {
+            if ((selector == 0x10) && ((s32)arg1->unk8F < 6)) {
+                arg1->unk8F = 0;
+            }
+        } else if ((s32)arg1->unk8F >= 6) {
+            shouldSpawn = 1;
+        }
+        if (shouldSpawn != 0) {
+            if (arg1->unk8E != 0) {
+                bone = arg1->unk90 + 9;
+            } else {
+                bone = arg1->unk91 + 9;
+            }
+            effectSpawnBoneWhite(arg0, bone, 0.2f, 0.0f, 0.0f, 0.0f, -10);
+            return;
+        }
+        break;
+    case 4:
+    case 5:
+        state2 = arg1->unk8E;
+        if (state2 != 0) {
+            if ((state2 == 0x10) && ((s32)arg1->unk8F < 3)) {
+                arg1->unk8F = 0;
+                return;
+            }
+        } else if ((s32)arg1->unk8F >= 3) {
+            effectSpawnBoneWhite(arg0, 0xA, 0.6f, 0.0f, 0.0f, 0.0f, -10);
+        }
+        break;
+    }
+}
+
 
 typedef struct {
     s16 unk0;
@@ -1038,7 +1106,169 @@ typedef struct {
 
 extern u8 D_807FD716;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F3190.s")
+typedef struct {
+    u8 pad0[4];
+    f32 unk4;
+} F56CHead;
+
+typedef struct {
+    u8 pad0[0x1C];
+    void *unk1C;
+    void *unk20;
+    u8 *unk24;
+} F56CSub;
+
+typedef struct {
+    u8 pad0[0x8C];
+    u8 unk8C;
+    u8 pad8D;
+    u8 unk8E;
+    u8 unk8F;
+    u8 pad90[0x21E - 0x90];
+    u16 unk21E;
+} F56CExtra;
+
+void func_806F1EB0();
+void func_806F22A8(s32, void *, s32 *);
+void func_806F2A40(s32, void *, s32 *);
+void func_806F2C48();
+
+void func_806F3190(Actor *arg0, u16 arg1) {
+    F56CExtra *sp74;
+    s32 sp70;
+    s32 sp6C;
+    F56CSub *sub;
+    F5N3TableEntry1768 *sp64;
+    F5CEntry *sp60;
+    u8 *sp5C;
+    f32 sp58;
+    f32 t;
+    f32 v;
+
+    sp74 = arg0->unk174;
+    if ((arg0->unk154 != 0x77) && (arg0->unk60 & 4)) {
+        sub = (F56CSub *)arg0->unk4;
+        sp64 = sub->unk1C;
+        sp60 = sub->unk20;
+        sp5C = sub->unk24;
+        sp70 = 0;
+        sp6C = 0;
+        if ((func_80714608(0) != 0) && ((sp74->unk21E != 0x1E) || (arg0->unk154 == 0x34))) {
+            func_806F2A40((s32)arg0, sp60, &sp6C);
+        }
+        switch (arg1) {
+        case 0:
+            func_806F2C48((s32)arg0, sp64, &sp70);
+            func_806F1C04(arg0, (F5BSlot *)sp64, &sp70);
+            if (sp74->unk8E != 0) {
+                func_806F1858((s32)arg0, sp64, &sp70);
+            }
+            break;
+        case 1:
+            switch (arg0->unk154) {
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                break;
+            case 2:
+                func_806F2754((F5N5CameraActor *)arg0, (F5N5CameraEntry *)sp64, &sp70);
+                break;
+            default:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                func_806F2C48((s32)arg0, sp64, &sp70);
+                break;
+            }
+            func_806F22A8((s32)arg0, sp64, &sp70);
+            if (sp74->unk8E != 0) {
+                func_806F1768((s32)arg0, sp64, &sp70);
+            }
+            break;
+        case 2:
+            switch (arg0->unk154) {
+            case 0x26:
+                if (arg0->unk155[0] != 0) {
+                    t = (*(F56CHead **)arg0->unk4)->unk4;
+                    if (t < 6.0f) {
+                        v = 0.0f;
+                    } else {
+                        v = t - 6.0f;
+                    }
+                    sp58 = (f64)v / 17.0 > 1.0 ? 1.0 : (f64)v / 17.0;
+                    func_806F2EDC((s32)arg0, sp60, &sp6C, 0xA, 0xB, sp58, (f32)(D_8076A0A8 == 0xCD ? 17.0 : 2.5));
+                }
+                break;
+            case 0x27: {
+                t = (*(F56CHead **)arg0->unk4)->unk4;
+                if (t < 6.0f) {
+                    v = 0.0f;
+                } else {
+                    v = t - 6.0f;
+                }
+                sp58 = (f64)v / 17.0 > 1.0 ? 1.0 : (f64)v / 17.0;
+                func_806F2EDC((s32)arg0, sp60, &sp6C, 5, 6, sp58, (f32)(D_8076A0A8 == 0xCD ? 17.0 : 2.5));
+                break;
+            }
+            case 0x28: {
+                t = (*(F56CHead **)arg0->unk4)->unk4;
+                if (t < 7.0f) {
+                    v = 0.0f;
+                } else {
+                    v = t - 7.0f;
+                }
+                sp58 = (f64)v / 14.0 > 1.0 ? 1.0 : (f64)v / 14.0;
+                func_806F2EDC((s32)arg0, sp60, &sp6C, 9, 0xB, sp58, 1.8f);
+                func_806F2EDC((s32)arg0, sp60, &sp6C, 4, 6, sp58, 1.8f);
+                break;
+            }
+            case 0x29: {
+                t = (*(F56CHead **)arg0->unk4)->unk4;
+                if (t < 4.0f) {
+                    v = 0.0f;
+                } else {
+                    v = t - 4.0f;
+                }
+                sp58 = (f64)v / 6.0 > 1.0 ? 1.0 : (f64)v / 6.0;
+                func_806F2EDC((s32)arg0, sp60, &sp6C, 9, 0xB, sp58, 1.3f);
+                func_806F2EDC((s32)arg0, sp60, &sp6C, 4, 6, sp58, 1.3f);
+                break;
+            }
+            }
+            break;
+        case 3:
+            func_806F1EB0((s32)arg0, sp64, &sp70);
+            if (sp74->unk8E != 0) {
+                func_806F1990((s32)arg0, (F5BSlot *)sp64, &sp70);
+            }
+            break;
+        case 4:
+        case 5:
+            if (sp74->unk8E != 0) {
+                func_806F18F4((s32)arg0, (F5BSlot *)sp64, &sp70);
+            }
+            break;
+        case 6:
+            break;
+        }
+        sp64[sp70].unk0 = 0;
+        sp60[sp6C].unk0 = 0xFF;
+        *sp5C = 0xFF;
+        if (sp74->unk8E != 0) {
+            sp74->unk8E -= 1;
+            if (sp74->unk8C != 0) {
+                func_806F2FC0(arg0, (F5N5EffectState *)sp74, arg1);
+            }
+        }
+        if (sp74->unk8E == 0) {
+            sp74->unk8F = 0;
+        }
+    }
+}
+
 
 void func_806F4528(void *);
 
@@ -1086,7 +1316,53 @@ void actorSetPositionAndFacingAngle(Actor *arg0, F5N4Coord *arg1) {
     ((F5N4ActorView *)arg0)->unkE6 = angle;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F386C.s")
+typedef struct {
+    s16 unk0;
+    u8 pad2[2];
+    void *unk4;
+} F5N4ListEntry;
+
+typedef struct {
+    s16 unk0;
+    u8 pad2[2];
+    F5N4ListEntry *unk4;
+} F5N4List;
+
+typedef struct {
+    u8 pad0[0x1F0];
+    s32 unk1F0;
+} F5N4ActorExtra;
+
+extern u8 D_807463B8;
+extern F5N4List *D_80753E90;
+extern u8 D_8076A0B1;
+extern F5N4ListEntry *D_807FD708;
+extern F5N4Coord *D_807FD70C;
+extern s32 D_807FD710;
+extern s16 D_807FD714;
+extern s16 D_807FD718;
+extern s32 D_807FD71C;
+
+void func_806F386C(u8 arg0, s32 arg1, s32 arg2, s16 arg3, s32 arg4) {
+    F5N4ActorExtra *temp_v0;
+
+    temp_v0 = (F5N4ActorExtra *)((Actor *)arg1)->unk174;
+    if (D_80753E90->unk0 >= arg0) {
+        D_807463B8 = 3;
+        D_8076A0B1 |= 0x10;
+        D_807FD710 = arg1;
+        temp_v0->unk1F0 &= ~1;
+        D_807FD714 = 0;
+        D_807FD708 = D_80753E90->unk4 + arg0;
+        D_807FD70C = D_807FD708->unk4;
+        D_807FD718 = arg3;
+        D_807FD71C = arg2;
+        if (*(u8 *)((u8 *)&arg4 + 3) == 0) { // FAKE: narrow lbu of the s32 stack arg
+            actorSetPositionAndFacingAngle((Actor *)arg1, D_807FD70C);
+        }
+    }
+}
+
 
 typedef struct {
     s16 unk0;
@@ -1117,9 +1393,95 @@ void func_806F397C(s32 arg0, s32 arg1, s16 arg2, s16 arg3) {
     D_807FD716 = 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F39E8.s")
+typedef struct {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 pad6[3];
+    u8 unk9;
+    u8 pad10[8];
+} F5N6Point;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F3BEC.s")
+typedef struct {
+    s16 unk0;
+    u8 pad2[2];
+    F5N6Point *unk4;
+} F56CEnt;
+
+extern void *heapAlloc(s32);
+extern void heapClearBlock(void *);
+extern s32 D_807FBB60;
+
+
+typedef struct {
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 unk6;
+} F5N6Input;
+
+void func_806F39E8(arg0, arg1, arg2)
+Actor *arg0;
+F5N6Input *arg1;
+u8 arg2;
+{
+    F5N6Point *p;
+    F5N6Point *q;
+    F56CEnt *entry;
+
+    entry = (F56CEnt *)&D_80753E90->unk4[D_80753E90->unk0];
+    entry->unk0 = 2;
+    entry->unk4 = heapAlloc(0x24);
+    heapClearBlock(entry->unk4);
+    q = entry->unk4 + 1;
+    p = entry->unk4;
+    p->x = arg1->x;
+    p->y = arg1->y;
+    p->z = arg1->z;
+    p->unk9 = 0x32;
+    q->x = func_80612794((s16)((arg1->unk6 / 255.0) * 4095.0)) * arg2 + arg1->x;
+    q->y = arg1->y;
+    q->z = func_80612790((s16)((arg1->unk6 / 255.0) * 4095.0)) * arg2 + arg1->z;
+    q->unk9 = 0x32;
+    func_806F386C(*((u8 *)D_80753E90 + 1), (s32)arg0, 0, 0, 0);
+    D_807FD716 = 0;
+    D_807FBB60 |= 0x400;
+}
+
+
+void func_806F3BEC(arg0, arg1, arg2, arg3)
+Actor *arg0;
+s16 arg1;
+s16 arg2;
+u8 arg3;
+{
+    F5N6Point *p;
+    s16 angle;
+    F5N6Point *q;
+    F56CEnt *entry;
+
+    angle = mathAngleBetweenPoints2D((f32)arg1, (f32)arg2, arg0->unk7C, arg0->unk84);
+    entry = (F56CEnt *)&D_80753E90->unk4[D_80753E90->unk0];
+    if (arg0->unk154 != 0x44) {
+        entry->unk0 = 2;
+        entry->unk4 = heapAlloc(0x24);
+        heapClearBlock(entry->unk4);
+        q = entry->unk4 + 1;
+        p = entry->unk4;
+        p->x = arg0->unk7C;
+        p->y = arg0->unk80;
+        p->z = arg0->unk84;
+        p->unk9 = 0x28;
+        q->x = func_80612794(angle) * arg3 + arg0->unk7C;
+        q->y = arg0->unk80;
+        q->z = func_80612790(angle) * arg3 + arg0->unk84;
+        q->unk9 = 0x28;
+        func_806F386C(*((u8 *)D_80753E90 + 1), (s32)arg0, 0, 0, 0);
+        D_807FD716 = 0;
+        D_807FBB60 |= 0x400;
+    }
+}
+
 
 void func_806F3DB0(void) {
     D_807FD716 |= 2;
@@ -1143,4 +1505,41 @@ void timerDecrementOrSetFlag(u16 *arg0, s16 *arg1, u8 *arg2, u16 arg3) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F3E0C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F4528.s")
+typedef struct {
+    s16 halves[9];
+} F5N4RawEntry;
+
+void func_806F4528(void *arg0) {
+    u8 *next;
+    u8 *destination;
+    u8 *source;
+    F5N4ListEntry *entry;
+    s16 outer;
+    s16 inner;
+
+    if (arg0 != NULL) {
+        D_80753E90->unk0 = *(s16 *)arg0;
+        source = (u8 *)arg0 + 2;
+        D_80753E90->unk4 = heapAlloc((D_80753E90->unk0 * 8) + 8);
+        entry = D_80753E90->unk4;
+        for (outer = 0; outer < D_80753E90->unk0; outer++) {
+            entry->unk0 = *(s16 *)source;
+            next = source + 2;
+            for (inner = 0; inner < entry->unk0; inner++) {
+                if (inner == 0) {
+                    entry->unk4 = heapAlloc(entry->unk0 * 0x12);
+                    destination = entry->unk4;
+                } else {
+                    destination += 0x12;
+                }
+                *(F5N4RawEntry *)destination = *(F5N4RawEntry *)next;
+                next += 0x12;
+            }
+            source = next;
+            entry++;
+        }
+    } else {
+        D_80753E90->unk0 = 0;
+    }
+}
+
