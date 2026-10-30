@@ -545,7 +545,6 @@ void func_806A4B84(f32 arg0, ActorStateView *arg1, SpriteChainState *arg2, Sprit
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct ChainNode ChainNode;
 
 typedef struct ChainState {
@@ -578,83 +577,72 @@ struct ChainNode {
 void func_8070D9AC(ChainNode *);
 void func_8070E808(Actor *, void *);
 
+#ifndef NON_MATCHING
+typedef struct ScreenBounds {
+    /* 0x000 */ u8 pad0[0x270];
+    /* 0x270 */ s16 unk270;
+    /* 0x272 */ s16 unk272;
+    /* 0x274 */ s16 unk274;
+    /* 0x276 */ s16 unk276;
+    /* 0x278 */ u8 pad278[0x2F0 - 0x278];
+} ScreenBounds;
+
+extern ScreenBounds *D_807FC924;
+#endif
+
 void func_806A4DDC(Actor *arg0) {
     ChainState *state;
     ChainNode *node;
     ChainNode *cur;
+    u8 stop;
+    u8 pad[0x90];  // FAKE: reserves 0x90 frame bytes (expected frame 0x110 / f32 spill at 0x50 need an unidentified 0x90-byte local)
     f32 acc;
     f32 dt;
-    f32 sum;
     f32 lim;
-    f64 wide;
-    f64 high;
-    u8 stop;
     u8 mode;
+    u8 last;
     s32 i;
 
     state = arg0->unk174;
     node = state->unkC;
     stop = 0;
-    dt = state->unk20;
-    lim = (f32) ((f64) (1.0f - dt) * 1.47058823529411775);
+    lim = (f32) ((f64) (1.0f - state->unk20) * 1.47058823529411775);
     if (lim > 1.0f) {
         lim = 1.0f;
     }
     state->unk40 = lim;
-    mathAddWaveOffset(&arg0->unk7C, &arg0->unk80, dt, lim, (MotionAngles *) state);
-    wide = (f64) (state->unk20 * 136.8f) * 0.5;
-    state->unk44 = arg0->unk7C - wide;
-    high = (f64) (state->unk20 * 79.799995f) * 0.5;
-    state->unk48 = arg0->unk80 - high;
-    state->unk4C = arg0->unk7C + wide;
-    state->unk50 = arg0->unk80 + high;
-    lim = (f32) D_807FC924->unk270;
-    if (lim < state->unk44) {
-        state->unk44 = state->unk44;
-    } else {
-        state->unk44 = lim;
-    }
-    sum = (f32) D_807FC924->unk272;
-    if (sum < state->unk48) {
-        state->unk48 = state->unk48;
-    } else {
-        state->unk48 = sum;
-    }
-    dt = (f32) D_807FC924->unk274;
-    if (state->unk4C < dt) {
-        state->unk4C = state->unk4C;
-    } else {
-        state->unk4C = dt;
-    }
-    sum = (f32) D_807FC924->unk276;
-    if (state->unk50 < sum) {
-        state->unk50 = state->unk50;
-    } else {
-        state->unk50 = sum;
-    }
+    mathAddWaveOffset(&arg0->unk7C, &arg0->unk80, state->unk20, lim, (MotionAngles *) state);
+    state->unk44 = arg0->unk7C - (f64) (state->unk20 * 136.8f) * 0.5;
+    state->unk48 = arg0->unk80 - (f64) (state->unk20 * 79.799995f) * 0.5;
+    state->unk4C = arg0->unk7C + (f64) (state->unk20 * 136.8f) * 0.5;
+    state->unk50 = arg0->unk80 + (f64) (state->unk20 * 79.799995f) * 0.5;
+    state->unk44 = ((f32) D_807FC924->unk270 < state->unk44) ? state->unk44 : (f32) D_807FC924->unk270;
+    state->unk48 = ((f32) D_807FC924->unk272 < state->unk48) ? state->unk48 : (f32) D_807FC924->unk272;
+    state->unk4C = (state->unk4C < (f32) D_807FC924->unk274) ? state->unk4C : (f32) D_807FC924->unk274;
+    state->unk50 = (state->unk50 < (f32) D_807FC924->unk276) ? state->unk50 : (f32) D_807FC924->unk276;
     acc = state->unk14;
     i = 0;
     while (((s32) state->unk10 >= i) && (node != NULL) && (stop == 0)) {
-        cur = node;
-        dt = cur->unk18;
-        sum = acc + dt;
-        if (((f64) sum > 73.79999542236328) && (arg0->unk154 == 1)) {
+        last = (i == state->unk10);
+        dt = node->unk18;
+        if (((f64) (acc + dt) > 73.79999542236328) && (arg0->unk154 == 1)) {
             arg0->unk154 = 2;
-            state->unk18 = (f32) ((f64) sum - 73.79999542236328);
+            state->unk18 = (f32) ((f64) (acc + dt) - 73.79999542236328);
             stop = 1;
-        } else if ((sum < 0.0f) && (arg0->unk154 == 2)) {
+        } else if (((acc + dt) < 0.0f) && (arg0->unk154 == 2)) {
             state->unk14 = state->unk14 + dt;
-            state->unk10 = state->unk10 - 1;
-            state->unkC = cur->unk1C;
-            acc = sum;
-            node = cur->unk1C;
-            func_8070D9AC(cur);
+            state->unkC = node->unk1C;
+            state->unk10--;
             i--;
+            acc = acc + dt;
+            cur = node;
+            node = node->unk1C;
+            func_8070D9AC(cur);
         } else {
-            func_806A4B84(acc, (ActorStateView *) arg0, (SpriteChainState *) state, (SpriteHolder *) cur, (u8) (i == state->unk10), &stop);
+            func_806A4B84(acc, (ActorStateView *) arg0, (SpriteChainState *) state, (SpriteHolder *) node, last, &stop);
             if (stop == 0) {
                 node = node->unk1C;
-                acc = sum;
+                acc = acc + dt;
             }
         }
         i++;
@@ -666,16 +654,13 @@ void func_806A4DDC(Actor *arg0) {
             mode = arg0->unk154;
         } else {
             mode = arg0->unk154 = 1;
+            if (acc && acc) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
     if ((mode == 1) && (node == NULL)) {
         func_8070E808(arg0, state->unk4);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A4DDC.s")
-#endif
 
 typedef struct SpriteFrameNode {
     /* 0x00 */ u8 pad0[0x2C];
@@ -890,7 +875,6 @@ void renderCalcChainCenterOffset(ChainRowHead *arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct SpriteBehaviour {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u8 pad2[0x2];
@@ -924,12 +908,12 @@ void func_806A5174(Actor *, SpriteBehaviour *, f32);
 void resNodeListFree(SpriteBehaviour *);
 void resQueueRemove(void *);
 void renderCallbacksRegister(void *, void *, s32);
+Gfx *func_806A4284(Gfx *, Actor *);
 
 void func_806A5868(void) {
     SpriteBehaviour *sub;
     f32 sp18;
-    u8 state;
-    u8 v0;
+    s32 v0;
     f32 f;
 
     sub = D_807FBB40->unk174;
@@ -938,37 +922,38 @@ void func_806A5868(void) {
         sp18 = 1.0f;
         sub->unk34 = heapAlloc(0x280);
         sub->unk55 = 0;
-    } else if (!(sub->unk55 & 1)) {
-        if (D_807FBB40->unk154 != 4 && D_807FBB40->unk154 != 5) {
-            if (15.0 < (f64)sub->unk0) {
-                v0 = sub->unk55;
-                if (D_807ECD66 & 0x4000) {
-                    v0 = (sub->unk55 |= 1);
-                }
-                if (D_807ECD58 & 0x2000) {
-                    sub->unk55 = v0 | 2;
-                } else {
-                    sub->unk55 = v0 & 0xFFFD;
-                }
-                v0 = sub->unk55;
-                if (v0 & 2) {
-                    sub->unk55 = v0 & 0xFFFB;
-                } else if (D_807ECD58 == 0x8000) {
-                    sub->unk55 = v0 | 4;
-                } else {
-                    sub->unk55 = v0 & 0xFFFB;
-                }
-                if (sub->unk55 & 1) {
-                    camResumePath();
-                    D_807FBB40->unk154 = 5;
+    } else {
+        v0 = sub->unk55;
+        if (!(v0 & 1)) {
+            if (D_807FBB40->unk154 != 4 && D_807FBB40->unk154 != 5) {
+                if (15.0 < (f64)sub->unk0) {
+                    if (D_807ECD66 & 0x4000) {
+                        sub->unk55 = v0 | 1;
+                        v0 = sub->unk55;
+                    }
+                    if (D_807ECD58 & 0x2000) {
+                        sub->unk55 = v0 | 2;
+                    } else {
+                        sub->unk55 = v0 & 0xFFFD;
+                    }
+                    v0 = sub->unk55;
+                    if (!(v0 & 2) && D_807ECD58 == 0x8000) {
+                        sub->unk55 = v0 | 4;
+                    } else {
+                        sub->unk55 = v0 & 0xFFFB;
+                    }
+                    if (sub->unk55 & 1) {
+                        camResumePath();
+                        D_807FBB40->unk154 = 5;
+                    }
                 }
             }
         }
     }
     sub->unk38 = sub->unk38 + 0x14;
     sub->unk3A = sub->unk3A + 0x32;
-    state = D_807FBB40->unk154;
-    if (state == 0) {
+    switch (D_807FBB40->unk154) {
+    case 0:
         if (sub->unk0 < 0x1E) {
             sub->unk0 = sub->unk0 + 1;
         } else {
@@ -977,34 +962,38 @@ void func_806A5868(void) {
             func_8070E808(D_807FBB40, sub->unk4);
             renderCalcChainCenterOffset((ChainRowHead *)sub);
         }
-    } else if (state == 2) {
+        break;
+    case 2:
         f = 2.0f;
         if (sub->unk55 & 4) {
             f = f * 3.0f;
         } else if (sub->unk55 & 2) {
             f = f * 0.5f;
         }
-        if (f >= sub->unk18) {
+        if (!(f < sub->unk18)) {
             f = sub->unk18;
         }
-        sub->unk18 = sub->unk18 - f;
         sub->unk14 = sub->unk14 - f;
+        sub->unk18 = sub->unk18 - f;
         if ((f64)sub->unk18 < 0.0001) {
             D_807FBB40->unk154 = 1;
         }
-    } else if (state == 4) {
-        if (sub->unk1D != 0) {
-            sub->unk1D -= (sub->unk1D < 0x34) ? sub->unk1D : 0x33;
-        } else if (sub->unk0 == 0) {
-            D_807FBB40->unk154 = 5;
-        } else {
+        break;
+    case 4:
+        if (sub->unk1D) {
+            sub->unk1D -= (sub->unk1D >= 0x34) ? 0x33 : sub->unk1D;
+        } else if (sub->unk0 != 0) {
             if (sub->unkC != NULL) {
                 resNodeListFree(sub);
             }
             sub->unk0 = sub->unk0 - 1;
+        } else {
+            D_807FBB40->unk154 = 5;
         }
-    } else if (state == 5) {
+        break;
+    case 5:
         resQueueRemove(sub->unk4);
+        break;
     }
     if (D_807FBB40->unk154 != 5) {
         sub->unk20 = (f32)sub->unk0 * 0.033333335f;
@@ -1015,9 +1004,5 @@ void func_806A5868(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A5868.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/D_8075A740.s")
