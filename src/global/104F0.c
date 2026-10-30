@@ -54,7 +54,16 @@ void eepromDispatchCommand(s32 arg0) {
 
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060B968.s")
+extern u32 D_807463C0[];
+
+u32 func_8060B968(u8 *arg0, u16 arg1) {
+    u32 crc = ~0;
+
+    while (arg1--) {
+        crc = D_807463C0[(*arg0++ ^ crc) & 0xFF] ^ (crc >> 8);
+    }
+    return crc ^ -1;
+}
 
 extern u8 D_807EDEA8[];
 
@@ -76,7 +85,32 @@ loop_1:
     goto loop_1;
 }
 
+#ifdef NON_MATCHING
+extern s32 func_8071432C(void);
+extern s32 func_80714394(void);
+extern u8 D_807ECEA8[];
+
+void func_8060BA14(void) {
+    u8 original;
+    u8 replacement;
+    s32 size;
+    s16 unk0;
+
+    original = func_8060B9D0(D_807467C8);
+    replacement = func_8060B9D0(3);
+    if (((func_8071432C() != 0) || (func_80714394() != 0)) && (replacement != original)) {
+        unk0 = D_807ECEA0[0];
+        size = ((((unk0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
+        memcpy(D_807ECEA8 + (size * replacement), D_807ECEA8 + (size * original), size);
+        D_807EDEA8[replacement] ^= D_807EDEA8[original];
+        D_807EDEA8[original] ^= D_807EDEA8[replacement];
+        D_807EDEA8[replacement] ^= D_807EDEA8[original];
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BA14.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BB18.s")
 
@@ -130,7 +164,36 @@ void func_8060BCA0(s32 arg0, u8 arg1, u8 arg2, u16 *arg3, u8 *arg4) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BEA8.s")
+void func_8060BEA8(s32 arg0, u8 arg1, u16 *arg2, u8 *arg3) {
+    *arg2 = D_807ECEA0[0] + *arg2 + 0x645;
+    *arg3 = 0;
+    switch (arg0) {
+    case 15:
+        if (*arg3 == 0) {
+            *arg3 = 2;
+        }
+        *arg2 += 0x18;
+    case 16:
+        if (*arg3 == 0) {
+            *arg3 = 0x18;
+        }
+        *arg2 += 0x16;
+    case 14:
+        if (*arg3 == 0) {
+            *arg3 = 0x16;
+        }
+        *arg2 += 1;
+    case 13:
+        if (*arg3 == 0) {
+            *arg3 = 1;
+        }
+        *arg2 += 2;
+    case 12:
+        if (*arg3 == 0) {
+            *arg3 = 2;
+        }
+    }
+}
 
 void func_8060BF84(s32 arg0, u8 arg1, u16 *arg2, u8 *arg3) {
     *arg2 = (((((((D_807ECEA0[0] + 0x6B7) & 0xFFC0) + 0x27) & 0xFFF8) * 4) + 0x3F) & 0xFFC0) + 0x40;

@@ -1,8 +1,8 @@
-// func_8060D2C8 (src/global/104F0.c): stage 2: typed m2c reconstruction compiled and was fdiff'd twice. Corrected the separate text/data offsets and replaced the eight-byte compare call shape with two word comparisons. Earliest remaining difference is frame 0x1068 versus target 0x1078; target retains a distinct large-buffer/local allocation and register schedule.
+// func_8060D2C8 (src/global/104F0.c): stage 4: target frame 0x1078 and buffer locations sp+0x60 / sp+0x860 match by placing 6 scalar locals before arrays and 3 locals after arrays; remaining diff is regalloc and D_807ECD08 pointer caching at sp+0x5C.
 extern s32 _sprintf();
 extern s32 func_8060B968();
 extern void func_8060BA14();
-extern void func_8060B84C(f32);
+extern void sleepMilliseconds(f32);
 extern char D_807467C0[];
 extern s8 D_807467C4;
 extern s8 D_807467E4;
@@ -16,13 +16,17 @@ extern u8 D_807ECEA8[];
 extern u8 D_807ED6A8[];
 
 void func_8060D2C8(s32 arg0) {
-    u8 savedData[0x800];
-    u8 workingData[0x800];
     s32 i;
     s32 textOffset;
     s32 offset;
     s32 sector;
     s32 dataLength;
+    s32 height;
+    u8 savedData[0x800];
+    u8 workingData[0x800];
+    u8 *sp5C;
+    s32 after_1;
+    s32 after_2;
 
     if (D_807EDEAC != 2) return;
     textOffset = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
@@ -34,7 +38,6 @@ void func_8060D2C8(s32 arg0) {
     offset = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
     offset /= 8;
     if (arg0 == 0) {
-        s32 height;
         func_8060BA14();
         height = (((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7;
         height /= 8;
@@ -48,7 +51,7 @@ void func_8060D2C8(s32 arg0) {
     bzero(workingData + dataLength + offset + 0x40, 0x800 - offset - dataLength - 0x40);
     osWritebackDCacheAll();
     memcpy(D_807ED6A8 + sector * 8, workingData + sector * 8, 0x800 - sector * 8);
-    if (D_807ECD08 != 0) do func_8060B84C(1.0f); while (D_807ECD08 != 0);
+    if (D_807ECD08 != 0) do sleepMilliseconds(1.0f); while (D_807ECD08 != 0);
     if (D_80744460 == 0) {
         D_807467C4 = 1;
         for (sector &= 0xFFFF; sector < 0x100; sector += 2) {
@@ -58,7 +61,7 @@ void func_8060D2C8(s32 arg0) {
                 for (i = 0; i < 2; i++) {
                     if (D_80744460 != 0) break;
                     osEepromWrite(&D_807ECCF0, (sector + i) & 0xFF, workingData + (sector + i) * 8);
-                    func_8060B84C(15.0f);
+                    sleepMilliseconds(15.0f);
                 }
             }
         }
