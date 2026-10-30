@@ -25,9 +25,188 @@ void func_8070F570(void) {
     D_807FDA28 = 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_8070F5CC.s")
+typedef struct AngAPlayer {
+    u8 unk0[0x210];
+    f32 unk210;
+    f32 unk214;
+    f32 unk218;
+    f32 unk21C;
+    f32 unk220;
+    f32 unk224;
+    u8 unk228[0x9C];
+    f32 unk2C4;
+    s16 unk2C8;
+} AngAPlayer;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_8070FA58.s")
+#define ANGA_PLAYER ((AngAPlayer *)D_807FC924)
+
+s32 randomNonNegative(void);
+
+typedef struct AngASpawnView {
+    s16 unk0;
+    u8 pad2[2];
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+    s16 unk20;
+    s16 unk22;
+    u8 pad24[4];
+    f32 unk28;
+    u8 pad2C[0x84];
+    u8 unkB0;
+    u8 unkB1;
+    u8 unkB2;
+    u8 unkB3;
+    u8 padB4[4];
+} AngASpawnView;
+
+typedef struct AngASpawnPool {
+    u16 count;
+    u8 pad2[2];
+    AngASpawnView *entries;
+} AngASpawnPool;
+
+typedef struct AngATextureSetup {
+    u8 count;
+    u8 type;
+    u8 pad2[2];
+    u16 *images;
+    u8 pad8[2];
+    u8 width;
+    u8 height;
+    s32 unkC;
+    s32 unk10;
+} AngATextureSetup;
+
+extern u8 D_80755264;
+extern u32 D_807FD9F0[];
+extern u8 D_807FDA18;
+extern u8 D_807FDA19;
+extern s32 D_807FDA20;
+extern s32 D_807FDA24;
+void *heapAlloc(s32);
+void heapClearBlock(void *);
+void *assetLoad(s32, s32, s32, s32);
+
+#define ANGA_SETUP ((AngATextureSetup *)(&D_80755264 + arg0 * 0x14))
+#define ANGA_POP_SLOT(out) \
+    out = (&D_807FDA30)[D_807FDA1A]; (&D_807FDA30)[D_807FDA1A] = 0xFF; D_807FDA1A--
+#define ANGA_POOL ((AngASpawnPool *)D_807550E0)
+
+void func_8070F5CC(u8 arg0, s16 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5) {
+    AngASpawnView *entry;
+    s16 i;
+    s32 idx;
+
+    if (ANGA_POOL->count >= 0x80) {
+        return;
+    }
+    if (ANGA_POOL->count == 0 && D_807FDA28 == 0) {
+        ANGA_POOL->entries = heapAlloc(0x5C00);
+        heapClearBlock(ANGA_POOL->entries);
+        D_807FDA1C = arg0;
+        for (i = 0; i < ANGA_SETUP->count; i++) {
+            D_807FD9F0[i] = (u32)assetLoad(ANGA_SETUP->type != 0 ? 0x19 : 7, ANGA_SETUP->images[i], 1, 1);
+        }
+        D_807FDA18 = ANGA_SETUP->width;
+        D_807FDA19 = ANGA_SETUP->height;
+        D_807FDA20 = ANGA_SETUP->unkC;
+        D_807FDA24 = ANGA_SETUP->unk10;
+        D_807FDA28 = 1;
+    }
+    ANGA_POP_SLOT(idx);
+    entry = &ANGA_POOL->entries[idx];
+    entry->unkB0 = 1;
+    entry->unk4 = (f32)arg3;
+    entry->unk8 = (f32)arg3;
+    entry->unkC = (f32)(s16)arg4;
+    entry->unk10 = arg2;
+    entry->unk0 = arg1;
+    entry->unkB1 = *(u8 *)((u8 *)&arg5 + 3); // FAKE: lbu of the narrow arg5 home; the shared prototype passes s32
+    entry->unk14 = ANGA_PLAYER->unk2C4;
+    entry->unk18 = ANGA_PLAYER->unk210;
+    entry->unk1C = ANGA_PLAYER->unk218;
+    entry->unk20 = (randomNonNegative() >> 15) % 32767 % 0xFFF;
+    entry->unk22 = (randomNonNegative() >> 15) % 32767 % 360;
+    switch (D_807FDA1C) {
+    case 3:
+        entry->unk28 = (randomNonNegative() >> 15) % 32767 % 100 * 0.02;
+        break;
+    case 4:
+    case 5:
+        entry->unk20 = (randomNonNegative() >> 15) % 20 + 5;
+        entry->unk28 = (randomNonNegative() >> 15) % 70 + 30;
+        entry->unk22 = 0;
+        if ((randomNonNegative() >> 15) % 100 > 80) {
+            entry->unkB3 = 200;
+        } else {
+            entry->unkB3 = (randomNonNegative() >> 15) % 32767 % 6 + 5;
+        }
+        break;
+    default:
+        entry->unk28 = (randomNonNegative() >> 15) % 32767 % 100 * 0.1;
+        break;
+    }
+    ANGA_POOL->count++;
+}
+#undef ANGA_POOL
+#undef ANGA_SETUP
+#undef ANGA_POP_SLOT
+
+struct M114aAngle;
+
+typedef struct AngAAngle {
+    s32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+} AngAAngle;
+
+extern s16 D_807FDA1E;
+f32 sinApprox(f32);
+f32 func_80612794(s16);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s16 func_806CC10C(s16, s16);
+
+void func_8070FA58(struct M114aAngle *arg0_in) {
+#define arg0 ((AngAAngle *)arg0_in)
+    f32 diff;
+    f32 dist1;
+    f32 dz;
+    f32 dx;
+    s16 ang;
+    f32 dist2;
+
+    dz = ANGA_PLAYER->unk218 - arg0->unk1C;
+    dx = ANGA_PLAYER->unk210 - arg0->unk18;
+    dist1 = sqrtf(dz * dz + dx * dx);
+    arg0->unk18 = ANGA_PLAYER->unk210;
+    arg0->unk1C = ANGA_PLAYER->unk218;
+    diff = ANGA_PLAYER->unk2C4 - arg0->unk14;
+    if (diff > 3.1415927f) {
+        diff = 6.2831855f - diff;
+    }
+    if (diff < -3.1415927f) {
+        diff = -6.2831855f - diff;
+    }
+    arg0->unk4 = (f32)((f64)arg0->unk4 + ((f64)(diff * 180.0f) - 0.3 * (f64)D_807FDA1E));
+    arg0->unk4 += 4.0f * dist1 * sinApprox(diff);
+    ang = mathAngleBetweenPoints2D(ANGA_PLAYER->unk210, ANGA_PLAYER->unk218, ANGA_PLAYER->unk21C, ANGA_PLAYER->unk224);
+    dz = ANGA_PLAYER->unk218 - ANGA_PLAYER->unk224;
+    dx = ANGA_PLAYER->unk210 - ANGA_PLAYER->unk21C;
+    dist2 = sqrtf(dz * dz + dx * dx);
+    arg0->unk4 -= 2.0 * dist2 * func_80612794(func_806CC10C(ANGA_PLAYER->unk2C8, ang));
+    arg0->unk14 = ANGA_PLAYER->unk2C4;
+}
+#undef arg0
 
 typedef struct M114aAngle {
     s32 unk0;
@@ -56,10 +235,93 @@ void func_8070FC40(M114aAngle *arg0) {
     arg0->unk4 = (s32)arg0->unk4 % 320;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_8070FCCC.s")
+typedef struct AngACamState {
+    u8 pad0[0x90];
+    f32 unk90;
+    u8 pad94[0x66];
+    u8 unkFA;
+} AngACamState;
+
+typedef struct AngAFcccView {
+    s16 unk0;
+    u8 pad2[2];
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    u8 pad14[0x9C];
+    u8 unkB0;
+    u8 unkB1;
+} AngAFcccView;
+
+extern Actor *gCamActor;
+extern Actor *D_807FBB4C;
+extern u32 D_807FBB68;
+extern f32 D_807FD9EC;
+extern u8 D_8071FEF4;
+f32 cosApprox(f32);
+void func_807149B8(s32);
+void func_8071498C(void *);
+void func_80714A58(s16);
+void func_80714A28(s16);
+void func_80714CC0(s32, f32, f32, f32, f32);
+void func_80718380();
+
+#define ANGA_CAM ((AngACamState *)gCamActor->unk174)
+#define ANGA_A8 (*(f32 *)&D_807FBB4C->unkA8)
+#define ANGA_DIST(x) ((x) < ANGA_PLAYER->unk214 ? ANGA_PLAYER->unk214 - (x) : -(ANGA_PLAYER->unk214 - (x)))
+
+s32 func_8070FCCC(AngAFcccView *arg0) {
+    f32 inc;
+    f32 nv;
+    f32 bound;
+    s32 var_v1;
+    f32 angle;
+    f32 jitter;
+
+    if (ANGA_CAM->unkFA != 0 && ANGA_PLAYER->unk214 < ANGA_CAM->unk90 + 3.0f) {
+        bound = D_807FBB4C->unkAC;
+    } else {
+        bound = ANGA_DIST(ANGA_A8) < ANGA_DIST(D_807FBB4C->unkAC) ? ANGA_A8 : D_807FBB4C->unkAC;
+    }
+    func_8070FA58((M114aAngle *)arg0);
+    func_8070FC40((M114aAngle *)arg0);
+    var_v1 = arg0->unkB0 < 0x10;
+    arg0->unkB0++;
+    arg0->unk8 = arg0->unk4;
+    if (var_v1 == 0) {
+        if (arg0->unkB1 >= 0x50) {
+            arg0->unkB1 -= 0x50;
+        }
+    }
+    nv = (f32)((1.0 / ((f64)arg0->unk10 * 4.0)) * 60.0);
+    inc = (f32)((f64)((30.0f - (nv - 30.0f)) + 30.0f) * 0.25);
+    inc = inc > 5.0 ? inc : 5.0;
+    arg0->unkC += inc;
+    if (arg0->unkB1 < 0x50) {
+        if ((randomNonNegative() >> 15) % 0x80 >= 0x56) {
+            if (ANGA_DIST(bound) < 50.0f) {
+                angle = ((randomNonNegative() >> 15) % 60 - 30) * 0.017453292f + ANGA_PLAYER->unk2C4;
+                jitter = (randomNonNegative() >> 15) % 0x82;
+                if ((D_807FBB68 & 8) == 0) {
+                    func_807149B8(1);
+                    func_8071498C(&func_80718380);
+                    func_80714A58(arg0->unk0);
+                    func_80714A28(4);
+                    func_80714CC0((s32)&D_8071FEF4, 0.3f, ANGA_PLAYER->unk210 - sinApprox(angle) * jitter, (f32)((f64)bound + 1.0), ANGA_PLAYER->unk218 - cosApprox(angle) * jitter);
+                }
+                return 1;
+            }
+        }
+    }
+    return (D_807FD9EC < arg0->unkC) & 0xFF;
+}
+
+#undef ANGA_CAM
+#undef ANGA_A8
+#undef ANGA_DIST
 
 void func_8070FA58(M114aAngle *);
-f32 func_80612794(s16);
 
 
 s32 func_8071006C(M114aAngle *arg0) {
@@ -129,10 +391,93 @@ s32 func_80710174(M114aAngle *arg0) {
     return var_v1 & 0xFF;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_807102AC.s")
+s32 func_807102AC(M114aAngle *arg0) {
+    f32 new_var2;
+    s32 var_v1;
+    f32 new_var;
+    s32 temp_v0;
+    u8 temp_v0_2;
+
+    func_8070FA58(arg0);
+    new_var2 = func_80612794(arg0->unk20);
+    arg0->unk4 = (f32)(arg0->unk4 + (new_var2 * arg0->unk28));
+    func_8070FC40(arg0);
+    arg0->unk8 = (f32)arg0->unk4;
+    new_var = (f32)((1.0 / ((f64)arg0->unk10 * 3.0)) * 8.0);
+    temp_v0 = arg0->unkB0;
+    var_v1 = 0x6F;
+    var_v1 = (s32)temp_v0 < var_v1;
+    arg0->unkC = (f32)((f64)arg0->unkC + ((f64)((10.0f - (new_var - 10.0f)) + 10.0f) * 0.07));
+    arg0->unk20 = (s16)(arg0->unk20 + 0x32);
+    arg0->unkB0 = (u8)(temp_v0 + 1);
+    temp_v0 = 0xA;
+    if (var_v1 == 0) {
+        temp_v0_2 = arg0->unkB1;
+        if ((s32)temp_v0_2 >= 0xA) {
+            arg0->unkB1 = (u8)(temp_v0_2 - temp_v0);
+        }
+    }
+    var_v1 = 0;
+    if (D_807FD9EC < arg0->unkC) {
+        var_v1 = 1;
+    }
+    if (var_v1 == 0) {
+        var_v1 = (s32)arg0->unkB1 < 0xA;
+    }
+    return var_v1 & 0xFF;
+}
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/func_807103E0.s")
+typedef struct AngAView {
+    s32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    u8 pad14[0xC];
+    s16 unk20;
+    s16 unk22;
+    s16 unk24;
+    f32 unk28;
+    u8 pad2C[0x84];
+    u8 unkB0;
+    u8 unkB1;
+    u8 unkB2;
+    u8 unkB3;
+} AngAView;
+
+s32 func_807103E0(AngAView *arg0) {
+    f32 temp_fv1;
+    f32 var_fa0;
+    s32 var_v1;
+
+    func_8070FA58((M114aAngle *)arg0);
+    arg0->unk4 += func_80612794((s16)(s32)(arg0->unk22 * 0.5)) * (f32)(arg0->unk28 * 0.05);
+    func_8070FC40((M114aAngle *)arg0);
+    arg0->unk8 = arg0->unk4;
+    arg0->unkC += (1.0 + (f64)func_80612794(arg0->unk22)) * (f64)(f32)(1.0 + arg0->unk20 * 0.08);
+    arg0->unk22 += 0x64;
+    arg0->unk24 = (s16)(s32)((func_80612794((s16)(s32)(arg0->unk22 * 0.5)) * 0.5 + 0.5) * (f64)(arg0->unkB3 * 4 - -arg0->unkB3 * 4) + (f64)(-arg0->unkB3 * 4));
+    temp_fv1 = arg0->unk10;
+    if (temp_fv1 > 0.0f) {
+        var_fa0 = temp_fv1;
+    } else {
+        var_fa0 = -temp_fv1;
+    }
+    if ((var_fa0 * 140.0f) < arg0->unkC) {
+        if (arg0->unkB1 >= 0xA) {
+            arg0->unkB1 -= 0xA;
+        }
+    }
+    var_v1 = 0;
+    if (D_807FD9EC < arg0->unkC) {
+        var_v1 = 1;
+    }
+    if (var_v1 == 0) {
+        var_v1 = arg0->unkB1 < 0xA;
+    }
+    return var_v1 & 0xFF;
+}
 
 #ifdef NON_MATCHING
 typedef struct L105D4TextureDescriptor {
@@ -142,10 +487,6 @@ typedef struct L105D4TextureDescriptor {
     u8 unkA[0xA];
 } L105D4TextureDescriptor;
 
-extern u8 D_80755264;
-extern u32 D_807FD9F0[];
-extern u8 D_807FDA18;
-extern u8 D_807FDA19;
 
 #define L105D4_TEXTURE ((L105D4TextureDescriptor *)((u8 *)&D_80755264 + (D_807FDA1C * 0x14)))
 
@@ -181,10 +522,8 @@ typedef struct R114cPlayerView {
 } R114cPlayerView;
 
 extern s32 D_807FBB60;
-extern s16 D_807FDA1E;
 extern u8 D_807FDA1B;
 u32 func_806119A0(void);
-f32 cosApprox(f32);
 void func_8070F5CC(u8, s16, f32, s16, s32, s32);
 void func_80710CA0(void);
 void renderCallbacksRegister(void *, void *, s32);
