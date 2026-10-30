@@ -457,7 +457,7 @@ extern s8 D_80744510;
 extern s16 D_80746858;
 extern u32 D_8074684C[];
 
-#ifdef NON_MATCHING
+
 void schedHandleRetrace(SchedStruct *sc) {
     TaskNode *sp54;
     s32 i;
@@ -531,10 +531,6 @@ void schedHandleRetrace(SchedStruct *sc) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedHandleRetrace.s")
-#endif
 
 void schedHandleRSP(SchedStruct *sc) {
     TaskNode *task = sc->curRSPTask;
