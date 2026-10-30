@@ -1,4 +1,4 @@
-// func_80650ECC (src/global/55B20.c): L650ECC: locals w/w4/colOff are ONE local array s32 tab[3] (tab[0]=w+4, tab[1]=w, tab[2]=colOff) + u8 *e = tab[0]+tab[2] per iteration: reproduces mem IV, uncoloured add, arg0 in s7 (518/527 insns). Remaining: D_807F70AC &-cache in s0, frame +24, regalloc/scheduling. total should be u32 (srl).
+// func_80650ECC (src/global/55B20.c): L650ECC stage 3-4 (519/527 insns, frame 0xEE0 vs 0xED8). KEY: target T2=w+4 (0x54), w (0x58) are uopt hoisted temps and colOff (0x5C) is a memory-resident (non-vreg, non-IV) local; plain scalar colOff gets strength-reduced into a pointer IV and arg0 is spilled. Dead '&colOff' use (FAKE) reproduces it incl. arg0 in s7, per-iteration lw/lw/addu into named ptr e. Decls e,p,base,buf,count,i,j,total(u32),val,off,colOff. Remaining: D_807F70AC &-cached in s0, count at 0x7C vs 0x74, scheduling/regalloc, extra temp slots. Alternative array model s32 tab[3] also reproduces shape but frame +12.
 typedef struct MapData {
     /* 0x00 */ u8 pad0[0xC];
     /* 0x0C */ s16 unkC;
@@ -59,7 +59,7 @@ void func_80651904(s32, s32, void *, s32 *, s32, s32);
 void func_80651C2C(s32, void *);
 
 void func_80650ECC(MapData *arg0) {
-    u8 *q;
+    u8 *e;
     u8 *p;
     s32 base;
     u8 buf[0xE54];
@@ -69,11 +69,9 @@ void func_80650ECC(MapData *arg0) {
     u32 total;
     s32 val;
     s32 off;
-    s32 woff;
-    s32 poff;
-    u8 *e;
-    s32 tab[3];
+    s32 colOff;
 
+    if (&colOff == 0) {} // FAKE: colOff exposed (memory resident, not an induction variable)
     D_807F70AC = 0;
     D_807F713A = 0;
     D_807F70AB = 0;
@@ -81,23 +79,22 @@ void func_80650ECC(MapData *arg0) {
         D_807F7138 = arg0->unkC;
         D_807F7074 = heapAlloc(0x40);
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
-        off = arg0->unk58;
-        D_807F70AC = *(s32 *)((u8 *)arg0 + off);
-        D_807F70B0 = (struct MapCell *)((u8 *)arg0 + off + 4);
-        off = arg0->unk5C;
-        D_807F70B4 = (struct MapBox *)((u8 *)arg0 + off + 4);
-        off = arg0->unk60;
-        D_807F6C14 = (MapGridVectors *)((u8 *)arg0 + off);
+        e = (u8 *)arg0 + arg0->unk58;
+        D_807F70AC = *(s32 *)e;
+        D_807F70B0 = (struct MapCell *)(e + 4);
+        e = (u8 *)arg0 + arg0->unk5C;
+        D_807F70B4 = (struct MapBox *)(e + 4);
+        D_807F6C14 = (MapGridVectors *)((u8 *)arg0 + arg0->unk60);
         base = arg0->unk34;
-        woff = arg0->unk64;
-        poff = arg0->unk68;
-        off = arg0->unk6C;
-        D_807F6C20 = *(s32 *)((u8 *)arg0 + off);
-        D_807F6C1C = (u8 *)arg0 + off + 4;
+        off = arg0->unk64;
+        j = arg0->unk68;
+        e = (u8 *)arg0 + arg0->unk6C;
+        D_807F6C20 = *(s32 *)e;
+        D_807F6C1C = e + 4;
         D_807F6C2C = heapAlloc(D_807F6C20);
-        off = arg0->unk70;
-        D_807F6C10 = *(s32 *)((u8 *)arg0 + off);
-        D_807F6C0C = (u8 *)arg0 + off + 4;
+        e = (u8 *)arg0 + arg0->unk70;
+        D_807F6C10 = *(s32 *)e;
+        D_807F6C0C = e + 4;
         for (i = 0; i < D_807F6C10; i++) {
             if (((MapRelocEntry *)D_807F6C0C)[i].unk8 != -1) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unk8 += (s32)arg0 + base;
@@ -107,12 +104,10 @@ void func_80650ECC(MapData *arg0) {
             }
         }
         D_807F6C18 = heapAlloc(D_807F6C28 * 0x1C8);
-        p = (u8 *)arg0 + poff;
+        p = (u8 *)arg0 + j;
         i = 0;
         if (D_807F6C28 > 0) {
-            tab[1] = (s32)arg0 + woff;
-            tab[0] = tab[1] + 4;
-            tab[2] = 0;
+            colOff = 0;
             do {
                 count = 0;
                 D_807F6C18[i].unk0 = 0;
@@ -185,9 +180,9 @@ void func_80650ECC(MapData *arg0) {
                 p += 8;
                 D_807F6C18[i].unk60 = 0;
                 D_807F6C18[i].unk64 = 0;
-                e = (u8 *)(tab[0] + tab[2]);
-                D_807F6C18[i].unk78 = *(s32 *)e + tab[1];
-                D_807F6C18[i].unk7C = *(s32 *)(e + 0xC) + tab[1];
+                e = (u8 *)arg0 + off + 4 + colOff;
+                D_807F6C18[i].unk78 = *(s32 *)e + ((s32)arg0 + off);
+                D_807F6C18[i].unk7C = *(s32 *)(e + 0xC) + ((s32)arg0 + off);
                 D_807F6C18[i].unk80 = *(s16 *)(e + 4);
                 D_807F6C18[i].unk82 = *(s16 *)(e + 6);
                 D_807F6C18[i].unk84 = *(s16 *)(e + 8);
@@ -202,7 +197,7 @@ void func_80650ECC(MapData *arg0) {
                     }
                 }
                 D_807F6C18[i].unk50 = count;
-                tab[2] += 0xC;
+                colOff += 0xC;
                 i++;
             } while (i < D_807F6C28);
         }
@@ -212,13 +207,13 @@ void func_80650ECC(MapData *arg0) {
         }
         D_807F7079 = 1;
         D_807F7078[0] = 1;
-        q = D_807F707A;
+        e = D_807F707A;
         do {
-            *q++ = 1;
-            *q++ = 1;
-            *q++ = 1;
-            *q++ = 1;
-        } while (q != &D_807F70AA);
+            *e++ = 1;
+            *e++ = 1;
+            *e++ = 1;
+            *e++ = 1;
+        } while (e != &D_807F70AA);
         D_807F70AA = 0;
     } else {
         D_807F6C18 = NULL;
