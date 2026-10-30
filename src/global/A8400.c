@@ -243,7 +243,6 @@ typedef struct ScreenBounds {
 } ScreenBounds;
 
 extern ScreenBounds *D_807FC924;
-#ifdef NON_MATCHING
 extern u8 D_807FC929;
 extern u8 D_807444FC;
 extern Gfx D_1000118;
@@ -251,7 +250,6 @@ extern Mtx D_20000C0;
 
 void *heapAlloc(s32);
 void heapFreeDeferred(void *);
-s32 func_806A3E9C();
 
 typedef struct UINode UINode;
 
@@ -283,18 +281,20 @@ typedef struct UIState {
 } UIState;
 
 Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
-    /* Unused slots below/above the live locals: they reproduce the original
-       stack frame (0x148, dl 0x98, start 0x94, spA0 0xA0, spE0 0xE0,
-       half 0x132, stop 0x13B).  Only the frame layout depends on them. */
+    /* pad* are unused slots above the live locals; with scale/alpha/isLast
+       (register-allocated, kept above dl so they cost no below-dl slot) they
+       reproduce the original stack frame (0x148, dl 0x98, start 0x94, spA0 0xA0,
+       spE0 0xE0, half 0x132, stop 0x13B). */
     s32 padA;
-    f32 padH[2];
+    f32 alpha;
+    f32 padH;
     u8 stop;
     s16 padC;
-    f32 padM;
+    f32 scale;
     s16 half;
     f64 padE;
     Gfx *padF;
-    u8 padB;
+    u8 isLast;
     f32 spE0[4][4];
     f32 spA0[4][4];
     s32 padN;
@@ -302,8 +302,6 @@ Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
     Gfx *start;
     UIState *state;
     UINode *node;
-    f32 scale;
-    f32 alpha;
     s32 i;
 
     state = arg1->unk174;
@@ -330,42 +328,36 @@ Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
     guMtxF2L(spE0, (Mtx *) (state->unk34 + (D_807444FC << 6)));
     WRITE_GFX(dl++, 0xE7000000, 0);
     WRITE_GFX(dl++, ((s32) ((f32) D_807FC924->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) ((f32) D_807FC924->unk270 * 4.0f) & 0xFFF) << 12),
-              (((s32) ((f32) D_807FC924->unk274 * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) D_807FC924->unk276 * 4.0f) & 0xFFF));
-    dl = (Gfx *) func_806A3E9C(dl, state, half);
-    alpha = state->unk20 * 150.0f * 2.0f;
-    if (alpha > 150.0f) {
-        alpha = 150.0f;
-    }
+              ((s32) ((f32) D_807FC924->unk276 * 4.0f) & 0xFFF) | (((s32) ((f32) D_807FC924->unk274 * 4.0f) & 0xFFF) << 12));
+    dl = (Gfx *) func_806A3E9C((s32) dl, (SpriteAnim *) state, half);
+    alpha = (state->unk20 * 150.0f * 2 > 150.0f) ? 150.0f : state->unk20 * 150.0f * 2;
     dl = renderTextureSprite(dl, (s32) (state->unk34 + (D_807444FC << 6)), (u8) alpha, half);
     if (state->unk1D != 0) {
+        WRITE_GFX(dl++, 0xE7000000, 0);
         WRITE_GFX(dl++, ((s32) (state->unk48 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) (state->unk44 * 4.0f) & 0xFFF) << 12),
-                  (((s32) (state->unk4C * 4.0f) & 0xFFF) << 12) | ((s32) (state->unk50 * 4.0f) & 0xFFF));
+                  ((s32) (state->unk50 * 4.0f) & 0xFFF) | (((s32) (state->unk4C * 4.0f) & 0xFFF) << 12));
     }
     i = 0;
     while (((s32) state->unk10 >= i) && (node != NULL) && (stop == 0)) {
+        isLast = (i == state->unk10);
         WRITE_GFX(dl++, 0xE7000000, 0);
-        renderAppendNodeChain((s32 *) &dl, (DrawActor *) state, (DrawListHead *) node, (u8) (i == state->unk10), &stop);
-        if (stop == 0) {
+        renderAppendNodeChain((s32 *) &dl, (DrawActor *) state, (DrawListHead *) node, isLast, &stop);
+        if (!stop) {
             node = node->unk1C;
         }
         i++;
     }
     WRITE_GFX(dl++, 0xE7000000, 0);
     if (state->unk1D != 0) {
-        WRITE_GFX(dl++, ((s32) ((f32) D_807FC924[D_807FC929].unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) ((f32) D_807FC924[D_807FC929].unk270 * 4.0f) & 0xFFF) << 12),
+        WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) D_807FC924[D_807FC929].unk270 * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) D_807FC924[D_807FC929].unk272 * 4.0f) & 0xFFF),
                   (((s32) ((f32) D_807FC924[D_807FC929].unk274 * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) D_807FC924[D_807FC929].unk276 * 4.0f) & 0xFFF));
     }
     state->unk1C = state->unk1C + 1;
     state->unk1C = state->unk1C % 16;
     WRITE_GFX(dl++, 0xDF000000, 0);
-    arg0->words.w0 = 0xDE000000;
-    arg0->words.w1 = (u32) start;
-    return arg0 + 1;
+    WRITE_GFX(arg0++, 0xDE000000, (u32) start);
+    return arg0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A4284.s")
-#endif
 
 void func_8071495C(void);
 void func_80714998(s32);
