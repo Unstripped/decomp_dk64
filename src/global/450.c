@@ -201,16 +201,6 @@ extern s32 D_80750AB0;
 extern u8 D_80750AB8;
 extern u8 D_80750AC0;
 extern s16 D_80750AC4;
-extern f32 D_807565B0;
-extern f32 D_807565B4;
-extern f32 D_807565B8;
-extern f32 D_807565BC;
-extern f32 D_807565C0;
-extern f32 D_807565C4;
-extern f32 D_807565C8;
-extern f32 D_807565CC;
-extern f64 D_807565D0;
-extern f32 D_807565D8;
 
 extern s32 D_8076A054;
 extern s32 D_8076A058;
@@ -786,7 +776,6 @@ s32 func_805FCA64(void) {
     return var_v1 & 0xFF;
 }
 
-#ifdef NON_MATCHING
 extern u8 D_80750AB4;
 f32 func_806276AC(void);
 void func_8062754C(f32);
@@ -897,10 +886,6 @@ void func_805FCA94(void *arg0) {
              S0V->unk240, S0V->unk244, S0V->unk248);
     D_807445CC[0]++;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/450/func_805FCA94.s")
-#endif
 
 Gfx *func_805FCFD8(Gfx *glistp) {
     if (D_8074450C == 2) {
@@ -949,10 +934,10 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     gDPSetScissor(glist2++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
 
     guTranslate(&arg0->unk180, 0.0f, 0.0f, 0.0f);
-    guOrtho(&arg0->unk80, 0.0f, (f32)((f64)(f32)D_80744490 - 1.0), (f32)((f64)(f32)D_80744494 - 1.0), 0.0f, D_807565B0, D_807565B4, 1.0f);
-    guOrtho(&arg0->unkC0, 0.0f, (f32)(((f64)(f32)D_80744490 * 4.0) - 1.0), (f32)(((f64)(f32)D_80744494 * 4.0) - 1.0), 0.0f, D_807565B8, D_807565BC, 1.0f);
-    guOrtho(&arg0->unk140, 0.0f, (f32)((2.0 * (f64)(f32)D_80744490) - 1.0), (f32)((2.0 * (f64)(f32)D_80744494) - 1.0), 0.0f, D_807565C0, D_807565C4, 1.0f);
-    guOrtho(&arg0->unk100, (f32)((f64)(f32)D_807FC924->rect[0] * 4.0), (f32)(((f64)(f32)D_807FC924->rect[2] * 4.0) - 1.0), (f32)(((f64)(f32)D_807FC924->rect[3] * 4.0) - 1.0), (f32)((f64)(f32)D_807FC924->rect[1] * 4.0), D_807565C8, D_807565CC, 1.0f);
+    guOrtho(&arg0->unk80, 0.0f, (f32)((f64)(f32)D_80744490 - 1.0), (f32)((f64)(f32)D_80744494 - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&arg0->unkC0, 0.0f, (f32)(((f64)(f32)D_80744490 * 4.0) - 1.0), (f32)(((f64)(f32)D_80744494 * 4.0) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&arg0->unk140, 0.0f, (f32)((2.0 * (f64)(f32)D_80744490) - 1.0), (f32)((2.0 * (f64)(f32)D_80744494) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&arg0->unk100, (f32)((f64)(f32)D_807FC924->rect[0] * 4.0), (f32)(((f64)(f32)D_807FC924->rect[2] * 4.0) - 1.0), (f32)(((f64)(f32)D_807FC924->rect[3] * 4.0) - 1.0), (f32)((f64)(f32)D_807FC924->rect[1] * 4.0), -20000.0f, 20000.0f, 1.0f);
     guPerspective(&arg0->unk0, &D_8076A09C, D_807444B8, func_8062A850() * D_807444BC, D_807444C8, D_807444C4, 1.0f);
 
     gSPMatrix(glist2++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -997,7 +982,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
 
         if (D_8076A0B3 != 0) {
             D_8076A0B3 -= 15;
-            var_fv1 = (f32)(1.0 - ((f64)(u32)D_8076A0B3 / D_807565D0));
+            var_fv1 = (f32)(1.0 - ((f64)(u32)D_8076A0B3 / 255.0));
             temp_fv0 = (f32)(D_807444AC - D_807444A8) * var_fv1;
             gDPFillRectangle(glist++, 0,
                 (temp_fv0 < (f32)D_807444A8) ? (f32)D_807444A8 - temp_fv0 : 0.0f,
@@ -1279,7 +1264,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
                 temp_a0 = D_80745BDC[D_8076A0A8][0];
                 var_fv0 = 1.0f;
                 if ((temp_a0 == 6) || (temp_a0 == 0x1F)) {
-                    var_fv0 = D_807565D8;
+                    var_fv0 = 0.5493331552f;
                 }
                 sfxAllocateChannel(temp_a0, var_fv0);
             }

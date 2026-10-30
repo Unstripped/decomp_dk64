@@ -224,6 +224,7 @@ segments:
       - [0x14B740, data]
       - [0x14C3A0, .data, 201B0]
       - [0x14C450, data]
+      - [0x15B290, .rodata, 450] # func_805FCA94's doubles, func_805FD088's +-20000.0f, 255.0, 0.5493331552f, 4-byte TU pad
       - [0x15B2E0, .rodata, 3C10] # D_807565E0/D_80756630 byte tables, then func_805FF9AC's double 255.0, 8-byte TU pad
       - [0x15B390, .rodata, 5230]
       - [0x15B4B0, .rodata, 7130]
