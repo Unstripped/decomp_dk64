@@ -57,7 +57,36 @@ void func_80614D48(Actor *arg0, f32 arg1, f32 arg2) {
     temp_v0->unk34 = 0.0f;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80614D90.s")
+extern s32 D_807F5AF4;
+typedef s32 (*RvG2_ScriptCommand)(Actor *);
+extern RvG2_ScriptCommand D_80746BEC[];
+
+typedef struct RvG2_ScriptState {
+    u8 pad0[0x68];
+    u8 *unk68;
+    u8 *unk6C;
+    void (*unk70)(Actor *);
+    u8 *unk74;
+    s32 unk78;
+} RvG2_ScriptState;
+
+void func_80614D90(Actor *arg0) {
+    RvG2_ScriptState *state;
+
+    state = (RvG2_ScriptState *)arg0->unk4;
+    if (state->unk68 != NULL) {
+        D_807F5AF4 = 1;
+        D_807F5AF0 = state->unk6C;
+        while ((state->unk78 == 0) && (D_807F5AF4 != 0)) {
+            D_807F5AF4 = D_80746BEC[*D_807F5AF0](arg0);
+        }
+        state->unk6C = D_807F5AF0;
+        if (state->unk70 != NULL) {
+            D_807F5AF0 = state->unk74;
+            state->unk70(arg0);
+        }
+    }
+}
 
 
 typedef struct ActorTypeView {
@@ -66,7 +95,6 @@ typedef struct ActorTypeView {
 } ActorTypeView;
 
 extern u16 *D_807FBB54;
-extern s32 D_807F5AF4;
 
 void actorScriptStart(Actor *arg0, s32 arg1);
 
@@ -1146,7 +1174,22 @@ s32 scriptOpJumpTable(Actor *arg0) {
     return (sp1E = 1);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616850.s")
+s32 func_80616850(Actor *arg0) {
+    s32 sp24;
+    u16 sp22;
+    ScriptJumpState *sp1C;
+
+    sp24 = ((ScriptJumpState *)arg0->unk4)->unk88;
+    sp1C = (ScriptJumpState *)arg0->unk4;
+    D_807F5AF0++;
+    scriptReadU16((u8 *)&sp22);
+    sp1C->unk5C = sp1C->unk64;
+    sp1C->unk60 = D_807F5AF0 - sp1C->unk68;
+    actorScriptStart(arg0, sp22);
+    D_807F5AF0 = sp1C->unk6C;
+    sp1C->unk88 = sp24;
+    return D_807F5AF4;
+}
 
 s32 scriptOpCall(Actor *arg0) {
     u16 sp1E;
