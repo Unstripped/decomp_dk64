@@ -355,5 +355,7 @@ segments:
       - { start: 0x165D50, type: bss, vram: 0x807F0570, name: 165D50_807F0570 }
       - { start: 0x165D50, type: .bss, vram: 0x807F5B10, name: 201B0 }
       - { start: 0x165D50, type: bss, vram: 0x807F5D30, name: 165D50_807F5D30 }
+      - { start: 0x165D50, type: .bss, vram: 0x807FC7D0, name: A7710 } # D_807FC7D0 (u64, func_806A2B38 stores it with one lui only when the TU defines it), D_807FC7D8 (0x807FC7D0-0x807FC7E0)
+      - { start: 0x165D50, type: bss, vram: 0x807FC7E0, name: 165D50_807FC7E0 }
 
   - [0x165D50]

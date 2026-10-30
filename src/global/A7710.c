@@ -6,6 +6,9 @@ extern Actor *D_807FBB44;
 extern void *D_807FD580;
 s32 actorSpawn(s32, s32);
 
+u64 D_807FC7D0;
+u8 D_807FC7D8;
+
 void func_806A2A10(s16 arg0, s16 arg1, u8 arg2) {
     actorSpawn(0xB0, 0);
     if (arg0 & 0x8000) {
@@ -37,7 +40,9 @@ void actorSetStateOne(Actor *actor) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A7710/func_806A2B38.s")
+void func_806A2B38(Actor *actor) {
+    D_807FC7D0 = osGetTime() - *(u64 *)actor->unk174;
+}
 
 void actorSetStateThree(Actor *actor) {
     actor->unk154 = 3;

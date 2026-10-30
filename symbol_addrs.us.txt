@@ -2131,3 +2131,4 @@ piAccessBuf = 0x80016320; // type:OSMesg size:0x4
 __osPiAccessQueue = 0x80016328; // type:OSMesgQueue size:0x18
 __osPfsPifRam = 0x800164F0; // type:OSPifRam size:0x40
 __osPfsInodeCache = 0x80016530; // type:OSInode size:0x100
+D_807FC7D0 = 0x807FC7D0; // type:u64 size:0x8
