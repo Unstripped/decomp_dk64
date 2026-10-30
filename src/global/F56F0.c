@@ -759,7 +759,6 @@ void func_806F1C04(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     *arg2 = index;
 }
 
-#ifdef NON_MATCHING
 extern s8 D_80752CBF[];
 
 void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
@@ -796,11 +795,11 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     actorGetNodePos(arg0, 0xE, &pos[1][0], &pos[1][1], &pos[1][2]);
     angle = func_80611BB4(pos[0][2] - pos[1][2], pos[0][0] - pos[1][0]);
     if (active == 0) {
-        for (i = 0; i != 2; i++) {
-            state[i].unk0 = angle;
-            state[i].unk4 = pos[i][1];
+        for (k = 0; k != 2; k++) {
+            cur[k].unk0 = angle;
+            cur[k].unk4 = pos[k][1];
         }
-        if (i == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (k == 0) {}  // FAKE: dead use of k after loop 1 (index in s7, arg1 in s2)
         if ((state->unk14 != 0) && (((F56AActor *) arg0)->unk60 & 0x100) && (state->unk18 == 5)) {
             state->unk14 -= 1;
         }
@@ -816,18 +815,7 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         value = (s8) (s32) state->unk10;
         ret = func_806F1B90(&state->unk0, angle);
         spE0 = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
-    }
-    slot = arg1; slot += index; k = 0; // FAKE: one source line lets as1 schedule the loop preheader
-    do {
-        accel1 = 0.0f;
-        accel0 = 0.0f;
-        spC8 = 0.0f;
-        spC4 = 0.0f;
-        pair = cur->unk1C;
-        if (active != 0) {
-            y = pos[k][1];
-            newvel = y - cur->unk4;
-            delta = newvel - cur->unk8;
+    } slot = arg1; slot += index; k = 0; do { accel1 = 0.0f; accel0 = 0.0f; spC8 = 0.0f; spC4 = 0.0f; pair = cur->unk1C; if (active != 0) { y = pos[k][1]; newvel = y - cur->unk4; delta = newvel - cur->unk8; // FAKE: one source line lets as1 schedule the loop preheader
             cur->unk4 = y;
             cur->unk8 = newvel;
             boost = 0.4f * ret;
@@ -862,12 +850,106 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     } while (k != 2);
     *arg2 = index;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F1EB0.s")
-#endif
+s32 randomNonNegative(void);
+extern s8 D_80752D4E[];
+extern f32 D_80752F4C;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F22A8.s")
+void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
+    F56AState *state;
+    F56APair *pair;
+    s32 index;
+    s32 kind;
+    s32 active;
+    s32 i;
+    s32 pad;
+    f32 spB0;
+    f32 spAC;
+    f32 spA8;
+    f32 spA4;
+    f32 fs3;
+    f32 fs2;
+    f32 fs1;
+    f32 fs0;
+    f32 z;
+    f32 y;
+    f32 x;
+    s8 value[4];
+    f32 target;
+    f32 dz;
+    f32 result;
+    f64 pad2;
+
+    state = ((F56AActor *) arg0)->unk178;
+    index = *arg2;
+    kind = 0x1A;
+    pair = state->unk1C;
+    spAC = 0.0f;
+    spB0 = 0.0f;
+    fs3 = 0.0f;
+    fs2 = 0.0f;
+    spA8 = 0.0003f;
+    spA4 = 1.0f;
+    fs1 = 0.06f;
+    active = func_806F1B58((F5BActor *) arg0, (F5N1Predicate *) state, 3);
+    value[3] = -0x80;
+    actorGetNodePos(arg0, 5, &x, &y, &z);
+    if (active == 0) {
+        state->unk0 = (f32) arg0->unkE6;
+        state->unk4 = y;
+        D_80752F4C = 0.0f;
+        if ((state->unk14 != 0) && (((F56AActor *) arg0)->unk60 & 0x100) && (state->unk18 == 3)) {
+            state->unk14 -= 1;
+        }
+    } else {
+        fs2 = y - state->unk4;
+        dz = fs2 - state->unk8;
+        fs0 = state->unk0 - (f32) arg0->unkE6;
+        if (((F56AIdxSub *) arg0->unk4)->unk0->unk10 >= 0) {
+            target = (f32) D_80752D4E[((F56AIdxSub *) arg0->unk4)->unk0->unk10];
+        } else {
+            target = -128.0f;
+        }
+        state->unk0 = (f32) arg0->unkE6;
+        state->unk10 = (f32) ((f64) state->unk10 + ((f64) (target - state->unk10) * 0.3));
+        value[3] = (s8) state->unk10;
+        if (arg0->unk154 == 0x4F) {
+            fs1 = 0.01f;
+            spA8 = 0.0001f;
+            spA4 = 0.4f;
+        }
+        result = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.011f);
+        state->unk4 = y;
+        state->unk8 = fs2;
+        fs3 = (-result - ((0.005f * dz) + (0.0008f * fs2))) * spA4;
+        if ((32.0f + ((1.0f - spA4) * 8.0f)) < (f32) ((randomNonNegative() >> 15) % 40)) {
+            D_80752F4C = (f32) (0x14 - ((randomNonNegative() >> 15) % 40)) * spA8;
+        }
+        if (fs0 > 2048.0f) {
+            fs0 = 4096.0f - fs0;
+        } else if (fs0 < -2048.0f) {
+            fs0 = -(4096.0f + fs0);
+        }
+        fs2 = (f32) ((f64) ((1.0f - (arg0->unkB8 / 130.0f)) * D_80752F4C) + (2e-05 * (f64) fs0));
+    }
+    i = 0; do {  // FAKE: one source line orders the preheader moves (move s1,zero after addiu s4)
+        if (active != 0) {
+            func_806F1A18(fs3, fs1, &pair->unk0, &spB0);
+            func_806F1A18(fs2, fs1, &pair->unkC, &spAC);
+        }
+        arg1[index].unk0 = value[3];
+        arg1[index].unk1 = kind;
+        if (kind == 0) {}  // FAKE: extra use raises kind's uopt priority above the hoisted loop addresses (kind in s3)
+        i += 1;
+        arg1[index].unk2 = (s16) (s32) ((f64) (pair->unk0.unk4 + pair->unk0.unk0) * 10430.218905280077);
+        arg1[index].unk4 = (s16) (s32) ((f64) (pair->unkC.unk4 + pair->unkC.unk0) * 10430.218905280077);
+        arg1[index].unk6 = 0;
+        pair++;
+        index++;
+        kind++;
+    } while (i != 11);
+    *arg2 = index;
+}
 
 typedef struct F5N5PathSample {
     u8 pad0[0x210];
@@ -942,7 +1024,75 @@ void func_806F2754(F5N5CameraActor *arg0, F5N5CameraEntry *arg1, s32 *arg2) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F56F0/func_806F2A40.s")
+typedef struct F5CPlayerState {
+    u8 pad0[0x21E];
+    u16 unk21E;
+    u8 pad220[0x38];
+    f32 unk258;
+    f32 unk25C;
+} F5CPlayerState;
+typedef struct F5CPlayerActor {
+    u8 pad0[0x60];
+    u32 unk60;
+    u8 pad64[0x128 - 0x64];
+    s16 unk128;
+    u8 pad12A[0x154 - 0x12A];
+    u8 unk154;
+} F5CPlayerActor;
+typedef struct F5COutput {
+    u8 unk0;
+    u8 unk1;
+    u8 pad2[2];
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+} F5COutput;
+#define F5C_PS ((F5CPlayerState *)D_807FD580)
+void func_806F2A40(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
+    f32 temp_fv0;
+    f32 var_fa0;
+    f32 var_fv1;
+    u16 temp_v1;
+    s32 adj;
+    s32 inc;
+    s32 sel;
+    if (D_807FD580 && D_807FD580) {}  // FAKE: dead global test steers uopt (ps in v0, u16 in v1)
+    temp_v1 = F5C_PS->unk21E;
+    temp_fv0 = (f32)temp_v1 * 0.03333333507f;
+    if ((f64)temp_fv0 < 1e-05) temp_fv0 = 0.000009999999747f;
+    sel = arg0->unk154;
+    if ((sel == 0x34) || (sel == 0x84)) {
+        if ((f64)F5C_PS->unk25C > 0.01) {
+            F5C_PS->unk258 = (f32)((f64)F5C_PS->unk258 * 1.07);
+            F5C_PS->unk25C = (f32)((f64)F5C_PS->unk25C * 0.7);
+        } else {
+            arg0->unk60 &= ~0x8000;
+            if (F5C_PS->unk21E != 0) F5C_PS->unk21E -= 1;
+            arg0->unk128 = (s16)(255.0f * temp_fv0);
+        }
+        var_fv1 = F5C_PS->unk258;
+        var_fa0 = F5C_PS->unk25C;
+    } else {
+        var_fa0 = temp_fv0;
+        var_fv1 = temp_fv0;
+        if (temp_v1 < 0x1E) {
+            arg0->unk60 |= 0x8000;
+            adj = 0x1E - F5C_PS->unk21E;
+            if (temp_v1 == 0) {}  // FAKE: dead use steers uopt priority
+            inc = (adj >= 3) ? 2 : adj;
+            F5C_PS->unk21E += inc;
+            F5C_PS->unk258 = 1.0f;
+            F5C_PS->unk25C = F5C_PS->unk258;
+        }
+    }
+    if (arg1 && arg1) {}  // FAKE: dead use of arg1 raises its uopt priority (arg1 in s0, arg2 stays in a2)
+    arg1[*arg2].unk0 = 0;
+    arg1[*arg2].unk1 = 0xFF;
+    arg1[*arg2].unk4 = var_fv1;
+    arg1[*arg2].unk8 = var_fa0;
+    arg1[*arg2].unkC = var_fv1;
+    *arg2 += 1;
+}
 
 typedef struct F5CState16 { u8 pad0[0x16]; s16 unk16; } F5CState16;
 typedef struct F5CTurnActor { u8 pad0[0x6A]; u16 unk6A; u8 pad6C[0xDC - 0x6C]; s16 unkDC; s16 unkDE; u8 padE0[6]; s16 unkE6; } F5CTurnActor;
@@ -1121,8 +1271,8 @@ typedef struct {
 } F56CExtra;
 
 void func_806F1EB0();
-void func_806F22A8(s32, void *, s32 *);
-void func_806F2A40(s32, void *, s32 *);
+void func_806F22A8();
+void func_806F2A40();
 
 void func_806F3190(Actor *arg0, u16 arg1) {
     F56CExtra *sp74;

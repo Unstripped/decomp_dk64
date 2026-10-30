@@ -1,4 +1,4 @@
-// func_806F3E0C (src/global/F56F0.c): Stage 4/5: frame 0x50, saved set, opcode sequence match (455 insns); only regalloc differs: target close=t2 tgt=t3 val716=a2, mine close=a1 tgt=t2 val716=v1. K&R 4-arg playerStateQueueCallback keeps &D_807FD70C in a3; close &= 0xFF gives andi+move; u8 flags = D_807FD716 local; yawT=*D_807FD708 temp; blend=1.0f before flag clear
+// func_806F3E0C (src/global/F56F0.c): Stage 5: frame 0x50/saved set/opcode order match (454 vs 455 insns); remaining diff regalloc: target close=t2 val716=a2 &714=a0, mine close=a1 val716=v1 &714=t2. Tricks: K&R 4-arg playerStateQueueCallback (&D_807FD70C in a3), close &= 0xFF, u8 flags=D_807FD716, yawT=*D_807FD708, D_807FD70C++ then cur=D_807FD70C, blend=1.0f before flag clear, deadsweep if (D_807FD714 && D_807FD714) {} after the callback
 typedef struct F5L1Control {
     u16 flags;
     s8 yaw;
@@ -102,14 +102,15 @@ void func_806F3E0C(F5L1Control *arg0, s32 arg1) {
             }
             if (D_807FD718 != 0) {
                 playerStateQueueCallback(D_807FD718, D_807FD71C, 0, &D_807FD70C);
+                if (D_807FD714 && D_807FD714) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             tgt->flags |= 1;
             D_807FBB60 &= ~0x400;
             func_806D03BC();
         } else {
             D_807FD714 += 1;
-            cur = D_807FD70C + 1;
-            D_807FD70C = cur;
+            D_807FD70C++;
+            cur = D_807FD70C;
             next = cur + 1;
         }
     }
