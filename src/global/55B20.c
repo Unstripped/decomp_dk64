@@ -600,7 +600,7 @@ typedef struct MapActorEntry {
 
 s32 renderEntryAddOrUpdate(s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
 s32 func_80630324(s32, s32);
-s16 func_806531B8(f32, f32, f32, s32);
+s16 func_806531B8(f32, f32, f32, s16);
 
 void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
     s32 temp_v1;
@@ -672,7 +672,6 @@ s32 renderEntryListPurgeUntouched(s32);
 s32 func_80630890(s32, f32, f32, f32, void *);
 void modelNodeListSyncFlags(s32);
 s32 spriteListBuildDisplayChain(s32, s32, f32, f32, f32);
-void func_8063B4C0(void *, s32);
 s32 mapNodeBoxContainsPoint(void *, f32, f32);
 s32 func_80653804(void *, f32, f32);
 void func_80652FDC(f32, f32, f32, s16, s16, s16 *);
@@ -768,62 +767,54 @@ typedef struct MapNode {
     /* 0x24 */ u8 unk24;
 } MapNode; /* 0x28 */
 
-#ifdef NON_MATCHING
+void func_8063B4C0(void *, u8);
+
 void func_80652B04(void) {
-    s32 var_s2;
-    s32 var_s3;
-    s32 var_s4;
+    u8 flag;
+    s32 i;
     void *node;
     void *next;
 
     D_807F7140 = 0;
-    var_s3 = 0;
+    i = 0;
     if (D_807F6C28 > 0) {
-        var_s4 = 0;
         do {
-            if (((MapChunk *)((u8 *)D_807F6C18 + var_s4))->unk1 != 0) {
-                var_s2 = 1;
+            if (D_807F6C18[i].unk1 != 0) {
+                flag = 1;
             } else {
-                var_s2 = 0;
+                flag = 0;
             }
-            node = (void *)((MapChunk *)((u8 *)D_807F6C18 + var_s4))->unk14;
+            node = (void *)D_807F6C18[i].unk14;
             if (node != NULL) {
                 do {
                     next = ((MapNode *)node)->unk14;
-                    func_8063B4C0(node, var_s2 & 0xFF);
+                    func_8063B4C0(node, flag);
                     node = next;
                 } while (next != NULL);
             }
-            var_s3 += 1;
-            var_s4 += 0x1C8;
-        } while (var_s3 < D_807F6C28);
+            i += 1;
+        } while (i < D_807F6C28);
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652B04.s")
-#endif
-
-#ifdef NON_MATCHING
 #define MAP_CHUNK_AT(o) ((MapChunk *)((u8 *)D_807F6C18 + (o)))
 
 extern s32 func_80668E9C(s32, s16, f32, f32, f32, s32);
 
 s32 func_80652BC8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
-    s32 result;
+    MapNode *node;
     s32 i;
+    u8 pad;
+    u8 mode;
+    s32 result;
     s16 x;
     s16 y;
-    u8 mode;
-    void *ptr;
-    MapNode *node;
 
     result = 0;
     mode = func_80630324(1, 0);
     i = 0;
     if (D_807F6C28 > 0) {
         x = (s16)(s32)(arg1 * 6.0f);
-        node = ptr;
         do {
             if ((x >= MAP_CHUNK_AT(i * 0x1C8)->unk80 - 0x32) &&
                 ((y = (s16)(s32)(arg2 * 6.0f)) >= MAP_CHUNK_AT(i * 0x1C8)->unk82 - 0x32) &&
@@ -840,7 +831,8 @@ s32 func_80652BC8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
                 if (node != NULL) {
                     do {
                         if (node->unk24 == 1) {
-                            result = (result | func_80668E9C(arg0, node->unk1E, arg1, arg2, arg3, arg4)) & 0xFF;
+                            result |= func_80668E9C(arg0, node->unk1E, arg1, arg2, arg3, arg4);
+                            result &= 0xFF;
                         }
                         node = node->unk14;
                     } while (node != NULL);
@@ -848,43 +840,31 @@ s32 func_80652BC8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
             }
             i++;
         } while (i < D_807F6C28);
-        ptr = node;
     }
     return result;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652BC8.s")
-#endif
-
-#ifdef NON_MATCHING
 s32 func_80652DB4(f32 arg0, f32 arg1, f32 arg2) {
-    s16 *var_v1;
-    s16 temp_t1;
-    s16 temp_v0;
+    s16 *pad;
     s32 i;
+    s16 chunk;
 
     i = 0;
     if (D_807F6C28 == 0) {
         return 0xFF;
     }
-    temp_v0 = func_806531B8(arg0, arg1, arg2, 0);
+    chunk = func_806531B8(arg0, arg1, arg2, 0);
     if (D_807F6C80 > 0) {
-        var_v1 = &D_807F6C58[i];
         do {
-            temp_t1 = *var_v1;
-            var_v1++;
-            if (temp_v0 == temp_t1) {
+            if (chunk == D_807F6C58[i]) {
                 return 1;
             }
-        } while ((u32)var_v1 < (u32)&D_807F6C58[D_807F6C80]);
+            i++;
+            if (D_807F6C80 > 0) {} // FAKE: second read of D_807F6C80 inside the loop makes IDO strength-reduce the index (end pointer)
+        } while (i < D_807F6C80);
     }
     return 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652DB4.s")
-#endif
 
 s32 mapChunkIsVisible(s16 arg0) {
     s32 var_v1;
@@ -954,111 +934,99 @@ typedef struct MapCell {
     /* 0x1A */ u8 pad1A[0x2];
 } MapCell; /* 0x1C */
 
-#ifdef NON_MATCHING
 void func_80652FDC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 *arg5) {
-    s16 temp_v1;
-    s32 var_s1;
+    s32 i;
+    s16 id;
+    MapBox *box;
 
-    var_s1 = 0;
+    i = 0;
     if (D_807F70AC > 0) {
         do {
-            if ((arg3 == D_807F70B0[var_s1].unk0) && (arg4 == D_807F70B0[var_s1].unk4)) {
-                temp_v1 = D_807F70B0[var_s1].unk2;
-                if (((f32)D_807F70B4[temp_v1].unk0 <= arg0) && (arg0 <= (f32)D_807F70B4[temp_v1].unk6) && ((f32)D_807F70B4[temp_v1].unk2 <= arg1) && (arg1 <= (f32)D_807F70B4[temp_v1].unk8) && ((f32)D_807F70B4[temp_v1].unk4 <= arg2) && (arg2 <= (f32)D_807F70B4[temp_v1].unkA)) {
-                    *arg5 = temp_v1;
-                    func_80652FDC(arg0, arg1, arg2, arg3, temp_v1, arg5);
+            if ((arg3 == D_807F70B0[i].unk0) && (arg4 == D_807F70B0[i].unk4)) {
+                id = D_807F70B0[i].unk2;
+                if (id) {} // FAKE: raises id's adjsave so the table address is not hoisted into a saved register
+                box = (MapBox *)((u8 *)D_807F70B4 + id * 12);
+                if (box && box) {} // FAKE: keeps box's live range apart from the hoisted cell table address
+                if (((f32)box->unk0 <= arg0) && (arg0 <= (f32)box->unk6) && ((f32)box->unk2 <= arg1) && (arg1 <= (f32)box->unk8) && ((f32)box->unk4 <= arg2) && (arg2 <= (f32)box->unkA)) {
+                    *arg5 = id;
+                    func_80652FDC(arg0, arg1, arg2, arg3, id, arg5);
                 }
             }
-            var_s1 += 1;
-        } while (var_s1 < D_807F70AC);
+            i++;
+        } while (i < D_807F70AC);
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80652FDC.s")
-#endif
+typedef struct {
+    /* 0x0 */ s16 id;
+    /* 0x2 */ u8 pad2[2];
+    /* 0x4 */ f32 dist;
+} S55bChunkCand;
 
-#ifdef NON_MATCHING
-s16 func_806531B8(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
-    s16 sp70[200];
-    f32 sp200;
-    u8 sp207;
-    f32 temp_fs0;
-    f32 temp_fs1;
-    f32 temp_fs2;
-    f32 var_fs0;
-    s16 var_s1;
-    s16 var_s3;
-    s32 var_s0;
-    s32 var_s1_2;
-    s32 var_s2;
-    void *temp_v0;
-    u8 *var_s0_2;
+s16 func_806531B8(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
+    s32 best;
+    s32 count;
+    u8 flag;
+    f32 dist;
+    S55bChunkCand cand[50];
+    s32 pad1;
+    s32 i;
+    s32 pad2;
+    s32 found;
 
-    var_s2 = 0;
+    count = 0;
     if (D_807F6C28 == 0) {
         return -1;
     }
-    temp_fs0 = arg0 * 6.0f;
-    temp_fs1 = arg1 * 6.0f;
-    temp_fs2 = arg2 * 6.0f;
-    if (mapChunkFindNodeAtPoint(temp_fs0, temp_fs1, temp_fs2, arg3, &sp207, &sp200) != 0) {
-        if (sp207 == 0) {
+    arg0 *= 6.0f;
+    arg1 *= 6.0f;
+    arg2 *= 6.0f;
+    if (mapChunkFindNodeAtPoint(arg0, arg1, arg2, arg3, &flag, &dist) != 0) {
+        if (flag == 0) {
             return arg3;
         }
-        sp70[0] = arg3;
-        var_s2 = 1;
-        *(f32 *)&sp70[2] = sp200;
+        cand[0].id = arg3;
+        count = 1;
+        cand[0].dist = dist;
     }
-    var_s0 = 0;
-    var_s1 = 0;
+    found = 0;
+    i = 0;
     if (D_807F6C28 > 0) {
         do {
-            if (arg3 != var_s1) {
-                if (mapChunkFindNodeAtPoint(temp_fs0, temp_fs1, temp_fs2, var_s1, &sp207, &sp200) != 0) {
-                    if (sp207 == 0) {
-                        var_s0 = 1;
+            if (arg3 != i) {
+                if (mapChunkFindNodeAtPoint(arg0, arg1, arg2, i, &flag, &dist) != 0) {
+                    if (flag == 0) {
+                        found = 1;
                     } else {
-                        temp_v0 = (u8 *)sp70 + var_s2 * 8;
-                        *(s16 *)temp_v0 = var_s1;
-                        var_s2 += 1;
-                        var_s1 += 1;
-                        *(f32 *)((u8 *)temp_v0 + 4) = sp200;
+                        cand[count].id = i;
+                        cand[count].dist = dist;
+                        count++;
+                        i++;
                     }
                 } else {
-                    var_s1 += 1;
+                    i++;
                 }
             } else {
-                var_s1 += 1;
+                i++;
             }
-        } while ((var_s0 == 0) && (var_s1 < D_807F6C28));
+        } while (found == 0 && i < D_807F6C28);
     }
-    if (var_s0 != 0) {
-        return var_s1;
+    if (found != 0) {
+        return i;
     }
-    var_fs0 = *(f32 *)&sp70[2];
-    if (var_s2 == 0) {
+    arg0 = cand[0].dist;
+    if (count == 0) {
         return arg3;
     }
-    var_s3 = sp70[0];
-    var_s1_2 = 0;
-    if (var_s2 > 0) {
-        var_s0_2 = (u8 *)sp70;
-        do {
-            var_s1_2 += 1;
-            if (func_806533C4(var_fs0, *(f32 *)(var_s0_2 + 4), temp_fs1) != 0) {
-                var_fs0 = *(f32 *)(var_s0_2 + 4);
-                var_s3 = *(s16 *)var_s0_2;
-            }
-            var_s0_2 += 8;
-        } while (var_s1_2 != var_s2);
+    best = cand[0].id;
+    for (i = 0; i < count; i++) {
+        if (func_806533C4(arg0, cand[i].dist, arg1) != 0) {
+            arg0 = cand[i].dist;
+            best = cand[i].id;
+        }
     }
-    return var_s3;
+    return best;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806531B8.s")
-#endif
 
 #ifdef NON_MATCHING
 s32 func_806533C4(f32 arg0, f32 arg1, f32 arg2) {
