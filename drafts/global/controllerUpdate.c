@@ -1,4 +1,4 @@
-// controllerUpdate (src/global/F600.c): stage 5: same 7 callee-saved set (s0-s6) and frame 56 as target; 4 deadsweep FAKE dead statements; remaining diff regalloc: const 2 in s0 vs target s3, &D_807ECDF4 in s3 vs s0, row pointer in ra vs s0, t-reg numbering of hoisted consts; also D_807ECD60/62/63 stores need the BSS D_807ECD60 defined in F600.c for the shared lui at (data-ownership blocker, extern gives one lui per store); D_807ECD40/48/50 are used as u16 (declared s16 in F600.c: lhu); main-loop pad address via (u16*)+padIdx*3 gives the shift expansion, case-2 loop uses D_807ECDE8[i].button
+// controllerUpdate (src/global/F600.c): stage 5 after the F600 bss carve (D_807ECD60/62/63 shared lui now matches; objects defined in F600.c, u16 D_807ECD40/48/50): same 7 callee-saved (s0-s6) and frame 56 as target with 4 deadsweep FAKEs, text diff is regalloc only. Target colouring: row ptr D_807ECD68+padIdx*32 in s0, i s1, padIdx s2, const 2 in s3, &D09 s4, compact s5, &D_807463B8 s6; &CtrlAPressed[padIdx] in ra, consts 12/11/16 in t5/t4/t3, buttons load in a2 + var in a3 (the 'pressed' pair uses the CSE'd load), pressed in t2 (t1 unused). Mine: const 2 in s0, &D_807ECDF4 (FAKE-held) in s3, row ptr in ra, Pressed ptr t5, consts t4/t3/t2, pressed t1, buttons t0 + copy a3. Needs one more caller-saved id live across the pressed/row window (13 ids busy in the target, 12 here); uopt priority shows target colours Repeat ptr before bit/inner ptr. Tried: deadsweep (single dead stmt: globals+locals, 4 forms; 2-step beam), declaration order (all 132 moves), 20 expression/type rewrites incl. btn reload / bit u32 (80.5 vs 86 score, no match), pointer locals for Held/Pressed/Repeat/row, permuter 1500s (1200->1085). Unparked diff 86 lines (D_807ECD62/63 reloc-only +2/+3 vs sym).
 #include "common.h"
 
 extern volatile u8 D_807467C4;
@@ -10,9 +10,9 @@ extern u8 D_807ECD08;
 extern u8 D_807ECD09;
 extern OSContPad D_807ECD10[4];
 extern OSContPad D_807ECD28[4];
-extern s16 D_807ECD40[4];
-extern s16 D_807ECD48[4];
-extern s16 D_807ECD50[4];
+extern u16 D_807ECD40[4];
+extern u16 D_807ECD48[4];
+extern u16 D_807ECD50[4];
 extern OSContPad D_807ECD58;
 extern s16 D_807ECD68[4][16];
 extern OSContPad *D_807ECDE8;
