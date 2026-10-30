@@ -1,5 +1,5 @@
 // func_8071E3EC (src/global/11BC10.c): stage 5 (parked NON_MATCHING in 11BC10.c): 290 insns exact length/flow match, frame 0x58. Text identical except FP ugen overflow-ring colors: 300.0 double ldc1 f14 vs target f12 and hoisted 1.0f const f12 vs target f2 in arm A, join and 4 case blocks (swc1 f12->f2 at sp40/44/48)
-s16 func_806531B8(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s32);
 void lightSetRadius(s32);
 void lightSetTargetId(s32);
 
@@ -19,7 +19,7 @@ void func_8071E3EC(TimedEffectActorView *arg0, s8 *arg1) {
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = 0.0f;
         temp_v0->unk4 = 0.0f;
-        temp_v0->unk8 = (f32)func_806531B8(arg0->unk340, arg0->unk344, arg0->unk348, 0);
+        temp_v0->unk8 = (f32)mapChunkFindByPosition(arg0->unk340, arg0->unk344, arg0->unk348, 0);
     }
     var_v1 = arg0->unk384;
     if ((f64)var_v1->unk4 == 0.0) {

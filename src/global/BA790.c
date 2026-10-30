@@ -284,7 +284,7 @@ extern s32 D_8076A0A8;
 void actorClearNodeFlag(Actor *, s32);
 void actorScriptStart(void *, s32);
 void lightUpdateFromActorLighting(void *, void *, void *);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void func_806B640C(void) {
     s16 *p = BA790A->unk178;
@@ -311,7 +311,7 @@ void func_806B640C(void) {
         if (*p > 0) {
             (*p)--;
             if (*p == 0xA) {
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x150, 0xFF, 0x7F, 0x1E, 0x32, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x150, 0xFF, 0x7F, 0x1E, 0x32, 0.3f, 0);
             }
             if (*p == 0) {
                 D_807FBB70.unk200 = 9;

@@ -1,4 +1,4 @@
-// func_806AC07C (src/global/ACDC0.c): stage 6 (parked NON_MATCHING): size+frame+blocks match, 145 text-diff lines, regalloc only: FP temp pool rotation from case 8 'arg0->unk344 = arg0->unk344 + func_80612794(ang)*10.0f' (target allocs load f4 first, then const f6, mul f10, add f8; ours const, mul, load). Fixed vs old park: item head a2/type v1 (type=(s32)item->unk0), single ang var, case6 dist in sc (sc=dz*dz+dx*dx; gives f12/f2 + 4.0 const f16), item->unk24=0 else + t=0.0f in case 6 (mov.s f14,f2). A dead 'if (arg0->unk344 + 1.0f) {}' before 'if (type==8)' drops 145->114 but adds a candidate f12 elsewhere; rs.py dead-statement search plateaued at 94 (junk). permuter: no gain.
+// hudPauseMenuIconUpdate (src/global/ACDC0.c): stage 6 (parked NON_MATCHING): size+frame+blocks match, 145 text-diff lines, regalloc only: FP temp pool rotation from case 8 'arg0->unk344 = arg0->unk344 + func_80612794(ang)*10.0f' (target allocs load f4 first, then const f6, mul f10, add f8; ours const, mul, load). Fixed vs old park: item head a2/type v1 (type=(s32)item->unk0), single ang var, case6 dist in sc (sc=dz*dz+dx*dx; gives f12/f2 + 4.0 const f16), item->unk24=0 else + t=0.0f in case 6 (mov.s f14,f2). A dead 'if (arg0->unk344 + 1.0f) {}' before 'if (type==8)' drops 145->114 but adds a candidate f12 elsewhere; rs.py dead-statement search plateaued at 94 (junk). permuter: no gain.
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -46,7 +46,7 @@ extern f32 D_807FC890[];
 extern u8 D_8075054C[][4];
 extern s32 D_8076A064;
 
-void func_806AC07C(L7_Hud *arg0, s8 *arg1) {
+void hudPauseMenuIconUpdate(L7_Hud *arg0, s8 *arg1) {
     L7_Src *src;
     L7_Item *item;
     f32 t;

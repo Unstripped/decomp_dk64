@@ -37,22 +37,22 @@ void func_8069E210(void) {
             func_80614D00(D_807FBB40, 1.0f, 0.0f);
             switch (actorListFindIdByActor(D_807FBB40)) {
             case 5:
-                func_80609140(0x1D7, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x1D7, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 break;
             case 6:
-                func_80609140(0x1D8, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x1D8, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 break;
             case 7:
-                func_80609140(0x1D9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x1D9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 break;
             case 8:
-                func_80609140(0x1DA, 0x7FFF, 63.0f, 1.0f, 2, 0);
+                sfxPlayOnFreeSlot(0x1DA, 0x7FFF, 63.0f, 1.0f, 2, 0);
                 break;
             case 9:
-                func_80609140(0x1DB, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x1DB, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 break;
             case 10:
-                func_80609140(0x1DC, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x1DC, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 break;
             }
             actor = D_807FBB40;

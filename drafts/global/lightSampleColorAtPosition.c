@@ -1,4 +1,4 @@
-// func_8065C334 (src/global/5E2F0.c): L65C334 stage 5: frame 0x88 + FP callee-saved set (f20..f30) + text size match; for-loop over D_807F7BC8[i] (move a0,zero in blez delay slot), factor arms: unk4<=dot -> 1.0f else (dot-unk0)*unk8 (old draft had them swapped), raw diff f32 d[3] at 96.. needs pad[7]+4 uopt temp slots (fake nx read late in case 1). Remaining ~80 text diff lines (deadsweep/random fakes): case1 raw dx/dy/dz should be caller-saved coloured f2/f14/f16 spilled around sqrtf (target: nz/nx/ny stores 92/84/88, f20=ny) but ours keeps them as temps/array; arg6 pointer should be coloured v1 (lw v1,160(sp)); case0 (diff_val-range) f2 vs f14.
+// lightSampleColorAtPosition (src/global/5E2F0.c): L65C334 stage 5: frame 0x88 + FP callee-saved set (f20..f30) + text size match; for-loop over D_807F7BC8[i] (move a0,zero in blez delay slot), factor arms: unk4<=dot -> 1.0f else (dot-unk0)*unk8 (old draft had them swapped), raw diff f32 d[3] at 96.. needs pad[7]+4 uopt temp slots (fake nx read late in case 1). Remaining ~80 text diff lines (deadsweep/random fakes): case1 raw dx/dy/dz should be caller-saved coloured f2/f14/f16 spilled around sqrtf (target: nz/nx/ny stores 92/84/88, f20=ny) but ours keeps them as temps/array; arg6 pointer should be coloured v1 (lw v1,160(sp)); case0 (diff_val-range) f2 vs f14.
 #include <ultra64.h>
 
 typedef struct LightTrigger {
@@ -30,7 +30,7 @@ extern f32 *D_8076A0B8;
 extern f32 *D_8076A0BC;
 s32 mapChunkIsInUse(s16);
 
-void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
+void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
     f32 pad[7];
     f32 d[3];
     LightTrigger *entry;

@@ -1464,7 +1464,7 @@ void sfxStopSlotSound(Actor *, s32);
 void actorSetGroupState(u8, u8);
 void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
 void effectSpawnJointBeam(s32, s32, s32, s32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 extern s32 D_807FBB68;
 
 void func_806C2DF4(void) {
@@ -1740,7 +1740,7 @@ void func_806C2DF4(void) {
         if ((randomNonNegative() >> 15) % 100 >= 0x47 || LgV->unk155 != 0) {
             effectSpawnJointBeam(7, 0xB, 0x11, 0x20);
             effectSpawnJointBeam(0xC, 0x10, 0x11, 0x20);
-            func_806086CC(LgV->unk7C, LgV->unk80, LgV->unk84, 0x8A, 0x64, 0x7F, 0x28, 0, 0.3f, 0);
+            sfxPlayAtPositionPooled(LgV->unk7C, LgV->unk80, LgV->unk84, 0x8A, 0x64, 0x7F, 0x28, 0, 0.3f, 0);
             LgV->unk60 |= 4;
         } else {
             LgV->unk60 &= ~4;

@@ -110,7 +110,7 @@ void func_8067B4C8(void) {
         func_80714998(2);
         func_807149B8(1);
         func_80714C08(&D_8071FBC8, 2.0f, D_807FBB40, 1, 2);
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x17, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x17, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
         D_807FBB40->unk154++;
         temp_s2->unk14 = 4;
         break;

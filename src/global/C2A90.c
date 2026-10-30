@@ -267,7 +267,7 @@ void func_806BE674(u8 arg0) {
     }
 }
 
-s16 func_80609140(s16, s32, f32, f32, u8, u8);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 s32 _sprintf(char *, const char *, ...);
 s32 textGetStringWidth();
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
@@ -298,7 +298,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *arg1) {
             } else {
                 n = 0x74;
             }
-            func_80609140(n, 0x7FFF, 64.0f, 1.0f, 0, 0x80);
+            sfxPlayOnFreeSlot(n, 0x7FFF, 64.0f, 1.0f, 0, 0x80);
         }
     }
     gSPDisplayList(gdl++, &D_1000118);

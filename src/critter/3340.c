@@ -103,7 +103,7 @@ void func_807149B8(s32);
 void func_807149FC(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 f32 func_806119FC(void);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 f32 sqrtf(f32);
 void critterSetDigitFrames(s32);
 
@@ -185,7 +185,7 @@ void func_80027448(void) {
         } else if (sp46 != 0 && (f64)sp50 < 200.0 && camIsCutsceneActive() == 0 && D_807FBB4C->unk154 == 0x24 && D_807FBB4C->unk155 == 2 && (f64)sp54 > -35.0) {
             if ((f64)sp5C > -27.0 && (f64)sp5C < 27.0 && (D_807FBB4C->unkE6 < 0x200 || D_807FBB4C->unkE6 >= 0xE01)) {
                 D_80029F84 = 2;
-                func_80609140(0x145, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x145, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 camStartShake(gCamActor, 0xA, 0xA);
                 D_807FBB40->unk155 = 0xA;
                 *sp60 = 0;
@@ -197,7 +197,7 @@ void func_80027448(void) {
             *sp60 += 1;
             if (*sp60 == 0xA) {
                 critterSetDigitFrames(sp64);
-                func_80609140(0xE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0xE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
             }
             if (*sp60 >= 0x2E) {
                 D_807FBB40->unk155 = 0;
@@ -277,7 +277,7 @@ void func_80027448(void) {
                 D_80029F80 += 1;
                 if (D_80029F80 == 4) {
                     D_80029F80 = 0;
-                    func_80609140(0x1EE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                    sfxPlayOnFreeSlot(0x1EE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                     D_80029F84 = 1;
                 }
             } else {

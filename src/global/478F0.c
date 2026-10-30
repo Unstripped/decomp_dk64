@@ -406,7 +406,7 @@ typedef struct {
     s16 unk10;
 } CsSfxView;
 
-void func_80605380(s16);
+void sfxSlotFreeSource(s16);
 void modelSlotSetNodeFrame(s32, s16, s32, s32);
 void sfxPlayFromTargetSlot(s16, s32, s32, s32, s32, s32, f32);
 s16 sfxSlotAllocateSource(s16, s32, s32, u8, s32, f32, s32);
@@ -442,7 +442,7 @@ void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
                     q->unk8 = 0;
                     q->unk0++;
                     if (((CsSfxView *)cs)->unk10 >= 0) {
-                        func_80605380(((CsSfxView *)cs)->unk10);
+                        sfxSlotFreeSource(((CsSfxView *)cs)->unk10);
                         ((CsSfxView *)cs)->unk10 = -1;
                     }
                     sfxPlayFromTargetSlot(csId, 0x74, 0xFF, 0x7F, 0, 0x50, 0.3f);
@@ -523,8 +523,8 @@ extern f32 D_80770DD0;
 extern f32 D_80770DD4;
 
 s32 randomNonNegative(void);
-void func_80608DA8(s32, u8, s32, s32, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayWithRandomPan(s32, u8, s32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_80711410(f32, s32, f32, s32, f32);
 void lightSetColor(f32, f32, f32, s32);
 
@@ -588,10 +588,10 @@ void func_806443E4(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
                 if (dist < 2200.0f) {
                     if (D_80770DC9 != 0) {
                         if (D_80770DD4 < 600.0f) {
-                            func_80609140(0x9C, (s32)(((fade * 32767.0f * 60.0f / 255.0f) * (600.0 - D_80770DD4)) / 1000.0), D_80770DCC, 0.8f, 0x1E, (u32)D_80770DD0);
+                            sfxPlayOnFreeSlot(0x9C, (s32)(((fade * 32767.0f * 60.0f / 255.0f) * (600.0 - D_80770DD4)) / 1000.0), D_80770DCC, 0.8f, 0x1E, (u32)D_80770DD0);
                         }
                     } else {
-                        func_80608DA8(0x9C, (u32)(fade * 60.0f), 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
+                        sfxPlayWithRandomPan(0x9C, (u32)(fade * 60.0f), 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
                     }
                 }
                 f->unk4 = 1.0f;
@@ -2015,7 +2015,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
                 q->unk2 = 0x190;
                 q->unk4 = 0.0f;
                 if (flag != 0) {
-                    func_80605380(((CsFadeView *)cs)->unk10);
+                    sfxSlotFreeSource(((CsFadeView *)cs)->unk10);
                     ((CsFadeView *)cs)->unk10 = -1;
                 }
             } else if (flag != 0) {
@@ -2029,7 +2029,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
         q->unk4 = 0.0f;
         if (flag != 0) {
             if (((CsFadeView *)cs)->unk10 != -1) {
-                func_80605380(((CsFadeView *)cs)->unk10);
+                sfxSlotFreeSource(((CsFadeView *)cs)->unk10);
                 ((CsFadeView *)cs)->unk10 = -1;
             }
         }
@@ -2225,10 +2225,10 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
     p->unk228 = func_80612790(ang);
     if (c == 0) {
         flag = 1;
-        func_80609140(0xF2, 0x5DC0, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0xF2, 0x5DC0, 63.0f, 1.0f, 0, 0);
     } else {
         flag = 0;
-        func_80609140(0x2EB, 0x7D00, 63.0f, 0.6f, 0, 0);
+        sfxPlayOnFreeSlot(0x2EB, 0x7D00, 63.0f, 0.6f, 0, 0);
     }
     negCos = -p->unk228;
     sinA = p->unk220;
@@ -2554,7 +2554,7 @@ extern f32 D_80770BC0[];
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 void modelAnimEntrySetUnkC(s16, s16, s16);
 void modelAnimEntrySetTime(s16, s16, s16, f32);
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 
 void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 u1; /* unused: reserves frame slots */
@@ -2614,7 +2614,7 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
                 modelAnimEntrySetTime(csId, i + 1, st, 0);
                 e->active = 0;
                 modelSlotGetNodePos(csId, 1, i + 1, &x, &y, &z);
-                func_806086CC(x, y, z, 0x1AE, 0xFF, 0x7F, 0x14, 0x50, 0.7f, 0);
+                sfxPlayAtPositionPooled(x, y, z, 0x1AE, 0xFF, 0x7F, 0x14, 0x50, 0.7f, 0);
             }
             if (e->timer != 0) {
                 e->timer--;
@@ -2634,7 +2634,7 @@ void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
     if (((CsFxView *)cs)->slot != -1) {
         D_80770BC0[((CsFxView *)cs)->slot] = count;
         if (count == 0) {
-            func_80605380(((CsFxView *)cs)->slot);
+            sfxSlotFreeSource(((CsFxView *)cs)->slot);
             ((CsFxView *)cs)->slot = -1;
         }
     }
@@ -2702,7 +2702,7 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
             pr = &D_80748244[(s16)(row * 2 + col)];
             modelSlotSetNodeFrame(csId, pr->a, 0, 0);
             modelSlotSetNodeFrame(csId, pr->b, 0, 0);
-            func_80609140(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
             p[9]++;
             if (p[9] == 6) {
                 cs->unk4B[1] = 0x32;
@@ -2719,7 +2719,7 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
             p[row] = 0;
             modelSlotSetNodeFrame(csId, D_80748244[p[8]].a, 1, 0);
             modelSlotSetNodeFrame(csId, D_80748244[p[8]].b, 1, 0);
-            func_80609140(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
         p[6] ^= 1;
     }
@@ -2829,7 +2829,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
                 modelAnimEntrySetTime(csId, j, anim, 0);
                 e->active = 0;
                 modelSlotGetNodePos(csId, 1, i + 1, &x, &y, &z);
-                func_806086CC(x, y, z, 0x1AE, 0xFF, 0x7F, 0x14, 0x50, 0.7f, 0);
+                sfxPlayAtPositionPooled(x, y, z, 0x1AE, 0xFF, 0x7F, 0x14, 0x50, 0.7f, 0);
             }
             if (e->timer != 0) {
                 e->timer--;
@@ -3225,7 +3225,7 @@ s32 func_8064BE80(CsState *cs, s16 csId, s16 b, s16 c) {
         slotQueueAddValue(7, (u8)idx, 1);
         q = (f32)slotQueueGetValue(7, (u8)idx) / (f32)D_807552F0;
         q = (f32)0.5 * q + 0.5f;
-        func_80609140(0x2A1, 0x7FFF, 63.0f, q, 5, 0);
+        sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, q, 5, 0);
         return 1;
     }
     return 0;
@@ -3417,7 +3417,7 @@ void func_8064C814(CsState *cs, s16 csId, s16 b, s16 c) {
         if (anim != p->unk0) {
             p->unk0 = anim;
             modelSlotGetNodePos(csId, 1, 3, &x, &y, &z);
-            func_806086CC(x, y, z, 0x32, 0xFF, 0x7F, 0xA, 0x50, 0.3f, 0);
+            sfxPlayAtPositionPooled(x, y, z, 0x32, 0xFF, 0x7F, 0xA, 0x50, 0.3f, 0);
         }
     }
     modelAnimEntryGetState(csId, 3, &anim, &animT, &animFlag);
@@ -3425,7 +3425,7 @@ void func_8064C814(CsState *cs, s16 csId, s16 b, s16 c) {
         if (anim != p->unk4) {
             p->unk4 = anim;
             modelSlotGetNodePos(csId, 1, 2, &x, &y, &z);
-            func_806086CC(x, y, z, 0x332, 0xFF, 0x7F, 0, 0x50, 0.3f, 0);
+            sfxPlayAtPositionPooled(x, y, z, 0x332, 0xFF, 0x7F, 0, 0x50, 0.3f, 0);
         }
     }
 }
@@ -3450,7 +3450,7 @@ void func_8064C9F8(CsState *cs, s16 csId, s16 b, s16 c) {
         if (anim != *p) {
             *p = anim;
             modelSlotGetNodePos(csId, 1, 2, &x, &y, &z);
-            func_806086CC(x, y, z, 0x257 + (anim == 0xA), 0xFF, 0x7F, 0xA, 0x50, 0.3f, 0);
+            sfxPlayAtPositionPooled(x, y, z, 0x257 + (anim == 0xA), 0xFF, 0x7F, 0xA, 0x50, 0.3f, 0);
         }
     }
 }
@@ -3479,7 +3479,7 @@ void func_8064CB3C(CsState *cs, s16 csId, s16 b, s16 c) {
             case 0x24:
                 *p = anim;
                 modelSlotGetNodePos(csId, 1, 2, &x, &y, &z);
-                func_806086CC(x, y, z, 0x3A, 0x50, 0x7F, 0, 0x50, 0.3f, 0);
+                sfxPlayAtPositionPooled(x, y, z, 0x3A, 0x50, 0x7F, 0, 0x50, 0.3f, 0);
                 break;
         }
     }
@@ -3641,12 +3641,12 @@ void func_8064D1E8(CsState *cs, s16 csId, s16 b, s16 c) {
     if (p->unk0 == 0) {
         ang = p->unk8;
         if (ang >= 0x2BC && ang < 0x2C6) {
-            func_80609140(0x359, 0x7FFF, 63.0f, 0.6f, 0, 0);
+            sfxPlayOnFreeSlot(0x359, 0x7FFF, 63.0f, 0.6f, 0, 0);
             ang = p->unk8;
         }
         if ((ang >= 0x2EE && ang < 0x2F8) || (ang >= 0x960 && ang < 0x96A)) {
             if (cs->unk10[0] >= 0) {
-                func_80605380(cs->unk10[0]);
+                sfxSlotFreeSource(cs->unk10[0]);
                 cs->unk10[0] = -1;
                 ang = p->unk8;
             }
@@ -3785,7 +3785,7 @@ void func_8064D418(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     p->unk14--;
     if (p->unk14 <= 0) {
-        func_80609140((s16)(0x34E + ((randomNonNegative() >> 15) % 100 >= 0x33)), 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+        sfxPlayOnFreeSlot((s16)(0x34E + ((randomNonNegative() >> 15) % 100 >= 0x33)), 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
         p->unk14 = (randomNonNegative() >> 15) % 30 + 0x3C;
     }
 }
@@ -3867,10 +3867,10 @@ void func_8064DB98(CsState *cs, s16 csId, s16 b, s16 c) {
     if (anim != *p) {
         switch (anim) {
             case 0xF:
-                func_806086CC(D_807F6000[csId].x, D_807F6000[csId].y + 300.0f, D_807F6000[csId].z, 0x8E, 0xFF, 0x50, 0, 0x50, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807F6000[csId].x, D_807F6000[csId].y + 300.0f, D_807F6000[csId].z, 0x8E, 0xFF, 0x50, 0, 0x50, 0.3f, 0);
                 break;
             case 0:
-                func_806086CC(D_807F6000[csId].x, D_807F6000[csId].y + 300.0f, D_807F6000[csId].z, 0x8F, 0xFF, 0x64, 0, 0x50, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807F6000[csId].x, D_807F6000[csId].y + 300.0f, D_807F6000[csId].z, 0x8F, 0xFF, 0x64, 0, 0x50, 0.3f, 0);
                 break;
         }
         *p = anim;
@@ -4090,7 +4090,7 @@ void func_8064E5C0(CsState *cs, s16 csId, s16 b, s16 c) {
         cs->unk62 = 0xFF;
     }
     if (old != cs->unk62) {
-        func_80609140(0x8A, 0xBB8, 63.0f, 1.0f, 0x1E, 0);
+        sfxPlayOnFreeSlot(0x8A, 0xBB8, 63.0f, 1.0f, 0x1E, 0);
     }
 }
 
@@ -4120,7 +4120,7 @@ void func_8064E65C(CsState *cs, s16 csId, s16 b, s16 c) {
     switch (b) {
         case 10:
         case 11:
-            func_806086CC(x, y, z, 0x305, 0x64, 0x7F, 0, 0, 0.0f, 0);
+            sfxPlayAtPositionPooled(x, y, z, 0x305, 0x64, 0x7F, 0, 0, 0.0f, 0);
             actorSpawn(0xB3, 0x5D);
             D_807FBB44->unk4->unk34 = D_807FBB44->unk4->unk34 * 3.2;
             D_807FBB44->unk4->unk38 = D_807FBB44->unk4->unk38 * 3.2;
@@ -4318,7 +4318,7 @@ void func_8064EE08(CsEffView *e, u8 *flag) {
         case 2:
             if (camIsPathPaused() == 0 || camIsCutsceneActive() == 0) {
                 s->unk0 = 3;
-                func_80609140(0x2E8, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2E8, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
             break;
         case 3:
@@ -4357,7 +4357,7 @@ void func_8064F028(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     camStartPath(D_807FBB44, 0x22, 5);
     sfxAllocateChannel(0xAB, 1.0f);
-    func_80609140(0x2EA, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    sfxPlayOnFreeSlot(0x2EA, 0x7FFF, 63.0f, 1.0f, 0, 0);
     D_807F6951 = b;
     D_807F6950 = 0;
 }

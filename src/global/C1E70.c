@@ -95,7 +95,7 @@ s32 currentActorTestClearFlag();
 s32 camIsCutsceneActive(void);
 void camStartShake(s32, s32, s32);
 s32 sfxAllocateChannel(s32, f32);
-s16 func_80609140(s16, s32, f32, f32, u8, u8);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void flagSet(s16, s32, s32);
 
 typedef struct NmBD3E4Ptr178 {
@@ -194,7 +194,7 @@ void func_806BD3E4(void) {
             n++;
             D_807506B4 = n;
             if (D_807506A8[n] == -1) {
-                func_80609140(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
+                sfxPlayOnFreeSlot(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 flagSet(0x28, 1, 1);
                 flagSet(0x26, 1, 1);
                 D_807506B4 = -1;
@@ -219,7 +219,7 @@ void actorUpdateModelMatrix(void *, s32);
 s32 camStartPath(void *, s32, s32);
 s32 camIsCutsceneActive(void);
 s32 sfxAllocateChannel(s32, f32);
-s16 func_80609140(s16, s32, f32, f32, u8, u8);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void flagSet(s16, s32, s32);
 
 typedef struct R1C0C1Ptr178 {
@@ -281,7 +281,7 @@ void func_806BD7B0(void) {
                 D_807FBB40->unk154 = 3;
                 st->unk0 = 0;
                 sfxAllocateChannel(0x3B, 1.0f);
-                func_80609140(0x258, 0x7FFF, 63.0f, 1.0f, 5, 0);
+                sfxPlayOnFreeSlot(0x258, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 camStartPath(D_807FBB40, 0, 1);
                 actorScriptStart(D_807FBB40, 0x291);
                 D_807FBB40->unk155[0] = 0;
@@ -298,7 +298,7 @@ void func_806BD7B0(void) {
                     D_807FBB40->unk128 = 0;
                     st->unk0++;
                     if (st->unk0 == 1) {
-                        func_80609140(0x1F6, 0x7FFF, 63.0f, 1.0f, 5, 0);
+                        sfxPlayOnFreeSlot(0x1F6, 0x7FFF, 63.0f, 1.0f, 5, 0);
                     }
                     if (st->unk0 >= 0xB) {
                         sp30 = D_807506B8;

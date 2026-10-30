@@ -1,5 +1,5 @@
-// func_80653804 (src/global/55B20.c): stage 4 (S55c): frame 0xC8 + callee-saved set match; score 202->136 by statement order fs4=arg2; fs3=arg1; then fs5/sp38/fs1/fs2 (e3). Remaining: arg1 spilled to home (sw a1,204(sp)) with arg2 in f14 -- target moves BOTH args first (mtc1 a1,f14; mtc1 a2,f20) and loads lh unk2,unk4,unk10,unkE before unk0/unkC; arg2 candidate 'not colored, not splittable' in uopt trace; f64 callee coloring still rotated (fs5=f22 vs f30). inline (f64)arg1/arg2 uses balloon frame to 0x148. decl-order permutations of the f64 locals (60 random) and deadsweep give nothing legitimate
-s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
+// mapNodeTriangleContainsPoint (src/global/55B20.c): stage 4 (S55c): frame 0xC8 + callee-saved set match; score 202->136 by statement order fs4=arg2; fs3=arg1; then fs5/sp38/fs1/fs2 (e3). Remaining: arg1 spilled to home (sw a1,204(sp)) with arg2 in f14 -- target moves BOTH args first (mtc1 a1,f14; mtc1 a2,f20) and loads lh unk2,unk4,unk10,unkE before unk0/unkC; arg2 candidate 'not colored, not splittable' in uopt trace; f64 callee coloring still rotated (fs5=f22 vs f30). inline (f64)arg1/arg2 uses balloon frame to 0x148. decl-order permutations of the f64 locals (60 random) and deadsweep give nothing legitimate
+s32 mapNodeTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
     f64 lead0;
     f64 lead1;
     f64 lead2;

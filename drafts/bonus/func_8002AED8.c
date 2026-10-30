@@ -227,7 +227,7 @@ void func_8002AED8(void) {
             LB5->unk154 = 6;
         }
         if (LB5->unk154 == 0 && (*D_807FC924[D_807FC929].unk298 & 0xE000)) {
-            func_80609140(0x25, 0x7FFF, 63.0f, 0.51f, 0, 0);
+            sfxPlayOnFreeSlot(0x25, 0x7FFF, 63.0f, 0.51f, 0, 0);
             func_80613C48(D_807FBB40, 0x5FD, 0.0f, 1.0f);
             LB5->unk154 = 1;
         }
@@ -249,7 +249,7 @@ void func_8002AED8(void) {
     case 3:
         if (D_807444EC != 1) {
             LB5->unk154 = 4;
-            func_806A2A10(0xDC, 0x2A, ((u8 *)&t->unk22)[1]);
+            hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)&t->unk22)[1]);
             func_8070D8C0(D_807FBB40, 0, 0xA);
         }
         break;

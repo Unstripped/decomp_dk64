@@ -485,7 +485,7 @@ s32 actorAngleInArc(Actor *, s16);
 s16 mathAngleArcMidpoint(s16, s16);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void actorSetCollisionRadius(Actor *, f32);
@@ -605,7 +605,7 @@ void func_806A6DB4(u8 arg0) {
                 break;
             }
             if (D_807FBB40->unk58 == 0x48) {
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2A1, temp, 0x7F, 0, 0, 0.0f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2A1, temp, 0x7F, 0, 0, 0.0f, 0);
             }
             temp_v1->unk0++;
         }
@@ -650,10 +650,10 @@ void actorUpdateSfxAndGround(void) {
         func_80686CF8(D_807FBB40);
     }
     if (temp_v1->unk8 == 1) {
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x73, 0xFF, 0x7F, 1, 0, 0.0f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x73, 0xFF, 0x7F, 1, 0, 0.0f, 0);
         sfxAllocateChannel(0x3B, 0.7f);
     } else if (temp_v1->unk8 == 0xA) {
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x19C, 0xB4, 0x7F, 1, 0, 0.0f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x19C, 0xB4, 0x7F, 1, 0, 0.0f, 0);
     }
     func_806A6DB4(0);
     if (D_807FBB40->unk80 < D_807FBB40->unkAC) {
@@ -795,7 +795,7 @@ void func_806A7600(void *arg0) {
     }
     if (D_807FBD70 == 4) {
         func_80686CF8(D_807FBB40);
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
         actorDespawn(D_807FBB40);
         if (D_807FBB40->unk58 == 0x93) {
             func_80724994(3, 1, 0x27, 0, 0);

@@ -59,7 +59,7 @@ void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_806CFF9C(void *);
 void camReturnToFollow(void *, void *);
 void csModelStateSetFirstByte(s32, s16);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
@@ -121,7 +121,7 @@ void func_80030D50(void) {
 
 void func_80030E58(void) {
     D_807FDC90->unk1A |= 1;
-    func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
+    sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
 }
 
 typedef struct BossScriptState {
@@ -569,7 +569,7 @@ void func_8068A764(void *, u8);
 void func_806C8E58(s16);
 void func_806F09F0(void *, u16);
 void func_8067AAB8(void *, void *, s32, f32, s32);
-void func_80609140();
+void sfxPlayOnFreeSlot();
 void camPausePath(void);
 void camResumePath(void);
 void func_80724994(s32, s32, s32, s32, s32);
@@ -729,11 +729,11 @@ void func_80031AA0(void) {
             s->unk15++;
             if (s->unk15 < j) {
                 s->unk13 = 1;
-                func_80609140(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 if (s->unk12 == 2) {
-                    func_80609140(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 } else {
-                    func_80609140(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
             } else {
                 s->unk13 = 2;
@@ -765,21 +765,21 @@ void func_80031AA0(void) {
             if (i < s->unk10) {
                 s->unk13 = 0;
                 s->unk15++;
-                func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
             }
             if (sp6A != 0) {
-                func_80609140(0x97, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x97, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 s->unk16++;
                 s->unk15 = 0;
                 s->unk13 = 2;
                 if (s->unk16 == 3) {
-                    func_80609140(0x385, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x385, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                     s->unk16 = 0;
                     camPausePath();
                     s->unk13 = 4;
                 } else {
-                    func_80609140(0x38E, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
-                    func_80609140(0x383, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x38E, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x383, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
             }
         }
@@ -790,8 +790,8 @@ void func_80031AA0(void) {
             s->unk15++;
             if (s->unk15 < 3) {
                 s->unk13 = 3;
-                func_80609140(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
-                func_80609140(0x380, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x380, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
             } else {
                 s->unk13 = 0;
                 s->unk15 = 0;
@@ -805,7 +805,7 @@ void func_80031AA0(void) {
         s->unk8 = 0.1f;
         if (s->unk10 >= 0x1F) {
             s->unk13 = 2;
-            func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
+            sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
         }
         if (sp69 != 0) {
             s->unk17 = 1;
@@ -846,7 +846,7 @@ void func_80031AA0(void) {
         if (sp69 == -1) {
             sp67 = 1;
             if (D_80035B70 < s->unk10) {
-                func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
                 s->unk10 = 0;
                 j = D_80035B70 + 1;
                 if (j >= 0x10) {
@@ -858,8 +858,8 @@ void func_80031AA0(void) {
                     s->unk13 = 1;
                     s->unk15++;
                     D_80035B70 = (j & 3) + 4;
-                    func_80609140(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
-                    func_80609140(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
                 sp68 = 1;
             }
@@ -1015,7 +1015,7 @@ typedef struct BossFollowerActor {
 } BossFollowerActor;
 
 void func_80613C48(void *, s16, f32, f32);
-void func_80609140();
+void sfxPlayOnFreeSlot();
 void func_80614644(void *, void *, f32);
 void actorDespawn(void *);
 void projectileSetTargetCoords(f32, f32, f32);
@@ -1061,7 +1061,7 @@ void func_80032B08(void) {
             s32 v0 = sub174->unk4 + 0x66B;
             if (v0 != sub4_0->unk10) {
                 func_80613C48(ACTOR, v0, 0.0f, 0.0f);
-                func_80609140(0x38D, 0x7D00, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x38D, 0x7D00, 63.0f, 1.0f, 0, 0);
             } else {
                 func_80614644(ACTOR, sub4_0, sub4_0->unk4 + 0.75f);
             }
@@ -1081,7 +1081,7 @@ void func_80032B08(void) {
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {
-                func_80609140(0x384, 0x7D00, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x384, 0x7D00, 63.0f, 1.0f, 0, 0);
                 actorDespawn(ACTOR);
             }
         }

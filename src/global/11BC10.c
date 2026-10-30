@@ -847,7 +847,7 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
 #endif
 
 
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 #ifdef NON_MATCHING
 typedef struct {
     f32 unk0;
@@ -899,7 +899,7 @@ void func_8071910C(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 += state->unk8;
     arg0->unk344 += state->unk0;
     if (arg0->unk344 < state->unk10) {
-        func_806086CC(arg0->unk340, arg0->unk344, arg0->unk348,
+        sfxPlayAtPositionPooled(arg0->unk340, arg0->unk344, arg0->unk348,
             (*(s32 **) arg0->unk330 == &D_8072073C) ? 0x1B1 : (((*(s32 **) arg0->unk330 == &D_807212C8) || (*(s32 **) arg0->unk330 == &D_807212B0)) ? 7 : 0x56),
             (u32) ((f64) (u32) arg0->unk36D * 0.7), 0x96, 1, 0x4B, 0.3f, 0);
         ((Fx11BC2RotationState *) arg0->unk384)->unk0 = 5.0f;
@@ -1605,7 +1605,7 @@ void effectSparkSpawnUpdate(SparkSpawnActorView *arg0, s8 *arg1) {
         }
     }
     if ((arg0->timer == 3) || (arg0->timer == 0x11) || (arg0->timer == 0x15)) {
-        func_806086CC(arg0->x, arg0->y, arg0->z, 0x14F, 0xFF, 0x7F, 0x1E, 0x4B, 0.3f, 0);
+        sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, 0x14F, 0xFF, 0x7F, 0x1E, 0x4B, 0.3f, 0);
     }
     if ((arg0->count - arg0->previousCount) < 3) {
         if (arg0->brightness >= 0xB) {
@@ -1785,7 +1785,7 @@ void timedLightPulse(PulseFadeActorView *arg0, s8 *arg1) {
         case 0:
             temp_v0_2 = arg0->unk34E;
             if ((temp_v0_2 == 0xA) && (arg0->unk351 == 0)) {
-                func_806086CC(arg0->unk340, arg0->unk344, arg0->unk348, 0xE4, 0xFF, 0x7F, 0x1E, 0x46, 9.0f, 0);
+                sfxPlayAtPositionPooled(arg0->unk340, arg0->unk344, arg0->unk348, 0xE4, 0xFF, 0x7F, 0x1E, 0x46, 9.0f, 0);
                 func_807149FC(-1);
                 func_807149B8(1);
                 func_8071498C(effectFallingSparkUpdate);
@@ -1838,7 +1838,7 @@ void effectFallingSparkUpdate(TimedEffectActorView *arg0, u8 *arg1) {
         *arg1 = 1;
     }
     if (*arg1 != 0) {
-        func_806086CC(arg0->unk340, arg0->unk344, arg0->unk348, 0xEA, 0xFF, 0x7F, 0x1E, 0x46, 9.0f, 0);
+        sfxPlayAtPositionPooled(arg0->unk340, arg0->unk344, arg0->unk348, 0xEA, 0xFF, 0x7F, 0x1E, 0x46, 9.0f, 0);
         func_80714998(2);
         func_807149B8(1);
         func_80714950(1);
@@ -2526,7 +2526,7 @@ void effectArcAroundActorUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 }
 
 #ifdef NON_MATCHING
-s16 func_806531B8(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s32);
 void lightSetRadius(s32);
 void lightSetTargetId(s32);
 
@@ -2546,7 +2546,7 @@ void func_8071E3EC(TimedEffectActorView *arg0, s8 *arg1) {
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = 0.0f;
         temp_v0->unk4 = 0.0f;
-        temp_v0->unk8 = (f32)func_806531B8(arg0->unk340, arg0->unk344, arg0->unk348, 0);
+        temp_v0->unk8 = (f32)mapChunkFindByPosition(arg0->unk340, arg0->unk344, arg0->unk348, 0);
     }
     var_v1 = arg0->unk384;
     if ((f64)var_v1->unk4 == 0.0) {

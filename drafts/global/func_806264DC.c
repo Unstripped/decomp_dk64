@@ -101,7 +101,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
         CF2_A1->unkC4 = heapAlloc(cnt * 0x1CU);
         s = hdr;
         for (i = 0; i < cnt; i++) {
-            CF2_A1->unkC8[i] = func_806531B8(s[8], s[9], s[10], 0);
+            CF2_A1->unkC8[i] = mapChunkFindByPosition(s[8], s[9], s[10], 0);
             s += 0xE;
             CF2_A1->unkC4[i] = *(CamF2Bnd *)(s - 0xE);
         }

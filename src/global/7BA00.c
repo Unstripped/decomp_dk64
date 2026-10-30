@@ -9,7 +9,7 @@ typedef struct PlayerData {
 
 extern PlayerData *D_807FC924;
 extern Actor *D_807FBB4C;
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 func_806EB400(Actor*);
 
 void actorTriggerPlayerKnockbackSound(Actor* arg0, Actor* arg1, s32 arg2, s32 arg3) {
@@ -26,13 +26,13 @@ void actorTriggerPlayerKnockbackSound(Actor* arg0, Actor* arg1, s32 arg2, s32 ar
                     if (D_807FBB4C->unk58 == 6 && D_807FC924[kong].unk2C0 == 2) {
                         if (D_807FBB4C->unk154 != 0x31) {
                             if (arg0->unk5C & 0x80) {
-                                func_806086CC(arg1->unk7C, arg1->unk80, arg1->unk84, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);
+                                sfxPlayAtPositionPooled(arg1->unk7C, arg1->unk80, arg1->unk84, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);
                             }
                         }
                     } else if (arg0->unk58 == 0xBB) {
-                        func_806086CC(arg1->unk7C, arg1->unk80, arg1->unk84, 0x37, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
+                        sfxPlayAtPositionPooled(arg1->unk7C, arg1->unk80, arg1->unk84, 0x37, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
                     } else {
-                        func_806086CC(arg1->unk7C, arg1->unk80, arg1->unk84, 0x1E0, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
+                        sfxPlayAtPositionPooled(arg1->unk7C, arg1->unk80, arg1->unk84, 0x1E0, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
                     }
                 }
             }

@@ -243,7 +243,7 @@ void critterUpdateAudio(CritterObj *obj) {
 }
 
 s32 func_806119A0(void);
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);
 f32 func_80612790(s16);
 extern u8 D_80770DC9;
@@ -257,7 +257,7 @@ void func_800245B8(CritterObj *obj) {
         r = func_806119A0() % 255U;
         sp3C = (f32)((f64)obj->speed * (1.0 / 3.0));
         if (r < 6) {
-            func_806086CC(obj->x, obj->y, obj->z,
+            sfxPlayAtPositionPooled(obj->x, obj->y, obj->z,
                           (s16)((func_806119A0() & 3) + 0x1A9),
                           0xFF, 0x7F, 0x1E, 0x5A, 0.7f, 0);
         }
@@ -405,7 +405,7 @@ void func_80024F28(CritterObj *obj) {
             absv = -sp3E;
         }
         if (absv >= 0x5B) {
-            func_806086CC(obj->x, obj->y, obj->z, 0x16F, 0x46, 0xDC, 0x1E, 0x5A, 0.7f, 0);
+            sfxPlayAtPositionPooled(obj->x, obj->y, obj->z, 0x16F, 0x46, 0xDC, 0x1E, 0x5A, 0.7f, 0);
         }
         obj->anim = (s16)((f64)obj->anim + 200.0 * (1.5 + (f64)(150.0f * obj->accel)));
         obj->anim &= 0xFFF;
@@ -465,7 +465,7 @@ s32 func_806119A0(void);
 
 void func_80025500(CritterObj *obj) {
     if (obj->state != 0 && (obj->flags & 1) && (s16)(func_806119A0() % 255U) < 6) {
-        func_806086CC(obj->x, obj->y, obj->z,
+        sfxPlayAtPositionPooled(obj->x, obj->y, obj->z,
                       (s16)((func_806119A0() & 3) + 0x1A9),
                       0xFF, 0x5A, 0x1E, 0x5A, 0.7f, 0);
     }
@@ -569,7 +569,7 @@ extern s32 D_807F6C28;
 Gfx *func_800247F4(Gfx *, CritterObj *);
 Gfx *func_80024C88(Gfx *, CritterObj *);
 Gfx *func_8002516C(Gfx *, CritterObj *);
-void func_8065C334(f32, f32, f32, s32, u8 *, u8 *, u8 *, s32);
+void lightSampleColorAtPosition(f32, f32, f32, s32, u8 *, u8 *, u8 *, s32);
 
 Gfx *critterRenderGroup(Gfx *gdl, CritterGroup *grp) {
     s32 col;
@@ -604,7 +604,7 @@ Gfx *critterRenderGroup(Gfx *gdl, CritterGroup *grp) {
     if (grp->count > 0) {
         do {
             if (D_807F6C28 != 0) {
-                func_8065C334(obj->x, obj->y, obj->z, 0, &r, &g, &b, obj->homeZone->unk28);
+                lightSampleColorAtPosition(obj->x, obj->y, obj->z, 0, &r, &g, &b, obj->homeZone->unk28);
             } else {
                 r = 0xFF;
                 g = 0xFF;
@@ -1073,7 +1073,7 @@ extern CritterGroups *critterGroups;
 void *memcpy(void *, const void *, unsigned int);
 void *heapAlloc(s32);
 void heapClearBlock(void *);
-s16 func_806531B8(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s32);
 void critterInitGroup(CritterGroup *);
 
 void critterLoadData(u8 *arg0) {
@@ -1108,7 +1108,7 @@ void critterLoadData(u8 *arg0) {
                     }
                     memcpy(ent, src, 0x20);
                     if (D_807F6C28 != 0) {
-                        ent->unk28 = func_806531B8((f32)ent->x, (f32)ent->y, (f32)ent->z, 0);
+                        ent->unk28 = mapChunkFindByPosition((f32)ent->x, (f32)ent->y, (f32)ent->z, 0);
                         ent->frame = 0xFF;
                     }
                     j++;

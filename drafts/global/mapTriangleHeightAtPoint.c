@@ -1,4 +1,4 @@
-// func_80654CCC (src/global/55B20.c): stage 3: instruction order differs (97 text lines) and frame 0x20 vs 0x40. Target = cross products n1..n3 of edge diffs d68,d02,dC10,dCE,d6A,d04 (cvt'd early), q=-(n1*u2+n2*u8+n3*uE) spilled to 0x20(sp), 2000.0 hoisted to f24, n2*2000 recomputed 3x (CSE candidate uncolored), f20 saved+restored unused, locals area 0x20..0x3F (4 slots). Tried: f64 locals for diffs (frame 0x70, n3 also spills), unused f64/array pads (dropped in leaf), scale=2000.0 local (folded, identical), deadsweep (no gain)
+// mapTriangleHeightAtPoint (src/global/55B20.c): stage 3: instruction order differs (97 text lines) and frame 0x20 vs 0x40. Target = cross products n1..n3 of edge diffs d68,d02,dC10,dCE,d6A,d04 (cvt'd early), q=-(n1*u2+n2*u8+n3*uE) spilled to 0x20(sp), 2000.0 hoisted to f24, n2*2000 recomputed 3x (CSE candidate uncolored), f20 saved+restored unused, locals area 0x20..0x3F (4 slots). Tried: f64 locals for diffs (frame 0x70, n3 also spills), unused f64/array pads (dropped in leaf), scale=2000.0 local (folded, identical), deadsweep (no gain)
 typedef struct S55dTri {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
@@ -11,7 +11,7 @@ typedef struct S55dTri {
     /* 0x10 */ s16 unk10;
 } S55dTri;
 
-f32 func_80654CCC(S55dTri *arg0, f32 arg1, f32 arg2) {
+f32 mapTriangleHeightAtPoint(S55dTri *arg0, f32 arg1, f32 arg2) {
     f64 n1;
     f64 n2;
     f64 n3;

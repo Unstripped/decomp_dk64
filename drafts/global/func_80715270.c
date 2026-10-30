@@ -13,7 +13,7 @@ extern u8 D_80750AB4;
 void modelSlotGetNodePos(s32, s32, s32, f32 *, f32 *, f32 *);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void assetFreeBuffer(s32, s32, s32);
-s16 func_806531B8(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s32);
 s32 renderEntryAddOrUpdate(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
 void func_80715A3C(s16 *, u8, u8 *, s32, s32, s32 *);
 void effectFreeAndUnlink(EffectNode *);
@@ -127,7 +127,7 @@ after_model_slot:
                     if (effect->flags & 4) {
                         renderArg = 4;
                         if (!(effect->flags & 8)) {
-                            UA1_D08_FIELD(s8, effect, 0x38A) = func_806531B8(
+                            UA1_D08_FIELD(s8, effect, 0x38A) = mapChunkFindByPosition(
                                 UA1_D08_FIELD(f32, effect, 0x340), UA1_D08_FIELD(f32, effect, 0x344),
                                 UA1_D08_FIELD(f32, effect, 0x348), 0);
                         }

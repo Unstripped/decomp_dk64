@@ -43,7 +43,7 @@ f32 sinApprox(f32);
 s32 randomNonNegative(void);
 Gfx *textDrawStringVtx(Gfx *, s32, s32, s32, u16 *, s32);
 
-void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
+void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     u16 spE8;
     f32 spA8[4][4];
     f32 sp68[4][4];
@@ -110,10 +110,10 @@ void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/func_806A370C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/textBoxRenderNode.s")
 #endif
 
-void func_806A370C(s32 *, void *, void *, void *);
+void textBoxRenderNode(s32 *, void *, void *, void *);
 
 typedef struct DrawActor {
     /* 0x00 */ u8 pad0[0x11];
@@ -144,7 +144,7 @@ void renderAppendNodeChain(s32 *arg0, DrawActor *arg1, DrawListHead *arg2, u8 ar
             *arg4 = 1;
         }
         if (arg2->unk0 & 1) {
-            func_806A370C(&sp44, arg1, arg2, node);
+            textBoxRenderNode(&sp44, arg1, arg2, node);
         }
         node = node->unkA0;
         i++;
@@ -197,7 +197,7 @@ typedef struct SpriteAnim {
 } SpriteAnim;
 
 
-s32 func_806A3E9C(s32 arg0, SpriteAnim *arg1, s32 arg2) {
+s32 textBoxRenderTail(s32 arg0, SpriteAnim *arg1, s32 arg2) {
     f32 spE8[4][4];
     f32 spA8[4][4];
     f32 spA4;
@@ -280,7 +280,7 @@ typedef struct UIState {
     /* 0x050 */ f32 unk50;
 } UIState;
 
-Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
+Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
     /* pad* are unused slots above the live locals; with scale/alpha/isLast
        (register-allocated, kept above dl so they cost no below-dl slot) they
        reproduce the original stack frame (0x148, dl 0x98, start 0x94, spA0 0xA0,
@@ -329,7 +329,7 @@ Gfx *func_806A4284(Gfx *arg0, Actor *arg1) {
     WRITE_GFX(dl++, 0xE7000000, 0);
     WRITE_GFX(dl++, ((s32) ((f32) D_807FC924->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) ((f32) D_807FC924->unk270 * 4.0f) & 0xFFF) << 12),
               ((s32) ((f32) D_807FC924->unk276 * 4.0f) & 0xFFF) | (((s32) ((f32) D_807FC924->unk274 * 4.0f) & 0xFFF) << 12));
-    dl = (Gfx *) func_806A3E9C((s32) dl, (SpriteAnim *) state, half);
+    dl = (Gfx *) textBoxRenderTail((s32) dl, (SpriteAnim *) state, half);
     alpha = (state->unk20 * 150.0f * 2 > 150.0f) ? 150.0f : state->unk20 * 150.0f * 2;
     dl = renderTextureSprite(dl, (s32) (state->unk34 + (D_807444FC << 6)), (u8) alpha, half);
     if (state->unk1D != 0) {
@@ -409,7 +409,7 @@ typedef struct SpriteVector {
     /* 0x50 */ f32 unk50;
 } SpriteVector;
 
-void func_806A495C(SpriteRow *arg0, SpriteVector *arg1, SpriteVector *arg2) {
+void textBoxRowUpdateIcon(SpriteRow *arg0, SpriteVector *arg1, SpriteVector *arg2) {
     SpriteObjectSlot *slot = &arg0->unk10;
     f32 sp38 = (f32) arg0->unk0 * 0.5f;
     f32 sp34 = arg0->unk4;
@@ -475,7 +475,7 @@ typedef struct ActorStateView {
     /* 0x154 */ u8 unk154;
 } ActorStateView;
 
-void func_806A4B84(f32 arg0, ActorStateView *arg1, SpriteChainState *arg2, SpriteHolder *arg3, u8 arg4, u8 *arg5) {
+void textBoxRowUpdateNodes(f32 arg0, ActorStateView *arg1, SpriteChainState *arg2, SpriteHolder *arg3, u8 arg4, u8 *arg5) {
     f32 var_fs0;
     s32 var_a0;
     s32 var_s3;
@@ -529,7 +529,7 @@ void func_806A4B84(f32 arg0, ActorStateView *arg1, SpriteChainState *arg2, Sprit
         node->unk8 = arg0;
         node->unk3 = var_a0_2;
         if (arg3->unk0 & 2) {
-            func_806A495C((SpriteRow *) node, (SpriteVector *) arg3, (SpriteVector *) arg2);
+            textBoxRowUpdateIcon((SpriteRow *) node, (SpriteVector *) arg3, (SpriteVector *) arg2);
         }
         var_fs0 += (f32) node->unk0;
         node = node->unkA0;
@@ -570,7 +570,7 @@ void func_8070D9AC(ChainNode *);
 void func_8070E808(Actor *, void *);
 
 
-void func_806A4DDC(Actor *arg0) {
+void textBoxUpdateRows(Actor *arg0) {
     ChainState *state;
     ChainNode *node;
     ChainNode *cur;
@@ -619,7 +619,7 @@ void func_806A4DDC(Actor *arg0) {
             node = node->unk1C;
             func_8070D9AC(cur);
         } else {
-            func_806A4B84(acc, (ActorStateView *) arg0, (SpriteChainState *) state, (SpriteHolder *) node, last, &stop);
+            textBoxRowUpdateNodes(acc, (ActorStateView *) arg0, (SpriteChainState *) state, (SpriteHolder *) node, last, &stop);
             if (stop == 0) {
                 node = node->unk1C;
                 acc = acc + dt;
@@ -702,7 +702,7 @@ s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
 struct SpriteBehaviour;
 
-void func_806A5174(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) {
+void textBoxUpdatePosition(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) {
     f32 sp7C, sp78;
     s32 sp74;
     SpriteFrameNode *node;
@@ -883,14 +883,14 @@ extern u8 D_807503F0;
 
 void *heapAlloc(s32);
 void camResumePath(void);
-void func_806A4DDC(Actor *);
-void func_806A5174(Actor *, SpriteBehaviour *, f32);
+void textBoxUpdateRows(Actor *);
+void textBoxUpdatePosition(Actor *, SpriteBehaviour *, f32);
 void resNodeListFree(SpriteBehaviour *);
 void resQueueRemove(void *);
 void renderCallbacksRegister(void *, void *, s32);
-Gfx *func_806A4284(Gfx *, Actor *);
+Gfx *textBoxRender(Gfx *, Actor *);
 
-void func_806A5868(void) {
+void textBoxUpdate(void) {
     SpriteBehaviour *sub;
     f32 sp18;
     s32 v0;
@@ -977,10 +977,10 @@ void func_806A5868(void) {
     }
     if (D_807FBB40->unk154 != 5) {
         sub->unk20 = (f32)sub->unk0 * 0.033333335f;
-        func_806A5174(D_807FBB40, sub, sp18);
+        textBoxUpdatePosition(D_807FBB40, sub, sp18);
         if (sub->unk0 != 0) {
-            func_806A4DDC(D_807FBB40);
-            renderCallbacksRegister(func_806A4284, D_807FBB40, 3);
+            textBoxUpdateRows(D_807FBB40);
+            renderCallbacksRegister(textBoxRender, D_807FBB40, 3);
         }
     }
 }

@@ -1,4 +1,4 @@
-// func_8065BAA0 (src/global/5E2F0.c): stage 5: frame/saved regs/prologue/call args/case-1 body match; 23-line diff left (reg-masked shape=2): move a0,s0 after lw a3 (target before lw a1); add.s f12 operand order (f10,f4 vs f4,f10; the (x2+y2)+z2 sum form fixes it but then case-0 FP colours worsen); case-0 FP colours (unk14 f12 vs f0, temp_f1 coloured f18 vs ring temp f6). Needed: deadsweep if(arg10&&arg10){} (arg10->s4), store-order + dead-stmt annealing; tried: 5040 case-1 store perms, case-0 inline/order variants (1440), permuter 15+20min, cast mutations.
+// lightCollectVolumesInBounds (src/global/5E2F0.c): stage 5: frame/saved regs/prologue/call args/case-1 body match; 23-line diff left (reg-masked shape=2): move a0,s0 after lw a3 (target before lw a1); add.s f12 operand order (f10,f4 vs f4,f10; the (x2+y2)+z2 sum form fixes it but then case-0 FP colours worsen); case-0 FP colours (unk14 f12 vs f0, temp_f1 coloured f18 vs ring temp f6). Needed: deadsweep if(arg10&&arg10){} (arg10->s4), store-order + dead-stmt annealing; tried: 5040 case-1 store perms, case-0 inline/order variants (1440), permuter 15+20min, cast mutations.
 #include "common.h"
 
 extern s16 D_80748300;
@@ -55,7 +55,7 @@ extern LightTrigger D_807F7BC8[];
 extern s16 D_807F7BC0;
 void lightAddDedupEntry(s16);
 s32 lightCheckVolumeBounds(LightVolume *, f32, f32, f32, s16, s16, s16, s16, s16, s16, s32);
-s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
+s16 lightCollectVolumesInBounds(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
     f32 diff[6];
     s32 i;
     f32 dist;

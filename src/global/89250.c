@@ -41,7 +41,7 @@ s32 actorSpawn();
 void actorDespawn(Actor *);
 void sfxAllocateChannel(s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 s32 func_806119A0(void);
 s32 randomNonNegative(void);
 void actorScriptStart(Actor *, s32);
@@ -783,7 +783,7 @@ void func_806871DC(u8 arg0) {
 #endif
 
 void func_80687400(void) {
-    func_80609140(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
     func_807149FC(0xC8);
     func_8071495C();
     func_8071498C(func_8071EFDC);
@@ -852,7 +852,7 @@ void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void lightSetFlags(s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_8071E028(void);
 extern s32 D_80720B24;
 
@@ -901,12 +901,12 @@ u8 arg3;
     }
     if ((D_807FBB40->unk58 == 0xB9) && (((randomNonNegative() >> 15) % 1000) >= 0x385)) {
         func_806877C8((((randomNonNegative() >> 15) % 0x7FFF) % 10) + 13 & 0xFF);
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (((randomNonNegative() >> 15) % 1000) >= 501) ? 0x8A : 0xA1, 0xFF, 0x7F, 0x28, 0, 0.3f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (((randomNonNegative() >> 15) % 1000) >= 501) ? 0x8A : 0xA1, 0xFF, 0x7F, 0x28, 0, 0.3f, 0);
     }
 }
 
 void func_80687C48(void) {
-    func_80609140(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    sfxPlayOnFreeSlot(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
     sfxAllocateChannel(0x97, 1.0f);
     func_807149FC(0xC8);
     func_8071495C();
@@ -915,7 +915,7 @@ void func_80687C48(void) {
 }
 
 void func_80687CC8(void) {
-    func_80609140(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    sfxPlayOnFreeSlot(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
     sfxAllocateChannel(0x97, 1.0f);
     func_807149FC(0xC8);
     func_8071495C();

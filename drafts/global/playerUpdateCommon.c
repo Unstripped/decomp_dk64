@@ -1,4 +1,4 @@
-// func_806CA5F8 (src/global/CEAE0.c): stage 6, 9 diff lines (shape 1; regalloc only), base 6e500df. vs old park: effectFreeAndUnlink ONE-arg (was (void*,void*) hack: sw zero now in jal delay slot); camProjectToScreen declared s32 (real return); dropped both 'if (D_807FBB48 && D_807FBB48) {}'; added deadsweep 'if (D_807FBB40 && D_807FBB40) {}' as first stmt (BB48 ptr -> v1). ONLY remaining diff: fx (LCA_P->unk254): target a1 over arms/join test (lw a1; bnez a1; move a0,a1; reload lw a1 after create/free) + 'move s0,a1' in the delay slot of the join beqz (live range split, s0 only in body); ours s0 whole. Tried (no change): 2nd local tmp + fx=tmp (any type; copy merged, also costs 4 frame bytes), decl order perms, dead fx tests x1-8, deadsweep greedy (0 more), rs.py annealing 8000 iters, permuter. actorGetNodePos s32 (real return) breaks other fn in file (declares void).
+// playerUpdateCommon (src/global/CEAE0.c): stage 6, 9 diff lines (shape 1; regalloc only), base 6e500df. vs old park: effectFreeAndUnlink ONE-arg (was (void*,void*) hack: sw zero now in jal delay slot); camProjectToScreen declared s32 (real return); dropped both 'if (D_807FBB48 && D_807FBB48) {}'; added deadsweep 'if (D_807FBB40 && D_807FBB40) {}' as first stmt (BB48 ptr -> v1). ONLY remaining diff: fx (LCA_P->unk254): target a1 over arms/join test (lw a1; bnez a1; move a0,a1; reload lw a1 after create/free) + 'move s0,a1' in the delay slot of the join beqz (live range split, s0 only in body); ours s0 whole. Tried (no change): 2nd local tmp + fx=tmp (any type; copy merged, also costs 4 frame bytes), decl order perms, dead fx tests x1-8, deadsweep greedy (0 more), rs.py annealing 8000 iters, permuter. actorGetNodePos s32 (real return) breaks other fn in file (declares void).
 typedef struct LCA5F8Fx {
     /* 0x000 */ u8 pad0[0x340];
     /* 0x340 */ f32 unk340;
@@ -133,7 +133,7 @@ void func_807149FC(s32);
 void func_80714998(s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
 
-void func_806CA5F8(s32 arg0) {
+void playerUpdateCommon(s32 arg0) {
     f32 dy;
     f32 sp70;
     f32 sp6C;

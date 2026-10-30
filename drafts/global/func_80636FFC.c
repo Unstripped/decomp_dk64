@@ -50,7 +50,7 @@ typedef struct {
 
 void texAnimUpdateNodes(ModelSegmentData *);
 void func_8063E6B4(void *);
-void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
+void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 void func_8065EB10(u8, s16, f32, f32, f32, s32, f32, s32);
 s32 func_806D0964(s32, u8, s32);
 void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
@@ -154,7 +154,7 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
         } else {
             scale = 0.0f;
         }
-        func_8065C334(arg0->unk0, arg0->unk4 + scale, arg0->unk8, 0, &sp97, &sp96, &sp95, arg6);
+        lightSampleColorAtPosition(arg0->unk0, arg0->unk4 + scale, arg0->unk8, 0, &sp97, &sp96, &sp95, arg6);
         scale = arg0->unkC4 / 15.0f;
         sp97 = sp97 * scale;
         sp96 = sp96 * scale;

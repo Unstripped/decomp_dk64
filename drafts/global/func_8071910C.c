@@ -1,4 +1,4 @@
-// func_8071910C (src/global/11BC10.c): stage 5: 0xD8 frame matched, s0-only saved. Callee func_806086CC 4th arg is s16 in TU causing sll/sra on a3. [orchestrator: with the file decl now s16 for arg 3, the unparked C is still 16 bytes (4 insns) too long: not decl-only]
+// func_8071910C (src/global/11BC10.c): stage 5: 0xD8 frame matched, s0-only saved. Callee sfxPlayAtPositionPooled 4th arg is s16 in TU causing sll/sra on a3. [orchestrator: with the file decl now s16 for arg 3, the unparked C is still 16 bytes (4 insns) too long: not decl-only]
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -9,7 +9,7 @@ typedef struct {
 } Fx11BC2RotationState;
 
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-void func_806086CC(f32, f32, f32, s32, u32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, u32, s32, s32, s32, f32, s32);
 extern s32 D_8072073C;
 extern s32 D_807212B0;
 extern s32 D_807212C8;
@@ -60,7 +60,7 @@ void func_8071910C(TimedEffectActorView *arg0, s8 *arg1) {
         } else {
             a3 = 0x56;
         }
-        func_806086CC(arg0->unk340, arg0->unk344, arg0->unk348, a3, (u32) ((f64) (u32) arg0->unk36D * 0.7), 0x96, 1, 0x4B, 0.3f, 0);
+        sfxPlayAtPositionPooled(arg0->unk340, arg0->unk344, arg0->unk348, a3, (u32) ((f64) (u32) arg0->unk36D * 0.7), 0x96, 1, 0x4B, 0.3f, 0);
         ((Fx11BC2RotationState *) arg0->unk384)->unk0 = 5.0f;
         if (((Fx11BC2RotationState *) arg0->unk384)->unk14 != 2) {
             ((Fx11BC2RotationState *) arg0->unk384)->unk14++;

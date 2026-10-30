@@ -26,7 +26,7 @@ s32 actorAngleInArc(Actor *, s16);
 s16 mathAngleArcMidpoint(s16, s16);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void actorSetCollisionRadius(Actor *, f32);
@@ -136,7 +136,7 @@ void func_806A7600(void *arg0) {
     }
     if (D_807FBD70 == 4) {
         func_80686CF8(D_807FBB40);
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
         actorDespawn(D_807FBB40);
         if (D_807FBB40->unk58 == 0x93) {
             func_80724994(3, 1, 0x27, 0, 0);

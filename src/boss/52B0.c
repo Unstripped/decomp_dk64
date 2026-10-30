@@ -23,13 +23,13 @@ extern BossB_ActorBB40 *D_807FBB40;
 extern BossB_ActorBB44 *D_807FBB44;
 
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s16, f32, f32);
 void func_80614D00(void *, f32, f32);
 
 void func_800292B0(f32 arg0) {
     projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, 0.0f, 0.0f, 0.0f);
-    func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
+    sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
     D_807FBB44->unk80 = D_807FBB40->unk80;
     D_807FBB44->unk4->unk38 *= arg0;
     func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
@@ -361,7 +361,7 @@ block_28:
             }
             break;
         case 4:
-            func_806086CC(ACTOR->unk7C, ACTOR->unk80, ACTOR->unk84, 0xF6, 0x37, 0x7F, 1, 0x1E, 0.3f, 0);
+            sfxPlayAtPositionPooled(ACTOR->unk7C, ACTOR->unk80, ACTOR->unk84, 0xF6, 0x37, 0x7F, 1, 0x1E, 0.3f, 0);
             projectileGetTargetCoords(ACTOR, 2);
             switch (ACTOR->unk154) {
             case 0x2A:

@@ -35,13 +35,13 @@ void camStartPath(s32, s32, s32);
 void slotQueueSetShownValue(s32, s32, s32);
 s32 camIsPathPaused(void);
 void func_8070D8C0(void *, s32, s32);
-void func_806A2A10(s32, s32, s32);
+void hudSpawnCountdownTimer(s32, s32, s32);
 void camResumePath(void);
 void actorSetStateTwo(void *);
 void sfxAllocateChannel(s32, f32);
 void flagSet(s16, s32, s32);
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_805FF800(s32 *, s32 *);
 void func_805FF628(s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
@@ -110,7 +110,7 @@ void func_80029118(void) {
             }
             func_8070D8C0(D_807FBB40, 0x19, *(u8 *)((char *)&sp74 + 3));
             D_807FBB40->unk154 = 1;
-            func_806A2A10(0xDC, 0x2A, ((u8 *)temp_s0)[5]);
+            hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)temp_s0)[5]);
         }
         break;
     case 0x1:
@@ -148,7 +148,7 @@ void func_80029118(void) {
     case 0x3:
         D_807FBB40->unk11C->unk154 = 1;
         temp_s0->unk2 = gfxResourceCreate(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
-        func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
         temp_s0->unk0 = 0x78;
         D_807FBB40->unk154 = 0xFE;
         D_80029FA8 = 1;

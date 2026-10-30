@@ -334,7 +334,7 @@ extern u8 D_8074E77C;
 extern Actor *D_807FBB44;
 
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void actorSpawn(s32, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void renderCallbacksRegister(void *, void *, s32);
@@ -390,7 +390,7 @@ u8 func_806C4AC4(u16 arg0, u16 arg1) {
             if (*sp44 != 0) {
                 (*sp44)--;
             } else if (D_807FBB40->unk168 < arg1) {
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1DD, 0xFF, 0x7F, 0x14, 0x14, 0.0f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1DD, 0xFF, 0x7F, 0x14, 0x14, 0.0f, 0);
                 actorSpawn(0x18, 0);
                 D_807FBB40->unk168++;
                 D_807FBB44->unk15F = D_807FBB40->unk168;

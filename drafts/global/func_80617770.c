@@ -18,7 +18,7 @@ typedef struct P19c3AudioState {
 extern s16 *D_807FBB5C;
 extern u8 *D_807FC924;
 void n_alSndpStop(s32, s16);
-void func_80609B80(f32, f32, s16, s32, s16, s32, s32, s32, s32, f32);
+void sfxPlayAtPositionForPlayer(f32, f32, s16, s32, s16, s32, s32, s32, s32, f32);
 
 void func_80617770(Actor *arg0, s16 arg1, u8 arg2) {
     u8 sp3C;
@@ -59,5 +59,5 @@ void func_80617770(Actor *arg0, s16 arg1, u8 arg2) {
             var_v0 = 0x3C;
         }
     }
-    func_80609B80(((P19c3SoundActor *)arg0)->unk7C, ((P19c3SoundActor *)arg0)->unk80, var_a1, ((P19c3SoundActor *)arg0)->unk84, var_a1, var_v1, 0x7F, (s32)arg2, var_v0, 0.3f);
+    sfxPlayAtPositionForPlayer(((P19c3SoundActor *)arg0)->unk7C, ((P19c3SoundActor *)arg0)->unk80, var_a1, ((P19c3SoundActor *)arg0)->unk84, var_a1, var_v1, 0x7F, (s32)arg2, var_v0, 0.3f);
 }

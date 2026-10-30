@@ -155,10 +155,10 @@ extern s32 D_807FBB64;
 extern s32 D_807FBB68;
 
 void behaviourFrameBegin(void);
-void func_806A2A10(s32, s32, u8, s32 *);
+void hudSpawnCountdownTimer(s32, s32, u8, s32 *);
 s32 camIsCutsceneActive(void);
 s32 func_8061CC00(void);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void actorSetStateTwo(s32);
 s16 mathAngleArcMidpoint(s16, s16);
 s32 camStartPath(void *, s32, s32);
@@ -174,7 +174,7 @@ void func_806B7EA0(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FDC98->unk46 |= 0x60;
         D_807FBB64 |= 2;
-        func_806A2A10(0xDC, 0x2A, BC3B0CCfg->unkA ? BC3B0CCfg->unkA : 10, &D_807FBB64);
+        hudSpawnCountdownTimer(0xDC, 0x2A, BC3B0CCfg->unkA ? BC3B0CCfg->unkA : 10, &D_807FBB64);
         BC3B0S90->unk2E = BC3B0CCfg->unkA != 0 ? 0xF : 0x78;
         if (BC3B0CCfg->unkA != 0) {
             c->unk18 = BC3B0CCfg->unkA;
@@ -191,7 +191,7 @@ void func_806B7EA0(void) {
         }
         D_807FBB40->unk154 = 0x23;
         D_807FBB40->unk155[0] = 0;
-        func_80609140(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
         actorSetStateTwo(D_807FBB40->unk11C);
         D_807FBB68 |= 1;
         D_807FBB64 |= 2;
@@ -210,7 +210,7 @@ void func_806B7EA0(void) {
     }
     BC3B0CA->unk6E = BC3B0CA->unk6E + 1;
     if (c->unk18 < (f32)BC3B0CA->unk6E) {
-        func_80609140(0x15B, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
+        sfxPlayOnFreeSlot(0x15B, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
         BC3B0CA->unk6E = 0;
         if (c->unk18 > 2.0f) {
             c->unk18 -= 0.18;
@@ -228,7 +228,7 @@ void func_806B7EA0(void) {
         if (BC3B0S90->unk2C != 0) {
             BC3B0S90->unk2C = BC3B0S90->unk2C - 1;
             if (BC3B0S90->unk2C == 5) {
-                func_80609140(0x175, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x175, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
         } else {
             actorCursorFireProjectile(c);

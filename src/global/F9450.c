@@ -596,7 +596,7 @@ s32 flagGridIndex(s32, s32, u8);
 s32 func_806C9974(u8, s8);
 void func_8060DEC8(void);
 void slotQueueAddValue(s32, u8, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 extern s8 D_80029FA0;
 extern s8 D_80753EF2[];
 extern u8 D_8076A0AB;
@@ -640,7 +640,7 @@ u8 arg2;
             break;
         case 0x91: case 0x15D: case 0x15E: case 0x15F: case 0x160:
             if (D_807FC928 == 1) {
-                func_80609140(0x331, 0x7FFF, 63.0f, 1.0f, 5, 0);
+                sfxPlayOnFreeSlot(0x331, 0x7FFF, 63.0f, 1.0f, 5, 0);
             }
         case 0xA: case 0xD: case 0x16: case 0x1E: case 0x1F:
             flagSet(0x18B, 1, 0);
@@ -1622,14 +1622,14 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
         sfxAllocateChannel(0x21, (f32) (1.0 - ((f64) D_80745838 * 0.3)));
         return;
     case 0x56:
-        func_80609140(0x147, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        sfxPlayOnFreeSlot(0x147, 0x7FFF, 63.0f, 1.0f, 5, 0);
         return;
     case 0x11:
     case 0x8F:
-        func_80609140(0x157, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        sfxPlayOnFreeSlot(0x157, 0x7FFF, 63.0f, 1.0f, 5, 0);
         return;
     case 0x98:
-        func_80609140(0x263, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        sfxPlayOnFreeSlot(0x263, 0x7FFF, 63.0f, 1.0f, 5, 0);
         return;
     case 0xDD:
     case 0xDE:
@@ -1663,7 +1663,7 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
     case 0x1F:
     case 0x1CF:
     case 0x1D0:
-        func_80609140(0x2A0, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 5, 0);
         return;
     case 0x1C:
     case 0x1D:
@@ -1695,7 +1695,7 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
         func_80687CC8();
         return;
     case 0x1D1:
-        func_80609140(0xAE, 0x7FFF, 63.0f, 1.0f, 5, 0);
+        sfxPlayOnFreeSlot(0xAE, 0x7FFF, 63.0f, 1.0f, 5, 0);
         break;
     }
 }

@@ -131,13 +131,13 @@ void func_8070D8C0(void *, s32, u8);
 void func_8071495C(void);
 void func_80714998(s32);
 void func_807149FC(s32);
-void func_806A2A10(s32, s32, s32);
+void hudSpawnCountdownTimer(s32, s32, s32);
 void actorSetStateTwo(void *);
 void n_alSndpStop(s32);
 void effectFreeAndUnlink(s32);
 void renderCallbacksRegister(void *, void *, s32);
 f32 func_80612794(s16);
-s16 func_80609140(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void bonusEndWin(u8, u8);
 void bonusEndLose(u8, u8);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
@@ -220,7 +220,7 @@ void bonusReelGameUpdate(void) {
     case 3:
         switch (D_807FBB40->unk155[0]) {
         case 0:
-            func_806A2A10(0xDC, 0x2A, obj->unk1C);
+            hudSpawnCountdownTimer(0xDC, 0x2A, obj->unk1C);
             D_807FBB40->unk155[0] = 1;
         case 1:
             if (obj->act[3]->unk154 == 0) {
@@ -248,7 +248,7 @@ void bonusReelGameUpdate(void) {
             if (obj->unk10 >= 0x800) {
                 obj->unk12 = -0x40;
                 bonusInitActors(obj, (u32)((f32)obj->unk1E + (f32)(obj->unk1D - obj->unk1E) * ((f32)(obj->unk16 - 1) / (f32)two)));
-                D_807FBB40->unk6E = func_80609140(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
+                D_807FBB40->unk6E = sfxPlayOnFreeSlot(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
                 camSetTarget(sp4C->unk104, D_807FBB48, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->unk10 < 0x400) {
                 D_807FBB40->unk154 = 5;
@@ -384,7 +384,7 @@ void bonusReelUpdate(void) {
 void camStartPathNearWall(void *, s32, s32, s32);
 
 void bonusEndWin(u8 arg0, u8 arg1) {
-    func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
     textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, arg1, 1), 0, 0x28, 8, 8);
     ((Actor *)D_807FBB40->unk11C)->unk154 = 0;
     sfxAllocateChannel(0x28, 1.0f);

@@ -1,9 +1,9 @@
-// func_80653FA4 (src/global/55B20.c): stage 5 (S55c, parked NON_MATCHING): natural D_807F6C18[i].field rewrite; frame 0xA8, flags 0x5C, buf 0x90, i 0xA4, v1 spill slot 0x4C all match (decl order i,q,buf,flags,qend,idx found by brute force; q above arrays, qend/idx below). Remaining 19 lines regalloc: target keeps q=s2 (addiu s2,sp,144 AFTER the call), flags[idx] ptr s3, qend s6 and a dead s5 holding sll v0,16 with raw 'blez v0' guard; mine hoists &buf into s6 (move s3,s6), q=s3, qend=s5, guard sltu/beqz. 4 deadsweep FAKEs on globals/buf in the draft
+// mapChunkUpdateAssetStreaming (src/global/55B20.c): stage 5 (S55c, parked NON_MATCHING): natural D_807F6C18[i].field rewrite; frame 0xA8, flags 0x5C, buf 0x90, i 0xA4, v1 spill slot 0x4C all match (decl order i,q,buf,flags,qend,idx found by brute force; q above arrays, qend/idx below). Remaining 19 lines regalloc: target keeps q=s2 (addiu s2,sp,144 AFTER the call), flags[idx] ptr s3, qend s6 and a dead s5 holding sll v0,16 with raw 'blez v0' guard; mine hoists &buf into s6 (move s3,s6), q=s3, qend=s5, guard sltu/beqz. 4 deadsweep FAKEs on globals/buf in the draft
 extern u32 D_807FBB68;
 extern s32 D_8076A064;
 extern s32 mapObjectCollectIdsByType();
 
-void func_80653FA4(void) {
+void mapChunkUpdateAssetStreaming(void) {
     s32 i;
     s8 *q;
     s8 buf[0x10];
@@ -22,7 +22,7 @@ void func_80653FA4(void) {
                 flags[i] = 1;
                 D_807F6C18[i].unk28 = D_8076A064;
                 if (!(D_807F6C18[i].unk7 & 4)) {
-                    D_807F6C18[i].unk8 = (s32)func_80653DF0((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 0x270F);
+                    D_807F6C18[i].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 0x270F);
                     D_807F6C18[i].unk7 |= 4;
                     D_807F6C18[i].unk7 &= 0xFFFC;
                 }
@@ -35,7 +35,7 @@ void func_80653FA4(void) {
                     if (flags[idx] == 0) {
                         if (D_807F6C18[idx].unk1 == 0) {
                             if (!(D_807F6C18[idx].unk7 & 4)) {
-                                D_807F6C18[idx].unk8 = (s32)func_80653DF0((u8 *)D_807F6C18[idx].unk8, (u8 *)D_807F6C18[idx].unk10, 5);
+                                D_807F6C18[idx].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)D_807F6C18[idx].unk8, (u8 *)D_807F6C18[idx].unk10, 5);
                                 if (D_807F6C18[idx].unk8 == D_807F6C18[idx].unk10) {
                                     D_807F6C18[idx].unk7 &= 0xFFFD;
                                     D_807F6C18[idx].unk7 |= 4;
@@ -57,7 +57,7 @@ void func_80653FA4(void) {
             if (flags[i] == 0) {
                 if (D_807F6C18[i].unk7 & 8) {
                     if (!(D_807F6C18[i].unk7 & 4)) {
-                        D_807F6C18[i].unk8 = (s32)func_80653DF0((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 5);
+                        D_807F6C18[i].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 5);
                         if (D_807F6C18[i].unk8 == D_807F6C18[i].unk10) {
                             D_807F6C18[i].unk7 &= 0xFFFD;
                             D_807F6C18[i].unk7 |= 4;

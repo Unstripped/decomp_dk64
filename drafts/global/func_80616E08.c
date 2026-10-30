@@ -3,7 +3,7 @@ typedef struct P19c4GlobalState { u8 pad0[0x104]; s32 unk104; u8 pad108[0x9C]; u
 typedef struct P19c4PlayerState { u8 pad0[0x2C0]; u8 unk2C0; } P19c4PlayerState;
 typedef struct P19c4ActorView { u8 pad0[0x78]; u8 unk78; } P19c4ActorView;
 extern P19c4PlayerState *D_807FC924;
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 s16 func_8060A7C0(s16, Actor *, u8);
 void func_8061EF4C(s32, s32, s32, f32, f32, f32, f32, f32);
 
@@ -69,6 +69,6 @@ s32 func_80616E08(Actor *arg0) {
     if ((temp_v0 == 2) || (temp_v0 == 8)) {
         sp49 = 0xA;
     }
-    func_806086CC(arg0->unk7C, arg0->unk80, arg0->unk84, sp4E, (s32)sp4D, (s32)sp4A, (s32)sp49, (s32)var_v1, 0.3f, 0);
+    sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp4E, (s32)sp4D, (s32)sp4A, (s32)sp49, (s32)var_v1, 0.3f, 0);
     return 1;
 }

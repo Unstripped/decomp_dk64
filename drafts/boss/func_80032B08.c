@@ -64,7 +64,7 @@ typedef struct BossFollowerActor {
 } BossFollowerActor;
 
 void func_80613C48(void *, s16, f32, f32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_80614644(void *, void *, f32);
 void actorDespawn(void *);
 void projectileSetTargetCoords(f32, f32, f32);
@@ -114,7 +114,7 @@ void func_80032B08(void) {
             s32 v0 = sub174->unk4 + 0x66B;
             if (v0 != sub4_0->unk10) {
                 func_80613C48(ACTOR, v0, 0.0f, 0.0f);
-                func_80609140(0x38D, 0x7D00, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x38D, 0x7D00, 63.0f, 1.0f, 0, 0);
             } else {
                 func_80614644(ACTOR, sub4_0, sub4_0->unk4 + 0.75f);
             }
@@ -134,7 +134,7 @@ void func_80032B08(void) {
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {
-                func_80609140(0x384, 0x7D00, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x384, 0x7D00, 63.0f, 1.0f, 0, 0);
                 actorDespawn(ACTOR);
             }
         }

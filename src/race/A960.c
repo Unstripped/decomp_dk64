@@ -387,7 +387,7 @@ void func_8002F420(RaceTracker *arg0, RaceRoute *arg1) {
 
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
-s32 func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void func_8002F490(RaceTracker *arg0) {
     RaceActor *actor;
@@ -419,7 +419,7 @@ void func_8002F490(RaceTracker *arg0) {
                 if (arg0->unk27 == 0) {
                     if (node->kind != 0) {
                         if (func_8002F0AC(node) == 0) {
-                            func_806086CC(node->x, node->y, node->z, 0x98, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+                            sfxPlayAtPositionPooled(node->x, node->y, node->z, 0x98, 0xFF, 0x7F, 0, 0, 0.3f, 0);
                             if (arg0->unk44 != 0) {
                                 arg0->unk44--;
                             } else {

@@ -147,7 +147,7 @@ typedef struct HealthPlayerState {
 } HealthPlayerState;
 
 void func_80026B0C(s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 s32 func_805FCA64(void);
 s32 func_8071432C(void);
 s32 func_8071441C(void);
@@ -180,7 +180,7 @@ void healthApplyPendingDelta(s32 arg0, HealthPlayerState *arg1, HealthPlayerStat
                     func_80026B0C(arg0);
                 }
             } else {
-                func_80609140(0x24B, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x24B, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
         }
         arg2->unk2FD = 0;

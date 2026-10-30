@@ -1832,7 +1832,7 @@ typedef struct ModelSlotFreeView {
 void actorClearEntrySlot(s16);
 void hashTableRemove(s32);
 void proxPathRemoveActor(s16);
-void func_80605380(s16);
+void sfxSlotFreeSource(s16);
 void mapPurgeNodeList(s32, s16 *, u8);
 void renderEntryRemove(s32, s32, s32, u8 *);
 void csStateFree(void *);
@@ -1868,10 +1868,10 @@ u8 arg1;
     proxPathRemoveActor(sp36);
     if (((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C != NULL) {
         if (*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x10) != -1) {
-            func_80605380(*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x10));
+            sfxSlotFreeSource(*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x10));
         }
         if (*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x12) != -1) {
-            func_80605380(*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x12));
+            sfxSlotFreeSource(*(s16 *)(((ModelSlotFreeView *)((u8 *)D_807F6000 + arg0 * 0x90))->unk7C + 0x12));
         }
     }
     if (arg0 + 1 != D_80747D70) {
@@ -2668,11 +2668,11 @@ extern s32 D_807F5FD8;
 
 f32 renderScaleDistanceByFov(f32);
 void func_8065EB10(u8, s16, f32, f32, f32, s32, f32, s32);
-s32 func_80658E8C(f32, f32, f32, s32, s32);
+s32 mapPointOutsideClipBounds(f32, f32, f32, s32, s32);
 void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-void func_80658C10(void *, s16, s16, s16);
+void mapSearchTableAddProbe(void *, s16, s16, s16);
 u8 mapSearchTableGetValue(void *);
-void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
+void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 void modelKongVisibilityCheck(s16, u8 *, s16 *);
 void texAnimFindNodeFrame(ModelSegmentOwner *, s32, s32 *, s32 *, u8 *, s16 *);
 void modelCalcFacingAngles(f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *, u8);
@@ -2730,7 +2730,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3,
         func_8065EB10(arg0->unk5B, arg0->unk4C, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unk58, sp1D0 / (f32)limit, arg6);
     }
     if (arg5 != 0) {
-        if (func_80658E8C(arg0->unk0, arg0->unk4, arg0->unk8, 0, 0) != 0) {
+        if (mapPointOutsideClipBounds(arg0->unk0, arg0->unk4, arg0->unk8, 0, 0) != 0) {
             return arg1;
         }
     } else {
@@ -2742,7 +2742,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3,
     }
     if (arg0->unk4E & 8) {
         camProjectToScreen(arg0->unk0, arg0->unk4, arg0->unk8, &sp1D8, &sp1D4, 0, 1.0f, D_807FC929);
-        func_80658C10(arg0, sp1D8, sp1D4, sp1D0);
+        mapSearchTableAddProbe(arg0, sp1D8, sp1D4, sp1D0);
         if (mapSearchTableGetValue(arg0) != 0) {
             return arg1;
         }
@@ -2792,7 +2792,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3,
     }
     modelKongVisibilityCheck(arg0->unk4A, &sp1AE, &sp1B0);
     if (arg5 != 0 && arg0->unk5A == 0) {
-        func_8065C334(arg0->unk0, arg0->unk4, arg0->unk8, 0, &sp1AD, &sp1AC, &sp1AB, arg6);
+        lightSampleColorAtPosition(arg0->unk0, arg0->unk4, arg0->unk8, 0, &sp1AD, &sp1AC, &sp1AB, arg6);
         scale = (f32)(u32)arg0->unk5C / 15.0f;
         sp1AD = (f32)(u32)sp1AD * scale;
         sp1AC = (f32)(u32)sp1AC * scale;

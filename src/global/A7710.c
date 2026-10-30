@@ -9,7 +9,7 @@ s32 actorSpawn(s32, s32);
 u64 D_807FC7D0;
 u8 D_807FC7D8;
 
-void func_806A2A10(s16 arg0, s16 arg1, u8 arg2) {
+void hudSpawnCountdownTimer(s16 arg0, s16 arg1, u8 arg2) {
     actorSpawn(0xB0, 0);
     if (arg0 & 0x8000) {
         arg2--;
@@ -40,7 +40,7 @@ void actorSetStateOne(Actor *actor) {
     }
 }
 
-void func_806A2B38(Actor *actor) {
+void hudCountdownTimerSaveElapsed(Actor *actor) {
     D_807FC7D0 = osGetTime() - *(u64 *)actor->unk174;
 }
 
@@ -125,12 +125,12 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
     return gfx;
 }
 
-typedef struct L6A2Timer {
+typedef struct CountdownTimerState {
     /* 0x00 */ u64 unk0;
     /* 0x08 */ u32 unk8;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ u8 unk10;
-} L6A2Timer;
+} CountdownTimerState;
 
 extern u64 D_807445B0;
 extern u64 gCamPathTimeDelta;
@@ -141,7 +141,7 @@ u64 __ull_rem(u64, u64);
 f64 __ull_to_d(u64);
 s32 _sprintf(char *, char *, ...);
 s32 strlen(char *);
-s16 func_80609140(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 s32 randomNonNegative(void);
 f32 func_806FDA8C(s16);
 void func_806FDAB8(s16, f32);
@@ -149,11 +149,11 @@ s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
 void gfxResourceSetString(s16, char *);
 void renderCallbacksRegister(void *, void *, s32);
 
-void func_806A2E30(void) {
+void hudCountdownTimerUpdate(void) {
     f32 nextBeepAngle;
     f32 angle;
     char text[0x20];
-    L6A2Timer *timer;
+    CountdownTimerState *timer;
     s32 pad;
     u64 usec;
     s32 secsLeft;
@@ -219,9 +219,9 @@ void func_806A2E30(void) {
                     D_807FBB40->unk155[0] = 0;
                 } else if (D_807FBB40->unk15F == 6) {
                     if ((s32)(nextBeepAngle / 3.1415927f) & 1) {
-                        func_80609140(0x8E, 0x58EF, 63.0f, 1.0f, 5, 0);
+                        sfxPlayOnFreeSlot(0x8E, 0x58EF, 63.0f, 1.0f, 5, 0);
                     } else {
-                        func_80609140(0x8F, 0x58EF, 63.0f, 1.0f, 5, 0);
+                        sfxPlayOnFreeSlot(0x8F, 0x58EF, 63.0f, 1.0f, 5, 0);
                     }
                 }
                 if (secsLeft == 0xA) {
@@ -263,7 +263,7 @@ void func_806A2E30(void) {
             case 28:
             case 35:
             case 42:
-                func_80609140(0x3BD, 0x7FFF, 63.0f, 1.15f, 1, 0x80);
+                sfxPlayOnFreeSlot(0x3BD, 0x7FFF, 63.0f, 1.15f, 1, 0x80);
                 break;
             }
             D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
@@ -282,7 +282,7 @@ void func_806A2E30(void) {
         case 0x14:
         default:
             if (D_807FBB40->unk155[0] == 0) {
-                func_80609140(0x1BB, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x1BB, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
             }
             break;

@@ -1,4 +1,4 @@
-// func_8065776C (src/global/55B20.c): stage 5: prototyped f32 locals mx,my,ex,ey,vx,vy (decl order gives 0x60-0x74 slots + dead entry loads/exit stores), cross inlined (named f32 cross was spilled swc1 f0,84(sp); inlining 'dx*ey-dy*ex' twice gives CSE'd cvt.d.s in f0 as target). Frame 0x78 ok, size 130 vs 131? Remaining 17 text lines after random dead-statement search (rs.py): dy colours f2 where target has f14 (dx f12 ok), case0 first lwc1 is y0(0x38) in target vs x0, cross2 sub operand temps f12/f14 vs f6/f8. 7 FAKE stmts
+// mapGridQuadContainsPoint (src/global/55B20.c): stage 5: prototyped f32 locals mx,my,ex,ey,vx,vy (decl order gives 0x60-0x74 slots + dead entry loads/exit stores), cross inlined (named f32 cross was spilled swc1 f0,84(sp); inlining 'dx*ey-dy*ex' twice gives CSE'd cvt.d.s in f0 as target). Frame 0x78 ok, size 130 vs 131? Remaining 17 text lines after random dead-statement search (rs.py): dy colours f2 where target has f14 (dx f12 ok), case0 first lwc1 is y0(0x38) in target vs x0, cross2 sub operand temps f12/f14 vs f6/f8. 7 FAKE stmts
 typedef struct {
     f32 x[4];
     f32 y[4];
@@ -7,7 +7,7 @@ typedef struct {
 } S55eQuad;
 
 #define Q ((S55eQuad *)arg0)
-s32 func_8065776C(u8 *arg0) {
+s32 mapGridQuadContainsPoint(u8 *arg0) {
     f32 mx;
     f32 my;
     f32 ex;

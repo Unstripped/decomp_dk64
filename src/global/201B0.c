@@ -1519,7 +1519,7 @@ extern u32 D_80744478;
 s16 func_806CC190(s16, s16, f32);
 s32 func_807142D8(void);
 void sfxAllocateChannel(u16, f32);
-void func_80602498(void);
+void sfxStartAreaAmbient(void);
 void func_80627F04(s32, s32, s32);
 void camPolarFromPoints(f32 *, f32 *, f32, f32, f32, f32, f32, f32);
 void camUpdateFollow(struct CamEyeActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
@@ -1614,7 +1614,7 @@ void camUpdate(struct CamResetCam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
                     st->unk84 = *arg1 = CAM_UPDATE_CAM->unk7C = st->unk38;
                     st->unk88 = *arg2 = CAM_UPDATE_CAM->unk80 = st->unk3C;
                     st->unk8C = *arg3 = CAM_UPDATE_CAM->unk84 = st->unk40;
-                    func_80602498();
+                    sfxStartAreaAmbient();
                 } else {
                     st->unk84 = *arg1 = CAM_UPDATE_CAM->unk7C;
                     st->unk88 = *arg2 = CAM_UPDATE_CAM->unk80;
@@ -1867,7 +1867,7 @@ typedef struct CamPlayerRecUp {
 } CamPlayerRecUp;
 
 void camUpdate(CamResetCam *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
-s16 func_806531B8(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s32);
 
 #define CAM_PLAYER_REC(i) ((CamPlayerRecUp *)&D_807FC924[i])
 
@@ -1903,7 +1903,7 @@ void camResetPlayer(Actor *arg0, u8 arg1) {
     st->unk6C = 123456.0f;
     st->unk70 = 123456.0f;
     st->unkC = -32768.0f;
-    *(s16 *)arg0->unk12C = func_806531B8(arg0->unk7C, arg0->unk80, arg0->unk84, 0);
+    *(s16 *)arg0->unk12C = mapChunkFindByPosition(arg0->unk7C, arg0->unk80, arg0->unk84, 0);
     camUpdate(cam, &CAM_PLAYER_REC(arg1)->unk210, &CAM_PLAYER_REC(arg1)->unk214, &CAM_PLAYER_REC(arg1)->unk218,
                   &CAM_PLAYER_REC(arg1)->unk228, &CAM_PLAYER_REC(arg1)->unk22C, &CAM_PLAYER_REC(arg1)->unk230,
                   &CAM_PLAYER_REC(arg1)->unk240, &CAM_PLAYER_REC(arg1)->unk244, &CAM_PLAYER_REC(arg1)->unk248);
@@ -4765,7 +4765,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
         CAM_LOAD_PATH->unkC4 = heapAlloc(cnt * 0x1CU);
         s = hdr;
         for (i = 0; i < cnt; i++) {
-            CAM_LOAD_PATH->unkC8[i] = func_806531B8(s[8], s[9], s[10], 0);
+            CAM_LOAD_PATH->unkC8[i] = mapChunkFindByPosition(s[8], s[9], s[10], 0);
             s += 0xE;
             CAM_LOAD_PATH->unkC4[i] = *(CamPathZoneRaw *)(s - 0xE);
         }

@@ -253,12 +253,12 @@ void func_80025FDC(void) {
     func_8002CFF0();
 }
 
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 
 void racePlayCheckpointSfx(RacePathState *arg0, u8 arg1, f32 arg2) {
     arg0->unk10 = arg1;
     arg0->unk14 = arg2;
-    func_80609140(0x1EB, 0x7FFF, 64.0f, 1.0f, 0, 0);
+    sfxPlayOnFreeSlot(0x1EB, 0x7FFF, 64.0f, 1.0f, 0, 0);
 }
 
 void raceAdvanceCheckpoint(RacePathState *arg0, RaceParticipant *arg1, s32 arg2) {
@@ -334,7 +334,7 @@ s32 raceGetNextWaypointIndex(s32, s32);
 void raceAdvanceCheckpoint(RacePathState *, RaceParticipant *, s32);
 s32 func_806119A0(void);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void racePathFollowStep(RacePathState *arg0, RaceParticipant *arg1, u8 arg2) {
     s32 count;
@@ -430,7 +430,7 @@ void racePathFollowStep(RacePathState *arg0, RaceParticipant *arg1, u8 arg2) {
             D_8002FBB0[D_8002FBC0] = func_80714CC0(&D_8072006C, 0.4f, hx, hy, hz);
             D_8002FBC0++;
             D_8002FBC0 = D_8002FBC0 % 4;
-            func_806086CC(hx, hy, hz, 0x8A, 0x96, 0x7F, 0x14, 0x50, 0.3f, 0);
+            sfxPlayAtPositionPooled(hx, hy, hz, 0x8A, 0x96, 0x7F, 0x14, 0x50, 0.3f, 0);
         }
     }
     if (arg1 != NULL) {
@@ -462,9 +462,9 @@ void func_80026B20(RaceParticipant *arg0) {
         D_807FBB44->unkE6 = D_807FBB40->unkE6;
         D_807FBB44->unkB8 = D_807FBB40->unkB8;
         *sp34 = *sp30;
-        func_80609140(0x18B, 0x7FFF, 64.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x18B, 0x7FFF, 64.0f, 1.0f, 0, 0);
     } else {
-        func_80609140(0xE2, 0x7FFF, 64.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0xE2, 0x7FFF, 64.0f, 1.0f, 0, 0);
     }
     arg0->unk29 = 0;
 }
@@ -576,7 +576,7 @@ void func_80026F04(void) {
         o = s1->unk30;
         o2 = o->unk174;
         if (o2->unk1C == 8 || o2->unk1C == 0x13) {
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
         func_80026D2C(s1->unk26 * 1.5);
     } else if (s1->unk34 < 5) {
@@ -677,7 +677,7 @@ void func_800274C0(void) {
     if ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0) || (D_807FBB70.unk200 == 5)) {
         func_807149B8(1);
         func_80714CC0(D_80720340, 3.0f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);
         var_v1 = 1;
     }
     racePathFollowStep(sp48, sp4C, 0);

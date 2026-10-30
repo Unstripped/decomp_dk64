@@ -1345,7 +1345,7 @@ extern s16 D_8076A0AA;
 extern s32 D_807FBB64;
 extern u8 D_807FC928;
 void actorDeregisterActive(void *);
-s16 func_806531B8(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s32);
 u8 spawnNodeInRangeAndVisible(SpawnNode *, s32);
 u8 spawnNodeActorInRangeAndVisible(SpawnNode *, s32);
 u8 func_807280C8(SpawnNode *, s32);
@@ -1396,7 +1396,7 @@ void spawnNodesUpdate(void) {
                 if (node->unk24 == 0) {
                     node->unk43 += 1;
                     node->unk42 = node->unk12;
-                    node->unk40 = func_806531B8((f32)node->unk4, (f32)node->unk6, (f32)node->unk8, 0);
+                    node->unk40 = mapChunkFindByPosition((f32)node->unk4, (f32)node->unk6, (f32)node->unk8, 0);
                     spawnNodeSelectEntry(node);
                     entry = &D_8075EB80[node->unk44];
                     if (actorSpawn(entry->unk0, entry->unk2) != 0) {
@@ -1648,7 +1648,7 @@ extern s32 gCamActor;
 #define A2B44V ((A2B44 *)D_807FBB44)
 
 u32 func_806119A0(void);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void actorScriptStart(void *, s32);
 void camStartShake(s32, s32, s32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
@@ -1752,19 +1752,19 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                     A2B44V->unk15F = 0x15;
                     break;
                 case 10:
-                    func_80609140(0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     A2B44V->unk15F = 0;
                     A2B44V->unk7C = 500.0f;
                     A2B44V->unk80 = 80.0f;
                     break;
                 case 11:
-                    func_80609140(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     A2B44V->unk15F = 0x89;
                     A2B44V->unk7C = 600.0f;
                     A2B44V->unk80 = 80.0f;
                     break;
                 case 12:
-                    func_80609140(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     A2B44V->unk15F = 0x47;
                     A2B44V->unk7C = 600.0f;
                     A2B44V->unk80 = 80.0f;

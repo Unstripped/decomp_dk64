@@ -144,7 +144,7 @@ segments:
       - [0xCC800, c, CC800] # one TU: the rodata_owners pad flag after D_8075C430 is the .rodata/late_rodata edge (func_806C850C and func_806C8D2C use both sides)
       - [0xCEAE0, c, CEAE0]
       - [0xD5E10, c, D5E10] # hidden TU: rodata pad after D_8075CCE0 (mathAngleFromVector2D); func_806D10D0 uses CEAE0 data D_80750B54, D_80750FB0 (func_806D205C) starts this TU's data
-      - [0xE4090, c, E4090] # hidden TU: rodata pad after D_8075D0D0 (func_806DF280); func_806DF6D4 owns D_8075D0E0; first 16-aligned start after func_806DF280
+      - [0xE4090, c, E4090] # hidden TU: rodata pad after D_8075D0D0 (func_806DF280); playerInputUpdate owns D_8075D0E0; first 16-aligned start after func_806DF280
       - [0xEFDC0, c, EFDC0]
       - [0xF56F0, c, F56F0]
       - [0xF93B0, c, F93B0] # hidden TU: rodata pad after D_8075D848 (func_806F3E0C) at 0x162550; func_806F46B0 (the only function) owns D_8075D850
@@ -347,7 +347,7 @@ segments:
       - { start: 0x165D50, type: bss, vram: 0x8076AF20, name: 165D50_8076AF20 }
       - { start: 0x165D50, type: .bss, vram: 0x8076D4C0, name: 6710 } # D_8076D4C0..D_80770558 (0x8076D4C0-0x80770560)
       - { start: 0x165D50, type: bss, vram: 0x80770560, name: 165D50_80770560 }
-      - { start: 0x165D50, type: .bss, vram: 0x80770DF0, name: 7130 } # D_80770DF0..D_80770F38 (func_806057F8's static pitch at 0x80770F38)
+      - { start: 0x165D50, type: .bss, vram: 0x80770DF0, name: 7130 } # D_80770DF0..D_80770F38 (sfxUpdateSourceGroups's static pitch at 0x80770F38)
       - { start: 0x165D50, type: bss, vram: 0x80770F40, name: 165D50_80770F40 }
       - { start: 0x165D50, type: .bss, vram: 0x807ECCD0, name: F600 } # D_807ECCD0..D_807ECDFC (0x807ECCD0-0x807ECE00)
       - { start: 0x165D50, type: bss, vram: 0x807ECE00, name: 165D50_807ECE00 }
@@ -355,9 +355,9 @@ segments:
       - { start: 0x165D50, type: bss, vram: 0x807F0570, name: 165D50_807F0570 }
       - { start: 0x165D50, type: .bss, vram: 0x807F5B10, name: 201B0 }
       - { start: 0x165D50, type: bss, vram: 0x807F5D30, name: 165D50_807F5D30 }
-      - { start: 0x165D50, type: .bss, vram: 0x807F6C80, name: 55B20 } # D_807F6C80, D_807F6C84 (unreferenced), D_807F6C88[12] (func_80658134's unrolled stores share one lui only when the TU defines it); 16-aligned start, unused tail to 0x807F6CC0
+      - { start: 0x165D50, type: .bss, vram: 0x807F6C80, name: 55B20 } # D_807F6C80, D_807F6C84 (unreferenced), D_807F6C88[12] (mapGridQuadClipToFrustum's unrolled stores share one lui only when the TU defines it); 16-aligned start, unused tail to 0x807F6CC0
       - { start: 0x165D50, type: bss, vram: 0x807F6CC0, name: 165D50_807F6CC0 }
-      - { start: 0x165D50, type: .bss, vram: 0x807FC7D0, name: A7710 } # D_807FC7D0 (u64, func_806A2B38 stores it with one lui only when the TU defines it), D_807FC7D8 (0x807FC7D0-0x807FC7E0)
+      - { start: 0x165D50, type: .bss, vram: 0x807FC7D0, name: A7710 } # D_807FC7D0 (u64, hudCountdownTimerSaveElapsed stores it with one lui only when the TU defines it), D_807FC7D8 (0x807FC7D0-0x807FC7E0)
       - { start: 0x165D50, type: bss, vram: 0x807FC7E0, name: 165D50_807FC7E0 }
 
   - [0x165D50]

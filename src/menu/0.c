@@ -305,7 +305,7 @@ void func_8060DEC8(void);
 s32 camIsCutsceneActive(void);
 void playerStateQueueCallback(s32, void *, s32);
 void func_80712774(u8);
-s32 func_80609140(s32, s32, f32, f32, s32, s32);
+s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
 void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
@@ -390,12 +390,12 @@ void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
             s8 v1 = D_807ECDEC->unk3;
             if (v1 >= 0x29 && MenuM0_X18(arg0) < 0x29) {
                 arg0->unk1--;
-                func_80609140(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
                 v1 = D_807ECDEC->unk3;
             }
             if (v1 < -0x28 && MenuM0_X18(arg0) >= -0x28) {
                 arg0->unk1++;
-                func_80609140(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
             }
             arg0->unk1 = ((arg0->unk1 - 4) & 7) + 4;
         }
@@ -600,7 +600,7 @@ void menuUpdateProgressGrid(void) {
     }
     if (D_800330D8 != 0) {
         if (*var_s0 == -0x3E8) {
-            func_80609140(0x2A3, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x2A3, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
         *var_s0 += 0x80;
         if (*var_s0 > 0) {
@@ -608,7 +608,7 @@ void menuUpdateProgressGrid(void) {
         }
     } else {
         if (*var_s0 == 0) {
-            func_80609140(0x2A3, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x2A3, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
         *var_s0 -= 0x80;
         if (*var_s0 < -0x3E8) {

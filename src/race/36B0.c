@@ -361,7 +361,7 @@ void func_80027CE8(void) {
 }
 
 void func_8060E7EC(s32, u8, s32, u8 *);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 
 void func_800280E8(RaceCursor *arg0) {
     RaceActor *v1;
@@ -383,7 +383,7 @@ void func_800280E8(RaceCursor *arg0) {
         y = (y > 10.0) ? 10.0 : y;
         *flag = 3;
         func_8060E7EC(0, 255.0f * y * 0.1f, *flag, flag);
-        func_80609140(0x18A, 0x7FFF, 64.0f, 1.0f, 0xA, 0);
+        sfxPlayOnFreeSlot(0x18A, 0x7FFF, 64.0f, 1.0f, 0xA, 0);
         if (sp28->unk14 < 0.0f) {
             v1->unkB8 -= y;
             D_807FBB40->unkB8 += y;
@@ -394,7 +394,7 @@ void func_800280E8(RaceCursor *arg0) {
     }
 }
 
-void func_806086CC(f32, f32, f32, s32, s32, u8, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, u8, s32, s32, f32, s32);
 
 void func_800282D8(void) {
     RaceState *temp_v0;
@@ -417,7 +417,7 @@ void func_800282D8(void) {
     case 0x47:
     case 0x4E:
     case 0x54:
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x187, 0xFF, (s32)(((f64)(temp_t0->unk1C - 0x1D) * 0.5) + 157.0), 0, 0, 0.3f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x187, 0xFF, (s32)(((f64)(temp_t0->unk1C - 0x1D) * 0.5) + 157.0), 0, 0, 0.3f, 0);
         break;
     }
 }

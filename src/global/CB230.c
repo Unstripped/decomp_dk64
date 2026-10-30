@@ -174,7 +174,7 @@ void func_806C6BA0(void) {
 }
 
 extern Actor *D_807FBB44;
-void func_806A2A10(s32, s32, u8);
+void hudSpawnCountdownTimer(s32, s32, u8);
 void actorSetStateTwo(Actor *);
 void func_805FF9AC(s32, s32, s32, s32);
 void actorSetUniformScale(Actor *, f32);
@@ -208,7 +208,7 @@ void func_806C6BC8(void) {
         D_807FDC90->unk30 = D_807FBB40->unk4->unk38;
         R1S->unk2E = 0x96;
         D_807FDC98->unk46 |= 0x60;
-        func_806A2A10(0xDC, 0x2A, 0x64);
+        hudSpawnCountdownTimer(0xDC, 0x2A, 0x64);
         actorSetStateTwo(D_807FBB44);
     }
     if (R1S->unk1A & 0x80) {

@@ -74,7 +74,7 @@ void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
 void slotQueueSetDisplayMode(s32, s32, s32);
-void func_806A2A10(s32, s32, u8);
+void hudSpawnCountdownTimer(s32, s32, u8);
 s32 randomNonNegative(void);
 void csModelStateSetByte(s16, s32, s32);
 void csModelStateSetFirstByte(s32, s32);
@@ -136,7 +136,7 @@ void bonusControllerUpdate(void) {
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(4, 0, 2);
         D_807FBB40->unk154 = 0;
-        func_806A2A10(0xDC, 0x2A, D_807FDC9C->unkB);
+        hudSpawnCountdownTimer(0xDC, 0x2A, D_807FDC9C->unkB);
         switch (sp6F) {
         case 14:
             csModelStateSetByte((randomNonNegative() >> 15) % 32767 % 4, 1, 1);
@@ -461,7 +461,7 @@ void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 void func_805FF898(void);
 void func_806C9974(s32, s32);
 void n_alSndpPostEvent(void *, s32, s16);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 extern s32 D_8076D1F8;
 extern void *D_807FD580;
 
@@ -482,7 +482,7 @@ void func_80024E38(void) {
         snd->unkA = 0;
         snd->unk8 = 0;
         n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &snd->unk4);
-        func_806A2A10(0xDC, 0x2A, D_807FDC9C->unkB);
+        hudSpawnCountdownTimer(0xDC, 0x2A, D_807FDC9C->unkB);
         spawnNodeActivateAndSetState(1, 0x40, 0x10);
         spawnNodeActivateAndSetState(2, 0x40, 0x10);
         spawnNodeActivateAndSetState(3, 0x40, 0x10);
@@ -539,12 +539,12 @@ void func_80024E38(void) {
             snd->unk0 = 0x12C;
             if (LD->unk1F0 & 0x40000) {
                 if (((randomNonNegative() >> 15) % 1000) & 1) {
-                    func_80609140(0x1E7, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
+                    sfxPlayOnFreeSlot(0x1E7, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
                 } else {
-                    func_80609140(0x1EA, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
+                    sfxPlayOnFreeSlot(0x1EA, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
                 }
             } else {
-                func_80609140(0x1E8, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
+                sfxPlayOnFreeSlot(0x1E8, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
             }
         }
         {
@@ -563,7 +563,7 @@ void func_80024E38(void) {
     case 0x28:
     case 0x3C:
     case 0x50:
-        func_80609140(0x1E9, 0x7FFF - snd->unk0 * 0x96, 64.0f, 1.0f, 0xA, 0x80);
+        sfxPlayOnFreeSlot(0x1E9, 0x7FFF - snd->unk0 * 0x96, 64.0f, 1.0f, 0xA, 0x80);
         if (snd->unk0 == 0) {
             snd->unk0 = 0xC8;
         }

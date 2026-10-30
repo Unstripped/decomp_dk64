@@ -1,4 +1,4 @@
-// func_806025D4 (src/global/7130.c): Stage 5 (scheduling only): frame 0x70 exact, same insns/callee-saved set, parked NON_MATCHING in 7130.c. Only diff: beqz delay slot after 'andi t5,v0,2' - ours hoists 'move a0,s2' (identical head of both j&2 arms) into the beqz slot leaving nop in the jal slots; target keeps 'andi a0,s2,0xff' in each jal delay slot (+ t-reg renumbering cascade t5/t8). Wins: s5 s32 + idx s8 loop-block local (loop 4), vol(s32)/sel(u8) locals hoisting ternary and j&2 before the if, conv forms (s16)s5/(s16)(u16)s5/(s16)(s5^0) so no CSE spill, 'i = 0; do {' joined on loop B, two dead ifs (if(!s2){}, if(1){}) fix s7/s8. Tried for a0: s2 types, andi forms (s2&255 etc., still hoisted), bank local, val local, block-local vol/sel, arm swap.
+// sfxUpdateChannels (src/global/7130.c): Stage 5 (scheduling only): frame 0x70 exact, same insns/callee-saved set, parked NON_MATCHING in 7130.c. Only diff: beqz delay slot after 'andi t5,v0,2' - ours hoists 'move a0,s2' (identical head of both j&2 arms) into the beqz slot leaving nop in the jal slots; target keeps 'andi a0,s2,0xff' in each jal delay slot (+ t-reg renumbering cascade t5/t8). Wins: s5 s32 + idx s8 loop-block local (loop 4), vol(s32)/sel(u8) locals hoisting ternary and j&2 before the if, conv forms (s16)s5/(s16)(u16)s5/(s16)(s5^0) so no CSE spill, 'i = 0; do {' joined on loop B, two dead ifs (if(!s2){}, if(1){}) fix s7/s8. Tried for a0: s2 types, andi forms (s2&255 etc., still hoisted), bank local, val local, block-local vol/sel, arm swap.
 #include "common.h"
 #include "actor.h"
 
@@ -27,10 +27,10 @@ void func_8060131C(s32, s32, s32);
 void func_806013E8(s32, s32, s32);
 void sfxStopChannel();
 void seqSetTargetVolume(s32, f32);
-void func_8060A6A0(s32, u8, f32);
+void seqLoadAndPlayWithReverb(s32, u8, f32);
 
 // deadsweep round 3: full=62 text=62 inserted `if (D_8074593C && D_8074593C) {}` at line 18
-void func_806025D4(void) {
+void sfxUpdateChannels(void) {
     u8 i;
     u8 j;
     u8 s1;
@@ -123,7 +123,7 @@ void func_806025D4(void) {
                         seqSetTargetVolume(i, D_807458F4[idx]);
                         alCSPPlay(gSeqPlayers[i]);
                     } else {
-                        func_8060A6A0(i, (u8)D_807458DC[idx], D_807458F4[idx]);
+                        seqLoadAndPlayWithReverb(i, (u8)D_807458DC[idx], D_807458F4[idx]);
                         D_80745924[sfxGetChannelIndex(D_807458DC[idx])] = 1;
                     }
                 }

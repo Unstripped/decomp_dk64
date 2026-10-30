@@ -1,4 +1,4 @@
-// func_806A92B4 (src/global/ACDC0.c): stage 4 (L6A92B4, base 6e500df): frame 0x1a0 + callee-saved set match; reg-blind diff ~128 lines/890 insns, exact ~570. Done: inline gDPSetPrimColor(dl++) at 4 FA sites + gDPPipeSync(dl++) give target v0/v1 _g copies (needs FAKE if(dl){} in case1 to keep dl in s7), renderRotatedSprite 4th param u8, 3 of {x,fe,ff,fh} removed. Open: list must be uncolored (late dead use does it), s-reg colouring (target L1 off s0,y s1,it s2,j s3: needs j/off/y split per loop), FP scheduling, 780.0f literal rematerialised in target. Permuter 25min: 23863->22967 useless; annealing over var splits+dead uses reached exact ~507 only.
+// hudPauseMenuRender (src/global/ACDC0.c): stage 4 (L6A92B4, base 6e500df): frame 0x1a0 + callee-saved set match; reg-blind diff ~128 lines/890 insns, exact ~570. Done: inline gDPSetPrimColor(dl++) at 4 FA sites + gDPPipeSync(dl++) give target v0/v1 _g copies (needs FAKE if(dl){} in case1 to keep dl in s7), renderRotatedSprite 4th param u8, 3 of {x,fe,ff,fh} removed. Open: list must be uncolored (late dead use does it), s-reg colouring (target L1 off s0,y s1,it s2,j s3: needs j/off/y split per loop), FP scheduling, 780.0f literal rematerialised in target. Permuter 25min: 23863->22967 useless; annealing over var splits+dead uses reached exact ~507 only.
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -16,7 +16,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 s32 func_805FF030(s32, s32);
 s32 func_80712628(void);
-Gfx *func_806AA09C(s16, s16, s16, s16, Gfx *, s8, f32);
+Gfx *hudDrawCountPair(s16, s16, s16, s16, Gfx *, s8, f32);
 Gfx *hudDrawItemLabel(Gfx *, ACDC0HudEntry *, s32);
 extern s16 D_807FC992[];
 extern u8 D_807FCC4C;
@@ -31,7 +31,7 @@ extern f32 D_807FC840[];
 extern f32 D_807FC868[];
 extern f32 D_807FC890[];
 
-Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
+Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     char buf[0x40];
     L8bHud *hud;
     s16 j;
@@ -227,7 +227,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                     if (off == 0) {
                         fc = fc + fd * 400.0;
                     }
-                    dl = func_806AA09C(0x2A8, (s32)((f32)off + fc), *(s16 *)((u8 *)D_807FC992 + hud->unk14 * 0x5E + D_80750560[j] * 2), 5, dl, 0, 0.8f);
+                    dl = hudDrawCountPair(0x2A8, (s32)((f32)off + fc), *(s16 *)((u8 *)D_807FC992 + hud->unk14 * 0x5E + D_80750560[j] * 2), 5, dl, 0, 0.8f);
                 }
             }
             D_80750538++;
@@ -262,7 +262,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
                     if (off == 0) {
                         fc = fc + fd * 400.0;
                     }
-                    dl = func_806AA09C(0x2B0, (s32)((f32)off + fc), t0, 0x19, dl, 0, 0.8f);
+                    dl = hudDrawCountPair(0x2B0, (s32)((f32)off + fc), t0, 0x19, dl, 0, 0.8f);
                 }
             }
             break;
@@ -279,7 +279,7 @@ Gfx *func_806A92B4(Gfx *dl, Actor *actor) {
             if (fc < 0.01f) {
                 fc = 0.01f;
             }
-            dl = func_806AA09C(0x280, 0x33C, (&D_807FC828)[D_807FC818[D_807FC80C]], D_8075056C[D_807FC818[D_807FC80C]], dl, 1, fc);
+            dl = hudDrawCountPair(0x280, 0x33C, (&D_807FC828)[D_807FC818[D_807FC80C]], D_8075056C[D_807FC818[D_807FC80C]], dl, 1, fc);
             break;
     }
     dl->words.w0 = 0xDF000000;

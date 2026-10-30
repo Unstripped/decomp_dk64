@@ -81,7 +81,7 @@ s32 flagGet(s32, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
 void bossRoundFrame(u8 *);
 void camStartPath(void *, s32, u8);
-void func_806A2B38(void *);
+void hudCountdownTimerSaveElapsed(void *);
 void func_805FF158(s32);
 void func_805FF378(s32, s32);
 f32 func_80612790(s16);
@@ -93,7 +93,7 @@ void actorSetTargetSpeed(void *, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 func_806CC190(s16, s16, f32);
 s32 projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void func_80614D00(void *, f32, f32);
 s32 currentActorTestClearFlag(void);
@@ -150,7 +150,7 @@ void func_8002F100(void) {
             PLAYER_ACTOR->unk144 = 1;
             camStartPath(0, 2, 1);
             MAIN_ACTOR->unk154 = 0x29;
-            func_806A2B38(MAIN_ACTOR->unk11C);
+            hudCountdownTimerSaveElapsed(MAIN_ACTOR->unk11C);
             func_805FF158(1);
             func_8070B308(1);
             func_805FF378(0xD6, 0);
@@ -217,7 +217,7 @@ void func_8002F100(void) {
                 if (t < 4) {
                     SECOND_ACTOR->unk168 = 0;
                 } else {
-                    func_806086CC(MAIN_ACTOR->unk7C, MAIN_ACTOR->unk80, MAIN_ACTOR->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
+                    sfxPlayAtPositionPooled(MAIN_ACTOR->unk7C, MAIN_ACTOR->unk80, MAIN_ACTOR->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                 }
                 func_80613C48(SECOND_ACTOR, 0x4F9, 0.0f, 0.0f);
                 func_80614D00(SECOND_ACTOR, 0.5f, 0.0f);

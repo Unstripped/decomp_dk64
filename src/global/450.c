@@ -59,12 +59,12 @@ void timerQueueAdd(void *, s32, s32, s32, s32);
 void timerQueueUpdate(void);
 void audioInit(void);
 void sfxPlayCurrent(void);
-void func_806025D4(void);
+void sfxUpdateChannels(void);
 void sfxAllocateChannel(s32, f32);
-void func_80603450(void);
+void sfxUpdateLevelAmbient(void);
 void audioResetAll(void);
-void func_806057F8(void);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxUpdateSourceGroups(void);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void seqSetChannelVolumeScale(s32, f32);
 void controllerInit(void);
 void controllerStartRead(void);
@@ -94,7 +94,7 @@ void csTimerQueueClear(void);
 void mapChunkAllocLists(s32);
 void mapLoadNodeAsset(s32);
 void mapSearchTableReset(void);
-void func_80658CCC(void);
+void mapSearchTableUpdateVisibility(void);
 void lightInitGlobals(void);
 void lightClearCount(void);
 void billboardCacheInit(void);
@@ -511,7 +511,7 @@ void func_805FBC5C(void) {
     osWritebackDCacheAll();
     osCreateMesgQueue(&D_8076A110, &D_8076A108, 2);
     osSetTimer(&D_8076A130, 0xD693A4, 0, &D_8076A110, D_8076A128);
-    func_80609140(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
 }
 
 void func_805FBE04(void) {
@@ -596,7 +596,7 @@ void mainThreadLoop(s32 arg0) {
         }
         frameTimingUpdate();
         if (D_807444EC == 0 || D_807444EC == 1 || D_807444EC == 7) {
-            func_80658CCC();
+            mapSearchTableUpdateVisibility();
             func_80700BF4();
         }
         func_80611730();
@@ -634,9 +634,9 @@ void func_805FC2B0(void) {
         billboardCacheEvictStale();
         func_806789E4();
         func_80715270(1);
-        func_80603450();
-        func_806057F8();
-        func_806025D4();
+        sfxUpdateLevelAmbient();
+        sfxUpdateSourceGroups();
+        sfxUpdateChannels();
         playerViewsBuildMatrices(D_8076A048);
     } else {
         lightClearCount();
@@ -650,9 +650,9 @@ void func_805FC2B0(void) {
         actorGlobalCallbacksReset();
         triggerZoneUpdate();
         func_80715270(0);
-        func_80603450();
-        func_806025D4();
-        func_806057F8();
+        sfxUpdateLevelAmbient();
+        sfxUpdateChannels();
+        sfxUpdateSourceGroups();
         gridTickPlayers();
     }
     resListTick();

@@ -1,10 +1,10 @@
-// func_80658930 (src/global/55B20.c): stage 6: 2-line scheduling diff only (li s8,-32768 in blez delay slot in target vs after sh spill in draft); base hoist, n spill, regs, frame all match
+// mapNodeAssetParse (src/global/55B20.c): stage 6: 2-line scheduling diff only (li s8,-32768 in blez delay slot in target vs after sh spill in draft); base hoist, n spill, regs, frame all match
 // Everything else matches: base hoisted to s6, n spilled to 0x46(sp), p=s0/slot=s1, lui/addiu order (joined `w = ..; end = ..;` line), frame 80.
 // Found: (s32)D_807F70B8 + idx*4 integer arithmetic (not array/ixa form) hoists the base; a `slot` s32 temp for the later accesses fixes the p/slot colouring (permuter hint);
 // unk4 = *(s16 *)p; p += 2; (second halfword, not p - 2).
 extern s16 D_807F7138;
 extern void *D_807F70B8[];
-void func_80651708(s32);
+void mapFaceBuildTriangleFan(s32);
 typedef struct S55fNodeData {
     /* 0x00 */ u8 *unk0;
     /* 0x04 */ s16 unk4;
@@ -25,7 +25,7 @@ typedef struct S55fNodeData {
 } S55fNodeData;
 
 #define S55fNodeSlot(i) (*(S55fNodeData **)((s32)D_807F70B8 + (i) * 4))
-void func_80658930(u8 *arg0) {
+void mapNodeAssetParse(u8 *arg0) {
     s32 *w;
     s32 *end;
     s16 n;
@@ -67,7 +67,7 @@ void func_80658930(u8 *arg0) {
         p += 0x22;
         memcpy((*(S55fNodeData **)slot)->unk58, p, 0x10);
         p += 0x10;
-        func_80651708(idx);
+        mapFaceBuildTriangleFan(idx);
     }
 }
 #undef S55fNodeSlot

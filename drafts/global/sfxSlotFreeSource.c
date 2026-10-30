@@ -1,4 +1,4 @@
-// func_80605380 (src/global/7130.c): Stage 6 (one insn): K&R definition + pure expression form (no locals) + 'faultSetMessage(9, E * 1, 0, 0)' fake: text identical except 'move t1,t6' sits before 'addiu a0,a0,lo' (target: after it, before beqz t0). Tried (all no change): first-stmt forms (--x, -=1, +=-1), tail store permutations (120), fake forms (+0,|0,^0,<<0,...), cond forms (!(>=0&&<23), >22, etc.), local-based hybrids (a1 s16/s32/int x count local x reassign x fake, best 10 lines worse), deadsweep single stmt x 8 syms x 3 forms at every position (327), random dead-stmt hill-climb 12000x2. Candidate ids show the move is the {62}=arg0*2 live-range split inserted in candidate order vs the &D_80770658 addiu.
+// sfxSlotFreeSource (src/global/7130.c): Stage 6 (one insn): K&R definition + pure expression form (no locals) + 'faultSetMessage(9, E * 1, 0, 0)' fake: text identical except 'move t1,t6' sits before 'addiu a0,a0,lo' (target: after it, before beqz t0). Tried (all no change): first-stmt forms (--x, -=1, +=-1), tail store permutations (120), fake forms (+0,|0,^0,<<0,...), cond forms (!(>=0&&<23), >22, etc.), local-based hybrids (a1 s16/s32/int x count local x reassign x fake, best 10 lines worse), deadsweep single stmt x 8 syms x 3 forms at every position (327), random dead-stmt hill-climb 12000x2. Candidate ids show the move is the {62}=arg0*2 live-range split inserted in candidate order vs the &D_80770658 addiu.
 #include "common.h"
 
 extern s16 D_80770628[];
@@ -12,7 +12,7 @@ extern void *D_807705A0[];
 
 void faultSetMessage(s32, s32, s32, s32);
 
-void func_80605380(arg0)
+void sfxSlotFreeSource(arg0)
 s16 arg0;
 {
     D_80770740[D_80770628[arg0]]--;

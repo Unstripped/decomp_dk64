@@ -81,7 +81,7 @@ extern EfAParameters D_807FD6F0;
 void func_80614D48(Actor *, f32, f32);
 void func_80614E78(Actor *, s32);
 void actorScriptStart(Actor *, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_806CFF9C(Actor *);
 void slotQueueUpdate(s32, s32, s32);
 
@@ -311,7 +311,7 @@ void func_806EB744(void) {
     subactor->unkF3 = state2;
     if ((u8)state2 == 3) {
         sfxStopSlotSound(D_807FBB48, 0);
-        func_80609140(0x26, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x26, 0x7FFF, 63.0f, 1.0f, 0, 0);
         if (EfA_Q[D_807FC929].unk2AC != 0) {
             func_806F0D68(D_807FBB48);
         }
@@ -339,7 +339,7 @@ void func_806EB8CC(void) {
 }
 
 void func_806EB964(void) {
-    func_80609140(0x1B9, 0x7FFF, 63.0f, 1.0f, 0xA, 0);
+    sfxPlayOnFreeSlot(0x1B9, 0x7FFF, 63.0f, 1.0f, 0xA, 0);
     func_806EB744();
     D_807FBB48->unk154 = 4;
     D_807FBB48->unk155[0] = 0;

@@ -77,7 +77,7 @@ void func_8071498C(void *);
 void func_8071ABDC();
 void func_80714998(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_8067E278(s32, s32);
 void actorGetOrSetNodeScale(void *, s32, f32);
 void actorSetCollisionRadius(void *, f32);
@@ -459,7 +459,7 @@ void func_806B3680(void) {
                             func_80714CC0(D_8072073C, 2.0 * D_807FBB40->unk4->unk38, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
                         }
                         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x3D, 0xFF, 0x7F, 0);
-                        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x35C, 0xFF, 0x7F, 0, 0x32, 0.3f, 0);
+                        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x35C, 0xFF, 0x7F, 0, 0x32, 0.3f, 0);
                         func_8067E278(0, 1);
                         actorGetOrSetNodeScale(D_807FBB40, 1, D_807FBB40->unk140->unkC * sp54);
                         actorSetCollisionRadius(D_807FBB40, D_807FBB40->unk140->unkC * sp54);
@@ -866,7 +866,7 @@ void func_806B4DCC(void) {
         D_807FBB40->unk16B = 0xFA;
         D_807FBB40->unk16C = 0xFA;
         actorSpawnNodeEntryAtActor(0x2D, 0x44);
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2C1, 0xFF, 0x7F, 0, 0x14, 0.0f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2C1, 0xFF, 0x7F, 0, 0x14, 0.0f, 0);
     }
     temp_v0 = D_807FDC90->unkC - D_807FDC9C->unk6;
     *sp3C = (temp_v0 < 0) ? 0 : temp_v0;

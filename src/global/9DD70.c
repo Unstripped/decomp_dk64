@@ -78,7 +78,7 @@ void sfxStopSlotSound(Actor *, s32);
 void color5551CopyLerpToWhite(s16 *, s32 *, f32);
 void slotQueueAddValue(s32, u8, s32);
 s32 sfxAllocateChannel(s32, f32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 void mathAngleBetweenPoints3D(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
 s32 playerStateQueueCallback(s16, void *, u8);
@@ -89,7 +89,7 @@ void actorUpdateModelMatrix(Actor *, s32);
 void renderSetupSegmentsAndFog(Gfx *, Actor *);
 void func_806FF628(void);
 
-void func_80699284(void) {
+void actorPhotoUpdate(void) {
     PanSubState *spEC;
     s16 spEA;
     s16 spE8;
@@ -130,7 +130,7 @@ void func_80699284(void) {
                 slotQueueAddValue(0xC, ((PlayerControlState *)D_807FD580)->unk1A4, 1);
                 sfxAllocateChannel(0x2E, 1.0f);
             } else if (((PlayerControlState *)D_807FD580)->unk1EC == 2) {
-                func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
+                sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
             }
             D_807FBB40->unk155[0]++;
         }
@@ -179,21 +179,21 @@ void func_80699284(void) {
     }
 }
 
-void func_80699284(void);
+void actorPhotoUpdate(void);
 
-void func_806998C8(void) {
-    func_80699284();
+void actorPhotoUpdateEntry(void) {
+    actorPhotoUpdate();
 }
 
-/* Empty stub: the 8 bytes after func_806998C8 (a bare `jr ra; nop`) are a second
-   function that splat merged into func_806998C8 for lack of a symbol. */
+/* Empty stub: the 8 bytes after actorPhotoUpdateEntry (a bare `jr ra; nop`) are a second
+   function that splat merged into actorPhotoUpdateEntry for lack of a symbol. */
 void func_806998E8(void) {
 }
 
-void func_80699958(u8, u8);
+void actorSagWaveUpdate(u8, u8);
 
 void func_806998F0(void) {
-    func_80699958(8, 0);
+    actorSagWaveUpdate(8, 0);
 }
 
 extern Actor *D_807FBB40;
@@ -202,7 +202,7 @@ void func_80699914(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk12A = 0x3E8;
     }
-    func_80699958(0x1C, 1);
+    actorSagWaveUpdate(0x1C, 1);
 }
 
 #ifdef NON_MATCHING
@@ -259,7 +259,7 @@ void actorAddNodeForceSlot(f32, u8);
 f32 sinApprox(f32);
 void *memcpy(void *, const void *, unsigned int);
 
-void func_80699958(u8 arg0, u8 arg1) {
+void actorSagWaveUpdate(u8 arg0, u8 arg1) {
     f32 sp128[32];
     f32 spC0[26];
     f32 var_fa0;
@@ -477,7 +477,7 @@ void func_80699958(u8 arg0, u8 arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_80699958.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/actorSagWaveUpdate.s")
 #endif
 
 typedef struct {
@@ -582,7 +582,7 @@ void actorUpdateModelMatrix(Actor *, s32);
 
 #define PROX_SRC ((ProximitySource *)&D_807FBB70)
 
-void func_8069A7C8(void) {
+void actorSagSingleUpdate(void) {
     ProximityState *state;
     f32 acc;
     f32 dist;
@@ -658,7 +658,7 @@ typedef struct {
     s16 unk0;
     u8 pad2[2];
     f32 unk4;
-} S9B_BossTimer;
+} SpotLightState;
 
 typedef struct {
     f32 unk0;
@@ -667,7 +667,7 @@ typedef struct {
     s32 unkC;
     f32 unk10;
     f32 unk14;
-} S9B_BossNode;
+} SpotLightConfig;
 
 void actorScriptStart(Actor *, s32);
 void func_80613C48(Actor *, s16, f32, f32);
@@ -681,7 +681,7 @@ void lightSetTargetId(s16);
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
-void func_8069AB74(void) {
+void actorSpotLightUpdate(void) {
     f32 sp74;
     f32 sp70;
     f32 sp6C;
@@ -689,9 +689,9 @@ void func_8069AB74(void) {
     u16 sp5E;
     u16 sp5C;
     u16 sp5A;
-    S9B_BossTimer *sp54;
+    SpotLightState *sp54;
 
-    sp54 = (S9B_BossTimer *)D_807FBB40->unk174;
+    sp54 = (SpotLightState *)D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80613C48(D_807FBB40, 0x402, 0, 1.0f);
         if (D_8076A0A8 == 6) {
@@ -701,15 +701,15 @@ void func_8069AB74(void) {
         sp54->unk0 = 0;
         sp54->unk4 = 1.0f;
     }
-    func_80614D00(D_807FBB40, ((S9B_BossNode *)D_807FBB40->unk124)->unk0, 1.0f);
+    func_80614D00(D_807FBB40, ((SpotLightConfig *)D_807FBB40->unk124)->unk0, 1.0f);
     if (D_807FBD70 == 4) {
         sp54->unk0 = D_807503A0;
         sp54->unk4 = 0.0f;
     }
     if (sp54->unk0 == 0) {
-        sp5E = ((S9B_BossNode *)D_807FBB40->unk124)->unk4;
-        sp5C = ((S9B_BossNode *)D_807FBB40->unk124)->unk8;
-        sp5A = ((S9B_BossNode *)D_807FBB40->unk124)->unkC;
+        sp5E = ((SpotLightConfig *)D_807FBB40->unk124)->unk4;
+        sp5C = ((SpotLightConfig *)D_807FBB40->unk124)->unk8;
+        sp5A = ((SpotLightConfig *)D_807FBB40->unk124)->unkC;
         sp5E = (u16)(u32)((f64)(u32)sp5E * (f64)sp54->unk4);
         sp5C = (u16)(u32)((f64)(u32)sp5C * (f64)sp54->unk4);
         sp5A = (u16)(u32)((f64)(u32)sp5A * (f64)sp54->unk4);
@@ -718,8 +718,8 @@ void func_8069AB74(void) {
             sp54->unk4 = 1.0f;
         }
         if (D_807FBB40->unk60 & 0x10) {
-            if ((f64)((S9B_BossNode *)D_807FBB40->unk124)->unk10 != 0.0 || (f64)((S9B_BossNode *)D_807FBB40->unk124)->unk14 != 0.0) {
-                lightSetFovAngles(((S9B_BossNode *)D_807FBB40->unk124)->unk10, ((S9B_BossNode *)D_807FBB40->unk124)->unk14);
+            if ((f64)((SpotLightConfig *)D_807FBB40->unk124)->unk10 != 0.0 || (f64)((SpotLightConfig *)D_807FBB40->unk124)->unk14 != 0.0) {
+                lightSetFovAngles(((SpotLightConfig *)D_807FBB40->unk124)->unk10, ((SpotLightConfig *)D_807FBB40->unk124)->unk14);
             }
             lightSetFlags(2);
             lightSetTargetId(*(s16 *)D_807FBB40->unk12C);
@@ -732,13 +732,13 @@ void func_8069AB74(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_8069AB74(void);
+void actorSpotLightUpdate(void);
 
-void func_8069AFF0(void) {
-    func_8069AB74();
+void actorSpotLightUpdateEntry(void) {
+    actorSpotLightUpdate();
 }
 
-typedef struct S9DCamView {
+typedef struct CameraPoseView {
     u8 pad0[0x210];
     f32 unk210;
     f32 unk214;
@@ -747,16 +747,16 @@ typedef struct S9DCamView {
     f32 unk228;
     f32 unk22C;
     f32 unk230;
-} S9DCamView;
+} CameraPoseView;
 
-typedef struct S9DLinkView {
+typedef struct LinkedActorView {
     u8 pad0[0xEC];
     s16 unkEC;
     u8 padEE[0x66];
     u8 unk154;
     u8 pad155[0xA];
     u8 unk15F;
-} S9DLinkView;
+} LinkedActorView;
 
 extern Actor *D_807FBB4C;
 extern s16 D_80750378;
@@ -782,7 +782,7 @@ f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 
 void func_8069B010(void) {
     s32 *p = D_807FBB40->unk174;
-    S9DLinkView *link;
+    LinkedActorView *link;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk6A &= 0xFFFE;
@@ -800,7 +800,7 @@ void func_8069B010(void) {
     }
     func_8067ACB4(D_807FBB40);
     func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x4B, 0x78, 0, 1.0f);
-    link = (S9DLinkView *)D_807FBB40->unk11C;
+    link = (LinkedActorView *)D_807FBB40->unk11C;
     if (link != NULL) {
         if (link->unk154 != 2 && link->unk154 != 0x26) {
             actorDespawn(D_807FBB40);
@@ -808,7 +808,7 @@ void func_8069B010(void) {
         }
         if (D_807FBB40->unk15F == link->unk15F) {
             if ((D_807FBB40->unk7C - D_807FBB4C->unk7C) * (D_807FBB40->unk7C - D_807FBB4C->unk7C) + (D_807FBB40->unk84 - D_807FBB4C->unk84) * (D_807FBB40->unk84 - D_807FBB4C->unk84) > 900.0f) {
-                ((S9DLinkView *)D_807FBB40->unk11C)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk84, (s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84) - mathAngleBetweenPointsDeg((s32)((S9DCamView *)D_807FC924)->unk228, (s32)((S9DCamView *)D_807FC924)->unk230, (s32)((S9DCamView *)D_807FC924)->unk210, (s32)((S9DCamView *)D_807FC924)->unk218));
+                ((LinkedActorView *)D_807FBB40->unk11C)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk84, (s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84) - mathAngleBetweenPointsDeg((s32)((CameraPoseView *)D_807FC924)->unk228, (s32)((CameraPoseView *)D_807FC924)->unk230, (s32)((CameraPoseView *)D_807FC924)->unk210, (s32)((CameraPoseView *)D_807FC924)->unk218));
             }
             lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
         }
@@ -837,7 +837,7 @@ void sfxStopChannel(s32, s32);
 
 void func_8069B3FC(void) {
     s16 *p = D_807FBB40->unk174;
-    S9DCamView *cam = D_807FBB4C->unk174;
+    CameraPoseView *cam = D_807FBB4C->unk174;
     s32 i;
     f32 x;
     f32 y;
@@ -949,7 +949,7 @@ s32 actorHasCallbackTargetThisFrame(void) {
 
 #ifdef NON_MATCHING
 
-typedef struct L3b_Sub174 {
+typedef struct ActorSub174View {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -963,17 +963,17 @@ typedef struct L3b_Sub174 {
     /* 0x28 */ u8 unk28;
     /* 0x29 */ u8 pad29[1];
     /* 0x2A */ u16 unk2A;
-} L3b_Sub174;
+} ActorSub174View;
 
-typedef struct L3b_Sub124 {
+typedef struct ActorSub124View {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
-} L3b_Sub124;
+} ActorSub124View;
 
-typedef struct L3b_NameTable {
+typedef struct ActorNamePair {
     /* 0x0 */ s32 unk0;
     /* 0x4 */ s32 unk4;
-} L3b_NameTable;
+} ActorNamePair;
 
 extern Actor *D_807FBB98;
 extern u8 D_807FBB85;
@@ -986,7 +986,7 @@ extern f32 D_807FBC64;
 extern s16 D_807502D0;
 extern f32 D_807502E4;
 extern u8 D_80720340;
-extern L3b_NameTable D_807503A4;
+extern ActorNamePair D_807503A4;
 
 s32 actorHasActiveMovementFlags(Actor *);
 s32 actorListFindIdByActor(Actor *);
@@ -1010,7 +1010,7 @@ void func_8071A8B0(void);
 void func_8071910C(void);
 
 void func_8069B908(void) {
-    L3b_Sub174 *sp13C;
+    ActorSub174View *sp13C;
     f32 mtxA[4][4];
     f32 mtxB[4][4];
     f32 dx;
@@ -1019,7 +1019,7 @@ void func_8069B908(void) {
     f32 spAC;
     f32 spB0;
     f32 spA4;
-    L3b_NameTable sp9C;
+    ActorNamePair sp9C;
     s32 i;
     s32 var_v0;
     s16 ang;
@@ -1041,14 +1041,14 @@ void func_8069B908(void) {
             *(u8 *)((u8 *)D_807FBB40 + 0x155) = 1;
             sp13C->unk1C = 0x1E;
         }
-        sp13C->unk28 = ((L3b_Sub124 *)D_807FBB40->unk124)->unk0;
+        sp13C->unk28 = ((ActorSub124View *)D_807FBB40->unk124)->unk0;
         if (sp13C->unk28 != 0) {
             sp13C->unk4 = D_807FBB40->unk7C;
             sp13C->unk8 = D_807FBB40->unk80;
             sp13C->unkC = D_807FBB40->unk84;
             sp13C->unk10 = D_807FBB40->unk4->unk34 / 0.15;
         }
-        if (((L3b_Sub124 *)D_807FBB40->unk124)->unk4 == 1) {
+        if (((ActorSub124View *)D_807FBB40->unk124)->unk4 == 1) {
             D_807FBB40->unk132 = 2;
         } else {
             D_807FBB40->unk132 = 1;
@@ -1544,7 +1544,7 @@ void *renderAppendScaledMatrix(void *arg0, ActorPositionView *arg1, s16 arg2, f3
 extern Gfx D_1000118;
 
 #ifdef NON_MATCHING
-#define S9D_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+#define TEXT_MARKER_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern s32 D_8074E880[];
 void func_80717404(void);
@@ -1552,7 +1552,7 @@ void func_8071495C(void);
 void vtxGradientSetPosition(s16);
 extern Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, char *, u8);
 
-void func_8069D424(Gfx *gfx, Actor *actor) {
+void textMarkerRenderString(Gfx *gfx, Actor *actor) {
     char **sub;
     s16 x;
     s16 y;
@@ -1564,8 +1564,8 @@ void func_8069D424(Gfx *gfx, Actor *actor) {
     sub = actor->unk174;
     state = 3;
     mode = (u8)actor->unk84;
-    S9D_GFX(gfx++, 0xDE000000, &D_1000118);
-    S9D_GFX(gfx++, 0xFC119623, 0xFF2FFFFF);
+    TEXT_MARKER_GFX(gfx++, 0xDE000000, &D_1000118);
+    TEXT_MARKER_GFX(gfx++, 0xFC119623, 0xFF2FFFFF);
 
     x = actor->unk155[0];
     switch (x) {
@@ -1601,8 +1601,8 @@ void func_8069D424(Gfx *gfx, Actor *actor) {
             break;
         case 6:
             state = 0x23;
-            S9D_GFX(gfx++, 0xE3000A01, 0x100000);
-            S9D_GFX(gfx++, 0xE200001C, 0x0C184240);
+            TEXT_MARKER_GFX(gfx++, 0xE3000A01, 0x100000);
+            TEXT_MARKER_GFX(gfx++, 0xE200001C, 0x0C184240);
             break;
         case 0:
             mode = 6;
@@ -1622,12 +1622,12 @@ void func_8069D424(Gfx *gfx, Actor *actor) {
             break;
     }
 
-    S9D_GFX(gfx++, 0xFA000000, (actor->unk16A << 24) | (actor->unk16B << 16) | (actor->unk16C << 8) | actor->unk15F);
+    TEXT_MARKER_GFX(gfx++, 0xFA000000, (actor->unk16A << 24) | (actor->unk16B << 16) | (actor->unk16C << 8) | actor->unk15F);
     textDrawStringVtx(gfx, (s16)mode, x, y, *sub, state);
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069D424.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/textMarkerRenderString.s")
 #endif
 
 #define WRITE_GFX_U32(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
@@ -1653,7 +1653,7 @@ Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
 
 void renderCallbacksRegister(void *, void *, s32);
 void heapFree(void *);
-void func_8069D424(Gfx *, Actor *);
+void textMarkerRenderString(Gfx *, Actor *);
 
 void textMarkerUpdate(void) {
     u8 *model;
@@ -1676,7 +1676,7 @@ void textMarkerUpdate(void) {
         break;
     case 1:
         if (D_807FBB40->unk155[0] != 3) {
-            renderCallbacksRegister(func_8069D424, D_807FBB40, 3);
+            renderCallbacksRegister(textMarkerRenderString, D_807FBB40, 3);
         }
         switch (D_807FBB40->unk155[0]) {
         case 0:

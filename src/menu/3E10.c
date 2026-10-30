@@ -38,7 +38,7 @@ void menuSetAudioMode(void) {
 
 Gfx *menuUpdateStateDispatch();
 void camEndPath(s32);
-s32 func_80609140(s32, s32, f32, f32, s32, s32);
+s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 extern s8 D_80033734;
 extern s32 gCamActor;
 
@@ -58,7 +58,7 @@ void func_80027E60(MenuScreenActor *arg0, s32 arg1) {
         temp_v0->unk0 = 1.0f;
         menuUpdateStateDispatch(arg0, 0, 0, 0);
         camEndPath(gCamActor);
-        func_80609140(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
+        sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         D_80033734 = 0;
     }
 }
@@ -453,7 +453,7 @@ void menuHandleSelectionInput(MenuScreenActor *arg0, s32 arg1) {
         if (temp_s0->unk4 == 0.0f) {
             if (arg1 & 1) {
                 temp_s0->unk16 = 0;
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 switch (temp_s0->unk17) {
                 case 2:
                     temp_s0->unk13 = 4;
@@ -467,7 +467,7 @@ void menuHandleSelectionInput(MenuScreenActor *arg0, s32 arg1) {
                     break;
                 }
             } else if (arg1 & 2) {
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 temp_s0->unk16 = 0;
                 temp_s0->unk13 = 1;
             } else {
@@ -545,7 +545,7 @@ void menuCheckCheatCodeSequence(void) {
         D_80033818++;
         if (D_80033818 >= 7U) {
             D_807563B4 = 1;
-            func_80609140(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
             D_80033818 = 0;
         }
     } else if (D_807ECD48 != 0) {
@@ -566,7 +566,7 @@ void menuHandleConfirmationInput(MenuScreenActor *arg0, s32 arg1) {
             controllerSetActiveMask(1);
             func_807144B8(D_80033F48);
         } else if (arg1 & 2) {
-            func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
             temp_s0->unk16 = 0;
             temp_s0->unk13 = 2;
         }
@@ -744,10 +744,10 @@ void menuHandleFileSelectInput(MenuScreenActor *arg0, s32 arg1) {
                     temp_s0->unk13 = 5;
                     D_80033F48 = temp_s0->unk17;
                 } else {
-                    func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
             } else if (arg1 & 2) {
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 temp_s0->unk16 = 0;
                 temp_s0->unk13 = 2;
             } else {
@@ -841,17 +841,17 @@ void menuMysteryHandleInput(MenuScreenActor *arg0, s32 arg1) {
                 func_80714CC0(&D_8071FBC8, 10.3f, 240.0f, 120.0f, -10.0f);
                 func_8071495C();
                 func_80714CC0(&D_8071FE08, 10.3f, 240.0f, 120.0f, -10.0f);
-                func_80609140(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 func_8060C830(D_80033F48, 1);
                 temp_s0->unk16 = 0;
                 temp_s0->unk13 = 2;
             } else if ((arg1 & 4) && (D_80033FAC != 0)) {
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 temp_s0->unk16 = 0;
                 temp_s0->unk13 = 2;
             }
         } else if (arg1 & 2) {
-            func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
             temp_s0->unk16 = 0;
             temp_s0->unk13 = 2;
         }
@@ -921,11 +921,11 @@ void menuBossReplayHandleInput(MenuScreenActor *arg0, s32 arg1) {
     if (temp_s0->unk0 == 0.0f) {
         if (temp_s0->unk4 == 0.0f) {
             if (arg1 & 1) {
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 temp_s0->unk16 = 0;
                 temp_s0->unk13 = 7;
             } else if (arg1 & 2) {
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 temp_s0->unk16 = 0;
                 temp_s0->unk13 = 1;
                 D_80033698 = 3;
@@ -934,13 +934,13 @@ void menuBossReplayHandleInput(MenuScreenActor *arg0, s32 arg1) {
             }
             if (temp_s0->unk17 == 0) {
                 if (!(D_80033670 & 0x10) && (arg1 & 0x10)) {
-                    func_80609140(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     D_80744538++;
                     if (D_80744538 >= 3) {
                         D_80744538 = 0;
                     }
                 } else if (!(D_80033670 & 0x20) && (arg1 & 0x20)) {
-                    func_80609140(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     D_80744538--;
                     if (D_80744538 < 0) {
                         D_80744538 = 2;
@@ -1313,7 +1313,7 @@ void func_8002C584(MenuScreenActor *arg0, s32 arg1) {
     MenuScreenState *temp_s0 = arg0->unk174;
 
     if (temp_s0->unk0 == 0.0 && (arg1 & 1)) {
-        func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
         temp_s0->unk16 = 0;
         temp_s0->unk13 = 7;
     }
@@ -1580,13 +1580,13 @@ void menuHandleSoundOptionsInput(MenuScreenActor *arg0, s32 arg1) {
             case 1:
                 if (arg1 & 0x10) {
                     D_8074583C++;
-                    func_80609140(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     if (D_8074583C > 0x28) {
                         D_8074583C = 0x28;
                     }
                 } else if (arg1 & 0x20) {
                     D_8074583C--;
-                    func_80609140(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     if (D_8074583C < 0) {
                         D_8074583C = 0;
                     }
@@ -1632,7 +1632,7 @@ void menuHandleSoundOptionsInput(MenuScreenActor *arg0, s32 arg1) {
                     func_8060C648(0x1E, 0, 0, 0, D_80745844);
                     func_8060DEA8();
                 }
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 temp_s0->unk16 = 0;
                 temp_s0->unk13 = 1;
             } else {
@@ -1643,7 +1643,7 @@ void menuHandleSoundOptionsInput(MenuScreenActor *arg0, s32 arg1) {
     }
     menuUpdateItemTransition(arg0, temp_s0, 1);
     if (flag != 0) {
-        func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
     }
 }
 
@@ -1743,7 +1743,7 @@ void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
             case 2:
                 if (arg1 & 0x100) {
                     func_8060C8AC(0xFF);
-                    func_80609140(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
                 break;
             case 3:
@@ -1776,7 +1776,7 @@ void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
                 func_8060C648(0x1F, 0, 0, 0, D_807550C8);
                 func_8060C648(0x20, 0, 0, 0, D_80744530);
                 func_8060DEA8();
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 temp_s1->unk16 = 0;
                 temp_s1->unk13 = 1;
             } else {
@@ -1790,7 +1790,7 @@ void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
         D_80744544 ^= 0x100;
     }
     if (flag != 0) {
-        func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
     }
 }
 
@@ -1926,13 +1926,13 @@ void func_8002DFA8(MenuScreenActor *arg0, s32 arg1) {
                     case 1:
                         switch (D_80033978[sel][0]) {
                         case 0xBF:
-                            func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                            sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                             temp_s1->unk16 = 0;
                             temp_s1->unk13 = 0xC;
                             D_800339A8 = 0;
                             break;
                         case 0xB8:
-                            func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                            sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                             temp_s1->unk16 = 0;
                             temp_s1->unk13 = 0xC;
                             D_800339A8 = 1;
@@ -1967,7 +1967,7 @@ void func_8002DFA8(MenuScreenActor *arg0, s32 arg1) {
                 }
             }
             if (arg1 & 2) {
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 temp_s1->unk16 = 0;
                 temp_s1->unk13 = 1;
                 D_80033698 = 3;
@@ -1979,7 +1979,7 @@ void func_8002DFA8(MenuScreenActor *arg0, s32 arg1) {
     }
     menuUpdateItemTransition(arg0, temp_s1, 1);
     if (flag != 0) {
-        func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
     }
 }
 
@@ -2236,7 +2236,7 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
                 D_80744514 = D_800339A8 + 6;
             }
             if (arg1 & 2) {
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 sp2C->unk16 = 0;
                 sp2C->unk13 = 0xA;
             }
@@ -2519,7 +2519,7 @@ void menuUpdateItemTransition(void *arg0, MenuScreenState *arg1, s32 arg2) {
             arg1->unk12 = arg1->unk13;
             arg1->unk16 = -1;
             menuUpdateStateDispatch(arg0, 0, 0, 0);
-            func_80609140(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
+            sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         }
     } else {
         if (arg1->unk0 > 0.0f) {
@@ -2527,7 +2527,7 @@ void menuUpdateItemTransition(void *arg0, MenuScreenState *arg1, s32 arg2) {
             if (arg1->unk0 < 0.0f) {
                 arg1->unk0 = 0.0f;
                 if (arg2 != 0) {
-                    func_80609140(0x3C, 0x61A8, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x3C, 0x61A8, 63.0f, 1.0f, 0, 0);
                     D_80033F50 = 3;
                 }
             }
@@ -2540,7 +2540,7 @@ extern s8 D_800337F0;
 
 void menuHandleScrollInput(MenuScreenState *arg0, s32 arg1, s32 arg2) {
     if (arg2 & 4) {
-        func_80609140(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
+        sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         D_80033F44 = -0.1f;
         arg0->unk17--;
         arg0->unk4 = 1.0f;
@@ -2549,7 +2549,7 @@ void menuHandleScrollInput(MenuScreenState *arg0, s32 arg1, s32 arg2) {
         }
         D_800337F0 = 0;
     } else if (arg2 & 8) {
-        func_80609140(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
+        sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         D_80033F44 = 0.1f;
         D_800337F0 = 0;
     }
@@ -3511,7 +3511,7 @@ void func_80031B08(void) {
     case 2:
         temp_v1->unk23C += 1;
         if (temp_v1->unk23C == 3) {
-            func_80609140(0x3C, 0x61A8, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x3C, 0x61A8, 63.0f, 1.0f, 0, 0);
             D_80033F50 = 3;
         }
         break;
@@ -3522,7 +3522,7 @@ void func_80031B08(void) {
                 D_807FBB40->unk155 = 4;
                 D_800337F4 = 0x3C;
             } else if (D_800337F0 == -1) {
-                func_80609140(0x98, 0x61A8, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x98, 0x61A8, 63.0f, 1.0f, 0, 0);
             }
         }
         break;
@@ -3543,8 +3543,8 @@ void func_80031B08(void) {
         if (temp_v1->unk23C == 8) {
             func_8071495C();
             func_80714CC0(&D_8071FE08, 8.3f, 160.0f, 120.0f, -10.0f);
-            func_80609140(0x23, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            func_80609140(0x17, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x23, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x17, 0x7FFF, 63.0f, 1.0f, 0, 0);
             for (i = 0; i != 5; i++) {
                 func_8071498C(func_80030A90);
                 func_8071495C();
@@ -3659,12 +3659,12 @@ typedef struct Menu3R3_StructC828 {
 } Menu3R3_StructC828;
 
 extern Menu3R3_StructC828 D_807FC828;
-void func_806ABE3C(void);
+void hudPauseMenuRefreshTotals(void);
 
 s32 menuCalculateGamePercentage(void) {
     f32 pct;
 
-    func_806ABE3C();
+    hudPauseMenuRefreshTotals();
     pct = 0.0f;
     pct += (f32)D_807FC828.unk0 * 0.4;
     pct += (f32)D_807FC828.unk4 * 0.25;

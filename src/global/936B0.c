@@ -1436,7 +1436,7 @@ void func_8067ACB4(Actor *);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80714A28(s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 s32 func_80714C08(void *, f32, Actor *, s32, s32);
@@ -1558,7 +1558,7 @@ void projectileBounceParticleUpdate(void *arg0) {
                 func_80714CC0(&D_8072038C, PROJECTILE_BOUNCE_ACTOR->unk124->unkC * 0.5, PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84);
             }
         }
-        func_806086CC(PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84, 0xF6, 0xFF, 0x7F, 0x1E, 0x1E, 0.7f, 0);
+        sfxPlayAtPositionPooled(PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84, 0xF6, 0xFF, 0x7F, 0x1E, 0x1E, 0.7f, 0);
         actorDespawn(D_807FBB40);
     }
     if (temp_s3->unk0 + D_80750344 < D_8076A068) {
@@ -1817,7 +1817,7 @@ void projectileDespawnOrExplode(void) {
             func_80714950(0xC);
             func_80714CC0(&D_807202D0, 0.75f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
         }
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x61, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x61, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
         actorDespawn(D_807FBB40);
     }
     if ((u32)(*sp44 + D_80750344) < D_8076A068) {
@@ -2784,7 +2784,7 @@ void projectileRotatingLightUpdate(f32 arg0, u8 arg1) {
     temp_s2 = G_PROJECTILE_ROT_ACTOR->unk174;
     if (!(G_PROJECTILE_ROT_ACTOR->unk60 & 0x10)) {
         if (arg1 == 1) {
-            func_806086CC(G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84, 0x306, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+            sfxPlayAtPositionPooled(G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84, 0x306, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
         G_PROJECTILE_ROT_ACTOR->unk6A &= 0xFFFE;
         G_PROJECTILE_ROT_ACTOR->unkEE = (s16)((G_PROJECTILE_ROT_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
@@ -3251,7 +3251,7 @@ void projectileChaseTargetUpdate(void) {
     }
     sp44->unk11++;
     if (sp44->unk10 < sp44->unk11) {
-        func_806086CC(CHASE_ACTOR->unk7C, CHASE_ACTOR->unk80, CHASE_ACTOR->unk84, 0x15B, 0xFF, 0x6E, 0, 0x1E, 0.3f, 0);
+        sfxPlayAtPositionPooled(CHASE_ACTOR->unk7C, CHASE_ACTOR->unk80, CHASE_ACTOR->unk84, 0x15B, 0xFF, 0x6E, 0, 0x1E, 0.3f, 0);
         sp44->unk11 = 0;
         if (sp44->unk10 >= 3) {
             sp44->unk10--;

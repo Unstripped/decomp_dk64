@@ -133,7 +133,7 @@ void mathAngleStepForward(s16 *arg0, s16 arg1, s16 arg2) {
     }
 }
 
-typedef struct G21Table {
+typedef struct PadInputState {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -148,49 +148,49 @@ typedef struct G21Table {
     /* 0x30 */ u8 unk30;
     /* 0x31 */ u8 unk31;
     /* 0x32 */ u8 pad32[2];
-} G21Table; // size = 0x34
+} PadInputState; // size = 0x34
 
-extern G21Table D_807FD610[];
+extern PadInputState D_807FD610[];
 
-u16 func_806DFF34(u16, u16 *);
+u16 inputRemapButtons(u16, u16 *);
 f32 func_80611BB4(f32, f32);
 f32 sqrtf(f32);
 
-typedef struct LE40Ctl {
+typedef struct PadRawInput {
     /* 0x0 */ u16 unk0;
     /* 0x2 */ s8 unk2;
     /* 0x3 */ s8 unk3;
-} LE40Ctl;
+} PadRawInput;
 
-typedef struct LE40Btn {
+typedef struct PlayerButtonState {
     /* 0x0 */ u16 unk0;
     /* 0x2 */ u8 pad2[0x32];
-} LE40Btn;
+} PlayerButtonState;
 
-typedef struct LE40Tbl {
+typedef struct PlayerInputHandlers {
     void (*fn[17])(void);
-} LE40Tbl;
+} PlayerInputHandlers;
 
-typedef struct LE40Player {
+typedef struct PlayerInputFlags {
     /* 0x000 */ u8 pad0[0x1F0];
     /* 0x1F0 */ s32 unk1F0;
     /* 0x1F4 */ s32 unk1F4;
-} LE40Player;
+} PlayerInputFlags;
 
-#define LE40_P ((LE40Player *)D_807FD580)
-#define LE40_E D_807FD610[D_807FC929]
-#define LE40_BTN (((LE40Btn *)D_807FD63A)[D_807FC929].unk0)
-#define LE40_MAX(a, b) ((a) > (b) ? (a) : (b))
-#define LE40_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define INPUT_PLAYER ((PlayerInputFlags *)D_807FD580)
+#define INPUT_STATE D_807FD610[D_807FC929]
+#define INPUT_BUTTONS (((PlayerButtonState *)D_807FD63A)[D_807FC929].unk0)
+#define INPUT_MAX(a, b) ((a) > (b) ? (a) : (b))
+#define INPUT_MIN(a, b) ((a) < (b) ? (a) : (b))
 
 extern struct G29BtnA D_807FD63A[];
 extern struct G31Cam *D_807FC924;
-extern LE40Ctl *D_807ECDEC;
+extern PadRawInput *D_807ECDEC;
 extern u16 D_807ECDF0;
 extern u16 D_80750FF0[];
-extern LE40Tbl D_80751004[];
+extern PlayerInputHandlers D_80751004[];
 
-s32 func_806DF6D4(s32 arg0) {
+s32 playerInputUpdate(s32 arg0) {
     f32 a;
     f32 b;
     f32 hi;
@@ -201,54 +201,54 @@ s32 func_806DF6D4(s32 arg0) {
     s16 ang;
 
     old = D_807FBB48->unk154;
-    LE40_BTN = func_806DFF34(D_807ECDEC->unk0, D_80750FF0);
-    LE40_E.unk2C = func_806DFF34(D_807ECDF0, D_80750FF0);
-    if (LE40_P->unk1F4 & 0x20) {
-        LE40_E.unk2A = 0;
-        LE40_E.unk2C = 0;
+    INPUT_BUTTONS = inputRemapButtons(D_807ECDEC->unk0, D_80750FF0);
+    INPUT_STATE.unk2C = inputRemapButtons(D_807ECDF0, D_80750FF0);
+    if (INPUT_PLAYER->unk1F4 & 0x20) {
+        INPUT_STATE.unk2A = 0;
+        INPUT_STATE.unk2C = 0;
     }
-    D_807ECDEC->unk2 = LE40_MIN(LE40_MAX(D_807ECDEC->unk2, -80), 80);
-    D_807ECDEC->unk3 = LE40_MIN(LE40_MAX(D_807ECDEC->unk3, -80), 80);
-    LE40_E.unk2E = D_807ECDEC->unk2;
-    LE40_E.unk2F = D_807ECDEC->unk3;
-    if (LE40_P->unk1F4 & 0x20) {
-        LE40_E.unk2E = 0;
-        LE40_E.unk2F = 0;
+    D_807ECDEC->unk2 = INPUT_MIN(INPUT_MAX(D_807ECDEC->unk2, -80), 80);
+    D_807ECDEC->unk3 = INPUT_MIN(INPUT_MAX(D_807ECDEC->unk3, -80), 80);
+    INPUT_STATE.unk2E = D_807ECDEC->unk2;
+    INPUT_STATE.unk2F = D_807ECDEC->unk3;
+    if (INPUT_PLAYER->unk1F4 & 0x20) {
+        INPUT_STATE.unk2E = 0;
+        INPUT_STATE.unk2F = 0;
     }
-    if (LE40_P->unk1F0 & 0x100) {
-        LE40_E.unk2E = LE40_E.unk2E * 0.5;
-        LE40_E.unk2F = LE40_E.unk2F * 0.5;
+    if (INPUT_PLAYER->unk1F0 & 0x100) {
+        INPUT_STATE.unk2E = INPUT_STATE.unk2E * 0.5;
+        INPUT_STATE.unk2F = INPUT_STATE.unk2F * 0.5;
     }
-    if (LE40_P->unk1F0 & 0x80) {
-        LE40_E.unk2E = -LE40_E.unk2E;
-        LE40_E.unk2F = -LE40_E.unk2F;
+    if (INPUT_PLAYER->unk1F0 & 0x80) {
+        INPUT_STATE.unk2E = -INPUT_STATE.unk2E;
+        INPUT_STATE.unk2F = -INPUT_STATE.unk2F;
     }
-    if (LE40_E.unk2E > 0) {
-        LE40_E.unk30 = LE40_E.unk2E;
+    if (INPUT_STATE.unk2E > 0) {
+        INPUT_STATE.unk30 = INPUT_STATE.unk2E;
     } else {
-        LE40_E.unk30 = -LE40_E.unk2E;
+        INPUT_STATE.unk30 = -INPUT_STATE.unk2E;
     }
-    if (LE40_E.unk2F > 0) {
-        LE40_E.unk31 = LE40_E.unk2F;
+    if (INPUT_STATE.unk2F > 0) {
+        INPUT_STATE.unk31 = INPUT_STATE.unk2F;
     } else {
-        LE40_E.unk31 = -LE40_E.unk2F;
+        INPUT_STATE.unk31 = -INPUT_STATE.unk2F;
     }
-    if (LE40_E.unk30 < 5 && LE40_E.unk31 < 5) {
-        LE40_E.unk2E = 0;
-        LE40_E.unk30 = 0;
-        LE40_E.unk2F = 0;
-        LE40_E.unk31 = 0;
+    if (INPUT_STATE.unk30 < 5 && INPUT_STATE.unk31 < 5) {
+        INPUT_STATE.unk2E = 0;
+        INPUT_STATE.unk30 = 0;
+        INPUT_STATE.unk2F = 0;
+        INPUT_STATE.unk31 = 0;
     }
-    if (LE40_E.unk30 < 2) {
-        LE40_E.unk2E = 0;
-        LE40_E.unk30 = 0;
+    if (INPUT_STATE.unk30 < 2) {
+        INPUT_STATE.unk2E = 0;
+        INPUT_STATE.unk30 = 0;
     }
-    if (LE40_E.unk31 < 2) {
-        LE40_E.unk2F = 0;
-        LE40_E.unk31 = 0;
+    if (INPUT_STATE.unk31 < 2) {
+        INPUT_STATE.unk2F = 0;
+        INPUT_STATE.unk31 = 0;
     }
-    a = LE40_E.unk30 * LE40_E.unk30;
-    b = LE40_E.unk31 * LE40_E.unk31;
+    a = INPUT_STATE.unk30 * INPUT_STATE.unk30;
+    b = INPUT_STATE.unk31 * INPUT_STATE.unk31;
     mag = sqrtf(a + b);
     if (b < a) {
         hi = a;
@@ -262,64 +262,64 @@ s32 func_806DF6D4(s32 arg0) {
     if (mag > 70.0f) {
         mag = 70.0f;
     }
-    LE40_E.unkC = mag - LE40_E.unk4;
-    LE40_E.unk4 = mag;
+    INPUT_STATE.unkC = mag - INPUT_STATE.unk4;
+    INPUT_STATE.unk4 = mag;
     if (mag != 0.0f) {
-        LE40_E.unk0 = 0;
-        LE40_E.unk8 = (mag - 5.0f) / 65.0f;
+        INPUT_STATE.unk0 = 0;
+        INPUT_STATE.unk8 = (mag - 5.0f) / 65.0f;
     } else {
-        LE40_E.unk8 = 0.0f;
-        LE40_E.unk0 = LE40_E.unk0 + 1;
+        INPUT_STATE.unk8 = 0.0f;
+        INPUT_STATE.unk0 = INPUT_STATE.unk0 + 1;
     }
     if (mag != 0.0f) {
-        t = ang = func_80611BB4(LE40_E.unk2E, -LE40_E.unk2F) * 4096.0f / 6.2831855f;
-        LE40_E.unk28 = (*(s16 *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C8) + t) & 0xFFF;
+        t = ang = func_80611BB4(INPUT_STATE.unk2E, -INPUT_STATE.unk2F) * 4096.0f / 6.2831855f;
+        INPUT_STATE.unk28 = (*(s16 *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + 0x2C8) + t) & 0xFFF;
     } else {
-        ang = LE40_E.unk20[0];
+        ang = INPUT_STATE.unk20[0];
     }
     for (i = 3; i != 0; i--) {
-        LE40_E.unk20[i] = LE40_E.unk20[i - 1];
-        LE40_E.unk10[i] = LE40_E.unk10[i - 1];
+        INPUT_STATE.unk20[i] = INPUT_STATE.unk20[i - 1];
+        INPUT_STATE.unk10[i] = INPUT_STATE.unk10[i - 1];
     }
-    LE40_E.unk20[0] = ang;
-    LE40_E.unk10[0] = mag;
+    INPUT_STATE.unk20[0] = ang;
+    INPUT_STATE.unk10[0] = mag;
     D_80751004[arg0].fn[1]();
-    if (LE40_BTN & 0x1000) {
+    if (INPUT_BUTTONS & 0x1000) {
         D_80751004[arg0].fn[0]();
     }
-    if (LE40_BTN & 0x8000) {
+    if (INPUT_BUTTONS & 0x8000) {
         D_80751004[arg0].fn[2]();
     } else {
         D_80751004[arg0].fn[5]();
     }
-    if (LE40_BTN & 0x4000) {
+    if (INPUT_BUTTONS & 0x4000) {
         D_80751004[arg0].fn[3]();
     } else {
         D_80751004[arg0].fn[6]();
     }
-    if (LE40_BTN & 0x2000) {
+    if (INPUT_BUTTONS & 0x2000) {
         D_80751004[arg0].fn[4]();
     } else {
         D_80751004[arg0].fn[7]();
     }
-    if (LE40_BTN & 0x10) {
+    if (INPUT_BUTTONS & 0x10) {
         D_80751004[arg0].fn[9]();
     } else {
         D_80751004[arg0].fn[11]();
     }
-    if (LE40_BTN & 0x20) {
+    if (INPUT_BUTTONS & 0x20) {
         D_80751004[arg0].fn[8]();
     }
-    if (LE40_BTN & 8) {
+    if (INPUT_BUTTONS & 8) {
         D_80751004[arg0].fn[12]();
     }
-    if (LE40_BTN & 4) {
+    if (INPUT_BUTTONS & 4) {
         D_80751004[arg0].fn[15]();
     }
-    if (LE40_BTN & 2) {
+    if (INPUT_BUTTONS & 2) {
         D_80751004[arg0].fn[13]();
     }
-    if (LE40_BTN & 1) {
+    if (INPUT_BUTTONS & 1) {
         D_80751004[arg0].fn[14]();
     }
     if (D_807FD610) {} // FAKE: keeps &D_807FD610 live to the tail (const-hoist register order)
@@ -328,7 +328,7 @@ s32 func_806DF6D4(s32 arg0) {
 }
 
 #ifdef NON_MATCHING
-u16 func_806DFF34(u16 arg0, u16 *arg1) {
+u16 inputRemapButtons(u16 arg0, u16 *arg1) {
     u32 var_v0;
     u16 var_v1;
     u16 var_a2;
@@ -353,7 +353,7 @@ u16 func_806DFF34(u16 arg0, u16 *arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806DFF34.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/inputRemapButtons.s")
 #endif
 
 f32 func_80612790(s16);
@@ -403,7 +403,7 @@ void func_806E0050(void) {
 void func_806E007C(void) {
     f32 temp_fv1;
     f32 var_fv0;
-    G21Table *temp_v1;
+    PadInputState *temp_v1;
 
     var_fv0 = G21_PLAYER->unk38;
     if (G21_PLAYER->unkC8 == 0) {
@@ -538,7 +538,7 @@ void func_806E04E0(void) {
     f32 var_fv0;
     f32 var_fv1;
     s32 temp_v0;
-    G21Table *temp_v1;
+    PadInputState *temp_v1;
 
     func_806E007C();
     temp_v1 = &D_807FD610[D_807FC929];
@@ -674,7 +674,7 @@ void func_806E07F8(void) {
     f32 var_fv0;
     s16 temp_a1;
     s32 temp_v0;
-    G21Table *temp_v1;
+    PadInputState *temp_v1;
 
     func_806E007C();
     temp_a1 = G22_A->unkEE;
@@ -774,12 +774,12 @@ void func_806E0BEC(void) {
     }
 }
 
-void func_806E0D40(void) {
+void playerTurnByStickX(void) {
     f32 var_fv0;
     s16 temp_v1;
     s16 var_v1;
     s32 temp_a0;
-    G21Table *pad;
+    PadInputState *pad;
 
     func_806E007C();
     if (G22_M->unk4 != 0.0f) {
@@ -1212,7 +1212,7 @@ f32 sinApprox(f32);
 u8 func_806E2B20(void *);
 void func_806E2C74(Actor *);
 s32 actorIsActiveType2B(Actor *);
-s32 func_80609140(s32, s32, f32, f32, s32, s32);
+s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 extern s16 D_80753E64[];
 s32 func_80714608(s32);
@@ -1329,13 +1329,13 @@ u8 arg1;
                         break;
                 }
                 if (arg0) {
-                    func_80609140((s16)sfx, 0x7FFF, 63.0f, 1.0f, vol, 0);
+                    sfxPlayOnFreeSlot((s16)sfx, 0x7FFF, 63.0f, 1.0f, vol, 0);
                 } else {
                     sfxPlayFromActorWithAltitudeCheck(D_807FBB40, (s16)sfx, 0xFF, 0x7F, vol);
                 }
                 if (hasFlag != 0) {
                     if (arg0) {
-                        func_80609140(0x1EE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                        sfxPlayOnFreeSlot(0x1EE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                     } else {
                         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1EE, 0xFF, 0x7F, 0xA);
                     }
@@ -1412,7 +1412,7 @@ u8 arg1;
                     break;
             }
             if (arg0) {
-                func_80609140((s16)sfx, 0x7FFF, 63.0f, 1.0f, vol, 0);
+                sfxPlayOnFreeSlot((s16)sfx, 0x7FFF, 63.0f, 1.0f, vol, 0);
                 return;
             }
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, (s16)sfx, 0xFF, 0x7F, vol);
@@ -2120,7 +2120,7 @@ void func_806F0B34(void *);
 void func_806EAB44();
 
 void func_806E41EC(void) {
-    G21Table *pad;
+    PadInputState *pad;
 
     if (G25_PAD(D_807FD63C, u16) & 0x4000) {
         G25_P->unk5C = D_80767CC0;
@@ -2589,7 +2589,7 @@ extern u8 D_8072014C[];
 void func_8071F034(void);
 void func_805FF158(s32);
 void func_805FF9AC(s32, s32, s32, s32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_806C93E4(void *, void *);
 s32 camStartPath(void *, s32, s32);
 void func_806F1250(Actor *);
@@ -2641,7 +2641,7 @@ s32 func_806E56EC() {
                 break;
             case 10:
                 if (D_8076A0B2 == 0) {
-                    func_806086CC(G26_AC->unk7C, G26_AC->unk80, G26_AC->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+                    sfxPlayAtPositionPooled(G26_AC->unk7C, G26_AC->unk80, G26_AC->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
                     func_805FF158(0);
                     func_805FF9AC(G26_GS->unk10, G26_GS->unk12, 0, 0);
                 }
@@ -3238,7 +3238,7 @@ typedef struct G28Player {
 #define G28_P ((G28Player *)D_807FD580)
 #define G28_A ((G28Actor *)D_807FBB40)
 #define G28_PAD(sym, T) (*(T *)((u8 *)&(sym) + D_807FC929 * 0x34))
-#define G28_PADS ((G21Table *)((u8 *)D_807FD610 + D_807FC929 * 0x34))
+#define G28_PADS ((PadInputState *)((u8 *)D_807FD610 + D_807FC929 * 0x34))
 
 void func_806E7338(void) {
     s32 btn;
@@ -3365,7 +3365,7 @@ void func_806E78F8(void) {
 
 void func_806E7900(void) {
     G28State *st;
-    G21Table *pad;
+    PadInputState *pad;
     s8 stick;
     u8 state;
 
@@ -3578,7 +3578,7 @@ typedef struct G29Main {
     u16 unk23C;
 } G29Main;
 
-typedef G21Table G29Stick;
+typedef PadInputState G29Stick;
 
 
 #define G29_M ((G29Main *)D_807FD580)
@@ -4264,7 +4264,7 @@ void func_806E9BA8(arg0) s32 arg0; {
     if (G30_PAD(D_807FD63C, u16) & 0x4000) {
         if (!(D_807FD580->unk1F0 & 0x8000)) {
             if (slotQueueGetValue(6, D_807FC929) > 0) {
-                func_80609140(0x263, 0x7FFF, 63.0f, 1.0f, 0xA, 0);
+                sfxPlayOnFreeSlot(0x263, 0x7FFF, 63.0f, 1.0f, 0xA, 0);
                 G29_PAR->unk154 = arg0;
                 G29_PAR->unk155 = 0;
                 slotQueueAddValue(6, D_807FC929, -1);
@@ -4418,7 +4418,7 @@ void func_806EA0A4(void) {
         camSetZoomLevel(G31_PLAYER->unk104, state->unkEF, &D_807FD580);
         state->unkEE = state->unkEF;
         if ((state->unkEF != state->unkF0) && ((state->unk8 == 0) || (state->unk8 >= 0x96)) && (state->unkF3 != 2)) {
-            func_80609140(0x27, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x27, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
         state->unkF1 = 0xB;
         state->unkF6 = 0xF;
@@ -4640,7 +4640,7 @@ u8 arg1;
 
     state = arg0->unk174;
     if (!(state->unk1F4 & 0x10)) {
-        func_80609140(0x27, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x27, 0x7FFF, 63.0f, 1.0f, 0, 0);
     }
     if (arg1) {
         if (D_8074E77C[D_807FC929] == 7) {
@@ -4748,7 +4748,7 @@ void func_806EAE04(void) {
 }
 
 void func_806EAE60(void) {
-    G21Table *pad;
+    PadInputState *pad;
     s32 v;
 
     pad = &D_807FD610[D_807FC929];

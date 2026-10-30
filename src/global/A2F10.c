@@ -26,7 +26,7 @@ extern ActorGlobalState D_807FBB70;
 extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
 
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorSpawnNodeEntryScaled(s16, s32, s32, s32, s16, u8, s16, s32);
 void func_8067A70C(Actor *, Actor *, s32, f32, f32, s32, s32);
@@ -85,22 +85,22 @@ void func_8069E210(void) {
             func_80614D00(D_807FBB40, 1.0f, 0.0f);
             switch (actorListFindIdByActor(D_807FBB40)) {
             case 5:
-                func_80609140(0x1D7, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x1D7, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 break;
             case 6:
-                func_80609140(0x1D8, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x1D8, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 break;
             case 7:
-                func_80609140(0x1D9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x1D9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 break;
             case 8:
-                func_80609140(0x1DA, 0x7FFF, 63.0f, 1.0f, 2, 0);
+                sfxPlayOnFreeSlot(0x1DA, 0x7FFF, 63.0f, 1.0f, 2, 0);
                 break;
             case 9:
-                func_80609140(0x1DB, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x1DB, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 break;
             case 10:
-                func_80609140(0x1DC, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x1DC, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 break;
             }
             actor = D_807FBB40;
@@ -454,7 +454,7 @@ void actorUpdateBannerFade(void) {
             ((ActorTail *)D_807FBB44)->unk15F = D_80750AD4;
             ((ActorTail *)D_807FBB44)->unk80 = 80.0f;
             ((ActorTail *)D_807FBB44)->unk7C = 640.0f;
-            func_80609140((s16)(D_80750AD4 + 0x3F3), 0x7FFF, 63.0f, 1.0f, 0,
+            sfxPlayOnFreeSlot((s16)(D_80750AD4 + 0x3F3), 0x7FFF, 63.0f, 1.0f, 0,
                           0);
             return;
         }
@@ -487,7 +487,7 @@ void actorUpdateBannerFade(void) {
         if (((ActorTail *)D_807FBB40)->unk15F & 0x80) {
             sp22 += 2;
         }
-        func_80609140(sp22, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(sp22, 0x7FFF, 63.0f, 1.0f, 0, 0);
         ((ActorTail *)D_807FBB44)->unk80 = 80.0f;
         ((ActorTail *)D_807FBB44)->unk7C = 600.0f;
         }

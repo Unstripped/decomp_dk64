@@ -1,4 +1,4 @@
-// func_8069D424 (src/global/9DD70.c): stage 5, parked NON_MATCHING in 9DD70.c: 350/350 insns, frame 0x60, all stack slots (0x2C/0x30/0x4A/0x54/0x56/0x57/0x5C), cases/switch order, FP code identical. Only diff: final 0xFA000000 Gfx write goes through s0 instead of a v0 copy ('or v0,s0,zero' starts the join block; target default path has it in the b delay slot) + ~14 regs renamed after it. Tried: function-level Gfx g/g2, ptr copies, gfx+1 / ++gfx forms, deadsweep (no improvement), permuter 900s (no 0).
+// textMarkerRenderString (src/global/9DD70.c): stage 5, parked NON_MATCHING in 9DD70.c: 350/350 insns, frame 0x60, all stack slots (0x2C/0x30/0x4A/0x54/0x56/0x57/0x5C), cases/switch order, FP code identical. Only diff: final 0xFA000000 Gfx write goes through s0 instead of a v0 copy ('or v0,s0,zero' starts the join block; target default path has it in the b delay slot) + ~14 regs renamed after it. Tried: function-level Gfx g/g2, ptr copies, gfx+1 / ++gfx forms, deadsweep (no improvement), permuter 900s (no 0).
 extern Gfx D_1000118;
 #define S9D_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
@@ -8,7 +8,7 @@ void func_8071495C(void);
 void vtxGradientSetPosition(s16);
 extern Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, char *, u8);
 
-void func_8069D424(Gfx *gfx, Actor *actor) {
+void textMarkerRenderString(Gfx *gfx, Actor *actor) {
     char **sub;
     s16 x;
     s16 y;

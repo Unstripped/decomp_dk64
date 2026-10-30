@@ -53,7 +53,7 @@ extern Mtx D_20000C0;
 extern Mtx D_2000180;
 extern Mtx D_2000200;
 Gfx *func_805FD030(Gfx *);
-void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
+void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 s32 mapChunkContainsPoint(s16, s16, s16);
 s32 mapChunkIsInUse(s16);
 
@@ -105,7 +105,7 @@ Gfx *func_80715E94(L119_EffectView *arg0, Gfx *arg1, s16 arg2) {
     L119_WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
 
     if (arg0->unk330->unk14 == 0 && mapChunkIsInUse(arg2)) {
-        func_8065C334(arg0->unk340, arg0->unk344, arg0->unk348, 0, &red, &green, &blue, arg2);
+        lightSampleColorAtPosition(arg0->unk340, arg0->unk344, arg0->unk348, 0, &red, &green, &blue, arg2);
         colorRed = (f32)((f64)red / 255.0);
         colorGreen = (f32)((f64)green / 255.0);
         colorBlue = (f32)((f64)blue / 255.0);

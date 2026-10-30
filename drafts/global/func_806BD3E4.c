@@ -1,4 +1,4 @@
-// func_806BD3E4 (src/global/C1E70.c): Stage 6, 2 insn diffs left (li v0,-1 / sb v0,D_807506B4 use t9 not v0 in the -1 store). Fixed vs old draft: (1) actorSpawn(0x73,0xC4,&D_807FBB40) with K&R 's32 actorSpawn();' - 3rd arg gives the else-block &D_807FBB40 range lu->reg=a2, so uopt picks a2 not v0 (preference, not forbidden set); (2) 'D_807506B4 = 0; actorSpawn(...)' on ONE source line fixes sh zero,0x26(sp)/sb zero delay-slot order (as1 does not reorder across .loc lines); (3) 'sp2B = 0xF; sp28 = 0x28;' on ONE line fixes li t6/t7 order AND sh/sb store order (separate lines gave li or store order wrong, never both). Tried for -1: n=-1 local, idx/v3/sp28 locals, ~0, 0xFF, (s8), *cnt=-1, duplicate stores, same-line with calls, s32 returns on flagSet/func_80609140, 10 min permuter (-j2): none changes t9 (copy-prop folds the constant; target v0 = bottom-pool temp, not top-down store-constant temp).
+// func_806BD3E4 (src/global/C1E70.c): Stage 6, 2 insn diffs left (li v0,-1 / sb v0,D_807506B4 use t9 not v0 in the -1 store). Fixed vs old draft: (1) actorSpawn(0x73,0xC4,&D_807FBB40) with K&R 's32 actorSpawn();' - 3rd arg gives the else-block &D_807FBB40 range lu->reg=a2, so uopt picks a2 not v0 (preference, not forbidden set); (2) 'D_807506B4 = 0; actorSpawn(...)' on ONE source line fixes sh zero,0x26(sp)/sb zero delay-slot order (as1 does not reorder across .loc lines); (3) 'sp2B = 0xF; sp28 = 0x28;' on ONE line fixes li t6/t7 order AND sh/sb store order (separate lines gave li or store order wrong, never both). Tried for -1: n=-1 local, idx/v3/sp28 locals, ~0, 0xFF, (s8), *cnt=-1, duplicate stores, same-line with calls, s32 returns on flagSet/sfxPlayOnFreeSlot, 10 min permuter (-j2): none changes t9 (copy-prop folds the constant; target v0 = bottom-pool temp, not top-down store-constant temp).
 /* NOTE: needs line 14 of C1E70.c changed from 's32 actorSpawn(s32, s32);' to 's32 actorSpawn();' (3rd arg &D_807FBB40 pins the else-block &D_807FBB40 into a2). */
 extern s16 D_8076A0A6;
 extern s8 D_807506B4;
@@ -15,7 +15,7 @@ s32 currentActorTestClearFlag();
 s32 func_8061CB50(void);
 void func_8061F0B0(s32, s32, s32);
 s32 sfxAllocateChannel(s32, f32);
-s16 func_80609140(s16, s32, f32, f32, u8, u8);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void flagSet(s16, s32, s32);
 
 typedef struct NmBD3E4Ptr178 {
@@ -114,7 +114,7 @@ void func_806BD3E4(void) {
             n++;
             D_807506B4 = n;
             if (D_807506A8[n] == -1) {
-                func_80609140(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
+                sfxPlayOnFreeSlot(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 flagSet(0x28, 1, 1);
                 flagSet(0x26, 1, 1);
                 D_807506B4 = -1;

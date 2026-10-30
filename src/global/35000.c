@@ -511,8 +511,8 @@ extern u8 D_807FC929;
 
 void func_80614A64(void *);
 void *func_80614B34(void *, void *);
-s32 func_80658E8C(f32, f32, f32, u8, s32);
-void func_8065C334(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
+s32 mapPointOutsideClipBounds(f32, f32, f32, u8, s32);
+void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 void *func_80722294(void *, void *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
@@ -556,7 +556,7 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
         if (sqrtf(dx + dy + dz) > renderScaleDistanceByFov(RENDER_ACT->unk12A)) {
             return arg2;
         }
-        if (func_80658E8C(RENDER_ACT->unk7C, RENDER_ACT->unk80, RENDER_ACT->unk84, RENDER_ACT->unk130, RENDER_ACT->unk131)) {
+        if (mapPointOutsideClipBounds(RENDER_ACT->unk7C, RENDER_ACT->unk80, RENDER_ACT->unk84, RENDER_ACT->unk130, RENDER_ACT->unk131)) {
             return arg2;
         }
     }
@@ -596,7 +596,7 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
                 sp84 = RENDER_ACT->unk80;
                 sp80 = RENDER_ACT->unk84;
             }
-            func_8065C334(sp88, sp84, sp80, RENDER_ACT->unkCE, &spCB, &spCA, &spC9, RENDER_ACT->unk12C);
+            lightSampleColorAtPosition(sp88, sp84, sp80, RENDER_ACT->unkCE, &spCB, &spCA, &spC9, RENDER_ACT->unk12C);
             if (!(RENDER_ACT->unk64 & 1)) {
                 dx = RENDER_ACT->unk16D / 15.0f;
                 spCB = spCB * dx;

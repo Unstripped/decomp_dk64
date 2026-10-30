@@ -916,7 +916,7 @@ typedef struct RaceFActorView {
     char padEA[0x128 - 0xEA];
     s16 unk128;
 } RaceFActorView;
-void func_80609140(s16, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s16, s32, f32, f32, s32, s32);
 void raceUpdateWaypointActivation(RaceUnknown174 *);
 
 void raceUpdateStandings(void);
@@ -953,7 +953,7 @@ void func_8002D778(void) {
                     sound = 0x74;
                     func_8002D4A0();
                 }
-                func_80609140(sound, 0x7FFF, 64.0f, 1.0, 0, 0x80);
+                sfxPlayOnFreeSlot(sound, 0x7FFF, 64.0f, 1.0, 0, 0x80);
             }
             t->unk1C = (u32)t->unk1C + 1;
         }
@@ -1403,7 +1403,7 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleDistance(s16, s16);
 f32 func_80611BB4(f32, f32);
 f32 func_80612790(s16);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void func_8002E644(RaceFE644Arg *arg0) {
     f32 sp5C;
@@ -1446,7 +1446,7 @@ void func_8002E644(RaceFE644Arg *arg0) {
                 sp3C = 0x18A;
                 break;
             }
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (s16)sp3C, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (s16)sp3C, 0xFF, 0x7F, 0, 0, 0.0f, 0);
             arg0->unkE = 0x14;
         }
     }

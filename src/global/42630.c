@@ -1262,9 +1262,9 @@ void func_805FF898(void);
 void func_805FF9AC(s16, s16, s16, s16);
 s32 func_805FFE50(s16, s16, s16);
 void func_80600044(s32);
-void func_80605380(s16);
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
-s16 func_80609140(s16, s32, s32, f32, s32, s32);
+void sfxSlotFreeSource(s16);
+void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, s32, f32, s32, s32);
 void func_8060B49C(Actor *, s16);
 void func_8060DEC8(void);
 void camStartShakeFromPoint(s32, u8, u16, f32, f32, f32, f32, f32);
@@ -1301,7 +1301,7 @@ void func_8067ABC0(s32, Actor *, u8, s16, s32, f32, f32, f32);
 s32 cutsceneTriggerCheck(s16);
 void func_8068B830(s16, s16, s16);
 void func_8068B8FC(void);
-void func_806A2A10(s32, s32, u8, void *);
+void hudSpawnCountdownTimer(s32, s32, u8, void *);
 void func_806C92C4(s16);
 void func_806CF398(Actor *);
 void playerStateQueueCallback(s16, s32, s32);
@@ -1510,7 +1510,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             actor = D_807FBB40;
             D_807F61F0.unk4 = D_807FBB44;
             D_807FBB40 = D_807FBB44;
-            func_806A2A10(0xDC, 0x2A, CMDB(cmd)->a, &D_807F61F0);
+            hudSpawnCountdownTimer(0xDC, 0x2A, CMDB(cmd)->a, &D_807F61F0);
             D_807F61F0.unk0 = D_807FBB44;
             D_807F61F0.unk8 = 1;
             D_807FBB40 = actor;
@@ -1824,14 +1824,14 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             if (found) {}
             pitch = c;
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
-            func_806086CC(sx, sy, sz, cmd->a, vol, pan7, i, pitch, 0.3f, 0);
+            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol, pan7, i, pitch, 0.3f, 0);
         } else {
-            func_80609140(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
+            sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
         }
         break;
     case 0x10:
         if (cs->unk10[cmd->b] >= 0) {
-            func_80605380(cs->unk10[cmd->b]);
+            sfxSlotFreeSource(cs->unk10[cmd->b]);
             cs->unk10[cmd->b] = -1;
         }
         break;

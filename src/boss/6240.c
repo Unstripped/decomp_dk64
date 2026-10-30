@@ -303,8 +303,8 @@ void func_80027840(void *);
 void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_80613C48(void *, s16, f32, f32);
 void func_80614D00(void *, f32, f32);
 void actorScriptStart(void *, s32);
@@ -433,7 +433,7 @@ void func_8002A92C(void) {
         D_807FDC90->unk16 = (s16) (*D_807FDC94->unk4)->unk10;
         D_807FBB40->unk60 |= 0x20000000;
         func_80714CC0(&D_8071FB34, 2.0f, ((randomNonNegative() >> 0xF) % 30 + sp78) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + sp74) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + sp70) - 15.0f);
-        func_80609140(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
         roll = (randomNonNegative() >> 0xF) % 2048;
         if (roll < 0x2A8) {
             sp6C = 0x14E;
@@ -590,8 +590,8 @@ void func_8002A92C(void) {
             D_807FBB40->unk155 = 1;
             break;
         case 2:
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x14A, 0xFF, 0x7F, 0, 0, 0, 0);
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0xFF, 0x7F, 0, 0, 0, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x14A, 0xFF, 0x7F, 0, 0, 0, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0xFF, 0x7F, 0, 0, 0, 0);
             projectileSpawnWithShockwave(0xBB, 0.14f, 0xFF, 0x96, 0x64, 6, 1.04f, 40.0f, 8.0f, 600.0f);
             func_80613C48(D_807FBB44, 0x4F9, 0, 0);
             func_80614D00(D_807FBB44, 0.5f, 0);
@@ -749,7 +749,7 @@ void func_8002A92C(void) {
             D_807FBB40->unk80 = (f32) (D_807FBB40->unk80 + D_807FBB40->unkC0);
             if (D_807FBB40->unk80 < (f32) D_807FDC90->unkC) {
                 D_807FBB40->unk155 = 3;
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xC, 0xFF, 0x50, 0, 0, 0, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xC, 0xFF, 0x50, 0, 0, 0, 0);
             }
             if ((D_8076A0A8 == 0xC5) && (state->unk14 == 3) && (currentActorTestClearFlag() != 0)) {
                 bossSpawnParticleRing(0x4A, D_807FDCA0->unk14->unkA0, D_807FDCA0->unk14->unkA2 + 0x14, D_807FDCA0->unk14->unkA4, 0x5DC, 4);

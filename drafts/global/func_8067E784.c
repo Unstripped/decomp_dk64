@@ -57,7 +57,7 @@ extern s32 D_807FBB68;
 void func_80602A94(s32, f32);
 void func_80602B60(s32, s32);
 void func_80608528(Actor *, s32, s32, s32, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 f32 func_80612D1C(f32);
 void func_806225C0(s32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -302,15 +302,15 @@ void func_8067E784(void) {
         switch (D_807FBB40->unk58) {
         case 0x28:
             sp62 = 0x10;
-            func_80609140(0x1A5, 0x58EF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x1A5, 0x58EF, 63.0f, 1.0f, 0, 0);
             break;
         case 0x19:
             sp62 = 0x11;
-            func_80609140(0xC7, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0xC7, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         case 0x12:
             sp62 = 0x24;
-            func_80609140(0x2EC, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x2EC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             D_807FBB60 |= 0x400;
             break;
         case 0x39:
@@ -348,10 +348,10 @@ void func_8067E784(void) {
         tagBarrelDespawnEffects();
         D_807FBB40->unk154 = 4;
         if (D_807FBB40->unk58 == 0x39) {
-            func_80609140(0x231, 0x58EF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x231, 0x58EF, 63.0f, 1.0f, 0, 0);
         }
         if (D_807FBB40->unk58 == 0x38) {
-            func_80609140(0xD4, 0x58EF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0xD4, 0x58EF, 63.0f, 1.0f, 0, 0);
         }
         break;
     }

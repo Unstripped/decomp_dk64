@@ -190,7 +190,7 @@ typedef struct Boss2A_Struct_807FDC90_4300 {
 } Boss2A_Struct_807FDC90_4300;
 struct BossA_Struct_80024EAC_DC90;
 extern struct BossA_Struct_80024EAC_DC90 *D_807FDC90;
-s32 func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 f32 func_80612794(s16);
 f32 func_80612790(s16);
 
@@ -238,7 +238,7 @@ void func_80024300(void) {
     }
 
     if (var_a3 != 0) {
-        func_806086CC(((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk7C,
+        sfxPlayAtPositionPooled(((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk7C,
                       ((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk80,
                       ((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk84,
                       var_a3, var_v1, 0x7F, 1, 0x1E, 0.3f, 0);
@@ -336,7 +336,7 @@ u8 bossPieceStep(u8 *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
                 break;
             }
             if (!arg1) {
-                func_806086CC(BB->unk7C, BB->unk80, BB->unk84, 0x36, (u32)(120.0f - OBJ->f2[arg1] > 255.0f ? 255.0f : 120.0f - OBJ->f2[arg1]), 0x7F, 0x28, 0, 0.3f, 0);
+                sfxPlayAtPositionPooled(BB->unk7C, BB->unk80, BB->unk84, 0x36, (u32)(120.0f - OBJ->f2[arg1] > 255.0f ? 255.0f : 120.0f - OBJ->f2[arg1]), 0x7F, 0x28, 0, 0.3f, 0);
             }
             OBJ->f2[arg1] *= -0.5;
         }
@@ -914,12 +914,12 @@ void func_800254D0(void) {
                     animSetLoopLimit(D_807FBB40, 1, 1);
                     sp78->unk0 = 0;
                     D_807FBB40->unk155 = 1;
-                    func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x3A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+                    sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x3A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 }
                 break;
             case 1:                                 /* switch 3 */
                 if ((animIsPlaying(D_807FBB40, 1) == 0) && (sp78->unk0 == 0)) {
-                    func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x174, 0xC8, 0x7F, 1, 0x1E, 0.3f, 0);
+                    sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x174, 0xC8, 0x7F, 1, 0x1E, 0.3f, 0);
                     sp78->unk0 = 1;
                 }
                 if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
@@ -961,8 +961,8 @@ void func_800254D0(void) {
                 actorScriptStart(D_807FBB40, 0x26C);
                 func_8002450C(sp78, 0, 5);
                 func_8002450C(sp78, 1, 5);
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x22, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x3C, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x22, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x3C, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 D_807FBB40->unk155 = 2;
             }
             break;
@@ -1039,18 +1039,18 @@ void func_800254D0(void) {
             actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
             if (D_807FBB40->unk6A & 1) {
                 projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 0x96, 7, 1.04f, 40.0f, 8.0f, 600.0f);
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0xC8, 0x7F, 1, 0, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0xC8, 0x7F, 1, 0, 0.3f, 0);
                 func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
                 func_80614D00(D_807FBB44, 0.5f, 0.0f);
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x24A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x36, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x24A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x36, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 D_807FBB40->unk155 = 4;
                 D_807FDC90->unk2C = 0x3C;
             }
             break;
         case 4:                                     /* switch 5 */
             if ((D_807FDC90->unk2C == 0x28) || (D_807FDC90->unk2C == 0x32)) {
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1C1, 0xB4, 0x7F, 1, 0x1E, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1C1, 0xB4, 0x7F, 1, 0x1E, 0.3f, 0);
             }
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
@@ -1075,7 +1075,7 @@ void func_800254D0(void) {
         case 0:                                     /* switch 6 */
             animSetLoopLimit(D_807FBB40, 1, 1);
             D_807FBB40->unk155 = 2;
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x3A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x3A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             break;
         case 2:                                     /* switch 6 */
         case 3:                                     /* switch 6 */
@@ -1142,7 +1142,7 @@ void func_800254D0(void) {
         case 2:                                     /* switch 9 */
             projectileGetTargetCoords(D_807FBB40, 5);
             projectileSpawnNodeEntry(0x1E, 5, 1.2f, D_807FBB40->unkE6, 600.0f, 300.0f, D_807FBB40);
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xF6, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xF6, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             effectSpawnBoneWhite(D_807FBB40, 5, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
             if (temp_s1->unk19 != 0) {
                 temp_s1->unk19--;
@@ -1169,7 +1169,7 @@ void func_800254D0(void) {
             /* fallthrough */
         case 5:                                     /* switch 9 */
             if (D_807FDC90->unk2C == 0xF) {
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xF4, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xF4, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             }
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
@@ -1213,7 +1213,7 @@ void func_800254D0(void) {
         case 4:                                     /* switch 10 */
             projectileGetTargetCoords(D_807FBB40, sp6F);
             projectileClampAngleAndSpawn(D_807FBB40->unkE6, 0x320, 0x1E, 1, 0.7f, D_807FDC94->unk7C, D_807FDC94->unk80 + 5.0f, D_807FDC94->unk84, (f32) ((temp_s1->unk14 * 0x50) + 0x1F4), D_807FBB40);
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x18, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x18, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             effectSpawnBoneWhite(D_807FBB40, sp6F, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
             temp_s1->unk12 = (u16) (temp_s1->unk12 ^ 1);
             D_807FBB40->unk155 = 5;
@@ -1316,7 +1316,7 @@ void func_800254D0(void) {
         case 2:                                     /* switch 14 */
             if (D_807FBB40->unk154 == 0x44) {
                 screenShakeStart(D_807FBB40->unk7C, D_807FBB40->unk84, 20.0f, 2.0f, 8.0f, 400.0f);
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x36, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x36, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             }
             D_807FBB40->unk154 = sp74[temp_s1->unk15++];
             D_807FBB40->unk155 = 0;
@@ -1342,8 +1342,8 @@ void func_800254D0(void) {
         case 3:                                     /* switch 15 */
             projectileGetTargetCoords(D_807FBB40, 5);
             projectileAimAndSpawn(0x59, 1, 1.5f, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 2.0f, D_807FBB4C->unk84, 300.0f, D_807FBB40);
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x128, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x188, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x128, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x188, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             D_807FBB40->unk155 = 4;
             break;
         default:                                    /* switch 15 */

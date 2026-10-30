@@ -65,7 +65,7 @@ extern u8 D_80720340;
 extern u8 D_8072038C;
 
 s16 func_805FF018(s32, s32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 randomNonNegative(void);
 void actorScriptStart();
 u16 camStartPath();
@@ -513,7 +513,7 @@ void func_8067DF44(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     s32 var_s0;
 
     if (arg5 != 0) {
-        func_806086CC(arg0, arg1, arg2, 0xF6, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
+        sfxPlayAtPositionPooled(arg0, arg1, arg2, 0xF6, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
     }
     func_807149B8(1);
     func_8071498C(func_8071B89C);
@@ -1416,7 +1416,7 @@ void sfxStopChannel(s32, s32);
 void camRestoreYaw(Actor *);
 void camResetPlayer(Actor *, s32);
 void func_806C8E58(s16);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 struct TagBarrelData;
 
 #ifdef NON_MATCHING
@@ -1506,7 +1506,7 @@ void func_806836D0(struct TagBarrelData *arg0_in) {
                     ((TagBarrelPlayerData *)D_807FC924)->unk2E2 |= 0x11;
                     return;
                 }
-                func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
         }
     }

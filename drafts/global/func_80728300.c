@@ -157,7 +157,7 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
         node->unk24 = 0;
         node->unk43 = 0;
         node->unk3C = 0.0f;
-        node->unk40 = func_806531B8((f32)node->unk4, (f32)node->unk6, (f32)node->unk8, 0);
+        node->unk40 = mapChunkFindByPosition((f32)node->unk4, (f32)node->unk6, (f32)node->unk8, 0);
         node->unk20 = heapAlloc(node->unk11 * 2);
         src = p;
         if (node->unk11 > 0) {

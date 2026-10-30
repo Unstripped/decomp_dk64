@@ -104,7 +104,7 @@ void func_8067ACB4(B2CE0Actor *);
 void actorApplyVelocity(B2CE0Actor *);
 void actorUpdateFloorContactAndTilt(B2CE0Actor *, f32);
 void func_8065D254(B2CE0Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void actorDespawn(B2CE0Actor *);
 extern u8 D_8071FBC8[];
@@ -172,7 +172,7 @@ void func_806ADFE0(void) {
         actorUpdateModelMatrix(D_807FBB40, 1);
     }
     if ((D_807FBB40->unk6A & 1) && !(D_807FBB40->unk6C & 1)) {
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x56, 0xB4, 0x96, 1, 0x4B, 0.3f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x56, 0xB4, 0x96, 1, 0x4B, 0.3f, 0);
         D_807FBB40->unkB8 = D_807FBB40->unkB8 * 0.6;
         D_807FBB40->unkC0 = D_807FBB40->unkB8 * 3.0f;
         return;

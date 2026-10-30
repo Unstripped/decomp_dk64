@@ -2,7 +2,7 @@
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 void modelAnimEntrySetTime(s16, s16, s16, f32);
 void modelAnimEntrySetUnkC(s16, s16, s16);
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void func_8063DA40(s16, s16);
 extern u8 D_8074E77C;
 typedef struct CsB10Part {
@@ -79,7 +79,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
                 modelAnimEntrySetTime(csId, j, anim, 0);
                 e->active = 0;
                 modelSlotGetNodePos(csId, 1, i + 1, &x, &y, &z);
-                func_806086CC(x, y, z, 0x1AE, 0xFF, 0x7F, 0x14, 0x50, 0.7f, 0);
+                sfxPlayAtPositionPooled(x, y, z, 0x1AE, 0xFF, 0x7F, 0x14, 0x50, 0.7f, 0);
             }
             if (e->timer != 0) {
                 e->timer--;

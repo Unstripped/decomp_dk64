@@ -900,7 +900,7 @@ MpViewport *cameraFindViewportEntry(u8);
 void func_806C9AE0(void);
 s32 n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void n_alSndpPostEvent(void *, s32, s16);
-void func_80609140(s16, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s16, s32, f32, f32, s32, s32);
 void func_806F5FA0(s32, s32, s32);
 void slotQueueInit(s32);
 void *heapAlloc(s32);
@@ -1073,7 +1073,7 @@ void mpUpdate(void) {
                     }
                 }
             }
-            func_80609140(snd, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
+            sfxPlayOnFreeSlot(snd, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
         }
         vc = s7->unk40 + 0x4650;
         if (vc >= 0x8000) {
@@ -1084,7 +1084,7 @@ void mpUpdate(void) {
         D_80026F70 &= ~7;
     }
     if (s7->unk38 * 35 + 0x384 < D_80767CC0 - s7->unk34) {
-        func_80609140(0x1E9, s7->unk38 * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
+        sfxPlayOnFreeSlot(0x1E9, s7->unk38 * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
         s7->unk38++;
         if (s7->unk38 == 5) {
             s7->unk38 = 0;

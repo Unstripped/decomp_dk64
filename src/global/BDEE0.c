@@ -410,7 +410,7 @@ typedef struct BDEE0DCA0Tgt {
 #define BDEE0DCA0T ((BDEE0DCA0Tgt *)D_807FDCA0)
 
 extern u8 D_8071FB34[];
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_80613C48(void *, s16, f32, f32);
 s32 playerStateQueueCallback(s32, void *, s32);
 s32 func_8072DCF4(void *, void *, s32);
@@ -474,7 +474,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
                 if (BDEE0AA->unkF0 == 0) {
                     BDEE0AA->unkF0 = 0x28;
                     func_80714CC0(D_8071FB34, 2.0f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
-                    func_80609140(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     actorScriptStart(tgt, 0x220);
                     tgt->unk155[0] = 2;
                     ((BDEE0ActorAlt *)tgt)->unk134 = ((BDEE0ActorAlt *)tgt)->unk134 - 1;
@@ -610,7 +610,7 @@ void func_806BA8C8(void);
 f32 cosApprox(f32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-s32 func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 s16 func_806CC190(s16, s16, f32);
 
@@ -672,7 +672,7 @@ u8 arg2;
             a = dir << 8;
             D_807FBB40->unk7C += D_807FBB40->unk4->unk38 * sp58 * func_80612794(D_807FBB40->unkE6 + a);
             D_807FBB40->unk84 += D_807FBB40->unk4->unk38 * sp58 * func_80612790(D_807FBB40->unkE6 + a);
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1B1, 0xFF, 0x7F, 0xA, 0x3C, 0.3f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1B1, 0xFF, 0x7F, 0xA, 0x3C, 0.3f, 0);
         }
         func_806BA8C8();
         if (s1->unk2) {
@@ -706,7 +706,7 @@ u8 arg2;
                     if (D_807FDC90->unk30 < 3.0f) {
                         BDEE0A->unk155++;
                     } else {
-                        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1B1, (u32)(D_807FDC90->unk30 * 255.0f / 20.0f), (s32)(D_807FDC90->unk30 + 100.0f), 0, 0x3C, 0.3f, 0);
+                        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1B1, (u32)(D_807FDC90->unk30 * 255.0f / 20.0f), (s32)(D_807FDC90->unk30 + 100.0f), 0, 0x3C, 0.3f, 0);
                         D_807FDC90->unk30 = -(D_807FDC90->unk30 * 0.5);
                     }
                 }

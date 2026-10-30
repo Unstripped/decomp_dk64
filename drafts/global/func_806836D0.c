@@ -59,7 +59,7 @@ void sfxStopChannel(s32, s32);
 void camRestoreYaw(Actor *);
 void camResetPlayer(Actor *, s32);
 void func_806C8E58(s16);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void lightSetColor(f32, f32, f32, s32);
 void sfxSetChannelParam(s32, s32, s32);
 struct TagBarrelData;
@@ -150,7 +150,7 @@ void func_806836D0(struct TagBarrelData *arg0_in) {
                     ((TagBarrelPlayerData *)D_807FC924)->unk2E2 |= 0x11;
                     return;
                 }
-                func_80609140(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
         }
     }

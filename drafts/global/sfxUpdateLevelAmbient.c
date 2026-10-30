@@ -1,4 +1,4 @@
-// func_80603450 (src/global/7130.c): Stage 6 (L603450 m11): frame 0xE8 and saved regs match, 1376 vs 1375 insns, ~27 differing insns: unkD loaded into a0 (target lbu v0 + move a0,v0), 058E candidate copy 'move a0,v0'/beqz a0/hoisted 'move s0,zero' near pan/vol, spill slot 160(sp) vs 156, &D_8077058C hoisted in tail (target 3 separate lui), D_80745BDC[..][1] vs D_80745BDD reloc-only. FAKEs: dead reads of D_8077058E (pan/vol block), D_80770DC8, D_8077058D at function end.
+// sfxUpdateLevelAmbient (src/global/7130.c): Stage 6 (L603450 m11): frame 0xE8 and saved regs match, 1376 vs 1375 insns, ~27 differing insns: unkD loaded into a0 (target lbu v0 + move a0,v0), 058E candidate copy 'move a0,v0'/beqz a0/hoisted 'move s0,zero' near pan/vol, spill slot 160(sp) vs 156, &D_8077058C hoisted in tail (target 3 separate lui), D_80745BDC[..][1] vs D_80745BDD reloc-only. FAKEs: dead reads of D_8077058E (pan/vol block), D_80770DC8, D_8077058D at function end.
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -81,7 +81,7 @@ void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 void n_alSndpStop(s32);
 void seqSetVolumeInstant(s32, f32);
 
-void func_80603450(void) {
+void sfxUpdateLevelAmbient(void) {
     s8 spE7;
     s8 spE6;
     u8 spE5;

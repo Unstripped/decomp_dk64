@@ -172,7 +172,7 @@ void actorSpawn(s32, s32);
 void func_8067B238(void *, void *, f32);
 s16 func_80613448(void *);
 void func_806131D4(void *, s16);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 func_80724A20(void);
 s16 func_806CC190(s16, s16, f32);
 f32 func_80612794(s16);
@@ -237,7 +237,7 @@ void minecartFollowerBehaviour(void) {
         D_807FBB44->unk11C = D_807FBB40;
         D_807FBB44->unk168 = 1;
         D_807FBB44->unkEC = 0x2BC;
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
         D_807FBB40->unk154 = 1;
         D_807FBB40->unkE8 = 0x12C;
         D_807FBB40->unk60 &= ~0x8000;
@@ -262,7 +262,7 @@ void minecartFollowerBehaviour(void) {
     case 6:
         sp47 = 0xFA;
         if ((D_8076A064 % D_807FDC9C->unkA) == 0) {
-            func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x182, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x182, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             actorSpawn(0x11F, 0x50);
             D_807FBB44->unk11C = D_807FBB40;
             func_8067B238(D_807FBB44, D_807FBB40, 0.06f);
@@ -386,7 +386,7 @@ void minecartFollowerChildBehaviour(void) {
                 sp68->unk2C = 0x46;
                 s2->unk155 = 1;
                 D_807FBB40->unk132 = 1;
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
             case 1:
                 minecartSetTargetAheadOfPlayer(sp68, 0.3f);
                 v = sp68->unk2C;

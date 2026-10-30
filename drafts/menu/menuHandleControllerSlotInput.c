@@ -69,7 +69,7 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
     sp84->unkC += step;
     rest = sp84->unkE - sp84->unkC;
     if (step != 0 && rest == 0) {
-        func_80609140(0x3C, 0x4E20, 63.0f, 1.0f, 0, 0);
+        sfxPlayOnFreeSlot(0x3C, 0x4E20, 63.0f, 1.0f, 0, 0);
         D_80033F50 = 3;
     }
     if (D_80033FAE != 0) {
@@ -102,7 +102,7 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                 D_80744514 = 2;
                 func_8071458C();
             } else if (arg1 & 2) {
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                 sp84->unk16 = 0;
                 sp84->unk13 = 6;
             } else if (arg1 & 0x40) {
@@ -115,7 +115,7 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                 if (sp84->unkE < lim) {
                     sp84->unkE = lim;
                 } else {
-                    func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
+                    sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                 }
             } else if (arg1 & 0x80) {
                 s32 t = sp84->unkE + 0xF0;
@@ -123,7 +123,7 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                 if (t > 0) {
                     sp84->unkE = 0;
                 } else {
-                    func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
+                    sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                 }
             }
             cur = sp84->unkC;
@@ -147,12 +147,12 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                         D_8003385C[i] = bits;
                         if (D_8076A0E4[i] & 0x80) {
                             if (((u16 *)&D_807ECD48)[i] & 0x1000) {
-                                func_80609140(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                                sfxPlayOnFreeSlot(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuAssignPlayerControllerSlot(i, 0);
                             }
                         } else {
                             if (edge & 8) {
-                                func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                                sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 idx = D_8076A0E4[i] + 1;
                                 if (idx >= 6) {
                                     idx = 0;
@@ -166,7 +166,7 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                                 menuAssignPlayerControllerSlot(i, idx);
                             }
                             if (edge & 4) {
-                                func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                                sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 idx = D_8076A0E4[i] - 1;
                                 if (idx < 0) {
                                     idx = 5;
@@ -180,15 +180,15 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                                 menuAssignPlayerControllerSlot(i, idx);
                             }
                             if (edge & 0x10) {
-                                func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                                sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuNextFreeControllerSlot(i);
                             }
                             if (edge & 0x20) {
-                                func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                                sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuPrevFreeControllerSlot(i);
                             }
                             if (i != 0 && (((u16 *)&D_807ECD48)[i] & 0x1000)) {
-                                func_80609140(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                                sfxPlayOnFreeSlot(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuReleasePlayerControllerSlot(i);
                             }
                         }
@@ -203,11 +203,11 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                     }
                     if (D_80744520 < lim) {
                         D_80744520 += 1;
-                        func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                        sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
                 } else if ((m & 0x20) && D_80744520 >= 2) {
                     D_80744520 -= 1;
-                    func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
                 menuHandleScrollInput(sp84, sp64, m);
             } else if (cur == -0x1E0) {
@@ -216,13 +216,13 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                     if (D_80744534 >= 3) {
                         D_80744534 = 0;
                     }
-                    func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 } else if (m & 0x20) {
                     D_80744534 -= 1;
                     if (D_80744534 < 0) {
                         D_80744534 = 2;
                     }
-                    func_80609140(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
             }
         }

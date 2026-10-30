@@ -1122,7 +1122,7 @@ s32 scriptOpSetCommandHandler(Actor *arg0) {
     return D_807F5AF4;
 }
 
-void func_80609140(s16, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s16, s32, f32, f32, s32, s32);
 
 s32 func_80616A9C(s32 arg0) {
     s16 sp26;
@@ -1137,7 +1137,7 @@ s32 func_80616A9C(s32 arg0) {
     scriptReadU8(&sp20);
     scriptReadU16((u8 *)&sp22);
     scriptReadU8(&sp21);
-    func_80609140(sp26, (s32)(((f64)sp25 * 32767.0) / 255.0), (f32)sp20,
+    sfxPlayOnFreeSlot(sp26, (s32)(((f64)sp25 * 32767.0) / 255.0), (f32)sp20,
                   (f32)((f64)sp22 / 127.0), (s32)sp21, 0);
     return 1;
 }
@@ -1273,7 +1273,7 @@ s32 func_80617140(Actor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617238.s")
 
-void func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 
 s32 func_80617400(Actor *arg0) {
     s16 sp36;
@@ -1289,7 +1289,7 @@ s32 func_80617400(Actor *arg0) {
     scriptReadU8(&sp35);
     scriptReadU8(&sp34);
     if (arg0->unk60 & 4) {
-        func_806086CC(arg0->unk7C, arg0->unk80, arg0->unk84, sp36, sp33, sp32, sp35, sp34, 0.3f, 0);
+        sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp36, sp33, sp32, sp35, sp34, 0.3f, 0);
     }
     return 1;
 }
@@ -1328,7 +1328,7 @@ s32 func_806174B4(Actor *arg0) {
             sp50 = arg0->unk80;
             sp4C = arg0->unk84;
         }
-        func_806086CC(sp54, sp50, sp4C, sp4A, sp40, sp3F, sp49, sp43, sp38, sp41);
+        sfxPlayAtPositionPooled(sp54, sp50, sp4C, sp4A, sp40, sp3F, sp49, sp43, sp38, sp41);
     }
     return 1;
 }

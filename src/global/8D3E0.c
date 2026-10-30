@@ -67,7 +67,7 @@ extern u8 D_807FC611;
 void *memcpy(void *, const void *, size_t);
 void heapFree(void *);
 void actorDespawn(Actor *);
-s16 func_806531B8(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s32);
 s32 mapChunkIsVisible(s32, void *);
 void func_8066E6C8(Actor *, s32, s32);
 void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
@@ -345,7 +345,7 @@ void actorListSetPosById(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
             node->unk10 = arg1;
             node->unk14 = arg2;
             node->unk18 = arg3;
-            node->unk4A = func_806531B8(arg1, arg2, arg3, 0);
+            node->unk4A = mapChunkFindByPosition(arg1, arg2, arg3, 0);
             return;
         }
     }
@@ -446,7 +446,7 @@ ActorListNode *actorListSpawnNodeInternal(s16 arg0, f32 arg1, f32 arg2, f32 arg3
     node->unk5C = entry->unkC;
     node->unk60 = entry->unk10;
     node->unk58 = entry->unk2;
-    node->unk4A = func_806531B8(arg1, arg2, arg3, 0);
+    node->unk4A = mapChunkFindByPosition(arg1, arg2, arg3, 0);
     node->unk4C = arg7;
     node->unk50 = arg8;
     node->unk54 = (f32)entry->unk8 * (f32)entry->unk8;

@@ -1,7 +1,7 @@
 // func_806A2328 (src/global/A6280.c): stage 1 (never attempted in C): m2c starter saved; not compiled/verified. Needs f64/sqrtf/16-bit angle code: unk160 double, unkE6/unkEC/unkF0/unkFA/unk168 s16
 ? actorDespawn(void *);                             /* extern */
 ? billboardSetFlags(?);                             /* extern */
-? func_806086CC(f32, f32, f32, ?, s32, s32, s32, s32, f32, s32); /* extern */
+? sfxPlayAtPositionPooled(f32, f32, f32, ?, s32, s32, s32, s32, f32, s32); /* extern */
 f32 func_80612790(s16);                             /* extern */
 f32 func_80612794(s16);                             /* extern */
 ? actorUpdateModelMatrix(void *, ?);                         /* extern */
@@ -80,7 +80,7 @@ void func_806A2328(f64 arg0, f32 arg1) {
     actorUpdateFloorContactAndTilt(D_807FBB40, 0);
     D_807FBB40->unkE6 = (s16) (D_807FBB40->unkE6 + 0x12C);
     if ((D_807FBB40->unkE6 & 0x7FF) < 0x12C) {
-        func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1DF, 0xFF, 0x7F, 0x14, 0x3C, 0.7f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1DF, 0xFF, 0x7F, 0x14, 0x3C, 0.7f, 0);
     }
     temp_v0_2 = temp_s2->unk8;
     if (temp_v0_2 != 0) {

@@ -275,7 +275,7 @@ void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 #ifdef NON_MATCHING
-void func_8065A884(void) {
+void lightApplyToActors(void) {
     s32 i;
     s32 actorIdx;
     s32 lightCount;
@@ -497,7 +497,7 @@ void func_8065A884(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/func_8065A884.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/lightApplyToActors.s")
 #endif
 
 typedef struct LightTrigger {
@@ -528,7 +528,7 @@ extern s16 D_807F7BC0;
 void lightAddDedupEntry(s16);
 s32 lightCheckVolumeBounds(LightVolume *, f32, f32, f32, s16, s16, s16, s16, s16, s16, s32);
 #ifdef NON_MATCHING
-s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
+s16 lightCollectVolumesInBounds(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
     f32 diff[6];
     s32 i;
     f32 dist;
@@ -606,7 +606,7 @@ s16 func_8065BAA0(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 a
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/func_8065BAA0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/lightCollectVolumesInBounds.s")
 #endif
 void *memcpy(void *, const void *, unsigned int);
 
@@ -703,7 +703,7 @@ s32 lightCheckPlayerDistance(LightVolume *arg0) {
 s32 mapChunkIsInUse(s16);
 
 #ifdef NON_MATCHING
-void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
+void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
     f32 pad[7];
     f32 d[3];
     LightTrigger *entry;
@@ -838,5 +838,5 @@ void func_8065C334(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/func_8065C334.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/lightSampleColorAtPosition.s")
 #endif

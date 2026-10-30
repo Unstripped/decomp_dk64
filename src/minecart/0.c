@@ -136,7 +136,7 @@ typedef struct Struct_807FBB4C {
 extern Struct_807FBB40 *D_807FBB40;
 extern Struct_807FBB4C *D_807FBB4C;
 
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 s32 textTableGetString();
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
@@ -144,7 +144,7 @@ s32 playerStateQueueCallback();
 void camStartPath();
 
 void func_80024000(u8 arg0, u8 arg1) {
-    func_80609140(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
+    sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
     textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, arg1, 1), 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
     sfxAllocateChannel(0x28, 1.0f);
@@ -484,7 +484,7 @@ void minecartApplyJunction(MinecartCart *arg0, MinecartElem **arg1, u8 arg2, u8 
 extern s32 D_80028C20;
 void actorScriptStart(void *, s32);
 void actorSetStateTwo(void *);
-void func_806A2A10(s32, s32, u8);
+void hudSpawnCountdownTimer(s32, s32, u8);
 void func_80726EE0(s32);
 void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
 
@@ -550,7 +550,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
         break;
     case 10:
         sfxAllocateChannel(0x5A, 1.0f);
-        func_806A2A10(0x78, 0x78, (D_8076A0A8 == 0x4D) ? 0x1E : (D_8076A0A8 == 0x81) ? 0x2D : 0x3C);
+        hudSpawnCountdownTimer(0x78, 0x78, (D_8076A0A8 == 0x4D) ? 0x1E : (D_8076A0A8 == 0x81) ? 0x2D : 0x3C);
         actorSetStateTwo(D_807FBB40->unk11C);
         sp40->unk1F0 &= ~8;
         D_807FBB40->unk154 = 3;

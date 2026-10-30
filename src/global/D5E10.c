@@ -90,7 +90,7 @@ typedef struct G08Actor {
 
 extern u32 D_807FBB60;
 extern G08Slot D_807FD63A[];
-s32 func_806DF6D4();
+s32 playerInputUpdate();
 void actorUpdateModelMatrix();
 void func_806CFF9C();
 s32 playerStateQueueCallback();
@@ -100,7 +100,7 @@ void func_806C8D20();
 
 void func_806D1110(void) {
     playerStateQueueCallback(0x3C, 0, D_807FC929);
-    func_806DF6D4(0xB);
+    playerInputUpdate(0xB);
     G08_A48->unkB8 = G08_P->unk4;
     G08_A48->unkEE = G08_P->unkA;
     G08_A48->unkE6 = G08_P->unkA;
@@ -121,7 +121,7 @@ void func_806D11FC(void) {
 }
 
 void func_806D1238(void) {
-    func_806DF6D4(0x66);
+    playerInputUpdate(0x66);
     func_806CC8B8();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -130,7 +130,7 @@ void func_806D1270(void) {
 }
 
 void func_806D1278(void) {
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     if (!(D_807FD580->unk1F0 & 0x10000)) {
         func_806CFF9C(D_807FBB40);
     }
@@ -146,7 +146,7 @@ void func_806D12CC(void) {
         case 0:
             G08_P->unk24 = 0;
             G08_P->unk38 = 100.0f;
-            func_806DF6D4(0x67);
+            playerInputUpdate(0x67);
             func_806CC8F0();
             G08_A40->unk155++;
             break;
@@ -157,7 +157,7 @@ void func_806D12CC(void) {
             } else if ((G08_A40->unkB8 == 0.0f) && (G08_A40->unk4->unk64 != 0x314)) {
                 actorScriptStart(D_807FBB40, 0x314);
             }
-            func_806DF6D4(0x67);
+            playerInputUpdate(0x67);
             break;
     }
     func_806D11FC();
@@ -178,7 +178,7 @@ void func_806D1420(void) {
         G08_A40->unkE8 = mathAngleFromVector2D(G08_A40->unkB8, G08_A40->unkC0);
         mathAngleStepToward(G08_A40->unkE4, 0, 0x32);
         mathAngleStepToward(&G08_A40->unkE8, (s16)mathAngleFromVector2D(G08_A40->unkB8, G08_A40->unkC0), 0xA);
-        func_806DF6D4(0x6A);
+        playerInputUpdate(0x6A);
         a = G08_A40;
         a->unkEE = a->unkE6;
         func_806CC948(a);
@@ -208,7 +208,7 @@ void func_806D1568(void) {
     G08_P->unk2C = D_80753AFC[D_807FD584];
     switch (G08_A40->unk155) {
         case 0:
-            func_806DF6D4(0x4C);
+            playerInputUpdate(0x4C);
             temp2 = -G08_A40->unkC0 * 0.125;
             G08_A40->unkC0 = mathApproachF32(G08_A40->unkC0, 0.0f, temp2);
             if (G08_P->unk24 >= 6) {
@@ -224,14 +224,14 @@ void func_806D1568(void) {
         case 1:
             mathAngleStepToward(&G08_A40->unkE8, (s16)mathAngleFromVector2D(G08_A40->unkB8, G08_A40->unkC0), 0x32);
             G08_P->unk38 = 500.0f;
-            func_806DF6D4(0x57);
+            playerInputUpdate(0x57);
             func_806CC638(0.0f);
             if (G08_P->unk10 == 0) {
                 G08_A40->unk155 = 3;
             }
             break;
         case 2:
-            func_806DF6D4(0x55);
+            playerInputUpdate(0x55);
             func_806CC638(0.0f);
             if (G08_A40->unk154 == 0x7F) {
                 if (G08_A40->unkB8 != 0.0f) {
@@ -252,7 +252,7 @@ void func_806D1568(void) {
             }
             break;
         case 3:
-            func_806DF6D4(0x56);
+            playerInputUpdate(0x56);
             func_806CC638(0.0f);
             temp0 = G08_A40->unkB8 / 200.0;
             temp1 = G08_A40->unkC0 / 200.0;
@@ -287,7 +287,7 @@ void func_806D19A8(void) {
     switch (G08_A40->unk155) {
         case 0:
             G08_P->unk48 = 0x50;
-            func_806DF6D4(0x68);
+            playerInputUpdate(0x68);
             func_806CD8EC();
             func_806CC970();
             break;
@@ -295,16 +295,16 @@ void func_806D19A8(void) {
             G08_P->unk68 = 200.0f;
             G08_P->unk2C = 40.0f;
             func_806CD424(G08_A40->unkE6, G08_P->unk68, G08_P->unk68);
-            func_806DF6D4(0x68);
+            playerInputUpdate(0x68);
             func_806CC970();
             break;
         case 2:
-            func_806DF6D4(0x68);
+            playerInputUpdate(0x68);
             func_806CD424(G08_A40->unkE6, G08_P->unk4, G08_P->unk68);
             func_806CC970();
             break;
         case 3:
-            func_806DF6D4(0x68);
+            playerInputUpdate(0x68);
             func_806CC8F0();
             if (G08_A40->unkAC < G08_A40->unk80 + 4.0f) {
                 G08_A40->unk154 = 0x7E;
@@ -324,7 +324,7 @@ void func_806CC920();
 void func_806D1B60(void) {
     switch (G08_A40->unk155) {
         case 0:
-            func_806DF6D4(0x69);
+            playerInputUpdate(0x69);
             func_806CD8EC();
             func_806CC970();
             G08_P->unk12 = G08_A40->unkE8;
@@ -334,16 +334,16 @@ void func_806D1B60(void) {
             G08_P->unk2C = 40.0f;
             G08_P->unk10 = 0xA;
             G08_P->unk38 = 200.0f;
-            func_806DF6D4(0x69);
+            playerInputUpdate(0x69);
             func_806CC638(0.0f);
             break;
         case 2:
-            func_806DF6D4(0x69);
+            playerInputUpdate(0x69);
             func_806CD424(G08_A40->unkE6, G08_P->unk4, G08_P->unk68);
             func_806CC970();
             break;
         case 3:
-            func_806DF6D4(0x69);
+            playerInputUpdate(0x69);
             func_806CC920();
             if (G08_A40->unkAC < G08_A40->unk80 + 4.0f) {
                 G08_A40->unk154 = 0x7E;
@@ -364,7 +364,7 @@ void func_806D1B60(void) {
 
 void func_806D1D3C(void) {
     G08_P->unk4 = 0.0f;
-    func_806DF6D4(0x65);
+    playerInputUpdate(0x65);
     func_806CC8B8();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -471,7 +471,7 @@ void func_806D205C(void) {
 
 
 void func_806D21E4(void) {
-    func_806DF6D4(0);
+    playerInputUpdate(0);
     if (!(D_807FBB60 & 0x4000) && !(D_807FBB60 & 0x8000)) {
         func_806CFF9C(D_807FBB40);
     }
@@ -506,7 +506,7 @@ typedef struct G09ActorSub4 {
 
 
 void func_806D2238(void) {
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     if (G09_A->unk155 == 0) {
         func_80614E78(D_807FBB40, 0);
         G09_A->unk155 = 1;
@@ -515,11 +515,11 @@ void func_806D2238(void) {
 }
 
 void func_806D22A0(void) {
-    func_806DF6D4(1);
+    playerInputUpdate(1);
 }
 
 void func_806D22C0(void) {
-    func_806DF6D4(0x62);
+    playerInputUpdate(0x62);
     switch (G09_A->unk155) {
         case 1:
         case 2:
@@ -573,11 +573,11 @@ void func_806D239C(void) {
     actorRegisterSnapToBoneCallback();
     switch (D_8076A0A8) {
         case 0x37:
-            func_806DF6D4(0x5F);
+            playerInputUpdate(0x5F);
             func_806CC970();
             return;
         case 0x6A:
-            func_806DF6D4(0x60);
+            playerInputUpdate(0x60);
             func_806CC970();
             return;
         case 0x4D:
@@ -587,11 +587,11 @@ void func_806D239C(void) {
                 G09_P->unk88->unk154 = 0xA;
                 G09_A->unk155++;
             }
-            func_806DF6D4(0x5B);
+            playerInputUpdate(0x5B);
             func_806CC970();
             return;
         default:
-            func_806DF6D4(0x5C);
+            playerInputUpdate(0x5C);
             G09_A->unkC0 = G09_A->unkC8;
             func_806CC948();
             return;
@@ -600,7 +600,7 @@ void func_806D239C(void) {
 
 void func_806D24A8(void) {
     actorRegisterSnapToBoneCallback();
-    func_806DF6D4(0x5D);
+    playerInputUpdate(0x5D);
     G09_A->unkC0 = G09_A->unkC8;
     func_806CC948();
 }
@@ -612,24 +612,24 @@ void func_806D24E4(void) {
     actorRegisterSnapToBoneCallback();
     switch (G09_A->unk155) {
         case 0:
-            func_806DF6D4(0x5E);
+            playerInputUpdate(0x5E);
             func_806CC948();
             return;
         case 1:
             G09_A->unkC0 = G09_P->unk54;
             func_806CFECC();
             G09_A->unk155++;
-            func_806DF6D4(0x5E);
+            playerInputUpdate(0x5E);
             func_806CFD68();
             func_806CC948();
             return;
         case 2:
             func_806CC948();
-            func_806DF6D4(0x5E);
+            playerInputUpdate(0x5E);
             func_806CFD68();
             return;
         case 3:
-            func_806DF6D4(0x5C);
+            playerInputUpdate(0x5C);
             func_806CC948();
             return;
     }
@@ -638,19 +638,19 @@ void func_806D24E4(void) {
 void func_806D25CC(void) {
     switch (D_8076A0A8) {
         case 0x6A:
-            func_806DF6D4(0x60);
+            playerInputUpdate(0x60);
             func_806CC970();
             break;
         case 0x37:
-            func_806DF6D4(0x5F);
+            playerInputUpdate(0x5F);
             func_806CC970();
             break;
         case 0x4D:
-            func_806DF6D4(0x5B);
+            playerInputUpdate(0x5B);
             func_806CC970();
             break;
         default:
-            func_806DF6D4(0x5C);
+            playerInputUpdate(0x5C);
             G09_A->unkC0 = G09_A->unkC8;
             func_806CC948();
             break;
@@ -686,7 +686,7 @@ void actorSyncTransformFromParent();
 
 void func_806D2744(s32 arg0) {
     actorRegisterCurrentActorGlobalCallback(&actorSyncTransformFromParent);
-    func_806DF6D4(arg0);
+    playerInputUpdate(arg0);
     G09_A->unk6C = G09_A->unk6A;
 }
 
@@ -768,7 +768,7 @@ void func_806D2954(s16 arg0) {
         arg0 = 5;
         G09_A->unk155--;
     }
-    func_806DF6D4(arg0);
+    playerInputUpdate(arg0);
 }
 
 void func_806FF32C();
@@ -780,7 +780,7 @@ void func_806D2A14(s16 arg0) {
         G09_A->unk155--;
     }
     if (func_805FCA64(arg0) != 0) {
-        if (func_806DF6D4(arg0) == 0) {
+        if (playerInputUpdate(arg0) == 0) {
             renderCallbacksRegister(&func_806FF358, D_807FBB40, 3);
         }
         renderCallbacksRegister(&func_806FF32C, D_807FBB40, 3);
@@ -791,7 +791,7 @@ s32 actorSpawn();
 void func_806FFB2C();
 
 void func_806D2AA0(s16 arg0) {
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     if (G09_A->unk155 < 6) {
         renderCallbacksRegister(&func_806FFB2C, D_807FBB40, 3);
         G09_A->unk155++;
@@ -953,7 +953,7 @@ void func_806D2DC4(void) {
         G10_A->unk155--;
         sel = 0x14;
     }
-    if ((D_8076A064 >= 2) && (func_806DF6D4(sel) == 0)) {
+    if ((D_8076A064 >= 2) && (playerInputUpdate(sel) == 0)) {
         s8 temp = func_806CDD24(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0xC) {
@@ -1001,7 +1001,7 @@ void func_806D2E9C(void) {
         }
         G10_A->unk144 &= 0xFFF7;
     }
-    func_806DF6D4(0x1B);
+    playerInputUpdate(0x1B);
     r = func_806F46B0(((G10Actor4C *)D_807FBB4C)->unk12C);
     sel = 0x7E;
     if (r < G10_A->unk80) {
@@ -1055,7 +1055,7 @@ void func_806D2E9C(void) {
 
 void func_806D3224(void) {
     G10_A->unkEE = G10_A->unkE6;
-    if (func_806DF6D4(0x1D) == 0) {
+    if (playerInputUpdate(0x1D) == 0) {
         s8 temp = func_806CE174(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0x5D) {
@@ -1069,9 +1069,9 @@ void func_806D3224(void) {
 
 void func_806D32C0(void) {
     if ((D_8076A0A8 == 0x4E) || (D_8076A0A8 == 0x4F) || (D_8076A0A8 == 0x83)) {
-        func_806DF6D4(0x1F);
+        playerInputUpdate(0x1F);
     } else {
-        func_806DF6D4(0x1E);
+        playerInputUpdate(0x1E);
     }
     func_806CC8B8();
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -1088,7 +1088,7 @@ void func_806D332C(void) {
         G10_P->unkC = -1;
         G10_P->unkE = -1;
     }
-    if (func_806DF6D4(0x13) == 0) {
+    if (playerInputUpdate(0x13) == 0) {
         s8 temp = func_806CDD24(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0xD) {
@@ -1111,7 +1111,7 @@ void func_806D332C(void) {
 }
 
 void func_806D34B4(void) {
-    if (func_806DF6D4(0x1C) == 0) {
+    if (playerInputUpdate(0x1C) == 0) {
         s8 temp = func_806CE174(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0x5E) {
@@ -1156,11 +1156,11 @@ void func_806D3608();
 void func_806D36CC(void) {
     switch (G10_A->unk155) {
         case 0:
-            func_806DF6D4(0x20);
+            playerInputUpdate(0x20);
             func_806D3608();
             break;
         case 1:
-            func_806DF6D4(0x31);
+            playerInputUpdate(0x31);
             func_806CFE7C();
             break;
     }
@@ -1171,11 +1171,11 @@ void func_806D36CC(void) {
 void func_806D374C(void) {
     switch (G10_A->unk155) {
         case 0:
-            func_806DF6D4(0x20);
+            playerInputUpdate(0x20);
             func_806D3608();
             break;
         case 1:
-            func_806DF6D4(0x32);
+            playerInputUpdate(0x32);
             func_806CFE7C();
             break;
     }
@@ -1185,7 +1185,7 @@ void func_806D374C(void) {
 
 void func_806D37CC(void) {
     if (G10_A->unk155 == 0) {
-        func_806DF6D4(0x20);
+        playerInputUpdate(0x20);
         func_806CC8B8();
         if (G10_A->unk6A & 1) {
             if (G10_A->unkE0 != 0.0f) {
@@ -1196,7 +1196,7 @@ void func_806D37CC(void) {
             }
         }
     } else {
-        func_806DF6D4(0x20);
+        playerInputUpdate(0x20);
         G10_P->unk4 = 0.0f;
         G10_A->unkB8 = 0.0f;
         func_806CC8B8();
@@ -1230,7 +1230,7 @@ void func_806D38AC(s32 arg0) {
         G10_P->unk50 = 0;
         func_80614E78(D_807FBB40, 0x67);
     }
-    func_806DF6D4(arg0);
+    playerInputUpdate(arg0);
     func_806CC8B8();
     if (!(G10_A->unk6A & 0x200)) {
         func_806CFF9C(D_807FBB40);
@@ -1341,7 +1341,7 @@ void func_806D3B48(void) {
 void func_806D3530();
 
 void func_806D3BC8(void) {
-    func_806DF6D4(0x3E);
+    playerInputUpdate(0x3E);
     func_806CC8B8();
     switch (G11_A->unk155) {
         case 0:
@@ -1371,7 +1371,7 @@ void func_806D3BC8(void) {
 
 void func_806D3CD4(void) {
     func_80685210(0.5f, 0x64, 5);
-    func_806DF6D4(0x3C);
+    playerInputUpdate(0x3C);
     func_806CC8B8();
     if (G11_A->unkB8 == 0.0f && G11_A->unkE0 == 0.0f) {
         func_806CFF9C(D_807FBB40);
@@ -1381,7 +1381,7 @@ void func_806D3CD4(void) {
 
 void func_806D3D5C(void) {
     func_80685210(0.5f, 0x64, 5);
-    func_806DF6D4(0x3B);
+    playerInputUpdate(0x3B);
     func_806CC8B8();
     if (G11_A->unkB8 == 0.0f && G11_A->unkE0 == 0.0f) {
         func_806CFF9C(D_807FBB40);
@@ -1396,7 +1396,7 @@ void mathAngleStepTowardThreshold(s16 *, s16, s16, s16);
 void func_806D3DE4(void) {
     switch (G11_A->unk155) {
         case 0:
-            func_806DF6D4(0x41);
+            playerInputUpdate(0x41);
             func_80614E78(D_807FBB40, 5);
             G11_P->unk30 = D_8075327C[D_807FD584];
             func_806CD8EC();
@@ -1404,18 +1404,18 @@ void func_806D3DE4(void) {
             G11_A->unk155++;
             break;
         case 1:
-            func_806DF6D4(0x41);
+            playerInputUpdate(0x41);
             func_806CD8EC();
             func_806CC948();
             break;
         case 2:
-            func_806DF6D4(0x41);
+            playerInputUpdate(0x41);
             func_806CD8EC();
             mathAngleStepTowardThreshold(&G11_A->unkE6, G11_P->unkA, D_80753298[D_807FD584], 0xC00);
             func_806CC948();
             break;
         case 3:
-            func_806DF6D4(0x41);
+            playerInputUpdate(0x41);
             mathAngleStepTowardThreshold(&G11_A->unkE6, G11_P->unkA, D_80753298[D_807FD584], 0xC00);
             if (G11_P->unk4 == 0.0f) {
                 func_806CFF9C(D_807FBB40);
@@ -1441,7 +1441,7 @@ extern f32 D_80753604[];
 void func_806D4010(void) {
     switch (G11_A->unk155) {
         case 0:
-            func_806DF6D4(0x2C);
+            playerInputUpdate(0x2C);
             func_806CC8B8();
             break;
         case 1:
@@ -1449,16 +1449,16 @@ void func_806D4010(void) {
             func_806CFECC();
             func_806D3FA0();
             G11_A->unk155++;
-            func_806DF6D4(0x21);
+            playerInputUpdate(0x21);
             func_806CFD68();
             func_806CC8B8();
             break;
         case 2:
             func_806CC8B8();
             if (G11_A->unk58 == 5) {
-                func_806DF6D4(0x22);
+                playerInputUpdate(0x22);
             } else {
-                func_806DF6D4(0x21);
+                playerInputUpdate(0x21);
             }
             func_806CFD68();
             break;
@@ -1473,7 +1473,7 @@ void func_806D4010(void) {
                 G11_P->unk50 = 0;
                 func_80614E78(D_807FBB40, 0x13);
             }
-            func_806DF6D4(0x30);
+            playerInputUpdate(0x30);
             func_806CC8B8();
             break;
     }
@@ -1482,7 +1482,7 @@ void func_806D4010(void) {
 
 void func_806D423C(void) {
     G11_A->unkC0 = G11_P->unk54;
-    func_806DF6D4(5);
+    playerInputUpdate(5);
     func_806CC8F0();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -1492,7 +1492,7 @@ extern f32 D_80753234[];
 void func_806D428C(void) {
     switch (G11_A->unk155) {
         case 0:
-            func_806DF6D4(0x2C);
+            playerInputUpdate(0x2C);
             if (G11_P->unk3C != 0) {
                 func_806CC948();
                 G11_P->unk3C--;
@@ -1513,7 +1513,7 @@ void func_806D428C(void) {
             G11_A->unkC0 = G11_P->unk54;
             func_806CFECC();
             G11_A->unk155++;
-            func_806DF6D4(0x21);
+            playerInputUpdate(0x21);
             func_806CFD68();
             break;
         case 2:
@@ -1526,9 +1526,9 @@ void func_806D428C(void) {
                 func_806CC8B8();
             }
             if (G11_A->unk58 == 5) {
-                func_806DF6D4(0x22);
+                playerInputUpdate(0x22);
             } else {
-                func_806DF6D4(0x21);
+                playerInputUpdate(0x21);
             }
             func_806D3608();
             func_806CFD68();
@@ -1545,7 +1545,7 @@ void func_806D428C(void) {
                 G11_P->unk50 = 0;
                 func_80614E78(D_807FBB40, 0x13);
             }
-            func_806DF6D4(0x30);
+            playerInputUpdate(0x30);
             func_806CC8B8();
             break;
     }
@@ -1557,7 +1557,7 @@ u8 func_806CE4E4(Actor *, f32, f32, s32);
 void func_806D45A4(void) {
     switch (G11_A->unk155) {
         case 0:
-            func_806DF6D4(0x2C);
+            playerInputUpdate(0x2C);
             func_806CC8B8();
             break;
         case 1:
@@ -1565,16 +1565,16 @@ void func_806D45A4(void) {
             func_806CFECC();
             func_806D3FA0();
             G11_A->unk155++;
-            func_806DF6D4(0x21);
+            playerInputUpdate(0x21);
             func_806CFD68();
             func_806CC8B8();
             break;
         case 2:
             func_806CC8B8();
             if (G11_A->unk58 == 5) {
-                func_806DF6D4(0x22);
+                playerInputUpdate(0x22);
             } else {
-                func_806DF6D4(0x21);
+                playerInputUpdate(0x21);
             }
             func_806D3608();
             func_806CFD68();
@@ -1586,7 +1586,7 @@ void func_806D45A4(void) {
             if (G11_A->unk154 == 0x3F) {
                 G11_A->unk155 = 1;
             }
-            func_806DF6D4(0x46);
+            playerInputUpdate(0x46);
             func_806CC8B8();
             break;
     }
@@ -1603,14 +1603,14 @@ void func_806D4758(void) {
                 func_806CD424(G11_P->unk40, 50.0f, G11_P->unk38);
                 G11_P->unk3E--;
             }
-            func_806DF6D4(0x23);
+            playerInputUpdate(0x23);
             if (D_8074E77C[D_807FC929] == 2) {
                 G11_P->unk4 = G11_P->unk4 * 0.63;
             }
             func_806CC8B8();
             break;
         case 1:
-            func_806DF6D4(0x23);
+            playerInputUpdate(0x23);
             sel = D_8074E77C[D_807FC929];
             if (sel == 0 || sel == 2) {
                 G11_P->unk4 = G11_P->unk4 * 0.63;
@@ -1621,7 +1621,7 @@ void func_806D4758(void) {
             break;
         case 2:
             func_806CC8B8();
-            if (func_806DF6D4(0x31) == 0 && G11_A->unkB8 < G11_P->unk4) {
+            if (playerInputUpdate(0x31) == 0 && G11_A->unkB8 < G11_P->unk4) {
                 func_806CFF9C(D_807FBB40);
             }
             break;
@@ -1632,7 +1632,7 @@ void func_806D4758(void) {
 void func_806D491C(void) {
     switch (G11_A->unk155) {
         case 0:
-            func_806DF6D4(0x26);
+            playerInputUpdate(0x26);
             func_806CC8B8();
             break;
         case 1:
@@ -1640,13 +1640,13 @@ void func_806D491C(void) {
             func_806CFECC();
             func_806D3FA0();
             G11_A->unk155++;
-            func_806DF6D4(0x25);
+            playerInputUpdate(0x25);
             func_806CFD68();
             func_806CC8B8();
             break;
         case 2:
             func_806CC8B8();
-            func_806DF6D4(0x25);
+            playerInputUpdate(0x25);
             func_806CFD68();
             func_806D3608();
             break;
@@ -1654,7 +1654,7 @@ void func_806D491C(void) {
             if (*(u16 *)((u8 *)&D_807FD63C + D_807FC929 * 0x34) & 0x8000) {
                 G11_P->unk58 = D_80767CC0;
             }
-            func_806DF6D4(0x34);
+            playerInputUpdate(0x34);
             func_806CC8B8();
             break;
     }
@@ -1702,13 +1702,13 @@ void func_806D4A70(void) {
             G08_A40->unkC0 = -15.0f;
             G08_A40->unk155++;
         }
-        func_806DF6D4(0x24);
+        playerInputUpdate(0x24);
         if (G08_A40->unk6A & 1) {
             func_806F142C(D_807FBB40);
         }
         break;
     case 1:
-        func_806DF6D4(0x24);
+        playerInputUpdate(0x24);
         if (G12_P->unk3E != 0) {
             if (mathAngleDistance(G08_A40->unkEE, G12_P->unk40)) {}
             func_806CD424(G12_P->unk40, 30.0f, G12_P->unk38);
@@ -1722,7 +1722,7 @@ void func_806D4A70(void) {
         break;
     case 2:
         G08_A40->unkC4 = -4.0f;
-        func_806DF6D4(0x24);
+        playerInputUpdate(0x24);
         func_806CC8B8();
         if (G08_A40->unk6A & 1) {
             func_806F142C(D_807FBB40);
@@ -1742,7 +1742,7 @@ void func_806D4C7C(void) {
     switch (G08_A40->unk155) {
     case 0:
         func_80614D00(D_807FBB40, 1.0f, 0.0f);
-        func_806DF6D4(0x2C);
+        playerInputUpdate(0x2C);
         func_806CC8B8();
         break;
     case 1:
@@ -1750,23 +1750,23 @@ void func_806D4C7C(void) {
         G08_A40->unkC4 = D_8075363C[D_807FD584];
         G08_A40->unk155++;
         func_806D3FA0();
-        func_806DF6D4(0x2B);
+        playerInputUpdate(0x2B);
         G12_P->unk38 = D_80753620[D_807FD584];
         func_806CC8B8();
         break;
     case 2:
         func_806CC8B8();
-        func_806DF6D4(0x2B);
+        playerInputUpdate(0x2B);
         func_806CFDEC();
         func_806D3608();
         break;
     case 3:
-        func_806DF6D4(0x2B);
+        playerInputUpdate(0x2B);
         func_806CFE7C();
         func_806CC8B8();
         break;
     case 4:
-        func_806DF6D4(0x30);
+        playerInputUpdate(0x30);
         func_806CFE7C();
         func_806CC8B8();
         break;
@@ -1786,7 +1786,7 @@ void func_806D4DE4(void) {
     switch (G08_A40->unk155) {
     case 0:
         func_80614D00(D_807FBB40, 1.0f, 0.0f);
-        func_806DF6D4(0x2C);
+        playerInputUpdate(0x2C);
         func_806CC8B8();
         break;
     case 1:
@@ -1794,38 +1794,38 @@ void func_806D4DE4(void) {
         G08_A40->unkC4 = D_80753690[D_807FD584];
         func_806D3FA0();
         G08_A40->unk155++;
-        func_806DF6D4(0x2B);
+        playerInputUpdate(0x2B);
         func_806CC8B8();
         break;
     case 2:
         func_806CC8B8();
-        func_806DF6D4(0x2D);
+        playerInputUpdate(0x2D);
         func_806D3608();
         break;
     case 3:
-        func_806DF6D4(0x36);
+        playerInputUpdate(0x36);
         func_806CC8B8();
         break;
     case 4:
-        func_806DF6D4(0x36);
+        playerInputUpdate(0x36);
         func_806CC8B8();
         break;
     case 5:
         G08_A40->unkC0 = G12_P->unk54;
         G08_A40->unkC4 = D_807536E4[D_807FD584];
         G08_A40->unk155++;
-        func_806DF6D4(0x2B);
+        playerInputUpdate(0x2B);
         G12_P->unk38 = D_807536C8[D_807FD584];
         func_806CC8B8();
         break;
     case 6:
         func_806CC8B8();
-        func_806DF6D4(0x2C);
+        playerInputUpdate(0x2C);
         func_806CFDA8();
         func_806D3608();
         break;
     case 7:
-        func_806DF6D4(0x30);
+        playerInputUpdate(0x30);
         func_806CFE7C();
         func_806CC8B8();
         break;
@@ -1841,11 +1841,11 @@ void func_806D5008(void) {
     case 0:
         G08_A40->unkB8 = 0.0f;
         G08_A40->unkC0 = 0.0f;
-        func_806DF6D4(0x2E);
+        playerInputUpdate(0x2E);
         func_806CC970();
         break;
     case 1:
-        func_806DF6D4(0x2E);
+        playerInputUpdate(0x2E);
         G08_A40->unkC4 = -30.0f;
         G08_A40->unkB8 = 0.0f;
         G08_A40->unkC0 = -100.0f;
@@ -1853,12 +1853,12 @@ void func_806D5008(void) {
         func_806CC948();
         break;
     case 2:
-        func_806DF6D4(0x2E);
+        playerInputUpdate(0x2E);
         func_806D3608();
         func_806CC948();
         break;
     case 3:
-        func_806DF6D4(0x2E);
+        playerInputUpdate(0x2E);
         if (!(G08_A40->unk6A & 4)) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x96, 0xFF, 0x7F, 0x19);
             effectSpawnMultiTierRingWithActor(D_807FBB40, ((u8 *)D_807FD568)[1]);
@@ -1869,16 +1869,16 @@ void func_806D5008(void) {
         func_806CC948();
         break;
     case 4:
-        func_806DF6D4(0x2E);
+        playerInputUpdate(0x2E);
         func_806CC948();
         break;
     case 5:
-        func_806DF6D4(0x2F);
+        playerInputUpdate(0x2F);
         G08_A40->unk155++;
         func_806CC8B8();
         break;
     case 6:
-        func_806DF6D4(0x2F);
+        playerInputUpdate(0x2F);
         func_806CC8B8();
         break;
     }
@@ -1891,7 +1891,7 @@ void func_806D5218(void) {
         G08_P->unk30 = G08_P->unk30 / 1.8;
         G08_A40->unk155++;
     case 1:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         func_806CC8B8();
         mathAngleStepToward(&G08_A40->unkEE, G08_A40->unkE6, (s16)(G08_P->unk48 * 1.25));
         break;
@@ -1941,11 +1941,11 @@ void func_806D5300(void) {
     }
     switch (G08_A40->unk155) {
     case 0:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         G12_P->unk4 = 0.0f;
         break;
     case 1:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         G08_A40->unkEE = G08_A40->unkE6;
         if (!(G12_P->unk1F4 & 8)) {
             G08_A40->unkB8 = 140.0f;
@@ -1962,11 +1962,11 @@ void func_806D5300(void) {
                 G12_P->unk68 = D_8075352C[D_807FD584];
             }
         }
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         break;
     case 3:
         G08_A40->unkB8 = 0.0f;
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         func_806F142C(D_807FBB40);
         break;
     }
@@ -1975,7 +1975,7 @@ void func_806D5300(void) {
 }
 
 void func_806D57F0(void) {
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     G08_P->unk4 = 0.0f;
     func_806CC8B8();
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -1990,7 +1990,7 @@ void func_806D5834(void) {
         G12_P->unk5C = D_80767CC0 - 0x64;
         G12_P->unk48 = 0x50;
     case 1:
-        func_806DF6D4(9);
+        playerInputUpdate(9);
         G12_P->unk30 = 10.0f;
         func_806CD8EC();
         mathAngleStepToward(&G08_A40->unkEE, G08_A40->unkE6, (s16)(G12_P->unk48 * 1.25));
@@ -2061,7 +2061,7 @@ void func_806D59E4(void) {
             G13_A->unk155++;
             G13_P->unk5C = D_80767CC0 - 0x64;
         case 1:
-            func_806DF6D4(9);
+            playerInputUpdate(9);
             G13_P->unk30 = 10.0f;
             func_806CD8EC();
             mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, (s16)(s32)(G13_P->unk48 * 1.25));
@@ -2087,11 +2087,11 @@ void func_806D5B44(void) {
             }
             G13_A->unk155++;
         case 1:
-            func_806DF6D4(0xA);
+            playerInputUpdate(0xA);
             mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, (s16)(s32)(G13_P->unk48 * 1.25));
             break;
         case 2:
-            func_806DF6D4(0xA);
+            playerInputUpdate(0xA);
             G13_P->unk30 = 50.0f;
             func_806CD8EC();
             mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, (s16)(s32)(G13_P->unk48 * 1.25));
@@ -2111,12 +2111,12 @@ void func_806D5CCC(void) {
             switch (G13_A->unk155) {
                 case 0:
                     func_806CFECC();
-                    func_806DF6D4(0x17);
+                    playerInputUpdate(0x17);
                     func_806CC948();
                     break;
                 case 1:
                     func_806CFECC();
-                    func_806DF6D4(0x16);
+                    playerInputUpdate(0x16);
                     func_806CC948();
                     break;
             }
@@ -2127,7 +2127,7 @@ void func_806D5CCC(void) {
                     G13_P->unk30 = 7.0f;
                     G13_P->unk2C = 8.0f;
                     G13_P->unk48 = 0x12C;
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     G13_P->unk4 = 0.0f;
                     func_806CC8B8();
                     break;
@@ -2135,14 +2135,14 @@ void func_806D5CCC(void) {
                     G13_A->unkB8 = D_807531FC[D_807FD584];
                     G13_P->unk2C = 20.0f;
                     G13_P->unk38 = D_807531FC[D_807FD584];
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     func_806CC948();
                     break;
                 case 2:
                     G13_A->unkC0 = 150.0f;
                     G13_P->unk2C = 20.0f;
                     G13_P->unk38 = 200.0f;
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     G13_P->unk4 = 200.0f;
                     func_806CC8B8();
                     G13_A->unk155++;
@@ -2150,7 +2150,7 @@ void func_806D5CCC(void) {
                 case 3:
                     G13_A->unkB8 = 200.0f;
                     G13_P->unk38 = 200.0f;
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     func_806CC948();
                     break;
             }
@@ -2163,14 +2163,14 @@ void func_806D5CCC(void) {
                     G13_P->unk30 = 0.2f;
                     G13_P->unk2C = 8.0f;
                     G13_P->unk48 = 0x12C;
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     func_806CC948();
                     break;
                 case 1:
                     G13_P->unk30 = 20.0f;
                     G13_P->unk2C = 20.0f;
                     G13_P->unk38 = D_807531FC[D_807FD584];
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     func_806CC948();
                     break;
                 case 2:
@@ -2180,7 +2180,7 @@ void func_806D5CCC(void) {
                         G13_A->unk155 = 0;
                         func_80614E78(D_807FBB40, 0x3F);
                     }
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     func_806CC8B8();
                     break;
             }
@@ -2191,7 +2191,7 @@ void func_806D5CCC(void) {
                     G13_P->unk28 = 0;
                     G13_P->unk2C = 20.0f;
                     G13_P->unk48 = 0x12C;
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     G13_P->unk30 = 10.0f;
                     func_806CD8EC();
                     func_806CC948();
@@ -2200,12 +2200,12 @@ void func_806D5CCC(void) {
                     G13_P->unk2C = 30.0f;
                     G13_P->unk68 = D_807531FC[D_807FD584];
                     func_806CD424(G13_A->unkE6, G13_P->unk68, G13_P->unk68);
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     func_806CC948();
                     break;
                 case 2:
                     G13_P->unk28 = 1;
-                    func_806DF6D4(0x15);
+                    playerInputUpdate(0x15);
                     func_806CC8B8();
                     break;
             }
@@ -2228,7 +2228,7 @@ void func_806D61B8(void) {
             G13_P->unk2C = 10.0f;
             G13_P->unk48 = 0x32;
             G13_P->unk68 = D_80753568[D_807FD584];
-            func_806DF6D4(0x18);
+            playerInputUpdate(0x18);
             if (G13_A->unkE0 != 0.0f) {
                 G13_P->unk30 = 20.0f;
                 func_806CD8EC();
@@ -2243,13 +2243,13 @@ void func_806D61B8(void) {
             }
             break;
         case 1:
-            func_806DF6D4(0x18);
+            playerInputUpdate(0x18);
             func_806CC948();
             G13_A->unkC0 = 150.0f;
             G13_A->unk155++;
             break;
         case 2:
-            func_806DF6D4(0x18);
+            playerInputUpdate(0x18);
             func_806CD424(G13_A->unkE6, G13_P->unk68, G13_P->unk68);
             func_806CC948();
             mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, G13_P->unk48);
@@ -2257,18 +2257,18 @@ void func_806D61B8(void) {
         case 3:
             G13_P->unk30 = D_80753558[D_807FD584];
             if (D_8074E77C[D_807FC929] == 0) {
-                func_806DF6D4(0x19);
+                playerInputUpdate(0x19);
             } else {
-                func_806DF6D4(0x19);
+                playerInputUpdate(0x19);
             }
             func_806CC8B8();
             break;
         case 4:
             G13_P->unk30 = D_80753558[D_807FD584];
             if (D_8074E77C[D_807FC929] == 0) {
-                func_806DF6D4(0x19);
+                playerInputUpdate(0x19);
             } else {
-                func_806DF6D4(0x19);
+                playerInputUpdate(0x19);
             }
             func_806CC8B8();
             if (G13_P->unk4 != 0.0f) {
@@ -2276,7 +2276,7 @@ void func_806D61B8(void) {
             }
             break;
         case 5:
-            func_806DF6D4(5);
+            playerInputUpdate(5);
             G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
             func_806CC8A8();
             func_806CBE90();
@@ -2298,7 +2298,7 @@ void func_806D6558(void) {
             func_806CC970();
             break;
         case 1:
-            func_806DF6D4(0x1A);
+            playerInputUpdate(0x1A);
             if (G13_P->unk68 < G13_A->unkB8) {
                 G13_P->unk68 = G13_A->unkB8;
             }
@@ -2326,7 +2326,7 @@ void func_806D6558(void) {
             func_806CC948();
             break;
         case 2:
-            func_806DF6D4(0x1A);
+            playerInputUpdate(0x1A);
             if (G13_A->unkFC != 0 && actorAngleInArc(D_807FBB40, G13_A->unkE6) == 0) {
                 func_80614E78(D_807FBB40, 0x49);
                 G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
@@ -2342,14 +2342,14 @@ void func_806D6558(void) {
             G13_P->unk30 = D_80753548[D_807FD584];
             break;
         case 3:
-            func_806DF6D4(5);
+            playerInputUpdate(5);
             G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
             func_806CC8A8();
             func_806CBE90();
             func_806CC948();
             break;
         case 4:
-            func_806DF6D4(5);
+            playerInputUpdate(5);
             G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
             G13_P->unk30 = 5.0f;
             func_806CD8EC();
@@ -2463,7 +2463,7 @@ void func_806D6B00(void) {
     switch (G14_A->unk155) {
     case 0:
         G14_P->unk28 = 0;
-        func_806DF6D4(0x1A);
+        playerInputUpdate(0x1A);
         if (G14_P->unk68 < G14_A->unkB8) {
             G14_P->unk68 = G14_A->unkB8;
         }
@@ -2480,7 +2480,7 @@ void func_806D6B00(void) {
         func_806CC948();
         break;
     case 1:
-        func_806DF6D4(0x1A);
+        playerInputUpdate(0x1A);
         if (func_806D69A4() != 0) {
             break;
         }
@@ -2517,14 +2517,14 @@ void func_806D6B00(void) {
         }
         break;
     case 2:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         G14_A->unkEE = (G14_A->unkE6 + 0x800) % 4096;
         func_806CC8A8();
         func_806CBE90();
         func_806CC948();
         break;
     case 3:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         G14_A->unkEE = (G14_A->unkE6 + 0x800) % 4096;
         G14_P->unk30 = 5.0f;
         func_806CD8EC();
@@ -2538,7 +2538,7 @@ void func_806D6B00(void) {
 
 void func_806D6F0C(void) {
     mathAngleStepToward(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
-    func_806DF6D4(8);
+    playerInputUpdate(8);
     func_806CC8B8();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -2548,13 +2548,13 @@ void func_806D6F64(void) {
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
     case 0:
-        func_806DF6D4(3);
+        playerInputUpdate(3);
         G14_P->unk4 = D_8075305C[D_807FD584];
         G14_P->unkA = G14_A->unkEE;
         mathAngleStepToward(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
         break;
     case 1:
-        func_806DF6D4(3);
+        playerInputUpdate(3);
         G14_P->unk4 = 0.0f;
         G14_A->unkB8 = 0.0f;
         break;
@@ -2567,7 +2567,7 @@ void func_806D6F64(void) {
 }
 
 void func_806D7098(void) {
-    func_806DF6D4(3);
+    playerInputUpdate(3);
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
     case 0:
@@ -2585,7 +2585,7 @@ void func_806D7098(void) {
 
 void func_806D7170(void) {
     playerStateQueueCallback(0x3C, 0, D_807FC929);
-    func_806DF6D4(3);
+    playerInputUpdate(3);
     switch (G14_A->unk155) {
     case 0:
         G14_P->unk4 = 0.0f;
@@ -2604,7 +2604,7 @@ void func_806D7170(void) {
 
 void func_806D7238(void) {
     playerStateQueueCallback(0x5C, 0, D_807FC929);
-    func_806DF6D4(3);
+    playerInputUpdate(3);
     G14_A->unk144 = 1;
     G14_P->unk4 = 0.0f;
     G14_A->unkB8 = 0.0f;
@@ -2620,14 +2620,14 @@ void func_806D72D4(void) {
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
     case 0:
-        func_806DF6D4(3);
+        playerInputUpdate(3);
         G14_P->unk4 = D_807530F0[D_807FD584];
         G14_P->unkA = G14_A->unkEE;
         G14_A->unkE6 = func_806CC190(G14_A->unkE6, (s16)(G14_P->unkDC->unkE6 + 0x800), 8.0f);
         func_806CC8B8();
         break;
     case 1:
-        func_806DF6D4(3);
+        playerInputUpdate(3);
         G14_P->unk4 = 0.0f;
         if (D_8074E77C[D_807FC929] == 4) {
             f32 t = ((G14Anim **)D_807FBB40->unk4)[0]->unk4;
@@ -2661,7 +2661,7 @@ void func_806D7510(void) {
     switch (G14_A->unk155) {
     case 0:
         playerStateQueueCallback(0x3C, 0, D_807FC929);
-        func_806DF6D4(4);
+        playerInputUpdate(4);
         mathAngleStepToward(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
         if (G14_A->unkFC != 0) {
             G14_A->unkB8 = G14_A->unkB8 * 0.5;
@@ -2694,7 +2694,7 @@ void func_806D7704(void) {
     switch (G14_A->unk155) {
     case 0:
         G14_A->unkB8 = D_80753144[D_807FD584];
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         G14_P->unk4 = D_80753144[D_807FD584];
         if (G14_P->unk1A3 != 0) {
             sfxStopSlotSound(D_807FBB40, 0);
@@ -2704,11 +2704,11 @@ void func_806D7704(void) {
         mathAngleStepToward(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
         break;
     case 1:
-        func_806DF6D4(3);
+        playerInputUpdate(3);
         G14_A->unkB8 = 0.0f;
         break;
     case 2:
-        func_806DF6D4(3);
+        playerInputUpdate(3);
         func_806CFF9C(D_807FBB40);
         break;
     }
@@ -2772,7 +2772,7 @@ typedef struct G15PlayerB {
 extern s32 D_807FBB68;
 extern f32 D_80753024[];
 extern f32 D_80753094[];
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void camStartPathNearWall(void *, s32, s32, s32);
 void func_806CF918();
 s32 func_80714608(s32);
@@ -2784,12 +2784,12 @@ void func_806D7A28(void) {
     u8 v2;
 
     playerStateQueueCallback(0x3C, 0, D_807FC929);
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     switch (G08_A40->unk155) {
         case 0:
             G08_A40->unkC4 = D_80753024[D_807FD584];
             if (D_807FBB68 & 2) {
-                func_80609140(0x424, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x424, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
             if (D_807FC928 == 1) {
                 camStartPathNearWall(D_807FBB4C, 0xC, 0x25, 0x85);
@@ -2849,11 +2849,11 @@ void func_806D7A28(void) {
 void func_806D7DF8(void) {
     switch (G08_A40->unk155) {
         case 0:
-            func_806DF6D4(0x45);
+            playerInputUpdate(0x45);
             G08_P->unk4 = 0.0f;
             break;
         case 1:
-            func_806DF6D4(0x44);
+            playerInputUpdate(0x44);
             G08_P->unk4 = 0.0f;
             break;
     }
@@ -2867,11 +2867,11 @@ void func_806D7E88(void) {
 
     switch (G08_A40->unk155) {
         case 0:
-            func_806DF6D4(0x46);
+            playerInputUpdate(0x46);
             G08_P->unk4 = 0.0f;
             break;
         case 1:
-            if (func_806DF6D4(0x46) == 0) {
+            if (playerInputUpdate(0x46) == 0) {
                 v = func_806CE4E4(D_807FBB40, G08_A40->unkB8, G08_P->unk4, 1);
                 new_var = v;
                 if (v != 0x3F) {
@@ -2890,7 +2890,7 @@ void func_806D7F48(void) {
     s16 v;
 
     func_806CBE90();
-    if (func_806DF6D4(0x46) == 0) {
+    if (playerInputUpdate(0x46) == 0) {
         r = func_806CE4E4(D_807FBB40, G08_A40->unkB8, G08_P->unk4, 1);
         if (r != 0x40) {
             v = r;
@@ -2908,7 +2908,7 @@ void func_806D7F48(void) {
 void func_806D7FE8(void) {
     switch (G08_A40->unk155) {
         case 0:
-            func_806DF6D4(1);
+            playerInputUpdate(1);
             break;
         case 1:
             G08_A40->unk154 = 0x3C;
@@ -2921,7 +2921,7 @@ void func_806D7FE8(void) {
 }
 
 void func_806D8070(void) {
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     func_806CC8B8();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -2937,7 +2937,7 @@ void func_806D80A8(void) {
     switch (G08_A40->unk155) {
         case 0:
             func_80614D00(D_807FBB40, 1.0f, 0);
-            func_806DF6D4(0x47);
+            playerInputUpdate(0x47);
             func_806CC948();
             func_806CD8EC();
             G08_P->unk2C = D_80753470[D_807FD584];
@@ -2950,7 +2950,7 @@ void func_806D80A8(void) {
             G08_A40->unkC4 = D_80753738[D_807FD584];
             G08_A40->unkB8 = 0.0f;
             G08_A40->unk155++;
-            func_806DF6D4(0x47);
+            playerInputUpdate(0x47);
             func_806CFE30();
             func_806CC948();
             break;
@@ -2960,10 +2960,10 @@ void func_806D80A8(void) {
             func_806D3608();
             func_806CC8B8();
             mathAngleStepToward(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
-            func_806DF6D4(0x47);
+            playerInputUpdate(0x47);
             break;
         case 3:
-            func_806DF6D4(0x35);
+            playerInputUpdate(0x35);
             if (D_807FD618[D_807FC929].unk0 != 0.0f) {
                 func_80614D00(D_807FBB40, 3.0f, 0.0f);
             }
@@ -2985,7 +2985,7 @@ void func_806D8308(void) {
         case 0:
             G15_EA(D_807FBB40) = G08_A40->unkEE;
             func_80614D00(D_807FBB40, 1.0f, 0);
-            func_806DF6D4(0x48);
+            playerInputUpdate(0x48);
             func_806CC948();
             break;
         case 1:
@@ -2994,7 +2994,7 @@ void func_806D8308(void) {
             G08_A40->unkB8 = D_80753770[D_807FD584];
             G15_EA(D_807FBB40) = G08_A40->unkEE;
             G08_A40->unk155++;
-            func_806DF6D4(0x48);
+            playerInputUpdate(0x48);
             func_806CFE30();
             func_806CC948();
             break;
@@ -3002,11 +3002,11 @@ void func_806D8308(void) {
             func_806CFE30();
             func_806D3608();
             func_806CC948();
-            func_806DF6D4(0x48);
+            playerInputUpdate(0x48);
             break;
         case 3:
             G08_P->unk30 = D_807537C4[D_807FD584];
-            func_806DF6D4(0x33);
+            playerInputUpdate(0x33);
             func_806CFE7C();
             func_806CC8B8();
             break;
@@ -3015,7 +3015,7 @@ void func_806D8308(void) {
                 func_806CFF9C(D_807FBB40);
             }
             G08_P->unk30 = D_807537C4[D_807FD584];
-            func_806DF6D4(0x33);
+            playerInputUpdate(0x33);
             func_806CFE7C();
             func_806CC8B8();
             break;
@@ -3141,11 +3141,11 @@ void func_806D87FC(void) {
     G08_P->unk24 = 0;
     switch (G15_B->unk155) {
         case 0:
-            func_806DF6D4(0x4E);
+            playerInputUpdate(0x4E);
             func_806CC8F0();
             break;
         case 1:
-            func_806DF6D4(0x4D);
+            playerInputUpdate(0x4D);
             func_806CC8F0();
             if (G15_B->unkB8 != 0.0f) {
                 func_80614E78(D_807FBB40, 0x3A);
@@ -3153,7 +3153,7 @@ void func_806D87FC(void) {
             }
             break;
         default:
-            func_806DF6D4(0x4D);
+            playerInputUpdate(0x4D);
             func_806CC8F0();
             if (G15_B->unkB8 == 0.0f) {
                 func_80614E78(D_807FBB40, 0x33);
@@ -3181,7 +3181,7 @@ void func_806D8A64(void) {
     switch (a->unk155) {
         case 0:
             func_80614D00(a, 1.0f, 0);
-            func_806DF6D4(0x4B);
+            playerInputUpdate(0x4B);
             func_806CC8B8();
             a = G08_A40;
             break;
@@ -3287,7 +3287,7 @@ void func_806D8B08(void) {
     G16_P->unk2C = D_80753AFC[D_807FD584];
     switch (G16_A->unk155) {
         case 0:
-            func_806DF6D4(0x4C);
+            playerInputUpdate(0x4C);
             t = D_80753A5C[D_807FD584];
             G16_A->unkC0 = mathApproachF32(G16_A->unkC0, t, G16_P->unk1C);
             if (t <= G16_A->unkC0) {
@@ -3302,7 +3302,7 @@ void func_806D8B08(void) {
             effectSpawnAuraBurst(1);
             goto end;
         case 1:
-            func_806DF6D4(0x4F);
+            playerInputUpdate(0x4F);
             func_806CC638(0.0f);
             if (G16_P->unk10 == 0) {
                 G16_A->unk155 = 3;
@@ -3320,7 +3320,7 @@ void func_806D8B08(void) {
             }
             goto end;
         default:
-            func_806DF6D4(0x54);
+            playerInputUpdate(0x54);
             func_806CC638(D_80753A5C[D_807FD584]);
             if (G16_A->unkB8 != 0.0f) {
                 G16_P->unk18 = 0;
@@ -3336,11 +3336,11 @@ void func_806D8B08(void) {
             func_806D0EBC(D_807FBB40);
             goto end;
         case 3:
-            func_806DF6D4(0x50);
+            playerInputUpdate(0x50);
             func_806CC638(0.0f);
             break;
         case 4:
-            func_806DF6D4(0x51);
+            playerInputUpdate(0x51);
             G16_P->unk12 = G16_A->unkE8;
             G16_P->unk14 = G16_A->unkE6;
             G16_P->unk38 = D_80753AE0[D_807FD584];
@@ -3349,19 +3349,19 @@ void func_806D8B08(void) {
             G16_A->unk155 = G16_A->unk155 + 1;
             break;
         case 5:
-            func_806DF6D4(0x51);
+            playerInputUpdate(0x51);
             func_806CC638(0.0f);
             break;
         case 6:
-            func_806DF6D4(0x52);
+            playerInputUpdate(0x52);
             func_806CC638(0.0f);
             break;
         case 7:
-            func_806DF6D4(0x51);
+            playerInputUpdate(0x51);
             func_806CC638(0.0f);
             break;
         case 8:
-            func_806DF6D4(0x53);
+            playerInputUpdate(0x53);
             func_806CC638(0.0f);
             break;
     }
@@ -3382,7 +3382,7 @@ void func_806D8FCC(void) {
     switch (G16_A->unk155) {
         case 0:
             func_806D3FA0();
-            func_806DF6D4(0x21);
+            playerInputUpdate(0x21);
             func_806CC8F0();
             break;
         case 1:
@@ -3390,22 +3390,22 @@ void func_806D8FCC(void) {
             G16_A->unkC0 = G16_P->unk54;
             func_806CFECC();
             G16_A->unk155 = G16_A->unk155 + 1;
-            func_806DF6D4(0x21);
+            playerInputUpdate(0x21);
             func_806CFD68();
             break;
         case 2:
             func_806CC8B8();
-            func_806DF6D4(0x21);
+            playerInputUpdate(0x21);
             if (G16_A->unk58 == 5) {
-                func_806DF6D4(0x22);
+                playerInputUpdate(0x22);
             } else {
-                func_806DF6D4(0x21);
+                playerInputUpdate(0x21);
             }
             func_806CFD68();
             break;
         case 3:
             func_806CC8B8();
-            func_806DF6D4(0x30);
+            playerInputUpdate(0x30);
             func_806CFE7C();
             break;
     }
@@ -3413,7 +3413,7 @@ void func_806D8FCC(void) {
 }
 
 void func_806D9134(void) {
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     G08_A40->unkB8 = 0.0f;
     G08_A40->unkC0 = 0.0f;
     func_806CC970();
@@ -3460,7 +3460,7 @@ void func_806D91A4(void) {
     } else {
         G16_A->unkB8 = G16_A->unkB8 - (f32)n;
     }
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     func_806CC948();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -3537,17 +3537,17 @@ void func_806D9320(void) {
                 func_806CFE7C();
                 G16_A->unk155 = G16_A->unk155 + 1;
             }
-            func_806DF6D4(1);
+            playerInputUpdate(1);
             break;
         case 1:
-            func_806DF6D4(0x20);
+            playerInputUpdate(0x20);
             func_80614E78(D_807FBB40, 0x23);
             G16_A->unkE8 = 0;
             func_806CFE7C();
             G16_A->unk155 = G16_A->unk155 + 1;
             break;
         case 2:
-            func_806DF6D4(0x20);
+            playerInputUpdate(0x20);
             break;
         case 3:
             func_80617770(D_807FBB40, 0x10, 0);
@@ -3555,7 +3555,7 @@ void func_806D9320(void) {
             G16_A->unk155 = G16_A->unk155 + 1;
         case 4:
             func_806CD8EC();
-            func_806DF6D4(0x30);
+            playerInputUpdate(0x30);
             break;
     }
     func_806CC948();
@@ -3563,7 +3563,7 @@ void func_806D9320(void) {
 }
 
 void func_806D97A4(void) {
-    func_806DF6D4(5);
+    playerInputUpdate(5);
     if (G16_A->unkC0 < 0.0f) {
         G16_P->unk6C = 0.0f;
     }
@@ -3576,7 +3576,7 @@ void func_806D9820(void) {
     f32 t;
     f32 v;
 
-    func_806DF6D4(0x4A);
+    playerInputUpdate(0x4A);
     switch (G16_A->unk155) {
         case 0:
             if (G16_P->unk38 < G16_A->unkB8) {
@@ -3610,7 +3610,7 @@ void func_806D9940(void) {
     s32 ch;
     f32 vol;
 
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     if (G16_A->unk155 < 3 ||
         (func_8061CB80() != 0 && (camIsPlayingPath(7) != 0 || camIsPlayingPath(0) != 0 || camIsPlayingPath(4) != 0 ||
                                   camIsPlayingPath(9) != 0 || camIsPlayingPath(8) != 0))) {
@@ -3751,7 +3751,7 @@ void func_806D9AD4(void) {
     f32 sp28;
     s32 sel;
 
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     sel = G17_A->unk155;
     if (sel == 1 || sel == 2) {
         randomNonNegative();
@@ -3809,7 +3809,7 @@ void func_806D9D58(void) {
         G17_A->unk155++;
         break;
     case 1:
-        func_806DF6D4(0x43);
+        playerInputUpdate(0x43);
         mathAngleStepToward(&G17_A->unkE6, G17_A->unkEE, 0x32);
         G17_A->unk80 = G17_P->unk238;
         func_806CC8B8();
@@ -3846,7 +3846,7 @@ void func_806D9FD0(void) {
         break;
     case 1:
         mathAngleStepToward(&G17_A->unkE6, G17_A->unkEE, 0x32);
-        func_806DF6D4(0x43);
+        playerInputUpdate(0x43);
         G17_A->unkC4 -= 0.036;
         func_806CC8B8();
         sfxSetChannelTempo(0x6B, 0.995f);
@@ -3863,7 +3863,7 @@ void func_806D9FD0(void) {
         break;
     case 2:
         mathAngleStepToward(&G17_A->unkE6, G17_A->unkEE, 0x32);
-        func_806DF6D4(0x43);
+        playerInputUpdate(0x43);
         mathAngleStepToward(&G17_A->unkE6, G17_A->unkEE, 0x32);
         G17_A->unk168++;
         G17_A->unk80 += func_80612794(G17_A->unk168 << 5) * 0.25;
@@ -3876,23 +3876,23 @@ void func_806D9FD0(void) {
         break;
     case 3:
         actorScriptStart(D_807FBB40, 0x16A);
-        func_806DF6D4(0x43);
+        playerInputUpdate(0x43);
         func_806CC8B8();
         G17_A->unk155++;
         break;
     case 4:
         G17_A->unkC4 -= 1.0f;
-        func_806DF6D4(0x43);
+        playerInputUpdate(0x43);
         func_806CC8B8();
         break;
     case 5:
         sfxStopChannel(0x6B, 0);
-        func_806DF6D4(0x43);
+        playerInputUpdate(0x43);
         func_806CC8B8();
         break;
     case 6:
         sfxStopChannel(0x6B, 0);
-        func_806DF6D4(0x43);
+        playerInputUpdate(0x43);
         func_806CC8B8();
         break;
     }
@@ -3907,7 +3907,7 @@ void func_806DA320(void) {
         v = G17_A->unkB8;
     }
     func_80614D00(D_807FBB40, v / 25.0f + 0.25, 2.0f);
-    func_806DF6D4(0x49);
+    playerInputUpdate(0x49);
     if (!(G17_A->unk6A & 0x10)) {
         func_806CFF9C(D_807FBB40);
     }
@@ -3917,7 +3917,7 @@ void func_806DA320(void) {
 
 void func_806DA3E4(void) {
     func_806CA2AC();
-    func_806DF6D4(5);
+    playerInputUpdate(5);
     G17_A->unkB8 = 0.0f;
     G17_A->unk7C = (G17_P->unk22C - G17_A->unk7C) * 0.2 + G17_A->unk7C;
     G17_A->unk84 = (G17_P->unk234 - G17_A->unk84) * 0.2 + G17_A->unk84;
@@ -3961,17 +3961,17 @@ void func_806DA4D8(void) {
         G17_A->unk155++;
         break;
     case 3:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         func_806CEE64(0.4f);
         func_806CEED8();
         break;
     case 4:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         func_8067A784(D_807FBB40, G17_P->unk1AC, G17_B48->unkE6, G17_A->unk4->unk34 * (D_807533B8[D_807FD584] * 3.0) / (new_var = 0.15), 0);
         G17_A->unk155++;
         break;
     case 5:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         break;
     case 6:
         G17_P->unk1AC = G17_P->unk1B0;
@@ -3987,7 +3987,7 @@ void func_806DA4D8(void) {
 }
 
 void func_806DA7EC(void) {
-    func_806DF6D4(6);
+    playerInputUpdate(6);
     if (D_807FD618[D_807FC929].unk0 != 0.0f) {
         func_80614D00(D_807FBB40, 3.0f, 0.0f);
     }
@@ -3998,7 +3998,7 @@ void func_806DA7EC(void) {
 }
 
 void func_806DA89C(void) {
-    func_806DF6D4(7);
+    playerInputUpdate(7);
     if (D_807FD618[D_807FC929].unk0 != 0.0f) {
         func_80614D00(D_807FBB40, 2.0f, 0.0f);
     }
@@ -4015,7 +4015,7 @@ void func_806DA94C(void) {
     func_806CEED8();
     G17_A->unk154 = func_806CE928(D_807FBB40, G17_A->unkB8, G17_P->unk4, 1);
     G17_A->unk155 = 0;
-    func_806DF6D4(0x37);
+    playerInputUpdate(0x37);
     if (!(G17_A->unk6A & 1)) {
         func_806D3608();
     }
@@ -4030,7 +4030,7 @@ void func_806DAA14(void) {
     func_806CEED8();
     G17_A->unk154 = func_806CE928(D_807FBB40, G17_A->unkB8, G17_P->unk4, 1);
     G17_A->unk155 = 0;
-    func_806DF6D4(0x37);
+    playerInputUpdate(0x37);
     if (!(G17_A->unk6A & 1)) {
         func_806D3608();
     }
@@ -4117,7 +4117,7 @@ typedef struct G18State {
 
 void func_806DAADC(void) {
     G18_P->unk1F0 &= 0xFEFFFFFF;
-    func_806DF6D4(0x3A);
+    playerInputUpdate(0x3A);
     func_806CEED8();
     switch (G18_A->unk155) {
         case 0:
@@ -4143,7 +4143,7 @@ extern f32 D_8075339C[];
 
 void func_806DABE4(void) {
     G18_P->unk1F0 &= 0xFEFFFFFF;
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     switch (G18_A->unk155) {
         case 0:
             func_806CEE64(1.0f);
@@ -4176,7 +4176,7 @@ extern f32 D_807533F0[];
 
 void func_806DADA0(void) {
     G18_P->unk1F0 &= 0xFEFFFFFF;
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     switch (G18_A->unk155) {
         case 0:
             func_806CEE64(1.0f);
@@ -4211,23 +4211,23 @@ void func_806DAF5C(void) {
     switch (G18_A->unk155) {
         case 0:
             func_80614D00(D_807FBB40, 1.0f, 0);
-            func_806DF6D4(0x21);
+            playerInputUpdate(0x21);
             break;
         case 1:
             G18_A->unkC0 = G18_P->unk54;
             func_806CFECC();
             func_806D3FA0();
             G18_A->unk155++;
-            func_806DF6D4(0x21);
+            playerInputUpdate(0x21);
             func_806CFD68();
             break;
         case 2:
             func_806D3608();
-            func_806DF6D4(0x39);
+            playerInputUpdate(0x39);
             func_806CFD68();
             break;
         case 3:
-            func_806DF6D4(0x38);
+            playerInputUpdate(0x38);
             func_806CFE7C();
             break;
     }
@@ -4236,7 +4236,7 @@ void func_806DAF5C(void) {
 }
 
 void func_806DB08C(void) {
-    func_806DF6D4(0x12);
+    playerInputUpdate(0x12);
     func_806CC8B8();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -4281,7 +4281,7 @@ void func_806DB0C4(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void matrixCacheSetDefaultLimit(void);
 void matrixCacheRestoreLimit(void);
 void actorClearMovementFlags(void *);
@@ -4296,7 +4296,7 @@ void func_806DB3AC(void) {
             G18_A->unk144 = 1;
             G18_A->unk60 &= 0xFFFF7FFF;
             G18_A->unk128 = 0xFF;
-            func_806086CC(G18_A->unk7C, G18_A->unk80, G18_A->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+            sfxPlayAtPositionPooled(G18_A->unk7C, G18_A->unk80, G18_A->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             G18_A->unk155++;
             break;
         case 1:
@@ -4316,7 +4316,7 @@ void func_806DB3AC(void) {
             camResetPlayer(D_807FBB40, G18_P->unk1A4);
             screenWipeStart(6);
             G18_P->unk23C = 0x14;
-            func_806086CC(G18_A->unk7C, G18_A->unk80, G18_A->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+            sfxPlayAtPositionPooled(G18_A->unk7C, G18_A->unk80, G18_A->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             G18_A->unk155++;
             break;
         case 3:
@@ -4336,7 +4336,7 @@ void func_806DB3AC(void) {
             func_806C8D20(D_807FBB40);
             matrixCacheRestoreLimit();
             func_806CFF9C(D_807FBB40);
-            func_806DF6D4(0x30);
+            playerInputUpdate(0x30);
             break;
     }
     func_806CC970();
@@ -4344,7 +4344,7 @@ void func_806DB3AC(void) {
 }
 
 void func_8067B238(void *, void *, f32);
-void func_80602498(void);
+void sfxStartAreaAmbient(void);
 void func_806CCB0C(void);
 
 
@@ -4407,7 +4407,7 @@ void func_806DB670(void) {
             D_807FBB60 |= 0x30020;
             G18_P->unk23C--;
             if (G18_P->unk23C == 0) {
-                func_80602498();
+                sfxStartAreaAmbient();
                 if (actorSpawn(0x3C, 0x98)) {
                     func_8067B238(D_807FBB44, D_807FBB40, 0.15f);
                 }
@@ -4427,14 +4427,14 @@ void func_806DB670(void) {
             }
             break;
         case 11:
-            func_806DF6D4(0x20);
+            playerInputUpdate(0x20);
             func_80614E78(D_807FBB40, 0x1B);
             func_806CFE7C();
             G18_A->unk155++;
             break;
         case 12:
         case 13:
-            func_806DF6D4(0x20);
+            playerInputUpdate(0x20);
             func_806CCB0C();
             break;
         case 14:
@@ -4443,7 +4443,7 @@ void func_806DB670(void) {
         case 15:
             func_806C8D20(D_807FBB40);
             matrixCacheRestoreLimit();
-            func_806DF6D4(0x30);
+            playerInputUpdate(0x30);
             break;
     }
     func_806CC970();
@@ -4495,7 +4495,7 @@ void func_806DBB04(void) {
     f32 sp54;
     f32 var_fv1;
 
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     switch (LB_A->unk155) {
     case 0:
         LB_P->unk108 = 50.0f;
@@ -4652,7 +4652,7 @@ void func_806DC170(void) {
     f32 f;
     s32 i;
 
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     G19_A->unkB8 = 0.0f;
     switch (G19_A->unk155) {
     case 0:
@@ -4783,7 +4783,7 @@ void func_806DC410(void) {
     mathAngleStepToward(&LD5_A->unkE6, LD5_A->unkEE, 0xC8);
     switch (LD5_A->unk155) {
     case 0:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         LD5_P->unk94 = 0.0f;
         LD5_P->unk158 = 0;
         LD5_A->unkEE = LD5_P->unk130->unkE6;
@@ -4792,7 +4792,7 @@ void func_806DC410(void) {
         }
         break;
     case 1:
-        if (func_806DF6D4(0x58) == 0) {
+        if (playerInputUpdate(0x58) == 0) {
             switch (LD5_P->unk8) {
             case 1:
                 sp1C = D_80753C30[D_807FD584];
@@ -4813,7 +4813,7 @@ void func_806DC410(void) {
         }
         break;
     case 2:
-        if (func_806DF6D4(0x58) == 0) {
+        if (playerInputUpdate(0x58) == 0) {
             if (LD5_P->unk94 == 0.0f && LD5_P->unk4 == 0.0f) {
                 LD5_A->unk155 = 1;
                 func_80614E78(D_807FBB48, 0x6C);
@@ -4835,7 +4835,7 @@ void func_806DC410(void) {
         }
         break;
     case 3:
-        if (func_806DF6D4(0x58) == 0) {
+        if (playerInputUpdate(0x58) == 0) {
             if (LD5_P->unk94 <= 0.0f) {
                 LD5_A->unk155 = 2;
             }
@@ -4861,7 +4861,7 @@ void func_806DC410(void) {
         }
         break;
     case 4:
-        if (func_806DF6D4(0x58) == 0) {
+        if (playerInputUpdate(0x58) == 0) {
             if (LD5_P->unk94 >= 0.0f) {
                 LD5_A->unk155 = 2;
             }
@@ -4934,7 +4934,7 @@ void func_806DCA7C(void) {
         mathAngleStepTowardThreshold(&G19_A->unkE6, G19_A->unkEE, 0x78, 0x600);
         G19_A->unkC0 = G19_P->unk150;
         G19_A->unk155++;
-        func_806DF6D4(0x27);
+        playerInputUpdate(0x27);
         G19_P->unk30 = G19_P->unk30 / 2;
         func_806CC948();
         break;
@@ -4947,9 +4947,9 @@ void func_806DCA7C(void) {
     case 1:
         func_806DCF60();
         if (G19_A->unk58 == 5) {
-            func_806DF6D4(0x28);
+            playerInputUpdate(0x28);
         } else {
-            func_806DF6D4(0x27);
+            playerInputUpdate(0x27);
         }
         G19_A->unkB8 = G19_P->unk14C;
         G19_A->unkEE = G19_P->unk154;
@@ -4978,7 +4978,7 @@ void func_806DCA7C(void) {
         func_806CC948();
         break;
     case 3:
-        func_806DF6D4(0x30);
+        playerInputUpdate(0x30);
         func_806CFE7C();
         func_806CC8B8();
         G19_P->unk30 = 10.0f;
@@ -5089,11 +5089,11 @@ void func_806DD24C(void) {
     actorRegisterGlobalCallback(node);
     switch (L6_A->unk155) {
     case 0:
-        func_806DF6D4(5);
+        playerInputUpdate(5);
         L6_P->unk94 = 0.0f;
         break;
     case 1:
-        if (func_806DF6D4(0x59) == 0) {
+        if (playerInputUpdate(0x59) == 0) {
             switch (L6_P->unk8) {
             case 1:
                 sp1C = D_80753C30[D_807FD584];
@@ -5114,7 +5114,7 @@ void func_806DD24C(void) {
         }
         break;
     case 2:
-        if (func_806DF6D4(0x59) == 0) {
+        if (playerInputUpdate(0x59) == 0) {
             if (L6_P->unk94 == 0.0f && L6_P->unk4 == 0.0f) {
                 L6_A->unk155 = 1;
                 func_80614E78(D_807FBB48, 0x73);
@@ -5136,7 +5136,7 @@ void func_806DD24C(void) {
         }
         break;
     case 3:
-        if (func_806DF6D4(0x59) == 0) {
+        if (playerInputUpdate(0x59) == 0) {
             if (L6_P->unk94 <= 0.0f) {
                 L6_A->unk155 = 2;
             }
@@ -5162,7 +5162,7 @@ void func_806DD24C(void) {
         }
         break;
     case 4:
-        if (func_806DF6D4(0x59) == 0) {
+        if (playerInputUpdate(0x59) == 0) {
             if (L6_P->unk94 >= 0.0f) {
                 L6_A->unk155 = 2;
             }
@@ -5205,7 +5205,7 @@ void func_806DD874(void) {
         func_806CFECC();
         G19_A->unk155++;
         G19_P->unk3C = 3;
-        func_806DF6D4(0x29);
+        playerInputUpdate(0x29);
         G19_P->unk2C = 30.0f;
         G19_P->unk48 = 0x64;
         func_806CFD68();
@@ -5214,9 +5214,9 @@ void func_806DD874(void) {
         break;
     case 2:
         if (G19_A->unk58 == 5) {
-            func_806DF6D4(0x2A);
+            playerInputUpdate(0x2A);
         } else {
-            func_806DF6D4(0x29);
+            playerInputUpdate(0x29);
         }
         G19_P->unk38 = 150.0f;
         func_806D3608();
@@ -5232,7 +5232,7 @@ void func_806DD874(void) {
         }
         break;
     case 3:
-        func_806DF6D4(0x30);
+        playerInputUpdate(0x30);
         func_806CFE7C();
         func_806CC8B8();
         break;
@@ -5338,7 +5338,7 @@ void func_806DDAB0(void) {
     }
     switch (LD5C_A->unk155) {
     case 0:
-        func_806DF6D4(0x5A);
+        playerInputUpdate(0x5A);
         LD5C_P->unkEC = LD5C_A->unkE6;
         LD5C_P->unkF8 = 5;
         LD5C_A->unk155 = 2;
@@ -5349,7 +5349,7 @@ void func_806DDAB0(void) {
         if (LD5C_P->unkF8 != 0) {
             LD5C_P->unkF8 -= 1;
         }
-        if (func_806DF6D4(0x5A) == 0) {
+        if (playerInputUpdate(0x5A) == 0) {
             switch (LD5C_P->unk8) {
             case -1:
                 if (LD5C_A->unk155 == 1) {
@@ -5513,7 +5513,7 @@ void func_806DE264(void) {
 
     LD5B_A->unkC0 = 0.0f;
     LD5B_A->unkB8 = 0.0f;
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     if (func_806CFC90(D_807FBB40, &sp3C, 1, 15.0f) != 0) {
         LD5B_P->unkF0 = sp3C;
     }
@@ -5650,7 +5650,7 @@ void func_806DE264(void) {
 
 void func_806DE930(void) {
     G19_P->unk4 = 0.0f;
-    if ((func_806DF6D4(1) == 0) && (G19_A->unk6A & 1)) {
+    if ((playerInputUpdate(1) == 0) && (G19_A->unk6A & 1)) {
         func_806CDD24(D_807FBB40, G19_A->unkB8, 0, 1);
     }
     if (D_8076A0A8 == 0x52) {
@@ -5783,7 +5783,7 @@ void func_806DED44(void) {
     s32 sel;
     s32 a1;
 
-    func_806DF6D4(1);
+    playerInputUpdate(1);
     func_806D9924(D_807FBB40);
     sel = G20_E40->unk155;
     switch (sel) {

@@ -88,7 +88,7 @@ s32 camIsPathPaused(void);
 void camResumePath(void);
 void actorSetStateTwo(void *);
 void func_805FF378(s32, s32);
-void func_806A2A10(s32, s32, s32);
+void hudSpawnCountdownTimer(s32, s32, s32);
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_8070D8C0(void *, s32, u8);
 void renderCallbacksRegister(void *, void *, s32);
@@ -124,11 +124,11 @@ void bonusScoreHudUpdate(void) {
                 }
                 func_8070D8C0(D_807FBB40, 0, sp28);
                 D_807FBB40->unk154 = 1;
-                func_806A2A10(0xDC, 0x2A, (u8)hud->unk4);
+                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
             } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camStartPath(D_807FBB4C, 1, 1);
                 D_807FBB40->unk154 = 2;
-                func_806A2A10(0xDC, 0x2A, (u8)hud->unk4);
+                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
                 actorSetStateTwo((void *)D_807FBB40->unk11C);
             }
         }

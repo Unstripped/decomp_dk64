@@ -27,7 +27,7 @@ void effectNodeSetTargetPosition(s32, f32, f32, f32);
 void func_80028EE8(s32, s32, s32, s32, s32, s32, s32, s32);
 void func_805FF378(s32, s32);
 void func_805FF8F8(void);
-s16 func_806086CC(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void func_80613CA8(void *, s16, f32, f32);
 void func_8061421C(void *);
 void func_80614A64(void *);
@@ -350,7 +350,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
                 } else {
                     sp98 = D_807FBB4C;
                 }
-                D_807F5D7C = func_806086CC(M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x80), M3_OFF(sp98, f32, 0x84), (s16)sv[3], (u32)(sv[1] != 0 ? (f64)sv[1] : 127.5), sv[0] != 0 ? sv[0] : 0x7F, 0, 0, 0.0f, 0);
+                D_807F5D7C = sfxPlayAtPositionPooled(M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x80), M3_OFF(sp98, f32, 0x84), (s16)sv[3], (u32)(sv[1] != 0 ? (f64)sv[1] : 127.5), sv[0] != 0 ? sv[0] : 0x7F, 0, 0, 0.0f, 0);
                 return;
             }
             if (sv[3] < 0x800) {

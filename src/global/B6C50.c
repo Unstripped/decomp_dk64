@@ -56,7 +56,7 @@ void actorUpdateModelMatrix(B6C50Actor *, s32);
 void actorUpdateFloorContactAndTilt(B6C50Actor *, f32);
 void func_8067B238(B6C50Actor *, B6C50Actor *, f32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
-void func_806A2A10(s32, s32, u8);
+void hudSpawnCountdownTimer(s32, s32, u8);
 void func_80714998(s32);
 void func_807149A8(s16);
 void func_807149B8(s32);
@@ -111,7 +111,7 @@ void func_806B1F50(void) {
             break;
         case 0:
             if (currentActorTestClearFlag() != 0) {
-                func_806A2A10(0xDC, 0x2A, 0x1E);
+                hudSpawnCountdownTimer(0xDC, 0x2A, 0x1E);
                 actorSetStateTwo(D_807FBB40->unk11C);
                 D_807FBB40->unk154 = 7;
                 D_807FBB40->unk155 = 0;

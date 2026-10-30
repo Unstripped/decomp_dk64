@@ -490,11 +490,11 @@ u8 arg5;
     actorSpawnNodeEntryScaled(0x48, (f32)arg1, (f32)arg2, (f32)arg3, (s32)arg4, (s32)arg5, (s16)arg0, 0);
 }
 
-void func_806A2A10(s32, s32, s32);
+void hudSpawnCountdownTimer(s32, s32, s32);
 void actorSetStateTwo(s32);
 
 void func_80028680(void) {
-    func_806A2A10(-0x7F83, 0xD2, 0xB4);
+    hudSpawnCountdownTimer(-0x7F83, 0xD2, 0xB4);
     actorSetStateTwo(D_807FBB40->unk11C);
 }
 
@@ -581,7 +581,7 @@ s32 func_8071441C(void);
 f32 sfxGetChannelVolume(s32);
 s32 func_805FCA64(void);
 void renderCallbacksRegister(void *, void *, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 
 
 void bossRoundFrame(u8 *arg0) {
@@ -724,7 +724,7 @@ void bossRoundFrame(u8 *arg0) {
             } else if (s0->unkD & 2) {
                 snd = 0x1E7;
             }
-            func_80609140(snd, 0x58EF, 64.0f, 1.0f, 0x14, 0x80);
+            sfxPlayOnFreeSlot(snd, 0x58EF, 64.0f, 1.0f, 0x14, 0x80);
         }
         if (s0->unkE + 0x4650 >= 0x8000) {
             s0->unkE = 0x7FFF;
@@ -748,7 +748,7 @@ void bossRoundFrame(u8 *arg0) {
             case 0x1D:
             case 0x29:
             case 0x34:
-                func_80609140(0x1E9, 0x58EF, 64.0f, 1.0f, 0, 0x80);
+                sfxPlayOnFreeSlot(0x1E9, 0x58EF, 64.0f, 1.0f, 0, 0x80);
                 break;
             }
         }

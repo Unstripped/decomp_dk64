@@ -1,4 +1,4 @@
-// func_806545D4 (src/global/55B20.c): stage 4 (parked NON_MATCHING in 55B20.c): frame 0xA8 and callee set s0-s5/ra equal; text diff 56 lines scheduling/regalloc only. Found: uv0..uv3 as f32 SCALARS (not uv[4]) gives frame 0xA8 and a spilled a@0x40; loop via f32 (*)[3] out cast gives the 3 stride-12 IV pointers + s0..s5 exactly. Remaining: target spills t(dy)@0x50 and reloads it (store->load barrier delays the D.1C load), f0/f2 swap, idx/base/offset temp order t9/t8/t2 for D_807FC924[idx]. Tried decl-order permutations, expression forms/statement orders (480), deadsweep, same-line joins, S[8] array homes
+// mapScreenRectBuildFrustum (src/global/55B20.c): stage 4 (parked NON_MATCHING in 55B20.c): frame 0xA8 and callee set s0-s5/ra equal; text diff 56 lines scheduling/regalloc only. Found: uv0..uv3 as f32 SCALARS (not uv[4]) gives frame 0xA8 and a spilled a@0x40; loop via f32 (*)[3] out cast gives the 3 stride-12 IV pointers + s0..s5 exactly. Remaining: target spills t(dy)@0x50 and reloads it (store->load barrier delays the D.1C load), f0/f2 swap, idx/base/offset temp order t9/t8/t2 for D_807FC924[idx]. Tried decl-order permutations, expression forms/statement orders (480), deadsweep, same-line joins, S[8] array homes
 typedef struct S55dPlayer {
     /* 0x000 */ u8 pad0[0x270];
     /* 0x270 */ s16 unk270;
@@ -28,7 +28,7 @@ typedef struct S55dRoad {
 } S55dRoad;
 
 extern S55dRoad D_807F5DF0;
-void func_806545D4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
+void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
     f32 uv3;
     f32 t;
     f32 a;

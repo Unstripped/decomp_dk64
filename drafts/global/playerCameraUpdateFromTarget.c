@@ -10,7 +10,7 @@ typedef struct {
     s16 unkEC;
 } AimActorAngles;
 
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 f32 func_80612794(s16);
 void camUpdate(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -81,10 +81,10 @@ void playerCameraUpdateFromTarget(void) {
         ((AimActorAngles *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
         if (D_8076A0A8 == 0x1F) {
             if (D_807FC624 < 0x1E) {
-                func_80609140(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
+                sfxPlayOnFreeSlot(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }
             if ((D_807FC624 >= 0x800) && (D_807FC624 < 0x81E)) {
-                func_80609140(0x14, 0x7FFF, 64.0f, 1.0f, 10, 128);
+                sfxPlayOnFreeSlot(0x14, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }
         }
         if (D_807444EC && D_807444EC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)

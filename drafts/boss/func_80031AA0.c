@@ -1,4 +1,4 @@
-// func_80031AA0 (src/boss/C920.c): stage 4 (BsA7f): frame 128 + s0/s1/ra same, no pad locals (dx,dz,k,lx,lz are real named locals; all named slots match target), insn count 1054 vs 1051 (was ~1062 vs 1050), 21 asm-diff hunks left (struct score 47). Fixes vs prior park: sfx/light consts are 63.0f NOT 62.0f (lui 0x427c); func_80609140 and sfxAllocateChannel declared unprototyped with int-bit args (0x427C0000,0x3F800000) so 1.0f is not promoted into an FP reg (float literal args get mfc1'd from $f2 because compare/store share the 1.0f web; mini-repro: any f32-arg const shared with a float compare in the same fn promotes); dx/dz named f32 locals CSE the two >700 distance tests; i/sp5C two-var abs (sp5C=(x&0x1F)-0x10; i=sp5C; if(sp5C<0) i=-sp5C); k=s->unk14 hoisted before the clamp; j=func_806119A0() then stores then D_80035B70=(j&3)+4; switch(s->unk13) with explicit case 9: break (table 10 entries); D_80035B38 u8 compared == -1 (lbu, li at,-1); unk0 store before unk14 in init. Remaining: temp spill slots 0x40/0x44 vs 0x44/0x48 (target has one extra never-accessed temp slot at 0x40), spawn loop: target hoists 0.1f lwc1 above beqz (+ only 2 0.1f rodata entries, first unused; plain 3 stores give 3 entries, chain a=b=c=0.1f gives 1 entry + reload), zero-const f2/f8 reuse in unk4 clamp, D_80035B68 ++ store-forward (target reuses incremented reg, we reload via shared addr), scheduling of sb stores in case 6, reloc-only D_80035B48 symbol for the D_80035B44[4] loop pointer. See func_80031AA0 NON_MATCHING in C920.c.
+// func_80031AA0 (src/boss/C920.c): stage 4 (BsA7f): frame 128 + s0/s1/ra same, no pad locals (dx,dz,k,lx,lz are real named locals; all named slots match target), insn count 1054 vs 1051 (was ~1062 vs 1050), 21 asm-diff hunks left (struct score 47). Fixes vs prior park: sfx/light consts are 63.0f NOT 62.0f (lui 0x427c); sfxPlayOnFreeSlot and sfxAllocateChannel declared unprototyped with int-bit args (0x427C0000,0x3F800000) so 1.0f is not promoted into an FP reg (float literal args get mfc1'd from $f2 because compare/store share the 1.0f web; mini-repro: any f32-arg const shared with a float compare in the same fn promotes); dx/dz named f32 locals CSE the two >700 distance tests; i/sp5C two-var abs (sp5C=(x&0x1F)-0x10; i=sp5C; if(sp5C<0) i=-sp5C); k=s->unk14 hoisted before the clamp; j=func_806119A0() then stores then D_80035B70=(j&3)+4; switch(s->unk13) with explicit case 9: break (table 10 entries); D_80035B38 u8 compared == -1 (lbu, li at,-1); unk0 store before unk14 in init. Remaining: temp spill slots 0x40/0x44 vs 0x44/0x48 (target has one extra never-accessed temp slot at 0x40), spawn loop: target hoists 0.1f lwc1 above beqz (+ only 2 0.1f rodata entries, first unused; plain 3 stores give 3 entries, chain a=b=c=0.1f gives 1 entry + reload), zero-const f2/f8 reuse in unk4 clamp, D_80035B68 ++ store-forward (target reuses incremented reg, we reload via shared addr), scheduling of sb stores in case 6, reloc-only D_80035B48 symbol for the D_80035B44[4] loop pointer. See func_80031AA0 NON_MATCHING in C920.c.
 #include "common.h"
 
 struct BossD_Actor;
@@ -106,7 +106,7 @@ void func_8068A764(void *, u8);
 void func_806C8E58(s16);
 void func_806F09F0(void *, u16);
 void func_8067AAB8(void *, void *, s32, f32, s32);
-void func_80609140();
+void sfxPlayOnFreeSlot();
 void camPausePath(void);
 void camResumePath(void);
 void func_80724994(s32, s32, s32, s32, s32);
@@ -266,11 +266,11 @@ void func_80031AA0(void) {
             s->unk15++;
             if (s->unk15 < j) {
                 s->unk13 = 1;
-                func_80609140(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 if (s->unk12 == 2) {
-                    func_80609140(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 } else {
-                    func_80609140(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
             } else {
                 s->unk13 = 2;
@@ -302,21 +302,21 @@ void func_80031AA0(void) {
             if (i < s->unk10) {
                 s->unk13 = 0;
                 s->unk15++;
-                func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
             }
             if (sp6A != 0) {
-                func_80609140(0x97, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x97, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 s->unk16++;
                 s->unk15 = 0;
                 s->unk13 = 2;
                 if (s->unk16 == 3) {
-                    func_80609140(0x385, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x385, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                     s->unk16 = 0;
                     camPausePath();
                     s->unk13 = 4;
                 } else {
-                    func_80609140(0x38E, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
-                    func_80609140(0x383, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x38E, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x383, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
             }
         }
@@ -327,8 +327,8 @@ void func_80031AA0(void) {
             s->unk15++;
             if (s->unk15 < 3) {
                 s->unk13 = 3;
-                func_80609140(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
-                func_80609140(0x380, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x380, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
             } else {
                 s->unk13 = 0;
                 s->unk15 = 0;
@@ -342,7 +342,7 @@ void func_80031AA0(void) {
         s->unk8 = 0.1f;
         if (s->unk10 >= 0x1F) {
             s->unk13 = 2;
-            func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
+            sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
         }
         if (sp69 != 0) {
             s->unk17 = 1;
@@ -383,7 +383,7 @@ void func_80031AA0(void) {
         if (sp69 == -1) {
             sp67 = 1;
             if (D_80035B70 < s->unk10) {
-                func_80609140(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
                 s->unk10 = 0;
                 j = D_80035B70 + 1;
                 if (j >= 0x10) {
@@ -395,8 +395,8 @@ void func_80031AA0(void) {
                     s->unk13 = 1;
                     s->unk15++;
                     D_80035B70 = (j & 3) + 4;
-                    func_80609140(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
-                    func_80609140(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
                 sp68 = 1;
             }

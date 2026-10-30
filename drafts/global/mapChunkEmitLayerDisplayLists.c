@@ -1,4 +1,4 @@
-// func_80656B98 (src/global/55B20.c): stage 6: 10 diff lines (text 8) via rs.py random dead statements (if (arg1 == 0.0f) {} right after gfx=arg0 => arg2 reloaded lbu 0x4b(sp), -1 in s8; if (D_807F70B0 == 0) {} before node->unk18 test) + per-site GBI macro form search (E7 write after DB06 as '_g=gfx; w0; w1; gfx++', last E7 as '_g=gfx; w0; gfx++; w1'). Remaining: 'lui a2' vs 'lui v0' for D_807F70B0 (caused by the fake), and loop E7 stores use sw zero,-4(s0) instead of move v1,s0; stores via v1. Earlier basin (form 0 everywhere, 37 diff) differs only by s0/s1/s2 rotation (gfx must be s0, _g s1, 3rd _g s2).
+// mapChunkEmitLayerDisplayLists (src/global/55B20.c): stage 6: 10 diff lines (text 8) via rs.py random dead statements (if (arg1 == 0.0f) {} right after gfx=arg0 => arg2 reloaded lbu 0x4b(sp), -1 in s8; if (D_807F70B0 == 0) {} before node->unk18 test) + per-site GBI macro form search (E7 write after DB06 as '_g=gfx; w0; w1; gfx++', last E7 as '_g=gfx; w0; gfx++; w1'). Remaining: 'lui a2' vs 'lui v0' for D_807F70B0 (caused by the fake), and loop E7 stores use sw zero,-4(s0) instead of move v1,s0; stores via v1. Earlier basin (form 0 everywhere, 37 diff) differs only by s0/s1/s2 rotation (gfx must be s0, _g s1, 3rd _g s2).
 typedef struct {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 unk2;
@@ -8,7 +8,7 @@ typedef struct {
 } MapChunkEffectEntry;
 
 // WRITE_GFX, MapChunkEffect, D_807F6C18, D_807F70B0, struct MapCell as in src/global/55B20.c
-s32 func_80656B98(arg0, arg1, arg2)
+s32 mapChunkEmitLayerDisplayLists(arg0, arg1, arg2)
 u32 *arg0;
 s32 arg1;
 u8 arg2;

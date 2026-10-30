@@ -1,4 +1,4 @@
-// func_8063FA48 (src/global/42630.c): CsFA48c stage 5-6: deadsweep full 22 (text 22, shape 12). Fixed: spill split sp+56/60 and found a3 via case-0x7E-local 'u8 pan7' + dead 'if (found) {}' before 'found = 0;' (uninitialised read: NOT kept in the src park, which therefore scores worse; find an equivalent form) and after 'if (D_80748094 > 0) {'. Left: 0x7E ucvt(pan) web wins s0 over vol (higher adjsave), 0x68 &D_807F61F0 a3 vs v0, 0xE/0x7D andi a3,v1,0xff vs move a3,v1. Tried: &x==0 forms, 208 one-line joins, func_806086CC narrow-arg prototypes (256 combos), deadsweep 34528 variants, permuter.
+// func_8063FA48 (src/global/42630.c): CsFA48c stage 5-6: deadsweep full 22 (text 22, shape 12). Fixed: spill split sp+56/60 and found a3 via case-0x7E-local 'u8 pan7' + dead 'if (found) {}' before 'found = 0;' (uninitialised read: NOT kept in the src park, which therefore scores worse; find an equivalent form) and after 'if (D_80748094 > 0) {'. Left: 0x7E ucvt(pan) web wins s0 over vol (higher adjsave), 0x68 &D_807F61F0 a3 vs v0, 0xE/0x7D andi a3,v1,0xff vs move a3,v1. Tried: &x==0 forms, 208 one-line joins, sfxPlayAtPositionPooled narrow-arg prototypes (256 combos), deadsweep 34528 variants, permuter.
 void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // unused: address-taken csId, keeps found at sp+0xC3
     u8 found;
@@ -160,7 +160,7 @@ if (found) {}
             actor = D_807FBB40;
             D_807F61F0.unk4 = D_807FBB44;
             D_807FBB40 = D_807FBB44;
-            func_806A2A10(0xDC, 0x2A, CMDB(cmd)->a, &D_807F61F0);
+            hudSpawnCountdownTimer(0xDC, 0x2A, CMDB(cmd)->a, &D_807F61F0);
             D_807F61F0.unk0 = D_807FBB44;
             D_807F61F0.unk8 = 1;
             D_807FBB40 = actor;
@@ -474,14 +474,14 @@ if (found) {}
             if (found) {}
             pitch = c;
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
-            func_806086CC(sx, sy, sz, cmd->a, vol, pan7, i, pitch, 0.3f, 0);
+            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol, pan7, i, pitch, 0.3f, 0);
         } else {
-            func_80609140(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
+            sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
         }
         break;
     case 0x10:
         if (cs->unk10[cmd->b] >= 0) {
-            func_80605380(cs->unk10[cmd->b]);
+            sfxSlotFreeSource(cs->unk10[cmd->b]);
             cs->unk10[cmd->b] = -1;
         }
         break;

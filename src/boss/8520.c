@@ -224,7 +224,7 @@ void actorSetUniformScale(void *, f32);
 void actorSpawnLinkedFollower(void);
 void actorScriptStart(void *, s32);
 void func_80613C48(void *, s16, f32, f32);
-s32 func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
 void camSetSecondTarget(void *, s32, s32);
@@ -280,7 +280,7 @@ void func_8002C964(void) {
             DC90->unk2C = 0;
             A40->unk155 = 1;
             A40->unk144 = 1;
-            func_806086CC(A40->unk7C, A40->unk80, A40->unk84, 0x2FC, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+            sfxPlayAtPositionPooled(A40->unk7C, A40->unk80, A40->unk84, 0x2FC, 0xFF, 0x7F, 0, 0, 0.0f, 0);
         case 1:
             DC90->unk2C += 8;
             if (DC90->unk2C >= 0x259) {

@@ -29,7 +29,7 @@ extern s32 D_807F5D10;
 #define A2B44V ((A2B44 *)D_807FBB44)
 
 u32 func_806119A0(void);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_80614EBC(void *, s32);
 void func_8061F0B0(s32, s32, s32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
@@ -133,19 +133,19 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                     A2B44V->unk15F = 0x15;
                     break;
                 case 10:
-                    func_80609140(0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     A2B44V->unk15F = 0;
                     A2B44V->unk7C = 500.0f;
                     A2B44V->unk80 = 80.0f;
                     break;
                 case 11:
-                    func_80609140(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     A2B44V->unk15F = 0x89;
                     A2B44V->unk7C = 600.0f;
                     A2B44V->unk80 = 80.0f;
                     break;
                 case 12:
-                    func_80609140(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    sfxPlayOnFreeSlot(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     A2B44V->unk15F = 0x47;
                     A2B44V->unk7C = 600.0f;
                     A2B44V->unk80 = 80.0f;

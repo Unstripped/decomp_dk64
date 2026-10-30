@@ -1,4 +1,4 @@
-// func_80650ECC (src/global/55B20.c): L650ECC stage 3-4 (519/527 insns, frame 0xEE0 vs 0xED8). KEY: target T2=w+4 (0x54), w (0x58) are uopt hoisted temps and colOff (0x5C) is a memory-resident (non-vreg, non-IV) local; plain scalar colOff gets strength-reduced into a pointer IV and arg0 is spilled. Dead '&colOff' use (FAKE) reproduces it incl. arg0 in s7, per-iteration lw/lw/addu into named ptr e. Decls e,p,base,buf,count,i,j,total(u32),val,off,colOff. Remaining: D_807F70AC &-cached in s0, count at 0x7C vs 0x74, scheduling/regalloc, extra temp slots. Alternative array model s32 tab[3] also reproduces shape but frame +12.
+// mapChunksInitFromMapData (src/global/55B20.c): L650ECC stage 3-4 (519/527 insns, frame 0xEE0 vs 0xED8). KEY: target T2=w+4 (0x54), w (0x58) are uopt hoisted temps and colOff (0x5C) is a memory-resident (non-vreg, non-IV) local; plain scalar colOff gets strength-reduced into a pointer IV and arg0 is spilled. Dead '&colOff' use (FAKE) reproduces it incl. arg0 in s7, per-iteration lw/lw/addu into named ptr e. Decls e,p,base,buf,count,i,j,total(u32),val,off,colOff. Remaining: D_807F70AC &-cached in s0, count at 0x7C vs 0x74, scheduling/regalloc, extra temp slots. Alternative array model s32 tab[3] also reproduces shape but frame +12.
 typedef struct MapData {
     /* 0x00 */ u8 pad0[0xC];
     /* 0x0C */ s16 unkC;
@@ -55,10 +55,10 @@ extern struct MapBox *D_807F70B4;
 
 void lightSetTargetColor(f32, f32, f32, s16);
 void lightCopyTargetColors(s16);
-void func_80651904(s32, s32, void *, s32 *, s32, s32);
-void func_80651C2C(s32, void *);
+void mapChunkBuildCellTable(s32, s32, void *, s32 *, s32, s32);
+void mapGridTriangleBuildPlane(s32, void *);
 
-void func_80650ECC(MapData *arg0) {
+void mapChunksInitFromMapData(MapData *arg0) {
     u8 *e;
     u8 *p;
     s32 base;
@@ -135,7 +135,7 @@ void func_80650ECC(MapData *arg0) {
                 total = D_807F6C18[i].unk3C;
                 if (D_807F6C18[i].unk5 == 2) {
                     D_807F713A = 1;
-                    func_80651904(D_807F6C18[i].unk2C, D_807F6C18[i].unk3C, buf, &count, 0, i);
+                    mapChunkBuildCellTable(D_807F6C18[i].unk2C, D_807F6C18[i].unk3C, buf, &count, 0, i);
                 }
                 val = *(s32 *)p;
                 if (val != -1) {
@@ -147,7 +147,7 @@ void func_80650ECC(MapData *arg0) {
                 D_807F6C18[i].unk40 = *(s32 *)(p - 4);
                 total += D_807F6C18[i].unk40;
                 if (D_807F6C18[i].unk5 == 2) {
-                    func_80651904(D_807F6C18[i].unk30, D_807F6C18[i].unk40, buf, &count, 1, i);
+                    mapChunkBuildCellTable(D_807F6C18[i].unk30, D_807F6C18[i].unk40, buf, &count, 1, i);
                 }
                 val = *(s32 *)p;
                 if (val != -1) {
@@ -159,7 +159,7 @@ void func_80650ECC(MapData *arg0) {
                 D_807F6C18[i].unk44 = *(s32 *)(p - 4);
                 total += D_807F6C18[i].unk44;
                 if (D_807F6C18[i].unk5 == 2) {
-                    func_80651904(D_807F6C18[i].unk34, D_807F6C18[i].unk44, buf, &count, 2, i);
+                    mapChunkBuildCellTable(D_807F6C18[i].unk34, D_807F6C18[i].unk44, buf, &count, 2, i);
                 }
                 val = *(s32 *)p;
                 if (val != -1) {
@@ -174,7 +174,7 @@ void func_80650ECC(MapData *arg0) {
                 D_807F6C18[i].unkC = D_807F6C18[i].unk2C;
                 D_807F6C18[i].unk10 = D_807F6C18[i].unk8;
                 if (D_807F6C18[i].unk5 == 2) {
-                    func_80651904(D_807F6C18[i].unk38, D_807F6C18[i].unk48, buf, &count, 3, i);
+                    mapChunkBuildCellTable(D_807F6C18[i].unk38, D_807F6C18[i].unk48, buf, &count, 3, i);
                 }
                 D_807F6C18[i].unk5C = *(s32 *)(p + 4);
                 p += 8;
@@ -203,7 +203,7 @@ void func_80650ECC(MapData *arg0) {
         }
         D_807F6C24 = heapAlloc(D_807F6C20 / 2 * 0x30);
         for (i = 0; i < D_807F6C20 / 2; i++) {
-            func_80651C2C(i, (u8 *)D_807F6C24 + i * 0x30);
+            mapGridTriangleBuildPlane(i, (u8 *)D_807F6C24 + i * 0x30);
         }
         D_807F7079 = 1;
         D_807F7078[0] = 1;

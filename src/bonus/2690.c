@@ -42,7 +42,7 @@ typedef struct BonusActorExt {
 extern Actor *D_807FBB40;
 
 void actorDespawn(void *);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 
@@ -451,11 +451,11 @@ void bonusResetAmmo(void *arg0) {
         temp_s3[1] = func_80714CC0(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
         y -= 0x1E;
     }
-    func_80609140(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);
+    sfxPlayOnFreeSlot(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);
 }
 
 void bonusFireProjectile(f32 arg0, f32 arg1, f32 arg2) {
-    func_80609140(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+    sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
     projectileSetTargetCoords(D_807FBB40->unk7C, D_807FBB40->unk80 - 10.0f, D_807FBB40->unk84);
     projectileAimAndSpawn(0x23, 1, 0.6f, arg0, arg1, arg2, 385.0f, D_807FBB40);
 }
@@ -537,7 +537,7 @@ void bonusEndLose(u8, u8);
 void bonusEndWin(u8, u8);
 void actorSetStateTwo(void *);
 void sfxAllocateChannel(s32, f32);
-void func_806A2A10(s32, s32, u8);
+void hudSpawnCountdownTimer(s32, s32, u8);
 void func_8070D8C0(void *, s32, s32);
 
 void renderCallbacksRegister(void *, void *, s32);
@@ -609,7 +609,7 @@ void bonusTargetGameUpdate(void) {
         p = *D_807F5FD4 + t3c->unk22;
         if (bonusAimAndFire(p->x, p->y, p->z) == 2) {
             t3c->unk25 = 0xFF;
-            func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
         switch (D_807FBB40->unk154) {
         case 0:
@@ -634,7 +634,7 @@ void bonusTargetGameUpdate(void) {
             break;
         case 0xFE:
             t3c->unk24 = 0xFF;
-            func_80609140(0x142, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x142, 0x7FFF, 63.0f, 1.0f, 0, 0);
             D_807FBB40->unk154 = 0;
             break;
         case 0xFF:
@@ -648,7 +648,7 @@ void bonusTargetGameUpdate(void) {
         case -2:
             if (D_807444EC != 1) {
                 t3c->unk0++;
-                func_806A2A10(0xDC, 0x2A, t0->unk29);
+                hudSpawnCountdownTimer(0xDC, 0x2A, t0->unk29);
                 func_8070D8C0(D_807FBB40, 0, 1);
             }
             break;
@@ -764,7 +764,7 @@ void bonusPopupGameUpdate(void) {
             break;
         case 2:
             t0->unk25 = 0xFF;
-            func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
         switch (D_807FBB40->unk154) {
@@ -798,7 +798,7 @@ void bonusPopupGameUpdate(void) {
         case -2:
             if (D_807444EC != 1) {
                 t0->unk0++;
-                func_806A2A10(0xDC, 0x2A, s38->unk1A);
+                hudSpawnCountdownTimer(0xDC, 0x2A, s38->unk1A);
                 func_8070D8C0(D_807FBB40, 0, 2);
             }
             break;
@@ -923,7 +923,7 @@ typedef struct {
 
 extern s16 D_8002D8C0[];
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_8067ACB4(void *);
 void actorApplyVelocity(void *);
@@ -955,11 +955,11 @@ void func_80028E3C(void) {
                     a0 = 0x64;
                 }
                 idx = D_8002D8C0[idx];
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, idx, 0xFF, a0, 0, 0, 0.0f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, idx, 0xFF, a0, 0, 0, 0.0f, 0);
             }
             if (p40->unkC < 40.0f) {
                 t0->unk4 = 1;
-                func_806086CC(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1ED, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1ED, 0xFF, 0x7F, 0, 0, 0.0f, 0);
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x76, 0xFF, 0x7F, 0x1E);
                 D_807FBB40->unkEE = D_807FBB40->unkE6;
                 D_807FBB40->unkB8 = 10.0f;
@@ -1155,7 +1155,7 @@ void func_8002A010(void) {
         }
         if (var_a3 != 0) {
             actorScriptStart(D_807FBB40, D_8002D8E0[sp50->unk4]);
-            func_80609140(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
             if (sp48->unk16 != 0) {
                 sp48->unk16 += 1;
             }
@@ -1180,7 +1180,7 @@ void func_8002A010(void) {
         D_807FBB40->unk4->unk38 = scale;
         D_807FBB40->unk4->unk3C = scale;
         if (var_a3 != 0) {
-            func_80609140(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
             sp48->unk0 = 0;
             sp48->unk16 -= 1;
             D_807FBB40->unk154 = 1;
@@ -1314,7 +1314,7 @@ void func_8002A398(void) {
             break;
         case 2:
             t3c->unk25 = 0xFF;
-            func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
         switch (D_807FBB40->unk154) {
@@ -1342,7 +1342,7 @@ void func_8002A398(void) {
         case -2:
             if (D_807444EC != 1) {
                 t3c->unk0++;
-                func_806A2A10(0xDC, 0x2A, (u8)t0->unk4);
+                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)t0->unk4);
                 func_8070D8C0(D_807FBB40, 0, 0xB);
             }
             break;
@@ -1449,7 +1449,7 @@ void func_8002AD10(void) {
         sp28->unk4 -= 1;
         if (sp28->unk4 < 4) {
             if (sp28->unk4 == 3) {
-                func_80609140(0x2D2, 0x7FFF, 63.0f, 7.12f, 0, 1);
+                sfxPlayOnFreeSlot(0x2D2, 0x7FFF, 63.0f, 7.12f, 0, 1);
             }
             D_807FBB40->unk4->unk34 *= 0.8f;
             D_807FBB40->unk4->unk38 *= 0.8f;
@@ -1800,7 +1800,7 @@ void func_8002BF98(void) {
                 temp_s5->unk1E = temp_s5->unk1E - 1;
             }
             if (temp_s5->unk1E <= 0 && (*D_807FC924[D_807FC929].unk298 & 0xE000)) {
-                func_80609140(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
                 sp7C = func_80612794(D_807FC924->unk2C8) * 30.0f + D_807FC924->unk210;
                 sp78 = D_807FC924->unk214 - 25.0f;
                 sp74 = func_80612790(D_807FC924->unk2C8) * 30.0f + D_807FC924->unk218;
@@ -1813,7 +1813,7 @@ void func_8002BF98(void) {
         case 3:
             if (D_807444EC != 1) {
                 D_807FBB40->unk154 = 4;
-                func_806A2A10(0xDC, 0x2A, (u8)temp_s5->unk20);
+                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)temp_s5->unk20);
                 func_8070D8C0(D_807FBB40, 0, 0xC);
             }
             break;
@@ -1910,7 +1910,7 @@ void func_8002C8EC(void) {
             D_807FBB40->unk60 &= ~0x8000;
             actorScriptStart(D_807FBB40, 0x332);
             D_807FBB40->unk154 = 1;
-            func_80609140(0x16, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x16, 0x7FFF, 63.0f, 1.0f, 0, 0);
             var_v0 = 0;
             if (temp_s3->unk28 != 0) {
                 temp_s3->unk28--;

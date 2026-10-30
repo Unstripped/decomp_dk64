@@ -691,7 +691,7 @@ Gfx *func_80713B40(Gfx *arg0) {
 
 extern u64 D_807445B0;
 void sfxAllocateChannel(s32, f32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 
 void func_80713C8C(void) {
     u64 elapsed;
@@ -708,7 +708,7 @@ void func_80713C8C(void) {
             elapsed = (osGetTime() - D_80755340.time) * 64;
             D_80755340.unk8 = D_80755340.duration - (u32)(elapsed / 3000 / 1000000);
             if (((u32)D_80755340.index < 0xA) && (D_80755340.unk8 == D_80755358[D_80755340.index])) {
-                func_80609140(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 D_80755340.index++;
             }
             if (D_80755340.unk8 <= 0) {
@@ -741,7 +741,7 @@ s32 func_80713EA8(s32 arg0) {
 }
 
 extern s16 D_807FC828[];
-void func_806ABE3C();
+void hudPauseMenuRefreshTotals();
 
 void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp18;
@@ -761,7 +761,7 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
                 }
             }
         } else {
-            func_806ABE3C(); // FAKE: a0 still holds arg0; passing it makes uopt emit move a0,a3
+            hudPauseMenuRefreshTotals(); // FAKE: a0 still holds arg0; passing it makes uopt emit move a0,a3
             sum = 0; for (i = 0; i < 7; i++) { sum += D_807FC828[i]; } if (arg2 == 1) { // FAKE: one source line lets as1 reorder the unrolled loads
                 if (sum < 0x118) {
                     arg0 = -1;

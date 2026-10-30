@@ -1,4 +1,4 @@
-// func_80699958 (src/global/9DD70.c): L699958 final: stage 5 parked NON_MATCHING, 836 vs 836 insns, frame 0x1A8 and all callee-saved match. Remaining diff (25ish lines): (1) top join: uopt hoists 'i = 0' (move s4,zero) into jal func_8069A750 delay slot and 'lui s0 (&D_807FBB70)' into blez delay slot (target keeps them after); only a dead read of uninitialised i blocks it (forbidden fake); (2) last loop: FP scratch temp pool rotated by one ( vs  etc, ~9 hunks) and add.s operand order spC0[i]+unk4[i]; (3) 843.0 reloc-only. Key wins: var_fa0 reused as sinApprox temp (fixes mul/add operand order, frame), (arg0<<4)-8 byte offset avoids arg0*16 CSE/spill, found u8, scan loops while(j<n&&!found){if(eq)found=1;else j++;}, temp>0 int zero, 0.5f in last loop, g/temp/val removed, i<arg0 in last loop, state->unk74[i]==g->unk7C[j] operand order.
+// actorSagWaveUpdate (src/global/9DD70.c): L699958 final: stage 5 parked NON_MATCHING, 836 vs 836 insns, frame 0x1A8 and all callee-saved match. Remaining diff (25ish lines): (1) top join: uopt hoists 'i = 0' (move s4,zero) into jal func_8069A750 delay slot and 'lui s0 (&D_807FBB70)' into blez delay slot (target keeps them after); only a dead read of uninitialised i blocks it (forbidden fake); (2) last loop: FP scratch temp pool rotated by one ( vs  etc, ~9 hunks) and add.s operand order spC0[i]+unk4[i]; (3) 843.0 reloc-only. Key wins: var_fa0 reused as sinApprox temp (fixes mul/add operand order, frame), (arg0<<4)-8 byte offset avoids arg0*16 CSE/spill, found u8, scan loops while(j<n&&!found){if(eq)found=1;else j++;}, temp>0 int zero, 0.5f in last loop, g/temp/val removed, i<arg0 in last loop, state->unk74[i]==g->unk7C[j] operand order.
 #include "common.h"
 #include "actor.h"
 
@@ -57,7 +57,7 @@ void actorAddNodeForceSlot(f32, u8);
 f32 sinApprox(f32);
 void *memcpy(void *, const void *, unsigned int);
 
-void func_80699958(u8 arg0, u8 arg1) {
+void actorSagWaveUpdate(u8 arg0, u8 arg1) {
     f32 sp128[32];
     f32 spC0[26];
     f32 var_fa0;

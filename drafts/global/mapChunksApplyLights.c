@@ -1,4 +1,4 @@
-// func_80655410 (src/global/55B20.c): stage 6: PARKED NON_MATCHING in 55B20.c. frame 0xD0/spills/regs/schedule match; deadsweep text=3 of 532: else-branch func_8065C990 arg0 (unk60[D_807444FC]) lives in v0 + 'move a0,v0' in target, mine loads it straight into a0 (addu a1,t1,a0). Tried named locals/register/casts/operand swaps/dead stmts (deadsweep+random search)/permuter: no change. Keys: 2 pad words + u8 q=j (matrixCache arg4 u8) + named locals matrix/src/key; key=..;node=.. on ONE line; nodeIdx/found init after call; flag=1 after 8065BAA0 call; for(j=0;j<2;j++) (do-while left the loop-tail delay slot wrong).
+// mapChunksApplyLights (src/global/55B20.c): stage 6: PARKED NON_MATCHING in 55B20.c. frame 0xD0/spills/regs/schedule match; deadsweep text=3 of 532: else-branch func_8065C990 arg0 (unk60[D_807444FC]) lives in v0 + 'move a0,v0' in target, mine loads it straight into a0 (addu a1,t1,a0). Tried named locals/register/casts/operand swaps/dead stmts (deadsweep+random search)/permuter: no change. Keys: 2 pad words + u8 q=j (matrixCache arg4 u8) + named locals matrix/src/key; key=..;node=.. on ONE line; nodeIdx/found init after call; flag=1 after 8065BAA0 call; for(j=0;j<2;j++) (do-while left the loop-tail delay slot wrong).
 typedef struct L655410Node {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 pad2[0x12];
@@ -40,7 +40,7 @@ typedef struct L655410Effect {
 
 void matrixCacheResetStats(void);
 void lightClearActiveCount(void);
-s32 func_8065BAA0(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, u8 *);
+s32 lightCollectVolumesInBounds(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, u8 *);
 void *matrixCacheLookup(s32, s32, s16, u8);
 void *matrixCacheInsert(s32, s32, s16, u8, s32, u8);
 void func_8065C990(void *, void *, s32, void *, s32, s32);
@@ -53,7 +53,7 @@ extern u8 D_807F78C0;
 
 #define L655410_CHUNK ((L655410Effect *)D_807F6C18)
 #define L655410_CELL ((L655410Cell *)D_807F70B0)
-void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
+void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
     s32 obj;
     void *matrix;
@@ -83,7 +83,7 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
                         for (j = 0; j < 2; j++) {
                             if (L655410_CELL[k].unk10[j] != 0) {
                                 boxIdx = L655410_CELL[k].unk2;
-                                obj = func_8065BAA0(arg0, arg1, arg2, D_807F70B4[boxIdx].unk0, D_807F70B4[boxIdx].unk2, D_807F70B4[boxIdx].unk4, D_807F70B4[boxIdx].unk6, D_807F70B4[boxIdx].unk8, D_807F70B4[boxIdx].unkA, i, &hit);
+                                obj = lightCollectVolumesInBounds(arg0, arg1, arg2, D_807F70B4[boxIdx].unk0, D_807F70B4[boxIdx].unk2, D_807F70B4[boxIdx].unk4, D_807F70B4[boxIdx].unk6, D_807F70B4[boxIdx].unk8, D_807F70B4[boxIdx].unkA, i, &hit);
                                 nodeIdx = 0;
                                 found = 0;
                                 key = L655410_CELL[k].unk2; node = L655410_CHUNK[i].unk4C;  // FAKE: same-line statements steer scheduling
@@ -115,7 +115,7 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
                 }
             } else {
                 if (flag == 0) {
-                    obj = func_8065BAA0(arg0, arg1, arg2, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -1, &hit);
+                    obj = lightCollectVolumesInBounds(arg0, arg1, arg2, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -1, &hit);
                     flag = 1;
                 }
                 if (L655410_CHUNK[i].unk60[D_807444FC] == NULL) {

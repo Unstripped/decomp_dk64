@@ -377,7 +377,7 @@ void actorApplyGravity(void);
 void func_8072A450(void);
 void func_80614D00(void *, f32, f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
-void func_806086CC(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
 void volumeTriggerSetEnabled(s32, s32);
@@ -527,7 +527,7 @@ void func_80033AF0(void) {
         lightSetRadius(0x1388);
         lightAdd(BPTS->unk14[5].unk0, BPTS->unk14[5].unk2 - 0x28A, BPTS->unk14[5].unk4, 0.0f, 0.0f, 0.0f, 240.0f, 0, i, i, i);
         if (currentActorTestClearFlag() != 0) {
-            func_806086CC(BF->unk7C, BF->unk80, BF->unk84, 0x19C, 0x64, 0x7F, 0, 0, 0.0f, 0);
+            sfxPlayAtPositionPooled(BF->unk7C, BF->unk80, BF->unk84, 0x19C, 0x64, 0x7F, 0, 0, 0.0f, 0);
             BF->unk154 = 0x20;
             BF->unk155 = 0;
         }
@@ -796,7 +796,7 @@ block_131:
             actorScriptStart(D_807FBB40, 0x22E);
             camStartPath(D_807FBB40, 2, 1);
             actorSpawnAttachment(D_807FBB40, 1.2f);
-            func_806086CC(BF->unk7C, BF->unk80, BF->unk84, 0x305, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+            sfxPlayAtPositionPooled(BF->unk7C, BF->unk80, BF->unk84, 0x305, 0xFF, 0x7F, 0, 0, 0.0f, 0);
             BF->unk155 = 3;
             break;
         case 4:

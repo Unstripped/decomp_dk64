@@ -12,48 +12,48 @@ extern Struct807FD580 *D_807FD580;
 extern s16 D_807FD584;
 extern u16 D_807FD63C;
 
-void func_806CA5F8(s32);
+void playerUpdateCommon(s32);
 void func_806F3190(Actor *, s32);
 void actorOrNodeFlags(Actor *, s32, s32);
 
 void func_806C9DE0(void) {
-    func_806CA5F8(0);
+    playerUpdateCommon(0);
     func_806F3190(D_807FBB40, 0);
 }
 
 void func_806C9E10(void) {
-    func_806CA5F8(0);
+    playerUpdateCommon(0);
     func_806F3190(D_807FBB40, 2);
 }
 
 void func_806C9E40(void) {
-    func_806CA5F8(0);
+    playerUpdateCommon(0);
     func_806F3190(D_807FBB40, 3);
 }
 
 void func_806C9E70(void) {
-    func_806CA5F8(0);
+    playerUpdateCommon(0);
     func_806F3190(D_807FBB40, 4);
 }
 
 void func_806C9EA0(void) {
-    func_806CA5F8(0);
+    playerUpdateCommon(0);
     func_806F3190(D_807FBB40, 6);
 }
 
 void func_806C9ED0(void) {
-    func_806CA5F8(0);
+    playerUpdateCommon(0);
     func_806F3190(D_807FBB40, 1);
 }
 
 void func_806C9F00(void) {
     actorOrNodeFlags(D_807FBB40, 3, 8);
-    func_806CA5F8(0);
+    playerUpdateCommon(0);
     func_806F3190(D_807FBB40, 7);
 }
 
 void func_806C9F44(void) {
-    func_806CA5F8(0);
+    playerUpdateCommon(0);
     func_806F3190(D_807FBB40, 5);
 }
 
@@ -319,18 +319,18 @@ void func_806CA540(void) {
     }
 }
 
-typedef struct LCEAE0aPad {
+typedef struct PadInputState {
     /* 0x00 */ u8 pad0[0x2A];
     /* 0x2A */ u16 unk2A;
     /* 0x2C */ u16 unk2C;
     /* 0x2E */ s8 unk2E;
     /* 0x2F */ s8 unk2F;
     /* 0x30 */ u8 pad30[4];
-} LCEAE0aPad;
+} PadInputState;
 
-extern LCEAE0aPad D_807FD610[];
+extern PadInputState D_807FD610[];
 #ifdef NON_MATCHING
-typedef struct LCA5F8Fx {
+typedef struct PlayerEffectObj {
     /* 0x000 */ u8 pad0[0x340];
     /* 0x340 */ f32 unk340;
     /* 0x344 */ f32 unk344;
@@ -338,9 +338,9 @@ typedef struct LCA5F8Fx {
     /* 0x34C */ u8 pad34C[0x360 - 0x34C];
     /* 0x360 */ f32 unk360;
     /* 0x364 */ f32 unk364;
-} LCA5F8Fx;
+} PlayerEffectObj;
 
-typedef struct LCA5F8P {
+typedef struct PlayerUpdateState {
     /* 0x000 */ s16 unk0;
     /* 0x002 */ u8 pad2[0x8D - 2];
     /* 0x08D */ u8 unk8D;
@@ -379,12 +379,12 @@ typedef struct LCA5F8P {
     /* 0x24A */ u8 unk24A;
     /* 0x24B */ u8 pad24B[0x250 - 0x24B];
     /* 0x250 */ s32 unk250;
-    /* 0x254 */ LCA5F8Fx *unk254;
+    /* 0x254 */ PlayerEffectObj *unk254;
     /* 0x258 */ u8 pad258[0x268 - 0x258];
     /* 0x268 */ u8 unk268;
-} LCA5F8P;
+} PlayerUpdateState;
 
-typedef struct LCA5F8Slot {
+typedef struct PlayerUpdateSlot {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ Actor *unk4;
     /* 0x008 */ u8 pad8[0x210 - 8];
@@ -400,26 +400,26 @@ typedef struct LCA5F8Slot {
     /* 0x2B8 */ f32 unk2B8;
     /* 0x2BC */ f32 unk2BC;
     /* 0x2C0 */ u8 pad2C0[0x2F0 - 0x2C0];
-} LCA5F8Slot;
+} PlayerUpdateSlot;
 
-typedef struct LCA5F8Pad {
+typedef struct PadInputStateView {
     /* 0x00 */ u8 pad0[0x2A];
     /* 0x2A */ u16 unk2A;
     /* 0x2C */ u8 pad2C[2];
     /* 0x2E */ s8 unk2E;
     /* 0x2F */ s8 unk2F;
     /* 0x30 */ u8 pad30[4];
-} LCA5F8Pad;
+} PadInputStateView;
 
-typedef struct LCA5F8Fn {
+typedef struct PlayerStateFn {
     /* 0x0 */ void (*fn)(void);
     /* 0x4 */ s32 pad4;
-} LCA5F8Fn;
+} PlayerStateFn;
 
-#define LCA_P ((LCA5F8P *)D_807FD580)
-#define LCA_SLOT(i) (((LCA5F8Slot *)D_807FC924)[i])
+#define PLAYER_STATE ((PlayerUpdateState *)D_807FD580)
+#define PLAYER_SLOT(i) (((PlayerUpdateSlot *)D_807FC924)[i])
 
-extern LCA5F8Fn D_80750B50[];
+extern PlayerStateFn D_80750B50[];
 extern s32 D_8076A068;
 extern s32 D_8076A090;
 extern s32 D_8076A094;
@@ -464,7 +464,7 @@ void func_807149FC(s32);
 void func_80714998(s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
 
-void func_806CA5F8(s32 arg0) {
+void playerUpdateCommon(s32 arg0) {
     f32 dy;
     f32 sp70;
     f32 sp6C;
@@ -480,7 +480,7 @@ void func_806CA5F8(s32 arg0) {
     f32 dx;
     f32 sp4C;
     f32 sp48;
-    LCA5F8Fx *fx;
+    PlayerEffectObj *fx;
     s16 flags;
     if (D_807FBB40 && D_807FBB40) {}  // FAKE: steers uopt candidate colouring (D_807FBB48 pointer v1)
 
@@ -492,11 +492,11 @@ void func_806CA5F8(s32 arg0) {
         D_807FBB40->unk60 &= 0xFFBFFFFF;
     }
     D_807FBB40->unk60 &= 0xF7FFFFFF;
-    LCA_SLOT(D_807FC929).unk28C = LCA_SLOT(D_807FC929).unk27C;
+    PLAYER_SLOT(D_807FC929).unk28C = PLAYER_SLOT(D_807FC929).unk27C;
     if (D_807FBB40->unk64 & 0x100) {
-        LCA_P->unk120 = D_8076A068;
+        PLAYER_STATE->unk120 = D_8076A068;
     }
-    if (LCA_P->unk1CC == LCA_P->unk1C0 && D_807FBB40->unk154 != 0x54) {
+    if (PLAYER_STATE->unk1CC == PLAYER_STATE->unk1C0 && D_807FBB40->unk154 != 0x54) {
         if (D_807FBB40->unk58 == 4) {
             D_807FBB40->unk15E = 0xB;
         } else {
@@ -510,30 +510,30 @@ void func_806CA5F8(s32 arg0) {
     } else {
         D_807FBB40->unk68 &= 0xFFFD;
     }
-    if ((flags & 0x20) && LCA_P->unkFC == 0 && D_807FBB40->unk58 != 8 && D_807FBB40->unk58 != 9) {
+    if ((flags & 0x20) && PLAYER_STATE->unkFC == 0 && D_807FBB40->unk58 != 8 && D_807FBB40->unk58 != 9) {
         D_807FBB40->unk68 |= 0x10;
     } else {
         D_807FBB40->unk68 &= 0xFFEF;
         D_807FBB40->unk60 &= ~0x800;
     }
-    if (LCA_P->unkFC != 0) {
-        LCA_P->unkFC = LCA_P->unkFC - 1;
+    if (PLAYER_STATE->unkFC != 0) {
+        PLAYER_STATE->unkFC = PLAYER_STATE->unkFC - 1;
     }
     if (flags & 0x40) {
         D_807FBB40->unk60 |= 0x4000;
     } else {
         D_807FBB40->unk60 &= ~0x4000;
     }
-    if ((flags & 0x80) && LCA_P->unk100 == 0 && D_807FBB40->unk58 != 8 && D_807FBB40->unk58 != 9) {
+    if ((flags & 0x80) && PLAYER_STATE->unk100 == 0 && D_807FBB40->unk58 != 8 && D_807FBB40->unk58 != 9) {
         D_807FBB40->unk68 |= 0x20;
     } else {
         D_807FBB40->unk68 &= 0xFFDF;
     }
-    if (LCA_P->unk100 != 0) {
-        LCA_P->unk100 = LCA_P->unk100 - 1;
+    if (PLAYER_STATE->unk100 != 0) {
+        PLAYER_STATE->unk100 = PLAYER_STATE->unk100 - 1;
     }
-    if (LCA_P->unk245 != 0) {
-        LCA_P->unk245 = LCA_P->unk245 - 1;
+    if (PLAYER_STATE->unk245 != 0) {
+        PLAYER_STATE->unk245 = PLAYER_STATE->unk245 - 1;
     }
     func_806CB53C();
     func_806CA2E4();
@@ -541,8 +541,8 @@ void func_806CA5F8(s32 arg0) {
     if (D_80770561 == 0x6B && D_807FBB40->unk154 != 0x6E) {
         sfxStopChannel(0x6B, 0);
     }
-    if (LCA_P->unkCA != 0) {
-        LCA_P->unkCA = LCA_P->unkCA - 1;
+    if (PLAYER_STATE->unkCA != 0) {
+        PLAYER_STATE->unkCA = PLAYER_STATE->unkCA - 1;
     }
     if (D_807FBB40->unk68 & 0x20) {
         proxPathUpdateAllPlayers();
@@ -555,7 +555,7 @@ void func_806CA5F8(s32 arg0) {
     }
     D_807FBB40->unk64 &= ~0x1000;
     D_80750B50[D_807FBB40->unk154].fn();
-    LCA_P->unk8D = collisionGetHitStatus();
+    PLAYER_STATE->unk8D = collisionGetHitStatus();
     if (D_807FC928 == 1) {
         D_807FBB40->unk64 &= ~0x200;
     }
@@ -569,28 +569,28 @@ void func_806CA5F8(s32 arg0) {
     if (D_807FBB40->unk68 & 0x10) {
         func_806CF9CC();
     }
-    LCA_P->unkE8 = 0;
+    PLAYER_STATE->unkE8 = 0;
     D_807FD580->unk1F0 &= 0xBFFFFFFF;
     func_806CF580();
     if (!D_8076A0A8 && !D_8076A0A8) { // FAKE: steers uopt candidate colouring
     }
-    LCA_P->unk0 = D_807FBB48->unk154;
+    PLAYER_STATE->unk0 = D_807FBB48->unk154;
     if (D_807FC928 >= 2) {
         if (D_807FBB40->unk6A & 1) {
-            if (LCA_P->unk24A != 0) {
-                LCA_P->unk24A = LCA_P->unk24A - 1;
+            if (PLAYER_STATE->unk24A != 0) {
+                PLAYER_STATE->unk24A = PLAYER_STATE->unk24A - 1;
             } else {
-                LCA_P->unk248 = -1;
-                LCA_P->unk249 = 0;
+                PLAYER_STATE->unk248 = -1;
+                PLAYER_STATE->unk249 = 0;
             }
         }
         func_806CA26C();
         {
-            s8 v = LCA_P->unk248;
-            if (v >= 0 && (u32)v != LCA_P->unk1A4) {
-                sp64 = LCA_SLOT(v).unk4;
+            s8 v = PLAYER_STATE->unk248;
+            if (v >= 0 && (u32)v != PLAYER_STATE->unk1A4) {
+                sp64 = PLAYER_SLOT(v).unk4;
             } else {
-                s8 w = LCA_P->unk249;
+                s8 w = PLAYER_STATE->unk249;
                 if (w > 0) {
                     sp64 = spawnNodeActivate(w, 0);
                 }
@@ -598,29 +598,29 @@ void func_806CA5F8(s32 arg0) {
         }
         if (D_807552E4 == 0) {
             if (D_807FBB48->unk154 == 0x3C) {
-                if (LCA_P->unk250 != 0) {
-                    LCA_P->unk250 = LCA_P->unk250 - 1;
+                if (PLAYER_STATE->unk250 != 0) {
+                    PLAYER_STATE->unk250 = PLAYER_STATE->unk250 - 1;
                 }
-                fx = LCA_P->unk254;
+                fx = PLAYER_STATE->unk254;
                 if (fx == NULL) {
                     func_807149FC(-1);
                     func_80714998(0);
                     func_807149C8(0xFF, 0xFF, 0xFF, 0x78);
                     func_8071495C();
-                    LCA_P->unk254 = (LCA5F8Fx *)func_80714CC0(&D_80720020, 0.7f, D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84);
+                    PLAYER_STATE->unk254 = (PlayerEffectObj *)func_80714CC0(&D_80720020, 0.7f, D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84);
                     if (D_807FC924 && D_807FC924) { // FAKE: steers uopt candidate colouring (D_807FC924 pointer v1)
                     }
-                    fx = LCA_P->unk254;
+                    fx = PLAYER_STATE->unk254;
                 }
             } else {
-                if (LCA_P->unk250 < 0x78) {
-                    LCA_P->unk250 = LCA_P->unk250 + 1;
+                if (PLAYER_STATE->unk250 < 0x78) {
+                    PLAYER_STATE->unk250 = PLAYER_STATE->unk250 + 1;
                 }
-                fx = LCA_P->unk254;
+                fx = PLAYER_STATE->unk254;
                 if (fx != NULL) {
-                    LCA_P->unk254 = NULL;
+                    PLAYER_STATE->unk254 = NULL;
                     effectFreeAndUnlink(fx);
-                    fx = LCA_P->unk254;
+                    fx = PLAYER_STATE->unk254;
                 }
             }
             if (fx != NULL) {
@@ -629,17 +629,17 @@ void func_806CA5F8(s32 arg0) {
                 fx->unk340 = sp4C * 4.0f;
                 fx->unk344 = sp48 * 4.0f;
                 fx->unk348 = 5.0f;
-                dz = LCA_SLOT(0).unk218 - sp54;
-                dx = LCA_SLOT(0).unk210 - sp5C;
-                dy = LCA_SLOT(0).unk214 - sp58;
+                dz = PLAYER_SLOT(0).unk218 - sp54;
+                dx = PLAYER_SLOT(0).unk210 - sp5C;
+                dy = PLAYER_SLOT(0).unk214 - sp58;
                 dz = sqrtf(dz * dz + (dx * dx + dy * dy));
-                fx->unk360 = D_807FBB40->unk4->unk34 * (1000.0f / dz) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)LCA_P->unk250;
+                fx->unk360 = D_807FBB40->unk4->unk34 * (1000.0f / dz) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)PLAYER_STATE->unk250;
                 fx->unk364 = fx->unk360;
             }
         }
     }
-    if (LCA_P->unkD4 != 0) {
-        LCA_P->unkD4 = LCA_P->unkD4 - 1;
+    if (PLAYER_STATE->unkD4 != 0) {
+        PLAYER_STATE->unkD4 = PLAYER_STATE->unkD4 - 1;
     }
     if (sp6A != 0) {
         playerStateQueueCallback(0x3F, sp64, D_807FC929);
@@ -650,15 +650,15 @@ void func_806CA5F8(s32 arg0) {
     if (sp6B == 2) {
         goto case2;
     }
-    LCA_P->unkD6 = 0;
+    PLAYER_STATE->unkD6 = 0;
     goto done;
 case1:
-    if (LCA_P->unk1F0 & 0x10) {
-        LCA_P->unkD6 = 0;
+    if (PLAYER_STATE->unk1F0 & 0x10) {
+        PLAYER_STATE->unkD6 = 0;
     } else {
-        LCA_P->unkD6 = LCA_P->unkD6 + 1;
+        PLAYER_STATE->unkD6 = PLAYER_STATE->unkD6 + 1;
         playerStateQueueCallback(0x2E, sp64, D_807FC929);
-        if (D_807FBB40->unk154 != 0x36 && D_807FBB40->unk154 != 0x3B && LCA_P->unkD4 == 0) {
+        if (D_807FBB40->unk154 != 0x36 && D_807FBB40->unk154 != 0x3B && PLAYER_STATE->unkD4 == 0) {
             s32 snd = 0x2C0;
             if (D_8076A0A8 == 0x30) {
                 snd = 0x3B0;
@@ -668,9 +668,9 @@ case1:
     }
     goto done;
 case2:
-    LCA_P->unk1F0 |= 0x1000;
-    if (!(LCA_P->unk1F0 & 0x10)) {
-        if (D_807FBB40->unk154 != 0x36 && D_807FBB40->unk154 != 0x3B && LCA_P->unkD4 == 0) {
+    PLAYER_STATE->unk1F0 |= 0x1000;
+    if (!(PLAYER_STATE->unk1F0 & 0x10)) {
+        if (D_807FBB40->unk154 != 0x36 && D_807FBB40->unk154 != 0x3B && PLAYER_STATE->unkD4 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2C0, 0xFF, 0x7F, 0);
         }
         if (D_8076A0A8 == 0x53 || D_8076A0A8 == 0xC5) {
@@ -682,21 +682,21 @@ case2:
 done:
     if (sp69 != 0) {
         playerStateQueueCallback(0, sp64, D_807FC929);
-        if (LCA_P->unkD4 == 0) {
+        if (PLAYER_STATE->unkD4 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2C0, 0xFF, 0x7F, 0);
         }
     }
-    actorGetNodePos(D_807FBB48, 6, &LCA_SLOT(D_807FC929).unk2B4, &LCA_SLOT(D_807FC929).unk2B8, &LCA_SLOT(D_807FC929).unk2BC);
-    camProjectToScreen(D_807FBB48->unk7C, LCA_SLOT(D_807FC929).unk2B8, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
-    LCA_P->unk10E = sp70;
-    LCA_P->unk110 = sp6C;
+    actorGetNodePos(D_807FBB48, 6, &PLAYER_SLOT(D_807FC929).unk2B4, &PLAYER_SLOT(D_807FC929).unk2B8, &PLAYER_SLOT(D_807FC929).unk2BC);
+    camProjectToScreen(D_807FBB48->unk7C, PLAYER_SLOT(D_807FC929).unk2B8, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
+    PLAYER_STATE->unk10E = sp70;
+    PLAYER_STATE->unk110 = sp6C;
     camProjectToScreen(D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
-    LCA_P->unk112 = sp6C;
-    LCA_P->unk1F8 = LCA_P->unk1F0;
-    if (LCA_P->unk268 != 0) {
-        LCA_P->unk268 = LCA_P->unk268 - 1;
+    PLAYER_STATE->unk112 = sp6C;
+    PLAYER_STATE->unk1F8 = PLAYER_STATE->unk1F0;
+    if (PLAYER_STATE->unk268 != 0) {
+        PLAYER_STATE->unk268 = PLAYER_STATE->unk268 - 1;
     }
-    if ((D_807FBB40->unk7C < (f32)D_807F5FE4 || D_807FBB40->unk84 < (f32)D_807F5FE6 || (f32)D_807F5FE8 < D_807FBB40->unk7C || (f32)D_807F5FEA < D_807FBB40->unk84 || sp68 != 0) && LCA_P->unk244 == 0 && (u32)D_8076A064 >= 0x65 && !(D_807FBB64 & 0x4000) && D_8076A0A8 != 0xE) {
+    if ((D_807FBB40->unk7C < (f32)D_807F5FE4 || D_807FBB40->unk84 < (f32)D_807F5FE6 || (f32)D_807F5FE8 < D_807FBB40->unk7C || (f32)D_807F5FEA < D_807FBB40->unk84 || sp68 != 0) && PLAYER_STATE->unk244 == 0 && (u32)D_8076A064 >= 0x65 && !(D_807FBB64 & 0x4000) && D_8076A0A8 != 0xE) {
         if (D_807FC928 == 1) {
             if (flagGet(0x186, 0) == 0) {
                 func_805FF188(0xB0, 1);
@@ -705,7 +705,7 @@ done:
             }
             healthRefill(D_807FC929);
             func_805FF1B0(D_807FC929);
-            LCA_P->unk244 = 1;
+            PLAYER_STATE->unk244 = 1;
         } else {
             func_80026D40(D_807FBB40, D_807FC929);
         }
@@ -720,18 +720,18 @@ done:
             case 0x30:
             case 0x48:
             case 0x57:
-                if (D_8076A094 >= 0x5DD && LCA_P->unk244 == 0) {
+                if (D_8076A094 >= 0x5DD && PLAYER_STATE->unk244 == 0) {
                     func_805FF2F4();
-                    LCA_P->unk244 = 1;
+                    PLAYER_STATE->unk244 = 1;
                 }
-                if (D_8076A098 >= 0x5DD && !(D_807FBB60 & 2) && LCA_P->unk244 == 0) {
+                if (D_8076A098 >= 0x5DD && !(D_807FBB60 & 2) && PLAYER_STATE->unk244 == 0) {
                     func_805FF2F4();
-                    LCA_P->unk244 = 1;
+                    PLAYER_STATE->unk244 = 1;
                 }
                 if ((D_807FBB40->unk7C != D_807FBB40->unk88 || D_807FBB40->unk80 != D_807FBB40->unk8C || D_807FBB40->unk84 != D_807FBB40->unk90 || D_807FD610[D_807FC929].unk2A != 0 || D_807FD610[D_807FC929].unk2E != 0 || D_807FD610[D_807FC929].unk2F != 0) && !(D_807FBB60 & 2)) {
                     if (++D_8076A090 == 0x69780) {
                         func_805FF2F4();
-                        LCA_P->unk244 = 1;
+                        PLAYER_STATE->unk244 = 1;
                     }
                 }
                 break;
@@ -740,7 +740,7 @@ done:
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CA5F8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/playerUpdateCommon.s")
 #endif
 
 typedef struct LCEAE0bPlayer {

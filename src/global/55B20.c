@@ -145,11 +145,11 @@ extern struct MapBox *D_807F70B4;
 
 void lightSetTargetColor(f32, f32, f32, s16);
 void lightCopyTargetColors(s16);
-void func_80651904(s32, s32, void *, s32 *, s32, s32);
-void func_80651C2C(s32, void *);
+void mapChunkBuildCellTable(s32, s32, void *, s32 *, s32, s32);
+void mapGridTriangleBuildPlane(s32, void *);
 
 #ifdef NON_MATCHING
-void func_80650ECC(MapData *arg0) {
+void mapChunksInitFromMapData(MapData *arg0) {
     u8 *q;
     u8 *p;
     s32 base;
@@ -228,7 +228,7 @@ void func_80650ECC(MapData *arg0) {
                 total = D_807F6C18[i].unk3C;
                 if (D_807F6C18[i].unk5 == 2) {
                     D_807F713A = 1;
-                    func_80651904(D_807F6C18[i].unk2C, D_807F6C18[i].unk3C, buf, &count, 0, i);
+                    mapChunkBuildCellTable(D_807F6C18[i].unk2C, D_807F6C18[i].unk3C, buf, &count, 0, i);
                 }
                 val = *(s32 *)p;
                 if (val != -1) {
@@ -240,7 +240,7 @@ void func_80650ECC(MapData *arg0) {
                 D_807F6C18[i].unk40 = *(s32 *)(p - 4);
                 total += D_807F6C18[i].unk40;
                 if (D_807F6C18[i].unk5 == 2) {
-                    func_80651904(D_807F6C18[i].unk30, D_807F6C18[i].unk40, buf, &count, 1, i);
+                    mapChunkBuildCellTable(D_807F6C18[i].unk30, D_807F6C18[i].unk40, buf, &count, 1, i);
                 }
                 val = *(s32 *)p;
                 if (val != -1) {
@@ -252,7 +252,7 @@ void func_80650ECC(MapData *arg0) {
                 D_807F6C18[i].unk44 = *(s32 *)(p - 4);
                 total += D_807F6C18[i].unk44;
                 if (D_807F6C18[i].unk5 == 2) {
-                    func_80651904(D_807F6C18[i].unk34, D_807F6C18[i].unk44, buf, &count, 2, i);
+                    mapChunkBuildCellTable(D_807F6C18[i].unk34, D_807F6C18[i].unk44, buf, &count, 2, i);
                 }
                 val = *(s32 *)p;
                 if (val != -1) {
@@ -267,7 +267,7 @@ void func_80650ECC(MapData *arg0) {
                 D_807F6C18[i].unkC = D_807F6C18[i].unk2C;
                 D_807F6C18[i].unk10 = D_807F6C18[i].unk8;
                 if (D_807F6C18[i].unk5 == 2) {
-                    func_80651904(D_807F6C18[i].unk38, D_807F6C18[i].unk48, buf, &count, 3, i);
+                    mapChunkBuildCellTable(D_807F6C18[i].unk38, D_807F6C18[i].unk48, buf, &count, 3, i);
                 }
                 D_807F6C18[i].unk5C = *(s32 *)(p + 4);
                 p += 8;
@@ -295,7 +295,7 @@ void func_80650ECC(MapData *arg0) {
         }
         D_807F6C24 = heapAlloc(D_807F6C20 / 2 * 0x30);
         for (i = 0; i < D_807F6C20 / 2; i++) {
-            func_80651C2C(i, (u8 *)D_807F6C24 + i * 0x30);
+            mapGridTriangleBuildPlane(i, (u8 *)D_807F6C24 + i * 0x30);
         }
         D_807F7079 = 1;
         D_807F7078[0] = 1;
@@ -313,7 +313,7 @@ void func_80650ECC(MapData *arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80650ECC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunksInitFromMapData.s")
 #endif
 
 typedef struct MapNodeEntry {
@@ -330,7 +330,7 @@ typedef struct MapNodeEntry {
 extern void *D_807F70B8[];
 void heapFree(void *);
 
-void func_80651708(s32 arg0) {
+void mapFaceBuildTriangleFan(s32 arg0) {
     MapNodeEntry *var_v1;
     s32 var_a1;
     s32 var_a2;
@@ -392,27 +392,27 @@ void func_80651708(s32 arg0) {
 }
 
 #ifdef NON_MATCHING
-typedef struct S55aNode {
+typedef struct MapDlCommand {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
-} S55aNode;
+} MapDlCommand;
 
-typedef struct S55aEntry {
+typedef struct MapChunkCellRefs {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 pad2[2];
     /* 0x04 */ s32 unk4[4];
     /* 0x14 */ s32 unk14[4];
-} S55aEntry; /* 0x24 */
+} MapChunkCellRefs; /* 0x24 */
 
-typedef struct S55aCell {
+typedef struct MapCellOffsets {
     /* 0x00 */ u8 pad0[0x2];
     /* 0x02 */ s16 unk2;
     /* 0x04 */ u8 pad4[0x4];
     /* 0x08 */ s16 unk8[4];
     /* 0x10 */ u8 pad10[0xC];
-} S55aCell; /* 0x1C */
+} MapCellOffsets; /* 0x1C */
 
-void func_80651904(list, size, buf, count, kind, chunk)
+void mapChunkBuildCellTable(list, size, buf, count, kind, chunk)
 s32 list;
 s32 size;
 void *buf;
@@ -432,14 +432,14 @@ s32 chunk;
             idx = 0;
             found = 0;
             size -= 8;
-            if ((((S55aNode *)list)->unk0 >> 24) == 0) {
+            if ((((MapDlCommand *)list)->unk0 >> 24) == 0) {
                 n = *count;
-                key = ((S55aNode *)list)->unk4;
+                key = ((MapDlCommand *)list)->unk4;
                 cidx = 0;
                 cfound = 0;
                 if (n > 0) {
                     do {
-                        if (key == ((S55aEntry *)buf)[idx].unk0) {
+                        if (key == ((MapChunkCellRefs *)buf)[idx].unk0) {
                             found = 1;
                         } else {
                             idx += 1;
@@ -447,24 +447,24 @@ s32 chunk;
                     } while (idx < n && found == 0);
                 }
                 do {
-                    if (key == ((S55aCell *)D_807F70B0)[cidx].unk2) {
+                    if (key == ((MapCellOffsets *)D_807F70B0)[cidx].unk2) {
                         cfound = 1;
                     } else {
                         cidx += 1;
                     }
                 } while (cfound == 0);
                 if (found == 0) {
-                    ((S55aEntry *)buf)[n].unk0 = key;
+                    ((MapChunkCellRefs *)buf)[n].unk0 = key;
                     *(s32 *)((u8 *)buf + *count * 0x24 + 4) = -1;
                     *(s32 *)((u8 *)buf + *count * 0x24 + 8) = -1;
                     *(s32 *)((u8 *)buf + *count * 0x24 + 0xC) = -1;
                     *(s32 *)((u8 *)buf + *count * 0x24 + 0x10) = -1;
                     *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 4) = list + 8;
-                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 0x14) = (((S55aCell *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 0x14) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
                     *count += 1;
                 } else {
                     *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 4) = list + 8;
-                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 0x14) = (((S55aCell *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
+                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 0x14) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
                 }
             }
             list += 8;
@@ -473,7 +473,7 @@ s32 chunk;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80651904.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunkBuildCellTable.s")
 #endif
 
 s32 mapChunkIsInUse(s16 arg0) {
@@ -502,7 +502,7 @@ void mapObjectSetByte(s16 arg0, u8 arg1, u8 arg2) {
 
 f32 sqrtf(f32);
 
-void func_80651C2C(s32 arg0, void *arg1p) {
+void mapGridTriangleBuildPlane(s32 arg0, void *arg1p) {
     s64 a2v;
     s64 a1v;
     s64 a0v;
@@ -600,14 +600,14 @@ typedef struct MapActorEntry {
 
 s32 renderEntryAddOrUpdate(s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
 s32 func_80630324(s32, s32);
-s16 func_806531B8(f32, f32, f32, s16);
+s16 mapChunkFindByPosition(f32, f32, f32, s16);
 
 void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
     s32 temp_v1;
     s32 *sp40;
     s16 *level;
 
-    arg0->unk20 = func_806531B8(arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk20);
+    arg0->unk20 = mapChunkFindByPosition(arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk20);
     temp_v1 = func_80630324(arg0->unk24, arg0->unk0) & 0xFF;
     if (arg0->unk24 == 0) {
         *(s16 *)(arg0->unk0 + 0x12C) = arg0->unk20;
@@ -626,7 +626,7 @@ void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
 
 void func_806307CC(s32, s32, s32, u8, u8 *);
 
-void func_806524A0(s32 arg0, u8 arg1) {
+void mapChunkMarkRenderEntry(s32 arg0, u8 arg1) {
     u8 flag;
     s32 i;
 
@@ -675,9 +675,9 @@ s32 func_80630890(s32, f32, f32, f32, void *);
 void modelNodeListSyncFlags(s32);
 s32 spriteListBuildDisplayChain(s32, s32, f32, f32, f32);
 s32 mapNodeBoxContainsPoint(void *, f32, f32);
-s32 func_80653804(void *, f32, f32);
-void func_80652FDC(f32, f32, f32, s16, s16, s16 *);
-s32 func_806533C4(f32, f32, f32);
+s32 mapNodeTriangleContainsPoint(void *, f32, f32);
+void mapCellFindAtPoint(f32, f32, f32, s16, s16, s16 *);
+s32 mapFloorHeightIsBetter(f32, f32, f32);
 s32 mapChunkFindNodeAtPoint(f32, f32, f32, s16, u8 *, f32 *);
 
 void mapChunkClearNodeFlags(u8 arg0) {
@@ -741,7 +741,7 @@ void mapChunkResolveNodeAssets(void) {
     }
 }
 
-void func_80652A08(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
+void mapChunkBuildSpriteChains(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     s32 i;
 
     i = 0;
@@ -771,7 +771,7 @@ typedef struct MapNode {
 
 void func_8063B4C0(void *, u8);
 
-void func_80652B04(void) {
+void mapChunkUpdateModelNodes(void) {
     u8 flag;
     s32 i;
     void *node;
@@ -803,7 +803,7 @@ void func_80652B04(void) {
 
 extern s32 func_80668E9C(s32, s16, f32, f32, f32, s32);
 
-s32 func_80652BC8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+s32 mapChunkCheckActorCollision(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     MapNode *node;
     s32 i;
     u8 pad;
@@ -846,7 +846,7 @@ s32 func_80652BC8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     return result;
 }
 
-s32 func_80652DB4(f32 arg0, f32 arg1, f32 arg2) {
+s32 mapPointIsInRenderedChunk(f32 arg0, f32 arg1, f32 arg2) {
     s16 *pad;
     s32 i;
     s16 chunk;
@@ -855,7 +855,7 @@ s32 func_80652DB4(f32 arg0, f32 arg1, f32 arg2) {
     if (D_807F6C28 == 0) {
         return 0xFF;
     }
-    chunk = func_806531B8(arg0, arg1, arg2, 0);
+    chunk = mapChunkFindByPosition(arg0, arg1, arg2, 0);
     if (D_807F6C80 > 0) {
         do {
             if (chunk == D_807F6C58[i]) {
@@ -913,7 +913,7 @@ s32 mapChunkIsVisibleForPlayer(s16 arg0, s16 arg1) {
 s16 mapChunkFindAtPoint(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     s16 temp;
 
-    func_80652FDC(arg0, arg1, arg2, arg3, -1, &temp);
+    mapCellFindAtPoint(arg0, arg1, arg2, arg3, -1, &temp);
     return temp;
 }
 
@@ -936,7 +936,7 @@ typedef struct MapCell {
     /* 0x1A */ u8 pad1A[0x2];
 } MapCell; /* 0x1C */
 
-void func_80652FDC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 *arg5) {
+void mapCellFindAtPoint(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 *arg5) {
     s32 i;
     s16 id;
     MapBox *box;
@@ -951,7 +951,7 @@ void func_80652FDC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 *arg5) 
                 if (box && box) {} // FAKE: keeps box's live range apart from the hoisted cell table address
                 if (((f32)box->unk0 <= arg0) && (arg0 <= (f32)box->unk6) && ((f32)box->unk2 <= arg1) && (arg1 <= (f32)box->unk8) && ((f32)box->unk4 <= arg2) && (arg2 <= (f32)box->unkA)) {
                     *arg5 = id;
-                    func_80652FDC(arg0, arg1, arg2, arg3, id, arg5);
+                    mapCellFindAtPoint(arg0, arg1, arg2, arg3, id, arg5);
                 }
             }
             i++;
@@ -963,14 +963,14 @@ typedef struct {
     /* 0x0 */ s16 id;
     /* 0x2 */ u8 pad2[2];
     /* 0x4 */ f32 dist;
-} S55bChunkCand;
+} MapChunkCandidate;
 
-s16 func_806531B8(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
+s16 mapChunkFindByPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     s32 best;
     s32 count;
     u8 flag;
     f32 dist;
-    S55bChunkCand cand[50];
+    MapChunkCandidate cand[50];
     s32 pad1;
     s32 i;
     s32 pad2;
@@ -1022,7 +1022,7 @@ s16 func_806531B8(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     }
     best = cand[0].id;
     for (i = 0; i < count; i++) {
-        if (func_806533C4(arg0, cand[i].dist, arg1) != 0) {
+        if (mapFloorHeightIsBetter(arg0, cand[i].dist, arg1) != 0) {
             arg0 = cand[i].dist;
             best = cand[i].id;
         }
@@ -1030,7 +1030,7 @@ s16 func_806531B8(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     return best;
 }
 
-s32 func_806533C4(f32 arg0, f32 arg1, f32 arg2) {
+s32 mapFloorHeightIsBetter(f32 arg0, f32 arg1, f32 arg2) {
     s32 var_v0;
     s32 var_v1;
     f32 var_fv0;
@@ -1111,7 +1111,7 @@ s32 mapChunkFindNodeAtPoint(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, f3
     temp_s1 = (MapCollisionNode *)temp_v0->unk7C;
     if (var_s0 != temp_s1) {
         do {
-            if ((mapNodeBoxContainsPoint(var_s0, arg0, arg2) != 0) && (func_80653804(var_s0, arg0, arg2) != 0)) {
+            if ((mapNodeBoxContainsPoint(var_s0, arg0, arg2) != 0) && (mapNodeTriangleContainsPoint(var_s0, arg0, arg2) != 0)) {
                 if (var_s0->unk12 & 1) {
                     *arg4 = 0;
                 } else {
@@ -1194,7 +1194,7 @@ s32 mapNodeBoxContainsPoint(void *arg0, f32 arg1, f32 arg2) {
 }
 
 #ifdef NON_MATCHING
-s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
+s32 mapNodeTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
     f64 lead0;
     f64 lead1;
     f64 lead2;
@@ -1296,7 +1296,7 @@ s32 func_80653804(void *arg0, f32 arg1, f32 arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80653804.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapNodeTriangleContainsPoint.s")
 #endif
 
 
@@ -1340,13 +1340,13 @@ void func_8062A944(f32, f32, f32);
 void mapUpdateFogDistance(f32 *, s16);
 void mapChunkClearBounds();
 void mapChunkActivate(s16);
-void func_806547A8(f32, f32, f32);
+void mapTriggerCollectZonesAtPoint(f32, f32, f32);
 void mapChunkRenderNodes(f32, f32, f32);
 void mapTriggerApplyZones(f32, f32, f32);
-void func_80656F14(s16, s32, s16, s16, s16, s16, f32, f32, f32);
+void mapChunkTraversePortals(s16, s32, s16, s16, s16, s16, f32, f32, f32);
 void func_8065F678(f32, f32, f32, u8);
 void actorCalculateTargetDistancesAndAngles(f32, f32, f32);
-void func_80655410(f32, f32, f32);
+void mapChunksApplyLights(f32, f32, f32);
 extern u8 D_807F5E20[];
 extern u8 D_807F5E68[];
 extern u8 D_807444FC;
@@ -1355,7 +1355,7 @@ extern f32 D_807F5FB0;
 extern u8 D_807F6C08;
 
 void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
-    D_807FC924[D_807FC929].unk290 = func_806531B8(arg0, arg1, arg2, D_807FC924[D_807FC929].unk290);
+    D_807FC924[D_807FC929].unk290 = mapChunkFindByPosition(arg0, arg1, arg2, D_807FC924[D_807FC929].unk290);
     if (D_807F70AB != 0) {
         D_807FC924[D_807FC929].unk290 = *(s16 *)((u8 *)D_807FC924[D_807FC929].unk4 + 0x12C);
     }
@@ -1366,20 +1366,20 @@ void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
     func_8062AD28(arg0, arg1, arg2, &D_807F5E68, &D_807F5E20);
     mapChunkClearBounds();
     mapChunkActivate(D_807FC924[D_807FC929].unk290);
-    func_806547A8(arg0, arg1, arg2);
+    mapTriggerCollectZonesAtPoint(arg0, arg1, arg2);
     D_807F6C80 = 0;
     D_807F6C08 = 0;
-    func_80656F14(D_807FC924[D_807FC929].unk290, 0, D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276, arg0, arg1, arg2);
+    mapChunkTraversePortals(D_807FC924[D_807FC929].unk290, 0, D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276, arg0, arg1, arg2);
     mapChunkRenderNodes(arg0, arg1, arg2);
     func_8065F678(arg0, arg1, arg2, D_807FC929);
     actorCalculateTargetDistancesAndAngles(arg0, arg1, arg2);
-    func_80655410(arg0, arg1, arg2);
+    mapChunksApplyLights(arg0, arg1, arg2);
 }
 
 extern s32 assetLoad(s32, s32, s32, s32);
 
 #ifdef NON_MATCHING
-u8 *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
+u8 *mapChunkLoadAssetRefs(u8 *arg0, u8 *arg1, s16 arg2) {
     s32 count;
     s32 temp_v0;
     s32 zero;
@@ -1407,7 +1407,7 @@ u8 *func_80653DF0(u8 *arg0, u8 *arg1, s16 arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80653DF0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunkLoadAssetRefs.s")
 #endif
 
 
@@ -1446,7 +1446,7 @@ extern u32 D_807FBB68;
 extern s32 D_8076A064;
 extern s32 mapObjectCollectIdsByType();
 
-void func_80653FA4(void) {
+void mapChunkUpdateAssetStreaming(void) {
     s32 i;
     s8 *q;
     s8 buf[0x10];
@@ -1465,7 +1465,7 @@ void func_80653FA4(void) {
                 flags[i] = 1;
                 D_807F6C18[i].unk28 = D_8076A064;
                 if (!(D_807F6C18[i].unk7 & 4)) {
-                    D_807F6C18[i].unk8 = (s32)func_80653DF0((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 0x270F);
+                    D_807F6C18[i].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 0x270F);
                     D_807F6C18[i].unk7 |= 4;
                     D_807F6C18[i].unk7 &= 0xFFFC;
                 }
@@ -1478,7 +1478,7 @@ void func_80653FA4(void) {
                     if (flags[idx] == 0) {
                         if (D_807F6C18[idx].unk1 == 0) {
                             if (!(D_807F6C18[idx].unk7 & 4)) {
-                                D_807F6C18[idx].unk8 = (s32)func_80653DF0((u8 *)D_807F6C18[idx].unk8, (u8 *)D_807F6C18[idx].unk10, 5);
+                                D_807F6C18[idx].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)D_807F6C18[idx].unk8, (u8 *)D_807F6C18[idx].unk10, 5);
                                 if (D_807F6C18[idx].unk8 == D_807F6C18[idx].unk10) {
                                     D_807F6C18[idx].unk7 &= 0xFFFD;
                                     D_807F6C18[idx].unk7 |= 4;
@@ -1500,7 +1500,7 @@ void func_80653FA4(void) {
             if (flags[i] == 0) {
                 if (D_807F6C18[i].unk7 & 8) {
                     if (!(D_807F6C18[i].unk7 & 4)) {
-                        D_807F6C18[i].unk8 = (s32)func_80653DF0((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 5);
+                        D_807F6C18[i].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 5);
                         if (D_807F6C18[i].unk8 == D_807F6C18[i].unk10) {
                             D_807F6C18[i].unk7 &= 0xFFFD;
                             D_807F6C18[i].unk7 |= 4;
@@ -1522,17 +1522,17 @@ void func_80653FA4(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80653FA4.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunkUpdateAssetStreaming.s")
 #endif
 
-extern void func_80654418(f32, f32, f32);
-extern void func_80655258(f32, f32, f32, s32);
+extern void mapChunkBuildClipFrusta(f32, f32, f32);
+extern void mapCellUpdateVisibility(f32, f32, f32, s32);
 
 void mapChunkRenderNodes(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
     s32 off;
 
-    func_80654418(arg0, arg1, arg2);
+    mapChunkBuildClipFrusta(arg0, arg1, arg2);
     i = 0;
     off = 0;
     while (i < D_807F70AC) {
@@ -1540,7 +1540,7 @@ void mapChunkRenderNodes(f32 arg0, f32 arg1, f32 arg2) {
         D_807F70B0[off].unk18 = 0;
         off += 1;
     }
-    func_80655258(arg0, arg1, arg2, -1);
+    mapCellUpdateVisibility(arg0, arg1, arg2, -1);
     mapTriggerApplyZones(arg0, arg1, arg2);
 }
 
@@ -1548,9 +1548,9 @@ extern f32 D_807F5FAC;
 extern s32 D_807482F4;
 extern u8 D_807F7148[];
 void matrix4Invert(f32 (*)[4], f32 (*)[4]);
-void func_806545D4(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
+void mapScreenRectBuildFrustum(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
 
-void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
+void mapChunkBuildClipFrusta(f32 arg0, f32 arg1, f32 arg2) {
     f32 spF8[4][4];
     f32 spB8[4][4];
     s32 i;
@@ -1561,7 +1561,7 @@ void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
     matrix4Invert(spB8, spF8);
     for (i = 0; i < D_807F6C28; i++) {
         if (D_807F6C18[i].unk0 == 1) {
-            func_806545D4(D_807F6C18[i].unk68, D_807F6C18[i].unk6C, D_807F6C18[i].unk70, D_807F6C18[i].unk74,
+            mapScreenRectBuildFrustum(D_807F6C18[i].unk68, D_807F6C18[i].unk6C, D_807F6C18[i].unk70, D_807F6C18[i].unk74,
                           arg0, arg1, arg2, D_807FC929, spB8, &D_807F6C18[i].pad88, sp84);
             if (i == D_807482F4) {
                 memcpy(D_807F7148, &D_807F6C18[i].pad88, 0x140);
@@ -1571,7 +1571,7 @@ void func_80654418(f32 arg0, f32 arg1, f32 arg2) {
 }
 
 #ifdef NON_MATCHING
-typedef struct S55dRoad {
+typedef struct FrustumCorners {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -1584,10 +1584,10 @@ typedef struct S55dRoad {
     /* 0x24 */ f32 unk24;
     /* 0x28 */ f32 unk28;
     /* 0x2C */ f32 unk2C;
-} S55dRoad;
+} FrustumCorners;
 
-extern S55dRoad D_807F5DF0;
-void func_806545D4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
+extern FrustumCorners D_807F5DF0;
+void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
     f32 uv3;
     f32 t;
     f32 a;
@@ -1616,7 +1616,7 @@ void func_806545D4(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_806545D4.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapScreenRectBuildFrustum.s")
 #endif
 
 typedef struct MapTriangle {
@@ -1631,7 +1631,7 @@ typedef struct MapTriangle {
     /* 0x10 */ s16 unk10;
 } MapTriangle;
 
-typedef struct S55dZone {
+typedef struct MapZone {
     u8 pad0[8];
     s32 unk8;
     s16 unkC;
@@ -1641,7 +1641,7 @@ typedef struct S55dZone {
     u8 pad14[0x44];
     s16 unk58[8];
     u8 unk68;
-} S55dZone;
+} MapZone;
 
 extern void *D_807F70B8[];
 extern u8 D_807F7048[];
@@ -1650,13 +1650,13 @@ extern u8 D_807F7060[];
 extern u8 D_807F7070;
 
 s32 mapTriangleBoundsContainPoint(MapTriangle *, f32, f32);
-s32 func_80654FEC(void *, f32, f32);
-f32 func_80654CCC(MapTriangle *, f32, f32);
+s32 mapTriangleContainsPoint(void *, f32, f32);
+f32 mapTriangleHeightAtPoint(MapTriangle *, f32, f32);
 
-void func_806547A8(f32 arg0, f32 arg1, f32 arg2) {
+void mapTriggerCollectZonesAtPoint(f32 arg0, f32 arg1, f32 arg2) {
     s32 pad[10]; // FAKE: frame size
-    S55dZone **p;
-    S55dZone *zone;
+    MapZone **p;
+    MapZone *zone;
     MapTriangle *node;
     s32 i;
     s32 j;
@@ -1667,14 +1667,14 @@ void func_806547A8(f32 arg0, f32 arg1, f32 arg2) {
 
     D_807F7058 = 0;
     D_807F7070 = 0;
-    for (p = (S55dZone **)D_807F70B8, i = 0; i != 0x20; i++) {
+    for (p = (MapZone **)D_807F70B8, i = 0; i != 0x20; i++) {
         if (*p != NULL) {
             zone = *p;
             if ((f32)zone->unk10 <= arg1 && arg1 <= (f32)(zone->unk12 + zone->unkE)) {
                 node = (MapTriangle *)((u8 *)zone->unk8);
                 for (j = 0; j < zone->unkC; j++, node++) {
-                    if (mapTriangleBoundsContainPoint(node, arg0, arg2) != 0 && func_80654FEC(node, arg0, arg2) != 0) {
-                        h = func_80654CCC(node, arg0, arg2);
+                    if (mapTriangleBoundsContainPoint(node, arg0, arg2) != 0 && mapTriangleContainsPoint(node, arg0, arg2) != 0) {
+                        h = mapTriangleHeightAtPoint(node, arg0, arg2);
                         if (h <= arg1 && arg1 <= (f32)zone->unkE + h) {
                             k = 0;
                             if (D_807F7058 != 0x10) {
@@ -1779,7 +1779,7 @@ void mapCellSetFlag(s32 arg0, u8 arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654CCC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapTriangleHeightAtPoint.s")
 
 s32 mapTriangleBoundsContainPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
     f32 minX;
@@ -1802,7 +1802,7 @@ s32 mapTriangleBoundsContainPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
 }
 
 #ifdef NON_MATCHING
-s32 func_80654FEC(void *arg0, f32 arg1, f32 arg2) {
+s32 mapTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
     f64 lead0;
     f64 lead1;
     f64 lead2;
@@ -1904,12 +1904,12 @@ s32 func_80654FEC(void *arg0, f32 arg1, f32 arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80654FEC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapTriangleContainsPoint.s")
 #endif
 
 s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 
-void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
+void mapCellUpdateVisibility(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     s32 idx;
     s32 i;
     s32 off;
@@ -1928,7 +1928,7 @@ void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
                         ((MapCell *)((u8 *)D_807F70B0 + off))->unk19 = 1;
                     }
                     if (((MapCell *)((u8 *)D_807F70B0 + off))->unk18 != 0) {
-                        func_80655258(arg0, arg1, arg2, ((MapCell *)((u8 *)D_807F70B0 + off))->unk2);
+                        mapCellUpdateVisibility(arg0, arg1, arg2, ((MapCell *)((u8 *)D_807F70B0 + off))->unk2);
                     }
                 }
             }
@@ -1939,14 +1939,14 @@ void func_80655258(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
 }
 
 #ifdef NON_MATCHING
-typedef struct L655410Node {
+typedef struct MapChunkCellMatrices {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 pad2[0x12];
     /* 0x14 */ void *unk14[2];
     /* 0x1C */ u8 pad1C[0x8];
-} L655410Node;
+} MapChunkCellMatrices;
 
-typedef struct L655410Cell {
+typedef struct MapCellView {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 unk4;
@@ -1959,9 +1959,9 @@ typedef struct L655410Cell {
     /* 0x18 */ u8 unk18;
     /* 0x19 */ u8 unk19;
     /* 0x1A */ u8 pad1A[2];
-} L655410Cell;
+} MapCellView;
 
-typedef struct L655410Effect {
+typedef struct MapChunkLightView {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 unk1;
     /* 0x002 */ u8 unk2;
@@ -1969,18 +1969,18 @@ typedef struct L655410Effect {
     /* 0x004 */ u8 unk4;
     /* 0x005 */ u8 unk5;
     /* 0x006 */ u8 pad6[0x46];
-    /* 0x04C */ L655410Node *unk4C;
+    /* 0x04C */ MapChunkCellMatrices *unk4C;
     /* 0x050 */ u8 pad50[4];
     /* 0x054 */ u8 *unk54;
     /* 0x058 */ u8 *unk58;
     /* 0x05C */ s32 unk5C;
     /* 0x060 */ void *unk60[4];
     /* 0x070 */ u8 pad70[0x158];
-} L655410Effect;
+} MapChunkLightView;
 
 void matrixCacheResetStats(void);
 void lightClearActiveCount(void);
-s32 func_8065BAA0(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, u8 *);
+s32 lightCollectVolumesInBounds(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, u8 *);
 void *matrixCacheLookup(s32, s32, s16, u8);
 void *matrixCacheInsert(s32, s32, s16, u8, s32, u8);
 void func_8065C990(void *, void *, s32, void *, s32, s32);
@@ -1991,16 +1991,16 @@ extern f32 D_807F7EF4;
 extern s32 D_807FBB60;
 extern u8 D_807F78C0;
 
-#define L655410_CHUNK ((L655410Effect *)D_807F6C18)
-#define L655410_CELL ((L655410Cell *)D_807F70B0)
-void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
+#define MAP_CHUNK_LIGHT ((MapChunkLightView *)D_807F6C18)
+#define MAP_CELL_VIEW ((MapCellView *)D_807F70B0)
+void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
     s32 obj;
     void *matrix;
     u8 *src;
     s16 key;
     s32 pad0;
-    L655410Node *node;
+    MapChunkCellMatrices *node;
     s16 boxIdx;
     s32 j;
     s32 k;
@@ -2014,19 +2014,19 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
     matrixCacheResetStats();
     lightClearActiveCount();
     for (i = 0; i < D_807F6C28; i++) {
-        if ((L655410_CHUNK[i].unk3 != 0) && (L655410_CHUNK[i].unk0 == 1) && (L655410_CHUNK[i].unk4 == 0)) {
-            L655410_CHUNK[i].unk4 = 1;
-            if (L655410_CHUNK[i].unk5 == 2) {
+        if ((MAP_CHUNK_LIGHT[i].unk3 != 0) && (MAP_CHUNK_LIGHT[i].unk0 == 1) && (MAP_CHUNK_LIGHT[i].unk4 == 0)) {
+            MAP_CHUNK_LIGHT[i].unk4 = 1;
+            if (MAP_CHUNK_LIGHT[i].unk5 == 2) {
                 flag = 0;
                 for (k = 0; k < D_807F70AC; k++) {
-                    if ((i == L655410_CELL[k].unk0) && (L655410_CELL[k].unk19 != 0)) {
+                    if ((i == MAP_CELL_VIEW[k].unk0) && (MAP_CELL_VIEW[k].unk19 != 0)) {
                         for (j = 0; j < 2; j++) {
-                            if (L655410_CELL[k].unk10[j] != 0) {
-                                boxIdx = L655410_CELL[k].unk2;
-                                obj = func_8065BAA0(arg0, arg1, arg2, D_807F70B4[boxIdx].unk0, D_807F70B4[boxIdx].unk2, D_807F70B4[boxIdx].unk4, D_807F70B4[boxIdx].unk6, D_807F70B4[boxIdx].unk8, D_807F70B4[boxIdx].unkA, i, &hit);
+                            if (MAP_CELL_VIEW[k].unk10[j] != 0) {
+                                boxIdx = MAP_CELL_VIEW[k].unk2;
+                                obj = lightCollectVolumesInBounds(arg0, arg1, arg2, D_807F70B4[boxIdx].unk0, D_807F70B4[boxIdx].unk2, D_807F70B4[boxIdx].unk4, D_807F70B4[boxIdx].unk6, D_807F70B4[boxIdx].unk8, D_807F70B4[boxIdx].unkA, i, &hit);
                                 nodeIdx = 0;
                                 found = 0;
-                                key = L655410_CELL[k].unk2; node = L655410_CHUNK[i].unk4C;  // FAKE: same-line statements steer scheduling
+                                key = MAP_CELL_VIEW[k].unk2; node = MAP_CHUNK_LIGHT[i].unk4C;  // FAKE: same-line statements steer scheduling
                                 do {
                                     if (key == node->unk0) {
                                         found = 1;
@@ -2037,16 +2037,16 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
                                 } while (found == 0);
                                 if (D_807FBB60 & 0x10) {
                                     q = j;
-                                    L655410_CHUNK[i].unk4C[nodeIdx].unk14[j] = matrixCacheLookup(obj, i, boxIdx, q);
-                                    if (L655410_CHUNK[i].unk4C[nodeIdx].unk14[j] == NULL) {
-                                        L655410_CHUNK[i].unk4C[nodeIdx].unk14[j] = matrixCacheInsert(obj, i, boxIdx, q, L655410_CELL[k].unk10[j], hit);
-                                        src = L655410_CHUNK[i].unk54 + L655410_CELL[k].unk8[j] * 0x10;
-                                        memcpy(L655410_CHUNK[i].unk4C[nodeIdx].unk14[j], src, L655410_CELL[k].unk10[j] * 0x10);
-                                        matrix = L655410_CHUNK[i].unk4C[nodeIdx].unk14[j];
+                                    MAP_CHUNK_LIGHT[i].unk4C[nodeIdx].unk14[j] = matrixCacheLookup(obj, i, boxIdx, q);
+                                    if (MAP_CHUNK_LIGHT[i].unk4C[nodeIdx].unk14[j] == NULL) {
+                                        MAP_CHUNK_LIGHT[i].unk4C[nodeIdx].unk14[j] = matrixCacheInsert(obj, i, boxIdx, q, MAP_CELL_VIEW[k].unk10[j], hit);
+                                        src = MAP_CHUNK_LIGHT[i].unk54 + MAP_CELL_VIEW[k].unk8[j] * 0x10;
+                                        memcpy(MAP_CHUNK_LIGHT[i].unk4C[nodeIdx].unk14[j], src, MAP_CELL_VIEW[k].unk10[j] * 0x10);
+                                        matrix = MAP_CHUNK_LIGHT[i].unk4C[nodeIdx].unk14[j];
                                         D_807F7EEC = ((f32 *)D_8076A0B4)[i];
                                         D_807F7EF0 = ((f32 *)D_8076A0B8)[i];
                                         D_807F7EF4 = ((f32 *)D_8076A0BC)[i];
-                                        func_8065C990(matrix, (u8 *)matrix + L655410_CELL[k].unk10[j] * 0x10, 1, &D_807F78C0, obj, L655410_CHUNK[i].unk3 == 1);
+                                        func_8065C990(matrix, (u8 *)matrix + MAP_CELL_VIEW[k].unk10[j] * 0x10, 1, &D_807F78C0, obj, MAP_CHUNK_LIGHT[i].unk3 == 1);
                                     }
                                 }
                             }
@@ -2055,30 +2055,30 @@ void func_80655410(f32 arg0, f32 arg1, f32 arg2) {
                 }
             } else {
                 if (flag == 0) {
-                    obj = func_8065BAA0(arg0, arg1, arg2, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -1, &hit);
+                    obj = lightCollectVolumesInBounds(arg0, arg1, arg2, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -1, &hit);
                     flag = 1;
                 }
-                if (L655410_CHUNK[i].unk60[D_807444FC] == NULL) {
-                    L655410_CHUNK[i].unk60[D_807444FC] = heapAlloc(L655410_CHUNK[i].unk5C);
+                if (MAP_CHUNK_LIGHT[i].unk60[D_807444FC] == NULL) {
+                    MAP_CHUNK_LIGHT[i].unk60[D_807444FC] = heapAlloc(MAP_CHUNK_LIGHT[i].unk5C);
                 }
-                memcpy(L655410_CHUNK[i].unk60[D_807444FC], L655410_CHUNK[i].unk54, L655410_CHUNK[i].unk5C);
+                memcpy(MAP_CHUNK_LIGHT[i].unk60[D_807444FC], MAP_CHUNK_LIGHT[i].unk54, MAP_CHUNK_LIGHT[i].unk5C);
                 D_807F7EEC = ((f32 *)D_8076A0B4)[i];
                 D_807F7EF0 = ((f32 *)D_8076A0B8)[i];
                 D_807F7EF4 = ((f32 *)D_8076A0BC)[i];
                 if (D_807FBB60 & 0x10) {
-                    func_8065C990(L655410_CHUNK[i].unk60[D_807444FC], (u8 *)L655410_CHUNK[i].unk60[D_807444FC] + L655410_CHUNK[i].unk5C, 1, &D_807F78C0, obj, L655410_CHUNK[i].unk3 == 1);
+                    func_8065C990(MAP_CHUNK_LIGHT[i].unk60[D_807444FC], (u8 *)MAP_CHUNK_LIGHT[i].unk60[D_807444FC] + MAP_CHUNK_LIGHT[i].unk5C, 1, &D_807F78C0, obj, MAP_CHUNK_LIGHT[i].unk3 == 1);
                 }
             }
-            L655410_CHUNK[i].unk58 = L655410_CHUNK[i].unk60[D_807444FC];
+            MAP_CHUNK_LIGHT[i].unk58 = MAP_CHUNK_LIGHT[i].unk60[D_807444FC];
         }
     }
     func_8065FB64(arg0, arg1, arg2);
 }
-#undef L655410_CHUNK
-#undef L655410_CELL
+#undef MAP_CHUNK_LIGHT
+#undef MAP_CELL_VIEW
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80655410.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunksApplyLights.s")
 #endif
 
 typedef struct {
@@ -2236,7 +2236,7 @@ u32 osVirtualToPhysical(void *);
 Gfx *mapViewDrawPass(Gfx *, void *, s32);
 Gfx *mapChunkEmitSegmentCommands(Gfx *, u8);
 void mapChunkAnimateTextures(u8);
-s32 func_80656B98();
+s32 mapChunkEmitLayerDisplayLists();
 Gfx *spriteListRender(Gfx *, s32);
 Gfx *func_8065D994(Gfx *, s16);
 Gfx *renderEntryListBuildDisplayList(Gfx *, s32, s32, s32, f32, s32, s16, s32);
@@ -2294,7 +2294,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-                    gfx = (Gfx *)func_80656B98(gfx, idx, 0);
+                    gfx = (Gfx *)mapChunkEmitLayerDisplayLists(gfx, idx, 0);
                     gDPPipeSync(gfx++);
                     gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 }
@@ -2302,7 +2302,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-                    gfx = (Gfx *)func_80656B98(gfx, idx, 2);
+                    gfx = (Gfx *)mapChunkEmitLayerDisplayLists(gfx, idx, 2);
                     gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 }
             }
@@ -2327,7 +2327,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-                    gfx = (Gfx *)func_80656B98(gfx, idx, 1);
+                    gfx = (Gfx *)mapChunkEmitLayerDisplayLists(gfx, idx, 1);
                     gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gDPPipeSync(gfx++);
                 }
@@ -2335,7 +2335,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)MAP_CHUNK_TILE_AT(idx).unk58));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-                    gfx = (Gfx *)func_80656B98(gfx, idx, 3);
+                    gfx = (Gfx *)mapChunkEmitLayerDisplayLists(gfx, idx, 3);
                     gDPPipeSync(gfx++);
                     gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 }
@@ -2415,7 +2415,7 @@ typedef struct {
 
 
 #ifdef NON_MATCHING
-s32 func_80656B98(arg0, arg1, arg2)
+s32 mapChunkEmitLayerDisplayLists(arg0, arg1, arg2)
 u32 *arg0;
 s32 arg1;
 u8 arg2;
@@ -2475,7 +2475,7 @@ u8 arg2;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656B98.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunkEmitLayerDisplayLists.s")
 #endif
 
 void mapChunkEffectSetFlag(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
@@ -2494,7 +2494,7 @@ void mapChunkEffectSetFlag(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80656F14.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunkTraversePortals.s")
 
 
 s32 mapChunkHitListExcludes(s32 arg0) {
@@ -2553,9 +2553,9 @@ typedef struct {
 
 
 
-extern void func_80657CB0(s32, f32, f32, f32, f32 *, f32 *, f32 *);
+extern void mapGridPlaneProjectPoint(s32, f32, f32, f32, f32 *, f32 *, f32 *);
 extern void mapGridPointBuildVectors(s32, f32, f32, f32, MapGridQuad *);
-extern s32 func_8065776C(u8 *);
+extern s32 mapGridQuadContainsPoint(u8 *);
 
 s32 mapGridPointEmit(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 h;
@@ -2579,9 +2579,9 @@ s32 mapGridPointEmit(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     if (x > 80.0) {
         return 0;
     }
-    func_80657CB0(arg0, arg1, arg2, arg3, &sp7C, &sp78, &sp74);
+    mapGridPlaneProjectPoint(arg0, arg1, arg2, arg3, &sp7C, &sp78, &sp74);
     mapGridPointBuildVectors(arg0, sp7C, sp78, sp74, (MapGridQuad *)sp4C);
-    if (func_8065776C(sp4C)) {
+    if (mapGridQuadContainsPoint(sp4C)) {
         return 1;
     }
     return 0;
@@ -2592,11 +2592,11 @@ typedef struct {
     f32 y[4];
     f32 px;
     f32 py;
-} S55eQuad;
+} MapGridQuadView;
 
-#define Q ((S55eQuad *)arg0)
+#define Q ((MapGridQuadView *)arg0)
 #ifdef NON_MATCHING
-s32 func_8065776C(u8 *arg0) {
+s32 mapGridQuadContainsPoint(u8 *arg0) {
     f32 mx;
     f32 my;
     f32 ex;
@@ -2661,7 +2661,7 @@ s32 func_8065776C(u8 *arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_8065776C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapGridQuadContainsPoint.s")
 #endif
 
 
@@ -2697,7 +2697,7 @@ void mapGridPointBuildVectors(s32 arg0, f32 arg1, f32 arg2, f32 arg3, MapGridQua
     }
 }
 
-void func_80657CB0(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
+void mapGridPlaneProjectPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
     f32 n10;
     f32 t;
     f32 n0;
@@ -2768,9 +2768,9 @@ extern f32 D_807F6E68[];
 extern f32 D_807F6F58[];
 extern f32 D_807F6D78[];
 
-void func_806582F8(f32 *, f32 *, s32, s32 *, s32);
+void mapPolyClipToFrustumPlane(f32 *, f32 *, s32, s32 *, s32);
 
-s32 func_80658134(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
+s32 mapGridQuadClipToFrustum(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
 {
     s32 k;
     s32 n2;
@@ -2783,23 +2783,23 @@ s32 func_80658134(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
         D_807F6C88[k * 3 + 1] = D_807F6C14[arg0].unk10[k];
         D_807F6C88[k * 3 + 2] = D_807F6C14[arg0].unk20[k];
     }
-    func_806582F8(D_807F6C88, D_807F6E68, 4, &n2, 0);
+    mapPolyClipToFrustumPlane(D_807F6C88, D_807F6E68, 4, &n2, 0);
     if (n2 == 0) {
         return 0;
     }
-    func_806582F8(D_807F6E68, D_807F6F58, n2, &n1, 1);
+    mapPolyClipToFrustumPlane(D_807F6E68, D_807F6F58, n2, &n1, 1);
     if (n1 == 0) {
         return 0;
     }
-    func_806582F8(D_807F6F58, D_807F6E68, n1, &n2, 2);
+    mapPolyClipToFrustumPlane(D_807F6F58, D_807F6E68, n1, &n2, 2);
     if (n2 == 0) {
         return 0;
     }
-    func_806582F8(D_807F6E68, D_807F6F58, n2, &n1, 3);
+    mapPolyClipToFrustumPlane(D_807F6E68, D_807F6F58, n2, &n1, 3);
     if (n1 == 0) {
         return 0;
     }
-    func_806582F8(D_807F6F58, D_807F6D78, n1, &n2, 4);
+    mapPolyClipToFrustumPlane(D_807F6F58, D_807F6D78, n1, &n2, 4);
     if (n2 < 3) {
         n2 = 0;
     }
@@ -2823,9 +2823,9 @@ typedef struct MapVec3 {
     /* 0x8 */ f32 z;
 } MapVec3;
 
-void func_8065850C(f32 *, f32 *, s32, f32 *);
+void mapFrustumPlaneIntersectEdge(f32 *, f32 *, s32, f32 *);
 
-void func_806582F8(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 arg4) {
+void mapPolyClipToFrustumPlane(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 arg4) {
     f32 sp7C[3];
     MapPlane *plane;
     MapVec3 *prev;
@@ -2848,19 +2848,19 @@ void func_806582F8(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 arg4) {
                 memcpy(n + (MapVec3 *)arg1, cur, 0xC);
                 n++;
             } else {
-                func_8065850C((f32 *)prev, (f32 *)cur, arg4, sp7C);
+                mapFrustumPlaneIntersectEdge((f32 *)prev, (f32 *)cur, arg4, sp7C);
                 memcpy(n++ + (MapVec3 *)arg1, sp7C, 0xC);
                 memcpy(n++ + (MapVec3 *)arg1, cur, 0xC);
             }
         } else if (z >= 0.0) {
-            func_8065850C((f32 *)prev, (f32 *)cur, arg4, sp7C);
+            mapFrustumPlaneIntersectEdge((f32 *)prev, (f32 *)cur, arg4, sp7C);
             memcpy(n++ + (MapVec3 *)arg1, sp7C, 0xC);
         }
     }
     *arg3 = n;
 }
 
-void func_8065850C(f32 *arg0, f32 *arg1, s32 arg2, f32 *arg3) {
+void mapFrustumPlaneIntersectEdge(f32 *arg0, f32 *arg1, s32 arg2, f32 *arg3) {
     f32 pad[3];
     f64 *m;
     f32 x1;
@@ -2876,15 +2876,15 @@ void func_8065850C(f32 *arg0, f32 *arg1, s32 arg2, f32 *arg3) {
     arg3[2] = arg0[2] + ((arg1[2] - arg0[2]) * s);
 }
 
-typedef struct S55fVec3 {
+typedef struct MapPolyVertex {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
-} S55fVec3;
+} MapPolyVertex;
 
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
-void func_80658624(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
+void mapPolyProjectToScreenRect(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     f32 sp7C;
     f32 sp78;
     s16 x;
@@ -2898,7 +2898,7 @@ void func_80658624(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     *arg4 = D_807FC924[D_807FC929].unk272;
     flag = 0;
     for (i = 0; i < arg0; i++) {
-        flag |= camProjectToScreen(((S55fVec3 *)D_807F6D78)[i].unk0, ((S55fVec3 *)D_807F6D78)[i].unk4, ((S55fVec3 *)D_807F6D78)[i].unk8, &sp7C, &sp78, 0, 1.0f, D_807FC929); x = (s16)sp7C; y = (s16)sp78; // FAKE: same-line statements steer sra scheduling
+        flag |= camProjectToScreen(((MapPolyVertex *)D_807F6D78)[i].unk0, ((MapPolyVertex *)D_807F6D78)[i].unk4, ((MapPolyVertex *)D_807F6D78)[i].unk8, &sp7C, &sp78, 0, 1.0f, D_807FC929); x = (s16)sp7C; y = (s16)sp78; // FAKE: same-line statements steer sra scheduling
         if (x < D_807FC924[D_807FC929].unk270) {
             x = D_807FC924[D_807FC929].unk270;
         }
@@ -2932,13 +2932,13 @@ void func_80658624(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     }
 }
 
-void func_80658930(u8 *);
+void mapNodeAssetParse(u8 *);
 
 void mapLoadNodeAsset(s32 arg0) {
     u8 *p;
 
     p = (u8 *)assetLoad(0x14, arg0, 1, 1);
-    func_80658930(p);
+    mapNodeAssetParse(p);
     if (p != NULL) {
         assetFreeBuffer(p, 0xBED, 0x22);
     }
@@ -2965,7 +2965,7 @@ typedef struct MapNodeData {
 
 #ifdef NON_MATCHING
 #define MapNodeSlot(i) (*(MapNodeData **)((s32)D_807F70B8 + (i) * 4))
-void func_80658930(u8 *arg0) {
+void mapNodeAssetParse(u8 *arg0) {
     s32 *w;
     s32 *end;
     s16 n;
@@ -3007,13 +3007,13 @@ void func_80658930(u8 *arg0) {
         p += 0x22;
         memcpy((*(MapNodeData **)slot)->unk58, p, 0x10);
         p += 0x10;
-        func_80651708(idx);
+        mapFaceBuildTriangleFan(idx);
     }
 }
 #undef MapNodeSlot
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/func_80658930.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapNodeAssetParse.s")
 #endif
 
 extern s16 D_807F7358;
@@ -3074,9 +3074,9 @@ void mapSearchTableReset(void) {
 extern s32 D_807F7290;
 extern s32 D_8076A064;
 
-void func_80658C10();
+void mapSearchTableAddProbe();
 
-void func_80658C10(arg0, arg1, arg2, arg3)
+void mapSearchTableAddProbe(arg0, arg1, arg2, arg3)
 s32 arg0;
 s16 arg1;
 s16 arg2;
@@ -3110,7 +3110,7 @@ s16 arg3;
 extern s32 zbufferReadDepth(s16, s16);
 extern s32 zbufferDepthToDistance(s32);
 
-void func_80658CCC(void) {
+void mapSearchTableUpdateVisibility(void) {
     s32 i;
 
     for (i = 0; i < 10; i++) {
@@ -3165,7 +3165,7 @@ typedef struct MapPlayerPosition {
     /* 0x224 */ f32 unk224;
 } MapPlayerPosition;
 
-s32 func_80658E8C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
+s32 mapPointOutsideClipBounds(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
     f32 sp44;
     f32 sp40;
     s16 x;

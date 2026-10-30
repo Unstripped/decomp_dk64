@@ -32,7 +32,7 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
                 D_80744514 = D_800339A8 + 6;
             }
             if (arg1 & 2) {
-                func_80609140(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 sp2C->unk16 = 0;
                 sp2C->unk13 = 0xA;
             }

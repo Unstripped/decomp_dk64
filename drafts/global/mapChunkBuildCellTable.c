@@ -1,4 +1,4 @@
-// func_80651904 (src/global/55B20.c): stage 4 (S55a revisit): natural C using buf[idx] struct index (S55aEntry 0x24 = s16 key + s32 a[4] + s32 b[4]; S55aCell 0x1C with s16 unk8[4]); same callee-saved set s0-s7, no ra, frame 0x28 (as target). Remaining diff regalloc only (shape ~39): buf copied to s0 because n takes a2 first; invariants (-1,0x24,&cells,&chunks,kind,chunk) land in s4-s7 instead of v0/t0-t3; found/cfound/cidx in v1/t1/t2 instead of s0/s4/s3; target uses multu only for n*0x24 and shifts for *count*0x24 (ours multu everywhere). Needs definition 'u8 kind' (lbu 0x3b(sp)): file prototype (s32,s32,void*,s32*,s32,s32) conflicts unless K&R def (cfe warning only; parked that way in 55B20.c). deadsweep greedy 5 rounds -> full 90 (fake if (D_807F70B0==0){} etc., not natural); dead params uses at top, declaration-order permutations (120), permuter 420s (5193->4708) no help.
+// mapChunkBuildCellTable (src/global/55B20.c): stage 4 (S55a revisit): natural C using buf[idx] struct index (S55aEntry 0x24 = s16 key + s32 a[4] + s32 b[4]; S55aCell 0x1C with s16 unk8[4]); same callee-saved set s0-s7, no ra, frame 0x28 (as target). Remaining diff regalloc only (shape ~39): buf copied to s0 because n takes a2 first; invariants (-1,0x24,&cells,&chunks,kind,chunk) land in s4-s7 instead of v0/t0-t3; found/cfound/cidx in v1/t1/t2 instead of s0/s4/s3; target uses multu only for n*0x24 and shifts for *count*0x24 (ours multu everywhere). Needs definition 'u8 kind' (lbu 0x3b(sp)): file prototype (s32,s32,void*,s32*,s32,s32) conflicts unless K&R def (cfe warning only; parked that way in 55B20.c). deadsweep greedy 5 rounds -> full 90 (fake if (D_807F70B0==0){} etc., not natural); dead params uses at top, declaration-order permutations (120), permuter 420s (5193->4708) no help.
 typedef struct S55aNode {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -19,7 +19,7 @@ typedef struct S55aCell {
     /* 0x10 */ u8 pad10[0xC];
 } S55aCell; /* 0x1C */
 
-void func_80651904(S55aNode *list, s32 size, S55aEntry *buf, s32 *count, u8 kind, s32 chunk) {
+void mapChunkBuildCellTable(S55aNode *list, s32 size, S55aEntry *buf, s32 *count, u8 kind, s32 chunk) {
     s32 n;
     s32 key;
     s32 found;

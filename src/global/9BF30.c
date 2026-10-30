@@ -30,7 +30,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void matrixMakeRotationY(f32 (*)[4], f32);
 
-Gfx *func_80697230(Gfx *arg0, Actor *arg1) {
+Gfx *projectileRenderSpriteRing(Gfx *arg0, Actor *arg1) {
     ActorTrailState *sub;
     f32 mtx2[4][4];
     f32 mtx1[4][4];
@@ -145,7 +145,7 @@ typedef struct ProjectileState {
     u8 unk11;
 } ProjectileState;
 
-Gfx *func_80697230(Gfx *, Actor *);
+Gfx *projectileRenderSpriteRing(Gfx *, Actor *);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void actorDespawn(Actor *);
 void heapFree(void *);
@@ -154,7 +154,7 @@ void renderCallbacksRegister(void *, void *, u8);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-void func_80697988(void) {
+void projectileSpriteRingUpdate(void) {
     ProjectileState *sub;
     u8 kind;
     f64 temp;
@@ -220,7 +220,7 @@ void func_80697988(void) {
             }
         }
     }
-    renderCallbacksRegister(func_80697230, D_807FBB40, 1);
+    renderCallbacksRegister(projectileRenderSpriteRing, D_807FBB40, 1);
 }
 
 typedef struct ProjectileConfig {

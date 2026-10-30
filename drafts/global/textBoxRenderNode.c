@@ -1,4 +1,4 @@
-// func_806A370C (src/global/A8400.c): stage 6 (SA84a): best = arg3 used directly (no node local; a0-a3 all homed, frame 0xF0 ok), u8 spE8[8] buffer (sh/sb at 0xE8), 3x gbi-style SA84a_GFX(dl++,..) macro puts dl in s3. Remaining: s0/s1 swap (&spA8 s0, mdl s1 expected), stack slots of sp60/sp5C/sp4C/sp38 (need 1+3+4 reserved words, hidden temp word count 1 too high so pads grow frame), 0.0f args as int 0
+// textBoxRenderNode (src/global/A8400.c): stage 6 (SA84a): best = arg3 used directly (no node local; a0-a3 all homed, frame 0xF0 ok), u8 spE8[8] buffer (sh/sb at 0xE8), 3x gbi-style SA84a_GFX(dl++,..) macro puts dl in s3. Remaining: s0/s1 swap (&spA8 s0, mdl s1 expected), stack slots of sp60/sp5C/sp4C/sp38 (need 1+3+4 reserved words, hidden temp word count 1 too high so pads grow frame), 0.0f args as int 0
 typedef struct SpriteModel {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u8 unk2;
@@ -39,7 +39,7 @@ Gfx *textDrawStringVtx(Gfx *, s32, s32, s32, u16 *, s32);
 
 #define SA84a_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
-void func_806A370C(s32 *arg0, void *arg1, void *arg2, void *arg3) {
+void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     u8 spE8[8];
     f32 spA8[4][4];
     f32 sp68[4][4];

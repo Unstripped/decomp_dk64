@@ -65,7 +65,7 @@ void func_806B8BDC(s16 x, s16 y, s16 z) {
 extern s16 gCsModelIds[];
 
 void actorScriptStart(Actor *, s32);
-void func_80609140(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 void actorSetTargetSlotByte(s32, u8);
 void lightSetColor(f32, f32, f32, s16);
@@ -118,7 +118,7 @@ void func_806B8C78(void) {
                     if (D_807FBB40->unk154 == 0x40) {
                         modelSlotOrFlags(5, 0x10);
                         modelSlotOrFlags(7, 0x10);
-                        func_80609140(0x1D0, 0x58EF, 63.0f, 1.0f, 0, 0);
+                        sfxPlayOnFreeSlot(0x1D0, 0x58EF, 63.0f, 1.0f, 0, 0);
                         sfxAllocateChannel(0x3A, 1.0f);
                         func_806B8BDC(0xBD, 0xAA, 0x2FB);
                         func_806B8BDC(0x19A, 0xA6, 0x2F8);

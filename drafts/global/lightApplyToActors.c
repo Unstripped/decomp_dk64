@@ -1,4 +1,4 @@
-// func_8065A884 (src/global/5E2F0.c): stage 4 (frame 0x158, callee-saved s0-s8/f20-f30 identical, prologue identical); regs/scheduling only: target keeps dx/dy/dz (0x134..) and aX/aY/aZ (0x124..) memory-resident (store after use, reload after call, forwarded inside block 1) while dirX/Y/Z take fs3-5; mine colours dx..dz instead of dirXYZ and spills dirXYZ. ~1230 insns vs 1240. Structure now matches: i/j loops, continue forms, alpha f32 var, dist<0.0 double, spC as f32[2] (aliasing reload of actor->unk4).
+// lightApplyToActors (src/global/5E2F0.c): stage 4 (frame 0x158, callee-saved s0-s8/f20-f30 identical, prologue identical); regs/scheduling only: target keeps dx/dy/dz (0x134..) and aX/aY/aZ (0x124..) memory-resident (store after use, reload after call, forwarded inside block 1) while dirX/Y/Z take fs3-5; mine colours dx..dz instead of dirXYZ and spills dirXYZ. ~1230 insns vs 1240. Structure now matches: i/j loops, continue forms, alpha f32 var, dist<0.0 double, spC as f32[2] (aliasing reload of actor->unk4).
 #include "common.h"
 #include "actor.h"
 
@@ -39,7 +39,7 @@ void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-void func_8065A884(void) {
+void lightApplyToActors(void) {
     s32 i;
     s32 actorIdx;
     s32 lightCount;

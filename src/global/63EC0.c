@@ -457,7 +457,7 @@ extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
 
-s32 func_8065BAA0(f32, f32, f32, s16, s32, s32, s32, s32, s32, s32, u8 *);
+s32 lightCollectVolumesInBounds(f32, f32, f32, s16, s32, s32, s32, s32, s32, s32, u8 *);
 void func_8065C990(s32, s32, s32, void *, s32, s32);
 
 void func_8065FB64(f32 arg0, f32 arg1, f32 arg2) {
@@ -477,7 +477,7 @@ void func_8065FB64(f32 arg0, f32 arg1, f32 arg2) {
                 target = node->target;
                 s1 = target->unk50[0];
                 if (target->unk68 != 0) {
-                    v0 = func_8065BAA0(arg0, arg1, arg2, target->unk46,
+                    v0 = lightCollectVolumesInBounds(arg0, arg1, arg2, target->unk46,
                                            (s32)(((f32)target->unk4E + node->unk4) - (target->unk10 + target->unkC)), target->unk48, target->unk4A,
                                            (s32)(((f32)target->unk4E + node->unk4) + (target->unk10 + target->unkC)), target->unk4C, s1, &sp8F);
                     D_807F7EEC = D_8076A0B4[s1];

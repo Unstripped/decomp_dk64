@@ -473,7 +473,7 @@ void func_8062BAE4(void) {
 }
 
 void func_8063B4C0(MapBspNode *, u8);
-void func_80652B04(void);
+void mapChunkUpdateModelNodes(void);
 
 void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
     MapBspNode *next;
@@ -488,7 +488,7 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
     }
     switch (arg0->unkB8) {
         case 2:
-            func_80652B04();
+            mapChunkUpdateModelNodes();
             break;
         case 1:
             arg0 = arg1->unk4;
@@ -544,7 +544,7 @@ u8 func_8062BCC8(void *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     return result;
 }
 
-u8 func_80652BC8(void *, f32, f32, f32, s32);
+u8 mapChunkCheckActorCollision(void *, f32, f32, f32, s32);
 
 u8 func_8062BDB0(void *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
     u8 result;
@@ -554,7 +554,7 @@ u8 func_8062BDB0(void *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 a
     result = 0;
     switch (arg1->unkB8) {
         case 2:
-            return func_80652BC8(arg0, arg3, arg4, arg5, arg6);
+            return mapChunkCheckActorCollision(arg0, arg3, arg4, arg5, arg6);
         case 1:
             item = arg2->unk4;
             while (item != NULL) {
@@ -666,7 +666,7 @@ void mapDistributeEntries(MapBspNode *);
 void func_8063039C(void);
 void mapChunkAnimateTextures(u8);
 void mapChunkResetFlags(void);
-void func_8065A884(void);
+void lightApplyToActors(void);
 void effectUpdateNodes(void);
 
 void mapFrameBegin(s32 arg0) {
@@ -677,7 +677,7 @@ void mapFrameBegin(s32 arg0) {
         mapChunkAnimateTextures(0xFF);
     }
     mapChunkResetFlags();
-    func_8065A884();
+    lightApplyToActors();
     effectUpdateNodes();
     D_807F5FEC = 1;
 }
@@ -685,7 +685,7 @@ void mapFrameBegin(s32 arg0) {
 void mapChunkReleaseAndAdvance(void);
 void mapChunkFreeHiddenBuffers(void);
 void mapChunkFreeIdleBuffers(void);
-void func_80653FA4(void);
+void mapChunkUpdateAssetStreaming(void);
 void mapChunkSetIndexOverride(s8);
 void mapSurfaceEffectsUpdate(void);
 void mapOffsetSlotsUpdate(void);
@@ -697,7 +697,7 @@ void mapFrameEnd(void) {
         mapChunkReleaseAndAdvance();
         mapChunkFreeHiddenBuffers();
         mapChunkFreeIdleBuffers();
-        func_80653FA4();
+        mapChunkUpdateAssetStreaming();
         mapChunkSetIndexOverride(0);
     }
     mapSurfaceEffectsUpdate();
@@ -874,7 +874,7 @@ void func_8062D094(s32 arg0, u8 arg1) {
     func_8062D0CC(D_807F5DE4, D_807F5E60, arg0, arg1);
 }
 
-void func_806524A0(s32, u8);
+void mapChunkMarkRenderEntry(s32, u8);
 void func_806307CC(MapBspNode *, s32, s32, u8, u8 *);
 
 u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, u8 arg3) {
@@ -887,7 +887,7 @@ u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, u8 arg3) {
     }
     switch (arg0->unkB8) {
         case 2:
-            func_806524A0(arg2, arg3);
+            mapChunkMarkRenderEntry(arg2, arg3);
             return 1;
         case 1:
             func_806307CC(arg1->unk4, arg2, 0, arg3, &sp26);
@@ -1067,7 +1067,7 @@ void mapChunkFrameUpdate(f32, f32, f32);
 void mapChunkClearNodeFlags(u8);
 void mapChunkFreeNodeLists(u8);
 void mapChunkRebuildNodeLists(f32, f32, f32, u8);
-void func_80652A08(f32, f32, f32, u8);
+void mapChunkBuildSpriteChains(f32, f32, f32, u8);
 s32 func_80630890(s32, f32, f32, f32, void *);
 void renderEntryListClearTouched(s32);
 s32 renderEntryListPurgeUntouched(s32);
@@ -1108,7 +1108,7 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
                     }
                     mapChunkFreeNodeLists(arg8);
                     mapChunkRebuildNodeLists(arg3, arg4, arg5, arg8);
-                    func_80652A08(arg3, arg4, arg5, arg8);
+                    mapChunkBuildSpriteChains(arg3, arg4, arg5, arg8);
                     D_807F5FFC = func_80630890(D_807F5FFC, arg3, arg4, arg5, &sp58);
                 }
             }
@@ -1549,7 +1549,7 @@ void mapTreeRelocate(struct MapRelocNode *, s32, s32);
 void displayListResolveTextureImages();
 void mapRelocateOffsetTable(s32);
 void mapSurfaceEffectsReset(void);
-void func_80650ECC(void *);
+void mapChunksInitFromMapData(void *);
 void collisionInitStaticCache(void *);
 void func_80666090(void *);
 void func_8065F1C0(void *);
@@ -1613,7 +1613,7 @@ void mapHeaderLoad(s32 arg0) {
     mapNodeTreeInitSurfaceEffects((MapNodeEffects *)D_807F5DE4, &sp28);
     mapOffsetSlotsInit(sp28);
     D_807F5E60 = (MapVisNode *)mapTreeCloneShape((MapTreeLinks *)D_807F5DE4);
-    func_80650ECC((void *)arg0);
+    mapChunksInitFromMapData((void *)arg0);
     collisionInitStaticCache((void *)arg0);
     func_80666090((void *)arg0);
     func_8065F1C0((void *)arg0);

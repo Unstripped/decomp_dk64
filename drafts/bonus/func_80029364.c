@@ -119,13 +119,13 @@ void func_80029364(void) {
             j = (s16)(D_8002D8F8 - 1);
             ((s16 *)&D_8002D8F4)[2] = j;
             if (j <= 0) {
-                func_80609140(0x1A1, 0x7FFF, 63.0f, 1.0f, 0x50, 0);
+                sfxPlayOnFreeSlot(0x1A1, 0x7FFF, 63.0f, 1.0f, 0x50, 0);
                 D_8002D8F8 = (func_806119A0() & 3) + 2;
             }
             d = D_8002D8FC + 1;
             ((s16 *)&D_8002D8F4)[4] = d;
             if (d == 0xE) {
-                func_80609140(D_8002D8EC[func_806119A0() & 3], 0x7FFF, 63.0f, 1.0f, 0x14, 0);
+                sfxPlayOnFreeSlot(D_8002D8EC[func_806119A0() & 3], 0x7FFF, 63.0f, 1.0f, 0x14, 0);
             }
         } else {
             if (func_806119FC() < 0.5f) {
@@ -191,7 +191,7 @@ void func_80029364(void) {
             break;
         case 2:
             t1->unk25 = 0xFF;
-            func_80609140(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
         switch (LB2->unk154) {
@@ -219,7 +219,7 @@ void func_80029364(void) {
         case -2:
             if (D_807444EC != 1) {
                 t1->unk0++;
-                func_806A2A10(0xDC, 0x2A, ((u8 *)t0)[0xF]);
+                hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)t0)[0xF]);
                 func_8070D8C0(D_807FBB40, 0, 9);
             }
             break;

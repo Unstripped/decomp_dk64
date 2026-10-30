@@ -32,7 +32,7 @@ extern s32 D_80747D70;
 
 void *heapAlloc(s32);
 u8 mapObjectIsTargetType(s16);
-s8 func_806531B8(f32, f32, f32, s32);
+s8 mapChunkFindByPosition(f32, f32, f32, s32);
 s32 mapObjectCollectIdsByType(s8, void *, s16);
 
 void actorInitTargetEntries(void) {
@@ -59,7 +59,7 @@ void actorInitTargetEntries(void) {
                 D_807F9420[k].unk2 = D_807F6000[i].unk4;
                 D_807F9420[k].unk4 = D_807F6000[i].unk8;
                 D_807F9420[k].unk6 = res;
-                D_807F9420[k].u.s.unk7 = func_806531B8(D_807F6000[i].unk0, D_807F6000[i].unk4, D_807F6000[i].unk8, 0);
+                D_807F9420[k].u.s.unk7 = mapChunkFindByPosition(D_807F6000[i].unk0, D_807F6000[i].unk4, D_807F6000[i].unk8, 0);
                 temp = mapObjectCollectIdsByType(D_807F9420[k].u.s.unk7, &D_807F9420[k].u.s.pad8, 4);
                 if (temp != 4) {
                     D_807F9420[k].u.s.pad8[temp] = -1;

@@ -74,7 +74,7 @@ void camResumePath(void);
 void func_806CFF9C(void *);
 s32 camIsCutsceneActive(void);
 void actorScriptStart(void *, s32);
-void func_806A2A10(s32, s32, s32);
+void hudSpawnCountdownTimer(s32, s32, s32);
 void flagSet();
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
@@ -179,7 +179,7 @@ void func_806BC1E0(void) {
                 st->unk37 = 0;
                 st->unk20 = -500.0f;
                 actorScriptStart(D_807FBB40, 0x31C);
-                func_806A2A10(0xDC, 0x2A, 0x3C);
+                hudSpawnCountdownTimer(0xDC, 0x2A, 0x3C);
                 flagSet(0x30, 1, 2);
                 sfxAllocateChannel(0x78, 1.0f);
                 actorSetStateTwo(LGB->unk11C);

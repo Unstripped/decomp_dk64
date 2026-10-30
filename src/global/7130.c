@@ -58,9 +58,9 @@ extern AudioPlayer *D_807FC924;
 extern s32 D_8076A0A8;
 extern AmbientSfxEntry D_807459FC[];
 
-s16 func_806531B8(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s32);
 void sfxAllocateChannel(s32, f32);
-void func_80602498(void) {
+void sfxStartAreaAmbient(void) {
     u8 i;
     s16 count;
     s16 v0;
@@ -75,7 +75,7 @@ void func_80602498(void) {
 
     count = 29;
     if (count) {}  // FAKE: dead use of count steers uopt register priority (t0 instead of a0)
-    v0 = func_806531B8(D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, 0);
+    v0 = mapChunkFindByPosition(D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, 0);
 
     i = 0; do {
         if (D_8076A0A8 == D_807459FC[i].unk0 && v0 == D_807459FC[i].unk2) {
@@ -91,9 +91,9 @@ void func_80602498(void) {
 
     D_80770DD8[1] = 0xFF;
 }
-void func_80602498(void);
+void sfxStartAreaAmbient(void);
 void sfxPlayCurrent(u8 arg0, u8 arg1, u8 arg2) {
-    func_80602498();
+    sfxStartAreaAmbient();
 }
 
 #ifdef NON_MATCHING
@@ -109,27 +109,27 @@ extern ALCSPlayer *gSeqPlayers[];
  * a struct-typed local makes the compiler emit one lw/sw copy and keep &sp68 in a callee-saved register. */
 typedef struct {
     s8 b[4];
-} S7130aBytes4;
+} SfxSignedBytes4;
 typedef struct {
     u8 b[4];
-} S7130aUBytes4;
-extern S7130aBytes4 D_80745B20;
-extern S7130aUBytes4 D_80745B24;
+} SfxUnsignedBytes4;
+extern SfxSignedBytes4 D_80745B20;
+extern SfxUnsignedBytes4 D_80745B24;
 
 void func_8060131C(s32, s32, s32);
 void func_806013E8(s32, s32, s32);
 void sfxStopChannel();
 void seqSetTargetVolume(s32, f32);
-void func_8060A6A0(s32, u8, f32);
+void seqLoadAndPlayWithReverb(s32, u8, f32);
 
 // deadsweep round 3: full=62 text=62 inserted `if (D_8074593C && D_8074593C) {}` at line 18
-void func_806025D4(void) {
+void sfxUpdateChannels(void) {
     u8 i;
     u8 j;
     u8 s1;
     u8 s2;
-    S7130aBytes4 sp68;
-    S7130aUBytes4 sp64;
+    SfxSignedBytes4 sp68;
+    SfxUnsignedBytes4 sp64;
     s32 s5;
     s32 vol;
     u8 sel;
@@ -216,7 +216,7 @@ void func_806025D4(void) {
                         seqSetTargetVolume(i, D_807458F4[idx]);
                         alCSPPlay(gSeqPlayers[i]);
                     } else {
-                        func_8060A6A0(i, (u8)D_807458DC[idx], D_807458F4[idx]);
+                        seqLoadAndPlayWithReverb(i, (u8)D_807458DC[idx], D_807458F4[idx]);
                         D_80745924[sfxGetChannelIndex(D_807458DC[idx])] = 1;
                     }
                 }
@@ -226,7 +226,7 @@ void func_806025D4(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_806025D4.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/sfxUpdateChannels.s")
 #endif
 
 extern s16 D_807458DC[];
@@ -337,7 +337,7 @@ f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 sqrtf(f32);
 #pragma intrinsic(sqrtf)
 
-f32 func_80602E6C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, f32 arg5) {
+f32 sfxCalcDistanceVolumePan(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, f32 arg5) {
     f32 sp2C;
     f32 dy;
     f32 sp24;
@@ -415,7 +415,7 @@ f32 func_80602E6C(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, f32 arg5) {
     return sp20;
 }
 
-f32 func_80602E6C(f32, f32, f32, u8, u8, f32);
+f32 sfxCalcDistanceVolumePan(f32, f32, f32, u8, u8, f32);
 extern f32 D_80770DE8;
 extern f32 D_80770DEC;
 f32 D_80770DF0;
@@ -426,7 +426,7 @@ f32 sfxUpdateDistanceVolumeAndPan(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4
     f32 ret;
     f32 temp;
 
-    ret = func_80602E6C(arg0, arg1, arg2, arg3, arg4, arg5);
+    ret = sfxCalcDistanceVolumePan(arg0, arg1, arg2, arg3, arg4, arg5);
     if (ret < 10.0f) {
         return 0.0f;
     }
@@ -528,7 +528,7 @@ void n_alSndpStop(s32);
 void seqSetVolumeInstant(s32, f32);
 
 #ifdef NON_MATCHING
-void func_80603450(void) {
+void sfxUpdateLevelAmbient(void) {
     s8 spE7;
     s8 spE6;
     u8 spE5;
@@ -899,7 +899,7 @@ void func_80603450(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80603450.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/sfxUpdateLevelAmbient.s")
 #endif
 
 extern ALCSPlayer *D_8076BF24;
@@ -1163,10 +1163,10 @@ u8 sfxSlotAllocateSource(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5
     return i;
 }
 
-void func_80605380(s16);
+void sfxSlotFreeSource(s16);
 void sfxStopSlotSound(Actor *arg0, u8 arg1) {
     if (((AudioActor *)arg0)->unk6E[arg1] >= 0) {
-        func_80605380(((AudioActor *)arg0)->unk6E[arg1]);
+        sfxSlotFreeSource(((AudioActor *)arg0)->unk6E[arg1]);
         ((AudioActor *)arg0)->unk6E[arg1] = -1;
         if (arg1 == 0) {
             ((AudioActor *)arg0)->unk72 = 0;
@@ -1178,7 +1178,7 @@ void sfxStopSlotSound(Actor *arg0, u8 arg1) {
 void faultSetMessage(s32, s32, s32, s32);
 
 #ifdef NON_MATCHING
-void func_80605380(arg0)
+void sfxSlotFreeSource(arg0)
 s16 arg0;
 {
     D_80770740[D_80770628[arg0]]--;
@@ -1203,7 +1203,7 @@ s16 arg0;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/func_80605380.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/sfxSlotFreeSource.s")
 #endif
 
 s32 func_8070B318(void);
@@ -1311,7 +1311,7 @@ void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 s32 hashTableLookup(s32);
-s16 func_80609140(s16, s32, f32, f32, u8, u8);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 u32 func_806119A0(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -1319,7 +1319,7 @@ f32 func_80612794(s16);
 #define RAND_UNIT() (func_806119A0() / 4294967295.0)
 #define SLOT_ACTOR(idx) ((AudioActor *)D_807705A0[idx])
 
-void func_806057F8(void) {
+void sfxUpdateSourceGroups(void) {
     static f32 D_80770F38;
     u8 slotIdx;
     f32 posX;
@@ -1357,7 +1357,7 @@ void func_806057F8(void) {
                 slot = hashTableLookup(D_807705F8[D_807707A0[i][j]]);
                 sfxUpdateDistanceVolumeAndPan(D_807F6000[slot].unk0, D_807F6000[slot].unk4, D_807F6000[slot].unk8, 0xFF, 0x50, 0.5f);
                 dist[j] = D_80770DE4;
-                func_80605380(D_807707A0[i][j]);
+                sfxSlotFreeSource(D_807707A0[i][j]);
                 D_807F6000[slot].unk7C->unk12 = -1;
             }
             if (D_80770DE8 > 32767.0f) {
@@ -1387,7 +1387,7 @@ void func_806057F8(void) {
             if (D_80770DF0 < D_80770DF4) {
                 fxFlags = 0x80;
             }
-            func_80609140(0x88, volume, D_80770DDC, 1.0f, 5, fxFlags);
+            sfxPlayOnFreeSlot(0x88, volume, D_80770DDC, 1.0f, 5, fxFlags);
         } else {
             if (D_80745848[i] != 0) {
                 if (D_80770710[i] == 0) {
@@ -1525,7 +1525,7 @@ void func_806057F8(void) {
                                 D_80770C18[i] = 1.0 - ((D_80770BC0[i] - 30.0) / 30.0);
                             }
                             if (D_80770BC0[i] == 40.0f) {
-                                func_80605380(D_807707A0[i][0]);
+                                sfxSlotFreeSource(D_807707A0[i][0]);
                                 D_807F6000[slot].unk7C->unk10 = -1;
                             }
                             break;
@@ -1553,7 +1553,7 @@ void func_806057F8(void) {
                                 D_80770C18[i] = (D_80770C18[i] > 0.2) ? D_80770C18[i] : 0.2;
                                 if (D_80770BC0[i] == 110.0f) {
                                     if (D_807705F8[D_807707A0[i][0]] != -1) {
-                                        func_80605380(D_807707A0[i][0]);
+                                        sfxSlotFreeSource(D_807707A0[i][0]);
                                         D_807F6000[slot].unk7C->unk10 = -1;
                                     } else {
                                         sfxStopSlotSound((Actor *)actor, 0);
@@ -1668,7 +1668,7 @@ void func_806057F8(void) {
                                     if (D_80770DF0 < D_80770DF4) {
                                         fxFlags |= 0x80;
                                     }
-                                    func_80609140((func_806119A0() & 3) + 0x90, volume, D_80770DDC, 1.0f, 0x1E, fxFlags);
+                                    sfxPlayOnFreeSlot((func_806119A0() & 3) + 0x90, volume, D_80770DDC, 1.0f, 0x1E, fxFlags);
                                     D_80770BC0[i] = 0.0f;
                                 }
                             }
@@ -1928,7 +1928,7 @@ void func_806057F8(void) {
     }
 }
 
-s16 func_806086CC(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 
 void sfxPlayFromActorWithAltitudeCheck(Actor *arg0, s16 arg1, u8 arg2, s16 arg3, u8 arg4) {
     s32 var_v0;
@@ -1938,11 +1938,11 @@ void sfxPlayFromActorWithAltitudeCheck(Actor *arg0, s16 arg1, u8 arg2, s16 arg3,
     } else {
         var_v0 = 0;
     }
-    func_806086CC(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, 0x4B, 0.3f, var_v0);
+    sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, 0x4B, 0.3f, var_v0);
 }
 
 void sfxPlayFromTargetSlot(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6) {
-    func_806086CC(D_807F6000[arg0].unk0, D_807F6000[arg0].unk4, D_807F6000[arg0].unk8, arg1, arg2, arg3, arg4, arg5, arg6, 0);
+    sfxPlayAtPositionPooled(D_807F6000[arg0].unk0, D_807F6000[arg0].unk4, D_807F6000[arg0].unk8, arg1, arg2, arg3, arg4, arg5, arg6, 0);
 }
 
 void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);
@@ -1954,11 +1954,11 @@ void sfxPlayFromActorDirect(Actor *arg0, s16 arg1, u8 arg2, f32 arg3, u8 arg4, u
 extern u8 D_807FC928;
 
 void camGetPathStartPose(s16 *, s16 *, s16 *, s16 *);
-s16 func_80609140(s16, s32, f32, f32, u8, u8);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 
 #pragma intrinsic(sqrtf)
 
-s16 func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16 arg5, u8 arg6, u8 arg7, f32 arg8, u8 arg9) {
+s16 sfxPlayAtPositionPooled(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16 arg5, u8 arg6, u8 arg7, f32 arg8, u8 arg9) {
     f32 diff;
     f32 angle2;
     s32 dist;
@@ -2042,7 +2042,7 @@ s16 func_806086CC(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16 arg5, u8 
     }
 
     if (var_a1 >= 1001) {
-        return func_80609140(arg3, var_a1, (1.0f - sinApprox(sp74)) * 63.5, (f64)arg5 / 127.0, arg6, arg9);
+        return sfxPlayOnFreeSlot(arg3, var_a1, (1.0f - sinApprox(sp74)) * 63.5, (f64)arg5 / 127.0, arg6, arg9);
     }
     return -1;
 }
@@ -2054,7 +2054,7 @@ extern u8 D_807457D8;
 extern s32 D_807457E4[];
 extern u8 D_80745834;
 
-void func_80608DA8(arg0, arg1, arg2, arg3, arg4)
+void sfxPlayWithRandomPan(arg0, arg1, arg2, arg3, arg4)
 s16 arg0;
 u8 arg1;
 u8 arg2;
@@ -2094,7 +2094,7 @@ u8 arg4;
     D_807457D8 ^= 1;
 }
 
-s16 func_80609140(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
+s16 sfxPlayOnFreeSlot(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     s16 res;
     s16 i;
 
@@ -2207,11 +2207,11 @@ extern u8 D_807FC929;
 typedef struct {
     char pad[0xC4];
     s32 unkC4;
-} Aud7130M2_SoundContextD580;
+} SoundContextD580Voice;
 
-void func_80609B80(f32, f32, f32, s16, u8, u8, u8, u8, f32);
+void sfxPlayAtPositionForPlayer(f32, f32, f32, s16, u8, u8, u8, u8, f32);
 
-void func_80609B80(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7, f32 arg8) {
+void sfxPlayAtPositionForPlayer(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7, f32 arg8) {
     s32 dx;
     s32 dy;
     s32 dz;
@@ -2224,8 +2224,8 @@ void func_80609B80(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, u8 arg5, u8 
     sp47 = 0;
     sp46 = 0;
 
-    if (((Aud7130M2_SoundContextD580 *)D_807FD580)->unkC4 != 0) {
-        n_alSndpStop(((Aud7130M2_SoundContextD580 *)D_807FD580)->unkC4);
+    if (((SoundContextD580Voice *)D_807FD580)->unkC4 != 0) {
+        n_alSndpStop(((SoundContextD580Voice *)D_807FD580)->unkC4);
     }
 
     angle = mathAngleBetweenPointsRad(D_807FC924[D_807FC929].unk210, D_807FC924[D_807FC929].unk218, arg0, arg2) - D_807FC924[D_807FC929].unk2C4;
@@ -2288,7 +2288,7 @@ void func_80609B80(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, u8 arg5, u8 
             sp46 |= 0x80;
         }
 
-        n_alSndpPlay(D_8076D1F8, arg3, (u16)vol, (u8)angle, pitch, sp46, &((Aud7130M2_SoundContextD580 *)D_807FD580)->unkC4);
+        n_alSndpPlay(D_8076D1F8, arg3, (u16)vol, (u8)angle, pitch, sp46, &((SoundContextD580Voice *)D_807FD580)->unkC4);
     }
 }
 
@@ -2427,7 +2427,7 @@ void seqPlayWithDefaultVolume(s32 arg0, u8 arg1) {
 }
 
 void seqUpdateUnderwaterAudio(s32);
-void func_8060A6A0(s32 arg0, u8 arg1, f32 arg2) {
+void seqLoadAndPlayWithReverb(s32 arg0, u8 arg1, f32 arg2) {
     f64 var_fv0;
     f32 pan, vol;
 
