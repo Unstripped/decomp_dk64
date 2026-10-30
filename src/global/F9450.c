@@ -67,7 +67,7 @@ typedef struct {
 
 extern s16 D_80753EF0;
 extern struct F9F1_Node **D_80754244;
-extern void *D_80754240;
+extern struct F9N5_QueueSlot *D_80754240;
 extern u16 D_807F9450;
 extern u16 D_807F9452;
 extern u16 D_807F9454;
@@ -516,7 +516,7 @@ typedef struct F9A_CleanupNode {
 
 
 
-void func_806F54E0();
+void func_806F54E0(u8, s32, u8);
 void modelSlotFreeByIndex(s16, s32);
 
 void func_806F5378(void) {
@@ -680,9 +680,91 @@ u8 arg2;
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F58A0.s")
+typedef struct {
+    u8 pad0[0x58];
+    s32 unk58;
+} F9N2At58;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F5A48.s")
+extern s16 modelSlotAppend(s32, f32, f32, f32, f32, u8);
+extern void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, u8);
+extern void func_806F50C8(s16, s16, s16, u8, u8, u8);
+
+void func_806F58A0(u8 arg0, s16 arg1, F9N2At58 *arg2) {
+    s32 var_s0;
+    s32 var_pad;
+    f32 sp7C;
+    f32 sp78;
+    f32 sp74;
+    f32 sp70;
+    f32 sp6C;
+    f32 sp68;
+    f32 sp64;
+    f32 sp60;
+    s32 var_s1;
+    s16 var_s2;
+
+    if (D_807FC928 == 1) {
+        modelSlotGetTransformVectors(arg1, &sp7C, &sp78, &sp74, &sp70, &sp6C, &sp68, &sp64, &sp60, 1);
+    }
+    switch (arg2->unk58) {
+    case 3: var_s2 = 0xA; break;
+    case 5: var_s2 = 0x16; break;
+    case 4:
+    case 9: var_s2 = 0x1E; break;
+    case 6:
+    case 7: var_s2 = 0x1F; break;
+    case 2:
+    case 8: var_s2 = 0xD; break;
+    default: var_s2 = 0xD; break;
+    }
+    var_s0 = 0;
+    var_s1 = 0;
+    do {
+        if (D_807FC928 == 1) {
+            func_806F50C8(modelSlotAppend(var_s2, sp7C, sp78, sp74, 0.0f, 0), var_s2, var_s0, 1, 0, 1);
+        } else {
+            func_806F54E0(arg0, var_s2, 0);
+        }
+        var_s1++;
+        var_s0 += 3;
+    } while (var_s1 != 5);
+}
+
+void func_806F5A48(u8 arg0, s16 arg1, F9N2At58 *arg2, u16 arg3) {
+    s32 var_s0;
+    f32 sp90;
+    f32 sp8C;
+    f32 sp88;
+    f32 sp84;
+    f32 sp80;
+    f32 sp7C;
+    f32 sp78;
+    f32 sp74;
+    s32 var_s1;
+    s16 var_s2;
+
+    if (D_807FC928 == 1) {
+        modelSlotGetTransformVectors(arg1, &sp90, &sp8C, &sp88, &sp84, &sp80, &sp7C, &sp78, &sp74, 1);
+    }
+    switch (arg2->unk58) {
+    case 3: var_s2 = 0x91; break;
+    case 5: var_s2 = 0x15D; break;
+    case 4: var_s2 = 0x15E; break;
+    case 6:
+    case 7: var_s2 = 0x15F; break;
+    case 2: var_s2 = 0x160; break;
+    default: var_s2 = 0x91; break;
+    }
+    var_s0 = 0;
+    for (var_s1 = 0; var_s1 != 5; var_s1++) {
+        if (D_807FC928 == 1) {
+            func_806F50C8(modelSlotAppend(var_s2, sp90, sp8C, sp88, 0.0f, 0), var_s2, var_s0, 1, (arg3 == 0x11) ? 1 : 0, 1);
+        } else {
+            func_806F54E0(arg0, var_s2, (arg3 == 0x11) ? 1 : 0);
+        }
+        var_s0 += 3;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F5C30.s")
 
@@ -696,9 +778,48 @@ void func_806F5D80(s32 *arg0, s32 *arg1) {
     *arg1 = ((s32) ((s32) (randomNonNegative() >> 0xF) % 32767) % 391) + 0xD2;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F5DF8.s")
+typedef struct F9N5_QueueSlot {
+    s32 unk0;
+    s32 unk4;
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    s16 unkE;
+    s32 unk10;
+} F9N5_QueueSlot;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F5EB4.s")
+extern F9N5_QueueSlot *D_80754240;
+
+void func_806F5DF8(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4, s32 arg5) {
+    s32 i;
+    s32 found;
+
+    found = 0;
+    for (i = 0; i < 60 && !found; i++) {
+        if (D_80754240[i].unk10 == 0) {
+            D_80754240[i].unk0 = arg1;
+            found = 1;
+            D_80754240[i].unk4 = arg0;
+            D_80754240[i].unk8 = arg2;
+            D_80754240[i].unkA = arg3;
+            D_80754240[i].unkC = arg4;
+            D_80754240[i].unk10 = arg5;
+        }
+    }
+}
+
+s32 func_806F5EB4(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
+    s32 i;
+    s32 found;
+
+    found = 0;
+    for (i = 0; i < 60 && !found; i++) {
+        if (D_80754240[i].unk10 != 0 && arg0 == D_80754240[i].unk4 && arg1 == D_80754240[i].unk0) {
+            found = 1;
+        }
+    }
+    return found;
+}
 
 s32 func_806F5C30(s32);
 void func_806F5DF8(s32, s32, s16, s16, s16, s32);
@@ -723,8 +844,131 @@ void func_806F5FE8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F603C.s")
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F9450/func_806F6204.s")
+extern void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
+extern void func_80686E40(f32, f32, f32, s32);
+extern s32 func_8071432C(void);
+extern s32 D_807FBB60;
+
+void func_806F603C(void) {
+    s32 i;
+
+    if (func_8071432C() != 0) {
+        if (!(D_807FBB60 & 2)) {
+            for (i = 0; i < 60; i++) {
+                if (D_80754240[i].unk10 != 0) {
+                    D_80754240[i].unk10--;
+                    if (D_80754240[i].unk10 == 5) {
+                        func_80686E40((f32) D_80754240[i].unk8, (f32) D_80754240[i].unkA, (f32) D_80754240[i].unkC, 7);
+                    }
+                    if (D_80754240[i].unk10 == 0) {
+                        if (D_80754240[i].unk0 != 0) {
+                            actorSpawnNodeEntryScaled((s16) D_80754240[i].unk4, (f32) D_80754240[i].unk8, (f32) D_80754240[i].unkA, (f32) D_80754240[i].unkC, 0, 0x19, -1, 0);
+                        } else {
+                            func_806F50C8(modelSlotAppend(D_80754240[i].unk4, (f32) D_80754240[i].unk8, (f32) D_80754240[i].unkA, (f32) D_80754240[i].unkC, 0.0f, 0), (s16) D_80754240[i].unk4, 0, 1, 0, 0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+typedef struct {
+    u8 pad0[4];
+    F9N2At58 *unk4;
+    u8 pad8[0x2E8];
+} F9N6_PlayerBlock;
+
+typedef struct {
+    u8 pad0[0x10];
+    s16 unk10;
+    s16 unk12;
+    u8 pad14[0];
+} F9N6_TableEntry;
+
+extern F9A_LinkedNode *D_807FD734;
+extern s32 camDistance3D(s32, s32, s32, s32, s32, s32);
+extern s32 func_8063C2A8(s16);
+extern s32 func_806F6644(s16, u8, u16);
+extern void modelSlotFreeNestedBuffer(s32, u8);
+extern s32 func_805FF030(u8, s32);
+extern void func_8060E430(u16, u8, u8);
+extern void func_806F58A0(u8, s16, F9N2At58 *);
+extern void func_806F5A48(u8, s16, F9N2At58 *, u16);
+extern void playerStateHandleSoundEffects(s16, s32);
+
+void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
+    F9N2At58 *player;
+    s32 dist;
+    F9A_LinkedNode *newNode;
+    F9A_LinkedNode *tail;
+
+    player = ((F9N6_PlayerBlock *) D_807FC924)[arg1].unk4;
+    if (arg0 != NULL) {
+        do {
+            dist = camDistance3D(arg0->unk8, ((F9N6_TableEntry *) &D_80753EF0)[arg0->unk14].unk10 + arg0->unkA, arg0->unkC, (s32) arg2->unk0, (s32) *(f32 *) arg2->pad4, (s32) arg2->unk8);
+            if ((arg0->unkE == 0) &&
+                ((f32) dist < (f32) ((F9N6_TableEntry *) &D_80753EF0)[arg0->unk14].unk12 + arg2->unkC) &&
+                ((arg0->unk4 == 0) || (player->unk58 == arg0->unk4)) &&
+                (func_8063C2A8(arg0->unk0) != 0) &&
+                (func_806F6644(arg0->unk0, arg1, (u16) arg0->unk2) != 0)) {
+                arg0->unkE = 1;
+                modelSlotFreeNestedBuffer(arg0->unk0, 1);
+                if (arg0->unk6 != -1) {
+                    func_8060E430((u16) arg0->unk6, 1, func_805FF030(D_8076A0AB, 1));
+                }
+                if (D_807FC928 == 1) {
+                    if (D_807FD734 == NULL) {
+                        tail = D_807FD730;
+                        D_807FD734 = tail;
+                        if (tail != NULL) {
+                            do {
+                                D_807FD734 = tail;
+                                tail = tail->next;
+                            } while (tail != NULL);
+                        }
+                    }
+                    newNode = (F9A_LinkedNode *) func_806F53EC((F9A_SourceNode *) arg0);
+                    newNode->next = NULL;
+                    if (D_807FD730 != NULL) {
+                        D_807FD734->next = newNode;
+                        D_807FD734 = newNode;
+                    } else {
+                        D_807FD730 = newNode;
+                        D_807FD734 = newNode;
+                    }
+                }
+                switch (arg0->unk2) {
+                case 0x2B:
+                case 0x205:
+                case 0x206:
+                case 0x207:
+                case 0x208:
+                    func_806F58A0(arg1, arg0->unk0, player);
+                    break;
+                case 0x11:
+                case 0x8F:
+                    func_806F5A48(arg1, arg0->unk0, player, (u16) arg0->unk2);
+                    break;
+                default:
+                    if (D_807FC928 >= 2) {
+                        func_806F54E0(arg1, arg0->unk2, arg0->unk13);
+                    }
+                    break;
+                }
+                if (D_807FC928 >= 2) {
+                    playerStateHandleSoundEffects(arg0->unk2, arg1 & 0xFF);
+                    modelSlotFreeByIndex(arg0->unk0, 1);
+                }
+                if (D_807FBB64 & 0x10000) {
+                    if (arg0->unk2 != 0x1D2) {
+                        func_806F5FE8(arg0->unk2, arg0->unk8, arg0->unkA, arg0->unkC, 0x258);
+                    }
+                }
+            }
+            arg0 = arg0->next;
+        } while (arg0 != NULL);
+    }
+}
 
 
 void gridDispatchRect(u8 arg0, F9F1_Rect *arg1) {
