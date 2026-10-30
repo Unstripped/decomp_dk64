@@ -545,9 +545,6 @@ extern ActorGlobalState D_807FBB70;
 
 Mtx *heapAlloc(s32);
 
-#ifdef NON_MATCHING
-/* Behaviourally equivalent, same blocks/frame/saved regs; remaining diff is FP
-   temporary allocation (and one insn): 235 vs 236 insns. */
 typedef struct {
     u8 unk0;
     u8 unk1;
@@ -593,12 +590,12 @@ typedef struct {
 f32 sinApprox(f32);
 void actorUpdateModelMatrix(Actor *, s32);
 
+#define PROX_SRC ((ProximitySource *)&D_807FBB70)
+
 void func_8069A7C8(void) {
-    ProximitySource *globals;
     ProximityState *state;
     f32 acc;
     f32 dist;
-    f32 limit;
     f32 value;
     s32 flags;
     s32 i;
@@ -621,43 +618,40 @@ void func_8069A7C8(void) {
         state->unk0 = 0.0f;
         state->unk8 = 0.0f;
     }
-    globals = (ProximitySource *)&D_807FBB70;
-    i = 0;
-    if ((s32)D_807FBB70.unk39 > 0) {
-        do {
-            dist = sqrtf((globals->entries[i].unk0 * globals->entries[i].unk0) + (globals->entries[i].unk8 * globals->entries[i].unk8));
-            if (dist > 1347.0f) {
-                dist = 1347.0f;
-            }
-            acc += 1347.0f - dist;
-            value = (f32)((f64)globals->nodes[i]->unkB8 * 0.1);
-            if (state->unk8 < value) {
-                state->unk8 = value;
-            }
-            i++;
-        } while (i < (s32)D_807FBB70.unk39);
+    for (i = 0; i < (s32)D_807FBB70.unk39; i++) {
+        dist = sqrtf((PROX_SRC->entries[i].unk0 * PROX_SRC->entries[i].unk0) + (PROX_SRC->entries[i].unk8 * PROX_SRC->entries[i].unk8));
+        if (dist > 1347.0f) {
+            dist = 1347.0f;
+        }
+        dist = 1347.0f - dist;
+        acc += dist;
+        value = PROX_SRC->nodes[i]->unkB8;
+        value = (f32)((f64)value * 0.1);
+        if (state->unk8 < value) {
+            state->unk8 = value;
+        }
     }
     if (acc > 1347.0f) {
         acc = 1347.0f;
     }
-    limit = (f32)((f64)acc / 10.0);
-    if (state->unk0 < limit) {
-        state->unk0 = (f32)((f64)state->unk0 + ((f64)(limit - state->unk0) * 0.25));
-        if (limit < state->unk0) {
-            state->unk0 = limit;
+    acc = (f32)((f64)acc / 10.0);
+    if (state->unk0 < acc) {
+        state->unk0 = (f32)((f64)state->unk0 + ((f64)(acc - state->unk0) * 0.25));
+        if (acc < state->unk0) {
+            state->unk0 = acc;
         }
     }
-    if (limit < state->unk0) {
-        state->unk0 = (f32)((f64)state->unk0 - ((f64)(state->unk0 - limit) * 0.5));
-        if (state->unk0 < limit) {
-            state->unk0 = limit;
+    if (acc < state->unk0) {
+        state->unk0 = (f32)((f64)state->unk0 - ((f64)(state->unk0 - acc) * 0.5f));
+        if (state->unk0 < acc) {
+            state->unk0 = acc;
         }
     }
     state->unkC++;
     if ((f64)state->unk8 == 0.0) {
         state->unkC = 0;
     }
-    if (D_807FBB70.unk39 != state->unk4) {
+    if (state->unk4 != D_807FBB70.unk39) {
         state->unk8 = 12.0f;
     }
     state->unk8 = (f32)((f64)state->unk8 - ((f64)state->unk8 / 40.0));
@@ -668,12 +662,86 @@ void func_8069A7C8(void) {
     state->unk4 = D_807FBB70.unk39;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
+#undef PROX_SRC
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069A7C8.s")
-#endif
+typedef struct {
+    s16 unk0;
+    u8 pad2[2];
+    f32 unk4;
+} S9B_BossTimer;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069AB74.s")
+typedef struct {
+    f32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+    f32 unk10;
+    f32 unk14;
+} S9B_BossNode;
+
+void actorScriptStart(Actor *, s32);
+void func_80613C48(Actor *, s16, f32, f32);
+void func_80614D00(Actor *, f32, f32);
+void actorUpdateModelMatrix(Actor *, s32);
+extern u8 D_807FBD70;
+extern s32 D_8076A0A8;
+extern s16 D_807503A0;
+void lightSetFovAngles(f32, f32);
+void lightSetFlags(u8);
+void lightSetTargetId(s16);
+void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+
+void func_8069AB74(void) {
+    f32 sp74;
+    f32 sp70;
+    f32 sp6C;
+    s32 pad60[3]; // FAKE: reserves frame bytes 0x60-0x6B
+    u16 sp5E;
+    u16 sp5C;
+    u16 sp5A;
+    S9B_BossTimer *sp54;
+
+    sp54 = (S9B_BossTimer *)D_807FBB40->unk174;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_80613C48(D_807FBB40, 0x402, 0, 1.0f);
+        if (D_8076A0A8 == 6) {
+            actorScriptStart(D_807FBB40, 0x297);
+        }
+        D_807FBB40->unk60 |= 0x400;
+        sp54->unk0 = 0;
+        sp54->unk4 = 1.0f;
+    }
+    func_80614D00(D_807FBB40, ((S9B_BossNode *)D_807FBB40->unk124)->unk0, 1.0f);
+    if (D_807FBD70 == 4) {
+        sp54->unk0 = D_807503A0;
+        sp54->unk4 = 0.0f;
+    }
+    if (sp54->unk0 == 0) {
+        sp5E = ((S9B_BossNode *)D_807FBB40->unk124)->unk4;
+        sp5C = ((S9B_BossNode *)D_807FBB40->unk124)->unk8;
+        sp5A = ((S9B_BossNode *)D_807FBB40->unk124)->unkC;
+        sp5E = (u16)(u32)((f64)(u32)sp5E * (f64)sp54->unk4);
+        sp5C = (u16)(u32)((f64)(u32)sp5C * (f64)sp54->unk4);
+        sp5A = (u16)(u32)((f64)(u32)sp5A * (f64)sp54->unk4);
+        sp54->unk4 = (f32)((f64)sp54->unk4 + 0.05);
+        if (sp54->unk4 > 1.0) {
+            sp54->unk4 = 1.0f;
+        }
+        if (D_807FBB40->unk60 & 0x10) {
+            if ((f64)((S9B_BossNode *)D_807FBB40->unk124)->unk10 != 0.0 || (f64)((S9B_BossNode *)D_807FBB40->unk124)->unk14 != 0.0) {
+                lightSetFovAngles(((S9B_BossNode *)D_807FBB40->unk124)->unk10, ((S9B_BossNode *)D_807FBB40->unk124)->unk14);
+            }
+            lightSetFlags(2);
+            lightSetTargetId(*(s16 *)D_807FBB40->unk12C);
+            actorGetNodePos(D_807FBB40, 2, &sp6C, &sp70, &sp74);
+            lightAdd((f32)((f64)D_807FBB40->unk7C + 0.3), D_807FBB40->unk80, D_807FBB40->unk84, sp6C, sp70, sp74, 0.0f, 1, sp5E, sp5C, sp5A);
+        }
+    } else {
+        sp54->unk0 = sp54->unk0 - 1;
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
 
 void func_8069AB74(void);
 
@@ -898,7 +966,6 @@ void *renderAppendScaledMatrix(void *arg0, ActorPositionView *arg1, s16 arg2, f3
 #define WRITE_GFX_U32(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern Gfx D_1000118;
-void actorUpdateModelMatrix(Actor *, s32);
 Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 
 Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
@@ -1080,7 +1147,6 @@ void func_8069E018(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void actorScriptStart(Actor *, s32);
 void actorPlaySoundAndFinish(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x299);
@@ -1089,7 +1155,6 @@ void actorPlaySoundAndFinish(void) {
 }
 
 #ifdef NON_MATCHING
-void func_80613C48(Actor *, s16, f32, f32);
 void flagSet(s32, s32, s32);
 void func_8070E8DC(void);
 s32 func_80600530(void);

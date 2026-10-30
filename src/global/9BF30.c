@@ -140,7 +140,6 @@ void loadModelAssetTable(void) {
 
 extern Actor *D_807FBB40;
 
-#ifdef NON_MATCHING
 typedef struct ProjectileState {
     s16 unk0;
     u8 pad2;
@@ -158,44 +157,45 @@ void actorDespawn(Actor *);
 void heapFree(void *);
 void projectileSpawnActor107(u8, u8, f32, f32, u8, u8);
 void renderCallbacksRegister(void *, void *, u8);
-
-#define ACTOR2 ((Actor *)D_807FBB40)
+f32 func_80612790(s16);
+f32 func_80612794(s16);
 
 void func_80697988(void) {
     ProjectileState *sub;
-    Actor *actor;
+    u8 kind;
     f64 temp;
     f64 max;
 
-    sub = ACTOR2->unk174;
-    if (!(ACTOR2->unk60 & 0x10)) {
-        *(s16 *)((u8 *)ACTOR2 + 0xEE) = ACTOR2->unk15F;
+    sub = D_807FBB40->unk174;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        *(s16 *)((u8 *)D_807FBB40 + 0xEE) = D_807FBB40->unk15F;
         sub->unk4 = heapAlloc(0x1000);
-        if (ACTOR2->unk15F != 0) {
-            ACTOR2->unk144 = 0x24;
+        if (D_807FBB40->unk15F != 0) {
+            D_807FBB40->unk144 = 0x24;
         }
         if (sub->unk11 == 1) {
-            sfxPlayActorSound(ACTOR2, 0x128, 1, 1, 0, 0xFF, 0.2f, 0);
-            sfxPlayActorSound(ACTOR2, 0x139, 0x3C, 1, 1, 0xFF, 1.0f, 0);
+            sfxPlayActorSound(D_807FBB40, 0x128, 1, 1, 0, 0xFF, 0.2f, 0);
+            sfxPlayActorSound(D_807FBB40, 0x139, 0x3C, 1, 1, 0xFF, 1.0f, 0);
         }
     }
+    kind = sub->unk11;  // FAKE: copy of the dispatch byte; steers uopt register choice (a0 instead of v0)
     if (sub->unk11 != 0) {
-        if (sub->unk11 == 1) {
-            ACTOR2->unk7C += sub->unkC * func_80612794(ACTOR2->unkE6);
-            ACTOR2->unk84 += sub->unkC * func_80612790(ACTOR2->unkE6);
-            actor = D_807FBB40;
-            if (actor->unk15F != 0) {
-                actor->unk15F -= 1;
-            } else if (actor->unk168 == 0x20) {
-                actor->unk168 = 0x10;
+        if (kind == 1) {
+            if (D_807FBB40) {}  // FAKE: steers uopt: hoists &D_807FBB40 into a1 for this block
+            D_807FBB40->unk7C += sub->unkC * func_80612794(D_807FBB40->unkE6);
+            D_807FBB40->unk84 += sub->unkC * func_80612790(D_807FBB40->unkE6);
+            if (D_807FBB40->unk15F != 0) {
+                D_807FBB40->unk15F -= 1;
+            } else if (D_807FBB40->unk168 == 0x20) {
+                D_807FBB40->unk168 = 0x10;
                 sub->unk10 = 0;
             } else if (sub->unk10 >= 0x10) {
                 heapFree(sub->unk4);
-                actorDespawn(actor);
+                actorDespawn(D_807FBB40);
             }
         }
     } else {
-        if (ACTOR2->unk15F != 0) {
+        if (D_807FBB40->unk15F != 0) {
             sub->unk8 += sub->unkC;
             temp = (f64)sub->unk8 * 0.3;
             max = 32.0;
@@ -205,33 +205,29 @@ void func_80697988(void) {
                 sub->unk0 = temp;
             }
         } else {
-            sub->unk8 = sub->unk8 + (f32)((ACTOR2->unk168 - sub->unk10) + 0x10)
+            sub->unk8 = sub->unk8 + (f32)((D_807FBB40->unk168 - sub->unk10) + 0x10)
                 * (sub->unkC * 0.0625);
         }
-        if ((sub->unk10 - ACTOR2->unk168) >= 0x10) {
+        if ((sub->unk10 - D_807FBB40->unk168) >= 0x10) {
             u8 count;
 
-            count = ACTOR2->unk15F;
-            ACTOR2->unk15F = count - 1;
+            count = D_807FBB40->unk15F;
+            D_807FBB40->unk15F = count - 1;
             if (count) {
                 projectileSpawnActor107(0, sub->unk0, sub->unk8, sub->unkC, 0, 0x10);
-                if (ACTOR2->unk15F == 0) {
-                    ACTOR2->unk168 = 0x10;
+                if (D_807FBB40->unk15F == 0) {
+                    D_807FBB40->unk168 = 0x10;
                 } else {
                     sub->unk10 = 0;
                 }
             } else {
                 heapFree(sub->unk4);
-                actorDespawn(ACTOR2);
+                actorDespawn(D_807FBB40);
             }
         }
     }
-    renderCallbacksRegister(func_80697230, ACTOR2, 1);
+    renderCallbacksRegister(func_80697230, D_807FBB40, 1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9BF30/func_80697988.s")
-#endif
 
 typedef struct ProjectileConfig {
     f32 unk0;

@@ -1,22 +1,16 @@
-// func_8069A750 (src/global/9DD70.c): stage 2: nested for(;;) skeleton matches all but second test inversion (bne vs beq to latch); empty/continue/switch forms delete both tests
-// for(;;){ if (x==2||x==3) break; } inside a for loop: reproduces sltu-before-load,
-// preheader li 2/3, hoisted actor load and the fused epilogue; only the second
-// test is inverted (bne back to the first test) and operands are const-first.
-// Empty if / continue / switch / while forms make IDO delete both tests entirely.
-extern Actor *D_807FBB40;
-extern ActorGlobalState D_807FBB70;
+// func_8069A750 (src/global/9DD70.c): stage 2: target keeps (beq v0,2,latch; nop; beq v0,3,latch; nop; latch) - both tests survive, both go to the loop latch, no back-branch. Typed list view ((S9B_ActorList*)&D_807FBB70)->unk7C[i] fixes the base reloc/IV regs. Test-retaining forms found: nested for(;;){if(x==2||x==3)break;} (not equivalent: infinite wait) and 'if (x==2 ? 1 : x==3) ;' (36 lines, only the x==2 test kept as bne+b). ~200 variants (empty/continue/switch/goto/do-while0/dead stores/ternaries/expr statements) delete both tests or give a wrong shape
 extern u8 D_807FBBA9;
 
+typedef struct {
+    u8 pad0[0x7C];
+    Actor *unk7C[4];
+} S9B_ActorList;
+
 s32 func_8069A750(void) {
-    Actor **list = (Actor **)((u8 *)&D_807FBB70 + 0x7C);
     s32 i;
 
     for (i = 0; i < D_807FBBA9; i++) {
-        for (;;) {
-            if (list[i]->unk58 == 2 || list[i]->unk58 == 3) {
-                break;
-            }
-        }
+        if (((S9B_ActorList *)&D_807FBB70)->unk7C[i]->unk58 == 2 ? 1 : ((S9B_ActorList *)&D_807FBB70)->unk7C[i]->unk58 == 3) ;
     }
     if (D_807FBB40->unk58 == 0x1F) {
         return 0;
