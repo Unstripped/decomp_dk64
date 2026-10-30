@@ -36,7 +36,6 @@ void renderSetupSegmentsAndFog(Gfx *arg0, Actor *arg1) {
 extern void *D_807FD580;
 void animSetNodeItem(Actor *, s32, s16, s32);
 
-#ifdef NON_MATCHING
 typedef struct PlayerControlState {
     /* 0x000 */ u8 pad0[0x88];
     /* 0x088 */ s32 unk88;
@@ -78,11 +77,11 @@ void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void color5551CopyLerpToWhite(s16 *, s32 *, f32);
 void slotQueueAddValue(s32, u8, s32);
-void sfxAllocateChannel(s32, f32);
+s32 sfxAllocateChannel(s32, f32);
 void func_80609140(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 void mathAngleBetweenPoints3D(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
-s32 playerStateQueueCallback(s32, s32, s32, void *);
+s32 playerStateQueueCallback(s16, void *, u8);
 void assetFreeBuffer(s32, s32, s32);
 void heapFreeDeferred(Mtx *);
 void actorDespawn(Actor *);
@@ -91,31 +90,29 @@ void renderSetupSegmentsAndFog(Gfx *, Actor *);
 void func_806FF628(void);
 
 void func_80699284(void) {
-    /* 1-element array: forces the target's spilled-pointer codegen (loads from
-       0xEC(sp) with per-block reuse) instead of a callee-saved s1. */
-    PanSubState *spEC[1];
+    PanSubState *spEC;
     s16 spEA;
     s16 spE8;
     f32 mtx1[4][4];
     f32 mtx2[4][4];
     s16 sp66;
     s16 l1Angle;
-    s32 *l1Dest;
+    s32 *l1Dest; // FAKE: unused, reserves a frame word
     u8 sp5F;
     f32 t;
 
+    spEC = D_807FBB40->unk174;
     sp5F = 0;
-    spEC[0] = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        spEC[0]->unk10 = 0x5A;
+        spEC->unk10 = 0x5A;
         D_807FBB40->unk60 |= 0x400;
         D_807FBB40->unk12A = 0x3E8;
-        spEC[0]->unk4 = (s16 *)func_806FFF88();
+        spEC->unk4 = (s16 *)func_806FFF88();
         func_80613C48(D_807FBB40, 0x40B, 0, 0);
         func_80614D00(D_807FBB40, 0.15f, 0);
     }
     D_807FBB40->unk60 &= ~4;
-    sp66 = 0x5A - spEC[0]->unk10;
+    sp66 = 0x5A - spEC->unk10;
     if (sp66 == 0xD) {
         sfxPlayActorSound(D_807FBB40, 0x222, 0, 0, 0, 0xFF, 1.0f, -1);
     }
@@ -124,11 +121,10 @@ void func_80699284(void) {
     }
     t = PAN_MIN(1.0, ((sp66 - 0x1E) < 0 ? 0 : (sp66 - 0x1E)) / 60.0f * 5.0);
     if (t < 1.0 && D_807FBB40->unk58 != 0xD9) {
-        l1Dest = &(&spEC[0]->unk8)[D_807444FC];
-        color5551CopyLerpToWhite((s16 *)spEC[0]->unk4, l1Dest, t);
-        animSetNodeItem(D_807FBB40, 0, 0, (&spEC[0]->unk8)[D_807444FC]);
+        color5551CopyLerpToWhite((s16 *)spEC->unk4, &(&spEC->unk8)[D_807444FC], t);
+        animSetNodeItem(D_807FBB40, 0, 0, (&spEC->unk8)[D_807444FC]);
     } else {
-        animSetNodeItem(D_807FBB40, 0, 0, (s32)spEC[0]->unk4);
+        animSetNodeItem(D_807FBB40, 0, 0, (s32)spEC->unk4);
         if (D_807FBB40->unk155[0] == 0) {
             if (((PlayerControlState *)D_807FD580)->unk1EC == 1) {
                 slotQueueAddValue(0xC, ((PlayerControlState *)D_807FD580)->unk1A4, 1);
@@ -138,7 +134,7 @@ void func_80699284(void) {
             }
             D_807FBB40->unk155[0]++;
         }
-        if (((PlayerControlState *)D_807FD580)->unk1EC != 0xFF && spEC[0]->unk10 != 0) {
+        if (((PlayerControlState *)D_807FD580)->unk1EC != 0xFF && spEC->unk10 != 0) {
             renderCallbacksRegister(&func_806FF628, D_807FBB40, 3);
         }
     }
@@ -153,8 +149,8 @@ void func_80699284(void) {
     guTranslateF(mtx2, ((CameraView *)D_807FC924)->unk210, ((CameraView *)D_807FC924)->unk214, ((CameraView *)D_807FC924)->unk218);
     guMtxCatF(mtx1, mtx2, mtx1);
     guMtxXFMF(mtx1, 0.0f, 0.0f, -30.0f * t, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
-    if (spEC[0]->unk10 != 0) {
-        spEC[0]->unk10--;
+    if (spEC->unk10 != 0) {
+        spEC->unk10--;
     } else {
         D_807FBB40->unk60 &= ~0x8000;
         D_807FBB40->unk128 -= 0xA;
@@ -162,19 +158,19 @@ void func_80699284(void) {
             sp5F = 1;
         }
     }
-    if (sp5F || !(spEC[0]->unk0->unk1F0 & 0x8000)) {
-        if (spEC[0]->unk0->unk1EC == 1) {
-            playerStateQueueCallback(0x58, 0, 0, (void *)spEC[0]);
+    if (sp5F || !(spEC->unk0->unk1F0 & 0x8000)) {
+        if (spEC->unk0->unk1EC == 1) {
+            playerStateQueueCallback(0x58, NULL, 0);
         }
         sfxStopSlotSound(D_807FBB40, 0);
-        spEC[0]->unk0->unk1F0 &= ~0x8000;
-        spEC[0]->unk0->unk1EC = 0xFF;
+        spEC->unk0->unk1F0 &= ~0x8000;
+        spEC->unk0->unk1EC = 0xFF;
         if (D_807FBB40->unk58 == 0xD9) {
-            assetFreeBuffer((s32)spEC[0]->unk4, 0xF6, 0x45);
+            assetFreeBuffer((s32)spEC->unk4, 0xF6, 0x45);
         } else {
-            heapFreeDeferred((Mtx *)spEC[0]->unk4);
+            heapFreeDeferred((Mtx *)spEC->unk4);
         }
-        spEC[0]->unk0->unk88 = 0;
+        spEC->unk0->unk88 = 0;
         actorDespawn(D_807FBB40);
     } else {
         guTranslateF((f32 (*)[4])((u8 *)D_807FBB40 + 0xC), 0.0f, -70.0f, 0.0f);
@@ -182,10 +178,6 @@ void func_80699284(void) {
         renderCallbacksRegister(&renderSetupSegmentsAndFog, D_807FBB40, 3);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_80699284.s")
-#endif
 
 void func_80699284(void);
 
@@ -681,7 +673,6 @@ typedef struct {
 
 void actorScriptStart(Actor *, s32);
 void func_80613C48(Actor *, s16, f32, f32);
-void func_80614D00(Actor *, f32, f32);
 void actorUpdateModelMatrix(Actor *, s32);
 extern u8 D_807FBD70;
 extern s32 D_8076A0A8;
@@ -776,7 +767,6 @@ extern u8 D_8071FE08[];
 extern u8 D_80720E14[];
 void effectScaleSpinUpdate();
 void actorDespawn(Actor *);
-void sfxAllocateChannel(s32, f32);
 void actorSetCollisionRadius(Actor *, f32);
 void func_8067ACB4(Actor *);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
