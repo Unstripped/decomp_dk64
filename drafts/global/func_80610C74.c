@@ -1,11 +1,11 @@
-// func_80610C74 (src/global/15050.c): stage 3-4: hdr part ok (u16 bs, size reused in place, u64 zero end block, do-while block chain) but orig spills a0/a1/a3 homes at entry + a3 temp reuse; mine moves addiu sp late, no a0 home, regs shifted. permuter best ~1581
+// func_80610C74 (src/global/15050.c): stage 4: frame 0x20 + s0 same, full diff 63 lines regalloc: orig spills owner(a0)/start(a1)/blockSize(a3) homes at entry because loop candidates take v0=cur v1=next a0=prev a1=bound(copy of end) a2=end a3=bs t0=stride t1=rem t2=&A28 (first-fit, 9 candidates); mine lacks the separate loop-bound candidate (a1=copy of a2) so owner stays in a0. Loop bound as recomputed (start+size-0x10) and direct D_807F0988[D_807F0A28] fields helped (86->63); permuter hint: local new_var=0x10 used in bound and end->size gives n=95/95 (full 76)
 void heapSortPools(void);
+
 
 s32 func_80610C74(void *owner, u8 *start, u32 size, u16 blockSize) {
     u16 bs;
     u32 stride;
     u32 rem;
-    HeapPool *pool;
     HeapBlock *cur;
     HeapBlock *prev;
     HeapBlock *next;
@@ -17,15 +17,14 @@ s32 func_80610C74(void *owner, u8 *start, u32 size, u16 blockSize) {
     if (rem == 0) {
         rem = stride;
     }
-    pool = &D_807F0988[D_807F0A28];
     size = size - rem + 0x10;
     end = (HeapBlock *)(start + size - 0x10);
-    pool->size = size;
-    pool->blockSize = bs;
+    D_807F0988[D_807F0A28].size = size;
+    D_807F0988[D_807F0A28].blockSize = bs;
     prev = NULL;
-    pool->owner = owner;
-    pool->start = start;
-    pool->freeList = (HeapBlock *)start;
+    D_807F0988[D_807F0A28].owner = owner;
+    D_807F0988[D_807F0A28].start = start;
+    D_807F0988[D_807F0A28].freeList = (HeapBlock *)start;
     cur = (HeapBlock *)start;
     do {
         next = (HeapBlock *)((u8 *)cur + stride);
@@ -35,7 +34,7 @@ s32 func_80610C74(void *owner, u8 *start, u32 size, u16 blockSize) {
         cur->next = next;
         prev = cur;
         cur = next;
-    } while (next < end);
+    } while (next < (HeapBlock *)(start + size - 0x10));
     prev->next = NULL;
     *(u64 *)end = 0;
     *(u64 *)&end->next = 0;

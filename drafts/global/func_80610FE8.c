@@ -1,4 +1,4 @@
-// func_80610FE8 (src/global/15050.c): stage 3: logic done; IV elimination turns n==0 into ptr==base compare (extra move s6,s5 candidate, mul 0x14 becomes shifts, no s8=20 hoist); orig keeps n (a0), offset a1 and ptr v0 all decremented in loop
+// func_80610FE8 (src/global/15050.c): stage 5: body identical to orig (n=D_807F0A40[n] reassign keeps IV n; pool->freeList->next form; || tail merged), only the 14-line prologue schedule differs (orig: sw s7..s1, lui x5, sw fp,s3,s2,s0, move s0,a0, li s2,s3,fp, addiu lo x5, sw ra last; mine all saves first, li last, sw ra early). Same pre-as1 stream as ours per cc -S; deadsweep/permuter 420s no gain
 s32 func_8061116C(void);
 extern s32 D_80746A34;
 
@@ -6,7 +6,7 @@ void *func_80610FE8(u32 size) {
     s32 n;
     HeapPool *pool;
     HeapBlock *blk;
-    HeapBlock *next;
+    HeapBlock *res;
 
     while (1) {
         size = (size + 0xF) & ~0xF;
@@ -16,13 +16,13 @@ void *func_80610FE8(u32 size) {
                 n--;
             }
             if (size == D_807F0A30[n] && n != 0) {
-                pool = &D_807F0988[D_807F0A40[n]];
+                n = D_807F0A40[n];
+                pool = &D_807F0988[n];
                 blk = pool->freeList;
                 if (blk != NULL) {
-                    next = blk->next;
-                    pool->freeList = next;
-                    if (next != NULL) {
-                        next->prev = NULL;
+                    pool->freeList = blk->next;
+                    if (pool->freeList != NULL) {
+                        pool->freeList->prev = NULL;
                     }
                     ((u8 *)blk)[0xB] = 0;
                     D_80746A30 = 1;
@@ -31,18 +31,16 @@ void *func_80610FE8(u32 size) {
             }
         }
         blk = func_806111F8(0, size);
+        res = blk + 1;
         if (blk != NULL) {
             D_80746A30 = 1;
-            return blk + 1;
+            return res;
         }
-        if (D_80746A30 == 0) {
-            D_80746A30 = 1;
-            return NULL;
+        if (D_80746A30 != 0 && func_8061116C() != 0) {
+            D_80746A34 = 1;
+            continue;
         }
-        if (func_8061116C() == 0) {
-            D_80746A30 = 1;
-            return NULL;
-        }
-        D_80746A34 = 1;
+        D_80746A30 = 1;
+        return NULL;
     }
 }

@@ -50,9 +50,9 @@ void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
 void func_806109EC(void);
 void func_80610A88(u32 *src, u32 *dst, u32 size);
 void func_80610B84(s32 oldBase, s32 newBase, u32 size);
-void func_80610BD8(s32, s32, s32);
-s32 func_80610C74(s32 *, s32, s32, s32);
-void *func_80610FE8(s32);
+s32 func_80610BD8(s32, s32, s32);
+s32 func_80610C74(void *, u8 *, u32, u16);
+void *func_80610FE8(u32);
 void heapLockBlock(u8 *ptr);
 
 void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
@@ -329,9 +329,79 @@ void func_80610B84(s32 oldBase, s32 newBase, u32 size) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610BD8.s")
+s32 func_80610BD8(s32 owner, s32 start, s32 size) {
+    HeapBlock *blk;
+    HeapBlock *end;
+
+    D_807F0988[D_807F0A28].owner = (void *)owner;
+    D_807F0988[D_807F0A28].start = (u8 *)start;
+    D_807F0988[D_807F0A28].freeList = (HeapBlock *)start;
+    D_807F0988[D_807F0A28].size = size;
+    D_807F0988[D_807F0A28].blockSize = 0;
+    blk = (HeapBlock *)start;
+    *(u64 *)blk = 0;
+    *(u64 *)&blk->next = 0;
+    blk->size = size - 0x20;
+    end = (HeapBlock *)(start + size);
+    end -= 1;
+    *(u64 *)end = 0;
+    *(u64 *)&end->next = 0;
+    end->physPrev = blk;
+    ((u8 *)end)[0xB] = 2;
+    return D_807F0A28++;
+}
+
+#ifdef NON_MATCHING
+void heapSortPools(void);
+
+s32 func_80610C74(void *owner, u8 *start, u32 size, u16 blockSize) {
+    u16 bs;
+    u32 stride;
+    u32 rem;
+    HeapBlock *cur;
+    HeapBlock *prev;
+    HeapBlock *next;
+    HeapBlock *end;
+
+    bs = (blockSize + 0xF) & ~0xF;
+    stride = bs + 0x10;
+    rem = size % stride;
+    if (rem == 0) {
+        rem = stride;
+    }
+    size = size - rem + 0x10;
+    end = (HeapBlock *)(start + size - 0x10);
+    D_807F0988[D_807F0A28].size = size;
+    D_807F0988[D_807F0A28].blockSize = bs;
+    prev = NULL;
+    D_807F0988[D_807F0A28].owner = owner;
+    D_807F0988[D_807F0A28].start = start;
+    D_807F0988[D_807F0A28].freeList = (HeapBlock *)start;
+    cur = (HeapBlock *)start;
+    do {
+        next = (HeapBlock *)((u8 *)cur + stride);
+        cur->physPrev = prev;
+        cur->prev = prev;
+        cur->size = bs;
+        cur->next = next;
+        prev = cur;
+        cur = next;
+    } while (next < (HeapBlock *)(start + size - 0x10));
+    prev->next = NULL;
+    *(u64 *)end = 0;
+    *(u64 *)&end->next = 0;
+    end->size = rem - 0x10;
+    ((u8 *)end)[0xB] = 2;
+    end->physPrev = prev;
+    D_807F0A28++;
+    D_807F0A50++;
+    heapSortPools();
+    return D_807F0A28 - 1;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610C74.s")
+#endif
 
 void heapSortPools(void) {
     u32 i;
@@ -350,9 +420,114 @@ void heapSortPools(void) {
     }
 }
 
+#ifdef NON_MATCHING
+s32 func_80610E84(s32 idx) {
+    HeapBlock *blk;
+    HeapBlock *tail;
+    u8 *start;
+    s32 ok;
+    s32 count;
+    u16 bs;
+
+    ok = 1;
+    start = D_807F0988[idx].start;
+    if (idx != 0) {
+        count = D_807F0A28;
+        if (count >= 2) {
+            bs = D_807F0988[idx].blockSize;
+            if (bs != 0) {
+                tail = D_807F0988[idx].freeList;
+                blk = tail->next;
+                if (blk != NULL) {
+                    do {
+                        tail = blk;
+                        if (blk->prev != blk->physPrev) {
+                            ok = 0;
+                            break;
+                        }
+                        blk = tail->next;
+                    } while (blk != NULL);
+                }
+                if (bs + (s32)tail + 0x20 != D_807F0988[idx].size + (s32)start) {
+                    ok = 0;
+                }
+            } else {
+                ok = 0;
+            }
+            if (ok != 0 && start == (u8 *)D_807F0988[idx].freeList) {
+                D_807F0A28 = count - 1;
+                if (bs != 0) {
+                    D_807F0A50--;
+                }
+                *(u32 *)D_807F0988[D_807F0A28].owner = *(u32 *)D_807F0988[idx].owner;
+                D_807F0988[idx].owner = D_807F0988[D_807F0A28].owner;
+                D_807F0988[idx].start = D_807F0988[D_807F0A28].start;
+                D_807F0988[idx].freeList = D_807F0988[D_807F0A28].freeList;
+                D_807F0988[idx].size = D_807F0988[D_807F0A28].size;
+                D_807F0988[idx].blockSize = D_807F0988[D_807F0A28].blockSize;
+                heapSortPools();
+                return 0;
+            }
+            return idx;
+        }
+    }
+    return 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610E84.s")
+#endif
+
+#ifdef NON_MATCHING
+s32 func_8061116C(void);
+extern s32 D_80746A34;
+
+void *func_80610FE8(u32 size) {
+    s32 n;
+    HeapPool *pool;
+    HeapBlock *blk;
+    HeapBlock *res;
+
+    while (1) {
+        size = (size + 0xF) & ~0xF;
+        n = D_807F0A50;
+        if (n != 0) {
+            while (size < D_807F0A30[n]) {
+                n--;
+            }
+            if (size == D_807F0A30[n] && n != 0) {
+                n = D_807F0A40[n];
+                pool = &D_807F0988[n];
+                blk = pool->freeList;
+                if (blk != NULL) {
+                    pool->freeList = blk->next;
+                    if (pool->freeList != NULL) {
+                        pool->freeList->prev = NULL;
+                    }
+                    ((u8 *)blk)[0xB] = 0;
+                    D_80746A30 = 1;
+                    return blk + 1;
+                }
+            }
+        }
+        blk = func_806111F8(0, size);
+        res = blk + 1;
+        if (blk != NULL) {
+            D_80746A30 = 1;
+            return res;
+        }
+        if (D_80746A30 != 0 && func_8061116C() != 0) {
+            D_80746A34 = 1;
+            continue;
+        }
+        D_80746A30 = 1;
+        return NULL;
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/15050/func_80610FE8.s")
+#endif
 
 u8 func_80611154(void) {
     return D_80746A37;
