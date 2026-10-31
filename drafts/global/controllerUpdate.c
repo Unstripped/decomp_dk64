@@ -1,4 +1,4 @@
-// controllerUpdate (src/global/F600.c): stage 5 after the F600 bss carve (D_807ECD60/62/63 shared lui now matches; objects defined in F600.c, u16 D_807ECD40/48/50): same 7 callee-saved (s0-s6) and frame 56 as target with 4 deadsweep FAKEs, text diff is regalloc only. Target colouring: row ptr D_807ECD68+padIdx*32 in s0, i s1, padIdx s2, const 2 in s3, &D09 s4, compact s5, &D_807463B8 s6; &CtrlAPressed[padIdx] in ra, consts 12/11/16 in t5/t4/t3, buttons load in a2 + var in a3 (the 'pressed' pair uses the CSE'd load), pressed in t2 (t1 unused). Mine: const 2 in s0, &D_807ECDF4 (FAKE-held) in s3, row ptr in ra, Pressed ptr t5, consts t4/t3/t2, pressed t1, buttons t0 + copy a3. Needs one more caller-saved id live across the pressed/row window (13 ids busy in the target, 12 here); uopt priority shows target colours Repeat ptr before bit/inner ptr. Tried: deadsweep (single dead stmt: globals+locals, 4 forms; 2-step beam), declaration order (all 132 moves), 20 expression/type rewrites incl. btn reload / bit u32 (80.5 vs 86 score, no match), pointer locals for Held/Pressed/Repeat/row, permuter 1500s (1200->1085). Unparked diff 86 lines (D_807ECD62/63 reloc-only +2/+3 vs sym).
+// controllerUpdate (src/global/F600.c): (src/global/F600.c): stage 5 (7 callee-saved s0-s6, frame 56 as target; diff is regalloc only; +2 reloc-only lines D_807ECD62/63 vs D_807ECD60+2/+3). This draft = CtrlEfd search best (text diff 59 lines vs the natural park's 87): u16 pressed/bit, u32 k/compact, s32 sum/timer, pressed uses pad->button, buttons=*(u16*)pad, '&&' merge of the D_807463B8/D_8076A0B1 tests, 2 deadsweep FAKEs + 2 old ones; natural (parked) C in src is equivalent. Root cause (uopt -l5/-l6, first-fit lowest id): target needs ONE more caller-saved id busy (an invisible candidate holding t1/id 8) in the pressed/row window: then pressed->t2, consts 12/11/16->t3/t4/t5, &Pressed->ra, row ptr->s0, const-2 web->s3 and &D_807ECDF4 (arms only)->s0 sharing with the row ptr. Mine: pressed t1, consts t2-t4, &Pressed t5, row ptr ra, const-2 web (adjsave 7.27 > &ECDF4 1.47) -> s0, &ECDF4 -> s3. Tried (~250k compiles): dead stmts anywhere on all locals/globals/exprs/2-var relational forms/expression pairs, 39 spelling slots, decl permutations, new dead locals, permuter 600s (-j2): none reaches the t1 hole.
 #include "common.h"
 
 extern volatile u8 D_807467C4;
@@ -41,18 +41,18 @@ void controllerLatchPad(OSContPad *pad);
 #define CtrlARepeat ((u16 *)D_807ECD50)
 
 void controllerUpdate(void) {
-    s32 compact;
-    u8 i;
-    s32 padIdx;
-    u8 mask;
-    s32 bit;
-    s32 k;
-    OSContPad *pad;
     u16 pressed;
-    u16 buttons;
-    s16 timer;
-    u32 sum;
+    u16 bit;
+    u8 mask;
     u32 *p;
+    u16 buttons;
+    u32 k;
+    OSContPad *pad;
+    s32 sum;
+    s32 timer;
+    s32 padIdx;
+    u8 i;
+    u32 compact;
 
     compact = func_8071432C();
     D_807ECD60.button = D_807ECD58.button;
@@ -82,7 +82,7 @@ void controllerUpdate(void) {
             do {
                 if (D_807ECD09 & (1 << i)) {
                     if (D_807ECD48) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    D_807ECDE8[i].button |= D_807ECDF4[i].button & 0x1000;
+                    D_807ECDE8[i].button |= (D_807ECDF4[i].button & 0x1000);
                 }
                 i++;
             } while (i < 4);
@@ -103,11 +103,11 @@ void controllerUpdate(void) {
         sum += *p;
     }
     padIdx = 0;
-    if (sum != 0x624C9A6C) {
+    if (0x624C9A6C != sum) {
         D_8076A064 = 0;
     }
     for (i = 0; i < 4; i++) {
-        if (compact != 0) {
+        if (compact) {
             mask = D_807ECDF8 & (1 << i);
         } else {
             mask = D_807ECD09 & (1 << i);
@@ -115,31 +115,32 @@ void controllerUpdate(void) {
         }
         if (i == 0 && D_807463B8 == 2) {
             if (D_807463B8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            mask |= 1;
+            mask |= 1U;
         }
         if (mask != 0) {
-            pad = (OSContPad *)((u16 *)D_807ECD10 + padIdx * 3);
-            buttons = pad->button;
-            pressed = (CtrlAHeld[padIdx] ^ buttons) & buttons;
+            pad = (OSContPad *)((u16 *)D_807ECD10 + 3 * padIdx);
+            buttons = *(u16 *)pad;
+            pressed = (CtrlAHeld[padIdx] ^ buttons) & pad->button;
             CtrlAHeld[padIdx] = buttons;
-            if (D_807463B8 == 0) {
-                if (D_8076A0B1 & 0x11) {
+            if (D_807463B8 == 0 && (D_8076A0B1 & 0x11)) {
+                {
                     pad->button = buttons & 0x1000;
-                    buttons &= 0x1000;
+                    buttons = pad->button;
                     pad->stick_x = 0;
-                    pad->stick_y = 0;
                     pressed = 0;
+                    pad->stick_y = 0;
                     if (D_807ECDF4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
             }
             CtrlAPressed[padIdx] = pressed;
-            for (k = 0; k != 16; k++) {
+            for (k = 0; k < 16; k++) {
+                if (buttons && pressed) {} // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 bit = 1 << k;
                 if (buttons & bit) {
-                    D_807ECD68[padIdx][k]--;
+                    D_807ECD68[padIdx][k] -= 1;
                     timer = D_807ECD68[padIdx][k];
                     if (timer <= 0) {
-                        D_807ECD68[padIdx][k] = 2;
+                        D_807ECD68[padIdx][k] = 2U;
                         CtrlARepeat[padIdx] |= bit;
                     } else if (timer == 11) {
                         CtrlARepeat[padIdx] |= bit;
@@ -147,15 +148,16 @@ void controllerUpdate(void) {
                         CtrlARepeat[padIdx] &= ~bit;
                     }
                 } else {
-                    D_807ECD68[padIdx][k] = 12;
+                    D_807ECD68[padIdx][k] = 12U;
                     CtrlARepeat[padIdx] &= ~bit;
                 }
             }
             if (compact != 0) {
                 padIdx++;
+                if (bit != 0) {} // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
         }
     }
     D_807ECDEC = D_807ECD10;
-    D_807ECDF0 = CtrlAPressed[0];
+    D_807ECDF0 = D_807ECD48[0];
 }

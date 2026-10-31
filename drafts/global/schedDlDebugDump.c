@@ -1,4 +1,4 @@
-// schedDlDebugDump (src/global/131B0.c): stage 4-5 (parked): frame 0xB8 + callee set match; 3 deadsweep FAKEs (full 224->142). Remaining: uopt pointerizes extern/bss scalars in the first block (D_807F0568 -> s1 with 'move a0,s1; lhu 0(s1)', D_80746A2C/A1C pointers in a1/v1, D_80746A14 chain-store pointer) where the target re-emits lui per access; no single dead stmt removes the D_807F0568 pointer (predicate sweep over all points/syms); op/i swap s0/s1 in the loop; beam sweep plateaus ~140
+// schedDlDebugDump (src/global/131B0.c): stage 4-5 (parked in 131B0.c): frame 0xB8 + callee set match; 3 deadsweep FAKEs. Lever found: spelling the osContGetReadData arg as (u8*)&D_807F0564+4 stops uopt CSEing lda D_807F0568 with the .button read (removes the s1 pointer, text diff 145->140 incl. reloc-clean). Remaining: lda D_80746A2C (3 uses: !=0 read, >0 read, -- store) still pointerized into a1 where target re-lui's per access and keeps load values in a0/a1/a2 (uopt value candidates); buttons lands in a0 not v1 (ucvt(raw) candidate 16 takes v1 first); alt-base spellings of A2C/A1C accesses (*(s8*)((u8*)&D_80746A28+4)) hill-climb plateau ~121 text; permuter 540s best 3380 vs 3595 (no signal); op/i s0/s1 swap in the loop untouched
 typedef struct {
     u8 op;
     char name[13];
@@ -45,7 +45,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     done = 0;
     ret = 0;
     if (arg0 == 0) {
-        osContGetReadData((OSContPad *)&D_807F0568);
+        osContGetReadData((OSContPad *)((u8 *)&D_807F0564 + 4));  // FAKE: arg spelled off D_807F0564 so uopt does not CSE lda D_807F0568 with the .button read (pointerizes it into s1)
         raw = D_807F0568.button;
         buttons = raw;
         if (arg1 != 0 && D_80746A2C != 0) {
