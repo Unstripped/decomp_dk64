@@ -393,7 +393,38 @@ void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/effectNodeComputeBounds.s")
+void mapRectIntersect(s32, s32, s32, s32, s32, s32, s32, s32, s32 *, s32 *, s32 *, s32 *);
+void mapScreenRectBuildFrustum(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
+void effectNodeComputeBounds(EffectNode *arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, void *arg5, void *arg6) {
+    s32 s2 = 0;
+    s32 s3 = 0;
+    s32 s4 = 0;
+    s32 s5 = 0;
+    s32 spB4;
+    s32 spB0;
+    s32 spAC;
+    s32 spA8;
+    s32 i;
+    s32 idx;
+    u8 sp70[0x30];
+    EffectSubNode *target = arg0->target;
+
+    for (i = 0; i < target->unk67; i++) {
+        idx = target->unk50[i];
+        if (((u8 *)D_807F6C18 + idx * 0x1C8)[0] == 1) {
+            mapRectIntersect(s2, s3, s4, s5, *(s32 *)(((u8 *)&D_807F6C18[idx]) + 0x68), *(s32 *)(((u8 *)&D_807F6C18[idx]) + 0x6C), *(s32 *)(((u8 *)&D_807F6C18[idx]) + 0x70), *(s32 *)(((u8 *)&D_807F6C18[idx]) + 0x74), &spB4, &spB0, &spAC, &spA8);
+            s2 = spB4;
+            s3 = spB0;
+            s4 = spAC;
+            s5 = spA8;
+        }
+    }
+    mapScreenRectBuildFrustum(s2, s3, s4, s5, arg1, arg2, arg3, arg4, arg5, arg6, sp70);
+    arg0->unk40 = s2;
+    arg0->unk42 = s3;
+    arg0->unk44 = s4;
+    arg0->unk46 = s5;
+}
 
 s32 effectCheckTargetActive(EffectSubNode *arg0) {
     s32 i;
@@ -544,7 +575,71 @@ Gfx *effectWaterSetScissor(Gfx *gdl, EffectNode *water) {
 }
 #undef EFFECT_BUFFER_RECT
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/effectWaterBuildMeshGdl.s")
+typedef struct Eff63MeshBuilder {
+    Gfx *(*fn)(void *, EffectNode *, u8);
+    u8 pad4[0x14];
+} Eff63MeshBuilder;
+
+typedef struct Eff63MeshSub {
+    u8 pad0[0x46];
+    s16 unk46;
+    s16 unk48;
+    s16 unk4A;
+    s16 unk4C;
+    u8 pad4E[0x66 - 0x4E];
+    u8 unk66;
+} Eff63MeshSub;
+
+extern Eff63MeshBuilder D_80748A94[];
+extern s32 D_807F93EC;
+
+void effectWaterBuildMeshGdl(void *arg0, void *arg1, EffectNode *water) {
+    s32 vtxStart;
+    s32 vtxNext;
+    s32 countX;
+    Gfx *gdl;
+    s32 x;
+    s32 countZ;
+    s32 segLen;
+    s32 i;
+    s32 k;
+    u8 done;
+    s32 total;
+
+    D_807F93EC = 0;
+    gdl = D_80748A94[((Eff63MeshSub *)water->unk0)->unk66].fn(arg0, water, ((Eff63MeshSub *)water->unk0)->unk66);
+    countX = ((((Eff63MeshSub *)water->unk0)->unk4A - ((Eff63MeshSub *)water->unk0)->unk46) / water->unk2C) + 1;
+    countZ = ((((Eff63MeshSub *)water->unk0)->unk4C - ((Eff63MeshSub *)water->unk0)->unk48) / water->unk2C) + 1;
+    total = (countX + 1) * (countZ + 1);
+    vtxNext = countX + 1;
+    vtxStart = 0;
+    x = 0;
+    done = 0;
+    do {
+        segLen = (countX - x + 1) >= 17 ? 16 : (countX - x + 1);
+        gSPVertex(gdl++, osVirtualToPhysical(vtxStart * 16 + (u8 *)arg1), segLen, 0);
+        gSPVertex(gdl++, osVirtualToPhysical(vtxNext * 16 + (u8 *)arg1), segLen, 16);
+        k = 0;
+        for (i = 0; i < segLen - 1; i++) {
+            gSP2Triangles(gdl++, k + 1, k, k + 16, 0, k + 16, k + 17, k + 1, 0);
+            D_807F93EC += 2;
+            k++;
+        }
+        x += segLen - 1;
+        vtxStart += segLen - 1; vtxNext += segLen - 1; // LAYOUT: same source line steers as1 scheduling of the two addu
+        if (x == countX) {
+            x = 0;
+            vtxStart++;
+            vtxNext++;
+        }
+        if (vtxNext == total) {
+            done = 1;
+        }
+    } while (!done);
+    gDPPipeSync(gdl++);
+    gDPSetTextureLUT(gdl++, G_TT_NONE);
+    gSPEndDisplayList(gdl++);
+}
 
 typedef struct WaterHeightView {
     u8 pad0[0xC];
@@ -665,7 +760,6 @@ void effectWaterSetMeshColors(Vtx *vtx, EffectNode *water) {
 
 f32 func_80612794(s16);
 
-#ifdef NON_MATCHING
 typedef struct WaterHeightView2 {
     u8 pad0[4];
     f32 unk4;
@@ -680,30 +774,28 @@ typedef struct WaterHeightView2 {
     s16 unk4E;
 } WaterHeightView2;
 
+#define WATER_SUB ((WaterHeightView2 *)water->unk0)
+#define WATER_ABS(x) ((x) > 0 ? (x) : -(x))
+
 f32 sqrtf(f32);
 
 f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
     s32 temp1;
     s32 temp;
-    WaterHeightView2 * sub;
     f32 dx;
     f32 dz;
     f32 dist;
     f32 diff;
     f32 h;
+    f32 r;
     f32 baseH;
     f32 edgeDist;
-    s32 d;
-    f32 sin1;
 
     switch (type) {
     case 0:
-        {
-            temp1 = (s32)(((WaterHeightView2 *)water->unk0)->unk4 * (f32)arg1);
-            temp = (s32)(((WaterHeightView2 *)water->unk0)->unk8 * (f32)arg2);
-            sin1 = func_80612794((s16)((water->unk30 + temp1) % 4095));
-        }
-        return (func_80612794((s16)((water->unk34 + temp) % 4095)) * ((WaterHeightView2 *)water->unk0)->unk10) + ((f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4 + (((WaterHeightView2 *)water->unk0)->unkC * sin1));
+        temp1 = (s32)(WATER_SUB->unk4 * (f32)arg1);
+        temp = (s32)(WATER_SUB->unk8 * (f32)arg2);
+        return ((f32)WATER_SUB->unk4E + water->unk4 + (WATER_SUB->unkC * func_80612794((s16)((water->unk30 + temp1) % 4095)))) + (func_80612794((s16)((water->unk34 + temp) % 4095)) * WATER_SUB->unk10);
 
     case 1:
     case 2:
@@ -724,52 +816,44 @@ f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
                 h = (f32)((f64)D_807F93D4 + ((0.0 - (f64)D_807F93D4) * (f64)((D_807F93DC - D_807F93E8) / (D_807F93E4 - D_807F93E8))));
             }
             if ((f64)diff < 50.0) {
-                baseH = (f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4;
-                h += baseH;
+                baseH = (f32)WATER_SUB->unk4E + water->unk4;
+                r = baseH + h;
             } else if ((f64)diff > 150.0) {
-                baseH = (f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4;
-                h = baseH;
+                baseH = (f32)WATER_SUB->unk4E + water->unk4;
+                r = baseH;
             } else {
-                baseH = (f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4;
-                h = (f32)((f64)baseH + ((f64)h + ((0.0 - (f64)h) * (((f64)diff - 50.0) / 100.0))));
+                baseH = (f32)WATER_SUB->unk4E + water->unk4;
+                r = (f32)((f64)baseH + ((f64)h + ((0.0 - (f64)h) * (((f64)diff - 50.0) / (100.0 * 1.0)))));  // FAKE: folds to 100.0 but keeps the constant out of the sibling-branch CSE (steers f-reg pick)
             }
         } else {
-            baseH = (f32)((WaterHeightView2 *)water->unk0)->unk4E + water->unk4;
-            h = baseH;
+            baseH = (f32)WATER_SUB->unk4E + water->unk4;
+            r = baseH;
         }
 
         if (type == 2) {
-            sub = (WaterHeightView2 *)water->unk0;
-            d = arg1 - sub->unk46;
-            edgeDist = (f32)(d > 0 ? d : -d);
+            edgeDist = (f32)WATER_ABS(arg1 - WATER_SUB->unk46);
 
-            d = arg1 - sub->unk4A;
-            dx = (f32)(d > 0 ? d : -d);
-            if (dx < edgeDist) edgeDist = dx;
+            dz = (f32)WATER_ABS(arg1 - WATER_SUB->unk4A);
+            if (dz < edgeDist) edgeDist = dz;
 
-            d = arg2 - sub->unk4C;
-            dx = (f32)(d > 0 ? d : -d);
-            if (dx < edgeDist) edgeDist = dx;
-            if (D_807F93E4 && D_807F93E4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            dz = (f32)WATER_ABS(arg2 - WATER_SUB->unk4C);
+            if (dz < edgeDist) edgeDist = dz;
 
-            d = arg2 - sub->unk48;
-            dx = (f32)(d > 0 ? d : -d);
-            if (dx < edgeDist) edgeDist = dx;
+            dz = (f32)WATER_ABS(arg2 - WATER_SUB->unk48);
+            if (dz < edgeDist) edgeDist = dz;
 
             if ((f64)edgeDist < 100.0) {
-                h = (f32)((f64)baseH + ((f64)(h - baseH) * ((f64)edgeDist / 100.0)));
+                r = (f32)((f64)baseH + ((f64)(r - baseH) * ((f64)edgeDist / 100.0)));
             }
         }
-        return h;
+        return r;
 
     default:
         return 0.0f;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63EC0/func_806608FC.s")
-#endif
+#undef WATER_SUB
+#undef WATER_ABS
 
 typedef struct WaterWaveView {
     f32 unk0;
