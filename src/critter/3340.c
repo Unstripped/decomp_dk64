@@ -370,7 +370,6 @@ void func_80027DC0(void) {
 
 
 
-#ifdef NON_MATCHING
 typedef struct J1b2Data {
     f32 unk0;
     f32 unk4;
@@ -500,10 +499,6 @@ void func_80028120(void) {
             d->unk14 = (func_80612790((s16)angleTmp) * k) + d->unk20;
             d->unk18 = d->unk24;
             d->unk1C = (func_80612794((s16)angleTmp) * k) + d->unk28;
-            if (!k) {
-            }
-            if (!k) {
-            }
         }
         d->unk0 = t;
         t = (t - 0.5) * 2.5;
@@ -530,13 +525,9 @@ void func_80028120(void) {
             d->unk0 = 0.0f;
             J1b2A->unk154 = 0x64;
         } else if (d->unk0 < 20.0) {
-            f64 dist;
-
-            dist = sqrtf((dx * dx) + (dz * dz));
-            if (dist > 1.0) {
-                k = 3.0 / dist;
-                if (!k) {
-                }
+            k = sqrtf((dx * dx) + (dz * dz));
+            if (k > 1.0) {
+                k = 3.0 / k;
                 J1b2A->unk7C = J1b2A->unk7C + (dx * k);
                 J1b2A->unk84 = J1b2A->unk84 + (dz * k);
             }
@@ -562,7 +553,4 @@ void func_80028120(void) {
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/3340/func_80028120.s")
-#endif
