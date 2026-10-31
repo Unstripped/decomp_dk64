@@ -728,16 +728,13 @@ void effectActorGrowthTick(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
 void func_806871DC(u8 arg0) {
     s32 var_s2;
-    u32 temp_s3;
     s16 var_s4;
     s32 var_v0;
-    s32 w;  // FAKE: separate post-dispatch web (chain var stays in v0, w takes s0)
+    s32 var_s0;  // FAKE: separate post-dispatch web (chain var stays in v0, var_s0 takes s0)
 
     var_s2 = (((D_8076A064 & 3) * 4) + 3) & 0xFF;
-    temp_s3 = arg0 & 0xFF;
     for (var_s4 = 0; var_s4 < 4; var_s4++) {
         var_v0 = var_s2;
         if ((var_s2 | 0) == 0x10) {  // FAKE: |0 keeps the constant-first operand order (bne s6,s2)
@@ -748,40 +745,37 @@ void func_806871DC(u8 arg0) {
             var_v0 = var_s2 & 0xFF;
         }
 
-        switch (temp_s3) {
+        switch (arg0 + 0U) {  // FAKE: +0U types the selector u32 (separate const-1 web) and keeps andi s3 hoisted
         case 3:
             if (var_v0 < 10) {
                 break;
             }
             /* fallthrough */
         case 1:
-            w = var_v0;
+            var_s0 = var_v0;
             func_80714998(1);
             func_807149C8(0xB4, 0xB4, 0xB4, 0xC8);
-            effectSpawnBoneDefault(D_807FBB40, (w | 0), 2.0f, 0.0f, 0.0f, 0.0f, -0x78);
+            effectSpawnBoneDefault(D_807FBB40, (var_s0 | 0), 2.0f, 0.0f, 0.0f, 0.0f, -0x78);  // FAKE: |0 blocks copy propagation
             break;
 
         case 2:
-            if (var_v0 < 10) {
+            if ((var_v0 * 1) < 10) {  // FAKE: *1 reorders the delay-slot copies in the dispatch block
                 break;
             }
             /* fallthrough */
         case 0:
-            w = var_v0;
+            var_s0 = (var_v0 * 1);  // FAKE: *1 reorders the delay-slot copies in the dispatch block
             func_807149B8(1);
+            if (var_s0) {}  // FAKE: dead read steers uopt/as1 scheduling of the case-0 copy
             func_8071498C(func_80717D4C);
             func_80714950(-0x3E8);
             func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
-            func_80714C08(&D_80720120, (f32)(((f64)((randomNonNegative() >> 15) % 100) / 30.0) + 1.0), D_807FBB40, (w | 0), 0);
+            func_80714C08(&D_80720120, (f32)(((f64)((randomNonNegative() >> 15) % 100) / 30.0) + 1.0), D_807FBB40, var_s0, 0);
             break;
         }
         var_s2 = (var_s2 + 1) & 0xFF;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/89250/func_806871DC.s")
-#endif
 
 void func_80687400(void) {
     sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);

@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 
-#ifdef NON_MATCHING
 typedef struct W2Col_ActorSub174_810 {
     u8 pad0[0xD4];
     s16 unkD4;
@@ -105,7 +104,7 @@ void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
                     func_80675D70((s32)temp_s2);
                 }
             } else {
-                do {
+                while (!done) {  // FAKE: while (not do-while) gives the post-loop its own lda web (remat lui/addiu s0)
                     entry = &((W2Col_80675810_Entry *)res)[i];
                     if ((entry->unk0 & arg0->unk132) && (entry->unk2 & temp_s2->unk132)) {
                         if (D_8074C604) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -140,6 +139,7 @@ void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
                                     }
                                 }
                             }
+                            if (D_807FBB70.unk200) {}  // FAKE: dead read steers s0/s1 colouring
                             if (entry->unkA == 0 || entry->unkA == 2) {
                                 done = 1;
                             }
@@ -149,7 +149,7 @@ void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
                         done = 1;
                     }
                     i++;
-                } while (!done);
+                }
                 if (arg0->unk60 & 0x20000000) {
                     D_807FBB70.unk200 = 1;
                 }
@@ -161,10 +161,6 @@ void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7A510/func_80675810.s")
-#endif
 
 typedef struct InteractionActor {
     u8 pad0[0x5A];
