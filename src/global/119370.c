@@ -869,7 +869,6 @@ f32 distance3D(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
     return sqrtf((x * x) + (y * y) + (z * z));
 }
 
-#ifdef NON_MATCHING
 typedef struct L119_TextureNode {
     u8 pad0[0xA];
     u8 unkA;
@@ -883,7 +882,9 @@ typedef struct L119_TextureNode {
 typedef struct L119_EffectView {
     u8 pad0[0x21];
     u8 unk21;
-    u8 pad22[0x30E];
+    u8 pad22[6];
+    Vtx unk28[48];
+    u8 pad328[8];
     L119_TextureNode *unk330;
     u8 pad334[0xC];
     f32 unk340;
@@ -896,8 +897,7 @@ typedef struct L119_EffectView {
     u8 unk36D;
     u8 unk36E;
     u8 unk36F;
-    void *unk370;
-    u8 pad374[0xC];
+    void *unk370[4];
     s32 unk380;
     u8 pad384[4];
     s16 unk388;
@@ -937,7 +937,6 @@ Gfx *func_80715E94(L119_EffectView *arg0, Gfx *arg1, s16 arg2) {
     f32 colorGreen = 1.0f;
     f32 colorBlue = 1.0f;
     Gfx *glist;
-    L119_EffectView *cursor;
 
     if (arg0->unk38C & 0x50) {
         return arg1;
@@ -991,28 +990,27 @@ Gfx *func_80715E94(L119_EffectView *arg0, Gfx *arg1, s16 arg2) {
     }
     L119_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)arg0 + (D_807FC929 << 7) + (D_807444FC << 6) + 0x128));
 
-    for (i = 0, cursor = arg0; i < arg0->unk380; i++) {
-        if (D_807F6009 != 5 || D_807F600C != (s32)cursor->unk370) {
+    for (i = 0; i < arg0->unk380; i++) {
+        if (D_807F6009 != 5 || D_807F600C != (s32)arg0->unk370[i]) {
             L119_WRITE_GFX(glist++, 0xE7000000, 0);
             switch (arg0->unk330->unkB) {
                 case 0:
-                    gDPLoadTextureBlock_4b(glist++, cursor->unk370, arg0->unk330->unkA, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock_4b(glist++, arg0->unk370[i], arg0->unk330->unkA, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 1:
-                    gDPLoadTextureBlock(glist++, cursor->unk370, arg0->unk330->unkA, G_IM_SIZ_8b, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(glist++, arg0->unk370[i], arg0->unk330->unkA, G_IM_SIZ_8b, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 2:
-                    gDPLoadTextureBlock(glist++, cursor->unk370, arg0->unk330->unkA, G_IM_SIZ_16b, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(glist++, arg0->unk370[i], arg0->unk330->unkA, G_IM_SIZ_16b, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 3:
-                    gDPLoadTextureBlock(glist++, cursor->unk370, arg0->unk330->unkA, G_IM_SIZ_32b, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(glist++, arg0->unk370[i], arg0->unk330->unkA, G_IM_SIZ_32b, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
             }
-            D_807F600C = (s32)cursor->unk370;
+            D_807F600C = (s32)arg0->unk370[i];
         }
-        L119_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical((u8 *)arg0 + (i << 6) + 0x28));
+        L119_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(arg0->unk28 + (i << 2)));
         L119_WRITE_GFX(glist++, 0x06000206, 0x406);
-        cursor = (L119_EffectView *)((u8 *)cursor + 4);
     }
     L119_WRITE_GFX(glist++, 0xD8380002, 0x40);
     L119_WRITE_GFX(glist++, 0xE7000000, 0);
@@ -1029,7 +1027,3 @@ Gfx *func_80715E94(L119_EffectView *arg0, Gfx *arg1, s16 arg2) {
     D_807F6009 = 5;
     return arg1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80715E94.s")
-#endif
