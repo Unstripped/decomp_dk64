@@ -293,7 +293,6 @@ void actorGetMatrix(Beh7BB_Struct_760C *arg0, Beh7BB_MtxF arg1, s8 arg2) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct Col7B_ActorSub140 {
     s32 unk0;
     s32 unk4;
@@ -418,22 +417,17 @@ void func_806776A0(Actor *arg0, Actor *arg1, f32 *arg2, f32 *arg3, s8 arg4, s32 
                 *(f32 *)(p174 + 0xE4) = spE0 - sp70[2];
             }
             if (temp_s6->unk68 != 0) {
-                clamp = temp_s6->unk68 + 5;
-                D_807FB5D0 = clamp;
+                clamp = D_807FB5D0 = temp_s6->unk68 + 5;
                 if (arg6 < clamp) {
-                    D_807FB5D0 = arg6;
-                    clamp = arg6;
+                    clamp = D_807FB5D0 = arg6;
                 }
             } else {
-                clamp = arg5;
-                D_807FB5D0 = clamp;
+                clamp = D_807FB5D0 = arg5;
                 if (clamp < 0xF) {
-                    clamp = 0xF;
-                    D_807FB5D0 = 0xF;
+                    clamp = D_807FB5D0 = 0xF;
                 }
                 if (arg6 < clamp) {
-                    D_807FB5D0 = arg6;
-                    clamp = arg6;
+                    clamp = D_807FB5D0 = arg6;
                 }
             }
             sp8C[0] *= (f32)clamp / 8;
@@ -459,10 +453,6 @@ void func_806776A0(Actor *arg0, Actor *arg1, f32 *arg2, f32 *arg3, s8 arg4, s32 
     }
     arg1->unkFD = D_807FB547;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7BBD0/func_806776A0.s")
-#endif
 typedef struct Beh7BB_Target {
     u8 pad0[0x48];
     s16 unk48;

@@ -1,6 +1,5 @@
 #include "common.h"
 
-#ifdef NON_MATCHING
 typedef struct KaN5_Node {
     u8 pad0[0x10];
     s32 unk10;
@@ -75,7 +74,7 @@ u8 func_80674B90(KaN5_Actor *arg0, KaN5_Actor *arg1, f32 *arg2, f32 *arg3) {
     s32 j;
     f32 elemX_f;
     s32 pad2[1];
-    u8 foundCb;
+    s8 foundCb;
     u8 matched;
 
     cb = arg0->unk13C;
@@ -114,7 +113,7 @@ u8 func_80674B90(KaN5_Actor *arg0, KaN5_Actor *arg1, f32 *arg2, f32 *arg3) {
                 }
             }
             cb = cb->next;
-        } while (cb != NULL && !foundCb);
+        } while (cb != NULL && !(u8)foundCb);  // FAKE: s8 foundCb + (u8) read: keeps `foundCb = 1` off the shared u8 constant-1 web (li t2 ring temp) while the loop test stays lbu
     }
 
     if (D_807FB606 != 0) {
@@ -122,10 +121,6 @@ u8 func_80674B90(KaN5_Actor *arg0, KaN5_Actor *arg1, f32 *arg2, f32 *arg3) {
     }
     return matched;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/79890/func_80674B90.s")
-#endif
 
 typedef struct KaN5_NodeE14 {
     u8 pad0[0x10];
