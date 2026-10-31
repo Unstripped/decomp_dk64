@@ -735,7 +735,6 @@ u8 *arg1;
 #endif
 
 
-#ifdef NON_MATCHING
 typedef struct CollisionStaticTriIn {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
@@ -839,7 +838,7 @@ s32 func_8066DB40(void *arg0, void *arg1) {
     *(s64 *)&COLLISION_TRI_OUT->unk18 = *(s64 *)&sp28.unk18;
     COLLISION_TRI_OUT->unk20 = sp28.unk20;
 
-temp_a0 = COLLISION_TRI_IN->unk8;
+    temp_a0 = COLLISION_TRI_IN->unk8;
     temp_v1 = COLLISION_TRI_IN->unk2;
     if (temp_v1 < temp_a0) {
         COLLISION_TRI_OUT->unk24 = temp_v1;
@@ -847,36 +846,34 @@ temp_a0 = COLLISION_TRI_IN->unk8;
         COLLISION_TRI_OUT->unk24 = temp_a0;
     }
     temp_v1 = COLLISION_TRI_OUT->unk24;
-    temp_a0 = COLLISION_TRI_IN->unkE;
-    if (temp_v1 < temp_a0) {
+    temp_v0 = COLLISION_TRI_IN->unkE;
+    if (temp_v1 < temp_v0) {
         COLLISION_TRI_OUT->unk24 = temp_v1;
     } else {
-        COLLISION_TRI_OUT->unk24 = temp_a0;
+        COLLISION_TRI_OUT->unk24 = temp_v0;
     }
+    if (temp_a0 == 0) {} // FAKE: extends temp_a0 so it interferes with temp_v0 and takes $a0
 
-    temp_v0 = COLLISION_TRI_IN->unk8;
+    temp_a0 = COLLISION_TRI_IN->unk8;
     temp_v1 = COLLISION_TRI_IN->unk2;
+    if (temp_a0 < temp_v1) {
+        COLLISION_TRI_OUT->unk26 = temp_v1;
+    } else {
+        COLLISION_TRI_OUT->unk26 = temp_a0;
+    }
+    temp_v0 = COLLISION_TRI_IN->unkE;
+    temp_v1 = COLLISION_TRI_OUT->unk26;
     if (temp_v0 < temp_v1) {
+        if (temp_v0 == 0) {} // FAKE: extra use raises temp_v0 priority so it takes $v0
         COLLISION_TRI_OUT->unk26 = temp_v1;
     } else {
         COLLISION_TRI_OUT->unk26 = temp_v0;
-    }
-    temp_a0 = COLLISION_TRI_IN->unkE;
-    temp_v0 = COLLISION_TRI_OUT->unk26;
-    if (temp_a0 < temp_v0) {
-        COLLISION_TRI_OUT->unk26 = temp_v0;
-    } else {
-        COLLISION_TRI_OUT->unk26 = temp_a0;
     }
 
     return 1;
 #undef COLLISION_TRI_IN
 #undef COLLISION_TRI_OUT
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066DB40.s")
-#endif
 
 typedef struct CollisionBoxPlaneView {
     /* 0x00 */ s64 nx;
@@ -2598,7 +2595,6 @@ void actorUpdateSubActorOffsets(ActorTargetWork *arg0, u8 arg1) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct ActorBoxFlagsView {
     u8 pad0[0x60];
     u32 unk60;
@@ -2652,18 +2648,17 @@ volatile u8 arg4; // FAKE: reload arg4 from its stack home after the calls
     z[2] = (f32)box->unk44 / 8;
 
     v1[0] = x[2] - x[0];
-
+    v1[1] = y[2] - y[0];
+    v1[2] = z[2] - z[0];
     v2[0] = x[1] - x[0];
     v2[1] = y[1] - y[0];
-    v1[2] = z[2] - z[0];
-    v1[1] = y[2] - y[0];
     v2[2] = z[1] - z[0];
 
-    n[0] = (v1[1] * v2[2]) - (v2[1] * v1[2]);
-    n[1] = (v2[0] * v1[2]) - (v1[0] * v2[2]);
+    n[0] = (v1[1] * v2[2]) - (v1[2] * v2[1]);
+    n[1] = (v1[2] * v2[0]) - (v1[0] * v2[2]);
     n[2] = (v1[0] * v2[1]) - (v1[1] * v2[0]);
 
-    inv_len = 1.0f / sqrtf((n[2] * n[2]) + ((n[0] * n[0]) + (n[1] * n[1])));
+    inv_len = 1.0f / sqrtf((n[0] * n[0]) + (n[1] * n[1]) + (n[2] * n[2]));
     *arg1 = n[0] * inv_len;
     *arg2 = n[1] * inv_len;
     *arg3 = n[2] * inv_len;
@@ -2678,10 +2673,6 @@ volatile u8 arg4; // FAKE: reload arg4 from its stack home after the calls
         sub->unkB4 = D_807FB5CC;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80671528.s")
-#endif
 
 s32 actorGetPlayerThreshold(ActorTargetWork *arg0) {
     ActorTargetSub174 *sub;

@@ -1,23 +1,5 @@
-// func_8066E2C0 (src/global/70FD0.c): stage 4 (frame 0x98 + callee-saved set equal, text 24 diff lines, only copy-loop register roles: target k=v1,dst walker=a1,j=a0,src=v0; ours k=a1,dst=v1; uopt priority src,dst(255)>j(155)>k(115), target needs k>dst). Matched all else: copy loops with f32 *t0 indexed ((s32*)... t0[k], t0[k+1]) reproduce target's unfolded sll/addu; actorSub140Alloc cast needed. Tried: all 120 decl orders, all 120 statement orders, deadsweep-style if(var){} at every position x8 vars (no change), shared function-level k/j, all-index forms (IV becomes byte offset, worse), permuter 800s (best 165 baseline 180, no match).
-typedef struct Col7C_Ent58 {
-    /* 0x00 */ f32 x[9];
-    /* 0x24 */ f32 out[9];
-    /* 0x48 */ s32 unk48;
-    /* 0x4C */ s32 unk4C;
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ s16 unk54;
-    /* 0x56 */ u8 unk56;
-    /* 0x57 */ u8 pad57;
-} Col7C_Ent58; // size = 0x58
-
-typedef struct Col7C_Ent2C {
-    /* 0x00 */ u8 pad0[0x28];
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ u8 unk2A;
-    /* 0x2B */ u8 pad2B;
-} Col7C_Ent2C; // size = 0x2C
-
-typedef struct Col7C_Node2C {
+// func_8066E2C0 (src/global/70FD0.c): stage 4, 20-line text diff once actorSub140Alloc returns ActorSub140* (plain jal); only copy-loop reg roles (target src=v0,k=v1,j=a0,dst=a1). pure-index loop gives natural IVs but dst=v0,src=v1,k=a1
+typedef struct ActorSphereNodeSrc {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -27,19 +9,19 @@ typedef struct Col7C_Node2C {
     /* 0x24 */ s16 unk24;
     /* 0x26 */ u8 unk26;
     /* 0x27 */ u8 unk27;
-    /* 0x28 */ struct Col7C_Node2C *next;
-} Col7C_Node2C;
+    /* 0x28 */ struct ActorSphereNodeSrc *next;
+} ActorSphereNodeSrc;
 
-typedef struct Col7C_Node20 {
+typedef struct ActorPointNode {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ u8 padC[0xC];
     /* 0x18 */ s32 unk18;
-    /* 0x1C */ struct Col7C_Node20 *next;
-} Col7C_Node20;
+    /* 0x1C */ struct ActorPointNode *next;
+} ActorPointNode;
 
-typedef ActorSub140 *(*Col7C_AllocFn)(f32, f32, f32, f32, f32, f32, s32, s32, s32);
+typedef ActorSub140 *(*ActorSub140AllocFn)(f32, f32, f32, f32, f32, f32, s32, s32, s32);
 
 ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8, u8 *arg9) {
     register ActorSub140 *sub140;
@@ -52,10 +34,10 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
     void *sp54;
     s32 pad50;
     u8 *a3;
-    Col7C_Node2C *node;
-    Col7C_Node20 *subnode;
+    ActorSphereNodeSrc *node;
+    ActorPointNode *subnode;
 
-    sub140 = ((Col7C_AllocFn)actorSub140Alloc)(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    sub140 = ((ActorSub140AllocFn)actorSub140Alloc)(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
     if (arg9 != NULL) {
         s3 = *(s32 *)arg9;
         arg9 += 4;
@@ -64,7 +46,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if (s3 > 0) {
             one = 1;
             do {
-                node = (Col7C_Node2C *)heapAlloc(sizeof(Col7C_Node2C));
+                node = (ActorSphereNodeSrc *)heapAlloc(sizeof(ActorSphereNodeSrc));
                 node->next = NULL;
                 node->unk0 = *(f32 *)arg9;
                 node->unk4 = *((f32 *)arg9 + 1);
@@ -88,7 +70,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if (s3 > 0) {
             s2 = &sub140->unk90;
             do {
-                subnode = (Col7C_Node20 *)heapAlloc(sizeof(Col7C_Node20));
+                subnode = (ActorPointNode *)heapAlloc(sizeof(ActorPointNode));
                 subnode->next = NULL;
                 subnode->unk0 = *(f32 *)arg9;
                 subnode->unk4 = *((f32 *)arg9 + 1);
@@ -106,8 +88,8 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         arg9 += 4;
         sub140->unk9C = (s32)s2;
         if (s2 != NULL) {
-            sub140->unkA0 = (a3 = heapAlloc((s32)s2 * sizeof(Col7C_Ent2C)));
-            sub140->unkA4 = (s32)heapAlloc((s32)s2 * sizeof(Col7C_Ent58));
+            sub140->unkA0 = (a3 = heapAlloc((s32)s2 * sizeof(ActorSub140SrcTri)));
+            sub140->unkA4 = (s32)heapAlloc((s32)s2 * sizeof(ActorSub140Tri));
             sub140->unkA8 = sub140->unkA4;
         }
         if ((s32)s2 > 0) {
@@ -138,7 +120,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         arg9 += 4;
         sub140->unk94 = (s32)s2;
         if (s2 != NULL) {
-            tmp = heapAlloc((s32)s2 * sizeof(Col7C_Ent58));
+            tmp = heapAlloc((s32)s2 * sizeof(ActorSub140Tri));
             sub140->unk98 = tmp;
             sp54 = tmp;
         }
