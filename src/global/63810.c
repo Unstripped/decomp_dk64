@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/63810/func_8065EB10.s")
-
 typedef struct QueuedLightEntry {
     s16 unk0;
     u8 pad2[2];
@@ -19,11 +17,100 @@ typedef struct QueuedLightEntry {
 } QueuedLightEntry;
 
 extern s16 D_80748A84;
+extern QueuedLightEntry D_807F9070[];
+
+typedef struct Mix61KeyFrame {
+    f32 unk0;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 pad7;
+    s16 unk8;
+    s16 unkA;
+} Mix61KeyFrame;
+
+typedef struct Mix61KeyFrameSet {
+    Mix61KeyFrame sub[5];
+} Mix61KeyFrameSet;
+
+extern Mix61KeyFrameSet D_80748430[];
+extern s32 D_8076A064;
+
+void func_8065EB10(u8 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5, f32 arg6, s16 arg7) {
+    u8 count;
+    s32 i;
+    s32 total;
+    s32 temp_hi;
+    s32 accum;
+    s32 next;
+    f32 t;
+    f32 factor;
+    f32 base;
+    f64 d6;
+
+    arg0 = arg0 - 1;
+    if (D_80748A84 != 0x1E) {
+        for (i = 0; i < D_80748A84; i++) {
+            if (arg1 == D_807F9070[i].unk0) {
+                return;
+            }
+        }
+
+        total = 0;
+        count = 0;
+        for (i = 0; D_80748430[arg0].sub[i].unkA != 0; count++, i++) {
+            total += D_80748430[arg0].sub[i].unkA;
+        }
+
+        temp_hi = (arg1 + D_8076A064) % total;
+        accum = D_80748430[arg0].sub[0].unkA;
+        i = 1;
+        while (temp_hi >= accum) {
+            accum += D_80748430[arg0].sub[i].unkA;
+            i++;
+        }
+
+        i--;
+        accum -= D_80748430[arg0].sub[i].unkA;
+        temp_hi -= accum;
+        t = (f32)temp_hi / (f32)D_80748430[arg0].sub[i].unkA;
+        next = i + 1;
+        if (next == count) {
+            next = 0;
+        }
+
+
+        d6 = arg6;
+        if (d6 < 0.8) {
+            factor = 1.0f;
+        } else {
+            factor = 1.0 - ((d6 - 0.8) / 0.19999999999999996);
+        }
+
+        base = D_80748430[arg0].sub[i].unk0 + (D_80748430[arg0].sub[next].unk0 - D_80748430[arg0].sub[i].unk0) * t;
+        base = base * factor;
+
+        D_807F9070[D_80748A84].unk16 = (u32)(((f32)(u32)D_80748430[arg0].sub[i].r + (f32)(D_80748430[arg0].sub[next].r - D_80748430[arg0].sub[i].r) * t) * base);
+        D_807F9070[D_80748A84].unk17 = (u32)(((f32)(u32)D_80748430[arg0].sub[i].g + (f32)(D_80748430[arg0].sub[next].g - D_80748430[arg0].sub[i].g) * t) * base);
+        D_807F9070[D_80748A84].unk18 = (u32)(((f32)(u32)D_80748430[arg0].sub[i].b + (f32)(D_80748430[arg0].sub[next].b - D_80748430[arg0].sub[i].b) * t) * base);
+        D_807F9070[D_80748A84].unk10 = (s32)((f32)D_80748430[arg0].sub[i].unk8 + (f32)(D_80748430[arg0].sub[next].unk8 - D_80748430[arg0].sub[i].unk8) * t);
+        D_807F9070[D_80748A84].unk4 = arg2;
+        D_807F9070[D_80748A84].unk8 = arg3;
+        D_807F9070[D_80748A84].unkC = arg4;
+        D_807F9070[D_80748A84].unk12 = arg7;
+        D_807F9070[D_80748A84].unk14 = arg5;
+        D_807F9070[D_80748A84++].unk0 = arg1;
+    }
+}
+
+
+
+
+
 extern s32 D_8076A0A8;
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
 extern s32 D_807FBB68;
-extern QueuedLightEntry D_807F9070[];
 
 void lightSetFlags(u8);
 void lightSetTargetId(s16);

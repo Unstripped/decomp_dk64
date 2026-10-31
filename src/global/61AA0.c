@@ -158,7 +158,6 @@ typedef struct {
 extern BillboardData D_807F7F10[16];
 extern u8 D_807444FC;
 
-#ifdef NON_MATCHING
 void billboardSetVertex(s16 *, s16, s16, s16, s16);
 void *assetLoad(s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
@@ -198,8 +197,9 @@ void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
         goto block_21;
     }
     i = 0; found = FALSE;
+    if ((u32)D_807F8E90[i].unk0 == 0xFFFFFFFF) {} // FAKE: dead read of the typed -1 pushes its constant load ahead of the loop-2 induction setup
     while ((i < 4) && !found) {
-        if ((D_807F8E90[i].unk0 & 0xFFFFFFFF) == -1) { // FAKE: no-op mask gives this -1 its own constant candidate
+        if ((u32)D_807F8E90[i].unk0 == 0xFFFFFFFF) {
             found = TRUE;
         } else {
             i++;
@@ -272,10 +272,6 @@ block_21:
     D_807F8E88++;
     D_807F8E8A = 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/61AA0/func_8065D254.s")
-#endif
 
 void billboardSetVertex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     arg0[0] = arg1;
