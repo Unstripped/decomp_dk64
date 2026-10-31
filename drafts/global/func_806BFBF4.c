@@ -1,4 +1,4 @@
-// func_806BFBF4 (src/global/C4620.c): Stage 5-6 (regalloc only): ~91 structural diff lines of 1545 (was ~117), frame 152/saved regs/size within +9 insns. Needs s32 func_8072881C (C4620.c later decl 'void' -> 's32'; other TUs already s32) else cast gives jalr. FIXED this round: local decl order j,t,i first (puts i at 146(sp)); timers 1-3 share f32 ratio, timer4 ratio2 (fixes f0/f2 swap); cases 12/14 store order unkE,unk10,unk1E. REMAINING: (1) const-3 live range lump split after case 6: our T6 &D_807FDCA0 takes a0 (target a1) so ours remats li a0,3 at all later case tails (+9 insns); (2) entry: li 255 not hoisted above bnez, lw s2 not in delay slot; (3) continue edge reaches addiu not lh (target latch starts with lh a2); (4) particle loop: &sp70 CSE takes s4 instead of const 254 (priority 254 adjsave -1.17 vs &sp70); (5) case 0xD hoists &D_807FDC94 above beqz (node lands a1 not v0). Tried without effect: local decl permutations of ptr/f32 locals, node var removal, f32 sp[3] array, do-while/if==3 loop forms, break/default, 0xFE local var, 600+840s permuter (best is a dead u64 local, no hint).
+// func_806BFBF4 (src/global/C4620.c): QL5: stage 5-6, regalloc only. Needs s32 func_8072881C (both decls; plain fdiff of file stays OK). Now: const-3 a0 live range covers non-call cases (was 17 li a0,3 restores, now 11 = target), size 17920 vs 17904, ~21 non-register diff lines of which most are the t-ring cascade from the entry. KEY: uopt const lrs: single-use consts in loop 1 + function-spanning const lrs (254 via early 'unk58 != 0xFE', 255 stores) shrink the const-3/&D_807478F4 pieces; 'unk58 != 0xFEU' fixes it. deadsweep: if (D_807FDCA0) {} after case 7 and if (D_807FDC94) {} before unk2A block. REMAINING: (1) entry: li t8,255 not hoisted above bnez (lw s2 not in delay slot) -> t-ring offset cascade; (2) latch: continue edge bnel delay is addiu not lh a2; (3) particle loop: ours s4=&sp70 hoisted, target s4=0xFE and li a1,4/addiu a2,a3 computed once before the if; (4) case 6 T6 takes a2 not a1 (target restores a1 &D_807478F4 after it).
 typedef struct LgBFInner {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -144,14 +144,14 @@ extern LgBFDCA0 *D_807FDCA0;
 
 void func_806F09F0(Actor *, u16);
 void actorSetTargetSpeed(Actor *, s32);
-void func_80614EBC(void *, s32);
+void actorScriptStart(void *, s32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
-s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
+s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_80723320(s32, s32);
 void func_8072334C(s32, s32);
 void func_80723484(s32);
-void func_807238D4(s32, f32 *, f32 *, f32 *);
+void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 s32 func_80723C98();
 void actorSetUniformScale(Actor *, f32);
 void *spawnNodeActivate(s32, s32);
@@ -163,7 +163,7 @@ void func_8072E320(f32);
 s32 mathAngleLerp(s16, s16, f32);
 void lightUpdateFromActorLighting(void *, void *, void *);
 void heapFree(void *);
-s32 func_80611A44(void);
+s32 randomNonNegative(void);
 void func_80714950(s32);
 void func_8071498C(void *);
 void func_80714998(s32);
@@ -208,7 +208,7 @@ void func_806BFBF4(void) {
         }
         LgBV->unkC4 = D_807502E8;
     }
-    if (D_807444EC != 1 && D_8076A0A8 != 0x4C && D_807FBB40->unk58 != 0xFE) {
+    if (D_807444EC != 1 && D_8076A0A8 != 0x4C && D_807FBB40->unk58 != 0xFEU) { // FAKE: unsigned literal keeps the early 254 const out of the loop-spanning 254 live range
         LgBV->unk60 &= 0xEFFFFFFF;
         return;
     }
@@ -226,7 +226,7 @@ void func_806BFBF4(void) {
                 state->unk22 = cmd->unk6;
                 break;
             case 24:
-                state->unk30 = func_80723020(D_807FBB40, state->unk2D, 0, 0.0f, 0.0f, 0.0f, 0);
+                state->unk30 = pathPlaybackStart(D_807FBB40, state->unk2D, 0, 0.0f, 0.0f, 0.0f, 0);
                 state->unk31 = cmd->unk4;
                 state->unk32 = cmd->unk6;
                 func_80723284(state->unk30, state->unk2E / cmd->unk4);
@@ -237,7 +237,7 @@ void func_806BFBF4(void) {
                 t = cmd->unk4;
                 state->unk2D = t;
                 state->unk2E = cmd->unk6;
-                state->unk2F = func_80723020(D_807FBB40, t & 0xFF, 0, 0.0f, 0.0f, 0.0f, 0);
+                state->unk2F = pathPlaybackStart(D_807FBB40, t & 0xFF, 0, 0.0f, 0.0f, 0.0f, 0);
                 func_80723284(state->unk2F, state->unk2E);
                 func_80723320(state->unk2F, 1);
                 func_8072334C(state->unk2F, 1);
@@ -248,19 +248,20 @@ void func_806BFBF4(void) {
                 LgBV->unkC0 = cmd->unk4;
                 break;
             case 7:
+                if (D_807FDCA0) {} // FAKE: deadsweep
                 LgBV->unkB8 = cmd->unk4;
                 LgBV->unkEE = (cmd->unk6 << 12) / 360;
                 break;
             case 2:
                 LgBV->unk4->unk0->unk10 = -1;
-                func_80614EBC(D_807FBB40, D_80747750[cmd->unk4]);
+                actorScriptStart(D_807FBB40, D_80747750[cmd->unk4]);
                 if (cmd->unk6 != 0) {
                     scriptSetActorRampTarget(D_807FBB40, cmd->unk6 / 100.0, 0.0f);
                 }
                 break;
             case 3:
                 if (LgBV->unk4->unk64 != 0) {
-                    func_80614EBC(D_807FBB40, 0);
+                    actorScriptStart(D_807FBB40, 0);
                 }
                 controllerAnimSetState(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 0.0f);
                 scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
@@ -268,7 +269,7 @@ void func_806BFBF4(void) {
                 break;
             case 13:
                 if (LgBV->unk4->unk64 != 0) {
-                    func_80614EBC(D_807FBB40, 0);
+                    actorScriptStart(D_807FBB40, 0);
                 }
                 controllerAnimSetState(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 8.0f);
                 scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
@@ -406,18 +407,19 @@ void func_806BFBF4(void) {
         LgBV->unkE6 = mathAngleLerp(state->unk4, state->unk2, ratio);
         LgBV->unkEE = LgBV->unkE6;
     }
+    if (D_807FDC94) {} // FAKE: deadsweep
     if (state->unk2A != 0) {
         ratio2 = (f32)(u32)state->unk2A-- / (f32)(u32)state->unk29;
         actorSetUniformScale(D_807FBB40, LgBS90->unk30 + (state->unk14 - LgBS90->unk30) * ratio2);
     }
     if (state->unk30 != 0xFF) {
         for (j = 0; j < state->unk31 && state->unk30 != 0xFF; j++) {
-            sp74 = (((func_80611A44() >> 15) % 32767) % 51 + 0x4B) * 0.01;
+            sp74 = (((randomNonNegative() >> 15) % 32767) % 51 + 0x4B) * 0.01;
             if (state->unk30 == 0xFE) {
                 actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68);
             } else if (func_80723C98(state->unk30, 4, &sp70, &sp6C) != 0) {
                 func_80723484(state->unk30);
-                func_807238D4(state->unk30, &sp70, &sp6C, &sp68);
+                pathPlaybackGetPosition(state->unk30, &sp70, &sp6C, &sp68);
                 sp6C += 10.0f;
             } else {
                 state->unk30 = 0xFF;
@@ -429,7 +431,7 @@ void func_806BFBF4(void) {
                 col = &D_80747B00[state->unk32 * 3u];
                 func_807149C8(col[0], col[1], col[2], 0xFF);
                 func_8071498C(func_80717D4C);
-                func_80714950(-10 - (func_80611A44() >> 15) % 30);
+                func_80714950(-10 - (randomNonNegative() >> 15) % 30);
                 func_80714CC0(D_80746B80[state->unk33], (f32)state->unk22 * 0.01 * sp74, sp70, sp6C, sp68);
             }
         }
@@ -448,7 +450,7 @@ void func_806BFBF4(void) {
             break;
         case 0xC:
             func_80723484(state->unk2F);
-            func_807238D4(state->unk2F, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
+            pathPlaybackGetPosition(state->unk2F, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
             func_8072E320(8.0f);
             break;
         case 0xE:

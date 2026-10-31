@@ -330,7 +330,7 @@ void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 s32 func_80723C98();
 void actorSetUniformScale(Actor *, f32);
 void *spawnNodeActivate(s32, s32);
-void func_8072881C(s32, void *);
+s32 func_8072881C(s32, void *);
 void actorApplyGravity(void);
 void func_8072A450(void);
 void func_8072DC7C(s32);
@@ -383,7 +383,7 @@ void func_806BFBF4(void) {
         }
         LgBV->unkC4 = D_807502E8;
     }
-    if (D_807444EC != 1 && D_8076A0A8 != 0x4C && D_807FBB40->unk58 != 0xFE) {
+    if (D_807444EC != 1 && D_8076A0A8 != 0x4C && D_807FBB40->unk58 != 0xFEU) { // FAKE: unsigned literal keeps the early 254 const out of the loop-spanning 254 live range
         LgBV->unk60 &= 0xEFFFFFFF;
         return;
     }
@@ -423,6 +423,7 @@ void func_806BFBF4(void) {
                 LgBV->unkC0 = cmd->unk4;
                 break;
             case 7:
+                if (D_807FDCA0) {} // FAKE: deadsweep
                 LgBV->unkB8 = cmd->unk4;
                 LgBV->unkEE = (cmd->unk6 << 12) / 360;
                 break;
@@ -581,6 +582,7 @@ void func_806BFBF4(void) {
         LgBV->unkE6 = mathAngleLerp(state->unk4, state->unk2, ratio);
         LgBV->unkEE = LgBV->unkE6;
     }
+    if (D_807FDC94) {} // FAKE: deadsweep
     if (state->unk2A != 0) {
         ratio2 = (f32)(u32)state->unk2A-- / (f32)(u32)state->unk29;
         actorSetUniformScale(D_807FBB40, LgBS90->unk30 + (state->unk14 - LgBS90->unk30) * ratio2);
@@ -670,7 +672,7 @@ void func_806BFBF4(void) {
             break;
     }
     func_8072A450();
-    if ((LgBS98->unk46 & 0x1000) && ((s32 (*)(s32, void *))func_8072881C)(0, LgBS90->unk28) != 0 && (state->unk0 == 1 || state->unk0 == 9 || state->unk0 == 0x68)) {
+    if ((LgBS98->unk46 & 0x1000) && func_8072881C(0, LgBS90->unk28) != 0 && (state->unk0 == 1 || state->unk0 == 9 || state->unk0 == 0x68)) {
         func_8072881C(0x81, LgBS90->unk28);
     }
 }
@@ -1162,7 +1164,7 @@ s16 func_806CC190(s16, s16, f32);
 void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
 void func_8072E1A4(s32, void *);
 s32 actorIsTargetWithinDistance(s32);
-void func_8072881C(s32, void *);
+s32 func_8072881C(s32, void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void camStartPath(void *, s32, s32);
 s32 camIsCutsceneActive(void);
