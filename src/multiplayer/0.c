@@ -321,18 +321,19 @@ Gfx *mpDrawGlyph(Gfx *glistp, s16 *arg1, s16 arg2, void *arg3, s32 arg4) {
     return glistp;
 }
 
-#ifdef NON_MATCHING
 Gfx *func_800246EC(Gfx *glistp, MpControllerState *arg1, f32 arg2) {
     s16 spAE;
     s32 i;
     s32 nxt;
+    s32 off;
     s32 sc;
-    s32 tmp;
     s32 half;
     s16 y;
     s32 alpha;
     MpViewport *sub;
     MpPlayer *plr;
+    MpScore *scp;
+    MpControllerState *p;
 
     gDPPipeSync(glistp++);
     gSPDisplayList(glistp++, &D_1000118);
@@ -342,11 +343,13 @@ Gfx *func_800246EC(Gfx *glistp, MpControllerState *arg1, f32 arg2) {
     gDPSetTextureFilter(glistp++, G_TF_POINT);
     gDPSetTexturePersp(glistp++, G_TP_NONE);
     i = 0;
-    if (D_807FC928 > 0) {
+    if ((s32) D_807FC928 > 0) {
+        p = arg1;
+        off = 0;
         do {
-            sub = arg1->unk20[i];
+            sub = p->unk20[0];
             alpha = 0xFF;
-            plr = &D_807FC924[i];
+            plr = (MpPlayer *)((u8 *)D_807FC924 + off);
             if (plr->unk2EA != 0) {
                 alpha = plr->unk4->unk128 & 0xFF;
                 if (plr->unk4->unk128 >= 0x100) {
@@ -359,38 +362,41 @@ Gfx *func_800246EC(Gfx *glistp, MpControllerState *arg1, f32 arg2) {
                 nxt = i + 1;
             } else {
                 gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
-                tmp = D_807FC950[i].unk2FB;
+                scp = &D_807FC950[i];
+                if (scp != 0) {}  // FAKE: dead use makes scp a cross-block temp (steers uopt)
                 if (D_80750AB8 == 0) {
                     nxt = i + 1;
                     spAE = sub->unk8 - 0x30;
                 } else {
                     nxt = i + 1;
                     spAE = (s16) ((f32) nxt * arg2 - 20.0);
+                    if (D_1000118) {}  // FAKE: deadsweep dead statement (steers uopt)
                 }
                 y = sub->unk6 + 8;
-                if (tmp < 0) {
+                half = scp->unk2FB;
+                if (half < 0) {
                     sc = 0;
                 } else {
-                    sc = tmp;
+                    sc = half;
                 }
                 half = sc / 2;
                 if (half != 0) {
                     glistp = mpDrawGlyph(glistp, &spAE, y, arg1->unk44, half);
                 }
-                tmp = sc - half * 2;
-                if (tmp != 0) {
-                    glistp = mpDrawGlyph(glistp, &spAE, y, arg1->unk48, tmp);
+                alpha = sc - half * 2;
+                if (alpha != 0) {
+                    glistp = mpDrawGlyph(glistp, &spAE, y, arg1->unk48, alpha);
                 }
+                if (D_807FC928 == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
             }
             i = nxt;
-        } while (nxt < D_807FC928);
+            p = (MpControllerState *)((u8 *)p + 4);
+            off += 0x2F0;
+        } while (nxt < (s32) D_807FC928);
+        if (D_807FC928 == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
     }
     return glistp;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/multiplayer/nonmatchings/0/func_800246EC.s")
-#endif
 
 int _sprintf(char *, const char *, ...);
 s32 textGetStringWidth(s32, char *);
