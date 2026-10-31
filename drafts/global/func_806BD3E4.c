@@ -1,19 +1,18 @@
-// func_806BD3E4 (src/global/C1E70.c): Stage 6, 2 insn diffs left (li v0,-1 / sb v0,D_807506B4 use t9 not v0 in the -1 store). Fixed vs old draft: (1) actorSpawn(0x73,0xC4,&D_807FBB40) with K&R 's32 actorSpawn();' - 3rd arg gives the else-block &D_807FBB40 range lu->reg=a2, so uopt picks a2 not v0 (preference, not forbidden set); (2) 'D_807506B4 = 0; actorSpawn(...)' on ONE source line fixes sh zero,0x26(sp)/sb zero delay-slot order (as1 does not reorder across .loc lines); (3) 'sp2B = 0xF; sp28 = 0x28;' on ONE line fixes li t6/t7 order AND sh/sb store order (separate lines gave li or store order wrong, never both). Tried for -1: n=-1 local, idx/v3/sp28 locals, ~0, 0xFF, (s8), *cnt=-1, duplicate stores, same-line with calls, s32 returns on flagSet/sfxPlayOnFreeSlot, 10 min permuter (-j2): none changes t9 (copy-prop folds the constant; target v0 = bottom-pool temp, not top-down store-constant temp).
-/* NOTE: needs line 14 of C1E70.c changed from 's32 actorSpawn(s32, s32);' to 's32 actorSpawn();' (3rd arg &D_807FBB40 pins the else-block &D_807FBB40 into a2). */
+// func_806BD3E4 (src/global/C1E70.c): Stage 6, 2 insn diffs left (li v0,-1 / sb v0,D_807506B4 use t9 not v0 in the -1 store).
 extern s16 D_8076A0A6;
 extern s8 D_807506B4;
 extern s8 D_807506A8[];
 extern f32 D_807FC8D4;
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 
 s32 func_806BDD2C(void);
 void func_8067B238(void *, void *, f32);
-s32 func_80614EBC(void *, s32);
+s32 actorScriptStart(void *, s32);
 void actorUpdateModelMatrix(void *, s32);
-s32 func_8061CC40(void *, s32, s32);
+s32 camStartPath(void *, s32, s32);
 s32 currentActorTestClearFlag();
-s32 func_8061CB50(void);
-void func_8061F0B0(s32, s32, s32);
+s32 camIsCutsceneActive(void);
+void camStartShake(s32, s32, s32);
 s32 sfxAllocateChannel(s32, f32);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void flagSet(s16, s32, s32);
@@ -81,14 +80,14 @@ void func_806BD3E4(void) {
     D_807FC8D4 = dx * dx + dz * dz;
     switch (D_807FBB40->unk154) {
         case 1:
-            func_80614EBC(D_807FBB40, 0x2EF);
+            actorScriptStart(D_807FBB40, 0x2EF);
             D_807FBB40->unk154 = 2;
-            func_8061CC40(D_807FBB4C, 2, 1);
+            camStartPath(D_807FBB4C, 2, 1);
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 sfxAllocateChannel(0x7D, 1.0f);
-                func_80614EBC(D_807FBB40, 0x2F1);
+                actorScriptStart(D_807FBB40, 0x2F1);
                 D_807FBB40->unk154 = 3;
                 D_807FBB40->unk155[0] = 0;
             }
@@ -100,13 +99,13 @@ void func_806BD3E4(void) {
             }
             break;
     }
-    if (func_8061CB50() == 0) {
+    if (camIsCutsceneActive() == 0) {
         if (((NmBD3E4Sub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
-            func_80614EBC(D_807FBB40, 0x2F0);
+            actorScriptStart(D_807FBB40, 0x2F0);
         }
     }
     if (sp28) {
-        func_8061F0B0(D_807F5D10, sp2B, sp28);
+        camStartShake(gCamActor, sp2B, sp28);
     }
     if (idx >= 0) {
         n = *cnt;
@@ -115,9 +114,7 @@ void func_806BD3E4(void) {
             D_807506B4 = n;
             if (D_807506A8[n] == -1) {
                 sfxPlayOnFreeSlot(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
-                flagSet(0x28, 1, 1);
-                flagSet(0x26, 1, 1);
-                D_807506B4 = -1;
+                flagSet(0x28, 1, 1); flagSet(0x26, 1, 1); D_807506B4 = -1;
             }
         } else {
             D_807506B4 = 0;

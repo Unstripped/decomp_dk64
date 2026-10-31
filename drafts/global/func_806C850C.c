@@ -1,4 +1,4 @@
-// func_806C850C (src/global/CC800.c): func_806C850C stage 6 (Nm3CC800): regalloc only, ~88 diff lines. u32 sel = arg1 gives single 'andi sel,a1,0xff' reg (no param copy), -new_var keeps -1 from folding to 255; extern volatile G00Slot34 D_807FD610[] + array accesses reproduce uncached slot loads. Remaining: uopt colors &D_807FBB48 const (adjsave 2.25=9/4) before sel (8/7 per use, +1/7 per extra use) so sel=s3/D=s2 vs target sel=s2/D=s3; -1 stores share li a1 (s8 unk247 + literal -1: shared li but in a1 not v1); slot load temps f8/f10/f16..f18 vs target f10,f16,f18..f8. Tried: s8/u8/s16/u16/register sel types, K&R, direct param use (param uncolored, lbu from home), dead if(sel){}, sel^=0, dead tests of D, two slot pointers (CSE'd), permuter 600s (no gain).
+// func_806C850C (src/global/CC800.c): func_806C850C stage 6 (Nm3CC800): regalloc only, ~88 diff lines. uopt colors &D_807FBB48 (adjsave 2.25) before sel (1.14), swapping s2/s3. Volatile slot pointer reproduces uncached loads; -new_var keeps -1 from folding to 255.
 typedef struct G00Sub4 {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ u8 *unk1C;
@@ -95,7 +95,7 @@ typedef struct G00Slot34 {
 extern s32 controllerGetPort(s32);
 extern s32 D_8076A0A8;
 extern f32 D_8075C4B0;
-extern Actor *D_807F5D10;
+extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
 extern volatile G00Slot34 D_807FD610[];
@@ -107,12 +107,10 @@ void func_806C90C4(s32);
 void func_806C8984(void);
 void func_806C8D20(Actor *);
 
-/* Parked (stage 6, regalloc only): `u32 sel = arg1` gives the single `andi sel,a1,0xff` register, but uopt colors the
- * &D_807FBB48 constant (adjsave 2.25) before sel (1.14), so ours has sel=s3/D=s2 where the target has sel=s2/D=s3.
- * Volatile slot reads stand in for the target's uncached loads; `-new_var` keeps the -1 stores from folding to 255. */
 void func_806C850C(s32 arg0, u8 arg1) {
     G00Row *row;
     f32 flt;
+    volatile G00Slot34 *slot;
     u32 sel;
     s32 new_var;
 
@@ -154,7 +152,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     actorSpawn(0xBC, 0);
     G00_P->unk104 = D_807FBB44;
     if (sel == 0) {
-        D_807F5D10 = D_807FBB44;
+        gCamActor = D_807FBB44;
     }
     D_807FBB44->unk60 |= 0x100000;
     func_806C8D20(D_807FBB48);
@@ -193,14 +191,15 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_A48->unkDE = 0x400;
     G00_P->unk1B0 = 0;
     G00_P->unk1AC = 0;
-    D_807FD610[sel].unk14 = D_807FD610[sel].unk4;
-    D_807FD610[sel].unk18 = D_807FD610[sel].unk4;
-    D_807FD610[sel].unk1C = D_807FD610[sel].unk4;
-    D_807FD610[sel].unk22 = D_807FD610[sel].unk28;
-    D_807FD610[sel].unk24 = D_807FD610[sel].unk28;
-    D_807FD610[sel].unk26 = D_807FD610[sel].unk28;
-    D_807FD610[sel].unk20 = D_807FD610[sel].unk28;
-    D_807FD610[sel].unk10 = D_807FD610[sel].unk4;
+    slot = &D_807FD610[sel];
+    slot->unk14 = slot->unk4;
+    slot->unk18 = slot->unk4;
+    slot->unk1C = slot->unk4;
+    slot->unk22 = slot->unk28;
+    slot->unk24 = slot->unk28;
+    slot->unk26 = slot->unk28;
+    slot->unk20 = slot->unk28;
+    slot->unk10 = slot->unk4;
     func_806CFF9C(D_807FBB48);
     func_806C90C4(arg0);
     func_806C8984();
