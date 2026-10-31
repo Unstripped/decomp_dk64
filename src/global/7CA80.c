@@ -1373,7 +1373,6 @@ typedef struct DamageReactionContext {
 } DamageReactionContext;
 extern DamageReactionContext *D_807FD580;
 
-#ifdef NON_MATCHING
 extern u8 D_807FBB85;
 extern s32 D_80720E2C;
 void func_80686CF8(Actor *);
@@ -1382,82 +1381,75 @@ u8 func_806D0DE4(Actor *, Actor *);
 void func_807149FC(s32);
 void func_807149B8(s32);
 void func_8071498C(void *);
-void func_80714C08(void *, s32, Actor *, s32, s32);
+s32 func_80714C08(void *, s32, Actor *, s32, s32);
 void effectPulseSpinUpdate(void);
 void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
     s32 sp3C;
     s32 var_a2;
     void *sp24;
-    s32 temp_a3;
+    s32 temp_a3;  // FAKE: unused local pads the stack frame (target frame 0x40)
     s32 var_v0;
 
-    temp_a3 = arg2 & 0xFF;  // FAKE: unused local keeps the 8-byte frame slot (target frame 0x40)
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
-        if (((DamageReactionPlayerEntry *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
-            return;
-        }
-        sp3C = 0x2E;
-        if (arg2 != 0) {
-            sp3C = 0x30;
-        }
-        var_a2 = 1;
-        if (arg1 != NULL && arg1->unk58 == 0x116) {
-            func_80686CF8(arg0);
-            switch (arg1->unk155[0]) {
-            case 1:
-                var_a2 = 0;
-                D_807FD580->unk1F0 ^= 0x80;
-                break;
-            case 2:
-                sp3C = 0x27;
-                break;
-            case 3:
-                func_807149FC(0xF0);
-                func_807149B8(1);
-                sp24 = &effectPulseSpinUpdate;
-                func_8071498C(&effectPulseSpinUpdate);
-                func_80714C08(&D_80720E2C, 0x3ECCCCCD, arg0, 1, 2);
-                func_807149FC(0xF0);
-                func_807149B8(1);
-                func_8071498C(sp24);
-                func_80714C08(&D_80720E2C, 0x3EC28F5C, arg0, 5, 2);
-                func_807149FC(0xF0);
-                func_807149B8(1);
-                func_8071498C(sp24);
-                func_80714C08(&D_80720E2C, 0x3E99999A, arg0, 6, 2);
-                var_a2 = 0;
-                D_807FD580->unk1F0 |= 0x08000000;
-                break;
+        if (!(((DamageReactionPlayerEntry *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2))) {
+            sp3C = 0x2E;
+            var_a2 = 1;
+            if (arg2 != 0) {
+                sp3C = 0x30;
             }
-            D_807FD580->unk200 = 0xF0;
-        } else if (arg1 != NULL && ((arg1->unk5C & 1) || (arg1->unk5C & 4) || (arg1->unk5C & 2))) {
-            if (D_807FD580 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            if (func_80714608(0) != 0) {
-                if (func_806D0DE4(arg0, arg1) != 0) {
-                    sp3C = 0x31;
-                } else {
-                    var_v0 = 1;
-                    if (arg1->unk5C & 4) {
-                        var_v0 = 3;
-                    }
-                    if (arg1->unk154 != 0x28 && var_v0 < 3) {
-                        sp3C = 0x2B;
+            if (arg1 != NULL && arg1->unk58 == 0x116) {
+                func_80686CF8(arg0);
+                switch (arg1->unk155[0]) {
+                case 1:
+                    var_a2 = 0;
+                    D_807FD580->unk1F0 ^= 0x80;
+                    break;
+                case 2:
+                    sp3C = 0x27;
+                    break;
+                case 3:
+                    func_807149FC(0xF0);
+                    func_807149B8(1);
+                    sp24 = &effectPulseSpinUpdate;
+                    func_8071498C(&effectPulseSpinUpdate);
+                    func_80714C08(&D_80720E2C, 0x3ECCCCCD, arg0, 1, 2);
+                    func_807149FC(0xF0);
+                    func_807149B8(1);
+                    func_8071498C(sp24);
+                    func_80714C08(&D_80720E2C, 0x3EC28F5C, arg0, 5, 2);
+                    func_807149FC(0xF0);
+                    func_807149B8(1);
+                    func_8071498C(sp24);
+                    func_80714C08(&D_80720E2C, 0x3E99999A, arg0, 6, 2);
+                    var_a2 = 0;
+                    D_807FD580->unk1F0 |= 0x08000000;
+                    break;
+                }
+                D_807FD580->unk200 = 0xF0;
+            } else if (arg1 != NULL && ((arg1->unk5C & 1) || (arg1->unk5C & 4) || (arg1->unk5C & 2))) {
+                if (func_80714608(0) != 0) {
+                    if (func_806D0DE4(arg0, arg1) != 0) {
+                        sp3C = 0x31;
                     } else {
-                        sp3C = 0xE;
+                        var_v0 = 1;
+                        if (arg1->unk5C & 4) {
+                            var_v0 = 3;
+                        }
+                        if (arg1->unk154 != 0x28 && var_v0 < 3) {
+                            sp3C = 0x2B;
+                        } else {
+                            sp3C = 0xE;
+                        }
                     }
                 }
             }
-        }
-        if (var_a2 != 0) {
-            playerStateQueueCallback((s16)sp3C, (s32)arg1, D_807FC929);
+            if (var_a2 != 0) {
+                playerStateQueueCallback((s16)sp3C, (s32)arg1, D_807FC929);
+            }
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/playerHandleDamageReaction.s")
-#endif
 
 ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
     ActorCallbackNode *new_head = head;
