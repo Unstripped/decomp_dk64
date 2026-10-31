@@ -1,4 +1,4 @@
-// func_8062A3F0 (src/global/2DE90.c): stage 5: frame 0x128, size 225 insns, stack layout (r 0xCC,g 0x98,b 0x64,row 0x120) and all uopt s-reg/temps allocation match. Remaining ~24 diff lines: (1) final 'or t7,t6,t8' operands swapped in loop3/loop4 output expr (needs (u32) on G term to get lut order right; cast on partial gives same), (2) loop3 'andi t9,t8,0xff' (vg u8 conv) sits before 'move a3,t8' vs after 'sb t8,0(v1)', (3) scratch t6/t8 naming in loop4 loads. Key tricks: idx reused as running index in loop2 (idx=n/2; r[idx]..idx++; src++ after idx++), dst/src loaded 'src=G; dst=G;', zero loop r,g,b separate stmts, arrays declared r,g,b, 'u32' cast on lut[sumG]<<6.
+// func_8062A3F0 (src/global/2DE90.c): stage 5, 22 diff lines (shape=0, improved from 24/shape=2). Reordering loop 3 (g[idx] = vg before sumG += vg) matches andi/move/sb sequence. Remaining diff: loop 3 final 'or t7,t6,t8' operands swapped (t8 vs t6), which causes scratch t6/t8 register naming swap throughout loop 4. Permuter 4778 iters and deadsweep 5472 variants found no lower score.
 void func_8062A3F0(void) {
     u16 *src;
     s32 row;
@@ -62,10 +62,10 @@ void func_8062A3F0(void) {
                 r[idx] = vr;
                 vg = (pix >> 6) & 0x1F;
                 sumG -= g[idx];
+                g[idx] = vg;
                 sumG += vg;
                 vb = (pix >> 1) & 0x1F;
                 sumB -= b[idx];
-                g[idx] = vg;
                 b[idx] = vb;
                 idx++;
                 sumB += vb;
