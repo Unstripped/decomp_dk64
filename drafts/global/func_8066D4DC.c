@@ -1,4 +1,4 @@
-// func_8066D4DC (src/global/70FD0.c): stage 6, parked NON_MATCHING in 70FD0.c: frame 0xa8, all int temps/stack slots, 409 opcodes match; 51 diff lines of 410, only FP temp regs (sp68 adds f4/f8 dest, 2nd cross-product temps). K&R (arg0,arg1) required; file prototype becomes s16 func_8066D4DC(). single s16 var_v1 (no sp42), cross-product stmt order sp34,temp_ft5,sp38 + operand-swapped sp38/sp34 found by mutation search; permuter bogus (inserts dead call)
+// func_8066D4DC (src/global/70FD0.c): stage 6, parked NON_MATCHING in 70FD0.c: frame 0xa8, 409 opcodes, 42 diff lines (was 51-76): only FP temp regs (f4/f6/f8 swaps in the 2nd cross product/sp54/dist). K&R (arg0,arg1) required; s16 var_v1; first half natural (sp84*len, arg0[k]+sp78[k]); second half needs stmt order temp_ft5,sp34,sp38 with sp34 = sp90[1]*sp9C[0]-sp9C[1]*sp90[0], sp38 = sp90[0]*sp9C[2]-sp90[2]*sp9C[0] (natural order ft5,sp38,sp34 gives 242: reorder/forms only matter in the 2nd half; decl order irrelevant over 900 perms); expected asm reads as ft5=sp9C[1]*sp90[2]-sp90[1]*sp9C[2]; sp38=sp9C[2]*sp90[0]-sp90[2]*sp9C[0]; sp34=sp9C[0]*sp90[1]-sp90[0]*sp9C[1] but that literal form scores 242; annealing (operand swaps + independent stmt swaps, ~25k evals) plateaus at 42; sp68[1] add dest f8 vs f4 in the original was fixed by arg0[1]+sp78[1]
 f32 func_80611BB4(f32, f32);
 
 s16 func_8066D4DC(arg0, arg1)
@@ -40,7 +40,7 @@ u8 *arg1;
     len = 1.0f / len;
 
     sp78[0] = sp84[0] * len;
-    sp78[1] = len * sp84[1];
+    sp78[1] = sp84[1] * len;
     sp78[2] = sp84[2] * len;
 
     if (sp84[0] >= 0.0f) {
@@ -79,8 +79,8 @@ u8 *arg1;
     sp78[2] *= 20.0f;
 
     sp68[0] = arg0[0] + sp78[0];
-    sp68[1] = sp78[1] + arg0[1];
-    sp68[2] = (f32)arg0[2] + sp78[2];
+    sp68[1] = arg0[1] + sp78[1];
+    sp68[2] = arg0[2] + sp78[2];
 
     sp9C[0] = arg0[0] - arg0[3];
     sp9C[1] = arg0[1] - arg0[4];
@@ -91,12 +91,12 @@ u8 *arg1;
     sp90[2] = arg0[2] - arg0[8];
 
     temp_ft5 = sp9C[1] * sp90[2] - sp9C[2] * sp90[1];
+    sp34 = sp90[1] * sp9C[0] - sp9C[1] * sp90[0];
     sp38 = sp90[0] * sp9C[2] - sp90[2] * sp9C[0];
-    sp34 = sp90[1] * sp9C[0] - sp90[0] * sp9C[1];
 
-    sp54 = -((arg0[3] * temp_ft5) + ((f32)arg0[4] * sp38) + ((f32)arg0[5] * sp34));
+    sp54 = -((temp_ft5 * arg0[3]) + (sp38 * (f32)arg0[4]) + ((f32)arg0[5] * sp34));
 
-    dist = (temp_ft5 * sp68[0]) + (sp38 * sp68[1]) + (sp34 * sp68[2]) + sp54;
+    dist = (temp_ft5 * sp68[0]) + (sp38 * sp68[1]) + (sp68[2] * sp34) + sp54;
 
     if ((!(0.0 < (f64)dist) || !(0.0 < (f64)sp54)) && (!((f64)dist < 0.0) || !((f64)sp54 < 0.0))) {
         var_v1 -= 0x800;

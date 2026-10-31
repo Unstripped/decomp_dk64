@@ -659,7 +659,7 @@ u8 *arg1;
     len = 1.0f / len;
 
     sp78[0] = sp84[0] * len;
-    sp78[1] = len * sp84[1];
+    sp78[1] = sp84[1] * len;
     sp78[2] = sp84[2] * len;
 
     if (sp84[0] >= 0.0f) {
@@ -698,8 +698,8 @@ u8 *arg1;
     sp78[2] *= 20.0f;
 
     sp68[0] = arg0[0] + sp78[0];
-    sp68[1] = sp78[1] + arg0[1];
-    sp68[2] = (f32)arg0[2] + sp78[2];
+    sp68[1] = arg0[1] + sp78[1];
+    sp68[2] = arg0[2] + sp78[2];
 
     sp9C[0] = arg0[0] - arg0[3];
     sp9C[1] = arg0[1] - arg0[4];
@@ -710,12 +710,12 @@ u8 *arg1;
     sp90[2] = arg0[2] - arg0[8];
 
     temp_ft5 = sp9C[1] * sp90[2] - sp9C[2] * sp90[1];
+    sp34 = sp90[1] * sp9C[0] - sp9C[1] * sp90[0];
     sp38 = sp90[0] * sp9C[2] - sp90[2] * sp9C[0];
-    sp34 = sp90[1] * sp9C[0] - sp90[0] * sp9C[1];
 
-    sp54 = -((arg0[3] * temp_ft5) + ((f32)arg0[4] * sp38) + ((f32)arg0[5] * sp34));
+    sp54 = -((temp_ft5 * arg0[3]) + (sp38 * (f32)arg0[4]) + ((f32)arg0[5] * sp34));
 
-    dist = (temp_ft5 * sp68[0]) + (sp38 * sp68[1]) + (sp34 * sp68[2]) + sp54;
+    dist = (temp_ft5 * sp68[0]) + (sp38 * sp68[1]) + (sp68[2] * sp34) + sp54;
 
     if ((!(0.0 < (f64)dist) || !(0.0 < (f64)sp54)) && (!((f64)dist < 0.0) || !((f64)sp54 < 0.0))) {
         var_v1 -= 0x800;
@@ -2025,7 +2025,6 @@ s32 actorGetCollisionThreshold(CollisionActor *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066FE08.s")
 
-#ifdef NON_MATCHING
 typedef struct ActorSphereNodeQuery {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s32 unk10;
@@ -2082,7 +2081,7 @@ extern u8 D_807FB603;
 extern ActorHitRecord D_807FD614[];
 s32 hashTableLookup();
 s32 func_806738D0(s32, s32, s32, s32, s32, s32);
-s32 func_8067B1E0(Actor *);
+u8 func_8067B1E0(Actor *);
 void actorSetTargetAngleBounds();
 struct ActorPlaneContactView;
 struct ActorHitPlane;
@@ -2237,7 +2236,7 @@ Actor *arg0;
                 node = sub->unk8C;
                 while (node != NULL) {
                     if (node->unk26 != 0) {
-                        ret = (func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->unkF4, &arg0->unkF6) | ret) & 0xFF;
+                        i = func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->unkF4, &arg0->unkF6); ret = (ret | i) & 0xFF; // FAKE: i as call-result temp keeps 'or ret,ret,v0' operand order and no extra result var
                     }
                     node = node->unk28;
                 }
@@ -2246,10 +2245,6 @@ Actor *arg0;
     }
     return ret;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_80670548.s")
-#endif
 
 typedef struct ActorHitPlane {
     u8 pad0[0x28];
