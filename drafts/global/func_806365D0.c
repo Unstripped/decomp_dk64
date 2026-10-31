@@ -1,4 +1,4 @@
-// func_806365D0 (src/global/36880.c): stage 3 unchanged (NM36F2): draft compiles in copy with 20 hunks (callee-saved set s0-s3 vs mine s0-s2; head/tail spilled to 0x34/0x38 in mine vs register in target). Explicit a0/a8 locals give frame 0x48 (26 hunks) as noted before; no improvement.
+// func_806365D0 (src/global/36880.c): stage 3: frame 0x40 matches target; callee-saved s0-s2 vs target s0-s3; identified start/mid locals for unkA0/unkA8 matching call args and De Morgan branch structure 'if (s3 != NULL || !(arg0->unk8C & 0x20))' matching target bnez/beqz
 typedef struct DisplayListCmd {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -45,40 +45,44 @@ typedef struct DisplayListFreeCounter {
     /* 0x3C */ s16 unk3C;
 } DisplayListFreeCounter;
 
-#define SEG ((ModelSegmentData *)arg2)
 void func_806365D0(ModelSlot *arg0, void *arg1, ModelChainOwner *arg2) {
+    ModelSegmentData *seg;
+    u32 mid;
+    u32 start;
     DisplayListTextureNode *s3;
     u32 head;
     u32 tail;
     u8 flag;
 
-    s3 = SEG->unkB8;
-    head = (SEG->unkA8 - SEG->unkA0) >> 3;
-    tail = (SEG->unkB0 - SEG->unkA8) >> 3;
-    if (s3 == NULL && (arg0->unk8C & 0x20)) {
-        flag = 0;
-    } else {
+    seg = (ModelSegmentData *)arg2;
+    mid = seg->unkA8;
+    start = seg->unkA0;
+    s3 = seg->unkB8;
+    head = (mid - start) >> 3;
+    tail = (seg->unkB0 - mid) >> 3;
+    if (s3 != NULL || !(arg0->unk8C & 0x20)) {
         flag = 1;
+    } else {
+        flag = 0;
     }
     if (arg0->unk8C & 0x20) {
         if (flag != 0) {
             ((DisplayListFreeCounter *)arg1)->unk3C -= 1;
-            dlFreeUnusedTextures(SEG->unkA0, SEG->unkA0 + head * 8, (s32)SEG->unkB8, 0, 0);
-            dlFreeUnusedTextures(SEG->unkA8, SEG->unkA8 + tail * 8, (s32)SEG->unkB8, 1, 0);
+            dlFreeUnusedTextures(start, start + head * 8, (s32)seg->unkB8, 0, 0);
+            dlFreeUnusedTextures(mid, mid + tail * 8, (s32)seg->unkB8, 1, 0);
         } else {
-            displayListFreeQueueAdd(SEG->unkA0, SEG->unkA0 + head * 8, SEG->unkA8, SEG->unkA8 + tail * 8, (s32)arg1);
+            displayListFreeQueueAdd(start, start + head * 8, mid, mid + tail * 8, (s32)arg1);
         }
-        s3 = SEG->unkB8;
+        s3 = seg->unkB8;
     }
     if (s3 != NULL) {
-        dlFreeUnusedTextures(SEG->unkA4, SEG->unkA4 + head * 8, (s32)s3, 0, 0);
-        dlFreeUnusedTextures(SEG->unkAC, SEG->unkAC + tail * 8, (s32)SEG->unkB8, 1, 0);
-        heapFreeDeferred((void *)SEG->unkA4);
-        heapFreeDeferred((void *)SEG->unkAC);
+        dlFreeUnusedTextures(seg->unkA4, seg->unkA4 + head * 8, (s32)s3, 0, 0);
+        dlFreeUnusedTextures(seg->unkAC, seg->unkAC + tail * 8, (s32)seg->unkB8, 1, 0);
+        heapFreeDeferred((void *)seg->unkA4);
+        heapFreeDeferred((void *)seg->unkAC);
     }
     if (flag != 0) {
         assetFreeBuffer(arg1, 0xAF7, 7);
     }
     heapFreeDeferred(arg2);
 }
-#undef SEG
