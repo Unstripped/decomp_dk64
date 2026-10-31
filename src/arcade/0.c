@@ -1110,26 +1110,26 @@ void arcadeDrawGirderSpan(Gfx **arg0, u8 arg1, u8 arg2, s16 arg3) {
     *arg0 = sp40;
 }
 
-#ifdef NON_MATCHING
 #define ArcA1_P6D0 (*(void **)&D_8004C6D0)
 typedef struct ArcadeGirderSpan {
     u8 x;
     u8 y;
     s16 z;
 } ArcadeGirderSpan;
-typedef struct ArcA1_Bar {
+typedef struct ArcadeLift {
     f32 x;
     f32 y;
     f32 vy;
-} ArcA1_Bar;
-extern ArcA1_Bar D_8004BC88[];
+} ArcadeLift;
+typedef ArcadeLift ArcA1_Bar;
+extern ArcadeLift D_8004BC88[];
 extern u8 D_80032F40[];
 extern ArcadeGirderSpan D_8004A7C8[];
 extern u8 D_8004BC50[];
 void func_800275E8(Gfx **arg0) {
     s32 i;
     s32 j;
-    s32 n;
+    s32 pad[1];
     Gfx *sp90;
     ArcadeGirderSpan *pt;
     ArcA1_Bar *bar;
@@ -1155,11 +1155,11 @@ void func_800275E8(Gfx **arg0) {
     func_80005A90(D_8004BB00 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&sp90, D_8004BB00 + D_807444FC * 0x18);
     func_8070F2C8(0x400, D_8004C6D6, 0, 0);
-    n = 21;
     pt = D_8004A7C8;
-    for (i = 0; i < n; i++) {
-        arcadeDrawGirderSpan(&sp90, pt[i].x, pt[i].y, pt[i].z);
-    }
+    do {
+        arcadeDrawGirderSpan(&sp90, pt->x, pt->y, pt->z);
+        pt++;
+    } while (pt < (ArcadeGirderSpan *)((s32)D_8004A7C8 + 0x54));
     for (bar = D_8004BC88;;) {
         if (D_8004C71D == 0 && D_8004C724 == 5) {
             bar->y = bar->y + bar->vy;
@@ -1179,10 +1179,6 @@ void func_800275E8(Gfx **arg0) {
     arcadeDrawStage3Ladders(&sp90);
     *arg0 = sp90;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_800275E8.s")
-#endif
 
 #define ArcA3_P6D0 (*(void **)&D_8004C6D0)
 extern u8 D_80032CA8[];
@@ -1431,14 +1427,6 @@ void arcadeSpawnStage4Entities(void);
 extern ArcadeEntity D_8004A478;
 extern ArcadeEntity D_8004A598;
 extern ArcadeEntity D_8004A3D8;
-typedef struct ArcadeLift {
-    f32 x;
-    f32 y;
-    f32 vy;
-} ArcadeLift;
-#ifndef NON_MATCHING
-extern ArcadeLift D_8004BC88[];
-#endif
 void arcadeSpawnStage3Entities(void) {
     s32 i;
     ArcadeEntity *p;
