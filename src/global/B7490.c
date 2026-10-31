@@ -616,7 +616,6 @@ void actorSpawnPeriodicBoneEffect(void) {
     }
 }
 
-#ifdef NON_MATCHING
 s32 camIsCutsceneActive(void *);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
@@ -658,7 +657,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
         case 3:
         case 7:
         case 0x35:
-            if (D_807FBB40->unk80 < (f32) (D_807FDC9C->unk6 + *var_t2)) {
+            if (D_807FBB40->unk80 < (f32) (*var_t2 + (0, D_807FDC9C->unk6))) { // FAKE: comma wrapper steers ugen temp order
                 D_807FBB40->unk80 = (f32) ((f64) D_807FBB40->unk80 + ((f64) (u32) D_807FDC9C->unkB * 0.03125));
             } else {
                 if ((camIsCutsceneActive(D_807FDC90) == 0) && (arg0 != NULL)) {
@@ -733,10 +732,6 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
     if (!D_807FBB40->unk154) {
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B7490/func_806B42A8.s")
-#endif
 
 void func_806B486C(void) {
     behaviourFrameBegin();
