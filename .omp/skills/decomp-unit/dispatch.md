@@ -124,8 +124,11 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   the bare pragma with the draft kept.
   A stage-6 park is not proof of equivalence (201B0: a parked clamp was a min, the asm a
   max); a fresh-eyes pass on a sibling's park checks branch sense first. Reject dead tests
-  on a local before its first assignment (`if (step == 0) {}`, `if (k && k) {}`): an
-  uninitialised read is not equivalent C; grep every park's dead `if` locals before merging.
+  that add an uninitialised read on some path (`if (step == 0) {}` before `step`'s first
+  assignment, `if (k && k) {}`): that is not equivalent C. Allowed only when every path
+  reaching the test reads the same local in the next statement anyway (5110
+  `func_80029118`: the original's `flagSet(sp70, ..)` after a default-less switch); say so in
+  its FAKE comment. Grep every park's dead `if` locals before merging.
 - A report naming one exact small shape diff (`move v0,s1; addiu s1,8; sw 0(v0)`) is worth
   your own 5-minute test: `deadsweep.py score <copy> <src> FUNC --body <variant>` on 2–3
   idiom variants (a GBI macro form matched a 520-insn park the agent had left at 4 insns).

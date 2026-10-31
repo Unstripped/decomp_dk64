@@ -178,7 +178,7 @@ void func_80029118(void) {
                         sp70 = 0x185;
                         break;
                     }
-                    if (sp70 && sp70) {} // FAKE: promotes sp70 to a register (default arm reloads its home)
+                    if (sp70 && sp70) {} // FAKE: promotes sp70 to a register; adds no new uninitialised read (flagSet below reads sp70 on every path here, incl. the original default-less switch)
                     flagSet(sp70, 1, 0);
                 }
                 tmp = D_80029FA4;
