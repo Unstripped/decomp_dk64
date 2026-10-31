@@ -1,8 +1,4 @@
-// func_80024690 (src/race/0.c): stage 4 (LargeR4, pass 2): same callee-saved set (s0,s1), frame 0x70; text 5984 vs 6000 (missing 'move a0,a1' after the case-2 actorScriptStart reload + 3 other moves); 18 structural + ~270 reg-only lines. Case 9/10/0 dispatch structure now matches (u32 x + reload arm in case 10; s32 y + 'sel = sp54->unk35 + 1' + switch(y) in case 0 gives right regs v1/v0/a0 but copies a0/v0 in swapped order, LargeR1's unsolved diff). Open: (1) ang: sp64[1] array gives exact raw 'mfc1; sh 0x66(sp); addu' shape but t-ring skew (mfc1 t5 vs t3); multi-def 'ang = sp64[1] = X; ang = ang+ang-EE; f(ang&0xFFF)' aligns the first ring temps (t3,t5,t4) but colours the sum a3 instead of a1 and the skew returns downstream; narrowing form (ang = (sp64[1]=X) or ang1) aligns ring but adds sll/sra. (2) case 2: V=lbu 0x25(DC90) a2 vs a1, DCA0 a1 vs a2, missing W copy; named idx/a1 locals, a1 inside sqrtf compare, e = base; e += idx all worse. (3) sched: li v0,0x65 vs addiu v1,%lo(D_80750AC8); li a1/move a0,s0 order in case 2 and 9. Needed: mathAngleStepToward s32, flag s32 local, D_8002FB94 via s32 temp.
-/* externs D_807FDC90, D_807FDCA0, D_8002FB10, D_8002FB70 come from the RaceC block (func_80024000 NON_MATCHING); accessed here through casts */
-extern s32 D_8076A0A8;
-extern void *D_807FBB40;
-extern void *D_807FBB48;
+// func_80024690 (src/race/0.c): stage 5 (QL2 pass 3): same size/frame/saved regs; 14 text lines left of 1236 (was 333 text). Remaining: (1) ang16 narrowing sll/sra+move v1 vs target raw mfc1 t3 (array/addr-taken forms give raw E but 2 hidden ring temps skew every later t-reg; volatile gives E=t3 but reloads) (2) first entry ptr (case 2 tail) v0 vs a0 (3) li v0,101 scheduled before swc1 196(t0) instead of after lw t1 (4) case0 head: target 'move a0,v1; beqz v1; move v0,v1' vs ours 'move v0,v1; beqz; andi a0,v1,0xff' (y must be u8 for v1/v0/a0 colours). Wins: L4_S->unk25++; scalar s16 ang16; case0 sel=loaded var, y=result var, arms 'sp54->unk35 = sp54->unk35 + 1; y = sp54->unk35;'; case-5 selector shares the tmp(ang) local; first sp44 site via (sp44 + unk24)->; actorUpdateFloorContactAndTilt f32 arg; csModelStateSetFirstByte(s16,s16). mathAngleStepToward must stay s32 here.
 typedef struct {
     u8 pad0[0x1C];
     u16 unk1C;
@@ -127,7 +123,6 @@ extern s32 D_8002FB94[];
 void actorApplyGravity(void);
 void actorApplyVelocity(void *);
 void actorApproachTargetSpeed(s32);
-void actorScriptStart(void *, s32);
 void actorSetTargetSpeed(void *, s32);
 void actorStepPhysics(void *, s16, s16);
 void actorUpdateModelMatrix(void *, s32);
@@ -137,15 +132,13 @@ s32 camStartPath(void *, s16, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
 void flagSet(s16, s32, s32);
-void func_80024000(void);
 void func_8002D72C(void *);
 s32 func_8002E8EC(void *, s32, s32);
 void func_8002F490(void *);
 void func_805FF544(void);
-f32 func_80611BB4(f32, f32);
-void func_8063DA40(s32, s32);
+void csModelStateSetFirstByte(s16, s16);
 f32 sqrtf(f32);
-void actorUpdateFloorContactAndTilt(void *, s32);
+void actorUpdateFloorContactAndTilt(void *, f32);
 void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_806CCC10(void);
 void hudSpawnTextScreen(s32);
@@ -159,8 +152,8 @@ void slotQueueUpdate(s32, s32, s32);
 void func_80024690(void) {
     f32 sp6C;
     f32 sp68;
-    s16 sp64[2];
-    s32 ang;
+    s16 ang16;
+    s32 tmp;
     LargeR4_Entry *e;
     u8 sp5B;
     LargeR4_Ctl *sp54;
@@ -172,7 +165,7 @@ void func_80024690(void) {
     f32 fv1;
     s32 sel;
     u32 x;
-    s32 y;
+    u8 y;
     f32 dist;
 
     sp54 = L4_D->unk178;
@@ -286,14 +279,14 @@ void func_80024690(void) {
                         L4_D->unkC4 = sp44[sp5B].unk4;
                         L4_S->unk24 = L4_S->unk24 + 1;
                     }
-                    L4_S->unk25 = L4_S->unk25 + 1;
+                    L4_S->unk25++;
                 }
             }
         }
-        sp64[1] = (s32)((f64)func_80611BB4(-sp6C, -sp68) * 4096.0 / 6.2831854820251465);
-        mathAngleStepToward(&L4_D->unkE6, (sp64[1] + sp64[1] - L4_D->unkEE) & 0xFFF, 0x32);
-        mathAngleStepToward(&L4_D->unkEE, sp64[1], 0xF);
-        if (L4_S->unk25 == sp44[L4_S->unk24].unk0 && sp44[L4_S->unk24].unk8 == 2 && sp54->unk34 == 3) {
+        ang16 = (s32)((f64)func_80611BB4(-sp6C, -sp68) * 4096.0 / 6.2831854820251465);
+        mathAngleStepToward(&L4_D->unkE6, (ang16 + ang16 - L4_D->unkEE) & 0xFFF, 0x32);
+        mathAngleStepToward(&L4_D->unkEE, ang16, 0xF);
+        if (L4_S->unk25 == (sp44 + L4_S->unk24)->unk0 && (sp44 + L4_S->unk24)->unk8 == 2 && sp54->unk34 == 3) {
             if (sp54->unk36 == 1) {
                 L4_D->unk154 = 0xA;
             } else {
@@ -403,19 +396,20 @@ void func_80024690(void) {
     }
     switch (sp54->unk34) {
     case 0:
-        y = sp54->unk35;
-        sel = y;
-        switch (y) {
+        sel = sp54->unk35;
+        y = sel;
+        switch (sel) {
         case 0:
             if (L4_D->unk60 & 0x02000000) {
-                sel = sp54->unk35 + 1;
-                sp54->unk35 = sel;
+                sp54->unk35 = sp54->unk35 + 1;
+                y = sp54->unk35;
             }
             break;
         case 1:
             if (!(L4_D->unk60 & 0x02000000)) {
                 camResumePath();
-                sel = sp54->unk35 = sp54->unk35 + 1;
+                sp54->unk35 = sp54->unk35 + 1;
+                y = sp54->unk35;
             }
             break;
         case 2:
@@ -423,13 +417,14 @@ void func_80024690(void) {
                 currentActorClearFlag();
                 sp54->unk35 = sp54->unk35 + 1;
             }
-            sel = sp54->unk35;
+            y = sp54->unk35;
             break;
         }
-        if (sel < 3) {
+        if (y < 3) {
             func_8002D72C(sp4C);
         }
         break;
+
     case 1:
         if (sp54->unk35 == 0) {
             slotQueueUpdate(0xB, 1, 0);
@@ -451,8 +446,8 @@ void func_80024690(void) {
             slotQueueCancel(0xB, 0);
             sp54->unkD0 = 0;
             if (flagGet(sp50->unk18.h.lo, 0) == 0) {
-                ang = D_8002FB94[func_8002E8EC(sp54, sp50->unk4, sp50->unk1C)];
-                camStartPath(D_807FBB40, ang, 1);
+                tmp = D_8002FB94[func_8002E8EC(sp54, sp50->unk4, sp50->unk1C)];
+                camStartPath(D_807FBB40, tmp, 1);
                 currentActorClearFlag();
             } else {
                 func_805FF544();
@@ -461,8 +456,8 @@ void func_80024690(void) {
         }
         break;
     case 5:
-        sel = sp54->unk35;
-        switch (sel) {
+        tmp = sp54->unk35;
+        switch (tmp) {
         case 0:
             if (flagGet(sp50->unk18.h.lo, 0) == 0) {
                 sfxStopSlotSound(D_807FBB48, 0);
@@ -480,7 +475,7 @@ void func_80024690(void) {
             break;
         case 1:
             if (L4_D->unk60 & 0x02000000) {
-                sp54->unk35 = sel + 1;
+                sp54->unk35 = tmp + 1;
             }
             break;
         case 2:
@@ -497,9 +492,9 @@ void func_80024690(void) {
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
                 if (D_8076A0A8 == 0xE) {
-                    func_8063DA40(0x48, 0xA);
+                    csModelStateSetFirstByte(0x48, 0xA);
                 } else {
-                    func_8063DA40(1, 0xA);
+                    csModelStateSetFirstByte(1, 0xA);
                 }
                 sp54->unk35 = sp54->unk35 + 1;
             }
