@@ -640,7 +640,6 @@ void func_80028440(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     char pad0[4];
     RaceActor *unk4;
@@ -687,14 +686,14 @@ void func_80028AD0(void) {
         racePathFollowStep(temp_s0, temp_s1, 0);
     }
     temp_v0_2 = sp4C->unk34;
-    if (temp_v0_2 != temp_s1->unk34) {
+    if (temp_s1->unk34 != temp_v0_2) {
         temp_s1->unk34 = temp_v0_2;
         temp_s1->unk35 = 0;
     }
     temp_fv0 = func_80027920(D_807FBB40, temp_s0, sp50, sp48);
     sp34 = temp_fv0;
     temp_v0_3 = sp48->unk1;
-    if (temp_v0_3 != temp_s0->unk1) {
+    if (temp_s0->unk1 != temp_v0_3) {
         temp_s0->unk1 = temp_v0_3;
         temp_s0->unk8 = 0.0f;
     }
@@ -726,13 +725,10 @@ void func_80028AD0(void) {
             }
             var_fv0 = temp_fv0;
         }
-        camSetFixedView(sp40->unk104, D_807FBB40->unk7C, D_807FBB40->unk80 + ((20.0f * var_fv0) + 20.0f), D_807FBB40->unk84, sp50->unk7C, sp50->unk80 + 20.0f, sp50->unk84, 1);
+        var_fv0 = (20.0f * var_fv0) + 20.0f;
+        camSetFixedView(sp40->unk104, D_807FBB40->unk7C, D_807FBB40->unk80 + var_fv0, D_807FBB40->unk84, sp50->unk7C, sp50->unk80 + 20.0f, sp50->unk84, 1);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/36B0/func_80028AD0.s")
-#endif
 
 
 void raceFindNearestWaypoint(RaceCursor *arg0) {

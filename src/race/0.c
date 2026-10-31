@@ -1,6 +1,5 @@
 #include "common.h"
 
-#ifdef NON_MATCHING
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -81,7 +80,6 @@ void func_80024000(void) {
     RaceC_Row *sp30;
     f32 q;
     RaceC_DC90 **pp;
-    int a1;
     s16 v1;
 
     pp = &D_807FDC90;
@@ -100,6 +98,7 @@ void func_80024000(void) {
         if ((a0->unk2 < RC_A->unk80 ? RC_A->unk80 - a0->unk2 : -(RC_A->unk80 - a0->unk2)) < 80.0f && D_807FDC90->unk25 < D_807FDCA0->unk10 - 1) {
             RaceC_Row *row = (RaceC_Row *)((u8 *)sp30 + sp37 * 12);
             if (row->unk0 == D_807FDC90->unk25) {
+                if (row) {}  // FAKE: dead test steers uopt FP callee-saved colouring (fs0/fs1)
                 RC_A->unkC4 = row->unk4;
                 if (row->unk8 == 1) {
                     actorScriptStart(D_807FBB40, 0x286);
@@ -111,6 +110,7 @@ void func_80024000(void) {
             D_807FDC90->unk25++;
             a0 = &D_807FDCA0->unk14[(*pp)->unk25];
         }
+        a0 = &D_807FDCA0->unk14[D_807FDC90->unk25];
     }
     sp54 = (f64)(a0->unk8 - RC_A->unkB8 / 10.0f) * 0.8;
     fv0 = (f64)(RC_A->unk80 - RC_B->unk80) * 0.25;
@@ -121,7 +121,8 @@ void func_80024000(void) {
         fv0 = -6.0f;
     }
     sp54 = sp54 + fv0;
-    v1 = (s32)((f64)func_80611BB4(-fs0, -fs1) * 4096.0 / 6.2831854820251465) - RC_A->unkEE;
+    v1 = (s32)((f64)func_80611BB4(-fs0, -fs1) * 4096.0 / 6.2831854820251465);
+    v1 = v1 - RC_A->unkEE;
     if (v1 >= 0x800) {
         v1 = (f64)v1 - 4096.0;
     }
@@ -158,10 +159,6 @@ void func_80024000(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/0/func_80024000.s")
-#endif
 
 typedef struct {
     u8 pad0[0x1A];
