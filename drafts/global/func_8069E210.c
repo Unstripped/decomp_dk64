@@ -1,15 +1,15 @@
-// func_8069E210 (src/global/A2F10.c): stage 6: 0x280 same size; tail reload now matches (lui s0,%hi; lw s0,%lo) via local Actor **p = &D_807FBB40 / actor = *p; remaining diff is scratch temp allocation only (expected v0/v1/t0.., ours t2..), instruction sequence otherwise identical
+// func_8069E210 (src/global/A2F10.c): stage 6: 0x280 same size, 180 insns; full=30 text=30 reloc=0 shape=0 via dead block split; unk254 now in v1; remaining diff is scratch temp allocation inside loop (v0/t0/t1 vs t0/t1/t2, 1-temp ugen ring shift)
 extern Actor *D_807FBB40;
 extern ActorGlobalState D_807FBB70;
 
-typedef struct M4Sub4 {
+typedef struct ActorSub4Head {
     /* 0x00 */ void *unk0;
-} M4Sub4;
+} ActorSub4Head;
 
-typedef struct M4Sub4Inner {
+typedef struct ActorSub4Node {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ f32 unk24;
-} M4Sub4Inner;
+} ActorSub4Node;
 
 void func_80613C48(Actor *, s16, f32, f32);
 void controllerAnimSetState(Actor *, s16, f32, f32);
@@ -55,10 +55,13 @@ void func_8069E210(void) {
                 sfxPlayOnFreeSlot(0x1DC, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 break;
             }
+            if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             actor = D_807FBB40;
         }
     }
-    if (0.0f == ((M4Sub4Inner *)((M4Sub4 *)actor->unk4)->unk0)->unk24) {
+    if (0.0f == ((ActorSub4Node *)((ActorSub4Head *)actor->unk4)->unk0)->unk24) {
         actor->unk60 &= ~4;
         actor = *p;
     }
+    actorUpdateModelMatrix(actor, 0);
+}
