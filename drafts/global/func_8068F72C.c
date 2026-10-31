@@ -1,5 +1,5 @@
-// func_8068F72C (src/global/936B0.c): stage 5-6: frame 0x60 + s0-s2 saved set equal, only regalloc/stack-slot diffs (fdiff score 11369->2380, ~120 diff lines). K&R def (u8 arg2 volatile // FAKE) needs the file's prototype changed to 'void func_8068F72C();'. Open: target keeps actor ptr in s0, temp_v0 (s16 ret of func_806CC10C) enregistered in s0, arg3 reloaded by lbu each use (mine caches arg3 in s0); stack slot map for sp54/sp40/sp3C/sp38 offset +-4; f2/f12 FP numbering. Tried: arg2/arg3 volatile/&arg3, decl-order hill climb, deadsweep by hand (-155 only, not kept).
-typedef struct L6919E02State {
+// func_8068F72C (src/global/936B0.c): stage 5-6 (Q936 in progress): frame 0x60 + size match; reg-only diff ~80 lines: sp50 f12 vs f2 (FP ring), ang0 temp ring, E8 hoist; fixes: if(arg3)/if(!arg3) form removes arg3/arg2 cache (no volatile), dead if(ang0)/if(sp58) uses, pointer var separate from -0x28 var (sp48 reuse)
+typedef struct ActorMoveState {
     s16 unk0;
     s16 unk2;
     f32 unk4;
@@ -12,20 +12,20 @@ typedef struct L6919E02State {
     u8 pad29[0x34 - 0x29];
     u8 unk34;
     u8 unk35;
-} L6919E02State;
+} ActorMoveState;
 
-typedef struct L6919E02Step {
+typedef struct ActorMoveStepFlag {
     u8 pad0[4];
     u8 unk4;
-} L6919E02Step;
+} ActorMoveStepFlag;
 
-typedef struct L6919E02Player {
+typedef struct PlayerActorRef {
     u8 pad0[4];
     Actor *actor;
     u8 pad8[0x2F0 - 8];
-} L6919E02Player;
+} PlayerActorRef;
 
-typedef struct L6919E02Actor {
+typedef struct ActorMoveView {
     u8 pad0[0x58];
     s32 unk58;
     u8 pad5C[4];
@@ -59,15 +59,13 @@ typedef struct L6919E02Actor {
     u8 pad145[0x154 - 0x145];
     u8 unk154;
     u8 unk155;
-} L6919E02Actor;
+} ActorMoveView;
 
-#define G_L6919E02 ((L6919E02Actor *)D_807FBB40)
+#define ACTOR_MOVE_VIEW ((ActorMoveView *)D_807FBB40)
 
-extern Actor *D_807FBB40;
 extern s16 D_8075033C;
 extern u32 D_807FBB64;
 extern struct PlayerTrackEntry *D_807FC924;
-f32 func_80611BB4(f32, f32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 s32 func_806CC10C(s16, s16);
@@ -77,11 +75,11 @@ void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_8002F490(void *);
 
-#define S ((L6919E02State *)arg0)
+#define S ((ActorMoveState *)arg0)
 void func_8068F72C(arg0, arg1, arg2, arg3)
 void *arg0;
 s32 arg1;
-volatile u8 arg2; // FAKE: keeps arg2 re-loaded from its home (lbu) instead of cached in a register
+u8 arg2;
 u8 arg3;
 {
     f32 fa0;
@@ -89,40 +87,41 @@ u8 arg3;
     f32 sp54;
     f32 sp50;
     f32 fv0;
-    s16 ang[2];
+    s16 sp4A;
+    s16 sp48;
     u8 fl[4];
     f32 sp40;
     f32 sp3C;
     f32 sp38;
     s16 temp_v0;
     s16 sp34;
-    s16 var_a0;
+    ActorMoveView *pl;
 
-    var_a0 = (s32)((L6919E02Player *)D_807FC924)[S->unk28].actor;
-    sp58 = ((L6919E02Actor *)var_a0)->unk58;
-    ang[1] = 0;
-    ang[0] = 0;
-    fl[3] = G_L6919E02->unk80 <= G_L6919E02->unkAC + 1.0f;
-    fl[2] = G_L6919E02->unk6A & 1;
-    if (!(G_L6919E02->unk60 & 0x10)) {
-        G_L6919E02->unk60 |= 0x10400;
-        G_L6919E02->unk154 = 0;
-        G_L6919E02->unk155 = 0;
-        G_L6919E02->unkB8 = 0.0f;
+    pl = (ActorMoveView *)((PlayerActorRef *)D_807FC924)[S->unk28].actor;
+    sp58 = pl->unk58;
+    sp4A = 0;
+    sp48 = 0;
+    fl[3] = ACTOR_MOVE_VIEW->unk80 <= ACTOR_MOVE_VIEW->unkAC + 1.0f;
+    fl[2] = ACTOR_MOVE_VIEW->unk6A & 1;
+    if (!(ACTOR_MOVE_VIEW->unk60 & 0x10)) {
+        ACTOR_MOVE_VIEW->unk60 |= 0x10400;
+        ACTOR_MOVE_VIEW->unk154 = 0;
+        ACTOR_MOVE_VIEW->unk155 = 0;
+        ACTOR_MOVE_VIEW->unkB8 = 0.0f;
         S->unk34 = 0;
         S->unk35 = 0;
         if (S->unk27 == 0) {
-            G_L6919E02->unk144 = 0x3C;
-            G_L6919E02->unkC4 = -20.0f;
+            ACTOR_MOVE_VIEW->unk144 = 0x3C;
+            ACTOR_MOVE_VIEW->unkC4 = -20.0f;
         } else {
-            G_L6919E02->unk144 |= 0x18;
-            G_L6919E02->unkC4 = -30.0f;
+            ACTOR_MOVE_VIEW->unk144 |= 0x18;
+            ACTOR_MOVE_VIEW->unkC4 = -30.0f;
         }
-        G_L6919E02->unkC8 = -900.0f;
-        G_L6919E02->unkF8 = 0x12C;
+        ACTOR_MOVE_VIEW->unkC8 = -900.0f;
+        ACTOR_MOVE_VIEW->unkF8 = 0x12C;
     }
-    sp40 = func_80612794(G_L6919E02->unkEE) * G_L6919E02->unkB8;
-    sp3C = func_80612790(G_L6919E02->unkEE) * G_L6919E02->unkB8;
+    sp40 = func_80612794(ACTOR_MOVE_VIEW->unkEE) * ACTOR_MOVE_VIEW->unkB8;
+    sp3C = func_80612790(ACTOR_MOVE_VIEW->unkEE) * ACTOR_MOVE_VIEW->unkB8;
     if (fl[3] != 0) {
         sp38 = S->unk4 * 50.0f;
         if (sp58 == 2) {
@@ -130,7 +129,7 @@ u8 arg3;
         } else {
             fa0 = 10000.0f;
         }
-        sp54 = 1.0f / fa0 * (G_L6919E02->unkB8 * G_L6919E02->unkB8) + S->unk8;
+        sp54 = 1.0f / fa0 * (ACTOR_MOVE_VIEW->unkB8 * ACTOR_MOVE_VIEW->unkB8) + S->unk8;
         if (S->unk4 != 0.0f) {
             sp54 = sp54 + 30.0f;
         } else {
@@ -140,103 +139,104 @@ u8 arg3;
         fv0 = 2.0f;
         if (fl[2] != 0) {
             sp38 = S->unk4 * 4.0f;
-            sp54 = S->unk8 + G_L6919E02->unkB8 * G_L6919E02->unkB8 * 0.00002f + fv0;
+            sp54 = S->unk8 + ACTOR_MOVE_VIEW->unkB8 * ACTOR_MOVE_VIEW->unkB8 * 0.00002f + fv0;
         } else {
             sp38 = S->unk4 * fv0;
-            sp54 = S->unk8 + G_L6919E02->unkB8 * G_L6919E02->unkB8 * 0.00002f + fv0;
+            sp54 = S->unk8 + ACTOR_MOVE_VIEW->unkB8 * ACTOR_MOVE_VIEW->unkB8 * 0.00002f + fv0;
         }
     }
     sp40 += func_80612794(S->unk0) * sp38;
     sp3C += func_80612790(S->unk0) * sp38;
-    G_L6919E02->unkB8 = sqrtf(sp40 * sp40 + sp3C * sp3C);
-    G_L6919E02->unkEE = (s16)(s32)(func_80611BB4(sp40, sp3C) * 4096.0 / 6.2831854820251465);
+    ACTOR_MOVE_VIEW->unkB8 = sqrtf(sp40 * sp40 + sp3C * sp3C);
+    ACTOR_MOVE_VIEW->unkEE = (s16)(s32)(func_80611BB4(sp40, sp3C) * 4096.0 / 6.2831854820251465);
     if (fl[2] != 0) {
-        sp34 = 0x400 - G_L6919E02->unkDE;
-        temp_v0 = func_806CC10C(G_L6919E02->unkDC, S->unk0);
+        sp34 = 0x400 - ACTOR_MOVE_VIEW->unkDE;
+        temp_v0 = func_806CC10C(ACTOR_MOVE_VIEW->unkDC, S->unk0);
         fv0 = (f32)sp34;
-        ang[1] = (s16)(s32)(func_80612790(temp_v0) * fv0);
-        ang[0] = (s16)(s32)(func_80612794(temp_v0) * fv0);
-    } else if (arg3 == 0) {
-        G_L6919E02->unkE8 = func_806CC190(G_L6919E02->unkE8, 0, 4.0f);
-        G_L6919E02->unkE4 = func_806CC190(G_L6919E02->unkE4, 0, 5.0f);
+        sp4A = (s16)(s32)(func_80612790(temp_v0) * fv0);
+        sp48 = (s16)(s32)(func_80612794(temp_v0) * fv0);
+    } else if (!arg3) {
+        ACTOR_MOVE_VIEW->unkE8 = func_806CC190(ACTOR_MOVE_VIEW->unkE8, 0, 4.0f);
+        ACTOR_MOVE_VIEW->unkE4 = func_806CC190(ACTOR_MOVE_VIEW->unkE4, 0, 5.0f);
     }
     sp50 = S->unk10 * S->unkC;
-    if (arg3 != 0) {
-        ang[0] = (s32)((f32)ang[0] + sp50 * 200.0f) & 0xFFF;
+    if (arg3) {
+        if (sp48) {} // FAKE
+        sp48 = (s32)((f32)sp48 + sp50 * 200.0f) & 0xFFF;
         if (fl[3] != 0 || fl[2] != 0) {
-            var_a0 = G_L6919E02->unkE8;
-            ang[1] = (s32)((f64)ang[1] + ((f64)(S->unk4 * -50.0f) + (f64)G_L6919E02->unkB8 * -0.5)) & 0xFFF;
+            sp4A = (s32)((f64)sp4A + ((f64)(S->unk4 * -50.0f) + (f64)ACTOR_MOVE_VIEW->unkB8 * -0.5)) & 0xFFF;
         } else {
-            var_a0 = G_L6919E02->unkE8;
-            ang[1] = var_a0;
+            sp4A = ACTOR_MOVE_VIEW->unkE8;
         }
-        G_L6919E02->unkE8 = func_806CC190(var_a0, ang[1], 4.0f);
-        G_L6919E02->unkE4 = func_806CC190(G_L6919E02->unkE4, ang[0], 5.0f);
+        ACTOR_MOVE_VIEW->unkE8 = func_806CC190(ACTOR_MOVE_VIEW->unkE8, sp4A, 4.0f);
+        ACTOR_MOVE_VIEW->unkE4 = func_806CC190(ACTOR_MOVE_VIEW->unkE4, sp48, 5.0f);
     }
-    G_L6919E02->unkB8 = G_L6919E02->unkB8 - sp54;
-    fv0 = G_L6919E02->unkB8;
+    ACTOR_MOVE_VIEW->unkB8 = ACTOR_MOVE_VIEW->unkB8 - sp54;
+    fv0 = ACTOR_MOVE_VIEW->unkB8;
     if (fv0 < 0.0f) {
-        G_L6919E02->unkB8 = 0.0f;
-        fv0 = G_L6919E02->unkB8;
+        ACTOR_MOVE_VIEW->unkB8 = 0.0f;
+        fv0 = ACTOR_MOVE_VIEW->unkB8;
     }
-    fv0 = fv0 - G_L6919E02->unkBC;
+    fv0 = fv0 - ACTOR_MOVE_VIEW->unkBC;
     if (fv0 < 0.0f) {
         fv0 = 0.0f;
     }
-    var_a0 = -0x28;
+    sp48 = -0x28;
     if (sp58 == 2) {
-        var_a0 = -0x1E;
+        sp48 = -0x1E;
     }
-    S->unk0 = (s32)((f64)S->unk0 + (f64)(sp50 * (f32)var_a0) * (1.0 + (f64)fv0 * 0.05));
+    S->unk0 = (s32)((f64)S->unk0 + (f64)(sp50 * (f32)sp48) * (1.0 + (f64)fv0 * 0.05));
     S->unk0 = S->unk0 & 0xFFF;
-    if (arg2 != 0) {
-        fa0 = G_L6919E02->unk80;
-        fv0 = G_L6919E02->unkAC;
+    if (arg2) {
+        fa0 = ACTOR_MOVE_VIEW->unk80;
+        if (sp48) {} // FAKE
+        fv0 = ACTOR_MOVE_VIEW->unkAC;
         if (fa0 < fv0) {
-            G_L6919E02->unkC0 = G_L6919E02->unkC0 + ((fv0 - fa0) * 3.0f + 15.0f);
-            fv0 = G_L6919E02->unkC0;
+            ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + ((fv0 - fa0) * 3.0f + 15.0f);
+            fv0 = ACTOR_MOVE_VIEW->unkC0;
             if (fv0 > 0.0f) {
                 fa0 = fv0;
             } else {
                 fa0 = -fv0;
             }
             if (fa0 > 20.0f) {
-                G_L6919E02->unkC0 = fv0 - fv0 / 12.0f;
+                ACTOR_MOVE_VIEW->unkC0 = fv0 - fv0 / 12.0f;
             }
         }
     }
-    G_L6919E02->unkC0 = G_L6919E02->unkC0 + G_L6919E02->unkC4;
-    if (((L6919E02Step *)arg1)->unk4 != 0) {
-        ((L6919E02Step *)arg1)->unk4 = 0;
+    ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + ACTOR_MOVE_VIEW->unkC4;
+    if (((ActorMoveStepFlag *)arg1)->unk4 != 0) {
+        ((ActorMoveStepFlag *)arg1)->unk4 = 0;
         if (fl[3] != 0) {
             if (sp58 == 2) {
-                G_L6919E02->unkC0 = 200.0f;
+                if (sp58) {} // FAKE
+                ACTOR_MOVE_VIEW->unkC0 = 200.0f;
             } else {
-                G_L6919E02->unkC0 = (f32)D_8075033C;
+                ACTOR_MOVE_VIEW->unkC0 = (f32)D_8075033C;
             }
         } else if (fl[2] != 0) {
-            G_L6919E02->unkC0 = G_L6919E02->unkC0 + 200.0f;
+            ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + 200.0f;
         }
     }
-    fv0 = G_L6919E02->unkC8;
-    if (G_L6919E02->unkC0 < fv0) {
-        G_L6919E02->unkC0 = fv0;
+    fv0 = ACTOR_MOVE_VIEW->unkC8;
+    if (ACTOR_MOVE_VIEW->unkC0 < fv0) {
+        ACTOR_MOVE_VIEW->unkC0 = fv0;
     }
-    actorStepPhysics(D_807FBB40, G_L6919E02->unkE6, S->unk0);
+    actorStepPhysics(D_807FBB40, ACTOR_MOVE_VIEW->unkE6, S->unk0);
     actorApplyVelocity(D_807FBB40);
     actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
-    if (arg2 == 0) {
-        if (G_L6919E02->unk80 < G_L6919E02->unkAC) {
-            G_L6919E02->unk80 = G_L6919E02->unkAC;
-            G_L6919E02->unkC0 = G_L6919E02->unkC4;
+    if (!arg2) {
+        if (ACTOR_MOVE_VIEW->unk80 < ACTOR_MOVE_VIEW->unkAC) {
+            ACTOR_MOVE_VIEW->unk80 = ACTOR_MOVE_VIEW->unkAC;
+            ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC4;
         }
     }
     if (D_807FBB64 & 0x2000) {
         func_8002F490(arg0);
     }
-    if (fl[2] != 0 && !(G_L6919E02->unk6C & 1)) {
-        G_L6919E02->unkC0 = -10.0f;
+    if (fl[2] != 0 && !(ACTOR_MOVE_VIEW->unk6C & 1)) {
+        ACTOR_MOVE_VIEW->unkC0 = -10.0f;
     }
-    G_L6919E02->unkE6 = (S->unk0 + S->unk2) & 0xFFF;
+    ACTOR_MOVE_VIEW->unkE6 = (S->unk0 + S->unk2) & 0xFFF;
 }
 #undef S

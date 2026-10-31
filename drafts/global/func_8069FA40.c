@@ -1,32 +1,11 @@
-// func_8069FA40 (src/global/A2F10.c): stage 2/3: single f64 local gives frame 0x100 and every stack offset identical to the target except one anonymous f32 temp at 0x38 (target 0x2C, shares that slot with a spilled s32) and the s32 label copy is copy-propagated away (target keeps it: sw a2C + lh a2E); code order otherwise identical
-typedef struct M4ActorTail {
-    /* 0x000 */ u8 pad0[0x60];
-    /* 0x060 */ u32 unk60;
-    /* 0x064 */ u8 pad64[0x18];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
-    /* 0x088 */ u8 pad88[0x58];
-    /* 0x0E0 */ f32 unkE0;
-    /* 0x0E4 */ u8 padE4[2];
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ u8 padE8[6];
-    /* 0x0EE */ s16 unkEE;
-    /* 0x0F0 */ u8 padF0[0x6F];
-    /* 0x15F */ u8 unk15F;
-    /* 0x160 */ f64 unk160;
-} M4ActorTail;
-extern Actor *D_807FBB40;
-extern Gfx D_1000118;
-#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-
+// func_8069FA40 (src/global/A2F10.c): stage 5: frame 0x100, spill 0x2C and every stack offset match; ONLY diff: last WRITE_GFX (0xDA380003) keeps 'move v0,s0' _g web in target, ours folds it into s0. Key fixes: scale as named f64 with if/else duplicating (f64)unkE0-2.0 (not ternary/temp: frame +8), s32 sp2C=label via textGetStringWidth(sp2C = sp65,..) + (s16)sp2C, s32 sel=unk15F used in switch/arms with 'sel ^ 0' selector, (0x140-w)<<1, textGetStringWidth s32(s16,char*), textDrawStringVtx(Gfx*,s16,s16,s16,u8*,u8)
 extern char *D_80750338[];
 Gfx *func_8070068C(Gfx *);
 void *_sprintf(char *, const char *, ...);
 void *heapAlloc(s32);
 void heapFreeDeferred(void *);
-s16 textGetStringWidth(u8, char *);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
+s32 textGetStringWidth(s16, char *);
+Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 void func_8069FA40(Gfx *arg0, Actor *arg1) {
     f32 spFC;
@@ -39,13 +18,11 @@ void func_8069FA40(Gfx *arg0, Actor *arg1) {
     u8 sp64;
     s32 sp2C;
     f64 scale;
+    s32 sel;
 
-    scale = (f64)((M4ActorTail *)arg1)->unkE0 - 2.0;
-    if (scale < 0.01) {
-        scale = 0.01;
-    }
-    sp64 = 0;
+    if (((f64)((ActorTail *)arg1)->unkE0 - 2.0) < 0.01) { scale = 0.01; } else { scale = (f64)((ActorTail *)arg1)->unkE0 - 2.0; }
     spFC = (f32)(scale * 0.3);
+    sp64 = 0;
     WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
     WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
     WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
@@ -55,7 +32,8 @@ void func_8069FA40(Gfx *arg0, Actor *arg1) {
     sp78 = heapAlloc(0x40);
     heapFreeDeferred(sp78);
     sp65 = 1;
-    switch (((M4ActorTail *)arg1)->unk15F) {
+    sel = arg1->unk15F;
+    switch (sel ^ 0) {  // FAKE: keeps the switch selector copy (v0) out of copy propagation
     case 0:
         _sprintf(sp68, "ROUND");
         break;
@@ -69,26 +47,25 @@ void func_8069FA40(Gfx *arg0, Actor *arg1) {
     case 0x25:
     case 0x26:
         sp64 = 1;
-        _sprintf(sp68, D_80750338[((M4ActorTail *)arg1)->unk15F]);
+        _sprintf(sp68, D_80750338[sel]);
         break;
     default:
-        if (((M4ActorTail *)arg1)->unk15F & 0x80) {
+        if (sel & 0x80) {
             sp65 = 3;
             spFC = (f32)(4.0 - (f64)spFC);
-            _sprintf(sp68, "%d", 0xA - (((M4ActorTail *)arg1)->unk15F & 0x3F));
-        } else if (((M4ActorTail *)arg1)->unk15F & 0x40) {
+            _sprintf(sp68, "%d", 0xA - (sel & 0x3F));
+        } else if (sel & 0x40) {
             sp65 = 3;
             spFC = (f32)(4.0 - (f64)spFC);
-            _sprintf(sp68, "%d", 8 - (((M4ActorTail *)arg1)->unk15F & 0x3F));
+            _sprintf(sp68, "%d", 8 - (sel & 0x3F));
         } else {
-            _sprintf(sp68, "%d", ((M4ActorTail *)arg1)->unk15F);
+            _sprintf(sp68, "%d", sel);
         }
         break;
     }
-    sp2C = sp65;
-    sp66 = textGetStringWidth(sp65, sp68);
+    sp66 = textGetStringWidth(sp2C = sp65, sp68);
     if (sp64 != 0) {
-        arg1->unk7C = (f32)((0x140 - sp66) * 2);
+        arg1->unk7C = (f32)((0x140 - sp66) << 1);
     }
     guScaleF(spBC, spFC, spFC, 1.0f);
     guTranslateF(sp7C, (f32)((f64)arg1->unk7C + 2.0 * (f64)sp66),
