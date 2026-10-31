@@ -1,4 +1,4 @@
-// slotQueueAddValue (src/global/FCCD0.c): stage 4: frame 0x50, no callee-saved regs, K&R (s32,u8,s16). 160 insns = target 160 now (was 161) after REMOVING the dummy 'pb = &arg2;' (diff 123 -> 96 lines; declaration 's16 *pb;' stays: it reserves frame word -12). Left: (1) CSE spills of arg0*0x30 / slot ptr sit at 0x20/0x1C vs target 0x24/0x20 -- uopt -l 5 shows an extra 2-byte M var (-42vreg, {1296}, stored from a call return) occupying the word at 0x24 that the target lacks (not removed by flagGridIndex prototype changes (s16/s32/K&R), arg2 as s32, separate temp for the GetMaxValue result (shifts everything down), nopa/nopb); (2) arg2 is a uopt candidate (v0) in ours but plain re-loaded 'lh t1,90(sp)' in the target; (3) arg0*0x30 spill stored at definition ('sw t2,32(sp)') instead of inside each branch before the call; (4) CSE temp ring t1/t5 vs t3/t1.
+// slotQueueAddValue (src/global/FCCD0.c): R2Frm1 (wave 2): stage 4, frame 0x50 = target, 159 insns = target, 86 diff lines (tools/fdiff-style objdump diff; was 88). K&R (s32,u8,s16). Applied: slot pointer written as '(SlotQueueStatSlot *)temp_v0 + arg0' (base-first addu a0,v0,t2 like target); dummy 'pb = &arg2' stays removed. Left: (1) cfe nested-call temp for flagSet(flagGridIndex(..)) takes word 36 so uopt spills land at 32/28 vs target 36/32 (removing the nesting drops the whole frame to 72, so the target's extra 8 bytes sit BELOW its spills; every flagGridIndex/flagSet prototype spelling s16/s32/K&R/3-arg/4-arg/(s16) cast gives byte-identical code); (2) arg2 is P candidate web 124 coloured v0 (lh v0 sits after 'addu a0' because v0 is the call result), target has plain 'lh t1,90(sp)' hoisted above the sll chain and CSE'd across blocks; 'pb = &arg2' (alias) makes the load plain/early but un-CSE'd (160 insns, 81 lines, lh reloaded per use); (s16)/(s32)/(+0) casts on any arg2 site: no change; (3) uopt -l 6: arg0*0x30 (candidate 28) is 'not colored (-ve save)' in ours so it is a ugen temp spilled at DEFINITION (sw t2,32), target colours it t2 as a web and stores before each call per branch; named locals idx=arg0*0x30 / slotp are copy-propagated back to the same temp (frame +8). Tried without gain: declaration-order + pad-local hill-climb (500 s, 3 workers), single and greedy dead-use sweeps over all locals (best 74 only via 'if (pa) {}'/'if (temp_a3) {}' junk that adds insns), deadsweep.py cannot parse the K&R definition.
 typedef struct SlotQueueStatSlot {
     u16 *unk0;
     u8 pad4[0x28];
@@ -35,7 +35,7 @@ s16 arg2;
     temp_v0_2 = func_806C8DE0(arg1);
     sp48 = (u8 *)D_807FC950 + (arg1 * 0x306 + temp_v0_2 * 0x5E);
     temp_v0 = slotQueueGetAddress(arg1);
-    temp_a0 = (SlotQueueStatSlot *)(temp_v0 + (arg0 * 0x30));
+    temp_a0 = (SlotQueueStatSlot *)temp_v0 + arg0;
     if (((temp_a0->unk2D == 0) || (arg2 >= 0)) && (temp_a0->unk2C == 0)) {
         if ((arg0 != 0xA) && (arg0 != 0xC)) {
             temp_v1 = temp_a0->unk0;

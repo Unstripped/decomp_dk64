@@ -1,7 +1,4 @@
-// func_80668E9C (src/global/6AD90.c): natural form (dx01..dz02 f64 locals from direct tri->x[i] reads, nx/ny/nz named, d from field reads, sp8C hack dropped; slot address add as 'sp9A*0x90 + base + 0x48'): frame 0x130 + named slots exact; deadsweep score full=38 text=38 shape=17 (was 208/181/109). Remaining: CSE temp for sp9A*0x90 at 0x80 not 0x8C (target has 3 extra temp words), nz/d regs (target nz=f0 spilled to temp 0x70, d=f2 home 0x100; ours nz=f2 home 0x108, d=f18 home 0x100). Parked in src copy.
-#include "common.h"
-#include "actor.h"
-
+// func_80668E9C (src/global/6AD90.c): R2Fp2 stage 5 (unchanged C, whole-file diff 51 rows): frame 0x130 + all named slots + saved set exact; remaining ONLY (a) compiler-temp slots: target CSE temps at 140(sp9A*0x90),136,132,128 and nz spill at 112, ours 128,124,120,116 and nz home 264 (target has NO named nz home: nz is an expression temp spilled to the temp area; removing sp8C/padLo drops frame 304->288, so 16 bytes must come from elsewhere); (b) FP regs: target nz=f0,d=f2, ours nz=f2,d=f18. Tried: inline nz in d only / the 3 y-expr uses / all 8 masks (best stays named nz; all-inline gives 434 insns: nz becomes a callee-saved f22 candidate, no spill, because target ALSO promotes arg2=f28,arg3=f26 and y=f22,2000.0=f24 which outrank nz), assignment-as-argument y, 4400 decl-order moves/shuffles, greedy single dead-statement sweeps over locals+args+globals (51->46 only), new dead-local sweeps. Idea left: make arg2/arg3 FP candidates (target loads lwc1 f28,312(sp)/f26,316(sp) once).
 typedef struct {
     f32 x[3];
     f32 y[3];
@@ -109,7 +106,7 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
         return 0;
     }
 
-    sp90 = &MODEL_SLOT_ENTRIES[sp9A].unk48;
+    sp90 = (ModelSlotTriBufferView *)(sp9A * 0x90 + (u8 *)MODEL_SLOT_ENTRIES + 0x48); // FAKE: operand order of the slot address add
     if (arg0 != NULL && MODEL_SLOT_ENTRIES[sp9A].unk70 != NULL && D_807F946D != 0) {
         actorCheckNearbyNodeInteractions(arg0, sp9A, MODEL_SLOT_ENTRIES[sp9A].unk70);
     }

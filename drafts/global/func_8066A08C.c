@@ -1,12 +1,4 @@
-// func_8066A08C (src/global/6AD90.c): natural-locals form (direct tri->unkXX reads in dx/dy/dz f64 locals, d from field reads, gActiveActors[i] indexing, locals decl block order hit_tri,nx/ny/nz,d,dx*,y,hit,i,j,actor,tri,actor_count,pad,hit_y,pad,hit_actor,pad): frame+hit_y/d/hit_tri slots now exact; ny*2000 no longer CSE'd; fdiff full=179 text=122 shape=42 (was 241/221/101). Remaining: literal 2000.0 not coloured f26, d in f18 not f0
-#include "common.h"
-#include "actor.h"
-
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
-extern u8 D_807F94BC;
-extern u8 D_807F94B3;
-
+// func_8066A08C (src/global/6AD90.c): R2Fp2 stage 5 (unchanged C, 319 target vs 329 ours insns, whole-file diff 143 rows): ours has 4 extra ldc1+lui (2000.0 reloaded at each use; target keeps it in callee-saved f26 from the first ny*2000.0 compare to the end), +1 lw +1 lwc1, bc1fl vs bc1f; d in f18 (target f0), first FP ring temp f6 (999999.0f) vs target f4 (one extra hidden FP touch in ours / f16,f18 used as webs). Tried this round: inline nz (all 8 masks), 4300 decl-order moves, greedy single dead-statement sweeps (27 syms x all positions), new dead-local sweeps (f32/f64/s32): none improves. Target nz=f22, nx f30, ny f20, dx02/dy02 temps f24/f26 reused later, arg2 reloaded lwc1 f28.
 typedef struct {
     u8 pad0[0x24];
     f32 unk24;

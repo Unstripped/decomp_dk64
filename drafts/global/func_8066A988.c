@@ -1,4 +1,4 @@
-// func_8066A988 (src/global/6AD90.c): func_8066A988 (src/global/6AD90.c): twin of func_80669E04 at CollisionBoxTriangle +0x24; stage 4, parked NON_MATCHING; u32 outside gives li v1,1 (93 vs 94 full). Same prologue diff as func_80669E04 (x1/x2/z2 in regs pre-loop, z1/x0/z0 stack vars with store+reload, one shared 0.5 const pair; frame/slot layout of target needs 8+8 reserved double words around dx..oz). See that draft for everything tried.
+// func_8066A988 (src/global/6AD90.c): R2Frm1 (wave 2): twin of func_80669E04 (CollisionBoxTriangle +0x24), stage 4, NON_MATCHING park unchanged; same prologue/frame-layout diff as func_80669E04 (see that draft: target homes dx..oz 136..160 with 32 bytes reserved above, floats 84..100 + z0 68; ours 168..192 / 144..164). Not re-searched separately: every knob of the 80669E04 searches applies identically.
 #include "common.h"
 
 typedef struct CollisionTriF {

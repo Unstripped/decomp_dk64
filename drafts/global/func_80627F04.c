@@ -1,4 +1,4 @@
-// func_80627F04 (src/global/2C910.c): Stage 4 (body unchanged; Q2C round): s0 + frame 0xA8 match, 1173 vs 1170 insns; 38 diff lines with stack offsets masked but 132 with exact offsets: LAYOUT is wrong, not only regalloc. Target stack words: b/c/d/e (sv[3]/sv[1]/sv[0]/sv[4]) at 0x44/0x3C/0x38/0x48 (bottom of frame, just above ra 0x34), 0x4C..0x6F (9 words) never referenced, sp72 at 0x72, case-0x28 var at 0x90 (sp90), sp84/80/7C at 0x84/0x80/0x7C. Mine: sv[] at 0x60..0x73 (+0x28), sp72 at 0x7A, case-0x28 var at 0x88 (q instead of sp90). In the target b,c,d,e are almost surely uopt spill slots of expression temps (below every cfe temp; selector temp goes below declared locals, so declared vars cannot be last); only a is a named var (move s0,t7 pattern). Tried: named s32 vars at the bottom (frame +0x30: selector + temps land below), macros (s16)(argN>>16) in cases (1310 insns, no CSE with prologue because the store elides the cvt), spA0[] elements in cases (frame 0x80, plain lh loads: spA0 escapes). Remaining real hunks: prologue order (srl a1/sll t9 first, a via s0), 0x27 CSE spill, loop li v1,2; sh 0x72, case 0x28 q vs sp90, extra move s0,a0 near 0xCE0.
+// func_80627F04 (src/global/2C910.c): Stage 4 (R2Frm2 layout round): s0 + frame 0xA8 match, 1172 vs 1169 insns, q slot 0x90 now right (sp90 local dropped, case-0x28 var = q declared before p, extra unused 'r' keeps f32s at 0x84/0x80/0x7C). Remaining LAYOUT: target b,c,d,e (sv[3],sv[1],sv[0],sv[4]) are uopt SPILL slots (0x44/0x3C/0x38/0x48) below the cfe frame, with a 9-word cfe gap above them (f64 ternary temps, a) and only 2 declared words above sp72@0x72. Named s32 scalars (not an array) reproduce exactly those bottom slots: grid in .scratch/R2Frm2 (2 function-level + 2 block-scope scalars, plus hoisting the n_alSndpPlay f64 ternary into a local so only ONE f64 temp is live) gives frame 168, f32 0x7C/0x84, sp72 0x72, slots 0x38..0x48; but scalar d (sv[0]) is promoted to t1 with sw/lw around calls and code grows to 1187 insns (shape 112 vs 50 hunks, masked). The array form keeps shape (50 hunks, 1172 insns) but its 5 words sit at 0x60 above the cfe gap. Not found: array-like memory behaviour AND bottom spill slots. s16 scalars (2 per word) give frame/sp72 but are forwarded (arg reloads, 1291 insns). Decl-order hill-climb (6.7k variants), dead sv0 uses: no gain.
 #define M3_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
 
 extern u8 D_807457E4[];
@@ -84,9 +84,9 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
     void *sp9C;
     void *sp98;
     s32 sp94;
-    void *sp90;
-    void *p;
     void *q;
+    void *p;
+    void *r;
     f32 sp84;
     f32 sp80;
     f32 sp7C;
@@ -315,12 +315,11 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             if (sp98 != NULL) {
                 q = spawnNodeActivate((s16)sv[3], 0);
                 if (q != NULL) {
-                    sp90 = q;
-                    func_8067B238(sp98, q, M3_OFF(M3_OFF(q, void *, 4), s32, 0x38));
-                    controllerAnimSetState(sp98, M3_OFF(M3_OFF(M3_OFF(sp90, void *, 4), void *, 0), s16, 0x10), M3_OFF(M3_OFF(M3_OFF(sp90, void *, 4), void *, 0), f32, 4), 0.0f);
+                                        func_8067B238(sp98, q, M3_OFF(M3_OFF(q, void *, 4), s32, 0x38));
+                    controllerAnimSetState(sp98, M3_OFF(M3_OFF(M3_OFF(q, void *, 4), void *, 0), s16, 0x10), M3_OFF(M3_OFF(M3_OFF(q, void *, 4), void *, 0), f32, 4), 0.0f);
                     controllerStepMotionWindows(sp98);
                     M3_OFF(sp98, s32, 0x60) |= 4;
-                    M3_OFF(sp90, s32, 0x60) &= ~4;
+                    M3_OFF(q, s32, 0x60) &= ~4;
                     return;
                 }
             }

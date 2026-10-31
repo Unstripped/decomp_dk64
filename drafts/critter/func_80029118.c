@@ -1,52 +1,4 @@
-// func_80029118 (src/critter/5110.c): func_80029118 stage 6: TEXT IDENTICAL, reloc only. Remaining diffs are D_807FCC40+4 vs D_807FCC44 reloc on the first read (plain D_807FCC44 CSEs the lui: 484 insns) and .rodata addends. Fix that matched v0/v1: pass tmp (not D_80029FA4) as slotQueueSetShownValue arg3 (tmp web is v1, lui reg follows it); needs UB dummy if (sp70 && sp70) {} in case 0xFF. Orchestrator: check against ROM hash.
-typedef struct Struct_807FBB40_174 {
-    s16 unk0;
-    u8 unk2;
-    u8 pad3;
-    s16 unk4;
-    u8 unk5;
-} Struct_807FBB40_174;
-
-typedef struct Struct_807FBB40 {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[0x11C - 0x64];
-    struct Struct_807FBB40 *unk11C;
-    char pad120[0x154 - 0x120];
-    u8 unk154;
-    char pad155[0x174 - 0x155];
-    Struct_807FBB40_174 *unk174;
-} Struct_807FBB40;
-
-s32 critterBitwiseNot(s32 arg0);
-
-extern s8 D_80029FA0;
-extern u16 D_80029FA4;
-extern s8 D_80029FA8;
-extern u8 D_807444EC;
-extern u8 D_807655F0[];
-extern s32 D_8076A0A8;
-extern u8 D_807ECE00[];
-extern Struct_807FBB40 *D_807FBB40;
-extern u16 D_807FCC44;
-extern u8 D_807FCC40[];
-
-void camStartPath(s32, s32, s32);
-void slotQueueSetShownValue(s32, s32, s32);
-s32 camIsPathPaused(void);
-void func_8070D8C0(void *, s32, s32);
-void hudSpawnCountdownTimer(s32, s32, s32);
-void camResumePath(void);
-void actorSetStateTwo(void *);
-void sfxAllocateChannel(s32, f32);
-void flagSet(s16, s32, s32);
-s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void func_805FF800(s32 *, s32 *);
-void func_805FF628(s32, s32);
-void renderCallbacksRegister(void *, void *, s32);
-Gfx *critterRenderCenterImage(Gfx *, Struct_807FBB40 *);
-
+// func_80029118 (src/critter/5110.c): from .scratch/R3A/func_80029118_best.c
 void func_80029118(void) {
     s32 pad88;
     u16 tmp;
@@ -175,6 +127,7 @@ void func_80029118(void) {
                         sp70 = 0x185;
                         break;
                     }
+                    if (sp70 && sp70) {} // FAKE: promotes sp70 to a register (default arm reloads its home)
                     flagSet(sp70, 1, 0);
                 }
                 tmp = D_80029FA4;
@@ -186,7 +139,6 @@ void func_80029118(void) {
         }
         break;
     case 0xFF:
-        if (sp70 && sp70) {} // FAKE: promotes sp70 to a register (default arm reloads it)
         D_80029FA8 = 0;
         temp_s0->unk2 = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
         temp_s0->unk0 = 0x78;
