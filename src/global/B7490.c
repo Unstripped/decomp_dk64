@@ -389,13 +389,10 @@ void func_806B3420(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
 void func_806B3680(void) {
     f32 dx;
     f32 var;
     f32 sp54;
-    f32 dy;
-    f32 dz;
     u8 st;
     s16 i;
 
@@ -421,16 +418,13 @@ void func_806B3680(void) {
         D_807FBB40->unk155[0] = 0;
     } else if (D_807FBB40->unk154 != 0x27) {
         dx = D_807FDC94->unk7C - D_807FBB40->unk7C;
-        dy = D_807FDC94->unk80 - D_807FBB40->unk80;
-        dz = D_807FDC94->unk84 - D_807FBB40->unk84;
-        if (dx * dx + dy * dy + dz * dz < var) {
+        if (dx * dx + (D_807FDC94->unk80 - D_807FBB40->unk80) * (D_807FDC94->unk80 - D_807FBB40->unk80) + (D_807FDC94->unk84 - D_807FBB40->unk84) * (D_807FDC94->unk84 - D_807FBB40->unk84) < var) {
             D_807FBB40->unk154 = 0x27;
             D_807FBB40->unk155[0] = 0;
         }
     }
     effectSpawnSparks(0x1F, 0);
-    st = D_807FBB40->unk154;
-    switch (st) {
+    switch (D_807FBB40->unk154) {
         case 4:
             actorMoveWithinZone(0, 0.0f, 0.0f, 2, 0.0f);
             if (D_807FBB40->unk80 < D_807FBB40->unkAC) {
@@ -477,24 +471,18 @@ void func_806B3680(void) {
         case 2:
         case 3:
             dx = D_807FDC90->unkC;
-            dy = D_807FBB40->unkAC - D_807FBB40->unk15E;
-            dz = (dx < dy) ? dx : dy;
-            func_8072A920((s16)st, 0, D_807FDC90->unkA, dz, D_807FDC90->unkE, 0x1E, 3.3f, 100.0f, 0x2040);
+            func_8072A920(D_807FBB40->unk154, 0, D_807FDC90->unkA, (dx < (D_807FBB40->unkAC - D_807FBB40->unk15E)) ? dx : (D_807FBB40->unkAC - D_807FBB40->unk15E), D_807FDC90->unkE, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         default:
             func_8072B7CC(0x32E);
             break;
     }
-    st = (s32)D_807FBB40->unk154;
-    if (D_807FBB40->unk154 == 2 || st == 3) {
-        patrolPathStep(D_807FBB40->unk154, 1);
+    st = D_807FBB40->unk154;
+    if (st == 2 || st == 3) {
+        patrolPathStep(st, 1);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B7490/func_806B3680.s")
-#endif
 
 void projectileSpawnFromActorNode(u8 arg0) {
     projectileGetTargetCoords(D_807FBB40, arg0);
