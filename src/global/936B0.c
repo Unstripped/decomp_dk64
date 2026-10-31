@@ -542,12 +542,12 @@ u8 arg3;
         ACTOR_MOVE_VIEW->unkE4 = func_806CC190(ACTOR_MOVE_VIEW->unkE4, sp48, 5.0f);
     }
     ACTOR_MOVE_VIEW->unkB8 = ACTOR_MOVE_VIEW->unkB8 - sp54;
-    fv0 = ACTOR_MOVE_VIEW->unkB8;
-    if (fv0 < 0.0f) {
+    sp40 = ACTOR_MOVE_VIEW->unkB8;
+    if (sp40 < 0.0f) {
         ACTOR_MOVE_VIEW->unkB8 = 0.0f;
-        fv0 = ACTOR_MOVE_VIEW->unkB8;
+        sp40 = ACTOR_MOVE_VIEW->unkB8;
     }
-    fv0 = fv0 - ACTOR_MOVE_VIEW->unkBC;
+    fv0 = sp40 - ACTOR_MOVE_VIEW->unkBC;
     if (fv0 < 0.0f) {
         fv0 = 0.0f;
     }

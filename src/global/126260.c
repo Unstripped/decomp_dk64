@@ -113,7 +113,6 @@ void commandQueuePush(s32 arg0, s16 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5, 
     temp_v1->unkE = arg8;
 }
 
-#ifdef NON_MATCHING
 s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5) {
     f32 dist;
     f64 dist_d;
@@ -124,10 +123,12 @@ s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5
     f64 clamped;
     f64 dy_d;
     u32 c;
+    f32 base;
 
     lights = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278);
     ambient = (Ambient *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x270);
     slot_light = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + ((u32)arg0 * 0x10) + 0x278); // FAKE: u32 cast splits the arg0 conversion candidate (no phantom t2)
+    if (ambient == 0) {} // FAKE: extra use of ambient raises its priority over slot_light
     if (lights && lights) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
 
     if (D_8076A048 == 0) {} // FAKE: makes the base load a uopt candidate (v1)
@@ -137,9 +138,13 @@ s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5
 
     if (arg1->unkE == 5) {
         dist_d = sqrtf((arg2 - (f32)arg1->unk4) * (arg2 - (f32)arg1->unk4) + (arg4 - (f32)arg1->unk8) * (arg4 - (f32)arg1->unk8));
+        if (dist_d == 0.5) {} // FAKE: dead use of the 0.5 constant starts its web early (splits the ambient piece into f14)
         dist = (dist_d > 0.001) ? dist_d : 0.001;
-        intensity = (dist - (f32)((s32)arg1->unkA / 2) < 1.0) ? 1.0 : dist - (f32)((s32)arg1->unkA / 2);
-        clamped = (f64)(f32)(u32)arg1->unkA / (0.5 * intensity * intensity);
+        base = (dist - (f32)((s32)arg1->unkA / 2) < 1.0) ? 1.0 : dist - (f32)((s32)arg1->unkA / 2);
+        clamped = (f64)(f32)(u32)arg1->unkA / (0.5 * base * base);
+        if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
+        if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
+        if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
         intensity = (clamped > 1.0) ? 1.0 : clamped;
         if ((f32)(arg1->unk6 + 50) < arg3) {
             dy_d = ((arg3 - (f32)arg1->unk6) - 50.0f > 20.0) ? 20.0 : (arg3 - (f32)arg1->unk6) - 50.0f;
@@ -153,7 +158,6 @@ s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5
 
     if (arg1->unkE == 5) {
         if ((f64)intensity > 0.1) {
-            if (ambient && ambient) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             c = (u32)((f32)(u32)lights->l.col[0] + ((f32)(arg1->unkB - lights->l.col[0]) * intensity));
             lights->l.colc[0] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
             lights->l.col[0] = (u8)c;
@@ -192,7 +196,7 @@ s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5
 
         c = (u32)((f32)(u32)arg1->unkD * intensity);
         slot_light->l.colc[2] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-        slot_light->l.col[2] = (u8)c;
+        slot_light->l.col[2] = (c & 0xFF) & 0xFF; // FAKE: second no-op mask keeps both stores on the t8 copy
 
         slot_light->l.dir[0] = (s8)(s32)(((f32)arg1->unk4 - arg2) * (127.0f / dist));
         slot_light->l.dir[1] = (s8)(s32)(((f32)arg1->unk6 - arg3) * (127.0f / dist));
@@ -202,11 +206,6 @@ s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5
 
     return 0;
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/126260/func_80721814.s")
-#endif
 
 void commandQueueReset(void) {
     D_807FDB74 = 0;

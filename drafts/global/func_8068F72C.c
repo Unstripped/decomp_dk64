@@ -1,4 +1,4 @@
-// func_8068F72C (src/global/936B0.c): stage 5 (parked, R2Lru1 no C change): same 517 insns/frame; first ring divergence is pick 53 (arg3 block): target takes t2,t3 for fl[3]/fl[2] loads (t0/t1 hidden-touched after t2-t5), mine t0,t1; target chain mfc1 t9/andi t8/sll t0/sra v0 are pure ring temps (v0 web live across whole arg3 block) whereas ucode here stores every step into the sp48 var (mfc1 v0). Tried: if/else and ternary for -0x28/-0x1E (sp48 goes to t0, +2 insns), (s16) cast forms, dead sp48 uses at both ends of the assignment (no effect), 2943-site dead-if sweep (see report)
+// func_8068F72C (src/global/936B0.c): func_8068F72C (src/global/936B0.c): stage 5 parked NON_MATCHING (R3c): score 177->159 by naming the first unkB8 reload in the fv0 chain with the dead local sp40 (FP webs now match: sp50 f12, 0.0 const f14, first web f2, second f0). Left: t-ring phase from the arg3 block (target fl loads t2,t3 vs mine t0,t1), sp48 narrowing chain (target mfc1 t9/andi t8/sll t0/sra v0 pure ring temps; mine mfc1 v0 because uopt splits sp48 (cand 17) into v0 pieces for each chain node), and sp58==2 -> sp48 -0x1E/-0x28 wants if/else shape (bne;li -40;b;li -30) but if/else/ternary/other-local variants all score worse (+3 insns). Tried: callee return widths (s16/s32 for func_806CC10C/190: same), later sp48 var swapped to sp34/temp_v0/sp4A, mask/cast injection sweep on every assignment, dead-use sweeps (sp48/sp4A/sp58/args).
 typedef struct ActorMoveState {
     s16 unk0;
     s16 unk2;
@@ -174,12 +174,12 @@ u8 arg3;
         ACTOR_MOVE_VIEW->unkE4 = func_806CC190(ACTOR_MOVE_VIEW->unkE4, sp48, 5.0f);
     }
     ACTOR_MOVE_VIEW->unkB8 = ACTOR_MOVE_VIEW->unkB8 - sp54;
-    fv0 = ACTOR_MOVE_VIEW->unkB8;
-    if (fv0 < 0.0f) {
+    sp40 = ACTOR_MOVE_VIEW->unkB8;
+    if (sp40 < 0.0f) {
         ACTOR_MOVE_VIEW->unkB8 = 0.0f;
-        fv0 = ACTOR_MOVE_VIEW->unkB8;
+        sp40 = ACTOR_MOVE_VIEW->unkB8;
     }
-    fv0 = fv0 - ACTOR_MOVE_VIEW->unkBC;
+    fv0 = sp40 - ACTOR_MOVE_VIEW->unkBC;
     if (fv0 < 0.0f) {
         fv0 = 0.0f;
     }
