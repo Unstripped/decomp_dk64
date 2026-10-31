@@ -1,4 +1,4 @@
-// func_8068F72C (src/global/936B0.c): stage 5-6 (Q936 in progress): frame 0x60 + size match; reg-only diff ~80 lines: sp50 f12 vs f2 (FP ring), ang0 temp ring, E8 hoist; fixes: if(arg3)/if(!arg3) form removes arg3/arg2 cache (no volatile), dead if(ang0)/if(sp58) uses, pointer var separate from -0x28 var (sp48 reuse)
+// func_8068F72C (src/global/936B0.c): stage 5-6, frame 0x60 and .text size equal, 80 diff lines (fdiff 2380->545), register-only + 1 missing 'b' (else-form -0x28/-0x1E select). Remaining: sp50 in f12 (mine f2) and fv0 web f2 (mine f0); ang0 must be ONE v0 web over the arg3 block (target mfc1 t9/andi t8/sll t0/sra v0, mine mfc1 v0 hole); ang1 web v1 (mine t2); t-temp LRU shift after 0x1414. Wins: if(arg2)/if(!arg3) forms kill the arg2/arg3 lbu caching (no volatile), pointer var separate (v0) from -0x28 var (reuse sp48), dead if(sp48)/if(sp58)/if(unkE8) uses. Tried: scalar vs array ang, fa0/fv0 web swaps (2^7), new locals (+8 frame), sp34/temp_v0 reuse, ternary, 3 dead-stmt sweeps + 480s hill climb (noise).
 typedef struct ActorMoveState {
     s16 unk0;
     s16 unk2;
@@ -161,11 +161,13 @@ u8 arg3;
     }
     sp50 = S->unk10 * S->unkC;
     if (arg3) {
-        if (sp48) {} // FAKE
+        if (sp48) {} // FAKE: extra ref lets uopt colour sp48 (v0) across the arg3 block
         sp48 = (s32)((f32)sp48 + sp50 * 200.0f) & 0xFFF;
         if (fl[3] != 0 || fl[2] != 0) {
+            if (ACTOR_MOVE_VIEW->unkE8) {} // FAKE: hoists the unkE8 load to the arm start
             sp4A = (s32)((f64)sp4A + ((f64)(S->unk4 * -50.0f) + (f64)ACTOR_MOVE_VIEW->unkB8 * -0.5)) & 0xFFF;
         } else {
+            if (ACTOR_MOVE_VIEW->unkE8) {} // FAKE: hoists the unkE8 load to the arm start
             sp4A = ACTOR_MOVE_VIEW->unkE8;
         }
         ACTOR_MOVE_VIEW->unkE8 = func_806CC190(ACTOR_MOVE_VIEW->unkE8, sp4A, 4.0f);
@@ -189,7 +191,7 @@ u8 arg3;
     S->unk0 = S->unk0 & 0xFFF;
     if (arg2) {
         fa0 = ACTOR_MOVE_VIEW->unk80;
-        if (sp48) {} // FAKE
+        if (sp48) {} // FAKE: extra ref reshapes the FP/ang candidates in the arg2 block
         fv0 = ACTOR_MOVE_VIEW->unkAC;
         if (fa0 < fv0) {
             ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + ((fv0 - fa0) * 3.0f + 15.0f);
@@ -209,7 +211,7 @@ u8 arg3;
         ((ActorMoveStepFlag *)arg1)->unk4 = 0;
         if (fl[3] != 0) {
             if (sp58 == 2) {
-                if (sp58) {} // FAKE
+                if (sp58) {} // FAKE: extra ref keeps sp58 in a0 (not reloaded)
                 ACTOR_MOVE_VIEW->unkC0 = 200.0f;
             } else {
                 ACTOR_MOVE_VIEW->unkC0 = (f32)D_8075033C;
