@@ -95,6 +95,12 @@ typedef struct {
 } ModelAssetEntry160;
 extern ModelAssetEntry160 D_8076A160[];
 
+typedef struct {
+    void *ptr;
+    u8 pad4[0xC0 - 4];
+} ModelAssetEntry178;
+extern ModelAssetEntry178 D_8076A178[];
+
 s32 func_80600080(s32);
 u16 modelTypeCountBeforeMap(u8);
 void modelAssetGetSubtables(s32, s32 *, s32 **);
@@ -107,7 +113,6 @@ s32 func_805FF030(u8, s32);
 void func_80688A6C(void);
 s32 func_806C7B34(void);
 
-#ifdef NON_MATCHING
 void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
     s32 sp5C;
     s32 *sp58;
@@ -132,7 +137,7 @@ void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
         }
     } else {
         D_807F6010 = arg0;
-        arg0 = D_8076A160[sp54].unk18;
+        arg0 = (s32)D_8076A178[sp54].ptr;
     }
     modelAssetGetSubtables(arg0, &sp5C, &sp58);
     if (arg2 != 0) {
@@ -148,23 +153,18 @@ void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
             modelSlotsApplyRecords(D_8076A160[sp54].unk20, D_8076A160[sp54].unk1C);
         }
         if (D_807F6C28 > 0) {
-            arg0 = (s32)&D_8076A160[sp54];
-            flag = 0;
-            do {
-                lightSetColor((f32)((f64)(u32)((u8 *)arg0)[0x24] / 255.0),
-                              (f32)((f64)(u32)((u8 *)arg0)[0x25] / 255.0),
-                              (f32)((f64)(u32)((u8 *)arg0)[0x26] / 255.0),
-                              flag);
+            flag = 0, arg0 = (s32)&D_8076A160[sp54]; do { lightSetColor( // FAKE: init + call on one line steers as1 order of the hoisted ldc1 vs addu
+                (f32)((f64)(u32)((u8 *)arg0)[0x24] / 255.0),
+                (f32)((f64)(u32)((u8 *)arg0)[0x25] / 255.0),
+                (f32)((f64)(u32)((u8 *)arg0)[0x26] / 255.0),
+                flag);
                 flag++;
                 arg0 += 3;
             } while (flag < D_807F6C28);
         }
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/actorMapModelsSetup.s")
-#endif
 extern u8 D_807500B0;
 extern s16 D_807FC408[];
 
@@ -177,16 +177,15 @@ typedef struct ActorListContainer {
     ActorListRecord items[1];
 } ActorListContainer;
 
-#ifdef NON_MATCHING
 void actorListInitOffsets(void) {
-    char pad[12];
+    s32 j;
+    s32 count;
+    s32 total;
     void *sp60;
     ActorListContainer *container;
-    s32 j;
-    ActorListRecord *item;
-    s32 count;
-    u16 total;
+    ActorListRecord *items;
     s32 i;
+    s32 ret;
     void *temp_v0;
 
     total = 0;
@@ -198,9 +197,10 @@ void actorListInitOffsets(void) {
             if (temp_v0 != NULL) {
                 modelAssetGetSubtables((s32)temp_v0, (s32 *)&sp60, (s32 **)&container);
                 count = container->count;
-                item = (ActorListRecord *)((s32 *)container + 1);
-                for (j = 0; j < count; j++, item++) {
-                    total += func_80688C84(item->unk32 + 0x10);
+                items = container->items;
+                for (j = 0; j < count; j++) {
+                    ret = func_80688C84(items[j].unk32 + 0x10);
+                    total = (u16)(total + ret);
                 }
                 assetSetImmediateFree();
                 assetFreeBuffer(temp_v0, 0x168, 0x34);
@@ -208,14 +208,69 @@ void actorListInitOffsets(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/actorListInitOffsets.s")
-#endif
 
 void *heapAlloc(s32);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80688A6C.s")
+void func_80688A6C(void) {
+    s32 count;
+    s32 i;
+    s32 ret;
+    s32 pad;
+    s32 sz;
+    ActorListRecord *items;
+    void *asset;
+    void *sp48;
+    ActorListContainer *container;
+    ActorListRecord *item;
+    s32 var_s2;
+
+    asset = assetLoad(9, D_8076A0A8, 1, 1);
+    D_807FC5C8 = 0;
+    if (asset != NULL) {
+        modelAssetGetSubtables((s32)asset, (s32 *)&sp48, (s32 **)&container);
+        count = container->count;
+        items = container->items;
+    } else {
+        count = 0;
+    }
+    if (count > 0) {
+        i = 0;
+        item = items;
+        do {
+            if (func_80688C84(item->unk32 + 0x10) != 0) {
+                D_807FC5C8++;
+            }
+            i++;
+            item++;
+        } while (i != count);
+    }
+    if (D_807FC5C8) {
+        sz = D_807FC5C8 * sizeof(ActorListEntry4);
+        i = 0;
+        D_807FC5C4 = heapAlloc(sz);
+    } else {
+        D_807FC5C4 = NULL;
+        return;
+    }
+    D_807FC5C8 = 0;
+    var_s2 = 0;
+    if (count > 0) {
+        item = items;
+        do {
+            ret = func_80688C84(item->unk32 + 0x10);
+            if (ret != 0) {
+                D_807FC5C4[D_807FC5C8].unk0 = item->unk34;
+                D_807FC5C4[D_807FC5C8].unk2 = ((u16 *)D_807FC408)[D_8076A0A8] + var_s2 + 0x26B;
+                var_s2 += ret;
+                D_807FC5C8++;
+            }
+            i++;
+            item++;
+        } while (i != count);
+    }
+    assetSetImmediateFree();
+    assetFreeBuffer(asset, 0x1AA, 0x34);
+}
 
 s32 actorListLookupEntry(u16 arg0) {
     s32 i;
@@ -253,12 +308,6 @@ void actorSetCustomInt(Actor *actor, s16 arg1, s32 arg2) {
         ((s32 *)actor->unk124)[arg1] = arg2;
     }
 }
-
-typedef struct {
-    void *ptr;
-    u8 pad4[0xC0 - 4];
-} ModelAssetEntry178;
-extern ModelAssetEntry178 D_8076A178[];
 
 void actorListSetCustomFloat(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
     s32 pad[2];
