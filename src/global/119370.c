@@ -402,7 +402,6 @@ EffectNode *func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void
 }
 #undef UA1_D08_FIELD
 
-#ifdef NON_MATCHING
 typedef struct Fx119AEffectVertex {
     s16 x;
     s16 y;
@@ -427,7 +426,11 @@ void func_8071509C(EffectNode *effect) {
     s32 y;
     node = *(EffectGridNode **)((u8 *)effect + 0x330);
     vertexIndex = 0;
-    startX = -(node->unk8 * node->unkC) / 2;
+    if (node->unk8 == 0) {} // FAKE: gives unk8 the first candidate index (a1)
+    if (node->unk9 == 0) {} // FAKE: gives unk9 the second candidate index (a2)
+    node = *(EffectGridNode **)((u8 *)effect + 0x330); // FAKE: kill splits the unk8/unk9 webs so they reload in the arms
+    x = -(node->unk8 * node->unkC) / 2;
+    startX = x;
     if (effect->mode == 0) {
         y = -(node->unk9 * node->unkE) / 2;
     } else {
@@ -444,12 +447,12 @@ void func_8071509C(EffectNode *effect) {
                     vertex[0].z = 0;
                     vertex[0].s = 0;
                     vertex[0].t = 0;
-                    vertex[1].y = y;
                     vertex[1].x = node->unkC + x;
+                    vertex[1].y = y;
+                    vertex[1].z = 0;
+                    vertex[1].s = node->unkC << 5;
                     vertex[1].t = 0;
                     vertex[2].x = x;
-                    vertex[1].s = node->unkC << 5;
-                    vertex[1].z = 0;
                     vertexIndex += 2;
                     vertex += 2;
                     if (effect->mode == 0) {
@@ -484,10 +487,6 @@ void func_8071509C(EffectNode *effect) {
             }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_8071509C.s")
-#endif
 
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 extern u32 D_8076A064;

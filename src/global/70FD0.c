@@ -998,7 +998,6 @@ typedef struct ActorSub140SrcTri {
     /* 0x2B */ u8 pad2B;
 } ActorSub140SrcTri; // size = 0x2C
 
-#ifdef NON_MATCHING
 typedef struct ActorSphereNodeSrc {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -1092,16 +1091,20 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         }
         if ((s32)s2 > 0) {
             do {
-                s32 k = 0;
                 f32 *t0 = (f32 *)arg9;
+                s32 k = 0;
                 s32 j = 0;
-                f32 *src = (f32 *)arg9;
                 f32 *dst = (f32 *)a3;
+                f32 *src = (f32 *)arg9;
                 do {
                     *dst++ = src[0];
-                    j++;
-                    k += 3;
-                    src += 3;
+                    j += 2; // FAKE: split increments raise j/k/src priority (v0/v1/a0/a1 roles)
+                    j--;
+                    k += 1;
+                    k += 1;
+                    k += 1;
+                    src += 1;
+                    src += 2;
                     dst[2] = src[-2];
                     dst[5] = src[-1];
                 } while (j != 3);
@@ -1125,16 +1128,20 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         if ((s32)s2 > 0) {
             a3 = (u8 *)sp54;
             do {
-                s32 k = 0;
                 f32 *t0 = (f32 *)arg9;
+                s32 k = 0;
                 s32 j = 0;
-                f32 *src = (f32 *)arg9;
                 f32 *dst = (f32 *)a3;
+                f32 *src = (f32 *)arg9;
                 do {
                     *dst++ = src[0];
-                    j++;
-                    k += 3;
-                    src += 3;
+                    j += 2; // FAKE: split increments raise j/k/src priority (v0/v1/a0/a1 roles)
+                    j--;
+                    k += 1;
+                    k += 1;
+                    k += 1;
+                    src += 1;
+                    src += 2;
                     dst[2] = src[-2];
                     dst[5] = src[-1];
                 } while (j != 3);
@@ -1150,10 +1157,6 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
     }
     return sub140;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066E2C0.s")
-#endif
 
 void actorSetNodeValue(Actor *arg0, s32 arg1, u16 arg2) {
     ModelNode *temp_v0;

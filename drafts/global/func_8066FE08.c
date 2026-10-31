@@ -1,5 +1,5 @@
-// func_8066FE08 (src/global/70FD0.c): NM11 stage 5 (parked NON_MATCHING in private copy, 6 bad insn lines of 466): frame 0x178 exact; abs-of-angle single narrowing exact; all regs match EXCEPT E temp 'subu v0,v1,a1' (target 'subu a0,v1,a1': x and the sub temp share a0, both cases), and sin/cos spill slot sp44 at 0x3C (target 0x44; named sp44 is propagated so uopt spills to a fresh slot; making it memory-resident via &sp44/array puts it at 0x44 but then as1 keeps [swc1 f0][lwc1 f12] order instead of target [lwc1 f12][jal][swc1 f0]). Needs dead 'if (var_a0 && var_a0 && var_a0) {}' to colour x before temp_a1/temp_a2.
-typedef struct Q70c_HitInfo {
+// func_8066FE08 (src/global/70FD0.c): NM11 stage 5, 6 insn rows left: E temp subu v0 vs target a0 (x and sub temp share a0 => in target E does not interfere with x, in ours cand ucvtl interferes with x because x is assigned before the abs branch; if/else or ternary form of the abs makes it worse 566-791 even with 0-5 dead terms), and sin/cos spill slot 0x3C vs target 0x44. R2Aud2 analysis: the target 0x44 slot is the declared sp44 home (variable stays in memory, un-propagated, not address-taken: &sp44/array keeps as1 order [swc1 f0][lwc1 f12] wrong); every pad/decl-order/if-chain/inline variant keeps spill at 0x3C (removing sp44 or the switch shrinks frame 0x170). Tried init sp44=0, F1-F5 assignment forms: no effect. Untried: make sp44 survive copy-prop without address-taking.
+typedef struct R2Aud2_HitInfo {
     u8 pad0[0x50];
     u8 unk50;
     u8 unk51;
@@ -9,7 +9,7 @@ typedef struct Q70c_HitInfo {
     s16 unk8A;
     f32 unk8C;
     f32 unk90;
-} Q70c_HitInfo;
+} R2Aud2_HitInfo;
 
 extern Actor *D_807FBB40;
 f32 sinApprox(f32);
@@ -21,7 +21,7 @@ void func_8066FE08(s32 arg0) {
     s16 temp_a1;
     s32 var_a3;
     s32 temp_v0;
-    Q70c_HitInfo *sub;
+    R2Aud2_HitInfo *sub;
     s32 var_a0; // FAKE: s32 so `var_a0 = temp_a0` needs no re-extension; the (s16) casts below re-narrow
     f32 sp160;
     f32 sp15C;
@@ -55,7 +55,7 @@ void func_8066FE08(s32 arg0) {
 
     var_a3 = 0;
     if (D_807F6000[arg0].unk7C != NULL && D_807FB5D8->unk4D != 0) {
-        sub = (Q70c_HitInfo *)D_807F6000[arg0].unk7C;
+        sub = (R2Aud2_HitInfo *)D_807F6000[arg0].unk7C;
         temp_v0 = sub->unk50;
         if (temp_v0 != 0)
         switch (temp_v0) {
