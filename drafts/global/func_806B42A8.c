@@ -1,10 +1,8 @@
-// func_806B42A8 (src/global/B7490.c): stage 6: only 3 diffs. needs file-level proto s32 patrolPathStep(u8, s32) (K&R decl gives move a0,a2 not andi a0,a2,0xff) + t6/t8 swap at lh *var_t2 vs lh unk6 (scratch temp order); trailing 'if (!D_807FBB40->unk154) {}' dummy read stops &D_807FBB40 being hoisted into t0 (any read of D_807FBB40 field after actorUpdateModelMatrix works); st=E before first test + st=E at end of if-body + switch(st), E reused as call arg gives lbu a2/move v1,a2 pairs; actorFlyTowardPosition now s32 (no return) so no function-pointer cast
-s32 func_8061CB50(void *);
+// func_806B42A8 (src/global/B7490.c): stage 6, parked NON_MATCHING: 369 insns, exact frame/stack/regs. Remaining diff: single register swap t6/t8 at 1cd8/1ce0 (lh *var_t2 vs lh unk6) + rodata jump tables
+s32 camIsCutsceneActive(void *);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void sfxSpawnTableNodes(Actor *);
-/* actorFlyTowardPosition must be defined as s32 actorFlyTowardPosition(B7490Pos *, u8) (no return statement): v0&1 is read here; needs B7490Pos struct from B7490.c */
-/* needs file-level "s32 patrolPathStep(u8, s32);" (currently K&R "s32 patrolPathStep();") for the final andi a0,a2,0xff */
 
 void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
     s16 *var_t2;
@@ -45,7 +43,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
             if (D_807FBB40->unk80 < (f32) (D_807FDC9C->unk6 + *var_t2)) {
                 D_807FBB40->unk80 = (f32) ((f64) D_807FBB40->unk80 + ((f64) (u32) D_807FDC9C->unkB * 0.03125));
             } else {
-                if ((func_8061CB50(D_807FDC90) == 0) && (arg0 != NULL)) {
+                if ((camIsCutsceneActive(D_807FDC90) == 0) && (arg0 != NULL)) {
                     arg0();
                 }
             }

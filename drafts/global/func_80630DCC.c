@@ -1,4 +1,4 @@
-// func_80630DCC (src/global/35000.c): func_80630DCC (src/global/35000.c): stage 5, parked NON_MATCHING in NM35 copy: frame 0xE0, stack offsets, callee-saved set exact; whole function matches except (1) size block: expected computes add.s/trunc.w.s/mfc1 v1 (s32)(size*size+dz*dz) BEFORE the dy<0.01 branch (uopt sinks it in mine: toy tests show a single-def int var, a prior-def var, f64/s32/f32 locals, ternary clamp all sink; only a real pre-branch use pins it) which also changes lw t3,4(s0) delay-slot choice and f-regs (expected f16/f18/f4/f6/v1; mine t4 + 0.3 const in f12 early); (2) FIXED: 'if (node)' instead of 'node != 0' with s32 actorGetNodePos proto gives lbu v0 + move a1,v0; 4 insns (16 bytes) shorter than expected overall due to (1). Needs GfxWords + WRITE_GFX_WORDS from 35000.c; func_80630DCC proto 3rd param is GfxWords *.
+// func_80630DCC (src/global/35000.c): stage 5, parked NON_MATCHING: frame 0xE0, stack offsets and callee-saved set exact. Remaining diff: size block computation sinking before dy<0.01 branch
 typedef struct ModelInfo {
     /* 0x00 */ u8 pad0[0x38];
     /* 0x38 */ f32 unk38;
