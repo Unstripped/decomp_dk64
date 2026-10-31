@@ -731,9 +731,9 @@ void effectActorGrowthTick(void) {
 #ifdef NON_MATCHING
 void func_806871DC(u8 arg0) {
     s32 var_s2;
-    s32 temp_s3;
+    u32 temp_s3;
     s16 var_s4;
-    s16 var_v0;
+    s32 var_v0;
 
     var_s2 = (((D_8076A064 & 3) * 4) + 3) & 0xFF;
     temp_s3 = arg0 & 0xFF;

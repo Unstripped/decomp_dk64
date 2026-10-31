@@ -1,25 +1,4 @@
-// animNodeAdvanceTime (src/global/8CA50.c): stage 5: exact 197 insns, 4 insns diff at switch case 1 beql/addiu duplication, fixed temp_v0_5 reassociation
-typedef struct AnimNode {
-    /* 0x00 */ void **unk0;
-    /* 0x04 */ void **unk4;
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 pad9;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ u8 padE[0x2];
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ s16 unk18;
-    /* 0x1A */ s16 unk1A;
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ u8 unk20;
-    /* 0x21 */ u8 unk21;
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 unk23;
-    /* 0x24 */ struct AnimNode *next;
-} AnimNode;
-
+// animNodeAdvanceTime (src/global/8CA50.c): stage 5: 197 vs 198 insns, only diff: case 1 'if (temp_lo_2 + 1)' addiu lands in ring t2 instead of v0 (target beql v0,t0 + delay-slot copy addiu v0,a3,1; one ring slot shift t2/t3 after); u32 cast on temp_v0_5 add matches reassociation. Tried inc var/shared locals/switch(lo+1)/forms: fold to lo!=-1 or ring temp. Likely needs lo+1 as uopt candidate in v0
 void animNodeAdvanceTime(AnimNode *arg0) {
     s16 temp_a1;
     s32 temp_ft3;
@@ -84,7 +63,7 @@ void animNodeAdvanceTime(AnimNode *arg0) {
         temp_fv0_2 = arg0->unk14;
         if ((f64)temp_fv0_2 < 0.0) {
             s32 temp_v0_5 = (s32)temp_fv0_2 - 1;
-            arg0->unkC = (s16)(arg0->unkC + temp_v0_5);
+            arg0->unkC = (s16)(arg0->unkC + (u32)temp_v0_5); // FAKE: u32 cast keeps the add unreassociated (-1 folded into v0)
             arg0->unk14 = temp_fv0_2 - (f32)temp_v0_5;
         }
         if (arg0->unkC < 0) {
@@ -111,7 +90,7 @@ void animNodeAdvanceTime(AnimNode *arg0) {
                     }
                     break;
                 case 1:
-                    if ((temp_lo_2 + 1) != 0) {
+                    if (temp_lo_2 + 1) {
                         arg0->unkC = 0;
                         arg0->unk20 = 0;
                         if (arg0->unkC < arg0->unk1C) {

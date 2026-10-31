@@ -1,22 +1,9 @@
-// func_806871DC (src/global/89250.c): stage 5: parked under NON_MATCHING in 89250.c, frame 0x70 matches, saved regs match, diff in loop condition var_v0 bnel vs andi
-void func_80714998(s32);
-void func_807149C8(s32, s32, s32, s32);
-void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
-void func_807149B8(s32);
-void func_8071498C(void *);
-void func_80714950(s32);
-void func_80714C08(void *, f32, Actor *, s16, s32);
-s32 randomNonNegative(void);
-extern s32 D_8076A064;
-extern Actor *D_807FBB40;
-extern s32 D_80720120;
-void func_80717D4C(void);
-
+// func_806871DC (src/global/89250.c): stage 5: frame/saved regs match; remaining: chain var_v0 should be v0 web (move v0,s2; bnel v0,at; andi v0) with a separate s0 web 'move s0,v0' per case body (copy-prop merges them -> all s0); bne s6,s2 operand order; prologue andi s3/move s4 order. var_v0 s32, temp_s3 u32 cut diff 75->51 lines
 void func_806871DC(u8 arg0) {
     s32 var_s2;
-    s32 temp_s3;
+    u32 temp_s3;
     s16 var_s4;
-    s16 var_v0;
+    s32 var_v0;
 
     var_s2 = (((D_8076A064 & 3) * 4) + 3) & 0xFF;
     temp_s3 = arg0 & 0xFF;
