@@ -1,32 +1,34 @@
-// func_8002881C (src/bonus/2690.c): stage 5: frame 0x58 and every insn match; ONLY diff: first vertex loop (i 4..6) block after the (u32)fy conv: target 'ctc1 t0,$31; slti at,v1,7; sh t1,6(v0); c.lt.s', ours 'ctc1; sh; slti'. slti is the as1-expanded 'blt $3,7' hoisted across the fx/fy diamonds into the conv join block as a NOP filler (mini repro on a 20-line TU: slti always lands after the last store when diamonds follow; lands before it only when no diamond/branch sits between store and loop end). Key: local vb[2] array (idx@0x40,base@0x3c) + chk temp, decl order link,sp50,sp4C,sub,chk,vb,sp38,p,fx,fy,sp28,i; heapAlloc(0x38) takes 1 arg. Tried (all leave 2 diff lines): all 360 store/i++ orders, dead 'if (!p && !p) {}'/ 'if (p==0) {}' etc. at every body position, & 0xFFFF / (u16)/(s16) casts on unk2/unk6, p->unk1 = i++, do{}while(++i<7) (+p++ in cond/comma) x all store orders (diff 8: moves sb a0,0 / cvt.w.s in B1), for/while/goto/break loop forms, q=p+(i-4)/&p[i-4]/p[i-4] indexing, register kw, 30k random topological reorders+dead stmts of the vertex section, 20 min permuter (-j2), 160k random mutants on a mini TU. Nothing flips sh/slti.
+// func_8002881C (src/bonus/2690.c): stage 5 (revisit OlV): frame 0x58 + every insn match; ONLY diff 2 lines in first vertex loop join block: target 'ctc1 t0,$31; slti at,v1,7; sh t1,6(v0); c.lt.s', ours 'ctc1; sh; slti'. ugen .s has blt $3,7 at loop end; as1 hoists slti over fx/fy diamonds. New this round (all no change): deadsweep sweep with --extra of all 11 locals (5148 variants, 0 gain), if(i<7)/if(i>=7)/if(i<=6)/if(i<7&&i<7){} dead stmts at every loop position, ternary and inverted-if and 32767.0f<fx forms for fx/fy diamonds (inverted if breaks regs), moving unk2/unk4/unk6 stores around the fx diamond. Earlier: 360 store/i++ orders, 160k mutants, permuter 20min.
+#include "common.h"
+
 typedef struct {
     s8 unk0;
     u8 unk1;
     u16 unk2;
     s16 unk4;
     s16 unk6;
-} BonusD2Ent;
+} OlV_D2Ent;
 
 typedef struct {
     char pad0[0x1C];
-    BonusD2Ent *unk1C;
-} BonusD2Model;
+    OlV_D2Ent *unk1C;
+} OlV_D2Model;
 
 typedef struct {
     char pad0[0x20];
     f32 unk20;
-} BonusD2Info;
+} OlV_D2Info;
 
 typedef struct {
     char pad0[4];
     u8 unk4;
     u8 unk5;
-} BonusD2Sub;
+} OlV_D2Sub;
 
-typedef struct BonusD2Actor BonusD2Actor;
-struct BonusD2Actor {
+typedef struct OlV_D2Actor OlV_D2Actor;
+struct OlV_D2Actor {
     char pad0[4];
-    BonusD2Model *unk4;
+    OlV_D2Model *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x82];
@@ -38,12 +40,12 @@ struct BonusD2Actor {
     u8 unk155;
     char pad156[0x1E];
     void *unk174;
-    BonusD2Info *unk178;
+    OlV_D2Info *unk178;
 };
 
 typedef struct {
-    BonusD2Actor *unk0;
-    BonusD2Actor *unk4;
+    OlV_D2Actor *unk0;
+    OlV_D2Actor *unk4;
     f32 unk8;
     f32 unkC;
     s8 unk10;
@@ -52,22 +54,22 @@ typedef struct {
     f32 unk14;
     f32 unk18;
     u8 unk1C;
-} BonusD2Link;
-#define BD2 ((BonusD2Actor *)D_807FBB40)
+} OlV_D2Link;
+#define BD2 ((OlV_D2Actor *)D_807FBB40)
 
 extern u8 D_807FBD70;
 void *heapAlloc(s32);
 void heapClearBlock(void *);
 
 void func_8002881C(void) {
-    BonusD2Link *link = BD2->unk174;
+    OlV_D2Link *link = BD2->unk174;
     s16 *sp50 = link->unk0->unk174;
-    BonusD2Info *sp4C = link->unk0->unk178;
-    BonusD2Sub *sub;
-    BonusD2Ent *chk;
+    OlV_D2Info *sp4C = link->unk0->unk178;
+    OlV_D2Sub *sub;
+    OlV_D2Ent *chk;
     s32 vb[2];
     f32 sp38;
-    BonusD2Ent *p;
+    OlV_D2Ent *p;
     f32 fx;
     f32 fy;
     f32 sp28;
@@ -128,7 +130,7 @@ void func_8002881C(void) {
         if (fy < 0.0f) {
             fy = 65535.0f + fy;
         }
-        p = (BonusD2Ent *)(vb[1] * 8 + vb[0]);
+        p = (OlV_D2Ent *)(vb[1] * 8 + vb[0]);
         do {
             p->unk1 = i;
             i++;
