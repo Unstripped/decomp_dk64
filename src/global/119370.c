@@ -266,7 +266,7 @@ void effectResetState(void) {
 }
 
 void modelSlotGetNodePos();
-void func_80714D08(s32, f32, f32, f32, f32, void *, s32, s32, s32);
+EffectNode *func_80714D08(s32, f32, f32, f32, f32, void *, s32, s32, u8);
 
 void func_80714B84(s32 arg0, f32 arg1, s32 arg2, s32 arg3, u8 arg4) {
     f32 sp3C;
@@ -297,25 +297,17 @@ void func_80714CC0(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     func_80714D08(arg0, arg1, arg2, arg3, arg4, NULL, 0, 0, 0);
 }
 
-#ifdef NON_MATCHING
 extern s32 D_807FBB64;
 void func_8071509C(EffectNode *);
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 
-void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
-    EffectGridNode *node;
+EffectNode *func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5, s32 arg6, s32 arg7, u8 arg8) {
     EffectNode *effect;
-    EffectNode *cursor;
-    f32 x;
-    f32 y;
-    f32 z;
+    EffectGridNode *node;
     s32 found;
     s32 i;
 
     effectGridRegister((EffectGridNode *)arg0);
-    z = arg2;
-    x = arg1;
-    y = arg3;
     node = D_807FDB00;
     found = 0;
     if (node != NULL) {
@@ -329,7 +321,7 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
     }
     if (found == 0) {
         effectResetState();
-        return;
+        return NULL;
     }
     effect = heapAlloc(0x3A0);
     if (D_807FDB04 != NULL) {
@@ -340,48 +332,48 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
         effect->previous = NULL;
     }
     D_807FDB08 = effect;
-    if (D_807FDB1D != 0) {
-        z *= 4.0f;
-        y *= 4.0f;
-        x *= 4.0f;
+    if ((u8) D_807FDB1D != 0) {
+        arg2 *= 4.0f;
+        arg3 *= 4.0f;
         arg4 *= 4.0f;
+        arg1 *= 4.0f;
         D_807FDB20 *= 4.0f;
         D_807FDB24 *= 4.0f;
     }
-    UA1_D08_FIELD(f32, effect, 0x340) = z;
-    UA1_D08_FIELD(f32, effect, 0x344) = y;
+    UA1_D08_FIELD(f32, effect, 0x340) = arg2;
+    UA1_D08_FIELD(f32, effect, 0x344) = arg3;
     UA1_D08_FIELD(f32, effect, 0x348) = arg4;
-    if (D_807FDB28 != 0) {
+    if ((u8) D_807FDB28 != 0) {
         UA1_D08_FIELD(f32, effect, 0x360) = D_807FDB20;
         UA1_D08_FIELD(f32, effect, 0x364) = D_807FDB24;
     } else {
-        UA1_D08_FIELD(f32, effect, 0x360) = x;
-        UA1_D08_FIELD(f32, effect, 0x364) = x;
+        UA1_D08_FIELD(f32, effect, 0x360) = arg1;
+        UA1_D08_FIELD(f32, effect, 0x364) = arg1;
     }
-    if (D_807FDB0F != 0) {
-        UA1_D08_FIELD(u8, effect, 0x36A) = D_807FDB0C;
-        UA1_D08_FIELD(u8, effect, 0x36B) = D_807FDB0D;
-        UA1_D08_FIELD(u8, effect, 0x36C) = D_807FDB0E;
-        UA1_D08_FIELD(u8, effect, 0x36D) = D_807FDB0F;
+    if ((u8) D_807FDB0F != 0) {
+        UA1_D08_FIELD(u8, effect, 0x36A) = *(u8 *)&D_807FDB0C;
+        UA1_D08_FIELD(u8, effect, 0x36B) = *(u8 *)&D_807FDB0D;
+        UA1_D08_FIELD(u8, effect, 0x36C) = *(u8 *)&D_807FDB0E;
+        UA1_D08_FIELD(u8, effect, 0x36D) = *(u8 *)&D_807FDB0F;
     } else {
         UA1_D08_FIELD(u8, effect, 0x36A) = *((u8 *)node + 0x10);
         UA1_D08_FIELD(u8, effect, 0x36B) = *((u8 *)node + 0x11);
         UA1_D08_FIELD(u8, effect, 0x36C) = *((u8 *)node + 0x12);
         UA1_D08_FIELD(u8, effect, 0x36D) = *((u8 *)node + 0x13);
     }
-    UA1_D08_FIELD(u8, effect, 0x36E) = D_807FDB18;
-    effect->mode = D_807FDB1D;
+    UA1_D08_FIELD(u8, effect, 0x36E) = *(u8 *)&D_807FDB18;
+    effect->mode = *(u8 *)&D_807FDB1D;
     UA1_D08_FIELD(s16, effect, 0x368) = D_807FDB1A;
-    UA1_D08_FIELD(s32, effect, 0x380) = *((u8 *)node + 8) * *((u8 *)node + 9);
+    UA1_D08_FIELD(s32, effect, 0x380) = *((u8 *)node + 9) * *((u8 *)node + 8);
     UA1_D08_FIELD(u8, effect, 0x334) = arg8;
     effect->resource = (s32)arg5;
     UA1_D08_FIELD(s16, effect, 0x33C) = arg6;
     UA1_D08_FIELD(s8, effect, 0x33E) = arg7;
     UA1_D08_FIELD(s16, effect, 0x34E) = D_807FDB30;
-    UA1_D08_FIELD(u8, effect, 0x351) = 0;
     UA1_D08_FIELD(u8, effect, 0x350) = D_807FDB1C;
-    UA1_D08_FIELD(s32, effect, 0x358) = 0;
+    UA1_D08_FIELD(u8, effect, 0x351) = 0;
     UA1_D08_FIELD(s32, effect, 0x354) = D_807FDB10;
+    UA1_D08_FIELD(s32, effect, 0x358) = 0;
     UA1_D08_FIELD(s32, effect, 0x35C) = D_807FDB2C;
     if (D_807FBB64 & 0x100) {
         UA1_D08_FIELD(s16, effect, 0x34C) = 0x7D0;
@@ -390,30 +382,25 @@ void func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5,
     }
     UA1_D08_FIELD(EffectGridNode *, effect, 0x330) = node;
     effect->next = NULL;
-    effect->allocation = NULL;
     UA1_D08_FIELD(s32, effect, 0x328) = D_807FDB14;
-    UA1_D08_FIELD(s8, effect, 0x38A) = -1;
+    effect->allocation = NULL;
     UA1_D08_FIELD(s16, effect, 0x388) = D_807FDB38;
+    UA1_D08_FIELD(s8, effect, 0x38A) = -1;
     effect->flags = D_807FDB36;
     UA1_D08_FIELD(s16, effect, 0x38E) = D_807FDB3C;
     UA1_D08_FIELD(s16, effect, 0x390) = D_807FDB3E;
     UA1_D08_FIELD(s16, effect, 0x392) = D_807FDB40;
     UA1_D08_FIELD(s16, effect, 0x394) = D_807FDB42;
-    cursor = effect;
     for (i = 0; i < D_80750AB4; i++) {
-        *((void **)cursor + 0) = heapAlloc(0x200);
-        *((void **)cursor + 1) = heapAlloc(0x200);
-        cursor = (EffectNode *)((u8 *)cursor + 8);
+        ((void **)effect)[i * 2] = heapAlloc(0x200);
+        ((void **)effect)[i * 2 + 1] = heapAlloc(0x200);
     }
     *((u8 *)effect + 0x20) = D_80750AB4;
     func_8071509C(effect);
     effectResetState();
+    return effect;
 }
 #undef UA1_D08_FIELD
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80714D08.s")
-#endif
 
 #ifdef NON_MATCHING
 typedef struct Fx119AEffectVertex {
@@ -458,11 +445,11 @@ void func_8071509C(EffectNode *effect) {
                     vertex[0].s = 0;
                     vertex[0].t = 0;
                     vertex[1].y = y;
-                    vertex[1].z = 0;
                     vertex[1].x = node->unkC + x;
                     vertex[1].t = 0;
                     vertex[2].x = x;
                     vertex[1].s = node->unkC << 5;
+                    vertex[1].z = 0;
                     vertexIndex += 2;
                     vertex += 2;
                     if (effect->mode == 0) {
@@ -515,8 +502,8 @@ void effectComputeTransformMatrix(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, 
 
 void func_80715270(u8 arg0) {
     EffectNode *effect;
-    EffectGridNode *node2;
     u8 sp7B;
+    EffectGridNode *node2;
     s32 i;
     s32 offset;
 
@@ -528,26 +515,24 @@ void func_80715270(u8 arg0) {
             UA1_D08_FIELD(u8, effect, 0x21) = 0;
             UA1_D08_FIELD(s32, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x18) = D_8076A064;
             effect->flags &= 0xFFEF;
-            if (UA1_D08_FIELD(u8, effect, 0x334) == 1) {
-                goto model_slot;
-            }
-            if (UA1_D08_FIELD(u8, effect, 0x334) == 2) {
-                Actor *actor = UA1_D08_FIELD(Actor *, effect, 0x338);
-                if ((actor->unk60 & 0x200) != 0 || actor->unk4 == NULL) {
-                    actorGetNodePos(actor, UA1_D08_FIELD(u8, effect, 0x33E), (f32 *)((u8 *)effect + 0x340),
+            switch (UA1_D08_FIELD(u8, effect, 0x334)) {
+            case 1:
+                modelSlotGetNodePos(UA1_D08_FIELD(s16, effect, 0x33C), 1, UA1_D08_FIELD(u8, effect, 0x33E),
+                                    (f32 *)((u8 *)effect + 0x340), (f32 *)((u8 *)effect + 0x344),
+                                    (f32 *)((u8 *)effect + 0x348));
+                break;
+            case 2: {
+                if ((UA1_D08_FIELD(Actor *, effect, 0x338)->unk60 & 0x200) != 0 || UA1_D08_FIELD(Actor *, effect, 0x338)->unk4 == NULL) {
+                    actorGetNodePos(UA1_D08_FIELD(Actor *, effect, 0x338), UA1_D08_FIELD(u8, effect, 0x33E), (f32 *)((u8 *)effect + 0x340),
                                     (f32 *)((u8 *)effect + 0x344), (f32 *)((u8 *)effect + 0x348));
                 } else {
                     effect->flags |= 0x10;
                 }
+                break;
             }
-            goto after_model_slot;
-model_slot:
-            modelSlotGetNodePos(UA1_D08_FIELD(s16, effect, 0x33C), 1, UA1_D08_FIELD(u8, effect, 0x33E),
-                                (f32 *)((u8 *)effect + 0x340), (f32 *)((u8 *)effect + 0x344),
-                                (f32 *)((u8 *)effect + 0x348));
-after_model_slot:
+            }
             sp7B = 0;
-            if (arg0 == 0 || (effect->flags & 1)) {
+            if (!arg0 || (effect->flags & 1)) {
                 if (UA1_D08_FIELD(void *, effect, 0x328) != NULL) {
                     ((void (*)(void *, u8 *))UA1_D08_FIELD(void *, effect, 0x328))(effect, &sp7B);
                 }
@@ -617,7 +602,7 @@ after_model_slot:
                     UA1_D08_FIELD(u8, effect, 0x32C) = 3;
                 }
                 if (effect->mode == 0) {
-                    s32 renderArg = 1;
+                    s32 renderArg;
                     if (effect->flags & 4) {
                         renderArg = 4;
                         if (!(effect->flags & 8)) {
@@ -625,6 +610,8 @@ after_model_slot:
                                 UA1_D08_FIELD(f32, effect, 0x340), UA1_D08_FIELD(f32, effect, 0x344),
                                 UA1_D08_FIELD(f32, effect, 0x348), 0);
                         }
+                    } else {
+                        renderArg = 1;
                     }
                     renderEntryAddOrUpdate(0, 5, effect, UA1_D08_FIELD(f32, effect, 0x340),
                                            UA1_D08_FIELD(f32, effect, 0x344),
@@ -640,10 +627,9 @@ after_model_slot:
                               (u8 *)UA1_D08_FIELD(void *, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x1C),
                               UA1_D08_FIELD(s32, effect, 0x380), UA1_D08_FIELD(s16, effect, 0x34E),
                               &UA1_D08_FIELD(s32, effect, 0x370));
-                if (arg0 == 0 || (effect->flags & 1)) {
+                if (!arg0 || (effect->flags & 1)) {
                     UA1_D08_FIELD(u8, effect, 0x351) = UA1_D08_FIELD(u8, effect, 0x351) + 1;
-                    if (UA1_D08_FIELD(u8, effect, 0x350) ==
-                        (UA1_D08_FIELD(u8, effect, 0x351) & 0xFF)) {
+                    if (UA1_D08_FIELD(u8, effect, 0x350) == UA1_D08_FIELD(u8, effect, 0x351)) {
                         UA1_D08_FIELD(s16, effect, 0x34E) = UA1_D08_FIELD(s16, effect, 0x34E) + 1;
                         UA1_D08_FIELD(u8, effect, 0x351) = 0;
                     }
@@ -651,7 +637,7 @@ after_model_slot:
             }
             effect->flags |= 8;
         } else {
-            if (arg0 == 0 || (effect->flags & 1)) {
+            if (!arg0 || (effect->flags & 1)) {
                 UA1_D08_FIELD(s16, effect, 0x368) = UA1_D08_FIELD(s16, effect, 0x368) - 1;
             }
         }
@@ -667,10 +653,10 @@ after_model_slot:
             i = 0;
             offset = 0;
             do {
-                if (((s32 *)((u8 *)node2->unk20 + offset))[1] != -1) {
+                if (((s32 *)((u8 *)node2->unk1C + offset))[1] != -1) {
                     if (D_8076A064 - node2->unk18 == 0xA) {
-                        assetFreeBuffer(((s32 *)((u8 *)node2->unk20 + offset))[0], 0x319, 0x1F);
-                        ((s32 *)((u8 *)node2->unk20 + offset))[1] = -1;
+                        assetFreeBuffer(((s32 *)((u8 *)node2->unk1C + offset))[0], 0x319, 0x1F);
+                        ((s32 *)((u8 *)node2->unk1C + offset))[1] = -1;
                     }
                 }
                 i++;
