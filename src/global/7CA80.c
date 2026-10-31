@@ -328,7 +328,6 @@ u16 arg0;
     u8 *dataPtr;
     u16 headerSize;
     u16 totalDataSize;
-    u16 aligned;
 
     types = D_8074E218[arg0];
     headerSize = 0x174;
@@ -341,14 +340,13 @@ u16 arg0;
             types++;
         } while (*types != 0);
     }
-    aligned = (headerSize + 7) & 0xFFF8;
-    totalDataSize += aligned;
+    totalDataSize += (u16)((headerSize + 7) & 0xFFF8);
     actor = (ActorAllocBlock *)heapAlloc(totalDataSize);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = D_8074E218[arg0];
         ptrArray = (void **)&actor->unk174;
-        dataPtr = (u8 *)actor + aligned;
+        dataPtr = (u8 *)actor + ((u16)((headerSize + 7) & 0xFFF8));
         if (*types != 0) {
             do {
                 *ptrArray++ = dataPtr;

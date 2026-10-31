@@ -1,12 +1,4 @@
-// func_80678050 (src/global/7CA80.c): W2Ring stage 5 (72 diff lines, was 125): u16 'aligned' local = (headerSize + 7) & 0xFFF8 (fixes addiu t5/andi t6 ring); ptrArray and dataPtr assigned BEFORE 'if (*types != 0)' (fixes scheduling + lw/lhu t8/t9 order); ActorAllocBlock.unk132 u16 (splits the const 1 web: two 1s like target). Remaining: spill slots 32/36 vs target 36/40 (aligned version loses headerSize's home slot; pad locals grow frame to 72), arg0 reload a1 vs v1 + const 1 colours (v1,t5 vs t6,t7): const-1 candidate coloured before arg0 reload; dead if(arg0) did not help.
-#include "common.h"
-#include "actor.h"
-
-void *heapAlloc(s32);
-extern s32 D_807FBB38;
-extern u16 D_8074D624[];
-extern u16 gActiveActorCount;
-
+// func_80678050 (src/global/7CA80.c): W4C stage 5, ~36 text diff lines (deadsweep scorer 48->42): dropped the 'u16 aligned' local and spelled (u16)((headerSize + 7) & 0xFFF8) inline twice (CSE'd value spilled at 36(sp), t0 at 40(sp): spill slots + frame now match = fewer named-local homes). Left: const-1 web A (sh unk6C/unk6A) is pre-coloured v1 (adjsave 1.0) before the arg0 reload piece (adjsave 0.5) so arg0 gets a1 not v1 and ring temps shift (li t5/v1 vs t6/t7, li 1024/15 hoisted early). Tried: const types/spellings 1921 combos incl return, chain assign (adds lh readback), dead-if sweep 1700, store moves.
 extern u16 *D_8074E218[];
 extern u16 D_8074DA58[];
 extern u32 D_807FBB64;
@@ -57,7 +49,7 @@ typedef struct ActorAllocBlock {
     u8 pad12E[2];
     /* 0x130 */ u8 unk130;
     /* 0x131 */ u8 unk131;
-    /* 0x132 */ s16 unk132;
+    /* 0x132 */ u16 unk132;
     u8 pad134[4];
     /* 0x138 */ s32 unk138;
     /* 0x13C */ void *unk13C;
@@ -85,7 +77,6 @@ u16 arg0;
     u8 *dataPtr;
     u16 headerSize;
     u16 totalDataSize;
-    u16 aligned;
 
     types = D_8074E218[arg0];
     headerSize = 0x174;
@@ -98,14 +89,13 @@ u16 arg0;
             types++;
         } while (*types != 0);
     }
-    aligned = (headerSize + 7) & 0xFFF8;
-    totalDataSize += aligned;
+    totalDataSize += (u16)((headerSize + 7) & 0xFFF8);
     actor = (ActorAllocBlock *)heapAlloc(totalDataSize);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = D_8074E218[arg0];
         ptrArray = (void **)&actor->unk174;
-        dataPtr = (u8 *)actor + aligned;
+        dataPtr = (u8 *)actor + ((u16)((headerSize + 7) & 0xFFF8));
         if (*types != 0) {
             do {
                 *ptrArray++ = dataPtr;

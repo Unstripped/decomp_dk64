@@ -665,7 +665,6 @@ void func_8068BA2C(void) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     char pad[0xE4];
     s16 unkE4;
@@ -755,6 +754,7 @@ void playerCameraUpdateFromTarget(void) {
         return;
     }
     if (D_807444EC != 1) {
+            dd = 0;  // FAKE: lengthens dd's live range so its priority drops below the B variable (temp_v0 gets a1)
             var_v1 = (*(Actor **)sp54)->unk154;
             switch (var_v1) {
             case 0x63:
@@ -786,11 +786,12 @@ calc_angle:
                 } else {
                     sp4E = temp_v0;
                     if (temp_v1_3 < -0x800) {
-                        sp4E = temp_v1_3 + 0x1000;
+                        sp4E = (u16)temp_v1_3 + 0x1000; // FAKE: redundant (u16) burns one ugen ring temp
                     }
                 }
                 break;
             }
+            if (dd) {}  // FAKE: dead read of dd after the switch (priority steer)
             temp_v0_2 = -sp3A;
             var_v1 = (temp_v0_2 < sp4E) ? sp4E : temp_v0_2;
             var_v1 = (var_v1 < sp3A) ? ((temp_v0_2 < sp4E) ? sp4E : temp_v0_2) : sp3A;
@@ -798,7 +799,3 @@ calc_angle:
             ((AimActorAngles *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)var_v1 * sp3C) - temp_fv0) * sp40) + temp_fv0);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8F4B0/playerCameraUpdateFromTarget.s")
-#endif

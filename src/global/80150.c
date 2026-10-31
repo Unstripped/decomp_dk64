@@ -2672,10 +2672,10 @@ void func_80681E18(void) {
     case 3:
         if (D_807FBB70.unk0 != 0) {
             D_807FBB40->unk60 |= 0x8000;
-            if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_807FBB40->unk144 = 2;
-            D_807FBB40->unk60 &= ~0x200000;
+            if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_807FBB40->unk154 = 0;
+            D_807FBB40->unk60 &= ~0x200000;
         }
         break;
     case 4:
@@ -2938,21 +2938,20 @@ void func_80682AB4(void *arg0) {
     s16 temp_t0;
     u8 *var_s3;
     Actor *temp_s2;
-    s32 dir;
 
     temp_fs1 = (f32)(u32)arg->unk4 / 20.0f;
     temp_s5 = D_807FBB40->unkE6;
-    temp_s5 = (s16)((s32)(temp_s5 + (819.2 * arg->unk6)) & 0xFFF);
-    dir = arg->unk20; // FAKE: local copy of unk20 steers register allocation
-    temp_s5 = (s16)((s32)(temp_s5 - (819.2 * temp_fs1) * dir) & 0xFFF);
+    temp_s5 = (s16)(s32)(temp_s5 + (819.2 * arg->unk6)) & 0xFFF;
+    temp_s5 = (s16)(s32)(temp_s5 - (819.2 * temp_fs1) * arg->unk20) & 0xFFF;
+    temp_s5 = (s16)(s32)temp_s5 & 0xFFFF; // FAKE: redundant narrowing burns ugen ring temps (loop-start register ring)
     var_s1 = 0;
     var_s3 = (u8 *)arg0;
     do {
         temp_s2 = *(Actor **)(var_s3 + 8);
         temp_t0 = (s16)((s32)(4096.0 - (var_s1 * 819.2)) + temp_s5) & 0xFFF;
         temp_s2->unk7C = (func_80612794(temp_t0) * 45.0f) + sp70;
-        var_s3 += 4;
         temp_s2->unk84 = (func_80612790(temp_t0) * 45.0f) + sp68;
+        var_s3 += 4;
         temp_s2->unk80 = sp6C;
         if (var_s1 == arg->unk6) {
             var_fv0 = 1.0f - temp_fs1;

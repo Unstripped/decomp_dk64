@@ -1,19 +1,19 @@
-// func_8067E784 (src/global/80150.c): LgE78: stage 5. 15 diff hunks vs target (~7 real): inner block playerState (target s0, ours a3+spill), tail 'li t3,2' vs t2, sp62 reload (lh a0,98(sp) vs move), animResetEndFrame D_807FBB40 in s0, 'move a0,zero' slot. Needed: unsigned unk58 compares ((u32) casts), (u16*) unk132 store, playerState2/var_v1_2/var_a0c function-level (frame), s32 sfxPlayOnFreeSlot, 2x dead if (D_807FBB4C) (FAKE).
-typedef struct R2K_Struct_8074E7BC {
+// func_8067E784 (src/global/80150.c): W4B stage 5 (base ade60fd): 29 diff lines vs 244. Fixes: removed first FAKE if (D_807FBB4C) (it stretched a cached D_807FBB4C value over the sp8A loop, stole a3); case 4 playerState2 merged into outer playerState (one var, outer+case4 uses make it positive a3 candidate), inner D_807FBB64 block uses separate ps3 (s0); deadsweep FAKEs if(D_8076A0A8) after inner block and if(D_8074E77C) before sfxAllocateChannel(sp62). Remaining: join var_t0->unk4 load colored a1 vs target t9 ring (3760..37ac), ring shift t9/t5 in var_a0 index, D_807FBB60 hoist a1 vs a0, s0 reload before actorGetNodePos, move a0,zero slot.
+typedef struct ActorE784Entry {
     u8 unk0;
     u8 unk1;
     u8 unk2;
-} R2K_Struct_8074E7BC;
+} ActorE784Entry;
 
-typedef struct R2K_PlayerStruct {
+typedef struct ActorE784PlayerStruct {
     u8 pad0[0x2C0];
     u8 unk2C0;
     u8 pad2C1[0x2C8 - 0x2C1];
     s16 unk2C8;
     u8 pad2CA[0x2F0 - 0x2CA];
-} R2K_PlayerStruct;
+} ActorE784PlayerStruct;
 
-typedef struct R2K_PlayerState {
+typedef struct ActorE784PlayerState {
     /* 0x000 */ u8 pad0[0x88];
     /* 0x088 */ Actor *unk88;
     /* 0x08C */ u8 pad8C[0x104 - 0x8C];
@@ -24,9 +24,9 @@ typedef struct R2K_PlayerState {
     /* 0x1F0 */ s32 unk1F0;
     /* 0x1F4 */ u8 pad1F4[0x1FD - 0x1F4];
     /* 0x1FD */ u8 unk1FD;
-} R2K_PlayerState;
+} ActorE784PlayerState;
 
-typedef struct R2K_TagBarrelState {
+typedef struct ActorE784State {
     s16 unk0;
     s16 unk2;
     Actor *unk4;
@@ -38,28 +38,19 @@ typedef struct R2K_TagBarrelState {
     s16 unk18;
     s16 unk1A;
     u8 unk1C;
-} R2K_TagBarrelState;
+} ActorE784State;
 
-extern R2K_Struct_8074E7BC D_8074E7BC[];
+extern ActorE784Entry D_8074E7BC[];
 extern u8 D_807FC950[][0x5E];
 
 extern s32 D_807FBB60;
-extern s32 D_807FBB64;
 extern s32 D_807FBB68;
 
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-f32 sinApprox(f32);
 void camSetFollowMode(s32);
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void func_8067A70C(Actor *, Actor *, f32, f32, f32, u8, u8);
-void func_8067AAB8(s32, Actor *, s16, f32, s16);
-void func_8067ACB4(Actor *);
-void animSetSpeed(Actor *, s32, f32);
-void animSetLoopMode(Actor *, s32, s32);
 void animResetEndFrame(Actor *, s32);
 void animSetEndFrame(Actor *, s32, s32);
 void func_806C8D20(Actor *);
@@ -69,28 +60,27 @@ void slotQueueAddValue(s32, u8, s32);
 s32 slotQueueGetCountStep(s32);
 
 void func_8067E784(void) {
-    R2K_TagBarrelState *var_t0;
+    ActorE784State *var_t0;
     f32 spA0;
     f32 sp9C;
     f32 sp98;
-    R2K_PlayerState *playerState;
+    ActorE784PlayerState *playerState;
     s32 ret;
     s16 i;
     s16 sp8C;
     s16 sp8A = 8;
     u8 sp89;
     u8 pad[8];
-    R2K_PlayerState *playerState2;
     s32 var_v1_2;
     s32 var_a0c;
+    ActorE784PlayerState *ps3;
 
     var_t0 = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         sp8C = 0;
         sp89 = 0;
         ret = actorListFindIdByActor(D_807FBB40);
-        if ((Actor *)D_807FBB4C) {}
-        if ((Actor *)D_807FBB4C) {}
+        if ((Actor *)D_807FBB4C) {} // FAKE: raises &D_807FBB4C candidate priority
         var_t0->unk1C = 0;
         do {
             if (D_8076A0A8 == D_8074E7BC[sp8C].unk0 && ret == D_8074E7BC[sp8C].unk1) {
@@ -142,7 +132,7 @@ void func_8067E784(void) {
                 flagSet(ret, 1, 1);
             }
             playerState->unk1FD = 1;
-            if (playerState) {}
+            if (playerState) {} // FAKE: gives playerState a register (a3)
         }
         if (D_807FBB68 & 2) {
             var_t0->unk0 = 0x1E;
@@ -173,15 +163,16 @@ void func_8067E784(void) {
         D_807FBB40->unk60 |= 0x200000;
         if (!(D_807FBB64 & 0x2000)) {
             if (var_t0->unk4->unk5C & 1) {
-                playerState = var_t0->unk4->unk174;
+                ps3 = var_t0->unk4->unk174;
 
-                if (playerState->unk88 != NULL) {
-                    actorDespawn(playerState->unk88);
-                    playerState->unk88 = NULL;
-                    camSetFollowMode(playerState->unk104);
+                if (ps3->unk88 != NULL) {
+                    actorDespawn(ps3->unk88);
+                    ps3->unk88 = NULL;
+                    camSetFollowMode(ps3->unk104);
                 }
             }
         }
+        if (D_8076A0A8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         var_t0->unk4->unk144 = 1;
     }
 
@@ -213,12 +204,12 @@ void func_8067E784(void) {
         if (((u32)D_807FBB40->unk58) == 0x12) {
             var_a1 = 1;
         }
-        if (((u32)D_807FBB40->unk58) == 0x84 && ((u32)((Actor *)D_807FBB4C)->unk58) == 9 && ((R2K_PlayerState *)((Actor *)D_807FBB4C)->unk174)->unk88 == NULL) {
+        if (((u32)D_807FBB40->unk58) == 0x84 && ((u32)((Actor *)D_807FBB4C)->unk58) == 9 && ((ActorE784PlayerState *)((Actor *)D_807FBB4C)->unk174)->unk88 == NULL) {
             var_a1 = 1;
         }
         if (var_a1 != 0) {
             D_807FBB40->unk60 |= 0x8000;
-            *(u16 *)&D_807FBB40->unk132 = 1;
+            *(u16 *)&D_807FBB40->unk132 = 1; // FAKE: unsigned u16 store keeps constant 1 out of the hoisted-constant web
         } else {
             D_807FBB40->unk60 &= ~0x8000;
             D_807FBB40->unk128 = 0x78;
@@ -323,6 +314,7 @@ void func_8067E784(void) {
             break;
         }
         if (sp62 != 0 && !(D_807FBB68 & 2) && D_8076A0A8 != 3 && D_8076A0A8 != 0x11 && D_8076A0A8 != 0x52 && D_8076A0A8 != 0xD1) {
+            if (D_8074E77C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             sfxAllocateChannel(sp62, 1.0f);
         }
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x9C, 0xFF, 0x7F, 0);
@@ -330,14 +322,14 @@ void func_8067E784(void) {
         if (((u32)D_807FBB40->unk58) != 0x12 && ((u32)D_807FBB40->unk58) != 0x81 && ((u32)D_807FBB40->unk58) != 0x84) {
             animResetEndFrame(D_807FBB40, 0);
             animSetFrameAndSubframe(D_807FBB40, 0, 0xA, 0.0f);
-            if (var_t0) {}
+            if (var_t0) {} // FAKE: priority of var_t0 candidate
         }
         actorGetNodePos(D_807FBB40, 1, &spA0, &sp9C, &sp98);
         actorAppendCallback(var_t0->unk4, (s32)D_807FBB40, 0x40, 1, 0, NULL);
         {
             s16 angle;
             if (((u32)D_807FBB40->unk58) == 0x12) {
-                angle = ((R2K_PlayerStruct *)D_807FC924)->unk2C8 & 0xFFF;
+                angle = ((ActorE784PlayerStruct *)D_807FC924)->unk2C8 & 0xFFF;
             } else {
                 angle = var_t0->unk4->unkE6;
             }
@@ -356,24 +348,24 @@ void func_8067E784(void) {
     }
 
     case 4: {
-        playerState2 = var_t0->unk4->unk174;
+        playerState = var_t0->unk4->unk174;
         var_v1_2 = 0;
 
         switch (((u32)D_807FBB40->unk58)) {
         case 0x19:
         case 0x28:
         case 0x60:
-            if (((R2K_PlayerStruct *)D_807FC924)[playerState2->unk1A4].unk2C0 != 1) {
+            if (((ActorE784PlayerStruct *)D_807FC924)[playerState->unk1A4].unk2C0 != 1) {
                 var_v1_2 = 1;
             }
             break;
         case 0x39:
-            if (playerState2->unk1F0 & 0x10) {
+            if (playerState->unk1F0 & 0x10) {
                 var_v1_2 = 1;
             }
             break;
         case 0x38:
-            if (playerState2->unk1F0 & 0x20) {
+            if (playerState->unk1F0 & 0x20) {
                 var_v1_2 = 1;
             }
             break;
@@ -388,7 +380,7 @@ void func_8067E784(void) {
             }
             break;
         case 0x84:
-            if (playerState2->unk88 != NULL) {
+            if (playerState->unk88 != NULL) {
                 var_v1_2 = 1;
             }
             break;

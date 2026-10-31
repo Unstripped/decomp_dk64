@@ -1,4 +1,22 @@
-// func_80681E18 (src/global/80150.c): Stage 5 (W2Webs): 40 diff lines by the lib scorer (rodata noise incl.; 18 by deadsweep scorer) with 3 deadsweep FAKEs (case 20 ones are essential: without them 165). Left: ternary arg v1 vs v0 (case 1 slotQueueUpdate), case-3 D_807FBB40 reload t7 vs s0 (stmt 2 reload is a ring temp in target, s0 candidate in ours), case-20 guard lbu v1,0x254(a2) vs ours t1. Tried W2Webs: named loop-bound local n (s32/u8/s16/u32, plain/dead-if/decl-first) 38-58 lines (only s16 + dead if(n){} gave 38), deadsweep 3 more rounds over 9 globals (3780 variants): no improvement.
+// func_80681E18 (src/global/80150.c): W4C stage 5, 15 diff lines (was 18): case 3 statement order unk60|=, unk144=2, [FAKE if], unk154=0, unk60&=~ fixes the t7 reload. Left: (1) case-1 ternary arg li/move v1 vs v0 (ugen cond-expr result reg; 12 spellings, callee void/s32 toggles pairwise: none), (2) case-3 tail order lw t1/sb zero,340 vs ours s0, (3) case-20 guard lbu coloured v1 in target vs ring t1 in ours (guard/bound ilod are separate occurrences; while/for/do and dead field reads did not merge). deadsweep 3780 variants: no improvement.
+typedef struct TagBarrelGroundHit {
+    s16 unk0;
+    s16 pad2;
+    Actor *unk4;
+} TagBarrelGroundHit;
+
+typedef struct TagBarrelActorD580 {
+    u8 pad0[0x1A3];
+    u8 unk1A3;
+} TagBarrelActorD580;
+
+extern u8 D_807FC950[][0x5E];
+extern s16 D_80750390;
+
+void sfxAllocateChannel(s32, f32);
+void slotQueueUpdate(s32, u8, s32);
+void func_806C7BAC(void *, Actor *);
+
 void func_80681E18(void) {
     TagBarrelGroundHit *var_v1;
     s32 pad[3];
@@ -65,10 +83,10 @@ void func_80681E18(void) {
     case 3:
         if (D_807FBB70.unk0 != 0) {
             D_807FBB40->unk60 |= 0x8000;
-            if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_807FBB40->unk144 = 2;
-            D_807FBB40->unk60 &= ~0x200000;
+            if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_807FBB40->unk154 = 0;
+            D_807FBB40->unk60 &= ~0x200000;
         }
         break;
     case 4:
