@@ -145,7 +145,6 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
     return glist;
 }
 
-#ifdef NON_MATCHING
 extern u16 D_807FC79E;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
@@ -223,20 +222,18 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 arg1, s32 arg2, s32 arg3, u8 arg4, u8 a
 
         WRITE_GFX(glist++, 0xDA380003, (u32)mtx1);
 
+        scaled_w = (f32)(u32)(u8)arg4 * arg11;
+        scaled_h = (f32)(u32)(u8)arg5 * arg11;
+
         if (arg9 > 0.0f) {
             half_w = (u8)arg4 >> 1;
             half_h = (u8)arg5 >> 1;
-            scaled_w = (f32)(u32)(u8)arg4 * arg11;
-            scaled_h = (f32)(u32)(u8)arg5 * arg11;
 
             vtxSetPosTex(var_s0++, -half_w, half_h, 0.0f - scaled_w, (f32)((u8)arg5 - 1) + scaled_h, 6);
             vtxSetPosTex(var_s0++, half_w, half_h, (f32)((u8)arg4 - 1) + scaled_w, (f32)((u8)arg5 - 1) + scaled_h, 6);
             vtxSetPosTex(var_s0++, half_w, -half_h, (f32)((u8)arg4 - 1) + scaled_w, 0.0f - scaled_h, 6);
             vtxSetPosTex(var_s0++, -half_w, -half_h, 0.0f - scaled_w, 0.0f - scaled_h, 6);
         } else {
-            scaled_w = (f32)(u32)(u8)arg4 * arg11;
-            scaled_h = (f32)(u32)(u8)arg5 * arg11;
-
             vtxSetPosTex(var_s0++, -((u8)arg4 >> 1), 0, 0.0f - scaled_w, (f32)((u8)arg5 - 1) + scaled_h, 6);
             vtxSetPosTex(var_s0++, (u8)arg4 >> 1, 0, (f32)((u8)arg4 - 1) + scaled_w, (f32)((u8)arg5 - 1) + scaled_h, 6);
             vtxSetPosTex(var_s0++, (u8)arg4 >> 1, -(u8)arg5, (f32)((u8)arg4 - 1) + scaled_w, 0.0f - scaled_h, 6);
@@ -250,10 +247,6 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 arg1, s32 arg2, s32 arg3, u8 arg4, u8 a
 
     return glist;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/90D80/renderRotatedSprite.s")
-#endif
 
 typedef struct PlayerRect {
     u8 pad[0x270];
