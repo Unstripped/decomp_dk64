@@ -776,10 +776,10 @@ typedef struct {
     f32 unk1C;
 } GroundBounceMotionState;
 
-#ifdef NON_MATCHING
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 s32 collisionGetFloorHeight(s32 *);
 
+#define Q11BbG ((GroundBounceMotionState *)arg0->unk384)
 void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
     f64 temp_fv1;
     f32 sp3C;
@@ -788,67 +788,64 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp30;
     if (arg0->unk384 == NULL) {
         arg0->unk384 = heapAlloc(0x20);
-        ((GroundBounceMotionState *)arg0->unk384)->unk0 = 0;
-        ((GroundBounceMotionState *)arg0->unk384)->unk4 = 0.0f;
-        ((GroundBounceMotionState *)arg0->unk384)->unk8 = arg0->unk340;
-        ((GroundBounceMotionState *)arg0->unk384)->unkC = arg0->unk348;
-        ((GroundBounceMotionState *)arg0->unk384)->unk10 = ((f64)(randomLcgNext() % 10000U) / 10000.0) * 0.19;
-        ((GroundBounceMotionState *)arg0->unk384)->unk14 = ((f64)(randomLcgNext() % 10000U) / 10000.0) * 0.077;
+        Q11BbG->unk0 = 0;
+        Q11BbG->unk4 = 0.0f;
+        Q11BbG->unk8 = arg0->unk340;
+        Q11BbG->unkC = arg0->unk348;
+        Q11BbG->unk10 = ((f64)(randomLcgNext() % 10000U) / 10000.0) * 0.19;
+        Q11BbG->unk14 = ((f64)(randomLcgNext() % 10000U) / 10000.0) * 0.077;
         if ((randomLcgNext() / 10000U) & 1) {
-            ((GroundBounceMotionState *)arg0->unk384)->unk10 = (f32)(0.0 - (f64)((GroundBounceMotionState *)arg0->unk384)->unk10);
-            ((GroundBounceMotionState *)arg0->unk384)->unk14 = (f32)(0.0 - (f64)((GroundBounceMotionState *)arg0->unk384)->unk14);
+            Q11BbG->unk10 = (f32)(0.0 - (f64)Q11BbG->unk10);
+            Q11BbG->unk14 = (f32)(0.0 - (f64)Q11BbG->unk14);
         }
         sp30 = arg0->unk344;
         collisionCheckGroundAtPoint(arg0->unk340, arg0->unk348, &sp30);
         if (collisionGetFloorHeight((s32 *)((u8 *)arg0->unk384 + 0x18)) == 0) {
-            ((GroundBounceMotionState *)arg0->unk384)->unk18 = 0.0f;
+            Q11BbG->unk18 = 0.0f;
         }
-        ((GroundBounceMotionState *)arg0->unk384)->unk1C = (f32)D_8076A064;
+        Q11BbG->unk1C = (f32)D_8076A064;
     }
-    sp3C = sinApprox(((GroundBounceMotionState *)arg0->unk384)->unk10 * (f32)((GroundBounceMotionState *)arg0->unk384)->unk0);
-    temp_fv0 = sinApprox(((GroundBounceMotionState *)arg0->unk384)->unk14 * (f32)((GroundBounceMotionState *)arg0->unk384)->unk0) * 6.0f;
-    arg0->unk340 = ((GroundBounceMotionState *)arg0->unk384)->unk8 + (sp3C * 6.0f);
-    arg0->unk348 = ((GroundBounceMotionState *)arg0->unk384)->unkC + temp_fv0;
-    ((GroundBounceMotionState *)arg0->unk384)->unk0 += 1;
-    ((GroundBounceMotionState *)arg0->unk384)->unk4 = (f32)((f64)((GroundBounceMotionState *)arg0->unk384)->unk4 + 0.02);
-    var_fv1 = ((GroundBounceMotionState *)arg0->unk384)->unk4;
+    sp3C = sinApprox(Q11BbG->unk10 * (f32)Q11BbG->unk0);
+    temp_fv0 = sinApprox(Q11BbG->unk14 * (f32)Q11BbG->unk0) * 6.0f;
+    arg0->unk340 = Q11BbG->unk8 + (sp3C * 6.0f);
+    arg0->unk348 = Q11BbG->unkC + temp_fv0;
+    Q11BbG->unk0 += 1;
+    Q11BbG->unk4 = (f32)((f64)Q11BbG->unk4 + 0.02);
+    var_fv1 = Q11BbG->unk4;
     if ((f64)var_fv1 > 1.0) {
-        ((GroundBounceMotionState *)arg0->unk384)->unk4 = 1.0f;
-        var_fv1 = ((GroundBounceMotionState *)arg0->unk384)->unk4;
+        Q11BbG->unk4 = 1.0f;
     }
+    var_fv1 = Q11BbG->unk4;
     arg0->unk344 += var_fv1;
     switch (arg0->unk35C) {
     case 0:
-        arg0->unk360 = (f32)(((f64)((GroundBounceMotionState *)arg0->unk384)->unk0 * 0.01) + 0.01);
+        arg0->unk360 = (f32)(((f64)Q11BbG->unk0 * 0.01) + 0.01);
         if ((f64)arg0->unk360 > 0.12) arg0->unk360 = 0.12f;
         break;
     case 1:
-        arg0->unk360 = (f32)(((f64)((GroundBounceMotionState *)arg0->unk384)->unk0 * 0.005) + 0.05);
+        arg0->unk360 = (f32)(((f64)Q11BbG->unk0 * 0.005) + 0.05);
         if ((f64)arg0->unk360 > 0.07) arg0->unk360 = 0.07f;
         break;
     case 2:
-        arg0->unk360 = (f32)(((f64)((GroundBounceMotionState *)arg0->unk384)->unk0 * 0.02) + 0.02);
+        arg0->unk360 = (f32)(((f64)Q11BbG->unk0 * 0.02) + 0.02);
         if ((f64)arg0->unk360 > 0.24) arg0->unk360 = 0.24f;
         break;
     }
     arg0->unk364 = arg0->unk360;
-    sp3C = sinApprox((f32)((f64)((GroundBounceMotionState *)arg0->unk384)->unk0 * 0.17));
+    sp3C = sinApprox((f32)((f64)Q11BbG->unk0 * 0.17));
+    temp_fv0 = sinApprox((f32)((f64)Q11BbG->unk0 * 0.2267));
     arg0->unk360 = (f32)((f64)arg0->unk360 + ((f64)sp3C * 0.03));
-    arg0->unk364 = (f32)((f64)arg0->unk364 + ((f64)sinApprox((f32)((f64)((GroundBounceMotionState *)arg0->unk384)->unk0 * 0.2267)) * 0.03));
-    if ((((GroundBounceMotionState *)arg0->unk384)->unk1C + 100.0f) < (f32)D_8076A064) *arg1 = 1;
-    if (((GroundBounceMotionState *)arg0->unk384)->unk18 <= arg0->unk344) {
+    arg0->unk364 = (f32)((f64)arg0->unk364 + ((f64)temp_fv0 * 0.03));
+    if ((Q11BbG->unk1C + 100.0f) < (f32)D_8076A064) *arg1 = 1;
+    if (Q11BbG->unk18 <= arg0->unk344) {
         *arg1 = 1;
         func_80718124(0.3f, arg0->unk340, arg0->unk344, arg0->unk348);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_80718BF4.s")
-#endif
+#undef Q11BbG
 
 
-void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
-#ifdef NON_MATCHING
+s32 sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -863,69 +860,70 @@ extern s32 D_8072073C;
 extern s32 D_807212B0;
 extern s32 D_807212C8;
 
+#define Q11BbState ((Fx11BC2RotationState *) arg0->unk384)
+
 void func_8071910C(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp98[4][4];
     f32 sp58[4][4];
     f32 sp54;
     f32 sp50;
     f32 sp4C;
-    f32 sp44;
     f32 temp_fv0;
-    Fx11BC2RotationState *state;
+    f32 sp44;
+    s16 sfxId;
 
-    state = (Fx11BC2RotationState *) arg0->unk384;
-    if (state == NULL) {
+    if (Q11BbState == NULL) {
         arg0->unk384 = heapAlloc(0x1C);
-        ((Fx11BC2RotationState *) arg0->unk384)->unk0 = (f32) (((f64) (f32) (u32) ((randomLcgNext() / 10000U) % 100U) / 25.0) + 5.0 + (((s32) arg0->unk35C >> 8) * 3.0));
+        Q11BbState->unk0 = (f32) (((f64) (f32) (u32) ((randomLcgNext() / 10000U) % 100U) / 25.0) + 5.0 + (((s32) arg0->unk35C >> 8) * 3.0));
         sp54 = ((f32) (u32) ((randomLcgNext() / 10000U) % 1000U) / 500.0f) + (f32) (arg0->unk35C & 0xFF);
         sp50 = (f32) (u32) ((randomLcgNext() / 10000U) % 360U);
         sp4C = sinApprox(sp50 * 0.017453292f) * sp54;
         temp_fv0 = cosApprox(sp50 * 0.017453292f);
-        ((Fx11BC2RotationState *) arg0->unk384)->unk4 = sp4C;
-        ((Fx11BC2RotationState *) arg0->unk384)->unk8 = temp_fv0 * sp54;
-        ((Fx11BC2RotationState *) arg0->unk384)->unkC = (f32) (u32) ((randomLcgNext() % 36000U) / 100U);
+        Q11BbState->unk4 = sp4C;
+        Q11BbState->unk8 = temp_fv0 * sp54;
+        Q11BbState->unkC = (f32) (u32) ((randomLcgNext() % 36000U) / 100U);
         sp44 = arg0->unk344;
         if (collisionCheckGroundAtPoint(arg0->unk340, arg0->unk348, &sp44) != 0) {
-            ((Fx11BC2RotationState *) arg0->unk384)->unk10 = sp44;
+            Q11BbState->unk10 = sp44;
         } else {
-            ((Fx11BC2RotationState *) arg0->unk384)->unk10 = 0.0f;
+            Q11BbState->unk10 = 0.0f;
         }
-        ((Fx11BC2RotationState *) arg0->unk384)->unk14 = 0;
+        Q11BbState->unk14 = 0;
     }
-    state = (Fx11BC2RotationState *) arg0->unk384;
-    state->unk0 = (f32) ((f64) state->unk0 + -0.63);
-    state = (Fx11BC2RotationState *) arg0->unk384;
-    arg0->unk340 += state->unk4;
-    arg0->unk348 += state->unk8;
-    arg0->unk344 += state->unk0;
-    if (arg0->unk344 < state->unk10) {
-        sfxPlayAtPositionPooled(arg0->unk340, arg0->unk344, arg0->unk348,
-            (*(s32 **) arg0->unk330 == &D_8072073C) ? 0x1B1 : (((*(s32 **) arg0->unk330 == &D_807212C8) || (*(s32 **) arg0->unk330 == &D_807212B0)) ? 7 : 0x56),
+    Q11BbState->unk0 = (f32) ((f64) Q11BbState->unk0 + -0.63);
+    arg0->unk340 += Q11BbState->unk4;
+    arg0->unk348 += Q11BbState->unk8;
+    arg0->unk344 += Q11BbState->unk0;
+    if (arg0->unk344 < Q11BbState->unk10) {
+        sfxId = 0x56;
+        if (*(s32 **) arg0->unk330 == &D_8072073C) {
+            sfxId = 0x1B1;
+        } else if (*(s32 **) arg0->unk330 == &D_807212C8 || *(s32 **) arg0->unk330 == &D_807212B0) {
+            sfxId = 7;
+        }
+        sfxPlayAtPositionPooled(arg0->unk340, arg0->unk344, arg0->unk348, sfxId,
             (u32) ((f64) (u32) arg0->unk36D * 0.7), 0x96, 1, 0x4B, 0.3f, 0);
-        ((Fx11BC2RotationState *) arg0->unk384)->unk0 = 5.0f;
-        if (((Fx11BC2RotationState *) arg0->unk384)->unk14 != 2) {
-            ((Fx11BC2RotationState *) arg0->unk384)->unk14++;
+        Q11BbState->unk0 = 5.0f;
+        if (Q11BbState->unk14 != 2) {
+            Q11BbState->unk14++;
         }
     }
-    if (((Fx11BC2RotationState *) arg0->unk384)->unk14 == 2) {
+    if (Q11BbState->unk14 == 2) {
         if (arg0->unk36D >= 0xB) {
             arg0->unk36D -= 0xA;
         } else {
             arg0->unk36D = 0;
         }
     }
-    state = (Fx11BC2RotationState *) arg0->unk384;
-    state->unkC = (f32) ((f64) state->unkC + 5.9);
+    Q11BbState->unkC = (f32) ((f64) Q11BbState->unkC + 5.9);
     guScaleF(sp98, arg0->unk360, arg0->unk364, 0.0f);
-    guRotateF(sp58, state->unkC, 0.0f, 0.0f, 1.0f);
+    guRotateF(sp58, Q11BbState->unkC, 0.0f, 0.0f, 1.0f);
     guMtxCatF(sp98, sp58, sp98);
     guMtxF2L(sp98, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
     ((u8 *) arg0)[0x32C] = 2;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071910C.s")
-#endif
+#undef Q11BbState
 
 typedef struct {
     f32 unk0;
@@ -2525,7 +2523,6 @@ void effectArcAroundActorUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
 }
 
-#ifdef NON_MATCHING
 s16 mapChunkFindByPosition(f32, f32, f32, s32);
 void lightSetRadius(s32);
 void lightSetTargetId(s32);
@@ -2551,13 +2548,15 @@ void func_8071E3EC(TimedEffectActorView *arg0, s8 *arg1) {
     var_v1 = arg0->unk384;
     if ((f64)var_v1->unk4 == 0.0) {
         var_v1->unk0 = (f32)((f64)var_v1->unk0 + 30.0);
-        if ((f64)var_v1->unk0 > 300.0) {
+        var_fv0 = (f64)var_v1->unk0;
+        if (var_fv0 > 300.0) {
             var_v1->unk4 = 1.0f;
             var_v1->unk0 = 300.0f;
         }
     } else {
         var_v1->unk0 = (f32)((f64)var_v1->unk0 - 30.0);
-        if ((f64)var_v1->unk0 < 30.0) {
+        var_fv0 = (f64)var_v1->unk0;
+        if (var_fv0 < 30.0) {
             *arg1 = 1;
             var_v1->unk0 = 30.0f;
         }
@@ -2604,10 +2603,6 @@ void func_8071E3EC(TimedEffectActorView *arg0, s8 *arg1) {
     temp_fv0 = 255.0f * sp4C;
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, var_v1->unk0, 0, (u32)(temp_fv0 * sp48), (u32)(temp_fv0 * sp44), (u32)(temp_fv0 * sp40));
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071E3EC.s")
-#endif
 
 typedef struct {
     f32 unk0;
