@@ -49,7 +49,6 @@ void func_8069FA40(Gfx *, Actor *);
         _g->words.w1 = (_w1);                                                  \
     }
 
-#ifdef NON_MATCHING
 typedef struct ActorSub4Head {
     /* 0x00 */ void *unk0;
 } ActorSub4Head;
@@ -79,7 +78,9 @@ void func_8069E210(void) {
         actor = D_807FBB40;
     }
     for (i = 0; i < D_807FBB70.unk254; i++) {
+        if (D_807FBB70.unk278[i]) {}  // FAKE: makes the unk278[i] load a candidate (v0)
         if (*D_807FBB70.unk278[i] == 0) {
+            if (actor->unk60) {}  // FAKE: extends the unk60 load candidate into the loop (v0)
             actor->unk60 |= 4;
             controllerAnimSetState(D_807FBB40, 0x407, 0.0f, 0.0f);
             scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
@@ -112,10 +113,6 @@ void func_8069E210(void) {
     }
     actorUpdateModelMatrix(actor, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_8069E210.s")
-#endif
 
 void actorSpawnNodeEntryAtActor(s32 arg0, s16 arg1) {
     Actor *actor;
@@ -194,7 +191,6 @@ s32 actorIsTargetInCylinder(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 typedef struct ModelNodeView {
     /* 0x00 */ u8 pad0[0x4];
     /* 0x04 */ f32 unk4;
@@ -267,7 +263,6 @@ void func_8069F020(void) {
     f32 sp58;
     f32 sp54;
     f32 sp50;
-    ModelNodeView *node;
 
     sp67 = (CUR_ACTOR->unkF0 == 0xBB) ? 0x28 : 0x23;
     sp64 = (CUR_ACTOR->unkF0 == 0x6A) ? 0x78 : 0x190;
@@ -311,16 +306,8 @@ void func_8069F020(void) {
         }
         break;
     case 1:
-        node = CUR_ACTOR->unk4->unk0;
-        if (node->unk24 == 0.0f) {
-            if (animGetNodeByIndex(CUR_ACTOR, 0)->unkC < 0xE) {
-                node = CUR_ACTOR->unk4->unk0;
-            } else {
-                goto promote;
-            }
-        }
-        if (node->unk4 > 9.0f) {
-promote:
+        if ((CUR_ACTOR->unk4->unk0->unk24 == 0.0f && animGetNodeByIndex(CUR_ACTOR, 0)->unkC >= 0xE) ||
+            CUR_ACTOR->unk4->unk0->unk4 > 9.0f) {
             CUR_ACTOR->unk154 = 2;
             if (CUR_ACTOR->unk15F != 0 && actorSpawn(0x102, CUR_ACTOR->unkF0) != 0) {
                 if (CUR_ACTOR->unk4->unk0->unk4 > 9.0f) {
@@ -350,8 +337,8 @@ promote:
         CUR_ACTOR->unkEE--;
         if (CUR_ACTOR->unkEE == 0) {
             actorDespawn((Actor *)CUR_ACTOR);
+            break;
         }
-        break;
     }
     if (CUR_ACTOR->unkF0 != 0x6A && !(D_807FBB68 & 2)) {
         if ((CUR_ACTOR->unk60 & 4) && (CUR_ACTOR->unk60 & 0x10)) {
@@ -359,14 +346,7 @@ promote:
             actorGetNodePos((Actor *)CUR_ACTOR, 1, &sp5C, &sp58, &sp54);
             sp58 += 50.0f;
             if (collisionCheckGroundAtPoint(sp5C, sp54, &sp58) != 0) {
-                f32 dist;
-
-                if (sp58 < sp50) {
-                    dist = sp50 - sp58;
-                } else {
-                    dist = sp58 - sp50;
-                }
-                if (dist < 40.0f || !(CUR_ACTOR->unk60 & 0x10)) {
+                if (((sp58 < sp50) ? (sp50 - sp58) : (sp58 - sp50)) < 40.0f || !(CUR_ACTOR->unk60 & 0x10)) {
                     CUR_ACTOR->unk80 = sp58;
                 }
             }
@@ -386,10 +366,6 @@ promote:
 }
 
 #undef SPAWNED_ACTOR
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_8069F020.s")
-#endif
 
 void renderScaledSprite(Gfx *arg0, Actor *arg1) {
     f32 scale;
