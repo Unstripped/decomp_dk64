@@ -82,7 +82,6 @@ void func_8068A4C8(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct ProximityPlayerPos {
     u8 pad[0x210];
     f32 unk210;
@@ -125,69 +124,56 @@ void controllerAnimFreeSub(void *, u32);
 f32 renderScaleDistanceByFov(f32);
 
 void actorProximityUpdate(void) {
-    s32 pad;
+    ProximitySub174 *sub;
     s32 sp80;
-    s32 pad2[3];
-    s32 var_s1;
-    ProximityActorEntry *entry_ptr;
+    s32 pad[3];
+    s32 i;
     ProximityActor *actor;
-    ActorConfig8F050 *entry;
     f32 dist_sq;
     f32 r;
     s32 a2;
 
-    var_s1 = 0;
-    if ((s32)gActiveActorCount > 0) {
-        entry_ptr = gActiveActors;
-        do {
-            actor = entry_ptr->actor;
-            if (!(actor->unk60 & 0x2000) && (actor->unk60 & 0x100)) {
-                dist_sq = ((actor->unk84 - D_807FC924->unk218) * (actor->unk84 - D_807FC924->unk218)) +
-                          (((actor->unk7C - D_807FC924->unk210) * (actor->unk7C - D_807FC924->unk210)) +
-                           ((actor->unk80 - D_807FC924->unk214) * (actor->unk80 - D_807FC924->unk214)));
-                if (actorConfigLookup(actor->unk58, &sp80) != 0) {
-                    r = renderScaleDistanceByFov(((ActorConfig8F050 *)((u8 *)D_80750100 + sp80 * 20))->unk4);
-                    entry = (ActorConfig8F050 *)((u8 *)D_80750100 + sp80 * 20);
-                    switch (entry->unk8) {
-                    case 0:
-                        if (D_807FC928 >= 2) {
-                            pad = actor->unk174->unk1A4;
-                            a2 = D_807552F4[pad];
-                            if (a2 >= 0) {
-                                func_8068A404((Actor4C *)actor, sp80, a2);
-                            }
+    for (i = 0; i < (s32)gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
+        if (!(actor->unk60 & 0x2000) && (actor->unk60 & 0x100)) {
+            dist_sq = ((actor->unk84 - D_807FC924->unk218) * (actor->unk84 - D_807FC924->unk218)) +
+                      (((actor->unk7C - D_807FC924->unk210) * (actor->unk7C - D_807FC924->unk210)) +
+                       ((actor->unk80 - D_807FC924->unk214) * (actor->unk80 - D_807FC924->unk214)));
+            if (actorConfigLookup(actor->unk58, &sp80) != 0) {
+                r = renderScaleDistanceByFov(D_80750100[sp80].unk4);
+                switch (D_80750100[sp80].unk8) {
+                case 0:
+                    if (D_807FC928 >= 2) {
+                        sub = actor->unk174;
+                        a2 = D_807552F4[sub->unk1A4];
+                        if (a2 >= 0) {
+                            func_8068A404((Actor4C *)actor, sp80, a2);
                         }
-                        break;
-                    case 1:
-                        if (r * r < dist_sq) {
-                            if (actor->unk4C == 0) {
-                                actor->unk4C = func_80612E90(actor, entry->unk2, 0);
-                            }
-                        } else if (actor->unk4C != 0) {
-                            controllerAnimFreeSub(actor, 1);
-                        }
-                        break;
-                    case 2:
-                        if (dist_sq < r * r) {
-                            if (actor->unk4C == 0) {
-                                actor->unk4C = func_80612E90(actor, entry->unk2, 0);
-                            }
-                        } else if (actor->unk4C != 0) {
-                            controllerAnimFreeSub(actor, 1);
-                        }
-                        break;
                     }
+                    break;
+                case 1:
+                    if (r * r < dist_sq) {
+                        if (actor->unk4C == 0) {
+                            actor->unk4C = func_80612E90(actor, D_80750100[sp80].unk2, 0);
+                        }
+                    } else if (actor->unk4C != 0) {
+                        controllerAnimFreeSub(actor, 1);
+                    }
+                    break;
+                case 2:
+                    if (dist_sq < r * r) {
+                        if (actor->unk4C == 0) {
+                            actor->unk4C = func_80612E90(actor, D_80750100[sp80].unk2, 0);
+                        }
+                    } else if (actor->unk4C != 0) {
+                        controllerAnimFreeSub(actor, 1);
+                    }
+                    break;
                 }
             }
-            var_s1++;
-            entry_ptr++;
-        } while (var_s1 < (s32)gActiveActorCount);
+        }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8F050/actorProximityUpdate.s")
-#endif
 
 void func_8068A764(Actor146 *arg0, u8 arg1) {
     arg0->unk146 |= (1 << arg1);

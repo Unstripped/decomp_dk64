@@ -1,7 +1,4 @@
-// playerCameraUpdateFromTarget (src/global/8F4B0.c): stage 5, score 44 (frame 0x58, 300/312 insns matched; minor regalloc in switch index/return)
-#include "common.h"
-#include "actor.h"
-
+// playerCameraUpdateFromTarget (src/global/8F4B0.c): Stage 5-6: frame 0x58 + saved regs match, 340/340 insns, shape diff 2 lines (full 34 vs 44 before). Remaining: ugen t-reg numbering (expected skips 3 temps inside D_807FC624 = (D_807FC624 + 0x1E) & 0xFFF: addiu t2/andi t5 vs ours t1/t2; '& 0xFFFFFFFFFFFFFFFF' hack gives 17 but is not natural) and E-chain order (expected sll a0,sll a1,sra t1,sra t0, move a1,t0 before bnez; ours interleaved). Levers that worked: CSE'd *(Actor**)sp54 twice instead of temp var, selector shared with var_v1, temp_v0 = temp_v1_3 second multi-def var for the s16 diff, store-then-conditional-overwrite else layout. Dropped the D_8076A0A8 fake.
 typedef struct {
     char pad[0xE4];
     s16 unkE4;
@@ -17,11 +14,7 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 void func_806C9D20(u8);
 extern u8 D_807444EC;
-extern s32 D_8076A0A8;
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB4C;
 extern s16 D_807FC624;
-extern void *D_807FC924;
 
 void playerCameraUpdateFromTarget(void) {
     void *sp54;
@@ -72,8 +65,7 @@ void playerCameraUpdateFromTarget(void) {
     sp52 = mathAngleBetweenPoints2D(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
     camUpdate(D_807FBB40, (u8 *)sp34 + 0x210, (u8 *)sp34 + 0x214, (u8 *)sp34 + 0x218, (u8 *)sp34 + 0x228, (u8 *)sp34 + 0x22C, (u8 *)sp34 + 0x230, (u8 *)sp34 + 0x240, (u8 *)sp34 + 0x244, (u8 *)sp34 + 0x248);
     temp_v0 = mathAngleBetweenPoints2D(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
-    temp_a0_2 = *(Actor **)sp54;
-    if (D_807FBB4C != temp_a0_2) {
+    if (D_807FBB4C != *(Actor **)sp54) {
         return;
     }
     if ((D_8076A0A8 == 0x1F) || (D_8076A0A8 == 0x33)) {
@@ -92,9 +84,8 @@ void playerCameraUpdateFromTarget(void) {
         return;
     }
     if (D_807444EC != 1) {
-            temp_v1_2 = temp_a0_2->unk154;
-            if (D_8076A0A8 && D_8076A0A8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            switch ((s32)temp_v1_2) {
+            var_v1 = (*(Actor **)sp54)->unk154;
+            switch (var_v1) {
             case 0x63:
                 sp40 = 0.02f;
                 sp3C = 15.0f;
@@ -117,12 +108,14 @@ void playerCameraUpdateFromTarget(void) {
             case 0x6D:
 calc_angle:
                 temp_v1_3 = sp52 - temp_v0;
+                temp_v0 = temp_v1_3;
                 if (temp_v1_3 >= 0x801) {
                     sp4E = temp_v1_3 - 0x1000;
-                } else if (temp_v1_3 < -0x800) {
-                    sp4E = temp_v1_3 + 0x1000;
                 } else {
-                    sp4E = temp_v1_3;
+                    sp4E = temp_v0;
+                    if (temp_v1_3 < -0x800) {
+                        sp4E = temp_v1_3 + 0x1000;
+                    }
                 }
                 break;
             }
