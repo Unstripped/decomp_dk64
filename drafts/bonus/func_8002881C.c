@@ -1,4 +1,4 @@
-// func_8002881C (src/bonus/2690.c): stage 5 (revisit OlV): frame 0x58 + every insn match; ONLY diff 2 lines in first vertex loop join block: target 'ctc1 t0,$31; slti at,v1,7; sh t1,6(v0); c.lt.s', ours 'ctc1; sh; slti'. ugen .s has blt $3,7 at loop end; as1 hoists slti over fx/fy diamonds. New this round (all no change): deadsweep sweep with --extra of all 11 locals (5148 variants, 0 gain), if(i<7)/if(i>=7)/if(i<=6)/if(i<7&&i<7){} dead stmts at every loop position, ternary and inverted-if and 32767.0f<fx forms for fx/fy diamonds (inverted if breaks regs), moving unk2/unk4/unk6 stores around the fx diamond. Earlier: 360 store/i++ orders, 160k mutants, permuter 20min.
+// func_8002881C (src/bonus/2690.c): stage 5 (OlR2d revisit): unchanged: frame 0x58 + every insn match; ONLY diff 'sh t1,6(v0); slti at,v1,7' order in first vertex-loop join block (target slti before sh). ugen -S shows no .alias/.noalias in this function and blt $3,7 at loop end (as1 hoists slti over fx/fy diamonds, placement after the sh store). Earlier notes (160k mutants, permuter 20 min, deadsweep 5148) stand.
 #include "common.h"
 
 typedef struct {

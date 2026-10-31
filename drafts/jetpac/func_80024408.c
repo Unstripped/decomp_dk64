@@ -1,4 +1,4 @@
-// func_80024408 (src/jetpac/0.c): stage 6: 2 instructions swapped (25 score): only diff is hoisted loop-preheader addiu order (target lui s1,lui s3,addiu s1,addiu s3; ours addiu s3 then s1). as1 emits lui A,lui B,addiu B,addiu A for all C representations of preheader la
+// func_80024408 (src/jetpac/0.c): stage 6: 2 insns swapped (text 2): only diff is preheader order 'lui s1,lui s3,addiu s1,addiu s3' (target FIFO) vs ours 'addiu s3 then s1' (LIFO). ugen input is la s1; addu s5; li s4; la s3. OlR2d tried (no change): deadsweep extras (861), 14k random dead-if/join mutants, permuter 500s, local char *fmt / JetpacPlayer *pl assigned before/inside loop in 5 orders, 7x7x3x5 spellings of the two D_8002EC4C[i].lives uses/format/loop header, extern char D_8002E9D4[] for the string (same order, so not string specific), dead early uses of array/format/buf
 typedef struct {
     u8 pad0[0x1C];
     u8 pad1C[0x8];
