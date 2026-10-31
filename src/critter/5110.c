@@ -34,7 +34,7 @@ extern Struct_807FBB40 *D_807FBB40;
 extern u16 D_807FCC44;
 extern u8 D_807FCC40[];
 
-void camStartPath(s32, s32, s32);
+u16 camStartPath(s32, s32, s32);
 void slotQueueSetShownValue(s32, s32, s32);
 s32 camIsPathPaused(void);
 void func_8070D8C0(void *, s32, s32);
@@ -50,7 +50,6 @@ void func_805FF628(s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *critterRenderCenterImage(Gfx *, Struct_807FBB40 *);
 
-#ifdef NON_MATCHING
 void func_80029118(void) {
     s32 pad88;
     u16 tmp;
@@ -179,11 +178,12 @@ void func_80029118(void) {
                         sp70 = 0x185;
                         break;
                     }
+                    if (sp70 && sp70) {} // FAKE: promotes sp70 to a register (default arm reloads its home)
                     flagSet(sp70, 1, 0);
                 }
                 tmp = D_80029FA4;
                 D_807FCC44 = tmp;
-                slotQueueSetShownValue(4, 0, D_80029FA4);
+                slotQueueSetShownValue(4, 0, tmp);
                 func_805FF800(&sp3C, &sp38);
                 func_805FF628(sp3C, 0);
             }
@@ -198,10 +198,6 @@ void func_80029118(void) {
     }
     renderCallbacksRegister(&critterRenderCenterImage, D_807FBB40, 3);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/5110/func_80029118.s")
-#endif
 
 extern u8 D_1000118[];
 extern u8 D_2000180[];

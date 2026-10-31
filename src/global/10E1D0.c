@@ -141,6 +141,7 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
     s32 sum;
     MeshBlobTail *b;
     u32 *p;
+    u32 *r;
     MeshEntry *q;
 
     if (arg0 == NULL) {
@@ -152,11 +153,13 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
     gFbTileTable = heapAlloc(0x708);
     arg0->unk10 = heapAlloc(arg0->unk0 * 0x10);
     arg0->unk14 = heapAlloc(arg0->unk0 * 0x10);
+    if (arg0 && arg0) {} // FAKE: block split after the 3rd heapAlloc frees $v0 for walker p
     arg0->unk8 = (u8 *)arg0 + 0x2C;
     arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
-    arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
     count = 1;
+    arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
     p = arg0->unk18;
+    if (arg0->unkC) {}  // FAKE: dead use steers VC colouring
     while (*p++ != 0) {
         count++;
     }
@@ -167,19 +170,19 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
         b = (MeshBlobTail *)(arg0->unk1C + count);
         b->unk8 = (u8 *)(b + 1);
         q = (MeshEntry *)b->unk8;
-        if (gFbTileTable && gFbTileTable) {}
+        if (gFbTileTable && gFbTileTable) {} // FAKE: block split steering loop-2 walker regalloc
         count = 1;
         while ((q++)->unk0 != 0) {
             count++;
         }
-        b->unk0 = (u32 *)(b->unk8 + count * 0x1C);
         k = 1;
-        p = b->unk0;
-        while (*p++ != -1) {
+        b->unk0 = r = (u32 *)(b->unk8 + count * 0x1C);
+        while (*r++ != -1) {
             k++;
+            if (r == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
-        b->unk4 = (s32 *)((u8 *)b->unk0 + k * 4);
         count = 0;
+        b->unk4 = (s32 *)((u8 *)b->unk0 + k * 4);
         sum = 0;
         if (b->unk0[0] != -1) {
             do {
