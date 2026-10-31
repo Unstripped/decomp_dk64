@@ -26,7 +26,8 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
   exit status, and a conflict (src untouched) or a red build was committed that way twice.
   Without `--commit`, commit only after reading `GATE_OK`. A bare `merge_drafts.py merge`
   goes inside `sh -c '...; echo "exit $?"'` (the persistent shell's `set -e` otherwise
-  aborts silently after merge already wrote `src`).
+  aborts silently after merge already wrote `src`). Run gates with the bash tool and a long
+  timeout, never from the eval kernel: its 30 s cell deadline kills the client mid-gate.
 - `--base` is the commit the copy started from. A second pass in the SAME copy merges with
   the commit that merged its first pass; a copy rebuilt from a later `src` uses the commit
   whose file differs least from it (`git show <c>:<file> | diff - copy`). A wrong base
@@ -38,8 +39,9 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
   `src` (pruning).
 - The ROM hash is the gate; per-file `objdiff.sh` OK/TEXT OK is only a pre-check (TEXT OK
   once hid a `.rodata` shift and two swapped externs).
-- A zero-yield agent's copy is not merged (its saved drafts are already in `drafts/`).
-  Merge prunes unused declarations; a DIRECT-mode file needs a manual `git diff` look.
+- A zero-yield copy is merged only for its parks: when one moved up a stage, replaced a
+  non-equivalent park, or its declarations live only in the copy (drafts hold the function
+  alone). Merge prunes unused declarations; a DIRECT-mode file needs a manual `git diff` look.
 - An agent that made `void f(void);` unprototyped (`void f();`, allowed by the brief) must
   leave every C caller in the file matching: the ROM gate checks it.
 - `drafts/` is the only place in-progress C survives a session; collect before every gate.

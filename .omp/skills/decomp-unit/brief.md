@@ -144,12 +144,12 @@ swapped externs in a comparison look identical in the text.
 Your budget is finite: near-misses first, then never-attempted functions smallest to largest;
 after a serious effort on one, move on and come back if budget remains. Before writing C,
 read the matched C that `tools/dk python3 tools/similar.py -s <segment> <FUNC>` lists, then
-take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. In an old draft, check
-every callee's prototype against its CURRENT definition in `src/` first (stale names compile as
-undeclared; phantom params pin `$a0`/`$a1`). Compile and fdiff every assigned function once.
-When the permuter (or anything else) reaches score 0, put the readable C into your copy in
-place of the function's `GLOBAL_ASM` line and confirm with fdiff: a match left only in a
-draft is not merged.
+take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. First check every
+callee's return type, return WIDTH and arity against its CURRENT definition in `src/` (`void`
+vs `s32`, `u8`/`s16` declared `s32`, phantom params: each flips the caller's v0/v1 or ring;
+matched ~12 near-misses in one unit). Compile and fdiff every assigned function once.
+When the permuter (or anything else) reaches score 0, put the readable C into your copy in place
+of the function's `GLOBAL_ASM` line and confirm with fdiff: a draft-only match is not merged.
 Stop on outcome, not time: report as soon as every assigned function is matched, or is back
 on its exact `GLOBAL_ASM` line with a saved draft whose note names the stage and the exact
 remaining diff, and you have no untried idea left (a few attempts in a row that no longer
