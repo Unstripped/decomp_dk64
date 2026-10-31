@@ -1,4 +1,16 @@
-// func_8062DBDC (src/global/2F550.c): Stage 3 (NM2F3). Draft now compiles against the file (typedef/extern already present; needs prototypes for boxMinCornerDistance/E1F8 above). Frame 0xD0 vs 0xB0 (target saves f20-f26 = 4 fp regs, s0-s6; mine 3 fp regs) and 283 vs 281 insns. Inlining subsets of the 11 m2c temps (2048 combos) and a DOT macro form never got below 363 diff lines / frame 0xB8; loads of D_807F5E50[0..3] are CSE'd into regs in target (D1->fs0, D2->fs3), x0/y0/z0 homes at 0x8C/0x80/0x70.
+// func_8062DBDC (src/global/2F550.c): Stage 3 (NM2F3). 285 vs 281 insns, frame 0xD0 vs 0xB0. Verified behavior: 8-corner bounding box frustum culling against D_807F5E50 plane, point-in-box test, and 5-plane clipping tests. Callee prototypes checked against current src definitions. Target saves fs0-fs3 and s0-s6, ra.
+typedef struct ClipPlane {
+    /* 0x00 */ u8 pad0[0x18];
+    /* 0x18 */ u8 unk18;
+    /* 0x19 */ u8 pad19[7];
+    /* 0x20 */ f64 unk20;
+    /* 0x28 */ f64 unk28;
+    /* 0x30 */ f64 unk30;
+    /* 0x38 */ f64 unk38;
+} ClipPlane;
+
+extern f32 D_807F5E50[];
+
 f32 boxMinCornerDistance(s16, s16, s16, s16, s16, s16, f32, f32, f32);
 s32 clipPolyToBox(s32, s16, s16, s16, s16, s16, s16, void *);
 
