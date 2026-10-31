@@ -371,7 +371,7 @@ void func_80714950(s32);
 void func_807149FC(s32);
 void func_8071498C(void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
-extern u8 D_80718BF4;
+extern u8 effectWobbleRiseUpdate;
 extern u8 D_8071FC40;
 
 void func_80024F28(CritterObj *obj) {
@@ -396,7 +396,7 @@ void func_80024F28(CritterObj *obj) {
             func_807149B8(1);
             func_80714950(1);
             func_807149FC(-1);
-            func_8071498C(&D_80718BF4);
+            func_8071498C(&effectWobbleRiseUpdate);
             func_80714CC0(&D_8071FC40, 0, obj->x, obj->y, obj->z);
         }
         if (sp3E > 0) {

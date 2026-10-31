@@ -266,7 +266,7 @@ void effectResetState(void) {
 }
 
 void modelSlotGetNodePos();
-EffectNode *func_80714D08(s32, f32, f32, f32, f32, void *, s32, s32, u8);
+EffectNode *effectCreate(s32, f32, f32, f32, f32, void *, s32, s32, u8);
 
 void func_80714B84(s32 arg0, f32 arg1, s32 arg2, s32 arg3, u8 arg4) {
     f32 sp3C;
@@ -274,7 +274,7 @@ void func_80714B84(s32 arg0, f32 arg1, s32 arg2, s32 arg3, u8 arg4) {
     f32 sp34;
 
     modelSlotGetNodePos(arg2, 1, arg3, &sp3C, &sp38, &sp34);
-    func_80714D08(arg0, arg1, sp3C, sp38, sp34, NULL, arg2, arg3, (s32) arg4);
+    effectCreate(arg0, arg1, sp3C, sp38, sp34, NULL, arg2, arg3, (s32) arg4);
 }
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
@@ -290,18 +290,18 @@ void func_80714C08(s32 arg0, f32 arg1, void *arg2, s32 arg3, u8 arg4) {
     if ((!new_var && (((Actor *) arg2)->unk4 != NULL)) && (D_807FDB36 & 0x80)) {
         effectFlagsOr(0x40);
     }
-    func_80714D08(arg0, arg1, sp3C, sp38, sp34, arg2, 0, arg3, (s32) arg4);
+    effectCreate(arg0, arg1, sp3C, sp38, sp34, arg2, 0, arg3, (s32) arg4);
 }
 
 void func_80714CC0(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
-    func_80714D08(arg0, arg1, arg2, arg3, arg4, NULL, 0, 0, 0);
+    effectCreate(arg0, arg1, arg2, arg3, arg4, NULL, 0, 0, 0);
 }
 
 extern s32 D_807FBB64;
-void func_8071509C(EffectNode *);
+void effectBuildGridVertices(EffectNode *);
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 
-EffectNode *func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5, s32 arg6, s32 arg7, u8 arg8) {
+EffectNode *effectCreate(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5, s32 arg6, s32 arg7, u8 arg8) {
     EffectNode *effect;
     EffectGridNode *node;
     s32 found;
@@ -396,7 +396,7 @@ EffectNode *func_80714D08(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void
         ((void **)effect)[i * 2 + 1] = heapAlloc(0x200);
     }
     *((u8 *)effect + 0x20) = D_80750AB4;
-    func_8071509C(effect);
+    effectBuildGridVertices(effect);
     effectResetState();
     return effect;
 }
@@ -415,7 +415,7 @@ typedef struct Fx119AEffectVertex {
     u8 a;
 } Fx119AEffectVertex;
 
-void func_8071509C(EffectNode *effect) {
+void effectBuildGridVertices(EffectNode *effect) {
     EffectGridNode *node;
     Fx119AEffectVertex *vertex;
     s32 column;
@@ -498,7 +498,7 @@ void func_80715A3C(s16 *, u8, u8 *, s32, s32, s32 *);
 void effectFreeAndUnlink(EffectNode *);
 void effectComputeTransformMatrix(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, f32, u8);
 
-void func_80715270(u8 arg0) {
+void effectUpdateAll(u8 arg0) {
     EffectNode *effect;
     u8 sp7B;
     EffectGridNode *node2;
@@ -865,7 +865,7 @@ f32 distance3D(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
     return sqrtf((x * x) + (y * y) + (z * z));
 }
 
-typedef struct L119_TextureNode {
+typedef struct EffectTextureNode {
     u8 pad0[0xA];
     u8 unkA;
     u8 unkB;
@@ -873,15 +873,15 @@ typedef struct L119_TextureNode {
     s16 unkE;
     u8 pad10[4];
     u8 unk14;
-} L119_TextureNode;
+} EffectTextureNode;
 
-typedef struct L119_EffectView {
+typedef struct EffectDrawView {
     u8 pad0[0x21];
     u8 unk21;
     u8 pad22[6];
     Vtx unk28[48];
     u8 pad328[8];
-    L119_TextureNode *unk330;
+    EffectTextureNode *unk330;
     u8 pad334[0xC];
     f32 unk340;
     f32 unk344;
@@ -904,9 +904,9 @@ typedef struct L119_EffectView {
     s16 unk390;
     s16 unk392;
     s16 unk394;
-} L119_EffectView;
+} EffectDrawView;
 
-#define L119_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
+#define EFFECT_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
@@ -924,7 +924,7 @@ void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 s32 mapChunkContainsPoint(s16, s16, s16);
 s32 mapChunkIsInUse(s16);
 
-Gfx *func_80715E94(L119_EffectView *arg0, Gfx *arg1, s16 arg2) {
+Gfx *effectGridBuildDisplayList(EffectDrawView *arg0, Gfx *arg1, s16 arg2) {
     s32 i;
     u8 red;
     u8 green;
@@ -954,20 +954,20 @@ Gfx *func_80715E94(L119_EffectView *arg0, Gfx *arg1, s16 arg2) {
     }
     glist = ((Gfx *(*)[2])arg0)[arg0->unk21][D_807444FC];
     arg0->unk21++;
-    L119_WRITE_GFX(arg1++, 0xDE000000, osVirtualToPhysical(glist));
-    L119_WRITE_GFX(glist++, 0xE7000000, 0);
-    L119_WRITE_GFX(glist++, 0xE3000A01, 0);
-    L119_WRITE_GFX(glist++, 0xD9000000, 0);
-    L119_WRITE_GFX(glist++, 0xE3001801, 0xC0);
+    EFFECT_WRITE_GFX(arg1++, 0xDE000000, osVirtualToPhysical(glist));
+    EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
+    EFFECT_WRITE_GFX(glist++, 0xE3000A01, 0);
+    EFFECT_WRITE_GFX(glist++, 0xD9000000, 0);
+    EFFECT_WRITE_GFX(glist++, 0xE3001801, 0xC0);
     if (arg0->unk36E != 0) {
-        L119_WRITE_GFX(glist++, 0xD9FFFFFF, 0x200005);
-        L119_WRITE_GFX(glist++, 0xE200001C, 0x504B50);
+        EFFECT_WRITE_GFX(glist++, 0xD9FFFFFF, 0x200005);
+        EFFECT_WRITE_GFX(glist++, 0xE200001C, 0x504B50);
     } else {
-        L119_WRITE_GFX(glist++, 0xD9FFFFFF, 0x200004);
-        L119_WRITE_GFX(glist++, 0xE200001C, 0x504240);
+        EFFECT_WRITE_GFX(glist++, 0xD9FFFFFF, 0x200004);
+        EFFECT_WRITE_GFX(glist++, 0xE200001C, 0x504240);
     }
-    L119_WRITE_GFX(glist++, 0xD7000002, 0xFFFFFFFF);
-    L119_WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
+    EFFECT_WRITE_GFX(glist++, 0xD7000002, 0xFFFFFFFF);
+    EFFECT_WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
 
     if (arg0->unk330->unk14 == 0 && mapChunkIsInUse(arg2)) {
         lightSampleColorAtPosition(arg0->unk340, arg0->unk344, arg0->unk348, 0, &red, &green, &blue, arg2);
@@ -977,18 +977,18 @@ Gfx *func_80715E94(L119_EffectView *arg0, Gfx *arg1, s16 arg2) {
     }
     gDPSetPrimColor(glist++, 0, 0, (u32)((f32)arg0->unk36A * colorRed), (u32)((f32)arg0->unk36B * colorGreen), (u32)((f32)arg0->unk36C * colorBlue), arg0->unk36D);
     if (arg0->unk36F != 0) {
-        L119_WRITE_GFX(glist++, 0xDA380007, &D_20000C0);
-        L119_WRITE_GFX(glist++, 0xDA380003, &D_2000180);
+        EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_20000C0);
+        EFFECT_WRITE_GFX(glist++, 0xDA380003, &D_2000180);
         glist = func_805FD030(glist);
         if (arg0->unk388 == -1) {
-            L119_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)arg0->unk38E * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk390 * 4.0f) & 0xFFF), (((s32)((f32)arg0->unk392 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk394 * 4.0f) & 0xFFF));
+            EFFECT_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)arg0->unk38E * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk390 * 4.0f) & 0xFFF), (((s32)((f32)arg0->unk392 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk394 * 4.0f) & 0xFFF));
         }
     }
-    L119_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)arg0 + (D_807FC929 << 7) + (D_807444FC << 6) + 0x128));
+    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)arg0 + (D_807FC929 << 7) + (D_807444FC << 6) + 0x128));
 
     for (i = 0; i < arg0->unk380; i++) {
         if (D_807F6009 != 5 || D_807F600C != (s32)arg0->unk370[i]) {
-            L119_WRITE_GFX(glist++, 0xE7000000, 0);
+            EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
             switch (arg0->unk330->unkB) {
                 case 0:
                     gDPLoadTextureBlock_4b(glist++, arg0->unk370[i], arg0->unk330->unkA, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
@@ -1005,21 +1005,21 @@ Gfx *func_80715E94(L119_EffectView *arg0, Gfx *arg1, s16 arg2) {
             }
             D_807F600C = (s32)arg0->unk370[i];
         }
-        L119_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(arg0->unk28 + (i << 2)));
-        L119_WRITE_GFX(glist++, 0x06000206, 0x406);
+        EFFECT_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(arg0->unk28 + (i << 2)));
+        EFFECT_WRITE_GFX(glist++, 0x06000206, 0x406);
     }
-    L119_WRITE_GFX(glist++, 0xD8380002, 0x40);
-    L119_WRITE_GFX(glist++, 0xE7000000, 0);
-    L119_WRITE_GFX(glist++, 0xE3001801, 0);
+    EFFECT_WRITE_GFX(glist++, 0xD8380002, 0x40);
+    EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
+    EFFECT_WRITE_GFX(glist++, 0xE3001801, 0);
     if (arg0->unk36F != 0) {
-        L119_WRITE_GFX(glist++, 0xDA380007, &D_2000000);
-        L119_WRITE_GFX(glist++, 0xDA380005, &D_2000200);
+        EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_2000000);
+        EFFECT_WRITE_GFX(glist++, 0xDA380005, &D_2000200);
         if (arg0->unk388 == -1) {
-            L119_WRITE_GFX(glist++, 0xED000000, ((((s32)((f32)D_80744490 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)D_80744494 * 4.0f) & 0xFFF)));
+            EFFECT_WRITE_GFX(glist++, 0xED000000, ((((s32)((f32)D_80744490 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)D_80744494 * 4.0f) & 0xFFF)));
         }
     }
-    L119_WRITE_GFX(glist++, 0xE7000000, 0);
-    L119_WRITE_GFX(glist++, 0xDF000000, 0);
+    EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
+    EFFECT_WRITE_GFX(glist++, 0xDF000000, 0);
     D_807F6009 = 5;
     return arg1;
 }

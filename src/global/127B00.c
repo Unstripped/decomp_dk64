@@ -266,7 +266,7 @@ typedef struct PathPlaybackView {
     u8 unk21;
 } PathPlaybackView;
 
-void func_80723484(s32 arg0) {
+void pathPlaybackAdvance(s32 arg0) {
     PathPlaybackView *pb;
     PathEntry *path;
     f32 step;

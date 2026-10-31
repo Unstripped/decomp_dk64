@@ -114,7 +114,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
                 func_807149B8(1);
                 func_80714998(3);
                 func_80714950(0);
-                func_8071498C(func_8071E3EC);
+                func_8071498C(effectLightGrowShrinkUpdate);
                 func_807149A8(0x320);
                 v = D_807F5FD4[0] + p->idx;
                 func_80714CC0(D_80720BC4, 2.5f, v->x, v->y, v->z);

@@ -40,7 +40,7 @@ extern u8 D_80750AD4;
 void renderCallbacksRegister(void *, void *, s32);
 s32 actorSpawn(s32, s32);
 s32 actorDespawn(Actor *);
-Gfx *func_8069FA40(Gfx *, Actor *);
+Gfx *actorBannerTextRender(Gfx *, Actor *);
 
 #define WRITE_GFX(pkt, _w0, _w1)                                               \
     {                                                                          \
@@ -174,7 +174,7 @@ s32 func_8069E724(s32 arg0) {
     return 0;
 }
 
-typedef struct R2F2Node {
+typedef struct ActorState174 {
     /* 0x000 */ f32 unk0;
     /* 0x004 */ u8 pad4[8];
     /* 0x00C */ u16 unkC;
@@ -188,28 +188,28 @@ typedef struct R2F2Node {
     /* 0x1A4 */ u8 unk1A4;
     /* 0x1A5 */ u8 pad1A5[0x4B];
     /* 0x1F0 */ u32 unk1F0;
-} R2F2Node;
+} ActorState174;
 
-typedef struct R2F2ActorEntry {
+typedef struct PlayerSlotView {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ Actor *actor;
     /* 0x008 */ u8 pad8[0x2E8];
-} R2F2ActorEntry;
+} PlayerSlotView;
 
-typedef struct R2F2ActorS16 {
+typedef struct ActorHeadingView {
     /* 0x000 */ u8 pad0[0xEE];
     /* 0x0EE */ s16 unkEE;
-} R2F2ActorS16;
+} ActorHeadingView;
 
-typedef struct R2F2ActorF64 {
+typedef struct ActorF64View160 {
     /* 0x000 */ u8 pad0[0x160];
     /* 0x160 */ f64 unk160;
-} R2F2ActorF64;
+} ActorF64View160;
 
 extern u8 D_80750AB8;
 extern s32 D_8076A0A8;
 extern u8 D_807FC928;
-extern R2F2ActorEntry *D_807FC924;
+extern PlayerSlotView *D_807FC924;
 
 void animSetLoopLimit(void *, s32, s32);
 void animSetSpeed(void *, s32, f32);
@@ -233,11 +233,11 @@ void func_8069E774(void) {
     u16 sp8E;
     f32 sp88;
     u8 sp87;
-    R2F2Node *sp80;
+    ActorState174 *sp80;
     u8 sp7F[4]; // FAKE: flag kept in memory (array) so its loads are not CSE'd into the loop; element 3 = byte 0x7F
     Actor *sp78;
     u32 *sp74;
-    R2F2Node *node;
+    ActorState174 *node;
     Actor *temp_v0;
     f32 sp68;
     s32 padB1;
@@ -249,17 +249,17 @@ void func_8069E774(void) {
     sp87 = 0;
     sp7F[3] = 0;
     temp_v0 = (Actor *)D_807FBB40->unk11C;
-    node = (R2F2Node *)D_807FBB40->unk174;
+    node = (ActorState174 *)D_807FBB40->unk174;
     if (temp_v0 != NULL && (temp_v0->unk5C & 1)) {
         sp78 = temp_v0;
         sp7F[3] = 1;
     } else {
         sp78 = D_807FBB4C;
     }
-    sp80 = (R2F2Node *)sp78->unk174;
+    sp80 = (ActorState174 *)sp78->unk174;
     if (D_807FC928 >= 2 && D_80750AB8 == 1) {
         temp_v0 = (Actor *)D_807FBB4C->unk174;
-        sp74 = &((R2F2Node *)temp_v0)->unk1F0;
+        sp74 = &((ActorState174 *)temp_v0)->unk1F0;
     } else {
         sp74 = &sp80->unk1F0;
     }
@@ -315,12 +315,12 @@ void func_8069E774(void) {
         camStartShake(sp80->unk104, 0xA, 0xA);
     }
     D_807FBB40->unk4->unk34 =
-        D_807FBB40->unk4->unk34 * ((R2F2ActorF64 *)D_807FBB40)->unk160;
+        D_807FBB40->unk4->unk34 * ((ActorF64View160 *)D_807FBB40)->unk160;
     D_807FBB40->unk4->unk3C = D_807FBB40->unk4->unk34;
     D_807FBB40->unk4->unk38 = D_807FBB40->unk4->unk38 * 1.04;
-    sp68 = func_80612794(((R2F2ActorS16 *)D_807FBB40)->unkEE);
+    sp68 = func_80612794(((ActorHeadingView *)D_807FBB40)->unkEE);
     D_807FBB40->unk4->unk38 = D_807FBB40->unk4->unk38 + 0.01 * (f64)sp68;
-    ((R2F2ActorS16 *)D_807FBB40)->unkEE += 0x1F4;
+    ((ActorHeadingView *)D_807FBB40)->unkEE += 0x1F4;
     D_807FBB40->unkE6 += 0x32;
     D_807FBB40->unk154++;
     if (D_807FBB40->unk154 == D_807FBB40->unk168) {
@@ -608,7 +608,7 @@ void heapFreeDeferred(void *);
 s32 textGetStringWidth(s16, char *);
 Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
-Gfx *func_8069FA40(Gfx *arg0, Actor *arg1) {
+Gfx *actorBannerTextRender(Gfx *arg0, Actor *arg1) {
     f32 spFC;
     f32 spBC[4][4];
     f32 sp7C[4][4];
@@ -700,7 +700,7 @@ void actorUpdateBannerFade(void) {
             ((ActorTail *)D_807FBB40)->unk15F < 0x1E) {
             renderCallbacksRegister(renderScaledSprite, D_807FBB40, 3);
         } else {
-            renderCallbacksRegister(func_8069FA40, D_807FBB40, 3);
+            renderCallbacksRegister(actorBannerTextRender, D_807FBB40, 3);
         }
         if (((ActorTail *)D_807FBB40)->unk15F == 0 &&
             (s16)(s32)((ActorTail *)D_807FBB40)->unk160 == 3) {

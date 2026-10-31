@@ -427,7 +427,7 @@ typedef struct ActorTransformWork {
     u8 unkC[1];
 } ActorTransformWork;
 
-void func_8066E2C0(f32, f32, f32, f32, f32, f32, void *, s32, s32, void *);
+void actorSub140CreateFromData(f32, f32, f32, f32, f32, f32, void *, s32, s32, void *);
 
 void actorSub140CreateFromModel(ActorTransformWork *arg0) {
     f32 fv0;
@@ -453,7 +453,7 @@ void actorSub140CreateFromModel(ActorTransformWork *arg0) {
         a1 = arg0->unk4->unk14;
         t0 = arg0->unk4->unk18;
     }
-    func_8066E2C0(0.0f, 0.0f, 0.0f, ft4, fv0, fv1, &arg0->unkC, a1, t0, v1);
+    actorSub140CreateFromData(0.0f, 0.0f, 0.0f, ft4, fv0, fv1, &arg0->unkC, a1, t0, v1);
 }
 
 

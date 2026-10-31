@@ -1348,7 +1348,7 @@ void func_80723320(s32, s16);
 void func_8072334C(s32, u8);
 void func_80723380(s32, u8);
 void pathPlaybackFree(s32);
-void func_80723484(s32);
+void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724994(s32, s16, s16, s32, s32);
 void zoneEntrySetDisabled(u8, u8, u8);
@@ -1995,7 +1995,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk38 = -1;
         break;
     case 0x4:
-        func_80723484(cs->unk38);
+        pathPlaybackAdvance(cs->unk38);
         pathPlaybackGetPosition(cs->unk38, &gCsPosX, &gCsPosY, &gCsPosZ);
         break;
     case 0x27:

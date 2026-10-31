@@ -1551,7 +1551,7 @@ void mapRelocateOffsetTable(s32);
 void mapSurfaceEffectsReset(void);
 void mapChunksInitFromMapData(void *);
 void collisionInitStaticCache(void *);
-void func_80666090(void *);
+void collisionBuildCellTable(void *);
 void func_8065F1C0(void *);
 void actorTargetTableLoad(void *);
 void triggerZoneInit(void *);
@@ -1615,7 +1615,7 @@ void mapHeaderLoad(s32 arg0) {
     D_807F5E60 = (MapVisNode *)mapTreeCloneShape((MapTreeLinks *)D_807F5DE4);
     mapChunksInitFromMapData((void *)arg0);
     collisionInitStaticCache((void *)arg0);
-    func_80666090((void *)arg0);
+    collisionBuildCellTable((void *)arg0);
     func_8065F1C0((void *)arg0);
     actorTargetTableLoad((void *)arg0);
     triggerZoneInit((void *)arg0);

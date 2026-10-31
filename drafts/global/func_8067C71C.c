@@ -155,8 +155,8 @@ void func_8067E278();
 void func_806CF4B8(Actor *);
 void func_807149A8(s32);
 void func_80714C08(void *, f32, Actor *, s32, s32);
-void func_80718BF4(void);
-void func_807245F0(Actor *, s32);
+void effectWobbleRiseUpdate(void);
+void pathFollowUpdateHeading(Actor *, s32);
 void animationOwnerFreeBuffer(Actor *);
 
 void func_8067C71C(void) {
@@ -327,7 +327,7 @@ void func_8067C71C(void) {
         KaL9_ACTOR->unkC0 = 0.0f;
         KaL9_ACTOR->unkB8 = 35.0f;
         KaL9_ACTOR->unk68 |= 1;
-        func_807245F0(D_807FBB40, 0);
+        pathFollowUpdateHeading(D_807FBB40, 0);
         if (KaL9_ACTOR->unk118->unkC == 0) {
             KaL9_ACTOR->unkEE = KaL9_ACTOR->unk118->unkE;
             KaL9_ACTOR->unkB8 = (f32)KaL9_ACTOR->unk118->unk10;
@@ -344,7 +344,7 @@ void func_8067C71C(void) {
         if (((randomLcgNext() / 100000) % 3) == 0) {
             func_807149B8(1);
             func_807149FC(-1);
-            func_8071498C(func_80718BF4);
+            func_8071498C(effectWobbleRiseUpdate);
             func_80714CC0(&D_8071FC40, 0.0f, KaL9_ACTOR->unk7C, KaL9_ACTOR->unk80, KaL9_ACTOR->unk84);
         }
         if (temp_s1->unk30 != 0) {

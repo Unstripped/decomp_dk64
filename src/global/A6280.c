@@ -386,29 +386,29 @@ void actorSinkAndDespawn(void) {
 }
 
 
-typedef struct QS3Actor806A2328 {
+typedef struct MidpointOrbitActorView {
     u8 pad0[0xEC];
     s16 unkEC;
     u8 padEE[0xFA - 0xEE];
     s16 unkFA;
-} QS3Actor806A2328;
+} MidpointOrbitActorView;
 
-typedef struct QS3Model806A2328 {
+typedef struct MidpointOrbitConfig {
     u8 pad0[4];
     f32 unk4;
     u8 pad8[4];
     f32 unkC;
-} QS3Model806A2328;
+} MidpointOrbitConfig;
 
-typedef struct QS3State806A2328 {
+typedef struct MidpointOrbitState {
     s16 unk0;
     s16 unk2;
     s16 unk4;
     s16 unk6;
     s16 unk8;
-} QS3State806A2328;
+} MidpointOrbitState;
 
-#define QS3A ((QS3Actor806A2328 *)D_807FBB40)
+#define ORBIT_ACTOR ((MidpointOrbitActorView *)D_807FBB40)
 
 void billboardSetFlags(s16);
 void func_8067ACB4(Actor *);
@@ -418,26 +418,26 @@ void actorUpdateFloorContactAndTilt(Actor *, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-void func_806A2328(void) {
-    QS3State806A2328 *sub;
+void actorMidpointOrbitUpdate(void) {
+    MidpointOrbitState *sub;
     f32 ratio;
     Actor *p;
 
     sub = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk60 |= 0x1000;
-        actorSetUniformScale(D_807FBB40, ((QS3Model806A2328 *)D_807FBB40->unk124)->unkC);
+        actorSetUniformScale(D_807FBB40, ((MidpointOrbitConfig *)D_807FBB40->unk124)->unkC);
         D_807FBB40->unk168 = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk84);
         D_807FBB40->unkF0 = (D_807FBB4C->unk80 + (f32)D_807FBB4C->unk15E - D_807FBB40->unk80) * 0.5;
-        QS3A->unkEC = sqrtf((D_807FBB40->unk7C - D_807FBB4C->unk7C) * (D_807FBB40->unk7C - D_807FBB4C->unk7C) + (D_807FBB40->unk84 - D_807FBB4C->unk84) * (D_807FBB40->unk84 - D_807FBB4C->unk84)) * 0.5;
+        ORBIT_ACTOR->unkEC = sqrtf((D_807FBB40->unk7C - D_807FBB4C->unk7C) * (D_807FBB40->unk7C - D_807FBB4C->unk7C) + (D_807FBB40->unk84 - D_807FBB4C->unk84) * (D_807FBB40->unk84 - D_807FBB4C->unk84)) * 0.5;
         sub->unk0 = D_807FBB40->unk7C + (D_807FBB4C->unk7C - D_807FBB40->unk7C) * 0.5;
         sub->unk2 = D_807FBB40->unk80 + (D_807FBB4C->unk80 - D_807FBB40->unk80) * 0.5;
         sub->unk4 = D_807FBB40->unk84 + (D_807FBB4C->unk84 - D_807FBB40->unk84) * 0.5;
         D_807FBB40->unk144 = 0x24;
-        QS3A->unkFA = 0x2328;
-        D_807FBB40->unk160 = ((QS3Model806A2328 *)D_807FBB40->unk124)->unk4;
+        ORBIT_ACTOR->unkFA = 0x2328;
+        D_807FBB40->unk160 = ((MidpointOrbitConfig *)D_807FBB40->unk124)->unk4;
         {
-            f64 v = D_807FBB40->unk160 * (QS3A->unkEC * 0.01);
+            f64 v = D_807FBB40->unk160 * (ORBIT_ACTOR->unkEC * 0.01);
             D_807FBB40->unk160 = (v > 15.0 ? v : 15.0) < 150.0 ? (v > 15.0 ? v : 15.0) : 150.0;
         }
         sub->unk8 = D_807FBB40->unk160;
@@ -445,8 +445,8 @@ void func_806A2328(void) {
     func_8067ACB4(D_807FBB40);
     ratio = (sub->unk8 / D_807FBB40->unk160) * -4096.0 + 4096.0;
     sub->unk6 = D_807FBB40->unk168 + ratio;
-    D_807FBB40->unk7C = func_80612794(sub->unk6) * QS3A->unkEC + sub->unk0;
-    D_807FBB40->unk84 = func_80612790(sub->unk6) * QS3A->unkEC + sub->unk4;
+    D_807FBB40->unk7C = func_80612794(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk0;
+    D_807FBB40->unk84 = func_80612790(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk4;
     D_807FBB40->unk80 = func_80612790(2048.0f + ratio) * D_807FBB40->unkF0 + sub->unk2;
     actorUpdateFloorContactAndTilt(D_807FBB40, 0);
     D_807FBB40->unkE6 += 0x12C;

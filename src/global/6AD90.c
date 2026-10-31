@@ -34,7 +34,7 @@ void assetFreeBuffer(void *, s32, s32);
 void gunzip(void *, void *, void *);
 void heapFree(void *);
 
-void func_80666090(CollisionMeshHeader *arg0) {
+void collisionBuildCellTable(CollisionMeshHeader *arg0) {
     s32 off;
     void *sp58;
     void *sp54;
@@ -765,7 +765,7 @@ typedef struct GridMeshNode {
 extern GridMeshNode *D_807F93C0;
 u8 effectGetTableFlag(GridMeshNode *);
 f32 func_806608FC(GridMeshNode *, s32, s32, u8);
-s32 func_80668C30(s16 *, f32, f32);
+s32 collisionPointInTriangleXZS16(s16 *, f32, f32);
 f32 collisionTriangleHeightAtXZ(s16 *, f32, f32);
 
 s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
@@ -824,7 +824,7 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
                 spA0[5] = y[3] * 6.0f;
                 spA0[8] = z[3] * 6.0f;
 
-                if (func_80668C30(spA0, var_fs0, temp_fs1) != 0) {
+                if (collisionPointInTriangleXZS16(spA0, var_fs0, temp_fs1) != 0) {
                     var_fs0 = collisionTriangleHeightAtXZ(spA0, var_fs0, temp_fs1) / 6.0f;
                 } else {
                     spA0[1] = x[2] * 6.0f;
@@ -988,7 +988,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     arg0 = arg0 * 6.0f;
     arg1 = arg1 * 6.0f;
     if (arg3 != NULL && arg3->unk150 != 0 && collisionCheckTriangleXZBoundsS16(arg3->unk150, (s32)arg0, (s32)arg1) != 0 &&
-        func_80668C30((s16 *)arg3->unk150, arg0, arg1) != 0 && D_807F5FC0 == 0) {
+        collisionPointInTriangleXZS16((s16 *)arg3->unk150, arg0, arg1) != 0 && D_807F5FC0 == 0) {
         tri = (CollisionStaticTri *)arg3->unk150;
         sp150 = tri + 1;
     } else {
@@ -999,7 +999,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
         sp9C = (s32)arg1;
         sp98 = (s32)arg0;
         do {
-            if (collisionCheckTriangleXZBoundsS16(tri, sp98, sp9C) != 0 && func_80668C30((s16 *)tri, arg0, arg1) != 0) {
+            if (collisionCheckTriangleXZBoundsS16(tri, sp98, sp9C) != 0 && collisionPointInTriangleXZS16((s16 *)tri, arg0, arg1) != 0) {
                 dx01 = (f64)(tri->v[0] - tri->v[1]);
                 dy01 = (f64)(tri->v[3] - tri->v[4]);
                 dz01 = (f64)(tri->v[6] - tri->v[7]);
@@ -1361,7 +1361,7 @@ s32 collisionCheckTriangleXZBoundsS16(CollisionMeshTriS *arg0, s32 arg1, s32 arg
     return 1;
 }
 
-s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
+s32 collisionPointInTriangleXZS16(s16 *arg0, f32 arg1, f32 arg2) {
     f64 t0_d; // pad: reproduces slot layout (unused)
     f64 hx;
     f64 pad0[1]; // pad: reproduces slot layout (unused)

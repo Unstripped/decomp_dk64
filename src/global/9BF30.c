@@ -296,7 +296,7 @@ void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80714C08(void *, f32, Actor *, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void effectPulseSpinUpdate(void);
-void func_8071ABDC(void);
+void effectRadialSprayUpdate(void);
 
 #define G_ACTOR ((ProjectileActor *)D_807FBB40)
 
@@ -347,7 +347,7 @@ void projectileActorUpdate(void) {
             for (var_s1 = 0; var_s1 < 0xC; var_s1 += 2) {
                 func_807149B8(1);
                 func_80714950(var_s1 + 0xB000000);
-                func_8071498C(func_8071ABDC);
+                func_8071498C(effectRadialSprayUpdate);
                 func_80714CC0(&D_8071FBA0, (f32)(((f64)((s32)(randomNonNegative() >> 15) % 10) * 0.05) + 0.2),
                     G_ACTOR->unk7C, G_ACTOR->unk80, G_ACTOR->unk84);
             }

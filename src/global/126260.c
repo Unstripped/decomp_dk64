@@ -113,7 +113,7 @@ void commandQueuePush(s32 arg0, s16 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5, 
     temp_v1->unkE = arg8;
 }
 
-s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5) {
+s32 commandApplyToLight(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5) {
     f32 dist;
     f64 dist_d;
     Light *lights;
@@ -233,7 +233,7 @@ typedef struct {
     u8 unk16D;
     u8 pad16E[0x174 - 0x16E];
     void *unk174;
-} L126b_ActorView;
+} LightActorView;
 
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
@@ -251,14 +251,14 @@ extern f32 func_807444E0;
 
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 func_80721814(u8, Command *, f32, f32, f32, s16);
+s32 commandApplyToLight(u8, Command *, f32, f32, f32, s16);
 
-Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
+Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     u8 is_player;
     u8 *color_base;
     Light *secondary;
     Ambient *primary;
-    L126b_ActorView *actor;
+    LightActorView *actor;
     s32 command;
     s16 camera_rotation;
     s16 angle;
@@ -278,7 +278,7 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
     f32 color[3];
     s32 cnt;
 
-    actor = (L126b_ActorView *)arg1;
+    actor = (LightActorView *)arg1;
     if (arg1 == D_807FBB4C) {
         is_player = 1;
     } else {
@@ -364,13 +364,13 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
     }
 
     for (i = 0; i < D_807FDB74; i++) {
-        if (((Command *)D_807FDB70)[i].unk0 == (s32)arg1 && func_80721814(command, (Command *)(D_807FDB70 + (i << 4)), x, y, z, arg2) != 0) {
+        if (((Command *)D_807FDB70)[i].unk0 == (s32)arg1 && commandApplyToLight(command, (Command *)(D_807FDB70 + (i << 4)), x, y, z, arg2) != 0) {
             command = (command + 1) & 0xFF;
         }
     }
 
     if (!(D_807FBB60 & 2) && (actor->unk5C & 1)) {
-        actor = (L126b_ActorView *)actor->unk174; // FAKE: reuses the dead actor local as the named pointer (v0 web)
+        actor = (LightActorView *)actor->unk174; // FAKE: reuses the dead actor local as the named pointer (v0 web)
         if ((*(s16 *)((u8 *)actor + 0xD4) != 0) && (D_8076A064 & 2)) {
             secondary->l.col[0] = 0;
             secondary->l.col[1] = 0;

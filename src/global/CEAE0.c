@@ -2525,7 +2525,7 @@ void func_806CF4B8(Actor *arg0) {
 
 extern u8 D_80750AD0;
 extern u8 D_8071FC40;
-void func_80718BF4(void);
+void effectWobbleRiseUpdate(void);
 void animSetSpeed(void *, s32, f32);
 void animSetLoopMode(void *, s32, s32);
 void animSetDirection(void *, s32, s32);
@@ -2571,7 +2571,7 @@ void func_806CF580(void) {
     }
     if ((D_807FBB40->unk154 == 0x4F || D_807FBB40->unk154 == 0x7F) && D_80750AD0 == 0 &&
         (u32)(G05_P->unkD0 + 9) < (u32)D_8076A064 && randomLcgNext() % 2500 / 200 == 0) {
-        func_8071498C(func_80718BF4);
+        func_8071498C(effectWobbleRiseUpdate);
         func_807149B8(1);
         func_807149FC(-1);
         func_80714C08(&D_8071FC40, 0, D_807FBB40, 4, 0);

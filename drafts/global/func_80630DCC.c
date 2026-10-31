@@ -64,7 +64,7 @@ void func_80614A64(void *);
 void *renderActorDisplayList(void *, void *);
 s32 mapPointOutsideClipBounds(f32, f32, f32, u8, s32);
 void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
-void *func_80722294(void *, void *, u8);
+void *actorBuildLightDisplayList(void *, void *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
@@ -123,7 +123,7 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     }
     WRITE_GFX_WORDS(arg2++, 0xDB06003C, osVirtualToPhysical(RENDER_ACT->unk148[D_807444FC]));
     if (RENDER_ACT->unk60 & 0x1000) {
-        arg2 = func_80722294(arg2, arg1, D_807FC929);
+        arg2 = actorBuildLightDisplayList(arg2, arg1, D_807FC929);
         WRITE_GFX_WORDS(arg2++, 0xD9FFFFFF, 0x20000);
         WRITE_GFX_WORDS(arg2++, 0xFA0000FF, 0xFFFFFFFF);
     } else {

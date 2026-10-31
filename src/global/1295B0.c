@@ -1667,12 +1667,12 @@ s32 func_80714CC0(void *, f32, f32, f32, f32);
 void effectPuffRiseUpdate(void);
 void func_80717404(void);
 void func_80717D4C(void);
-void func_80718BF4(void);
+void effectWobbleRiseUpdate(void);
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, void *, u8);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 void effectSpawnMultiTierRing(f32, s32, f32, f32, f32);
 
-void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
     Zone *group;
     s16 x;
     s16 y;
@@ -1867,7 +1867,7 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 func_807149B8(1);
                 func_80714950(2);
                 func_807149FC(-1);
-                func_8071498C(func_80718BF4);
+                func_8071498C(effectWobbleRiseUpdate);
                 func_80714A28(4);
                 func_80714CC0(D_8071FC40, 0.0f, (f32)x + kx14, (f32)y + ky14, (f32)z + kz14);
             }

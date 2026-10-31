@@ -8,6 +8,7 @@ mpCheckScoreLimit = 0x8002449C; // type:func
 mpCheckLastPlayerStanding = 0x8002452C; // type:func
 mpDrawGlyph = 0x800245B0; // type:func
 mpDrawPlayerScores = 0x800249D8; // type:func
+mpDrawPlayerViewportHud = 0x80024CA4; // type:func
 mpDrawHud = 0x80025264; // type:func
 mpFindCurrentMapEntry = 0x80025378; // type:func
 mpRandomSpawnDelay = 0x800253C8; // type:func

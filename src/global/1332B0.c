@@ -142,9 +142,9 @@ void volumeTriggerSetEnabled(s32, u8);
 typedef struct {
     s16 unk0;
     u8 unk2[8];
-} QS1VolumeTriggerSub;
+} VolumeTriggerSubView;
 
-void func_8072E868(void) {
+void volumeTriggerUpdateAll(void) {
     s32 ua0;
     s32 ua1;
     s32 i;
@@ -153,7 +153,7 @@ void func_8072E868(void) {
     s32 j;
     s32 flag;
     s32 k;
-    QS1VolumeTriggerSub *sub;
+    VolumeTriggerSubView *sub;
 
     for (k = 0; k < D_807FBDC4; k++) {
         ptr = D_807FBB70.unk278[k];
@@ -170,7 +170,7 @@ void func_8072E868(void) {
     for (i = 0; i < D_80755A14->count; i++, e++) {
         if (volumeTriggerUpdate(e)) {
             for (j = 0; j < e->unkE; j++) {
-                sub = (QS1VolumeTriggerSub *)&e->subs[j];
+                sub = (VolumeTriggerSubView *)&e->subs[j];
                 if (D_807557A0[e->subs[j].unk0].unkC == NULL || D_807557A0[e->subs[j].unk0].unkC()) {
                     flag = (u16)D_807557A0[sub->unk0].unk2 == 0xA ? 1 : 0;
                     func_8067AB20(D_807FBB40, D_807557A0[sub->unk0].unk8, 0x01000000, D_807557A0[sub->unk0].unk7, e->subs[j].unk2, flag);

@@ -229,7 +229,7 @@ void camSampleFloorHeight(CamActor *, CamState *, f32, f32);
 void camApplyShake(CamState *, f32 *, f32 *, f32 *, s32, s32);
 void camStartBlendRamp(CamState *, s32);
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
-s32 func_8061F53C(CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
+s32 camEvaluateZones(CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 u8 camComputeFollowPos(CamActor *, CamActor *, f32 *, f32 *, f32 *, f32);
 void camComputeFocusPos(CamState *, f32 *, f32 *, f32 *);
 void camComputeFocusPosOffset(CamState *, f32 *, f32 *, f32 *, f32);
@@ -2170,7 +2170,7 @@ s32 camIsCellNeighbour(s16, s16);
 #define CAM_ZONE_SORT ((CamZonePair *)gCamZoneSorted)
 #define CAM_ZONE_PATH ((CamPathZones *)gCamActivePaths)
 
-s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
+s32 camEvaluateZones(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6) {
     CamZoneEntryFull *e;
     s16 ret;
     u8 type0;
@@ -3641,7 +3641,7 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
         }
         if (cam->unkF3 != 6 && cam->unkF3 != 9 && (!(D_8076A0B1 & 0x10) || D_807463B8 == 3) &&
             cam->unkF3 != 8 && cam->unkF3 != 7 && cam->unkEF != 0) {
-            if (func_8061F53C(arg0, arg1, arg2, arg3, arg4, arg5, arg6) != 0) {
+            if (camEvaluateZones(arg0, arg1, arg2, arg3, arg4, arg5, arg6) != 0) {
                 cam->unkF3 = 2;
             } else if (cam->unk44 != 0) {
                 cam->unkF3 = 4;

@@ -1,4 +1,4 @@
-// func_806C7270 (src/global/CBEA0.c): R2Aud1 stage 6 unchanged (11 lines incl .rodata reloc): target sra->t9 ring + andi->a0 cand; ours reversed. New tries all no gain: callee proto toggles (assetLoad s32/u8*/void*, renderCallbacksRegister s32/u8/void, func_806C75A4), named k=t&1 in/before if with dead uses, i=t>>1 reuse of loop var, repeated inline frac expr, dead t&1/t>>1 ifs, hc 8k variants.
+// func_806C7270 (src/global/CBEA0.c): R3a: stage 6 unchanged, 11 lines (2 .rodata reloc + sra/andi swap t9/a0, la t4 vs t2, mul.s f8 operand order). Analysis: target t9=sra ring temp (t>>1 NOT promoted) and a0=andi => the only free int reg in the else region (a0) was taken by a t&1 candidate with higher adjsave than t>>1 (1.5); t&1 must have >=2 occurrences pre-CSE. Ring: target skips t1/t3? no -- LRU picks t2,t4 after sra t9; ours picks t1,t2 after andi t9 (consequence of swap). Tried new: named frac/x0 forms (plain 'frac' fixes mul.s order but moves sll/la before andi: 13), frac-first then e, e[0]+frac*(...) orders, inline frac twice, j=t>>1/k=t&1 locals (F1-F6), dead if(t&1) before/after (70+). None beat 11.
 typedef struct R1C2CB_Entry {
     s16 unk0;
     s16 unk2;

@@ -441,7 +441,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *arg1) {
 
 u32 textGetFontHeight(s32);
 
-Gfx *func_80024CA4(Gfx *arg0, MpControllerActor *arg1) {
+Gfx *mpDrawPlayerViewportHud(Gfx *arg0, MpControllerActor *arg1) {
     MpControllerState *sp104;
     Gfx *g0;
     f32 fx;
@@ -517,7 +517,7 @@ Gfx *func_80024CA4(Gfx *arg0, MpControllerActor *arg1) {
     return var_s0;
 }
 
-Gfx *func_80024CA4(Gfx *, MpControllerActor *);
+Gfx *mpDrawPlayerViewportHud(Gfx *, MpControllerActor *);
 
 Gfx *mpDrawHud(Gfx *glistp, MpControllerActor *arg1) {
     s32 t0 = D_807552E4.unk8 >= 2;
@@ -531,7 +531,7 @@ Gfx *mpDrawHud(Gfx *glistp, MpControllerActor *arg1) {
                 glistp = mpDrawPlayerScores(glistp, arg1);
             }
         } else if ((D_807552E4.unk8 == 1) || t0) {
-            glistp = func_80024CA4(glistp, arg1);
+            glistp = mpDrawPlayerViewportHud(glistp, arg1);
         }
     }
     return glistp;

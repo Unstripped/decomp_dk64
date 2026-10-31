@@ -397,7 +397,7 @@ typedef struct CollisionStaticCellView {
 #define COLLISION_STATIC_CELLS ((CollisionStaticCellView *)D_807FB534)
 
 void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
-s32 func_8066DB40(void *, void *);
+s32 collisionBuildStaticTri(void *, void *);
 
 void collisionLoadStaticCell(s32 arg0) {
     s32 sp54;
@@ -418,7 +418,7 @@ void collisionLoadStaticCell(s32 arg0) {
             s1 = COLLISION_STATIC_CELLS[arg0].unk4;
             s2 = COLLISION_STATIC_CELLS[arg0].unk0;
             for (; cnt != 0; cnt--) {
-                if (func_8066DB40(s1, s2) != 0) {
+                if (collisionBuildStaticTri(s1, s2) != 0) {
                     s2 = (void *)((u8 *)s2 + 0x28);
                 }
                 s1 = (void *)((u8 *)s1 + 0x18);
@@ -796,7 +796,7 @@ typedef struct CollisionBoxWork {
     /* 0x52 */ u8 pad52[0x58 - 0x52];
 } CollisionBoxWork;
 
-s32 func_8066DB40(void *arg0, void *arg1) {
+s32 collisionBuildStaticTri(void *arg0, void *arg1) {
 #define COLLISION_TRI_IN ((CollisionStaticTriIn *)arg0)
 #define COLLISION_TRI_OUT ((CollisionStaticTriOut *)arg1)
     CollisionBoxWork sp28;
@@ -1020,7 +1020,7 @@ typedef struct ActorPointNode {
     /* 0x1C */ struct ActorPointNode *next;
 } ActorPointNode;
 
-ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8, u8 *arg9) {
+ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8, u8 *arg9) {
     register ActorSub140 *sub140;
     register void *s2;
     register s32 s3;
@@ -2027,7 +2027,7 @@ s32 actorGetCollisionThreshold(CollisionActor *arg0) {
 }
 
 #ifdef NON_MATCHING
-typedef struct R2Aud2_HitInfo {
+typedef struct ModelSlotHitRecord {
     u8 pad0[0x50];
     u8 unk50;
     u8 unk51;
@@ -2037,7 +2037,7 @@ typedef struct R2Aud2_HitInfo {
     s16 unk8A;
     f32 unk8C;
     f32 unk90;
-} R2Aud2_HitInfo;
+} ModelSlotHitRecord;
 
 extern Actor *D_807FBB40;
 f32 sinApprox(f32);
@@ -2049,7 +2049,7 @@ void func_8066FE08(s32 arg0) {
     s16 temp_a1;
     s32 var_a3;
     s32 temp_v0;
-    R2Aud2_HitInfo *sub;
+    ModelSlotHitRecord *sub;
     s32 var_a0; // FAKE: s32 so `var_a0 = temp_a0` needs no re-extension; the (s16) casts below re-narrow
     f32 sp160;
     f32 sp15C;
@@ -2083,7 +2083,7 @@ void func_8066FE08(s32 arg0) {
 
     var_a3 = 0;
     if (D_807F6000[arg0].unk7C != NULL && D_807FB5D8->unk4D != 0) {
-        sub = (R2Aud2_HitInfo *)D_807F6000[arg0].unk7C;
+        sub = (ModelSlotHitRecord *)D_807F6000[arg0].unk7C;
         temp_v0 = sub->unk50;
         if (temp_v0 != 0)
         switch (temp_v0) {
@@ -2267,7 +2267,7 @@ void actorCalcPlaneContactPoint(struct ActorPlaneContactView *, s16, struct Acto
 struct ActorMotionWork;
 s32 actorCheckPointInAngleArc(struct ActorMotionWork *, f32, f32);
 
-s32 func_80670548(arg0)
+s32 actorResolveModelSlotCollision(arg0)
 Actor *arg0;
 {
     ActorHitSubView *sub;
@@ -2674,7 +2674,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 s32 func_806732A8(s32, s16);
 void actorUpdateSubActorOffsets(ActorTargetWork *, u8);
-void func_80671528(ActorTargetWork *, f32 *, f32 *, f32 *, s32);
+void actorComputeBoxNormal(ActorTargetWork *, f32 *, f32 *, f32 *, s32);
 
 void actorUpdateFacingAndOffset(ActorFacingWork *arg0, s32 arg1, s32 arg2, s32 arg3) {
     s16 sp36;
@@ -2724,7 +2724,7 @@ void actorUpdateCollisionExtents(ActorTargetWork *arg0) {
         f32 temp_cc;
 
         sp48 = ((ActorFacingWork *)arg0)->unk174;
-        func_80671528(arg0, &sp38, &sp3C, &sp40, 1);
+        actorComputeBoxNormal(arg0, &sp38, &sp3C, &sp40, 1);
         scale = sp44 / 8;
         temp_c4 = (f32)D_807FB5C4 / 8;
         temp_cc = (f32)D_807FB5CC / 8;
@@ -2749,7 +2749,7 @@ void actorUpdateSubActorOffsets(ActorTargetWork *arg0, u8 arg1) {
         f32 sp28;
         f32 sp24;
 
-        func_80671528(arg0, &sp24, &sp28, &sp2C, arg1);
+        actorComputeBoxNormal(arg0, &sp24, &sp28, &sp2C, arg1);
         temp_fa0 = (f32)D_807FB5C4 / (f32)8;
         temp_fa1 = (f32)D_807FB5CC / (f32)8;
         if (D_807FB548 != 0) {
@@ -2784,7 +2784,7 @@ typedef struct ActorBoxSub140View {
 
 extern CollisionBox *D_807FB5D4;
 
-void func_80671528(arg0, arg1, arg2, arg3, arg4)
+void actorComputeBoxNormal(arg0, arg1, arg2, arg3, arg4)
 ActorTargetWork *arg0;
 f32 *arg1;
 f32 *arg2;
@@ -3501,7 +3501,7 @@ void actorTouchSub140Timestamp(ActorMotionWork *arg0) {
     }
 }
 
-s32 func_80670548();
+s32 actorResolveModelSlotCollision();
 s32 actorCheckPointInAngleArc(ActorMotionWork *, f32, f32);
 
 void actorUpdateMovementFlags(ActorMotionWork *arg0) {
@@ -3510,7 +3510,7 @@ void actorUpdateMovementFlags(ActorMotionWork *arg0) {
     if (arg0->unk144 & 8) {
         temp_v0 = arg0->unk140;
         if (temp_v0->unk6C != 0) {
-            arg0->unkFC |= func_80670548();
+            arg0->unkFC |= actorResolveModelSlotCollision();
         } else {
             temp_v0->unk60 = 0;
         }

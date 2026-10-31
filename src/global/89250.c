@@ -75,7 +75,7 @@ void func_80717D4C(void);
 void func_80718080(void);
 void func_8071827C(void);
 void effectGroundDecalSpinUpdate(void);
-void func_8071910C(void);
+void effectTumbleBounceUpdate(void);
 void effectDecelerateDriftUpdate(void);
 void timedEffectCountdownTick(void);
 void effectSpiralRiseUpdate(void);
@@ -232,7 +232,7 @@ void effectSpawnBoneDebrisScaled(s16 arg0, s16 arg1, s16 arg2) {
 }
 
 extern s32 D_8071FC40;
-void func_80718BF4(void);
+void effectWobbleRiseUpdate(void);
 
 void effectSpawnAuraBurst(u8 arg0) {
     s32 i;
@@ -247,7 +247,7 @@ void effectSpawnAuraBurst(u8 arg0) {
                 func_807149B8(1);
                 func_80714950(1);
                 func_807149FC(-1);
-                func_8071498C(func_80718BF4);
+                func_8071498C(effectWobbleRiseUpdate);
                 func_80714A28(4);
                 func_80714CC0(&D_8071FC40, 0.0f, D_807FBB40->unk7C + x, D_807FBB40->unk80 + y, D_807FBB40->unk84 + z);
             }
@@ -257,7 +257,7 @@ void effectSpawnAuraBurst(u8 arg0) {
 
 void effectSpawnSparks(u8 arg0, u8 arg1) {
     if (!(arg0 & D_8076A064)) {
-        func_8071498C(func_80718BF4);
+        func_8071498C(effectWobbleRiseUpdate);
         func_807149B8(1);
         func_807149FC(-1);
         func_80714A28(4);
@@ -280,7 +280,7 @@ void effectSpawnRing(void) {
     for (i = 0; i < 7; i++) {
         func_807149B8(1);
         func_807149FC(0xA);
-        func_8071498C(func_8071910C);
+        func_8071498C(effectTumbleBounceUpdate);
         func_80714998(2);
         func_80714950(0);
         func_80714CC0(&D_8072073C, (f32)((f64)temp * 0.15), D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);

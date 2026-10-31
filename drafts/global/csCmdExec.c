@@ -615,7 +615,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk38 = -1;
         break;
     case 0x4:
-        func_80723484(cs->unk38);
+        pathPlaybackAdvance(cs->unk38);
         pathPlaybackGetPosition(cs->unk38, &gCsPosX, &gCsPosY, &gCsPosZ);
         break;
     case 0x27:

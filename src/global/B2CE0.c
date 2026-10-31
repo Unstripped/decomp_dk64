@@ -648,7 +648,7 @@ void func_8071498C(void (*)());
 void func_80714998(s32);
 void func_80714950(s32);
 void func_80714C08(void *, f32, B2CE0Actor *, s32, s32);
-void func_8071910C();
+void effectTumbleBounceUpdate();
 extern u8 D_8072073C;
 
 void effectSpawnActorParticleBurst(u8 arg0) {
@@ -659,7 +659,7 @@ void effectSpawnActorParticleBurst(u8 arg0) {
         temp = D_807FBB40->unk4->unk38 / 0.15;
         func_807149B8(1);
         func_807149FC(10);
-        func_8071498C(func_8071910C);
+        func_8071498C(effectTumbleBounceUpdate);
         func_80714998(2);
         func_80714950(0);
         func_80714C08(&D_8072073C, temp * 0.15, D_807FBB40, arg0, 0);

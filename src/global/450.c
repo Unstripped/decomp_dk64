@@ -158,7 +158,7 @@ void func_80712BD4(void);
 s32 screenStateTickAndDraw(s32);
 s32 func_80714464(void);
 void effectResetLists(void);
-void func_80715270(s32);
+void effectUpdateAll(s32);
 void commandStateInit(void);
 void commandQueueReset(void);
 void pathFreeAsset(s32);
@@ -633,7 +633,7 @@ void func_805FC2B0(void) {
     if (pauseStateUpdate() != 0) {
         billboardCacheEvictStale();
         func_806789E4();
-        func_80715270(1);
+        effectUpdateAll(1);
         sfxUpdateLevelAmbient();
         sfxUpdateSourceGroups();
         sfxUpdateChannels();
@@ -649,7 +649,7 @@ void func_805FC2B0(void) {
         effectUpdateAndDispatch();
         actorGlobalCallbacksReset();
         triggerZoneUpdate();
-        func_80715270(0);
+        effectUpdateAll(0);
         sfxUpdateLevelAmbient();
         sfxUpdateChannels();
         sfxUpdateSourceGroups();

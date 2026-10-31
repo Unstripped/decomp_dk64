@@ -74,7 +74,7 @@ void func_807149B8(s32);
 void func_807149FC(s32);
 void func_80714950(s32);
 void func_8071498C(void *);
-void func_8071ABDC();
+void effectRadialSprayUpdate();
 void func_80714998(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -389,7 +389,7 @@ void func_806B3420(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_806B3680(void) {
+void actorSwellBurstUpdate(void) {
     f32 dx;
     f32 var;
     f32 sp54;
@@ -448,7 +448,7 @@ void func_806B3680(void) {
                             func_807149B8(1);
                             func_807149FC(2);
                             func_80714950(i + 0x0B020000);
-                            func_8071498C(func_8071ABDC);
+                            func_8071498C(effectRadialSprayUpdate);
                             func_80714998(1);
                             func_80714CC0(D_8072073C, 2.0 * D_807FBB40->unk4->unk38, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
                         }

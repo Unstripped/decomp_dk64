@@ -39,7 +39,7 @@ void pathSplineSample(s32, s32, f32, f32 *, f32 *, f32 *);
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 s16 pathEntryCount(s32);
 
-void func_807245F0(PathFollowOwner *arg0, u8 arg1) {
+void pathFollowUpdateHeading(PathFollowOwner *arg0, u8 arg1) {
     s32 fresh;
     PathFollowState *s;
     s32 idx;

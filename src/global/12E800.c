@@ -865,7 +865,7 @@ void func_80723284(s32, u8);
 void func_807232B8(s32, s32);
 void func_80723320(s32, s32);
 void func_8072334C(s32, s32);
-void func_80723484(s32);
+void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724E48(u8);
 void func_8072DC7C(u8);
@@ -900,7 +900,7 @@ void func_8072B7CC(s32 arg0) {
                     func_8072334C(F1A->unk15F, 1);
                     F1A->unk155++;
                 case 1:
-                    func_80723484(F1A->unk15F);
+                    pathPlaybackAdvance(F1A->unk15F);
                     pathPlaybackGetPosition(F1A->unk15F, &F1A->unk7C, &F1A->unk80, &F1A->unk84);
                     if (F1S98->unk38 != 0.0f) {
                         F1A->unkB8 = sqrtf(((F1A->unk7C - F1A->unk88) * (F1A->unk7C - F1A->unk88)) + ((F1A->unk80 - F1A->unk8C) * (F1A->unk80 - F1A->unk8C)) + ((F1A->unk84 - F1A->unk90) * (F1A->unk84 - F1A->unk90))) * 40.0f;

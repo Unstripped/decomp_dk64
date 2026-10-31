@@ -105,7 +105,7 @@ typedef struct {
     u8 unkF;
 } Struct_8002B180_Arg1;
 void func_8002B180(Struct_sp58 *, Struct_8002B180_Arg1 *);
-void func_8002A7F8(Struct_sp58 *);
+void raceUpdateRacerMotion(Struct_sp58 *);
 void func_800283D4(f32);
 void actorUpdateModelMatrix(void *, s32);
 extern void *D_8002FC70;
@@ -268,7 +268,7 @@ void raceInitParticipants(Struct_arg0 *arg0) {
     sp5C->unk26 = 0;
 }
 
-void func_8002A7F8(Struct_sp58 *arg0) {
+void raceUpdateRacerMotion(Struct_sp58 *arg0) {
     f32 sp5C;
     f32 sp58;
     f32 sp54;
@@ -442,7 +442,7 @@ void func_8002AE9C(void) {
         case 3:
         case 4:
             func_80026D2C(D_807FBB40->unkB8 * 0.0307692308f);
-            func_8002A7F8(var_s3);
+            raceUpdateRacerMotion(var_s3);
             break;
         case 5:
             if (var_s3->unk35 == 0) {
@@ -700,7 +700,7 @@ void func_8002B964(void) {
     if (var_s1->unk34 < 5) {
         func_8002E644(sp20);
         func_8002B180(var_s1, (Struct_8002B180_Arg1 *)sp20);
-        func_8002A7F8(var_s1);
+        raceUpdateRacerMotion(var_s1);
         func_800283D4(D_807FBB40->unkB8 * 0.0307692308f);
     } else {
         D_807FBB40->unkB8 = 0.0f;

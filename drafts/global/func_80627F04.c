@@ -41,7 +41,7 @@ void func_8061D934(s32);
 void func_8061D968(s32, u8);
 void func_8061DAAC(s16, s16, u16);
 void func_8061F0B0(s32, u8, s32);
-void func_80627C5C();
+void textSpawnSubtitle();
 void screenWipeStart();
 void actorUpdateModelMatrix(void *, s32);
 void func_8063DA40(s16, s16);
@@ -63,7 +63,7 @@ void func_807127F4(s32);
 void func_80712830(void *, s32);
 void func_80713EB0(s32, s32, s32);
 void func_80724994(s32, s16, s16, s16, s32);
-void func_807289E8(s16, s16, s16, s16);
+void zoneEntrySpawnEffect(s16, s16, s16, s16);
 void func_80729AA4(s32);
 void mapChunkEffectSetFlag(s16, s16, s32, u8);
 s16 mathAngleBetweenPoints2D(f32, f32, s32, s32);
@@ -105,7 +105,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             spawnNodesSetActorStateByFlag(2, 0x40);
             return;
         case 0x42:
-            func_80627C5C(a & 0xFF, (s16)(sv[3] != 0 ? sv[3] : 0x5A), (u8)sv[1]);
+            textSpawnSubtitle(a & 0xFF, (s16)(sv[3] != 0 ? sv[3] : 0x5A), (u8)sv[1]);
             return;
         case 0x41:
             func_805FF8F8();
@@ -232,7 +232,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             }
             break;
         case 0xB:
-            func_807289E8(a, (s16)sv[3], (s16)sv[1], (s16)sv[0]);
+            zoneEntrySpawnEffect(a, (s16)sv[3], (s16)sv[1], (s16)sv[0]);
             return;
         case 0x11:
             screenWipeStart(a & 0xFF);

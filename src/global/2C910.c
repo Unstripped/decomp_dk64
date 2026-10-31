@@ -34,7 +34,7 @@ u8 *textTableGetString(s32, s32, s32);
 void textSpawnMarkerChecked(s32, s32, s32, u8 *, s32, s32, s32, s32);
 u32 strlen(u8 *);
 
-void func_80627C5C(arg0, arg1, arg2)
+void textSpawnSubtitle(arg0, arg1, arg2)
 u8 arg0;
 u16 arg1;
 u8 arg2;

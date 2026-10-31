@@ -432,7 +432,7 @@ u32 strlen(u8 *);
 Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 #define RaceE76C ((RaceE76CView *)arg1)
 
-Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
+Gfx *raceDrawHudText(Gfx *arg0, RaceUnknown174 *arg1) {
     RaceUnknown174 *temp_t1;
     Struct806C7C94 *temp_v0;
     s32 pad6C;
@@ -499,7 +499,7 @@ s32 func_807142D8(void);
 Gfx *func_8002C63C(Gfx *, RaceUnknown174 *);
 Gfx *func_8002C2E8(Gfx *, RaceUnknown174 *);
 Gfx *func_8002C14C(Gfx *, RaceUnknown174 *);
-Gfx *func_8002C76C(Gfx *, RaceUnknown174 *);
+Gfx *raceDrawHudText(Gfx *, RaceUnknown174 *);
 
 Gfx *func_8002CAC8(Gfx *arg0, RaceUnknownActor *arg1, RaceUnknown174 *arg2) {
     RaceUnknown174 *sp24;
@@ -525,7 +525,7 @@ Gfx *func_8002CAC8(Gfx *arg0, RaceUnknownActor *arg1, RaceUnknown174 *arg2) {
         arg0 = func_8002C14C(arg0, arg2);
     }
     if (sp24->unk0 & 6) {
-        arg0 = func_8002C76C(arg0, arg2);
+        arg0 = raceDrawHudText(arg0, arg2);
     }
     return arg0;
 }

@@ -2,7 +2,7 @@
 #include "actor.h"
 
 s32 actorSpawn(s32, s32);
-void func_8072E868(void);
+void volumeTriggerUpdateAll(void);
 void func_80727678(void);
 void spawnNodesUpdate(void);
 
@@ -16,7 +16,7 @@ void actorSpawnInitialSet(void) {
 }
 
 void func_8068A810(void) {
-    func_8072E868();
+    volumeTriggerUpdateAll();
 }
 
 void func_8068A830(void) {

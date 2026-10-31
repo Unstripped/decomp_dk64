@@ -74,7 +74,7 @@ void camStartShake(s32, s32, s32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_8071A8B0(void);
 void func_80717D4C(void);
-void func_8071910C(void);
+void effectTumbleBounceUpdate(void);
 
 void func_8069B908(void) {
     L3b_Sub174 *sp13C;
@@ -311,7 +311,7 @@ void func_8069B908(void) {
                     spB0 += 30.0f;
                     func_807149B8(1);
                     func_807149FC(0x3C);
-                    func_8071498C((void *)func_8071910C);
+                    func_8071498C((void *)effectTumbleBounceUpdate);
                     func_80714998(2);
                     func_80714950(2);
                     sp78 = randomNonNegative();

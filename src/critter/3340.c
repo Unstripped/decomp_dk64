@@ -370,7 +370,7 @@ void func_80027DC0(void) {
 
 
 
-typedef struct J1b2Data {
+typedef struct FlutterState {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -382,16 +382,16 @@ typedef struct J1b2Data {
     f32 unk20;
     f32 unk24;
     f32 unk28;
-} J1b2Data;
+} FlutterState;
 
-typedef struct J1b2Sub {
+typedef struct FlutterModelView {
     char pad0[4];
     f32 unk4;
-} J1b2Sub;
+} FlutterModelView;
 
-typedef struct J1b2Actor {
+typedef struct FlutterActorView {
     char pad0[4];
-    J1b2Sub **unk4;
+    FlutterModelView **unk4;
     char pad8[0x60 - 8];
     s32 unk60;
     char pad64[0x7C - 0x64];
@@ -407,10 +407,10 @@ typedef struct J1b2Actor {
     char pad15F[0x160 - 0x15F];
     u32 unk160;
     char pad164[0x174 - 0x164];
-    J1b2Data *unk174;
-} J1b2Actor;
+    FlutterState *unk174;
+} FlutterActorView;
 
-#define J1b2A ((J1b2Actor *)D_807FBB40)
+#define FLUTTER_ACTOR ((FlutterActorView *)D_807FBB40)
 
 extern u8 D_807FBD70;
 f32 func_80612790(s16);
@@ -430,46 +430,46 @@ void func_80028120(void) {
     f32 w;
     s32 near;
     s32 angleTmp;
-    J1b2Data *d;
-    J1b2Sub *sub;
+    FlutterState *d;
+    FlutterModelView *sub;
 
-    d = J1b2A->unk174;
-    sub = *J1b2A->unk4;
-    if (!(J1b2A->unk60 & 0x10)) {
-        J1b2A->unk154 = 0x78;
+    d = FLUTTER_ACTOR->unk174;
+    sub = *FLUTTER_ACTOR->unk4;
+    if (!(FLUTTER_ACTOR->unk60 & 0x10)) {
+        FLUTTER_ACTOR->unk154 = 0x78;
         if (flagGet(0x189, 0) != 0) {
             if (flagGet(0x23, 1) == 0) {
-                J1b2A->unk154 = 1;
+                FLUTTER_ACTOR->unk154 = 1;
             } else if (flagGet(0x18A, 0) == 0) {
                 if (flagGet(0x24, 1) != 0) {
-                    J1b2A->unk154 = 0xA;
+                    FLUTTER_ACTOR->unk154 = 0xA;
                 } else {
-                    J1b2A->unk154 = 0x64;
+                    FLUTTER_ACTOR->unk154 = 0x64;
                 }
             }
             actorScriptStart(D_807FBB40, 0x43B);
         } else {
-            J1b2A->unk154 = 0;
+            FLUTTER_ACTOR->unk154 = 0;
         }
-        d->unk20 = J1b2A->unk7C;
-        d->unk24 = J1b2A->unk80;
-        d->unk28 = J1b2A->unk84;
+        d->unk20 = FLUTTER_ACTOR->unk7C;
+        d->unk24 = FLUTTER_ACTOR->unk80;
+        d->unk28 = FLUTTER_ACTOR->unk84;
         d->unk4 = 0.028571429f;
         d->unk0 = 2.0f;
         d->unk14 = d->unk20;
         d->unk1C = d->unk28;
     }
-    dx = J1b2A->unk7C - ((J1b2Actor *)D_807FBB4C)->unk7C;
-    dz = J1b2A->unk84 - ((J1b2Actor *)D_807FBB4C)->unk84;
-    if (J1b2A->unk154 != 1) {
-        J1b2A->unkE6 = J1b2A->unkE6 - (func_806CC10C(mathAngleBetweenPoints2D(((J1b2Actor *)D_807FBB4C)->unk7C, ((J1b2Actor *)D_807FBB4C)->unk84, J1b2A->unk7C, J1b2A->unk84), J1b2A->unkE6) >> 3);
+    dx = FLUTTER_ACTOR->unk7C - ((FlutterActorView *)D_807FBB4C)->unk7C;
+    dz = FLUTTER_ACTOR->unk84 - ((FlutterActorView *)D_807FBB4C)->unk84;
+    if (FLUTTER_ACTOR->unk154 != 1) {
+        FLUTTER_ACTOR->unkE6 = FLUTTER_ACTOR->unkE6 - (func_806CC10C(mathAngleBetweenPoints2D(((FlutterActorView *)D_807FBB4C)->unk7C, ((FlutterActorView *)D_807FBB4C)->unk84, FLUTTER_ACTOR->unk7C, FLUTTER_ACTOR->unk84), FLUTTER_ACTOR->unkE6) >> 3);
     }
-    J1b2A->unk15E = 0xF;
-    switch (J1b2A->unk154) {
+    FLUTTER_ACTOR->unk15E = 0xF;
+    switch (FLUTTER_ACTOR->unk154) {
     case 0:
         if (flagGet(0x189, 0) != 0) {
             actorScriptStart(D_807FBB40, 0x43B);
-            J1b2A->unk154 = 1;
+            FLUTTER_ACTOR->unk154 = 1;
         }
         break;
     case 0x64:
@@ -477,23 +477,23 @@ void func_80028120(void) {
         if (near != 0 && (D_807ECD48 & 0x8000)) {
             camStartPath(D_807FBB40, 4, 1);
             currentActorClearFlag();
-            J1b2A->unk154 = 0x65;
+            FLUTTER_ACTOR->unk154 = 0x65;
         }
         if (flagGet(0x24, 1) != 0) {
-            J1b2A->unk154 = 0xA;
+            FLUTTER_ACTOR->unk154 = 0xA;
         }
         break;
     case 0x65:
         if (camIsCutsceneActive() == 0) {
-            J1b2A->unk154 = 0x64;
+            FLUTTER_ACTOR->unk154 = 0x64;
         }
         break;
     case 1: {
         t = sub->unk4 / 19.0;
         if (t < d->unk0) {
-            d->unk8 = J1b2A->unk7C;
+            d->unk8 = FLUTTER_ACTOR->unk7C;
             d->unkC = d->unk24;
-            d->unk10 = J1b2A->unk84;
+            d->unk10 = FLUTTER_ACTOR->unk84;
             angleTmp = (s32)(randomFloat() * 4096.0);
             k = randomFloat() * 65.0;
             d->unk14 = (func_80612790((s16)angleTmp) * k) + d->unk20;
@@ -508,11 +508,11 @@ void func_80028120(void) {
         if (t < 0.0) {
             t = 0.0f;
         }
-        J1b2A->unk7C = d->unk8 + (t * (d->unk14 - d->unk8));
-        J1b2A->unk84 = d->unk10 + (t * (d->unk1C - d->unk10));
+        FLUTTER_ACTOR->unk7C = d->unk8 + (t * (d->unk14 - d->unk8));
+        FLUTTER_ACTOR->unk84 = d->unk10 + (t * (d->unk1C - d->unk10));
         if (D_807FBD70 == 4) {
             actorScriptStart(D_807FBB40, 0x43C);
-            J1b2A->unk154 = 2;
+            FLUTTER_ACTOR->unk154 = 2;
             d->unk0 = 0.0f;
         }
         break;
@@ -523,33 +523,33 @@ void func_80028120(void) {
             camStartPath(D_807FBB40, 2, 1);
             currentActorClearFlag();
             d->unk0 = 0.0f;
-            J1b2A->unk154 = 0x64;
+            FLUTTER_ACTOR->unk154 = 0x64;
         } else if (d->unk0 < 20.0) {
             k = sqrtf((dx * dx) + (dz * dz));
             if (k > 1.0) {
                 k = 3.0 / k;
-                J1b2A->unk7C = J1b2A->unk7C + (dx * k);
-                J1b2A->unk84 = J1b2A->unk84 + (dz * k);
+                FLUTTER_ACTOR->unk7C = FLUTTER_ACTOR->unk7C + (dx * k);
+                FLUTTER_ACTOR->unk84 = FLUTTER_ACTOR->unk84 + (dz * k);
             }
         }
         break;
     case 0xA:
         near = (dx * dx) + (dz * dz) < 2500.0f;
         if (near != 0) {
-            J1b2A->unk154 = 0xB;
+            FLUTTER_ACTOR->unk154 = 0xB;
             camStartPath(D_807FBB40, 3, 1);
         }
         break;
     case 0xB:
         break;
     }
-    func_8072881C(0, &J1b2A->unk160);
-    if (J1b2A->unk154 == 0) {
-        J1b2A->unk60 = J1b2A->unk60 & ~4;
+    func_8072881C(0, &FLUTTER_ACTOR->unk160);
+    if (FLUTTER_ACTOR->unk154 == 0) {
+        FLUTTER_ACTOR->unk60 = FLUTTER_ACTOR->unk60 & ~4;
     } else {
-        J1b2A->unk60 = J1b2A->unk60 | 4;
+        FLUTTER_ACTOR->unk60 = FLUTTER_ACTOR->unk60 | 4;
         actorUpdateFloorContactAndTilt(D_807FBB40, 0);
-        func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x23, 0xF, 1, 0x4B, 0x78, J1b2A->unkE6, 1.0f);
+        func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x23, 0xF, 1, 0x4B, 0x78, FLUTTER_ACTOR->unkE6, 1.0f);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }

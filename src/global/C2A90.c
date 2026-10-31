@@ -132,7 +132,7 @@ extern u8 D_8074E77C;
 extern u16 D_807446C0[];
 extern u16 D_807FC930[];
 extern u8 D_807FC950[][0x5E];
-extern void func_8071D0F0(void);
+extern void effectConvergeOnNodeUpdate(void);
 
 u8 func_805FF030(u8, s32);
 s32 slotQueueGetValue(s32, s32);
@@ -207,7 +207,7 @@ void func_806BE09C(void) {
                         R1C2CBS->unk2C = 0;
                         slotQueueCancel(0, 0);
                     }
-                    func_8071498C(func_8071D0F0);
+                    func_8071498C(effectConvergeOnNodeUpdate);
                     func_807149FC(-1);
                     func_807149B8(1);
                     func_80714950(D_807FBB40);

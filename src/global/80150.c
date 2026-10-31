@@ -100,7 +100,7 @@ void func_80714998(s32);
 void func_807149B8(s32);
 void func_807149FC(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_8071ABDC(void);
+void effectRadialSprayUpdate(void);
 void func_8071B89C(void);
 void func_8071BB14(void);
 s32 flagGet(s16, s32);
@@ -466,7 +466,7 @@ void func_8067C6FC(void) {
 extern s32 D_8071FE64;
 extern s32 D_8071FE88;
 extern s32 D_8071FEAC;
-void func_8071910C(void);
+void effectTumbleBounceUpdate(void);
 void func_8060E7EC(s32, s32, s32);
 u32 randomLcgNext(void);
 
@@ -487,7 +487,7 @@ void tagBarrelDespawnEffects(void) {
         temp_s0 = ((s32) (randomLcgNext() / 10000U)) % 3;
         func_807149B8(1);
         func_807149FC(0xA);
-        func_8071498C(func_8071910C);
+        func_8071498C(effectTumbleBounceUpdate);
         func_80714998(2);
         func_80714950(2U);
         switch (temp_s0) {
@@ -540,7 +540,7 @@ void func_8067DF44(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
             func_807149B8(1);
             func_807149FC(2);
             func_80714950(var_s0 + 0x0B020000);
-            func_8071498C(func_8071ABDC);
+            func_8071498C(effectRadialSprayUpdate);
             func_80714998(1);
             func_80714CC0(&D_8072038C, (f32)(sp80 * 0.5), arg0, arg1, arg2);
         }

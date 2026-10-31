@@ -1,4 +1,4 @@
-// func_806BFBF4 (src/global/C4620.c): QL5: stage 5-6, regalloc only. Needs s32 func_8072881C (both decls; plain fdiff of file stays OK). Now: const-3 a0 live range covers non-call cases (was 17 li a0,3 restores, now 11 = target), size 17920 vs 17904, ~21 non-register diff lines of which most are the t-ring cascade from the entry. KEY: uopt const lrs: single-use consts in loop 1 + function-spanning const lrs (254 via early 'unk58 != 0xFE', 255 stores) shrink the const-3/&D_807478F4 pieces; 'unk58 != 0xFEU' fixes it. deadsweep: if (D_807FDCA0) {} after case 7 and if (D_807FDC94) {} before unk2A block. REMAINING: (1) entry: li t8,255 not hoisted above bnez (lw s2 not in delay slot) -> t-ring offset cascade; (2) latch: continue edge bnel delay is addiu not lh a2; (3) particle loop: ours s4=&sp70 hoisted, target s4=0xFE and li a1,4/addiu a2,a3 computed once before the if; (4) case 6 T6 takes a2 not a1 (target restores a1 &D_807478F4 after it).
+// func_806BFBF4 (src/global/C4620.c): R3e (wave 3): unchanged C (stage 5-6, size 1542 vs 1535 insns, deadsweep full=385 shape=33). Remaining: (1) entry: target [lw t6; li t8,255; li t1,100; andi; bnez; lw s2 in delay], mine [lw t6; li t1,100; lw s2; andi; bnez; nop; li t8,255] (as1 hoists only the third li; permuting the 5 entry stores only changes which const is hoisted); (2) latch: first continue edge delay slot addiu a2 vs target lh a2,146(sp); (3) case 23: target 'lh t9,4(s0)' ring temp for cmd->unk4 (CSE'd, arg andi a1,t9,0xff), mine s16 t is a coloured web (cand adjsave 30, reg v0) -> t-ring cascade to the end; tried: no local (second load reloaded after the u8 sb), u8/u16/s32 t, reuse j/node, local decl-order hill-climb (2500 its), 1332x... dead-if sweeps at entry/loop head/latch (no gain), const-bearing dead compares at entry, callee return-type toggles (actorGetNodePos s32, mathAngleLerp s16, patrolPathStep u8, actorMoveWithinZone u32, func_80723C98 u8): all 32 combos identical.
 typedef struct LgBFInner {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -150,7 +150,7 @@ s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_80723320(s32, s32);
 void func_8072334C(s32, s32);
-void func_80723484(s32);
+void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 s32 func_80723C98();
 void actorSetUniformScale(Actor *, f32);
@@ -418,7 +418,7 @@ void func_806BFBF4(void) {
             if (state->unk30 == 0xFE) {
                 actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68);
             } else if (func_80723C98(state->unk30, 4, &sp70, &sp6C) != 0) {
-                func_80723484(state->unk30);
+                pathPlaybackAdvance(state->unk30);
                 pathPlaybackGetPosition(state->unk30, &sp70, &sp6C, &sp68);
                 sp6C += 10.0f;
             } else {
@@ -449,7 +449,7 @@ void func_806BFBF4(void) {
             LgBV->unkE6 = LgBS90->unk4->unkE6;
             break;
         case 0xC:
-            func_80723484(state->unk2F);
+            pathPlaybackAdvance(state->unk2F);
             pathPlaybackGetPosition(state->unk2F, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
             func_8072E320(8.0f);
             break;

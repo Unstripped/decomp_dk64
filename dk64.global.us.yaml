@@ -162,11 +162,11 @@ segments:
       - [0x114270, c, 114270]
       - [0x117190, c, 117190] # hidden TU: rodata pad after D_8075E5B0 (func_807122B4) at 0x1632C0; func_80712490 is the first 16-aligned start after it and already uses this TU's data (D_80755318; data TU starts at or before 16-aligned D_807552E0, used by func_80714060)
       - [0x119370, c, 119370]
-      - [0x11BC10, c, 11BC10] # hidden TU: rodata pad after D_8075E6C0 (func_80715E94) at 0x1633D0; func_80716F10 is the first 16-aligned start after it; rodata users are monotonic
+      - [0x11BC10, c, 11BC10] # hidden TU: rodata pad after D_8075E6C0 (effectGridBuildDisplayList) at 0x1633D0; func_80716F10 is the first 16-aligned start after it; rodata users are monotonic
       - [0x124780, asm]
       - [0x126260, c, 126260]
       - [0x127B00, c, 127B00]
-      - [0x1292F0, c, 1292F0] # hidden TU: rodata pad after D_8075EB60 (func_80724154) at 0x163870; func_807245F0 (16-aligned) owns D_8075EB70/D_8075EB78
+      - [0x1292F0, c, 1292F0] # hidden TU: rodata pad after D_8075EB60 (func_80724154) at 0x163870; pathFollowUpdateHeading (16-aligned) owns D_8075EB70/D_8075EB78
       - [0x1295B0, c, 1295B0] # rodata 0x163880-0x164880: table D_8075EB80 (also read by 12E800) + floats/jtbls, TU end pad after D_8075FB70
       - [0x12E800, c, 12E800] # rodata 0x164880-0x164C50 (first user func_80729EB0 reads D_8075FB80)
       - [0x1332B0, c, 1332B0] # no rodata

@@ -1755,7 +1755,7 @@ extern s16 D_8075035C;
 extern s16 D_80750370;
 
 void func_8071D260(void);
-void func_8071ABDC(void);
+void effectRadialSprayUpdate(void);
 void camStartShakeFromPoint(s32, s32, s32, f32, f32, f32, f32, f32);
 void actorSpawnSparkleBurst(void);
 void projectileSteerTowardTarget(s32, Actor *, void *, s32);
@@ -1899,7 +1899,7 @@ void projectileHomingUpdate(void) {
             for (var_s1 = 0; var_s1 != 0xC; var_s1 += 2) {
                 func_807149B8(1);
                 func_80714950(0x0B000000 + var_s1);
-                func_8071498C(func_8071ABDC);
+                func_8071498C(effectRadialSprayUpdate);
                 func_80714CC0(&D_807200EC, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
             }
         }
@@ -1966,7 +1966,7 @@ void projectileMultiplayerUpdate(void) {
                 func_807149B8(1);
                 func_80714950(0x05000000 + var_s1);
                 func_80714998(1);
-                func_8071498C(func_8071ABDC);
+                func_8071498C(effectRadialSprayUpdate);
                 func_80714CC0(&D_80720BA0, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
             }
         }
@@ -1999,7 +1999,7 @@ void projectileSpawnExplosion(void) {
         for (i = 0; i < 12; i++) {
             func_807149B8(1);
             func_80714950(0x0B010000 + i);
-            func_8071498C(func_8071ABDC);
+            func_8071498C(effectRadialSprayUpdate);
             func_80714CC0(&D_807200EC, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
         }
     }
@@ -2201,7 +2201,7 @@ void projectileBounceExplodeScaledUpdate(void) {
                 for (var_s0 = 0; var_s0 != 12; var_s0++) {
                     func_807149B8(1);
                     func_80714950(0x0B010000 + var_s0);
-                    func_8071498C(func_8071ABDC);
+                    func_8071498C(effectRadialSprayUpdate);
                     func_80714CC0(&D_807200EC, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
                 }
             }
@@ -2456,7 +2456,7 @@ void projectileBeamUpdate(void) {
             for (var_s1 = 0; var_s1 != 0xC; var_s1 += 2) {
                 func_807149B8(1);
                 func_80714950(0x0B000000 + var_s1);
-                func_8071498C(func_8071ABDC);
+                func_8071498C(effectRadialSprayUpdate);
                 func_80714CC0(&D_807200EC, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
             }
         }
@@ -2663,7 +2663,7 @@ void projectileRotatingUpdate(void) {
             for (var_s0 = 0; var_s0 != 0xC; var_s0 += 2) {
                 func_807149B8(1);
                 func_80714950(0x0B000000 + var_s0);
-                func_8071498C(func_8071ABDC);
+                func_8071498C(effectRadialSprayUpdate);
                 func_80714CC0(&D_807206DC, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
             }
         }
@@ -2938,7 +2938,7 @@ void projectileParticleSpawnerTick(void) {
             for (var_s0 = 0; var_s0 != 12; var_s0 += 2) {
                 func_807149B8(1);
                 func_80714950(0x0B000000 + var_s0);
-                func_8071498C(func_8071ABDC);
+                func_8071498C(effectRadialSprayUpdate);
                 func_80714CC0(&D_807206DC, 0.35f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
             }
         }

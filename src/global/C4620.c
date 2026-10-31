@@ -325,7 +325,7 @@ s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_80723320(s32, s32);
 void func_8072334C(s32, s32);
-void func_80723484(s32);
+void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 s32 func_80723C98();
 void actorSetUniformScale(Actor *, f32);
@@ -593,7 +593,7 @@ void func_806BFBF4(void) {
             if (state->unk30 == 0xFE) {
                 actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68);
             } else if (func_80723C98(state->unk30, 4, &sp70, &sp6C) != 0) {
-                func_80723484(state->unk30);
+                pathPlaybackAdvance(state->unk30);
                 pathPlaybackGetPosition(state->unk30, &sp70, &sp6C, &sp68);
                 sp6C += 10.0f;
             } else {
@@ -624,7 +624,7 @@ void func_806BFBF4(void) {
             LgBV->unkE6 = LgBS90->unk4->unkE6;
             break;
         case 0xC:
-            func_80723484(state->unk2F);
+            pathPlaybackAdvance(state->unk2F);
             pathPlaybackGetPosition(state->unk2F, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
             func_8072E320(8.0f);
             break;
@@ -1157,7 +1157,7 @@ extern s16 gCsModelIds[];
 extern u8 D_8074E77C;
 extern s32 D_807FBDC8[];
 extern u8 D_8071FC40;
-void func_80718BF4(void);
+void effectWobbleRiseUpdate(void);
 void func_8072A920(s16, s32, f32, f32, f32, s32, f32, f32, s32);
 void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
 s16 func_806CC190(s16, s16, f32);
@@ -1216,7 +1216,7 @@ void func_806C226C(void) {
             if (D_807FBB40->unk6A & 4) {
                 func_8072A920(2, 0, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkC, (f32)D_807FDC90->unkE, 0x46, 30.0f, 100.0f, 0);
                 if (((randomNonNegative() >> 15) % 1000) >= 0x3A3) {
-                    func_8071498C(func_80718BF4);
+                    func_8071498C(effectWobbleRiseUpdate);
                     func_807149B8(1);
                     func_807149FC(-1);
                     func_80714CC0(&D_8071FC40, 0, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);

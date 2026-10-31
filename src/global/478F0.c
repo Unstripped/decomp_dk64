@@ -264,7 +264,7 @@ extern u8 D_8071FE64[];
 extern u8 D_8071FE88[];
 extern u8 D_8071FEAC[];
 void func_807149FC(s32);
-void func_8071910C();
+void effectTumbleBounceUpdate();
 void func_8071A8B0();
 
 void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -291,7 +291,7 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
         r = (s32)((u32)randomLcgNext() / 10000) % 3;
         func_807149B8(1);
         func_807149FC(10);
-        func_8071498C(func_8071910C);
+        func_8071498C(effectTumbleBounceUpdate);
         func_80714998(2);
         func_80714950(7);
         switch (r) {
@@ -736,7 +736,7 @@ extern u8 D_80720E44[];
 extern u8 D_80720E5C[];
 extern u8 D_80720E74[];
 extern u8 D_80720E8C[];
-void func_8071910C(void);
+void effectTumbleBounceUpdate(void);
 void func_8071A8B0(void);
 
 void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -754,7 +754,7 @@ void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
         sel = (s32)(randomLcgNext() / 10000U) % 4;
         func_807149B8(1);
         func_807149FC(0x3C);
-        func_8071498C((void *)func_8071910C);
+        func_8071498C((void *)effectTumbleBounceUpdate);
         func_80714998(2);
         func_80714950(2);
         switch (sel) {
@@ -814,7 +814,7 @@ typedef struct CsFloatPair {
 void func_807149A8(s32);
 void func_805FF9AC(s32, s32, s32, s32);
 extern u8 D_80720BC4[];
-void func_8071E3EC(void);
+void effectLightGrowShrinkUpdate(void);
 
 void func_80645700(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 idx;
@@ -834,7 +834,7 @@ void func_80645700(CsState *cs, s16 csId, s16 b, s16 c) {
     func_807149B8(1);
     func_80714998(3);
     func_80714950(3);
-    func_8071498C((void *)func_8071E3EC);
+    func_8071498C((void *)effectLightGrowShrinkUpdate);
     func_807149A8(0x7D0);
     func_80714CC0(D_80720BC4, 2.5f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
     if (c != 0) {
@@ -1125,7 +1125,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
                 func_807149B8(1);
                 func_80714998(3);
                 func_80714950(0);
-                func_8071498C(func_8071E3EC);
+                func_8071498C(effectLightGrowShrinkUpdate);
                 func_807149A8(0x320);
                 v = D_807F5FD4[0] + p->idx;
                 func_80714CC0(D_80720BC4, 2.5f, v->x, v->y, v->z);
@@ -1293,7 +1293,7 @@ void func_80646770(s32 **slot, s16 csId, s16 b, s16 c) {
                 func_807149B8(1);
                 func_80714998(3);
                 func_80714950(0);
-                func_8071498C(func_8071E3EC);
+                func_8071498C(effectLightGrowShrinkUpdate);
                 func_807149A8(0x320);
                 v = *p + D_807F5FD4[0];
                 func_80714CC0(D_80720BC4, 2.5f, v->x, v->y, v->z);
@@ -1555,7 +1555,7 @@ void func_80647834(CsState *cs, s16 csId, s16 b, s16 c) {
     for (i = 0; i < 12; i++) {
         func_807149B8(1);
         func_807149FC(0x3C);
-        func_8071498C(func_8071910C);
+        func_8071498C(effectTumbleBounceUpdate);
         func_80714998(2);
         func_80714950(4);
         t = (u32)randomLcgNext() / 1000 % 80;
@@ -1649,7 +1649,7 @@ void func_80647CF4(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern u8 D_8071FC40[];
-void func_80718BF4(void);
+void effectWobbleRiseUpdate(void);
 
 void csCmdSpawnDustPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1666,7 +1666,7 @@ void csCmdSpawnDustPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
             func_807149B8(1);
             func_80714950(1);
             func_807149FC(-1);
-            func_8071498C(func_80718BF4);
+            func_8071498C(effectWobbleRiseUpdate);
             func_80714CC0(D_8071FC40, 0.0f, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
             i++;
         } while (i != 12);
@@ -1712,7 +1712,7 @@ void func_80648000(CsState *cs, s16 csId, s16 b, s16 c) {
         func_807149B8(1);
         func_80714950(2);
         func_807149FC(-1);
-        func_8071498C(func_80718BF4);
+        func_8071498C(effectWobbleRiseUpdate);
         func_80714CC0(D_8071FC40, 0.0f, sp40, m[4][0], sp38);
     }
 #undef S
@@ -1887,7 +1887,7 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
         dy += base;
         func_807149B8(1);
         func_807149FC(0x3C);
-        func_8071498C(func_8071910C);
+        func_8071498C(effectTumbleBounceUpdate);
         func_80714998(2);
         func_80714950(2);
         func_80714CC0(tbl, (randomFloat() * 0.5 + 0.2) * scale, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
