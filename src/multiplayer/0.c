@@ -439,12 +439,11 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *arg1) {
     return glistp;
 }
 
-#ifdef NON_MATCHING
 u32 textGetFontHeight(s32);
 
 Gfx *func_80024CA4(Gfx *arg0, MpControllerActor *arg1) {
     MpControllerState *sp104;
-    u32 col;
+    Gfx *g0;
     f32 fx;
     f32 fy;
     s32 temp_s2;
@@ -455,8 +454,8 @@ Gfx *func_80024CA4(Gfx *arg0, MpControllerActor *arg1) {
     s32 var_s1;
     f32 spC0;
     s32 pre;
-    s32 idx;
     MpViewport *rect;
+    Gfx *g2;
 
     sp104 = arg1->unk174;
     spF0 = (f32) textGetFontHeight(1);
@@ -468,61 +467,55 @@ Gfx *func_80024CA4(Gfx *arg0, MpControllerActor *arg1) {
     gDPPipeSync(var_s0++);
     gDPSetCombineMode(var_s0++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     for (var_s7 = 0; var_s7 < D_807FC928; var_s7++) {
-            var_s1 = 0xFF;
             rect = sp104->unk20[var_s7];
             if (D_807FC924[var_s7].unk4->unk154 == 0x84) {
                 fx = (f32) ((f64) rect->unk4 + ((f64) (rect->unk8 - rect->unk4) * 0.5));
                 fy = (f32) ((f64) rect->unk6 + ((f64) (rect->unkA - rect->unk6) * 0.5));
                 var_s1 = (u8) D_807FC924[var_s7].unk4->unk128;
-                gDPSetPrimColor(var_s0++, 0, 0, 255, 255, 255, (u8) (0xFF - var_s1));
+                gDPSetPrimColor(var_s0++, 0, 0, 255, 255, 255, (0xFF - var_s1));
                 _sprintf(spCC, "BAD LUCK");
                 fx = (f32) ((f64) fx - ((f64) textGetStringWidth(1, spCC) * 0.25));
                 fy = (f32) ((f64) fy - ((f64) spF0 * 0.25));
                 var_s0 = textDrawStringVtx(var_s0, 1, (s16) (fx * 8.0f), (s16) (fy * 8.0f), spCC, 4);
+            } else {
+                var_s1 = 0xFF;
             }
             if (var_s1 == 0) {
             } else {
-                temp_s2 = var_s1 & 0xFF;
-                col = temp_s2 | 0xFFFFFF00;
-                idx = (s32) var_s0++;
-                ((Gfx *) idx)->words.w1 = col;
-                ((Gfx *) idx)->words.w0 = 0xFA000000;
+                g0 = var_s0++;
+                g0->words.w1 = (var_s1 & 0xFF) | 0xFFFFFF00;
+                g0->words.w0 = 0xFA000000;
                 if (sp104->unk70 == 0) {
-                    idx = var_s7;
                     fx = (f32) rect->unk4 + 4.0f;
-                    fy = ((f32) rect->unkA - ((8.0f + spC0) * 0.5f)) * 8.0f;
-                    pre = (s32) slotQueueGetValue(3, idx);
+                    fy = (f32) rect->unkA - ((8.0f + spC0) * 0.5f);
+                    fy = fy * 8.0f;
+                    pre = (s32) slotQueueGetValue(3, var_s7);
                     if (pre != 0) {
-                        gDPSetPrimColor(var_s0++, 0, 0, 100, 30, 0, temp_s2);
+                        g0 = var_s0++; g0->words.w0 = 0xFA000000; g0->words.w1 = (var_s1 & 0xFF) | 0x641E0000; // FAKE: same-line packet stores steer as1 scheduling
                         _sprintf(spCC, "%d", pre);
                     } else {
-                        _sprintf(spCC, "%d", slotQueueGetValue(2, idx));
+                        _sprintf(spCC, "%d", slotQueueGetValue(2, var_s7));
                     }
                     temp_s2 = (s16) fy;
                     var_s0 = textDrawStringVtx(var_s0, 1, (s16) (fx * 8.0f), temp_s2, spCC, 4);
-                    if (col) {
-                    }
                     if (pre != 0) {
-                        pre = (s32) var_s0++;
-                        ((Gfx *) pre)->words.w0 = 0xFA000000;
-                        ((Gfx *) pre)->words.w1 = col;
+                        g2 = var_s0++;
+                        g2->words.w0 = 0xFA000000;
+                        g2->words.w1 = (var_s1 & 0xFF) | 0xFFFFFF00;
                     }
-                    _sprintf(spCC, "%d", slotQueueGetValue(4, idx));
+                    _sprintf(spCC, "%d", slotQueueGetValue(4, var_s7));
                     fx = (f32) rect->unk8 - ((f32) (textGetStringWidth(1, spCC) + 8) * 0.5f);
                     var_s0 = textDrawStringVtx(var_s0, 1, (s16) (fx * 8.0f), temp_s2, spCC, 4);
                 }
                 _sprintf(spCC, "%d", mpGetPlayerScore(var_s7));
                 fx = (f32) rect->unk8 - (((f32) textGetStringWidth(1, spCC) * 0.5f) + 50.0f);
-                fy = (f32) ((f64) rect->unk6 + (8.0 + ((f64) (8.0f - (spC0 * 0.5f)) * 0.5))) * 8.0f;
+                fy = (f32) ((f64) rect->unk6 + (8.0 + ((f64) (8.0f - (spC0 * 0.5f)) * 0.5)));
+                fy = fy * 8.0f;
                 var_s0 = textDrawStringVtx(var_s0, 1, (s16) (fx * 8.0f), (s16) fy, spCC, 4);
             }
     }
     return var_s0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/multiplayer/nonmatchings/0/func_80024CA4.s")
-#endif
 
 Gfx *func_80024CA4(Gfx *, MpControllerActor *);
 
