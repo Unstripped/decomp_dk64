@@ -1100,3 +1100,4 @@
 {"agent": "OlT", "approx": false, "name": "func_80031AA0", "note": "", "outcome": "parked", "seg": "boss", "stage": "4", "ts": "2026-10-31T03:27:48Z", "type": "attempt", "unit": "2026-10-30: oldest leftovers revisit", "vram": "0x80031AA0"}
 {"agent": "OlB", "approx": false, "name": "func_806358E8", "note": "", "outcome": "attempted", "seg": "global", "stage": "4", "ts": "2026-10-31T03:34:47Z", "type": "attempt", "unit": "2026-10-30: oldest leftovers revisit", "vram": "0x806358E8"}
 {"agent": "OlB", "approx": false, "name": "func_80636FFC", "note": "", "outcome": "attempted", "seg": "global", "stage": "4", "ts": "2026-10-31T03:34:47Z", "type": "attempt", "unit": "2026-10-30: oldest leftovers revisit", "vram": "0x80636FFC"}
+{"agent": "OlX", "approx": false, "name": "vsprintf", "note": "", "outcome": "attempted", "seg": "boot", "stage": "4", "ts": "2026-10-31T03:36:37Z", "type": "attempt", "unit": "2026-10-30: oldest leftovers revisit", "vram": "0x8000320C"}
