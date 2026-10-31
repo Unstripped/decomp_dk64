@@ -1,4 +1,4 @@
-// actorCallbackListSort (src/global/7CA80.c): stage 5: 5 diff lines, only second-block unlink temps t1,t2,t3 vs target t2,t3,t4 (one ring slot consumed between block 1 (t8,t9,t0) and block 2). LgDisp2 tried: ==0/!=1 forms, while(!inserted&&scan), temp var for curr->next in either block, expression-statement nodes (dropped), 108 spelling combos: no change.
+// actorCallbackListSort (src/global/7CA80.c): W2Ring stage 5: 5 diff lines (block-1 third unlink temp / block-2 unlink temps t1,t2,t3 vs target t2,t3,t4). Best hack: dead 'if ((s16)curr) {}' anywhere in block 1 (lines after first unlink) burns the slot -> block 2 matches but block 1 third temp becomes t1 vs target t0 (2 hunks); burn must land after t0 and before t2: dead stmts in block 2/loop tail don't burn or shift t6. Tried: deadsweep (curr/scan/inserted/new_head + s16/u8 forms + expression forms), inserted type, for/while/do-while spellings, cast wrappers, permuter (no gain).
 ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
     ActorCallbackNode *new_head = head;
     ActorCallbackNode *curr;

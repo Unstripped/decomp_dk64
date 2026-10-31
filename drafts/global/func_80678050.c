@@ -1,4 +1,4 @@
-// func_80678050 (src/global/7CA80.c): stage 5 (~93 diff lines). LgDisp2: draft unchanged; tried (headerSize+7) spellings (& ~7 gives 93 vs 136 lines but inner headerSize+7 still a uopt candidate in v0 with sw v0,36(sp) where target keeps OUTER ((hs+7)&0xFFF8) in t6 and spills it), named aligned local (95). Remaining as before: arg0 reload a1 vs v1, const 1 web split (t6,t7), field-store temps.
+// func_80678050 (src/global/7CA80.c): W2Ring stage 5 (72 diff lines, was 125): u16 'aligned' local = (headerSize + 7) & 0xFFF8 (fixes addiu t5/andi t6 ring); ptrArray and dataPtr assigned BEFORE 'if (*types != 0)' (fixes scheduling + lw/lhu t8/t9 order); ActorAllocBlock.unk132 u16 (splits the const 1 web: two 1s like target). Remaining: spill slots 32/36 vs target 36/40 (aligned version loses headerSize's home slot; pad locals grow frame to 72), arg0 reload a1 vs v1 + const 1 colours (v1,t5 vs t6,t7): const-1 candidate coloured before arg0 reload; dead if(arg0) did not help.
 #include "common.h"
 #include "actor.h"
 
@@ -85,6 +85,7 @@ u16 arg0;
     u8 *dataPtr;
     u16 headerSize;
     u16 totalDataSize;
+    u16 aligned;
 
     types = D_8074E218[arg0];
     headerSize = 0x174;
@@ -97,14 +98,15 @@ u16 arg0;
             types++;
         } while (*types != 0);
     }
-    totalDataSize += (headerSize + 7) & 0xFFF8;
+    aligned = (headerSize + 7) & 0xFFF8;
+    totalDataSize += aligned;
     actor = (ActorAllocBlock *)heapAlloc(totalDataSize);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = D_8074E218[arg0];
+        ptrArray = (void **)&actor->unk174;
+        dataPtr = (u8 *)actor + aligned;
         if (*types != 0) {
-            ptrArray = (void **)&actor->unk174;
-            dataPtr = (u8 *)actor + ((headerSize + 7) & 0xFFF8);
             do {
                 *ptrArray++ = dataPtr;
                 dataPtr += D_8074DA58[*types++];

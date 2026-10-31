@@ -300,7 +300,7 @@ typedef struct ActorAllocBlock {
     u8 pad12E[2];
     /* 0x130 */ u8 unk130;
     /* 0x131 */ u8 unk131;
-    /* 0x132 */ s16 unk132;
+    /* 0x132 */ u16 unk132;
     u8 pad134[4];
     /* 0x138 */ s32 unk138;
     /* 0x13C */ void *unk13C;
@@ -328,6 +328,7 @@ u16 arg0;
     u8 *dataPtr;
     u16 headerSize;
     u16 totalDataSize;
+    u16 aligned;
 
     types = D_8074E218[arg0];
     headerSize = 0x174;
@@ -340,14 +341,15 @@ u16 arg0;
             types++;
         } while (*types != 0);
     }
-    totalDataSize += (headerSize + 7) & 0xFFF8;
+    aligned = (headerSize + 7) & 0xFFF8;
+    totalDataSize += aligned;
     actor = (ActorAllocBlock *)heapAlloc(totalDataSize);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = D_8074E218[arg0];
+        ptrArray = (void **)&actor->unk174;
+        dataPtr = (u8 *)actor + aligned;
         if (*types != 0) {
-            ptrArray = (void **)&actor->unk174;
-            dataPtr = (u8 *)actor + ((headerSize + 7) & 0xFFF8);
             do {
                 *ptrArray++ = dataPtr;
                 dataPtr += D_8074DA58[*types++];

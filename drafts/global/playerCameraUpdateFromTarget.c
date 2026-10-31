@@ -1,4 +1,4 @@
-// playerCameraUpdateFromTarget (src/global/8F4B0.c): Stage 5-6 (BnelOps2): frame 0x58 + saved regs match. Ring: (((s16)(D+0x1E) & 0xFFF) & 0xFFFF) store (equivalent for s16 target; (s16)/(u16)/& 0xFFFF layered casts) cuts diff 43->27 lines (best brute-force over 6^4 cast/mask wrappers = 25) but is not natural: target has 1 invisible ugen temp before addiu t2 and 2 between addiu and andi t5 (ours t3/t5 with the hack, t1/t2 without). Remaining E-chain: target sll a0,sll a1,sra t1,sra t0,move a1,t0 before bnez; ours interleaved sll/sra (chained assignment temp_v1_3=temp_v0=... shifts early ring by 1, 72 lines). Tried: += / two-statement forms, dead if on D_807FC624, comma wrappers: none helped.
+// playerCameraUpdateFromTarget (src/global/8F4B0.c): W2Ring stage 5 (36 diff lines incl 6 reloc-addend lines; ring FIXED, E-chain order fixed): 's16 tmpd; tmpd = D_807FC624 + 0x1E; tmpd &= 0xFFF; D_807FC624 = tmpd;' + 's32 dd = sp52 - temp_v0; temp_v0 = dd; temp_v1_3 = dd;' (B conversion first -> sll a0,sll a1,sra t1,sra t0 order matches). Remaining: B var (temp_v0) coloured a2 vs target a1 (sll/sra/move a2 vs a1 and sh a2,78(sp)); one ring slot (t4 vs t5 at addiu t4,a0,4096 and everything after). Tried dd type/decl position (no change), two fresh s16 vars (collapse to one chain).
 typedef struct {
     char pad[0xE4];
     s16 unkE4;
@@ -38,6 +38,8 @@ void playerCameraUpdateFromTarget(void) {
     s32 temp_v0_2;
     s16 temp_v1_3;
     s32 var_v1;
+    s32 dd;
+    s16 tmpd;
     u8 temp_v1_2;
     sp54 = D_807FBB40->unk174;
     sp4E = 0;
@@ -80,7 +82,9 @@ void playerCameraUpdateFromTarget(void) {
             }
         }
         if (D_807444EC && D_807444EC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        D_807FC624 = (((s16)(D_807FC624 + 0x1E) & 0xFFF) & 0xFFFF); // FAKE: casts/mask burn ugen temps so the t-ring lines up
+        tmpd = D_807FC624 + 0x1E;
+        tmpd &= 0xFFF;
+        D_807FC624 = tmpd;
         return;
     }
     if (D_807444EC != 1) {
@@ -107,8 +111,9 @@ void playerCameraUpdateFromTarget(void) {
             case 0x69:
             case 0x6D:
 calc_angle:
-                temp_v1_3 = sp52 - temp_v0;
-                temp_v0 = temp_v1_3;
+                dd = sp52 - temp_v0;
+                temp_v0 = dd;
+                temp_v1_3 = dd;
                 if (temp_v1_3 >= 0x801) {
                     sp4E = temp_v1_3 - 0x1000;
                 } else {

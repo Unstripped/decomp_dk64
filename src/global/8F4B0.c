@@ -705,6 +705,8 @@ void playerCameraUpdateFromTarget(void) {
     s32 temp_v0_2;
     s16 temp_v1_3;
     s32 var_v1;
+    s32 dd;
+    s16 tmpd;
     u8 temp_v1_2;
     sp54 = D_807FBB40->unk174;
     sp4E = 0;
@@ -747,7 +749,9 @@ void playerCameraUpdateFromTarget(void) {
             }
         }
         if (D_807444EC && D_807444EC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        D_807FC624 = (D_807FC624 + 0x1E) & 0xFFF;
+        tmpd = D_807FC624 + 0x1E;
+        tmpd &= 0xFFF;
+        D_807FC624 = tmpd;
         return;
     }
     if (D_807444EC != 1) {
@@ -774,8 +778,9 @@ void playerCameraUpdateFromTarget(void) {
             case 0x69:
             case 0x6D:
 calc_angle:
-                temp_v1_3 = sp52 - temp_v0;
-                temp_v0 = temp_v1_3;
+                dd = sp52 - temp_v0;
+                temp_v0 = dd;
+                temp_v1_3 = dd;
                 if (temp_v1_3 >= 0x801) {
                     sp4E = temp_v1_3 - 0x1000;
                 } else {
