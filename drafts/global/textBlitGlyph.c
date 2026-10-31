@@ -1,4 +1,5 @@
-// textBlitGlyph (src/global/100180.c): stage 5 (parked NON_MATCHING in 100180.c): frame 0x50 and spill slot 0x1C match, 164 vs 161 insns, regs differ (target phase v0, odd v1, src t0, srcRow t1, lead t2, w2 t3, dst s2, dstRow s0, row s3, arg6 s1, j a2; mine dst v0, src v1, odd s0). u8 lead gives the move/andi/move copy; arg0=arg0>>1; w2=arg0 gives a0 copy; dst++; *dst|= (instead of *++dst) removes a temp (shape 33) but shrinks frame to 0x18. Permuter (2x900s) and deadsweep (no globals) did not converge.
+// textBlitGlyph (src/global/100180.c): from .scratch/Q100/textBlitGlyph_best.c
+s32 textBlitGlyph(u8, s32, s32, s16, u8, s8 *, u8);
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
     u8 *src;
     u8 *srcRow;
@@ -10,17 +11,16 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     s16 j;
     u8 *dstRow;
     u8 lead;
-    u8 *p5;
+    s32 ret;
 
-    p5 = (u8 *)arg5;
     srcRow = (u8 *)arg2 + (arg3 >> 1);
     dst = (u8 *)(arg6 * 16 + arg1 + arg6 * arg4);
     src = (u8 *)arg2;
     dstRow = dst;
-    phase = (*p5 & 1) != 0;
-    *p5 += arg0;
+    phase = (*(u8 *)arg5 & 1) != 0;
+    *(u8 *)arg5 += arg0;
     odd = (arg0 & 1) != 0;
-    arg0 = arg0 >> 1;
+    arg0 = (u32)arg0 >> 1;
     w2 = arg0;
     row = 0;
     do {
@@ -61,8 +61,9 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
         src = srcRow;
         dst = dstRow;
     } while (row < 0x10);
+    ret = phase;
     if (phase != 0) {
-        phase = odd;
+        ret = odd;
     }
-    return phase + arg1 + arg0;
+    return ret + arg1 + arg0;
 }

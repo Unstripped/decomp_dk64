@@ -1,10 +1,10 @@
-// func_8071D0F0 (src/global/11BC10.c): stage 6 (parked NON_MATCHING in 11BC10.c): 92 insns exact match, frame 0x38, D_807FD580 v0 match and end block t2..t9 match; remaining 10 diff lines regalloc: pre-call motion in v1 vs t0, D_807FBB4C 3rd load t0 vs t1
+// func_8071D0F0 (src/global/11BC10.c): stage 6: 92 insns frame 0x38; 10-line regalloc diff: top-load/var temp in v1 vs t0 (3 lines+spill) and D_807FBB4C 3rd load t0 vs t1; permuter 400s + deadsweep 500 variants no gain
 typedef struct {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
-} FxInt1Motion16;
+} LightApproachMotionState;
 
 void actorGetNodePos(s32, s32, f32 *, f32 *, f32 *);
 u8 func_805FF030(u8, u8);
@@ -12,7 +12,7 @@ extern u8 D_8076A0AB;
 extern u16 D_807FC930[];
 
 void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
-    FxInt1Motion16 *motion;
+    LightApproachMotionState *motion;
     f32 factor;
     s32 node;
     f64 pad;

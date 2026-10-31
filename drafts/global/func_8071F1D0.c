@@ -1,4 +1,4 @@
-// func_8071F1D0 (src/global/11BC10.c): stage 5 (parked NON_MATCHING in 11BC10.c): 74 insns exact length match, frame 0x28. Alloc block scheduling 100% matches target; remaining diff only regalloc: dir in v1 vs a0 with extra move a0,v1 before mtc1
+// func_8071F1D0 (src/global/11BC10.c): stage 6: 74 insns, frame 0x28; 6-line regalloc diff: first lui in v1 (lb a0,X(v1)) vs a0, negu after lb scheduled before swc1 f6, lw v1,900 after sb; uses -(dir & 0xFFu) + two dead D_8075567C reads (FAKE) to get dir into a0
 extern s8 D_8075567C;
 
 void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
@@ -14,7 +14,7 @@ void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
         temp->unk0 = arg0->unk340;
         temp->unk4 = arg0->unk348;
         temp->unk8 = (f32)dir;
-        D_8075567C = -dir;
+        D_8075567C = -(dir & 0xFFu);
     }
     var_v1 = (TimedMotionState *)arg0->unk384;
     arg0->unk340 = (func_80612794(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk0;
