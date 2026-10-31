@@ -131,14 +131,18 @@ s32 actorFindActiveByType(s16 arg0, Actor **arg1) {
     return found;
 }
 
-#ifdef NON_MATCHING
 extern u8 D_807FBDC4;
 extern s16 D_807FDCB8;
 extern s16 D_807FDCBA;
 extern s16 D_807FDCBC;
 void func_8067AB20(void *, void *, s32, s32, void *, s32);
 s32 volumeTriggerUpdate(VolumeTrigger *);
-s32 volumeTriggerSetEnabled(s32, u8);
+void volumeTriggerSetEnabled(s32, u8);
+
+typedef struct {
+    s16 unk0;
+    u8 unk2[8];
+} QS1VolumeTriggerSub;
 
 void func_8072E868(void) {
     s32 ua0;
@@ -149,6 +153,7 @@ void func_8072E868(void) {
     s32 j;
     s32 flag;
     s32 k;
+    QS1VolumeTriggerSub *sub;
 
     for (k = 0; k < D_807FBDC4; k++) {
         ptr = D_807FBB70.unk278[k];
@@ -165,12 +170,10 @@ void func_8072E868(void) {
     for (i = 0; i < D_80755A14->count; i++, e++) {
         if (volumeTriggerUpdate(e)) {
             for (j = 0; j < e->unkE; j++) {
+                sub = (QS1VolumeTriggerSub *)&e->subs[j];
                 if (D_807557A0[e->subs[j].unk0].unkC == NULL || D_807557A0[e->subs[j].unk0].unkC()) {
-                    flag = 0;
-                    if ((u16)D_807557A0[e->subs[j].unk0].unk2 == 0xA) {
-                        flag = 1;
-                    }
-                    func_8067AB20(D_807FBB40, D_807557A0[e->subs[j].unk0].unk8, 0x01000000, D_807557A0[e->subs[j].unk0].unk7, e->subs[j].unk2, flag);
+                    flag = (u16)D_807557A0[sub->unk0].unk2 == 0xA ? 1 : 0;
+                    func_8067AB20(D_807FBB40, D_807557A0[sub->unk0].unk8, 0x01000000, D_807557A0[sub->unk0].unk7, e->subs[j].unk2, flag);
                     D_807FDCB8 = e->unk0;
                     D_807FDCBA = e->unk2;
                     D_807FDCBC = e->unk4;
@@ -179,10 +182,6 @@ void func_8072E868(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1332B0/func_8072E868.s")
-#endif
 
 typedef struct {
     /* 0x0 */ u8 active;
@@ -243,7 +242,7 @@ s32 volumeTriggerUpdate(VolumeTrigger *arg0) {
 }
 
 
-s32 volumeTriggerSetEnabled(s32 arg0, u8 arg1) {
+void volumeTriggerSetEnabled(s32 arg0, u8 arg1) {
     s32 found;
     VolumeTrigger *e;
     s32 i;
