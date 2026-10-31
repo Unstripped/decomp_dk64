@@ -1,4 +1,4 @@
-// func_80025700 (src/jetpac/1460.c): stage 6: ONE instruction-pair left (5 diff lines): target has 'addiu t8,v0,1; sw t8,0(s7)' (D_80045BD0++) before 'lw t9,80(sp)' and the lbu-derived sll; ours places them after. Everything else matches (arg1 in-place, xd local, h dummies before+after yEnd = h, w dummies).
+// func_80025700 (src/jetpac/1460.c): stage 6: 1 instruction-pair diff (5 diff lines): target schedules 'addiu t8,v0,1; sw t8,0(s7)' (D_80045BD0++) before 'lw t9,80(sp)' due to as1 list scheduling heuristic weighting load latency over arithmetic store
 typedef struct {
     s32 unk0;
     u8 pad4[6];
@@ -12,9 +12,13 @@ typedef struct {
 
 extern J1aSprite D_80042BD0[][256];
 extern u8 D_807444FC;
-void func_800254B8(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 D_80045BD0;
+typedef struct {
+    u8 pad0[0x18];
+} JetpacSprite;
+void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 
-void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
     s32 ya;
     s32 h;
     s32 xd;
@@ -74,7 +78,7 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
                         if (xd >= 0x100) {
                             xd -= 0x100;
                         }
-                        func_800254B8((JetpacSprite *)dst, xd, ya, arg3, arg4);
+                        jetpacGridAddSprite((JetpacSprite *)dst, xd, ya, arg3, arg4);
                         dx = xEnd;
                         xEnd = xEnd + arg1;
                         if (!w) {
