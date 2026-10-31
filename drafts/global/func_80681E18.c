@@ -1,28 +1,4 @@
-// func_80681E18 (src/global/80150.c): Stage 5: frame 0x58 and s0/ra match; exact 368 insns, shape=3; diff is caller-saved regalloc (/ for var_v1, / for 1, / for &D_807FBB70)
-typedef struct TagBarrelGroundHit {
-    s16 unk0;
-    s16 pad2;
-    Actor *unk4;
-} TagBarrelGroundHit;
-
-typedef struct TagBarrelActorD580 {
-    u8 pad0[0x1A3];
-    u8 unk1A3;
-} TagBarrelActorD580;
-
-extern u8 D_807FC950[][0x5E];
-extern s16 D_80750390;
-extern s32 D_807FBB68;
-
-s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-s32 sfxAllocateChannel(s32, f32);
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
-void func_806F8BC4(s32, u8, s32);
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
-void func_8067AAB8(s32, Actor *, s16, f32, s16);
-void func_806C7BAC(s32, Actor *);
-
+// func_80681E18 (src/global/80150.c): Stage 5: frame 0x58, s0/ra match; 368 insns; with 3 deadsweep fake ifs diff 141->18 lines: ternary (D_807FBB68&2)?0:1 temp v1 vs v0, case3/20 D_807FBB40 reload order (lw t7 vs lw s0), loop i/v1 regs
 void func_80681E18(void) {
     TagBarrelGroundHit *var_v1;
     s32 pad[3];
@@ -73,7 +49,7 @@ void func_80681E18(void) {
         if (var_v1->unk0 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1C6, 0xFF, 0x7F, 0);
             D_807FBB40->unk154 = 2;
-            func_806F8BC4(5, (D_807FBB68 & 2) ? 0 : 1, 0);
+            slotQueueUpdate(5, (D_807FBB68 & 2) ? 0 : 1, 0);
         }
         break;
     case 2:
@@ -89,6 +65,7 @@ void func_80681E18(void) {
     case 3:
         if (D_807FBB70.unk0 != 0) {
             D_807FBB40->unk60 |= 0x8000;
+            if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_807FBB40->unk144 = 2;
             D_807FBB40->unk60 &= ~0x200000;
             D_807FBB40->unk154 = 0;
@@ -119,7 +96,9 @@ void func_80681E18(void) {
                 if (D_807FBB70.unk258[i++] == 1) {
                     D_807FBB40->unk144 = 2;
                     D_807FBB40->unk154 = 0x15;
+                    if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
+                if (D_807FBB40 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             } while (i < D_807FBB70.unk254);
         }
         break;

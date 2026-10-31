@@ -1,4 +1,4 @@
-// func_806833DC (src/global/80150.c): Stage 5: 0x40 frame matches, s0/ra callee-saved match, diff only spill slot offset of sp28 (0x28 vs 0x2c); resolved sp34/sp30 slots via arg0 macro and direct unk0 call args
+// func_806833DC (src/global/80150.c): Stage 5: frame 0x40 ok; diff only spill slot of sp28 (0x2c vs 0x28), sp30/sp34 match; tried all decl-order permutations of kong/dummy/pad/sp34/sp30/sp28, s16 col temp, arr-alias, removing kong/dummy
 typedef struct TagBarrelDataN3 {
     /* 0x00 */ Actor *unk0;
     /* 0x04 */ u16 unk4;
@@ -43,7 +43,6 @@ void func_806C93E4(Actor *, void *);
 void func_806C9304(Actor *, void *);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s32);
-void sfxAllocateChannel(s32, f32);
 void sfxSetChannelParam(s32, s32, s32);
 void camSaveYaw(Actor *);
 void eepromSavePlayerData(void);
@@ -52,8 +51,8 @@ void slotQueueClearAllFlags(void);
 
 void func_806833DC(struct TagBarrelData *arg0_in) {
 #define arg0 ((TagBarrelDataN3 *)arg0_in)
-    s32 pad3C;
-    s32 pad38;
+    TagBarrelActorKong *kong;
+    f32 dummy;
     Actor *sp34;
     TagBarrelKongSub *sp30;
     s32 sp28;
@@ -89,10 +88,11 @@ void func_806833DC(struct TagBarrelData *arg0_in) {
             func_806C93E4(arg0->unk0, sp30);
             func_806C9304(arg0->unk0, sp30);
             lightGetColor(&arg0->unk2C, &arg0->unk30, &arg0->unk34, (s16)sp28);
-            lightSetColor(1.0f, 1.0f, 1.0f, (s16)sp28);
+            kong = (TagBarrelActorKong *)sp34;
+            lightSetColor(dummy = 1.0f, 1.0f, 1.0f, (s16)sp28);
             D_807FBB40->unkE6 = arg0->unk22;
             D_807FBB40->unk144 = 1;
-            sp28 = ((TagBarrelActorKong *)sp34)->unk5A;
+            sp28 = kong->unk5A;
             D_807FBB60 &= 0xFFFCFFCF;
             arg0->unk6 = 0;
             if (sp28 != ((R2FKongAction *)D_8074E814)[arg0->unk6].unk2) {

@@ -1,4 +1,4 @@
-// func_806832F4 (src/global/80150.c): Stage 5: 3 insns diff at return (beqz vs beqzl, t3 vs v1, extra move), frame 0x30 and ra callee-saved match; resolved v0/v1 swap via u16 camStartPath()
+// func_806832F4 (src/global/80150.c): Stage 5: frame 0x30 ok; diff 7 lines at return: expected sltu t3/beqz t3/move v0,t3/lw v0/sltiu t4/move v0,t4, ours v1+beqzl and extra move; tried ret var, && forms, ternary, break/return, decl order perms (120), default ret var, if(sp28)
 s32 func_805FEF10(void *);
 
 s32 func_806832F4(s32 arg0, s32 arg1) {
