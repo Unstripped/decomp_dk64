@@ -1,4 +1,4 @@
-// func_80029118 (src/critter/5110.c): stage 6, 2-line diff: case 0xFE 'lui v0,%hi(D_80029FA4); lhu a2,%lo(v0)' is v0, target v1 (rest identical, incl. frame/stack; first read D_807FCC40[4] kept: plain D_807FCC44 CSEs lui with the store -> 35 diff lines). Needs the UB dummy 'if (sp70 && sp70) {}' in case 0xFF (promotes sp70 to a register so default arm does lw v0,0x70(sp); search hint only, NOT in the src park). Mechanism: lui reg = original dest of the lhu (as1 reuses it), so the value web must be coloured $3. Retried this unit (QOv2): toggling void->s32/u8/u16 return of every callee (camStartPath, func_805FF800/628, sfxPlayOnFreeSlot, flagSet, slotQueueSetShownValue, hudSpawnCountdownTimer, func_8070D8C0, camResumePath, actorSetStateTwo, sfxAllocateChannel, renderCallbacksRegister, camIsPathPaused) in all 256 combos + pairs: all identical; deadsweep round 1 (9009 variants, extra tmp/temp_s0/var_s0/sp*) no improvement; w/ 'tmp = D_807FCC44' direct: worse (35).
+// func_80029118 (src/critter/5110.c): func_80029118 stage 6: TEXT IDENTICAL, reloc only. Remaining diffs are D_807FCC40+4 vs D_807FCC44 reloc on the first read (plain D_807FCC44 CSEs the lui: 484 insns) and .rodata addends. Fix that matched v0/v1: pass tmp (not D_80029FA4) as slotQueueSetShownValue arg3 (tmp web is v1, lui reg follows it); needs UB dummy if (sp70 && sp70) {} in case 0xFF. Orchestrator: check against ROM hash.
 typedef struct Struct_807FBB40_174 {
     s16 unk0;
     u8 unk2;
@@ -179,16 +179,15 @@ void func_80029118(void) {
                 }
                 tmp = D_80029FA4;
                 D_807FCC44 = tmp;
-                slotQueueSetShownValue(4, 0, D_80029FA4);
+                slotQueueSetShownValue(4, 0, tmp);
                 func_805FF800(&sp3C, &sp38);
                 func_805FF628(sp3C, 0);
             }
         }
         break;
     case 0xFF:
+        if (sp70 && sp70) {} // FAKE: promotes sp70 to a register (default arm reloads it)
         D_80029FA8 = 0;
-        if (sp70 && sp70) {
-        }
         temp_s0->unk2 = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
         temp_s0->unk0 = 0x78;
         D_807FBB40->unk154 = 0xFE;

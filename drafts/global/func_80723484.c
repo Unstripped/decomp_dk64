@@ -1,4 +1,4 @@
-// func_80723484 (src/global/127B00.c): Fx127A2 stage 5 (QS2 revisit 2): parked NON_MATCHING in 127B00.c. All integer regs/ctrl flow match (needs the 2 FAKE deadsweep stmts: path==0, total&&total; without them 338 diff lines); only FP left (4 shape rows): target has NO prog copy (lwc1 f2 shared by mul/add/sub, no mov.s f0,f2), fa is an uncolored ring temp (f6), ratio f0, step f12; mine has prog f0 + load temp f2, fa f12, ratio f14, step f16. 'ratio' local (narrowed div result, step = unk20 * ratio) moves ldc1 300.0 into place (shape 8 -> 4). Tried: noprog/inline all (fa cvt fixup branch lands after the mul: bgezl), pb->unkC = prog +/- step, decl-order perms of fp locals (no effect), unused locals (none), deadsweep round 1 on locals (best -8 rows full only: if (fa && fa) {} full 85 shape 5), permuter 540s (845 vs 1335 via junk).
+// func_80723484 (src/global/127B00.c): R2Fp2 stage 5, whole-file diff 54->14 lines, text size equal (280): FP all match (ratio local f0 / step f12 / pb->unkC read directly as f2 load temp, expr 'mul + fa' order so fa is a ring temp), ints match except ONE ring slot: target 'move t5,t4' (dead copy of sum in case 1 of the negative branch, ring temp) vs ours 'move a3,t4' (total web) -> ring shifted by one after it (lbu t6 vs t5, mfhi t8 vs t7). KEY: case 0 w/o 'total' local (pb->unk1C += quot; if (pb->unk1C >= ...)) gives the target's dead 'move t8,t7' ring copy; same in case 1 flips pb v0->v1 (pb stops being a constrained candidate, 295 lines). 4 FAKEs: path==0, limit (after limit=-pb->unk10, fixes all 'li t1,1' ring), pb&&pb after the %, tq&&tq. Target tq is a v1 web computed BEFORE the switch(unk15).
 typedef struct PathPlaybackView {
     s32 unk0;
     PathEntry path;
@@ -17,9 +17,7 @@ typedef struct PathPlaybackView {
 void func_80723484(s32 arg0) {
     PathPlaybackView *pb;
     PathEntry *path;
-    f32 prog;
     f32 step;
-    f32 fa;
     f32 ratio;
     s32 next;
     s32 tmp;
@@ -32,7 +30,7 @@ void func_80723484(s32 arg0) {
     if (arg0 != -1 && D_807FDBF8[arg0] != NULL && ((PathPlaybackView *)D_807FDBF8[arg0])->unk21 != 0) {
         pb = (PathPlaybackView *)D_807FDBF8[arg0];
         path = &pb->path;
-        if (path == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (path == 0) {}  // FAKE: ring/web steer
         if (pb->unk16 == 0) {
             path = &pb->path;
             next = pb->unk10 + 1;
@@ -44,9 +42,7 @@ void func_80723484(s32 arg0) {
                 next = tmp;
             }
         }
-        prog = pb->unkC;
-        fa = (f32)(u32)path->unk0[pb->unk10 * 10 + 8];
-        ratio = (f32)((f64)(fa + (f32)(path->unk0[next * 10 + 8] - path->unk0[pb->unk10 * 10 + 8]) * prog) / 300.0);
+        ratio = (f32)((f64)((f32)(path->unk0[next * 10 + 8] - path->unk0[pb->unk10 * 10 + 8]) * pb->unkC + (f32)(u32)path->unk0[pb->unk10 * 10 + 8]) / 300.0);
         step = (f32)(u32)pb->unk20 * ratio;
         switch (pb->unk14) {
         case 0:
@@ -62,8 +58,8 @@ void func_80723484(s32 arg0) {
             if (pb->unk10 >= limit) {
                 limit = pb->path.unk4 - 1;
                 quot = pb->unk10 / limit;
-                total = pb->unk1C += quot;
-                if (total >= pb->unk18 && pb->unk18 != -1) {
+                pb->unk1C += quot;
+                if (pb->unk1C >= pb->unk18 && pb->unk18 != -1) {
                     pb->unk10 = pb->path.unk4 - 2;
                     pb->unk21 = 0;
                     pb->unkC = 1.0f;
@@ -73,7 +69,6 @@ void func_80723484(s32 arg0) {
                 } else {
                     switch (pb->unk15) {
                     case 0:
-                        if (total && total) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         if (pb->unk16 == 0) {
                             pb->unk10 = pb->unk10 % limit;
                         } else {
@@ -100,6 +95,7 @@ void func_80723484(s32 arg0) {
             }
             if (pb->unk10 < 0) {
                 limit = -pb->unk10;
+                if (limit) {}  // FAKE: ring/web steer
                 quot = limit / pb->path.unk4;
                 total = pb->unk1C += quot + 1;
                 if (total >= pb->unk18 && pb->unk18 != -1) {
@@ -113,12 +109,14 @@ void func_80723484(s32 arg0) {
                     switch (pb->unk15) {
                     case 0:
                         pb->unk10 = limit % (pb->path.unk4 - 1);
+                        if (pb && pb) {}  // FAKE: ring/web steer
                         if (pb->unk10 != 0) {
                             pb->unk10 = pb->path.unk4 - pb->unk10 - 1;
                         }
                         break;
                     case 1:
                         tq = quot + 1;
+                        if (tq && tq) {}  // FAKE: ring/web steer
                         if (tq) {
                             pb->unk14 = 0;
                             pb->unk10 = 0;

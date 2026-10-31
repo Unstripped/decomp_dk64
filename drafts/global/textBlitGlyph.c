@@ -1,4 +1,4 @@
-// textBlitGlyph (src/global/100180.c): stage 5 (parked NON_MATCHING): frame 0x50 + spill slot 0x1C match, 160 vs 161 insns, deadsweep full=83 shape=40 (old park 159/36). Loop body (all 4 cases, delay slots) identical to target; phase v0 odd v1 src t0 srcRow t1 match. Found: ret var (ret=phase; if(phase) ret=odd) gives the beqz/move/move tail; *(u8*)arg5 directly (no p5 local); dst++; *dst|= (no temp); (u32)arg0>>1 gives srl; statement order search (hill-climb in harness) put phase/odd first. Remaining: prologue order (target sb *p5 last, no 'move a0,cvt' copy), s32 lead emits 1-insn andi vs target's u8 move/andi/move, t2/t3 taken by cvt isops 631/637 (target lead t2, w2 t3), row/srcRow regs. Index-order model: unconstrained candidates colour in first-reference order, constrained by adjsave.
+// textBlitGlyph (src/global/100180.c): textBlitGlyph stage 5: frame 0x50 OK, 161 vs 162 insns, deadsweep full=74 shape=40 (was 83/40). New this pass: pre-loop statement order src, srcRow, phase, *p5+=, odd, w2, dstRow, dst, arg0=w2, row=0 (exhaustive 504-order search, dist 139->119) puts srcRow=t1, row=s3, dstRow/dst/arg6 s-regs like target. Left: target's odd/phase and-temps (andi t2,t3,1 / andi t4,t5,1) are coloured candidates (t2/t4) with cvt(arg0)=t3, cvt(*p5)=t5 and 'sb *p5' last; mine uses ugen temps + extra 'move a0,cvt'; lead in target is move t2,a3/andi t6,t2,1/move t2,t6 (lead=arg3;lead&=1 and s8/u8/s16 lead types did not reproduce it); dead-use forms on (arg0&1),(*p5&1) did nothing. deadsweep round1 found only 74->72 with a FAKE.
 s32 textBlitGlyph(u8, s32, s32, s16, u8, s8 *, u8);
 
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
@@ -13,17 +13,16 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     u8 *dstRow;
     u8 *srcRow;
     s32 ret;
-
     src = (u8 *)arg2;
-    row = 0;
+    srcRow = (u8 *)arg2 + (arg3 >> 1);
     phase = (*(u8 *)arg5 & 1) != 0;
-    odd = (arg0 & 1) != 0;
     *(u8 *)arg5 += arg0;
-    dstRow = (u8 *)(arg6 * 16 + arg1 + arg6 * arg4);
+    odd = (arg0 & 1) != 0;
     w2 = (u32)arg0 >> 1;
+    dstRow = (u8 *)(arg6 * 16 + arg1 + arg6 * arg4);
     dst = dstRow;
     arg0 = w2;
-    srcRow = (u8 *)arg2 + (arg3 >> 1);
+    row = 0;
     do {
         j = 0;
         if (w2 > 0) {

@@ -1,4 +1,4 @@
-// csCmdExec (src/global/42630.c): csCmdExec QL7: reduced-TU full 11 (text 11 shape 10), only 0x7E block left. Tricks: 0x7E-local u8 pan7+vol7; dead if(found){} before found=0; 0xE/0x7D b=cmd->b (no &0xFF) + dead if(b&&b&&b){}; 0x68 dead uninit reads if(b){} after '{' and if(i){} between despawns (v0 const piece). Left: 0x7E ucvt(pan7) candidate coloured v0 (move v0,t1/sw v0,60/lw v0,60) vs target uncoloured (sw t1,60/lw t7,60), + pitch sb sched.
+// csCmdExec (src/global/42630.c): csCmdExec QL7 (parked NON_MATCHING in src copy): whole function 1847/1847 insns, frame/saved set/t-ring exact; ONLY diff case 0x7E pan spill: target sw t1,60(sp) ... lw t7,60(sp) (uncoloured uopt CSE temp for ucvt(pan)), mine sb t1,71(sp)/lbu t1,71(sp) (u8 var home) (+ t1,20(sp) arg store order). Tried: pan7==0 (ucvt cand coloured v0), s32/block-scope pan7, dead reads pairs, arg/cast/proto grids, statement orders, return-type toggles. ORCHESTRATOR: NOT EQUIVALENT as is: the FAKEs `if (found) {}` before `found = 0;`, `if (b) {}` and `if (i) {}` in case 0x68 read uninitialised locals; replace them with equivalent forms before parking.
 void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // unused: address-taken csId, keeps found at sp+0xC3
     u8 found;
@@ -30,14 +30,14 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 sz;
     u8 pan;
     u8 vol;
-    volatile u8 pitch;
+    u8 pitch;
     f32 cx;
     f32 cy;
     f32 cz;
     u8 pan7;
     u8 vol7;
 
-    if (found) {}
+    if (found) {} // FAKE: uninitialised read keeps found live from entry (a3)
     found = 0;
     switch (cmd->op) {
     case 0x95:
@@ -174,9 +174,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x68:
         if (D_807F61F0.unk8 != 0) {
-            if (b) {}
+            if (b) {} // FAKE: uninitialised read forces the &D_807F61F0 piece into v0
             actorDespawn(D_807F61F0.unk0);
-            if (i) {}
+            if (i) {} // FAKE: uninitialised read, same
             actorDespawn(D_807F61F4);
             D_807F61F0.unk8 = 0;
         }
@@ -420,7 +420,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 1;
         b = cmd->b;
         if (cs->unk10[i] < 0) {
-            if (b && b && b) {} // FAKE: deadsweep
+            if (b && b && b) {} // FAKE: deadsweep: keeps b a real variable (move a3,v1)
             b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
         }
@@ -440,7 +440,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 1;
         b = cmd->b;
         if (cs->unk10[i] < 0) {
-            if (b && b && b) {} // FAKE: deadsweep
+            if (b && b && b) {} // FAKE: deadsweep: keeps b a real variable (move a3,v1)
             b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
         }
@@ -464,9 +464,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         pan7 = (cmd->b / 128) & 0xFF;
         vol7 = (cmd->c / 128) & 0xFF;
         c = cmd->c;
-        c &= 0xFF;
-        c &= 0x7F;
-        if (pan7 == 0) {
+        pitch = c & 0x7F;
+        if (!pan7) {
             pan7 = 0x7F;
         }
         if (!vol7) {
@@ -474,13 +473,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         i = cmd->b & 0x7F;
         if (D_80748094 > 0) {
-            if (vol7 && vol7) {} // FAKE: deadsweep
-            if (found) {}
-            pitch = c;
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
-            if (c) {} // FAKE: deadsweep
             sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pan7, i, pitch, 0.3f, 0);
         } else {
+            if (csId && csId && csId) {} // FAKE: deadsweep: t-ring phase
             sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
         }
         break;

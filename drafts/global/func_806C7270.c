@@ -1,10 +1,12 @@
-// func_806C7270 (src/global/CBEA0.c): Stage 6 (QS2 revisit 2): shape=0, 9 text rows all register-only: target sra->t9 (uncolored ring temp) + andi->a0 (colored cand, hoisted into beqz delay slot), ours sra->a0 (cand 85 colored) + andi->t9 (ring, cand 95 never colored); lui hi(D_8075075C) t4 vs t2; sll t2 vs t1; first mul.s operands (frac first with in-expr '(x0 = frac)'). Retried (all same/worse): inline D_8075075C[t>>1] w/o e, e after frac, base ptr var before if, (x0=frac) in 1st/2nd mul, unnamed t, t as register/u32/s16, decl order, int var k = t&1 before the if (k stays ring temp, sra still a0), deadsweep round 1 with locals (3752 variants, none better), prior permuter 2x600s.
+// func_806C7270 (src/global/CBEA0.c): R2Aud1 stage 6 unchanged (11 lines incl .rodata reloc): target sra->t9 ring + andi->a0 cand; ours reversed. New tries all no gain: callee proto toggles (assetLoad s32/u8*/void*, renderCallbacksRegister s32/u8/void, func_806C75A4), named k=t&1 in/before if with dead uses, i=t>>1 reuse of loop var, repeated inline frac expr, dead t&1/t>>1 ifs, hc 8k variants.
 typedef struct R1C2CB_Entry {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s8 unk4;
-    /* 0x5 */ s8 unk5;
+    s16 unk0;
+    s16 unk2;
+    s8 unk4;
+    s8 unk5;
 } R1C2CB_Entry;
+
+extern R1C2CB_Entry D_807506D0[];
 
 typedef struct R1C2CB_Pair {
     /* 0x0 */ f32 unk0;
@@ -14,7 +16,6 @@ typedef struct R1C2CB_Pair {
 extern Actor *D_807FBB40;
 extern s8 D_80750754;
 extern s16 D_80750758;
-extern R1C2CB_Entry D_807506D0[];
 extern s8 D_807506D5[];
 extern R1C2CB_Pair D_8075075C[];
 extern s16 D_807FC8E0;

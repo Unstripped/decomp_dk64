@@ -1,4 +1,4 @@
-// func_80709890 (src/global/10E1D0.c): stage 6: 12 diff lines (regs only, 149 insns identical shape). KEY WIN (2026-10-31): loop 3 needs its OWN walker local (u32 *r; 'b->unk0 = r = (u32 *)...; while (*r++ != -1)') instead of reusing p: 48 -> 11 lines (merged p loops 1+3 forced p's intrinsic forbidden [v0,v1]). Two dead block-split statements remain (FAKE-tagged): 'if (arg0 && arg0) {}' after the 3rd heapAlloc (frees v0 so loop-1 walker p=v0, loaded=v1 now match) and deadsweep's 'if (r == 0) {}' after the loop-3 while brace: 8 lines. Left: unk8/unkC/unk18 values land a1/a3/a0 instead of a0/a1/a3 (unk18 expression candidate adj 4.0 > unk8/unkC 3.0 colours first). Tried: named locals / chained assignments / ordering for the three field values, 400 random decl orders, deadsweep round 2 (no gain), permuter (only dead 'if (k) {}').
+// func_80709890 (src/global/10E1D0.c): R2Aud1 stage 6: 6 diff lines; unk8/unkC/unk18 values land v1/a0/a3 vs target a0/a1/a3 (target colour order V8,VC,count,V18). Extra FAKE dead ifs on arg0/arg0->unk18/p/arg2, p computed from expression separately. hc 15k variants no gain.
 typedef struct MeshEntry {
     u32 unk0;
     u8 pad[0x18];
@@ -39,16 +39,19 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
     if (arg1 == NULL) {
         return 0;
     }
+    if (arg0) {}  // FAKE: dead
     gFbTileTable = heapAlloc(0x708);
     arg0->unk10 = heapAlloc(arg0->unk0 * 0x10);
     arg0->unk14 = heapAlloc(arg0->unk0 * 0x10);
     if (arg0 && arg0) {} // FAKE: block split after the 3rd heapAlloc frees $v0 for walker p
     arg0->unk8 = (u8 *)arg0 + 0x2C;
     arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
-    arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
     count = 1;
-    p = arg0->unk18;
+    p = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
+    arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
+    if (arg0->unk18) {}  // FAKE: dead
     while (*p++ != 0) {
+        if (p) {}  // FAKE: dead
         count++;
     }
     arg0->unk20 = (s32 *)arg0->unk18 + count;
@@ -56,6 +59,7 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
     *arg1 = arg0;
     if (arg2 != NULL) {
         b = (MeshBlobTail *)(arg0->unk1C + count);
+        if (arg2) {}  // FAKE: dead
         b->unk8 = (u8 *)(b + 1);
         q = (MeshEntry *)b->unk8;
         if (gFbTileTable && gFbTileTable) {} // FAKE: block split steering loop-2 walker regalloc
@@ -66,11 +70,11 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
         k = 1;
         b->unk0 = r = (u32 *)(b->unk8 + count * 0x1C);
         while (*r++ != -1) {
-            if (r == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             k++;
+            if (r == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
-        b->unk4 = (s32 *)((u8 *)b->unk0 + k * 4);
         count = 0;
+        b->unk4 = (s32 *)((u8 *)b->unk0 + k * 4);
         sum = 0;
         if (b->unk0[0] != -1) {
             do {

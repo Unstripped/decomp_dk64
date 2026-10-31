@@ -1,4 +1,4 @@
-// func_8069E774 (src/global/A2F10.c): stage 4: frame 0x90 and sp60@0x60 / IV spill@0x50 / f32 spill@0x48 match (padB0/padB1 words, no sp50/sp48 locals, (f32)sp8E inline, temp_v0 reused for D_807FBB4C->unk174, if (unk154 == unk168), (s16)sp60 cast); remaining: sp7F load is CSE'd into the loop (target reloads lbu 0x7F per iteration, no spill at 0x4C), loop tail shape (target beql s0 +1 delay and v0 count web), FP reg numbering f4/f8, ring t-numbering; deadsweep best ~79
+// func_8069E774 (src/global/A2F10.c): stage 4->5: frame 0x90 and all stack slots match except the f32 (f32)sp8E spill (0x4C, target 0x48); text diff = 44 hunks (503 vs 504 insns): sp7F kept in memory as u8 sp7F[4] element 3 (loop now reloads lbu 0x7F per iteration like target), cases 0xD1/0xD0/0xCF written in that body order (matches target body order); remaining: loop count web (target v0 + beql s0,+1 delay: PRE-reload of D_807FC928 after calls), FP ring phase ($f16/$f18 const, $f4/$f8), t-numbering, f32 spill slot hole 0x4C
 typedef struct QA2Node {
     /* 0x000 */ f32 unk0;
     /* 0x004 */ u8 pad4[8];
@@ -60,7 +60,7 @@ void func_8069E774(void) {
     f32 sp88;
     u8 sp87;
     QA2Node *sp80;
-    u8 sp7F;
+    u8 sp7F[4]; // FAKE: flag kept in memory (array) so its loads are not CSE'd into the loop; element 3 = byte 0x7F
     Actor *sp78;
     u32 *sp74;
     QA2Node *node;
@@ -74,12 +74,12 @@ void func_8069E774(void) {
 
     sp8E = 0x12C;
     sp87 = 0;
-    sp7F = 0;
+    sp7F[3] = 0;
     temp_v0 = (Actor *)D_807FBB40->unk11C;
     node = (QA2Node *)D_807FBB40->unk174;
     if (temp_v0 != NULL && (temp_v0->unk5C & 1)) {
         sp78 = temp_v0;
-        sp7F = 1;
+        sp7F[3] = 1;
     } else {
         sp78 = D_807FBB4C;
     }
@@ -113,23 +113,23 @@ void func_8069E774(void) {
             node->unk11 = 0x32;
             node->unk12 = 0x32;
             break;
-        case 0xCF:
-            node->unk10 = 0x32;
-            node->unk11 = 0xFF;
-            node->unk12 = 0x32;
+        case 0xD1:
+            node->unk10 = 0xCA;
+            node->unk11 = 0x5B;
+            node->unk12 = 0xFF;
             break;
         case 0xD0:
             node->unk10 = 0;
             node->unk11 = 0x96;
             node->unk12 = 0xFF;
             break;
-        case 0xD1:
-            node->unk10 = 0xCA;
-            node->unk11 = 0x5B;
-            node->unk12 = 0xFF;
+        case 0xCF:
+            node->unk10 = 0x32;
+            node->unk11 = 0xFF;
+            node->unk12 = 0x32;
             break;
         }
-        if (sp7F != 0) {
+        if (sp7F[3] != 0) {
             node->unk0 = 2.0f;
         } else {
             node->unk0 = 1.5f;
@@ -167,7 +167,7 @@ void func_8069E774(void) {
              0.0f, 0.0f, D_807FBB40->unk4->unk34 * (f32)sp8E * node->unk0, 0,
              node->unk10, node->unk11, node->unk12);
     if (D_8076A0A8 != 0x4C) {
-        if (sp7F == 0 || D_807FBB40->unk15F != 0) {
+        if (sp7F[3] == 0 || D_807FBB40->unk15F != 0) {
             sp60 = 0x2E;
             if (func_80714608(0) != 0) {
                 sp60 = 0xE;
@@ -176,7 +176,7 @@ void func_8069E774(void) {
             sp88 = sp88 * sp88;
             for (i = 0; i < D_807FC928; i++) {
                 target = D_807FC924[i].actor;
-                if (sp7F == 0 ||
+                if (sp7F[3] == 0 ||
                     (i != sp80->unk1A4 && target->unk154 != 0x84)) {
                     if (actorIsTargetInRange(target, (f32)target->unk15E, sp88) !=
                         0) {
