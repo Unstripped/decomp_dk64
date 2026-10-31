@@ -1234,7 +1234,6 @@ s32 slotQueueGetCountStep(s32 arg0) {
     return var_v1;
 }
 
-#ifdef NON_MATCHING
 #define SLOT_QUEUE_FADE_SLOT ((SlotQueueFadeSlot *)((u8 *)gSlotQueue + (arg0 * 0x30)))
 
 s32 slotQueueStateMoveToTarget(s32 arg0, s32 arg1) {
@@ -1246,7 +1245,7 @@ s32 slotQueueStateMoveToTarget(s32 arg0, s32 arg1) {
     s32 x;
     s32 step;
     s32 absd;
-    s32 sign;
+    s32 sign; // FAKE: pad keeping the 0x30 slot-offset spill at 48(sp)
     s32 tmp;
 
     node = SLOT_QUEUE_FADE_SLOT->unk28;
@@ -1267,9 +1266,9 @@ s32 slotQueueStateMoveToTarget(s32 arg0, s32 arg1) {
         } while (node != NULL);
     }
     if (flag == 0) {
-        sign = *SLOT_QUEUE_FADE_SLOT->unk0;
+        if (*SLOT_QUEUE_FADE_SLOT->unk0 == 0) {} // FAKE: hoists the *unk0 load above the null test
         if (SLOT_QUEUE_FADE_SLOT->unk0 != NULL) {
-            x = sign;
+            x = *SLOT_QUEUE_FADE_SLOT->unk0;
             s1 = SLOT_QUEUE_FADE_SLOT->unk4;
             step = slotQueueGetCountStep(arg0, *SLOT_QUEUE_FADE_SLOT->unk0, SLOT_QUEUE_FADE_SLOT->unk4);
             if ((x - s1) > 0) {
@@ -1308,10 +1307,6 @@ s32 slotQueueStateMoveToTarget(s32 arg0, s32 arg1) {
 }
 
 #undef SLOT_QUEUE_FADE_SLOT
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/slotQueueStateMoveToTarget.s")
-#endif
 
 s32 slotQueueStateFadeOut(s32 arg0, s32 arg1) {
     s32 s1;
