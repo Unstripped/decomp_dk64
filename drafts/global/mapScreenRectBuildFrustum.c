@@ -1,18 +1,5 @@
-// mapScreenRectBuildFrustum (src/global/55B20.c): stage 4 (parked NON_MATCHING in 55B20.c): frame 0xA8 and callee set s0-s5/ra equal; text diff 56 lines scheduling/regalloc only. Found: uv0..uv3 as f32 SCALARS (not uv[4]) gives frame 0xA8 and a spilled a@0x40; loop via f32 (*)[3] out cast gives the 3 stride-12 IV pointers + s0..s5 exactly. Remaining: target spills t(dy)@0x50 and reloads it (store->load barrier delays the D.1C load), f0/f2 swap, idx/base/offset temp order t9/t8/t2 for D_807FC924[idx]. Tried decl-order permutations, expression forms/statement orders (480), deadsweep, same-line joins, S[8] array homes
-typedef struct S55dPlayer {
-    /* 0x000 */ u8 pad0[0x270];
-    /* 0x270 */ s16 unk270;
-    /* 0x272 */ s16 unk272;
-    /* 0x274 */ s16 unk274;
-    /* 0x276 */ s16 unk276;
-    /* 0x278 */ s16 unk278;
-    /* 0x27A */ s16 unk27A;
-    /* 0x27C */ u8 pad27C[0x2F0 - 0x27C];
-} S55dPlayer;
-
-extern S55dPlayer *D_807FC924;
-
-typedef struct S55dRoad {
+// mapScreenRectBuildFrustum (src/global/55B20.c): stage 4 (MapA, parked NON_MATCHING in 55B20.c): frame 0xA8, callee set equal, 56 text lines (scheduling/regalloc). uopt -l5: FP candidate pool is 6 regs (f0,f2,f12,f14,f16,f18 = idx 24..29) and mine colors 6 candidates (D.0,D.4,cvt(unk278),D.C-D.0,t,cvt(unk27A)); target colors only D.0=f2,D.4=f12,cvt278=f14,DCD0=f16,cvt27A=f18 and SPILLS t (swc1 80(sp)/lwc1) and leaves f0 as div temp, i.e. target has one more higher-priority FP candidate than mine or t loses coloring. Tried: return type f32/f64/s32/u8 (no effect), t inline (frame/regs worse, >100), t as array/twice, all 120 statement orders of a/uv3/uv2/t/uv1/uv0, deadsweep (-3 with 'if (arg1 && arg1) {}' only), 900 hill-climb variants.
+typedef struct FrustumCorners {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -25,9 +12,9 @@ typedef struct S55dRoad {
     /* 0x24 */ f32 unk24;
     /* 0x28 */ f32 unk28;
     /* 0x2C */ f32 unk2C;
-} S55dRoad;
+} FrustumCorners;
 
-extern S55dRoad D_807F5DF0;
+extern FrustumCorners D_807F5DF0;
 void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
     f32 uv3;
     f32 t;
@@ -37,7 +24,7 @@ void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4,
     f32 uv0;
     f32 m[4][3];
     s32 i;
-    S55dPlayer *p;
+    MapPlayer *p;
 
     p = &D_807FC924[arg7];
     a = ((((f32)(arg0 - p->unk270)) / (f32)p->unk278) * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;

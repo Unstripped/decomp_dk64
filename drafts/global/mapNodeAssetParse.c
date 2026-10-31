@@ -1,7 +1,4 @@
-// mapNodeAssetParse (src/global/55B20.c): stage 6: 2-line scheduling diff only (li s8,-32768 in blez delay slot in target vs after sh spill in draft); base hoist, n spill, regs, frame all match
-// Everything else matches: base hoisted to s6, n spilled to 0x46(sp), p=s0/slot=s1, lui/addiu order (joined `w = ..; end = ..;` line), frame 80.
-// Found: (s32)D_807F70B8 + idx*4 integer arithmetic (not array/ixa form) hoists the base; a `slot` s32 temp for the later accesses fixes the p/slot colouring (permuter hint);
-// unk4 = *(s16 *)p; p += 2; (second halfword, not p - 2).
+// mapNodeAssetParse (src/global/55B20.c): stage 6 (MapA): 2-line scheduling diff only: target preheader order after 'blez v0' is li s8,-32768 (delay slot), lui/addiu s6 (base), sh v0,70(sp), li s7,32767, li s4,6; mine emits la s6, sh, then li s8/s7/s4 (uopt -S shows la first, -32768 const third). Tried (no effect, all full=2): lo/hi constant locals at 5 positions, (s16)0x8000/~0x7FFF spellings, i/n/p statement perms + while/do/if-guard loop forms, same-line joins, store-order permutations of unk10/unk12/unk8 (worse), dead 'if (n/idx/i == -0x8000)' (worse), deadsweep 1188 variants, 400-iter hill-climb.
 extern s16 D_807F7138;
 extern void *D_807F70B8[];
 void mapFaceBuildTriangleFan(s32);
