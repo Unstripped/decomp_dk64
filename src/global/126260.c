@@ -127,7 +127,7 @@ s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5
 
     lights = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278);
     ambient = (Ambient *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x270);
-    slot_light = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + (arg0 * 0x10) + 0x278);
+    slot_light = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + ((u32)arg0 * 0x10) + 0x278); // FAKE: u32 cast splits the arg0 conversion candidate (no phantom t2)
     if (lights && lights) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
 
     if (D_8076A048 == 0) {} // FAKE: makes the base load a uopt candidate (v1)
@@ -155,27 +155,27 @@ s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5
         if ((f64)intensity > 0.1) {
             if (ambient && ambient) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             c = (u32)((f32)(u32)lights->l.col[0] + ((f32)(arg1->unkB - lights->l.col[0]) * intensity));
-            lights->l.colc[0] = (s8)c;
+            lights->l.colc[0] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
             lights->l.col[0] = (u8)c;
 
             c = (u32)((f32)(u32)lights->l.col[1] + ((f32)(arg1->unkC - lights->l.col[1]) * intensity));
-            lights->l.colc[1] = (s8)c;
+            lights->l.colc[1] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
             lights->l.col[1] = (u8)c;
 
             c = (u32)((f32)(u32)lights->l.col[2] + ((f32)(arg1->unkD - lights->l.col[2]) * intensity));
-            lights->l.colc[2] = (s8)c;
+            lights->l.colc[2] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
             lights->l.col[2] = (u8)c;
 
-            c = (u32)(((((f64)(u32)ambient->l.col[0] * 0.5) - (f64)(u32)ambient->l.col[0]) * (f64)intensity) + (f64)(u32)ambient->l.col[0]);
-            ambient->l.colc[0] = (s8)c;
+            c = (u32)((f64)(u32)ambient->l.col[0] + ((((f64)(u32)ambient->l.col[0] * 0.5) - (f64)(u32)ambient->l.col[0]) * (f64)intensity));
+            ambient->l.colc[0] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
             ambient->l.col[0] = (u8)c;
 
-            c = (u32)(((((f64)(u32)ambient->l.col[1] * 0.5) - (f64)(u32)ambient->l.col[1]) * (f64)intensity) + (f64)(u32)ambient->l.col[1]);
-            ambient->l.colc[1] = (s8)c;
+            c = (u32)((f64)(u32)ambient->l.col[1] + ((((f64)(u32)ambient->l.col[1] * 0.5) - (f64)(u32)ambient->l.col[1]) * (f64)intensity));
+            ambient->l.colc[1] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
             ambient->l.col[1] = (u8)c;
 
-            c = (u32)(((((f64)(u32)ambient->l.col[2] * 0.5) - (f64)(u32)ambient->l.col[2]) * (f64)intensity) + (f64)(u32)ambient->l.col[2]);
-            ambient->l.colc[2] = (s8)c;
+            c = (u32)((f64)(u32)ambient->l.col[2] + ((((f64)(u32)ambient->l.col[2] * 0.5) - (f64)(u32)ambient->l.col[2]) * (f64)intensity));
+            ambient->l.colc[2] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
             ambient->l.col[2] = (u8)c;
         }
         return 0;
@@ -183,15 +183,15 @@ s32 func_80721814(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5
 
     if ((f64)intensity > 0.02) {
         c = (u32)((f32)(u32)arg1->unkB * intensity);
-        slot_light->l.colc[0] = (s8)c;
+        slot_light->l.colc[0] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
         slot_light->l.col[0] = (u8)c;
 
         c = (u32)((f32)(u32)arg1->unkC * intensity);
-        slot_light->l.colc[1] = (s8)c;
+        slot_light->l.colc[1] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
         slot_light->l.col[1] = (u8)c;
 
         c = (u32)((f32)(u32)arg1->unkD * intensity);
-        slot_light->l.colc[2] = (s8)c;
+        slot_light->l.colc[2] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
         slot_light->l.col[2] = (u8)c;
 
         slot_light->l.dir[0] = (s8)(s32)(((f32)arg1->unk4 - arg2) * (127.0f / dist));
@@ -213,7 +213,6 @@ void commandQueueReset(void) {
     D_807FDB75 = 0;
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     u8 pad0[0x5C];
     u16 unk5C;
@@ -257,7 +256,7 @@ s32 func_80721814(u8, Command *, f32, f32, f32, s16);
 
 Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
     u8 is_player;
-    s32 color_base;
+    u8 *color_base;
     Light *secondary;
     Ambient *primary;
     L126b_ActorView *actor;
@@ -287,7 +286,7 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
         is_player = 0;
     }
     command = 1;
-    color_base = D_8076A048;
+    color_base = (u8 *)D_8076A048;
     primary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].a;
     secondary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].l[0];
 
@@ -305,10 +304,10 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
         dest_blue = D_80755688;
         camera_rotation = D_80755680;
     } else {
-        camera_rotation = 0;
         dest_red = (f32)D_807FDB7E;
         dest_green = (f32)D_807FDB7F;
         dest_blue = (f32)D_807FDB80;
+        camera_rotation = 0;
     }
 
     sequence = actor->unk12C;
@@ -338,9 +337,10 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
 
     secondary->l.col[0] = (u8)(s32)(((D_807FDB7D != 0) ? (f64)(color[0] * scale) : 1.0) * (f64)dest_red);
     secondary->l.col[1] = (u8)(s32)(((D_807FDB7D != 0) ? (f64)(color[1] * scale) : 1.0) * (f64)dest_green);
-    secondary->l.col[2] = secondary->l.colc[2] = (u8)(s32)(((D_807FDB7D != 0) ? (f64)(color[2] * scale) : 1.0) * (f64)dest_blue);
+    secondary->l.col[2] = (u8)(s32)(((D_807FDB7D != 0) ? (f64)(color[2] * scale) : 1.0) * (f64)dest_blue);
     secondary->l.colc[0] = secondary->l.col[0];
     secondary->l.colc[1] = secondary->l.col[1];
+    secondary->l.colc[2] = secondary->l.col[2];
 
     angle = mathAngleBetweenPoints2D(x, z, *(f32 *)((u8 *)D_807FC924 + (arg2 * 0x2F0) + 0x21C), *(f32 *)((u8 *)D_807FC924 + (arg2 * 0x2F0) + 0x224)) + D_807FDB76;
     dx = (*(f32 *)((u8 *)D_807FC924 + (arg2 * 0x2F0) + 0x21C) - (func_80612794(angle) * (f32)D_807FDB78)) - x;
@@ -365,27 +365,31 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
     }
 
     for (i = 0; i < D_807FDB74; i++) {
-        if (((Command *)D_807FDB70)[i].unk0 == (s32)arg1 && func_80721814(command & 0xFF, &((Command *)D_807FDB70)[i], x, y, z, arg2) != 0) {
+        if (((Command *)D_807FDB70)[i].unk0 == (s32)arg1 && func_80721814(command, (Command *)(D_807FDB70 + (i << 4)), x, y, z, arg2) != 0) {
             command = (command + 1) & 0xFF;
         }
     }
 
-    if (!(D_807FBB60 & 2) && (actor->unk5C & 1) && (*(s16 *)((u8 *)actor->unk174 + 0xD4) != 0) && (D_8076A064 & 2)) {
-        secondary->l.col[0] = 0;
-        secondary->l.col[1] = 0;
-        secondary->l.col[2] = 0;
-        secondary->l.colc[0] = 0;
-        secondary->l.colc[1] = 0;
-        secondary->l.colc[2] = 0;
-        primary->l.col[2] = 0;
-        primary->l.col[1] = 0;
-        primary->l.col[0] = 0;
-        primary->l.colc[2] = 0;
-        primary->l.colc[1] = 0;
-        primary->l.colc[0] = 0;
+    if (!(D_807FBB60 & 2) && (actor->unk5C & 1)) {
+        actor = (L126b_ActorView *)actor->unk174; // FAKE: reuses the dead actor local as the named pointer (v0 web)
+        if ((*(s16 *)((u8 *)actor + 0xD4) != 0) && (D_8076A064 & 2)) {
+            secondary->l.col[0] = 0;
+            secondary->l.col[1] = 0;
+            secondary->l.col[2] = 0;
+            secondary->l.colc[0] = 0;
+            secondary->l.colc[1] = 0;
+            secondary->l.colc[2] = 0;
+            primary->l.col[2] = 0;
+            primary->l.col[1] = 0;
+            primary->l.col[0] = 0;
+            primary->l.colc[2] = 0;
+            primary->l.colc[1] = 0;
+            primary->l.colc[0] = 0;
+        }
     }
 
     cnt = command; // FAKE: separate loop-bound/count web (swaps s1/s2 priority)
+    command ^= 0; // FAKE: keeps cnt a distinct web live into the tail (v1)
     for (i = 0; i < cnt; i++) {
         Gfx *dl = arg0++;
         dl->words.w0 = (0xDC080000 | ((((i * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
@@ -393,11 +397,12 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
     }
     {
         Gfx *gdl1 = arg0++;
-        Gfx *gdl2 = arg0++;
+        Gfx *gdl2;
         Gfx *gdl3;
-        gdl1->words.w0 = (0xDC080000 | ((((command * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
+        gdl1->words.w0 = (0xDC080000 | ((((cnt * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
+        gdl2 = arg0++;
         gdl1->words.w1 = (u32)&((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].a;
-        gdl2->words.w1 = command * 0x18;
+        gdl2->words.w1 = cnt * 0x18;
         gdl2->words.w0 = 0xDB020000;
         gdl3 = arg0++;
         gdl3->words.w1 = 0;
@@ -411,7 +416,4 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
     return arg0;
 }
 
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/126260/func_80722294.s")
-#endif
