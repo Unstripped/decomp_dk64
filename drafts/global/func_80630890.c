@@ -1,4 +1,4 @@
-// func_80630890 (src/global/35000.c): stage 5, parked NON_MATCHING: frame 0x40, exact regs/stack. Remaining diff: 5 insns in last block (inserted==0) temps t6,t7,t8 vs expected t7,t8,t9 (1-temp shift in ugen ring) + rodata symbol reloc names
+// func_80630890 (src/global/35000.c): stage 5 (OlR2e revisit): park body unchanged, text diff = 5 insns, last block (if inserted==0) temps t6,t7,t8 vs expected t7,t8,t9 = ONE invisible ugen ring alloc missing after the arm's t5. Single-step dead-if sweeps (140 forms x all positions), no-op wrapper sweep (0,X)/+0/?:, statement respellings, loop while/for/do variants (identical code), 420s permuter: all stay 5. Only 'cur->unk18 = cur->unk18;' (or node->unk18 = cur->unk18; node->unk18 = node->unk18;) before 'node->unk18 = cur->unk18' shifts the ring to t7..t9 but emits an extra sw (diff 1); no code-free ring shifter found.
 typedef struct RenderEntry RenderEntry;
 struct RenderEntry {
     /* 0x00 */ s32 unk0;
