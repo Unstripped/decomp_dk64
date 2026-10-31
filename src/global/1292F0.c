@@ -10,7 +10,6 @@ typedef struct {
 
 void heapFree(void *);
 
-#ifdef NON_MATCHING
 typedef struct PathFollowState {
     u8 pad0[4];
     s32 unk4;
@@ -92,7 +91,7 @@ void func_807245F0(PathFollowOwner *arg0, u8 arg1) {
         }
         pathSplineSample(s->unk12, idx, frac, &x1, &y1, &z1);
         ang = mathAngleBetweenPointsDeg((s32)x0, (s32)z0, (s32)x1, (s32)z1);
-        s->unkE = (((((s16)(0x1000 - (s16)(s32)(ang * 2048.0 / 3.14159274101257324)) & 0xFFFF) & 0xFFFF) + 0x800) & 0xFFF);
+        s->unkE = (((s16)((s16)(0x1000 - (s16)(s32)(ang * 2048.0 / 3.14159274101257324)) + 0x800)) & 0xFFF);  // FAKE: nested s16 casts steer the subu temp name to $t0
         s->unk10 = 0x23;
         cnt = pathEntryCount(s->unk12) - 1;
         if (s->unk4 >= cnt) {
@@ -109,10 +108,6 @@ void func_807245F0(PathFollowOwner *arg0, u8 arg1) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1292F0/func_807245F0.s")
-#endif
 
 void animationOwnerFreeBuffer(AnimationOwner *arg0) {
     void *temp_a1;

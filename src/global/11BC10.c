@@ -2166,12 +2166,11 @@ typedef struct {
     f32 unkC;
 } LightApproachMotionState;
 
-void actorGetNodePos(s32, s32, f32 *, f32 *, f32 *);
+s32 actorGetNodePos(s32, s32, f32 *, f32 *, f32 *);
 u8 func_805FF030(u8, u8);
 extern u8 D_8076A0AB;
 extern u16 D_807FC930[];
 
-#ifdef NON_MATCHING
 void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
     LightApproachMotionState *motion;
     f32 factor;
@@ -2179,13 +2178,11 @@ void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
     f64 pad;
 
     node = arg0->unk35C;
-    motion = arg0->unk384;
-    if (motion == NULL) {
-        motion = heapAlloc(0x10);
-        arg0->unk384 = motion;
-        motion->unk0 = 30.0f;
-        motion = arg0->unk384;
+    if (arg0->unk384 == NULL) {
+        arg0->unk384 = heapAlloc(0x10);
+        ((LightApproachMotionState *)arg0->unk384)->unk0 = 30.0f;
     }
+    motion = arg0->unk384;
     actorGetNodePos(node, 1, &motion->unk4, &motion->unk8, &motion->unkC);
     factor = (f32)((f64)motion->unk0 / 30.0);
     arg0->unk340 = (D_807FBB4C->unk7C - motion->unk4) * factor + motion->unk4;
@@ -2193,16 +2190,11 @@ void func_8071D0F0(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 = (D_807FBB4C->unk84 - motion->unkC) * factor + motion->unkC;
     motion->unk0 -= 1.0f;
     if (motion->unk0 == 0.0f) {
-        if (((D_807FBB4C && D_807FBB4C) && D_807FBB4C) != 0U) {}  // FAKE: deadsweep
         *(s32 *)((u8 *)D_807FD580 + 0x1F0) |= 0x20000;
         D_807FC930[func_805FF030(D_8076A0AB, 0)]++;
         *arg1 = 1;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071D0F0.s")
-#endif
 
 
 void func_8071D260(TimedEffectActorView *arg0, s8 *arg1) {
@@ -2885,19 +2877,19 @@ void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
     if (arg0->unk384 == NULL) {
         temp = heapAlloc(0xC);
         dir = D_8075567C;
-        if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         arg0->unk384 = temp;
         temp->unk0 = arg0->unk340;
         temp->unk4 = arg0->unk348;
         temp->unk8 = (f32)dir;
-        D_8075567C = -dir;
+        if (arg0->unk384 && arg0->unk384 && arg0->unk384) {}  // FAKE: dead uses steer dir/var_v1 colouring
+        D_8075567C = -(dir & 0xFF);
     }
     var_v1 = (TimedMotionState *)arg0->unk384;
     arg0->unk340 = (func_80612794(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk0;
     arg0->unk348 = (func_80612790(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk4;
-    if (D_8075567C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     arg0->unk344 = arg0->unk344 + 0.5f;
     if (arg0->unk36D >= 5) {
+        if (D_8075567C) {}  // FAKE: dead read steers dir into $a0
         arg0->unk36D = arg0->unk36D - 4;
     } else {
         *arg1 = 1;
