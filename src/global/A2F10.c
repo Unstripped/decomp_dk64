@@ -174,7 +174,213 @@ s32 func_8069E724(s32 arg0) {
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_8069E774.s")
+typedef struct R2F2Node {
+    /* 0x000 */ f32 unk0;
+    /* 0x004 */ u8 pad4[8];
+    /* 0x00C */ u16 unkC;
+    /* 0x00E */ u8 padE[2];
+    /* 0x010 */ u8 unk10;
+    /* 0x011 */ u8 unk11;
+    /* 0x012 */ u8 unk12;
+    /* 0x013 */ u8 pad13[0xF1];
+    /* 0x104 */ void *unk104;
+    /* 0x108 */ u8 pad108[0x9C];
+    /* 0x1A4 */ u8 unk1A4;
+    /* 0x1A5 */ u8 pad1A5[0x4B];
+    /* 0x1F0 */ u32 unk1F0;
+} R2F2Node;
+
+typedef struct R2F2ActorEntry {
+    /* 0x000 */ u8 pad0[4];
+    /* 0x004 */ Actor *actor;
+    /* 0x008 */ u8 pad8[0x2E8];
+} R2F2ActorEntry;
+
+typedef struct R2F2ActorS16 {
+    /* 0x000 */ u8 pad0[0xEE];
+    /* 0x0EE */ s16 unkEE;
+} R2F2ActorS16;
+
+typedef struct R2F2ActorF64 {
+    /* 0x000 */ u8 pad0[0x160];
+    /* 0x160 */ f64 unk160;
+} R2F2ActorF64;
+
+extern u8 D_80750AB8;
+extern s32 D_8076A0A8;
+extern u8 D_807FC928;
+extern R2F2ActorEntry *D_807FC924;
+
+void animSetLoopLimit(void *, s32, s32);
+void animSetSpeed(void *, s32, f32);
+void animSetFinished(void *, s32, s32);
+s32 animIsPlaying(void *, s32);
+s32 controllerLookupStateByHash(Actor *);
+s32 camIsCutsceneActive(void);
+void camStartShake(void *, s32, s32);
+f32 func_80612794(s16);
+void actorSetCollisionRadius(Actor *, f32);
+void playerStateQueueCallback(s32, void *, s32);
+s32 func_80714608(s32);
+void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
+void actorGetOrSetNodeScale(void *, s32, f32);
+void actorOrNodeFlags(void *, s32, s32);
+void actorUpdateModelMatrix(void *, s32);
+void lightSetFlags(s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, u32, u32, u32);
+
+void func_8069E774(void) {
+    u16 sp8E;
+    f32 sp88;
+    u8 sp87;
+    R2F2Node *sp80;
+    u8 sp7F[4]; // FAKE: flag kept in memory (array) so its loads are not CSE'd into the loop; element 3 = byte 0x7F
+    Actor *sp78;
+    u32 *sp74;
+    R2F2Node *node;
+    Actor *temp_v0;
+    f32 sp68;
+    s32 padB1;
+    s32 sp60;
+    s32 i;
+    Actor *target;
+
+    sp8E = 0x12C;
+    sp87 = 0;
+    sp7F[3] = 0;
+    temp_v0 = (Actor *)D_807FBB40->unk11C;
+    node = (R2F2Node *)D_807FBB40->unk174;
+    if (temp_v0 != NULL && (temp_v0->unk5C & 1)) {
+        sp78 = temp_v0;
+        sp7F[3] = 1;
+    } else {
+        sp78 = D_807FBB4C;
+    }
+    sp80 = (R2F2Node *)sp78->unk174;
+    if (D_807FC928 >= 2 && D_80750AB8 == 1) {
+        temp_v0 = (Actor *)D_807FBB4C->unk174;
+        sp74 = &((R2F2Node *)temp_v0)->unk1F0;
+    } else {
+        sp74 = &sp80->unk1F0;
+    }
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        node->unkC = (u16)sp78->unk140->unk14;
+        D_807FBB40->unk12A = 0x3E8;
+        D_807FBB40->unk60 |= 0x400;
+        animSetLoopLimit(D_807FBB40, 0, 1);
+        animSetSpeed(D_807FBB40, 0, 1.0f);
+        animSetFinished(D_807FBB40, 0, 1);
+        *sp74 |= 0x02000000;
+        D_807FBB40->unk60 |= 0x800000;
+        D_807FBB40->unk16A = 0xFF;
+        D_807FBB40->unk16B = 0xFF;
+        D_807FBB40->unk16C = 0xFF;
+        switch (controllerLookupStateByHash(D_807FBB40)) {
+        case 0xAD:
+            node->unk10 = 0xFF;
+            node->unk11 = 0xFF;
+            node->unk12 = 0x32;
+            break;
+        case 0xAE:
+            node->unk10 = 0xFF;
+            node->unk11 = 0x32;
+            node->unk12 = 0x32;
+            break;
+        case 0xD1:
+            node->unk10 = 0xCA;
+            node->unk11 = 0x5B;
+            node->unk12 = 0xFF;
+            break;
+        case 0xD0:
+            node->unk10 = 0;
+            node->unk11 = 0x96;
+            node->unk12 = 0xFF;
+            break;
+        case 0xCF:
+            node->unk10 = 0x32;
+            node->unk11 = 0xFF;
+            node->unk12 = 0x32;
+            break;
+        }
+        if (sp7F[3] != 0) {
+            node->unk0 = 2.0f;
+        } else {
+            node->unk0 = 1.5f;
+        }
+        if (D_807FBB40->unk15F != 0) {
+            actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 1.0f, 0);
+        }
+    }
+    if (camIsCutsceneActive() != 0) {
+        camStartShake(sp80->unk104, 0xA, 0xA);
+    }
+    D_807FBB40->unk4->unk34 =
+        D_807FBB40->unk4->unk34 * ((R2F2ActorF64 *)D_807FBB40)->unk160;
+    D_807FBB40->unk4->unk3C = D_807FBB40->unk4->unk34;
+    D_807FBB40->unk4->unk38 = D_807FBB40->unk4->unk38 * 1.04;
+    sp68 = func_80612794(((R2F2ActorS16 *)D_807FBB40)->unkEE);
+    D_807FBB40->unk4->unk38 = D_807FBB40->unk4->unk38 + 0.01 * (f64)sp68;
+    ((R2F2ActorS16 *)D_807FBB40)->unkEE += 0x1F4;
+    D_807FBB40->unkE6 += 0x32;
+    D_807FBB40->unk154++;
+    if (D_807FBB40->unk154 == D_807FBB40->unk168) {
+        animSetFinished(D_807FBB40, 0, 0);
+    } else if (D_807FBB40->unk168 < D_807FBB40->unk154) {
+        sp8E = 0x12C - (D_807FBB40->unk154 - D_807FBB40->unk168) * 0x28;
+        if (animIsPlaying(D_807FBB40, 0) == 0) {
+            sp87 = 1;
+            *sp74 &= 0xFDFFFFFF;
+            actorSetCollisionRadius(sp78, (f32)node->unkC);
+            actorGetOrSetNodeScale(sp78, func_8069E724(sp78->unk58), 0.0f);
+            actorDespawn(D_807FBB40);
+        }
+    }
+    lightSetFlags(1);
+    lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f,
+             0.0f, 0.0f, D_807FBB40->unk4->unk34 * (f32)sp8E * node->unk0, 0,
+             node->unk10, node->unk11, node->unk12);
+    if (D_8076A0A8 != 0x4C) {
+        if (sp7F[3] == 0 || D_807FBB40->unk15F != 0) {
+            sp60 = 0x2E;
+            if (func_80714608(0) != 0) {
+                sp60 = 0xE;
+            }
+            sp88 = D_807FBB40->unk4->unk34 * (f32)sp8E;
+            sp88 = sp88 * sp88;
+            for (i = 0; i < D_807FC928; i++) {
+                target = D_807FC924[i].actor;
+                if (sp7F[3] == 0 ||
+                    (i != sp80->unk1A4 && target->unk154 != 0x84)) {
+                    if (actorIsTargetInRange(target, (f32)target->unk15E, sp88) !=
+                        0) {
+                        playerStateQueueCallback((s16)sp60, D_807FBB40, i & 0xFF);
+                    }
+                    if (D_807FC928 && D_807FC928) {}  // FAKE: steers uopt to PRE-reload the loop count
+                }
+            }
+            if (D_807FBB40->unk15F != 0) {
+                actorSetCollisionRadius(
+                    D_807FBB40,
+                    (f32)(2.0 * ((f64)(D_807FBB40->unk4->unk34 * (f32)sp8E) *
+                                 6.66666667)));
+                actorGetOrSetNodeScale(
+                    D_807FBB40, 1,
+                    (f32)((f64)(D_807FBB40->unk4->unk34 * (f32)sp8E) *
+                          6.66666667));
+            }
+        } else if (sp87 == 0) {
+            actorSetCollisionRadius((Actor *)D_807FBB40->unk11C,
+                          (f32)(2.0 * ((f64)(D_807FBB40->unk4->unk34 * (f32)sp8E) *
+                                       6.66666667)));
+            actorGetOrSetNodeScale(
+                (Actor *)D_807FBB40->unk11C, func_8069E724(sp78->unk58),
+                (f32)((f64)(D_807FBB40->unk4->unk34 * (f32)sp8E) * 6.66666667));
+            actorOrNodeFlags(sp78, func_8069E724(sp78->unk58), 3);
+        }
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
+
 
 s32 actorIsTargetInCylinder(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4) {
     Actor *actor;
@@ -236,18 +442,13 @@ typedef struct ActorView {
 } ActorView;
 
 void animSetLoopLimit(void *, s32, s32);
-void animSetSpeed(void *, s32, f32);
 void animSetFinished(void *, s32, s32);
-s32 animIsPlaying(void *, s32);
 ModelNodeView *animGetNodeByIndex(void *, s32);
-void lightSetFlags(s32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, u32, u32, u32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 void func_80613C48(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 void func_8067B238(void *, void *, f32);
-void playerStateQueueCallback(s32, void *, s32);
 void actorUpdateModelMatrix(void *, s32);
 extern u8 D_807444EC;
 extern s32 D_807FBB68;
@@ -687,7 +888,6 @@ typedef struct SiblingActor {
 } SiblingActor;
 
 s32 randomNonNegative(void);
-void actorUpdateModelMatrix(void *, s32);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_8067ACB4(Actor *);
 void actorApplyVelocity(Actor *);
@@ -735,10 +935,8 @@ typedef struct {
     u8 padC[0x24];
 } NodePosition;
 
-s32 camIsCutsceneActive(void);
 void billboardSetFlags(s32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void camStartShake(void *, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_8071496C(s16);
@@ -839,7 +1037,6 @@ void actorShadowFollowUpdate(void) {
     }
 }
 
-s32 controllerLookupStateByHash(Actor *);
 
 void actorSpawnAttachedTo(Actor *arg0) {
     actorSpawn(0x6A, controllerLookupStateByHash(arg0));
@@ -983,8 +1180,6 @@ void actorMirrorParentModelAxis(void) {
 }
 
 
-void animSetLoopLimit(void *, s32, s32);
-void animSetFinished(void *, s32, s32);
 void animSetFrameAndSubframe(void *, s32, s32, f32);
 
 void animSetChannelFrames(void *arg0, u8 arg1, u8 arg2) {
@@ -1027,7 +1222,6 @@ void actorSetNodeValuesForFrame(MatrixArray *arg0) {
 
 s32 assetLoad(s32, s32, s32, s32);
 void func_80724D28(s32, s32);
-f32 func_80612794(s16);
 f32 func_80612790(s16);
 void actorSetUniformScale(Actor *, f32);
 extern u8 D_807503D4[];
