@@ -1,4 +1,4 @@
-// func_806BC1E0 (src/global/C0EE0.c): Stage 5 (frame 0x88, all stack offsets sp70/obj/n/cand/ones/zeros match; hidden-region trick: 'f32 new_var'-style CSE temp + one f64 local declared after zeros). ~30 differing insns left: scheduling in case3/4 init stores, loop-1 setup (pointer loop vs s32 j strength-reduced; j gives bnel vs sltu), loop-2 i in a0 not v1, f18 zero-constant rematerialisation after sfxPlay call, li/mfc1 arg forms. Permuter 600s run best 6400 (stack-diff score) from 10537, mutations mostly decl order + temp var.
+// func_806BC1E0 (src/global/C0EE0.c): Stage 5 (frame 0x88 ok; 98-line normalized diff vs ~300 at start; ~200 diff lines of 1078). Matched this round: loop-1 (pointer-compare do-while + extern s8 D_807FC8D0, D_807FC8C0[j]==1 direct, no v local), loop-2 (no ady local, ternary in compare, no v local), case3 init store order, 0.0 double stores, func_80613C48(..,0.0f,0.0f), acc=0.0f dead store, 5 FAKE dummies (random search + deadsweep). Remaining: (1) loop-2 head: andi i&3 hoisted before beqzl (target lb unk36/andi/sra/subu/lb unk37 in block; tried dy-first, augmented assign, %, orderings), move v1,zero order; ugen ring t5/t8 follows; (2) case4 sh unk34 before addiu t2; (3) FP candidate regs: target unk4 f2/old f12/a f12/acc f2/old f0, 1.0d in f12; mine f0/f12/f0/f14/f12, 1.0d f16 (mul operand order t*diff, a+prod). Random search (rs.py dummies+decl moves+type toggles+store swaps, ~6000 compiles) plateaus at 98.
 typedef struct LgBObj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -54,52 +54,51 @@ typedef struct LgBActor {
 
 extern s8 D_80750650;
 extern s8 D_807FC8C0[16];
-extern s8 D_807FC8D0;
 extern u16 D_807ECD58;
 extern u16 D_807ECD60;
-extern void func_806BCF98();
+Gfx *func_806BCF98(Gfx *, Actor *);
 void behaviourFrameBegin(void);
 void func_806BD0CC(void);
 void currentActorClearFlag(void);
 s32 flagGet(s32, s32);
-void func_8061CC40();
+void camStartPath();
 s32 currentActorTestClearFlag(void);
 void renderCallbacksRegister(void *, void *, s32);
-void func_8061CB08(void);
+void camResumePath(void);
 void func_806CFF9C(void *);
-s32 func_8061CB50(void);
-void func_80614EBC(void *, s32);
+s32 camIsCutsceneActive(void);
+void actorScriptStart(void *, s32);
 void hudSpawnCountdownTimer(s32, s32, s32);
 void flagSet();
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
 void actorSetStateTwo(void *);
 void actorDespawn(void *);
-void func_8063DA40(s32, s32);
-void func_8063DA78(s16, s32, s32);
+void csModelStateSetFirstByte(s16, s32);
+void csModelStateSetByte(s16, s32, s32);
 f32 randomFloat(void);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 void actorUpdateModelMatrix(void *, s32);
 
+extern s8 D_807FC8D0;
 void func_806BC1E0(void) {
+    f32 b;
+    f32 acc;
+    f32 a;
     f32 old;
     f32 t;
-    f32 b;
-    f32 a;
-    f32 acc;
     f32 sp70;
+    s16 i;
     LgBState *st;
-    s16 dx;
-    s16 dy;
     LgBObj *obj;
     s32 j;
-    s16 i;
-    s16 best;
     s16 adx;
-    s16 ady;
+    s16 dx;
+    s16 best;
     s8 v;
+    s16 dy;
     s16 n;
     s8 cand[16];
     s16 ones;
@@ -117,6 +116,7 @@ void func_806BC1E0(void) {
         st->unk24 = LGB->unk7C;
         st->unk28 = LGB->unk80;
         st->unk2C = LGB->unk84;
+        if (sp70 != 0) {}  // FAKE: dummy statement steers uopt
         st->unk30 = LGB->unk4->unk38;
         currentActorClearFlag();
     }
@@ -124,7 +124,7 @@ void func_806BC1E0(void) {
     case 0:
         if (flagGet(0x10F, 0) == 0) {
             if ((LGB->unk7C - D_807FBB4C->unk7C) * (LGB->unk7C - D_807FBB4C->unk7C) + (LGB->unk84 - D_807FBB4C->unk84) * (LGB->unk84 - D_807FBB4C->unk84) < 14400.0) {
-                func_8061CC40(D_807FBB40, 0, 1);
+                camStartPath(D_807FBB40, 0, 1);
                 st->unk39 = 0;
                 st->unk38 = 1;
             }
@@ -140,14 +140,14 @@ void func_806BC1E0(void) {
         case 0:
             renderCallbacksRegister(func_806BCF98, D_807FBB40, 5);
             if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
-                func_8061CB08();
+                camResumePath();
                 st->unk39 = 1;
                 D_807FBB4C->unk154 = 0xC;
                 D_807FBB4C->unk155[0] = 0;
                 func_806CFF9C(D_807FBB4C);
             }
             if ((D_807ECD58 & 0x4000) && !(D_807ECD60 & 0x4000)) {
-                func_8061CB08();
+                camResumePath();
                 st->unk39 = 2;
                 D_807FBB4C->unk154 = 0xC;
                 D_807FBB4C->unk155[0] = 0;
@@ -155,7 +155,7 @@ void func_806BC1E0(void) {
             }
             break;
         case 1:
-            func_8061CC40(D_807FBB40, 1, 1);
+            camStartPath(D_807FBB40, 1, 1);
             st->unk39 = 3;
             break;
         case 3:
@@ -165,15 +165,15 @@ void func_806BC1E0(void) {
                 st->unk4 = 0.025f;
                 st->unk0 = 0.0f;
                 st->unk8 = LGB->unk7C;
-                st->unk14 = 294.0f;
                 st->unkC = LGB->unk80;
                 st->unk10 = LGB->unk84;
+                st->unk14 = 294.0f;
                 st->unk18 = 0.0f;
-                st->unk36 = 3;
                 st->unk1C = 359.0f;
+                st->unk36 = 3;
                 st->unk37 = 0;
                 st->unk20 = -500.0f;
-                func_80614EBC(D_807FBB40, 0x31C);
+                actorScriptStart(D_807FBB40, 0x31C);
                 hudSpawnCountdownTimer(0xDC, 0x2A, 0x3C);
                 flagSet(0x30, 1, 2);
                 sfxAllocateChannel(0x78, 1.0f);
@@ -181,7 +181,7 @@ void func_806BC1E0(void) {
             }
             break;
         case 2:
-            if (func_8061CB50() == 0) {
+            if (camIsCutsceneActive() == 0) {
                 if ((LGB->unk7C - D_807FBB4C->unk7C) * (LGB->unk7C - D_807FBB4C->unk7C) + (LGB->unk84 - D_807FBB4C->unk84) * (LGB->unk84 - D_807FBB4C->unk84) > 25600.0) {
                     st->unk39 = 0;
                     st->unk38 = 0;
@@ -199,17 +199,18 @@ void func_806BC1E0(void) {
             if (LGB->unk11C != NULL && LGB->unk11C->unk154 == 5) {
                 ones = 0;
                 zeros = 0;
-                for (j = 0; j < 16; j++) {
-                    v = D_807FC8C0[j];
-                    if (v == 1) {
+                j = 0;
+                do {
+                    if (D_807FC8C0[j] == 1) {
                         ones++;
                     }
-                    if (v == 0) {
+                    if (D_807FC8C0[j] == 0) {
                         zeros++;
                     }
-                }
+                    j++;
+                } while (&D_807FC8C0[j] < &D_807FC8D0); // FAKE: pointer-compare bound steers loop strength reduction
                 flagSet(0x30, 0, 2, ones);
-                func_80614EBC(D_807FBB40, 0x31C);
+                actorScriptStart(D_807FBB40, 0x31C);
                 D_80750650 = 1;
                 if (ones < zeros) {
                     st->unk38 = 6;
@@ -227,14 +228,13 @@ void func_806BC1E0(void) {
                 st->unk1C = st->unk2C;
                 st->unk20 = -500.0f;
             } else {
-                func_80614EBC(D_807FBB40, 0);
+                actorScriptStart(D_807FBB40, 0);
                 D_80750650 = 0;
                 best = 4;
                 n = 0;
                 i = 0;
                 do {
-                    v = D_807FC8C0[i];
-                    if (v == 0 || v == -1) {
+                    if (D_807FC8C0[i] == 0 || D_807FC8C0[i] == -1) {
                         dx = (i & 3) - st->unk36;
                         dy = (i >> 2) - st->unk37;
                         if (dx > 0) {
@@ -242,12 +242,7 @@ void func_806BC1E0(void) {
                         } else {
                             adx = -dx;
                         }
-                        if (dy > 0) {
-                            ady = dy;
-                        } else {
-                            ady = -dy;
-                        }
-                        if (adx < ady) {
+                        if (adx < (dy > 0 ? dy : -dy)) {
                             if (dy > 0) {
                                 adx = dy;
                             } else {
@@ -274,12 +269,14 @@ void func_806BC1E0(void) {
                     dy = (v >> 2) - st->unk37;
                     if (dx < -1) {
                         dx = -1;
+                        if (ones == 0) {}  // FAKE: dummy statement steers uopt
                     }
                     if (dx >= 2) {
                         dx = 1;
                     }
                     if (dy < -1) {
                         dy = -1;
+                        if (n == 0) {}  // FAKE: dummy statement steers uopt
                     }
                     if (dy >= 2) {
                         dy = 1;
@@ -304,9 +301,9 @@ void func_806BC1E0(void) {
         if (st->unk34 == 0 && st->unk4 == 0.0f) {
             sfxStopChannel(0x78, 1);
             sfxAllocateChannel(0x56, 1.0f);
-            func_80614EBC(D_807FBB40, 0x31C);
+            actorScriptStart(D_807FBB40, 0x31C);
             actorDespawn(LGB->unk11C);
-            func_8061CC40(D_807FBB40, 2, 1);
+            camStartPath(D_807FBB40, 2, 1);
             st->unk38 = 8;
         }
         break;
@@ -314,7 +311,7 @@ void func_806BC1E0(void) {
         if (currentActorTestClearFlag() != 0) {
             func_806BD0CC();
             if (flagGet(0x10F, 0) == 0) {
-                func_8063DA40(0x10, 0xA);
+                csModelStateSetFirstByte(0x10, 0xA);
             }
             st->unk38 = 0xA;
             sfxStopChannel(0x56, 1);
@@ -326,8 +323,8 @@ void func_806BC1E0(void) {
     case 7:
         if (st->unk34 == 0 && st->unk4 == 0.0f) {
             actorDespawn(LGB->unk11C);
-            func_80614EBC(D_807FBB40, 0x31C);
-            func_8061CC40(D_807FBB40, 3, 1);
+            actorScriptStart(D_807FBB40, 0x31C);
+            camStartPath(D_807FBB40, 3, 1);
             st->unk38 = 9;
             sfxStopChannel(0x78, 1);
             sfxAllocateChannel(0x57, 1.0f);
@@ -343,6 +340,7 @@ void func_806BC1E0(void) {
         }
         break;
     default:
+        if (adx && adx) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         break;
     }
     LGB->unk60 |= 0x400;
@@ -351,21 +349,22 @@ void func_806BC1E0(void) {
     if (st->unk34 < 0) {
         st->unk34 = 0;
     }
+    acc = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
     sp70 = st->unk30;
     if (st->unk4 != 0.0f && st->unk34 == 0) {
         old = st->unk0;
         st->unk0 = old + st->unk4;
         if (D_80750650 == 0) {
             if (old < 0.63f && st->unk0 >= 0.63f) {
-                func_8063DA78(st->unk36 + st->unk37 * 4, 1, 1);
+                csModelStateSetByte(st->unk36 + st->unk37 * 4, 1, 1);
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x361, 0xFF, 0x7F, 0xA);
             }
         } else {
             sp70 += (st->unk0 - 0.5f) * 0.25f;
         }
         if ((f64)st->unk0 >= 1.0) {
-            st->unk0 = 0.0f;
-            st->unk4 = 0.0f;
+            st->unk0 = 0.0; // FAKE: double zero literal (constant register)
+            st->unk4 = 0.0; // FAKE: double zero literal (constant register)
             LGB->unk7C = st->unk14;
             LGB->unk80 = st->unk18;
             LGB->unk84 = st->unk1C;
@@ -373,15 +372,14 @@ void func_806BC1E0(void) {
             t = st->unk0;
             if (D_80750650 == 0) {
                 old = st->unk0;
+                if (acc == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 t = 2.0 * (f64)old;
                 if ((f64)t > 1.0) {
                     t = 1.0f;
                 }
             }
-            a = st->unk8;
-            LGB->unk7C = a + t * (st->unk14 - a);
-            b = st->unk10;
-            LGB->unk84 = b + t * (st->unk1C - b);
+            LGB->unk7C = st->unk8 + t * (st->unk14 - st->unk8);
+            LGB->unk84 = st->unk10 + t * (st->unk1C - st->unk10);
             if (D_80750650 == 0) {
                 a = st->unkC;
                 LGB->unk80 = a + t * (st->unk18 - a);
@@ -394,7 +392,7 @@ void func_806BC1E0(void) {
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
             if (obj->unk10 != 0x5C3) {
-                func_80613C48(D_807FBB40, 0x5C3, 0, 0);
+                func_80613C48(D_807FBB40, 0x5C3, 0.0f, 0.0f);
             }
             controllerApplyMotionWindow(D_807FBB40, obj, st->unk0 * 40.0f);
         }
