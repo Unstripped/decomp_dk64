@@ -150,16 +150,16 @@ typedef struct CollisionActorFull {
     u8 unk144;
 } CollisionActorFull;
 
-struct Beh7BB_Struct_760C;
+struct ActorMtxOwner;
 extern s32 D_807FB5C4;
 extern s32 D_807FB5C8;
 extern s32 D_807FB5CC;
 extern s32 D_807FB5D0;
-extern struct Beh7BB_Target *D_807FB5D8;
+extern struct CollisionTargetAngle *D_807FB5D8;
 
 s32 func_806744A8(void *, s32, s32, s32, s32);
 s32 actorCheckFacingTarget(Actor *);
-void actorGetMatrix(struct Beh7BB_Struct_760C *, CollisionMtxF, s8);
+void actorGetMatrix(struct ActorMtxOwner *, CollisionMtxF, s8);
 void matrix4Invert(CollisionMtxF, CollisionMtxF);
 void func_8067A864(Actor *, Actor *, s16, s16, f32 *, f32 *, s8, s32, s32);
 void actorReflectCollisionAngle(Actor *, void *, void *);
@@ -200,7 +200,7 @@ u8 actorCollisionReflectAndPush(Actor *arg0, Actor *arg1) {
         sp15F = 2;
     }
     temp_s6->unk58 = (s32)((u8 *)D_807FB5D8 - (u8 *)temp_s0->unkA4) / 88;
-    actorGetMatrix((struct Beh7BB_Struct_760C *)temp_s0, sp11C, ((CollisionTarget *)D_807FB5D8)->unk4E);
+    actorGetMatrix((struct ActorMtxOwner *)temp_s0, sp11C, ((CollisionTarget *)D_807FB5D8)->unk4E);
     matrix4Invert(spDC, sp11C);
     if (((CollisionActorFull *)arg1)->unk64 & 0x10) {
         var_fv1 = arg0->unk7C;
@@ -264,19 +264,19 @@ u8 actorCollisionReflectAndPush(Actor *arg0, Actor *arg1) {
 
 #include "actor.h"
 
-typedef f32 Beh7BB_MtxF[4][4];
+typedef f32 ActorMtxF[4][4];
 
-typedef struct Beh7BB_Struct_760C {
+typedef struct ActorMtxOwner {
     u8 pad0[0x70];
     void *unk70;
     Mtx *unk74[2];
     u8 pad7C[0xC];
     s32 unk88;
-} Beh7BB_Struct_760C;
+} ActorMtxOwner;
 
 extern u8 D_807444FC;
 extern s32 D_8076A064;
-void actorGetMatrix(Beh7BB_Struct_760C *arg0, Beh7BB_MtxF arg1, s8 arg2) {
+void actorGetMatrix(ActorMtxOwner *arg0, ActorMtxF arg1, s8 arg2) {
     u8 var_v0;
     Mtx *mtx;
 
@@ -293,7 +293,7 @@ void actorGetMatrix(Beh7BB_Struct_760C *arg0, Beh7BB_MtxF arg1, s8 arg2) {
     }
 }
 
-typedef struct Col7B_ActorSub140 {
+typedef struct ActorCollisionSub140 {
     s32 unk0;
     s32 unk4;
     s32 unk8;
@@ -308,7 +308,7 @@ typedef struct Col7B_ActorSub140 {
     s32 unkA4;
     s32 unkA8;
     u8 unkAC;
-} Col7B_ActorSub140;
+} ActorCollisionSub140;
 
 extern u8 D_807FD614[];
 extern u8 D_807FB603;
@@ -323,15 +323,15 @@ void func_80672E90(s32, s32, s32);
 void actorSetCameraBoundaryMode(s32);
 void actorSetTargetAngleBounds();
 u8 func_806738D0(s32, s32, s32, s32, s32, s32);
-u8 func_8067B1E0(Actor *);
+u8 playerFindIndexByActor(Actor *);
 void func_8067A99C(s32, Actor *, s32);
 void func_8067A69C(s32, Actor *, f32, f32, u8, u8);
 
-void func_806776A0(Actor *arg0, Actor *arg1, f32 *arg2, f32 *arg3, s8 arg4, s32 arg5, s32 arg6, u8 arg7) {
-    Col7B_ActorSub140 *temp_s5;
-    Col7B_ActorSub140 *temp_s6;
+void actorCollisionResolveSurfaceHit(Actor *arg0, Actor *arg1, f32 *arg2, f32 *arg3, s8 arg4, s32 arg5, s32 arg6, u8 arg7) {
+    ActorCollisionSub140 *temp_s5;
+    ActorCollisionSub140 *temp_s6;
     CollisionNode *node;
-    Beh7BB_MtxF spEC;
+    ActorMtxF spEC;
     f32 spE8;
     f32 spE4;
     f32 spE0;
@@ -355,8 +355,8 @@ void func_806776A0(Actor *arg0, Actor *arg1, f32 *arg2, f32 *arg3, s8 arg4, s32 
     f32 *var_s0p;
     u8 var_s0;
 
-    temp_s5 = (Col7B_ActorSub140 *)arg0->unk140;
-    temp_s6 = (Col7B_ActorSub140 *)arg1->unk140;
+    temp_s5 = (ActorCollisionSub140 *)arg0->unk140;
+    temp_s6 = (ActorCollisionSub140 *)arg1->unk140;
     D_807FB603 = temp_s5->unkAC;
     D_807FB5FD = 1;
     D_807FB600 = 1;
@@ -373,11 +373,11 @@ void func_806776A0(Actor *arg0, Actor *arg1, f32 *arg2, f32 *arg3, s8 arg4, s32 
             var_s0 = func_80673708(temp_s6->unk0, temp_s6->unk4, temp_s6->unk8, arg5, temp_s5->unkA4, temp_s5->unkA8, (s32)&arg1->unkF4, (s32)&arg1->unkF6);
         }
     }
-    if ((*(u8 *)&arg7 != 0) && ((f64)*(f32 *)(D_807FD614 + func_8067B1E0(arg1) * 0x34) > 30.0)) {
+    if ((*(u8 *)&arg7 != 0) && ((f64)*(f32 *)(D_807FD614 + playerFindIndexByActor(arg1) * 0x34) > 30.0)) {
         var_s0 = 1;
     }
     if (var_s0 != 0) {
-        actorGetMatrix((Beh7BB_Struct_760C *)temp_s5, spEC, arg4);
+        actorGetMatrix((ActorMtxOwner *)temp_s5, spEC, arg4);
         guMtxXFMF(spEC, arg2[0], arg2[1], arg2[2], &spE8, &spE4, &spE0);
         sp68 = spE8;
         var_s0p = arg3;
@@ -453,13 +453,13 @@ void func_806776A0(Actor *arg0, Actor *arg1, f32 *arg2, f32 *arg3, s8 arg4, s32 
     }
     arg1->unkFD = D_807FB547;
 }
-typedef struct Beh7BB_Target {
+typedef struct CollisionTargetAngle {
     u8 pad0[0x48];
     s16 unk48;
     u8 pad4A[2];
     u8 unk4C;
-} Beh7BB_Target;
-extern Beh7BB_Target *D_807FB5D8;
+} CollisionTargetAngle;
+extern CollisionTargetAngle *D_807FB5D8;
 
 s32 actorIsTargetWithinAngle(s16 arg0, s16 arg1) {
     s16 var_v0;

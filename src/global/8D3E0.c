@@ -71,15 +71,15 @@ s16 mapChunkFindByPosition(f32, f32, f32, s32);
 s32 mapChunkIsVisible(s32, void *);
 void func_8066E6C8(Actor *, s32, s32);
 void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
-s32 func_80688C84(u16);
+s32 actorListGetTypeIdCount(u16);
 s16 actorListAllocId(void);
 ActorListNode *actorListSpawnNodeInternal(s16, f32, f32, f32, s16, f32, void *, u8, s32, s16);
 void actorListRemoveNodeInternal();
 f32 playerGetMinSquaredDist3D(f32, f32, f32);
 s32 mapIsBossArena(void);
-u8 func_80689F80(ActorListNode *);
-u8 func_80689FEC(ActorListNode *);
-void func_8068A1B8(void);
+u8 actorListSpawnIfNear(ActorListNode *);
+u8 actorListDespawnIfFar(ActorListNode *);
+void actorListClearForcedIds(void);
 
 extern s16 D_8076A0AA;
 extern u8 D_8076A0AB;
@@ -110,7 +110,7 @@ void actorListSpawnFromRecords(s32 *);
 void modelSlotsApplyRecords(void *, void *);
 void lightSetColor(f32, f32, f32, s16);
 s32 func_805FF030(u8, s32);
-void func_80688A6C(void);
+void actorListBuildLookupTable(void);
 s32 func_806C7B34(void);
 
 void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
@@ -122,7 +122,7 @@ void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
     s32 flag;
 
     flag = 0;
-    func_80688A6C();
+    actorListBuildLookupTable();
     sp54 = func_80600080(D_8076A0A8);
     if (sp54 == -1) {
         switch (arg1) {
@@ -199,7 +199,7 @@ void actorListInitOffsets(void) {
                 count = container->count;
                 items = container->items;
                 for (j = 0; j < count; j++) {
-                    ret = func_80688C84(items[j].unk32 + 0x10);
+                    ret = actorListGetTypeIdCount(items[j].unk32 + 0x10);
                     total = (u16)(total + ret);
                 }
                 assetSetImmediateFree();
@@ -211,7 +211,7 @@ void actorListInitOffsets(void) {
 
 void *heapAlloc(s32);
 
-void func_80688A6C(void) {
+void actorListBuildLookupTable(void) {
     s32 count;
     s32 i;
     s32 ret;
@@ -237,7 +237,7 @@ void func_80688A6C(void) {
         i = 0;
         item = items;
         do {
-            if (func_80688C84(item->unk32 + 0x10) != 0) {
+            if (actorListGetTypeIdCount(item->unk32 + 0x10) != 0) {
                 D_807FC5C8++;
             }
             i++;
@@ -257,7 +257,7 @@ void func_80688A6C(void) {
     if (count > 0) {
         item = items;
         do {
-            ret = func_80688C84(item->unk32 + 0x10);
+            ret = actorListGetTypeIdCount(item->unk32 + 0x10);
             if (ret != 0) {
                 D_807FC5C4[D_807FC5C8].unk0 = item->unk34;
                 D_807FC5C4[D_807FC5C8].unk2 = ((u16 *)D_807FC408)[D_8076A0A8] + var_s2 + 0x26B;
@@ -283,7 +283,7 @@ s32 actorListLookupEntry(u16 arg0) {
     return -1;
 }
 
-s32 func_80688C84(u16 arg0) {
+s32 actorListGetTypeIdCount(u16 arg0) {
     switch (arg0) {
     case 0x5B:
     case 0x6F:
@@ -426,18 +426,18 @@ void actorListSpawnFromRecords(s32 *arg0) {
         for (i = 0, var_s2 = (char *)item + 0x10; i < count; i++, item++, var_s2 = (char *)var_s2 + 0x38) {
             actorListSpawnNodeInternal(item->unk32, item->unk00, item->unk04, item->unk08, item->unk30, item->unk0C, var_s2, 0, 0, item->unk34);
         }
-        func_8068A1B8();
+        actorListClearForcedIds();
     }
 }
 
-void func_80689064(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5) {
+void actorListSpawnNodePersistent(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5) {
     ActorListSub20 sp38;
 
     sp38 = D_807500B4;
     actorListSpawnNodeInternal(arg0, arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 0, 0, actorListAllocId());
 }
 
-void func_80689114(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6) {
+void actorListSpawnNodeEntryDefault(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6) {
     ActorListSub20 sp38;
 
     sp38 = D_807500D4;
@@ -564,7 +564,7 @@ s32 func_80612E90();
 void controllerAnimFreeSub(Actor *, u8);
 extern Actor *D_807FBB44;
 
-void func_80689418(void) {
+void actorListUpdateSpawns(void) {
     s32 pad; // FAKE: unused local; moves spawnInfo's stack slot down 4 bytes
     ActorListSpawnInfo spawnInfo;
     Actor *actor;
@@ -639,7 +639,7 @@ void func_80689418(void) {
             node = node->next;
         } while (node != NULL);
     }
-    func_8068A1B8();
+    actorListClearForcedIds();
 }
 
 void actorListRemoveAndDespawn(s32 arg0) {
@@ -829,7 +829,7 @@ s32 actorListGetOrSetState(s16 arg0, u8 arg1, u8 arg2) {
     return node->unk44->unk154;
 }
 
-s32 func_80689BAC(s16 arg0) {
+s32 actorListIsIdActive(s16 arg0) {
     ActorListNode *node;
     s32 found = 0;
 
@@ -905,7 +905,7 @@ f32 playerGetMinSquaredDist3D(f32 arg0, f32 arg1, f32 arg2) {
     return minDist;
 }
 
-s32 func_80689E98(s32 arg0) {
+s32 actorListSpawnAlways(s32 arg0) {
     return 1;
 }
 
@@ -913,7 +913,7 @@ void func_80689EA4(ActorListNode *arg0) {
     if (mapIsBossArena()) {
         mapChunkIsVisible(arg0->unk4A, arg0);
     } else {
-        func_80689F80(arg0);
+        actorListSpawnIfNear(arg0);
     }
 }
 
@@ -921,7 +921,7 @@ u8 func_80689EE4(ActorListNode *arg0) {
     if (mapIsBossArena()) {
         return mapChunkIsVisible(*(s16 *)&arg0->unk44->unk12C, arg0) == 0;
     }
-    return func_80689FEC(arg0);
+    return actorListDespawnIfFar(arg0);
 }
 
 s32 mapIsBossArena(void) {
@@ -942,7 +942,7 @@ s32 mapIsBossArena(void) {
     }
 }
 
-u8 func_80689F80(ActorListNode *arg0) {
+u8 actorListSpawnIfNear(ActorListNode *arg0) {
     s32 var_a0 = mapChunkIsVisible(arg0->unk4A, arg0) != 0;
     if (var_a0 != 0) {
         f32 dist = playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18);
@@ -954,15 +954,15 @@ u8 func_80689F80(ActorListNode *arg0) {
     return var_a0;
 }
 
-u8 func_80689FEC(ActorListNode *arg0) {
+u8 actorListDespawnIfFar(ActorListNode *arg0) {
     return (mapChunkIsVisible(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL);
 }
 
-u8 func_8068A074(ActorListNode *arg0) {
+u8 actorListDespawnIfFarAndIdle(ActorListNode *arg0) {
     return (mapChunkIsVisible(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL) && (arg0->unk44->unk154 == 0);
 }
 
-s32 func_8068A10C(s32 arg0) {
+s32 actorListDespawnNever(s32 arg0) {
     return 0;
 }
 
@@ -980,24 +980,24 @@ u8 actorListIsPlayerOutsideRadius(ActorListNode *arg0) {
     return !(playerGetMinSquaredDist3D(arg0->unk44->unk7C, arg0->unk44->unk80, arg0->unk44->unk84) < arg0->unk54);
 }
 
-void func_8068A1B8(void) {
+void actorListClearForcedIds(void) {
     D_807FC610 = 0;
     D_807FC611 = 0;
 }
 
-void func_8068A1CC(s16 arg0) {
+void actorListForceSpawnId(s16 arg0) {
     if (D_807FC610 != 0x10) {
         D_807FC5D0[D_807FC610++] = arg0;
     }
 }
 
-void func_8068A20C(s16 arg0) {
+void actorListForceDespawnId(s16 arg0) {
     if (D_807FC611 != 0x10) {
         D_807FC5F0[D_807FC611++] = arg0;
     }
 }
 
-s32 func_8068A24C(ActorListNode *arg0) {
+s32 actorListSpawnIfForced(ActorListNode *arg0) {
     s32 i;
     for (i = 0; i < D_807FC610; i++) {
         if (arg0->unk5A == D_807FC5D0[i] && arg0->unk48 == 0) {
@@ -1007,7 +1007,7 @@ s32 func_8068A24C(ActorListNode *arg0) {
     return 0;
 }
 
-s32 func_8068A2A4(ActorListNode *arg0) {
+s32 actorListDespawnIfForced(ActorListNode *arg0) {
     s32 i;
     for (i = 0; i < D_807FC611; i++) {
         if (arg0->unk5A == D_807FC5F0[i] && arg0->unk48 != 0) {

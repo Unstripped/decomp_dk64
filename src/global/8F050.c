@@ -57,7 +57,7 @@ s32 actorConfigLookup(s32 arg0, s32 *arg1) {
     return found;
 }
 
-void func_8068A404(Actor4C *arg0, s32 arg1, s32 arg2) {
+void actorConfigApplyAnimFrame(Actor4C *arg0, s32 arg1, s32 arg2) {
     s32 i;
     s32 temp;
 
@@ -74,11 +74,11 @@ void func_8068A404(Actor4C *arg0, s32 arg1, s32 arg2) {
 
 s32 actorConfigLookup(s32, s32 *);
 
-void func_8068A4C8(s32 arg0, s32 arg1, s32 arg2) {
+void actorConfigApplyAnimFrameByType(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp1C;
 
     if (actorConfigLookup(arg1, &sp1C)) {
-        func_8068A404((Actor4C *)arg0, sp1C, arg2);
+        actorConfigApplyAnimFrame((Actor4C *)arg0, sp1C, arg2);
     }
 }
 
@@ -147,7 +147,7 @@ void actorProximityUpdate(void) {
                         sub = actor->unk174;
                         a2 = D_807552F4[sub->unk1A4];
                         if (a2 >= 0) {
-                            func_8068A404((Actor4C *)actor, sp80, a2);
+                            actorConfigApplyAnimFrame((Actor4C *)actor, sp80, a2);
                         }
                     }
                     break;

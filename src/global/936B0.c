@@ -681,7 +681,7 @@ void playerStateQueueCallback(s32, Actor *, u8);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void animSetSpeed(Actor *, s32, f32);
 void animSetLoopLimit(Actor *, s32, s32);
-void func_8067B238(Actor *, Actor *, f32);
+void actorCopyPoseAndScale(Actor *, Actor *, f32);
 
 void actorInitAnimations(Actor *arg0, Actor *arg1) {
     u8 sp37[4];
@@ -698,7 +698,7 @@ void actorInitAnimations(Actor *arg0, Actor *arg1) {
     animSetSpeed(arg0, 0, 1.0f);
     animSetLoopLimit(arg0, 0, -1);
     actorAllocSubBuffer(arg0, 2);
-    func_8067B238(arg0, arg1, 0.15f);
+    actorCopyPoseAndScale(arg0, arg1, 0.15f);
 }
 
 typedef struct FloatAt4View {
@@ -1325,7 +1325,7 @@ void actorSpawnSparkleBurst(void) {
 
 void projectileSpawnWithShockwave(s16 arg0, f32 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
     actorSpawn(0x102, arg0);
-    func_8067B238(D_807FBB44, D_807FBB40, arg1);
+    actorCopyPoseAndScale(D_807FBB44, D_807FBB40, arg1);
     *(s16 *)((u8 *)D_807FBB44 + 0xF0) = arg0;
     D_807FBB44->unk16A = arg2;
     D_807FBB44->unk16B = arg3;
@@ -1343,7 +1343,7 @@ void projectileSpawnActor107(u8 arg0, u8 arg1, f32 arg2, f32 arg3, u8 arg4, u8 a
     ProjectileTrackerSub174 *sub;
 
     actorSpawn(0x107, 0);
-    func_8067B238(D_807FBB44, D_807FBB40, 0.15f);
+    actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.15f);
     sub = D_807FBB44->unk174;
     sub->unk11 = arg0;
     sub->unk8 = arg2;

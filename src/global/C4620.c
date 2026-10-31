@@ -705,7 +705,7 @@ s32 func_80724A20(void);
 s32 currentActorTestClearFlag(void);
 s32 actorSpawn(s32, s32);
 void func_80613C48(Actor *, s16, f32, f32);
-void func_8067B238(void *, void *, f32);
+void actorCopyPoseAndScale(void *, void *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 
 void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
@@ -741,7 +741,7 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
                     if (!(R1V->unk60 & 0x2000000)) {
                         func_80613C48(D_807FBB40, 0xE4, 0.0f, 2.0f);
                         actorSpawn(0xE1, 0x98);
-                        func_8067B238(D_807FBB44, D_807FBB40, 0.21f);
+                        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.21f);
                         actorGetNodePos(D_807FBB40, 1, &D_807FBB44->unk7C, &sp34, &D_807FBB44->unk84);
                         actorScriptStart(D_807FBB44, 0x298);
                         ((R1C46aActor *)D_807FBB44)->unk11C = R1V;

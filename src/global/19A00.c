@@ -1969,7 +1969,7 @@ extern s16 D_807FD584;
 void slotQueueUpdate(s32, s32, s32);
 s32 slotQueueGetValue(s32, u8);
 void slotQueueAddValue(s32, u8, s32);
-s32 func_8067ACDC(Actor *, s32, s32);
+s32 actorCountOwnedByClass(Actor *, s32, s32);
 s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, s32, s32);
 s32 mathAngleInArcWithMargin(s16, s16, s16, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -1991,7 +1991,7 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
 
     sp44 = arg0->unk174;
     slotQueueUpdate(4, 0, 0);
-    if ((slotQueueGetValue(4, sp44->unk1A4) != 0) && (func_8067ACDC(arg0, 4, 0) < D_80753E64[D_807FD584])) {
+    if ((slotQueueGetValue(4, sp44->unk1A4) != 0) && (actorCountOwnedByClass(arg0, 4, 0) < D_80753E64[D_807FD584])) {
         slotQueueAddValue(4, sp44->unk1A4, -1);
         sp50 = (f32)((f64)arg0->unk4->unk38 * 2.6666667064030967);
         switch (arg0->unk58) {
@@ -2047,7 +2047,7 @@ extern f32 D_807F5AFC;
 extern f32 D_807F5B00;
 void actorSpawn(s32, s32);
 void actorDespawn(void *);
-void func_8067B238(Actor *, Actor *, s32);
+void actorCopyPoseAndScale(Actor *, Actor *, s32);
 void func_806D9924(Actor *);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
@@ -2399,7 +2399,7 @@ void func_80618EE8(Actor *arg0) {
     u8 *script;
 
     actorSpawn(0x135, D_80746E10[((ActorEffectView *)arg0)->unk58]);
-    func_8067B238(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+    actorCopyPoseAndScale(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
     ((ActorEffectView *)D_807FBB44)->unkE8 = ((ActorEffectView *)arg0)->unkE8;
     ((ActorEffectView *)D_807FBB44)->unkE4 = ((ActorEffectView *)arg0)->unkE4;
     script = ((ActorEffectView *)D_807FBB44)->unk174;
@@ -2413,7 +2413,7 @@ void func_80618F74(Actor *arg0) {
     scriptReadU8(&sp1F);
     if (sp1F != 0) {
         actorSpawn(0x136, 0xA8);
-        func_8067B238(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+        actorCopyPoseAndScale(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
         ((GlobalSpawnView *)D_807FD580)->unk88 = D_807FBB44;
     } else {
         actor = (ActorEffectView *)((GlobalSpawnView *)D_807FD580)->unk88;
@@ -2542,7 +2542,7 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     scriptReadU16((u8 *)&sp42);
     scriptReadU16((u8 *)&sp40);
     actorSpawn(0x139, sp42);
-    func_8067B238(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+    actorCopyPoseAndScale(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
     D_807FBB44->unkE6 = arg0->unkE6;
     D_807FBB44->unkE8 = arg0->unkE8;
     D_807FBB44->unkE4 = arg0->unkE4;

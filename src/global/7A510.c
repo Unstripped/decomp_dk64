@@ -70,7 +70,7 @@ void func_80675D70(s32);
 s32 actorCollisionFindTableEntry(struct CollisionTableEntry *, s16, s16);
 s32 func_80676220(s16);
 void actorApplyDamage(struct Beh798_Actor *, struct Beh798_Actor *);
-void func_80675AFC();
+void actorCollisionRunInteractionTable();
 
 void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
     W2Col_80675810_Entry *entry;
@@ -156,7 +156,7 @@ void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
                 if (D_807FBB70.unk200 == 6 || D_807FBB70.unk200 == 7) {
                     actorApplyDamage((struct Beh798_Actor *)arg0, (struct Beh798_Actor *)temp_s2);
                 }
-                func_80675AFC((void *)arg0, (void *)temp_s2);
+                actorCollisionRunInteractionTable((void *)arg0, (void *)temp_s2);
             }
         }
     }
@@ -166,27 +166,27 @@ void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7A510/func_80675810.s")
 #endif
 
-typedef struct KaP2_ActorAFC {
+typedef struct InteractionActor {
     u8 pad0[0x5A];
     s16 unk5A;
     s16 unk5C;
-} KaP2_ActorAFC;
+} InteractionActor;
 
-typedef struct KaP2_InteractionEntry {
+typedef struct InteractionEntry {
     s16 unk0;
     s16 unk2;
     s8 unk4;
     s8 unk5;
-    void (*unk8)(KaP2_ActorAFC *, KaP2_ActorAFC *, s32, s32);
+    void (*unk8)(InteractionActor *, InteractionActor *, s32, s32);
     u8 unkC;
-} KaP2_InteractionEntry;
+} InteractionEntry;
 
-s32 func_80675C70(s16 arg0, s16 arg1, s16 arg2);
+s32 actorCollisionPatternMatches(s16 arg0, s16 arg1, s16 arg2);
 extern ActorGlobalState D_807FBB70;
-extern KaP2_InteractionEntry D_8074ABCC[];
+extern InteractionEntry D_8074ABCC[];
 
-void func_80675AFC(KaP2_ActorAFC *arg0, KaP2_ActorAFC *arg1) {
-    KaP2_InteractionEntry *entry;
+void actorCollisionRunInteractionTable(InteractionActor *arg0, InteractionActor *arg1) {
+    InteractionEntry *entry;
     s32 done;
     s16 two;
     s32 found;
@@ -194,15 +194,15 @@ void func_80675AFC(KaP2_ActorAFC *arg0, KaP2_ActorAFC *arg1) {
 
     done = 0;
     entry = D_8074ABCC; do {
-        if (func_80675C70(arg0->unk5A, arg0->unk5C, entry->unk0) &&
-            func_80675C70(arg1->unk5A, arg1->unk5C, entry->unk2) &&
+        if (actorCollisionPatternMatches(arg0->unk5A, arg0->unk5C, entry->unk0) &&
+            actorCollisionPatternMatches(arg1->unk5A, arg1->unk5C, entry->unk2) &&
             ((entry->unk4 == -1) || entry->unk4 == D_807FBB70.unk200)) {
             if (entry->unk5 != -1) {
                 if (1) {  // FAKE: extra block lowers D_807FBB70 const priority vs arg1 (s0/s1 swap)
                     found = 0;
                 }
                 for (j = 0; !found && j < D_807FBB70.unk201;) {
-                    if (arg1 == (KaP2_ActorAFC *)D_807FBB70.unk204[j] && D_807FBB70.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed unk5 read makes IDO emit the load operand first (bnel t2,t0)
+                    if (arg1 == (InteractionActor *)D_807FBB70.unk204[j] && D_807FBB70.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed unk5 read makes IDO emit the load operand first (bnel t2,t0)
                         found = 1;
                     } else {
                         j++;
@@ -225,7 +225,7 @@ void func_80675AFC(KaP2_ActorAFC *arg0, KaP2_ActorAFC *arg1) {
     } while (!done);
 }
 
-s32 func_80675C70(s16 arg0, s16 arg1, s16 arg2) {
+s32 actorCollisionPatternMatches(s16 arg0, s16 arg1, s16 arg2) {
     if (arg2 == arg0) {
         return 1;
     }
@@ -324,7 +324,7 @@ s32 actorCollisionFindTableEntry(CollisionTableEntry *arg0, s16 arg1, s16 arg2) 
         s2 = arg0->unk0;
         s1 = s2;
         s2 = arg0->unk4;
-        match = func_80675C70(arg1, arg2, s1);
+        match = actorCollisionPatternMatches(arg1, arg2, s1);
         arg0++;
         if (match) {
             break;
@@ -493,12 +493,12 @@ void func_8067618C(Actor *arg0, s8 *arg1) {
 }
 
 
-typedef struct Beh798_8074D0C4 {
+typedef struct ActorTypeStat {
     s16 unk0;
     s16 unk2;
-} Beh798_8074D0C4;
-extern Beh798_8074D0C4 D_8074D0C4[];
-extern Beh798_8074D0C4 D_8074D0C6[];
+} ActorTypeStat;
+extern ActorTypeStat D_8074D0C4[];
+extern ActorTypeStat D_8074D0C6[];
 
 void actorInitHealth(Beh798_Actor *arg0) {
     arg0->unk134 = D_8074D0C4[arg0->unk58].unk0;

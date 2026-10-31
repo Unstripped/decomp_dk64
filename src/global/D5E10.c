@@ -4343,7 +4343,7 @@ void func_806DB3AC(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_8067B238(void *, void *, f32);
+void actorCopyPoseAndScale(void *, void *, f32);
 void sfxStartAreaAmbient(void);
 void func_806CCB0C(void);
 
@@ -4355,7 +4355,7 @@ void func_806DB670(void) {
         case 0:
             G18_A->unk144 = 1;
             if (actorSpawn(0x3C, 0x98)) {
-                func_8067B238(D_807FBB44, D_807FBB40, 0.15f);
+                actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.15f);
             }
             G18_A->unk155++;
             break;
@@ -4409,7 +4409,7 @@ void func_806DB670(void) {
             if (G18_P->unk23C == 0) {
                 sfxStartAreaAmbient();
                 if (actorSpawn(0x3C, 0x98)) {
-                    func_8067B238(D_807FBB44, D_807FBB40, 0.15f);
+                    actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.15f);
                 }
                 G18_A->unk155++;
                 G18_P->unk23C = 0xC;
@@ -5799,7 +5799,7 @@ void func_806DED44(void) {
     case 1:
         D_807FBB60 &= 0xFFFEFFCF;
         actorSpawn(0x141, 0x3D);
-        func_8067B238(D_807FBB44, D_807FBB40, G20_E40->unk4->unk38 * 2);
+        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, G20_E40->unk4->unk38 * 2);
         G20_E44->unk60 |= 0x40000000;
         G20_E44->unkE6 += 0x800;
         G20_E44->unkE6 &= 0xFFF;
@@ -5818,7 +5818,7 @@ void func_806DED44(void) {
         lightGetColor(&light->unk0, &light->unk4, &light->unk8, col);
         lightSetColor(1.0f, 1.0f, 1.0f, ((s16 *)light)[0x1A / 2]);
         actorSpawn(0x136, 0xA8);
-        func_8067B238(D_807FBB44, D_807FBB40, G20_E40->unk4->unk34);
+        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, G20_E40->unk4->unk34);
         G20_E44->unk60 |= 0x40000000;
         light->unkC = D_807FBB44;
         light->unk1E = func_806F8EB4() == 0x14;

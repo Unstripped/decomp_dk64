@@ -553,7 +553,7 @@ void actorClearMovementFlags(void *);
 s32 hashTableLookup(s32);
 void camStartPath(Actor *, s32, s32);
 void func_80613C48(Actor *, s32, f32, f32);
-void func_8067B238(Actor *, Actor *, f32);
+void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void func_80613AF8(Actor *, s32, f32, f32);
 
 void func_806EC044(void) {
@@ -606,7 +606,7 @@ void func_806EC2CC(void) {
     D_807FBB48->unk60 &= ~1;
     EFB_P->unk88 = (EfBActor *)EFB_C[D_807FC929].unk2A0;
     actor = (Actor *)EFB_P->unk88;
-    func_8067B238(D_807FBB48, actor, actor->unk4->unk34);
+    actorCopyPoseAndScale(D_807FBB48, actor, actor->unk4->unk34);
     D_807FBB48->unk144 = 1;
     func_80613C48(D_807FBB48, 0x22A, 0.0f, 0.0f);
 }
@@ -1279,7 +1279,7 @@ typedef struct EfL1Global568 {
 extern void *D_807FD568;
 Actor *actorFindByType(s32);
 void actorSpawnChildActor(Actor *);
-void func_8068696C(Actor *);
+void effectSpawnActorOrbitParticles(Actor *);
 void func_806C8D20(Actor *);
 s32 func_806C8DE0(s32);
 void func_806C8E58(s16);
@@ -1362,7 +1362,7 @@ void func_806ED6B0(void) {
             EfL1PS->unk1F0 |= 0x10;
             EfL1A48->unk60 &= 0xFFFF7FFF;
             EfL1A48->unk128 = 0x7F;
-            func_8068696C(D_807FBB48);
+            effectSpawnActorOrbitParticles(D_807FBB48);
             func_806CFF1C(D_807FBB40);
             func_806CFE7C();
             break;
@@ -2129,7 +2129,7 @@ void func_806EFA3C(void) {
     if (D_807FBB48->unk58 == 2) {
         height *= 1.25;
     }
-    func_8067B238(D_807FBB44, D_807FBB48, height);
+    actorCopyPoseAndScale(D_807FBB44, D_807FBB48, height);
     actorScriptStart(D_807FBB44, ((u16 *)&spawnParams)[D_8074E77C[((u8 *)D_807FD580)[0x1A4]]]);
     D_807FBB44->unk60 |= 0x40000000;
     func_80614E78(D_807FBB48, 0x88);

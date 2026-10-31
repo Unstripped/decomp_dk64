@@ -359,7 +359,7 @@ segments:
       - { start: 0x165D50, type: bss, vram: 0x807F6940, name: 165D50_807F6940 }
       - { start: 0x165D50, type: .bss, vram: 0x807F6C80, name: 55B20 } # D_807F6C80, D_807F6C84 (unreferenced), D_807F6C88[12] (mapGridQuadClipToFrustum's unrolled stores share one lui only when the TU defines it); 16-aligned start, unused tail to 0x807F6CC0
       - { start: 0x165D50, type: bss, vram: 0x807F6CC0, name: 165D50_807F6CC0 }
-      - { start: 0x165D50, type: .bss, vram: 0x807FBFE0, name: 7CA80 } # D_807FBFE0[4] (actorGlobalCallbacksReset/func_806789E4 clear it with one lui per store pair only when the TU defines it) (0x807FBFE0-0x807FBFF0)
+      - { start: 0x165D50, type: .bss, vram: 0x807FBFE0, name: 7CA80 } # D_807FBFE0[4] (actorGlobalCallbacksReset/actorUpdateWhilePaused clear it with one lui per store pair only when the TU defines it) (0x807FBFE0-0x807FBFF0)
       - { start: 0x165D50, type: bss, vram: 0x807FBFF0, name: 165D50_807FBFF0 }
       - { start: 0x165D50, type: .bss, vram: 0x807FC7D0, name: A7710 } # D_807FC7D0 (u64, hudCountdownTimerSaveElapsed stores it with one lui only when the TU defines it), D_807FC7D8 (0x807FC7D0-0x807FC7E0)
       - { start: 0x165D50, type: bss, vram: 0x807FC7E0, name: 165D50_807FC7E0 }

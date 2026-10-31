@@ -123,7 +123,7 @@ typedef struct ActorModelScript {
 } ActorModelScript;
 
 void func_80724CA4(s32, s32);
-void func_8067B238(Actor *, void *, f32);
+void actorCopyPoseAndScale(Actor *, void *, f32);
 void actorUpdatePulseIntensity(s32);
 void actorScriptStart(Actor *, s32);
 void scriptSetActorRampTarget(void *, f32, f32);
@@ -138,7 +138,7 @@ void actorUpdateRampTarget(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80724CA4(2, 2);
     }
-    func_8067B238(D_807FBB40, sp40, 0.15f);
+    actorCopyPoseAndScale(D_807FBB40, sp40, 0.15f);
     if (D_807FBB40->unk154 != 0) {
         actorUpdatePulseIntensity(1);
         if (sp44->unk1 == 0) {

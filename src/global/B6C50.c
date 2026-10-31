@@ -54,7 +54,7 @@ void camStartPath(B6C50Actor *, s32, s32);
 s32 currentActorTestClearFlag(void);
 void actorUpdateModelMatrix(B6C50Actor *, s32);
 void actorUpdateFloorContactAndTilt(B6C50Actor *, f32);
-void func_8067B238(B6C50Actor *, B6C50Actor *, f32);
+void actorCopyPoseAndScale(B6C50Actor *, B6C50Actor *, f32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
 void hudSpawnCountdownTimer(s32, s32, u8);
 void func_80714998(s32);
@@ -82,7 +82,7 @@ void func_806B1F50(void) {
         D_807FBB40->unk155 = 0;
         actorSpawn(0x73, 0x7D);
         ((B6C50View90 *)D_807FDC90)->unk4 = D_807FBB44;
-        func_8067B238(D_807FBB44, D_807FBB40, 0.3f);
+        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.3f);
         D_807FBB44->unk7C = func_80612794(D_807FBB40->unkE6) * 14.0f + D_807FBB40->unk7C;
         D_807FBB44->unk84 = func_80612790(D_807FBB40->unkE6) * 14.0f + D_807FBB40->unk84;
         actorClearNodeFlag(D_807FBB44, 3);

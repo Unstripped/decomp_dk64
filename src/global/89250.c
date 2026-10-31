@@ -49,7 +49,7 @@ void actorUpdateModelMatrix(Actor *, s32);
 void triggerZoneCheckEntry(Actor *);
 s32 func_80665AAC(Actor *);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void func_8067B238(Actor *, Actor *, f32);
+void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnBone(Actor *, s16, f32, f32, f32, f32, s32);
@@ -387,7 +387,7 @@ void effectSpawnMultiTierRingWithActor(Actor *arg0, u8 arg1) {
     if (arg1) {
         effectSpawnMultiTierRing((f32)((f64)temp_scale * 0.36), arg1, arg0->unk7C, arg0->unk80 + 4.0f, arg0->unk84);
         actorSpawn(0x145, sp34.a[arg1]);
-        func_8067B238(D_807FBB44, arg0, arg0->unk4->unk38 * 0.5f);
+        actorCopyPoseAndScale(D_807FBB44, arg0, arg0->unk4->unk38 * 0.5f);
         sub = D_807FBB44->unk174;
         ((Actor174_5390 *)sub)->unk6 = arg1 - 1;
     }
@@ -628,7 +628,7 @@ void effectSpawnDebrisParticles(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 a
         (f32)((randomNonNegative() >> 15) % (u8)(30.0f * scale)) + arg4 - (f32)(u8)(15.0f * scale));
 }
 
-void func_8068696C(Actor *arg0) {
+void effectSpawnActorOrbitParticles(Actor *arg0) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
@@ -794,7 +794,7 @@ void actorSpawnAttachment(Actor *arg0, f32 arg1) {
     actorSpawn(0xB3, 0x5D);
     D_807FBB44->unk60 |= 0x400;
     actorScriptStart(D_807FBB44, 0x334);
-    func_8067B238(D_807FBB44, arg0, arg0->unk4->unk38 * arg1);
+    actorCopyPoseAndScale(D_807FBB44, arg0, arg0->unk4->unk38 * arg1);
 }
 
 f32 func_80612790(s16);

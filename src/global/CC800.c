@@ -44,13 +44,13 @@ typedef struct G00SpawnSub {
 } G00SpawnSub;
 
 s32 actorSpawn(s32, s32);
-void func_8067B238(Actor *, Actor *, f32);
+void actorCopyPoseAndScale(Actor *, Actor *, f32);
 
 void func_806C7B50(s32 arg0, u8 arg1, Actor *arg2) {
     G00SpawnSub *sub;
 
     actorSpawn(arg0, 0x82);
-    func_8067B238(D_807FBB44, arg2, 0.15f);
+    actorCopyPoseAndScale(D_807FBB44, arg2, 0.15f);
     sub = D_807FBB44->unk174;
     sub->unk4 = arg2;
     sub->unk8 = arg1;
@@ -60,7 +60,7 @@ void func_806C7BAC(s32 arg0, Actor *arg1) {
     G00SpawnSub *sub;
 
     actorSpawn(0x25, 0x8C);
-    func_8067B238(D_807FBB44, D_807FBB48, 0.15f);
+    actorCopyPoseAndScale(D_807FBB44, D_807FBB48, 0.15f);
     sub = D_807FBB44->unk174;
     sub->unk0 = arg0;
     sub->unk4 = arg1;
@@ -279,7 +279,7 @@ typedef struct G00View1F0 {
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-void func_80689114(s16, f32, f32, f32, s32, f32, Actor *);
+void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s32, f32, Actor *);
 
 void func_806C80E4(void) {
     f32 sp34;
@@ -295,7 +295,7 @@ void func_806C80E4(void) {
     }
     sp30 = func_80612794(D_807FBB4C->unkE6) * sp28;
     var2 = func_80612790(D_807FBB4C->unkE6) * sp28;
-    func_80689114((s16)D_807FD570, D_807FBB4C->unk7C + sp30, (f32)((f64)D_807FBB4C->unk80 + 7.0),
+    actorListSpawnNodeEntryDefault((s16)D_807FD570, D_807FBB4C->unk7C + sp30, (f32)((f64)D_807FBB4C->unk80 + 7.0),
                   D_807FBB4C->unk84 + var2, 0, 1.0f, D_807FBB4C);
     ((G00View1F0 *)D_807FBB4C->unk174)->unk1F0 |= 0x01000000;
 }

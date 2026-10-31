@@ -87,7 +87,7 @@ extern f32 D_807FC8D4;
 extern s32 gCamActor;
 
 s32 func_806BDD2C(void);
-void func_8067B238(void *, void *, f32);
+void actorCopyPoseAndScale(void *, void *, f32);
 s32 actorScriptStart(void *, s32);
 void actorUpdateModelMatrix(void *, s32);
 s32 camStartPath(void *, s32, s32);
@@ -132,7 +132,7 @@ void func_806BD3E4(void) {
         D_807FBB40->unk60 |= 0x400;
         v3 = 0;
         D_807506B4 = 0; actorSpawn(0x73, 0xC4, &D_807FBB40);
-        func_8067B238(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
+        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
         D_807FBB44->unk64 |= 0x20;
         D_807FBB44->unk60 |= 0x400;
         D_807FBB44->unk12A = 0x7D0;

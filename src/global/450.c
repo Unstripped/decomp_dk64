@@ -114,7 +114,7 @@ void collisionBufferCacheUpdate(void);
 void actorInit(void);
 void func_806787CC(void);
 void actorGlobalCallbacksReset(void);
-void func_806789E4(void);
+void actorUpdateWhilePaused(void);
 void actorMapModelsSetup(s32, s32, s32);
 void actorListInitOffsets(void);
 void actorProximityUpdate(void);
@@ -632,7 +632,7 @@ void func_805FC2B0(void) {
     controllerUpdate();
     if (pauseStateUpdate() != 0) {
         billboardCacheEvictStale();
-        func_806789E4();
+        actorUpdateWhilePaused();
         effectUpdateAll(1);
         sfxUpdateLevelAmbient();
         sfxUpdateSourceGroups();

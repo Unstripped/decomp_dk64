@@ -3121,7 +3121,7 @@ typedef struct G07ActorA {
 
 void actorDespawn(Actor *);
 s32 actorTableContains(void *);
-void func_8067B238(void *, void *, s32, void *);
+void actorCopyPoseAndScale(void *, void *, s32, void *);
 void actorUpdateModelMatrix(Actor *, s32);
 
 void func_806D0A84(void) {
@@ -3146,7 +3146,7 @@ void func_806D0A84(void) {
             if (target->unk4->unk64 != state->unkC) {
                 actorScriptStart(D_807FBB40, state->unk2);
             } else {
-                func_8067B238(D_807FBB40, target, *(s32 *)&G07_A->unk4->unk34, state);
+                actorCopyPoseAndScale(D_807FBB40, target, *(s32 *)&G07_A->unk4->unk34, state);
                 G07_A->unk80 += state->unk10;
             }
             break;

@@ -448,7 +448,7 @@ void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 void func_80613C48(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
-void func_8067B238(void *, void *, f32);
+void actorCopyPoseAndScale(void *, void *, f32);
 void actorUpdateModelMatrix(void *, s32);
 extern u8 D_807444EC;
 extern s32 D_807FBB68;
@@ -515,7 +515,7 @@ void actorShockwaveUpdate(void) {
                     func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
                     scriptSetActorRampTarget(D_807FBB44, CUR_ACTOR->unk4->unk48, 0.0f);
                 }
-                func_8067B238(D_807FBB44, CUR_ACTOR, CUR_ACTOR->unk4->unk38);
+                actorCopyPoseAndScale(D_807FBB44, CUR_ACTOR, CUR_ACTOR->unk4->unk38);
                 SPAWNED_ACTOR->unkF0 = CUR_ACTOR->unkF0;
                 SPAWNED_ACTOR->unk4->unk34 = (f32)((f64)CUR_ACTOR->unk4->unk34 + 0.02);
                 SPAWNED_ACTOR->unk4->unk3C = (f32)((f64)CUR_ACTOR->unk4->unk3C + 0.02);

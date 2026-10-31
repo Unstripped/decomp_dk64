@@ -55,7 +55,7 @@ extern u8 D_807444EC;
 extern s32 D_8076A0A8;
 extern u8 D_807FBB85;
 void actorScriptStart(Actor *, s32);
-void func_8067AC38(void);
+void actorGlobalStateClearEvents(void);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void collisionClearFlags(void);
@@ -86,7 +86,7 @@ void behaviourFrameBegin(void) {
                 if (D1DC98D->unk46 & 0x800) {
                     D_807FBB70.unk15 = 1;
                 } else {
-                    func_8067AC38();
+                    actorGlobalStateClearEvents();
                     D_807FBB40->unk138 = 0;
                     D_807FBB40->unk60 &= 0xFFFD7FFF;
                     D_807FBB40->unk144 = 1;

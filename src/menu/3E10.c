@@ -1464,7 +1464,7 @@ void actorDespawn(void *);
 void actorUpdateModelMatrix(void *, s32);
 void func_806BF920(void);
 void func_806F0C18(void *);
-void func_8068A4C8(void *, s32, s32);
+void actorConfigApplyAnimFrameByType(void *, s32, s32);
 
 void func_8002CB18(void) {
     s32 temp_s1_2;
@@ -1493,12 +1493,12 @@ void func_8002CB18(void) {
         func_806F0C18(Menu6B_A);
         Menu6B_A->unk60 |= 0x1000;
         temp_s1->unk4 = D_8076A100[Menu6B_A->unk154 & 0xF];
-        func_8068A4C8(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154 & 0xF]);
+        actorConfigApplyAnimFrameByType(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154 & 0xF]);
     }
     sel = Menu6B_A->unk154;
     if (!(Menu6B_A->unk154 & 0x80)) {
         if (temp_s1->unk4 != a2) {
-            func_8068A4C8(Menu6B_A, Menu6B_A->unk155 + 2, a2);
+            actorConfigApplyAnimFrameByType(Menu6B_A, Menu6B_A->unk155 + 2, a2);
             temp_s1->unk4 = D_8076A100[Menu6B_A->unk154];
         a2 = D_8076A100[Menu6B_A->unk154];
         }

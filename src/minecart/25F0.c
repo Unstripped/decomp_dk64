@@ -169,7 +169,7 @@ extern u8 D_80028C48[];
 void behaviourFrameBegin(void);
 void actorScriptStart(Actor_25F0 *, s32);
 void actorSpawn(s32, s32);
-void func_8067B238(void *, void *, f32);
+void actorCopyPoseAndScale(void *, void *, f32);
 s16 controllerLookupStateByHash(void *);
 void func_806131D4(void *, s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -226,14 +226,14 @@ void minecartFollowerBehaviour(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x310);
         actorSpawn(0x11C, 0x4C);
-        func_8067B238(D_807FBB44, D_807FBB40, 1.5 * D_807FBB40->unk4->unk38);
+        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 1.5 * D_807FBB40->unk4->unk38);
         D_807FBB44->unk11C = D_807FBB40;
         D_807FBB44->unk168 = -1;
         D_807FBB44->unk4->unk34 *= -1.0f;
         D_807FBB44->unkEC = 0x2BC;
         func_806131D4(D_807FBB44, controllerLookupStateByHash(D_807FBB44));
         actorSpawn(0x11C, 0x4C);
-        func_8067B238(D_807FBB44, D_807FBB40, 1.5 * D_807FBB40->unk4->unk38);
+        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 1.5 * D_807FBB40->unk4->unk38);
         D_807FBB44->unk11C = D_807FBB40;
         D_807FBB44->unk168 = 1;
         D_807FBB44->unkEC = 0x2BC;
@@ -265,7 +265,7 @@ void minecartFollowerBehaviour(void) {
             sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x182, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             actorSpawn(0x11F, 0x50);
             D_807FBB44->unk11C = D_807FBB40;
-            func_8067B238(D_807FBB44, D_807FBB40, 0.06f);
+            actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.06f);
             D_807FBB40->unk15F++;
         }
         /* fallthrough */

@@ -47,7 +47,7 @@ extern BossC_9C60_Actor *D_807FBB40;
 extern BossC_9C60_Actor *D_807FBB44;
 
 void actorSpawn(s32, s32);
-void func_8067B238(BossC_9C60_Actor *, BossC_9C60_Actor *, f32);
+void actorCopyPoseAndScale(BossC_9C60_Actor *, BossC_9C60_Actor *, f32);
 void actorDespawn(void *);
 void actorUpdateModelMatrix(BossC_9C60_Actor *, s32);
 void bossAttachActor(void) {
@@ -57,11 +57,11 @@ void bossAttachActor(void) {
     D_807FBB44->unk60 |= 0x400;
     D_807FBB44->unk11C = D_807FBB40;
     *sp1C = D_807FBB44;
-    func_8067B238(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
+    actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
 }
 
 void bossUpdateAttachment(void) {
-    func_8067B238(D_807FBB40, D_807FBB40->unk11C, D_807FBB40->unk4->unk38);
+    actorCopyPoseAndScale(D_807FBB40, D_807FBB40->unk11C, D_807FBB40->unk4->unk38);
     D_807FBB40->unk4->unk48 = D_807FBB40->unk11C->unk4->unk48;
     if (D_807FBB40->unk4->unk0->unk10 == 0x675 && D_807FBB40->unk4->unk0->unk24 == 0.0f) {
         actorDespawn(D_807FBB40);

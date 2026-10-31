@@ -1686,7 +1686,7 @@ extern u8 D_807FB606;
 
 void func_80672E90(s32, s32, s32);
 void actorSetCameraBoundaryMode(s32);
-void func_80674E14(CollisionActor *);
+void actorCollisionCheckNodeSpheres(CollisionActor *);
 s32 actorCheckTargetAngleBounds();
 u8 actorCollideModelSlots(CollisionActor *, s16 *, s16 *);
 s8 actorCheckCollisionsAgainstActiveActors(CollisionActor *, s16 *, s16 *);
@@ -1717,7 +1717,7 @@ u8 actorCheckTargetAngle(CollisionActor *arg0, s16 *arg1, s16 *arg2, s8 *arg3) {
     D_807FB605 = 0;
     D_807FB606 = 0;
     if (arg0->unk144 & 0x20) {
-        func_80674E14(arg0);
+        actorCollisionCheckNodeSpheres(arg0);
     }
     if (arg0->unk144 & 8) {
         sp23 = actorCheckTargetAngleBounds(arg0, arg1, arg2);
@@ -2259,7 +2259,7 @@ extern u8 D_807FB603;
 extern ActorHitRecord D_807FD614[];
 s32 hashTableLookup();
 s32 func_806738D0(s32, s32, s32, s32, s32, s32);
-u8 func_8067B1E0(Actor *);
+u8 playerFindIndexByActor(Actor *);
 void actorSetTargetAngleBounds();
 struct ActorPlaneContactView;
 struct ActorHitPlane;
@@ -2354,7 +2354,7 @@ Actor *arg0;
             if (D_807F6000[slot].unk7C != NULL && ((ModelSlotHitView *)D_807F6000[slot].unk7C)->unk6E != 0) {
                 actorQueueCollisionCallbacks((CollisionActor *)arg0);
             }
-            if (hit != NULL && hit->unk53 != 0 && D_807FD614[func_8067B1E0(arg0)].unk0 > 30.0) {
+            if (hit != NULL && hit->unk53 != 0 && D_807FD614[playerFindIndexByActor(arg0)].unk0 > 30.0) {
                 ret = 1;
             }
             if (arg0->unk5C & 1) {

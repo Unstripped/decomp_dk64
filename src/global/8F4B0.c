@@ -15,11 +15,11 @@ void actorSpawnInitialSet(void) {
     actorSpawn(0xF, 0);
 }
 
-void func_8068A810(void) {
+void actorVolumeTriggersUpdate(void) {
     volumeTriggerUpdateAll();
 }
 
-void func_8068A830(void) {
+void actorSpawnNodesUpdate(void) {
     func_80727678();
     spawnNodesUpdate();
 }

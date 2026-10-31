@@ -56,7 +56,7 @@ void animSetFrameAndSubframe(s32, s32, s32, f32);
 void func_8002FB7C();
 void bossActorGroupCommand();
 void actorSpawn(s32, s32);
-void func_8067B238(void *, void *, f32);
+void actorCopyPoseAndScale(void *, void *, f32);
 void actorScriptStart(void *, s32);
 void func_80724DB0();
 void func_8072DA60(void);
@@ -489,7 +489,7 @@ u8 arg1;
 s32 arg2;
 {
     actorSpawn(0xE5, arg2);
-    func_8067B238(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
+    actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
     D_807FBB44->unk60 |= 0x1400;
     D_807FBB44->unk11C = D_807FBB40;
     D_807FBB44->unk144 = D_807FBB40->unk144;

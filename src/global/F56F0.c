@@ -248,7 +248,7 @@ typedef struct F5N3ActorSub10E8 {
 
 void func_806F0C18(Actor *);
 s32 actorSpawn(s32, s32);
-void func_8067B238(Actor *, Actor *, f32);
+void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void func_80613194(Actor *, s32);
 
 void func_806F10E8(Actor *arg0) {
@@ -257,7 +257,7 @@ void func_806F10E8(Actor *arg0) {
         case 0xC4:
             func_806F0C18(arg0);
             actorSpawn(0xEF, 0xA6);
-            func_8067B238(D_807FBB44, arg0, ((F5N3ActorSub10E8 *) arg0->unk4)->unk38 * 1.25);
+            actorCopyPoseAndScale(D_807FBB44, arg0, ((F5N3ActorSub10E8 *) arg0->unk4)->unk38 * 1.25);
             ((F5N3ActorState *) D_807FBB44)->unkE4 = ((F5N3ActorState *) arg0)->unkE4;
             ((F5N3ActorState *) D_807FBB44)->unkE8 = ((F5N3ActorState *) arg0)->unkE8;
             D_807FBB44->unk60 |= 0x40000000;

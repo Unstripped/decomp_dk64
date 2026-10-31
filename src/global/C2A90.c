@@ -252,17 +252,17 @@ void func_806BE09C(void) {
 }
 
 extern u8 D_807506C0[];
-void func_8068A1CC(u8);
-void func_8068A20C(u8);
+void actorListForceSpawnId(u8);
+void actorListForceDespawnId(u8);
 
 void func_806BE674(u8 arg0) {
     s16 i;
 
     for (i = 0; i < 0x10U; i++) {
         if (arg0) {
-            func_8068A1CC(D_807506C0[i]);
+            actorListForceSpawnId(D_807506C0[i]);
         } else {
-            func_8068A20C(D_807506C0[i]);
+            actorListForceDespawnId(D_807506C0[i]);
         }
     }
 }
@@ -682,7 +682,7 @@ void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
 void camResumePath(void);
 s32 camStartPath(void *, s32, s32);
 void csModelStateSetFirstByte(s32, s32);
-void func_8067B238(void *, void *, f32);
+void actorCopyPoseAndScale(void *, void *, f32);
 void func_8068A2FC(void *);
 void func_8070D8C0(void *, s32, s32);
 void func_8070E8DC(s32);
@@ -855,7 +855,7 @@ void func_806BF218(void) {
     }
     other = LA->unk11C;
     if (other != NULL) {
-        func_8067B238(LA, other, other->unk4->unk38);
+        actorCopyPoseAndScale(LA, other, other->unk4->unk38);
         memcpy((u8 *)LA + 0xC, (u8 *)LA->unk11C + 0xC, 0x40);
     }
 }

@@ -362,7 +362,7 @@ Gfx *renderHitCounterHUD(Gfx *arg0, CsCountdown *arg1) {
     return textDrawStringVtx(arg0, 3, 0x50, 0xB0, sp38, 1);
 }
 
-Gfx *func_8068DAF4(Gfx *arg0, u8 *arg1) {
+Gfx *renderRemainingShotsHUD(Gfx *arg0, u8 *arg1) {
     char sp38[8];
 
     WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);

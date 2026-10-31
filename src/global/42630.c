@@ -758,7 +758,7 @@ void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 s32 modelAnimEntryIsActive(s16, s16);
 s32 actorListGetOrSetState(s16, u8, u8);
 s32 flagGet();
-s32 func_80689BAC(s16);
+s32 actorListIsIdActive(s16);
 u16 func_8067ACC0(u16);
 s32 func_806419F8(void);
 void func_80641724(s16);
@@ -875,7 +875,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = flagGet(cmd->a, 1);
         break;
     case 0x2C:
-        if (func_80689BAC(cmd->a) != 0) {
+        if (actorListIsIdActive(cmd->a) != 0) {
             ret = 1;
         } else {
             ret = 0;

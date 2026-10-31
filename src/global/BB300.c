@@ -49,7 +49,7 @@ extern f32 D_807502E8;
 
 s32 actorSpawn(s32, s32);
 void actorScriptStart(void *, s32);
-void func_8067B238(void *, void *, f32);
+void actorCopyPoseAndScale(void *, void *, f32);
 void actorSetTargetSpeed(void *, s32);
 void *memcpy(void *, const void *, unsigned int);
 void behaviourFrameBegin(void);
@@ -168,7 +168,7 @@ void func_806B6C88(s16 arg0, s16 arg1) {
         actorScriptStart(D_807FBB44, 0x237);
         BB300A44->unkE6 = arg1;
         BB300A44->unkEE = BB300A44->unkE6;
-        func_8067B238(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
+        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
         BB300A44->unkA4 = BB300A->unkA4;
         BB300A44->unkC4 = D_807502E8;
         BB300A44->unkC8 = D_807502E0;

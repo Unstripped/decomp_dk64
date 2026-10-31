@@ -1216,7 +1216,7 @@ s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 extern s16 D_80753E64[];
 s32 func_80714608(s32);
-s32 func_8067ACDC(void *, s32, s32);
+s32 actorCountOwnedByClass(void *, s32, s32);
 void func_806F0C18(void *);
 void func_806CFF9C(Actor *);
 void slotQueueAddValue(s32, s32, s32);
@@ -1267,7 +1267,7 @@ u8 arg1;
         }
         slotQueueUpdate(sel, 0, 0);
         if (slotQueueGetValue((u8)sel, D_807FC929)) {
-            if (func_8067ACDC(D_807FBB40, 4, (s32)actorIsActiveType2B) < D_80753E64[D_807FD584]) {
+            if (actorCountOwnedByClass(D_807FBB40, 4, (s32)actorIsActiveType2B) < D_80753E64[D_807FD584]) {
                 hasFlag = flags & 2;
                 slotQueueAddValue(sel, D_807FC929, -1);
                 if (!arg0) {
@@ -1489,7 +1489,7 @@ s32 func_806E2CC4(void) {
             if (var_v1 != 0) {
                 var_v1 = D_8074E77C[D_807FC929] < 6;
                 if (var_v1 != 0) {
-                    var_v1 = func_8067ACDC(D_807FBB40, 4, 0) < D_80753E64[D_807FD584];
+                    var_v1 = actorCountOwnedByClass(D_807FBB40, 4, 0) < D_80753E64[D_807FD584];
                     if (var_v1 != 0) {
                         var_v1 = flagGet(0x184, 0) != 0;
                         if (var_v1 == 0) {

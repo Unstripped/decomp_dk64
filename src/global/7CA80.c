@@ -83,21 +83,21 @@ static void func_8067880C(void);
 static void func_80678814(void);
 static void func_8067881C(void);
 void func_80678B04(void);
-void func_80678BBC(Actor *);
+void actorPreTick(Actor *);
 void func_80678DD8(Actor *);
 void func_80678E14(Actor *);
-void func_80678F64(Actor *);
-void func_80678F9C(Actor *, s32);
-s32 func_80679010(Actor *, s32);
+void actorRiderListFree(Actor *);
+void actorRiderListAdd(Actor *, s32);
+s32 actorRiderListContains(Actor *, s32);
 void actorRegisterGlobalCallback(ActorCallbackNode *);
 void actorFreeCallbackList(Actor *);
-void func_806791DC(Actor *, s32);
-void func_806791EC(Actor *, s32);
+void actorCallbackMaskEnable(Actor *, s32);
+void actorCallbackMaskDisable(Actor *, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorQueueDelayedCallback(s32, s32, s32, u8, s32, void *, s32);
 ActorCallbackNode *actorAllocCallbackNode(s32, s32, u8, s32, void *);
 void actorDispatchCallbacks(Actor *);
-void func_8067A170(s32, u8);
+void actorCollisionEventsCancel(s32, u8);
 void func_8067A69C(s32, Actor *, f32, f32, u8, u8);
 void func_8067A70C(s32, Actor *, f32, f32, f32, u8, u8);
 void func_8067A784(s32, Actor *, s16, f32, s16);
@@ -107,7 +107,7 @@ void func_8067A9F0(s32, Actor *, f32, f32, f32);
 void func_8067AA58(s32, Actor *, f32, f32);
 void func_8067AAB8(s32, Actor *, s16, f32, s16);
 void func_8067ABC0(s32, Actor *, u8, s16, s16, f32, f32, f32);
-void func_8067AC38(void);
+void actorGlobalStateClearEvents(void);
 void func_8067ACB4(Actor *);
 u16 func_8067ACC0(u16);
 void actorTableClear(void);
@@ -119,37 +119,37 @@ void func_8067B2B8(s32);
 s32 func_8067B2C0(s32);
 s32 func_8067B3F4(s32);
 s32 func_8067B42C(s32);
-void func_80689418(void);
+void actorListUpdateSpawns(void);
 void actorListRemoveByActor(void);
 void playerStateDispatchQueuedCallback(void);
 void faultSetMessage(s32, s32, s32, s32);
 void heapFree(void *);
 
-typedef struct R3B_StructFB630 {
+typedef struct Struct807FB630 {
     s16 unk0;
     s16 unk2;
     s32 unk4;
     s32 unk8;
-} R3B_StructFB630;
+} Struct807FB630;
 
-typedef struct R3B_StructFB7B0 {
+typedef struct Struct807FB7B0 {
     s32 unk0;
     s32 unk4;
     s32 unk8;
-} R3B_StructFB7B0;
+} Struct807FB7B0;
 
-typedef struct R3B_Header {
+typedef struct ActorAssetHeader {
     s32 unk0;
     s32 unk4;
     s32 unk8;
     s32 unkC;
-} R3B_Header;
+} ActorAssetHeader;
 
-extern R3B_StructFB630 D_807FB630[32];
-extern R3B_StructFB7B0 D_807FB7B0[32];
+extern Struct807FB630 D_807FB630[32];
+extern Struct807FB7B0 D_807FB7B0[32];
 extern s16 D_807FBB30;
 extern s16 D_807FBB32;
-extern R3B_Header *D_807FBB50;
+extern ActorAssetHeader *D_807FBB50;
 extern void *D_807FBB54;
 extern void *D_807FBB58;
 extern void *D_807FBB5C;
@@ -174,7 +174,7 @@ void actorInit(void) {
     }
     D_807FBB32 = 0;
 
-    D_807FBB50 = (R3B_Header *)assetLoad(0xD, 0, 1, 1);
+    D_807FBB50 = (ActorAssetHeader *)assetLoad(0xD, 0, 1, 1);
     D_807FBB54 = (void *)(D_807FBB50->unkC + (s32)D_807FBB50);
     D_807FBB58 = (void *)(D_807FBB50->unk8 + (s32)D_807FBB50);
     D_807FBB5C = (void *)(D_807FBB50->unk4 + (s32)D_807FBB50);
@@ -196,7 +196,7 @@ void actorInit(void) {
 void func_80677EC8(s32 arg0) {
 }
 
-typedef struct R2ASpawnInfo {
+typedef struct ActorSpawnInfo {
     s32 unk0;
     s32 unk4;
     s32 unk8;
@@ -206,12 +206,12 @@ typedef struct R2ASpawnInfo {
     s16 unk18;
     s16 unk1A;
     s32 unk1C;
-} R2ASpawnInfo;
+} ActorSpawnInfo;
 void actorScriptStart(Actor *, s32);
 extern u8 D_8074D8D4[];
 extern s32 (*D_8074DA30[])(s32 *);
 
-s32 actorSpawnFromInfo(R2ASpawnInfo *arg0) {
+s32 actorSpawnFromInfo(ActorSpawnInfo *arg0) {
     u8 temp;
     if (func_80678050((u16)arg0->unk0)) {
         temp = D_8074D8D4[arg0->unk0];
@@ -504,7 +504,7 @@ void proxPathRemoveActor(Actor *);
 void resQueueRemove(Actor *);
 void renderCallbacksDisableForActor(Actor *);
 void actorTableRemove();
-typedef struct R2EActor {
+typedef struct ActorBufferView {
     /* 0x000 */ s32 unk0;
     /* 0x004 */ u8 pad04[0x54];
     /* 0x058 */ s32 unk58;
@@ -516,13 +516,13 @@ typedef struct R2EActor {
     /* 0x144 */ u8 pad144[4];
     /* 0x148 */ void *unk148;
     /* 0x14C */ void *unk14C;
-} R2EActor;
+} ActorBufferView;
 
 void actorFreeImmediate(Actor *arg0) {
     s16 i;
     Actor *temp;
 
-    if (((R2EActor *)arg0)->unk0 != 0) {
+    if (((ActorBufferView *)arg0)->unk0 != 0) {
         func_806136B4();
     }
     temp = (Actor *)arg0->unk11C;
@@ -557,14 +557,14 @@ void actorFreeImmediate(Actor *arg0) {
     }
     actorSub140Free(arg0->unk140);
     proxPathRemoveActor(arg0);
-    if (((R2EActor *)arg0)->unk118 != NULL) {
-        heapFree(((R2EActor *)arg0)->unk118);
+    if (((ActorBufferView *)arg0)->unk118 != NULL) {
+        heapFree(((ActorBufferView *)arg0)->unk118);
     }
-    if (((R2EActor *)arg0)->unk148 != NULL) {
-        heapFree(((R2EActor *)arg0)->unk148);
+    if (((ActorBufferView *)arg0)->unk148 != NULL) {
+        heapFree(((ActorBufferView *)arg0)->unk148);
     }
-    if (((R2EActor *)arg0)->unk14C != NULL) {
-        heapFree(((R2EActor *)arg0)->unk14C);
+    if (((ActorBufferView *)arg0)->unk14C != NULL) {
+        heapFree(((ActorBufferView *)arg0)->unk14C);
     }
     func_8062D26C(arg0);
     if (arg0->unk58 != 0x12B) {
@@ -576,7 +576,7 @@ void actorFreeImmediate(Actor *arg0) {
 }
 
 void func_806787CC(void) {
-    func_80689418();
+    actorListUpdateSpawns();
 }
 
 static void func_806787EC(void) {}
@@ -611,7 +611,7 @@ void actorGlobalCallbacksReset(void) {
 }
 
 extern void (*D_8074C0A0[])(void);
-void func_80678CC8(Actor *);
+void actorPostTick(Actor *);
 
 extern u16 D_807FBB3C;
 
@@ -622,15 +622,15 @@ void actorUpdateActiveList(u8 arg0) {
         D_807FBE08 = 0;
         D_807FBB40 = gActiveActors[i].actor;
         if ((arg0 == 1 && !(D_807FBB40->unk60 & 0x100000)) || (arg0 == 2 && (D_807FBB40->unk60 & 0x100000))) {
-            func_80678BBC(D_807FBB40);
+            actorPreTick(D_807FBB40);
             D_8074C0A0[D_807FBB40->unk58]();
-            func_80678CC8(D_807FBB40);
+            actorPostTick(D_807FBB40);
         }
         i = D_807FBB3C;
     }
 }
 
-void func_806789E4(void) {
+void actorUpdateWhilePaused(void) {
     s32 i;
     s32 j;
 
@@ -640,9 +640,9 @@ void func_806789E4(void) {
     for (i = D_807FBB3C = 0; i < gActiveActorCount; i = ++D_807FBB3C) {
         D_807FBB40 = gActiveActors[i].actor;
         if (D_807FBB40->unk64 & 2) {
-            func_80678BBC(D_807FBB40);
+            actorPreTick(D_807FBB40);
             D_8074C0A0[D_807FBB40->unk58]();
-            func_80678CC8(D_807FBB40);
+            actorPostTick(D_807FBB40);
         }
         if (D_807FBB40->unk4 != NULL) {
             func_80614A64(D_807FBB40);
@@ -663,7 +663,7 @@ void func_80678B04(void) {
     }
 }
 
-void func_80678BBC(Actor *arg0) {
+void actorPreTick(Actor *arg0) {
     collisionClearFlags(arg0);
     if (arg0->unk5C & 1) {
         playerSetActiveGlobals(arg0);
@@ -676,7 +676,7 @@ void func_80678BBC(Actor *arg0) {
     if (arg0->unk140 != NULL) {
         arg0->unk140->unk68 = 0;
     }
-    func_80678F64(arg0);
+    actorRiderListFree(arg0);
     if (arg0 == D_807FBB48) {
         actorCollisionCheckBoundingBoxes(arg0);
     } else {
@@ -696,19 +696,19 @@ void func_80678BBC(Actor *arg0) {
     }
 }
 
-typedef struct R3B_Actor {
+typedef struct ActorUnk156View {
     u8 pad[0x156];
     u8 unk156;
-} R3B_Actor;
+} ActorUnk156View;
 
 void actorUpdatePositionAndSub140(Actor *);
 void func_80678E6C(Actor *);
 void actorUpdateModelMatrices(Actor *);
-void func_8067A1DC(Actor *);
+void actorDispatchCollisionResults(Actor *);
 void actorUpdateEffects(Actor *);
 void animListUpdate(Actor *);
 
-void func_80678CC8(Actor *actor) {
+void actorPostTick(Actor *actor) {
     if ((void *)func_8067B3F4 == (void *)D_8074DA30[D_8074D8D4[actor->unk58]]) {
         guTranslateF((void *)((u8 *)actor + 0xC), actor->unk7C, actor->unk80, actor->unk84);
     }
@@ -718,7 +718,7 @@ void func_80678CC8(Actor *actor) {
         actor->unk60 &= ~0x200;
         if (actor->unk4 != NULL) {
             controllerStepMotionWindows(actor);
-            if (((actor->unk60 & 0x500) || ((R3B_Actor *)actor)->unk156 != 0) && !(actor->unk60 & 0x4000)) {
+            if (((actor->unk60 & 0x500) || ((ActorUnk156View *)actor)->unk156 != 0) && !(actor->unk60 & 0x4000)) {
                 func_80614A64(actor);
             }
         }
@@ -726,7 +726,7 @@ void func_80678CC8(Actor *actor) {
     func_80678E14(actor);
     actorUpdateModelMatrices(actor);
     actorGlobalCallbacksDispatchAndFree(0);
-    func_8067A1DC(actor);
+    actorDispatchCollisionResults(actor);
     actorFreeCallbackList(actor);
     actorUpdateEffects(actor);
     animListUpdate(actor);
@@ -789,14 +789,14 @@ void func_80678E6C(Actor *actor) {
     }
 }
 
-void func_80678F64(Actor *actor) {
+void actorRiderListFree(Actor *actor) {
     if (actor->unk114 != NULL) {
         heapFree(actor->unk114);
         actor->unk114 = NULL;
     }
 }
 
-void func_80678F9C(Actor *actor, s32 item) {
+void actorRiderListAdd(Actor *actor, s32 item) {
     if (actor->unk114 == NULL) {
         actor->unk114 = heapAlloc(sizeof(ActorList));
         actor->unk114->count = 0;
@@ -807,7 +807,7 @@ void func_80678F9C(Actor *actor, s32 item) {
     }
 }
 
-s32 func_80679010(Actor *actor, s32 item) {
+s32 actorRiderListContains(Actor *actor, s32 item) {
     ActorList *list = actor->unk114;
     s32 i;
 
@@ -863,11 +863,11 @@ void actorFreeCallbackList(Actor *actor) {
     }
 }
 
-void func_806791DC(Actor *actor, s32 mask) {
+void actorCallbackMaskEnable(Actor *actor, s32 mask) {
     actor->unk138 |= mask;
 }
 
-void func_806791EC(Actor *actor, s32 mask) {
+void actorCallbackMaskDisable(Actor *actor, s32 mask) {
     actor->unk138 &= ~mask;
 }
 
@@ -966,16 +966,16 @@ ActorCallbackNode *actorAllocCallbackNode(s32 arg0, s32 arg1, u8 arg2, s32 arg3,
     return node;
 }
 
-typedef struct LgDisp_StructD580 {
+typedef struct ActorPlayerStateView {
     u8 pad0[0x6C];
     f32 unk6C;
     s16 unk70;
     u8 pad72[2];
     f32 unk74;
-} LgDisp_StructD580;
+} ActorPlayerStateView;
 struct DamageReactionContext;
 extern struct DamageReactionContext *D_807FD580;
-#define LgDisp_D580 ((LgDisp_StructD580 *)D_807FD580)
+#define PLAYER_STATE_VIEW ((ActorPlayerStateView *)D_807FD580)
 
 extern s32 D_807FBC08;
 extern s32 D_807FBC14;
@@ -985,16 +985,16 @@ void playerHandleDamageReaction(Actor *, Actor *, u8);
 ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *);
 s32 actorCheckPointInAngleArc(Actor *, f32, f32);
 
-typedef struct LgDisp_SubF8 {
+typedef struct ActorCollisionHit {
     u8 unk0[0xC];
     u8 unkC[0x24];
     s32 unk30;
     s32 unk34;
     s32 unk38;
     Actor *unk3C;
-} LgDisp_SubF8;
+} ActorCollisionHit;
 
-typedef struct LgDisp_ActorGlobalState {
+typedef struct ActorDispatchState {
     u8 unk0;
     u8 unk1;
     u8 unk2;
@@ -1050,7 +1050,7 @@ typedef struct LgDisp_ActorGlobalState {
     Actor *unkEC;
     f32 unkF0;
     f32 unkF4;
-    LgDisp_SubF8 unkF8[4];
+    ActorCollisionHit unkF8[4];
     s32 unk1F8;
     Actor *unk1FC;
     u8 unk200;
@@ -1062,12 +1062,12 @@ typedef struct LgDisp_ActorGlobalState {
     u8 pad255[3];
     s32 unk258[8];
     void *unk278[8];
-} LgDisp_ActorGlobalState;
+} ActorDispatchState;
 
-#define GSTATE (*(LgDisp_ActorGlobalState *)&D_807FBB70)
+#define GSTATE (*(ActorDispatchState *)&D_807FBB70)
 
 
-typedef struct LgDisp_Payload10000 {
+typedef struct ActorPayload10000 {
     s16 unk0;
     s16 unk2;
     u8 unk4[0xC];
@@ -1075,7 +1075,7 @@ typedef struct LgDisp_Payload10000 {
     s32 unk34;
     s32 unk38;
     s32 unk3C;
-} LgDisp_Payload10000;
+} ActorPayload10000;
 
 typedef struct ActorPlayerState {
     u8 pad0[0x1A];
@@ -1093,8 +1093,8 @@ void actorDispatchCallbacks(Actor *arg0) {
     u8 temp_v1_2;
     u8 temp_v1_3;
     ActorPayloadA7EC *temp_s0;
-    LgDisp_SubF8 *temp_s0_2;
-    LgDisp_Payload10000 *temp_s0_3;
+    ActorCollisionHit *temp_s0_2;
+    ActorPayload10000 *temp_s0_3;
     ActorCallbackNode *temp_v0;
     f32 *temp_v0_10;
     ActorPayloadABC0 *temp_v0_11;
@@ -1110,7 +1110,7 @@ void actorDispatchCallbacks(Actor *arg0) {
     ActorCallbackNode *var_s2;
 
     var_s7 = -1;
-    func_8067AC38();
+    actorGlobalStateClearEvents();
     temp_v0 = actorCallbackListSort(arg0->unk13C);
     arg0->unk13C = temp_v0;
     var_s2 = temp_v0;
@@ -1187,9 +1187,9 @@ void actorDispatchCallbacks(Actor *arg0) {
                     break;
                 case 0x400:
                     temp_v0_4 = (ActorPayloadAAB8 *)var_s2->unk10;
-                    LgDisp_D580->unk70 = temp_v0_4->unk0;
-                    LgDisp_D580->unk74 = temp_v0_4->unk4;
-                    LgDisp_D580->unk6C = (f32)temp_v0_4->unk8;
+                    PLAYER_STATE_VIEW->unk70 = temp_v0_4->unk0;
+                    PLAYER_STATE_VIEW->unk74 = temp_v0_4->unk4;
+                    PLAYER_STATE_VIEW->unk6C = (f32)temp_v0_4->unk8;
                     GSTATE.unk1A = 1;
                     if (arg0 == D_807FBB48) {
                         playerStateQueueCallback(0x17, var_s2->unk8, D_807FC929);
@@ -1268,11 +1268,11 @@ void actorDispatchCallbacks(Actor *arg0) {
                         GSTATE.unk7C[GSTATE.unk39] = (Actor *)var_s2->unk8;
                         GSTATE.unk8C[GSTATE.unk39] = temp_s0->unk10;
                         GSTATE.unk39++;
-                        func_80678F9C(arg0, var_s2->unk8);
+                        actorRiderListAdd(arg0, var_s2->unk8);
                     }
                     break;
                 case 0x20000:
-                    temp_s0_2 = (LgDisp_SubF8 *)var_s2->unk10;
+                    temp_s0_2 = (ActorCollisionHit *)var_s2->unk10;
                     if (GSTATE.unk1F8 != 4) {
                         memcpy(&GSTATE.unkF8[GSTATE.unk1F8], temp_s0_2, 0xC);
                         memcpy(GSTATE.unkF8[GSTATE.unk1F8].unkC, temp_s0_2->unkC, 0x24);
@@ -1284,7 +1284,7 @@ void actorDispatchCallbacks(Actor *arg0) {
                     }
                     break;
                 case 0x10000:
-                    temp_s0_3 = (LgDisp_Payload10000 *)var_s2->unk10;
+                    temp_s0_3 = (ActorPayload10000 *)var_s2->unk10;
                     GSTATE.unk91 = 1;
                     GSTATE.unk92 = temp_s0_3->unk0;
                     GSTATE.unk94 = temp_s0_3->unk2;
@@ -1356,8 +1356,8 @@ void actorDispatchCallbacks(Actor *arg0) {
 }
 
 
-struct R2CEntry2F0;
-extern struct R2CEntry2F0 *D_807FC924;
+struct PlayerTableEntry;
+extern struct PlayerTableEntry *D_807FC924;
 
 typedef struct DamageReactionPlayerEntry {
     u8 pad0[0x2C0];
@@ -1515,7 +1515,7 @@ ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorCallbackListSort.s")
 #endif
 
-void func_8067A170(s32 arg0, u8 arg1) {
+void actorCollisionEventsCancel(s32 arg0, u8 arg1) {
     s32 i;
 
     for (i = 0; i < D_807FBB70.unk201; i++) {
@@ -1528,23 +1528,23 @@ void func_8067A170(s32 arg0, u8 arg1) {
 extern u8 D_807FBC68[][0x40];
 extern u8 D_807FBC74[][0x40];
 
-typedef struct Ac7B_Vec3 {
+typedef struct ActorVec3f {
     f32 x;
     f32 y;
     f32 z;
-} Ac7B_Vec3;
+} ActorVec3f;
 
-typedef struct Ac7B_Slot {
+typedef struct ActorCollisionSlot {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
     u8 pad10[0x30];
-} Ac7B_Slot;
+} ActorCollisionSlot;
 
-typedef struct Ac7B_GlobalState {
+typedef struct ActorCollisionState {
     u8 pad0[0x3C];
-    Ac7B_Vec3 unk3C[4];
+    ActorVec3f unk3C[4];
     s32 unk6C[4];
     s32 unk7C[4];
     u8 unk8C[4];
@@ -1556,17 +1556,17 @@ typedef struct Ac7B_GlobalState {
     s32 unkD0;
     s32 unkD4;
     u8 padD8[0x50];
-    Ac7B_Slot unk128[1];
-} Ac7B_GlobalState;
+    ActorCollisionSlot unk128[1];
+} ActorCollisionState;
 
-#define Ac7B_GLOBAL ((Ac7B_GlobalState *)&D_807FBB70)
+#define COLLISION_STATE ((ActorCollisionState *)&D_807FBB70)
 
-s32 func_80674B90(Actor *, s32, f32 *, f32 *);
+s32 actorCollisionGetNodeHitPoint(Actor *, s32, f32 *, f32 *);
 void collisionTransformPointByActorMtx(Actor *, u32, f32 *, f32, f32 *);
-void func_806776A0(Actor *, s32, void *, void *, s32, s32, s32, s32);
+void actorCollisionResolveSurfaceHit(Actor *, s32, void *, void *, s32, s32, s32, s32);
 void func_806CF42C(Actor *);
 
-void func_8067A1DC(Actor *arg0) {
+void actorDispatchCollisionResults(Actor *arg0) {
     s32 i;
     f32 sp68;
     f32 sp64;
@@ -1579,12 +1579,12 @@ void func_8067A1DC(Actor *arg0) {
         case 0:
             break;
         case 1:
-            if (func_80674B90(arg0, D_807FBB70.unk204[i], &sp68, &sp64) != 0) {
+            if (actorCollisionGetNodeHitPoint(arg0, D_807FBB70.unk204[i], &sp68, &sp64) != 0) {
                 func_8067A69C((s32)arg0, (Actor *)D_807FBB70.unk204[i], sp68, sp64, 0, 1);
             }
             break;
         case 2:
-            func_80674B90(arg0, D_807FBB70.unk204[i], &sp5C, &sp58);
+            actorCollisionGetNodeHitPoint(arg0, D_807FBB70.unk204[i], &sp5C, &sp58);
             break;
         case 4:
             actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 1, 0, 0);
@@ -1633,19 +1633,19 @@ void func_8067A1DC(Actor *arg0) {
 
     if (D_807FBB70.unk39) {
         for (i = 0; i < D_807FBB70.unk39; i++) {
-            if (Ac7B_GLOBAL->unk8C[i] == 0) {
-                collisionTransformPointByActorMtx(arg0, Ac7B_GLOBAL->unk6C[i], &Ac7B_GLOBAL->unk3C[i].x, Ac7B_GLOBAL->unk3C[i].y, &Ac7B_GLOBAL->unk3C[i].z);
-                func_8067A69C((s32)arg0, (Actor *)Ac7B_GLOBAL->unk7C[i], Ac7B_GLOBAL->unk3C[i].x, Ac7B_GLOBAL->unk3C[i].z, 1, 1);
+            if (COLLISION_STATE->unk8C[i] == 0) {
+                collisionTransformPointByActorMtx(arg0, COLLISION_STATE->unk6C[i], &COLLISION_STATE->unk3C[i].x, COLLISION_STATE->unk3C[i].y, &COLLISION_STATE->unk3C[i].z);
+                func_8067A69C((s32)arg0, (Actor *)COLLISION_STATE->unk7C[i], COLLISION_STATE->unk3C[i].x, COLLISION_STATE->unk3C[i].z, 1, 1);
             }
         }
     }
 
     if (D_807FBB70.unk91 != 0) {
-        func_806776A0(arg0, Ac7B_GLOBAL->unkCC, &D_807FBC08, &D_807FBC14, Ac7B_GLOBAL->unkC8, Ac7B_GLOBAL->unkD0, Ac7B_GLOBAL->unkD4, 1);
+        actorCollisionResolveSurfaceHit(arg0, COLLISION_STATE->unkCC, &D_807FBC08, &D_807FBC14, COLLISION_STATE->unkC8, COLLISION_STATE->unkD0, COLLISION_STATE->unkD4, 1);
     }
 
     for (i = 0; i < D_807FBB70.unk1F8; i++) {
-        func_806776A0(arg0, Ac7B_GLOBAL->unk128[i].unkC, D_807FBC68[i], D_807FBC74[i], Ac7B_GLOBAL->unk128[i].unk0, Ac7B_GLOBAL->unk128[i].unk4, Ac7B_GLOBAL->unk128[i].unk8, 0);
+        actorCollisionResolveSurfaceHit(arg0, COLLISION_STATE->unk128[i].unkC, D_807FBC68[i], D_807FBC74[i], COLLISION_STATE->unk128[i].unk0, COLLISION_STATE->unk128[i].unk4, COLLISION_STATE->unk128[i].unk8, 0);
     }
 }
 
@@ -1686,7 +1686,7 @@ void func_8067A7EC(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5
     actorAppendCallback(arg1, arg0, 0x1, 0, 1, temp);
 }
 
-typedef struct R2DActorPayloadA864 {
+typedef struct ActorPayloadA864 {
     s16 unk0;
     s16 unk2;
     u8 unk4[0xC];
@@ -1694,10 +1694,10 @@ typedef struct R2DActorPayloadA864 {
     s32 unk34;
     s32 unk38;
     s32 unk3C;
-} R2DActorPayloadA864;
+} ActorPayloadA864;
 
 void func_8067A864(s32 arg0, Actor *arg1, s16 arg2, s16 arg3, void *arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
-    R2DActorPayloadA864 *temp = heapAlloc(sizeof(R2DActorPayloadA864));
+    ActorPayloadA864 *temp = heapAlloc(sizeof(ActorPayloadA864));
     temp->unk0 = arg2;
     temp->unk2 = arg3;
     memcpy(temp->unk4, arg4, 0xC);
@@ -1708,16 +1708,16 @@ void func_8067A864(s32 arg0, Actor *arg1, s16 arg2, s16 arg3, void *arg4, void *
     actorAppendCallback(arg1, arg0, 0x10000, 0, 1, temp);
 }
 
-typedef struct R2DActorPayloadA908 {
+typedef struct ActorPayloadA908 {
     u8 unk0[0xC];
     u8 unkC[0x24];
     s32 unk30;
     s32 unk34;
     s32 unk38;
-} R2DActorPayloadA908;
+} ActorPayloadA908;
 
 void func_8067A908(s32 arg0, Actor *arg1, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
-    R2DActorPayloadA908 *temp = heapAlloc(sizeof(R2DActorPayloadA908));
+    ActorPayloadA908 *temp = heapAlloc(sizeof(ActorPayloadA908));
     memcpy(temp, arg2, 0xC);
     memcpy((u8 *)temp + 0xC, arg3, 0x24);
     temp->unk30 = arg4;
@@ -1775,7 +1775,7 @@ void func_8067ABC0(s32 arg0, Actor *arg1, u8 arg2, s16 arg3, s16 arg4, f32 arg5,
     actorAppendCallback(arg1, arg0, 0x800000, arg2, 1, temp);
 }
 
-void func_8067AC38(void) {
+void actorGlobalStateClearEvents(void) {
     D_807FBB70.unkE5 = 0;
     D_807FBB70.unk15 = 0;
     D_807FBB70.unk16 = 0;
@@ -1813,7 +1813,7 @@ u16 func_8067ACC0(u16 arg0) {
     return D_8074D624[arg0];
 }
 
-s32 func_8067ACDC(arg0, arg1, arg2)
+s32 actorCountOwnedByClass(arg0, arg1, arg2)
 s32 arg0;
 u16 arg1;
 s32 (*arg2)(Actor *);
@@ -1832,13 +1832,13 @@ s32 (*arg2)(Actor *);
     return count;
 }
 
-typedef struct R2CEntry2F0 {
+typedef struct PlayerTableEntry {
     u8 unk0;
     char pad1[3];
     s32 unk4;
     char pad8[0x2F0 - 8];
-} R2CEntry2F0;
-extern R2CEntry2F0 *D_807FC924;
+} PlayerTableEntry;
+extern PlayerTableEntry *D_807FC924;
 extern u8 D_807FC928;
 
 void actorTableSort(void);
@@ -2001,7 +2001,7 @@ void playerSetActiveGlobals(Actor *arg0) {
     player->unk2C1 = 0;
 }
 
-u8 func_8067B1E0(s32 arg0) {
+u8 playerFindIndexByActor(s32 arg0) {
     s32 i;
     for (i = 0; i < D_807FC928; i++) {
         if (D_807FC924[i].unk0 != 0 && arg0 == D_807FC924[i].unk4) {
@@ -2011,7 +2011,7 @@ u8 func_8067B1E0(s32 arg0) {
     return 0;
 }
 
-void func_8067B238(Actor *arg0, Actor *arg1, f32 arg2) {
+void actorCopyPoseAndScale(Actor *arg0, Actor *arg1, f32 arg2) {
     arg0->unk7C = arg1->unk7C;
     arg0->unk80 = arg1->unk80;
     arg0->unk84 = arg1->unk84;
@@ -2043,20 +2043,20 @@ s32 func_8067B2C0(s32 arg0) {
 
 s32 controllerAnimInit(Actor *, u16, void *);
 
-typedef struct R2EActorSub140 {
+typedef struct ActorSub140View {
     u8 pad0[0xC];
     s32 unkC;
-} R2EActorSub140;
+} ActorSub140View;
 
-typedef struct R2EArgB2DC {
+typedef struct ActorInitArg {
     u8 pad0[2];
     u16 unk2;
-} R2EArgB2DC;
+} ActorInitArg;
 
-s32 func_8067B2DC(R2EArgB2DC *arg0) {
+s32 func_8067B2DC(ActorInitArg *arg0) {
     if (controllerAnimInit(D_807FBB44, arg0->unk2, arg0) != 0) {
         D_807FBB44->unk140 = actorSub140CreateFromModel(D_807FBB44);
-        D_807FBB44->unk15E = (u32)(((f64)((R2EActorSub140 *)D_807FBB44->unk140)->unkC * 0.15) * 0.5);
+        D_807FBB44->unk15E = (u32)(((f64)((ActorSub140View *)D_807FBB44->unk140)->unkC * 0.15) * 0.5);
         return 1;
     }
     return 0;

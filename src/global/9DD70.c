@@ -922,7 +922,7 @@ void func_8069B3FC(void) {
 extern s16 D_80744490;
 s32 actorTableContains();
 void func_8069B908(void);
-void func_80689114(s16, f32, f32, f32, s16, f32, s32);
+void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, s32);
 s32 flagGet(s32, s32);
 
 s32 actorHasCallbackTargetThisFrame(void) {
@@ -994,9 +994,9 @@ void actorListSetPosByActor(Actor *, f32, f32, f32);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, s32);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
-void func_806791DC(Actor *, s32);
-void func_806791EC(Actor *, s32);
-void func_8067A170(void *, s32);
+void actorCallbackMaskEnable(Actor *, s32);
+void actorCallbackMaskDisable(Actor *, s32);
+void actorCollisionEventsCancel(void *, s32);
 void func_8068A2FC(Actor *);
 void func_806CF4B8(Actor *);
 void sfxSetVolumeAndPan(u8, f32, f32);
@@ -1078,8 +1078,8 @@ void func_8069B908(void) {
     if (D_807FBB94 != 0) {
         sp13C->unk14 = D_807FBB98;
         D_807FBB40->unk154 = 1;
-        func_806791EC(D_807FBB40, 0x8000);
-        func_8067A170(sp13C->unk14, 1);
+        actorCallbackMaskDisable(D_807FBB40, 0x8000);
+        actorCollisionEventsCancel(sp13C->unk14, 1);
         D_807FBB40->unk144 = 0x2C;
     }
     if (D_807FBB95 != 0) {
@@ -1087,7 +1087,7 @@ void func_8069B908(void) {
         *(u8 *)((u8 *)D_807FBB40 + 0x155) = 0;
         sp13C->unk1C = 0x1E;
         D_807FBB40->unk144 = 0x3C;
-        func_806791DC(D_807FBB40, 0x8000);
+        actorCallbackMaskEnable(D_807FBB40, 0x8000);
         if (D_8076A0A8 == 7 && actorListFindIdByActor(D_807FBB40) == 0x17) {
             actorListSetPosByActor(D_807FBB40, D_807FBB40->unk7C, D_807FBB40->unkA4, D_807FBB40->unk84);
         }
@@ -1106,12 +1106,12 @@ void func_8069B908(void) {
     if (D_807FBB9C != 0) {
         D_807FBB40->unk154 = 3;
         D_807FBB40->unk144 = 0x3C;
-        func_806791DC(D_807FBB40, 0x8000);
+        actorCallbackMaskEnable(D_807FBB40, 0x8000);
         D_807FBB40->unkE6 = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) = *(f32 *)((u8 *)&D_807FBB70 + 0x30);
         D_807FBB40->unkB8 = (f32)*(s16 *)((u8 *)&D_807FBB70 + 0x34);
-        func_8067A170(sp13C->unk14, 1);
+        actorCollisionEventsCancel(sp13C->unk14, 1);
         if (D_807FBB40->unk58 == 0x43 && D_8076A0A8 == 0x1E) {
             D_807FBB40->unk60 |= 0x200000;
             sp13C->unk0 = D_8076A068;
@@ -1410,7 +1410,7 @@ void actorSpawnEffectAndTick(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk12C[4] = 0x3C;
         D_807FBB40->unk12C[5] = 0x3C;
-        func_80689114(0x83, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84,
+        actorListSpawnNodeEntryDefault(0x83, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84,
                       0, 1.0f, (s32)D_807FBB40);
     }
     func_8069B908();

@@ -120,21 +120,21 @@ s32 func_8067B450(void *actor) {
 }
 
 
-typedef struct Tb80A_Sub4 {
+typedef struct ActorB4C8Sub4 {
     u8 pad0[0x1C];
-    struct Tb80A_Sub4C *unk1C;
-} Tb80A_Sub4;
+    struct ActorB4C8Sub4Data *unk1C;
+} ActorB4C8Sub4;
 
-typedef struct Tb80A_Sub4C {
+typedef struct ActorB4C8Sub4Data {
     u8 unk0;
     u8 unk1;
     s16 unk2;
     s16 unk4;
     s16 unk6;
     u8 unk8;
-} Tb80A_Sub4C;
+} ActorB4C8Sub4Data;
 
-typedef struct Tb80A_Spawn {
+typedef struct ActorB4C8Spawn {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -142,9 +142,9 @@ typedef struct Tb80A_Spawn {
     f32 unk10;
     s32 unk14;
     s32 unk18;
-} Tb80A_Spawn;
+} ActorB4C8Spawn;
 
-typedef struct Tb80A_Sub174 {
+typedef struct ActorB4C8State {
     Actor *unk0;
     f32 unk4;
     f32 unk8;
@@ -152,14 +152,14 @@ typedef struct Tb80A_Sub174 {
     f32 unk10;
     u8 unk14;
     u8 unk15;
-} Tb80A_Sub174;
+} ActorB4C8State;
 
-typedef struct Tb80A_Peer174 {
+typedef struct ActorB4C8PeerState {
     u8 pad0[0xB0];
     f32 unkB0;
     f32 unkB4;
     f32 unkB8;
-} Tb80A_Peer174;
+} ActorB4C8PeerState;
 
 extern u8 D_8071FBC8;
 void *heapAlloc(s32);
@@ -171,24 +171,24 @@ void func_8067AAB8(s32, Actor *, s16, f32, s16);
 void func_80714C08(void *, f32, void *, s32, s32);
 
 void func_8067B4C8(void) {
-    Tb80A_Sub174 *sub = D_807FBB40->unk174;
-    Tb80A_Peer174 *peer;
+    ActorB4C8State *sub = D_807FBB40->unk174;
+    ActorB4C8PeerState *peer;
     s32 i;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
-        ((Tb80A_Sub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x10);
-        ((Tb80A_Sub4 *)D_807FBB40->unk4)->unk1C->unk0 = 0x7F;
-        ((Tb80A_Sub4 *)D_807FBB40->unk4)->unk1C->unk1 = 2;
-        ((Tb80A_Sub4 *)D_807FBB40->unk4)->unk1C->unk2 = (u32)((((Tb80A_Spawn *)D_807FBB40->unk124)->unk0 * 65536.0f) / 360.0f);
-        ((Tb80A_Sub4 *)D_807FBB40->unk4)->unk1C->unk4 = 0;
-        ((Tb80A_Sub4 *)D_807FBB40->unk4)->unk1C->unk6 = 0;
-        ((Tb80A_Sub4 *)D_807FBB40->unk4)->unk1C->unk8 = 0;
-        sub->unk4 = ((Tb80A_Spawn *)D_807FBB40->unk124)->unk4;
-        sub->unk8 = ((Tb80A_Spawn *)D_807FBB40->unk124)->unk8;
-        sub->unkC = ((Tb80A_Spawn *)D_807FBB40->unk124)->unkC;
-        sub->unk10 = ((Tb80A_Spawn *)D_807FBB40->unk124)->unk10;
-        sub->unk15 = ((Tb80A_Spawn *)D_807FBB40->unk124)->unk14;
-        if (1 == ((Tb80A_Spawn *)D_807FBB40->unk124)->unk18) {
+        ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x10);
+        ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C->unk0 = 0x7F;
+        ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C->unk1 = 2;
+        ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C->unk2 = (u32)((((ActorB4C8Spawn *)D_807FBB40->unk124)->unk0 * 65536.0f) / 360.0f);
+        ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C->unk4 = 0;
+        ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C->unk6 = 0;
+        ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C->unk8 = 0;
+        sub->unk4 = ((ActorB4C8Spawn *)D_807FBB40->unk124)->unk4;
+        sub->unk8 = ((ActorB4C8Spawn *)D_807FBB40->unk124)->unk8;
+        sub->unkC = ((ActorB4C8Spawn *)D_807FBB40->unk124)->unkC;
+        sub->unk10 = ((ActorB4C8Spawn *)D_807FBB40->unk124)->unk10;
+        sub->unk15 = ((ActorB4C8Spawn *)D_807FBB40->unk124)->unk14;
+        if (1 == ((ActorB4C8Spawn *)D_807FBB40->unk124)->unk18) {
             if (func_8067B450(D_807FBB40) == 0) {
                 D_807FBB40->unk154 = 0x14;
                 D_807FBB40->unk144 = 1;
@@ -296,7 +296,7 @@ void animSetSpeed(Actor *, s32, f32);
 void animSetLoopMode(Actor *, s32, s32);
 void animSetDirection(Actor *, s32, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, u8);
-void func_80689114(s16, f32, f32, f32, s16, f32, void *);
+void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, void *);
 extern u8 D_807FBBA8;
 
 
@@ -315,7 +315,7 @@ void func_8067BA7C(s32 arg0) {
             func_807149B8(0);
             func_807149FC(1);
             func_80714CC0(&D_8071FE08, 0.5f, D_807FBB40->unk7C, D_807FBB40->unk80 + 7.0f, D_807FBB40->unk84);
-            func_80689114(arg0, D_807FBB40->unk7C, D_807FBB40->unk80 + 8.3, D_807FBB40->unk84, 0, 1.0f, D_807FBB40);
+            actorListSpawnNodeEntryDefault(arg0, D_807FBB40->unk7C, D_807FBB40->unk80 + 8.3, D_807FBB40->unk84, 0, 1.0f, D_807FBB40);
             D_807FBB40->unk154++;
             break;
         case 11:
@@ -376,7 +376,7 @@ void func_8067BD28(void) {
         var_v1 = 1;
     }
     if (!(D_807FBB40->unk60 & 0x10) || var_v1) {
-        func_80689114(0x55, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0, 1.0f, D_807FBB40);
+        actorListSpawnNodeEntryDefault(0x55, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0, 1.0f, D_807FBB40);
     }
 }
 
@@ -499,7 +499,7 @@ s32 tagBarrelCheckProximityAndFall(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
         }
     }
     if (sp47 != 0) {
-        func_80689114(arg0, D_807FBB40->unk7C, (f32)((f64)D_807FBB40->unk80 + 8.3), D_807FBB40->unk84, 0, 1.0f, D_807FBB40);
+        actorListSpawnNodeEntryDefault(arg0, D_807FBB40->unk7C, (f32)((f64)D_807FBB40->unk80 + 8.3), D_807FBB40->unk84, 0, 1.0f, D_807FBB40);
         if (D_807FBB40->unk60 & 0x10) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x31, 0xFF, 0x7F, 1);
             func_807149B8(0);
@@ -516,14 +516,14 @@ s32 tagBarrelCheckProximityAndFall(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     return sp47;
 }
 
-typedef struct R2H_8067C2B8 {
+typedef struct ActorC2B8State {
     u8 unk0;
     u8 pad1[3];
     f32 unk4;
     u8 unk8;
-} R2H_8067C2B8;
+} ActorC2B8State;
 
-typedef struct R2H_Actor {
+typedef struct ActorC2B8 {
     /* 0x000 */ u8 unk00[0x60];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 unk64[4];
@@ -542,104 +542,104 @@ typedef struct R2H_Actor {
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145[0x2F];
     /* 0x174 */ void *unk174;
-} R2H_Actor;
+} ActorC2B8;
 
-typedef struct R2H_ActorGlobalState {
+typedef struct ActorC2B8GlobalState {
     /* 0x000 */ u8 unk0[0x90];
     /* 0x090 */ u8 unk90;
     /* 0x091 */ u8 unk91;
     /* 0x092 */ s16 unk92;
     /* 0x094 */ s16 unk94;
-} R2H_ActorGlobalState;
+} ActorC2B8GlobalState;
 
-#define R2H_ACTOR ((R2H_Actor *)D_807FBB40)
-#define R2H_STATE ((R2H_ActorGlobalState *)&D_807FBB70)
+#define ACTOR_C2B8 ((ActorC2B8 *)D_807FBB40)
+#define STATE_C2B8 ((ActorC2B8GlobalState *)&D_807FBB70)
 
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void actorStepPhysics(Actor *, s16, s16);
 
 void func_8067C2B8(void) {
-    R2H_8067C2B8 *temp_v0;
+    ActorC2B8State *temp_v0;
     f32 temp_fv1;
     f32 temp_fv0;
     s16 temp_a1;
 
-    temp_v0 = (R2H_8067C2B8 *) R2H_ACTOR->unk174;
-    if (!(R2H_ACTOR->unk60 & 0x10)) {
-        R2H_ACTOR->unk68 |= 4;
-        R2H_ACTOR->unk60 |= 0x80;
+    temp_v0 = (ActorC2B8State *) ACTOR_C2B8->unk174;
+    if (!(ACTOR_C2B8->unk60 & 0x10)) {
+        ACTOR_C2B8->unk68 |= 4;
+        ACTOR_C2B8->unk60 |= 0x80;
         temp_v0->unk0 = 0;
         temp_v0->unk8 = 0;
         temp_v0->unk4 = 0.0f;
     }
-    if (!(R2H_ACTOR->unk68 & 4)) {
-        R2H_ACTOR->unkB8 = 0.0f;
+    if (!(ACTOR_C2B8->unk68 & 4)) {
+        ACTOR_C2B8->unkB8 = 0.0f;
     }
-    if (R2H_STATE->unk90 != 0) {
+    if (STATE_C2B8->unk90 != 0) {
         temp_v0->unk8 = 1;
     }
-    if (R2H_STATE->unk91 != 0) {
+    if (STATE_C2B8->unk91 != 0) {
         if (temp_v0->unk0 == 0) {
             sfxPlayActorSound(D_807FBB40, 0x10C, 0, 1, 0, 0xFF, 1.0f, 0);
             temp_v0->unk0 = 1;
         }
-        temp_v0->unk4 = (f64) R2H_STATE->unk94 / 1.1;
-        R2H_ACTOR->unkEE = R2H_STATE->unk92;
-        temp_fv1 = R2H_ACTOR->unkB8;
+        temp_v0->unk4 = (f64) STATE_C2B8->unk94 / 1.1;
+        ACTOR_C2B8->unkEE = STATE_C2B8->unk92;
+        temp_fv1 = ACTOR_C2B8->unkB8;
         if (temp_fv1 < temp_v0->unk4) {
-            R2H_ACTOR->unkB8 = temp_fv1 + 0.8;
+            ACTOR_C2B8->unkB8 = temp_fv1 + 0.8;
             temp_fv0 = temp_v0->unk4;
-            if (temp_fv0 < R2H_ACTOR->unkB8) {
-                R2H_ACTOR->unkB8 = temp_fv0;
+            if (temp_fv0 < ACTOR_C2B8->unkB8) {
+                ACTOR_C2B8->unkB8 = temp_fv0;
             }
         } else {
-            R2H_ACTOR->unkB8 = temp_fv1 - 1.5;
-            if (R2H_ACTOR->unkB8 < 0.0f) {
-                R2H_ACTOR->unkB8 = 0.0f;
+            ACTOR_C2B8->unkB8 = temp_fv1 - 1.5;
+            if (ACTOR_C2B8->unkB8 < 0.0f) {
+                ACTOR_C2B8->unkB8 = 0.0f;
             }
         }
-        R2H_ACTOR->unkFA = 0x64;
-        temp_a1 = R2H_ACTOR->unkEE;
+        ACTOR_C2B8->unkFA = 0x64;
+        temp_a1 = ACTOR_C2B8->unkEE;
         actorStepPhysics(D_807FBB40, temp_a1, temp_a1);
         actorApplyVelocity(D_807FBB40);
         actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
-        R2H_ACTOR->unk80 = R2H_ACTOR->unkA4;
+        ACTOR_C2B8->unk80 = ACTOR_C2B8->unkA4;
         if (temp_v0->unk8 == 0) {
-            R2H_ACTOR->unk144 = 0x3C;
+            ACTOR_C2B8->unk144 = 0x3C;
         }
     } else {
-        if ((temp_v0->unk0 != 0) && ((f64) R2H_ACTOR->unkB8 == 0.0)) {
+        if ((temp_v0->unk0 != 0) && ((f64) ACTOR_C2B8->unkB8 == 0.0)) {
             temp_v0->unk0 = 0;
             sfxStopSlotSound(D_807FBB40, 0);
         }
         temp_v0->unk4 = 0.0f;
-        temp_fv1 = R2H_ACTOR->unkB8;
+        temp_fv1 = ACTOR_C2B8->unkB8;
         if (temp_fv1 < 0.0f) {
-            R2H_ACTOR->unkB8 = temp_fv1 + 0.8;
+            ACTOR_C2B8->unkB8 = temp_fv1 + 0.8;
             temp_fv0 = temp_v0->unk4;
-            if (temp_fv0 < R2H_ACTOR->unkB8) {
-                R2H_ACTOR->unkB8 = temp_fv0;
+            if (temp_fv0 < ACTOR_C2B8->unkB8) {
+                ACTOR_C2B8->unkB8 = temp_fv0;
             }
         } else {
-            R2H_ACTOR->unkB8 = temp_fv1 - 1.5;
-            if (R2H_ACTOR->unkB8 < 0.0f) {
-                R2H_ACTOR->unkB8 = 0.0f;
+            ACTOR_C2B8->unkB8 = temp_fv1 - 1.5;
+            if (ACTOR_C2B8->unkB8 < 0.0f) {
+                ACTOR_C2B8->unkB8 = 0.0f;
             }
         }
-        R2H_ACTOR->unkFA = 0x64;
-        temp_a1 = R2H_ACTOR->unkEE;
+        ACTOR_C2B8->unkFA = 0x64;
+        temp_a1 = ACTOR_C2B8->unkEE;
         actorStepPhysics(D_807FBB40, temp_a1, temp_a1);
         actorApplyVelocity(D_807FBB40);
         actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         if (temp_v0->unk8 == 0) {
-            if (((f64) R2H_ACTOR->unkB8 == 0.0) || !(R2H_ACTOR->unk60 & 0x10)) {
-                R2H_ACTOR->unk144 = 2;
+            if (((f64) ACTOR_C2B8->unkB8 == 0.0) || !(ACTOR_C2B8->unk60 & 0x10)) {
+                ACTOR_C2B8->unk144 = 2;
             } else {
-                R2H_ACTOR->unk144 = 0x3C;
+                ACTOR_C2B8->unk144 = 0x3C;
             }
         }
-        R2H_ACTOR->unk80 = R2H_ACTOR->unkA4;
+        ACTOR_C2B8->unk80 = ACTOR_C2B8->unkA4;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -665,9 +665,9 @@ void func_8067C6FC(void) {
 }
 
 extern Actor *D_807FBB44;
-typedef f32 LgC71_MtxF[4][4];
+typedef f32 ActorC71CMtxF[4][4];
 
-typedef struct LgC71_Actor174 {
+typedef struct ActorC71CState {
     /* 0x00 */ struct Actor *unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ f32 unk8;
@@ -688,17 +688,17 @@ typedef struct LgC71_Actor174 {
     /* 0x38 */ u8 unk38;
     /* 0x39 */ u8 unk39;
     /* 0x3A */ u8 unk3A;
-} LgC71_Actor174;
+} ActorC71CState;
 
-typedef struct LgC71_ActorSub118 {
+typedef struct ActorC71CSub118 {
     u8 pad0[0xC];
     u8 unkC;
     u8 padD;
     s16 unkE;
     s16 unk10;
-} LgC71_ActorSub118;
+} ActorC71CSub118;
 
-typedef struct LgC71_Actor {
+typedef struct ActorC71C {
     /* 0x000 */ u8 pad0[0x4];
     /* 0x004 */ ActorSub4 *unk4;
     /* 0x008 */ u8 pad8[0x50];
@@ -745,7 +745,7 @@ typedef struct LgC71_Actor {
     /* 0x0FD */ u8 padFD[0x13];
     /* 0x110 */ u8 unk110;
     /* 0x111 */ u8 pad111[7];
-    /* 0x118 */ LgC71_ActorSub118 *unk118;
+    /* 0x118 */ ActorC71CSub118 *unk118;
     /* 0x11C */ s32 unk11C;
     /* 0x120 */ u8 pad120[8];
     /* 0x128 */ s16 unk128;
@@ -755,10 +755,10 @@ typedef struct LgC71_Actor {
     /* 0x145 */ u8 pad145[0xF];
     /* 0x154 */ u8 unk154;
     /* 0x155 */ u8 pad155[0x1F];
-    /* 0x174 */ LgC71_Actor174 *unk174;
-} LgC71_Actor;
+    /* 0x174 */ ActorC71CState *unk174;
+} ActorC71C;
 
-typedef struct LgC71_ActorGlobalState {
+typedef struct ActorC71CGlobalState {
     /* 0x000 */ u8 pad0[0x15];
     /* 0x015 */ u8 unk15;
     /* 0x016 */ u8 pad16[0xE];
@@ -773,12 +773,12 @@ typedef struct LgC71_ActorGlobalState {
     /* 0x036 */ s16 unk36;
     /* 0x038 */ u8 pad38[0x1C8];
     /* 0x200 */ u8 unk200;
-} LgC71_ActorGlobalState;
+} ActorC71CGlobalState;
 
-#define LgC71_ACTOR ((LgC71_Actor *)D_807FBB40)
-#define LgC71_STATE ((LgC71_ActorGlobalState *)&D_807FBB70)
-#define LgC71_ACTOR44 ((LgC71_Actor *)D_807FBB44)
-#define LgC71_ACTOR4C ((LgC71_Actor *)D_807FBB4C)
+#define ACTOR_C71C ((ActorC71C *)D_807FBB40)
+#define STATE_C71C ((ActorC71CGlobalState *)&D_807FBB70)
+#define ACTOR44_C71C ((ActorC71C *)D_807FBB44)
+#define ACTOR4C_C71C ((ActorC71C *)D_807FBB4C)
 
 extern s32 D_807FBB64;
 extern u8 D_807FBBA9;
@@ -805,11 +805,11 @@ void actorClearNodeFlag(Actor *, s32);
 s32 actorAngleInArc(Actor *, s16);
 void mathAngleClampToArc(s16, s16, s16, s16, s16 *);
 s32 actorSpawn(s32, s32);
-void func_806791DC(Actor *, s32);
-void func_806791EC(Actor *, s32);
-void func_8067A170(Actor *, s32);
+void actorCallbackMaskEnable(Actor *, s32);
+void actorCallbackMaskDisable(Actor *, s32);
+void actorCollisionEventsCancel(Actor *, s32);
 void func_8067ACB4(Actor *);
-void func_8067B238(Actor *, Actor *, f32);
+void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void func_8067E278();
 void func_806CF4B8(Actor *);
 void func_807149A8(s32);
@@ -818,93 +818,93 @@ void pathFollowUpdateHeading(Actor *, s32);
 void animationOwnerFreeBuffer(Actor *);
 
 void func_8067C71C(void) {
-    LgC71_Actor174 *temp_s1;
-    LgC71_MtxF spB4;
-    LgC71_MtxF sp74;
+    ActorC71CState *temp_s1;
+    ActorC71CMtxF spB4;
+    ActorC71CMtxF sp74;
     f32 var_fv0;
     f32 var_fv0_2;
     s16 temp_a0;
     u8 *tp;
 
-    temp_s1 = LgC71_ACTOR->unk174;
-    if (!(LgC71_ACTOR->unk60 & 0x10)) {
-        LgC71_ACTOR->unkFA = 0x270F;
+    temp_s1 = ACTOR_C71C->unk174;
+    if (!(ACTOR_C71C->unk60 & 0x10)) {
+        ACTOR_C71C->unkFA = 0x270F;
         temp_s1->unk38 = 0;
         temp_s1->unk39 = 0;
-        if (LgC71_ACTOR->unk58 == 0x1A) {
-            LgC71_ACTOR->unk60 |= 0x1000;
+        if (ACTOR_C71C->unk58 == 0x1A) {
+            ACTOR_C71C->unk60 |= 0x1000;
             func_807149B8(1);
             func_807149FC(-1);
-            func_807149A8((s16)((f64)LgC71_ACTOR->unk12A * 0.75));
+            func_807149A8((s16)((f64)ACTOR_C71C->unk12A * 0.75));
             func_80714C08(&D_8072030C, 0.14f, D_807FBB40, 1, 2);
             actorClearNodeFlag(D_807FBB40, 3);
         }
-        LgC71_ACTOR->unkA4 = 99999.0f;
+        ACTOR_C71C->unkA4 = 99999.0f;
         actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         if (actorHasActiveMovementFlags(D_807FBB40)) {
-            LgC71_ACTOR->unk154 = 2;
-            LgC71_ACTOR->unk68 |= 1;
+            ACTOR_C71C->unk154 = 2;
+            ACTOR_C71C->unk68 |= 1;
             temp_s1->unkC = 0x1E;
-            LgC71_ACTOR->unk144 = 2;
+            ACTOR_C71C->unk144 = 2;
             temp_s1->unk8 = 360.0f;
             temp_s1->unk14 = 0.0f;
         }
-        LgC71_ACTOR->unk68 |= 0x40;
+        ACTOR_C71C->unk68 |= 0x40;
     }
 
-    if (LgC71_STATE->unk24 != 0) {
+    if (STATE_C71C->unk24 != 0) {
         if (temp_s1->unk39 == 0) {
-            temp_s1->unk0 = (Actor *)LgC71_STATE->unk28;
-            LgC71_ACTOR->unk154 = 1;
+            temp_s1->unk0 = (Actor *)STATE_C71C->unk28;
+            ACTOR_C71C->unk154 = 1;
             temp_s1->unk8 = 360.0f;
-            func_806791EC(D_807FBB40, 0x8000);
-            func_8067A170(temp_s1->unk0, 1);
-            LgC71_ACTOR->unk144 = 0x2C;
+            actorCallbackMaskDisable(D_807FBB40, 0x8000);
+            actorCollisionEventsCancel(temp_s1->unk0, 1);
+            ACTOR_C71C->unk144 = 0x2C;
             animationOwnerFreeBuffer(D_807FBB40);
         } else {
             func_806CF4B8(D_807FBB40);
         }
     }
 
-    if (LgC71_STATE->unk25 != 0) {
-        LgC71_ACTOR->unk154 = 2;
+    if (STATE_C71C->unk25 != 0) {
+        ACTOR_C71C->unk154 = 2;
         temp_s1->unkC = 0x1E;
-        LgC71_ACTOR->unk144 = 0x3C;
-        func_806791DC(D_807FBB40, 0x8000);
+        ACTOR_C71C->unk144 = 0x3C;
+        actorCallbackMaskEnable(D_807FBB40, 0x8000);
     }
 
-    if (((LgC71_STATE->unk15 != 0) || (LgC71_STATE->unk200 == 9)) && (temp_s1->unk39 == 0)) {
-        LgC71_ACTOR->unk154 = 4;
+    if (((STATE_C71C->unk15 != 0) || (STATE_C71C->unk200 == 9)) && (temp_s1->unk39 == 0)) {
+        ACTOR_C71C->unk154 = 4;
         func_806CF4B8(D_807FBB40);
     }
 
-    if (temp_s1->unk39 != 0 && (LgC71_STATE->unk15 != 0 || LgC71_STATE->unk200 == 9)) {
-        LgC71_ACTOR->unk144 = 1;
+    if (temp_s1->unk39 != 0 && (STATE_C71C->unk15 != 0 || STATE_C71C->unk200 == 9)) {
+        ACTOR_C71C->unk144 = 1;
     }
 
-    if (LgC71_STATE->unk2C != 0) {
-        LgC71_ACTOR->unk154 = 3;
-        LgC71_ACTOR->unk144 = 0x3C;
-        func_806791DC(D_807FBB40, 0x8000);
-        LgC71_ACTOR->unkE6 = LgC71_STATE->unk36;
-        LgC71_ACTOR->unkEE = LgC71_STATE->unk36;
-        LgC71_ACTOR->unkC0 = LgC71_STATE->unk30;
+    if (STATE_C71C->unk2C != 0) {
+        ACTOR_C71C->unk154 = 3;
+        ACTOR_C71C->unk144 = 0x3C;
+        actorCallbackMaskEnable(D_807FBB40, 0x8000);
+        ACTOR_C71C->unkE6 = STATE_C71C->unk36;
+        ACTOR_C71C->unkEE = STATE_C71C->unk36;
+        ACTOR_C71C->unkC0 = STATE_C71C->unk30;
         temp_s1->unk4 = D_8076A064;
         temp_s1->unk18 = 0;
         temp_s1->unk1A = 0;
-        LgC71_ACTOR->unkB8 = LgC71_STATE->unk34;
-        func_8067A170(temp_s1->unk0, 1);
+        ACTOR_C71C->unkB8 = STATE_C71C->unk34;
+        actorCollisionEventsCancel(temp_s1->unk0, 1);
     }
 
     func_8067ACB4(D_807FBB40);
-    switch (LgC71_ACTOR->unk154) {
+    switch (ACTOR_C71C->unk154) {
     case 0:
-        LgC71_ACTOR->unk144 = 2;
+        ACTOR_C71C->unk144 = 2;
         temp_s1->unk8 = 360.0f;
         temp_s1->unk14 = 0.0f;
         func_8066E6C8(D_807FBB40, 0, 1);
         func_8066E6C8(D_807FBB40, 1, 0);
-        LgC71_ACTOR->unk68 |= 1;
+        ACTOR_C71C->unk68 |= 1;
         break;
     case 1:
         func_8066E6C8(D_807FBB40, 0, 0);
@@ -915,13 +915,13 @@ void func_8067C71C(void) {
             temp_s1->unk8 += 360.0;
         }
         temp_s1->unk10 = ((f64)temp_s1->unk0->unkE6 / 4095.0) * 360.0;
-        LgC71_ACTOR->unk68 &= ~1;
+        ACTOR_C71C->unk68 &= ~1;
         break;
     case 2:
         func_8066E6C8(D_807FBB40, 0, 1);
         func_8066E6C8(D_807FBB40, 1, 0);
         if (--temp_s1->unkC == 0) {
-            LgC71_ACTOR->unk154 = 0;
+            ACTOR_C71C->unk154 = 0;
         } else if (actorHasActiveMovementFlags(D_807FBB40)) {
             temp_s1->unkC = 0x1E;
         }
@@ -929,28 +929,28 @@ void func_8067C71C(void) {
         if (temp_s1->unk8 > 360.0) {
             temp_s1->unk8 = 360.0f;
         }
-        LgC71_ACTOR->unkC0 = -200.0f;
-        LgC71_ACTOR->unkB8 = 0.0f;
-        LgC71_ACTOR->unk68 |= 1;
+        ACTOR_C71C->unkC0 = -200.0f;
+        ACTOR_C71C->unkB8 = 0.0f;
+        ACTOR_C71C->unk68 |= 1;
         break;
     case 3:
         func_8066E6C8(D_807FBB40, 0, 1);
         func_8066E6C8(D_807FBB40, 1, 1);
-        LgC71_ACTOR->unkC0 += D_807502E4;
-        if (LgC71_ACTOR->unkC0 < (f32)D_807502D0) {
-            LgC71_ACTOR->unkC0 = (f32)D_807502D0;
+        ACTOR_C71C->unkC0 += D_807502E4;
+        if (ACTOR_C71C->unkC0 < (f32)D_807502D0) {
+            ACTOR_C71C->unkC0 = (f32)D_807502D0;
         }
         temp_s1->unk14 -= 10.0f;
-        if (LgC71_ACTOR->unkFC != 0 && actorAngleInArc(D_807FBB40, LgC71_ACTOR->unkE6) == 0) {
+        if (ACTOR_C71C->unkFC != 0 && actorAngleInArc(D_807FBB40, ACTOR_C71C->unkE6) == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x23, 0xFF, 0x7F, 1);
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x17, 0xFF, 0x7F, 1);
-            LgC71_ACTOR->unk154 = 8;
+            ACTOR_C71C->unk154 = 8;
         }
-        LgC71_ACTOR->unk68 &= ~1;
+        ACTOR_C71C->unk68 &= ~1;
         break;
     case 4:
         temp_s1->unk39 = 1;
-        LgC71_ACTOR->unk154 = 8;
+        ACTOR_C71C->unk154 = 8;
         break;
     case 5:
         func_8066E6C8(D_807FBB40, 0, 1);
@@ -960,7 +960,7 @@ void func_8067C71C(void) {
             temp_s1->unk28 = 270.0f;
         }
         var_fv0 = sinApprox((f32)temp_s1->unk20 / 12.6);
-        LgC71_ACTOR->unk80 = temp_s1->unk1C + (f32)(var_fv0 * 1.5);
+        ACTOR_C71C->unk80 = temp_s1->unk1C + (f32)(var_fv0 * 1.5);
         var_fv0 = sinApprox((f32)temp_s1->unk20 / 9.34);
         temp_s1->unk8 = temp_s1->unk28 + var_fv0 * 7.0f;
         temp_s1->unk20++;
@@ -972,13 +972,13 @@ void func_8067C71C(void) {
             var_fv0 = (f32) (0.0 - var_fv0);
         }
         temp_s1->unk24 += var_fv0;
-        LgC71_ACTOR->unk80 += temp_s1->unk24;
+        ACTOR_C71C->unk80 += temp_s1->unk24;
         if (--temp_s1->unk2C == 0 || temp_s1->unk2C == 5 || temp_s1->unk2C == 10 ||
             temp_s1->unk2C == 15 || temp_s1->unk2C == 20 || temp_s1->unk2C == 26) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x55, 0xFF, (s16)(0xA7 - temp_s1->unk2C * 2), 0);
         }
-        if (temp_s1->unk2C == 0 || LgC71_ACTOR->unkAC < LgC71_ACTOR->unkA4) {
-            LgC71_ACTOR->unk154 = 6;
+        if (temp_s1->unk2C == 0 || ACTOR_C71C->unkAC < ACTOR_C71C->unkA4) {
+            ACTOR_C71C->unk154 = 6;
             if (sinApprox((f32)temp_s1->unk20 / 9.34) > 0.0) {
                 temp_s1->unk30 = 1;
             } else {
@@ -986,20 +986,20 @@ void func_8067C71C(void) {
             }
             temp_s1->unk34 = 0.1f;
         }
-        LgC71_ACTOR->unkC0 = 0.0f;
-        LgC71_ACTOR->unkB8 = 35.0f;
-        LgC71_ACTOR->unk68 |= 1;
+        ACTOR_C71C->unkC0 = 0.0f;
+        ACTOR_C71C->unkB8 = 35.0f;
+        ACTOR_C71C->unk68 |= 1;
         pathFollowUpdateHeading(D_807FBB40, 0);
-        if (LgC71_ACTOR->unk118->unkC == 0) {
-            LgC71_ACTOR->unkEE = LgC71_ACTOR->unk118->unkE;
-            LgC71_ACTOR->unkB8 = (f32)LgC71_ACTOR->unk118->unk10;
+        if (ACTOR_C71C->unk118->unkC == 0) {
+            ACTOR_C71C->unkEE = ACTOR_C71C->unk118->unkE;
+            ACTOR_C71C->unkB8 = (f32)ACTOR_C71C->unk118->unk10;
         } else {
-            LgC71_ACTOR->unkB8 = 0.0f;
+            ACTOR_C71C->unkB8 = 0.0f;
         }
-        if (LgC71_ACTOR->unkFC != 0) {
-            temp_a0 = LgC71_ACTOR->unkEE;
-            mathAngleClampToArc(temp_a0, temp_a0, LgC71_ACTOR->unkF4, LgC71_ACTOR->unkF6, (s16 *)&LgC71_ACTOR->unkF2);
-            LgC71_ACTOR->unkEE = LgC71_ACTOR->unkF2;
+        if (ACTOR_C71C->unkFC != 0) {
+            temp_a0 = ACTOR_C71C->unkEE;
+            mathAngleClampToArc(temp_a0, temp_a0, ACTOR_C71C->unkF4, ACTOR_C71C->unkF6, (s16 *)&ACTOR_C71C->unkF2);
+            ACTOR_C71C->unkEE = ACTOR_C71C->unkF2;
         }
         break;
     case 6:
@@ -1007,7 +1007,7 @@ void func_8067C71C(void) {
             func_807149B8(1);
             func_807149FC(-1);
             func_8071498C(effectWobbleRiseUpdate);
-            func_80714CC0(&D_8071FC40, 0.0f, LgC71_ACTOR->unk7C, LgC71_ACTOR->unk80, LgC71_ACTOR->unk84);
+            func_80714CC0(&D_8071FC40, 0.0f, ACTOR_C71C->unk7C, ACTOR_C71C->unk80, ACTOR_C71C->unk84);
         }
         if (temp_s1->unk30 != 0) {
             if (temp_s1->unk30 == 1) {
@@ -1030,31 +1030,31 @@ void func_8067C71C(void) {
         if (temp_s1->unk34 > 40.0) {
             temp_s1->unk34 = 40.0f;
         }
-        LgC71_ACTOR->unkC0 = -temp_s1->unk34;
-        LgC71_ACTOR->unkB8 = 0.0f;
-        if ((f64)LgC71_ACTOR->unkB4 < 0.5) {
-            LgC71_ACTOR->unk154 = 7;
+        ACTOR_C71C->unkC0 = -temp_s1->unk34;
+        ACTOR_C71C->unkB8 = 0.0f;
+        if ((f64)ACTOR_C71C->unkB4 < 0.5) {
+            ACTOR_C71C->unk154 = 7;
             temp_s1->unk2C = 0x78;
         }
-        LgC71_ACTOR->unk68 &= ~1;
+        ACTOR_C71C->unk68 &= ~1;
         break;
     case 7:
-        LgC71_ACTOR->unk80 -= 0.15;
+        ACTOR_C71C->unk80 -= 0.15;
         if (--temp_s1->unk2C == 0) {
-            LgC71_ACTOR->unk154 = 4;
+            ACTOR_C71C->unk154 = 4;
         }
-        LgC71_ACTOR->unk68 &= ~1;
+        ACTOR_C71C->unk68 &= ~1;
         break;
     case 8:
         if ((D_807FBB64 & 1) && camIsCutsceneActive()) {
             actorDespawn(D_807FBB40);
         } else {
-            switch (LgC71_ACTOR->unk58) {
+            switch (ACTOR_C71C->unk58) {
             case 0x1A:
                 func_8067E278(1, 1);
-                LgC71_ACTOR->unk60 &= ~0x8000;
-                LgC71_ACTOR->unk128 = 0;
-                LgC71_ACTOR->unk154 = 9;
+                ACTOR_C71C->unk60 &= ~0x8000;
+                ACTOR_C71C->unk128 = 0;
+                ACTOR_C71C->unk154 = 9;
                 temp_s1->unk3A = 0x14;
                 if (!(D_807FBB64 & 1)) {
                     actorSetNodeFlag(D_807FBB40, 3);
@@ -1064,10 +1064,10 @@ void func_8067C71C(void) {
                 break;
             case 0x95:
                 actorSpawn(0xDE, 0xE5);
-                func_8067B238(D_807FBB44, D_807FBB40, 0.15f);
-                LgC71_ACTOR44->unk11C = LgC71_ACTOR->unk11C;
-                LgC71_ACTOR->unk11C = 0;
-                LgC71_ACTOR44->unk80 = LgC71_ACTOR->unkA4;
+                actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.15f);
+                ACTOR44_C71C->unk11C = ACTOR_C71C->unk11C;
+                ACTOR_C71C->unk11C = 0;
+                ACTOR44_C71C->unk80 = ACTOR_C71C->unkA4;
                 goto block_despawn;
             case 0x85:
                 D_80029FA0--;
@@ -1089,104 +1089,104 @@ void func_8067C71C(void) {
         if (var_fv0_2 > 130.0) {
             var_fv0_2 = 200.0f;
         }
-        lightAdd(LgC71_ACTOR->unk7C, LgC71_ACTOR->unk80, LgC71_ACTOR->unk84, 0.0f, 0.0f, 0.0f, var_fv0_2, 0, 0xFF, 0xFF, 0xFF);
-        camStartShakeFromPoint(*(s32 *)((u8 *)LgC71_ACTOR4C->unk174 + 0x104), 5, 10, LgC71_ACTOR->unk7C, LgC71_ACTOR->unk80, LgC71_ACTOR->unk84, 200.0f, 400.0f);
+        lightAdd(ACTOR_C71C->unk7C, ACTOR_C71C->unk80, ACTOR_C71C->unk84, 0.0f, 0.0f, 0.0f, var_fv0_2, 0, 0xFF, 0xFF, 0xFF);
+        camStartShakeFromPoint(*(s32 *)((u8 *)ACTOR4C_C71C->unk174 + 0x104), 5, 10, ACTOR_C71C->unk7C, ACTOR_C71C->unk80, ACTOR_C71C->unk84, 200.0f, 400.0f);
         break;
     }
 
-    if (LgC71_ACTOR->unk154 == 2 || LgC71_ACTOR->unk154 == 3 || LgC71_ACTOR->unk154 == 5 || LgC71_ACTOR->unk154 == 6) {
-        if (LgC71_ACTOR->unk154 != 5) {
-            LgC71_ACTOR->unkEE = LgC71_ACTOR->unkE6;
+    if (ACTOR_C71C->unk154 == 2 || ACTOR_C71C->unk154 == 3 || ACTOR_C71C->unk154 == 5 || ACTOR_C71C->unk154 == 6) {
+        if (ACTOR_C71C->unk154 != 5) {
+            ACTOR_C71C->unkEE = ACTOR_C71C->unkE6;
         }
         actorApplyVelocity(D_807FBB40);
         actorUpdateFloorContactAndTilt(D_807FBB40, 7.0f);
-        if (LgC71_ACTOR->unk154 == 2 && temp_s1->unk8 == 360.0f && (LgC71_ACTOR->unk80 - LgC71_ACTOR->unk8C) < -2.0f && (D_807FBB64 & 1)) {
+        if (ACTOR_C71C->unk154 == 2 && temp_s1->unk8 == 360.0f && (ACTOR_C71C->unk80 - ACTOR_C71C->unk8C) < -2.0f && (D_807FBB64 & 1)) {
             func_806CF4B8(D_807FBB40);
-            LgC71_ACTOR->unk154 = 4;
+            ACTOR_C71C->unk154 = 4;
             temp_s1->unk39 = 1;
         }
-        if (LgC71_ACTOR->unk154 == 3 && LgC71_ACTOR->unk58 == 0x1A && (u32)D_80753444[D_807FD584] < (u32)(D_8076A064 - temp_s1->unk4)) {
-            LgC71_ACTOR->unk154 = 4;
+        if (ACTOR_C71C->unk154 == 3 && ACTOR_C71C->unk58 == 0x1A && (u32)D_80753444[D_807FD584] < (u32)(D_8076A064 - temp_s1->unk4)) {
+            ACTOR_C71C->unk154 = 4;
         }
-        if (LgC71_ACTOR->unk154 == 3 && (LgC71_ACTOR->unk6A & 1) && !(LgC71_ACTOR->unk6C & 1)) {
-            LgC71_ACTOR->unkC0 = 140.0f;
+        if (ACTOR_C71C->unk154 == 3 && (ACTOR_C71C->unk6A & 1) && !(ACTOR_C71C->unk6C & 1)) {
+            ACTOR_C71C->unkC0 = 140.0f;
             temp_s1->unk1A++;
-            if ((LgC71_ACTOR->unk58 == 0x1A && temp_s1->unk1A == 4) || (LgC71_ACTOR->unk58 == 0x95 && temp_s1->unk1A == 2)) {
-                LgC71_ACTOR->unk154 = 4;
+            if ((ACTOR_C71C->unk58 == 0x1A && temp_s1->unk1A == 4) || (ACTOR_C71C->unk58 == 0x95 && temp_s1->unk1A == 2)) {
+                ACTOR_C71C->unk154 = 4;
             }
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x32, 0xFF, 0x7F, 1);
         }
-        if (LgC71_ACTOR->unk154 == 2 && (LgC71_ACTOR->unk6A & 4)) {
-            LgC71_ACTOR->unk154 = 5;
-            LgC71_ACTOR->unk80 = LgC71_ACTOR->unkAC;
+        if (ACTOR_C71C->unk154 == 2 && (ACTOR_C71C->unk6A & 4)) {
+            ACTOR_C71C->unk154 = 5;
+            ACTOR_C71C->unk80 = ACTOR_C71C->unkAC;
             temp_s1->unk2C = 1000;
-            temp_s1->unk1C = LgC71_ACTOR->unk80 - 1.5;
+            temp_s1->unk1C = ACTOR_C71C->unk80 - 1.5;
             temp_s1->unk20 = 0;
             temp_s1->unk28 = temp_s1->unk8;
         }
-        if (LgC71_ACTOR->unk154 == 5) {
-            temp_s1->unk1C = LgC71_ACTOR->unkAC;
+        if (ACTOR_C71C->unk154 == 5) {
+            temp_s1->unk1C = ACTOR_C71C->unkAC;
         }
-        if (LgC71_ACTOR->unk154 == 3 && (LgC71_ACTOR->unk6A & 4) && temp_s1->unk19 == 0) {
+        if (ACTOR_C71C->unk154 == 3 && (ACTOR_C71C->unk6A & 4) && temp_s1->unk19 == 0) {
             switch (temp_s1->unk18) {
             case 0:
-                LgC71_ACTOR->unkC0 = 180.0f;
+                ACTOR_C71C->unkC0 = 180.0f;
                 break;
             case 1:
-                LgC71_ACTOR->unkC0 = 140.0f;
+                ACTOR_C71C->unkC0 = 140.0f;
                 break;
             case 2:
-                LgC71_ACTOR->unkC0 = 100.0f;
+                ACTOR_C71C->unkC0 = 100.0f;
                 break;
             default:
-                LgC71_ACTOR->unk154 = 5;
-                LgC71_ACTOR->unk80 = LgC71_ACTOR->unkAC;
+                ACTOR_C71C->unk154 = 5;
+                ACTOR_C71C->unk80 = ACTOR_C71C->unkAC;
                 temp_s1->unk2C = 1000;
-                temp_s1->unk1C = LgC71_ACTOR->unk80 - 1.5;
+                temp_s1->unk1C = ACTOR_C71C->unk80 - 1.5;
                 temp_s1->unk20 = 0;
                 temp_s1->unk28 = temp_s1->unk8;
                 break;
             }
             temp_s1->unk18++;
             temp_s1->unk19 = 3;
-            LgC71_ACTOR->unkB8 -= 20.0;
+            ACTOR_C71C->unkB8 -= 20.0;
         } else if (temp_s1->unk19 != 0) {
             temp_s1->unk19--;
         }
-        LgC71_ACTOR->unkDC = 0x3FF;
-        LgC71_ACTOR->unkDE = 0x3FF;
+        ACTOR_C71C->unkDC = 0x3FF;
+        ACTOR_C71C->unkDE = 0x3FF;
     } else {
-        LgC71_ACTOR->unk110 = 0;
-        LgC71_ACTOR->unk6A &= ~0x408;
+        ACTOR_C71C->unk110 = 0;
+        ACTOR_C71C->unk6A &= ~0x408;
     }
 
-    temp_s1->unk38 = LgC71_ACTOR->unk154;
-    if (LgC71_ACTOR->unk154 != 9) {
+    temp_s1->unk38 = ACTOR_C71C->unk154;
+    if (ACTOR_C71C->unk154 != 9) {
         func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0xC, 0xC, 1, 0x64, 0x78, 0, 1.0f);
     }
-    guScaleF(spB4, LgC71_ACTOR->unk4->unk34, LgC71_ACTOR->unk4->unk38, LgC71_ACTOR->unk4->unk3C);
+    guScaleF(spB4, ACTOR_C71C->unk4->unk34, ACTOR_C71C->unk4->unk38, ACTOR_C71C->unk4->unk3C);
     guRotateF(sp74, temp_s1->unk14, 0.0f, 1.0f, 0.0f);
     guMtxCatF(spB4, sp74, spB4);
-    guRotateF(sp74, ((f64)LgC71_ACTOR->unkE6 / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
+    guRotateF(sp74, ((f64)ACTOR_C71C->unkE6 / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(spB4, sp74, spB4);
     guRotateF(sp74, temp_s1->unk8 - D_807FBC60, 1.0f, 0.0f, 0.0f);
     guMtxCatF(spB4, sp74, spB4);
     guRotateF(sp74, (temp_s1->unk10 + 90.0f) - D_807FBC64, 0.0f, 1.0f, 0.0f);
     guMtxCatF(spB4, sp74, spB4);
 
-    if (LgC71_ACTOR->unk154 == 3) {
-        if (LgC71_ACTOR->unkDE < 1000) {
-            guRotateF(sp74, -(((f64)LgC71_ACTOR->unkDC / 4095.0) * 360.0), 0.0f, 1.0f, 0.0f);
+    if (ACTOR_C71C->unk154 == 3) {
+        if (ACTOR_C71C->unkDE < 1000) {
+            guRotateF(sp74, -(((f64)ACTOR_C71C->unkDC / 4095.0) * 360.0), 0.0f, 1.0f, 0.0f);
             guMtxCatF(spB4, sp74, spB4);
         }
-        guRotateF(sp74, 90.0 - ((f64)LgC71_ACTOR->unkDE / 4095.0) * 360.0, 1.0f, 0.0f, 0.0f);
+        guRotateF(sp74, 90.0 - ((f64)ACTOR_C71C->unkDE / 4095.0) * 360.0, 1.0f, 0.0f, 0.0f);
         guMtxCatF(spB4, sp74, spB4);
-        if (LgC71_ACTOR->unkDE < 1000) {
-            guRotateF(sp74, ((f64)LgC71_ACTOR->unkDC / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
+        if (ACTOR_C71C->unkDE < 1000) {
+            guRotateF(sp74, ((f64)ACTOR_C71C->unkDC / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
             guMtxCatF(spB4, sp74, spB4);
         }
     }
-    guTranslateF(sp74, LgC71_ACTOR->unk7C, LgC71_ACTOR->unk80, LgC71_ACTOR->unk84);
+    guTranslateF(sp74, ACTOR_C71C->unk7C, ACTOR_C71C->unk80, ACTOR_C71C->unk84);
     guMtxCatF(spB4, sp74, (float (*)[4])((u8 *)D_807FBB40 + 0xC));
 }
 
@@ -1381,21 +1381,21 @@ void func_8067E764(void) {
 }
 
 #ifdef NON_MATCHING
-typedef struct R2K_Struct_8074E7BC {
+typedef struct ActorE784Entry {
     u8 unk0;
     u8 unk1;
     u8 unk2;
-} R2K_Struct_8074E7BC;
+} ActorE784Entry;
 
-typedef struct R2K_PlayerStruct {
+typedef struct ActorE784PlayerStruct {
     u8 pad0[0x2C0];
     u8 unk2C0;
     u8 pad2C1[0x2C8 - 0x2C1];
     s16 unk2C8;
     u8 pad2CA[0x2F0 - 0x2CA];
-} R2K_PlayerStruct;
+} ActorE784PlayerStruct;
 
-typedef struct R2K_PlayerState {
+typedef struct ActorE784PlayerState {
     /* 0x000 */ u8 pad0[0x88];
     /* 0x088 */ Actor *unk88;
     /* 0x08C */ u8 pad8C[0x104 - 0x8C];
@@ -1406,9 +1406,9 @@ typedef struct R2K_PlayerState {
     /* 0x1F0 */ s32 unk1F0;
     /* 0x1F4 */ u8 pad1F4[0x1FD - 0x1F4];
     /* 0x1FD */ u8 unk1FD;
-} R2K_PlayerState;
+} ActorE784PlayerState;
 
-typedef struct R2K_TagBarrelState {
+typedef struct ActorE784State {
     s16 unk0;
     s16 unk2;
     Actor *unk4;
@@ -1420,9 +1420,9 @@ typedef struct R2K_TagBarrelState {
     s16 unk18;
     s16 unk1A;
     u8 unk1C;
-} R2K_TagBarrelState;
+} ActorE784State;
 
-extern R2K_Struct_8074E7BC D_8074E7BC[];
+extern ActorE784Entry D_8074E7BC[];
 extern u8 D_807FC950[][0x5E];
 
 extern s32 D_807FBB60;
@@ -1442,18 +1442,18 @@ void slotQueueAddValue(s32, u8, s32);
 s32 slotQueueGetCountStep(s32);
 
 void func_8067E784(void) {
-    R2K_TagBarrelState *var_t0;
+    ActorE784State *var_t0;
     f32 spA0;
     f32 sp9C;
     f32 sp98;
-    R2K_PlayerState *playerState;
+    ActorE784PlayerState *playerState;
     s32 ret;
     s16 i;
     s16 sp8C;
     s16 sp8A = 8;
     u8 sp89;
     u8 pad[8];
-    R2K_PlayerState *playerState2;
+    ActorE784PlayerState *playerState2;
     s32 var_v1_2;
     s32 var_a0c;
 
@@ -1586,7 +1586,7 @@ void func_8067E784(void) {
         if (((u32)D_807FBB40->unk58) == 0x12) {
             var_a1 = 1;
         }
-        if (((u32)D_807FBB40->unk58) == 0x84 && ((u32)((Actor *)D_807FBB4C)->unk58) == 9 && ((R2K_PlayerState *)((Actor *)D_807FBB4C)->unk174)->unk88 == NULL) {
+        if (((u32)D_807FBB40->unk58) == 0x84 && ((u32)((Actor *)D_807FBB4C)->unk58) == 9 && ((ActorE784PlayerState *)((Actor *)D_807FBB4C)->unk174)->unk88 == NULL) {
             var_a1 = 1;
         }
         if (var_a1 != 0) {
@@ -1710,7 +1710,7 @@ void func_8067E784(void) {
         {
             s16 angle;
             if (((u32)D_807FBB40->unk58) == 0x12) {
-                angle = ((R2K_PlayerStruct *)D_807FC924)->unk2C8 & 0xFFF;
+                angle = ((ActorE784PlayerStruct *)D_807FC924)->unk2C8 & 0xFFF;
             } else {
                 angle = var_t0->unk4->unkE6;
             }
@@ -1736,7 +1736,7 @@ void func_8067E784(void) {
         case 0x19:
         case 0x28:
         case 0x60:
-            if (((R2K_PlayerStruct *)D_807FC924)[playerState2->unk1A4].unk2C0 != 1) {
+            if (((ActorE784PlayerStruct *)D_807FC924)[playerState2->unk1A4].unk2C0 != 1) {
                 var_v1_2 = 1;
             }
             break;
@@ -1865,19 +1865,19 @@ void tagBarrelDespawnOnKongDeselect(void) {
     }
 }
 
-typedef struct LgFB6_Actor124 {
+typedef struct ActorFB6CSpawnData {
     s32 unk0;
     s32 unk4;
     s32 unk8;
     s32 unkC;
-} LgFB6_Actor124;
+} ActorFB6CSpawnData;
 
-typedef struct LgFB6_Actor174_104 {
+typedef struct ActorFB6CCamHolder {
     u8 pad0[0x104];
     s32 unk104;
-} LgFB6_Actor174_104;
+} ActorFB6CCamHolder;
 
-typedef struct LgFB6_SubFB6C {
+typedef struct ActorFB6CState {
     Actor *unk0;
     u32 unk4;
     f32 unk8;
@@ -1888,12 +1888,12 @@ typedef struct LgFB6_SubFB6C {
     u8 unk1A;
     u8 unk1B;
     u8 unk1C;
-} LgFB6_SubFB6C;
+} ActorFB6CState;
 
-typedef struct LgFB6_Actor {
+typedef struct ActorFB6C {
     u8 pad0[0xEE];
     s16 unkEE;
-} LgFB6_Actor;
+} ActorFB6C;
 
 extern Actor *D_807FBB48;
 extern s32 D_807FBB68;
@@ -1917,7 +1917,7 @@ void func_8067FB6C(void) {
     s32 sp54;
     s32 pad2;
     s16 sp4E;
-    LgFB6_SubFB6C *sub;
+    ActorFB6CState *sub;
     s32 var_v0;
     f32 var_fa1;
     s16 i;
@@ -1929,10 +1929,10 @@ void func_8067FB6C(void) {
         D_807FBB40->unk12C[5] = 0x14;
         sub->unkC = 90.0f;
         sub->unk8 = D_807FBB40->unk80;
-        sub->unk14 = (f64)((LgFB6_Actor124 *)D_807FBB40->unk124)->unk0 / 200.0;
-        sub->unk10 = ((LgFB6_Actor124 *)D_807FBB40->unk124)->unk4;
+        sub->unk14 = (f64)((ActorFB6CSpawnData *)D_807FBB40->unk124)->unk0 / 200.0;
+        sub->unk10 = ((ActorFB6CSpawnData *)D_807FBB40->unk124)->unk4;
         sub->unk4 = ((f64)sub->unk14 != 0.0) ? (4.71238899230957031 / (f64)sub->unk14) : (f64)0;
-        sub->unk1C = ((LgFB6_Actor124 *)D_807FBB40->unk124)->unk8;
+        sub->unk1C = ((ActorFB6CSpawnData *)D_807FBB40->unk124)->unk8;
         sub->unk18 = D_807FBB40->unkE6;
         D_807FBB40->unkA4 = 99999.0f;
         collisionCheckGroundAtPoint(D_807FBB40->unk7C, D_807FBB40->unk84, &D_807FBB40->unkA4);
@@ -1941,7 +1941,7 @@ void func_8067FB6C(void) {
         } else {
             D_807FBB40->unk132 = 1;
         }
-        if (((LgFB6_Actor124 *)D_807FBB40->unk124)->unkC == 1) {
+        if (((ActorFB6CSpawnData *)D_807FBB40->unk124)->unkC == 1) {
             D_807FBB40->unk154 = 0x14;
             D_807FBB40->unk144 = 1;
             D_807FBB40->unk60 &= ~0x8000;
@@ -2003,7 +2003,7 @@ void func_8067FB6C(void) {
             sub->unk1A--;
         }
         if (((D_807FD63C & 0xE000) || sub->unk1C == 3) && sub->unk1A == 0) {
-            LgFB6_Actor174_104 *temp_s0_2;
+            ActorFB6CCamHolder *temp_s0_2;
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x18, 0xFF, 0x7F, 1);
             temp_s0_2 = sub->unk0->unk174;
             func_80613214(D_807FBB40);
@@ -2016,7 +2016,7 @@ void func_8067FB6C(void) {
                 camSetTargetScaled(temp_s0_2->unk104, sub->unk0, 4, 0x800, var_v0, 0, 0, 0x1E, 0x14, 0x50, 0.3f);
             }
             D_807FBB48->unkE6 = D_807FBB40->unkE6;
-            ((LgFB6_Actor *)D_807FBB48)->unkEE = D_807FBB40->unkE6;
+            ((ActorFB6C *)D_807FBB48)->unkEE = D_807FBB40->unkE6;
             actorAppendCallback(sub->unk0, (s32)D_807FBB40, 0x40, 1, 0, 0);
             if (D_807FBB68 & 2) {
                 var_v0 = 0x1F4;
@@ -2031,7 +2031,7 @@ void func_8067FB6C(void) {
             D_807FBB40->unk154 = 2;
             D_807FBB40->unk155[0] = 0x1E;
         } else {
-            sp54 = ((LgFB6_Actor174_104 *)sub->unk0->unk174)->unk104;
+            sp54 = ((ActorFB6CCamHolder *)sub->unk0->unk174)->unk104;
             switch (sub->unk1C) {
             case 0:
                 var_fa1 = sinApprox((f32)sub->unk4 * sub->unk14) * sub->unk10 + (sub->unk8 + sub->unk10);
@@ -2730,21 +2730,21 @@ void func_80681E18(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_80681E18.s")
 #endif
 
-typedef struct Lg822Sub {
+typedef struct CannonState {
     u8 unk0;
     u8 unk1;
     u8 unk2;
     u8 unk3;
     Actor *unk4;
     s16 unk8;
-} Lg822Sub;
+} CannonState;
 
-typedef struct Lg822CamHolder {
+typedef struct CannonCamHolder {
     u8 pad0[0x104];
     void *unk104;
-} Lg822CamHolder;
+} CannonCamHolder;
 
-typedef struct Lg822Player {
+typedef struct CannonPlayerView {
     u8 pad0[0x210];
     f32 unk210;
     f32 unk214;
@@ -2753,7 +2753,7 @@ typedef struct Lg822Player {
     f32 unk228;
     f32 unk22C;
     f32 unk230;
-} Lg822Player;
+} CannonPlayerView;
 
 extern f32 D_8074E7F4;
 extern f32 D_8074E7F8;
@@ -2770,15 +2770,15 @@ f32 func_80611BB4(f32, f32);
 void csModelStateSetFirstByte(s16, s16);
 void hudSpawnCountdownTimer(s32, s32, u8);
 void actorSetStateTwo(Actor *);
-s32 func_8067ACDC(Actor *, s32, s32);
+s32 actorCountOwnedByClass(Actor *, s32, s32);
 void func_806CFF9C(Actor *);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
 Gfx *func_806FEF7C(Gfx *, Actor *);
-Gfx *func_8068DAF4(Gfx *, u8 *);
+Gfx *renderRemainingShotsHUD(Gfx *, u8 *);
 
-void func_806822FC(void) {
-    Lg822Sub *sub = D_807FBB40->unk174;
+void cannonUpdate(void) {
+    CannonState *sub = D_807FBB40->unk174;
     void *cam;
     f32 sinOff;
     f32 cosOff;
@@ -2800,7 +2800,7 @@ void func_806822FC(void) {
     }
     if (D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 3) {
         if (D_8074E7FC && D_8074E7FC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        cam = ((Lg822CamHolder *)sub->unk4->unk174)->unk104;
+        cam = ((CannonCamHolder *)sub->unk4->unk174)->unk104;
         sub->unk8 = sub->unk8 - (f64)D_807FD63E * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
         sub->unk8 = sub->unk8 & 0xFFF;
         sinOff = func_80612794(sub->unk8) * D_8074E7F4;
@@ -2826,7 +2826,7 @@ void func_806822FC(void) {
         func_8066E6C8(D_807FBB40, 0, 1);
     }
     if (sub->unk2 != 0) {
-        renderCallbacksRegister(func_8068DAF4, sub, 3);
+        renderCallbacksRegister(renderRemainingShotsHUD, sub, 3);
     }
     child = (Actor *)D_807FBB40->unk11C;
     if (child != 0 && sub->unk2 != 0 && child->unk154 == 5 && sub->unk1 == 0) {
@@ -2888,11 +2888,11 @@ void func_806822FC(void) {
         }
         break;
     case 2:
-        if ((D_807FD63C & 0x2000) && func_8067ACDC(D_807FBB40, 4, 0) == 0 && sub->unk0 != 0) {
+        if ((D_807FD63C & 0x2000) && actorCountOwnedByClass(D_807FBB40, 4, 0) == 0 && sub->unk0 != 0) {
             projectileSetTargetCoords(D_807FBB40->unk7C, D_807FBB40->unk80 + D_8074E7FC, D_807FBB40->unk84);
-            x = ((Lg822Player *)D_807FC924)->unk230 - ((Lg822Player *)D_807FC924)->unk218;
-            y = ((Lg822Player *)D_807FC924)->unk228 - ((Lg822Player *)D_807FC924)->unk210;
-            pitch = func_80611BB4(((Lg822Player *)D_807FC924)->unk22C - ((Lg822Player *)D_807FC924)->unk214, sqrtf(x * x + y * y));
+            x = ((CannonPlayerView *)D_807FC924)->unk230 - ((CannonPlayerView *)D_807FC924)->unk218;
+            y = ((CannonPlayerView *)D_807FC924)->unk228 - ((CannonPlayerView *)D_807FC924)->unk210;
+            pitch = func_80611BB4(((CannonPlayerView *)D_807FC924)->unk22C - ((CannonPlayerView *)D_807FC924)->unk214, sqrtf(x * x + y * y));
             sinV = sinApprox(pitch) * D_8074E808;
             y = cosApprox(pitch) * D_8074E808;
             projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->unk8, y, sinV, (s32)D_807FBB40);
@@ -2904,7 +2904,7 @@ void func_806822FC(void) {
         }
         break;
     case 3:
-        if (func_8067ACDC(D_807FBB40, 4, 0) == 0) {
+        if (actorCountOwnedByClass(D_807FBB40, 4, 0) == 0) {
             actorAppendCallback(sub->unk4, (s32)D_807FBB40, 0x40, 1, 0, 0);
             func_8067A70C(D_807FBB40, sub->unk4, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84 - 42.0f, 2, 1);
             sub->unk4->unk60 &= ~8;
@@ -2993,25 +2993,25 @@ void func_80682DF4(void *arg0, u16 *arg1, s32 arg2) {
     actorScriptStart(arg0, D_807FBB54[arg2], arg2);
 }
 
-typedef struct R2FStruct_80682E38 {
+typedef struct TagBarrelSpawnArgs {
     u8 pad0[6];
     s8 unk6;
     u8 pad7;
     Actor *unk8[5];
     Actor *unk1C;
-} R2FStruct_80682E38;
+} TagBarrelSpawnArgs;
 
-typedef struct R2FKongAction {
+typedef struct KongActionEntry {
     s16 unk0;
     s16 unk2;
     u8 unk4;
     u8 unk5;
-} R2FKongAction;
+} KongActionEntry;
 
 void func_806F09F0(Actor *, u16);
 void func_80682AB4(void *);
 
-void tagBarrelSpawnKongs(R2FStruct_80682E38 *arg0) {
+void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
     s32 i;
     s32 actorType;
     s16 model;
@@ -3027,7 +3027,7 @@ void tagBarrelSpawnKongs(R2FStruct_80682E38 *arg0) {
     for (i = 0; i < 5; i++) {
         if (flagGet(func_805FF018(D_807FBB40->unk58, i), 0)) {
             actorType = 0x13C;
-            model = ((R2FKongAction *)D_8074E814)[i].unk0;
+            model = ((KongActionEntry *)D_8074E814)[i].unk0;
         } else {
             actorType = 0x13D;
             model = 0xD2;
@@ -3038,7 +3038,7 @@ void tagBarrelSpawnKongs(R2FStruct_80682E38 *arg0) {
         D_807FBB44->unk60 |= flag;
         if (actorType == 0x13C) {
             temp_s0 = D_807FBB44->unk174;
-            *temp_s0 = ((R2FKongAction *)D_8074E814)[i].unk2;
+            *temp_s0 = ((KongActionEntry *)D_8074E814)[i].unk2;
             func_806F09F0(D_807FBB44, *temp_s0);
             var_a2 = (i == arg0->unk6) ? 0x8B : 0x8A;
             func_80682DF4(D_807FBB44, temp_s0, var_a2);
@@ -3069,19 +3069,19 @@ void tagBarrelUpdateSelectedKong(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-typedef struct R2G_ActorExtra {
+typedef struct ActorExtra3158 {
     u16 unk0;
     u16 pad2;
     void (*unk4)(Actor *, void *, s32 *);
     u8 unk8[1];
-} R2G_ActorExtra;
+} ActorExtra3158;
 
-typedef struct R2G_ActorSub4 {
+typedef struct ActorSub4View3158 {
     u8 pad0[0x1C];
     void *unk1C;
-} R2G_ActorSub4;
+} ActorSub4View3158;
 
-typedef struct R2G_Actor {
+typedef struct ActorView3158 {
     u8 pad0[0xC0];
     f32 unkC0;
     u8 padC4[0x146 - 0xC4];
@@ -3090,7 +3090,7 @@ typedef struct R2G_Actor {
     s16 unk168;
     u8 pad16A[0x178 - 0x16A];
     void *unk178;
-} R2G_Actor;
+} ActorView3158;
 
 
 void heapClearBlock(void *);
@@ -3103,16 +3103,16 @@ s32 func_8072881C(s32, void *);
 
 void func_80683158(void) {
     s32 sp3C;
-    R2G_ActorExtra *extra;
+    ActorExtra3158 *extra;
     u8 *extra8;
 
     sp3C = 0;
     extra = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk60 |= 0x1000;
-        ((R2G_ActorSub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x100);
-        heapClearBlock(((R2G_ActorSub4 *)D_807FBB40->unk4)->unk1C);
-        func_806C8220(0, ((R2G_Actor *)D_807FBB40)->unk178, extra->unk0);
+        ((ActorSub4View3158 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x100);
+        heapClearBlock(((ActorSub4View3158 *)D_807FBB40->unk4)->unk1C);
+        func_806C8220(0, ((ActorView3158 *)D_807FBB40)->unk178, extra->unk0);
         switch (extra->unk0) {
         case 2:
             extra->unk4 = func_806F1C04;
@@ -3126,10 +3126,10 @@ void func_80683158(void) {
         }
     } else {
         if (extra->unk4 != NULL) {
-            extra->unk4(D_807FBB40, ((R2G_ActorSub4 *)D_807FBB40->unk4)->unk1C, &sp3C);
+            extra->unk4(D_807FBB40, ((ActorSub4View3158 *)D_807FBB40->unk4)->unk1C, &sp3C);
         }
     }
-    *((u8 *)((R2G_ActorSub4 *)D_807FBB40->unk4)->unk1C + sp3C * 8) = 0;
+    *((u8 *)((ActorSub4View3158 *)D_807FBB40->unk4)->unk1C + sp3C * 8) = 0;
     D_807FBB40->unk16D = D_807FBB40->unk15F;
     D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FC924->unk210, D_807FC924->unk218, D_807FBB40->unk7C, D_807FBB40->unk84);
     extra8 = extra->unk8;
@@ -3229,7 +3229,7 @@ void eepromSavePlayerData(void);
 void func_8061B650(Actor *);
 void slotQueueClearAllFlags(void);
 
-void func_806833DC(struct TagBarrelData *arg0_in) {
+void tagBarrelStartSelection(struct TagBarrelData *arg0_in) {
 #define arg0 ((TagBarrelDataN3 *)arg0_in)
     TagBarrelActorKong *kong;
     f32 dummy;
@@ -3276,10 +3276,10 @@ void func_806833DC(struct TagBarrelData *arg0_in) {
             sp28 = kong->unk5A;
             D_807FBB60 &= 0xFFFCFFCF;
             arg0->unk6 = 0;
-            if (sp28 != ((R2FKongAction *)D_8074E814)[arg0->unk6].unk2) {
+            if (sp28 != ((KongActionEntry *)D_8074E814)[arg0->unk6].unk2) {
                 do {
                     arg0->unk6++;
-                } while (sp28 != ((R2FKongAction *)D_8074E814)[arg0->unk6].unk2);
+                } while (sp28 != ((KongActionEntry *)D_8074E814)[arg0->unk6].unk2);
             }
             arg0->unk7 = arg0->unk6;
             if (D_8076A0A8 != 0x11) {
@@ -3287,7 +3287,7 @@ void func_806833DC(struct TagBarrelData *arg0_in) {
                 sfxSetChannelParam(0x65, 0x7E - D_8074E848[arg0->unk6], 1);
             }
             flagSet(func_805FF018(D_807FBB40->unk58, arg0->unk6), 1, 0);
-            tagBarrelSpawnKongs((R2FStruct_80682E38 *)arg0);
+            tagBarrelSpawnKongs((TagBarrelSpawnArgs *)arg0);
             camSaveYaw(sp30->unk104);
             arg0->unk38 = sp34->unkE6;
             sp34->unkE6 = D_807FBB40->unkE6;
@@ -3364,7 +3364,7 @@ void func_806C8E58(s16);
 s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 struct TagBarrelData;
 
-void func_806836D0(struct TagBarrelData *arg0_in) {
+void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
     TagBarrelDataN4 *arg0 = (TagBarrelDataN4 *)arg0_in;
     u16 sp4A;
     s32 var_s0;
@@ -3435,7 +3435,7 @@ void func_806836D0(struct TagBarrelData *arg0_in) {
                     D_807FBB40->unk155[0] = 0;
                     arg0->unk4 = 30;
                     sp30->unk1F0 &= ~0x20000000;
-                    var_s0 = ((R2FKongAction *)D_8074E814)[arg0->unk6].unk2;
+                    var_s0 = ((KongActionEntry *)D_8074E814)[arg0->unk6].unk2;
                     func_806C8E58(var_s0);
                     func_806F09F0(sp34, var_s0);
                     *(u8 *)((u8 *)sp30 + 0x8C) = 0;
@@ -3473,7 +3473,7 @@ Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, 
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, s32);
 u32 textGetFontHeight(s32);
 
-Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
+Gfx *tagBarrelRenderSelectionHud(Gfx *arg0, Actor *arg1) {
     u8 padF8[0xC];
     f32 spF8;
     s32 pad244;
@@ -3605,9 +3605,9 @@ void func_80714A28(s32);
 s32 mapIsBossArena(void);
 s32 func_806C9D7C(void);
 s32 func_806832F4(s32, s32);
-void func_806833DC(TagBarrelData *);
-void func_806836D0(TagBarrelData *);
-Gfx *func_80683AD8(Gfx *, Actor *);
+void tagBarrelStartSelection(TagBarrelData *);
+void tagBarrelUpdateSelection(TagBarrelData *);
+Gfx *tagBarrelRenderSelectionHud(Gfx *, Actor *);
 void slotQueuePopActiveMask(void);
 
 void tagBarrelUpdate(void) {
@@ -3651,7 +3651,7 @@ void tagBarrelUpdate(void) {
                 D_807FBB40->unk144 = 2;
             }
         } else {
-            func_806833DC(sub);
+            tagBarrelStartSelection(sub);
         }
         actor = D_807FBB40;
         if (actor->unk155[0] == 0xA) {
@@ -3665,8 +3665,8 @@ void tagBarrelUpdate(void) {
         actor = D_807FBB40;
         break;
     case 1:
-        func_806836D0(sub);
-        renderCallbacksRegister(func_80683AD8, D_807FBB40, 3);
+        tagBarrelUpdateSelection(sub);
+        renderCallbacksRegister(tagBarrelRenderSelectionHud, D_807FBB40, 3);
         actor = D_807FBB40;
         break;
     case 2:
