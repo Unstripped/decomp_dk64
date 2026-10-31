@@ -134,7 +134,6 @@ void animListUpdate(AnimActor *actor) {
     }
 }
 
-#ifdef NON_MATCHING
 void animNodeAdvanceTime(AnimNode *arg0) {
     s16 temp_a1;
     s32 temp_ft3;
@@ -194,6 +193,7 @@ void animNodeAdvanceTime(AnimNode *arg0) {
         s32 temp_a2;
         s16 temp_v0_6;
         s32 temp_lo_2;
+        s32 inc;
 
         arg0->unk14 -= arg0->unk10;
         temp_fv0_2 = arg0->unk14;
@@ -226,7 +226,9 @@ void animNodeAdvanceTime(AnimNode *arg0) {
                     }
                     break;
                 case 1:
-                    if (temp_lo_2 + 1) {
+                    inc = temp_lo_2 + 1;
+                    if (inc) {} // FAKE: second read keeps lo+1 a real variable (v0) instead of folding to lo != -1
+                    if (inc) {
                         arg0->unkC = 0;
                         arg0->unk20 = 0;
                         if (arg0->unkC < arg0->unk1C) {
@@ -244,10 +246,6 @@ void animNodeAdvanceTime(AnimNode *arg0) {
     }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8CA50/animNodeAdvanceTime.s")
-#endif
 
 s32 animGetNodeItem(void *arg0, s32 arg1, s16 arg2) {
     AnimNode *node = animGetNodeByIndex(arg0, arg1);

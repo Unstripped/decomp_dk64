@@ -127,7 +127,6 @@ u8 func_80674B90(KaN5_Actor *arg0, KaN5_Actor *arg1, f32 *arg2, f32 *arg3) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/79890/func_80674B90.s")
 #endif
 
-#ifdef NON_MATCHING
 typedef struct KaN5_NodeE14 {
     u8 pad0[0x10];
     s32 unk10;
@@ -213,8 +212,10 @@ void func_80674E14(KaN5_ActorE14 *arg0) {
     KaN5_ActorEntryE14 *entry;
 
     sub140 = arg0->unk140;
-    sub_unk0 = sub140->unk0;
+    sub_unk0 = 0;
+    if (sub_unk0) {} // FAKE: raises sub_unk0's colouring priority so it gets s7 while unk4 is loaded first
     sub_unk4 = sub140->unk4;
+    sub_unk0 = sub140->unk0;
     sub_unk8 = sub140->unk8;
     sub_unkC = sub140->unkC;
     i = 0;
@@ -268,15 +269,10 @@ void func_80674E14(KaN5_ActorE14 *arg0) {
             if (D_807FB620 != NULL) {
                 func_80675380((s32)arg0, actor);
             }
-            i++;
-            entry++;
+            i++; entry++; // FAKE: one line keeps the entry/i spill-store order
         } while (i < gActiveActorCount);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/79890/func_80674E14.s")
-#endif
 
 typedef struct Beh7982_80675180_0 {
     u8 pad0[0x70];
