@@ -303,3 +303,6 @@ D_807F0514 = 0x807F0514;
 /* F600, 6710 bss/data interior labels (inside objects defined in C) */
 D_807ECD62 = 0x807ECD62;
 D_807ECD63 = 0x807ECD63;
+
+/* 42630 bss interior labels */
+D_807F61F4 = 0x807F61F4;

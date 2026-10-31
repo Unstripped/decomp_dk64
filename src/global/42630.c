@@ -7,11 +7,60 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
 
-extern s16 gCsModelIds[];
-extern s8 D_807F6902;
+typedef struct CsTimer {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ u8 unk6;
+    /* 0x7 */ u8 pad7;
+} CsTimer;
+
+typedef struct CsSpawnReq {
+    /* 0x0 */ Actor *unk0;
+    /* 0x4 */ Actor *unk4;
+    /* 0x8 */ u8 unk8;
+} CsSpawnReq;
+
+// .bss 0x807F61B0-0x807F6940
+CsTimer gCsTimerQueue[8];
+CsSpawnReq D_807F61F0;
+f32 D_807F61FC;
+f32 D_807F6200;
+f32 D_807F6204;
+f32 D_807F6208;
+f32 D_807F620C;
+f32 D_807F6210;
+f32 D_807F6214;
+f32 D_807F6218;
+f32 gCsPosX;
+f32 gCsPosY;
+f32 gCsPosZ;
+f32 gCsRotX;
+f32 gCsRotY;
+f32 gCsRotZ;
+f32 gCsScale;
+f32 gCsGroundOffset;
+s32 D_807F623C;
+s16 gCsModelIds[600];
+u8 gCsVarsDirty[0x212];
+s8 D_807F6902;
+s8 D_807F6903;
+s16 D_807F6904;
+s16 D_807F6906;
+s16 D_807F6908;
+s16 D_807F690A;
+f32 D_807F690C;
+f32 D_807F6910;
+f32 D_807F6914;
+s16 gCsTrackedModels[16];
+u8 gCsTrackedModelCount;
+u8 D_807F6939;
+s16 D_807F693A;
+s16 D_807F693C;
+u8 D_807F693E;
+s8 D_807F693F;
 
 #ifdef NON_MATCHING
-u8 gCsVarsDirty[0x212]; // TU-local definition: as1 then shares one `lui at` between sb 0/1 (matches text); the bss blob must be split out of the asm first
 
 void csModelIdTableReset(void) {
     s32 i = 0;
@@ -92,13 +141,6 @@ void csModelStateSetByte(s16 arg0, s16 arg1, s16 arg2) {
     }
 }
 
-typedef struct CsTimer {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ u8 unk6;
-    /* 0x7 */ u8 pad7;
-} CsTimer;
 
 extern CsTimer gCsTimerQueue[8];
 extern struct CsSpawnReq D_807F61F0;
@@ -1221,12 +1263,6 @@ typedef struct CsModelSlot2 {
     /* 0x3C */ s8 unk3C;
     /* 0x3D */ u8 pad3D[0x90 - 0x3D];
 } CsModelSlot2;
-
-typedef struct CsSpawnReq {
-    /* 0x0 */ Actor *unk0;
-    /* 0x4 */ Actor *unk4;
-    /* 0x8 */ u8 unk8;
-} CsSpawnReq;
 
 extern CsCmdFunc gCsCmdTable[];
 extern u8 D_80744824;
