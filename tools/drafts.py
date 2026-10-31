@@ -65,6 +65,15 @@ def stored() -> dict:
     return out
 
 
+# a top-level definition: return type, name, parameter list, then `{` (K&R definitions are missed)
+DEFN = re.compile(r'^[A-Za-z_][\w \t*]*?\b([A-Za-z_]\w*)\s*\([^;{}]*\)\s*\{', re.M)
+
+
+def foreign_definitions(body: str, func: str, src_text: str) -> set:
+    """Functions other than FUNC that the draft defines and the source file already defines."""
+    return {m.group(1) for m in DEFN.finditer(body)} & {m.group(1) for m in DEFN.finditer(src_text)} - {func}
+
+
 def write(seg: str, func: str, src_file: str, note: str, todo: dict) -> str:
     owner = todo.get((seg, func))
     if owner is None:
@@ -75,6 +84,10 @@ def write(seg: str, func: str, src_file: str, note: str, todo: dict) -> str:
     if PRAGMA.search(body):
         sys.exit(f"{src_file} contains #pragma GLOBAL_ASM lines: pass a file holding only the "
                  f"{func} draft and the declarations it needs, not your whole private copy")
+    other = foreign_definitions(body, func, open(os.path.join(ROOT, owner)).read())
+    if other:
+        sys.exit(f"{src_file} also defines {', '.join(sorted(other))} (already in {owner}): "
+                 f"pass a file holding only the {func} draft and the declarations it needs")
     dest = draft_path(seg, func)
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, "w") as f:
@@ -150,7 +163,10 @@ def main() -> None:
         for (seg, func), p in sorted(newest.items()):
             if (seg, func) in have and os.path.getmtime(have[(seg, func)]) >= os.path.getmtime(p):
                 continue
-            print(write(seg, func, p, f"from {os.path.relpath(p, ROOT)}", todo))
+            try:
+                print(write(seg, func, p, f"from {os.path.relpath(p, ROOT)}", todo))
+            except SystemExit as e:
+                print(f"skipped: {e}")
     elif args.cmd == "prune":
         todo = unmatched()
         for key, path in sorted(stored().items()):
@@ -167,6 +183,10 @@ def main() -> None:
             sys.exit(f"{args.seg} {args.func}: {'no draft' if src else 'not GLOBAL_ASM in src/'}")
         body = open(path).read().split("\n", 1)[1].strip("\n") + "\n"
         text = open(src).read()
+        other = foreign_definitions(body, args.func, text)
+        if other:
+            sys.exit(f"{os.path.relpath(path, ROOT)} also defines {', '.join(sorted(other))}, already in {src}: "
+                     f"trim the draft to {args.func} and its declarations first")
         line = next(m for m in PRAGMA.finditer(text) if (m.group(1) or "boot", m.group(2)) == key)
         start, end = line.start(), text.index("\n", line.end()) + 1
         park = text.rfind("#ifdef NON_MATCHING\n", 0, start)

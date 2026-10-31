@@ -115,10 +115,10 @@ swapped externs in a comparison look identical in the text.
 - Follow AGENTS.md "Decompiling a function" step 4 (stage order, `tools/uopt_trace.sh`,
   permuter search-hint rule, NON_MATCHING parking) with these exceptions: no ROM build (your
   gates are `fdiff.sh` OK/TEXT OK and `--non-matching`), `uopt_trace.sh` before guessing at
-  any register question, permuter always with `-j 2` and a `--seconds` limit (shared CPU).
+  any register question; every `tools/dk` call under ~10 min (permuter `-j 2 --seconds 600`,
+  deadsweep `--rounds 1` per call, rerun on the improved body: a 40-min sweep starved the gate).
   At stage 4+ run `tools/dk python3 tools/deadsweep.py sweep <copy> <src> FUNC --extra <each
-  local>` first (dead local uses matched 4 stalled parks; reject any dead use, also from rs.py/
-  permuter, placed before the local's first assignment). Report the stage (1–6) of each unmatched.
+  local>` first; reject any dead use (also from permuter) of a local unassigned on that path.
 - Any construct you keep only to steer codegen (deadsweep statements, `volatile`, `x ^ 0`,
   `do {} while (0)`) ends in a trailing `// FAKE: <what it steers>` comment (AGENTS.md
   Conventions); keep deadsweep's own tag. Shared globals use the type most of `src/` gives
@@ -145,8 +145,8 @@ Your budget is finite: near-misses first, then never-attempted functions smalles
 after a serious effort on one, move on and come back if budget remains. Before writing C,
 read the matched C that `tools/dk python3 tools/similar.py -s <segment> <FUNC>` lists, then
 take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. In an old draft, check
-every `func_` callee against the symbol files first (stale names compile as undeclared:
-double-promoted f32 args, wrong size). Compile and fdiff every assigned function once.
+every callee's prototype against its CURRENT definition in `src/` first (stale names compile as
+undeclared; phantom params pin `$a0`/`$a1`). Compile and fdiff every assigned function once.
 When the permuter (or anything else) reaches score 0, put the readable C into your copy in
 place of the function's `GLOBAL_ASM` line and confirm with fdiff: a match left only in a
 draft is not merged.
