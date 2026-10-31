@@ -585,14 +585,79 @@ static void func_8067880C(void) {}
 static void func_80678814(void) {}
 static void func_8067881C(void) {}
 
+#ifdef NON_MATCHING
+void actorUpdateActiveList(u8);
+void actorGlobalCallbacksDispatchAndFree();
+void actorDelayedCallbacksTick(void);
+
+ActorCallbackNode *D_807FBFE0[4]; // text matches only when this TU defines D_807FBFE0..FEC (.bss carve 0x807FBFE0-0x807FBFF0)
+void actorGlobalCallbacksReset(void) {
+    s32 i;
+
+    D_807FBE09 = 1;
+    D_807FBF10 = 0;
+    for (i = 0; i < 4; i++) {
+        D_807FBFE0[i] = NULL;
+    }
+    actorUpdateActiveList(1);
+    actorUpdateActiveList(2);
+    actorGlobalCallbacksDispatchAndFree(1);
+    func_80678B04();
+    D_807FBE09 = 0;
+    actorFlushDespawnQueue();
+    actorDelayedCallbacksTick();
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorGlobalCallbacksReset.s")
+#endif
 
 extern void (*D_8074C0A0[])(void);
 void func_80678CC8(Actor *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorUpdateActiveList.s")
+extern u16 D_807FBB3C;
+
+void actorUpdateActiveList(u8 arg0) {
+    s32 i;
+
+    for (i = D_807FBB3C = 0; i < gActiveActorCount; i = D_807FBB3C = i + 1) {
+        D_807FBE08 = 0;
+        D_807FBB40 = gActiveActors[i].actor;
+        if ((arg0 == 1 && !(D_807FBB40->unk60 & 0x100000)) || (arg0 == 2 && (D_807FBB40->unk60 & 0x100000))) {
+            func_80678BBC(D_807FBB40);
+            D_8074C0A0[D_807FBB40->unk58]();
+            func_80678CC8(D_807FBB40);
+        }
+        i = D_807FBB3C;
+    }
+}
+
+#ifdef NON_MATCHING
+void func_806789E4(void) {
+    s32 i;
+    s32 j;
+
+    for (j = 0; j < 4; j++) {
+        D_807FBFE0[j] = NULL;
+    }
+    for (i = D_807FBB3C = 0; i < gActiveActorCount; i = ++D_807FBB3C) {
+        D_807FBB40 = gActiveActors[i].actor;
+        if (D_807FBB40->unk64 & 2) {
+            func_80678BBC(D_807FBB40);
+            D_8074C0A0[D_807FBB40->unk58]();
+            func_80678CC8(D_807FBB40);
+        }
+        if (D_807FBB40->unk4 != NULL) {
+            func_80614A64(D_807FBB40);
+        }
+    }
+    actorGlobalCallbacksDispatchAndFree(1);
+    func_80678B04();
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_806789E4.s")
+#endif
 
 void func_80678B04(void) {
     s32 i;
@@ -848,7 +913,54 @@ void actorQueueDelayedCallback(s32 arg0, s32 arg1, s32 arg2, u8 arg3, s32 arg4, 
     D_807FBFD8++;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorDelayedCallbacksTick.s")
+void actorDelayedCallbacksTick(void) {
+    s32 i;
+    Actor *actor;
+    ActorCallbackNode *node;
+    ActorCallbackNode *curr;
+    ActorCallbackNode **link;
+    ActorCallbackNode *prev;
+    s32 changed;
+
+    for (i = 0; i < D_807FBFD8; i++) {
+        D_807FBF18[i].arg6--;
+        if (D_807FBF18[i].arg6 == 0) {
+            actor = (Actor *)D_807FBF18[i].arg0;
+            if (actorTableContains(actor)) {
+                curr = actor->unk13C;
+                link = &actor->unk13C;
+                prev = NULL;
+                if (curr != NULL) {
+                    do {
+                        link = &curr->next;
+                        prev = curr;
+                        curr = curr->next;
+                    } while (curr != NULL);
+                }
+                *link = D_807FBF18[i].node;
+                (*link)->prev = prev;
+            } else {
+                node = D_807FBF18[i].node;
+                if (node->unk10 != NULL) {
+                    heapFree(node->unk10);
+                }
+                heapFree(node);
+            }
+        }
+    }
+    do {
+        changed = 0;
+        for (i = 0; i < D_807FBFD8; i++) {
+            if (D_807FBF18[i].arg6 == 0) {
+                D_807FBF18[i].node = D_807FBF18[D_807FBFD8 - 1].node;
+                D_807FBF18[i].arg0 = D_807FBF18[D_807FBFD8 - 1].arg0;
+                D_807FBF18[i].arg6 = D_807FBF18[D_807FBFD8 - 1].arg6;
+                D_807FBFD8--;
+                changed = 1;
+            }
+        }
+    } while (changed);
+}
 
 ActorCallbackNode *actorAllocCallbackNode(s32 arg0, s32 arg1, u8 arg2, s32 arg3, void *arg4) {
     ActorCallbackNode *node = heapAlloc(sizeof(ActorCallbackNode));

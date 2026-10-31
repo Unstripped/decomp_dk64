@@ -1,4 +1,4 @@
-// actorCallbackListSort (src/global/7CA80.c): stage 5: 53 insns, frame 0, score 5, regalloc only (t2/t3/t4 vs t1/t2/t3 in if (!inserted))
+// actorCallbackListSort (src/global/7CA80.c): stage 5: 53 insns, frame 0, 5 diff lines, regalloc only: second block (if (!inserted) unlink) uses t1,t2,t3 where target uses t2,t3,t4 (target burns one extra ugen temp () earlier). Tried: store/temp orders, next/temp locals in either block, while forms, casts, u32/ordering of compare, permuter 2x~1000s best 25 (hint: curr->next = temp = scan->next reorder, worse)
 ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
     ActorCallbackNode *new_head = head;
     ActorCallbackNode *curr;

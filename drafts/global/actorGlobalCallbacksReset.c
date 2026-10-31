@@ -1,16 +1,18 @@
-// actorGlobalCallbacksReset (src/global/7CA80.c): stage 4: 30 insns, frame 0x18, ra saved at 0x14; uopt hoists base of D_807FBFE0 into v0 (12 insns) vs target 12 insns direct off at via %hi/%lo of D_807FBFE4/8
-void actorUpdateActiveList(s32);
-void actorGlobalCallbacksDispatchAndFree(s32);
+// actorGlobalCallbacksReset (src/global/7CA80.c): text matches IDO byte-exact (0 diff lines) ONLY when the TU defines 'ActorCallbackNode *D_807FBFE0[4];' (.bss carve 0x807FBFE0-0x807FBFF0 in dk64.global.us.yaml; as extern uopt hoists the base, target shares one lui at per pair). Needs yaml carve; parked under NON_MATCHING in src copy
+void actorUpdateActiveList(u8);
+void actorGlobalCallbacksDispatchAndFree();
 void func_80678B04(void);
 void actorDelayedCallbacksTick(void);
 
+ActorCallbackNode *D_807FBFE0[4];
 void actorGlobalCallbacksReset(void) {
+    s32 i;
+
     D_807FBE09 = 1;
     D_807FBF10 = 0;
-    D_807FBFE0[1] = NULL;
-    D_807FBFE0[0] = NULL;
-    D_807FBFE0[2] = NULL;
-    D_807FBFE0[3] = NULL;
+    for (i = 0; i < 4; i++) {
+        D_807FBFE0[i] = NULL;
+    }
     actorUpdateActiveList(1);
     actorUpdateActiveList(2);
     actorGlobalCallbacksDispatchAndFree(1);
