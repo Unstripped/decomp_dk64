@@ -1224,10 +1224,9 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
 }
 
 // Cutscene script command interpreter (csCmdExec): one 8-byte command per call.
-// Parked NON_MATCHING: 1836 of 1847 insns, frame 0xC8, s0/s1 and block order match; the
-// remaining diff is register allocation in the sfx cases (0xE/0x7D/0xF/0x7E: the original
-// copies cmd->c into a second register before masking it), case 0x8D (map in s1, exit spilled
-// to sp+0x70), the two actor loops (cursor v0 / count v1 / i t0) and ugen scratch numbering.
+// Parked NON_MATCHING: all 1847 insns match except the first &D_807F61F0 piece in case 0x68
+// (target lui/addiu v0, mine a3): the draft that reached it used FAKE reads of uninitialised
+// locals (b, i) to extend their live ranges into that case, which is not equivalent code.
 
 // Object hanging off the player actor's unk174.
 typedef struct CsCamState {
@@ -1411,13 +1410,15 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 sz;
     u8 pan;
     u8 vol;
-    volatile u8 pitch;
+    u8 pitch;
     f32 cx;
     f32 cy;
     f32 cz;
     u8 pan7;
+    u8 vol7;
 
-    found = 0; 
+    found = 0;
+    if (found) {} // FAKE: block boundary keeps found off a2
     switch (cmd->op) {
     case 0x95:
         D_807F693C = 0x80;
@@ -1796,8 +1797,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         i = cmd->b & 1;
         b = cmd->b;
-        b &= 0xFF;
         if (cs->unk10[i] < 0) {
+            if (b && b && b) {} // FAKE: deadsweep: keeps b a real variable (move a3,v1)
             b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
         }
@@ -1816,8 +1817,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         i = cmd->b & 1;
         b = cmd->b;
-        b &= 0xFF;
         if (cs->unk10[i] < 0) {
+            if (b && b && b) {} // FAKE: deadsweep: keeps b a real variable (move a3,v1)
             b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
         }
@@ -1839,22 +1840,19 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x7E:
         pan7 = (cmd->b / 128) & 0xFF;
-        vol = (cmd->c / 128) & 0xFF;
+        vol7 = (cmd->c / 128) & 0xFF;
         c = cmd->c;
-        c &= 0xFF;
-        c &= 0x7F;
+        pitch = c & 0x7F;
         if (pan7 == 0) {
             pan7 = 0x7F;
         }
-        if (!vol) {
-            vol = 0xFF;
+        if (!vol7) {
+            vol7 = 0xFF;
         }
         i = cmd->b & 0x7F;
         if (D_80748094 > 0) {
-            if (found) {}
-            pitch = c;
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
-            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol, pan7, i, pitch, 0.3f, 0);
+            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pan7, i, pitch, 0.3f, 0);
         } else {
             sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
         }

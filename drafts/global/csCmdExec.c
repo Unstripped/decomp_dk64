@@ -1,4 +1,4 @@
-// csCmdExec (src/global/42630.c): csCmdExec QL7 (parked NON_MATCHING in src copy): whole function 1847/1847 insns, frame/saved set/t-ring exact; ONLY diff case 0x7E pan spill: target sw t1,60(sp) ... lw t7,60(sp) (uncoloured uopt CSE temp for ucvt(pan)), mine sb t1,71(sp)/lbu t1,71(sp) (u8 var home) (+ t1,20(sp) arg store order). Tried: pan7==0 (ucvt cand coloured v0), s32/block-scope pan7, dead reads pairs, arg/cast/proto grids, statement orders, return-type toggles. ORCHESTRATOR: NOT EQUIVALENT as is: the FAKEs `if (found) {}` before `found = 0;`, `if (b) {}` and `if (i) {}` in case 0x68 read uninitialised locals; replace them with equivalent forms before parking.
+// csCmdExec (src/global/42630.c): R3e wave 3: equivalent version (no uninitialised reads): whole function 2180/2180 normalised lines, frame/saved set/t-ring exact; ONLY diff: case 0x68 first &D_807F61F0 piece: target lui/addiu v0 (lbu t7,8(v0); lw a0,0(v0)), mine a3 (8 diff lines). FIXED this wave: pan7 spill via 'if (pan7 == 0)' (ucvt cand then uncoloured; also drop the csId&&csId&&csId FAKE) and entry 'found = 0; if (found) {}' (block boundary keeps found off a2). The earlier draft got v0 only through FAKE reads of uninitialised b/i in case 0x68 (b is a3 web whose live range then extends into the 0x68 block). Tried for a legit a3 occupant: 1332 single dead ifs (globals/locals/found/cmd/cs/csId/dm) at every 0x68 position, found/b/i = D_807F61F0.unk8 loads, local actor, if/break reshapes: none.
 void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // unused: address-taken csId, keeps found at sp+0xC3
     u8 found;
@@ -37,8 +37,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     u8 pan7;
     u8 vol7;
 
-    if (found) {} // FAKE: uninitialised read keeps found live from entry (a3)
     found = 0;
+    if (found) {} // FAKE: block boundary keeps found off a2
     switch (cmd->op) {
     case 0x95:
         D_807F693C = 0x80;
@@ -174,9 +174,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x68:
         if (D_807F61F0.unk8 != 0) {
-            if (b) {} // FAKE: uninitialised read forces the &D_807F61F0 piece into v0
             actorDespawn(D_807F61F0.unk0);
-            if (i) {} // FAKE: uninitialised read, same
             actorDespawn(D_807F61F4);
             D_807F61F0.unk8 = 0;
         }
@@ -465,7 +463,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         vol7 = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         pitch = c & 0x7F;
-        if (!pan7) {
+        if (pan7 == 0) {
             pan7 = 0x7F;
         }
         if (!vol7) {
@@ -476,7 +474,6 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
             sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pan7, i, pitch, 0.3f, 0);
         } else {
-            if (csId && csId && csId) {} // FAKE: deadsweep: t-ring phase
             sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
         }
         break;
