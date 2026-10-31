@@ -1,12 +1,6 @@
-// playerHandleDamageReaction (src/global/7CA80.c): stage 5: 182 insns, frame 0x40, score 44 with dead statement, regalloc only (a2 vs a3, temp registers)
-struct R2CEntry2F0;
-extern struct R2CEntry2F0 *D_807FC924;
-
-typedef struct DamageReactionPlayerEntry {
-    u8 pad0[0x2C0];
-    u8 unk2C0;
-    u8 pad2C1[0x2F0 - 0x2C1];
-} DamageReactionPlayerEntry;
+// playerHandleDamageReaction (src/global/7CA80.c): stage 5, frame 0x40: target keeps var_a2 in a2 and narrowed arg2 (u8 param: sw a2,72(sp); andi a3,a2,0xff) in a3; mine swaps (u8 ANSI/K&R/s32 variants, decl orders (1800 variants), deadsweep 2596 variants no gain; best parked body 52 diff lines). Param candidate colours a2 first (adjsave 0.5 vs var_a2 0.4); a2 is forbidden for var_a2 as the func_806D0DE4 3rd arg is folded to li a2,1
+#include "common.h"
+#include "actor.h"
 
 typedef struct DamageReactionContext {
     u8 pad0[0x1A4];
@@ -28,7 +22,6 @@ void func_807149B8(s32);
 void func_8071498C(void *);
 void func_80714C08(void *, s32, Actor *, s32, s32);
 void effectPulseSpinUpdate(void);
-
 void playerHandleDamageReaction(Actor *arg0, Actor *arg1, s32 arg2) {
     s32 sp3C;
     s32 var_a2;
@@ -39,10 +32,10 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, s32 arg2) {
     temp_a3 = arg2 & 0xFF;
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
+        var_a2 = 1;
         if (((DamageReactionPlayerEntry *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
             return;
         }
-        var_a2 = 1;
         sp3C = 0x2E;
         if (temp_a3 != 0) {
             sp3C = 0x30;

@@ -1,4 +1,12 @@
-// func_80678050 (src/global/7CA80.c): stage 5: 156 insns, frame 0x40, s0/ra match, field assignment scheduling and temp regalloc differ
+// func_80678050 (src/global/7CA80.c): stage 5: frame 0x40 ok, 5 home words (u16 headerSize/totalDataSize share a word, typesPtr as expr) -> temp slots 0x28/0x24 match target, loop 1 and post-loop shape match (needs FAKE if (headerSize) {} in loop to give hs=a1). Remaining: post-loop temps v0/t5 vs t5/t6 (ring shift), then arg0 in a1 vs v1, const-1 web split (t6,t7), field-store temps
+#include "common.h"
+#include "actor.h"
+
+void *heapAlloc(s32);
+extern s32 D_807FBB38;
+extern u16 D_8074D624[];
+extern u16 gActiveActorCount;
+
 extern u16 *D_8074E218[];
 extern u16 D_8074DA58[];
 extern u32 D_807FBB64;
@@ -71,34 +79,32 @@ typedef struct ActorAllocBlock {
 s32 func_80678050(arg0)
 u16 arg0;
 {
-    u16 **typesPtr;
-    s32 headerSize;
     ActorAllocBlock *actor;
-    s32 totalDataSize;
     u16 *types;
     void **ptrArray;
     u8 *dataPtr;
+    u16 headerSize;
+    u16 totalDataSize;
 
-    typesPtr = &D_8074E218[arg0];
-    types = *typesPtr;
+    types = D_8074E218[arg0];
     headerSize = 0x174;
     totalDataSize = 0;
     if (*types != 0) {
         do {
-            headerSize = (headerSize + 4) & 0xFFFF;
-            totalDataSize = (totalDataSize + D_8074DA58[*types]) & 0xFFFF;
+            if (headerSize) {}  // FAKE: raises headerSize priority so it gets a1 (tds a2)
+            totalDataSize += D_8074DA58[*types];
+            headerSize += 4;
             types++;
         } while (*types != 0);
     }
-    headerSize = (headerSize + 7) & 0xFFF8;
-    totalDataSize += headerSize;
-    actor = (ActorAllocBlock *)heapAlloc(totalDataSize & 0xFFFF);
+    totalDataSize += (headerSize + 7) & 0xFFF8;
+    actor = (ActorAllocBlock *)heapAlloc(totalDataSize);
     if (actor != NULL) {
         heapClearBlock(actor);
-        types = *typesPtr;
+        types = D_8074E218[arg0];
         if (*types != 0) {
             ptrArray = (void **)&actor->unk174;
-            dataPtr = (u8 *)actor + headerSize;
+            dataPtr = (u8 *)actor + ((headerSize + 7) & 0xFFF8);
             do {
                 *ptrArray++ = dataPtr;
                 dataPtr += D_8074DA58[*types++];

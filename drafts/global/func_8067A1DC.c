@@ -1,16 +1,34 @@
-// func_8067A1DC (src/global/7CA80.c): from .scratch/R3C/func_8067A1DC_best.c
+// func_8067A1DC (src/global/7CA80.c): stage 5: frame 0x70, regs, stack slots all match; only diff: loop 2 (unk39) guard lbu->v1 + move v0,v1 in target vs mine lbu v0 directly (12 lines incl. branch offsets). for(i=0;..) loops with array indexing, pad60 local (FAKE)
 #include "common.h"
 #include "actor.h"
 
 extern ActorGlobalState D_807FBB70;
+void func_8067A69C(s32, Actor *, f32, f32, u8, u8);
+void func_8067A70C(s32, Actor *, f32, f32, f32, u8, u8);
+void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
+
 extern s32 D_807FBC08;
 extern s32 D_807FBC14;
-extern s32 D_807FBC68;
-extern s32 D_807FBC74;
+extern u8 D_807FBC68[][0x40];
+extern u8 D_807FBC74[][0x40];
 
-typedef struct R3C_GlobalState {
+typedef struct Ac7B_Vec3 {
+    f32 x;
+    f32 y;
+    f32 z;
+} Ac7B_Vec3;
+
+typedef struct Ac7B_Slot {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    u8 pad10[0x30];
+} Ac7B_Slot;
+
+typedef struct Ac7B_GlobalState {
     u8 pad0[0x3C];
-    s32 unk3C[4][3];
+    Ac7B_Vec3 unk3C[4];
     s32 unk6C[4];
     s32 unk7C[4];
     u8 unk8C[4];
@@ -21,125 +39,96 @@ typedef struct R3C_GlobalState {
     s32 unkCC;
     s32 unkD0;
     s32 unkD4;
-    u8 padD8[0x24];
-    f32 unkFC[3];
-    f32 unk108[3];
-    u8 pad114[0x14];
-    s32 unk128;
-    s32 unk12C;
-    s32 unk130;
-    s32 unk134;
-} R3C_GlobalState;
+    u8 padD8[0x50];
+    Ac7B_Slot unk128[1];
+} Ac7B_GlobalState;
 
-#define GLOBAL ((R3C_GlobalState *)&D_807FBB70)
+#define Ac7B_GLOBAL ((Ac7B_GlobalState *)&D_807FBB70)
 
-s32 func_80674B90(Actor *, s32, s32 *, s32 *);
-void func_8067A69C(Actor *, s32, s32, s32, s32, s32);
-void func_80679200(Actor *, s32, s32, u8, s32, void *);
-void func_8067A70C(Actor *, s32, f32, f32, f32, u8, u8);
-void func_806CF42C(Actor *);
-void func_8066A75C(Actor *, s32, void *, s32, void *);
+s32 func_80674B90(Actor *, s32, f32 *, f32 *);
+void collisionTransformPointByActorMtx(Actor *, u32, f32 *, f32, f32 *);
 void func_806776A0(Actor *, s32, void *, void *, s32, s32, s32, s32);
+void func_806CF42C(Actor *);
 
 void func_8067A1DC(Actor *arg0) {
-    s32 sp68;
-    s32 sp64;
-    s32 sp5C;
-    s32 sp58;
-    u8 *var_s0;
-    u8 *var_s1;
     s32 i;
-    u8 *var_s3;
+    f32 sp68;
+    f32 sp64;
+    s32 pad60; // FAKE: unused local reproducing the frame slot between sp64 and sp5C
+    f32 sp5C;
+    f32 sp58;
 
-    i = 0;
-    if (D_807FBB70.unk201 > 0) {
-        do {
-            switch (D_807FBB70.unk244[i]) {
-            case 0:
-                break;
-            case 1:
-                if (func_80674B90(arg0, D_807FBB70.unk204[i], &sp68, &sp64) != 0) {
-                    func_8067A69C(arg0, D_807FBB70.unk204[i], sp68, sp64, 0, 1);
-                }
-                break;
-            case 2:
-                func_80674B90(arg0, D_807FBB70.unk204[i], &sp5C, &sp58);
-                break;
-            case 4:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 1, 0, 0);
-                break;
-            case 3:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 0, 0, 0);
-                break;
-            case 8:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 2, 0, 0);
-                break;
-            case 10:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 3, 0, 0);
-                break;
-            case 13:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 6, 0, 0);
-                break;
-            case 11:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 4, 0, 0);
-                break;
-            case 12:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 5, 0, 0);
-                break;
-            case 6:
-            case 7:
-                if (D_807FBB70.unk244[i] == 6) {
-                    func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x40, 0, 0, 0);
-                }
-                func_8067A70C(arg0, D_807FBB70.unk204[i], arg0->unk7C, arg0->unk80, arg0->unk84, 2, 1);
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x80, 0, 0, 0);
-                func_806CF42C(arg0);
-                break;
-            case 5:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 8, 0, 0, 0);
-                break;
-            case 15:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 4, 0, 0, 0);
-                break;
-            case 9:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x1000, 0, 0, 0);
-                break;
-            case 14:
-                func_80679200((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x02000000, 0, 0, 0);
-                break;
+    for (i = 0; i < D_807FBB70.unk201; i++) {
+        switch (D_807FBB70.unk244[i]) {
+        case 0:
+            break;
+        case 1:
+            if (func_80674B90(arg0, D_807FBB70.unk204[i], &sp68, &sp64) != 0) {
+                func_8067A69C((s32)arg0, (Actor *)D_807FBB70.unk204[i], sp68, sp64, 0, 1);
             }
-            i++;
-        } while (i < D_807FBB70.unk201);
-        i = 0;
+            break;
+        case 2:
+            func_80674B90(arg0, D_807FBB70.unk204[i], &sp5C, &sp58);
+            break;
+        case 4:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 1, 0, 0);
+            break;
+        case 3:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 0, 0, 0);
+            break;
+        case 8:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 2, 0, 0);
+            break;
+        case 10:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 3, 0, 0);
+            break;
+        case 13:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 6, 0, 0);
+            break;
+        case 11:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 4, 0, 0);
+            break;
+        case 12:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 5, 0, 0);
+            break;
+        case 6:
+        case 7:
+            if (D_807FBB70.unk244[i] == 6) {
+                actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x40, 0, 0, 0);
+            }
+            func_8067A70C((s32)arg0, (Actor *)D_807FBB70.unk204[i], arg0->unk7C, arg0->unk80, arg0->unk84, 2, 1);
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x80, 0, 0, 0);
+            func_806CF42C(arg0);
+            break;
+        case 5:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 8, 0, 0, 0);
+            break;
+        case 15:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 4, 0, 0, 0);
+            break;
+        case 9:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x1000, 0, 0, 0);
+            break;
+        case 14:
+            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x02000000, 0, 0, 0);
+            break;
+        }
     }
 
-    if (D_807FBB70.unk39 != 0 && D_807FBB70.unk39 > 0) {
-        do {
-            if (GLOBAL->unk8C[i] == 0) {
-                var_s1 = (u8 *)&D_807FBB70 + i * 4;
-                var_s0 = (u8 *)&D_807FBB70 + i * 12;
-                func_8066A75C(arg0, *(s32 *)(var_s1 + 0x6C), var_s0 + 0x3C, *(s32 *)(var_s0 + 0x40), var_s0 + 0x44);
-                func_8067A69C(arg0, *(s32 *)(var_s1 + 0x7C), *(s32 *)(var_s0 + 0x3C), *(s32 *)(var_s0 + 0x44), 1, 1);
+    if (D_807FBB70.unk39 != 0) {
+        for (i = 0; i < D_807FBB70.unk39; i++) {
+            if (Ac7B_GLOBAL->unk8C[i] == 0) {
+                collisionTransformPointByActorMtx(arg0, Ac7B_GLOBAL->unk6C[i], &Ac7B_GLOBAL->unk3C[i].x, Ac7B_GLOBAL->unk3C[i].y, &Ac7B_GLOBAL->unk3C[i].z);
+                func_8067A69C((s32)arg0, (Actor *)Ac7B_GLOBAL->unk7C[i], Ac7B_GLOBAL->unk3C[i].x, Ac7B_GLOBAL->unk3C[i].z, 1, 1);
             }
-            i++;
-        } while (i < D_807FBB70.unk39);
-        i = 0;
+        }
     }
 
     if (D_807FBB70.unk91 != 0) {
-        func_806776A0(arg0, GLOBAL->unkCC, &D_807FBC08, &D_807FBC14, GLOBAL->unkC8, GLOBAL->unkD0, GLOBAL->unkD4, 1);
+        func_806776A0(arg0, Ac7B_GLOBAL->unkCC, &D_807FBC08, &D_807FBC14, Ac7B_GLOBAL->unkC8, Ac7B_GLOBAL->unkD0, Ac7B_GLOBAL->unkD4, 1);
     }
 
-    var_s0 = (u8 *)&D_807FBB70;
-    if (D_807FBB70.unk1F8 > 0) {
-        var_s1 = (u8 *)&D_807FBC68;
-        var_s3 = (u8 *)&D_807FBC74;
-        do {
-            func_806776A0(arg0, ((R3C_GlobalState *)var_s0)->unk134, var_s1, var_s3, ((R3C_GlobalState *)var_s0)->unk128, ((R3C_GlobalState *)var_s0)->unk12C, ((R3C_GlobalState *)var_s0)->unk130, 0);
-            i++;
-            var_s0 += 0x40;
-            var_s1 += 0x40;
-            var_s3 += 0x40;
-        } while (i < D_807FBB70.unk1F8);
+    for (i = 0; i < D_807FBB70.unk1F8; i++) {
+        func_806776A0(arg0, Ac7B_GLOBAL->unk128[i].unkC, D_807FBC68[i], D_807FBC74[i], Ac7B_GLOBAL->unk128[i].unk0, Ac7B_GLOBAL->unk128[i].unk4, Ac7B_GLOBAL->unk128[i].unk8, 0);
     }
 }
