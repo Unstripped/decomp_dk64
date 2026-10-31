@@ -11,8 +11,8 @@ typedef struct {
 } ControllerView;
 
 
-void *func_80612E90(void *, s16, s32);
-void func_80613794(ControllerView *, s32);
+void *func_80612E90(void *, s32, s32);
+void func_80613794();
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80612E90.s")
 
@@ -195,7 +195,141 @@ typedef struct {
 void animListFree(void *);
 void heapFreeDeferred();
 
+typedef struct {
+    void *unk0;
+    f32 unk4;
+    f32 unk8;
+    u8 padC[4];
+    s16 unk10;
+    u8 pad12[2];
+    f32 unk14;
+    f32 unk18;
+    u16 unk1C;
+    u8 pad1E[6];
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+} RvT2_SlotB;
+
+typedef struct {
+    RvT2_SlotB *unk0;
+    RvT2_SlotB *unk4;
+    RvT2_SlotB *unk8;
+    RvT2_SlotB *unkC;
+    f32 unk10;
+    Mtx *unk14;
+    Mtx *unk18;
+    void *unk1C;
+    void *unk20;
+    void *unk24;
+    u8 pad28[0xC];
+    f32 unk34;
+    f32 unk38;
+    f32 unk3C;
+    u8 pad40[4];
+    f32 unk44;
+    f32 unk48;
+    u8 pad4C[0xC];
+    f32 unk58;
+    u8 pad5C[8];
+    s16 unk64;
+    u8 pad66[2];
+    s32 unk68;
+    u8 pad6C[4];
+    s32 unk70;
+    u8 pad74[4];
+    s32 unk78;
+    s32 unk7C;
+    f32 unk80;
+    s32 unk84;
+    s32 unk88;
+} RvT2_AnimB;
+
+typedef struct {
+    void *unk0;
+    RvT2_AnimB *unk4;
+    u8 pad8[4];
+    f32 unkC[4][4];
+    s32 unk4C;
+    s32 unk50;
+} RvT2_ControllerB;
+
+#ifdef NON_MATCHING
+s32 func_806134B4(RvT2_ControllerB *arg0, u16 arg1) {
+    void *resource;
+    s32 i;
+    void *alloc;
+    RvT2_AnimB *anim;
+    resource = func_80612E90(arg0, arg1, 0);
+    if (resource != NULL) {
+        arg0->unk0 = resource;
+        arg0->unk4C = 0;
+        arg0->unk50 = 0;
+
+        alloc = heapAlloc((*(u8 *)((u8 *)resource + 0x20) << 7) + 0x170);
+        arg0->unk4 = (RvT2_AnimB *)alloc;
+        arg0->unk4->unk0 = (RvT2_SlotB *)((u8 *)alloc + 0x90);
+        arg0->unk4->unk4 = (RvT2_SlotB *)((u8 *)alloc + 0xC8);
+        arg0->unk4->unk8 = (RvT2_SlotB *)((u8 *)alloc + 0x100);
+        arg0->unk4->unkC = (RvT2_SlotB *)((u8 *)alloc + 0x138);
+        arg0->unk4->unk14 = (Mtx *)((u8 *)alloc + 0x170);
+        arg0->unk4->unk18 = (Mtx *)((u8 *)arg0->unk4->unk14 + (*(u8 *)((u8 *)resource + 0x20) << 6));
+
+        for (i = 0; i < *(u8 *)((u8 *)resource + 0x20); i++) {
+            guMtxIdent((Mtx *)((u8 *)arg0->unk4->unk14 + (i << 6)));
+            guMtxIdent((Mtx *)((u8 *)arg0->unk4->unk18 + (i << 6)));
+        }
+
+        guMtxIdentF(arg0->unkC);
+        anim = arg0->unk4;
+        anim->unk1C = NULL;
+        anim->unk20 = NULL;
+        anim->unk24 = NULL;
+        anim->unk34 = 0.15f;
+        anim->unk38 = 0.15f;
+        anim->unk3C = 0.15f;
+
+        anim->unk0->unk4 = 0.0f;
+        anim->unk0->unk8 = 0.0f;
+        anim->unk0->unk0 = NULL;
+        anim->unk0->unk10 = -1;
+        anim->unk0->unk1C = 0;
+        anim->unk0->unk14 = 0.0f;
+        anim->unk0->unk18 = 0.0f;
+        anim->unk0->unk24 = 1.0f;
+        anim->unk0->unk34 = 0.0f;
+
+        anim->unk4->unk0 = NULL;
+        anim->unk4->unk34 = 0.0f;
+        anim->unk8->unk0 = NULL;
+        anim->unk8->unk34 = 0.0f;
+        anim->unkC->unk0 = NULL;
+        anim->unkC->unk34 = 0.0f;
+
+        anim->unk68 = 0;
+        anim->unk64 = 0;
+        anim->unk70 = 0;
+        anim->unk78 = 0;
+        anim->unk7C = 0;
+        anim->unk84 = 0;
+        anim->unk88 = 0;
+
+        anim->unk10 = 0.0f;
+        anim->unk44 = 0.0f;
+        anim->unk58 = 0.0f;
+        anim->unk48 = 1.0f;
+        anim->unk80 = 0.0f;
+
+        return 1;
+    }
+    return 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_806134B4.s")
+#endif
 
 void func_806136B4(ControllerAnimView *arg0) {
     void *temp_a1;
@@ -224,8 +358,112 @@ void func_806136B4(ControllerAnimView *arg0) {
     }
     heapFreeDeferred(arg0->unk4);
 }
+typedef struct {
+    void *unk0;
+    u8 pad4[0x48];
+    void *unk4C;
+    void *unk50;
+} RvT2_ControllerView;
+
+typedef struct {
+    u32 unk0;
+    u32 unk4;
+} RvT2_ControllerCommand;
+
+typedef struct {
+    RvT2_ControllerCommand *start;
+} RvT2_ControllerCommandList;
+
+typedef struct {
+    u8 pad0[4];
+    RvT2_ControllerCommandList *commands;
+} RvT2_ControllerSub;
+
+void assetFreeBuffer(void *, s32, s32);
+
+struct RvE2_CacheEntry {
+    s32 id;
+    s32 refCount;
+    void *asset;
+};
+extern struct RvE2_CacheEntry D_807FB7B0[];
+
+#ifdef NON_MATCHING
+void func_80613794(arg0, arg1)
+RvT2_ControllerView *arg0;
+u8 arg1;
+{
+    RvT2_ControllerSub *sub;
+    RvD_StateEntry *entry;
+    RvT2_ControllerCommand *cmd;
+    RvT2_ControllerCommandList *cmdList;
+    RvD_StateEntry *last;
+    u32 val;
+
+    switch (arg1) {
+    case 0:
+        sub = arg0->unk0;
+        arg0->unk0 = NULL;
+        break;
+    case 1:
+        sub = arg0->unk4C;
+        arg0->unk4C = NULL;
+        break;
+    case 2:
+        sub = arg0->unk50;
+        arg0->unk50 = NULL;
+        break;
+    }
+
+    if (sub != NULL) {
+        entry = D_807FB630;
+        do {
+            if (entry->unk4 == (u32)sub) {
+                break;
+            }
+        } while (++entry != (RvD_StateEntry *)D_807FB7B0);
+
+        if (entry == (RvD_StateEntry *)D_807FB7B0) {
+            return;
+        }
+
+        if (--entry->unk2 == 0) {
+            cmdList = sub->commands;
+            cmd = cmdList->start;
+            if (cmd != (RvT2_ControllerCommand *)cmdList) {
+                do {
+                    if ((cmd->unk0 >> 24) == (0, 0xFD)) {
+                        val = cmd->unk4;
+                        if ((val >= 0x80000000) && (val < 0xA0000000)) {
+                            assetFreeBuffer((void *)(val ^ 0), 0x270, 0x15);
+                        }
+                    }
+                    cmd++;
+                } while ((RvT2_ControllerCommand *)cmdList != cmd);
+            }
+
+            val = D_807FBB30 - 1;
+            last = &D_807FB630[(u16)val];
+            D_807FBB30 = val;
+
+            entry->unk0 = last->unk0;
+            entry->unk4 = last->unk4;
+            entry->unk8 = last->unk8;
+            entry->unk2 = last->unk2;
+
+            last->unk0 = 0;
+            last->unk4 = 0;
+            last->unk8 = 0;
+            last->unk2 = 0;
+
+            assetFreeBuffer((void *)sub, 0x281, 0x15);
+        }
+    }
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613794.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613944.s")
 
@@ -281,7 +519,165 @@ void func_80613C48(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     func_80613CA8(arg0, arg1, arg2, arg3);
 }
 
+typedef struct {
+    f32 unk0;
+    u16 unk4;
+    u8 pad6[0xC];
+    u8 unk12;
+} RvT2_Resource;
+
+typedef struct {
+    RvT2_Resource *unk0;
+    f32 unk4;
+    f32 unk8;
+    s16 unkC;
+    s16 unkE;
+    s16 unk10;
+    u8 pad12[2];
+    f32 unk14;
+    f32 unk18;
+    s16 unk1C;
+    u8 pad1E[6];
+    f32 unk24;
+    f32 unk28;
+    f32 unk2C;
+    f32 unk30;
+    f32 unk34;
+} RvT2_Slot;
+
+typedef struct {
+    RvT2_Slot *unk0;
+    RvT2_Slot *unk4;
+    RvT2_Slot *unk8;
+    RvT2_Slot *unkC;
+    f32 unk10;
+    u8 pad14[0x14];
+    s16 unk28;
+    s16 unk2A;
+    u8 pad2C[0x14];
+    f32 unk40;
+    f32 unk44;
+    f32 unk48;
+    u8 pad4C[0x2C];
+    s32 unk78;
+    s32 unk7C;
+    f32 unk80;
+} RvT2_AnimData;
+void *func_80614130(s32 id);
+
+#ifdef NON_MATCHING
+void func_80613CA8(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+    void *pad;
+    RvT2_AnimData *anim;
+    RvT2_Slot *slot0;
+    RvT2_Slot *slot4;
+    RvT2_Slot *slot8;
+    RvT2_Slot *slotC;
+    RvT2_Resource *resource;
+    f32 temp_f;
+    s16 temp_s;
+    u8 temp_u;
+
+    anim = (RvT2_AnimData *)arg0->unk4;
+    slot0 = anim->unk0;
+    slot8 = anim->unk8;
+    slot4 = anim->unk4;
+    slotC = anim->unkC;
+
+    if (slot8->unk0 != NULL) {
+        func_80613944(arg0, slot8);
+    }
+    if (slotC->unk0 != NULL) {
+        func_80613944(arg0, slotC);
+    }
+
+    if ((arg1 & 0x4000) == 0x4000) {
+        arg1 -= 0x4000;
+        if (slot4->unk0 != NULL) {
+            slotC->unk0 = func_80614130(slot4->unk10);
+            slotC->unk4 = slot4->unk4;
+            slotC->unk8 = slot4->unk8;
+            slotC->unkC = slot4->unkC;
+            slotC->unkE = slot4->unkE;
+            slotC->unk10 = slot4->unk10;
+            slotC->unk1C = slot4->unk1C;
+            slotC->unk14 = slot4->unk14;
+            slotC->unk18 = slot4->unk18;
+            slotC->unk34 = slot4->unk34;
+            slotC->unk24 = slot4->unk24;
+            slotC->unk2C = slot4->unk2C;
+            slotC->unk28 = slot4->unk28;
+            slotC->unk30 = slot4->unk30;
+            anim->unk2A = anim->unk28;
+        } else {
+            anim->unk2A = 0;
+        }
+    }
+
+    if (arg3 > 0.0f) {
+        temp_f = anim->unk48;
+        if (temp_f > 0.0f) {
+            anim->unk40 = temp_f;
+        } else {
+            anim->unk40 = -temp_f;
+        }
+        if (anim->unk40 < arg3) {
+            anim->unk44 = arg3;
+        } else {
+            anim->unk44 = anim->unk40;
+        }
+        anim->unk10 = (anim->unk44 - anim->unk40) / anim->unk44;
+    } else {
+        if (slot0->unk0 != NULL) {
+            func_80613944(arg0, slot0);
+        }
+        if (slot4->unk0 != NULL) {
+            func_80613944(arg0, slot4);
+        }
+    }
+
+    resource = func_80614130(arg1);
+    if (resource != NULL) {
+        slot8->unk0 = resource;
+        slot8->unk10 = arg1;
+        slot8->unk1C = resource->unk4;
+        slot8->unk14 = 0.0f;
+        slot8->unk34 = 0.0f;
+        slot8->unk18 = (f32)(resource->unk12 - 1);
+        slot8->unk24 = resource->unk0;
+        slot8->unk2C = resource->unk0;
+        slot8->unk28 = resource->unk0;
+        slot8->unk30 = 0.0f;
+    } else {
+        slot8->unk0 = NULL;
+        slot8->unk10 = -1;
+        slot8->unk1C = 0;
+        slot8->unk14 = 0.0f;
+        slot8->unk18 = 0.0f;
+        slot8->unk34 = 0.0f;
+        slot8->unk24 = 0.0f;
+        slot8->unk2C = 0.0f;
+        slot8->unk28 = 0.0f;
+        slot8->unk30 = 0.0f;
+    }
+
+    anim->unk78 = 0;
+    anim->unk7C = 0;
+    anim->unk80 = 0.0f;
+    temp_u = ((u8 *)&anim->unk28)[1];
+    temp_s = anim->unk2A;
+    anim->unkC = slot4;
+    anim->unk0 = slot8;
+    anim->unk4 = slotC;
+    anim->unk8 = slot0;
+    anim->unk2A = temp_u;
+    anim->unk28 = temp_s;
+    func_80614644((RvE_Controller *)arg0, (RvE_State *)slot8, arg2);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613CA8.s")
+#endif
 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613FB0.s")
@@ -323,7 +719,6 @@ typedef struct {
     RvE3_Anim *unk4;
 } RvE3_Controller;
 
-void *func_80614130(s32 id);
 
 void func_80614014(RvE3_Controller *arg0, u16 arg1, f32 arg2, u8 arg3) {
     RvE3_Slot *slot;
@@ -363,11 +758,7 @@ void func_80614014(RvE3_Controller *arg0, u16 arg1, f32 arg2, u8 arg3) {
     func_80614644((RvE_Controller *)arg0, (RvE_State *)slot, arg2);
 }
 
-typedef struct {
-    s32 id;
-    s32 refCount;
-    void *asset;
-} RvE2_CacheEntry;
+typedef struct RvE2_CacheEntry RvE2_CacheEntry;
 extern RvE2_CacheEntry D_807FB7B0[];
 
 void *func_80614130(s32 id) {

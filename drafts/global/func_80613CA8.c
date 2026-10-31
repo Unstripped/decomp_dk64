@@ -1,4 +1,4 @@
-// func_80613CA8 (src/global/17B90.c): stage 3: semantic C starter with typed structs compiles; target uses 0x38 frame with 2 saved regs and spill slots vs starter 0x30 with 3 saved regs; slot rotation and field copies identified
+// func_80613CA8 (src/global/17B90.c): stage 5: frame 0x38, 2 saved regs s0/s1 match target (improved from starter frame 0x30/3 saved regs); first 80+ instructions match 1:1; remaining diff is float zero regalloc in unk40/resource paths and store reordering
 #include "common.h"
 
 typedef struct {
@@ -6,10 +6,10 @@ typedef struct {
     u16 unk4;
     u8 pad6[0xC];
     u8 unk12;
-} RvE3_Resource;
+} RvT2_Resource;
 
 typedef struct {
-    RvE3_Resource *unk0;
+    RvT2_Resource *unk0;
     f32 unk4;
     f32 unk8;
     s16 unkC;
@@ -18,24 +18,23 @@ typedef struct {
     u8 pad12[2];
     f32 unk14;
     f32 unk18;
-    u16 unk1C;
+    s16 unk1C;
     u8 pad1E[6];
     f32 unk24;
     f32 unk28;
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvE3_Slot;
+} RvT2_Slot;
 
 typedef struct {
-    RvE3_Slot *unk0;
-    RvE3_Slot *unk4;
-    RvE3_Slot *unk8;
-    RvE3_Slot *unkC;
+    RvT2_Slot *unk0;
+    RvT2_Slot *unk4;
+    RvT2_Slot *unk8;
+    RvT2_Slot *unkC;
     f32 unk10;
     u8 pad14[0x14];
     s16 unk28;
-    u8 unk29;
     s16 unk2A;
     u8 pad2C[0x14];
     f32 unk40;
@@ -45,28 +44,29 @@ typedef struct {
     s32 unk78;
     s32 unk7C;
     f32 unk80;
-} RvE3_AnimData;
+} RvT2_AnimData;
 
 typedef struct {
     void *unk0;
-    RvE3_AnimData *unk4;
-} RvE3_ControllerStateView;
+    RvT2_AnimData *unk4;
+} RvT2_ControllerStateView;
 
 void func_80613944();
-RvE3_Resource *func_80614130();
+void *func_80614130(s32 id);
 void func_80614644();
 
-void func_80613CA8(RvE3_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
-    RvE3_AnimData *anim;
-    RvE3_Slot *slot0;
-    RvE3_Slot *slot4;
-    RvE3_Slot *slot8;
-    RvE3_Slot *slotC;
-    RvE3_Resource *resource;
+void func_80613CA8(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+    void *pad;
+    RvT2_AnimData *anim;
+    RvT2_Slot *slot0;
+    RvT2_Slot *slot4;
+    RvT2_Slot *slot8;
+    RvT2_Slot *slotC;
+    RvT2_Resource *resource;
     f32 temp_f;
     s16 temp_s;
 
-    anim = arg0->unk4;
+    anim = (RvT2_AnimData *)arg0->unk4;
     slot0 = anim->unk0;
     slot8 = anim->unk8;
     slot4 = anim->unk4;
@@ -79,7 +79,7 @@ void func_80613CA8(RvE3_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3)
         func_80613944(arg0, slotC);
     }
 
-    if (arg1 & 0x4000) {
+    if ((arg1 & 0x4000) == 0x4000) {
         arg1 -= 0x4000;
         if (slot4->unk0 != NULL) {
             slotC->unk0 = func_80614130(slot4->unk10);
@@ -157,7 +157,7 @@ void func_80613CA8(RvE3_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3)
     anim->unk0 = slot8;
     anim->unk4 = slotC;
     anim->unk8 = slot0;
-    anim->unk2A = anim->unk29;
+    anim->unk2A = ((u8 *)&anim->unk28)[1];
     anim->unk28 = temp_s;
 
     func_80614644(arg0, slot8, arg2);
