@@ -1877,7 +1877,193 @@ void func_80681E18(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_80681E18.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_806822FC.s")
+typedef struct Lg822Sub {
+    u8 unk0;
+    u8 unk1;
+    u8 unk2;
+    u8 unk3;
+    Actor *unk4;
+    s16 unk8;
+} Lg822Sub;
+
+typedef struct Lg822CamHolder {
+    u8 pad0[0x104];
+    void *unk104;
+} Lg822CamHolder;
+
+typedef struct Lg822Player {
+    u8 pad0[0x210];
+    f32 unk210;
+    f32 unk214;
+    f32 unk218;
+    u8 pad21C[0xC];
+    f32 unk228;
+    f32 unk22C;
+    f32 unk230;
+} Lg822Player;
+
+extern f32 D_8074E7F4;
+extern f32 D_8074E7F8;
+extern f32 D_8074E7FC;
+extern f32 D_8074E800;
+extern f32 D_8074E804;
+extern f32 D_8074E808;
+extern u8 D_8074E810;
+extern s8 D_807FD63E;
+extern s8 D_807FD63F;
+
+f32 cosApprox(f32);
+f32 func_80611BB4(f32, f32);
+void csModelStateSetFirstByte(s16, s16);
+void hudSpawnCountdownTimer(s32, s32, u8);
+void actorSetStateTwo(Actor *);
+s32 func_8067ACDC(Actor *, s32, s32);
+void func_806CFF9C(Actor *);
+void projectileSetTargetCoords(f32, f32, f32);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
+Gfx *func_806FEF7C(Gfx *, Actor *);
+Gfx *func_8068DAF4(Gfx *, u8 *);
+
+void func_806822FC(void) {
+    Lg822Sub *sub = D_807FBB40->unk174;
+    void *cam;
+    f32 sinOff;
+    f32 cosOff;
+    s32 i;
+    u8 resetFlag = 0;
+    u8 latchFlag = 0;
+    Actor *child;
+    f32 x;
+    f32 y;
+    f32 pitch;
+    f32 sinV;
+    f32 z;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unk132 = 1;
+        sub->unk2 = 0;
+        sub->unk8 = 0;
+        sub->unk1 = 0;
+        sub->unk3 = 0;
+    }
+    if (D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 3) {
+        if (D_8074E7FC && D_8074E7FC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        cam = ((Lg822CamHolder *)sub->unk4->unk174)->unk104;
+        sub->unk8 = sub->unk8 - (f64)D_807FD63E * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
+        sub->unk8 = sub->unk8 & 0xFFF;
+        sinOff = func_80612794(sub->unk8) * D_8074E7F4;
+        cosOff = func_80612790(sub->unk8) * D_8074E7F4;
+        D_8074E804 = D_8074E804 - (f64)D_807FD63F * 0.04 * D_8074E800;
+        if (D_8074E804 > 50.0) {
+            D_8074E804 = 50.0f;
+        }
+        if (D_8074E804 < -50.0) {
+            D_8074E804 = -50.0f;
+        }
+        x = D_807FBB40->unk7C;
+        z = D_807FBB40->unk84;
+        if (D_8074E7F8 && D_8074E7F8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        y = D_807FBB40->unk80 + D_8074E7FC;
+        camSetFixedView((s32)cam, x, y, z, x + sinOff, y + D_8074E804, z + cosOff, 0);
+        if (camIsCutsceneActive() == 0) {
+            renderCallbacksRegister(func_806FF01C, D_807FBB4C, 3);
+            renderCallbacksRegister(func_806FEF7C, D_807FBB4C, 3);
+        }
+        func_8066E6C8(D_807FBB40, 0, 0);
+    } else {
+        func_8066E6C8(D_807FBB40, 0, 1);
+    }
+    if (sub->unk2 != 0) {
+        renderCallbacksRegister(func_8068DAF4, sub, 3);
+    }
+    child = (Actor *)D_807FBB40->unk11C;
+    if (child != 0 && sub->unk2 != 0 && child->unk154 == 5 && sub->unk1 == 0) {
+        sub->unk1 = 0x1E;
+    }
+    if (sub->unk1 != 0) {
+        sub->unk1--;
+        if (sub->unk1 == 0) {
+            resetFlag = 1;
+        }
+    }
+    for (i = 0; i < D_807FBB70.unk254; i++) {
+        if (D_807FBB70.unk258[i] == 1) {
+            latchFlag = 1;
+            sub->unk3 = 1;
+        }
+    }
+    if (resetFlag != 0 || latchFlag != 0) {
+        sub->unk2 = 0;
+        if (D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 3) {
+            D_807FBB40->unk154 = 3;
+        } else {
+            D_807FBB40->unk154 = 0;
+            D_807FBB40->unk144 = 2;
+        }
+        child = (Actor *)D_807FBB40->unk11C;
+        if (child != 0) {
+            actorDespawn(child);
+            D_807FBB40->unk11C = 0;
+        }
+        if (resetFlag) {
+            csModelStateSetFirstByte(0x30, 0);
+            csModelStateSetFirstByte(0x2F, 0);
+            csModelStateSetFirstByte(0x31, 0);
+        }
+    }
+    switch (D_807FBB40->unk154) {
+    case 0:
+        D_807FBB40->unk132 = 1;
+        if (D_807FBB70.unk200 == 5 && sub->unk3 == 0) {
+            D_807FBB40->unk154 = 1;
+            D_807FBB40->unk132 = 2;
+        }
+        break;
+    case 1:
+        if (D_807FBB70.unk200 == 4) {
+            D_807FBB40->unk154 = 2;
+            sub->unk0 = 6;
+            sub->unk4 = (Actor *)D_807FBB70.unk1FC;
+            if (sub->unk2 == 0) {
+                csModelStateSetFirstByte(0x30, 0xA);
+                sub->unk2 = 1;
+                hudSpawnCountdownTimer(0xC8, 0x20, D_8074E810);
+                actorSetStateTwo(D_807FBB44);
+                D_807FBB40->unk60 |= 0x200000;
+            }
+            D_807FBB40->unk60 &= ~4;
+            D_807FBB40->unk144 = 1;
+        }
+        break;
+    case 2:
+        if ((D_807FD63C & 0x2000) && func_8067ACDC(D_807FBB40, 4, 0) == 0 && sub->unk0 != 0) {
+            projectileSetTargetCoords(D_807FBB40->unk7C, D_807FBB40->unk80 + D_8074E7FC, D_807FBB40->unk84);
+            x = ((Lg822Player *)D_807FC924)->unk230 - ((Lg822Player *)D_807FC924)->unk218;
+            y = ((Lg822Player *)D_807FC924)->unk228 - ((Lg822Player *)D_807FC924)->unk210;
+            pitch = func_80611BB4(((Lg822Player *)D_807FC924)->unk22C - ((Lg822Player *)D_807FC924)->unk214, sqrtf(x * x + y * y));
+            sinV = sinApprox(pitch) * D_8074E808;
+            y = cosApprox(pitch) * D_8074E808;
+            projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->unk8, y, sinV, (s32)D_807FBB40);
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x17, 0xFF, 0x7F, 0x19);
+            sub->unk0--;
+            if (sub->unk0 == 0) {
+                D_807FBB40->unk154 = 3;
+            }
+        }
+        break;
+    case 3:
+        if (func_8067ACDC(D_807FBB40, 4, 0) == 0) {
+            actorAppendCallback(sub->unk4, (s32)D_807FBB40, 0x40, 1, 0, 0);
+            func_8067A70C(D_807FBB40, sub->unk4, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84 - 42.0f, 2, 1);
+            sub->unk4->unk60 &= ~8;
+            func_806CFF9C(sub->unk4);
+            D_807FBB40->unk60 |= 4;
+            D_807FBB40->unk154 = 0;
+            D_807FBB40->unk144 = 2;
+        }
+        break;
+    }
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
 
 typedef struct TagBarrelOrbitKong {
     u8 pad0[4];
