@@ -1461,7 +1461,6 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/playerHandleDamageReaction.s")
 #endif
 
-#ifdef NON_MATCHING
 ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
     ActorCallbackNode *new_head = head;
     ActorCallbackNode *curr;
@@ -1486,8 +1485,8 @@ ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
                             temp = scan->next;
                             scan->next = curr;
                             curr->next = temp;
-                            if (temp != NULL) {
-                                temp->prev = curr;
+                            if (curr->next != NULL) {
+                                curr->next->prev = curr;
                             }
                             curr->prev = scan;
                         }
@@ -1510,10 +1509,6 @@ ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
     }
     return new_head;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorCallbackListSort.s")
-#endif
 
 void actorCollisionEventsCancel(s32 arg0, u8 arg1) {
     s32 i;

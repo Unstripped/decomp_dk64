@@ -3141,18 +3141,20 @@ void func_80683158(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
 s32 func_805FEF10(void *);
 
 s32 func_806832F4(s32 arg0, s32 arg1) {
-    s32 pad;
-    s32 sp28;
-    s32 sp24 = 0;
-    struct {
+    struct W3B_Sp20 {
         char unk0[2];
         s16 unk2;
+        s32 unk4;
+        s32 unk8;
+        s32 unkC;
     } sp20;
+    struct W3B_Sp20 *p = &sp20;
+    s32 ret;
 
+    sp20.unk4 = 0;
     switch (D_8076A0A8) {
     default:
         return 0;
@@ -3162,23 +3164,22 @@ s32 func_806832F4(s32 arg0, s32 arg1) {
     case 38:
     case 42:
     case 48:
-        sp28 = func_805FEF10(&sp20);
-        if (sp28 != 0) {
-            sp24 = flagGet(sp20.unk2, 0);
-            if (arg1 != 0 && sp24 == 0) {
+        sp20.unk8 = func_805FEF10(&sp20);
+        if (sp20.unk8 != 0) {
+            sp20.unk4 = flagGet(sp20.unk2, 0);
+            if (arg1 != 0 && sp20.unk4 == 0) {
                 flagSet(sp20.unk2, 1, 0);
                 camStartPath(D_807FBB4C, 0x19, 4);
                 D_807FBB40->unk144 = 1;
                 D_807FBB40->unk155[0] = 0xB;
             }
         }
-        return (sp28 != 0) && (sp24 == 0);
+        ret = p->unk8 != 0; // FAKE: no explicit return: ret/v0 web, operands read via ilod p
+        if (ret != 0) {
+            return p->unk4 == 0;
+        }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_806832F4.s")
-#endif
 
 typedef struct TagBarrelDataN3 {
     /* 0x00 */ Actor *unk0;
