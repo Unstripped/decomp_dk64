@@ -489,7 +489,6 @@ void func_8071509C(EffectNode *effect) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_8071509C.s")
 #endif
 
-#ifdef NON_MATCHING
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 extern u32 D_8076A064;
 extern s32 D_807FC924;
@@ -506,6 +505,7 @@ void func_80715270(u8 arg0) {
     EffectGridNode *node2;
     s32 i;
     s32 offset;
+    s32 offset2;
 
     effect = D_807FDB04;
     for (; effect != NULL; effect = effect->next) {
@@ -651,25 +651,22 @@ void func_80715270(u8 arg0) {
         }
         if (node2->unk16 * node2->unk8 * node2->unk9 > 0) {
             i = 0;
-            offset = 0;
+            offset2 = 0;
             do {
-                if (((s32 *)((u8 *)node2->unk1C + offset))[1] != -1) {
+                if (node2 && node2) {} // FAKE: raises node2 priority above offset2 (node2 -> s1, offset2 -> s2)
+                if (((s32 *)((u8 *)node2->unk1C + offset2))[1] != -1) {
                     if (D_8076A064 - node2->unk18 == 0xA) {
-                        assetFreeBuffer(((s32 *)((u8 *)node2->unk1C + offset))[0], 0x319, 0x1F);
-                        ((s32 *)((u8 *)node2->unk1C + offset))[1] = -1;
+                        assetFreeBuffer(((s32 *)((u8 *)node2->unk1C + offset2))[0], 0x319, 0x1F);
+                        ((s32 *)((u8 *)node2->unk1C + offset2))[1] = -1;
                     }
                 }
                 i++;
-                offset += 8;
+                offset2 += 8;
             } while (i < node2->unk16 * node2->unk8 * node2->unk9);
         }
     }
 }
 #undef UA1_D08_FIELD
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/119370/func_80715270.s")
-#endif
 
 void effectFreeAndUnlink(EffectNode *);
 

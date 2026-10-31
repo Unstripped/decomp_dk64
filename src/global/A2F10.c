@@ -40,7 +40,7 @@ extern u8 D_80750AD4;
 void renderCallbacksRegister(void *, void *, s32);
 s32 actorSpawn(s32, s32);
 s32 actorDespawn(Actor *);
-void func_8069FA40(Gfx *, Actor *);
+Gfx *func_8069FA40(Gfx *, Actor *);
 
 #define WRITE_GFX(pkt, _w0, _w1)                                               \
     {                                                                          \
@@ -399,7 +399,86 @@ void renderScaledSprite(Gfx *arg0, Actor *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A44C.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_8069FA40.s")
+extern char *D_80750338[];
+Gfx *func_8070068C(Gfx *);
+s32 _sprintf(char *, const char *, ...);
+void *heapAlloc(s32);
+void heapFreeDeferred(void *);
+s32 textGetStringWidth(s16, char *);
+Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
+
+Gfx *func_8069FA40(Gfx *arg0, Actor *arg1) {
+    f32 spFC;
+    f32 spBC[4][4];
+    f32 sp7C[4][4];
+    void *sp78;
+    char sp68[0x10];
+    s16 sp66;
+    u8 sp65;
+    u8 sp64;
+    s32 sp2C;
+    f64 scale;
+    s32 sel;
+
+    if (((f64)((ActorTail *)arg1)->unkE0 - 2.0) < 0.01) {
+        scale = 0.01;
+    } else {
+        scale = (f64)((ActorTail *)arg1)->unkE0 - 2.0;
+    }
+    spFC = (f32)(scale * 0.3);
+    sp64 = 0;
+    WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
+    WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
+    WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
+    WRITE_GFX(arg0++, 0xE7000000, 0);
+    WRITE_GFX(arg0++, 0xFA000000, (arg1->unkE6 & 0xFF) | 0xFFFFFF00);
+    arg0 = func_8070068C(arg0);
+    sp78 = heapAlloc(0x40);
+    heapFreeDeferred(sp78);
+    sp65 = 1;
+    sel = arg1->unk15F;
+    switch (sel ^ 0) { // FAKE: keeps the switch selector copy (v0) out of copy propagation
+    case 0:
+        _sprintf(sp68, "ROUND");
+        break;
+    case 0x1E:
+    case 0x1F:
+    case 0x20:
+    case 0x21:
+    case 0x22:
+    case 0x23:
+    case 0x24:
+    case 0x25:
+    case 0x26:
+        sp64 = 1;
+        _sprintf(sp68, D_80750338[sel]);
+        break;
+    default:
+        if (sel & 0x80) {
+            sp65 = 3;
+            spFC = (f32)(4.0 - (f64)spFC);
+            _sprintf(sp68, "%d", 0xA - (sel & 0x3F));
+        } else if (sel & 0x40) {
+            sp65 = 3;
+            spFC = (f32)(4.0 - (f64)spFC);
+            _sprintf(sp68, "%d", 8 - (sel & 0x3F));
+        } else {
+            _sprintf(sp68, "%d", sel);
+        }
+        break;
+    }
+    sp66 = textGetStringWidth(sp2C = sp65, sp68);
+    if (sp64 != 0) {
+        arg1->unk7C = (f32)((0x140 - sp66) << 1);
+    }
+    guScaleF(spBC, spFC, spFC, 1.0f);
+    guTranslateF(sp7C, (f32)((f64)arg1->unk7C + 2.0 * (f64)sp66),
+                 arg1->unk80 * 4.0f, 0.0f);
+    guMtxCatF(spBC, sp7C, spBC);
+    guMtxF2L(spBC, (Mtx *)sp78);
+    WRITE_GFX(arg0++, 0xDA380003, (u32)sp78);
+    return textDrawStringVtx(arg0, (s16)sp2C, (s16)(sp66 * -2), 0, (u8 *)sp68, 0);
+}
 void actorUpdateBannerFade(void) {
     f32 ratio;
     s16 sp22;
@@ -946,8 +1025,6 @@ void actorSetNodeValuesForFrame(MatrixArray *arg0) {
     }
 }
 
-#ifdef NON_MATCHING
-
 s32 assetLoad(s32, s32, s32, s32);
 void func_80724D28(s32, s32);
 f32 func_80612794(s16);
@@ -964,6 +1041,7 @@ void func_806A112C(void) {
     u8 n;
     f32 d;
     f32 val;
+    SubStateView *sub2;
 
     sub = ATTACHED_ACTOR->unk174;
     if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
@@ -976,14 +1054,15 @@ void func_806A112C(void) {
         if (ATTACHED_ACTOR->unk15F == 0) {
             val = (f32) ((f64) ATTACHED_ACTOR->unk4->unk38 / 0.15);
             sub->unk0 = assetLoad(0x13, 6, 1, 1);
-            animSetChannelFrames(D_807FBB40, D_807503D4[0], D_807503E0[0]);
-            n = 1;
+            n = 0;
+            animSetChannelFrames(D_807FBB40, D_807503D4[n], D_807503E0[n++]);
             d = 75.0f * val;
             for (i = 1; i < 12; i++) {
                 actorSpawn(0x94, 0xE1);
-                ATTACHED_ACTOR_SPAWNED->unk174->unk0 = sub->unk0;
+                sub2 = ATTACHED_ACTOR_SPAWNED->unk174;
+                sub2->unk0 = sub->unk0;
                 ATTACHED_ACTOR_SPAWNED->unk15F = i;
-                ATTACHED_ACTOR_SPAWNED->unkE6 = ATTACHED_ACTOR->unkE6 + ((i / 3) << 10);
+                ATTACHED_ACTOR_SPAWNED->unkE6 = ATTACHED_ACTOR->unkE6 + (((i / 3) & 0xFFFF) << 10); // FAKE: touches one ugen temp (ring phase) without emitting code
                 ATTACHED_ACTOR_SPAWNED->unk7C = ATTACHED_ACTOR->unk7C -
                     func_80612794(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
                 ATTACHED_ACTOR_SPAWNED->unk80 = ATTACHED_ACTOR->unk80 +
@@ -1027,7 +1106,3 @@ void func_806A112C(void) {
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/func_806A112C.s")
-#endif
