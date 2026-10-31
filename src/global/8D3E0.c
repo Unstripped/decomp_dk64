@@ -460,45 +460,46 @@ typedef struct ActorListSpawnEntry {
 } ActorListSpawnEntry;
 extern ActorListSpawnEntry D_8074E8B0[];
 
-#ifdef NON_MATCHING
 ActorListNode *actorListSpawnNodeInternal(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, void *arg6, u8 arg7, s32 arg8, s16 arg9) {
     ActorListNode *node;
-    ActorListSpawnEntry *entry;
-    s32 found;
     s32 i;
+    s32 found;
+    s16 n;
+    s16 key;
 
-    found = 0;
+    n = 0x80; // FAKE: loop bound in a local keeps IDO's entry-search loop in registers (frame 0x30)
     i = 0;
-    do {
-        if ((s16)(arg0 + 0x10) == D_8074E8B0[i].unk0) {
+    found = 0;
+    key = arg0 + 0x10;
+    while (!found && i < n) {
+        if (key == D_8074E8B0[i].unk0) {
             found = 1;
         } else {
             i++;
         }
-    } while (!found && i < 0x80);
-    entry = &D_8074E8B0[i];
+    }
 
     node = heapAlloc(sizeof(ActorListNode));
     node->unk00 = arg0;
+    node->unk5A = arg9;
     node->unk0C = arg3;
     node->unk18 = arg3;
     node->unk04 = arg1;
     node->unk10 = arg1;
     node->unk08 = arg2;
     node->unk14 = arg2;
-    node->unk5A = arg9;
     node->unk1C = arg4;
+    node->unk20 = arg5;
     node->unk44 = 0;
     node->prev = NULL;
     node->unk48 = 0;
-    node->unk20 = arg5;
-    node->unk5C = entry->unkC;
-    node->unk60 = entry->unk10;
-    node->unk58 = entry->unk2;
+    node->unk5C = D_8074E8B0[i].unkC;
+    node->unk60 = D_8074E8B0[i].unk10;
+    node->unk58 = D_8074E8B0[i].unk2;
     node->unk4A = mapChunkFindByPosition(arg1, arg2, arg3, 0);
     node->unk4C = arg7;
     node->unk50 = arg8;
-    node->unk54 = (f32)entry->unk8 * (f32)entry->unk8;
+    node->unk54 = (f32)D_8074E8B0[i].unk8 * (f32)D_8074E8B0[i].unk8;
 
     for (i = 0; i < 8; i++) {
         ((f32 *)node->unk24)[i] = ((f32 *)arg6)[i];
@@ -512,10 +513,6 @@ ActorListNode *actorListSpawnNodeInternal(s16 arg0, f32 arg1, f32 arg2, f32 arg3
 
     return node;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/actorListSpawnNodeInternal.s")
-#endif
 
 typedef struct ActorListNodeInternal {
     /* 0x00 */ s16 unk00;
@@ -560,7 +557,90 @@ typedef struct ActorListSpawnInfo {
 
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/func_80689418.s")
+void actorDeregisterActive(Actor *);
+void actorRegisterActive(Actor *);
+s32 actorSpawnFromInfo(ActorListSpawnInfo *);
+s32 func_80612E90();
+void controllerAnimFreeSub(Actor *, u8);
+extern Actor *D_807FBB44;
+
+void func_80689418(void) {
+    s32 pad; // FAKE: unused local; moves spawnInfo's stack slot down 4 bytes
+    ActorListSpawnInfo spawnInfo;
+    Actor *actor;
+    ActorListNodeInternal *node;
+    s32 n;
+    u8 found;
+    s32 i;
+    s16 target;
+
+    n = 0x80; // FAKE: loop bound in a local keeps IDO's entry-search loop (and 0x80) in registers
+    node = (ActorListNodeInternal *)D_807FC400;
+    if (node != NULL) {
+        do {
+            if (node->unk48 != 0) {
+                if (node->unk60(node) != 0) {
+                    actor = node->unk44;
+                    if (!(actor->unk60 & 0x200000)) {
+                        actorDeregisterActive(actor);
+                        actor = node->unk44;
+                        node->unk48 = 0;
+                        node->unk10 = actor->unk7C;
+                        node->unk14 = actor->unk80;
+                        node->unk18 = actor->unk84;
+                        node->unk4A = *(s16 *)&actor->unk12C[0];
+                        controllerAnimFreeSub(actor, 0);
+                        controllerAnimFreeSub(node->unk44, 1);
+                        controllerAnimFreeSub(node->unk44, 2);
+                    }
+                }
+            } else if (node->unk5C(node) != 0) {
+                actor = node->unk44;
+                i = 0;
+                found = 0;
+                if (actor == NULL) {
+                    target = node->unk00 + 0x10;
+                    while (!found && i < n) {
+                        if (target == D_8074E8B0[i].unk0) {
+                            found = 1;
+                        } else {
+                            i++;
+                        }
+                    }
+
+                    spawnInfo.unk0 = target;
+                    spawnInfo.unk8 = *(s32 *)&D_8074E8B0[i].unk4;
+                    spawnInfo.unk4 = D_8074E8B0[i].unk2;
+                    spawnInfo.unkC = node->unk04;
+                    spawnInfo.unk10 = node->unk08;
+                    spawnInfo.unk14 = node->unk0C;
+                    spawnInfo.unk18 = node->unk1C;
+                    spawnInfo.unk1A = 0;
+                    spawnInfo.unk1C = (s32)node->unk24;
+                    if (actorSpawnFromInfo(&spawnInfo) != 0) {
+                        node->unk44 = D_807FBB44;
+                        node->unk48 = 1;
+                        D_807FBB44->unk11C = node->unk50;
+                        if (D_807FBB44->unk4 != NULL) {
+                            D_807FBB44->unk4->unk34 = (f32)(node->unk20 * 0.15);
+                            D_807FBB44->unk4->unk38 = (f32)(node->unk20 * 0.15);
+                            D_807FBB44->unk4->unk3C = (f32)(node->unk20 * 0.15);
+                        }
+                    }
+                } else if (node->unk48 == 0) {
+                    if (node->unk58 != 0) {
+                        *(s32 *)node->unk44 = func_80612E90(actor, node->unk58, 0);
+                        actor = node->unk44;
+                    }
+                    actorRegisterActive(actor);
+                    node->unk48 = 1;
+                }
+            }
+            node = node->next;
+        } while (node != NULL);
+    }
+    func_8068A1B8();
+}
 
 void actorListRemoveAndDespawn(s32 arg0) {
     actorListRemoveNodeInternal(arg0, 1);
@@ -775,60 +855,25 @@ s32 func_80689BAC(s16 arg0) {
 #ifdef NON_MATCHING
 s32 actorListFindClosestTargetIndex(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
     s32 total = *arg0;
-    u8 count = arg2;
     s32 bestIndex = -1;
     f32 minDistance = 9999999.0f;
     s32 i;
-    s16 *ptr;
-    s16 *end;
-    f32 dx, dy, dz, dist;
+    s32 j;
+    ActorListRecord *item;
+    s32 *list;
+    f32 dist;
 
+    list = arg0; // FAKE: second pointer to the list moves the item/j colours (permuter find)
     for (i = 0; i < total; i++) {
-        if (count > 0) {
-            s32 j = 0;
-            ActorListRecord *item = (ActorListRecord *)((u8 *)arg0 + (i * 0x38) + 4);
-            s16 target = item->unk32 + 0x10;
-            if (count & 1) {
-                if (arg1[0] == target) {
-                    dx = item->unk00 - arg3;
-                    dy = item->unk04 - arg4;
-                    dz = item->unk08 - arg5;
-                    dist = (dz * dz) + ((dx * dx) + (dy * dy));
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        bestIndex = item->unk34;
-                    }
-                }
-                j = 1;
-                if (count == 1) {
-                    continue;
+        item = &((ActorListRecord *)(list + 1))[i];
+        for (j = 0; j < arg2; j++) {
+            if (arg1[j] == item->unk32 + 0x10U) { // FAKE: unsigned 0x10U keeps IDO from rewriting the compare to x - 16 == y
+                dist = ((item->unk08 - arg5) * (item->unk08 - arg5)) + (((item->unk00 - arg3) * (item->unk00 - arg3)) + ((item->unk04 - arg4) * (item->unk04 - arg4)));
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    bestIndex = item->unk34;
                 }
             }
-            ptr = &arg1[j];
-            end = &arg1[count];
-            do {
-                if (*ptr == target) {
-                    dx = item->unk00 - arg3;
-                    dy = item->unk04 - arg4;
-                    dz = item->unk08 - arg5;
-                    dist = (dz * dz) + ((dx * dx) + (dy * dy));
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        bestIndex = item->unk34;
-                    }
-                }
-                if (*(ptr + 1) == target) {
-                    dx = item->unk00 - arg3;
-                    dy = item->unk04 - arg4;
-                    dz = item->unk08 - arg5;
-                    dist = (dz * dz) + ((dx * dx) + (dy * dy));
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        bestIndex = item->unk34;
-                    }
-                }
-                ptr += 2;
-            } while (ptr != end);
         }
     }
     return bestIndex;
