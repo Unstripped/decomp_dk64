@@ -115,8 +115,19 @@ def cmd_boundaries(a):
                 print(f"{f} {g}: {len(pad)} trailing nops (TU padding: hidden TU at {names[i + 1]})")
 
 
+def code_pragmas(text):
+    """(seg, func) of GLOBAL_ASM pragmas holding code; data-only `.s` files (no glabel) are skipped."""
+    out = []
+    for seg, func in PRAGMA.findall(text):
+        p = glob.glob(os.path.join(ROOT, "asm", seg or "", "nonmatchings", "*", f"{func}.s"))
+        if p and "glabel" not in open(p[0]).read():
+            continue
+        out.append((seg, func))
+    return out
+
+
 def unmatched(src):
-    return [func for _, func in PRAGMA.findall(open(src).read())]
+    return [func for _, func in code_pragmas(open(src).read())]
 
 
 def cmd_coverage(a):
@@ -142,7 +153,7 @@ def cmd_left(a):
     for src in a.srcs:
         text = open(src).read()
         parked = set(re.findall(r"#ifdef NON_MATCHING.*?GLOBAL_ASM\(\"[^\"]*/(\w+)\.s\"\).*?#endif", text, re.S))
-        for seg, func in PRAGMA.findall(text):
+        for seg, func in code_pragmas(text):
             seg = seg or "boot"
             d = os.path.join(ROOT, "drafts", seg, func + ".c")
             stage = "-"
