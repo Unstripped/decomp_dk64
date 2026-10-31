@@ -1,4 +1,4 @@
-// func_806C850C (src/global/CC800.c): func_806C850C stage 6 (Nm3CC800): regalloc only, ~88 diff lines. uopt colors &D_807FBB48 (adjsave 2.25) before sel (1.14), swapping s2/s3. Volatile slot pointer reproduces uncached loads; -new_var keeps -1 from folding to 255.
+// func_806C850C (src/global/CC800.c): Stage 6 (text diff 64 lines): (1) sel=s3/&D_807FBB48=s2 swap: coloring order is by adjsave, &D (2.25) before sel (1.14), sel needs higher priority; (2) -1 stores: unk247 must be s8 (u8 folds to 255) then 'G00_P->unk247 = -1' gives shared li -1 const web but a1 not v1 and shifts li -100; (3) uncached loads: volatile D_807FD610 keeps 8 separate loads but as1 then does not group loads before stores as target does; non-volatile CSEs unk4/unk28 (1 load each) through every spelling tried (cast base, slot ptr, f32*/s16* element ptrs, u8* base, loop). deadsweep 1 round: 'if (D_8075C410) {}' -5 lines only.
 typedef struct G00Sub4 {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ u8 *unk1C;

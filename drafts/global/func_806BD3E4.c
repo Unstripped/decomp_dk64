@@ -1,4 +1,4 @@
-// func_806BD3E4 (src/global/C1E70.c): Stage 6, 2 insn diffs left (li v0,-1 / sb v0,D_807506B4 use t9 not v0 in the -1 store).
+// func_806BD3E4 (src/global/C1E70.c): Stage 6, 2 insns: 'li v0,-1; sb v0' vs ours 'li t9,-1; sb t9' (last -1 store). Ring: v0 is not a ugen ring temp (5,5 arg test shows ring goes t8,t9,t1) -> target -1 is a uopt constant web in v0, which appears when two -1 stores to s8/s16 globals share a block with no call between (D_807506B4=-1; D_8076A0A6=-1 gives li v0,-1) but target has ONE visible store. Tried: n=-1 forms, (0,x) wrappers on every literal/ident pairs, casts, void/s32 + param-type toggles on all callees, n/idx/sp28 types, glob vs cnt, deadsweep --extra all locals, permuter 540s (no score<10).
 extern s16 D_8076A0A6;
 extern s8 D_807506B4;
 extern s8 D_807506A8[];

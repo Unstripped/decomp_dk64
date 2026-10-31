@@ -1,4 +1,4 @@
-// func_8063B8D8 (src/global/36880.c): stage 5 still (2 insns): 'sll s7,t6,4; addiu s7,s7,8' vs 'sll t6,t6,4; addiu s7,t6,8' (size var computed in place). NM36F2 tried size via sizeof(ModelSlotSerializedOut), tmp var, 3*16/shift forms, u32/s16 size types, trailing if (size) {}, permuter 420s (best = same 10). Parked NON_MATCHING in src.
+// func_8063B8D8 (src/global/36880.c): Stage 5, 2 insns: target 'sll s7,t6,4; addiu s7,s7,8' (product assigned in place to size's reg, +8 as separate op) vs ours 'sll t6,t6,4; addiu s7,t6,8'. uopt folds size=D*0x30; size+=8 into one tree in every form: inline, sep stmts, size=D then size*=0x30, 8-first, (0,x) wrappers on D/0x30/8/product, u32/u8*/s64 size, sz2 temp (10), x*3 then *16 (142), deadsweep with all locals (no gain). Needs a statement boundary uopt cannot fold across.
 typedef struct ModelSlotSerializedOut {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
