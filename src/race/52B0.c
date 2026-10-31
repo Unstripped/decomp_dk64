@@ -252,7 +252,7 @@ typedef struct {
     RaceC_Inner **unk4;
 } RaceC_Holder;
 
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 
 void func_80029F88(RaceC_Holder *arg0, void *arg1, f32 arg2, f32 arg3, f32 arg4) {
     RaceC_Inner *v;
@@ -275,7 +275,7 @@ void func_80029F88(RaceC_Holder *arg0, void *arg1, f32 arg2, f32 arg3, f32 arg4)
             if (a > 2.0f) {
                 a = 2.0f;
             }
-            func_80614D00(arg0, a, 0.0f);
+            scriptSetActorRampTarget(arg0, a, 0.0f);
         }
     }
 }
@@ -450,7 +450,7 @@ void func_8002A0AC(void) {
     case 0x2A2:
         fv1 = RC_A->unkB8 * 0.0025f;
         fv1 = fv1 < 0.1 ? 0.1 : fv1;
-        func_80614D00(D_807FBB40, fv1, 10.0f);
+        scriptSetActorRampTarget(D_807FBB40, fv1, 10.0f);
         break;
     case 0x2A0:
         if (RC_A->unk4->unk0->unk10 == 0x4A7) {
@@ -459,7 +459,7 @@ void func_8002A0AC(void) {
         }
     default:
         if (RC_A->unk4->unk0->unk10 != 0x49B) {
-            func_80614D00(D_807FBB40, 1.0f, 10.0f);
+            scriptSetActorRampTarget(D_807FBB40, 1.0f, 10.0f);
         }
         break;
     }

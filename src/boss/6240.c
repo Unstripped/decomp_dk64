@@ -306,7 +306,7 @@ void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_80613C48(void *, s16, f32, f32);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(void *, s32);
 void camSetTargetFocusActor(s32, void *);
 void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -344,7 +344,7 @@ void actorTurnTowardTarget(s32, f32, f32, s32);
 void func_8072A450(void);
 s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(void *, u8);
-s32 func_8072D13C(s32, s32);
+s32 patrolPathStep(s32, s32);
 s32 flagGet(s32, s32);
 void n_alSndpPlay(s32, s16, s32, s32, f32, s32, void *);
 void n_alSndpStop(s32);
@@ -533,14 +533,14 @@ void func_8002A92C(void) {
                 D_807FBB40->unk155 = 6;
             } else {
                 func_80613C48(D_807FBB40, 0x539, 0, 0);
-                func_80614D00(D_807FBB40, 0, 0);
+                scriptSetActorRampTarget(D_807FBB40, 0, 0);
                 D_807FBB40->unk155 = 1;
             }
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB40, 0x2C4);
-                func_80614D00(D_807FBB40, 0.5f, 0);
+                scriptSetActorRampTarget(D_807FBB40, 0.5f, 0);
                 D_807FBB40->unk155 = 2;
             }
             break;
@@ -594,7 +594,7 @@ void func_8002A92C(void) {
             sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0xFF, 0x7F, 0, 0, 0, 0);
             projectileSpawnWithShockwave(0xBB, 0.14f, 0xFF, 0x96, 0x64, 6, 1.04f, 40.0f, 8.0f, 600.0f);
             func_80613C48(D_807FBB44, 0x4F9, 0, 0);
-            func_80614D00(D_807FBB44, 0.5f, 0);
+            scriptSetActorRampTarget(D_807FBB44, 0.5f, 0);
             D_807FBB40->unk154 = sp84[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
@@ -605,7 +605,7 @@ void func_8002A92C(void) {
         switch (D_807FBB40->unk155) {
         case 0:
             D_807FDC90->unk25 += 4;
-            func_8072D13C(0x42, 0);
+            patrolPathStep(0x42, 0);
             D_807FDC90->unk25 -= 4;
             actorScriptStart(D_807FBB40, 0x2CB);
             D_807FBB40->unk155 = 1;
@@ -643,7 +643,7 @@ void func_8002A92C(void) {
             /* fallthrough */
         case 1:
             actorMoveWithinZone(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0x291, 0.0f);
-            if (func_8072D13C(0x42, 0) != 0) {
+            if (patrolPathStep(0x42, 0) != 0) {
                 D_807FBB40->unkC0 = 100.0f;
                 actorScriptStart(D_807FBB40, 0x2C8);
                 D_807FBB40->unk155 = 2;

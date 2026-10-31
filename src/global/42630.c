@@ -1266,7 +1266,7 @@ void sfxSlotFreeSource(s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 s16 sfxPlayOnFreeSlot(s16, s32, s32, f32, s32, s32);
 void func_8060B49C(Actor *, s16);
-void func_8060DEC8(void);
+void eepromSavePlayerData(void);
 void camStartShakeFromPoint(s32, u8, u16, f32, f32, f32, f32, f32);
 void camSetZoneWeight(u8, u8);
 void mapOffsetSlotSetEnabled(s16, u8);
@@ -1423,7 +1423,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         slotQueueSetDisplayMode(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
         break;
     case 0x80:
-        func_8060DEC8();
+        eepromSavePlayerData();
         break;
     case 0x81:
         D_807F693E |= 1 << cmd->a;
@@ -2570,7 +2570,7 @@ void csSetPos(s16 arg0, s16 arg1, void *cs, s16 arg3, u8 arg4) {
     }
 }
 
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 void func_807149FC(s32);
 void func_80714950(s32);
 void func_8071498C(void *);
@@ -2586,9 +2586,9 @@ void csCmdSpawnSparkAndLight(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 z;
 
     for (i = 0; i != 1U; i++) {
-        x = (func_806119A0() / 10000 % 200) / 10.0 - 10.0;
-        y = (func_806119A0() / 10000 % 200) / 10.0 - 7.0;
-        z = (func_806119A0() / 10000 % 200) / 10.0 - 10.0;
+        x = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
+        y = (randomLcgNext() / 10000 % 200) / 10.0 - 7.0;
+        z = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
         func_807149B8(1);
         func_807149FC(2);
         func_80714950(0x64);

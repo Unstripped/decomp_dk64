@@ -1,4 +1,4 @@
-// func_8002AED8 (src/bonus/2690.c): stage 6 (frame 0x88, callee-saved set, 658 insns match; only 3 FP regs in the tail: 80.0f const f12 vs target f2, k=80.0f/d f2 vs target f16; 25 diff lines). uopt_trace: k (CSE udiv, adjsave 3.0) colours before the const (0.5, +0.5/extra use; 6 dummy uses make const win but then k gets f12, not f16). Target k=f16 needs f2/f12/f14 unavailable to k: appending 3 nested field loads to BB90 reserves f2,f12,f14 for ugen temps (k=f16) but const then gets f18, never f2 (const would need to escape the reservation k is under). Tried, all still 25: inline/named/block/fn-scope k, 80.0f<d, 80 int, k=sp6C/d reuse, lim var (also 1*80.0f), comma/cast/f64/f32 intermediates, ~700 role/copy permutations of fv0/fv1/prev/d/k/u/v/sp6C, ~1000 dummy if(x){} uses (d,k,fs0,fs1,const compares,struct fields), permuter 3 earlier + 15 min. Needs func_80614644(void*,void*,f32) proto at line ~238 and BonusDBE44Anim.unk4 f32 (func_8002BE44 still matches).
+// func_8002AED8 (src/bonus/2690.c): stage 6 (frame 0x88, callee-saved set, 658 insns match; only 3 FP regs in the tail: 80.0f const f12 vs target f2, k=80.0f/d f2 vs target f16; 25 diff lines). uopt_trace: k (CSE udiv, adjsave 3.0) colours before the const (0.5, +0.5/extra use; 6 dummy uses make const win but then k gets f12, not f16). Target k=f16 needs f2/f12/f14 unavailable to k: appending 3 nested field loads to BB90 reserves f2,f12,f14 for ugen temps (k=f16) but const then gets f18, never f2 (const would need to escape the reservation k is under). Tried, all still 25: inline/named/block/fn-scope k, 80.0f<d, 80 int, k=sp6C/d reuse, lim var (also 1*80.0f), comma/cast/f64/f32 intermediates, ~700 role/copy permutations of fv0/fv1/prev/d/k/u/v/sp6C, ~1000 dummy if(x){} uses (d,k,fs0,fs1,const compares,struct fields), permuter 3 earlier + 15 min. Needs controllerApplyMotionWindow(void*,void*,f32) proto at line ~238 and BonusDBE44Anim.unk4 f32 (func_8002BE44 still matches).
 typedef struct {
     char pad0[4];
     f32 unk4;
@@ -207,7 +207,7 @@ void func_8002AED8(void) {
                 func_80613C48(D_807FBB40, 0x5FC, 0.0f, 0.0f);
             }
             if (sp68 != NULL) {
-                func_80614644(D_807FBB40, sp68, -t->unk1C);
+                controllerApplyMotionWindow(D_807FBB40, sp68, -t->unk1C);
             }
         } else {
             if (t->unk1C > 8.0f) {
@@ -217,7 +217,7 @@ void func_8002AED8(void) {
                 func_80613C48(D_807FBB40, 0x5FB, 0.0f, 0.0f);
             }
             if (sp68 != NULL) {
-                func_80614644(D_807FBB40, sp68, t->unk1C);
+                controllerApplyMotionWindow(D_807FBB40, sp68, t->unk1C);
             }
         }
         if (t->unk28 == 0) {

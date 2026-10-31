@@ -1,7 +1,7 @@
-// func_807255A8 (src/global/1295B0.c): Stage 4 (frame 0x60 exact, 356/356 opcodes, score ~1377): det==0.0f form (det computed before the ==-return, folded to c.eq.s sp4,sp8) keeps det<0 unfolded (c.lt.s det,zero). Remaining: zero/a1/b2 colouring shifted (a1 f0, zero f2, b2 f12 vs target zero f0, b2 f2, a1 f12).
+// lineSegmentIntersect2D (src/global/1295B0.c): Stage 4 (frame 0x60 exact, 356/356 opcodes, score ~1377): det==0.0f form (det computed before the ==-return, folded to c.eq.s sp4,sp8) keeps det<0 unfolded (c.lt.s det,zero). Remaining: zero/a1/b2 colouring shifted (a1 f0, zero f2, b2 f12 vs target zero f0, b2 f2, a1 f12).
 #include "common.h"
 
-s32 func_807255A8(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, f32 *arg8, f32 *arg9) {
+s32 lineSegmentIntersect2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, f32 *arg8, f32 *arg9) {
     f32 a1;
     f32 b1;
     f32 c1;

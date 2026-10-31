@@ -5,19 +5,19 @@ extern u8 *D_807F5AF0;
 extern Struct807FD580 *D_807FD580;
 extern Actor *D_807FBB44;
 
-typedef struct RvG_State4D00 {
+typedef struct ActorRampState {
     u8 pad0[0x48];
     f32 unk48;
     f32 unk4C;
     f32 unk50;
     f32 unk54;
     f32 unk58;
-} RvG_State4D00;
+} ActorRampState;
 
-void func_80614D00(Actor *arg0, f32 arg1, f32 arg2) {
-    RvG_State4D00 *temp_v0;
+void scriptSetActorRampTarget(Actor *arg0, f32 arg1, f32 arg2) {
+    ActorRampState *temp_v0;
 
-    temp_v0 = (RvG_State4D00 *)arg0->unk4;
+    temp_v0 = (ActorRampState *)arg0->unk4;
     if (arg2 > 0.0f) {
         temp_v0->unk58 = arg2;
         temp_v0->unk50 = arg1;
@@ -58,22 +58,22 @@ void func_80614D48(Actor *arg0, f32 arg1, f32 arg2) {
 }
 
 extern s32 D_807F5AF4;
-typedef s32 (*RvG2_ScriptCommand)(Actor *);
-extern RvG2_ScriptCommand D_80746BEC[];
+typedef s32 (*ActorScriptCommand)(Actor *);
+extern ActorScriptCommand D_80746BEC[];
 
-typedef struct RvG2_ScriptState {
+typedef struct ActorScriptState {
     u8 pad0[0x68];
     u8 *unk68;
     u8 *unk6C;
     void (*unk70)(Actor *);
     u8 *unk74;
     s32 unk78;
-} RvG2_ScriptState;
+} ActorScriptState;
 
-void func_80614D90(Actor *arg0) {
-    RvG2_ScriptState *state;
+void actorScriptExecute(Actor *arg0) {
+    ActorScriptState *state;
 
-    state = (RvG2_ScriptState *)arg0->unk4;
+    state = (ActorScriptState *)arg0->unk4;
     if (state->unk68 != NULL) {
         D_807F5AF4 = 1;
         D_807F5AF0 = state->unk6C;
@@ -277,7 +277,7 @@ s32 func_806151BC(Actor *arg0) {
     return 1;
 }
 
-s32 func_8061522C(Actor *arg0) {
+s32 scriptOpSetRandomByteInRange(Actor *arg0) {
     u8 pad;
     u8 min;
     u8 max;
@@ -569,7 +569,7 @@ s32 func_806158E8(Actor *arg0) {
 void func_80613C48(s32, s16, f32, f32);
 void func_80613AF8(s32, s16, f32, f32);
 void func_80613BA0(s32, s16, f32, f32);
-void func_80613A50(s32, s8);
+void controllerAnimScaleInterpolate(s32, s8);
 void func_80613FB0(s32, u16, f32, u8);
 
 
@@ -589,14 +589,14 @@ s32 func_8061599C(s32 arg0) {
     return 1;
 }
 
-void func_80613CA8(s32, s16, f32, f32);
+void controllerAnimSetState(s32, s16, f32, f32);
 
 s32 func_806159EC(s32 arg0) {
     s16 sp1E;
 
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
-    func_80613CA8(arg0, sp1E, 0.0f, (f32)0); // FAKE: (f32)0 breaks the 0.0f CSE (li a3 instead of mfc1)
+    controllerAnimSetState(arg0, sp1E, 0.0f, (f32)0); // FAKE: (f32)0 breaks the 0.0f CSE (li a3 instead of mfc1)
     return 1;
 }
 s32 func_80615A3C(s32 arg0) {
@@ -614,7 +614,7 @@ s32 func_80615A94(s32 arg0) {
     s8 sp1F;
     D_807F5AF0++;
     scriptReadU8((u8 *)&sp1F);
-    func_80613A50(arg0, sp1F);
+    controllerAnimScaleInterpolate(arg0, sp1F);
     return 1;
 }
 
@@ -660,7 +660,7 @@ s32 func_80615BDC(s32 arg0) {
     return 1;
 }
 
-void func_80614644(Actor *, ScriptValue *, f32);
+void controllerApplyMotionWindow(Actor *, ScriptValue *, f32);
 
 s32 func_80615C34(Actor *arg0) {
     u8 sp27;
@@ -680,7 +680,7 @@ s32 func_80615C34(Actor *arg0) {
     if (sp27 == 0xFF) {
         sp27 = ((ScriptValueState *)arg0->unk4)->unk88;
     }
-    func_80614644(arg0, sp20, (f32)sp27);
+    controllerApplyMotionWindow(arg0, sp20, (f32)sp27);
     return 1;
 }
 
@@ -699,7 +699,7 @@ s32 func_80615CE4(Actor *arg0) {
     }
     D_807F5AF0++;
     scriptReadU8(&sp27);
-    func_80614644(arg0, var_a1, (f32)D_80746D5C);
+    controllerApplyMotionWindow(arg0, var_a1, (f32)D_80746D5C);
     if (D_80746D5C != 0) {
         D_80746D5C += sp27;
     } else {
@@ -735,7 +735,7 @@ typedef struct ScriptMotionState {
     s32 unk84;
 } ScriptMotionState;
 
-s32 func_80615DA4(Actor *arg0) {
+s32 scriptOpUpdateMotionDelta(Actor *arg0) {
     u8 sp27;
     ScriptMotion *sp20;
 
@@ -944,7 +944,7 @@ s32 func_80616254(Actor *arg0) {
     return 1;
 }
 
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 
 s32 func_806162C4(Actor *arg0) {
     f32 sp1C;
@@ -953,7 +953,7 @@ s32 func_806162C4(Actor *arg0) {
     D_807F5AF0++;
     scriptReadU32((u8 *)&sp1C);
     scriptReadU32((u8 *)&sp18);
-    func_80614D00(arg0, sp1C, sp18);
+    scriptSetActorRampTarget(arg0, sp1C, sp18);
     return 1;
 }
 
@@ -1174,7 +1174,7 @@ s32 scriptOpJumpTable(Actor *arg0) {
     return (sp1E = 1);
 }
 
-s32 func_80616850(Actor *arg0) {
+s32 scriptOpCallSaveReturn(Actor *arg0) {
     s32 sp24;
     u16 sp22;
     ScriptJumpState *sp1C;
@@ -1362,37 +1362,37 @@ s32 func_80616DB4(Actor *arg0) {
     return 1;
 }
 
-struct RvG_PlayerStruct;
-extern struct RvG_PlayerStruct *D_807FC924;
+struct PlayerSoundStruct;
+extern struct PlayerSoundStruct *D_807FC924;
 
-typedef struct RvH_PlayerView6E08 {
+typedef struct PlayerSoundView {
     u8 pad0[0x2C0];
     u8 unk2C0;
     u8 pad2C1[0x2F0 - 0x2C1];
-} RvH_PlayerView6E08;
+} PlayerSoundView;
 
-typedef struct RvH_State6E08 {
+typedef struct GlobalSoundState {
     u8 pad0[0x104];
     s32 unk104;
     u8 pad108[0x9C];
     u8 unk1A4;
-} RvH_State6E08;
+} GlobalSoundState;
 
-typedef struct RvH_ActorSoundView6E08 {
+typedef struct ActorSoundPosView {
     u8 pad0[0x78];
     u8 unk78;
     u8 pad79[3];
     s32 unk7C;
     f32 unk80;
     f32 unk84;
-} RvH_ActorSoundView6E08;
+} ActorSoundPosView;
 
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32);
 s16 func_8060A7C0(s16, Actor *, u8);
 
 #ifdef NON_MATCHING
-s32 func_80616E08(Actor *arg0) {
+s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     s16 sp4E;
     u8 sp4D;
     s16 sp4A;
@@ -1405,14 +1405,14 @@ s32 func_80616E08(Actor *arg0) {
     scriptReadU8(&sp4D);
     scriptReadU16((u8 *)&sp4A);
     scriptReadU8(&sp49);
-    if (((RvH_PlayerView6E08 *)D_807FC924)[((RvH_State6E08 *)D_807FD580)->unk1A4].unk2C0 == 2) {
+    if (((PlayerSoundView *)D_807FC924)[((GlobalSoundState *)D_807FD580)->unk1A4].unk2C0 == 2) {
         if (sp4E == 1) {
             sp4D = (u32)((f64)(u32)sp4D * 0.5);
         }
         sp48 = 0xA;
-        camStartShakeFromPoint(((RvH_State6E08 *)D_807FD580)->unk104, 0xA, 8, ((RvH_ActorSoundView6E08 *)arg0)->unk7C, ((RvH_ActorSoundView6E08 *)arg0)->unk80, ((RvH_ActorSoundView6E08 *)arg0)->unk84, 100.0f, 800.0f);
+        camStartShakeFromPoint(((GlobalSoundState *)D_807FD580)->unk104, 0xA, 8, ((ActorSoundPosView *)arg0)->unk7C, ((ActorSoundPosView *)arg0)->unk80, ((ActorSoundPosView *)arg0)->unk84, 100.0f, 800.0f);
         var_v1 = 0xA;
-    } else if (((RvH_PlayerView6E08 *)D_807FC924)[((RvH_State6E08 *)D_807FD580)->unk1A4].unk2C0 == 0) {
+    } else if (((PlayerSoundView *)D_807FC924)[((GlobalSoundState *)D_807FD580)->unk1A4].unk2C0 == 0) {
         var_v1 = 0xFF;
         sp4D = (u32)((f64)(u32)sp4D * 0.5);
     } else {
@@ -1434,7 +1434,7 @@ s32 func_80616E08(Actor *arg0) {
         }
     }
     sp48 = var_v1;
-    sp4E = func_8060A7C0(sp4E, arg0, ((RvH_ActorSoundView6E08 *)arg0)->unk78);
+    sp4E = func_8060A7C0(sp4E, arg0, ((ActorSoundPosView *)arg0)->unk78);
     if ((sp4E == 2) || (sp4E == 8)) {
         sp49 = 0xA;
     }
@@ -1443,7 +1443,7 @@ s32 func_80616E08(Actor *arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80616E08.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/scriptOpPlaySoundAndShake.s")
 #endif
 
 typedef struct ActorSoundView {
@@ -1481,19 +1481,19 @@ s32 func_80617140(Actor *arg0) {
     return 1;
 }
 
-typedef struct RvG_PlayerStruct {
+typedef struct PlayerSoundStruct {
     u8 pad0[0x2C0];
     u8 unk2C0;
     u8 pad2C1[0x2F0 - 0x2C1];
-} RvG_PlayerStruct;
-extern RvG_PlayerStruct *D_807FC924;
+} PlayerSoundStruct;
+extern PlayerSoundStruct *D_807FC924;
 
-typedef struct RvG_Global7238 {
+typedef struct GlobalStateView7238 {
     u8 pad0[0x1A4];
     u8 unk1A4;
-} RvG_Global7238;
+} GlobalStateView7238;
 
-s32 func_80617238(Actor *arg0) {
+s32 scriptOpPlayPositionalSoundPlayerStateVolume(Actor *arg0) {
     s16 sp3E;
     u8 sp3D;
     u8 pad;
@@ -1504,9 +1504,9 @@ s32 func_80617238(Actor *arg0) {
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp3E);
     scriptReadU8(&sp3D);
-    if (D_807FC924[((RvG_Global7238 *)D_807FD580)->unk1A4].unk2C0 == 2) {
+    if (D_807FC924[((GlobalStateView7238 *)D_807FD580)->unk1A4].unk2C0 == 2) {
         var_v0 = 0xA;
-    } else if (D_807FC924[((RvG_Global7238 *)D_807FD580)->unk1A4].unk2C0 == 0) {
+    } else if (D_807FC924[((GlobalStateView7238 *)D_807FD580)->unk1A4].unk2C0 == 0) {
         var_v0 = 0xFF;
         sp3B = (u8)(u32)((f64)(var_v0 ^ 0) * 0.5); // FAKE: blocks constant folding of the conversion
     } else {
@@ -1588,13 +1588,13 @@ s32 func_806174B4(Actor *arg0) {
     return 1;
 }
 
-typedef struct RvG2_State75C4 {
+typedef struct ActorSoundScaleState {
     u8 pad0[0x34];
     f32 unk34;
-} RvG2_State75C4;
+} ActorSoundScaleState;
 
 
-s32 func_806175C4(Actor *arg0) {
+s32 scriptOpPlayDistanceVolumeSound(Actor *arg0) {
     s16 sp46;
     u8 sp45;
     u8 sp44;
@@ -1609,24 +1609,24 @@ s32 func_806175C4(Actor *arg0) {
     scriptReadU8(&sp42);
     scriptReadU8(&sp45);
     scriptReadU8(&sp44);
-    val = (((((f64)((RvG2_State75C4 *)arg0->unk4)->unk34 / 0.4381361) * 200.0) + 55.0) * (f64)sp43) / 255;
+    val = (((((f64)((ActorSoundScaleState *)arg0->unk4)->unk34 / 0.4381361) * 200.0) + 55.0) * (f64)sp43) / 255;
     var_fv1 = (val > 255.0) ? 255.0 : val;
     sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp46, (u32)var_fv1, sp42, sp45, sp44, 0.3f, 0);
     return 1;
 }
 
-typedef struct RvH_SoundState {
+typedef struct ScriptSoundState {
     u8 pad0[0xC4];
     s32 unkC4;
     u8 padC8[0xDC];
     u8 unk1A4;
-} RvH_SoundState;
+} ScriptSoundState;
 
 extern s16 *D_807FBB5C;
 void sfxPlayAtPositionForPlayer(f32, f32, f32, s16, u8, u8, u8, u8, f32);
 
 #ifdef NON_MATCHING
-void func_80617770(Actor *arg0, s16 arg1, u8 arg2) {
+void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     u8 pad0, pad1, pad2;
     u8 var_v1;
     s32 pitch;
@@ -1635,11 +1635,11 @@ void func_80617770(Actor *arg0, s16 arg1, u8 arg2) {
     arg1 = D_807FBB5C[(arg1 * 7 + arg0->unk58 - 2) & 0xFFFF];
     var_v1 = 0xFF;
     if (arg1 == 0) {
-        if (((RvH_SoundState *)D_807FD580)->unkC4 != 0) {
-            n_alSndpStop(((RvH_SoundState *)D_807FD580)->unkC4);
+        if (((ScriptSoundState *)D_807FD580)->unkC4 != 0) {
+            n_alSndpStop(((ScriptSoundState *)D_807FD580)->unkC4);
         }
     }
-    temp_v0 = D_807FC924[((RvH_SoundState *)D_807FD580)->unk1A4].unk2C0;
+    temp_v0 = D_807FC924[((ScriptSoundState *)D_807FD580)->unk1A4].unk2C0;
     pitch = 0x7F;
     if (temp_v0 == 2) {
         temp_v0 = 10;
@@ -1657,10 +1657,10 @@ void func_80617770(Actor *arg0, s16 arg1, u8 arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/func_80617770.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/sfxPlayScriptActorSoundForPlayer.s")
 #endif
 
-void func_80617770(Actor *, s16, u8);
+void sfxPlayScriptActorSoundForPlayer(Actor *, s16, u8);
 void sfxStopSlotSound(Actor *, u8);
 void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxSetVolumeAndPan(u8, f32, f32);
@@ -1703,7 +1703,7 @@ s32 func_8061796C(Actor *arg0) {
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
     scriptReadU8(&sp1D);
-    func_80617770(arg0, sp1E, sp1D);
+    sfxPlayScriptActorSoundForPlayer(arg0, sp1E, sp1D);
     return 1;
 }
 
@@ -1957,14 +1957,14 @@ s32 scriptOpWaitTimer(Actor *arg0) {
 void scriptCmdNop(Actor *arg0) {
 }
 
-typedef struct { u8 pad0[0x1A4]; u8 unk1A4; } RvH_P19LNodeState;
-typedef struct { u8 pad0[0x210]; f32 unk210; u8 pad214[4]; f32 unk218; u8 pad21C[0xC]; f32 unk228; u8 pad22C[4]; f32 unk230; u8 pad234[0xBC]; } RvH_P19LPlayerView;
-typedef struct { u8 pad0[2]; u8 unk2; } RvH_P19LProjectileView;
+typedef struct { u8 pad0[0x1A4]; u8 unk1A4; } ProjectileNodeState;
+typedef struct { u8 pad0[0x210]; f32 unk210; u8 pad214[4]; f32 unk218; u8 pad21C[0xC]; f32 unk228; u8 pad22C[4]; f32 unk230; u8 pad234[0xBC]; } ProjectilePlayerView;
+typedef struct { u8 pad0[2]; u8 unk2; } ProjectileDataView;
 extern f32 D_80753E48[];
 extern s16 D_80753E64[];
 extern Actor *D_807FBB48;
 extern u8 D_807FC929;
-extern RvH_P19LProjectileView *D_807FD568;
+extern ProjectileDataView *D_807FD568;
 extern s16 D_807FD584;
 void slotQueueUpdate(s32, s32, s32);
 s32 slotQueueGetValue(s32, u8);
@@ -1977,17 +1977,17 @@ void projectileSetSpawnFlag(void);
 void projectileGetTargetCoords(Actor *, s32);
 void projectileSpawnNodeEntry(s32, u8, f32, s16, f32, f32, Actor *);
 
-void func_80618104(Actor *arg0) {
+void projectileTrySpawnFromSlot(Actor *arg0) {
     f32 var_fv0;
     f32 sp50;
     f32 temp_fv0;
     f32 temp_fv1;
-    RvH_P19LNodeState *sp44;
+    ProjectileNodeState *sp44;
     s16 pad;
     s16 sp40;
     s16 sp3E;
     s16 var_a2;
-    RvH_P19LPlayerView *temp_v0;
+    ProjectilePlayerView *temp_v0;
 
     sp44 = arg0->unk174;
     slotQueueUpdate(4, 0, 0);
@@ -2004,7 +2004,7 @@ void func_80618104(Actor *arg0) {
         }
         if (collisionTestSphere(arg0->unk7C, (f32)((f64)arg0->unk80 + 30.0), arg0->unk84, var_fv0, &sp40, &sp3E, 1, 0) != 0) {
             if (arg0->unk154 == 2) {
-                temp_v0 = &((RvH_P19LPlayerView *)D_807FC924)[D_807FC929];
+                temp_v0 = &((ProjectilePlayerView *)D_807FC924)[D_807FC929];
                 var_a2 = mathAngleBetweenPoints2D(temp_v0->unk228, temp_v0->unk230, temp_v0->unk210, temp_v0->unk218);
             } else {
                 var_a2 = arg0->unkE6;
@@ -2013,10 +2013,10 @@ void func_80618104(Actor *arg0) {
         }
         if (arg0->unk154 == 2) {
             projectileGetTargetCoords(D_807FBB48, 6);
-            temp_fv0 = ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk230 - ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk218;
-            temp_fv1 = ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk228 - ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk210;
+            temp_fv0 = ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk230 - ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk218;
+            temp_fv1 = ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk228 - ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk210;
             sqrtf((temp_fv0 * temp_fv0) + (temp_fv1 * temp_fv1));
-            projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, mathAngleBetweenPoints2D(((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk228, ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk230, ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk210, ((RvH_P19LPlayerView *)D_807FC924)[D_807FC929].unk218), D_80753E48[D_807FD584], 0.0f, arg0);
+            projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, mathAngleBetweenPoints2D(((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk228, ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk230, ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk210, ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk218), D_80753E48[D_807FD584], 0.0f, arg0);
             return;
         }
         projectileGetTargetCoords(arg0, 7);
@@ -2261,7 +2261,7 @@ void func_80618968(Actor *arg0) {
 
 extern u8 D_807444EC;
 
-void func_80618998(Actor *arg0) {
+void scriptCmdActorCamShake(Actor *arg0) {
     s32 sp4C;
     f32 sp48;
     f32 sp44;
@@ -2361,7 +2361,7 @@ void func_80618D20(Actor *arg0) {
 extern void *D_80746B80[];
 void func_8071496C(s32);
 
-void func_80618D68(Actor *arg0) {
+void scriptCmdSpawnOrbitEffects(Actor *arg0) {
     s32 i;
     u8 sp43;
     u8 sp42;
@@ -2438,17 +2438,17 @@ void func_80619018(Actor *arg0) {
     }
 }
 
-typedef struct RvH_EffectView {
+typedef struct FallingEffectView {
     u8 pad0[0x35C];
     s32 unk35C;
-} RvH_EffectView;
+} FallingEffectView;
 
 extern u8 D_80750AD0;
 extern void (*D_80746BD4[])(void);
 s32 effectFallStateInit(Actor *, void *, u8 *);
 void effectFreeAndUnlink(void *);
 
-void func_806190C0(Actor *arg0) {
+void scriptCmdSpawnFallingEffect(Actor *arg0) {
     u16 sp4E;
     u16 sp4C;
     u8 sp4B;
@@ -2460,7 +2460,7 @@ void func_806190C0(Actor *arg0) {
     f32 sp3C;
     f32 sp38;
     f32 sp34;
-    RvH_EffectView *effect;
+    FallingEffectView *effect;
     u8 sp2F;
     u8 node;
 
@@ -2506,7 +2506,7 @@ void func_806190C0(Actor *arg0) {
     }
 }
 
-typedef struct RvH_NodeState {
+typedef struct ChildEffectNodeState {
     s16 unk0;
     s16 unk2;
     Actor *unk4;
@@ -2514,27 +2514,27 @@ typedef struct RvH_NodeState {
     s16 unkC;
     u8 padE[2];
     f32 unk10;
-} RvH_NodeState;
+} ChildEffectNodeState;
 
-typedef struct RvH_ActorView92A4 {
+typedef struct ChildEffectActorView {
     u8 pad0[0x54];
     s32 unk54;
-} RvH_ActorView92A4;
+} ChildEffectActorView;
 
-typedef struct RvH_ActorSub4_92A4 {
+typedef struct ChildEffectSub4View {
     u8 pad0[0x64];
     u16 unk64;
-} RvH_ActorSub4_92A4;
+} ChildEffectSub4View;
 
 void func_807149C8(s32, s32, s32, s32);
 
-void func_806192A4(Actor *arg0) {
+void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     u16 sp46;
     u16 sp44;
     u16 sp42;
     u16 sp40;
     f32 var_fs0;
-    RvH_NodeState *var_v1;
+    ChildEffectNodeState *var_v1;
 
     var_fs0 = (f32)((f64)arg0->unk4->unk38 / 0.15);
     scriptReadU16((u8 *)&sp46);
@@ -2546,7 +2546,7 @@ void func_806192A4(Actor *arg0) {
     D_807FBB44->unkE6 = arg0->unkE6;
     D_807FBB44->unkE8 = arg0->unkE8;
     D_807FBB44->unkE4 = arg0->unkE4;
-    var_v1 = (RvH_NodeState *)D_807FBB44->unk174;
+    var_v1 = (ChildEffectNodeState *)D_807FBB44->unk174;
     var_v1->unk10 = 0.0f;
     if (sp46 != 0xFFFF) {
         func_807149FC(-1);
@@ -2578,8 +2578,8 @@ void func_806192A4(Actor *arg0) {
     }
     var_v1->unk0 = sp44;
     var_v1->unk4 = arg0;
-    var_v1->unk8 = ((RvH_ActorView92A4 *)arg0)->unk54;
-    var_v1->unkC = ((RvH_ActorSub4_92A4 *)arg0->unk4)->unk64;
+    var_v1->unk8 = ((ChildEffectActorView *)arg0)->unk54;
+    var_v1->unkC = ((ChildEffectSub4View *)arg0->unk4)->unk64;
     var_v1->unk2 = sp40;
 }
 

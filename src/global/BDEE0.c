@@ -97,7 +97,7 @@ void func_8072DC7C(s32);
 void func_8072B7CC();
 void behaviourFrameBegin(void);
 void func_8072C918(s32, s32, s32);
-void func_8072D13C(u32, s32);
+void patrolPathStep(u32, s32);
 void actorUpdateModelMatrix(Actor *, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
@@ -288,7 +288,7 @@ void func_806B91E0(void) {
         break;
     case 2:
     case 3:
-        func_8072D13C(D_807FBB40->unk154, 1);
+        patrolPathStep(D_807FBB40->unk154, 1);
     default:
         func_8072C918(0x57E4, 0x322, 0x323);
         break;
@@ -578,7 +578,7 @@ void func_806BA8C8(void) {
             break;
         case 2:
         case 3:
-            func_8072D13C(arg, 0);
+            patrolPathStep(arg, 0);
         default:
             func_8072C918(0x2710, 0, 0);
     }

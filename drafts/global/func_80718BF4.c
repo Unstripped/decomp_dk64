@@ -14,9 +14,9 @@ void func_80718BF4(TimedEffectActorView *arg0, s8 *arg1) {
         ((NM2MotionState *)arg0->unk384)->unk4 = 0.0f;
         ((NM2MotionState *)arg0->unk384)->unk8 = arg0->unk340;
         ((NM2MotionState *)arg0->unk384)->unkC = arg0->unk348;
-        ((NM2MotionState *)arg0->unk384)->unk10 = ((f64)(func_806119A0() % 10000U) / 10000.0) * 0.19;
-        ((NM2MotionState *)arg0->unk384)->unk14 = ((f64)(func_806119A0() % 10000U) / 10000.0) * 0.077;
-        if ((func_806119A0() / 10000U) & 1) {
+        ((NM2MotionState *)arg0->unk384)->unk10 = ((f64)(randomLcgNext() % 10000U) / 10000.0) * 0.19;
+        ((NM2MotionState *)arg0->unk384)->unk14 = ((f64)(randomLcgNext() % 10000U) / 10000.0) * 0.077;
+        if ((randomLcgNext() / 10000U) & 1) {
             ((NM2MotionState *)arg0->unk384)->unk10 = (f32)(0.0 - (f64)((NM2MotionState *)arg0->unk384)->unk10);
             ((NM2MotionState *)arg0->unk384)->unk14 = (f32)(0.0 - (f64)((NM2MotionState *)arg0->unk384)->unk14);
         }

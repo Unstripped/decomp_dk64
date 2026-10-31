@@ -285,7 +285,7 @@ s32 func_805FF030(u8, s32);
 s32 func_8060B49C(s32, s32);
 void eepromInit(void);
 void func_80712574(void);
-void func_8060DEC8(void);
+void eepromSavePlayerData(void);
 void actorSpawn(s32, s32);
 
 void func_80712BD4(void) {
@@ -369,7 +369,7 @@ void func_80712BD4(void) {
         D_8075531C = 0x1E;
         break;
     }
-    func_8060DEC8();
+    eepromSavePlayerData();
 }
 
 void func_80712EDC(void) {
@@ -954,7 +954,7 @@ extern s8 D_8074452C;
 extern u8 D_807467C8;
 void func_806C9AE0(void);
 void func_80731030(void);
-void func_8060DC3C(u8, s32);
+void eepromLoadPlayerData(u8, s32);
 s32 func_8060C6B8(s32, s32, s32, u8);
 void func_805FF4D8(s32, s32);
 
@@ -966,7 +966,7 @@ void func_807144B8(u8 arg0) {
     D_80755350 = 0;
     func_806C9AE0();
     func_80731030();
-    func_8060DC3C(arg0, 1);
+    eepromLoadPlayerData(arg0, 1);
     D_8074E77C = 0;
     if ((func_8060C6B8(0xD, 0, 0, D_807467C8) != 0) || (D_8074452C != 0)) {
         if (flagGet(0x186, 0) != 0) {

@@ -170,7 +170,7 @@ void behaviourFrameBegin(void);
 void actorScriptStart(Actor_25F0 *, s32);
 void actorSpawn(s32, s32);
 void func_8067B238(void *, void *, f32);
-s16 func_80613448(void *);
+s16 controllerLookupStateByHash(void *);
 void func_806131D4(void *, s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 func_80724A20(void);
@@ -204,7 +204,7 @@ void minecartPlayPassBySfx(MinecartCart *);
 void minecartChooseBranchSide(MinecartCart *);
 u8 *heapAlloc(s32);
 f32 sqrtf(f32);
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 void camSetTarget(void *, void *, s32, s16, s32, s32, s32, s32, s32, s32, f32);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void actorDespawn(void *);
@@ -231,7 +231,7 @@ void minecartFollowerBehaviour(void) {
         D_807FBB44->unk168 = -1;
         D_807FBB44->unk4->unk34 *= -1.0f;
         D_807FBB44->unkEC = 0x2BC;
-        func_806131D4(D_807FBB44, func_80613448(D_807FBB44));
+        func_806131D4(D_807FBB44, controllerLookupStateByHash(D_807FBB44));
         actorSpawn(0x11C, 0x4C);
         func_8067B238(D_807FBB44, D_807FBB40, 1.5 * D_807FBB40->unk4->unk38);
         D_807FBB44->unk11C = D_807FBB40;
@@ -607,7 +607,7 @@ void minecartPlayPassBySfx(MinecartCart *arg0) {
     if (dist < 200.0f) {
         if (++arg0->unk3A >= 9) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1F, 0xFF, (127.0f - (dist - arg0->unk3C)), 0);
-            arg0->unk3A = func_806119A0() / 4294967295.0 * 3.0;
+            arg0->unk3A = randomLcgNext() / 4294967295.0 * 3.0;
         }
     }
     arg0->unk3C = dist;

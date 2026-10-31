@@ -1,4 +1,4 @@
-// func_80031AA0 (src/boss/C920.c): stage 4 (BsA7f): frame 128 + s0/s1/ra same, no pad locals (dx,dz,k,lx,lz are real named locals; all named slots match target), insn count 1054 vs 1051 (was ~1062 vs 1050), 21 asm-diff hunks left (struct score 47). Fixes vs prior park: sfx/light consts are 63.0f NOT 62.0f (lui 0x427c); sfxPlayOnFreeSlot and sfxAllocateChannel declared unprototyped with int-bit args (0x427C0000,0x3F800000) so 1.0f is not promoted into an FP reg (float literal args get mfc1'd from $f2 because compare/store share the 1.0f web; mini-repro: any f32-arg const shared with a float compare in the same fn promotes); dx/dz named f32 locals CSE the two >700 distance tests; i/sp5C two-var abs (sp5C=(x&0x1F)-0x10; i=sp5C; if(sp5C<0) i=-sp5C); k=s->unk14 hoisted before the clamp; j=func_806119A0() then stores then D_80035B70=(j&3)+4; switch(s->unk13) with explicit case 9: break (table 10 entries); D_80035B38 u8 compared == -1 (lbu, li at,-1); unk0 store before unk14 in init. Remaining: temp spill slots 0x40/0x44 vs 0x44/0x48 (target has one extra never-accessed temp slot at 0x40), spawn loop: target hoists 0.1f lwc1 above beqz (+ only 2 0.1f rodata entries, first unused; plain 3 stores give 3 entries, chain a=b=c=0.1f gives 1 entry + reload), zero-const f2/f8 reuse in unk4 clamp, D_80035B68 ++ store-forward (target reuses incremented reg, we reload via shared addr), scheduling of sb stores in case 6, reloc-only D_80035B48 symbol for the D_80035B44[4] loop pointer. See func_80031AA0 NON_MATCHING in C920.c.
+// func_80031AA0 (src/boss/C920.c): stage 4 (BsA7f): frame 128 + s0/s1/ra same, no pad locals (dx,dz,k,lx,lz are real named locals; all named slots match target), insn count 1054 vs 1051 (was ~1062 vs 1050), 21 asm-diff hunks left (struct score 47). Fixes vs prior park: sfx/light consts are 63.0f NOT 62.0f (lui 0x427c); sfxPlayOnFreeSlot and sfxAllocateChannel declared unprototyped with int-bit args (0x427C0000,0x3F800000) so 1.0f is not promoted into an FP reg (float literal args get mfc1'd from $f2 because compare/store share the 1.0f web; mini-repro: any f32-arg const shared with a float compare in the same fn promotes); dx/dz named f32 locals CSE the two >700 distance tests; i/sp5C two-var abs (sp5C=(x&0x1F)-0x10; i=sp5C; if(sp5C<0) i=-sp5C); k=s->unk14 hoisted before the clamp; j=randomLcgNext() then stores then D_80035B70=(j&3)+4; switch(s->unk13) with explicit case 9: break (table 10 entries); D_80035B38 u8 compared == -1 (lbu, li at,-1); unk0 store before unk14 in init. Remaining: temp spill slots 0x40/0x44 vs 0x44/0x48 (target has one extra never-accessed temp slot at 0x40), spawn loop: target hoists 0.1f lwc1 above beqz (+ only 2 0.1f rodata entries, first unused; plain 3 stores give 3 entries, chain a=b=c=0.1f gives 1 entry + reload), zero-const f2/f8 reuse in unk4 clamp, D_80035B68 ++ store-forward (target reuses incremented reg, we reload via shared addr), scheduling of sb stores in case 6, reloc-only D_80035B48 symbol for the D_80035B44[4] loop pointer. See func_80031AA0 NON_MATCHING in C920.c.
 #include "common.h"
 
 struct BossD_Actor;
@@ -110,8 +110,8 @@ void sfxPlayOnFreeSlot();
 void camPausePath(void);
 void camResumePath(void);
 void func_80724994(s32, s32, s32, s32, s32);
-s32 func_806119A0(void);
-f32 func_806119FC(void);
+s32 randomLcgNext(void);
+f32 randomFloat(void);
 void sfxAllocateChannel();
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
@@ -391,7 +391,7 @@ void func_80031AA0(void) {
                 }
                 D_80035B70 = j;
                 if (j >= 0x1A) {
-                    j = func_806119A0();
+                    j = randomLcgNext();
                     s->unk13 = 1;
                     s->unk15++;
                     D_80035B70 = (j & 3) + 4;
@@ -441,7 +441,7 @@ void func_80031AA0(void) {
         if (s->unk12 == 2 || s->unk12 == 3) {
             s->unk14++;
         } else {
-            s->unk14 += (s32)(func_806119FC() * 2.99f) + 1;
+            s->unk14 += (s32)(randomFloat() * 2.99f) + 1;
         }
         if (s->unk14 >= 4) {
             s->unk14 -= 4;
@@ -474,7 +474,7 @@ void func_80031AA0(void) {
     }
     s->unkC--;
     if (s->unkC < 0) {
-        s->unkC = (func_806119A0() & 0x7F) + 0x5A;
+        s->unkC = (randomLcgNext() & 0x7F) + 0x5A;
         lightSetColor(0.5f, 0.5f, 0.5f, -1);
         func_8068B80C();
     }

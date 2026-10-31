@@ -70,9 +70,9 @@ void controllerInit(void);
 void controllerStartRead(void);
 void controllerWaitRead(void);
 void controllerUpdate(void);
-void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
+void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
 void func_8060FFF0(void);
-void func_80610044(void *, s32, s32, u8, s32, s32);
+void schedSubmitGfxTask(void *, s32, s32, u8, s32, s32);
 void func_80610268(s32);
 void *heapAlloc(s32);
 void func_80611730(void);
@@ -521,7 +521,7 @@ void func_805FBE04(void) {
     osWritebackDCacheAll();
     osInvalDCache((void *)0x80000000, 0x800000);
     D_8076A080 = &D_807FF100;
-    func_8060B140(D_8000DDE4, D_8076A080, &D_8076A084, 0, 0, 0, 0);
+    dmaReadAssetDecompress(D_8000DDE4, D_8076A080, &D_8076A084, 0, 0, 0, 0);
     D_8076A0A4 = 0;
     controllerWaitRead();
     D_8076A064 = 0;
@@ -619,9 +619,9 @@ void func_805FC2B0(void) {
     Gfx *sp28;
 
     controllerStartRead();
-    func_80610044(D_8076A050[D_807444FC], D_8076A088, 3, (D_8076A0A4 != 0) ? 0 : 1, 0x4D2, 1);
+    schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, (D_8076A0A4 != 0) ? 0 : 1, 0x4D2, 1);
     if (D_8076A0A4 != 0) {
-        func_80610044((u8 *)&D_80767CE8 + D_807444FC * 0x11B0 + 0xDB0, D_8076A08C, 0, 1, 0x929, 1);
+        schedSubmitGfxTask((u8 *)&D_80767CE8 + D_807444FC * 0x11B0 + 0xDB0, D_8076A08C, 0, 1, 0x929, 1);
     }
     D_807444FC ^= 1;
     D_8076A064++;

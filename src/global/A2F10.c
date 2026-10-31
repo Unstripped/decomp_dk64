@@ -60,8 +60,8 @@ typedef struct ActorSub4Node {
 } ActorSub4Node;
 
 void func_80613C48(Actor *, s16, f32, f32);
-void func_80613CA8(Actor *, s16, f32, f32);
-void func_80614D00(Actor *, f32, f32);
+void controllerAnimSetState(Actor *, s16, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 s32 actorListFindIdByActor(Actor *);
 void actorUpdateModelMatrix(void *, s32);
 
@@ -75,14 +75,14 @@ void func_8069E210(void) {
     if (!(actor->unk60 & 0x10)) {
         actor->unk60 &= ~4;
         func_80613C48(D_807FBB40, 0x407, 0.0f, 0.0f);
-        func_80614D00(D_807FBB40, 0.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
         actor = D_807FBB40;
     }
     for (i = 0; i < D_807FBB70.unk254; i++) {
         if (*D_807FBB70.unk278[i] == 0) {
             actor->unk60 |= 4;
-            func_80613CA8(D_807FBB40, 0x407, 0.0f, 0.0f);
-            func_80614D00(D_807FBB40, 1.0f, 0.0f);
+            controllerAnimSetState(D_807FBB40, 0x407, 0.0f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
             switch (actorListFindIdByActor(D_807FBB40)) {
             case 5:
                 sfxPlayOnFreeSlot(0x1D7, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
@@ -249,7 +249,7 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, u32, u32, u32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 void func_80613C48(Actor *, s16, f32, f32);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 void func_8067B238(void *, void *, f32);
 void playerStateQueueCallback(s32, void *, s32);
 void actorUpdateModelMatrix(void *, s32);
@@ -325,7 +325,7 @@ promote:
             if (CUR_ACTOR->unk15F != 0 && actorSpawn(0x102, CUR_ACTOR->unkF0) != 0) {
                 if (CUR_ACTOR->unk4->unk0->unk4 > 9.0f) {
                     func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
-                    func_80614D00(D_807FBB44, CUR_ACTOR->unk4->unk48, 0.0f);
+                    scriptSetActorRampTarget(D_807FBB44, CUR_ACTOR->unk4->unk48, 0.0f);
                 }
                 func_8067B238(D_807FBB44, CUR_ACTOR, CUR_ACTOR->unk4->unk38);
                 SPAWNED_ACTOR->unkF0 = CUR_ACTOR->unkF0;
@@ -784,10 +784,10 @@ void actorShadowFollowUpdate(void) {
     }
 }
 
-s32 func_80613448(Actor *);
+s32 controllerLookupStateByHash(Actor *);
 
 void actorSpawnAttachedTo(Actor *arg0) {
-    actorSpawn(0x6A, func_80613448(arg0));
+    actorSpawn(0x6A, controllerLookupStateByHash(arg0));
     D_807FBB44->unk11C = (s32) arg0;
     arg0->unk6A |= 0x800;
 }
@@ -811,7 +811,7 @@ void actorMirrorParentModelY(void) {
     if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
         ATTACHED_ACTOR->unk60 |= 0x8100000;
         ATTACHED_ACTOR->unk60 &= 0xFFFF7FFF;
-        func_806131D4(D_807FBB40, func_80613448(D_807FBB40));
+        func_806131D4(D_807FBB40, controllerLookupStateByHash(D_807FBB40));
         sub->unk4 = ATTACHED_ACTOR->unk11C->unk54;
         sub->unk0 = (s32) ATTACHED_ACTOR->unk11C;
         sub->unk8 = ATTACHED_ACTOR->unk11C->unk58;
@@ -869,7 +869,7 @@ void actorMirrorParentModelAxis(void) {
     if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
         ATTACHED_ACTOR->unk60 |= 0x8100000;
         ATTACHED_ACTOR->unk60 &= 0xFFFF7FFF;
-        func_806131D4(D_807FBB40, func_80613448(D_807FBB40));
+        func_806131D4(D_807FBB40, controllerLookupStateByHash(D_807FBB40));
         sub->unk4 = ATTACHED_ACTOR->unk11C->unk54;
         sub->unk0 = (s32) ATTACHED_ACTOR->unk11C;
         sub->unk8 = ATTACHED_ACTOR->unk11C->unk58;

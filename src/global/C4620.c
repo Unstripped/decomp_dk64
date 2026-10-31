@@ -127,7 +127,7 @@ void func_806C7BAC();
 void func_806F0C18(void *);
 void func_806F10E8();
 void func_80613214();
-void func_80613CA8(Actor *, s16, f32, f32);
+void controllerAnimSetState(Actor *, s16, f32, f32);
 
 void func_806BFA8C(u16 arg0) {
     switch (arg0) {
@@ -158,17 +158,17 @@ void func_806BFA8C(u16 arg0) {
             break;
         case 0x2CF:
             func_80613214(D_807FBB40);
-            func_80613CA8(D_807FBB40, 0x2CF, 0.0f, 0.0f);
+            controllerAnimSetState(D_807FBB40, 0x2CF, 0.0f, 0.0f);
             break;
     }
 }
 
-void func_8061421C();
+void controllerStepMotionWindows();
 void actorUpdateModelMatrix(Actor *, s32);
 void func_80614A64(Actor *);
 
 void func_806BFBB4(void) {
-    func_8061421C(D_807FBB40);
+    controllerStepMotionWindows(D_807FBB40);
     actorUpdateModelMatrix(D_807FBB40, 0);
     func_80614A64(D_807FBB40);
 }
@@ -320,7 +320,7 @@ extern LgBFDCA0 *D_807FDCA0;
 void func_806F09F0(Actor *, u16);
 void actorSetTargetSpeed(Actor *, s32);
 void actorScriptStart(void *, s32);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_80723320(s32, s32);
@@ -350,7 +350,7 @@ void func_80717D4C(void);
 void actorApplyVelocityCustom(void *, f32, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
-s32 func_8072D13C(u8, s32);
+s32 patrolPathStep(u8, s32);
 
 void func_806BFBF4(void) {
     s16 j;
@@ -430,27 +430,27 @@ void func_806BFBF4(void) {
                 LgBV->unk4->unk0->unk10 = -1;
                 actorScriptStart(D_807FBB40, D_80747750[cmd->unk4]);
                 if (cmd->unk6 != 0) {
-                    func_80614D00(D_807FBB40, cmd->unk6 / 100.0, 0.0f);
+                    scriptSetActorRampTarget(D_807FBB40, cmd->unk6 / 100.0, 0.0f);
                 }
                 break;
             case 3:
                 if (LgBV->unk4->unk64 != 0) {
                     actorScriptStart(D_807FBB40, 0);
                 }
-                func_80613CA8(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 0.0f);
-                func_80614D00(D_807FBB40, 1.0f, 0.0f);
+                controllerAnimSetState(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 0.0f);
+                scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
                 func_806BFA8C(cmd->unk6 + D_80747904[cmd->unk4]);
                 break;
             case 13:
                 if (LgBV->unk4->unk64 != 0) {
                     actorScriptStart(D_807FBB40, 0);
                 }
-                func_80613CA8(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 8.0f);
-                func_80614D00(D_807FBB40, 1.0f, 0.0f);
+                controllerAnimSetState(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 8.0f);
+                scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
                 func_806BFA8C(cmd->unk6 + D_80747904[cmd->unk4]);
                 break;
             case 4:
-                func_80614D00(D_807FBB40, cmd->unk4 / 100.0, cmd->unk6);
+                scriptSetActorRampTarget(D_807FBB40, cmd->unk4 / 100.0, cmd->unk6);
                 break;
             case 5:
                 LgBV->unk154 = 2;
@@ -648,7 +648,7 @@ void func_806BFBF4(void) {
             break;
         case 0x2:
             actorMoveWithinZone(2, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
-            if (func_8072D13C(2, 0) != 0) {
+            if (patrolPathStep(2, 0) != 0) {
                 LgBV->unk154 = 0;
                 LgBV->unk155 = 0;
                 actorSetTargetSpeed(D_807FBB40, 0);
@@ -698,7 +698,7 @@ void actorScriptStart(void *, s32);
 void func_8070D8C0(Actor *, s32, u8);
 void actorSetTargetSpeed(Actor *, s32);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
-s32 func_8072D13C(u8, s32);
+s32 patrolPathStep(u8, s32);
 s32 func_80724A20(void);
 s32 currentActorTestClearFlag(void);
 s32 actorSpawn(s32, s32);
@@ -726,7 +726,7 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
             break;
         case 2:
             actorMoveWithinZone(2, R1S90->unkA, R1S90->unkE, 0, 0.0f);
-            func_8072D13C(2, 0);
+            patrolPathStep(2, 0);
             break;
         case 0x12:
             switch (R1V->unk155) {
@@ -1142,7 +1142,7 @@ void func_806C1E44(void) {
                     break;
                 case 2:
                     actorMoveWithinZone(2, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0, 0.0f);
-                    func_8072D13C(2, 0);
+                    patrolPathStep(2, 0);
                     break;
             }
             break;
@@ -1228,7 +1228,7 @@ void func_806C226C(void) {
                     ((R1C46bActor *)D_807FBB40)->unkE8 = func_806CC190(((R1C46bActor *)D_807FBB40)->unkE8, 0x400, 10.0f);
                 }
             }
-            func_8072D13C(2, 0);
+            patrolPathStep(2, 0);
             if (currentActorTestClearFlag() != 0) {
                 D_807FBB40->unk154 = 0x40;
             }
@@ -1449,7 +1449,7 @@ typedef struct LgC2DF4S9C {
 #define LgV ((LgC2DF4Actor *)D_807FBB40)
 
 void func_806136B4(Actor *);
-void func_806134B4(Actor *, u16);
+void controllerAnimInit(Actor *, u16);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 void actorSetUniformScale(Actor *, f32);
 void func_80728950(s32);
@@ -1480,7 +1480,7 @@ void func_806C2DF4(void) {
     if (!(LgV->unk60 & 0x10)) {
         sp54 = LgV->unk4->unk38;
         func_806136B4(D_807FBB40);
-        func_806134B4(D_807FBB40, state->unk0);
+        controllerAnimInit(D_807FBB40, state->unk0);
         LgV->unk140 = actorSub140CreateFromModel(D_807FBB40);
         LgV->unk146 = 0;
         LgV->unk12A = 0xFA0;

@@ -194,7 +194,7 @@ void func_806D1420(void) {
 extern f32 D_80753AFC[];
 extern s16 D_80753A78[];
 f32 sqrtf(f32);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void func_806CC5DC();
 void func_806CC638(f32);
@@ -256,10 +256,10 @@ void func_806D1568(void) {
             func_806CC638(0.0f);
             temp0 = G08_A40->unkB8 / 200.0;
             temp1 = G08_A40->unkC0 / 200.0;
-            func_80614D00(D_807FBB40, sqrtf(temp0 * temp0 + temp1 * temp1), 5.0f);
+            scriptSetActorRampTarget(D_807FBB40, sqrtf(temp0 * temp0 + temp1 * temp1), 5.0f);
             if ((G08_A40->unkB8 == 0.0f) || (G08_P->unk18 != 0)) {
                 G08_P->unk50 = D_80753A78[D_807FD584];
-                func_80614D00(D_807FBB40, 0.5f, G08_P->unk50);
+                scriptSetActorRampTarget(D_807FBB40, 0.5f, G08_P->unk50);
                 G08_A40->unk155 = 2;
             }
             if (G08_A40->unkAC < G08_A40->unk80 + 4.0f) {
@@ -1741,7 +1741,7 @@ void func_806CFDEC();
 void func_806D4C7C(void) {
     switch (G08_A40->unk155) {
     case 0:
-        func_80614D00(D_807FBB40, 1.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
         playerInputUpdate(0x2C);
         func_806CC8B8();
         break;
@@ -1785,7 +1785,7 @@ void func_806D4DE4(void) {
     func_806CF878();
     switch (G08_A40->unk155) {
     case 0:
-        func_80614D00(D_807FBB40, 1.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
         playerInputUpdate(0x2C);
         func_806CC8B8();
         break;
@@ -1864,7 +1864,7 @@ void func_806D5008(void) {
             effectSpawnMultiTierRingWithActor(D_807FBB40, ((u8 *)D_807FD568)[1]);
             camStartShake(G10_P->unk104, 0x14, (u16)(((u8 *)D_807FD568)[1] * 5));
         }
-        func_80614D00(D_807FBB40, 1.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
         G08_A40->unk155++;
         func_806CC948();
         break;
@@ -2430,7 +2430,7 @@ s16 func_806CC190(s16, s16, f32);
 void effectSpawnJointBeam();
 void effectSpawnRandomBoneDebris();
 void func_80712830(Actor *, u8);
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 void func_80714998(s32);
 
 s32 func_806D69A4(void) {
@@ -2490,25 +2490,25 @@ void func_806D6B00(void) {
         func_806CC948();
         G14_P->unk30 = D_80753548[D_807FD584];
         if (G14_A->unkB8 > 20.0f) {
-            if (func_806119A0() % 3U == 0) {
+            if (randomLcgNext() % 3U == 0) {
                 func_8071498C(&func_8071B2EC);
                 func_80714998(2);
                 func_807149B8(1);
                 func_80714C08(&D_8071FF18, 0.2f, D_807FBB40, 2, 0);
             }
-            if (func_806119A0() % 3U == 0) {
+            if (randomLcgNext() % 3U == 0) {
                 func_8071498C(&func_8071B2EC);
                 func_80714998(2);
                 func_807149B8(1);
                 func_80714C08(&D_8071FF18, 0.2f, D_807FBB40, 3, 0);
             }
-            if (func_806119A0() % 3U == 0) {
+            if (randomLcgNext() % 3U == 0) {
                 func_8071498C(&func_8071B2EC);
                 func_80714998(2);
                 func_807149B8(1);
                 func_80714C08(&D_8071FF18, 0.2f, D_807FBB40, 9, 0);
             }
-            if (func_806119A0() % 3U == 0) {
+            if (randomLcgNext() % 3U == 0) {
                 func_8071498C(&func_8071B2EC);
                 func_80714998(2);
                 func_807149B8(1);
@@ -2936,7 +2936,7 @@ void func_806CFE30();
 void func_806D80A8(void) {
     switch (G08_A40->unk155) {
         case 0:
-            func_80614D00(D_807FBB40, 1.0f, 0);
+            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0);
             playerInputUpdate(0x47);
             func_806CC948();
             func_806CD8EC();
@@ -2965,7 +2965,7 @@ void func_806D80A8(void) {
         case 3:
             playerInputUpdate(0x35);
             if (D_807FD618[D_807FC929].unk0 != 0.0f) {
-                func_80614D00(D_807FBB40, 3.0f, 0.0f);
+                scriptSetActorRampTarget(D_807FBB40, 3.0f, 0.0f);
             }
             G08_P->unk4 = 0.0f;
             func_806CFE7C();
@@ -2984,7 +2984,7 @@ void func_806D8308(void) {
     switch (G08_A40->unk155) {
         case 0:
             G15_EA(D_807FBB40) = G08_A40->unkEE;
-            func_80614D00(D_807FBB40, 1.0f, 0);
+            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0);
             playerInputUpdate(0x48);
             func_806CC948();
             break;
@@ -3078,7 +3078,7 @@ s32 func_806D850C(void) {
         }
         func_80614E78(D_807FBB40, 0x36);
         func_80613AF8(D_807FBB40, 0x31, 0, 8.0f);
-        func_80614D00(D_807FBB40, 0.5f, 0);
+        scriptSetActorRampTarget(D_807FBB40, 0.5f, 0);
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x10, 0xFF, 0x7F, 1);
     }
     if (G15_A->unkAC < G15_A->unk80 + sp2C) {
@@ -3161,9 +3161,9 @@ void func_806D87FC(void) {
             } else {
                 fv0 = G08_P->unk4 * 1.5 / 40.0;
                 if (G15_B->unk4->unk48 < fv0) {
-                    func_80614D00(D_807FBB40, fv0, 0.0f);
+                    scriptSetActorRampTarget(D_807FBB40, fv0, 0.0f);
                 } else {
-                    func_80614D00(D_807FBB40, fv0, 5.0f);
+                    scriptSetActorRampTarget(D_807FBB40, fv0, 5.0f);
                 }
             }
             break;
@@ -3180,7 +3180,7 @@ void func_806D8A64(void) {
     a = G08_A40;
     switch (a->unk155) {
         case 0:
-            func_80614D00(a, 1.0f, 0);
+            scriptSetActorRampTarget(a, 1.0f, 0);
             playerInputUpdate(0x4B);
             func_806CC8B8();
             a = G08_A40;
@@ -3309,9 +3309,9 @@ void func_806D8B08(void) {
             }
             t = G16_P->unk10 / 7.5 + 1.0;
             if (G16_A->unk4->unk48 < t) {
-                func_80614D00(D_807FBB40, t, 0.0f);
+                scriptSetActorRampTarget(D_807FBB40, t, 0.0f);
             } else {
-                func_80614D00(D_807FBB40, t, 15.0f);
+                scriptSetActorRampTarget(D_807FBB40, t, 15.0f);
             }
             effectSpawnAuraBurst(2);
             fv0 = G16_A->unkAC;
@@ -3367,7 +3367,7 @@ void func_806D8B08(void) {
     }
     if (G16_A->unkB8 == 0.0f || G16_P->unk18 != 0) {
         G16_P->unk50 = D_80753A78[D_807FD584];
-        func_80614D00(D_807FBB40, 0.5f, (f32)G16_P->unk50);
+        scriptSetActorRampTarget(D_807FBB40, 0.5f, (f32)G16_P->unk50);
         G16_A->unk155 = 2;
     }
     func_806D0EBC(D_807FBB40);
@@ -3467,7 +3467,7 @@ void func_806D91A4(void) {
 
 f32 func_80611BB4(f32, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void func_80617770(void *, s32, s32);
+void sfxPlayScriptActorSoundForPlayer(void *, s32, s32);
 extern f32 D_80753CD0[];
 extern f32 D_80753250[];
 #define G16_E ((G16Actor *)D_807FBB4C)
@@ -3550,7 +3550,7 @@ void func_806D9320(void) {
             playerInputUpdate(0x20);
             break;
         case 3:
-            func_80617770(D_807FBB40, 0x10, 0);
+            sfxPlayScriptActorSoundForPlayer(D_807FBB40, 0x10, 0);
             G16_P->unk30 = D_80753250[D_807FD584];
             G16_A->unk155 = G16_A->unk155 + 1;
         case 4:
@@ -3587,7 +3587,7 @@ void func_806D9820(void) {
             }
             t = G16_A->unkB8 * 0.025;
             v = (t > 1.0) ? t : 1.0;
-            func_80614D00(D_807FBB40, v, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, v, 0.0f);
             break;
         case 1:
             func_806CC8B8();
@@ -3906,7 +3906,7 @@ void func_806DA320(void) {
     } else {
         v = G17_A->unkB8;
     }
-    func_80614D00(D_807FBB40, v / 25.0f + 0.25, 2.0f);
+    scriptSetActorRampTarget(D_807FBB40, v / 25.0f + 0.25, 2.0f);
     playerInputUpdate(0x49);
     if (!(G17_A->unk6A & 0x10)) {
         func_806CFF9C(D_807FBB40);
@@ -3989,7 +3989,7 @@ void func_806DA4D8(void) {
 void func_806DA7EC(void) {
     playerInputUpdate(6);
     if (D_807FD618[D_807FC929].unk0 != 0.0f) {
-        func_80614D00(D_807FBB40, 3.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 3.0f, 0.0f);
     }
     mathAngleStepToward(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
     G17_P->unk4 = 0.0f;
@@ -4000,7 +4000,7 @@ void func_806DA7EC(void) {
 void func_806DA89C(void) {
     playerInputUpdate(7);
     if (D_807FD618[D_807FC929].unk0 != 0.0f) {
-        func_80614D00(D_807FBB40, 2.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 2.0f, 0.0f);
     }
     mathAngleStepToward(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
     G17_P->unk4 = 0.0f;
@@ -4210,7 +4210,7 @@ void func_806DAF5C(void) {
     func_806CEED8();
     switch (G18_A->unk155) {
         case 0:
-            func_80614D00(D_807FBB40, 1.0f, 0);
+            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0);
             playerInputUpdate(0x21);
             break;
         case 1:
@@ -4438,7 +4438,7 @@ void func_806DB670(void) {
             func_806CCB0C();
             break;
         case 14:
-            func_80617770(D_807FBB40, 0x2F, 0);
+            sfxPlayScriptActorSoundForPlayer(D_807FBB40, 0x2F, 0);
             G18_A->unk155++;
         case 15:
             func_806C8D20(D_807FBB40);
@@ -4755,7 +4755,7 @@ extern s16 D_80753C84[];
 extern f32 D_80753C30[];
 extern f32 D_80753C4C[];
 extern f32 D_80753C68[];
-extern u8 func_807300BC;
+extern u8 proxPathFollowerStep;
 void func_806DC3A4(f32);
 
 void func_806DC410(void) {
@@ -4776,7 +4776,7 @@ void func_806DC410(void) {
     }
     LD5_P->unk100 = D_80753C84[D_807FD584];
     node = heapAlloc(0x14);
-    node->callback = &func_807300BC;
+    node->callback = &proxPathFollowerStep;
     node->unk8 = (s32)D_807FBB48;
     node->unk4 = 1;
     actorRegisterGlobalCallback(node);
@@ -4809,7 +4809,7 @@ void func_806DC410(void) {
                 break;
             }
             func_806DC3A4(sp1C);
-            func_80614D00(D_807FBB40, 1.0f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
         }
         break;
     case 2:
@@ -4831,7 +4831,7 @@ void func_806DC410(void) {
             } else {
                 f = -d;
             }
-            func_80614D00(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
         }
         break;
     case 3:
@@ -4857,7 +4857,7 @@ void func_806DC410(void) {
             } else {
                 f = -d;
             }
-            func_80614D00(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
         }
         break;
     case 4:
@@ -4883,7 +4883,7 @@ void func_806DC410(void) {
             } else {
                 f = -d;
             }
-            func_80614D00(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
         }
         break;
     }
@@ -5083,7 +5083,7 @@ void func_806DD24C(void) {
     }
     L6_P->unk100 = D_80753CA4[D_807FD584];
     node = heapAlloc(0x14);
-    node->callback = &func_807300BC;
+    node->callback = &proxPathFollowerStep;
     node->unk8 = (s32)D_807FBB48;
     node->unk4 = 1;
     actorRegisterGlobalCallback(node);
@@ -5110,7 +5110,7 @@ void func_806DD24C(void) {
                 break;
             }
             func_806DC3A4(sp1C);
-            func_80614D00(D_807FBB40, 1.0f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
         }
         break;
     case 2:
@@ -5132,7 +5132,7 @@ void func_806DD24C(void) {
             } else {
                 f = -d;
             }
-            func_80614D00(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
         }
         break;
     case 3:
@@ -5158,7 +5158,7 @@ void func_806DD24C(void) {
             } else {
                 f = -d;
             }
-            func_80614D00(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
         }
         break;
     case 4:
@@ -5184,7 +5184,7 @@ void func_806DD24C(void) {
             } else {
                 f = -d;
             }
-            func_80614D00(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
         }
         break;
     }
@@ -5355,7 +5355,7 @@ void func_806DDAB0(void) {
                 if (LD5C_A->unk155 == 1) {
                     t = LD5C_A->unkB8 * 0.025;
                     f = t > 0.1 ? t : 0.1;
-                    func_80614D00(D_807FBB40, f, 1.0f);
+                    scriptSetActorRampTarget(D_807FBB40, f, 1.0f);
                 } else {
                     func_80614E78(D_807FBB48, 0x77);
                     LD5C_A->unk155 = 1;
@@ -5371,7 +5371,7 @@ void func_806DDAB0(void) {
                 if (LD5C_A->unk155 == 3) {
                     t = LD5C_A->unkB8 * 0.025;
                     f = t > 0.1 ? t : 0.1;
-                    func_80614D00(D_807FBB40, f, 0.0f);
+                    scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
                 } else {
                     func_80614E78(D_807FBB48, 0x78);
                     LD5C_A->unk155 = 3;

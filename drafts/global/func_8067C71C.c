@@ -132,7 +132,7 @@ extern f32 D_807502E4;
 extern s16 D_80753444[];
 
 void func_80608528(Actor *, s32, s32, s32, s32);
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 f32 func_80612D1C(f32);
 s32 func_8061CB50(void);
 void func_8061EF4C(s32, s32, s32, f32, f32, f32, f32, f32);
@@ -341,7 +341,7 @@ void func_8067C71C(void) {
         }
         break;
     case 6:
-        if (((func_806119A0() / 100000) % 3) == 0) {
+        if (((randomLcgNext() / 100000) % 3) == 0) {
             func_807149B8(1);
             func_807149FC(-1);
             func_8071498C(func_80718BF4);

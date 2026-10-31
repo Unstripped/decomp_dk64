@@ -21,7 +21,7 @@ extern s32 D_807FC924;
 extern u8 D_807FC929;
 extern Gfx D_2000180;
 Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
-Gfx *func_80614B34(Gfx *, Actor *);
+Gfx *renderActorDisplayList(Gfx *, Actor *);
 
 void renderSetupSegmentsAndFog(Gfx *arg0, Actor *arg1) {
     WRITE_GFX(arg0++, 0xDA380007, osVirtualToPhysical((void *)((u8 *)D_807FC924 + (D_807FC929 * 0x2F0) + (D_807444FC << 6) + 0x88)));
@@ -30,7 +30,7 @@ void renderSetupSegmentsAndFog(Gfx *arg0, Actor *arg1) {
     WRITE_GFX(arg0++, 0xE7000000, 0);
     WRITE_GFX(arg0++, 0xD9FDFFFF, 0);
     WRITE_GFX(arg0++, 0xFA0000FF, 0xFFFFFFFF);
-    func_80614B34(renderSetSegment6AndFog(arg0, arg1->unk128, 1), arg1);
+    renderActorDisplayList(renderSetSegment6AndFog(arg0, arg1->unk128, 1), arg1);
 }
 
 extern void *D_807FD580;
@@ -72,7 +72,7 @@ extern Actor *D_807FBB40;
 
 s32 func_806FFF88(void);
 void func_80613C48(Actor *, s16, f32, f32);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void color5551CopyLerpToWhite(s16 *, s32 *, f32);
@@ -109,7 +109,7 @@ void actorPhotoUpdate(void) {
         D_807FBB40->unk12A = 0x3E8;
         spEC->unk4 = (s16 *)func_806FFF88();
         func_80613C48(D_807FBB40, 0x40B, 0, 0);
-        func_80614D00(D_807FBB40, 0.15f, 0);
+        scriptSetActorRampTarget(D_807FBB40, 0.15f, 0);
     }
     D_807FBB40->unk60 &= ~4;
     sp66 = 0x5A - spEC->unk10;
@@ -251,7 +251,7 @@ typedef struct WaveState {
 extern u8 D_807FBBEC;
 extern ActorGlobalState D_807FBB70;
 void func_80613C48(Actor *, s16, f32, f32);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 Mtx *heapAlloc(s32);
 void actorUpdateModelMatrix(Actor *, s32);
 s32 func_8069A750(void);
@@ -302,7 +302,7 @@ void actorSagWaveUpdate(u8 arg0, u8 arg1) {
     }
     if (state->unk0 == 0) {
         func_80613C48(D_807FBB40, 0x403, 0, 1.0f);
-        func_80614D00(D_807FBB40, 4.0f, 1.0f);
+        scriptSetActorRampTarget(D_807FBB40, 4.0f, 1.0f);
         state->unk0 = -2;
     }
     for (i = 0; i < arg0; i++) {
@@ -701,7 +701,7 @@ void actorSpotLightUpdate(void) {
         sp54->unk0 = 0;
         sp54->unk4 = 1.0f;
     }
-    func_80614D00(D_807FBB40, ((SpotLightConfig *)D_807FBB40->unk124)->unk0, 1.0f);
+    scriptSetActorRampTarget(D_807FBB40, ((SpotLightConfig *)D_807FBB40->unk124)->unk0, 1.0f);
     if (D_807FBD70 == 4) {
         sp54->unk0 = D_807503A0;
         sp54->unk4 = 0.0f;
@@ -1002,7 +1002,7 @@ void func_806CF4B8(Actor *);
 void sfxSetVolumeAndPan(u8, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 s32 actorAngleInArc(Actor *, s16);
-f32 func_806119FC(void);
+f32 randomFloat(void);
 void func_8071496C(s16);
 void func_80714998(s32);
 void camStartShake(s32, s32, s32);
@@ -1235,9 +1235,9 @@ void func_8069B908(void) {
                 func_80714CC0(&D_80720340, 1.6f, D_807FBB40->unk7C + spAC,
                               D_807FBB40->unk80 + spB0, D_807FBB40->unk84 + spA4);
                 if (D_807FBB40->unk58 == 0x3D) {
-                    spAC = (2.0f * func_806119FC()) - 1.0f;
-                    spB0 = (2.0f * func_806119FC()) - 1.0f;
-                    spA4 = (2.0f * func_806119FC()) - 1.0f;
+                    spAC = (2.0f * randomFloat()) - 1.0f;
+                    spB0 = (2.0f * randomFloat()) - 1.0f;
+                    spA4 = (2.0f * randomFloat()) - 1.0f;
                     spAC *= 30.0f;
                     spB0 *= 30.0f;
                     spA4 *= 30.0f;
@@ -1249,7 +1249,7 @@ void func_8069B908(void) {
                     func_80714950(2);
                     sp78 = randomNonNegative();
                     func_80714CC0((void *)((s32 *)&sp9C)[(sp78 >> 15) % 2],
-                                  (f32)(((f64)func_806119FC() * 0.5) + 0.2),
+                                  (f32)(((f64)randomFloat() * 0.5) + 0.2),
                                   D_807FBB40->unk7C + spAC, D_807FBB40->unk80 + spB0,
                                   D_807FBB40->unk84 + spA4);
                 }

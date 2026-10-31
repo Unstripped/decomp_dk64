@@ -6,7 +6,7 @@ extern u8 D_80750AB4;
 extern s16 D_807FDB34;
 
 void *heapAlloc(s32);
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 
 
 typedef struct EffectGridNode {
@@ -749,7 +749,7 @@ void effectFreeAndUnlink(EffectNode *effect) {
         buffer = (EffectNode *)((u8 *)buffer + 8);
     }
     if (osCicId != 0x17D9) {
-        osSetTime((s64)(s32)func_806119A0());
+        osSetTime((s64)(s32)randomLcgNext());
     }
     previous = effect->previous;
     next = effect->next;

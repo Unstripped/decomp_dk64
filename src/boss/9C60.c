@@ -150,7 +150,7 @@ void bossRoundFrame(u8 *);
 void func_805FF158(s32);
 void func_805FF378(s32, s32);
 void func_80613C48(void *, s32, f32, f32);
-void func_80614D90(BossC_9C60_Actor *);
+void actorScriptExecute(BossC_9C60_Actor *);
 void actorScriptStart(BossC_9C60_Actor *, s32);
 s32 camIsCutsceneActive(void);
 void camStartPath(BossC_9C60_Actor *, s32, s32);
@@ -291,7 +291,7 @@ void func_8002DE04(void) {
         case 0:
             D_807FBB40->unk146 = 5;
             actorScriptStart(D_807FBB40, sp3C->unk14 ? 0x409 : 0x408);
-            func_80614D90(D_807FBB40);
+            actorScriptExecute(D_807FBB40);
             func_80613C48(sp3C->unk0, 0x675, 0.0f, 0.0f);
             D_807FBB40->unk155++;
             break;
@@ -326,7 +326,7 @@ void func_8002DE04(void) {
                     bossAttachActor();
                     D_807FBB40->unk146 = 1;
                     actorScriptStart(D_807FBB40, 0x404);
-                    func_80614D90(D_807FBB40);
+                    actorScriptExecute(D_807FBB40);
                     func_80613C48(sp3C->unk0, 0x673, 0.0f, 0.0f);
                     D_807FBB40->unk155++;
                 }
@@ -343,7 +343,7 @@ void func_8002DE04(void) {
             sp3C->unk14++;
             sp38 = D_80035A60[sp3C->unk14];
             actorScriptStart(D_807FBB40, 0x406);
-            func_80614D90(D_807FBB40);
+            actorScriptExecute(D_807FBB40);
             func_80613C48(sp3C->unk0, 0x674, 0.0f, 0.0f);
             D_807FBB40->unk154 = sp38[sp3C->unk15++];
             D_807FBB40->unk155 = 0;

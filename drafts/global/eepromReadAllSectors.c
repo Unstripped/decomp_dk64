@@ -1,4 +1,4 @@
-// func_8060D14C (src/global/104F0.c): stage 4: frame 0x38, exact registers s0-s4/fs0/ra match; inlined offset eliminated post-loop checksum regalloc diff; remaining diff is single instruction scheduling of move s0, zero before vs after hoisted addiu s3/s4
+// eepromReadAllSectors (src/global/104F0.c): stage 4: frame 0x38, exact registers s0-s4/fs0/ra match; inlined offset eliminated post-loop checksum regalloc diff; remaining diff is single instruction scheduling of move s0, zero before vs after hoisted addiu s3/s4
 #include <ultra64.h>
 
 extern OSMesgQueue D_807ECCF0;
@@ -14,7 +14,7 @@ extern void sleepMilliseconds(f32);
 extern void func_8060D0A8(void);
 extern void func_8060CB9C(void);
 
-void func_8060D14C(void) {
+void eepromReadAllSectors(void) {
     s32 var_s0;
     s32 var_s2;
     u8 *var_s1;

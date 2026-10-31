@@ -687,7 +687,7 @@ typedef struct R114cPlayerView {
     f32 unk2C4;
 } R114cPlayerView;
 
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 
 void func_80711950(f32 arg0, s16 arg1, s16 arg2) {
     s32 random;
@@ -699,7 +699,7 @@ void func_80711950(f32 arg0, s16 arg1, s16 arg2) {
         D_807FDA1E = (s16)(cosApprox(((R114cPlayerView *)D_807FC924)->unk2C4) * arg1);
         if (arg0 < 1.0) {
             arg0 *= 100.0f;
-            random = func_806119A0() / 10000;
+            random = randomLcgNext() / 10000;
             if ((f32)(s32)((u32)random % 100U) < arg0) {
                 count = 1;
             } else {
@@ -710,9 +710,9 @@ void func_80711950(f32 arg0, s16 arg1, s16 arg2) {
         }
         D_807FDA1B = 0xFF;
         for (i = 0; i < count; i++) {
-            random = func_806119A0() / 10000;
+            random = randomLcgNext() / 10000;
             value = (f32)((f64)((u32)random % 125U) / 1000.0);
-            random = func_806119A0() / 10000;
+            random = randomLcgNext() / 10000;
             func_8070F5CC(1, arg2, (f32)((f64)value + 0.075), (s16)(s32)((u32)random % 320U), -10, 200);
         }
         if (*D_807550E0 != 0) {
@@ -748,7 +748,7 @@ void func_80711BD0(f32 arg0, s16 arg1, s16 arg2, u8 arg3) {
         D_807FDA1E = (s16)(s32)(cosApprox(((R114cPlayerView *)D_807FC924)->unk2C4) * (f32)arg1);
         if ((f64)arg0 < 1.0) {
             arg0 *= 100.0f;
-            if ((f32)(s32)((u32)(func_806119A0() / 10000U) % 100U) < arg0) {
+            if ((f32)(s32)((u32)(randomLcgNext() / 10000U) % 100U) < arg0) {
                 var_s1 = 1;
             } else {
                 var_s1 = 0;
@@ -770,7 +770,7 @@ void func_80711BD0(f32 arg0, s16 arg1, s16 arg2, u8 arg3) {
                 if ((D_807FDA1C == 4) && (((s32)(randomNonNegative() >> 0xF) % 100) >= 0x33)) {
                     var_fs0 *= -1.0f;
                 }
-                func_8070F5CC(arg3, arg2, var_fs0, (s16)(s32)((u32)(func_806119A0() / 10000U) % 320U), -10, 0xC8);
+                func_8070F5CC(arg3, arg2, var_fs0, (s16)(s32)((u32)(randomLcgNext() / 10000U) % 320U), -10, 0xC8);
                 var_s0 += 1;
             } while (var_s0 != var_s1);
         }

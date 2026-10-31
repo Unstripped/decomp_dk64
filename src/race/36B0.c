@@ -202,7 +202,7 @@ f32 func_80027920(RaceActor *arg0, RaceCursor *arg1, RaceActor *arg2, RaceCursor
     return total;
 }
 
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 
 void func_80027AF8(RaceCursor *arg0, s8 arg1) {
     if (arg1 > 0) {
@@ -219,7 +219,7 @@ void func_80027B30(RaceCursor *arg0) {
         arg0->unk1++;
         break;
     case 1:
-        if ((func_806119A0() & 0xFF) >= 0x80) {
+        if ((randomLcgNext() & 0xFF) >= 0x80) {
             arg0->unk1++;
         } else {
             arg0->unk1--;
@@ -311,7 +311,7 @@ void func_80027CE8(void) {
     case 0:
     case 1:
         if (flag) {
-            temp_v0 = func_806119A0();
+            temp_v0 = randomLcgNext();
             if ((D_8002FBD0[2] < sp3C) && (sp3C < D_8002FBD0[4]) && (temp_s2->unk0 != sp48->unk0) && ((u8)((temp_v0 & 0xFF) < 0x14))) {
                 func_80027AF8(temp_s2, sp48->unk0 - temp_s2->unk0);
             } else if ((D_8002FBD0[6] < sp3C) && (sp3C < D_8002FBD0[8]) && (temp_s2->unk0 == sp48->unk0) && ((u8)((temp_v0 & 0xFF) < 0x14))) {

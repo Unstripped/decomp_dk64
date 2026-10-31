@@ -120,7 +120,7 @@ f32 func_8002DF38(void *, f32, void *, void *);
 void *func_8002E960(u8);
 f32 func_8002F784(void *, void *, void *);
 f32 raceGetProgressPercent(void *, void *, void *);
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 s16 func_806CC10C(s16, s16);
 s16 func_806CC190(s16, s16, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -232,7 +232,7 @@ f32 func_8002978C(void) {
         case 1:
             switch (s0->unk35) {
                 case 0:
-                    if (RC_A->unk4->unk64 == 0x29E && sp74->unk10 != 0 && D_8002FC28 < sp5C && sp5C < D_8002FC30 && (func_806119A0() & 0xFF) < 0xFU) {
+                    if (RC_A->unk4->unk64 == 0x29E && sp74->unk10 != 0 && D_8002FC28 < sp5C && sp5C < D_8002FC30 && (randomLcgNext() & 0xFF) < 0xFU) {
                         actorScriptStart(D_807FBB40, 0x29F);
                     }
                     break;

@@ -468,7 +468,7 @@ extern s32 D_8071FE88;
 extern s32 D_8071FEAC;
 void func_8071910C(void);
 void func_8060E7EC(s32, s32, s32);
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 
 void tagBarrelDespawnEffects(void) {
     void (*sp5C)(void);
@@ -484,7 +484,7 @@ void tagBarrelDespawnEffects(void) {
     sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x23, 0xFF, 0x7F, 1);
 
     for (var_s1 = 0; var_s1 != 7; var_s1++) {
-        temp_s0 = ((s32) (func_806119A0() / 10000U)) % 3;
+        temp_s0 = ((s32) (randomLcgNext() / 10000U)) % 3;
         func_807149B8(1);
         func_807149FC(0xA);
         func_8071498C(func_8071910C);
@@ -842,7 +842,7 @@ extern s32 D_807FBB68;
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 void sfxAllocateChannel(s32, f32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_806F8BC4(s32, u8, s32);
+void slotQueueUpdate(s32, u8, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void func_8067AAB8(s32, Actor *, s16, f32, s16);
 void func_806C7BAC(s32, Actor *);
@@ -898,7 +898,7 @@ void func_80681E18(void) {
         if (var_v1->unk0 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1C6, 0xFF, 0x7F, 0);
             D_807FBB40->unk154 = 2;
-            func_806F8BC4(5, (D_807FBB68 & 2) ? 0 : 1, 0);
+            slotQueueUpdate(5, (D_807FBB68 & 2) ? 0 : 1, 0);
         }
         break;
     case 2:
@@ -1276,7 +1276,7 @@ void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s32);
 void sfxSetChannelParam(s32, s32, s32);
 void camSaveYaw(Actor *);
-void func_8060DEC8(void);
+void eepromSavePlayerData(void);
 void func_8061B650(Actor *);
 void slotQueueClearAllFlags(void);
 
@@ -1342,7 +1342,7 @@ void func_806833DC(struct TagBarrelData *arg0_in) {
             camSaveYaw(sp30->unk104);
             arg0->unk38 = sp34->unkE6;
             sp34->unkE6 = D_807FBB40->unkE6;
-            func_8060DEC8();
+            eepromSavePlayerData();
             camStartPath(D_807FBB40, 0xE, 0xC);
             func_8061B650(sp30->unk104);
             slotQueueClearAllFlags();

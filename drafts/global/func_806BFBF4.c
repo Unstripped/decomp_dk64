@@ -145,7 +145,7 @@ extern LgBFDCA0 *D_807FDCA0;
 void func_806F09F0(Actor *, u16);
 void actorSetTargetSpeed(Actor *, s32);
 void func_80614EBC(void *, s32);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 s32 func_80723020(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_80723320(s32, s32);
@@ -175,7 +175,7 @@ void func_80717D4C(void);
 void actorApplyVelocityCustom(void *, f32, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
-s32 func_8072D13C(u8, s32);
+s32 patrolPathStep(u8, s32);
 
 void func_806BFBF4(void) {
     s16 j;
@@ -255,27 +255,27 @@ void func_806BFBF4(void) {
                 LgBV->unk4->unk0->unk10 = -1;
                 func_80614EBC(D_807FBB40, D_80747750[cmd->unk4]);
                 if (cmd->unk6 != 0) {
-                    func_80614D00(D_807FBB40, cmd->unk6 / 100.0, 0.0f);
+                    scriptSetActorRampTarget(D_807FBB40, cmd->unk6 / 100.0, 0.0f);
                 }
                 break;
             case 3:
                 if (LgBV->unk4->unk64 != 0) {
                     func_80614EBC(D_807FBB40, 0);
                 }
-                func_80613CA8(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 0.0f);
-                func_80614D00(D_807FBB40, 1.0f, 0.0f);
+                controllerAnimSetState(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 0.0f);
+                scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
                 func_806BFA8C(cmd->unk6 + D_80747904[cmd->unk4]);
                 break;
             case 13:
                 if (LgBV->unk4->unk64 != 0) {
                     func_80614EBC(D_807FBB40, 0);
                 }
-                func_80613CA8(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 8.0f);
-                func_80614D00(D_807FBB40, 1.0f, 0.0f);
+                controllerAnimSetState(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 8.0f);
+                scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
                 func_806BFA8C(cmd->unk6 + D_80747904[cmd->unk4]);
                 break;
             case 4:
-                func_80614D00(D_807FBB40, cmd->unk4 / 100.0, cmd->unk6);
+                scriptSetActorRampTarget(D_807FBB40, cmd->unk4 / 100.0, cmd->unk6);
                 break;
             case 5:
                 LgBV->unk154 = 2;
@@ -473,7 +473,7 @@ void func_806BFBF4(void) {
             break;
         case 0x2:
             actorMoveWithinZone(2, LgBS90->unkA, LgBS90->unkE, 0x210, 0.0f);
-            if (func_8072D13C(2, 0) != 0) {
+            if (patrolPathStep(2, 0) != 0) {
                 LgBV->unk154 = 0;
                 LgBV->unk155 = 0;
                 actorSetTargetSpeed(D_807FBB40, 0);

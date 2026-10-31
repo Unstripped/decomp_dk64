@@ -151,14 +151,14 @@ void hudPauseMenuIconUpdate(L7_Hud *arg0, s8 *arg1) {
             if (sc < 400.0f) {
                 item->unk24 = (f64)item->unk24 - 1.0;
                 if ((f64)item->unk24 < 0.0) {
-                    item->unk20 = (f64)item->unk20 + (1000.0 + (f64)func_806119FC() * 2000.0);
+                    item->unk20 = (f64)item->unk20 + (1000.0 + (f64)randomFloat() * 2000.0);
                     ang = (s32)item->unk20 & 0xFFF;
                     item->unk20 = ang;
-                    sc = ((f64)func_806119FC() * 40.0 + 20.0) * 4.0;
+                    sc = ((f64)randomFloat() * 40.0 + 20.0) * 4.0;
                     item->unk18 = (f64)func_80612794(ang) * ((f64)sc * 0.8);
                     item->unk1C = func_80612790(ang) * sc;
-                    if ((f64)func_806119FC() < 0.25) {
-                        item->unk24 = (f64)func_806119FC() * 40.0 + 15.0;
+                    if ((f64)randomFloat() < 0.25) {
+                        item->unk24 = (f64)randomFloat() * 40.0 + 15.0;
                     } else {
                         item->unk24 = 0;
                     }

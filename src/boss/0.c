@@ -441,7 +441,7 @@ typedef struct BossA_Struct_80024EAC_DC94 {
 extern BossA_Struct_80024EAC_DC90 *D_807FDC90;
 extern BossA_Struct_80024EAC_DC94 *D_807FDC94;
 
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 s32 func_806CC10C(s16, s16);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 
@@ -463,7 +463,7 @@ void func_80024EAC(void) {
         }
     } else if (sp2A != 0x25A) {
         actorScriptStart(D_807FBB40, 0x25A);
-        func_80614D00(D_807FBB40, 1.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
     }
 }
 
@@ -725,7 +725,7 @@ void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing();
 s32 randomNonNegative();
 void func_80613C48(void *, s16, f32, f32);
-void func_80613CA8(s32, s16, f32, f32);
+void controllerAnimSetState(s32, s16, f32, f32);
 s32 camIsCutsceneActive();
 void camStartPath(void *, s32, s32);
 void camStartShake();
@@ -751,7 +751,7 @@ void actorSetUniformScale(void *, f32);
 s32 func_8072881C();
 void behaviourFrameBegin();
 void func_8072A450();
-s32 func_8072D13C();
+s32 patrolPathStep();
 
 #define D_807FBB40 ((Boss3B_Actor *)D_807FBB40)
 #define D_807FDC90 ((Boss3B_DC90 *)D_807FDC90)
@@ -789,7 +789,7 @@ void func_800254D0(void) {
         D_807FBB40->unk146 = 0;
         func_8002413C();
         D_807FBB40->unkB8 = 0.0f;
-        func_80614D00(D_807FBB40, 0.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
         {
             u32 var_v0 = (u32) effectUpdateAndDispatch;
             u32 end = (u32) effectNodeSetSubVal;
@@ -831,7 +831,7 @@ void func_800254D0(void) {
     switch (D_807FBB40->unk154) {                     /* switch 1 */
     case 0x1F:                                      /* switch 1 */
         func_80613C48(D_807FBB40, 0x39A, 0.0f, 0.0f);
-        func_80614D00(D_807FBB40, 0.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
         D_807FBB40->unk146 = 3;
         D_807FBB40->unk154 = sp74[temp_s1->unk15++];
         D_807FBB40->unk155 = 0;
@@ -872,7 +872,7 @@ void func_800254D0(void) {
                 }
                 D_807FBB40->unk72 = 0;
                 D_807FBB40->unk155 = 4;
-                func_80613CA8(D_807FBB40, 0x39A, 0.0f, 30.0f);
+                controllerAnimSetState(D_807FBB40, 0x39A, 0.0f, 30.0f);
                 D_807FBB40->unkEE = 0;
             }
             func_80027770();
@@ -1041,7 +1041,7 @@ void func_800254D0(void) {
                 projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 0x96, 7, 1.04f, 40.0f, 8.0f, 600.0f);
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0xC8, 0x7F, 1, 0, 0.3f, 0);
                 func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
-                func_80614D00(D_807FBB44, 0.5f, 0.0f);
+                scriptSetActorRampTarget(D_807FBB44, 0.5f, 0.0f);
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x24A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x36, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 D_807FBB40->unk155 = 4;
@@ -1296,7 +1296,7 @@ void func_800254D0(void) {
                 sp6E = 1;
                 D_807FBB40->unkC0 = 100.0f;
             }
-            if (func_8072D13C(D_807FBB40->unk154, 0) != 0) {
+            if (patrolPathStep(D_807FBB40->unk154, 0) != 0) {
                 D_807FBB40->unk155 = 2;
             }
             break;

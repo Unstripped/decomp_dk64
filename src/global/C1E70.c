@@ -249,7 +249,7 @@ void func_8071498C(void (*)(void));
 void func_8071AADC(void);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-f32 func_806119FC(void);
+f32 randomFloat(void);
 
 void func_806BD7B0(void) {
     R1C0C1Sub174 *st = D_807FBB40->unk174;
@@ -319,9 +319,9 @@ void func_806BD7B0(void) {
                 func_80714950(0x10064);
                 func_8071498C(func_8071AADC);
                 func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
-                sp48 = func_806119FC() * 30.0 + D_807FBB40->unk7C;
-                sp44 = func_806119FC() * 30.0 + (D_807FBB40->unk80 + 20.0);
-                sp40 = func_806119FC() * 30.0 + D_807FBB40->unk84;
+                sp48 = randomFloat() * 30.0 + D_807FBB40->unk7C;
+                sp44 = randomFloat() * 30.0 + (D_807FBB40->unk80 + 20.0);
+                sp40 = randomFloat() * 30.0 + D_807FBB40->unk84;
                 func_80714CC0(&D_80720A7C, 1.2f, sp48, sp44, sp40);
             }
             break;

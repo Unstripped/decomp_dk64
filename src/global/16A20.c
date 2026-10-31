@@ -4,7 +4,7 @@ extern u16 D_80746A50[];
 extern u16 D_80746ACC[];
 extern u16 D_80746B4C[];
 
-s32 func_80611D20(s32 arg0) {
+s32 mathFixedPointInterp(s32 arg0) {
     u32 val;
     u16 *var_a2;
     s32 var_a1;
@@ -41,7 +41,7 @@ s32 func_80611D20(s32 arg0) {
     return val - (((s32)(((u32)diff) * masked)) >> var_a1);
 }
 
-s32 func_80611D20(s32);
+s32 mathFixedPointInterp(s32);
 
 s32 acosFixed16(s16 arg0) {
     s32 var_a0_2;
@@ -52,7 +52,7 @@ s32 acosFixed16(s16 arg0) {
     } else {
         var_a0_2 = -arg0;
     }
-    temp_v0 = func_80611D20(var_a0_2);
+    temp_v0 = mathFixedPointInterp(var_a0_2);
     var_a0_2 = temp_v0;
     if (arg0 < 0) {
         var_a0_2 = 0xFFFF - temp_v0;
@@ -70,7 +70,7 @@ s16 asinFixed16(s16 arg0) {
     } else {
         var_a0_2 = -arg0;
     }
-    temp_v0 = func_80611D20(var_a0_2);
+    temp_v0 = mathFixedPointInterp(var_a0_2);
     if (arg0 >= 0) {
         var_a0 = 0x7FFF - temp_v0;
     } else {

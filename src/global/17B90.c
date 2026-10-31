@@ -12,7 +12,7 @@ typedef struct {
 
 
 void *func_80612E90(void *, s32, s32);
-void func_80613794();
+void controllerAnimFreeSub();
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80612E90.s")
 
@@ -32,31 +32,31 @@ void func_806131D4(ControllerView *arg0, s16 arg1) {
 
 void func_80613214(ControllerView *arg0) {
     if (arg0->unk50 != NULL) {
-        func_80613794(arg0, 2);
+        controllerAnimFreeSub(arg0, 2);
         arg0->unk50 = NULL;
     }
 }
 
-typedef struct RvD2_Cmd {
+typedef struct ControllerSubCmd {
     u32 unk0;
     u32 unk4;
-} RvD2_Cmd;
+} ControllerSubCmd;
 
-typedef struct RvD2_Node {
-    RvD2_Cmd *unk0;
-    RvD2_Cmd *unk4;
+typedef struct ControllerSubNode {
+    ControllerSubCmd *unk0;
+    ControllerSubCmd *unk4;
     u8 unk8;
-    struct RvD2_Node *next;
-} RvD2_Node;
+    struct ControllerSubNode *next;
+} ControllerSubNode;
 
 void *heapAlloc(s32);
 
 #ifdef NON_MATCHING
-void func_8061324C(RvD2_Cmd *arg0, RvD2_Cmd *arg1, RvD2_Node **arg2) {
-    RvD2_Cmd *curr;
-    RvD2_Cmd *search;
-    RvD2_Node **tail;
-    RvD2_Node *node;
+void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg1, ControllerSubNode **arg2) {
+    ControllerSubCmd *curr;
+    ControllerSubCmd *search;
+    ControllerSubNode **tail;
+    ControllerSubNode *node;
     u32 cmd0;
     u32 id;
     s32 found;
@@ -81,7 +81,7 @@ void func_8061324C(RvD2_Cmd *arg0, RvD2_Cmd *arg1, RvD2_Node **arg2) {
                         }
                     } while (!found && (search != arg1));
                 }
-                node = heapAlloc(sizeof(RvD2_Node));
+                node = heapAlloc(sizeof(ControllerSubNode));
                 *tail = node;
                 tail = &node->next;
                 node->unk8 = id;
@@ -95,7 +95,7 @@ void func_8061324C(RvD2_Cmd *arg0, RvD2_Cmd *arg1, RvD2_Node **arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_8061324C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerBuildSubcommandList.s")
 #endif
 
 typedef struct {
@@ -136,7 +136,7 @@ command_lookup:
 }
 void *assetLoad(s32, s32, s32, s32);
 
-void func_806133C8(ControllerCommand *arg0, ControllerCommand *arg1) {
+void controllerCommandRelocateAssets(ControllerCommand *arg0, ControllerCommand *arg1) {
     u32 temp_v0;
 
     if (arg0 != arg1) {
@@ -158,11 +158,11 @@ typedef struct {
     u16 unk2;
     u32 unk4;
     u32 unk8;
-} RvD_StateEntry;
+} ControllerStateEntry;
 
-extern RvD_StateEntry D_807FB630[];
+extern ControllerStateEntry D_807FB630[];
 
-u16 func_80613448(u32 *arg0) {
+u16 controllerLookupStateByHash(u32 *arg0) {
     u32 val = *arg0;
     s32 i;
     for (i = (u16)D_807FBB30; i >= 0; i--) {
@@ -211,13 +211,13 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvT2_SlotB;
+} AnimSlotInit;
 
 typedef struct {
-    RvT2_SlotB *unk0;
-    RvT2_SlotB *unk4;
-    RvT2_SlotB *unk8;
-    RvT2_SlotB *unkC;
+    AnimSlotInit *unk0;
+    AnimSlotInit *unk4;
+    AnimSlotInit *unk8;
+    AnimSlotInit *unkC;
     f32 unk10;
     Mtx *unk14;
     Mtx *unk18;
@@ -245,23 +245,23 @@ typedef struct {
     f32 unk80;
     s32 unk84;
     s32 unk88;
-} RvT2_AnimB;
+} AnimStateInit;
 
 typedef struct {
     void *unk0;
-    RvT2_AnimB *unk4;
+    AnimStateInit *unk4;
     u8 pad8[4];
     f32 unkC[4][4];
     s32 unk4C;
     s32 unk50;
-} RvT2_ControllerB;
+} AnimControllerInit;
 
 #ifdef NON_MATCHING
-s32 func_806134B4(RvT2_ControllerB *arg0, u16 arg1) {
+s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
     void *resource;
     s32 i;
     void *alloc;
-    RvT2_AnimB *anim;
+    AnimStateInit *anim;
     resource = func_80612E90(arg0, arg1, 0);
     if (resource != NULL) {
         arg0->unk0 = resource;
@@ -269,11 +269,11 @@ s32 func_806134B4(RvT2_ControllerB *arg0, u16 arg1) {
         arg0->unk50 = 0;
 
         alloc = heapAlloc((*(u8 *)((u8 *)resource + 0x20) << 7) + 0x170);
-        arg0->unk4 = (RvT2_AnimB *)alloc;
-        arg0->unk4->unk0 = (RvT2_SlotB *)((u8 *)alloc + 0x90);
-        arg0->unk4->unk4 = (RvT2_SlotB *)((u8 *)alloc + 0xC8);
-        arg0->unk4->unk8 = (RvT2_SlotB *)((u8 *)alloc + 0x100);
-        arg0->unk4->unkC = (RvT2_SlotB *)((u8 *)alloc + 0x138);
+        arg0->unk4 = (AnimStateInit *)alloc;
+        arg0->unk4->unk0 = (AnimSlotInit *)((u8 *)alloc + 0x90);
+        arg0->unk4->unk4 = (AnimSlotInit *)((u8 *)alloc + 0xC8);
+        arg0->unk4->unk8 = (AnimSlotInit *)((u8 *)alloc + 0x100);
+        arg0->unk4->unkC = (AnimSlotInit *)((u8 *)alloc + 0x138);
         arg0->unk4->unk14 = (Mtx *)((u8 *)alloc + 0x170);
         arg0->unk4->unk18 = (Mtx *)((u8 *)arg0->unk4->unk14 + (*(u8 *)((u8 *)resource + 0x20) << 6));
 
@@ -328,7 +328,7 @@ s32 func_806134B4(RvT2_ControllerB *arg0, u16 arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_806134B4.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimInit.s")
 #endif
 
 void func_806136B4(ControllerAnimView *arg0) {
@@ -336,9 +336,9 @@ void func_806136B4(ControllerAnimView *arg0) {
     void *temp_a1_2;
     void *temp_a1_3;
 
-    func_80613794((ControllerView *)arg0, 0);
-    func_80613794((ControllerView *)arg0, 1);
-    func_80613794((ControllerView *)arg0, 2);
+    controllerAnimFreeSub((ControllerView *)arg0, 0);
+    controllerAnimFreeSub((ControllerView *)arg0, 1);
+    controllerAnimFreeSub((ControllerView *)arg0, 2);
     animListFree((u8 *)arg0 + 0x158);
     func_80613944(arg0, arg0->unk4->unk0);
     func_80613944(arg0, arg0->unk4->unk4);
@@ -363,41 +363,41 @@ typedef struct {
     u8 pad4[0x48];
     void *unk4C;
     void *unk50;
-} RvT2_ControllerView;
+} ControllerViewB;
 
 typedef struct {
     u32 unk0;
     u32 unk4;
-} RvT2_ControllerCommand;
+} ControllerCmdB;
 
 typedef struct {
-    RvT2_ControllerCommand *start;
-} RvT2_ControllerCommandList;
+    ControllerCmdB *start;
+} ControllerCmdListB;
 
 typedef struct {
     u8 pad0[4];
-    RvT2_ControllerCommandList *commands;
-} RvT2_ControllerSub;
+    ControllerCmdListB *commands;
+} ControllerSubB;
 
 void assetFreeBuffer(void *, s32, s32);
 
-struct RvE2_CacheEntry {
+struct AnimCacheEntry {
     s32 id;
     s32 refCount;
     void *asset;
 };
-extern struct RvE2_CacheEntry D_807FB7B0[];
+extern struct AnimCacheEntry D_807FB7B0[];
 
 #ifdef NON_MATCHING
-void func_80613794(arg0, arg1)
-RvT2_ControllerView *arg0;
+void controllerAnimFreeSub(arg0, arg1)
+ControllerViewB *arg0;
 u8 arg1;
 {
-    RvT2_ControllerSub *sub;
-    RvD_StateEntry *entry;
-    RvT2_ControllerCommand *cmd;
-    RvT2_ControllerCommandList *cmdList;
-    RvD_StateEntry *last;
+    ControllerSubB *sub;
+    ControllerStateEntry *entry;
+    ControllerCmdB *cmd;
+    ControllerCmdListB *cmdList;
+    ControllerStateEntry *last;
     u32 val;
 
     switch (arg1) {
@@ -421,16 +421,16 @@ u8 arg1;
             if (entry->unk4 == (u32)sub) {
                 break;
             }
-        } while (++entry != (RvD_StateEntry *)D_807FB7B0);
+        } while (++entry != (ControllerStateEntry *)D_807FB7B0);
 
-        if (entry == (RvD_StateEntry *)D_807FB7B0) {
+        if (entry == (ControllerStateEntry *)D_807FB7B0) {
             return;
         }
 
         if (--entry->unk2 == 0) {
             cmdList = sub->commands;
             cmd = cmdList->start;
-            if (cmd != (RvT2_ControllerCommand *)cmdList) {
+            if (cmd != (ControllerCmdB *)cmdList) {
                 do {
                     if ((cmd->unk0 >> 24) == (0, 0xFD)) {
                         val = cmd->unk4;
@@ -439,7 +439,7 @@ u8 arg1;
                         }
                     }
                     cmd++;
-                } while ((RvT2_ControllerCommand *)cmdList != cmd);
+                } while ((ControllerCmdB *)cmdList != cmd);
             }
 
             val = D_807FBB30 - 1;
@@ -462,24 +462,24 @@ u8 arg1;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613794.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimFreeSub.s")
 #endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613944.s")
 
-typedef struct { u8 pad[0x14]; f32 a; f32 b; } RvE_State;
-typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } RvE_Scale;
-typedef struct { RvE_State *state; u8 pad[4]; RvE_Scale *scale; } RvE_Holder;
-typedef struct { u8 pad[4]; RvE_Holder *holder; } RvE_Controller;
-void func_80614644(RvE_Controller *, RvE_State *, f32);
+typedef struct { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
+typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } AnimScaleSpan;
+typedef struct { AnimScaleState *state; u8 pad[4]; AnimScaleSpan *scale; } AnimScaleHolder;
+typedef struct { u8 pad[4]; AnimScaleHolder *holder; } AnimScaleController;
+void controllerApplyMotionWindow(AnimScaleController *, AnimScaleState *, f32);
 
-void func_80613A50(RvE_Controller *arg0, s8 arg1) {
+void controllerAnimScaleInterpolate(AnimScaleController *arg0, s8 arg1) {
     f32 temp;
     s16 count = (s32)((arg0->holder->state->b - arg0->holder->state->a) + 1.0f);
     s16 span = (s32)((arg0->holder->scale->b - arg0->holder->scale->a) + 1.0f);
     temp = (arg0->holder->scale->scale * (f32)count) / (f32)span;
     temp += (f32)arg1;
-    func_80614644(arg0, arg0->holder->state, temp);
+    controllerApplyMotionWindow(arg0, arg0->holder->state, temp);
 }
 
 
@@ -506,7 +506,7 @@ typedef struct ControllerStateView {
 } ControllerStateView;
 
 
-void func_80613CA8(ControllerStateView *, s16, f32, f32);
+void controllerAnimSetState(ControllerStateView *, s16, f32, f32);
 
 void func_80613C48(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     ControllerState *state;
@@ -516,7 +516,7 @@ void func_80613C48(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
         state->unk24 = *(f32 *)state->unk0;
         return;
     }
-    func_80613CA8(arg0, arg1, arg2, arg3);
+    controllerAnimSetState(arg0, arg1, arg2, arg3);
 }
 
 typedef struct {
@@ -524,10 +524,10 @@ typedef struct {
     u16 unk4;
     u8 pad6[0xC];
     u8 unk12;
-} RvT2_Resource;
+} AnimResourceState;
 
 typedef struct {
-    RvT2_Resource *unk0;
+    AnimResourceState *unk0;
     f32 unk4;
     f32 unk8;
     s16 unkC;
@@ -543,13 +543,13 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvT2_Slot;
+} AnimSlotState;
 
 typedef struct {
-    RvT2_Slot *unk0;
-    RvT2_Slot *unk4;
-    RvT2_Slot *unk8;
-    RvT2_Slot *unkC;
+    AnimSlotState *unk0;
+    AnimSlotState *unk4;
+    AnimSlotState *unk8;
+    AnimSlotState *unkC;
     f32 unk10;
     u8 pad14[0x14];
     s16 unk28;
@@ -562,23 +562,23 @@ typedef struct {
     s32 unk78;
     s32 unk7C;
     f32 unk80;
-} RvT2_AnimData;
-void *func_80614130(s32 id);
+} AnimDataState;
+void *controllerAnimCacheGetOrLoad(s32 id);
 
 #ifdef NON_MATCHING
-void func_80613CA8(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     void *pad;
-    RvT2_AnimData *anim;
-    RvT2_Slot *slot0;
-    RvT2_Slot *slot4;
-    RvT2_Slot *slot8;
-    RvT2_Slot *slotC;
-    RvT2_Resource *resource;
+    AnimDataState *anim;
+    AnimSlotState *slot0;
+    AnimSlotState *slot4;
+    AnimSlotState *slot8;
+    AnimSlotState *slotC;
+    AnimResourceState *resource;
     f32 temp_f;
     s16 temp_s;
     u8 temp_u;
 
-    anim = (RvT2_AnimData *)arg0->unk4;
+    anim = (AnimDataState *)arg0->unk4;
     slot0 = anim->unk0;
     slot8 = anim->unk8;
     slot4 = anim->unk4;
@@ -594,7 +594,7 @@ void func_80613CA8(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     if ((arg1 & 0x4000) == 0x4000) {
         arg1 -= 0x4000;
         if (slot4->unk0 != NULL) {
-            slotC->unk0 = func_80614130(slot4->unk10);
+            slotC->unk0 = controllerAnimCacheGetOrLoad(slot4->unk10);
             slotC->unk4 = slot4->unk4;
             slotC->unk8 = slot4->unk8;
             slotC->unkC = slot4->unkC;
@@ -636,7 +636,7 @@ void func_80613CA8(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
         }
     }
 
-    resource = func_80614130(arg1);
+    resource = controllerAnimCacheGetOrLoad(arg1);
     if (resource != NULL) {
         slot8->unk0 = resource;
         slot8->unk10 = arg1;
@@ -672,11 +672,11 @@ void func_80613CA8(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     anim->unk8 = slot0;
     anim->unk2A = temp_u;
     anim->unk28 = temp_s;
-    func_80614644((RvE_Controller *)arg0, (RvE_State *)slot8, arg2);
+    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)slot8, arg2);
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613CA8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimSetState.s")
 #endif
 
 
@@ -687,10 +687,10 @@ typedef struct {
     u16 unk4;
     u8 pad6[0xC];
     u8 unk12;
-} RvE3_Resource;
+} AnimResourceSlot;
 
 typedef struct {
-    RvE3_Resource *unk0;
+    AnimResourceSlot *unk0;
     u8 pad4[0xC];
     s16 unk10;
     f32 unk14;
@@ -702,33 +702,33 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvE3_Slot;
+} AnimSlotRef;
 
 typedef struct {
     void *unk0;
-    RvE3_Slot *unk4;
+    AnimSlotRef *unk4;
     u8 pad8[0x20];
     s16 unk28;
     u8 pad2A[2];
     s16 unk2C;
     s16 unk2E;
-} RvE3_Anim;
+} AnimDataRef;
 
 typedef struct {
     void *unk0;
-    RvE3_Anim *unk4;
-} RvE3_Controller;
+    AnimDataRef *unk4;
+} AnimControllerRef;
 
 
-void func_80614014(RvE3_Controller *arg0, u16 arg1, f32 arg2, u8 arg3) {
-    RvE3_Slot *slot;
-    RvE3_Resource *resource;
+void func_80614014(AnimControllerRef *arg0, u16 arg1, f32 arg2, u8 arg3) {
+    AnimSlotRef *slot;
+    AnimResourceSlot *resource;
 
     slot = arg0->unk4->unk4;
     if (slot->unk0 != NULL) {
         func_80613944(arg0, slot);
     }
-    resource = func_80614130(arg1);
+    resource = controllerAnimCacheGetOrLoad(arg1);
     if (resource != NULL) {
         slot->unk0 = resource;
         slot->unk10 = arg1;
@@ -755,14 +755,14 @@ void func_80614014(RvE3_Controller *arg0, u16 arg1, f32 arg2, u8 arg3) {
         slot->unk30 = 0.0f;
         slot->unk18 = 0;
     }
-    func_80614644((RvE_Controller *)arg0, (RvE_State *)slot, arg2);
+    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)slot, arg2);
 }
 
-typedef struct RvE2_CacheEntry RvE2_CacheEntry;
-extern RvE2_CacheEntry D_807FB7B0[];
+typedef struct AnimCacheEntry AnimCacheEntry;
+extern AnimCacheEntry D_807FB7B0[];
 
-void *func_80614130(s32 id) {
-    RvE2_CacheEntry *entry;
+void *controllerAnimCacheGetOrLoad(s32 id) {
+    AnimCacheEntry *entry;
     u32 i;
     void *asset;
     s32 count;
@@ -802,7 +802,7 @@ void *func_80614130(s32 id) {
 
 extern u32 D_80744478;
 extern u8 D_80746B60;
-void func_80614D90(void *);
+void actorScriptExecute(void *);
 
 typedef struct {
     void *unk0;
@@ -822,11 +822,11 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvR1_MotionWindow;
+} MotionWindow;
 
 typedef struct {
-    RvR1_MotionWindow *unk0;
-    RvR1_MotionWindow *unk4;
+    MotionWindow *unk0;
+    MotionWindow *unk4;
     void *unk8;
     void *unkC;
     f32 unk10;
@@ -849,18 +849,18 @@ typedef struct {
     s32 unk7C;
     f32 unk80;
     s32 unk84;
-} RvR1_MotionCore;
+} MotionCore;
 
 typedef struct {
     u8 pad0[4];
-    RvR1_MotionCore *unk4;
-} RvR1_MotionOwner;
+    MotionCore *unk4;
+} MotionOwner;
 
 #ifdef NON_MATCHING
-void func_8061421C(RvR1_MotionOwner *arg0) {
-    RvR1_MotionCore *core;
-    RvR1_MotionWindow *win0;
-    RvR1_MotionWindow *win4;
+void controllerStepMotionWindows(MotionOwner *arg0) {
+    MotionCore *core;
+    MotionWindow *win0;
+    MotionWindow *win4;
     void *unk8;
     void *unkC;
     f32 pos;
@@ -922,7 +922,7 @@ void func_8061421C(RvR1_MotionOwner *arg0) {
     } else {
         pos += step * win0->unk24;
     }
-    func_80614644((RvE_Controller *)arg0, (RvE_State *)win0, pos);
+    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win0, pos);
     if (win4->unk0 != NULL) {
         if (core->unk28 < core->unk2C) {
             core->unk28 += core->unk2E;
@@ -936,7 +936,7 @@ void func_8061421C(RvR1_MotionOwner *arg0) {
             }
         }
         pos = win4->unk4 + win4->unk24;
-        func_80614644((RvE_Controller *)arg0, (RvE_State *)win4, pos);
+        controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win4, pos);
         if ((win4->unk24 == 0.0f) && (win4->unk1C & 0x10)) {
             core->unk2C = 0;
             if (core->unk28 == 0) {
@@ -944,17 +944,17 @@ void func_8061421C(RvR1_MotionOwner *arg0) {
             }
         }
     }
-    func_80614D90(arg0);
+    actorScriptExecute(arg0);
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_8061421C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerStepMotionWindows.s")
 #endif
 
 #ifdef NON_MATCHING
-void func_80614644(RvE_Controller *arg0_raw, RvE_State *arg1_raw, f32 arg2) {
-    RvR1_MotionOwner *arg0 = (RvR1_MotionOwner *)arg0_raw;
-    RvR1_MotionWindow *arg1 = (RvR1_MotionWindow *)arg1_raw;
+void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *arg1_raw, f32 arg2) {
+    MotionOwner *arg0 = (MotionOwner *)arg0_raw;
+    MotionWindow *arg1 = (MotionWindow *)arg1_raw;
     f32 temp_fa0;
     f32 temp_fa0_2;
     f32 temp_ft4;
@@ -969,7 +969,7 @@ void func_80614644(RvE_Controller *arg0_raw, RvE_State *arg1_raw, f32 arg2) {
     s32 var_a3;
     s32 var_v1;
     u16 temp_v1;
-    RvR1_MotionCore *temp_v0;
+    MotionCore *temp_v0;
 
 
     temp_v0 = arg0->unk4;
@@ -1089,7 +1089,7 @@ void func_80614644(RvE_Controller *arg0_raw, RvE_State *arg1_raw, f32 arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80614644.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerApplyMotionWindow.s")
 #endif
 
 typedef struct {
@@ -1141,38 +1141,38 @@ void func_80614A64(ControllerActorView *arg0) {
     }
 }
 
-typedef struct RvF_SegmentNode {
+typedef struct SegmentNode {
     void *unk0;
     void *unk4;
     u8 unk8;
-    struct RvF_SegmentNode *unkC;
-} RvF_SegmentNode;
+    struct SegmentNode *unkC;
+} SegmentNode;
 
 typedef struct {
     void *unk0;
     Gfx **unk4;
     u8 pad8[0xC];
-    RvF_SegmentNode *unk14;
+    SegmentNode *unk14;
     u8 pad18[9];
     u8 unk21;
-} RvF_Display;
+} DisplayListGroup;
 
 typedef struct {
-    RvF_Display *unk0;
+    DisplayListGroup *unk0;
     u8 pad4[4];
     void *unk8;
     u8 padC[0x40];
-    RvF_Display *unk4C;
-    RvF_Display *unk50;
+    DisplayListGroup *unk4C;
+    DisplayListGroup *unk50;
     u8 pad54[0xF2];
     u16 unk146;
-} RvF_Actor;
+} RenderActorView;
 
 Gfx *animSetSegments(Gfx *, void *);
-Gfx *func_80614C38(Gfx *, RvF_Actor *, RvF_Display *);
+Gfx *renderEmitSegmentNodes(Gfx *, RenderActorView *, DisplayListGroup *);
 
-Gfx *func_80614B34(Gfx *gdl, RvF_Actor *actor) {
-    RvF_Display *display = actor->unk0;
+Gfx *renderActorDisplayList(Gfx *gdl, RenderActorView *actor) {
+    DisplayListGroup *display = actor->unk0;
     s32 i;
 
     if (actor->unk4C != NULL) {
@@ -1182,7 +1182,7 @@ Gfx *func_80614B34(Gfx *gdl, RvF_Actor *actor) {
         display = actor->unk50;
     }
     gdl = animSetSegments(gdl, actor);
-    gdl = func_80614C38(gdl, actor, display);
+    gdl = renderEmitSegmentNodes(gdl, actor, display);
     gSPSegment(gdl++, 4, osVirtualToPhysical(actor->unk8));
     gSPSegment(gdl++, 3, osVirtualToPhysical(display->unk0));
     for (i = 0; i < display->unk21; i++) {
@@ -1191,9 +1191,9 @@ Gfx *func_80614B34(Gfx *gdl, RvF_Actor *actor) {
     return gdl;
 }
 
-Gfx *func_80614C38(Gfx *gdl, RvF_Actor *arg1, RvF_Display *arg2) {
+Gfx *renderEmitSegmentNodes(Gfx *gdl, RenderActorView *arg1, DisplayListGroup *arg2) {
     u16 flags = arg1->unk146;
-    RvF_SegmentNode *node = arg2->unk14;
+    SegmentNode *node = arg2->unk14;
     s32 shift;
 
     if (node != NULL) {

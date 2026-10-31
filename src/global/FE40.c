@@ -10,7 +10,7 @@ void heapFree(void *);
 void gunzip(void *, void *, void *);
 void func_80002790(void *, void *, void *, s32);
 
-void func_8060B140(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u8 arg5, void *arg6) {
+void dmaReadAssetDecompress(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u8 arg5, void *arg6) {
     void *sp5C;
     void *sp58;
     void *sp50;
@@ -87,5 +87,5 @@ void func_8060B140(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u8 arg5, v
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FE40/func_8060B140.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/FE40/dmaReadAssetDecompress.s")
 #endif

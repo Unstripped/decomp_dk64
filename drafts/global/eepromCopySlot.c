@@ -1,9 +1,9 @@
-// func_8060BA14 (src/global/104F0.c): stage 5: frame 0x20 exact, callee-saved exact; regalloc diff (v1/a3 swap in memcpy args multu)
+// eepromCopySlot (src/global/104F0.c): stage 5: frame 0x20 exact, callee-saved exact; regalloc diff (v1/a3 swap in memcpy args multu)
 extern s32 func_8071432C(void);
 extern s32 func_80714394(void);
 extern u8 D_807ECEA8[];
 
-void func_8060BA14(void) {
+void eepromCopySlot(void) {
     u8 original;
     u8 replacement;
     s32 size;

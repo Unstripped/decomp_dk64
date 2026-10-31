@@ -56,7 +56,7 @@ void eepromDispatchCommand(s32 arg0) {
 
 extern u32 D_807463C0[];
 
-u32 func_8060B968(u8 *arg0, u16 arg1) {
+u32 eepromCalculateCrc32(u8 *arg0, u16 arg1) {
     u32 crc = ~0;
 
     while (arg1--) {
@@ -91,7 +91,7 @@ extern u8 D_807ECEA8[];
 extern s32 func_8071432C(void);
 extern s32 func_80714394(void);
 
-void func_8060BA14(void) {
+void eepromCopySlot(void) {
     u8 original;
     u8 replacement;
     s32 size;
@@ -110,13 +110,13 @@ void func_8060BA14(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BA14.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromCopySlot.s")
 #endif
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BB18.s")
 
 #ifdef NON_MATCHING
-s32 func_8060BBE0(arg0, arg1)
+s32 eepromReadBitfield(arg0, arg1)
 unsigned short arg0;
 unsigned char arg1;
 {
@@ -154,7 +154,7 @@ unsigned char arg1;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BBE0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromReadBitfield.s")
 #endif
 
 void func_8060BCA0(s32 arg0, u8 arg1, u8 arg2, u16 *arg3, u8 *arg4) {
@@ -205,7 +205,7 @@ void func_8060BCA0(s32 arg0, u8 arg1, u8 arg2, u16 *arg3, u8 *arg4) {
     }
 }
 
-void func_8060BEA8(s32 arg0, u8 arg1, u16 *arg2, u8 *arg3) {
+void eepromGetSaveDataSectionOffset(s32 arg0, u8 arg1, u16 *arg2, u8 *arg3) {
     *arg2 = D_807ECEA0[0] + *arg2 + 0x645;
     *arg3 = 0;
     switch (arg0) {
@@ -259,7 +259,7 @@ void func_8060BF84(s32 arg0, u8 arg1, u16 *arg2, u8 *arg3) {
     }
 }
 
-void func_8060C2C4(s32 arg0, s32 arg1, u8 arg2, u16 *arg3, s8 *arg4) {
+void eepromCalculateTotalModelCount(s32 arg0, s32 arg1, u8 arg2, u16 *arg3, s8 *arg4) {
     s32 temp_s2;
     s32 temp_v0;
     s32 var_s0;
@@ -278,7 +278,7 @@ void func_8060C2C4(s32 arg0, s32 arg1, u8 arg2, u16 *arg3, s8 *arg4) {
 }
 
 #ifdef NON_MATCHING
-void func_8060C340(arg0, arg1, arg2, arg3, arg4, arg5)
+void eepromGetSectorOffset(arg0, arg1, arg2, arg3, arg4, arg5)
 u16 *arg0;
 u8 *arg1;
 s32 arg2;
@@ -292,18 +292,18 @@ unsigned char arg5;
         return;
     }
     if (arg2 >= 0xC) {
-        func_8060BEA8(arg2, arg4, arg0, arg1);
+        eepromGetSaveDataSectionOffset(arg2, arg4, arg0, arg1);
         return;
     }
     if (arg2 > 0) {
         func_8060BCA0(arg2, arg3, arg4, arg0, arg1);
         return;
     }
-    func_8060C2C4(arg2, arg3, arg4, arg0, (s8 *)arg1);
+    eepromCalculateTotalModelCount(arg2, arg3, arg4, arg0, (s8 *)arg1);
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060C340.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromGetSectorOffset.s")
 #endif
 
 extern s32 _strchr(u8 *);
@@ -353,17 +353,17 @@ s32 func_8060C430(s32 arg0, u32 arg1, s32 arg2) {
 
 extern s32 func_8060B9D0();
 extern void func_8060BB18();
-extern void func_8060C340();
+extern void eepromGetSectorOffset();
 
 void func_8060C648(s32 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
     u16 sp26;
     u8 sp25;
 
-    func_8060C340(&sp26, &sp25, arg0, arg1, (s32)arg2, func_8060B9D0(arg3));
+    eepromGetSectorOffset(&sp26, &sp25, arg0, arg1, (s32)arg2, func_8060B9D0(arg3));
     func_8060BB18(func_8060C430(arg0, arg4, 1), sp26, sp25);
 }
 
-extern s32 func_8060BBE0();
+extern s32 eepromReadBitfield();
 
 s32 func_8060C6B8(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
     s32 new_var;
@@ -371,8 +371,8 @@ s32 func_8060C6B8(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
     u8 sp21;
 
     new_var = func_8060B9D0(arg3);
-    func_8060C340(&sp22, &sp21, arg0, arg1, arg2, new_var);
-    new_var = func_8060BBE0(sp22, sp21);
+    eepromGetSectorOffset(&sp22, &sp21, arg0, arg1, arg2, new_var);
+    new_var = eepromReadBitfield(sp22, sp21);
     func_8060C430(arg0, new_var, 0);
 }
 
@@ -383,9 +383,9 @@ s32 func_8060C724(u8 arg0) {
 }
 
 extern u8 D_807ECEA8[];
-void func_8060C758();
+void eepromClearSlotData();
 
-void func_8060C758(arg0, arg1)
+void eepromClearSlotData(arg0, arg1)
 unsigned char arg0;
 int arg1;
 {
@@ -411,7 +411,7 @@ int arg1;
     }
 }
 
-void func_8060C830(arg0, arg1)
+void eepromSetCurrentSlot(arg0, arg1)
 unsigned char arg0;
 int arg1;
 {
@@ -419,31 +419,31 @@ int arg1;
 
     D_807467C8 = temp;
     arg0 = temp;
-    func_8060C758(temp, 0);
+    eepromClearSlotData(temp, 0);
     if (func_8060C6B8(0xF, 0, 0, 3) == arg0) {
-        func_8060C758(3, 0);
+        eepromClearSlotData(3, 0);
     }
     if (arg1 != 0) {
         eepromDispatchCommand(1);
     }
 }
 
-typedef struct RvB2Config {
+typedef struct EepromConfig {
     s16 value;
     u8 byte2;
     u8 byte3;
     u8 byte4;
     u8 byte5;
-} RvB2Config;
+} EepromConfig;
 
 extern s32 D_807467EC[];
-extern RvB2Config D_80744548[];
-extern RvB2Config D_80744568[];
+extern EepromConfig D_80744548[];
+extern EepromConfig D_80744568[];
 
 extern const u8 D_80757044[];
 extern const u8 D_80757064[];
 
-void func_8060C8AC(u8 arg0) {
+void eepromInitConfigs(u8 arg0) {
     s32 i;
 
     if (arg0 & 1) {
@@ -459,20 +459,20 @@ void func_8060C8AC(u8 arg0) {
     }
     if (arg0 & 4) {
         for (i = 0; i != 5; i++) {
-            func_8060C648(0x19, 0, i, 0, ((RvB2Config *)D_80757044)[i].value);
-            func_8060C648(0x16, 0, i, 0, ((RvB2Config *)D_80757044)[i].byte2);
-            func_8060C648(0x17, 0, i, 0, ((RvB2Config *)D_80757044)[i].byte3);
-            func_8060C648(0x18, 0, i, 0, ((RvB2Config *)D_80757044)[i].byte4);
-            D_80744548[i] = ((RvB2Config *)D_80757044)[i];
+            func_8060C648(0x19, 0, i, 0, ((EepromConfig *)D_80757044)[i].value);
+            func_8060C648(0x16, 0, i, 0, ((EepromConfig *)D_80757044)[i].byte2);
+            func_8060C648(0x17, 0, i, 0, ((EepromConfig *)D_80757044)[i].byte3);
+            func_8060C648(0x18, 0, i, 0, ((EepromConfig *)D_80757044)[i].byte4);
+            D_80744548[i] = ((EepromConfig *)D_80757044)[i];
         }
     }
     if (arg0 & 8) {
         for (i = 0; i != 5; i++) {
-            func_8060C648(0x1D, 0, i, 0, ((RvB2Config *)D_80757064)[i].value);
-            func_8060C648(0x1A, 0, i, 0, ((RvB2Config *)D_80757064)[i].byte2);
-            func_8060C648(0x1B, 0, i, 0, ((RvB2Config *)D_80757064)[i].byte3);
-            func_8060C648(0x1C, 0, i, 0, ((RvB2Config *)D_80757064)[i].byte4);
-            D_80744568[i] = ((RvB2Config *)D_80757064)[i];
+            func_8060C648(0x1D, 0, i, 0, ((EepromConfig *)D_80757064)[i].value);
+            func_8060C648(0x1A, 0, i, 0, ((EepromConfig *)D_80757064)[i].byte2);
+            func_8060C648(0x1B, 0, i, 0, ((EepromConfig *)D_80757064)[i].byte3);
+            func_8060C648(0x1C, 0, i, 0, ((EepromConfig *)D_80757064)[i].byte4);
+            D_80744568[i] = ((EepromConfig *)D_80757064)[i];
         }
     }
     if (arg0 & 0x10) {
@@ -484,11 +484,11 @@ void func_8060C8AC(u8 arg0) {
 }
 
 extern void flagsClearAllBank1(void);
-extern void func_8060C8AC(u8);
+extern void eepromInitConfigs(u8);
 
 void func_8060CB74(void) {
     flagsClearAllBank1();
-    func_8060C8AC(0xFF);
+    eepromInitConfigs(0xFF);
 }
 
 extern void eepromDispatchCommand(s32);
@@ -497,7 +497,7 @@ void func_8060CB9C(void) {
     eepromDispatchCommand(3);
 }
 
-extern void func_8060C758();
+extern void eepromClearSlotData();
 extern s32 func_8060C6B8(s32, u8, u8, u8);
 extern void func_8060CB74(void);
 extern u8 D_807ED6A8[];
@@ -505,7 +505,7 @@ extern u8 D_807550C8;
 extern u8 D_80744530;
 
 #ifdef NON_MATCHING
-void func_8060CBBC(void) {
+void eepromValidateSaveSlots(void) {
     s32 i;
     s32 j;
     s32 version;
@@ -529,9 +529,9 @@ void func_8060CBBC(void) {
     for (i = 0; i < 4; i++) {
         checksumIndex = (((i + 1) * height) / 4) - 1;
         valid[i] = 1;
-        if (((u32 *)D_807ED6A8)[checksumIndex] != func_8060B968(D_807ED6A8 + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF)) {
+        if (((u32 *)D_807ED6A8)[checksumIndex] != eepromCalculateCrc32(D_807ED6A8 + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF)) {
             valid[i] = 0;
-            func_8060C758(i & 0xFF, 0);
+            eepromClearSlotData(i & 0xFF, 0);
             func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
         }
         failed |= (valid[i] == 0);
@@ -544,7 +544,7 @@ void func_8060CBBC(void) {
         for (j = 0; j < 4 && sectorOrder[i] == version; j++) {
             if (j != i && valid[j] != 0 && func_8060C6B8(0xD, 0, 0, j & 0xFF) != 0 && func_8060C6B8(0xF, 0, 0, j & 0xFF) == version && func_8060C6B8(0x10, 0, 0, j & 0xFF) >= func_8060C6B8(0x10, 0, 0, i & 0xFF)) {
                 sectorOrder[i] = 0xFF;
-                func_8060C758(i & 0xFF, 0);
+                eepromClearSlotData(i & 0xFF, 0);
                 func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
                 failed |= 1;
             }
@@ -566,7 +566,7 @@ void func_8060CBBC(void) {
     height = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
     height /= 8;
     checksumIndex = ((height + 0x40) / 4) - 1;
-    if (((u32 *)D_807ED6A8)[checksumIndex] != func_8060B968(D_807ED6A8 + (height & 0xFFFF), 0x3C)) {
+    if (((u32 *)D_807ED6A8)[checksumIndex] != eepromCalculateCrc32(D_807ED6A8 + (height & 0xFFFF), 0x3C)) {
         func_8060CB74();
         failed |= 1;
     }
@@ -580,10 +580,10 @@ void func_8060CBBC(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060CBBC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromValidateSaveSlots.s")
 #endif
 
-extern void func_8060C758();
+extern void eepromClearSlotData();
 extern void func_8060CB74(void);
 
 void func_8060D0A8(void) {
@@ -604,7 +604,7 @@ void func_8060D0A8(void) {
     func_8060CB74();
     var_s0 = 0;
     do {
-        func_8060C758(var_s0 & 0xFF, var_s0 == 3);
+        eepromClearSlotData(var_s0 & 0xFF, var_s0 == 3);
         var_s0 += 1;
     } while (var_s0 != 4);
     D_807467C8 = (u8) sp28;
@@ -619,7 +619,7 @@ extern s8 D_807467C4;
 extern s8 D_807467CC;
 extern u8 D_807ED6A8[];
 
-void func_8060D14C(void) {
+void eepromReadAllSectors(void) {
     s32 var_s2;
     u8 *var_s1;
     s32 var_s0;
@@ -655,12 +655,12 @@ void func_8060D14C(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D14C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromReadAllSectors.s")
 #endif
 
 #ifdef NON_MATCHING
 extern s32 _sprintf();
-extern void func_8060BA14(void);
+extern void eepromCopySlot(void);
 extern char *D_807467C0;
 extern s8 D_807467C4;
 extern s8 D_807467E4;
@@ -670,7 +670,7 @@ extern s32 D_807EDEAC;
 extern OSMesgQueue D_807ECCF0;
 extern u8 D_807ED6A8[];
 
-void func_8060D2C8(s32 arg0) {
+void eepromSaveRecords(s32 arg0) {
     s32 i;
     s32 textOffset;
     s32 offset;
@@ -693,15 +693,15 @@ void func_8060D2C8(s32 arg0) {
     offset = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
     offset /= 8;
     if (arg0 == 0) {
-        func_8060BA14();
+        eepromCopySlot();
         height = (((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7;
         height /= 8;
         for (i = 0; i < 4; i++) {
-            ((u32 *)workingData)[(((i + 1) * height) / 4) - 1] = func_8060B968(workingData + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF);
+            ((u32 *)workingData)[(((i + 1) * height) / 4) - 1] = eepromCalculateCrc32(workingData + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF);
         }
         sector = 0;
     } else sector = offset & 0xFFFF;
-    ((u32 *)workingData)[((offset + 0x40) / 4) - 1] = func_8060B968(workingData + (offset & 0xFFFF), 0x3C);
+    ((u32 *)workingData)[((offset + 0x40) / 4) - 1] = eepromCalculateCrc32(workingData + (offset & 0xFFFF), 0x3C);
     dataLength = strlen(D_807467C0);
     bzero(workingData + dataLength + offset + 0x40, 0x800 - offset - dataLength - 0x40);
     osWritebackDCacheAll();
@@ -725,17 +725,17 @@ void func_8060D2C8(s32 arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D2C8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromSaveRecords.s")
 #endif
 
-extern void func_8060D2C8(s32);
+extern void eepromSaveRecords(s32);
 
 void func_8060D768(void) {
-    func_8060D2C8(0);
+    eepromSaveRecords(0);
 }
 
 void func_8060D788(void) {
-    func_8060D2C8(1);
+    eepromSaveRecords(1);
 }
 
 extern s32 flagGet(s32, s32);
@@ -746,7 +746,7 @@ extern u8 D_807FC952;
 extern u8 D_8074E77C;
 
 #ifdef NON_MATCHING
-void func_8060D7A8(void) {
+void eepromHalveRecords(void) {
     s32 i;
     u8 *entry;
 
@@ -782,11 +782,11 @@ void func_8060D7A8(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060D7A8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromHalveRecords.s")
 #endif
 
 extern void collectibleCountsClear(void);
-extern void func_8060BA14(void);
+extern void eepromCopySlot(void);
 extern void func_806C9AE0(void);
 extern void healthRefill(s32);
 extern u8 D_80750AC0;
@@ -795,7 +795,7 @@ extern u16 D_807FC930[];
 extern u8 D_807FC928;
 
 #ifdef NON_MATCHING
-void func_8060DC3C(s32 arg0, s32 arg1) {
+void eepromLoadPlayerData(s32 arg0, s32 arg1) {
     s32 i;
     u8 selector;
     u8 *base;
@@ -817,10 +817,10 @@ void func_8060DC3C(s32 arg0, s32 arg1) {
     D_807467C8 = selector;
     D_8074E77C = 0;
     if (func_8060C6B8(0xD, 0, 0, selector) == 0) {
-        func_8060C758(selector, 0);
+        eepromClearSlotData(selector, 0);
     }
     if (arg1 != 0) {
-        func_8060BA14();
+        eepromCopySlot();
     }
     D_807FC928 = 0;
     base[0x2FC] = func_8060C6B8(0xC, 0, 0, selector);
@@ -860,13 +860,13 @@ void func_8060DC3C(s32 arg0, s32 arg1) {
         entry += 0x5E;
     } while (i != 5);
     if (arg1 != 0) {
-        func_8060D7A8();
+        eepromHalveRecords();
     }
     D_8074E77C = 0;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060DC3C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromLoadPlayerData.s")
 #endif
 
 void func_8060DEA8(void) {
@@ -878,7 +878,7 @@ extern s32 func_80714394(void);
 extern s32 func_8071432C(void);
 
 #ifdef NON_MATCHING
-void func_8060DEC8(void) {
+void eepromSavePlayerData(void) {
     u8 *entry;
     u8 *base;
     u32 total;
@@ -934,7 +934,7 @@ void func_8060DEC8(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060DEC8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromSavePlayerData.s")
 #endif
 
 void eepromThreadMain(void *arg0) {
@@ -995,33 +995,33 @@ u8 *func_8060E25C(s32 arg0) {
 }
 
 #ifdef NON_MATCHING
-u8 func_8060E3B0(u16 arg0, u8 arg1) {
+u8 eepromReadChecksumBit(u16 arg0, u8 arg1) {
     u8 result;
     u16 value;
     u8 output;
 
     result = 0;
     if (func_8071432C() != 0) {
-        func_8060C340(&value, &output, 0, 0, arg1, func_8060B9D0(D_807467C8));
-        result = func_8060BBE0((value + arg0) & 0xFFFF, 1);
+        eepromGetSectorOffset(&value, &output, 0, 0, arg1, func_8060B9D0(D_807467C8));
+        result = eepromReadBitfield((value + arg0) & 0xFFFF, 1);
     }
     return result;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060E3B0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromReadChecksumBit.s")
 #endif
 
 extern s32 func_8060B9D0();
 extern void func_8060BB18();
-extern void func_8060C340();
+extern void eepromGetSectorOffset();
 
 void func_8060E430(u16 arg0, u8 arg1, u8 arg2) {
     u16 value;
     u8 unk;
 
     if (func_8071432C() != 0) {
-        func_8060C340(&value, &unk, 0, 0, arg2, func_8060B9D0(D_807467C8));
+        eepromGetSectorOffset(&value, &unk, 0, 0, arg2, func_8060B9D0(D_807467C8));
         func_8060BB18(arg1, (value + arg0) & 0xFFFF, 1);
     }
 }

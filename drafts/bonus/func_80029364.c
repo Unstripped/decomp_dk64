@@ -1,4 +1,4 @@
-// func_80029364 (src/bonus/2690.c): stage 5: frame 0x58 + saved set + all code match except 3 spots (45 diff lines after normalising %lo addends; the (s16*)&D_8002D8F4 stores only differ in reloc addend). (1) andi v1,v0,3 / addiu t4,v1,2 comes out andi t3; (2) else-arm li v0,-100 / li v1,1 comes out li t2/t3; (3) the ring renumbering that follows (lh t2/lui t3 at the join). Model (verified against the asm): as1's t2..t9 ring position = ucode temp number mod 8; a temp that uopt promotes prints as v0/v1 but still consumes its ring number (target andi: ring t3 skipped, prints v1), while uopt-promoted CONSTANTS consume none (target li v0/v1: join lh is t2; ours li t2/t3 consume two, join lh t4). So in the target the constants -100 and 1 (single use each, hoisted above bc1f) and the andi result are uopt candidates (adjsave > 0); ours: uopt_trace -l 5 shows const -100 adjsave 0.0, const 1 -0.18, not allocated. The 6x '& 0xFFu' masks are mod-8 compensation (+6 == -2), not a real fix. Tried (all no change or worse): decl-order sweep of the 9 locals (150 random orders), j/pad/i/r/c/d as the d1 temp, andi site as 2+(..), &3U, (s16)(..), r=rand()&3 / j=.. / d=.. temps, else arm as ternary / swapped stores / >= form / consts through j,d locals (copy-propagated away), K&R func_806119FC/func_806119A0 prototypes, dropping the address hack (gives lda lui/addiu CSE of D_8002D8F8/FC: 113 lines). Untried: finding a source form that gives the -100/1 constants and the (rand()&3) a second use (adjsave>0) without extra code; harness: tools/dk python3 .scratch/FE1d/cmp2.py normalises x(at) addends.
+// func_80029364 (src/bonus/2690.c): stage 5: frame 0x58 + saved set + all code match except 3 spots (45 diff lines after normalising %lo addends; the (s16*)&D_8002D8F4 stores only differ in reloc addend). (1) andi v1,v0,3 / addiu t4,v1,2 comes out andi t3; (2) else-arm li v0,-100 / li v1,1 comes out li t2/t3; (3) the ring renumbering that follows (lh t2/lui t3 at the join). Model (verified against the asm): as1's t2..t9 ring position = ucode temp number mod 8; a temp that uopt promotes prints as v0/v1 but still consumes its ring number (target andi: ring t3 skipped, prints v1), while uopt-promoted CONSTANTS consume none (target li v0/v1: join lh is t2; ours li t2/t3 consume two, join lh t4). So in the target the constants -100 and 1 (single use each, hoisted above bc1f) and the andi result are uopt candidates (adjsave > 0); ours: uopt_trace -l 5 shows const -100 adjsave 0.0, const 1 -0.18, not allocated. The 6x '& 0xFFu' masks are mod-8 compensation (+6 == -2), not a real fix. Tried (all no change or worse): decl-order sweep of the 9 locals (150 random orders), j/pad/i/r/c/d as the d1 temp, andi site as 2+(..), &3U, (s16)(..), r=rand()&3 / j=.. / d=.. temps, else arm as ternary / swapped stores / >= form / consts through j,d locals (copy-propagated away), K&R randomFloat/randomLcgNext prototypes, dropping the address hack (gives lda lui/addiu CSE of D_8002D8F8/FC: 113 lines). Untried: finding a source form that gives the -100/1 constants and the (rand()&3) a second use (adjsave>0) without extra code; harness: tools/dk python3 .scratch/FE1d/cmp2.py normalises x(at) addends.
 typedef struct {
     s16 unk0;
     char pad2[2];
@@ -120,15 +120,15 @@ void func_80029364(void) {
             ((s16 *)&D_8002D8F4)[2] = j;
             if (j <= 0) {
                 sfxPlayOnFreeSlot(0x1A1, 0x7FFF, 63.0f, 1.0f, 0x50, 0);
-                D_8002D8F8 = (func_806119A0() & 3) + 2;
+                D_8002D8F8 = (randomLcgNext() & 3) + 2;
             }
             d = D_8002D8FC + 1;
             ((s16 *)&D_8002D8F4)[4] = d;
             if (d == 0xE) {
-                sfxPlayOnFreeSlot(D_8002D8EC[func_806119A0() & 3], 0x7FFF, 63.0f, 1.0f, 0x14, 0);
+                sfxPlayOnFreeSlot(D_8002D8EC[randomLcgNext() & 3], 0x7FFF, 63.0f, 1.0f, 0x14, 0);
             }
         } else {
-            if (func_806119FC() < 0.5f) {
+            if (randomFloat() < 0.5f) {
                 D_8002D8FC = 0;
             } else {
                 D_8002D8FC = -0x64;
@@ -144,7 +144,7 @@ void func_80029364(void) {
             } while (i < 6);
             for (i = 0; i != 6; i++) {
                 j = i;
-                r = ((((((func_806119A0() & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 7;
+                r = ((((((randomLcgNext() & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 7;
                 while (r >= 0) {
                     if (t0->unk8[j] == -1) {
                         r -= 1;

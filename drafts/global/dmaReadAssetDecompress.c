@@ -1,4 +1,4 @@
-// func_8060B140 (src/global/FE40.c): stage 4: frame size 0x68, callee-saved set (s0-s4, ra) and text size 752 bytes exact
+// dmaReadAssetDecompress (src/global/FE40.c): stage 4: frame size 0x68, callee-saved set (s0-s4, ra) and text size 752 bytes exact
 extern s8 D_80746834;
 extern OSMesgQueue D_807655F0;
 extern OSIoMesg D_807ECE00;
@@ -8,7 +8,7 @@ void heapFree(void *);
 void gunzip(void *, void *, void *);
 void func_80002790(void *, void *, void *, s32);
 
-void func_8060B140(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u8 arg5, void *arg6) {
+void dmaReadAssetDecompress(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u8 arg5, void *arg6) {
     void *sp5C;
     void *sp58;
     void *sp50;

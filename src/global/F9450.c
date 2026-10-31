@@ -594,7 +594,7 @@ void func_806F5498(void) {
 s32 func_805FF030(u8, s32);
 s32 flagGridIndex(s32, s32, u8);
 s32 func_806C9974(u8, s8);
-void func_8060DEC8(void);
+void eepromSavePlayerData(void);
 void slotQueueAddValue(s32, u8, s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 extern s8 D_80029FA0;
@@ -675,7 +675,7 @@ u8 arg2;
             break;
         }
         if (shouldComplete != 0) {
-            func_8060DEC8();
+            eepromSavePlayerData();
         }
     }
 }
@@ -1386,7 +1386,7 @@ s32 listContainsS16(s16 arg0) {
 }
 
 
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 void func_80714950(s32);
 void func_8071496C(s16);
 void func_8071498C(void *);
@@ -1411,9 +1411,9 @@ void effectSpawnRandomSpread(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     if (arg5 > 0) {
         half = 1000.0 / ((f64)arg4 + (f64)arg4);
         do {
-            x = (f32)((f64)((f32)(func_806119A0() / 10000U % 1000U) / arg4) - half);
-            y = (f32)((f64)((f32)(func_806119A0() / 10000U % 1000U) / arg4) - half);
-            z = (f32)((f64)((f32)(func_806119A0() / 10000U % 1000U) / arg4) - half);
+            x = (f32)((f64)((f32)(randomLcgNext() / 10000U % 1000U) / arg4) - half);
+            y = (f32)((f64)((f32)(randomLcgNext() / 10000U % 1000U) / arg4) - half);
+            z = (f32)((f64)((f32)(randomLcgNext() / 10000U % 1000U) / arg4) - half);
             func_8071498C(&func_8071C620);
             func_8071496C(i + 1);
             func_807149B8(1);

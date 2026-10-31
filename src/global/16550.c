@@ -2,7 +2,7 @@
 
 s32 acosFixed16(s16);
 
-f32 func_80611850(f32 arg0) {
+f32 acosApprox(f32 arg0) {
     s16 var_a0;
 
     if (arg0 >= 1.0f) {

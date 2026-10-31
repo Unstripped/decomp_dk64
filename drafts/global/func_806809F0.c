@@ -54,7 +54,7 @@ void func_8067AAB8(s32, Actor *, s16, f32, s16);
 void func_806C7BAC(Actor *, s32);
 void sfxAllocateChannel(s32, f32);
 void actorSetCustomInt(Actor *, s16, s32);
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 f32 func_80612794(s16);
@@ -276,9 +276,9 @@ void func_806809F0(void) {
     case 12:
         sub->unkD--;
         if (sub->unkD < 0x28) {
-            sp90.x = ((f64)(u32)((func_806119A0() / 1000) % 50) - 25.0) / 5.0;
-            sp90.y = ((f64)(u32)((func_806119A0() / 1000) % 50) - 25.0) / 5.0;
-            sp90.z = ((f64)(u32)((func_806119A0() / 1000) % 50) - 25.0) / 5.0;
+            sp90.x = ((f64)(u32)((randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
+            sp90.y = ((f64)(u32)((randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
+            sp90.z = ((f64)(u32)((randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
         }
         if (sub->unkD == 0) {
             tagBarrelDespawnEffects();

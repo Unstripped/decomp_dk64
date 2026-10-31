@@ -1,4 +1,4 @@
-// func_80726744 (src/global/1295B0.c): Stage 5: 398/399 insns, frame 0x40 exact, same switch/jtbl; 1 extra li a1,255 before jal func_80613448 due to a1/a2 reg swap (CSE constant), entry spill 0x24 vs 0x20; deadsweep round 1 tried 6396 variants without improvement
+// spawnNodeInitActorFromEntry (src/global/1295B0.c): Stage 5: 398/399 insns, frame 0x40 exact, same switch/jtbl; 1 extra li a1,255 before jal controllerLookupStateByHash due to a1/a2 reg swap (CSE constant), entry spill 0x24 vs 0x20; deadsweep round 1 tried 6396 variants without improvement
 typedef struct A4Act {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ void *unk4;
@@ -134,14 +134,14 @@ extern u8 D_807FC928;
 extern u8 D_80755698[];
 extern s32 D_8076A0A8;
 void actorScriptStart(void *, s32);
-s16 func_80613448(void *, s32);
+s16 controllerLookupStateByHash(void *, s32);
 void actorUpdateFloorContactAndTilt(void *, s32);
 void behaviourSetAnimIds(s16, s16, s16, s16);
 void actorSetTargetSpeed(void *, u8);
 s32 randomNonNegative(void);
 #define A4P4 ((A4Player *)D_807FC924)
 
-void func_80726744(void *arg0, void *arg1) {
+void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     A4St174 *st;
     A4Node *node;
     s16 padA;
@@ -227,7 +227,7 @@ void func_80726744(void *arg0, void *arg1) {
             if (act->unk58 == 0xFE) {
                 *(s16 *)entry = D_8075570C[node->unkA];
             } else {
-                *(s16 *)entry = func_80613448(act, 0xFF);
+                *(s16 *)entry = controllerLookupStateByHash(act, 0xFF);
             }
             break;
     }

@@ -48,7 +48,7 @@ s32 func_805FF000();
 s32 func_805FF030();
 s32 func_805FEF74();
 s32 func_80712628();
-void func_8060DEC8();
+void eepromSavePlayerData();
 void func_80712EDC();
 void func_807127B4();
 s32 func_806C8DE0();
@@ -220,7 +220,7 @@ void hudPauseMenuUpdate(void) {
                             if (L10_CC != 0) {
                                 func_805FF378(D_8076A0A8, 0);
                             } else if (hud->unk18 == 0) {
-                                func_8060DEC8();
+                                eepromSavePlayerData();
                                 hud->unk18 = 1;
                             } else if (D_807505D4 == 0) {
                                 sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);

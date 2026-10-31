@@ -221,7 +221,7 @@ void func_80724E48();
 void func_8072881C(s32, void *);
 void actorSetBehaviourState();
 void func_8072C918(s32, s32, s32);
-void func_8072D13C(s32, s32);
+void patrolPathStep(s32, s32);
 void func_8072D714(s32, s32);
 void func_8072DAA4();
 void func_8072DC7C(s32);
@@ -375,7 +375,7 @@ void func_806B6DB0(s32 arg0) {
         break;
     case 2:
     case 3:
-        func_8072D13C(D_807FBB40->unk154, 1);
+        patrolPathStep(D_807FBB40->unk154, 1);
     default:
         func_8072C918(arg0, 0x232, 0x233);
         break;

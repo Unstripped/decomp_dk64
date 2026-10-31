@@ -35,12 +35,12 @@ typedef struct {
     u8 pad0[0x20];
     void *unk20;
     u8 pad24[0x24];
-} RvS2_AuxBus;
+} AuxBus;
 
 typedef struct {
     u8 pad0[0x34];
-    RvS2_AuxBus *unk34;
-} RvS2_SynthView;
+    AuxBus *unk34;
+} SynthView;
 
 typedef struct {
     s32 unk0;
@@ -49,7 +49,7 @@ typedef struct {
     u8 pad9[0x17];
     u8 *unk20[2];
     u8 *unk28[2];
-} RvS2_FxPullRing;
+} FxPullRing;
 
 extern u8 D_807FF0F4[];
 extern u8 D_807FF0F6[];
@@ -61,7 +61,7 @@ Acmd *_n_filterBuffer();
 
 Acmd *n_alFxPull(s32 arg0, Acmd *arg1, s32 arg2) {
     Acmd *sp84;
-    RvS2_FxPullRing *sp80;
+    FxPullRing *sp80;
     s16 sp7E;
     s16 sp7C;
     s16 sp7A;
@@ -89,7 +89,7 @@ Acmd *n_alFxPull(s32 arg0, Acmd *arg1, s32 arg2) {
     Acmd *sp24;
 
     sp84 = arg1;
-    sp80 = ((RvS2_SynthView *)n_syn)->unk34[arg2].unk20;
+    sp80 = ((SynthView *)n_syn)->unk34[arg2].unk20;
     sp64 = NULL;
     sp58 = 1;
     sp84 = n_alAuxBusPull(arg0, arg1, arg2, &sp58);

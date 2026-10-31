@@ -35,8 +35,8 @@ void actorScriptStart(void *, s32);
 s32 camIsCutsceneActive();
 void camStartPath(void *, s32, s32);
 s32 flagGet(s32, s32);
-s32 func_806119A0();
-f32 func_806119FC();
+s32 randomLcgNext();
+f32 randomFloat();
 void func_8067AB20(s32, s32, s32, s32, void *, s32);
 void gfxSetBackgroundBlend(f32);
 void lightSetColor(f32, f32, f32, s32);
@@ -143,8 +143,8 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         D_80033F54 += 2;
                     } else {
                         var_a1 = 0;
-                        var_a0_2 = (s32)(func_806119FC(0) * 10.0f);
-                        D_80033F52 = (func_806119A0() & 0x7F) + 0x12C;
+                        var_a0_2 = (s32)(randomFloat(0) * 10.0f);
+                        D_80033F52 = (randomLcgNext() & 0x7F) + 0x12C;
                         D_80033F54 = 0;
                         if (D_80033F54 && D_80033F54) {}
                         if (var_a0_2 >= 0xB) {

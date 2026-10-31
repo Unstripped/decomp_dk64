@@ -606,10 +606,10 @@ typedef struct H1ActorB {
 void func_8072FDD4(ProxPath *, f32, u8 *, f32 *);
 void proxPathGetSegmentMatrices(Actor *, u8, u8, u8, void **, void **);
 void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
-void func_80730408(H1ActorB *, H1ActorState *, ProxPath *, u8, f32);
+void proxPathActorFollowSpline(H1ActorB *, H1ActorState *, ProxPath *, u8, f32);
 
 #ifdef NON_MATCHING
-void func_807300BC(H1ActorB **arg0) {
+void proxPathFollowerStep(H1ActorB **arg0) {
     H1ActorB *actor;
     H1ActorState *state;
     u8 idx;
@@ -681,14 +681,14 @@ void func_807300BC(H1ActorB **arg0) {
         }
         break;
     case 1:
-        func_80730408(actor, state, node, idx, t);
+        proxPathActorFollowSpline(actor, state, node, idx, t);
         actorGetNodePos(actor, 1, &actor->unk7C, &actor->unk80, &actor->unk84);
         break;
     }
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_807300BC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/proxPathFollowerStep.s")
 #endif
 
 void splineSetBasisTension(f32);
@@ -696,7 +696,7 @@ void func_80611A70(f32, f32, f32 *, f32 *);
 void proxPathInterpolatePosition(u8, f32, ProxPath *, f32 *, f32 *, f32 *);
 
 #ifdef NON_MATCHING
-void func_80730408(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg2, u8 arg3, f32 arg4) {
+void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg2, u8 arg3, f32 arg4) {
     f32 one;
     f32 pad1[20];
     f32 p2[3];
@@ -797,7 +797,7 @@ void func_80730408(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg2, u8 arg3, 
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_80730408.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/proxPathActorFollowSpline.s")
 #endif
 
 f32 splineEvalCubic(f64, f32, f32, f32, f32);

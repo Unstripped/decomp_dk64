@@ -200,7 +200,7 @@ s32 textGetFontHeight(s32);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
 void func_806F0C18(void *, s16 *);
 void func_80613C48(void *, s16, f32, f32);
-void func_80614644(void *, void *, s32);
+void controllerApplyMotionWindow(void *, void *, s32);
 extern f32 D_8002D90C;
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -209,8 +209,8 @@ void sfxPlayFromActorDirect(void *, s32, s32, f32, s32, s32);
 void sfxStopSlotSound();
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
-s32 func_806119A0(void);
-f32 func_806119FC(void);
+s32 randomLcgNext(void);
+f32 randomFloat(void);
 void effectSpriteMatrixUpdate();
 extern u8 D_8071FFD4[];
 void func_80714944(s32);
@@ -226,7 +226,7 @@ extern Actor *D_807FBB44;
 s32 randomNonNegative(void);
 s32 actorSpawn(s32, s32);
 void actorScriptStart();
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 
 Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *arg1) {
     Struct_7548 *temp_v0 = arg1->unk174;
@@ -410,7 +410,7 @@ void bonusSpawnTarget(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) 
     if (actorSpawn(0xBA, var_a3 ? 0x32 : 0x33) != 0) {
         temp_v1 = D_807FBB44->unk174;
         actorScriptStart(D_807FBB44, var_a3 ? 0x211 : 0x20F);
-        func_80614D00(D_807FBB44, arg4->unk2C, 0.0f);
+        scriptSetActorRampTarget(D_807FBB44, arg4->unk2C, 0.0f);
         D_807FBB44->unk7C = arg0;
         D_807FBB44->unk80 = arg1 - 0x19;
         D_807FBB44->unk84 = arg2;
@@ -942,7 +942,7 @@ void func_80028E3C(void) {
         D_807FBB40->unkC4 = -10.0f;
         D_807FBB40->unk6A &= 0xFFFE;
         func_80613C48(D_807FBB40, 0x688, 0.0f, 0.0f);
-        func_80614D00(D_807FBB40, 1.0, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 1.0, 0.0f);
     }
     if (p40->unk10 == -1 && t0->unk4 == 0) {
         if (p40->unkC < 220.0f) {
@@ -990,7 +990,7 @@ void func_80028E3C(void) {
     D_807FBB40->unkE8 = func_80612790(D_807FBB40->unkE6) * temp;
     temp = temp * 0.006666667f;
     temp = (temp < 1.0f) ? 1.0f : ((temp > 2.5f) ? 2.5f : temp);
-    func_80614D00(D_807FBB40, temp, 0.0f);
+    scriptSetActorRampTarget(D_807FBB40, temp, 0.0f);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
@@ -1401,7 +1401,7 @@ void func_8002AAA4(void) {
     }
     if ((sp54 == 0x239 || sp54 == 0x23B || (sp54 == 0x238 && sp50 != NULL && sp50->unk4 > 48.0f)) && D_807FBB85 == 1) {
         actorScriptStart(D_807FBB40, 0x23C);
-        sp64->unk6 = ((func_806119A0() & 7) + 6) * D_8002D900;
+        sp64->unk6 = ((randomLcgNext() & 7) + 6) * D_8002D900;
     }
     if (sp54 == 0x23A) {
         sp64->unk6 -= 1;
@@ -1524,13 +1524,13 @@ void func_8002B920(void) {
                 s16 angle;
 
                 if (temp_s1->unkC > 0) {
-                    temp_s1->unkE = (func_806119A0() & 7) + 0xA;
+                    temp_s1->unkE = (randomLcgNext() & 7) + 0xA;
                 } else {
-                    temp_s1->unkE = (func_806119A0() & 0x3F) + 0xF;
+                    temp_s1->unkE = (randomLcgNext() & 0x3F) + 0xF;
                 }
                 angle = mathAngleBetweenPoints2D(temp_s2->unk0, temp_s2->unk4, temp_s1->unk4, temp_s1->unk8);
-                angle += ((func_806119A0() & 7) << 8) + 0x400;
-                sp3C = func_806119FC() * 70.0;
+                angle += ((randomLcgNext() & 7) << 8) + 0x400;
+                sp3C = randomFloat() * 70.0;
                 temp_s1->unk4 = func_80612794(angle) * sp3C + temp_s2->unk0;
                 temp_s1->unk8 = func_80612790(angle) * sp3C + temp_s2->unk4;
             }
@@ -1627,7 +1627,7 @@ void func_8002BE44(void) {
             if (var_a1 != sp24->unk10) {
                 func_80613C48(D_807FBB40, var_a1, 0, 0);
             }
-            func_80614644(D_807FBB40, sp24, var_t0->unk4);
+            controllerApplyMotionWindow(D_807FBB40, sp24, var_t0->unk4);
         }
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -1754,9 +1754,9 @@ void func_8002BF98(void) {
                 temp_s0 = (LargeB4Spawn *)D_807FBB44->unk174;
                 temp_s0->unk0 = D_807FBB40;
                 temp_s0->unkC = 2;
-                temp_s0->unkC = (func_806119A0() & 0x3F) + 0xF;
-                temp_s0->unk4 = func_806119A0() & 0xF;
-                temp_s0->unk8 = func_806119FC() * 40.0 + 15.0;
+                temp_s0->unkC = (randomLcgNext() & 0x3F) + 0xF;
+                temp_s0->unk4 = randomLcgNext() & 0xF;
+                temp_s0->unk8 = randomFloat() * 40.0 + 15.0;
                 sp5A = temp_s0->unk4 * 0xC8 - 0x578;
                 D_807FBB44->unk7C = func_80612794(sp5A) * temp_s0->unk8 + temp_s5->unk4;
                 D_807FBB44->unk80 = D_807FBB40->unk80;
@@ -1901,9 +1901,9 @@ void func_8002C8EC(void) {
         D_807FBB40->unk84 += func_80612790(D_807FBB40->unkE6) * sp40;
         temp_s2->unkC--;
         if (temp_s2->unkC <= 0) {
-            temp_s2->unkC = (func_806119A0() & 0x3F) + 0xF;
-            temp_s2->unk4 += (func_806119A0() & 0xF) + 3;
-            temp_s2->unk8 = 40.0 * func_806119FC() + 10.0;
+            temp_s2->unkC = (randomLcgNext() & 0x3F) + 0xF;
+            temp_s2->unk4 += (randomLcgNext() & 0xF) + 3;
+            temp_s2->unk8 = 40.0 * randomFloat() + 10.0;
         }
         if (D_807FBB85 == 1) {
             D_807FBB40->unk128 = 0xFF;

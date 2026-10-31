@@ -258,7 +258,7 @@ extern s32 D_807F6004;
 void hashTableInit(void);
 void csModelIdTableReset(void);
 void func_8065051C(void);
-u8 func_8060E3B0(u16, u8);
+u8 eepromReadChecksumBit(u16, u8);
 s32 modelSkipListContains(s16);
 s32 func_807315D4(s16, s16);
 s32 func_8063253C(s16, s32);
@@ -307,7 +307,7 @@ void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
                 found = 0;
                 used = 0;
                 if (arg2 && modelTypeIsCounted(entry->unk28)) {
-                    found = func_8060E3B0(arg3 + counter, arg4);
+                    found = eepromReadChecksumBit(arg3 + counter, arg4);
                     used = 1;
                 }
                 if (found == 0 && modelSkipListContains(entry->unk28) == 0 &&

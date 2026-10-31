@@ -40,7 +40,7 @@ void animSetLoopLimit(void *, s32, s32);
 void animSetSpeed(void *, s32, f32);
 void animSetFinished(void *, s32, s32);
 s32 animIsPlaying(void *, s32, s32);
-s32 func_80613448(Actor *);
+s32 controllerLookupStateByHash(Actor *);
 s32 func_8061CB50(void);
 void func_8061F0B0(void *, s32, s32);
 f32 func_80612794(s16);
@@ -101,7 +101,7 @@ void func_8069E774(void) {
         D_807FBB40->unk16A = 0xFF;
         D_807FBB40->unk16B = 0xFF;
         D_807FBB40->unk16C = 0xFF;
-        switch (func_80613448(D_807FBB40)) {
+        switch (controllerLookupStateByHash(D_807FBB40)) {
         case 0xAD:
             node->unk10 = 0xFF;
             node->unk11 = 0xFF;

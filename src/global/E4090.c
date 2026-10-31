@@ -663,7 +663,7 @@ extern f32 D_80753DC8[];
 extern f32 D_80753DE4[];
 extern u16 *D_807FBB54;
 void actorScriptStart(void *, s32);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 void proxPathAdvance(f32);
 s16 mathAngleDistance(s16, s16);
 void func_806E1630(void);
@@ -863,14 +863,14 @@ void func_806E0FAC(void) {
                     if (G22_A->unk4->unk64 != temp_a1_2) {
                         actorScriptStart(D_807FBB40, temp_a1_2);
                     }
-                    func_80614D00(D_807FBB40, (f32)((f64)var_fv0 / 80.0), 0.0f);
+                    scriptSetActorRampTarget(D_807FBB40, (f32)((f64)var_fv0 / 80.0), 0.0f);
                 }
             } else {
                 temp_a1_2 = D_807FBB54[G22_A->unk58 + 0x52];
                 if (G22_A->unk4->unk64 != temp_a1_2) {
                     actorScriptStart(D_807FBB40, temp_a1_2);
                 }
-                func_80614D00(D_807FBB40, (f32)((f64)var_fv0 / 80.0), 0.0f);
+                scriptSetActorRampTarget(D_807FBB40, (f32)((f64)var_fv0 / 80.0), 0.0f);
             }
         }
     } else {
@@ -2114,8 +2114,8 @@ extern u8 D_807FCAC8[];
 s32 func_806E4580(void);
 s32 mathAngleInArcWithMargin();
 s32 collisionTestSphere(f32, f32, f32, f32, void *, void *, s32, s32);
-void func_80618104(void *);
-void func_80617770(void *, s32, s32);
+void projectileTrySpawnFromSlot(void *);
+void sfxPlayScriptActorSoundForPlayer(void *, s32, s32);
 void func_806F0B34(void *);
 void func_806EAB44();
 
@@ -2340,8 +2340,8 @@ void func_806E4D84(void) {
 
 void func_806E4E88(void) {
     if ((G25_PAD(D_807FD63C, u16) & 1) && func_806E2CC4()) {
-        func_80618104(D_807FBB40);
-        func_80617770(D_807FBB40, 0x21, 0x19);
+        projectileTrySpawnFromSlot(D_807FBB40);
+        sfxPlayScriptActorSoundForPlayer(D_807FBB40, 0x21, 0x19);
     }
     if (G25_PAD(D_807FD63C, u16) & 2) {
         if (D_80767CC0 - G25_P->unk60 < 0xF) {
@@ -2361,8 +2361,8 @@ void func_806E4E88(void) {
 
 void func_806E5044(void) {
     if ((G25_PAD(D_807FD63C, u16) & 1) && func_806E2CC4()) {
-        func_80618104(D_807FBB40);
-        func_80617770(D_807FBB40, 0x21, 0x19);
+        projectileTrySpawnFromSlot(D_807FBB40);
+        sfxPlayScriptActorSoundForPlayer(D_807FBB40, 0x21, 0x19);
     }
     if (G25_PAD(D_807FD63C, u16) & 2) {
         if (D_80767CC0 - G25_P->unk60 < 0xF) {
@@ -2767,7 +2767,7 @@ void func_806E5D60(void) {
             case 2:
                 func_80614E78(D_807FBB40, 0x17);
                 func_80613AF8(D_807FBB40, 0x18, 0.0f, 3.0f);
-                func_80614D00(D_807FBB40, 1.35f, 0.0f);
+                scriptSetActorRampTarget(D_807FBB40, 1.35f, 0.0f);
                 break;
             case 3:
                 func_80614E78(D_807FBB40, 0x19);
@@ -2775,7 +2775,7 @@ void func_806E5D60(void) {
             default:
                 func_80614E78(D_807FBB40, 0x16);
                 func_80613AF8(D_807FBB40, 0x17, 0.0f, 3.0f);
-                func_80614D00(D_807FBB40, 1.35f, 0.0f);
+                scriptSetActorRampTarget(D_807FBB40, 1.35f, 0.0f);
                 break;
         }
         G25_A->unk154 = 0x1C;
@@ -3121,7 +3121,7 @@ void func_806E6F74(void) {
 
 void func_806E6FF0(void) {
     G27_P->unk58 = D_80767CC0;
-    func_80614D00(D_807FBB40, 2.0f, 0.0f);
+    scriptSetActorRampTarget(D_807FBB40, 2.0f, 0.0f);
     func_80614E78(D_807FBB40, 0x38);
     G27_A->unk155 = 7;
 }

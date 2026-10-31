@@ -4,7 +4,7 @@ typedef struct G05CbArg2 {
     /* 0x4 */ Actor *unk4;
 } G05CbArg2;
 
-f32 func_80611850(f32);
+f32 acosApprox(f32);
 f32 asinApprox(f32);
 void func_8067AA58(Actor *, Actor *, f32, f32);
 
@@ -46,5 +46,5 @@ void func_806CF138(G05CbArg2 *arg0) {
     sp38 = sqrtf(sp4C * sp4C + sp48 * sp48);
     sp34 = sqrtf(sp44 * sp44 + sp40 * sp40);
     if (sp4C) {} // FAKE: dead test steers uopt coloring
-    func_8067AA58(arg0->unk0, arg0->unk4, sp54, 90.0 - func_80611850(sp3C / (sp38 * sp34)) * 57.29577637f);
+    func_8067AA58(arg0->unk0, arg0->unk4, sp54, 90.0 - acosApprox(sp3C / (sp38 * sp34)) * 57.29577637f);
 }

@@ -65,7 +65,7 @@ typedef struct BossFollowerActor {
 
 void func_80613C48(void *, s16, f32, f32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void func_80614644(void *, void *, f32);
+void controllerApplyMotionWindow(void *, void *, f32);
 void actorDespawn(void *);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
@@ -105,7 +105,7 @@ void func_80032B08(void) {
         ACTOR->unkE4 = D_80035B2C;
         if (sub4_0 != NULL) {
             if (D_80035B3C != sub4_0->unk4) {
-                func_80614644(ACTOR, sub4_0, D_80035B3C);
+                controllerApplyMotionWindow(ACTOR, sub4_0, D_80035B3C);
             }
         }
     } else {
@@ -116,7 +116,7 @@ void func_80032B08(void) {
                 func_80613C48(ACTOR, v0, 0.0f, 0.0f);
                 sfxPlayOnFreeSlot(0x38D, 0x7D00, 63.0f, 1.0f, 0, 0);
             } else {
-                func_80614644(ACTOR, sub4_0, sub4_0->unk4 + 0.75f);
+                controllerApplyMotionWindow(ACTOR, sub4_0, sub4_0->unk4 + 0.75f);
             }
             if (sub174->unk4 == 1) {
                 if (sub4_0->unk4 > 24.0f) {

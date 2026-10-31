@@ -74,7 +74,7 @@ extern s16 *D_807ECE90;
 
 void *heapAlloc(s32);
 
-void func_8060B5C0(s32 arg0) {
+void recordInitPositionBuffers(s32 arg0) {
     s32 temp_s0;
 
     if (D_807463A8 == NULL) {
@@ -122,13 +122,13 @@ void func_8060B700(void) {
 
 s32 assetLoad(s32, s32, s32, s32);
 void assetFreeBuffer(s32, s32, s32);
-void func_8060B5C0(s32);
+void recordInitPositionBuffers(s32);
 
 void func_8060B750(s32 arg0) {
     s32 sp1C;
 
     sp1C = assetLoad(0x11, arg0, 1, 1);
-    func_8060B5C0(sp1C);
+    recordInitPositionBuffers(sp1C);
     assetFreeBuffer(sp1C, 0xF8, 0x33);
     D_807ECE98 = D_807463A8;
     D_807ECE94 = D_807ECE90;

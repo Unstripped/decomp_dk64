@@ -28,7 +28,7 @@ typedef struct Menu3A_Struct174 {
 } Menu3A_Struct174;
 s32 func_800297A8(s32 arg0);
 void func_80030894(void *, void *, s32, s32, f32, s32, s32);
-void func_8060DC3C(s32, s32);
+void eepromLoadPlayerData(s32, s32);
 s32 flagGet(s32, s32);
 s32 menuCalculateGamePercentage(void);
 int osPiReadIo(u32, u32 *);
@@ -50,7 +50,7 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
     func_80030894(temp_s6, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     func_80030894(temp_s6, &D_8072052C, 0x76, 0x91, 0.6f, 2, 9);
     D_80033F4C = 1600.0f;
-    func_8060DC3C((u8)D_80033F48, 0);
+    eepromLoadPlayerData((u8)D_80033F48, 0);
     D_80033804 = 1;
     q = &D_807505B2;
     p = &D_80033805;

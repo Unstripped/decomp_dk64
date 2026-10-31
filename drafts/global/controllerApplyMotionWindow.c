@@ -1,4 +1,4 @@
-// func_80614644 (src/global/17B90.c): stage 4; leaf function frame 0; permuter score 845 (down from 1525); initial float registers resolved by load order; new_var = 0xFFF7 narrow formal idiom hoisted -9 constant into t2 and CSEd across 5 branches; remaining diff is t1 vs t2 regalloc and zero-sub scheduling
+// controllerApplyMotionWindow (src/global/17B90.c): stage 4; leaf function frame 0; permuter score 845 (down from 1525); initial float registers resolved by load order; new_var = 0xFFF7 narrow formal idiom hoisted -9 constant into t2 and CSEd across 5 branches; remaining diff is t1 vs t2 regalloc and zero-sub scheduling
 typedef struct {
     void *unk0;
     f32 unk4;
@@ -17,11 +17,11 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvR1_MotionWindow;
+} MotionWindow;
 
 typedef struct {
-    RvR1_MotionWindow *unk0;
-    RvR1_MotionWindow *unk4;
+    MotionWindow *unk0;
+    MotionWindow *unk4;
     void *unk8;
     void *unkC;
     f32 unk10;
@@ -44,19 +44,19 @@ typedef struct {
     s32 unk7C;
     f32 unk80;
     s32 unk84;
-} RvR1_MotionCore;
+} MotionCore;
 
 typedef struct {
     u8 pad0[4];
-    RvR1_MotionCore *unk4;
-} RvR1_MotionOwner;
+    MotionCore *unk4;
+} MotionOwner;
 
-typedef struct { u8 pad[0x14]; f32 a; f32 b; } RvE_State;
-typedef struct { u8 pad[4]; void *holder; } RvE_Controller;
+typedef struct { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
+typedef struct { u8 pad[4]; void *holder; } AnimScaleController;
 
-void func_80614644(RvE_Controller *arg0_raw, RvE_State *arg1_raw, f32 arg2) {
-    RvR1_MotionOwner *arg0 = (RvR1_MotionOwner *)arg0_raw;
-    RvR1_MotionWindow *arg1 = (RvR1_MotionWindow *)arg1_raw;
+void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *arg1_raw, f32 arg2) {
+    MotionOwner *arg0 = (MotionOwner *)arg0_raw;
+    MotionWindow *arg1 = (MotionWindow *)arg1_raw;
     s8 new_var;
     f32 temp_fa0;
     f32 temp_fa0_2;
@@ -71,7 +71,7 @@ void func_80614644(RvE_Controller *arg0_raw, RvE_State *arg1_raw, f32 arg2) {
     s32 var_a3;
     s32 var_v1;
     u16 temp_v1;
-    RvR1_MotionCore *temp_v0;
+    MotionCore *temp_v0;
 
     temp_v0 = arg0->unk4;
     temp_v1 = arg1->unk1C;

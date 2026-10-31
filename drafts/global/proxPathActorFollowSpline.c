@@ -1,4 +1,4 @@
-// func_80730408 (src/global/133A90.c): Stage 5: 441/441 insns, frame 0x288 exact, all 28 stack slots exact match (target f64 temp@64, idx@72, savedScale@208 matched via pad2[4], int idx before savedScale, and deadsweep if (D_807F6000 && D_807F6000) {}); remaining diff pure regalloc (idx v1 vs v0 and temporary registers)
+// proxPathActorFollowSpline (src/global/133A90.c): Stage 5: 441/441 insns, frame 0x288 exact, all 28 stack slots exact match (target f64 temp@64, idx@72, savedScale@208 matched via pad2[4], int idx before savedScale, and deadsweep if (D_807F6000 && D_807F6000) {}); remaining diff pure regalloc (idx v1 vs v0 and temporary registers)
 typedef struct H1ActorB {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ ActorSub4 *unk4;
@@ -26,7 +26,7 @@ void func_80611A70(f32, f32, f32 *, f32 *);
 void proxPathInterpolatePosition(u8, f32, ProxPath *, f32 *, f32 *, f32 *);
 void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
 
-void func_80730408(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg2, u8 arg3, f32 arg4) {
+void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg2, u8 arg3, f32 arg4) {
     f32 one;
     f32 pad1[20];
     f32 p2[3];

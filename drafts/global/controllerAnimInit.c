@@ -1,4 +1,4 @@
-// func_806134B4 (src/global/17B90.c): stage 5: frame 0x28, 4 saved regs match target; score 245 in permuter; u16 arg1 matches entry home store and andi mask; diff only in delay-slot store scheduling of unk80 vs unk48
+// controllerAnimInit (src/global/17B90.c): stage 5: frame 0x28, 4 saved regs match target; score 245 in permuter; u16 arg1 matches entry home store and andi mask; diff only in delay-slot store scheduling of unk80 vs unk48
 #include "common.h"
 
 typedef struct {
@@ -17,13 +17,13 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvT2_SlotB;
+} AnimSlotInit;
 
 typedef struct {
-    RvT2_SlotB *unk0;
-    RvT2_SlotB *unk4;
-    RvT2_SlotB *unk8;
-    RvT2_SlotB *unkC;
+    AnimSlotInit *unk0;
+    AnimSlotInit *unk4;
+    AnimSlotInit *unk8;
+    AnimSlotInit *unkC;
     f32 unk10;
     Mtx *unk14;
     Mtx *unk18;
@@ -51,25 +51,25 @@ typedef struct {
     f32 unk80;
     s32 unk84;
     s32 unk88;
-} RvT2_AnimB;
+} AnimStateInit;
 
 typedef struct {
     void *unk0;
-    RvT2_AnimB *unk4;
+    AnimStateInit *unk4;
     u8 pad8[4];
     f32 unkC[4][4];
     s32 unk4C;
     s32 unk50;
-} RvT2_ControllerB;
+} AnimControllerInit;
 
 void *func_80612E90(void *, s16, s32);
 void *heapAlloc(s32);
 
-s32 func_806134B4(RvT2_ControllerB *arg0, u16 arg1) {
+s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
     void *resource;
     s32 i;
     void *alloc;
-    RvT2_AnimB *anim;
+    AnimStateInit *anim;
 
     resource = func_80612E90(arg0, arg1, 0);
     if (resource != NULL) {
@@ -78,11 +78,11 @@ s32 func_806134B4(RvT2_ControllerB *arg0, u16 arg1) {
         arg0->unk50 = 0;
 
         alloc = heapAlloc((*(u8 *)((u8 *)resource + 0x20) << 7) + 0x170);
-        arg0->unk4 = (RvT2_AnimB *)alloc;
-        arg0->unk4->unk0 = (RvT2_SlotB *)((u8 *)alloc + 0x90);
-        arg0->unk4->unk4 = (RvT2_SlotB *)((u8 *)alloc + 0xC8);
-        arg0->unk4->unk8 = (RvT2_SlotB *)((u8 *)alloc + 0x100);
-        arg0->unk4->unkC = (RvT2_SlotB *)((u8 *)alloc + 0x138);
+        arg0->unk4 = (AnimStateInit *)alloc;
+        arg0->unk4->unk0 = (AnimSlotInit *)((u8 *)alloc + 0x90);
+        arg0->unk4->unk4 = (AnimSlotInit *)((u8 *)alloc + 0xC8);
+        arg0->unk4->unk8 = (AnimSlotInit *)((u8 *)alloc + 0x100);
+        arg0->unk4->unkC = (AnimSlotInit *)((u8 *)alloc + 0x138);
         arg0->unk4->unk14 = (Mtx *)((u8 *)alloc + 0x170);
         arg0->unk4->unk18 = (Mtx *)((u8 *)arg0->unk4->unk14 + (*(u8 *)((u8 *)resource + 0x20) << 6));
 

@@ -63,7 +63,7 @@ void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxSetVolumeAndPan(u8, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 s32 actorAngleInArc(Actor *, s16);
-f32 func_806119FC(void);
+f32 randomFloat(void);
 void func_80714950(s32);
 void func_8071496C(s16);
 void func_8071498C(void *);
@@ -302,9 +302,9 @@ void func_8069B908(void) {
                 func_80714CC0(&D_80720340, 1.6f, D_807FBB40->unk7C + spAC,
                               D_807FBB40->unk80 + spB0, D_807FBB40->unk84 + spA4);
                 if (D_807FBB40->unk58 == 0x3D) {
-                    spAC = (2.0f * func_806119FC()) - 1.0f;
-                    spB0 = (2.0f * func_806119FC()) - 1.0f;
-                    spA4 = (2.0f * func_806119FC()) - 1.0f;
+                    spAC = (2.0f * randomFloat()) - 1.0f;
+                    spB0 = (2.0f * randomFloat()) - 1.0f;
+                    spA4 = (2.0f * randomFloat()) - 1.0f;
                     spAC *= 30.0f;
                     spB0 *= 30.0f;
                     spA4 *= 30.0f;
@@ -316,7 +316,7 @@ void func_8069B908(void) {
                     func_80714950(2);
                     sp78 = randomNonNegative();
                     func_80714CC0((void *)((s32 *)&sp9C)[(sp78 >> 15) % 2],
-                                  (f32)(((f64)func_806119FC() * 0.5) + 0.2),
+                                  (f32)(((f64)randomFloat() * 0.5) + 0.2),
                                   D_807FBB40->unk7C + spAC, D_807FBB40->unk80 + spB0,
                                   D_807FBB40->unk84 + spA4);
                 }

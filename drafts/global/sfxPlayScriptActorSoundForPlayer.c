@@ -1,12 +1,12 @@
-// func_80617770 (src/global/19A00.c): stage 4: 0x40 frame matches, s0/ra saved, 127 insns match, diff 520; pitch in t-reg, var_v1 at 0x3c; remaining diff is regalloc
-drafts/global/func_80617770.c
-// func_80617770 (src/global/19A00.c): stage 4: 0x40/0x48 frame, s0 saved, dynamic 0xFF * 0.5 FP conversion reproduced; remaining diff is uninitialized pitch register allocation in branch
-typedef struct RvH_SoundState {
+// sfxPlayScriptActorSoundForPlayer (src/global/19A00.c): stage 4: 0x40 frame matches, s0/ra saved, 127 insns match, diff 520; pitch in t-reg, var_v1 at 0x3c; remaining diff is regalloc
+drafts/global/sfxPlayScriptActorSoundForPlayer.c
+// sfxPlayScriptActorSoundForPlayer (src/global/19A00.c): stage 4: 0x40/0x48 frame, s0 saved, dynamic 0xFF * 0.5 FP conversion reproduced; remaining diff is uninitialized pitch register allocation in branch
+typedef struct ScriptSoundState {
     u8 pad0[0xC4];
     s32 unkC4;
     u8 padC8[0xDC];
     u8 unk1A4;
-} RvH_SoundState;
+} ScriptSoundState;
 
 typedef struct RvH_PlayerState7770 {
     u8 pad0[0x2C0];
@@ -18,7 +18,7 @@ extern u8 *D_807FC924;
 void n_alSndpStop(s32);
 void sfxPlayAtPositionForPlayer(f32, f32, f32, s16, s32, s32, s32, s32, f32);
 
-void func_80617770(Actor *arg0, s16 arg1, u8 arg2) {
+void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     u8 var_v1;
     s32 pitch;
     s32 temp_v0;
@@ -26,11 +26,11 @@ void func_80617770(Actor *arg0, s16 arg1, u8 arg2) {
     arg1 = D_807FBB5C[(arg1 * 7 + arg0->unk58 - 2) & 0xFFFF];
     var_v1 = 0xFF;
     if (arg1 == 0) {
-        if (((RvH_SoundState *)D_807FD580)->unkC4 != 0) {
-            n_alSndpStop(((RvH_SoundState *)D_807FD580)->unkC4);
+        if (((ScriptSoundState *)D_807FD580)->unkC4 != 0) {
+            n_alSndpStop(((ScriptSoundState *)D_807FD580)->unkC4);
         }
     }
-    temp_v0 = ((RvH_PlayerState7770 *)(D_807FC924 + ((RvH_SoundState *)D_807FD580)->unk1A4 * 0x2F0))->unk2C0;
+    temp_v0 = ((RvH_PlayerState7770 *)(D_807FC924 + ((ScriptSoundState *)D_807FD580)->unk1A4 * 0x2F0))->unk2C0;
     if (temp_v0 == 2) {
         pitch = 0x7F;
         temp_v0 = 10;

@@ -12,7 +12,7 @@ extern f32 gCsPosZ;
 extern CsPlayer *D_807FC924;
 extern u8 D_8071FF18[];
 extern u8 D_8071FFA0[];
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 void func_80714950(s32);
 void func_8071498C(void *);
 void func_80717D4C(void);
@@ -70,7 +70,7 @@ void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
             modelSlotGetNodePos(csId, 1, i, &x, &y, &z);
             func_807149B8(1);
             func_80714998(2);
-            func_80714950(-(s32)((u32)func_806119A0() / 10000 % 50) - 0x14);
+            func_80714950(-(s32)((u32)randomLcgNext() / 10000 % 50) - 0x14);
             func_807149C8(0xE1, 0x87, 0x38, 0xFF);
             func_8071498C(func_80717D4C);
             func_80714CC0(D_8071FF18, 0.5f, x, y + 2.0f, z);
@@ -97,8 +97,8 @@ void csCmdFlickerLight(CsState *cs, s16 csId, s16 b, s16 c) {
         t = 1.0f;
     }
     modelSlotGetNodePos(csId, 1, 1, &x, &y, &z);
-    g = (u32)func_806119A0() / 10000 % 200 + 0x37;
-    lightAdd(x, y, z, 0.0f, 0.0f, 0.0f, t * 200.0, 0, 0, g, (u32)func_806119A0() / 10000 % 80 + 0xAF);
+    g = (u32)randomLcgNext() / 10000 % 200 + 0x37;
+    lightAdd(x, y, z, 0.0f, 0.0f, 0.0f, t * 200.0, 0, 0, g, (u32)randomLcgNext() / 10000 % 80 + 0xAF);
     (*p)++;
     if (*p == 0x14) {
         *p = 0;
@@ -123,9 +123,9 @@ void csCmdBouncePos(CsState *cs, s16 csId, s16 b, s16 c) {
         n = heapAlloc(0x10);
         *(CsBounce **)cs = n;
         n->vy = 7.0f;
-        n->angle = (u32)func_806119A0() / 10000 % 1548 + 0x5DC;
-        n->speed = (u32)func_806119A0() / 10000 % 100 / 40.0 + 2.5;
-        gCsScale = (u32)func_806119A0() / 10000 % 100 / 500.0 + 0.14;
+        n->angle = (u32)randomLcgNext() / 10000 % 1548 + 0x5DC;
+        n->speed = (u32)randomLcgNext() / 10000 % 100 / 40.0 + 2.5;
+        gCsScale = (u32)randomLcgNext() / 10000 % 100 / 500.0 + 0.14;
     }
     p = *(CsBounce **)cs;
     groundY = gCsPosY;
@@ -148,7 +148,7 @@ void csCmdPeriodicNodeEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
 
     if (D_8076A064 % c == 0) {
-        idx = (u32)func_806119A0() / 10000 % b + 1;
+        idx = (u32)randomLcgNext() / 10000 % b + 1;
         func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
         func_80714950(-0x78);
         func_8071498C(func_80717D4C);
@@ -163,7 +163,7 @@ void csPeriodicPointEffect(s32 a, s32 b, u32 c) {
     CsPoint3f *p;
 
     if (D_8076A064 % c == 0) {
-        idx = (u32)func_806119A0() / 10000 % b;
+        idx = (u32)randomLcgNext() / 10000 % b;
         func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
         func_80714950(-0x78);
         func_8071498C(func_80717D4C);
@@ -294,7 +294,7 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
     func_8071498C(func_8071A8B0);
     func_80714CC0(D_8071FE08, 1.5f, x, y, z);
     for (i = 0; i != 7; i++) {
-        r = (s32)((u32)func_806119A0() / 10000) % 3;
+        r = (s32)((u32)randomLcgNext() / 10000) % 3;
         func_807149B8(1);
         func_807149FC(10);
         func_8071498C(func_8071910C);
@@ -696,16 +696,16 @@ extern u8 D_80720A7C[];
 void csCmdRandomPointEffects(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     s32 sel;
 
-    if ((u32)func_806119A0() / 10000 % arg2 == 0) {
-        sel = (u32)func_806119A0() / 10000 % arg3;
+    if ((u32)randomLcgNext() / 10000 % arg2 == 0) {
+        sel = (u32)randomLcgNext() / 10000 % arg3;
         func_80714998(2);
         func_80714950(0x10064);
         func_8071498C(func_8071AADC);
         func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
         func_80714CC0(D_80720A7C, 1.2f, D_807F5FD4[0][sel].x, D_807F5FD4[0][sel].y, D_807F5FD4[0][sel].z);
     }
-    if ((u32)func_806119A0() / 10000 % arg2 == 0) {
-        sel = (u32)func_806119A0() / 10000 % arg3;
+    if ((u32)randomLcgNext() / 10000 % arg2 == 0) {
+        sel = (u32)randomLcgNext() / 10000 % arg3;
         func_80714998(2);
         func_80714950(0x10064);
         func_8071498C(func_8071AADC);
@@ -723,8 +723,8 @@ void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 idx;
     f32 y;
 
-    if ((func_806119A0() / 10000U) % 10U == 0) {
-        idx = (func_806119A0() / 10000U) % (u32)c;
+    if ((randomLcgNext() / 10000U) % 10U == 0) {
+        idx = (randomLcgNext() / 10000U) % (u32)c;
         y = D_807F5FD4[b][idx].y;
         if (collisionCheckGroundAtPoint(D_807F5FD4[b][idx].x, D_807F5FD4[b][idx].z, &y)) {
             func_80714950(y + 2.0);
@@ -757,7 +757,7 @@ void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 scale;
 
     for (i = 0; i < 20; i++) {
-        sel = (s32)(func_806119A0() / 10000U) % 4;
+        sel = (s32)(randomLcgNext() / 10000U) % 4;
         func_807149B8(1);
         func_807149FC(0x3C);
         func_8071498C((void *)func_8071910C);
@@ -780,9 +780,9 @@ void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
         func_80714CC0(p, 0.5f, gCsPosX, gCsPosY, gCsPosZ);
     }
     for (i = 0; i != 6; i++) {
-        x = (f32)((func_806119A0() / 1000U) % 150U) - 75.0;
-        z = (f32)((func_806119A0() / 1000U) % 150U) - 75.0;
-        scale = (f32)((func_806119A0() / 1000U) % 50U - 25.0) / 50.0;
+        x = (f32)((randomLcgNext() / 1000U) % 150U) - 75.0;
+        z = (f32)((randomLcgNext() / 1000U) % 150U) - 75.0;
+        scale = (f32)((randomLcgNext() / 1000U) % 50U - 25.0) / 50.0;
         if (i == 0) {
             func_80714950(0x100FA);
             func_8071498C((void *)func_8071A8B0);
@@ -801,8 +801,8 @@ void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
 void csCmdChanceNodeEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 sp24;
 
-    if ((func_806119A0() / 10000U) % (u32)b == 0) {
-        sp24 = (func_806119A0() / 10000U) % (u32)c;
+    if ((randomLcgNext() / 10000U) % (u32)b == 0) {
+        sp24 = (randomLcgNext() / 10000U) % (u32)c;
         func_80714998(2);
         func_80714950(0x10064);
         func_8071498C(func_8071AADC);
@@ -836,7 +836,7 @@ void func_80645700(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     p = *(CsFloatPair **)cs;
 
-    idx = (func_806119A0() / 10000U) % (u32)b;
+    idx = (randomLcgNext() / 10000U) % (u32)b;
     func_807149B8(1);
     func_80714998(3);
     func_80714950(3);
@@ -1343,11 +1343,11 @@ void func_80646978(CsState *cs, s16 csId, s16 b, s16 c) {
     i = 0;
     if (D_80748148 > 0) {
         do {
-            d0 = (u32)func_806119A0() / 1000 % 100;
+            d0 = (u32)randomLcgNext() / 1000 % 100;
             fx = d0 - 50.0;
-            d1 = (u32)func_806119A0() / 1000 % 100;
+            d1 = (u32)randomLcgNext() / 1000 % 100;
             fy = d1 - 50.0;
-            d0 = (u32)func_806119A0() / 1000 % 100;
+            d0 = (u32)randomLcgNext() / 1000 % 100;
             fz = d0 - 50.0;
             func_8071496C(i);
             func_807149B8(1);
@@ -1380,7 +1380,7 @@ void func_80646978(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-f32 func_806119FC(void);
+f32 randomFloat(void);
 
 void func_80646DC4(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 pad0;
@@ -1426,9 +1426,9 @@ void func_80646DC4(CsState *cs, s16 csId, s16 b, s16 c) {
                 modelSlotGetNodePos(csId, 1, i, &x, &y, &z);
                 y = (f32)((f64)y + 10.0);
             } else {
-                x = (f32)((f64)func_806119FC() * 30.0 + (f64)gCsPosX - 15.0);
-                y = (f32)((f64)func_806119FC() * 40.0 + (f64)gCsPosY);
-                z = (f32)((f64)func_806119FC() * 30.0 + (f64)gCsPosZ - 15.0);
+                x = (f32)((f64)randomFloat() * 30.0 + (f64)gCsPosX - 15.0);
+                y = (f32)((f64)randomFloat() * 40.0 + (f64)gCsPosY);
+                z = (f32)((f64)randomFloat() * 30.0 + (f64)gCsPosZ - 15.0);
             }
             actorListSpawnNodeEntry(0x5A, x, y, z, 0, scale, 0, vec);
             i++;
@@ -1472,10 +1472,10 @@ void func_80647218(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 sc;
 
     for (i = 0; i != 6; i++) {
-        dx = (f32)((u32)func_806119A0() / 1000 % 20) - 10.0;
-        dy = (f32)((u32)func_806119A0() / 1000 % 20) - 10.0;
-        dz = (f32)((u32)func_806119A0() / 1000 % 20) - 10.0;
-        sc = (u32)func_806119A0() / 1000 % 50 - 25.0;
+        dx = (f32)((u32)randomLcgNext() / 1000 % 20) - 10.0;
+        dy = (f32)((u32)randomLcgNext() / 1000 % 20) - 10.0;
+        dz = (f32)((u32)randomLcgNext() / 1000 % 20) - 10.0;
+        sc = (u32)randomLcgNext() / 1000 % 50 - 25.0;
         sc = sc / 50.0;
         func_80714950(-0xAA);
         func_8071498C(func_80717D4C);
@@ -1494,8 +1494,8 @@ void csCmdSpawnEffectAtRandomNode(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 y;
     f32 z;
 
-    node = (u32)func_806119A0() / 1000 % 10 + 1;
-    func_80714950(-0x28A - (u32)func_806119A0() / 1000 % 200);
+    node = (u32)randomLcgNext() / 1000 % 10 + 1;
+    func_80714950(-0x28A - (u32)randomLcgNext() / 1000 % 200);
     func_8071498C(func_80717D4C);
     func_807149B8(1);
     func_80714998(9);
@@ -1564,7 +1564,7 @@ void func_80647834(CsState *cs, s16 csId, s16 b, s16 c) {
         func_8071498C(func_8071910C);
         func_80714998(2);
         func_80714950(4);
-        t = (u32)func_806119A0() / 1000 % 80;
+        t = (u32)randomLcgNext() / 1000 % 80;
         func_80714CC0(D_80720EA4, 1.0f, gCsPosX, gCsPosY + t, gCsPosZ);
     }
     for (i = 1; i != 6; i++) {
@@ -1663,12 +1663,12 @@ void csCmdSpawnDustPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 dy;
     f32 dz;
 
-    if (!((func_806119A0() / 10000U) & 1)) {
+    if (!((randomLcgNext() / 10000U) & 1)) {
         i = 0;
         do {
-            dx = (f32)((func_806119A0() / 10000U) % 200U) * 0.25 - 2.0;
-            dy = (f32)((func_806119A0() / 10000U) % 200U) * 0.25 - 2.0;
-            dz = (f32)((func_806119A0() / 10000U) % 200U) * 0.25 - 2.0;
+            dx = (f32)((randomLcgNext() / 10000U) % 200U) * 0.25 - 2.0;
+            dy = (f32)((randomLcgNext() / 10000U) % 200U) * 0.25 - 2.0;
+            dz = (f32)((randomLcgNext() / 10000U) % 200U) * 0.25 - 2.0;
             func_807149B8(1);
             func_80714950(1);
             func_807149FC(-1);
@@ -1704,7 +1704,7 @@ void func_80648000(CsState *cs, s16 csId, s16 b, s16 c) {
         m[4][0] -= 10.0;
         guRotateF(m, gCsRotY, 0.0f, 1.0f, 0.0f);
     }
-    if ((S->unk9A & 1) && (func_806119A0() / 10000U) % 20U == 0) {
+    if ((S->unk9A & 1) && (randomLcgNext() / 10000U) % 20U == 0) {
         m = S->unk0;
         t = (randomNonNegative() >> 15) % 100;
         rx = t / 100.0;
@@ -1816,11 +1816,11 @@ void csCmdSpawnSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     if (n > 0) {
         r = b & 0xFF;
         do {
-            func_8071496C(func_806119FC() * (f32)(c >> 8));
+            func_8071496C(randomFloat() * (f32)(c >> 8));
             do {
-                x = 2.0f * func_806119FC() - 1.0f;
-                y = 2.0f * func_806119FC() - 1.0f;
-                z = 2.0f * func_806119FC() - 1.0f;
+                x = 2.0f * randomFloat() - 1.0f;
+                y = 2.0f * randomFloat() - 1.0f;
+                z = 2.0f * randomFloat() - 1.0f;
                 len = sqrtf(x * x + y * y + z * z);
             } while (len < 0.05f);
             len = r / len;
@@ -1884,9 +1884,9 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
             break;
     }
     for (i = 0; i < n; i++) {
-        dx = 2.0f * func_806119FC() - 1.0f;
-        dy = 2.0f * func_806119FC() - 1.0f;
-        dz = 2.0f * func_806119FC() - 1.0f;
+        dx = 2.0f * randomFloat() - 1.0f;
+        dy = 2.0f * randomFloat() - 1.0f;
+        dz = 2.0f * randomFloat() - 1.0f;
         dx *= spread;
         dy *= spread;
         dz *= spread;
@@ -1896,16 +1896,16 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
         func_8071498C(func_8071910C);
         func_80714998(2);
         func_80714950(2);
-        func_80714CC0(tbl, (func_806119FC() * 0.5 + 0.2) * scale, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
+        func_80714CC0(tbl, (randomFloat() * 0.5 + 0.2) * scale, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
         if (i < 6) {
-            dx = 2.0f * func_806119FC() - 1.0f;
-            dy = 2.0f * func_806119FC() - 1.0f;
-            dz = 2.0f * func_806119FC() - 1.0f;
+            dx = 2.0f * randomFloat() - 1.0f;
+            dy = 2.0f * randomFloat() - 1.0f;
+            dz = 2.0f * randomFloat() - 1.0f;
             dx *= spread;
             dy *= spread;
             dz *= spread;
             dy += base;
-            r = (u32)func_806119A0() / 1000 % 50 - 25.0;
+            r = (u32)randomLcgNext() / 1000 % 50 - 25.0;
             r = r / 50.0;
             if (i == 0) {
                 func_80714950(0x100FA);
@@ -2213,7 +2213,7 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
     ang = gCsRotY * 4096.0f / 360.0f;
     if (c == 2) {
         func_807149B8(0);
-        func_80714CC0(D_80720A7C, 0.5f, func_806119FC() * 35.0 + gCsPosX - 15.0, func_806119FC() * 35.0 + gCsPosY, func_806119FC() * 35.0 + gCsPosZ - 15.0);
+        func_80714CC0(D_80720A7C, 0.5f, randomFloat() * 35.0 + gCsPosX - 15.0, randomFloat() * 35.0 + gCsPosY, randomFloat() * 35.0 + gCsPosZ - 15.0);
         return;
     }
     p = (CsCamVecView *)D_807FC924->unk4->unk174;
@@ -3080,7 +3080,7 @@ extern Actor *D_807FBB44;
 Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 Actor *spawnNodeActivate(s16, u16);
 void actorScriptStart(void *, s32);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
     Actor *a;
     switch (b) {
@@ -3093,7 +3093,7 @@ void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
             if (a != NULL) {
                 a->unk60 |= 4;
                 actorScriptStart(a, 0x35C);
-                func_80614D00(a, 0.9f, 0.0f);
+                scriptSetActorRampTarget(a, 0.9f, 0.0f);
             }
             break;
         case 0:

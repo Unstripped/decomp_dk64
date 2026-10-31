@@ -73,7 +73,7 @@ if (found) {}
         slotQueueSetDisplayMode(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
         break;
     case 0x80:
-        func_8060DEC8();
+        eepromSavePlayerData();
         break;
     case 0x81:
         D_807F693E |= 1 << cmd->a;

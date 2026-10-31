@@ -1,4 +1,4 @@
-// func_80613794 (src/global/17B90.c): stage 5: frame 0x40 and 7 saved regs match; parked NON_MATCHING; loop bound reload into t8 vs v0 reuse and cmdList comparison order
+// controllerAnimFreeSub (src/global/17B90.c): stage 5: frame 0x40 and 7 saved regs match; parked NON_MATCHING; loop bound reload into t8 vs v0 reuse and cmdList comparison order
 #include "common.h"
 
 typedef struct {
@@ -6,49 +6,49 @@ typedef struct {
     u8 pad4[0x48];
     void *unk4C;
     void *unk50;
-} RvT2_ControllerView;
+} ControllerViewB;
 
 typedef struct {
     u16 unk0;
     u16 unk2;
     u32 unk4;
     u32 unk8;
-} RvD_StateEntry;
+} ControllerStateEntry;
 
 typedef struct {
     u32 unk0;
     u32 unk4;
-} RvT2_ControllerCommand;
+} ControllerCmdB;
 
 typedef struct {
-    RvT2_ControllerCommand *start;
-} RvT2_ControllerCommandList;
+    ControllerCmdB *start;
+} ControllerCmdListB;
 
 typedef struct {
     u8 pad0[4];
-    RvT2_ControllerCommandList *commands;
-} RvT2_ControllerSub;
+    ControllerCmdListB *commands;
+} ControllerSubB;
 
-struct RvE2_CacheEntry {
+struct AnimCacheEntry {
     s32 id;
     s32 refCount;
     void *asset;
 };
-extern struct RvE2_CacheEntry D_807FB7B0[];
-extern RvD_StateEntry D_807FB630[];
+extern struct AnimCacheEntry D_807FB7B0[];
+extern ControllerStateEntry D_807FB630[];
 extern s16 D_807FBB30;
 
 void assetFreeBuffer(void *, s32, s32);
 
-void func_80613794(arg0, arg1)
-RvT2_ControllerView *arg0;
+void controllerAnimFreeSub(arg0, arg1)
+ControllerViewB *arg0;
 u8 arg1;
 {
-    RvT2_ControllerSub *sub;
-    RvD_StateEntry *entry;
-    RvT2_ControllerCommand *cmd;
-    RvT2_ControllerCommandList *cmdList;
-    RvD_StateEntry *last;
+    ControllerSubB *sub;
+    ControllerStateEntry *entry;
+    ControllerCmdB *cmd;
+    ControllerCmdListB *cmdList;
+    ControllerStateEntry *last;
     u32 val;
 
     switch (arg1) {
@@ -72,16 +72,16 @@ u8 arg1;
             if (entry->unk4 == (u32)sub) {
                 break;
             }
-        } while (++entry != (RvD_StateEntry *)D_807FB7B0);
+        } while (++entry != (ControllerStateEntry *)D_807FB7B0);
 
-        if (entry == (RvD_StateEntry *)D_807FB7B0) {
+        if (entry == (ControllerStateEntry *)D_807FB7B0) {
             return;
         }
 
         if (--entry->unk2 == 0) {
             cmdList = sub->commands;
             cmd = cmdList->start;
-            if (cmd != (RvT2_ControllerCommand *)cmdList) {
+            if (cmd != (ControllerCmdB *)cmdList) {
                 do {
                     if ((cmd->unk0 >> 24) == (0, 0xFD)) {
                         val = cmd->unk4;
@@ -90,7 +90,7 @@ u8 arg1;
                         }
                     }
                     cmd++;
-                } while ((RvT2_ControllerCommand *)cmdList != cmd);
+                } while ((ControllerCmdB *)cmdList != cmd);
             }
 
             val = D_807FBB30 - 1;

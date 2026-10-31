@@ -973,7 +973,7 @@ void func_806CBE44(void) {
 
 extern f32 D_80753250[];
 s32 mathAngleDistance(s16, s16);
-void func_80614D90(Actor *);
+void actorScriptExecute(Actor *);
 
 void func_806CBE90(void) {
     if ((G02_A->unk6A & 0x21) == 1) {
@@ -989,7 +989,7 @@ void func_806CBE90(void) {
             G02_P->unk2C = D_80753234[D_807FD584];
             func_80614E78(D_807FBB40, 0x5E);
             G02_A->unk6A |= 0x20;
-            func_80614D90(D_807FBB40);
+            actorScriptExecute(D_807FBB40);
             return;
         }
         if (G02_A->unkE0 != 0.0f && G02_P->unkC2 >= 0x15 && G02_A->unk154 != 0x17) {
@@ -1762,9 +1762,9 @@ typedef struct G04ActorView {
 } G04ActorView;
 
 s16 func_806CE7A0(Actor *, f32, f32, s16, s16);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 void func_80613C48(void *, s16, f32, f32);
-void func_80613A50(Actor *, s32);
+void controllerAnimScaleInterpolate(Actor *, s32);
 
 extern u8 D_8074E77C[];
 void func_80613AF8(void *, s32, f32, f32);
@@ -1793,7 +1793,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 } else {
                     func_80614E78(arg0, 9);
                 }
-                func_80614D00(arg0, 1.0f, 0.0f);
+                scriptSetActorRampTarget(arg0, 1.0f, 0.0f);
                 sp36 = 0xC;
                 break;
             case 1:
@@ -1802,12 +1802,12 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 } else {
                     actorScriptStart(arg0, 0x13);
                 }
-                func_80614D00(arg0, 1.0f, 0.0f);
+                scriptSetActorRampTarget(arg0, 1.0f, 0.0f);
                 sp36 = 0xC;
                 break;
             case 2:
                 func_80614E78(arg0, 0x87);
-                func_80614D00(arg0, 1.0f, 0.0f);
+                scriptSetActorRampTarget(arg0, 1.0f, 0.0f);
                 sp36 = 0xC;
                 break;
             case 3:
@@ -1819,7 +1819,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                     func_80614E78(arg0, 1);
                 }
                 if (sp2E == 4 || sp2E == 5) {
-                    func_80613A50(arg0, 2);
+                    controllerAnimScaleInterpolate(arg0, 2);
                 }
                 sp36 = 0xD;
                 break;
@@ -1832,12 +1832,12 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                         case 1:
                         case 2:
                         case 3:
-                            func_80613A50(arg0, 4);
+                            controllerAnimScaleInterpolate(arg0, 4);
                             break;
                     }
                 }
                 if (sp2E == 5) {
-                    func_80613A50(arg0, 2);
+                    controllerAnimScaleInterpolate(arg0, 2);
                 }
                 sp36 = 0xD;
                 break;
@@ -1845,13 +1845,13 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 func_80614E78(arg0, 3);
                 func_80613AF8(arg0, 4, 0.0f, 6.0f);
                 if (sp2E == 3 || sp2E == 4) {
-                    func_80613A50(arg0, 4);
+                    controllerAnimScaleInterpolate(arg0, 4);
                 }
                 sp36 = 0xD;
                 break;
             case 6:
                 func_80614E78(arg0, 0x1B);
-                func_80614D90(arg0);
+                actorScriptExecute(arg0);
                 D_807FBB40->unk9C = D_807FBB40->unk80;
                 sp36 = 0x1E;
                 break;
@@ -1873,12 +1873,12 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
         }
         if ((*(G04Model **)arg0->unk4)->unk24 != 0.0f) {
             if (G04_P->unk26 == 100) {
-                func_80614D00(arg0, scale, 2.0f);
+                scriptSetActorRampTarget(arg0, scale, 2.0f);
             } else {
                 if (scale < 0.5) {
                     scale = 0.5f;
                 }
-                func_80614D00(arg0, scale, 10.0f);
+                scriptSetActorRampTarget(arg0, scale, 10.0f);
             }
         }
     }
@@ -1902,19 +1902,19 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
         switch (sp2C) {
             case 0:
                 func_80614E78(arg0, 0x51);
-                func_80614D00(arg0, 1.0f, 0.0f);
+                scriptSetActorRampTarget(arg0, 1.0f, 0.0f);
                 sp36 = 0x5D;
                 break;
             case 1:
                 actorScriptStart(arg0, 0x23);
-                func_80614D00(arg0, 1.0f, 0.0f);
+                scriptSetActorRampTarget(arg0, 1.0f, 0.0f);
                 sp36 = 0x5D;
                 break;
             case 3:
                 func_80614E78(arg0, 0x57);
                 func_80613AF8(arg0, 0x5C, 0.0f, 6.0f);
                 if (sp2E == 4 || sp2E == 5) {
-                    func_80613A50(arg0, 2);
+                    controllerAnimScaleInterpolate(arg0, 2);
                 }
                 sp36 = 0x5E;
                 break;
@@ -1927,12 +1927,12 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                         case 1:
                         case 2:
                         case 3:
-                            func_80613A50(arg0, 4);
+                            controllerAnimScaleInterpolate(arg0, 4);
                             break;
                     }
                 }
                 if (sp2E == 5) {
-                    func_80613A50(arg0, 0xA);
+                    controllerAnimScaleInterpolate(arg0, 0xA);
                 }
                 sp36 = 0x5E;
                 break;
@@ -1943,12 +1943,12 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                     case 4:
                     case 5:
                         if (sp2E == 3) {
-                            func_80613A50(arg0, 8);
+                            controllerAnimScaleInterpolate(arg0, 8);
                         }
                         break;
                     default:
                         if (sp2E == 3 || sp2E == 4) {
-                            func_80613A50(arg0, 0);
+                            controllerAnimScaleInterpolate(arg0, 0);
                         }
                         break;
                 }
@@ -1956,7 +1956,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 6:
                 func_80614E78(arg0, 0x58);
-                func_80614D90(arg0);
+                actorScriptExecute(arg0);
                 D_807FBB40->unk9C = D_807FBB40->unk80;
                 sp36 = 0x1F;
                 break;
@@ -1973,7 +1973,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
             scale = scale - (scale - 1.25f) * 0.4;
         }
         if ((*(G04Model **)arg0->unk4)->unk24 != 0.0f) {
-            func_80614D00(arg0, scale, 2.0f);
+            scriptSetActorRampTarget(arg0, scale, 2.0f);
         }
     }
     return sp36;
@@ -1998,14 +1998,14 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
             case 1:
             case 2:
                 actorScriptStart(arg0, 0x150);
-                func_80614D00(arg0, 1.0f, 0.0f);
+                scriptSetActorRampTarget(arg0, 1.0f, 0.0f);
                 sp36 = 0x3F;
                 break;
             case 4:
                 actorScriptStart(arg0, 0x151);
                 func_80613C48(arg0, 0x163, 0.0f, 6.0f);
                 if (sp2E == 5) {
-                    func_80613A50(arg0, 4);
+                    controllerAnimScaleInterpolate(arg0, 4);
                 }
                 sp36 = 0x40;
                 break;
@@ -2013,13 +2013,13 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 actorScriptStart(arg0, 0x152);
                 func_80613C48(arg0, 0x162, 0.0f, 6.0f);
                 if (sp2E == 4) {
-                    func_80613A50(arg0, 0xC);
+                    controllerAnimScaleInterpolate(arg0, 0xC);
                 }
                 sp36 = 0x40;
                 break;
             case 6:
                 func_80614E78(arg0, 0x1B);
-                func_80614D90(arg0);
+                actorScriptExecute(arg0);
                 D_807FBB40->unk9C = D_807FBB40->unk80;
                 sp36 = 0x1E;
                 break;
@@ -2041,12 +2041,12 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
         }
         if ((*(G04Model **)arg0->unk4)->unk24 != 0.0f) {
             if (G04_P->unk26 == 100) {
-                func_80614D00(arg0, scale, 2.0f);
+                scriptSetActorRampTarget(arg0, scale, 2.0f);
             } else {
                 if (scale < 0.5) {
                     scale = 0.5f;
                 }
-                func_80614D00(arg0, scale, 10.0f);
+                scriptSetActorRampTarget(arg0, scale, 10.0f);
             }
         }
     }
@@ -2190,7 +2190,7 @@ s16 func_806CE928(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
         scale = arg0->unkB8 * 0.025;
         scale = scale * 0.75 + 0.25;
         if ((*(G05Model **)arg0->unk4)->unk24 != 0.0f) {
-            func_80614D00(arg0, scale, 2.0f);
+            scriptSetActorRampTarget(arg0, scale, 2.0f);
         }
     }
     return sp26;
@@ -2386,7 +2386,7 @@ typedef struct G05CbArg2 {
     /* 0x4 */ Actor *unk4;
 } G05CbArg2;
 
-f32 func_80611850(f32);
+f32 acosApprox(f32);
 f32 asinApprox(f32);
 void func_8067AA58(Actor *, Actor *, f32, f32);
 
@@ -2426,7 +2426,7 @@ void func_806CF138(G05CbArg2 *arg0) {
     sp38 = sqrtf(sp4C * sp4C + sp48 * sp48);
     sp34 = sqrtf(sp44 * sp44 + sp40 * sp40);
     if (sp4C) {} // FAKE: dead test steers uopt coloring
-    func_8067AA58(arg0->unk0, arg0->unk4, sp54, 90.0 - func_80611850(sp3C / (sp38 * sp34)) * 57.29577637f);
+    func_8067AA58(arg0->unk0, arg0->unk4, sp54, 90.0 - acosApprox(sp3C / (sp38 * sp34)) * 57.29577637f);
 }
 #else
 
@@ -2534,7 +2534,7 @@ void animSetStartFrame(void *, s32, s32);
 void animSetLoopLimit(void *, s32, s32);
 void animSetFrameAndSubframe(void *, s32, s16, f32);
 s32 func_8072881C(s32, void *);
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 
 void func_806CF580(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -2570,7 +2570,7 @@ void func_806CF580(void) {
         func_8072881C(0x81, &G05_P->unk84);
     }
     if ((D_807FBB40->unk154 == 0x4F || D_807FBB40->unk154 == 0x7F) && D_80750AD0 == 0 &&
-        (u32)(G05_P->unkD0 + 9) < (u32)D_8076A064 && func_806119A0() % 2500 / 200 == 0) {
+        (u32)(G05_P->unkD0 + 9) < (u32)D_8076A064 && randomLcgNext() % 2500 / 200 == 0) {
         func_8071498C(func_80718BF4);
         func_807149B8(1);
         func_807149FC(-1);
@@ -2764,7 +2764,7 @@ void func_806CFEF4(void) {
 void func_806CFF1C(Actor *arg0) {
     G03_A->unkC0 = 0.0f;
     func_80614E78(arg0, 0x1B);
-    func_80614D90(arg0);
+    actorScriptExecute(arg0);
     D_807FBB40->unk9C = D_807FBB40->unk80;
     if (G06_P->unk8C) {
         arg0->unk154 = 0x1F;

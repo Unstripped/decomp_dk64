@@ -351,7 +351,7 @@ void func_80724E48(u8 arg0) {
 }
 
 #ifdef NON_MATCHING
-s32 func_807255A8(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, f32 *arg8, f32 *arg9) {
+s32 lineSegmentIntersect2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, f32 *arg8, f32 *arg9) {
     f32 a1;
     f32 b1;
     f32 c1;
@@ -413,7 +413,7 @@ s32 func_807255A8(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807255A8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/lineSegmentIntersect2D.s")
 #endif
 
 u8 rectContainsPoint2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5) {
@@ -432,7 +432,7 @@ u8 rectContainsPoint2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
     return ret;
 }
 
-s32 func_807255A8(s16, s16, s16, s16, s16, s16, s16, s16, f32 *, f32 *);
+s32 lineSegmentIntersect2D(s16, s16, s16, s16, s16, s16, s16, s16, f32 *, f32 *);
 
 typedef struct A1PolyVert {
     /* 0x0 */ s16 x;
@@ -465,9 +465,9 @@ u8 polygonContainsPoint2D(s16 arg0, s16 arg1, A1Poly *arg2) {
         if (arg2->count >= 2) {
             do {
                 if (i + 1 != arg2->count) {
-                    res = func_807255A8(arg0, arg1, -0x8000, -0x8000, arg2->verts[i].x, arg2->verts[i].z, arg2->verts[i + 1].x, arg2->verts[i + 1].z, &sp68, &sp64);
+                    res = lineSegmentIntersect2D(arg0, arg1, -0x8000, -0x8000, arg2->verts[i].x, arg2->verts[i].z, arg2->verts[i + 1].x, arg2->verts[i + 1].z, &sp68, &sp64);
                 } else {
-                    res = func_807255A8(arg0, arg1, -0x8000, -0x8000, arg2->verts[i].x, arg2->verts[i].z, arg2->verts[1].x, arg2->verts[1].z, &sp68, &sp64);
+                    res = lineSegmentIntersect2D(arg0, arg1, -0x8000, -0x8000, arg2->verts[i].x, arg2->verts[i].z, arg2->verts[1].x, arg2->verts[1].z, &sp68, &sp64);
                 }
                 hits += res != 0;
                 if (res == 3) {
@@ -562,7 +562,7 @@ typedef struct SpawnNodeList {
 
 extern SpawnNodeList *D_80755694;
 s32 actorSpawn(s32, s32);
-void func_80726744(void *, void *);
+void spawnNodeInitActorFromEntry(void *, void *);
 
 typedef struct F1Ent {
     /* 0x0 */ s16 x;
@@ -616,9 +616,9 @@ s32 zoneCanReachPoint(Actor *arg0, s16 arg1, s16 arg2, s16 arg3, F1Tbl *arg4) {
     z = arg0->unk84;
     for (i = 1; i < arg4->count8; i++) {
         if ((i + 1) != arg4->count8) {
-            res = func_807255A8(arg1, arg3, -0x8000, -0x8000, ((F1Pt6 *)arg4->entsC)[i].x, ((F1Pt6 *)arg4->entsC)[i].z, ((F1Pt6 *)arg4->entsC)[i + 1].x, ((F1Pt6 *)arg4->entsC)[i + 1].z, &f1, &f2);
+            res = lineSegmentIntersect2D(arg1, arg3, -0x8000, -0x8000, ((F1Pt6 *)arg4->entsC)[i].x, ((F1Pt6 *)arg4->entsC)[i].z, ((F1Pt6 *)arg4->entsC)[i + 1].x, ((F1Pt6 *)arg4->entsC)[i + 1].z, &f1, &f2);
         } else {
-            res = func_807255A8(arg1, arg3, -0x8000, -0x8000, ((F1Pt6 *)arg4->entsC)[i].x, ((F1Pt6 *)arg4->entsC)[i].z, ((F1Pt6 *)arg4->entsC)[1].x, ((F1Pt6 *)arg4->entsC)[1].z, &f1, &f2);
+            res = lineSegmentIntersect2D(arg1, arg3, -0x8000, -0x8000, ((F1Pt6 *)arg4->entsC)[i].x, ((F1Pt6 *)arg4->entsC)[i].z, ((F1Pt6 *)arg4->entsC)[1].x, ((F1Pt6 *)arg4->entsC)[1].z, &f1, &f2);
         }
         cross += (res != 0);
         if (res == 3) {
@@ -652,7 +652,7 @@ s32 zoneCanReachPoint(Actor *arg0, s16 arg1, s16 arg2, s16 arg3, F1Tbl *arg4) {
 #ifdef NON_MATCHING
 void func_806755A8(s32, s32, s32, s32, void *, void *);
 
-s32 func_807264B0(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
+s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
     f32 x;
     f32 y;
     f32 z;
@@ -688,7 +688,7 @@ s32 func_807264B0(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807264B0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/zoneCheckActorInside.s")
 #endif
 
 typedef struct F1Pt {
@@ -843,14 +843,14 @@ extern u8 D_807FC928;
 extern u8 D_80755698[];
 extern s32 D_8076A0A8;
 void actorScriptStart(void *, s32);
-s16 func_80613448(void *, s32);
+s16 controllerLookupStateByHash(void *, s32);
 void actorUpdateFloorContactAndTilt(void *, s32);
 void behaviourSetAnimIds(s16, s16, s16, s16);
 void actorSetTargetSpeed(void *, u8);
 s32 randomNonNegative(void);
 #define A4P4 ((A4Player *)D_807FC924)
 
-void func_80726744(void *arg0, void *arg1) {
+void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     A4St174 *st;
     A4Node *node;
     s16 padA;
@@ -936,7 +936,7 @@ void func_80726744(void *arg0, void *arg1) {
             if (act->unk58 == 0xFE) {
                 *(s16 *)entry = D_8075570C[node->unkA];
             } else {
-                *(s16 *)entry = func_80613448(act, 0xFF);
+                *(s16 *)entry = controllerLookupStateByHash(act, 0xFF);
             }
             break;
     }
@@ -1033,7 +1033,7 @@ void func_80726744(void *arg0, void *arg1) {
 
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80726744.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeInitActorFromEntry.s")
 #endif
 
 
@@ -1169,7 +1169,7 @@ Actor *spawnNodeSpawnById(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 
             entry = &D_8075EB80[node->unk44];
             if (actorSpawn(entry->unk0, entry->unk2) != 0) {
                 node->unk46 |= 4;
-                func_80726744(D_807FBB44, node);
+                spawnNodeInitActorFromEntry(D_807FBB44, node);
                 if (arg1 != 0) {
                     C1ACT44->unk7C = arg1;
                     C1ACT44->unk80 = arg2;
@@ -1265,11 +1265,11 @@ void func_80727678(void) {
                 switch (D_807FBB70.unk258[j]) {
                     case 1:
                         if ((node->unk42 == 0) && (spawnFlagConditionMet(((s16 *)&D_8076A0A8)[1], node->unk13) != 0) && (entry = &D_8075EB80[node->unk44], actorSpawn(entry->unk0, entry->unk2) != 0)) {
-                            func_80726744(D_807FBB44, node);
+                            spawnNodeInitActorFromEntry(D_807FBB44, node);
                         } else if ((node->unk42 == 3) && (spawnFlagConditionMet(((s16 *)&D_8076A0A8)[1], node->unk13) != 0)) {
                             entry = &D_8075EB80[node->unk44];
                             if (actorSpawn(entry->unk0, entry->unk2) != 0) {
-                                func_80726744(D_807FBB44, node);
+                                spawnNodeInitActorFromEntry(D_807FBB44, node);
                                 C1ACT44->unk154 = 0x36;
                             }
                         }
@@ -1399,7 +1399,7 @@ void spawnNodesUpdate(void) {
                     spawnNodeSelectEntry(node);
                     entry = &D_8075EB80[node->unk44];
                     if (actorSpawn(entry->unk0, entry->unk2) != 0) {
-                        func_80726744(D_807FBB44, node);
+                        spawnNodeInitActorFromEntry(D_807FBB44, node);
                         C1ACT44->unk154 = 0x36;
                         node->unk46 |= 1;
                     }
@@ -1410,7 +1410,7 @@ void spawnNodesUpdate(void) {
                 spawnNodeSelectEntry(node);
                 entry = &D_8075EB80[node->unk44];
                 if (actorSpawn(entry->unk0, entry->unk2) != 0) {
-                    func_80726744(D_807FBB44, node);
+                    spawnNodeInitActorFromEntry(D_807FBB44, node);
                 }
             }
         } else if (active && (node->unk18->unk154 == 0x40)) {
@@ -1647,7 +1647,7 @@ extern void *D_8074E880[];
 extern s32 gCamActor;
 #define A2B44V ((A2B44 *)D_807FBB44)
 
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void actorScriptStart(void *, s32);
 void camStartShake(s32, s32, s32);
@@ -1844,9 +1844,9 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             return;
         case 11:
             for (i = 0; i < arg2; i++) {
-                jx = (func_806119A0() / 10000 % 200) / 10.0 - 10.0;
-                jy = (func_806119A0() / 10000 % 200) / 10.0 - 7.0;
-                jz = (func_806119A0() / 10000 % 200) / 10.0 - 10.0;
+                jx = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
+                jy = (randomLcgNext() / 10000 % 200) / 10.0 - 7.0;
+                jz = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
                 func_807149B8(1);
                 func_807149FC(2);
                 func_80714950(0x64);
@@ -1860,9 +1860,9 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             return;
         case 14:
             for (i = 0; i < arg2; i++) {
-                kx14 = (f32)(func_806119A0() / 10000 % 200) / 10.0 - 5.0;
-                ky14 = (f32)(func_806119A0() / 10000 % 200) / 10.0 - 5.0;
-                kz14 = (f32)(func_806119A0() / 10000 % 200) / 10.0 - 5.0;
+                kx14 = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
+                ky14 = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
+                kz14 = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
                 func_807149B8(1);
                 func_80714950(2);
                 func_807149FC(-1);

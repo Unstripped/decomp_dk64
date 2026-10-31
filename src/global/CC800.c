@@ -934,7 +934,7 @@ typedef struct G01Arg8F8C {
 
 void func_806136B4(Actor *, void *);
 void actorSub140Free(ActorSub140 *);
-void func_806134B4(Actor *, u16);
+void controllerAnimInit(Actor *, u16);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 
 void func_806C8F8C(void *arg) {
@@ -944,7 +944,7 @@ void func_806C8F8C(void *arg) {
     D_807FD584 = arg0->unk4;
     func_806136B4(D_807FBB48, arg0);
     actorSub140Free(G01A->unk140);
-    func_806134B4(D_807FBB48, arg0->unkA);
+    controllerAnimInit(D_807FBB48, arg0->unkA);
     G01A->unk140 = actorSub140CreateFromModel(D_807FBB48);
     G01A->unk60 &= ~0x1000;
     G01A->unk60 |= arg0->unkC;
@@ -967,7 +967,7 @@ extern s16 D_8076AEE2;
 extern s32 D_807FBB60;
 extern s8 D_80770DC9;
 G01Pos *func_806C96C4(s32);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 void func_8067ACB4(Actor *);
 void func_806F39E8(Actor *, void *, s32);
 
@@ -981,7 +981,7 @@ void func_806C90C4(s32 arg0) {
     case 2:
         G01A->unk154 = 0x4F;
         G01A->unk155 = 3;
-        func_80614D00(D_807FBB48, 0.5f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB48, 0.5f, 0.0f);
         sp24->unk50 = 1;
         G01A->unk6A |= 4;
         func_8067ACB4(D_807FBB48);

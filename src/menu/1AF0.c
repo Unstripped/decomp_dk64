@@ -137,7 +137,7 @@ extern u8 D_800334DC[];
 u8 func_806F6E58(u8);
 void slotQueueAddValue(s32, s32, s16);
 void healthRefill(s32);
-void func_8060DEC8(void);
+void eepromSavePlayerData(void);
 
 void menuApplyPurchase(Struct_80025D14 *arg0, u8 *arg1) {
     s16 sp1E = -1;
@@ -186,7 +186,7 @@ void menuApplyPurchase(Struct_80025D14 *arg0, u8 *arg1) {
     if (sp1E >= 0) {
         slotQueueAddValue(sp1E, 0, 0x270F);
     }
-    func_8060DEC8();
+    eepromSavePlayerData();
 }
 
 

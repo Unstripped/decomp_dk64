@@ -148,8 +148,8 @@ void actorScriptStart(void *, s32);
 s32 camIsCutsceneActive();
 void camStartPath(void *, s32, s32);
 s32 flagGet(s16, u8);
-s32 func_806119A0();
-f32 func_806119FC();
+s32 randomLcgNext();
+f32 randomFloat();
 void func_8067AB20(s32, s32, s32, s32, void *, s32);
 void gfxSetBackgroundBlend(f32);
 void lightSetColor(f32, f32, f32, s32);
@@ -256,8 +256,8 @@ void func_80027FAC(void *arg0, s32 arg1) {
                         D_80033F54 += 2;
                     } else {
                         var_a1 = 0;
-                        var_a0_2 = (s32)(func_806119FC(0) * 10.0f);
-                        D_80033F52 = (func_806119A0() & 0x7F) + 0x12C;
+                        var_a0_2 = (s32)(randomFloat(0) * 10.0f);
+                        D_80033F52 = (randomLcgNext() & 0x7F) + 0x12C;
                         D_80033F54 = 0;
                         if (var_a0_2 >= 0xB) {
                             var_a0_2 = 0;
@@ -672,7 +672,7 @@ extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 extern u32 actorUpdateCollisionSpheres;
-void func_8060DC3C(s32, s32);
+void eepromLoadPlayerData(s32, s32);
 s32 menuCalculateGamePercentage(void);
 
 #ifdef NON_MATCHING
@@ -693,7 +693,7 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
     func_80030894(temp_s6, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     func_80030894(temp_s6, &D_8072052C, 0x76, 0x91, 0.6f, 2, 9);
     D_80033F4C = 1600.0f;
-    func_8060DC3C((u8)D_80033F48, 0);
+    eepromLoadPlayerData((u8)D_80033F48, 0);
     D_80033804 = 1;
     q = &D_807505B2;
     p = &D_80033805;
@@ -828,7 +828,7 @@ extern u8 D_8071FBC8;
 extern u8 D_8071FE08;
 void func_8071495C(void);
 void *func_80714CC0(void *, f32, f32, f32, f32);
-void func_8060C830(u8, s32);
+void eepromSetCurrentSlot(u8, s32);
 extern s8 D_80033FAC;
 
 void menuMysteryHandleInput(MenuScreenActor *arg0, s32 arg1) {
@@ -842,7 +842,7 @@ void menuMysteryHandleInput(MenuScreenActor *arg0, s32 arg1) {
                 func_8071495C();
                 func_80714CC0(&D_8071FE08, 10.3f, 240.0f, 120.0f, -10.0f);
                 sfxPlayOnFreeSlot(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                func_8060C830(D_80033F48, 1);
+                eepromSetCurrentSlot(D_80033F48, 1);
                 temp_s0->unk16 = 0;
                 temp_s0->unk13 = 2;
             } else if ((arg1 & 4) && (D_80033FAC != 0)) {
@@ -1717,7 +1717,7 @@ extern u8 D_80744530;
 extern u8 D_807550C8;
 extern u16 D_807ECD66;
 void heapFreeDeferred(void *);
-void func_8060C8AC(s32);
+void eepromInitConfigs(s32);
 void menuLoadTextTable(void);
 
 void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
@@ -1742,7 +1742,7 @@ void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
                 break;
             case 2:
                 if (arg1 & 0x100) {
-                    func_8060C8AC(0xFF);
+                    eepromInitConfigs(0xFF);
                     sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
                 break;
@@ -3034,7 +3034,7 @@ typedef struct Menu10_Spinner {
 } Menu10_Spinner;
 
 extern u8 D_807444FC;
-f32 func_806119FC();
+f32 randomFloat();
 
 void func_80030A90(Menu10_Spinner *arg0, s32 arg1) {
     Menu10_Spin *p;
@@ -3042,10 +3042,10 @@ void func_80030A90(Menu10_Spinner *arg0, s32 arg1) {
     f32 sp30[4][4];
     if (arg0->unk384 == NULL) {
         p = arg0->unk384 = heapAlloc(0x10);
-        sp72 = func_806119A0() * 0x10;
+        sp72 = randomLcgNext() * 0x10;
         p->vx = func_80612794(sp72) * 60.0f;
         p->vy = func_80612790(sp72) * 60.0f;
-        p->ang = func_806119FC() * 3.141f;
+        p->ang = randomFloat() * 3.141f;
         arg0->unk340 = arg0->unk340 + p->vx * 3.0f;
         arg0->unk344 = arg0->unk344 + p->vy * 3.0f;
         if (p->vx > 0) {

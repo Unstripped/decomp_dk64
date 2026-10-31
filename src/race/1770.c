@@ -332,7 +332,7 @@ void func_80026098(f32 *, f32 *);
 void func_800261E0(RacePathState *);
 s32 raceGetNextWaypointIndex(s32, s32);
 void raceAdvanceCheckpoint(RacePathState *, RaceParticipant *, s32);
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
@@ -423,7 +423,7 @@ void racePathFollowStep(RacePathState *arg0, RaceParticipant *arg1, u8 arg2) {
     arg0->unk18 = arg0->unk18 + arg0->unk28;
     func_800261E0(arg0);
     if (arg2 != 0) {
-        if ((u32)(func_806119A0() & 0xFF) < D_807FBB40->unkB8 * 0.3 && arg0->unk0 == arg0->unk1) {
+        if ((u32)(randomLcgNext() & 0xFF) < D_807FBB40->unkB8 * 0.3 && arg0->unk0 == arg0->unk1) {
             mathPickCloserTargetPoint3D(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, cur, &points[next], &points[next], nxt2, &hx, &hy, &hz);
             func_80714950(D_807FBB40);
             func_8071498C(timedLightOrbitUpdate);
@@ -496,7 +496,7 @@ void func_80026D2C(f32 arg0) {
         D_807FBB40->unk74 = 0.0f;
     }
     if (D_80770BC0[idx] == 0.0f) {
-        D_80770B68[idx] = ((u32)func_806119A0() / 4294967295.0 * 0.05 + 0.975) * (0.2 + arg0 / 15.0);
+        D_80770B68[idx] = ((u32)randomLcgNext() / 4294967295.0 * 0.05 + 0.975) * (0.2 + arg0 / 15.0);
         D_80770BC0[idx] = 3.0f;
     }
 }

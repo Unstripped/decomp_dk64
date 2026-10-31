@@ -704,7 +704,7 @@ typedef struct FloatAt4View {
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 
 void func_80690190(arg0, arg1)
 FloatAt4View *arg0;
@@ -724,7 +724,7 @@ s16 arg1;
     idx = D_80770628[*(s16 *)D_807FBB40->unk70];
     if (D_807FBB40->unk80 < D_807FBB40->unkAC + 4.0f) {
         if (D_80770BC0[idx] == 0.0f) {
-            D_80770B68[idx] = (((f64)(u32)func_806119A0() / 4294967295.0) * 0.05 + 0.975) * (0.2 + ((f64)D_807FBB40->unkB8 / 300.0));
+            D_80770B68[idx] = (((f64)(u32)randomLcgNext() / 4294967295.0) * 0.05 + 0.975) * (0.2 + ((f64)D_807FBB40->unkB8 / 300.0));
             D_80770BC0[idx] = 1.0f;
         }
     } else {
@@ -1307,9 +1307,9 @@ void actorSpawnSparkleBurst(void) {
         count = 6;
     }
     for (i = 0; i < count; i++) {
-        dx = (f32)(((f64)(u32)((func_806119A0() / 10000) % 200) / 5.0) - 20.0);
-        dy = (f32)(((f64)(u32)((func_806119A0() / 10000) % 200) / 5.0) - 20.0);
-        dz = (f32)(((f64)(u32)((func_806119A0() / 10000) % 200) / 5.0) - 20.0);
+        dx = (f32)(((f64)(u32)((randomLcgNext() / 10000) % 200) / 5.0) - 20.0);
+        dy = (f32)(((f64)(u32)((randomLcgNext() / 10000) % 200) / 5.0) - 20.0);
+        dz = (f32)(((f64)(u32)((randomLcgNext() / 10000) % 200) / 5.0) - 20.0);
         func_807149B8(1);
         func_807149C8(0x8C, 0x8C, 0x8C, 0x64);
         func_80714950(i * -0x14);
@@ -2537,7 +2537,7 @@ extern s16 D_80750374;
 extern s16 D_80750354;
 extern s16 D_80750368;
 void func_80613C48(Actor *, s32, f32, f32);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 
 
 void projectileRotatingLightUpdate(f32, u8);
@@ -2702,7 +2702,7 @@ void projectileMatrixRotationUpdate(void) {
         func_80613C48(D_807FBB40, 0x404, 0.0f, 1.0f);
         temp_s2->unk8 = -(func_80611BB4(G_PROJECTILE_ROT_ACTOR->unkC0, G_PROJECTILE_ROT_ACTOR->unkB8) * 57.295776f);
         temp_s2->unk10 = 0;
-        temp_s2->unkC = (f32)((u32)(func_806119A0() % 3600U) / 10U);
+        temp_s2->unkC = (f32)((u32)(randomLcgNext() % 3600U) / 10U);
         temp_s2->unk13 = (u8)(u32)G_PROJECTILE_ROT_ACTOR->unk124->unk10;
         temp_s2->unk1C = 0;
     }
@@ -2723,7 +2723,7 @@ void projectileMatrixRotationUpdate(void) {
     switch (G_PROJECTILE_ROT_ACTOR->unk154) {
     case 0:
         if (G_PROJECTILE_ROT_ACTOR->unkFD != 0 || (G_PROJECTILE_ROT_ACTOR->unk124->unk14 != 0.0f && (u32)(temp_s2->unk0 + 1) < D_8076A068)) {
-            func_80614D00(D_807FBB40, 0.5f, 0);
+            scriptSetActorRampTarget(D_807FBB40, 0.5f, 0);
             func_80613C48(D_807FBB40, 0x406, 0, 0.0f);
             G_PROJECTILE_ROT_ACTOR->unkB8 = 0.0f;
             G_PROJECTILE_ROT_ACTOR->unkC0 = 0.0f;
@@ -2741,7 +2741,7 @@ void projectileMatrixRotationUpdate(void) {
         G_PROJECTILE_ROT_ACTOR->unk144 = 1;
         temp_s2->unk0 = D_8076A068;
         if (!--temp_s2->unk10) {
-            func_80614D00(D_807FBB40, 0.5f, 0);
+            scriptSetActorRampTarget(D_807FBB40, 0.5f, 0);
             func_80613C48(D_807FBB40, 0x405, 0, 10.0f);
             G_PROJECTILE_ROT_ACTOR->unk154++;
         }

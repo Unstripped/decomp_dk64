@@ -24,7 +24,7 @@ void func_80724CA4(s32, s32);
 void func_8067B238(Actor *, void *, f32);
 void actorUpdatePulseIntensity(s32);
 void func_80614EBC(Actor *, s32);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void func_806A18A8(void) {
@@ -53,7 +53,7 @@ void func_806A18A8(void) {
                 func_80614EBC(D_807FBB40, 0x232);
             }
         }
-        func_80614D00(D_807FBB40, sp40->unkB8 * 0.01, 4.0f);
+        scriptSetActorRampTarget(D_807FBB40, sp40->unkB8 * 0.01, 4.0f);
     } else {
         if (((M6Sub4 *)D_807FBB40->unk4)->unk64 != 0x234) {
             func_80614EBC(D_807FBB40, 0x234);

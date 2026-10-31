@@ -121,7 +121,7 @@ extern ProximityPlayerPos *D_807FC924;
 extern u8 D_807FC928;
 extern s32 D_807552F4[];
 
-void func_80613794(void *, u32);
+void controllerAnimFreeSub(void *, u32);
 f32 renderScaleDistanceByFov(f32);
 
 void actorProximityUpdate(void) {
@@ -164,7 +164,7 @@ void actorProximityUpdate(void) {
                                 actor->unk4C = func_80612E90(actor, entry->unk2, 0);
                             }
                         } else if (actor->unk4C != 0) {
-                            func_80613794(actor, 1);
+                            controllerAnimFreeSub(actor, 1);
                         }
                         break;
                     case 2:
@@ -173,7 +173,7 @@ void actorProximityUpdate(void) {
                                 actor->unk4C = func_80612E90(actor, entry->unk2, 0);
                             }
                         } else if (actor->unk4C != 0) {
-                            func_80613794(actor, 1);
+                            controllerAnimFreeSub(actor, 1);
                         }
                         break;
                     }

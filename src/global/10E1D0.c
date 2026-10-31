@@ -453,7 +453,7 @@ extern s32 D_807FD9B8;
 void func_805FE71C(Gfx *, u8, s32 *, u8);
 void func_805FE7B4(Gfx *, s32, s32 *, u8);
 void func_805FF378(s32, s32);
-void func_80610044(Gfx *, s32, s32, u8, s32, s32);
+void schedSubmitGfxTask(Gfx *, s32, s32, u8, s32, s32);
 void transitionBeginDisplayList();
 void transitionInit(void);
 u8 transitionRender(Gfx **, s32, s32);
@@ -465,7 +465,7 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
     Gfx *sp34;
     Gfx *sp30;
 
-    func_80610044(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
+    schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
     D_807444FC ^= 1;
     D_8076A064 += 1;
     D_8076A048 = (D_807444FC * 0x11B0) + (u8 *)&D_80767CE8;

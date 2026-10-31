@@ -46,7 +46,7 @@ extern s32 D_807F0980;
 extern s32 D_807F0984;
 extern s32 D_807F5A60;
 
-void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
+void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
 void heapSortSurvivors(void);
 void heapMoveWords(u32 *src, u32 *dst, u32 size);
 void func_80610B84(s32 oldBase, s32 newBase, u32 size);
@@ -257,7 +257,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         if (bssStart != NULL) {
             bzero(bssStart, bssSize);
         }
-        func_8060B140(romStart, vram, &size, 1, 1, 1, 0);
+        dmaReadAssetDecompress(romStart, vram, &size, 1, 1, 1, 0);
         osWritebackDCache(vram, size);
         osInvalICache(vram, size);
     }

@@ -49,7 +49,7 @@ extern u8 D_8004C728;
 
 void controllerStartRead(void);
 void controllerUpdate(void);
-void func_80610044(Gfx *, s32, s32, s32, s32, s32);
+void schedSubmitGfxTask(Gfx *, s32, s32, s32, s32, s32);
 Gfx *screenFadeUpdate(Gfx *, s32);
 void func_805FE71C(Gfx *, u8, s32 *, s32);
 void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
@@ -76,7 +76,7 @@ void arcadeRunFrame(void) {
     u8 *sp28;
 
     controllerStartRead();
-    func_80610044(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
+    schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
     D_807444FC ^= 1;
     D_8076A064++;
     D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
@@ -582,7 +582,7 @@ void arcadeClearEntitiesByType1C(void) {
     } while (index >= 0);
 }
 
-void func_8060C8AC(s32);
+void eepromInitConfigs(s32);
 void arcadePauseMenuLoop(Gfx **arg0) {
     Gfx *sp2C;
 
@@ -614,7 +614,7 @@ void arcadePauseMenuLoop(Gfx **arg0) {
             break;
         case 1:
             if (D_8004A744 == 0) {
-                func_8060C8AC(2);
+                eepromInitConfigs(2);
                 arcadeLoadHighScores();
                 arcadeSaveHighScores();
                 if (D_8004A760 < D_8004A748) {

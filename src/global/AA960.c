@@ -326,7 +326,7 @@ void actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void actorSetCollisionRadius(Actor *, f32);
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 s32 camIsCutsceneActive(void);
 s32 actorTypeIsRespawnPickup(s32);
 void func_806F5F2C(s32, s32, s16, s16, s32);
@@ -371,7 +371,7 @@ void func_806A664C(f32 arg0) {
         actorSetCollisionRadius(D_807FBB40, 60.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
-        *(f32 *)((u8 *)D_807FBB40 + 0xC0) = (f32)((f64)((func_806119A0() / 10000) % 200) * 0.5 + 220.0 - 50.0);
+        *(f32 *)((u8 *)D_807FBB40 + 0xC0) = (f32)((f64)((randomLcgNext() / 10000) % 200) * 0.5 + 220.0 - 50.0);
         if (!(D_807FBB64 & 0x4000) && (((u32)D_807FBB40->unk58 < 0x4B) || ((u32)D_807FBB40->unk58 >= 0x50))) {
             D_807FBB40->unkB8 = 30.0f;
         }

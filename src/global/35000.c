@@ -510,7 +510,7 @@ extern u8 D_807FC928;
 extern u8 D_807FC929;
 
 void func_80614A64(void *);
-void *func_80614B34(void *, void *);
+void *renderActorDisplayList(void *, void *);
 s32 mapPointOutsideClipBounds(f32, f32, f32, u8, s32);
 void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 void *func_80722294(void *, void *, u8);
@@ -622,7 +622,7 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     }
     dx = RENDER_ACT->unk128 * spB8;
     if (dx != 0.0f) {
-        arg2 = func_80614B34(renderSetSegment6AndFog(arg2, dx, 1), arg1);
+        arg2 = renderActorDisplayList(renderSetSegment6AndFog(arg2, dx, 1), arg1);
     }
     WRITE_GFX_WORDS(arg2++, 0xE7000000, 0);
     WRITE_GFX_WORDS(arg2++, 0xE3001001, 0);

@@ -118,7 +118,7 @@ void actorSetTargetSpeed(B2CE0Actor *, s32);
 void func_8072A450();
 void actorSetDefaultState();
 s32 func_8072E54C();
-void func_8072D13C(u32, s32);
+void patrolPathStep(u32, s32);
 void func_8072B7CC();
 void behaviourFrameBegin(void);
 s32 func_8072DE10(u16);
@@ -404,7 +404,7 @@ void func_806AE588(void) {
         break;
     case 2:
     case 3:
-        func_8072D13C(D_807FBB40->unk154, 1);
+        patrolPathStep(D_807FBB40->unk154, 1);
     default:
         func_8072C918(0x6400, 0x1FB, 0x1FC);
         break;
@@ -562,7 +562,7 @@ void func_806AEE84(void) {
             break;
         case 2:
         case 3:
-            func_8072D13C(D_807FBB40->unk154, 1);
+            patrolPathStep(D_807FBB40->unk154, 1);
         default:
             func_8072C918(0x6400, 0x2AB, 0x2AC);
             break;
@@ -632,7 +632,7 @@ void func_806AF688(void) {
     switch (D_807FBB40->unk154) {
         case 2:
         case 3:
-            func_8072D13C(D_807FBB40->unk154, 1);
+            patrolPathStep(D_807FBB40->unk154, 1);
             break;
         case 0x31:
         case 0x37:
@@ -804,7 +804,7 @@ void func_806AFB58(void) {
         break;
     case 2:
     case 3:
-        func_8072D13C(D_807FBB40->unk154, 1);
+        patrolPathStep(D_807FBB40->unk154, 1);
     default:
         func_8072C918(0x6400, 0x2D7, 0x2D8);
         break;
@@ -1093,7 +1093,7 @@ void func_806B0848(void) {
             break;
         case 2:
         case 3:
-            func_8072D13C(D_807FBB40->unk154, 1);
+            patrolPathStep(D_807FBB40->unk154, 1);
         default:
             func_8072C918(0x6400, 0x35F, 0x360);
             break;

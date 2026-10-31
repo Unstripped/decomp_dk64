@@ -1,8 +1,8 @@
-// func_8060CBBC (src/global/104F0.c): stage 4: frame 0x98, callee-saved s0-s7/fp/ra, array offset 0x78; failed in  () via u8 and failed |= 1; remaining diff is loop pointer scheduling
+// eepromValidateSaveSlots (src/global/104F0.c): stage 4: frame 0x98, callee-saved s0-s7/fp/ra, array offset 0x78; failed in  () via u8 and failed |= 1; remaining diff is loop pointer scheduling
 #include <ultra64.h>
 
-extern u32 func_8060B968(u8 *arg0, u16 arg1);
-extern void func_8060C758();
+extern u32 eepromCalculateCrc32(u8 *arg0, u16 arg1);
+extern void eepromClearSlotData();
 extern s32 func_8060C6B8(s32, u8, u8, u8);
 extern void func_8060C648(s32, s32, s32, u8, s32);
 extern void func_8060CB74(void);
@@ -14,7 +14,7 @@ extern u8 D_807EDEA8[];
 extern u8 D_807550C8;
 extern u8 D_80744530;
 
-void func_8060CBBC(void) {
+void eepromValidateSaveSlots(void) {
     s32 i;
     s32 j;
     s32 version;
@@ -39,9 +39,9 @@ void func_8060CBBC(void) {
     for (i = 0; i < 4; i++) {
         checksumIndex = (((i + 1) * height) / 4) - 1;
         valid[i] = 1;
-        if (((u32 *)D_807ED6A8)[checksumIndex] != func_8060B968(D_807ED6A8 + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF)) {
+        if (((u32 *)D_807ED6A8)[checksumIndex] != eepromCalculateCrc32(D_807ED6A8 + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF)) {
             valid[i] = 0;
-            func_8060C758(i & 0xFF, 0);
+            eepromClearSlotData(i & 0xFF, 0);
             func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
         }
         failed |= (valid[i] == 0);
@@ -53,7 +53,7 @@ void func_8060CBBC(void) {
         for (j = 0; j < 4 && sectorOrder[i] == version; j++) {
             if (j != i && valid[j] != 0 && func_8060C6B8(0xD, 0, 0, j & 0xFF) != 0 && func_8060C6B8(0xF, 0, 0, j & 0xFF) == version && func_8060C6B8(0x10, 0, 0, j & 0xFF) >= func_8060C6B8(0x10, 0, 0, i & 0xFF)) {
                 sectorOrder[i] = 0xFF;
-                func_8060C758(i & 0xFF, 0);
+                eepromClearSlotData(i & 0xFF, 0);
                 func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
                 failed |= 1;
             }
@@ -75,7 +75,7 @@ void func_8060CBBC(void) {
     height = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
     height /= 8;
     checksumIndex = ((height + 0x40) / 4) - 1;
-    if (((u32 *)D_807ED6A8)[checksumIndex] != func_8060B968(D_807ED6A8 + (height & 0xFFFF), 0x3C)) {
+    if (((u32 *)D_807ED6A8)[checksumIndex] != eepromCalculateCrc32(D_807ED6A8 + (height & 0xFFFF), 0x3C)) {
         func_8060CB74();
         failed |= 1;
     }

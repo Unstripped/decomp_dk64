@@ -693,7 +693,7 @@ extern u8 D_807FC929;
 extern s16 D_80744490;
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-s32 func_80613448(void *);
+s32 controllerLookupStateByHash(void *);
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
 #define SPRITE_SUB ((SpriteSub *) arg1)
@@ -729,7 +729,7 @@ void textBoxUpdatePosition(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) 
         break;
     default:
         if (SPRITE_SUB->unk4->unk0 != 0) {
-            switch (func_80613448(SPRITE_SUB->unk4)) {
+            switch (controllerLookupStateByHash(SPRITE_SUB->unk4)) {
             case 0x11:
             case 0x12:
             case 0x1D:

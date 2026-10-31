@@ -95,7 +95,7 @@ s16 func_806CC190(s16, s16, f32);
 s32 projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s32, f32, f32);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 s32 currentActorTestClearFlag(void);
 s32 bossScriptStep(u8 *, s32, f32);
 void func_8072A450(void);
@@ -220,7 +220,7 @@ void func_8002F100(void) {
                     sfxPlayAtPositionPooled(MAIN_ACTOR->unk7C, MAIN_ACTOR->unk80, MAIN_ACTOR->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                 }
                 func_80613C48(SECOND_ACTOR, 0x4F9, 0.0f, 0.0f);
-                func_80614D00(SECOND_ACTOR, 0.5f, 0.0f);
+                scriptSetActorRampTarget(SECOND_ACTOR, 0.5f, 0.0f);
             } else if (t == 0) {
                 TIMER_STATE->unk2C = sp4C->unk18;
                 MAIN_ACTOR->unk155++;

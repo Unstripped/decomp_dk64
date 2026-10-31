@@ -1,7 +1,7 @@
-// func_8060D2C8 (src/global/104F0.c): stage 4: target frame 0x1078 and buffer locations sp+0x60 / sp+0x860 match by placing 6 scalar locals before arrays and 3 locals after arrays; remaining diff is regalloc and D_807ECD08 pointer caching at sp+0x5C.
+// eepromSaveRecords (src/global/104F0.c): stage 4: target frame 0x1078 and buffer locations sp+0x60 / sp+0x860 match by placing 6 scalar locals before arrays and 3 locals after arrays; remaining diff is regalloc and D_807ECD08 pointer caching at sp+0x5C.
 extern s32 _sprintf();
-extern s32 func_8060B968();
-extern void func_8060BA14(void);
+extern s32 eepromCalculateCrc32();
+extern void eepromCopySlot(void);
 extern void sleepMilliseconds(f32);
 extern char *D_807467C0;
 extern s8 D_807467C4;
@@ -15,7 +15,7 @@ extern s16 D_807ECEA0[];
 extern u8 D_807ECEA8[];
 extern u8 D_807ED6A8[];
 
-void func_8060D2C8(s32 arg0) {
+void eepromSaveRecords(s32 arg0) {
     s32 i;
     s32 textOffset;
     s32 offset;
@@ -38,15 +38,15 @@ void func_8060D2C8(s32 arg0) {
     offset = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
     offset /= 8;
     if (arg0 == 0) {
-        func_8060BA14();
+        eepromCopySlot();
         height = (((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7;
         height /= 8;
         for (i = 0; i < 4; i++) {
-            ((u32 *)workingData)[(((i + 1) * height) / 4) - 1] = func_8060B968(workingData + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF);
+            ((u32 *)workingData)[(((i + 1) * height) / 4) - 1] = eepromCalculateCrc32(workingData + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF);
         }
         sector = 0;
     } else sector = offset & 0xFFFF;
-    ((u32 *)workingData)[((offset + 0x40) / 4) - 1] = func_8060B968(workingData + (offset & 0xFFFF), 0x3C);
+    ((u32 *)workingData)[((offset + 0x40) / 4) - 1] = eepromCalculateCrc32(workingData + (offset & 0xFFFF), 0x3C);
     dataLength = strlen(D_807467C0);
     bzero(workingData + dataLength + offset + 0x40, 0x800 - offset - dataLength - 0x40);
     osWritebackDCacheAll();

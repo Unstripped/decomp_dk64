@@ -46,7 +46,7 @@ void lightSetColor(f32, f32, f32, s32);
 void sfxAllocateChannel(s32, f32);
 void sfxSetChannelParam(s32, s32, s32);
 void camSaveYaw(Actor *);
-void func_8060DEC8(void);
+void eepromSavePlayerData(void);
 void func_8061B650(Actor *);
 void slotQueueClearAllFlags(void);
 
@@ -110,7 +110,7 @@ void func_806833DC(struct TagBarrelData *arg0_in) {
             camSaveYaw(sp30->unk104);
             arg0->unk38 = sp34->unkE6;
             sp34->unkE6 = D_807FBB40->unkE6;
-            func_8060DEC8();
+            eepromSavePlayerData();
             camStartPath(D_807FBB40, 0xE, 0xC);
             func_8061B650(sp30->unk104);
             slotQueueClearAllFlags();

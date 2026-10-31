@@ -25,7 +25,7 @@ extern BossB_ActorBB44 *D_807FBB44;
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s16, f32, f32);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 
 void func_800292B0(f32 arg0) {
     projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, 0.0f, 0.0f, 0.0f);
@@ -33,7 +33,7 @@ void func_800292B0(f32 arg0) {
     D_807FBB44->unk80 = D_807FBB40->unk80;
     D_807FBB44->unk4->unk38 *= arg0;
     func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
-    func_80614D00(D_807FBB44, 1.5f, 0.0f);
+    scriptSetActorRampTarget(D_807FBB44, 1.5f, 0.0f);
 }
 
 

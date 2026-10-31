@@ -301,7 +301,7 @@ s32 flagGridIndex();
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
 void func_806F8278(s32);
-void func_8060DEC8(void);
+void eepromSavePlayerData(void);
 s32 camIsCutsceneActive(void);
 void playerStateQueueCallback(s32, void *, s32);
 void func_80712774(u8);
@@ -336,7 +336,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
             func_806F8278(0);
         }
         if (sp40 != 0) {
-            func_8060DEC8();
+            eepromSavePlayerData();
         }
         if (camIsCutsceneActive() == 0) {
             arg0->unk1++;

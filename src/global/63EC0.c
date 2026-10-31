@@ -844,7 +844,7 @@ s32 mathBitwiseNot(s32 arg0) {
     return ~arg0;
 }
 
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 extern s8 D_80746834;
 extern OSMesgQueue D_807655F0;
 extern OSIoMesg D_807ECE00;
@@ -871,9 +871,9 @@ void effectUpdateAndDispatch(void) {
     s1[0] -= 0x3E0EF0F0;
     s1[1] -= 0x3E0EF0F0;
     if (s1[0] != 0x3050A14A || s1[1] != 0xBCFCF506) {
-        s1 = (u32 *)func_806119A0();
-        s2 = func_806119A0();
-        osPiStartDma(&D_807ECE00, 0, 0, (u32)s1 & 0xFFFF, (void *)((s2 & 0xFFFFE) + 0x80500000), (func_806119A0() & 0xFF) + 0x100, &D_807655F0);
+        s1 = (u32 *)randomLcgNext();
+        s2 = randomLcgNext();
+        osPiStartDma(&D_807ECE00, 0, 0, (u32)s1 & 0xFFFF, (void *)((s2 & 0xFFFFE) + 0x80500000), (randomLcgNext() & 0xFF) + 0x100, &D_807655F0);
     }
     if (s0 != NULL) {
         do {

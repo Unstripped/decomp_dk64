@@ -58,7 +58,7 @@ void actorDeregisterActive(Actor *);
 void actorRegisterActive(Actor *);
 s32 actorSpawnFromInfo(ActorListSpawnInfo *);
 s32 func_80612E90();
-void func_80613794(Actor *, s32);
+void controllerAnimFreeSub(Actor *, s32);
 void func_8068A1B8(void);
 extern Actor *D_807FBB44;
 
@@ -84,9 +84,9 @@ void func_80689418(void) {
                         node->unk14 = actor->unk80;
                         node->unk18 = actor->unk84;
                         node->unk4A = *(s16 *)&actor->unk12C[0];
-                        func_80613794(node->unk44, 0);
-                        func_80613794(node->unk44, 1);
-                        func_80613794(node->unk44, 2);
+                        controllerAnimFreeSub(node->unk44, 0);
+                        controllerAnimFreeSub(node->unk44, 1);
+                        controllerAnimFreeSub(node->unk44, 2);
                     }
                 }
             } else if (node->unk5C(node) != 0) {

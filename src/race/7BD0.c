@@ -1196,7 +1196,7 @@ void func_8002DE78(RaceUnknownActor *arg0, u8 arg1, RaceCurvePoint *arg2, RaceVe
     arg0->unkF = arg1;
 }
 
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 
 f32 func_8002DF38(RaceUnknownActor *arg0, f32 arg1, RaceCurvePoint *arg2, RaceVec3f *arg3) {
     f32 ret;
@@ -1211,7 +1211,7 @@ f32 func_8002DF38(RaceUnknownActor *arg0, f32 arg1, RaceCurvePoint *arg2, RaceVe
         ret = func_8002DDA0(arg1, arg2);
         if (arg0->unk10 != 0) {
             if (arg2[4].x < arg1) {
-                if ((u32)func_806119A0() % 0xFF < 0xA) {
+                if ((u32)randomLcgNext() % 0xFF < 0xA) {
                     func_8002DE78(arg0, 2, arg2, arg3);
                 }
             }

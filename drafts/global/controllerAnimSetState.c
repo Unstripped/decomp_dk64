@@ -1,4 +1,4 @@
-// func_80613CA8 (src/global/17B90.c): stage 5: frame 0x38, 2 saved regs s0/s1 match target (improved from starter frame 0x30/3 saved regs); first 80+ instructions match 1:1; remaining diff is float zero regalloc in unk40/resource paths and store reordering
+// controllerAnimSetState (src/global/17B90.c): stage 5: frame 0x38, 2 saved regs s0/s1 match target (improved from starter frame 0x30/3 saved regs); first 80+ instructions match 1:1; remaining diff is float zero regalloc in unk40/resource paths and store reordering
 #include "common.h"
 
 typedef struct {
@@ -6,10 +6,10 @@ typedef struct {
     u16 unk4;
     u8 pad6[0xC];
     u8 unk12;
-} RvT2_Resource;
+} AnimResourceState;
 
 typedef struct {
-    RvT2_Resource *unk0;
+    AnimResourceState *unk0;
     f32 unk4;
     f32 unk8;
     s16 unkC;
@@ -25,13 +25,13 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvT2_Slot;
+} AnimSlotState;
 
 typedef struct {
-    RvT2_Slot *unk0;
-    RvT2_Slot *unk4;
-    RvT2_Slot *unk8;
-    RvT2_Slot *unkC;
+    AnimSlotState *unk0;
+    AnimSlotState *unk4;
+    AnimSlotState *unk8;
+    AnimSlotState *unkC;
     f32 unk10;
     u8 pad14[0x14];
     s16 unk28;
@@ -44,29 +44,29 @@ typedef struct {
     s32 unk78;
     s32 unk7C;
     f32 unk80;
-} RvT2_AnimData;
+} AnimDataState;
 
 typedef struct {
     void *unk0;
-    RvT2_AnimData *unk4;
+    AnimDataState *unk4;
 } RvT2_ControllerStateView;
 
 void func_80613944();
-void *func_80614130(s32 id);
-void func_80614644();
+void *controllerAnimCacheGetOrLoad(s32 id);
+void controllerApplyMotionWindow();
 
-void func_80613CA8(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void controllerAnimSetState(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     void *pad;
-    RvT2_AnimData *anim;
-    RvT2_Slot *slot0;
-    RvT2_Slot *slot4;
-    RvT2_Slot *slot8;
-    RvT2_Slot *slotC;
-    RvT2_Resource *resource;
+    AnimDataState *anim;
+    AnimSlotState *slot0;
+    AnimSlotState *slot4;
+    AnimSlotState *slot8;
+    AnimSlotState *slotC;
+    AnimResourceState *resource;
     f32 temp_f;
     s16 temp_s;
 
-    anim = (RvT2_AnimData *)arg0->unk4;
+    anim = (AnimDataState *)arg0->unk4;
     slot0 = anim->unk0;
     slot8 = anim->unk8;
     slot4 = anim->unk4;
@@ -82,7 +82,7 @@ void func_80613CA8(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3)
     if ((arg1 & 0x4000) == 0x4000) {
         arg1 -= 0x4000;
         if (slot4->unk0 != NULL) {
-            slotC->unk0 = func_80614130(slot4->unk10);
+            slotC->unk0 = controllerAnimCacheGetOrLoad(slot4->unk10);
             slotC->unk4 = slot4->unk4;
             slotC->unk8 = slot4->unk8;
             slotC->unkC = slot4->unkC;
@@ -124,7 +124,7 @@ void func_80613CA8(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3)
         }
     }
 
-    resource = func_80614130(arg1);
+    resource = controllerAnimCacheGetOrLoad(arg1);
     if (resource != NULL) {
         slot8->unk0 = resource;
         slot8->unk10 = arg1;
@@ -160,5 +160,5 @@ void func_80613CA8(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3)
     anim->unk2A = ((u8 *)&anim->unk28)[1];
     anim->unk28 = temp_s;
 
-    func_80614644(arg0, slot8, arg2);
+    controllerApplyMotionWindow(arg0, slot8, arg2);
 }

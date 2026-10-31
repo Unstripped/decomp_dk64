@@ -921,7 +921,7 @@ s32 func_8072DE10(u16);
 s32 spawnNodeIdForActor(Actor *);
 s32 func_80731784(s16, s16, s32 *);
 void flagSet(s16, s32, s32);
-void func_8060DEC8();
+void eepromSavePlayerData();
 void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 s32 func_8073195C(s16);
 void lightSetColor(f32, f32, f32, s16);
@@ -971,7 +971,7 @@ void func_806C5C20(void) {
     if ((D_807FD580->unk1F0 & 0x8000) && R1D580->unk1EC == 1) {
         if (D_807FBB40->unk154 != 0x40) {
             flagSet(func_80731784(D_8076A0AA, spawnNodeIdForActor(D_807FBB40), sp44), 1, 0);
-            func_8060DEC8();
+            eepromSavePlayerData();
         }
         D_807FBB40->unk154 = 0x40;
     }

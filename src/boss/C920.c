@@ -218,11 +218,11 @@ void camStartPath(void *, s32, u8);
 void func_80641874(s32, s32);
 void actorSetTargetSpeed(void *, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 void func_806D0468(void *, s32);
 s32 func_806C9974(s32, s32);
 void func_80614E78(void *, s32);
-void func_8072CFE8(s16 *, s16 *, s16 *);
+void patrolGetNextWaypointPos(s16 *, s16 *, s16 *);
 void actorSetGroupState(u8, s32);
 s16 func_806CC10C(s16, s16);
 s16 func_806CC190(s16, s16, f32);
@@ -297,7 +297,7 @@ void func_80030EC4(void) {
             }
             BOSS_ACTOR->unk132 = 4;
             func_80030920((s32)sp178);
-            func_80614D00(BOSS_ACTOR, D_80035AE4[sp178->unk14], 0.0f);
+            scriptSetActorRampTarget(BOSS_ACTOR, D_80035AE4[sp178->unk14], 0.0f);
             BOSS_ACTOR->unk155++;
             break;
         case 3:
@@ -341,7 +341,7 @@ void func_80030EC4(void) {
             PLAYER_DATA->unkD4 = 0x12C;
             camStartPath(BOSS_ACTOR, 0x18, 1);
             func_80641874(2, 0xFF);
-            func_80614D00(BOSS_ACTOR, 1.0f, 0.0f);
+            scriptSetActorRampTarget(BOSS_ACTOR, 1.0f, 0.0f);
             actorScriptStart(BOSS_ACTOR, 0);
             BOSS_ACTOR->unk155 = 0xA;
             break;
@@ -389,7 +389,7 @@ void func_80030EC4(void) {
     case 0x27:
         switch (BOSS_ACTOR->unk155) {
         case 0:
-            func_8072CFE8(&sp50[2], &sp50[1], &sp50[0]);
+            patrolGetNextWaypointPos(&sp50[2], &sp50[1], &sp50[0]);
             actorSetGroupState(D_80035ACF[D_807FDC98->unk20[WORK_STATE->unk25 & 0x7F][0]], 1);
             BOSS_ACTOR->unkEC = mathAngleBetweenPoints2D((f32)sp50[2], (f32)sp50[0], BOSS_ACTOR->unk7C, BOSS_ACTOR->unk84);
             if (func_806CC10C(BOSS_ACTOR->unkE6, BOSS_ACTOR->unkEC) < 0) {
@@ -573,8 +573,8 @@ void sfxPlayOnFreeSlot();
 void camPausePath(void);
 void camResumePath(void);
 void func_80724994(s32, s32, s32, s32, s32);
-s32 func_806119A0(void);
-f32 func_806119FC(void);
+s32 randomLcgNext(void);
+f32 randomFloat(void);
 void sfxAllocateChannel();
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
@@ -854,7 +854,7 @@ void func_80031AA0(void) {
                 }
                 D_80035B70 = j;
                 if (j >= 0x1A) {
-                    j = func_806119A0();
+                    j = randomLcgNext();
                     s->unk13 = 1;
                     s->unk15++;
                     D_80035B70 = (j & 3) + 4;
@@ -904,7 +904,7 @@ void func_80031AA0(void) {
         if (s->unk12 == 2 || s->unk12 == 3) {
             s->unk14++;
         } else {
-            s->unk14 += (s32)(func_806119FC() * 2.99f) + 1;
+            s->unk14 += (s32)(randomFloat() * 2.99f) + 1;
         }
         if (s->unk14 >= 4) {
             s->unk14 -= 4;
@@ -937,7 +937,7 @@ void func_80031AA0(void) {
     }
     s->unkC--;
     if (s->unkC < 0) {
-        s->unkC = (func_806119A0() & 0x7F) + 0x5A;
+        s->unkC = (randomLcgNext() & 0x7F) + 0x5A;
         lightSetColor(0.5f, 0.5f, 0.5f, -1);
         func_8068B80C();
     }
@@ -1016,7 +1016,7 @@ typedef struct BossFollowerActor {
 
 void func_80613C48(void *, s16, f32, f32);
 void sfxPlayOnFreeSlot();
-void func_80614644(void *, void *, f32);
+void controllerApplyMotionWindow(void *, void *, f32);
 void actorDespawn(void *);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
@@ -1052,7 +1052,7 @@ void func_80032B08(void) {
         ACTOR->unkE4 = D_80035B2C;
         if (sub4_0 != NULL) {
             if (D_80035B3C != sub4_0->unk4) {
-                func_80614644(ACTOR, sub4_0, D_80035B3C);
+                controllerApplyMotionWindow(ACTOR, sub4_0, D_80035B3C);
             }
         }
     } else {
@@ -1063,7 +1063,7 @@ void func_80032B08(void) {
                 func_80613C48(ACTOR, v0, 0.0f, 0.0f);
                 sfxPlayOnFreeSlot(0x38D, 0x7D00, 63.0f, 1.0f, 0, 0);
             } else {
-                func_80614644(ACTOR, sub4_0, sub4_0->unk4 + 0.75f);
+                controllerApplyMotionWindow(ACTOR, sub4_0, sub4_0->unk4 + 0.75f);
             }
             if (sub174->unk4 == 1) {
                 if (sub4_0->unk4 > 24.0f) {

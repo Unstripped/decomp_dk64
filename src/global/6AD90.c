@@ -1215,7 +1215,7 @@ extern u8 D_807F951C;
 void actorClearBufferReferences(s32);
 void heapFree(void *);
 void *heapAlloc(s32);
-void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
+void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
 
 void dynamicBufferAllocateEntry(s32 arg0) {
     u32 sp34;
@@ -1225,7 +1225,7 @@ void dynamicBufferAllocateEntry(s32 arg0) {
         if (sp34 != 0) {
             D_807F9514[arg0].unk0 = (u32)heapAlloc(sp34);
             D_807F9514[arg0].unk4 = D_807F9514[arg0].unk0 + (sp34 / 24) * 24;
-            func_8060B140(D_807F9514[arg0].unkC, (void *)D_807F9514[arg0].unk0, &sp34, 0, 0, 0, 0);
+            dmaReadAssetDecompress(D_807F9514[arg0].unkC, (void *)D_807F9514[arg0].unk0, &sp34, 0, 0, 0, 0);
         }
     }
     D_807F9514[arg0].unk8 = D_8076A064;
@@ -2457,7 +2457,7 @@ void collisionInitTables(void) {
 
     sp40 = 0x80;
     D_807F9520 = (s32)heapAlloc(0x80);
-    func_8060B140(D_8000DDCC, (void *)D_807F9520, &sp40, 0, 0, 0, 0);
+    dmaReadAssetDecompress(D_8000DDCC, (void *)D_807F9520, &sp40, 0, 0, 0, 0);
 
     for (i = 0; i < 0x20; i++) {
         D_807F9528[i] = 0;
@@ -2605,10 +2605,10 @@ void *assetLoad(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
     if (arg2 != 0) {
         if (D_80748E18[arg0] != 0) {
             void *temp_v0_2 = heapAlloc(sp4C);
-            func_8060B140(sp50, temp_v0_2, &sp4C, 0, 0, 0, 0);
+            dmaReadAssetDecompress(sp50, temp_v0_2, &sp4C, 0, 0, 0, 0);
             assetInflateAndFree(temp_v0_2, buffer);
         } else {
-            func_8060B140(sp50, buffer, &sp4C, 0, 0, 0, 0);
+            dmaReadAssetDecompress(sp50, buffer, &sp4C, 0, 0, 0, 0);
         }
     } else {
         if (D_807F9680 == 0xC0) {
@@ -2675,7 +2675,7 @@ s32 assetResolveRomRange(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
     if (temp_v0 & 0x80000000) {
         sp2C = 8;
         temp_v0 &= 0x7FFFFFFF;
-        func_8060B140(D_8000DDCC + temp_v0, &sp38, &sp2C, 0, 0, 0, 0);
+        dmaReadAssetDecompress(D_8000DDCC + temp_v0, &sp38, &sp2C, 0, 0, 0, 0);
         sp44 = (s16)(sp38 >> 48);
         assetResolveRomRange(arg0, sp44, arg2, arg3);
         var_t0 = sp44;
@@ -2710,10 +2710,10 @@ void assetEnsureTableLoaded(s32 arg0) {
         return;
     }
     sp54 = ((u32 *)D_807F9520)[arg0];
-    func_8060B140(D_8000DDCC + sp54, &sp48, &sp3C, 0, 0, 0, 0);
+    dmaReadAssetDecompress(D_8000DDCC + sp54, &sp48, &sp3C, 0, 0, 0, 0);
     sp40 = (u32)(sp48 >> 32) - sp54;
     D_807F9528[arg0] = heapAlloc(sp40);
-    func_8060B140(D_8000DDCC + sp54, D_807F9528[arg0], &sp40, 0, 0, 0, 0);
+    dmaReadAssetDecompress(D_8000DDCC + sp54, D_807F9528[arg0], &sp40, 0, 0, 0, 0);
     switch (arg0) {
         case 4:
         case 7:

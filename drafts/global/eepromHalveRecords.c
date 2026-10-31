@@ -1,4 +1,4 @@
-// func_8060D7A8 (src/global/104F0.c): stage 4: frame 0x30, all callee-saved regs match (s0-s3, fs0, ra); all regalloc matched via declaration order swap (i before entry) and dead statement; diff is 1 insn (4 bytes): move s1,s0 vs lui/addiu s1,D_807FC950 at loop preheader and sb s0,0(s3) before loop vs inside
+// eepromHalveRecords (src/global/104F0.c): stage 4: frame 0x30, all callee-saved regs match (s0-s3, fs0, ra); all regalloc matched via declaration order swap (i before entry) and dead statement; diff is 1 insn (4 bytes): move s1,s0 vs lui/addiu s1,D_807FC950 at loop preheader and sb s0,0(s3) before loop vs inside
 extern s32 flagGet(s32, s32);
 extern s32 func_806F6EDC(void);
 extern s32 slotQueueGetMaxValue(s32, s32);
@@ -6,7 +6,7 @@ extern u8 D_8074E77C;
 extern u8 D_807FC950[];
 extern u8 D_807FC952;
 
-void func_8060D7A8(void) {
+void eepromHalveRecords(void) {
     s32 i;
     u8 *entry;
 

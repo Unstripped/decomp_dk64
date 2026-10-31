@@ -28,10 +28,10 @@ void func_80028EE8(s32, s32, s32, s32, s32, s32, s32, s32);
 void func_805FF378(s32, s32);
 void func_805FF8F8(void);
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
-void func_80613CA8(void *, s16, f32, f32);
-void func_8061421C(void *);
+void controllerAnimSetState(void *, s16, f32, f32);
+void controllerStepMotionWindows(void *);
 void func_80614A64(void *);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 s32 func_8061B4B0();
 void func_8061C2C4(s32, s32);
 void func_8061CAD8(void);
@@ -164,7 +164,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
                 M3_OFF(M3_OFF(M3_OFF(D_807FBB48, void *, 4), void *, 0), s16, 0x10) = -1;
                 actorScriptStart(D_807FBB48, D_80747750[sv[1]]);
                 if (sv[0] != 0) {
-                    func_80614D00(D_807FBB48, sv[0] / 100.0, 0);
+                    scriptSetActorRampTarget(D_807FBB48, sv[0] / 100.0, 0);
                     return;
                 }
             }
@@ -317,8 +317,8 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
                 if (q != NULL) {
                     sp90 = q;
                     func_8067B238(sp98, q, M3_OFF(M3_OFF(q, void *, 4), s32, 0x38));
-                    func_80613CA8(sp98, M3_OFF(M3_OFF(M3_OFF(sp90, void *, 4), void *, 0), s16, 0x10), M3_OFF(M3_OFF(M3_OFF(sp90, void *, 4), void *, 0), f32, 4), 0.0f);
-                    func_8061421C(sp98);
+                    controllerAnimSetState(sp98, M3_OFF(M3_OFF(M3_OFF(sp90, void *, 4), void *, 0), s16, 0x10), M3_OFF(M3_OFF(M3_OFF(sp90, void *, 4), void *, 0), f32, 4), 0.0f);
+                    controllerStepMotionWindows(sp98);
                     M3_OFF(sp98, s32, 0x60) |= 4;
                     M3_OFF(sp90, s32, 0x60) &= ~4;
                     return;

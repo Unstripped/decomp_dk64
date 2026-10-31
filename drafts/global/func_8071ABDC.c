@@ -24,7 +24,7 @@ typedef struct {
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 f32 sinApprox(f32);
 f32 cosApprox(f32);
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 void *heapAlloc(s32);
 
 void func_8071ABDC(NM5_ActorABDC *arg0, s8 *arg1) {
@@ -41,9 +41,9 @@ void func_8071ABDC(NM5_ActorABDC *arg0, s8 *arg1) {
         arg0->unk384 = heapAlloc(0x10);
         sp2C = (s16) ((arg0->unk35C >> 16) & 0xFF);
         if (sp2C == 0) {
-            arg0->unk384->unk0 = (f32) (((f64) (f32) ((func_806119A0() / 10000U) % 100U) / 20.0) - 2.5);
+            arg0->unk384->unk0 = (f32) (((f64) (f32) ((randomLcgNext() / 10000U) % 100U) / 20.0) - 2.5);
         } else {
-            arg0->unk384->unk0 = (f32) (((f64) (f32) ((func_806119A0() / 10000U) % 100U) / 10.0) - 2.5);
+            arg0->unk384->unk0 = (f32) (((f64) (f32) ((randomLcgNext() / 10000U) % 100U) / 10.0) - 2.5);
         }
         sp24 = (f32) ((arg0->unk35C & 0xFFFF) * 30) * 0.017453292f;
         sp38 = (f32) ((f64) sinApprox(sp24) * 2.5);

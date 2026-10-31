@@ -396,7 +396,7 @@ typedef struct CollisionStaticCellView {
 
 #define COLLISION_STATIC_CELLS ((CollisionStaticCellView *)D_807FB534)
 
-void func_8060B140(s32, void *, void *, s32, s32, s32, s32);
+void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
 s32 func_8066DB40(void *, void *);
 
 void collisionLoadStaticCell(s32 arg0) {
@@ -411,7 +411,7 @@ void collisionLoadStaticCell(s32 arg0) {
         if (sp54 != 0) {
             if (D_807FB549 == 0) {
                 COLLISION_STATIC_CELLS[arg0].unk4 = heapAlloc(sp54);
-                func_8060B140(COLLISION_STATIC_CELLS[arg0].unkC, COLLISION_STATIC_CELLS[arg0].unk4, &sp54, 0, 0, 0, 0);
+                dmaReadAssetDecompress(COLLISION_STATIC_CELLS[arg0].unkC, COLLISION_STATIC_CELLS[arg0].unk4, &sp54, 0, 0, 0, 0);
             }
             cnt = COLLISION_STATIC_CELLS[arg0].unk14;
             COLLISION_STATIC_CELLS[arg0].unk0 = heapAlloc(cnt * 0x28);
@@ -3461,8 +3461,8 @@ ret_0:
 
 static void actorBoundaryStub(void) {
 }
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 
 s32 actorRng(void) {
-    return func_806119A0();
+    return randomLcgNext();
 }

@@ -33,7 +33,7 @@ void enableCSPChannel(ALCSPlayer *, s32);
 void func_80738080(ALCSPlayer *, s32, u8);
 void setCSPChannelPortamento(ALCSPlayer *, s32, u8);
 void setCSPChannelStopControl(ALCSPlayer *, s32, u8);
-void func_8060B140(s32, s32 *, s32 *, s32, s32, s32, s32);
+void dmaReadAssetDecompress(s32, s32 *, s32 *, s32, s32, s32, s32);
 extern s32 D_8000DDCC;
 extern s32 D_8076D200;
 
@@ -115,16 +115,16 @@ void audioInit(void) {
     audioThreadInit(&args, 0x14, &task);
     len = gSegmentTable[0x5B] - gSegmentTable[0x5A];
     tmp = heapAlloc(0x38000);
-    func_8060B140(gSegmentTable[0x5A], (s32 *)tmp, &len, 0xD, 0, 2, 0);
+    dmaReadAssetDecompress(gSegmentTable[0x5A], (s32 *)tmp, &len, 0xD, 0, 2, 0);
     bankA = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, len);
-    func_8060B140(gSegmentTable[0x5A], (s32 *)bankA, &len, 0xD, 0, 2, 0);
+    dmaReadAssetDecompress(gSegmentTable[0x5A], (s32 *)bankA, &len, 0xD, 0, 2, 0);
     alBnkfNew(bankA, (u8 *)gSegmentTable[0x54]);
     D_8076D1FC = bankA->bankArray[0];
     len = gSegmentTable[0x61] - gSegmentTable[0x60];
-    func_8060B140(gSegmentTable[0x60], (s32 *)tmp, &len, 0xD, 0, 2, 0);
+    dmaReadAssetDecompress(gSegmentTable[0x60], (s32 *)tmp, &len, 0xD, 0, 2, 0);
     heapFree((u8 *)tmp);
     bankB = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, len);
-    func_8060B140(gSegmentTable[0x60], (s32 *)bankB, &len, 0xD, 0, 2, 0);
+    dmaReadAssetDecompress(gSegmentTable[0x60], (s32 *)bankB, &len, 0xD, 0, 2, 0);
     alBnkfNew(bankB, (u8 *)gSegmentTable[0x66]);
     D_8076D1F8 = bankB->bankArray[0];
     seqp.maxVoices = 0x2C;
@@ -163,10 +163,10 @@ void func_806010A0(void) {
     s32 temp;
 
     sp34 = 0x80;
-    func_8060B140(D_8000DDCC, &D_8076D200, &sp34, 0, 0, 0, 0);
+    dmaReadAssetDecompress(D_8000DDCC, &D_8076D200, &sp34, 0, 0, 0, 0);
     temp = D_8076D200;
     sp30 = 0x2C0;
-    func_8060B140(D_8000DDCC + temp, &D_8076D200, &sp30, 0, 0, 0, 0);
+    dmaReadAssetDecompress(D_8000DDCC + temp, &D_8076D200, &sp30, 0, 0, 0, 0);
 }
 
 void seqPlayerPlay(u8 arg0) {

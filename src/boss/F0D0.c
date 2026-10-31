@@ -52,7 +52,7 @@ extern BossE_F0D0_Actor *D_807FBB40;
 extern BossE_F0D0_Actor *D_807FBB4C;
 extern BossE_F0D0_FDCA0 *D_807FDCA0;
 void actorScriptStart(void *, s32);
-void func_80614D90(void *);
+void actorScriptExecute(void *);
 void func_80714998(s32);
 void func_8071498C(void *);
 void func_807149B8(s32);
@@ -139,12 +139,12 @@ void func_8003340C(u8 *arg0) {
     temp_v0 = D_807FBB40->unk4->unk64;
     if (temp_v0 != 0x223 && arg0[3] == arg0[1]) {
         actorScriptStart(D_807FBB40, 0x223);
-        func_80614D90(D_807FBB40);
+        actorScriptExecute(D_807FBB40);
         return;
     }
     if (temp_v0 != 0x224 && arg0[3] != arg0[1]) {
         actorScriptStart(D_807FBB40, 0x224);
-        func_80614D90(D_807FBB40);
+        actorScriptExecute(D_807FBB40);
     }
 }
 
@@ -375,7 +375,7 @@ void actorSetUniformScale(void *, f32);
 void actorUpdateModelMatrix(void *, s32);
 void actorApplyGravity(void);
 void func_8072A450(void);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 currentActorTestClearFlag(void);
@@ -552,14 +552,14 @@ void func_80033AF0(void) {
             break;
         case 2:
             actorScriptStart(D_807FBB40, 0x225);
-            func_80614D90(D_807FBB40);
+            actorScriptExecute(D_807FBB40);
             st->unk18 = 2;
             sub->unk1 = D_80035BD8[st->unk18];
             sub->unk2 = 0xFF;
             BF->unk155++;
             BF->unk6A |= 1;
         case 3:
-            func_80614D00(D_807FBB40, 1.0f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
             BF->unk155++;
         case 4:
             func_8067ACB4(D_807FBB40);
@@ -655,7 +655,7 @@ void func_80033AF0(void) {
             BF->unk6A |= 1;
         case 1:
             BF->unk155 = 2;
-            func_80614D00(D_807FBB40, D_80036C40[st->unk14], 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, D_80036C40[st->unk14], 0.0f);
             sub->unk6 = sp83;
         case 2:
             func_8067ACB4(D_807FBB40);

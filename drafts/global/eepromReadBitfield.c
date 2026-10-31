@@ -1,5 +1,5 @@
-// func_8060BBE0 (src/global/104F0.c): stage 5: frame 0 exact, callee-saved empty exact; diff is only a1/t3 regalloc swap in bitfield reader
-s32 func_8060BBE0(arg0, arg1)
+// eepromReadBitfield (src/global/104F0.c): stage 5: frame 0 exact, callee-saved empty exact; diff is only a1/t3 regalloc swap in bitfield reader
+s32 eepromReadBitfield(arg0, arg1)
 unsigned short arg0;
 unsigned char arg1;
 {

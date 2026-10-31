@@ -397,7 +397,7 @@ void currentActorAnimSetFrame(s32, s32);
 void func_8072A450(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(Actor *, s32);
-s32 func_8072D13C(u8, s32);
+s32 patrolPathStep(u8, s32);
 void func_8072DC7C(s32);
 void volumeTriggerSetEnabled(s32, s32);
 s32 flagGet(s32, s32);
@@ -603,7 +603,7 @@ void func_806BE8BC(void) {
             }
             func_8072881C(0, LgBS->unk28);
             actorMoveWithinZone(LgBA->unk154, LgBS->unkA, LgBS->unkE, 0x10, 0.0f);
-            func_8072D13C(LgBA->unk154, 0);
+            patrolPathStep(LgBA->unk154, 0);
             break;
     }
     if (LgBA->unk4->unk64 == 0x301 || LgBA->unk4->unk64 == 0x302) {

@@ -82,10 +82,10 @@ void actorSetStateTwo(void *);
 void actorDespawn(void *);
 void csModelStateSetFirstByte(s16, s32);
 void csModelStateSetByte(s16, s32, s32);
-f32 func_806119FC(void);
+f32 randomFloat(void);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80613C48(void *, s32, f32, f32);
-void func_80614644(void *, void *, f32);
+void controllerApplyMotionWindow(void *, void *, f32);
 void actorUpdateModelMatrix(void *, s32);
 
 void func_806BC1E0(void) {
@@ -273,7 +273,7 @@ void func_806BC1E0(void) {
                     i++;
                 } while (i < 16);
                 if (n > 0) {
-                    a = func_806119FC();
+                    a = randomFloat();
                     v = cand[(s32)(a * (f32)(n - 1))];
                     dx = (v & 3) - st->unk36;
                     dy = (v >> 2) - st->unk37;
@@ -401,7 +401,7 @@ void func_806BC1E0(void) {
             if (obj->unk10 != 0x5C3) {
                 func_80613C48(D_807FBB40, 0x5C3, 0, 0);
             }
-            func_80614644(D_807FBB40, obj, st->unk0 * 40.0f);
+            controllerApplyMotionWindow(D_807FBB40, obj, st->unk0 * 40.0f);
         }
     }
     LGB->unk4->unk38 = LGB->unk4->unk38 + (sp70 - LGB->unk4->unk38) * 0.25f;

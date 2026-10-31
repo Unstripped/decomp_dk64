@@ -189,7 +189,7 @@ s32 randomNonNegative(void);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_806CC10C(s16, s16);
 s16 func_806CC190(s16, s16, f32);
-void func_80614D00(void *, f32, f32);
+void scriptSetActorRampTarget(void *, f32, f32);
 
 void actorTurnTowardTarget(u8 mode, f32 arg1, f32 arg2, u16 flags) {
     s16 *cur = &D1AJ->unkE6;
@@ -267,7 +267,7 @@ void actorTurnTowardTarget(u8 mode, f32 arg1, f32 arg2, u16 flags) {
             f32 t = dist * D1DC98J->unk2C;
             f32 a = 0.0f < t ? t : -t;
 
-            func_80614D00(D_807FBB40, a > 1.0 ? 1.0 : a, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, a > 1.0 ? 1.0 : a, 0.0f);
         }
     }
 }
@@ -520,7 +520,7 @@ void actorApproachTargetSpeed(u16);
 void actorApplyVelocity(Actor *);
 u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
 s32 polygonContainsPoint2D(s16, s16, void *);
-s32 func_807264B0(Actor *, f32, f32, void *, s16 *);
+s32 zoneCheckActorInside(Actor *, f32, f32, void *, s16 *);
 f32 func_80612790(s16);
 
 u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
@@ -612,7 +612,7 @@ u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
     }
     if (polygonContainsPoint2D(E3A->unk7C, E3A->unk84, D_807FDCA0) != 0) {
         E3C90->unk1A |= 0x4000;
-        if (func_807264B0(D_807FBB40, E3A->unk88, E3A->unk90, D_807FDCA0, &sp52) == 0) {
+        if (zoneCheckActorInside(D_807FBB40, E3A->unk88, E3A->unk90, D_807FDCA0, &sp52) == 0) {
             if (polygonContainsPoint2D(func_80612794(E3A->unkEE) * E3A->unkB8 + E3A->unk7C, func_80612790(E3A->unkEE) * E3A->unkB8 + E3A->unk84, D_807FDCA0) == 0) {
                 if (E3C90->unk22-- == 0) {
                     *sp4C += 0x800;
@@ -688,7 +688,7 @@ void actorUpdateAnimSpeedFromSpeed(u16 arg0) {
     }
     if (!((arg0 & 0x400) && t < 1.0)) {
         if (!(arg0 & 0x200) && t != D1AB->unk4->unk48) {
-            func_80614D00(D_807FBB40, t, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, t, 0.0f);
         }
     }
 }
@@ -940,7 +940,7 @@ void func_8072B7CC(s32 arg0) {
             }
             break;
         case 0x39:
-            func_80614D00(D_807FBB40, 0.0f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
             switch (F1A->unk155) {
                 case 0:
                     actorMoveWithinZone(0, 0.0f, 0.0f, 0x202, 0.0f);
@@ -1006,7 +1006,7 @@ void func_8072B7CC(s32 arg0) {
         case 0x3A:
             if (F1A->unk155 == 0) {
                 if (D_807FBB85 == 0) {
-                    func_80614D00(D_807FBB40, 0.0f, 8.0f);
+                    scriptSetActorRampTarget(D_807FBB40, 0.0f, 8.0f);
                     actorSetTargetSpeed(D_807FBB40, 0);
                 }
                 F1A->unk155 = F1A->unk155 + 1;
@@ -1016,7 +1016,7 @@ void func_8072B7CC(s32 arg0) {
                 F1A->unk154 = F1S9C->unk10;
                 F1A->unk155 = 0;
                 actorScriptStart(D_807FBB40, F1S98->unk28);
-                func_80614D00(D_807FBB40, 1.0f, 0.0f);
+                scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
                 actorSetTargetSpeed(D_807FBB40, F1S9C->unkC);
             }
             break;
@@ -1426,7 +1426,7 @@ typedef struct D1DcA0View {
 
 #define D1DCA0 ((D1DcA0View *)D_807FDCA0)
 
-void func_8072CFE8(s16 *arg0, s16 *arg1, s16 *arg2) {
+void patrolGetNextWaypointPos(s16 *arg0, s16 *arg1, s16 *arg2) {
     s32 temp;
     u8 idx;
     s32 v;
@@ -1442,7 +1442,7 @@ void func_8072CFE8(s16 *arg0, s16 *arg1, s16 *arg2) {
 }
 
 
-void func_8072CFE8(s16 *, s16 *, s16 *);
+void patrolGetNextWaypointPos(s16 *, s16 *, s16 *);
 
 s32 func_8072D08C(void) {
     u8 idx;
@@ -1453,12 +1453,12 @@ s32 func_8072D08C(void) {
 
     idx = D1DC90G->unk25 & 0x7F;
     key = ((D1Pair *)D1DC98G->unk20)[idx].a;
-    func_8072CFE8(&x, &y, &z);
+    patrolGetNextWaypointPos(&x, &y, &z);
     return mathAngleBetweenPoints2D(x, z, D1DCA0->unk14[key].x, D1DCA0->unk14[key].z);
 }
 
 #ifdef NON_MATCHING
-typedef struct RvR3_Dc90ViewK {
+typedef struct PatrolState {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 unkA;
     /* 0x0C */ s16 unkC;
@@ -1471,9 +1471,9 @@ typedef struct RvR3_Dc90ViewK {
     /* 0x25 */ u8 unk25;
     /* 0x26 */ u8 pad26[6];
     /* 0x2C */ s16 unk2C;
-} RvR3_Dc90ViewK;
+} PatrolState;
 
-typedef struct RvR3_PtB {
+typedef struct PatrolWaypoint {
     /* 0x00 */ s16 x;
     /* 0x02 */ s16 y;
     /* 0x04 */ s16 z;
@@ -1481,14 +1481,14 @@ typedef struct RvR3_PtB {
     /* 0x07 */ u8 r;
     /* 0x08 */ u8 unk8;
     /* 0x09 */ u8 pad9;
-} RvR3_PtB; // size = 0xA
+} PatrolWaypoint; // size = 0xA
 
-typedef struct RvR3_DcA0ViewB {
+typedef struct PatrolPathData {
     /* 0x00 */ u8 pad0[0x14];
     /* 0x14 */ u8 *unk14;
-} RvR3_DcA0ViewB;
+} PatrolPathData;
 
-typedef struct RvR3_ActorViewK {
+typedef struct PatrolActorView {
     /* 0x00 */ u8 pad0[0x58];
     /* 0x58 */ s32 unk58;
     /* 0x5C */ u8 pad5C[0x20];
@@ -1505,14 +1505,14 @@ typedef struct RvR3_ActorViewK {
     /* 0xF0 */ u8 padF0[0x64];
     /* 0x154 */ u8 unk154;
     /* 0x155 */ u8 unk155;
-} RvR3_ActorViewK;
+} PatrolActorView;
 
-#define RvR3_DC90K ((RvR3_Dc90ViewK *)D_807FDC90)
-#define RvR3_DCA0B ((RvR3_DcA0ViewB *)D_807FDCA0)
-#define RvR3_AK ((RvR3_ActorViewK *)D_807FBB40)
-#define RvR3_PT(off) ((RvR3_PtB *)(RvR3_DCA0B->unk14 + (off)))
+#define PATROL_STATE ((PatrolState *)D_807FDC90)
+#define PATROL_PATH_DATA ((PatrolPathData *)D_807FDCA0)
+#define PATROL_ACTOR ((PatrolActorView *)D_807FBB40)
+#define PATROL_WAYPOINT(off) ((PatrolWaypoint *)(PATROL_PATH_DATA->unk14 + (off)))
 
-u8 func_8072D13C(u8 arg0, u8 arg1) {
+u8 patrolPathStep(u8 arg0, u8 arg1) {
     u8 p1;
     u8 p2;
     u8 p3;
@@ -1530,49 +1530,49 @@ u8 func_8072D13C(u8 arg0, u8 arg1) {
     s32 dir;
     s32 off;
 
-    idx = (dir = RvR3_DC90K->unk25);
+    idx = (dir = PATROL_STATE->unk25);
     dir = dir & 0x80;
     idx = idx & 0x7F;
     key = ((D1Pair *)D1DC98G->unk20)[idx].a;
     type = ((D1Pair *)D1DC98G->unk20)[idx].b;
     off = key * 10;
-    x = RvR3_PT(off)->x;
-    y = RvR3_PT(off)->y;
-    z = RvR3_PT(off)->z;
-    moved = ((RvR3_AK->unk7C - x) * (RvR3_AK->unk7C - x) + (RvR3_AK->unk84 - z) * (RvR3_AK->unk84 - z)) < (f32)(RvR3_PT(off)->r * RvR3_PT(off)->r);
-    if ((arg1 & 1) && RvR3_AK->unk88 == RvR3_AK->unk7C && RvR3_AK->unk90 == RvR3_AK->unk84) {
-        RvR3_DC90K->unk20++;
-        if (RvR3_DC90K->unk20++ > 0x10) {
+    x = PATROL_WAYPOINT(off)->x;
+    y = PATROL_WAYPOINT(off)->y;
+    z = PATROL_WAYPOINT(off)->z;
+    moved = ((PATROL_ACTOR->unk7C - x) * (PATROL_ACTOR->unk7C - x) + (PATROL_ACTOR->unk84 - z) * (PATROL_ACTOR->unk84 - z)) < (f32)(PATROL_WAYPOINT(off)->r * PATROL_WAYPOINT(off)->r);
+    if ((arg1 & 1) && PATROL_ACTOR->unk88 == PATROL_ACTOR->unk7C && PATROL_ACTOR->unk90 == PATROL_ACTOR->unk84) {
+        PATROL_STATE->unk20++;
+        if (PATROL_STATE->unk20++ > 0x10) {
             moved = 1;
-            RvR3_DC90K->unk20 = 0;
+            PATROL_STATE->unk20 = 0;
         }
     } else {
-        RvR3_DC90K->unk20 = 0;
+        PATROL_STATE->unk20 = 0;
     }
     switch (arg0) {
         case 0x49:
             v = idx + 1;
             key = (v < D1DC9CG->unk11) ? v : 0;
-            RvR3_AK->unkEE = RvR3_AK->unkE6 = mathAngleBetweenPoints2D(RvR3_PT(((D1Pair *)D1DC98G->unk20)[key].a * 10)->x, RvR3_PT(((D1Pair *)D1DC98G->unk20)[key].a * 10)->z, x, z);
+            PATROL_ACTOR->unkEE = PATROL_ACTOR->unkE6 = mathAngleBetweenPoints2D(PATROL_WAYPOINT(((D1Pair *)D1DC98G->unk20)[key].a * 10)->x, PATROL_WAYPOINT(((D1Pair *)D1DC98G->unk20)[key].a * 10)->z, x, z);
         case 0x42:
         case 0x5B:
-            RvR3_DC90K->unkA = x;
-            RvR3_DC90K->unkC = y;
-            RvR3_DC90K->unkE = z;
+            PATROL_STATE->unkA = x;
+            PATROL_STATE->unkC = y;
+            PATROL_STATE->unkE = z;
             break;
         case 2:
         case 0x26:
         case 0x60:
             if (!moved) {
-                RvR3_DC90K->unkA = x;
-                RvR3_DC90K->unkC = y;
-                RvR3_DC90K->unkE = z;
+                PATROL_STATE->unkA = x;
+                PATROL_STATE->unkC = y;
+                PATROL_STATE->unkE = z;
             } else if (type == 6) {
-                RvR3_DC90K->unk25 = RvR3_PT(off)->unk8;
+                PATROL_STATE->unk25 = PATROL_WAYPOINT(off)->unk8;
             } else if (idx + 1 < D1DC9CG->unk11) {
-                RvR3_DC90K->unk25 = idx + 1;
+                PATROL_STATE->unk25 = idx + 1;
             } else {
-                RvR3_DC90K->unk25 = 0;
+                PATROL_STATE->unk25 = 0;
             }
             break;
         case 3:
@@ -1590,63 +1590,63 @@ u8 func_8072D13C(u8 arg0, u8 arg1) {
                     idx = (u8)(idx - 1);
                     dir = 0x80;
                 }
-                RvR3_DC90K->unk25 = dir | idx;
+                PATROL_STATE->unk25 = dir | idx;
             } else {
-                RvR3_DC90K->unkA = x;
-                RvR3_DC90K->unkC = y;
-                RvR3_DC90K->unkE = z;
+                PATROL_STATE->unkA = x;
+                PATROL_STATE->unkC = y;
+                PATROL_STATE->unkE = z;
             }
             break;
     }
-    idx = RvR3_DC90K->unk25 & 0x7F;
+    idx = PATROL_STATE->unk25 & 0x7F;
     if (moved) {
-        RvR3_DC90K->unk1A |= 4;
+        PATROL_STATE->unk1A |= 4;
         switch (type) {
             case 1:
                 new_var = ((D1Pair *)D1DC98G->unk20)[idx].a;
                 key = new_var;
-                RvR3_AK->unkEE = RvR3_AK->unkE6 = func_8072D08C();
-                RvR3_AK->unk7C = RvR3_PT(key * 10)->x;
-                RvR3_AK->unk80 = RvR3_PT(key * 10)->y;
-                RvR3_AK->unk84 = RvR3_PT(key * 10)->z;
+                PATROL_ACTOR->unkEE = PATROL_ACTOR->unkE6 = func_8072D08C();
+                PATROL_ACTOR->unk7C = PATROL_WAYPOINT(key * 10)->x;
+                PATROL_ACTOR->unk80 = PATROL_WAYPOINT(key * 10)->y;
+                PATROL_ACTOR->unk84 = PATROL_WAYPOINT(key * 10)->z;
                 break;
             case 2:
-                RvR3_AK->unk154 = 0x26;
-                RvR3_AK->unk155 = 0;
+                PATROL_ACTOR->unk154 = 0x26;
+                PATROL_ACTOR->unk155 = 0;
                 break;
             case 4:
-                RvR3_AK->unk154 = 0x19;
-                RvR3_AK->unk155 = 0;
-                RvR3_DC90K->unk2C = RvR3_PT(off)->unk8;
+                PATROL_ACTOR->unk154 = 0x19;
+                PATROL_ACTOR->unk155 = 0;
+                PATROL_STATE->unk2C = PATROL_WAYPOINT(off)->unk8;
                 break;
             case 5:
-                actorSetTargetSpeed(D_807FBB40, RvR3_PT(off)->unk8);
+                actorSetTargetSpeed(D_807FBB40, PATROL_WAYPOINT(off)->unk8);
                 return moved;
             case 7:
-                RvR3_AK->unk154 = 0x3B;
+                PATROL_ACTOR->unk154 = 0x3B;
                 moved = 0;
                 break;
             case 8:
-                RvR3_AK->unk154 = 0x13;
-                RvR3_AK->unk155 = 0;
+                PATROL_ACTOR->unk154 = 0x13;
+                PATROL_ACTOR->unk155 = 0;
                 break;
             case 3:
-                if (RvR3_AK->unk58 == 0xAF) {
-                    RvR3_AK->unk154 = 0x37;
-                    RvR3_AK->unk155 = 0;
+                if (PATROL_ACTOR->unk58 == 0xAF) {
+                    PATROL_ACTOR->unk154 = 0x37;
+                    PATROL_ACTOR->unk155 = 0;
                 }
                 D_80744508++;
-                RvR3_AK->unk154 = 0x40;
+                PATROL_ACTOR->unk154 = 0x40;
                 break;
         }
     } else {
-        RvR3_DC90K->unk1A &= 0xFFFB;
+        PATROL_STATE->unk1A &= 0xFFFB;
     }
     return moved;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072D13C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/patrolPathStep.s")
 #endif
 
 

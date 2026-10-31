@@ -202,7 +202,7 @@ void currentActorClearFlag();
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
 void func_8070D8C0(void *, s32, s32);
-s32 func_8072D13C(s32, s32);
+s32 patrolPathStep(s32, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorScriptStart(void *, s32);
 void bossPickFarthestWaypoint(void *, u8 *);
@@ -263,7 +263,7 @@ u8 bossScriptStep(u8 *arg0, u16 arg1, f32 arg2) {
     case 0x42:
 block_16:
         actorMoveWithinZone(0x42, DC90->unkA, DC90->unkE, arg1, arg2);
-        if (func_8072D13C(BA40->unk154, 0) == 0) {
+        if (patrolPathStep(BA40->unk154, 0) == 0) {
             var_t1 = 0;
         }
         break;
@@ -408,7 +408,7 @@ block_16:
             } else {
                 func_80027950((BossB_Struct_80027950 *)s0, arg0);
             }
-            func_8072D13C(0x49, 0);
+            patrolPathStep(0x49, 0);
             BA40->unk7C = DC90->unkA;
             BA40->unk84 = DC90->unkE;
             BA40->unk155++;

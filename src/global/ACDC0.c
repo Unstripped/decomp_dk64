@@ -122,7 +122,7 @@ void func_8071498C(void (*)());
 void func_80714A28(s32);
 HudTextObj *func_80714CC0(s32, f32, f32, f32, f32);
 s32 slotQueueGetSpriteAsset(s32);
-f32 func_806119FC(void);
+f32 randomFloat(void);
 f32 sqrtf(f32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 s32 flagGet(s16, s32);
@@ -203,7 +203,7 @@ s32 func_805FF000();
 s32 func_805FF030();
 s32 func_805FEF74();
 s32 func_80712628();
-void func_8060DEC8();
+void eepromSavePlayerData();
 void func_80712EDC();
 void func_807127B4();
 s32 func_806C8DE0();
@@ -375,7 +375,7 @@ void hudPauseMenuUpdate(void) {
                             if (HUD_PAUSE_MODE != 0) {
                                 func_805FF378(D_8076A0A8, 0);
                             } else if (hud->unk18 == 0) {
-                                func_8060DEC8();
+                                eepromSavePlayerData();
                                 hud->unk18 = 1;
                             } else if (D_807505D4 == 0) {
                                 sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -1343,7 +1343,7 @@ void hudPauseMenuSpawnIcon(HudEntry *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg
         buf[5] = 0.0f;
         buf[6] = 0.0f;
         buf[7] = 0.0f;
-        buf[8] = func_806119FC() * 4096.0f;
+        buf[8] = randomFloat() * 4096.0f;
         if (arg2 < 0xA0) {
             obj->unk360 = -obj->unk360;
         }
@@ -1732,14 +1732,14 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
             if (sc < 400.0f) {
                 item->unk24 = (f64)item->unk24 - 1.0;
                 if ((f64)item->unk24 < 0.0) {
-                    item->unk20 = (f64)item->unk20 + (1000.0 + (f64)func_806119FC() * 2000.0);
+                    item->unk20 = (f64)item->unk20 + (1000.0 + (f64)randomFloat() * 2000.0);
                     ang = (s32)item->unk20 & 0xFFF;
                     item->unk20 = ang;
-                    sc = ((f64)func_806119FC() * 40.0 + 20.0) * 4.0;
+                    sc = ((f64)randomFloat() * 40.0 + 20.0) * 4.0;
                     item->unk18 = (f64)func_80612794(ang) * ((f64)sc * 0.8);
                     item->unk1C = func_80612790(ang) * sc;
-                    if ((f64)func_806119FC() < 0.25) {
-                        item->unk24 = (f64)func_806119FC() * 40.0 + 15.0;
+                    if ((f64)randomFloat() < 0.25) {
+                        item->unk24 = (f64)randomFloat() * 40.0 + 15.0;
                     } else {
                         item->unk24 = 0;
                     }

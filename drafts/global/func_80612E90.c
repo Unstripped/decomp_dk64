@@ -33,9 +33,9 @@ extern u8 D_80746B64[];
 
 void animListInit(void *, void *);
 void *assetLoad(s32, s32, s32, s32);
-void func_8061324C(void *, void *, void *);
+void controllerBuildSubcommandList(void *, void *, void *);
 void renderReplaceSegment6Commands(void *, void *);
-void func_806133C8(void *, void *);
+void controllerCommandRelocateAssets(void *, void *);
 void func_806130A4(void *, void *);
 
 void *func_80612E90(arg0, arg1, arg2)
@@ -96,9 +96,9 @@ unsigned char arg2;
     asset->unkC = (u8 *)asset->unkC + delta;
     asset->unk10 = (u8 *)asset->unk10 + delta;
 
-    func_8061324C(*asset->unk4, asset->unk4, &asset->unk14);
+    controllerBuildSubcommandList(*asset->unk4, asset->unk4, &asset->unk14);
     renderReplaceSegment6Commands(*asset->unk4, asset->unk4);
-    func_806133C8(*asset->unk4, asset->unk4);
+    controllerCommandRelocateAssets(*asset->unk4, asset->unk4);
     animListInit(arg0, asset);
 
     if (arg2 & 1) {

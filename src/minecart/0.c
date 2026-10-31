@@ -171,14 +171,14 @@ extern s32 D_80028C30;
 extern s32 D_8071A440;
 extern s32 D_8072006C;
 
-s32 func_806119A0();
+s32 randomLcgNext();
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80714950(void *);
 void func_8071498C(void *);
 s32 func_80714C08(void *, s32, void *, s32, s32);
 
 void minecartSpawnWheelEffect(MinecartCart *arg0, u8 arg1, u8 arg2) {
-    if ((u32)(u8)func_806119A0() >= (u32)arg2) {
+    if ((u32)(u8)randomLcgNext() >= (u32)arg2) {
         if (arg0->unk0 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8A, 0x96, 0x7F, 0x32);
             func_80714950(D_807FBB40);

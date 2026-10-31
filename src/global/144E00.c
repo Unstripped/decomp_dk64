@@ -5,14 +5,14 @@ struct AdpcmNMLoadFilter;
 typedef struct {
     u32 w0;
     u32 w1;
-} RvS2_AdpcmAcmd;
+} AdpcmAcmd;
 
 typedef struct {
     s32 unk0;
     s32 unk4;
     u8 pad8[8];
     s32 *loop;
-} RvS2_AdpcmWave;
+} AdpcmWave;
 
 typedef struct {
     u8 pad0[0xC];
@@ -21,7 +21,7 @@ typedef struct {
     s32 unk14;
     s32 unk18;
     s32 unk1C;
-    RvS2_AdpcmWave *unk20;
+    AdpcmWave *unk20;
     s32 unk24;
     s32 (*dma)(void *, s32, void *);
     void *unk2C;
@@ -29,12 +29,12 @@ typedef struct {
     s32 unk34;
     s32 unk38;
     s32 unk3C;
-} RvS2_AdpcmFilter;
+} AdpcmFilter;
 
 struct AdpcmNMAcmd *alLoadParam(struct AdpcmNMAcmd *ptr, struct AdpcmNMLoadFilter *filter, s32 samples, s32 count, s16 out, s16 state, s32 flags);
 
-struct AdpcmNMAcmd *n_alAdpcmPull(RvS2_AdpcmFilter *arg0, s16 *arg1, s32 arg2, struct AdpcmNMAcmd *arg3) {
-    RvS2_AdpcmAcmd *sp7C;
+struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *arg0, s16 *arg1, s32 arg2, struct AdpcmNMAcmd *arg3) {
+    AdpcmAcmd *sp7C;
     s16 sp7A;
     s32 sp74;
     s32 sp70;
@@ -48,12 +48,12 @@ struct AdpcmNMAcmd *n_alAdpcmPull(RvS2_AdpcmFilter *arg0, s16 *arg1, s32 arg2, s
     s32 sp50;
     s32 sp4C;
     s32 sp48;
-    RvS2_AdpcmFilter *sp44;
-    RvS2_AdpcmAcmd *sp40;
-    RvS2_AdpcmAcmd *sp3C;
-    RvS2_AdpcmAcmd *sp38;
+    AdpcmFilter *sp44;
+    AdpcmAcmd *sp40;
+    AdpcmAcmd *sp3C;
+    AdpcmAcmd *sp38;
 
-    sp7C = (RvS2_AdpcmAcmd *)arg3;
+    sp7C = (AdpcmAcmd *)arg3;
     sp4C = 0;
     sp48 = 0;
     sp44 = arg0;
@@ -82,7 +82,7 @@ struct AdpcmNMAcmd *n_alAdpcmPull(RvS2_AdpcmFilter *arg0, s16 *arg1, s32 arg2, s
     sp70 = (sp74 + 0xF) >> 4;
     sp6C = sp70 * 9;
     if (sp48 != 0) {
-        sp7C = (RvS2_AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)sp7C, (struct AdpcmNMLoadFilter *)sp44, sp74, sp6C, *arg1, sp7A, sp44->unk38);
+        sp7C = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)sp7C, (struct AdpcmNMLoadFilter *)sp44, sp74, sp6C, *arg1, sp7A, sp44->unk38);
         if (sp44->unk34 != 0) {
             *arg1 += sp44->unk34 * 2;
         } else {
@@ -107,7 +107,7 @@ struct AdpcmNMAcmd *n_alAdpcmPull(RvS2_AdpcmFilter *arg0, s16 *arg1, s32 arg2, s
                 }
                 sp70 = (sp74 + 0xF) >> 4;
                 sp6C = sp70 * 9;
-                sp7C = (RvS2_AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)sp7C, (struct AdpcmNMLoadFilter *)sp44, sp74, sp6C, sp58, sp7A, sp44->unk38 | 2);
+                sp7C = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)sp7C, (struct AdpcmNMLoadFilter *)sp44, sp74, sp6C, sp58, sp7A, sp44->unk38 | 2);
                 sp3C = sp7C++;
                 sp3C->w0 = (((sp44->unk34 * 2) + sp58) & 0xFFFFFF) | 0x0A000000;
                 sp3C->w1 = ((sp50 & 0xFFFF) << 0x10) | ((sp5C * 2) & 0xFFFF);
@@ -130,7 +130,7 @@ struct AdpcmNMAcmd *n_alAdpcmPull(RvS2_AdpcmFilter *arg0, s16 *arg1, s32 arg2, s
     sp6C -= sp68;
     if ((sp60 - (sp60 & 0xF)) < arg2) {
         sp4C = 1;
-        sp7C = (RvS2_AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)sp7C, (struct AdpcmNMLoadFilter *)sp44, sp5C - sp60, sp6C, *arg1, sp7A, sp44->unk38);
+        sp7C = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)sp7C, (struct AdpcmNMLoadFilter *)sp44, sp5C - sp60, sp6C, *arg1, sp7A, sp44->unk38);
         if (sp44->unk34 != 0) {
             *arg1 += sp44->unk34 * 2;
         } else {

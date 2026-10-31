@@ -242,7 +242,7 @@ void critterUpdateAudio(CritterObj *obj) {
     }
 }
 
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);
 f32 func_80612790(s16);
@@ -254,11 +254,11 @@ void func_800245B8(CritterObj *obj) {
     f32 sp3C;
 
     if (obj->state != 0 && (obj->flags & 1)) {
-        r = func_806119A0() % 255U;
+        r = randomLcgNext() % 255U;
         sp3C = (f32)((f64)obj->speed * (1.0 / 3.0));
         if (r < 6) {
             sfxPlayAtPositionPooled(obj->x, obj->y, obj->z,
-                          (s16)((func_806119A0() & 3) + 0x1A9),
+                          (s16)((randomLcgNext() & 3) + 0x1A9),
                           0xFF, 0x7F, 0x1E, 0x5A, 0.7f, 0);
         }
         obj->anim = (s16)((f32)obj->anim + 1200.0f * sp3C);
@@ -384,7 +384,7 @@ void func_80024F28(CritterObj *obj) {
     s32 absv;
 
     if (obj->flags & 1) {
-        sp4E = func_806119A0() % 400U;
+        sp4E = randomLcgNext() % 400U;
         temp = obj->accel;
         if (temp < 0.0f) {
             sp40 = 0.0f;
@@ -461,12 +461,12 @@ Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
 }
 
 
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 
 void func_80025500(CritterObj *obj) {
-    if (obj->state != 0 && (obj->flags & 1) && (s16)(func_806119A0() % 255U) < 6) {
+    if (obj->state != 0 && (obj->flags & 1) && (s16)(randomLcgNext() % 255U) < 6) {
         sfxPlayAtPositionPooled(obj->x, obj->y, obj->z,
-                      (s16)((func_806119A0() & 3) + 0x1A9),
+                      (s16)((randomLcgNext() & 3) + 0x1A9),
                       0xFF, 0x5A, 0x1E, 0x5A, 0.7f, 0);
     }
     critterUpdateAudio(obj);
@@ -657,9 +657,9 @@ void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 arg2, s16 ar
         sp2C = (f32)zone->shape.unkC;
         base += (f32)zone->shape.unk8;
     } else {
-        sp2C = (f32)zone->shape.unk0 * ((f32)(func_806119A0() & 0xFFFU) * 0.000244140625f);
+        sp2C = (f32)zone->shape.unk0 * ((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f);
     }
-    v = (f32)((f64)((f32)(func_806119A0() & 0xFFFU) * 0.000244140625f * base) - 0.5 * (f64)base);
+    v = (f32)((f64)((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f * base) - 0.5 * (f64)base);
     if (arg4 != 0) {
         px = &obj->offX;
         py = &obj->offY;
@@ -675,7 +675,7 @@ void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 arg2, s16 ar
 }
 
 void critterSetRandomOffset(CritterZone *zone, CritterObj *obj, u8 arg2, u8 arg3) {
-    critterSetOffsetAtAngle(zone, obj, arg2, (s16)(func_806119A0() & 0xFFF), arg3);
+    critterSetOffsetAtAngle(zone, obj, arg2, (s16)(randomLcgNext() & 0xFFF), arg3);
 }
 
 void critterPlaceInZone(CritterZone *zone, CritterObj *obj, u8 arg2) {
@@ -761,7 +761,7 @@ CritterZone *critterGetZone(CritterGroup *grp, u8 idx) {
 void critterPickNewZone(CritterObj *obj, CritterGroup *grp) {
     u8 idx;
 
-    idx = func_806119A0() % (u32)(grp->zoneCount - 1);
+    idx = randomLcgNext() % (u32)(grp->zoneCount - 1);
     if (idx >= obj->zoneIdx) {
         idx++;
     }
@@ -825,7 +825,7 @@ void critterFollowLeader(CritterObj *obj, CritterObj *leader) {
         obj->pitch = 0;
         return;
     }
-    if (func_806119A0() % 255U < 50) {
+    if (randomLcgNext() % 255U < 50) {
         critterSetRandomOffset(obj->zone, obj, 1, 1);
     }
 }
@@ -948,7 +948,7 @@ void func_80026904(CritterObj *obj, CritterGroup *grp) {
             }
             if (obj->state == 2 && obj->distSq < (f32)critterPlayerZone->shape.unk2) {
                 sp2E = mathAngleBetweenPoints2D(obj->x, obj->z, D_807FBB48->x, D_807FBB48->z);
-                sp2E += (func_806119A0() & 0x7FF) - 0x400;
+                sp2E += (randomLcgNext() & 0x7FF) - 0x400;
                 obj->state = 1;
                 critterSetOffsetAtAngle(obj->zone, obj, 0, sp2E, 1);
             }
@@ -1211,9 +1211,9 @@ void critterInitGroup(CritterGroup *grp) {
             ent->zone = ent->homeZone = grp->zones;
             ent->role = flag;
             ent->frame = 0xFF;
-            ent->yaw = func_806119A0() & 0xFFF;
-            ent->anim = func_806119A0() & 0xFFF;
-            ent->scale = 1.0f - (f32)(func_806119A0() % 1000U) / 4000.0f;
+            ent->yaw = randomLcgNext() & 0xFFF;
+            ent->anim = randomLcgNext() & 0xFFF;
+            ent->scale = 1.0f - (f32)(randomLcgNext() % 1000U) / 4000.0f;
             ent->scale = ent->scale * D_80029F7C;
             ent++;
             if (flag == 1) {

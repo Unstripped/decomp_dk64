@@ -1,11 +1,11 @@
-// func_8060DC3C (src/global/104F0.c): stage 4: frame 0x48 and callee-saved set (s0-s7, fp, ra) match; deadsweep reduced diff to 31 text lines, s0 allocated to D_807FC950, s5 to selector
+// eepromLoadPlayerData (src/global/104F0.c): stage 4: frame 0x48 and callee-saved set (s0-s7, fp, ra) match; deadsweep reduced diff to 31 text lines, s0 allocated to D_807FC950, s5 to selector
 extern void collectibleCountsClear(void);
-extern void func_8060BA14(void);
+extern void eepromCopySlot(void);
 extern s32 func_8060C6B8(s32, u8, u8, u8);
-extern void func_8060C758(s32, s32);
+extern void eepromClearSlotData(s32, s32);
 extern void func_806C9AE0(void);
 extern void healthRefill(s32);
-extern void func_8060D7A8(void);
+extern void eepromHalveRecords(void);
 extern u8 D_8074E77C;
 extern u8 D_80750AC0;
 extern u8 D_807FC928;
@@ -15,7 +15,7 @@ extern s32 D_80750AB0;
 extern u8 D_807ECEA8[], D_807ED6A8[];
 extern u16 D_807FC930[];
 
-void func_8060DC3C(s32 arg0, s32 arg1) {
+void eepromLoadPlayerData(s32 arg0, s32 arg1) {
     s32 i;
     u8 selector;
     u8 *base;
@@ -37,10 +37,10 @@ void func_8060DC3C(s32 arg0, s32 arg1) {
     D_807467C8 = selector;
     D_8074E77C = 0;
     if (func_8060C6B8(0xD, 0, 0, selector) == 0) {
-        func_8060C758(selector, 0);
+        eepromClearSlotData(selector, 0);
     }
     if (arg1 != 0) {
-        func_8060BA14();
+        eepromCopySlot();
     }
     D_807FC928 = 0;
     base[0x2FC] = func_8060C6B8(0xC, 0, 0, selector);
@@ -80,7 +80,7 @@ void func_8060DC3C(s32 arg0, s32 arg1) {
         entry += 0x5E;
     } while (i != 5);
     if (arg1 != 0) {
-        func_8060D7A8();
+        eepromHalveRecords();
     }
     D_8074E77C = 0;
 }

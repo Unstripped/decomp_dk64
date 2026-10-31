@@ -1,4 +1,4 @@
-// func_8060DEC8 (src/global/104F0.c): stage 4: frame 0x48 and callee-saved set (s0-s7, fp, ra) match; deadsweep reduced diff to 13 text lines
+// eepromSavePlayerData (src/global/104F0.c): stage 4: frame 0x48 and callee-saved set (s0-s7, fp, ra) match; deadsweep reduced diff to 13 text lines
 extern u8 D_807FC928;
 extern u8 D_807FC950[];
 extern u8 D_807467C8;
@@ -10,7 +10,7 @@ extern s32 func_8071432C(void);
 extern s32 func_80714394(void);
 extern void eepromDispatchCommand(s32);
 
-void func_8060DEC8(void) {
+void eepromSavePlayerData(void) {
     u8 *entry;
     u8 *base;
     u32 total;

@@ -1312,11 +1312,11 @@ void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 s32 hashTableLookup(s32);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-#define RAND_UNIT() (func_806119A0() / 4294967295.0)
+#define RAND_UNIT() (randomLcgNext() / 4294967295.0)
 #define SLOT_ACTOR(idx) ((AudioActor *)D_807705A0[idx])
 
 void sfxUpdateSourceGroups(void) {
@@ -1664,11 +1664,11 @@ void sfxUpdateSourceGroups(void) {
                         case 0x118:
                             if (actor->unk58 != 0x139) {
                                 if (D_80770BC0[i]++ >= 2.0f) {
-                                    D_80770BC0[i] = func_806119A0();
+                                    D_80770BC0[i] = randomLcgNext();
                                     if (D_80770DF0 < D_80770DF4) {
                                         fxFlags |= 0x80;
                                     }
-                                    sfxPlayOnFreeSlot((func_806119A0() & 3) + 0x90, volume, D_80770DDC, 1.0f, 0x1E, fxFlags);
+                                    sfxPlayOnFreeSlot((randomLcgNext() & 3) + 0x90, volume, D_80770DDC, 1.0f, 0x1E, fxFlags);
                                     D_80770BC0[i] = 0.0f;
                                 }
                             }
@@ -2047,7 +2047,7 @@ s16 sfxPlayAtPositionPooled(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16
     return -1;
 }
 
-u32 func_806119A0(void);
+u32 randomLcgNext(void);
 void n_alSndpSetPriority(s32, s32);
 extern s32 D_807457D0[];
 extern u8 D_807457D8;
@@ -2072,11 +2072,11 @@ u8 arg4;
     }
 
     pitch = (f64)(u32)arg2 / 127.0;
-    pan = ((f64)(u32)func_806119A0() / 4294967295.0) * (2.0 * (f64)(u32)arg3) + (63.5 - (f64)(u32)arg3);
+    pan = ((f64)(u32)randomLcgNext() / 4294967295.0) * (2.0 * (f64)(u32)arg3) + (63.5 - (f64)(u32)arg3);
 
     if (arg3 != 0) {
-        vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg3 / 155.0))) * (f64)vol;
-        pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg3 / 100.0)) + ((f64)pitch - ((f64)(u32)arg3 / 255.0));
+        vol = (1.0 - (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg3 / 155.0))) * (f64)vol;
+        pitch = (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg3 / 100.0)) + ((f64)pitch - ((f64)(u32)arg3 / 255.0));
     }
 
     if (D_8077058E >= 21) {
@@ -2099,8 +2099,8 @@ s16 sfxPlayOnFreeSlot(s16 arg0, s32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) 
     s16 i;
 
     if (arg4 != 0) {
-        arg1 = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg4 / 155.0))) * (f64)arg1;
-        arg3 = (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg4 / 100.0)) + ((f64)arg3 - ((f64)(u32)arg4 / 255.0));
+        arg1 = (1.0 - (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg4 / 155.0))) * (f64)arg1;
+        arg3 = (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg4 / 100.0)) + ((f64)arg3 - ((f64)(u32)arg4 / 255.0));
     }
 
     for (i = 20; i > 0; i--) {
@@ -2172,8 +2172,8 @@ void sfxPlayAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, f32 arg5
     }
     vol = (s32)((f64)(arg4 * vol) / 255.0);
     if (arg6 != 0) {
-        vol = (s32)((1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg6 / 155.0))) * (f64)vol);
-        arg5 = ((f64)arg5 - ((f64)(u32)arg6 / 255.0)) + (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg6 / 100.0));
+        vol = (s32)((1.0 - (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg6 / 155.0))) * (f64)vol);
+        arg5 = ((f64)arg5 - ((f64)(u32)arg6 / 255.0)) + (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg6 / 100.0));
     }
     pan = mathAngleBetweenPointsRad(D_807FC924->unk210, D_807FC924->unk218, arg0, arg2) - D_807FC924->unk2C4;
     if (pan < 0.0f) {
@@ -2270,8 +2270,8 @@ void sfxPlayAtPositionForPlayer(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4,
 
     if (vol >= 1001) {
         if (arg6 != 0) {
-            vol = (1.0 - (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg6 / 155.0))) * (f64)vol;
-            pitch = (((f64)(u32)func_806119A0() / 4294967295.0) * ((f64)(u32)arg6 / 100.0)) + (1.0 - ((f64)(u32)arg6 / 255.0));
+            vol = (1.0 - (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg6 / 155.0))) * (f64)vol;
+            pitch = (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg6 / 100.0)) + (1.0 - ((f64)(u32)arg6 / 255.0));
         } else {
             pitch = 1.0f;
         }
@@ -2304,7 +2304,7 @@ extern u8 D_80770598[];
 
 void *heapAlloc(s32);
 void heapFree(void *);
-void func_8060B140(s32, void *, s32 *, s32, s32, s32, void *);
+void dmaReadAssetDecompress(s32, void *, s32 *, s32, s32, s32, void *);
 void n_alCSeqNew(void *, void *);
 void resetCSPChannelStates(ALCSPlayer *);
 void seqUpdateVolume(s32);
@@ -2343,7 +2343,7 @@ void seqLoadAndPlay(s32 arg0, u8 arg1, f32 arg2) {
         if (len & 1) {
             len++;
         }
-        func_8060B140(addr, D_8076BF38[arg0], &len, 0x80, 0, 1, (void *)temp);
+        dmaReadAssetDecompress(addr, D_8076BF38[arg0], &len, 0x80, 0, 1, (void *)temp);
     }
     heapFree((void *)temp);
     n_alCSeqNew(&D_8076BF48[arg0], D_8076BF38[arg0]);

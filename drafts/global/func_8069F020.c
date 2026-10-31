@@ -53,7 +53,7 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, u32, u32, u32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 void func_80613C48(Actor *, s16, s32, s32);
-void func_80614D00(Actor *, s32, s32);
+void scriptSetActorRampTarget(Actor *, s32, s32);
 void func_8067B238(void *, void *, f32);
 void playerStateQueueCallback(s32, void *, s32);
 void actorUpdateModelMatrix(void *, s32);
@@ -129,7 +129,7 @@ promote:
             if (L5B_A0->unk15F != 0 && actorSpawn(0x102, L5B_A0->unkF0) != 0) {
                 if (L5B_A0->unk4->unk0->unk4 > 9.0f) {
                     func_80613C48(D_807FBB44, 0x4F9, 0, 0);
-                    func_80614D00(D_807FBB44, L5B_A0->unk4->unk48, 0);
+                    scriptSetActorRampTarget(D_807FBB44, L5B_A0->unk4->unk48, 0);
                 }
                 func_8067B238(D_807FBB44, L5B_A0, L5B_A0->unk4->unk38);
                 L5B_A1->unkF0 = L5B_A0->unkF0;

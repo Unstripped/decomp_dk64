@@ -78,7 +78,7 @@ extern s32 D_8002F064;
 
 void controllerStartRead(void);
 void controllerUpdate(void);
-void func_80610044(Gfx *, s32, s32, s32, s32, s32);
+void schedSubmitGfxTask(Gfx *, s32, s32, s32, s32, s32);
 Gfx *screenFadeUpdate(Gfx *, s32);
 void func_805FE71C(Gfx *, u8, s32 *, s32);
 void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
@@ -108,7 +108,7 @@ void jetpacRunFrame(void) {
     u8 *sp28;
 
     controllerStartRead();
-    func_80610044(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
+    schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
     D_807444FC ^= 1;
     D_8076A064++;
     D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
@@ -320,7 +320,7 @@ void jetpacSaveHighScore(void) {
 s32 flagGet(s32, s32);
 void func_805FF378(s32, s32);
 s32 func_8060C6B8(s32, s32, s32, s32);
-void func_8060C8AC(s32);
+void eepromInitConfigs(s32);
 void jetpacNextPlayerOrGameOver(JetpacPlayer *);
 
 
@@ -341,7 +341,7 @@ void jetpacStatePause(s32 arg0) {
             break;
         case 2:
             if (jetpacGame.high_score != 0) {
-                func_8060C8AC(1);
+                eepromInitConfigs(1);
                 jetpacGame.high_score = func_8060C6B8(0x11, 0, 0, 0);
                 jetpacSaveHighScore();
             }

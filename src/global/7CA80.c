@@ -57,7 +57,7 @@ extern s32 D_807FBFF0[];
 extern s16 D_807FC3F0;
 
 void *heapAlloc(s32);
-void func_8061421C();
+void controllerStepMotionWindows();
 void func_80614A64(Actor *);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 void collisionClearFlags(Actor *);
@@ -662,7 +662,7 @@ void func_80678CC8(Actor *actor) {
     if (!(actor->unk60 & 0x08000000)) {
         actor->unk60 &= ~0x200;
         if (actor->unk4 != NULL) {
-            func_8061421C(actor);
+            controllerStepMotionWindows(actor);
             if (((actor->unk60 & 0x500) || ((R3B_Actor *)actor)->unk156 != 0) && !(actor->unk60 & 0x4000)) {
                 func_80614A64(actor);
             }
@@ -679,7 +679,7 @@ void func_80678CC8(Actor *actor) {
 }
 
 void func_80678DD8(Actor *actor) {
-    func_8061421C();
+    controllerStepMotionWindows();
     if (actor->unk60 & 0x500) {
         func_80614A64(actor);
     }
@@ -1429,7 +1429,7 @@ s32 func_8067B2C0(s32 arg0) {
     return 1;
 }
 
-s32 func_806134B4(Actor *, u16, void *);
+s32 controllerAnimInit(Actor *, u16, void *);
 
 typedef struct R2EActorSub140 {
     u8 pad0[0xC];
@@ -1442,7 +1442,7 @@ typedef struct R2EArgB2DC {
 } R2EArgB2DC;
 
 s32 func_8067B2DC(R2EArgB2DC *arg0) {
-    if (func_806134B4(D_807FBB44, arg0->unk2, arg0) != 0) {
+    if (controllerAnimInit(D_807FBB44, arg0->unk2, arg0) != 0) {
         D_807FBB44->unk140 = actorSub140CreateFromModel(D_807FBB44);
         D_807FBB44->unk15E = (u32)(((f64)((R2EActorSub140 *)D_807FBB44->unk140)->unkC * 0.15) * 0.5);
         return 1;

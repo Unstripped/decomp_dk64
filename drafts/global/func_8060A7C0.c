@@ -4,19 +4,19 @@ typedef struct {
     u8 unk2;
     u8 unk3;
     s16 unk4;
-} RvAEntry;
+} MapActionEntry;
 
-typedef struct { u8 unk0[0x5C]; u16 unk5C; } RvAPlayerState;
-typedef struct { u8 unk0[0x1A4]; u8 unk1A4; } RvAContext;
-typedef struct { u8 unk0[0x2C0]; u8 unk2C0; } RvARaceInfo;
+typedef struct { u8 unk0[0x5C]; u16 unk5C; } PlayerStateContext;
+typedef struct { u8 unk0[0x1A4]; u8 unk1A4; } GlobalContextView;
+typedef struct { u8 unk0[0x2C0]; u8 unk2C0; } PlayerRaceContext;
 
-extern RvAEntry D_80746340[];
+extern MapActionEntry D_80746340[];
 extern s16 D_80746344[];
 extern s16 D_80745BDE[];
 extern s32 D_8076A0A8;
-extern RvAPlayerState *D_807FBB40;
+extern PlayerStateContext *D_807FBB40;
 extern s32 D_807FC924;
-extern RvAContext *D_807FD580;
+extern GlobalContextView *D_807FD580;
 
 s16 func_8060A7C0(s16 arg0, void *arg1, u8 arg2) {
     s16 temp_v1;
@@ -34,7 +34,7 @@ s16 func_8060A7C0(s16 arg0, void *arg1, u8 arg2) {
         }
     } while ((var_v0 < 0xE) && (var_v1 == 0));
     if (var_v1 != 0) {
-        if ((D_807FBB40->unk5C & 1) && (((RvARaceInfo *)(D_807FC924 + D_807FD580->unk1A4 * 0x2F0))->unk2C0 == 2)) {
+        if ((D_807FBB40->unk5C & 1) && (((PlayerRaceContext *)(D_807FC924 + D_807FD580->unk1A4 * 0x2F0))->unk2C0 == 2)) {
             return 0x97;
         }
         if (*((u16 *)((u8 *)arg1 + 0x6A)) & 4) {

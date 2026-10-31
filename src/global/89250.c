@@ -42,7 +42,7 @@ void actorDespawn(Actor *);
 void sfxAllocateChannel(s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-s32 func_806119A0(void);
+s32 randomLcgNext(void);
 s32 randomNonNegative(void);
 void actorScriptStart(Actor *, s32);
 void actorUpdateModelMatrix(Actor *, s32);
@@ -238,12 +238,12 @@ void effectSpawnAuraBurst(u8 arg0) {
     s32 i;
     f32 x, y, z;
 
-    if ((((u32)func_806119A0() / 10000) % arg0) == 0) {
+    if ((((u32)randomLcgNext() / 10000) % arg0) == 0) {
         if (D_80750AD0 == 0) {
             for (i = 0; i != 4U; i++) {
-                x = (f32)(((f64)(f32)((u32)func_806119A0() / 10000 % 200) / 10.0) - 5.0);
-                y = (f32)(((f64)(f32)((u32)func_806119A0() / 10000 % 200) / 10.0) - 5.0);
-                z = (f32)(((f64)(f32)((u32)func_806119A0() / 10000 % 200) / 10.0) - 5.0);
+                x = (f32)(((f64)(f32)((u32)randomLcgNext() / 10000 % 200) / 10.0) - 5.0);
+                y = (f32)(((f64)(f32)((u32)randomLcgNext() / 10000 % 200) / 10.0) - 5.0);
+                z = (f32)(((f64)(f32)((u32)randomLcgNext() / 10000 % 200) / 10.0) - 5.0);
                 func_807149B8(1);
                 func_80714950(1);
                 func_807149FC(-1);
@@ -556,7 +556,7 @@ void effectSpawnBurstParticles(Actor *arg0) {
     func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
     func_80714CC0(&D_8071FC0C, (f64)var_fs0 * 0.65, arg0->unk7C, arg0->unkAC + 15.0f, arg0->unk84);
     if (D_80750AD0 == 0) {
-        count = (func_806119A0() & 3) + 4;
+        count = (randomLcgNext() & 3) + 4;
         i = 0;
         if (count > 0) {
             scale01 = (f64)var_fs0 * 0.1;

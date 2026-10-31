@@ -67,10 +67,10 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
     switch (arg0) {
         case 2:
         case 3:
-            func_8072D13C(arg0, 1);
+            patrolPathStep(arg0, 1);
             break;
         case 0x26:
-            if (func_8072D13C(arg0, 1) != 0) {
+            if (patrolPathStep(arg0, 1) != 0) {
                 D_807FBB40->unk154 = D_807FDC9C->unk10;
                 D_807FBB40->unk155[0] = 0;
             }

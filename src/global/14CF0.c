@@ -18,8 +18,8 @@ void func_8060FFF0(void) {
     D_807F0588[3] = D_80760840;
 }
 
-typedef struct RvD2_GfxTask {
-    struct RvD2_GfxTask *next;
+typedef struct SchedGfxTask {
+    struct SchedGfxTask *next;
     u32 state;
     u32 flags;
     void *framebuffer;
@@ -43,13 +43,13 @@ typedef struct RvD2_GfxTask {
     OSMesgQueue *msgQ;
     OSMesg msg;
     u32 pad5C;
-} RvD2_GfxTask;
+} SchedGfxTask;
 
 extern s8 D_80744460;
 extern u8 D_807444FC;
 extern u32 D_807F05A4;
 extern u32 D_807F0984;
-extern RvD2_GfxTask D_807F05A8[][2];
+extern SchedGfxTask D_807F05A8[][2];
 extern void *D_80744470[];
 extern u8 D_805FB000[];
 extern u8 D_805FB0D0[];
@@ -62,8 +62,8 @@ extern u8 D_807F059C[];
 extern OSMesgQueue gScheduler;
 
 #ifdef NON_MATCHING
-void func_80610044(void *arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, u8 arg5) {
-    RvD2_GfxTask *msg;
+void schedSubmitGfxTask(void *arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, u8 arg5) {
+    SchedGfxTask *msg;
     s32 size;
 
     if (D_80744460 != 0) {
@@ -100,7 +100,7 @@ void func_80610044(void *arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, u8 arg5) {
         osWritebackDCacheAll();
     } else {
         size = arg1 * 8;
-        osWritebackDCache(msg, sizeof(RvD2_GfxTask));
+        osWritebackDCache(msg, sizeof(SchedGfxTask));
         osWritebackDCache(arg0, size);
         osWritebackDCache(D_80767CE8 + D_807444FC * 0x11B0, 0x11B0);
     }
@@ -108,7 +108,7 @@ void func_80610044(void *arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, u8 arg5) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/14CF0/func_80610044.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/14CF0/schedSubmitGfxTask.s")
 #endif
 
 extern s8 D_80746834;

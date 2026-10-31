@@ -104,7 +104,7 @@ typedef struct TriggerSpawnSub174 {
     u8 unkF;
 } TriggerSpawnSub174;
 
-s32 func_80613448(TriggerZoneActor *);
+s32 controllerLookupStateByHash(TriggerZoneActor *);
 s32 actorSpawn(s32, s32);
 
 s32 triggerZoneContainsActor(TriggerZoneActor *arg0, TriggerZoneSubNode *arg1) {
@@ -120,7 +120,7 @@ s32 triggerZoneContainsActor(TriggerZoneActor *arg0, TriggerZoneSubNode *arg1) {
 void triggerZoneSpawnTrigger(TriggerZoneActor *arg0, TriggerZoneData *arg1) {
     TriggerSpawnSub174 *temp_v1;
 
-    actorSpawn(0x7B, func_80613448(arg0));
+    actorSpawn(0x7B, controllerLookupStateByHash(arg0));
     D_807FBB44->unk11C = (s32)arg0;
     temp_v1 = D_807FBB44->unk174;
     temp_v1->unkE = arg1->unkE;

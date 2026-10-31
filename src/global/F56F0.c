@@ -78,13 +78,13 @@ typedef struct F5N2ActorExtra {
     u8 unk1A4;
 } F5N2ActorExtra;
 
-s32 func_80613448(void);
+s32 controllerLookupStateByHash(void);
 
 void func_806F0C18(Actor *arg0) {
     s32 pad;
     F5N2ActorExtra *extra;
 
-    switch (func_80613448()) {
+    switch (controllerLookupStateByHash()) {
     case 1:
     case 2:
     case 3:
@@ -139,7 +139,7 @@ void func_806F0D68(Actor *arg0) {
     s32 pad;
     F5N2ActorExtra *extra;
 
-    switch (func_80613448()) {
+    switch (controllerLookupStateByHash()) {
     case 1:
     case 2:
         func_8068A764(arg0, 0);
@@ -414,7 +414,7 @@ typedef struct F5N3Actor14BC {
 } F5N3Actor14BC;
 
 s32 func_806F1668(f32, f32, f32, f32);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 
 #define F5N3_A ((F5N3Actor14BC *) arg0)
 
@@ -455,7 +455,7 @@ void func_806F14BC(Actor *arg0) {
     if (limit < ratio) {
         ratio = limit;
     }
-    func_80614D00(arg0, ratio, 0.0f);
+    scriptSetActorRampTarget(arg0, ratio, 0.0f);
 }
 
 extern f32 sqrtf(f32);

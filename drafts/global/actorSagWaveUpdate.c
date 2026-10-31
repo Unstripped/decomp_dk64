@@ -49,7 +49,7 @@ typedef struct WaveState {
 extern u8 D_807FBBEC;
 extern ActorGlobalState D_807FBB70;
 void func_80613C48(Actor *, s16, f32, f32);
-void func_80614D00(Actor *, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 Mtx *heapAlloc(s32);
 void actorUpdateModelMatrix(Actor *, s32);
 s32 func_8069A750(void);
@@ -100,7 +100,7 @@ void actorSagWaveUpdate(u8 arg0, u8 arg1) {
     }
     if (state->unk0 == 0) {
         func_80613C48(D_807FBB40, 0x403, 0, 1.0f);
-        func_80614D00(D_807FBB40, 4.0f, 1.0f);
+        scriptSetActorRampTarget(D_807FBB40, 4.0f, 1.0f);
         state->unk0 = -2;
     }
     for (i = 0; i < arg0; i++) {

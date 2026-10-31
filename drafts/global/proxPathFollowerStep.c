@@ -1,4 +1,4 @@
-// func_807300BC (src/global/133A90.c): stage 5: same frame 0x140/saved regs; only v0/v1 + t-reg numbering in guRotateF angle (target subu v0..sra v0; unk58 temp in v1; mine v1/t4 and v0); (s16)(0, x) comma trick from permuter; parked NON_MATCHING
+// proxPathFollowerStep (src/global/133A90.c): stage 5: same frame 0x140/saved regs; only v0/v1 + t-reg numbering in guRotateF angle (target subu v0..sra v0; unk58 temp in v1; mine v1/t4 and v0); (s16)(0, x) comma trick from permuter; parked NON_MATCHING
 typedef struct H1ProxSub {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
@@ -86,9 +86,9 @@ typedef struct H1ActorB {
 void func_8072FDD4(H1ProxNode *, f32, u8 *, f32 *);
 void proxPathGetSegmentMatrices(Actor *, u8, u8, u8, void **, void **);
 void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
-void func_80730408(H1ActorB *, H1ActorState *, H1ProxNode *, u8, f32);
+void proxPathActorFollowSpline(H1ActorB *, H1ActorState *, H1ProxNode *, u8, f32);
 
-void func_807300BC(H1ActorB **arg0) {
+void proxPathFollowerStep(H1ActorB **arg0) {
     H1ActorB *actor;
     H1ActorState *state;
     u8 idx;
@@ -160,7 +160,7 @@ void func_807300BC(H1ActorB **arg0) {
         }
         break;
     case 1:
-        func_80730408(actor, state, node, idx, t);
+        proxPathActorFollowSpline(actor, state, node, idx, t);
         actorGetNodePos(actor, 1, &actor->unk7C, &actor->unk80, &actor->unk84);
         break;
     }

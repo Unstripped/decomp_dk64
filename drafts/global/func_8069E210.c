@@ -12,8 +12,8 @@ typedef struct M4Sub4Inner {
 } M4Sub4Inner;
 
 void func_80613C48(Actor *, s16, f32, f32);
-void func_80613CA8(Actor *, s16, f32, f32);
-void func_80614D00(Actor *, f32, f32);
+void controllerAnimSetState(Actor *, s16, f32, f32);
+void scriptSetActorRampTarget(Actor *, f32, f32);
 s32 actorListFindIdByActor(Actor *);
 void actorUpdateModelMatrix(void *, s32);
 
@@ -27,14 +27,14 @@ void func_8069E210(void) {
     if (!(actor->unk60 & 0x10)) {
         actor->unk60 &= ~4;
         func_80613C48(D_807FBB40, 0x407, 0.0f, 0.0f);
-        func_80614D00(D_807FBB40, 0.0f, 0.0f);
+        scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
         actor = D_807FBB40;
     }
     for (i = 0; i < D_807FBB70.unk254; i++) {
         if (*D_807FBB70.unk278[i] == 0) {
             actor->unk60 |= 4;
-            func_80613CA8(D_807FBB40, 0x407, 0.0f, 0.0f);
-            func_80614D00(D_807FBB40, 1.0f, 0.0f);
+            controllerAnimSetState(D_807FBB40, 0x407, 0.0f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
             switch (actorListFindIdByActor(D_807FBB40)) {
             case 5:
                 sfxPlayOnFreeSlot(0x1D7, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);

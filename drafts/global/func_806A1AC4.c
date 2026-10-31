@@ -46,7 +46,7 @@ void func_806A1AC4(void) {
             D_807FBB40->unk154 = 3;
         } else {
             func_80613C48(D_807FBB40, 0x598, 0.0f, 0.0f);
-            func_80614D00(D_807FBB40, 0.0f, 0.0f);
+            scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
             D_807FBB40->unk144 = 1;
             D_807FBB40->unk60 &= ~4;
         }

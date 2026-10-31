@@ -123,8 +123,8 @@ void func_80028120(void) {
             d->unk8 = J1b2A->unk7C;
             d->unkC = d->unk24;
             d->unk10 = J1b2A->unk84;
-            angleTmp = (s32)(func_806119FC() * 4096.0);
-            k = func_806119FC() * 65.0;
+            angleTmp = (s32)(randomFloat() * 4096.0);
+            k = randomFloat() * 65.0;
             d->unk14 = (func_80612790((s16)angleTmp) * k) + d->unk20;
             d->unk18 = d->unk24;
             d->unk1C = (func_80612794((s16)angleTmp) * k) + d->unk28;

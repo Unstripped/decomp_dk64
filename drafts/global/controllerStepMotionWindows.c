@@ -1,8 +1,8 @@
-// func_8061421C (src/global/17B90.c): stage 4; frame 0x40 and save set s0/ra match; spill slots (0x3C,0x38,0x2C,0x28,0x20) and byte size 7792 match; local declaration order core,win0,win4,unk8,unkC,pos,rate,step and integer-0 ternary (step > 0); remaining diff is spill scheduling and regalloc
+// controllerStepMotionWindows (src/global/17B90.c): stage 4; frame 0x40 and save set s0/ra match; spill slots (0x3C,0x38,0x2C,0x28,0x20) and byte size 7792 match; local declaration order core,win0,win4,unk8,unkC,pos,rate,step and integer-0 ternary (step > 0); remaining diff is spill scheduling and regalloc
 extern u32 D_80744478;
 extern u8 D_80746B60;
 void func_80613944();
-void func_80614D90(void *);
+void actorScriptExecute(void *);
 
 typedef struct {
     void *unk0;
@@ -22,11 +22,11 @@ typedef struct {
     f32 unk2C;
     f32 unk30;
     f32 unk34;
-} RvR1_MotionWindow;
+} MotionWindow;
 
 typedef struct {
-    RvR1_MotionWindow *unk0;
-    RvR1_MotionWindow *unk4;
+    MotionWindow *unk0;
+    MotionWindow *unk4;
     void *unk8;
     void *unkC;
     f32 unk10;
@@ -49,21 +49,21 @@ typedef struct {
     s32 unk7C;
     f32 unk80;
     s32 unk84;
-} RvR1_MotionCore;
+} MotionCore;
 
 typedef struct {
     u8 pad0[4];
-    RvR1_MotionCore *unk4;
-} RvR1_MotionOwner;
+    MotionCore *unk4;
+} MotionOwner;
 
-typedef struct { u8 pad[0x14]; f32 a; f32 b; } RvE_State;
-typedef struct { u8 pad[4]; void *holder; } RvE_Controller;
-void func_80614644(RvE_Controller *, RvE_State *, f32);
+typedef struct { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
+typedef struct { u8 pad[4]; void *holder; } AnimScaleController;
+void controllerApplyMotionWindow(AnimScaleController *, AnimScaleState *, f32);
 
-void func_8061421C(RvR1_MotionOwner *arg0) {
-    RvR1_MotionCore *core;
-    RvR1_MotionWindow *win0;
-    RvR1_MotionWindow *win4;
+void controllerStepMotionWindows(MotionOwner *arg0) {
+    MotionCore *core;
+    MotionWindow *win0;
+    MotionWindow *win4;
     void *unk8;
     void *unkC;
     f32 pos;
@@ -125,7 +125,7 @@ void func_8061421C(RvR1_MotionOwner *arg0) {
     } else {
         pos += step * win0->unk24;
     }
-    func_80614644((RvE_Controller *)arg0, (RvE_State *)win0, pos);
+    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win0, pos);
     if (win4->unk0 != NULL) {
         if (core->unk28 < core->unk2C) {
             core->unk28 += core->unk2E;
@@ -139,7 +139,7 @@ void func_8061421C(RvR1_MotionOwner *arg0) {
             }
         }
         pos = win4->unk4 + win4->unk24;
-        func_80614644((RvE_Controller *)arg0, (RvE_State *)win4, pos);
+        controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win4, pos);
         if ((win4->unk24 == 0.0f) && (win4->unk1C & 0x10)) {
             core->unk2C = 0;
             if (core->unk28 == 0) {
@@ -147,5 +147,5 @@ void func_8061421C(RvR1_MotionOwner *arg0) {
             }
         }
     }
-    func_80614D90(arg0);
+    actorScriptExecute(arg0);
 }

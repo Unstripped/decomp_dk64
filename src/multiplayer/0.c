@@ -671,7 +671,7 @@ void func_80025654(MpControllerState *arg0) {
     }
 }
 
-f32 func_806119FC(void);
+f32 randomFloat(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_806F5F2C(s32, s32, s16, s16, s32);
@@ -717,7 +717,7 @@ void mpUpdateItemSpawns(void) {
                             k = 0;
                             num_inner = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
                             temp_s4 = (s16) mpRandomSpawnDelay();
-                            fs1 = (f32) ((((f64) func_806119FC() * 0.8) + 0.2) * (f64) item->unk6);
+                            fs1 = (f32) ((((f64) randomFloat() * 0.8) + 0.2) * (f64) item->unk6);
                             angle = (randomNonNegative() >> 15) % 4096;
                             fs3 = (f32) item->unk0;
                             fs0 = (f32) (item->unk2 - 23);
