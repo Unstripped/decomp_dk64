@@ -1036,3 +1036,5 @@
 {"agent": "RvT2", "approx": false, "name": "func_80613794", "note": "", "outcome": "parked", "seg": "global", "stage": "5", "ts": "2026-10-31T00:01:40Z", "type": "attempt", "unit": "2026-10-30: global F4C0-19A00 revisit", "vram": "0x80613794"}
 {"agent": "RvT2", "approx": false, "name": "func_806134B4", "note": "", "outcome": "parked", "seg": "global", "stage": "5", "ts": "2026-10-31T00:01:40Z", "type": "attempt", "unit": "2026-10-30: global F4C0-19A00 revisit", "vram": "0x806134B4"}
 {"agent": "RvT2", "approx": false, "name": "func_80613CA8", "note": "", "outcome": "parked", "seg": "global", "stage": "5", "ts": "2026-10-31T00:01:40Z", "type": "attempt", "unit": "2026-10-30: global F4C0-19A00 revisit", "vram": "0x80613CA8"}
+{"approx": false, "ts": "2026-10-31T00:43:03Z", "type": "unit", "unit": "2026-10-30: oldest leftovers revisit"}
+{"agent": "OlY", "approx": false, "name": "csModelIdTableReset", "note": "", "outcome": "matched", "seg": "global", "stage": null, "ts": "2026-10-31T00:43:03Z", "type": "attempt", "unit": "2026-10-30: oldest leftovers revisit", "vram": "0x8063D930"}
