@@ -1,4 +1,4 @@
-// func_806833DC (src/global/80150.c): Stage 5: frame 0x40 ok; diff only spill slot of sp28 (0x2c vs 0x28), sp30/sp34 match; tried all decl-order permutations of kong/dummy/pad/sp34/sp30/sp28, s16 col temp, arr-alias, removing kong/dummy
+// func_806833DC (src/global/80150.c): Stage 5 (LgFB6b): frame 0x40 ok; only sp28 spill slot (ours 0x2c, target 0x28; sp30/sp34/col spill 0x30/0x34/0x20 match). uopt_trace -l 5 isvar offsets (-4..-24,-26): ours kong -4, dummy -8, sp34 -12, sp30 -16, sp28 -20 (0x2c), switch-selector cfe temp -24 (0x28, unused), s16 temp -26; target has sp28's first range at the -24 slot, i.e. sp28 is NOT a named home there. Tried: 120 decl orders x f32/f64 dummy x s32/s16 sp28 (480), split sp28 into col/idx (6 locals, 240 orders: frame +8), extra dead named local X at every position (frame +8), ternary forms (T1/T3 same layout), block-scoped sp28/sp30/sp34, named s16/s32 col with ternary. Any extra named local grows the frame to 0x48.
 typedef struct TagBarrelDataN3 {
     /* 0x00 */ Actor *unk0;
     /* 0x04 */ u16 unk4;
@@ -38,7 +38,6 @@ struct TagBarrelData;
 extern s32 D_8074E848[];
 extern s32 D_807FBB60;
 
-s32 camIsCutsceneActive(void);
 void func_806C93E4(Actor *, void *);
 void func_806C9304(Actor *, void *);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
