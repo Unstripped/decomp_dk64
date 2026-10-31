@@ -1,4 +1,4 @@
-// func_807024E0 (src/global/103AB0.c): Stage 5: code identical to target except y-row preheader order (45 opcode diffs, 931 vs 933 insns); frame 0x1D8 and homes y/u/v/xe/ye/flag (464/456/452/396/388/387) match. Blocker is uopt temp-slot layout: spilltemps (uoptreg2.c) gives PRE temps slots in candidate-bit order, reusing a slot when regions do not overlap (see ok-fine notes/ido-uopt-temp-slots). Target temps need: named locals 248 B (here 268), temps 128 B; call-arg values (u16,v16,xf16,yA,vb,vc,yC) created late by copy propagation (a per-row copy of v gives 18/22 target slots and the target's move a0,a1, but then v lands in s8); x+tw must reuse the ushr(y,5) slot. vc s32 (separate vb/vc temps) and siz s32 (siz temp after yhi) confirmed; statement order/decl order of loop-top vars has no effect. Draft carries the VtxColorView typedef and vtxSetColor/vtxSetPosTex prototypes (drop the duplicate typedef on integration). NOT paste-ready as-is: also replace the forward proto at 103AB0.c:877 with (Gfx **, s32, s32, u32, s32, u32, u32, f32 x6, u8, u8, u8, void (*)()), since drafts.py paste only replaces the pragma
+// func_807024E0 (src/global/103AB0.c): QL1 stage 5 (frame 0x1d8 ok, 934 vs 933 insns). 3 deadsweep FAKEs (if (y) {} after u0, if (u && u) {} at y-loop top, if (u) {} after x loop) fix the registers: with sp offsets masked only ~115 diff lines remain (854 before), incl. y/v copies a1/a0 now like target. Remaining blocker = uopt temp-slot bit order (offsets): target slots high->low: a13c ustep vstep xs xe ye th tw u0 | hole184 | ushr(y,5)+x+tw 180 | ylo yhi siz | 5 holes (FP chain f32 y/cvt.d/sub.d/f32 tw) | xmax ymax | u16 vb vc16 xf16 yC | 3 holes | v16 yA, i.e. late (copy-prop) nodes follow call args bottom-up (call4 u16,vb,vc16,xf16,yC then call2 v16,yA) and xmax/ymax are EARLY bits (target's xmax is not a copy-prop'd xe use; here xe>>5 is replaced by xe's def expr => late bit). Ours: u16 xf16 early, v16/yA mid, xmax ymax x+tw vb vc16 yC late. Tried (no effect or worse): inline ylo/yhi/siz/xmax/ymax + f32 yd at y top (frame 472, slot score 76->56, regs break), xmax from literal (u32)(arg9*32.0f), named yd f64/f32 after siz, per-row vr copy (v lands in s8, 935 insns), s16/s32/inline toggles of ua/vb/vc/xa/xf (no code change), (f32)tw+xf operand flip (no effect), random/GA over inline/type/decl-swap/y-top order/fake toggles (floor ~139 unmasked). add.s f16,f20,f24 operand order (xa) and one extra lw v1 at the u store still differ. Prototype at 103AB0.c:877 must change and the later duplicate VtxColorView typedef must go (function sits above it).
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -61,6 +61,7 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     th = arg6 << 5;
     tw = arg5 << 5;
     u0 = (s32)(fsc * arg11);
+    if (y) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (arg3 > 0x200) {
         gSPTexture(dl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
         flag = 0;
@@ -72,6 +73,7 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     gDPPipeSync(dl++);
     v = (s32)(fsc * arg12);
     for (y = ys; y < ye; y += th, v += vstep) {
+        if (u && u) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         u = u0;
         ylo = (y >> 5) - 1;
         yhi = (y >> 5) + arg6;
@@ -147,5 +149,6 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
             u += ustep;
         }
     }
+    if (u) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     *arg0 = dl;
 }

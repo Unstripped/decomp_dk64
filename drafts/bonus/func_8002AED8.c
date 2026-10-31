@@ -1,4 +1,4 @@
-// func_8002AED8 (src/bonus/2690.c): stage 6 (frame 0x88, callee-saved set, 658 insns match; only 3 FP regs in the tail: 80.0f const f12 vs target f2, k=80.0f/d f2 vs target f16; 25 diff lines). uopt_trace: k (CSE udiv, adjsave 3.0) colours before the const (0.5, +0.5/extra use; 6 dummy uses make const win but then k gets f12, not f16). Target k=f16 needs f2/f12/f14 unavailable to k: appending 3 nested field loads to BB90 reserves f2,f12,f14 for ugen temps (k=f16) but const then gets f18, never f2 (const would need to escape the reservation k is under). Tried, all still 25: inline/named/block/fn-scope k, 80.0f<d, 80 int, k=sp6C/d reuse, lim var (also 1*80.0f), comma/cast/f64/f32 intermediates, ~700 role/copy permutations of fv0/fv1/prev/d/k/u/v/sp6C, ~1000 dummy if(x){} uses (d,k,fs0,fs1,const compares,struct fields), permuter 3 earlier + 15 min. Needs controllerApplyMotionWindow(void*,void*,f32) proto at line ~238 and BonusDBE44Anim.unk4 f32 (func_8002BE44 still matches).
+// func_8002AED8 (src/bonus/2690.c): stage 6 unchanged (25 diff lines: 80.0f const f12 vs target f2, k f2 vs f16). Re-verified against current tree (needs controllerApplyMotionWindow(void*,void*,f32) and BonusDBE44Anim.unk4 f32; LargeB4Player/LargeB4Ctrl/Actor D_807FBB4C types hoisted above the function). uopt model: FP candidate nos 25=f2 26=f12 27=f14 28=f16 29=f18 30=f20 31=f22; compare BB after the sqrtf call forbids 24,25 for candidates live there (const 80.0 can't get f2 unless the compare BB does not start right after the call); k(315,adj3.0) colours first and takes 25. New tries all 25 or worse: lim = 80.0f after/before sqrtf (propagated), dummy ifs between call and compare, dummy field-expression in BB90 (k f12, const f18).
 typedef struct {
     char pad0[4];
     f32 unk4;
@@ -65,24 +65,6 @@ typedef struct {
     s16 unkE;
 } LargeB5Proj;
 
-typedef struct {
-    char pad0[0x298];
-    u16 *unk298;
-    char pad29C[0x2C8 - 0x29C];
-    s16 unk2C8;
-    char pad2CA[0x2F0 - 0x2CA];
-} LargeB5Player;
-
-typedef struct {
-    char pad0[2];
-    s8 unk2;
-    s8 unk3;
-} LargeB5Axis;
-
-extern LargeB5Actor *D_807FBB4C;
-extern LargeB5Player *D_807FC924;
-extern LargeB5Axis *D_807ECDEC;
-void lightSetColor(f32, f32, f32, s32);
 #define LB5 ((LargeB5Actor *)D_807FBB40)
 
 void func_8002AED8(void) {
@@ -100,7 +82,7 @@ void func_8002AED8(void) {
 
     if (!(LB5->unk60 & 0x10)) {
         D_807FBB4C->unk154 = 0x77;
-        D_807FBB4C->unk155 = 0;
+        D_807FBB4C->unk155[0] = 0;
         t->unk0 = LB5->unk7C + 10.0;
         t->unk4 = LB5->unk84 + 8.0;
         LB5->unk80 = LB5->unk80 + 50.0;

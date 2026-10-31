@@ -1,4 +1,4 @@
-// func_80029364 (src/bonus/2690.c): stage 5: frame 0x58 + saved set + all code match except 3 spots (45 diff lines after normalising %lo addends; the (s16*)&D_8002D8F4 stores only differ in reloc addend). (1) andi v1,v0,3 / addiu t4,v1,2 comes out andi t3; (2) else-arm li v0,-100 / li v1,1 comes out li t2/t3; (3) the ring renumbering that follows (lh t2/lui t3 at the join). Model (verified against the asm): as1's t2..t9 ring position = ucode temp number mod 8; a temp that uopt promotes prints as v0/v1 but still consumes its ring number (target andi: ring t3 skipped, prints v1), while uopt-promoted CONSTANTS consume none (target li v0/v1: join lh is t2; ours li t2/t3 consume two, join lh t4). So in the target the constants -100 and 1 (single use each, hoisted above bc1f) and the andi result are uopt candidates (adjsave > 0); ours: uopt_trace -l 5 shows const -100 adjsave 0.0, const 1 -0.18, not allocated. The 6x '& 0xFFu' masks are mod-8 compensation (+6 == -2), not a real fix. Tried (all no change or worse): decl-order sweep of the 9 locals (150 random orders), j/pad/i/r/c/d as the d1 temp, andi site as 2+(..), &3U, (s16)(..), r=rand()&3 / j=.. / d=.. temps, else arm as ternary / swapped stores / >= form / consts through j,d locals (copy-propagated away), K&R randomFloat/randomLcgNext prototypes, dropping the address hack (gives lda lui/addiu CSE of D_8002D8F8/FC: 113 lines). Untried: finding a source form that gives the -100/1 constants and the (rand()&3) a second use (adjsave>0) without extra code; harness: tools/dk python3 .scratch/FE1d/cmp2.py normalises x(at) addends.
+// func_80029364 (src/bonus/2690.c): stage 5 (frame 0x58, saved set, 526 insns): 44 diff lines (harness .scratch/QBon/h.py). Spot (1) andi v1/addiu t4 now MATCHES: ra = rand() & 3; D_8002D8F8 = (ra + 2) & 0xFFFF; if (ra == 0) {} -- a 2nd (dead) use keeps ra a variable so uopt promotes it to v1; the s16 store drops the & 0xFFFF but touches one ugen t-temp (needed, otherwise t-temps downstream shift by one, 290 lines). Left: (a) sh t4 / lw t0,80(sp) swap after it, (b) else-arm li v0,-100 / li v1,1 still li t2/t3 + lh t2/lui t3 join renumbering. KEY: constants CAN be promoted by dead compares: a 2nd use of the same constant in the same live range (mini: 'if (g == -100) {}' in the else arm -> li v0,-100 hoisted above c.lt.s exactly like the target; 'if (g == 1) {}' after the join -> promoted 1). In the real function: if (j == -0x64) {} in the else arm gives li v0,-100 (hoisted, v0 as target, but before lui at / c.lt.s order differs); the 1 only promotes with >=3 dummy compares and lands in a1 (not v1) and the join delay slot shape (bnel/lh t2) changes; ring numbers still +1. Declared D_8002D8F4..D900 are 4-byte-aligned defined scalars (IDO aligns defined globals to 4), plain s16 symbols give lda CSE (98 lines) hence the (s16*)&D_8002D8F4 hack. deadsweep (rounds 1, 9690 variants, locals j r d c i ra) and permuter 9 min: no improvement.
 typedef struct {
     s16 unk0;
     char pad2[2];
@@ -11,27 +11,7 @@ typedef struct {
     char pad13;
     s16 unk14;
     s16 unk16;
-} LargeB2_Sub178;
-
-typedef struct LargeB2_Actor {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[0x84];
-    s16 unkE8;
-    char padEA[0x11C - 0xEA];
-    struct LargeB2_Actor *unk11C;
-    char pad120[0x154 - 0x120];
-    u8 unk154;
-    char pad155[0x16A - 0x155];
-    u8 unk16A;
-    u8 unk16B;
-    u8 unk16C;
-    char pad16D[0x174 - 0x16D];
-    BonusB2_Sub174 *unk174;
-    LargeB2_Sub178 *unk178;
-} LargeB2_Actor;
-
-#define LB2 ((LargeB2_Actor *)D_807FBB40)
+} QBonSub178;
 
 extern s8 D_8002D8F4;
 extern s16 D_8002D8F8;
@@ -39,11 +19,11 @@ extern s16 D_8002D8FC;
 extern s16 D_8002D8EC[];
 void lightSetColor(f32, f32, f32, s32);
 void func_80029E54(void *);
-Gfx *func_80029B9C(Gfx *, Actor_BB44 *);
+Gfx *func_80029B9C(Gfx *, Actor *);
 
 void func_80029364(void) {
-    BonusB2_Sub174 *t1 = LB2->unk174;
-    LargeB2_Sub178 *t0 = LB2->unk178;
+    Struct_7548 *t1 = D_807FBB40->unk174;
+    QBonSub178 *t0 = ((BonusActorExt *)D_807FBB40)->unk178;
     Point3f *p;
     f32 y;
     f32 z;
@@ -53,8 +33,9 @@ void func_80029364(void) {
     s32 r;
     u8 c;
     s16 d;
+    s32 ra;
 
-    if (!(LB2->unk60 & 0x10)) {
+    if (!(D_807FBB40->unk60 & 0x10)) {
         t1->unk23 = 5;
         t1->unk0 = -2;
         switch (D_8076A0A8) {
@@ -84,13 +65,13 @@ void func_80029364(void) {
         t0->unk0 = 0x3C;
         t0->unk4 = 1.0f;
         playerStateQueueCallback(0x48, 0, 0);
-        camSetTarget(*(void **)((u8 *)D_807FD580 + 0x104), D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
-        LB2->unkE8 = 0x9A;
-        LB2->unk60 |= 0x800000;
-        LB2->unk16A = 0xFF;
-        LB2->unk16B = 0xFF;
-        LB2->unk16C = 0xFF;
+        D_807FBB40->unkE8 = 0x9A;
+        D_807FBB40->unk60 |= 0x800000;
+        D_807FBB40->unk16A = 0xFF;
+        D_807FBB40->unk16B = 0xFF;
+        D_807FBB40->unk16C = 0xFF;
         i = 0;
         do {
             t0->unk8[i] = i | 0x80;
@@ -98,7 +79,7 @@ void func_80029364(void) {
         func_80029E54(D_807FBB40);
     }
     if (t1->unk0 > 0) {
-        if (LB2->unk154 == 0) {
+        if (D_807FBB40->unk154 == 0) {
             t0->unk0 -= 1;
         } else {
             t0->unk0 = 0x3C;
@@ -120,7 +101,9 @@ void func_80029364(void) {
             ((s16 *)&D_8002D8F4)[2] = j;
             if (j <= 0) {
                 sfxPlayOnFreeSlot(0x1A1, 0x7FFF, 63.0f, 1.0f, 0x50, 0);
-                D_8002D8F8 = (randomLcgNext() & 3) + 2;
+                ra = randomLcgNext() & 3;
+                D_8002D8F8 = (ra + 2) & 0xFFFF /* FAKE: touches one t-temp without code (s16 store drops the mask) */;
+                if (ra == 0) {} // FAKE: promotes the rand()&3 temp (second use) into v1
             }
             d = D_8002D8FC + 1;
             ((s16 *)&D_8002D8F4)[4] = d;
@@ -162,7 +145,7 @@ void func_80029364(void) {
             }
         }
         t1->unk22 = 0;
-        if (LB2->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
+        if (D_807FBB40->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
             if (D_807FD610.unk2F > 0) {
                 if (D_807FD610.unk2E < -0x28) {
                     t1->unk22 = 1;
@@ -186,7 +169,7 @@ void func_80029364(void) {
             y += 27.0f;
             z -= 8.0f;
         }
-        switch (func_80027548(p->x, y, z)) {
+        switch (bonusAimAndFire(p->x, y, z)) {
         case 1:
             break;
         case 2:
@@ -194,24 +177,24 @@ void func_80029364(void) {
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
-        switch (LB2->unk154) {
+        switch (D_807FBB40->unk154) {
         case 0:
             if (t0->unk14 == 0) {
-                LB2->unk154 = 2;
+                D_807FBB40->unk154 = 2;
             }
-            if (LB2->unk11C->unk154 == 5) {
-                LB2->unk154 = 1;
+            if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
+                D_807FBB40->unk154 = 1;
             }
             break;
         case 1:
-            func_800265C0(0, 1);
+            bonusEndLose(0, 1);
             camStartPath(0, 1, 0x11);
-            LB2->unk154 = 3;
+            D_807FBB40->unk154 = 3;
             break;
         case 2:
-            func_800264E0(0, 0);
+            bonusEndWin(0, 0);
             camStartPath(0, 1, 0x11);
-            LB2->unk154 = 3;
+            D_807FBB40->unk154 = 3;
             break;
         }
     } else {
@@ -224,10 +207,10 @@ void func_80029364(void) {
             }
             break;
         case -1:
-            if (!(LB2->unk60 & 0x2000000)) {
+            if (!(D_807FBB40->unk60 & 0x2000000)) {
                 t1->unk0 = 1;
-                actorSetStateTwo(LB2->unk11C);
-                func_8002733C(t1);
+                actorSetStateTwo((void *)D_807FBB40->unk11C);
+                bonusResetAmmo(t1);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;

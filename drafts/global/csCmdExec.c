@@ -1,5 +1,5 @@
-// func_8063FA48 (src/global/42630.c): CsFA48c stage 5-6: deadsweep full 22 (text 22, shape 12). Fixed: spill split sp+56/60 and found a3 via case-0x7E-local 'u8 pan7' + dead 'if (found) {}' before 'found = 0;' (uninitialised read: NOT kept in the src park, which therefore scores worse; find an equivalent form) and after 'if (D_80748094 > 0) {'. Left: 0x7E ucvt(pan) web wins s0 over vol (higher adjsave), 0x68 &D_807F61F0 a3 vs v0, 0xE/0x7D andi a3,v1,0xff vs move a3,v1. Tried: &x==0 forms, 208 one-line joins, sfxPlayAtPositionPooled narrow-arg prototypes (256 combos), deadsweep 34528 variants, permuter.
-void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
+// csCmdExec (src/global/42630.c): csCmdExec QL7: reduced-TU full 11 (text 11 shape 10), only 0x7E block left. Tricks: 0x7E-local u8 pan7+vol7; dead if(found){} before found=0; 0xE/0x7D b=cmd->b (no &0xFF) + dead if(b&&b&&b){}; 0x68 dead uninit reads if(b){} after '{' and if(i){} between despawns (v0 const piece). Left: 0x7E ucvt(pan7) candidate coloured v0 (move v0,t1/sw v0,60/lw v0,60) vs target uncoloured (sw t1,60/lw t7,60), + pitch sb sched.
+void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // unused: address-taken csId, keeps found at sp+0xC3
     u8 found;
     s32 i;
@@ -35,9 +35,10 @@ void func_8063FA48(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 cy;
     f32 cz;
     u8 pan7;
+    u8 vol7;
 
-if (found) {}
-    found = 0; 
+    if (found) {}
+    found = 0;
     switch (cmd->op) {
     case 0x95:
         D_807F693C = 0x80;
@@ -173,7 +174,9 @@ if (found) {}
         break;
     case 0x68:
         if (D_807F61F0.unk8 != 0) {
+            if (b) {}
             actorDespawn(D_807F61F0.unk0);
+            if (i) {}
             actorDespawn(D_807F61F4);
             D_807F61F0.unk8 = 0;
         }
@@ -215,19 +218,19 @@ if (found) {}
         lightSetColor(cmd->a / 1000.0 + cr, cmd->b / 1000.0 + cg, cmd->c / 1000.0 + cb, D_807F693A);
         break;
     case 0x4F:
-        if (D_807F6938 != 16) {
+        if (gCsTrackedModelCount != 16) {
             if (cmd->a != -2) {
-                D_807F6918[D_807F6938] = cmd->a;
-                D_807F6938++;
+                gCsTrackedModels[gCsTrackedModelCount] = cmd->a;
+                gCsTrackedModelCount++;
             } else {
-                D_807F6918[D_807F6938] = D_807F6000[hashTableLookup(csId)].unk8A;
-                D_807F6938++;
+                gCsTrackedModels[gCsTrackedModelCount] = D_807F6000[hashTableLookup(csId)].unk8A;
+                gCsTrackedModelCount++;
             }
         }
         break;
     case 0x50:
-        if (D_807F6240[cmd->a] != -1) {
-            modelSlotGetNodePos(D_807F6240[cmd->a], 1, cmd->b, &D_807F690C, &D_807F6910, &D_807F6914);
+        if (gCsModelIds[cmd->a] != -1) {
+            modelSlotGetNodePos(gCsModelIds[cmd->a], 1, cmd->b, &D_807F690C, &D_807F6910, &D_807F6914);
         }
         break;
     case 0x4E:
@@ -305,13 +308,13 @@ if (found) {}
         func_8064199C(cs, cmd->a, cmd->b);
         break;
     case 0x54:
-        slot = hashTableLookup(D_807F6240[cmd->a]);
+        slot = hashTableLookup(gCsModelIds[cmd->a]);
         if (slot != -1) {
             func_8064199C(D_807F6000[slot].unk7C, cmd->b, cmd->c);
         }
         break;
     case 0x25:
-        func_80641DA0(cs, cmd->a, cmd->b, cmd->c);
+        csStartCamPath(cs, cmd->a, cmd->b, cmd->c);
         break;
     case 0x3C:
         if (cs->unk94 != NULL) {
@@ -416,8 +419,8 @@ if (found) {}
         }
         i = cmd->b & 1;
         b = cmd->b;
-        b &= 0xFF;
         if (cs->unk10[i] < 0) {
+            if (b && b && b) {} // FAKE: deadsweep
             b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
         }
@@ -436,8 +439,8 @@ if (found) {}
         }
         i = cmd->b & 1;
         b = cmd->b;
-        b &= 0xFF;
         if (cs->unk10[i] < 0) {
+            if (b && b && b) {} // FAKE: deadsweep
             b &= 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
         }
@@ -459,22 +462,24 @@ if (found) {}
         break;
     case 0x7E:
         pan7 = (cmd->b / 128) & 0xFF;
-        vol = (cmd->c / 128) & 0xFF;
+        vol7 = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0xFF;
         c &= 0x7F;
         if (pan7 == 0) {
             pan7 = 0x7F;
         }
-        if (!vol) {
-            vol = 0xFF;
+        if (!vol7) {
+            vol7 = 0xFF;
         }
         i = cmd->b & 0x7F;
         if (D_80748094 > 0) {
+            if (vol7 && vol7) {} // FAKE: deadsweep
             if (found) {}
             pitch = c;
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
-            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol, pan7, i, pitch, 0.3f, 0);
+            if (c) {} // FAKE: deadsweep
+            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pan7, i, pitch, 0.3f, 0);
         } else {
             sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 0x427C0000, (u32)pan7 / 127.0, 0, 0);
         }
@@ -506,8 +511,8 @@ if (found) {}
         cs->unk8A = (f32)cmd->b;
         break;
     case 0x9:
-        if (D_807F61FC != D_807F621C || D_807F6204 != D_807F6224) {
-            func_80642480(cmd->a, csId);
+        if (D_807F61FC != gCsPosX || D_807F6204 != gCsPosZ) {
+            csSnapToGround(cmd->a, csId);
         }
         break;
     case 0x41:
@@ -517,16 +522,16 @@ if (found) {}
         cs->unk14[cmd->a] = cmd->b / 10.0f;
         break;
     case 0x0:
-        func_80642748(cmd->a, cmd->b, cs, csId, 1);
+        csSetRot(cmd->a, cmd->b, cs, csId, 1);
         break;
     case 0x8:
-        func_80642844(cmd->a, cmd->b, cs, csId, 1);
+        csSetPos(cmd->a, cmd->b, cs, csId, 1);
         break;
     case 0x1E:
-        func_80642748(cmd->a, cmd->b, cs, csId, 0);
+        csSetRot(cmd->a, cmd->b, cs, csId, 0);
         break;
     case 0x1D:
-        func_80642844(cmd->a, cmd->b, cs, csId, 0);
+        csSetPos(cmd->a, cmd->b, cs, csId, 0);
         break;
     case 0x3:
         if (cmd->a == 0) {
@@ -542,7 +547,7 @@ if (found) {}
         cs->unk4B[cmd->b] = cmd->a;
         break;
     case 0x5:
-        if (func_806418E8(cmd->a, cmd->b, cmd->c) == 0) {
+        if (csModelStateTrySetByte(cmd->a, cmd->b, cmd->c) == 0) {
             return;
         }
         break;
@@ -560,7 +565,7 @@ if (found) {}
         }
         break;
     case 0x7:
-        D_80747E70[cmd->a](cs, csId, cmd->b, cmd->c);
+        gCsCmdTable[cmd->a](cs, csId, cmd->b, cmd->c);
         break;
     case 0x37:
         actorAppendCallback(D_807FC924->unk4, 0, 0x400000, CMDB(cmd)->a, 0, 0);
@@ -576,13 +581,13 @@ if (found) {}
         func_80636014(csId, 1, CMDB(cmd)->a);
         break;
     case 0x1B:
-        if (D_807F6240[cmd->a] != -1) {
-            modelSlotGetNodePos(D_807F6240[cmd->a], 1, cmd->b, &D_807F621C, &D_807F6220, &D_807F6224);
+        if (gCsModelIds[cmd->a] != -1) {
+            modelSlotGetNodePos(gCsModelIds[cmd->a], 1, cmd->b, &gCsPosX, &gCsPosY, &gCsPosZ);
         }
         break;
     case 0x1C:
-        if (D_807F6240[cmd->a] != -1) {
-            idx = hashTableLookup(D_807F6240[cmd->a]);
+        if (gCsModelIds[cmd->a] != -1) {
+            idx = hashTableLookup(gCsModelIds[cmd->a]);
             if (idx != -1) {
                 if (D_807F6000[idx].unk7C != NULL) {
                     found = 1;
@@ -610,15 +615,15 @@ if (found) {}
         func_8072334C(cs->unk38, CMDB(cmd)->a);
         break;
     case 0x22:
-        cs->unk38 = func_80723020(0, cmd->a, CMDB(cmd)->b, D_807F621C, D_807F6220, D_807F6224, cmd->c);
+        cs->unk38 = pathPlaybackStart(0, cmd->a, CMDB(cmd)->b, gCsPosX, gCsPosY, gCsPosZ, cmd->c);
         break;
     case 0x23:
-        func_80723428(cs->unk38);
+        pathPlaybackFree(cs->unk38);
         cs->unk38 = -1;
         break;
     case 0x4:
         func_80723484(cs->unk38);
-        func_807238D4(cs->unk38, &D_807F621C, &D_807F6220, &D_807F6224);
+        pathPlaybackGetPosition(cs->unk38, &gCsPosX, &gCsPosY, &gCsPosZ);
         break;
     case 0x27:
         modelSlotSetNodeAnimMode(csId, cmd->a, CMDB(cmd)->b);
@@ -631,7 +636,7 @@ if (found) {}
         break;
     case 0x29:
         cam = D_807FC924->unk4->unk174;
-        camStartShakeFromPoint(cam->unk104, CMDB(cmd)->a, cmd->b, D_807F621C, D_807F6220, D_807F6224, D_807F6906, D_807F6908);
+        camStartShakeFromPoint(cam->unk104, CMDB(cmd)->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
         break;
     case 0x44:
         D_807F6906 = cmd->a;
@@ -672,22 +677,22 @@ if (found) {}
         }
         break;
     case 0x49:
-        func_8067ABC0(0, D_807FC924->unk4, CMDB(cmd)->a, cmd->b, cmd->c, D_807F621C, D_807F6220, D_807F6224);
+        func_8067ABC0(0, D_807FC924->unk4, CMDB(cmd)->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x4D:
         idx = modelSlotAppend(cmd->a, D_807F690C, D_807F6910, D_807F6914, D_807F6910 - D_807F6218, 0);
         if (cmd->b == 0) {
-            func_80641B00(idx, csId, cmd->c);
+            csStateShareScript(idx, csId, cmd->c);
         }
         break;
     case 0x51:
-        gridMoveNode(csId, D_807F621C, D_807F6220, D_807F6224);
+        gridMoveNode(csId, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x5E:
         func_80641874(cmd->a, cmd->b);
         break;
     case 0x8A:
-        func_806417BC(cmd->a, cmd->b);
+        csSendMsgByActorType(cmd->a, cmd->b);
         break;
     case 0x63:
         func_8068B830(cmd->a, cmd->b, cmd->c);
@@ -703,7 +708,7 @@ if (found) {}
         break;
     case 0x58:
         if (func_805FFE50(cmd->a, cmd->b, cmd->c) == 0) {
-            func_8063DB3C(cmd->a, cmd->b, cmd->c);
+            csTimerQueueAdd(cmd->a, cmd->b, cmd->c);
         }
         break;
     case 0x77:
