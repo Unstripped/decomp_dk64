@@ -1974,7 +1974,7 @@ void camStartBlendRamp(arg0, arg1) CamState *arg0; s16 arg1; {
     }
 }
 
-s32 mathAngleDistance(s16, s16);
+s16 mathAngleDistance(s16, s16);
 
 typedef struct CamActorEyePos {
     /* 0x00 */ u8 pad0[0x88];
@@ -2070,7 +2070,6 @@ void camSetZoneWeight(u8 arg0, u8 arg1) {
     D_807F5BD4[arg0].unk18 = arg1;
 }
 
-#ifdef NON_MATCHING
 typedef struct CamZoneEntryFull {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
@@ -2136,7 +2135,7 @@ typedef struct CamZoneState {
     /* 0x70 */ u8 pad70[0x34];
     /* 0xA4 */ f32 unkA4;
     /* 0xA8 */ u8 padA8[4];
-    /* 0xAC */ s32 unkAC;
+    /* 0xAC */ u32 unkAC;
     /* 0xB0 */ u8 padB0[2];
     /* 0xB2 */ s16 unkB2;
     /* 0xB4 */ u8 padB4[4];
@@ -2203,13 +2202,12 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     u8 linkId;
     s16 ang0;
     s16 ang1;
-    s16 dist0;
+    CamZoneTargetSub *sub;
     s32 ang2;
     f32 factor;
     f32 outX;
     f32 outY;
     f32 outZ;
-    CamZoneTargetSub *sub;
 
     st = (CamZoneState *)arg0->unk174;
     tgt = st->unk0;
@@ -2357,8 +2355,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                     ang1 = st->unkB2;
                 }
                 ang2 = ang0 + 0x800;
-                dist0 = mathAngleDistance(ang1, ang0);
-                if (dist0 < mathAngleDistance(ang1, ang2)) {
+                if (mathAngleDistance(ang1, ang0) < mathAngleDistance(ang1, ang2)) {
                     st->unkB2 = ang0;
                 } else {
                     st->unkB2 = ang2;
@@ -2367,8 +2364,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
             case 9:
                 ang0 = mathAngleBetweenPoints2D(tgt->unk7C, tgt->unk84, best->unk0, best->unk4);
                 ang1 = mathAngleBetweenPoints2D(tgt->unk7C, tgt->unk84, best->unk6, best->unkA);
-                dist0 = mathAngleDistance(ang0, st->unkB2);
-                if (dist0 < mathAngleDistance(ang1, st->unkB2)) {
+                if (mathAngleDistance(ang0, st->unkB2) < mathAngleDistance(ang1, st->unkB2)) {
                     st->unkF9 = 0;
                 } else {
                     st->unkF9 = 1;
@@ -2392,7 +2388,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
                     st->unkF1 = 0xB;
                 }
                 ret = 0;
-                st->unkAC = st->unkAC | (((u8 *)best)[2] | 0x2000);
+                st->unkAC |= ((u8 *)best)[2] | 0x2000;
                 if (((u8 *)best)[0] != 0) {
                     st->unkA4 = ((u8 *)best)[0];
                     st->unkB8 = ((u8 *)best)[1];
@@ -2461,7 +2457,7 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     }
     if (st->unkF3 == 2) {
         if (st->unkEC & 0xA) {
-            CAM_ZONE_PATH->unkC4[CAM_ZONE_SORT[st->unkC4].unk0].unk17 |= 4;
+            CAM_ZONE_PATH->unkC4[gCamZoneSorted[st->unkC4 * 2]].unk17 |= 4;
         }
         if (st->unkED != 8 || mathAngleDistance(st->unkB2, tgt->unkE6) >= 0x400) {
             st->unkB2 = mathAngleBetweenPoints2D(tgt->unk7C, tgt->unk84, *arg1, *arg3);
@@ -2479,10 +2475,6 @@ s32 func_8061F53C(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f3
     st->unkAC &= ~2;
     return 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061F53C.s")
-#endif
 
 // Needs top-block prototype changes: `void camSetZoomLevel(CamActor *, s16);` (call site passes plain 1, hoisted const gives sll/sra) and `u8 camComputeFollowPos(CamActor *, CamActor *, f32 *, f32 *, f32 *, f32);` (asm returns lbu v0).
 typedef struct CamFindYawTarget {
