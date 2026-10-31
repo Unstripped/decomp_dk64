@@ -1,4 +1,4 @@
-// func_80027728 (src/jetpac/3480.c): func_80027728 (src/jetpac/3480.c): stage 5/6 park: frame+regs match; text size equal after perm. Fixes found: (*new_var)=&D_8002F050,(*new_var2)=&D_8002F054 locals set before 'if (unk38==0)' reproduce lui at order in the 8-arg func_80027250 call; unk14=0.8f before unk38=2 (permuter); s32 new_var4=*new_var3(&D_8002F06C). Left: t7/v0 for D_8002F06C load in 'unk8 = ...' expr (lw v0 vs lw t7), 2 insns of mul.d/add.s operand order, and later-fn pressure (sw a1,0x6c(sp) in func_800286D0 region is other fn) | C1g: only diff left is the D_8002F06C load colour ($v0 vs $t7 CSE temp). With `new_var3 = &D_8002F06C` and first use `(f32)*new_var3` (second use direct `D_8002F06C`, no new_var4) the ints match (ring $t7) but the add.s operand order flips and FP ring follows (39 diff lines): the earlier `(f32)D_8002F06C` in the func_80027250 args makes its VN older. Tried no-op (s32) casts on either use, *(s32*)&D alias forms, pointer deref in the early use (changes code size), assoc/order variants: none flip it back. uopt: the named local/direct global is a coloured candidate ($2); unnamed via pointer is a ring temp.
+// func_80027728 (src/jetpac/3480.c): stage 5 park: full=3 text=3 reloc=0 shape=0, only diff left is D_8002F06C load register (v0 vs t7 CSE temp)
 typedef struct {
     u8 pad0[8];
     f32 unk8;
@@ -32,7 +32,7 @@ typedef struct {
 } J3Inner;
 
 s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
-s32 func_80027330(f32);
+s32 jetpacIsOverRocket(f32);
 extern s32 D_8002F064;
 extern f32 D_8002F050;
 extern f32 D_8002F054;

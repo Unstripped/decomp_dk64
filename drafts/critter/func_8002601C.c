@@ -1,13 +1,97 @@
-// func_8002601C (src/critter/0.c): stage 5 improved (fdiff 2620 -> 300; permuter 2646 -> 300 found it): reuse dx for the first-block distance: 'dx = dx*dx + dz*dz;' then compare dx (pins the sum before the flag code like the target and drops the separate-temp scheduling; int regs a1/a2/a3 now match). Left: first block target dx=$f14,dz=$f16,dist=$f12 vs ours dx=f12,dz=f14,dist=f12-reuse; second block target dist=$f12,dz=f14,dx=f16,ddy=f18 vs ours dist=f18,dz=f12.. (target colours dist FIRST in both blocks = one high-priority web; ours dist is the last-coloured); int ring at 0x2108 (lui t3/t9 vs t9/t4). Tried: dummy dist uses (&&, <, !) pin but colour dist last and shift ints, decl order of f32 locals (no effect), separate vars per block, 24 role permutations of dx/dz/dist/ddy in block 1 (best 285), dummy uses before block 2 (removed before alloc).
-extern u8 D_807444FC;
-extern u8 *D_807FC924;
-extern u8 D_807FC929;
-extern u8 *D_807FBB48;
-extern void *D_80029BA4;
+// func_8002601C (src/critter/0.c): stage 5 park: struct conversion, dx reuse in first block matches a1-a3; left: f14/f16/f12 register swap in first and second block, t3/t9 swap in int ring
+typedef struct CritterZoneShape {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+    s32 unkC;
+    s32 unk10;
+} CritterZoneShape;
 
-#define CR58 (*(u8 **)((u8 *)arg0 + 0x58))
-void func_8002601C(void *arg0) {
-    u8 *m;
+typedef struct CritterZone {
+    s16 x;
+    s16 y;
+    s16 z;
+    s16 unk6;
+    CritterZoneShape shape;
+    u8 flags;
+    u8 pad1D[3];
+    f32 distSq;
+    u8 frame;
+    u8 near;
+    u8 alpha;
+    u8 pad27;
+    s16 unk28;
+    u8 pad2A[2];
+} CritterZone;
+
+typedef struct CritterObj {
+    s16 yaw;
+    s16 pitch;
+    s16 prevYaw;
+    u8 pad6[2];
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 yBob;
+    f32 offX;
+    f32 offY;
+    f32 offZ;
+    f32 turnRate;
+    f32 speed;
+    u8 pad2C[4];
+    f32 accel;
+    f32 targetSpeed;
+    f32 scale;
+    f32 distSq;
+    u8 frame;
+    u8 pad41;
+    s16 anim;
+    s16 prevAnim;
+    u8 pad46[2];
+    f32 flapA;
+    f32 flapB;
+    u8 zoneIdx;
+    u8 pad51[3];
+    CritterZone *zone;
+    CritterZone *homeZone;
+    u8 pad5C[4];
+    Mtx mtx[3][2];
+    u8 state;
+    u8 flags;
+    u8 role;
+    u8 pad1E3;
+    u16 texId[2];
+    s32 tex[2];
+} CritterObj;
+
+typedef struct CritterViewer {
+    u8 pad0[0x88];
+    Mtx projection[2];
+    u8 pad108[0x210 - 0x108];
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad21C[0x2F0 - 0x21C];
+} CritterViewer;
+
+typedef struct CritterPlayer {
+    u8 pad0[0x7C];
+    f32 x;
+    f32 y;
+    f32 z;
+} CritterPlayer;
+
+extern u8 D_807444FC;
+extern CritterViewer *D_807FC924;
+extern u8 D_807FC929;
+extern CritterPlayer *D_807FBB48;
+extern CritterZone *critterPlayerZone;
+
+void func_8002601C(CritterObj *obj) {
+    CritterViewer *m;
     f32 lim;
     f32 fv0;
     f32 dx;
@@ -18,44 +102,43 @@ void func_8002601C(void *arg0) {
     s32 f;
 
     fv0 = 0.0f;
-    lim = (f32)(*(s32 *)(CR58 + 0x18) + 0x1DE84);
-    if (D_807444FC != CR58[0x24]) {
-        half = (*(s16 *)(CR58 + 0x10) + *(s16 *)(CR58 + 0xC)) >> 1;
-        dx = (f32)*(s16 *)(CR58 + 0) - *(f32 *)(D_807FBB48 + 0x7C);
-        dz = (f32)*(s16 *)(CR58 + 4) - *(f32 *)(D_807FBB48 + 0x84);
+    lim = (f32)(obj->homeZone->shape.unk10 + 0x1DE84);
+    if (obj->homeZone->frame != D_807444FC) {
+        half = (obj->homeZone->shape.unk4 + obj->homeZone->shape.unk8) >> 1;
+        dx = (f32)obj->homeZone->x - D_807FBB48->x;
+        dz = (f32)obj->homeZone->z - D_807FBB48->z;
         dx = dx * dx + dz * dz;
         fv0 = 0.0f;
-        f = *(s16 *)((u8 *)D_80029BA4 + 2) < (*(s16 *)(CR58 + 2)) + half;
+        f = critterPlayerZone->y < obj->homeZone->y + half;
         if (f) {
-            f = (*(s16 *)(CR58 + 2)) - half < *(s16 *)((u8 *)D_80029BA4 + 2);
+            f = obj->homeZone->y - half < critterPlayerZone->y;
         }
         f = (u8)f != 0;
         if (f) {
             f = 0;
-            if (dx < (f32)*(s32 *)(CR58 + 0x18)) {
+            if (dx < (f32)obj->homeZone->shape.unk10) {
                 f = 1;
             }
         }
-        CR58[0x25] = f;
-        CR58[0x24] = D_807444FC;
-        m = D_807FC924 + D_807FC929 * 0x2F0;
-        dz = (f32)*(s16 *)(CR58 + 4) - *(f32 *)(m + 0x218);
-        dx = (f32)*(s16 *)(CR58 + 0) - *(f32 *)(m + 0x210);
-        ddy = (f32)*(s16 *)(CR58 + 2) - *(f32 *)(m + 0x214);
+        obj->homeZone->near = f;
+        obj->homeZone->frame = D_807444FC;
+        m = &D_807FC924[D_807FC929];
+        dz = (f32)obj->homeZone->z - m->z;
+        dx = (f32)obj->homeZone->x - m->x;
+        ddy = (f32)obj->homeZone->y - m->y;
         dist = dz * dz + (dx * dx + ddy * ddy);
-        *(f32 *)(CR58 + 0x20) = dist;
+        obj->homeZone->distSq = dist;
         if (dist < lim) {
             fv0 = (lim - dist) * 0.000051020408f;
             if (fv0 > 1.0f) {
                 fv0 = 1.0f;
             }
         }
-        CR58[0x26] = (u32)(255.0f * fv0);
+        obj->homeZone->alpha = (u32)(255.0f * fv0);
     }
-    if (*(f32 *)(CR58 + 0x20) < lim) {
-        ((u8 *)arg0)[0x1E1] |= 1;
+    if (obj->homeZone->distSq < lim) {
+        obj->flags |= 1;
     } else {
-        ((u8 *)arg0)[0x1E1] &= ~1;
+        obj->flags &= ~1;
     }
 }
-#undef CR58
