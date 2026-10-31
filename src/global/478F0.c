@@ -174,8 +174,6 @@ void csPeriodicPointEffect(s32 a, s32 b, u32 c) {
     }
 }
 
-#ifdef NON_MATCHING
-
 void csCmdBobbingLights(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 *ang;
     CsPoint3f *p;
@@ -190,28 +188,24 @@ void csCmdBobbingLights(CsState *cs, s16 csId, s16 b, s16 c) {
     ang = *(s16 **)cs;
     sn = func_80612794(*ang);
     p = D_807F5FD4[1];
-    fy = p[0].y + (sn * 0.5 + 0.5) * (p[1].y - p[0].y);
+    fy = p[0].y + (p[1].y - p[0].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
     lightSetRadius(0x5DC);
     p = D_807F5FD4[1];
     lightAdd(p[0].x, fy, p[0].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
     sn = func_80612794(*ang + 0x514);
     p = D_807F5FD4[1];
-    fy = p[2].y + (sn * 0.5 + 0.5) * (p[3].y - p[2].y);
+    fy = p[2].y + (p[3].y - p[2].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
     lightSetRadius(0x5DC);
     p = D_807F5FD4[1];
     lightAdd(p[2].x, fy, p[2].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
     sn = func_80612794(*ang + 0xA28);
     p = D_807F5FD4[1];
-    fy = (sn * 0.5 + 0.5) * (p[5].y - p[4].y) + p[4].y;
+    fy = p[4].y + (p[5].y - p[4].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
     lightSetRadius(0x5DC);
     p = D_807F5FD4[1];
     lightAdd(p[4].x, fy, p[4].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
     *ang += 0x32;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/csCmdBobbingLights.s")
-#endif
 
 void csCmdPeriodicPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     csPeriodicPointEffect(0, b, c);

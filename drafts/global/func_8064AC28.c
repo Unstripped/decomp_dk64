@@ -1,33 +1,29 @@
-// func_8064AC28 (src/global/478F0.c): CsNM6 stage 4 (19 insns diff, regs/webs only; frame + callee-saved set match). Cause: uopt PRE makes p+6 (loop-1 unrolled peel e=p+6 and loop-2 init e=p+6 share one value number) an expression candidate in a0 (mine: addiu a0,v1,6; move s0,a0; else path addiu a0,t0,6). Target computes addiu s0,v1,6 separately in both places and keeps p in TWO regs at the join (a0 for the part[0] timer/active stores, v1 for loop-2 base + unk4F; or a0,v1 in the flag branch, or v1,a0 in the else branch). Reproduced the target structure (4 insns diff) ONLY with a pointer q assigned in one branch and undefined in the other (invalid C); q = p in both branches is copy-propagated (19). Tried: loop forms (for/while/do, comma-for, p->part[i] index, (u8*)p+i*6), part0 via p/e/q, loop2 from i=0/1, separate e1/i1 loop vars (80), q = p at 5 positions x 4 decl positions, folded spellings of p+6 (all VN-folded), types of i/best/n/allDone/j, declaration-order hill climb (16 locals), deadsweep sweep incl. --extra p e i cs, permuter 600s -j2 (790 base, no gain).
-void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
-void modelAnimEntrySetTime(s16, s16, s16, f32);
-void modelAnimEntrySetUnkC(s16, s16, s16);
-void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
-void func_8063DA40(s16, s16);
+// func_8064AC28 (src/global/478F0.c): OlW stage 4 (unchanged, 19-28 diff lines by fv metric). Re-read target: p lives in stack home 0xA4 (sw v0,0xA4 after heapAlloc, lw v1/a0,0xA4 reload in each branch of flagGet) and each branch ends with a MIRRORED pair (flag branch: lw v1; or a0,v1; else: lw a0; or v1,a0) so a0 and v1 are two separate webs both holding p at the join (a0 = part[0] stores, v1 = loop-2 base + unk4F); both loops compute addiu s0,v1,6 separately (no PRE). Hill-climb 5400 iters of statement swaps/joins/decl swaps: no change. Needs two distinct p-valued variables whose copies are not propagated.
+void csModelStateSetFirstByte(s16, s16);
 extern u8 D_8074E77C;
-typedef struct CsB10Part {
+typedef struct CsEntry {
     /* 0x0 */ u8 state;
     /* 0x1 */ u8 pad1;
     /* 0x2 */ s16 timer;
     /* 0x4 */ u8 active;
     /* 0x5 */ u8 pad5;
-} CsB10Part;
-typedef struct CsB10W {
+} CsEntry;
+typedef struct CsEntryView {
     /* 0x00 */ u8 pad0[0x18];
     /* 0x18 */ u8 state;
     /* 0x19 */ u8 pad19;
     /* 0x1A */ s16 timer;
     /* 0x1C */ u8 active;
-} CsB10W;
-typedef struct CsB10Set {
+} CsEntryView;
+typedef struct CsEntrySet {
     /* 0x00 */ u8 pad0[0x18];
-    /* 0x18 */ CsB10Part part[9];
+    /* 0x18 */ CsEntry part[9];
     /* 0x4E */ u8 unk4E;
     /* 0x4F */ u8 unk4F;
-} CsB10Set;
+} CsEntrySet;
 void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
-    CsB10Set *p;
-    CsB10W *e;
+    CsEntrySet *p;
+    CsEntryView *e;
     s16 j;
     s16 anim;
     f32 animT;
@@ -43,12 +39,12 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 d;
     f32 bestD;
 
-    if (*(CsB10Set **)cs == NULL) {
-        p = *(CsB10Set **)cs = heapAlloc(0x50);
+    if (*(CsEntrySet **)cs == NULL) {
+        p = *(CsEntrySet **)cs = heapAlloc(0x50);
         p->unk4E = 0;
         if (flagGet(0x146, 0) != 0) {
-            e = (CsB10W *)p;
-            for (i = 0; i < 9; i++) { e->state = 3; e = (CsB10W *)((u8 *)e + 6); }
+            e = (CsEntryView *)p;
+            for (i = 0; i < 9; i++) { e->state = 3; e = (CsEntryView *)((u8 *)e + 6); }
         } else {
             p->part[2].state = 2;
             p->part[5].state = 2;
@@ -62,14 +58,14 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         p->part[0].timer = 10;
         p->part[0].active = 1;
-        for (i = 1, e = (CsB10W *)((u8 *)p + 6); i < 9; i++, e = (CsB10W *)((u8 *)e + 6)) {
+        for (i = 1, e = (CsEntryView *)((u8 *)p + 6); i < 9; i++, e = (CsEntryView *)((u8 *)e + 6)) {
             e->active = 1;
             e->timer = 10;
         }
         p->unk4F = 0;
     }
-    p = *(CsB10Set **)cs;
-    for (i = 0, e = (CsB10W *)p; i < 9; i++, e = (CsB10W *)((u8 *)e + 6)) {
+    p = *(CsEntrySet **)cs;
+    for (i = 0, e = (CsEntryView *)p; i < 9; i++, e = (CsEntryView *)((u8 *)e + 6)) {
         if (e->active != 0) {
             j = i + 1;
             n++;
@@ -111,7 +107,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
                     i++;
                 } while (i != 9);
                 if (best >= 0) {
-                    e = (CsB10W *)((u8 *)p + best * 6);
+                    e = (CsEntryView *)((u8 *)p + best * 6);
                     e->state++;
                     e->state %= 4;
                     e->active = 1;
@@ -125,7 +121,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         p->unk4F--;
     }
     if (allDone != 0) {
-        func_8063DA40(0xF, 0xA);
+        csModelStateSetFirstByte(0xF, 0xA);
         heapFreeDeferred(*(void **)cs);
         cs->unk4B[0] = 0x28;
         *(void **)cs = NULL;

@@ -1,5 +1,5 @@
-// func_80646058 (src/global/478F0.c): CsNM8 stage 4, 13 diff lines (unchanged best). Left: (1) start: target keeps it in a1 until the loop (lw a1,0(s0); addiu t2,a1,1; beql a1,a0 ret; sw a1,0x84(sp) at loop entry), mine start=t2 stored at def (sw t2,0x84) + reload lw t3 for the compare; (2) li a0,1 / li t8,1 order in the hit block (target a0 first); (3) func_8071E3EC address spill slot 0x44 vs 0x3c. Tried (all no gain): deadsweep sweep incl. locals via --extra (12k variants), same-line joins of every adjacent statement pair and 1-4 subsets around the idx update and hit block, decl-order hill climb (moves of every local+pads), idx-update spellings (++/+=/post-inc/start+1 compare), loop forms (do-while, for(;;)+break, while+guard, operand orders), register/u32/s16 start, hit=1 spellings (*hp, order), 600s permuter. KEY finding: an extra memory-resident s32 lim (declared with unused s32 *lp=&lim, lim=start before the loop, loop tests lim) reproduces the target start-in-register + sw at loop entry structure (the beql/sw/reload shape) but start lands in v1 and frame/slots shift (+8, hit at 0x6a); with dead 'if (start == 0) {}' + 'if (csId == 0) {}' start becomes a1 (15 lines, worse overall; csId dead test adds lh). Next idea: find slot layout for lim at 0x84/hit 0x83/vec 0x48 without extra pads (hill climb stalled at 10 shape) and a spelling that puts start in a1 without the csId dead test.
-typedef struct CsB46State {
+// func_80646058 (src/global/478F0.c): OlW stage 4 (unchanged, 13 diff lines). uopt -l 6 trace: start (cand 43, M var -4) is split into 43 and 293 and BOTH 'not colored (-ve save)'; target colors the pre-loop segment into a1 (lw a1,0(s0); addiu t2,a1,1; compare uses a1; sw a1,0x84(sp) sunk into the beql slot at loop entry, in-loop compare reloads lw t8,0x84(sp)). So the pre-loop segment needs positive cycle savings (more pre-loop uses or fewer defs); the remaining li a0/li t8 order and 0x44-vs-0x3c spill slot follow from that. Hill-climb 5300 iters statement swaps/joins/decl swaps: no change (score 21 fv metric).
+typedef struct CsPointHitState {
     /* 0x00 */ s32 idx;
     /* 0x04 */ s32 timer;
     /* 0x08 */ s32 active;
@@ -8,23 +8,23 @@ typedef struct CsB46State {
     /* 0x14 */ s32 flag14;
     /* 0x18 */ s32 flag18;
     /* 0x1C */ s32 flag1C;
-} CsB46State;
+} CsPointHitState;
 
-typedef struct CsB46Player {
+typedef struct CsPlayerPosView {
     /* 0x000 */ u8 pad0[0x210];
     /* 0x210 */ f32 x;
     /* 0x214 */ f32 y;
     /* 0x218 */ f32 z;
-} CsB46Player;
+} CsPlayerPosView;
 
-typedef struct CsB46Sub4 {
+typedef struct CsActorSub {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
-} CsB46Sub4;
+} CsActorSub;
 
-typedef struct CsB46Act {
+typedef struct CsActorView {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ CsB46Sub4 *unk4;
+    /* 0x004 */ CsActorSub *unk4;
     /* 0x008 */ u8 pad8[0x7C - 8];
     /* 0x07C */ f32 unk7C;
     /* 0x080 */ f32 unk80;
@@ -34,7 +34,7 @@ typedef struct CsB46Act {
     /* 0x12E */ u8 pad12E[0x154 - 0x12E];
     /* 0x154 */ u8 unk154;
     /* 0x155 */ u8 unk155;
-} CsB46Act;
+} CsActorView;
 
 extern u32 D_807FBB60;
 extern u8 D_80748108;
@@ -56,18 +56,18 @@ void camStartPath(void *, s32, s32);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
 Actor *spawnNodeActivate(s16, u16);
 
-#define CsB46A ((CsB46Act *)D_807FBB4C)
+#define CS_ACTOR ((CsActorView *)D_807FBB4C)
 
 void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 start;
     u8 hit;
-    CsB46State *p;
-    CsB46Player *pl;
+    CsPointHitState *p;
+    CsPlayerPosView *pl;
     f32 t;
-    CsB0Point3f *v;
-    CsB46Act *a;
+    CsPoint3f *v;
+    CsActorView *a;
     u8 ok;
-    CsB46State *n;
+    CsPointHitState *n;
     s32 s;
     f32 u;
     u32 pad0;
@@ -76,9 +76,9 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *hp = &hit;
 
     hit = 0;
-    if (*(CsB46State **)cs == NULL) {
+    if (*(CsPointHitState **)cs == NULL) {
         n = heapAlloc(0x1C);
-        *(CsB46State **)cs = n;
+        *(CsPointHitState **)cs = n;
         n->idx = 0;
         n->timer = D_807480F4;
         n->active = 0;
@@ -88,7 +88,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         n->flag18 = 0;
         n->flag1C = 0;
     }
-    p = *(CsB46State **)cs;
+    p = *(CsPointHitState **)cs;
     if (b == 0) {
         if (D_80748108 != 0) {
             return;
@@ -106,7 +106,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         do {
             if (D_80720BC4) {}
-            pl = (CsB46Player *)D_807FC924;
+            pl = (CsPlayerPosView *)D_807FC924;
             v = D_807F5FD4[0] + p->idx;
             if (sqrtf((pl->z - v->z) * (pl->z - v->z) + ((pl->x - v->x) * (pl->x - v->x) + (pl->y - v->y) * (pl->y - v->y))) < D_807480F0) {
                 if (D_807480F4 && D_807480F4) {}
@@ -127,7 +127,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         } while (hit == 0 && start != p->idx);
         return;
     }
-    if ((~D_807FBB60 & 0x10) || CsB46A->unk154 == 0x63) {
+    if ((~D_807FBB60 & 0x10) || CS_ACTOR->unk154 == 0x63) {
         if (p->timer < 200) {
             p->timer = D_807480F4;
         }
@@ -144,7 +144,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
             } else {
                 t = (randomNonNegative() >> 15) % D_8074810C - D_8074810C * 0.5;
                 u = (randomNonNegative() >> 15) % D_8074810C - D_8074810C * 0.5;
-                actorListSpawnNodeEntry(0x5C, CsB46A->unk7C + t, CsB46A->unk80 + (f32)D_80748100, CsB46A->unk84 + u, 0, D_80748104, 0, vec);
+                actorListSpawnNodeEntry(0x5C, CS_ACTOR->unk7C + t, CS_ACTOR->unk80 + (f32)D_80748100, CS_ACTOR->unk84 + u, 0, D_80748104, 0, vec);
             }
             if (p->flag14) {
                 p->delay = D_80748114;
@@ -169,10 +169,10 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         if (p->flag14 != 0) {
             return;
         }
-        if (CsB46A->unk154 == 0x63) {
+        if (CS_ACTOR->unk154 == 0x63) {
             return;
         }
-        s = CsB46A->unk12C;
+        s = CS_ACTOR->unk12C;
         if (s == 0 || s == 7 || s == 2 || s == 3) {
             sfxStopChannel(0x54, 0);
             p->timer = D_807480F4;
@@ -182,9 +182,9 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         if (p->flag18 == 0 && flagGet(0x12C, 0)) {
             p->flag18 = 1;
         }
-        if (CsB46A->unk12C == 0xD) {
+        if (CS_ACTOR->unk12C == 0xD) {
             ok = 0;
-            a = (CsB46Act *)spawnNodeActivate(0x1F, 0);
+            a = (CsActorView *)spawnNodeActivate(0x1F, 0);
             if (a != NULL && a->unk154 == 0x27 && a->unk4->unk64 == 0x362 && a->unk155 == 2) {
                 p->timer = 0x65;
                 ok = 1;
@@ -198,7 +198,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         if (p->flag18 != 0) {
             return;
         }
-        s = CsB46A->unk12C;
+        s = CS_ACTOR->unk12C;
         if (s == 0) {
             return;
         }
