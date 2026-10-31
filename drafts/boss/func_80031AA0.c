@@ -1,15 +1,4 @@
-// func_80031AA0 (src/boss/C920.c): stage 4 (BsA7f): frame 128 + s0/s1/ra same, no pad locals (dx,dz,k,lx,lz are real named locals; all named slots match target), insn count 1054 vs 1051 (was ~1062 vs 1050), 21 asm-diff hunks left (struct score 47). Fixes vs prior park: sfx/light consts are 63.0f NOT 62.0f (lui 0x427c); sfxPlayOnFreeSlot and sfxAllocateChannel declared unprototyped with int-bit args (0x427C0000,0x3F800000) so 1.0f is not promoted into an FP reg (float literal args get mfc1'd from $f2 because compare/store share the 1.0f web; mini-repro: any f32-arg const shared with a float compare in the same fn promotes); dx/dz named f32 locals CSE the two >700 distance tests; i/sp5C two-var abs (sp5C=(x&0x1F)-0x10; i=sp5C; if(sp5C<0) i=-sp5C); k=s->unk14 hoisted before the clamp; j=randomLcgNext() then stores then D_80035B70=(j&3)+4; switch(s->unk13) with explicit case 9: break (table 10 entries); D_80035B38 u8 compared == -1 (lbu, li at,-1); unk0 store before unk14 in init. Remaining: temp spill slots 0x40/0x44 vs 0x44/0x48 (target has one extra never-accessed temp slot at 0x40), spawn loop: target hoists 0.1f lwc1 above beqz (+ only 2 0.1f rodata entries, first unused; plain 3 stores give 3 entries, chain a=b=c=0.1f gives 1 entry + reload), zero-const f2/f8 reuse in unk4 clamp, D_80035B68 ++ store-forward (target reuses incremented reg, we reload via shared addr), scheduling of sb stores in case 6, reloc-only D_80035B48 symbol for the D_80035B44[4] loop pointer. See func_80031AA0 NON_MATCHING in C920.c.
-#include "common.h"
-
-struct BossD_Actor;
-extern struct BossD_Actor *D_807FBB40;
-extern struct BossD_Actor *D_807FBB4C;
-extern void *D_807FDC90;
-f32 func_80612794(s16);
-s32 camIsCutsceneActive(void);
-void camStartPath(void *, s32, s32);
-void actorUpdateModelMatrix(void *, s32);
-
+// func_80031AA0 (src/boss/C920.c): stage 4 (OlT revisit): frame 128, s0/s1/ra same, 1053 insns vs 1051 (was 1054), ~12 hunks, all scheduling/regalloc. New: i = D_80035B68 + 1; D_80035B68 = i; (i as the increment temp) forwards the value across the sp67 branch and removes the hoisted D_80035B68 address (-3 insns, struct diff 39->36); target uses ugen t5/t6 there not i's t0. func_805FF378 (or sfxAllocateChannel) void->s32 toggle cuts full diff 1094->1074 (reg only). Remaining root: uopt spill/home slot for the D_807FBB40 candidate is at 72(sp) in target vs 68(sp) here (v0 spill 68 vs 64) = target has one extra 4-byte slot below, and v1 is free (li v1,5; lh v1,0(v1)) where this build uses t4/t5/a1; extra move after andi sp5C (v0/v1 swap for sp5C). Unused s32/s16/s8 pad locals at all 17 positions emit no slot (no change).
 typedef struct BossModelInfo {
     u8 pad0[0x34];
     f32 unk34;
@@ -100,7 +89,7 @@ extern f32 D_80036DC4;
 s32 actorSpawn(s32, s32);
 void *actorListFindActorById(s16);
 void actorDespawn(void *);
-void func_805FF378(s32, s32);
+s32 func_805FF378(s32, s32); // FAKE: void->s32 return toggle steers regalloc
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void func_8068A764(void *, u8);
 void func_806C8E58(s16);
@@ -447,10 +436,11 @@ void func_80031AA0(void) {
             s->unk14 -= 4;
         }
     }
-    D_80035B68++;
+    i = D_80035B68 + 1; // FAKE: i as temp lets the increment forward across the sp67 branch (D_80035B68++ reloads)
+    D_80035B68 = i;
     if (sp67 != 0) {
         k = s->unk14;
-        sp5C = (D_80035B68 & 0x1F) - 0x10;
+        sp5C = (i & 0x1F) - 0x10;
         i = sp5C;
         if (sp5C < 0) {
             i = -sp5C;

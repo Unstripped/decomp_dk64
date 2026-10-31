@@ -1,4 +1,4 @@
-// func_80032B08 (src/boss/C920.c): stage 5 (same frame -56, same s0/s1 set, same 370 insns, opcode seq differs ~24 ops only in the unk17==1 block): D_80035B74 accesses stay unhoisted only when spelled via other lvalues (load/0x28/0 as D_80035B74, temp store D_80035B70[2], 0xA store D_80035B6C[4] = addend-only reloc diff); plain D_80035B74 everywhere hoists lui/addiu to v1 (108 op diff). Remaining: tables lui order z(B20) first/x second, y add in jal delay slot, lui v1 position. Tried z/x/y order perms, inline call args, decl orders. Names: actorDespawn, projectileSetTargetCoords, projectileAimAndSpawn.
+// func_80032B08 (src/boss/C920.c): stage 5 (OlT revisit): frame -56, s0/s1, 370-371 insns. sfx consts must be int-bit args (0x427C0000,0x3F800000) with K&R sfxPlayOnFreeSlot (old 63.0f/1.0f promoted to doubles: +9 insns). (s16)((s16)((s32)(f64*1024.0))-0x400) fixes mfc1 t9. Remaining ~11 opcode diffs: uopt hoists the D_80035B74 LOAD's lui above the unk17==1 bne (target keeps lui v1 right before lh v1); NOT a spelling issue: 243 assignments of 5 accesses over B74/B70[2]/B6C[4]/B68[6]/B60[10] spellings, dead reads, static/defined D_80035B74 all keep the hoist. Also target evaluates z(B20 table) lui first/x second, y add in jal delay slot (xyz,xzy,zyx,inline-arg orders tried: arg order never moves the y add). Park uses decls B70/B6C from the 31AA0 park block.
 typedef struct BossAnimState {
     char pad0[4];
     f32 unk4;
@@ -64,12 +64,11 @@ typedef struct BossFollowerActor {
 } BossFollowerActor;
 
 void func_80613C48(void *, s16, f32, f32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+void sfxPlayOnFreeSlot();
 void controllerApplyMotionWindow(void *, void *, f32);
 void actorDespawn(void *);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
-void actorUpdateModelMatrix(void *, s32);
 extern s16 D_80035B00[];
 extern s16 D_80035B08[];
 extern s16 D_80035B10[];
@@ -79,9 +78,8 @@ extern s8 D_80035B28;
 extern s16 D_80035B2C;
 extern f32 D_80035B3C;
 extern s16 D_80035B74;
-extern s16 D_80035B70[];
-extern s16 D_80035B6C[];
-extern s16 D_80035B68[];
+extern s16 D_80035B70; /* declared in the func_80031AA0 park block of C920.c */
+extern s8 D_80035B6C;
 extern f32 D_80036DC4;
 
 #define ACTOR ((BossFollowerActor *)D_807FBB40)
@@ -114,7 +112,7 @@ void func_80032B08(void) {
             s32 v0 = sub174->unk4 + 0x66B;
             if (v0 != sub4_0->unk10) {
                 func_80613C48(ACTOR, v0, 0.0f, 0.0f);
-                sfxPlayOnFreeSlot(0x38D, 0x7D00, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x38D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
             } else {
                 controllerApplyMotionWindow(ACTOR, sub4_0, sub4_0->unk4 + 0.75f);
             }
@@ -134,7 +132,7 @@ void func_80032B08(void) {
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {
-                sfxPlayOnFreeSlot(0x384, 0x7D00, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x384, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 actorDespawn(ACTOR);
             }
         }
@@ -148,12 +146,12 @@ void func_80032B08(void) {
                     D_80035B74 = 0x28;
                 }
                 temp_v1 = D_80035B74 - 1;
-                D_80035B70[2] = temp_v1;
+                (&D_80035B70)[2] = temp_v1;
                 if (temp_v1 < 0) {
                     f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
                     f32 y = ACTOR->unk80 + 270.0f;
                     f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
-                    D_80035B6C[4] = 0xA;
+                    ((s16 *)&D_80035B6C)[4] = 0xA;
                     projectileSetTargetCoords(x, y, z);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
                 }
