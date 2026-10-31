@@ -1,17 +1,5 @@
-// func_80636D38 (src/global/36880.c): stage 4: frame 0x48 matches target; callee-saved s0/s1/ra match; entry home stores sw a0-a2 match; arg2 lbu 0x53(sp) matches; unified res eliminates extra var_v1 stack slot; remaining: stack offset ordering of spilled temps sp20/sp24/res/node/sp30
-typedef struct ModelSlotObjHeader {
-    /* 0x00 */ u32 unk0;
-    /* 0x04 */ u8 pad4[4];
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ u8 padC[0x10];
-    /* 0x1C */ u8 unk1C;
-    /* 0x1D */ u8 pad1D[0x1F];
-    /* 0x3C */ s16 unk3C;
-} ModelSlotObjHeader;
-
-s32 dlResolveNodeTextures();
-void modelSlotLoadAssetTextures();
-void modelSlotClearAssetTextures();
+// func_80636D38 (src/global/36880.c): stage 4, parked NON_MATCHING in src copy: frame 0x48 + s0/s1/ra match; 117 vs 113 insns. Needs FAKE volatile seg2 (copy of arg0->unk20 reloaded from 0x3C(sp) in the else branch, as target) + if(0){&node;}; decl order found by search (seg,obj,seg2,sp30,node,flags,res,sp24,sp20). Remaining diff: target loads obj into v0 then 'move s1,v0' after the first store (obj->unk8) and reads obj->unk0 via v0 (two webs), flags lives in a3 (mine v1), lbu t5,0x53(sp) hoisted above the arg0 reload, stack slot order of node/sp24/sp30/res (target sp20@20 sp24@24 res@2B node@2C sp30@30, mine permuted). Tried hdr temp for obj, order variants, volatile seg2 / address-taken seg2 (0x50 frame)
+s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
 void func_80636D38(arg0, arg1, arg2)
 ModelSlot *arg0;
@@ -20,18 +8,19 @@ volatile u8 arg2;
 {
     ModelSegmentData *seg;
     ModelSlotObjHeader *obj;
+    ModelSegmentData *volatile seg2; // FAKE: keeps a memory copy of seg (target reloads it from 0x3C(sp) in the else branch)
+    u32 sp30;
     ModelSegmentNode *node;
     u8 flags;
-    u32 sp30;
+    u8 res;
     s32 sp24;
     s32 sp20;
-    u8 res;
-
     if (0) {
-        &node;
+        &node; // FAKE: node must be stack resident
     }
-    seg = arg0->unk20;
-    obj = arg0->unk24;
+    seg = ((ModelSlotSegOwner *)arg0)->unk20;
+    obj = (ModelSlotObjHeader *)arg0->unk24;
+    seg2 = seg;
     obj->unk8 = D_8076A064;
     flags = arg0->unk8C;
     if (!(flags & 0x20)) {
@@ -39,7 +28,7 @@ volatile u8 arg2;
             arg0->unk8C = flags | 0x20;
             obj->unk3C += 1;
             if (obj->unk1C == 1) {
-                node = arg0->unk20->unkB8;
+                node = (ModelSegmentNode *)((ModelSlotSegOwner *)arg0)->unk20->unkB8;
                 sp24 = ((seg->unkA8 - seg->unkA0) >> 3) * 8;
                 sp30 = (seg->unkB0 - seg->unkA8) >> 3;
                 res = dlResolveNodeTextures((DisplayListCmd *)seg->unkA0, (DisplayListCmd *)(seg->unkA0 + sp24), node, arg2);
@@ -53,10 +42,10 @@ volatile u8 arg2;
                     obj->unk0 &= ~0x10;
                 }
             } else {
-                if (((ModelType2Obj *)seg)->unk50 != 0 || arg1 != 0) {
-                    modelSlotLoadAssetTextures(obj, seg);
+                if (((ModelType2Obj *)seg2)->unk50 != 0 || arg1 != 0) {
+                    modelSlotLoadAssetTextures((u8 *)obj, (ModelSlotAsset *)seg2);
                 } else {
-                    modelSlotClearAssetTextures(obj, seg);
+                    modelSlotClearAssetTextures((s32)obj, (u8 *)seg2);
                 }
             }
         }

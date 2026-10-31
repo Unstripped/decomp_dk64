@@ -1,16 +1,4 @@
-// func_8062DBDC (src/global/2F550.c): Stage 3 (NM2F3). 285 vs 281 insns, frame 0xD0 vs 0xB0. Verified behavior: 8-corner bounding box frustum culling against D_807F5E50 plane, point-in-box test, and 5-plane clipping tests. Callee prototypes checked against current src definitions. Target saves fs0-fs3 and s0-s6, ra.
-typedef struct ClipPlane {
-    /* 0x00 */ u8 pad0[0x18];
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 pad19[7];
-    /* 0x20 */ f64 unk20;
-    /* 0x28 */ f64 unk28;
-    /* 0x30 */ f64 unk30;
-    /* 0x38 */ f64 unk38;
-} ClipPlane;
-
-extern f32 D_807F5E50[];
-
+// func_8062DBDC (src/global/2F550.c): stage 3: 8 corner tests rewritten as ONE && chain (target is a single chain returning 0), D3 + ((a*D0 + b*D1) + c*D2) < 0.0 each; 289 vs 281 insns, frame 0xB8 vs 0xB0 (was 283/0xD0). Target: sp8C/sp80/sp70 f32 memory locals at 0x8C/0x80/0x70 (y,z store then reload via lwc1, x first used from fa1 and stored later in a bc1f delay slot), D[0..3] in f16/fs0/fs3/f2, saves fs0-fs3 (f20-f26) used by the first block AND by the loop's hoisted cvt.d.w of arg0/1/2/4; mine uses only f20-f24, stores sp8C/sp70 twice and spills 4 extra temps (slots 0x70/0x6C/0xB0/0xC0); mul/add operand order also differs from target (D2*z vs z*D2: sp70/sp80 must NOT be value-numbered; volatile on all 3 gives frame 0x78/296 insns, volatile on y/z only 298/0x90). Later half (clip loop, calls) already near-identical
 f32 boxMinCornerDistance(s16, s16, s16, s16, s16, s16, f32, f32, f32);
 s32 clipPolyToBox(s32, s16, s16, s16, s16, s16, s16, void *);
 
@@ -22,42 +10,19 @@ s32 func_8062DBDC(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f3
     s32 in2;
     s32 behind;
     s32 i;
-    f32 temp_fa0;
-    f32 temp_fa1;
-    f32 temp_fa1_2;
-    f32 temp_fs0;
-    f32 temp_fs1;
-    f32 temp_fs2;
-    f32 temp_fs2_2;
-    f32 temp_fs3;
-    f32 temp_ft4;
-    f32 temp_ft5;
-    f32 temp_ft5_2;
 
-    temp_fa1 = arg0;
+    sp8C = arg0;
     sp80 = arg1;
-    temp_ft5 = temp_fa1 * D_807F5E50[0];
-    temp_fs1 = sp80 * D_807F5E50[1];
     sp70 = arg2;
-    temp_fa0 = sp70 * D_807F5E50[2];
-    temp_fs2 = temp_ft5 + temp_fs1;
-    sp8C = temp_fa1;
-    if (D_807F5E50[3] + (temp_fs2 + temp_fa0) < 0.0) {
-        temp_fa1_2 = arg5 * D_807F5E50[2];
-        if (D_807F5E50[3] + (temp_fs2 + temp_fa1_2) < 0.0) {
-            temp_fs2_2 = arg4 * D_807F5E50[1];
-            temp_fs3 = temp_ft5 + temp_fs2_2;
-            if (D_807F5E50[3] + (temp_fs3 + temp_fa0) < 0.0 && D_807F5E50[3] + (temp_fs3 + temp_fa1_2) < 0.0) {
-                temp_ft5_2 = arg3 * D_807F5E50[0];
-                temp_fs0 = temp_ft5_2 + temp_fs1;
-                if (D_807F5E50[3] + (temp_fs0 + temp_fa0) < 0.0 && D_807F5E50[3] + (temp_fs0 + temp_fa1_2) < 0.0) {
-                    temp_ft4 = temp_ft5_2 + temp_fs2_2;
-                    if (D_807F5E50[3] + (temp_ft4 + temp_fa0) < 0.0 && D_807F5E50[3] + (temp_ft4 + temp_fa1_2) < 0.0) {
-                        return 0;
-                    }
-                }
-            }
-        }
+    if (D_807F5E50[3] + ((sp8C * D_807F5E50[0] + sp80 * D_807F5E50[1]) + sp70 * D_807F5E50[2]) < 0.0 &&
+        D_807F5E50[3] + ((sp8C * D_807F5E50[0] + sp80 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) < 0.0 &&
+        D_807F5E50[3] + ((sp8C * D_807F5E50[0] + arg4 * D_807F5E50[1]) + sp70 * D_807F5E50[2]) < 0.0 &&
+        D_807F5E50[3] + ((sp8C * D_807F5E50[0] + arg4 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) < 0.0 &&
+        D_807F5E50[3] + ((arg3 * D_807F5E50[0] + sp80 * D_807F5E50[1]) + sp70 * D_807F5E50[2]) < 0.0 &&
+        D_807F5E50[3] + ((arg3 * D_807F5E50[0] + sp80 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) < 0.0 &&
+        D_807F5E50[3] + ((arg3 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + sp70 * D_807F5E50[2]) < 0.0 &&
+        D_807F5E50[3] + ((arg3 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) < 0.0) {
+        return 0;
     }
     in1 = 0;
     in2 = 0;
