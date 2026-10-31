@@ -1,4 +1,4 @@
-// func_80678050 (src/global/7CA80.c): stage 5: frame 0x40 ok, 5 home words (u16 headerSize/totalDataSize share a word, typesPtr as expr) -> temp slots 0x28/0x24 match target, loop 1 and post-loop shape match (needs FAKE if (headerSize) {} in loop to give hs=a1). Remaining: post-loop temps v0/t5 vs t5/t6 (ring shift), then arg0 in a1 vs v1, const-1 web split (t6,t7), field-store temps
+// func_80678050 (src/global/7CA80.c): stage 5 (~93 diff lines). LgDisp2: draft unchanged; tried (headerSize+7) spellings (& ~7 gives 93 vs 136 lines but inner headerSize+7 still a uopt candidate in v0 with sw v0,36(sp) where target keeps OUTER ((hs+7)&0xFFF8) in t6 and spills it), named aligned local (95). Remaining as before: arg0 reload a1 vs v1, const 1 web split (t6,t7), field-store temps.
 #include "common.h"
 #include "actor.h"
 

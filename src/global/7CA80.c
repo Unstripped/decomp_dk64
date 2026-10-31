@@ -1378,7 +1378,7 @@ extern u8 D_807FBB85;
 extern s32 D_80720E2C;
 void func_80686CF8(Actor *);
 s32 func_80714608(s32);
-s32 func_806D0DE4(Actor *, Actor *, s32);
+u8 func_806D0DE4(Actor *, Actor *);
 void func_807149FC(s32);
 void func_807149B8(s32);
 void func_8071498C(void *);
@@ -1391,17 +1391,17 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
     s32 temp_a3;
     s32 var_v0;
 
-    temp_a3 = arg2 & 0xFF;
+    temp_a3 = arg2 & 0xFF;  // FAKE: unused local keeps the 8-byte frame slot (target frame 0x40)
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
-        var_a2 = 1;
         if (((DamageReactionPlayerEntry *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2)) {
             return;
         }
         sp3C = 0x2E;
-        if (temp_a3 != 0) {
+        if (arg2 != 0) {
             sp3C = 0x30;
         }
+        var_a2 = 1;
         if (arg1 != NULL && arg1->unk58 == 0x116) {
             func_80686CF8(arg0);
             switch (arg1->unk155[0]) {
@@ -1434,7 +1434,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
         } else if (arg1 != NULL && ((arg1->unk5C & 1) || (arg1->unk5C & 4) || (arg1->unk5C & 2))) {
             if (D_807FD580 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (func_80714608(0) != 0) {
-                if (func_806D0DE4(arg0, arg1, var_a2) != 0) {
+                if (func_806D0DE4(arg0, arg1) != 0) {
                     sp3C = 0x31;
                 } else {
                     var_v0 = 1;
@@ -1523,7 +1523,6 @@ void func_8067A170(s32 arg0, u8 arg1) {
     }
 }
 
-#ifdef NON_MATCHING
 extern u8 D_807FBC68[][0x40];
 extern u8 D_807FBC74[][0x40];
 
@@ -1630,7 +1629,7 @@ void func_8067A1DC(Actor *arg0) {
         }
     }
 
-    if (D_807FBB70.unk39 != 0) {
+    if (D_807FBB70.unk39) {
         for (i = 0; i < D_807FBB70.unk39; i++) {
             if (Ac7B_GLOBAL->unk8C[i] == 0) {
                 collisionTransformPointByActorMtx(arg0, Ac7B_GLOBAL->unk6C[i], &Ac7B_GLOBAL->unk3C[i].x, Ac7B_GLOBAL->unk3C[i].y, &Ac7B_GLOBAL->unk3C[i].z);
@@ -1647,10 +1646,6 @@ void func_8067A1DC(Actor *arg0) {
         func_806776A0(arg0, Ac7B_GLOBAL->unk128[i].unkC, D_807FBC68[i], D_807FBC74[i], Ac7B_GLOBAL->unk128[i].unk0, Ac7B_GLOBAL->unk128[i].unk4, Ac7B_GLOBAL->unk128[i].unk8, 0);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_8067A1DC.s")
-#endif
 
 void func_8067A69C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     ActorPayloadA69C *temp = heapAlloc(sizeof(ActorPayloadA69C));
