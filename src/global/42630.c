@@ -60,8 +60,6 @@ s16 D_807F693C;
 u8 D_807F693E;
 s8 D_807F693F;
 
-#ifdef NON_MATCHING
-
 void csModelIdTableReset(void) {
     s32 i = 0;
     s32 j;
@@ -72,10 +70,6 @@ void csModelIdTableReset(void) {
     } while (&gCsModelIds[i] < (s16 *)gCsVarsDirty);
     for (j = 0; j < 0x212; j++) { gCsVarsDirty[j] = 0; }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/csModelIdTableReset.s")
-#endif
 
 struct CsModelSlot;
 extern struct CsModelSlot *D_807F6000;
