@@ -299,8 +299,6 @@ void func_806A6574(void) {
     }
 }
 
-#ifdef NON_MATCHING
-
 typedef struct BehaviourState {
     /* 0x0 */ u8 unk0;
     /* 0x1 */ u8 unk1;
@@ -330,7 +328,7 @@ u32 randomLcgNext(void);
 s32 camIsCutsceneActive(void);
 s32 actorTypeIsRespawnPickup(s32);
 void func_806F5F2C(s32, s32, s16, s16, s32);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 void actorDespawn(void *);
 
 void func_806A664C(f32 arg0) {
@@ -357,10 +355,14 @@ void func_806A664C(f32 arg0) {
     func_8067ACB4(D_807FBB40);
     if (D_807FBB40->unkFC != 0) {
         if (actorAngleInArc(D_807FBB40, *(s16 *)((u8 *)D_807FBB40 + 0xEE)) == 0) {
-            s32 temp;
+            s16 temp;
+            s16 b;
+            s16 c;
 
             temp = mathAngleArcMidpoint(D_807FBB40->unkF4, D_807FBB40->unkF6);
-            *(s16 *)((u8 *)D_807FBB40 + 0xEE) = temp + (temp - ((*(s16 *)((u8 *)D_807FBB40 + 0xEE) + 0x800) & 0xFFF));
+            b = (*(s16 *)((u8 *)D_807FBB40 + 0xEE) + 0x800) & 0xFFF;
+            c = temp - b;
+            *(s16 *)((u8 *)D_807FBB40 + 0xEE) = temp + c;
         }
     }
     switch (D_807FBB40->unk154) {
@@ -413,7 +415,7 @@ void func_806A664C(f32 arg0) {
             }
             switch (D_807FBB40->unk58) {
             case 0x34:
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF5, (u8)(*(f32 *)((u8 *)D_807FBB40 + 0xC0) + 105.0f), 0x7F, 0x1E);
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF5, (*(f32 *)((u8 *)D_807FBB40 + 0xC0) + 105.0f), 0x7F, 0x1E);
                 break;
             case 0x36:
                 if (state->unk0 == 0) {
@@ -421,7 +423,7 @@ void func_806A664C(f32 arg0) {
                 }
                 break;
             default:
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 1, (u8)(*(f32 *)((u8 *)D_807FBB40 + 0xC0) + 105.0f), 0x7F, 0x14);
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 1, (*(f32 *)((u8 *)D_807FBB40 + 0xC0) + 105.0f), 0x7F, 0x14);
                 break;
             }
             state->unk0++;
@@ -451,12 +453,6 @@ void func_806A664C(f32 arg0) {
         break;
     }
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A664C.s")
-
-#endif
 
 typedef struct ActorConfig {
     f32 unk0;
@@ -491,8 +487,6 @@ void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void actorSetCollisionRadius(Actor *, f32);
 void actorUpdateModelMatrix(Actor *, s32);
 
-#ifdef NON_MATCHING
-
 typedef struct PhysicsActor {
     u8 pad0[0xC0];
     f32 unkC0;
@@ -508,7 +502,7 @@ void func_806A6DB4(u8);
 
 void func_806A6DB4(u8 arg0) {
     EffectState *temp_v1;
-    s32 temp;
+    s16 temp;
 
     temp_v1 = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -536,7 +530,12 @@ void func_806A6DB4(u8 arg0) {
     func_8067ACB4(D_807FBB40);
     if (D_807FBB40->unkFC != 0 && actorAngleInArc(D_807FBB40, AA960_PHY->unkEE) == 0) {
         temp = mathAngleArcMidpoint(D_807FBB40->unkF4, D_807FBB40->unkF6);
-        AA960_PHY->unkEE = temp + (temp - ((AA960_PHY->unkEE + 0x800) & 0xFFF));
+        {
+            s16 b = (AA960_PHY->unkEE + 0x800) & 0xFFF;
+            s16 c = temp - b;
+
+            AA960_PHY->unkEE = temp + c;
+        }
     }
     if (D_807FBB40->unk154 == 1 || D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 4
         || D_807FBB40->unk154 == 5 || D_807FBB40->unk154 == 6) {
@@ -616,11 +615,6 @@ void func_806A6DB4(u8 arg0) {
     D_807FBB40->unkE6 += 0x72;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A6DB4.s")
-#endif
 
 void func_806A734C(void) {
     func_806A6DB4(1);
@@ -717,6 +711,7 @@ void func_806A7600(void *arg0) {
     EffectState *temp_v1;
     s32 temp;
     s32 cond;
+    s32 flag;
 
     temp_v1 = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -735,6 +730,7 @@ void func_806A7600(void *arg0) {
         temp_v1->unk0 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk0;
         temp_v1->unk1 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk4;
         temp_v1->unk2 = pathPlaybackStart(D_807FBB40, temp_v1->unk0, 0, 0.0f, 0.0f, 0.0f, 0);
+        if (temp_v1 && temp_v1) {}  // FAKE: deadsweep: extra temp_v1 use blocks the s8 unk2 store->load forwarding and hoists the else-branch temp_v1 reload
         if (temp_v1->unk2 != -1) {
             func_807232B8(temp_v1->unk2, 1);
             func_80723284(temp_v1->unk2, temp_v1->unk1);
@@ -750,19 +746,25 @@ void func_806A7600(void *arg0) {
         D_807FBB40->unk80 += 5.0 * func_80612794(temp_v1->unk4);
         temp_v1->unk4 = (temp_v1->unk4 + 0x50) & 0xFFF;
         if (D_8076A068 % 0x18 == 0) {
-            if (D_807FBB40->unk58 == 0x5B) {
+            switch (D_807FBB40->unk58) {
+            case 0x5B:
                 temp = 6;
-            } else if (D_807FBB40->unk58 == 0x6F) {
+                break;
+            case 0x6F:
                 temp = 0x75;
-            } else if (D_807FBB40->unk58 == 0x70) {
+                break;
+            case 0x70:
                 temp = 0x42;
-            } else if (D_807FBB40->unk58 == 0x71) {
+                break;
+            case 0x71:
                 temp = 0x46;
-            } else {
+                break;
+            default:
                 temp = -1;
+                break;
             }
-            cond = temp == -1 || flagGet(temp, 0) != 0;
-            if (cond != 0) {
+            flag = (temp == -1 || flagGet(temp, 0) != 0) ? 1 : 0;
+            if (flag != 0) {
                 func_807149B8(1);
                 cond = 1;
                 if (D_807FBB40->unk58 == 0x93) {
