@@ -251,7 +251,6 @@ void pathPlaybackFree(s32 arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct PathPlaybackView {
     s32 unk0;
     PathEntry path;
@@ -270,21 +269,22 @@ typedef struct PathPlaybackView {
 void func_80723484(s32 arg0) {
     PathPlaybackView *pb;
     PathEntry *path;
-    f32 prog;
     f32 step;
-    f32 fa;
+    f32 ratio;
     s32 next;
     s32 tmp;
     s32 limit;
     s32 quot;
-    s32 total;
     u32 tq;
     s32 whole;
+    s32 pad;
 
     if (arg0 != -1 && D_807FDBF8[arg0] != NULL && ((PathPlaybackView *)D_807FDBF8[arg0])->unk21 != 0) {
         pb = (PathPlaybackView *)D_807FDBF8[arg0];
+        pad = pb->unk1C;  // FAKE: extra web (keeps pb a constrained uopt candidate)
+        if (pad) {}  // FAKE: extra web (keeps pb a constrained uopt candidate)
         path = &pb->path;
-        if (path == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (path == 0) {}  // FAKE: ring/web steer
         if (pb->unk16 == 0) {
             path = &pb->path;
             next = pb->unk10 + 1;
@@ -296,12 +296,8 @@ void func_80723484(s32 arg0) {
                 next = tmp;
             }
         }
-        prog = pb->unkC;
-        fa = (f32)(u32)path->unk0[pb->unk10 * 10 + 8];
-        step = (f32)(u32)pb->unk20 *
-               (f32)((f64)(fa +
-                           (f32)(path->unk0[next * 10 + 8] - path->unk0[pb->unk10 * 10 + 8]) * prog) /
-                     300.0);
+        ratio = (f32)((f64)((f32)(path->unk0[next * 10 + 8] - path->unk0[pb->unk10 * 10 + 8]) * pb->unkC + (f32)(u32)path->unk0[pb->unk10 * 10 + 8]) / 300.0);
+        step = (f32)(u32)pb->unk20 * ratio;
         switch (pb->unk14) {
         case 0:
             pb->unkC += step;
@@ -316,8 +312,8 @@ void func_80723484(s32 arg0) {
             if (pb->unk10 >= limit) {
                 limit = pb->path.unk4 - 1;
                 quot = pb->unk10 / limit;
-                total = pb->unk1C += quot;
-                if (total >= pb->unk18 && pb->unk18 != -1) {
+                pb->unk1C += quot;
+                if (pb->unk1C >= pb->unk18 && pb->unk18 != -1) {
                     pb->unk10 = pb->path.unk4 - 2;
                     pb->unk21 = 0;
                     pb->unkC = 1.0f;
@@ -327,7 +323,6 @@ void func_80723484(s32 arg0) {
                 } else {
                     switch (pb->unk15) {
                     case 0:
-                        if (total && total) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         if (pb->unk16 == 0) {
                             pb->unk10 = pb->unk10 % limit;
                         } else {
@@ -355,8 +350,8 @@ void func_80723484(s32 arg0) {
             if (pb->unk10 < 0) {
                 limit = -pb->unk10;
                 quot = limit / pb->path.unk4;
-                total = pb->unk1C += quot + 1;
-                if (total >= pb->unk18 && pb->unk18 != -1) {
+                pb->unk1C += quot + 1;
+                if (pb->unk1C >= pb->unk18 && pb->unk18 != -1) {
                     pb->unk10 = 0;
                     pb->unk21 = 0;
                     pb->unkC = 0.0f;
@@ -367,12 +362,14 @@ void func_80723484(s32 arg0) {
                     switch (pb->unk15) {
                     case 0:
                         pb->unk10 = limit % (pb->path.unk4 - 1);
+                        if (pb && pb) {}  // FAKE: ring/web steer
                         if (pb->unk10 != 0) {
                             pb->unk10 = pb->path.unk4 - pb->unk10 - 1;
                         }
                         break;
                     case 1:
                         tq = quot + 1;
+                        if (tq && tq) {}  // FAKE: ring/web steer
                         if (tq) {
                             pb->unk14 = 0;
                             pb->unk10 = 0;
@@ -386,10 +383,6 @@ void func_80723484(s32 arg0) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/127B00/func_80723484.s")
-#endif
 
 typedef struct SplinePathPoint {
     s16 unk0;
