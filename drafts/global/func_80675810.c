@@ -1,4 +1,4 @@
-// func_80675810 (src/global/7A510.c): stage 6, parked NON_MATCHING in src: 16 diff lines of 202 (was ~90). Levers: swapped cmp operands temp_s2->unk54 == arg1->unk10->unk18; u8 tv0/tv1 locals for unk8/unk200 compare (v0/v1 webs); sub pointer local for temp_s2->unk174; if/else for var_v1; i=0 before done=0; deadsweep FAKE if (D_8074C604) {} at top of entry-match then-body. Remaining: (1) store D_807FBB70.unk200 = entry->unk8 emits lui at/sb 512(at) instead of sb 512(s0) (any ilod-via-IV-pointer RHS gives that form; const/other-pointer RHS use the reg; tried chains, casts, order, locals); (2) post-loop D_807FBB70 accesses reuse the hoisted web in ours vs separate re-lui s0 piece in target. D_8074C608 accessed through incomplete-struct extern + (u8 *) cast to dodge later typedef clash.
+// func_80675810 (src/global/7A510.c): W3A stage 6, 2-insn text diff: missing post-loop re-materialisation 'lui s0; addiu s0,s0,D_807FBB70' (target holds a SEPARATE piece of the lda web after the loop; ours keeps one s0 web through loop+post-loop) and the following 'move a0,s3' placement. Loop body matches since D_807FBB70.unk200 = ((u8 *)res)[i * 12 + 8] (not entry->unk8: a const-offset global store whose RHS ilod is CSE-equal to an earlier IV-pointer load becomes a var-form store = 'lui at; sb 512(at)'; a differently-shaped address avoids it). Tried for the split: loop shape, post-loop spellings, locals/types, callee void/s32, dead if/goto-label/&D reads, permuter 500s, deadsweep (no gain). A label or if (0) {} between the post-loop store-if and compare-if splits the web but gives lui v1 for the compare only; with a split before the store IV/i swap regs (lda adjsave 11.2 < IV 11.22).
 typedef struct W2Col_ActorSub174_810 {
     u8 pad0[0xD4];
     s16 unkD4;
@@ -116,7 +116,7 @@ void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
                             tv1 = D_807FBB70.unk200;
                             if (tv1 < tv0) {
                                 D_807FBB70.unk1FC = (s32)temp_s2;
-                                D_807FBB70.unk200 = entry->unk8;
+                                D_807FBB70.unk200 = ((u8 *)res)[i * 12 + 8];
                             }
                             if (D_807FBB70.unk201 < 0xF) {
                                 D_807FBB70.unk204[D_807FBB70.unk201] = (s32)temp_s2;

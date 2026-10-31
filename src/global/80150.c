@@ -96,8 +96,8 @@ s32 textTableGetString(s32, s32, s32);
 void func_80714950();
 void func_8071496C(s32);
 void func_8071498C(void *);
-void func_80714998(s32);
-void func_807149B8(s32);
+void func_80714998(u32);
+void func_807149B8(u32);
 void func_807149FC(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void effectRadialSprayUpdate(void);
@@ -1199,7 +1199,7 @@ void func_8060E7EC(s32, s32, s32);
 void tagBarrelDespawnEffects(void) {
     void (*sp5C)(void);
     f32 temp_fs0;
-    u32 temp_s0;
+    s32 temp_s0;
     s32 var_s1;
 
     temp_fs0 = (f64) D_807FBB40->unk4->unk38 / 0.15;
@@ -1215,7 +1215,7 @@ void tagBarrelDespawnEffects(void) {
         func_807149FC(0xA);
         func_8071498C(effectTumbleBounceUpdate);
         func_80714998(2);
-        func_80714950(2U);
+        func_80714950(2);
         switch (temp_s0) {
         case 0:
             func_80714CC0(&D_8071FE64, (f64) temp_fs0 * 0.25, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
@@ -2172,7 +2172,6 @@ u8 tagBarrelGetKongType(void) {
     return ret;
 }
 
-#ifdef NON_MATCHING
 typedef struct Lg809_TagBarrelState {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ s16 unk4;
@@ -2509,10 +2508,6 @@ void func_806809F0(void) {
     guTranslateF((f32 (*)[4])((u8 *)D_807FBB40 + 0xC), sp90.x, sp90.y, sp90.z);
     actorUpdateModelMatrix(D_807FBB40, 1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_806809F0.s")
-#endif
 
 
 void func_80681B14(void) {

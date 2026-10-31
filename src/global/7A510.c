@@ -119,7 +119,7 @@ void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
                             tv1 = D_807FBB70.unk200;
                             if (tv1 < tv0) {
                                 D_807FBB70.unk1FC = (s32)temp_s2;
-                                D_807FBB70.unk200 = entry->unk8;
+                                D_807FBB70.unk200 = ((u8 *)res)[i * 12 + 8];
                             }
                             if (D_807FBB70.unk201 < 0xF) {
                                 D_807FBB70.unk204[D_807FBB70.unk201] = (s32)temp_s2;
