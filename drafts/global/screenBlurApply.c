@@ -1,5 +1,5 @@
-// func_8062A3F0 (src/global/2DE90.c): stage 5, 22 diff lines (shape=0, improved from 24/shape=2). Reordering loop 3 (g[idx] = vg before sumG += vg) matches andi/move/sb sequence. Remaining diff: loop 3 final 'or t7,t6,t8' operands swapped (t8 vs t6), which causes scratch t6/t8 register naming swap throughout loop 4. Permuter 4778 iters and deadsweep 5472 variants found no lower score.
-void func_8062A3F0(void) {
+// screenBlurApply (src/global/2DE90.c): stage 5, 22 diff lines (shape=0, improved from 24/shape=2). Reordering loop 3 (g[idx] = vg before sumG += vg) matches andi/move/sb sequence. Remaining diff: loop 3 final 'or t7,t6,t8' operands swapped (t8 vs t6), which causes scratch t6/t8 register naming swap throughout loop 4. Permuter 4778 iters and deadsweep 5472 variants found no lower score.
+void screenBlurApply(void) {
     u16 *src;
     s32 row;
     u16 *dst;

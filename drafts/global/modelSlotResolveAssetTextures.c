@@ -1,7 +1,7 @@
-// func_80636D38 (src/global/36880.c): stage 4, parked NON_MATCHING in src copy: frame 0x48 + s0/s1/ra match; 117 vs 113 insns. Needs FAKE volatile seg2 (copy of arg0->unk20 reloaded from 0x3C(sp) in the else branch, as target) + if(0){&node;}; decl order found by search (seg,obj,seg2,sp30,node,flags,res,sp24,sp20). Remaining diff: target loads obj into v0 then 'move s1,v0' after the first store (obj->unk8) and reads obj->unk0 via v0 (two webs), flags lives in a3 (mine v1), lbu t5,0x53(sp) hoisted above the arg0 reload, stack slot order of node/sp24/sp30/res (target sp20@20 sp24@24 res@2B node@2C sp30@30, mine permuted). Tried hdr temp for obj, order variants, volatile seg2 / address-taken seg2 (0x50 frame)
+// modelSlotResolveAssetTextures (src/global/36880.c): stage 4, parked NON_MATCHING in src copy: frame 0x48 + s0/s1/ra match; 117 vs 113 insns. Needs FAKE volatile seg2 (copy of arg0->unk20 reloaded from 0x3C(sp) in the else branch, as target) + if(0){&node;}; decl order found by search (seg,obj,seg2,sp30,node,flags,res,sp24,sp20). Remaining diff: target loads obj into v0 then 'move s1,v0' after the first store (obj->unk8) and reads obj->unk0 via v0 (two webs), flags lives in a3 (mine v1), lbu t5,0x53(sp) hoisted above the arg0 reload, stack slot order of node/sp24/sp30/res (target sp20@20 sp24@24 res@2B node@2C sp30@30, mine permuted). Tried hdr temp for obj, order variants, volatile seg2 / address-taken seg2 (0x50 frame)
 s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
-void func_80636D38(arg0, arg1, arg2)
+void modelSlotResolveAssetTextures(arg0, arg1, arg2)
 ModelSlot *arg0;
 u8 arg1;
 volatile u8 arg2;

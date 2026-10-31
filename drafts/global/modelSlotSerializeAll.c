@@ -1,4 +1,4 @@
-// func_8063B8D8 (src/global/36880.c): Stage 5, 2 insns: target 'sll s7,t6,4; addiu s7,s7,8' (product assigned in place to size's reg, +8 as separate op) vs ours 'sll t6,t6,4; addiu s7,t6,8'. uopt folds size=D*0x30; size+=8 into one tree in every form: inline, sep stmts, size=D then size*=0x30, 8-first, (0,x) wrappers on D/0x30/8/product, u32/u8*/s64 size, sz2 temp (10), x*3 then *16 (142), deadsweep with all locals (no gain). Needs a statement boundary uopt cannot fold across.
+// modelSlotSerializeAll (src/global/36880.c): Stage 5, 2 insns: target 'sll s7,t6,4; addiu s7,s7,8' (product assigned in place to size's reg, +8 as separate op) vs ours 'sll t6,t6,4; addiu s7,t6,8'. uopt folds size=D*0x30; size+=8 into one tree in every form: inline, sep stmts, size=D then size*=0x30, 8-first, (0,x) wrappers on D/0x30/8/product, u32/u8*/s64 size, sz2 temp (10), x*3 then *16 (142), deadsweep with all locals (no gain). Needs a statement boundary uopt cannot fold across.
 typedef struct ModelSlotSerializedOut {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -44,7 +44,7 @@ void actorListSerialize(void *);
 
 #define MODEL_SLOT_SERIALIZE_ENTRY ((ModelSlotSerializeView *)((u8 *)D_807F6000 + i * 0x90))
 
-void func_8063B8D8(u8 **arg0, s32 *arg1) {
+void modelSlotSerializeAll(u8 **arg0, s32 *arg1) {
     s32 count;
     s32 size;
     u8 *p;

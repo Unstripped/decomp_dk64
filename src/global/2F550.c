@@ -10,7 +10,7 @@ extern s8 D_807444C0;
 extern s32 D_8076A0A8;
 extern f32 D_80747CD0;
 
-f32 func_8062A850(void) {
+f32 cameraStepAspectScale(void) {
     f32 target;
     f32 step;
     f32 cur;
@@ -46,7 +46,7 @@ f32 func_8062A850(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062A850.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/cameraStepAspectScale.s")
 #endif
 
 extern f32 D_807F5DF0;
@@ -144,9 +144,9 @@ typedef struct PlanePoly {
 
 #ifdef NON_MATCHING
 void polyFlipWinding(PlanePoly *);
-void func_8062B220(PlanePoly *);
+void planePolyCalcEquation(PlanePoly *);
 
-void func_8062AD28(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
+void frustumOrientPolyNormals(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
     s32 i;
     f32 xs[5];
     f32 ys[5];
@@ -216,16 +216,16 @@ void func_8062AD28(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
     xs[4] = arg0;
     poly = arg3;
     for (i = 0; i < 5; poly++, i++) {
-        func_8062B220(poly);
+        planePolyCalcEquation(poly);
         if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {
             polyFlipWinding(poly);
-            func_8062B220(poly);
+            planePolyCalcEquation(poly);
         }
     }
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062AD28.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/frustumOrientPolyNormals.s")
 #endif
 
 void polyFlipWinding(PlanePoly *arg0) {
@@ -259,7 +259,7 @@ void polyFlipWinding(PlanePoly *arg0) {
     }
 }
 
-void func_8062B220(PlanePoly *arg0) {
+void planePolyCalcEquation(PlanePoly *arg0) {
     PlanePoly *p;
 
     arg0->a = (arg0->v[1] * (f64)(arg0->v[5] - arg0->v[8]) + arg0->v[4] * (f64)(arg0->v[8] - arg0->v[2]))
@@ -472,7 +472,7 @@ void func_8062BAE4(void) {
     csFreeTrackedModels();
 }
 
-void func_8063B4C0(MapBspNode *, u8);
+void modelPendingQueueInsert(MapBspNode *, u8);
 void mapChunkUpdateModelNodes(void);
 
 void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
@@ -494,7 +494,7 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
             arg0 = arg1->unk4;
             while (arg0 != NULL) {
                 next = arg0->unk14;
-                func_8063B4C0(arg0, arg2);
+                modelPendingQueueInsert(arg0, arg2);
                 arg0 = next;
             }
             break;
@@ -618,7 +618,7 @@ extern void *D_807FC924;
 
 void mapFrameBegin(s32);
 void mapFrameEnd(void);
-f32 func_8062A850(void);
+f32 cameraStepAspectScale(void);
 Gfx *func_8062C29C(Gfx *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
 ViewportRect *cameraFindViewportEntry(u8);
 
@@ -639,7 +639,7 @@ Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
             D_807FC929 = i;
             gfx = func_8062C29C(gfx, PLAYER_VIEW(i).unk21C, PLAYER_VIEW(i).unk220, PLAYER_VIEW(i).unk224,
                                 PLAYER_VIEW(i).unk234, PLAYER_VIEW(i).unk238, PLAYER_VIEW(i).unk23C,
-                                PLAYER_VIEW(i).unk28C, PLAYER_VIEW(i).unk280 * func_8062A850(),
+                                PLAYER_VIEW(i).unk28C, PLAYER_VIEW(i).unk280 * cameraStepAspectScale(),
                                 PLAYER_VIEW(i).unk288);
             D_807F5FEC = 0;
         }
@@ -998,7 +998,7 @@ void mapDistributeEntries(MapBspNode *arg0) {
 }
 
 s32 renderEntryAddOrUpdate(s32, u8, s32, f32, f32, f32, s32, s32, s32, s32, s32);
-u8 func_8062E898(void *, u8 *, f32, f32, f32);
+u8 mapBspPlaneSideTest(void *, u8 *, f32, f32, f32);
 void renderEntryListFree(s32);
 void mapChunkUpdateEntryNode(MapDistributeEntry *);
 
@@ -1033,7 +1033,7 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeE
         case 0:
             if (arg2 != NULL) {
                 do {
-                    if (func_8062E898(arg0, (u8 *)&sp58 + 2, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
+                    if (mapBspPlaneSideTest(arg0, (u8 *)&sp58 + 2, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
                         listB = renderEntryAddOrUpdate(listB, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
                     } else {
                         listA = renderEntryAddOrUpdate(listA, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
@@ -1068,7 +1068,7 @@ void mapChunkClearNodeFlags(u8);
 void mapChunkFreeNodeLists(u8);
 void mapChunkRebuildNodeLists(f32, f32, f32, u8);
 void mapChunkBuildSpriteChains(f32, f32, f32, u8);
-s32 func_80630890(s32, f32, f32, f32, void *);
+s32 renderEntryListSortByDistance(s32, f32, f32, f32, void *);
 void renderEntryListClearTouched(s32);
 s32 renderEntryListPurgeUntouched(s32);
 s32 spriteListBuildDisplayChain(s32, s32, f32, f32, f32);
@@ -1109,7 +1109,7 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
                     mapChunkFreeNodeLists(arg8);
                     mapChunkRebuildNodeLists(arg3, arg4, arg5, arg8);
                     mapChunkBuildSpriteChains(arg3, arg4, arg5, arg8);
-                    D_807F5FFC = func_80630890(D_807F5FFC, arg3, arg4, arg5, &sp58);
+                    D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, arg3, arg4, arg5, &sp58);
                 }
             }
         } else {
@@ -1123,15 +1123,15 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
                     } while (arg2 != NULL);
                 }
                 arg1->unk4 = (MapBspNode *)renderEntryListPurgeUntouched((s32)arg1->unk4);
-                arg1->unk4 = (MapBspNode *)func_80630890((s32)arg1->unk4, arg3, arg4, arg5, &sp58);
+                arg1->unk4 = (MapBspNode *)renderEntryListSortByDistance((s32)arg1->unk4, arg3, arg4, arg5, &sp58);
                 arg1->unk8 = spriteListBuildDisplayChain((s32)arg1->unk4, 0, arg3, arg4, arg5);
-                D_807F5FFC = func_80630890(D_807F5FFC, arg3, arg4, arg5, &sp58);
+                D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, arg3, arg4, arg5, &sp58);
             }
         }
     } else {
         if (arg2 != NULL) {
             do {
-                if (func_8062E898(arg0, (u8 *)&sp56, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
+                if (mapBspPlaneSideTest(arg0, (u8 *)&sp56, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
                     listB = renderEntryAddOrUpdate(listB, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
                 } else {
                     listA = renderEntryAddOrUpdate(listA, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
@@ -1139,7 +1139,7 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
                 arg2 = arg2->unk14;
             } while (arg2 != NULL);
         }
-        arg1->unk0 = func_8062E898(arg0, &arg1->unk1, arg3, arg4, arg5);
+        arg1->unk0 = mapBspPlaneSideTest(arg0, &arg1->unk1, arg3, arg4, arg5);
         if (arg6 != 0) {
             mapTreeFrameUpdate(arg0->unk0, arg1->unkC, (MapDistributeEntry *)listA, arg3, arg4, arg5, arg6, arg7, arg8);
             mapTreeFrameUpdate(arg0->unk4, arg1->unk10, (MapDistributeEntry *)listB, arg3, arg4, arg5, arg6, arg7, arg8);
@@ -1162,13 +1162,13 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
     }
 }
 
-s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
+s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 
 s32 mapNodeBoxInFrustum(MapBspNode *arg0, f32 arg1, f32 arg2, f32 arg3) {
     MapNodeBounds *box;
 
     box = (MapNodeBounds *)arg0;
-    return func_8062DBDC(box->unkA0, box->unkA2, box->unkA4, box->unkA6, box->unkA8, box->unkAA, arg1, arg2, arg3, D_807F5FA8, D_807F5E68);
+    return mapBspBoxInFrustum(box->unkA0, box->unkA2, box->unkA4, box->unkA6, box->unkA8, box->unkAA, arg1, arg2, arg3, D_807F5FA8, D_807F5E68);
 }
 
 extern f32 D_807F5E50[];
@@ -1191,7 +1191,7 @@ typedef struct ClipPlane {
     /* 0x38 */ f64 unk38;
 } ClipPlane;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062DBDC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/mapBspBoxInFrustum.s")
 
 f32 boxMinCornerDistance(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
     f32 new_var;
@@ -1374,9 +1374,9 @@ void clipEdgeIntersectAxis(s16 *arg0, s16 *arg1, u8 arg2, f64 arg3, s16 *arg4) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062E898.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/mapBspPlaneSideTest.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062EBB8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/mapBspPlaneDistanceCheck.s")
 
 
 typedef struct MapChunkRecord {

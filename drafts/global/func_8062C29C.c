@@ -39,7 +39,7 @@ extern Mtx D_2000180;
 f32 cosApprox(f32);
 void planeFromTwoPoints(f32, f32, f32, f32, f32, f32);
 void func_8062A944(f32, f32, f32);
-void func_8062AD28(f32, f32, f32, PlanePoly *, f32 *);
+void frustumOrientPolyNormals(f32, f32, f32, PlanePoly *, f32 *);
 void mapTreeFrameUpdate(MapBspNode *, MapVisNode *, struct MapDistributeEntry *, f32, f32, f32, u8, u8, u8);
 Gfx *func_80722294(Gfx *, void *, s16);
 Gfx *gfxDrawPlayerViewBackground(Gfx *, s16);
@@ -64,7 +64,7 @@ Gfx *func_8062C29C(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f
     planeFromTwoPoints(L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), arg4, arg5, arg6);
     func_8062A944(D_807F5FB4, D_807F5FB0, D_807F5FA8);
     frustumCornersTransformByInverse(&L8062C29CP.unk8[D_807444FC]);
-    func_8062AD28(L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), (PlanePoly *)D_807F5E68, D_807F5E20);
+    frustumOrientPolyNormals(L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), (PlanePoly *)D_807F5E68, D_807F5E20);
     mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), 0, !D_807F5FEC, D_80750AB4 >= 2);
     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));

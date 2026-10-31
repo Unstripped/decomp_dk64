@@ -1,5 +1,5 @@
-// func_80636FFC (src/global/36880.c): Stage 4 (NMBig): same s0,s1 + frame 0x138, 43024 bytes, 19 diff lines. Needs file proto 's32 func_80636D38();' (K&R; modelSlotInit still matches). Remaining: (1) ugen spill slots 0x38/0x3C vs target 0x3C/0x40: target has 1 fewer local home word + 1 extra unused temp word (moving/removing pad/pad2/padq tried at every decl position: frame or diff 19 at best, never <19); (2) guRotateF x3: as1/uopt emits 'addiu a0,sp,184' before c.eq.d (and li a2/a3,lui at in 3rd) vs target after bc1tl; &spB8[0][0]/(f32*)spB8/&spB8[0] forms at any subset of the 8 call sites, 0.0f/!(==)/(f64) compare forms: no change; (3) flags: target 'lbu a0,0x8c(v1)' vs mine v0 (3 lines).
-// needs file proto: s32 func_80636D38(); (replace 'void func_80636D38(void *, s32, s32);')
+// func_80636FFC (src/global/36880.c): Stage 4 (NMBig): same s0,s1 + frame 0x138, 43024 bytes, 19 diff lines. Needs file proto 's32 modelSlotResolveAssetTextures();' (K&R; modelSlotInit still matches). Remaining: (1) ugen spill slots 0x38/0x3C vs target 0x3C/0x40: target has 1 fewer local home word + 1 extra unused temp word (moving/removing pad/pad2/padq tried at every decl position: frame or diff 19 at best, never <19); (2) guRotateF x3: as1/uopt emits 'addiu a0,sp,184' before c.eq.d (and li a2/a3,lui at in 3rd) vs target after bc1tl; &spB8[0][0]/(f32*)spB8/&spB8[0] forms at any subset of the 8 call sites, 0.0f/!(==)/(f64) compare forms: no change; (3) flags: target 'lbu a0,0x8c(v1)' vs mine v0 (3 lines).
+// needs file proto: s32 modelSlotResolveAssetTextures(); (replace 'void modelSlotResolveAssetTextures(void *, s32, s32);')
 typedef struct {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u8 unk60;
@@ -129,7 +129,7 @@ Gfx *func_80636FFC(OlB6Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 ar
     sel78 = NULL;
     if (arg0->unkB6 != -1) {
         sp90 = hashTableLookup(arg0->unkB6);
-        func_80636D38(&D_807F6000[sp90], 0, 1);
+        modelSlotResolveAssetTextures(&D_807F6000[sp90], 0, 1);
         sel78 = D_807F6000[sp90].unk78;
         if (func_806D0964(*(s32 *)D_807F6000[sp90].unk24, D_807FC929, (s32)sel78) != 0) {
             return arg1;

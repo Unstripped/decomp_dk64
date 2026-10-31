@@ -1,4 +1,4 @@
-// func_8062EBB8 (src/global/2F550.c): Stage 4 (NM2F3). 124 insns, frame 0x88 (pad[14]), loop shape match. Disproved volatile: O32 ABI stores params naturally to home slots after caller pointer arg; removing volatile matched lines 4368-43FC 100%. D_807F5E50 is D_807F5E20+0x30. Deadsweep reduced diff to 21. Only 12 insns of loop-body scheduling remain.
+// mapBspPlaneDistanceCheck (src/global/2F550.c): Stage 4 (NM2F3). 124 insns, frame 0x88 (pad[14]), loop shape match. Disproved volatile: O32 ABI stores params naturally to home slots after caller pointer arg; removing volatile matched lines 4368-43FC 100%. D_807F5E50 is D_807F5E20+0x30. Deadsweep reduced diff to 21. Only 12 insns of loop-body scheduling remain.
 typedef struct OlD_Plane {
     /* 0x00 */ u8 pad0[0x4C];
     /* 0x4C */ f32 unk4C;
@@ -13,7 +13,7 @@ typedef struct OlD_Plane {
 extern f32 D_807F5E20[];
 extern f32 D_807F5E50[];
 
-s32 func_8062EBB8(OlD_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
+s32 mapBspPlaneDistanceCheck(OlD_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     s32 pad[14];
     s32 i;
     f64 dot;

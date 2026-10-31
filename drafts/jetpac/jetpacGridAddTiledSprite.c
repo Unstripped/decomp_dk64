@@ -1,4 +1,4 @@
-// func_80025700 (src/jetpac/1460.c): stage 6: 1 pair diff (4 diff lines): target 'addiu t8,v0,1; sw t8,0(s7); lw t9,80(sp)' vs ours 'lw t9,80(sp); addiu; sll t4; sw'. OlR2d: ugen -S shows sw already before the arg0 reload (so ordering is as1: ugen emits '.noalias $23,$sp' right before 'addu $24,$2,1' after the loop-head '.alias' that follows the exit bge; target looks like the sw->lw dependency survived). Tried (no change): deadsweep with all locals/args (4488), 8.5k random dead-if + one-line-join mutants, topo-order permutations of the 15 loop statements (depth-3 BFS + 2.9k random), idx temp (reuse ya/xd), src local for arg0, named s32 *cnt pointer (breaks s7 hoist, 68+), defining the externs, while(1)/for(;;) loop forms
+// jetpacGridAddTiledSprite (src/jetpac/1460.c): stage 6: 1 pair diff (4 diff lines): target 'addiu t8,v0,1; sw t8,0(s7); lw t9,80(sp)' vs ours 'lw t9,80(sp); addiu; sll t4; sw'. OlR2d: ugen -S shows sw already before the arg0 reload (so ordering is as1: ugen emits '.noalias $23,$sp' right before 'addu $24,$2,1' after the loop-head '.alias' that follows the exit bge; target looks like the sw->lw dependency survived). Tried (no change): deadsweep with all locals/args (4488), 8.5k random dead-if + one-line-join mutants, topo-order permutations of the 15 loop statements (depth-3 BFS + 2.9k random), idx temp (reuse ya/xd), src local for arg0, named s32 *cnt pointer (breaks s7 hoist, 68+), defining the externs, while(1)/for(;;) loop forms
 typedef struct {
     s32 unk0;
     u8 pad4[6];
@@ -18,7 +18,7 @@ typedef struct {
 } JetpacSprite;
 void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 
-void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
+void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
     s32 ya;
     s32 h;
     s32 xd;

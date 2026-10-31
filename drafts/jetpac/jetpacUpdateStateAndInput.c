@@ -1,4 +1,4 @@
-// func_80025168 (src/jetpac/0.c): stage 5-6: 7 diff lines (frame/size/regs identical). Remaining diff: target p=v0, rem=t1; ours p=a0, rem=v0. uopt candidate 1243 (rem) adjsave 3.0 colors into v0 before p adjsave 2.0
+// jetpacUpdateStateAndInput (src/jetpac/0.c): stage 5-6: 7 diff lines (frame/size/regs identical). Remaining diff: target p=v0, rem=t1; ours p=a0, rem=v0. uopt candidate 1243 (rem) adjsave 3.0 colors into v0 before p adjsave 2.0
 typedef struct {
     u16 unk0;
     s8 unk2;
@@ -37,7 +37,7 @@ void jetpacStatePause(s32);
 void jetpacStateTakeoff(s32);
 void jetpacStateGameOver(s32);
 
-void func_80025168(s32 arg0) {
+void jetpacUpdateStateAndInput(s32 arg0) {
     u8 flag;
     s32 zero;
     volatile s32 *p;

@@ -70,7 +70,7 @@ extern JetpacGlobal jetpacGame;
 
 f32 jetpacRandFloat(void);
 s32 jetpacCheckAabbOverlapWrapped(f32, f32, f32, f32, f32, f32, f32, f32);
-void func_80025700(void *, s32, s32, void *, s32);
+void jetpacGridAddTiledSprite(void *, s32, s32, void *, s32);
 extern s32 D_8002DC68[];
 s32 jetpacRandSpawnX(void) {
     return (s32)((jetpacRandFloat() * 200.0f) + 90.0f);
@@ -153,7 +153,7 @@ void jetpacSpawnFuelPod();
 #endif
 
 #ifdef NON_MATCHING
-void func_80027728(JetpacItem *arg0) {
+void jetpacRocketItemUpdate(JetpacItem *arg0) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     f32 *new_var;
     f32 *new_var2;
@@ -240,7 +240,7 @@ void func_80027728(JetpacItem *arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/func_80027728.s")
+#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/jetpacRocketItemUpdate.s")
 #endif
 
 
@@ -275,11 +275,11 @@ void jetpacDrawItem(JetpacItem *arg0, s32 arg1) {
                     sp58.g = 0;
                 }
                 if (arg0->sprites[i] != NULL) {
-                    func_80025700(arg0->sprites[i], x, y, &sp58, arg0->unk20);
+                    jetpacGridAddTiledSprite(arg0->sprites[i], x, y, &sp58, arg0->unk20);
                 }
             }
         } else {
-            func_80025700(arg0->sprites[0], x, y, arg0->color, arg0->unk20);
+            jetpacGridAddTiledSprite(arg0->sprites[0], x, y, arg0->color, arg0->unk20);
         }
     }
 }
@@ -310,7 +310,7 @@ void jetpacSpawnBonusItem(JetpacPlayer *arg0) {
 }
 
 #ifdef NON_MATCHING
-void func_80027EC0(JetpacItem *arg0) {
+void jetpacBonusItemUpdate(JetpacItem *arg0) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     s32 v;
     s32 idx;
@@ -433,7 +433,7 @@ void func_80027EC0(JetpacItem *arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/func_80027EC0.s")
+#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/jetpacBonusItemUpdate.s")
 #endif
 
 
@@ -600,7 +600,7 @@ void func_800289EC(void) {
         s32 mod = ((s32)item->unkC / 3) % 2;
         s32 idx = (mod > 0) ? mod : -mod;
 
-        func_80025700(&D_8002DC38[idx], (s32)item->unk8, (s32)((item->unkC + 48.0f) + 4.0f), &sp44, 0);
+        jetpacGridAddTiledSprite(&D_8002DC38[idx], (s32)item->unk8, (s32)((item->unkC + 48.0f) + 4.0f), &sp44, 0);
     }
 
     i = 0;
@@ -682,7 +682,7 @@ s32 jetpacCheckLedgeEdge(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 
-void func_80025700(void *, s32, s32, void *, s32);
+void jetpacGridAddTiledSprite(void *, s32, s32, void *, s32);
 extern void *D_8002DE68;
 extern void *D_8002DE80;
 extern void *D_8002DE98;
@@ -690,7 +690,7 @@ extern u8 D_8002EF90[];
 extern u8 D_8002F060[];
 
 #ifdef NON_MATCHING
-void func_80028E88(void) {
+void jetpacDrawLedges(void) {
     u8 *color_fp = (u8 *)(s32)D_8002EF90;
     u8 *color = color_fp;
     void *de80 = &D_8002DE80;
@@ -700,17 +700,17 @@ void func_80028E88(void) {
         JetpacLedge *cur = ledge;
         s32 j;
 
-        func_80025700(&D_8002DE68, x, y, color_fp, 0);
+        jetpacGridAddTiledSprite(&D_8002DE68, x, y, color_fp, 0);
         j = 0;
         x += 8;
         if (cur->unk30 > 0) {
             do {
-                func_80025700(de80, x, y, color, 0);
+                jetpacGridAddTiledSprite(de80, x, y, color, 0);
                 j++;
                 x += 8;
             } while (j < cur->unk30);
         }
-        func_80025700(&D_8002DE98, x, y, color, 0);
+        jetpacGridAddTiledSprite(&D_8002DE98, x, y, color, 0);
         base += 0x34;
         ledge++;
         color_fp += 0x34;
@@ -718,6 +718,6 @@ void func_80028E88(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/func_80028E88.s")
+#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/jetpacDrawLedges.s")
 #endif
 

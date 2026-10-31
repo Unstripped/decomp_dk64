@@ -1,4 +1,4 @@
-// func_8063B4C0 (src/global/36880.c): stage 5 (parked NON_MATCHING in src copy; was stage 4): 18 hunks, frame/callee-saved/ra-allow match, idx via sll/addu/sll matches. Permuter hints applied: (0, best) in compare, newv temp for pz (+0x84), 'if (!arg0) {}' in else of obj[0x54]==6, e->key store before e->done, joined prologue statements ('if (0) {..} allow = 1; if (arg0->unk24 == 1) { idx=..; tbl=..; obj=..; nv = 0; if (obj != NULL) {' on ONE line) with 'int nv' = 0 used for case 2, i = i + 1 form. Remaining: loop prologue i narrowing (target addiu t0; andi t6; slt uses t6; move t0,t6 at bottom vs mine andi t9; move t0,t9 and v0 copy of i), px/py/pz regs (target v1/a0/a1, mine a1/a2/a3), addu base/offset order at first slot access (addu t9,t8,t7 vs t7,t8), flag/allow temp t6 vs t9 (v0).
+// modelPendingQueueInsert (src/global/36880.c): stage 5 (parked NON_MATCHING in src copy; was stage 4): 18 hunks, frame/callee-saved/ra-allow match, idx via sll/addu/sll matches. Permuter hints applied: (0, best) in compare, newv temp for pz (+0x84), 'if (!arg0) {}' in else of obj[0x54]==6, e->key store before e->done, joined prologue statements ('if (0) {..} allow = 1; if (arg0->unk24 == 1) { idx=..; tbl=..; obj=..; nv = 0; if (obj != NULL) {' on ONE line) with 'int nv' = 0 used for case 2, i = i + 1 form. Remaining: loop prologue i narrowing (target addiu t0; andi t6; slt uses t6; move t0,t6 at bottom vs mine andi t9; move t0,t9 and v0 copy of i), px/py/pz regs (target v1/a0/a1, mine a1/a2/a3), addu base/offset order at first slot access (addu t9,t8,t7 vs t7,t8), flag/allow temp t6 vs t9 (v0).
 typedef struct R36880fSrc {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ f32 unk4;
@@ -12,7 +12,7 @@ typedef struct R36880fSrc {
 
 extern u8 D_807F7140;
 
-void func_8063B4C0(R36880fSrc *arg0, u8 arg1) {
+void modelPendingQueueInsert(R36880fSrc *arg0, u8 arg1) {
     u8 *obj;
     u8 allow;
     s32 pad1;

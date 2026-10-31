@@ -1,4 +1,4 @@
-// func_80027728 (src/jetpac/3480.c): stage 5 park: text=3, only diff D_8002F06C 2nd-block value in v0 (named local new_var4 is a uopt candidate) vs target t7 ugen temp. OlR2d: replacing the local by a pointer deref *new_var3 (first use) gives t7 but the commutative add.s operands (sub,cvt) come out swapped -> f4/f6 ring shift (19 lines); direct D_8002F06C x2 is a v0 candidate (32); every placement/spelling of the two uses (15x15 matrix, 4M... forms, struct-view casts, real struct global = shared base reg, wrong), deadsweep 4.7k variants on both forms, permuter 2x540s, callee void/s32 toggles, register/u32/s16/decl order of new_var4, dead new_var4 use after jetpacIsOverRocket (callee-saved colouring, +13) all fail
+// jetpacRocketItemUpdate (src/jetpac/3480.c): stage 5 park: text=3, only diff D_8002F06C 2nd-block value in v0 (named local new_var4 is a uopt candidate) vs target t7 ugen temp. OlR2d: replacing the local by a pointer deref *new_var3 (first use) gives t7 but the commutative add.s operands (sub,cvt) come out swapped -> f4/f6 ring shift (19 lines); direct D_8002F06C x2 is a v0 candidate (32); every placement/spelling of the two uses (15x15 matrix, 4M... forms, struct-view casts, real struct global = shared base reg, wrong), deadsweep 4.7k variants on both forms, permuter 2x540s, callee void/s32 toggles, register/u32/s16/decl order of new_var4, dead new_var4 use after jetpacIsOverRocket (callee-saved colouring, +13) all fail
 typedef struct {
     u8 pad0[8];
     f32 unk8;
@@ -47,7 +47,7 @@ void func_80024E70(s32);
 void func_80027D64(void *);
 void func_80028340();
 
-void func_80027728(J3Item *arg0) {
+void jetpacRocketItemUpdate(J3Item *arg0) {
     J3Inner *inner = (J3Inner *)((u8 *)&D_8002EC30 + D_8002EC30.unk344 * 0x194 + 0x1C);
     f32 *new_var;
     f32 *new_var2;

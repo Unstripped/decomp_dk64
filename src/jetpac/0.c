@@ -3,10 +3,10 @@
 void jetpacInitLedges(void);
 void jetpacResetPlayers(void);
 void jetpacStartStage(void);
-void func_80024408(s32);
+void jetpacDrawScoreboard(s32);
 void jetpacUpdateRocketFlight(void);
 void jetpacInitRdp(s32);
-void func_80028E88(void);
+void jetpacDrawLedges(void);
 void func_800289EC(void);
 void jetpacGridDraw(s32);
 void func_8060C648(s32, s32, s32, s32, s32);
@@ -85,7 +85,7 @@ void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
 Gfx *func_805FE4D4(Gfx *);
 Gfx *heapAlloc(s32);
 void heapFreeDeferred(void *);
-void func_80025168();
+void jetpacUpdateStateAndInput();
 void jetpacBuildDisplayList(u8 *, Gfx **);
 
 extern u8 D_807444FC;
@@ -151,7 +151,7 @@ void jetpacBuildDisplayList(u8 *arg0, Gfx **arg1) {
     sp68 = heapAlloc(0x5DC0);
     heapFreeDeferred(sp68);
     sp6C = sp68;
-    func_80025168(&sp6C);
+    jetpacUpdateStateAndInput(&sp6C);
     gSPEndDisplayList(sp6C++);
     gSPDisplayList(glist++, sp68);
     *arg1 = glist;
@@ -191,7 +191,7 @@ extern s32 D_8002EF74;
 extern s32 D_8002EC50;
 extern s32 D_8002EDE4;
 
-void func_80024408(s32 arg0) {
+void jetpacDrawScoreboard(s32 arg0) {
     char buf[0x50];
     s32 mask;
     s32 i;
@@ -220,7 +220,7 @@ void func_80024408(s32 arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80024408.s")
+#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/jetpacDrawScoreboard.s")
 #endif
 
 void jetpacStartGame(void) {
@@ -234,7 +234,7 @@ void jetpacStateSelection(s32 arg0) {
     s32 flags;
     char buf[0x24];
 
-    func_80024408(arg0);
+    jetpacDrawScoreboard(arg0);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(arg0, "JETPAC GAME SELECTION", 0x50, 0x38, 0);
     jetpacDrawString(arg0, "1@@@1@PLAYER@GAME", 0x50, 0x50, D_8002BA6C != 0 && jetpacGame.num_players == 1);
@@ -266,10 +266,10 @@ void jetpacStateSelection(s32 arg0) {
 }
 
 void jetpacStateLanding(s32 arg0) {
-    func_80024408(arg0);
+    jetpacDrawScoreboard(arg0);
     jetpacUpdateRocketFlight();
     jetpacInitRdp(arg0);
-    func_80028E88();
+    jetpacDrawLedges();
     func_800289EC();
     jetpacGridDraw(arg0);
 }
@@ -284,7 +284,7 @@ void jetpacStateGameplay(s32 arg0) {
     if (sp1C->score >= 1000000) {
         sp1C->score -= 1000000;
     }
-    func_80024408(arg0);
+    jetpacDrawScoreboard(arg0);
     if (sp1C->items[sp1C->unk10].unk44) { // FAKE: empty guard steers regalloc
     }
     jetpacPlayerStateUpdate();
@@ -296,7 +296,7 @@ void jetpacStateGameplay(s32 arg0) {
     }
     jetpacUpdateActors();
     jetpacInitRdp(arg0);
-    func_80028E88();
+    jetpacDrawLedges();
     jetpacDrawPlayer();
     jetpacDrawActors();
     jetpacItemsUpdate();
@@ -325,7 +325,7 @@ void jetpacNextPlayerOrGameOver(JetpacPlayer *);
 
 
 void jetpacStatePause(s32 arg0) {
-    func_80024408(arg0);
+    jetpacDrawScoreboard(arg0);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(arg0, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && jetpacGame.unkC == 1);
     jetpacDrawString(arg0, "DELETE@HISCORE", 0x68, 0x80, D_8002BA6C != 0 && jetpacGame.unkC == 2);
@@ -365,13 +365,13 @@ void jetpacStatePause(s32 arg0) {
 void jetpacStateTakeoff(s32 arg0) {
     JetpacPlayer *sp1C = &jetpacGame.players[jetpacGame.active_player];
 
-    func_80024408(arg0);
+    jetpacDrawScoreboard(arg0);
     jetpacUpdateLasers();
     sp1C->bonus.unk44(&sp1C->bonus);
     jetpacUpdateRocketFlight();
     jetpacUpdateActors();
     jetpacInitRdp(arg0);
-    func_80028E88();
+    jetpacDrawLedges();
     jetpacDrawActors();
     func_800289EC();
     func_800285DC();
@@ -384,7 +384,7 @@ void jetpacStateGameOver(s32 arg0) {
     char sp2C[0x20];
 
     sp4C = 7;
-    func_80024408(arg0);
+    jetpacDrawScoreboard(arg0);
     if (jetpacGame.unk798 != 0 && flagGet(0x62, 2) != 0) {
         _sprintf(sp2C, "RAREWARE COIN COLLECTED");
         sp4C = 5;
@@ -494,7 +494,7 @@ extern J0bPad *D_807ECDE8;
 void jetpacStateSelection(s32);
 void jetpacStateGameplay(s32);
 
-void func_80025168(s32 arg0) {
+void jetpacUpdateStateAndInput(s32 arg0) {
     u8 flag;
     s32 zero;
     volatile s32 *p;
@@ -564,7 +564,7 @@ void func_80025168(s32 arg0) {
 
 #else
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/func_80025168.s")
+#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/jetpacUpdateStateAndInput.s")
 #endif
 
 void jetpacNextPlayerOrGameOver(JetpacPlayer *arg0) {

@@ -86,7 +86,7 @@ extern Mtx D_807F5D98;
 extern s32 D_807FBB60;
 Gfx *func_805FD030(Gfx *);
 void heapFreeDeferred(void *);
-void func_8062A3F0(void);
+void screenBlurApply(void);
 void screenWipeAlphaRadialSweep(s32, s32, s32);
 void screenWipeAlphaFromCorner(s32, s32, s32);
 void screenWipeAlphaFromCentre(s32, s32, s32);
@@ -121,7 +121,7 @@ Gfx *screenWipeDraw(Gfx *arg0) {
         WIPE_GFX(0xE200001C, 0x504240);
         switch (D_807F5D85) {
             case 7:
-                func_8062A3F0();
+                screenBlurApply();
                 WIPE_GFX(0xFC119623, 0xFF2FFFFF);
                 WIPE_GFX(0xFA000000, -1);
                 func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
@@ -294,7 +294,7 @@ extern s32 D_80747B3C;
 void heapFree(void *);
 
 #ifdef NON_MATCHING
-void func_8062A3F0(void) {
+void screenBlurApply(void) {
     u16 *src;
     s32 row;
     u16 *dst;
@@ -387,7 +387,7 @@ void func_8062A3F0(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2DE90/func_8062A3F0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/2DE90/screenBlurApply.s")
 #endif
 
 extern u8 D_80747B40;

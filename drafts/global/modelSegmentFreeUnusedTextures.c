@@ -1,5 +1,5 @@
-// func_806365D0 (src/global/36880.c): stage 4-: saved set s0-s3 now matches (needs node reassigned in BOTH arms, start/mid reassigned in the flag arm as start=seg->unkA0/mid=seg->unkA8, volatile u8 flag), frame 0x50 vs 0x40; callee-saved order wrong (mid s0,start s1,seg s2 vs target seg s0,mid s1,start s2: reassigning start/mid raises their adjsave above seg's) and head/tail stay stack-resident (-ve save) vs target v1/t0 spilled around calls
-void func_806365D0(ModelSlot *arg0, void *arg1, ModelChainOwner *arg2) {
+// modelSegmentFreeUnusedTextures (src/global/36880.c): stage 4-: saved set s0-s3 now matches (needs node reassigned in BOTH arms, start/mid reassigned in the flag arm as start=seg->unkA0/mid=seg->unkA8, volatile u8 flag), frame 0x50 vs 0x40; callee-saved order wrong (mid s0,start s1,seg s2 vs target seg s0,mid s1,start s2: reassigning start/mid raises their adjsave above seg's) and head/tail stay stack-resident (-ve save) vs target v1/t0 spilled around calls
+void modelSegmentFreeUnusedTextures(ModelSlot *arg0, void *arg1, ModelChainOwner *arg2) {
     ModelSegmentData *seg;
     u32 mid;
     u32 start;

@@ -276,7 +276,7 @@ void func_806307CC(RenderEntry *arg0, s32 arg1, u8 arg2, u8 arg3, s8 *arg4) {
 }
 
 #ifdef NON_MATCHING
-RenderEntry *func_80630890(RenderEntry *arg0, f32 arg1, f32 arg2, f32 arg3, RenderEntry **arg4) {
+RenderEntry *renderEntryListSortByDistance(RenderEntry *arg0, f32 arg1, f32 arg2, f32 arg3, RenderEntry **arg4) {
     RenderEntry *node;
     f32 dx;
     f32 dy;
@@ -369,7 +369,7 @@ RenderEntry *func_80630890(RenderEntry *arg0, f32 arg1, f32 arg2, f32 arg3, Rend
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/35000/func_80630890.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/35000/renderEntryListSortByDistance.s")
 #endif
 
 typedef struct GfxWords {

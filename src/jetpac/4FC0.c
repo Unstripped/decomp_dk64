@@ -94,7 +94,7 @@ s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
 s32 jetpacCheckPlayerHit(JetpacActor *);
 void jetpacBounceOffLedge(JetpacActor *, s32);
 void jetpacPlaySound(s32 arg0);
-void func_80025700(void *, s32, s32, void *, s32);
+void jetpacGridAddTiledSprite(void *, s32, s32, void *, s32);
 void jetpacUpdateExplosion(void *);
 Gfx *textDrawString(Gfx *, s32, s16, s16, s32);
 void func_80029640(JetpacActor *actor, f32 a1, f32 a2);
@@ -172,13 +172,13 @@ void jetpacDrawActor(JetpacActor *arg0) {
     s32 temp_v0 = arg0->unk14;
 
     if (temp_v0 == 3) {
-        func_80025700(arg0->unk4C, (s32)arg0->unk0, (s32)arg0->unk4, &arg0->unk10, arg0->unk18);
+        jetpacGridAddTiledSprite(arg0->unk4C, (s32)arg0->unk0, (s32)arg0->unk4, &arg0->unk10, arg0->unk18);
         return;
     }
     if (temp_v0 == 4) {
         jetpacUpdateExplosion(&arg0->unk30);
         if (arg0->unk38 < 7) {
-            func_80025700(arg0->unk4C, (s32)arg0->unk0, (s32)arg0->unk4, &arg0->unk10, arg0->unk18);
+            jetpacGridAddTiledSprite(arg0->unk4C, (s32)arg0->unk0, (s32)arg0->unk4, &arg0->unk10, arg0->unk18);
         }
     }
 }

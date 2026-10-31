@@ -1,4 +1,4 @@
-// func_8062AD28 (src/global/2F550.c): OlR2a: stage 5 unchanged (2 diff lines: final add.d/c.lt.d f8 vs f0). New findings: f0 comes from a NAMED f64 local (BD820 func_806B8C78 does the same: t = x + 0.5 colours f0). 't = poly->d + (...); if (t < (0, 0.0))' with 'f64 t;' declared before poly (replacing pad0, frame 0x90 kept) gives add.d f0 + c.lt.d f0,f20 but uopt then picks the ys pointer instead of zs as the LFTR loop-end IV (s1=ys@100, s4=xs end; target s1=zs@80, s4=100): 13 diff lines. Declaration order (720 perms), loop header forms, sum forms (8), (0,x) wraps on 71 sites singles + 91 pairs, did not restore the IV choice. Permuter 540s from the old base: best stays 10. Next idea if resumed: find a source change that makes uopt pick the zs IV with t present (candidate ids shift with expression count).
+// frustumOrientPolyNormals (src/global/2F550.c): OlR2a: stage 5 unchanged (2 diff lines: final add.d/c.lt.d f8 vs f0). New findings: f0 comes from a NAMED f64 local (BD820 func_806B8C78 does the same: t = x + 0.5 colours f0). 't = poly->d + (...); if (t < (0, 0.0))' with 'f64 t;' declared before poly (replacing pad0, frame 0x90 kept) gives add.d f0 + c.lt.d f0,f20 but uopt then picks the ys pointer instead of zs as the LFTR loop-end IV (s1=ys@100, s4=xs end; target s1=zs@80, s4=100): 13 diff lines. Declaration order (720 perms), loop header forms, sum forms (8), (0,x) wraps on 71 sites singles + 91 pairs, did not restore the IV choice. Permuter 540s from the old base: best stays 10. Next idea if resumed: find a source change that makes uopt pick the zs IV with t present (candidate ids shift with expression count).
 typedef struct PlanePoly {
     /* 0x00 */ s16 v[12];
     /* 0x18 */ u8 type;
@@ -10,9 +10,9 @@ typedef struct PlanePoly {
 } PlanePoly; /* 0x40 */
 
 void polyFlipWinding(PlanePoly *);
-void func_8062B220(PlanePoly *);
+void planePolyCalcEquation(PlanePoly *);
 
-void func_8062AD28(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
+void frustumOrientPolyNormals(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
     s32 i;
     f32 xs[5];
     f32 ys[5];
@@ -82,10 +82,10 @@ void func_8062AD28(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
     xs[4] = arg0;
     poly = arg3;
     for (i = 0; i < 5; poly++, i++) {
-        func_8062B220(poly);
+        planePolyCalcEquation(poly);
         if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {
             polyFlipWinding(poly);
-            func_8062B220(poly);
+            planePolyCalcEquation(poly);
         }
     }
 }

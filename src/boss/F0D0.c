@@ -67,8 +67,8 @@ extern void *effectPuffRiseUpdate;
 extern void *D_8074E880[];
 typedef struct {
     u8 b[4];
-} OlSPick4;
-extern OlSPick4 D_80035B80;
+} BossWaypointPick;
+extern BossWaypointPick D_80035B80;
 
 u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     s32 min_dist;
@@ -91,7 +91,7 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     }
 
     if (D_807FBB4C->unk80 < D_807FBB40->unk80 - 10.0f) {
-        OlSPick4 center = D_80035B80;
+        BossWaypointPick center = D_80035B80;
         return center.b[(randomNonNegative() >> 15) % 4];
     }
 

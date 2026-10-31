@@ -53,5 +53,5 @@ void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4,
     for (i = 0; i < 4; i++) {
         guMtxXFMF((float (*)[4])arg8, m[i][0], m[i][1], m[i][2], &((f32 (*)[3])arg10)[i][0], &((f32 (*)[3])arg10)[i][1], &((f32 (*)[3])arg10)[i][2]);
     }
-    func_8062AD28(arg4, arg5, arg6, arg9, arg10);
+    frustumOrientPolyNormals(arg4, arg5, arg6, arg9, arg10);
 }

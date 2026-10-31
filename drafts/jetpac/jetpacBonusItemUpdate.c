@@ -1,4 +1,4 @@
-// func_80027EC0 (src/jetpac/3480.c): stage 5 park: li t5,2 placement and sw via a0 vs s0 at unk34+1 early return (+4 bytes / 1 insn), v0/v1 swap in switch cases 1/3/4
+// jetpacBonusItemUpdate (src/jetpac/3480.c): stage 5 park: li t5,2 placement and sw via a0 vs s0 at unk34+1 early return (+4 bytes / 1 insn), v0/v1 swap in switch cases 1/3/4
 typedef struct {
     u8 pad0[8];
     f32 unk8;
@@ -47,7 +47,7 @@ void func_80024E70(s32);
 void func_80027D64(void *);
 void func_80028340();
 
-void func_80027EC0(J3Item *arg0) {
+void jetpacBonusItemUpdate(J3Item *arg0) {
     J3Inner *inner = (J3Inner *)((u8 *)&D_8002EC30 + D_8002EC30.unk344 * 0x194 + 0x1C);
     s32 v;
     s32 idx;

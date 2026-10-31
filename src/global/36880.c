@@ -580,7 +580,7 @@ extern s32 D_807FBB68;
 
 void modelSlotInitFromAsset();
 void modelSlotReplaceSegment6Commands(void *);
-void func_80636D38(void *, s32, s32);
+void modelSlotResolveAssetTextures(void *, s32, s32);
 struct ModelQuadOwner;
 void modelQuadBuildOutput(struct ModelQuadOwner *, f32, f32, f32, f32, f32, f32, f32, f32);
 void modelSlotLinkTexAnimTextures(u8 *, ModelSlot *);
@@ -682,7 +682,7 @@ s16 modelSlotInit(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f3
         modelSlotInitTexAnimNodes(s0, MODEL_SLOT_PTR, type);
         sp4C = &obj1->unkBC;
     }
-    func_80636D38(MODEL_SLOT_PTR, 0, 0);
+    modelSlotResolveAssetTextures(MODEL_SLOT_PTR, 0, 0);
     if (type == 2) {
         modelSlotLinkTexAnimTextures(s0, MODEL_SLOT_PTR);
     }
@@ -1977,7 +1977,7 @@ typedef struct ModelChainOwner {
     /* 0xBC */ s32 *unkBC;
 } ModelChainOwner;
 
-void func_806365D0(ModelSlot *, void *, ModelChainOwner *);
+void modelSegmentFreeUnusedTextures(ModelSlot *, void *, ModelChainOwner *);
 void modelSlotFreeAssetEntry(void *, ModelSlotAsset *);
 
 void modelSlotFreeTexAnimNodes(ModelSlot *arg0) {
@@ -1998,7 +1998,7 @@ void modelSlotFreeTexAnimNodes(ModelSlot *arg0) {
             ownerB = arg0->unk20;
             node = ownerB->unkB8;
             sp24 = ownerB->unkBC;
-            func_806365D0(arg0, arg0->unk24, ownerB);
+            modelSegmentFreeUnusedTextures(arg0, arg0->unk24, ownerB);
             break;
     }
     if (node != NULL) {
@@ -2305,7 +2305,7 @@ typedef struct ModelSegmentOwner {
 void texAnimNodeUpdateBuffers(ModelSegmentNode *, s32 *, s32 *, u8 *, s16 *);
 void collisionBstLookupByHash(s32, s32 *, s32 *);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806365D0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelSegmentFreeUnusedTextures.s")
 
 void dlFreeUnusedTextures(arg0, arg1, arg2, arg3, arg4)
 DisplayListCmd *arg0;
@@ -2587,7 +2587,7 @@ void modelSlotsStepSegmentCommands(void) {
 
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636D38.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelSlotResolveAssetTextures.s")
 
 
 s32 dlResolveNodeTextures(DisplayListCmd *arg0, DisplayListCmd *arg1, ModelSegmentNode *arg2, u8 arg3) {
@@ -3704,7 +3704,7 @@ extern s16 D_807F60B0[];
 void csStateTickTimers(s32);
 void csStateUpdate(s32, s16);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B4C0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelPendingQueueInsert.s")
 
 void modelPendingEntriesProcess(void) {
     u8 found;
@@ -3786,7 +3786,7 @@ void actorListSerialize(void *);
 
 #define MODEL_SLOT_SERIALIZE_ENTRY ((ModelSlotSerializeView *)((u8 *)D_807F6000 + i * 0x90))
 
-void func_8063B8D8(u8 **arg0, s32 *arg1) {
+void modelSlotSerializeAll(u8 **arg0, s32 *arg1) {
     s32 count;
     s32 size;
     u8 *p;
@@ -3844,7 +3844,7 @@ void func_8063B8D8(u8 **arg0, s32 *arg1) {
 #undef MODEL_SLOT_SERIALIZE_ENTRY
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_8063B8D8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelSlotSerializeAll.s")
 #endif
 
 typedef struct ModelSlotPackView {

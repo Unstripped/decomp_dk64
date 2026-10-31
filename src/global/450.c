@@ -80,7 +80,7 @@ void camResetAllPlayers(void);
 void camInit(s32);
 void screenWipeReset(void);
 s32 screenWipeDraw(s32);
-f32 func_8062A850(void);
+f32 cameraStepAspectScale(void);
 Gfx *gfxPassThrough(s32);
 s32 playerViewsRender(Gfx *, Struct_8076A048 *, u32);
 s32 func_8062CA0C(s32, s32, s32, s32);
@@ -538,7 +538,7 @@ void func_805FBE04(void) {
     func_80731030();
     func_805FF118();
     csTimerQueueClear();
-    sp28 = func_8062A850();
+    sp28 = cameraStepAspectScale();
     guTranslate(&D_80767E68, 0.0f, 0.0f, 0.0f);
     guTranslate(&D_80769018, 0.0f, 0.0f, 0.0f);
     guPerspective(&D_80767CE8, &D_8076A09C, D_807444B8, D_807444BC * sp28, D_807444C8, D_807444C4, 1.0f);
@@ -841,7 +841,7 @@ void playerViewsBuildMatrices(void *arg0) {
     f32 offs;
     s32 *cc;
 
-    aspect = func_8062A850();
+    aspect = cameraStepAspectScale();
     if (D_807445CC && D_807445CC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (D_807FC928 >= 2 && D_80750AB8 == 1) {
         func_8062754C(func_806276AC());
@@ -938,7 +938,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     guOrtho(&arg0->unkC0, 0.0f, (f32)(((f64)(f32)D_80744490 * 4.0) - 1.0), (f32)(((f64)(f32)D_80744494 * 4.0) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
     guOrtho(&arg0->unk140, 0.0f, (f32)((2.0 * (f64)(f32)D_80744490) - 1.0), (f32)((2.0 * (f64)(f32)D_80744494) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
     guOrtho(&arg0->unk100, (f32)((f64)(f32)D_807FC924->rect[0] * 4.0), (f32)(((f64)(f32)D_807FC924->rect[2] * 4.0) - 1.0), (f32)(((f64)(f32)D_807FC924->rect[3] * 4.0) - 1.0), (f32)((f64)(f32)D_807FC924->rect[1] * 4.0), -20000.0f, 20000.0f, 1.0f);
-    guPerspective(&arg0->unk0, &D_8076A09C, D_807444B8, func_8062A850() * D_807444BC, D_807444C8, D_807444C4, 1.0f);
+    guPerspective(&arg0->unk0, &D_8076A09C, D_807444B8, cameraStepAspectScale() * D_807444BC, D_807444C8, D_807444C4, 1.0f);
 
     gSPMatrix(glist2++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(glist2++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);

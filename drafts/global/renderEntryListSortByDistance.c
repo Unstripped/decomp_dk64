@@ -1,4 +1,4 @@
-// func_80630890 (src/global/35000.c): stage 5 (OlR2e revisit): park body unchanged, text diff = 5 insns, last block (if inserted==0) temps t6,t7,t8 vs expected t7,t8,t9 = ONE invisible ugen ring alloc missing after the arm's t5. Single-step dead-if sweeps (140 forms x all positions), no-op wrapper sweep (0,X)/+0/?:, statement respellings, loop while/for/do variants (identical code), 420s permuter: all stay 5. Only 'cur->unk18 = cur->unk18;' (or node->unk18 = cur->unk18; node->unk18 = node->unk18;) before 'node->unk18 = cur->unk18' shifts the ring to t7..t9 but emits an extra sw (diff 1); no code-free ring shifter found.
+// renderEntryListSortByDistance (src/global/35000.c): stage 5 (OlR2e revisit): park body unchanged, text diff = 5 insns, last block (if inserted==0) temps t6,t7,t8 vs expected t7,t8,t9 = ONE invisible ugen ring alloc missing after the arm's t5. Single-step dead-if sweeps (140 forms x all positions), no-op wrapper sweep (0,X)/+0/?:, statement respellings, loop while/for/do variants (identical code), 420s permuter: all stay 5. Only 'cur->unk18 = cur->unk18;' (or node->unk18 = cur->unk18; node->unk18 = node->unk18;) before 'node->unk18 = cur->unk18' shifts the ring to t7..t9 but emits an extra sw (diff 1); no code-free ring shifter found.
 typedef struct RenderEntry RenderEntry;
 struct RenderEntry {
     /* 0x00 */ s32 unk0;
@@ -17,7 +17,7 @@ struct RenderEntry {
     /* 0x25 */ u8 pad25[3];
 };
 
-RenderEntry *func_80630890(RenderEntry *arg0, f32 arg1, f32 arg2, f32 arg3, RenderEntry **arg4) {
+RenderEntry *renderEntryListSortByDistance(RenderEntry *arg0, f32 arg1, f32 arg2, f32 arg3, RenderEntry **arg4) {
     RenderEntry *node;
     f32 dx;
     f32 dy;

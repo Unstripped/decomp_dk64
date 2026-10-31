@@ -1,4 +1,4 @@
-// func_80625C30 (src/global/201B0.c): stage 5: 13 insns short (299 vs 312); target has index copies move s2,s0 in loop1, move a0,t5 and a0,t6 in insertion sort loop; tested struct copy, s32 locals, macro cleanup
+// camInitZones (src/global/201B0.c): stage 5: 13 insns short (299 vs 312); target has index copies move s2,s0 in loop1, move a0,t5 and a0,t6 in insertion sort loop; tested struct copy, s32 locals, macro cleanup
 typedef struct OlG_CamZonePair {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 unk2;
@@ -18,7 +18,7 @@ void heapFree(void *);
 #define OlG_CAM_ZONE_SORT ((OlG_CamZonePair *)gCamZoneSorted)
 #define CAM_ZONE_ENTRIES_PATH ((OlG_CamPathZoneEntries *)gCamActivePaths)
 
-void func_80625C30(void) {
+void camInitZones(void) {
     s16 i;
     s16 j;
     s16 k;

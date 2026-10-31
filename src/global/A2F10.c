@@ -64,7 +64,7 @@ void scriptSetActorRampTarget(Actor *, f32, f32);
 s32 actorListFindIdByActor(Actor *);
 void actorUpdateModelMatrix(void *, s32);
 
-void func_8069E210(void) {
+void actorTriggerRampWithSfx(void) {
     Actor *actor;
     Actor **p;
     s16 i;
@@ -255,7 +255,7 @@ extern s32 D_807FBB68;
 #define CUR_ACTOR ((ActorView *)D_807FBB40)
 #define SPAWNED_ACTOR ((ActorView *)D_807FBB44)
 
-void func_8069F020(void) {
+void actorShockwaveUpdate(void) {
     u8 sp67;
     u16 sp64;
     f32 sp60;

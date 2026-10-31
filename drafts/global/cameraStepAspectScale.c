@@ -1,11 +1,11 @@
-// func_8062A850 (src/global/2F550.c): stage 5, 12 diff lines. Target loads/stores D_80747CD0 with separate lui at (no la); ours hoists lui v0/addiu v0 because uopt CSEs lda across blocks. Per findings note 18, D_80747CD0 is currently extern in 14C450.data.s; when carved into 2F550.c by data split, lui at sharing will change.
+// cameraStepAspectScale (src/global/2F550.c): stage 5, 12 diff lines. Target loads/stores D_80747CD0 with separate lui at (no la); ours hoists lui v0/addiu v0 because uopt CSEs lda across blocks. Per findings note 18, D_80747CD0 is currently extern in 14C450.data.s; when carved into 2F550.c by data split, lui at sharing will change.
 extern u8 D_807444F0;
 extern u8 D_807444EC;
 extern s8 D_807444C0;
 extern s32 D_8076A0A8;
 extern f32 D_80747CD0;
 
-f32 func_8062A850(void) {
+f32 cameraStepAspectScale(void) {
     f32 target;
     f32 step;
     f32 cur;

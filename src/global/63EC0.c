@@ -340,7 +340,7 @@ typedef struct WaterTargetUpdateView {
 s32 effectCheckTargetActive(EffectSubNode *);
 void effectWaterSetMeshColors(Vtx *, EffectNode *);
 void effectNodeComputeBounds(EffectNode *, f32, f32, f32, u8, void *, void *);
-s32 func_8062DBDC(s16, s16, s16, s16, s32, s16, f32, f32, f32, f32, void *);
+s32 mapBspBoxInFrustum(s16, s16, s16, s16, s32, s16, f32, f32, f32, f32, void *);
 s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 extern f32 D_807F5FAC;
 extern void *D_807FC924;
@@ -376,7 +376,7 @@ void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
                     var_s1 = sp120;
                     effectNodeComputeBounds(node, arg0, arg1, arg2, arg3, sp98, sp120);
                 }
-                if (func_8062DBDC(((WaterTargetUpdateView *)node->target)->unk46, (s16)(temp_fs0 - temp_fs1), ((WaterTargetUpdateView *)node->target)->unk48, ((WaterTargetUpdateView *)node->target)->unk4A,
+                if (mapBspBoxInFrustum(((WaterTargetUpdateView *)node->target)->unk46, (s16)(temp_fs0 - temp_fs1), ((WaterTargetUpdateView *)node->target)->unk48, ((WaterTargetUpdateView *)node->target)->unk4A,
                                   (s32)(temp_fs0 + temp_fs1), ((WaterTargetUpdateView *)node->target)->unk4C, arg0, arg1, arg2, D_807F5FAC, var_s1) != 0 || node->pad4D[0] != 0) {
                     if ((f64)((WaterTargetUpdateView *)node->target)->unk24 != 0.0 || (f64)((WaterTargetUpdateView *)node->target)->unk28 != 0.0) {
                         effectWaterSetMeshPositionsUV(node->dl[D_807444FC], node);

@@ -322,19 +322,19 @@ void arcadeDispatchState(Gfx **arg0) {
     D_8004A78C[1]++;
 }
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_80024A50.s")
+#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/arcadeInsertHighScore.s")
 
 extern ArcadeEntity D_8004A698;
 extern u8 D_8004A774[3];
 extern u8 D_8004C720;
-void func_80024A50(s32);
+void arcadeInsertHighScore(s32);
 void arcadeCheckGameOver(void) {
     u8 rank;
     u8 i;
 
     for (rank = 0; rank < 5; rank++) {
         if (D_8004A74C[rank] < D_8004A748) {
-            func_80024A50(rank);
+            arcadeInsertHighScore(rank);
             break;
         }
     }
@@ -687,7 +687,7 @@ extern u8 D_8004BBC0[];
 void arcadeDrawTitleText(Gfx **);
 void arcadeDrawStage1Background(Gfx **);
 void arcadeDrawStage2Background(Gfx **);
-void func_800275E8(Gfx **);
+void arcadeDrawStage3Background(Gfx **);
 void arcadeDrawStage4Background(Gfx **);
 typedef struct ArcR2_Entity {
     void *ptr;
@@ -742,7 +742,7 @@ void arcadeDrawBackground(Gfx **arg0) {
             arcadeDrawStage2Background(&sp4C);
             break;
         case 3:
-            func_800275E8(&sp4C);
+            arcadeDrawStage3Background(&sp4C);
             break;
         default:
             arcadeDrawStage4Background(&sp4C);
@@ -1121,18 +1121,17 @@ typedef struct ArcadeLift {
     f32 y;
     f32 vy;
 } ArcadeLift;
-typedef ArcadeLift ArcA1_Bar;
 extern ArcadeLift D_8004BC88[];
 extern u8 D_80032F40[];
 extern ArcadeGirderSpan D_8004A7C8[];
 extern u8 D_8004BC50[];
-void func_800275E8(Gfx **arg0) {
+void arcadeDrawStage3Background(Gfx **arg0) {
     s32 i;
     s32 j;
     s32 pad[1];
     Gfx *sp90;
     ArcadeGirderSpan *pt;
-    ArcA1_Bar *bar;
+    ArcadeLift *bar;
 
     sp90 = *arg0;
     D_8004C719 = 2;
@@ -1174,7 +1173,7 @@ void func_800275E8(Gfx **arg0) {
             dlAppendTextureRectangle(&sp90, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
         }
         bar++;
-        if (bar == (ArcA1_Bar *)D_8004BCD0) break;
+        if (bar == (ArcadeLift *)D_8004BCD0) break;
     }
     arcadeDrawStage3Ladders(&sp90);
     *arg0 = sp90;

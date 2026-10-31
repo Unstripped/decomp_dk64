@@ -1,4 +1,4 @@
-// func_80028E88 (src/jetpac/3480.c): stage 6: 13 diff lines (frame/size/regs identical). lui s5,s6,s7 order matches via one-line join; (u8*)(s32)D_8002EF90 matches prologue sw order; remaining diff is prologue lui t6 vs v0 (1 temp consumed shifts ring in loop from t8/t9/t0 to t9/t0/t1) and sw zero,0x10(sp) order
+// jetpacDrawLedges (src/jetpac/3480.c): stage 6: 13 diff lines (frame/size/regs identical). lui s5,s6,s7 order matches via one-line join; (u8*)(s32)D_8002EF90 matches prologue sw order; remaining diff is prologue lui t6 vs v0 (1 temp consumed shifts ring in loop from t8/t9/t0 to t9/t0/t1) and sw zero,0x10(sp) order
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -24,14 +24,14 @@ typedef struct {
 
 extern JetpacGlobal jetpacGame;
 extern JetpacLedge jetpacLedges[];
-void func_80025700(void *, s32, s32, void *, s32);
+void jetpacGridAddTiledSprite(void *, s32, s32, void *, s32);
 extern void *D_8002DE68;
 extern void *D_8002DE80;
 extern void *D_8002DE98;
 extern u8 D_8002EF90[];
 extern u8 D_8002F060[];
 
-void func_80028E88(void) {
+void jetpacDrawLedges(void) {
     u8 *color_fp = (u8 *)(s32)D_8002EF90;
     u8 *color = color_fp;
     void *de80 = &D_8002DE80;
@@ -41,17 +41,17 @@ void func_80028E88(void) {
         JetpacLedge *cur = ledge;
         s32 j;
 
-        func_80025700(&D_8002DE68, x, y, color_fp, 0);
+        jetpacGridAddTiledSprite(&D_8002DE68, x, y, color_fp, 0);
         j = 0;
         x += 8;
         if (cur->unk30 > 0) {
             do {
-                func_80025700(de80, x, y, color, 0);
+                jetpacGridAddTiledSprite(de80, x, y, color, 0);
                 j++;
                 x += 8;
             } while (j < cur->unk30);
         }
-        func_80025700(&D_8002DE98, x, y, color, 0);
+        jetpacGridAddTiledSprite(&D_8002DE98, x, y, color, 0);
         base += 0x34;
         ledge++;
         color_fp += 0x34;

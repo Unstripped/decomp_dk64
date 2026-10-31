@@ -671,7 +671,7 @@ extern u8 D_807F7140;
 
 void renderEntryListClearTouched(s32);
 s32 renderEntryListPurgeUntouched(s32);
-s32 func_80630890(s32, f32, f32, f32, void *);
+s32 renderEntryListSortByDistance(s32, f32, f32, f32, void *);
 void modelNodeListSyncFlags(s32);
 s32 spriteListBuildDisplayChain(s32, s32, f32, f32, f32);
 s32 mapNodeBoxContainsPoint(void *, f32, f32);
@@ -719,8 +719,8 @@ void mapChunkRebuildNodeLists(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
         var_s1 = 0;
         do {
             if (D_807F6C18[var_s1].unk0 == 1 || arg3) {
-                D_807F6C18[var_s1].unk14 = func_80630890(D_807F6C18[var_s1].unk14, arg0, arg1, arg2, (void *)((u8 *)&D_807F6C18[var_s1] + 0x18));
-                D_807F6C18[var_s1].unk1C = func_80630890(D_807F6C18[var_s1].unk1C, arg0, arg1, arg2, (void *)((u8 *)&D_807F6C18[var_s1] + 0x20));
+                D_807F6C18[var_s1].unk14 = renderEntryListSortByDistance(D_807F6C18[var_s1].unk14, arg0, arg1, arg2, (void *)((u8 *)&D_807F6C18[var_s1] + 0x18));
+                D_807F6C18[var_s1].unk1C = renderEntryListSortByDistance(D_807F6C18[var_s1].unk1C, arg0, arg1, arg2, (void *)((u8 *)&D_807F6C18[var_s1] + 0x20));
             }
             var_s3 += 1;
             var_s1 += 1;
@@ -769,7 +769,7 @@ typedef struct MapNode {
     /* 0x24 */ u8 unk24;
 } MapNode; /* 0x28 */
 
-void func_8063B4C0(void *, u8);
+void modelPendingQueueInsert(void *, u8);
 
 void mapChunkUpdateModelNodes(void) {
     u8 flag;
@@ -790,7 +790,7 @@ void mapChunkUpdateModelNodes(void) {
             if (node != NULL) {
                 do {
                     next = ((MapNode *)node)->unk14;
-                    func_8063B4C0(node, flag);
+                    modelPendingQueueInsert(node, flag);
                     node = next;
                 } while (next != NULL);
             }
@@ -1334,7 +1334,7 @@ void mapChunkSetIndexOverride(s8 arg0) {
     D_807F70AB = arg0;
 }
 
-void func_8062AD28(f32, f32, f32, void *, void *);
+void frustumOrientPolyNormals(f32, f32, f32, void *, void *);
 void frustumCornersTransformByInverse(Mtx *);
 void func_8062A944(f32, f32, f32);
 void mapUpdateFogDistance(f32 *, s16);
@@ -1363,7 +1363,7 @@ void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
     D_807F7138 = (s16)(s32)D_807FC924[D_807FC929].unk288;
     func_8062A944(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
     frustumCornersTransformByInverse((Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
-    func_8062AD28(arg0, arg1, arg2, &D_807F5E68, &D_807F5E20);
+    frustumOrientPolyNormals(arg0, arg1, arg2, &D_807F5E68, &D_807F5E20);
     mapChunkClearBounds();
     mapChunkActivate(D_807FC924[D_807FC929].unk290);
     mapTriggerCollectZonesAtPoint(arg0, arg1, arg2);
@@ -1612,7 +1612,7 @@ void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4,
     for (i = 0; i < 4; i++) {
         guMtxXFMF((float (*)[4])arg8, m[i][0], m[i][1], m[i][2], &((f32 (*)[3])arg10)[i][0], &((f32 (*)[3])arg10)[i][1], &((f32 (*)[3])arg10)[i][2]);
     }
-    func_8062AD28(arg4, arg5, arg6, arg9, arg10);
+    frustumOrientPolyNormals(arg4, arg5, arg6, arg9, arg10);
 }
 #else
 
@@ -1907,7 +1907,7 @@ s32 mapTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapTriangleContainsPoint.s")
 #endif
 
-s32 func_8062DBDC(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
+s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 
 void mapCellUpdateVisibility(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     s32 idx;
@@ -1920,7 +1920,7 @@ void mapCellUpdateVisibility(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
             if (arg3 == ((MapCell *)((u8 *)D_807F70B0 + off))->unk4) {
                 if (D_807F6C18[((MapCell *)((u8 *)D_807F70B0 + off))->unk0].unk0 == 1) {
                     idx = ((MapCell *)((u8 *)D_807F70B0 + off))->unk2;
-                    if (func_8062DBDC(D_807F70B4[idx].unk0, D_807F70B4[idx].unk2, D_807F70B4[idx].unk4,
+                    if (mapBspBoxInFrustum(D_807F70B4[idx].unk0, D_807F70B4[idx].unk2, D_807F70B4[idx].unk4,
                                       D_807F70B4[idx].unk6, D_807F70B4[idx].unk8, D_807F70B4[idx].unkA,
                                       arg0, arg1, arg2, D_807F5FAC,
                                       (u8 *)&D_807F6C18[((MapCell *)((u8 *)D_807F70B0 + off))->unk0] + 0x88) != 0) {

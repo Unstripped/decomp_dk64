@@ -70,3 +70,5 @@ arcadeSpawnStage2Enemies = 0x800313B8; // type:func
 arcadeDrawNameRegistration = 0x8003159C; // type:func
 arcadeSetStageTextColor = 0x80031948; // type:func
 arcadeDrawHud = 0x800319D4; // type:func
+arcadeDrawStage3Background = 0x800275E8; // type:func
+arcadeInsertHighScore = 0x80024A50; // type:func

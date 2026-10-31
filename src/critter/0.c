@@ -696,7 +696,7 @@ extern CritterPlayer *D_807FBB48;
 extern CritterZone *critterPlayerZone;
 
 #ifdef NON_MATCHING
-void func_8002601C(CritterObj *obj) {
+void critterUpdateZoneProximity(CritterObj *obj) {
     CritterViewer *m;
     f32 lim;
     f32 fv0;
@@ -750,7 +750,7 @@ void func_8002601C(CritterObj *obj) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/func_8002601C.s")
+#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/critterUpdateZoneProximity.s")
 #endif
 
 CritterZone *critterGetZone(CritterGroup *grp, u8 idx) {
@@ -994,7 +994,7 @@ s32 func_80026A5C(CritterObj *obj, CritterGroup *grp) {
 }
 void func_800245B8(CritterObj *);
 void func_80024F28(CritterObj *);
-void func_8002601C(CritterObj *);
+void critterUpdateZoneProximity(CritterObj *);
 
 void critterDispatchAll(CritterGroup *grp) {
     s32 (*cb)(CritterObj *, CritterGroup *);
@@ -1022,7 +1022,7 @@ void critterDispatchAll(CritterGroup *grp) {
     }
     cb = func_80026A5C;
     for (var_s1 = 0; var_s1 < grp->count; var_s1++, var_s0++) {
-        func_8002601C(var_s0);
+        critterUpdateZoneProximity(var_s0);
         if (var_s0->state == 0) {
             critterUpdateIdle(var_s0, grp);
         } else {

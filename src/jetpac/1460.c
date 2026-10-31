@@ -32,7 +32,7 @@ typedef struct {
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
 f32 jetpacRandFloat(void);
-void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
+void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 void dlAppendTextureLoad(Gfx **arg0, s32 arg1);
 void func_8070F2C8(s32 arg0, s32 arg1, u8 arg2, s32 arg3);
 void dlAppendTextureRectangle(Gfx **arg0, s16 arg1, s16 arg2);
@@ -147,7 +147,7 @@ extern J1aSprite D_80042BD0[][256];
 extern u8 D_807444FC;
 void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 
-void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
+void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
     s32 ya;
     s32 h;
     s32 xd;
@@ -228,7 +228,7 @@ void func_80025700(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/func_80025700.s")
+#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/jetpacGridAddTiledSprite.s")
 #endif
 
 

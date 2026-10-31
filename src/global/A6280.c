@@ -107,20 +107,20 @@ void actorSeekTargetUpdate(void) {
 }
 
 
-typedef struct OlESub178 {
+typedef struct ActorSub178 {
     u8 unk0;
     u8 unk1;
-} OlESub178;
+} ActorSub178;
 
-typedef struct OlESub11C {
+typedef struct ActorParentRamp {
     u8 pad0[0xB8];
     f32 unkB8;
-} OlESub11C;
+} ActorParentRamp;
 
-typedef struct OlESub4 {
+typedef struct ActorModelScript {
     u8 pad0[0x64];
     u16 unk64;
-} OlESub4;
+} ActorModelScript;
 
 void func_80724CA4(s32, s32);
 void func_8067B238(Actor *, void *, f32);
@@ -129,12 +129,12 @@ void actorScriptStart(Actor *, s32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
-void func_806A18A8(void) {
-    OlESub178 *sp44;
-    OlESub11C *sp40;
+void actorUpdateRampTarget(void) {
+    ActorSub178 *sp44;
+    ActorParentRamp *sp40;
 
     sp44 = ((ActorView *)D_807FBB40)->unk178;
-    sp40 = (OlESub11C *)D_807FBB40->unk11C;
+    sp40 = (ActorParentRamp *)D_807FBB40->unk11C;
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80724CA4(2, 2);
     }
@@ -146,16 +146,16 @@ void func_806A18A8(void) {
         }
     }
     if (0.0f != sp40->unkB8) {
-        if (sp40->unkB8 > 50.0f && ((OlESub4 *)D_807FBB40->unk4)->unk64 != 0x233) {
+        if (sp40->unkB8 > 50.0f && ((ActorModelScript *)D_807FBB40->unk4)->unk64 != 0x233) {
             actorScriptStart(D_807FBB40, 0x233);
         } else if (50.0f >= sp40->unkB8) {
-            if (((OlESub4 *)D_807FBB40->unk4)->unk64 != 0x232) {
+            if (((ActorModelScript *)D_807FBB40->unk4)->unk64 != 0x232) {
                 actorScriptStart(D_807FBB40, 0x232);
             }
         }
         scriptSetActorRampTarget(D_807FBB40, sp40->unkB8 * 0.01, 4.0f);
     } else {
-        if (((OlESub4 *)D_807FBB40->unk4)->unk64 != 0x234) {
+        if (((ActorModelScript *)D_807FBB40->unk4)->unk64 != 0x234) {
             actorScriptStart(D_807FBB40, 0x234);
         }
     }
@@ -288,12 +288,12 @@ void actorPlaySoundVariantAndFinish(void) {
 static void stub_806A1FD0(void) {
 }
 
-typedef struct OlESub174 {
+typedef struct ActorSinkState {
     s16 unk0;
     u8 pad2[2];
     f32 unk4;
     f32 unk8;
-} OlESub174;
+} ActorSinkState;
 
 extern s32 D_8071FF18;
 
@@ -306,7 +306,7 @@ void func_80717D4C(void);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 
-void func_806A1FD8(void) {
+void actorSinkAndDespawn(void) {
     s32 count;
     s32 i;
     s32 node;
@@ -314,7 +314,7 @@ void func_806A1FD8(void) {
     f32 sp54;
     f32 sp50;
     f32 sp4C;
-    OlESub174 *sub;
+    ActorSinkState *sub;
     Actor *act;
 
     sub = D_807FBB40->unk174;

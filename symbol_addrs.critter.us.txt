@@ -37,3 +37,4 @@ critterRenderCenterImage = 0x800296DC; // type:func
 critterGroups = 0x80029BA0;
 critterPlayerZone = 0x80029BA4;
 critterCurrentTexture = 0x80029BA8;
+critterUpdateZoneProximity = 0x8002601C; // type:func

@@ -1,4 +1,4 @@
-// func_8002601C (src/critter/0.c): OlR2a: stage 5, 8 diff lines left (was ~50). Float regs + int ring-free first block now match: single var dist for both sums with inline (f32)zone->x - p->x squares (no dx/dz/ddy locals), and m = (CritterViewer *)((u8 *)D_807FC924 + D_807FC929 * sizeof(CritterViewer)) (cast form flips t3/t9 int ring; &D[idx] form does not). Left: second-block mul order (target mul x2, nop, mul y2, add, mul z2, add; mine 3 muls then adds) and outer bc1f+nop vs mine bc1fl+lui at (target outer branch is not likelified). Tried: empty/else arms, tail if forms, 1-2 site (0,x) wraps, assignment/temp forms of the sum (hundreds).
+// critterUpdateZoneProximity (src/critter/0.c): OlR2a: stage 5, 8 diff lines left (was ~50). Float regs + int ring-free first block now match: single var dist for both sums with inline (f32)zone->x - p->x squares (no dx/dz/ddy locals), and m = (CritterViewer *)((u8 *)D_807FC924 + D_807FC929 * sizeof(CritterViewer)) (cast form flips t3/t9 int ring; &D[idx] form does not). Left: second-block mul order (target mul x2, nop, mul y2, add, mul z2, add; mine 3 muls then adds) and outer bc1f+nop vs mine bc1fl+lui at (target outer branch is not likelified). Tried: empty/else arms, tail if forms, 1-2 site (0,x) wraps, assignment/temp forms of the sum (hundreds).
 typedef struct CritterZoneShape {
     s16 unk0;
     s16 unk2;
@@ -90,7 +90,7 @@ extern u8 D_807FC929;
 extern CritterPlayer *D_807FBB48;
 extern CritterZone *critterPlayerZone;
 
-void func_8002601C(CritterObj *obj) {
+void critterUpdateZoneProximity(CritterObj *obj) {
     CritterViewer *m;
     f32 lim;
     f32 fv0;
