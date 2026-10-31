@@ -64,7 +64,7 @@ extern u8 D_80720120;
 extern u8 D_80720340;
 extern u8 D_8072038C;
 
-s16 func_805FF018(s32, s32);
+s32 func_805FF018(s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 randomNonNegative(void);
 void actorScriptStart();
@@ -2848,13 +2848,13 @@ void eepromSavePlayerData(void);
 void func_8061B650(Actor *);
 void slotQueueClearAllFlags(void);
 
-#ifdef NON_MATCHING
 void func_806833DC(struct TagBarrelData *arg0_in) {
 #define arg0 ((TagBarrelDataN3 *)arg0_in)
     TagBarrelActorKong *kong;
     f32 dummy;
     Actor *sp34;
     TagBarrelKongSub *sp30;
+    s32 sp28_pad; // FAKE: unused home keeps sp28's spill slot below the switch temp (frame 0x40)
     s32 sp28;
 
     switch (D_807FBB40->unk155[0]) {
@@ -2921,10 +2921,6 @@ void func_806833DC(struct TagBarrelData *arg0_in) {
     }
 #undef arg0
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_806833DC.s")
-#endif
 
 typedef struct TagBarrelInputPad {
     u8 pad0[0x2C];

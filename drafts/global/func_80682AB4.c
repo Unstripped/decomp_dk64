@@ -1,4 +1,4 @@
-// func_80682AB4 (src/global/80150.c): LgC71b stage 4: 17 diff lines / 12 text. Callee audit (void/s32 all, none helps), deadsweep (no gain), temp_s5 chain forms grid (cast placement, s32 temp, split vars) none better; dropping 'dir' FAKE + (s16)(s32)(..)&0xFFF cast-first chain form matches lines 1-88 (mfc1 t0/t1/t2, lb t4) but loop-start t-ring is 5 slots off (mfc1 t2 vs t7, fcsr temps): 39 lines. register keyword not needed.
+// func_80682AB4 (src/global/80150.c): LgC71b stage 4 draft kept (17 diff lines / 12 text). W2Ring: cast-first chain without dir (matches lines 1-88 incl mfc1 t0/t1/t2, lb t4) leaves loop-start ring 5 slots off (mfc1 t2 vs t7) = 70 lines; tried 729 wrapper combos around both chains, 320 spellings of the loop-top expression, var_s1 types, loop forms (for/while/do), unk8[i] indexed IV (gives right s3 IV shape but s3/s4 swapped), dead (s16) burners before the loop: none moves the ring. Moving 'var_s3 += 4' after the second call (target puts addiu s3 after jal 2) is correct (-2 lines). The dir-FAKE form keeps the loop ring right but mfc1 coalesces into s5.
 typedef struct TagBarrelOrbitKong {
     u8 pad0[4];
     u16 unk4;
