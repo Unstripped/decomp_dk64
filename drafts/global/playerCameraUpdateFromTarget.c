@@ -1,4 +1,4 @@
-// playerCameraUpdateFromTarget (src/global/8F4B0.c): Stage 5-6: frame 0x58 + saved regs match, 340/340 insns, shape diff 2 lines (full 34 vs 44 before). Remaining: ugen t-reg numbering (expected skips 3 temps inside D_807FC624 = (D_807FC624 + 0x1E) & 0xFFF: addiu t2/andi t5 vs ours t1/t2; '& 0xFFFFFFFFFFFFFFFF' hack gives 17 but is not natural) and E-chain order (expected sll a0,sll a1,sra t1,sra t0, move a1,t0 before bnez; ours interleaved). Levers that worked: CSE'd *(Actor**)sp54 twice instead of temp var, selector shared with var_v1, temp_v0 = temp_v1_3 second multi-def var for the s16 diff, store-then-conditional-overwrite else layout. Dropped the D_8076A0A8 fake.
+// playerCameraUpdateFromTarget (src/global/8F4B0.c): Stage 5-6 (BnelOps2): frame 0x58 + saved regs match. Ring: (((s16)(D+0x1E) & 0xFFF) & 0xFFFF) store (equivalent for s16 target; (s16)/(u16)/& 0xFFFF layered casts) cuts diff 43->27 lines (best brute-force over 6^4 cast/mask wrappers = 25) but is not natural: target has 1 invisible ugen temp before addiu t2 and 2 between addiu and andi t5 (ours t3/t5 with the hack, t1/t2 without). Remaining E-chain: target sll a0,sll a1,sra t1,sra t0,move a1,t0 before bnez; ours interleaved sll/sra (chained assignment temp_v1_3=temp_v0=... shifts early ring by 1, 72 lines). Tried: += / two-statement forms, dead if on D_807FC624, comma wrappers: none helped.
 typedef struct {
     char pad[0xE4];
     s16 unkE4;
@@ -80,7 +80,7 @@ void playerCameraUpdateFromTarget(void) {
             }
         }
         if (D_807444EC && D_807444EC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        D_807FC624 = (D_807FC624 + 0x1E) & 0xFFF;
+        D_807FC624 = (((s16)(D_807FC624 + 0x1E) & 0xFFF) & 0xFFFF); // FAKE: casts/mask burn ugen temps so the t-ring lines up
         return;
     }
     if (D_807444EC != 1) {

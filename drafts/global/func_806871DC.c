@@ -1,4 +1,4 @@
-// func_806871DC (src/global/89250.c): stage 5: frame/saved regs match; remaining: chain var_v0 should be v0 web (move v0,s2; bnel v0,at; andi v0) with a separate s0 web 'move s0,v0' per case body (copy-prop merges them -> all s0); bne s6,s2 operand order; prologue andi s3/move s4 order. var_v0 s32, temp_s3 u32 cut diff 75->51 lines
+// func_806871DC (src/global/89250.c): Stage 5 (BnelOps2): frame/saved regs match; remaining ~19 diff lines. Target: chain var web A in v0 (move v0,s2 in slot of bne s6,s2; bnel v0,at,.. reads v0; case-2/3 tests slti v0) + separate web B s0 = copy at each case-body entry (move s0,v0); ours copy-propagates var_v0=var_s2 and colours everything s0. bne s6,s2 (const first) vs ours bne s2,s6; prologue andi s3 after move s4. Tried: per-case x=var_v0 copies (types s32/u8/s16/u32, pre-init x=0, post copies), switch(var_s2) chain, switch(var_v0), compare spellings (0x10==x), self-assigns (var_v0 = var_v0, +=0, (s16)/(u8) casts) at case labels/top, var_v0 typed u8/u32/s16, deadsweep (1008 variants, no gain), permuter 500 s (no gain below baseline 1055).
 void func_806871DC(u8 arg0) {
     s32 var_s2;
     u32 temp_s3;
