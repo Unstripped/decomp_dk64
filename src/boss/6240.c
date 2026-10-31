@@ -327,7 +327,7 @@ void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void actorGetOrSetNodeScale(void *, s32, f32);
 s32 actorTableContains(void *);
 void effectSpawnChildAtNode(s32, s16, s16);
-void func_806871DC(s32);
+void effectSpawnActorBoneEffects(s32);
 void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 void projectileClampAngleAndSpawn(s16, s32, s32, s32, f32, f32, f32, f32, f32, void *);
@@ -770,7 +770,7 @@ void func_8002A92C(void) {
             }
             break;
         case 4:
-            func_806871DC(0);
+            effectSpawnActorBoneEffects(0);
             sp7F = 0;
             D_807FBB40->unk80 = ((D_807FDC90->unkC + 5) - D_807FBB40->unk80) * 0.12 + D_807FBB40->unk80;
             actorTurnTowardTarget(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0);
@@ -786,10 +786,10 @@ void func_8002A92C(void) {
             }
             break;
         case 5:
-            func_806871DC(0);
+            effectSpawnActorBoneEffects(0);
             break;
         case 6:
-            func_806871DC(1);
+            effectSpawnActorBoneEffects(1);
             break;
         case 7:
             actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);

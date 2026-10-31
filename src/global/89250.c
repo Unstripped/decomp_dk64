@@ -728,7 +728,7 @@ void effectActorGrowthTick(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_806871DC(u8 arg0) {
+void effectSpawnActorBoneEffects(u8 arg0) {
     s32 var_s2;
     s16 var_s4;
     s32 var_v0;

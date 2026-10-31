@@ -67,7 +67,7 @@ void actorCollisionCheckBoundingBoxes(Actor *);
 void actorInitDamage(Actor *);
 void func_80677EC8(s32);
 s32 func_80678014(s32);
-s32 func_80678050();
+s32 actorAllocate();
 void actorDespawn(Actor *);
 s32 actorQueueOrDespawn(Actor *);
 void actorFlushDespawnQueue(void);
@@ -213,7 +213,7 @@ extern s32 (*D_8074DA30[])(s32 *);
 
 s32 actorSpawnFromInfo(ActorSpawnInfo *arg0) {
     u8 temp;
-    if (func_80678050((u16)arg0->unk0)) {
+    if (actorAllocate((u16)arg0->unk0)) {
         temp = D_8074D8D4[arg0->unk0];
         if (D_8074DA30[temp](&arg0->unk4)) {
             D_807FBB44->unk7C = arg0->unkC;
@@ -232,7 +232,7 @@ s32 actorSpawnFromInfo(ActorSpawnInfo *arg0) {
 }
 s32 actorSpawn(s32 arg0, s32 arg1) {
     u8 temp;
-    if (func_80678050((u16)arg0)) {
+    if (actorAllocate((u16)arg0)) {
         temp = D_8074D8D4[arg0];
         if (D_8074DA30[temp](&arg1)) {
             return 1;
@@ -242,7 +242,7 @@ s32 actorSpawn(s32 arg0, s32 arg1) {
 }
 
 s32 func_80678014(s32 arg0) {
-    if (func_80678050(arg0 & 0xFFFF) != 0) {
+    if (actorAllocate(arg0 & 0xFFFF) != 0) {
         func_8067B2C0(0);
         return 1;
     }
@@ -318,7 +318,7 @@ typedef struct ActorAllocBlock {
     /* 0x174 */ void *unk174;
 } ActorAllocBlock;
 
-s32 func_80678050(arg0)
+s32 actorAllocate(arg0)
 u16 arg0;
 {
     ActorAllocBlock *actor;
@@ -972,7 +972,7 @@ extern struct DamageReactionContext *D_807FD580;
 extern s32 D_807FBC08;
 extern s32 D_807FBC14;
 
-void func_80675810(Actor *, ActorCallbackNode *);
+void actorCollisionProcessHit(Actor *, ActorCallbackNode *);
 void playerHandleDamageReaction(Actor *, Actor *, u8);
 ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *);
 s32 actorCheckPointInAngleArc(Actor *, f32, f32);
@@ -1113,7 +1113,7 @@ void actorDispatchCallbacks(Actor *arg0) {
             if ((s32)var_s2->callback & sp50) {
                 switch ((s32)var_s2->callback) {
                 case 0x8000:
-                    func_80675810(arg0, var_s2);
+                    actorCollisionProcessHit(arg0, var_s2);
                     if (((GSTATE.unk200 == 9) || (GSTATE.unk200 == 0xA)) && (arg0->unk5C & 1)) {
                         playerHandleDamageReaction(arg0, GSTATE.unk1FC, (GSTATE.unk200 == 0xA));
                     }

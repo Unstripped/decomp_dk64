@@ -1,12 +1,12 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct W2Col_ActorSub174_810 {
+typedef struct CollisionHitActorSub {
     u8 pad0[0xD4];
     s16 unkD4;
-} W2Col_ActorSub174_810;
+} CollisionHitActorSub;
 
-typedef struct W2Col_Actor810 {
+typedef struct CollisionHitActor {
     u8 pad0[0x54];
     s32 unk54;
     union {
@@ -21,45 +21,45 @@ typedef struct W2Col_Actor810 {
     u32 unk60;
     u32 unk64;
     u8 pad68[0xB4];
-    struct W2Col_Actor810 *unk11C;
+    struct CollisionHitActor *unk11C;
     u8 pad120[0x12];
     s16 unk132;
     s16 unk134;
     s16 unk136;
     u8 pad138[0x3C];
-    W2Col_ActorSub174_810 *unk174;
-} W2Col_Actor810;
+    CollisionHitActorSub *unk174;
+} CollisionHitActor;
 
-typedef struct W2Col_Arg1_Elem {
+typedef struct CollisionCallbackElem {
     u8 pad0[0x18];
     s32 unk18;
-} W2Col_Arg1_Elem;
+} CollisionCallbackElem;
 
-typedef struct W2Col_Arg1 {
+typedef struct CollisionCallbackArg {
     u8 pad0[0x8];
-    W2Col_Actor810 *unk8;
+    CollisionHitActor *unk8;
     u8 padC[4];
-    W2Col_Arg1_Elem *unk10;
-} W2Col_Arg1;
+    CollisionCallbackElem *unk10;
+} CollisionCallbackArg;
 
-typedef struct W2Col_80675810_Entry {
+typedef struct CollisionInteractionEntry {
     s16 unk0;
     s16 unk2;
-    s32 (*unk4)(W2Col_Actor810 *, W2Col_Actor810 *, W2Col_Arg1 *);
+    s32 (*unk4)(CollisionHitActor *, CollisionHitActor *, CollisionCallbackArg *);
     u8 unk8;
     u8 unk9;
     u8 unkA;
     u8 unkB;
-} W2Col_80675810_Entry;
+} CollisionInteractionEntry;
 
 struct CollisionTableEntry;
 struct Beh798_Actor;
-typedef struct W2Col_8074C604 {
+typedef struct CollisionTableSlot {
     struct CollisionTableEntry *unk0;
     u8 pad4[4];
-} W2Col_8074C604;
+} CollisionTableSlot;
 
-extern W2Col_8074C604 D_8074C604[];
+extern CollisionTableSlot D_8074C604[];
 struct Beh798_8074C608;
 extern struct Beh798_8074C608 D_8074C608[];
 extern ActorGlobalState D_807FBB70;
@@ -71,15 +71,15 @@ s32 func_80676220(s16);
 void actorApplyDamage(struct Beh798_Actor *, struct Beh798_Actor *);
 void actorCollisionRunInteractionTable();
 
-void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
-    W2Col_80675810_Entry *entry;
+void actorCollisionProcessHit(CollisionHitActor *arg0, CollisionCallbackArg *arg1) {
+    CollisionInteractionEntry *entry;
     s32 done;
-    W2Col_Actor810 *temp_s2;
+    CollisionHitActor *temp_s2;
     s32 res;
     struct CollisionTableEntry *entries;
     u8 var_v1;
     s32 i;
-    W2Col_ActorSub174_810 *sub;
+    CollisionHitActorSub *sub;
     u8 tv0;
     u8 tv1;
 
@@ -105,7 +105,7 @@ void func_80675810(W2Col_Actor810 *arg0, W2Col_Arg1 *arg1) {
                 }
             } else {
                 while (!done) {  // FAKE: while (not do-while) gives the post-loop its own lda web (remat lui/addiu s0)
-                    entry = &((W2Col_80675810_Entry *)res)[i];
+                    entry = &((CollisionInteractionEntry *)res)[i];
                     if ((entry->unk0 & arg0->unk132) && (entry->unk2 & temp_s2->unk132)) {
                         if (D_8074C604) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         if (entry->unk4 != NULL) {

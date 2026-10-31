@@ -1457,7 +1457,7 @@ void actorSetUniformScale(Actor *, f32);
 void func_80728950(s32);
 void currentActorAnimSetFrame(s32, s32);
 void actorGetNodePosOrPosition(Actor *, s32 *, s32 *, s32 *);
-void func_806871DC(s32);
+void effectSpawnActorBoneEffects(s32);
 void effectSpawnChildAtNode(s32, s16, s16);
 void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnActorScale(Actor *);
@@ -1690,9 +1690,9 @@ void func_806C2DF4(void) {
             if (LgV->unk4->unk0->unk24 == 0) {
                 LgV->unk154 = 0x40;
             } else if (LgV->unk4->unk0->unk4 < 210.0f) {
-                func_806871DC(2);
+                effectSpawnActorBoneEffects(2);
             } else if (LgV->unk4->unk0->unk4 < 235.0f) {
-                func_806871DC(3);
+                effectSpawnActorBoneEffects(3);
             }
             break;
         case 0x549:
