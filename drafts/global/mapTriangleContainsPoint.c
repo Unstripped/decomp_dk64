@@ -1,112 +1,57 @@
-// mapTriangleContainsPoint (src/global/55B20.c): stage 4 (parked NON_MATCHING in 55B20.c, frame 0xC8 ok): same body as mapNodeTriangleContainsPoint. Parked form emulates the uninitialised-home reads with sp88..spA0 + named invariants fs1..fs5: text 202 lines off (arg2 stays at home, f64 coloring rotation). NEW lead (not parked): natural form WITHOUT named invariants (inline (f64)arg1, (f64)u0, centroid exprs in each switch case; vars dx,dz,ox,oz declared before fv0,fv1,fs0, default case reads them) drops diff to full=171/shape=60 but frame becomes 0xE8 (needs ~4 fewer reserved slots; every unused f64 pad = +8, int locals reserve homes: s8 ints give 0xD8) and params land in f12/f14 instead of f14/f20. Declaration-order shuffles of the parked form do nothing
-typedef struct {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ u8 pad6[6];
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[2];
-} M55P3Box;
-
+// mapTriangleContainsPoint (src/global/55B20.c): same body as mapNodeTriangleContainsPoint: stage 5 (MapB): natural f64 locals (cx,cz,c,dz,oz,ox,dx declared in a hill-climbed order + lead0 pad; mx/mz named mid sums; stale ox/oz/dx/dz read in the unexecuted default path like the target) + 7 dead-statement fakes found by a random hill-climb (cz==0.0, dz>0.0, arg1*2.0 ...). Same frame 0xC8 + callee-saved set; remaining ~75 diff lines are f64/int register rotation (target arg1->f14/arg2->f20, fs1..fs4 order px/pz/cx/cz, int load temps). Earlier 4-diff basin existed with named mx/mz (frame 0xD0, a different fake set read uninitialised locals - rejected). Parked NON_MATCHING in 55B20.c
 s32 mapTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
     f64 lead0;
-    f64 lead1;
-    f64 lead2;
-    f64 lead3;
-    f64 spA0;
-    f64 sp98;
-    f64 sp90;
-    f64 sp88;
-    f64 pad2;
-    f64 pad3;
-    f64 pad4;
-    f64 pad5;
-    f64 pad6;
-    f64 pad7;
-    f64 pad8;
-    f64 sp38;
-    f64 fs1;
-    f64 fs2;
-    f64 fs3;
-    f64 fs4;
-    f64 fs5;
-    f64 ft4;
-    f64 ft5;
-    f64 fa0;
-    f64 fa1;
-    f64 fv0;
-    f64 fv1;
-    f64 fs0;
-    s32 sgn1;
-    s32 sgn2;
-    s32 flag;
+    f64 cz;
+    f64 cx;
+    f64 c;
+    f64 dz;
+    f64 oz;
+    f64 ox;
+    f64 dx;
+    f64 mx;
+    f64 mz;
+    u16 flag;
     s32 i;
 
-    fs3 = arg1;
-    fs4 = arg2;
-    fs5 = ((M55P3Box *)arg0)->unk0;
-    sp38 = ((M55P3Box *)arg0)->unkC;
-    fs1 = (fs5 + ((f64)(((M55P3Box *)arg0)->unk4 + ((M55P3Box *)arg0)->unk2) * 0.5)) * 0.5;
-    fs2 = (sp38 + ((f64)(((M55P3Box *)arg0)->unk10 + ((M55P3Box *)arg0)->unkE) * 0.5)) * 0.5;
-    ft5 = sp88;
-    ft4 = sp90;
-    fa1 = sp98;
-    fa0 = spA0;
+    mx = (((MapCollisionNode *)arg0)->unk4 + ((MapCollisionNode *)arg0)->unk2) * 0.5;
+    mz = (((MapCollisionNode *)arg0)->unk10 + ((MapCollisionNode *)arg0)->unkE) * 0.5;
+    cx = (((MapCollisionNode *)arg0)->unk0 + mx) * 0.5;
+    cz = (((MapCollisionNode *)arg0)->unkC + mz) * 0.5;
     flag = 0;
     i = 0;
+    if (cz == 0.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
     do {
         switch (i) {
-        default:
-            fv0 = (fs3 - ft4) * fa1;
-            fv1 = (fs4 - ft5) * fa0;
-            fs0 = ((fs1 - ft4) * fa1) - ((fs2 - ft5) * fa0);
-            break;
         case 0:
-            ft4 = fs5;
-            ft5 = sp38;
-            fa1 = (f64)(((M55P3Box *)arg0)->unkE - ((M55P3Box *)arg0)->unkC);
-            fa0 = (f64)(((M55P3Box *)arg0)->unk2 - ((M55P3Box *)arg0)->unk0);
-            fv0 = (fs3 - fs5) * fa1;
-            fv1 = (fs4 - ft5) * fa0;
-            fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
+            ox = ((MapCollisionNode *)arg0)->unk0;
+            dx = ((MapCollisionNode *)arg0)->unk2 - ((MapCollisionNode *)arg0)->unk0;
+            dz = ((MapCollisionNode *)arg0)->unkE - ((MapCollisionNode *)arg0)->unkC;
+            oz = ((MapCollisionNode *)arg0)->unkC;
+            if (dz > 0.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
             break;
         case 1:
-            ft4 = fs5;
-            ft5 = sp38;
-            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkC);
-            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk0);
-            fv0 = (fs3 - fs5) * fa1;
-            fv1 = (fs4 - ft5) * fa0;
-            fs0 = ((fs1 - fs5) * fa1) - ((fs2 - ft5) * fa0);
+            oz = ((MapCollisionNode *)arg0)->unkC;
+            ox = ((MapCollisionNode *)arg0)->unk0;
+            dx = ((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk0;
+            dz = ((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkC;
+            if (arg1 * 2.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
             break;
         case 2:
-            ft4 = (f64)((M55P3Box *)arg0)->unk2;
-            ft5 = (f64)((M55P3Box *)arg0)->unkE;
-            fa0 = (f64)(((M55P3Box *)arg0)->unk4 - ((M55P3Box *)arg0)->unk2);
-            fa1 = (f64)(((M55P3Box *)arg0)->unk10 - ((M55P3Box *)arg0)->unkE);
-            fv0 = (fs3 - ft4) * fa1;
-            fv1 = (fs4 - ft5) * fa0;
-            fs0 = ((fs1 - ft4) * fa1) - ((fs2 - ft5) * fa0);
+            dx = ((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk2;
+            ox = ((MapCollisionNode *)arg0)->unk2;
+            dz = ((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkE;
+            oz = ((MapCollisionNode *)arg0)->unkE;
+            if (i) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
             break;
         }
+        c = (cx - ox) * dz - (cz - oz) * dx;
+        if (!i) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
         i++;
-        sgn1 = -1;
-        if (fv1 <= fv0) {
-            sgn1 = 1;
-        }
-        sgn2 = -1;
-        if (fs0 >= 0.0) {
-            sgn2 = 1;
-        }
-        if (sgn2 != sgn1) {
+        if (oz == 0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
+        if (((arg2 - oz) * dx <= (arg1 - ox) * dz ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
             flag = 1;
         }
     } while (i != 3);
-    sp88 = ft5;
-    sp90 = ft4;
-    sp98 = fa1;
-    spA0 = fa0;
+    if (arg1 > 0.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
     return (flag == 0) & 0xFF;
 }
