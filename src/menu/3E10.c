@@ -1323,7 +1323,6 @@ void func_8002C584(MenuScreenActor *arg0, s32 arg1) {
     D_807FBB60 |= 0x10000;
 }
 
-#ifdef NON_MATCHING
 extern u8 D_80033878;
 extern u8 D_80033F20[];
 extern s16 D_80744524[];
@@ -1367,15 +1366,14 @@ Gfx *arg1;
             arg1 = hudDrawScaledText(arg1, x, sp12C, 0.6f, sp64);
             i += 1;
             q += 1;
+            arg1 = arg1; // FAKE: no-op self-assignment steers as1 order of q++ vs arg1 move
             x += step;
         } while (i < D_80033878);
+        if (i) {} // FAKE: dead if keeps loop counter live after the loop (as1 order)
     }
     return (s32)hudDrawScaledText(arg1, 0x280, (s16)(sp12C - 0x50), 0.6f, (char *)D_80033F28[0x1F]);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002C634.s")
-#endif
 
 extern u8 D_80033878;
 extern u8 D_80033F20[];
