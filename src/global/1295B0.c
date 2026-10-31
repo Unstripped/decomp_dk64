@@ -1617,7 +1617,6 @@ void currentActorAnimSetFrame(u8 arg0, u8 arg1) {
     animSetFrameAndSubframe(D_807FBB40, arg0, arg1, 0.0f);
 }
 
-#ifdef NON_MATCHING
 typedef struct A2PtrPair {
     void *p[2];
 } A2PtrPair;
@@ -1653,7 +1652,7 @@ void actorScriptStart(void *, s32);
 void camStartShake(s32, s32, s32);
 void func_8067DF44(f32, f32, f32, f32, u8, u8);
 void effectSpawnDebrisParticles(void *, f32, f32, f32, f32);
-void func_8068B80C(s16);
+void func_8068B80C(void);
 void func_8071495C(void);
 void func_80714950(s32);
 void func_8071496C(s16);
@@ -1683,16 +1682,15 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
     f32 oy0;
     f32 oz0;
     A2PtrPair fx6;
-    s16 gap6;
     u8 idx6[2];
-    volatile u8 sel6;
-    s16 gapA;
-    s16 gapB;
+    u8 sel6;
+    s16 ex6;
+    s16 ez6;
     s16 ang6;
     f32 scale8;
     f32 kx8;
     f32 kz8;
-    s32 gapD;
+    s32 rnd10;
     f32 ox10;
     f32 oy10;
     s8 jx;
@@ -1727,7 +1725,7 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             camStartShake(gCamActor, 0x14, 0xF);
             return;
         case 2:
-            func_8068B80C(arg0);
+            func_8068B80C();
             return;
         case 3:
             actorSpawnEffectChild((f32)x, (f32)y, (f32)z, arg2 * 0.01, arg3 * 0.01, NULL, 0);
@@ -1799,7 +1797,9 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 fx6 = D_80755794;
                 *(A2BytePair *)idx6 = *(A2BytePair *)&D_8075579C;
                 sel6 = (randomNonNegative() >> 0xF) % 2;
-                ang6 = mathAngleBetweenPoints2D((f32)((ZoneEntry *)(group->unk14 + arg2))->unk0, (f32)((ZoneEntry *)(group->unk14 + arg2))->unk4, (f32)x, (f32)z);
+                ex6 = ((ZoneEntry *)(group->unk14 + arg2))->unk0;
+                ez6 = ((ZoneEntry *)(group->unk14 + arg2))->unk4;
+                ang6 = mathAngleBetweenPoints2D((f32)ex6, (f32)ez6, (f32)x, (f32)z);
                 func_807149B8(1);
                 func_807149FC(idx6[sel6]);
                 func_8071498C(func_80717404);
@@ -1836,7 +1836,8 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             return;
         case 10:
             for (i = 0; i < arg2; i++) {
-                ox10 = (f32)((randomNonNegative() >> 0xF) % 300);
+                rnd10 = randomNonNegative() >> 0xF;
+                ox10 = (f32)(rnd10 % 300);
                 oy10 = (f32)((randomNonNegative() >> 0xF) % 200);
                 func_8071495C();
                 func_80714CC0(D_8071FB34, arg3 * 0.01, ox10, oy10, -10.0f);
@@ -1873,11 +1874,6 @@ void func_807289E8(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             break;
     }
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807289E8.s")
-#endif
 
 
 
