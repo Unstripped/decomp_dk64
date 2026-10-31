@@ -1,4 +1,4 @@
-// func_8002978C (src/race/52B0.c): FE3c: stage 5 (not matched), frame 0x80/s0 match, temp spill slot now 0x2C (match): merge the case-4 'sp36' into 'ang' (one fewer sub-word named local; temp slot = lowest named word - 12). Remaining ~175 diff lines = FP ring: target's 2nd int->float chain starts at f18/f4/f6 (one hidden FP temp consumed after the 7C load, f16 skipped), ours f16/f18/f4, shifting every later FP temp; then t-reg numbering follows. Tried (no effect): dx/dz inlined or reused as lo/thr (shrinks frame), random decl orders (2500, worse), no-op FP statements, off10 named var in place of a pad.
+// func_8002978C (src/race/52B0.c): OlU FE4c: stage 5 (not matched), frame 0x80/s0, temp slot 0x2C and ang slot 0x36 match, 51 raw diff lines (deadsweep score) = FP ring only: ours colours named thr (f32 candidate, adjsave 1.5, 'thr = unk7*1.2') f12 and reloads sp4C in f16; target thr=f16, sp4C reload f8, and (sp4C-lo)/(thr-lo) temps in f12/f14, so every later FP temp is one ring slot off (mtc1 a0/f6 vs f8 etc.). Found this round: raceGetRoute (not func_8002E960) callee; unnest ang = func_806CC10C(mathAngleDiscrete(..)) into 2 statements (drops the -78 narrow temp); extra named f32 'fr' + 'f32 lo,thr,fr,ang' decl order puts ang at 0x36 with temp slot 0x2C; deadsweep 'if (D_8002FC20) {}' after thr and 'if (sp4C && sp4C) {}' in the if (133->68); 'ang = mathAngleBetweenPoints2D(..)-unk0; ang = ang & 0xFFF;' split (68->51, permuter). Tried no effect: thr/lo inline or (thr = ..) in the if, named fa/fb (dx/dz reuse), w=G2_WP pointer, void->s32 on callees, 10k-variant deadsweep, 20 min permuter.
 #include "common.h"
 
 extern void *D_807FBB40;
@@ -12,20 +12,23 @@ typedef struct {
     u8 pad1E[0x25 - 0x1E];
     u8 unk25;
     u8 unk26;
-    u8 pad27;
+    u8 unk27;
     u8 unk28;
     u8 pad29[0x30 - 0x29];
     void *unk30;
     u8 unk34;
     u8 unk35;
-    u8 pad36[0x44 - 0x36];
+    u8 unk36;
+    u8 pad37[0x44 - 0x37];
     u8 unk44;
     u8 pad45[0x104 - 0x45];
     s32 unk104;
 } RaceC_State;
 
+typedef struct RaceC_Actor RaceC_Actor;
+
 typedef struct {
-    void *unk0;
+    RaceC_Actor *unk0;
     s32 unk4;
     u8 unk8;
     u8 pad9;
@@ -45,7 +48,7 @@ typedef struct {
     u16 unk64;
 } RaceC_Sub;
 
-typedef struct {
+struct RaceC_Actor {
     u8 pad0[0x4];
     RaceC_Sub *unk4;
     u8 pad8[0x60 - 0x8];
@@ -70,10 +73,10 @@ typedef struct {
     u8 unk144;
     u8 pad145[0x174 - 0x145];
     RaceC_State *unk174;
-    s32 unk178;
-    s32 unk17C;
+    RaceC_State *unk178;
+    void *unk17C;
     RaceC_Target *unk180;
-} RaceC_Actor;
+};
 
 typedef struct {
     u8 pad0[4];
@@ -86,6 +89,8 @@ typedef struct {
 typedef struct {
     u8 pad0[0x25];
     u8 unk25;
+    u8 pad26[2];
+    u8 unk28;
 } RaceC_DC90;
 
 typedef struct {
@@ -99,25 +104,31 @@ typedef struct {
 } RaceC_DC9C;
 
 typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    u8 pad6[4];
+} RaceC_Waypoint;
+
+typedef struct {
     u8 pad0[0x14];
-    s16 *unk14;
+    RaceC_Waypoint *unk14;
 } RaceC_DCA0;
 
 extern RaceC_DC90 *D_807FDC90;
 extern RaceC_DC98 *D_807FDC98;
 extern RaceC_DC9C *D_807FDC9C;
 extern RaceC_DCA0 *D_807FDCA0;
+extern s16 D_80750AC8;
 extern u8 D_8002FC20[];
 extern u8 D_8002FC50[];
 extern f32 D_8002FC30;
 void actorScriptStart(void *, s32);
 void func_8002DE78(void *, s32, void *, void *);
-
-
 extern f32 D_8002FC28;
 extern f32 D_8002FC58;
 f32 func_8002DF38(void *, f32, void *, void *);
-void *func_8002E960(u8);
+void *raceGetRoute(u8);
 f32 func_8002F784(void *, void *, void *);
 f32 raceGetProgressPercent(void *, void *, void *);
 s32 randomLcgNext(void);
@@ -179,14 +190,15 @@ f32 func_8002978C(void) {
     u8 sp46;
     u8 sp45;
     f32 lo;
-    s16 ang;
     f32 thr;
+    f32 fr;
+    s16 ang;
 
     s0 = (RaceG2_Racer *)RC_A->unk178;
     sp74 = (RaceG2_Tgt *)RC_A->unk180;
     tmp = s0->unk30;
     sp6C = tmp->unk174;
-    sp68 = func_8002E960(sp6C->unk26);
+    sp68 = raceGetRoute(sp6C->unk26);
     sp5C = func_8002F784(sp68, s0, sp74->unk4);
     sp58 = 0.0f;
     sp47 = RC_A->unk6A & 1;
@@ -214,11 +226,15 @@ f32 func_8002978C(void) {
                 break;
         }
     }
-    ang = func_806CC10C(mathAngleDiscrete((f32)G2_WP->x, (f32)G2_WP->z, RC_A->unk7C, RC_A->unk84, sp4C), s0->unk0);
+    ang = mathAngleDiscrete((f32)G2_WP->x, (f32)G2_WP->z, RC_A->unk7C, RC_A->unk84, sp4C);
+    ang = func_806CC10C(ang, s0->unk0);
     thr = G2_WP->unk7 * 1.2;
+    if (D_8002FC20) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (sp4C < thr) {
         lo = G2_WP->unk7;
-        ang = ang * (1.0 + (1.0f - (sp4C - lo) / (thr - lo)) * 1.5 * (2.0f * s0->unk4));
+        fr = (sp4C - lo) / (thr - lo);
+        ang = ang * (1.0 + (1.0f - fr) * 1.5 * (2.0f * s0->unk4));
+        if (sp4C && sp4C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
     s0->unkC = s0->unkC + (ang * 0.0033333334f - s0->unkC) * 0.5f;
     if (s0->unk34 < 2 || s0->unk34 >= 5) {
@@ -267,7 +283,8 @@ f32 func_8002978C(void) {
                     s0->unk35 += 1;
                     break;
                 case 2:
-                    ang = (mathAngleBetweenPoints2D(RC_A->unk7C, RC_A->unk84, sp74->unk0->unk7C, sp74->unk0->unk84) - s0->unk0) & 0xFFF;
+                    ang = mathAngleBetweenPoints2D(RC_A->unk7C, RC_A->unk84, sp74->unk0->unk7C, sp74->unk0->unk84) - s0->unk0;
+                    ang = ang & 0xFFF;
                     break;
                 case 4:
                     func_8002DE78(sp74, 5, D_8002FC20, D_8002FC50);
