@@ -1,4 +1,4 @@
-// func_80675AFC (src/global/7A510.c): stage 5: frame 0x38, s0-s6/ra match, control flow matches; remaining diff inner loop unk204 indexing and delay-slot branch-likely filling (score 28)
+// func_80675AFC (src/global/7A510.c): func_80675AFC (src/global/7A510.c): stage 5, 1 insn diff: bnel operand order (t2,t0 vs t0,t2) on unk244[j]==entry->unk5 compare; needs 'if (1) found=0' and 'unkC==(two=2)' fakes + s16 two decl first; parked NON_MATCHING
 typedef struct KaP2_ActorAFC {
     u8 pad0[0x5A];
     s16 unk5A;
@@ -21,29 +21,32 @@ extern KaP2_InteractionEntry D_8074ABCC[];
 void func_80675AFC(KaP2_ActorAFC *arg0, KaP2_ActorAFC *arg1) {
     KaP2_InteractionEntry *entry;
     s32 done;
+    s16 two;
     s32 found;
     s32 j;
-    s8 temp_t1;
-    s8 temp_t0;
 
-    entry = D_8074ABCC;
     done = 0;
-    do {
+    entry = D_8074ABCC; do {
         if (func_80675C70(arg0->unk5A, arg0->unk5C, entry->unk0) &&
             func_80675C70(arg1->unk5A, arg1->unk5C, entry->unk2) &&
-            ((-1 == (temp_t1 = entry->unk4)) || D_807FBB70.unk200 == temp_t1)) {
-            found = 1;
-            if (-1 != (temp_t0 = entry->unk5)) {
-                found = 0;
-                for (j = 0; !found && j < D_807FBB70.unk201; j++) {
-                    if (arg1 == (KaP2_ActorAFC *)D_807FBB70.unk204[j] && D_807FBB70.unk244[j] == temp_t0) {
+            ((entry->unk4 == -1) || entry->unk4 == D_807FBB70.unk200)) {
+            if (entry->unk5 != -1) {
+                if (1) {  // FAKE: extra block lowers D_807FBB70 const priority vs arg1 (s0/s1 swap)
+                    found = 0;
+                }
+                for (j = 0; !found && j < D_807FBB70.unk201;) {
+                    if (arg1 == (KaP2_ActorAFC *)D_807FBB70.unk204[j] && D_807FBB70.unk244[j] == entry->unk5) {
                         found = 1;
+                    } else {
+                        j++;
                     }
                 }
+            } else {
+                found = 1;
             }
             if (found) {
-                entry->unk8(arg0, arg1, temp_t1 & 0xFF, temp_t0 & 0xFF);
-                if (entry->unkC == 0 || entry->unkC == 2) {
+                entry->unk8(arg0, arg1, entry->unk4 & 0xFF, entry->unk5 & 0xFF);
+                if (entry->unkC == 0 || entry->unkC == (two = 2)) {  // FAKE: makes the constant 2 a register operand (bnel v0,s6 order)
                     done = 1;
                 }
             }

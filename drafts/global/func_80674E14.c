@@ -1,4 +1,4 @@
-// func_80674E14 (src/global/79890.c): func_80674E14 (src/global/79890.c): stage 5: matches control flow and frame 0xA8, remaining diff regalloc and Node unk24/26/27 bitfield tests
+// func_80674E14 (src/global/79890.c): func_80674E14 (src/global/79890.c): stage 5, 2 insn diff: order of lw s8,4(t6)/lw s7,0(t6) loads from sub140 (target loads 8,4,0,C; all 24 source permutations tried); needs 'i++; entry++;' on one line; parked NON_MATCHING
 typedef struct KaN5_NodeE14 {
     u8 pad0[0x10];
     s32 unk10;
@@ -16,7 +16,6 @@ typedef struct KaN5_Sub140E14 {
     s32 unk0;
     s32 unk4;
     s32 unk8;
-    s32 sub_unk8;
     s32 unkC;
     u8 pad10[0x7C];
     KaN5_NodeE14 *unk8C;
@@ -42,21 +41,25 @@ typedef struct KaN5_ActorE14 {
 
 typedef struct KaN5_ActorEntryE14 {
     KaN5_ActorE14 *actor;
+    s32 unk4;
 } KaN5_ActorEntryE14;
 
 extern u16 gActiveActorCount;
 extern KaN5_ActorEntryE14 gActiveActors[];
-extern void *D_807FB620;
-extern void *D_807FB624;
+struct Beh798_Node;
+struct Beh7982_80675180_0;
+struct Beh7982_80675180_4;
+extern struct Beh798_Node *D_807FB620;
+extern struct Beh798_Node *D_807FB624;
 extern s32 D_807FB628;
 
 s32 func_80679010(void *, void *);
 s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
 void actorUpdateCollisionSpheres(void *, s32);
 f32 func_80675234(s32, s32, s32, s32, s32, s32, s32);
-void func_80675180();
-void func_806752D4();
-void func_80675380();
+void func_80675180(struct Beh7982_80675180_0 *, f32, f32, f32, struct Beh7982_80675180_4 *, f32 *, f32 *, f32 *);
+void func_806752D4(s32, f32, f32, f32, f32, s32, s32);
+void func_80675380(s32, void *);
 
 void func_80674E14(KaN5_ActorE14 *arg0) {
     s32 i;
@@ -89,35 +92,33 @@ void func_80674E14(KaN5_ActorE14 *arg0) {
     if (gActiveActorCount > 0) {
         entry = gActiveActors;
         do {
-            if (D_807FB620) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_807FB620 = NULL;
             D_807FB624 = NULL;
             D_807FB628 = 0;
             actor = entry->actor;
             s0 = 0;
-            if (actor->unk114 != NULL && (actor_sub140 = actor->unk140, (actor->unk60 & 0x40) && func_80679010(actor, arg0))) {
+            actor_sub140 = actor->unk140;
+            if (actor->unk114 != NULL && (actor->unk60 & 0x40) && func_80679010(actor, arg0)) {
                 s0 = 1;
             }
             if ((arg0->unk60 & 0x80) && func_80679010(arg0, actor)) {
                 s0 = 1;
             }
             if ((actor->unk60 & 0x2000) == 0 &&
-                actor_sub140 != sub140 &&
+                sub140 != actor_sub140 &&
                 actor->unk144 != 1 &&
                 (actor->unk60 & 0x10) &&
                 s0 == 0 &&
                 func_80674ADC(sub_unk0, sub_unk4, sub_unk8, sub_unkC,
                               actor_sub140->unk0, actor_sub140->unk4, actor_sub140->unk8, actor_sub140->unkC)) {
                 actorUpdateCollisionSpheres(arg0, 0);
-                actorUpdateCollisionSpheres(actor, 0);
                 var_s4 = 1;
-                node1 = sub140->unk8C;
-                if (node1 != NULL) {
-                    while (node1->unk26 != 0 && (node1->unk27 & 8) == 0) {
-                        node2 = actor_sub140->unk8C;
+                actorUpdateCollisionSpheres(actor, 0);
+                for (node1 = sub140->unk8C; node1 != NULL; node1 = node1->next, var_s4++) {
+                    if (node1->unk26 != 0 && (node1->unk27 & 8) == 0) {
                         var_s2 = 1;
-                        if (node2 != NULL) {
-                            while (node2->unk26 != 0 && (node2->unk27 & 8) == 0) {
+                        for (node2 = actor_sub140->unk8C; node2 != NULL; node2 = node2->next, var_s2++) {
+                            if (node2->unk26 != 0 && (node2->unk27 & 8) == 0) {
                                 if (func_80674ADC(node1->unk10, node1->unk14, node1->unk18, node1->unk1C,
                                                   node2->unk10, node2->unk14, node2->unk18, node2->unk1C)) {
                                     mask1 = ~node1->unk24;
@@ -125,19 +126,13 @@ void func_80674E14(KaN5_ActorE14 *arg0) {
                                     if ((mask1 & actor->unk5C) && (mask2 & arg0->unk5C)) {
                                         dist = func_80675234(sub_unk0, sub_unk4, sub_unk8,
                                                              node2->unk10, node2->unk14, node2->unk18, node2->unk1C);
-                                        func_80675180((void *)actor_sub140, arg0->unk7C, arg0->unk80, arg0->unk84, (void *)node2,
+                                        func_80675180((struct Beh7982_80675180_0 *)actor_sub140, arg0->unk7C, arg0->unk80, arg0->unk84, (struct Beh7982_80675180_4 *)node2,
                                                       &sp70, &sp6C, &sp68);
                                         func_806752D4(arg0->unk54, dist, sp70, sp6C, sp68, var_s4, var_s2);
                                     }
                                 }
-                                node2 = node2->next;
-                                var_s2++;
-                                if (node2 == NULL) break;
                             }
                         }
-                        node1 = node1->next;
-                        var_s4++;
-                        if (node1 == NULL) break;
                     }
                 }
             }

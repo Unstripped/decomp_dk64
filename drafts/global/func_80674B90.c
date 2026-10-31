@@ -1,4 +1,4 @@
-// func_80674B90 (src/global/79890.c): func_80674B90 (src/global/79890.c): stage 5: matches control flow and frame 0xC8, remaining diff regalloc (anglePitch vs posY in s7/spill) and local stack offsets (142/143 vs 189/190)
+// func_80674B90 (src/global/79890.c): func_80674B90 (src/global/79890.c): stage 5, frame 0xC8 + control flow OK, stack offsets match (0x8f/0xc4/0xa0/0x74); remaining: foundCb=1 store uses s5 (target li t2,1 late), t-scratch renumbering, blez/blezl and move s2 position after cb->count load; parked NON_MATCHING
 typedef struct KaN5_Node {
     u8 pad0[0x10];
     s32 unk10;
@@ -60,28 +60,26 @@ void func_806755A8();
 
 u8 func_80674B90(KaN5_Actor *arg0, KaN5_Actor *arg1, f32 *arg2, f32 *arg3) {
     KaN5_Callback *cb;
-    KaN5_Sub140 *sub140;
-    u8 pad;
-    u8 foundCb;
-    u8 matched;
-    s32 pad2[2];
-    s16 *anglePitch;
-    KaN5_Elem *elem;
-    KaN5_Node *node;
-    s32 i;
-    s32 j;
     f32 posX_f;
     f32 posY_f;
     f32 posZ_f;
-    s32 posZ;
     s32 posX;
     s32 posY;
-    s16 *angleYaw;
+    s32 posZ;
+    KaN5_Elem *elem;
+    KaN5_Node *node;
+    KaN5_Sub140 *sub140;
+    s32 i;
+    s32 j;
+    f32 elemX_f;
+    s32 pad2[1];
+    u8 foundCb;
+    u8 matched;
 
+    cb = arg0->unk13C;
     matched = 0;
     foundCb = 0;
     D_807FB606 = 0;
-    cb = arg0->unk13C;
     sub140 = arg0->unk140;
     actorUpdateCollisionSpheres(arg0, 1);
     if (!actorTableContains(arg1)) {
@@ -95,30 +93,22 @@ u8 func_80674B90(KaN5_Actor *arg0, KaN5_Actor *arg1, f32 *arg2, f32 *arg3) {
     if (cb != NULL) {
         do {
             if (cb->type == 0x8000 && cb->actor == arg1) {
-                if (D_807FB606 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 elem = cb->elems;
                 foundCb = 1;
-                if (D_807FB606 && D_807FB606) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                if (cb->count > 0) {
-                    anglePitch = &arg1->unkF6;
-                    angleYaw = &arg1->unkF4;
-                    posX = (s32)(posX_f * 8.0f);
-                    posY = (s32)(posY_f * 8.0f);
-                    posZ = (s32)(posZ_f * 8.0f);
-                    for (j = 0; j < cb->count; j++, elem++) {
-                        node = sub140->unk8C;
-                        for (i = elem->unk14 - 1; i != 0; i--) {
-                            node = node->next;
-                        }
-                        if (func_80674ADC(posX, posY, posZ, (s32)(elem->unk0 * 8.0f),
-                                          node->unk10, node->unk14, node->unk18, node->unk1C)) {
-                            matched = 1;
-                            func_80675478(arg0, elem, arg2, arg3);
-                        }
-                        func_806755A8(posX, posZ, node->unk10, node->unk18, (s32)angleYaw, (s32)anglePitch);
-                        arg1->unkFC = 1;
-                        arg1->unkFD = 1;
+                for (j = 0; j < cb->count; j++, elem++) {
+                    elemX_f = elem->unk0;
+                    node = sub140->unk8C;
+                    for (i = elem->unk14 - 1; i != 0; i--) {
+                        node = node->next;
                     }
+                    if (func_80674ADC((s32)(posX_f * 8.0f), (s32)(posY_f * 8.0f), (s32)(posZ_f * 8.0f), (s32)(elemX_f * 8.0f),
+                                      node->unk10, node->unk14, node->unk18, node->unk1C)) {
+                        matched = 1;
+                        func_80675478(arg0, elem, arg2, arg3);
+                    }
+                    func_806755A8((s32)(posX_f * 8.0f), (s32)(posZ_f * 8.0f), node->unk10, node->unk18, (s32)&arg1->unkF4, (s32)&arg1->unkF6);
+                    arg1->unkFC = 1;
+                    arg1->unkFD = 1;
                 }
             }
             cb = cb->next;
