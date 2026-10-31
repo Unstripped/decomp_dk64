@@ -72,7 +72,7 @@ u16 camStartPath();
 void actorUpdateModelMatrix(Actor *, s32);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void actorDespawn(Actor *);
+s32 actorDespawn(Actor *);
 void func_8067B4C8(void);
 void func_8067BA7C(s32);
 s32 tagBarrelCheckProximityAndFall(s32, u8 *, u8 *, u8 *);
@@ -1564,7 +1564,7 @@ typedef struct TagBarrelKongSubState {
 
 typedef struct TagBarrelOrbitActor {
     u8 pad0[0x12C];
-    s32 unk12C;
+    s16 unk12C;
 } TagBarrelOrbitActor;
 
 
@@ -1579,16 +1579,16 @@ void func_806C8E58(s16);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 struct TagBarrelData;
 
-#ifdef NON_MATCHING
 void func_806836D0(struct TagBarrelData *arg0_in) {
     TagBarrelDataN4 *arg0 = (TagBarrelDataN4 *)arg0_in;
-    s32 pad[4];
-    volatile u16 sp4A;
+    u16 sp4A;
+    s32 var_s0;
+    s32 pad2;
+    s32 pad[2];
     Actor *sp34;
     TagBarrelKongSubState *sp30;
+    s32 light;
     s32 sp28;
-    s32 var_s0;
-    s32 temp_t3;
 
     var_s0 = arg0->unk4;
     sp4A = var_s0;
@@ -1599,20 +1599,16 @@ void func_806836D0(struct TagBarrelData *arg0_in) {
     }
     arg0->unk3C++;
     if (var_s0 == 0 && func_805FCA64() != 0) {
-        temp_t3 = arg0->unk3C >= 9001;
         var_s0 = ((Actor *)arg0->unk8[arg0->unk6])->unk58 == 0x13C;
-        if (((D_807FD610.unk30 >= 0x29) && !temp_t3) || !var_s0) {
+        sp28 = arg0->unk3C >= 9001;
+        if (((D_807FD610.unk30 >= 0x29) && !sp28) || !var_s0) {
             arg0->unk4 = 20;
             if (((Actor *)arg0->unk8[arg0->unk6])->unk58 == 0x13C) {
                 func_80682DF4(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->unk174, 0x8C);
             }
             arg0->unk7 = arg0->unk6;
             if (var_s0) {
-                if (D_807FD610.unk2E < 0) {
-                    arg0->unk20 = -1;
-                } else {
-                    arg0->unk20 = 1;
-                }
+                arg0->unk20 = (D_807FD610.unk2E >= 0) ? 1 : -1;
             }
             arg0->unk6 += arg0->unk20;
             if (arg0->unk6 < 0) {
@@ -1624,20 +1620,20 @@ void func_806836D0(struct TagBarrelData *arg0_in) {
                 func_80682DF4(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->unk174, 0x8B);
             }
         } else {
-            if (!temp_t3 && sp4A != 0) {
+            if (!sp28 && sp4A != 0) {
                 sfxSetChannelParam(0x65, 0x7E - D_8074E848[arg0->unk6], 3);
                 sfxSetChannelParam(0x65, D_8074E848[arg0->unk6], 2);
                 return;
             }
-            if (((temp_t3 && var_s0) || (D_807FD610.unk2C & 0xE000)) && screenWipeGetState() == 0) {
+            if (((sp28 && var_s0) || (D_807FD610.unk2C & 0xE000)) && screenWipeGetState() == 0) {
                 if (var_s0) {
                     sp34 = arg0->unk0;
                     sp30 = sp34->unk174;
-                    sp28 = ((TagBarrelOrbitActor *)sp34)->unk12C;
-                    if (sp28 == -1) {
-                        sp28 = 0;
+                    light = ((TagBarrelOrbitActor *)sp34)->unk12C;
+                    if (light == -1) {
+                        light = 0;
                     }
-                    lightSetColor(arg0->unk2C, arg0->unk30, arg0->unk34, sp28);
+                    lightSetColor(arg0->unk2C, arg0->unk30, arg0->unk34, (s16)light);
                     D_807FBB60 |= 0x30030;
                     sfxStopChannel(0x48, 0);
                     sfxStopChannel(0x6B, 0);
@@ -1671,10 +1667,6 @@ void func_806836D0(struct TagBarrelData *arg0_in) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_806836D0.s")
-#endif
 
 s32 tagBarrelIsKongUnlocked(ActorGroup5 *arg0, s32 arg1) {
     s32 type = arg0->unk8[arg1]->unk58;
@@ -1696,16 +1688,13 @@ extern u32 D_8076A064;
 
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, s32);
-s32 textGetFontHeight(s32);
+u32 textGetFontHeight(s32);
 
 Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
+    u8 padF8[0xC];
     f32 spF8;
+    s32 pad244;
     f32 spF0;
-    u8 pad70[0x40];
-    s32 sp6C;
-    u8 pad48[0x24];
-    s32 sp44;
-    f32 temp_fa0;
     f32 temp_fa0_2;
     f32 temp_fa0_3;
     f32 temp_fa1;
@@ -1721,47 +1710,39 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
     f32 var_fv0_2;
     f32 var_fv1;
     f32 var_fv1_2;
-    s32 temp_ft3;
     s32 temp_v0;
     TagBarrelDataN3 *temp_s1;
+    s32 spX;
+    u8 pad70[0x38];
+    s32 sp6C;
+    s32 sp44;
 
     temp_s1 = (TagBarrelDataN3 *)arg1->unk174;
-    temp_fa0 = (f32) ((f64) (D_80744494 - 0x1E) * 4.0);
+    spF0 = (f32)((f64)(D_80744494 - 0x1E) * 4.0);
     if (arg1->unk154 != 1) {
         return arg0;
     }
-    arg0->words.w0 = 0xDE000000;
-    arg0->words.w1 = (u32)&D_1000118;
-    arg0++;
-    arg0->words.w0 = 0xFCFFFFFF;
-    arg0->words.w1 = 0xFFFCF279;
-    arg0++;
-    arg0->words.w0 = 0xDA380007;
-    arg0->words.w1 = (u32)&D_20000C0;
-    arg0++;
-    arg0->words.w0 = 0xDA380003;
-    arg0->words.w1 = (u32)&D_2000180;
-    arg0++;
-    temp_ft3 = (s32) temp_fa0;
-    sp44 = (s16) temp_ft3;
-    spF0 = temp_fa0;
-    arg0 = renderRotatedSprite(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, 0xA0, (s16)temp_ft3, 5.0f, 5.0f, 0, 0.0f);
-    arg0 = renderRotatedSprite(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, (s32)((f64)(D_80744490 - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f);
+    gSPDisplayList(arg0++, &D_1000118);
+    gDPSetCombineMode(arg0++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+    gSPMatrix(arg0++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(arg0++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    sp44 = (s16)(s32)spF0;
+    arg0 = renderRotatedSprite(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, 0xA0, sp44, 5.0f, 5.0f, 0, 0.0f);
+    arg0 = renderRotatedSprite(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, spX = (s32)((f64)(D_80744490 - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f); // FAKE: spX keeps arg 7 in an int temp (no swc1 merge)
     spF8 = (f32)(u32)temp_s1->unk4 * 0.05f;
     sp6C = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk6);
     spF0 -= (f32) textGetFontHeight(1) * 1.2f;
-    arg0[0].words.w0 = 0xFCFF97FF;
-    arg0[0].words.w1 = 0xFF2CFE7F;
-    arg0++;
+    gDPSetCombineLERP(arg0++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     if (sp6C != 0) {
         temp_fv0 = 1.0f - spF8;
         temp_fv1 = temp_fv0 * 0.5f;
         var_fa0 = temp_fv1;
-        if (temp_s1->unk20 < 0) {
+        if (temp_s1->unk20 >= 0) { // FAKE: empty arm flips the branch polarity/float reg colouring
+        } else {
             var_fa0 = 1.0f - temp_fv1;
         }
         temp_fv1_2 = 2.0f * temp_fv0;
-        temp_fa0_2 = var_fa0 * ((f32) D_80744490 * 4.0f);
+        var_fa0 *= (f32)D_80744490 * 4.0f;
         if (temp_fv1_2 < 1.0f) {
             var_fv0 = 0.0f;
         } else {
@@ -1773,10 +1754,9 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
             }
             var_fv0 = var_fv1;
         }
-        arg0[0].words.w0 = 0xFA000000;
-        arg0[0].words.w1 = (s32) (((u32) (var_fv0 * 255.0f) & 0xFF) | ~0xFF);
-        arg0++;
-        arg0 = hudDrawScaledText(arg0, (s16) (s32) temp_fa0_2, (s16) (s32) spF0, 0.15f, sp6C);
+        var_fv0 *= 255.0f;
+        gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, (u32)var_fv0);
+        arg0 = hudDrawScaledText(arg0, (s16)(s32)var_fa0, (s16)(s32)spF0, 0.6f, sp6C);
     }
     if (temp_s1->unk4 != 0) {
         temp_v0 = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk7);
@@ -1787,7 +1767,7 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
                 var_fa0_2 = 1.0f - temp_fv0_3;
             }
             temp_fv0_4 = 2.0f * spF8;
-            temp_fa0_3 = var_fa0_2 * ((f32) D_80744490 * 4.0f);
+            var_fa0_2 *= (f32)D_80744490 * 4.0f;
             if (temp_fv0_4 < 1.0f) {
                 var_fv0_2 = 0.0f;
             } else {
@@ -1799,10 +1779,9 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
                 }
                 var_fv0_2 = var_fv1_2;
             }
-            arg0[0].words.w0 = 0xFA000000;
-            arg0[0].words.w1 = (s32) (((u32) (var_fv0_2 * 255.0f) & 0xFF) | ~0xFF);
-            arg0++;
-            arg0 = hudDrawScaledText(arg0, (s16) (s32) temp_fa0_3, (s16) (s32) spF0, 0.15f, temp_v0);
+            var_fv0_2 *= 255.0f;
+            gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, (u32)var_fv0_2);
+            arg0 = hudDrawScaledText(arg0, (s16)(s32)var_fa0_2, (s16)(s32)spF0, 0.6f, temp_v0);
         }
     }
     return arg0;
