@@ -1,10 +1,10 @@
-// func_80030C14 (src/menu/3E10.c): stage 6 (parked NON_MATCHING): text/frame/stack/rodata identical, only reg numbering: harness diff 55 -> 33 lines. Remaining: case 2/3/10 '(s32)sp64' CSE temp v1 (target v0) with 'multu v1,a1' operand order (target 'multu a1,v0', result 'mflo a1' accumulates into idx's a1), then t-reg ring shift; case 15 hoisted lui base regs a3/t0 (target t8/t7 ring temps). Found by NM4 exhaustive dead-stmt sweep (3 rounds beam 2/3, ~10k variants/round) + hill-climb 500 iters: 'if (D_80033F68) {}' (bare array name) before 'arg0->unk364 = D_80033F98[idx]' fixes idx a2->a1 (case 15 address-temp order), 'if (D_80033FAD && D_80033FAD) {}' after the idx accumulate, 'if (D_80033F98) {}', 'if (D_800337DC) {}' in case 15; 'idx = idx*(s32)sp64 - unk17*(s32)sp64 - (s32)(unk4*sp64); t = (s16)idx;' (accumulate into idx, then t) brought (s32)sp64 to v0 alone (but idx to v1) and the dead stmts restore idx=a1. Single-insert sweep exhausted at 33; uopt -l 5 shows cand 264 ((s32)sp64) 'forbidden [1]' (v0) in mine, not in target: live-range difference, not found.
-typedef struct MenuL5_Rgba {
+// func_80030C14 (src/menu/3E10.c): stage 6 (parked NON_MATCHING): harness diff 33 -> 2 lines (one store order). Text/frame/regs identical; only 'swc1 f0,0(v1)' (D_80033F68[idx]=-200) is emitted before the 2nd D_80033F98[idx] load instead of after the unk364 store. Cause: the regalloc fix needs E (F68 store) BEFORE the dead 'if (arg0) {}' and D (unk364=F98[idx]) AFTER it so the F80/F98 address temps (298/301) drop to adjsave 1.5 while F68's (295) stays 3.0 (colour order 295, idx(2.4), 298, 301 -> v1,a1,a0,a2 = target); in target source order (D before E) as1 keeps E after D. Recipe: (1) idx *= (s32)sp64; idx -= ...; idx -= ... sequential (no temp for the first product); (2) FAKE 'if (arg0 && arg0 && arg0) {}' in inner case 3 lowers idx priority 3.0->2.4; (3) case 15 order A B C E [FAKE if (arg0) {}] D F. Not tried: any source form that keeps D before E but still gives adj(298)=adj(301)<adj(idx)<adj(295). No other dead stmts left.
+typedef struct MenuRgba {
     u8 r;
     u8 g;
     u8 b;
     u8 a;
-} MenuL5_Rgba;
+} MenuRgba;
 
 typedef struct MenuL5_Cfg {
     f32 unk0;
@@ -45,7 +45,7 @@ typedef struct MenuL5_Actor {
     s16 unk392;
 } MenuL5_Actor;
 
-extern MenuL5_Rgba D_800337DC[];
+extern MenuRgba D_800337DC[];
 s32 func_8003155C(void *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
 
 void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
@@ -85,8 +85,8 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 arg0->unk36B = sp4A;
                 arg0->unk36C = sp4A;
                 arg0->unk36D = sp48;
-                arg0->unk38E = *(s16 *)((u8 *)D_807FC924 + 0x270);
-                arg0->unk392 = *(s16 *)((u8 *)D_807FC924 + 0x274);
+                arg0->unk38E = D_807FC924->unk270;
+                arg0->unk392 = D_807FC924->unk274;
                 if (arg0->unk344 < 360.0) {
                     if ((f64)arg0->unk340 < 640) {
                         arg0->unk392 = 0x78;
@@ -119,7 +119,7 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
             arg0->unk344 = c->unkC + (f32)off;
             if (type == 8) {
                 D_80033FAC = 0;
-                t = *((s8 *)D_807ECDEC + 2);
+                t = D_807ECDEC->unk2;
                 if (t >= 0xB) {
                     arg0->unk340 += (f32)t;
                     if (arg0->unk340 > 960.0f) {
@@ -217,6 +217,7 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 sp68 = 65.0f;
                 break;
             case 3:
+                if (arg0 && arg0 && arg0) {} // FAKE: lowers idx colouring priority below the case-15 address temps
                 sp4C = 3;
                 sp64 = 1365.0f;
                 sp68 = 55.0f;
@@ -227,8 +228,9 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 sp68 = 50.0f;
                 break;
             }
-            idx = idx * (s32)sp64 - p->unk17 * (s32)sp64 - (s32)(p->unk4 * sp64);
-            if (D_80033FAD && D_80033FAD) {}
+            idx *= (s32)sp64;
+            idx -= p->unk17 * (s32)sp64;
+            idx -= (s32)(p->unk4 * sp64);
             t = (s16)idx;
             arg0->unk340 = 160.0f - func_80612794(t) * sp68;
             arg0->unk344 = 120.0f - func_80612790(t) * sp68;
@@ -245,15 +247,13 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
             break;
         }
         case 15: {
-            if (D_80033F98) {}
             idx = (s32)c->unk8;
             arg0->unk340 = D_80033F68[idx];
             arg0->unk344 = D_80033F80[idx];
             arg0->unk360 = D_80033F98[idx];
-            if (D_80033F68) {}
-            arg0->unk364 = D_80033F98[idx];
-            if (D_800337DC) {}
             D_80033F68[idx] = -200.0f;
+            if (arg0) {} // FAKE: lowers the two later case-15 address temps below idx
+            arg0->unk364 = D_80033F98[idx];
             D_80033F80[idx] = -200.0f;
             if (*(&D_80033804 + idx) == 0) {
                 arg0->unk36A = *((u8 *)D_800337DC + (idx << 2));

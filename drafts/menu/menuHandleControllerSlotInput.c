@@ -1,5 +1,5 @@
-// menuHandleControllerSlotInput (src/menu/3E10.c): stage 3 (frame 0x88 OK, 712 insns vs 714, no s2). Dummy u1-u3 locals dropped (frame is 0x88 without them, since s2's save slot is absorbed); 's32 t' in the 0x80 clamp removes the sll/sra (target has none). Remaining structural diffs: (1) &D_80033FAD never gets a saved reg: target recomputes lui/addiu s2 at 0x30e8 (head), 0x322c (else-chain top) and 0x37f8 (tail, hoisted BEFORE both calls) = one lda web live across calls; mine gives t7/t8/s0 per region. Direct-global form + dead 'if (D_80033FAD ...) {}' (greedy depth 4: positions in head/0x40 block/tail) does produce s2 but leaves 6-8 extra insns (720) or struct diffs;  everywhere, array decl, u8/s32 type, register, cnt first, 'cnt' re-assigned per region: no s2. (2) j-loop: target hoists li 1/sllv + addu above the bnez (no branch-likely, 'or a3,a3,t5'); mine bnezl+addiu and 'or a3,t4,a3'; tried bit local, mask u8/u32/s32, |=, order of the 3 stores (no change). (3) unkC/unkE v1/a2 colour swap at entry. (4) m=(arg1^D_80033858)&arg1 'and' lands in the delay slot (target computes before cur test). Swept: exhaustive dead-stmt greedy (4 forms x D_80033FAD/E, 80750AC0, 80744520, fields unkC/unkE), mask-type x form x call-arg matrix. NOTE: IDO treats an expression as a uopt candidate (e.g. xor v1) only when it is a separate statement/var (see func_8002C634 recipe).
-typedef struct MenuL3_S174 {
+// menuHandleControllerSlotInput (src/menu/3E10.c): stage 3 (frame 0x88 OK but no s2: 711 insns vs 714). Fixed this round (vs old draft): (1) head 'step = sp84->unkC; step = sp84->unkE - step;' gives target lh v1,12/lh a2,14/subu v0,a2,v1; (2) j-loop 'bits = 1 << j;' BEFORE the if + 'mask = (mask | bits) & 0xFF' BEFORE the D_807552E4 store gives li/addu/andi/bnez + sllv in the delay slot and 'or a3,a3,t'; (3) 'lim = (arg1 ^ D_80033858) & arg1; m = lim;' gives 'and v1' + 'move s0,v1' in the bnez delay slot. Remaining: ONLY &D_80033FAD never in s2: target keeps ONE lda candidate (lui/addiu s2 at head block 0x30e8, else-chain top 0x322c, tail top 0x37f8 before both calls) - ours has head/else pieces in ugen t7/t8 and tail piece in s0 (cnt local form). Direct-global form has no head/else hoist at all (worse). Dead-stmt/permuter/cnt variants of the previous attempts do not produce s2 without extra insns. Consequences of missing s2: frame spill slots 56 vs 68, ' 5' order at tail, one lw 132(sp) placement in the 0x40 branch.
+typedef struct OlR_S174 {
     f32 unk0;
     f32 unk4;
     char pad8[4];
@@ -10,14 +10,14 @@ typedef struct MenuL3_S174 {
     char pad14[2];
     s8 unk16;
     s8 unk17;
-} MenuL3_S174;
+} OlR_S174;
 
-typedef struct MenuL3_Pad {
+typedef struct OlR_Pad {
     char pad0[2];
     s8 unk2;
     s8 unk3;
     char pad4[2];
-} MenuL3_Pad;
+} OlR_Pad;
 
 extern s8 D_80033F50;
 extern s8 D_80033FAD;
@@ -40,11 +40,11 @@ extern s8 D_8076A0E5;
 extern s8 D_8076A0E6;
 extern s8 D_8076A0E7;
 extern u8 D_807ECD09;
-extern MenuL3_Pad D_807ECD10[];
+extern OlR_Pad D_807ECD10[];
 void func_8071458C();
 
 void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
-    MenuL3_S174 *sp84 = *(MenuL3_S174 **)((u8 *)arg0 + 0x174);
+    OlR_S174 *sp84 = *(OlR_S174 **)((u8 *)arg0 + 0x174);
     s32 step;
     s32 rest;
     s32 m;
@@ -59,7 +59,8 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
     s8 *cnt = (s8 *)(s32)&D_80033FAD;
     s16 cur;
 
-    step = sp84->unkE - sp84->unkC;
+    step = sp84->unkC;
+    step = sp84->unkE - step;
     if (step >= 0x15) {
         step = 0x14;
     }
@@ -85,10 +86,11 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                 mask = 0;
                 D_80750AC0 = 0;
                 for (j = 0; j != 4; j++) {
+                    bits = 1 << j;
                     if (!(D_8076A0E4[j] & 0x80)) {
                         D_8074E77C[j] = D_8076A0E4[j];
+                        mask = (mask | bits) & 0xFF;
                         D_807552E4[4 + D_80750AC0] = D_8076A100[j];
-                        mask = (mask | (1 << j)) & 0xFF;
                         D_80750AC0 += 1;
                     }
                 }
@@ -127,7 +129,8 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                 }
             }
             cur = sp84->unkC;
-            m = (arg1 ^ D_80033858) & arg1;
+            lim = (arg1 ^ D_80033858) & arg1;
+            m = lim; // FAKE: temp copy keeps the and in its own candidate
             if (cur == 0 && D_80033FAE == 0) {
                 i = 0;
                 do {
