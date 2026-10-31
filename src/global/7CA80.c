@@ -585,12 +585,12 @@ static void func_8067880C(void) {}
 static void func_80678814(void) {}
 static void func_8067881C(void) {}
 
-#ifdef NON_MATCHING
 void actorUpdateActiveList(u8);
 void actorGlobalCallbacksDispatchAndFree();
 void actorDelayedCallbacksTick(void);
 
-ActorCallbackNode *D_807FBFE0[4]; // text matches only when this TU defines D_807FBFE0..FEC (.bss carve 0x807FBFE0-0x807FBFF0)
+ActorCallbackNode *D_807FBFE0[4];
+
 void actorGlobalCallbacksReset(void) {
     s32 i;
 
@@ -607,10 +607,6 @@ void actorGlobalCallbacksReset(void) {
     actorFlushDespawnQueue();
     actorDelayedCallbacksTick();
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/actorGlobalCallbacksReset.s")
-#endif
 
 extern void (*D_8074C0A0[])(void);
 void func_80678CC8(Actor *);
@@ -632,7 +628,6 @@ void actorUpdateActiveList(u8 arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_806789E4(void) {
     s32 i;
     s32 j;
@@ -654,10 +649,6 @@ void func_806789E4(void) {
     actorGlobalCallbacksDispatchAndFree(1);
     func_80678B04();
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_806789E4.s")
-#endif
 
 void func_80678B04(void) {
     s32 i;
