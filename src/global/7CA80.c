@@ -249,7 +249,6 @@ s32 func_80678014(s32 arg0) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 extern u16 *D_8074E218[];
 extern u16 D_8074DA58[];
 extern u32 D_807FBB64;
@@ -268,8 +267,8 @@ typedef struct ActorAllocBlock {
     /* 0x60 */ u32 unk60;
     /* 0x64 */ u32 unk64;
     /* 0x68 */ s16 unk68;
-    /* 0x6A */ s16 unk6A;
-    /* 0x6C */ s16 unk6C;
+    /* 0x6A */ u16 unk6A;
+    /* 0x6C */ u16 unk6C;
     /* 0x6E */ s16 unk6E;
     /* 0x70 */ s16 unk70;
     u8 pad72[6];
@@ -300,7 +299,7 @@ typedef struct ActorAllocBlock {
     u8 pad12E[2];
     /* 0x130 */ u8 unk130;
     /* 0x131 */ u8 unk131;
-    /* 0x132 */ u16 unk132;
+    /* 0x132 */ s16 unk132;
     u8 pad134[4];
     /* 0x138 */ s32 unk138;
     /* 0x13C */ void *unk13C;
@@ -370,8 +369,7 @@ u16 arg0;
         actor->unk68 = 0;
         actor->unk156 = 0;
         actor->unk78 = 0;
-        actor->unk6C = 1;
-        actor->unk6A = 1;
+        actor->unk6A = actor->unk6C = 1;
         actor->unk132 = 1;
         actor->unk114 = NULL;
         actor->unk118 = NULL;
@@ -385,6 +383,7 @@ u16 arg0;
         actor->unk14C = NULL;
         actor->unkD4 = &D_80748D4A;
         actor->unk146 = -1;
+        actor->unk5C = D_8074D624[arg0];
         actor->unkDA = 0x400;
         actor->unkCC = 0;
         actor->unkCD = 0;
@@ -393,7 +392,6 @@ u16 arg0;
         actor->unk16D = 0xF;
         actor->unkCE = 0;
         actor->unkB0 = -1;
-        actor->unk5C = D_8074D624[arg0];
         actor->unk54 = D_807FBB38;
         D_807FBB38++;
         actorTableInsert((Actor *)actor);
@@ -407,10 +405,6 @@ u16 arg0;
     }
     return 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/func_80678050.s")
-#endif
 
 void actorDespawn(Actor *arg0) {
     actorListRemoveByActor();

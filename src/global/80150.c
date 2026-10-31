@@ -2598,7 +2598,6 @@ void sfxAllocateChannel(s32, f32);
 void slotQueueUpdate(s32, u8, s32);
 void func_806C7BAC(void *, Actor *);
 
-#ifdef NON_MATCHING
 void func_80681E18(void) {
     TagBarrelGroundHit *var_v1;
     s32 pad[3];
@@ -2658,7 +2657,7 @@ void func_80681E18(void) {
         D_807FBB40->unk128 = 0;
         actorAppendCallback(var_v1->unk4, (s32)D_807FBB40, 0x40, 1, 0, 0);
         func_8067AAB8((s32)D_807FBB40, var_v1->unk4, var_v1->unk4->unkE6, (f32) D_80750390, 0);
-        func_806C7BAC((s32)var_v1->unk4, D_807FBB40);
+        func_806C7BAC(var_v1->unk4, D_807FBB40);
         ((TagBarrelActorD580 *)D_807FD580)->unk1A3 = 1;
         D_807FBB40->unk154 = 3;
         break;
@@ -2666,9 +2665,8 @@ void func_80681E18(void) {
         if (D_807FBB70.unk0 != 0) {
             D_807FBB40->unk60 |= 0x8000;
             D_807FBB40->unk144 = 2;
-            if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            D_807FBB40->unk154 = 0;
             D_807FBB40->unk60 &= ~0x200000;
+            D_807FBB40->unk154 = 0;
         }
         break;
     case 4:
@@ -2690,16 +2688,11 @@ void func_80681E18(void) {
         break;
     case 20: {
         s16 i;
-        if (D_807FBB70.unk254 > 0) {
-            i = 0;
-            do {
-                if (D_807FBB70.unk258[i++] == 1) {
-                    D_807FBB40->unk144 = 2;
-                    D_807FBB40->unk154 = 0x15;
-                    if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                }
-                if (D_807FBB40 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            } while (i < D_807FBB70.unk254);
+        for (i = 0; i < D_807FBB70.unk254; i++) {
+            if (D_807FBB70.unk258[i] == 1) {
+                D_807FBB40->unk144 = 2;
+                D_807FBB40->unk154 = 0x15;
+            }
         }
         break;
     }
@@ -2713,10 +2706,6 @@ void func_80681E18(void) {
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_80681E18.s")
-#endif
 
 typedef struct CannonState {
     u8 unk0;
