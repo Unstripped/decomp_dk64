@@ -1361,9 +1361,8 @@ s32 collisionCheckTriangleXZBoundsS16(CollisionMeshTriS *arg0, s32 arg1, s32 arg
     return 1;
 }
 
-#ifdef NON_MATCHING
 s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
-    f64 t0_d;
+    f64 t0_d; // pad: reproduces slot layout (unused)
     f64 hx;
     f64 pad0[1]; // pad: reproduces slot layout (unused)
     f64 var_fv0;
@@ -1372,8 +1371,8 @@ s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
     f64 pad1[1]; // pad: reproduces slot layout (unused)
     f64 hz;
     f64 mid_z;
-    f64 d_arg2;
-    f64 d_arg1;
+    f64 d_arg2; // pad: reproduces slot layout (unused)
+    f64 d_arg1; // pad: reproduces slot layout (unused)
     f64 var_fv1;
     f64 pad2[1]; // pad: reproduces slot layout (unused)
     f64 var_fs0;
@@ -1383,25 +1382,22 @@ s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
 
     hx = (f64)(arg0[1] + arg0[2]) * 0.5;
     hz = (f64)(arg0[7] + arg0[8]) * 0.5;
-    t0_d = arg0[0];
-    mid_x = (t0_d + hx) * 0.5;
+    mid_x = ((f64)arg0[0] + hx) * 0.5;
     t1_d = arg0[6];
     mid_z = (t1_d + hz) * 0.5;
-    d_arg1 = arg1;
-    d_arg2 = arg2;
 
     for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
             var_fa0 = (f64)(arg0[1] - arg0[0]);
             var_fa1 = (f64)(arg0[7] - arg0[6]);
-            var_ft4 = t0_d;
+            var_ft4 = (f64)arg0[0];
             var_ft5 = t1_d;
             break;
         case 1:
             var_fa0 = (f64)(arg0[2] - arg0[0]);
             var_fa1 = (f64)(arg0[8] - arg0[6]);
-            var_ft4 = t0_d;
+            var_ft4 = (f64)arg0[0];
             var_ft5 = t1_d;
             break;
         case 2:
@@ -1412,8 +1408,8 @@ s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
             break;
         }
 
-        var_fv0 = (d_arg1 - var_ft4) * var_fa1;
-        var_fv1 = (d_arg2 - var_ft5) * var_fa0;
+        var_fv0 = ((f64)arg1 - var_ft4) * var_fa1;
+        var_fv1 = ((f64)arg2 - var_ft5) * var_fa0;
         var_fs0 = ((mid_x - var_ft4) * var_fa1) - ((mid_z - var_ft5) * var_fa0);
 
         if ((var_fv1 <= var_fv0 ? 1 : -1) != (var_fs0 >= 0.0 ? 1 : -1)) {
@@ -1423,10 +1419,6 @@ s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
 
     return (mismatch == 0) & 0xFF;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80668C30.s")
-#endif
 
 #ifdef NON_MATCHING
 typedef struct {

@@ -683,8 +683,6 @@ void slotQueueAddValue(s32, s32, s32);
 
 void func_806A7600(void *);
 
-#ifdef NON_MATCHING
-
 typedef struct AA960ConfigInt {
     s32 unk0;
     s32 unk4;
@@ -730,7 +728,6 @@ void func_806A7600(void *arg0) {
         temp_v1->unk0 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk0;
         temp_v1->unk1 = ((AA960ConfigInt *)D_807FBB40->unk124)->unk4;
         temp_v1->unk2 = pathPlaybackStart(D_807FBB40, temp_v1->unk0, 0, 0.0f, 0.0f, 0.0f, 0);
-        if (temp_v1 && temp_v1) {}  // FAKE: deadsweep: extra temp_v1 use blocks the s8 unk2 store->load forwarding and hoists the else-branch temp_v1 reload
         if (temp_v1->unk2 != -1) {
             func_807232B8(temp_v1->unk2, 1);
             func_80723284(temp_v1->unk2, temp_v1->unk1);
@@ -794,27 +791,22 @@ void func_806A7600(void *arg0) {
                 D_807FBB40->unk144 = 1;
             }
         }
-    }
-    if (D_807FBD70 == 4) {
-        func_80686CF8(D_807FBB40);
-        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
-        actorDespawn(D_807FBB40);
-        if (D_807FBB40->unk58 == 0x93) {
-            func_80724994(3, 1, 0x27, 0, 0);
-        } else {
-            if (temp_v1->unk6 != -1) {
-                flagSet(temp_v1->unk6, 1, 0);
+        if (D_807FBD70 == 4) {
+            func_80686CF8(D_807FBB40);
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
+            actorDespawn(D_807FBB40);
+            if (D_807FBB40->unk58 == 0x93) {
+                func_80724994(3, 1, 0x27, 0, 0);
+            } else {
+                if (temp_v1->unk6 != -1) {
+                    flagSet(temp_v1->unk6, 1, 0);
+                }
+                slotQueueUpdate(0, 0, 0);
+                slotQueueAddValue(0, 0, 0xA);
             }
-            slotQueueUpdate(0, 0, 0);
-            slotQueueAddValue(0, 0, 0xA);
         }
     }
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/AA960/func_806A7600.s")
-#endif
 
 extern u8 D_80720FBC;
 void func_806A7B04(void) {
